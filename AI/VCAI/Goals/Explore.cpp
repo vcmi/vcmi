@@ -122,7 +122,6 @@ TGoalVec Explore::getAllPossibleSubgoals()
 		}
 	}
 
-	auto primaryHero = ai->primaryHero().h;
 	for(auto h : heroes)
 	{
 		for(auto obj : objs) //double loop, performance risk?
@@ -199,9 +198,9 @@ bool Explore::hasReachableNeighbor(const int3 &pos, HeroPtr hero, CCallback * cb
 }
 
 int Explore::howManyTilesWillBeDiscovered(
-	const int3 & pos, 
-	int radious, 
-	CCallback * cbp, 
+	const int3 & pos,
+	int radious,
+	CCallback * cbp,
 	const TeamState * ts,
 	VCAI * aip,
 	HeroPtr h) const
@@ -212,8 +211,8 @@ int Explore::howManyTilesWillBeDiscovered(
 		for(int y = pos.y - radious; y <= pos.y + radious; y++)
 		{
 			int3 npos = int3(x, y, pos.z);
-			if(cbp->isInTheMap(npos) 
-				&& pos.dist2d(npos) - 0.5 < radious 
+			if(cbp->isInTheMap(npos)
+				&& pos.dist2d(npos) - 0.5 < radious
 				&& !ts->fogOfWarMap[npos.x][npos.y][npos.z]
 				&& hasReachableNeighbor(npos, h, cbp, aip))
 			{
@@ -277,7 +276,7 @@ TSubgoal Explore::explorationNewPoint(HeroPtr h) const
 
 	int3 mapSize = cbp->getMapSize();
 	int perimiter = 2 * radius * (mapSize.x + mapSize.y);
-	
+
 	std::vector<int3> from;
 	std::vector<int3> to;
 

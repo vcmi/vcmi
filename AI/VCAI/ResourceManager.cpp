@@ -131,7 +131,7 @@ Goals::TSubgoal ResourceManager::collectResourcesForOurGoal(ResourceObjective &o
 			break;
 		}
 	}
-	if (resourceType == Res::INVALID) //no needed resources has 0 income, 
+	if (resourceType == Res::INVALID) //no needed resources has 0 income,
 	{
 		//find the one which takes longest to collect
 		typedef std::pair<Res::ERes, float> timePair;
@@ -160,7 +160,7 @@ Goals::TSubgoal ResourceManager::whatToDo() const //suggest any goal
 	if (queue.size())
 	{
 		auto o = queue.top();
-		
+
 		auto allResources = cb->getResourceAmount(); //we don't consider savings, it's out top-priority goal
 		if (allResources.canAfford(o.resources))
 			return o.goal;
@@ -186,9 +186,9 @@ Goals::TSubgoal ResourceManager::whatToDo(TResources &res, Goals::TSubgoal goal)
 		accumulatedResources += it->resources;
 
 		logAi->trace(
-			"ResourceManager: checking goal %s, accumulatedResources=%s, available=%s", 
-			it->goal->name(), 
-			accumulatedResources.toString(), 
+			"ResourceManager: checking goal %s, accumulatedResources=%s, available=%s",
+			it->goal->name(),
+			accumulatedResources.toString(),
 			allResources.toString());
 
 		if(!accumulatedResources.canBeAfforded(allResources))
@@ -312,16 +312,19 @@ bool ResourceManager::removeOutdatedObjectives(std::function<bool(const Goals::T
 	{ //unfortunately we can't use remove_if on heap
 		auto it = boost::find_if(queue, [&](const ResourceObjective & ro) -> bool
 		{
-			predicate(ro.goal);
+			return predicate(ro.goal);
 		});
+
 		if(it != queue.end()) //removed at least one
 		{
 			logAi->debug("Removing goal %s from ResourceManager.", it->goal->name());
 			queue.erase(queue.s_handle_from_iterator(it));
 			removedAnything = true;
 		}
-		else //found nothing more to remove
+		else
+		{ //found nothing more to remove
 			break;
+		}
 	}
 	return removedAnything;
 }

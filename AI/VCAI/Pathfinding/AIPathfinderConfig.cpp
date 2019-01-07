@@ -77,9 +77,9 @@ namespace AIPathfinding
 		bool isAffordableBy(HeroPtr hero, const AIPathNode * source) const
 		{
 			logAi->trace(
-				"Hero %s has %d mana and needed %d and already spent %d", 
-				hero->name, 
-				hero->mana, 
+				"Hero %s has %d mana and needed %d and already spent %d",
+				hero->name,
+				hero->mana,
 				getManaCost(hero),
 				source->manaCost);
 
@@ -215,7 +215,7 @@ namespace AIPathfinding
 		}
 
 		bool tryEmbarkVirtualBoat(
-			CDestinationNodeInfo &destination, 
+			CDestinationNodeInfo &destination,
 			const PathNodeInfo &source,
 			std::shared_ptr<const VirtualBoatAction> virtualBoat) const
 		{
@@ -232,7 +232,7 @@ namespace AIPathfinding
 				{
 					AIPathNode * boatNode = boatNodeOptional.get();
 
-					if(boatNode->action == CGPathNode::NOT_SET)
+					if(boatNode->action == CGPathNode::UNKNOWN)
 					{
 						boatNode->specialAction = virtualBoat;
 						destination.blocked = false;

@@ -63,7 +63,7 @@ boost::optional<AIPathNode *> AINodeStorage::getOrCreateNode(const int3 & pos, c
 CGPathNode * AINodeStorage::getInitialNode()
 {
 	auto hpos = hero->getPosition(false);
-	auto initialNode = 
+	auto initialNode =
 		getOrCreateNode(hpos, hero->boat ? EPathfindingLayer::SAIL : EPathfindingLayer::LAND, NORMAL_CHAIN)
 		.get();
 
@@ -99,7 +99,7 @@ void AINodeStorage::commit(CDestinationNodeInfo & destination, const PathNodeInf
 		dstNode->action = destination.action;
 		dstNode->theNodeBefore = srcNode->theNodeBefore;
 		dstNode->manaCost = srcNode->manaCost;
-		
+
 		if(dstNode->specialAction)
 		{
 			dstNode->specialAction->applyOnDestination(getHero(), destination, source, dstNode, srcNode);
@@ -193,7 +193,6 @@ bool AINodeStorage::isTileAccessible(int3 pos, const EPathfindingLayer layer) co
 {
 	std::vector<AIPath> paths;
 	auto chains = nodes[pos.x][pos.y][pos.z][layer];
-	auto initialPos = hero->visitablePos();
 
 	for(const AIPathNode & node : chains)
 	{
