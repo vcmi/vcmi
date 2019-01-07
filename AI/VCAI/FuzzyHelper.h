@@ -33,6 +33,7 @@ public:
 	float evaluate(Goals::GatherArmy & g);
 	float evaluate(Goals::ClearWayTo & g);
 	float evaluate(Goals::CompleteQuest & g);
+	float evaluate(Goals::AdventureSpellCast & g);
 	float evaluate(Goals::Invalid & g);
 	float evaluate(Goals::AbstractGoal & g);
 	void setPriority(Goals::TSubgoal & g);

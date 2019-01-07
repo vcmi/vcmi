@@ -57,15 +57,17 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 	//TODO: include evaluation of monsters gather in calculation
 	for(auto t : cb->getTownsInfo())
 	{
-		auto pos = t->visitablePos();
-		if(ai->isAccessibleForHero(pos, hero))
+		auto waysToVisit = ai->ah->howToVisitObj(hero, t);
+
+		if(waysToVisit.size())
 		{
 			//grab army from town
 			if(!t->visitingHero && howManyReinforcementsCanGet(hero.get(), t))
 			{
 				if(!vstd::contains(ai->townVisitsThisWeek[hero], t))
-					ret.push_back(sptr(VisitTile(pos).sethero(hero)));
+					vstd::concatenate(ret, waysToVisit);
 			}
+
 			//buy army in town
 			if (!t->visitingHero || t->visitingHero == hero.get(true))
 			{
@@ -118,15 +120,20 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 		else
 		   return false;
 	});
+
 	for(auto h : otherHeroes)
 	{
 		// Go to the other hero if we are faster
-		if (!vstd::contains(ai->visitedHeroes[hero], h)
-			&& ai->isAccessibleForHero(h->visitablePos(), hero, true)) //visit only once each turn //FIXME: this is only bug workaround
-			ret.push_back(sptr(VisitHero(h->id.getNum()).setisAbstract(true).sethero(hero)));
-		// Let the other hero come to us
-		if (!vstd::contains(ai->visitedHeroes[h], hero))
-			ret.push_back(sptr(VisitHero(hero->id.getNum()).setisAbstract(true).sethero(h)));
+		if(!vstd::contains(ai->visitedHeroes[hero], h))
+		{
+			vstd::concatenate(ret, ai->ah->howToVisitObj(hero, h));
+		}
+
+		// Go to the other hero if we are faster
+		if(!vstd::contains(ai->visitedHeroes[h], hero))
+		{
+			vstd::concatenate(ret, ai->ah->howToVisitObj(h, hero.get()));
+		}
 	}
 
 	std::vector<const CGObjectInstance *> objs;
@@ -161,6 +168,7 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 			}
 		}
 	}
+
 	for(auto h : cb->getHeroesInfo())
 	{
 		for(auto obj : objs)

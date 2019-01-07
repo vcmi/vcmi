@@ -112,6 +112,7 @@ public:
 	std::shared_ptr<CCallback> myCb;
 
 	std::unique_ptr<boost::thread> makingTurn;
+	ObjectInstanceID selectedObject;
 
 	AIhelper * ah;
 
