@@ -88,6 +88,11 @@ bool AIhelper::hasTasksLeft() const
 	return resourceManager->hasTasksLeft();
 }
 
+bool AIhelper::removeOutdatedObjectives(std::function<bool(const Goals::TSubgoal&)> predicate)
+{
+	return resourceManager->removeOutdatedObjectives(predicate);
+}
+
 bool AIhelper::canAfford(const TResources & cost) const
 {
 	return resourceManager->canAfford(cost);
