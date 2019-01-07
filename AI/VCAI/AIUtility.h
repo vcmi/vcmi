@@ -159,9 +159,6 @@ void foreach_tile_pos(CCallback * cbp, std::function<void(CCallback * cbp, const
 void foreach_neighbour(const int3 & pos, std::function<void(const int3 & pos)> foo);
 void foreach_neighbour(CCallback * cbp, const int3 & pos, std::function<void(CCallback * cbp, const int3 & pos)> foo); // avoid costly retrieval of thread-specific pointer
 
-int howManyTilesWillBeDiscovered(const int3 & pos, int radious, CCallback * cbp, HeroPtr hero);
-void getVisibleNeighbours(const std::vector<int3> & tiles, std::vector<int3> & out);
-
 bool canBeEmbarkmentPoint(const TerrainTile * t, bool fromWater);
 bool isBlockedBorderGate(int3 tileToHit);
 bool isBlockVisitObj(const int3 & pos);
@@ -181,7 +178,6 @@ bool compareArmyStrength(const CArmedInstance * a1, const CArmedInstance * a2);
 bool compareArtifacts(const CArtifactInstance * a1, const CArtifactInstance * a2);
 ui64 howManyReinforcementsCanBuy(const CArmedInstance * h, const CGDwelling * t);
 ui64 howManyReinforcementsCanGet(const CArmedInstance * h, const CGTownInstance * t);
-int3 whereToExplore(HeroPtr h);
 uint32_t distanceToTile(const CGHeroInstance * hero, int3 pos);
 
 class CDistanceSorter

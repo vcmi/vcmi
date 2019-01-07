@@ -105,6 +105,11 @@ std::vector<AIPath> PathfindingManager::getPathsToTile(HeroPtr hero, int3 tile)
 	return pathfinder->getPathInfo(hero, tile);
 }
 
+bool PathfindingManager::isTileAccessible(HeroPtr hero, int3 tile)
+{
+	return pathfinder->isTileAccessible(hero, tile);
+}
+
 Goals::TGoalVec PathfindingManager::findPath(
 	HeroPtr hero,
 	crint3 dest,

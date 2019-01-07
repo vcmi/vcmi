@@ -131,9 +131,6 @@ public:
 	void tryRealize(Goals::Invalid & g);
 	void tryRealize(Goals::AbstractGoal & g);
 
-	int3 explorationBestNeighbour(int3 hpos, int radius, HeroPtr h);
-	int3 explorationNewPoint(HeroPtr h);
-	int3 explorationDesperate(HeroPtr h);
 	bool isTileNotReserved(const CGHeroInstance * h, int3 t) const; //the tile is not occupied by allied hero and the object is not reserved
 
 	std::string getBattleAIName() const override;

@@ -78,6 +78,11 @@ ui64 FuzzyHelper::estimateBankDanger(const CBank * bank)
 
 float FuzzyHelper::evaluate(Goals::VisitTile & g)
 {
+	if(g.parent)
+	{
+		g.parent->accept(this);
+	}
+
 	return visitTileEngine.evaluate(g);
 }
 
@@ -108,6 +113,11 @@ float FuzzyHelper::evaluate(Goals::CompleteQuest & g)
 
 float FuzzyHelper::evaluate(Goals::VisitObj & g)
 {
+	if(g.parent)
+	{
+		g.parent->accept(this);
+	}
+
 	return visitObjEngine.evaluate(g);
 }
 float FuzzyHelper::evaluate(Goals::VisitHero & g)

@@ -60,6 +60,7 @@ public:
 	Goals::TGoalVec howToVisitTile(int3 tile) override;
 	Goals::TGoalVec howToVisitObj(ObjectIdRef obj) override;
 	std::vector<AIPath> getPathsToTile(HeroPtr hero, int3 tile) override;
+	bool isTileAccessible(HeroPtr hero, int3 tile) override;
 	void resetPaths() override;
 
 private:
