@@ -528,11 +528,18 @@ creInfo infoFromDC(const dwellingContent & dc)
 ui64 howManyReinforcementsCanBuy(const CArmedInstance * h, const CGDwelling * t)
 {
 	ui64 aivalue = 0;
-
+	TResources availableRes = cb->getResourceAmount();
 	int freeHeroSlots = GameConstants::ARMY_SIZE - h->stacksCount();
+
 	for(auto const dc : t->creatures)
 	{
 		creInfo ci = infoFromDC(dc);
+
+		if(!ci.count || ci.creID == -1)
+			continue;
+
+		vstd::amin(ci.count, availableRes / ci.cre->cost); //max count we can afford
+
 		if(ci.count && ci.creID != -1) //valid creature at this level
 		{
 			//can be merged with another stack?
@@ -547,6 +554,7 @@ ui64 howManyReinforcementsCanBuy(const CArmedInstance * h, const CGDwelling * t)
 
 			//we found matching occupied or free slot
 			aivalue += ci.count * ci.cre->AIValue;
+			availableRes -= ci.cre->cost * ci.count;
 		}
 	}
 
