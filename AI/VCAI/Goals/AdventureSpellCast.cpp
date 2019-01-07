@@ -31,7 +31,7 @@ TSubgoal AdventureSpellCast::whatToDoToAchieve()
 	if(!hero.validAndSet())
 		throw cannotFulfillGoalException("Invalid hero!");
 
-	auto spell = spellID.toSpell();
+	auto spell = getSpell();
 
 	logAi->trace("Decomposing adventure spell cast of %s for hero %s", spell->name, hero->name);
 
@@ -49,7 +49,26 @@ TSubgoal AdventureSpellCast::whatToDoToAchieve()
 
 void AdventureSpellCast::accept(VCAI * ai)
 {
+	if(town && spellID == SpellID::TOWN_PORTAL)
+	{
+		ai->selectedObject = town->id;
+	}
+
+	auto wait = cb->waitTillRealize;
+
+	cb->waitTillRealize = true;
 	cb->castSpell(hero.h, spellID, tile);
+	ai->ah->resetPaths();
+
+	if(town && spellID == SpellID::TOWN_PORTAL)
+	{
+		// visit town
+		ai->moveHeroToTile(town->visitablePos(), hero);
+	}
+
+	cb->waitTillRealize = wait;
+
+	throw goalFulfilledException(sptr(*this));
 }
 
 std::string AdventureSpellCast::name() const

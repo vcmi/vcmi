@@ -113,13 +113,13 @@ public:
 	std::vector<AIPath> getChainInfo(int3 pos, bool isOnLand) const;
 	bool isTileAccessible(int3 pos, const EPathfindingLayer layer) const;
 
-	void setHero(HeroPtr heroPtr)
-	{
-		hero = heroPtr.get();
-	}
+	void setHero(HeroPtr heroPtr);
 
 	const CGHeroInstance * getHero() const
 	{
 		return hero;
 	}
+
+private:
+	void calculateTownPortalTeleportations(const PathNodeInfo & source, std::vector<CGPathNode *> & neighbours);
 };

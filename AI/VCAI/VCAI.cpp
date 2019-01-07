@@ -741,9 +741,7 @@ void VCAI::showMapObjectSelectDialog(QueryID askID, const Component & icon, cons
 {
 	NET_EVENT_HANDLER;
 	status.addQuery(askID, "Map object select query");
-	requestActionASAP([=](){ answerQuery(askID, 0); });
-
-	//TODO: Town portal destination selection goes here
+	requestActionASAP([=](){ answerQuery(askID, selectedObject.getNum()); });
 }
 
 void VCAI::saveGame(BinarySerializer & h, const int version)

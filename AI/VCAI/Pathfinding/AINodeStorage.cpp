@@ -9,7 +9,12 @@
 */
 #include "StdInc.h"
 #include "AINodeStorage.h"
+#include "../Goals/Goals.h"
+#include "../../../CCallback.h"
+#include "../../../lib/mapping/CMap.h"
+#include "../../../lib/mapObjects/MapObjects.h"
 
+extern boost::thread_specific_ptr<CCallback> cb;
 
 AINodeStorage::AINodeStorage(const int3 & Sizes)
 	: sizes(Sizes)
@@ -133,26 +138,126 @@ std::vector<CGPathNode *> AINodeStorage::calculateNeighbours(
 	return neighbours;
 }
 
+void AINodeStorage::setHero(HeroPtr heroPtr)
+{
+	hero = heroPtr.get();
+}
+
+class TownPortalAction : public ISpecialAction
+{
+private:
+	const CGTownInstance * target;
+	const HeroPtr  hero;
+
+public:
+	TownPortalAction(const CGTownInstance * target)
+		:target(target)
+	{
+	}
+
+	virtual Goals::TSubgoal whatToDo(HeroPtr hero) const override
+	{
+		const CGTownInstance * targetTown = target; // const pointer is not allowed in settown
+
+		return sptr(Goals::AdventureSpellCast(hero, SpellID::TOWN_PORTAL).settown(targetTown).settile(targetTown->visitablePos()));
+	}
+};
+
 std::vector<CGPathNode *> AINodeStorage::calculateTeleportations(
 	const PathNodeInfo & source,
 	const PathfinderConfig * pathfinderConfig,
 	const CPathfinderHelper * pathfinderHelper)
 {
 	std::vector<CGPathNode *> neighbours;
-	auto accessibleExits = pathfinderHelper->getTeleportExits(source);
-	auto srcNode = getAINode(source.node);
 
-	for(auto & neighbour : accessibleExits)
+	if(source.isNodeObjectVisitable())
 	{
-		auto node = getOrCreateNode(neighbour, source.node->layer, srcNode->chainMask);
+		auto accessibleExits = pathfinderHelper->getTeleportExits(source);
+		auto srcNode = getAINode(source.node);
 
-		if(!node)
-			continue;
+		for(auto & neighbour : accessibleExits)
+		{
+			auto node = getOrCreateNode(neighbour, source.node->layer, srcNode->chainMask);
 
-		neighbours.push_back(node.get());
+			if(!node)
+				continue;
+
+			neighbours.push_back(node.get());
+		}
+	}
+
+	if(hero->getPosition(false) == source.coord)
+	{
+		calculateTownPortalTeleportations(source, neighbours);
 	}
 
 	return neighbours;
+}
+
+void AINodeStorage::calculateTownPortalTeleportations(
+	const PathNodeInfo & source,
+	std::vector<CGPathNode *> & neighbours)
+{
+	SpellID spellID = SpellID::TOWN_PORTAL;
+	const CSpell * townPortal = spellID.toSpell();
+	auto srcNode = getAINode(source.node);
+
+	if(hero->canCastThisSpell(townPortal) && hero->mana >= hero->getSpellCost(townPortal))
+	{
+		auto towns = cb->getTownsInfo(false);
+
+		vstd::erase_if(towns, [&](const CGTownInstance * t) -> bool
+		{
+			return cb->getPlayerRelations(hero->tempOwner, t->tempOwner) == PlayerRelations::ENEMIES;
+		});
+
+		if(!towns.size())
+		{
+			return;
+		}
+
+		// TODO: Copy/Paste from TownPortalMechanics
+		auto skillLevel = hero->getSpellSchoolLevel(townPortal);
+		auto movementCost = GameConstants::BASE_MOVEMENT_COST * (skillLevel >= 3 ? 2 : 3);
+
+		if(hero->movement < movementCost)
+		{
+			return;
+		}
+
+		if(skillLevel < SecSkillLevel::ADVANCED)
+		{
+			const CGTownInstance * nearestTown = *vstd::minElementByFun(towns, [&](const CGTownInstance * t) -> int
+			{
+				return hero->visitablePos().dist2dSQ(t->visitablePos());
+			});
+
+			towns = std::vector<const CGTownInstance *>{ nearestTown };
+		}
+
+		for(const CGTownInstance * targetTown : towns)
+		{
+			if(targetTown->visitingHero)
+				continue;
+
+			auto nodeOptional = getOrCreateNode(targetTown->visitablePos(), EPathfindingLayer::LAND, srcNode->chainMask | CAST_CHAIN);
+
+			if(nodeOptional)
+			{
+#ifdef VCMI_TRACE_PATHFINDER
+				logAi->trace("Adding town portal node at %s", targetTown->name);
+#endif
+
+				AIPathNode * node = nodeOptional.get();
+
+				node->theNodeBefore = source.node;
+				node->specialAction.reset(new TownPortalAction(targetTown));
+				node->moveRemains = source.node->moveRemains;
+				
+				neighbours.push_back(node);
+			}
+		}
+	}
 }
 
 bool AINodeStorage::hasBetterChain(const PathNodeInfo & source, CDestinationNodeInfo & destination) const
@@ -174,12 +279,14 @@ bool AINodeStorage::hasBetterChain(const PathNodeInfo & source, CDestinationNode
 			if(node.turns < destinationNode->turns
 				|| (node.turns == destinationNode->turns && node.moveRemains >= destinationNode->moveRemains))
 			{
+#ifdef VCMI_TRACE_PATHFINDER
 				logAi->trace(
 					"Block ineficient move %s:->%s, mask=%i, mp diff: %i",
 					source.coord.toString(),
 					destination.coord.toString(),
 					destinationNode->chainMask,
 					node.moveRemains - destinationNode->moveRemains);
+#endif
 
 				return true;
 			}

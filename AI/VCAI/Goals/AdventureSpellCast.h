@@ -30,6 +30,11 @@ namespace Goals
 			return TGoalVec();
 		}
 
+		const CSpell * getSpell() const
+		{ 
+			return spellID.toSpell();
+		}
+
 		TSubgoal whatToDoToAchieve() override;
 		void accept(VCAI * ai) override;
 		std::string name() const override;

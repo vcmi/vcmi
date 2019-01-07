@@ -710,7 +710,7 @@ std::vector < const CGTownInstance *> CPlayerSpecificInfoCallback::getTownsInfo(
 	{
 		for(const auto & town : i.second.towns)
 		{
-			if (i.first==player || (isVisible(town, player) && !onlyOur))
+			if(i.first == player || (!onlyOur && isVisible(town, player)))
 			{
 				ret.push_back(town);
 			}

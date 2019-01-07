@@ -98,6 +98,19 @@ float FuzzyHelper::evaluate(Goals::BuildBoat & g)
 	return g.parent->accept(this) - buildBoatPenalty;
 }
 
+float FuzzyHelper::evaluate(Goals::AdventureSpellCast & g)
+{
+	if(!g.parent)
+	{
+		return 0;
+	}
+
+	const CSpell * spell = g.getSpell();
+	const float spellCastPenalty = (float)g.hero->getSpellCost(spell) / g.hero->mana;
+
+	return g.parent->accept(this) - spellCastPenalty;
+}
+
 float FuzzyHelper::evaluate(Goals::CompleteQuest & g)
 {
 	// TODO: How to evaluate quest complexity?
@@ -120,6 +133,7 @@ float FuzzyHelper::evaluate(Goals::VisitObj & g)
 
 	return visitObjEngine.evaluate(g);
 }
+
 float FuzzyHelper::evaluate(Goals::VisitHero & g)
 {
 	auto obj = ai->myCb->getObj(ObjectInstanceID(g.objid)); //we assume for now that these goals are similar

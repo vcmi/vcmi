@@ -71,6 +71,8 @@ void BuildBoat::accept(VCAI * ai)
 		shipyard->bestLocation().toString());
 
 	cb->buildBoat(shipyard);
+
+	throw goalFulfilledException(sptr(*this));
 }
 
 std::string BuildBoat::name() const

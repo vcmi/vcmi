@@ -56,6 +56,10 @@ std::vector<CGPathNode *> NodeStorage::calculateTeleportations(
 	const CPathfinderHelper * pathfinderHelper)
 {
 	std::vector<CGPathNode *> neighbours;
+
+	if(!source.isNodeObjectVisitable())
+		return neighbours;
+
 	auto accessibleExits = pathfinderHelper->getTeleportExits(source);
 
 	for(auto & neighbour : accessibleExits)
@@ -315,7 +319,7 @@ void CPathfinder::calculatePaths()
 
 		/// For now we disable teleports usage for patrol movement
 		/// VCAI not aware about patrol and may stuck while attempt to use teleport
-		if(!source.isNodeObjectVisitable() || patrolState == PATROL_RADIUS)
+		if(patrolState == PATROL_RADIUS)
 			continue;
 
 		auto teleportationNodes = config->nodeStorage->calculateTeleportations(source, config.get(), hlp.get());
