@@ -417,9 +417,6 @@ VisitTileEngine::VisitTileEngine() //so far no VisitTile-specific variables that
 
 float VisitTileEngine::evaluate(Goals::VisitTile & goal)
 {
-	// for now any visit tile is usually much more in priority then visit obj so lets reduce it
-	const int scale = 2;
-
 	//we assume that hero is already set and we want to choose most suitable one for the mission
 	if(!goal.hero)
 		return 0;
@@ -432,7 +429,7 @@ float VisitTileEngine::evaluate(Goals::VisitTile & goal)
 	{
 		engine.process();
 
-		goal.priority = value->getValue() / scale;
+		goal.priority = value->getValue();
 	}
 	catch(fl::Exception & fe)
 	{
