@@ -31,7 +31,7 @@ TSubgoal DigAtTile::whatToDoToAchieve()
 	if(firstObj && firstObj->ID == Obj::HERO && firstObj->tempOwner == ai->playerID) //we have hero at dest
 	{
 		const CGHeroInstance * h = dynamic_cast<const CGHeroInstance *>(firstObj);
-		sethero(h).setisElementar(true);
+		sethero(h).setstate(GoalState::ELEMENTARY);
 		return sptr(*this);
 	}
 

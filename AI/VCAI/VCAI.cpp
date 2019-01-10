@@ -896,7 +896,7 @@ void VCAI::mainLoop()
 			auto goalToDecompose = basicGoal;
 			Goals::TSubgoal elementarGoal = sptr(Goals::Invalid());
 			int maxAbstractGoals = 10;
-			while (!elementarGoal->isElementar && maxAbstractGoals)
+			while (!(elementarGoal->state == Goals::GoalState::ELEMENTARY) && maxAbstractGoals)
 			{
 				try
 				{
@@ -924,7 +924,7 @@ void VCAI::mainLoop()
 					logAi->debug("Goal %s decomposition failed: %s", basicGoal->name(), e.what());
 					break;
 				}
-				if (elementarGoal->isAbstract) //we can decompose it further
+				if (elementarGoal->state == Goals::GoalState::ABSTRACT) //we can decompose it further
 				{
 					goalsToAdd.push_back(elementarGoal);
 					//decompose further now - this is necesssary if we can't add over 10 goals in the pool
@@ -932,7 +932,7 @@ void VCAI::mainLoop()
 					//there is a risk of infinite abstract goal loop, though it indicates failed logic
 					maxAbstractGoals--;
 				}
-				else if (elementarGoal->isElementar) //should be
+				else if (elementarGoal->state == Goals::GoalState::ELEMENTARY) //should be
 				{
 					logAi->debug("Found elementar goal %s", elementarGoal->name());
 					elementarGoals.push_back(elementarGoal);
@@ -1578,7 +1578,7 @@ void VCAI::setGoal(HeroPtr h, Goals::TSubgoal goal)
 	else
 	{
 		lockedHeroes[h] = goal;
-		goal->setisElementar(false); //Force always evaluate goals before realizing
+		goal->setstate(Goals::GoalState::ABSTRACT); //Force always evaluate goals before realizing
 	}
 }
 void VCAI::evaluateGoal(HeroPtr h)
@@ -2305,7 +2305,7 @@ bool VCAI::canAct(HeroPtr h) const
 	if(mission != lockedHeroes.end())
 	{
 		//FIXME: I'm afraid there can be other conditions when heroes can act but not move :?
-		if(mission->second->goalType == Goals::DIG_AT_TILE && !mission->second->isElementar)
+		if(mission->second->goalType == Goals::DIG_AT_TILE && !(mission->second->state == Goals::GoalState::ELEMENTARY))
 			return false;
 	}
 
@@ -2345,7 +2345,7 @@ void VCAI::striveToGoal(Goals::TSubgoal basicGoal)
 	auto goalToDecompose = basicGoal;
 	Goals::TSubgoal elementarGoal = sptr(Goals::Invalid());
 	int maxAbstractGoals = 10;
-	while (!elementarGoal->isElementar && maxAbstractGoals)
+	while (!(elementarGoal->state == Goals::GoalState::ELEMENTARY) && maxAbstractGoals)
 	{
 		try
 		{
@@ -2364,7 +2364,7 @@ void VCAI::striveToGoal(Goals::TSubgoal basicGoal)
 			logAi->debug("Goal %s decomposition failed: %s", basicGoal->name(), e.what());
 			return;
 		}
-		if (elementarGoal->isAbstract) //we can decompose it further
+		if (elementarGoal->state == Goals::GoalState::ABSTRACT) //we can decompose it further
 		{
 			goalsToAdd.push_back(elementarGoal);
 			//decompose further now - this is necesssary if we can't add over 10 goals in the pool
@@ -2372,7 +2372,7 @@ void VCAI::striveToGoal(Goals::TSubgoal basicGoal)
 			//there is a risk of infinite abstract goal loop, though it indicates failed logic
 			maxAbstractGoals--;
 		}
-		else if (elementarGoal->isElementar) //should be
+		else if (elementarGoal->state == Goals::GoalState::ELEMENTARY) //should be
 		{
 			logAi->debug("Found elementar goal %s", elementarGoal->name());
 			ultimateGoalsFromBasic[elementarGoal].push_back(goalToDecompose); //TODO: how about indirect basicGoal?
@@ -2419,7 +2419,7 @@ void VCAI::striveToGoal(Goals::TSubgoal basicGoal)
 
 Goals::TSubgoal VCAI::decomposeGoal(Goals::TSubgoal ultimateGoal)
 {
-	if(ultimateGoal->isElementar)
+	if(ultimateGoal->state == Goals::GoalState::ELEMENTARY)
 	{
 		logAi->warn("Trying to decompose elementar goal %s", ultimateGoal->name());
 
@@ -2438,10 +2438,10 @@ Goals::TSubgoal VCAI::decomposeGoal(Goals::TSubgoal ultimateGoal)
 		goal = goal->whatToDoToAchieve(); //may throw if decomposition fails
 		--maxGoals;
 		if (goal == ultimateGoal) //compare objects by value
-			if (goal->isElementar == ultimateGoal->isElementar)
+			if (goal->state == ultimateGoal->state) 
 				throw cannotFulfillGoalException((boost::format("Goal dependency loop detected for %s!")
 												% ultimateGoal->name()).str());
-		if (goal->isAbstract || goal->isElementar)
+		if (goal->state != Goals::GoalState::INVALID)
 			return goal;
 		else
 			logAi->debug("Considering: %s", goal->name());

@@ -34,5 +34,5 @@ TSubgoal RecruitHero::whatToDoToAchieve()
 
 	TResources res;
 	res[Res::GOLD] = GameConstants::HERO_GOLD_COST;
-	return ai->ah->whatToDo(res, iAmElementar()); //either buy immediately, or collect res
+	return ai->ah->whatToDo(res, iAmElementary()); //either buy immediately, or collect res
 }

@@ -44,13 +44,13 @@ TSubgoal VisitTile::whatToDoToAchieve()
 	{
 		if(isSafeToVisit(ret->hero, tile) && ai->isAccessibleForHero(tile, ret->hero))
 		{
-			ret->setisElementar(true);
+			ret->setstate(GoalState::ELEMENTARY);
 			return ret;
 		}
 		else
 		{
 			return sptr(GatherArmy(evaluateDanger(tile, *ret->hero) * SAFE_ATTACK_CONSTANT)
-				    .sethero(ret->hero).setisAbstract(true));
+				    .sethero(ret->hero).setstate(GoalState::ABSTRACT));
 		}
 	}
 	return ret;
@@ -85,7 +85,7 @@ TGoalVec VisitTile::getAllPossibleSubgoals()
 		if(obj && obj->ID == Obj::HERO && obj->tempOwner == ai->playerID) //our own hero stands on that tile
 		{
 			if(hero.get(true) && hero->id == obj->id) //if it's assigned hero, visit tile. If it's different hero, we can't visit tile now
-				ret.push_back(sptr(VisitTile(tile).sethero(dynamic_cast<const CGHeroInstance *>(obj)).setisElementar(true)));
+				ret.push_back(sptr(VisitTile(tile).sethero(dynamic_cast<const CGHeroInstance *>(obj)).setstate(GoalState::ELEMENTARY)));
 			else
 				throw cannotFulfillGoalException("Tile is already occupied by another hero "); //FIXME: we should give up this tile earlier
 		}

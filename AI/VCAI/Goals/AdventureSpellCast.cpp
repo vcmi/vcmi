@@ -44,7 +44,7 @@ TSubgoal AdventureSpellCast::whatToDoToAchieve()
 	if(hero->mana < hero->getSpellCost(spell))
 		throw cannotFulfillGoalException("Hero has not enough mana to cast " + spell->name);
 
-	return iAmElementar();
+	return iAmElementary();
 }
 
 void AdventureSpellCast::accept(VCAI * ai)

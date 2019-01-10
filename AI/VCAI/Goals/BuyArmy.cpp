@@ -36,7 +36,7 @@ TSubgoal BuyArmy::whatToDoToAchieve()
 	//TODO: calculate the actual cost of units instead
 	TResources price;
 	price[Res::GOLD] = value * 0.4f; //some approximate value
-	return ai->ah->whatToDo(price, iAmElementar()); //buy right now or gather resources
+	return ai->ah->whatToDo(price, iAmElementary()); //buy right now or gather resources
 }
 
 std::string BuyArmy::completeMessage() const

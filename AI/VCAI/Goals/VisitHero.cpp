@@ -51,7 +51,7 @@ TSubgoal VisitHero::whatToDoToAchieve()
 		{
 			//can't use VISIT_TILE here as tile appears blocked by target hero
 			//FIXME: elementar goal should not be abstract
-			return sptr(VisitHero(objid).sethero(hero).settile(pos).setisElementar(true));
+			return sptr(VisitHero(objid).sethero(hero).settile(pos).setstate(GoalState::ELEMENTARY));
 		}
 	}
 	return sptr(Invalid());

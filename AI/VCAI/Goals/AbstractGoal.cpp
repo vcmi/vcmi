@@ -182,7 +182,7 @@ void AbstractGoal::accept(VCAI * ai)
 	ai->tryRealize(*this);
 }
 
-float AbstractGoal::accept(FuzzyHelper * f)
+float AbstractGoal::evaluatePriority(FuzzyHelper * f)
 {
 	return f->evaluate(*this);
 }

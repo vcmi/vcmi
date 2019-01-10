@@ -19,5 +19,5 @@ bool Trade::operator==(const Trade & other) const
 
 TSubgoal Trade::whatToDoToAchieve()
 {
-	return iAmElementar();
+	return iAmElementary();
 }
