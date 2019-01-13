@@ -391,7 +391,11 @@ float VisitObjEngine::evaluate(Goals::VisitObj & goal)
 		return 0;
 
 	auto obj = ai->myCb->getObj(ObjectInstanceID(goal.objid));
-
+	if(!obj)
+	{
+		logAi->error("Goals::VisitObj objid " + std::to_string(goal.objid) + " no longer visible, probably goal used for something it's not intended");
+		return -100; // FIXME: Added check when goal was used for hero instead of VisitHero, but crashes are bad anyway
+	}
 
 	boost::optional<int> objValueKnownByAI = MapObjectsEvaluator::getInstance().getObjectValue(obj);
 	int objValue = 0;
