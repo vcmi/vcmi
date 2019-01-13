@@ -88,7 +88,7 @@ Goals::TGoalVec PathfindingManager::howToVisitObj(HeroPtr hero, ObjectIdRef obj,
 
 	auto result = findPath(hero, dest, allowGatherArmy, [&](int3 firstTileToGet) -> Goals::TSubgoal
 	{
-		if(obj->ID.num == Obj::HERO && obj->getOwner() == hero->getOwner())
+		if(obj->ID == Obj::HERO)
 			return sptr(Goals::VisitHero(obj->id.getNum()).sethero(hero).setisAbstract(true));
 		else
 			return sptr(Goals::VisitObj(obj->id.getNum()).sethero(hero).setisAbstract(true));
@@ -96,7 +96,10 @@ Goals::TGoalVec PathfindingManager::howToVisitObj(HeroPtr hero, ObjectIdRef obj,
 
 	for(Goals::TSubgoal solution : result)
 	{
-		solution->setparent(sptr(Goals::VisitObj(obj->id.getNum()).sethero(hero).setevaluationContext(solution->evaluationContext)));
+		if(obj->ID == Obj::HERO)
+			solution->setparent(sptr(Goals::VisitHero(obj->id.getNum()).sethero(hero).setevaluationContext(solution->evaluationContext)));
+		else
+			solution->setparent(sptr(Goals::VisitObj(obj->id.getNum()).sethero(hero).setevaluationContext(solution->evaluationContext)));
 	}
 
 	return result;
