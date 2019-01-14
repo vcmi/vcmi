@@ -220,18 +220,18 @@ std::vector<CGPathNode *> AINodeStorage::calculateTeleportations(
 
 	if(source.isNodeObjectVisitable())
 	{
-	auto accessibleExits = pathfinderHelper->getTeleportExits(source);
-	auto srcNode = getAINode(source.node);
+		auto accessibleExits = pathfinderHelper->getTeleportExits(source);
+		auto srcNode = getAINode(source.node);
 
-	for(auto & neighbour : accessibleExits)
-	{
-		auto node = getOrCreateNode(neighbour, source.node->layer, srcNode->chainMask);
+		for(auto & neighbour : accessibleExits)
+		{
+			auto node = getOrCreateNode(neighbour, source.node->layer, srcNode->chainMask);
 
-		if(!node)
-			continue;
+			if(!node)
+				continue;
 
-		neighbours.push_back(node.get());
-	}
+			neighbours.push_back(node.get());
+		}
 	}
 
 	if(hero->getPosition(false) == source.coord)
@@ -342,19 +342,11 @@ bool AINodeStorage::hasBetterChain(const PathNodeInfo & source, CDestinationNode
 	return false;
 }
 
-bool AINodeStorage::isTileAccessible(int3 pos, const EPathfindingLayer layer) const
+bool AINodeStorage::isTileAccessible(const int3 & pos, const EPathfindingLayer layer) const
 {
-	auto chains = nodes[pos.x][pos.y][pos.z][layer];
+	const AIPathNode & node = nodes[pos.x][pos.y][pos.z][layer][0];
 
-	for(const AIPathNode & node : chains)
-	{
-		if(node.action != CGPathNode::ENodeAction::UNKNOWN)
-		{
-			return true;
-		}
-	}
-
-	return false;
+	return node.action != CGPathNode::ENodeAction::UNKNOWN;
 }
 
 std::vector<AIPath> AINodeStorage::getChainInfo(int3 pos, bool isOnLand) const

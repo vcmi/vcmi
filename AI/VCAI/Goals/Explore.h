@@ -17,6 +17,8 @@ class FuzzyHelper;
 
 namespace Goals
 {
+	struct ExplorationHelper;
+
 	class DLL_EXPORT Explore : public CGoal<Explore>
 	{
 	private:
@@ -49,8 +51,8 @@ namespace Goals
 	private:
 		TSubgoal exploreNearestNeighbour(HeroPtr h) const;
 		TSubgoal explorationNewPoint(HeroPtr h) const;
-		TSubgoal explorationBestNeighbour(int3 hpos, int radius, HeroPtr h) const;
-		TSubgoal explorationScanRange(HeroPtr h, std::vector<int3> & range) const;
+		TSubgoal explorationBestNeighbour(int3 hpos, HeroPtr h) const;
+		void explorationScanTile(const int3 & tile, ExplorationHelper & scanResult) const;
 		bool hasReachableNeighbor(const int3 &pos, HeroPtr hero, CCallback * cbp, VCAI * vcai) const;
 
 		void getVisibleNeighbours(
@@ -59,12 +61,6 @@ namespace Goals
 			CCallback * cbp,
 			const TeamState * ts) const;
 
-		int howManyTilesWillBeDiscovered(
-			const int3 & pos,
-			int radious,
-			CCallback * cbp,
-			const TeamState * ts,
-			VCAI * aip,
-			HeroPtr h) const;
+		int howManyTilesWillBeDiscovered(const int3 & pos, ExplorationHelper & scanResult) const;
 	};
 }

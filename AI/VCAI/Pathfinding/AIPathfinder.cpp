@@ -35,7 +35,7 @@ void AIPathfinder::init()
 	storageMap.clear();
 }
 
-bool AIPathfinder::isTileAccessible(HeroPtr hero, int3 tile)
+bool AIPathfinder::isTileAccessible(const HeroPtr & hero, const int3 & tile)
 {
 	boost::unique_lock<boost::mutex> storageLock(storageMutex);
 
@@ -61,7 +61,7 @@ std::vector<AIPath> AIPathfinder::getPathInfo(HeroPtr hero, int3 tile)
 	return nodeStorage->getChainInfo(tile, !tileInfo->isWater());
 }
 
-std::shared_ptr<AINodeStorage> AIPathfinder::getOrCreateStorage(HeroPtr hero)
+std::shared_ptr<AINodeStorage> AIPathfinder::getOrCreateStorage(const HeroPtr & hero)
 {
 	std::shared_ptr<AINodeStorage> nodeStorage;
 

@@ -60,8 +60,13 @@ public:
 	Goals::TGoalVec howToVisitTile(int3 tile) override;
 	Goals::TGoalVec howToVisitObj(ObjectIdRef obj) override;
 	std::vector<AIPath> getPathsToTile(HeroPtr hero, int3 tile) override;
-	bool isTileAccessible(HeroPtr hero, int3 tile) override;
 	void resetPaths() override;
+
+	STRONG_INLINE
+	bool isTileAccessible(const HeroPtr & hero, const int3 & tile)
+	{
+		return pathfindingManager->isTileAccessible(hero, tile);
+	}
 
 private:
 	bool notifyGoalCompleted(Goals::TSubgoal goal) override;
