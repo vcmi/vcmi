@@ -193,15 +193,14 @@ bool CGHeroInstance::canLearnSkill() const
 	return secSkills.size() < GameConstants::SKILL_PER_HERO;
 }
 
-int CGHeroInstance::maxMovePoints(bool onLand, const TurnInfo * ti) const
+int CGHeroInstance::maxMovePoints(bool onLand) const
 {
-	bool localTi = false;
-	if(!ti)
-	{
-		localTi = true;
-		ti = new TurnInfo(this);
-	}
+	TurnInfo ti(this);
+	return maxMovePointsCached(onLand, &ti);
+}
 
+int CGHeroInstance::maxMovePointsCached(bool onLand, const TurnInfo * ti) const
+{
 	int base;
 
 	if(onLand)
@@ -225,10 +224,7 @@ int CGHeroInstance::maxMovePoints(bool onLand, const TurnInfo * ti) const
 	const int subtype = onLand ? SecondarySkill::LOGISTICS : SecondarySkill::NAVIGATION;
 	const double modifier = ti->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, subtype) / 100.0;
 
-	if(localTi)
-		delete ti;
-
-	return int(base* (1+modifier)) + bonus;
+	return int(base * (1 + modifier)) + bonus;
 }
 
 CGHeroInstance::CGHeroInstance()

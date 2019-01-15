@@ -42,8 +42,7 @@ struct AIPathNode : public CGPathNode
 
 struct AIPathNodeInfo
 {
-	uint32_t movementPointsLeft;
-	uint32_t movementPointsUsed;
+	float cost;
 	int turns;
 	int3 coord;
 	uint64_t danger;
@@ -64,7 +63,7 @@ struct AIPath
 
 	int3 firstTileToGet() const;
 
-	uint32_t movementCost() const;
+	float movementCost() const;
 };
 
 class AINodeStorage : public INodeStorage

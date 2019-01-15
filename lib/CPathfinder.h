@@ -49,22 +49,24 @@ struct DLL_LINKAGE CGPathNode
 		NOT_SET = 0,
 		ACCESSIBLE = 1, //tile can be entered and passed
 		VISITABLE, //tile can be entered as the last tile in path
-		BLOCKVIS,  //visitable from neighbouring tile but not passable
+		BLOCKVIS,  //visitable from neighboring tile but not passable
 		FLYABLE, //can only be accessed in air layer
 		BLOCKED //tile can't be entered nor visited
 	};
 
 	CGPathNode * theNodeBefore;
 	int3 coord; //coordinates
-	ui32 moveRemains; //remaining tiles after hero reaches the tile
-	ui8 turns; //how many turns we have to wait before reachng the tile - 0 means current turn
 	ELayer layer;
+	ui32 moveRemains; //remaining movement points after hero reaches the tile
+	float cost; //total cost of the path to this tile measured in turns with fractions
+	ui8 turns; //how many turns we have to wait before reaching the tile - 0 means current turn
+
 	EAccessibility accessible;
 	ENodeAction action;
 	bool locked;
 
 	CGPathNode()
-		: coord(int3(-1, -1, -1)),
+		: coord(-1),
 		layer(ELayer::WRONG)
 	{
 		reset();
@@ -76,6 +78,7 @@ struct DLL_LINKAGE CGPathNode
 		locked = false;
 		accessible = NOT_SET;
 		moveRemains = 0;
+		cost = std::numeric_limits<float>::max();
 		turns = 255;
 		theNodeBefore = nullptr;
 		action = UNKNOWN;
@@ -126,7 +129,6 @@ struct DLL_LINKAGE CPathsInfo
 	~CPathsInfo();
 	const CGPathNode * getPathInfo(const int3 & tile) const;
 	bool getPath(CGPath & out, const int3 & dst) const;
-	int getDistance(const int3 & tile) const;
 	const CGPathNode * getNode(const int3 & coord) const;
 
 	STRONG_INLINE
@@ -157,6 +159,7 @@ struct DLL_LINKAGE CDestinationNodeInfo : public PathNodeInfo
 	CGPathNode::ENodeAction action;
 	int turn;
 	int movementLeft;
+	float cost; //same as CGPathNode::cost
 	bool blocked;
 	bool isGuardianTile;
 
@@ -414,14 +417,10 @@ private:
 
 	struct NodeComparer
 	{
+		STRONG_INLINE
 		bool operator()(const CGPathNode * lhs, const CGPathNode * rhs) const
 		{
-			if(rhs->turns > lhs->turns)
-				return false;
-			else if(rhs->turns == lhs->turns && rhs->moveRemains <= lhs->moveRemains)
-				return false;
-
-			return true;
+			return lhs->cost > rhs->cost;
 		}
 	};
 	boost::heap::priority_queue<CGPathNode *, boost::heap::compare<NodeComparer> > pq;
@@ -532,7 +531,6 @@ public:
 		);
 	}
 
-	int getHeroMaxMovementPoints(EPathfindingLayer layer) const;
-	int movementPointsAfterEmbark(int movement, int cost, int action) const;
+	int movementPointsAfterEmbark(int movement, int basicCost, bool disembark) const;
 	bool passOneTurnLimitCheck(const PathNodeInfo & source) const;
 };

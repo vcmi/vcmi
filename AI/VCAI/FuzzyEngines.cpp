@@ -89,14 +89,15 @@ armyStructure evaluateArmyStructure(const CArmedInstance * army)
 
 float HeroMovementGoalEngineBase::calculateTurnDistanceInputValue(const Goals::AbstractGoal & goal) const
 {
-	const float maxMovePoints = (float)goal.hero->maxMovePoints(true);
-
-	if(goal.evaluationContext.movementCost != 0)
+	if(goal.evaluationContext.movementCost > 0)
 	{
-		return goal.evaluationContext.movementCost / maxMovePoints;
+		return goal.evaluationContext.movementCost;
 	}
-
-	return distanceToTile(goal.hero.h, goal.tile) / maxMovePoints;
+	else
+	{
+		auto pathInfo = ai->myCb->getPathsInfo(goal.hero.h)->getPathInfo(goal.tile);
+		return pathInfo->cost;
+	}
 }
 
 TacticalAdvantageEngine::TacticalAdvantageEngine()

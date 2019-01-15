@@ -1750,7 +1750,7 @@ void CGameHandler::newTurn()
 			hth.id = h->id;
 			auto ti = make_unique<TurnInfo>(h, 1);
 			// TODO: this code executed when bonuses of previous day not yet updated (this happen in NewTurn::applyGs). See issue 2356
-			hth.move = h->maxMovePoints(gs->map->getTile(h->getPosition(false)).terType != ETerrainType::WATER, ti.get());
+			hth.move = h->maxMovePointsCached(gs->map->getTile(h->getPosition(false)).terType != ETerrainType::WATER, ti.get());
 			hth.mana = h->getManaNewTurn();
 
 			n.heroes.insert(hth);

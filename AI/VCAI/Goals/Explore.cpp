@@ -253,11 +253,12 @@ TSubgoal Explore::explorationBestNeighbour(int3 hpos, int radius, HeroPtr h) con
 	if(dstToRevealedTiles.empty()) //yes, it DID happen!
 		return sptr(Invalid());
 
+	auto paths = cb->getPathsInfo(h.get());
+
 	auto best = dstToRevealedTiles.begin();
 	for(auto i = dstToRevealedTiles.begin(); i != dstToRevealedTiles.end(); i++)
 	{
-		const CGPathNode * pn = cb->getPathsInfo(h.get())->getPathInfo(i->first);
-		//const TerrainTile *t = cb->getTile(i->first);
+		const CGPathNode * pn = paths->getPathInfo(i->first);
 		if(best->second < i->second && pn->reachable() && pn->accessible == CGPathNode::ACCESSIBLE)
 			best = i;
 	}
@@ -336,7 +337,7 @@ TSubgoal Explore::explorationScanRange(HeroPtr h, std::vector<int3> & range) con
 		auto waysToVisit = aip->ah->howToVisitTile(h, tile, allowGatherArmy);
 		for(auto goal : waysToVisit)
 		{
-			if(goal->evaluationContext.movementCost == 0) // should not happen
+			if(goal->evaluationContext.movementCost <= 0.0) // should not happen
 				continue;
 
 			float ourValue = (float)tilesDiscovered * tilesDiscovered / goal->evaluationContext.movementCost;
@@ -374,7 +375,7 @@ TSubgoal Explore::exploreNearestNeighbour(HeroPtr h) const
 
 	//look for nearby objs -> visit them if they're close enough
 	const int DIST_LIMIT = 3;
-	const int MP_LIMIT = DIST_LIMIT * 150; // approximate cost of diagonal movement
+	const float COST_LIMIT = .2; //todo: fine tune
 
 	std::vector<const CGObjectInstance *> nearbyVisitableObjs;
 	for(int x = hpos.x - DIST_LIMIT; x <= hpos.x + DIST_LIMIT; ++x) //get only local objects instead of all possible objects on the map
@@ -383,7 +384,7 @@ TSubgoal Explore::exploreNearestNeighbour(HeroPtr h) const
 		{
 			for(auto obj : cb->getVisitableObjs(int3(x, y, hpos.z), false))
 			{
-				if(ai->isGoodForVisit(obj, h, MP_LIMIT))
+				if(ai->isGoodForVisit(obj, h, COST_LIMIT))
 				{
 					nearbyVisitableObjs.push_back(obj);
 				}

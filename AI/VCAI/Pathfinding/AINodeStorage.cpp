@@ -120,6 +120,7 @@ CGPathNode * AINodeStorage::getInitialNode()
 	initialNode->turns = 0;
 	initialNode->moveRemains = hero->movement;
 	initialNode->danger = 0;
+	initialNode->cost = 0.0;
 
 	return initialNode;
 }
@@ -146,6 +147,7 @@ void AINodeStorage::commit(CDestinationNodeInfo & destination, const PathNodeInf
 	{
 		dstNode->moveRemains = destination.movementLeft;
 		dstNode->turns = destination.turn;
+		dstNode->cost = destination.cost;
 		dstNode->danger = srcNode->danger;
 		dstNode->action = destination.action;
 		dstNode->theNodeBefore = srcNode->theNodeBefore;
@@ -322,8 +324,7 @@ bool AINodeStorage::hasBetterChain(const PathNodeInfo & source, CDestinationNode
 
 		if(node.danger <= destinationNode->danger && destinationNode->chainMask == 1 && node.chainMask == 0)
 		{
-			if(node.turns < destinationNode->turns
-				|| (node.turns == destinationNode->turns && node.moveRemains >= destinationNode->moveRemains))
+			if(node.cost < destinationNode->cost)
 			{
 #ifdef VCMI_TRACE_PATHFINDER
 				logAi->trace(
@@ -343,7 +344,6 @@ bool AINodeStorage::hasBetterChain(const PathNodeInfo & source, CDestinationNode
 
 bool AINodeStorage::isTileAccessible(int3 pos, const EPathfindingLayer layer) const
 {
-	std::vector<AIPath> paths;
 	auto chains = nodes[pos.x][pos.y][pos.z][layer];
 
 	for(const AIPathNode & node : chains)
@@ -376,9 +376,7 @@ std::vector<AIPath> AINodeStorage::getChainInfo(int3 pos, bool isOnLand) const
 		while(current != nullptr && current->coord != initialPos)
 		{
 			AIPathNodeInfo pathNode;
-
-			pathNode.movementPointsLeft = current->moveRemains;
-			pathNode.movementPointsUsed = (int)(current->turns * hero->maxMovePoints(true) + hero->movement) - (int)current->moveRemains;
+			pathNode.cost = current->cost;
 			pathNode.turns = current->turns;
 			pathNode.danger = current->danger;
 			pathNode.coord = current->coord;
@@ -420,15 +418,15 @@ uint64_t AIPath::getPathDanger() const
 	return 0;
 }
 
-uint32_t AIPath::movementCost() const
+float AIPath::movementCost() const
 {
 	if(nodes.size())
 	{
-		return nodes.front().movementPointsUsed;
+		return nodes.front().cost;
 	}
 
 	// TODO: boost:optional?
-	return 0;
+	return 0.0;
 }
 
 uint64_t AIPath::getTotalDanger(HeroPtr hero) const
