@@ -244,7 +244,8 @@ TSubgoal Explore::explorationBestNeighbour(int3 hpos, int radius, HeroPtr h) con
 				auto distance = hpos.dist2d(tile); // diagonal movement opens more tiles but spends more mp
 				int tilesDiscovered = howManyTilesWillBeDiscovered(tile, radius, cbp, ts, aip, h);
 
-				dstToRevealedTiles[tile] = tilesDiscovered / distance;
+				if(tilesDiscovered > 0)
+					dstToRevealedTiles[tile] = tilesDiscovered / distance;
 			}
 		}
 	}
@@ -371,9 +372,9 @@ TSubgoal Explore::exploreNearestNeighbour(HeroPtr h) const
 	int radius = h->getSightRadius();
 	int3 hpos = h->visitablePos();
 
-	//look for nearby objs -> visit them if they're close enouh
+	//look for nearby objs -> visit them if they're close enough
 	const int DIST_LIMIT = 3;
-	const int MP_LIMIT = DIST_LIMIT * 150; // aproximate cost of diagonal movement
+	const int MP_LIMIT = DIST_LIMIT * 150; // approximate cost of diagonal movement
 
 	std::vector<const CGObjectInstance *> nearbyVisitableObjs;
 	for(int x = hpos.x - DIST_LIMIT; x <= hpos.x + DIST_LIMIT; ++x) //get only local objects instead of all possible objects on the map

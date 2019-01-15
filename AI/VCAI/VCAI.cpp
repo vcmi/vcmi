@@ -1313,7 +1313,7 @@ bool VCAI::isGoodForVisit(const CGObjectInstance * obj, HeroPtr h, boost::option
 		if(movementCostLimit && movementCostLimit.get() < path.movementCost())
 			return false;
 
-		if(ai->isGoodForVisit(obj, h, path))
+		if(isGoodForVisit(obj, h, path))
 			return true;
 	}
 
@@ -1330,7 +1330,7 @@ bool VCAI::isGoodForVisit(const CGObjectInstance * obj, HeroPtr h, const AIPath 
 		return false;
 	if (obj->wasVisited(playerID))
 		return false;
-	if (cb->getPlayerRelations(ai->playerID, obj->tempOwner) != PlayerRelations::ENEMIES && !isWeeklyRevisitable(obj))
+	if (cb->getPlayerRelations(playerID, obj->tempOwner) != PlayerRelations::ENEMIES && !isWeeklyRevisitable(obj))
 		return false; // Otherwise we flag or get weekly resources / creatures
 	if (!isSafeToVisit(h, pos))
 		return false;

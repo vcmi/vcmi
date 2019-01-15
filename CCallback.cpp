@@ -286,7 +286,7 @@ bool CCallback::canMoveBetween(const int3 &a, const int3 &b)
 	return gs->map->canMoveBetween(a, b);
 }
 
-const CPathsInfo * CCallback::getPathsInfo(const CGHeroInstance *h)
+std::shared_ptr<const CPathsInfo> CCallback::getPathsInfo(const CGHeroInstance * h)
 {
 	return cl->getPathsInfo(h);
 }

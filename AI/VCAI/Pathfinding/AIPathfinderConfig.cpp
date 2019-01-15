@@ -76,12 +76,14 @@ namespace AIPathfinding
 
 		bool isAffordableBy(HeroPtr hero, const AIPathNode * source) const
 		{
+#ifdef VCMI_TRACE_PATHFINDER
 			logAi->trace(
 				"Hero %s has %d mana and needed %d and already spent %d",
 				hero->name,
 				hero->mana,
 				getManaCost(hero),
 				source->manaCost);
+#endif
 
 			return hero->mana >= source->manaCost + getManaCost(hero);
 		}
@@ -148,7 +150,9 @@ namespace AIPathfinding
 
 				if(virtualBoat && tryEmbarkVirtualBoat(destination, source, virtualBoat))
 				{
+#ifdef VCMI_TRACE_PATHFINDER
 					logAi->trace("Embarking to virtual boat while moving %s -> %s!", source.coord.toString(), destination.coord.toString());
+#endif
 				}
 			}
 		}
@@ -242,15 +246,17 @@ namespace AIPathfinding
 					}
 					else
 					{
+#ifdef VCMI_TRACE_PATHFINDER
 						logAi->trace(
 							"Special transition node already allocated. Blocked moving %s -> %s",
 							source.coord.toString(),
 							destination.coord.toString());
+#endif
 					}
 				}
 				else
 				{
-					logAi->trace(
+					logAi->debug(
 						"Can not allocate special transition node while moving %s -> %s",
 						source.coord.toString(),
 						destination.coord.toString());
@@ -330,10 +336,12 @@ namespace AIPathfinding
 				auto guardsAlreadyBypassed = destGuardians.empty() && srcGuardians.size();
 				if(guardsAlreadyBypassed && nodeStorage->isBattleNode(source.node))
 				{
-					//logAi->trace(
-					//	"Bypass guard at destination while moving %s -> %s",
-					//	source.coord.toString(),
-					//	destination.coord.toString());
+#ifdef VCMI_TRACE_PATHFINDER
+					logAi->trace(
+						"Bypass guard at destination while moving %s -> %s",
+						source.coord.toString(),
+						destination.coord.toString());
+#endif
 
 					return;
 				}
@@ -346,10 +354,12 @@ namespace AIPathfinding
 
 				if(!battleNodeOptional)
 				{
-					//logAi->trace(
-					//	"Can not allocate battle node while moving %s -> %s",
-					//	source.coord.toString(),
-					//	destination.coord.toString());
+#ifdef VCMI_TRACE_PATHFINDER
+					logAi->trace(
+						"Can not allocate battle node while moving %s -> %s",
+						source.coord.toString(),
+						destination.coord.toString());
+#endif
 
 					destination.blocked = true;
 
@@ -360,11 +370,12 @@ namespace AIPathfinding
 
 				if(battleNode->locked)
 				{
-					//logAi->trace(
-					//	"Block bypass guard at destination while moving %s -> %s",
-					//	source.coord.toString(),
-					//	destination.coord.toString());
-
+#ifdef VCMI_TRACE_PATHFINDER
+					logAi->trace(
+						"Block bypass guard at destination while moving %s -> %s",
+						source.coord.toString(),
+						destination.coord.toString());
+#endif
 					destination.blocked = true;
 
 					return;
@@ -382,13 +393,13 @@ namespace AIPathfinding
 				}
 
 				battleNode->specialAction = std::make_shared<BattleAction>(destination.coord);
-
-				//logAi->trace(
-				//	"Begin bypass guard at destination with danger %s while moving %s -> %s",
-				//	std::to_string(danger),
-				//	source.coord.toString(),
-				//	destination.coord.toString());
-
+#ifdef VCMI_TRACE_PATHFINDER
+				logAi->trace(
+					"Begin bypass guard at destination with danger %s while moving %s -> %s",
+					std::to_string(danger),
+					source.coord.toString(),
+					destination.coord.toString());
+#endif
 				return;
 			}
 
@@ -428,11 +439,12 @@ namespace AIPathfinding
 
 			if(blocker == BlockingReason::SOURCE_GUARDED && nodeStorage->isBattleNode(source.node))
 			{
-				//logAi->trace(
-				//	"Bypass src guard while moving from %s to %s",
-				//	source.coord.toString(),
-				//	destination.coord.toString());
-
+#ifdef VCMI_TRACE_PATHFINDER
+				logAi->trace(
+					"Bypass src guard while moving from %s to %s",
+					source.coord.toString(),
+					destination.coord.toString());
+#endif
 				return;
 			}
 
@@ -462,12 +474,12 @@ namespace AIPathfinding
 			{
 				// we can not directly bypass objects, we need to interact with them first
 				destination.node->theNodeBefore = source.node;
-
-				//logAi->trace(
-				//	"Link src node %s to destination node %s while bypassing visitable obj",
-				//	source.coord.toString(),
-				//	destination.coord.toString());
-
+#ifdef VCMI_TRACE_PATHFINDER
+				logAi->trace(
+					"Link src node %s to destination node %s while bypassing visitable obj",
+					source.coord.toString(),
+					destination.coord.toString());
+#endif
 				return;
 			}
 

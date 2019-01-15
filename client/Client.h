@@ -99,7 +99,9 @@ public:
 class CClient : public IGameCallback
 {
 	std::shared_ptr<CApplier<CBaseForCLApply>> applier;
-	std::unique_ptr<CPathsInfo> pathInfo;
+
+	mutable boost::mutex pathCacheMutex;
+	std::map<const CGHeroInstance *, std::shared_ptr<CPathsInfo>> pathCache;
 
 	std::map<PlayerColor, std::shared_ptr<boost::thread>> playerActionThreads;
 	void waitForMoveAndSend(PlayerColor color);
@@ -150,7 +152,7 @@ public:
 	void stopAllBattleActions();
 
 	void invalidatePaths();
-	const CPathsInfo * getPathsInfo(const CGHeroInstance * h);
+	std::shared_ptr<const CPathsInfo> getPathsInfo(const CGHeroInstance * h);
 	virtual PlayerColor getLocalPlayer() const override;
 
 	friend class CCallback; //handling players actions

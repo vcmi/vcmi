@@ -24,7 +24,7 @@ public:
 
 	virtual void applyOnDestination(
 		HeroPtr hero,
-		CDestinationNodeInfo & destination, 
+		CDestinationNodeInfo & destination,
 		const PathNodeInfo & source,
 		AIPathNode * dstMode,
 		const AIPathNode * srcNode) const
@@ -76,6 +76,9 @@ private:
 	boost::multi_array<AIPathNode, 5> nodes;
 	const CGHeroInstance * hero;
 
+	STRONG_INLINE
+	void resetTile(const int3 & tile, EPathfindingLayer layer, CGPathNode::EAccessibility accessibility);
+
 public:
 	/// more than 1 chain layer allows us to have more than 1 path to each tile so we can chose more optimal one.
 	static const int NUM_CHAINS = 3;
@@ -89,8 +92,9 @@ public:
 	AINodeStorage(const int3 & sizes);
 	~AINodeStorage();
 
+	void initialize(const PathfinderOptions & options, const CGameState * gs, const CGHeroInstance * hero) override;
+
 	virtual CGPathNode * getInitialNode() override;
-	virtual void resetTile(const int3 & tile, EPathfindingLayer layer, CGPathNode::EAccessibility accessibility) override;
 
 	virtual std::vector<CGPathNode *> calculateNeighbours(
 		const PathNodeInfo & source,

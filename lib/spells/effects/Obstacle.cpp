@@ -280,7 +280,12 @@ void Obstacle::placeObstacles(BattleStateProxy * battleState, const Mechanics * 
 
 	BattleObstaclesChanged pack;
 
-	auto all = m->cb->battleGetAllObstacles(BattlePerspective::ALL_KNOWING);
+	boost::optional<BattlePerspective::BattlePerspective> perspective;
+
+	if(!m->cb->getPlayerID())
+		perspective = boost::make_optional(BattlePerspective::ALL_KNOWING);
+
+	auto all = m->cb->battleGetAllObstacles(perspective);
 
 	int obstacleIdToGive = 1;
 	for(auto & one : all)

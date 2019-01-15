@@ -341,6 +341,7 @@ set(lib_HEADERS
 		NetPacksBase.h
 		NetPacks.h
 		NetPacksLobby.h
+		PathfinderUtil.h
 		ResourceSet.h
 		ScopeGuard.h
 		StartInfo.h

@@ -231,12 +231,14 @@ std::vector<std::string> CLogManager::getRegisteredDomains() const
 	return std::move(domains);
 }
 
-CLogFormatter::CLogFormatter() : CLogFormatter("%m") { }
-
-CLogFormatter::CLogFormatter(const std::string & pattern) : pattern(pattern)
+CLogFormatter::CLogFormatter()
+	: CLogFormatter("%m")
 {
-	boost::posix_time::time_facet * facet = new boost::posix_time::time_facet("%H:%M:%S.%f");
-	dateStream.imbue(std::locale(dateStream.getloc(), facet));
+}
+
+CLogFormatter::CLogFormatter(const std::string & pattern)
+	: pattern(pattern)
+{
 }
 
 CLogFormatter::CLogFormatter(const CLogFormatter & c) : pattern(c.pattern) { }
@@ -258,7 +260,7 @@ std::string CLogFormatter::format(const LogRecord & record) const
 	std::string message = pattern;
 
 	//Format date
-	boost::algorithm::replace_first(message, "%d", boost::posix_time::to_simple_string (record.timeStamp));
+//	boost::algorithm::replace_first(message, "%d", boost::posix_time::to_simple_string (record.timeStamp));
 
 	//Format log level
 	std::string level;
@@ -387,7 +389,8 @@ void CLogConsoleTarget::setColorMapping(const CColorMapping & colorMapping) { th
 CLogFileTarget::CLogFileTarget(boost::filesystem::path filePath, bool append)
 	: file(std::move(filePath), append ? std::ios_base::app : std::ios_base::out)
 {
-	formatter.setPattern("%d %l %n [%t] - %m");
+//	formatter.setPattern("%d %l %n [%t] - %m");
+	formatter.setPattern("%l %n [%t] - %m");
 }
 
 void CLogFileTarget::write(const LogRecord & record)

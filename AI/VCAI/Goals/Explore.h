@@ -54,9 +54,9 @@ namespace Goals
 		bool hasReachableNeighbor(const int3 &pos, HeroPtr hero, CCallback * cbp, VCAI * vcai) const;
 
 		void getVisibleNeighbours(
-			const std::vector<int3> & tiles, 
-			std::vector<int3> & out, 
-			CCallback * cbp, 
+			const std::vector<int3> & tiles,
+			std::vector<int3> & out,
+			CCallback * cbp,
 			const TeamState * ts) const;
 
 		int howManyTilesWillBeDiscovered(

@@ -109,7 +109,6 @@ public:
 CClient::CClient()
 {
 	waitingRequest.clear();
-	pathInfo = nullptr;
 	applier = std::make_shared<CApplier<CBaseForCLApply>>();
 	registerTypesClientPacks1(*applier);
 	registerTypesClientPacks2(*applier);
@@ -316,7 +315,8 @@ void CClient::initMapHandler()
 		CGI->mh->init();
 		logNetwork->trace("Initializing mapHandler (together): %d ms", CSH->th->getDiff());
 	}
-	pathInfo = make_unique<CPathsInfo>(getMapSize());
+
+	pathCache.clear();
 }
 
 void CClient::initPlayerInterfaces()
@@ -612,20 +612,30 @@ void CClient::waitForMoveAndSend(PlayerColor color)
 
 void CClient::invalidatePaths()
 {
-	// turn pathfinding info into invalid. It will be regenerated later
-	boost::unique_lock<boost::mutex> pathLock(pathInfo->pathMx);
-	pathInfo->hero = nullptr;
+	boost::unique_lock<boost::mutex> pathLock(pathCacheMutex);
+	pathCache.clear();
 }
 
-const CPathsInfo * CClient::getPathsInfo(const CGHeroInstance * h)
+std::shared_ptr<const CPathsInfo> CClient::getPathsInfo(const CGHeroInstance * h)
 {
 	assert(h);
-	boost::unique_lock<boost::mutex> pathLock(pathInfo->pathMx);
-	if(pathInfo->hero != h)
+	boost::unique_lock<boost::mutex> pathLock(pathCacheMutex);
+
+	auto iter = pathCache.find(h);
+
+	if(iter == std::end(pathCache))
 	{
-		gs->calculatePaths(h, *pathInfo.get());
+		std::shared_ptr<CPathsInfo> paths = std::make_shared<CPathsInfo>(getMapSize(), h);
+
+		gs->calculatePaths(h, *paths.get());
+
+		pathCache[h] = paths;
+		return paths;
 	}
-	return pathInfo.get();
+	else
+	{
+		return iter->second;
+	}
 }
 
 PlayerColor CClient::getLocalPlayer() const

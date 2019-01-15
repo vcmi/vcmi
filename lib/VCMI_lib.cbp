@@ -202,6 +202,7 @@
 		<Unit filename="NetPacksBase.h" />
 		<Unit filename="NetPacksLib.cpp" />
 		<Unit filename="NetPacksLobby.h" />
+		<Unit filename="PathfinderUtil.h" />
 		<Unit filename="ResourceSet.cpp" />
 		<Unit filename="ResourceSet.h" />
 		<Unit filename="ScopeGuard.h" />
@@ -331,6 +332,7 @@
 		<Unit filename="mapping/CDrawRoadsOperation.h" />
 		<Unit filename="mapping/CMap.cpp" />
 		<Unit filename="mapping/CMap.h" />
+		<Unit filename="mapping/CMapDefines.h" />
 		<Unit filename="mapping/CMapEditManager.cpp" />
 		<Unit filename="mapping/CMapEditManager.h" />
 		<Unit filename="mapping/CMapInfo.cpp" />

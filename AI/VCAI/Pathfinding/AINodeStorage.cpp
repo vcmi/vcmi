@@ -14,7 +14,10 @@
 #include "../../../lib/mapping/CMap.h"
 #include "../../../lib/mapObjects/MapObjects.h"
 
+#include "../../../lib/PathfinderUtil.h"
+#include "../../../lib/CPlayerState.h"
 extern boost::thread_specific_ptr<CCallback> cb;
+
 
 AINodeStorage::AINodeStorage(const int3 & Sizes)
 	: sizes(Sizes)
@@ -22,8 +25,50 @@ AINodeStorage::AINodeStorage(const int3 & Sizes)
 	nodes.resize(boost::extents[sizes.x][sizes.y][sizes.z][EPathfindingLayer::NUM_LAYERS][NUM_CHAINS]);
 }
 
-AINodeStorage::~AINodeStorage()
+AINodeStorage::~AINodeStorage() = default;
+
+void AINodeStorage::initialize(const PathfinderOptions & options, const CGameState * gs, const CGHeroInstance * hero)
 {
+	//TODO: fix this code duplication with NodeStorage::initialize, problem is to keep `resetTile` inline
+
+	int3 pos;
+	const int3 sizes = gs->getMapSize();
+	const auto & fow = static_cast<const CGameInfoCallback *>(gs)->getPlayerTeam(hero->tempOwner)->fogOfWarMap;
+	const PlayerColor player = hero->tempOwner;
+
+	//make 200% sure that these are loop invariants (also a bit shorter code), let compiler do the rest(loop unswitching)
+	const bool useFlying = options.useFlying;
+	const bool useWaterWalking = options.useWaterWalking;
+
+	for(pos.x=0; pos.x < sizes.x; ++pos.x)
+	{
+		for(pos.y=0; pos.y < sizes.y; ++pos.y)
+		{
+			for(pos.z=0; pos.z < sizes.z; ++pos.z)
+			{
+				const TerrainTile * tile = &gs->map->getTile(pos);
+				switch(tile->terType)
+				{
+				case ETerrainType::ROCK:
+					break;
+
+				case ETerrainType::WATER:
+					resetTile(pos, ELayer::SAIL, PathfinderUtil::evaluateAccessibility<ELayer::SAIL>(pos, tile, fow, player, gs));
+					if(useFlying)
+						resetTile(pos, ELayer::AIR, PathfinderUtil::evaluateAccessibility<ELayer::AIR>(pos, tile, fow, player, gs));
+					if(useWaterWalking)
+						resetTile(pos, ELayer::WATER, PathfinderUtil::evaluateAccessibility<ELayer::WATER>(pos, tile, fow, player, gs));
+					break;
+
+				default:
+					resetTile(pos, ELayer::LAND, PathfinderUtil::evaluateAccessibility<ELayer::LAND>(pos, tile, fow, player, gs));
+					if(useFlying)
+						resetTile(pos, ELayer::AIR, PathfinderUtil::evaluateAccessibility<ELayer::AIR>(pos, tile, fow, player, gs));
+					break;
+				}
+			}
+		}
+	}
 }
 
 const AIPathNode * AINodeStorage::getAINode(const CGPathNode * node) const
@@ -97,7 +142,8 @@ void AINodeStorage::commit(CDestinationNodeInfo & destination, const PathNodeInf
 {
 	const AIPathNode * srcNode = getAINode(source.node);
 
-	updateAINode(destination.node, [&](AIPathNode * dstNode) {
+	updateAINode(destination.node, [&](AIPathNode * dstNode)
+	{
 		dstNode->moveRemains = destination.movementLeft;
 		dstNode->turns = destination.turn;
 		dstNode->danger = srcNode->danger;
@@ -172,18 +218,18 @@ std::vector<CGPathNode *> AINodeStorage::calculateTeleportations(
 
 	if(source.isNodeObjectVisitable())
 	{
-		auto accessibleExits = pathfinderHelper->getTeleportExits(source);
-		auto srcNode = getAINode(source.node);
+	auto accessibleExits = pathfinderHelper->getTeleportExits(source);
+	auto srcNode = getAINode(source.node);
 
-		for(auto & neighbour : accessibleExits)
-		{
-			auto node = getOrCreateNode(neighbour, source.node->layer, srcNode->chainMask);
+	for(auto & neighbour : accessibleExits)
+	{
+		auto node = getOrCreateNode(neighbour, source.node->layer, srcNode->chainMask);
 
-			if(!node)
-				continue;
+		if(!node)
+			continue;
 
-			neighbours.push_back(node.get());
-		}
+		neighbours.push_back(node.get());
+	}
 	}
 
 	if(hero->getPosition(false) == source.coord)
@@ -287,7 +333,6 @@ bool AINodeStorage::hasBetterChain(const PathNodeInfo & source, CDestinationNode
 					destinationNode->chainMask,
 					node.moveRemains - destinationNode->moveRemains);
 #endif
-
 				return true;
 			}
 		}

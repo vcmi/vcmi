@@ -149,7 +149,6 @@ public:
 
 private:
 	std::string pattern;
-	mutable std::stringstream dateStream;
 };
 
 /// The interface ILogTarget is used by all log target implementations. It holds

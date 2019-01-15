@@ -474,14 +474,14 @@ int IBonusBearer::valOfBonuses(Bonus::BonusType type, const CSelector &selector)
 
 int IBonusBearer::valOfBonuses(Bonus::BonusType type, int subtype) const
 {
-	std::stringstream cachingStr;
-	cachingStr << "type_" << type << "s_" << subtype;
+	boost::format fmt("type_%ds_%d");
+	fmt % (int)type % subtype;
 
 	CSelector s = Selector::type(type);
 	if(subtype != -1)
 		s = s.And(Selector::subtype(subtype));
 
-	return valOfBonuses(s, cachingStr.str());
+	return valOfBonuses(s, fmt.str());
 }
 
 int IBonusBearer::valOfBonuses(const CSelector &selector, const std::string &cachingStr) const
@@ -502,14 +502,14 @@ bool IBonusBearer::hasBonus(const CSelector &selector, const CSelector &limit, c
 
 bool IBonusBearer::hasBonusOfType(Bonus::BonusType type, int subtype) const
 {
-	std::stringstream cachingStr;
-	cachingStr << "type_" << type << "s_" << subtype;
+	boost::format fmt("type_%ds_%d");
+	fmt % (int)type % subtype;
 
 	CSelector s = Selector::type(type);
 	if(subtype != -1)
 		s = s.And(Selector::subtype(subtype));
 
-	return hasBonus(s, cachingStr.str());
+	return hasBonus(s, fmt.str());
 }
 
 const TBonusListPtr IBonusBearer::getBonuses(const CSelector &selector, const std::string &cachingStr) const
@@ -524,9 +524,10 @@ const TBonusListPtr IBonusBearer::getBonuses(const CSelector &selector, const CS
 
 bool IBonusBearer::hasBonusFrom(Bonus::BonusSource source, ui32 sourceID) const
 {
-	std::stringstream cachingStr;
-	cachingStr << "source_" << source << "id_" << sourceID;
-	return hasBonus(Selector::source(source,sourceID), cachingStr.str());
+	boost::format fmt("source_%did_%d");
+	fmt % (int)source % sourceID;
+
+	return hasBonus(Selector::source(source,sourceID), fmt.str());
 }
 
 int IBonusBearer::MoraleVal() const
@@ -605,7 +606,12 @@ si32 IBonusBearer::manaLimit() const
 
 int IBonusBearer::getPrimSkillLevel(PrimarySkill::PrimarySkill id) const
 {
-	int ret = valOfBonuses(Bonus::PRIMARY_SKILL, id);
+	static const CSelector selectorAllSkills = Selector::type(Bonus::PRIMARY_SKILL);
+	static const std::string keyAllSkills = "type_PRIMARY_SKILL";
+
+	auto allSkills = getBonuses(selectorAllSkills, keyAllSkills);
+
+	int ret = allSkills->valOfBonuses(Selector::subtype(id));
 
 	vstd::amax(ret, id/2); //minimal value is 0 for attack and defense and 1 for spell power and knowledge
 	return ret;
@@ -634,11 +640,12 @@ ui32 IBonusBearer::Speed(int turn, bool useBind) const
 
 bool IBonusBearer::isLiving() const //TODO: theoreticaly there exists "LIVING" bonus in stack experience documentation
 {
-	std::stringstream cachingStr;
-	cachingStr << "type_" << Bonus::UNDEAD << "s_-1Otype_" << Bonus::NON_LIVING << "s_-11type_" << Bonus::SIEGE_WEAPON; //I don't really get what string labels mean?
-	return !hasBonus(Selector::type(Bonus::UNDEAD)
-					.Or(Selector::type(Bonus::NON_LIVING))
-					.Or(Selector::type(Bonus::SIEGE_WEAPON)), cachingStr.str());
+	static const std::string cachingStr = "IBonusBearer::isLiving";
+	static const CSelector selector = Selector::type(Bonus::UNDEAD)
+		.Or(Selector::type(Bonus::NON_LIVING))
+		.Or(Selector::type(Bonus::SIEGE_WEAPON));
+
+	return !hasBonus(selector, cachingStr);
 }
 
 const std::shared_ptr<Bonus> IBonusBearer::getBonus(const CSelector &selector) const
