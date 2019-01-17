@@ -3644,7 +3644,7 @@ std::shared_ptr<IImage> CBattleInterface::getObstacleImage(const CObstacleInstan
 
 		if(cacheIter == animationsCache.end())
 		{
-			logAi->trace("Creating obstacle animation %s", animationName);
+			logAnim->trace("Creating obstacle animation %s", animationName);
 
 			animation = std::make_shared<CAnimation>(animationName);
 			animation->preload();

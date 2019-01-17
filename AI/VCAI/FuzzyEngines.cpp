@@ -50,15 +50,25 @@ armyStructure evaluateArmyStructure(const CArmedInstance * army)
 	double shootersStrenght = 0;
 	ui32 maxSpeed = 0;
 
+	static const CSelector selectorSHOOTER = Selector::type(Bonus::SHOOTER);
+	static const std::string keySHOOTER = "type_"+std::to_string((int32_t)Bonus::SHOOTER);
+
+	static const CSelector selectorFLYING = Selector::type(Bonus::FLYING);
+	static const std::string keyFLYING = "type_"+std::to_string((int32_t)Bonus::FLYING);
+
+	static const CSelector selectorSTACKS_SPEED = Selector::type(Bonus::STACKS_SPEED);
+	static const std::string keySTACKS_SPEED = "type_"+std::to_string((int32_t)Bonus::STACKS_SPEED);
+
 	for(auto s : army->Slots())
 	{
 		bool walker = true;
-		if(s.second->type->hasBonusOfType(Bonus::SHOOTER))
+		const CCreature * creature = s.second->type;
+		if(creature->hasBonus(selectorSHOOTER, keySHOOTER))
 		{
 			shootersStrenght += s.second->getPower();
 			walker = false;
 		}
-		if(s.second->type->hasBonusOfType(Bonus::FLYING))
+		if(creature->hasBonus(selectorFLYING, keyFLYING))
 		{
 			flyersStrenght += s.second->getPower();
 			walker = false;
@@ -66,7 +76,7 @@ armyStructure evaluateArmyStructure(const CArmedInstance * army)
 		if(walker)
 			walkersStrenght += s.second->getPower();
 
-		vstd::amax(maxSpeed, s.second->type->valOfBonuses(Bonus::STACKS_SPEED));
+		vstd::amax(maxSpeed, creature->valOfBonuses(selectorSTACKS_SPEED, keySTACKS_SPEED));
 	}
 	armyStructure as;
 	as.walkers = walkersStrenght / totalStrenght;
@@ -79,12 +89,15 @@ armyStructure evaluateArmyStructure(const CArmedInstance * army)
 
 float HeroMovementGoalEngineBase::calculateTurnDistanceInputValue(const Goals::AbstractGoal & goal) const
 {
-	if(goal.evaluationContext.movementCost != 0)
+	if(goal.evaluationContext.movementCost > 0)
 	{
-		return goal.evaluationContext.movementCost / (float)goal.hero->maxMovePoints(true);
+		return goal.evaluationContext.movementCost;
 	}
-
-	return distanceToTile(goal.hero.h, goal.tile) / (float)goal.hero->maxMovePoints(true);
+	else
+	{
+		auto pathInfo = ai->myCb->getPathsInfo(goal.hero.h)->getPathInfo(goal.tile);
+		return pathInfo->cost;
+	}
 }
 
 TacticalAdvantageEngine::TacticalAdvantageEngine()

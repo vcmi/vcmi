@@ -195,7 +195,10 @@ public:
 	void setSecSkillLevel(SecondarySkill which, int val, bool abs);// abs == 0 - changes by value; 1 - sets to value
 	void levelUp(std::vector<SecondarySkill> skills);
 
-	int maxMovePoints(bool onLand, const TurnInfo * ti = nullptr) const;
+	int maxMovePoints(bool onLand) const;
+	//cached version is much faster, TurnInfo construction is costly
+	int maxMovePointsCached(bool onLand, const TurnInfo * ti) const;
+
 	int movementPointsAfterEmbark(int MPsBefore, int basicCost, bool disembark = false, const TurnInfo * ti = nullptr) const;
 
 	static int3 convertPosition(int3 src, bool toh3m); //toh3m=true: manifest->h3m; toh3m=false: h3m->manifest

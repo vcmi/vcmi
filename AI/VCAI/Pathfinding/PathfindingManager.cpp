@@ -124,14 +124,16 @@ Goals::TGoalVec PathfindingManager::findPath(
 
 	std::vector<AIPath> chainInfo = pathfinder->getPathInfo(hero, dest);
 
+#ifdef VCMI_TRACE_PATHFINDER
 	logAi->trace("Trying to find a way for %s to visit tile %s", hero->name, dest.toString());
+#endif
 
 	for(auto path : chainInfo)
 	{
 		int3 firstTileToGet = path.firstTileToGet();
-
+#ifdef VCMI_TRACE_PATHFINDER
 		logAi->trace("Path found size=%i, first tile=%s", path.nodes.size(), firstTileToGet.toString());
-
+#endif
 		if(firstTileToGet.valid() && ai->isTileNotReserved(hero.get(), firstTileToGet))
 		{
 			danger = path.getTotalDanger(hero);
@@ -158,9 +160,9 @@ Goals::TGoalVec PathfindingManager::findPath(
 					solution->evaluationContext.danger = danger;
 
 				solution->evaluationContext.movementCost += path.movementCost();
-
+#ifdef VCMI_TRACE_PATHFINDER
 				logAi->trace("It's safe for %s to visit tile %s with danger %s, goal %s", hero->name, dest.toString(), std::to_string(danger), solution->name());
-
+#endif
 				result.push_back(solution);
 
 				continue;
@@ -178,7 +180,9 @@ Goals::TGoalVec PathfindingManager::findPath(
 	if(allowGatherArmy && danger > 0)
 	{
 		//we need to get army in order to conquer that place
+#ifdef VCMI_TRACE_PATHFINDER
 		logAi->trace("Gather army for %s, value=%s", hero->name, std::to_string(danger));
+#endif
 		result.push_back(sptr(Goals::GatherArmy(danger * SAFE_ATTACK_CONSTANT).sethero(hero).setisAbstract(true)));
 	}
 

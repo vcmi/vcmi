@@ -49,24 +49,62 @@ struct DLL_LINKAGE CGPathNode
 		NOT_SET = 0,
 		ACCESSIBLE = 1, //tile can be entered and passed
 		VISITABLE, //tile can be entered as the last tile in path
-		BLOCKVIS,  //visitable from neighbouring tile but not passable
+		BLOCKVIS,  //visitable from neighboring tile but not passable
 		FLYABLE, //can only be accessed in air layer
 		BLOCKED //tile can't be entered nor visited
 	};
 
 	CGPathNode * theNodeBefore;
 	int3 coord; //coordinates
-	ui32 moveRemains; //remaining tiles after hero reaches the tile
-	ui8 turns; //how many turns we have to wait before reachng the tile - 0 means current turn
 	ELayer layer;
+	ui32 moveRemains; //remaining movement points after hero reaches the tile
+	float cost; //total cost of the path to this tile measured in turns with fractions
+	ui8 turns; //how many turns we have to wait before reaching the tile - 0 means current turn
+
 	EAccessibility accessible;
 	ENodeAction action;
 	bool locked;
 
-	CGPathNode();
-	void reset();
-	void update(const int3 & Coord, const ELayer Layer, const EAccessibility Accessible);
-	bool reachable() const;
+	CGPathNode()
+		: coord(-1),
+		layer(ELayer::WRONG)
+	{
+		reset();
+	}
+
+	STRONG_INLINE
+	void reset()
+	{
+		locked = false;
+		accessible = NOT_SET;
+		moveRemains = 0;
+		cost = std::numeric_limits<float>::max();
+		turns = 255;
+		theNodeBefore = nullptr;
+		action = UNKNOWN;
+	}
+
+	STRONG_INLINE
+	void update(const int3 & Coord, const ELayer Layer, const EAccessibility Accessible)
+	{
+		if(layer == ELayer::WRONG)
+		{
+			coord = Coord;
+			layer = Layer;
+		}
+		else
+		{
+			reset();
+		}
+
+		accessible = Accessible;
+	}
+
+	STRONG_INLINE
+	bool reachable() const
+	{
+		return turns < 255;
+	}
 };
 
 struct DLL_LINKAGE CGPath
@@ -82,21 +120,22 @@ struct DLL_LINKAGE CPathsInfo
 {
 	typedef EPathfindingLayer ELayer;
 
-	mutable boost::mutex pathMx;
-
 	const CGHeroInstance * hero;
 	int3 hpos;
 	int3 sizes;
 	boost::multi_array<CGPathNode, 4> nodes; //[w][h][level][layer]
 
-	CPathsInfo(const int3 & Sizes);
+	CPathsInfo(const int3 & Sizes, const CGHeroInstance * hero_);
 	~CPathsInfo();
 	const CGPathNode * getPathInfo(const int3 & tile) const;
 	bool getPath(CGPath & out, const int3 & dst) const;
-	int getDistance(const int3 & tile) const;
 	const CGPathNode * getNode(const int3 & coord) const;
 
-	CGPathNode * getNode(const int3 & coord, const ELayer layer);
+	STRONG_INLINE
+	CGPathNode * getNode(const int3 & coord, const ELayer layer)
+	{
+		return &nodes[coord.x][coord.y][coord.z][layer];
+	}
 };
 
 struct DLL_LINKAGE PathNodeInfo
@@ -120,6 +159,7 @@ struct DLL_LINKAGE CDestinationNodeInfo : public PathNodeInfo
 	CGPathNode::ENodeAction action;
 	int turn;
 	int movementLeft;
+	float cost; //same as CGPathNode::cost
 	bool blocked;
 	bool isGuardianTile;
 
@@ -230,55 +270,6 @@ protected:
 		const CPathfinderHelper * pathfinderHelper) const override;
 };
 
-
-class INodeStorage
-{
-public:
-	virtual CGPathNode * getInitialNode() = 0;
-	virtual void resetTile(const int3 & tile, EPathfindingLayer layer, CGPathNode::EAccessibility accessibility) = 0;
-
-	virtual std::vector<CGPathNode *> calculateNeighbours(
-		const PathNodeInfo & source,
-		const PathfinderConfig * pathfinderConfig,
-		const CPathfinderHelper * pathfinderHelper) = 0;
-
-	virtual std::vector<CGPathNode *> calculateTeleportations(
-		const PathNodeInfo & source,
-		const PathfinderConfig * pathfinderConfig,
-		const CPathfinderHelper * pathfinderHelper) = 0;
-
-	virtual void commit(CDestinationNodeInfo & destination, const PathNodeInfo & source) = 0;
-};
-
-class DLL_LINKAGE NodeStorage : public INodeStorage
-{
-private:
-	CPathsInfo & out;
-
-public:
-	NodeStorage(CPathsInfo & pathsInfo, const CGHeroInstance * hero);
-
-	CGPathNode * getNode(const int3 & coord, const EPathfindingLayer layer);
-	virtual CGPathNode * getInitialNode() override;
-
-	virtual std::vector<CGPathNode *> calculateNeighbours(
-		const PathNodeInfo & source,
-		const PathfinderConfig * pathfinderConfig,
-		const CPathfinderHelper * pathfinderHelper) override;
-
-	virtual std::vector<CGPathNode *> calculateTeleportations(
-		const PathNodeInfo & source,
-		const PathfinderConfig * pathfinderConfig,
-		const CPathfinderHelper * pathfinderHelper) override;
-
-	virtual void resetTile(
-		const int3 & tile, 
-		EPathfindingLayer layer, 
-		CGPathNode::EAccessibility accessibility) override;
-
-	virtual void commit(CDestinationNodeInfo & destination, const PathNodeInfo & source) override;
-};
-
 struct DLL_LINKAGE PathfinderOptions
 {
 	bool useFlying;
@@ -330,6 +321,61 @@ struct DLL_LINKAGE PathfinderOptions
 	PathfinderOptions();
 };
 
+class DLL_LINKAGE INodeStorage
+{
+public:
+	using ELayer = EPathfindingLayer;
+	virtual CGPathNode * getInitialNode() = 0;
+
+	virtual std::vector<CGPathNode *> calculateNeighbours(
+		const PathNodeInfo & source,
+		const PathfinderConfig * pathfinderConfig,
+		const CPathfinderHelper * pathfinderHelper) = 0;
+
+	virtual std::vector<CGPathNode *> calculateTeleportations(
+		const PathNodeInfo & source,
+		const PathfinderConfig * pathfinderConfig,
+		const CPathfinderHelper * pathfinderHelper) = 0;
+
+	virtual void commit(CDestinationNodeInfo & destination, const PathNodeInfo & source) = 0;
+
+	virtual void initialize(const PathfinderOptions & options, const CGameState * gs, const CGHeroInstance * hero) = 0;
+};
+
+class DLL_LINKAGE NodeStorage : public INodeStorage
+{
+private:
+	CPathsInfo & out;
+
+	STRONG_INLINE
+	void resetTile(const int3 & tile, EPathfindingLayer layer, CGPathNode::EAccessibility accessibility);
+
+public:
+	NodeStorage(CPathsInfo & pathsInfo, const CGHeroInstance * hero);
+
+	STRONG_INLINE
+	CGPathNode * getNode(const int3 & coord, const EPathfindingLayer layer)
+	{
+		return out.getNode(coord, layer);
+	}
+
+	void initialize(const PathfinderOptions & options, const CGameState * gs, const CGHeroInstance * hero) override;
+
+	virtual CGPathNode * getInitialNode() override;
+
+	virtual std::vector<CGPathNode *> calculateNeighbours(
+		const PathNodeInfo & source,
+		const PathfinderConfig * pathfinderConfig,
+		const CPathfinderHelper * pathfinderHelper) override;
+
+	virtual std::vector<CGPathNode *> calculateTeleportations(
+		const PathNodeInfo & source,
+		const PathfinderConfig * pathfinderConfig,
+		const CPathfinderHelper * pathfinderHelper) override;
+
+	virtual void commit(CDestinationNodeInfo & destination, const PathNodeInfo & source) override;
+};
+
 class DLL_LINKAGE PathfinderConfig
 {
 public:
@@ -349,17 +395,16 @@ public:
 
 	CPathfinder(CPathsInfo & _out, CGameState * _gs, const CGHeroInstance * _hero);
 	CPathfinder(
-		CGameState * _gs, 
-		const CGHeroInstance * _hero, 
+		CGameState * _gs,
+		const CGHeroInstance * _hero,
 		std::shared_ptr<PathfinderConfig> config);
 
 	void calculatePaths(); //calculates possible paths for hero, uses current hero position and movement left; returns pointer to newly allocated CPath or nullptr if path does not exists
 
 private:
 	typedef EPathfindingLayer ELayer;
-	
+
 	const CGHeroInstance * hero;
-	const std::vector<std::vector<std::vector<ui8> > > &FoW;
 	std::unique_ptr<CPathfinderHelper> hlp;
 	std::shared_ptr<PathfinderConfig> config;
 
@@ -372,14 +417,10 @@ private:
 
 	struct NodeComparer
 	{
+		STRONG_INLINE
 		bool operator()(const CGPathNode * lhs, const CGPathNode * rhs) const
 		{
-			if(rhs->turns > lhs->turns)
-				return false;
-			else if(rhs->turns == lhs->turns && rhs->moveRemains <= lhs->moveRemains)
-				return false;
-
-			return true;
+			return lhs->cost > rhs->cost;
 		}
 	};
 	boost::heap::priority_queue<CGPathNode *, boost::heap::compare<NodeComparer> > pq;
@@ -400,8 +441,6 @@ private:
 
 	void initializePatrol();
 	void initializeGraph();
-
-	CGPathNode::EAccessibility evaluateAccessibility(const int3 & pos, const TerrainTile * tinfo, const ELayer layer) const;
 };
 
 struct DLL_LINKAGE TurnInfo
@@ -463,17 +502,17 @@ public:
 
 	void getNeighbours(
 		const TerrainTile & srct,
-		const int3 & tile, 
-		std::vector<int3> & vec, 
-		const boost::logic::tribool & onLand, 
+		const int3 & tile,
+		std::vector<int3> & vec,
+		const boost::logic::tribool & onLand,
 		const bool limitCoastSailing) const;
-	
+
 	int getMovementCost(
-		const int3 & src, 
-		const int3 & dst, 
+		const int3 & src,
+		const int3 & dst,
 		const TerrainTile * ct,
 		const TerrainTile * dt,
-		const int remainingMovePoints =- 1, 
+		const int remainingMovePoints =- 1,
 		const bool checkLast = true) const;
 
 	int getMovementCost(
@@ -492,7 +531,6 @@ public:
 		);
 	}
 
-	int getHeroMaxMovementPoints(EPathfindingLayer layer) const;
-	int movementPointsAfterEmbark(int movement, int cost, int action) const;
+	int movementPointsAfterEmbark(int movement, int basicCost, bool disembark) const;
 	bool passOneTurnLimitCheck(const PathNodeInfo & source) const;
 };

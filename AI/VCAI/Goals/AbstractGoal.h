@@ -91,12 +91,14 @@ namespace Goals
 
 	struct DLL_EXPORT EvaluationContext
 	{
-		uint64_t movementCost;
+		float movementCost;
 		int manaCost;
 		uint64_t danger;
 
 		EvaluationContext()
-			:movementCost(0), danger(0), manaCost(0)
+			: movementCost(0.0),
+			manaCost(0),
+			danger(0)
 		{
 		}
 	};

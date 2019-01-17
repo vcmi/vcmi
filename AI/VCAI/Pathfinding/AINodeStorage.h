@@ -24,7 +24,7 @@ public:
 
 	virtual void applyOnDestination(
 		HeroPtr hero,
-		CDestinationNodeInfo & destination, 
+		CDestinationNodeInfo & destination,
 		const PathNodeInfo & source,
 		AIPathNode * dstMode,
 		const AIPathNode * srcNode) const
@@ -42,8 +42,7 @@ struct AIPathNode : public CGPathNode
 
 struct AIPathNodeInfo
 {
-	uint32_t movementPointsLeft;
-	uint32_t movementPointsUsed;
+	float cost;
 	int turns;
 	int3 coord;
 	uint64_t danger;
@@ -64,7 +63,7 @@ struct AIPath
 
 	int3 firstTileToGet() const;
 
-	uint32_t movementCost() const;
+	float movementCost() const;
 };
 
 class AINodeStorage : public INodeStorage
@@ -75,6 +74,9 @@ private:
 	/// 1-3 - position on map, 4 - layer (air, water, land), 5 - chain (normal, battle, spellcast and combinations)
 	boost::multi_array<AIPathNode, 5> nodes;
 	const CGHeroInstance * hero;
+
+	STRONG_INLINE
+	void resetTile(const int3 & tile, EPathfindingLayer layer, CGPathNode::EAccessibility accessibility);
 
 public:
 	/// more than 1 chain layer allows us to have more than 1 path to each tile so we can chose more optimal one.
@@ -89,8 +91,9 @@ public:
 	AINodeStorage(const int3 & sizes);
 	~AINodeStorage();
 
+	void initialize(const PathfinderOptions & options, const CGameState * gs, const CGHeroInstance * hero) override;
+
 	virtual CGPathNode * getInitialNode() override;
-	virtual void resetTile(const int3 & tile, EPathfindingLayer layer, CGPathNode::EAccessibility accessibility) override;
 
 	virtual std::vector<CGPathNode *> calculateNeighbours(
 		const PathNodeInfo & source,

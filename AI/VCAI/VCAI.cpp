@@ -65,31 +65,6 @@ struct SetGlobalState
 #define NET_EVENT_HANDLER SET_GLOBAL_STATE(this)
 #define MAKING_TURN SET_GLOBAL_STATE(this)
 
-void foreach_tile(std::vector<std::vector<std::vector<unsigned char>>> & vectors, std::function<void(unsigned char & in)> foo)
-{
-	for(auto & vector : vectors)
-	{
-		for(auto j = vector.begin(); j != vector.end(); j++)
-		{
-			for(auto & elem : *j)
-				foo(elem);
-		}
-	}
-}
-
-struct ObjInfo
-{
-	int3 pos;
-	std::string name;
-	ObjInfo(){}
-	ObjInfo(const CGObjectInstance * obj)
-		: pos(obj->pos), name(obj->getObjectName())
-	{
-	}
-};
-
-std::map<const CGObjectInstance *, ObjInfo> helperObjInfo;
-
 VCAI::VCAI()
 {
 	LOG_TRACE(logAi);
@@ -1014,13 +989,13 @@ void VCAI::mainLoop()
 			//remove goals we couldn't decompose
 			for (auto goal : goalsToRemove)
 				vstd::erase_if_present(basicGoals, goal);
-			
+
 			//add abstract goals
 			boost::sort(goalsToAdd, [](const Goals::TSubgoal & lhs, const Goals::TSubgoal & rhs) -> bool
 			{
 				return lhs->priority > rhs->priority; //highest priority at the beginning
 			});
-			
+
 			//max number of goals = 10
 			int i = 0;
 			while (basicGoals.size() < 10 && goalsToAdd.size() > i)
@@ -1303,17 +1278,17 @@ void VCAI::recruitCreatures(const CGDwelling * d, const CArmedInstance * recruit
 	}
 }
 
-bool VCAI::isGoodForVisit(const CGObjectInstance * obj, HeroPtr h, boost::optional<uint32_t> movementCostLimit)
+bool VCAI::isGoodForVisit(const CGObjectInstance * obj, HeroPtr h, boost::optional<float> movementCostLimit)
 {
 	int3 op = obj->visitablePos();
 	auto paths = ah->getPathsToTile(h, op);
 
-	for(auto path : paths)
+	for(const auto & path : paths)
 	{
 		if(movementCostLimit && movementCostLimit.get() < path.movementCost())
 			return false;
 
-		if(ai->isGoodForVisit(obj, h, path))
+		if(isGoodForVisit(obj, h, path))
 			return true;
 	}
 
@@ -1330,7 +1305,7 @@ bool VCAI::isGoodForVisit(const CGObjectInstance * obj, HeroPtr h, const AIPath 
 		return false;
 	if (obj->wasVisited(playerID))
 		return false;
-	if (cb->getPlayerRelations(ai->playerID, obj->tempOwner) != PlayerRelations::ENEMIES && !isWeeklyRevisitable(obj))
+	if (cb->getPlayerRelations(playerID, obj->tempOwner) != PlayerRelations::ENEMIES && !isWeeklyRevisitable(obj))
 		return false; // Otherwise we flag or get weekly resources / creatures
 	if (!isSafeToVisit(h, pos))
 		return false;
@@ -1424,17 +1399,18 @@ void VCAI::wander(HeroPtr h)
 		});
 
 		int pass = 0;
-		std::vector<boost::optional<ui32>> distanceLimits = {
-			h->movement,
-			h->movement + h->maxMovePoints(true),
+		std::vector<boost::optional<float>> distanceLimits =
+		{
+			1.0,
+			2.0,
 			boost::none
 		};
 
 		while(!dests.size() && pass < distanceLimits.size())
 		{
-			boost::optional<ui32> distanceLimit = distanceLimits[pass];
+			auto & distanceLimit = distanceLimits[pass];
 
-			logAi->debug("Looking for wander destination pass=%i, distance limit=%i", pass, distanceLimit.get_value_or(-1));
+			logAi->debug("Looking for wander destination pass=%i, cost limit=%f", pass, distanceLimit.get_value_or(-1.0));
 
 			vstd::copy_if(visitableObjs, std::back_inserter(dests), [&](ObjectIdRef obj) -> bool
 			{
@@ -1773,7 +1749,6 @@ std::vector<const CGObjectInstance *> VCAI::getFlaggedObjects() const
 void VCAI::addVisitableObj(const CGObjectInstance * obj)
 {
 	visitableObjs.insert(obj);
-	helperObjInfo[obj] = ObjInfo(obj);
 
 	// All teleport objects seen automatically assigned to appropriate channels
 	auto teleportObj = dynamic_cast<const CGTeleport *>(obj);
@@ -2218,8 +2193,8 @@ void VCAI::tryRealize(Goals::BuyArmy & g)
 		{
 			auto ci = infoFromDC(t->creatures[i]);
 
-			if(!ci.count 
-				|| ci.creID == -1 
+			if(!ci.count
+				|| ci.creID == -1
 				|| (g.objid != -1 && ci.creID != g.objid)
 				|| t->getUpperArmy()->getSlotFor(ci.creID) == SlotID())
 				continue;

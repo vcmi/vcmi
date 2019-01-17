@@ -55,13 +55,17 @@ static int lowestSpeed(const CGHeroInstance * chi)
 	}
 	auto i = chi->Slots().begin();
 	//TODO? should speed modifiers (eg from artifacts) affect hero movement?
-	int ret = (i++)->second->valOfBonuses(Bonus::STACKS_SPEED);
+
+	static const CSelector selectorSTACKS_SPEED = Selector::type(Bonus::STACKS_SPEED);
+	static const std::string keySTACKS_SPEED = "type_"+std::to_string((si32)Bonus::STACKS_SPEED);
+
+	int ret = (i++)->second->valOfBonuses(selectorSTACKS_SPEED, keySTACKS_SPEED);
 	for(; i != chi->Slots().end(); i++)
-		ret = std::min(ret, i->second->valOfBonuses(Bonus::STACKS_SPEED));
+		ret = std::min(ret, i->second->valOfBonuses(selectorSTACKS_SPEED, keySTACKS_SPEED));
 	return ret;
 }
 
-ui32 CGHeroInstance::getTileCost(const TerrainTile &dest, const TerrainTile &from, const TurnInfo * ti) const
+ui32 CGHeroInstance::getTileCost(const TerrainTile & dest, const TerrainTile & from, const TurnInfo * ti) const
 {
 	unsigned ret = GameConstants::BASE_MOVEMENT_COST;
 
@@ -87,8 +91,11 @@ ui32 CGHeroInstance::getTileCost(const TerrainTile &dest, const TerrainTile &fro
 	}
 	else if(ti->nativeTerrain != from.terType && !ti->hasBonusOfType(Bonus::NO_TERRAIN_PENALTY, from.terType))
 	{
+		static const CSelector selectorPATHFINDING = Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::PATHFINDING);
+		static const std::string keyPATHFINDING = "type_"+std::to_string((si32)Bonus::SECONDARY_SKILL_PREMY)+"s_"+std::to_string((si32)SecondarySkill::PATHFINDING);
+
 		ret = VLC->heroh->terrCosts[from.terType];
-		ret -= valOfBonuses(Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::PATHFINDING));
+		ret -= valOfBonuses(selectorPATHFINDING, keyPATHFINDING);
 		if(ret < GameConstants::BASE_MOVEMENT_COST)
 			ret = GameConstants::BASE_MOVEMENT_COST;
 	}
@@ -186,15 +193,14 @@ bool CGHeroInstance::canLearnSkill() const
 	return secSkills.size() < GameConstants::SKILL_PER_HERO;
 }
 
-int CGHeroInstance::maxMovePoints(bool onLand, const TurnInfo * ti) const
+int CGHeroInstance::maxMovePoints(bool onLand) const
 {
-	bool localTi = false;
-	if(!ti)
-	{
-		localTi = true;
-		ti = new TurnInfo(this);
-	}
+	TurnInfo ti(this);
+	return maxMovePointsCached(onLand, &ti);
+}
 
+int CGHeroInstance::maxMovePointsCached(bool onLand, const TurnInfo * ti) const
+{
 	int base;
 
 	if(onLand)
@@ -218,10 +224,7 @@ int CGHeroInstance::maxMovePoints(bool onLand, const TurnInfo * ti) const
 	const int subtype = onLand ? SecondarySkill::LOGISTICS : SecondarySkill::NAVIGATION;
 	const double modifier = ti->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, subtype) / 100.0;
 
-	if(localTi)
-		delete ti;
-
-	return int(base* (1+modifier)) + bonus;
+	return int(base * (1 + modifier)) + bonus;
 }
 
 CGHeroInstance::CGHeroInstance()
