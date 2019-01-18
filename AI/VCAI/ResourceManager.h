@@ -35,7 +35,7 @@ struct DLL_EXPORT ResourceObjective
 	}
 };
 
-class IResourceManager //: public: IAbstractManager
+class DLL_EXPORT IResourceManager //: public: IAbstractManager
 {
 public:
 	virtual ~IResourceManager() = default;

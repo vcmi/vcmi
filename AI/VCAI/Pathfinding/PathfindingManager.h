@@ -13,7 +13,7 @@
 #include "../VCAI.h"
 #include "AINodeStorage.h"
 
-class IPathfindingManager
+class DLL_EXPORT IPathfindingManager
 {
 public:
 	virtual ~IPathfindingManager() = default;
@@ -28,8 +28,8 @@ public:
 	virtual std::vector<AIPath> getPathsToTile(HeroPtr hero, int3 tile) = 0;
 	virtual bool isTileAccessible(HeroPtr hero, int3 tile) = 0;
 };
-	
-class PathfindingManager : public IPathfindingManager
+
+class DLL_EXPORT PathfindingManager : public IPathfindingManager
 {
 	friend class AIhelper;
 
@@ -55,9 +55,9 @@ private:
 	void setAI(VCAI * AI) override;
 
 	Goals::TGoalVec findPath(
-		HeroPtr hero, 
+		HeroPtr hero,
 		crint3 dest,
-		bool allowGatherArmy, 
+		bool allowGatherArmy,
 		const std::function<Goals::TSubgoal(int3)> goalFactory);
 
 	Goals::TSubgoal clearWayTo(HeroPtr hero, int3 firstTileToGet);

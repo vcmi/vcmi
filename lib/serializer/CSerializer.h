@@ -187,14 +187,14 @@ struct VectorizedIDType
 };
 
 /// Base class for deserializers
-class IBinaryReader : public virtual CSerializer
+class DLL_LINKAGE IBinaryReader : public virtual CSerializer
 {
 public:
 	virtual int read(void * data, unsigned size) = 0;
 };
 
 /// Base class for serializers
-class IBinaryWriter : public virtual CSerializer
+class DLL_LINKAGE IBinaryWriter : public virtual CSerializer
 {
 public:
 	virtual int write(const void * data, unsigned size) = 0;
