@@ -789,12 +789,13 @@ void processCommand(const std::string &message)
 	}
 	else if(cn == "gui")
 	{
-		for(auto child : GH.listInt)
+		for(auto & child : GH.listInt)
 		{
-			if(const CIntObject *obj = dynamic_cast<const CIntObject *>(child.get()))
+			const auto childPtr = child.get();
+			if(const CIntObject * obj = dynamic_cast<const CIntObject *>(childPtr))
 				printInfoAboutIntObject(obj, 0);
 			else
-				std::cout << typeid(*child).name() << std::endl;
+				std::cout << typeid(childPtr).name() << std::endl;
 		}
 	}
 	else if(cn=="tell")

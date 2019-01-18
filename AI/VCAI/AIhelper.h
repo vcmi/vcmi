@@ -45,7 +45,7 @@ public:
 
 	Goals::TSubgoal whatToDo(TResources &res, Goals::TSubgoal goal) override;
 	Goals::TSubgoal whatToDo() const override;
-	bool containsObjective(Goals::TSubgoal goal) const;
+	bool containsObjective(Goals::TSubgoal goal) const override;
 	bool hasTasksLeft() const override;
 	bool removeOutdatedObjectives(std::function<bool(const Goals::TSubgoal &)> predicate) override;
 
@@ -64,7 +64,7 @@ public:
 	void resetPaths() override;
 
 private:
-	bool notifyGoalCompleted(Goals::TSubgoal goal);
+	bool notifyGoalCompleted(Goals::TSubgoal goal) override;
 
 	void init(CPlayerSpecificInfoCallback * CB) override;
 	void setAI(VCAI * AI) override;

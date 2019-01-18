@@ -393,7 +393,7 @@ void CMapFormatJson::serializeHeader(JsonSerializeFormat & handler)
 	handler.serializeInt("heroLevelLimit", mapHeader->levelLimit, 0);
 
 	//todo: support arbitrary percentage
-	handler.serializeEnum("difficulty", mapHeader->difficulty, HeaderDetail::difficultyMap);
+	handler.serializeEnum("difficulty", mapHeader->difficulty, HeaderDetail::difficultyDefault, HeaderDetail::difficultyMap);
 
 	serializePlayerInfo(handler);
 
