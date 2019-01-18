@@ -79,9 +79,8 @@ namespace spells
 class ObstacleCasterProxy : public Caster
 {
 public:
-	ObstacleCasterProxy(const CGameHandler * gh_, const PlayerColor owner_, const CGHeroInstance * hero_, const SpellCreatedObstacle * obs_)
-		: gh(gh_),
-		owner(owner_),
+	ObstacleCasterProxy(const PlayerColor owner_, const CGHeroInstance * hero_, const SpellCreatedObstacle * obs_)
+		: owner(owner_),
 		hero(hero_),
 		obs(obs_)
 	{
@@ -163,7 +162,6 @@ public:
 
 private:
 	const CGHeroInstance * hero;
-	const CGameHandler * gh;
 	const PlayerColor owner;
 	const SpellCreatedObstacle * obs;
 };
@@ -4804,7 +4802,7 @@ bool CGameHandler::handleDamageFromObstacle(const CStack * curStack, bool stackI
 				if(!(spellObstacle->hidden && gs->curB->battleIsObstacleVisibleForSide(*obstacle, (BattlePerspective::BattlePerspective)side)))
 				{
 					const CGHeroInstance * hero = gs->curB->battleGetFightingHero(spellObstacle->casterSide);
-					spells::ObstacleCasterProxy caster(this, gs->curB->sides.at(spellObstacle->casterSide).color, hero, spellObstacle);
+					spells::ObstacleCasterProxy caster(gs->curB->sides.at(spellObstacle->casterSide).color, hero, spellObstacle);
 
 					const CSpell * sp = SpellID(spellObstacle->ID).toSpell();
 					if(!sp)
