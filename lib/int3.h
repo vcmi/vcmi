@@ -105,11 +105,11 @@ public:
 		switch(formula)
 		{
 		case DIST_2D:
-			return dist2d(o);
+			return static_cast<ui32>(dist2d(o));
 		case DIST_MANHATTAN:
-			return mandist2d(o);
+			return static_cast<ui32>(mandist2d(o));
 		case DIST_CHEBYSHEV:
-			return chebdist2d(o);
+			return static_cast<ui32>(chebdist2d(o));
 		case DIST_2DSQ:
 			return dist2dSQ(o);
 		default:
