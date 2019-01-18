@@ -172,7 +172,7 @@ void CMapHandler::initTerrainGraphics()
 		"lavrvr"
 	};
 
-	auto loadFlipped = [this](int types, TFlippedAnimations & animation, TFlippedCache & cache, const std::vector<std::string> & files)
+	auto loadFlipped = [](int types, TFlippedAnimations & animation, TFlippedCache & cache, const std::vector<std::string> & files)
 	{
 		animation.resize(types);
 		cache.resize(types);

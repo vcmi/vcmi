@@ -494,7 +494,7 @@ do not leave zone border
 			//try any nearby tiles, even if its not closer than current
 			float lastDistance = 2 * distance; //start with significantly larger value
 
-			auto processNeighbours2 = [this, &currentPos, dst, &lastDistance, &anotherPos, &end, clearedTiles](int3 &pos)
+			auto processNeighbours2 = [this, &currentPos, dst, &lastDistance, &anotherPos, clearedTiles](int3 &pos)
 			{
 				if (currentPos.dist2dSQ(dst) < lastDistance) //try closest tiles from all surrounding unused tiles
 				{
@@ -544,7 +544,7 @@ bool CRmgTemplateZone::createRoad(const int3& src, const int3& dst)
 	//A* algorithm taken from Wiki http://en.wikipedia.org/wiki/A*_search_algorithm
 
 	std::set<int3> closed;    // The set of nodes already evaluated.
-	auto pq = std::move(createPiorityQueue());    // The set of tentative nodes to be evaluated, initially containing the start node
+	auto pq = createPiorityQueue();    // The set of tentative nodes to be evaluated, initially containing the start node
 	std::map<int3, int3> cameFrom;  // The map of navigated nodes.
 	std::map<int3, float> distances;
 
@@ -634,7 +634,7 @@ bool CRmgTemplateZone::connectPath(const int3& src, bool onlyStraight)
 	//A* algorithm taken from Wiki http://en.wikipedia.org/wiki/A*_search_algorithm
 
 	std::set<int3> closed;    // The set of nodes already evaluated.
-	auto open = std::move(createPiorityQueue());    // The set of tentative nodes to be evaluated, initially containing the start node
+	auto open = createPiorityQueue();    // The set of tentative nodes to be evaluated, initially containing the start node
 	std::map<int3, int3> cameFrom;  // The map of navigated nodes.
 	std::map<int3, float> distances;
 
@@ -711,7 +711,7 @@ bool CRmgTemplateZone::connectWithCenter(const int3& src, bool onlyStraight)
 	//A* algorithm taken from Wiki http://en.wikipedia.org/wiki/A*_search_algorithm
 
 	std::set<int3> closed;    // The set of nodes already evaluated.
-	auto open = std::move(createPiorityQueue()); // The set of tentative nodes to be evaluated, initially containing the start node
+	auto open = createPiorityQueue(); // The set of tentative nodes to be evaluated, initially containing the start node
 	std::map<int3, int3> cameFrom;  // The map of navigated nodes.
 	std::map<int3, float> distances;
 
@@ -1108,7 +1108,7 @@ void CRmgTemplateZone::initTownType ()
 	{
 		for (auto blockedTile : town->getBlockedPos())
 		{
-			gen->foreach_neighbour(blockedTile, [this, town](const int3& pos)
+			gen->foreach_neighbour(blockedTile, [this](const int3 & pos)
 			{
 				if (gen->isPossible(pos))
 					gen->setOccupied(pos, ETileType::FREE);
@@ -2269,10 +2269,9 @@ void CRmgTemplateZone::addAllPossibleObjects()
 			{
 				if (temp.canBePlacedAt(terrainType))
 				{
-					oi.generateObject = [temp, secondaryID, dwellingHandler]() -> CGObjectInstance *
+					oi.generateObject = [temp, secondaryID]() -> CGObjectInstance *
 					{
 						auto obj = VLC->objtypeh->getHandlerFor(Obj::CREATURE_GENERATOR1, secondaryID)->create(temp);
-						//dwellingHandler->configureObject(obj, gen->rand);
 						obj->tempOwner = PlayerColor::NEUTRAL;
 						return obj;
 					};
