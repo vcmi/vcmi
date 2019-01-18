@@ -228,7 +228,7 @@ std::vector<std::string> CLogManager::getRegisteredDomains() const
 	{
 		domains.push_back(pair.second->getDomain().getName());
 	}
-	return std::move(domains);
+	return domains;
 }
 
 CLogFormatter::CLogFormatter()

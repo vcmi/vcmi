@@ -108,7 +108,7 @@ std::set<boost::filesystem::path> CFilesystemList::getResourceNames(const Resour
 			paths.insert(rn->string());
 		}
 	}
-	return std::move(paths);
+	return paths;
 }
 
 void CFilesystemList::updateFilteredFiles(std::function<bool(const std::string &)> filter) const

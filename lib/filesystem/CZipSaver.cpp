@@ -115,6 +115,6 @@ std::unique_ptr<COutputStream> CZipSaver::addFile(const std::string & archiveFil
 		throw std::runtime_error("CZipSaver::addFile: stream already opened");
 
 	std::unique_ptr<COutputStream> stream(new CZipOutputStream(this, handle, archiveFilename));
-	return std::move(stream);
+	return stream;
 }
 

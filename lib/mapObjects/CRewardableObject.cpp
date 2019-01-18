@@ -756,7 +756,7 @@ CVisitInfo CGBonusingObject::getVisitInfo(int index, const CGHeroInstance *h) co
 				vi.message.addTxt(MetaString::ADVOB_TXT, 138);
 				vi.reward.extraComponents.push_back(Component(
 					Component::CREATURE, CreatureID::CHAMPION, 0, 1));
-				return std::move(vi);
+				return vi;
 			}
 		}
 	}
