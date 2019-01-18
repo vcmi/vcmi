@@ -127,6 +127,7 @@
 		<Linker>
 			<Add directory="../" />
 		</Linker>
+		<Unit filename="../CMakeLists.txt" />
 		<Unit filename="../Global.h" />
 		<Unit filename="../Version.h" />
 		<Unit filename="../include/vstd/CLoggerBase.h" />
