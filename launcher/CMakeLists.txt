@@ -1,8 +1,3 @@
-# Detailed information about CMake compatibility available on Qt website
-# https://doc.qt.io/qt-5/cmake-manual.html
-include_directories(${CMAKE_HOME_DIRECTORY} ${CMAKE_HOME_DIRECTORY}/include ${CMAKE_CURRENT_SOURCE_DIR})
-include_directories(${ZLIB_INCLUDE_DIR} ${Boost_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${Qt5Network_INCLUDE_DIRS})
-
 set(launcher_modmanager_SRCS
 		modManager/cdownloadmanager_moc.cpp
 		modManager/cmodlist.cpp
@@ -104,7 +99,11 @@ if(APPLE)
 endif()
 
 target_link_libraries(vcmilauncher vcmi Qt5::Widgets Qt5::Network)
-
+target_include_directories(vcmilauncher
+	PUBLIC	${CMAKE_CURRENT_SOURCE_DIR}
+	PRIVATE	${Qt5Widgets_INCLUDE_DIRS}
+	PRIVATE	${Qt5Network_INCLUDE_DIRS}
+)
 vcmi_set_output_dir(vcmilauncher "")
 
 # temporary(?) disabled - generation of PCH takes too much time since cotire is trying to collect all Qt headers
