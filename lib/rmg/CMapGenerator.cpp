@@ -522,9 +522,9 @@ void CMapGenerator::createDirectConnections()
 			{
 				if (isBlocked(tile)) //tiles may be occupied by subterranean gates already placed
 					continue;
-				foreachDirectNeighbour (tile, [&guardPos, tile, &otherZoneTiles, &middleTiles, this, zoneBid](int3 &pos) //must be direct since paths also also generated between direct neighbours
+				foreachDirectNeighbour(tile, [tile, &middleTiles, this, zoneBid](int3 & pos) //must be direct since paths also also generated between direct neighbours
 				{
-					if (getZoneID(pos) == zoneBid)
+					if(getZoneID(pos) == zoneBid)
 						middleTiles.push_back(tile);
 				});
 			}

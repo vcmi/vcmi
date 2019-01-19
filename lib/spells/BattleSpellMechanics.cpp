@@ -543,7 +543,7 @@ Target BattleSpellMechanics::transformSpellTarget(const Target & aimPoint) const
 	if(spellTarget.empty())
 		spellTarget.push_back(Destination(BattleHex::INVALID));
 
-	return std::move(spellTarget);
+	return spellTarget;
 }
 
 std::vector<AimType> BattleSpellMechanics::getTargetTypes() const

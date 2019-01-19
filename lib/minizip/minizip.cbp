@@ -58,6 +58,7 @@
 			</Target>
 		</Build>
 		<Compiler>
+			<Add option="-Wno-unused-parameter" />
 			<Add directory="$(#zlib.include)" />
 		</Compiler>
 		<Linker>

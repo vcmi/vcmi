@@ -319,7 +319,7 @@ namespace TriggeredEventsDetail
 		if(!data.isNull())
 			asVector.push_back(data);
 
-		return std::move(json);
+		return json;
 	}
 }//namespace TriggeredEventsDetail
 
@@ -393,7 +393,7 @@ void CMapFormatJson::serializeHeader(JsonSerializeFormat & handler)
 	handler.serializeInt("heroLevelLimit", mapHeader->levelLimit, 0);
 
 	//todo: support arbitrary percentage
-	handler.serializeEnum("difficulty", mapHeader->difficulty, HeaderDetail::difficultyMap);
+	handler.serializeEnum("difficulty", mapHeader->difficulty, HeaderDetail::difficultyDefault, HeaderDetail::difficultyMap);
 
 	serializePlayerInfo(handler);
 
@@ -870,7 +870,7 @@ std::unique_ptr<CMap> CMapLoaderJson::loadMap()
 	map = result.get();
 	mapHeader = map;
 	readMap();
-	return std::move(result);
+	return result;
 }
 
 std::unique_ptr<CMapHeader> CMapLoaderJson::loadMapHeader()
@@ -880,7 +880,7 @@ std::unique_ptr<CMapHeader> CMapLoaderJson::loadMapHeader()
 	std::unique_ptr<CMapHeader> result = std::unique_ptr<CMapHeader>(new CMapHeader());
 	mapHeader = result.get();
 	readHeader(false);
-	return std::move(result);
+	return result;
 }
 
 JsonNode CMapLoaderJson::getFromArchive(const std::string & archiveFilename)
@@ -894,7 +894,7 @@ JsonNode CMapLoaderJson::getFromArchive(const std::string & archiveFilename)
 
 	JsonNode res(reinterpret_cast<char*>(data.first.get()), data.second);
 
-	return std::move(res);
+	return res;
 }
 
 void CMapLoaderJson::readMap()
@@ -1330,7 +1330,7 @@ JsonNode CMapSaverJson::writeTerrainLevel(const int index)
 			row.Vector()[pos.x].String() = writeTerrainTile(map->getTile(pos));
 	}
 
-	return std::move(data);
+	return data;
 }
 
 void CMapSaverJson::writeTerrain()

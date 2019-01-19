@@ -1072,7 +1072,7 @@ extern int MINIZIP_EXPORT zipOpenNewFileInZip4_64 (zipFile file, const char* fil
     int err = ZIP_OK;
 
 #    ifdef NOCRYPT
-    (crcForCrypting);
+    //(crcForCrypting);
     if (password != NULL)
         return ZIP_PARAMERROR;
 #    endif

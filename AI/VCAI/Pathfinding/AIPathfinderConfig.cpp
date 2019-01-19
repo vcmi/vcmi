@@ -410,12 +410,11 @@ namespace AIPathfinding
 	class AIMovementToDestinationRule : public MovementToDestinationRule
 	{
 	private:
-		CPlayerSpecificInfoCallback * cb;
 		std::shared_ptr<AINodeStorage> nodeStorage;
 
 	public:
-		AIMovementToDestinationRule(CPlayerSpecificInfoCallback * cb, std::shared_ptr<AINodeStorage> nodeStorage)
-			:cb(cb), nodeStorage(nodeStorage)
+		AIMovementToDestinationRule(std::shared_ptr<AINodeStorage> nodeStorage)
+			: nodeStorage(nodeStorage)
 		{
 		}
 
@@ -455,12 +454,11 @@ namespace AIPathfinding
 	class AIPreviousNodeRule : public MovementToDestinationRule
 	{
 	private:
-		CPlayerSpecificInfoCallback * cb;
 		std::shared_ptr<AINodeStorage> nodeStorage;
 
 	public:
-		AIPreviousNodeRule(CPlayerSpecificInfoCallback * cb, std::shared_ptr<AINodeStorage> nodeStorage)
-			:cb(cb), nodeStorage(nodeStorage)
+		AIPreviousNodeRule(std::shared_ptr<AINodeStorage> nodeStorage)
+			: nodeStorage(nodeStorage)
 		{
 		}
 
@@ -501,9 +499,9 @@ namespace AIPathfinding
 		std::vector<std::shared_ptr<IPathfindingRule>> rules = {
 			std::make_shared<AILayerTransitionRule>(cb, ai, nodeStorage),
 			std::make_shared<DestinationActionRule>(),
-			std::make_shared<AIMovementToDestinationRule>(cb, nodeStorage),
+			std::make_shared<AIMovementToDestinationRule>(nodeStorage),
 			std::make_shared<MovementCostRule>(),
-			std::make_shared<AIPreviousNodeRule>(cb, nodeStorage),
+			std::make_shared<AIPreviousNodeRule>(nodeStorage),
 			std::make_shared<AIMovementAfterDestinationRule>(cb, nodeStorage)
 		};
 

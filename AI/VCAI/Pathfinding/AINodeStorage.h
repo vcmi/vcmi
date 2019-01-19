@@ -15,7 +15,7 @@
 #include "../AIUtility.h"
 #include "../Goals/AbstractGoal.h"
 
-class AIPathNode;
+struct AIPathNode;
 
 class ISpecialAction
 {

@@ -90,7 +90,7 @@ static JsonNode getFromArchive(CZipLoader & archive, const std::string & archive
 
 	JsonNode res(reinterpret_cast<char*>(data.first.get()), data.second);
 
-	return std::move(res);
+	return res;
 }
 
 static void addToArchive(CZipSaver & saver, const JsonNode & data, const std::string & filename)

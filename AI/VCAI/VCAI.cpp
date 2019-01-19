@@ -2212,7 +2212,7 @@ void VCAI::tryRealize(Goals::BuyArmy & g)
 			throw cannotFulfillGoalException("Can't buy any more creatures!");
 
 		creInfo ci =
-			*boost::max_element(creaturesInDwellings, [&res](const creInfo & lhs, const creInfo & rhs)
+			*boost::max_element(creaturesInDwellings, [](const creInfo & lhs, const creInfo & rhs)
 		{
 			//max value of creatures we can buy with our res
 			int value1 = lhs.cre->AIValue * lhs.count,

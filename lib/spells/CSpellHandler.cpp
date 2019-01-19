@@ -620,7 +620,7 @@ std::vector<JsonNode> CSpellHandler::loadLegacyData(size_t dataSize)
 		}
 	};
 
-	auto read = [&,this](bool combat, bool ability)
+	auto read = [&](bool combat, bool ability)
 	{
 		do
 		{

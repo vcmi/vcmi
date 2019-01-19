@@ -103,7 +103,7 @@ void CHeroInstanceConstructor::afterLoadFinalization()
 {
 	for (auto entry : filtersJson.Struct())
 	{
-		filters[entry.first] = LogicalExpression<HeroTypeID>(entry.second, [this](const JsonNode & node)
+		filters[entry.first] = LogicalExpression<HeroTypeID>(entry.second, [](const JsonNode & node)
 		{
 			return HeroTypeID(VLC->modh->identifiers.getIdentifier("hero", node.Vector()[0]).get());
 		});

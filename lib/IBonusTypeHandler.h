@@ -14,7 +14,7 @@ struct Bonus;
 
 ///High level interface for BonusTypeHandler
 
-class IBonusTypeHandler
+class DLL_LINKAGE IBonusTypeHandler
 {
 public:
 	virtual ~IBonusTypeHandler(){};

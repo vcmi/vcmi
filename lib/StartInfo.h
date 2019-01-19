@@ -140,7 +140,7 @@ struct ClientPlayer
 	}
 };
 
-struct LobbyState
+struct DLL_LINKAGE LobbyState
 {
 	std::shared_ptr<StartInfo> si;
 	std::shared_ptr<CMapInfo> mi;

@@ -142,7 +142,7 @@ std::set<si32> CTown::getAllBuildings() const
 		res.insert(b.first.num);
 	}
 
-	return std::move(res);
+	return res;
 }
 
 

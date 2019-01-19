@@ -302,14 +302,12 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 
 	//DISGUISED bonus implementation
 
-	bool disguiseFlag = (infoLevel == InfoAboutHero::EInfoLevel::DETAILED);
-
 	if(getPlayerRelations(getLocalPlayer(), hero->tempOwner) == PlayerRelations::ENEMIES)
 	{
 		//todo: bonus cashing
 		int disguiseLevel = h->valOfBonuses(Selector::typeSubtype(Bonus::DISGUISED, 0));
 
-		auto doBasicDisguise = [disguiseLevel](InfoAboutHero & info)
+		auto doBasicDisguise = [](InfoAboutHero & info)
 		{
 			int maxAIValue = 0;
 			const CCreature * mostStrong = nullptr;
@@ -332,7 +330,7 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 				}
 		};
 
-		auto doAdvancedDisguise = [disguiseFlag, &doBasicDisguise](InfoAboutHero & info)
+		auto doAdvancedDisguise = [&doBasicDisguise](InfoAboutHero & info)
 		{
 			doBasicDisguise(info);
 

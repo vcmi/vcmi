@@ -44,7 +44,6 @@ public:
 	class CRegion
 		: public CIntObject
 	{
-		CBonusSelection * owner;
 		std::shared_ptr<CPicture> graphicsNotSelected;
 		std::shared_ptr<CPicture> graphicsSelected;
 		std::shared_ptr<CPicture> graphicsStriped;
