@@ -302,8 +302,6 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 
 	//DISGUISED bonus implementation
 
-	bool disguiseFlag = (infoLevel == InfoAboutHero::EInfoLevel::DETAILED);
-
 	if(getPlayerRelations(getLocalPlayer(), hero->tempOwner) == PlayerRelations::ENEMIES)
 	{
 		//todo: bonus cashing
