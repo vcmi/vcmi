@@ -162,7 +162,7 @@ void CTerrainRect::clickRight(tribool down, bool previousState)
 
 void CTerrainRect::clickMiddle(tribool down, bool previousState)
 {
-	handleSwipeStateChange(down == true);
+	handleSwipeStateChange((bool)down == true);
 }
 
 void CTerrainRect::mouseMoved(const SDL_MouseMotionEvent & sEvent)
