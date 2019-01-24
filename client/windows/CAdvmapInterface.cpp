@@ -126,7 +126,7 @@ void CTerrainRect::clickLeft(tribool down, bool previousState)
 #ifdef VCMI_ANDROID
 	if(adventureInt->swipeEnabled)
 	{
-		if(handleSwipeStateChange(down == true))
+		if(handleSwipeStateChange((bool)down == true))
 		{
 			return; // if swipe is enabled, we don't process "down" events and wait for "up" (to make sure this wasn't a swiping gesture)
 		}
