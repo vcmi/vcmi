@@ -411,7 +411,7 @@ bool CBattleInfoEssentials::battleMatchOwner(const battle::Unit * attacker, cons
 	if(boost::logic::indeterminate(positivness))
 		return true;
 	else if(attacker->unitId() == defender->unitId())
-		return positivness;
+		return (bool)positivness;
 	else
 		return battleMatchOwner(battleGetOwner(attacker), defender, positivness);
 }
@@ -425,5 +425,5 @@ bool CBattleInfoEssentials::battleMatchOwner(const PlayerColor & attacker, const
 	if(boost::logic::indeterminate(positivness))
 		return true;
 	else
-		return (attacker == initialOwner) == positivness;
+		return (attacker == initialOwner) == (bool)positivness;
 }

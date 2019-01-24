@@ -126,7 +126,7 @@ void CTerrainRect::clickLeft(tribool down, bool previousState)
 #ifdef VCMI_ANDROID
 	if(adventureInt->swipeEnabled)
 	{
-		if(handleSwipeStateChange(down == true))
+		if(handleSwipeStateChange((bool)down == true))
 		{
 			return; // if swipe is enabled, we don't process "down" events and wait for "up" (to make sure this wasn't a swiping gesture)
 		}
@@ -162,7 +162,7 @@ void CTerrainRect::clickRight(tribool down, bool previousState)
 
 void CTerrainRect::clickMiddle(tribool down, bool previousState)
 {
-	handleSwipeStateChange(down == true);
+	handleSwipeStateChange((bool)down == true);
 }
 
 void CTerrainRect::mouseMoved(const SDL_MouseMotionEvent & sEvent)
@@ -880,7 +880,7 @@ void CAdvMapInt::updateMoveHero(const CGHeroInstance *h, tribool hasPath)
 	if(boost::logic::indeterminate(hasPath))
 		hasPath = LOCPLINT->paths[h].nodes.size() ? true : false;
 
-	moveHero->block(!hasPath || (h->movement == 0));
+	moveHero->block(!(bool)hasPath || (h->movement == 0));
 }
 
 void CAdvMapInt::updateSpellbook(const CGHeroInstance *h)
