@@ -607,7 +607,7 @@ bool BaseMechanics::isSmart() const
 	}
 	else
 	{
-		return smart;
+		return (bool)smart;
 	}
 }
 
@@ -620,7 +620,7 @@ bool BaseMechanics::isMassive() const
 	}
 	else
 	{
-		return massive;
+		return (bool)massive;
 	}
 }
 
