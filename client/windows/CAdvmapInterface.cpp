@@ -880,7 +880,7 @@ void CAdvMapInt::updateMoveHero(const CGHeroInstance *h, tribool hasPath)
 	if(boost::logic::indeterminate(hasPath))
 		hasPath = LOCPLINT->paths[h].nodes.size() ? true : false;
 
-	moveHero->block(!hasPath || (h->movement == 0));
+	moveHero->block(!(bool)hasPath || (h->movement == 0));
 }
 
 void CAdvMapInt::updateSpellbook(const CGHeroInstance *h)
