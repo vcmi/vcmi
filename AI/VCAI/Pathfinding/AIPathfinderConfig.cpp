@@ -300,10 +300,9 @@ namespace AIPathfinding
 			if(blocker == BlockingReason::DESTINATION_BLOCKVIS && destination.nodeObject)
 			{
 				auto objID = destination.nodeObject->ID;
-				if((objID == Obj::HERO && destination.objectRelations != PlayerRelations::ENEMIES)
-					|| objID == Obj::SUBTERRANEAN_GATE || objID == Obj::MONOLITH_TWO_WAY
-					|| objID == Obj::MONOLITH_ONE_WAY_ENTRANCE || objID == Obj::MONOLITH_ONE_WAY_EXIT
-					|| objID == Obj::WHIRLPOOL)
+				auto enemyHero = objID == Obj::HERO && destination.objectRelations == PlayerRelations::ENEMIES;
+
+				if(!enemyHero && !isObjectRemovable(destination.nodeObject))
 				{
 					destination.blocked = true;
 				}

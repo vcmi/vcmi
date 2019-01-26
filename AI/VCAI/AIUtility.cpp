@@ -370,6 +370,12 @@ bool isObjectRemovable(const CGObjectInstance * obj)
 	case Obj::TREASURE_CHEST:
 	case Obj::ARTIFACT:
 	case Obj::BORDERGUARD:
+	case Obj::FLOTSAM:
+	case Obj::PANDORAS_BOX:
+	case Obj::OCEAN_BOTTLE:
+	case Obj::SEA_CHEST:
+	case Obj::SHIPWRECK_SURVIVOR:
+	case Obj::SPELL_SCROLL:
 		return true;
 		break;
 	default:
