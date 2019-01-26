@@ -91,8 +91,6 @@ std::string MapObjectResolver::encode(si32 identifier) const
 
 namespace HeaderDetail
 {
-	static const ui8 difficultyDefault = 1;//normal
-
 	static const std::vector<std::string> difficultyMap =
 	{
 		"EASY",
@@ -393,7 +391,7 @@ void CMapFormatJson::serializeHeader(JsonSerializeFormat & handler)
 	handler.serializeInt("heroLevelLimit", mapHeader->levelLimit, 0);
 
 	//todo: support arbitrary percentage
-	handler.serializeEnum("difficulty", mapHeader->difficulty, HeaderDetail::difficultyDefault, HeaderDetail::difficultyMap);
+	handler.serializeEnum("difficulty", mapHeader->difficulty, HeaderDetail::difficultyMap);
 
 	serializePlayerInfo(handler);
 
