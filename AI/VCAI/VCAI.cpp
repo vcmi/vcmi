@@ -834,6 +834,8 @@ void VCAI::mainLoop()
 	std::vector<Goals::TSubgoal> elementarGoals; //no duplicates allowed (operator ==)
 	basicGoals.clear();
 
+	validateVisitableObjs();
+
 	//get all potential and saved goals
 	//TODO: not lose
 	basicGoals.push_back(sptr(Goals::Win()));
@@ -1748,6 +1750,9 @@ std::vector<const CGObjectInstance *> VCAI::getFlaggedObjects() const
 
 void VCAI::addVisitableObj(const CGObjectInstance * obj)
 {
+	if(obj->ID == Obj::EVENT)
+		return;
+
 	visitableObjs.insert(obj);
 
 	// All teleport objects seen automatically assigned to appropriate channels
