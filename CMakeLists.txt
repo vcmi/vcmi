@@ -41,7 +41,7 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 set(VCMI_VERSION_MAJOR 0)
-set(VCMI_VERSION_MINOR 99)
+set(VCMI_VERSION_MINOR 100)
 set(VCMI_VERSION_PATCH 0)
 
 option(ENABLE_ERM "Enable compilation of ERM scripting module" OFF)
