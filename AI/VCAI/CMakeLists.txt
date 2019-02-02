@@ -50,6 +50,8 @@ set(VCAI_SRCS
 		Goals/GetArtOfType.cpp
 		Goals/FindObj.cpp
 		Goals/CompleteQuest.cpp
+		Engine/Nullkiller.cpp
+		Behaviors/Behavior.cpp
 		main.cpp
 		VCAI.cpp
 )
@@ -103,6 +105,8 @@ set(VCAI_HEADERS
 		Goals/FindObj.h
 		Goals/CompleteQuest.h
 		Goals/Goals.h
+		Engine/Nullkiller.h
+		Behaviors/Behavior.h
 		VCAI.h
 )
 

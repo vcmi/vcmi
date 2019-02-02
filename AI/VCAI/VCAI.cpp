@@ -26,6 +26,7 @@
 #include "../../lib/serializer/BinaryDeserializer.h"
 
 #include "AIhelper.h"
+#include "Engine/Nullkiller.h"
 
 extern FuzzyHelper * fh;
 
@@ -595,6 +596,11 @@ void VCAI::init(std::shared_ptr<CCallback> CB)
 	if(!fh)
 		fh = new FuzzyHelper();
 
+	if(playerID.getStr(false) == "blue")
+	{
+		nullkiller.reset(new Nullkiller());
+	}
+
 	retrieveVisitableObjs();
 }
 
@@ -791,17 +797,29 @@ void VCAI::makeTurn()
 	markHeroAbleToExplore(primaryHero());
 	visitedHeroes.clear();
 
+	if(cb->getDate(Date::DAY) == 1)
+	{
+		retrieveVisitableObjs();
+	}
+
 	try
 	{
-		//it looks messy here, but it's better to have armed heroes before attempting realizing goals
-		for (const CGTownInstance * t : cb->getTownsInfo())
-			moveCreaturesToHero(t);
+		if(nullkiller)
+		{
+			nullkiller->makeTurn();
+		}
+		else
+		{
+			//it looks messy here, but it's better to have armed heroes before attempting realizing goals
+			for(const CGTownInstance * t : cb->getTownsInfo())
+				moveCreaturesToHero(t);
 
-		mainLoop();
+			mainLoop();
 
-		/*Below function is also responsible for hero movement via internal wander function. By design it is separate logic for heroes that have nothing to do.
-		Heroes that were not picked by striveToGoal(sptr(Goals::Win())); recently (so they do not have new goals and cannot continue/reevaluate previously locked goals) will do logic in wander().*/
-		performTypicalActions();
+			/*Below function is also responsible for hero movement via internal wander function. By design it is separate logic for heroes that have nothing to do.
+			Heroes that were not picked by striveToGoal(sptr(Goals::Win())); recently (so they do not have new goals and cannot continue/reevaluate previously locked goals) will do logic in wander().*/
+			performTypicalActions();
+		}
 
 		//for debug purpose
 		for (auto h : cb->getHeroesInfo())
