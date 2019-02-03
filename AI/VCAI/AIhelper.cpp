@@ -123,14 +123,14 @@ TResource AIhelper::allGold() const
 	return resourceManager->allGold();
 }
 
-Goals::TGoalVec AIhelper::howToVisitTile(const int3 & tile) const
+Goals::TGoalVec AIhelper::howToVisitTile(const int3 & tile, bool allowGatherArmy) const
 {
-	return pathfindingManager->howToVisitTile(tile);
+	return pathfindingManager->howToVisitTile(tile, allowGatherArmy);
 }
 
-Goals::TGoalVec AIhelper::howToVisitObj(ObjectIdRef obj) const
+Goals::TGoalVec AIhelper::howToVisitObj(ObjectIdRef obj, bool allowGatherArmy) const
 {
-	return pathfindingManager->howToVisitObj(obj);
+	return pathfindingManager->howToVisitObj(obj, allowGatherArmy);
 }
 
 Goals::TGoalVec AIhelper::howToVisitTile(const HeroPtr & hero, const int3 & tile, bool allowGatherArmy) const

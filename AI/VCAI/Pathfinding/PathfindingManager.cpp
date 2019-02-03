@@ -32,7 +32,7 @@ void PathfindingManager::setAI(VCAI * AI)
 	ai = AI;
 }
 
-Goals::TGoalVec PathfindingManager::howToVisitTile(const int3 & tile) const
+Goals::TGoalVec PathfindingManager::howToVisitTile(const int3 & tile, bool allowGatherArmy) const
 {
 	Goals::TGoalVec result;
 
@@ -41,13 +41,13 @@ Goals::TGoalVec PathfindingManager::howToVisitTile(const int3 & tile) const
 
 	for(auto hero : heroes)
 	{
-		vstd::concatenate(result, howToVisitTile(hero, tile));
+		vstd::concatenate(result, howToVisitTile(hero, tile, allowGatherArmy));
 	}
 
 	return result;
 }
 
-Goals::TGoalVec PathfindingManager::howToVisitObj(ObjectIdRef obj) const
+Goals::TGoalVec PathfindingManager::howToVisitObj(ObjectIdRef obj, bool allowGatherArmy) const
 {
 	Goals::TGoalVec result;
 
@@ -56,7 +56,7 @@ Goals::TGoalVec PathfindingManager::howToVisitObj(ObjectIdRef obj) const
 
 	for(auto hero : heroes)
 	{
-		vstd::concatenate(result, howToVisitObj(hero, obj));
+		vstd::concatenate(result, howToVisitObj(hero, obj, allowGatherArmy));
 	}
 
 	return result;
