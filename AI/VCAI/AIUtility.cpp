@@ -201,11 +201,11 @@ bool isSafeToVisit(HeroPtr h, crint3 tile)
 
 bool isSafeToVisit(HeroPtr h, uint64_t dangerStrength)
 {
-	const ui64 heroStrength = h->getTotalStrength();
+	const ui64 heroStrengthVariable = h->getTotalStrength();
 
 	if(dangerStrength)
 	{
-		if(heroStrength / SAFE_ATTACK_CONSTANT > dangerStrength)
+		if(heroStrengthVariable / SAFE_ATTACK_CONSTANT > dangerStrength)
 		{
 			return true;
 		}

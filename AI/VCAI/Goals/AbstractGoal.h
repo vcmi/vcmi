@@ -94,11 +94,13 @@ namespace Goals
 		float movementCost;
 		int manaCost;
 		uint64_t danger;
+		float closestWayRatio;
 
 		EvaluationContext()
 			: movementCost(0.0),
 			manaCost(0),
-			danger(0)
+			danger(0),
+			closestWayRatio(1)
 		{
 		}
 	};

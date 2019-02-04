@@ -51,6 +51,7 @@ set(VCAI_SRCS
 		Goals/FindObj.cpp
 		Goals/CompleteQuest.cpp
 		Engine/Nullkiller.cpp
+		Engine/PriorityEvaluator.cpp
 		Behaviors/Behavior.cpp
 		Behaviors/CaptureObjectsBehavior.cpp
 		Behaviors/RecruitHeroBehavior.cpp
@@ -108,6 +109,7 @@ set(VCAI_HEADERS
 		Goals/CompleteQuest.h
 		Goals/Goals.h
 		Engine/Nullkiller.h
+		Engine/PriorityEvaluator.h
 		Behaviors/Behavior.h
 		Behaviors/CaptureObjectsBehavior.h
 		Behaviors/RecruitHeroBehavior.h

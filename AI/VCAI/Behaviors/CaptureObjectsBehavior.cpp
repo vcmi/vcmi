@@ -38,8 +38,6 @@ Goals::TGoalVec CaptureObjectsBehavior::getTasks() {
 				continue;
 
 			const int3 pos = objToVisit->visitablePos();
-			logAi->trace("considering object %s %s", objToVisit->getObjectName(), pos.toString());
-
 			Goals::TGoalVec waysToVisitObj = ai->ah->howToVisitObj(objToVisit, false);
 
 			vstd::erase_if(waysToVisitObj, [objToVisit](Goals::TSubgoal goal) -> bool
@@ -61,10 +59,8 @@ Goals::TGoalVec CaptureObjectsBehavior::getTasks() {
 				if(!way->hero->movement)
 					continue;
 
-				way->accept(fh);
-
-				auto closestWayRatio = way->evaluationContext.movementCost / closestWay->evaluationContext.movementCost;
-				way->setpriority(way->priority / closestWayRatio);
+				way->evaluationContext.closestWayRatio 
+					= way->evaluationContext.movementCost / closestWay->evaluationContext.movementCost;
 
 				tasks.push_back(way);
 			}

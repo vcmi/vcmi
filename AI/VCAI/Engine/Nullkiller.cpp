@@ -8,7 +8,12 @@
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<VCAI> ai;
 
-Goals::TSubgoal choseBestTask(Goals::TGoalVec tasks)
+Nullkiller::Nullkiller()
+{
+	priorityEvaluator.reset(new PriorityEvaluator());
+}
+
+Goals::TSubgoal Nullkiller::choseBestTask(Goals::TGoalVec tasks)
 {
 	Goals::TSubgoal bestTask = *vstd::maxElementByFun(tasks, [](Goals::TSubgoal goal) -> float
 	{
@@ -18,18 +23,27 @@ Goals::TSubgoal choseBestTask(Goals::TGoalVec tasks)
 	return bestTask;
 }
 
-Goals::TSubgoal choseBestTask(Behavior & behavior)
+Goals::TSubgoal Nullkiller::choseBestTask(Behavior & behavior)
 {
 	auto tasks = behavior.getTasks();
 
 	if(tasks.empty())
 	{
-		logAi->trace("Behavior %s found no tasks", behavior.toString());
+		logAi->debug("Behavior %s found no tasks", behavior.toString());
 
 		return Goals::sptr(Goals::Invalid());
 	}
 
-	return choseBestTask(tasks);
+	for(auto task : tasks)
+	{
+		task->setpriority(priorityEvaluator->evaluate(task));
+	}
+
+	auto task = choseBestTask(tasks);
+
+	logAi->trace("Behavior %s found %s, priority %f", behavior.toString(), task->name(), task->priority);
+
+	return task;
 }
 
 void Nullkiller::makeTurn()
