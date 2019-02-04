@@ -130,6 +130,7 @@ EResType::Type EResTypeHelper::getTypeFromExtension(std::string extension)
 		{".FNT",   EResType::BMP_FONT},
 		{".TTF",   EResType::TTF_FONT},
 		{".BMP",   EResType::IMAGE},
+		{".GIF",   EResType::IMAGE},
 		{".JPG",   EResType::IMAGE},
 		{".PCX",   EResType::IMAGE},
 		{".PNG",   EResType::IMAGE},
