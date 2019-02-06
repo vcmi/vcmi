@@ -90,6 +90,15 @@
     <ClCompile Include="Goals\AdventureSpellCast.cpp">
       <Filter>Goals</Filter>
     </ClCompile>
+    <ClCompile Include="Pathfinding\Actions\BoatActions.cpp">
+      <Filter>Pathfinding\Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="Pathfinding\Actions\TownPortalAction.cpp" />
+    <ClCompile Include="Pathfinding\Actions\BattleAction.cpp" />
+    <ClCompile Include="Pathfinding\Rules\AILayerTransitionRule.cpp" />
+    <ClCompile Include="Pathfinding\Rules\AIMovementAfterDestinationRule.cpp" />
+    <ClCompile Include="Pathfinding\Rules\AIMovementToDestinationRule.cpp" />
+    <ClCompile Include="Pathfinding\Rules\AIPreviousNodeRule.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AIhelper.h" />
@@ -189,6 +198,16 @@
     <ClInclude Include="Goals\AdventureSpellCast.h">
       <Filter>Goals</Filter>
     </ClInclude>
+    <ClInclude Include="Pathfinding\Actions\ISpecialAction.h">
+      <Filter>Pathfinding\Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="Pathfinding\Actions\TownPortalAction.h" />
+    <ClInclude Include="Pathfinding\Actions\BattleAction.h" />
+    <ClInclude Include="Pathfinding\Actions\BoatActions.h" />
+    <ClInclude Include="Pathfinding\Rules\AILayerTransitionRule.h" />
+    <ClInclude Include="Pathfinding\Rules\AIMovementAfterDestinationRule.h" />
+    <ClInclude Include="Pathfinding\Rules\AIMovementToDestinationRule.h" />
+    <ClInclude Include="Pathfinding\Rules\AIPreviousNodeRule.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Pathfinding">
@@ -196,6 +215,12 @@
     </Filter>
     <Filter Include="Goals">
       <UniqueIdentifier>{f97140a0-eee3-456f-b586-4b13265c01da}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Pathfinding\Rules">
+      <UniqueIdentifier>{beabfdb9-2e76-4daa-8d1a-81086387f319}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Pathfinding\Actions">
+      <UniqueIdentifier>{3ebb4852-a986-447a-b5cc-20992df76f0c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

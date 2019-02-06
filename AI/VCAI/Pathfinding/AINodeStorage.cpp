@@ -9,13 +9,14 @@
 */
 #include "StdInc.h"
 #include "AINodeStorage.h"
+#include "Actions/TownPortalAction.h"
 #include "../Goals/Goals.h"
 #include "../../../CCallback.h"
 #include "../../../lib/mapping/CMap.h"
 #include "../../../lib/mapObjects/MapObjects.h"
-
 #include "../../../lib/PathfinderUtil.h"
 #include "../../../lib/CPlayerState.h"
+
 extern boost::thread_specific_ptr<CCallback> cb;
 
 
@@ -191,26 +192,6 @@ void AINodeStorage::setHero(HeroPtr heroPtr)
 	hero = heroPtr.get();
 }
 
-class TownPortalAction : public ISpecialAction
-{
-private:
-	const CGTownInstance * target;
-	const HeroPtr  hero;
-
-public:
-	TownPortalAction(const CGTownInstance * target)
-		:target(target)
-	{
-	}
-
-	virtual Goals::TSubgoal whatToDo(HeroPtr hero) const override
-	{
-		const CGTownInstance * targetTown = target; // const pointer is not allowed in settown
-
-		return sptr(Goals::AdventureSpellCast(hero, SpellID::TOWN_PORTAL).settown(targetTown).settile(targetTown->visitablePos()));
-	}
-};
-
 std::vector<CGPathNode *> AINodeStorage::calculateTeleportations(
 	const PathNodeInfo & source,
 	const PathfinderConfig * pathfinderConfig,
@@ -299,7 +280,7 @@ void AINodeStorage::calculateTownPortalTeleportations(
 				AIPathNode * node = nodeOptional.get();
 
 				node->theNodeBefore = source.node;
-				node->specialAction.reset(new TownPortalAction(targetTown));
+				node->specialAction.reset(new AIPathfinding::TownPortalAction(targetTown));
 				node->moveRemains = source.node->moveRemains;
 				
 				neighbours.push_back(node);
