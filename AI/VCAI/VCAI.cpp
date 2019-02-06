@@ -96,7 +96,6 @@ void VCAI::heroMoved(const TryMoveHero & details)
 
 	validateObject(details.id); //enemy hero may have left visible area
 	auto hero = cb->getHero(details.id);
-	ah->resetPaths();
 
 	const int3 from = CGHeroInstance::convertPosition(details.start, false);
 	const int3 to = CGHeroInstance::convertPosition(details.end, false);
@@ -376,8 +375,6 @@ void VCAI::newObject(const CGObjectInstance * obj)
 	NET_EVENT_HANDLER;
 	if(obj->isVisitable())
 		addVisitableObj(obj);
-
-	ah->resetPaths();
 }
 
 //to prevent AI from accessing objects that got deleted while they became invisible (Cover of Darkness, enemy hero moved etc.) below code allows AI to know deletion of objects out of sight
@@ -436,8 +433,6 @@ void VCAI::objectRemoved(const CGObjectInstance * obj)
 				unreserveObject(h, hero->boat);
 		}
 	}
-
-	ah->resetPaths();
 
 	//TODO
 	//there are other places where CGObjectinstance ptrs are stored...
@@ -795,7 +790,6 @@ void VCAI::makeTurn()
 	}
 	markHeroAbleToExplore(primaryHero());
 	visitedHeroes.clear();
-	ai->ah->resetPaths();
 
 	try
 	{
@@ -827,6 +821,18 @@ void VCAI::makeTurn()
 	}
 
 	endTurn();
+}
+
+std::vector<HeroPtr> VCAI::getMyHeroes() const
+{
+	std::vector<HeroPtr> ret;
+
+	for(auto h : cb->getHeroesInfo())
+	{
+		ret.push_back(h);
+	}
+
+	return ret;
 }
 
 void VCAI::mainLoop()
@@ -861,6 +867,8 @@ void VCAI::mainLoop()
 		goalsToRemove.clear();
 		elementarGoals.clear();
 		ultimateGoalsFromBasic.clear();
+		
+		ah->updatePaths(getMyHeroes());
 
 		logAi->debug("Main loop: decomposing %i basic goals", basicGoals.size());
 
@@ -1392,6 +1400,8 @@ void VCAI::wander(HeroPtr h)
 	while(h->movement)
 	{
 		validateVisitableObjs();
+		ah->updatePaths(h);
+
 		std::vector<ObjectIdRef> dests;
 
 		//also visit our reserved objects - but they are not prioritized to avoid running back and forth
@@ -1676,7 +1686,6 @@ bool VCAI::isAbleToExplore(HeroPtr h)
 void VCAI::clearPathsInfo()
 {
 	heroesUnableToExplore.clear();
-	ah->resetPaths();
 }
 
 void VCAI::validateVisitableObjs()

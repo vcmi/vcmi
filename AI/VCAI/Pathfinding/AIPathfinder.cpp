@@ -15,41 +15,29 @@
 
 std::vector<std::shared_ptr<AINodeStorage>> AIPathfinder::storagePool;
 std::map<HeroPtr, std::shared_ptr<AINodeStorage>> AIPathfinder::storageMap;
-boost::mutex AIPathfinder::storageMutex;
 
 AIPathfinder::AIPathfinder(CPlayerSpecificInfoCallback * cb, VCAI * ai)
 	:cb(cb), ai(ai)
 {
 }
 
-void AIPathfinder::clear()
-{
-	boost::unique_lock<boost::mutex> storageLock(storageMutex);
-	storageMap.clear();
-}
-
 void AIPathfinder::init()
 {
-	boost::unique_lock<boost::mutex> storageLock(storageMutex);
 	storagePool.clear();
 	storageMap.clear();
 }
 
-bool AIPathfinder::isTileAccessible(const HeroPtr & hero, const int3 & tile)
+bool AIPathfinder::isTileAccessible(const HeroPtr & hero, const int3 & tile) const
 {
-	boost::unique_lock<boost::mutex> storageLock(storageMutex);
-
-	std::shared_ptr<AINodeStorage> nodeStorage = getOrCreateStorage(hero);
+	std::shared_ptr<const AINodeStorage> nodeStorage = getStorage(hero);
 
 	return nodeStorage->isTileAccessible(tile, EPathfindingLayer::LAND)
 		|| nodeStorage->isTileAccessible(tile, EPathfindingLayer::SAIL);
 }
 
-std::vector<AIPath> AIPathfinder::getPathInfo(HeroPtr hero, int3 tile)
+std::vector<AIPath> AIPathfinder::getPathInfo(const HeroPtr & hero, const int3 & tile) const
 {
-	boost::unique_lock<boost::mutex> storageLock(storageMutex);
-
-	std::shared_ptr<AINodeStorage> nodeStorage = getOrCreateStorage(hero);
+	std::shared_ptr<const AINodeStorage> nodeStorage = getStorage(hero);
 
 	const TerrainTile * tileInfo = cb->getTile(tile, false);
 
@@ -61,13 +49,14 @@ std::vector<AIPath> AIPathfinder::getPathInfo(HeroPtr hero, int3 tile)
 	return nodeStorage->getChainInfo(tile, !tileInfo->isWater());
 }
 
-std::shared_ptr<AINodeStorage> AIPathfinder::getOrCreateStorage(const HeroPtr & hero)
+void AIPathfinder::updatePaths(std::vector<HeroPtr> heroes)
 {
-	std::shared_ptr<AINodeStorage> nodeStorage;
+	storageMap.clear();
 
-	if(!vstd::contains(storageMap, hero))
+	// TODO: go parallel?
+	for(HeroPtr hero : heroes)
 	{
-		logAi->debug("Recalculate paths for %s", hero->name);
+		std::shared_ptr<AINodeStorage> nodeStorage;
 
 		if(storageMap.size() < storagePool.size())
 		{
@@ -84,13 +73,43 @@ std::shared_ptr<AINodeStorage> AIPathfinder::getOrCreateStorage(const HeroPtr & 
 
 		auto config = std::make_shared<AIPathfinding::AIPathfinderConfig>(cb, ai, nodeStorage);
 
+		logAi->debug("Recalculate paths for %s", hero->name);
 		cb->calculatePaths(config, hero.get());
+	}
+}
+
+void AIPathfinder::updatePaths(const HeroPtr & hero)
+{
+	std::shared_ptr<AINodeStorage> nodeStorage;
+
+	if(!vstd::contains(storageMap, hero))
+	{
+		if(storageMap.size() < storagePool.size())
+		{
+			nodeStorage = storagePool.at(storageMap.size());
+		}
+		else
+		{
+			nodeStorage = std::make_shared<AINodeStorage>(cb->getMapSize());
+			storagePool.push_back(nodeStorage);
+		}
+
+		storageMap[hero] = nodeStorage;
+		nodeStorage->setHero(hero.get());
 	}
 	else
 	{
 		nodeStorage = storageMap.at(hero);
 	}
 
-	return nodeStorage;
+	logAi->debug("Recalculate paths for %s", hero->name);
+	auto config = std::make_shared<AIPathfinding::AIPathfinderConfig>(cb, ai, nodeStorage);
+
+	cb->calculatePaths(config, hero.get());
+}
+
+std::shared_ptr<const AINodeStorage> AIPathfinder::getStorage(const HeroPtr & hero) const
+{
+	return storageMap.at(hero);
 }
 

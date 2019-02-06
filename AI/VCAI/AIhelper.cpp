@@ -123,32 +123,37 @@ TResource AIhelper::allGold() const
 	return resourceManager->allGold();
 }
 
-Goals::TGoalVec AIhelper::howToVisitTile(int3 tile)
+Goals::TGoalVec AIhelper::howToVisitTile(const int3 & tile) const
 {
 	return pathfindingManager->howToVisitTile(tile);
 }
 
-Goals::TGoalVec AIhelper::howToVisitObj(ObjectIdRef obj)
+Goals::TGoalVec AIhelper::howToVisitObj(ObjectIdRef obj) const
 {
 	return pathfindingManager->howToVisitObj(obj);
 }
 
-Goals::TGoalVec AIhelper::howToVisitTile(HeroPtr hero, int3 tile, bool allowGatherArmy)
+Goals::TGoalVec AIhelper::howToVisitTile(const HeroPtr & hero, const int3 & tile, bool allowGatherArmy) const
 {
 	return pathfindingManager->howToVisitTile(hero, tile, allowGatherArmy);
 }
 
-Goals::TGoalVec AIhelper::howToVisitObj(HeroPtr hero, ObjectIdRef obj, bool allowGatherArmy)
+Goals::TGoalVec AIhelper::howToVisitObj(const HeroPtr & hero, ObjectIdRef obj, bool allowGatherArmy) const
 {
 	return pathfindingManager->howToVisitObj(hero, obj, allowGatherArmy);
 }
 
-std::vector<AIPath> AIhelper::getPathsToTile(HeroPtr hero, int3 tile)
+std::vector<AIPath> AIhelper::getPathsToTile(const HeroPtr & hero, const int3 & tile) const
 {
 	return pathfindingManager->getPathsToTile(hero, tile);
 }
 
-void AIhelper::resetPaths()
+void AIhelper::updatePaths(std::vector<HeroPtr> heroes)
 {
-	pathfindingManager->resetPaths();
+	pathfindingManager->updatePaths(heroes);
+}
+
+void AIhelper::updatePaths(const HeroPtr & hero)
+{
+	pathfindingManager->updatePaths(hero);
 }

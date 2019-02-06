@@ -58,7 +58,6 @@ void AdventureSpellCast::accept(VCAI * ai)
 
 	cb->waitTillRealize = true;
 	cb->castSpell(hero.h, spellID, tile);
-	ai->ah->resetPaths();
 
 	if(town && spellID == SpellID::TOWN_PORTAL)
 	{

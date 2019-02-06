@@ -99,7 +99,7 @@ public:
 	bool isBattleNode(const CGPathNode * node) const;
 	bool hasBetterChain(const PathNodeInfo & source, CDestinationNodeInfo & destination) const;
 	boost::optional<AIPathNode *> getOrCreateNode(const int3 & coord, const EPathfindingLayer layer, int chainNumber);
-	std::vector<AIPath> getChainInfo(int3 pos, bool isOnLand) const;
+	std::vector<AIPath> getChainInfo(const int3 & pos, bool isOnLand) const;
 	bool isTileAccessible(const int3 & pos, const EPathfindingLayer layer) const;
 
 	void setHero(HeroPtr heroPtr);

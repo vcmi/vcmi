@@ -330,7 +330,7 @@ bool AINodeStorage::isTileAccessible(const int3 & pos, const EPathfindingLayer l
 	return node.action != CGPathNode::ENodeAction::UNKNOWN;
 }
 
-std::vector<AIPath> AINodeStorage::getChainInfo(int3 pos, bool isOnLand) const
+std::vector<AIPath> AINodeStorage::getChainInfo(const int3 & pos, bool isOnLand) const
 {
 	std::vector<AIPath> paths;
 	auto chains = nodes[pos.x][pos.y][pos.z][isOnLand ? EPathfindingLayer::LAND : EPathfindingLayer::SAIL];

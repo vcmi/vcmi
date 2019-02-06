@@ -257,6 +257,7 @@ public:
 	Goals::TSubgoal getGoal(HeroPtr h) const;
 	bool canAct(HeroPtr h) const;
 	std::vector<HeroPtr> getUnblockedHeroes() const;
+	std::vector<HeroPtr> getMyHeroes() const;
 	HeroPtr primaryHero() const;
 	void checkHeroArmy(HeroPtr h);
 
