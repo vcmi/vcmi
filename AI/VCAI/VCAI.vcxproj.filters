@@ -93,12 +93,24 @@
     <ClCompile Include="Pathfinding\Actions\BoatActions.cpp">
       <Filter>Pathfinding\Actions</Filter>
     </ClCompile>
-    <ClCompile Include="Pathfinding\Actions\TownPortalAction.cpp" />
-    <ClCompile Include="Pathfinding\Actions\BattleAction.cpp" />
-    <ClCompile Include="Pathfinding\Rules\AILayerTransitionRule.cpp" />
-    <ClCompile Include="Pathfinding\Rules\AIMovementAfterDestinationRule.cpp" />
-    <ClCompile Include="Pathfinding\Rules\AIMovementToDestinationRule.cpp" />
-    <ClCompile Include="Pathfinding\Rules\AIPreviousNodeRule.cpp" />
+    <ClCompile Include="Pathfinding\Actions\BattleAction.cpp">
+      <Filter>Pathfinding\Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="Pathfinding\Actions\TownPortalAction.cpp">
+      <Filter>Pathfinding\Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="Pathfinding\Rules\AILayerTransitionRule.cpp">
+      <Filter>Pathfinding\Rules</Filter>
+    </ClCompile>
+    <ClCompile Include="Pathfinding\Rules\AIMovementAfterDestinationRule.cpp">
+      <Filter>Pathfinding\Rules</Filter>
+    </ClCompile>
+    <ClCompile Include="Pathfinding\Rules\AIMovementToDestinationRule.cpp">
+      <Filter>Pathfinding\Rules</Filter>
+    </ClCompile>
+    <ClCompile Include="Pathfinding\Rules\AIPreviousNodeRule.cpp">
+      <Filter>Pathfinding\Rules</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AIhelper.h" />
@@ -201,13 +213,27 @@
     <ClInclude Include="Pathfinding\Actions\ISpecialAction.h">
       <Filter>Pathfinding\Actions</Filter>
     </ClInclude>
-    <ClInclude Include="Pathfinding\Actions\TownPortalAction.h" />
-    <ClInclude Include="Pathfinding\Actions\BattleAction.h" />
-    <ClInclude Include="Pathfinding\Actions\BoatActions.h" />
-    <ClInclude Include="Pathfinding\Rules\AILayerTransitionRule.h" />
-    <ClInclude Include="Pathfinding\Rules\AIMovementAfterDestinationRule.h" />
-    <ClInclude Include="Pathfinding\Rules\AIMovementToDestinationRule.h" />
-    <ClInclude Include="Pathfinding\Rules\AIPreviousNodeRule.h" />
+    <ClInclude Include="Pathfinding\Actions\BoatActions.h">
+      <Filter>Pathfinding\Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="Pathfinding\Actions\BattleAction.h">
+      <Filter>Pathfinding\Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="Pathfinding\Actions\TownPortalAction.h">
+      <Filter>Pathfinding\Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="Pathfinding\Rules\AILayerTransitionRule.h">
+      <Filter>Pathfinding\Rules</Filter>
+    </ClInclude>
+    <ClInclude Include="Pathfinding\Rules\AIMovementAfterDestinationRule.h">
+      <Filter>Pathfinding\Rules</Filter>
+    </ClInclude>
+    <ClInclude Include="Pathfinding\Rules\AIMovementToDestinationRule.h">
+      <Filter>Pathfinding\Rules</Filter>
+    </ClInclude>
+    <ClInclude Include="Pathfinding\Rules\AIPreviousNodeRule.h">
+      <Filter>Pathfinding\Rules</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Pathfinding">
