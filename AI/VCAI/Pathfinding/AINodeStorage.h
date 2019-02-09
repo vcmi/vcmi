@@ -14,23 +14,9 @@
 #include "../../../lib/mapObjects/CGHeroInstance.h"
 #include "../AIUtility.h"
 #include "../Goals/AbstractGoal.h"
+#include "Actions/ISpecialAction.h"
 
 struct AIPathNode;
-
-class ISpecialAction
-{
-public:
-	virtual Goals::TSubgoal whatToDo(HeroPtr hero) const = 0;
-
-	virtual void applyOnDestination(
-		HeroPtr hero,
-		CDestinationNodeInfo & destination,
-		const PathNodeInfo & source,
-		AIPathNode * dstMode,
-		const AIPathNode * srcNode) const
-	{
-	}
-};
 
 struct AIPathNode : public CGPathNode
 {
