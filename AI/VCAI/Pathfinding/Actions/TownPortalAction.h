@@ -11,8 +11,8 @@
 #pragma once
 
 #include "ISpecialAction.h"
-#include "../../../lib/mapping/CMap.h"
-#include "../../../lib/mapObjects/MapObjects.h"
+#include "../../../../lib/mapping/CMap.h"
+#include "../../../../lib/mapObjects/MapObjects.h"
 #include "../../Goals/AdventureSpellCast.h"
 
 namespace AIPathfinding
