@@ -35,6 +35,7 @@ private:
 	fl::InputVariable * bankPresent;
 	fl::InputVariable * castleWalls;
 	fl::OutputVariable * threat;
+	boost::mutex mx;
 };
 
 class HeroMovementGoalEngineBase : public engineBase //in future - maybe derive from some (GoalEngineBase : public engineBase) class for handling non-movement goals with common utility for goal engines

@@ -217,6 +217,11 @@ ui64 evaluateDanger(crint3 tile)
 
 ui64 evaluateDanger(crint3 tile, const CGHeroInstance * visitor)
 {
+	return evaluateDanger(tile, visitor, cb.get());
+}
+
+ui64 evaluateDanger(crint3 tile, const CGHeroInstance * visitor, const CPlayerSpecificInfoCallback * cb)
+{
 	const TerrainTile * t = cb->getTile(tile, false);
 	if(!t) //we can know about guard but can't check its tile (the edge of fow)
 		return 190000000; //MUCH

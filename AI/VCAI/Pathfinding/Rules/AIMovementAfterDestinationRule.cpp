@@ -122,7 +122,7 @@ namespace AIPathfinding
 			}
 
 			auto hero = nodeStorage->getHero();
-			auto danger = evaluateDanger(destination.coord, hero);
+			auto danger = evaluateDanger(destination.coord, hero, cb);
 
 			destination.node = battleNode;
 			nodeStorage->commit(destination, source);

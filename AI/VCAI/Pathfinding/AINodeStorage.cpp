@@ -17,9 +17,6 @@
 #include "../../../lib/PathfinderUtil.h"
 #include "../../../lib/CPlayerState.h"
 
-extern boost::thread_specific_ptr<CCallback> cb;
-
-
 AINodeStorage::AINodeStorage(const int3 & Sizes)
 	: sizes(Sizes)
 {
@@ -187,9 +184,10 @@ std::vector<CGPathNode *> AINodeStorage::calculateNeighbours(
 	return neighbours;
 }
 
-void AINodeStorage::setHero(HeroPtr heroPtr)
+void AINodeStorage::setHero(HeroPtr heroPtr, const CPlayerSpecificInfoCallback * _cb)
 {
 	hero = heroPtr.get();
+	cb = _cb;
 }
 
 std::vector<CGPathNode *> AINodeStorage::calculateTeleportations(

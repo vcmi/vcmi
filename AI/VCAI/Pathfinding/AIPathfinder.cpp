@@ -53,6 +53,15 @@ void AIPathfinder::updatePaths(std::vector<HeroPtr> heroes)
 {
 	storageMap.clear();
 
+	auto calculatePaths = [&](const CGHeroInstance * hero, std::shared_ptr<AIPathfinding::AIPathfinderConfig> config)
+	{
+		logAi->debug("Recalculate paths for %s", hero->name);
+
+		cb->calculatePaths(config, hero);
+	};
+
+	std::vector<Task> calculationTasks;
+
 	// TODO: go parallel?
 	for(HeroPtr hero : heroes)
 	{
@@ -69,12 +78,29 @@ void AIPathfinder::updatePaths(std::vector<HeroPtr> heroes)
 		}
 
 		storageMap[hero] = nodeStorage;
-		nodeStorage->setHero(hero.get());
+		nodeStorage->setHero(hero, cb);
 
 		auto config = std::make_shared<AIPathfinding::AIPathfinderConfig>(cb, ai, nodeStorage);
 
-		logAi->debug("Recalculate paths for %s", hero->name);
-		cb->calculatePaths(config, hero.get());
+		calculationTasks.push_back(std::bind(calculatePaths, hero.get(), config));
+	}
+
+	int threadsCount = std::min(
+		boost::thread::hardware_concurrency(),
+		(uint32_t)calculationTasks.size());
+
+	if(threadsCount == 1)
+	{
+		for(auto task : calculationTasks)
+		{
+			task();
+		}
+	}
+	else
+	{
+		CThreadHelper helper(&calculationTasks, threadsCount);
+
+		helper.run();
 	}
 }
 
@@ -95,7 +121,7 @@ void AIPathfinder::updatePaths(const HeroPtr & hero)
 		}
 
 		storageMap[hero] = nodeStorage;
-		nodeStorage->setHero(hero.get());
+		nodeStorage->setHero(hero, cb);
 	}
 	else
 	{

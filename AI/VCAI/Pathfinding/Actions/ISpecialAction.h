@@ -21,7 +21,7 @@ public:
 	virtual Goals::TSubgoal whatToDo(const HeroPtr & hero) const = 0;
 
 	virtual void applyOnDestination(
-		const HeroPtr & hero,
+		const CGHeroInstance * hero,
 		CDestinationNodeInfo & destination,
 		const PathNodeInfo & source,
 		AIPathNode * dstMode,

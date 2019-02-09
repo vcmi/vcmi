@@ -59,6 +59,7 @@ private:
 
 	/// 1-3 - position on map, 4 - layer (air, water, land), 5 - chain (normal, battle, spellcast and combinations)
 	boost::multi_array<AIPathNode, 5> nodes;
+	const CPlayerSpecificInfoCallback * cb;
 	const CGHeroInstance * hero;
 
 	STRONG_INLINE
@@ -102,7 +103,7 @@ public:
 	std::vector<AIPath> getChainInfo(const int3 & pos, bool isOnLand) const;
 	bool isTileAccessible(const int3 & pos, const EPathfindingLayer layer) const;
 
-	void setHero(HeroPtr heroPtr);
+	void setHero(HeroPtr heroPtr, const CPlayerSpecificInfoCallback * cb);
 
 	const CGHeroInstance * getHero() const
 	{

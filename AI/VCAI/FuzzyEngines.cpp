@@ -202,6 +202,8 @@ TacticalAdvantageEngine::TacticalAdvantageEngine()
 
 float TacticalAdvantageEngine::getTacticalAdvantage(const CArmedInstance * we, const CArmedInstance * enemy)
 {
+	boost::unique_lock<boost::mutex> lock(mx);
+
 	float output = 1;
 	try
 	{
