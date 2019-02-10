@@ -194,155 +194,15 @@ bool CDistanceSorter::operator()(const CGObjectInstance * lhs, const CGObjectIns
 	return ln->cost < rn->cost;
 }
 
-ui64 evaluateDanger(crint3 tile)
-{
-	const TerrainTile * t = cb->getTile(tile, false);
-	if(!t) //we can know about guard but can't check its tile (the edge of fow)
-		return 190000000; //MUCH
-
-	ui64 objectDanger = 0;
-	ui64 guardDanger = 0;
-
-	auto visObjs = cb->getVisitableObjs(tile);
-	if(visObjs.size())
-		objectDanger = evaluateDanger(visObjs.back());
-
-	int3 guardPos = cb->getGuardingCreaturePosition(tile);
-	if(guardPos.x >= 0 && guardPos != tile)
-		guardDanger = evaluateDanger(guardPos);
-
-	//TODO mozna odwiedzic blockvis nie ruszajac straznika
-	return std::max(objectDanger, guardDanger);
-}
-
-ui64 evaluateDanger(crint3 tile, const CGHeroInstance * visitor)
-{
-	return evaluateDanger(tile, visitor, cb.get());
-}
-
-ui64 evaluateDanger(crint3 tile, const CGHeroInstance * visitor, const CPlayerSpecificInfoCallback * cb)
-{
-	const TerrainTile * t = cb->getTile(tile, false);
-	if(!t) //we can know about guard but can't check its tile (the edge of fow)
-		return 190000000; //MUCH
-
-	ui64 objectDanger = 0;
-	ui64 guardDanger = 0;
-
-	auto visitableObjects = cb->getVisitableObjs(tile);
-	// in some scenarios hero happens to be "under" the object (eg town). Then we consider ONLY the hero.
-	if(vstd::contains_if(visitableObjects, objWithID<Obj::HERO>))
-	{
-		vstd::erase_if(visitableObjects, [](const CGObjectInstance * obj)
-		{
-			return !objWithID<Obj::HERO>(obj);
-		});
-	}
-
-	if(const CGObjectInstance * dangerousObject = vstd::backOrNull(visitableObjects))
-	{
-		objectDanger = evaluateDanger(dangerousObject); //unguarded objects can also be dangerous or unhandled
-		if(objectDanger)
-		{
-			//TODO: don't downcast objects AI shouldn't know about!
-			auto armedObj = dynamic_cast<const CArmedInstance *>(dangerousObject);
-			if(armedObj)
-			{
-				float tacticalAdvantage = fh->tacticalAdvantageEngine.getTacticalAdvantage(visitor, armedObj);
-				objectDanger *= tacticalAdvantage; //this line tends to go infinite for allied towns (?)
-			}
-		}
-		if(dangerousObject->ID == Obj::SUBTERRANEAN_GATE)
-		{
-			//check guard on the other side of the gate
-			auto it = ai->knownSubterraneanGates.find(dangerousObject);
-			if(it != ai->knownSubterraneanGates.end())
-			{
-				auto guards = cb->getGuardingCreatures(it->second->visitablePos());
-				for(auto cre : guards)
-				{
-					vstd::amax(guardDanger, evaluateDanger(cre) * fh->tacticalAdvantageEngine.getTacticalAdvantage(visitor, dynamic_cast<const CArmedInstance *>(cre)));
-				}
-			}
-		}
-	}
-
-	auto guards = cb->getGuardingCreatures(tile);
-	for(auto cre : guards)
-	{
-		vstd::amax(guardDanger, evaluateDanger(cre) * fh->tacticalAdvantageEngine.getTacticalAdvantage(visitor, dynamic_cast<const CArmedInstance *>(cre))); //we are interested in strongest monster around
-	}
-
-	//TODO mozna odwiedzic blockvis nie ruszajac straznika
-	return std::max(objectDanger, guardDanger);
-}
-
-ui64 evaluateDanger(const CGObjectInstance * obj)
-{
-	if(obj->tempOwner < PlayerColor::PLAYER_LIMIT && cb->getPlayerRelations(obj->tempOwner, ai->playerID) != PlayerRelations::ENEMIES) //owned or allied objects don't pose any threat
-		return 0;
-
-	switch(obj->ID)
-	{
-	case Obj::HERO:
-	{
-		InfoAboutHero iah;
-		cb->getHeroInfo(obj, iah);
-		return iah.army.getStrength();
-	}
-	case Obj::TOWN:
-	case Obj::GARRISON:
-	case Obj::GARRISON2:
-	{
-		InfoAboutTown iat;
-		cb->getTownInfo(obj, iat);
-		return iat.army.getStrength();
-	}
-	case Obj::MONSTER:
-	{
-		//TODO!!!!!!!!
-		const CGCreature * cre = dynamic_cast<const CGCreature *>(obj);
-		return cre->getArmyStrength();
-	}
-	case Obj::CREATURE_GENERATOR1:
-	case Obj::CREATURE_GENERATOR4:
-	{
-		const CGDwelling * d = dynamic_cast<const CGDwelling *>(obj);
-		return d->getArmyStrength();
-	}
-	case Obj::MINE:
-	case Obj::ABANDONED_MINE:
-	{
-		const CArmedInstance * a = dynamic_cast<const CArmedInstance *>(obj);
-		return a->getArmyStrength();
-	}
-	case Obj::CRYPT: //crypt
-	case Obj::CREATURE_BANK: //crebank
-	case Obj::DRAGON_UTOPIA:
-	case Obj::SHIPWRECK: //shipwreck
-	case Obj::DERELICT_SHIP: //derelict ship
-//	case Obj::PYRAMID:
-		return fh->estimateBankDanger(dynamic_cast<const CBank *>(obj));
-	case Obj::PYRAMID:
-	{
-		if(obj->subID == 0)
-			return fh->estimateBankDanger(dynamic_cast<const CBank *>(obj));
-		else
-			return 0;
-	}
-	default:
-		return 0;
-	}
-}
 
 bool compareDanger(const CGObjectInstance * lhs, const CGObjectInstance * rhs)
 {
-	return evaluateDanger(lhs) < evaluateDanger(rhs);
+	return fh->evaluateDanger(lhs) < fh->evaluateDanger(rhs);
 }
 
 bool isSafeToVisit(HeroPtr h, crint3 tile)
 {
-	return isSafeToVisit(h, evaluateDanger(tile));
+	return isSafeToVisit(h, fh->evaluateDanger(tile, h.get()));
 }
 
 bool isSafeToVisit(HeroPtr h, uint64_t dangerStrength)

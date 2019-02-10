@@ -19,6 +19,7 @@
 #define UNGUARDED_OBJECT (100.0f) //we consider unguarded objects 100 times weaker than us
 
 extern boost::thread_specific_ptr<VCAI> ai;
+extern FuzzyHelper * fh;
 
 engineBase::engineBase()
 {
@@ -202,8 +203,6 @@ TacticalAdvantageEngine::TacticalAdvantageEngine()
 
 float TacticalAdvantageEngine::getTacticalAdvantage(const CArmedInstance * we, const CArmedInstance * enemy)
 {
-	boost::unique_lock<boost::mutex> lock(mx);
-
 	float output = 1;
 	try
 	{
@@ -344,7 +343,7 @@ void HeroMovementGoalEngineBase::setSharedFuzzyVariables(Goals::AbstractGoal & g
 	}
 
 	float strengthRatioData = 10.0f; //we are much stronger than enemy
-	ui64 danger = evaluateDanger(goal.tile, goal.hero.h);
+	ui64 danger = fh->evaluateDanger(goal.tile, goal.hero.h);
 	if(danger)
 		strengthRatioData = (fl::scalar)goal.hero.h->getTotalStrength() / danger;
 

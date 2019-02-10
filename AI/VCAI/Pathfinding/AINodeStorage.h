@@ -13,6 +13,7 @@
 #include "../../../lib/CPathfinder.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
 #include "../AIUtility.h"
+#include "../FuzzyHelper.h"
 #include "../Goals/AbstractGoal.h"
 #include "Actions/ISpecialAction.h"
 
@@ -38,6 +39,7 @@ struct AIPath
 {
 	std::vector<AIPathNodeInfo> nodes;
 	std::shared_ptr<const ISpecialAction> specialAction;
+	uint64_t targetObjectDanger;
 
 	AIPath();
 
@@ -61,6 +63,7 @@ private:
 	boost::multi_array<AIPathNode, 5> nodes;
 	const CPlayerSpecificInfoCallback * cb;
 	const CGHeroInstance * hero;
+	std::unique_ptr<FuzzyHelper> dangerEvaluator;
 
 	STRONG_INLINE
 	void resetTile(const int3 & tile, EPathfindingLayer layer, CGPathNode::EAccessibility accessibility);
@@ -108,6 +111,11 @@ public:
 	const CGHeroInstance * getHero() const
 	{
 		return hero;
+	}
+
+	uint64_t evaluateDanger(const int3 &  tile) const
+	{
+		return dangerEvaluator->evaluateDanger(tile, hero, cb);
 	}
 
 private:

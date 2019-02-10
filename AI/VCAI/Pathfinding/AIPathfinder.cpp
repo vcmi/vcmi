@@ -89,7 +89,7 @@ void AIPathfinder::updatePaths(std::vector<HeroPtr> heroes)
 		boost::thread::hardware_concurrency(),
 		(uint32_t)calculationTasks.size());
 
-	if(threadsCount == 1)
+	if(threadsCount <= 1)
 	{
 		for(auto task : calculationTasks)
 		{

@@ -49,7 +49,7 @@ TSubgoal VisitTile::whatToDoToAchieve()
 		}
 		else
 		{
-			return sptr(GatherArmy(evaluateDanger(tile, *ret->hero) * SAFE_ATTACK_CONSTANT)
+			return sptr(GatherArmy(fh->evaluateDanger(tile, *ret->hero) * SAFE_ATTACK_CONSTANT)
 				    .sethero(ret->hero).setisAbstract(true));
 		}
 	}

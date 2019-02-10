@@ -21,6 +21,7 @@ AINodeStorage::AINodeStorage(const int3 & Sizes)
 	: sizes(Sizes)
 {
 	nodes.resize(boost::extents[sizes.x][sizes.y][sizes.z][EPathfindingLayer::NUM_LAYERS][NUM_CHAINS]);
+	dangerEvaluator.reset(new FuzzyHelper());
 }
 
 AINodeStorage::~AINodeStorage() = default;
@@ -358,6 +359,8 @@ std::vector<AIPath> AINodeStorage::getChainInfo(const int3 & pos, bool isOnLand)
 			current = getAINode(current->theNodeBefore);
 		}
 
+		path.targetObjectDanger = evaluateDanger(pos);
+
 		paths.push_back(path);
 	}
 
@@ -403,8 +406,7 @@ float AIPath::movementCost() const
 uint64_t AIPath::getTotalDanger(HeroPtr hero) const
 {
 	uint64_t pathDanger = getPathDanger();
-	uint64_t objDanger = evaluateDanger(nodes.front().coord, hero.get()); // bank danger is not checked by pathfinder
-	uint64_t danger = pathDanger > objDanger ? pathDanger : objDanger;
+	uint64_t danger = pathDanger > targetObjectDanger ? pathDanger : targetObjectDanger;
 
 	return danger;
 }
