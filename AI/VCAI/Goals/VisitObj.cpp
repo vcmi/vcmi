@@ -90,10 +90,16 @@ TSubgoal VisitObj::whatToDoToAchieve()
 	return bestGoal;
 }
 
-VisitObj::VisitObj(int Objid) : CGoal(VISIT_OBJ)
+VisitObj::VisitObj(int Objid)
+	: CGoal(VISIT_OBJ)
 {
 	objid = Objid;
-	tile = ai->myCb->getObjInstance(ObjectInstanceID(objid))->visitablePos();
+	auto obj = ai->myCb->getObjInstance(ObjectInstanceID(objid));
+	if(obj)
+		tile = obj->visitablePos();
+	else
+		logAi->error("VisitObj constructed with invalid object instance %d", Objid);
+
 	priority = 3;
 }
 
