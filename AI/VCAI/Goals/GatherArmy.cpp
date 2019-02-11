@@ -126,13 +126,13 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 		// Go to the other hero if we are faster
 		if(!vstd::contains(ai->visitedHeroes[hero], h))
 		{
-			vstd::concatenate(ret, ai->ah->howToVisitObj(hero, h));
+			vstd::concatenate(ret, ai->ah->howToVisitObj(hero, h, false));
 		}
 
 		// Go to the other hero if we are faster
 		if(!vstd::contains(ai->visitedHeroes[h], hero))
 		{
-			vstd::concatenate(ret, ai->ah->howToVisitObj(h, hero.get()));
+			vstd::concatenate(ret, ai->ah->howToVisitObj(h, hero.get(), false));
 		}
 	}
 
