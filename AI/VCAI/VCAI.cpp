@@ -1147,26 +1147,30 @@ void VCAI::pickBestCreatures(const CArmedInstance * destinationArmy, const CArme
 				if(armyPtr->getCreature(SlotID(j)) == bestArmy[i] && (i != j || armyPtr != destinationArmy)) //it's a searched creature not in dst SLOT
 				{
 					if(!(armyPtr->needsLastStack() && armyPtr->stacksCount() == 1)) //can't take away last creature without split
+					{
 						cb->mergeOrSwapStacks(armyPtr, destinationArmy, SlotID(j), SlotID(i));
+					}
 					else
 					{	
 						//TODO: Improve logic by splitting weakest creature, instead of creature that becomes last stack
 						SlotID sourceSlot = SlotID(j);
-						int lastStackCount = armyPtr->getStackCount(sourceSlot);
+						auto lastStackCount = armyPtr->getStackCount(sourceSlot);
 
 						if(lastStackCount > 1) //we can perform exchange if we need creature and split is possible
 						{	
 							SlotID destinationSlot = SlotID(i);
-							for(int candidateSlot = 0; candidateSlot < GameConstants::ARMY_SIZE; candidateSlot++) //check if there are some creatures of same type in destination army slots - add to them instead of first available empty slot
+							//check if there are some creatures of same type in destination army slots - add to them instead of first available empty slot if possible
+							for(int candidateSlot = 0; candidateSlot < GameConstants::ARMY_SIZE; candidateSlot++)
 							{
-								if(destinationArmy->getCreature(SlotID(candidateSlot)) && (destinationArmy->getCreature(SlotID(candidateSlot))->idNumber == armyPtr->getCreature(SlotID(j))->idNumber))
+								auto creatureInSlot = destinationArmy->getCreature(SlotID(candidateSlot));
+								if(creatureInSlot && (creatureInSlot->idNumber == armyPtr->getCreature(SlotID(j))->idNumber))
 								{
 									destinationSlot = SlotID(candidateSlot);
 									break;
 								}
 							}
 							//last cb->splitStack argument is total amount of creatures expected after exchange so if slot is not empty we need to add to existing creatures
-							int destinationSlotCreatureCount = destinationArmy->getStackCount(destinationSlot);
+							auto destinationSlotCreatureCount = destinationArmy->getStackCount(destinationSlot);
 							cb->splitStack(armyPtr, destinationArmy, sourceSlot, destinationSlot, lastStackCount + destinationSlotCreatureCount - 1);
 						}
 					}
