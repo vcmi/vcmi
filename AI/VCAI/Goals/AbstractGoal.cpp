@@ -77,7 +77,7 @@ std::string AbstractGoal::name() const //TODO: virtualize
 	{
 		auto obj = cb->getObjInstance(ObjectInstanceID(objid));
 		if(obj)
-			desc = "GET OBJ " + obj->getObjectName();
+			desc = "VISIT OBJ " + obj->getObjectName();
 	}
 	break;
 	case FIND_OBJ:
