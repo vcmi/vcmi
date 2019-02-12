@@ -35,7 +35,7 @@ namespace AIPathfinding
 			return;
 		}
 
-		if(blocker == BlockingReason::SOURCE_GUARDED && nodeStorage->isBattleNode(source.node))
+		if(blocker == BlockingReason::SOURCE_GUARDED && nodeStorage->getAINode(source.node)->actor->allowBattle)
 		{
 #ifdef VCMI_TRACE_PATHFINDER
 			logAi->trace(

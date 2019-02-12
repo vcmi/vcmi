@@ -17,12 +17,10 @@
 class AIPathfinder
 {
 private:
-	static std::vector<std::shared_ptr<AINodeStorage>> storagePool;
-	static std::map<HeroPtr, std::shared_ptr<AINodeStorage>> storageMap;
+	static std::shared_ptr<AINodeStorage> storage;
 	CPlayerSpecificInfoCallback * cb;
 	VCAI * ai;
 
-	std::shared_ptr<const AINodeStorage> getStorage(const HeroPtr & hero) const;
 public:
 	AIPathfinder(CPlayerSpecificInfoCallback * cb, VCAI * ai);
 	std::vector<AIPath> getPathInfo(const HeroPtr & hero, const int3 & tile) const;

@@ -26,14 +26,14 @@ bool canSeeObj(const CGObjectInstance * obj)
 	return obj != nullptr && obj->ID != Obj::EVENT;
 }
 
-void NodeStorage::initialize(const PathfinderOptions & options, const CGameState * gs, const CGHeroInstance * hero)
+void NodeStorage::initialize(const PathfinderOptions & options, const CGameState * gs)
 {
 	//TODO: fix this code duplication with AINodeStorage::initialize, problem is to keep `resetTile` inline
 
 	int3 pos;
+	const PlayerColor player = out.hero->tempOwner;
 	const int3 sizes = gs->getMapSize();
-	const auto & fow = static_cast<const CGameInfoCallback *>(gs)->getPlayerTeam(hero->tempOwner)->fogOfWarMap;
-	const PlayerColor player = hero->tempOwner;
+	const auto & fow = static_cast<const CGameInfoCallback *>(gs)->getPlayerTeam(player)->fogOfWarMap;
 
 	//make 200% sure that these are loop invariants (also a bit shorter code), let compiler do the rest(loop unswitching)
 	const bool useFlying = options.useFlying;
@@ -155,7 +155,7 @@ void NodeStorage::resetTile(
 	getNode(tile, layer)->update(tile, layer, accessibility);
 }
 
-CGPathNode * NodeStorage::getInitialNode()
+std::vector<CGPathNode *> NodeStorage::getInitialNodes()
 {
 	auto initialNode =  getNode(out.hpos, out.hero->boat ? EPathfindingLayer::SAIL : EPathfindingLayer::LAND);
 
@@ -163,7 +163,7 @@ CGPathNode * NodeStorage::getInitialNode()
 	initialNode->moveRemains = out.hero->movement;
 	initialNode->cost = 0.0;
 
-	return initialNode;
+	return std::vector<CGPathNode *> { initialNode };
 }
 
 void NodeStorage::commit(CDestinationNodeInfo & destination, const PathNodeInfo & source)
@@ -256,26 +256,36 @@ CPathfinder::CPathfinder(
 	const CGHeroInstance * _hero)
 	: CPathfinder(
 		_gs,
-		_hero,
-		std::make_shared<PathfinderConfig>(
-			std::make_shared<NodeStorage>(_out, _hero),
-			std::vector<std::shared_ptr<IPathfindingRule>>{
-				std::make_shared<LayerTransitionRule>(),
-				std::make_shared<DestinationActionRule>(),
-				std::make_shared<MovementToDestinationRule>(),
-				std::make_shared<MovementCostRule>(),
-				std::make_shared<MovementAfterDestinationRule>()
-			}))
+		std::make_shared<SingleHeroPathfinderConfig>(_out, _gs, _hero))
 {
+}
+
+std::vector<std::shared_ptr<IPathfindingRule>> SingleHeroPathfinderConfig::buildRuleSet()
+{
+	return std::vector<std::shared_ptr<IPathfindingRule>>{
+		std::make_shared<LayerTransitionRule>(),
+			std::make_shared<DestinationActionRule>(),
+			std::make_shared<MovementToDestinationRule>(),
+			std::make_shared<MovementCostRule>(),
+			std::make_shared<MovementAfterDestinationRule>()
+	};
+}
+
+SingleHeroPathfinderConfig::SingleHeroPathfinderConfig(CPathsInfo & out, CGameState * gs, const CGHeroInstance * hero)
+	: PathfinderConfig(std::make_shared<NodeStorage>(out, hero), buildRuleSet())
+{
+	pathfinderHelper.reset(new CPathfinderHelper(gs, hero, options));
+}
+
+CPathfinderHelper * SingleHeroPathfinderConfig::getOrCreatePathfinderHelper(const PathNodeInfo & source, CGameState * gs)
+{
+	return pathfinderHelper.get();
 }
 
 CPathfinder::CPathfinder(
 	CGameState * _gs,
-	const CGHeroInstance * _hero,
 	std::shared_ptr<PathfinderConfig> config)
 	: CGameInfoCallback(_gs, boost::optional<PlayerColor>())
-	, hero(_hero)
-	, patrolTiles({})
 	, config(config)
 	, source()
 	, destination()
@@ -283,9 +293,6 @@ CPathfinder::CPathfinder(
 	assert(hero);
 	assert(hero == getHero(hero->id));
 
-	hlp = make_unique<CPathfinderHelper>(_gs, hero, config->options);
-
-	initializePatrol();
 	initializeGraph();
 }
 
@@ -294,30 +301,38 @@ void CPathfinder::calculatePaths()
 	//logGlobal->info("Calculating paths for hero %s (adress  %d) of player %d", hero->name, hero , hero->tempOwner);
 
 	//initial tile - set cost on 0 and add to the queue
-	CGPathNode * initialNode = config->nodeStorage->getInitialNode();
+	std::vector<CGPathNode *> initialNodes = config->nodeStorage->getInitialNodes();
 
-	if(!isInTheMap(initialNode->coord)/* || !gs->map->isInTheMap(dest)*/) //check input
+	for(auto initialNode : initialNodes)
 	{
-		logGlobal->error("CGameState::calculatePaths: Hero outside the gs->map? How dare you...");
-		throw std::runtime_error("Wrong checksum");
+		if(!isInTheMap(initialNode->coord)/* || !gs->map->isInTheMap(dest)*/) //check input
+		{
+			logGlobal->error("CGameState::calculatePaths: Hero outside the gs->map? How dare you...");
+			throw std::runtime_error("Wrong checksum");
+		}
+
+		source.setNode(gs, initialNode);
+		auto hlp = config->getOrCreatePathfinderHelper(source, gs);
+
+		if(hlp->isHeroPatrolLocked())
+			break;
+
+		pq.push(initialNode);
 	}
 
-	if(isHeroPatrolLocked())
-		return;
-
-	pq.push(initialNode);
 	while(!pq.empty())
 	{
 		auto node = pq.top();
-		auto excludeOurHero = node->coord == initialNode->coord;
 
-		source.setNode(gs, node, excludeOurHero);
+		source.setNode(gs, node);
 		pq.pop();
 		source.node->locked = true;
 
 		int movement = source.node->moveRemains;
 		uint8_t turn = source.node->turns;
 		float cost = source.node->cost;
+
+		auto hlp = config->getOrCreatePathfinderHelper(source, gs);
 
 		hlp->updateTurnInfo(turn);
 		if(!movement)
@@ -328,18 +343,17 @@ void CPathfinder::calculatePaths()
 				continue;
 		}
 
-		source.guarded = isSourceGuarded();
-		if(source.nodeObject)
-			source.objectRelations = gs->getPlayerRelations(hero->tempOwner, source.nodeObject->tempOwner);
+		source.isInitialPosition = source.nodeHero == hlp->hero;
+		source.updateInfo(hlp, gs);
 
 		//add accessible neighbouring nodes to the queue
-		auto neighbourNodes = config->nodeStorage->calculateNeighbours(source, config.get(), hlp.get());
+		auto neighbourNodes = config->nodeStorage->calculateNeighbours(source, config.get(), hlp);
 		for(CGPathNode * neighbour : neighbourNodes)
 		{
 			if(neighbour->locked)
 				continue;
 
-			if(!isPatrolMovementAllowed(neighbour->coord))
+			if(!hlp->isPatrolMovementAllowed(neighbour->coord))
 				continue;
 
 			if(!hlp->isLayerAvailable(neighbour->layer))
@@ -354,14 +368,12 @@ void CPathfinder::calculatePaths()
 			destination.turn = turn;
 			destination.movementLeft = movement;
 			destination.cost = cost;
-			destination.guarded = isDestinationGuarded();
+			destination.updateInfo(hlp, gs);
 			destination.isGuardianTile = destination.guarded && isDestinationGuardian();
-			if(destination.nodeObject)
-				destination.objectRelations = gs->getPlayerRelations(hero->tempOwner, destination.nodeObject->tempOwner);
 
 			for(auto rule : config->rules)
 			{
-				rule->process(source, destination, config.get(), hlp.get());
+				rule->process(source, destination, config.get(), hlp);
 
 				if(destination.blocked)
 					break;
@@ -376,10 +388,10 @@ void CPathfinder::calculatePaths()
 
 		/// For now we disable teleports usage for patrol movement
 		/// VCAI not aware about patrol and may stuck while attempt to use teleport
-		if(patrolState == PATROL_RADIUS)
+		if(hlp->patrolState == CPathfinderHelper::PATROL_RADIUS)
 			continue;
 
-		auto teleportationNodes = config->nodeStorage->calculateTeleportations(source, config.get(), hlp.get());
+		auto teleportationNodes = config->nodeStorage->calculateTeleportations(source, config.get(), hlp);
 		for(CGPathNode * teleportNode : teleportationNodes)
 		{
 			if(teleportNode->locked)
@@ -476,12 +488,12 @@ std::vector<int3> CPathfinderHelper::getTeleportExits(const PathNodeInfo & sourc
 	return teleportationExits;
 }
 
-bool CPathfinder::isHeroPatrolLocked() const
+bool CPathfinderHelper::isHeroPatrolLocked() const
 {
 	return patrolState == PATROL_LOCKED;
 }
 
-bool CPathfinder::isPatrolMovementAllowed(const int3 & dst) const
+bool CPathfinderHelper::isPatrolMovementAllowed(const int3 & dst) const
 {
 	if(patrolState == PATROL_RADIUS)
 	{
@@ -505,7 +517,7 @@ bool CPathfinder::isLayerTransitionPossible() const
 	case ELayer::LAND:
 		if(destLayer == ELayer::AIR)
 		{
-			if(!config->options.lightweightFlyingMode || isSourceInitialPosition())
+			if(!config->options.lightweightFlyingMode || source.isInitialPosition)
 				return true;
 		}
 		else if(destLayer == ELayer::SAIL)
@@ -645,7 +657,7 @@ PathfinderBlockingRule::BlockingReason MovementToDestinationRule::getBlockingRea
 			if(!destination.isNodeObjectVisitable())
 				return BlockingReason::DESTINATION_BLOCKED;
 
-			if(destination.nodeObject->ID != Obj::BOAT && destination.nodeObject->ID != Obj::HERO)
+			if(destination.nodeObject->ID != Obj::BOAT && !destination.nodeHero)
 				return BlockingReason::DESTINATION_BLOCKED;
 		}
 		else if(destination.isNodeObjectVisitable() && destination.nodeObject->ID == Obj::BOAT)
@@ -789,9 +801,9 @@ void DestinationActionRule::process(
 
 			if(destination.nodeObject->ID == Obj::BOAT)
 				action = CGPathNode::EMBARK;
-			else if(destination.nodeObject->ID == Obj::HERO)
+			else if(destination.nodeHero)
 			{
-				if(objRel == PlayerRelations::ENEMIES)
+				if(destination.heroRelations == PlayerRelations::ENEMIES)
 					action = CGPathNode::BATTLE;
 				else
 					action = CGPathNode::BLOCKING_VISIT;
@@ -848,10 +860,10 @@ void DestinationActionRule::process(
 CGPathNode::ENodeAction CPathfinder::getTeleportDestAction() const
 {
 	CGPathNode::ENodeAction action = CGPathNode::TELEPORT_NORMAL;
-	if(destination.isNodeObjectVisitable() && destination.nodeObject->ID == Obj::HERO)
+
+	if(destination.isNodeObjectVisitable() && destination.nodeHero)
 	{
-		auto objRel = getPlayerRelations(destination.nodeObject->tempOwner, hero->tempOwner);
-		if(objRel == PlayerRelations::ENEMIES)
+		if(destination.heroRelations == PlayerRelations::ENEMIES)
 			action = CGPathNode::TELEPORT_BATTLE;
 		else
 			action = CGPathNode::TELEPORT_BLOCKING_VISIT;
@@ -860,39 +872,12 @@ CGPathNode::ENodeAction CPathfinder::getTeleportDestAction() const
 	return action;
 }
 
-bool CPathfinder::isSourceInitialPosition() const
-{
-	return source.node->coord == config->nodeStorage->getInitialNode()->coord;
-}
-
-bool CPathfinder::isSourceGuarded() const
-{
-	/// Hero can move from guarded tile if movement started on that tile
-	/// It's possible at least in these cases:
-	/// - Map start with hero on guarded tile
-	/// - Dimention door used
-	/// TODO: check what happen when there is several guards
-	if(gs->guardingCreaturePosition(source.node->coord).valid() && !isSourceInitialPosition())
-	{
-		return true;
-	}
-
-	return false;
-}
-
-bool CPathfinder::isDestinationGuarded() const
-{
-	/// isDestinationGuarded is exception needed for garrisons.
-	/// When monster standing behind garrison it's visitable and guarded at the same time.
-	return gs->guardingCreaturePosition(destination.node->coord).valid();
-}
-
 bool CPathfinder::isDestinationGuardian() const
 {
 	return gs->guardingCreaturePosition(source.node->coord) == destination.node->coord;
 }
 
-void CPathfinder::initializePatrol()
+void CPathfinderHelper::initializePatrol()
 {
 	auto state = PATROL_NONE;
 	if(hero->patrol.patrolling && !getPlayer(hero->tempOwner)->human)
@@ -912,7 +897,7 @@ void CPathfinder::initializePatrol()
 void CPathfinder::initializeGraph()
 {
 	INodeStorage * nodeStorage = config->nodeStorage.get();
-	nodeStorage->initialize(config->options, gs, hero);
+	nodeStorage->initialize(config->options, gs);
 }
 
 bool CPathfinderHelper::canMoveBetween(const int3 & a, const int3 & b) const
@@ -1079,7 +1064,7 @@ int TurnInfo::getMaxMovePoints(const EPathfindingLayer layer) const
 }
 
 CPathfinderHelper::CPathfinderHelper(CGameState * gs, const CGHeroInstance * Hero, const PathfinderOptions & Options)
-	: CGameInfoCallback(gs, boost::optional<PlayerColor>()), turn(-1), hero(Hero), options(Options)
+	: CGameInfoCallback(gs, boost::optional<PlayerColor>()), turn(-1), hero(Hero), options(Options), owner(Hero->tempOwner)
 {
 	turnsInfo.reserve(16);
 	updateTurnInfo();
@@ -1331,7 +1316,7 @@ PathNodeInfo::PathNodeInfo()
 {
 }
 
-void PathNodeInfo::setNode(CGameState * gs, CGPathNode * n, bool excludeTopObject)
+void PathNodeInfo::setNode(CGameState * gs, CGPathNode * n)
 {
 	node = n;
 
@@ -1341,10 +1326,38 @@ void PathNodeInfo::setNode(CGameState * gs, CGPathNode * n, bool excludeTopObjec
 
 		coord = node->coord;
 		tile = gs->getTile(coord);
-		nodeObject = tile->topVisitableObj(excludeTopObject);
+		nodeObject = tile->topVisitableObj();
+		
+		if(nodeObject && nodeObject->ID == Obj::HERO)
+		{
+			nodeHero = dynamic_cast<const CGHeroInstance *>(nodeObject);
+			nodeObject = tile->topVisitableObj(true);
+		}
+		else
+		{
+			nodeHero = nullptr;
+		}
 	}
 
 	guarded = false;
+}
+
+void PathNodeInfo::updateInfo(CPathfinderHelper * hlp, CGameState * gs)
+{
+	if(gs->guardingCreaturePosition(node->coord).valid() && !isInitialPosition)
+	{
+		guarded = true;
+	}
+
+	if(nodeObject)
+	{
+		objectRelations = gs->getPlayerRelations(hlp->owner, nodeObject->tempOwner);
+	}
+
+	if(nodeHero)
+	{
+		heroRelations = gs->getPlayerRelations(hlp->owner, nodeHero->tempOwner);
+	}
 }
 
 CDestinationNodeInfo::CDestinationNodeInfo()
@@ -1354,9 +1367,9 @@ CDestinationNodeInfo::CDestinationNodeInfo()
 {
 }
 
-void CDestinationNodeInfo::setNode(CGameState * gs, CGPathNode * n, bool excludeTopObject)
+void CDestinationNodeInfo::setNode(CGameState * gs, CGPathNode * n)
 {
-	PathNodeInfo::setNode(gs, n, excludeTopObject);
+	PathNodeInfo::setNode(gs, n);
 
 	blocked = false;
 	action = CGPathNode::ENodeAction::UNKNOWN;

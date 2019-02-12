@@ -37,7 +37,19 @@ namespace AIPathfinding
 		CPlayerSpecificInfoCallback * cb,
 		VCAI * ai,
 		std::shared_ptr<AINodeStorage> nodeStorage)
-		:PathfinderConfig(nodeStorage, makeRuleset(cb, ai, nodeStorage))
+		:PathfinderConfig(nodeStorage, makeRuleset(cb, ai, nodeStorage)), aiNodeStorage(nodeStorage)
 	{
+	}
+
+	CPathfinderHelper * AIPathfinderConfig::getOrCreatePathfinderHelper(const PathNodeInfo & source, CGameState * gs)
+	{
+		if(!pathfindingHelper)
+		{
+			auto hero = aiNodeStorage->getHero(source.node);
+
+			pathfindingHelper.reset(new CPathfinderHelper(gs, hero, options));
+		}
+
+		return pathfindingHelper.get();
 	}
 }
