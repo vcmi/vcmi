@@ -93,7 +93,7 @@ SlotID CCreatureSet::getFreeSlot(ui32 slotsAmount) const
 	return SlotID(); //no slot available
 }
 
-int CCreatureSet::getStackCount(SlotID slot) const
+TQuantity CCreatureSet::getStackCount(SlotID slot) const
 {
 	auto i = stacks.find(slot);
 	if (i != stacks.end())

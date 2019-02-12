@@ -1066,13 +1066,12 @@ bool VCAI::canGetArmy(const CGHeroInstance * army, const CGHeroInstance * source
 	{
 		for(auto & i : armyPtr->Slots())
 		{
-			//TODO: allow splitting stacks?
 			creToPower[i.second->type] += i.second->getPower();
 		}
 	}
 	//TODO - consider more than just power (ie morale penalty, hero specialty in certain stacks, etc)
 	int armySize = creToPower.size();
-	armySize = std::min((source->needsLastStack() ? armySize - 1 : armySize), GameConstants::ARMY_SIZE); //can't move away last stack
+	armySize = std::min(armySize, GameConstants::ARMY_SIZE);
 	std::vector<const CCreature *> bestArmy; //types that'll be in final dst army
 	for(int i = 0; i < armySize; i++) //pick the creatures from which we can get most power, as many as dest can fit
 	{
@@ -1096,8 +1095,7 @@ bool VCAI::canGetArmy(const CGHeroInstance * army, const CGHeroInstance * source
 			{
 				if(armyPtr->getCreature(SlotID(j)) == bestArmy[i] && armyPtr != army) //it's a searched creature not in dst ARMY
 				{
-					//FIXME: line below is useless when simulating exchange between two non-singular armies
-					if(!(armyPtr->needsLastStack() && armyPtr->stacksCount() == 1)) //can't take away last creature
+					if(!(armyPtr->needsLastStack() && (armyPtr->stacksCount() == 1) && armyPtr->getStackCount(SlotID(j)) < 2)) //can't take away or split last creature
 						return true; //at least one exchange will be performed
 					else
 						return false; //no further exchange possible
@@ -1108,10 +1106,9 @@ bool VCAI::canGetArmy(const CGHeroInstance * army, const CGHeroInstance * source
 	return false;
 }
 
-void VCAI::pickBestCreatures(const CArmedInstance * army, const CArmedInstance * source)
+void VCAI::pickBestCreatures(const CArmedInstance * destinationArmy, const CArmedInstance * source)
 {
-	//TODO - what if source is a hero (the last stack problem) -> it'd good to create a single stack of weakest cre
-	const CArmedInstance * armies[] = {army, source};
+	const CArmedInstance * armies[] = {destinationArmy, source};
 
 	//we calculate total strength for each creature type available in armies
 	std::map<const CCreature *, int> creToPower;
@@ -1119,14 +1116,13 @@ void VCAI::pickBestCreatures(const CArmedInstance * army, const CArmedInstance *
 	{
 		for(auto & i : armyPtr->Slots())
 		{
-			//TODO: allow splitting stacks?
 			creToPower[i.second->type] += i.second->getPower();
 		}
 	}
 	//TODO - consider more than just power (ie morale penalty, hero specialty in certain stacks, etc)
 	int armySize = creToPower.size();
 
-	armySize = std::min((source->needsLastStack() ? armySize - 1 : armySize), GameConstants::ARMY_SIZE); //can't move away last stack
+	armySize = std::min(armySize, GameConstants::ARMY_SIZE);
 	std::vector<const CCreature *> bestArmy; //types that'll be in final dst army
 	for(int i = 0; i < armySize; i++) //pick the creatures from which we can get most power, as many as dest can fit
 	{
@@ -1148,10 +1144,36 @@ void VCAI::pickBestCreatures(const CArmedInstance * army, const CArmedInstance *
 		{
 			for(int j = 0; j < GameConstants::ARMY_SIZE; j++)
 			{
-				if(armyPtr->getCreature(SlotID(j)) == bestArmy[i] && (i != j || armyPtr != army)) //it's a searched creature not in dst SLOT
+				if(armyPtr->getCreature(SlotID(j)) == bestArmy[i] && (i != j || armyPtr != destinationArmy)) //it's a searched creature not in dst SLOT
 				{
-					if(!(armyPtr->needsLastStack() && armyPtr->stacksCount() == 1)) //can't take away last creature
-						cb->mergeOrSwapStacks(armyPtr, army, SlotID(j), SlotID(i));
+					if(!(armyPtr->needsLastStack() && armyPtr->stacksCount() == 1)) //can't take away last creature without split
+					{
+						cb->mergeOrSwapStacks(armyPtr, destinationArmy, SlotID(j), SlotID(i));
+					}
+					else
+					{	
+						//TODO: Improve logic by splitting weakest creature, instead of creature that becomes last stack
+						SlotID sourceSlot = SlotID(j);
+						auto lastStackCount = armyPtr->getStackCount(sourceSlot);
+
+						if(lastStackCount > 1) //we can perform exchange if we need creature and split is possible
+						{	
+							SlotID destinationSlot = SlotID(i);
+							//check if there are some creatures of same type in destination army slots - add to them instead of first available empty slot if possible
+							for(int candidateSlot = 0; candidateSlot < GameConstants::ARMY_SIZE; candidateSlot++)
+							{
+								auto creatureInSlot = destinationArmy->getCreature(SlotID(candidateSlot));
+								if(creatureInSlot && (creatureInSlot->idNumber == armyPtr->getCreature(SlotID(j))->idNumber))
+								{
+									destinationSlot = SlotID(candidateSlot);
+									break;
+								}
+							}
+							//last cb->splitStack argument is total amount of creatures expected after exchange so if slot is not empty we need to add to existing creatures
+							auto destinationSlotCreatureCount = destinationArmy->getStackCount(destinationSlot);
+							cb->splitStack(armyPtr, destinationArmy, sourceSlot, destinationSlot, lastStackCount + destinationSlotCreatureCount - 1);
+						}
+					}
 				}
 			}
 		}
@@ -1159,7 +1181,7 @@ void VCAI::pickBestCreatures(const CArmedInstance * army, const CArmedInstance *
 
 	//TODO - having now strongest possible army, we may want to think about arranging stacks
 
-	auto hero = dynamic_cast<const CGHeroInstance *>(army);
+	auto hero = dynamic_cast<const CGHeroInstance *>(destinationArmy);
 	if(hero)
 		checkHeroArmy(hero);
 }
