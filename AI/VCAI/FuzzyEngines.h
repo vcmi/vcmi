@@ -24,7 +24,7 @@ public:
 	engineBase();
 };
 
-class TacticalAdvantageEngine : public engineBase
+class TacticalAdvantageEngine : public engineBase //TODO: rework this engine, it does not work well (example: AI hero with 140 beholders attacked 150 beholders - engine lowered danger 50000 -> 35000)
 {
 public:
 	TacticalAdvantageEngine();

@@ -203,7 +203,7 @@ TacticalAdvantageEngine::TacticalAdvantageEngine()
 float TacticalAdvantageEngine::getTacticalAdvantage(const CArmedInstance * we, const CArmedInstance * enemy)
 {
 	float output = 1;
-	try
+	/*try //TODO: rework this engine, it tends to produce nonsense output
 	{
 		armyStructure ourStructure = evaluateArmyStructure(we);
 		armyStructure enemyStructure = evaluateArmyStructure(enemy);
@@ -248,7 +248,7 @@ float TacticalAdvantageEngine::getTacticalAdvantage(const CArmedInstance * we, c
 			log << names[i] << ": " << tab[i]->getValue() << " ";
 		logAi->error(log.str());
 		assert(false);
-	}
+	}*/
 
 	return output;
 }
