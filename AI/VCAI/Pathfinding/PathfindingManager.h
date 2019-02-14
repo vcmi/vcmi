@@ -20,12 +20,13 @@ public:
 	virtual void init(CPlayerSpecificInfoCallback * CB) = 0;
 	virtual void setAI(VCAI * AI) = 0;
 
-	virtual void resetPaths() = 0;
-	virtual Goals::TGoalVec howToVisitTile(HeroPtr hero, int3 tile, bool allowGatherArmy = true) = 0;
-	virtual Goals::TGoalVec howToVisitObj(HeroPtr hero, ObjectIdRef obj, bool allowGatherArmy = true) = 0;
-	virtual Goals::TGoalVec howToVisitTile(int3 tile) = 0;
-	virtual Goals::TGoalVec howToVisitObj(ObjectIdRef obj) = 0;
-	virtual std::vector<AIPath> getPathsToTile(HeroPtr hero, int3 tile) = 0;
+	virtual void updatePaths(std::vector<HeroPtr> heroes) = 0;
+	virtual void updatePaths(const HeroPtr & hero) = 0;
+	virtual Goals::TGoalVec howToVisitTile(const HeroPtr & hero, const int3 & tile, bool allowGatherArmy = true) const = 0;
+	virtual Goals::TGoalVec howToVisitObj(const HeroPtr & hero, ObjectIdRef obj, bool allowGatherArmy = true) const = 0;
+	virtual Goals::TGoalVec howToVisitTile(const int3 & tile) const = 0;
+	virtual Goals::TGoalVec howToVisitObj(ObjectIdRef obj) const = 0;
+	virtual std::vector<AIPath> getPathsToTile(const HeroPtr & hero, const int3 & tile) const = 0;
 };
 
 class DLL_EXPORT PathfindingManager : public IPathfindingManager
@@ -41,15 +42,16 @@ public:
 	PathfindingManager() = default;
 	PathfindingManager(CPlayerSpecificInfoCallback * CB, VCAI * AI = nullptr); //for tests only
 
-	Goals::TGoalVec howToVisitTile(HeroPtr hero, int3 tile, bool allowGatherArmy = true) override;
-	Goals::TGoalVec howToVisitObj(HeroPtr hero, ObjectIdRef obj, bool allowGatherArmy = true) override;
-	Goals::TGoalVec howToVisitTile(int3 tile) override;
-	Goals::TGoalVec howToVisitObj(ObjectIdRef obj) override;
-	std::vector<AIPath> getPathsToTile(HeroPtr hero, int3 tile) override;
-	void resetPaths() override;
+	Goals::TGoalVec howToVisitTile(const HeroPtr & hero, const int3 & tile, bool allowGatherArmy = true) const override;
+	Goals::TGoalVec howToVisitObj(const HeroPtr & hero, ObjectIdRef obj, bool allowGatherArmy = true) const override;
+	Goals::TGoalVec howToVisitTile(const int3 & tile) const override;
+	Goals::TGoalVec howToVisitObj(ObjectIdRef obj) const override;
+	std::vector<AIPath> getPathsToTile(const HeroPtr & hero, const int3 & tile) const override;
+	void updatePaths(std::vector<HeroPtr> heroes) override;
+	void updatePaths(const HeroPtr & hero) override;
 
 	STRONG_INLINE
-	bool isTileAccessible(const HeroPtr & hero, const int3 & tile)
+	bool isTileAccessible(const HeroPtr & hero, const int3 & tile) const
 	{
 		return pathfinder->isTileAccessible(hero, tile);
 	}
@@ -62,7 +64,7 @@ private:
 		HeroPtr hero,
 		crint3 dest,
 		bool allowGatherArmy,
-		const std::function<Goals::TSubgoal(int3)> goalFactory);
+		const std::function<Goals::TSubgoal(int3)> goalFactory) const;
 
-	Goals::TSubgoal clearWayTo(HeroPtr hero, int3 firstTileToGet);
+	Goals::TSubgoal clearWayTo(HeroPtr hero, int3 firstTileToGet) const;
 };

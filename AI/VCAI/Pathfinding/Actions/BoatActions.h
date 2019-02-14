@@ -44,16 +44,16 @@ namespace AIPathfinding
 		virtual Goals::TSubgoal whatToDo(const HeroPtr & hero) const override;
 
 		virtual void applyOnDestination(
-			const HeroPtr & hero,
+			const CGHeroInstance * hero,
 			CDestinationNodeInfo & destination,
 			const PathNodeInfo & source,
 			AIPathNode * dstMode,
 			const AIPathNode * srcNode) const override;
 
-		bool isAffordableBy(const HeroPtr & hero, const AIPathNode * source) const;
+		bool isAffordableBy(const CGHeroInstance * hero, const AIPathNode * source) const;
 
 	private:
-		uint32_t getManaCost(const HeroPtr & hero) const;
+		uint32_t getManaCost(const CGHeroInstance * hero) const;
 	};
 
 	class BuildBoatAction : public VirtualBoatAction

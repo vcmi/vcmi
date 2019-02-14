@@ -32,7 +32,7 @@ void PathfindingManager::setAI(VCAI * AI)
 	ai = AI;
 }
 
-Goals::TGoalVec PathfindingManager::howToVisitTile(int3 tile)
+Goals::TGoalVec PathfindingManager::howToVisitTile(const int3 & tile) const
 {
 	Goals::TGoalVec result;
 
@@ -47,7 +47,7 @@ Goals::TGoalVec PathfindingManager::howToVisitTile(int3 tile)
 	return result;
 }
 
-Goals::TGoalVec PathfindingManager::howToVisitObj(ObjectIdRef obj)
+Goals::TGoalVec PathfindingManager::howToVisitObj(ObjectIdRef obj) const
 {
 	Goals::TGoalVec result;
 
@@ -62,7 +62,7 @@ Goals::TGoalVec PathfindingManager::howToVisitObj(ObjectIdRef obj)
 	return result;
 }
 
-Goals::TGoalVec PathfindingManager::howToVisitTile(HeroPtr hero, int3 tile, bool allowGatherArmy)
+Goals::TGoalVec PathfindingManager::howToVisitTile(const HeroPtr & hero, const int3 & tile, bool allowGatherArmy) const
 {
 	auto result = findPath(hero, tile, allowGatherArmy, [&](int3 firstTileToGet) -> Goals::TSubgoal
 	{
@@ -77,7 +77,7 @@ Goals::TGoalVec PathfindingManager::howToVisitTile(HeroPtr hero, int3 tile, bool
 	return result;
 }
 
-Goals::TGoalVec PathfindingManager::howToVisitObj(HeroPtr hero, ObjectIdRef obj, bool allowGatherArmy)
+Goals::TGoalVec PathfindingManager::howToVisitObj(const HeroPtr & hero, ObjectIdRef obj, bool allowGatherArmy) const
 {
 	if(!obj)
 	{
@@ -102,7 +102,7 @@ Goals::TGoalVec PathfindingManager::howToVisitObj(HeroPtr hero, ObjectIdRef obj,
 	return result;
 }
 
-std::vector<AIPath> PathfindingManager::getPathsToTile(HeroPtr hero, int3 tile)
+std::vector<AIPath> PathfindingManager::getPathsToTile(const HeroPtr & hero, const int3 & tile) const
 {
 	return pathfinder->getPathInfo(hero, tile);
 }
@@ -111,7 +111,7 @@ Goals::TGoalVec PathfindingManager::findPath(
 	HeroPtr hero,
 	crint3 dest,
 	bool allowGatherArmy,
-	const std::function<Goals::TSubgoal(int3)> doVisitTile)
+	const std::function<Goals::TSubgoal(int3)> doVisitTile) const
 {
 	Goals::TGoalVec result;
 	boost::optional<uint64_t> armyValueRequired;
@@ -184,7 +184,7 @@ Goals::TGoalVec PathfindingManager::findPath(
 	return result;
 }
 
-Goals::TSubgoal PathfindingManager::clearWayTo(HeroPtr hero, int3 firstTileToGet)
+Goals::TSubgoal PathfindingManager::clearWayTo(HeroPtr hero, int3 firstTileToGet) const
 {
 	if(isBlockedBorderGate(firstTileToGet))
 	{
@@ -235,8 +235,13 @@ Goals::TSubgoal PathfindingManager::clearWayTo(HeroPtr hero, int3 firstTileToGet
 	return sptr(Goals::VisitTile(firstTileToGet).sethero(hero).setisAbstract(true));
 }
 
-void PathfindingManager::resetPaths()
+void PathfindingManager::updatePaths(std::vector<HeroPtr> heroes)
 {
 	logAi->debug("AIPathfinder has been reseted.");
-	pathfinder->clear();
+	pathfinder->updatePaths(heroes);
+}
+
+void PathfindingManager::updatePaths(const HeroPtr & hero)
+{
+	pathfinder->updatePaths(hero);
 }

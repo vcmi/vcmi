@@ -55,15 +55,16 @@ public:
 	boost::optional<PotentialBuilding> expensiveBuilding() const override;
 	boost::optional<BuildingID> canBuildAnyStructure(const CGTownInstance * t, const std::vector<BuildingID> & buildList, unsigned int maxDays = 7) const override;
 
-	Goals::TGoalVec howToVisitTile(HeroPtr hero, int3 tile, bool allowGatherArmy = true) override;
-	Goals::TGoalVec howToVisitObj(HeroPtr hero, ObjectIdRef obj, bool allowGatherArmy = true) override;
-	Goals::TGoalVec howToVisitTile(int3 tile) override;
-	Goals::TGoalVec howToVisitObj(ObjectIdRef obj) override;
-	std::vector<AIPath> getPathsToTile(HeroPtr hero, int3 tile) override;
-	void resetPaths() override;
+	Goals::TGoalVec howToVisitTile(const HeroPtr & hero, const int3 & tile, bool allowGatherArmy = true) const override;
+	Goals::TGoalVec howToVisitObj(const HeroPtr & hero, ObjectIdRef obj, bool allowGatherArmy = true) const override;
+	Goals::TGoalVec howToVisitTile(const int3 & tile) const override;
+	Goals::TGoalVec howToVisitObj(ObjectIdRef obj) const override;
+	std::vector<AIPath> getPathsToTile(const HeroPtr & hero, const int3 & tile) const override;
+	void updatePaths(std::vector<HeroPtr> heroes) override;
+	void updatePaths(const HeroPtr & hero) override;
 
 	STRONG_INLINE
-	bool isTileAccessible(const HeroPtr & hero, const int3 & tile)
+	bool isTileAccessible(const HeroPtr & hero, const int3 & tile) const
 	{
 		return pathfindingManager->isTileAccessible(hero, tile);
 	}

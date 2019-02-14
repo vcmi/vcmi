@@ -28,7 +28,7 @@ namespace AIPathfinding
 	}
 
 	void SummonBoatAction::applyOnDestination(
-		const HeroPtr & hero,
+		const CGHeroInstance * hero,
 		CDestinationNodeInfo & destination,
 		const PathNodeInfo & source,
 		AIPathNode * dstMode,
@@ -38,7 +38,7 @@ namespace AIPathfinding
 		dstMode->theNodeBefore = source.node;
 	}
 
-	bool SummonBoatAction::isAffordableBy(const HeroPtr & hero, const AIPathNode * source) const
+	bool SummonBoatAction::isAffordableBy(const CGHeroInstance * hero, const AIPathNode * source) const
 	{
 #ifdef VCMI_TRACE_PATHFINDER
 		logAi->trace(
@@ -52,7 +52,7 @@ namespace AIPathfinding
 		return hero->mana >= source->manaCost + getManaCost(hero);
 	}
 
-	uint32_t SummonBoatAction::getManaCost(const HeroPtr & hero) const
+	uint32_t SummonBoatAction::getManaCost(const CGHeroInstance * hero) const
 	{
 		SpellID summonBoat = SpellID::SUMMON_BOAT;
 

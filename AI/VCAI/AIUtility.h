@@ -166,8 +166,6 @@ bool isBlockVisitObj(const int3 & pos);
 bool isWeeklyRevisitable(const CGObjectInstance * obj);
 bool shouldVisit(HeroPtr h, const CGObjectInstance * obj);
 
-ui64 evaluateDanger(const CGObjectInstance * obj);
-ui64 evaluateDanger(crint3 tile, const CGHeroInstance * visitor);
 bool isObjectRemovable(const CGObjectInstance * obj); //FIXME FIXME: move logic to object property!
 bool isSafeToVisit(HeroPtr h, uint64_t dangerStrength);
 bool isSafeToVisit(HeroPtr h, crint3 tile);

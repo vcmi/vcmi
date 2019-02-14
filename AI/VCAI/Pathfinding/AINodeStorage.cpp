@@ -17,13 +17,11 @@
 #include "../../../lib/PathfinderUtil.h"
 #include "../../../lib/CPlayerState.h"
 
-extern boost::thread_specific_ptr<CCallback> cb;
-
-
 AINodeStorage::AINodeStorage(const int3 & Sizes)
 	: sizes(Sizes)
 {
 	nodes.resize(boost::extents[sizes.x][sizes.y][sizes.z][EPathfindingLayer::NUM_LAYERS][NUM_CHAINS]);
+	dangerEvaluator.reset(new FuzzyHelper());
 }
 
 AINodeStorage::~AINodeStorage() = default;
@@ -187,9 +185,10 @@ std::vector<CGPathNode *> AINodeStorage::calculateNeighbours(
 	return neighbours;
 }
 
-void AINodeStorage::setHero(HeroPtr heroPtr)
+void AINodeStorage::setHero(HeroPtr heroPtr, const CPlayerSpecificInfoCallback * _cb)
 {
 	hero = heroPtr.get();
+	cb = _cb;
 }
 
 std::vector<CGPathNode *> AINodeStorage::calculateTeleportations(
@@ -330,7 +329,7 @@ bool AINodeStorage::isTileAccessible(const int3 & pos, const EPathfindingLayer l
 	return node.action != CGPathNode::ENodeAction::UNKNOWN;
 }
 
-std::vector<AIPath> AINodeStorage::getChainInfo(int3 pos, bool isOnLand) const
+std::vector<AIPath> AINodeStorage::getChainInfo(const int3 & pos, bool isOnLand) const
 {
 	std::vector<AIPath> paths;
 	auto chains = nodes[pos.x][pos.y][pos.z][isOnLand ? EPathfindingLayer::LAND : EPathfindingLayer::SAIL];
@@ -359,6 +358,8 @@ std::vector<AIPath> AINodeStorage::getChainInfo(int3 pos, bool isOnLand) const
 
 			current = getAINode(current->theNodeBefore);
 		}
+
+		path.targetObjectDanger = evaluateDanger(pos);
 
 		paths.push_back(path);
 	}
@@ -405,8 +406,7 @@ float AIPath::movementCost() const
 uint64_t AIPath::getTotalDanger(HeroPtr hero) const
 {
 	uint64_t pathDanger = getPathDanger();
-	uint64_t objDanger = evaluateDanger(nodes.front().coord, hero.get()); // bank danger is not checked by pathfinder
-	uint64_t danger = pathDanger > objDanger ? pathDanger : objDanger;
+	uint64_t danger = pathDanger > targetObjectDanger ? pathDanger : targetObjectDanger;
 
 	return danger;
 }
