@@ -62,7 +62,6 @@ void AIPathfinder::updatePaths(std::vector<HeroPtr> heroes)
 
 	std::vector<Task> calculationTasks;
 
-	// TODO: go parallel?
 	for(HeroPtr hero : heroes)
 	{
 		std::shared_ptr<AINodeStorage> nodeStorage;
@@ -78,7 +77,7 @@ void AIPathfinder::updatePaths(std::vector<HeroPtr> heroes)
 		}
 
 		storageMap[hero] = nodeStorage;
-		nodeStorage->setHero(hero, cb);
+		nodeStorage->setHero(hero, ai);
 
 		auto config = std::make_shared<AIPathfinding::AIPathfinderConfig>(cb, ai, nodeStorage);
 
@@ -121,7 +120,7 @@ void AIPathfinder::updatePaths(const HeroPtr & hero)
 		}
 
 		storageMap[hero] = nodeStorage;
-		nodeStorage->setHero(hero, cb);
+		nodeStorage->setHero(hero, ai);
 	}
 	else
 	{

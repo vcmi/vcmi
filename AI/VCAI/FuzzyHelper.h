@@ -43,7 +43,7 @@ public:
 	Goals::TSubgoal chooseSolution(Goals::TGoalVec vec);
 	//std::shared_ptr<AbstractGoal> chooseSolution (std::vector<std::shared_ptr<AbstractGoal>> & vec);
 
-	ui64 evaluateDanger(const CGObjectInstance * obj);
-	ui64 evaluateDanger(crint3 tile, const CGHeroInstance * visitor, const CPlayerSpecificInfoCallback * cb);
+	ui64 evaluateDanger(const CGObjectInstance * obj, const VCAI * ai);
+	ui64 evaluateDanger(crint3 tile, const CGHeroInstance * visitor, const VCAI * ai);
 	ui64 evaluateDanger(crint3 tile, const CGHeroInstance * visitor);
 };

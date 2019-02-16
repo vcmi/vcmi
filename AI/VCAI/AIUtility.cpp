@@ -194,12 +194,6 @@ bool CDistanceSorter::operator()(const CGObjectInstance * lhs, const CGObjectIns
 	return ln->cost < rn->cost;
 }
 
-
-bool compareDanger(const CGObjectInstance * lhs, const CGObjectInstance * rhs)
-{
-	return fh->evaluateDanger(lhs) < fh->evaluateDanger(rhs);
-}
-
 bool isSafeToVisit(HeroPtr h, crint3 tile)
 {
 	return isSafeToVisit(h, fh->evaluateDanger(tile, h.get()));
