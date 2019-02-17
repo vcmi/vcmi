@@ -207,11 +207,12 @@ void FuzzyHelper::setPriority(Goals::TSubgoal & g) //calls evaluate - Visitor pa
 
 ui64 FuzzyHelper::evaluateDanger(crint3 tile, const CGHeroInstance * visitor)
 {
-	return evaluateDanger(tile, visitor, cb.get());
+	return evaluateDanger(tile, visitor, ai.get());
 }
 
-ui64 FuzzyHelper::evaluateDanger(crint3 tile, const CGHeroInstance * visitor, const CPlayerSpecificInfoCallback * cb)
+ui64 FuzzyHelper::evaluateDanger(crint3 tile, const CGHeroInstance * visitor, const VCAI * ai)
 {
+	auto cb = ai->myCb;
 	const TerrainTile * t = cb->getTile(tile, false);
 	if(!t) //we can know about guard but can't check its tile (the edge of fow)
 		return 190000000; //MUCH
@@ -231,7 +232,7 @@ ui64 FuzzyHelper::evaluateDanger(crint3 tile, const CGHeroInstance * visitor, co
 
 	if(const CGObjectInstance * dangerousObject = vstd::backOrNull(visitableObjects))
 	{
-		objectDanger = evaluateDanger(dangerousObject); //unguarded objects can also be dangerous or unhandled
+		objectDanger = evaluateDanger(dangerousObject, ai); //unguarded objects can also be dangerous or unhandled
 		if(objectDanger)
 		{
 			//TODO: don't downcast objects AI shouldn't know about!
@@ -251,7 +252,9 @@ ui64 FuzzyHelper::evaluateDanger(crint3 tile, const CGHeroInstance * visitor, co
 				auto guards = cb->getGuardingCreatures(it->second->visitablePos());
 				for(auto cre : guards)
 				{
-					vstd::amax(guardDanger, evaluateDanger(cre) * tacticalAdvantageEngine.getTacticalAdvantage(visitor, dynamic_cast<const CArmedInstance *>(cre)));
+					float tacticalAdvantage = tacticalAdvantageEngine.getTacticalAdvantage(visitor, dynamic_cast<const CArmedInstance *>(cre));
+
+					vstd::amax(guardDanger, evaluateDanger(cre, ai) * tacticalAdvantage);
 				}
 			}
 		}
@@ -260,15 +263,19 @@ ui64 FuzzyHelper::evaluateDanger(crint3 tile, const CGHeroInstance * visitor, co
 	auto guards = cb->getGuardingCreatures(tile);
 	for(auto cre : guards)
 	{
-		vstd::amax(guardDanger, evaluateDanger(cre) * tacticalAdvantageEngine.getTacticalAdvantage(visitor, dynamic_cast<const CArmedInstance *>(cre))); //we are interested in strongest monster around
+		float tacticalAdvantage = tacticalAdvantageEngine.getTacticalAdvantage(visitor, dynamic_cast<const CArmedInstance *>(cre));
+
+		vstd::amax(guardDanger, evaluateDanger(cre, ai) * tacticalAdvantage); //we are interested in strongest monster around
 	}
 
 	//TODO mozna odwiedzic blockvis nie ruszajac straznika
 	return std::max(objectDanger, guardDanger);
 }
 
-ui64 FuzzyHelper::evaluateDanger(const CGObjectInstance * obj)
+ui64 FuzzyHelper::evaluateDanger(const CGObjectInstance * obj, const VCAI * ai)
 {
+	auto cb = ai->myCb;
+
 	if(obj->tempOwner < PlayerColor::PLAYER_LIMIT && cb->getPlayerRelations(obj->tempOwner, ai->playerID) != PlayerRelations::ENEMIES) //owned or allied objects don't pose any threat
 		return 0;
 

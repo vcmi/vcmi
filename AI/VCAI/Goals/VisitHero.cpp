@@ -45,7 +45,7 @@ TSubgoal VisitHero::whatToDoToAchieve()
 
 	if(hero && ai->isAccessibleForHero(pos, hero, true) && isSafeToVisit(hero, pos)) //enemy heroes can get reinforcements
 	{
-		if(hero->pos == pos)
+		if(hero->visitablePos() == pos)
 			logAi->error("Hero %s tries to visit himself.", hero.name);
 		else
 		{

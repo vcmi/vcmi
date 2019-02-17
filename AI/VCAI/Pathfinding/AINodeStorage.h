@@ -62,6 +62,7 @@ private:
 	/// 1-3 - position on map, 4 - layer (air, water, land), 5 - chain (normal, battle, spellcast and combinations)
 	boost::multi_array<AIPathNode, 5> nodes;
 	const CPlayerSpecificInfoCallback * cb;
+	const VCAI * ai;
 	const CGHeroInstance * hero;
 	std::unique_ptr<FuzzyHelper> dangerEvaluator;
 
@@ -106,7 +107,7 @@ public:
 	std::vector<AIPath> getChainInfo(const int3 & pos, bool isOnLand) const;
 	bool isTileAccessible(const int3 & pos, const EPathfindingLayer layer) const;
 
-	void setHero(HeroPtr heroPtr, const CPlayerSpecificInfoCallback * cb);
+	void setHero(HeroPtr heroPtr, const VCAI * ai);
 
 	const CGHeroInstance * getHero() const
 	{
@@ -115,7 +116,7 @@ public:
 
 	uint64_t evaluateDanger(const int3 &  tile) const
 	{
-		return dangerEvaluator->evaluateDanger(tile, hero, cb);
+		return dangerEvaluator->evaluateDanger(tile, hero, ai);
 	}
 
 private:

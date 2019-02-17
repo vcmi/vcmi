@@ -185,10 +185,11 @@ std::vector<CGPathNode *> AINodeStorage::calculateNeighbours(
 	return neighbours;
 }
 
-void AINodeStorage::setHero(HeroPtr heroPtr, const CPlayerSpecificInfoCallback * _cb)
+void AINodeStorage::setHero(HeroPtr heroPtr, const VCAI * _ai)
 {
 	hero = heroPtr.get();
-	cb = _cb;
+	cb = _ai->myCb.get();
+	ai = _ai;
 }
 
 std::vector<CGPathNode *> AINodeStorage::calculateTeleportations(
