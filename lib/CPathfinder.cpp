@@ -1332,6 +1332,9 @@ void PathNodeInfo::setNode(CGameState * gs, CGPathNode * n)
 		{
 			nodeHero = dynamic_cast<const CGHeroInstance *>(nodeObject);
 			nodeObject = tile->topVisitableObj(true);
+
+			if(!nodeObject)
+				nodeObject = nodeHero;
 		}
 		else
 		{

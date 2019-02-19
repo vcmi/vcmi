@@ -40,6 +40,7 @@ public:
 	EPathfindingLayer layer;
 	uint32_t initialMovement;
 	uint32_t initialTurn;
+	uint64_t armyValue;
 
 	ChainActor()
 	{
@@ -51,6 +52,7 @@ public:
 struct AIPathNode : public CGPathNode
 {
 	uint64_t danger;
+	uint64_t armyLoss;
 	uint32_t manaCost;
 	std::shared_ptr<const ISpecialAction> specialAction;
 	const ChainActor * actor;
@@ -93,7 +95,6 @@ private:
 	boost::multi_array<AIPathNode, 5> nodes;
 	const CPlayerSpecificInfoCallback * cb;
 	const VCAI * ai;
-	const CGHeroInstance * hero;
 	std::unique_ptr<FuzzyHelper> dangerEvaluator;
 	std::vector<std::shared_ptr<ChainActor>> actors;
 
@@ -137,9 +138,9 @@ public:
 
 	const std::set<const CGHeroInstance *> getAllHeroes() const;
 
-	void reset();
+	void clear();
 
-	uint64_t evaluateDanger(const int3 &  tile) const
+	uint64_t evaluateDanger(const int3 &  tile, const CGHeroInstance * hero) const
 	{
 		return dangerEvaluator->evaluateDanger(tile, hero, ai);
 	}

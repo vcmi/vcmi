@@ -121,25 +121,32 @@ namespace AIPathfinding
 				return;
 			}
 
-			auto danger = nodeStorage->evaluateDanger(destination.coord);
+			auto hero = nodeStorage->getHero(source.node);
+			auto danger = nodeStorage->evaluateDanger(destination.coord, hero);
+			double actualArmyValue = srcNode->actor->armyValue - srcNode->armyLoss;
+			double ratio = (double)danger / actualArmyValue;
 
-			destination.node = battleNode;
-			nodeStorage->commit(destination, source);
+			uint64_t loss = (uint64_t)(actualArmyValue * ratio * ratio * ratio);
 
-			if(battleNode->danger < danger)
+			if(loss < actualArmyValue)
 			{
-				battleNode->danger = danger;
-			}
+				destination.node = battleNode;
+				nodeStorage->commit(destination, source);
 
-			battleNode->specialAction = std::make_shared<BattleAction>(destination.coord);
+				battleNode->armyLoss += loss;
+
+				vstd::amax(battleNode->danger, danger);
+
+				battleNode->specialAction = std::make_shared<BattleAction>(destination.coord);
 #ifdef VCMI_TRACE_PATHFINDER
-			logAi->trace(
-				"Begin bypass guard at destination with danger %s while moving %s -> %s",
-				std::to_string(danger),
-				source.coord.toString(),
-				destination.coord.toString());
+				logAi->trace(
+					"Begin bypass guard at destination with danger %s while moving %s -> %s",
+					std::to_string(danger),
+					source.coord.toString(),
+					destination.coord.toString());
 #endif
-			return;
+				return;
+			}
 		}
 
 		destination.blocked = true;

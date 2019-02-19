@@ -70,7 +70,7 @@ void AINodeStorage::initialize(const PathfinderOptions & options, const CGameSta
 	}
 }
 
-void AINodeStorage::reset()
+void AINodeStorage::clear()
 {
 	actors.clear();
 }
@@ -148,6 +148,7 @@ void AINodeStorage::resetTile(const int3 & coord, EPathfindingLayer layer, CGPat
 		heroNode.danger = 0;
 		heroNode.manaCost = 0;
 		heroNode.specialAction.reset();
+		heroNode.armyLoss = 0;
 		heroNode.update(coord, layer, accessibility);
 	}
 }
@@ -165,6 +166,7 @@ void AINodeStorage::commit(CDestinationNodeInfo & destination, const PathNodeInf
 		dstNode->action = destination.action;
 		dstNode->theNodeBefore = srcNode->theNodeBefore;
 		dstNode->manaCost = srcNode->manaCost;
+		dstNode->armyLoss = srcNode->armyLoss;
 
 		if(dstNode->specialAction && dstNode->actor)
 		{
@@ -213,7 +215,7 @@ const std::set<const CGHeroInstance *> AINodeStorage::getAllHeroes() const
 	for(auto actor : actors)
 	{
 		if(actor->hero)
-			heroes.insert(hero);
+			heroes.insert(actor->hero);
 	}
 
 	return heroes;
@@ -255,7 +257,7 @@ std::vector<CGPathNode *> AINodeStorage::calculateTeleportations(
 		}
 	}
 
-	if(hero->getPosition(false) == source.coord)
+	if(source.isInitialPosition)
 	{
 		calculateTownPortalTeleportations(source, neighbours);
 	}
@@ -270,6 +272,7 @@ void AINodeStorage::calculateTownPortalTeleportations(
 	SpellID spellID = SpellID::TOWN_PORTAL;
 	const CSpell * townPortal = spellID.toSpell();
 	auto srcNode = getAINode(source.node);
+	auto hero = srcNode->actor->hero;
 
 	if(hero->canCastThisSpell(townPortal) && hero->mana >= hero->getSpellCost(townPortal))
 	{
@@ -384,11 +387,10 @@ std::vector<AIPath> AINodeStorage::getChainInfo(const int3 & pos, bool isOnLand)
 {
 	std::vector<AIPath> paths;
 	auto chains = nodes[pos.x][pos.y][pos.z][isOnLand ? EPathfindingLayer::LAND : EPathfindingLayer::SAIL];
-	auto initialPos = hero->visitablePos();
 
 	for(const AIPathNode & node : chains)
 	{
-		if(node.action == CGPathNode::ENodeAction::UNKNOWN || !node.actor)
+		if(node.action == CGPathNode::ENodeAction::UNKNOWN || !node.actor || !node.actor->hero)
 		{
 			continue;
 		}
@@ -397,6 +399,7 @@ std::vector<AIPath> AINodeStorage::getChainInfo(const int3 & pos, bool isOnLand)
 		const AIPathNode * current = &node;
 
 		path.targetHero = node.actor->hero;
+		auto initialPos = path.targetHero->visitablePos();
 
 		while(current != nullptr && current->coord != initialPos)
 		{
@@ -412,7 +415,7 @@ std::vector<AIPath> AINodeStorage::getChainInfo(const int3 & pos, bool isOnLand)
 			current = getAINode(current->theNodeBefore);
 		}
 
-		path.targetObjectDanger = evaluateDanger(pos);
+		path.targetObjectDanger = evaluateDanger(pos, path.targetHero);
 
 		paths.push_back(path);
 	}
@@ -471,6 +474,7 @@ ChainActor::ChainActor(const CGHeroInstance * hero, int chainMask)
 	layer = hero->boat ? EPathfindingLayer::SAIL : EPathfindingLayer::LAND;
 	initialMovement = hero->movement;
 	initialTurn = 0;
+	armyValue = hero->getTotalStrength();
 
 	setupSpecialActors();
 }
@@ -500,7 +504,7 @@ void ChainActor::setupSpecialActors()
 		allActors.push_back(&specialActor);
 	}
 
-	for(int i = 0; i <= 8; i++)
+	for(int i = 0; i < 8; i++)
 	{
 		ChainActor * actor = allActors[i];
 
