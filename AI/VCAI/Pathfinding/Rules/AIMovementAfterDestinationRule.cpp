@@ -40,8 +40,7 @@ namespace AIPathfinding
 
 		if(blocker == BlockingReason::DESTINATION_BLOCKVIS && destination.nodeObject)
 		{
-			auto objID = destination.nodeObject->ID;
-			auto enemyHero = objID == Obj::HERO && destination.objectRelations == PlayerRelations::ENEMIES;
+			auto enemyHero = destination.nodeHero && destination.heroRelations == PlayerRelations::ENEMIES;
 
 			if(!enemyHero && !isObjectRemovable(destination.nodeObject))
 			{
@@ -74,7 +73,8 @@ namespace AIPathfinding
 			});
 
 			auto guardsAlreadyBypassed = destGuardians.empty() && srcGuardians.size();
-			if(guardsAlreadyBypassed && nodeStorage->isBattleNode(source.node))
+			auto srcNode = nodeStorage->getAINode(source.node);
+			if(guardsAlreadyBypassed && srcNode->actor->allowBattle)
 			{
 #ifdef VCMI_TRACE_PATHFINDER
 				logAi->trace(
@@ -90,7 +90,7 @@ namespace AIPathfinding
 			auto battleNodeOptional = nodeStorage->getOrCreateNode(
 				destination.coord,
 				destination.node->layer,
-				destNode->chainMask | AINodeStorage::BATTLE_CHAIN);
+				destNode->actor->battleActor);
 
 			if(!battleNodeOptional)
 			{
@@ -121,25 +121,32 @@ namespace AIPathfinding
 				return;
 			}
 
-			auto danger = nodeStorage->evaluateDanger(destination.coord);
+			auto hero = nodeStorage->getHero(source.node);
+			auto danger = nodeStorage->evaluateDanger(destination.coord, hero);
+			double actualArmyValue = srcNode->actor->armyValue - srcNode->armyLoss;
+			double ratio = (double)danger / actualArmyValue;
 
-			destination.node = battleNode;
-			nodeStorage->commit(destination, source);
+			uint64_t loss = (uint64_t)(actualArmyValue * ratio * ratio * ratio);
 
-			if(battleNode->danger < danger)
+			if(loss < actualArmyValue)
 			{
-				battleNode->danger = danger;
-			}
+				destination.node = battleNode;
+				nodeStorage->commit(destination, source);
 
-			battleNode->specialAction = std::make_shared<BattleAction>(destination.coord);
+				battleNode->armyLoss += loss;
+
+				vstd::amax(battleNode->danger, danger);
+
+				battleNode->specialAction = std::make_shared<BattleAction>(destination.coord);
 #ifdef VCMI_TRACE_PATHFINDER
-			logAi->trace(
-				"Begin bypass guard at destination with danger %s while moving %s -> %s",
-				std::to_string(danger),
-				source.coord.toString(),
-				destination.coord.toString());
+				logAi->trace(
+					"Begin bypass guard at destination with danger %s while moving %s -> %s",
+					std::to_string(danger),
+					source.coord.toString(),
+					destination.coord.toString());
 #endif
-			return;
+				return;
+			}
 		}
 
 		destination.blocked = true;

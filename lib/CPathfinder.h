@@ -142,14 +142,19 @@ struct DLL_LINKAGE PathNodeInfo
 {
 	CGPathNode * node;
 	const CGObjectInstance * nodeObject;
+	const CGHeroInstance * nodeHero;
 	const TerrainTile * tile;
 	int3 coord;
 	bool guarded;
 	PlayerRelations::PlayerRelations objectRelations;
+	PlayerRelations::PlayerRelations heroRelations;
+	bool isInitialPosition;
 
 	PathNodeInfo();
 
-	virtual void setNode(CGameState * gs, CGPathNode * n, bool excludeTopObject = false);
+	virtual void setNode(CGameState * gs, CGPathNode * n);
+
+	void updateInfo(CPathfinderHelper * hlp, CGameState * gs);
 
 	bool isNodeObjectVisitable() const;
 };
@@ -165,7 +170,7 @@ struct DLL_LINKAGE CDestinationNodeInfo : public PathNodeInfo
 
 	CDestinationNodeInfo();
 
-	virtual void setNode(CGameState * gs, CGPathNode * n, bool excludeTopObject = false) override;
+	virtual void setNode(CGameState * gs, CGPathNode * n) override;
 
 	virtual bool isBetterWay() const;
 };
@@ -325,7 +330,7 @@ class DLL_LINKAGE INodeStorage
 {
 public:
 	using ELayer = EPathfindingLayer;
-	virtual CGPathNode * getInitialNode() = 0;
+	virtual std::vector<CGPathNode *> getInitialNodes() = 0;
 
 	virtual std::vector<CGPathNode *> calculateNeighbours(
 		const PathNodeInfo & source,
@@ -339,7 +344,7 @@ public:
 
 	virtual void commit(CDestinationNodeInfo & destination, const PathNodeInfo & source) = 0;
 
-	virtual void initialize(const PathfinderOptions & options, const CGameState * gs, const CGHeroInstance * hero) = 0;
+	virtual void initialize(const PathfinderOptions & options, const CGameState * gs) = 0;
 };
 
 class DLL_LINKAGE NodeStorage : public INodeStorage
@@ -359,9 +364,9 @@ public:
 		return out.getNode(coord, layer);
 	}
 
-	void initialize(const PathfinderOptions & options, const CGameState * gs, const CGHeroInstance * hero) override;
+	void initialize(const PathfinderOptions & options, const CGameState * gs) override;
 
-	virtual CGPathNode * getInitialNode() override;
+	virtual std::vector<CGPathNode *> getInitialNodes() override;
 
 	virtual std::vector<CGPathNode *> calculateNeighbours(
 		const PathNodeInfo & source,
@@ -386,6 +391,21 @@ public:
 	PathfinderConfig(
 		std::shared_ptr<INodeStorage> nodeStorage,
 		std::vector<std::shared_ptr<IPathfindingRule>> rules);
+
+	virtual CPathfinderHelper * getOrCreatePathfinderHelper(const PathNodeInfo & source, CGameState * gs) = 0;
+};
+
+class DLL_LINKAGE SingleHeroPathfinderConfig : public PathfinderConfig
+{
+private:
+	std::unique_ptr<CPathfinderHelper> pathfinderHelper;
+
+public:
+	SingleHeroPathfinderConfig(CPathsInfo & out, CGameState * gs, const CGHeroInstance * hero);
+
+	virtual CPathfinderHelper * getOrCreatePathfinderHelper(const PathNodeInfo & source, CGameState * gs) override;
+
+	static std::vector<std::shared_ptr<IPathfindingRule>> buildRuleSet();
 };
 
 class CPathfinder : private CGameInfoCallback
@@ -396,7 +416,6 @@ public:
 	CPathfinder(CPathsInfo & _out, CGameState * _gs, const CGHeroInstance * _hero);
 	CPathfinder(
 		CGameState * _gs,
-		const CGHeroInstance * _hero,
 		std::shared_ptr<PathfinderConfig> config);
 
 	void calculatePaths(); //calculates possible paths for hero, uses current hero position and movement left; returns pointer to newly allocated CPath or nullptr if path does not exists
@@ -404,16 +423,7 @@ public:
 private:
 	typedef EPathfindingLayer ELayer;
 
-	const CGHeroInstance * hero;
-	std::unique_ptr<CPathfinderHelper> hlp;
 	std::shared_ptr<PathfinderConfig> config;
-
-	enum EPatrolState {
-		PATROL_NONE = 0,
-		PATROL_LOCKED = 1,
-		PATROL_RADIUS
-	} patrolState;
-	std::unordered_set<int3, ShashInt3> patrolTiles;
 
 	struct NodeComparer
 	{
@@ -428,18 +438,11 @@ private:
 	PathNodeInfo source; //current (source) path node -> we took it from the queue
 	CDestinationNodeInfo destination; //destination node -> it's a neighbour of source that we consider
 
-	bool isHeroPatrolLocked() const;
-	bool isPatrolMovementAllowed(const int3 & dst) const;
-
 	bool isLayerTransitionPossible() const;
 	CGPathNode::ENodeAction getTeleportDestAction() const;
 
-	bool isSourceInitialPosition() const;
-	bool isSourceGuarded() const;
-	bool isDestinationGuarded() const;
 	bool isDestinationGuardian() const;
 
-	void initializePatrol();
 	void initializeGraph();
 };
 
@@ -475,13 +478,25 @@ struct DLL_LINKAGE TurnInfo
 class DLL_LINKAGE CPathfinderHelper : private CGameInfoCallback
 {
 public:
+	enum EPatrolState
+	{
+		PATROL_NONE = 0,
+		PATROL_LOCKED = 1,
+		PATROL_RADIUS
+	} patrolState;
+	std::unordered_set<int3, ShashInt3> patrolTiles;
+
 	int turn;
+	PlayerColor owner;
 	const CGHeroInstance * hero;
 	std::vector<TurnInfo *> turnsInfo;
 	const PathfinderOptions & options;
 
 	CPathfinderHelper(CGameState * gs, const CGHeroInstance * Hero, const PathfinderOptions & Options);
 	~CPathfinderHelper();
+	void initializePatrol();
+	bool isHeroPatrolLocked() const;
+	bool isPatrolMovementAllowed(const int3 & dst) const;
 	void updateTurnInfo(const int turn = 0);
 	bool isLayerAvailable(const EPathfindingLayer layer) const;
 	const TurnInfo * getTurnInfo() const;

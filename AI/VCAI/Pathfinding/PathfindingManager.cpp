@@ -64,7 +64,7 @@ Goals::TGoalVec PathfindingManager::howToVisitObj(ObjectIdRef obj, bool allowGat
 
 Goals::TGoalVec PathfindingManager::howToVisitTile(const HeroPtr & hero, const int3 & tile, bool allowGatherArmy) const
 {
-	auto result = findPath(hero, tile, allowGatherArmy, [&](int3 firstTileToGet) -> Goals::TSubgoal
+	auto result = findPaths(tile, allowGatherArmy, hero, [&](int3 firstTileToGet) -> Goals::TSubgoal
 	{
 		return sptr(Goals::VisitTile(firstTileToGet).sethero(hero).setisAbstract(true));
 	});
@@ -86,7 +86,7 @@ Goals::TGoalVec PathfindingManager::howToVisitObj(const HeroPtr & hero, ObjectId
 
 	int3 dest = obj->visitablePos();
 
-	auto result = findPath(hero, dest, allowGatherArmy, [&](int3 firstTileToGet) -> Goals::TSubgoal
+	auto result = findPaths(dest, allowGatherArmy, hero, [&](int3 firstTileToGet) -> Goals::TSubgoal
 	{
 		if(obj->ID.num == Obj::HERO && obj->getOwner() == hero->getOwner())
 			return sptr(Goals::VisitHero(obj->id.getNum()).sethero(hero).setisAbstract(true));
@@ -107,10 +107,10 @@ std::vector<AIPath> PathfindingManager::getPathsToTile(const HeroPtr & hero, con
 	return pathfinder->getPathInfo(hero, tile);
 }
 
-Goals::TGoalVec PathfindingManager::findPath(
-	HeroPtr hero,
+Goals::TGoalVec PathfindingManager::findPaths(
 	crint3 dest,
 	bool allowGatherArmy,
+	HeroPtr hero,
 	const std::function<Goals::TSubgoal(int3)> doVisitTile) const
 {
 	Goals::TGoalVec result;
@@ -125,6 +125,9 @@ Goals::TGoalVec PathfindingManager::findPath(
 
 	for(auto path : chainInfo)
 	{
+		if(hero && hero.get() != path.targetHero)
+			continue;
+
 		int3 firstTileToGet = path.firstTileToGet();
 #ifdef VCMI_TRACE_PATHFINDER
 		logAi->trace("Path found size=%i, first tile=%s", path.nodes.size(), firstTileToGet.toString());

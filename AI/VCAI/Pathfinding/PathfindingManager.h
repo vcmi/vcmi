@@ -60,10 +60,10 @@ private:
 	void init(CPlayerSpecificInfoCallback * CB) override;
 	void setAI(VCAI * AI) override;
 
-	Goals::TGoalVec findPath(
-		HeroPtr hero,
+	Goals::TGoalVec findPaths(
 		crint3 dest,
 		bool allowGatherArmy,
+		HeroPtr hero,
 		const std::function<Goals::TSubgoal(int3)> goalFactory) const;
 
 	Goals::TSubgoal clearWayTo(HeroPtr hero, int3 firstTileToGet) const;

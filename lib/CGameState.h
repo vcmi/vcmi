@@ -178,7 +178,7 @@ public:
 	PlayerRelations::PlayerRelations getPlayerRelations(PlayerColor color1, PlayerColor color2);
 	bool checkForVisitableDir(const int3 & src, const int3 & dst) const; //check if src tile is visitable from dst tile
 	void calculatePaths(const CGHeroInstance *hero, CPathsInfo &out); //calculates possible paths for hero, by default uses current hero position and movement left; returns pointer to newly allocated CPath or nullptr if path does not exists
-	void calculatePaths(std::shared_ptr<PathfinderConfig> config, const CGHeroInstance * hero);
+	void calculatePaths(std::shared_ptr<PathfinderConfig> config);
 	int3 guardingCreaturePosition (int3 pos) const;
 	std::vector<CGObjectInstance*> guardingCreatures (int3 pos) const;
 	void updateRumor();

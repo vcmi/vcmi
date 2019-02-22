@@ -17,14 +17,45 @@
 #include "../Goals/AbstractGoal.h"
 #include "Actions/ISpecialAction.h"
 
-struct AIPathNode;
+class ChainActor
+{
+private:
+	std::vector<ChainActor> specialActors;
+
+	void copyFrom(ChainActor * base);
+	void setupSpecialActors();
+
+public:
+	// chain flags, can be combined meaning hero exchange and so on
+	uint64_t chainMask;
+	bool isMovable;
+	bool allowUseResources;
+	bool allowBattle;
+	bool allowSpellCast;
+	const CGHeroInstance * hero;
+	const ChainActor * battleActor;
+	const ChainActor * castActor;
+	const ChainActor * resourceActor;
+	int3 initialPosition;
+	EPathfindingLayer layer;
+	uint32_t initialMovement;
+	uint32_t initialTurn;
+	uint64_t armyValue;
+
+	ChainActor()
+	{
+	}
+
+	ChainActor(const CGHeroInstance * hero, int chainMask);
+};
 
 struct AIPathNode : public CGPathNode
 {
-	uint32_t chainMask;
 	uint64_t danger;
+	uint64_t armyLoss;
 	uint32_t manaCost;
 	std::shared_ptr<const ISpecialAction> specialAction;
+	const ChainActor * actor;
 };
 
 struct AIPathNodeInfo
@@ -40,6 +71,7 @@ struct AIPath
 	std::vector<AIPathNodeInfo> nodes;
 	std::shared_ptr<const ISpecialAction> specialAction;
 	uint64_t targetObjectDanger;
+	const CGHeroInstance * targetHero;
 
 	AIPath();
 
@@ -63,28 +95,22 @@ private:
 	boost::multi_array<AIPathNode, 5> nodes;
 	const CPlayerSpecificInfoCallback * cb;
 	const VCAI * ai;
-	const CGHeroInstance * hero;
 	std::unique_ptr<FuzzyHelper> dangerEvaluator;
+	std::vector<std::shared_ptr<ChainActor>> actors;
 
 	STRONG_INLINE
 	void resetTile(const int3 & tile, EPathfindingLayer layer, CGPathNode::EAccessibility accessibility);
 
 public:
-	/// more than 1 chain layer allows us to have more than 1 path to each tile so we can chose more optimal one.
-	static const int NUM_CHAINS = 3;
-
-	// chain flags, can be combined
-	static const int NORMAL_CHAIN = 1;
-	static const int BATTLE_CHAIN = 2;
-	static const int CAST_CHAIN = 4;
-	static const int RESOURCE_CHAIN = 8;
-
+	/// more than 1 chain layer for each hero allows us to have more than 1 path to each tile so we can chose more optimal one.
+	static const int NUM_CHAINS = 3 * GameConstants::MAX_HEROES_PER_PLAYER;
+	
 	AINodeStorage(const int3 & sizes);
 	~AINodeStorage();
 
-	void initialize(const PathfinderOptions & options, const CGameState * gs, const CGHeroInstance * hero) override;
+	void initialize(const PathfinderOptions & options, const CGameState * gs) override;
 
-	virtual CGPathNode * getInitialNode() override;
+	virtual std::vector<CGPathNode *> getInitialNodes() override;
 
 	virtual std::vector<CGPathNode *> calculateNeighbours(
 		const PathNodeInfo & source,
@@ -101,20 +127,20 @@ public:
 	const AIPathNode * getAINode(const CGPathNode * node) const;
 	void updateAINode(CGPathNode * node, std::function<void (AIPathNode *)> updater);
 
-	bool isBattleNode(const CGPathNode * node) const;
 	bool hasBetterChain(const PathNodeInfo & source, CDestinationNodeInfo & destination) const;
-	boost::optional<AIPathNode *> getOrCreateNode(const int3 & coord, const EPathfindingLayer layer, int chainNumber);
+	boost::optional<AIPathNode *> getOrCreateNode(const int3 & coord, const EPathfindingLayer layer, const ChainActor * actor);
 	std::vector<AIPath> getChainInfo(const int3 & pos, bool isOnLand) const;
-	bool isTileAccessible(const int3 & pos, const EPathfindingLayer layer) const;
+	bool isTileAccessible(const HeroPtr & hero, const int3 & pos, const EPathfindingLayer layer) const;
 
-	void setHero(HeroPtr heroPtr, const VCAI * ai);
+	void setHeroes(std::vector<HeroPtr> heroes, const VCAI * ai);
 
-	const CGHeroInstance * getHero() const
-	{
-		return hero;
-	}
+	const CGHeroInstance * getHero(const CGPathNode * node) const;
 
-	uint64_t evaluateDanger(const int3 &  tile) const
+	const std::set<const CGHeroInstance *> getAllHeroes() const;
+
+	void clear();
+
+	uint64_t evaluateDanger(const int3 &  tile, const CGHeroInstance * hero) const
 	{
 		return dangerEvaluator->evaluateDanger(tile, hero, ai);
 	}

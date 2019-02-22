@@ -22,9 +22,19 @@ namespace AIPathfinding
 		return Goals::sptr(Goals::BuildBoat(shipyard));
 	}
 
+	const ChainActor * BuildBoatAction::getActor(const ChainActor * sourceActor) const
+	{
+		return sourceActor->resourceActor;
+	}
+
 	Goals::TSubgoal SummonBoatAction::whatToDo(const HeroPtr & hero) const
 	{
 		return Goals::sptr(Goals::AdventureSpellCast(hero, SpellID::SUMMON_BOAT));
+	}
+
+	const ChainActor * SummonBoatAction::getActor(const ChainActor * sourceActor) const
+	{
+		return sourceActor->castActor;
 	}
 
 	void SummonBoatAction::applyOnDestination(

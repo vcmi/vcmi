@@ -13,8 +13,7 @@
 #include "../../../CCallback.h"
 #include "../../../lib/mapping/CMap.h"
 
-std::vector<std::shared_ptr<AINodeStorage>> AIPathfinder::storagePool;
-std::map<HeroPtr, std::shared_ptr<AINodeStorage>> AIPathfinder::storageMap;
+std::shared_ptr<AINodeStorage> AIPathfinder::storage;
 
 AIPathfinder::AIPathfinder(CPlayerSpecificInfoCallback * cb, VCAI * ai)
 	:cb(cb), ai(ai)
@@ -23,22 +22,17 @@ AIPathfinder::AIPathfinder(CPlayerSpecificInfoCallback * cb, VCAI * ai)
 
 void AIPathfinder::init()
 {
-	storagePool.clear();
-	storageMap.clear();
+	storage.reset();
 }
 
 bool AIPathfinder::isTileAccessible(const HeroPtr & hero, const int3 & tile) const
 {
-	std::shared_ptr<const AINodeStorage> nodeStorage = getStorage(hero);
-
-	return nodeStorage->isTileAccessible(tile, EPathfindingLayer::LAND)
-		|| nodeStorage->isTileAccessible(tile, EPathfindingLayer::SAIL);
+	return storage->isTileAccessible(hero, tile, EPathfindingLayer::LAND)
+		|| storage->isTileAccessible(hero, tile, EPathfindingLayer::SAIL);
 }
 
 std::vector<AIPath> AIPathfinder::getPathInfo(const HeroPtr & hero, const int3 & tile) const
 {
-	std::shared_ptr<const AINodeStorage> nodeStorage = getStorage(hero);
-
 	const TerrainTile * tileInfo = cb->getTile(tile, false);
 
 	if(!tileInfo)
@@ -46,95 +40,26 @@ std::vector<AIPath> AIPathfinder::getPathInfo(const HeroPtr & hero, const int3 &
 		return std::vector<AIPath>();
 	}
 
-	return nodeStorage->getChainInfo(tile, !tileInfo->isWater());
+	return storage->getChainInfo(tile, !tileInfo->isWater());
 }
 
 void AIPathfinder::updatePaths(std::vector<HeroPtr> heroes)
 {
-	storageMap.clear();
-
-	auto calculatePaths = [&](const CGHeroInstance * hero, std::shared_ptr<AIPathfinding::AIPathfinderConfig> config)
+	if(!storage)
 	{
-		logAi->debug("Recalculate paths for %s", hero->name);
-
-		cb->calculatePaths(config, hero);
-	};
-
-	std::vector<Task> calculationTasks;
-
-	for(HeroPtr hero : heroes)
-	{
-		std::shared_ptr<AINodeStorage> nodeStorage;
-
-		if(storageMap.size() < storagePool.size())
-		{
-			nodeStorage = storagePool.at(storageMap.size());
-		}
-		else
-		{
-			nodeStorage = std::make_shared<AINodeStorage>(cb->getMapSize());
-			storagePool.push_back(nodeStorage);
-		}
-
-		storageMap[hero] = nodeStorage;
-		nodeStorage->setHero(hero, ai);
-
-		auto config = std::make_shared<AIPathfinding::AIPathfinderConfig>(cb, ai, nodeStorage);
-
-		calculationTasks.push_back(std::bind(calculatePaths, hero.get(), config));
+		storage = std::make_shared<AINodeStorage>(cb->getMapSize());
 	}
 
-	int threadsCount = std::min(
-		boost::thread::hardware_concurrency(),
-		(uint32_t)calculationTasks.size());
+	logAi->debug("Recalculate all paths");
 
-	if(threadsCount <= 1)
-	{
-		for(auto task : calculationTasks)
-		{
-			task();
-		}
-	}
-	else
-	{
-		CThreadHelper helper(&calculationTasks, threadsCount);
+	storage->clear();
+	storage->setHeroes(heroes, ai);
 
-		helper.run();
-	}
+		auto config = std::make_shared<AIPathfinding::AIPathfinderConfig>(cb, ai, storage);
+		cb->calculatePaths(config);
 }
 
 void AIPathfinder::updatePaths(const HeroPtr & hero)
 {
-	std::shared_ptr<AINodeStorage> nodeStorage;
-
-	if(!vstd::contains(storageMap, hero))
-	{
-		if(storageMap.size() < storagePool.size())
-		{
-			nodeStorage = storagePool.at(storageMap.size());
-		}
-		else
-		{
-			nodeStorage = std::make_shared<AINodeStorage>(cb->getMapSize());
-			storagePool.push_back(nodeStorage);
-		}
-
-		storageMap[hero] = nodeStorage;
-		nodeStorage->setHero(hero, ai);
-	}
-	else
-	{
-		nodeStorage = storageMap.at(hero);
-	}
-
-	logAi->debug("Recalculate paths for %s", hero->name);
-	auto config = std::make_shared<AIPathfinding::AIPathfinderConfig>(cb, ai, nodeStorage);
-
-	cb->calculatePaths(config, hero.get());
+	updatePaths(std::vector<HeroPtr>{hero});
 }
-
-std::shared_ptr<const AINodeStorage> AIPathfinder::getStorage(const HeroPtr & hero) const
-{
-	return storageMap.at(hero);
-}
-
