@@ -1,6 +1,7 @@
 #include "StdInc.h"
 #include "Nullkiller.h"
 #include "../VCAI.h"
+#include "../AIHelper.h"
 #include "../Behaviors/CaptureObjectsBehavior.h"
 #include "../Behaviors/RecruitHeroBehavior.h"
 #include "../Goals/Invalid.h"
@@ -41,7 +42,7 @@ Goals::TSubgoal Nullkiller::choseBestTask(Behavior & behavior)
 
 	auto task = choseBestTask(tasks);
 
-	logAi->trace("Behavior %s found %s, priority %f", behavior.toString(), task->name(), task->priority);
+	logAi->debug("Behavior %s returns %s(%s), priority %f", behavior.toString(), task->name(), task->tile.toString(), task->priority);
 
 	return task;
 }
@@ -50,6 +51,8 @@ void Nullkiller::makeTurn()
 {
 	while(true)
 	{
+		ai->ah->updatePaths(ai->getMyHeroes());
+
 		Goals::TGoalVec bestTasks = {
 			choseBestTask(CaptureObjectsBehavior()),
 			choseBestTask(RecruitHeroBehavior())

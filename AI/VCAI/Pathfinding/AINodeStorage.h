@@ -17,6 +17,8 @@
 #include "../Goals/AbstractGoal.h"
 #include "Actions/ISpecialAction.h"
 
+#define VCMI_TRACE_PATHFINDER
+
 class ChainActor
 {
 private:
