@@ -109,7 +109,7 @@ namespace AIPathfinding
 				return;
 			}
 
-			AIPathNode *  battleNode = battleNodeOptional.get();
+			AIPathNode * battleNode = battleNodeOptional.get();
 
 			if(battleNode->locked)
 			{

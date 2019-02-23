@@ -1312,7 +1312,7 @@ const CGPathNode * CPathsInfo::getNode(const int3 & coord) const
 }
 
 PathNodeInfo::PathNodeInfo()
-	: node(nullptr), nodeObject(nullptr), tile(nullptr), coord(-1, -1, -1), guarded(false)
+	: node(nullptr), nodeObject(nullptr), tile(nullptr), coord(-1, -1, -1), guarded(false),	isInitialPosition(false)
 {
 }
 
