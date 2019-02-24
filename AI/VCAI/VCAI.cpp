@@ -1422,14 +1422,14 @@ void VCAI::wander(HeroPtr h)
 	while(h->movement)
 	{
 		validateVisitableObjs();
-		ah->updatePaths(h);
+		ah->updatePaths(getMyHeroes());
 
 		std::vector<ObjectIdRef> dests;
 
 		//also visit our reserved objects - but they are not prioritized to avoid running back and forth
 		vstd::copy_if(reservedHeroesMap[h], std::back_inserter(dests), [&](ObjectIdRef obj) -> bool
 		{
-			return ah->getPathsToTile(h, obj->visitablePos()).size();
+			return ah->isTileAccessible(h, obj->visitablePos());
 		});
 
 		int pass = 0;

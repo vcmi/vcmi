@@ -152,8 +152,3 @@ void AIhelper::updatePaths(std::vector<HeroPtr> heroes)
 {
 	pathfindingManager->updatePaths(heroes);
 }
-
-void AIhelper::updatePaths(const HeroPtr & hero)
-{
-	pathfindingManager->updatePaths(hero);
-}
