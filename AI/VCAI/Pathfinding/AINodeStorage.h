@@ -16,38 +16,7 @@
 #include "../FuzzyHelper.h"
 #include "../Goals/AbstractGoal.h"
 #include "Actions/ISpecialAction.h"
-
-class ChainActor
-{
-private:
-	std::vector<ChainActor> specialActors;
-
-	void copyFrom(ChainActor * base);
-	void setupSpecialActors();
-
-public:
-	// chain flags, can be combined meaning hero exchange and so on
-	uint64_t chainMask;
-	bool isMovable;
-	bool allowUseResources;
-	bool allowBattle;
-	bool allowSpellCast;
-	const CGHeroInstance * hero;
-	const ChainActor * battleActor;
-	const ChainActor * castActor;
-	const ChainActor * resourceActor;
-	int3 initialPosition;
-	EPathfindingLayer layer;
-	uint32_t initialMovement;
-	uint32_t initialTurn;
-	uint64_t armyValue;
-
-	ChainActor()
-	{
-	}
-
-	ChainActor(const CGHeroInstance * hero, int chainMask);
-};
+#include "Actors.h"
 
 struct AIPathNode : public CGPathNode
 {
@@ -100,7 +69,8 @@ private:
 
 	STRONG_INLINE
 	void resetTile(const int3 & tile, EPathfindingLayer layer, CGPathNode::EAccessibility accessibility);
-
+	void addHeroChain(std::vector<CGPathNode *> & result, const AIPathNode * srcNode);
+	void addHeroChain(std::vector<CGPathNode *> & result, const AIPathNode * carrier, const AIPathNode * other);
 public:
 	/// more than 1 chain layer for each hero allows us to have more than 1 path to each tile so we can chose more optimal one.
 	static const int NUM_CHAINS = 3 * GameConstants::MAX_HEROES_PER_PLAYER;

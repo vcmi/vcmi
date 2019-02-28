@@ -173,8 +173,8 @@ bool isSafeToVisit(HeroPtr h, crint3 tile);
 bool compareHeroStrength(HeroPtr h1, HeroPtr h2);
 bool compareArmyStrength(const CArmedInstance * a1, const CArmedInstance * a2);
 bool compareArtifacts(const CArtifactInstance * a1, const CArtifactInstance * a2);
-ui64 howManyReinforcementsCanBuy(const CArmedInstance * h, const CGDwelling * t);
-ui64 howManyReinforcementsCanGet(const CArmedInstance * h, const CGTownInstance * t);
+ui64 howManyReinforcementsCanBuy(const CCreatureSet * target, const CGDwelling * source);
+ui64 howManyReinforcementsCanGet(const CCreatureSet * target, const CCreatureSet * source);
 
 class CDistanceSorter
 {

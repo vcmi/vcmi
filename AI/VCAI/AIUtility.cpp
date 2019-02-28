@@ -297,7 +297,7 @@ creInfo infoFromDC(const dwellingContent & dc)
 	return ci;
 }
 
-ui64 howManyReinforcementsCanBuy(const CArmedInstance * h, const CGDwelling * t)
+ui64 howManyReinforcementsCanBuy(const CCreatureSet * h, const CGDwelling * t)
 {
 	ui64 aivalue = 0;
 	TResources availableRes = cb->getResourceAmount();
@@ -333,17 +333,17 @@ ui64 howManyReinforcementsCanBuy(const CArmedInstance * h, const CGDwelling * t)
 	return aivalue;
 }
 
-ui64 howManyReinforcementsCanGet(const CArmedInstance * h, const CGTownInstance * t)
+ui64 howManyReinforcementsCanGet(const CCreatureSet * target, const CCreatureSet * source)
 {
 	ui64 ret = 0;
-	int freeHeroSlots = GameConstants::ARMY_SIZE - h->stacksCount();
+	int freeHeroSlots = GameConstants::ARMY_SIZE - target->stacksCount();
 	std::vector<const CStackInstance *> toMove;
-	for(auto const slot : t->Slots())
+	for(auto const slot : source->Slots())
 	{
 		//can be merged woth another stack?
-		SlotID dst = h->getSlotFor(slot.second->getCreatureID());
-		if(h->hasStackAtSlot(dst))
-			ret += t->getPower(slot.first);
+		SlotID dst = target->getSlotFor(slot.second->getCreatureID());
+		if(target->hasStackAtSlot(dst))
+			ret += source->getPower(slot.first);
 		else
 			toMove.push_back(slot.second);
 	}
