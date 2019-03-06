@@ -353,13 +353,14 @@ void CPathfinder::calculatePaths()
 			if(neighbour->locked)
 				continue;
 
-			if(!hlp->isPatrolMovementAllowed(neighbour->coord))
-				continue;
-
 			if(!hlp->isLayerAvailable(neighbour->layer))
 				continue;
 
 			destination.setNode(gs, neighbour);
+			hlp = config->getOrCreatePathfinderHelper(destination, gs);
+
+			if(!hlp->isPatrolMovementAllowed(neighbour->coord))
+				continue;
 
 			/// Check transition without tile accessability rules
 			if(source.node->layer != neighbour->layer && !isLayerTransitionPossible())
@@ -385,6 +386,7 @@ void CPathfinder::calculatePaths()
 		} //neighbours loop
 
 		//just add all passable teleport exits
+		hlp = config->getOrCreatePathfinderHelper(source, gs);
 
 		/// For now we disable teleports usage for patrol movement
 		/// VCAI not aware about patrol and may stuck while attempt to use teleport

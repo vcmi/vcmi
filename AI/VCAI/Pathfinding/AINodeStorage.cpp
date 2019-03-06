@@ -28,8 +28,10 @@ AINodeStorage::~AINodeStorage() = default;
 
 void AINodeStorage::initialize(const PathfinderOptions & options, const CGameState * gs)
 {
-	//TODO: fix this code duplication with NodeStorage::initialize, problem is to keep `resetTile` inline
+	if(heroChainPass)
+		return;
 
+	//TODO: fix this code duplication with NodeStorage::initialize, problem is to keep `resetTile` inline
 	int3 pos;
 	const PlayerColor player = ai->playerID;
 	const int3 sizes = gs->getMapSize();
@@ -73,6 +75,7 @@ void AINodeStorage::initialize(const PathfinderOptions & options, const CGameSta
 void AINodeStorage::clear()
 {
 	actors.clear();
+	heroChainPass = false;
 }
 
 const AIPathNode * AINodeStorage::getAINode(const CGPathNode * node) const
@@ -114,6 +117,9 @@ boost::optional<AIPathNode *> AINodeStorage::getOrCreateNode(
 
 std::vector<CGPathNode *> AINodeStorage::getInitialNodes()
 {
+	if(heroChainPass)
+		return heroChain;
+
 	std::vector<CGPathNode *> initialNodes;
 
 	for(auto actorPtr : actors)
@@ -152,6 +158,7 @@ void AINodeStorage::resetTile(const int3 & coord, EPathfindingLayer layer, CGPat
 		heroNode.manaCost = 0;
 		heroNode.specialAction.reset();
 		heroNode.armyLoss = 0;
+		heroNode.chainOther = nullptr;
 		heroNode.update(coord, layer, accessibility);
 	}
 }
@@ -162,20 +169,31 @@ void AINodeStorage::commit(CDestinationNodeInfo & destination, const PathNodeInf
 
 	updateAINode(destination.node, [&](AIPathNode * dstNode)
 	{
-		dstNode->moveRemains = destination.movementLeft;
-		dstNode->turns = destination.turn;
-		dstNode->cost = destination.cost;
-		dstNode->danger = srcNode->danger;
-		dstNode->action = destination.action;
-		dstNode->theNodeBefore = srcNode->theNodeBefore;
-		dstNode->manaCost = srcNode->manaCost;
-		dstNode->armyLoss = srcNode->armyLoss;
+		commit(dstNode, srcNode, destination.action, destination.turn, destination.movementLeft, destination.cost);
 
 		if(dstNode->specialAction && dstNode->actor)
 		{
 			dstNode->specialAction->applyOnDestination(dstNode->actor->hero, destination, source, dstNode, srcNode);
 		}
 	});
+}
+
+void AINodeStorage::commit(
+	AIPathNode * destination, 
+	const AIPathNode * source, 
+	CGPathNode::ENodeAction action, 
+	int turn, 
+	int movementLeft, 
+	float cost) const
+{
+	destination->action = source->action;
+	destination->cost = cost;
+	destination->moveRemains = movementLeft;
+	destination->turns = turn;
+	destination->armyLoss = source->armyLoss;
+	destination->manaCost = source->manaCost;
+	destination->danger = source->danger;
+	destination->theNodeBefore = source->theNodeBefore;
 }
 
 std::vector<CGPathNode *> AINodeStorage::calculateNeighbours(
@@ -200,41 +218,55 @@ std::vector<CGPathNode *> AINodeStorage::calculateNeighbours(
 			neighbours.push_back(nextNode.get());
 		}
 	}
-
-	if((source.node->layer == EPathfindingLayer::LAND || source.node->layer == EPathfindingLayer::SAIL)
-		&& source.node->turns < 1)
-	{
-		addHeroChain(neighbours, srcNode);
-	}
 	
 	return neighbours;
 }
 
-void AINodeStorage::addHeroChain(std::vector<CGPathNode *> & result, const AIPathNode * srcNode)
+bool AINodeStorage::calculateHeroChain()
+{
+	heroChainPass = true;
+	heroChain.resize(0);
+
+	foreach_tile_pos([&](const int3 & pos) {
+		auto layer = EPathfindingLayer::LAND;
+		auto chains = nodes[pos.x][pos.y][pos.z][layer];
+
+		for(AIPathNode & node : chains)
+		{
+			if(node.locked && node.turns < 1)
+				addHeroChain(&node);
+		}
+	});
+
+	return heroChain.size();
+}
+
+void AINodeStorage::addHeroChain(AIPathNode * srcNode)
 {
 	auto chains = nodes[srcNode->coord.x][srcNode->coord.y][srcNode->coord.z][srcNode->layer];
 
-	for(const AIPathNode & node : chains)
+	for(AIPathNode & node : chains)
 	{
 		if(!node.locked || !node.actor || node.action == CGPathNode::ENodeAction::UNKNOWN && node.actor->hero)
 		{
 			continue;
 		}
 
-		addHeroChain(result, srcNode, &node);
-		addHeroChain(result, &node, srcNode);
+		addHeroChain(srcNode, &node);
+		addHeroChain(&node, srcNode);
 	}
 }
 
-void AINodeStorage::addHeroChain(
-	std::vector<CGPathNode *> & result, 
-	const AIPathNode * carrier, 
-	const AIPathNode * other)
+void AINodeStorage::addHeroChain(AIPathNode * carrier, AIPathNode * other)
 {
 	if(carrier->actor->canExchange(other->actor))
 	{
 		bool hasLessMp = carrier->turns > other->turns || carrier->moveRemains < other->moveRemains;
 		bool hasLessExperience = carrier->actor->hero->exp < other->actor->hero->exp;
+
+#ifdef VCMI_TRACE_PATHFINDER
+		logAi->trace("Check hero exhange at %s, %s -> %s", carrier->coord.toString(), other->actor->hero->name, carrier->actor->hero->name);
+#endif
 
 		if(hasLessMp && hasLessExperience)
 			return;
@@ -250,10 +282,57 @@ void AINodeStorage::addHeroChain(
 		if(chainNode->locked)
 			return;
 
-		chainNode->specialAction = newActor->getExchangeAction();
-
-		result.push_back(chainNode);
+#ifdef VCMI_TRACE_PATHFINDER
+		logAi->trace("Hero exhange at %s, %s -> %s", carrier->coord.toString(), other->actor->hero->name, carrier->actor->hero->name);
+#endif
+		
+		commitExchange(chainNode, carrier, other);
+		heroChain.push_back(chainNode);
 	}
+}
+
+void AINodeStorage::commitExchange(
+	AIPathNode * exchangeNode, 
+	AIPathNode * carrierParentNode, 
+	AIPathNode * otherParentNode) const
+{
+	auto carrierActor = carrierParentNode->actor;
+	auto exchangeActor = exchangeNode->actor;
+	auto otherActor = otherParentNode->actor;
+
+	auto armyLoss = carrierParentNode->armyLoss + otherParentNode->armyLoss;
+	auto turns = carrierParentNode->turns;
+	auto cost = carrierParentNode->cost;
+	auto movementLeft = carrierParentNode->moveRemains;
+
+	if(carrierParentNode->turns < otherParentNode->turns)
+	{
+		int moveRemains = exchangeActor->hero->maxMovePoints(exchangeNode->layer);
+		float waitingCost = otherParentNode->turns - carrierParentNode->turns - 1
+			+ carrierParentNode->moveRemains / (float)moveRemains;
+
+		turns = otherParentNode->turns;
+		cost = waitingCost;
+		movementLeft = moveRemains;
+	}
+		
+	if(exchangeNode->turns != 0xFF && exchangeNode->cost < cost)
+		return;
+
+#ifdef VCMI_TRACE_PATHFINDER
+	logAi->trace(
+		"Accepted hero exhange at %s, carrier %s, mp cost %f", 
+		destination.coord.toString(),
+		carrierActor->hero->name,
+		destination.cost);
+#endif
+	
+	commit(exchangeNode, carrierParentNode, carrierParentNode->action, turns, movementLeft, cost);
+
+	exchangeNode->theNodeBefore = carrierParentNode;
+	exchangeNode->chainOther = otherParentNode;
+	exchangeNode->armyLoss = armyLoss;
+	exchangeNode->manaCost = carrierParentNode->manaCost;
 }
 
 const CGHeroInstance * AINodeStorage::getHero(const CGPathNode * node) const
@@ -441,6 +520,9 @@ bool AINodeStorage::isTileAccessible(const HeroPtr & hero, const int3 & pos, con
 std::vector<AIPath> AINodeStorage::getChainInfo(const int3 & pos, bool isOnLand) const
 {
 	std::vector<AIPath> paths;
+
+	paths.reserve(NUM_CHAINS / 4);
+
 	auto chains = nodes[pos.x][pos.y][pos.z][isOnLand ? EPathfindingLayer::LAND : EPathfindingLayer::SAIL];
 
 	for(const AIPathNode & node : chains)
@@ -451,31 +533,42 @@ std::vector<AIPath> AINodeStorage::getChainInfo(const int3 & pos, bool isOnLand)
 		}
 
 		AIPath path;
-		const AIPathNode * current = &node;
 
 		path.targetHero = node.actor->hero;
-		auto initialPos = path.targetHero->visitablePos();
-
-		while(current != nullptr && current->coord != initialPos)
-		{
-			AIPathNodeInfo pathNode;
-			pathNode.cost = current->cost;
-			pathNode.turns = current->turns;
-			pathNode.danger = current->danger;
-			pathNode.coord = current->coord;
-
-			path.nodes.push_back(pathNode);
-			path.specialAction = current->specialAction;
-
-			current = getAINode(current->theNodeBefore);
-		}
-
+		path.heroArmy = node.actor->creatureSet;
+		path.armyLoss = node.armyLoss;
 		path.targetObjectDanger = evaluateDanger(pos, path.targetHero);
+		
+		fillChainInfo(&node, path);
 
 		paths.push_back(path);
 	}
 
 	return paths;
+}
+
+void AINodeStorage::fillChainInfo(const AIPathNode * node, AIPath & path) const
+{
+	while(node != nullptr)
+	{
+		if(!node->actor->hero || node->coord == node->actor->hero->visitablePos())
+			return;
+
+		AIPathNodeInfo pathNode;
+		pathNode.cost = node->cost;
+		pathNode.targetHero = node->actor->hero;
+		pathNode.turns = node->turns;
+		pathNode.danger = node->danger;
+		pathNode.coord = node->coord;
+
+		path.nodes.push_back(pathNode);
+		path.specialAction = node->specialAction;
+
+		if(node->chainOther)
+			fillChainInfo(node->chainOther, path);
+
+		node = getAINode(node->theNodeBefore);
+	}
 }
 
 AIPath::AIPath()
@@ -512,6 +605,11 @@ float AIPath::movementCost() const
 
 	// TODO: boost:optional?
 	return 0.0;
+}
+
+uint64_t AIPath::getHeroStrength() const
+{
+	return targetHero->getFightingStrength() * heroArmy->getArmyStrength();
 }
 
 uint64_t AIPath::getTotalDanger(HeroPtr hero) const

@@ -13,6 +13,7 @@
 #include "Rules/AIMovementAfterDestinationRule.h"
 #include "Rules/AIMovementToDestinationRule.h"
 #include "Rules/AIPreviousNodeRule.h"
+#include "Rules/AIMovementCostRule.h"
 
 namespace AIPathfinding
 {
@@ -25,7 +26,7 @@ namespace AIPathfinding
 			std::make_shared<AILayerTransitionRule>(cb, ai, nodeStorage),
 			std::make_shared<DestinationActionRule>(),
 			std::make_shared<AIMovementToDestinationRule>(nodeStorage),
-			std::make_shared<MovementCostRule>(),
+			std::make_shared<AIMovementCostRule>(nodeStorage),
 			std::make_shared<AIPreviousNodeRule>(nodeStorage),
 			std::make_shared<AIMovementAfterDestinationRule>(cb, nodeStorage)
 		};
