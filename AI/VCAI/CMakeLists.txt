@@ -12,6 +12,7 @@ set(VCAI_SRCS
 		Pathfinding/AIPathfinder.cpp
 		Pathfinding/AINodeStorage.cpp
 		Pathfinding/PathfindingManager.cpp
+		Pathfinding/Actors.cpp
 		Pathfinding/Actions/BattleAction.cpp
 		Pathfinding/Actions/BoatActions.cpp
 		Pathfinding/Actions/TownPortalAction.cpp
@@ -19,6 +20,7 @@ set(VCAI_SRCS
 		Pathfinding/Rules/AIMovementAfterDestinationRule.cpp
 		Pathfinding/Rules/AIMovementToDestinationRule.cpp
 		Pathfinding/Rules/AIPreviousNodeRule.cpp
+		Pathfinding/Rules/AIMovementCostRule.cpp
 		AIUtility.cpp
 		AIhelper.cpp
 		ResourceManager.cpp
@@ -66,6 +68,7 @@ set(VCAI_HEADERS
 		Pathfinding/AIPathfinder.h
 		Pathfinding/AINodeStorage.h
 		Pathfinding/PathfindingManager.h
+		Pathfinding/Actors.h
 		Pathfinding/Actions/ISpecialAction.h
 		Pathfinding/Actions/BattleAction.h
 		Pathfinding/Actions/BoatActions.h
@@ -74,6 +77,7 @@ set(VCAI_HEADERS
 		Pathfinding/Rules/AIMovementAfterDestinationRule.h
 		Pathfinding/Rules/AIMovementToDestinationRule.h
 		Pathfinding/Rules/AIPreviousNodeRule.h
+		Pathfinding/Rules/AIMovementCostRule.h
 		AIUtility.h
 		AIhelper.h
 		ResourceManager.h

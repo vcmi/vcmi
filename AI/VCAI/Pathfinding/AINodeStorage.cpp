@@ -87,7 +87,10 @@ void AINodeStorage::updateAINode(CGPathNode * node, std::function<void(AIPathNod
 	updater(aiNode);
 }
 
-boost::optional<AIPathNode *> AINodeStorage::getOrCreateNode(const int3 & pos, const EPathfindingLayer layer, const ChainActor * actor)
+boost::optional<AIPathNode *> AINodeStorage::getOrCreateNode(
+	const int3 & pos, 
+	const EPathfindingLayer layer, 
+	const ChainActor * actor)
 {
 	auto chains = nodes[pos.x][pos.y][pos.z][layer];
 
@@ -115,7 +118,7 @@ std::vector<CGPathNode *> AINodeStorage::getInitialNodes()
 
 	for(auto actorPtr : actors)
 	{
-		const ChainActor * actor = actorPtr.get();
+		ChainActor * actor = actorPtr.get();
 		AIPathNode * initialNode =
 			getOrCreateNode(actor->initialPosition, actor->layer, actor)
 			.get();
@@ -198,7 +201,59 @@ std::vector<CGPathNode *> AINodeStorage::calculateNeighbours(
 		}
 	}
 
+	if((source.node->layer == EPathfindingLayer::LAND || source.node->layer == EPathfindingLayer::SAIL)
+		&& source.node->turns < 1)
+	{
+		addHeroChain(neighbours, srcNode);
+	}
+	
 	return neighbours;
+}
+
+void AINodeStorage::addHeroChain(std::vector<CGPathNode *> & result, const AIPathNode * srcNode)
+{
+	auto chains = nodes[srcNode->coord.x][srcNode->coord.y][srcNode->coord.z][srcNode->layer];
+
+	for(const AIPathNode & node : chains)
+	{
+		if(!node.locked || !node.actor || node.action == CGPathNode::ENodeAction::UNKNOWN && node.actor->hero)
+		{
+			continue;
+		}
+
+		addHeroChain(result, srcNode, &node);
+		addHeroChain(result, &node, srcNode);
+	}
+}
+
+void AINodeStorage::addHeroChain(
+	std::vector<CGPathNode *> & result, 
+	const AIPathNode * carrier, 
+	const AIPathNode * other)
+{
+	if(carrier->actor->canExchange(other->actor))
+	{
+		bool hasLessMp = carrier->turns > other->turns || carrier->moveRemains < other->moveRemains;
+		bool hasLessExperience = carrier->actor->hero->exp < other->actor->hero->exp;
+
+		if(hasLessMp && hasLessExperience)
+			return;
+
+		auto newActor = carrier->actor->exchange(other->actor);
+		auto chainNodeOptional = getOrCreateNode(carrier->coord, carrier->layer, newActor);
+
+		if(!chainNodeOptional)
+			return;
+
+		auto chainNode = chainNodeOptional.get();
+
+		if(chainNode->locked)
+			return;
+
+		chainNode->specialAction = newActor->getExchangeAction();
+
+		result.push_back(chainNode);
+	}
 }
 
 const CGHeroInstance * AINodeStorage::getHero(const CGPathNode * node) const
@@ -230,7 +285,7 @@ void AINodeStorage::setHeroes(std::vector<HeroPtr> heroes, const VCAI * _ai)
 	{
 		uint64_t mask = 1 << actors.size();
 
-		actors.push_back(std::make_shared<ChainActor>(hero.get(), mask));
+		actors.push_back(std::make_shared<HeroActor>(hero.get(), mask));
 	}
 }
 
@@ -465,51 +520,4 @@ uint64_t AIPath::getTotalDanger(HeroPtr hero) const
 	uint64_t danger = pathDanger > targetObjectDanger ? pathDanger : targetObjectDanger;
 
 	return danger;
-}
-
-ChainActor::ChainActor(const CGHeroInstance * hero, int chainMask)
-	:hero(hero), isMovable(true), chainMask(chainMask)
-{
-	initialPosition = hero->visitablePos();
-	layer = hero->boat ? EPathfindingLayer::SAIL : EPathfindingLayer::LAND;
-	initialMovement = hero->movement;
-	initialTurn = 0;
-	armyValue = hero->getTotalStrength();
-
-	setupSpecialActors();
-}
-
-void ChainActor::copyFrom(ChainActor * base)
-{
-	hero = base->hero;
-	layer = base->layer;
-	initialMovement = base->initialMovement;
-	initialTurn = base->initialTurn;
-}
-
-void ChainActor::setupSpecialActors()
-{
-	auto allActors = std::vector<ChainActor *>{ this };
-	specialActors.resize(7);
-
-	for(int i = 1; i < 8; i++)
-	{
-		ChainActor & specialActor = specialActors[i - 1];
-
-		specialActor.copyFrom(this);
-		specialActor.allowBattle = (i & 1) > 0;
-		specialActor.allowSpellCast = (i & 2) > 0;
-		specialActor.allowUseResources = (i & 4) > 0;
-
-		allActors.push_back(&specialActor);
-	}
-
-	for(int i = 0; i < 8; i++)
-	{
-		ChainActor * actor = allActors[i];
-
-		actor->battleActor = allActors[i | 1];
-		actor->castActor = allActors[i | 2];
-		actor->resourceActor = allActors[i | 4];
-	}
 }

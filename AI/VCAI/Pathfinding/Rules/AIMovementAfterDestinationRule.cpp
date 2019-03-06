@@ -44,6 +44,9 @@ namespace AIPathfinding
 
 			if(!enemyHero && !isObjectRemovable(destination.nodeObject))
 			{
+				if(nodeStorage->getHero(destination.node) == destination.nodeHero)
+					return;
+
 				destination.blocked = true;
 			}
 
