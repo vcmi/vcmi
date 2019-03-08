@@ -103,36 +103,6 @@ void AIPathfinder::updatePaths(std::vector<HeroPtr> heroes)
 	}
 }
 
-void AIPathfinder::updatePaths(const HeroPtr & hero)
-{
-	std::shared_ptr<AINodeStorage> nodeStorage;
-
-	if(!vstd::contains(storageMap, hero))
-	{
-		if(storageMap.size() < storagePool.size())
-		{
-			nodeStorage = storagePool.at(storageMap.size());
-		}
-		else
-		{
-			nodeStorage = std::make_shared<AINodeStorage>(cb->getMapSize());
-			storagePool.push_back(nodeStorage);
-		}
-
-		storageMap[hero] = nodeStorage;
-		nodeStorage->setHero(hero, ai);
-	}
-	else
-	{
-		nodeStorage = storageMap.at(hero);
-	}
-
-	logAi->debug("Recalculate paths for %s", hero->name);
-	auto config = std::make_shared<AIPathfinding::AIPathfinderConfig>(cb, ai, nodeStorage);
-
-	cb->calculatePaths(config, hero.get());
-}
-
 std::shared_ptr<const AINodeStorage> AIPathfinder::getStorage(const HeroPtr & hero) const
 {
 	return storageMap.at(hero);

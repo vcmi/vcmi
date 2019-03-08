@@ -61,7 +61,6 @@ public:
 	Goals::TGoalVec howToVisitObj(ObjectIdRef obj) const override;
 	std::vector<AIPath> getPathsToTile(const HeroPtr & hero, const int3 & tile) const override;
 	void updatePaths(std::vector<HeroPtr> heroes) override;
-	void updatePaths(const HeroPtr & hero) override;
 
 	STRONG_INLINE
 	bool isTileAccessible(const HeroPtr & hero, const int3 & tile) const
