@@ -95,12 +95,16 @@ namespace Goals
 		int manaCost;
 		uint64_t danger;
 		float closestWayRatio;
+		uint64_t armyLoss;
+		uint64_t heroStrength;
 
 		EvaluationContext()
 			: movementCost(0.0),
 			manaCost(0),
 			danger(0),
-			closestWayRatio(1)
+			closestWayRatio(1),
+			armyLoss(0),
+			heroStrength(0)
 		{
 		}
 	};

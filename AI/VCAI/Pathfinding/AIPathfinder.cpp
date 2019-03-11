@@ -43,7 +43,7 @@ std::vector<AIPath> AIPathfinder::getPathInfo(const HeroPtr & hero, const int3 &
 	return storage->getChainInfo(tile, !tileInfo->isWater());
 }
 
-void AIPathfinder::updatePaths(std::vector<HeroPtr> heroes)
+void AIPathfinder::updatePaths(std::vector<HeroPtr> heroes, bool useHeroChain)
 {
 	if(!storage)
 	{
@@ -55,8 +55,14 @@ void AIPathfinder::updatePaths(std::vector<HeroPtr> heroes)
 	storage->clear();
 	storage->setHeroes(heroes, ai);
 
-		auto config = std::make_shared<AIPathfinding::AIPathfinderConfig>(cb, ai, storage);
+	auto config = std::make_shared<AIPathfinding::AIPathfinderConfig>(cb, ai, storage);
+	cb->calculatePaths(config);
+
+	while(useHeroChain && storage->calculateHeroChain())
+	{
+		config = std::make_shared<AIPathfinding::AIPathfinderConfig>(cb, ai, storage);
 		cb->calculatePaths(config);
+	}
 }
 
 void AIPathfinder::updatePaths(const HeroPtr & hero)

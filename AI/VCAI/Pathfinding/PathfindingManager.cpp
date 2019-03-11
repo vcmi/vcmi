@@ -136,7 +136,7 @@ Goals::TGoalVec PathfindingManager::findPaths(
 		{
 			danger = path.getTotalDanger(hero);
 
-			if(isSafeToVisit(hero, danger))
+			if(isSafeToVisit(hero, path.heroArmy, danger))
 			{
 				Goals::TSubgoal solution;
 
@@ -158,6 +158,8 @@ Goals::TGoalVec PathfindingManager::findPaths(
 					solution->evaluationContext.danger = danger;
 
 				solution->evaluationContext.movementCost += path.movementCost();
+				solution->evaluationContext.armyLoss += path.armyLoss;
+				solution->evaluationContext.heroStrength = path.getHeroStrength();
 #ifdef VCMI_TRACE_PATHFINDER
 				logAi->trace("It's safe for %s to visit tile %s with danger %s, goal %s", hero->name, dest.toString(), std::to_string(danger), solution->name());
 #endif
