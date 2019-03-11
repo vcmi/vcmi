@@ -20,7 +20,6 @@ set(VCAI_SRCS
 		Pathfinding/Rules/AIMovementAfterDestinationRule.cpp
 		Pathfinding/Rules/AIMovementToDestinationRule.cpp
 		Pathfinding/Rules/AIPreviousNodeRule.cpp
-		Pathfinding/Rules/AIMovementCostRule.cpp
 		AIUtility.cpp
 		AIhelper.cpp
 		ResourceManager.cpp
@@ -72,7 +71,6 @@ set(VCAI_HEADERS
 		Pathfinding/Rules/AIMovementAfterDestinationRule.h
 		Pathfinding/Rules/AIMovementToDestinationRule.h
 		Pathfinding/Rules/AIPreviousNodeRule.h
-		Pathfinding/Rules/AIMovementCostRule.h
 		AIUtility.h
 		AIhelper.h
 		ResourceManager.h

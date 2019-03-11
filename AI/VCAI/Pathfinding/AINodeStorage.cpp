@@ -186,7 +186,7 @@ void AINodeStorage::commit(
 	int movementLeft, 
 	float cost) const
 {
-	destination->action = source->action;
+	destination->action = action;
 	destination->cost = cost;
 	destination->moveRemains = movementLeft;
 	destination->turns = turn;
@@ -322,9 +322,9 @@ void AINodeStorage::commitExchange(
 #ifdef VCMI_TRACE_PATHFINDER
 	logAi->trace(
 		"Accepted hero exhange at %s, carrier %s, mp cost %f", 
-		destination.coord.toString(),
+		exchangeNode->coord.toString(),
 		carrierActor->hero->name,
-		destination.cost);
+		cost);
 #endif
 	
 	commit(exchangeNode, carrierParentNode, carrierParentNode->action, turns, movementLeft, cost);
