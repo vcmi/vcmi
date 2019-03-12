@@ -323,6 +323,13 @@ void VCAI::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, Q
 		{
 			logAi->debug("Heroes owned by different players. Do not exchange army or artifacts.");
 		}
+		else if(nullkiller)
+		{
+			if(nullkiller->isActive(firstHero))
+				transferFrom2to1(secondHero, firstHero);
+			else
+				transferFrom2to1(firstHero, secondHero);
+		}
 		else if(goalpriority1 > goalpriority2)
 		{
 			transferFrom2to1(firstHero, secondHero);
@@ -1172,7 +1179,8 @@ void VCAI::pickBestCreatures(const CArmedInstance * destinationArmy, const CArme
 			{
 				if(armyPtr->getCreature(SlotID(j)) == bestArmy[i] && (i != j || armyPtr != destinationArmy)) //it's a searched creature not in dst SLOT
 				{
-					if(!(armyPtr->needsLastStack() && armyPtr->stacksCount() == 1)) //can't take away last creature without split
+					if(!armyPtr->needsLastStack() || armyPtr->stacksCount() != 1 
+						|| armyPtr == destinationArmy || 0 < destinationArmy->getStackCount(SlotID(i))) //can't take away last creature without split
 					{
 						cb->mergeOrSwapStacks(armyPtr, destinationArmy, SlotID(j), SlotID(i));
 					}
