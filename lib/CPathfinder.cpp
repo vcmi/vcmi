@@ -302,6 +302,7 @@ void CPathfinder::calculatePaths()
 
 	//initial tile - set cost on 0 and add to the queue
 	std::vector<CGPathNode *> initialNodes = config->nodeStorage->getInitialNodes();
+	int counter = 0;
 
 	for(auto initialNode : initialNodes)
 	{
@@ -322,6 +323,7 @@ void CPathfinder::calculatePaths()
 
 	while(!pq.empty())
 	{
+		counter++;
 		auto node = pq.top();
 
 		source.setNode(gs, node);
@@ -421,6 +423,8 @@ void CPathfinder::calculatePaths()
 			}
 		}
 	} //queue loop
+
+	logAi->trace("CPathfinder finished with %s iterations", std::to_string(counter));
 }
 
 std::vector<int3> CPathfinderHelper::getAllowedTeleportChannelExits(TeleportChannelID channelID) const
