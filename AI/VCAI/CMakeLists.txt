@@ -21,6 +21,7 @@ set(VCAI_SRCS
 		Pathfinding/Rules/AIPreviousNodeRule.cpp
 		AIUtility.cpp
 		AIhelper.cpp
+		ArmyManager.cpp
 		ResourceManager.cpp
 		BuildingManager.cpp
 		SectorMap.cpp
@@ -71,6 +72,7 @@ set(VCAI_HEADERS
 		Pathfinding/Rules/AIPreviousNodeRule.h
 		AIUtility.h
 		AIhelper.h
+		ArmyManager.h
 		ResourceManager.h
 		BuildingManager.h
 		SectorMap.h
