@@ -9,11 +9,12 @@
 */
 #include "StdInc.h"
 #include "Actors.h"
+#include "../Goals/VisitHero.h"
+#include "../VCAI.h"
+#include "../AIhelper.h"
 #include "../../../CCallback.h"
 #include "../../../lib/mapping/CMap.h"
 #include "../../../lib/mapObjects/MapObjects.h"
-
-#include "../Goals/VisitHero.h"
 
 class ExchangeAction : public ISpecialAction
 {
@@ -113,9 +114,9 @@ ChainActor * ChainActor::exchange(const ChainActor * other) const
 	return baseActor->exchange(this, other);
 }
 
-bool ChainActor::canExchange(const ChainActor * other) const
+bool ChainActor::canExchange(const ChainActor * other, const VCAI * ai) const
 {
-	return baseActor->canExchange(other->baseActor);
+	return baseActor->canExchange(other->baseActor, ai);
 }
 
 namespace vstd
@@ -135,11 +136,11 @@ namespace vstd
 	}
 }
 
-bool HeroActor::canExchange(const HeroActor * other)
+bool HeroActor::canExchange(const HeroActor * other, const VCAI * ai)
 {
 	return vstd::getOrCompute(canExchangeCache, other, [&](bool & result) {
 		result = (chainMask & other->chainMask) == 0
-			&& howManyReinforcementsCanGet(creatureSet, other->creatureSet) > armyValue / 10;
+			&& ai->ah->howManyReinforcementsCanGet(creatureSet, other->creatureSet) > armyValue / 10;
 	});
 }
 

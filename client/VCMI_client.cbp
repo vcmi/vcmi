@@ -19,6 +19,12 @@
 					<Add option="-g" />
 				</Compiler>
 				<Linker>
+					<Add option="-lboost_program_options$(#boost.libsuffix32)" />
+					<Add option="-lboost_filesystem$(#boost.libsuffix32)" />
+					<Add option="-lboost_system$(#boost.libsuffix32)" />
+					<Add option="-lboost_thread$(#boost.libsuffix32)" />
+					<Add option="-lboost_chrono$(#boost.libsuffix32)" />
+					<Add option="-lVCMI_lib" />
 					<Add directory="$(#sdl2.lib)" />
 					<Add directory="$(#boost.lib32)" />
 					<Add directory="$(#ffmpeg.lib32)" />
@@ -37,6 +43,12 @@
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
+					<Add option="-lboost_program_options$(#boost.libsuffix32)" />
+					<Add option="-lboost_filesystem$(#boost.libsuffix32)" />
+					<Add option="-lboost_system$(#boost.libsuffix32)" />
+					<Add option="-lboost_thread$(#boost.libsuffix32)" />
+					<Add option="-lboost_chrono$(#boost.libsuffix32)" />
+					<Add option="-lVCMI_lib" />
 					<Add directory="$(#sdl2.lib)" />
 					<Add directory="$(#boost.lib32)" />
 					<Add directory="$(#ffmpeg.lib32)" />
@@ -54,6 +66,12 @@
 					<Add option="-g" />
 				</Compiler>
 				<Linker>
+					<Add option="-lboost_program_options$(#boost.libsuffix64)" />
+					<Add option="-lboost_filesystem$(#boost.libsuffix64)" />
+					<Add option="-lboost_system$(#boost.libsuffix64)" />
+					<Add option="-lboost_thread$(#boost.libsuffix64)" />
+					<Add option="-lboost_chrono$(#boost.libsuffix64)" />
+					<Add option="-lVCMI_lib" />
 					<Add directory="$(#sdl2.lib64)" />
 					<Add directory="$(#boost.lib64)" />
 					<Add directory="$(#ffmpeg.lib64)" />
@@ -75,6 +93,7 @@
 			<Add option="-DBOOST_SYSTEM_NO_DEPRECATED" />
 			<Add option="-D_WIN32_WINNT=0x0501" />
 			<Add option="-D_WIN32" />
+			<Add option="-DBOOST_UUID_RANDOM_PROVIDER_FORCE_WINCRYPT" />
 			<Add directory="../client" />
 			<Add directory="$(#ffmpeg.include)" />
 			<Add directory="$(#sdl2.include)" />
@@ -84,12 +103,7 @@
 			<Add option="-lole32" />
 			<Add option="-loleaut32" />
 			<Add option="-lws2_32" />
-			<Add option="-lboost_program_options$(#boost.libsuffix)" />
-			<Add option="-lboost_filesystem$(#boost.libsuffix)" />
-			<Add option="-lboost_system$(#boost.libsuffix)" />
-			<Add option="-lboost_thread$(#boost.libsuffix)" />
-			<Add option="-lboost_chrono$(#boost.libsuffix)" />
-			<Add option="-lVCMI_lib" />
+			<Add option="-ladvapi32" />
 			<Add option="-lavcodec.dll" />
 			<Add option="-lavformat.dll" />
 			<Add option="-lswscale.dll" />

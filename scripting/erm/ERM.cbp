@@ -18,6 +18,12 @@
 					<Add option="-ggdb" />
 				</Compiler>
 				<Linker>
+					<Add option="-lboost_program_options$(#boost.libsuffix32)" />
+					<Add option="-lboost_filesystem$(#boost.libsuffix32)" />
+					<Add option="-lboost_system$(#boost.libsuffix32)" />
+					<Add option="-lboost_thread$(#boost.libsuffix32)" />
+					<Add option="-lboost_chrono$(#boost.libsuffix32)" />
+					<Add option="-lVCMI_lib" />
 					<Add directory="$(#boost.lib32)" />
 				</Linker>
 			</Target>
@@ -33,6 +39,12 @@
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
+					<Add option="-lboost_program_options$(#boost.libsuffix32)" />
+					<Add option="-lboost_filesystem$(#boost.libsuffix32)" />
+					<Add option="-lboost_system$(#boost.libsuffix32)" />
+					<Add option="-lboost_thread$(#boost.libsuffix32)" />
+					<Add option="-lboost_chrono$(#boost.libsuffix32)" />
+					<Add option="-lVCMI_lib" />
 					<Add directory="$(#boost.lib32)" />
 				</Linker>
 			</Target>
@@ -48,6 +60,12 @@
 					<Add option="-ggdb" />
 				</Compiler>
 				<Linker>
+					<Add option="-lboost_program_options$(#boost.libsuffix64)" />
+					<Add option="-lboost_filesystem$(#boost.libsuffix64)" />
+					<Add option="-lboost_system$(#boost.libsuffix64)" />
+					<Add option="-lboost_thread$(#boost.libsuffix64)" />
+					<Add option="-lboost_chrono$(#boost.libsuffix64)" />
+					<Add option="-lVCMI_lib" />
 					<Add directory="$(#boost.lib64)" />
 				</Linker>
 			</Target>
@@ -68,12 +86,6 @@
 			<Add directory="../../include" />
 		</Compiler>
 		<Linker>
-			<Add option="-lboost_program_options$(#boost.libsuffix)" />
-			<Add option="-lboost_filesystem$(#boost.libsuffix)" />
-			<Add option="-lboost_system$(#boost.libsuffix)" />
-			<Add option="-lboost_thread$(#boost.libsuffix)" />
-			<Add option="-lboost_chrono$(#boost.libsuffix)" />
-			<Add option="-lVCMI_lib" />
 			<Add directory="../.." />
 		</Linker>
 		<Unit filename="ERMInterpreter.cpp" />

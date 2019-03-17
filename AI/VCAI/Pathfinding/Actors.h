@@ -16,6 +16,7 @@
 #include "Actions/ISpecialAction.h"
 
 class HeroActor;
+class VCAI;
 
 class ChainActor
 {
@@ -45,7 +46,7 @@ public:
 
 	ChainActor(){}
 	ChainActor * exchange(const ChainActor * other) const;
-	bool canExchange(const ChainActor * other) const;
+	bool canExchange(const ChainActor * other, const VCAI * ai) const;
 	void setBaseActor(HeroActor * base);
 	const HeroActor * getBaseActor() const { return baseActor; }
 	std::shared_ptr<ISpecialAction> getExchangeAction() const;
@@ -75,6 +76,6 @@ public:
 	HeroActor(const CGHeroInstance * hero, int chainMask);
 	HeroActor(const ChainActor * carrier, const ChainActor * other);
 	ChainActor * exchange(const ChainActor * specialActor, const ChainActor * other);
-	bool canExchange(const HeroActor * other);
+	bool canExchange(const HeroActor * other, const VCAI * ai);
 	CCreatureSet * pickBestCreatures(const CCreatureSet * army1, const CCreatureSet * army2) const;
 };

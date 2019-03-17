@@ -66,8 +66,3 @@ void AIPathfinder::updatePaths(std::vector<HeroPtr> heroes, bool useHeroChain)
 		useHeroChain = useHeroChain && storage->calculateHeroChain();
 	} while(useHeroChain);
 }
-
-void AIPathfinder::updatePaths(const HeroPtr & hero)
-{
-	updatePaths(std::vector<HeroPtr>{hero});
-}

@@ -16,6 +16,9 @@
 					<Add option="-g" />
 				</Compiler>
 				<Linker>
+					<Add option="-lboost_thread$(#boost.libsuffix32)" />
+					<Add option="-lboost_system$(#boost.libsuffix32)" />
+					<Add option="-lVCMI_lib" />
 					<Add directory="$(#boost.lib32)" />
 				</Linker>
 			</Target>
@@ -30,6 +33,9 @@
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
+					<Add option="-lboost_thread$(#boost.libsuffix32)" />
+					<Add option="-lboost_system$(#boost.libsuffix32)" />
+					<Add option="-lVCMI_lib" />
 					<Add directory="$(#boost.lib32)" />
 				</Linker>
 			</Target>
@@ -43,6 +49,9 @@
 					<Add option="-g" />
 				</Compiler>
 				<Linker>
+					<Add option="-lboost_thread$(#boost.libsuffix64)" />
+					<Add option="-lboost_system$(#boost.libsuffix64)" />
+					<Add option="-lVCMI_lib" />
 					<Add directory="$(#boost.lib64)" />
 				</Linker>
 			</Target>
@@ -66,9 +75,6 @@
 			<Add directory="../../include" />
 		</Compiler>
 		<Linker>
-			<Add option="-lboost_thread$(#boost.libsuffix)" />
-			<Add option="-lboost_system$(#boost.libsuffix)" />
-			<Add option="-lVCMI_lib" />
 			<Add directory="../.." />
 		</Linker>
 		<Unit filename="AttackPossibility.cpp" />

@@ -60,7 +60,6 @@
 			<Add option="-Wno-unused-parameter" />
 			<Add option="-Wno-overloaded-virtual" />
 			<Add option="-DFL_CPP11" />
-			<Add option="-DFL_WINDOWS" />
 			<Add directory="FuzzyLite/fuzzylite" />
 		</Compiler>
 		<Unit filename="FuzzyLite/fuzzylite/fl/Benchmark.h" />

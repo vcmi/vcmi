@@ -291,7 +291,7 @@ void AINodeStorage::addHeroChain(AIPathNode * srcNode, std::vector<AIPathNode *>
 
 void AINodeStorage::addHeroChain(AIPathNode * carrier, AIPathNode * other)
 {
-	if(carrier->actor->canExchange(other->actor))
+	if(carrier->actor->canExchange(other->actor, ai))
 	{
 #ifdef VCMI_TRACE_PATHFINDER_EX
 		logAi->trace(

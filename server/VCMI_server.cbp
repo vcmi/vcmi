@@ -15,10 +15,16 @@
 				<Option compiler="gcc" />
 				<Option use_console_runner="0" />
 				<Compiler>
-					<Add option="-g" />
 					<Add option="-Og" />
+					<Add option="-g" />
 				</Compiler>
 				<Linker>
+					<Add option="-lboost_program_options$(#boost.libsuffix32)" />
+					<Add option="-lboost_filesystem$(#boost.libsuffix32)" />
+					<Add option="-lboost_system$(#boost.libsuffix32)" />
+					<Add option="-lboost_thread$(#boost.libsuffix32)" />
+					<Add option="-lboost_chrono$(#boost.libsuffix32)" />
+					<Add option="-lVCMI_lib" />
 					<Add directory="$(#boost.lib32)" />
 				</Linker>
 			</Target>
@@ -36,6 +42,12 @@
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
+					<Add option="-lboost_program_options$(#boost.libsuffix32)" />
+					<Add option="-lboost_filesystem$(#boost.libsuffix32)" />
+					<Add option="-lboost_system$(#boost.libsuffix32)" />
+					<Add option="-lboost_thread$(#boost.libsuffix32)" />
+					<Add option="-lboost_chrono$(#boost.libsuffix32)" />
+					<Add option="-lVCMI_lib" />
 					<Add directory="$(#boost.lib32)" />
 				</Linker>
 			</Target>
@@ -53,6 +65,12 @@
 					<Add directory="$(#zlib64.include)" />
 				</Compiler>
 				<Linker>
+					<Add option="-lboost_program_options$(#boost.libsuffix64)" />
+					<Add option="-lboost_filesystem$(#boost.libsuffix64)" />
+					<Add option="-lboost_system$(#boost.libsuffix64)" />
+					<Add option="-lboost_thread$(#boost.libsuffix64)" />
+					<Add option="-lboost_chrono$(#boost.libsuffix64)" />
+					<Add option="-lVCMI_lib" />
 					<Add directory="$(#boost.lib64)" />
 				</Linker>
 			</Target>
@@ -72,6 +90,7 @@
 			<Add option="-DBOOST_THREAD_USE_LIB" />
 			<Add option="-DBOOST_SYSTEM_NO_DEPRECATED" />
 			<Add option="-D_WIN32" />
+			<Add option="-DBOOST_UUID_RANDOM_PROVIDER_FORCE_WINCRYPT" />
 			<Add directory="$(#sdl2.include)" />
 			<Add directory="$(#zlib.include)" />
 			<Add directory="../include" />
@@ -80,13 +99,8 @@
 			<Add option="-lole32" />
 			<Add option="-loleaut32" />
 			<Add option="-lws2_32" />
+			<Add option="-ladvapi32" />
 			<Add option="-lmswsock" />
-			<Add option="-lboost_program_options$(#boost.libsuffix)" />
-			<Add option="-lboost_filesystem$(#boost.libsuffix)" />
-			<Add option="-lboost_system$(#boost.libsuffix)" />
-			<Add option="-lboost_thread$(#boost.libsuffix)" />
-			<Add option="-lboost_chrono$(#boost.libsuffix)" />
-			<Add option="-lVCMI_lib" />
 			<Add directory="../" />
 		</Linker>
 		<Unit filename="CGameHandler.cpp" />
