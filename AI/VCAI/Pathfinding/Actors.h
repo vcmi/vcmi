@@ -21,9 +21,9 @@ class VCAI;
 class ChainActor
 {
 protected:
-	HeroActor * baseActor;
-	ChainActor(const CGHeroInstance * hero, int chainMask);
+	ChainActor(const CGHeroInstance * hero, uint64_t chainMask);
 	ChainActor(const ChainActor * carrier, const ChainActor * other, const CCreatureSet * heroArmy);
+	ChainActor(const CGObjectInstance * obj, const CCreatureSet * army, uint64_t chainMask, int initialTurn);
 
 public:
 	uint64_t chainMask;
@@ -38,6 +38,7 @@ public:
 	const ChainActor * resourceActor;
 	const ChainActor * carrierParent;
 	const ChainActor * otherParent;
+	const ChainActor * baseActor;
 	int3 initialPosition;
 	EPathfindingLayer layer;
 	uint32_t initialMovement;
@@ -45,12 +46,34 @@ public:
 	uint64_t armyValue;
 
 	ChainActor(){}
-	ChainActor * exchange(const ChainActor * other) const;
-	bool canExchange(const ChainActor * other, const VCAI * ai) const;
-	void setBaseActor(HeroActor * base);
-	const HeroActor * getBaseActor() const { return baseActor; }
-	std::shared_ptr<ISpecialAction> getExchangeAction() const;
 
+	virtual bool canExchange(const ChainActor * other) const;
+	ChainActor * exchange(const ChainActor * other) const { return exchange(this, other); }
+	void setBaseActor(HeroActor * base);
+
+protected:
+	virtual ChainActor * exchange(const ChainActor * specialActor, const ChainActor * other) const;
+};
+
+class HeroExchangeMap
+{
+private:
+	const HeroActor * actor;
+	std::map<const ChainActor *, HeroActor *> exchangeMap;
+	std::map<const ChainActor *, bool> canExchangeCache;
+	const VCAI * ai;
+
+public:
+	HeroExchangeMap(const HeroActor * actor, const VCAI * ai)
+		:actor(actor), ai(ai)
+	{
+	}
+
+	HeroActor * exchange(const ChainActor * other);
+	bool canExchange(const ChainActor * other);
+
+private:
+	CCreatureSet * pickBestCreatures(const CCreatureSet * army1, const CCreatureSet * army2) const;
 };
 
 class HeroActor : public ChainActor
@@ -60,8 +83,7 @@ public:
 
 private:
 	ChainActor specialActors[SPECIAL_ACTORS_COUNT];
-	std::map<const ChainActor *, HeroActor *> exchangeMap;
-	std::map<const HeroActor *, bool> canExchangeCache;
+	HeroExchangeMap * exchangeMap;
 
 	void setupSpecialActors();
 
@@ -69,13 +91,28 @@ public:
 	std::shared_ptr<ISpecialAction> exchangeAction;
 	// chain flags, can be combined meaning hero exchange and so on
 
-	HeroActor()
-	{
-	}
+	HeroActor(const CGHeroInstance * hero, uint64_t chainMask, const VCAI * ai);
+	HeroActor(const ChainActor * carrier, const ChainActor * other, const CCreatureSet * army, const VCAI * ai);
 
-	HeroActor(const CGHeroInstance * hero, int chainMask);
-	HeroActor(const ChainActor * carrier, const ChainActor * other);
-	ChainActor * exchange(const ChainActor * specialActor, const ChainActor * other);
-	bool canExchange(const HeroActor * other, const VCAI * ai);
-	CCreatureSet * pickBestCreatures(const CCreatureSet * army1, const CCreatureSet * army2) const;
+	virtual bool canExchange(const ChainActor * other) const override;
+
+protected:
+	virtual ChainActor * exchange(const ChainActor * specialActor, const ChainActor * other) const override;
+};
+
+class DwellingActor : public ChainActor
+{
+public:
+	DwellingActor(const CGDwelling * dwelling, uint64_t chainMask, bool waitForGrowth, int dayOfWeek);
+	~DwellingActor();
+
+protected:
+	int getInitialTurn(bool waitForGrowth, int dayOfWeek);
+	CCreatureSet * getDwellingCreatures(const CGDwelling * dwelling, bool waitForGrowth);
+};
+
+class TownGarrisonActor : public ChainActor
+{
+public:
+	TownGarrisonActor(const CGTownInstance * town, uint64_t chainMask);
 };

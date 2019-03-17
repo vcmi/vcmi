@@ -291,7 +291,10 @@ void AINodeStorage::addHeroChain(AIPathNode * srcNode, std::vector<AIPathNode *>
 
 void AINodeStorage::addHeroChain(AIPathNode * carrier, AIPathNode * other)
 {
-	if(carrier->actor->canExchange(other->actor, ai))
+	if(!carrier->actor->isMovable)
+		return;
+	
+	if(carrier->actor->canExchange(other->actor))
 	{
 #ifdef VCMI_TRACE_PATHFINDER_EX
 		logAi->trace(
@@ -421,7 +424,52 @@ void AINodeStorage::setHeroes(std::vector<HeroPtr> heroes, const VCAI * _ai)
 	{
 		uint64_t mask = 1 << actors.size();
 
-		actors.push_back(std::make_shared<HeroActor>(hero.get(), mask));
+		actors.push_back(std::make_shared<HeroActor>(hero.get(), mask, ai));
+	}
+}
+
+void AINodeStorage::setTownsAndDwellings(
+	const std::vector<const CGTownInstance *> & towns,
+	const std::vector<const CGObjectInstance *> & visitableObjs)
+{
+	for(auto town : towns)
+	{
+		uint64_t mask = 1 << actors.size();
+
+		if(town->getUpperArmy()->getArmyStrength())
+		{
+			actors.push_back(std::make_shared<TownGarrisonActor>(town, mask));
+		}
+	}
+
+	auto dayOfWeek = cb->getDate(Date::DAY_OF_WEEK);
+	auto waitForGrowth = dayOfWeek > 4;
+
+	for(auto obj: visitableObjs)
+	{
+		const CGDwelling * dwelling = dynamic_cast<const CGDwelling *>(obj);
+
+		if(dwelling)
+		{
+			uint64_t mask = 1 << actors.size();
+			auto dwellingActor = std::make_shared<DwellingActor>(dwelling, mask, false, dayOfWeek);
+
+			if(dwellingActor->creatureSet->getArmyStrength())
+			{
+				actors.push_back(dwellingActor);
+			}
+
+			if(waitForGrowth)
+			{
+				mask = 1 << actors.size();
+				dwellingActor = std::make_shared<DwellingActor>(dwelling, mask, waitForGrowth, dayOfWeek);
+
+				if(dwellingActor->creatureSet->getArmyStrength())
+				{
+					actors.push_back(dwellingActor);
+				}
+			}
+		}
 	}
 }
 

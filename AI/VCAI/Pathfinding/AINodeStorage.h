@@ -114,6 +114,9 @@ public:
 	std::vector<AIPath> getChainInfo(const int3 & pos, bool isOnLand) const;
 	bool isTileAccessible(const HeroPtr & hero, const int3 & pos, const EPathfindingLayer layer) const;
 	void setHeroes(std::vector<HeroPtr> heroes, const VCAI * ai);
+	void setTownsAndDwellings(
+		const std::vector<const CGTownInstance *> & towns,
+		const std::vector<const CGObjectInstance *> & visitableObjs);
 	const CGHeroInstance * getHero(const CGPathNode * node) const;
 	const std::set<const CGHeroInstance *> getAllHeroes() const;
 	void clear();
