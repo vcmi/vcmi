@@ -1739,6 +1739,38 @@ void CGameHandler::newTurn()
 
 		n.res[elem.first] = elem.second.resources;
 
+		if(!firstTurn && newWeek) //weekly crystal generation if 1 or more crystal dragons in any hero army or town garrison
+		{
+			bool hasCrystalGenCreature = false;
+			for(CGHeroInstance * hero : elem.second.heroes)
+			{
+				for(auto stack : hero->stacks)
+				{
+					if(stack.second->hasBonusOfType(Bonus::SPECIAL_CRYSTAL_GENERATION))
+					{
+						hasCrystalGenCreature = true;
+						break;
+					}
+				}
+			}
+			if(!hasCrystalGenCreature) //not found in armies, check towns
+			{
+				for(CGTownInstance * town : elem.second.towns)
+				{
+					for(auto stack : town->stacks)
+					{
+						if(stack.second->hasBonusOfType(Bonus::SPECIAL_CRYSTAL_GENERATION))
+						{
+							hasCrystalGenCreature = true;
+							break;
+						}
+					}
+				}
+			}
+			if(hasCrystalGenCreature)
+				n.res[elem.first][Res::CRYSTAL] += 3;
+		}
+
 		for (CGHeroInstance *h : (elem).second.heroes)
 		{
 			if (h->visitedTown)
