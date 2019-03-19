@@ -270,6 +270,7 @@ public:
 	BONUS_NAME(BLOCK_MAGIC_BELOW) /*blocks casting spells of the level < value */ \
 	BONUS_NAME(DESTRUCTION) /*kills extra units after hit, subtype = 0 - kill percentage of units, 1 - kill amount, val = chance in percent to trigger, additional info - amount/percentage to kill*/ \
 	BONUS_NAME(SPECIAL_CRYSTAL_GENERATION) /*crystal dragon crystal generation*/ \
+	BONUS_NAME(SPELLCAST_BY_DEFAULT) /*spellcast will be default attack option for this creature*/ \
 
 	/* end of list */
 

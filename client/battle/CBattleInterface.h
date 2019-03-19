@@ -183,7 +183,7 @@ private:
 
 	void requestAutofightingAIToTakeAction();
 
-	void getPossibleActionsForStack (const CStack *stack, const bool forceCast); //called when stack gets its turn
+	void getPossibleActionsForStack (const CStack *stack); //called when stack gets its turn
 	void endCastingSpell(); //ends casting spell (eg. when spell has been cast or canceled)
 
 	//force active stack to cast a spell if possible

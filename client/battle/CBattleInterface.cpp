@@ -1669,7 +1669,7 @@ void CBattleInterface::activateStack()
 		creatureSpellToCast = -1;
 	}
 
-	getPossibleActionsForStack(s, false);
+	getPossibleActionsForStack(s);
 
 	GH.fakeMouseMove();
 }
@@ -1686,7 +1686,7 @@ void CBattleInterface::endCastingSpell()
 
 		if(activeStack)
 		{
-			getPossibleActionsForStack(activeStack, false); //restore actions after they were cleared
+			getPossibleActionsForStack(activeStack); //restore actions after they were cleared
 			myTurn = true;
 		}
 	}
@@ -1694,7 +1694,7 @@ void CBattleInterface::endCastingSpell()
 	{
 		if(activeStack)
 		{
-			getPossibleActionsForStack(activeStack, false);
+			getPossibleActionsForStack(activeStack);
 			GH.fakeMouseMove();
 		}
 	}
@@ -1740,12 +1740,19 @@ void CBattleInterface::enterCreatureCastingMode()
 	}
 	else
 	{
-		getPossibleActionsForStack(activeStack, true);
+		getPossibleActionsForStack(activeStack);
+
+		auto actionFilterPredicate = [](const PossibleActions x)
+		{
+			return (x != ANY_LOCATION) && (x != NO_LOCATION) && (x != FREE_LOCATION) && (x != AIMED_SPELL_CREATURE) && (x != OBSTACLE);
+		};
+
+		vstd::erase_if(possibleActions, actionFilterPredicate);
 		GH.fakeMouseMove();
 	}
 }
 
-void CBattleInterface::getPossibleActionsForStack(const CStack *stack, const bool forceCast)
+void CBattleInterface::getPossibleActionsForStack(const CStack *stack)
 {
 	possibleActions.clear();
 	if (tacticsMode)
@@ -1766,12 +1773,8 @@ void CBattleInterface::getPossibleActionsForStack(const CStack *stack, const boo
 					const CSpell *spell = SpellID(creatureSpellToCast).toSpell();
 					PossibleActions act = getCasterAction(spell, stack, spells::Mode::CREATURE_ACTIVE);
 
-					if(forceCast)
-					{
-						//forced action to be only one possible
+					if(stack->hasBonusOfType(Bonus::SPELLCAST_BY_DEFAULT)/* && act == AIMED_SPELL_CREATURE*/)
 						possibleActions.push_back(act);
-						return;
-					}
 					else
 						//if cast is not forced, cast action will have lowest priority
 						notPriority = act;
