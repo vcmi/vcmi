@@ -1395,24 +1395,6 @@ void CBattleInterface::battleStacksEffectsSet(const SetStackEffect & sse)
 		redrawBackgroundWithHexes(activeStack);
 }
 
-CBattleInterface::PossibleActions CBattleInterface::getCasterAction(const CSpell * spell, const spells::Caster * caster, spells::Mode mode) const
-{
-	PossibleActions spellSelMode = ANY_LOCATION;
-
-	const CSpell::TargetInfo ti(spell, caster->getSpellSchoolLevel(spell), mode);
-
-	if(ti.massive || ti.type == spells::AimType::NO_TARGET)
-		spellSelMode = NO_LOCATION;
-	else if(ti.type == spells::AimType::LOCATION && ti.clearAffected)
-		spellSelMode = FREE_LOCATION;
-	else if(ti.type == spells::AimType::CREATURE)
-		spellSelMode = AIMED_SPELL_CREATURE;
-	else if(ti.type == spells::AimType::OBSTACLE)
-		spellSelMode = OBSTACLE;
-
-	return spellSelMode;
-}
-
 void CBattleInterface::setHeroAnimation(ui8 side, int phase)
 {
 	if(side == BattleSide::ATTACKER)
@@ -1441,7 +1423,7 @@ void CBattleInterface::castThisSpell(SpellID spellID)
 	const CGHeroInstance *castingHero = (attackingHeroInstance->tempOwner == curInt->playerID) ? attackingHeroInstance : defendingHeroInstance;
 	assert(castingHero); // code below assumes non-null hero
 	sp = spellID.toSpell();
-	PossibleActions spellSelMode = getCasterAction(sp, castingHero, spells::Mode::HERO);
+	PossiblePlayerBattleAction spellSelMode = curInt->cb->getCasterAction(sp, castingHero, spells::Mode::HERO);
 
 	if (spellSelMode == NO_LOCATION) //user does not have to select location
 	{
@@ -1742,7 +1724,7 @@ void CBattleInterface::enterCreatureCastingMode()
 	{
 		getPossibleActionsForStack(activeStack);
 
-		auto actionFilterPredicate = [](const PossibleActions x)
+		auto actionFilterPredicate = [](const PossiblePlayerBattleAction x)
 		{
 			return (x != ANY_LOCATION) && (x != NO_LOCATION) && (x != FREE_LOCATION) && (x != AIMED_SPELL_CREATURE) && (x != OBSTACLE);
 		};
@@ -1755,6 +1737,13 @@ void CBattleInterface::enterCreatureCastingMode()
 void CBattleInterface::getPossibleActionsForStack(const CStack *stack)
 {
 	possibleActions.clear();
+	BattleClientInterfaceData data;
+	data.creatureSpellToCast = creatureSpellToCast;
+	data.tacticsMode = tacticsMode;
+	data.siegeH = siegeH ? true : false;
+	auto allActions = curInt->cb->getClientActionsForStack(stack, data);
+	//possibleActions = allActions;
+#if(0)
 	if (tacticsMode)
 	{
 		possibleActions.push_back(MOVE_TACTICS);
@@ -1762,7 +1751,7 @@ void CBattleInterface::getPossibleActionsForStack(const CStack *stack)
 	}
 	else
 	{
-		PossibleActions notPriority = INVALID;
+		PossiblePlayerBattleAction notPriority = INVALID;
 		//first action will be prioritized over later ones
 		if(stack->canCast()) //TODO: check for battlefield effects that prevent casting?
 		{
@@ -1771,7 +1760,7 @@ void CBattleInterface::getPossibleActionsForStack(const CStack *stack)
 				if(creatureSpellToCast != -1)
 				{
 					const CSpell *spell = SpellID(creatureSpellToCast).toSpell();
-					PossibleActions act = getCasterAction(spell, stack, spells::Mode::CREATURE_ACTIVE);
+					PossiblePlayerBattleAction act = getCasterAction(spell, stack, spells::Mode::CREATURE_ACTIVE);
 
 					if(stack->hasBonusOfType(Bonus::SPELLCAST_BY_DEFAULT)/* && act == AIMED_SPELL_CREATURE*/)
 						possibleActions.push_back(act);
@@ -1804,6 +1793,7 @@ void CBattleInterface::getPossibleActionsForStack(const CStack *stack)
 		if (notPriority != INVALID)
 			possibleActions.push_back(notPriority);
 	}
+#endif
 }
 
 void CBattleInterface::printConsoleAttacked(const CStack * defender, int dmg, int killed, const CStack * attacker, bool multiple)
@@ -2132,7 +2122,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 
 	const bool forcedAction = possibleActions.size() == 1;
 
-	for (PossibleActions action : possibleActions)
+	for (PossiblePlayerBattleAction action : possibleActions)
 	{
 		bool legalAction = false; //this action is legal and can be performed
 		bool notLegal = false; //this action is not legal and should display message
