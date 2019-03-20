@@ -105,6 +105,12 @@ struct CatapultProjectileInfo
 	double calculateY(double x);
 };
 
+enum class MouseHoveredHexContext
+{
+	UNOCCUPIED_HEX,
+	OCCUPIED_HEX
+};
+
 /// Big class which handles the overall battle interface actions and it is also responsible for
 /// drawing everything correctly.
 class CBattleInterface : public WindowBase
@@ -176,6 +182,7 @@ private:
 
 	void getPossibleActionsForStack (const CStack *stack); //called when stack gets its turn
 	void endCastingSpell(); //ends casting spell (eg. when spell has been cast or canceled)
+	void reorderPossibleActionsPriority(const CStack * stack, MouseHoveredHexContext context);
 
 	//force active stack to cast a spell if possible
 	void enterCreatureCastingMode();

@@ -1742,7 +1742,8 @@ void CBattleInterface::getPossibleActionsForStack(const CStack *stack)
 	data.tacticsMode = tacticsMode;
 	data.siegeH = siegeH ? true : false;
 	auto allActions = curInt->cb->getClientActionsForStack(stack, data);
-	//possibleActions = allActions;
+
+	possibleActions = std::vector<PossiblePlayerBattleAction>(allActions);
 #if(0)
 	if (tacticsMode)
 	{
@@ -1794,6 +1795,55 @@ void CBattleInterface::getPossibleActionsForStack(const CStack *stack)
 			possibleActions.push_back(notPriority);
 	}
 #endif
+}
+
+void CBattleInterface::reorderPossibleActionsPriority(const CStack * stack, MouseHoveredHexContext context)
+{
+	if(tacticsMode || possibleActions.empty()) return; //this function is not supposed to be called in tactics mode or before getPossibleActionsForStack
+
+	auto assignPriority = [&](PossiblePlayerBattleAction const & item) -> uint8_t //large lambda assigning priority which would have to be part of possibleActions without it
+	{
+		switch(item)
+		{
+		case AIMED_SPELL_CREATURE:
+		case ANY_LOCATION:
+		case NO_LOCATION:
+		case FREE_LOCATION:
+		case OBSTACLE:
+			if(stack->hasBonusOfType(Bonus::SPELLCAST_BY_DEFAULT) && context == MouseHoveredHexContext::OCCUPIED_HEX)
+				return 1;
+			else
+				return 100;//bottom priority
+			break;
+		case RANDOM_GENIE_SPELL:
+			return 2; break;
+		case RISE_DEMONS:
+			return 3; break;
+		case SHOOT:
+			return 4; break;
+		case ATTACK_AND_RETURN:
+			return 5; break;
+		case ATTACK:
+			return 6; break;
+		case WALK_AND_ATTACK:
+			return 7; break;
+		case MOVE_STACK:
+			return 8; break;
+		case CATAPULT:
+			return 9; break;		
+		case HEAL:
+			return 10; break;	
+		default:
+			return 200; break;
+		}
+	};
+
+	auto comparer = [&](PossiblePlayerBattleAction const & lhs, PossiblePlayerBattleAction const & rhs)
+	{
+		return assignPriority(lhs) > assignPriority(rhs);
+	};
+
+	std::make_heap(possibleActions.begin(), possibleActions.end(), comparer);
 }
 
 void CBattleInterface::printConsoleAttacked(const CStack * defender, int dmg, int killed, const CStack * attacker, bool multiple)
@@ -2120,6 +2170,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 	localActions.clear();
 	illegalActions.clear();
 
+	reorderPossibleActionsPriority(activeStack, shere ? MouseHoveredHexContext::OCCUPIED_HEX : MouseHoveredHexContext::UNOCCUPIED_HEX);
 	const bool forcedAction = possibleActions.size() == 1;
 
 	for (PossiblePlayerBattleAction action : possibleActions)
