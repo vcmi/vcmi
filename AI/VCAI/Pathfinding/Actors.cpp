@@ -16,23 +16,6 @@
 #include "../../../lib/mapping/CMap.h"
 #include "../../../lib/mapObjects/MapObjects.h"
 
-class ExchangeAction : public ISpecialAction
-{
-private:
-	const CGHeroInstance * target;
-	const CGHeroInstance * source;
-
-public:
-	ExchangeAction(const CGHeroInstance * target, const CGHeroInstance * source)
-		:target(target), source(source)
-	{ }
-
-	virtual Goals::TSubgoal whatToDo(const HeroPtr & hero) const override
-	{
-		return Goals::sptr(Goals::VisitHero(target->id.getNum()).sethero(hero));
-	}
-};
-
 ChainActor::ChainActor(const CGHeroInstance * hero, uint64_t chainMask)
 	:hero(hero), isMovable(true), chainMask(chainMask), creatureSet(hero),
 	baseActor(this), carrierParent(nullptr), otherParent(nullptr)
@@ -58,6 +41,11 @@ ChainActor::ChainActor(const CGObjectInstance * obj, const CCreatureSet * creatu
 	initialPosition = obj->visitablePos();
 	layer = EPathfindingLayer::LAND;
 	armyValue = creatureSet->getArmyStrength();
+}
+
+std::string ChainActor::toString() const
+{
+	return hero->name;
 }
 
 HeroActor::HeroActor(const CGHeroInstance * hero, uint64_t chainMask, const VCAI * ai)
@@ -213,7 +201,8 @@ DwellingActor::DwellingActor(const CGDwelling * dwelling, uint64_t chainMask, bo
 		dwelling, 
 		getDwellingCreatures(dwelling, waitForGrowth), 
 		chainMask, 
-		getInitialTurn(waitForGrowth, dayOfWeek))
+		getInitialTurn(waitForGrowth, dayOfWeek)),
+	dwelling(dwelling)
 {
 }
 
@@ -228,6 +217,11 @@ int DwellingActor::getInitialTurn(bool waitForGrowth, int dayOfWeek)
 		return 0;
 
 	return 8 - dayOfWeek;
+}
+
+std::string DwellingActor::toString() const
+{
+	return dwelling->typeName + dwelling->visitablePos().toString();
 }
 
 CCreatureSet * DwellingActor::getDwellingCreatures(const CGDwelling * dwelling, bool waitForGrowth)
@@ -259,6 +253,11 @@ CCreatureSet * DwellingActor::getDwellingCreatures(const CGDwelling * dwelling, 
 }
 
 TownGarrisonActor::TownGarrisonActor(const CGTownInstance * town, uint64_t chainMask)
-	:ChainActor(town, town->getUpperArmy(), chainMask, 0)
+	:ChainActor(town, town->getUpperArmy(), chainMask, 0), town(town)
 {
+}
+
+std::string TownGarrisonActor::toString() const
+{
+	return town->name;
 }

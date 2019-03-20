@@ -56,6 +56,11 @@ void AIPathfinder::updatePaths(std::vector<HeroPtr> heroes, bool useHeroChain)
 	storage->clear();
 	storage->setHeroes(heroes, ai);
 
+	if(useHeroChain)
+	{
+		storage->setTownsAndDwellings(cb->getTownsInfo(), ai->visitableObjs);
+	}
+
 	auto config = std::make_shared<AIPathfinding::AIPathfinderConfig>(cb, ai, storage);
 
 	do {

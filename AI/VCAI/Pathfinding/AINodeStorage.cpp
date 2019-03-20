@@ -172,6 +172,12 @@ void AINodeStorage::commit(CDestinationNodeInfo & destination, const PathNodeInf
 	{
 		commit(dstNode, srcNode, destination.action, destination.turn, destination.movementLeft, destination.cost);
 
+		if(srcNode->specialAction || srcNode->chainOther)
+		{
+			// there is some action on source tile which should be performed before we can bypass it
+			destination.node->theNodeBefore = source.node;
+		}
+
 		if(dstNode->specialAction && dstNode->actor)
 		{
 			dstNode->specialAction->applyOnDestination(dstNode->actor->hero, destination, source, dstNode, srcNode);
@@ -183,7 +189,7 @@ void AINodeStorage::commit(CDestinationNodeInfo & destination, const PathNodeInf
 			source.coord.toString(),
 			destination.coord.toString(),
 			destination.cost,
-			dstNode->actor->hero->name,
+			dstNode->actor->toString(),
 			dstNode->actor->chainMask);
 #endif
 	});
@@ -251,13 +257,19 @@ bool AINodeStorage::calculateHeroChain()
 
 		for(AIPathNode & node : chains)
 		{
+			if(node.coord.x == 60 && node.coord.y == 56 && node.actor)
+				logAi->trace(node.actor->toString());
+
 			if(node.turns <= heroChainMaxTurns && node.action != CGPathNode::ENodeAction::UNKNOWN)
 				buffer.push_back(&node);
 		}
 
 		for(AIPathNode * node : buffer)
 		{
-			addHeroChain(node, buffer);
+			if(node->actor->hero)
+			{
+				addHeroChain(node, buffer);
+			}
 		}
 	});
 
@@ -277,9 +289,9 @@ void AINodeStorage::addHeroChain(AIPathNode * srcNode, std::vector<AIPathNode *>
 #ifdef VCMI_TRACE_PATHFINDER_EX
 		logAi->trace(
 			"Thy exchange %s[%i] -> %s[%i] at %s",
-			node->actor->hero->name,
+			node->actor->toString(),
 			node->actor->chainMask,
-			srcNode->actor->hero->name,
+			srcNode->actor->toString(),
 			srcNode->actor->chainMask,
 			srcNode->coord.toString());
 #endif
@@ -299,9 +311,9 @@ void AINodeStorage::addHeroChain(AIPathNode * carrier, AIPathNode * other)
 #ifdef VCMI_TRACE_PATHFINDER_EX
 		logAi->trace(
 			"Exchange allowed %s[%i] -> %s[%i] at %s",
-			other->actor->hero->name,
+			other->actor->toString(),
 			other->actor->chainMask,
-			carrier->actor->hero->name,
+			carrier->actor->toString(),
 			carrier->actor->chainMask,
 			carrier->coord.toString());
 #endif
@@ -344,8 +356,8 @@ void AINodeStorage::addHeroChain(AIPathNode * carrier, AIPathNode * other)
 			logAi->trace(
 				"Chain accepted at %s %s -> %s, mask %i, cost %f", 
 				chainNode->coord.toString(), 
-				other->actor->hero->name, 
-				chainNode->actor->hero->name,
+				other->actor->toString(), 
+				chainNode->actor->toString(),
 				chainNode->actor->chainMask,
 				chainNode->cost);
 #endif
@@ -430,7 +442,7 @@ void AINodeStorage::setHeroes(std::vector<HeroPtr> heroes, const VCAI * _ai)
 
 void AINodeStorage::setTownsAndDwellings(
 	const std::vector<const CGTownInstance *> & towns,
-	const std::vector<const CGObjectInstance *> & visitableObjs)
+	const std::set<const CGObjectInstance *> & visitableObjs)
 {
 	for(auto town : towns)
 	{

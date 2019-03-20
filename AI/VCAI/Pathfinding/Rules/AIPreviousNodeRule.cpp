@@ -35,13 +35,5 @@ namespace AIPathfinding
 #endif
 			return;
 		}
-
-		auto srcNode = nodeStorage->getAINode(source.node);
-
-		if(srcNode->specialAction || srcNode->chainOther)
-		{
-			// there is some action on source tile which should be performed before we can bypass it
-			destination.node->theNodeBefore = source.node;
-		}
 	}
 }
