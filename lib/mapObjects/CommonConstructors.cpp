@@ -65,9 +65,7 @@ bool CTownInstanceConstructor::objectFilter(const CGObjectInstance * object, con
 		return town->hasBuilt(id);
 	};
 
-	if (filters.count(templ.stringID))
-		return filters.at(templ.stringID).test(buildTest);
-	return false;
+	return filters.count(templ.stringID) != 0 && filters.at(templ.stringID).test(buildTest);
 }
 
 CGObjectInstance * CTownInstanceConstructor::create(const ObjectTemplate & tmpl) const

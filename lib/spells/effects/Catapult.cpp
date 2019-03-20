@@ -59,11 +59,8 @@ bool Catapult::applicable(Problem & problem, const Mechanics * m) const
 	}
 
 	const auto attackableBattleHexes = m->cb->getAttackableBattleHexes();
-
-	if(attackableBattleHexes.empty())
-		return m->adaptProblem(ESpellCastProblem::NO_APPROPRIATE_TARGET, problem);
-
-	return true;
+	
+	return !attackableBattleHexes.empty() || m->adaptProblem(ESpellCastProblem::NO_APPROPRIATE_TARGET, problem);
 }
 
 void Catapult::apply(BattleStateProxy * battleState, RNG & rng, const Mechanics * m, const EffectTarget & /* eTarget */) const

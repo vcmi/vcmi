@@ -93,13 +93,7 @@ EffectTarget UnitEffect::filterTarget(const Mechanics * m, const EffectTarget & 
 	EffectTarget res;
 	vstd::copy_if(target, std::back_inserter(res), [this, m](const Destination & d)
 	{
-		if(!d.unitValue)
-			return false;
-		if(!isValidTarget(m, d.unitValue))
-			return false;
-		if(!isReceptive(m, d.unitValue))
-			return false;
-		return true;
+		return d.unitValue && isValidTarget(m, d.unitValue) && isReceptive(m, d.unitValue);
 	});
 	return res;
 }
@@ -271,10 +265,7 @@ bool UnitEffect::isReceptive(const Mechanics * m, const battle::Unit * unit) con
 		//SPELL_IMMUNITY absolute case
 		std::stringstream cachingStr;
 		cachingStr << "type_" << Bonus::SPELL_IMMUNITY << "subtype_" << m->getSpellIndex() << "addInfo_1";
-		if(unit->hasBonus(Selector::typeSubtypeInfo(Bonus::SPELL_IMMUNITY, m->getSpellIndex(), 1), cachingStr.str()))
-			return false;
-
-		return true;
+		return !unit->hasBonus(Selector::typeSubtypeInfo(Bonus::SPELL_IMMUNITY, m->getSpellIndex(), 1), cachingStr.str());
 	}
 	else
 	{

@@ -721,10 +721,7 @@ bool CUnitState::canMove(int turn) const
 
 bool CUnitState::defended(int turn) const
 {
-	if(!turn)
-		return defending;
-	else
-		return false;
+	return !turn && defending;
 }
 
 bool CUnitState::moved(int turn) const
