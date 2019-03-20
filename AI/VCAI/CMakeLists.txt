@@ -1,10 +1,3 @@
-if(FL_FOUND)
-	include_directories(${FL_INCLUDE_DIRS})
-else()
-	include_directories(${CMAKE_HOME_DIRECTORY}/AI/FuzzyLite/fuzzylite)
-endif()
-include_directories(${Boost_INCLUDE_DIRS} ${CMAKE_HOME_DIRECTORY} ${CMAKE_HOME_DIRECTORY}/include ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_HOME_DIRECTORY}/lib)
-
 set(VCAI_SRCS
 		StdInc.cpp
 
@@ -113,10 +106,18 @@ if(ANDROID) # android compiles ai libs into main lib directly, so we skip this l
 endif()
 
 add_library(VCAI SHARED ${VCAI_SRCS} ${VCAI_HEADERS})
+
 if(FL_FOUND)
-	target_link_libraries(VCAI ${FL_LIBRARIES} vcmi)
+	target_include_directories(VCAI PUBLIC ${FL_INCLUDE_DIRS})
 else()
-	target_link_libraries(VCAI fl-static vcmi)
+	target_include_directories(VCAI PUBLIC ${CMAKE_HOME_DIRECTORY}/AI/FuzzyLite/fuzzylite)
+endif()
+target_include_directories(VCAI PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(FL_FOUND)
+	target_link_libraries(VCAI PRIVATE ${FL_LIBRARIES} vcmi)
+else()
+	target_link_libraries(VCAI PRIVATE fl-static vcmi)
 endif()
 
 vcmi_set_output_dir(VCAI "AI")

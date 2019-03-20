@@ -24,7 +24,7 @@ endif()
 
 add_executable(vcmiserver ${server_SRCS} ${server_HEADERS})
 
-target_link_libraries(vcmiserver vcmi ${Boost_LIBRARIES} ${SYSTEM_LIBS})
+target_link_libraries(vcmiserver PRIVATE vcmi)
 
 target_include_directories(vcmiserver
 	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}

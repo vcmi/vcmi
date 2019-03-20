@@ -1,5 +1,3 @@
-include_directories(${Boost_INCLUDE_DIRS} ${CMAKE_HOME_DIRECTORY} ${CMAKE_HOME_DIRECTORY}/include ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_HOME_DIRECTORY}/lib)
-
 set(battleAI_SRCS
 		StdInc.cpp
 
@@ -34,7 +32,8 @@ if(ANDROID) # android compiles ai libs into main lib directly, so we skip this l
 endif()
 
 add_library(BattleAI SHARED ${battleAI_SRCS} ${battleAI_HEADERS})
-target_link_libraries(BattleAI vcmi)
+target_include_directories(BattleAI PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(BattleAI PRIVATE vcmi)
 
 vcmi_set_output_dir(BattleAI "AI")
 
