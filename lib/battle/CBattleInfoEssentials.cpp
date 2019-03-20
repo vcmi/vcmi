@@ -422,8 +422,5 @@ bool CBattleInfoEssentials::battleMatchOwner(const PlayerColor & attacker, const
 
 	PlayerColor initialOwner = getBattle()->getSidePlayer(defender->unitSide());
 
-	if(boost::logic::indeterminate(positivness))
-		return true;
-	else
-		return (attacker == initialOwner) == (bool)positivness;
+	return boost::logic::indeterminate(positivness) || (attacker == initialOwner) == (bool)positivness;
 }

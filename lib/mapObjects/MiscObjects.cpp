@@ -1279,12 +1279,8 @@ void CGWhirlpool::teleportDialogAnswered(const CGHeroInstance *hero, ui32 answer
 
 bool CGWhirlpool::isProtected(const CGHeroInstance * h)
 {
-	if(h->hasBonusOfType(Bonus::WHIRLPOOL_PROTECTION) ||
-		(h->stacksCount() == 1 && h->Slots().begin()->second->count == 1)) //we can't remove last unit
-	{
-		return true;
-	}
-	return false;
+	return h->hasBonusOfType(Bonus::WHIRLPOOL_PROTECTION)
+	|| (h->stacksCount() == 1 && h->Slots().begin()->second->count == 1);
 }
 
 void CGArtifact::initObj(CRandomGenerator & rand)

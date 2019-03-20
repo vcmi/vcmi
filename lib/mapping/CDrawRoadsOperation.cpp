@@ -309,16 +309,7 @@ CDrawRoadsOperation::ValidationResult CDrawRoadsOperation::validateTile(const Ro
 
 			int3 currentPos(cx, cy, pos.z);
 
-			bool hasSomething;
-
-			if(!map->isInTheMap(currentPos))
-			{
-				hasSomething = true; //road/river can go out of map
-			}
-			else
-			{
-				hasSomething = tileHasSomething(currentPos);
-			}
+			bool hasSomething = !map->isInTheMap(currentPos) || tileHasSomething(currentPos);
 
 			if(ruleIsSomething(flipped.data[i]))
 			{

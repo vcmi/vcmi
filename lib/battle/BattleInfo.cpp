@@ -876,10 +876,7 @@ void BattleInfo::setUnitState(uint32_t id, const JsonNode & data, int64_t health
 		auto selector = [](const Bonus * b)
 		{
 			//Special case: DISRUPTING_RAY is absolutely permanent
-			if(b->source == Bonus::SPELL_EFFECT)
-				return b->sid != SpellID::DISRUPTING_RAY;
-			else
-				return false;
+			return b->source == Bonus::SPELL_EFFECT && b->sid != SpellID::DISRUPTING_RAY;
 		};
 		changedStack->removeBonusesRecursive(selector);
 	}

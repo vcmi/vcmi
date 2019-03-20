@@ -165,7 +165,7 @@ si64 CCompressedStream::readMore(ui8 *data, si64 size)
 				throw std::runtime_error(std::string("Decompression error: ") + inflateState->msg);
 		}
 	}
-	while (endLoop == false && inflateState->avail_out != 0 );
+	while (!endLoop && inflateState->avail_out != 0 );
 
 	decompressed = inflateState->total_out - decompressed;
 

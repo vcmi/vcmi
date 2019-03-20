@@ -308,14 +308,7 @@ bool CStack::unitHasAmmoCart(const battle::Unit * unit) const
 	{
 		if(battle->battleMatchOwner(st, unit, true) && st->getCreature()->idNumber == CreatureID::AMMO_CART)
 		{
-			if(st->alive())
-			{
-				return true;
-			}
-			else
-			{
-				return false;
-			}
+			return st->alive();
 		}
 	}
 	//ammo cart works during creature bank battle while not on battlefield

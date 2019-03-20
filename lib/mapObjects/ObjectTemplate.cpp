@@ -44,9 +44,7 @@ static bool isOnVisitableFromTopList(int identifier, int type)
 		Obj::QUEST_GUARD,
 		Obj::CORPSE
 	};
-	if (vstd::find_pos(visitableFromTop, identifier) != -1)
-		return true;
-	return false;
+	return vstd::find_pos(visitableFromTop, identifier) != -1;
 }
 
 ObjectTemplate::ObjectTemplate():
@@ -430,30 +428,22 @@ bool ObjectTemplate::isWithin(si32 X, si32 Y) const
 {
 	if (X < 0 || Y < 0)
 		return false;
-	if (X >= getWidth() || Y >= getHeight())
-		return false;
-	return true;
+	return !(X >= getWidth() || Y >= getHeight());
 }
 
 bool ObjectTemplate::isVisitableAt(si32 X, si32 Y) const
 {
-	if (isWithin(X, Y))
-		return usedTiles[Y][X] & VISITABLE;
-	return false;
+	return isWithin(X, Y) && usedTiles[Y][X] & VISITABLE;
 }
 
 bool ObjectTemplate::isVisibleAt(si32 X, si32 Y) const
 {
-	if (isWithin(X, Y))
-		return usedTiles[Y][X] & VISIBLE;
-	return false;
+	return isWithin(X, Y) && usedTiles[Y][X] & VISIBLE;
 }
 
 bool ObjectTemplate::isBlockedAt(si32 X, si32 Y) const
 {
-	if (isWithin(X, Y))
-		return usedTiles[Y][X] & BLOCKED;
-	return false;
+	return isWithin(X, Y) && usedTiles[Y][X] & BLOCKED;
 }
 
 std::set<int3> ObjectTemplate::getBlockedOffsets() const

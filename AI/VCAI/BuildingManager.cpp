@@ -225,10 +225,7 @@ bool BuildingManager::getBuildingOptions(const CGTownInstance * t)
 		if (buildingInfo.first > 43)
 			extraBuildings.push_back(buildingInfo.first);
 	}
-	if (tryBuildAnyStructure(t, extraBuildings))
-		return true;
-
-	return false;
+	return tryBuildAnyStructure(t, extraBuildings);
 }
 
 BuildingID BuildingManager::getMaxPossibleGoldBuilding(const CGTownInstance * t)
