@@ -125,14 +125,23 @@ Goals::TGoalVec PathfindingManager::findPaths(
 
 	for(auto path : chainInfo)
 	{
-		if(hero && hero.get() != path.targetHero)
+		if(hero && hero.get() != path.targetHero || path.nodes.empty())
 			continue;
 
-		int3 firstTileToGet = path.firstTileToGet();
+		const AIPathNodeInfo & firstNode = path.firstNode();
+		int3 firstTileToGet = firstNode.coord;
+
 #ifdef VCMI_TRACE_PATHFINDER
-		logAi->trace("Path found size=%i, first tile=%s", path.nodes.size(), firstTileToGet.toString());
+		std::stringstream str;
+
+		str << "Path found ";
+
+		for(auto node : path.nodes)
+			str << node.targetHero->name << "->" << node.coord.toString() << "; ";
+
+		logAi->trace(str.str());
 #endif
-		if(firstTileToGet.valid() && ai->isTileNotReserved(hero.get(), firstTileToGet))
+		if(ai->isTileNotReserved(hero.get(), firstTileToGet))
 		{
 			danger = path.getTotalDanger(hero);
 
@@ -148,7 +157,7 @@ Goals::TGoalVec PathfindingManager::findPaths(
 				{
 					solution = dest == firstTileToGet
 						? doVisitTile(firstTileToGet)
-						: clearWayTo(hero, firstTileToGet);
+						: clearWayTo(firstNode.targetHero, firstTileToGet);
 				}
 
 				if(solution->invalid())
@@ -161,7 +170,13 @@ Goals::TGoalVec PathfindingManager::findPaths(
 				solution->evaluationContext.armyLoss += path.armyLoss;
 				solution->evaluationContext.heroStrength = path.getHeroStrength();
 #ifdef VCMI_TRACE_PATHFINDER
-				logAi->trace("It's safe for %s to visit tile %s with danger %s, goal %s", hero->name, dest.toString(), std::to_string(danger), solution->name());
+				logAi->trace("It's safe for %s to visit tile %s with danger %s, loss %s, army strength %s, goal %s", 
+					hero->name, 
+					dest.toString(), 
+					std::to_string(danger),
+					std::to_string(path.armyLoss),
+					std::to_string(path.heroArmy->getArmyStrength()),
+					solution->name());
 #endif
 				result.push_back(solution);
 
@@ -210,9 +225,7 @@ Goals::TSubgoal PathfindingManager::clearWayTo(HeroPtr hero, int3 firstTileToGet
 		{
 			if(topObj != hero.get(true)) //the hero we want to free
 			{
-				logAi->error("%s stands in the way of %s", topObj->getObjectName(), hero->getObjectName());
-
-				return sptr(Goals::Invalid());
+				logAi->warn("%s stands in the way of %s", topObj->getObjectName(), hero->getObjectName());
 			}
 		}
 
@@ -240,13 +253,8 @@ Goals::TSubgoal PathfindingManager::clearWayTo(HeroPtr hero, int3 firstTileToGet
 	return sptr(Goals::VisitTile(firstTileToGet).sethero(hero).setisAbstract(true));
 }
 
-void PathfindingManager::updatePaths(std::vector<HeroPtr> heroes)
+void PathfindingManager::updatePaths(std::vector<HeroPtr> heroes, bool useHeroChain)
 {
 	logAi->debug("AIPathfinder has been reseted.");
-	pathfinder->updatePaths(heroes);
-}
-
-void PathfindingManager::updatePaths(const HeroPtr & hero)
-{
-	pathfinder->updatePaths(hero);
+	pathfinder->updatePaths(heroes, useHeroChain);
 }

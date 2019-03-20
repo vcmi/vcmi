@@ -11,6 +11,7 @@
 #pragma once
 
 #define VCMI_TRACE_PATHFINDER
+#define VCMI_TRACE_PATHFINDER_EX
 
 #include "../../../lib/CPathfinder.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
@@ -19,6 +20,7 @@
 #include "../Goals/AbstractGoal.h"
 #include "Actions/ISpecialAction.h"
 #include "Actors.h"
+#include <inttypes.h>
 
 struct AIPathNode : public CGPathNode
 {
@@ -47,6 +49,7 @@ struct AIPath
 	uint64_t armyLoss;
 	const CGHeroInstance * targetHero;
 	const CCreatureSet * heroArmy;
+	uint64_t chainMask;
 
 	AIPath();
 
@@ -57,6 +60,8 @@ struct AIPath
 	uint64_t getTotalDanger(HeroPtr hero) const;
 
 	int3 firstTileToGet() const;
+
+	const AIPathNodeInfo & firstNode() const;
 
 	float movementCost() const;
 
@@ -76,6 +81,7 @@ private:
 	std::vector<std::shared_ptr<ChainActor>> actors;
 	std::vector<CGPathNode *> heroChain;
 	bool heroChainPass; // true if we need to calculate hero chain
+	int heroChainMaxTurns = 0;
 
 public:
 	/// more than 1 chain layer for each hero allows us to have more than 1 path to each tile so we can chose more optimal one.
@@ -108,6 +114,9 @@ public:
 	std::vector<AIPath> getChainInfo(const int3 & pos, bool isOnLand) const;
 	bool isTileAccessible(const HeroPtr & hero, const int3 & pos, const EPathfindingLayer layer) const;
 	void setHeroes(std::vector<HeroPtr> heroes, const VCAI * ai);
+	void setTownsAndDwellings(
+		const std::vector<const CGTownInstance *> & towns,
+		const std::vector<const CGObjectInstance *> & visitableObjs);
 	const CGHeroInstance * getHero(const CGPathNode * node) const;
 	const std::set<const CGHeroInstance *> getAllHeroes() const;
 	void clear();
@@ -121,7 +130,7 @@ public:
 private:
 	STRONG_INLINE
 	void resetTile(const int3 & tile, EPathfindingLayer layer, CGPathNode::EAccessibility accessibility);
-	void addHeroChain(AIPathNode * srcNode);
+	void addHeroChain(AIPathNode * srcNode, std::vector<AIPathNode *> variants);
 	void addHeroChain(AIPathNode * carrier, AIPathNode * other);
 	void calculateTownPortalTeleportations(const PathNodeInfo & source, std::vector<CGPathNode *> & neighbours);
 	void fillChainInfo(const AIPathNode * node, AIPath & path) const;
@@ -133,7 +142,7 @@ private:
 		int movementLeft, 
 		float cost) const;
 
-	void AINodeStorage::commitExchange(
+	bool AINodeStorage::commitExchange(
 		AIPathNode * exchangeNode, 
 		AIPathNode * carrierParentNode, 
 		AIPathNode * otherParentNode) const;

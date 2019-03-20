@@ -367,17 +367,30 @@ ESpellCastResult TownPortalMechanics::applyAdventureEffects(const SpellCastEnvir
     else if(env->getMap()->isInTheMap(parameters.pos))
 	{
 		const TerrainTile & tile = env->getMap()->getTile(parameters.pos);
-		if(tile.visitableObjects.empty() || tile.visitableObjects.back()->ID != Obj::TOWN)
+
+		const auto topObj = tile.topVisitableObj(false);
+
+		if(!topObj)
 		{
-			env->complain("No town at destination tile");
+			env->complain("Destination tile is not visitable" + parameters.pos.toString());
+			return ESpellCastResult::ERROR;
+		}
+		else if(topObj->ID == Obj::HERO)
+		{
+			env->complain("Can't teleport to occupied town at " + parameters.pos.toString());
+			return ESpellCastResult::ERROR;
+		}
+		else if(topObj->ID != Obj::TOWN)
+		{
+			env->complain("No town at destination tile " + parameters.pos.toString());
 			return ESpellCastResult::ERROR;
 		}
 
-		destination = dynamic_cast<CGTownInstance*>(tile.visitableObjects.back());
+		destination = dynamic_cast<const CGTownInstance*>(topObj);
 
 		if(nullptr == destination)
 		{
-			env->complain("[Internal error] invalid town object");
+			env->complain("[Internal error] invalid town object at " + parameters.pos.toString());
 			return ESpellCastResult::ERROR;
 		}
 
@@ -397,7 +410,7 @@ ESpellCastResult TownPortalMechanics::applyAdventureEffects(const SpellCastEnvir
 
 		if(destination->visitingHero)
 		{
-			env->complain("Can't teleport to occupied town!");
+			env->complain("[Internal error] Can't teleport to occupied town");
 			return ESpellCastResult::ERROR;
 		}
 	}
