@@ -46,7 +46,7 @@ set(VCMI_VERSION_PATCH 0)
 
 option(ENABLE_ERM "Enable compilation of ERM scripting module" OFF)
 option(ENABLE_LAUNCHER "Enable compilation of launcher" ON)
-option(ENABLE_TEST "Enable compilation of unit tests" OFF)
+option(ENABLE_TEST "Enable compilation of unit tests" ON)
 option(ENABLE_PCH "Enable compilation using precompiled headers" ON)
 option(ENABLE_GITVERSION "Enable Version.cpp with Git commit hash" ON)
 option(ENABLE_DEBUG_CONSOLE "Enable debug console for Windows builds" ON)

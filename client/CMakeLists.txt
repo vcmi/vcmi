@@ -173,9 +173,9 @@ if(WIN32)
 	endif()
 endif()
 
-target_link_libraries(vcmiclient vcmi ${Boost_LIBRARIES}
-	${SDL2_LIBRARY} ${SDL2_IMAGE_LIBRARY} ${SDL2_MIXER_LIBRARY} ${SDL2_TTF_LIBRARY}
-	${ZLIB_LIBRARIES} ${FFMPEG_LIBRARIES} ${FFMPEG_EXTRA_LINKING_OPTIONS} ${SYSTEM_LIBS}
+target_link_libraries(vcmiclient PRIVATE
+		vcmi ${SDL2_LIBRARY} ${SDL2_IMAGE_LIBRARY} ${SDL2_MIXER_LIBRARY} ${SDL2_TTF_LIBRARY}
+		${FFMPEG_LIBRARIES} ${FFMPEG_EXTRA_LINKING_OPTIONS}
 )
 
 target_include_directories(vcmi
