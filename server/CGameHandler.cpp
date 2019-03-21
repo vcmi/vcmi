@@ -1641,7 +1641,7 @@ void CGameHandler::newTurn()
 			n.specialWeek = NewTurn::DEITYOFFIRE;
 			n.creatureid = CreatureID::IMP;
 		}
-		else
+		else if(!VLC->modh->settings.NO_RANDOM_SPECIAL_WEEKS_AND_MONTHS)
 		{
 			int monthType = getRandomGenerator().nextInt(99);
 			if (newMonth) //new month
