@@ -16,48 +16,39 @@
 #include "../../../lib/mapping/CMap.h"
 #include "../../../lib/mapObjects/MapObjects.h"
 
-class ExchangeAction : public ISpecialAction
-{
-private:
-	const CGHeroInstance * target;
-	const CGHeroInstance * source;
-
-public:
-	ExchangeAction(const CGHeroInstance * target, const CGHeroInstance * source)
-		:target(target), source(source)
-	{ }
-
-	virtual Goals::TSubgoal whatToDo(const HeroPtr & hero) const override
-	{
-		return Goals::sptr(Goals::VisitHero(target->id.getNum()).sethero(hero));
-	}
-};
-
 ChainActor::ChainActor(const CGHeroInstance * hero, uint64_t chainMask)
 	:hero(hero), isMovable(true), chainMask(chainMask), creatureSet(hero),
-	baseActor(this), carrierParent(nullptr), otherParent(nullptr)
+	baseActor(this), carrierParent(nullptr), otherParent(nullptr), actorExchangeCount(1), armyCost()
 {
 	initialPosition = hero->visitablePos();
 	layer = hero->boat ? EPathfindingLayer::SAIL : EPathfindingLayer::LAND;
 	initialMovement = hero->movement;
 	initialTurn = 0;
 	armyValue = hero->getArmyStrength();
+	heroFightingStrength = hero->getFightingStrength();
 }
 
 ChainActor::ChainActor(const ChainActor * carrier, const ChainActor * other, const CCreatureSet * heroArmy)
 	:hero(carrier->hero), isMovable(true), creatureSet(heroArmy), chainMask(carrier->chainMask | other->chainMask),
-	baseActor(this), carrierParent(carrier), otherParent(other)
+	baseActor(this), carrierParent(carrier), otherParent(other), heroFightingStrength(carrier->heroFightingStrength),
+	actorExchangeCount(carrier->actorExchangeCount + other->actorExchangeCount), armyCost(carrier->armyCost + other->armyCost)
 {
 	armyValue = heroArmy->getArmyStrength();
 }
 
 ChainActor::ChainActor(const CGObjectInstance * obj, const CCreatureSet * creatureSet, uint64_t chainMask, int initialTurn)
 	:hero(nullptr), isMovable(false), creatureSet(creatureSet), chainMask(chainMask),
-	baseActor(this), carrierParent(nullptr), otherParent(nullptr), initialTurn(initialTurn), initialMovement(0)
+	baseActor(this), carrierParent(nullptr), otherParent(nullptr), initialTurn(initialTurn), initialMovement(0),
+	heroFightingStrength(0), actorExchangeCount(1), armyCost()
 {
 	initialPosition = obj->visitablePos();
 	layer = EPathfindingLayer::LAND;
 	armyValue = creatureSet->getArmyStrength();
+}
+
+std::string ChainActor::toString() const
+{
+	return hero->name;
 }
 
 HeroActor::HeroActor(const CGHeroInstance * hero, uint64_t chainMask, const VCAI * ai)
@@ -89,6 +80,8 @@ void ChainActor::setBaseActor(HeroActor * base)
 	chainMask = base->chainMask;
 	creatureSet = base->creatureSet;
 	isMovable = base->isMovable;
+	heroFightingStrength = base->heroFightingStrength;
+	armyCost = base->armyCost;
 }
 
 void HeroActor::setupSpecialActors()
@@ -153,6 +146,17 @@ bool HeroExchangeMap::canExchange(const ChainActor * other)
 
 		if(result)
 		{
+			if(other->armyCost.nonZero())
+			{
+				TResources resources = ai->myCb->getResourceAmount();
+
+				if(!resources.canAfford(actor->armyCost + other->armyCost))
+				{
+					result = false;
+					return;
+				}
+			}
+
 			uint64_t reinforcment = ai->ah->howManyReinforcementsCanGet(actor->creatureSet, other->creatureSet);
 
 			result = reinforcment > actor->armyValue / 10 || reinforcment > 1000;
@@ -213,8 +217,13 @@ DwellingActor::DwellingActor(const CGDwelling * dwelling, uint64_t chainMask, bo
 		dwelling, 
 		getDwellingCreatures(dwelling, waitForGrowth), 
 		chainMask, 
-		getInitialTurn(waitForGrowth, dayOfWeek))
+		getInitialTurn(waitForGrowth, dayOfWeek)),
+	dwelling(dwelling)
 {
+	for(auto & slot : creatureSet->Slots())
+	{
+		armyCost += slot.second->getCreatureID().toCreature()->cost * slot.second->count;
+	}
 }
 
 DwellingActor::~DwellingActor()
@@ -228,6 +237,11 @@ int DwellingActor::getInitialTurn(bool waitForGrowth, int dayOfWeek)
 		return 0;
 
 	return 8 - dayOfWeek;
+}
+
+std::string DwellingActor::toString() const
+{
+	return dwelling->typeName + dwelling->visitablePos().toString();
 }
 
 CCreatureSet * DwellingActor::getDwellingCreatures(const CGDwelling * dwelling, bool waitForGrowth)
@@ -259,6 +273,11 @@ CCreatureSet * DwellingActor::getDwellingCreatures(const CGDwelling * dwelling, 
 }
 
 TownGarrisonActor::TownGarrisonActor(const CGTownInstance * town, uint64_t chainMask)
-	:ChainActor(town, town->getUpperArmy(), chainMask, 0)
+	:ChainActor(town, town->getUpperArmy(), chainMask, 0), town(town)
 {
+}
+
+std::string TownGarrisonActor::toString() const
+{
+	return town->name;
 }

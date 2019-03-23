@@ -68,6 +68,12 @@ struct AIPath
 	uint64_t getHeroStrength() const;
 };
 
+struct ExchangeCandidate : public AIPathNode
+{
+	AIPathNode * carrierParent;
+	AIPathNode * otherParent;
+};
+
 class AINodeStorage : public INodeStorage
 {
 private:
@@ -85,7 +91,7 @@ private:
 
 public:
 	/// more than 1 chain layer for each hero allows us to have more than 1 path to each tile so we can chose more optimal one.
-	static const int NUM_CHAINS = 3 * GameConstants::MAX_HEROES_PER_PLAYER;
+	static const int NUM_CHAINS = 5 * GameConstants::MAX_HEROES_PER_PLAYER;
 	
 	AINodeStorage(const int3 & sizes);
 	~AINodeStorage();
@@ -110,13 +116,20 @@ public:
 	void updateAINode(CGPathNode * node, std::function<void (AIPathNode *)> updater);
 
 	bool hasBetterChain(const PathNodeInfo & source, CDestinationNodeInfo & destination) const;
+
+	template<class NodeRange>
+	bool hasBetterChain(
+		const CGPathNode * source, 
+		const AIPathNode * destinationNode,
+		const NodeRange & chains) const;
+
 	boost::optional<AIPathNode *> getOrCreateNode(const int3 & coord, const EPathfindingLayer layer, const ChainActor * actor);
 	std::vector<AIPath> getChainInfo(const int3 & pos, bool isOnLand) const;
 	bool isTileAccessible(const HeroPtr & hero, const int3 & pos, const EPathfindingLayer layer) const;
 	void setHeroes(std::vector<HeroPtr> heroes, const VCAI * ai);
 	void setTownsAndDwellings(
 		const std::vector<const CGTownInstance *> & towns,
-		const std::vector<const CGObjectInstance *> & visitableObjs);
+		const std::set<const CGObjectInstance *> & visitableObjs);
 	const CGHeroInstance * getHero(const CGPathNode * node) const;
 	const std::set<const CGHeroInstance *> getAllHeroes() const;
 	void clear();
@@ -130,8 +143,20 @@ public:
 private:
 	STRONG_INLINE
 	void resetTile(const int3 & tile, EPathfindingLayer layer, CGPathNode::EAccessibility accessibility);
-	void addHeroChain(AIPathNode * srcNode, std::vector<AIPathNode *> variants);
-	void addHeroChain(AIPathNode * carrier, AIPathNode * other);
+
+	void calculateHeroChain(
+		AIPathNode * srcNode, 
+		const std::vector<AIPathNode *> & variants, 
+		std::vector<ExchangeCandidate> & result) const;
+
+	void calculateHeroChain(
+		AIPathNode * carrier, 
+		AIPathNode * other, 
+		std::vector<ExchangeCandidate> & result) const;
+	
+	void cleanupInefectiveChains(std::vector<ExchangeCandidate> & result) const;
+	void addHeroChain(const std::vector<ExchangeCandidate> & result);
+
 	void calculateTownPortalTeleportations(const PathNodeInfo & source, std::vector<CGPathNode *> & neighbours);
 	void fillChainInfo(const AIPathNode * node, AIPath & path) const;
 	void commit(
@@ -142,8 +167,8 @@ private:
 		int movementLeft, 
 		float cost) const;
 
-	bool AINodeStorage::commitExchange(
-		AIPathNode * exchangeNode, 
+	ExchangeCandidate calculateExchange(
+		ChainActor * exchangeActor, 
 		AIPathNode * carrierParentNode, 
 		AIPathNode * otherParentNode) const;
 };
