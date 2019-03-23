@@ -3935,30 +3935,36 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 		}
 	case EActionType::DEFEND:
 		{
-			//defensive stance
+			//defensive stance, TODO: filter out spell boosts from bonus (stone skin etc.)
 			SetStackEffect sse;
-			Bonus bonus1(Bonus::STACK_GETS_TURN, Bonus::PRIMARY_SKILL, Bonus::OTHER, 20, -1, PrimarySkill::DEFENSE, Bonus::PERCENT_TO_ALL);
+			Bonus defenseBonusToAdd(Bonus::STACK_GETS_TURN, Bonus::PRIMARY_SKILL, Bonus::OTHER, 20, -1, PrimarySkill::DEFENSE, Bonus::PERCENT_TO_ALL);
 			Bonus bonus2(Bonus::STACK_GETS_TURN, Bonus::PRIMARY_SKILL, Bonus::OTHER, stack->valOfBonuses(Bonus::DEFENSIVE_STANCE),
 				 -1, PrimarySkill::DEFENSE, Bonus::ADDITIVE_VALUE);
+			Bonus alternativeWeakCreatureBonus(Bonus::STACK_GETS_TURN, Bonus::PRIMARY_SKILL, Bonus::OTHER, 1, -1, PrimarySkill::DEFENSE, Bonus::ADDITIVE_VALUE);
+
 			BonusList defence = *stack->getBonuses(Selector::typeSubtype(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE));
 			int oldDefenceValue = defence.totalValue();
 
-			defence.push_back(std::make_shared<Bonus>(bonus1));
+			defence.push_back(std::make_shared<Bonus>(defenseBonusToAdd));
 			defence.push_back(std::make_shared<Bonus>(bonus2));
 
 			int difference = defence.totalValue() - oldDefenceValue;
+			std::vector<Bonus> buffer;
+			if(difference == 0) //give replacement bonus for creatures not reaching 5 defense points (20% of def becomes 0)
+			{
+				difference = 1;
+				buffer.push_back(alternativeWeakCreatureBonus);
+			}
+			else
+				buffer.push_back(defenseBonusToAdd);
+
+			buffer.push_back(bonus2);
 
 			MetaString text;
 			stack->addText(text, MetaString::GENERAL_TXT, 120);
 			stack->addNameReplacement(text);
 			text.addReplacement(difference);
-
 			sse.battleLog.push_back(text);
-
-			std::vector<Bonus> buffer;
-			buffer.push_back(bonus1);
-			buffer.push_back(bonus2);
-
 			sse.toUpdate.push_back(std::make_pair(ba.stackNumber, buffer));
 			sendAndApply(&sse);
 
