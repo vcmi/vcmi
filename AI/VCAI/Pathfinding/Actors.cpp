@@ -18,7 +18,7 @@
 
 ChainActor::ChainActor(const CGHeroInstance * hero, uint64_t chainMask)
 	:hero(hero), isMovable(true), chainMask(chainMask), creatureSet(hero),
-	baseActor(this), carrierParent(nullptr), otherParent(nullptr), actorExchangeCount(1)
+	baseActor(this), carrierParent(nullptr), otherParent(nullptr), actorExchangeCount(1), armyCost()
 {
 	initialPosition = hero->visitablePos();
 	layer = hero->boat ? EPathfindingLayer::SAIL : EPathfindingLayer::LAND;
@@ -31,7 +31,7 @@ ChainActor::ChainActor(const CGHeroInstance * hero, uint64_t chainMask)
 ChainActor::ChainActor(const ChainActor * carrier, const ChainActor * other, const CCreatureSet * heroArmy)
 	:hero(carrier->hero), isMovable(true), creatureSet(heroArmy), chainMask(carrier->chainMask | other->chainMask),
 	baseActor(this), carrierParent(carrier), otherParent(other), heroFightingStrength(carrier->heroFightingStrength),
-	actorExchangeCount(carrier->actorExchangeCount + other->actorExchangeCount)
+	actorExchangeCount(carrier->actorExchangeCount + other->actorExchangeCount), armyCost(carrier->armyCost + other->armyCost)
 {
 	armyValue = heroArmy->getArmyStrength();
 }
@@ -39,7 +39,7 @@ ChainActor::ChainActor(const ChainActor * carrier, const ChainActor * other, con
 ChainActor::ChainActor(const CGObjectInstance * obj, const CCreatureSet * creatureSet, uint64_t chainMask, int initialTurn)
 	:hero(nullptr), isMovable(false), creatureSet(creatureSet), chainMask(chainMask),
 	baseActor(this), carrierParent(nullptr), otherParent(nullptr), initialTurn(initialTurn), initialMovement(0),
-	heroFightingStrength(0), actorExchangeCount(1)
+	heroFightingStrength(0), actorExchangeCount(1), armyCost()
 {
 	initialPosition = obj->visitablePos();
 	layer = EPathfindingLayer::LAND;
@@ -81,6 +81,7 @@ void ChainActor::setBaseActor(HeroActor * base)
 	creatureSet = base->creatureSet;
 	isMovable = base->isMovable;
 	heroFightingStrength = base->heroFightingStrength;
+	armyCost = base->armyCost;
 }
 
 void HeroActor::setupSpecialActors()
@@ -145,6 +146,17 @@ bool HeroExchangeMap::canExchange(const ChainActor * other)
 
 		if(result)
 		{
+			if(other->armyCost.nonZero())
+			{
+				TResources resources = ai->myCb->getResourceAmount();
+
+				if(!resources.canAfford(actor->armyCost + other->armyCost))
+				{
+					result = false;
+					return;
+				}
+			}
+
 			uint64_t reinforcment = ai->ah->howManyReinforcementsCanGet(actor->creatureSet, other->creatureSet);
 
 			result = reinforcment > actor->armyValue / 10 || reinforcment > 1000;
@@ -208,6 +220,10 @@ DwellingActor::DwellingActor(const CGDwelling * dwelling, uint64_t chainMask, bo
 		getInitialTurn(waitForGrowth, dayOfWeek)),
 	dwelling(dwelling)
 {
+	for(auto & slot : creatureSet->Slots())
+	{
+		armyCost += slot.second->getCreatureID().toCreature()->cost * slot.second->count;
+	}
 }
 
 DwellingActor::~DwellingActor()
