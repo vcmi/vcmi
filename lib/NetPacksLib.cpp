@@ -1422,6 +1422,7 @@ DLL_LINKAGE void StartAction::applyGs(CGameState *gs)
 	case EActionType::WAIT:
 		st->defendingAnim = false;
 		st->waiting = true;
+		st->waitedThisTurn = true;
 		break;
 	case EActionType::HERO_SPELL: //no change in current stack state
 		break;

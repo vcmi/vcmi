@@ -1908,7 +1908,7 @@ void CBattleInterface::blockUI(bool on)
 		canCastSpells = spellcastingProblem == ESpellCastProblem::OK || spellcastingProblem == ESpellCastProblem::MAGIC_IS_BLOCKED;
 	}
 
-	bool canWait = activeStack ? !activeStack->waited() : false;
+	bool canWait = activeStack ? !activeStack->waitedThisTurn : false;
 
 	bOptions->block(on);
 	bFlee->block(on || !curInt->cb->battleCanFlee());
