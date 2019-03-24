@@ -181,6 +181,7 @@ public:
 	bool movedThisRound;
 	bool summoned;
 	bool waiting;
+	bool waitedThisTurn; //"waited()" that stays true for full turn after wait - needed as UI button hackfix
 
 	CCasts casts;
 	CRetaliations counterAttacks;
