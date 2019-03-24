@@ -199,10 +199,14 @@ bool TradeOnMarketplace::applyGh(CGameHandler * gh)
 	if(player >= PlayerColor::PLAYER_LIMIT)
 		throwAndComplain(gh, "No player can use this market!");
 
-	if(hero && (player != hero->tempOwner || hero->visitablePos() != market->visitablePos()))
+	bool allyTownSkillTrade = (mode == EMarketMode::RESOURCE_SKILL && gh->getPlayerRelations(player, hero->tempOwner) == PlayerRelations::ALLIES);
+
+	if(hero && (!(player == hero->tempOwner || allyTownSkillTrade)
+		|| hero->visitablePos() != market->visitablePos()))
 		throwAndComplain(gh, "This hero can't use this marketplace!");
 
-	throwOnWrongPlayer(gh, player);
+	if(!allyTownSkillTrade)
+		throwOnWrongPlayer(gh, player);
 
 	bool result = true;
 
