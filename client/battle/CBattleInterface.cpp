@@ -104,7 +104,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 	currentlyHoveredHex(-1), attackingHex(-1), stackCanCastSpell(false), creatureCasting(false), spellDestSelectMode(false), spellToCast(nullptr), sp(nullptr),
 	creatureSpellToCast(-1),
 	siegeH(nullptr), attackerInt(att), defenderInt(defen), curInt(att), animIDhelper(0),
-	myTurn(false), moveStarted(false), moveSoundHander(-1), bresult(nullptr)
+	myTurn(false), moveStarted(false), moveSoundHander(-1), bresult(nullptr), battleActionsStarted(false)
 {
 	OBJ_CONSTRUCTION;
 
@@ -400,22 +400,25 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 		bTacticNextStack();
 
 	CCS->musich->stopMusic();
-
-	int channel = CCS->soundh->playSoundFromSet(CCS->soundh->battleIntroSounds);
-	auto onIntroPlayed = []()
+	battleIntroSoundChannel = CCS->soundh->playSoundFromSet(CCS->soundh->battleIntroSounds);
+	auto onIntroPlayed = [&]()
 	{
-		if (LOCPLINT->battleInt)
+		if(LOCPLINT->battleInt)
+		{
 			CCS->musich->playMusicFromSet("battle", true);
+			battleActionsStarted = true;
+			blockUI(settings["session"]["spectate"].Bool());
+			battleIntroSoundChannel = -1;
+		}
 	};
 
-	CCS->soundh->setCallback(channel, onIntroPlayed);
+	CCS->soundh->setCallback(battleIntroSoundChannel, onIntroPlayed);
 	memset(stackCountOutsideHexes, 1, GameConstants::BFIELD_SIZE *sizeof(bool)); //initialize array with trues
 
 	currentAction = INVALID;
 	selectedAction = INVALID;
 	addUsedEvents(RCLICK | MOVE | KEYBOARD);
-
-	blockUI(settings["session"]["spectate"].Bool());
+	blockUI(true);
 }
 
 CBattleInterface::~CBattleInterface()
@@ -571,7 +574,10 @@ void CBattleInterface::keyPressed(const SDL_KeyboardEvent & key)
 	}
 	else if (key.keysym.sym == SDLK_ESCAPE)
 	{
-		endCastingSpell();
+		if(!battleActionsStarted)
+			CCS->soundh->stopSound(battleIntroSoundChannel);
+		else
+			endCastingSpell();
 	}
 }
 void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
@@ -1630,6 +1636,9 @@ void CBattleInterface::setHoveredStack(const CStack *stack)
 
 void CBattleInterface::activateStack()
 {
+	if(!battleActionsStarted)
+		return; //"show" function should re-call this function
+
 	myTurn = true;
 	if (!!attackerInt && defenderInt) //hotseat -> need to pick which interface "takes over" as active
 		curInt = attackerInt->playerID == stackToActivate->owner ? attackerInt : defenderInt;
@@ -2079,7 +2088,7 @@ bool CBattleInterface::canStackMoveHere(const CStack * activeStack, BattleHex my
 
 void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 {
-	if (!myTurn) //we are not permit to do anything
+	if (!myTurn || !battleActionsStarted) //we are not permit to do anything
 		return;
 
 	// This function handles mouse move over hexes and l-clicking on them.
@@ -3039,21 +3048,22 @@ void CBattleInterface::show(SDL_Surface *to)
 	showBattlefieldObjects(to);
 	showProjectiles(to);
 
-	updateBattleAnimations();
+	if(battleActionsStarted)
+		updateBattleAnimations();
 
 	SDL_SetClipRect(to, &buf); //restoring previous clip_rect
 
 	showInterface(to);
 
 	//activation of next stack
-	if (pendingAnims.empty() && stackToActivate != nullptr)
+	if (pendingAnims.empty() && stackToActivate != nullptr && battleActionsStarted) //FIXME: watch for recursive infinite loop here when working with this file, this needs rework anyway...
 	{
 		activateStack();
 
 		//we may have changed active interface (another side in hot-seat),
 		// so we can't continue drawing with old setting.
 		show(to);
-	}
+	}		
 }
 
 void CBattleInterface::showBackground(SDL_Surface *to)
