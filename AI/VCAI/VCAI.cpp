@@ -332,9 +332,9 @@ void VCAI::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, Q
 		}
 		else //regular criteria
 		{
-			if(firstHero->getFightingStrength() > secondHero->getFightingStrength() && canGetArmy(firstHero, secondHero))
+			if(firstHero->getFightingStrength() > secondHero->getFightingStrength() && ah->canGetArmy(firstHero, secondHero))
 				transferFrom2to1(firstHero, secondHero);
-			else if(canGetArmy(secondHero, firstHero))
+			else if(ah->canGetArmy(secondHero, firstHero))
 				transferFrom2to1(secondHero, firstHero);
 		}
 
@@ -1056,132 +1056,59 @@ void VCAI::moveCreaturesToHero(const CGTownInstance * t)
 	}
 }
 
-bool VCAI::canGetArmy(const CGHeroInstance * army, const CGHeroInstance * source)
-{
-	//TODO: merge with pickBestCreatures
-	//if (ai->primaryHero().h == source)
-	if(army->tempOwner != source->tempOwner)
-	{
-		logAi->error("Why are we even considering exchange between heroes from different players?");
-		return false;
-	}
-
-	const CArmedInstance * armies[] = {army, source};
-
-	//we calculate total strength for each creature type available in armies
-	std::map<const CCreature *, int> creToPower;
-	for(auto armyPtr : armies)
-	{
-		for(auto & i : armyPtr->Slots())
-		{
-			creToPower[i.second->type] += i.second->getPower();
-		}
-	}
-	//TODO - consider more than just power (ie morale penalty, hero specialty in certain stacks, etc)
-	int armySize = creToPower.size();
-	armySize = std::min(armySize, GameConstants::ARMY_SIZE);
-	std::vector<const CCreature *> bestArmy; //types that'll be in final dst army
-	for(int i = 0; i < armySize; i++) //pick the creatures from which we can get most power, as many as dest can fit
-	{
-		typedef const std::pair<const CCreature *, int> & CrePowerPair;
-		auto creIt = boost::max_element(creToPower, [](CrePowerPair lhs, CrePowerPair rhs)
-		{
-			return lhs.second < rhs.second;
-		});
-		bestArmy.push_back(creIt->first);
-		creToPower.erase(creIt);
-		if(creToPower.empty())
-			break;
-	}
-
-	//foreach best type -> iterate over slots in both armies and if it's the appropriate type, send it to the slot where it belongs
-	for(int i = 0; i < bestArmy.size(); i++) //i-th strongest creature type will go to i-th slot
-	{
-		for(auto armyPtr : armies)
-		{
-			for(int j = 0; j < GameConstants::ARMY_SIZE; j++)
-			{
-				if(armyPtr->getCreature(SlotID(j)) == bestArmy[i] && armyPtr != army) //it's a searched creature not in dst ARMY
-				{
-					if(!(armyPtr->needsLastStack() && (armyPtr->stacksCount() == 1) && armyPtr->getStackCount(SlotID(j)) < 2)) //can't take away or split last creature
-						return true; //at least one exchange will be performed
-					else
-						return false; //no further exchange possible
-				}
-			}
-		}
-	}
-	return false;
-}
-
 void VCAI::pickBestCreatures(const CArmedInstance * destinationArmy, const CArmedInstance * source)
 {
 	const CArmedInstance * armies[] = {destinationArmy, source};
 
-	//we calculate total strength for each creature type available in armies
-	std::map<const CCreature *, int> creToPower;
-	for(auto armyPtr : armies)
-	{
-		for(auto & i : armyPtr->Slots())
-		{
-			creToPower[i.second->type] += i.second->getPower();
-		}
-	}
-	//TODO - consider more than just power (ie morale penalty, hero specialty in certain stacks, etc)
-	int armySize = creToPower.size();
-
-	armySize = std::min(armySize, GameConstants::ARMY_SIZE);
-	std::vector<const CCreature *> bestArmy; //types that'll be in final dst army
-	for(int i = 0; i < armySize; i++) //pick the creatures from which we can get most power, as many as dest can fit
-	{
-		typedef const std::pair<const CCreature *, int> & CrePowerPair;
-		auto creIt = boost::max_element(creToPower, [](CrePowerPair lhs, CrePowerPair rhs)
-		{
-			return lhs.second < rhs.second;
-		});
-		bestArmy.push_back(creIt->first);
-		creToPower.erase(creIt);
-		if(creToPower.empty())
-			break;
-	}
+	auto bestArmy = ah->getSortedSlots(destinationArmy, source);
 
 	//foreach best type -> iterate over slots in both armies and if it's the appropriate type, send it to the slot where it belongs
-	for(int i = 0; i < bestArmy.size(); i++) //i-th strongest creature type will go to i-th slot
+	for(SlotID i = SlotID(0); i.getNum() < bestArmy.size() && i.validSlot(); i.advance(1)) //i-th strongest creature type will go to i-th slot
 	{
+		const CCreature * targetCreature = bestArmy[i.getNum()].creature;
+
 		for(auto armyPtr : armies)
 		{
-			for(int j = 0; j < GameConstants::ARMY_SIZE; j++)
+			for(SlotID j = SlotID(0); j.validSlot(); j.advance(1))
 			{
-				if(armyPtr->getCreature(SlotID(j)) == bestArmy[i] && (i != j || armyPtr != destinationArmy)) //it's a searched creature not in dst SLOT
+				if(armyPtr->getCreature(j) == targetCreature && (i != j || armyPtr != destinationArmy)) //it's a searched creature not in dst SLOT
 				{
-					if(!(armyPtr->needsLastStack() && armyPtr->stacksCount() == 1)) //can't take away last creature without split
+					//can't take away last creature without split. generate a new stack with 1 creature which is weak but fast
+					if(armyPtr == source
+						&& source->needsLastStack()
+						&& source->stacksCount() == 1
+						&& (!destinationArmy->hasStackAtSlot(i) || destinationArmy->getCreature(i) == targetCreature))
 					{
-						cb->mergeOrSwapStacks(armyPtr, destinationArmy, SlotID(j), SlotID(i));
-					}
-					else
-					{	
-						//TODO: Improve logic by splitting weakest creature, instead of creature that becomes last stack
-						SlotID sourceSlot = SlotID(j);
-						auto lastStackCount = armyPtr->getStackCount(sourceSlot);
+						auto weakest = ah->getWeakestCreature(bestArmy);
+						
+						if(weakest->creature == targetCreature)
+						{
+							if(1 == source->getStackCount(j))
+								break;
 
-						if(lastStackCount > 1) //we can perform exchange if we need creature and split is possible
-						{	
-							SlotID destinationSlot = SlotID(i);
-							//check if there are some creatures of same type in destination army slots - add to them instead of first available empty slot if possible
-							for(int candidateSlot = 0; candidateSlot < GameConstants::ARMY_SIZE; candidateSlot++)
-							{
-								auto creatureInSlot = destinationArmy->getCreature(SlotID(candidateSlot));
-								if(creatureInSlot && (creatureInSlot->idNumber == armyPtr->getCreature(SlotID(j))->idNumber))
-								{
-									destinationSlot = SlotID(candidateSlot);
-									break;
-								}
-							}
-							//last cb->splitStack argument is total amount of creatures expected after exchange so if slot is not empty we need to add to existing creatures
-							auto destinationSlotCreatureCount = destinationArmy->getStackCount(destinationSlot);
-							cb->splitStack(armyPtr, destinationArmy, sourceSlot, destinationSlot, lastStackCount + destinationSlotCreatureCount - 1);
+							// move all except 1 of weakest creature from source to destination
+							cb->splitStack(
+								source,
+								destinationArmy,
+								j,
+								destinationArmy->getSlotFor(targetCreature),
+								destinationArmy->getStackCount(i) + source->getStackCount(j) - 1);
+
+							break;
+						}
+						else
+						{
+							// Source last stack is not weakest. Move 1 of weakest creature from destination to source
+							cb->splitStack(
+								destinationArmy,
+								source,
+								destinationArmy->getSlotFor(weakest->creature),
+								source->getFreeSlot(),
+								1);
 						}
 					}
+
+					cb->mergeOrSwapStacks(armyPtr, destinationArmy, j, i);
 				}
 			}
 		}
@@ -1461,15 +1388,15 @@ void VCAI::wander(HeroPtr h)
 			if(cb->getVisitableObjs(h->visitablePos()).size() > 1)
 				moveHeroToTile(h->visitablePos(), h); //just in case we're standing on blocked subterranean gate
 
-			auto compareReinforcements = [h](const CGTownInstance * lhs, const CGTownInstance * rhs) -> bool
+			auto compareReinforcements = [&](const CGTownInstance * lhs, const CGTownInstance * rhs) -> bool
 			{
 				const CGHeroInstance * hptr = h.get();
-				auto r1 = howManyReinforcementsCanGet(hptr, lhs),
-					r2 = howManyReinforcementsCanGet(hptr, rhs);
+				auto r1 = ah->howManyReinforcementsCanGet(hptr, lhs),
+					r2 = ah->howManyReinforcementsCanGet(hptr, rhs);
 				if (r1 != r2)
 					return r1 < r2;
 				else
-					return howManyReinforcementsCanBuy(hptr, lhs) < howManyReinforcementsCanBuy(hptr, rhs);
+					return ah->howManyReinforcementsCanBuy(hptr, lhs) < ah->howManyReinforcementsCanBuy(hptr, rhs);
 			};
 
 			std::vector<const CGTownInstance *> townsReachable;
@@ -1507,11 +1434,11 @@ void VCAI::wander(HeroPtr h)
 			else if(cb->getResourceAmount(Res::GOLD) >= GameConstants::HERO_GOLD_COST)
 			{
 				std::vector<const CGTownInstance *> towns = cb->getTownsInfo();
-				vstd::erase_if(towns, [](const CGTownInstance * t) -> bool
+				vstd::erase_if(towns, [&](const CGTownInstance * t) -> bool
 				{
 					for(const CGHeroInstance * h : cb->getHeroesInfo())
 					{
-						if(!t->getArmyStrength() || howManyReinforcementsCanGet(h, t))
+						if(!t->getArmyStrength() || ah->howManyReinforcementsCanGet(h, t))
 							return true;
 					}
 					return false;

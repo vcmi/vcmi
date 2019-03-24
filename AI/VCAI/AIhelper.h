@@ -16,6 +16,7 @@
 
 #include "ResourceManager.h"
 #include "BuildingManager.h"
+#include "ArmyManager.h"
 #include "Pathfinding/PathfindingManager.h"
 
 class ResourceManager;
@@ -23,7 +24,7 @@ class BuildingManager;
 
 
 //indirection interface for various modules
-class DLL_EXPORT AIhelper : public IResourceManager, public IBuildingManager, public IPathfindingManager
+class DLL_EXPORT AIhelper : public IResourceManager, public IBuildingManager, public IPathfindingManager, public IArmyManager
 {
 	friend class VCAI;
 	friend struct SetGlobalState; //mess?
@@ -31,6 +32,7 @@ class DLL_EXPORT AIhelper : public IResourceManager, public IBuildingManager, pu
 	std::shared_ptr<ResourceManager> resourceManager;
 	std::shared_ptr<BuildingManager> buildingManager;
 	std::shared_ptr<PathfindingManager> pathfindingManager;
+	std::shared_ptr<ArmyManager> armyManager;
 	//TODO: vector<IAbstractManager>
 public:
 	AIhelper();
@@ -67,6 +69,13 @@ public:
 	{
 		return pathfindingManager->isTileAccessible(hero, tile);
 	}
+
+	bool canGetArmy(const CArmedInstance * target, const CArmedInstance * source) const override;
+	ui64 howManyReinforcementsCanBuy(const CCreatureSet * target, const CGDwelling * source) const override;
+	ui64 howManyReinforcementsCanGet(const CCreatureSet * target, const CCreatureSet * source) const override;
+	std::vector<SlotInfo> getBestArmy(const CCreatureSet * target, const CCreatureSet * source) const override;
+	std::vector<SlotInfo>::iterator getWeakestCreature(std::vector<SlotInfo> & army) const override;
+	std::vector<SlotInfo> getSortedSlots(const CCreatureSet * target, const CCreatureSet * source) const override;
 
 private:
 	bool notifyGoalCompleted(Goals::TSubgoal goal) override;

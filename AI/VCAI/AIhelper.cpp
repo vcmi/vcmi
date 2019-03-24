@@ -10,14 +10,13 @@
 #include "StdInc.h"
 
 #include "AIhelper.h"
-#include "ResourceManager.h"
-#include "BuildingManager.h"
 
 AIhelper::AIhelper()
 {
 	resourceManager.reset(new ResourceManager());
 	buildingManager.reset(new BuildingManager());
 	pathfindingManager.reset(new PathfindingManager());
+	armyManager.reset(new ArmyManager());
 }
 
 AIhelper::~AIhelper()
@@ -34,6 +33,7 @@ void AIhelper::init(CPlayerSpecificInfoCallback * CB)
 	resourceManager->init(CB);
 	buildingManager->init(CB);
 	pathfindingManager->init(CB);
+	armyManager->init(CB);
 }
 
 void AIhelper::setAI(VCAI * AI)
@@ -41,6 +41,7 @@ void AIhelper::setAI(VCAI * AI)
 	resourceManager->setAI(AI);
 	buildingManager->setAI(AI);
 	pathfindingManager->setAI(AI);
+	armyManager->setAI(AI);
 }
 
 bool AIhelper::getBuildingOptions(const CGTownInstance * t)
@@ -151,4 +152,34 @@ std::vector<AIPath> AIhelper::getPathsToTile(const HeroPtr & hero, const int3 & 
 void AIhelper::updatePaths(std::vector<HeroPtr> heroes)
 {
 	pathfindingManager->updatePaths(heroes);
+}
+
+bool AIhelper::canGetArmy(const CArmedInstance * army, const CArmedInstance * source) const
+{
+	return armyManager->canGetArmy(army, source);
+}
+
+ui64 AIhelper::howManyReinforcementsCanBuy(const CCreatureSet * h, const CGDwelling * t) const
+{
+	return armyManager->howManyReinforcementsCanBuy(h, t);
+}
+
+ui64 AIhelper::howManyReinforcementsCanGet(const CCreatureSet * target, const CCreatureSet * source) const
+{
+	return armyManager->howManyReinforcementsCanGet(target, source);
+}
+
+std::vector<SlotInfo> AIhelper::getBestArmy(const CCreatureSet * target, const CCreatureSet * source) const
+{
+	return armyManager->getBestArmy(target, source);
+}
+
+std::vector<SlotInfo>::iterator AIhelper::getWeakestCreature(std::vector<SlotInfo> & army) const
+{
+	return armyManager->getWeakestCreature(army);
+}
+
+std::vector<SlotInfo> AIhelper::getSortedSlots(const CCreatureSet * target, const CCreatureSet * source) const
+{
+	return armyManager->getSortedSlots(target, source);
 }
