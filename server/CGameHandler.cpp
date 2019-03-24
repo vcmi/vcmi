@@ -3956,7 +3956,9 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 				buffer.push_back(alternativeWeakCreatureBonus);
 			}
 			else
+			{
 				buffer.push_back(defenseBonusToAdd);
+			}
 
 			buffer.push_back(bonus2);
 
