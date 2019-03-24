@@ -362,6 +362,12 @@
 		"index" : 80,
 		"targetType": "NO_TARGET",
 
+		"animation":{
+			"affect":["C17SPW0"]
+		},
+		"sounds": {
+			"cast": "ACID"
+		},
 		"levels" : {
 			"base":{
 				"battleEffects":{

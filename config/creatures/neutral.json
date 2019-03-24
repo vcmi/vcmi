@@ -251,7 +251,7 @@
 			{
 				"type" : "ACID_BREATH",
 				"val" : 25,
-				"addInfo" : 20
+				"addInfo" : 30
 			},
 			"fireBreath" :
 			{
