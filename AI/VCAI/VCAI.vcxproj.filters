@@ -111,6 +111,7 @@
     <ClCompile Include="Pathfinding\Rules\AIPreviousNodeRule.cpp">
       <Filter>Pathfinding\Rules</Filter>
     </ClCompile>
+    <ClCompile Include="ArmyManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AIhelper.h" />
@@ -234,6 +235,7 @@
     <ClInclude Include="Pathfinding\Rules\AIPreviousNodeRule.h">
       <Filter>Pathfinding\Rules</Filter>
     </ClInclude>
+    <ClInclude Include="ArmyManager.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Pathfinding">
