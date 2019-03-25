@@ -1740,7 +1740,6 @@ void CBattleInterface::getPossibleActionsForStack(const CStack *stack)
 	BattleClientInterfaceData data;
 	data.creatureSpellToCast = creatureSpellToCast;
 	data.tacticsMode = tacticsMode;
-	data.siegeH = siegeH ? true : false;
 	auto allActions = curInt->cb->getClientActionsForStack(stack, data);
 
 	possibleActions = std::vector<PossiblePlayerBattleAction>(allActions);

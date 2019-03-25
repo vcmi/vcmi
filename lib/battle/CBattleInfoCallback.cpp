@@ -238,7 +238,8 @@ std::vector<PossiblePlayerBattleAction> CBattleInfoCallback::getClientActionsFor
 		if(stack->canMove() && stack->Speed(0, true)) //probably no reason to try move war machines or bound stacks
 			allowedActionList.push_back(MOVE_STACK);
 
-		if(data.siegeH && stack->hasBonusOfType(Bonus::CATAPULT)) //TODO: check shots
+		auto siegedTown = battleGetDefendedTown();
+		if(siegedTown && siegedTown->hasFort() && stack->hasBonusOfType(Bonus::CATAPULT)) //TODO: check shots
 			allowedActionList.push_back(CATAPULT);
 		if(stack->hasBonusOfType(Bonus::HEALER))
 			allowedActionList.push_back(HEAL);

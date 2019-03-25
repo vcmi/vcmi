@@ -47,7 +47,6 @@ struct DLL_LINKAGE BattleClientInterfaceData
 {
 	si32 creatureSpellToCast;
 	ui8 tacticsMode;
-	ui8 siegeH;
 };
 
 class DLL_LINKAGE CBattleInfoCallback : public virtual CBattleInfoEssentials
