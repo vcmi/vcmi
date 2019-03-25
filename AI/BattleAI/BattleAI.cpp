@@ -14,7 +14,6 @@
 
 #include "StackWithBonuses.h"
 #include "EnemyInfo.h"
-#include "PossibleSpellcast.h"
 #include "../../lib/CStopWatch.h"
 #include "../../lib/CThreadHelper.h"
 #include "../../lib/spells/CSpellHandler.h"
@@ -121,6 +120,40 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 		if(auto action = considerFleeingOrSurrendering())
 			return *action;
 		//best action is from effective owner point if view, we are effective owner as we received "activeStack"
+
+	
+		//evaluate casting spell for spellcasting stack
+		SpellID creatureSpellToCast = cb->battleGetRandomStackSpell(CRandomGenerator::getDefault(), stack, CBattleInfoCallback::RANDOM_AIMED);
+		if(stack->hasBonusOfType(Bonus::SPELLCASTER) && stack->canCast() && creatureSpellToCast != SpellID::NONE)
+		{
+			const CSpell * spell = creatureSpellToCast.toSpell();
+
+			if(spell->canBeCast(getCbc().get(), spells::Mode::CREATURE_ACTIVE, stack))
+			{
+				std::vector<PossibleSpellcast> possibleCasts;
+				spells::BattleCast temp(getCbc().get(), stack, spells::Mode::CREATURE_ACTIVE, spell);
+				for(auto & target : temp.findPotentialTargets())
+				{
+					PossibleSpellcast ps;
+					ps.dest = target;
+					ps.spell = spell;
+					evaluateCreatureSpellcast(stack, ps);
+					possibleCasts.push_back(ps);
+				}
+
+				std::sort(possibleCasts.begin(), possibleCasts.end(), [&](PossibleSpellcast & lhs, PossibleSpellcast & rhs) { return lhs.value > rhs.value; });
+				if(!possibleCasts.empty() && possibleCasts.front().value > 0)
+				{
+					BattleAction creatureCast;
+					creatureCast.actionType = EActionType::MONSTER_SPELL;
+					creatureCast.actionSubtype = possibleCasts.front().spell->id;
+					creatureCast.setTarget(possibleCasts.front().dest);
+					creatureCast.side = side;
+					creatureCast.stackNumber = stack->unitId();
+					return creatureCast;
+				}
+			}
+		}
 
 		HypotheticBattle hb(getCbc());
 
@@ -520,6 +553,64 @@ void CBattleAI::attemptCastingSpell()
 		LOGFL("Best spell is %s. But it is actually useless (value %d).", castToPerform.spell->name % castToPerform.value);
 	}
 }
+
+void CBattleAI::evaluateCreatureSpellcast(const CStack * stack, PossibleSpellcast & ps)
+{
+	using ValueMap = PossibleSpellcast::ValueMap;
+
+	RNGStub rngStub;
+	HypotheticBattle state(getCbc());
+	TStacks all = getCbc()->battleGetAllStacks(false);
+	
+	ValueMap valueOfStack;
+	ValueMap healthOfStack;
+	ValueMap newHealthOfStack;
+	ValueMap newValueOfStack;
+
+	for(auto unit : all)
+	{
+		healthOfStack[unit->unitId()] = unit->getAvailableHealth();
+		valueOfStack[unit->unitId()] = 0;
+	}
+
+	spells::BattleCast cast(&state, stack, spells::Mode::CREATURE_ACTIVE, ps.spell);
+	cast.target = ps.dest;
+	cast.cast(&state, rngStub);
+
+	for(auto unit : all)
+	{
+		auto unitId = unit->unitId();
+		auto localUnit = state.battleGetUnitByID(unitId);
+		newHealthOfStack[unitId] = localUnit->getAvailableHealth();
+		newValueOfStack[unitId] = 0;
+	}
+
+	int64_t totalGain = 0;
+
+	for(auto unit : all)
+	{
+		auto unitId = unit->unitId();
+		auto localUnit = state.battleGetUnitByID(unitId);
+
+		auto newValue = getValOr(newValueOfStack, unitId, 0);
+		auto oldValue = getValOr(valueOfStack, unitId, 0);
+
+		auto healthDiff = newHealthOfStack[unitId] - healthOfStack[unitId];
+
+		if(localUnit->unitOwner() != getCbc()->getPlayerID())
+			healthDiff = -healthDiff;
+
+		if(healthDiff < 0)
+		{
+			ps.value = -1;
+			return; //do not damage own units at all
+		}
+
+		totalGain += (newValue - oldValue + healthDiff);
+	}
+
+	ps.value = totalGain;
+};
 
 int CBattleAI::distToNearestNeighbour(BattleHex hex, const ReachabilityInfo::TDistances &dists, BattleHex *chosenHex)
 {
