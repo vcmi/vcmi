@@ -18,6 +18,12 @@
 class HeroActor;
 class VCAI;
 
+class HeroExchangeArmy : public CCreatureSet
+{
+public:
+	virtual bool needsLastStack() const override;
+};
+
 class ChainActor
 {
 protected:
@@ -72,6 +78,8 @@ public:
 		:actor(actor), ai(ai)
 	{
 	}
+
+	~HeroExchangeMap();
 
 	HeroActor * exchange(const ChainActor * other);
 	bool canExchange(const ChainActor * other);
