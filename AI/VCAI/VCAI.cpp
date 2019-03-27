@@ -603,7 +603,7 @@ void VCAI::init(std::shared_ptr<CCallback> CB)
 	if(!fh)
 		fh = new FuzzyHelper();
 
-	if(playerID.getStr(false) == "green")
+	if(playerID.getStr(false) == "blue")
 	{
 		nullkiller.reset(new Nullkiller());
 	}
@@ -815,16 +815,18 @@ void VCAI::makeTurn()
 		{
 			nullkiller->makeTurn();
 		}
+		else
+		{
+			//it looks messy here, but it's better to have armed heroes before attempting realizing goals
+			for(const CGTownInstance * t : cb->getTownsInfo())
+				moveCreaturesToHero(t);
 
-		//it looks messy here, but it's better to have armed heroes before attempting realizing goals
-		for(const CGTownInstance * t : cb->getTownsInfo())
-			moveCreaturesToHero(t);
+			mainLoop();
 
-		mainLoop();
-
-		/*Below function is also responsible for hero movement via internal wander function. By design it is separate logic for heroes that have nothing to do.
-		Heroes that were not picked by striveToGoal(sptr(Goals::Win())); recently (so they do not have new goals and cannot continue/reevaluate previously locked goals) will do logic in wander().*/
-		performTypicalActions();
+			/*Below function is also responsible for hero movement via internal wander function. By design it is separate logic for heroes that have nothing to do.
+			Heroes that were not picked by striveToGoal(sptr(Goals::Win())); recently (so they do not have new goals and cannot continue/reevaluate previously locked goals) will do logic in wander().*/
+			performTypicalActions();
+		}
 
 		//for debug purpose
 		for (auto h : cb->getHeroesInfo())

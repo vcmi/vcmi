@@ -26,6 +26,7 @@ public:
 	virtual Goals::TGoalVec howToVisitTile(const int3 & tile, bool allowGatherArmy = true) const = 0;
 	virtual Goals::TGoalVec howToVisitObj(ObjectIdRef obj, bool allowGatherArmy = true) const = 0;
 	virtual std::vector<AIPath> getPathsToTile(const HeroPtr & hero, const int3 & tile) const = 0;
+	virtual std::vector<AIPath> getPathsToTile(const int3 & tile) const = 0;
 };
 
 class DLL_EXPORT PathfindingManager : public IPathfindingManager
@@ -46,6 +47,7 @@ public:
 	Goals::TGoalVec howToVisitTile(const int3 & tile, bool allowGatherArmy = true) const override;
 	Goals::TGoalVec howToVisitObj(ObjectIdRef obj, bool allowGatherArmy = true) const override;
 	std::vector<AIPath> getPathsToTile(const HeroPtr & hero, const int3 & tile) const override;
+	std::vector<AIPath> getPathsToTile(const int3 & tile) const override;
 	void updatePaths(std::vector<HeroPtr> heroes, bool useHeroChain = false) override;
 
 	STRONG_INLINE

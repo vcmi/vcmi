@@ -52,6 +52,7 @@ set(VCAI_SRCS
 		Goals/GetArtOfType.cpp
 		Goals/FindObj.cpp
 		Goals/CompleteQuest.cpp
+		Goals/ExecuteHeroChain.cpp
 		Engine/Nullkiller.cpp
 		Engine/PriorityEvaluator.cpp
 		Behaviors/Behavior.cpp
@@ -111,6 +112,7 @@ set(VCAI_HEADERS
 		Goals/GetArtOfType.h
 		Goals/FindObj.h
 		Goals/CompleteQuest.h
+		Goals/ExecuteHeroChain.h
 		Goals/Goals.h
 		Engine/Nullkiller.h
 		Engine/PriorityEvaluator.h
