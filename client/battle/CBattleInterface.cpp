@@ -1757,7 +1757,7 @@ void CBattleInterface::reorderPossibleActionsPriority(const CStack * stack, Mous
 		case NO_LOCATION:
 		case FREE_LOCATION:
 		case OBSTACLE:
-			if(stack->hasBonusOfType(Bonus::SPELLCAST_BY_DEFAULT) && context == MouseHoveredHexContext::OCCUPIED_HEX)
+			if(!stack->hasBonusOfType(Bonus::NO_SPELLCAST_BY_DEFAULT) && context == MouseHoveredHexContext::OCCUPIED_HEX)
 				return 1;
 			else
 				return 100;//bottom priority

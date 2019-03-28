@@ -124,6 +124,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 	
 		//evaluate casting spell for spellcasting stack
 		boost::optional<PossibleSpellcast> bestSpellcast = boost::none;
+		//TODO: faerie dragon type spell should be selected by server
 		SpellID creatureSpellToCast = cb->battleGetRandomStackSpell(CRandomGenerator::getDefault(), stack, CBattleInfoCallback::RANDOM_AIMED);
 		if(stack->hasBonusOfType(Bonus::SPELLCASTER) && stack->canCast() && creatureSpellToCast != SpellID::NONE)
 		{
