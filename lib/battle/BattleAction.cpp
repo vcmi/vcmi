@@ -74,6 +74,17 @@ BattleAction BattleAction::makeShotAttack(const battle::Unit * shooter, const ba
 	return ba;
 }
 
+BattleAction BattleAction::makeCreatureSpellcast(const battle::Unit * stack, const battle::Target & target, SpellID spellID)
+{
+	BattleAction ba;
+	ba.actionType = EActionType::MONSTER_SPELL;
+	ba.actionSubtype = spellID;
+	ba.setTarget(target);
+	ba.side = stack->unitSide();
+	ba.stackNumber = stack->unitId();
+	return ba;
+}
+
 BattleAction BattleAction::makeMove(const battle::Unit * stack, BattleHex dest)
 {
 	BattleAction ba;

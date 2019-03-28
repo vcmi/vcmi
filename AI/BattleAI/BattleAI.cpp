@@ -123,6 +123,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 
 	
 		//evaluate casting spell for spellcasting stack
+		boost::optional<PossibleSpellcast> bestSpellcast = boost::none;
 		SpellID creatureSpellToCast = cb->battleGetRandomStackSpell(CRandomGenerator::getDefault(), stack, CBattleInfoCallback::RANDOM_AIMED);
 		if(stack->hasBonusOfType(Bonus::SPELLCASTER) && stack->canCast() && creatureSpellToCast != SpellID::NONE)
 		{
@@ -144,13 +145,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 				std::sort(possibleCasts.begin(), possibleCasts.end(), [&](PossibleSpellcast & lhs, PossibleSpellcast & rhs) { return lhs.value > rhs.value; });
 				if(!possibleCasts.empty() && possibleCasts.front().value > 0)
 				{
-					BattleAction creatureCast;
-					creatureCast.actionType = EActionType::MONSTER_SPELL;
-					creatureCast.actionSubtype = possibleCasts.front().spell->id;
-					creatureCast.setTarget(possibleCasts.front().dest);
-					creatureCast.side = side;
-					creatureCast.stackNumber = stack->unitId();
-					return creatureCast;
+					bestSpellcast = possibleCasts.front();
 				}
 			}
 		}
@@ -158,13 +153,18 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 		HypotheticBattle hb(getCbc());
 
 		PotentialTargets targets(stack, &hb);
+		boost::optional<AttackPossibility> bestAttack = boost::none;
 		if(targets.possibleAttacks.size())
 		{
-			auto hlp = targets.bestAction();
-			if(hlp.attack.shooting)
-				return BattleAction::makeShotAttack(stack, hlp.attack.defender);
+			bestAttack = targets.bestAction();
+
+			//TODO: consider more complex spellcast evaluation, f.e. because "re-retaliation" during enemy move in same turn for melee attack etc.
+			if(bestSpellcast.is_initialized() && bestSpellcast->value > bestAttack->damageDiff())
+				return BattleAction::makeCreatureSpellcast(stack, bestSpellcast->dest, bestSpellcast->spell->id);
+			else if(bestAttack->attack.shooting)
+				return BattleAction::makeShotAttack(stack, bestAttack->attack.defender);
 			else
-				return BattleAction::makeMeleeAttack(stack, hlp.attack.defender->getPosition(), hlp.tile);
+				return BattleAction::makeMeleeAttack(stack, bestAttack->attack.defender->getPosition(), bestAttack->tile);
 		}
 		else
 		{
