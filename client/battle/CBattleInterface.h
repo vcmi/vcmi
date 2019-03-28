@@ -180,7 +180,7 @@ private:
 
 	void requestAutofightingAIToTakeAction();
 
-	void getPossibleActionsForStack (const CStack *stack); //called when stack gets its turn
+	std::vector<PossiblePlayerBattleAction> getPossibleActionsForStack (const CStack *stack); //called when stack gets its turn
 	void endCastingSpell(); //ends casting spell (eg. when spell has been cast or canceled)
 	void reorderPossibleActionsPriority(const CStack * stack, MouseHoveredHexContext context);
 

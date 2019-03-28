@@ -1651,7 +1651,7 @@ void CBattleInterface::activateStack()
 		creatureSpellToCast = -1;
 	}
 
-	getPossibleActionsForStack(s);
+	possibleActions = getPossibleActionsForStack(s);
 
 	GH.fakeMouseMove();
 }
@@ -1668,7 +1668,7 @@ void CBattleInterface::endCastingSpell()
 
 		if(activeStack)
 		{
-			getPossibleActionsForStack(activeStack); //restore actions after they were cleared
+			possibleActions = getPossibleActionsForStack(activeStack); //restore actions after they were cleared
 			myTurn = true;
 		}
 	}
@@ -1676,7 +1676,7 @@ void CBattleInterface::endCastingSpell()
 	{
 		if(activeStack)
 		{
-			getPossibleActionsForStack(activeStack);
+			possibleActions = getPossibleActionsForStack(activeStack);
 			GH.fakeMouseMove();
 		}
 	}
@@ -1722,7 +1722,7 @@ void CBattleInterface::enterCreatureCastingMode()
 	}
 	else
 	{
-		getPossibleActionsForStack(activeStack);
+		possibleActions = getPossibleActionsForStack(activeStack);
 
 		auto actionFilterPredicate = [](const PossiblePlayerBattleAction x)
 		{
@@ -1734,66 +1734,14 @@ void CBattleInterface::enterCreatureCastingMode()
 	}
 }
 
-void CBattleInterface::getPossibleActionsForStack(const CStack *stack)
+std::vector<PossiblePlayerBattleAction> CBattleInterface::getPossibleActionsForStack(const CStack *stack)
 {
-	possibleActions.clear();
-	BattleClientInterfaceData data;
+	BattleClientInterfaceData data; //hard to get rid of these things so for now they're required data to pass
 	data.creatureSpellToCast = creatureSpellToCast;
 	data.tacticsMode = tacticsMode;
 	auto allActions = curInt->cb->getClientActionsForStack(stack, data);
 
-	possibleActions = std::vector<PossiblePlayerBattleAction>(allActions);
-#if(0)
-	if (tacticsMode)
-	{
-		possibleActions.push_back(MOVE_TACTICS);
-		possibleActions.push_back(CHOOSE_TACTICS_STACK);
-	}
-	else
-	{
-		PossiblePlayerBattleAction notPriority = INVALID;
-		//first action will be prioritized over later ones
-		if(stack->canCast()) //TODO: check for battlefield effects that prevent casting?
-		{
-			if(stack->hasBonusOfType (Bonus::SPELLCASTER))
-			{
-				if(creatureSpellToCast != -1)
-				{
-					const CSpell *spell = SpellID(creatureSpellToCast).toSpell();
-					PossiblePlayerBattleAction act = getCasterAction(spell, stack, spells::Mode::CREATURE_ACTIVE);
-
-					if(stack->hasBonusOfType(Bonus::SPELLCAST_BY_DEFAULT)/* && act == AIMED_SPELL_CREATURE*/)
-						possibleActions.push_back(act);
-					else
-						//if cast is not forced, cast action will have lowest priority
-						notPriority = act;
-				}
-			}
-			if (stack->hasBonusOfType (Bonus::RANDOM_SPELLCASTER))
-				possibleActions.push_back (RANDOM_GENIE_SPELL);
-			if (stack->hasBonusOfType (Bonus::DAEMON_SUMMONING))
-				possibleActions.push_back (RISE_DEMONS);
-		}
-		if(stack->canShoot())
-			possibleActions.push_back(SHOOT);
-		if(stack->hasBonusOfType(Bonus::RETURN_AFTER_STRIKE))
-			possibleActions.push_back(ATTACK_AND_RETURN);
-
-		possibleActions.push_back(ATTACK); //all active stacks can attack
-		possibleActions.push_back(WALK_AND_ATTACK); //not all stacks can always walk, but we will check this elsewhere
-
-		if (stack->canMove() && stack->Speed(0, true)) //probably no reason to try move war machines or bound stacks
-			possibleActions.push_back (MOVE_STACK); //all active stacks can attack
-
-		if (siegeH && stack->hasBonusOfType (Bonus::CATAPULT)) //TODO: check shots
-			possibleActions.push_back (CATAPULT);
-		if (stack->hasBonusOfType (Bonus::HEALER))
-			possibleActions.push_back (HEAL);
-
-		if (notPriority != INVALID)
-			possibleActions.push_back(notPriority);
-	}
-#endif
+	return std::vector<PossiblePlayerBattleAction>(allActions);
 }
 
 void CBattleInterface::reorderPossibleActionsPriority(const CStack * stack, MouseHoveredHexContext context)
