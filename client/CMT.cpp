@@ -1265,6 +1265,7 @@ static void handleEvent(SDL_Event & ev)
 			break;
 		case EUserEvent::CAMPAIGN_START_SCENARIO:
 			{
+				CSH->campaignServerRestartLock.set(true);
 				CSH->endGameplay();
 				auto ourCampaign = std::shared_ptr<CCampaignState>(reinterpret_cast<CCampaignState *>(ev.user.data1));
 				auto & epilogue = ourCampaign->camp->scenarios[ourCampaign->mapsConquered.back()].epilog;
@@ -1281,7 +1282,7 @@ static void handleEvent(SDL_Event & ev)
 				}
 				else
 				{
-					boost::this_thread::sleep(boost::posix_time::milliseconds(1000)); //TODO: thread sync and execute this after server closes
+					CSH->campaignServerRestartLock.waitUntil(false);
 					finisher();
 				}
 			}
