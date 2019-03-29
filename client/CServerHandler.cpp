@@ -495,6 +495,7 @@ void CServerHandler::endGameplay(bool closeConnection, bool restart)
 	{
 		if(CMM)
 		{
+			GH.terminate_cond->setn(false);
 			GH.curInt = CMM.get();
 			CMM->enable();
 		}
@@ -644,6 +645,7 @@ void CServerHandler::threadHandleConnection()
 			logNetwork->error(e.what());
 			if(client)
 			{
+				state = EClientState::DISCONNECTING;
 				CGuiHandler::pushSDLEvent(SDL_USEREVENT, EUserEvent::RETURN_TO_MAIN_MENU);
 			}
 			else
