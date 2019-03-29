@@ -1281,6 +1281,7 @@ static void handleEvent(SDL_Event & ev)
 				}
 				else
 				{
+					boost::this_thread::sleep(boost::posix_time::milliseconds(1000)); //TODO: thread sync and execute this after server closes
 					finisher();
 				}
 			}

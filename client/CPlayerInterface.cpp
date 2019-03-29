@@ -2469,14 +2469,9 @@ void CPlayerInterface::requestReturningToMainMenu(bool won)
 {
 	CCS->soundh->ambientStopAllChannels();
 	if(won && cb->getStartInfo()->campState)
-	{
-		CSH->state = EClientState::DISCONNECTING; // do not close server, it's not intended for campaign continuation
 		CSH->startCampaignScenario(cb->getStartInfo()->campState);
-	}
 	else
-	{
 		sendCustomEvent(EUserEvent::RETURN_TO_MAIN_MENU);
-	}
 }
 
 void CPlayerInterface::sendCustomEvent( int code )
