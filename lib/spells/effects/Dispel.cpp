@@ -102,7 +102,7 @@ bool Dispel::mainSelector(const Bonus * bonus)
 		if(sourceSpell->id == SpellID::CLONE)
 			return false;
 		//stack may have inherited effects
-		return !sourceSpell->isAdventureSpell();
+		return sourceSpell->isCombatSpell();
 	}
 	//not spell effect
 	return false;

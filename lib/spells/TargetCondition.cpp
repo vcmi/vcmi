@@ -117,9 +117,9 @@ protected:
 
 		TBonusListPtr levelImmunities = target->getBonuses(Selector::type(Bonus::LEVEL_SPELL_IMMUNITY).And(Selector::info(1)), cachingStr.str());
 		
-		return !(levelImmunities->size() > 0
-		&& levelImmunities->totalValue() >= m->getSpellLevel()
-		&& m->getSpellLevel() > 0);
+		return levelImmunities->size() == 0 ||
+		levelImmunities->totalValue() < m->getSpellLevel() ||
+		m->getSpellLevel() <= 0;
 	}
 };
 
@@ -191,9 +191,9 @@ protected:
 	bool check(const Mechanics * m, const battle::Unit * target) const override
 	{
 		TBonusListPtr levelImmunities = target->getBonuses(Selector::type(Bonus::LEVEL_SPELL_IMMUNITY));
-		return !(levelImmunities->size() > 0 &&
-		levelImmunities->totalValue() >= m->getSpellLevel() &&
-		m->getSpellLevel() > 0);
+		return levelImmunities->size() == 0 ||
+		levelImmunities->totalValue() < m->getSpellLevel() ||
+		m->getSpellLevel() <= 0;
 	}
 };
 

@@ -111,7 +111,7 @@ bool Sacrifice::applicable(Problem & problem, const Mechanics * m, const EffectT
 		if(!victim)
 			return false;
 		
-		return !(!victim->alive() || !getStackFilter(m, false, victim) || !isReceptive(m, victim));
+		return victim->alive() && getStackFilter(m, false, victim) && isReceptive(m, victim);
 	}
 
 	return true;
