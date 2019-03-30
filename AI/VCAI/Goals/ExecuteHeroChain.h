@@ -17,6 +17,7 @@ namespace Goals
 	{
 	private:
 		AIPath chainPath;
+		std::string targetName;
 
 	public:
 		ExecuteHeroChain(const AIPath & path, const CGObjectInstance * obj = nullptr);
