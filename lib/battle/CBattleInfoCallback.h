@@ -32,7 +32,7 @@ struct DLL_LINKAGE AttackableTiles
 	}
 };
 
-enum PossiblePlayerBattleAction // actions performed at l-click
+enum class PossiblePlayerBattleAction // actions performed at l-click
 {
 	INVALID = -1, CREATURE_INFO,
 	MOVE_TACTICS, CHOOSE_TACTICS_STACK,

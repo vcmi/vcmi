@@ -555,6 +555,7 @@ void CBattleAI::attemptCastingSpell()
 	}
 }
 
+//Below method works only for offensive spells
 void CBattleAI::evaluateCreatureSpellcast(const CStack * stack, PossibleSpellcast & ps)
 {
 	using ValueMap = PossibleSpellcast::ValueMap;
@@ -563,15 +564,12 @@ void CBattleAI::evaluateCreatureSpellcast(const CStack * stack, PossibleSpellcas
 	HypotheticBattle state(getCbc());
 	TStacks all = getCbc()->battleGetAllStacks(false);
 	
-	ValueMap valueOfStack;
 	ValueMap healthOfStack;
 	ValueMap newHealthOfStack;
-	ValueMap newValueOfStack;
 
 	for(auto unit : all)
 	{
 		healthOfStack[unit->unitId()] = unit->getAvailableHealth();
-		valueOfStack[unit->unitId()] = 0;
 	}
 
 	spells::BattleCast cast(&state, stack, spells::Mode::CREATURE_ACTIVE, ps.spell);
@@ -583,7 +581,6 @@ void CBattleAI::evaluateCreatureSpellcast(const CStack * stack, PossibleSpellcas
 		auto unitId = unit->unitId();
 		auto localUnit = state.battleGetUnitByID(unitId);
 		newHealthOfStack[unitId] = localUnit->getAvailableHealth();
-		newValueOfStack[unitId] = 0;
 	}
 
 	int64_t totalGain = 0;
@@ -592,9 +589,6 @@ void CBattleAI::evaluateCreatureSpellcast(const CStack * stack, PossibleSpellcas
 	{
 		auto unitId = unit->unitId();
 		auto localUnit = state.battleGetUnitByID(unitId);
-
-		auto newValue = getValOr(newValueOfStack, unitId, 0);
-		auto oldValue = getValOr(valueOfStack, unitId, 0);
 
 		auto healthDiff = newHealthOfStack[unitId] - healthOfStack[unitId];
 
@@ -607,7 +601,7 @@ void CBattleAI::evaluateCreatureSpellcast(const CStack * stack, PossibleSpellcas
 			return; //do not damage own units at all
 		}
 
-		totalGain += (newValue - oldValue + healthDiff);
+		totalGain += healthDiff;
 	}
 
 	ps.value = totalGain;
