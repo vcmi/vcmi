@@ -2177,7 +2177,7 @@ void VCAI::tryRealize(Goals::BuyArmy & g)
 		auto res = ah->allResources();
 		std::vector<creInfo> creaturesInDwellings;
 
-		for (int i = 0; i < t->creatures.size(); i++)
+		for (int i = t->creatures.size() - 1; i >= 0; i--)
 		{
 			auto ci = infoFromDC(t->creatures[i]);
 
@@ -2212,6 +2212,11 @@ void VCAI::tryRealize(Goals::BuyArmy & g)
 
 		cb->recruitCreatures(t, t->getUpperArmy(), ci.creID, ci.count, ci.level);
 		valueBought += ci.count * ci.cre->AIValue;
+	}
+
+	if(t->visitingHero)
+	{
+		moveHeroToTile(t->visitablePos(), t->visitingHero.get());
 	}
 
 	throw goalFulfilledException(sptr(g)); //we bought as many creatures as we wanted
