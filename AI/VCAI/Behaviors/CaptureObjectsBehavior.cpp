@@ -9,6 +9,7 @@
  */
 #include "StdInc.h"
 #include "../VCAI.h"
+#include "../Engine/Nullkiller.h"
 #include "../AIhelper.h"
 #include "../Goals/ExecuteHeroChain.h"
 #include "CaptureObjectsBehavior.h"
@@ -47,6 +48,7 @@ Goals::TGoalVec CaptureObjectsBehavior::getTasks()
 				continue;
 
 			const int3 pos = objToVisit->visitablePos();
+
 			auto paths = ai->ah->getPathsToTile(pos);
 			std::vector<std::shared_ptr<ExecuteHeroChain>> waysToVisitObj;
 			std::shared_ptr<ExecuteHeroChain> closestWay;
@@ -60,6 +62,14 @@ Goals::TGoalVec CaptureObjectsBehavior::getTasks()
 #ifdef VCMI_TRACE_PATHFINDER
 				logAi->trace("Path found %s", path.toString());
 #endif
+
+				if(ai->nullkiller->dangerHitMap->enemyCanKillOurHeroesAlongThePath(path))
+				{
+#ifdef VCMI_TRACE_PATHFINDER
+					logAi->trace("Ignore path. Target hero can be killed by enemy");
+#endif
+					continue;
+				}
 
 				if(!shouldVisit(path.targetHero, objToVisit))
 					continue;

@@ -33,9 +33,10 @@ void AINodeStorage::initialize(const PathfinderOptions & options, const CGameSta
 
 	//TODO: fix this code duplication with NodeStorage::initialize, problem is to keep `resetTile` inline
 	int3 pos;
-	const PlayerColor player = ai->playerID;
+	const PlayerColor player = playerID;
+	const PlayerColor fowPlayer = ai->playerID;
 	const int3 sizes = gs->getMapSize();
-	const auto & fow = static_cast<const CGameInfoCallback *>(gs)->getPlayerTeam(player)->fogOfWarMap;
+	const auto & fow = static_cast<const CGameInfoCallback *>(gs)->getPlayerTeam(fowPlayer)->fogOfWarMap;
 
 	//make 200% sure that these are loop invariants (also a bit shorter code), let compiler do the rest(loop unswitching)
 	const bool useFlying = options.useFlying;
@@ -478,10 +479,13 @@ void AINodeStorage::setHeroes(std::vector<HeroPtr> heroes, const VCAI * _ai)
 	cb = _ai->myCb.get();
 	ai = _ai;
 
+	playerID = ai->playerID;
+
 	for(auto & hero : heroes)
 	{
 		uint64_t mask = 1 << actors.size();
 
+		playerID = hero->tempOwner;
 		actors.push_back(std::make_shared<HeroActor>(hero.get(), mask, ai));
 	}
 }
@@ -822,6 +826,17 @@ float AIPath::movementCost() const
 
 	// TODO: boost:optional?
 	return 0.0;
+}
+
+uint8_t AIPath::turn() const
+{
+	if(nodes.size())
+	{
+		return nodes.front().turns;
+	}
+
+	// TODO: boost:optional?
+	return 0;
 }
 
 uint64_t AIPath::getHeroStrength() const

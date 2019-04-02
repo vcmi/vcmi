@@ -1,6 +1,7 @@
 #pragma once
 
 #include "PriorityEvaluator.h"
+#include "DangerHitMapAnalyzer.h"
 #include "../Goals/AbstractGoal.h"
 #include "../Behaviors/Behavior.h"
 
@@ -12,6 +13,8 @@ private:
 	std::set<HeroPtr> lockedHeroes;
 
 public:
+	std::unique_ptr<DangerHitMapAnalyzer> dangerHitMap;
+
 	Nullkiller();
 	void makeTurn();
 	bool isActive(const CGHeroInstance * hero) const { return activeHero.h == hero; }

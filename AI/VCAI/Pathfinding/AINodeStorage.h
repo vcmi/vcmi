@@ -34,7 +34,7 @@ struct AIPathNode : public CGPathNode
 struct AIPathNodeInfo
 {
 	float cost;
-	int turns;
+	uint8_t turns;
 	int3 coord;
 	uint64_t danger;
 	const CGHeroInstance * targetHero;
@@ -66,6 +66,8 @@ struct AIPath
 
 	float movementCost() const;
 
+	uint8_t turn() const;
+
 	uint64_t getHeroStrength() const;
 
 	std::string toString();
@@ -91,6 +93,7 @@ private:
 	std::vector<CGPathNode *> heroChain;
 	bool heroChainPass; // true if we need to calculate hero chain
 	int heroChainTurn;
+	PlayerColor playerID;
 
 public:
 	/// more than 1 chain layer for each hero allows us to have more than 1 path to each tile so we can chose more optimal one.
