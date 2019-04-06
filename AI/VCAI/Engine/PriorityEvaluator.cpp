@@ -48,11 +48,13 @@ void PriorityEvaluator::initVisitTile()
 {
 	try
 	{
-		armyLossPersentageVariable = new fl::InputVariable("armyLoss"); //hero must be strong enough to defeat guards
-		heroStrengthVariable = new fl::InputVariable("heroStrength"); //we want to use weakest possible hero
-		turnDistanceVariable = new fl::InputVariable("turnDistance"); //we want to use hero who is near
-		goldRewardVariable = new fl::InputVariable("goldReward"); //indicate AI that content of the file is important or it is probably bad
-		armyRewardVariable = new fl::InputVariable("armyReward"); //indicate AI that content of the file is important or it is probably bad
+		armyLossPersentageVariable = new fl::InputVariable("armyLoss");
+		armyStrengthVariable = new fl::InputVariable("armyStrength");
+		dangerVariable = new fl::InputVariable("danger");
+		turnDistanceVariable = new fl::InputVariable("turnDistance");
+		goldRewardVariable = new fl::InputVariable("goldReward");
+		armyRewardVariable = new fl::InputVariable("armyReward");
+
 		value = new fl::OutputVariable("Value");
 		value->setMinimum(0);
 		value->setMaximum(1);
@@ -67,10 +69,11 @@ void PriorityEvaluator::initVisitTile()
 
 		std::vector<fl::InputVariable *> helper = {
 			armyLossPersentageVariable,
-			heroStrengthVariable,
+			armyStrengthVariable,
 			turnDistanceVariable,
 			goldRewardVariable,
-			armyRewardVariable };
+			armyRewardVariable,
+			dangerVariable };
 
 		for(auto val : helper)
 		{
@@ -83,10 +86,10 @@ void PriorityEvaluator::initVisitTile()
 		armyLossPersentageVariable->setRange(0, 1);
 
 		//strength compared to our main hero
-		heroStrengthVariable->addTerm(new fl::Ramp("LOW", 0.2, 0));
-		heroStrengthVariable->addTerm(new fl::Triangle("MEDIUM", 0.2, 0.8));
-		heroStrengthVariable->addTerm(new fl::Ramp("HIGH", 0.5, 1));
-		heroStrengthVariable->setRange(0.0, 1.0);
+		armyStrengthVariable->addTerm(new fl::Ramp("LOW", 0.2, 0));
+		armyStrengthVariable->addTerm(new fl::Triangle("MEDIUM", 0.2, 0.8));
+		armyStrengthVariable->addTerm(new fl::Ramp("HIGH", 0.5, 1));
+		armyStrengthVariable->setRange(0.0, 1.0);
 
 		turnDistanceVariable->addTerm(new fl::Ramp("SMALL", 1.000, 0.000));
 		turnDistanceVariable->addTerm(new fl::Triangle("MEDIUM", 0.000, 1.000, 2.000));
@@ -102,6 +105,9 @@ void PriorityEvaluator::initVisitTile()
 		armyRewardVariable->addTerm(new fl::Triangle("MEDIUM", 0.100, 0.400, 0.800));
 		armyRewardVariable->addTerm(new fl::Ramp("HIGH", 0.400, 1.000));
 		armyRewardVariable->setRange(0.0, 1.0);
+
+		dangerVariable->addTerm(new fl::Ramp("NONE", 50, 0));
+		dangerVariable->addTerm(new fl::Ramp("HIGH", 50, 10000));
 
 		value->addTerm(new fl::Ramp("LOWEST", 0.150, 0.000));
 		value->addTerm(new fl::Triangle("LOW", 0.100, 0.100, 0.250, 0.500));
@@ -147,6 +153,8 @@ void PriorityEvaluator::initVisitTile()
 		addRule("if armyLoss is HIGH then Value is LOWEST");
 		addRule("if armyLoss is LOW then Value is MEDIUM");
 		addRule("if armyReward is LOW and turnDistance is LONG then Value is LOWEST");
+		addRule("if danger is NONE and armyStrength is HIGH and armyReward is LOW then Value is LOW");
+		addRule("if danger is NONE and armyStrength is HIGH and armyReward is MEDIUM then Value is BITLOW");
 	}
 	catch(fl::Exception & fe)
 	{
@@ -307,15 +315,18 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task)
 	double armyLossPersentage = task->evaluationContext.armyLoss / (double)armyTotal;
 	int32_t goldReward = getGoldReward(target, hero);
 	uint64_t armyReward = getArmyReward(target, hero);
+	uint64_t danger = task->evaluationContext.danger;
+	float armyStrength = (fl::scalar)hero->getArmyStrength() / ai->primaryHero()->getArmyStrength();
 	double result = 0;
 
 	try
 	{
 		armyLossPersentageVariable->setValue(armyLossPersentage);
-		heroStrengthVariable->setValue((fl::scalar)hero->getTotalStrength() / ai->primaryHero()->getTotalStrength());
+		armyStrengthVariable->setValue(armyStrength);
 		turnDistanceVariable->setValue(task->evaluationContext.movementCost);
 		goldRewardVariable->setValue(goldReward);
 		armyRewardVariable->setValue(armyReward / 10000.0);
+		dangerVariable->setValue(danger);
 
 		engine.process();
 		//engine.process(VISIT_TILE); //TODO: Process only Visit_Tile
@@ -328,12 +339,14 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task)
 	assert(result >= 0);
 
 #ifdef VCMI_TRACE_PATHFINDER
-	logAi->trace("Evaluated %s, loss: %f, turns: %f, gold: %d, army gain: %d, result %f",
+	logAi->trace("Evaluated %s, loss: %f, turns: %f, gold: %d, army gain: %d, danger: %d, army strength: %f%%, result %f",
 		task->name(),
 		armyLossPersentage,
 		task->evaluationContext.movementCost,
 		goldReward,
 		armyReward,
+		danger,
+		(int)(armyStrength * 100),
 		result);
 #endif
 
