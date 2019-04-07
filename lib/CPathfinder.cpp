@@ -290,9 +290,6 @@ CPathfinder::CPathfinder(
 	, source()
 	, destination()
 {
-	assert(hero);
-	assert(hero == getHero(hero->id));
-
 	initializeGraph();
 }
 

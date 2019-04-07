@@ -24,6 +24,6 @@ public:
 private:
 	void resetAiState();
 	void updateAiState();
-	Goals::TSubgoal choseBestTask(Behavior & behavior);
-	Goals::TSubgoal choseBestTask(Goals::TGoalVec tasks);
+	Goals::TSubgoal choseBestTask(std::shared_ptr<Behavior> behavior) const;
+	Goals::TSubgoal choseBestTask(Goals::TGoalVec & tasks) const;
 };
