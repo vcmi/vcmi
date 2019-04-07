@@ -1307,10 +1307,7 @@ bool VCAI::isGoodForVisit(const CGObjectInstance * obj, HeroPtr h, const AIPath 
 	const CGObjectInstance * topObj = cb->getVisitableObjs(obj->visitablePos()).back(); //it may be hero visiting this obj
 																						//we don't try visiting object on which allied or owned hero stands
 																						// -> it will just trigger exchange windows and AI will be confused that obj behind doesn't get visited
-	if (topObj->ID == Obj::HERO && cb->getPlayerRelations(h->tempOwner, topObj->tempOwner) != PlayerRelations::ENEMIES)
-		return false;
-	else
-		return true; //all of the following is met
+	return !(topObj->ID == Obj::HERO && cb->getPlayerRelations(h->tempOwner, topObj->tempOwner) != PlayerRelations::ENEMIES); //all of the following is met
 }
 
 bool VCAI::isTileNotReserved(const CGHeroInstance * h, int3 t) const

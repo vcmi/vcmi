@@ -47,7 +47,7 @@ std::vector<SlotInfo> ArmyManager::getSortedSlots(const CCreatureSet * target, c
 	for(auto pair : creToPower)
 		resultingArmy.push_back(pair.second);
 
-	boost::sort(resultingArmy, [](SlotInfo & left, SlotInfo & right) -> bool
+	boost::sort(resultingArmy, [](const SlotInfo & left, const SlotInfo & right) -> bool
 	{
 		return left.power > right.power;
 	});
@@ -57,7 +57,7 @@ std::vector<SlotInfo> ArmyManager::getSortedSlots(const CCreatureSet * target, c
 
 std::vector<SlotInfo>::iterator ArmyManager::getWeakestCreature(std::vector<SlotInfo> & army) const
 {
-	auto weakest = boost::min_element(army, [](SlotInfo & left, SlotInfo & right) -> bool
+	auto weakest = boost::min_element(army, [](const SlotInfo & left, const SlotInfo & right) -> bool
 	{
 		if(left.creature->level != right.creature->level)
 			return left.creature->level < right.creature->level;

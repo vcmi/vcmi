@@ -141,6 +141,7 @@
   <ItemGroup>
     <ClCompile Include="AIhelper.cpp" />
     <ClCompile Include="AIUtility.cpp" />
+    <ClCompile Include="ArmyManager.cpp" />
     <ClCompile Include="BuildingManager.cpp" />
     <ClCompile Include="FuzzyEngines.cpp" />
     <ClCompile Include="FuzzyHelper.cpp" />
@@ -168,6 +169,7 @@
     <ClCompile Include="Goals\Win.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MapObjectsEvaluator.cpp" />
+    <ClInclude Include="ArmyManager.h" />
     <ClInclude Include="Pathfinding\Actions\BattleAction.h" />
     <ClInclude Include="Pathfinding\Actions\TownPortalAction.h" />
     <ClCompile Include="Pathfinding\Actions\BattleAction.cpp" />
