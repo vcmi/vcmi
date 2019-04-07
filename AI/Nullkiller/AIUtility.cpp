@@ -205,14 +205,7 @@ bool isSafeToVisit(HeroPtr h, const CCreatureSet * heroArmy, uint64_t dangerStre
 
 	if(dangerStrength)
 	{
-		if(heroStrength / SAFE_ATTACK_CONSTANT > dangerStrength)
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
+		return heroStrength / SAFE_ATTACK_CONSTANT > dangerStrength;
 	}
 
 	return true; //there's no danger
@@ -319,8 +312,6 @@ bool compareArtifacts(const CArtifactInstance * a1, const CArtifactInstance * a2
 
 	if(art1->price == art2->price)
 		return art1->valOfBonuses(Bonus::PRIMARY_SKILL) > art2->valOfBonuses(Bonus::PRIMARY_SKILL);
-	else if(art1->price > art2->price)
-		return true;
 	else
-		return false;
+		return art1->price > art2->price;
 }
