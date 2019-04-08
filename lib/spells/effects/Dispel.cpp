@@ -94,17 +94,15 @@ bool Dispel::mainSelector(const Bonus * bonus)
 		const CSpell * sourceSpell = SpellID(bonus->sid).toSpell();
 		if(!sourceSpell)
 			return false;//error
-		//Special case: DISRUPTING_RAY is "immune" to dispell
+		//Special case: DISRUPTING_RAY and ACID_BREATH_DEFENSE are "immune" to dispell
 		//Other even PERMANENT effects can be removed (f.e. BIND)
-		if(sourceSpell->id == SpellID::DISRUPTING_RAY)
+		if(sourceSpell->id == SpellID::DISRUPTING_RAY || sourceSpell->id == SpellID::ACID_BREATH_DEFENSE)
 			return false;
 		//Special case:do not remove lifetime marker
 		if(sourceSpell->id == SpellID::CLONE)
 			return false;
 		//stack may have inherited effects
-		if(sourceSpell->isAdventureSpell())
-			return false;
-		return true;
+		return sourceSpell->isCombatSpell();
 	}
 	//not spell effect
 	return false;

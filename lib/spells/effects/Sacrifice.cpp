@@ -110,11 +110,8 @@ bool Sacrifice::applicable(Problem & problem, const Mechanics * m, const EffectT
 		auto victim = target.at(1).unitValue;
 		if(!victim)
 			return false;
-
-		if(!victim->alive() || !getStackFilter(m, false, victim) || !isReceptive(m, victim))
-			return false;
-
-		return true;
+		
+		return victim->alive() && getStackFilter(m, false, victim) && isReceptive(m, victim);
 	}
 
 	return true;

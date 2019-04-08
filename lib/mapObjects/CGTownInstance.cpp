@@ -859,9 +859,7 @@ bool CGTownInstance::passableFor(PlayerColor color) const
 	if ( tempOwner == PlayerColor::NEUTRAL )//neutral guarded - no one can visit
 		return false;
 
-	if (cb->getPlayerRelations(tempOwner, color) != PlayerRelations::ENEMIES)
-		return true;
-	return false;
+	return cb->getPlayerRelations(tempOwner, color) != PlayerRelations::ENEMIES;
 }
 
 void CGTownInstance::getOutOffsets( std::vector<int3> &offsets ) const

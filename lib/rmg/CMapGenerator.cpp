@@ -617,10 +617,7 @@ void CMapGenerator::createConnections2()
 				boost::set_intersection(tilesA, tilesB, std::back_inserter(commonTiles), [](const int3 &lhs, const int3 &rhs) -> bool
 				{
 					//ignore z coordinate
-					if (lhs.x < rhs.x)
-						return true;
-					else
-						return lhs.y < rhs.y;
+					return lhs.x < rhs.x || lhs.y < rhs.y;
 				});
 
 				vstd::erase_if(commonTiles, [](const int3 &tile) -> bool

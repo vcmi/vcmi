@@ -304,17 +304,23 @@ int32_t CStack::unitBaseAmount() const
 
 bool CStack::unitHasAmmoCart(const battle::Unit * unit) const
 {
-	bool hasAmmoCart = false;
-
 	for(const CStack * st : battle->stacks)
 	{
-		if(battle->battleMatchOwner(st, unit, true) && st->getCreature()->idNumber == CreatureID::AMMO_CART && st->alive())
+		if(battle->battleMatchOwner(st, unit, true) && st->getCreature()->idNumber == CreatureID::AMMO_CART)
 		{
-			hasAmmoCart = true;
-			break;
+			return st->alive();
 		}
 	}
-	return hasAmmoCart;
+	//ammo cart works during creature bank battle while not on battlefield
+	auto ownerHero = battle->battleGetOwnerHero(unit);
+	if(ownerHero && ownerHero->artifactsWorn.find(ArtifactPosition::MACH2) != ownerHero->artifactsWorn.end())
+	{
+		if(battle->battleGetOwnerHero(unit)->artifactsWorn.at(ArtifactPosition::MACH2).artifact->artType->id == ArtifactID::AMMO_CART)
+		{
+			return true;
+		}
+	}
+	return false; //will be always false if trying to examine enemy hero in "special battle"
 }
 
 PlayerColor CStack::unitEffectiveOwner(const battle::Unit * unit) const

@@ -122,10 +122,7 @@
 			},
 			"crystals" :
 			{
-				"type" : "GENERATE_RESOURCE",
-				"subtype" : "resource.crystal",
-				"val" : 1,
-				"propagator" : "HERO"
+				"type" : "SPECIAL_CRYSTAL_GENERATION"
 			},
 			"FLYING_ARMY" : null
 		},
@@ -254,7 +251,7 @@
 			{
 				"type" : "ACID_BREATH",
 				"val" : 25,
-				"addInfo" : 20
+				"addInfo" : 30
 			},
 			"fireBreath" :
 			{

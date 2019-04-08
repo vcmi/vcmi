@@ -1641,7 +1641,7 @@ void CGameHandler::newTurn()
 			n.specialWeek = NewTurn::DEITYOFFIRE;
 			n.creatureid = CreatureID::IMP;
 		}
-		else
+		else if(!VLC->modh->settings.NO_RANDOM_SPECIAL_WEEKS_AND_MONTHS)
 		{
 			int monthType = getRandomGenerator().nextInt(99);
 			if (newMonth) //new month
@@ -1738,6 +1738,38 @@ void CGameHandler::newTurn()
 		}
 
 		n.res[elem.first] = elem.second.resources;
+
+		if(!firstTurn && newWeek) //weekly crystal generation if 1 or more crystal dragons in any hero army or town garrison
+		{
+			bool hasCrystalGenCreature = false;
+			for(CGHeroInstance * hero : elem.second.heroes)
+			{
+				for(auto stack : hero->stacks)
+				{
+					if(stack.second->hasBonusOfType(Bonus::SPECIAL_CRYSTAL_GENERATION))
+					{
+						hasCrystalGenCreature = true;
+						break;
+					}
+				}
+			}
+			if(!hasCrystalGenCreature) //not found in armies, check towns
+			{
+				for(CGTownInstance * town : elem.second.towns)
+				{
+					for(auto stack : town->stacks)
+					{
+						if(stack.second->hasBonusOfType(Bonus::SPECIAL_CRYSTAL_GENERATION))
+						{
+							hasCrystalGenCreature = true;
+							break;
+						}
+					}
+				}
+			}
+			if(hasCrystalGenCreature)
+				n.res[elem.first][Res::CRYSTAL] += 3;
+		}
 
 		for (CGHeroInstance *h : (elem).second.heroes)
 		{
@@ -3935,30 +3967,38 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 		}
 	case EActionType::DEFEND:
 		{
-			//defensive stance
+			//defensive stance, TODO: filter out spell boosts from bonus (stone skin etc.)
 			SetStackEffect sse;
-			Bonus bonus1(Bonus::STACK_GETS_TURN, Bonus::PRIMARY_SKILL, Bonus::OTHER, 20, -1, PrimarySkill::DEFENSE, Bonus::PERCENT_TO_ALL);
+			Bonus defenseBonusToAdd(Bonus::STACK_GETS_TURN, Bonus::PRIMARY_SKILL, Bonus::OTHER, 20, -1, PrimarySkill::DEFENSE, Bonus::PERCENT_TO_ALL);
 			Bonus bonus2(Bonus::STACK_GETS_TURN, Bonus::PRIMARY_SKILL, Bonus::OTHER, stack->valOfBonuses(Bonus::DEFENSIVE_STANCE),
 				 -1, PrimarySkill::DEFENSE, Bonus::ADDITIVE_VALUE);
+			Bonus alternativeWeakCreatureBonus(Bonus::STACK_GETS_TURN, Bonus::PRIMARY_SKILL, Bonus::OTHER, 1, -1, PrimarySkill::DEFENSE, Bonus::ADDITIVE_VALUE);
+
 			BonusList defence = *stack->getBonuses(Selector::typeSubtype(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE));
 			int oldDefenceValue = defence.totalValue();
 
-			defence.push_back(std::make_shared<Bonus>(bonus1));
+			defence.push_back(std::make_shared<Bonus>(defenseBonusToAdd));
 			defence.push_back(std::make_shared<Bonus>(bonus2));
 
 			int difference = defence.totalValue() - oldDefenceValue;
+			std::vector<Bonus> buffer;
+			if(difference == 0) //give replacement bonus for creatures not reaching 5 defense points (20% of def becomes 0)
+			{
+				difference = 1;
+				buffer.push_back(alternativeWeakCreatureBonus);
+			}
+			else
+			{
+				buffer.push_back(defenseBonusToAdd);
+			}
+
+			buffer.push_back(bonus2);
 
 			MetaString text;
 			stack->addText(text, MetaString::GENERAL_TXT, 120);
 			stack->addNameReplacement(text);
 			text.addReplacement(difference);
-
 			sse.battleLog.push_back(text);
-
-			std::vector<Bonus> buffer;
-			buffer.push_back(bonus1);
-			buffer.push_back(bonus2);
-
 			sse.toUpdate.push_back(std::make_pair(ba.stackNumber, buffer));
 			sendAndApply(&sse);
 

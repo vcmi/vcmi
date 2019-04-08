@@ -594,10 +594,7 @@ CSpell::TargetInfo::TargetInfo(const CSpell * spell, const int level, spells::Mo
 bool DLL_LINKAGE isInScreenRange(const int3 & center, const int3 & pos)
 {
 	int3 diff = pos - center;
-	if(diff.x >= -9  &&  diff.x <= 9  &&  diff.y >= -8  &&  diff.y <= 8)
-		return true;
-	else
-		return false;
+	return diff.x >= -9 && diff.x <= 9 && diff.y >= -8 && diff.y <= 8;
 }
 
 ///CSpellHandler

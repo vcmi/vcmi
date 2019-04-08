@@ -476,6 +476,7 @@ CUnitState::CUnitState()
 	movedThisRound(false),
 	summoned(false),
 	waiting(false),
+	waitedThisTurn(false),
 	casts(this),
 	counterAttacks(this),
 	health(this),
@@ -508,6 +509,7 @@ CUnitState & CUnitState::operator=(const CUnitState & other)
 	movedThisRound = other.movedThisRound;
 	summoned = other.summoned;
 	waiting = other.waiting;
+	waitedThisTurn = other.waitedThisTurn;
 	casts = other.casts;
 	counterAttacks = other.counterAttacks;
 	health = other.health;
@@ -719,15 +721,12 @@ bool CUnitState::canMove(int turn) const
 
 bool CUnitState::defended(int turn) const
 {
-	if(!turn)
-		return defending;
-	else
-		return false;
+	return !turn && defending;
 }
 
 bool CUnitState::moved(int turn) const
 {
-	if(!turn)
+	if(!turn && !waiting)
 		return movedThisRound;
 	else
 		return false;
@@ -843,6 +842,7 @@ void CUnitState::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeBool("moved", movedThisRound);
 	handler.serializeBool("summoned", summoned);
 	handler.serializeBool("waiting", waiting);
+	handler.serializeBool("waitedThisTurn", waitedThisTurn);
 
 	handler.serializeStruct("casts", casts);
 	handler.serializeStruct("counterAttacks", counterAttacks);
@@ -876,6 +876,7 @@ void CUnitState::reset()
 	movedThisRound = false;
 	summoned = false;
 	waiting = false;
+	waitedThisTurn = false;
 
 	casts.reset();
 	counterAttacks.reset();
@@ -946,6 +947,7 @@ void CUnitState::afterNewRound()
 {
 	defending = false;
 	waiting = false;
+	waitedThisTurn = false;
 	movedThisRound = false;
 	hadMorale = false;
 	fear = false;

@@ -1,5 +1,3 @@
-include_directories(${Boost_INCLUDE_DIRS} ${CMAKE_HOME_DIRECTORY} ${CMAKE_HOME_DIRECTORY}/include ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_HOME_DIRECTORY}/lib)
-
 set(emptyAI_SRCS
 		StdInc.cpp
 
@@ -16,7 +14,8 @@ set(emptyAI_HEADERS
 assign_source_group(${emptyAI_SRCS} ${emptyAI_HEADERS})
 
 add_library(EmptyAI SHARED ${emptyAI_SRCS} ${emptyAI_HEADERS})
-target_link_libraries(EmptyAI vcmi)
+target_include_directories(EmptyAI PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(EmptyAI PRIVATE vcmi)
 
 vcmi_set_output_dir(EmptyAI "AI")
 

@@ -577,11 +577,8 @@ bool CBattleInfoCallback::battleCanAttack(const CStack * stack, const CStack * t
 	auto &id = stack->getCreature()->idNumber;
 	if (id == CreatureID::FIRST_AID_TENT || id == CreatureID::CATAPULT)
 		return false;
-
-	if (!target->alive())
-		return false;
-
-	return true;
+	
+	return target->alive();
 }
 
 bool CBattleInfoCallback::battleCanShoot(const battle::Unit * attacker, BattleHex dest) const
@@ -610,12 +607,11 @@ bool CBattleInfoCallback::battleCanShoot(const battle::Unit * attacker, BattleHe
 	if(attacker->creatureIndex() == CreatureID::CATAPULT && defender) //catapult cannot attack creatures
 		return false;
 
-	if(attacker->canShoot()
+	return attacker->canShoot()
 		&& battleMatchOwner(attacker, defender)
 		&& defender->alive()
-		&& (!battleIsUnitBlocked(attacker) || attacker->hasBonusOfType(Bonus::FREE_SHOOTING)))
-		return true;
-	return false;
+		&& (!battleIsUnitBlocked(attacker)
+		|| attacker->hasBonusOfType(Bonus::FREE_SHOOTING));
 }
 
 TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo & info) const

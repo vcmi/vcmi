@@ -57,11 +57,7 @@ public:
 	bool isReceptive(const Mechanics * m, const battle::Unit * target) const override
 	{
 		bool result = check(m, target);
-
-		if(inverted)
-			return !result;
-		else
-			return result;
+		return inverted != result;
 	}
 
 protected:
@@ -120,10 +116,10 @@ protected:
 		cachingStr << "type_" << Bonus::LEVEL_SPELL_IMMUNITY << "addInfo_1";
 
 		TBonusListPtr levelImmunities = target->getBonuses(Selector::type(Bonus::LEVEL_SPELL_IMMUNITY).And(Selector::info(1)), cachingStr.str());
-
-		if(levelImmunities->size() > 0 && levelImmunities->totalValue() >= m->getSpellLevel() && m->getSpellLevel() > 0)
-			return false;
-		return true;
+		
+		return levelImmunities->size() == 0 ||
+		levelImmunities->totalValue() < m->getSpellLevel() ||
+		m->getSpellLevel() <= 0;
 	}
 };
 
@@ -141,9 +137,7 @@ protected:
 	{
 		std::stringstream cachingStr;
 		cachingStr << "type_" << Bonus::SPELL_IMMUNITY << "subtype_" << m->getSpellIndex() << "addInfo_1";
-		if(target->hasBonus(Selector::typeSubtypeInfo(Bonus::SPELL_IMMUNITY, m->getSpellIndex(), 1), cachingStr.str()))
-			return false;
-		return true;
+		return !target->hasBonus(Selector::typeSubtypeInfo(Bonus::SPELL_IMMUNITY, m->getSpellIndex(), 1), cachingStr.str());
 	}
 };
 
@@ -197,10 +191,9 @@ protected:
 	bool check(const Mechanics * m, const battle::Unit * target) const override
 	{
 		TBonusListPtr levelImmunities = target->getBonuses(Selector::type(Bonus::LEVEL_SPELL_IMMUNITY));
-
-		if(levelImmunities->size() > 0 && levelImmunities->totalValue() >= m->getSpellLevel() && m->getSpellLevel() > 0)
-			return false;
-		return true;
+		return levelImmunities->size() == 0 ||
+		levelImmunities->totalValue() < m->getSpellLevel() ||
+		m->getSpellLevel() <= 0;
 	}
 };
 
@@ -236,10 +229,7 @@ protected:
 		int64_t subjectHealth = target->getAvailableHealth();
 		//apply 'damage' bonus for hypnotize, including hero specialty
 		auto maxHealth = m->applySpellBonus(m->getEffectValue(), target);
-		if(subjectHealth > maxHealth)
-			return false;
-
-		return true;
+		return subjectHealth <= maxHealth;
 	}
 };
 
@@ -426,11 +416,7 @@ bool TargetCondition::isReceptive(const Mechanics * m, const battle::Unit * targ
 		if(item->isReceptive(m, target))
 			return true;
 	}
-
-	if(!check(normal, m, target))
-		return false;
-
-	return true;
+	return check(normal, m, target);
 }
 
 void TargetCondition::serializeJson(JsonSerializeFormat & handler, const ItemFactory * itemFactory)
@@ -488,11 +474,7 @@ bool TargetCondition::check(const ItemVector & condition, const Mechanics * m, c
 			nonExclusiveExits = true;
 		}
 	}
-
-	if(nonExclusiveExits)
-		return nonExclusiveCheck;
-	else
-		return true;
+	return !nonExclusiveExits || nonExclusiveCheck;
 }
 
 void TargetCondition::loadConditions(const JsonNode & source, bool exclusive, bool inverted, const ItemFactory * itemFactory)

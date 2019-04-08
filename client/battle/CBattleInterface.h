@@ -175,6 +175,8 @@ private:
 	PossibleActions currentAction; //action that will be performed on l-click
 	PossibleActions selectedAction; //last action chosen (and saved) by player
 	PossibleActions illegalAction; //most likely action that can't be performed here
+	bool battleActionsStarted; //used for delaying battle actions until intro sound stops
+	int battleIntroSoundChannel; //required as variable for disabling it via ESC key
 
 	void setActiveStack(const CStack *stack);
 	void setHoveredStack(const CStack *stack);

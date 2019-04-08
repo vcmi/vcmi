@@ -115,7 +115,7 @@ float AnimationControls::getProjectileSpeed()
 
 float AnimationControls::getSpellEffectSpeed()
 {
-	return settings["battle"]["animationSpeed"].Float() * 60;
+	return settings["battle"]["animationSpeed"].Float() * 30;
 }
 
 float AnimationControls::getMovementDuration(const CCreature * creature)
