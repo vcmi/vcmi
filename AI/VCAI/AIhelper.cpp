@@ -17,6 +17,7 @@ AIhelper::AIhelper()
 	buildingManager.reset(new BuildingManager());
 	pathfindingManager.reset(new PathfindingManager());
 	armyManager.reset(new ArmyManager());
+	heroManager.reset(new HeroManager());
 }
 
 AIhelper::~AIhelper()
@@ -34,6 +35,7 @@ void AIhelper::init(CPlayerSpecificInfoCallback * CB)
 	buildingManager->init(CB);
 	pathfindingManager->init(CB);
 	armyManager->init(CB);
+	heroManager->init(CB);
 }
 
 void AIhelper::setAI(VCAI * AI)
@@ -42,6 +44,7 @@ void AIhelper::setAI(VCAI * AI)
 	buildingManager->setAI(AI);
 	pathfindingManager->setAI(AI);
 	armyManager->setAI(AI);
+	heroManager->setAI(AI);
 }
 
 bool AIhelper::getBuildingOptions(const CGTownInstance * t)
@@ -182,4 +185,14 @@ std::vector<SlotInfo>::iterator AIhelper::getWeakestCreature(std::vector<SlotInf
 std::vector<SlotInfo> AIhelper::getSortedSlots(const CCreatureSet * target, const CCreatureSet * source) const
 {
 	return armyManager->getSortedSlots(target, source);
+}
+
+int AIhelper::selectBestSkill(const HeroPtr & hero, const std::vector<SecondarySkill> & skills) const
+{
+	return heroManager->selectBestSkill(hero, skills);
+}
+
+std::map<HeroPtr, HeroRole> AIhelper::getHeroRoles() const
+{
+	return heroManager->getHeroRoles();
 }
