@@ -123,7 +123,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 
 	
 		//evaluate casting spell for spellcasting stack
-		boost::optional<PossibleSpellcast> bestSpellcast = boost::none;
+		boost::optional<PossibleSpellcast> bestSpellcast(boost::none);
 		//TODO: faerie dragon type spell should be selected by server
 		SpellID creatureSpellToCast = cb->battleGetRandomStackSpell(CRandomGenerator::getDefault(), stack, CBattleInfoCallback::RANDOM_AIMED);
 		if(stack->hasBonusOfType(Bonus::SPELLCASTER) && stack->canCast() && creatureSpellToCast != SpellID::NONE)
@@ -154,18 +154,21 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 		HypotheticBattle hb(getCbc());
 
 		PotentialTargets targets(stack, &hb);
-		boost::optional<AttackPossibility> bestAttack = boost::none;
 		if(targets.possibleAttacks.size())
 		{
-			bestAttack = targets.bestAction();
+			AttackPossibility bestAttack = targets.bestAction();
 
 			//TODO: consider more complex spellcast evaluation, f.e. because "re-retaliation" during enemy move in same turn for melee attack etc.
-			if(bestSpellcast.is_initialized() && bestSpellcast->value > bestAttack->damageDiff())
+			if(bestSpellcast.is_initialized() && bestSpellcast->value > bestAttack.damageDiff())
 				return BattleAction::makeCreatureSpellcast(stack, bestSpellcast->dest, bestSpellcast->spell->id);
-			else if(bestAttack->attack.shooting)
-				return BattleAction::makeShotAttack(stack, bestAttack->attack.defender);
+			else if(bestAttack.attack.shooting)
+				return BattleAction::makeShotAttack(stack, bestAttack.attack.defender);
 			else
-				return BattleAction::makeMeleeAttack(stack, bestAttack->attack.defender->getPosition(), bestAttack->tile);
+				return BattleAction::makeMeleeAttack(stack, bestAttack.attack.defender->getPosition(), bestAttack.tile);
+		}
+		else if(bestSpellcast.is_initialized())
+		{
+			return BattleAction::makeCreatureSpellcast(stack, bestSpellcast->dest, bestSpellcast->spell->id);
 		}
 		else
 		{
