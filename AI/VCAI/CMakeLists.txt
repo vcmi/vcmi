@@ -16,6 +16,7 @@ set(VCAI_SRCS
 		AIUtility.cpp
 		AIhelper.cpp
 		ArmyManager.cpp
+		HeroManager.cpp
 		ResourceManager.cpp
 		BuildingManager.cpp
 		SectorMap.cpp
@@ -76,6 +77,7 @@ set(VCAI_HEADERS
 		AIUtility.h
 		AIhelper.h
 		ArmyManager.h
+		HeroManager.h
 		ResourceManager.h
 		BuildingManager.h
 		SectorMap.h

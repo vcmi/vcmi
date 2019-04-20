@@ -624,7 +624,7 @@ void VCAI::heroGotLevel(const CGHeroInstance * hero, PrimarySkill::PrimarySkill 
 	LOG_TRACE_PARAMS(logAi, "queryID '%i'", queryID);
 	NET_EVENT_HANDLER;
 	status.addQuery(queryID, boost::str(boost::format("Hero %s got level %d") % hero->name % hero->level));
-	requestActionASAP([=](){ answerQuery(queryID, 0); });
+	requestActionASAP([=](){ answerQuery(queryID, ah->selectBestSkill(hero, skills)); });
 }
 
 void VCAI::commanderGotLevel(const CCommanderInstance * commander, std::vector<ui32> skills, QueryID queryID)
