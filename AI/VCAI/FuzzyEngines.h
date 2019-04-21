@@ -17,7 +17,7 @@ class engineBase //subclasses create fuzzylite variables with "new" that are not
 {
 protected:
 	fl::Engine engine;
-	fl::RuleBlock rules;
+	fl::RuleBlock * rules;
 	virtual void configure();
 	void addRule(const std::string & txt);
 public:

@@ -23,7 +23,8 @@ extern FuzzyHelper * fh;
 
 engineBase::engineBase()
 {
-	engine.addRuleBlock(&rules);
+	rules = new fl::RuleBlock();
+	engine.addRuleBlock(rules);
 }
 
 void engineBase::configure()
@@ -34,7 +35,7 @@ void engineBase::configure()
 
 void engineBase::addRule(const std::string & txt)
 {
-	rules.addRule(fl::Rule::parse(txt, &engine));
+	rules->addRule(fl::Rule::parse(txt, &engine));
 }
 
 struct armyStructure
