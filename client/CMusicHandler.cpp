@@ -61,11 +61,10 @@ void CAudioBase::init()
 
 void CAudioBase::release()
 {
-	if (initialized)
-	{
+	if(!(CCS->soundh->initialized && CCS->musich->initialized))
 		Mix_CloseAudio();
-		initialized = false;
-	}
+
+	initialized = false;
 }
 
 void CAudioBase::setVolume(ui32 percent)
