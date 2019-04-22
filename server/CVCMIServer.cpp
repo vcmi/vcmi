@@ -191,6 +191,8 @@ void CVCMIServer::run()
 	{
 		gh->run(si->mode == StartInfo::LOAD_GAME);
 	}
+	while(state == EServerState::GAMEPLAY_ENDED)
+		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
 }
 
 void CVCMIServer::threadAnnounceLobby()
