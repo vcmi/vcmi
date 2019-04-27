@@ -38,6 +38,8 @@ Goals::TGoalVec CaptureObjectsBehavior::getTasks()
 			return;
 		}
 
+		logAi->trace("Scanning objects, count %d", objs.size());
+
 		for(auto objToVisit : objs)
 		{			
 #ifdef VCMI_TRACE_PATHFINDER

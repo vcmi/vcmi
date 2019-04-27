@@ -197,7 +197,22 @@ int AIhelper::selectBestSkill(const HeroPtr & hero, const std::vector<SecondaryS
 	return heroManager->selectBestSkill(hero, skills);
 }
 
-std::map<HeroPtr, HeroRole> AIhelper::getHeroRoles() const
+const std::map<HeroPtr, HeroRole> & AIhelper::getHeroRoles() const
 {
 	return heroManager->getHeroRoles();
+}
+
+HeroRole AIhelper::getHeroRole(const HeroPtr & hero) const
+{
+	return heroManager->getHeroRole(hero);
+}
+
+void AIhelper::updateHeroRoles()
+{
+	heroManager->updateHeroRoles();
+}
+
+float AIhelper::evaluateSecSkill(SecondarySkill skill, const CGHeroInstance * hero) const
+{
+	return heroManager->evaluateSecSkill(skill, hero);
 }

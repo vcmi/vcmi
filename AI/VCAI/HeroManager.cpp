@@ -67,6 +67,16 @@ void HeroManager::setAI(VCAI * AI)
 	ai = AI;
 }
 
+float HeroManager::evaluateSecSkill(SecondarySkill skill, const CGHeroInstance * hero) const
+{
+	auto role = getHeroRole(hero);
+
+	if(role == HeroRole::MAIN)
+		return wariorSkillsScores.evaluateSecSkill(hero, skill);
+
+	return scountSkillsScores.evaluateSecSkill(hero, skill);
+}
+
 float HeroManager::evaluateSpeciality(const CGHeroInstance * hero) const
 {
 	auto heroSpecial = Selector::source(Bonus::HERO_SPECIAL, hero->type->ID.getNum());
@@ -91,10 +101,9 @@ float HeroManager::evaluateFightingStrength(const CGHeroInstance * hero) const
 	return evaluateSpeciality(hero) + wariorSkillsScores.evaluateSecSkills(hero) + hero->level * 1.5f;
 }
 
-std::map<HeroPtr, HeroRole> HeroManager::getHeroRoles() const
+void HeroManager::updateHeroRoles()
 {
 	std::map<HeroPtr, float> scores;
-	std::map<HeroPtr, HeroRole> result;
 	auto myHeroes = ai->getMyHeroes();
 
 	for(auto & hero : myHeroes)
@@ -104,23 +113,31 @@ std::map<HeroPtr, HeroRole> HeroManager::getHeroRoles() const
 
 	std::sort(myHeroes.begin(), myHeroes.end(), [&](const HeroPtr & h1, const HeroPtr & h2) -> bool
 	{
-		return scores.at(h1) < scores.at(h2);
+		return scores.at(h1) > scores.at(h2);
 	});
 
-	int mainHeroCount = 4;
+	int mainHeroCount = (myHeroes.size() + 2) / 3;
 
 	for(auto & hero : myHeroes)
 	{
-		result[hero] = (mainHeroCount--) > 0 ? HeroRole::MAIN : HeroRole::SCOUT;
+		heroRoles[hero] = (mainHeroCount--) > 0 ? HeroRole::MAIN : HeroRole::SCOUT;
+		logAi->trace("Hero %s has role %s", hero.name, heroRoles[hero] == HeroRole::MAIN ? "main" : "scout");
 	}
+}
 
-	return result;
+HeroRole HeroManager::getHeroRole(const HeroPtr & hero) const
+{
+	return heroRoles.at(hero);
+}
+
+const std::map<HeroPtr, HeroRole> & HeroManager::getHeroRoles() const
+{
+	return heroRoles;
 }
 
 int HeroManager::selectBestSkill(const HeroPtr & hero, const std::vector<SecondarySkill> & skills) const
 {
-	auto roles = getHeroRoles();
-	auto role = roles[hero];
+	auto role = getHeroRole(hero);
 	auto & evaluator = role == HeroRole::MAIN ? wariorSkillsScores : scountSkillsScores;
 
 	int result = 0;

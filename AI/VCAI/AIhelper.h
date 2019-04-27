@@ -80,8 +80,11 @@ public:
 	std::vector<SlotInfo>::iterator getWeakestCreature(std::vector<SlotInfo> & army) const override;
 	std::vector<SlotInfo> getSortedSlots(const CCreatureSet * target, const CCreatureSet * source) const override;
 
-	std::map<HeroPtr, HeroRole> getHeroRoles() const override;
+	const std::map<HeroPtr, HeroRole> & getHeroRoles() const override;
+	HeroRole getHeroRole(const HeroPtr & hero) const override;
 	int selectBestSkill(const HeroPtr & hero, const std::vector<SecondarySkill> & skills) const override;
+	void updateHeroRoles() override;
+	float evaluateSecSkill(SecondarySkill skill, const CGHeroInstance * hero) const override;
 
 private:
 	bool notifyGoalCompleted(Goals::TSubgoal goal) override;

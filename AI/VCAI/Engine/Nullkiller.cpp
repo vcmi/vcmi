@@ -38,6 +38,8 @@ Goals::TSubgoal Nullkiller::choseBestTask(std::shared_ptr<Behavior> behavior) co
 		return Goals::sptr(Goals::Invalid());
 	}
 
+	logAi->trace("Evaluating priorities, tasks count %d", tasks.size());
+
 	for(auto task : tasks)
 	{
 		task->setpriority(priorityEvaluator->evaluate(task));
@@ -59,6 +61,7 @@ void Nullkiller::resetAiState()
 
 void Nullkiller::updateAiState()
 {
+	// TODO: move to hero manager
 	auto activeHeroes = ai->getMyHeroes();
 
 	vstd::erase_if(activeHeroes, [&](const HeroPtr & hero) -> bool{
@@ -66,6 +69,7 @@ void Nullkiller::updateAiState()
 	});
 
 	ai->ah->updatePaths(activeHeroes, true);
+	ai->ah->updateHeroRoles();
 }
 
 void Nullkiller::makeTurn()
