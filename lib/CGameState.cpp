@@ -2711,6 +2711,12 @@ std::set<HeroTypeID> CGameState::getUnusedAllowedHeroes(bool alsoIncludeNotAllow
 	for(int i = 0; i < map->allowedHeroes.size(); i++)
 		if(map->allowedHeroes[i] || alsoIncludeNotAllowed)
 			ret.insert(HeroTypeID(i));
+	
+	for(auto & playerSettingPair : scenarioOps->playerInfos) //remove uninitialized yet heroes picked for start by other players
+	{
+		if(playerSettingPair.second.hero != PlayerSettings::RANDOM)
+			ret -= HeroTypeID(playerSettingPair.second.hero);
+	}
 
 	for(auto hero : map->heroesOnMap)  //heroes instances initialization
 	{
