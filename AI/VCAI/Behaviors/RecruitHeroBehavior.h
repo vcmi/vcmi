@@ -24,3 +24,14 @@ public:
 	virtual std::string toString() const override;
 };
 
+class StartupBehavior : public Behavior
+{
+public:
+	StartupBehavior()
+	{
+	}
+
+	virtual Goals::TGoalVec getTasks() override;
+	virtual std::string toString() const override;
+};
+

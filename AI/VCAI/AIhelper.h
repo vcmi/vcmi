@@ -85,6 +85,7 @@ public:
 	int selectBestSkill(const HeroPtr & hero, const std::vector<SecondarySkill> & skills) const override;
 	void updateHeroRoles() override;
 	float evaluateSecSkill(SecondarySkill skill, const CGHeroInstance * hero) const override;
+	float evaluateHero(const CGHeroInstance * hero) const override;
 
 private:
 	bool notifyGoalCompleted(Goals::TSubgoal goal) override;

@@ -35,6 +35,7 @@ public:
 	virtual HeroRole getHeroRole(const HeroPtr & hero) const = 0;
 	virtual void updateHeroRoles() = 0;
 	virtual float evaluateSecSkill(SecondarySkill skill, const CGHeroInstance * hero) const = 0;
+	virtual float evaluateHero(const CGHeroInstance * hero) const = 0;
 };
 
 class DLL_EXPORT ISecondarySkillRule
@@ -72,6 +73,7 @@ public:
 	int selectBestSkill(const HeroPtr & hero, const std::vector<SecondarySkill> & skills) const override;
 	void updateHeroRoles() override;
 	float evaluateSecSkill(SecondarySkill skill, const CGHeroInstance * hero) const override;
+	float evaluateHero(const CGHeroInstance * hero) const override;
 
 private:
 	float evaluateFightingStrength(const CGHeroInstance * hero) const;

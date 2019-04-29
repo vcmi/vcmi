@@ -163,6 +163,11 @@ int HeroManager::selectBestSkill(const HeroPtr & hero, const std::vector<Seconda
 	return result;
 }
 
+float HeroManager::evaluateHero(const CGHeroInstance * hero) const
+{
+	return evaluateFightingStrength(hero);
+}
+
 SecondarySkillScoreMap::SecondarySkillScoreMap(std::map<SecondarySkill, float> scoreMap)
 	:scoreMap(scoreMap)
 {
