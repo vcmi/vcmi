@@ -39,14 +39,14 @@ Goals::TGoalVec BuyArmyBehavior::getTasks()
 
 	if(heroes.size())
 	{
-		auto mainHero = vstd::maxElementByFun(heroes, [](const CGHeroInstance * hero) -> uint64_t
+		auto mainArmy = vstd::maxElementByFun(heroes, [](const CGHeroInstance * hero) -> uint64_t
 		{
-			return hero->getFightingStrength();
+			return hero->getTotalStrength();
 		});
 
 		for(auto town : cb->getTownsInfo())
 		{
-			const CGHeroInstance * targetHero = *mainHero;
+			const CGHeroInstance * targetHero = *mainArmy;
 
 			/*if(town->visitingHero)
 			{
@@ -61,6 +61,9 @@ Goals::TGoalVec BuyArmyBehavior::getTasks()
 			}*/
 
 			auto reinforcement = ai->ah->howManyReinforcementsCanBuy(targetHero, town);
+
+			if(reinforcement)
+				reinforcement = ai->ah->howManyReinforcementsCanBuy(town->getUpperArmy(), town);
 
 			if(reinforcement)
 			{

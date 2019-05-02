@@ -649,6 +649,12 @@ void VCAI::showBlockingDialog(const std::string & text, const std::vector<Compon
 	if(!selection && cancel) //yes&no -> always answer yes, we are a brave AI :)
 		sel = 1;
 
+	// TODO: Find better way to understand it is Chest of Treasures
+	if(components.size() == 2 && components.front().id == Component::RESOURCE)
+	{
+		sel = 1; // for now lets pick gold from a chest.
+	}
+
 	requestActionASAP([=]()
 	{
 		answerQuery(askID, sel);
@@ -1062,7 +1068,8 @@ void VCAI::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h)
 		if(h->visitedTown) //we are inside, not just attacking
 		{
 			townVisitsThisWeek[h].insert(h->visitedTown);
-			if(!h->hasSpellbook() && ah->freeGold() >= GameConstants::SPELLBOOK_GOLD_COST)
+			ah->updateHeroRoles();
+			if(ah->getHeroRole(h) == HeroRole::MAIN && !h->hasSpellbook() && ah->freeGold() >= GameConstants::SPELLBOOK_GOLD_COST)
 			{
 				if(h->visitedTown->hasBuilt(BuildingID::MAGES_GUILD_1))
 					cb->buyArtifact(h.get(), ArtifactID::SPELLBOOK);
@@ -1807,6 +1814,9 @@ bool VCAI::isAccessibleForHero(const int3 & pos, HeroPtr h, bool includeAllies) 
 
 bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 {
+	if(h->inTownGarrison && h->visitedTown)
+		cb->swapGarrisonHero(h->visitedTown);
+
 	//TODO: consider if blockVisit objects change something in our checks: AIUtility::isBlockVisitObj()
 
 	auto afterMovementCheck = [&]() -> void
