@@ -146,7 +146,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 				std::sort(possibleCasts.begin(), possibleCasts.end(), [&](const PossibleSpellcast & lhs, const PossibleSpellcast & rhs) { return lhs.value > rhs.value; });
 				if(!possibleCasts.empty() && possibleCasts.front().value > 0)
 				{
-					bestSpellcast = possibleCasts.front();
+					bestSpellcast = boost::optional<PossibleSpellcast>(possibleCasts.front());
 				}
 			}
 		}
