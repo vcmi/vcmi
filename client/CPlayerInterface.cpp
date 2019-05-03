@@ -353,16 +353,11 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 		// most likely this is connected with the way that this manual animation+framerate handling is solved
 		adventureInt->updateScreen = true;
 #endif
-		adventureInt->show(screen);
-		{
-			//evil returns here ...
-			//todo: get rid of it
-			logGlobal->trace("before [un]locks in %s", __FUNCTION__);
-			auto unlockPim = vstd::makeUnlockGuard(*pim); //let frame to be rendered
-			GH.mainFPSmng->framerateDelay(); //for animation purposes
-			logGlobal->trace("after [un]locks in %s", __FUNCTION__);
-		}
 
+		//evil returns here ...
+		//todo: get rid of it
+		auto unlockPim = vstd::makeUnlockGuard(*pim); //let frame to be rendered
+		GH.mainFPSmng->framerateDelay(); //for animation purposes
 	}
 	//main moving done
 
