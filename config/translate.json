@@ -20,7 +20,8 @@
 				"Deadly",
 				"Impossible"
 			]
-		}
+		},
+		"playerAttacked" : "Player has been attacked: %s"
 	},
 	"systemOptions" :
 	{
