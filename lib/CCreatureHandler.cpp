@@ -92,6 +92,16 @@ bool CCreature::isEvil () const
 	return VLC->townh->factions[faction]->alignment == EAlignment::EVIL;
 }
 
+/**
+ * Determines if the creature is of a neutral alignment.
+ * @return true if the creature is neutral, false otherwise.
+ */
+bool CCreature::isNeutral() const
+{
+	return VLC->townh->factions[faction]->alignment == EAlignment::NEUTRAL;
+}
+
+
 si32 CCreature::maxAmount(const std::vector<si32> &res) const //how many creatures can be bought
 {
 	int ret = 2147483645;

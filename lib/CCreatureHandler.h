@@ -121,6 +121,7 @@ public:
 	bool isUndead() const; //returns true if unit is undead
 	bool isGood () const;
 	bool isEvil () const;
+	bool isNeutral() const;
 	si32 maxAmount(const std::vector<si32> &res) const; //how many creatures can be bought
 	static int getQuantityID(const int & quantity); //1 - a few, 2 - several, 3 - pack, 4 - lots, 5 - horde, 6 - throng, 7 - swarm, 8 - zounds, 9 - legion
 	static int estimateCreatureCount(ui32 countID); //reverse version of above function, returns middle of range

@@ -1673,8 +1673,11 @@ void CGameHandler::newTurn()
 				if (monthType < 25)
 				{
 					n.specialWeek = NewTurn::BONUS_GROWTH; //+5
-					std::pair<int, CreatureID> newMonster(54, VLC->creh->pickRandomMonster(getRandomGenerator()));
-					//TODO do not pick neutrals
+					std::pair<int, CreatureID> newMonster(54, 0);
+					do
+					{
+						newMonster.second = VLC->creh->pickRandomMonster(getRandomGenerator());
+					} while (VLC->creh->creatures[newMonster.second] && VLC->creh->creatures[newMonster.second]->isNeutral()); // find first non neutral creature
 					n.creatureid = newMonster.second;
 				}
 			}
