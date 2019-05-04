@@ -61,6 +61,8 @@ void Nullkiller::resetAiState()
 
 void Nullkiller::updateAiState()
 {
+	ai->validateVisitableObjs();
+
 	// TODO: move to hero manager
 	auto activeHeroes = ai->getMyHeroes();
 
