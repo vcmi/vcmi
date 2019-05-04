@@ -203,6 +203,70 @@ si8 CBattleInfoCallback::battleCanTeleportTo(const battle::Unit * stack, BattleH
 	return true;
 }
 
+std::vector<PossiblePlayerBattleAction> CBattleInfoCallback::getClientActionsForStack(const CStack * stack, const BattleClientInterfaceData & data)
+{
+	RETURN_IF_NOT_BATTLE(std::vector<PossiblePlayerBattleAction>());
+	std::vector<PossiblePlayerBattleAction> allowedActionList;
+	if(data.tacticsMode) //would "if(battleGetTacticDist() > 0)" work?
+	{
+		allowedActionList.push_back(PossiblePlayerBattleAction::MOVE_TACTICS);
+		allowedActionList.push_back(PossiblePlayerBattleAction::CHOOSE_TACTICS_STACK);
+	}
+	else
+	{
+		if(stack->canCast()) //TODO: check for battlefield effects that prevent casting?
+		{
+			if(stack->hasBonusOfType(Bonus::SPELLCASTER) && data.creatureSpellToCast != -1)
+			{
+				const CSpell *spell = SpellID(data.creatureSpellToCast).toSpell();
+				PossiblePlayerBattleAction act = getCasterAction(spell, stack, spells::Mode::CREATURE_ACTIVE);
+				allowedActionList.push_back(act);
+			}
+			if(stack->hasBonusOfType(Bonus::RANDOM_SPELLCASTER))
+				allowedActionList.push_back(PossiblePlayerBattleAction::RANDOM_GENIE_SPELL);
+			if(stack->hasBonusOfType(Bonus::DAEMON_SUMMONING))
+				allowedActionList.push_back(PossiblePlayerBattleAction::RISE_DEMONS);
+		}
+		if(stack->canShoot())
+			allowedActionList.push_back(PossiblePlayerBattleAction::SHOOT);
+		if(stack->hasBonusOfType(Bonus::RETURN_AFTER_STRIKE))
+			allowedActionList.push_back(PossiblePlayerBattleAction::ATTACK_AND_RETURN);
+
+		allowedActionList.push_back(PossiblePlayerBattleAction::ATTACK); //all active stacks can attack
+		allowedActionList.push_back(PossiblePlayerBattleAction::WALK_AND_ATTACK); //not all stacks can always walk, but we will check this elsewhere
+
+		if(stack->canMove() && stack->Speed(0, true)) //probably no reason to try move war machines or bound stacks
+			allowedActionList.push_back(PossiblePlayerBattleAction::MOVE_STACK);
+
+		auto siegedTown = battleGetDefendedTown();
+		if(siegedTown && siegedTown->hasFort() && stack->hasBonusOfType(Bonus::CATAPULT)) //TODO: check shots
+			allowedActionList.push_back(PossiblePlayerBattleAction::CATAPULT);
+		if(stack->hasBonusOfType(Bonus::HEALER))
+			allowedActionList.push_back(PossiblePlayerBattleAction::HEAL);
+	}
+
+	return allowedActionList;
+}
+
+PossiblePlayerBattleAction CBattleInfoCallback::getCasterAction(const CSpell * spell, const spells::Caster * caster, spells::Mode mode) const
+{
+	RETURN_IF_NOT_BATTLE(PossiblePlayerBattleAction::INVALID);
+	PossiblePlayerBattleAction spellSelMode = PossiblePlayerBattleAction::ANY_LOCATION;
+
+	const CSpell::TargetInfo ti(spell, caster->getSpellSchoolLevel(spell), mode);
+
+	if(ti.massive || ti.type == spells::AimType::NO_TARGET)
+		spellSelMode = PossiblePlayerBattleAction::NO_LOCATION;
+	else if(ti.type == spells::AimType::LOCATION && ti.clearAffected)
+		spellSelMode = PossiblePlayerBattleAction::FREE_LOCATION;
+	else if(ti.type == spells::AimType::CREATURE)
+		spellSelMode = PossiblePlayerBattleAction::AIMED_SPELL_CREATURE;
+	else if(ti.type == spells::AimType::OBSTACLE)
+		spellSelMode = PossiblePlayerBattleAction::OBSTACLE;
+
+	return spellSelMode;
+}
+
 std::set<BattleHex> CBattleInfoCallback::battleGetAttackedHexes(const CStack* attacker, BattleHex destinationTile, BattleHex attackerPos) const
 {
 	std::set<BattleHex> attackedHexes;

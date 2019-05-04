@@ -32,6 +32,23 @@ struct DLL_LINKAGE AttackableTiles
 	}
 };
 
+enum class PossiblePlayerBattleAction // actions performed at l-click
+{
+	INVALID = -1, CREATURE_INFO,
+	MOVE_TACTICS, CHOOSE_TACTICS_STACK,
+	MOVE_STACK, ATTACK, WALK_AND_ATTACK, ATTACK_AND_RETURN, SHOOT, //OPEN_GATE, //we can open castle gate during siege
+	NO_LOCATION, ANY_LOCATION, OBSTACLE, TELEPORT, SACRIFICE, RANDOM_GENIE_SPELL,
+	FREE_LOCATION, //used with Force Field and Fire Wall - all tiles affected by spell must be free
+	CATAPULT, HEAL, RISE_DEMONS,
+	AIMED_SPELL_CREATURE
+};
+
+struct DLL_LINKAGE BattleClientInterfaceData
+{
+	si32 creatureSpellToCast;
+	ui8 tacticsMode;
+};
+
 class DLL_LINKAGE CBattleInfoCallback : public virtual CBattleInfoEssentials
 {
 public:
@@ -99,6 +116,8 @@ public:
 	SpellID getRandomCastedSpell(CRandomGenerator & rand, const CStack * caster) const; //called at the beginning of turn for Faerie Dragon
 
 	si8 battleCanTeleportTo(const battle::Unit * stack, BattleHex destHex, int telportLevel) const; //checks if teleportation of given stack to given position can take place
+	std::vector<PossiblePlayerBattleAction> getClientActionsForStack(const CStack * stack, const BattleClientInterfaceData & data);
+	PossiblePlayerBattleAction getCasterAction(const CSpell * spell, const spells::Caster * caster, spells::Mode mode) const;
 
 	//convenience methods using the ones above
 	bool isInTacticRange(BattleHex dest) const;

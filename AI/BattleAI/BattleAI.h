@@ -9,6 +9,7 @@
  */
 #pragma once
 #include "../../lib/AI_Base.h"
+#include "PossibleSpellcast.h"
 #include "PotentialTargets.h"
 
 class CSpell;
@@ -59,6 +60,8 @@ public:
 
 	void init(std::shared_ptr<CBattleCallback> CB) override;
 	void attemptCastingSpell();
+
+	void evaluateCreatureSpellcast(const CStack * stack, PossibleSpellcast & ps); //for offensive damaging spells only
 
 	BattleAction activeStack(const CStack * stack) override; //called when it's turn of that stack
 	BattleAction goTowards(const CStack * stack, BattleHex hex );
