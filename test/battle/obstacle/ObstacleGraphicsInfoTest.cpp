@@ -15,10 +15,10 @@ using namespace ::testing;
 TEST(ObstacleGraphicsInfoTest, setupParameters)
 {
 	ObstacleGraphicsInfo graphicsInfo;
-	graphicsInfo.setGraphicsName("EXPLOSION.pcx");
+	graphicsInfo.setGraphics("EXPLOSION.pcx",ObstacleState::Default);
 	graphicsInfo.setOffsetGraphicsInX(0);
 	graphicsInfo.setOffsetGraphicsInY(25);
-	EXPECT_EQ(graphicsInfo.getGraphicsName(), "EXPLOSION.pcx");
+	EXPECT_EQ(graphicsInfo.getGraphics(ObstacleState::Default), "EXPLOSION.pcx");
 	EXPECT_EQ(graphicsInfo.getOffsetGraphicsInX(), 0);
 	EXPECT_EQ(graphicsInfo.getOffsetGraphicsInY(), 25);
 }
