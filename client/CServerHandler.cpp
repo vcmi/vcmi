@@ -541,7 +541,7 @@ ui8 CServerHandler::getLoadMode()
 			if(pn.second.connection != c->connectionID)
 				return ELoadMode::MULTI;
 		}
-		if (howManyPlayerInterfaces() > 1)  //this condition will work for hotseat mode OR multiplayer with allowed more than 1 color per player to control
+		if(howManyPlayerInterfaces() > 1)  //this condition will work for hotseat mode OR multiplayer with allowed more than 1 color per player to control
 			return ELoadMode::MULTI;
 
 		return ELoadMode::SINGLE;
