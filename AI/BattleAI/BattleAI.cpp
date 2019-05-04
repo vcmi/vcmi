@@ -14,7 +14,6 @@
 
 #include "StackWithBonuses.h"
 #include "EnemyInfo.h"
-#include "PossibleSpellcast.h"
 #include "../../lib/CStopWatch.h"
 #include "../../lib/CThreadHelper.h"
 #include "../../lib/spells/CSpellHandler.h"
@@ -122,16 +121,54 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 			return *action;
 		//best action is from effective owner point if view, we are effective owner as we received "activeStack"
 
+	
+		//evaluate casting spell for spellcasting stack
+		boost::optional<PossibleSpellcast> bestSpellcast(boost::none);
+		//TODO: faerie dragon type spell should be selected by server
+		SpellID creatureSpellToCast = cb->battleGetRandomStackSpell(CRandomGenerator::getDefault(), stack, CBattleInfoCallback::RANDOM_AIMED);
+		if(stack->hasBonusOfType(Bonus::SPELLCASTER) && stack->canCast() && creatureSpellToCast != SpellID::NONE)
+		{
+			const CSpell * spell = creatureSpellToCast.toSpell();
+
+			if(spell->canBeCast(getCbc().get(), spells::Mode::CREATURE_ACTIVE, stack))
+			{
+				std::vector<PossibleSpellcast> possibleCasts;
+				spells::BattleCast temp(getCbc().get(), stack, spells::Mode::CREATURE_ACTIVE, spell);
+				for(auto & target : temp.findPotentialTargets())
+				{
+					PossibleSpellcast ps;
+					ps.dest = target;
+					ps.spell = spell;
+					evaluateCreatureSpellcast(stack, ps);
+					possibleCasts.push_back(ps);
+				}
+
+				std::sort(possibleCasts.begin(), possibleCasts.end(), [&](const PossibleSpellcast & lhs, const PossibleSpellcast & rhs) { return lhs.value > rhs.value; });
+				if(!possibleCasts.empty() && possibleCasts.front().value > 0)
+				{
+					bestSpellcast = boost::optional<PossibleSpellcast>(possibleCasts.front());
+				}
+			}
+		}
+
 		HypotheticBattle hb(getCbc());
 
 		PotentialTargets targets(stack, &hb);
 		if(targets.possibleAttacks.size())
 		{
-			auto hlp = targets.bestAction();
-			if(hlp.attack.shooting)
-				return BattleAction::makeShotAttack(stack, hlp.attack.defender);
+			AttackPossibility bestAttack = targets.bestAction();
+
+			//TODO: consider more complex spellcast evaluation, f.e. because "re-retaliation" during enemy move in same turn for melee attack etc.
+			if(bestSpellcast.is_initialized() && bestSpellcast->value > bestAttack.damageDiff())
+				return BattleAction::makeCreatureSpellcast(stack, bestSpellcast->dest, bestSpellcast->spell->id);
+			else if(bestAttack.attack.shooting)
+				return BattleAction::makeShotAttack(stack, bestAttack.attack.defender);
 			else
-				return BattleAction::makeMeleeAttack(stack, hlp.attack.defender->getPosition(), hlp.tile);
+				return BattleAction::makeMeleeAttack(stack, bestAttack.attack.defender->getPosition(), bestAttack.tile);
+		}
+		else if(bestSpellcast.is_initialized())
+		{
+			return BattleAction::makeCreatureSpellcast(stack, bestSpellcast->dest, bestSpellcast->spell->id);
 		}
 		else
 		{
@@ -520,6 +557,58 @@ void CBattleAI::attemptCastingSpell()
 		LOGFL("Best spell is %s. But it is actually useless (value %d).", castToPerform.spell->name % castToPerform.value);
 	}
 }
+
+//Below method works only for offensive spells
+void CBattleAI::evaluateCreatureSpellcast(const CStack * stack, PossibleSpellcast & ps)
+{
+	using ValueMap = PossibleSpellcast::ValueMap;
+
+	RNGStub rngStub;
+	HypotheticBattle state(getCbc());
+	TStacks all = getCbc()->battleGetAllStacks(false);
+	
+	ValueMap healthOfStack;
+	ValueMap newHealthOfStack;
+
+	for(auto unit : all)
+	{
+		healthOfStack[unit->unitId()] = unit->getAvailableHealth();
+	}
+
+	spells::BattleCast cast(&state, stack, spells::Mode::CREATURE_ACTIVE, ps.spell);
+	cast.target = ps.dest;
+	cast.cast(&state, rngStub);
+
+	for(auto unit : all)
+	{
+		auto unitId = unit->unitId();
+		auto localUnit = state.battleGetUnitByID(unitId);
+		newHealthOfStack[unitId] = localUnit->getAvailableHealth();
+	}
+
+	int64_t totalGain = 0;
+
+	for(auto unit : all)
+	{
+		auto unitId = unit->unitId();
+		auto localUnit = state.battleGetUnitByID(unitId);
+
+		auto healthDiff = newHealthOfStack[unitId] - healthOfStack[unitId];
+
+		if(localUnit->unitOwner() != getCbc()->getPlayerID())
+			healthDiff = -healthDiff;
+
+		if(healthDiff < 0)
+		{
+			ps.value = -1;
+			return; //do not damage own units at all
+		}
+
+		totalGain += healthDiff;
+	}
+
+	ps.value = totalGain;
+};
 
 int CBattleAI::distToNearestNeighbour(BattleHex hex, const ReachabilityInfo::TDistances &dists, BattleHex *chosenHex)
 {

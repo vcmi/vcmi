@@ -1755,6 +1755,8 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 					CCS->curh->changeGraphic(ECursor::ADVENTURE, 3);
 				else if(objAtTile->ID == Obj::HERO && objRelations == PlayerRelations::SAME_PLAYER)
 					CCS->curh->changeGraphic(ECursor::ADVENTURE, 2);
+				else
+					CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
 			}
 			else
 				CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);

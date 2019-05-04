@@ -101,6 +101,7 @@ public:
 	std::shared_ptr<CToggleGroup> iconDifficulty;
 
 	InfoCard();
+	void disableLabelRedraws();
 	void changeSelection();
 	void toggleChat();
 	void setChat(bool activateChat);

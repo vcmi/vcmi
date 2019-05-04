@@ -101,7 +101,7 @@ public:
 extern std::string NAME;
 
 CServerHandler::CServerHandler()
-	: state(EClientState::NONE), mx(std::make_shared<boost::recursive_mutex>()), client(nullptr), loadMode(0), campaignStateToSend(nullptr)
+	: state(EClientState::NONE), mx(std::make_shared<boost::recursive_mutex>()), client(nullptr), loadMode(0), campaignStateToSend(nullptr), campaignServerRestartLock(false)
 {
 	uuid = boost::uuids::to_string(boost::uuids::random_generator()());
 	applier = std::make_shared<CApplier<CBaseForLobbyApply>>();
@@ -495,6 +495,7 @@ void CServerHandler::endGameplay(bool closeConnection, bool restart)
 	{
 		if(CMM)
 		{
+			GH.terminate_cond->setn(false);
 			GH.curInt = CMM.get();
 			CMM->enable();
 		}
@@ -644,6 +645,7 @@ void CServerHandler::threadHandleConnection()
 			logNetwork->error(e.what());
 			if(client)
 			{
+				state = EClientState::DISCONNECTING;
 				CGuiHandler::pushSDLEvent(SDL_USEREVENT, EUserEvent::RETURN_TO_MAIN_MENU);
 			}
 			else
@@ -690,6 +692,7 @@ void CServerHandler::threadRunServer()
 		logNetwork->error("Check %s for more info", logName);
 	}
 	threadRunLocalServer.reset();
+	CSH->campaignServerRestartLock.setn(false);
 #endif
 }
 

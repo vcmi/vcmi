@@ -80,7 +80,7 @@ class CMultiLineLabel : public CLabel
 	// area of text that actually will be printed, default is widget size
 	Rect visibleSize;
 
-	void splitText(const std::string &Txt);
+	void splitText(const std::string &Txt, bool redrawAfter);
 	Rect getTextLocation();
 public:
 	// total size of text, x = longest line of text, y = total height of lines
@@ -91,9 +91,9 @@ public:
 	void setText(const std::string &Txt) override;
 	void showAll(SDL_Surface * to) override;
 
-	void setVisibleSize(Rect visibleSize);
+	void setVisibleSize(Rect visibleSize, bool redrawElement = true);
 	// scrolls text visible in widget. Positive value will move text up
-	void scrollTextTo(int distance);
+	void scrollTextTo(int distance, bool redrawAfterScroll = true);
 	void scrollTextBy(int distance);
 };
 

@@ -12,6 +12,7 @@
 #include "../lib/CStopWatch.h"
 
 #include "../lib/StartInfo.h"
+#include "../lib/CondSh.h"
 
 struct SharedMemory;
 class CConnection;
@@ -94,6 +95,8 @@ public:
 
 	std::shared_ptr<CConnection> c;
 	CClient * client;
+
+	CondSh<bool> campaignServerRestartLock;
 
 	CServerHandler();
 

@@ -173,34 +173,47 @@ InfoCard::InfoCard()
 
 		labelGroupPlayersAssigned = std::make_shared<CLabelGroup>(FONT_SMALL, TOPLEFT, Colors::WHITE);
 		labelGroupPlayersUnassigned = std::make_shared<CLabelGroup>(FONT_SMALL, TOPLEFT, Colors::WHITE);
+		disableLabelRedraws();
 	}
 	setChat(false);
 }
 
+void InfoCard::disableLabelRedraws()
+{
+	labelSaveDate->setAutoRedraw(false);
+	mapName->setAutoRedraw(false);
+	mapDescription->label->setAutoRedraw(false);
+	labelVictoryConditionText->setAutoRedraw(false);
+	labelLossConditionText->setAutoRedraw(false);
+	labelDifficulty->setAutoRedraw(false);
+	labelDifficultyPercent->setAutoRedraw(false);
+}
+
 void InfoCard::changeSelection()
 {
-	if(!SEL->getMapInfo())
+	auto mapInfo = SEL->getMapInfo();
+	if(!mapInfo)
 		return;
 
-	labelSaveDate->setText(SEL->getMapInfo()->date);
-	mapName->setText(SEL->getMapInfo()->getName());
-	mapDescription->setText(SEL->getMapInfo()->getDescription());
+	labelSaveDate->setText(mapInfo->date);
+	mapName->setText(mapInfo->getName());
+	mapDescription->setText(mapInfo->getDescription());
 
-	mapDescription->label->scrollTextTo(0);
+	mapDescription->label->scrollTextTo(0, false);
 	if(mapDescription->slider)
 		mapDescription->slider->moveToMin();
 
 	if(SEL->screenType == ESelectionScreen::campaignList)
 		return;
 
-	iconsMapSizes->setFrame(SEL->getMapInfo()->getMapSizeIconId());
-	const CMapHeader * header = SEL->getMapInfo()->mapHeader.get();
+	iconsMapSizes->setFrame(mapInfo->getMapSizeIconId());
+	const CMapHeader * header = mapInfo->mapHeader.get();
 	iconsVictoryCondition->setFrame(header->victoryIconIndex);
 	labelVictoryConditionText->setText(header->victoryMessage);
 	iconsLossCondition->setFrame(header->defeatIconIndex);
 	labelLossConditionText->setText(header->defeatMessage);
 	flagbox->recreate();
-	labelDifficulty->setText(CGI->generaltexth->arraytxt[142 + SEL->getMapInfo()->mapHeader->difficulty]);
+	labelDifficulty->setText(CGI->generaltexth->arraytxt[142 + mapInfo->mapHeader->difficulty]);
 	iconDifficulty->setSelected(SEL->getCurrentDifficulty());
 	const std::array<std::string, 5> difficultyPercent = {"80%", "100%", "130%", "160%", "200%"};
 	labelDifficultyPercent->setText(difficultyPercent[SEL->getCurrentDifficulty()]);

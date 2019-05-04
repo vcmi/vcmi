@@ -98,7 +98,6 @@ bool CBank::wasVisited (PlayerColor player) const
 void CBank::onHeroVisit(const CGHeroInstance * h) const
 {
 	int banktext = 0;
-	ui16 soundID = soundBase::ROGUE;
 	switch (ID)
 	{
 	case Obj::DERELICT_SHIP:
@@ -114,7 +113,6 @@ void CBank::onHeroVisit(const CGHeroInstance * h) const
 		banktext = 122;
 		break;
 	case Obj::PYRAMID:
-		soundID = soundBase::MYSTERY;
 		banktext = 105;
 		break;
 	case Obj::CREATURE_BANK:
@@ -124,7 +122,7 @@ void CBank::onHeroVisit(const CGHeroInstance * h) const
 	}
 	BlockingDialog bd(true, false);
 	bd.player = h->getOwner();
-	bd.soundID = soundID;
+	bd.soundID = soundBase::invalid; // Sound is handled in json files, else two sounds are played
 	bd.text.addTxt(MetaString::ADVOB_TXT, banktext);
 	if (banktext == 32)
 		bd.text.addReplacement(getObjectName());

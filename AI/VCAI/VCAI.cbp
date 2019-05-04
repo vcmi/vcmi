@@ -93,6 +93,8 @@
 		<Unit filename="AIUtility.h" />
 		<Unit filename="AIhelper.cpp" />
 		<Unit filename="AIhelper.h" />
+		<Unit filename="ArmyManager.cpp" />
+		<Unit filename="ArmyManager.h" />
 		<Unit filename="BuildingManager.cpp" />
 		<Unit filename="BuildingManager.h" />
 		<Unit filename="FuzzyEngines.cpp" />

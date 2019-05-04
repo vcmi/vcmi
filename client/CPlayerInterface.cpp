@@ -353,16 +353,11 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 		// most likely this is connected with the way that this manual animation+framerate handling is solved
 		adventureInt->updateScreen = true;
 #endif
-		adventureInt->show(screen);
-		{
-			//evil returns here ...
-			//todo: get rid of it
-			logGlobal->trace("before [un]locks in %s", __FUNCTION__);
-			auto unlockPim = vstd::makeUnlockGuard(*pim); //let frame to be rendered
-			GH.mainFPSmng->framerateDelay(); //for animation purposes
-			logGlobal->trace("after [un]locks in %s", __FUNCTION__);
-		}
 
+		//evil returns here ...
+		//todo: get rid of it
+		auto unlockPim = vstd::makeUnlockGuard(*pim); //let frame to be rendered
+		GH.mainFPSmng->framerateDelay(); //for animation purposes
 	}
 	//main moving done
 
@@ -1607,6 +1602,29 @@ void CPlayerInterface::objectRemoved(const CGObjectInstance * obj)
 	}
 }
 
+void CPlayerInterface::playerBlocked(int reason, bool start)
+{
+	if(reason == PlayerBlocked::EReason::UPCOMING_BATTLE)
+	{
+		if(CSH->howManyPlayerInterfaces() > 1 && LOCPLINT != this && LOCPLINT->makingTurn == false) 
+		{ 
+			//one of our players who isn't last in order got attacked not by our another player (happens for example in hotseat mode)
+			boost::unique_lock<boost::mutex> lock(eventsM); //TODO: copied from yourTurn, no idea if it's needed
+			LOCPLINT = this;
+			GH.curInt = this;
+			adventureInt->selection = nullptr;
+			adventureInt->setPlayer(playerID);
+			std::string msg = CGI->generaltexth->localizedTexts["adventureMap"]["playerAttacked"].String();
+			boost::replace_first(msg, "%s", cb->getStartInfo()->playerInfos.find(playerID)->second.name);
+			std::vector<std::shared_ptr<CComponent>> cmp;
+			cmp.push_back(std::make_shared<CComponent>(CComponent::flag, playerID.getNum(), 0));
+			makingTurn = true; //workaround for stiff showInfoDialog implementation
+			showInfoDialog(msg, cmp);
+			makingTurn = false;
+		}
+	}
+}
+
 bool CPlayerInterface::ctrlPressed() const
 {
 	return isCtrlKeyDown();
@@ -2467,7 +2485,6 @@ void CPlayerInterface::showShipyardDialogOrProblemPopup(const IShipyard *obj)
 
 void CPlayerInterface::requestReturningToMainMenu(bool won)
 {
-	CSH->state = EClientState::DISCONNECTING;
 	CCS->soundh->ambientStopAllChannels();
 	if(won && cb->getStartInfo()->campState)
 		CSH->startCampaignScenario(cb->getStartInfo()->campState);
