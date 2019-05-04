@@ -46,7 +46,7 @@ PriorityEvaluator::~PriorityEvaluator()
 
 void PriorityEvaluator::initVisitTile()
 {
-	auto file = CResourceHandler::get("initial")->load(ResourceID("config/ai-priorities.txt"))->readAll();
+	auto file = CResourceHandler::get()->load(ResourceID("config/ai-priorities.txt"))->readAll();
 	std::string str = std::string((char *)file.first.get(), file.second);
 	engine = fl::FllImporter().fromString(str);
 	armyLossPersentageVariable = engine->getInputVariable("armyLoss");
