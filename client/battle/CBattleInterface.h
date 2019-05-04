@@ -15,6 +15,7 @@
 #include "CBattleAnimations.h"
 
 #include "../../lib/spells/CSpellHandler.h" //CSpell::TAnimation
+#include "../../lib/battle/CBattleInfoCallback.h"
 
 class CLabel;
 class CCreatureSet;
@@ -104,20 +105,16 @@ struct CatapultProjectileInfo
 	double calculateY(double x);
 };
 
+enum class MouseHoveredHexContext
+{
+	UNOCCUPIED_HEX,
+	OCCUPIED_HEX
+};
+
 /// Big class which handles the overall battle interface actions and it is also responsible for
 /// drawing everything correctly.
 class CBattleInterface : public WindowBase
 {
-	enum PossibleActions // actions performed at l-click
-	{
-		INVALID = -1, CREATURE_INFO,
-		MOVE_TACTICS, CHOOSE_TACTICS_STACK,
-		MOVE_STACK, ATTACK, WALK_AND_ATTACK, ATTACK_AND_RETURN, SHOOT, //OPEN_GATE, //we can open castle gate during siege
-		NO_LOCATION, ANY_LOCATION, OBSTACLE, TELEPORT, SACRIFICE, RANDOM_GENIE_SPELL,
-		FREE_LOCATION, //used with Force Field and Fire Wall - all tiles affected by spell must be free
-		CATAPULT, HEAL, RISE_DEMONS,
-		AIMED_SPELL_CREATURE
-	};
 private:
 	SDL_Surface *background, *menu, *amountNormal, *amountNegative, *amountPositive, *amountEffNeutral, *cellBorders, *backgroundWithHexes;
 
@@ -169,12 +166,12 @@ private:
 	std::shared_ptr<BattleAction> spellToCast; //spell for which player is choosing destination
 	const CSpell *sp; //spell pointer for convenience
 	si32 creatureSpellToCast;
-	std::vector<PossibleActions> possibleActions; //all actions possible to call at the moment by player
-	std::vector<PossibleActions> localActions; //actions possible to take on hovered hex
-	std::vector<PossibleActions> illegalActions; //these actions display message in case of illegal target
-	PossibleActions currentAction; //action that will be performed on l-click
-	PossibleActions selectedAction; //last action chosen (and saved) by player
-	PossibleActions illegalAction; //most likely action that can't be performed here
+	std::vector<PossiblePlayerBattleAction> possibleActions; //all actions possible to call at the moment by player
+	std::vector<PossiblePlayerBattleAction> localActions; //actions possible to take on hovered hex
+	std::vector<PossiblePlayerBattleAction> illegalActions; //these actions display message in case of illegal target
+	PossiblePlayerBattleAction currentAction; //action that will be performed on l-click
+	PossiblePlayerBattleAction selectedAction; //last action chosen (and saved) by player
+	PossiblePlayerBattleAction illegalAction; //most likely action that can't be performed here
 	bool battleActionsStarted; //used for delaying battle actions until intro sound stops
 	int battleIntroSoundChannel; //required as variable for disabling it via ESC key
 
@@ -183,8 +180,9 @@ private:
 
 	void requestAutofightingAIToTakeAction();
 
-	void getPossibleActionsForStack (const CStack *stack, const bool forceCast); //called when stack gets its turn
+	std::vector<PossiblePlayerBattleAction> getPossibleActionsForStack (const CStack *stack); //called when stack gets its turn
 	void endCastingSpell(); //ends casting spell (eg. when spell has been cast or canceled)
+	void reorderPossibleActionsPriority(const CStack * stack, MouseHoveredHexContext context);
 
 	//force active stack to cast a spell if possible
 	void enterCreatureCastingMode();
@@ -274,8 +272,6 @@ private:
 
 	void redrawBackgroundWithHexes(const CStack *activeStack);
 	/** End of battle screen blitting methods */
-
-	PossibleActions getCasterAction(const CSpell *spell, const spells::Caster *caster, spells::Mode mode) const;
 
 	void setHeroAnimation(ui8 side, int phase);
 public:
