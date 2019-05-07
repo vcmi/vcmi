@@ -175,7 +175,7 @@ int CSoundHandler::ambientDistToVolume(int distance) const
 void CSoundHandler::ambientStopSound(std::string soundId)
 {
 	stopSound(ambientChannels[soundId]);
-	setChannelVolume(ambientChannels[soundId], 100);
+	setChannelVolume(ambientChannels[soundId], volume);
 }
 
 // Plays a sound, and return its channel so we can fade it out later
