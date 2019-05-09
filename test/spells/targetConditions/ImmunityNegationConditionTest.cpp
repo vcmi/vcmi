@@ -28,10 +28,9 @@ public:
 	void setDefaultExpectations()
 	{
 		ownerMatches = GetParam();
-
 		EXPECT_CALL(unitMock, getAllBonuses(_, _, _, _)).Times(AtLeast(0));
 		EXPECT_CALL(unitMock, getTreeVersion()).Times(AtLeast(0));
-		EXPECT_CALL(mechanicsMock, ownerMatches(Eq(&unitMock), Eq(false))).WillRepeatedly(Return(ownerMatches));
+		EXPECT_CALL(mechanicsMock, ownerMatches(Eq(&unitMock), Field(&boost::logic::tribool::value, boost::logic::tribool::false_value))).WillRepeatedly(Return(ownerMatches));
 	}
 
 protected:
