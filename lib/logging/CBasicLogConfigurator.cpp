@@ -140,3 +140,10 @@ EConsoleTextColor::EConsoleTextColor CBasicLogConfigurator::getConsoleColor(cons
 	else
 		throw std::runtime_error("Color " + colorName + " unknown.");
 }
+
+void CBasicLogConfigurator::deconfigure() {
+	auto l = CLogger::getGlobalLogger();
+	if(l != nullptr) {
+		l->clearTargets();
+	}
+}
