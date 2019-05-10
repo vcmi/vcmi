@@ -108,6 +108,8 @@ static void setScreenRes(int w, int h, int bpp, bool fullscreen, int displayInde
 void playIntro();
 static void mainLoop();
 
+static CBasicLogConfigurator *logConfig;
+
 #ifndef VCMI_WINDOWS
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -230,8 +232,8 @@ int main(int argc, char * argv[])
 	console->start();
 
 	const bfs::path logPath = VCMIDirs::get().userCachePath() / "VCMI_Client_log.txt";
-	CBasicLogConfigurator logConfig(logPath, console);
-	logConfig.configureDefault();
+	logConfig = new CBasicLogConfigurator(logPath, console);
+	logConfig->configureDefault();
 	logGlobal->info(NAME);
 	logGlobal->info("Creating console and configuring logger: %d ms", pomtime.getDiff());
 	logGlobal->info("The log file will be saved to %s", logPath);
@@ -292,7 +294,7 @@ int main(int argc, char * argv[])
 	setSettingInteger("general/saveFrequency", "savefrequency", 1);
 
 	// Initialize logging based on settings
-	logConfig.configure();
+	logConfig->configure();
 	logGlobal->debug("settings = %s", settings.toJsonNode().toJson());
 
 	// Some basic data validation to produce better error messages in cases of incorrect install
@@ -1432,6 +1434,12 @@ void handleQuit(bool ask)
 			}
 
 			SDL_Quit();
+		}
+
+		if(logConfig != nullptr) {
+			logConfig->deconfigure();
+			delete logConfig;
+			logConfig = nullptr;
 		}
 
 		std::cout << "Ending...\n";
