@@ -353,57 +353,67 @@ battle::Units CBattleInfoCallback::battleAliveUnits(ui8 side) const
 
 //T is battle::Unit descendant
 template <typename T>
-const T * takeOneUnit(std::vector<const T *> & all, const int turn, int8_t & lastMoved)
+const T * takeOneUnit(std::vector<const T*> & all, const int turn, int8_t & lastMoved, int phase)
 {
-	const T * ret = nullptr;
-	size_t i, //fastest stack
-			j=0; //fastest stack of the other side
-	for(i = 0; i < all.size(); i++)
+	const T * retCreature = nullptr;
+	size_t fastestIndex = 0;
+
+	for(int i = 0; i < all.size(); i++)
+	{
+		int32_t curUnitSpeed = -1;
+		int32_t retUnitSpeed = -1;
 		if(all[i])
+			curUnitSpeed = all[i]->getInitiative(turn);
+		if(retCreature)
+			retUnitSpeed = retCreature->getInitiative(turn);
+		
+		switch(phase)
+		{
+		case 1: // Faster first, attacker priority, higher slot first
+			if(all[i] && (retCreature == nullptr || (curUnitSpeed > retUnitSpeed)))
+			{
+				retCreature = all[i];
+				fastestIndex = i;
+			} 
+			else if(all[i] && (curUnitSpeed == retUnitSpeed))
+			{
+				if(lastMoved == -1 && turn <= 0 && all[i]->unitSide() == BattleSide::ATTACKER
+					&& !(retCreature->unitSide() == all[i]->unitSide() && retCreature->unitSlot() < all[i]->unitSlot())) // Turn 0 attacker priority
+				{
+					retCreature = all[i];
+					fastestIndex = i;
+				}
+				else if(lastMoved != -1 && all[i]->unitSide() != lastMoved
+						&& !(retCreature->unitSide() == all[i]->unitSide() && retCreature->unitSlot() < all[i]->unitSlot())) // Alternate equal speeds units
+				{
+					retCreature = all[i];
+					fastestIndex = i;
+				}
+			}
 			break;
+		case 2: // Slower first, higher slot first
+		case 3:
+			if(all[i] && (retCreature == nullptr || (curUnitSpeed < retUnitSpeed)))
+			{
+				retCreature = all[i];
+				fastestIndex = i;
+			}
+			else if(all[i] && curUnitSpeed == retUnitSpeed && lastMoved != -1 && all[i]->unitSide() != lastMoved
+					&& !(retCreature->unitSide() == all[i]->unitSide() && retCreature->unitSlot() < all[i]->unitSlot())) // Alternate equal speeds units
+			{
+				retCreature = all[i];
+				fastestIndex = i;
+			}
+			break;
+		default:
+			break;
+		}
+	}
 
-	//no stacks left
-	if(i == all.size())
+	if(!retCreature)
 		return nullptr;
-
-	const T * fastest = all[i], *other = nullptr;
-	int bestSpeed = fastest->getInitiative(turn);
-
-	if(fastest->unitSide() == lastMoved)
-	{
-		ret = fastest;
-	}
-	else
-	{
-		for(j = i + 1; j < all.size(); j++)
-		{
-			if(!all[j]) continue;
-			if(all[j]->unitSide() != lastMoved || all[j]->getInitiative(turn) != bestSpeed)
-				break;
-		}
-
-		if(j >= all.size())
-		{
-			ret = fastest;
-		}
-		else
-		{
-			other = all[j];
-			if(other->getInitiative(turn) != bestSpeed)
-				ret = fastest;
-			else
-				ret = other;
-		}
-	}
-
-	assert(ret);
-	if(ret == fastest)
-		all[i] = nullptr;
-	else
-		all[j] = nullptr;
-
-	lastMoved = ret->unitSide();
-	return ret;
+	all[fastestIndex] = nullptr;
+	return retCreature;
 }
 
 void CBattleInfoCallback::battleGetTurnOrder(std::vector<battle::Units> & out, const size_t maxUnits, const int maxTurns, const int turn, int8_t lastMoved) const
@@ -483,27 +493,36 @@ void CBattleInfoCallback::battleGetTurnOrder(std::vector<battle::Units> & out, c
 		phase[p].push_back(one);
 	}
 
-	boost::sort(phase[0], CMP_stack(0, actualTurn));
+	boost::sort(phase[0], CMP_stack(0, actualTurn, lastMoved));
 	std::copy(phase[0].begin(), phase[0].end(), std::back_inserter(out.back()));
 
 	if(outputFull())
 		return;
 
 	for(int i = 1; i < 4; i++)
-		boost::sort(phase[i], CMP_stack(i, actualTurn));
-
-	if(lastMoved < 0)
-		lastMoved = BattleSide::ATTACKER;
+		boost::sort(phase[i], CMP_stack(i, actualTurn, lastMoved));	
 
 	int pi = 1;
 	while(!outputFull() && pi < 4)
 	{
-		auto current = takeOneUnit(phase[pi], actualTurn, lastMoved);
-		if(!current)
+		const battle::Unit * current = nullptr;
+		if(phase[pi].empty())
 			pi++;
 		else
-			out.back().push_back(current);
+		{
+			current = takeOneUnit(phase[pi], actualTurn, lastMoved, pi);
+			if(!current)
+				pi++;
+			else
+			{
+				out.back().push_back(current);
+				lastMoved = current->unitSide();	
+			}
+		}
 	}
+
+	if (lastMoved < 0)
+		lastMoved = BattleSide::ATTACKER;
 
 	if(!outputFull() && (maxTurns == 0 || out.size() < maxTurns))
 		battleGetTurnOrder(out, maxUnits, maxTurns, actualTurn + 1, lastMoved);

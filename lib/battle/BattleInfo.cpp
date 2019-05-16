@@ -804,7 +804,6 @@ void BattleInfo::addUnit(uint32_t id, const JsonNode & data)
 void BattleInfo::moveUnit(uint32_t id, BattleHex destination)
 {
 	auto sta = getStack(id);
-
 	if(!sta)
 	{
 		logGlobal->error("Cannot find stack %d", id);
@@ -1063,28 +1062,38 @@ bool CMP_stack::operator()(const battle::Unit * a, const battle::Unit * b)
 			int as = a->getInitiative(turn), bs = b->getInitiative(turn);
 			if(as != bs)
 				return as > bs;
-			else
-				return a->unitSlot() < b->unitSlot(); //FIXME: what about summoned stacks?
-		}
+			else if(as == bs)
+			{
+				if(a->unitSide() == b->unitSide())
+					return a->unitSlot() < b->unitSlot();
+				else
+					return a->unitSide() == side ? false : true;
+			}
+			//FIXME: what about summoned stacks
+		}	
 	case 2: //fastest last, upper slot first
-		//TODO: should be replaced with order of receiving morale!
 	case 3: //fastest last, upper slot first
 		{
 			int as = a->getInitiative(turn), bs = b->getInitiative(turn);
 			if(as != bs)
-				return as < bs;
-			else
-				return a->unitSlot() < b->unitSlot();
+				return as > bs;
+			else if(as == bs)
+			{
+				if(a->unitSide() == b->unitSide())
+					return a->unitSlot() < b->unitSlot();
+				else
+					return a->unitSide() == side ? false : true;
+			}
 		}
 	default:
 		assert(0);
 		return false;
 	}
-
 }
 
-CMP_stack::CMP_stack(int Phase, int Turn)
+CMP_stack::CMP_stack(int Phase, int Turn, int Side)
 {
 	phase = Phase;
 	turn = Turn;
+	side = Side;
 }

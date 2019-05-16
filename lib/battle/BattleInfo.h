@@ -144,8 +144,9 @@ class DLL_LINKAGE CMP_stack
 {
 	int phase; //rules of which phase will be used
 	int turn;
+	bool side;
 public:
 
 	bool operator ()(const battle::Unit * a, const battle::Unit * b);
-	CMP_stack(int Phase = 1, int Turn = 0);
+	CMP_stack(int Phase = 1, int Turn = 0, int Side = BattleSide::ATTACKER);
 };
