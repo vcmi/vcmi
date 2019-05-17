@@ -933,6 +933,11 @@ void BattleInfo::removeUnit(uint32_t id)
 	}
 }
 
+void BattleInfo::updateUnit(uint32_t id, const JsonNode & data)
+{
+	//TODO
+}
+
 void BattleInfo::addUnitBonus(uint32_t id, const std::vector<Bonus> & bonus)
 {
 	CStack * sta = getStack(id, false);
@@ -1079,7 +1084,7 @@ bool CMP_stack::operator()(const battle::Unit * a, const battle::Unit * b)
 					return a->unitSide() == side ? false : true;
 			}
 			//FIXME: what about summoned stacks
-		}	
+		}
 	case 2: //fastest last, upper slot first
 	case 3: //fastest last, upper slot first
 		{

@@ -1520,6 +1520,9 @@ DLL_LINKAGE void BattleUnitsChanged::applyBattle(IBattleState * battleState)
 		case BattleChanges::EOperation::ADD:
 			battleState->addUnit(elem.id, elem.data);
 			break;
+		case BattleChanges::EOperation::UPDATE:
+			battleState->updateUnit(elem.id, elem.data);
+			break;
 		default:
 			logNetwork->error("Unknown unit operation %d", (int)elem.operation);
 			break;

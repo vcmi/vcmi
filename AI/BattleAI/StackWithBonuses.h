@@ -119,6 +119,7 @@ public:
 	void setUnitState(uint32_t id, const JsonNode & data, int64_t healthDelta) override;
 	void moveUnit(uint32_t id, BattleHex destination) override;
 	void removeUnit(uint32_t id) override;
+	void updateUnit(uint32_t id, const JsonNode & data) override;
 
 	void addUnitBonus(uint32_t id, const std::vector<Bonus> & bonus) override;
 	void updateUnitBonus(uint32_t id, const std::vector<Bonus> & bonus) override;

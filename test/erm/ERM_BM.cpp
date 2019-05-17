@@ -76,6 +76,10 @@ TEST_F(ERM_BM, SetAttack)
 
 		const Bonus & actual = pack->toAdd.back().second.back();
 
+		EXPECT_EQ(actual.type, Bonus::PRIMARY_SKILL);
+		EXPECT_EQ(actual.subtype, PrimarySkill::ATTACK);
+		EXPECT_EQ(actual.valType, Bonus::BASE_NUMBER);
+		EXPECT_EQ(actual.val, ATTACK_VALUE);
 	};
 
 	EXPECT_CALL(serverMock, apply(Matcher<SetStackEffect *>(_))).WillOnce(Invoke(checkApply));

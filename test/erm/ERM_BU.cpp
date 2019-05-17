@@ -196,7 +196,9 @@ TEST_F(ERM_BU_M, Simple)
 		EXPECT_EQ(pack->lines.size(), 1);
 
 		if(!pack->lines.empty())
+		{
 			EXPECT_EQ(pack->lines[0].toString(), "Test 1");
+		}
 	};
 
 	EXPECT_CALL(serverMock, apply(Matcher<BattleLogMessage *>(_))).WillOnce(Invoke(checkApply));

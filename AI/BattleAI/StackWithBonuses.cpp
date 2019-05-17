@@ -359,6 +359,11 @@ void HypotheticBattle::removeUnit(uint32_t id)
 	}
 }
 
+void HypotheticBattle::updateUnit(uint32_t id, const JsonNode & data)
+{
+	//TODO:
+}
+
 void HypotheticBattle::addUnitBonus(uint32_t id, const std::vector<Bonus> & bonus)
 {
 	getForUpdate(id)->addUnitBonus(bonus);

@@ -72,6 +72,22 @@ int BattleUnitsChangedProxy::add(lua_State * L, std::shared_ptr<BattleUnitsChang
 int BattleUnitsChangedProxy::update(lua_State * L, std::shared_ptr<BattleUnitsChanged> object)
 {
 	LuaStack S(L);
+
+	uint32_t id;
+
+	if(!S.tryGet(1, id))
+		return S.retVoid();
+
+	UnitChanges changes(id, BattleChanges::EOperation::UPDATE);
+
+	if(!S.tryGet(2, changes.data))
+		return S.retVoid();
+
+	if(!S.tryGet(3, changes.healthDelta))
+		changes.healthDelta = 0;
+
+	object->changedStacks.push_back(changes);
+
 	return S.retVoid();
 }
 
