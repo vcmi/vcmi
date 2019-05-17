@@ -355,65 +355,66 @@ battle::Units CBattleInfoCallback::battleAliveUnits(ui8 side) const
 template <typename T>
 const T * takeOneUnit(std::vector<const T*> & all, const int turn, int8_t & lastMoved, int phase)
 {
-	const T * retCreature = nullptr;
-	size_t fastestIndex = 0;
+	const T * returnedUnit = nullptr;
+	size_t currentUnitIndex = 0;
 
-	for(int i = 0; i < all.size(); i++)
+	for(size_t i = 0; i < all.size(); i++)
 	{
-		int32_t curUnitSpeed = -1;
-		int32_t retUnitSpeed = -1;
+		int32_t currentUnitSpeed = -1;
+		int32_t returnedUnitSpeed = -1;
+		if(returnedUnit)
+			returnedUnitSpeed = returnedUnit->getInitiative(turn);
 		if(all[i])
-			curUnitSpeed = all[i]->getInitiative(turn);
-		if(retCreature)
-			retUnitSpeed = retCreature->getInitiative(turn);
-		
-		switch(phase)
 		{
-		case 1: // Faster first, attacker priority, higher slot first
-			if(all[i] && (retCreature == nullptr || (curUnitSpeed > retUnitSpeed)))
+			currentUnitSpeed = all[i]->getInitiative(turn);
+			switch (phase)
 			{
-				retCreature = all[i];
-				fastestIndex = i;
-			} 
-			else if(all[i] && (curUnitSpeed == retUnitSpeed))
-			{
-				if(lastMoved == -1 && turn <= 0 && all[i]->unitSide() == BattleSide::ATTACKER
-					&& !(retCreature->unitSide() == all[i]->unitSide() && retCreature->unitSlot() < all[i]->unitSlot())) // Turn 0 attacker priority
+			case 1: // Faster first, attacker priority, higher slot first
+				if(returnedUnit == nullptr || currentUnitSpeed > returnedUnitSpeed)
 				{
-					retCreature = all[i];
-					fastestIndex = i;
+					returnedUnit = all[i];
+					currentUnitIndex = i;
 				}
-				else if(lastMoved != -1 && all[i]->unitSide() != lastMoved
-						&& !(retCreature->unitSide() == all[i]->unitSide() && retCreature->unitSlot() < all[i]->unitSlot())) // Alternate equal speeds units
+				else if(currentUnitSpeed == returnedUnitSpeed)
 				{
-					retCreature = all[i];
-					fastestIndex = i;
+					if(lastMoved == -1 && turn <= 0 && all[i]->unitSide() == BattleSide::ATTACKER
+						&& !(returnedUnit->unitSide() == all[i]->unitSide() && returnedUnit->unitSlot() < all[i]->unitSlot())) // Turn 0 attacker priority
+					{
+						returnedUnit = all[i];
+						currentUnitIndex = i;
+					}
+					else if(lastMoved != -1 && all[i]->unitSide() != lastMoved
+						&& !(returnedUnit->unitSide() == all[i]->unitSide() && returnedUnit->unitSlot() < all[i]->unitSlot())) // Alternate equal speeds units
+					{
+						returnedUnit = all[i];
+						currentUnitIndex = i;
+					}
 				}
+				break;
+			case 2: // Slower first, higher slot first
+			case 3:
+				if(returnedUnit == nullptr || currentUnitSpeed < returnedUnitSpeed)
+				{
+					returnedUnit = all[i];
+					currentUnitIndex = i;
+				}
+				else if(currentUnitSpeed == returnedUnitSpeed && lastMoved != -1 && all[i]->unitSide() != lastMoved
+					&& !(returnedUnit->unitSide() == all[i]->unitSide() && returnedUnit->unitSlot() < all[i]->unitSlot())) // Alternate equal speeds units
+				{
+					returnedUnit = all[i];
+					currentUnitIndex = i;
+				}
+				break;
+			default:
+				break;
 			}
-			break;
-		case 2: // Slower first, higher slot first
-		case 3:
-			if(all[i] && (retCreature == nullptr || (curUnitSpeed < retUnitSpeed)))
-			{
-				retCreature = all[i];
-				fastestIndex = i;
-			}
-			else if(all[i] && curUnitSpeed == retUnitSpeed && lastMoved != -1 && all[i]->unitSide() != lastMoved
-					&& !(retCreature->unitSide() == all[i]->unitSide() && retCreature->unitSlot() < all[i]->unitSlot())) // Alternate equal speeds units
-			{
-				retCreature = all[i];
-				fastestIndex = i;
-			}
-			break;
-		default:
-			break;
 		}
 	}
 
-	if(!retCreature)
+	if(!returnedUnit)
 		return nullptr;
-	all[fastestIndex] = nullptr;
-	return retCreature;
+	all[currentUnitIndex] = nullptr;
+	return returnedUnit;
 }
 
 void CBattleInfoCallback::battleGetTurnOrder(std::vector<battle::Units> & out, const size_t maxUnits, const int maxTurns, const int turn, int8_t lastMoved) const

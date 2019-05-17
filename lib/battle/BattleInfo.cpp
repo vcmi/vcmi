@@ -1062,7 +1062,7 @@ bool CMP_stack::operator()(const battle::Unit * a, const battle::Unit * b)
 			int as = a->getInitiative(turn), bs = b->getInitiative(turn);
 			if(as != bs)
 				return as > bs;
-			else if(as == bs)
+			else
 			{
 				if(a->unitSide() == b->unitSide())
 					return a->unitSlot() < b->unitSlot();
@@ -1077,7 +1077,7 @@ bool CMP_stack::operator()(const battle::Unit * a, const battle::Unit * b)
 			int as = a->getInitiative(turn), bs = b->getInitiative(turn);
 			if(as != bs)
 				return as > bs;
-			else if(as == bs)
+			else
 			{
 				if(a->unitSide() == b->unitSide())
 					return a->unitSlot() < b->unitSlot();
@@ -1091,7 +1091,7 @@ bool CMP_stack::operator()(const battle::Unit * a, const battle::Unit * b)
 	}
 }
 
-CMP_stack::CMP_stack(int Phase, int Turn, int Side)
+CMP_stack::CMP_stack(int Phase, int Turn, uint8_t Side)
 {
 	phase = Phase;
 	turn = Turn;
