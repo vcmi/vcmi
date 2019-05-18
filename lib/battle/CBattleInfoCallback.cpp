@@ -367,7 +367,7 @@ const T * takeOneUnit(std::vector<const T*> & all, const int turn, int8_t & last
 		if(all[i])
 		{
 			currentUnitSpeed = all[i]->getInitiative(turn);
-			switch (phase)
+			switch(phase)
 			{
 			case 1: // Faster first, attacker priority, higher slot first
 				if(returnedUnit == nullptr || currentUnitSpeed > returnedUnitSpeed)
@@ -513,7 +513,9 @@ void CBattleInfoCallback::battleGetTurnOrder(std::vector<battle::Units> & out, c
 		{
 			current = takeOneUnit(phase[pi], actualTurn, lastMoved, pi);
 			if(!current)
+			{
 				pi++;
+			}
 			else
 			{
 				out.back().push_back(current);
@@ -522,7 +524,7 @@ void CBattleInfoCallback::battleGetTurnOrder(std::vector<battle::Units> & out, c
 		}
 	}
 
-	if (lastMoved < 0)
+	if(lastMoved < 0)
 		lastMoved = BattleSide::ATTACKER;
 
 	if(!outputFull() && (maxTurns == 0 || out.size() < maxTurns))
