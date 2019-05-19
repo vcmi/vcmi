@@ -792,8 +792,11 @@ void CBattleInterface::bSurrenderf()
 	if (cost >= 0)
 	{
 		std::string enemyHeroName = curInt->cb->battleGetEnemyHero().name;
-		if (enemyHeroName.empty())
-			enemyHeroName = "#ENEMY#"; //TODO: should surrendering without enemy hero be enabled?
+		if(enemyHeroName.empty())
+		{
+			logGlobal->warn("Surrender performed without enemy hero, should not happen!");
+			enemyHeroName = "#ENEMY#";
+		}
 
 		std::string surrenderMessage = boost::str(boost::format(CGI->generaltexth->allTexts[32]) % enemyHeroName % cost); //%s states: "I will accept your surrender and grant you and your troops safe passage for the price of %d gold."
 		curInt->showYesNoDialog(surrenderMessage, [this](){ reallySurrender(); }, nullptr);
