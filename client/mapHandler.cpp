@@ -770,7 +770,15 @@ void CMapHandler::CMapBlitter::drawObjects(SDL_Surface * targetSurf, const Terra
 		if (!canDrawObject(obj))
 			continue;
 
-		auto objData = findObjectBitmap(obj, info->anim);
+		uint8_t animationFrame = info->anim;
+		if(obj->ID == Obj::HERO) //non-generic animation frame pick for hero and boat
+		{
+			animationFrame = info->heroAnim;
+			const CGHeroInstance * hero = dynamic_cast<const CGHeroInstance *>(obj);
+			if(hero->boat)
+				animationFrame /= 2;
+		}
+		auto objData = findObjectBitmap(obj, animationFrame);
 		if (objData.objBitmap)
 		{
 			Rect srcRect(object.rect.x, object.rect.y, tileSize, tileSize);
