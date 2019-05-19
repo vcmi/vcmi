@@ -241,7 +241,6 @@ InfoAboutHero CBattleInfoEssentials::battleGetHeroInfo(ui8 side) const
 	auto hero = getBattle()->getSideHero(side);
 	if(!hero)
 	{
-		logGlobal->warn("%s: side %d does not have hero!", __FUNCTION__, static_cast<int>(side));
 		return InfoAboutHero();
 	}
 	InfoAboutHero::EInfoLevel infoLevel = battleDoWeKnowAbout(side) ? InfoAboutHero::EInfoLevel::DETAILED : InfoAboutHero::EInfoLevel::BASIC;
