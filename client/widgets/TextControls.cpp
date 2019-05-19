@@ -358,6 +358,7 @@ CGStatusBar::CGStatusBar(std::shared_ptr<CPicture> background_, EFonts Font, EAl
 	pos = background->pos;
 	getBorderSize();
 	textLock = false;
+	autoRedraw = false;
 }
 
 CGStatusBar::CGStatusBar(int x, int y, std::string name, int maxw)
@@ -372,6 +373,7 @@ CGStatusBar::CGStatusBar(int x, int y, std::string name, int maxw)
 		background->srcRect = new Rect(0, 0, maxw, pos.h);
 	}
 	textLock = false;
+	autoRedraw = false;
 }
 
 CGStatusBar::~CGStatusBar()
