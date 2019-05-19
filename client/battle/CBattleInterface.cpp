@@ -237,7 +237,8 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 	bDefence->assignedKeys.insert(SDLK_SPACE);
 	bConsoleUp = std::make_shared<CButton>(Point(624, 561), "ComSlide.def", std::make_pair("", ""), std::bind(&CBattleInterface::bConsoleUpf,this), SDLK_UP);
 	bConsoleDown = std::make_shared<CButton>(Point(624, 580), "ComSlide.def", std::make_pair("", ""), std::bind(&CBattleInterface::bConsoleDownf,this), SDLK_DOWN);
-	bConsoleDown->setImageOrder(2, 3, 4, 5);
+	bConsoleUp->setImageOrder(0, 1, 0, 0);
+	bConsoleDown->setImageOrder(2, 3, 2, 2);
 
 	console = std::make_shared<CBattleConsole>();
 	console->pos.x += 211;
