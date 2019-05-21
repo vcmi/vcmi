@@ -676,8 +676,22 @@ DLL_LINKAGE void GiveHero::applyGs(CGameState *gs)
 
 DLL_LINKAGE void NewObject::applyGs(CGameState *gs)
 {
-	const TerrainTile &t = gs->map->getTile(pos);
-	ETerrainType terrainType = t.terType;
+	ETerrainType terrainType;
+
+	if(ID == Obj::BOAT && !gs->isInTheMap(pos)) //special handling for bug #3060 - pos outside map but visitablePos is not
+	{
+		CGObjectInstance testObject = CGObjectInstance();
+		testObject.pos = pos;
+		testObject.appearance = VLC->objtypeh->getHandlerFor(ID, subID)->getTemplates(ETerrainType::WATER).front();
+
+		const int3 previousXAxisTile = int3(pos.x - 1, pos.y, pos.z);
+		assert(gs->isInTheMap(previousXAxisTile) && (testObject.visitablePos() == previousXAxisTile)); 
+	}
+	else
+	{
+		const TerrainTile & t = gs->map->getTile(pos);
+		terrainType = t.terType;
+	}
 
 	CGObjectInstance *o = nullptr;
 	switch(ID)
