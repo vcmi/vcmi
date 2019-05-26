@@ -112,6 +112,9 @@ public:
 	std::shared_ptr<CCallback> myCb;
 
 	std::unique_ptr<boost::thread> makingTurn;
+private:
+	boost::mutex turnInterruptionMutex;
+public:
 	ObjectInstanceID selectedObject;
 
 	AIhelper * ah;
