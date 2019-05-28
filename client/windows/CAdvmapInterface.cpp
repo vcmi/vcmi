@@ -1029,6 +1029,11 @@ void CAdvMapInt::show(SDL_Surface * to)
 		return;
 
 	++animValHitCount; //for animations
+
+	if(animValHitCount % 2 == 0)
+	{
+		++heroAnim;
+	}
 	if(animValHitCount == 8)
 	{
 		CGI->mh->updateWater();
@@ -1036,7 +1041,6 @@ void CAdvMapInt::show(SDL_Surface * to)
 		++anim;
 		updateScreen = true;
 	}
-	++heroAnim;
 
 	if(swipeEnabled)
 	{
