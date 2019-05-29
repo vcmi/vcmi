@@ -138,7 +138,8 @@ TGoalVec GatherTroops::getAllPossibleSubgoals()
 
 	CreatureID creID = CreatureID(objid);
 
-	vstd::erase_if(solutions, [&](TSubgoal goal)->bool{
+	vstd::erase_if(solutions, [&](TSubgoal goal)->bool
+	{
 		return goal->hero && !goal->hero->getSlotFor(creID).validSlot() && !goal->hero->getFreeSlot().validSlot();
 	});
 
