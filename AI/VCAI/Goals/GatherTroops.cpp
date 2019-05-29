@@ -115,6 +115,7 @@ TGoalVec GatherTroops::getAllPossibleSubgoals()
 			}*/
 		}
 	}
+
 	for(auto obj : ai->visitableObjs)
 	{
 		auto d = dynamic_cast<const CGDwelling *>(obj);
@@ -134,6 +135,13 @@ TGoalVec GatherTroops::getAllPossibleSubgoals()
 			}
 		}
 	}
+
+	CreatureID creID = CreatureID(objid);
+
+	vstd::erase_if(solutions, [&](TSubgoal goal)->bool
+	{
+		return goal->hero && !goal->hero->getSlotFor(creID).validSlot() && !goal->hero->getFreeSlot().validSlot();
+	});
 
 	return solutions;
 	//TODO: exchange troops between heroes
