@@ -2390,7 +2390,7 @@ void CGameHandler::setOwner(const CGObjectInstance * obj, PlayerColor owner)
 
 		if (oldOwner < PlayerColor::PLAYER_LIMIT) //old owner is real player
 		{
-			if (getPlayer(oldOwner)->towns.empty()) //previous player lost last last town
+			if (getPlayer(oldOwner)->towns.empty() && getPlayer(oldOwner)->status != EPlayerStatus::LOSER) //previous player lost last last town
 			{
 				InfoWindow iw;
 				iw.player = oldOwner;
