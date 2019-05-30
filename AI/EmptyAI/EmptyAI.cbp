@@ -65,6 +65,7 @@
 			<Add option="-fpermissive" />
 			<Add option="-D_WIN32_WINNT=0x0501" />
 			<Add option="-D_WIN32" />
+			<Add option="-DBOOST_ALL_DYN_LINK" />
 			<Add directory="$(#boost.include)" />
 			<Add directory="../../include" />
 		</Compiler>
