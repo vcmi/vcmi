@@ -2144,11 +2144,21 @@ void CPlayerInterface::gameOver(PlayerColor player, const EVictoryLossCheckResul
 		if (victoryLossCheckResult.loss())
 			showInfoDialog(CGI->generaltexth->allTexts[95]);
 
-		if (LOCPLINT == this)
+		//we assume GH.curInt == LOCPLINT
+		auto previousInterface = LOCPLINT; //without multiple player interfaces some of lines below are useless, but for hotseat we wanna swap player interface temporarily
+		LOCPLINT = this; //this is needed for dialog to show and avoid freeze, dialog showing logic should be reworked someday
+		GH.curInt = this; //waiting for dialogs requires this to get events
+		if(!makingTurn)
 		{
-			GH.curInt = this; //waiting for dialogs requires this to get events
-			waitForAllDialogs(); //wait till all dialogs are displayed and closed
+			makingTurn = true; //also needed for dialog to show with current implementation
+			waitForAllDialogs();
+			makingTurn = false;
 		}
+		else
+			waitForAllDialogs();
+
+		GH.curInt = previousInterface;
+		LOCPLINT = previousInterface;
 
 		if(CSH->howManyPlayerInterfaces() == 1 && !settings["session"]["spectate"].Bool()) //all human players eliminated
 		{
