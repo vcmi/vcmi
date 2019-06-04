@@ -237,21 +237,7 @@ public:
 	CSpell();
 	~CSpell();
 
-	spells::AimType getTargetType() const;
-
-	bool hasEffects() const;
-	void getEffects(std::vector<Bonus> & lst, const int level, const bool cumulative, const si32 duration, boost::optional<si32 *> maxDuration = boost::none) const;
-
-	bool hasBattleEffects() const;
-	///calculate spell damage on stack taking caster`s secondary skills and affectedCreature`s bonuses into account
-	int64_t calculateDamage(const spells::Caster * caster) const;
-
-	int32_t getCost(const int32_t skillLevel) const override;
-
-	si32 getProbability(const TFaction factionId) const;
-
-	int32_t getBasePower() const override;
-	int32_t getLevelPower(const int32_t skillLevel) const override;
+	int64_t calculateDamage(const spells::Caster * caster) const override;
 
 	/**
 	 * Calls cb for each school this spell belongs to
@@ -259,6 +245,20 @@ public:
 	 * Set stop to true to abort looping
 	 */
 	void forEachSchool(const std::function<void(const spells::SchoolInfo &, bool &)> & cb) const override;
+
+	spells::AimType getTargetType() const;
+
+	bool hasEffects() const;
+	void getEffects(std::vector<Bonus> & lst, const int level, const bool cumulative, const si32 duration, boost::optional<si32 *> maxDuration = boost::none) const;
+
+	bool hasBattleEffects() const;
+
+	int32_t getCost(const int32_t skillLevel) const override;
+
+	si32 getProbability(const TFaction factionId) const;
+
+	int32_t getBasePower() const override;
+	int32_t getLevelPower(const int32_t skillLevel) const override;
 
 	int32_t getIndex() const override;
 	const std::string & getName() const override;

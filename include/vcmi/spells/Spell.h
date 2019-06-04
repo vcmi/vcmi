@@ -17,11 +17,15 @@ class SpellID;
 namespace spells
 {
 struct SchoolInfo;
+class Caster;
 
 class DLL_LINKAGE Spell: public EntityT<SpellID>
 {
 public:
 	using SchoolCallback = std::function<void(const SchoolInfo &, bool &)>;
+
+	///calculate spell damage on stack taking caster`s secondary skills into account
+	virtual int64_t calculateDamage(const Caster * caster) const = 0;
 
 	virtual int32_t getLevel() const = 0;
 	virtual boost::logic::tribool getPositiveness() const = 0;
@@ -45,6 +49,8 @@ public:
 	 * Returns spell level power, base power ignored
 	 */
 	virtual int32_t getLevelPower(const int32_t skillLevel) const = 0;
+
+
 };
 
 }

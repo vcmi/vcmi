@@ -685,7 +685,7 @@ DLL_LINKAGE void NewObject::applyGs(CGameState *gs)
 		testObject.appearance = VLC->objtypeh->getHandlerFor(ID, subID)->getTemplates(ETerrainType::WATER).front();
 
 		const int3 previousXAxisTile = int3(pos.x - 1, pos.y, pos.z);
-		assert(gs->isInTheMap(previousXAxisTile) && (testObject.visitablePos() == previousXAxisTile)); 
+		assert(gs->isInTheMap(previousXAxisTile) && (testObject.visitablePos() == previousXAxisTile));
 	}
 	else
 	{
@@ -1433,7 +1433,7 @@ DLL_LINKAGE void StartAction::applyGs(CGameState *gs)
 	}
 	else
 	{
-		gs->curB->sides[ba.side].usedSpellsHistory.push_back(SpellID(ba.actionSubtype).toSpell());
+		gs->curB->sides[ba.side].usedSpellsHistory.push_back(SpellID(ba.actionSubtype));
 	}
 
 	switch(ba.actionType)

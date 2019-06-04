@@ -20,7 +20,7 @@ struct DLL_LINKAGE SideInBattle
 	const CArmedInstance * armyObject; //adv. map object with army that participates in battle; may be same as hero
 
 	uint32_t castSpellsCount; //how many spells each side has been cast this turn
-	std::vector<const CSpell *> usedSpellsHistory; //every time hero casts spell, it's inserted here -> eagle eye skill
+	std::vector<SpellID> usedSpellsHistory; //every time hero casts spell, it's inserted here -> eagle eye skill
 	int32_t enchanterCounter; //tends to pass through 0, so sign is needed
 
 	SideInBattle();

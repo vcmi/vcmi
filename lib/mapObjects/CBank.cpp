@@ -11,11 +11,13 @@
 #include "StdInc.h"
 #include "CBank.h"
 
+#include <vcmi/spells/Spell.h>
+#include <vcmi/spells/Service.h>
+
 #include "../NetPacks.h"
 #include "../CGeneralTextHandler.h"
 #include "../CSoundBase.h"
 #include "CommonConstructors.h"
-#include "../spells/CSpellHandler.h"
 #include "../IGameCallback.h"
 #include "../CGameState.h"
 
@@ -216,7 +218,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 		}
 		cb->showInfoDialog(&iw);
 	}
-	
+
 
 	//grant resources
 	if (bc)
@@ -272,9 +274,9 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 			}
 			for(const SpellID & spellId : bc->spells)
 			{
-				const CSpell * spell = spellId.toSpell();
+				auto spell = spellId.toSpell(VLC->spellService());
 				iw.text.addTxt(MetaString::SPELL_NAME, spellId);
-				if(spell->level <= hero->maxSpellLevel())
+				if(spell->getLevel() <= hero->maxSpellLevel())
 				{
 					if(hero->canLearnSpell(spell))
 					{

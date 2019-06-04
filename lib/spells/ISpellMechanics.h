@@ -193,9 +193,11 @@ public:
 
 	virtual bool isReceptive(const battle::Unit * target) const = 0;
 
-    virtual std::vector<AimType> getTargetTypes() const = 0;
+	virtual std::vector<AimType> getTargetTypes() const = 0;
 
-    virtual std::vector<Destination> getPossibleDestinations(size_t index, AimType aimType, const Target & current) const = 0;
+	virtual std::vector<Destination> getPossibleDestinations(size_t index, AimType aimType, const Target & current) const = 0;
+
+	virtual const Spell * getSpell() const = 0;
 
 	//Cast event facade
 

@@ -42,6 +42,8 @@ public:
 
 	std::vector<BattleHex> rangeInHexes(BattleHex centralHex, bool * outDroppedHexes = nullptr) const override;
 
+	const Spell * getSpell() const override;
+
 	bool counteringSelector(const Bonus * bonus) const;
 
 private:

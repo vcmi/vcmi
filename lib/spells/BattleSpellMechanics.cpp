@@ -666,5 +666,11 @@ std::vector<BattleHex> BattleSpellMechanics::rangeInHexes(BattleHex centralHex, 
 	return ret;
 }
 
+const Spell * BattleSpellMechanics::getSpell() const
+{
+	return owner;
+}
+
+
 }
 

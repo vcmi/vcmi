@@ -36,6 +36,8 @@ public:
 	MOCK_CONST_METHOD0(getTargetTypes, std::vector<AimType>());
 	MOCK_CONST_METHOD3(getPossibleDestinations, std::vector<Destination>(size_t, AimType, const Target &));
 
+	MOCK_CONST_METHOD0(getSpell, const Spell *());
+
 	MOCK_CONST_METHOD0(getEffectLevel, IBattleCast::Value());
 	MOCK_CONST_METHOD0(getRangeLevel, IBattleCast::Value());
 	MOCK_CONST_METHOD0(getEffectPower, IBattleCast::Value());

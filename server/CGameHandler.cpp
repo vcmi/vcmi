@@ -738,12 +738,14 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 		if (int eagleEyeLevel = finishingBattle->winnerHero->valOfBonuses(Bonus::SECONDARY_SKILL_VAL2, SecondarySkill::EAGLE_EYE))
 		{
 			double eagleEyeChance = finishingBattle->winnerHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::EAGLE_EYE);
-			for (const CSpell *sp : gs->curB->sides.at(!battleResult.data->winner).usedSpellsHistory)
-				if (sp->level <= eagleEyeLevel && !finishingBattle->winnerHero->spellbookContainsSpell(sp->id) && getRandomGenerator().nextInt(99) < eagleEyeChance)
-					cs.spells.insert(sp->id);
+			for(auto & spellId : gs->curB->sides.at(!battleResult.data->winner).usedSpellsHistory)
+			{
+				auto spell = spellId.toSpell(VLC->spellService());
+				if(spell && spell->getLevel() <= eagleEyeLevel && !finishingBattle->winnerHero->spellbookContainsSpell(spell->getId()) && getRandomGenerator().nextInt(99) < eagleEyeChance)
+					cs.spells.insert(spell->getId());
+			}
 		}
 	}
-
 
 	std::vector<const CArtifactInstance *> arts; //display them in window
 
