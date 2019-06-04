@@ -24,6 +24,9 @@ set(test_SRCS
 		battle/CUnitStateMagicTest.cpp
 		battle/battle_UnitTest.cpp
 
+		entity/CArtifactTest.cpp
+		entity/CCreatureTest.cpp
+
 		erm/ERM_BM.cpp
 		erm/ERM_BU.cpp
 		erm/ERM_MF.cpp
@@ -45,6 +48,7 @@ set(test_SRCS
 		scripting/PoolTest.cpp
 
 		spells/AbilityCasterTest.cpp
+		spells/CSpellTest.cpp
  		spells/TargetConditionTest.cpp
 
 		spells/effects/EffectFixture.cpp

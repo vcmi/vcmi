@@ -19,6 +19,8 @@
 #define sprintf_s snprintf
 #endif
 
+class Artifact;
+
 class CButton;
 class CToggleGroup;
 struct TryMoveHero;
@@ -200,7 +202,7 @@ public:
 	void yourTacticPhase(int distance) override;
 
 	//-------------//
-	void showArtifactAssemblyDialog(ui32 artifactID, ui32 assembleTo, bool assemble, CFunctionList<bool()> onYes, CFunctionList<bool()> onNo);
+	void showArtifactAssemblyDialog(const Artifact * artifact, const Artifact * assembledArtifact, CFunctionList<bool()> onYes);
 	void garrisonsChanged(std::vector<const CGObjectInstance *> objs);
 	void garrisonChanged(const CGObjectInstance * obj);
 	void heroKilled(const CGHeroInstance* hero);

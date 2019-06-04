@@ -1,0 +1,45 @@
+/*
+ * CCreatureTest.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+#include "StdInc.h"
+
+#include "../../lib/CCreatureHandler.h"
+
+namespace test
+{
+
+using namespace ::testing;
+
+class CCreatureTest : public Test
+{
+public:
+	MOCK_METHOD3(registarCb, void(int32_t, const std::string &, const std::string &));
+protected:
+	std::shared_ptr<CCreature> subject;
+
+	void SetUp() override
+	{
+		subject = std::make_shared<CCreature>();
+		subject->iconIndex = 4242;
+		subject->smallIconName = "Test1";
+		subject->largeIconName = "Test2";
+	}
+};
+
+TEST_F(CCreatureTest, RegistersIcons)
+{
+	auto cb = std::bind(&CCreatureTest::registarCb, this, _1, _2, _3);
+
+	EXPECT_CALL(*this, registarCb(Eq(4242), "CPRSMALL", "Test1"));
+	EXPECT_CALL(*this, registarCb(Eq(4242), "TWCRPORT", "Test2"));
+
+	subject->registerIcons(cb);
+}
+
+}

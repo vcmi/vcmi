@@ -37,6 +37,7 @@ public:
 	MOCK_CONST_METHOD0(isOffensive, bool());
 	MOCK_CONST_METHOD0(isSpecial, bool());
 	MOCK_CONST_METHOD1(forEachSchool, void(const SchoolCallback &));
+	MOCK_CONST_METHOD1(registerIcons, void(const IconRegistar &));
 };
 
 }

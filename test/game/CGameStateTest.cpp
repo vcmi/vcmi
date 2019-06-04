@@ -259,9 +259,13 @@ TEST_F(CGameStateTest, issue2765)
 	}
 	ASSERT_NE(att, nullptr);
 	ASSERT_NE(def, nullptr);
+	ASSERT_NE(att, def);
 
-	ASSERT_EQ(att->getMyHero(), attacker);
-	ASSERT_EQ(def->getMyHero(), defender);
+	EXPECT_NE(att->getMyHero(), defender);
+	EXPECT_NE(def->getMyHero(), attacker);
+
+	EXPECT_EQ(att->getMyHero(), attacker) << att->nodeName();
+	EXPECT_EQ(def->getMyHero(), defender) << def->nodeName();
 
 	{
 		using namespace ::testing;
@@ -373,7 +377,7 @@ TEST_F(CGameStateTest, battleResurrection)
 		const CSpell * spell = SpellID(SpellID::RESURRECTION).toSpell();
 		ASSERT_NE(spell, nullptr);
 
-		spells::BattleCast cast(gameState->curB, attacker, spells::Mode::HERO, spell);
+			spells::BattleCast cast(gameState->curB, attacker, spells::Mode::HERO, spell);
 
 		spells::Target target;
 		target.emplace_back(unit);

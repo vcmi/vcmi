@@ -491,6 +491,14 @@ std::unique_ptr<spells::Mechanics> CSpell::battleMechanics(const spells::IBattle
 	return mechanics->create(event);
 }
 
+void CSpell::registerIcons(const IconRegistar & cb) const
+{
+	cb(getIndex(), "SPELLS", iconBook);
+	cb(getIndex()+1, "SPELLINT", iconEffect);
+	cb(getIndex(), "SPELLBON", iconScenarioBonus);
+	cb(getIndex(), "SPELLSCR", iconScroll);
+}
+
 ///CSpell::AnimationInfo
 CSpell::AnimationItem::AnimationItem()
 	:resourceName(""),verticalPosition(VerticalPosition::TOP),pause(0)
@@ -564,7 +572,7 @@ const spells::Spell * CSpellHandler::getSpell(const SpellID & spellID) const
 	auto index = spellID.toEnum();
 	if(index < 0 || index >= objects.size())
 	{
-		logGlobal->error("Unable to get spell with ID %d", int(index));
+		logGlobal->error("Unable to get spell with ID %d", int32_t(index));
 		return nullptr;
 	}
 	else

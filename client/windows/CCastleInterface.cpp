@@ -805,7 +805,7 @@ void CCastleBuildings::enterBlacksmith(ArtifactID artifactID)
 	}
 	int price = CGI->arth->artifacts[artifactID]->price;
 	bool possible = LOCPLINT->cb->getResourceAmount(Res::GOLD) >= price && !hero->hasArt(artifactID);
-	CreatureID cre = artifactID.toArtifact()->warMachine;
+	CreatureID cre = artifactID.toArtifact(CGI->arth)->getWarMachine();
 	GH.pushIntT<CBlacksmithDialog>(possible, cre, artifactID, hero->id);
 }
 

@@ -1580,11 +1580,10 @@ void CGameState::initStartingBonus()
 					logGlobal->error("Cannot give starting artifact - no heroes!");
 					break;
 				}
-				CArtifact *toGive;
-				toGive = VLC->arth->artifacts[VLC->arth->pickRandomArtifact(getRandomGenerator(), CArtifact::ART_TREASURE)];
+				const Artifact * toGive = VLC->arth->pickRandomArtifact(getRandomGenerator(), CArtifact::ART_TREASURE).toArtifact(VLC->artifactService());
 
 				CGHeroInstance *hero = elem.second.heroes[0];
-				giveHeroArtifact(hero, toGive->id);
+				giveHeroArtifact(hero, toGive->getId());
 			}
 			break;
 		}
@@ -2710,7 +2709,7 @@ std::set<HeroTypeID> CGameState::getUnusedAllowedHeroes(bool alsoIncludeNotAllow
 	for(int i = 0; i < map->allowedHeroes.size(); i++)
 		if(map->allowedHeroes[i] || alsoIncludeNotAllowed)
 			ret.insert(HeroTypeID(i));
-	
+
 	for(auto & playerSettingPair : scenarioOps->playerInfos) //remove uninitialized yet heroes picked for start by other players
 	{
 		if(playerSettingPair.second.hero != PlayerSettings::RANDOM)

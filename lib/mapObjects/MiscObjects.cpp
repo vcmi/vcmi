@@ -1326,8 +1326,12 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 					iw.text << message;
 				else
 				{
-					if(VLC->arth->artifacts[subID]->getEventText().size())
-						iw.text << std::pair<ui8, ui32>(MetaString::ART_EVNTS, subID);
+					auto artifact = ArtifactID(subID).toArtifact(VLC->artifactService());
+
+					if((artifact != nullptr) && (!artifact->getEventText().empty()))
+					{
+						iw.text.addTxt(MetaString::ART_EVNTS, subID);
+					}
 					else //fix for mod artifacts with no event text
 					{
 						iw.text.addTxt(MetaString::ADVOB_TXT, 183); //% has found treasure

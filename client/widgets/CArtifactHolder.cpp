@@ -225,11 +225,9 @@ bool CHeroArtPlace::askToAssemble(const CArtifactInstance *art, ArtifactPosition
 	for(const CArtifact *combination : assemblyPossibilities)
 	{
 		LOCPLINT->showArtifactAssemblyDialog(
-			art->artType->id,
-			combination->id,
-			true,
-			std::bind(&CCallback::assembleArtifacts, LOCPLINT->cb.get(), hero, slot, true, combination->id),
-			0);
+			art->artType,
+			combination,
+			std::bind(&CCallback::assembleArtifacts, LOCPLINT->cb.get(), hero, slot, true, combination->id));
 
 		if(assemblyPossibilities.size() > 2)
 			logGlobal->warn("More than one possibility of assembling on %s... taking only first", art->artType->getName());
@@ -242,14 +240,14 @@ void CHeroArtPlace::clickRight(tribool down, bool previousState)
 {
 	if(ourArt && down && !locked && text.size() && !picked)  //if there is no description or it's a lock, do nothing ;]
 	{
-		if (slotID < GameConstants::BACKPACK_START)
+		if(slotID < GameConstants::BACKPACK_START)
 		{
 			if(ourOwner->allowedAssembling)
 			{
 				std::vector<const CArtifact *> assemblyPossibilities = ourArt->assemblyPossibilities(ourOwner->curHero);
 
 				// If the artifact can be assembled, display dialog.
-				if (askToAssemble(ourArt, slotID, ourOwner->curHero))
+				if(askToAssemble(ourArt, slotID, ourOwner->curHero))
 				{
 					return;
 				}
@@ -258,11 +256,9 @@ void CHeroArtPlace::clickRight(tribool down, bool previousState)
 				if(ourArt->canBeDisassembled())
 				{
 					LOCPLINT->showArtifactAssemblyDialog(
-						ourArt->artType->id,
-						0,
-						false,
-						std::bind(&CCallback::assembleArtifacts, LOCPLINT->cb.get(), ourOwner->curHero, slotID, false, ArtifactID()),
-						0);
+						ourArt->artType,
+						nullptr,
+						std::bind(&CCallback::assembleArtifacts, LOCPLINT->cb.get(), ourOwner->curHero, slotID, false, ArtifactID()));
 					return;
 				}
 			}

@@ -27,6 +27,11 @@ class CBattleInfoCallback;
 class AdventureSpellCastParameters;
 class SpellCastEnvironment;
 
+namespace test
+{
+	class CSpellTest;
+}
+
 namespace spells
 {
 
@@ -277,6 +282,8 @@ public:
 	bool isCombat() const override;
 	bool isCreatureAbility() const override;
 
+	void registerIcons(const IconRegistar & cb) const override;
+
 	const std::string & getIconImmune() const; ///< Returns resource name of icon for SPELL_IMMUNITY bonus
 	const std::string & getIconBook() const;
 	const std::string & getIconEffect() const;
@@ -347,6 +354,7 @@ public:
 	}
 	friend class CSpellHandler;
 	friend class Graphics;
+	friend class test::CSpellTest;
 public:
 	///internal interface (for callbacks)
 
@@ -376,6 +384,7 @@ private:
 
 	//call this after load or deserialization. cant be done in constructor.
 	void setupMechanics();
+
 private:
 	si32 defaultProbability;
 

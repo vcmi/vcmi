@@ -8,6 +8,9 @@
  *
  */
 #include "StdInc.h"
+
+#include <vcmi/Artifact.h>
+
 #include "windows/CAdvmapInterface.h"
 #include "battle/CBattleInterface.h"
 #include "battle/CBattleInterfaceClasses.h"
@@ -1426,27 +1429,20 @@ void CPlayerInterface::showGarrisonDialog( const CArmedInstance *up, const CGHer
  * Shows the dialog that appears when right-clicking an artifact that can be assembled
  * into a combinational one on an artifact screen. Does not require the combination of
  * artifacts to be legal.
- * @param artifactID ID of a constituent artifact.
- * @param assembleTo ID of artifact to assemble a constituent into, not used when assemble
- * is false.
- * @param assemble True if the artifact is to be assembled, false if it is to be disassembled.
  */
-void CPlayerInterface::showArtifactAssemblyDialog (ui32 artifactID, ui32 assembleTo, bool assemble, CFunctionList<bool()> onYes, CFunctionList<bool()> onNo)
+void CPlayerInterface::showArtifactAssemblyDialog(const Artifact * artifact, const Artifact * assembledArtifact, CFunctionList<bool()> onYes)
 {
-	const CArtifact & artifact = *CGI->arth->artifacts[artifactID];
-	std::string text = artifact.getDescription();
+	std::string text = artifact->getDescription();
 	text += "\n\n";
 	std::vector<std::shared_ptr<CComponent>> scs;
 
-	if(assemble)
+	if(assembledArtifact)
 	{
-		const CArtifact &assembledArtifact = *CGI->arth->artifacts[assembleTo];
-
 		// You possess all of the components to...
-		text += boost::str(boost::format(CGI->generaltexth->allTexts[732]) % assembledArtifact.getName());
+		text += boost::str(boost::format(CGI->generaltexth->allTexts[732]) % assembledArtifact->getName());
 
 		// Picture of assembled artifact at bottom.
-		auto sc = std::make_shared<CComponent>(CComponent::artifact, assembledArtifact.getIndex(), 0);
+		auto sc = std::make_shared<CComponent>(CComponent::artifact, assembledArtifact->getIndex(), 0);
 		scs.push_back(sc);
 	}
 	else
@@ -1455,7 +1451,7 @@ void CPlayerInterface::showArtifactAssemblyDialog (ui32 artifactID, ui32 assembl
 		text += CGI->generaltexth->allTexts[733];
 	}
 
-	showYesNoDialog(text, onYes, onNo, scs);
+	showYesNoDialog(text, onYes, nullptr, scs);
 }
 
 void CPlayerInterface::requestRealized( PackageApplied *pa )
@@ -1612,8 +1608,8 @@ void CPlayerInterface::playerBlocked(int reason, bool start)
 {
 	if(reason == PlayerBlocked::EReason::UPCOMING_BATTLE)
 	{
-		if(CSH->howManyPlayerInterfaces() > 1 && LOCPLINT != this && LOCPLINT->makingTurn == false) 
-		{ 
+		if(CSH->howManyPlayerInterfaces() > 1 && LOCPLINT != this && LOCPLINT->makingTurn == false)
+		{
 			//one of our players who isn't last in order got attacked not by our another player (happens for example in hotseat mode)
 			boost::unique_lock<boost::mutex> lock(eventsM); //TODO: copied from yourTurn, no idea if it's needed
 			LOCPLINT = this;

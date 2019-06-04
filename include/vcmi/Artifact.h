@@ -20,5 +20,7 @@ class DLL_LINKAGE Artifact : public EntityT<ArtifactID>
 public:
 	virtual bool isBig() const = 0;
 	virtual bool isTradable() const = 0;
+	virtual const std::string & getDescription() const = 0;
+	virtual const std::string & getEventText() const = 0;
 	virtual CreatureID getWarMachine() const = 0;
 };

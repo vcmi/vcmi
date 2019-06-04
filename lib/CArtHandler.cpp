@@ -63,6 +63,12 @@ const std::string & CArtifact::getJsonKey() const
 	return identifier;
 }
 
+void CArtifact::registerIcons(const IconRegistar & cb) const
+{
+	cb(iconIndex, "ARTIFACT", image);
+	cb(iconIndex, "ARTIFACTLARGE", large);
+}
+
 ArtifactID CArtifact::getId() const
 {
 	return id;
@@ -206,7 +212,16 @@ CArtHandler::~CArtHandler()
 
 const Artifact * CArtHandler::getArtifact(const ArtifactID & artifactID) const
 {
-	return artifacts.at(artifactID.toEnum());
+	auto index = artifactID.toEnum();
+	if(index < 0 || index >= artifacts.size())
+	{
+		logGlobal->error("Unable to get artifact with ID %d", int32_t(index));
+		return nullptr;
+	}
+	else
+	{
+		return artifacts.at(index).get();
+	}
 }
 
 std::vector<JsonNode> CArtHandler::loadLegacyData(size_t dataSize)

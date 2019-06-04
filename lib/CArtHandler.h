@@ -65,11 +65,10 @@ public:
 	int32_t getIndex() const override;
 	const std::string & getName() const override;
 	const std::string & getJsonKey() const override;
+	void registerIcons(const IconRegistar & cb) const override;
 	ArtifactID getId() const override;
-
-	const std::string & getDescription() const;
-	const std::string & getEventText() const;
-
+	const std::string & getEventText() const override;
+	const std::string & getDescription() const override;
 	CreatureID getWarMachine() const override;
 	bool isBig() const override;
 	bool isTradable() const override;

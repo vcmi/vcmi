@@ -873,7 +873,7 @@ bool CMapLoaderH3M::loadArtifactToSlot(CGHeroInstance * hero, int slot)
 	bool isArt  =  aid != artmask;
 	if(isArt)
 	{
-		const CArtifact * art = ArtifactID(aid).toArtifact();
+		const Artifact * art = ArtifactID(aid).toArtifact(VLC->artifactService());
 
 		if(nullptr == art)
 		{

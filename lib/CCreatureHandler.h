@@ -120,6 +120,7 @@ public:
 	int32_t getIndex() const override;
 	const std::string & getName() const override;
 	const std::string & getJsonKey() const override;
+	void registerIcons(const IconRegistar & cb) const override;
 	CreatureID getId() const override;
 	uint32_t getMaxHealth() const override;
 

@@ -96,6 +96,8 @@
 		<Unit filename="battle/CUnitStateMagicTest.cpp" />
 		<Unit filename="battle/CUnitStateTest.cpp" />
 		<Unit filename="battle/battle_UnitTest.cpp" />
+		<Unit filename="entity/CArtifactTest.cpp" />
+		<Unit filename="entity/CCreatureTest.cpp" />
 		<Unit filename="erm/ERMPersistenceTest.cpp" />
 		<Unit filename="erm/ERM_BM.cpp" />
 		<Unit filename="erm/ERM_BU.cpp" />
@@ -151,6 +153,7 @@
 		<Unit filename="scripting/ScriptFixture.cpp" />
 		<Unit filename="scripting/ScriptFixture.h" />
 		<Unit filename="spells/AbilityCasterTest.cpp" />
+		<Unit filename="spells/CSpellTest.cpp" />
 		<Unit filename="spells/TargetConditionTest.cpp" />
 		<Unit filename="spells/effects/CatapultTest.cpp" />
 		<Unit filename="spells/effects/CloneTest.cpp" />

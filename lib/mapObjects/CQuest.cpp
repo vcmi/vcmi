@@ -924,15 +924,15 @@ void CGSeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
 			identifier = CSkillHandler::encodeSkill(rID);
 			break;
 		case ARTIFACT:
-			identifier = ArtifactID(rID).toArtifact()->identifier;
+			identifier = ArtifactID(rID).toArtifact(VLC->artifactService())->getJsonKey();
 			amount = 1;
 			break;
 		case SPELL:
-			identifier = SpellID(rID).toSpell()->identifier;
+			identifier = SpellID(rID).toSpell(VLC->spellService())->getJsonKey();
 			amount = 1;
 			break;
 		case CREATURE:
-			identifier = CreatureID(rID).toCreature()->identifier;
+			identifier = CreatureID(rID).toCreature(VLC->creatureService())->getJsonKey();
 			break;
 		default:
 			assert(false);

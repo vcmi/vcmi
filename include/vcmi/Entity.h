@@ -14,11 +14,15 @@
 class DLL_LINKAGE Entity
 {
 public:
+	using IconRegistar = std::function<void(int32_t index, const std::string & listName, const std::string & imageName)>;
+
 	virtual ~Entity() = default;
 
 	virtual int32_t getIndex() const = 0;
 	virtual const std::string & getJsonKey() const = 0;
 	virtual const std::string & getName() const = 0;
+
+	virtual void registerIcons(const IconRegistar & cb) const = 0;
 };
 
 template <typename IdType>

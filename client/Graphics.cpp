@@ -423,7 +423,7 @@ void Graphics::loadErmuToPicture()
 	assert (etp_idx == 44);
 }
 
-void Graphics::addImageListEntry(size_t index, std::string listName, std::string imageName)
+void Graphics::addImageListEntry(size_t index, const std::string & listName, const std::string & imageName)
 {
 	if (!imageName.empty())
 	{
@@ -437,11 +437,10 @@ void Graphics::addImageListEntry(size_t index, std::string listName, std::string
 
 void Graphics::initializeImageLists()
 {
-	for(const CCreature * creature : CGI->creh->creatures)
-	{
-		addImageListEntry(creature->iconIndex, "CPRSMALL", creature->smallIconName);
-		addImageListEntry(creature->iconIndex, "TWCRPORT", creature->largeIconName);
-	}
+	auto cb = std::bind(&Graphics::addImageListEntry, this, _1, _2, _3);
+
+	for(const Creature * creature : CGI->creh->creatures)
+		creature->registerIcons(cb);
 
 	for(const CHero * hero : CGI->heroh->heroes)
 	{
@@ -451,11 +450,8 @@ void Graphics::initializeImageLists()
 		addImageListEntry(hero->imageIndex, "PORTRAITSSMALL", hero->portraitSmall);
 	}
 
-	for(const CArtifact * art : CGI->arth->artifacts)
-	{
-		addImageListEntry(art->iconIndex, "ARTIFACT", art->image);
-		addImageListEntry(art->iconIndex, "ARTIFACTLARGE", art->large);
-	}
+	for(const Artifact * art : CGI->arth->artifacts)
+		art->registerIcons(cb);
 
 	for(const CFaction * faction : CGI->townh->factions)
 	{
@@ -474,13 +470,8 @@ void Graphics::initializeImageLists()
 		}
 	}
 
-	for(const CSpell * spell : CGI->spellh->objects)
-	{
-		addImageListEntry(spell->id, "SPELLS", spell->iconBook);
-		addImageListEntry(spell->id+1, "SPELLINT", spell->iconEffect);
-		addImageListEntry(spell->id, "SPELLBON", spell->iconScenarioBonus);
-		addImageListEntry(spell->id, "SPELLSCR", spell->iconScroll);
-	}
+	for(const spells::Spell * spell : CGI->spellh->objects)
+		spell->registerIcons(cb);
 
 	for(const CSkill * skill : CGI->skillh->objects)
 	{
