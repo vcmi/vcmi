@@ -2104,19 +2104,19 @@ std::set<BuildingID> CMapLoaderH3M::convertBuildings(const std::set<BuildingID> 
 	{
 		//village hall is always present
 		ret.insert(BuildingID::VILLAGE_HALL);
-	}
 
-	if(ret.find(BuildingID::CITY_HALL) != ret.end())
-	{
-		ret.insert(BuildingID::EXTRA_CITY_HALL);
-	}
-	if(ret.find(BuildingID::TOWN_HALL) != ret.end())
-	{
-		ret.insert(BuildingID::EXTRA_TOWN_HALL);
-	}
-	if(ret.find(BuildingID::CAPITOL) != ret.end())
-	{
-		ret.insert(BuildingID::EXTRA_CAPITOL);
+		if(ret.find(BuildingID::CITY_HALL) != ret.end())
+		{
+			ret.insert(BuildingID::EXTRA_CITY_HALL);
+		}
+		if(ret.find(BuildingID::TOWN_HALL) != ret.end())
+		{
+			ret.insert(BuildingID::EXTRA_TOWN_HALL);
+		}
+		if(ret.find(BuildingID::CAPITOL) != ret.end())
+		{
+			ret.insert(BuildingID::EXTRA_CAPITOL);
+		}
 	}
 
 	return ret;
