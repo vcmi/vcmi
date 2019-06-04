@@ -25,6 +25,37 @@
 
 #include "mapObjects/CObjectClassesHandler.h"
 
+CHero::CHero() = default;
+CHero::~CHero() = default;
+
+int32_t CHero::getIndex() const
+{
+	return ID.getNum();
+}
+
+const std::string & CHero::getName() const
+{
+	return name;
+}
+
+const std::string & CHero::getJsonKey() const
+{
+	return identifier;
+}
+
+HeroTypeID CHero::getId() const
+{
+	return ID;
+}
+
+void CHero::registerIcons(const IconRegistar & cb) const
+{
+	cb(imageIndex, "UN32", iconSpecSmall);
+	cb(imageIndex, "UN44", iconSpecLarge);
+	cb(imageIndex, "PORTRAITSLARGE", portraitLarge);
+	cb(imageIndex, "PORTRAITSSMALL", portraitSmall);
+}
+
 SecondarySkill CHeroClass::chooseSecSkill(const std::set<SecondarySkill> & possibles, CRandomGenerator & rand) const //picks secondary skill out from given possibilities
 {
 	int totalProb = 0;
@@ -58,8 +89,33 @@ EAlignment::EAlignment CHeroClass::getAlignment() const
 	return EAlignment::EAlignment(VLC->townh->factions[faction]->alignment);
 }
 
+int32_t CHeroClass::getIndex() const
+{
+	return id.getNum();
+}
+
+const std::string & CHeroClass::getName() const
+{
+	return name;
+}
+
+const std::string & CHeroClass::getJsonKey() const
+{
+	return identifier;
+}
+
+HeroClassID CHeroClass::getId() const
+{
+	return id;
+}
+
+void CHeroClass::registerIcons(const IconRegistar & cb) const
+{
+
+}
+
 CHeroClass::CHeroClass()
- : faction(0), id(0), affinity(0), defaultTavernChance(0), commander(nullptr)
+ : faction(0), id(), affinity(0), defaultTavernChance(0), commander(nullptr)
 {
 }
 
@@ -199,7 +255,7 @@ std::vector<JsonNode> CHeroClassHandler::loadLegacyData(size_t dataSize)
 void CHeroClassHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
 	auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
-	object->id = heroClasses.size();
+	object->id = HeroClassID(heroClasses.size());
 
 	heroClasses.push_back(object);
 
@@ -208,16 +264,16 @@ void CHeroClassHandler::loadObject(std::string scope, std::string name, const Js
 		JsonNode classConf = data["mapObject"];
 		classConf["heroClass"].String() = name;
 		classConf.setMeta(scope);
-		VLC->objtypeh->loadSubObject(name, classConf, index, object->id);
+		VLC->objtypeh->loadSubObject(name, classConf, index, object->getIndex());
 	});
 
-	VLC->modh->identifiers.registerObject(scope, "heroClass", name, object->id);
+	VLC->modh->identifiers.registerObject(scope, "heroClass", name, object->getIndex());
 }
 
 void CHeroClassHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
 	auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
-	object->id = index;
+	object->id = HeroClassID(index);
 
 	assert(heroClasses[index] == nullptr); // ensure that this id was not loaded before
 	heroClasses[index] = object;
@@ -227,10 +283,10 @@ void CHeroClassHandler::loadObject(std::string scope, std::string name, const Js
 		JsonNode classConf = data["mapObject"];
 		classConf["heroClass"].String() = name;
 		classConf.setMeta(scope);
-		VLC->objtypeh->loadSubObject(name, classConf, index, object->id);
+		VLC->objtypeh->loadSubObject(name, classConf, index, object->getIndex());
 	});
 
-	VLC->modh->identifiers.registerObject(scope, "heroClass", name, object->id);
+	VLC->modh->identifiers.registerObject(scope, "heroClass", name, object->getIndex());
 }
 
 void CHeroClassHandler::afterLoadFinalization()
@@ -267,8 +323,22 @@ void CHeroClassHandler::afterLoadFinalization()
 		{
 			JsonNode templ;
 			templ["animation"].String() = hc->imageMapMale;
-			VLC->objtypeh->getHandlerFor(Obj::HERO, hc->id)->addTemplate(templ);
+			VLC->objtypeh->getHandlerFor(Obj::HERO, hc->getIndex())->addTemplate(templ);
 		}
+	}
+}
+
+const HeroClass * CHeroClassHandler::getHeroClass(const HeroClassID & heroClassID) const
+{
+	auto index = heroClassID.getNum();
+	if(index < 0 || index >= heroClasses.size())
+	{
+		logGlobal->error("Unable to get hero with ID %d", int32_t(index));
+		return nullptr;
+	}
+	else
+	{
+		return heroClasses.at(index).get();
 	}
 }
 
@@ -918,6 +988,20 @@ void CHeroHandler::afterLoadFinalization()
 				specNode["bonuses"][specNames[i]] = specVec[i];
 			logMod->trace("\"specialty\" : %s", specNode.toJson(true));
 		}
+	}
+}
+
+const HeroType * CHeroHandler::getHeroType(const HeroTypeID & heroTypeID) const
+{
+	auto index = heroTypeID.getNum();
+	if(index < 0 || index >= heroes.size())
+	{
+		logGlobal->error("Unable to get hero with ID %d", int32_t(index));
+		return nullptr;
+	}
+	else
+	{
+		return heroes.at(index).get();
 	}
 }
 

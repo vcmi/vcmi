@@ -56,6 +56,8 @@ TEST_F(ERM_BM, GetAttack)
 	EXPECT_EQ(actualState["ERM"]["v"]["1"].Float(), ATTACK_VALUE);
 }
 
+#if 0
+
 TEST_F(ERM_BM, SetAttack)
 {
 	const int32_t ATTACK_VALUE = 345;
@@ -95,6 +97,7 @@ TEST_F(ERM_BM, SetAttack)
 	SCOPED_TRACE("\n" + subject->code);
 	run();
 }
+#endif // 0
 
 }
 }

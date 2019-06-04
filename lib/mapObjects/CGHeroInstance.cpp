@@ -262,7 +262,7 @@ void CGHeroInstance::setType(si32 ID, si32 subID)
 	assert(ID == Obj::HERO); // just in case
 	type = VLC->heroh->heroes[subID];
 	portrait = type->imageIndex;
-	CGObjectInstance::setType(ID, type->heroClass->id); // to find object handler we must use heroClass->id
+	CGObjectInstance::setType(ID, type->heroClass->getIndex()); // to find object handler we must use heroClass->id
 	this->subID = subID; // after setType subID used to store unique hero identify id. Check issue 2277 for details
 	randomizeArmy(type->heroClass->faction);
 }
@@ -274,7 +274,7 @@ void CGHeroInstance::initHero(CRandomGenerator & rand)
 		type = VLC->heroh->heroes[subID];
 
 	if (ID == Obj::HERO)
-		appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, type->heroClass->id)->getTemplates().front();
+		appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, type->heroClass->getIndex())->getTemplates().front();
 
 	if(!vstd::contains(spells, SpellID::PRESET)) //hero starts with a spell
 	{
@@ -512,7 +512,7 @@ void CGHeroInstance::initObj(CRandomGenerator & rand)
 
 	if (ID != Obj::PRISON)
 	{
-		auto customApp = VLC->objtypeh->getHandlerFor(ID, type->heroClass->id)->getOverride(cb->gameState()->getTile(visitablePos())->terType, this);
+		auto customApp = VLC->objtypeh->getHandlerFor(ID, type->heroClass->getIndex())->getOverride(cb->gameState()->getTile(visitablePos())->terType, this);
 		if (customApp)
 			appearance = customApp.get();
 	}

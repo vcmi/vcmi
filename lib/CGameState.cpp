@@ -281,7 +281,7 @@ static CGObjectInstance * createObject(Obj id, int subid, int3 pos, PlayerColor 
 	{
 	case Obj::HERO:
 		{
-			auto handler = VLC->objtypeh->getHandlerFor(id, VLC->heroh->heroes[subid]->heroClass->id);
+			auto handler = VLC->objtypeh->getHandlerFor(id, VLC->heroh->heroes[subid]->heroClass->getIndex());
 			nobj = handler->create(handler->getTemplates().front());
 			break;
 		}

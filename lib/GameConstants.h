@@ -234,6 +234,11 @@ class ObjectInstanceID : public BaseForID<ObjectInstanceID, si32>
 	friend class CNonConstInfoCallback;
 };
 
+class HeroClassID : public BaseForID<HeroClassID, si32>
+{
+	INSTID_LIKE_CLASS_COMMON(HeroClassID, si32)
+};
+
 class HeroTypeID : public BaseForID<HeroTypeID, si32>
 {
 	INSTID_LIKE_CLASS_COMMON(HeroTypeID, si32)

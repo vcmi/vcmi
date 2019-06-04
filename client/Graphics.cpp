@@ -165,7 +165,7 @@ void Graphics::loadHeroAnimations()
 {
 	for(auto & elem : CGI->heroh->classes.heroClasses)
 	{
-		for (auto & templ : VLC->objtypeh->getHandlerFor(Obj::HERO, elem->id)->getTemplates())
+		for (auto & templ : VLC->objtypeh->getHandlerFor(Obj::HERO, elem->getIndex())->getTemplates())
 		{
 			if (!heroAnimations.count(templ.animationFile))
 				heroAnimations[templ.animationFile] = loadHeroAnimation(templ.animationFile);
@@ -442,13 +442,8 @@ void Graphics::initializeImageLists()
 	for(const Creature * creature : CGI->creh->creatures)
 		creature->registerIcons(cb);
 
-	for(const CHero * hero : CGI->heroh->heroes)
-	{
-		addImageListEntry(hero->imageIndex, "UN32", hero->iconSpecSmall);
-		addImageListEntry(hero->imageIndex, "UN44", hero->iconSpecLarge);
-		addImageListEntry(hero->imageIndex, "PORTRAITSLARGE", hero->portraitLarge);
-		addImageListEntry(hero->imageIndex, "PORTRAITSSMALL", hero->portraitSmall);
-	}
+	for(const HeroType * hero : CGI->heroh->heroes)
+		hero->registerIcons(cb);
 
 	for(const Artifact * art : CGI->arth->artifacts)
 		art->registerIcons(cb);

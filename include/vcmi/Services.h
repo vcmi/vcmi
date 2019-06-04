@@ -12,6 +12,8 @@
 
 class ArtifactService;
 class CreatureService;
+class HeroClassService;
+class HeroTypeService;
 class ScriptingService;
 
 namespace spells
@@ -36,6 +38,8 @@ public:
 
 	virtual const ArtifactService * artifactService() const = 0;
 	virtual const CreatureService * creatureService() const = 0;
+	virtual const HeroClassService * heroClassService() const = 0;
+	virtual const HeroTypeService * heroTypeService() const = 0;
 	virtual const scripting::Service * scriptingService() const = 0;
 	virtual const spells::Service * spellService() const = 0;
 

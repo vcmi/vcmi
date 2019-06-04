@@ -45,6 +45,8 @@ public:
 
 	const ArtifactService * artifactService() const override;
 	const CreatureService * creatureService() const override;
+	const HeroClassService * heroClassService() const override;
+	const HeroTypeService * heroTypeService() const override;
 	const scripting::Service * scriptingService() const override;
 	const spells::Service * spellService() const override;
 

@@ -65,6 +65,16 @@ const CreatureService * LibClasses::creatureService() const
 	return creh;
 }
 
+const HeroClassService * LibClasses::heroClassService() const
+{
+	return &heroh->classes;
+}
+
+const HeroTypeService * LibClasses::heroTypeService() const
+{
+	return heroh;
+}
+
 const scripting::Service * LibClasses::scriptingService() const
 {
 	return scriptHandler;

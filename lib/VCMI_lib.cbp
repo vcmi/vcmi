@@ -134,6 +134,10 @@
 		<Unit filename="../include/vcmi/CreatureService.h" />
 		<Unit filename="../include/vcmi/Entity.h" />
 		<Unit filename="../include/vcmi/Environment.h" />
+		<Unit filename="../include/vcmi/HeroClass.h" />
+		<Unit filename="../include/vcmi/HeroClassService.h" />
+		<Unit filename="../include/vcmi/HeroType.h" />
+		<Unit filename="../include/vcmi/HeroTypeService.h" />
 		<Unit filename="../include/vcmi/ServerCallback.h" />
 		<Unit filename="../include/vcmi/Services.h" />
 		<Unit filename="../include/vcmi/events/ApplyDamage.h" />

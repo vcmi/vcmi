@@ -9,6 +9,11 @@
  */
 #pragma once
 
+#include <vcmi/HeroClass.h>
+#include <vcmi/HeroClassService.h>
+#include <vcmi/HeroType.h>
+#include <vcmi/HeroTypeService.h>
+
 #include "../lib/ConstTransitivePtr.h"
 #include "GameConstants.h"
 #include "HeroBonus.h"
@@ -47,7 +52,7 @@ struct SSpecialtyBonus
 	}
 };
 
-class DLL_LINKAGE CHero
+class DLL_LINKAGE CHero : public HeroType
 {
 public:
 	struct InitialArmyStack
@@ -93,6 +98,15 @@ public:
 	std::string portraitLarge;
 	std::string battleImage;
 
+	CHero();
+	virtual ~CHero();
+
+	int32_t getIndex() const override;
+	const std::string & getName() const override;
+	const std::string & getJsonKey() const override;
+	HeroTypeID getId() const override;
+	void registerIcons(const IconRegistar & cb) const override;
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & ID;
@@ -137,7 +151,7 @@ public:
 std::vector<std::shared_ptr<Bonus>> SpecialtyInfoToBonuses(const SSpecialtyInfo & spec, int sid = 0);
 std::vector<std::shared_ptr<Bonus>> SpecialtyBonusToBonuses(const SSpecialtyBonus & spec, int sid = 0);
 
-class DLL_LINKAGE CHeroClass
+class DLL_LINKAGE CHeroClass : public HeroClass
 {
 public:
 	enum EClassAffinity
@@ -150,8 +164,8 @@ public:
 	std::string name; // translatable
 	//double aggression; // not used in vcmi.
 	TFaction faction;
-	ui8 id;
-	ui8 affinity; // affility, using EClassAffinity enum
+	HeroClassID id;
+	ui8 affinity; // affinity, using EClassAffinity enum
 
 	// default chance for hero of specific class to appear in tavern, if field "tavern" was not set
 	// resulting chance = sqrt(town.chance * heroClass.chance)
@@ -174,15 +188,30 @@ public:
 
 	CHeroClass();
 
+	int32_t getIndex() const override;
+	const std::string & getName() const override;
+	const std::string & getJsonKey() const override;
+	HeroClassID getId() const override;
+	void registerIcons(const IconRegistar & cb) const override;
+
 	bool isMagicHero() const;
 	SecondarySkill chooseSecSkill(const std::set<SecondarySkill> & possibles, CRandomGenerator & rand) const; //picks secondary skill out from given possibilities
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & identifier;
 		h & name;
 		h & faction;
-		h & id;
+		if(version >= 800)
+		{
+			h & id;
+		}
+		else
+		{
+			ui8 old_id = 0;
+			h & old_id;
+			id = HeroClassID(old_id);
+		}
 		h & defaultTavernChance;
 		h & primarySkillInitial;
 		h & primarySkillLowLevel;
@@ -227,7 +256,7 @@ struct DLL_LINKAGE CObstacleInfo
 	}
 };
 
-class DLL_LINKAGE CHeroClassHandler : public IHandlerBase
+class DLL_LINKAGE CHeroClassHandler : public IHandlerBase, public HeroClassService
 {
 	CHeroClass *loadFromJson(const JsonNode & node, const std::string & identifier);
 public:
@@ -240,6 +269,8 @@ public:
 
 	void afterLoadFinalization() override;
 
+	const HeroClass * getHeroClass(const HeroClassID & heroClassID) const override;
+
 	std::vector<bool> getDefaultAllowed() const override;
 
 	~CHeroClassHandler();
@@ -250,7 +281,7 @@ public:
 	}
 };
 
-class DLL_LINKAGE CHeroHandler : public IHandlerBase
+class DLL_LINKAGE CHeroHandler : public IHandlerBase, public HeroTypeService
 {
 	/// expPerLEvel[i] is amount of exp needed to reach level i;
 	/// consists of 201 values. Any higher levels require experience larger that ui64 can hold
@@ -310,6 +341,8 @@ public:
 	void loadObject(std::string scope, std::string name, const JsonNode & data) override;
 	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
 	void afterLoadFinalization() override;
+
+	const HeroType * getHeroType(const HeroTypeID & heroTypeID) const override;
 
 	CHeroHandler();
 	~CHeroHandler();
