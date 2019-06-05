@@ -64,7 +64,12 @@ boost::optional<int> MapObjectsEvaluator::getObjectValue(const CGObjectInstance 
 		auto hero = dynamic_cast<const CGHeroInstance*>(obj);
 		return getObjectValue(obj->ID, hero->type->heroClass->id);
 	}
-	if(obj->ID == Obj::CREATURE_GENERATOR1 || obj->ID == Obj::CREATURE_GENERATOR4)
+	else if(obj->ID == Obj::PRISON)
+	{
+		//special case: in-game prison subID is captured hero ID, but config has one subID with index 0 for normal prison - use that one
+		return getObjectValue(obj->ID, 0);
+	}
+	else if(obj->ID == Obj::CREATURE_GENERATOR1 || obj->ID == Obj::CREATURE_GENERATOR4)
 	{
 		auto dwelling = dynamic_cast<const CGDwelling *>(obj);
 		int aiValue = 0;
