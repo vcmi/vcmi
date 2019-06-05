@@ -49,7 +49,7 @@ public:
 	 * Returns spell level power, base power ignored
 	 */
 	virtual int32_t getLevelPower(const int32_t skillLevel) const = 0;
-
+	virtual const std::string & getLevelDescription(const int32_t skillLevel) const = 0;
 
 };
 

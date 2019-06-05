@@ -242,6 +242,10 @@ class HeroClassID : public BaseForID<HeroClassID, si32>
 class HeroTypeID : public BaseForID<HeroTypeID, si32>
 {
 	INSTID_LIKE_CLASS_COMMON(HeroTypeID, si32)
+
+	///json serialization helpers
+	static si32 decode(const std::string & identifier);
+	static std::string encode(const si32 index);
 };
 
 class SlotID : public BaseForID<SlotID, si32>

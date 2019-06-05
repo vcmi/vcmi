@@ -122,6 +122,8 @@ public:
 	const std::string & getJsonKey() const override;
 	void registerIcons(const IconRegistar & cb) const override;
 	CreatureID getId() const override;
+	const std::string & getPluralName() const override;
+	const std::string & getSingularName() const override;
 	uint32_t getMaxHealth() const override;
 
 	bool isItNativeTerrain(int terrain) const;

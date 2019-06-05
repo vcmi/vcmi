@@ -16,6 +16,9 @@
 #include "../Version.h"
 #endif
 
+#include <vcmi/HeroType.h>
+#include <vcmi/HeroTypeService.h>
+
 #include <vcmi/spells/Service.h>
 
 #include "VCMI_Lib.h"
@@ -47,6 +50,20 @@ namespace GameConstants
 #else
 	const std::string VCMI_VERSION = std::string("VCMI 0.99 ") + GIT_SHA1;
 #endif
+}
+
+si32 HeroTypeID::decode(const std::string & identifier)
+{
+	auto rawId = VLC->modh->identifiers.getIdentifier("core", "hero", identifier);
+	if(rawId)
+		return rawId.get();
+	else
+		return -1;
+}
+
+std::string HeroTypeID::encode(const si32 index)
+{
+	return VLC->heroTypeService()->getHeroType(HeroTypeID(index))->getJsonKey();
 }
 
 const CArtifact * ArtifactID::toArtifact() const

@@ -51,6 +51,16 @@ uint32_t CCreature::getMaxHealth() const
 	return CBonusSystemNode::MaxHealth();
 }
 
+const std::string & CCreature::getPluralName() const
+{
+	return namePl;
+}
+
+const std::string & CCreature::getSingularName() const
+{
+	return nameSing;
+}
+
 int CCreature::getQuantityID(const int & quantity)
 {
 	if (quantity<5)

@@ -17,5 +17,7 @@ class CreatureID;
 class DLL_LINKAGE Creature : public EntityT<CreatureID>
 {
 public:
+	virtual const std::string & getPluralName() const = 0;
+	virtual const std::string & getSingularName() const = 0;
 	virtual uint32_t getMaxHealth() const = 0;
 };

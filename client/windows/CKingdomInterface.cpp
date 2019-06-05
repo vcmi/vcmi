@@ -229,7 +229,7 @@ size_t InfoBoxAbstractHeroData::getImageIndex()
 	switch (type)
 	{
 	case HERO_SPECIAL:
-		return VLC->heroh->heroes[getSubID()]->imageIndex;
+		return CGI->heroh->heroes[getSubID()]->imageIndex;
 	case HERO_PRIMARY_SKILL:
 		return getSubID();
 	case HERO_MANA:

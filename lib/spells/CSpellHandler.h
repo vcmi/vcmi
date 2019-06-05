@@ -267,6 +267,8 @@ public:
 
 	int32_t getLevel() const override;
 
+	const std::string & getLevelDescription(const int32_t skillLevel) const override;
+
 	boost::logic::tribool getPositiveness() const override;
 
 	bool isPositive() const override;

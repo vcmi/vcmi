@@ -470,7 +470,7 @@ void CQuest::serializeJson(JsonSerializeFormat & handler, const std::string & fi
         }
 		break;
 	case MISSION_HERO:
-		handler.serializeId<ui32>("hero", m13489val, 0, &CHeroHandler::decodeHero, &CHeroHandler::encodeHero);
+		handler.serializeId<ui32, ui32, HeroTypeID>("hero", m13489val, 0);
 		break;
 	case MISSION_PLAYER:
 		handler.serializeEnum("player",  m13489val, PlayerColor::CANNOT_DETERMINE.getNum(), GameConstants::PLAYER_COLOR_NAMES);

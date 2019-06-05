@@ -27,6 +27,7 @@ public:
 	MOCK_CONST_METHOD1(getCost, int32_t(const int32_t));
 	MOCK_CONST_METHOD0(getBasePower, int32_t());
 	MOCK_CONST_METHOD1(getLevelPower, int32_t(const int32_t));
+	MOCK_CONST_METHOD1(getLevelDescription, const std::string &(const int32_t));
 	MOCK_CONST_METHOD0(getPositiveness, boost::logic::tribool());
 	MOCK_CONST_METHOD0(isAdventure, bool());
 	MOCK_CONST_METHOD0(isCombat, bool());

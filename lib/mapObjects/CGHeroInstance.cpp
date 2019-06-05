@@ -1411,7 +1411,7 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 			if(portrait >= 0)
 			{
 				if(portrait < legacyHeroes || portrait >= moddedStart)
-					handler.serializeId("portrait", portrait, -1, &VLC->heroh->decodeHero, &VLC->heroh->encodeHero);
+					handler.serializeId<si32, si32, HeroTypeID>("portrait", portrait, -1);
 				else
 					handler.serializeInt("portrait", portrait, -1);
 			}
@@ -1421,7 +1421,7 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 			const JsonNode & portraitNode = handler.getCurrent()["portrait"];
 
 			if(portraitNode.getType() == JsonNode::JsonType::DATA_STRING)
-				handler.serializeId("portrait", portrait, -1, &VLC->heroh->decodeHero, &VLC->heroh->encodeHero);
+				handler.serializeId<si32, si32, HeroTypeID>("portrait", portrait, -1);
 			else
 				handler.serializeInt("portrait", portrait, -1);
 		}

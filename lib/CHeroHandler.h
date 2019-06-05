@@ -349,12 +349,6 @@ public:
 
 	std::vector<bool> getDefaultAllowed() const override;
 
-	///json serialization helper
-	static si32 decodeHero(const std::string & identifier);
-
-	///json serialization helper
-	static std::string encodeHero(const si32 index);
-
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & classes;

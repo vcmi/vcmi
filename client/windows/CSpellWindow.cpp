@@ -545,7 +545,7 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 		if((combatSpell ^ inCombat) || inCastle)
 		{
 			std::vector<std::shared_ptr<CComponent>> hlp(1, std::make_shared<CComponent>(CComponent::spell, mySpell->id, 0));
-			owner->myInt->showInfoDialog(mySpell->getLevelInfo(schoolLevel).description, hlp);
+			owner->myInt->showInfoDialog(mySpell->getLevelDescription(schoolLevel), hlp);
 		}
 		else if(combatSpell)
 		{
@@ -600,7 +600,7 @@ void CSpellWindow::SpellArea::clickRight(tribool down, bool previousState)
 			boost::algorithm::replace_first(dmgInfo, "%d", boost::lexical_cast<std::string>(causedDmg));
 		}
 
-		CRClickPopup::createAndPush(mySpell->getLevelInfo(schoolLevel).description + dmgInfo, std::make_shared<CComponent>(CComponent::spell, mySpell->id));
+		CRClickPopup::createAndPush(mySpell->getLevelDescription(schoolLevel) + dmgInfo, std::make_shared<CComponent>(CComponent::spell, mySpell->id));
 	}
 }
 

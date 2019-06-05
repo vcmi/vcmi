@@ -1734,13 +1734,13 @@ CMageGuildScreen::Scroll::Scroll(Point position, const CSpell *Spell)
 void CMageGuildScreen::Scroll::clickLeft(tribool down, bool previousState)
 {
 	if(down)
-		LOCPLINT->showInfoDialog(spell->getLevelInfo(0).description, std::make_shared<CComponent>(CComponent::spell, spell->id));
+		LOCPLINT->showInfoDialog(spell->getLevelDescription(0), std::make_shared<CComponent>(CComponent::spell, spell->id));
 }
 
 void CMageGuildScreen::Scroll::clickRight(tribool down, bool previousState)
 {
 	if(down)
-		CRClickPopup::createAndPush(spell->getLevelInfo(0).description, std::make_shared<CComponent>(CComponent::spell, spell->id));
+		CRClickPopup::createAndPush(spell->getLevelDescription(0), std::make_shared<CComponent>(CComponent::spell, spell->id));
 }
 
 void CMageGuildScreen::Scroll::hover(bool on)

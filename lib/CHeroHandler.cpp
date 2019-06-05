@@ -1048,17 +1048,3 @@ std::vector<bool> CHeroHandler::getDefaultAllowed() const
 
 	return allowedHeroes;
 }
-
-si32 CHeroHandler::decodeHero(const std::string & identifier)
-{
-	auto rawId = VLC->modh->identifiers.getIdentifier("core", "hero", identifier);
-	if(rawId)
-		return rawId.get();
-	else
-		return -1;
-}
-
-std::string CHeroHandler::encodeHero(const si32 index)
-{
-	return VLC->heroh->heroes.at(index)->identifier;
-}

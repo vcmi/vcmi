@@ -333,6 +333,11 @@ int32_t CSpell::getLevelPower(const int32_t skillLevel) const
 	return getLevelInfo(skillLevel).power;
 }
 
+const std::string & CSpell::getLevelDescription(const int32_t skillLevel) const
+{
+	return getLevelInfo(skillLevel).description;
+}
+
 si32 CSpell::getProbability(const TFaction factionId) const
 {
 	if(!vstd::contains(probabilities,factionId))

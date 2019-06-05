@@ -70,11 +70,43 @@ void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst
 
 	if(type == ART_NAMES)
 	{
-		dst = VLC->arth->artifacts[ser]->getName();
+		auto art = ArtifactID(ser).toArtifact(VLC->artifactService());
+		if(art)
+			dst = art->getName();
+		else
+			dst = "#!#";
+	}
+	else if(type == ART_DESCR)
+	{
+		auto art = ArtifactID(ser).toArtifact(VLC->artifactService());
+		if(art)
+			dst = art->getDescription();
+		else
+			dst = "#!#";
+	}
+	else if (type == ART_EVNTS)
+	{
+		auto art = ArtifactID(ser).toArtifact(VLC->artifactService());
+		if(art)
+			dst = art->getEventText();
+		else
+			dst = "#!#";
 	}
 	else if(type == CRE_PL_NAMES)
 	{
-		dst = VLC->creh->creatures[ser]->namePl;
+		auto cre = CreatureID(ser).toCreature(VLC->creatureService());
+		if(cre)
+			dst = cre->getPluralName();
+		else
+			dst = "#!#";
+	}
+	else if(type == CRE_SING_NAMES)
+	{
+		auto cre = CreatureID(ser).toCreature(VLC->creatureService());
+		if(cre)
+			dst = cre->getSingularName();
+		else
+			dst = "#!#";
 	}
 	else if(type == MINE_NAMES)
 	{
@@ -86,21 +118,13 @@ void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst
 	}
 	else if(type == SPELL_NAME)
 	{
-		dst = SpellID(ser).toSpell()->name;
+		auto spell = SpellID(ser).toSpell(VLC->spellService());
+		if(spell)
+			dst = spell->getName();
+		else
+			dst = "#!#";
 	}
-	else if(type == CRE_SING_NAMES)
-	{
-		dst = VLC->creh->creatures[ser]->nameSing;
-	}
-	else if(type == ART_DESCR)
-	{
-		dst = VLC->arth->artifacts[ser]->getDescription();
-	}
-	else if (type == ART_EVNTS)
-	{
-		dst = VLC->arth->artifacts[ser]->getEventText();
-	}
-	else if (type == OBJ_NAMES)
+	else if(type == OBJ_NAMES)
 	{
 		dst = VLC->objtypeh->getObjectName(ser);
 	}

@@ -510,8 +510,8 @@ void CArtHandler::loadComponents(CArtifact * art, const JsonNode & node)
 			{
 				// when this code is called both combinational art as well as component are loaded
 				// so it is safe to access any of them
-				art->constituents->push_back(VLC->arth->artifacts[id]);
-				VLC->arth->artifacts[id]->constituentOf.push_back(art);
+				art->constituents->push_back(artifacts[id]);
+				artifacts[id]->constituentOf.push_back(art);
 			});
 		}
 	}
