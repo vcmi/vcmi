@@ -15,21 +15,25 @@
 #ifndef VCMI_NO_EXTRA_VERSION
 #include "../Version.h"
 #endif
-
+#include <vcmi/Artifact.h>
+#include <vcmi/ArtifactService.h>
+#include <vcmi/Faction.h>
+#include <vcmi/FactionService.h>
 #include <vcmi/HeroType.h>
 #include <vcmi/HeroTypeService.h>
 
+#include <vcmi/spells/Spell.h>
 #include <vcmi/spells/Service.h>
 
 #include "VCMI_Lib.h"
-#include "mapObjects/CObjectClassesHandler.h"
-#include "CArtHandler.h"
-#include "CCreatureHandler.h"
+#include "mapObjects/CObjectClassesHandler.h"//todo: remove
+#include "CArtHandler.h"//todo: remove
+#include "CCreatureHandler.h"//todo: remove
 #include "spells/CSpellHandler.h" //todo: remove
-#include "CSkillHandler.h"
+#include "CSkillHandler.h"//todo: remove
 #include "StringConstants.h"
 #include "CGeneralTextHandler.h"
-#include "CModHandler.h"
+#include "CModHandler.h"//todo: remove
 
 const SlotID SlotID::COMMANDER_SLOT_PLACEHOLDER = SlotID(-2);
 const SlotID SlotID::SUMMONED_SLOT_PLACEHOLDER = SlotID(-3);
@@ -63,7 +67,7 @@ si32 HeroTypeID::decode(const std::string & identifier)
 
 std::string HeroTypeID::encode(const si32 index)
 {
-	return VLC->heroTypeService()->getHeroType(HeroTypeID(index))->getJsonKey();
+	return VLC->heroTypes()->getHeroType(HeroTypeID(index))->getJsonKey();
 }
 
 const CArtifact * ArtifactID::toArtifact() const
@@ -87,7 +91,7 @@ si32 ArtifactID::decode(const std::string & identifier)
 
 std::string ArtifactID::encode(const si32 index)
 {
-	return VLC->arth->artifacts.at(index)->identifier;
+	return VLC->artifacts()->getArtifact(ArtifactID(index))->getJsonKey();
 }
 
 const CCreature * CreatureID::toCreature() const
@@ -95,9 +99,9 @@ const CCreature * CreatureID::toCreature() const
 	return VLC->creh->creatures.at(*this);
 }
 
-const Creature * CreatureID::toCreature(const CreatureService * creatureService) const
+const Creature * CreatureID::toCreature(const CreatureService * creatures) const
 {
-	return creatureService->getCreature(*this);
+	return creatures->getCreature(*this);
 }
 
 si32 CreatureID::decode(const std::string & identifier)
@@ -111,7 +115,7 @@ si32 CreatureID::decode(const std::string & identifier)
 
 std::string CreatureID::encode(const si32 index)
 {
-	return VLC->creh->creatures.at(index)->identifier;
+	return VLC->creatures()->getCreature(CreatureID(index))->getJsonKey();
 }
 
 const CSpell * SpellID::toSpell() const
@@ -140,7 +144,7 @@ si32 SpellID::decode(const std::string & identifier)
 
 std::string SpellID::encode(const si32 index)
 {
-	return VLC->spellh->objects.at(index)->identifier;
+	return VLC->spells()->getSpell(SpellID(index))->getJsonKey();
 }
 
 bool PlayerColor::isValidPlayer() const
@@ -177,6 +181,32 @@ std::string PlayerColor::getStrCap(bool L10n) const
 	std::string ret = getStr(L10n);
 	ret[0] = std::toupper(ret[0]);
 	return ret;
+}
+
+const FactionID FactionID::ANY = FactionID(-1);
+const FactionID FactionID::CASTLE = FactionID(0);
+const FactionID FactionID::RAMPART = FactionID(1);
+const FactionID FactionID::TOWER = FactionID(2);
+const FactionID FactionID::INFERNO = FactionID(3);
+const FactionID FactionID::NECROPOLIS = FactionID(4);
+const FactionID FactionID::DUNGEON = FactionID(5);
+const FactionID FactionID::STRONGHOLD = FactionID(6);
+const FactionID FactionID::FORTRESS = FactionID(7);
+const FactionID FactionID::CONFLUX = FactionID(8);
+const FactionID FactionID::NEUTRAL = FactionID(9);
+
+si32 FactionID::decode(const std::string & identifier)
+{
+	auto rawId = VLC->modh->identifiers.getIdentifier("core", "faction", identifier);
+	if(rawId)
+		return rawId.get();
+	else
+		return -1;
+}
+
+std::string FactionID::encode(const si32 index)
+{
+	return VLC->factions()->getFaction(FactionID(index))->getJsonKey();
 }
 
 std::ostream & operator<<(std::ostream & os, const EActionType actionType)

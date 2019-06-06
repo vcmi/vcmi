@@ -96,6 +96,49 @@ CFaction::~CFaction()
 	delete town;
 }
 
+int32_t CFaction::getIndex() const
+{
+	return index;
+}
+
+const std::string & CFaction::getName() const
+{
+	return name;
+}
+
+const std::string & CFaction::getJsonKey() const
+{
+	return identifier;
+}
+
+void CFaction::registerIcons(const IconRegistar & cb) const
+{
+	if(town)
+	{
+		auto & info = town->clientInfo;
+		cb(info.icons[0][0], "ITPT", info.iconLarge[0][0]);
+		cb(info.icons[0][1], "ITPT", info.iconLarge[0][1]);
+		cb(info.icons[1][0], "ITPT", info.iconLarge[1][0]);
+		cb(info.icons[1][1], "ITPT", info.iconLarge[1][1]);
+
+		cb(info.icons[0][0] + 2, "ITPA", info.iconSmall[0][0]);
+		cb(info.icons[0][1] + 2, "ITPA", info.iconSmall[0][1]);
+		cb(info.icons[1][0] + 2, "ITPA", info.iconSmall[1][0]);
+		cb(info.icons[1][1] + 2, "ITPA", info.iconSmall[1][1]);
+	}
+}
+
+FactionID CFaction::getId() const
+{
+	return FactionID(index);
+}
+
+bool CFaction::hasTown() const
+{
+	return town != nullptr;
+}
+
+
 CTown::CTown()
 	: faction(nullptr), mageLevel(0), primaryRes(0), moatDamage(0), defaultTavernChance(0)
 {
@@ -148,8 +191,6 @@ std::set<si32> CTown::getAllBuildings() const
 
 CTownHandler::CTownHandler()
 {
-	VLC->townh = this;
-
 	randomTown = new CTown();
 }
 
@@ -899,16 +940,7 @@ std::set<TFaction> CTownHandler::getAllowedFactions(bool withTown) const
 	return allowedFactions;
 }
 
-si32 CTownHandler::decodeFaction(const std::string & identifier)
+const Faction * CTownHandler::getFaction(const FactionID & factionID) const
 {
-	auto rawId = VLC->modh->identifiers.getIdentifier("core", "faction", identifier);
-	if(rawId)
-		return rawId.get();
-	else
-		return -1;
-}
-
-std::string CTownHandler::encodeFaction(const si32 index)
-{
-	return VLC->townh->factions[index]->identifier;
+	return factions.at(factionID.getNum());
 }

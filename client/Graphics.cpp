@@ -448,22 +448,8 @@ void Graphics::initializeImageLists()
 	for(const Artifact * art : CGI->arth->artifacts)
 		art->registerIcons(cb);
 
-	for(const CFaction * faction : CGI->townh->factions)
-	{
-		if (faction->town)
-		{
-			auto & info = faction->town->clientInfo;
-			addImageListEntry(info.icons[0][0], "ITPT", info.iconLarge[0][0]);
-			addImageListEntry(info.icons[0][1], "ITPT", info.iconLarge[0][1]);
-			addImageListEntry(info.icons[1][0], "ITPT", info.iconLarge[1][0]);
-			addImageListEntry(info.icons[1][1], "ITPT", info.iconLarge[1][1]);
-
-			addImageListEntry(info.icons[0][0] + 2, "ITPA", info.iconSmall[0][0]);
-			addImageListEntry(info.icons[0][1] + 2, "ITPA", info.iconSmall[0][1]);
-			addImageListEntry(info.icons[1][0] + 2, "ITPA", info.iconSmall[1][0]);
-			addImageListEntry(info.icons[1][1] + 2, "ITPA", info.iconSmall[1][1]);
-		}
-	}
+	for(const Faction * faction : CGI->townh->factions)
+		faction->registerIcons(cb);
 
 	for(const spells::Spell * spell : CGI->spellh->objects)
 		spell->registerIcons(cb);

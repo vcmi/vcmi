@@ -35,7 +35,7 @@ public:
 
 	void setDefaultExpectaions()
 	{
-		EXPECT_CALL(mechanicsMock, spellService()).Times(AnyNumber());
+		EXPECT_CALL(mechanicsMock, spells()).Times(AnyNumber());
 
 		EXPECT_CALL(spellServiceMock, getSpell(Eq(positiveID))).WillRepeatedly(Return(&positiveSpell));
 		EXPECT_CALL(positiveSpell, getIndex()).WillRepeatedly(Return(positiveID.toEnum()));

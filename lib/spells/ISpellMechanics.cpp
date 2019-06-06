@@ -713,19 +713,19 @@ std::vector<AimType> BaseMechanics::getTargetTypes() const
 	return ret;
 }
 
-const CreatureService * BaseMechanics::creatureService() const
+const CreatureService * BaseMechanics::creatures() const
 {
-	return VLC->creatureService(); //todo: redirect
+	return VLC->creatures(); //todo: redirect
 }
 
-const scripting::Service * BaseMechanics::scriptingService() const
+const scripting::Service * BaseMechanics::scripts() const
 {
-	return VLC->scriptingService(); //todo: redirect
+	return VLC->scripts(); //todo: redirect
 }
 
-const Service * BaseMechanics::spellService() const
+const Service * BaseMechanics::spells() const
 {
-	return VLC->spellService(); //todo: redirect
+	return VLC->spells(); //todo: redirect
 }
 
 const IGameInfoCallback * BaseMechanics::game() const

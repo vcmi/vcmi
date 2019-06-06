@@ -68,9 +68,9 @@ public:
 	MOCK_CONST_METHOD1(ownerMatches, bool(const battle::Unit *));
 	MOCK_CONST_METHOD2(ownerMatches, bool(const battle::Unit *, const boost::logic::tribool));
 
-	MOCK_CONST_METHOD0(creatureService, const CreatureService *());
-	MOCK_CONST_METHOD0(scriptingService, const scripting::Service *());
-	MOCK_CONST_METHOD0(spellService, const Service *());
+	MOCK_CONST_METHOD0(creatures, const CreatureService *());
+	MOCK_CONST_METHOD0(scripts, const scripting::Service *());
+	MOCK_CONST_METHOD0(spells, const Service *());
 
 	MOCK_CONST_METHOD0(game, const IGameInfoCallback * ());
 	MOCK_CONST_METHOD0(battle, const CBattleInfoCallback * ());

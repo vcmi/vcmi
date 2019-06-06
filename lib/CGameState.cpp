@@ -70,7 +70,7 @@ void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst
 
 	if(type == ART_NAMES)
 	{
-		auto art = ArtifactID(ser).toArtifact(VLC->artifactService());
+		auto art = ArtifactID(ser).toArtifact(VLC->artifacts());
 		if(art)
 			dst = art->getName();
 		else
@@ -78,7 +78,7 @@ void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst
 	}
 	else if(type == ART_DESCR)
 	{
-		auto art = ArtifactID(ser).toArtifact(VLC->artifactService());
+		auto art = ArtifactID(ser).toArtifact(VLC->artifacts());
 		if(art)
 			dst = art->getDescription();
 		else
@@ -86,7 +86,7 @@ void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst
 	}
 	else if (type == ART_EVNTS)
 	{
-		auto art = ArtifactID(ser).toArtifact(VLC->artifactService());
+		auto art = ArtifactID(ser).toArtifact(VLC->artifacts());
 		if(art)
 			dst = art->getEventText();
 		else
@@ -94,7 +94,7 @@ void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst
 	}
 	else if(type == CRE_PL_NAMES)
 	{
-		auto cre = CreatureID(ser).toCreature(VLC->creatureService());
+		auto cre = CreatureID(ser).toCreature(VLC->creatures());
 		if(cre)
 			dst = cre->getPluralName();
 		else
@@ -102,7 +102,7 @@ void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst
 	}
 	else if(type == CRE_SING_NAMES)
 	{
-		auto cre = CreatureID(ser).toCreature(VLC->creatureService());
+		auto cre = CreatureID(ser).toCreature(VLC->creatures());
 		if(cre)
 			dst = cre->getSingularName();
 		else
@@ -118,7 +118,7 @@ void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst
 	}
 	else if(type == SPELL_NAME)
 	{
-		auto spell = SpellID(ser).toSpell(VLC->spellService());
+		auto spell = SpellID(ser).toSpell(VLC->spells());
 		if(spell)
 			dst = spell->getName();
 		else
@@ -1604,7 +1604,7 @@ void CGameState::initStartingBonus()
 					logGlobal->error("Cannot give starting artifact - no heroes!");
 					break;
 				}
-				const Artifact * toGive = VLC->arth->pickRandomArtifact(getRandomGenerator(), CArtifact::ART_TREASURE).toArtifact(VLC->artifactService());
+				const Artifact * toGive = VLC->arth->pickRandomArtifact(getRandomGenerator(), CArtifact::ART_TREASURE).toArtifact(VLC->artifacts());
 
 				CGHeroInstance *hero = elem.second.heroes[0];
 				giveHeroArtifact(hero, toGive->getId());

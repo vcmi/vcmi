@@ -52,7 +52,7 @@ void CCreGenAsCastleInfo::serializeJson(JsonSerializeFormat & handler)
 		std::vector<bool> standard;
 		standard.resize(VLC->townh->factions.size(), true);
 
-		JsonSerializeFormat::LIC allowedLIC(standard, &CTownHandler::decodeFaction, &CTownHandler::encodeFaction);
+		JsonSerializeFormat::LIC allowedLIC(standard, &FactionID::decode, &FactionID::encode);
 		allowedLIC.any = allowedFactions;
 
 		handler.serializeLIC("allowedFactions", allowedLIC);
@@ -1266,7 +1266,7 @@ bool CGTownInstance::hasBuilt(BuildingID buildingID, int townID) const
 }
 
 TResources CGTownInstance::getBuildingCost(BuildingID buildingID) const
-{ 
+{
 	if (vstd::contains(town->buildings, buildingID))
 		return town->buildings.at(buildingID)->resources;
 	else

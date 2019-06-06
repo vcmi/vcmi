@@ -237,9 +237,9 @@ public:
 	virtual bool ownerMatches(const battle::Unit * unit, const boost::logic::tribool positivness) const = 0;
 
 	//Global environment facade
-	virtual const CreatureService * creatureService() const = 0;
-	virtual const scripting::Service * scriptingService() const = 0;
-	virtual const Service * spellService() const = 0;
+	virtual const CreatureService * creatures() const = 0;
+	virtual const scripting::Service * scripts() const = 0;
+	virtual const Service * spells() const = 0;
 
 	virtual const IGameInfoCallback * game() const = 0;
 	virtual const CBattleInfoCallback * battle() const = 0;
@@ -295,9 +295,9 @@ public:
 
 	std::vector<AimType> getTargetTypes() const override;
 
-	const CreatureService * creatureService() const override;
-	const scripting::Service * scriptingService() const override;
-	const Service * spellService() const override;
+	const CreatureService * creatures() const override;
+	const scripting::Service * scripts() const override;
+	const Service * spells() const override;
 
 	const IGameInfoCallback * game() const override;
 	const CBattleInfoCallback * battle() const override;

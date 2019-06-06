@@ -740,7 +740,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 			double eagleEyeChance = finishingBattle->winnerHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::EAGLE_EYE);
 			for(auto & spellId : gs->curB->sides.at(!battleResult.data->winner).usedSpellsHistory)
 			{
-				auto spell = spellId.toSpell(VLC->spellService());
+				auto spell = spellId.toSpell(VLC->spells());
 				if(spell && spell->getLevel() <= eagleEyeLevel && !finishingBattle->winnerHero->spellbookContainsSpell(spell->getId()) && getRandomGenerator().nextInt(99) < eagleEyeChance)
 					cs.spells.insert(spell->getId());
 			}

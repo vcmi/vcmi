@@ -26,6 +26,7 @@ set(test_SRCS
 
 		entity/CArtifactTest.cpp
 		entity/CCreatureTest.cpp
+		entity/CFactionTest.cpp
 		entity/CHeroClassTest.cpp
 		entity/CHeroTest.cpp
 

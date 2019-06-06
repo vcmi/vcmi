@@ -9,6 +9,9 @@
  */
 #pragma once
 
+#include <vcmi/Faction.h>
+#include <vcmi/FactionService.h>
+
 #include "ConstTransitivePtr.h"
 #include "ResourceSet.h"
 #include "int3.h"
@@ -131,12 +134,9 @@ struct DLL_LINKAGE SPuzzleInfo
 	}
 };
 
-class DLL_LINKAGE CFaction
+class DLL_LINKAGE CFaction : public Faction
 {
 public:
-	CFaction();
-	~CFaction();
-
 	std::string name; //town name, by default - from TownName.txt
 	std::string identifier;
 
@@ -150,9 +150,18 @@ public:
 	std::string creatureBg120;
 	std::string creatureBg130;
 
-
-
 	std::vector<SPuzzleInfo> puzzleMap;
+
+	CFaction();
+	~CFaction();
+
+	int32_t getIndex() const override;
+	const std::string & getName() const override;
+	const std::string & getJsonKey() const override;
+	void registerIcons(const IconRegistar & cb) const override;
+	FactionID getId() const override;
+
+	bool hasTown() const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -287,7 +296,7 @@ public:
 	}
 };
 
-class DLL_LINKAGE CTownHandler : public IHandlerBase
+class DLL_LINKAGE CTownHandler : public IHandlerBase, public FactionService
 {
 	struct BuildingRequirementsHelper
 	{
@@ -342,11 +351,7 @@ public:
 	std::vector<bool> getDefaultAllowed() const override;
 	std::set<TFaction> getAllowedFactions(bool withTown = true) const;
 
-	//json serialization helper
-	static si32 decodeFaction(const std::string & identifier);
-
-	//json serialization helper
-	static std::string encodeFaction(const si32 index);
+	const Faction * getFaction(const FactionID & factionID) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

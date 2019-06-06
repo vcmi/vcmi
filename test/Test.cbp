@@ -98,6 +98,7 @@
 		<Unit filename="battle/battle_UnitTest.cpp" />
 		<Unit filename="entity/CArtifactTest.cpp" />
 		<Unit filename="entity/CCreatureTest.cpp" />
+		<Unit filename="entity/CFactionTest.cpp" />
 		<Unit filename="entity/CHeroClassTest.cpp" />
 		<Unit filename="entity/CHeroTest.cpp" />
 		<Unit filename="erm/ERMPersistenceTest.cpp" />

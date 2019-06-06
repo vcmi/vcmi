@@ -274,7 +274,7 @@ void CBank::doVisit(const CGHeroInstance * hero) const
 			}
 			for(const SpellID & spellId : bc->spells)
 			{
-				auto spell = spellId.toSpell(VLC->spellService());
+				auto spell = spellId.toSpell(VLC->spells());
 				iw.text.addTxt(MetaString::SPELL_NAME, spellId);
 				if(spell->getLevel() <= hero->maxSpellLevel())
 				{

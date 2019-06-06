@@ -1247,10 +1247,10 @@ std::string Bonus::Description() const
 			switch(source)
 			{
 			case ARTIFACT:
-				str << ArtifactID(sid).toArtifact(VLC->artifactService())->getName();
+				str << ArtifactID(sid).toArtifact(VLC->artifacts())->getName();
 				break;
 			case SPELL_EFFECT:
-				str << SpellID(sid).toSpell(VLC->spellService())->getName();
+				str << SpellID(sid).toSpell(VLC->spells())->getName();
 				break;
 			case CREATURE_ABILITY:
 				str << VLC->creh->creatures[sid]->namePl;

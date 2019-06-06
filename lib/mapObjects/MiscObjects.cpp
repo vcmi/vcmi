@@ -1326,7 +1326,7 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 					iw.text << message;
 				else
 				{
-					auto artifact = ArtifactID(subID).toArtifact(VLC->artifactService());
+					auto artifact = ArtifactID(subID).toArtifact(VLC->artifacts());
 
 					if((artifact != nullptr) && (!artifact->getEventText().empty()))
 					{

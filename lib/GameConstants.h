@@ -351,7 +351,7 @@ namespace EAlignment
 	enum EAlignment { GOOD, EVIL, NEUTRAL };
 }
 
-namespace ETownType
+namespace ETownType//deprecated
 {
 	enum ETownType
 	{
@@ -359,6 +359,28 @@ namespace ETownType
 		CASTLE, RAMPART, TOWER, INFERNO, NECROPOLIS, DUNGEON, STRONGHOLD, FORTRESS, CONFLUX, NEUTRAL
 	};
 }
+
+class FactionID : public BaseForID<FactionID, si32>
+{
+	INSTID_LIKE_CLASS_COMMON(FactionID, si32)
+
+	DLL_LINKAGE static const FactionID ANY;
+	DLL_LINKAGE static const FactionID CASTLE;
+	DLL_LINKAGE static const FactionID RAMPART;
+	DLL_LINKAGE static const FactionID TOWER;
+	DLL_LINKAGE static const FactionID INFERNO;
+	DLL_LINKAGE static const FactionID NECROPOLIS;
+	DLL_LINKAGE static const FactionID DUNGEON;
+	DLL_LINKAGE static const FactionID STRONGHOLD;
+	DLL_LINKAGE static const FactionID FORTRESS;
+	DLL_LINKAGE static const FactionID CONFLUX;
+	DLL_LINKAGE static const FactionID NEUTRAL;
+
+	///json serialization helpers
+	static si32 decode(const std::string & identifier);
+	static std::string encode(const si32 index);
+};
+
 
 class BuildingID
 {
@@ -997,7 +1019,7 @@ public:
 	{}
 
 	DLL_LINKAGE const CCreature * toCreature() const;
-	DLL_LINKAGE const Creature * toCreature(const CreatureService * creatureService) const;
+	DLL_LINKAGE const Creature * toCreature(const CreatureService * creatures) const;
 
 	ID_LIKE_CLASS_COMMON(CreatureID, ECreatureID)
 

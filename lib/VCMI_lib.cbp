@@ -134,6 +134,8 @@
 		<Unit filename="../include/vcmi/CreatureService.h" />
 		<Unit filename="../include/vcmi/Entity.h" />
 		<Unit filename="../include/vcmi/Environment.h" />
+		<Unit filename="../include/vcmi/Faction.h" />
+		<Unit filename="../include/vcmi/FactionService.h" />
 		<Unit filename="../include/vcmi/HeroClass.h" />
 		<Unit filename="../include/vcmi/HeroClassService.h" />
 		<Unit filename="../include/vcmi/HeroType.h" />

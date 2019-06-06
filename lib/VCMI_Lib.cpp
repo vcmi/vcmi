@@ -55,32 +55,37 @@ DLL_LINKAGE void loadDLLClasses(bool onlyEssential)
 	VLC->init(onlyEssential);
 }
 
-const ArtifactService * LibClasses::artifactService() const
+const ArtifactService * LibClasses::artifacts() const
 {
 	return arth;
 }
 
-const CreatureService * LibClasses::creatureService() const
+const CreatureService * LibClasses::creatures() const
 {
 	return creh;
 }
 
-const HeroClassService * LibClasses::heroClassService() const
+const FactionService * LibClasses::factions() const
+{
+	return townh;
+}
+
+const HeroClassService * LibClasses::heroClasses() const
 {
 	return &heroh->classes;
 }
 
-const HeroTypeService * LibClasses::heroTypeService() const
+const HeroTypeService * LibClasses::heroTypes() const
 {
 	return heroh;
 }
 
-const scripting::Service * LibClasses::scriptingService() const
+const scripting::Service * LibClasses::scripts() const
 {
 	return scriptHandler;
 }
 
-const spells::Service * LibClasses::spellService() const
+const spells::Service * LibClasses::spells() const
 {
 	return spellh;
 }

@@ -165,7 +165,7 @@ public:
 
 	void setDefaultExpectaions()
 	{
-		EXPECT_CALL(mechanicsMock, creatureService()).Times(AnyNumber());
+		EXPECT_CALL(mechanicsMock, creatures()).Times(AnyNumber());
 		EXPECT_CALL(creatureServiceMock, getCreature(Eq(toSummon))).WillRepeatedly(Return(&toSummonType));
 		EXPECT_CALL(toSummonType, getMaxHealth()).WillRepeatedly(Return(unitHealth));
 

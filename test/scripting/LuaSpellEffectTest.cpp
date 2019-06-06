@@ -77,7 +77,7 @@ public:
 
 	void setDefaultExpectations()
 	{
-		EXPECT_CALL(mechanicsMock, scriptingService()).WillRepeatedly(Return(&serviceMock));
+		EXPECT_CALL(mechanicsMock, scripts()).WillRepeatedly(Return(&serviceMock));
 
 		EXPECT_CALL(*pool, getContext(Eq(&scriptMock))).WillOnce(Return(contextMock));
 

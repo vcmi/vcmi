@@ -938,7 +938,7 @@ void CHeroHandler::afterLoadFinalization()
 
 		if(hero->specDeprecated.size() > 0 || hero->specialtyDeprecated.size() > 0)
 		{
-			logMod->debug("Converting specialty format for hero %s(%s)", hero->identifier, VLC->townh->encodeFaction(hero->heroClass->faction));
+			logMod->debug("Converting specialty format for hero %s(%s)", hero->identifier, FactionID::encode(hero->heroClass->faction));
 			std::vector<std::shared_ptr<Bonus>> convertedBonuses;
 			for(const SSpecialtyInfo & spec : hero->specDeprecated)
 			{

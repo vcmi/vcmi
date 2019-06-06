@@ -373,7 +373,7 @@ void CMapFormatJson::serializeAllowedFactions(JsonSerializeFormat & handler, std
 				temp[std::size_t(faction->index)] = true;
 	}
 
-	handler.serializeLIC("allowedFactions", &CTownHandler::decodeFaction, &CTownHandler::encodeFaction, standard, temp);
+	handler.serializeLIC("allowedFactions", &FactionID::decode, &FactionID::encode, standard, temp);
 
 	if(!handler.saving)
 	{

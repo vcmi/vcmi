@@ -160,7 +160,7 @@ void CGPandoraBox::giveContentsAfterExp(const CGHeroInstance *h) const
 
 			for (; i != spells.cend(); i++)
 			{
-				auto spell = (*i).toSpell(VLC->spellService());
+				auto spell = (*i).toSpell(VLC->spells());
 				if(h->canLearnSpell(spell))
 				{
 					iw.components.push_back(Component(Component::SPELL, *i, 0, 0));

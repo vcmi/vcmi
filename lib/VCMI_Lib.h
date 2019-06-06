@@ -43,12 +43,13 @@ class DLL_LINKAGE LibClasses : public Services
 public:
 	bool IS_AI_ENABLED; //unused?
 
-	const ArtifactService * artifactService() const override;
-	const CreatureService * creatureService() const override;
-	const HeroClassService * heroClassService() const override;
-	const HeroTypeService * heroTypeService() const override;
-	const scripting::Service * scriptingService() const override;
-	const spells::Service * spellService() const override;
+	const ArtifactService * artifacts() const override;
+	const CreatureService * creatures() const override;
+	const FactionService * factions() const override;
+	const HeroClassService * heroClasses() const override;
+	const HeroTypeService * heroTypes() const override;
+	const scripting::Service * scripts() const override;
+	const spells::Service * spells() const override;
 
 	const spells::effects::Registry * spellEffects() const override;
 	spells::effects::Registry * spellEffects() override;
