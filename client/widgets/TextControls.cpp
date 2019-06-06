@@ -376,11 +376,6 @@ CGStatusBar::CGStatusBar(int x, int y, std::string name, int maxw)
 	autoRedraw = false;
 }
 
-CGStatusBar::~CGStatusBar()
-{
-	GH.statusbar = oldStatusBar;
-}
-
 void CGStatusBar::show(SDL_Surface * to)
 {
 	showAll(to);
@@ -388,7 +383,6 @@ void CGStatusBar::show(SDL_Surface * to)
 
 void CGStatusBar::init()
 {
-	oldStatusBar = GH.statusbar;
 	GH.statusbar = shared_from_this();
 }
 
