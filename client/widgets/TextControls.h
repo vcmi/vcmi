@@ -119,8 +119,6 @@ class CGStatusBar : public CLabel, public std::enable_shared_from_this<CGStatusB
 	bool textLock; //Used for blocking changes to the text
 	void init();
 
-	std::shared_ptr<CGStatusBar> oldStatusBar;
-
 	CGStatusBar(std::shared_ptr<CPicture> background_, EFonts Font = FONT_SMALL, EAlignment Align = CENTER, const SDL_Color & Color = Colors::WHITE);
 	CGStatusBar(int x, int y, std::string name, int maxw = -1);
 protected:
@@ -138,8 +136,6 @@ public:
 	void setText(const std::string & Text) override; //prints text and refreshes statusbar
 
 	void show(SDL_Surface * to) override; //shows statusbar (with current text)
-
-	~CGStatusBar();
 
 	void lock(bool shouldLock); //If true, current text cannot be changed until lock(false) is called
 };
