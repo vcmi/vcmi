@@ -157,6 +157,20 @@ struct YourTurn : public CPackForClient
 	}
 };
 
+struct EntitiesChanged: public CPackForClient
+{
+	std::vector<EntityChanges> changes;
+
+	EntitiesChanged(){};
+	void applyCl(CClient * cl);
+	DLL_LINKAGE void applyGs(CGameState * gs);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & changes;
+	}
+};
+
 struct SetResources : public CPackForClient
 {
 	SetResources():abs(true){};

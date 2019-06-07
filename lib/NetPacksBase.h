@@ -21,6 +21,8 @@ class CArtifactSet;
 class CBonusSystemNode;
 struct ArtSlotInfo;
 
+#include <vcmi/Metatype.h>
+
 #include "ConstTransitivePtr.h"
 #include "GameConstants.h"
 #include "JsonNode.h"
@@ -263,6 +265,20 @@ struct CustomEffectInfo
 		h & effect;
 		h & sound;
 		h & stack;
+	}
+};
+
+class EntityChanges
+{
+public:
+	Metatype metatype;
+	int32_t entityIndex;
+	JsonNode data;
+	template <typename Handler> void serialize(Handler & h, const int version)
+	{
+		h & metatype;
+		h & entityIndex;
+		h & data;
 	}
 };
 

@@ -369,7 +369,8 @@ namespace ERM
 			trigger %= cmdName >> -identifier >> -condition > qi::lit(";"); /////
 			string %= qi::lexeme['^' >> *(qi::char_ - '^') >> '^'];
 
-			VRLogic %= qi::char_("&|X") >> iexp;
+//			VRLogic %= qi::char_("&|X") >> iexp;
+			VRLogic %= qi::char_("&") >> iexp;
 			VRarithmetic %= qi::char_("+*:/%-") >> iexp;
 			semiCompare %= +qi::char_("<=>") >> iexp;
 			curStr %= iexp >> string;

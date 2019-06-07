@@ -66,9 +66,9 @@
 			<Add directory="googletest/googlemock/include" />
 			<Add directory="googletest/googletest/include" />
 			<Add directory="../include" />
-			<Add directory="googletest/googletest" />
-			<Add directory="googletest/googlemock" />
 			<Add directory="../AI/FuzzyLite/fuzzylite" />
+			<Add directory="googletest/googlemock" />
+			<Add directory="googletest/googletest" />
 		</Compiler>
 		<Linker>
 			<Add option="-lVCMI_lib" />
@@ -105,6 +105,7 @@
 		<Unit filename="erm/ERMPersistenceTest.cpp" />
 		<Unit filename="erm/ERM_BM.cpp" />
 		<Unit filename="erm/ERM_BU.cpp" />
+		<Unit filename="erm/ERM_MA.cpp" />
 		<Unit filename="erm/ERM_MF.cpp" />
 		<Unit filename="erm/ExamplesTest.cpp" />
 		<Unit filename="events/ApplyDamageTest.cpp" />
@@ -134,6 +135,7 @@
 		<Unit filename="mock/mock_MapService.cpp" />
 		<Unit filename="mock/mock_MapService.h" />
 		<Unit filename="mock/mock_ServerCallback.h" />
+		<Unit filename="mock/mock_Services.h" />
 		<Unit filename="mock/mock_UnitEnvironment.h" />
 		<Unit filename="mock/mock_UnitInfo.h" />
 		<Unit filename="mock/mock_battle_IBattleState.h" />

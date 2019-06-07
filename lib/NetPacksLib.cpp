@@ -1648,3 +1648,8 @@ DLL_LINKAGE Component::Component(const CStackBasicDescriptor &stack)
 	: id(CREATURE), subtype(stack.type->idNumber), val(stack.count), when(0)
 {
 }
+
+DLL_LINKAGE void EntitiesChanged::applyGs(CGameState * gs)
+{
+
+}

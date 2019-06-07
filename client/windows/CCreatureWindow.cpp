@@ -10,6 +10,9 @@
 #include "StdInc.h"
 #include "CCreatureWindow.h"
 
+#include <vcmi/spells/Spell.h>
+#include <vcmi/spells/Service.h>
+
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../widgets/Buttons.h"
@@ -26,7 +29,6 @@
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CModHandler.h"
 #include "../../lib/CHeroHandler.h"
-#include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/CGameState.h"
 
 using namespace CSDL_Ext;
@@ -193,7 +195,7 @@ CStackWindow::ActiveSpellsSection::ActiveSpellsSection(CStackWindow * owner, int
 	std::vector<si32> spells = battleStack->activeSpells();
 	for(si32 effect : spells)
 	{
-		const CSpell * sp = CGI->spellh->objects[effect];
+		const spells::Spell * spell = CGI->spells()->getByIndex(effect);
 
 		std::string spellText;
 
@@ -204,7 +206,7 @@ CStackWindow::ActiveSpellsSection::ActiveSpellsSection(CStackWindow * owner, int
 		if (hasGraphics)
 		{
 			spellText = CGI->generaltexth->allTexts[610]; //"%s, duration: %d rounds."
-			boost::replace_first(spellText, "%s", sp->name);
+			boost::replace_first(spellText, "%s", spell->getName());
 			//FIXME: support permanent duration
 			int duration = battleStack->getBonusLocalFirst(Selector::source(Bonus::SPELL_EFFECT,effect))->turnsRemain;
 			boost::replace_first(spellText, "%d", boost::lexical_cast<std::string>(duration));

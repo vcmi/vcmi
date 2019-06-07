@@ -24,7 +24,7 @@ using namespace ::scripting;
 class LuaSpellEffectAPITest : public Test, public ScriptFixture
 {
 public:
-	StrictMock<ServerCallbackMock> battleServer;
+	StrictMock<ServerCallbackMock> serverMock;
 
 protected:
 	void SetUp() override
@@ -183,9 +183,9 @@ TEST_F(LuaSpellEffectAPITest, ApplyMoveUnit)
 		EXPECT_EQ(pack->tilesToMove, toMove);
 	};
 
-	EXPECT_CALL(battleServer, apply(Matcher<BattleStackMoved *>(_))).WillOnce(Invoke(checkMove));
+	EXPECT_CALL(serverMock, apply(Matcher<BattleStackMoved *>(_))).WillOnce(Invoke(checkMove));
 
-	context->callGlobal(&battleServer, "apply", params);
+	context->callGlobal(&serverMock, "apply", params);
 }
 
 }

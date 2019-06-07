@@ -141,6 +141,7 @@
 		<Unit filename="../include/vcmi/HeroClassService.h" />
 		<Unit filename="../include/vcmi/HeroType.h" />
 		<Unit filename="../include/vcmi/HeroTypeService.h" />
+		<Unit filename="../include/vcmi/Metatype.h" />
 		<Unit filename="../include/vcmi/ServerCallback.h" />
 		<Unit filename="../include/vcmi/Services.h" />
 		<Unit filename="../include/vcmi/Skill.h" />

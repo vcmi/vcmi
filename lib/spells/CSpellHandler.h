@@ -293,7 +293,7 @@ public:
 	const std::string & getIconScenarioBonus() const;
 	const std::string & getIconScroll() const;
 
-	const std::string & getCastSound() const;
+	const std::string & getCastSound() const override;
 
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{

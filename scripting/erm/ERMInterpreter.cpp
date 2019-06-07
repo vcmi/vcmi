@@ -77,7 +77,7 @@ namespace ERMConverter
 		{
 			if(dir == EDir::GET)
 			{
-				return boost::lexical_cast<std::string>(constant);
+				return std::to_string(constant);
 			}
 			else
 			{
@@ -699,15 +699,15 @@ namespace ERMConverter
 
 		std::string operator()(char const & val)
 		{
-			return boost::to_string(val);
+			return std::to_string(val);
 		}
 		std::string operator()(double const & val)
 		{
-			return boost::lexical_cast<std::string>(val);
+			return std::to_string(val);
 		}
 		std::string operator()(int const & val)
 		{
-			return boost::lexical_cast<std::string>(val);
+			return std::to_string(val);
 		}
 		std::string operator()(std::string const & val)
 		{

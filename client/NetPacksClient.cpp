@@ -904,3 +904,9 @@ void SetAvailableArtifacts::applyCl(CClient *cl)
 		callInterfaceIfPresent(cl, cl->getTile(bm->visitablePos())->visitableObjects.back()->tempOwner, &IGameEventsReceiver::availableArtifactsChanged, bm);
 	}
 }
+
+
+void EntitiesChanged::applyCl(CClient *cl)
+{
+	cl->invalidatePaths();
+}

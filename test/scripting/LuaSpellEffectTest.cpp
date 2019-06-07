@@ -47,7 +47,7 @@ public:
 
 	RegistryMock registryMock;
 	RegistryMock::FactoryPtr factory;
-	StrictMock<ServerCallbackMock> battleServer;
+	StrictMock<ServerCallbackMock> serverMock;
 
 	JsonNode request;
 
@@ -175,7 +175,7 @@ TEST_F(LuaSpellEffectTest, ApplyRedirected)
 {
 	setDefaultExpectations();
 
-	EXPECT_CALL(*contextMock, callGlobal(Eq(&battleServer), Eq("apply"),_)).WillOnce(Invoke(this, &LuaSpellEffectTest::saveRequest2));
+	EXPECT_CALL(*contextMock, callGlobal(Eq(&serverMock), Eq("apply"),_)).WillOnce(Invoke(this, &LuaSpellEffectTest::saveRequest2));
 
 	auto & unit1 = unitsFake.add(BattleSide::ATTACKER);
 
@@ -189,7 +189,7 @@ TEST_F(LuaSpellEffectTest, ApplyRedirected)
 
 	target.emplace_back(&unit1, hex1);
 
-	subject->apply(&battleServer, &mechanicsMock, target);
+	subject->apply(&serverMock, &mechanicsMock, target);
 
 	JsonNode first;
 	first.Vector().push_back(JsonUtils::intNode(hex1.hex));

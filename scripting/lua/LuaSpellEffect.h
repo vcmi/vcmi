@@ -49,8 +49,8 @@ public:
 
 	void adjustAffectedHexes(std::set<BattleHex> & hexes, const Mechanics * m, const Target & spellTarget) const override;
 
-	bool applicable(Problem & problem, const Mechanics * m) const;
-	bool applicable(Problem & problem, const Mechanics * m, const EffectTarget & target) const;
+	bool applicable(Problem & problem, const Mechanics * m) const override;
+	bool applicable(Problem & problem, const Mechanics * m, const EffectTarget & target) const override;
 
 	void apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const override;
 
