@@ -25,6 +25,11 @@ int32_t CCreature::getIndex() const
 	return idNumber.toEnum();
 }
 
+int32_t CCreature::getIconIndex() const
+{
+	return iconIndex;
+}
+
 const std::string & CCreature::getName() const
 {
 	return nameSing;//???
@@ -37,8 +42,8 @@ const std::string & CCreature::getJsonKey() const
 
 void CCreature::registerIcons(const IconRegistar & cb) const
 {
-	cb(iconIndex, "CPRSMALL", smallIconName);
-	cb(iconIndex, "TWCRPORT", largeIconName);
+	cb(getIconIndex(), "CPRSMALL", smallIconName);
+	cb(getIconIndex(), "TWCRPORT", largeIconName);
 }
 
 CreatureID CCreature::getId() const

@@ -33,6 +33,11 @@ int32_t CHero::getIndex() const
 	return ID.getNum();
 }
 
+int32_t CHero::getIconIndex() const
+{
+	return imageIndex;
+}
+
 const std::string & CHero::getName() const
 {
 	return name;
@@ -50,10 +55,10 @@ HeroTypeID CHero::getId() const
 
 void CHero::registerIcons(const IconRegistar & cb) const
 {
-	cb(imageIndex, "UN32", iconSpecSmall);
-	cb(imageIndex, "UN44", iconSpecLarge);
-	cb(imageIndex, "PORTRAITSLARGE", portraitLarge);
-	cb(imageIndex, "PORTRAITSSMALL", portraitSmall);
+	cb(getIconIndex(), "UN32", iconSpecSmall);
+	cb(getIconIndex(), "UN44", iconSpecLarge);
+	cb(getIconIndex(), "PORTRAITSLARGE", portraitLarge);
+	cb(getIconIndex(), "PORTRAITSSMALL", portraitSmall);
 }
 
 SecondarySkill CHeroClass::chooseSecSkill(const std::set<SecondarySkill> & possibles, CRandomGenerator & rand) const //picks secondary skill out from given possibilities
@@ -92,6 +97,11 @@ EAlignment::EAlignment CHeroClass::getAlignment() const
 int32_t CHeroClass::getIndex() const
 {
 	return id.getNum();
+}
+
+int32_t CHeroClass::getIconIndex() const
+{
+	return getIndex();
 }
 
 const std::string & CHeroClass::getName() const

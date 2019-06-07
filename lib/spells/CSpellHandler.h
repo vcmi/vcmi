@@ -261,6 +261,7 @@ public:
 	int32_t getLevelPower(const int32_t skillLevel) const override;
 
 	int32_t getIndex() const override;
+	int32_t getIconIndex() const override;
 	const std::string & getName() const override;
 	const std::string & getJsonKey() const override;
 	SpellID getId() const override;

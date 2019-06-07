@@ -127,8 +127,8 @@ size_t CComponent::getIndex()
 	case primskill:  return subtype;
 	case secskill:   return subtype*3 + 3 + val - 1;
 	case resource:   return subtype;
-	case creature:   return CGI->creh->creatures[subtype]->iconIndex;
-	case artifact:   return CGI->arth->artifacts[subtype]->iconIndex;
+	case creature:   return CGI->creatures()->getByIndex(subtype)->getIconIndex();
+	case artifact:   return CGI->artifacts()->getByIndex(subtype)->getIconIndex();
 	case experience: return 4;
 	case spell:      return subtype;
 	case morale:     return val+3;
@@ -194,7 +194,7 @@ std::string CComponent::getSubtitleInternal()
 	case secskill:   return CGI->generaltexth->levels[val-1] + "\n" + CGI->skillh->skillName(subtype);
 	case resource:   return boost::lexical_cast<std::string>(val);
 	case creature:   return (val? boost::lexical_cast<std::string>(val) + " " : "") + CGI->creh->creatures[subtype]->*(val != 1 ? &CCreature::namePl : &CCreature::nameSing);
-	case artifact:   return CGI->arth->artifacts[subtype]->getName();
+	case artifact:   return CGI->artifacts()->getByIndex(subtype)->getName();
 	case experience:
 		{
 			if(subtype == 1) //+1 level - tree of knowledge
@@ -208,7 +208,7 @@ std::string CComponent::getSubtitleInternal()
 				return boost::lexical_cast<std::string>(val); //amount of experience OR level required for seer hut;
 			}
 		}
-	case spell:      return CGI->spellh->objects[subtype]->getName();
+	case spell:      return CGI->spells()->getByIndex(subtype)->getName();
 	case morale:     return "";
 	case luck:       return "";
 	case building:

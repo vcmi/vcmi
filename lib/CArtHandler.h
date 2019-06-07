@@ -51,7 +51,7 @@ public:
 
 	std::string identifier;
 	std::string image;
-	std::string large; // big image for cutom artifacts, used in drag & drop
+	std::string large; // big image for custom artifacts, used in drag & drop
 	std::string advMapDef; //used for adventure map object
 	si32 iconIndex;
 	ui32 price;
@@ -63,12 +63,14 @@ public:
 	CreatureID warMachine;
 
 	int32_t getIndex() const override;
+	int32_t getIconIndex() const override;
 	const std::string & getName() const override;
 	const std::string & getJsonKey() const override;
 	void registerIcons(const IconRegistar & cb) const override;
 	ArtifactID getId() const override;
 	const std::string & getEventText() const override;
 	const std::string & getDescription() const override;
+	uint32_t getPrice() const override;
 	CreatureID getWarMachine() const override;
 	bool isBig() const override;
 	bool isTradable() const override;

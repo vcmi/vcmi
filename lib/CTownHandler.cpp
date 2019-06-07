@@ -101,6 +101,11 @@ int32_t CFaction::getIndex() const
 	return index;
 }
 
+int32_t CFaction::getIconIndex() const
+{
+	return index; //???
+}
+
 const std::string & CFaction::getName() const
 {
 	return name;

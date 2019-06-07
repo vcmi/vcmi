@@ -215,6 +215,11 @@ int32_t CSpell::getIndex() const
 	return id.toEnum();
 }
 
+int32_t CSpell::getIconIndex() const
+{
+	return getIndex();
+}
+
 int32_t CSpell::getLevel() const
 {
 	return level;

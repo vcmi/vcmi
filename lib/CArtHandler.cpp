@@ -53,6 +53,11 @@ int32_t CArtifact::getIndex() const
 	return id.toEnum();
 }
 
+int32_t CArtifact::getIconIndex() const
+{
+	return iconIndex;
+}
+
 const std::string & CArtifact::getName() const
 {
 	return name;
@@ -65,8 +70,8 @@ const std::string & CArtifact::getJsonKey() const
 
 void CArtifact::registerIcons(const IconRegistar & cb) const
 {
-	cb(iconIndex, "ARTIFACT", image);
-	cb(iconIndex, "ARTIFACTLARGE", large);
+	cb(getIconIndex(), "ARTIFACT", image);
+	cb(getIconIndex(), "ARTIFACTLARGE", large);
 }
 
 ArtifactID CArtifact::getId() const
@@ -81,6 +86,11 @@ const std::string & CArtifact::getDescription() const
 const std::string & CArtifact::getEventText() const
 {
 	return eventText;
+}
+
+uint32_t CArtifact::getPrice() const
+{
+	return price;
 }
 
 CreatureID CArtifact::getWarMachine() const

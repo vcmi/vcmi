@@ -30,7 +30,6 @@ void CGameInfo::setFromLib()
 	globalServices = VLC;
 	modh = VLC->modh;
 	generaltexth = VLC->generaltexth;
-	arth = VLC->arth;
 	creh = VLC->creh;
 	townh = VLC->townh;
 	heroh = VLC->heroh;

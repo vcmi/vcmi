@@ -803,9 +803,11 @@ void CCastleBuildings::enterBlacksmith(ArtifactID artifactID)
 		LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % town->town->buildings.find(BuildingID::BLACKSMITH)->second->Name()));
 		return;
 	}
-	int price = CGI->arth->artifacts[artifactID]->price;
+	auto art = artifactID.toArtifact(CGI->artifacts());
+
+	int price = art->getPrice();
 	bool possible = LOCPLINT->cb->getResourceAmount(Res::GOLD) >= price && !hero->hasArt(artifactID);
-	CreatureID cre = artifactID.toArtifact(CGI->arth)->getWarMachine();
+	CreatureID cre = art->getWarMachine();
 	GH.pushIntT<CBlacksmithDialog>(possible, cre, artifactID, hero->id);
 }
 
@@ -959,7 +961,7 @@ CCreaInfo::CCreaInfo(Point position, const CGTownInstance * Town, int Level, boo
 	ui32 creatureID = town->creatures[level].second.back();
 	creature = CGI->creh->creatures[creatureID];
 
-	picture = std::make_shared<CAnimImage>("CPRSMALL", creature->iconIndex, 0, 8, 0);
+	picture = std::make_shared<CAnimImage>("CPRSMALL", creature->getIconIndex(), 0, 8, 0);
 
 	std::string value;
 	if(showAvailable)
@@ -1773,7 +1775,7 @@ CBlacksmithDialog::CBlacksmithDialog(bool possible, CreatureID creMachineID, Art
 	            boost::str(boost::format(CGI->generaltexth->allTexts[274]) % creature->nameSing));
 	costText = std::make_shared<CLabel>(165, 218, FONT_MEDIUM, CENTER, Colors::WHITE, CGI->generaltexth->jktexts[43]);
 	costValue = std::make_shared<CLabel>(165, 290, FONT_MEDIUM, CENTER, Colors::WHITE,
-	                boost::lexical_cast<std::string>(CGI->arth->artifacts[aid]->price));
+	                boost::lexical_cast<std::string>(aid.toArtifact(CGI->artifacts())->getPrice));
 
 	std::string text = boost::str(boost::format(CGI->generaltexth->allTexts[595]) % creature->nameSing);
 	buy = std::make_shared<CButton>(Point(42, 312), "IBUY30.DEF", CButton::tooltip(text), [&](){ close(); }, SDLK_RETURN);

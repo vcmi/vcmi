@@ -44,10 +44,11 @@ void CHeroArtPlace::createImage()
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
 	si32 imageIndex = 0;
-	if(ourArt)
-		imageIndex = ourArt->artType->iconIndex;
+
 	if(locked)
 		imageIndex = ArtifactID::ART_LOCK;
+	else if(ourArt)
+		imageIndex = ourArt->artType->getIconIndex();
 
 	image = std::make_shared<CAnimImage>("artifact", imageIndex);
 	if(!ourArt)
@@ -67,7 +68,7 @@ void CHeroArtPlace::lockSlot(bool on)
 	if (on)
 		image->setFrame(ArtifactID::ART_LOCK);
 	else if (ourArt)
-		image->setFrame(ourArt->artType->iconIndex);
+		image->setFrame(ourArt->artType->getIconIndex());
 	else
 		image->setFrame(0);
 }
@@ -196,18 +197,6 @@ void CHeroArtPlace::clickLeft(tribool down, bool previousState)
 				(!ourArt || ourOwner->curHero->tempOwner == LOCPLINT->playerID))
 			{
 				setMeAsDest();
-//
-// 				// Special case when the dest artifact can't be fit into the src slot.
-// 				//CGI->arth->unequipArtifact(ourOwner->curHero->artifWorn, slotID);
-// 				const CArtifactsOfHero* srcAOH = ourOwner->commonInfo->src.AOH;
-// 				ui16 srcSlotID = ourOwner->commonInfo->src.slotID;
-// 				if (ourArt && srcSlotID < 19 && !ourArt->canBePutAt(ArtifactLocation(srcAOH->curHero, srcSlotID)))
-// 				{
-// 					// Put dest artifact into owner's backpack.
-// 					ourOwner->commonInfo->src.AOH = ourOwner;
-// 					ourOwner->commonInfo->src.slotID = ourOwner->curHero->artifacts.size() + 19;
-// 				}
-
 				ourOwner->realizeCurrentTransaction();
 			}
 		}
@@ -289,7 +278,7 @@ void CHeroArtPlace::select ()
 		}
 	}
 
-	CCS->curh->dragAndDropCursor(make_unique<CAnimImage>("artifact", ourArt->artType->iconIndex));
+	CCS->curh->dragAndDropCursor(make_unique<CAnimImage>("artifact", ourArt->artType->getIconIndex()));
 	ourOwner->commonInfo->src.setTo(this, false);
 	ourOwner->markPossibleSlots(ourArt);
 
@@ -384,7 +373,7 @@ void CHeroArtPlace::setArtifact(const CArtifactInstance *art)
 	}
 
 	image->enable();
-	image->setFrame(locked ? ArtifactID::ART_LOCK : art->artType->iconIndex);
+	image->setFrame(locked ? ArtifactID::ART_LOCK : art->artType->getIconIndex());
 
 	text = art->getEffectiveDescription(ourOwner->curHero);
 
@@ -764,7 +753,7 @@ void CArtifactsOfHero::artifactMoved(const ArtifactLocation &src, const Artifact
 			commonInfo->src.art = dst.getArt();
 			commonInfo->src.slotID = dst.slot;
 			assert(commonInfo->src.AOH);
-			CCS->curh->dragAndDropCursor(make_unique<CAnimImage>("artifact", dst.getArt()->artType->iconIndex));
+			CCS->curh->dragAndDropCursor(make_unique<CAnimImage>("artifact", dst.getArt()->artType->getIconIndex()));
 			markPossibleSlots(dst.getArt());
 		}
 	}
@@ -1015,7 +1004,7 @@ void CCommanderArtPlace::createImage()
 
 	int imageIndex = 0;
 	if(ourArt)
-		imageIndex = ourArt->artType->iconIndex;
+		imageIndex = ourArt->artType->getIconIndex();
 
 	image = std::make_shared<CAnimImage>("artifact", imageIndex);
 	if(!ourArt)
@@ -1050,7 +1039,7 @@ void CCommanderArtPlace::setArtifact(const CArtifactInstance * art)
 	}
 
 	image->enable();
-	image->setFrame(art->artType->iconIndex);
+	image->setFrame(art->artType->getIconIndex());
 
 	text = art->getEffectiveDescription();
 

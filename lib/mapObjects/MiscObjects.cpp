@@ -1308,7 +1308,7 @@ void CGArtifact::initObj(CRandomGenerator & rand)
 
 std::string CGArtifact::getObjectName() const
 {
-	return VLC->arth->artifacts[subID]->getName();
+	return VLC->artifacts()->getByIndex(subID)->getName();
 }
 
 void CGArtifact::onHeroVisit(const CGHeroInstance * h) const

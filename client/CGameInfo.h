@@ -15,7 +15,6 @@
 
 class CModHandler;
 class CMapHandler;
-class CArtHandler;
 class CHeroHandler;
 class CCreatureHandler;
 class CSpellHandler;
@@ -67,7 +66,6 @@ public:
 
 
 	ConstTransitivePtr<CModHandler> modh; //public?
-	ConstTransitivePtr<CArtHandler> arth;
 	ConstTransitivePtr<CHeroHandler> heroh;
 	ConstTransitivePtr<CCreatureHandler> creh;
 	ConstTransitivePtr<CSpellHandler> spellh;

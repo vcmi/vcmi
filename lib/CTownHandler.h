@@ -156,6 +156,7 @@ public:
 	~CFaction();
 
 	int32_t getIndex() const override;
+	int32_t getIconIndex() const override;
 	const std::string & getName() const override;
 	const std::string & getJsonKey() const override;
 	void registerIcons(const IconRegistar & cb) const override;

@@ -355,7 +355,7 @@ void CGarrisonSlot::update()
 	if(creature)
 	{
 		creatureImage->enable();
-		creatureImage->setFrame(creature->iconIndex);
+		creatureImage->setFrame(creature->getIconIndex());
 
 		stackCount->enable();
 		stackCount->setText(boost::lexical_cast<std::string>(myStack->count));

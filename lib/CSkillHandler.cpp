@@ -46,6 +46,11 @@ int32_t CSkill::getIndex() const
 	return id.num;
 }
 
+int32_t CSkill::getIconIndex() const
+{
+	return getIndex(); //TODO: actual value with skill level
+}
+
 const std::string & CSkill::getName() const
 {
 	return name;

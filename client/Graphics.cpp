@@ -447,6 +447,8 @@ void Graphics::addImageListEntries(const EntityService * service)
 	{
 		entity->registerIcons(cb);
 	};
+
+	service->forEachBase(loopCb);
 }
 
 void Graphics::initializeImageLists()
