@@ -10,18 +10,17 @@
 
 #pragma once
 
+#include "../EntityService.h"
+
 class SpellID;
 
 namespace spells
 {
 class Spell;
 
-class DLL_LINKAGE Service
+class DLL_LINKAGE Service : public EntityServiceT<SpellID, Spell>
 {
 public:
-	virtual ~Service() = default;
-
- 	virtual const Spell * getSpell(const SpellID & spellID) const = 0;
 };
 
 }

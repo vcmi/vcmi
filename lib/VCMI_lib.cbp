@@ -133,6 +133,7 @@
 		<Unit filename="../include/vcmi/Creature.h" />
 		<Unit filename="../include/vcmi/CreatureService.h" />
 		<Unit filename="../include/vcmi/Entity.h" />
+		<Unit filename="../include/vcmi/EntityService.h" />
 		<Unit filename="../include/vcmi/Environment.h" />
 		<Unit filename="../include/vcmi/Faction.h" />
 		<Unit filename="../include/vcmi/FactionService.h" />
@@ -142,6 +143,8 @@
 		<Unit filename="../include/vcmi/HeroTypeService.h" />
 		<Unit filename="../include/vcmi/ServerCallback.h" />
 		<Unit filename="../include/vcmi/Services.h" />
+		<Unit filename="../include/vcmi/Skill.h" />
+		<Unit filename="../include/vcmi/SkillService.h" />
 		<Unit filename="../include/vcmi/events/ApplyDamage.h" />
 		<Unit filename="../include/vcmi/events/Event.h" />
 		<Unit filename="../include/vcmi/events/EventBus.h" />

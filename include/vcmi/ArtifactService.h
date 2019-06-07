@@ -10,12 +10,12 @@
 
 #pragma once
 
+#include "EntityService.h"
+
 class ArtifactID;
 class Artifact;
 
-class DLL_LINKAGE ArtifactService
+class DLL_LINKAGE ArtifactService : public EntityServiceT<ArtifactID, Artifact>
 {
 public:
-	virtual ~ArtifactService() = default;
-	virtual const Artifact * getArtifact(const ArtifactID & artifactID) const = 0;
 };

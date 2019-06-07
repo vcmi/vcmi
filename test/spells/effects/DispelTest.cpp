@@ -37,17 +37,17 @@ public:
 	{
 		EXPECT_CALL(mechanicsMock, spells()).Times(AnyNumber());
 
-		EXPECT_CALL(spellServiceMock, getSpell(Eq(positiveID))).WillRepeatedly(Return(&positiveSpell));
+		EXPECT_CALL(spellServiceMock, getById(Eq(positiveID))).WillRepeatedly(Return(&positiveSpell));
 		EXPECT_CALL(positiveSpell, getIndex()).WillRepeatedly(Return(positiveID.toEnum()));
 		EXPECT_CALL(positiveSpell, getPositiveness()).WillRepeatedly(Return(true));
 		EXPECT_CALL(positiveSpell, isAdventure()).WillRepeatedly(Return(false));
 
-		EXPECT_CALL(spellServiceMock, getSpell(Eq(negativeID))).WillRepeatedly(Return(&negativeSpell));
+		EXPECT_CALL(spellServiceMock, getById(Eq(negativeID))).WillRepeatedly(Return(&negativeSpell));
 		EXPECT_CALL(negativeSpell, getIndex()).WillRepeatedly(Return(negativeID.toEnum()));
 		EXPECT_CALL(negativeSpell, getPositiveness()).WillRepeatedly(Return(false));
 		EXPECT_CALL(negativeSpell, isAdventure()).WillRepeatedly(Return(false));
 
-		EXPECT_CALL(spellServiceMock, getSpell(Eq(neutralID))).WillRepeatedly(Return(&neutralSpell));
+		EXPECT_CALL(spellServiceMock, getById(Eq(neutralID))).WillRepeatedly(Return(&neutralSpell));
 		EXPECT_CALL(neutralSpell, getIndex()).WillRepeatedly(Return(neutralID.toEnum()));
 		EXPECT_CALL(neutralSpell, getPositiveness()).WillRepeatedly(Return(boost::logic::indeterminate));
 		EXPECT_CALL(neutralSpell, isAdventure()).WillRepeatedly(Return(false));

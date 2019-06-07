@@ -90,6 +90,11 @@ const spells::Service * LibClasses::spells() const
 	return spellh;
 }
 
+const SkillService * LibClasses::skills() const
+{
+	return skillh;
+}
+
 const IBonusTypeHandler * LibClasses::getBth() const
 {
 	return bth;

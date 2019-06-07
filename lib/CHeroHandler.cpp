@@ -328,9 +328,18 @@ void CHeroClassHandler::afterLoadFinalization()
 	}
 }
 
-const HeroClass * CHeroClassHandler::getHeroClass(const HeroClassID & heroClassID) const
+const Entity * CHeroClassHandler::getBaseByIndex(const int32_t index) const
 {
-	auto index = heroClassID.getNum();
+	return getByIndex(index);
+}
+
+const HeroClass * CHeroClassHandler::getById(const HeroClassID & id) const
+{
+	return getByIndex(id.getNum());
+}
+
+const HeroClass * CHeroClassHandler::getByIndex(const int32_t index) const
+{
 	if(index < 0 || index >= heroClasses.size())
 	{
 		logGlobal->error("Unable to get hero with ID %d", int32_t(index));
@@ -339,6 +348,30 @@ const HeroClass * CHeroClassHandler::getHeroClass(const HeroClassID & heroClassI
 	else
 	{
 		return heroClasses.at(index).get();
+	}
+}
+
+void CHeroClassHandler::forEachBase(const std::function<void(const Entity *, bool &)>& cb) const
+{
+	bool stop = false;
+
+	for(auto & object : heroClasses)
+	{
+		cb(object.get(), stop);
+		if(stop)
+			break;
+	}
+}
+
+void CHeroClassHandler::forEach(const std::function<void(const HeroClass *, bool &)>& cb) const
+{
+	bool stop = false;
+
+	for(auto & object : heroClasses)
+	{
+		cb(object.get(), stop);
+		if(stop)
+			break;
 	}
 }
 
@@ -991,9 +1024,13 @@ void CHeroHandler::afterLoadFinalization()
 	}
 }
 
-const HeroType * CHeroHandler::getHeroType(const HeroTypeID & heroTypeID) const
+const Entity * CHeroHandler::getBaseByIndex(const int32_t index) const
 {
-	auto index = heroTypeID.getNum();
+	return getByIndex(index);
+}
+
+const HeroType * CHeroHandler::getByIndex(const int32_t index) const
+{
 	if(index < 0 || index >= heroes.size())
 	{
 		logGlobal->error("Unable to get hero with ID %d", int32_t(index));
@@ -1002,6 +1039,35 @@ const HeroType * CHeroHandler::getHeroType(const HeroTypeID & heroTypeID) const
 	else
 	{
 		return heroes.at(index).get();
+	}
+}
+
+const HeroType * CHeroHandler::getById(const HeroTypeID & heroTypeID) const
+{
+	return getByIndex(heroTypeID.getNum());
+}
+
+void CHeroHandler::forEachBase(const std::function<void(const Entity *, bool &)>& cb) const
+{
+	bool stop = false;
+
+	for(auto & object : heroes)
+	{
+		cb(object.get(), stop);
+		if(stop)
+			break;
+	}
+}
+
+void CHeroHandler::forEach(const std::function<void(const HeroType *, bool &)>& cb) const
+{
+	bool stop = false;
+
+	for(auto & object : heroes)
+	{
+		cb(object.get(), stop);
+		if(stop)
+			break;
 	}
 }
 

@@ -269,7 +269,13 @@ public:
 
 	void afterLoadFinalization() override;
 
-	const HeroClass * getHeroClass(const HeroClassID & heroClassID) const override;
+	const Entity * getBaseByIndex(const int32_t index) const override;
+
+	const HeroClass * getById(const HeroClassID & id) const override;
+	const HeroClass * getByIndex(const int32_t index) const override;
+
+	void forEachBase(const std::function<void(const Entity * entity, bool & stop)> & cb) const override;
+	void forEach(const std::function<void(const HeroClass * entity, bool & stop)> & cb) const override;
 
 	std::vector<bool> getDefaultAllowed() const override;
 
@@ -342,7 +348,13 @@ public:
 	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
 	void afterLoadFinalization() override;
 
-	const HeroType * getHeroType(const HeroTypeID & heroTypeID) const override;
+	const Entity * getBaseByIndex(const int32_t index) const override;
+
+	const HeroType * getById(const HeroTypeID & id) const override;
+	const HeroType * getByIndex(const int32_t index) const override;
+
+	void forEachBase(const std::function<void(const Entity * entity, bool & stop)> & cb) const override;
+	void forEach(const std::function<void(const HeroType * entity, bool & stop)> & cb) const override;
 
 	CHeroHandler();
 	~CHeroHandler();

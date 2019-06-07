@@ -210,9 +210,18 @@ CArtHandler::~CArtHandler()
 		delete art;
 }
 
-const Artifact * CArtHandler::getArtifact(const ArtifactID & artifactID) const
+const Entity * CArtHandler::getBaseByIndex(const int32_t index) const
 {
-	auto index = artifactID.toEnum();
+	return getByIndex(index);
+}
+
+const Artifact * CArtHandler::getById(const ArtifactID & id) const
+{
+	return getByIndex(id);
+}
+
+const Artifact * CArtHandler::getByIndex(const int32_t index) const
+{
 	if(index < 0 || index >= artifacts.size())
 	{
 		logGlobal->error("Unable to get artifact with ID %d", int32_t(index));
@@ -221,6 +230,30 @@ const Artifact * CArtHandler::getArtifact(const ArtifactID & artifactID) const
 	else
 	{
 		return artifacts.at(index).get();
+	}
+}
+
+void CArtHandler::forEachBase(const std::function<void(const Entity * entity, bool & stop)>& cb) const
+{
+	bool stop = false;
+
+	for(auto & object : artifacts)
+	{
+		cb(object.get(), stop);
+		if(stop)
+			break;
+	}
+}
+
+void CArtHandler::forEach(const std::function<void(const Artifact * entity, bool & stop)>& cb) const
+{
+	bool stop = false;
+
+	for(auto & object : artifacts)
+	{
+		cb(object.get(), stop);
+		if(stop)
+			break;
 	}
 }
 

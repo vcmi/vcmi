@@ -29,6 +29,7 @@ set(test_SRCS
 		entity/CFactionTest.cpp
 		entity/CHeroClassTest.cpp
 		entity/CHeroTest.cpp
+		entity/CSkillTest.cpp
 
 		erm/ERM_BM.cpp
 		erm/ERM_BU.cpp

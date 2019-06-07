@@ -10,12 +10,12 @@
 
 #pragma once
 
+#include "EntityService.h"
+
 class HeroTypeID;
 class HeroType;
 
-class DLL_LINKAGE HeroTypeService
+class DLL_LINKAGE HeroTypeService : public EntityServiceT<HeroTypeID, HeroType>
 {
 public:
-	virtual ~HeroTypeService() = default;
-	virtual const HeroType * getHeroType(const HeroTypeID & heroTypeID) const = 0;
 };

@@ -572,18 +572,29 @@ CSpellHandler::CSpellHandler() = default;
 
 CSpellHandler::~CSpellHandler() = default;
 
-const spells::Spell * CSpellHandler::getSpell(const SpellID & spellID) const
+const Entity * CSpellHandler::getBaseByIndex(const int32_t index) const
 {
-	auto index = spellID.toEnum();
-	if(index < 0 || index >= objects.size())
-	{
-		logGlobal->error("Unable to get spell with ID %d", int32_t(index));
-		return nullptr;
-	}
-	else
-	{
-		return objects.at(index).get();
-	}
+	return getByIndex(index);
+}
+
+const spells::Spell * CSpellHandler::getById(const SpellID & id) const
+{
+	return (*this)[id].get();
+}
+
+const spells::Spell * CSpellHandler::getByIndex(const int32_t index) const
+{
+	return (*this)[SpellID(index)].get();
+}
+
+void CSpellHandler::forEachBase(const std::function<void(const Entity * entity, bool & stop)>& cb) const
+{
+	forEachT(cb);
+}
+
+void CSpellHandler::forEach(const std::function<void(const spells::Spell * entity, bool & stop)>& cb) const
+{
+	forEachT(cb);
 }
 
 std::vector<JsonNode> CSpellHandler::loadLegacyData(size_t dataSize)

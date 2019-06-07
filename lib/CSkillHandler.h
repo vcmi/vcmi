@@ -9,11 +9,14 @@
  */
 #pragma once
 
+#include <vcmi/Skill.h>
+#include <vcmi/SkillService.h>
+
 #include "../lib/HeroBonus.h"
 #include "GameConstants.h"
 #include "IHandlerBase.h"
 
-class DLL_LINKAGE CSkill // secondary skill
+class DLL_LINKAGE CSkill : public Skill
 {
 public:
 	struct LevelInfo
@@ -48,6 +51,12 @@ public:
 	CSkill(SecondarySkill id = SecondarySkill::DEFAULT, std::string identifier = "default");
 	~CSkill();
 
+	int32_t getIndex() const override;
+	const std::string & getName() const override;
+	const std::string & getJsonKey() const override;
+	void registerIcons(const IconRegistar & cb) const override;
+	SecondarySkill getId() const override;
+
 	const LevelInfo & at(int level) const;
 	LevelInfo & at(int level);
 
@@ -75,7 +84,7 @@ public:
 	friend DLL_LINKAGE std::ostream & operator<<(std::ostream & out, const CSkill::LevelInfo & info);
 };
 
-class DLL_LINKAGE CSkillHandler: public CHandlerBase<SecondarySkill, CSkill>
+class DLL_LINKAGE CSkillHandler: public CHandlerBase<SecondarySkill, CSkill>, public SkillService
 {
 public:
 	CSkillHandler();
@@ -92,6 +101,14 @@ public:
 	const std::string & skillInfo(int skill, int level) const;
 	const std::string & skillName(int skill) const;
 
+	const Entity * getBaseByIndex(const int32_t index) const override;
+
+	const Skill * getById(const SecondarySkill & id) const override;
+	const Skill * getByIndex(const int32_t index) const override;
+
+	void forEachBase(const std::function<void(const Entity * entity, bool & stop)> & cb) const override;
+	void forEach(const std::function<void(const Skill * entity, bool & stop)> & cb) const override;
+
 	///json serialization helpers
 	static si32 decodeSkill(const std::string & identifier);
 	static std::string encodeSkill(const si32 index);
@@ -101,6 +118,7 @@ public:
 	{
 		h & objects;
 	}
+
 
 protected:
 	CSkill * loadFromJson(const JsonNode & json, const std::string & identifier, size_t index) override;

@@ -257,7 +257,13 @@ public:
 	CCreatureHandler();
 	~CCreatureHandler();
 
-	const Creature * getCreature(const CreatureID & creatureID) const override;
+	const Entity * getBaseByIndex(const int32_t index) const override;
+
+	const Creature * getById(const CreatureID & id) const override;
+	const Creature * getByIndex(const int32_t index) const override;
+
+	void forEachBase(const std::function<void(const Entity * entity, bool & stop)> & cb) const override;
+	void forEach(const std::function<void(const Creature * entity, bool & stop)> & cb) const override;
 
 	/// load all creatures from H3 files
 	void loadCrExpBon();

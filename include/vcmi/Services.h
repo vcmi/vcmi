@@ -15,7 +15,7 @@ class CreatureService;
 class FactionService;
 class HeroClassService;
 class HeroTypeService;
-class ScriptingService;
+class SkillService;
 
 namespace spells
 {
@@ -44,6 +44,7 @@ public:
 	virtual const HeroTypeService * heroTypes() const = 0;
 	virtual const scripting::Service * scripts() const = 0;
 	virtual const spells::Service * spells() const = 0;
+	virtual const SkillService * skills() const = 0;
 
 	virtual const spells::effects::Registry * spellEffects() const = 0;
 	virtual spells::effects::Registry * spellEffects() = 0;

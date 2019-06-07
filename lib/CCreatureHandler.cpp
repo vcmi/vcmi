@@ -1189,9 +1189,51 @@ CCreatureHandler::~CCreatureHandler()
 		p.first = nullptr;
 }
 
-const Creature * CCreatureHandler::getCreature(const CreatureID & creatureID) const
+const Entity * CCreatureHandler::getBaseByIndex(const int32_t index) const
 {
-	return creatures.at(creatureID.toEnum());
+	return getByIndex(index);
+}
+
+const Creature * CCreatureHandler::getById(const CreatureID & id) const
+{
+	return getByIndex(id);
+}
+
+const Creature * CCreatureHandler::getByIndex(const int32_t index) const
+{
+	if(index < 0 || index >= creatures.size())
+	{
+		logGlobal->error("Unable to get creature with ID %d", index);
+		return nullptr;
+	}
+	else
+	{
+		return creatures.at(index).get();
+	}
+}
+
+void CCreatureHandler::forEachBase(const std::function<void(const Entity * entity, bool & stop)>& cb) const
+{
+	bool stop = false;
+
+	for(auto & object : creatures)
+	{
+		cb(object.get(), stop);
+		if(stop)
+			break;
+	}
+}
+
+void CCreatureHandler::forEach(const std::function<void(const Creature * entity, bool & stop)>& cb) const
+{
+	bool stop = false;
+
+	for(auto & object : creatures)
+	{
+		cb(object.get(), stop);
+		if(stop)
+			break;
+	}
 }
 
 CreatureID CCreatureHandler::pickRandomMonster(CRandomGenerator & rand, int tier) const

@@ -67,7 +67,7 @@ si32 HeroTypeID::decode(const std::string & identifier)
 
 std::string HeroTypeID::encode(const si32 index)
 {
-	return VLC->heroTypes()->getHeroType(HeroTypeID(index))->getJsonKey();
+	return VLC->heroTypes()->getByIndex(index)->getJsonKey();
 }
 
 const CArtifact * ArtifactID::toArtifact() const
@@ -77,7 +77,7 @@ const CArtifact * ArtifactID::toArtifact() const
 
 const Artifact * ArtifactID::toArtifact(const ArtifactService * service) const
 {
-	return service->getArtifact(*this);
+	return service->getById(*this);
 }
 
 si32 ArtifactID::decode(const std::string & identifier)
@@ -91,7 +91,7 @@ si32 ArtifactID::decode(const std::string & identifier)
 
 std::string ArtifactID::encode(const si32 index)
 {
-	return VLC->artifacts()->getArtifact(ArtifactID(index))->getJsonKey();
+	return VLC->artifacts()->getByIndex(index)->getJsonKey();
 }
 
 const CCreature * CreatureID::toCreature() const
@@ -101,7 +101,7 @@ const CCreature * CreatureID::toCreature() const
 
 const Creature * CreatureID::toCreature(const CreatureService * creatures) const
 {
-	return creatures->getCreature(*this);
+	return creatures->getById(*this);
 }
 
 si32 CreatureID::decode(const std::string & identifier)
@@ -115,7 +115,7 @@ si32 CreatureID::decode(const std::string & identifier)
 
 std::string CreatureID::encode(const si32 index)
 {
-	return VLC->creatures()->getCreature(CreatureID(index))->getJsonKey();
+	return VLC->creatures()->getById(CreatureID(index))->getJsonKey();
 }
 
 const CSpell * SpellID::toSpell() const
@@ -130,7 +130,7 @@ const CSpell * SpellID::toSpell() const
 
 const spells::Spell * SpellID::toSpell(const spells::Service * service) const
 {
-	return service->getSpell(*this);
+	return service->getById(*this);
 }
 
 si32 SpellID::decode(const std::string & identifier)
@@ -144,7 +144,7 @@ si32 SpellID::decode(const std::string & identifier)
 
 std::string SpellID::encode(const si32 index)
 {
-	return VLC->spells()->getSpell(SpellID(index))->getJsonKey();
+	return VLC->spells()->getByIndex(index)->getJsonKey();
 }
 
 bool PlayerColor::isValidPlayer() const
@@ -206,7 +206,7 @@ si32 FactionID::decode(const std::string & identifier)
 
 std::string FactionID::encode(const si32 index)
 {
-	return VLC->factions()->getFaction(FactionID(index))->getJsonKey();
+	return VLC->factions()->getByIndex(index)->getJsonKey();
 }
 
 std::ostream & operator<<(std::ostream & os, const EActionType actionType)

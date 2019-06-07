@@ -104,6 +104,20 @@ public:
 protected:
 	virtual _Object * loadFromJson(const JsonNode & json, const std::string & identifier, size_t index) = 0;
 	virtual const std::vector<std::string> & getTypeNames() const = 0;
+
+	template<typename ItemType>
+	void forEachT(const std::function<void(const ItemType *, bool &)> & cb) const
+	{
+		bool stop = false;
+
+		for(auto & object : objects)
+		{
+			cb(object.get(), stop);
+			if(stop)
+				break;
+		}
+	}
+
 public: //todo: make private
 	std::vector<ConstTransitivePtr<_Object>> objects;
 };

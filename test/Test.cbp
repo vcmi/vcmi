@@ -101,6 +101,7 @@
 		<Unit filename="entity/CFactionTest.cpp" />
 		<Unit filename="entity/CHeroClassTest.cpp" />
 		<Unit filename="entity/CHeroTest.cpp" />
+		<Unit filename="entity/CSkillTest.cpp" />
 		<Unit filename="erm/ERMPersistenceTest.cpp" />
 		<Unit filename="erm/ERM_BM.cpp" />
 		<Unit filename="erm/ERM_BU.cpp" />

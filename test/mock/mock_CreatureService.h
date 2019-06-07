@@ -15,5 +15,9 @@
 class CreatureServiceMock : public CreatureService
 {
 public:
-	MOCK_CONST_METHOD1(getCreature, const Creature *(const CreatureID &));
+	MOCK_CONST_METHOD1(getBaseByIndex, const Entity *(const int32_t));
+	MOCK_CONST_METHOD1(forEachBase, void(const std::function<void(const Entity *, bool &)> &));
+	MOCK_CONST_METHOD1(getById, const Creature *(const CreatureID &));
+	MOCK_CONST_METHOD1(getByIndex, const Creature *(const int32_t));
+	MOCK_CONST_METHOD1(forEach, void(const std::function<void(const Creature *, bool &)> &));
 };

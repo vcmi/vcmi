@@ -940,7 +940,50 @@ std::set<TFaction> CTownHandler::getAllowedFactions(bool withTown) const
 	return allowedFactions;
 }
 
-const Faction * CTownHandler::getFaction(const FactionID & factionID) const
+const Entity * CTownHandler::getBaseByIndex(const int32_t index) const
 {
-	return factions.at(factionID.getNum());
+	return getByIndex(index);
 }
+
+const Faction * CTownHandler::getById(const FactionID & id) const
+{
+	return getByIndex(id.getNum());
+}
+
+const Faction * CTownHandler::getByIndex(const int32_t index) const
+{
+	if(index < 0 || index >= factions.size())
+	{
+		logGlobal->error("Unable to get faction with ID %d", int32_t(index));
+		return nullptr;
+	}
+	else
+	{
+		return factions.at(index).get();
+	}
+}
+
+void CTownHandler::forEachBase(const std::function<void(const Entity * entity, bool & stop)>& cb) const
+{
+	bool stop = false;
+
+	for(auto & object : factions)
+	{
+		cb(object.get(), stop);
+		if(stop)
+			break;
+	}
+}
+
+void CTownHandler::forEach(const std::function<void(const Faction * entity, bool & stop)>& cb) const
+{
+	bool stop = false;
+
+	for(auto & object : factions)
+	{
+		cb(object.get(), stop);
+		if(stop)
+			break;
+	}
+}
+

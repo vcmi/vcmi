@@ -351,7 +351,13 @@ public:
 	std::vector<bool> getDefaultAllowed() const override;
 	std::set<TFaction> getAllowedFactions(bool withTown = true) const;
 
-	const Faction * getFaction(const FactionID & factionID) const override;
+	const Entity * getBaseByIndex(const int32_t index) const override;
+
+	const Faction * getById(const FactionID & id) const override;
+	const Faction * getByIndex(const int32_t index) const override;
+
+	void forEachBase(const std::function<void(const Entity * entity, bool & stop)> & cb) const override;
+	void forEach(const std::function<void(const Faction * entity, bool & stop)> & cb) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

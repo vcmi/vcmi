@@ -10,6 +10,14 @@
 #include "StdInc.h"
 #include "Graphics.h"
 
+#include <vcmi/Entity.h>
+#include <vcmi/ArtifactService.h>
+#include <vcmi/CreatureService.h>
+#include <vcmi/FactionService.h>
+#include <vcmi/HeroTypeService.h>
+#include <vcmi/SkillService.h>
+#include <vcmi/spells/Service.h>
+
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/filesystem/CBinaryReader.h"
 #include "gui/SDL_Extensions.h"
@@ -19,19 +27,15 @@
 #include "CGameInfo.h"
 #include "../lib/VCMI_Lib.h"
 #include "../CCallback.h"
-#include "../lib/CHeroHandler.h"
-#include "../lib/CTownHandler.h"
 #include "../lib/CGeneralTextHandler.h"
-#include "../lib/CCreatureHandler.h"
 #include "CBitmapHandler.h"
-#include "../lib/CSkillHandler.h"
-#include "../lib/spells/CSpellHandler.h"
 #include "../lib/CGameState.h"
 #include "../lib/JsonNode.h"
 #include "../lib/vcmi_endian.h"
 #include "../lib/CStopWatch.h"
 #include "../lib/mapObjects/CObjectClassesHandler.h"
 #include "../lib/mapObjects/CObjectHandler.h"
+#include "../lib/CHeroHandler.h"
 
 using namespace CSDL_Ext;
 
@@ -435,34 +439,22 @@ void Graphics::addImageListEntry(size_t index, const std::string & listName, con
 	}
 }
 
-void Graphics::initializeImageLists()
+void Graphics::addImageListEntries(const EntityService * service)
 {
 	auto cb = std::bind(&Graphics::addImageListEntry, this, _1, _2, _3);
 
-	for(const Creature * creature : CGI->creh->creatures)
-		creature->registerIcons(cb);
-
-	for(const HeroType * hero : CGI->heroh->heroes)
-		hero->registerIcons(cb);
-
-	for(const Artifact * art : CGI->arth->artifacts)
-		art->registerIcons(cb);
-
-	for(const Faction * faction : CGI->townh->factions)
-		faction->registerIcons(cb);
-
-	for(const spells::Spell * spell : CGI->spellh->objects)
-		spell->registerIcons(cb);
-
-	for(const CSkill * skill : CGI->skillh->objects)
+	auto loopCb = [&](const Entity * entity, bool & stop)
 	{
-		for(int level = 1; level <= 3; level++)
-		{
-			int frame = 2 + level + 3 * skill->id;
-			const CSkill::LevelInfo & skillAtLevel = skill->at(level);
-			addImageListEntry(frame, "SECSK32", skillAtLevel.iconSmall);
-			addImageListEntry(frame, "SECSKILL", skillAtLevel.iconMedium);
-			addImageListEntry(frame, "SECSK82", skillAtLevel.iconLarge);
-		}
-	}
+		entity->registerIcons(cb);
+	};
+}
+
+void Graphics::initializeImageLists()
+{
+	addImageListEntries(CGI->creatures());
+	addImageListEntries(CGI->heroTypes());
+	addImageListEntries(CGI->artifacts());
+	addImageListEntries(CGI->factions());
+	addImageListEntries(CGI->spells());
+	addImageListEntries(CGI->skills());
 }

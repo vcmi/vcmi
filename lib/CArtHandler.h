@@ -243,7 +243,13 @@ public:
 	std::vector<CArtifact *> allowedArtifacts;
 	std::set<ArtifactID> growingArtifacts;
 
-	const Artifact * getArtifact(const ArtifactID & artifactID) const override;
+	const Entity * getBaseByIndex(const int32_t index) const override;
+
+	const Artifact * getById(const ArtifactID & id) const override;
+	const Artifact * getByIndex(const int32_t index) const override;
+
+	void forEachBase(const std::function<void(const Entity * entity, bool & stop)> & cb) const override;
+	void forEach(const std::function<void(const Artifact * entity, bool & stop)> & cb) const override;
 
 	void addBonuses(CArtifact *art, const JsonNode &bonusList);
 

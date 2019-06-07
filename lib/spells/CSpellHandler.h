@@ -423,7 +423,13 @@ public:
 	CSpellHandler();
 	virtual ~CSpellHandler();
 
-	const spells::Spell * getSpell(const SpellID & spellID) const override;
+	const Entity * getBaseByIndex(const int32_t index) const override;
+
+	const spells::Spell * getById(const SpellID & id) const override;
+	const spells::Spell * getByIndex(const int32_t index) const override;
+
+	void forEachBase(const std::function<void(const Entity * entity, bool & stop)> & cb) const override;
+	void forEach(const std::function<void(const spells::Spell * entity, bool & stop)> & cb) const override;
 
 	///IHandler base
 	std::vector<JsonNode> loadLegacyData(size_t dataSize) override;

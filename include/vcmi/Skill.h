@@ -1,5 +1,5 @@
 /*
- * CreatureService.h, part of VCMI engine
+ * Skill.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -10,12 +10,13 @@
 
 #pragma once
 
-#include "EntityService.h"
+#include "Entity.h"
 
-class CreatureID;
-class Creature;
+class SecondarySkill;
 
-class DLL_LINKAGE CreatureService : public EntityServiceT<CreatureID, Creature>
+class DLL_LINKAGE Skill : public EntityT<SecondarySkill>
 {
 public:
+
 };
+

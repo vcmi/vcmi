@@ -23,6 +23,7 @@ struct InfoAboutTown;
 class CGObjectInstance;
 class ObjectTemplate;
 class CAnimation;
+class EntityService;
 
 enum EFonts
 {
@@ -33,6 +34,8 @@ enum EFonts
 class Graphics
 {
 	void addImageListEntry(size_t index, const std::string & listName, const std::string & imageName);
+
+	void addImageListEntries(const EntityService * service);
 
 	void initializeBattleGraphics();
 	void loadPaletteAndColors();

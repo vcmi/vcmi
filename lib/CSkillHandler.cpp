@@ -41,6 +41,38 @@ CSkill::~CSkill()
 {
 }
 
+int32_t CSkill::getIndex() const
+{
+	return id.num;
+}
+
+const std::string & CSkill::getName() const
+{
+	return name;
+}
+
+const std::string & CSkill::getJsonKey() const
+{
+	return identifier;
+}
+
+void CSkill::registerIcons(const IconRegistar & cb) const
+{
+	for(int level = 1; level <= 3; level++)
+	{
+		int frame = 2 + level + 3 * id;
+		const LevelInfo & skillAtLevel = at(level);
+		cb(frame, "SECSK32", skillAtLevel.iconSmall);
+		cb(frame, "SECSKILL", skillAtLevel.iconMedium);
+		cb(frame, "SECSK82", skillAtLevel.iconLarge);
+	}
+}
+
+SecondarySkill CSkill::getId() const
+{
+	return id;
+}
+
 void CSkill::addNewBonus(const std::shared_ptr<Bonus> & b, int level)
 {
 	b->source = Bonus::SECONDARY_SKILL;
@@ -212,6 +244,31 @@ std::vector<bool> CSkillHandler::getDefaultAllowed() const
 {
 	std::vector<bool> allowedSkills(objects.size(), true);
 	return allowedSkills;
+}
+
+const Entity * CSkillHandler::getBaseByIndex(const int32_t index) const
+{
+	return (*this)[SecondarySkill(index)].get();
+}
+
+const Skill * CSkillHandler::getById(const SecondarySkill & id) const
+{
+	return (*this)[id].get();
+}
+
+const Skill * CSkillHandler::getByIndex(const int32_t index) const
+{
+	return (*this)[SecondarySkill(index)].get();
+}
+
+void CSkillHandler::forEachBase(const std::function<void(const Entity * entity, bool & stop)> & cb) const
+{
+	forEachT(cb);
+}
+
+void CSkillHandler::forEach(const std::function<void(const Skill * entity, bool & stop)> & cb) const
+{
+	forEachT(cb);
 }
 
 si32 CSkillHandler::decodeSkill(const std::string & identifier)

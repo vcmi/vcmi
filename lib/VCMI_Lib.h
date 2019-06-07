@@ -50,6 +50,7 @@ public:
 	const HeroTypeService * heroTypes() const override;
 	const scripting::Service * scripts() const override;
 	const spells::Service * spells() const override;
+	const SkillService * skills() const override;
 
 	const spells::effects::Registry * spellEffects() const override;
 	spells::effects::Registry * spellEffects() override;

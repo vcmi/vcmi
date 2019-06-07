@@ -10,12 +10,12 @@
 
 #pragma once
 
+#include "EntityService.h"
+
 class FactionID;
 class Faction;
 
-class DLL_LINKAGE FactionService
+class DLL_LINKAGE FactionService : public EntityServiceT<FactionID, Faction>
 {
 public:
-	virtual ~FactionService() = default;
-	virtual const Faction * getFaction(const FactionID & factionID) const = 0;
 };
