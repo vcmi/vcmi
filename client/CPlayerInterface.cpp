@@ -2175,11 +2175,13 @@ void CPlayerInterface::gameOver(PlayerColor player, const EVictoryLossCheckResul
 		if (victoryLossCheckResult.victory() && LOCPLINT == this)
 		{
 			// end game if current human player has won
+			CSH->sendClientDisconnecting();
 			requestReturningToMainMenu(true);
 		}
 		else if(CSH->howManyPlayerInterfaces() == 1 && !settings["session"]["spectate"].Bool())
 		{
 			//all human players eliminated
+			CSH->sendClientDisconnecting();
 			requestReturningToMainMenu(false);
 		}
 
