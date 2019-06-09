@@ -21,14 +21,14 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{8355EBA8-65C2-44A4-BC2D-78053E1BF2D6}</ProjectGuid>
     <RootNamespace>VCMI_client</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RD|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RD|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -146,6 +146,7 @@
       </AdditionalOptions>
       <AdditionalIncludeDirectories>$(FFMPEGDIR);$(SDLDIR);$(BOOSTDIR);$(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <Optimization>Disabled</Optimization>
     </ClCompile>
     <Link>
       <AdditionalDependencies>avcodec.lib;avdevice.lib;avfilter.lib;avformat.lib;avutil.lib;postproc.lib;swresample.lib;swscale.lib;zlib.lib;SDL2.lib;SDL2main.lib;VCMI_lib.lib;SDL2_mixer.lib;SDL2_image.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -158,6 +159,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <ForceFileOutput>MultiplyDefinedSymbolOnly</ForceFileOutput>
       <AdditionalOptions>/LTCG /d2:-notypeopt %(AdditionalOptions)</AdditionalOptions>
+      <Profile>true</Profile>
     </Link>
     <CustomBuildStep>
       <Command>
@@ -176,6 +178,7 @@
       <LinkTimeCodeGeneration>
       </LinkTimeCodeGeneration>
       <ShowProgress>NotSet</ShowProgress>
+      <Profile>true</Profile>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
