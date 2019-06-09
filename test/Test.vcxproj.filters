@@ -1,13 +1,220 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="CMapEditManagerTest.cpp" />
     <ClCompile Include="CVcmiTestConfig.cpp" />
     <ClCompile Include="StdInc.cpp" />
-    <ClCompile Include="Battlefield.cpp" />
+    <ClCompile Include="CMemoryBufferTest.cpp" />
+    <ClCompile Include="JsonComparer.cpp" />
+    <ClCompile Include="map\CMapEditManagerTest.cpp">
+      <Filter>map</Filter>
+    </ClCompile>
+    <ClCompile Include="map\CMapFormatTest.cpp">
+      <Filter>map</Filter>
+    </ClCompile>
+    <ClCompile Include="map\MapComparer.cpp">
+      <Filter>map</Filter>
+    </ClCompile>
+    <ClCompile Include="battle\battle_UnitTest.cpp">
+      <Filter>battle</Filter>
+    </ClCompile>
+    <ClCompile Include="battle\BattleHexTest.cpp">
+      <Filter>battle</Filter>
+    </ClCompile>
+    <ClCompile Include="battle\CBattleInfoCallbackTest.cpp">
+      <Filter>battle</Filter>
+    </ClCompile>
+    <ClCompile Include="battle\CHealthTest.cpp">
+      <Filter>battle</Filter>
+    </ClCompile>
+    <ClCompile Include="battle\CUnitStateMagicTest.cpp">
+      <Filter>battle</Filter>
+    </ClCompile>
+    <ClCompile Include="battle\CUnitStateTest.cpp">
+      <Filter>battle</Filter>
+    </ClCompile>
+    <ClCompile Include="game\CGameStateTest.cpp">
+      <Filter>game</Filter>
+    </ClCompile>
+    <ClCompile Include="spells\effects\CatapultTest.cpp">
+      <Filter>spells\effects</Filter>
+    </ClCompile>
+    <ClCompile Include="spells\effects\CloneTest.cpp">
+      <Filter>spells\effects</Filter>
+    </ClCompile>
+    <ClCompile Include="spells\effects\DamageTest.cpp">
+      <Filter>spells\effects</Filter>
+    </ClCompile>
+    <ClCompile Include="spells\effects\DispelTest.cpp">
+      <Filter>spells\effects</Filter>
+    </ClCompile>
+    <ClCompile Include="spells\effects\EffectFixture.cpp">
+      <Filter>spells\effects</Filter>
+    </ClCompile>
+    <ClCompile Include="spells\effects\HealTest.cpp">
+      <Filter>spells\effects</Filter>
+    </ClCompile>
+    <ClCompile Include="spells\effects\SacrificeTest.cpp">
+      <Filter>spells\effects</Filter>
+    </ClCompile>
+    <ClCompile Include="spells\effects\SummonTest.cpp">
+      <Filter>spells\effects</Filter>
+    </ClCompile>
+    <ClCompile Include="spells\effects\TeleportTest.cpp">
+      <Filter>spells\effects</Filter>
+    </ClCompile>
+    <ClCompile Include="spells\effects\TimedTest.cpp">
+      <Filter>spells\effects</Filter>
+    </ClCompile>
+    <ClCompile Include="spells\targetConditions\AbsoluteLevelConditionTest.cpp">
+      <Filter>spells\targetConditions</Filter>
+    </ClCompile>
+    <ClCompile Include="spells\targetConditions\AbsoluteSpellConditionTest.cpp">
+      <Filter>spells\targetConditions</Filter>
+    </ClCompile>
+    <ClCompile Include="spells\targetConditions\BonusConditionTest.cpp">
+      <Filter>spells\targetConditions</Filter>
+    </ClCompile>
+    <ClCompile Include="spells\targetConditions\CreatureConditionTest.cpp">
+      <Filter>spells\targetConditions</Filter>
+    </ClCompile>
+    <ClCompile Include="spells\targetConditions\ElementalConditionTest.cpp">
+      <Filter>spells\targetConditions</Filter>
+    </ClCompile>
+    <ClCompile Include="spells\targetConditions\HealthValueConditionTest.cpp">
+      <Filter>spells\targetConditions</Filter>
+    </ClCompile>
+    <ClCompile Include="spells\targetConditions\ImmunityNegationConditionTest.cpp">
+      <Filter>spells\targetConditions</Filter>
+    </ClCompile>
+    <ClCompile Include="spells\targetConditions\NormalLevelConditionTest.cpp">
+      <Filter>spells\targetConditions</Filter>
+    </ClCompile>
+    <ClCompile Include="spells\targetConditions\NormalSpellConditionTest.cpp">
+      <Filter>spells\targetConditions</Filter>
+    </ClCompile>
+    <ClCompile Include="spells\targetConditions\ReceptiveFeatureConditionTest.cpp">
+      <Filter>spells\targetConditions</Filter>
+    </ClCompile>
+    <ClCompile Include="spells\targetConditions\SpellEffectConditionTest.cpp">
+      <Filter>spells\targetConditions</Filter>
+    </ClCompile>
+    <ClCompile Include="spells\targetConditions\TargetConditionItemFixture.cpp">
+      <Filter>spells\targetConditions</Filter>
+    </ClCompile>
+    <ClCompile Include="spells\AbilityCasterTest.cpp">
+      <Filter>spells</Filter>
+    </ClCompile>
+    <ClCompile Include="spells\TargetConditionTest.cpp">
+      <Filter>spells</Filter>
+    </ClCompile>
+    <ClCompile Include="vcai\mock_ResourceManager.cpp">
+      <Filter>vcai</Filter>
+    </ClCompile>
+    <ClCompile Include="vcai\mock_VCAI.cpp">
+      <Filter>vcai</Filter>
+    </ClCompile>
+    <ClCompile Include="vcai\ResurceManagerTest.cpp">
+      <Filter>vcai</Filter>
+    </ClCompile>
+    <ClCompile Include="mock\mock_BonusBearer.cpp">
+      <Filter>mock</Filter>
+    </ClCompile>
+    <ClCompile Include="mock\mock_CPSICallback.cpp">
+      <Filter>mock</Filter>
+    </ClCompile>
+    <ClCompile Include="mock\mock_IGameCallback.cpp">
+      <Filter>mock</Filter>
+    </ClCompile>
+    <ClCompile Include="mock\mock_MapService.cpp">
+      <Filter>mock</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CVcmiTestConfig.h" />
     <ClInclude Include="StdInc.h" />
+    <ClInclude Include="JsonComparer.h" />
+    <ClInclude Include="map\MapComparer.h">
+      <Filter>map</Filter>
+    </ClInclude>
+    <ClInclude Include="spells\effects\EffectFixture.h">
+      <Filter>spells\effects</Filter>
+    </ClInclude>
+    <ClInclude Include="spells\targetConditions\TargetConditionItemFixture.h">
+      <Filter>spells\targetConditions</Filter>
+    </ClInclude>
+    <ClInclude Include="vcai\mock_ResourceManager.h">
+      <Filter>vcai</Filter>
+    </ClInclude>
+    <ClInclude Include="vcai\mock_VCAI.h">
+      <Filter>vcai</Filter>
+    </ClInclude>
+    <ClInclude Include="vcai\mock_VCAI_CGoal.h">
+      <Filter>vcai</Filter>
+    </ClInclude>
+    <ClInclude Include="vcai\ResourceManagerTest.h">
+      <Filter>vcai</Filter>
+    </ClInclude>
+    <ClInclude Include="mock\mock_battle_IBattleState.h">
+      <Filter>mock</Filter>
+    </ClInclude>
+    <ClInclude Include="mock\mock_battle_Unit.h">
+      <Filter>mock</Filter>
+    </ClInclude>
+    <ClInclude Include="mock\mock_BonusBearer.h">
+      <Filter>mock</Filter>
+    </ClInclude>
+    <ClInclude Include="mock\mock_CPSICallback.h">
+      <Filter>mock</Filter>
+    </ClInclude>
+    <ClInclude Include="mock\mock_IGameCallback.h">
+      <Filter>mock</Filter>
+    </ClInclude>
+    <ClInclude Include="mock\mock_MapService.h">
+      <Filter>mock</Filter>
+    </ClInclude>
+    <ClInclude Include="mock\mock_spells_Mechanics.h">
+      <Filter>mock</Filter>
+    </ClInclude>
+    <ClInclude Include="mock\mock_spells_Problem.h">
+      <Filter>mock</Filter>
+    </ClInclude>
+    <ClInclude Include="mock\mock_spells_Spell.h">
+      <Filter>mock</Filter>
+    </ClInclude>
+    <ClInclude Include="mock\mock_UnitEnvironment.h">
+      <Filter>mock</Filter>
+    </ClInclude>
+    <ClInclude Include="mock\mock_UnitInfo.h">
+      <Filter>mock</Filter>
+    </ClInclude>
+    <ClInclude Include="mock\mock_vstd_RNG.h">
+      <Filter>mock</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="map">
+      <UniqueIdentifier>{418ff473-dca6-4c43-bba7-d575536c5791}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="battle">
+      <UniqueIdentifier>{01a5ea57-0094-4f54-94a5-10184cb7518c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="game">
+      <UniqueIdentifier>{db53f45d-1e4d-4e6b-9bc1-fa0e15f1def2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="spells">
+      <UniqueIdentifier>{9b00f38e-f370-413e-ad10-644a21be00b4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="spells\effects">
+      <UniqueIdentifier>{dc596868-45d4-4ee4-8191-34c2f76b47fc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="spells\targetConditions">
+      <UniqueIdentifier>{ac23eabd-5463-468f-862e-38a0934b866e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vcai">
+      <UniqueIdentifier>{f7e35d1b-7e06-4c22-a3a3-6f7d1357e028}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mock">
+      <UniqueIdentifier>{53399b0b-1a51-43f7-91cc-4fc47dfbad84}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>

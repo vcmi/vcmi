@@ -21,14 +21,14 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{BA25F3F0-EB87-4164-AAB9-073C50A3557A}</ProjectGuid>
     <RootNamespace>VCMI_client</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RD|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RD|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -93,6 +93,9 @@
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='RD|Win32'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='RD|x64'" />
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">
+    <IncludePath>$(SolutionDir)\AI\FuzzyLite\fuzzylite;$(SolutionDir)\test\googletest\googlemock\include;$(SolutionDir)\test\googletest\googletest\include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>
@@ -139,7 +142,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>VCMI_lib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>VCMI_lib.lib;VCAI.lib;FuzzyLite.lib;gmock.lib;gtest.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <Driver>NotSet</Driver>
       <LinkTimeCodeGeneration>
       </LinkTimeCodeGeneration>
@@ -168,19 +171,80 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Battlefield.cpp" />
-    <ClCompile Include="CMapEditManagerTest.cpp" />
+    <ClCompile Include="battle\BattleHexTest.cpp" />
+    <ClCompile Include="battle\battle_UnitTest.cpp" />
+    <ClCompile Include="battle\CBattleInfoCallbackTest.cpp" />
+    <ClCompile Include="battle\CHealthTest.cpp" />
+    <ClCompile Include="battle\CUnitStateMagicTest.cpp" />
+    <ClCompile Include="battle\CUnitStateTest.cpp" />
+    <ClCompile Include="CMemoryBufferTest.cpp" />
     <ClCompile Include="CVcmiTestConfig.cpp" />
+    <ClCompile Include="game\CGameStateTest.cpp" />
+    <ClCompile Include="JsonComparer.cpp" />
+    <ClCompile Include="map\CMapEditManagerTest.cpp" />
+    <ClCompile Include="map\CMapFormatTest.cpp" />
+    <ClCompile Include="map\MapComparer.cpp" />
+    <ClCompile Include="mock\mock_BonusBearer.cpp" />
+    <ClCompile Include="mock\mock_CPSICallback.cpp" />
+    <ClCompile Include="mock\mock_IGameCallback.cpp" />
+    <ClCompile Include="mock\mock_MapService.cpp" />
+    <ClCompile Include="spells\AbilityCasterTest.cpp" />
+    <ClCompile Include="spells\effects\CatapultTest.cpp" />
+    <ClCompile Include="spells\effects\CloneTest.cpp" />
+    <ClCompile Include="spells\effects\DamageTest.cpp" />
+    <ClCompile Include="spells\effects\DispelTest.cpp" />
+    <ClCompile Include="spells\effects\EffectFixture.cpp" />
+    <ClCompile Include="spells\effects\HealTest.cpp" />
+    <ClCompile Include="spells\effects\SacrificeTest.cpp" />
+    <ClCompile Include="spells\effects\SummonTest.cpp" />
+    <ClCompile Include="spells\effects\TeleportTest.cpp" />
+    <ClCompile Include="spells\effects\TimedTest.cpp" />
+    <ClCompile Include="spells\targetConditions\AbsoluteLevelConditionTest.cpp" />
+    <ClCompile Include="spells\targetConditions\AbsoluteSpellConditionTest.cpp" />
+    <ClCompile Include="spells\targetConditions\BonusConditionTest.cpp" />
+    <ClCompile Include="spells\targetConditions\CreatureConditionTest.cpp" />
+    <ClCompile Include="spells\targetConditions\ElementalConditionTest.cpp" />
+    <ClCompile Include="spells\targetConditions\HealthValueConditionTest.cpp" />
+    <ClCompile Include="spells\targetConditions\ImmunityNegationConditionTest.cpp" />
+    <ClCompile Include="spells\targetConditions\NormalLevelConditionTest.cpp" />
+    <ClCompile Include="spells\targetConditions\NormalSpellConditionTest.cpp" />
+    <ClCompile Include="spells\targetConditions\ReceptiveFeatureConditionTest.cpp" />
+    <ClCompile Include="spells\targetConditions\SpellEffectConditionTest.cpp" />
+    <ClCompile Include="spells\targetConditions\TargetConditionItemFixture.cpp" />
+    <ClCompile Include="spells\TargetConditionTest.cpp" />
     <ClCompile Include="StdInc.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='RD|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="vcai\mock_ResourceManager.cpp" />
+    <ClCompile Include="vcai\mock_VCAI.cpp" />
+    <ClCompile Include="vcai\ResurceManagerTest.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CVcmiTestConfig.h" />
+    <ClInclude Include="JsonComparer.h" />
+    <ClInclude Include="map\MapComparer.h" />
+    <ClInclude Include="mock\mock_battle_IBattleState.h" />
+    <ClInclude Include="mock\mock_battle_Unit.h" />
+    <ClInclude Include="mock\mock_BonusBearer.h" />
+    <ClInclude Include="mock\mock_CPSICallback.h" />
+    <ClInclude Include="mock\mock_IGameCallback.h" />
+    <ClInclude Include="mock\mock_MapService.h" />
+    <ClInclude Include="mock\mock_spells_Mechanics.h" />
+    <ClInclude Include="mock\mock_spells_Problem.h" />
+    <ClInclude Include="mock\mock_spells_Spell.h" />
+    <ClInclude Include="mock\mock_UnitEnvironment.h" />
+    <ClInclude Include="mock\mock_UnitInfo.h" />
+    <ClInclude Include="mock\mock_vstd_RNG.h" />
+    <ClInclude Include="spells\effects\EffectFixture.h" />
+    <ClInclude Include="spells\targetConditions\TargetConditionItemFixture.h" />
     <ClInclude Include="StdInc.h" />
+    <ClInclude Include="vcai\mock_ResourceManager.h" />
+    <ClInclude Include="vcai\mock_VCAI.h" />
+    <ClInclude Include="vcai\mock_VCAI_CGoal.h" />
+    <ClInclude Include="vcai\ResourceManagerTest.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
