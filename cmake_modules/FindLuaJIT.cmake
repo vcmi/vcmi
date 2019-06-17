@@ -9,7 +9,7 @@
 FIND_PATH(LUA_INCLUDE_DIR luajit.h
 	HINTS
 	$ENV{LUA_DIR}
-	PATH_SUFFIXES include/luajit-2.1 include/luajit-2.0 include/luajit-5_1-2.1 include/luajit-5_1-2.0 include
+	PATH_SUFFIXES include/luajit include/luajit-2.1 include/luajit-2.0 include/luajit-5_1-2.1 include/luajit-5_1-2.0 include
 	PATHS
 	~/Library/Frameworks
 	/Library/Frameworks
@@ -20,7 +20,7 @@ FIND_PATH(LUA_INCLUDE_DIR luajit.h
 )
 
 FIND_LIBRARY(LUA_LIBRARY
-	NAMES luajit-5.1
+	NAMES luajit-5.1 lua51
 	HINTS
 	$ENV{LUA_DIR}
 	PATH_SUFFIXES lib64 lib
