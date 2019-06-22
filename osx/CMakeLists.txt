@@ -22,15 +22,36 @@ endif(APPLE)
 if(WIN32)
 	if(ENABLE_LAUNCHER)
 		# Temporary ugly fix for Qt deployment since windeployqt broken in Vcpkg
-		install(CODE "
+		
+		#there are some weird issues with variables used in path not evaluated properly when trying to remove code duplication from below lines
+		if(EXISTS ${CMAKE_BINARY_DIR}/../../vcpkg) #current path to vcpkg main folder on appveyor CI
+			if(CMAKE_SIZEOF_VOID_P EQUAL 8) #64 bit build
+				install(CODE "
+					file(COPY ${CMAKE_BINARY_DIR}/../../vcpkg/installed/x64-windows/plugins/bearer DESTINATION \${CMAKE_INSTALL_PREFIX})
+					file(COPY ${CMAKE_BINARY_DIR}/../../vcpkg/installed/x64-windows/plugins/iconengines DESTINATION \${CMAKE_INSTALL_PREFIX})
+					file(COPY ${CMAKE_BINARY_DIR}/../../vcpkg/installed/x64-windows/plugins/imageformats DESTINATION \${CMAKE_INSTALL_PREFIX})
+					file(COPY ${CMAKE_BINARY_DIR}/../../vcpkg/installed/x64-windows/plugins/platforminputcontexts DESTINATION \${CMAKE_INSTALL_PREFIX})
+					file(COPY ${CMAKE_BINARY_DIR}/../../vcpkg/installed/x64-windows/plugins/platforms DESTINATION \${CMAKE_INSTALL_PREFIX})
+				")
+			else()
+				install(CODE "
+					file(COPY ${CMAKE_BINARY_DIR}/../../vcpkg/installed/x86-windows/plugins/bearer DESTINATION \${CMAKE_INSTALL_PREFIX})
+					file(COPY ${CMAKE_BINARY_DIR}/../../vcpkg/installed/x86-windows/plugins/iconengines DESTINATION \${CMAKE_INSTALL_PREFIX})
+					file(COPY ${CMAKE_BINARY_DIR}/../../vcpkg/installed/x86-windows/plugins/imageformats DESTINATION \${CMAKE_INSTALL_PREFIX})
+					file(COPY ${CMAKE_BINARY_DIR}/../../vcpkg/installed/x86-windows/plugins/platforminputcontexts DESTINATION \${CMAKE_INSTALL_PREFIX})
+					file(COPY ${CMAKE_BINARY_DIR}/../../vcpkg/installed/x86-windows/plugins/platforms DESTINATION \${CMAKE_INSTALL_PREFIX})
+				")
+			endif()
+		else() #not vcpkg build - lines below do not work properly
+			install(CODE "
 			execute_process(
 				COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_BINARY_DIR}/bin/\${BUILD_TYPE}/bearer \${CMAKE_INSTALL_PREFIX}/bearer
 				COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_BINARY_DIR}/bin/\${BUILD_TYPE}/iconengines \${CMAKE_INSTALL_PREFIX}/iconengines
 				COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_BINARY_DIR}/bin/\${BUILD_TYPE}/imageformats \${CMAKE_INSTALL_PREFIX}/imageformats
 				COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_BINARY_DIR}/bin/\${BUILD_TYPE}/platforminputcontexts \${CMAKE_INSTALL_PREFIX}/platforminputcontexts
-				COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_BINARY_DIR}/bin/\${BUILD_TYPE}/platforms \${CMAKE_INSTALL_PREFIX}/platforms
-			)
-		")
+				COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_BINARY_DIR}/bin/\${BUILD_TYPE}/platforms \${CMAKE_INSTALL_PREFIX}/platforms)
+			")
+		endif()
 	endif()
 
 	install(CODE "
