@@ -74,9 +74,9 @@ for:
       - coverity_scan
   environment:
     matrix:
-      - NAME: Coverity - MSVS 2015 x86 - Release
-        APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-        VCMI_GENERATOR: Visual Studio 14 2015
+      - NAME: Coverity - MSVS 2017 x86 - Release
+        APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+        VCMI_GENERATOR: Visual Studio 15 2017
         VCMI_BUILD_PLATFORM: x86
         VCMI_BUILD_CONFIGURATION: Release
         environment:
@@ -93,9 +93,9 @@ for:
 -
   environment:
     matrix:
-      - NAME: MSVS 2015 x86 - Release
-        APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-        VCMI_GENERATOR: Visual Studio 14 2015
+      - NAME: MSVS 2017 x86 - Release
+        APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+        VCMI_GENERATOR: Visual Studio 15 2017
         VCMI_BUILD_PLATFORM: x86
         VCMI_BUILD_CONFIGURATION: Release
       - NAME: MSVS 2017 x64 - Release
