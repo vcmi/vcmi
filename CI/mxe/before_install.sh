@@ -4,7 +4,7 @@
 sudo apt-get install -qq nsis ninja-build
 
 # MXE repository was too slow for Travis far too often
-wget https://www.dropbox.com/s/e1wk8izwyo0okpi/DEBIAN_mxe-i686-w64-mingw32.shared-2019-06-27.tar?dl=1
+wget https://github.com/dydzio0614/experimental_travis_deps/releases/download/1.0/DEBIAN_mxe-i686-w64-mingw32.shared-2019-06-27.tar
 tar -xvf DEBIAN_mxe-i686-w64-mingw32.shared-2019-06-27.tar
 sudo dpkg -i mxe-*.deb
 sudo apt-get install -f --yes
