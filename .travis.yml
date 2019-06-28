@@ -2,7 +2,7 @@ language: cpp
 os:
 - linux
 - osx
-dist: xenial
+dist: trusty
 sudo: required
 env:
   matrix:

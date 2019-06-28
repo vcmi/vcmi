@@ -4,8 +4,8 @@
 sudo apt-get install -qq nsis ninja-build
 
 # MXE repository was too slow for Travis far too often
-wget https://github.com/dydzio0614/experimental_travis_deps/releases/download/1.0/DEBIAN_mxe-i686-w64-mingw32.shared-2019-06-27.tar
-tar -xvf DEBIAN_mxe-i686-w64-mingw32.shared-2019-06-27.tar
+wget https://github.com/dydzio0614/experimental_travis_deps/releases/download/1.1/TRUSTY_mxe-i686-w64-mingw32.shared-2019-06-28.tar
+tar -xvf TRUSTY_mxe-i686-w64-mingw32.shared-2019-06-28.tar
 sudo dpkg -i mxe-*.deb
 sudo apt-get install -f --yes
 
@@ -37,5 +37,3 @@ fi # Disable
 # alias for CMake
 sudo mv /usr/bin/cmake /usr/bin/cmake.orig
 sudo ln -s /usr/lib/mxe/usr/bin/$MXE_TARGET-cmake /usr/bin/cmake
-sudo ln -s /usr/local/lib/libssl.so.1.1 /usr/lib/libssl.so.1.1
-sudo ln -s /usr/local/lib/libcrypto.so.1.1 /usr/lib/libcrypto.so.1.1
