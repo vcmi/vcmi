@@ -37,5 +37,5 @@ fi # Disable
 # alias for CMake
 sudo mv /usr/bin/cmake /usr/bin/cmake.orig
 sudo ln -s /usr/lib/mxe/usr/bin/$MXE_TARGET-cmake /usr/bin/cmake
-sudo ln -s /usr/local/lib64/libssl.so.1.1 /usr/lib64/libssl.so.1.1
-sudo ln -s /usr/local/lib64/libcrypto.so.1.1 /usr/lib64/libcrypto.so.1.1
+sudo ln -s /usr/local/lib/libssl.so.1.1 /usr/lib/libssl.so.1.1
+sudo ln -s /usr/local/lib/libcrypto.so.1.1 /usr/lib/libcrypto.so.1.1
