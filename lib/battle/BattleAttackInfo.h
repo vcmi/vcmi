@@ -15,10 +15,15 @@ namespace battle
 	class CUnitState;
 }
 
+#include "BattleHex.h"
+
 struct DLL_LINKAGE BattleAttackInfo
 {
 	const battle::Unit * attacker;
 	const battle::Unit * defender;
+
+	BattleHex attackerPos;
+	BattleHex defenderPos;
 
 	bool shooting;
 	int chargedFields;

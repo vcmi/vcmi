@@ -667,37 +667,45 @@ bool CBattleInfoCallback::battleCanAttack(const CStack * stack, const CStack * t
 	return target->alive();
 }
 
-bool CBattleInfoCallback::battleCanShoot(const battle::Unit * attacker, BattleHex dest) const
+bool CBattleInfoCallback::battleCanShoot(const battle::Unit * attacker) const
 {
 	RETURN_IF_NOT_BATTLE(false);
 
-	if(battleTacticDist()) //no shooting during tactics
+	if (battleTacticDist()) //no shooting during tactics
 		return false;
 
-	const battle::Unit * defender = battleGetUnitByPos(dest);
-
-	if(!attacker || !defender)
+	if (!attacker)
+		return false;
+	if (attacker->creatureIndex() == CreatureID::CATAPULT) //catapult cannot attack creatures
 		return false;
 
 	//forgetfulness
 	TBonusListPtr forgetfulList = attacker->getBonuses(Selector::type(Bonus::FORGETFULL));
-	if(!forgetfulList->empty())
+	if (!forgetfulList->empty())
 	{
 		int forgetful = forgetfulList->valOfBonuses(Selector::type(Bonus::FORGETFULL));
 
 		//advanced+ level
-		if(forgetful > 1)
+		if (forgetful > 1)
 			return false;
 	}
 
-	if(attacker->creatureIndex() == CreatureID::CATAPULT && defender) //catapult cannot attack creatures
+	return attacker->canShoot()	&& (!battleIsUnitBlocked(attacker)
+			|| attacker->hasBonusOfType(Bonus::FREE_SHOOTING));
+}
+
+bool CBattleInfoCallback::battleCanShoot(const battle::Unit * attacker, BattleHex dest) const
+{
+	RETURN_IF_NOT_BATTLE(false);
+
+	const battle::Unit * defender = battleGetUnitByPos(dest);
+	if(!attacker || !defender)
 		return false;
 
-	return attacker->canShoot()
-		&& battleMatchOwner(attacker, defender)
-		&& defender->alive()
-		&& (!battleIsUnitBlocked(attacker)
-		|| attacker->hasBonusOfType(Bonus::FREE_SHOOTING));
+	if(battleMatchOwner(attacker, defender) && defender->alive())
+		return battleCanShoot(attacker);
+
+	return false;
 }
 
 TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo & info) const
@@ -897,8 +905,11 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo & info) 
 	if(info.shooting)
 	{
 		//wall / distance penalty + advanced air shield
-		const bool distPenalty = battleHasDistancePenalty(attackerBonuses, info.attacker->getPosition(), info.defender->getPosition());
-		const bool obstaclePenalty = battleHasWallPenalty(attackerBonuses, info.attacker->getPosition(), info.defender->getPosition());
+		BattleHex attackerPos = info.attackerPos.isValid() ? info.attackerPos : info.attacker->getPosition();
+		BattleHex defenderPos = info.defenderPos.isValid() ? info.defenderPos : info.defender->getPosition();
+
+		const bool distPenalty = battleHasDistancePenalty(attackerBonuses, attackerPos, defenderPos);
+		const bool obstaclePenalty = battleHasWallPenalty(attackerBonuses, attackerPos, defenderPos);
 
 		if(distPenalty || defenderBonuses->hasBonus(isAdvancedAirShield, cachingStrAdvAirShield))
 			multBonus *= 0.5;
@@ -1340,11 +1351,11 @@ ReachabilityInfo CBattleInfoCallback::getFlyingReachability(const ReachabilityIn
 	return ret;
 }
 
-AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes (const CStack* attacker, BattleHex destinationTile, BattleHex attackerPos) const
+AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes (const  battle::Unit* attacker, BattleHex destinationTile, BattleHex attackerPos) const
 {
 	//does not return hex attacked directly
 	//TODO: apply rotation to two-hex attackers
-	bool isAttacker = attacker->side == BattleSide::ATTACKER;
+	bool isAttacker = attacker->unitSide() == BattleSide::ATTACKER;
 
 	AttackableTiles at;
 	RETURN_IF_NOT_BATTLE(at);
@@ -1369,8 +1380,8 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes (const CStack
 		{
 			if((BattleHex::mutualPosition(tile, destinationTile) > -1 && BattleHex::mutualPosition(tile, hex) > -1)) //adjacent both to attacker's head and attacked tile
 			{
-				const CStack * st = battleGetStackByPos(tile, true);
-				if(st && st->owner != attacker->owner) //only hostile stacks - does it work well with Berserk?
+				auto st = battleGetUnitByPos(tile, true);
+				if(st && battleMatchOwner(st, attacker)) //only hostile stacks - does it work well with Berserk?
 				{
 					at.hostileCreaturePositions.insert(tile);
 				}
@@ -1391,45 +1402,50 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes (const CStack
 		for(BattleHex tile : hexes)
 		{
 			//friendly stacks can also be damaged by Dragon Breath
-			if(battleGetStackByPos(tile, true))
+			auto st = battleGetUnitByPos(tile, true);
+			if(st && st != attacker)
 			{
-				if(battleGetStackByPos(tile, true) != attacker)
-					at.friendlyCreaturePositions.insert(tile);
+				at.friendlyCreaturePositions.insert(tile);
 			}
 		}
 	}
-	else if(attacker->hasBonusOfType(Bonus::TWO_HEX_ATTACK_BREATH) && BattleHex::mutualPosition(destinationTile, hex) > -1) //only adjacent hexes are subject of dragon breath calculation
+	else if(attacker->hasBonusOfType(Bonus::TWO_HEX_ATTACK_BREATH))
 	{
-		std::vector<BattleHex> hexes; //only one, in fact
-		int pseudoVector = destinationTile.hex - hex;
-		switch(pseudoVector)
+		int pos = BattleHex::mutualPosition(destinationTile, hex);
+		if (pos > -1) //only adjacent hexes are subject of dragon breath calculation
 		{
-		case 1:
-		case -1:
-			BattleHex::checkAndPush(destinationTile.hex + pseudoVector, hexes);
-			break;
-		case WN: //17 //left-down or right-down
-		case -WN: //-17 //left-up or right-up
-		case WN + 1: //18 //right-down
-		case -WN + 1: //-16 //right-up
-			BattleHex::checkAndPush(destinationTile.hex + pseudoVector + (((hex / WN) % 2) ? 1 : -1), hexes);
-			break;
-		case WN - 1: //16 //left-down
-		case -WN - 1: //-18 //left-up
-			BattleHex::checkAndPush(destinationTile.hex + pseudoVector + (((hex / WN) % 2) ? 1 : 0), hexes);
-			break;
-		}
-		for(BattleHex tile : hexes)
-		{
-			//friendly stacks can also be damaged by Dragon Breath
-			if(battleGetStackByPos(tile, true))
-				at.friendlyCreaturePositions.insert(tile);
+			std::vector<BattleHex> hexes; //only one, in fact
+			int pseudoVector = destinationTile.hex - hex;
+			switch (pseudoVector)
+			{
+			case 1:
+			case -1:
+				BattleHex::checkAndPush(destinationTile.hex + pseudoVector, hexes);
+				break;
+			case WN: //17 //left-down or right-down
+			case -WN: //-17 //left-up or right-up
+			case WN + 1: //18 //right-down
+			case -WN + 1: //-16 //right-up
+				BattleHex::checkAndPush(destinationTile.hex + pseudoVector + (((hex / WN) % 2) ? 1 : -1), hexes);
+				break;
+			case WN - 1: //16 //left-down
+			case -WN - 1: //-18 //left-up
+				BattleHex::checkAndPush(destinationTile.hex + pseudoVector + (((hex / WN) % 2) ? 1 : 0), hexes);
+				break;
+			}
+			for (BattleHex tile : hexes)
+			{
+				//friendly stacks can also be damaged by Dragon Breath
+				auto st = battleGetUnitByPos(tile, true);
+				if (st != nullptr)
+					at.friendlyCreaturePositions.insert(tile);
+			}
 		}
 	}
 	return at;
 }
 
-AttackableTiles CBattleInfoCallback::getPotentiallyShootableHexes(const CStack * attacker, BattleHex destinationTile, BattleHex attackerPos) const
+AttackableTiles CBattleInfoCallback::getPotentiallyShootableHexes(const  battle::Unit * attacker, BattleHex destinationTile, BattleHex attackerPos) const
 {
 	//does not return hex attacked directly
 	AttackableTiles at;
@@ -1443,6 +1459,37 @@ AttackableTiles CBattleInfoCallback::getPotentiallyShootableHexes(const CStack *
 	}
 
 	return at;
+}
+
+std::vector<const battle::Unit*> CBattleInfoCallback::getAttackedBattleUnits(const battle::Unit* attacker, BattleHex destinationTile, bool rangedAttack, BattleHex attackerPos) const
+{
+	std::vector<const battle::Unit*> units;
+	RETURN_IF_NOT_BATTLE(units);
+
+	AttackableTiles at;
+
+	if (rangedAttack)
+		at = getPotentiallyShootableHexes(attacker, destinationTile, attackerPos);
+	else
+		at = getPotentiallyAttackableHexes(attacker, destinationTile, attackerPos);
+
+	units = battleGetUnitsIf([=](const battle::Unit * unit)
+	{
+		if (unit->isGhost() || !unit->alive()) {
+			return false;
+		}
+		for (BattleHex hex : battle::Unit::getHexes(unit->getPosition(), unit->doubleWide(), unit->unitSide())) {
+			if (vstd::contains(at.hostileCreaturePositions, hex)) {
+				return true;
+			}
+			if (vstd::contains(at.friendlyCreaturePositions, hex)) {
+				return true;
+			}
+		}
+		return false;
+	});
+
+	return units;
 }
 
 std::set<const CStack*> CBattleInfoCallback::getAttackedCreatures(const CStack* attacker, BattleHex destinationTile, bool rangedAttack, BattleHex attackerPos) const

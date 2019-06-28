@@ -20,5 +20,5 @@ public:
 	PotentialTargets(const battle::Unit * attacker, const HypotheticBattle * state);
 
 	AttackPossibility bestAction() const;
-	int bestActionValue() const;
+	int64_t bestActionValue() const;
 };

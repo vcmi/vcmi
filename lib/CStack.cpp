@@ -252,22 +252,53 @@ void CStack::prepareAttacked(BattleStackAttacked & bsa, vstd::RNG & rand, std::s
 	bsa.newState.operation = UnitChanges::EOperation::RESET_STATE;
 }
 
-bool CStack::isMeleeAttackPossible(const battle::Unit * attacker, const battle::Unit * defender, BattleHex attackerPos, BattleHex defenderPos)
+std::vector<BattleHex> CStack::meleeAttackHexes(const battle::Unit * attacker, const battle::Unit * defender, BattleHex attackerPos, BattleHex defenderPos)
 {
-	if(!attackerPos.isValid())
+	int mask = 0;
+	std::vector<BattleHex> res;
+
+	if (!attackerPos.isValid())
 		attackerPos = attacker->getPosition();
-	if(!defenderPos.isValid())
+	if (!defenderPos.isValid())
 		defenderPos = defender->getPosition();
 
-	return
-		(BattleHex::mutualPosition(attackerPos, defenderPos) >= 0)//front <=> front
-		|| (attacker->doubleWide()//back <=> front
-			&& BattleHex::mutualPosition(attackerPos + (attacker->unitSide() == BattleSide::ATTACKER ? -1 : 1), defenderPos) >= 0)
-		|| (defender->doubleWide()//front <=> back
-			&& BattleHex::mutualPosition(attackerPos, defenderPos + (defender->unitSide() == BattleSide::ATTACKER ? -1 : 1)) >= 0)
-		|| (defender->doubleWide() && attacker->doubleWide()//back <=> back
-			&& BattleHex::mutualPosition(attackerPos + (attacker->unitSide() == BattleSide::ATTACKER ? -1 : 1), defenderPos + (defender->unitSide() == BattleSide::ATTACKER ? -1 : 1)) >= 0);
+	BattleHex otherAttackerPos = attackerPos + (attacker->unitSide() == BattleSide::ATTACKER ? -1 : 1);
+	BattleHex otherDefenderPos = defenderPos + (defender->unitSide() == BattleSide::ATTACKER ? -1 : 1);
 
+	if(BattleHex::mutualPosition(attackerPos, defenderPos) >= 0) { //front <=> front
+		if((mask & 1) == 0) {
+			mask |= 1;
+			res.push_back(defenderPos);
+		}
+	}
+	if (attacker->doubleWide() //back <=> front
+		&& BattleHex::mutualPosition(otherAttackerPos, defenderPos) >= 0) {
+		if((mask & 1) == 0) {
+			mask |= 1;
+			res.push_back(defenderPos);
+		}
+	}
+	if (defender->doubleWide()//front <=> back
+		&& BattleHex::mutualPosition(attackerPos, otherDefenderPos) >= 0) {
+		if((mask & 2) == 0) {
+			mask |= 2;
+			res.push_back(otherDefenderPos);
+		}
+	}
+	if (defender->doubleWide() && attacker->doubleWide()//back <=> back
+		&& BattleHex::mutualPosition(otherAttackerPos, otherDefenderPos) >= 0) {
+		if((mask & 2) == 0) {
+			mask |= 2;
+			res.push_back(otherDefenderPos);
+		}
+	}
+
+	return res;
+}
+
+bool CStack::isMeleeAttackPossible(const battle::Unit * attacker, const battle::Unit * defender, BattleHex attackerPos, BattleHex defenderPos)
+{
+	return !meleeAttackHexes(attacker, defender, attackerPos, defenderPos).empty();
 }
 
 std::string CStack::getName() const

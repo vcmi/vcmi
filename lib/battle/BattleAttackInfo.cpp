@@ -19,6 +19,8 @@ BattleAttackInfo::BattleAttackInfo(const battle::Unit * Attacker, const battle::
 	chargedFields = 0;
 	additiveBonus = 0.0;
 	multBonus = 1.0;
+	attackerPos = BattleHex::INVALID;
+	defenderPos = BattleHex::INVALID;
 }
 
 BattleAttackInfo BattleAttackInfo::reverse() const
@@ -26,6 +28,7 @@ BattleAttackInfo BattleAttackInfo::reverse() const
 	BattleAttackInfo ret = *this;
 
 	std::swap(ret.attacker, ret.defender);
+	std::swap(ret.defenderPos, ret.attackerPos);
 
 	ret.shooting = false;
 	ret.chargedFields = 0;

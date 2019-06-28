@@ -53,7 +53,7 @@ PotentialTargets::PotentialTargets(const battle::Unit * attacker, const Hypothet
 			if(hex.isValid() && !shooting)
 				bai.chargedFields = reachability.distances[hex];
 
-			return AttackPossibility::evaluate(bai, hex);
+			return AttackPossibility::evaluate(bai, hex, state);
 		};
 
 		if(forceTarget)
@@ -69,21 +69,45 @@ PotentialTargets::PotentialTargets(const battle::Unit * attacker, const Hypothet
 		}
 		else
 		{
-			for(BattleHex hex : avHexes)
-				if(CStack::isMeleeAttackPossible(attackerInfo, defender, hex))
-					possibleAttacks.push_back(GenerateAttackInfo(false, hex));
+			for(BattleHex hex : avHexes) {
+				if(!CStack::isMeleeAttackPossible(attackerInfo, defender, hex))
+					continue;
+
+				auto bai = GenerateAttackInfo(false, hex);
+				if(!bai.affectedUnits.empty())
+					possibleAttacks.push_back(bai);
+			}
 
 			if(!vstd::contains_if(possibleAttacks, [=](const AttackPossibility & pa) { return pa.attack.defender->unitId() == defender->unitId(); }))
 				unreachableEnemies.push_back(defender);
 		}
 	}
+
+	boost::sort(possibleAttacks, [](const AttackPossibility & lhs, const AttackPossibility & rhs) -> bool
+	{
+		if(lhs.collateralDamage < rhs.collateralDamage)
+			return false;
+		if(lhs.collateralDamage > rhs.collateralDamage)
+			return true;
+		return (lhs.damageDealt + lhs.shootersBlockedDmg + lhs.damageReceived > rhs.damageDealt + rhs.shootersBlockedDmg + rhs.damageReceived);
+	});
+
+	if (!possibleAttacks.empty())
+	{
+		auto &bestAp = possibleAttacks[0];
+
+		logGlobal->info("Battle AI best: %s -> %s at %d from %d, affects %d units: %d %d %d %s",
+			VLC->creh->creatures.at(bestAp.attackerState->creatureId())->identifier.c_str(),
+			VLC->creh->creatures.at(state->battleGetUnitByPos(bestAp.dest)->creatureId())->identifier.c_str(),
+			(int)bestAp.dest, (int)bestAp.from, (int)bestAp.affectedUnits.size(),
+			(int)bestAp.damageDealt, (int)bestAp.damageReceived, (int)bestAp.collateralDamage, (int)bestAp.shootersBlockedDmg);
+	}
 }
 
-int PotentialTargets::bestActionValue() const
+int64_t PotentialTargets::bestActionValue() const
 {
 	if(possibleAttacks.empty())
 		return 0;
-
 	return bestAction().attackValue();
 }
 
@@ -91,6 +115,6 @@ AttackPossibility PotentialTargets::bestAction() const
 {
 	if(possibleAttacks.empty())
 		throw std::runtime_error("No best action, since we don't have any actions");
-
-	return *vstd::maxElementByFun(possibleAttacks, [](const AttackPossibility &ap) { return ap.attackValue(); } );
+	return possibleAttacks[0];
+	//return *vstd::maxElementByFun(possibleAttacks, [](const AttackPossibility &ap) { return ap.attackValue(); } );
 }
