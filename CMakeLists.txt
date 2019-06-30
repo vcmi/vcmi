@@ -232,8 +232,11 @@ if(ENABLE_LAUNCHER)
 endif()
 
 if(ENABLE_LUA)
-	set(LUA_INCLUDE_DIR "/usr/lib/mxe/usr/i686-w64-mingw32.static/include/luajit-2.0")
-	set(LUA_LIBRARY "/usr/lib/mxe/usr/i686-w64-mingw32.static/lib/libluajit-5.1.a")
+	# MXE paths hardcoded for current dependencies pack - tried and could not make it work another way
+	if((MINGW) AND (${CMAKE_CROSSCOMPILING}) AND (DEFINED MSYS))
+		set(LUA_INCLUDE_DIR "/usr/lib/mxe/usr/i686-w64-mingw32.static/include/luajit-2.0")
+		set(LUA_LIBRARY "/usr/lib/mxe/usr/i686-w64-mingw32.static/lib/libluajit-5.1.a")
+	endif()
 	find_package(LuaJIT)
 	if(LUAJIT_FOUND)
 		message(STATUS "Using LuaJIT provided by system")
