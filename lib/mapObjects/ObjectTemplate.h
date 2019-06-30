@@ -10,27 +10,57 @@
 #pragma once
 
 #include "../GameConstants.h"
+#include "../int3.h"
 
 class CBinaryReader;
 class CLegacyConfigParser;
 class JsonNode;
 class int3;
 
+typedef ui8 TBlockMapBits;
+
+enum class EBlockMapBits : TBlockMapBits
+{
+	EMPTY = 0, //default, with no effect
+	VISIBLE = 1,
+	VISITABLE = 2,
+	BLOCKED = 4
+};
+
+inline EBlockMapBits& operator |=(EBlockMapBits& a, EBlockMapBits b) noexcept
+{
+	return a = static_cast<EBlockMapBits>(static_cast<TBlockMapBits>(a) | static_cast<TBlockMapBits>(b));
+}
+
+inline EBlockMapBits operator |(EBlockMapBits a, EBlockMapBits b) noexcept
+{
+	return static_cast<EBlockMapBits>(static_cast<TBlockMapBits>(a) | static_cast<TBlockMapBits>(b));
+}
+
+inline const bool& operator &(const EBlockMapBits& a, EBlockMapBits b) noexcept
+{
+	return (static_cast<TBlockMapBits>(a) & static_cast<TBlockMapBits>(b));
+}
+
 class DLL_LINKAGE ObjectTemplate
 {
-	enum EBlockMapBits
+	enum usedTilesDimensions
 	{
-		VISIBLE = 1,
-		VISITABLE = 2,
-		BLOCKED = 4
+		TILES_WIDTH = 8,
+		TILES_HEIGHT = 6
 	};
 
 	/// tiles that are covered by this object, uses EBlockMapBits enum as flags
-	std::vector<std::vector<ui8>> usedTiles;
+	//std::vector<std::vector<ui8>> usedTiles;
+	boost::multi_array <EBlockMapBits, 2> usedTiles; //[x][y]
 	/// directions from which object can be entered, format same as for moveDir in CGHeroInstance(but 0 - 7)
 	ui8 visitDir;
 	/// list of terrains on which this object can be placed
 	std::set<ETerrainType> allowedTerrains;
+
+	//TODO: precalculate at init / construction
+	ui32 width, height;
+	int3 visitableOffset;
 
 	void afterLoadFixup();
 
@@ -84,11 +114,15 @@ public:
 	void readJson(const JsonNode & node, const bool withTerrain = true);
 	void writeJson(JsonNode & node, const bool withTerrain = true) const;
 
-	bool operator==(const ObjectTemplate& ot) const { return (id == ot.id && subid == ot.subid); }
+	bool operator==(const ObjectTemplate& ot) const
+	{
+		return (id == ot.id && subid == ot.subid);
+	}
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & usedTiles;
+		h & usedTiles; //TODO: serialize
+		//TODO: backward compatibility
 		h & allowedTerrains;
 		h & animationFile;
 		h & stringID;
