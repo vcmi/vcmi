@@ -4,7 +4,7 @@ git submodule update --init --recursive
 cd ..
 
 curl -LfsS -o "vcpkg-export-${VCMI_BUILD_PLATFORM}-windows-v140.7z" \
-	"https://github.com/vcmi/vcmi-deps-windows/releases/download/v1/vcpkg-export-${VCMI_BUILD_PLATFORM}-windows-v140.7z"
+	"https://github.com/vcmi/vcmi-deps-windows/releases/download/v1.2/vcpkg-export-${VCMI_BUILD_PLATFORM}-windows-v140.7z"
 7z x "vcpkg-export-${VCMI_BUILD_PLATFORM}-windows-v140.7z"
 
 cd $APPVEYOR_BUILD_FOLDER
