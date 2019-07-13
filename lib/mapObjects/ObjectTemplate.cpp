@@ -58,52 +58,6 @@ ObjectTemplate::ObjectTemplate():
 	setSize(TILES_WIDTH, TILES_HEIGHT);
 }
 
-//TODO: use default constructor if possible
-
-ObjectTemplate::ObjectTemplate(const ObjectTemplate& other):
-	visitDir(other.visitDir),
-	allowedTerrains(other.allowedTerrains),
-	id(other.id),
-	subid(other.subid),
-	printPriority(other.printPriority),
-	animationFile(other.animationFile),
-	editorAnimationFile(other.editorAnimationFile),
-	stringID(other.stringID),
-	usedTiles(other.usedTiles),
-	visitableOffset(other.visitableOffset)
-{
-	setSize(other.width, other.height);
-
-	//default copy constructor is failing with usedTiles this for unknown reason
-	/*
-	usedTiles.resize(other.usedTiles.size());
-	for(size_t i = 0; i < usedTiles.size(); i++)
-		std::copy(other.usedTiles[i].begin(), other.usedTiles[i].end(), std::back_inserter(usedTiles[i]));
-		*/
-}
-
-ObjectTemplate & ObjectTemplate::operator=(const ObjectTemplate & rhs)
-{
-	visitDir = rhs.visitDir;
-	allowedTerrains = rhs.allowedTerrains;
-	id = rhs.id;
-	subid = rhs.subid;
-	printPriority = rhs.printPriority;
-	animationFile = rhs.animationFile;
-	editorAnimationFile = rhs.editorAnimationFile;
-	stringID = rhs.stringID;
-
-	//TODO: how to properly assign multi_array?
-
-	usedTiles = rhs.usedTiles;
-	/*
-	usedTiles.resize(rhs.usedTiles.size());
-	for(size_t i = 0; i < usedTiles.size(); i++)
-		std::copy(rhs.usedTiles[i].begin(), rhs.usedTiles[i].end(), std::back_inserter(usedTiles[i]));
-		*/
-	return *this;
-}
-
 void ObjectTemplate::afterLoadFixup()
 {
 	if(id == Obj::EVENT)
