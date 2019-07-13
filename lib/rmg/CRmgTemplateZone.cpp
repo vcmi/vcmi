@@ -925,7 +925,7 @@ bool CRmgTemplateZone::createTreasurePile(int3 &pos, float minDistance, const CT
 				possibleObjects.erase(oiptr);
 
 			//update treasure pile area
-			int3 visitablePos = info.nextTreasurePos;
+			int3 visitablePos = info.nextTreasurePos + oi.templ.getVisitableOffset();
 
 			if (oi.templ.isVisitableFromTop())
 				info.visitableFromTopPositions.insert(visitablePos); //can be accessed from any direction
@@ -938,7 +938,7 @@ bool CRmgTemplateZone::createTreasurePile(int3 &pos, float minDistance, const CT
 				info.occupiedPositions.insert(blockPos);
 				info.blockedPositions.insert(blockPos);
 			}
-			info.occupiedPositions.insert(visitablePos + oi.templ.getVisitableOffset());
+			info.occupiedPositions.insert(visitablePos); //add object entrance to occupied tiles
 
 			currentValue += oi.value;
 
@@ -1053,8 +1053,6 @@ bool CRmgTemplateZone::createTreasurePile(int3 &pos, float minDistance, const CT
 			for (auto treasure : treasures)
 			{
 				int3 visitableOffset = treasure.second->getVisitableOffset();
-				if (treasure.second->ID == Obj::SEER_HUT) //FIXME: find generic solution or figure out why Seer Hut doesn't behave correctly
-					visitableOffset.x += 1;
 				placeObject(treasure.second, treasure.first + visitableOffset);
 			}
 			if (addMonster(guardPos, currentValue, false))
