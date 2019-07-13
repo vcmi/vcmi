@@ -369,13 +369,11 @@ void ObjectTemplate::precalculateOffsets() //call when object mask is changed or
 
 void ObjectTemplate::calculateWidthHeight()
 {
-	si32 val = 0; //signed as may temporarily become negative
+	//sizes are calculated from bottom-right corner (0, 0) to the farthest edge
 
-	ui32 minX = 9999; //will be reduced
+	//minimum size is (1, 1)
 	ui32 maxX = 0; //will grow
-
-	ui32 minY = 9999; //will be reduced
-	ui32 maxY = 0; //will grow
+	ui32 maxY = 0;
 
 	for (int x = 0; x < usedTiles.shape()[0]; x++) //iterate over actual bounds
 	{
@@ -383,25 +381,13 @@ void ObjectTemplate::calculateWidthHeight()
 		{
 			if (usedTiles[x][y] != EBlockMapBits::EMPTY)
 			{
-				vstd::amin(minX, x); //assign value if smaller
 				vstd::amax(maxX, x); //assign value if greater
-
-				vstd::amin(minY, y); //assign value if smaller
 				vstd::amax(maxY, y); //assign value if greater
 			}
 		}
 	}
-	val = (maxX - minX) + 1; //subtract ends to get width. if ends are equal, width is 1
-	vstd::amax(val, 0); //Cannot be negative.
-	vstd::amin(val, TILES_WIDTH); // Cannot exceed max width.
-
-	width = val;
-
-	val = (maxY - minY) + 1; //subtract ends to get width. if ends are equal, width is 1
-	vstd::amax(val, 0); //Cannot be negative.
-	vstd::amin(val, TILES_HEIGHT); // Cannot exceed max height.
-
-	height = val;
+	width = std::min<ui32>(maxX + 1, TILES_WIDTH); // Cannot exceed max width.
+	height = std::min<ui32>(maxY + 1, TILES_HEIGHT); // Cannot exceed max height.
 }
 
 ui32 ObjectTemplate::getWidth() const
