@@ -349,10 +349,10 @@ public:
 	void save(const boost::multi_array<T, 2> & data)
 	{
 		ui32 length = data.num_elements();
-		*this& length;
+		save(length);
 		auto shape = data.shape();
-		ui32 x = shape[0], y = shape[1];
-		*this& x& y;
+		save(shape[0]); //x
+		save(shape[1]); //y
 		for (ui32 i = 0; i < length; i++)
 			save(data.data()[i]);
 	}
@@ -361,10 +361,11 @@ public:
 	void save(const boost::multi_array<T, 3> & data)
 	{
 		ui32 length = data.num_elements();
-		*this& length;
+		save(length);
 		auto shape = data.shape();
-		ui32 x = shape[0], y = shape[1], z = shape[2];
-		*this& x& y& z;
+		save(shape[0]); //x
+		save(shape[1]); //y
+		save(shape[2]); //z
 		for (ui32 i = 0; i < length; i++)
 			save(data.data()[i]);
 	}

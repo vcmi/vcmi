@@ -109,6 +109,9 @@ public:
 
 	ObjectTemplate();
 
+	ObjectTemplate(const ObjectTemplate & other) = default;
+	ObjectTemplate& operator=(const ObjectTemplate & rhs) = default;
+
 	void readTxt(CLegacyConfigParser & parser);
 	void readMsk();
 	void readMap(CBinaryReader & reader);
@@ -124,35 +127,29 @@ public:
 	{
 		if (version >= 792)
 		{
+			h & usedTiles;
 			h & width;
 			h & height;
 			h & visitableOffset;
 			h & blockMapOffset;
+		}
+		else if (!h.saving) 
+		{
+			//load from old formar
 
-			if (h.saving)
+			setSize(width, height); //initialize multi_array<2>
+
+			std::vector<std::vector<ui8>> oldTiles;
+			oldTiles.resize(width);
+			for (int i = 0; i < width; ++i)
 			{
-				h & usedTiles;
-			}
-			else //load vector of vectors from old save to multi_array<2>
-			{	
-				setSize(width, height); //initialize multi_array<2>
-
-				std::vector<std::vector<ui8>> oldTiles;
-				oldTiles.resize(width);
-				for (int i = 0; i < width; ++i)
+				oldTiles[i].resize(height);
+				for (int j = 0; j < height; ++j)
 				{
-					oldTiles[i].resize(height);
-					for (int j = 0; j < height; ++j)
-					{
-						h & oldTiles[i][j]; //deserialize vector of vectors
-						usedTiles[i][j] = static_cast<EBlockMapBits>(oldTiles[i][j]); //copy to multi_array<2>
-					}
+					h& oldTiles[i][j]; //deserialize vector of vectors
+					usedTiles[i][j] = static_cast<EBlockMapBits>(oldTiles[i][j]); //copy to multi_array<2>
 				}
 			}
-		}
-		else 
-		{
-			h & usedTiles; //old format
 		}
 
 		h & allowedTerrains;

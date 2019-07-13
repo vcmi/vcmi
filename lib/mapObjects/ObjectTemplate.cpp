@@ -28,7 +28,6 @@ static bool isOnVisitableFromTopList(int identifier, int type)
 	if(type == 2 || type == 3 || type == 4 || type == 5) //creature, hero, artifact, resource
 		return true;
 
-	//TODO: this list needs to be extendable by mods
 	static const Obj visitableFromTop[] =
 		{Obj::FLOTSAM,
 		Obj::SEA_CHEST,
@@ -83,9 +82,6 @@ void ObjectTemplate::readTxt(CLegacyConfigParser & parser)
 
 	std::string & blockStr = strings[1]; //block map, 0 = blocked, 1 = unblocked
 	std::string & visitStr = strings[2]; //visit map, 1 = visitable, 0 = not visitable
-
-	assert(blockStr.size() == TILES_HEIGHT * TILES_WIDTH);
-	assert(visitStr.size() == TILES_HEIGHT * TILES_WIDTH);
 
 	setSize(TILES_WIDTH, TILES_HEIGHT);
 	
