@@ -61,8 +61,13 @@ class DLL_LINKAGE ObjectTemplate
 	//TODO: precalculate at init / construction
 	ui32 width, height;
 	int3 visitableOffset;
+	int3 blockMapOffset;
 
 	void afterLoadFixup();
+	void precalculateOffsets();
+	void calculateWidthHeight();
+	void calculateVisitableOffset();
+	void calculateBlockMapOffset();
 
 public:
 	/// H3 ID/subID of this object
@@ -115,10 +120,41 @@ public:
 		return (id == ot.id && subid == ot.subid);
 	}
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler& h, const int version)
 	{
-		h & usedTiles; //TODO: serialize
-		//TODO: backward compatibility
+		if (version >= 792)
+		{
+			h & width;
+			h & height;
+			h & visitableOffset;
+			h & blockMapOffset;
+
+			if (h.saving)
+			{
+				h & usedTiles;
+			}
+			else //load vector of vectors from old save to multi_array<2>
+			{	
+				setSize(width, height); //initialize multi_array<2>
+
+				std::vector<std::vector<ui8>> oldTiles;
+				oldTiles.resize(width);
+				for (int i = 0; i < width; ++i)
+				{
+					oldTiles[i].resize(height);
+					for (int j = 0; j < height; ++j)
+					{
+						h & oldTiles[i][j]; //deserialize vector of vectors
+						usedTiles[i][j] = static_cast<EBlockMapBits>(oldTiles[i][j]); //copy to multi_array<2>
+					}
+				}
+			}
+		}
+		else 
+		{
+			h & usedTiles; //old format
+		}
+
 		h & allowedTerrains;
 		h & animationFile;
 		h & stringID;
@@ -126,6 +162,7 @@ public:
 		h & subid;
 		h & printPriority;
 		h & visitDir;
+
 		if(version >= 770)
 		{
 			h & editorAnimationFile;
