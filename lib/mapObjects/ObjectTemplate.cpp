@@ -53,7 +53,9 @@ ObjectTemplate::ObjectTemplate():
 	id(Obj::NO_OBJ),
 	subid(0),
 	printPriority(0),
-	stringID("")
+	stringID(""),
+	width(TILES_WIDTH),
+	height(TILES_HEIGHT)
 {
 	setSize(TILES_WIDTH, TILES_HEIGHT);
 }
@@ -132,7 +134,7 @@ void ObjectTemplate::readMsk()
 	if (CResourceHandler::get()->existsResource(resID))
 	{
 		auto msk = CResourceHandler::get()->load(resID)->readAll();
-		setSize(msk.first.get()[0], msk.first.get()[1]); //TODO: shouldn't it be transposed?
+		setSize(msk.first.get()[0], msk.first.get()[1]);
 	}
 	else //maximum possible size of H3 object //TODO: load object of any size from mods
 	{
@@ -251,7 +253,7 @@ void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
 
 	//calculate width, height
 	size_t h = mask.size();
-	size_t w  = 0;
+	size_t w = 0;
 	for (auto & line : mask)
 		vstd::amax(w, line.String().size());
 
@@ -412,11 +414,12 @@ ui32 ObjectTemplate::getHeight() const
 	return height;
 }
 
-void ObjectTemplate::setSize(ui32 width, ui32 height)
+void ObjectTemplate::setSize(ui32 Width, ui32 Height)
 {
-	vstd::amax(width, 1); //minimum size is (1,1)?
-	vstd::amax(height, 1);
-	usedTiles.resize(boost::extents[width][height]);
+	//the function does NOT modify this->width; this->height
+	vstd::amax(Width, 1); //minimum size is (1,1)?
+	vstd::amax(Height, 1);
+	usedTiles.resize(boost::extents[Width][Height]);
 
 	//calculateWidthHeight(); //TODO: what are the use cases of resizing an object?
 }
