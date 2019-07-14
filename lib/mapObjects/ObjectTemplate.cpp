@@ -461,7 +461,10 @@ void ObjectTemplate::calculateBlockMapOffset()
 		for (int h = 0; h < height; ++h)
 		{
 			if (isBlockedAt(w, h))
+			{
 				blockMapOffset = int3(w, h, 0);
+				return; //stop at first
+			}
 		}
 	}
 }
@@ -501,6 +504,7 @@ void ObjectTemplate::calculateVisitableOffset()
 			if (isVisitableAt(x, y))
 			{
 				visitableOffset = int3(x, y, 0);
+				return; //stop at first
 			}
 		}
 	}
