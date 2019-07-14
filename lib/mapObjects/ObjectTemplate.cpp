@@ -91,7 +91,7 @@ void ObjectTemplate::readTxt(CLegacyConfigParser & parser)
 	{
 		for (size_t i = 0; i < TILES_HEIGHT; i++) // 6 rows
 		{
-			auto & tile = usedTiles[i][j];
+			auto & tile = usedTiles[j][i];
 			tile |= EBlockMapBits::VISIBLE; // assume that all tiles are visible
 			if (blockStr[i * TILES_WIDTH + j] == '0')
 				tile |= EBlockMapBits::BLOCKED;
