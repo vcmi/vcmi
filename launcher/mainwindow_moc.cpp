@@ -50,12 +50,12 @@ MainWindow::MainWindow(QWidget * parent)
 	QSettings s(Ui::teamName, Ui::appName);
 
 	auto size = s.value("MainWindow/Size").toSize();
-	if (size.isValid())
+	if(size.isValid())
 	{
 		resize(size);
 	}
 	auto position = s.value("MainWindow/Position").toPoint();
-	if (!position.isNull())
+	if(!position.isNull())
 	{
 		move(position);
 	}

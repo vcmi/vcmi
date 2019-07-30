@@ -49,7 +49,7 @@ void CModListView::setupModsView()
 
 	QSettings s(Ui::teamName, Ui::appName);
 	auto state = s.value("AllModsView/State").toByteArray();
-	if (!state.isNull()) //read last saved settings
+	if(!state.isNull()) //read last saved settings
 	{
 		ui->allModsView->header()->restoreState(state);
 	}
