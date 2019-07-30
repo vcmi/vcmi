@@ -14,6 +14,8 @@
 namespace Ui
 {
 class MainWindow;
+const QString teamName = "VCMI Team";
+const QString appName = "VCMI Launcher";
 }
 
 class QTableWidgetItem;
