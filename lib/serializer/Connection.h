@@ -14,6 +14,11 @@
 
 struct CPack;
 
+#if BOOST_VERSION >= 107000  // Boost version >= 1.70
+#include <boost/asio.hpp>
+typedef boost::asio::basic_stream_socket < boost::asio::ip::tcp > TSocket;
+typedef boost::asio::basic_socket_acceptor < boost::asio::ip::tcp > TAcceptor;
+#else
 namespace boost
 {
 	namespace asio
@@ -43,6 +48,8 @@ namespace boost
 
 typedef boost::asio::basic_stream_socket < boost::asio::ip::tcp , boost::asio::stream_socket_service<boost::asio::ip::tcp>  > TSocket;
 typedef boost::asio::basic_socket_acceptor<boost::asio::ip::tcp, boost::asio::socket_acceptor_service<boost::asio::ip::tcp> > TAcceptor;
+#endif
+
 
 /// Main class for network communication
 /// Allows establishing connection and bidirectional read-write
