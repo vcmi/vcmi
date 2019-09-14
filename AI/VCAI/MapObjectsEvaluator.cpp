@@ -26,7 +26,7 @@ MapObjectsEvaluator::MapObjectsEvaluator()
 		for(auto secondaryID : VLC->objtypeh->knownSubObjects(primaryID))
 		{
 			auto handler = VLC->objtypeh->getHandlerFor(primaryID, secondaryID);
-			if(!handler->isStaticObject())
+			if(handler && !handler->isStaticObject())
 			{
 				if(handler->getAiValue() != boost::none)
 				{
