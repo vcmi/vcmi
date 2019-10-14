@@ -69,6 +69,9 @@
         <height>89</height>
        </size>
       </property>
+      <property name="movement">
+       <enum>QListView::Static</enum>
+      </property>
       <property name="flow">
        <enum>QListView::TopToBottom</enum>
       </property>
@@ -138,7 +141,7 @@
        </sizepolicy>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="CModListView" name="stackedWidgetPage2"/>
       <widget class="CSettingsView" name="settingsView"/>

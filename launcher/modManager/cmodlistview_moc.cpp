@@ -11,6 +11,7 @@
 #include "cmodlistview_moc.h"
 #include "ui_cmodlistview_moc.h"
 #include "imageviewer_moc.h"
+#include "../mainwindow_moc.h"
 
 #include <QJsonArray>
 #include <QCryptographicHash>
@@ -42,15 +43,25 @@ void CModListView::setupModsView()
 	ui->allModsView->setModel(filterModel);
 	// input data is not sorted - sort it before display
 	ui->allModsView->sortByColumn(ModFields::TYPE, Qt::AscendingOrder);
-	ui->allModsView->setColumnWidth(ModFields::NAME, 185);
-	ui->allModsView->setColumnWidth(ModFields::STATUS_ENABLED, 30);
-	ui->allModsView->setColumnWidth(ModFields::STATUS_UPDATE, 30);
-	ui->allModsView->setColumnWidth(ModFields::TYPE, 75);
-	ui->allModsView->setColumnWidth(ModFields::SIZE, 80);
-	ui->allModsView->setColumnWidth(ModFields::VERSION, 60);
 
 	ui->allModsView->header()->setSectionResizeMode(ModFields::STATUS_ENABLED, QHeaderView::Fixed);
 	ui->allModsView->header()->setSectionResizeMode(ModFields::STATUS_UPDATE, QHeaderView::Fixed);
+
+	QSettings s(Ui::teamName, Ui::appName);
+	auto state = s.value("AllModsView/State").toByteArray();
+	if(!state.isNull()) //read last saved settings
+	{
+		ui->allModsView->header()->restoreState(state);
+	}
+	else //default //TODO: default high-DPI scaling
+	{
+		ui->allModsView->setColumnWidth(ModFields::NAME, 185);
+		ui->allModsView->setColumnWidth(ModFields::STATUS_ENABLED, 30);
+		ui->allModsView->setColumnWidth(ModFields::STATUS_UPDATE, 30);
+		ui->allModsView->setColumnWidth(ModFields::TYPE, 75);
+		ui->allModsView->setColumnWidth(ModFields::SIZE, 80);
+		ui->allModsView->setColumnWidth(ModFields::VERSION, 60);
+	}
 
 	ui->allModsView->setUniformRowHeights(true);
 
@@ -69,6 +80,7 @@ CModListView::CModListView(QWidget * parent)
 {
 	settingsListener([&](const JsonNode &){ repositoriesChanged = true; });
 	ui->setupUi(this);
+
 
 	setupModModel();
 	setupFilterModel();
@@ -104,6 +116,9 @@ void CModListView::loadRepositories()
 
 CModListView::~CModListView()
 {
+	QSettings s(Ui::teamName, Ui::appName);
+	s.setValue("AllModsView/State", ui->allModsView->header()->saveState());
+
 	delete ui;
 }
 

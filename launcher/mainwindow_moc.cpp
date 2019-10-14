@@ -45,6 +45,23 @@ MainWindow::MainWindow(QWidget * parent)
 	load(); // load FS before UI
 
 	ui->setupUi(this);
+
+	//load window settings
+	QSettings s(Ui::teamName, Ui::appName);
+
+	auto size = s.value("MainWindow/Size").toSize();
+	if(size.isValid())
+	{
+		resize(size);
+	}
+	auto position = s.value("MainWindow/Position").toPoint();
+	if(!position.isNull())
+	{
+		move(position);
+	}
+
+	//set default margins
+
 	auto width = ui->startGameTitle->fontMetrics().boundingRect(ui->startGameTitle->text()).width();
 	if(ui->startGameButton->iconSize().width() < width)
 	{
@@ -67,6 +84,11 @@ MainWindow::MainWindow(QWidget * parent)
 
 MainWindow::~MainWindow()
 {
+	//save window settings
+	QSettings s(Ui::teamName, Ui::appName);
+	s.setValue("MainWindow/Size", size());
+	s.setValue("MainWindow/Position", pos());
+
 	delete ui;
 }
 
