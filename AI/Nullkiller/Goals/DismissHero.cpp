@@ -48,8 +48,3 @@ std::string DismissHero::name() const
 {
 	return "DismissHero " + hero.name;
 }
-
-std::string DismissHero::completeMessage() const
-{
-	return "Hero dismissed successfully " + hero.name;
-}

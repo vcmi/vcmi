@@ -16,7 +16,7 @@
 
 using namespace AIPathfinding;
 
-Goals::TSubgoal TownPortalAction::whatToDo(const HeroPtr & hero) const
+Goals::TSubgoal TownPortalAction::whatToDo(const CGHeroInstance * hero) const
 {
 	const CGTownInstance * targetTown = target; // const pointer is not allowed in settown
 

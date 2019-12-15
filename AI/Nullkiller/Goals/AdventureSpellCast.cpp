@@ -77,8 +77,3 @@ std::string AdventureSpellCast::name() const
 {
 	return "AdventureSpellCast " + spellID.toSpell()->name;
 }
-
-std::string AdventureSpellCast::completeMessage() const
-{
-	return "Spell casted successfully  " + spellID.toSpell()->name;
-}

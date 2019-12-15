@@ -47,12 +47,6 @@ namespace Goals
 			bid = Bid;
 			priority = 1;
 		}
-		TGoalVec getAllPossibleSubgoals() override
-		{
-			return TGoalVec();
-		}
-		TSubgoal whatToDoToAchieve() override;
-		//bool fulfillsMe(TSubgoal goal) override;
 		virtual bool operator==(const BuildThis & other) const override;
 		virtual std::string name() const override;
 	};

@@ -17,19 +17,12 @@ set(VCAI_SRCS
 		AIhelper.cpp
 		ArmyManager.cpp
 		HeroManager.cpp
-		ResourceManager.cpp
-		BuildingManager.cpp
-		SectorMap.cpp
-		BuildingManager.cpp
 		MapObjectsEvaluator.cpp
 		FuzzyEngines.cpp
 		FuzzyHelper.cpp
 		Goals/AbstractGoal.cpp
 		Goals/BuildBoat.cpp
-		Goals/Build.cpp
 		Goals/BuildThis.cpp
-		Goals/Explore.cpp
-		Goals/GatherArmy.cpp
 		Goals/DismissHero.cpp
 		Goals/GatherTroops.cpp
 		Goals/BuyArmy.cpp
@@ -41,8 +34,6 @@ set(VCAI_SRCS
 		Goals/CollectRes.cpp
 		Goals/Trade.cpp
 		Goals/RecruitHero.cpp
-		Goals/Conquer.cpp
-		Goals/ClearWayTo.cpp
 		Goals/DigAtTile.cpp
 		Goals/GetArtOfType.cpp
 		Goals/FindObj.cpp
@@ -85,10 +76,6 @@ set(VCAI_HEADERS
 		AIhelper.h
 		ArmyManager.h
 		HeroManager.h
-		ResourceManager.h
-		BuildingManager.h
-		SectorMap.h
-		BuildingManager.h
 		MapObjectsEvaluator.h
 		FuzzyEngines.h
 		FuzzyHelper.h
@@ -96,10 +83,7 @@ set(VCAI_HEADERS
 		Goals/CGoal.h
 		Goals/Invalid.h
 		Goals/BuildBoat.h
-		Goals/Build.h
 		Goals/BuildThis.h
-		Goals/Explore.h
-		Goals/GatherArmy.h
 		Goals/DismissHero.h
 		Goals/GatherTroops.h
 		Goals/BuyArmy.h
@@ -111,8 +95,6 @@ set(VCAI_HEADERS
 		Goals/CollectRes.h
 		Goals/Trade.h
 		Goals/RecruitHero.h
-		Goals/Conquer.h
-		Goals/ClearWayTo.h
 		Goals/DigAtTile.h
 		Goals/GetArtOfType.h
 		Goals/FindObj.h

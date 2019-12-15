@@ -12,8 +12,6 @@
 #include "../VCAI.h"
 #include "../AIhelper.h"
 #include "../FuzzyHelper.h"
-#include "../ResourceManager.h"
-#include "../BuildingManager.h"
 #include "../../../lib/mapping/CMap.h" //for victory conditions
 #include "../../../lib/CPathfinder.h"
 #include "../../../lib/StringConstants.h"
@@ -115,61 +113,10 @@ bool AbstractGoal::operator==(const AbstractGoal & g) const
 	return false;
 }
 
-bool AbstractGoal::operator<(AbstractGoal & g) //for std::unique
-{
-	//TODO: make sure it gets goals consistent with == operator
-	if (goalType < g.goalType)
-		return true;
-	if (goalType > g.goalType)
-		return false;
-	if (hero < g.hero)
-		return true;
-	if (hero > g.hero)
-		return false;
-	if (tile < g.tile)
-		return true;
-	if (g.tile < tile)
-		return false;
-	if (objid < g.objid)
-		return true;
-	if (objid > g.objid)
-		return false;
-	if (town < g.town)
-		return true;
-	if (town > g.town)
-		return false;
-	if (value < g.value)
-		return true;
-	if (value > g.value)
-		return false;
-	if (priority < g.priority)
-		return true;
-	if (priority > g.priority)
-		return false;
-	if (resID < g.resID)
-		return true;
-	if (resID > g.resID)
-		return false;
-	if (bid < g.bid)
-		return true;
-	if (bid > g.bid)
-		return false;
-	if (aid < g.aid)
-		return true;
-	if (aid > g.aid)
-		return false;
-	return false;
-}
-
 //TODO: find out why the following are not generated automatically on MVS?
 bool TSubgoal::operator==(const TSubgoal & rhs) const
 {
 	return *get() == *rhs.get(); //comparison for Goals is overloaded, so they don't need to be identical to match
-}
-
-bool TSubgoal::operator<(const TSubgoal & rhs) const
-{
-	return get() < rhs.get(); //compae by value
 }
 
 bool AbstractGoal::invalid() const
@@ -180,11 +127,6 @@ bool AbstractGoal::invalid() const
 void AbstractGoal::accept(VCAI * ai)
 {
 	ai->tryRealize(*this);
-}
-
-float AbstractGoal::accept(FuzzyHelper * f)
-{
-	return f->evaluate(*this);
 }
 
 EvaluationContext::EvaluationContext()

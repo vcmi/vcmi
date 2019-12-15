@@ -72,27 +72,29 @@ void ExecuteHeroChain::accept(VCAI * ai)
 	{
 		auto & node = chainPath.nodes[i];
 
-		HeroPtr hero = node.targetHero;
+		const CGHeroInstance * hero = node.targetHero;
+		HeroPtr heroPtr = hero;
 
 		if(vstd::contains(blockedIndexes, i))
 		{
 			blockedIndexes.insert(node.parentIndex);
-			ai->nullkiller->lockHero(hero.get(), HeroLockedReason::HERO_CHAIN);
+			ai->nullkiller->lockHero(hero, HeroLockedReason::HERO_CHAIN);
 
 			continue;
 		}
 
-		logAi->debug("Executing chain node %d. Moving hero %s to %s", i, hero.name, node.coord.toString());
+		logAi->debug("Executing chain node %d. Moving hero %s to %s", i, hero->name, node.coord.toString());
 
 		try
 		{
 			if(hero->movement)
 			{
-				ai->nullkiller->setActive(hero.get(), node.coord);
+
+				ai->nullkiller->setActive(hero, node.coord);
 
 				if(node.specialAction)
 				{
-					if(node.specialAction->canAct(hero.get()))
+					if(node.specialAction->canAct(hero))
 					{
 						auto specialGoal = node.specialAction->whatToDo(hero);
 
@@ -100,12 +102,12 @@ void ExecuteHeroChain::accept(VCAI * ai)
 					}
 					else
 					{
-						//TODO: decompose
+						throw cannotFulfillGoalException("Path is nondeterministic.");
 					}
-
-					if(!hero.validAndSet())
+					
+					if(!heroPtr.validAndSet())
 					{
-						logAi->error("Hero %s was lost trying to execute special action. Exit hero chain.", hero.name);
+						logAi->error("Hero %s was lost trying to execute special action. Exit hero chain.", heroPtr.name);
 
 						return;
 					}
@@ -113,7 +115,7 @@ void ExecuteHeroChain::accept(VCAI * ai)
 
 				if(node.turns == 0 && node.coord != hero->visitablePos())
 				{
-					auto targetNode = cb->getPathsInfo(hero.get())->getPathInfo(node.coord);
+					auto targetNode = cb->getPathsInfo(hero)->getPathInfo(node.coord);
 
 					if(targetNode->accessible == CGPathNode::EAccessibility::NOT_SET
 						|| targetNode->accessible == CGPathNode::EAccessibility::BLOCKED
@@ -122,7 +124,7 @@ void ExecuteHeroChain::accept(VCAI * ai)
 					{
 						logAi->error(
 							"Enable to complete chain. Expected hero %s to arive to %s in 0 turns but he can not do this",
-							hero.name,
+							hero->name,
 							node.coord.toString());
 
 						return;
@@ -137,9 +139,9 @@ void ExecuteHeroChain::accept(VCAI * ai)
 					}
 					catch(cannotFulfillGoalException)
 					{
-						if(!hero.validAndSet())
+						if(!heroPtr.validAndSet())
 						{
-							logAi->error("Hero %s was lost. Exit hero chain.", hero.name);
+							logAi->error("Hero %s was lost. Exit hero chain.", heroPtr.name);
 
 							return;
 						}
@@ -147,13 +149,13 @@ void ExecuteHeroChain::accept(VCAI * ai)
 						if(hero->movement > 0)
 						{
 							CGPath path;
-							bool isOk = cb->getPathsInfo(hero.get())->getPath(path, node.coord);
+							bool isOk = cb->getPathsInfo(hero)->getPath(path, node.coord);
 
 							if(isOk && path.nodes.back().turns > 0)
 							{
-								logAi->warn("Hero %s has %d mp which is not enough to continue his way towards %s.", hero.name, hero->movement, node.coord.toString());
+								logAi->warn("Hero %s has %d mp which is not enough to continue his way towards %s.", hero->name, hero->movement, node.coord.toString());
 
-								ai->nullkiller->lockHero(hero.get(), HeroLockedReason::HERO_CHAIN);
+								ai->nullkiller->lockHero(hero, HeroLockedReason::HERO_CHAIN);
 								return;
 							}
 						}
@@ -170,7 +172,7 @@ void ExecuteHeroChain::accept(VCAI * ai)
 			{
 				logAi->error(
 					"Enable to complete chain. Expected hero %s to arive to %s but he is at %s", 
-					hero.name, 
+					hero->name, 
 					node.coord.toString(),
 					hero->visitablePos().toString());
 
@@ -178,14 +180,14 @@ void ExecuteHeroChain::accept(VCAI * ai)
 			}
 			
 			// no exception means we were not able to rich the tile
-			ai->nullkiller->lockHero(hero.get(), HeroLockedReason::HERO_CHAIN);
+			ai->nullkiller->lockHero(hero, HeroLockedReason::HERO_CHAIN);
 			blockedIndexes.insert(node.parentIndex);
 		}
 		catch(goalFulfilledException)
 		{
-			if(!hero)
+			if(!heroPtr.validAndSet())
 			{
-				logAi->debug("Hero %s was killed while attempting to rich %s", hero.name, node.coord.toString());
+				logAi->debug("Hero %s was killed while attempting to rich %s", heroPtr.name, node.coord.toString());
 
 				return;
 			}
@@ -196,9 +198,4 @@ void ExecuteHeroChain::accept(VCAI * ai)
 std::string ExecuteHeroChain::name() const
 {
 	return "ExecuteHeroChain " + targetName + " by " + chainPath.targetHero->name;
-}
-
-std::string ExecuteHeroChain::completeMessage() const
-{
-	return "Hero chain completed";
 }

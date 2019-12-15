@@ -10,7 +10,6 @@
 #include "StdInc.h"
 #include "FindObj.h"
 #include "VisitObj.h"
-#include "Explore.h"
 #include "../VCAI.h"
 #include "../AIUtility.h"
 
@@ -52,19 +51,4 @@ TSubgoal FindObj::whatToDoToAchieve()
 	}
 	if(o && ai->isAccessible(o->pos)) //we don't use isAccessibleForHero as we don't know which hero it is
 		return sptr(VisitObj(o->id.getNum()));
-	else
-		return sptr(Explore());
-}
-
-bool FindObj::fulfillsMe(TSubgoal goal)
-{
-	if (goal->goalType == VISIT_TILE) //visiting tile visits object at same time
-	{
-		if (!hero || hero == goal->hero)
-			for (auto obj : cb->getVisitableObjs(goal->tile)) //check if any object on that tile matches criteria
-				if (obj->visitablePos() == goal->tile) //object could be removed
-					if (obj->ID == objid && obj->subID == resID) //same type and subtype
-						return true;
-	}
-	return false;
 }

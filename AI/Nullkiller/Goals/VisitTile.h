@@ -29,9 +29,6 @@ namespace Goals
 			tile = Tile;
 			priority = 5;
 		}
-		TGoalVec getAllPossibleSubgoals() override;
-		TSubgoal whatToDoToAchieve() override;
-		std::string completeMessage() const override;
 		virtual bool operator==(const VisitTile & other) const override;
 	};
 }

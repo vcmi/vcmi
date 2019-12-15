@@ -51,11 +51,6 @@ namespace Goals
 			ai->tryRealize(static_cast<T &>(*this)); //casting enforces template instantiation
 		}
 
-		float accept(FuzzyHelper * f) override
-		{
-			return f->evaluate(static_cast<T &>(*this)); //casting enforces template instantiation
-		}
-
 		CGoal<T> * clone() const override
 		{
 			return new T(static_cast<T const &>(*this)); //casting enforces template instantiation

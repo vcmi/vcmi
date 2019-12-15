@@ -25,21 +25,7 @@ bool BuyArmy::operator==(const BuyArmy & other) const
 	return town == other.town && objid == other.objid;
 }
 
-bool BuyArmy::fulfillsMe(TSubgoal goal)
-{
-	//if (hero && hero != goal->hero)
-	//	return false;
-	return town == goal->town && goal->value >= value; //can always buy more army
-}
 TSubgoal BuyArmy::whatToDoToAchieve()
 {
-	//TODO: calculate the actual cost of units instead
-	TResources price;
-	price[Res::GOLD] = value * 0.4f; //some approximate value
-	return ai->ah->whatToDo(price, iAmElementar()); //buy right now or gather resources
-}
-
-std::string BuyArmy::completeMessage() const
-{
-	return boost::format("Bought army of value %d in town of %s") % value, town->name;
+	return iAmElementar();
 }

@@ -13,8 +13,6 @@
 #include "../AIUtility.h"
 #include "../AIhelper.h"
 #include "../FuzzyHelper.h"
-#include "../ResourceManager.h"
-#include "../BuildingManager.h"
 #include "../../../lib/mapping/CMap.h" //for victory conditions
 #include "../../../lib/CPathfinder.h"
 #include "../../../lib/StringConstants.h"
@@ -34,46 +32,4 @@ bool BuildThis::operator==(const BuildThis & other) const
 std::string BuildThis::name() const
 {
 	return "Build " + buildingInfo.name + "(" + std::to_string(bid) + ") in " + town->name;
-}
-
-TSubgoal BuildThis::whatToDoToAchieve()
-{
-	auto b = BuildingID(bid);
-
-	// find town if not set
-	if(!town && hero)
-		town = hero->visitedTown;
-
-	if(!town)
-	{
-		for(const CGTownInstance * t : cb->getTownsInfo())
-		{
-			switch(cb->canBuildStructure(town, b))
-			{
-			case EBuildingState::ALLOWED:
-				town = t;
-				break; //TODO: look for prerequisites? this is not our reponsibility
-			default:
-				continue;
-			}
-		}
-	}
-
-	if(town) //we have specific town to build this
-	{
-		switch(cb->canBuildStructure(town, b))
-		{
-		case EBuildingState::ALLOWED:
-		case EBuildingState::NO_RESOURCES:
-		{
-			auto res = town->town->buildings.at(BuildingID(bid))->resources;
-			return ai->ah->whatToDo(res, iAmElementar()); //realize immediately or gather resources
-		}
-		break;
-		default:
-			throw cannotFulfillGoalException("Not possible to build");
-		}
-	}
-	else
-		throw cannotFulfillGoalException("Cannot find town to build this");
 }

@@ -26,23 +26,23 @@ bool BuildBoat::operator==(const BuildBoat & other) const
 	return shipyard->o->id == other.shipyard->o->id;
 }
 
-TSubgoal BuildBoat::whatToDoToAchieve()
-{
-	if(cb->getPlayerRelations(ai->playerID, shipyard->o->tempOwner) == PlayerRelations::ENEMIES)
-	{
-		return fh->chooseSolution(ai->ah->howToVisitObj(shipyard->o));
-	}
-
-	if(shipyard->shipyardStatus() != IShipyard::GOOD)
-	{
-		throw cannotFulfillGoalException("Shipyard is busy.");
-	}
-
-	TResources boatCost;
-	shipyard->getBoatCost(boatCost);
-
-	return ai->ah->whatToDo(boatCost, this->iAmElementar());
-}
+//TSubgoal BuildBoat::whatToDoToAchieve()
+//{
+//	if(cb->getPlayerRelations(ai->playerID, shipyard->o->tempOwner) == PlayerRelations::ENEMIES)
+//	{
+//		return fh->chooseSolution(ai->ah->howToVisitObj(shipyard->o));
+//	}
+//
+//	if(shipyard->shipyardStatus() != IShipyard::GOOD)
+//	{
+//		throw cannotFulfillGoalException("Shipyard is busy.");
+//	}
+//
+//	TResources boatCost;
+//	shipyard->getBoatCost(boatCost);
+//
+//	return ai->ah->whatToDo(boatCost, this->iAmElementar());
+//}
 
 void BuildBoat::accept(VCAI * ai)
 {
@@ -78,9 +78,4 @@ void BuildBoat::accept(VCAI * ai)
 std::string BuildBoat::name() const
 {
 	return "BuildBoat";
-}
-
-std::string BuildBoat::completeMessage() const
-{
-	return "Boat have been built at " + shipyard->o->visitablePos().toString();
 }

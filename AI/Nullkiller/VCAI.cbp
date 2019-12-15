@@ -76,7 +76,7 @@
 			<Add option="-Wno-sign-compare" />
 			<Add option="-Wno-unused-parameter" />
 			<Add option="-Wno-overloaded-virtual" />
-			<Add option="-DBOOST_THREAD_USE_LIB" />
+			<Add option="-DBOOST_ALL_DYN_LINK" />
 			<Add option="-DBOOST_SYSTEM_NO_DEPRECATED" />
 			<Add option="-D_WIN32_WINNT=0x0501" />
 			<Add option="-D_WIN32" />
@@ -93,6 +93,8 @@
 		<Unit filename="AIUtility.h" />
 		<Unit filename="AIhelper.cpp" />
 		<Unit filename="AIhelper.h" />
+		<Unit filename="ArmyManager.cpp" />
+		<Unit filename="ArmyManager.h" />
 		<Unit filename="BuildingManager.cpp" />
 		<Unit filename="BuildingManager.h" />
 		<Unit filename="FuzzyEngines.cpp" />
