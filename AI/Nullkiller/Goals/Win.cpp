@@ -13,8 +13,6 @@
 #include "../AIUtility.h"
 #include "../AIhelper.h"
 #include "../FuzzyHelper.h"
-#include "../ResourceManager.h"
-#include "../BuildingManager.h"
 #include "../../../lib/mapping/CMap.h" //for victory conditions
 #include "../../../lib/CPathfinder.h"
 #include "../../../lib/StringConstants.h"
@@ -62,9 +60,9 @@ TSubgoal Win::whatToDoToAchieve()
 			if(goal.object)
 			{
 				auto obj = cb->getObj(goal.object->id);
-				if(obj)
+				/*if(obj)
 					if(obj->getOwner() == ai->playerID) //we can't capture our own object
-						return sptr(Conquer());
+						return sptr(Conquer());*/
 
 
 				return sptr(VisitObj(goal.object->id.getNum()));
@@ -122,8 +120,8 @@ TSubgoal Win::whatToDoToAchieve()
 				} //TODO: use FIND_OBJ
 				else if(const CGObjectInstance * obj = ai->getUnvisitedObj(objWithID<Obj::OBELISK>)) //there are unvisited Obelisks
 					return sptr(VisitObj(obj->id.getNum()));
-				else
-					return sptr(Explore());
+				/*else
+					return sptr(Explore());*/
 			}
 			break;
 		}
@@ -166,7 +164,7 @@ TSubgoal Win::whatToDoToAchieve()
 			break;
 		}
 		case EventCondition::STANDARD_WIN:
-			return sptr(Conquer());
+			return sptr(Invalid());
 
 		// Conditions that likely don't need any implementation
 		case EventCondition::DAYS_PASSED:
@@ -182,7 +180,7 @@ TSubgoal Win::whatToDoToAchieve()
 		case EventCondition::HAVE_BUILDING_0:
 		case EventCondition::DESTROY_0:
 			//TODO: support new condition format
-			return sptr(Conquer());
+			return sptr(Invalid());
 		default:
 			assert(0);
 		}

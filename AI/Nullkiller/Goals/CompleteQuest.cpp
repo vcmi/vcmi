@@ -82,9 +82,8 @@ TSubgoal CompleteQuest::whatToDoToAchieve()
 
 	TGoalVec solutions = getAllPossibleSubgoals();
 
-	if(solutions.empty())
-		throw cannotFulfillGoalException("Can not complete quest " + questToString());
-
+	throw cannotFulfillGoalException("Can not complete quest " + questToString());
+/*
 	TSubgoal result = fh->chooseSolution(solutions);
 
 	logAi->trace(
@@ -94,17 +93,12 @@ TSubgoal CompleteQuest::whatToDoToAchieve()
 		result->objid,
 		result->hero.validAndSet() ? result->hero->name : "not specified");
 
-	return result;
+	return result;*/
 }
 
 std::string CompleteQuest::name() const
 {
 	return "CompleteQuest";
-}
-
-std::string CompleteQuest::completeMessage() const
-{
-	return "Completed quest " + questToString();
 }
 
 std::string CompleteQuest::questToString() const
@@ -128,7 +122,7 @@ TGoalVec CompleteQuest::tryCompleteQuest() const
 	{
 		if(q.quest->checkQuest(hero))
 		{
-			vstd::concatenate(solutions, ai->ah->howToVisitObj(hero, ObjectIdRef(q.obj->id)));
+			//vstd::concatenate(solutions, ai->ah->howToVisitObj(hero, ObjectIdRef(q.obj->id)));
 		}
 	}
 
@@ -228,7 +222,7 @@ TGoalVec CompleteQuest::missionResources() const
 	{
 		if(q.quest->checkQuest(heroes.front())) //it doesn't matter which hero it is
 		{
-			return ai->ah->howToVisitObj(q.obj);
+			return solutions;// ai->ah->howToVisitObj(q.obj);
 		}
 		else
 		{
@@ -254,7 +248,7 @@ TGoalVec CompleteQuest::missionDestroyObj() const
 	auto obj = cb->getObjByQuestIdentifier(q.quest->m13489val);
 
 	if(!obj)
-		return ai->ah->howToVisitObj(q.obj);
+		return solutions;// ai->ah->howToVisitObj(q.obj);
 
 	if(obj->ID == Obj::HERO)
 	{
@@ -264,11 +258,11 @@ TGoalVec CompleteQuest::missionDestroyObj() const
 		{
 			auto heroToProtect = cb->getHero(obj->id);
 
-			solutions.push_back(sptr(GatherArmy().sethero(heroToProtect)));
+			//solutions.push_back(sptr(GatherArmy().sethero(heroToProtect)));
 		}
 		else if(relations == PlayerRelations::ENEMIES)
 		{
-			solutions = ai->ah->howToVisitObj(obj);
+			//solutions = ai->ah->howToVisitObj(obj);
 		}
 	}
 

@@ -34,7 +34,6 @@ namespace Goals
 		}
 		TGoalVec getAllPossibleSubgoals() override;
 		TSubgoal whatToDoToAchieve() override;
-		bool fulfillsMe(TSubgoal goal) override;
 		virtual bool operator==(const GatherTroops & other) const override;
 
 	private:

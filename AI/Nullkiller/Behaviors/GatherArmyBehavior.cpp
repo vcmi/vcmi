@@ -56,6 +56,8 @@ Goals::TGoalVec GatherArmyBehavior::getTasks()
 	{
 		vstd::concatenate(tasks, upgradeArmy(town));
 	}
+
+	return tasks;
 }
 
 Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * hero) const

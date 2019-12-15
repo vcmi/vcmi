@@ -23,10 +23,6 @@ namespace Goals
 		VisitObj() = delete; // empty constructor not allowed
 		VisitObj(int Objid);
 
-		TGoalVec getAllPossibleSubgoals() override;
-		TSubgoal whatToDoToAchieve() override;
-		bool fulfillsMe(TSubgoal goal) override;
-		std::string completeMessage() const override;
 		virtual bool operator==(const VisitObj & other) const override;
 	};
 }

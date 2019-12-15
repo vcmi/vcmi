@@ -26,13 +26,6 @@ namespace Goals
 			priority = 1;
 		}
 
-		TGoalVec getAllPossibleSubgoals() override
-		{
-			return TGoalVec();
-		}
-
-		TSubgoal whatToDoToAchieve() override;
-
 		virtual bool operator==(const RecruitHero & other) const override
 		{
 			return true;

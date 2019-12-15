@@ -17,7 +17,7 @@
 
 namespace AIPathfinding
 {
-	Goals::TSubgoal BuildBoatAction::whatToDo(const HeroPtr & hero) const
+	Goals::TSubgoal BuildBoatAction::whatToDo(const CGHeroInstance * hero) const
 	{
 		return Goals::sptr(Goals::BuildBoat(shipyard));
 	}
@@ -27,7 +27,7 @@ namespace AIPathfinding
 		return sourceActor->resourceActor;
 	}
 
-	Goals::TSubgoal SummonBoatAction::whatToDo(const HeroPtr & hero) const
+	Goals::TSubgoal SummonBoatAction::whatToDo(const CGHeroInstance * hero) const
 	{
 		return Goals::sptr(Goals::AdventureSpellCast(hero, SpellID::SUMMON_BOAT));
 	}

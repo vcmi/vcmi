@@ -25,6 +25,6 @@ namespace AIPathfinding
 		{
 		}
 
-		virtual Goals::TSubgoal whatToDo(const HeroPtr & hero) const override;
+		virtual Goals::TSubgoal whatToDo(const CGHeroInstance * hero) const override;
 	};
 }

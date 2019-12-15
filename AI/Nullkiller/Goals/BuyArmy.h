@@ -32,10 +32,8 @@ namespace Goals
 			value = val; //expressed in AI unit strength
 			priority = 3;//TODO: evaluate?
 		}
-		bool fulfillsMe(TSubgoal goal) override;
 
 		TSubgoal whatToDoToAchieve() override;
-		std::string completeMessage() const override;
 		virtual bool operator==(const BuyArmy & other) const override;
 	};
 }

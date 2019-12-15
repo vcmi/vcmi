@@ -25,7 +25,7 @@ namespace AIPathfinding
 	class SummonBoatAction : public VirtualBoatAction
 	{
 	public:
-		virtual Goals::TSubgoal whatToDo(const HeroPtr & hero) const override;
+		virtual Goals::TSubgoal whatToDo(const CGHeroInstance * hero) const override;
 
 		virtual void applyOnDestination(
 			const CGHeroInstance * hero,
@@ -53,7 +53,7 @@ namespace AIPathfinding
 		{
 		}
 
-		virtual Goals::TSubgoal whatToDo(const HeroPtr & hero) const override;
+		virtual Goals::TSubgoal whatToDo(const CGHeroInstance * hero) const override;
 
 		virtual const ChainActor * getActor(const ChainActor * sourceActor) const override;
 	};

@@ -30,7 +30,6 @@ namespace Goals
 	class BuildThis;
 	class DigAtTile;
 	class CollectRes;
-	class Build;
 	class BuyArmy;
 	class BuildBoat;
 	class GatherArmy;
@@ -43,7 +42,8 @@ namespace Goals
 	enum EGoals
 	{
 		INVALID = -1,
-		WIN, CONQUER, BUILD, //build needs to get a real reasoning
+		WIN, CONQUER,
+		BUILD,
 		EXPLORE, GATHER_ARMY,
 		BOOST_HERO,
 		RECRUIT_HERO,
@@ -162,25 +162,15 @@ namespace Goals
 		EGoals goalType;
 
 		virtual std::string name() const;
-		virtual std::string completeMessage() const
-		{
-			return "This goal is unspecified!";
-		}
 
 		bool invalid() const;
 
 		///Visitor pattern
 		//TODO: make accept work for std::shared_ptr... somehow
 		virtual void accept(VCAI * ai); //unhandled goal will report standard error
-		virtual float accept(FuzzyHelper * f);
 
 		virtual bool operator==(const AbstractGoal & g) const;
-		bool operator<(AbstractGoal & g); //final
-		virtual bool fulfillsMe(Goals::TSubgoal goal) //TODO: multimethod instead of type check
-		{
-			return false; //use this method to check if goal is fulfilled by another (not equal) goal, operator == is handled spearately
-		}
-
+		
 		bool operator!=(const AbstractGoal & g) const
 		{
 			return !(*this == g);

@@ -23,7 +23,7 @@ public:
 		return true;
 	}
 
-	virtual Goals::TSubgoal whatToDo(const HeroPtr & hero) const = 0;
+	virtual Goals::TSubgoal whatToDo(const CGHeroInstance * hero) const = 0;
 
 	virtual void applyOnDestination(
 		const CGHeroInstance * hero,

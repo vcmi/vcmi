@@ -14,7 +14,7 @@
 
 namespace AIPathfinding
 {
-	Goals::TSubgoal BattleAction::whatToDo(const HeroPtr & hero) const
+	Goals::TSubgoal BattleAction::whatToDo(const CGHeroInstance * hero) const
 	{
 		return Goals::sptr(Goals::VisitTile(targetTile).sethero(hero));
 	}

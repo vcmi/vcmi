@@ -36,11 +36,6 @@ std::string ExchangeSwapTownHeroes::name() const
 	return "Exchange and swap heroes of " + town->name;
 }
 
-std::string ExchangeSwapTownHeroes::completeMessage() const
-{
-	return "Exchange and swap heroes of " + town->name + " compelete";
-}
-
 bool ExchangeSwapTownHeroes::operator==(const ExchangeSwapTownHeroes & other) const
 {
 	return town == other.town;

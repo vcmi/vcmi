@@ -233,14 +233,9 @@ bool Explore::operator==(const Explore & other) const
 	return other.hero.h == hero.h && other.allowGatherArmy == allowGatherArmy;
 }
 
-std::string Explore::completeMessage() const
-{
-	return "Hero " + hero.get()->name + " completed exploration";
-}
-
 TSubgoal Explore::whatToDoToAchieve()
 {
-	return fh->chooseSolution(getAllPossibleSubgoals());
+	return sptr(Goals::Invalid());
 }
 
 TGoalVec Explore::getAllPossibleSubgoals()
@@ -359,18 +354,6 @@ TGoalVec Explore::getAllPossibleSubgoals()
 	}
 
 	return ret;
-}
-
-bool Explore::fulfillsMe(TSubgoal goal)
-{
-	if(goal->goalType == EXPLORE)
-	{
-		if(goal->hero)
-			return hero == goal->hero;
-		else
-			return true; //cancel ALL exploration
-	}
-	return false;
 }
 
 TSubgoal Explore::explorationBestNeighbour(int3 hpos, HeroPtr h) const

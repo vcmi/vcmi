@@ -184,7 +184,7 @@ void Nullkiller::makeTurn()
 		}
 		catch(goalFulfilledException &)
 		{
-			logAi->trace(bestTask->completeMessage());
+			logAi->trace("Task %s completed", bestTask->name());
 		}
 		catch(std::exception & e)
 		{

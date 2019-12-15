@@ -148,7 +148,9 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 		if(treatIsUnderControl)
 			continue;
 
-		if(cb->getResourceAmount(Res::GOLD) > GameConstants::HERO_GOLD_COST)
+		if(!town->visitingHero
+			&& town->hasBuilt(BuildingID::TAVERN)
+			&& cb->getResourceAmount(Res::GOLD) > GameConstants::HERO_GOLD_COST)
 		{
 			auto heroesInTavern = cb->getAvailableHeroes(town);
 

@@ -30,13 +30,6 @@ namespace Goals
 			objid = hid;
 			priority = 4;
 		}
-		TGoalVec getAllPossibleSubgoals() override
-		{
-			return TGoalVec();
-		}
-		TSubgoal whatToDoToAchieve() override;
-		bool fulfillsMe(TSubgoal goal) override;
-		std::string completeMessage() const override;
 		virtual bool operator==(const VisitHero & other) const override;
 	};
 }

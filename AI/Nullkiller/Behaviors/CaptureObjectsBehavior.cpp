@@ -91,6 +91,11 @@ Goals::TGoalVec CaptureObjectsBehavior::getTasks()
 				if(ai->ah->getHeroRole(hero) == HeroRole::SCOUT && danger == 0 && path.exchangeCount > 1)
 					continue;
 
+				if(path.specialAction && !path.specialAction->canAct(path.targetHero))
+				{
+					auto subGoal = path.specialAction->whatToDo(path.targetHero);
+				}
+
 				auto isSafe = isSafeToVisit(hero, path.heroArmy, danger);
 				
 #ifdef AI_TRACE_LEVEL >= 2

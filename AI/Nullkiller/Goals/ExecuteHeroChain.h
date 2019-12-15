@@ -30,7 +30,6 @@ namespace Goals
 		TSubgoal whatToDoToAchieve() override;
 		void accept(VCAI * ai) override;
 		std::string name() const override;
-		std::string completeMessage() const override;
 		virtual bool operator==(const ExecuteHeroChain & other) const override;
 		const AIPath & getPath() const { return chainPath; }
 	};
