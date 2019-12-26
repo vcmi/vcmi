@@ -568,6 +568,7 @@ CAdvMapInt::CAdvMapInt():
 	pos.x = pos.y = 0;
 	pos.w = screen->w;
 	pos.h = screen->h;
+	strongInterest = true; // handle all mouse move events to prevent dead mouse move space in fullscreen mode
 	townList.onSelect = std::bind(&CAdvMapInt::selectionChanged,this);
 	bg = BitmapHandler::loadBitmap(ADVOPT.mainGraphic);
 	if (ADVOPT.worldViewGraphic != "")
