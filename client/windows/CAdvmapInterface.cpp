@@ -1455,7 +1455,8 @@ void CAdvMapInt::mouseMoved( const SDL_MouseMotionEvent & sEvent )
 #endif
 	// adventure map scrolling with mouse
 	// currently disabled in world view mode (as it is in OH3), but should work correctly if mode check is removed
-	if(!isCtrlKeyDown() &&  isActive() && mode == EAdvMapMode::NORMAL)
+	// don't scroll if there is no window in focus - these events don't seem to correspond to the actual mouse movement
+	if(!isCtrlKeyDown() && isActive() && sEvent.windowID != 0 && mode == EAdvMapMode::NORMAL)
 	{
 		if(sEvent.x<15)
 		{
