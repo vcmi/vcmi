@@ -1056,6 +1056,39 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 
 	#ifdef VCMI_ANDROID
 		mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex),SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex), 0, 0, SDL_WINDOW_FULLSCREEN);
+
+		// SDL on Android doesn't do proper letterboxing, and will show an annoying flickering in the blank space in case you're not using the full screen estate
+		// That's why we need to make sure our width and height we'll use below have the same aspect ratio as the screen itself to ensure we fill the full screen estate
+
+		SDL_Rect screenRect;
+
+		if(SDL_GetDisplayBounds(0, &screenRect) == 0)
+		{
+			int screenWidth, screenHeight;
+			double aspect;
+
+			screenWidth = screenRect.w;
+			screenHeight = screenRect.h;
+
+			aspect = (double)screenWidth / (double)screenHeight;
+
+			logGlobal->info("Screen size and aspect ration: %dx%d (%lf)", screenWidth, screenHeight, aspect);
+
+			if((double)w / aspect > (double)h)
+			{
+				h = (int)round((double)w / aspect);
+			}
+			else
+			{
+				w = (int)round((double)h * aspect);
+			}
+
+			logGlobal->info("Changing logical screen size to %dx%d", w, h);
+		}
+		else
+		{
+			logGlobal->error("Can't fix aspect ratio for screen");
+		}
 	#else
 
 		if(fullscreen)

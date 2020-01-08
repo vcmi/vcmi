@@ -162,6 +162,9 @@ std::shared_ptr<IShowActivatable> CGuiHandler::topInt()
 
 void CGuiHandler::totalRedraw()
 {
+#ifdef VCMI_ANDROID
+	SDL_FillRect(screen2, NULL, SDL_MapRGB(screen2->format, 0, 0, 0));
+#endif
 	for(auto & elem : objsToBlit)
 		elem->showAll(screen2);
 	blitAt(screen2,0,0,screen);
