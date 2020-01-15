@@ -803,17 +803,6 @@ std::vector<std::string> CModHandler::getModList(std::string path)
 		std::string name = entry.getName();
 		name.erase(0, modDir.size()); //Remove path prefix
 
-		// check if wog is actually present. Hack-ish but better than crash
-		// TODO: remove soon (hopefully - before 0.96)
-		if (name == "WOG")
-		{
-			if (!CResourceHandler::get("initial")->existsResource(ResourceID("DATA/ZVS", EResType::DIRECTORY)) &&
-				!CResourceHandler::get("initial")->existsResource(ResourceID("MODS/WOG/DATA/ZVS", EResType::DIRECTORY)))
-			{
-				continue;
-			}
-		}
-
 		if (!name.empty())
 			foundMods.push_back(name);
 	}
