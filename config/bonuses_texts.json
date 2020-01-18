@@ -144,12 +144,6 @@
 		"description": "Ignores part of Defence for the attack"
 	},
 
-	"GENERAL_DAMAGE_REDUCTION":
-	{
-		"name": "Reduce Damage (${val}%)",
-		"description": "Reduces physical damage from ranged or melee"
-	},
-
 	"FIRE_IMMUNITY":
 	{
 		"name": "Fire immunity",
@@ -196,6 +190,18 @@
 	{
 		"name": "Regeneration",
 		"description": "May Regenerate to full Health"
+	},
+
+	"GARGOYLE":
+	{
+		"name": "Gargoyle",
+		"description": "Cannot be rised or healed"
+	},
+
+	"GENERAL_DAMAGE_REDUCTION":
+	{
+		"name": "Reduce Damage (${val}%)",
+		"description": "Reduces physical damage from ranged or melee"
 	},
 
 	"HATE":
