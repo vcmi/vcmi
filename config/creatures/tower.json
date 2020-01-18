@@ -51,9 +51,9 @@
 		"faction": "tower",
 		"abilities":
 		{
-			"nonliving" :
+			"gargoyle" :
 			{
-				"type" : "NON_LIVING"
+				"type" : "GARGOYLE"
 			}
 		},
 		"upgrades": ["obsidianGargoyle"],
@@ -77,9 +77,9 @@
 		"faction": "tower",
 		"abilities":
 		{
-			"nonliving" :
+			"gargoyle" :
 			{
-				"type" : "NON_LIVING"
+				"type" : "GARGOYLE"
 			}
 		},
 		"graphics" :
@@ -392,7 +392,7 @@
 			{
 				"type" : "MIND_IMMUNITY"
 			},
-			"hateArchAngels" : 
+			"hateBlackDragon" : 
 			{
 				"type" : "HATE",
 				"subtype" : "creature.blackDragon",

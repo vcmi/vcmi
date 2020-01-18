@@ -230,7 +230,15 @@
 			"icon":  "zvs/Lib1.res/E_TROLL"
 		}
 	},
-	
+
+	"GARGOYLE":
+	{
+		"graphics":
+		{
+			"icon":  "zvs/Lib1.res/NonLiving"	// Just use the NonLiving icon for now
+		}
+	},
+
 	"GENERAL_DAMAGE_REDUCTION":
 	{
 		"graphics":

@@ -643,6 +643,7 @@ bool IBonusBearer::isLiving() const //TODO: theoreticaly there exists "LIVING" b
 	static const std::string cachingStr = "IBonusBearer::isLiving";
 	static const CSelector selector = Selector::type(Bonus::UNDEAD)
 		.Or(Selector::type(Bonus::NON_LIVING))
+		.Or(Selector::type(Bonus::GARGOYLE))
 		.Or(Selector::type(Bonus::SIEGE_WEAPON));
 
 	return !hasBonus(selector, cachingStr);
