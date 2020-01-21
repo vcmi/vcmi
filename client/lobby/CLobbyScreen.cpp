@@ -187,9 +187,19 @@ void CLobbyScreen::updateAfterStateChange()
 		tabOpt->recreate();
 
 	card->changeSelection();
-	if(card->iconDifficulty)
-		card->iconDifficulty->setSelected(CSH->si->difficulty);
-
+	if (card->iconDifficulty)
+	{
+		if (screenType == ESelectionScreen::loadGame)
+		{
+			// When loading the game, only one button in the difficulty toggle group should be enabled, so here disable all other buttons first, then make selection
+			card->iconDifficulty->setSelectedOnly(CSH->si->difficulty);
+		}
+		else
+		{
+			card->iconDifficulty->setSelected(CSH->si->difficulty);
+		}
+	}
+	
 	if(curTab == tabRand && CSH->si->mapGenOptions)
 		tabRand->setMapGenOptions(CSH->si->mapGenOptions);
 }

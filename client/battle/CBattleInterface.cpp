@@ -2237,6 +2237,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				{
 					if (!(shere->hasBonusOfType(Bonus::UNDEAD)
 						|| shere->hasBonusOfType(Bonus::NON_LIVING)
+						|| shere->hasBonusOfType(Bonus::GARGOYLE)
 						|| shere->summoned
 						|| shere->isClone()
 						|| shere->hasBonusOfType(Bonus::SIEGE_WEAPON)
