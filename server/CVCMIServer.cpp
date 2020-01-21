@@ -214,8 +214,8 @@ void CVCMIServer::threadAnnounceLobby()
 
 			if(acceptor)
 			{
-				acceptor->get_io_service().reset();
-				acceptor->get_io_service().poll();
+				io->reset();
+				io->poll();
 			}
 		}
 
@@ -272,7 +272,11 @@ void CVCMIServer::startAsyncAccept()
 	assert(!upcomingConnection);
 	assert(acceptor);
 
+#if BOOST_VERSION >= 107000  // Boost version >= 1.70
+	upcomingConnection = std::make_shared<TSocket>(acceptor->get_executor());
+#else
 	upcomingConnection = std::make_shared<TSocket>(acceptor->get_io_service());
+#endif
 	acceptor->async_accept(*upcomingConnection, std::bind(&CVCMIServer::connectionAccepted, this, _1));
 }
 
