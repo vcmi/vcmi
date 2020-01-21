@@ -139,12 +139,17 @@ public:
 	void setSelected(bool on);
 
 	void addCallback(std::function<void(bool)> callback);
+
+	/// Set whether the toggle is currently enabled for user to use, this is only inplemented in ToggleButton, not for other toggles yet.
+	virtual void setEnabled(bool enabled);
 };
 
 /// A button which can be selected/deselected, checkbox
 class CToggleButton : public CButton, public CToggleBase
 {
 	void doSelect(bool on) override;
+	void setEnabled(bool enabled) override;
+
 public:
 	CToggleButton(Point position, const std::string &defName, const std::pair<std::string, std::string> &help,
 	              CFunctionList<void(bool)> Callback = 0, int key=0, bool playerColoredButton = false );
@@ -173,6 +178,9 @@ public:
 	void addToggle(int index, std::shared_ptr<CToggleBase> button);
 	/// Changes selection to specific value. Will select toggle with this ID, if present
 	void setSelected(int id);
+	/// in some cases, e.g. LoadGame difficulty selection, after refreshing the UI, the ToggleGroup should 
+	/// reset all of it's child buttons to BLOCK state, then make selection again
+	void setSelectedOnly(int id);
 };
 
 /// A typical slider for volume with an animated indicator
