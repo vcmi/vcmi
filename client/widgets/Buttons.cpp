@@ -23,8 +23,6 @@
 #include "../windows/InfoWindows.h"
 #include "../../lib/CConfigHandler.h"
 
-using namespace std;
-
 void CButton::update()
 {
 	if (overlay)
@@ -439,7 +437,7 @@ void CToggleGroup::setSelected(int id)
 
 void CToggleGroup::setSelectedOnly(int id)
 {
-	for (map<int, shared_ptr<CToggleBase> >::iterator it = buttons.begin(); it != buttons.end(); it++)
+	for(auto it = buttons.begin(); it != buttons.end(); it++)
 	{
 		int buttonId = it->first;
 		buttons[buttonId]->setEnabled(buttonId == id);
