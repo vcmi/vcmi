@@ -160,7 +160,7 @@ if(WIN32)
 	endif(MSVC)
 
 	if(MINGW)
-		set(SYSTEM_LIBS ${SYSTEM_LIBS} ole32 oleaut32 ws2_32 mswsock dbghelp)
+		set(SYSTEM_LIBS ${SYSTEM_LIBS} ole32 oleaut32 ws2_32 mswsock dbghelp bcrypt)
 
 		# Check for iconv (may be needed for Boost.Locale)
 		include(CheckLibraryExists)
