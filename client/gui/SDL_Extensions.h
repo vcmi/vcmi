@@ -152,6 +152,57 @@ struct ColorPutter
 
 typedef void (*BlitterWithRotationVal)(SDL_Surface *src,SDL_Rect srcRect, SDL_Surface * dst, SDL_Rect dstRect, ui8 rotation);
 
+class ColorShifter
+{
+public:
+	virtual SDL_Color shiftColor(SDL_Color clr) = 0;
+};
+
+class ColorShifterLightBlue : public ColorShifter
+{
+public:
+	static ColorShifterLightBlue* create()
+	{
+		return new ColorShifterLightBlue();
+	}
+
+	SDL_Color shiftColor(SDL_Color clr) override
+	{
+		clr.b = clr.b + (255 - clr.b) / 2;
+		return clr;
+	}
+};
+
+class ColorShifterDeepBlue : public ColorShifter
+{
+public:
+	static ColorShifterDeepBlue* create()
+	{
+		return new ColorShifterDeepBlue();
+	}
+
+	SDL_Color shiftColor(SDL_Color clr) override
+	{
+		clr.b = 255;
+		return clr;
+	}
+};
+
+class ColorShifterDeepRed : public ColorShifter
+{
+public:
+	static ColorShifterDeepRed* create()
+	{
+		return new ColorShifterDeepRed();
+	}
+
+	SDL_Color shiftColor(SDL_Color clr) override
+	{
+		clr.r = 255;
+		return clr;
+	}
+};
+
 namespace CSDL_Ext
 {
 	/// helper that will safely set and un-set ClipRect for SDL_Surface

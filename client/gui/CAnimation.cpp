@@ -11,6 +11,7 @@
 #include "CAnimation.h"
 
 #include <SDL_image.h>
+#include <SDL.h>
 
 #include "../CBitmapHandler.h"
 #include "../Graphics.h"
@@ -87,6 +88,9 @@ public:
 	SDLImage(SDL_Surface * from, bool extraRef);
 	~SDLImage();
 
+	// Keep the original palette, in order to do color switching operation
+	void savePalette();
+
 	void draw(SDL_Surface * where, int posX=0, int posY=0, Rect *src=nullptr, ui8 alpha=255) const override;
 	void draw(SDL_Surface * where, SDL_Rect * dest, SDL_Rect * src, ui8 alpha=255) const override;
 	std::shared_ptr<IImage> scaleFast(float scale) const override;
@@ -100,10 +104,15 @@ public:
 	void verticalFlip() override;
 
 	void shiftPalette(int from, int howMany) override;
+	void adjustPalette(ColorShifter * shifter) override;
+	void resetPalette() override;
 
 	void setBorderPallete(const BorderPallete & borderPallete) override;
 
 	friend class SDLImageLoader;
+
+private:
+	SDL_Palette * originalPalette;
 };
 
 class SDLImageLoader
@@ -552,6 +561,8 @@ SDLImage::SDLImage(CDefFile * data, size_t frame, size_t group)
 {
 	SDLImageLoader loader(this);
 	data->loadFrame(frame, group, loader);
+
+	savePalette();
 }
 
 SDLImage::SDLImage(SDL_Surface * from, bool extraRef)
@@ -560,6 +571,11 @@ SDLImage::SDLImage(SDL_Surface * from, bool extraRef)
 	fullSize(0, 0)
 {
 	surf = from;
+	if (surf == nullptr)
+		return;
+
+	savePalette();
+
 	if (extraRef)
 		surf->refcount++;
 	fullSize.x = surf->w;
@@ -577,6 +593,8 @@ SDLImage::SDLImage(const JsonNode & conf)
 
 	if(surf == nullptr)
 		return;
+
+	savePalette();
 
 	const JsonNode & jsonMargins = conf["margins"];
 
@@ -611,6 +629,7 @@ SDLImage::SDLImage(std::string filename)
 	}
 	else
 	{
+		savePalette();
 		fullSize.x = surf->w;
 		fullSize.y = surf->h;
 	}
@@ -736,6 +755,13 @@ void SDLImage::verticalFlip()
 	surf = flipped;
 }
 
+// Keep the original palette, in order to do color switching operation
+void SDLImage::savePalette()
+{
+	originalPalette = new SDL_Palette();
+	memcpy(originalPalette, surf->format->palette, sizeof(SDL_Palette));
+}
+
 void SDLImage::shiftPalette(int from, int howMany)
 {
 	//works with at most 16 colors, if needed more -> increase values
@@ -751,6 +777,24 @@ void SDLImage::shiftPalette(int from, int howMany)
 		}
 		SDL_SetColors(surf, palette, from, howMany);
 	}
+}
+
+void SDLImage::adjustPalette(ColorShifter * shifter)
+{
+	SDL_Palette* palette = surf->format->palette;
+	for (int i = 0; i < 255; i++)
+	{
+		palette->colors[i] = shifter->shiftColor(originalPalette->colors[i]);
+	}
+}
+
+void SDLImage::resetPalette()
+{
+	SDL_Palette * pal = new SDL_Palette();
+	memcpy(pal, originalPalette, sizeof(SDL_Palette));
+
+	// Always keept the original palette not changed, copy a new palette to assign to surface
+	SDL_SetPaletteColors(surf->format->palette, originalPalette->colors, 0, 255);
 }
 
 void SDLImage::setBorderPallete(const IImage::BorderPallete & borderPallete)
@@ -1012,6 +1056,18 @@ void CAnimation::duplicateImage(const size_t sourceGroup, const size_t sourceFra
 
 	if(preloaded)
 		load(index, targetGroup);
+}
+
+void CAnimation::shiftColor(ColorShifter * shifter)
+{
+	for (auto groupIter = images.begin(); groupIter != images.end(); groupIter++)
+	{
+		for (auto frameIter = groupIter->second.begin(); frameIter != groupIter->second.end(); frameIter++)
+		{
+			std::shared_ptr<IImage> image = frameIter->second;
+			image->adjustPalette(shifter);
+		}
+	}
 }
 
 void CAnimation::setCustom(std::string filename, size_t frame, size_t group)
