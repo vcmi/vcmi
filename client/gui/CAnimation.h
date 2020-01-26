@@ -45,7 +45,7 @@ public:
 
 	//only indexed bitmaps, 16 colors maximum
 	virtual void shiftPalette(int from, int howMany) = 0;
-	virtual void adjustPalette(ColorShifter * shifter) = 0;
+	virtual void adjustPalette(const ColorShifter * shifter) = 0;
 	virtual void resetPalette() = 0;
 
 	//only indexed bitmaps, colors 5,6,7 must be special
@@ -102,7 +102,7 @@ public:
 	void duplicateImage(const size_t sourceGroup, const size_t sourceFrame, const size_t targetGroup);
 
 	// adjust the color of the animation, used in battle spell effects, e.g. Cloned objects
-	void shiftColor(ColorShifter* shifter);
+	void shiftColor(const ColorShifter * shifter);
 
 	//add custom surface to the selected position.
 	void setCustom(std::string filename, size_t frame, size_t group=0);

@@ -155,18 +155,19 @@ typedef void (*BlitterWithRotationVal)(SDL_Surface *src,SDL_Rect srcRect, SDL_Su
 class ColorShifter
 {
 public:
-	virtual SDL_Color shiftColor(SDL_Color clr) = 0;
+	virtual SDL_Color shiftColor(SDL_Color clr) const = 0;
 };
 
 class ColorShifterLightBlue : public ColorShifter
 {
 public:
-	static ColorShifterLightBlue* create()
+	static ColorShifterLightBlue * create()
 	{
-		return new ColorShifterLightBlue();
+		std::unique_ptr<ColorShifterLightBlue> shifter(new ColorShifterLightBlue());
+		return shifter.get();
 	}
 
-	SDL_Color shiftColor(SDL_Color clr) override
+	SDL_Color shiftColor(SDL_Color clr) const override
 	{
 		clr.b = clr.b + (255 - clr.b) / 2;
 		return clr;
@@ -176,12 +177,13 @@ public:
 class ColorShifterDeepBlue : public ColorShifter
 {
 public:
-	static ColorShifterDeepBlue* create()
+	static ColorShifterDeepBlue * create()
 	{
-		return new ColorShifterDeepBlue();
+		std::unique_ptr<ColorShifterDeepBlue> shifter(new ColorShifterDeepBlue());
+		return shifter.get();
 	}
 
-	SDL_Color shiftColor(SDL_Color clr) override
+	SDL_Color shiftColor(SDL_Color clr) const override
 	{
 		clr.b = 255;
 		return clr;
@@ -191,12 +193,13 @@ public:
 class ColorShifterDeepRed : public ColorShifter
 {
 public:
-	static ColorShifterDeepRed* create()
+	static ColorShifterDeepRed * create()
 	{
-		return new ColorShifterDeepRed();
+		std::unique_ptr<ColorShifterDeepRed> shifter(new ColorShifterDeepRed());
+		return shifter.get();
 	}
 
-	SDL_Color shiftColor(SDL_Color clr) override
+	SDL_Color shiftColor(SDL_Color clr) const override
 	{
 		clr.r = 255;
 		return clr;

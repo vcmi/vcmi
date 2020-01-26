@@ -142,17 +142,13 @@ void CCreatureAnimation::setType(CCreatureAnim::EAnimType type)
 	play();
 }
 
-void CCreatureAnimation::shiftColor(ColorShifter * shifter)
+void CCreatureAnimation::shiftColor(const ColorShifter* shifter)
 {
-	if (forward)
-	{
+	if(forward)
 		forward->shiftColor(shifter);
-	}
 
-	if (reverse)
-	{
+	if(reverse)
 		reverse->shiftColor(shifter);
-	}
 }
 
 CCreatureAnimation::CCreatureAnimation(const std::string & name_, TSpeedController controller)

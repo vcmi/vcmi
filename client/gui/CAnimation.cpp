@@ -104,7 +104,7 @@ public:
 	void verticalFlip() override;
 
 	void shiftPalette(int from, int howMany) override;
-	void adjustPalette(ColorShifter * shifter) override;
+	void adjustPalette(const ColorShifter * shifter) override;
 	void resetPalette() override;
 
 	void setBorderPallete(const BorderPallete & borderPallete) override;
@@ -112,7 +112,7 @@ public:
 	friend class SDLImageLoader;
 
 private:
-	SDL_Palette * originalPalette;
+	std::unique_ptr<SDL_Palette> originalPalette;
 };
 
 class SDLImageLoader
@@ -758,8 +758,12 @@ void SDLImage::verticalFlip()
 // Keep the original palette, in order to do color switching operation
 void SDLImage::savePalette()
 {
-	originalPalette = new SDL_Palette();
-	memcpy(originalPalette, surf->format->palette, sizeof(SDL_Palette));
+	// For some images that don't have palette, skip this
+	if(surf->format->palette == NULL)
+		return;
+
+	originalPalette.reset(new SDL_Palette());
+	memcpy(originalPalette.get(), surf->format->palette, sizeof(SDL_Palette));
 }
 
 void SDLImage::shiftPalette(int from, int howMany)
@@ -779,7 +783,7 @@ void SDLImage::shiftPalette(int from, int howMany)
 	}
 }
 
-void SDLImage::adjustPalette(ColorShifter * shifter)
+void SDLImage::adjustPalette(const ColorShifter * shifter)
 {
 	SDL_Palette* palette = surf->format->palette;
 	for (int i = 0; i < 255; i++)
@@ -791,7 +795,7 @@ void SDLImage::adjustPalette(ColorShifter * shifter)
 void SDLImage::resetPalette()
 {
 	SDL_Palette * pal = new SDL_Palette();
-	memcpy(pal, originalPalette, sizeof(SDL_Palette));
+	memcpy(pal, originalPalette.get(), sizeof(SDL_Palette));
 
 	// Always keept the original palette not changed, copy a new palette to assign to surface
 	SDL_SetPaletteColors(surf->format->palette, originalPalette->colors, 0, 255);
@@ -1058,11 +1062,11 @@ void CAnimation::duplicateImage(const size_t sourceGroup, const size_t sourceFra
 		load(index, targetGroup);
 }
 
-void CAnimation::shiftColor(ColorShifter * shifter)
+void CAnimation::shiftColor(const ColorShifter * shifter)
 {
-	for (auto groupIter = images.begin(); groupIter != images.end(); groupIter++)
+	for(auto groupIter = images.begin(); groupIter != images.end(); groupIter++)
 	{
-		for (auto frameIter = groupIter->second.begin(); frameIter != groupIter->second.end(); frameIter++)
+		for(auto frameIter = groupIter->second.begin(); frameIter != groupIter->second.end(); frameIter++)
 		{
 			std::shared_ptr<IImage> image = frameIter->second;
 			image->adjustPalette(shifter);
