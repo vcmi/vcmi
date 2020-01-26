@@ -11,7 +11,6 @@
 #include "CAnimation.h"
 
 #include <SDL_image.h>
-#include <SDL.h>
 
 #include "../CBitmapHandler.h"
 #include "../Graphics.h"

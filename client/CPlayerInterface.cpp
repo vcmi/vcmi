@@ -739,10 +739,9 @@ void CPlayerInterface::battleUnitsChanged(const std::vector<UnitChanges> & units
 				if(unit->alive() && animation->isDead())
 					animation->setType(CCreatureAnim::HOLDING);
 
-				if (unit->isClone())
-				{
+				if(unit->isClone())
 					animation->shiftColor(ColorShifterDeepBlue::create());
-				}
+
 				//TODO: handle more cases
 			}
 			break;
