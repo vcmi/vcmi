@@ -105,7 +105,7 @@ public:
 	void setBorderColor(SDL_Color palette);
 
 	// tint color effect
-	void shiftColor(const ColorShifter* shifter);
+	void shiftColor(const ColorShifter * shifter);
 
 	float getCurrentFrame() const; // Gets the current frame ID relative to frame group.
 
