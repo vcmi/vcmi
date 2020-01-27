@@ -90,6 +90,12 @@ CBattleStackAnimation::CBattleStackAnimation(CBattleInterface * owner, const CSt
 	assert(myAnim);
 }
 
+void CBattleStackAnimation::shiftColor(const ColorShifter * shifter)
+{
+	assert(myAnim);
+	myAnim->shiftColor(shifter);
+}
+
 void CAttackAnimation::nextFrame()
 {
 	if(myAnim->getType() != group)

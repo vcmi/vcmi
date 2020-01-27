@@ -51,7 +51,7 @@ void Clone::apply(BattleStateProxy * battleState, RNG & rng, const Mechanics * m
 		if(clonedStack->getCount() < 1)
 			continue;
 
-		auto hex = m->cb->getAvaliableHex(clonedStack->creatureId(), m->casterSide);
+		auto hex = m->cb->getAvaliableHex(clonedStack->creatureId(), m->casterSide, clonedStack->getPosition());
 
 		if(!hex.isValid())
 		{
