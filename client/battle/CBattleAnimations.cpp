@@ -90,7 +90,7 @@ CBattleStackAnimation::CBattleStackAnimation(CBattleInterface * owner, const CSt
 	assert(myAnim);
 }
 
-void CBattleStackAnimation::shiftColor(ColorShifter * shifter)
+void CBattleStackAnimation::shiftColor(const ColorShifter * shifter)
 {
 	assert(myAnim);
 	myAnim->shiftColor(shifter);
