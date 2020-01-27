@@ -161,12 +161,6 @@ public:
 class ColorShifterLightBlue : public ColorShifter
 {
 public:
-	static ColorShifterLightBlue * create()
-	{
-		std::unique_ptr<ColorShifterLightBlue> shifter(new ColorShifterLightBlue());
-		return shifter.get();
-	}
-
 	SDL_Color shiftColor(SDL_Color clr) const override
 	{
 		clr.b = clr.b + (255 - clr.b) / 2;
@@ -177,12 +171,6 @@ public:
 class ColorShifterDeepBlue : public ColorShifter
 {
 public:
-	static ColorShifterDeepBlue * create()
-	{
-		std::unique_ptr<ColorShifterDeepBlue> shifter(new ColorShifterDeepBlue());
-		return shifter.get();
-	}
-
 	SDL_Color shiftColor(SDL_Color clr) const override
 	{
 		clr.b = 255;
@@ -193,12 +181,6 @@ public:
 class ColorShifterDeepRed : public ColorShifter
 {
 public:
-	static ColorShifterDeepRed * create()
-	{
-		std::unique_ptr<ColorShifterDeepRed> shifter(new ColorShifterDeepRed());
-		return shifter.get();
-	}
-
 	SDL_Color shiftColor(SDL_Color clr) const override
 	{
 		clr.r = 255;
