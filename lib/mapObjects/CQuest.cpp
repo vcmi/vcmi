@@ -94,18 +94,25 @@ bool CQuest::checkQuest(const CGHeroInstance * h) const
 				std::vector<CStackBasicDescriptor>::const_iterator cre;
 				TSlots::const_iterator it;
 				ui32 count;
+				ui32 slotsCount = 0;
+				bool hasExtraCreatures = false;
 				for(cre = m6creatures.begin(); cre != m6creatures.end(); ++cre)
 				{
 					for(count = 0, it = h->Slots().begin(); it !=  h->Slots().end(); ++it)
 					{
 						if(it->second->type == cre->type)
+						{
 							count += it->second->count;
+							slotsCount++;
+						}
 					}
 					if(count < cre->count) //not enough creatures of this kind
 						return false;
+
+					hasExtraCreatures |= count > cre->count;
 				}
+				return hasExtraCreatures || slotsCount < h->Slots().size();
 			}
-			return true;
 		case MISSION_RESOURCES:
 			for(Res::ERes i = Res::WOOD; i <= Res::GOLD; vstd::advance(i, +1)) //including Mithril ?
 			{	//Quest has no direct access to callback
