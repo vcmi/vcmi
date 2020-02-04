@@ -27,6 +27,12 @@ namespace GameConstants
 	const std::string PLAYER_COLOR_NAMES [PlayerColor::PLAYER_LIMIT_I] = {
 		"red", "blue", "tan", "green", "orange", "purple", "teal", "pink"
 	};
+	const std::string  BATTLEFIELD_TYPE_NAMES [] = {
+		"sandShore","sandMesas","dirtBirches","dirtHills","dirtPines","grassHills","grassPines","lava",
+		"magicPlains","snowMountains","snowTrees","subterranean","swampTrees","fieryFields","rocklands",
+		"magicClouds","lucidPools","holyGround","cloverField","evilFog","favorableWinds","cursedGround","rough",
+		"shipToShip","ship"
+	};
 }
 
 namespace EAlignment

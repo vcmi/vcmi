@@ -344,7 +344,7 @@ void CBank::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) cons
 	if (answer)
 	{
 		if (bc) // not looted bank
-			cb->startBattleI(hero, this, true);
+			cb->startBattleI(hero, this, getObjectName());
 		else
 			doVisit(hero);
 	}

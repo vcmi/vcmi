@@ -231,3 +231,18 @@ std::ostream & operator<<(std::ostream & os, const EPathfindingLayer pathfinding
 	if (it == pathfinderLayerToString.end()) return os << "<Unknown type>";
 	else return os << it->second;
 }
+
+std::string BattlefieldType::toString()
+{
+	if(num == EBattlefieldType::NONE)
+		return "none";
+	return GameConstants::BATTLEFIELD_TYPE_NAMES[num];
+}
+
+BattlefieldType::EBattlefieldType BattlefieldType::fromString(std::string type)
+{
+	for(auto battlefield = BattlefieldType(-1); battlefield <= BattlefieldType(24); battlefield = BattlefieldType(battlefield+1))
+		if(type == battlefield.toString())
+			return battlefield;
+	return EBattlefieldType::NONE;
+}

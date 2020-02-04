@@ -1,0 +1,73 @@
+{
+
+	"type":"object",
+	"$schema": "http://json-schema.org/draft-04/schema",
+	"title" : "VCMI battlefield object format",
+	"description" : "Description of battlefield class",
+	"additionalProperties" : false,
+
+	"properties":{
+
+		"type": {
+			"type":"string",
+			"description" : ""
+		},
+
+		"battleSide": {
+			"type":"number",
+			"description" : ""
+		},
+		"blockedTiles": {
+			"type":"array",
+			"description" : ""
+		},
+		"graphics": {
+			"type":"string",
+			"description" : ""
+		},
+		"inherent": {
+			"type":"boolean",
+			"description" : ""
+		},
+		"offsetGraphicsInX": {
+			"type":"number",
+			"description" : ""
+		},
+		"offsetGraphicsInY": {
+			"type":"number",
+			"description" : ""
+		},
+		"place": {
+			"type":"array",
+			"description" : ""
+		},
+		"position": {
+			"type":"number",
+			"description" : ""
+		},
+		"spellLevel": {
+			"type":"number",
+			"description" : ""
+		},
+		"spellPower": {
+			"type":"number",
+			"description" : ""
+		},
+		"visibleForAnotherSide": {
+			"type":"number",
+			"description" : ""
+		},
+		"damage": {
+			"type":"number",
+			"description" : ""
+		},
+		"battlefieldSurface": {
+			"type":"array",
+			"description" : ""
+		},
+		"canBeRemoved": {
+			"type":"boolean",
+			"description" : ""
+		}
+	}
+}

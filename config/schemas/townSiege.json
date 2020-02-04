@@ -5,7 +5,7 @@
 	"title" : "VCMI siege screen format",
 	"description" : "Format used to define town siege screen in VCMI",
 	"required" : [
-		"gate", "imagePrefix", "moat", "shooter",
+		"gate", "imagePrefix", "mlip", "shooter",
 		"static", "towers", "walls"
 	 ],
 	
@@ -61,17 +61,13 @@
 			"type":"string",
 			"description" : "Prefix to all images related to siege screen"
 		},
-		"moat": {
+		"mlip": {
 			"type":"object",
 			"additionalProperties" : false,
-			"description" : "Castle moat description",
+			"description" : "Castle mlip description",
 			"properties":{
-				"bank": {
-					"description" : "Small section with bank of the moat",
-					"$ref" : "#/definitions/point"
-				},
-				"moat": {
-					"description" : "Main section of the moat",
+				"mlip": {
+					"description" : "Small section with mlip of the moat",
 					"$ref" : "#/definitions/point"
 				}
 			}

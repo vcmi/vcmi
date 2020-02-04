@@ -14,10 +14,11 @@
 class CGTownInstance;
 class CGHeroInstance;
 class CStack;
-struct CObstacleInstance;
+class Obstacle;
 class IBonusBearer;
 struct InfoAboutHero;
 class CArmedInstance;
+class UUID;
 
 typedef std::vector<const CStack *> TStacks;
 typedef std::function<bool(const CStack *)> TStackFilter;
@@ -56,12 +57,13 @@ public:
 	const IBonusBearer * getBattleNode() const;
 
 	ETerrainType battleTerrainType() const;
-	BFieldType battleGetBattlefieldType() const;
+
 	int32_t battleGetEnchanterCounter(ui8 side) const;
 
-	std::vector<std::shared_ptr<const CObstacleInstance> > battleGetAllObstacles(boost::optional<BattlePerspective::BattlePerspective> perspective = boost::none) const; //returns all obstacles on the battlefield
+	BattlefieldType battleGetBattlefieldType() const;
+	std::vector<std::shared_ptr<const Obstacle> > battleGetAllObstacles(boost::optional<BattlePerspective::BattlePerspective> perspective = boost::none) const; //returns all obstacles on the battlefield
 
-	std::shared_ptr<const CObstacleInstance> battleGetObstacleByID(uint32_t ID) const;
+	std::shared_ptr<const Obstacle> battleGetObstacleByID(UUID ID) const;
 
 	/** @brief Main method for getting battle stacks
 	 * returns also turrets and removed stacks
@@ -108,7 +110,7 @@ public:
 	TStacks battleGetAllStacks(bool includeTurrets = false) const;
 
 	const CStack * battleGetStackByID(int ID, bool onlyAlive = true) const; //returns stack info by given ID
-	bool battleIsObstacleVisibleForSide(const CObstacleInstance & coi, BattlePerspective::BattlePerspective side) const;
+	bool battleIsObstacleVisibleForSide(const Obstacle & coi, BattlePerspective::BattlePerspective side) const;
 
 	///returns player that controls given stack; mind control included
 	PlayerColor battleGetOwner(const battle::Unit * unit) const;

@@ -147,8 +147,6 @@
 			"horde" : [ 0, -1 ],
 			"mageGuild" : 3,
 			"warMachine" : "firstAidTent",
-			"moatDamage" : 90,
-			"moatHexes" : [ 10, 11, 27, 28, 43, 44, 60, 61, 76, 77, 94, 110, 111, 128, 129, 145, 146, 163, 164, 180, 181 ],
 			// primaryResource not specified so town get both Wood and Ore for resource bonus
 
 			"buildings" :
@@ -210,10 +208,9 @@
 					"arch" : { "x" : 483, "y" : 236 },
 					"gate" : { "x" : 392, "y" : 253 }
 				},
-				"moat" :
+				"mlip" :
 				{
-					"bank" : { "x" : 376, "y" : 70 },
-					"moat" : { "x" : 383, "y" : 95 }
+					"mlip" : { "x" : 376, "y" : 70 },
 				},
 				"static" :
 				{

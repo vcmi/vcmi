@@ -173,8 +173,6 @@ class DLL_LINKAGE CTown
 public:
 	CTown();
 	~CTown();
-	// TODO: remove once save and mod compatability not needed
-	static std::vector<BattleHex> defaultMoatHexes();
 
 	std::string getFactionName() const;
 	std::string getBuildingScope() const;
@@ -198,8 +196,6 @@ public:
 	ui32 mageLevel; //max available mage guild level
 	ui16 primaryRes;
 	ArtifactID warMachine;
-	si32 moatDamage;
-	std::vector<BattleHex> moatHexes;
 	// default chance for hero of specific class to appear in tavern, if field "tavern" was not set
 	// resulting chance = sqrt(town.chance * heroClass.chance)
 	ui32 defaultTavernChance;
@@ -274,14 +270,15 @@ public:
 		h & primaryRes;
 		h & warMachine;
 		h & clientInfo;
-		h & moatDamage;
-		if(version >= 758)
+		if(version < 777)
 		{
-			h & moatHexes;
+			si32 moatDamage;
+			h & moatDamage;
 		}
-		else if(!h.saving)
+		if(version >= 758 && version < 777)
 		{
-			moatHexes = defaultMoatHexes();
+			std::vector<BattleHex> moatHexes;
+			h & moatHexes;
 		}
 		h & defaultTavernChance;
 	}

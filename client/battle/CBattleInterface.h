@@ -13,6 +13,7 @@
 #include "../../lib/GameConstants.h"
 
 #include "CBattleAnimations.h"
+#include "battle/obstacle/ObstacleState.h"
 
 #include "../../lib/spells/CSpellHandler.h" //CSpell::TAnimation
 #include "../../lib/battle/CBattleInfoCallback.h"
@@ -27,7 +28,7 @@ class CToggleButton;
 class CToggleGroup;
 struct BattleResult;
 struct BattleSpellCast;
-struct CObstacleInstance;
+class Obstacle;
 template <typename T> struct CondSh;
 struct SetStackEffect;
 class BattleAction;
@@ -79,7 +80,7 @@ struct BattleObjectsByHex
 	typedef std::vector<int> TWallList;
 	typedef std::vector<const CStack *> TStackList;
 	typedef std::vector<const BattleEffect *> TEffectList;
-	typedef std::vector<std::shared_ptr<const CObstacleInstance>> TObstacleList;
+	typedef std::vector<std::shared_ptr<const Obstacle>> TObstacleList;
 
 	struct HexData
 	{
@@ -138,11 +139,7 @@ private:
 	const CCreatureSet *army1, *army2; //copy of initial armies (for result window)
 	const CGHeroInstance *attackingHeroInstance, *defendingHeroInstance;
 	std::map<int32_t, std::shared_ptr<CCreatureAnimation>> creAnims; //animations of creatures from fighting armies (order by BattleInfo's stacks' ID)
-
 	std::map<int, std::shared_ptr<CAnimation>> idToProjectile;
-
-	std::map<std::string, std::shared_ptr<CAnimation>> animationsCache;
-	std::map<si32, std::shared_ptr<CAnimation>> obstacleAnimations;
 
 	std::map<int, bool> creDir; // <creatureID, if false reverse creature's animation> //TODO: move it to battle callback
 	ui8 animCount;
@@ -248,7 +245,6 @@ private:
 	void showBackground(SDL_Surface *to);
 
 	void showBackgroundImage(SDL_Surface *to);
-	void showAbsoluteObstacles(SDL_Surface *to);
 	void showHighlightedHexes(SDL_Surface *to);
 	void showHighlightedHex(SDL_Surface *to, BattleHex hex, bool darkBorder = false);
 	void showInterface(SDL_Surface *to);
@@ -257,7 +253,7 @@ private:
 
 	void showAliveStacks(SDL_Surface *to, std::vector<const CStack *> stacks);
 	void showStacks(SDL_Surface *to, std::vector<const CStack *> stacks);
-	void showObstacles(SDL_Surface *to, std::vector<std::shared_ptr<const CObstacleInstance>> &obstacles);
+	void showObstacles(SDL_Surface * to, std::vector<std::shared_ptr<const Obstacle>> &obstacles);
 	void showPiecesOfWall(SDL_Surface *to, std::vector<int> pieces);
 
 	void showBattleEffects(SDL_Surface *to, const std::vector<const BattleEffect *> &battleEffects);
@@ -266,15 +262,14 @@ private:
 	BattleObjectsByHex sortObjectsByHex();
 	void updateBattleAnimations();
 
-	std::shared_ptr<IImage> getObstacleImage(const CObstacleInstance & oi);
 
-	Point getObstaclePosition(std::shared_ptr<IImage> image, const CObstacleInstance & obstacle);
 
 	void redrawBackgroundWithHexes(const CStack *activeStack);
 	/** End of battle screen blitting methods */
 
 	void setHeroAnimation(ui8 side, int phase);
 public:
+	
 	static CondSh<bool> animsAreDisplayed; //for waiting with the end of battle for end of anims
 	static CondSh<BattleAction *> givenCommand; //data != nullptr if we have i.e. moved current unit
 
@@ -376,8 +371,10 @@ public:
 	bool canStackMoveHere (const CStack *sactive, BattleHex MyNumber); //TODO: move to BattleState / callback
 
 	BattleHex fromWhichHexAttack(BattleHex myNumber);
-	void obstaclePlaced(const CObstacleInstance & oi);
-
+	void obstacleAnimEffect(const Obstacle & oi, ObstacleState state, bool waitForAnimations = false);
+	
+	Point getObstaclePosition(int imageHeight, const Obstacle & obstacle);
+	
 	void gateStateChanged(const EGateState state);
 
 	void initStackProjectile(const CStack * stack);

@@ -152,9 +152,6 @@
 			"mageGuild" : 5,
 			"primaryResource" : "crystal",
 			"warMachine" : "firstAidTent",
-			"moatDamage" : 70,
-			"moatHexes" : [ 11, 28, 44, 61, 77, 111, 129, 146, 164, 181 ],
-
 			"buildings" :
 			{
 				"mageGuild1":     { "id" : 0 },
@@ -216,10 +213,9 @@
 					"arch" : { "x" : 460, "y" : 220 },
 					"gate" : { "x" : 403, "y" : 271 }
 				},
-				"moat" :
+				"mlip" :
 				{
-					"bank" : { "x" : 410, "y" : 97 },
-					"moat" : { "x" : 410, "y" : 77 }
+					"mlip" : { "x" : 410, "y" : 97 },
 				},
 				"static" :
 				{

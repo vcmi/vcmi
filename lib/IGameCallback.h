@@ -81,9 +81,9 @@ public:
 	virtual void showCompInfo(ShowInInfobox * comp)=0;
 	virtual void heroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero)=0;
 	virtual void stopHeroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero)=0;
-	virtual void startBattlePrimary(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank = false, const CGTownInstance *town = nullptr)=0; //use hero=nullptr for no hero
-	virtual void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, bool creatureBank = false)=0; //if any of armies is hero, hero will be used
-	virtual void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, bool creatureBank = false)=0; //if any of armies is hero, hero will be used, visitable tile of second obj is place of battle
+	virtual void startBattlePrimary(const CArmedInstance * army1, const CArmedInstance * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, std::string creatureBankName = "", const CGTownInstance * town = nullptr) = 0; //use hero=nullptr for no hero
+	virtual void startBattleI(const CArmedInstance * army1, const CArmedInstance * army2, int3 tile, std::string creatureBankName = "") = 0; //if any of armies is hero, hero will be used
+	virtual void startBattleI(const CArmedInstance * army1, const CArmedInstance * army2, std::string creatureBankName = "") = 0; //if any of armies is hero, hero will be used, visitable tile of second obj is place of battle
 	virtual void setAmount(ObjectInstanceID objid, ui32 val)=0;
 	virtual bool moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, bool transit = false, PlayerColor asker = PlayerColor::NEUTRAL)=0;
 	virtual void giveHeroBonus(GiveBonus * bonus)=0;

@@ -11,7 +11,6 @@
 #pragma once
 
 #include "ISpellMechanics.h"
-
 #include "effects/Effects.h"
 
 struct BattleSpellCast;

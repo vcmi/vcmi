@@ -29,7 +29,7 @@ public:
 
 	battle::Units getUnitsIf(battle::UnitFilter predicate) const override;
 
-	BFieldType getBattlefieldType() const override;
+	BattlefieldType getBattlefieldType() const override;
 	ETerrainType getTerrainType() const override;
 
 	ObstacleCList getAllObstacles() const override;

@@ -19,6 +19,7 @@ class CBuildingHandler;
 class CObjectHandler;
 class CObjectClassesHandler;
 class CTownHandler;
+class BattlefieldHandler;
 class CGeneralTextHandler;
 class CModHandler;
 class IBonusTypeHandler;
@@ -46,6 +47,7 @@ public:
 	CObjectHandler * objh;
 	CObjectClassesHandler * objtypeh;
 	CTownHandler * townh;
+	BattlefieldHandler * battlefieldHandler;
 	CGeneralTextHandler * generaltexth;
 	CModHandler * modh;
 	CTerrainViewPatternConfig * terviewh;
@@ -66,6 +68,7 @@ public:
 		h & arth;
 		h & creh;
 		h & townh;
+		h & battlefieldHandler;
 		h & objh;
 		h & objtypeh;
 		h & spellh;

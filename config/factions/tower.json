@@ -147,9 +147,6 @@
 			"primaryResource" : "gems",
 			"mageGuild" : 5,
 			"warMachine" : "ammoCart",
-			"moatDamage" : 0, //TODO: minefield
-			"moatHexes" : [ 11, 28, 44, 61, 77, 111, 129, 146, 164, 181 ],
-
 			"buildings" :
 			{
 				"mageGuild1":     { "id" : 0 },
@@ -208,10 +205,9 @@
 					"arch" : { "x" : 471, "y" : 187 },
 					"gate" : { "x" : 400, "y" : 253 }
 				},
-				"moat" :
+				"mlip" :
 				{
-					"bank" : { "x" : 410, "y" : 80 },
-					"moat" : { "x" : 410, "y" : 90 }
+					"mlip" : { "x" : 410, "y" : 80 },
 				},
 				"static" :
 				{

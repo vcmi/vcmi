@@ -105,7 +105,7 @@
 			"additionalProperties" : false,
 			"required" : [
 				"mapObject", "buildingsIcons", "buildings", "creatures", "guildWindow", "names",
-				"hallBackground", "hallSlots", "horde", "mageGuild", "moatDamage", "defaultTavern", "tavernVideo", "guildBackground", "musicTheme", "siege", "structures", "townBackground", "warMachine"
+				"hallBackground", "hallSlots", "horde", "mageGuild", "defaultTavern", "tavernVideo", "guildBackground", "musicTheme", "siege", "structures", "townBackground", "warMachine"
 			],
 			"description": "town",
 			"properties":{
@@ -225,10 +225,6 @@
 				"mageGuild": {
 					"type":"number",
 					"description": "Maximal level of mage guild"
-				},
-				"moatDamage": {
-					"type":"number",
-					"description": "Damage dealt to creature that entered town moat during siege"
 				},
 				"moatHexes": {
 					"type" : "array",

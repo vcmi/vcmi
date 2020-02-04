@@ -18,6 +18,7 @@
 #include "CHeroHandler.h"
 #include "mapObjects/CObjectHandler.h"
 #include "CTownHandler.h"
+#include "battle/handler/BattlefieldHandler.h"
 #include "CBuildingHandler.h"
 #include "spells/CSpellHandler.h"
 #include "CSkillHandler.h"
@@ -108,6 +109,8 @@ void LibClasses::init(bool onlyEssential)
 
 	createHandler(townh, "Town", pomtime);
 
+	createHandler(battlefieldHandler, "Battlefield", pomtime);
+
 	createHandler(objh, "Object", pomtime);
 
 	createHandler(objtypeh, "Object types information", pomtime);
@@ -137,6 +140,7 @@ void LibClasses::clear()
 	delete arth;
 	delete creh;
 	delete townh;
+	delete battlefieldHandler;
 	delete objh;
 	delete objtypeh;
 	delete spellh;

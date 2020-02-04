@@ -70,9 +70,9 @@ public:
 	void showCompInfo(ShowInInfobox * comp) override {};
 	void heroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero) override {};
 	void stopHeroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero) override {};
-	void startBattlePrimary(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank = false, const CGTownInstance *town = nullptr) override {}; //use hero=nullptr for no hero
-	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, bool creatureBank = false) override {}; //if any of armies is hero, hero will be used
-	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, bool creatureBank = false) override {}; //if any of armies is hero, hero will be used, visitable tile of second obj is place of battle
+	void startBattlePrimary(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, std::string creatureBankName = "", const CGTownInstance *town = nullptr) override {}; //use hero=nullptr for no hero
+	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, std::string creatureBankName = "") override {}; //if any of armies is hero, hero will be used
+	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, std::string creatureBankName = "") override {}; //if any of armies is hero, hero will be used, visitable tile of second obj is place of battle
 	void setAmount(ObjectInstanceID objid, ui32 val) override {};
 	bool moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, bool transit = false, PlayerColor asker = PlayerColor::NEUTRAL) override {return false;};
 	void giveHeroBonus(GiveBonus * bonus) override {};

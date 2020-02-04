@@ -13,7 +13,6 @@
 #include "battle/BattleHex.h"
 #include "GameConstants.h"
 #include "int3.h"
-
 class CGTownInstance;
 class CCreature;
 class CArmedInstance;
@@ -43,7 +42,7 @@ struct BattleAttack;
 struct SetStackEffect;
 struct BattleTriggerEffect;
 class CComponent;
-struct CObstacleInstance;
+class Obstacle;
 struct CPackForServer;
 class EVictoryLossCheckResult;
 struct MetaString;

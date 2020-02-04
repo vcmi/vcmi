@@ -11,14 +11,14 @@
 #pragma once
 
 #include "../../lib/battle/IBattleState.h"
-
+#include "../../lib/UUID.h"
 class BattleStateMock : public IBattleState
 {
 public:
 	MOCK_CONST_METHOD0(getActiveStackID, int32_t());
 	MOCK_CONST_METHOD1(getStacksIf, TStacks(TStackFilter));
 	MOCK_CONST_METHOD1(getUnitsIf, battle::Units(battle::UnitFilter));
-	MOCK_CONST_METHOD0(getBattlefieldType, BFieldType());
+	MOCK_CONST_METHOD0(getBattlefieldType, BattlefieldType());
 	MOCK_CONST_METHOD0(getTerrainType, ETerrainType());
 	MOCK_CONST_METHOD0(getAllObstacles, IBattleInfo::ObstacleCList());
 	MOCK_CONST_METHOD0(getDefendedTown, const CGTownInstance *());
@@ -46,7 +46,7 @@ public:
 	MOCK_METHOD2(removeUnitBonus, void(uint32_t, const std::vector<Bonus> &));
 	MOCK_METHOD2(setWallState, void(int, si8));
 	MOCK_METHOD1(addObstacle, void(const ObstacleChanges &));
-	MOCK_METHOD1(removeObstacle, void(uint32_t));
+	MOCK_METHOD1(removeObstacle, void(UUID));
 };
 
 

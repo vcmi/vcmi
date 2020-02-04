@@ -50,6 +50,11 @@ set(launcher_FORMS
 		mainwindow_moc.ui
 )
 
+set_property(SOURCE ui_cmodlistview_moc.h PROPERTY SKIP_AUTOMOC ON)
+set_property(SOURCE ui_imageviewer_moc.h PROPERTY SKIP_AUTOMOC ON)
+set_property(SOURCE ui_csettingsview_moc.h PROPERTY SKIP_AUTOMOC ON)
+set_property(SOURCE ui_mainwindow_moc.h PROPERTY SKIP_AUTOMOC ON)
+
 assign_source_group(${launcher_SRCS} ${launcher_HEADERS} VCMI_launcher.rc)
 
 # Tell CMake to run moc when necessary:

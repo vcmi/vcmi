@@ -143,11 +143,11 @@ public:
 		const auto t = gameCallback->getTile(tile);
 
 		ETerrainType terrain = t->terType;
-		BFieldType terType = BFieldType::GRASS_HILLS;
+		BattlefieldType terType = BattlefieldType::GRASS_HILLS;
 
 		//send info about battles
 
-		BattleInfo * battle = BattleInfo::setupBattle(tile, terrain, terType, armedInstancies, heroes, false, nullptr);
+		BattleInfo * battle = BattleInfo::setupBattle(tile, terrain, terType, armedInstancies, heroes, "", nullptr);
 
 		BattleStart bs;
 		bs.info = battle;

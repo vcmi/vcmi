@@ -151,8 +151,6 @@
 			"horde" : [ 0, -1 ],
 			"mageGuild" : 5,
 			"warMachine" : "firstAidTent",
-			"moatDamage" : 70,
-			"moatHexes" : [ 11, 28, 44, 61, 77, 111, 129, 146, 164, 181 ],
 			// primaryResource not specified so town get both Wood and Ore for resource bonus
 
 			"buildings" :
@@ -201,7 +199,7 @@
 				"dwellingUpLvl5": { "id" : 41, "upgrades" : "dwellingLvl5" },
 				"dwellingUpLvl6": { "id" : 42, "upgrades" : "dwellingLvl6" },
 				"dwellingUpLvl7": { "id" : 43, "upgrades" : "dwellingLvl7" },
-				
+
 				"horde2" : null,
 				"horde2Upgr" : null,
 				"special4" : null
@@ -216,10 +214,9 @@
 					"arch" : { "x" : 474, "y" : 240 },
 					"gate" : { "x" : 401, "y" : 262 }
 				},
-				"moat" :
+				"mlip" :
 				{
-					"bank" : { "x" : -1, "y" : -1 },
-					"moat" : { "x" : 406, "y" : 77 }
+					"mlip" : { "x" : 406, "y" : 77 },
 				},
 				"static" :
 				{

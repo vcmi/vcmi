@@ -371,7 +371,7 @@ void HypotheticBattle::addObstacle(const ObstacleChanges & changes)
 	//TODO:HypotheticBattle::addObstacle
 }
 
-void HypotheticBattle::removeObstacle(uint32_t id)
+void HypotheticBattle::removeObstacle(UUID id)
 {
 	//TODO:HypotheticBattle::removeObstacle
 }
@@ -389,4 +389,9 @@ int64_t HypotheticBattle::getActualDamage(const TDmgRange & damage, int32_t atta
 int64_t HypotheticBattle::getTreeVersion() const
 {
 	return getBattleNode()->getTreeVersion() + bonusTreeVersion;
+}
+
+void HypotheticBattle::updateObstacle(const ObstacleChanges & changes)
+{
+
 }

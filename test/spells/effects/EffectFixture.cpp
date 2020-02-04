@@ -154,7 +154,6 @@ void EffectFixture::setupEmptyBattlefield()
 {
 	EXPECT_CALL(*battleFake, getDefendedTown()).WillRepeatedly(Return(nullptr));
 	EXPECT_CALL(*battleFake, getAllObstacles()).WillRepeatedly(Return(IBattleInfo::ObstacleCList()));
-	EXPECT_CALL(*battleFake, getBattlefieldType()).WillRepeatedly(Return(BFieldType::NONE2));
 }
 
 }

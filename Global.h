@@ -202,6 +202,10 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <boost/range/algorithm.hpp>
 #include <boost/thread.hpp>
 #include <boost/variant.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/uuid/uuid_io.hpp>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/random_generator.hpp>
 #include <boost/math/special_functions/round.hpp>
 #include <boost/multi_array.hpp>
 

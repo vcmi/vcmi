@@ -14,7 +14,7 @@
 
 #include "../../GameConstants.h"
 
-struct CObstacleInstance;
+struct Obstacle;
 struct BattleObstaclesChanged;
 
 namespace spells
@@ -37,15 +37,15 @@ protected:
 	void serializeJsonEffect(JsonSerializeFormat & handler) override;
 
 private:
-    bool removeAbsolute;
-    bool removeUsual;
+	bool removeAbsolute;
+	bool removeUsual;
     bool removeAllSpells;
 
     std::set<SpellID> removeSpells;
 
-    bool canRemove(const CObstacleInstance * obstacle) const;
+	bool canRemove(const Obstacle * obstacle) const;
 
-	std::set<const CObstacleInstance *> getTargets(const Mechanics * m, const EffectTarget & target, bool alwaysMassive) const;
+	std::set<const Obstacle *> getTargets(const Mechanics * m, const EffectTarget & target, bool alwaysMassive) const;
 };
 
 }

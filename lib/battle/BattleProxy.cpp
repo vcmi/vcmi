@@ -41,7 +41,7 @@ battle::Units BattleProxy::getUnitsIf(battle::UnitFilter predicate) const
 	return subject->battleGetUnitsIf(predicate);
 }
 
-BFieldType BattleProxy::getBattlefieldType() const
+BattlefieldType BattleProxy::getBattlefieldType() const
 {
 	return subject->battleGetBattlefieldType();
 }

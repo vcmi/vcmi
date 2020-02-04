@@ -55,6 +55,7 @@ set(client_SRCS
 
 		CBitmapHandler.cpp
 		CreatureCostBox.cpp
+
 		CGameInfo.cpp
 		Client.cpp
 		CMessage.cpp
@@ -127,6 +128,7 @@ set(client_HEADERS
 
 		CBitmapHandler.h
 		CreatureCostBox.h
+
 		CGameInfo.h
 		Client.h
 		CMessage.h

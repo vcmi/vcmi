@@ -24,6 +24,9 @@ struct ArtSlotInfo;
 #include "ConstTransitivePtr.h"
 #include "GameConstants.h"
 #include "JsonNode.h"
+#include "UUID.h"
+#include "battle/obstacle/ObstacleState.h"
+
 
 struct DLL_LINKAGE CPack
 {
@@ -325,17 +328,25 @@ public:
 class ObstacleChanges : public BattleChanges
 {
 public:
-	uint32_t id;
+	UUID id;
+	SpellID spellID;
+	ObstacleState state = ObstacleState::Appear;
 
 	ObstacleChanges()
-		: BattleChanges(EOperation::RESET_STATE),
-		id(0)
+		: BattleChanges(EOperation::RESET_STATE)
 	{
 	}
 
-	ObstacleChanges(uint32_t id_, EOperation operation_)
+	ObstacleChanges(UUID id_, EOperation operation_)
 		: BattleChanges(operation_),
 		id(id_)
+	{
+	}
+
+	ObstacleChanges(UUID id_, ObstacleState obstacleState, EOperation operation_)
+			: BattleChanges(operation_),
+			  state(obstacleState),
+			  id(id_)
 	{
 	}
 
@@ -344,5 +355,7 @@ public:
 		h & id;
 		h & data;
 		h & operation;
+		h & spellID;
+		h & state;
 	}
 };
