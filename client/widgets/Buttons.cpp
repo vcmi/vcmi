@@ -23,8 +23,6 @@
 #include "../windows/InfoWindows.h"
 #include "../../lib/CConfigHandler.h"
 
-using namespace std;
-
 void CButton::update()
 {
 	if (overlay)
