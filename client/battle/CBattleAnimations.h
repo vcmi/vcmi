@@ -43,6 +43,8 @@ public:
 	const CStack * stack; //id of stack whose animation it is
 
 	CBattleStackAnimation(CBattleInterface * _owner, const CStack * _stack);
+
+	void shiftColor(const ColorShifter * shifter);
 };
 
 /// This class is responsible for managing the battle attack animation
