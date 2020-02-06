@@ -4843,7 +4843,7 @@ bool CGameHandler::handleDamageFromObstacle(const CStack * curStack, bool stackI
 				const bool oneTimeObstacle = spellObstacle->removeOnTrigger;
 
 				//hidden obstacle triggers effects until revealed
-				if(!(spellObstacle->hidden && gs->curB->battleIsObstacleVisibleForSide(*obstacle, (BattlePerspective::BattlePerspective)side)))
+				if(!(spellObstacle->hidden && !spellObstacle->revealed && gs->curB->battleIsObstacleVisibleForSide(*obstacle, (BattlePerspective::BattlePerspective)side)))
 				{
 					const CGHeroInstance * hero = gs->curB->battleGetFightingHero(spellObstacle->casterSide);
 					spells::ObstacleCasterProxy caster(gs->curB->sides.at(spellObstacle->casterSide).color, hero, spellObstacle);
