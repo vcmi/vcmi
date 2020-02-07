@@ -104,6 +104,9 @@ public:
 	bool incrementFrame(float timePassed);
 	void setBorderColor(SDL_Color palette);
 
+	// tint color effect
+	void shiftColor(const ColorShifter * shifter);
+
 	float getCurrentFrame() const; // Gets the current frame ID relative to frame group.
 
 	void playOnce(CCreatureAnim::EAnimType type); //plays once given stage of animation, then resets to 2

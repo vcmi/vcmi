@@ -322,6 +322,11 @@ void CToggleBase::doSelect(bool on)
 	// for overrides
 }
 
+void CToggleBase::setEnabled(bool enabled)
+{
+	// for overrides
+}
+
 void CToggleBase::setSelected(bool on)
 {
 	bool changed = (on != selected);
@@ -361,6 +366,11 @@ void CToggleButton::doSelect(bool on)
 	{
 		setState(NORMAL);
 	}
+}
+
+void CToggleButton::setEnabled(bool enabled)
+{
+	setState(enabled ? NORMAL : BLOCKED);
 }
 
 void CToggleButton::clickLeft(tribool down, bool previousState)
@@ -422,6 +432,17 @@ CToggleGroup::CToggleGroup(const CFunctionList<void(int)> &OnChange)
 
 void CToggleGroup::setSelected(int id)
 {
+	selectionChanged(id);
+}
+
+void CToggleGroup::setSelectedOnly(int id)
+{
+	for(auto it = buttons.begin(); it != buttons.end(); it++)
+	{
+		int buttonId = it->first;
+		buttons[buttonId]->setEnabled(buttonId == id);
+	}
+
 	selectionChanged(id);
 }
 

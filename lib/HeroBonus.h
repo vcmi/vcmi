@@ -174,7 +174,7 @@ public:
 	BONUS_NAME(TWO_HEX_ATTACK_BREATH) /*eg. dragons*/	\
 	BONUS_NAME(SPELL_DAMAGE_REDUCTION) /*eg. golems; value - reduction in %, subtype - spell school; -1 - all, 0 - air, 1 - fire, 2 - water, 3 - earth*/ \
 	BONUS_NAME(NO_WALL_PENALTY)							\
-	BONUS_NAME(NON_LIVING) /*eg. gargoyle*/				\
+	BONUS_NAME(NON_LIVING) /*eg. golems, cannot be rised or healed, only neutral morale */				\
 	BONUS_NAME(RANDOM_SPELLCASTER) /*eg. master genie, val - level*/ \
 	BONUS_NAME(BLOCKS_RETALIATION) /*eg. naga*/			\
 	BONUS_NAME(SPELL_IMMUNITY) /*subid - spell id*/		\
@@ -271,6 +271,7 @@ public:
 	BONUS_NAME(DESTRUCTION) /*kills extra units after hit, subtype = 0 - kill percentage of units, 1 - kill amount, val = chance in percent to trigger, additional info - amount/percentage to kill*/ \
 	BONUS_NAME(SPECIAL_CRYSTAL_GENERATION) /*crystal dragon crystal generation*/ \
 	BONUS_NAME(NO_SPELLCAST_BY_DEFAULT) /*spellcast will not be default attack option for this creature*/ \
+	BONUS_NAME(GARGOYLE) /* gargoyle is special than NON_LIVING, cannot be rised or healed */ \
 
 	/* end of list */
 

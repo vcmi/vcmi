@@ -51,9 +51,9 @@
 		"faction": "tower",
 		"abilities":
 		{
-			"nonliving" :
+			"gargoyle" :
 			{
-				"type" : "NON_LIVING"
+				"type" : "GARGOYLE"
 			}
 		},
 		"upgrades": ["obsidianGargoyle"],
@@ -77,9 +77,9 @@
 		"faction": "tower",
 		"abilities":
 		{
-			"nonliving" :
+			"gargoyle" :
 			{
-				"type" : "NON_LIVING"
+				"type" : "GARGOYLE"
 			}
 		},
 		"graphics" :

@@ -16,6 +16,7 @@
 struct SDL_Surface;
 class JsonNode;
 class CDefFile;
+class ColorShifter;
 
 /*
  * Base class for images, can be used for non-animation pictures as well
@@ -44,6 +45,8 @@ public:
 
 	//only indexed bitmaps, 16 colors maximum
 	virtual void shiftPalette(int from, int howMany) = 0;
+	virtual void adjustPalette(const ColorShifter * shifter) = 0;
+	virtual void resetPalette() = 0;
 
 	//only indexed bitmaps, colors 5,6,7 must be special
 	virtual void setBorderPallete(const BorderPallete & borderPallete) = 0;
@@ -97,6 +100,9 @@ public:
 	//duplicates frame at [sourceGroup, sourceFrame] as last frame in targetGroup
 	//and loads it if animation is preloaded
 	void duplicateImage(const size_t sourceGroup, const size_t sourceFrame, const size_t targetGroup);
+
+	// adjust the color of the animation, used in battle spell effects, e.g. Cloned objects
+	void shiftColor(const ColorShifter * shifter);
 
 	//add custom surface to the selected position.
 	void setCustom(std::string filename, size_t frame, size_t group=0);
