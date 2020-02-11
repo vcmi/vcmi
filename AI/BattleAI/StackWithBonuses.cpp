@@ -371,6 +371,11 @@ void HypotheticBattle::addObstacle(const ObstacleChanges & changes)
 	//TODO:HypotheticBattle::addObstacle
 }
 
+void HypotheticBattle::updateObstacle(const ObstacleChanges& changes)
+{
+	//TODO:HypotheticBattle::updateObstacle
+}
+
 void HypotheticBattle::removeObstacle(uint32_t id)
 {
 	//TODO:HypotheticBattle::removeObstacle

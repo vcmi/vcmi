@@ -51,6 +51,7 @@
 #ifndef _MSC_VER
 #include <boost/thread/xtime.hpp>
 #endif
+#include <serializer\JsonSerializer.h>
 
 #define COMPLAIN_RET_IF(cond, txt) do {if (cond){complain(txt); return;}} while(0)
 #define COMPLAIN_RET_FALSE_IF(cond, txt) do {if (cond){complain(txt); return false;}} while(0)
@@ -4858,6 +4859,25 @@ bool CGameHandler::handleDamageFromObstacle(const CStack * curStack, bool stackI
 
 					if(oneTimeObstacle)
 						removeObstacle(*obstacle);
+					else
+					{
+						// For the hidden spell created obstacles, e.g. QuickSand, it should be revealed after taking damage
+						ObstacleChanges changeInfo;
+						changeInfo.id = spellObstacle->uniqueID;
+						changeInfo.operation = ObstacleChanges::EOperation::UPDATE;
+
+						SpellCreatedObstacle changedObstacle;
+						changedObstacle.uniqueID = spellObstacle->uniqueID;
+						changedObstacle.revealed = true;
+
+						changeInfo.data.clear();
+						JsonSerializer ser(nullptr, changeInfo.data);
+						ser.serializeStruct("obstacle", changedObstacle);
+
+						BattleObstaclesChanged bocp;
+						bocp.changes.emplace_back(changeInfo);
+						sendAndApply(&bocp);
+					}
 				}
 			}
 		}
