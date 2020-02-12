@@ -47,11 +47,11 @@
 #include "../lib/serializer/CTypeList.h"
 #include "../lib/serializer/Connection.h"
 #include "../lib/serializer/Cast.h"
+#include "../lib/serializer/JsonSerializer.h"
 
 #ifndef _MSC_VER
 #include <boost/thread/xtime.hpp>
 #endif
-#include <serializer\JsonSerializer.h>
 
 #define COMPLAIN_RET_IF(cond, txt) do {if (cond){complain(txt); return;}} while(0)
 #define COMPLAIN_RET_FALSE_IF(cond, txt) do {if (cond){complain(txt); return false;}} while(0)
