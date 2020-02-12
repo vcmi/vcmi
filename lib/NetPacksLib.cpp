@@ -1535,6 +1535,9 @@ DLL_LINKAGE void BattleObstaclesChanged::applyBattle(IBattleState * battleState)
 		case BattleChanges::EOperation::ADD:
 			battleState->addObstacle(change);
 			break;
+		case BattleChanges::EOperation::UPDATE:
+			battleState->updateObstacle(change);
+			break;
 		default:
 			logNetwork->error("Unknown obstacle operation %d", (int)change.operation);
 			break;

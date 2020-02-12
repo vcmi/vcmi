@@ -87,5 +87,6 @@ public:
 	virtual void setWallState(int partOfWall, si8 state) = 0;
 
 	virtual void addObstacle(const ObstacleChanges & changes) = 0;
+	virtual void updateObstacle(const ObstacleChanges & changes) = 0;
 	virtual void removeObstacle(uint32_t id) = 0;
 };

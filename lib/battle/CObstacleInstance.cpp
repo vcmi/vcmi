@@ -155,8 +155,8 @@ void SpellCreatedObstacle::fromInfo(const ObstacleChanges & info)
 {
 	uniqueID = info.id;
 
-	if(info.operation != ObstacleChanges::EOperation::ADD)
-		logGlobal->error("ADD operation expected");
+	if(info.operation != ObstacleChanges::EOperation::ADD && info.operation != ObstacleChanges::EOperation::UPDATE)
+		logGlobal->error("ADD or UPDATE operation expected");
 
     JsonDeserializer deser(nullptr, info.data);
     deser.serializeStruct("obstacle", *this);
@@ -173,6 +173,7 @@ void SpellCreatedObstacle::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeInt("casterSide", casterSide);
 
 	handler.serializeBool("hidden", hidden);
+	handler.serializeBool("revealed", revealed);
 	handler.serializeBool("passable", passable);
 	handler.serializeBool("trigger", trigger);
 	handler.serializeBool("trap", trap);

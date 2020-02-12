@@ -809,17 +809,6 @@ void BattleInfo::moveUnit(uint32_t id, BattleHex destination)
 		logGlobal->error("Cannot find stack %d", id);
 		return;
 	}
-
-	for(auto & oi : obstacles)
-	{
-		if((oi->obstacleType == CObstacleInstance::SPELL_CREATED) && vstd::contains(oi->getAffectedTiles(), destination))
-		{
-			SpellCreatedObstacle * obstacle = dynamic_cast<SpellCreatedObstacle*>(oi.get());
-			assert(obstacle);
-			if(obstacle->casterSide != sta->unitSide() && obstacle->hidden)
-				obstacle->revealed = true;
-		}
-	}
 	sta->position = destination;
 }
 
@@ -1027,6 +1016,26 @@ void BattleInfo::addObstacle(const ObstacleChanges & changes)
 	std::shared_ptr<SpellCreatedObstacle> obstacle = std::make_shared<SpellCreatedObstacle>();
 	obstacle->fromInfo(changes);
 	obstacles.push_back(obstacle);
+}
+
+void BattleInfo::updateObstacle(const ObstacleChanges& changes)
+{
+	std::shared_ptr<SpellCreatedObstacle> changedObstacle = std::make_shared<SpellCreatedObstacle>();
+	changedObstacle->fromInfo(changes);
+
+	for(int i = 0; i < obstacles.size(); ++i)
+	{
+		if(obstacles[i]->uniqueID == changes.id) // update this obstacle
+		{
+			SpellCreatedObstacle * spellObstacle = dynamic_cast<SpellCreatedObstacle *>(obstacles[i].get());
+			assert(spellObstacle);
+
+			// Currently we only support to update the "revealed" property
+			spellObstacle->revealed = changedObstacle->revealed;
+			
+			break;
+		}
+	}
 }
 
 void BattleInfo::removeObstacle(uint32_t id)
