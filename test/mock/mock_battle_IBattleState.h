@@ -47,6 +47,7 @@ public:
 	MOCK_METHOD2(setWallState, void(int, si8));
 	MOCK_METHOD1(addObstacle, void(const ObstacleChanges &));
 	MOCK_METHOD1(removeObstacle, void(uint32_t));
+	MOCK_METHOD1(updateObstacle, void(const ObstacleChanges &));
 };
 
 

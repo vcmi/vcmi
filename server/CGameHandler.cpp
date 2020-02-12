@@ -4858,7 +4858,9 @@ bool CGameHandler::handleDamageFromObstacle(const CStack * curStack, bool stackI
 					battleCast.applyEffects(spellEnv, true);
 
 					if(oneTimeObstacle)
+					{
 						removeObstacle(*obstacle);
+					}
 					else
 					{
 						// For the hidden spell created obstacles, e.g. QuickSand, it should be revealed after taking damage
