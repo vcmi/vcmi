@@ -1897,7 +1897,7 @@ UpgradeInfo CGameState::getUpgradeInfo(const CStackInstance &stack)
 		t = static_cast<const CGTownInstance *>(stack.armyObj);
 	else if(h)
 	{	//hero specialty
-		TBonusListPtr lista = h->getBonuses(Selector::typeSubtype(Bonus::SPECIAL_UPGRADE, base->idNumber));
+		auto lista = h->getBonuses(Selector::typeSubtype(Bonus::SPECIAL_UPGRADE, base->idNumber));
 		for(const std::shared_ptr<Bonus> it : *lista)
 		{
 			auto nid = CreatureID(it->additionalInfo[0]);

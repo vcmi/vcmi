@@ -680,7 +680,7 @@ bool CBattleInfoCallback::battleCanShoot(const battle::Unit * attacker, BattleHe
 		return false;
 
 	//forgetfulness
-	TBonusListPtr forgetfulList = attacker->getBonuses(Selector::type(Bonus::FORGETFULL));
+	auto forgetfulList = attacker->getBonuses(Selector::type(Bonus::FORGETFULL));
 	if(!forgetfulList->empty())
 	{
 		int forgetful = forgetfulList->valOfBonuses(Selector::type(Bonus::FORGETFULL));
@@ -855,7 +855,7 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo & info) 
 		//todo: set actual percentage in spell bonus configuration instead of just level; requires non trivial backward compatibility handling
 
 		//get list first, total value of 0 also counts
-		TBonusListPtr forgetfulList = attackerBonuses->getBonuses(Selector::type(Bonus::FORGETFULL),"type_FORGETFULL");
+		auto forgetfulList = attackerBonuses->getBonuses(Selector::type(Bonus::FORGETFULL),"type_FORGETFULL");
 
 		if(!forgetfulList->empty())
 		{
@@ -875,8 +875,8 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo & info) 
 	const std::string cachingStrForcedMaxDamage = "type_ALWAYS_MAXIMUM_DAMAGE";
 	static const auto selectorForcedMaxDamage = Selector::type(Bonus::ALWAYS_MAXIMUM_DAMAGE);
 
-	TBonusListPtr curseEffects = attackerBonuses->getBonuses(selectorForcedMinDamage, cachingStrForcedMinDamage);
-	TBonusListPtr blessEffects = attackerBonuses->getBonuses(selectorForcedMaxDamage, cachingStrForcedMaxDamage);
+	auto curseEffects = attackerBonuses->getBonuses(selectorForcedMinDamage, cachingStrForcedMinDamage);
+	auto blessEffects = attackerBonuses->getBonuses(selectorForcedMaxDamage, cachingStrForcedMaxDamage);
 
 	int curseBlessAdditiveModifier = blessEffects->totalValue() - curseEffects->totalValue();
 	double curseMultiplicativePenalty = curseEffects->size() ? (*std::max_element(curseEffects->begin(), curseEffects->end(), &Bonus::compareByAdditionalInfo<std::shared_ptr<Bonus>>))->additionalInfo[0] : 0;
@@ -1814,7 +1814,7 @@ SpellID CBattleInfoCallback::getRandomCastedSpell(CRandomGenerator & rand,const 
 {
 	RETURN_IF_NOT_BATTLE(SpellID::NONE);
 
-	TBonusListPtr bl = caster->getBonuses(Selector::type(Bonus::SPELLCASTER));
+	auto bl = caster->getBonuses(Selector::type(Bonus::SPELLCASTER));
 	if (!bl->size())
 		return SpellID::NONE;
 	int totalWeight = 0;

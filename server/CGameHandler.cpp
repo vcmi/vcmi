@@ -5390,7 +5390,7 @@ void CGameHandler::attackCasting(bool ranged, Bonus::BonusType attackMode, const
 	if(attacker->hasBonusOfType(attackMode))
 	{
 		std::set<SpellID> spellsToCast;
-		TBonusListPtr spells = attacker->getBonuses(Selector::type(attackMode));
+		auto spells = attacker->getBonuses(Selector::type(attackMode));
 		for(const std::shared_ptr<Bonus> sf : *spells)
 		{
 			spellsToCast.insert(SpellID(sf->subtype));
@@ -5404,7 +5404,7 @@ void CGameHandler::attackCasting(bool ranged, Bonus::BonusType attackMode, const
 				return;
 			}
 			int32_t spellLevel = 0;
-			TBonusListPtr spellsByType = attacker->getBonuses(Selector::typeSubtype(attackMode, spellID));
+			auto spellsByType = attacker->getBonuses(Selector::typeSubtype(attackMode, spellID));
 			for(const std::shared_ptr<Bonus> sf : *spellsByType)
 			{
 				int meleeRanged;
@@ -5500,7 +5500,7 @@ void CGameHandler::handleAfterAttackCasting(bool ranged, const CStack * attacker
 		return;
 
 	int64_t acidDamage = 0;
-	TBonusListPtr acidBreath = attacker->getBonuses(Selector::type(Bonus::ACID_BREATH));
+	auto acidBreath = attacker->getBonuses(Selector::type(Bonus::ACID_BREATH));
 	for(const std::shared_ptr<Bonus> b : *acidBreath)
 	{
 		if(b->additionalInfo[0] > getRandomGenerator().nextInt(99))
@@ -5939,7 +5939,7 @@ void CGameHandler::runBattle()
 		auto h = gs->curB->battleGetFightingHero(i);
 		if (h)
 		{
-			TBonusListPtr bl = h->getBonuses(Selector::type(Bonus::OPENING_BATTLE_SPELL));
+			auto bl = h->getBonuses(Selector::type(Bonus::OPENING_BATTLE_SPELL));
 
 			for (auto b : *bl)
 			{

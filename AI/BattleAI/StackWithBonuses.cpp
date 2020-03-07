@@ -177,7 +177,7 @@ void StackWithBonuses::removeUnitBonus(const std::vector<Bonus> & bonus)
 
 void StackWithBonuses::removeUnitBonus(const CSelector & selector)
 {
-	TBonusListPtr toRemove = origBearer->getBonuses(selector);
+	auto toRemove = origBearer->getBonuses(selector);
 
 	for(auto b : *toRemove)
 		bonusesToRemove.insert(b);
