@@ -312,7 +312,6 @@ void CHeroArtPlace::deselect ()
 {
 	pickSlot(false);
 	selectSlot(false);
-	CBonusSystemNode::treeHasChanged();
 
 	if(ourArt && ourArt->canBeDisassembled()) //combined art returned to its slot -> restore locks
 	{

@@ -43,7 +43,9 @@
 const TBonusListPtr CHeroWithMaybePickedArtifact::getAllBonuses(const CSelector & selector, const CSelector & limit, const CBonusSystemNode * root, const std::string & cachingStr) const
 {
 	TBonusListPtr out(new BonusList());
-	TBonusListPtr heroBonuses = hero->getAllBonuses(selector, limit, hero, cachingStr);
+
+	// Fix bug: we are ignoring the cachingStr here, since when pick up and put back the artifact we want to refresh the cache
+	TBonusListPtr heroBonuses = hero->getAllBonuses(selector, limit, hero); 
 	TBonusListPtr bonusesFromPickedUpArtifact;
 
 	std::shared_ptr<CArtifactsOfHero::SCommonPart> cp = cww->getCommonPart();
