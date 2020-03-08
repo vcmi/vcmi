@@ -45,7 +45,7 @@ const TBonusListPtr CHeroWithMaybePickedArtifact::getAllBonuses(const CSelector 
 	TBonusListPtr out(new BonusList());
 
 	// Fix bug: we are ignoring the cachingStr here, since when pick up and put back the artifact we want to refresh the cache
-	TBonusListPtr heroBonuses = hero->getAllBonuses(selector, limit, hero); 
+	TBonusListPtr heroBonuses = hero->getAllBonuses(selector, limit, hero);
 	TBonusListPtr bonusesFromPickedUpArtifact;
 
 	std::shared_ptr<CArtifactsOfHero::SCommonPart> cp = cww->getCommonPart();
@@ -54,10 +54,10 @@ const TBonusListPtr CHeroWithMaybePickedArtifact::getAllBonuses(const CSelector 
 	else
 		bonusesFromPickedUpArtifact = TBonusListPtr(new BonusList());
 
-	for(auto b : *bonusesFromPickedUpArtifact)
-		*heroBonuses -= b;
 	for(auto b : *heroBonuses)
 		out->push_back(b);
+	for(auto b : *bonusesFromPickedUpArtifact)
+		*out -= b;
 	return out;
 }
 
