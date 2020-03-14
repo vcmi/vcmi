@@ -93,7 +93,6 @@ void LobbyClientDisconnected::applyOnServerAfterAnnounce(CVCMIServer * srv)
 	{
 		logNetwork->info("Client requested shutdown, server will close itself...");
 		srv->state = EServerState::SHUTDOWN;
-		return;
 	}
 	else if(srv->connections.empty())
 	{
