@@ -52,10 +52,11 @@ const TBonusListPtr CHeroWithMaybePickedArtifact::getAllBonuses(const CSelector 
 	else
 		bonusesFromPickedUpArtifact = TBonusListPtr(new BonusList());
 
-	for(auto b : *bonusesFromPickedUpArtifact)
-		*heroBonuses -= b;
 	for(auto b : *heroBonuses)
 		out->push_back(b);
+
+	for(auto b : *bonusesFromPickedUpArtifact)
+		*out -= b;
 	return out;
 }
 
