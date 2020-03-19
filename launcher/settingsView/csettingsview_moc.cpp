@@ -26,7 +26,9 @@ static const std::string knownEncodingsList[] = //TODO: remove hardcode
 	"CP1252", // Latin/East European, covers most of latin languages
 	// Chinese encodings
 	"GBK", // extension of GB2312, also known as CP936
-	"GB2312" // basic set for Simplified Chinese. Separate from GBK to allow proper detection of H3 fonts
+	"GB2312", // basic set for Simplified Chinese. Separate from GBK to allow proper detection of H3 fonts
+	// Korean encodings
+	"CP949" // extension of EUC-KR.
 };
 
 void CSettingsView::setDisplayList()
