@@ -57,6 +57,7 @@
 #include "gui/CAnimation.h"
 #include "../lib/serializer/Connection.h"
 #include "CServerHandler.h"
+#include "gui/NotificationHandler.h"
 
 #include <boost/asio.hpp>
 
@@ -1219,6 +1220,11 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 	SDL_RenderClear(mainRenderer);
 	SDL_RenderPresent(mainRenderer);
 
+	if(!settings["session"]["headless"].Bool() && settings["general"]["notifications"].Bool())
+	{
+		NotificationHandler::init(mainWindow);
+	}
+
 	return true;
 }
 
@@ -1348,6 +1354,13 @@ static void handleEvent(SDL_Event & ev)
 		}
 		return;
 	}
+	else if(ev.type == SDL_SYSWMEVENT)
+	{
+		if(!settings["session"]["headless"].Bool() && settings["general"]["notifications"].Bool())
+		{
+			NotificationHandler::handleSdlEvent(ev);
+		}
+	}
 
 	//preprocessing
 	if(ev.type == SDL_MOUSEMOTION)
@@ -1417,6 +1430,11 @@ void handleQuit(bool ask)
 		boost::this_thread::sleep(boost::posix_time::milliseconds(750));//???
 		if(!settings["session"]["headless"].Bool())
 		{
+			if(settings["general"]["notifications"].Bool())
+			{
+				NotificationHandler::destroy();
+			}
+
 			cleanupRenderer();
 
 			if(nullptr != mainRenderer)
