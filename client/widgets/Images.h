@@ -17,6 +17,7 @@ struct Rect;
 class CAnimImage;
 class CLabel;
 class CAnimation;
+class IImage;
 
 // Image class
 class CPicture : public CIntObject
@@ -74,14 +75,17 @@ private:
 	size_t group;
 	PlayerColor player;
 	ui8 flags;
+	const Point scaledSize;
 
+	bool isScaled() const;
+	void setSizeFromImage(const IImage &img);
 	void init();
-
 public:
 	bool visible;
 
 	CAnimImage(const std::string & name, size_t Frame, size_t Group=0, int x=0, int y=0, ui8 Flags=0);
 	CAnimImage(std::shared_ptr<CAnimation> Anim, size_t Frame, size_t Group=0, int x=0, int y=0, ui8 Flags=0);
+	CAnimImage(std::shared_ptr<CAnimation> Anim, size_t Frame, Rect targetPos, size_t Group=0, ui8 Flags=0);
 	~CAnimImage();
 
 	//size of animation
