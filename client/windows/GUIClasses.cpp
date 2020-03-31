@@ -787,9 +787,18 @@ void CTavernWindow::HeroPortrait::hover(bool on)
 		GH.statusbar->clear();
 }
 
-CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID queryID)
-	: CStatusbarWindow(PLAYER_COLORED | BORDERED, "TRADE2")
+static const char *NEW_EXCHANGE_BG = "TRADE2X";
+
+static bool isNewExchangeLayout()
 {
+	return CResourceHandler::get()->existsResource(ResourceID(std::string("DATA/") + NEW_EXCHANGE_BG, EResType::IMAGE));
+}
+
+CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID queryID)
+	: CStatusbarWindow(PLAYER_COLORED | BORDERED, isNewExchangeLayout() ? NEW_EXCHANGE_BG : "TRADE2")
+{
+	const bool newLayout = isNewExchangeLayout();
+
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
 	heroInst[0] = LOCPLINT->cb->getHero(hero1);
@@ -810,8 +819,13 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 
 	auto SECSK32 = std::make_shared<CAnimation>("SECSK32");
 
-	for(int g = 0; g < 4; ++g)
-		primSkillImages.push_back(std::make_shared<CAnimImage>(PSKIL32, g, 0, 385, 19 + 36 * g));
+	for(int g = 0; g < 4; ++g) 
+	{
+		if (newLayout)
+			primSkillImages.push_back(std::make_shared<CAnimImage>(PSKIL32, g, Rect(389, 12 + 26 * g, 22, 22)));
+		else
+			primSkillImages.push_back(std::make_shared<CAnimImage>(PSKIL32, g, 0, 385, 19 + 36 * g));
+	}
 
 	for(int leftRight : {0, 1})
 	{
@@ -820,19 +834,19 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 		herosWArt[leftRight] = std::make_shared<CHeroWithMaybePickedArtifact>(this, hero);
 
 		for(int m=0; m<GameConstants::PRIMARY_SKILLS; ++m)
-			primSkillValues[leftRight].push_back(std::make_shared<CLabel>(352 + 93 * leftRight, 35 + 36 * m, FONT_SMALL, CENTER, Colors::WHITE));
+			primSkillValues[leftRight].push_back(std::make_shared<CLabel>(352 + (newLayout ? 96 : 93) * leftRight, (newLayout ? 22 : 35) + (newLayout ? 26 : 36) * m, FONT_SMALL, CENTER, Colors::WHITE));
 
 
 		for(int m=0; m < hero->secSkills.size(); ++m)
-			secSkillIcons[leftRight].push_back(std::make_shared<CAnimImage>(SECSK32, 0, 0, 32 + 36 * m + 454 * leftRight, 88));
+			secSkillIcons[leftRight].push_back(std::make_shared<CAnimImage>(SECSK32, 0, 0, 32 + 36 * m + 454 * leftRight, newLayout ? 83 : 88));
 
-		specImages[leftRight] = std::make_shared<CAnimImage>("UN32", hero->type->imageIndex, 0, 67 + 490 * leftRight, 45);
+		specImages[leftRight] = std::make_shared<CAnimImage>("UN32", hero->type->imageIndex, 0, 67 + 490 * leftRight, newLayout ? 41 : 45);
 
-		expImages[leftRight] = std::make_shared<CAnimImage>(PSKIL32, 4, 0, 103 + 490 * leftRight, 45);
-		expValues[leftRight] = std::make_shared<CLabel>(119 + 490 * leftRight, 71, FONT_SMALL, CENTER, Colors::WHITE);
+		expImages[leftRight] = std::make_shared<CAnimImage>(PSKIL32, 4, 0, 103 + 490 * leftRight, newLayout ? 41 : 45);
+		expValues[leftRight] = std::make_shared<CLabel>(119 + 490 * leftRight, newLayout ? 66 : 71, FONT_SMALL, CENTER, Colors::WHITE);
 
-		manaImages[leftRight] = std::make_shared<CAnimImage>(PSKIL32, 5, 0, 139 + 490 * leftRight, 45);
-		manaValues[leftRight] = std::make_shared<CLabel>(155 + 490 * leftRight, 71, FONT_SMALL, CENTER, Colors::WHITE);
+		manaImages[leftRight] = std::make_shared<CAnimImage>(PSKIL32, 5, 0, 139 + 490 * leftRight, newLayout ? 41 : 45);
+		manaValues[leftRight] = std::make_shared<CLabel>(155 + 490 * leftRight, newLayout ? 66 : 71, FONT_SMALL, CENTER, Colors::WHITE);
 	}
 
 	portraits[0] = std::make_shared<CAnimImage>("PortraitsLarge", heroInst[0]->portrait, 0, 257, 13);
@@ -853,7 +867,10 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	for(int g=0; g<4; ++g)
 	{
 		primSkillAreas.push_back(std::make_shared<LRClickableAreaWTextComp>());
-		primSkillAreas[g]->pos = genRect(32, 140, pos.x + 329, pos.y + 19 + 36 * g);
+		if (newLayout)
+			primSkillAreas[g]->pos = genRect(22, 152, pos.x + 324, pos.y + 12 + 26 * g);
+		else
+			primSkillAreas[g]->pos = genRect(32, 140, pos.x + 329, pos.y + 19 + 36 * g);
 		primSkillAreas[g]->text = CGI->generaltexth->arraytxt[2+g];
 		primSkillAreas[g]->type = g;
 		primSkillAreas[g]->bonusValue = -1;
@@ -873,7 +890,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 			int skill = hero->secSkills[g].first,
 				level = hero->secSkills[g].second; // <1, 3>
 			secSkillAreas[b].push_back(std::make_shared<LRClickableAreaWTextComp>());
-			secSkillAreas[b][g]->pos = genRect(32, 32, pos.x + 32 + g*36 + b*454 , pos.y + 88);
+			secSkillAreas[b][g]->pos = genRect(32, 32, pos.x + 32 + g*36 + b*454 , pos.y + newLayout ? 83 : 88);
 			secSkillAreas[b][g]->baseType = 1;
 
 			secSkillAreas[b][g]->type = skill;
@@ -888,12 +905,12 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 		heroAreas[b] = std::make_shared<CHeroArea>(257 + 228*b, 13, hero);
 
 		specialtyAreas[b] = std::make_shared<LRClickableAreaWText>();
-		specialtyAreas[b]->pos = genRect(32, 32, pos.x + 69 + 490*b, pos.y + 45);
+		specialtyAreas[b]->pos = genRect(32, 32, pos.x + 69 + 490*b, pos.y + newLayout ? 41 : 45);
 		specialtyAreas[b]->hoverText = CGI->generaltexth->heroscrn[27];
 		specialtyAreas[b]->text = hero->type->specDescr;
 
 		experienceAreas[b] = std::make_shared<LRClickableAreaWText>();
-		experienceAreas[b]->pos = genRect(32, 32, pos.x + 105 + 490*b, pos.y + 45);
+		experienceAreas[b]->pos = genRect(32, 32, pos.x + 105 + 490*b, pos.y + newLayout ? 41 : 45);
 		experienceAreas[b]->hoverText = CGI->generaltexth->heroscrn[9];
 		experienceAreas[b]->text = CGI->generaltexth->allTexts[2];
 		boost::algorithm::replace_first(experienceAreas[b]->text, "%d", boost::lexical_cast<std::string>(hero->level));
@@ -901,7 +918,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 		boost::algorithm::replace_first(experienceAreas[b]->text, "%d", boost::lexical_cast<std::string>(hero->exp));
 
 		spellPointsAreas[b] = std::make_shared<LRClickableAreaWText>();
-		spellPointsAreas[b]->pos = genRect(32, 32, pos.x + 141 + 490*b, pos.y + 45);
+		spellPointsAreas[b]->pos = genRect(32, 32, pos.x + 141 + 490*b, pos.y + newLayout ? 41 : 45);
 		spellPointsAreas[b]->hoverText = CGI->generaltexth->heroscrn[22];
 		spellPointsAreas[b]->text = CGI->generaltexth->allTexts[205];
 		boost::algorithm::replace_first(spellPointsAreas[b]->text, "%s", hero->name);
@@ -916,18 +933,18 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	if(queryID.getNum() > 0)
 		quit->addCallback([=](){ LOCPLINT->cb->selectionMade(0, queryID); });
 
-	questlogButton[0] = std::make_shared<CButton>(Point( 10, 44), "hsbtns4.def", CButton::tooltip(CGI->generaltexth->heroscrn[0]), std::bind(&CExchangeWindow::questlog, this, 0));
-	questlogButton[1] = std::make_shared<CButton>(Point(740, 44), "hsbtns4.def", CButton::tooltip(CGI->generaltexth->heroscrn[0]), std::bind(&CExchangeWindow::questlog, this, 1));
+	questlogButton[0] = std::make_shared<CButton>(Point( 10, newLayout ? 39 : 44), "hsbtns4.def", CButton::tooltip(CGI->generaltexth->heroscrn[0]), std::bind(&CExchangeWindow::questlog, this, 0));
+	questlogButton[1] = std::make_shared<CButton>(Point(740, newLayout ? 39 : 44), "hsbtns4.def", CButton::tooltip(CGI->generaltexth->heroscrn[0]), std::bind(&CExchangeWindow::questlog, this, 1));
 
 	Rect barRect(5, 578, 725, 18);
 	statusbar = CGStatusBar::create(std::make_shared<CPicture>(*background, barRect, 5, 578, false));
 
 	//garrison interface
 
-	garr = std::make_shared<CGarrisonInt>(69, 131, 4, Point(418,0), heroInst[0], heroInst[1], true, true);
+	garr = std::make_shared<CGarrisonInt>(69, newLayout ? 122 : 131, 4, Point(418,0), heroInst[0], heroInst[1], true, true);
 	auto splitButtonCallback = [&](){ garr->splitClick(); };
-	garr->addSplitBtn(std::make_shared<CButton>( Point( 10, 132), "TSBTNS.DEF", CButton::tooltip(CGI->generaltexth->tcommands[3]), splitButtonCallback));
-	garr->addSplitBtn(std::make_shared<CButton>( Point(740, 132), "TSBTNS.DEF", CButton::tooltip(CGI->generaltexth->tcommands[3]), splitButtonCallback));
+	garr->addSplitBtn(std::make_shared<CButton>( Point( 10, newLayout ? 122 : 132), "TSBTNS.DEF", CButton::tooltip(CGI->generaltexth->tcommands[3]), splitButtonCallback));
+	garr->addSplitBtn(std::make_shared<CButton>( Point(740, newLayout ? 122 : 132), "TSBTNS.DEF", CButton::tooltip(CGI->generaltexth->tcommands[3]), splitButtonCallback));
 
 	updateWidgets();
 }
