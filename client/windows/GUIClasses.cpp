@@ -946,6 +946,17 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	garr->addSplitBtn(std::make_shared<CButton>( Point( 10, newLayout ? 122 : 132), "TSBTNS.DEF", CButton::tooltip(CGI->generaltexth->tcommands[3]), splitButtonCallback));
 	garr->addSplitBtn(std::make_shared<CButton>( Point(740, newLayout ? 122 : 132), "TSBTNS.DEF", CButton::tooltip(CGI->generaltexth->tcommands[3]), splitButtonCallback));
 
+	if (newLayout && (CGI->generaltexth->newCommands.size() >= 5))
+	{
+		auto nothing = [](){};
+		moveAllGarrButtonLeft    = std::make_shared<CButton>(Point(325, 121), "SWCMR.DEF", CButton::tooltip(CGI->generaltexth->newCommands[1]), nothing);
+		echangeGarrButton        = std::make_shared<CButton>(Point(377, 121), "SWXCH.DEF", CButton::tooltip(CGI->generaltexth->newCommands[2]), nothing);
+		moveAllGarrButtonRight   = std::make_shared<CButton>(Point(425, 121), "SWCML.DEF", CButton::tooltip(CGI->generaltexth->newCommands[1]), nothing);
+		moveArtifactsButtonLeft  = std::make_shared<CButton>(Point(325, 180), "SWAMR.DEF", CButton::tooltip(CGI->generaltexth->newCommands[3]), nothing);
+		echangeArtifactsButton   = std::make_shared<CButton>(Point(377, 180), "SWXCH.DEF", CButton::tooltip(CGI->generaltexth->newCommands[4]), nothing);
+		moveArtifactsButtonRight = std::make_shared<CButton>(Point(425, 180), "SWAML.DEF", CButton::tooltip(CGI->generaltexth->newCommands[3]), nothing);
+	}
+
 	updateWidgets();
 }
 
