@@ -230,9 +230,9 @@ then
 	# bash also has `shopt -s nocaseglob` but we don't want this to
 	# accidentally influence other parts of this script
 	# since the directory names are short, we use this pattern matching
-	cp -r "$data_dir"/[Dd][Aa][Tt][Aa] "$dest_dir"
-	cp -r "$data_dir"/[Mm][Aa][Pp][Ss] "$dest_dir"
-	cp -r "$data_dir"/[Mm][Pp]3 "$dest_dir"
+	cp -r "$temp_dir"/[Dd][Aa][Tt][Aa] "$dest_dir"
+	cp -r "$temp_dir"/[Mm][Aa][Pp][Ss] "$dest_dir"
+	cp -r "$temp_dir"/[Mm][Pp]3 "$dest_dir"
 fi
 
 if [[ -n "$download" ]]
