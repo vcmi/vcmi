@@ -1806,6 +1806,8 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 		assert(cb->getVisitableObjs(dst).size() > 1); //there's no point in revisiting tile where there is no visitable object
 		cb->moveHero(*h, CGHeroInstance::convertPosition(dst, true));
 		afterMovementCheck(); // TODO: is it feasible to hero get killed there if game work properly?
+		// If revisiting, teleport probing is never done, and so the entries into the list would remain unused and uncleared
+		teleportChannelProbingList.clear();
 		// not sure if AI can currently reconsider to attack bank while staying on it. Check issue 2084 on mantis for more information.
 		ret = true;
 	}
