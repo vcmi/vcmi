@@ -194,6 +194,14 @@ void CGuiHandler::handleEvents()
 		SDL_Event ev = events.front();
 		current = &ev;
 		events.pop();
+
+		// In a sequence of mouse motion events, skip all but the last one.
+		// This prevents freezes when every motion event takes longer to handle than interval at which
+		// the events arrive (like dragging on the minimap in world view, with redraw at every event)
+		// so that the events would start piling up faster than they can be processed.
+		if ((ev.type == SDL_MOUSEMOTION) && !events.empty() && (events.front().type == SDL_MOUSEMOTION))
+			continue;
+
 		handleCurrentEvent();
 	}
 }
