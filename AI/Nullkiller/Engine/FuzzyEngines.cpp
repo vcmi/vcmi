@@ -9,17 +9,15 @@
 */
 #include "StdInc.h"
 #include "FuzzyEngines.h"
-#include "Goals/Goals.h"
+#include "../Goals/Goals.h"
 
 #include "../../lib/mapObjects/MapObjects.h"
 #include "VCAI.h"
-#include "MapObjectsEvaluator.h"
 
 #define MIN_AI_STRENGTH (0.5f) //lower when combat AI gets smarter
 #define UNGUARDED_OBJECT (100.0f) //we consider unguarded objects 100 times weaker than us
 
 extern boost::thread_specific_ptr<VCAI> ai;
-extern FuzzyHelper * fh;
 
 engineBase::engineBase()
 {

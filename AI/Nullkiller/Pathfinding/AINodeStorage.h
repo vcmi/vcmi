@@ -16,7 +16,7 @@
 #include "../../../lib/CPathfinder.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
 #include "../AIUtility.h"
-#include "../FuzzyHelper.h"
+#include "../Engine/FuzzyHelper.h"
 #include "../Goals/AbstractGoal.h"
 #include "Actions/SpecialAction.h"
 #include "Actors.h"
@@ -107,7 +107,7 @@ private:
 	int3 sizes;
 
 	const CPlayerSpecificInfoCallback * cb;
-	const VCAI * ai;
+	const Nullkiller * ai;
 	std::unique_ptr<FuzzyHelper> dangerEvaluator;
 	std::vector<std::shared_ptr<ChainActor>> actors;
 	std::vector<CGPathNode *> heroChain;
@@ -121,7 +121,7 @@ public:
 	/// more than 1 chain layer for each hero allows us to have more than 1 path to each tile so we can chose more optimal one.
 	static const int NUM_CHAINS = 10 * GameConstants::MAX_HEROES_PER_PLAYER;
 	
-	AINodeStorage(const int3 & sizes);
+	AINodeStorage(const Nullkiller * ai, const int3 & sizes);
 	~AINodeStorage();
 
 	void initialize(const PathfinderOptions & options, const CGameState * gs) override;
@@ -176,7 +176,7 @@ public:
 	boost::optional<AIPathNode *> getOrCreateNode(const int3 & coord, const EPathfindingLayer layer, const ChainActor * actor);
 	std::vector<AIPath> getChainInfo(const int3 & pos, bool isOnLand) const;
 	bool isTileAccessible(const HeroPtr & hero, const int3 & pos, const EPathfindingLayer layer) const;
-	void setHeroes(std::vector<HeroPtr> heroes, const VCAI * ai);
+	void setHeroes(std::vector<const CGHeroInstance *> heroes);
 	void setTownsAndDwellings(
 		const std::vector<const CGTownInstance *> & towns,
 		const std::set<const CGObjectInstance *> & visitableObjs);
@@ -188,7 +188,7 @@ public:
 
 	uint64_t evaluateDanger(const int3 &  tile, const CGHeroInstance * hero, bool checkGuards) const
 	{
-		return dangerEvaluator->evaluateDanger(tile, hero, ai, checkGuards);
+		return dangerEvaluator->evaluateDanger(tile, hero, checkGuards);
 	}
 
 	uint64_t evaluateArmyLoss(const CGHeroInstance * hero, uint64_t armyValue, uint64_t danger) const

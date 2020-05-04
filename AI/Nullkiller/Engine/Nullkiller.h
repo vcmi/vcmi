@@ -10,8 +10,12 @@
 #pragma once
 
 #include "PriorityEvaluator.h"
+#include "FuzzyHelper.h"
+#include "AIMemory.h"
 #include "../Analyzers/DangerHitMapAnalyzer.h"
 #include "../Analyzers/BuildAnalyzer.h"
+#include "../Analyzers/ArmyManager.h"
+#include "../Analyzers/HeroManager.h"
 #include "../Analyzers/ObjectClusterizer.h"
 #include "../Goals/AbstractGoal.h"
 
@@ -41,8 +45,16 @@ public:
 	std::unique_ptr<BuildAnalyzer> buildAnalyzer;
 	std::unique_ptr<ObjectClusterizer> objectClusterizer;
 	std::unique_ptr<PriorityEvaluator> priorityEvaluator;
+	std::unique_ptr<AIPathfinder> pathfinder;
+	std::unique_ptr<HeroManager> heroManager;
+	std::unique_ptr<ArmyManager> armyManager;
+	std::unique_ptr<AIMemory> memory;
+	std::unique_ptr<FuzzyHelper> dangerEvaluator;
+	PlayerColor playerID;
+	std::shared_ptr<CCallback> cb;
 
 	Nullkiller();
+	void init(std::shared_ptr<CCallback> cb, PlayerColor playerID);
 	void makeTurn();
 	bool isActive(const CGHeroInstance * hero) const { return activeHero == hero; }
 	bool isHeroLocked(const CGHeroInstance * hero) const;

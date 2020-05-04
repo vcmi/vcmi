@@ -10,7 +10,6 @@
 #pragma once
 
 #include "AbstractGoal.h"
-#include "../FuzzyHelper.h"
 #include "../VCAI.h"
 
 struct HeroPtr;
@@ -92,13 +91,6 @@ namespace Goals
 		{
 		}
 
-		///Visitor pattern
-		//TODO: make accept work for std::shared_ptr... somehow
-		virtual void accept(VCAI * ai) override //unhandled goal will report standard error
-		{
-			ai->tryRealize(*((T *)this));
-		}
-
 		T & setpriority(float p)
 		{
 			ITask::priority = p;
@@ -133,6 +125,11 @@ namespace Goals
 		virtual std::string toString() const override
 		{
 			return "Invalid";
+		}
+
+		virtual void accept(VCAI * ai) override
+		{
+			throw cannotFulfillGoalException("Can not fulfill Invalid goal!");
 		}
 	};
 }

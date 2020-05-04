@@ -16,7 +16,7 @@
 #include "Actions/SpecialAction.h"
 
 class HeroActor;
-class VCAI;
+class Nullkiller;
 
 class HeroExchangeArmy : public CCreatureSet
 {
@@ -72,10 +72,10 @@ private:
 	const HeroActor * actor;
 	std::map<const ChainActor *, HeroActor *> exchangeMap;
 	std::map<const ChainActor *, bool> canExchangeCache;
-	const VCAI * ai;
+	const Nullkiller * ai;
 
 public:
-	HeroExchangeMap(const HeroActor * actor, const VCAI * ai)
+	HeroExchangeMap(const HeroActor * actor, const Nullkiller * ai)
 		:actor(actor), ai(ai)
 	{
 	}
@@ -105,8 +105,8 @@ public:
 	std::shared_ptr<SpecialAction> exchangeAction;
 	// chain flags, can be combined meaning hero exchange and so on
 
-	HeroActor(const CGHeroInstance * hero, uint64_t chainMask, const VCAI * ai);
-	HeroActor(const ChainActor * carrier, const ChainActor * other, const CCreatureSet * army, const VCAI * ai);
+	HeroActor(const CGHeroInstance * hero, uint64_t chainMask, const Nullkiller * ai);
+	HeroActor(const ChainActor * carrier, const ChainActor * other, const CCreatureSet * army, const Nullkiller * ai);
 
 	virtual bool canExchange(const ChainActor * other) const override;
 

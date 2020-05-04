@@ -40,8 +40,6 @@ struct ArmyUpgradeInfo
 class DLL_EXPORT IArmyManager //: public: IAbstractManager
 {
 public:
-	virtual void init(CPlayerSpecificInfoCallback * CB) = 0;
-	virtual void setAI(VCAI * AI) = 0;
 	virtual void update() = 0;
 	virtual bool canGetArmy(const CArmedInstance * target, const CArmedInstance * source) const = 0;
 	virtual ui64 howManyReinforcementsCanBuy(const CCreatureSet * target, const CGDwelling * source) const = 0;
@@ -64,14 +62,12 @@ class DLL_EXPORT ArmyManager : public IArmyManager
 {
 private:
 	CPlayerSpecificInfoCallback * cb; //this is enough, but we downcast from CCallback
-	VCAI * ai;
+	const Nullkiller * ai;
 	std::map<CreatureID, SlotInfo> totalArmy;
 
 public:
-	void init(CPlayerSpecificInfoCallback * CB) override;
-	void setAI(VCAI * AI) override;
+	ArmyManager(CPlayerSpecificInfoCallback * CB, const Nullkiller * ai): cb(CB), ai(ai) {}
 	void update() override;
-
 	bool canGetArmy(const CArmedInstance * target, const CArmedInstance * source) const override;
 	ui64 howManyReinforcementsCanBuy(const CCreatureSet * target, const CGDwelling * source) const override;
 	ui64 howManyReinforcementsCanGet(const CCreatureSet * target, const CCreatureSet * source) const override;

@@ -10,7 +10,6 @@
 #include "StdInc.h"
 #include "BuyArmyBehavior.h"
 #include "../VCAI.h"
-#include "../AIhelper.h"
 #include "../AIUtility.h"
 #include "../Goals/BuyArmy.h"
 #include "../Engine/Nullkiller.h"
@@ -19,7 +18,6 @@
 
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<VCAI> ai;
-extern FuzzyHelper * fh;
 
 using namespace Goals;
 
@@ -55,7 +53,7 @@ Goals::TGoalVec BuyArmyBehavior::decompose() const
 			{
 				targetHero = town->visitingHero.get();
 
-				if(ai->ah->howManyReinforcementsCanGet(targetHero, town->getUpperArmy()))
+				if(ai->nullkiller->armyManager->howManyReinforcementsCanGet(targetHero, town->getUpperArmy()))
 				{
 					tasks.push_back(sptr(VisitTile(town->visitablePos()).sethero(targetHero).setpriority(5)));
 
@@ -63,10 +61,10 @@ Goals::TGoalVec BuyArmyBehavior::decompose() const
 				}
 			}*/
 
-			auto reinforcement = ai->ah->howManyReinforcementsCanBuy(targetHero, town);
+			auto reinforcement = ai->nullkiller->armyManager->howManyReinforcementsCanBuy(targetHero, town);
 
 			if(reinforcement)
-				reinforcement = ai->ah->howManyReinforcementsCanBuy(town->getUpperArmy(), town);
+				reinforcement = ai->nullkiller->armyManager->howManyReinforcementsCanBuy(town->getUpperArmy(), town);
 
 			if(reinforcement)
 			{

@@ -12,19 +12,20 @@
 
 #include "AINodeStorage.h"
 #include "../AIUtility.h"
-#include "../VCAI.h"
+
+class Nullkiller;
 
 class AIPathfinder
 {
 private:
 	static std::shared_ptr<AINodeStorage> storage;
 	CPlayerSpecificInfoCallback * cb;
-	VCAI * ai;
+	Nullkiller * ai;
 
 public:
-	AIPathfinder(CPlayerSpecificInfoCallback * cb, VCAI * ai);
+	AIPathfinder(CPlayerSpecificInfoCallback * cb, Nullkiller * ai);
 	std::vector<AIPath> getPathInfo(const int3 & tile) const;
 	bool isTileAccessible(const HeroPtr & hero, const int3 & tile) const;
-	void updatePaths(std::vector<HeroPtr> heroes, bool useHeroChain = false);
+	void updatePaths(std::vector<const CGHeroInstance *> heroes, bool useHeroChain = false);
 	void init();
 };

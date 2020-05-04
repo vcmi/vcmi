@@ -10,7 +10,6 @@
 #include "StdInc.h"
 #include "Nullkiller.h"
 #include "../VCAI.h"
-#include "../AIhelper.h"
 #include "../Behaviors/CaptureObjectsBehavior.h"
 #include "../Behaviors/RecruitHeroBehavior.h"
 #include "../Behaviors/BuyArmyBehavior.h"
@@ -28,10 +27,22 @@ using namespace Goals;
 
 Nullkiller::Nullkiller()
 {
-	priorityEvaluator.reset(new PriorityEvaluator());
-	dangerHitMap.reset(new DangerHitMapAnalyzer());
+	memory.reset(new AIMemory());
+}
+
+void Nullkiller::init(std::shared_ptr<CCallback> cb, PlayerColor playerID)
+{
+	this->cb = cb;
+	this->playerID = playerID;
+
+	priorityEvaluator.reset(new PriorityEvaluator(this));
+	dangerHitMap.reset(new DangerHitMapAnalyzer(this));
 	buildAnalyzer.reset(new BuildAnalyzer());
-	objectClusterizer.reset(new ObjectClusterizer());
+	objectClusterizer.reset(new ObjectClusterizer(this));
+	dangerEvaluator.reset(new FuzzyHelper(this));
+	pathfinder.reset(new AIPathfinder(cb.get(), this));
+	armyManager.reset(new ArmyManager(cb.get(), this));
+	heroManager.reset(new HeroManager(cb.get(), this));
 }
 
 Goals::TTask Nullkiller::choseBestTask(Goals::TTaskVec & tasks) const
@@ -130,6 +141,7 @@ Goals::TTask Nullkiller::choseBestTask(Goals::TSubgoal behavior) const
 
 void Nullkiller::resetAiState()
 {
+	playerID = ai->playerID;
 	lockedHeroes.clear();
 	dangerHitMap->reset();
 }
@@ -138,11 +150,11 @@ void Nullkiller::updateAiState()
 {
 	activeHero = nullptr;
 
-	ai->validateVisitableObjs();
+	memory->removeInvisibleObjects(cb.get());
 	dangerHitMap->updateHitMap();
 
 	// TODO: move to hero manager
-	auto activeHeroes = ai->getMyHeroes();
+	auto activeHeroes = cb->getHeroesInfo();
 
 	vstd::erase_if(activeHeroes, [this](const HeroPtr & hero) -> bool
 	{
@@ -151,8 +163,9 @@ void Nullkiller::updateAiState()
 		return lockedReason == HeroLockedReason::DEFENCE;
 	});
 
-	ai->ah->updatePaths(activeHeroes, true);
-	ai->ah->update();
+	pathfinder->updatePaths(activeHeroes, true);
+	heroManager->update();
+	armyManager->update();
 
 	objectClusterizer->clusterize();
 	buildAnalyzer->update();

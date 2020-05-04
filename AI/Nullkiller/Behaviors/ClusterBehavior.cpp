@@ -11,7 +11,6 @@
 #include "ClusterBehavior.h"
 #include "../VCAI.h"
 #include "../Engine/Nullkiller.h"
-#include "../AIhelper.h"
 #include "../AIUtility.h"
 #include "../Goals/UnlockCluster.h"
 #include "../Goals/Composition.h"
@@ -19,7 +18,6 @@
 
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<VCAI> ai;
-extern FuzzyHelper * fh;
 
 using namespace Goals;
 
@@ -44,7 +42,7 @@ Goals::TGoalVec ClusterBehavior::decompose() const
 Goals::TGoalVec ClusterBehavior::decomposeCluster(std::shared_ptr<ObjectCluster> cluster) const
 {
 	auto center = cluster->calculateCenter();
-	auto paths = ai->ah->getPathsToTile(center->visitablePos());
+	auto paths = ai->nullkiller->pathfinder->getPathInfo(center->visitablePos());
 	auto blockerPos = cluster->blocker->visitablePos();
 	std::vector<AIPath> blockerPaths;
 

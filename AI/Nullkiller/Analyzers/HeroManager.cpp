@@ -10,7 +10,7 @@
 
 #include "StdInc.h"
 #include "HeroManager.h"
-
+#include "../Engine/Nullkiller.h"
 #include "../../CCallback.h"
 #include "../../lib/mapObjects/MapObjects.h"
 #include "../../lib/CHeroHandler.h"
@@ -57,16 +57,6 @@ SecondarySkillEvaluator HeroManager::scountSkillsScores = SecondarySkillEvaluato
 		std::make_shared<ExistingSkillRule>()
 	});
 
-void HeroManager::init(CPlayerSpecificInfoCallback * CB)
-{
-	cb = CB;
-}
-
-void HeroManager::setAI(VCAI * AI)
-{
-	ai = AI;
-}
-
 float HeroManager::evaluateSecSkill(SecondarySkill skill, const CGHeroInstance * hero) const
 {
 	auto role = getHeroRole(hero);
@@ -106,11 +96,11 @@ void HeroManager::update()
 	logAi->trace("Start analysing our heroes");
 
 	std::map<HeroPtr, float> scores;
-	auto myHeroes = ai->getMyHeroes();
+	auto myHeroes = cb->getHeroesInfo();
 
 	for(auto & hero : myHeroes)
 	{
-		scores[hero] = evaluateFightingStrength(hero.get());
+		scores[hero] = evaluateFightingStrength(hero);
 	}
 
 	std::sort(myHeroes.begin(), myHeroes.end(), [&](const HeroPtr & h1, const HeroPtr & h2) -> bool
@@ -120,10 +110,10 @@ void HeroManager::update()
 
 	int mainHeroCount = (myHeroes.size() + 2) / 3;
 
-	for(auto & hero : myHeroes)
+	for(auto hero : myHeroes)
 	{
 		heroRoles[hero] = (mainHeroCount--) > 0 ? HeroRole::MAIN : HeroRole::SCOUT;
-		logAi->trace("Hero %s has role %s", hero.name, heroRoles[hero] == HeroRole::MAIN ? "main" : "scout");
+		logAi->trace("Hero %s has role %s", hero->name, heroRoles[hero] == HeroRole::MAIN ? "main" : "scout");
 	}
 }
 

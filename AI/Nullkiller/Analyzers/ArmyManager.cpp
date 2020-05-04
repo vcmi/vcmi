@@ -10,7 +10,7 @@
 
 #include "StdInc.h"
 #include "ArmyManager.h"
-
+#include "../Engine/Nullkiller.h"
 #include "../../CCallback.h"
 #include "../../lib/mapObjects/MapObjects.h"
 
@@ -30,16 +30,6 @@ public:
 		upgradeValue = (upgradedCreature.toCreature()->AIValue - initialCreature.toCreature()->AIValue) * count;
 	}
 };
-
-void ArmyManager::init(CPlayerSpecificInfoCallback * CB)
-{
-	cb = CB;
-}
-
-void ArmyManager::setAI(VCAI * AI)
-{
-	ai = AI;
-}
 
 std::vector<SlotInfo> ArmyManager::getSortedSlots(const CCreatureSet * target, const CCreatureSet * source) const
 {

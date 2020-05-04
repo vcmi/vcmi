@@ -11,7 +11,8 @@
 #pragma once
 
 #include "AINodeStorage.h"
-#include "../VCAI.h"
+
+class Nullkiller;
 
 namespace AIPathfinding
 {
@@ -24,7 +25,7 @@ namespace AIPathfinding
 	public:
 		AIPathfinderConfig(
 			CPlayerSpecificInfoCallback * cb,
-			VCAI * ai,
+			Nullkiller * ai,
 			std::shared_ptr<AINodeStorage> nodeStorage);
 
 		virtual CPathfinderHelper * getOrCreatePathfinderHelper(const PathNodeInfo & source, CGameState * gs) override;

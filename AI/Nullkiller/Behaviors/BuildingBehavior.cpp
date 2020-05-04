@@ -10,16 +10,15 @@
 #include "StdInc.h"
 #include "BuildingBehavior.h"
 #include "../VCAI.h"
-#include "../AIhelper.h"
 #include "../AIUtility.h"
 #include "../Goals/BuyArmy.h"
+#include "../Goals/BuildThis.h"
 #include "lib/mapping/CMap.h" //for victory conditions
 #include "lib/CPathfinder.h"
 #include "../Engine/Nullkiller.h"
 
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<VCAI> ai;
-extern FuzzyHelper * fh;
 
 using namespace Goals;
 

@@ -10,17 +10,16 @@
 #include "StdInc.h"
 #include "../VCAI.h"
 #include "../Engine/Nullkiller.h"
-#include "../AIhelper.h"
 #include "../Goals/Composition.h"
 #include "../Goals/ExecuteHeroChain.h"
 #include "CaptureObjectsBehavior.h"
 #include "../AIUtility.h"
 #include "../../../lib/mapping/CMap.h" //for victory conditions
 #include "../../../lib/CPathfinder.h"
+#include "../../../lib/CModHandler.h"
 
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<VCAI> ai;
-extern FuzzyHelper * fh;
 
 using namespace Goals;
 
@@ -81,7 +80,7 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(const std::vector<AIPath> 
 		auto hero = path.targetHero;
 		auto danger = path.getTotalDanger();
 
-		if(ai->ah->getHeroRole(hero) == HeroRole::SCOUT && danger == 0 && path.exchangeCount > 1)
+		if(ai->nullkiller->heroManager->getHeroRole(hero) == HeroRole::SCOUT && danger == 0 && path.exchangeCount > 1)
 			continue;
 
 		auto firstBlockedAction = path.getFirstBlockedAction();
@@ -169,7 +168,7 @@ Goals::TGoalVec CaptureObjectsBehavior::decompose() const
 
 			const int3 pos = objToVisit->visitablePos();
 
-			auto paths = ai->ah->getPathsToTile(pos);
+			auto paths = ai->nullkiller->pathfinder->getPathInfo(pos);
 			std::vector<std::shared_ptr<ExecuteHeroChain>> waysToVisitObj;
 			std::shared_ptr<ExecuteHeroChain> closestWay;
 					
@@ -211,6 +210,125 @@ bool CaptureObjectsBehavior::shouldVisitObject(const CGObjectInstance * obj) con
 	{
 		return false;
 	}
+
+	return true;
+}
+
+bool CaptureObjectsBehavior::shouldVisit(HeroPtr h, const CGObjectInstance * obj)
+{
+	switch(obj->ID)
+	{
+	case Obj::TOWN:
+	case Obj::HERO: //never visit our heroes at random
+		return obj->tempOwner != h->tempOwner; //do not visit our towns at random
+	case Obj::BORDER_GATE:
+	{
+		for(auto q : ai->myCb->getMyQuests())
+		{
+			if(q.obj == obj)
+			{
+				return false; // do not visit guards or gates when wandering
+			}
+		}
+		return true; //we don't have this quest yet
+	}
+	case Obj::BORDERGUARD: //open borderguard if possible
+		return (dynamic_cast<const CGKeys *>(obj))->wasMyColorVisited(ai->playerID);
+	case Obj::SEER_HUT:
+	case Obj::QUEST_GUARD:
+	{
+		for(auto q : ai->myCb->getMyQuests())
+		{
+			if(q.obj == obj)
+			{
+				if(q.quest->checkQuest(h.h))
+					return true; //we completed the quest
+				else
+					return false; //we can't complete this quest
+			}
+		}
+		return true; //we don't have this quest yet
+	}
+	case Obj::CREATURE_GENERATOR1:
+	{
+		if(obj->tempOwner != h->tempOwner)
+			return true; //flag just in case
+
+		const CGDwelling * d = dynamic_cast<const CGDwelling *>(obj);
+
+		for(auto level : d->creatures)
+		{
+			for(auto c : level.second)
+			{
+				if(level.first
+					&& h->getSlotFor(CreatureID(c)) != SlotID()
+					&& cb->getResourceAmount().canAfford(c.toCreature()->cost))
+				{
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+	case Obj::HILL_FORT:
+	{
+		for(auto slot : h->Slots())
+		{
+			if(slot.second->type->upgrades.size())
+				return true; //TODO: check price?
+		}
+		return false;
+	}
+	case Obj::MONOLITH_ONE_WAY_ENTRANCE:
+	case Obj::MONOLITH_ONE_WAY_EXIT:
+	case Obj::MONOLITH_TWO_WAY:
+	case Obj::WHIRLPOOL:
+		return false;
+	case Obj::SCHOOL_OF_MAGIC:
+	case Obj::SCHOOL_OF_WAR:
+	{
+		if(cb->getResourceAmount(Res::GOLD) < 1000)
+			return false;
+		break;
+	}
+	case Obj::LIBRARY_OF_ENLIGHTENMENT:
+		if(h->level < 12)
+			return false;
+		break;
+	case Obj::TREE_OF_KNOWLEDGE:
+	{
+		if(ai->nullkiller->heroManager->getHeroRole(h) == HeroRole::SCOUT)
+			return false;
+
+		TResources myRes = cb->getResourceAmount();
+		if(myRes[Res::GOLD] < 2000 || myRes[Res::GEMS] < 10)
+			return false;
+		break;
+	}
+	case Obj::MAGIC_WELL:
+		return h->mana < h->manaLimit();
+	case Obj::PRISON:
+		return ai->myCb->getHeroesInfo().size() < VLC->modh->settings.MAX_HEROES_ON_MAP_PER_PLAYER;
+	case Obj::TAVERN:
+	{
+		//TODO: make AI actually recruit heroes
+		//TODO: only on request
+		if(ai->myCb->getHeroesInfo().size() >= VLC->modh->settings.MAX_HEROES_ON_MAP_PER_PLAYER)
+			return false;
+		else if(cb->getResourceAmount(Res::GOLD) < GameConstants::HERO_GOLD_COST)
+			return false;
+		break;
+	}
+	case Obj::BOAT:
+		return false;
+		//Boats are handled by pathfinder
+	case Obj::EYE_OF_MAGI:
+		return false; //this object is useless to visit, but could be visited indefinitely
+	}
+
+	if(obj->wasVisited(*h)) //it must pointer to hero instance, heroPtr calls function wasVisited(ui8 player);
+		return false;
 
 	return true;
 }

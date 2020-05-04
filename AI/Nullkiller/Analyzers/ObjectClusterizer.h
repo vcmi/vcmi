@@ -51,6 +51,7 @@ private:
 	ObjectCluster nearObjects;
 	ObjectCluster farObjects;
 	std::map<const CGObjectInstance *, std::shared_ptr<ObjectCluster>> blockedObjects;
+	const Nullkiller * ai;
 
 public:
 	void clusterize();
@@ -59,8 +60,11 @@ public:
 	std::vector<std::shared_ptr<ObjectCluster>> getLockedClusters() const;
 	const CGObjectInstance * getBlocker(const AIPath & path) const;
 
-	ObjectClusterizer()
-		:nearObjects(), farObjects(), blockedObjects()
+	ObjectClusterizer(const Nullkiller * ai)
+		:nearObjects(), farObjects(), blockedObjects(), ai(ai)
 	{
 	}
+
+private:
+	bool shouldVisitObject(const CGObjectInstance * obj) const;
 };

@@ -22,11 +22,11 @@
 /// 1-3 - position on map, 4 - layer (air, water, land), 5 - chain (normal, battle, spellcast and combinations)
 boost::multi_array<AIPathNode, 5> nodes;
 
-AINodeStorage::AINodeStorage(const int3 & Sizes)
-	: sizes(Sizes)
+AINodeStorage::AINodeStorage(const Nullkiller * ai, const int3 & Sizes)
+	: sizes(Sizes), ai(ai), cb(ai->cb.get())
 {
 	nodes.resize(boost::extents[sizes.x][sizes.y][sizes.z][EPathfindingLayer::NUM_LAYERS][NUM_CHAINS]);
-	dangerEvaluator.reset(new FuzzyHelper());
+	dangerEvaluator.reset(new FuzzyHelper(ai));
 }
 
 AINodeStorage::~AINodeStorage() = default;
@@ -614,17 +614,14 @@ const std::set<const CGHeroInstance *> AINodeStorage::getAllHeroes() const
 	return heroes;
 }
 
-void AINodeStorage::setHeroes(std::vector<HeroPtr> heroes, const VCAI * _ai)
+void AINodeStorage::setHeroes(std::vector<const CGHeroInstance *> heroes)
 {
-	cb = _ai->myCb.get();
-	ai = _ai;
-
 	playerID = ai->playerID;
 
 	for(auto & hero : heroes)
 	{
 		uint64_t mask = 1 << actors.size();
-		auto actor = std::make_shared<HeroActor>(hero.get(), mask, ai);
+		auto actor = std::make_shared<HeroActor>(hero, mask, ai);
 
 		if(hero->tempOwner != ai->playerID)
 		{

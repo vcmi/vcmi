@@ -11,10 +11,10 @@
 #include "DefenceBehavior.h"
 #include "../VCAI.h"
 #include "../Engine/Nullkiller.h"
-#include "../AIhelper.h"
 #include "../AIUtility.h"
 #include "../Goals/BuyArmy.h"
 #include "../Goals/ExecuteHeroChain.h"
+#include "../Goals/RecruitHero.h"
 #include "../Goals/DismissHero.h"
 #include "../Goals/ExchangeSwapTownHeroes.h"
 #include "lib/mapping/CMap.h" //for victory conditions
@@ -22,7 +22,6 @@
 
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<VCAI> ai;
-extern FuzzyHelper * fh;
 
 using namespace Goals;
 
@@ -98,7 +97,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 		return;
 	}
 	
-	uint64_t reinforcement = ai->ah->howManyReinforcementsCanBuy(town->getUpperArmy(), town);
+	uint64_t reinforcement = ai->nullkiller->armyManager->howManyReinforcementsCanBuy(town->getUpperArmy(), town);
 
 	if(reinforcement)
 	{
@@ -106,7 +105,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 		tasks.push_back(Goals::sptr(Goals::BuyArmy(town, reinforcement).setpriority(0.5f)));
 	}
 
-	auto paths = ai->ah->getPathsToTile(town->visitablePos());
+	auto paths = ai->nullkiller->pathfinder->getPathInfo(town->visitablePos());
 
 	for(auto & treat : treats)
 	{
@@ -168,7 +167,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 						{
 							if(ai->nullkiller->isHeroLocked(existingHero)
 								|| existingHero->getArmyStrength() > hero->getArmyStrength()
-								|| ai->ah->getHeroRole(existingHero) == HeroRole::MAIN
+								|| ai->nullkiller->heroManager->getHeroRole(existingHero) == HeroRole::MAIN
 								|| existingHero->movement
 								|| existingHero->artifactsWorn.size() > (existingHero->hasSpellbook() ? 2 : 1))
 								continue;
@@ -262,7 +261,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 
 	/*for(auto & treat : treats)
 	{
-		auto paths = ai->ah->getPathsToTile(treat.hero->visitablePos());
+		auto paths = ai->nullkiller->pathfinder->getPathInfo(treat.hero->visitablePos());
 
 		for(AIPath & path : paths)
 		{

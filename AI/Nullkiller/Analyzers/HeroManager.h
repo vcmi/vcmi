@@ -21,8 +21,6 @@
 class DLL_EXPORT IHeroManager //: public: IAbstractManager
 {
 public:
-	virtual void init(CPlayerSpecificInfoCallback * CB) = 0;
-	virtual void setAI(VCAI * AI) = 0;
 	virtual const std::map<HeroPtr, HeroRole> & getHeroRoles() const = 0;
 	virtual int selectBestSkill(const HeroPtr & hero, const std::vector<SecondarySkill> & skills) const = 0;
 	virtual HeroRole getHeroRole(const HeroPtr & hero) const = 0;
@@ -55,12 +53,11 @@ private:
 	static SecondarySkillEvaluator scountSkillsScores;
 
 	CPlayerSpecificInfoCallback * cb; //this is enough, but we downcast from CCallback
-	VCAI * ai;
+	const Nullkiller * ai;
 	std::map<HeroPtr, HeroRole> heroRoles;
 
 public:
-	void init(CPlayerSpecificInfoCallback * CB) override;
-	void setAI(VCAI * AI) override;
+	HeroManager(CPlayerSpecificInfoCallback * CB, const Nullkiller * ai) : cb(CB), ai(ai) {}
 	const std::map<HeroPtr, HeroRole> & getHeroRoles() const override;
 	HeroRole getHeroRole(const HeroPtr & hero) const override;
 	int selectBestSkill(const HeroPtr & hero, const std::vector<SecondarySkill> & skills) const override;

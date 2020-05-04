@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "Actors.h"
 #include "../VCAI.h"
-#include "../AIhelper.h"
+#include "../Engine/Nullkiller.h"
 #include "../../../CCallback.h"
 #include "../../../lib/mapping/CMap.h"
 #include "../../../lib/mapObjects/MapObjects.h"
@@ -72,7 +72,7 @@ std::string ObjectActor::toString() const
 	return object->getObjectName() + " at " + object->visitablePos().toString();
 }
 
-HeroActor::HeroActor(const CGHeroInstance * hero, uint64_t chainMask, const VCAI * ai)
+HeroActor::HeroActor(const CGHeroInstance * hero, uint64_t chainMask, const Nullkiller * ai)
 	:ChainActor(hero, chainMask)
 {
 	exchangeMap = new HeroExchangeMap(this, ai);
@@ -83,7 +83,7 @@ HeroActor::HeroActor(
 	const ChainActor * carrier, 
 	const ChainActor * other, 
 	const CCreatureSet * army, 
-	const VCAI * ai)
+	const Nullkiller * ai)
 	:ChainActor(carrier, other,	army)
 {
 	exchangeMap = new HeroExchangeMap(this, ai);
@@ -167,7 +167,7 @@ bool HeroExchangeMap::canExchange(const ChainActor * other)
 
 		if(result)
 		{
-			TResources resources = ai->myCb->getResourceAmount();
+			TResources resources = ai->cb->getResourceAmount();
 
 			if(!resources.canAfford(actor->armyCost + other->armyCost))
 			{
@@ -181,7 +181,7 @@ bool HeroExchangeMap::canExchange(const ChainActor * other)
 				return;
 			}
 
-			auto upgradeInfo = ai->ah->calculateCreateresUpgrade(
+			auto upgradeInfo = ai->armyManager->calculateCreateresUpgrade(
 				actor->creatureSet, 
 				other->getActorObject(),
 				resources - actor->armyCost - other->armyCost);
@@ -189,7 +189,7 @@ bool HeroExchangeMap::canExchange(const ChainActor * other)
 			uint64_t reinforcment = upgradeInfo.upgradeValue;
 			
 			if(other->creatureSet->Slots().size())
-				reinforcment += ai->ah->howManyReinforcementsCanGet(actor->creatureSet, other->creatureSet);
+				reinforcment += ai->armyManager->howManyReinforcementsCanGet(actor->creatureSet, other->creatureSet);
 
 #if PATHFINDER_TRACE_LEVEL >= 2
 			logAi->trace(
@@ -240,7 +240,7 @@ HeroActor * HeroExchangeMap::exchange(const ChainActor * other)
 		result = exchangeMap.at(other);
 	else 
 	{
-		TResources availableResources = ai->myCb->getResourceAmount() - actor->armyCost - other->armyCost;
+		TResources availableResources = ai->cb->getResourceAmount() - actor->armyCost - other->armyCost;
 		CCreatureSet * upgradedInitialArmy = tryUpgrade(actor->creatureSet, other->getActorObject(), availableResources);
 		CCreatureSet * newArmy;
 		
@@ -270,7 +270,7 @@ HeroActor * HeroExchangeMap::exchange(const ChainActor * other)
 
 CCreatureSet * HeroExchangeMap::tryUpgrade(const CCreatureSet * army, const CGObjectInstance * upgrader, TResources resources) const
 {
-	auto upgradeInfo = ai->ah->calculateCreateresUpgrade(army, upgrader, resources);
+	auto upgradeInfo = ai->armyManager->calculateCreateresUpgrade(army, upgrader, resources);
 
 	if(!upgradeInfo.upgradeValue)
 		return nullptr;
@@ -290,7 +290,7 @@ CCreatureSet * HeroExchangeMap::tryUpgrade(const CCreatureSet * army, const CGOb
 CCreatureSet * HeroExchangeMap::pickBestCreatures(const CCreatureSet * army1, const CCreatureSet * army2) const
 {
 	CCreatureSet * target = new HeroExchangeArmy();
-	auto bestArmy = ai->ah->getBestArmy(army1, army2);
+	auto bestArmy = ai->armyManager->getBestArmy(army1, army2);
 
 	for(auto & slotInfo : bestArmy)
 	{
