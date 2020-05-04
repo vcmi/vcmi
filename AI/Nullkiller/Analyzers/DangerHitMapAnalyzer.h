@@ -10,7 +10,6 @@
 #pragma once
 
 #include "../VCAI.h"
-#include "../AIhelper.h"
 
 struct HitMapInfo
 {
@@ -44,8 +43,11 @@ private:
 	boost::multi_array<HitMapNode, 3> hitMap;
 	std::map<const CGHeroInstance *, std::set<const CGObjectInstance *>> enemyHeroAccessibleObjects;
 	bool upToDate;
+	const Nullkiller * ai;
 
 public:
+	DangerHitMapAnalyzer(const Nullkiller * ai) :ai(ai) {}
+
 	void updateHitMap();
 	uint64_t enemyCanKillOurHeroesAlongThePath(const AIPath & path) const;
 	const HitMapNode & getObjectTreat(const CGObjectInstance * obj) const;

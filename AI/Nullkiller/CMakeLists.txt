@@ -4,7 +4,6 @@ set(VCAI_SRCS
 		Pathfinding/AIPathfinderConfig.cpp
 		Pathfinding/AIPathfinder.cpp
 		Pathfinding/AINodeStorage.cpp
-		Pathfinding/PathfindingManager.cpp
 		Pathfinding/Actors.cpp
 		Pathfinding/Actions/SpecialAction.cpp
 		Pathfinding/Actions/BattleAction.cpp
@@ -15,12 +14,11 @@ set(VCAI_SRCS
 		Pathfinding/Rules/AIMovementToDestinationRule.cpp
 		Pathfinding/Rules/AIPreviousNodeRule.cpp
 		AIUtility.cpp
-		AIhelper.cpp
-		ArmyManager.cpp
-		HeroManager.cpp
-		MapObjectsEvaluator.cpp
-		FuzzyEngines.cpp
-		FuzzyHelper.cpp
+		Analyzers/ArmyManager.cpp
+		Analyzers/HeroManager.cpp
+		Engine/FuzzyEngines.cpp
+		Engine/FuzzyHelper.cpp
+		Engine/AIMemory.cpp
 		Goals/AbstractGoal.cpp
 		Goals/Composition.cpp
 		Goals/BuildBoat.cpp
@@ -61,7 +59,6 @@ set(VCAI_HEADERS
 		Pathfinding/AIPathfinderConfig.h
 		Pathfinding/AIPathfinder.h
 		Pathfinding/AINodeStorage.h
-		Pathfinding/PathfindingManager.h
 		Pathfinding/Actors.h
 		Pathfinding/Actions/SpecialAction.h
 		Pathfinding/Actions/BattleAction.h
@@ -72,12 +69,11 @@ set(VCAI_HEADERS
 		Pathfinding/Rules/AIMovementToDestinationRule.h
 		Pathfinding/Rules/AIPreviousNodeRule.h
 		AIUtility.h
-		AIhelper.h
-		ArmyManager.h
-		HeroManager.h
-		MapObjectsEvaluator.h
-		FuzzyEngines.h
-		FuzzyHelper.h
+		Analyzers/ArmyManager.h
+		Analyzers/HeroManager.h
+		Engine/FuzzyEngines.h
+		Engine/FuzzyHelper.h
+		Engine/AIMemory.h
 		Goals/AbstractGoal.h
 		Goals/CGoal.h
 		Goals/Composition.h

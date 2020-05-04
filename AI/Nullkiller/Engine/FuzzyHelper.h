@@ -11,15 +11,19 @@
 #include "FuzzyEngines.h"
 
 class CBank;
+class Nullkiller;
 
 class DLL_EXPORT FuzzyHelper
 {
-public:
+private:
+	const Nullkiller * ai;
 	TacticalAdvantageEngine tacticalAdvantageEngine;
+
+public:
+	FuzzyHelper(const Nullkiller * ai) : ai(ai), tacticalAdvantageEngine() {}
 
 	ui64 estimateBankDanger(const CBank * bank); //TODO: move to another class?
 
-	ui64 evaluateDanger(const CGObjectInstance * obj, const VCAI * ai);
-	ui64 evaluateDanger(crint3 tile, const CGHeroInstance * visitor, const VCAI * ai, bool checkGuards = true);
-	ui64 evaluateDanger(crint3 tile, const CGHeroInstance * visitor);
+	ui64 evaluateDanger(const CGObjectInstance * obj);
+	ui64 evaluateDanger(crint3 tile, const CGHeroInstance * visitor, bool checkGuards = true);
 };

@@ -12,7 +12,6 @@
 #include "lib/mapping/CMap.h" //for victory conditions
 
 extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<VCAI> ai;
 
 void BuildAnalyzer::updateTownDwellings(TownDevelopmentInfo & developmentInfo)
 {

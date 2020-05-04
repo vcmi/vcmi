@@ -68,6 +68,7 @@ namespace Goals
 
 	private:
 		bool shouldVisitObject(const CGObjectInstance * obj) const;
+		static bool shouldVisit(HeroPtr h, const CGObjectInstance * obj);
 	};
 }
 

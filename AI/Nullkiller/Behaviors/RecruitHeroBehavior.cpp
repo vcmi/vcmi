@@ -10,7 +10,6 @@
 #include "StdInc.h"
 #include "RecruitHeroBehavior.h"
 #include "../VCAI.h"
-#include "../AIhelper.h"
 #include "../AIUtility.h"
 #include "../Goals/RecruitHero.h"
 #include "../Goals/ExecuteHeroChain.h"
@@ -19,7 +18,6 @@
 
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<VCAI> ai;
-extern FuzzyHelper * fh;
 
 using namespace Goals;
 

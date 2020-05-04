@@ -13,12 +13,13 @@
 #include "Rules/AIMovementAfterDestinationRule.h"
 #include "Rules/AIMovementToDestinationRule.h"
 #include "Rules/AIPreviousNodeRule.h"
+#include "../Engine//Nullkiller.h"
 
 namespace AIPathfinding
 {
 	std::vector<std::shared_ptr<IPathfindingRule>> makeRuleset(
 		CPlayerSpecificInfoCallback * cb,
-		VCAI * ai,
+		Nullkiller * ai,
 		std::shared_ptr<AINodeStorage> nodeStorage)
 	{
 		std::vector<std::shared_ptr<IPathfindingRule>> rules = {
@@ -35,7 +36,7 @@ namespace AIPathfinding
 
 	AIPathfinderConfig::AIPathfinderConfig(
 		CPlayerSpecificInfoCallback * cb,
-		VCAI * ai,
+		Nullkiller * ai,
 		std::shared_ptr<AINodeStorage> nodeStorage)
 		:PathfinderConfig(nodeStorage, makeRuleset(cb, ai, nodeStorage)), aiNodeStorage(nodeStorage)
 	{

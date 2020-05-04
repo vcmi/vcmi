@@ -9,7 +9,28 @@
 */
 #pragma once
 #include "fl/Headers.h"
-#include "../Goals/Goals.h"
+#include "../Goals/CGoal.h"
+
+class BuildingInfo;
+
+class RewardEvaluator
+{
+public:
+	const Nullkiller * ai;
+
+	RewardEvaluator(const Nullkiller * ai) : ai(ai) {}
+
+	uint64_t getArmyReward(const CGObjectInstance * target, const CGHeroInstance * hero, const CCreatureSet * army, bool checkGold) const;
+	int getGoldCost(const CGObjectInstance * target, const CGHeroInstance * hero, const CCreatureSet * army) const;
+	float getEnemyHeroStrategicalValue(const CGHeroInstance * enemy) const;
+	float getResourceRequirementStrength(int resType) const;
+	float getStrategicalValue(const CGObjectInstance * target) const;
+	float getTotalResourceRequirementStrength(int resType) const;
+	float evaluateWitchHutSkillScore(const CGWitchHut * hut, const CGHeroInstance * hero, HeroRole role) const;
+	float getSkillReward(const CGObjectInstance * target, const CGHeroInstance * hero, HeroRole role) const;
+	int32_t getGoldReward(const CGObjectInstance * target, const CGHeroInstance * hero) const;
+	uint64_t getUpgradeArmyReward(const CGTownInstance * town, const BuildingInfo & bi) const;
+};
 
 struct DLL_EXPORT EvaluationContext
 {
@@ -26,8 +47,9 @@ struct DLL_EXPORT EvaluationContext
 	float strategicalValue;
 	HeroRole heroRole;
 	uint8_t turn;
+	RewardEvaluator evaluator;
 
-	EvaluationContext();
+	EvaluationContext(const Nullkiller * ai);
 };
 
 class IEvaluationContextBuilder
@@ -36,16 +58,20 @@ public:
 	virtual void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal goal) const = 0;
 };
 
+class Nullkiller;
+
 class PriorityEvaluator
 {
 public:
-	PriorityEvaluator();
+	PriorityEvaluator(const Nullkiller * ai);
 	~PriorityEvaluator();
 	void initVisitTile();
 
 	float evaluate(Goals::TSubgoal task);
 
 private:
+	const Nullkiller * ai;
+
 	fl::Engine * engine;
 	fl::InputVariable * armyLossPersentageVariable;
 	fl::InputVariable * heroRoleVariable;

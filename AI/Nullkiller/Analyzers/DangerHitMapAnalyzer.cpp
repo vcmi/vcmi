@@ -10,9 +10,7 @@
 #include "StdInc.h"
 #include "DangerHitMapAnalyzer.h"
 #include "lib/mapping/CMap.h" //for victory conditions
-
-extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<VCAI> ai;
+#include "../Engine/Nullkiller.h"
 
 void DangerHitMapAnalyzer::updateHitMap()
 {
@@ -21,17 +19,18 @@ void DangerHitMapAnalyzer::updateHitMap()
 
 	upToDate = true;
 
-	auto mapSize = cb->getMapSize();
+	auto cb = ai->cb.get();
+	auto mapSize = ai->cb->getMapSize();
 	hitMap.resize(boost::extents[mapSize.x][mapSize.y][mapSize.z]);
 	enemyHeroAccessibleObjects.clear();
 
-	std::map<PlayerColor, std::vector<HeroPtr>> heroes;
+	std::map<PlayerColor, std::vector<const CGHeroInstance *>> heroes;
 
-	for(const CGObjectInstance * obj : ai->visitableObjs)
+	for(const CGObjectInstance * obj : ai->memory->visitableObjs)
 	{
 		if(obj->ID == Obj::HERO)
 		{
-			HeroPtr hero = dynamic_cast<const CGHeroInstance *>(obj);
+			auto hero = dynamic_cast<const CGHeroInstance *>(obj);
 
 			heroes[hero->tempOwner].push_back(hero);
 		}
@@ -43,11 +42,11 @@ void DangerHitMapAnalyzer::updateHitMap()
 
 	for(auto pair : heroes)
 	{
-		ai->ah->updatePaths(pair.second, false);
+		ai->pathfinder->updatePaths(pair.second, false);
 
 		foreach_tile_pos([&](const int3 & pos)
 		{
-			for(AIPath & path : ai->ah->getPathsToTile(pos))
+			for(AIPath & path : ai->pathfinder->getPathInfo(pos))
 			{
 				if(path.getFirstBlockedAction())
 					continue;

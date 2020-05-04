@@ -10,7 +10,6 @@
 #include "StdInc.h"
 #include "StartupBehavior.h"
 #include "../VCAI.h"
-#include "../AIhelper.h"
 #include "../AIUtility.h"
 #include "../Goals/RecruitHero.h"
 #include "../Goals/ExecuteHeroChain.h"
@@ -22,7 +21,6 @@
 
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<VCAI> ai;
-extern FuzzyHelper * fh;
 
 using namespace Goals;
 
@@ -46,7 +44,7 @@ const AIPath getShortestPath(const CGTownInstance * town, const std::vector<AIPa
 
 const CGHeroInstance * getNearestHero(const CGTownInstance * town)
 {
-	auto paths = ai->ah->getPathsToTile(town->visitablePos());
+	auto paths = ai->nullkiller->pathfinder->getPathInfo(town->visitablePos());
 
 	if(paths.empty())
 		return nullptr;
@@ -114,12 +112,12 @@ Goals::TGoalVec StartupBehavior::decompose() const
 		startupTown = *vstd::maxElementByFun(towns, [](const CGTownInstance * town) -> float
 		{
 			if(town->garrisonHero)
-				return ai->ah->evaluateHero(town->garrisonHero.get());
+				return ai->nullkiller->heroManager->evaluateHero(town->garrisonHero.get());
 
 			auto closestHero = getNearestHero(town);
 
 			if(closestHero)
-				return ai->ah->evaluateHero(closestHero);
+				return ai->nullkiller->heroManager->evaluateHero(closestHero);
 
 			return 0;
 		});
@@ -132,9 +130,9 @@ Goals::TGoalVec StartupBehavior::decompose() const
 	{
 		if(!startupTown->visitingHero)
 		{
-			if(ai->ah->howManyReinforcementsCanGet(startupTown->getUpperArmy(), closestHero) > 200)
+			if(ai->nullkiller->armyManager->howManyReinforcementsCanGet(startupTown->getUpperArmy(), closestHero) > 200)
 			{
-				auto paths = ai->ah->getPathsToTile(startupTown->visitablePos());
+				auto paths = ai->nullkiller->pathfinder->getPathInfo(startupTown->visitablePos());
 
 				if(paths.size())
 				{
@@ -147,22 +145,22 @@ Goals::TGoalVec StartupBehavior::decompose() const
 		else
 		{
 			auto visitingHero = startupTown->visitingHero.get();
-			auto visitingHeroScore = ai->ah->evaluateHero(visitingHero);
+			auto visitingHeroScore = ai->nullkiller->heroManager->evaluateHero(visitingHero);
 				
 			if(startupTown->garrisonHero)
 			{
 				auto garrisonHero = startupTown->garrisonHero.get();
-				auto garrisonHeroScore = ai->ah->evaluateHero(garrisonHero);
+				auto garrisonHeroScore = ai->nullkiller->heroManager->evaluateHero(garrisonHero);
 
 				if(visitingHeroScore > garrisonHeroScore
-					|| ai->ah->getHeroRole(garrisonHero) == HeroRole::SCOUT && ai->ah->getHeroRole(visitingHero) == HeroRole::MAIN)
+					|| ai->nullkiller->heroManager->getHeroRole(garrisonHero) == HeroRole::SCOUT && ai->nullkiller->heroManager->getHeroRole(visitingHero) == HeroRole::MAIN)
 				{
-					if(canRecruitHero || ai->ah->howManyReinforcementsCanGet(visitingHero, garrisonHero) > 200)
+					if(canRecruitHero || ai->nullkiller->armyManager->howManyReinforcementsCanGet(visitingHero, garrisonHero) > 200)
 					{
 						tasks.push_back(Goals::sptr(ExchangeSwapTownHeroes(startupTown, visitingHero, HeroLockedReason::STARTUP).setpriority(100)));
 					}
 				}
-				else if(ai->ah->howManyReinforcementsCanGet(garrisonHero, visitingHero) > 200)
+				else if(ai->nullkiller->armyManager->howManyReinforcementsCanGet(garrisonHero, visitingHero) > 200)
 				{
 					tasks.push_back(Goals::sptr(ExchangeSwapTownHeroes(startupTown, garrisonHero, HeroLockedReason::STARTUP).setpriority(100)));
 				}

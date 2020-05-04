@@ -9,7 +9,6 @@
  */
 #include "StdInc.h"
 #include "VCAI.h"
-#include "FuzzyHelper.h"
 #include "Goals/Goals.h"
 
 #include "../../lib/UnlockGuard.h"
@@ -23,10 +22,8 @@
 #include "../../lib/serializer/BinarySerializer.h"
 #include "../../lib/serializer/BinaryDeserializer.h"
 
-#include "AIhelper.h"
 #include "Engine/Nullkiller.h"
 
-extern FuzzyHelper * fh;
 
 class CGVisitableOPW;
 
@@ -68,14 +65,11 @@ VCAI::VCAI()
 	makingTurn = nullptr;
 	destinationTeleport = ObjectInstanceID();
 	destinationTeleportPos = int3(-1);
-
-	ah = new AIhelper();
-	ah->setAI(this);
+	nullkiller.reset(new Nullkiller());
 }
 
 VCAI::~VCAI()
 {
-	delete ah;
 	LOG_TRACE(logAi);
 	finish();
 }
@@ -109,9 +103,7 @@ void VCAI::heroMoved(const TryMoveHero & details)
 			{
 				if(o1->ID == Obj::SUBTERRANEAN_GATE && o1->ID == o2->ID) // We need to only add subterranean gates in knownSubterraneanGates. Used for features not yet ported to use teleport channels
 				{
-					knownSubterraneanGates[o1] = o2;
-					knownSubterraneanGates[o2] = o1;
-					logAi->debug("Found a pair of subterranean gates between %s and %s!", from.toString(), to.toString());
+					nullkiller->memory->addSubterraneanGate(o1, o2);
 				}
 			}
 		}
@@ -238,12 +230,7 @@ void VCAI::heroVisit(const CGHeroInstance * visitor, const CGObjectInstance * vi
 
 	if(start && visitedObj) //we can end visit with null object, anyway
 	{
-		markObjectVisited(visitedObj);
-		//TODO: what if we visited one-time visitable object that was reserved by another hero (shouldn't, but..)
-		if (visitedObj->ID == Obj::HERO)
-		{
-			visitedHeroes[visitor].insert(HeroPtr(dynamic_cast<const CGHeroInstance *>(visitedObj)));
-		}
+		nullkiller->memory->markObjectVisited(visitedObj);
 	}
 
 	status.heroVisit(visitedObj, start);
@@ -259,8 +246,6 @@ void VCAI::heroVisitsTown(const CGHeroInstance * hero, const CGTownInstance * to
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
-	//buildArmyIn(town);
-	//moveCreaturesToHero(town);
 }
 
 void VCAI::tileHidden(const std::unordered_set<int3, ShashInt3> & pos)
@@ -268,7 +253,7 @@ void VCAI::tileHidden(const std::unordered_set<int3, ShashInt3> & pos)
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 
-	validateVisitableObjs();
+	nullkiller->memory->removeInvisibleObjects(myCb.get());
 	clearPathsInfo();
 }
 
@@ -360,22 +345,7 @@ void VCAI::objectRemoved(const CGObjectInstance * obj)
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 
-	vstd::erase_if_present(visitableObjs, obj);
-	vstd::erase_if_present(alreadyVisited, obj);
-
-	//TODO: Find better way to handle hero boat removal
-	if(auto hero = dynamic_cast<const CGHeroInstance *>(obj))
-	{
-		if(hero->boat)
-		{
-			vstd::erase_if_present(visitableObjs, hero->boat);
-			vstd::erase_if_present(alreadyVisited, hero->boat);
-		}
-	}
-
-	//TODO
-	//there are other places where CGObjectinstance ptrs are stored...
-	//
+	nullkiller->memory->removeFromMemory(obj);
 
 	if(obj->ID == Obj::HERO && obj->tempOwner == playerID)
 	{
@@ -398,8 +368,6 @@ void VCAI::playerBonusChanged(const Bonus & bonus, bool gain)
 void VCAI::heroCreated(const CGHeroInstance * h)
 {
 	LOG_TRACE(logAi);
-	if(h->visitedTown)
-		townVisitsThisWeek[HeroPtr(h)].insert(h->visitedTown);
 	NET_EVENT_HANDLER;
 }
 
@@ -480,10 +448,10 @@ void VCAI::objectPropertyChanged(const SetObjectProperty * sop)
 			if(relations == PlayerRelations::ENEMIES)
 			{
 				//we want to visit objects owned by oppponents
-				addVisitableObj(obj); // TODO: Remove once save compatability broken. In past owned objects were removed from this set
-				vstd::erase_if_present(alreadyVisited, obj);
+				//addVisitableObj(obj); // TODO: Remove once save compatability broken. In past owned objects were removed from this set
+				nullkiller->memory->markObjectUnvisited(obj);
 			}
-			else if(relations == PlayerRelations::SAME_PLAYER && obj->ID == Obj::TOWN && nullkiller)
+			else if(relations == PlayerRelations::SAME_PLAYER && obj->ID == Obj::TOWN)
 			{
 				// reevaluate defence for a new town
 				nullkiller->dangerHitMap->reset();
@@ -523,20 +491,12 @@ void VCAI::init(std::shared_ptr<CCallback> CB)
 	myCb = CB;
 	cbc = CB;
 
-	ah->init(CB.get());
-
-	NET_EVENT_HANDLER; //sets ah->rm->cb
+	NET_EVENT_HANDLER;
 	playerID = *myCb->getMyColor();
 	myCb->waitTillRealize = true;
 	myCb->unlockGsWhenWaiting = true;
 
-	if(!fh)
-		fh = new FuzzyHelper();
-
-	//if(playerID.getStr(false) == "blue")
-	{
-		nullkiller.reset(new Nullkiller());
-	}
+	nullkiller->init(CB, playerID);
 
 	retrieveVisitableObjs();
 }
@@ -554,7 +514,7 @@ void VCAI::heroGotLevel(const CGHeroInstance * hero, PrimarySkill::PrimarySkill 
 	LOG_TRACE_PARAMS(logAi, "queryID '%i'", queryID);
 	NET_EVENT_HANDLER;
 	status.addQuery(queryID, boost::str(boost::format("Hero %s got level %d") % hero->name % hero->level));
-	requestActionASAP([=](){ answerQuery(queryID, ah->selectBestSkill(hero, skills)); });
+	requestActionASAP([=](){ answerQuery(queryID, nullkiller->heroManager->selectBestSkill(hero, skills)); });
 }
 
 void VCAI::commanderGotLevel(const CCommanderInstance * commander, std::vector<ui32> skills, QueryID queryID)
@@ -589,7 +549,7 @@ void VCAI::showBlockingDialog(const std::string & text, const std::vector<Compon
 
 				if(objType == Obj::ARTIFACT || objType == Obj::RESOURCE)
 				{
-					auto ratio = (float)fh->evaluateDanger(target, hero.get()) / (float)hero->getTotalStrength();
+					auto ratio = (float)nullkiller->dangerEvaluator->evaluateDanger(target, hero.get()) / (float)hero->getTotalStrength();
 					bool dangerUnknown = ratio == 0;
 					bool dangerTooHigh = ratio > (1 / SAFE_ATTACK_CONSTANT);
 
@@ -615,7 +575,7 @@ void VCAI::showBlockingDialog(const std::string & text, const std::vector<Compon
 		// TODO: Find better way to understand it is Chest of Treasures
 		if(components.size() == 2
 			&& components.front().id == Component::RESOURCE
-			&& ah->getHeroRole(hero) != HeroRole::MAIN)
+			&& nullkiller->heroManager->getHeroRole(hero) != HeroRole::MAIN)
 		{
 			sel = 1; // for now lets pick gold from a chest.
 		}
@@ -626,15 +586,13 @@ void VCAI::showBlockingDialog(const std::string & text, const std::vector<Compon
 
 void VCAI::showTeleportDialog(TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID)
 {
-//	LOG_TRACE_PARAMS(logAi, "askID '%i', exits '%s'", askID % exits);
 	NET_EVENT_HANDLER;
-	status.addQuery(askID, boost::str(boost::format("Teleport dialog query with %d exits")
-																			% exits.size()));
+	status.addQuery(askID, boost::str(boost::format("Teleport dialog query with %d exits") % exits.size()));
 
 	int choosenExit = -1;
 	if(impassable)
 	{
-		knownTeleportChannels[channel]->passability = TeleportChannel::IMPASSABLE;
+		nullkiller->memory->knownTeleportChannels[channel]->passability = TeleportChannel::IMPASSABLE;
 	}
 	else if(destinationTeleport != ObjectInstanceID() && destinationTeleportPos.valid())
 	{
@@ -700,12 +658,8 @@ void VCAI::saveGame(BinarySerializer & h, const int version)
 {
 	LOG_TRACE_PARAMS(logAi, "version '%i'", version);
 	NET_EVENT_HANDLER;
-	validateVisitableObjs();
+	nullkiller->memory->removeInvisibleObjects(myCb.get());
 
-	#if 0
-	//disabled due to issue 2890
-	registerGoals(h);
-	#endif // 0
 	CAdventureAI::saveGame(h, version);
 	serializeInternal(h, version);
 }
@@ -760,7 +714,6 @@ void VCAI::makeTurn()
 
 	if(cb->getDate(Date::DAY_OF_WEEK) == 1)
 	{
-		townVisitsThisWeek.clear();
 		std::vector<const CGObjectInstance *> objs;
 		retrieveVisitableObjs(objs, true);
 
@@ -769,13 +722,10 @@ void VCAI::makeTurn()
 			if(isWeeklyRevisitable(obj))
 			{
 				addVisitableObj(obj);
-				vstd::erase_if_present(alreadyVisited, obj);
+				nullkiller->memory->markObjectUnvisited(obj);
 			}
 		}
 	}
-
-	markHeroAbleToExplore(primaryHero());
-	visitedHeroes.clear();
 
 	if(cb->getDate(Date::DAY) == 1)
 	{
@@ -807,18 +757,6 @@ void VCAI::makeTurn()
 	endTurn();
 }
 
-std::vector<HeroPtr> VCAI::getMyHeroes() const
-{
-	std::vector<HeroPtr> ret;
-
-	for(auto h : cb->getHeroesInfo())
-	{
-		ret.push_back(h);
-	}
-
-	return ret;
-}
-
 void VCAI::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h)
 {
 	LOG_TRACE_PARAMS(logAi, "Hero %s and object %s at %s", h->name % obj->getObjectName() % obj->pos.toString());
@@ -832,17 +770,8 @@ void VCAI::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h)
 		{
 			makePossibleUpgrades(h.get());
 
-			if(!nullkiller || !h->visitedTown->garrisonHero || !nullkiller->isHeroLocked(h->visitedTown->garrisonHero))
-				moveCreaturesToHero(h->visitedTown);
-
-			townVisitsThisWeek[h].insert(h->visitedTown);
-
-			if(!ai->nullkiller)
-			{
-				ah->update();
-			}
-
-			if(ah->getHeroRole(h) == HeroRole::MAIN && !h->hasSpellbook() && cb->getResourceAmount(Res::GOLD) >= GameConstants::SPELLBOOK_GOLD_COST)
+			if(ai->nullkiller->heroManager->getHeroRole(h) == HeroRole::MAIN && !h->hasSpellbook()
+				&& cb->getResourceAmount(Res::GOLD) >= GameConstants::SPELLBOOK_GOLD_COST)
 			{
 				if(h->visitedTown->hasBuilt(BuildingID::MAGES_GUILD_1))
 					cb->buyArtifact(h.get(), ArtifactID::SPELLBOOK);
@@ -867,7 +796,7 @@ void VCAI::pickBestCreatures(const CArmedInstance * destinationArmy, const CArme
 {
 	const CArmedInstance * armies[] = {destinationArmy, source};
 
-	auto bestArmy = ah->getSortedSlots(destinationArmy, source);
+	auto bestArmy = nullkiller->armyManager->getSortedSlots(destinationArmy, source);
 
 	//foreach best type -> iterate over slots in both armies and if it's the appropriate type, send it to the slot where it belongs
 	for(SlotID i = SlotID(0); i.getNum() < bestArmy.size() && i.validSlot(); i.advance(1)) //i-th strongest creature type will go to i-th slot
@@ -886,7 +815,7 @@ void VCAI::pickBestCreatures(const CArmedInstance * destinationArmy, const CArme
 						&& source->stacksCount() == 1
 						&& (!destinationArmy->hasStackAtSlot(i) || destinationArmy->getCreature(i) == targetCreature))
 					{
-						auto weakest = ah->getWeakestCreature(bestArmy);
+						auto weakest = nullkiller->armyManager->getWeakestCreature(bestArmy);
 						
 						if(weakest->creature == targetCreature)
 						{
@@ -1040,54 +969,6 @@ void VCAI::recruitCreatures(const CGDwelling * d, const CArmedInstance * recruit
 	}
 }
 
-bool VCAI::isGoodForVisit(const CGObjectInstance * obj, HeroPtr h, boost::optional<float> movementCostLimit)
-{
-	int3 op = obj->visitablePos();
-	auto paths = ah->getPathsToTile(h, op);
-
-	for(const auto & path : paths)
-	{
-		if(movementCostLimit && movementCostLimit.get() < path.movementCost())
-			return false;
-
-		if(isGoodForVisit(obj, h, path))
-			return true;
-	}
-
-	return false;
-}
-
-bool VCAI::isGoodForVisit(const CGObjectInstance * obj, HeroPtr h, const AIPath & path) const
-{
-	const int3 pos = obj->visitablePos();
-	const int3 targetPos = path.firstTileToGet();
-	if (!targetPos.valid())
-		return false;
-	if (!isTileNotReserved(h.get(), targetPos))
-		return false;
-	if (obj->wasVisited(playerID))
-		return false;
-	if (cb->getPlayerRelations(playerID, obj->tempOwner) != PlayerRelations::ENEMIES && !isWeeklyRevisitable(obj))
-		return false; // Otherwise we flag or get weekly resources / creatures
-	if (!isSafeToVisit(h, pos))
-		return false;
-	if (!shouldVisit(h, obj))
-		return false;
-	if (vstd::contains(alreadyVisited, obj))
-		return false;
-	if (vstd::contains(reservedObjs, obj))
-		return false;
-
-	// TODO: looks extra if we already have AIPath
-	//if (!isAccessibleForHero(targetPos, h))
-	//	return false;
-
-	const CGObjectInstance * topObj = cb->getVisitableObjs(obj->visitablePos()).back(); //it may be hero visiting this obj
-																						//we don't try visiting object on which allied or owned hero stands
-																						// -> it will just trigger exchange windows and AI will be confused that obj behind doesn't get visited
-	return !(topObj->ID == Obj::HERO && cb->getPlayerRelations(h->tempOwner, topObj->tempOwner) != PlayerRelations::ENEMIES); //all of the following is met
-}
-
 bool VCAI::isTileNotReserved(const CGHeroInstance * h, int3 t) const
 {
 	if(t.valid())
@@ -1150,19 +1031,6 @@ void VCAI::waitTillFree()
 	status.waitTillFree();
 }
 
-void VCAI::markObjectVisited(const CGObjectInstance * obj)
-{
-	if(!obj)
-		return;
-	if(dynamic_cast<const CGVisitableOPH *>(obj)) //we may want to visit it with another hero
-		return;
-	if(dynamic_cast<const CGBonusingObject *>(obj)) //or another time
-		return;
-	if(obj->ID == Obj::MONSTER)
-		return;
-	alreadyVisited.insert(obj);
-}
-
 void VCAI::markHeroUnableToExplore(HeroPtr h)
 {
 	heroesUnableToExplore.insert(h);
@@ -1178,40 +1046,6 @@ bool VCAI::isAbleToExplore(HeroPtr h)
 void VCAI::clearPathsInfo()
 {
 	heroesUnableToExplore.clear();
-}
-
-void VCAI::validateVisitableObjs()
-{
-	std::string errorMsg;
-	auto shouldBeErased = [&](const CGObjectInstance * obj) -> bool
-	{
-		if(obj)
-			return !cb->getObj(obj->id, false); // no verbose output needed as we check object visibility
-		else
-			return true;
-	};
-
-	//errorMsg is captured by ref so lambda will take the new text
-	errorMsg = " shouldn't be on the visitable objects list!";
-	vstd::erase_if(visitableObjs, shouldBeErased);
-
-	//FIXME: how comes our own heroes become inaccessible?
-	vstd::erase_if(reservedHeroesMap, [](std::pair<HeroPtr, std::set<const CGObjectInstance *>> hp) -> bool
-	{
-		return !hp.first.get(true);
-	});
-	for(auto & p : reservedHeroesMap)
-	{
-		errorMsg = " shouldn't be on list for hero " + p.first->name + "!";
-		vstd::erase_if(p.second, shouldBeErased);
-	}
-
-	errorMsg = " shouldn't be on the reserved objs list!";
-	vstd::erase_if(reservedObjs, shouldBeErased);
-
-	//TODO overkill, hidden object should not be removed. However, we can't know if hidden object is erased from game.
-	errorMsg = " shouldn't be on the already visited objs list!";
-	vstd::erase_if(alreadyVisited, shouldBeErased);
 }
 
 void VCAI::retrieveVisitableObjs(std::vector<const CGObjectInstance *> & out, bool includeOwned) const
@@ -1241,7 +1075,7 @@ void VCAI::retrieveVisitableObjs()
 std::vector<const CGObjectInstance *> VCAI::getFlaggedObjects() const
 {
 	std::vector<const CGObjectInstance *> ret;
-	for(const CGObjectInstance * obj : visitableObjs)
+	for(const CGObjectInstance * obj : nullkiller->memory->visitableObjs)
 	{
 		if(obj->tempOwner == playerID)
 			ret.push_back(obj);
@@ -1254,43 +1088,12 @@ void VCAI::addVisitableObj(const CGObjectInstance * obj)
 	if(obj->ID == Obj::EVENT)
 		return;
 
-	visitableObjs.insert(obj);
-
-	// All teleport objects seen automatically assigned to appropriate channels
-	auto teleportObj = dynamic_cast<const CGTeleport *>(obj);
-	if(teleportObj)
-		CGTeleport::addToChannel(knownTeleportChannels, teleportObj);
+	nullkiller->memory->addVisitableObject(obj);
 
 	if(obj->ID == Obj::HERO && cb->getPlayerRelations(obj->tempOwner, playerID) == PlayerRelations::ENEMIES)
 	{
-		if(nullkiller) nullkiller->dangerHitMap->reset();
+		nullkiller->dangerHitMap->reset();
 	}
-}
-
-const CGObjectInstance * VCAI::lookForArt(int aid) const
-{
-	for(const CGObjectInstance * obj : ai->visitableObjs)
-	{
-		if(obj->ID == Obj::ARTIFACT && obj->subID == aid)
-			return obj;
-	}
-
-	return nullptr;
-
-	//TODO what if more than one artifact is available? return them all or some slection criteria
-}
-
-bool VCAI::isAccessible(const int3 & pos) const
-{
-	//TODO precalculate for speed
-
-	for(const CGHeroInstance * h : cb->getHeroesInfo())
-	{
-		if(isAccessibleForHero(pos, h))
-			return true;
-	}
-
-	return false;
 }
 
 HeroPtr VCAI::getHeroWithGrail() const
@@ -1301,34 +1104,6 @@ HeroPtr VCAI::getHeroWithGrail() const
 			return h;
 	}
 	return nullptr;
-}
-
-const CGObjectInstance * VCAI::getUnvisitedObj(const std::function<bool(const CGObjectInstance *)> & predicate)
-{
-	//TODO smarter definition of unvisited
-	for(const CGObjectInstance * obj : visitableObjs)
-	{
-		if(predicate(obj) && !vstd::contains(alreadyVisited, obj))
-			return obj;
-	}
-	return nullptr;
-}
-
-bool VCAI::isAccessibleForHero(const int3 & pos, HeroPtr h, bool includeAllies) const
-{
-	// Don't visit tile occupied by allied hero
-	if(!includeAllies)
-	{
-		for(auto obj : cb->getVisitableObjs(pos))
-		{
-			if(obj->ID == Obj::HERO && cb->getPlayerRelations(ai->playerID, obj->tempOwner) != PlayerRelations::ENEMIES)
-			{
-				if(obj != h.get())
-					return false;
-			}
-		}
-	}
-	return cb->getPathsInfo(h.get())->getPathInfo(pos)->reachable();
 }
 
 bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
@@ -1363,6 +1138,8 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 		assert(cb->getVisitableObjs(dst).size() > 1); //there's no point in revisiting tile where there is no visitable object
 		cb->moveHero(*h, CGHeroInstance::convertPosition(dst, true));
 		afterMovementCheck(); // TODO: is it feasible to hero get killed there if game work properly?
+		// If revisiting, teleport probing is never done, and so the entries into the list would remain unused and uncleared
+		teleportChannelProbingList.clear();
 		// not sure if AI can currently reconsider to attack bank while staying on it. Check issue 2084 on mantis for more information.
 		ret = true;
 	}
@@ -1456,7 +1233,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 				doTeleportMovement(destTeleportObj->id, nextCoord);
 				if(teleportChannelProbingList.size())
 					doChannelProbing();
-				markObjectVisited(destTeleportObj); //FIXME: Monoliths are not correctly visited
+				nullkiller->memory->markObjectVisited(destTeleportObj); //FIXME: Monoliths are not correctly visited
 
 				continue;
 			}
@@ -1596,17 +1373,6 @@ void VCAI::tryRealize(Goals::Trade & g) //trade
 	}
 }
 
-void VCAI::tryRealize(Goals::Invalid & g)
-{
-	throw cannotFulfillGoalException("I don't know how to fulfill this!");
-}
-
-void VCAI::tryRealize(Goals::AbstractGoal & g)
-{
-	logAi->debug("Attempting realizing goal with code %s", g.toString());
-	throw cannotFulfillGoalException("Unknown type of goal !");
-}
-
 const CGTownInstance * VCAI::findTownWithTavern() const
 {
 	for(const CGTownInstance * t : cb->getTownsInfo())
@@ -1614,15 +1380,6 @@ const CGTownInstance * VCAI::findTownWithTavern() const
 			return t;
 
 	return nullptr;
-}
-
-HeroPtr VCAI::primaryHero() const
-{
-	auto hs = cb->getHeroesInfo();
-	if (hs.empty())
-		return nullptr;
-	else
-		return *boost::max_element(hs, compareHeroStrength);
 }
 
 void VCAI::endTurn()
@@ -1663,9 +1420,9 @@ void VCAI::recruitHero(const CGTownInstance * t, bool throwing)
 			if(heroes[1]->getTotalStrength() > hero->getTotalStrength())
 				hero = heroes[1];
 		}
-		cb->recruitHero(t, hero);
 
-		ai->ah->update();
+		cb->recruitHero(t, hero);
+		nullkiller->heroManager->update();
 
 		if(t->visitingHero)
 			moveHeroToTile(t->visitablePos(), t->visitingHero.get());
@@ -1750,18 +1507,9 @@ void VCAI::validateObject(const CGObjectInstance * obj)
 
 void VCAI::validateObject(ObjectIdRef obj)
 {
-	auto matchesId = [&](const CGObjectInstance * hlpObj) -> bool
-	{
-		return hlpObj->id == obj.id;
-	};
 	if(!obj)
 	{
-		vstd::erase_if(visitableObjs, matchesId);
-
-		for(auto & p : reservedHeroesMap)
-			vstd::erase_if(p.second, matchesId);
-
-		vstd::erase_if(reservedObjs, matchesId);
+		nullkiller->memory->removeFromMemory(obj);
 	}
 }
 
@@ -1919,149 +1667,3 @@ bool AIStatus::channelProbing()
 {
 	return ongoingChannelProbing;
 }
-
-
-
-bool isWeeklyRevisitable(const CGObjectInstance * obj)
-{
-	//TODO: allow polling of remaining creatures in dwelling
-	if(dynamic_cast<const CGVisitableOPW *>(obj)) // ensures future compatibility, unlike IDs
-		return true;
-	if(dynamic_cast<const CGDwelling *>(obj))
-		return true;
-	if(dynamic_cast<const CBank *>(obj)) //banks tend to respawn often in mods
-		return true;
-
-	switch(obj->ID)
-	{
-	case Obj::STABLES:
-	case Obj::MAGIC_WELL:
-	case Obj::HILL_FORT:
-		return true;
-	case Obj::BORDER_GATE:
-	case Obj::BORDERGUARD:
-		return (dynamic_cast<const CGKeys *>(obj))->wasMyColorVisited(ai->playerID); //FIXME: they could be revisited sooner than in a week
-	}
-	return false;
-}
-
-bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
-{
-	switch(obj->ID)
-	{
-	case Obj::TOWN:
-	case Obj::HERO: //never visit our heroes at random
-		return obj->tempOwner != h->tempOwner; //do not visit our towns at random
-	case Obj::BORDER_GATE:
-	{
-		for(auto q : ai->myCb->getMyQuests())
-		{
-			if(q.obj == obj)
-			{
-				return false; // do not visit guards or gates when wandering
-			}
-		}
-		return true; //we don't have this quest yet
-	}
-	case Obj::BORDERGUARD: //open borderguard if possible
-		return (dynamic_cast<const CGKeys *>(obj))->wasMyColorVisited(ai->playerID);
-	case Obj::SEER_HUT:
-	case Obj::QUEST_GUARD:
-	{
-		for(auto q : ai->myCb->getMyQuests())
-		{
-			if(q.obj == obj)
-			{
-				if(q.quest->checkQuest(h.h))
-					return true; //we completed the quest
-				else
-					return false; //we can't complete this quest
-			}
-		}
-		return true; //we don't have this quest yet
-	}
-	case Obj::CREATURE_GENERATOR1:
-	{
-		if(obj->tempOwner != h->tempOwner)
-			return true; //flag just in case
-
-		const CGDwelling * d = dynamic_cast<const CGDwelling *>(obj);
-
-		for(auto level : d->creatures)
-		{
-			for(auto c : level.second)
-			{
-				if(level.first
-					&& h->getSlotFor(CreatureID(c)) != SlotID()
-					&& cb->getResourceAmount().canAfford(c.toCreature()->cost))
-				{
-					return true;
-				}
-			}
-		}
-
-		return false;
-	}
-	case Obj::HILL_FORT:
-	{
-		for(auto slot : h->Slots())
-		{
-			if(slot.second->type->upgrades.size())
-				return true; //TODO: check price?
-		}
-		return false;
-	}
-	case Obj::MONOLITH_ONE_WAY_ENTRANCE:
-	case Obj::MONOLITH_ONE_WAY_EXIT:
-	case Obj::MONOLITH_TWO_WAY:
-	case Obj::WHIRLPOOL:
-		return false;
-	case Obj::SCHOOL_OF_MAGIC:
-	case Obj::SCHOOL_OF_WAR:
-	{
-		if (cb->getResourceAmount(Res::GOLD) < 1000)
-			return false;
-		break;
-	}
-	case Obj::LIBRARY_OF_ENLIGHTENMENT:
-		if(h->level < 12)
-			return false;
-		break;
-	case Obj::TREE_OF_KNOWLEDGE:
-	{
-		if(ai->ah->getHeroRole(h) == HeroRole::SCOUT)
-			return false;
-
-		TResources myRes = cb->getResourceAmount();
-		if(myRes[Res::GOLD] < 2000 || myRes[Res::GEMS] < 10)
-			return false;
-		break;
-	}
-	case Obj::MAGIC_WELL:
-		return h->mana < h->manaLimit();
-	case Obj::PRISON:
-		return ai->myCb->getHeroesInfo().size() < VLC->modh->settings.MAX_HEROES_ON_MAP_PER_PLAYER;
-	case Obj::TAVERN:
-	{
-		//TODO: make AI actually recruit heroes
-		//TODO: only on request
-		if(ai->myCb->getHeroesInfo().size() >= VLC->modh->settings.MAX_HEROES_ON_MAP_PER_PLAYER)
-			return false;
-		else if(cb->getResourceAmount(Res::GOLD) < GameConstants::HERO_GOLD_COST)
-			return false;
-		break;
-	}
-	case Obj::BOAT:
-		return false;
-	//Boats are handled by pathfinder
-	case Obj::EYE_OF_MAGI:
-		return false; //this object is useless to visit, but could be visited indefinitely
-	}
-
-	if(obj->wasVisited(*h)) //it must pointer to hero instance, heroPtr calls function wasVisited(ui8 player);
-		return false;
-
-	return true;
-}
-
-

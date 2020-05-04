@@ -12,10 +12,11 @@
 #include "AIPathfinderConfig.h"
 #include "../../../CCallback.h"
 #include "../../../lib/mapping/CMap.h"
+#include "../Engine/Nullkiller.h"
 
 std::shared_ptr<AINodeStorage> AIPathfinder::storage;
 
-AIPathfinder::AIPathfinder(CPlayerSpecificInfoCallback * cb, VCAI * ai)
+AIPathfinder::AIPathfinder(CPlayerSpecificInfoCallback * cb, Nullkiller * ai)
 	:cb(cb), ai(ai)
 {
 }
@@ -43,22 +44,22 @@ std::vector<AIPath> AIPathfinder::getPathInfo(const int3 & tile) const
 	return storage->getChainInfo(tile, !tileInfo->isWater());
 }
 
-void AIPathfinder::updatePaths(std::vector<HeroPtr> heroes, bool useHeroChain)
+void AIPathfinder::updatePaths(std::vector<const CGHeroInstance *> heroes, bool useHeroChain)
 {
 	if(!storage)
 	{
-		storage = std::make_shared<AINodeStorage>(cb->getMapSize());
+		storage.reset(new AINodeStorage(ai, cb->getMapSize()));
 	}
 
 	logAi->debug("Recalculate all paths");
 	int pass = 0;
 
 	storage->clear();
-	storage->setHeroes(heroes, ai);
+	storage->setHeroes(heroes);
 
 	if(useHeroChain)
 	{
-		storage->setTownsAndDwellings(cb->getTownsInfo(), ai->visitableObjs);
+		storage->setTownsAndDwellings(cb->getTownsInfo(), ai->memory->visitableObjs);
 	}
 
 	auto config = std::make_shared<AIPathfinding::AIPathfinderConfig>(cb, ai, storage);

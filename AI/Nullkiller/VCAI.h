@@ -26,7 +26,6 @@
 
 struct QuestInfo;
 
-class AIhelper;
 class Nullkiller;
 
 class AIStatus
@@ -75,18 +74,10 @@ public:
 class DLL_EXPORT VCAI : public CAdventureAI
 {
 public:
-
-	friend class FuzzyHelper;
-	friend class ResourceManager;
-	friend class BuildingManager;
-
-	std::map<TeleportChannelID, std::shared_ptr<TeleportChannel>> knownTeleportChannels;
-	std::map<const CGObjectInstance *, const CGObjectInstance *> knownSubterraneanGates;
 	ObjectInstanceID destinationTeleport;
 	int3 destinationTeleportPos;
 	std::vector<ObjectInstanceID> teleportChannelProbingList; //list of teleport channel exits that not visible and need to be (re-)explored
 	//std::vector<const CGObjectInstance *> visitedThisWeek; //only OPWs
-	std::map<HeroPtr, std::set<const CGTownInstance *>> townVisitsThisWeek;
 
 	std::set<HeroPtr> invalidPathHeroes; //FIXME, just a workaround
 	std::map<HeroPtr, Goals::TSubgoal> lockedHeroes; //TODO: allow non-elementar objectives
@@ -94,8 +85,6 @@ public:
 	std::set<HeroPtr> heroesUnableToExplore; //these heroes will not be polled for exploration in current state of game
 
 	//sets are faster to search, also do not contain duplicates
-	std::set<const CGObjectInstance *> visitableObjs;
-	std::set<const CGObjectInstance *> alreadyVisited;
 	std::set<const CGObjectInstance *> reservedObjs; //to be visited by specific hero
 	std::map<HeroPtr, std::set<HeroPtr>> visitedHeroes; //visited this turn //FIXME: this is just bug workaround
 
@@ -110,7 +99,6 @@ private:
 public:
 	ObjectInstanceID selectedObject;
 
-	AIhelper * ah;
 	std::unique_ptr<Nullkiller> nullkiller;
 
 	VCAI();
@@ -119,8 +107,6 @@ public:
 	//TODO: use only smart pointers?
 	void tryRealize(Goals::DigAtTile & g);
 	void tryRealize(Goals::Trade & g);
-	void tryRealize(Goals::Invalid & g);
-	void tryRealize(Goals::AbstractGoal & g);
 
 	bool isTileNotReserved(const CGHeroInstance * h, int3 t) const; //the tile is not occupied by allied hero and the object is not reserved
 
@@ -192,8 +178,6 @@ public:
 	void endTurn();
 
 	void recruitHero(const CGTownInstance * t, bool throwing = false);
-	bool isGoodForVisit(const CGObjectInstance * obj, HeroPtr h, boost::optional<float> movementCostLimit = boost::none);
-	bool isGoodForVisit(const CGObjectInstance * obj, HeroPtr h, const AIPath & path) const;
 	//void recruitCreatures(const CGTownInstance * t);
 	void recruitCreatures(const CGDwelling * d, const CArmedInstance * recruiter);
 	void pickBestCreatures(const CArmedInstance * army, const CArmedInstance * source); //called when we can't find a slot for new stack
@@ -209,7 +193,6 @@ public:
 	void waitTillFree();
 
 	void addVisitableObj(const CGObjectInstance * obj);
-	void markObjectVisited(const CGObjectInstance * obj);
 
 	void markHeroUnableToExplore(HeroPtr h);
 	void markHeroAbleToExplore(HeroPtr h);
@@ -218,24 +201,14 @@ public:
 
 	void validateObject(const CGObjectInstance * obj); //checks if object is still visible and if not, removes references to it
 	void validateObject(ObjectIdRef obj); //checks if object is still visible and if not, removes references to it
-	void validateVisitableObjs();
 	void retrieveVisitableObjs(std::vector<const CGObjectInstance *> & out, bool includeOwned = false) const;
 	void retrieveVisitableObjs();
 	virtual std::vector<const CGObjectInstance *> getFlaggedObjects() const;
 
-	const CGObjectInstance * lookForArt(int aid) const;
-	bool isAccessible(const int3 & pos) const;
 	HeroPtr getHeroWithGrail() const;
-
-	const CGObjectInstance * getUnvisitedObj(const std::function<bool(const CGObjectInstance *)> & predicate);
-	bool isAccessibleForHero(const int3 & pos, HeroPtr h, bool includeAllies = false) const;
-	//optimization - use one SM for every hero call
 
 	const CGTownInstance * findTownWithTavern() const;
 	bool canRecruitAnyHero(const CGTownInstance * t = NULL) const;
-
-	std::vector<HeroPtr> getMyHeroes() const;
-	HeroPtr primaryHero() const;
 
 	void requestSent(const CPackForServer * pack, int requestID) override;
 	void answerQuery(QueryID queryID, int selection);
@@ -271,10 +244,12 @@ public:
 
 	template<typename Handler> void serializeInternal(Handler & h, const int version)
 	{
-		h & knownTeleportChannels;
-		h & knownSubterraneanGates;
+		std::map<HeroPtr, std::set<const CGTownInstance *>> ignore;
+
+		h & nullkiller->memory->knownTeleportChannels;
+		h & nullkiller->memory->knownSubterraneanGates;
 		h & destinationTeleport;
-		h & townVisitsThisWeek;
+		h & ignore;
 
 		#if 0
 		//disabled due to issue 2890
@@ -318,8 +293,8 @@ public:
 		#endif
 
 		h & reservedHeroesMap; //FIXME: cannot instantiate abstract class
-		h & visitableObjs;
-		h & alreadyVisited;
+		h & nullkiller->memory->visitableObjs;
+		h & nullkiller->memory->alreadyVisited;
 		h & reservedObjs;
 		if (version < 788 && !h.saving)
 		{

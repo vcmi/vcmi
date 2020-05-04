@@ -12,13 +12,7 @@
 
 #include "../../lib/mapObjects/CommonConstructors.h"
 #include "Goals/Goals.h"
-#include "VCAI.h"
-
-FuzzyHelper * fh;
-
-extern boost::thread_specific_ptr<VCAI> ai;
-extern boost::thread_specific_ptr<CCallback> cb;
-
+#include "Nullkiller.h"
 
 ui64 FuzzyHelper::estimateBankDanger(const CBank * bank)
 {
@@ -39,14 +33,9 @@ ui64 FuzzyHelper::estimateBankDanger(const CBank * bank)
 
 }
 
-ui64 FuzzyHelper::evaluateDanger(crint3 tile, const CGHeroInstance * visitor)
+ui64 FuzzyHelper::evaluateDanger(crint3 tile, const CGHeroInstance * visitor, bool checkGuards)
 {
-	return evaluateDanger(tile, visitor, ai.get());
-}
-
-ui64 FuzzyHelper::evaluateDanger(crint3 tile, const CGHeroInstance * visitor, const VCAI * ai, bool checkGuards)
-{
-	auto cb = ai->myCb;
+	auto cb = ai->cb.get();
 	const TerrainTile * t = cb->getTile(tile, false);
 	if(!t) //we can know about guard but can't check its tile (the edge of fow)
 		return 190000000; //MUCH
@@ -66,7 +55,7 @@ ui64 FuzzyHelper::evaluateDanger(crint3 tile, const CGHeroInstance * visitor, co
 
 	if(const CGObjectInstance * dangerousObject = vstd::backOrNull(visitableObjects))
 	{
-		objectDanger = evaluateDanger(dangerousObject, ai); //unguarded objects can also be dangerous or unhandled
+		objectDanger = evaluateDanger(dangerousObject); //unguarded objects can also be dangerous or unhandled
 		if(objectDanger)
 		{
 			//TODO: don't downcast objects AI shouldn't know about!
@@ -80,15 +69,18 @@ ui64 FuzzyHelper::evaluateDanger(crint3 tile, const CGHeroInstance * visitor, co
 		if(dangerousObject->ID == Obj::SUBTERRANEAN_GATE)
 		{
 			//check guard on the other side of the gate
-			auto it = ai->knownSubterraneanGates.find(dangerousObject);
-			if(it != ai->knownSubterraneanGates.end())
+			auto it = ai->memory->knownSubterraneanGates.find(dangerousObject);
+			if(it != ai->memory->knownSubterraneanGates.end())
 			{
 				auto guards = cb->getGuardingCreatures(it->second->visitablePos());
+
 				for(auto cre : guards)
 				{
-					float tacticalAdvantage = tacticalAdvantageEngine.getTacticalAdvantage(visitor, dynamic_cast<const CArmedInstance *>(cre));
+					float tacticalAdvantage = tacticalAdvantageEngine.getTacticalAdvantage(
+						visitor, 
+						dynamic_cast<const CArmedInstance *>(cre));
 
-					vstd::amax(guardDanger, evaluateDanger(cre, ai) * tacticalAdvantage);
+					vstd::amax(guardDanger, evaluateDanger(cre) * tacticalAdvantage);
 				}
 			}
 		}
@@ -101,7 +93,7 @@ ui64 FuzzyHelper::evaluateDanger(crint3 tile, const CGHeroInstance * visitor, co
 		{
 			float tacticalAdvantage = tacticalAdvantageEngine.getTacticalAdvantage(visitor, dynamic_cast<const CArmedInstance *>(cre));
 
-			vstd::amax(guardDanger, evaluateDanger(cre, ai) * tacticalAdvantage); //we are interested in strongest monster around
+			vstd::amax(guardDanger, evaluateDanger(cre) * tacticalAdvantage); //we are interested in strongest monster around
 		}
 	}
 
@@ -109,9 +101,9 @@ ui64 FuzzyHelper::evaluateDanger(crint3 tile, const CGHeroInstance * visitor, co
 	return std::max(objectDanger, guardDanger);
 }
 
-ui64 FuzzyHelper::evaluateDanger(const CGObjectInstance * obj, const VCAI * ai)
+ui64 FuzzyHelper::evaluateDanger(const CGObjectInstance * obj)
 {
-	auto cb = ai->myCb;
+	auto cb = ai->cb.get();
 
 	if(obj->tempOwner < PlayerColor::PLAYER_LIMIT && cb->getPlayerRelations(obj->tempOwner, ai->playerID) != PlayerRelations::ENEMIES) //owned or allied objects don't pose any threat
 		return 0;
@@ -126,7 +118,7 @@ ui64 FuzzyHelper::evaluateDanger(const CGObjectInstance * obj, const VCAI * ai)
 	case Obj::ARTIFACT:
 	case Obj::RESOURCE:
 	{
-		if(!vstd::contains(ai->alreadyVisited, obj))
+		if(!vstd::contains(ai->memory->alreadyVisited, obj))
 		{
 			return 0;
 		}

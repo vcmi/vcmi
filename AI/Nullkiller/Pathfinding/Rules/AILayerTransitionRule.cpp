@@ -9,10 +9,11 @@
 */
 #include "StdInc.h"
 #include "AILayerTransitionRule.h"
+#include "../../Engine/Nullkiller.h"
 
 namespace AIPathfinding
 {
-	AILayerTransitionRule::AILayerTransitionRule(CPlayerSpecificInfoCallback * cb, VCAI * ai, std::shared_ptr<AINodeStorage> nodeStorage)
+	AILayerTransitionRule::AILayerTransitionRule(CPlayerSpecificInfoCallback * cb, Nullkiller * ai, std::shared_ptr<AINodeStorage> nodeStorage)
 		:cb(cb), ai(ai), nodeStorage(nodeStorage)
 	{
 		setup();
@@ -54,7 +55,7 @@ namespace AIPathfinding
 				shipyards.push_back(t);
 		}
 
-		for(const CGObjectInstance * obj : ai->visitableObjs)
+		for(const CGObjectInstance * obj : ai->memory->visitableObjs)
 		{
 			if(obj->ID != Obj::TOWN) //towns were handled in the previous loop
 			{

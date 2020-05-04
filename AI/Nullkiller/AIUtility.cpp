@@ -10,20 +10,16 @@
 #include "StdInc.h"
 #include "AIUtility.h"
 #include "VCAI.h"
-#include "FuzzyHelper.h"
 #include "Goals/Goals.h"
 
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CHeroHandler.h"
-#include "../../lib/mapObjects/CBank.h"
-#include "../../lib/mapObjects/CGTownInstance.h"
-#include "../../lib/mapObjects/CQuest.h"
+#include "../../lib/mapObjects/MapObjects.h"
 #include "../../lib/mapping/CMapDefines.h"
 
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<VCAI> ai;
-extern FuzzyHelper * fh;
 
 //extern static const int3 dirs[8];
 
@@ -194,11 +190,6 @@ bool CDistanceSorter::operator()(const CGObjectInstance * lhs, const CGObjectIns
 	return ln->cost < rn->cost;
 }
 
-bool isSafeToVisit(HeroPtr h, crint3 tile)
-{
-	return isSafeToVisit(h, fh->evaluateDanger(tile, h.get()));
-}
-
 bool isSafeToVisit(HeroPtr h, const CCreatureSet * heroArmy, uint64_t dangerStrength)
 {
 	const ui64 heroStrength = h->getFightingStrength() * heroArmy->getArmyStrength();
@@ -337,4 +328,27 @@ bool compareArtifacts(const CArtifactInstance * a1, const CArtifactInstance * a2
 		return art1->valOfBonuses(Bonus::PRIMARY_SKILL) > art2->valOfBonuses(Bonus::PRIMARY_SKILL);
 	else
 		return art1->price > art2->price;
+}
+
+bool isWeeklyRevisitable(const CGObjectInstance * obj)
+{
+	//TODO: allow polling of remaining creatures in dwelling
+	if(dynamic_cast<const CGVisitableOPW *>(obj)) // ensures future compatibility, unlike IDs
+		return true;
+	if(dynamic_cast<const CGDwelling *>(obj))
+		return true;
+	if(dynamic_cast<const CBank *>(obj)) //banks tend to respawn often in mods
+		return true;
+
+	switch(obj->ID)
+	{
+	case Obj::STABLES:
+	case Obj::MAGIC_WELL:
+	case Obj::HILL_FORT:
+		return true;
+	case Obj::BORDER_GATE:
+	case Obj::BORDERGUARD:
+		return (dynamic_cast<const CGKeys *>(obj))->wasMyColorVisited(ai->playerID); //FIXME: they could be revisited sooner than in a week
+	}
+	return false;
 }

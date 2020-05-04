@@ -10,7 +10,6 @@
 #include "StdInc.h"
 #include "../VCAI.h"
 #include "../Engine/Nullkiller.h"
-#include "../AIhelper.h"
 #include "../Goals/ExecuteHeroChain.h"
 #include "GatherArmyBehavior.h"
 #include "../AIUtility.h"
@@ -19,7 +18,6 @@
 
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<VCAI> ai;
-extern FuzzyHelper * fh;
 
 using namespace Goals;
 
@@ -41,7 +39,7 @@ Goals::TGoalVec GatherArmyBehavior::decompose() const
 
 	for(const CGHeroInstance * hero : heroes)
 	{
-		if(ai->ah->getHeroRole(hero) == HeroRole::MAIN
+		if(ai->nullkiller->heroManager->getHeroRole(hero) == HeroRole::MAIN
 			&& hero->getArmyStrength() >= 300)
 		{
 			vstd::concatenate(tasks, deliverArmyToHero(hero));
@@ -74,7 +72,7 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 		return tasks;
 	}
 
-	auto paths = ai->ah->getPathsToTile(pos);
+	auto paths = ai->nullkiller->pathfinder->getPathInfo(pos);
 	std::vector<std::shared_ptr<ExecuteHeroChain>> waysToVisitObj;
 
 #if AI_TRACE_LEVEL >= 1
@@ -106,7 +104,7 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 			continue;
 		}
 
-		float armyValue = (float)ai->ah->howManyReinforcementsCanGet(hero, path.heroArmy) / hero->getArmyStrength();
+		float armyValue = (float)ai->nullkiller->armyManager->howManyReinforcementsCanGet(hero, path.heroArmy) / hero->getArmyStrength();
 
 		// avoid transferring very small amount of army
 		if(armyValue < 0.1f)
@@ -166,7 +164,7 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader)
 	logAi->trace("Checking ways to upgrade army in town %s, %s", upgrader->getObjectName(), pos.toString());
 #endif
 	
-	auto paths = ai->ah->getPathsToTile(pos);
+	auto paths = ai->nullkiller->pathfinder->getPathInfo(pos);
 	std::vector<std::shared_ptr<ExecuteHeroChain>> waysToVisitObj;
 
 #if AI_TRACE_LEVEL >= 1
@@ -203,7 +201,7 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader)
 			continue;
 		}
 
-		auto upgrade = ai->ah->calculateCreateresUpgrade(path.heroArmy, upgrader, availableResources);
+		auto upgrade = ai->nullkiller->armyManager->calculateCreateresUpgrade(path.heroArmy, upgrader, availableResources);
 		auto armyValue = (float)upgrade.upgradeValue / path.getHeroStrength();
 
 		if(armyValue < 0.1f || upgrade.upgradeValue < 300) // avoid small upgrades

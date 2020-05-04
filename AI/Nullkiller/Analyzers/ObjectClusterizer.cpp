@@ -14,9 +14,6 @@
 #include "../Engine/Nullkiller.h"
 #include "lib/mapping/CMap.h" //for victory conditions
 
-extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<VCAI> ai;
-
 void ObjectCluster::addObject(const CGObjectInstance * obj, const AIPath & path, float priority)
 {
 	auto & info = objects[obj];
@@ -93,12 +90,12 @@ const CGObjectInstance * ObjectClusterizer::getBlocker(const AIPath & path) cons
 {
 	for(auto node = path.nodes.rbegin(); node != path.nodes.rend(); node++)
 	{
-		auto guardPos = cb->getGuardingCreaturePosition(node->coord);
-		auto blockers = cb->getVisitableObjs(node->coord);
+		auto guardPos = ai->cb->getGuardingCreaturePosition(node->coord);
+		auto blockers = ai->cb->getVisitableObjs(node->coord);
 
 		if(guardPos.valid())
 		{
-			auto guard = cb->getTopObj(cb->getGuardingCreaturePosition(node->coord));
+			auto guard = ai->cb->getTopObj(ai->cb->getGuardingCreaturePosition(node->coord));
 
 			if(guard)
 			{
@@ -126,7 +123,7 @@ const CGObjectInstance * ObjectClusterizer::getBlocker(const AIPath & path) cons
 	return nullptr;
 }
 
-bool shouldVisitObject(const CGObjectInstance * obj)
+bool ObjectClusterizer::shouldVisitObject(const CGObjectInstance * obj) const
 {
 	if(isObjectRemovable(obj))
 	{
@@ -135,13 +132,13 @@ bool shouldVisitObject(const CGObjectInstance * obj)
 
 	const int3 pos = obj->visitablePos();
 
-	if(obj->ID != Obj::CREATURE_GENERATOR1 && vstd::contains(ai->alreadyVisited, obj)
+	if(obj->ID != Obj::CREATURE_GENERATOR1 && vstd::contains(ai->memory->alreadyVisited, obj)
 		|| obj->wasVisited(ai->playerID))
 	{
 		return false;
 	}
 
-	auto playerRelations = cb->getPlayerRelations(ai->playerID, obj->tempOwner);
+	auto playerRelations = ai->cb->getPlayerRelations(ai->playerID, obj->tempOwner);
 
 	if(playerRelations != PlayerRelations::ENEMIES && !isWeeklyRevisitable(obj))
 	{
@@ -151,12 +148,12 @@ bool shouldVisitObject(const CGObjectInstance * obj)
 	//it may be hero visiting this obj
 	//we don't try visiting object on which allied or owned hero stands
 	// -> it will just trigger exchange windows and AI will be confused that obj behind doesn't get visited
-	const CGObjectInstance * topObj = cb->getTopObj(pos);
+	const CGObjectInstance * topObj = ai->cb->getTopObj(pos);
 
 	if(!topObj)
 		return false; // partly visible obj but its visitable pos is not visible.
 
-	if(topObj->ID == Obj::HERO && cb->getPlayerRelations(ai->playerID, topObj->tempOwner) != PlayerRelations::ENEMIES)
+	if(topObj->ID == Obj::HERO && ai->cb->getPlayerRelations(ai->playerID, topObj->tempOwner) != PlayerRelations::ENEMIES)
 		return false;
 	else
 		return true; //all of the following is met
@@ -180,12 +177,12 @@ void ObjectClusterizer::clusterize()
 
 	logAi->debug("Begin object clusterization");
 
-	for(const CGObjectInstance * obj : ai->visitableObjs)
+	for(const CGObjectInstance * obj : ai->memory->visitableObjs)
 	{
 		if(!shouldVisitObject(obj))
 			continue;
 
-		auto paths = ai->ah->getPathsToTile(obj->visitablePos());
+		auto paths = ai->pathfinder->getPathInfo(obj->visitablePos());
 
 		if(paths.empty())
 			continue;
@@ -223,7 +220,7 @@ void ObjectClusterizer::clusterize()
 
 					if(!vstd::contains(cluster->objects, obj))
 					{
-						float priority = ai->nullkiller->priorityEvaluator->evaluate(Goals::sptr(Goals::ExecuteHeroChain(path, obj)));
+						float priority = ai->priorityEvaluator->evaluate(Goals::sptr(Goals::ExecuteHeroChain(path, obj)));
 
 						cluster->addObject(obj, path, priority);
 

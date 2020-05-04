@@ -9,14 +9,13 @@
 */
 #include "StdInc.h"
 #include "BuyArmy.h"
-#include "../FuzzyHelper.h"
-#include "../AIhelper.h"
 #include "../../../lib/mapObjects/CGTownInstance.h"
+#include "VCAI.h"
+#include "Engine/Nullkiller.h"
 
 
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<VCAI> ai;
-extern FuzzyHelper * fh;
 
 using namespace Goals;
 
@@ -37,7 +36,7 @@ void BuyArmy::accept(VCAI * ai)
 
 	auto upgradeSuccessfull = ai->makePossibleUpgrades(town);
 
-	auto armyToBuy = ai->ah->getArmyAvailableToBuy(town->getUpperArmy(), town);
+	auto armyToBuy = ai->nullkiller->armyManager->getArmyAvailableToBuy(town->getUpperArmy(), town);
 
 	if(armyToBuy.empty())
 	{
