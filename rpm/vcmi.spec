@@ -9,9 +9,9 @@ Group:				Amusements/Games
 
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
-#  wget https://github.com/vcmi/vcmi/archive/0.98.tar.gz
-#  tar -xzf 0.98.tar.gz vcmi-0.98-1
-Source:				vcmi-0.98-1.tar.gz
+#  wget https://github.com/vcmi/vcmi/archive/0.99.tar.gz
+#  tar -xzf 0.99.tar.gz vcmi-0.99-1
+Source:				vcmi-0.99-1.tar.gz
 
 URL:				http://forum.vcmi.eu/portal.php
 
@@ -49,7 +49,7 @@ rm -rf %{buildroot}
 make DESTDIR=%{buildroot} install
 
 %files
-%doc README.md README.linux license.txt AUTHORS ChangeLog
+%doc README.md license.txt AUTHORS ChangeLog
 %{_bindir}/vcmiclient
 %{_bindir}/vcmiserver
 %{_bindir}/vcmibuilder
@@ -59,6 +59,9 @@ make DESTDIR=%{buildroot} install
 %{_datadir}/%{name}/*
 %{_datadir}/applications/*
 %{_datadir}/icons/*
+
+%post
+%{__ln_s} -f %{_libdir}/%{name}/libvcmi.so %{_libdir}/libvcmi.so
 
 %changelog
 
