@@ -13,6 +13,14 @@
 #include "Geometries.h"
 #include "../../lib/GameConstants.h"
 
+#ifdef IN
+#undef IN
+#endif
+
+#ifdef OUT
+#undef OUT
+#endif
+
 struct SDL_Surface;
 class JsonNode;
 class CDefFile;

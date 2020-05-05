@@ -15,6 +15,14 @@
 #include "gui/Geometries.h"
 #include "SDL.h"
 
+#ifdef IN
+#undef IN
+#endif
+
+#ifdef OUT
+#undef OUT
+#endif
+
 class CGObjectInstance;
 class CGHeroInstance;
 class CGBoat;
