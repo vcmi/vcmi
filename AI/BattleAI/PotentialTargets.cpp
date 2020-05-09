@@ -69,7 +69,8 @@ PotentialTargets::PotentialTargets(const battle::Unit * attacker, const Hypothet
 		}
 		else
 		{
-			for(BattleHex hex : avHexes) {
+			for(BattleHex hex : avHexes)
+			{
 				if(!CStack::isMeleeAttackPossible(attackerInfo, defender, hex))
 					continue;
 

@@ -77,13 +77,13 @@ AttackPossibility AttackPossibility::evaluate(const BattleAttackInfo & attackInf
 	AttackPossibility bestAp(hex, BattleHex::INVALID, attackInfo);
 
 	std::vector<BattleHex> defenderHex;
-	if(attackInfo.shooting) {
+	if(attackInfo.shooting)
 		defenderHex = defender->getHexes();
-	} else {
+	else
 		defenderHex = CStack::meleeAttackHexes(attacker, defender, hex);
-	}
 
-	for(BattleHex defHex : defenderHex) {
+	for(BattleHex defHex : defenderHex)
+	{
 		if(defHex == hex) {
 			// should be impossible but check anyway
 			continue;
@@ -157,7 +157,9 @@ AttackPossibility AttackPossibility::evaluate(const BattleAttackInfo & attackInf
 					ap.collateralDamage += damageDealt;
 
 				if(u->unitId() == defender->unitId() || 
-					(!attackInfo.shooting && CStack::isMeleeAttackPossible(u, attacker, hex))) { //FIXME: handle RANGED_RETALIATION ?
+					(!attackInfo.shooting && CStack::isMeleeAttackPossible(u, attacker, hex)))
+				{
+					//FIXME: handle RANGED_RETALIATION ?
 					ap.damageReceived += damageReceived;
 				}
 

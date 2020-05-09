@@ -164,11 +164,12 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 				return BattleAction::makeCreatureSpellcast(stack, bestSpellcast->dest, bestSpellcast->spell->id);
 			else if(bestAttack.attack.shooting)
 				return BattleAction::makeShotAttack(stack, bestAttack.attack.defender);
-			else {
+			else
+			{
 				auto &target = bestAttack;
 				logAi->debug("BattleAI: %s -> %s %d from, %d curpos %d dist %d speed %d: %d %d %d",
-					VLC->creh->creatures.at(target.attackerState->creatureId())->identifier.c_str(),
-					VLC->creh->creatures.at(target.affectedUnits[0]->creatureId())->identifier.c_str(),
+					VLC->creh->creatures.at(target.attackerState->creatureId())->identifier,
+					VLC->creh->creatures.at(target.affectedUnits[0]->creatureId())->identifier,
 					(int)target.affectedUnits.size(), (int)target.from, (int)bestAttack.attack.attacker->getPosition().hex,
 					(int)bestAttack.attack.chargedFields, (int)bestAttack.attack.attacker->Speed(0, true),
 					(int)target.damageDealt, (int)target.damageReceived, (int)target.attackValue()
