@@ -1924,23 +1924,35 @@
 				"type" : "STACK_HEALTH",
 				"val" : 25,
 				"valueType" : "PERCENT_TO_BASE",
-			},
-			{
-				"type" : "STACK_HEALTH",
-				"val" : -25,
-				"valueType" : "PERCENT_TO_BASE",
-				"limiters" : ["IS_UNDEAD"]
+				"limiters" : [
+					"noneOf",
+					"IS_UNDEAD",
+					{
+						"type" : "HAS_ANOTHER_BONUS_LIMITER",
+						"parameters" : [ "NON_LIVING" ]
+					},
+					{
+						"type" : "HAS_ANOTHER_BONUS_LIMITER",
+						"parameters" : [ "GARGOYLE" ]
+					}
+				]
 			},
 			{
 				"type" : "HP_REGENERATION",
 				"val" : 50,
-				"valueType" : "BASE_NUMBER"
-			},
-			{
-				"type" : "HP_REGENERATION",
-				"val" : -50,
-				"valueType" : "BASE_NUMBER",
-				"limiters" : ["IS_UNDEAD"]
+				"valueType" : "PERCENT_TO_BASE",
+				"limiters" : [
+					"noneOf",
+					"IS_UNDEAD",
+					{
+						"type" : "HAS_ANOTHER_BONUS_LIMITER",
+						"parameters" : [ "NON_LIVING" ]
+					},
+					{
+						"type" : "HAS_ANOTHER_BONUS_LIMITER",
+						"parameters" : [ "GARGOYLE" ]
+					}
+				]
 			}
 		],
 		"index" : 131,

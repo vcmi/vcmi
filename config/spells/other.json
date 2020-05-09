@@ -442,7 +442,8 @@
 			"noneOf" : {
 				"bonus.NON_LIVING" : "absolute",
 				"bonus.SIEGE_WEAPON" : "absolute",
-				"bonus.UNDEAD" : "absolute"
+				"bonus.UNDEAD" : "absolute",
+				"bonus.GARGOYLE" : "absolute"
 			}
 		}
 	},
@@ -512,7 +513,8 @@
 			"noneOf" : {
 				"bonus.NON_LIVING" : "absolute",
 				"bonus.SIEGE_WEAPON" : "absolute",
-				"bonus.UNDEAD" : "absolute"
+				"bonus.UNDEAD" : "absolute",
+				"bonus.GARGOYLE" : "absolute"
 			}
 		}
 	},
