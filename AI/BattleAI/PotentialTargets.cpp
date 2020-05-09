@@ -86,22 +86,22 @@ PotentialTargets::PotentialTargets(const battle::Unit * attacker, const Hypothet
 
 	boost::sort(possibleAttacks, [](const AttackPossibility & lhs, const AttackPossibility & rhs) -> bool
 	{
-		if(lhs.collateralDamage < rhs.collateralDamage)
-			return false;
 		if(lhs.collateralDamage > rhs.collateralDamage)
+			return false;
+		if(lhs.collateralDamage < rhs.collateralDamage)
 			return true;
-		return (lhs.damageDealt + lhs.shootersBlockedDmg + lhs.damageReceived > rhs.damageDealt + rhs.shootersBlockedDmg + rhs.damageReceived);
+		return (lhs.damageDealt + lhs.shootersBlockedDmg - lhs.damageReceived > rhs.damageDealt + rhs.shootersBlockedDmg - rhs.damageReceived);
 	});
 
 	if (!possibleAttacks.empty())
 	{
 		auto &bestAp = possibleAttacks[0];
 
-		logGlobal->info("Battle AI best: %s -> %s at %d from %d, affects %d units: %d %d %d %s",
-			VLC->creh->creatures.at(bestAp.attackerState->creatureId())->identifier.c_str(),
-			VLC->creh->creatures.at(state->battleGetUnitByPos(bestAp.dest)->creatureId())->identifier.c_str(),
+		logGlobal->info("Battle AI best: %s -> %s at %d from %d, affects %d units: %lld %lld %lld %lld",
+			bestAp.attack.attacker->unitType()->identifier,
+			state->battleGetUnitByPos(bestAp.dest)->unitType()->identifier,
 			(int)bestAp.dest, (int)bestAp.from, (int)bestAp.affectedUnits.size(),
-			(int)bestAp.damageDealt, (int)bestAp.damageReceived, (int)bestAp.collateralDamage, (int)bestAp.shootersBlockedDmg);
+			bestAp.damageDealt, bestAp.damageReceived, bestAp.collateralDamage, bestAp.shootersBlockedDmg);
 	}
 }
 

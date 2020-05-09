@@ -18,7 +18,9 @@
 #include "../../lib/CThreadHelper.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/spells/ISpellMechanics.h"
-#include "../../lib/CStack.h"//todo: remove
+#include "../../lib/CStack.h" // TODO: remove
+                              // Eventually only IBattleInfoCallback and battle::Unit should be used, 
+                              // CUnitState should be private and CStack should be removed completely
 
 #define LOGL(text) print(text)
 #define LOGFL(text, formattingEl) print(boost::str(boost::format(text) % formattingEl))
@@ -167,12 +169,12 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 			else
 			{
 				auto &target = bestAttack;
-				logAi->debug("BattleAI: %s -> %s %d from, %d curpos %d dist %d speed %d: %d %d %d",
-					VLC->creh->creatures.at(target.attackerState->creatureId())->identifier,
-					VLC->creh->creatures.at(target.affectedUnits[0]->creatureId())->identifier,
+				logAi->debug("BattleAI: %s -> %s %d from, %d curpos %d dist %d speed %d: %lld %lld %lld",
+					target.attackerState->unitType()->identifier,
+					target.affectedUnits[0]->unitType()->identifier,
 					(int)target.affectedUnits.size(), (int)target.from, (int)bestAttack.attack.attacker->getPosition().hex,
-					(int)bestAttack.attack.chargedFields, (int)bestAttack.attack.attacker->Speed(0, true),
-					(int)target.damageDealt, (int)target.damageReceived, (int)target.attackValue()
+					bestAttack.attack.chargedFields, bestAttack.attack.attacker->Speed(0, true),
+					target.damageDealt, target.damageReceived, target.attackValue()
 				);
 
 				return BattleAction::makeMeleeAttack(stack,	bestAttack.attack.defender->getPosition(), bestAttack.from);

@@ -9,7 +9,9 @@
  */
 #include "StdInc.h"
 #include "AttackPossibility.h"
-#include "../../lib/CStack.h"//todo: remove
+#include "../../lib/CStack.h" // TODO: remove
+                              // Eventually only IBattleInfoCallback and battle::Unit should be used, 
+                              // CUnitState should be private and CStack should be removed completely
 
 AttackPossibility::AttackPossibility(BattleHex from, BattleHex dest, const BattleAttackInfo & attack)
 	: from(from), dest(dest), attack(attack)
@@ -179,11 +181,11 @@ AttackPossibility AttackPossibility::evaluate(const BattleAttackInfo & attackInf
 	// check how much damage we gain from blocking enemy shooters on this hex
 	bestAp.shootersBlockedDmg = evaluateBlockedShootersDmg(attackInfo, hex, state);
 
-	logAi->debug("BattleAI best AP: %s -> %s at %d from %d, affects %d units: %d %d %d %s",
-		VLC->creh->creatures.at(attackInfo.attacker->acquireState()->creatureId())->identifier.c_str(),
-		VLC->creh->creatures.at(attackInfo.defender->acquireState()->creatureId())->identifier.c_str(),
+	logAi->debug("BattleAI best AP: %s -> %s at %d from %d, affects %d units: %lld %lld %lld %lld",
+		attackInfo.attacker->unitType()->identifier,
+		attackInfo.defender->unitType()->identifier,
 		(int)bestAp.dest, (int)bestAp.from, (int)bestAp.affectedUnits.size(),
-		(int)bestAp.damageDealt, (int)bestAp.damageReceived, (int)bestAp.collateralDamage, (int)bestAp.shootersBlockedDmg);
+		bestAp.damageDealt, bestAp.damageReceived, bestAp.collateralDamage, bestAp.shootersBlockedDmg);
 
 	//TODO other damage related to attack (eg. fire shield and other abilities)
 	return bestAp;
