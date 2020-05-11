@@ -1071,14 +1071,14 @@ bool CMP_stack::operator()(const battle::Unit * a, const battle::Unit * b)
 			int as = a->getInitiative(turn), bs = b->getInitiative(turn);
 			if(as != bs)
 				return as > bs;
-			else
-			{
-				if(a->unitSide() == b->unitSide())
-					return a->unitSlot() < b->unitSlot();
-				else
-					return a->unitSide() == side ? false : true;
-			}
+
+			if (a->unitSide() == b->unitSide())
+				return a->unitSlot() < b->unitSlot();
+			else if (a->unitSide() == side || b->unitSide() == side)
+				return a->unitSide() != side;
 			//FIXME: what about summoned stacks
+
+			return std::addressof(a) > std::addressof(b);
 		}	
 	case 2: //fastest last, upper slot first
 	case 3: //fastest last, upper slot first
@@ -1086,18 +1086,21 @@ bool CMP_stack::operator()(const battle::Unit * a, const battle::Unit * b)
 			int as = a->getInitiative(turn), bs = b->getInitiative(turn);
 			if(as != bs)
 				return as > bs;
-			else
-			{
-				if(a->unitSide() == b->unitSide())
-					return a->unitSlot() < b->unitSlot();
-				else
-					return a->unitSide() == side ? false : true;
-			}
+
+			if(a->unitSide() == b->unitSide())
+				return a->unitSlot() < b->unitSlot();
+			else if (a->unitSide() == side || b->unitSide() == side)
+				return a->unitSide() != side;
+
+			return std::addressof(a) > std::addressof(b);
 		}
 	default:
-		assert(0);
+		assert(false);
 		return false;
 	}
+
+	assert(false);
+	return false;
 }
 
 CMP_stack::CMP_stack(int Phase, int Turn, uint8_t Side)
