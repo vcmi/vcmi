@@ -1475,16 +1475,15 @@ std::vector<const battle::Unit*> CBattleInfoCallback::getAttackedBattleUnits(con
 
 	units = battleGetUnitsIf([=](const battle::Unit * unit)
 	{
-		if (unit->isGhost() || !unit->alive()) {
+		if (unit->isGhost() || !unit->alive())
 			return false;
-		}
-		for (BattleHex hex : battle::Unit::getHexes(unit->getPosition(), unit->doubleWide(), unit->unitSide())) {
-			if (vstd::contains(at.hostileCreaturePositions, hex)) {
+
+		for (BattleHex hex : battle::Unit::getHexes(unit->getPosition(), unit->doubleWide(), unit->unitSide()))
+		{
+			if (vstd::contains(at.hostileCreaturePositions, hex))
 				return true;
-			}
-			if (vstd::contains(at.friendlyCreaturePositions, hex)) {
+			if (vstd::contains(at.friendlyCreaturePositions, hex))
 				return true;
-			}
 		}
 		return false;
 	});

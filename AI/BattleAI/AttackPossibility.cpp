@@ -86,10 +86,8 @@ AttackPossibility AttackPossibility::evaluate(const BattleAttackInfo & attackInf
 
 	for(BattleHex defHex : defenderHex)
 	{
-		if(defHex == hex) {
-			// should be impossible but check anyway
+		if(defHex == hex) // should be impossible but check anyway
 			continue;
-		}
 
 		AttackPossibility ap(hex, defHex, attackInfo);
 		ap.attackerState = attacker->acquireState();
@@ -109,20 +107,22 @@ AttackPossibility AttackPossibility::evaluate(const BattleAttackInfo & attackInf
 
 		// ensure the defender is also affected
 		bool addDefender = true;
-		for(auto unit : units) {
-			if (unit->unitId() == defender->unitId()) {
+		for(auto unit : units)
+		{
+			if (unit->unitId() == defender->unitId())
+			{
 				addDefender = false;
 				break;
 			}
 		}
-		if(addDefender) {
-			units.push_back(defender);
-		}
 
-		for(auto u : units) {
-			if(!ap.attackerState->alive()) {
+		if(addDefender)
+			units.push_back(defender);
+
+		for(auto u : units)
+		{
+			if(!ap.attackerState->alive())
 				break;
-			}
 
 			assert(u->unitId() != attacker->unitId());
 
