@@ -403,6 +403,7 @@ void CLogFileTarget::write(const LogRecord & record)
 const CLogFormatter & CLogFileTarget::getFormatter() const { return formatter; }
 void CLogFileTarget::setFormatter(const CLogFormatter & formatter) { this->formatter = formatter; }
 
-CLogFileTarget::~CLogFileTarget() {
+CLogFileTarget::~CLogFileTarget()
+{
 	file.close();
 }

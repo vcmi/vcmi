@@ -129,7 +129,8 @@ AttackPossibility AttackPossibility::evaluate(const BattleAttackInfo & attackInf
 			auto defenderState = u->acquireState();
 			ap.affectedUnits.push_back(defenderState);
 
-			for(int i = 0; i < totalAttacks; i++) {
+			for(int i = 0; i < totalAttacks; i++)
+			{
 				si64 damageDealt, damageReceived;
 
 				TDmgRange retaliation(0, 0);
@@ -173,9 +174,8 @@ AttackPossibility AttackPossibility::evaluate(const BattleAttackInfo & attackInf
 			}
 		}
 
-		if(!bestAp.dest.isValid() || ap.attackValue() > bestAp.attackValue()) {
+		if(!bestAp.dest.isValid() || ap.attackValue() > bestAp.attackValue())
 			bestAp = ap;
-		}
 	}
 
 	// check how much damage we gain from blocking enemy shooters on this hex

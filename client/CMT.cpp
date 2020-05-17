@@ -1436,7 +1436,8 @@ void handleQuit(bool ask)
 			SDL_Quit();
 		}
 
-		if(logConfig != nullptr) {
+		if(logConfig != nullptr)
+		{
 			logConfig->deconfigure();
 			delete logConfig;
 			logConfig = nullptr;

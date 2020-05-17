@@ -265,29 +265,37 @@ std::vector<BattleHex> CStack::meleeAttackHexes(const battle::Unit * attacker, c
 	BattleHex otherAttackerPos = attackerPos + (attacker->unitSide() == BattleSide::ATTACKER ? -1 : 1);
 	BattleHex otherDefenderPos = defenderPos + (defender->unitSide() == BattleSide::ATTACKER ? -1 : 1);
 
-	if(BattleHex::mutualPosition(attackerPos, defenderPos) >= 0) { //front <=> front
-		if((mask & 1) == 0) {
+	if(BattleHex::mutualPosition(attackerPos, defenderPos) >= 0) //front <=> front
+	{
+		if((mask & 1) == 0)
+		{
 			mask |= 1;
 			res.push_back(defenderPos);
 		}
 	}
 	if (attacker->doubleWide() //back <=> front
-		&& BattleHex::mutualPosition(otherAttackerPos, defenderPos) >= 0) {
-		if((mask & 1) == 0) {
+		&& BattleHex::mutualPosition(otherAttackerPos, defenderPos) >= 0)
+	{
+		if((mask & 1) == 0)
+		{
 			mask |= 1;
 			res.push_back(defenderPos);
 		}
 	}
 	if (defender->doubleWide()//front <=> back
-		&& BattleHex::mutualPosition(attackerPos, otherDefenderPos) >= 0) {
-		if((mask & 2) == 0) {
+		&& BattleHex::mutualPosition(attackerPos, otherDefenderPos) >= 0)
+	{
+		if((mask & 2) == 0)
+		{
 			mask |= 2;
 			res.push_back(otherDefenderPos);
 		}
 	}
 	if (defender->doubleWide() && attacker->doubleWide()//back <=> back
-		&& BattleHex::mutualPosition(otherAttackerPos, otherDefenderPos) >= 0) {
-		if((mask & 2) == 0) {
+		&& BattleHex::mutualPosition(otherAttackerPos, otherDefenderPos) >= 0)
+	{
+		if((mask & 2) == 0)
+		{
 			mask |= 2;
 			res.push_back(otherDefenderPos);
 		}
