@@ -67,14 +67,8 @@ AttackPossibility AttackPossibility::evaluate(const BattleAttackInfo & attackInf
 	auto defender = attackInfo.defender;
 	const std::string cachingStringBlocksRetaliation = "type_BLOCKS_RETALIATION";
 	static const auto selectorBlocksRetaliation = Selector::type(Bonus::BLOCKS_RETALIATION);
+	const auto attackerSide = getCbc()->playerToSide(getCbc()->battleGetOwner(attacker));
 	const bool counterAttacksBlocked = attacker->hasBonus(selectorBlocksRetaliation, cachingStringBlocksRetaliation);
-	const bool mindControlled = [&](const battle::Unit *attacker) -> bool
-	{
-		auto actualSide = getCbc()->playerToSide(getCbc()->battleGetOwner(attacker));
-		if (actualSide && actualSide.get() != attacker->unitSide())
-			return true;
-		return false;
-	} (attacker);
 
 	AttackPossibility bestAp(hex, BattleHex::INVALID, attackInfo);
 
@@ -153,10 +147,14 @@ AttackPossibility AttackPossibility::evaluate(const BattleAttackInfo & attackInf
 					defenderState->afterAttack(attackInfo.shooting, true);
 				}
 
-				bool isEnemy = state->battleMatchOwner(attacker, u) && !mindControlled;
+				bool isEnemy = state->battleMatchOwner(attacker, u);
+
+				// this includes enemy units as well as attacker units under enemy's mind control
 				if(isEnemy)
 					ap.damageDealt += damageDealt;
-				else // friendly fire
+
+				// damaging attacker's units (even those under enemy's mind control) is considered friendly fire
+				if(attackerSide == u->unitSide())
 					ap.collateralDamage += damageDealt;
 
 				if(u->unitId() == defender->unitId() || 
