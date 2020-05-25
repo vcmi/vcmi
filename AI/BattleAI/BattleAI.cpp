@@ -18,7 +18,9 @@
 #include "../../lib/CThreadHelper.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/spells/ISpellMechanics.h"
-#include "../../lib/CStack.h"//todo: remove
+#include "../../lib/CStack.h" // TODO: remove
+                              // Eventually only IBattleInfoCallback and battle::Unit should be used, 
+                              // CUnitState should be private and CStack should be removed completely
 
 #define LOGL(text) print(text)
 #define LOGFL(text, formattingEl) print(boost::str(boost::format(text) % formattingEl))
@@ -154,7 +156,8 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 		HypotheticBattle hb(getCbc());
 
 		PotentialTargets targets(stack, &hb);
-		if(targets.possibleAttacks.size())
+
+		if(!targets.possibleAttacks.empty())
 		{
 			AttackPossibility bestAttack = targets.bestAction();
 
@@ -164,7 +167,18 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 			else if(bestAttack.attack.shooting)
 				return BattleAction::makeShotAttack(stack, bestAttack.attack.defender);
 			else
-				return BattleAction::makeMeleeAttack(stack, bestAttack.attack.defender->getPosition(), bestAttack.tile);
+			{
+				auto &target = bestAttack;
+				logAi->debug("BattleAI: %s -> %s %d from, %d curpos %d dist %d speed %d: %lld %lld %lld",
+					target.attackerState->unitType()->identifier,
+					target.affectedUnits[0]->unitType()->identifier,
+					(int)target.affectedUnits.size(), (int)target.from, (int)bestAttack.attack.attacker->getPosition().hex,
+					bestAttack.attack.chargedFields, bestAttack.attack.attacker->Speed(0, true),
+					target.damageDealt, target.damageReceived, target.attackValue()
+				);
+
+				return BattleAction::makeMeleeAttack(stack,	bestAttack.attack.defender->getPosition(), bestAttack.from);
+			}
 		}
 		else if(bestSpellcast.is_initialized())
 		{

@@ -29,6 +29,10 @@ public:
 
 	/// Configures a default logging system by adding the console target and the file target to the global logger.
 	void configureDefault();
+
+	/// Removes all targets from the global logger.
+	void deconfigure();
+
 private:
 	// Gets ELogLevel enum from string. (Should be moved to CLogger as a separate function?)
 	// Throws: std::runtime_error
