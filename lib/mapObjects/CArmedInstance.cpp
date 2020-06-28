@@ -36,7 +36,11 @@ void CArmedInstance::randomizeArmy(int type)
 	return;
 }
 
+// Take Angelic Alliance troop-mixing freedom of non-evil units into account.
+CSelector CArmedInstance::nonEvilAlignmentMixSelector = Selector::type(Bonus::NONEVIL_ALIGNMENT_MIX);
+
 CArmedInstance::CArmedInstance()
+	:nonEvilAlignmentMix(this, nonEvilAlignmentMixSelector)
 {
 	battle = nullptr;
 }
@@ -57,6 +61,9 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 	std::set<TFaction> factions;
 	bool hasUndead = false;
 
+	const std::string undeadCacheKey = "type_UNDEAD";
+	static const CSelector undeadSelector = Selector::type(Bonus::UNDEAD);
+
 	for(auto slot : Slots())
 	{
 		const CStackInstance * inst = slot.second;
@@ -64,13 +71,12 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 
 		factions.insert(creature->faction);
 		// Check for undead flag instead of faction (undead mummies are neutral)
-		hasUndead |= inst->hasBonusOfType(Bonus::UNDEAD);
+		hasUndead |= inst->hasBonus(undeadSelector, undeadCacheKey);
 	}
 
 	size_t factionsInArmy = factions.size(); //town garrison seems to take both sets into account
 
-	// Take Angelic Alliance troop-mixing freedom of non-evil units into account.
-	if (hasBonusOfType(Bonus::NONEVIL_ALIGNMENT_MIX))
+	if (nonEvilAlignmentMix.getHasBonus())
 	{
 		size_t mixableFactions = 0;
 

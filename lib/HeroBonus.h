@@ -87,6 +87,51 @@ private:
 	mutable TBonusListPtr data;
 };
 
+class DLL_LINKAGE CTotalsProxy
+{
+public:
+	CTotalsProxy(const IBonusBearer * Target, CSelector Selector, int InitialValue);
+	CTotalsProxy(const CTotalsProxy & other);
+	CTotalsProxy(CTotalsProxy && other) = delete;
+
+	CTotalsProxy & operator=(const CTotalsProxy & other);
+	CTotalsProxy & operator=(CTotalsProxy && other) = delete;
+
+	int getMeleeValue() const;
+	int getRangedValue() const;
+	int getValue() const;
+
+private:
+	const IBonusBearer * target;
+	CSelector selector;
+	int initialValue;
+
+	mutable int64_t cachedLast;
+	mutable int value;
+
+	mutable int64_t meleeCachedLast;
+	mutable int meleeValue;
+
+	mutable int64_t rangedCachedLast;
+	mutable int rangedValue;
+};
+
+class DLL_LINKAGE CCheckProxy
+{
+public:
+	CCheckProxy(const IBonusBearer * Target, CSelector Selector);
+	CCheckProxy(const CCheckProxy & other);
+
+	bool getHasBonus() const;
+
+private:
+	const IBonusBearer * target;
+	CSelector selector;
+
+	mutable int64_t cachedLast;
+	mutable bool hasBonus;
+};
+
 class DLL_LINKAGE CAddInfo : public std::vector<si32>
 {
 public:
@@ -641,11 +686,20 @@ public:
 
 class DLL_LINKAGE IBonusBearer
 {
+private:
+	static CSelector anaffectedByMoraleSelector;
+	CCheckProxy anaffectedByMorale;
+	static CSelector moraleSelector;
+	CTotalsProxy moraleValue;
+	static CSelector selfMoraleSelector;
+	CCheckProxy selfMorale;
+
 public:
 	//new bonusing node interface
 	// * selector is predicate that tests if HeroBonus matches our criteria
 	// * root is node on which call was made (nullptr will be replaced with this)
 	//interface
+	IBonusBearer();
 	virtual const TBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = nullptr, const std::string &cachingStr = "") const = 0;
 	int valOfBonuses(const CSelector &selector, const std::string &cachingStr = "") const;
 	bool hasBonus(const CSelector &selector, const std::string &cachingStr = "") const;

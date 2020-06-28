@@ -152,6 +152,120 @@ const BonusList * CBonusProxy::operator->() const
 	return get().get();
 }
 
+CTotalsProxy::CTotalsProxy(const IBonusBearer * Target, CSelector Selector, int InitialValue)
+	: target(Target),
+	selector(Selector),
+	initialValue(InitialValue),
+	meleeCachedLast(0),
+	meleeValue(0),
+	rangedCachedLast(0),
+	rangedValue(0),
+	value(0),
+	cachedLast(0)
+{
+}
+
+CTotalsProxy::CTotalsProxy(const CTotalsProxy & other)
+	: target(other.target),
+	selector(other.selector),
+	initialValue(other.initialValue),
+	meleeCachedLast(other.meleeCachedLast),
+	meleeValue(other.meleeValue),
+	rangedCachedLast(other.rangedCachedLast),
+	rangedValue(other.rangedValue)
+{
+}
+
+CTotalsProxy & CTotalsProxy::operator=(const CTotalsProxy & other)
+{
+	initialValue = other.initialValue;
+	meleeCachedLast = other.meleeCachedLast;
+	meleeValue = other.meleeValue;
+	rangedCachedLast = other.rangedCachedLast;
+	rangedValue = other.rangedValue;
+	value = other.value;
+	cachedLast = other.cachedLast;
+
+	return *this;
+}
+
+int CTotalsProxy::getValue() const
+{
+	const auto treeVersion = target->getTreeVersion();
+
+	if(treeVersion != cachedLast)
+	{
+		auto bonuses = target->getBonuses(selector);
+
+		value = initialValue + bonuses->totalValue();
+		cachedLast = treeVersion;
+	}
+
+	return value;
+}
+
+int CTotalsProxy::getMeleeValue() const
+{
+	static const auto limit = Selector::effectRange(Bonus::NO_LIMIT).Or(Selector::effectRange(Bonus::ONLY_MELEE_FIGHT));
+
+	const auto treeVersion = target->getTreeVersion();
+
+	if(treeVersion != meleeCachedLast)
+	{
+		auto bonuses = target->getBonuses(selector, limit);
+		meleeValue = initialValue + bonuses->totalValue();
+		meleeCachedLast = treeVersion;
+	}
+
+	return meleeValue;
+}
+
+int CTotalsProxy::getRangedValue() const
+{
+	static const auto limit = Selector::effectRange(Bonus::NO_LIMIT).Or(Selector::effectRange(Bonus::ONLY_DISTANCE_FIGHT));
+
+	const auto treeVersion = target->getTreeVersion();
+
+	if(treeVersion != rangedCachedLast)
+	{
+		auto bonuses = target->getBonuses(selector, limit);
+		rangedValue = initialValue + bonuses->totalValue();
+		rangedCachedLast = treeVersion;
+	}
+
+	return rangedValue;
+}
+
+///CCheckProxy
+CCheckProxy::CCheckProxy(const IBonusBearer * Target, CSelector Selector)
+	: target(Target),
+	selector(Selector),
+	cachedLast(0),
+	hasBonus(false)
+{
+}
+
+CCheckProxy::CCheckProxy(const CCheckProxy & other)
+	: target(other.target),
+	selector(other.selector),
+	cachedLast(other.cachedLast),
+	hasBonus(other.hasBonus)
+{
+}
+
+bool CCheckProxy::getHasBonus() const
+{
+	const auto treeVersion = target->getTreeVersion();
+
+	if(treeVersion != cachedLast)
+	{
+		hasBonus = target->hasBonus(selector);
+		cachedLast = treeVersion;
+	}
+
+	return hasBonus;
+}
+
 CAddInfo::CAddInfo()
 {
 }
@@ -467,6 +581,22 @@ void BonusList::insert(BonusList::TInternalContainer::iterator position, BonusLi
 	changed();
 }
 
+CSelector IBonusBearer::anaffectedByMoraleSelector
+	= Selector::type(Bonus::NON_LIVING)
+		.Or(Selector::type(Bonus::UNDEAD))
+		.Or(Selector::type(Bonus::NO_MORALE))
+		.Or(Selector::type(Bonus::SIEGE_WEAPON));
+
+CSelector IBonusBearer::moraleSelector = Selector::type(Bonus::MORALE);
+CSelector IBonusBearer::selfMoraleSelector = Selector::type(Bonus::SELF_MORALE);
+
+IBonusBearer::IBonusBearer()
+	:anaffectedByMorale(this, anaffectedByMoraleSelector),
+	moraleValue(this, moraleSelector, 0),
+	selfMorale(this, selfMoraleSelector)
+{
+}
+
 int IBonusBearer::valOfBonuses(Bonus::BonusType type, const CSelector &selector) const
 {
 	return valOfBonuses(Selector::type(type).And(selector));
@@ -532,13 +662,12 @@ bool IBonusBearer::hasBonusFrom(Bonus::BonusSource source, ui32 sourceID) const
 
 int IBonusBearer::MoraleVal() const
 {
-	if(hasBonusOfType(Bonus::NON_LIVING) || hasBonusOfType(Bonus::UNDEAD) ||
-		hasBonusOfType(Bonus::NO_MORALE) || hasBonusOfType(Bonus::SIEGE_WEAPON))
+	if(anaffectedByMorale.getHasBonus())
 		return 0;
 
-	int ret = valOfBonuses(Bonus::MORALE);
+	int ret = moraleValue.getValue();
 
-	if(hasBonusOfType(Bonus::SELF_MORALE)) //eg. minotaur
+	if(selfMorale.getHasBonus()) //eg. minotaur
 		vstd::amax(ret, +1);
 
 	return vstd::abetween(ret, -3, +3);
