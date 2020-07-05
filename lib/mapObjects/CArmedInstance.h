@@ -17,6 +17,10 @@ class CGameState;
 
 class DLL_LINKAGE CArmedInstance: public CGObjectInstance, public CBonusSystemNode, public CCreatureSet
 {
+private:
+	CCheckProxy nonEvilAlignmentMix;
+	static CSelector nonEvilAlignmentMixSelector;
+
 public:
 	BattleInfo *battle; //set to the current battle, if engaged
 

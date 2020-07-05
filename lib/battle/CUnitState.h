@@ -24,47 +24,6 @@ namespace battle
 {
 class CUnitState;
 
-class DLL_LINKAGE CTotalsProxy
-{
-public:
-	CTotalsProxy(const IBonusBearer * Target, CSelector Selector, int InitialValue);
-	CTotalsProxy(const CTotalsProxy & other);
-	CTotalsProxy(CTotalsProxy && other) = delete;
-
-	CTotalsProxy & operator=(const CTotalsProxy & other);
-	CTotalsProxy & operator=(CTotalsProxy && other) = delete;
-
-	int getMeleeValue() const;
-	int getRangedValue() const;
-
-private:
-	const IBonusBearer * target;
-	CSelector selector;
-	int initialValue;
-
-	mutable int64_t meleeCachedLast;
-	mutable int meleeValue;
-
-	mutable int64_t rangedCachedLast;
-	mutable int rangedValue;
-};
-
-class DLL_LINKAGE CCheckProxy
-{
-public:
-	CCheckProxy(const IBonusBearer * Target, CSelector Selector);
-	CCheckProxy(const CCheckProxy & other);
-
-	bool getHasBonus() const;
-
-private:
-	const IBonusBearer * target;
-	CSelector selector;
-
-	mutable int64_t cachedLast;
-	mutable bool hasBonus;
-};
-
 class DLL_LINKAGE CAmmo
 {
 public:
