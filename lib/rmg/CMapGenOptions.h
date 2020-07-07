@@ -109,8 +109,6 @@ public:
 	si8 getPlayerCount() const;
 	void setPlayerCount(si8 value);
 
-	si8 getHumanOnlyPlayerCount() const;
-
 	/// The count of the teams ranging from 0 to <players count - 1> or RANDOM_SIZE for random.
 	si8 getTeamCount() const;
 	void setTeamCount(si8 value);
@@ -166,7 +164,7 @@ private:
 
 	si32 width, height;
 	bool hasTwoLevels;
-	si8 playerCount, teamCount, humanPlayersCount, compOnlyPlayerCount, compOnlyTeamCount;
+	si8 playerCount, teamCount, compOnlyPlayerCount, compOnlyTeamCount;
 	EWaterContent::EWaterContent waterContent;
 	EMonsterStrength::EMonsterStrength monsterStrength;
 	std::map<PlayerColor, CPlayerSettings> players;
@@ -186,7 +184,6 @@ public:
 		h & waterContent;
 		h & monsterStrength;
 		h & players;
-		h & humanPlayersCount;
 		//TODO add name of template to class, enables selection of a template by a user
 	}
 };

@@ -19,7 +19,7 @@
 
 CMapGenOptions::CMapGenOptions()
 	: width(CMapHeader::MAP_SIZE_MIDDLE), height(CMapHeader::MAP_SIZE_MIDDLE), hasTwoLevels(true),
-	playerCount(RANDOM_SIZE), teamCount(RANDOM_SIZE), compOnlyPlayerCount(RANDOM_SIZE), compOnlyTeamCount(RANDOM_SIZE), humanPlayersCount(0),
+	playerCount(RANDOM_SIZE), teamCount(RANDOM_SIZE), compOnlyPlayerCount(RANDOM_SIZE), compOnlyTeamCount(RANDOM_SIZE),
 	waterContent(EWaterContent::RANDOM), monsterStrength(EMonsterStrength::RANDOM), mapTemplate(nullptr)
 {
 	resetPlayersMap();
@@ -71,20 +71,7 @@ void CMapGenOptions::setPlayerCount(si8 value)
 	if (compOnlyPlayerCount > possibleCompPlayersCount)
 		setCompOnlyPlayerCount(possibleCompPlayersCount);
 
-	if (getPlayerCount() != RANDOM_SIZE)
-	{
-		if (getCompOnlyPlayerCount() != RANDOM_SIZE)
-			humanPlayersCount = getPlayerCount() - getCompOnlyPlayerCount();
-		else
-			humanPlayersCount = getPlayerCount();
-	}
-
 	resetPlayersMap();
-}
-
-si8 CMapGenOptions::getHumanOnlyPlayerCount() const
-{
-	return humanPlayersCount;
 }
 
 si8 CMapGenOptions::getTeamCount() const
@@ -105,11 +92,8 @@ si8 CMapGenOptions::getCompOnlyPlayerCount() const
 
 void CMapGenOptions::setCompOnlyPlayerCount(si8 value)
 {
-	assert(value == RANDOM_SIZE || (getPlayerCount() == RANDOM_SIZE || (value >= 0 && value <= getPlayerCount())));
+	assert(value == RANDOM_SIZE || (getPlayerCount() == RANDOM_SIZE || (value >= 0 && value <= PlayerColor::PLAYER_LIMIT_I - getPlayerCount())));
 	compOnlyPlayerCount = value;
-
-	if (getPlayerCount() != RANDOM_SIZE && getCompOnlyPlayerCount() != RANDOM_SIZE)
-		humanPlayersCount = getPlayerCount() - getCompOnlyPlayerCount();
 
 	resetPlayersMap();
 }
@@ -159,7 +143,7 @@ void CMapGenOptions::resetPlayersMap()
 
 
 	players.clear();
-	int realPlayersCnt = humanPlayersCount;
+	int realPlayersCnt = playerCount;
 	int realCompOnlyPlayersCnt = (compOnlyPlayerCount == RANDOM_SIZE) ? (PlayerColor::PLAYER_LIMIT_I - realPlayersCnt) : compOnlyPlayerCount;
 	int totalPlayersLimit = realPlayersCnt + realCompOnlyPlayersCnt;
 	if (getPlayerCount() == RANDOM_SIZE || compOnlyPlayerCount == RANDOM_SIZE)

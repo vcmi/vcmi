@@ -12,6 +12,7 @@
 #include "CSelectionBase.h"
 
 #include "../../lib/FunctionList.h"
+#include "../../lib/GameConstants.h"
 
 class CMapGenOptions;
 class CToggleButton;
