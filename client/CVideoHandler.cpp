@@ -88,7 +88,8 @@ bool CVideoPlayer::open(std::string fname, bool scale)
 // useOverlay = directly write to the screen.
 bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay, bool scale)
 {
-	close();
+	// Commment out to prevent crash, may lead to memory leak
+	// close();
 
 	this->fname = fname;
 	refreshWait = 3;
