@@ -23,6 +23,14 @@
 #include "Actions/SpecialAction.h"
 #include "Actors.h"
 
+namespace AIPathfinding
+{
+	const int BUCKET_COUNT = 11;
+	const int BUCKET_SIZE = GameConstants::MAX_HEROES_PER_PLAYER;
+	const int NUM_CHAINS = BUCKET_COUNT * BUCKET_SIZE;
+	const int THREAD_COUNT = 8;
+}
+
 struct AIPathNode : public CGPathNode
 {
 	uint64_t danger;
@@ -228,28 +236,14 @@ public:
 		return (uint64_t)(armyValue * ratio * ratio * ratio);
 	}
 
-private:
 	STRONG_INLINE
 	void resetTile(const int3 & tile, EPathfindingLayer layer, CGPathNode::EAccessibility accessibility);
+	STRONG_INLINE int getBucket(const ChainActor * actor) const
+	{
+		return ((uintptr_t)actor * 395) % AIPathfinding::BUCKET_COUNT;
+	}
 
-	void calculateHeroChain(
-		AIPathNode * srcNode, 
-		const std::vector<AIPathNode *> & variants, 
-		std::vector<ExchangeCandidate> & result) const;
-
-	void calculateHeroChain(
-		AIPathNode * carrier, 
-		AIPathNode * other, 
-		std::vector<ExchangeCandidate> & result) const;
-	
-	void cleanupInefectiveChains(std::vector<ExchangeCandidate> & result) const;
-	void addHeroChain(const std::vector<ExchangeCandidate> & result);
 
 	void calculateTownPortalTeleportations(std::vector<CGPathNode *> & neighbours);
 	void fillChainInfo(const AIPathNode * node, AIPath & path, int parentIndex) const;
-
-	ExchangeCandidate calculateExchange(
-		ChainActor * exchangeActor, 
-		AIPathNode * carrierParentNode, 
-		AIPathNode * otherParentNode) const;
 };

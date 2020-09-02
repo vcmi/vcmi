@@ -145,14 +145,11 @@ void HeroActor::setupSpecialActors()
 	}
 }
 
-ChainActor * ChainActor::exchange(const ChainActor * specialActor, const ChainActor * other) const
+ChainActor * ChainActor::tryExchange(const ChainActor * specialActor, const ChainActor * other) const
 {
-	return baseActor->exchange(specialActor, other);
-}
+	if(!isMovable) return nullptr;
 
-bool ChainActor::canExchange(const ChainActor * other) const
-{
-	return isMovable && baseActor->canExchange(other);
+	return baseActor->tryExchange(specialActor, other);
 }
 
 namespace vstd
@@ -172,71 +169,12 @@ namespace vstd
 	}
 }
 
-bool HeroActor::canExchange(const ChainActor * other) const
-{
-	return exchangeMap->canExchange(other);
-}
-
-bool HeroExchangeMap::canExchange(const ChainActor * other)
-{
-	return vstd::getOrCompute(canExchangeCache, other, [&](bool & result) {
-		result = (actor->chainMask & other->chainMask) == 0;
-
-		if(result)
-		{
-			TResources resources = ai->cb->getResourceAmount();
-
-			if(!resources.canAfford(actor->armyCost + other->armyCost))
-			{
-				result = false;
-#if PATHFINDER_TRACE_LEVEL >= 2
-				logAi->trace(
-					"Can not afford exchange because of total cost %s but we have %s",
-					(actor->armyCost + other->armyCost).toString(),
-					resources.toString());
-#endif
-				return;
-			}
-
-			TResources availableResources = resources - actor->armyCost - other->armyCost;
-
-			auto upgradeInfo = ai->armyManager->calculateCreateresUpgrade(
-				actor->creatureSet, 
-				other->getActorObject(),
-				availableResources);
-
-			uint64_t reinforcment = upgradeInfo.upgradeValue;
-			
-			if(other->creatureSet->Slots().size())
-				reinforcment += ai->armyManager->howManyReinforcementsCanGet(actor->hero, actor->creatureSet, other->creatureSet);
-			
-			auto obj = other->getActorObject();
-			if(obj && obj->ID == Obj::TOWN)
-			{
-				reinforcment += ai->armyManager->howManyReinforcementsCanBuy(
-					actor->creatureSet,
-					ai->cb->getTown(obj->id),
-					availableResources - upgradeInfo.upgradeCost);
-			}
-
-#if PATHFINDER_TRACE_LEVEL >= 2
-			logAi->trace(
-				"Exchange %s->%s reinforcement: %d, %f%%",
-				actor->toString(),
-				other->toString(),
-				reinforcment,
-				100.0f * reinforcment / actor->armyValue);
-#endif
-
-			result = reinforcment > actor->armyValue / 10 || reinforcment > 1000;
-		}
-	});
-}
-
-ChainActor * HeroActor::exchange(const ChainActor * specialActor, const ChainActor * other) const
+ChainActor * HeroActor::tryExchange(const ChainActor * specialActor, const ChainActor * other) const
 {
 	const ChainActor * otherBase = other->baseActor;
-	HeroActor * result = exchangeMap->exchange(otherBase);
+	HeroActor * result = exchangeMap->tryExchange(otherBase);
+
+	if(!result) return nullptr;
 
 	if(specialActor == this)
 		return result;
@@ -250,7 +188,7 @@ ChainActor * HeroActor::exchange(const ChainActor * specialActor, const ChainAct
 }
 
 HeroExchangeMap::HeroExchangeMap(const HeroActor * actor, const Nullkiller * ai)
-	:actor(actor), ai(ai)
+	:actor(actor), ai(ai), sync()
 {
 }
 
@@ -258,6 +196,8 @@ HeroExchangeMap::~HeroExchangeMap()
 {
 	for(auto & exchange : exchangeMap)
 	{
+		if(!exchange.second) continue;
+
 		delete exchange.second->creatureSet;
 		delete exchange.second;
 	}
@@ -265,44 +205,91 @@ HeroExchangeMap::~HeroExchangeMap()
 	exchangeMap.clear();
 }
 
-HeroActor * HeroExchangeMap::exchange(const ChainActor * other)
+HeroActor * HeroExchangeMap::tryExchange(const ChainActor * other)
 {
-	HeroActor * result;
+	auto position = exchangeMap.find(other);
 
-	if(vstd::contains(exchangeMap, other))
-		result = exchangeMap.at(other);
-	else 
+	if(position != exchangeMap.end())
 	{
-		TResources availableResources = ai->cb->getResourceAmount() - actor->armyCost - other->armyCost;
-		HeroExchangeArmy * upgradedInitialArmy = tryUpgrade(actor->creatureSet, other->getActorObject(), availableResources);
-		HeroExchangeArmy * newArmy;
-		
-		if(other->creatureSet->Slots().size())
-		{
-			if(upgradedInitialArmy)
-			{
-				newArmy = pickBestCreatures(upgradedInitialArmy, other->creatureSet);
-				newArmy->armyCost = upgradedInitialArmy->armyCost;
-				newArmy->requireBuyArmy = upgradedInitialArmy->requireBuyArmy;
+		return position->second;
+	}
 
-				delete upgradedInitialArmy;
-			}
-			else
-			{
-				newArmy = pickBestCreatures(actor->creatureSet, other->creatureSet);
-			}
+	auto inserted = exchangeMap.insert(std::pair<const ChainActor *, HeroActor *>(other, nullptr));
+
+	if(!inserted.second)
+	{
+		return inserted.first->second; // already inserted
+	}
+
+	position = inserted.first;
+
+	auto differentMasks = (actor->chainMask & other->chainMask) == 0;
+
+	if(!differentMasks) return nullptr;
+
+	TResources resources = ai->cb->getResourceAmount();
+
+	if(!resources.canAfford(actor->armyCost + other->armyCost))
+	{
+#if PATHFINDER_TRACE_LEVEL >= 2
+		logAi->trace(
+			"Can not afford exchange because of total cost %s but we have %s",
+			(actor->armyCost + other->armyCost).toString(),
+			resources.toString());
+#endif
+		return nullptr;
+	}
+
+	TResources availableResources = resources - actor->armyCost - other->armyCost;
+	HeroExchangeArmy * upgradedInitialArmy = tryUpgrade(actor->creatureSet, other->getActorObject(), availableResources);
+	HeroExchangeArmy * newArmy;
+
+	if(other->creatureSet->Slots().size())
+	{
+		if(upgradedInitialArmy)
+		{
+			newArmy = pickBestCreatures(upgradedInitialArmy, other->creatureSet);
+			newArmy->armyCost = upgradedInitialArmy->armyCost;
+			newArmy->requireBuyArmy = upgradedInitialArmy->requireBuyArmy;
+
+			delete upgradedInitialArmy;
 		}
 		else
 		{
-			newArmy = upgradedInitialArmy;
+			newArmy = pickBestCreatures(actor->creatureSet, other->creatureSet);
 		}
-
-		result = new HeroActor(actor, other, newArmy, ai);
-		result->armyCost += newArmy->armyCost;
-		exchangeMap[other] = result;
+	}
+	else
+	{
+		newArmy = upgradedInitialArmy;
 	}
 
-	return result;
+	if(!newArmy) return nullptr;
+
+	auto reinforcement = newArmy->getArmyStrength() - actor->creatureSet->getArmyStrength();
+
+#if PATHFINDER_TRACE_LEVEL >= 2
+	logAi->trace(
+		"Exchange %s->%s reinforcement: %d, %f%%",
+		actor->toString(),
+		other->toString(),
+		reinforcement,
+		100.0f * reinforcement / actor->armyValue);
+#endif
+
+	if(reinforcement <= actor->armyValue / 10 && reinforcement < 1000)
+	{
+		delete newArmy;
+
+		return nullptr;
+	}
+
+	HeroActor * exchanged = new HeroActor(actor, other, newArmy, ai);
+
+	exchanged->armyCost += newArmy->armyCost;
+	position->second = exchanged;
+
+	return exchanged;
 }
 
 HeroExchangeArmy * HeroExchangeMap::tryUpgrade(

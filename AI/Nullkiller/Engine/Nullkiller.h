@@ -9,6 +9,8 @@
 */
 #pragma once
 
+#include <boost/asio.hpp>
+
 #include "PriorityEvaluator.h"
 #include "FuzzyHelper.h"
 #include "AIMemory.h"

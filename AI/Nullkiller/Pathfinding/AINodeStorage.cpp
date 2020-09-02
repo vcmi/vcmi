@@ -8,6 +8,7 @@
 *
 */
 #include "StdInc.h"
+#include <tbb/tbb.h>
 #include "AINodeStorage.h"
 #include "Actions/TownPortalAction.h"
 #include "../Goals/Goals.h"
@@ -18,6 +19,8 @@
 #include "../../../lib/mapObjects/MapObjects.h"
 #include "../../../lib/PathfinderUtil.h"
 #include "../../../lib/CPlayerState.h"
+
+using namespace tbb;
 
 std::shared_ptr<boost::multi_array<AIPathNode, 5>> AISharedStorage::shared;
 std::set<int3> commitedTiles;
@@ -61,50 +64,56 @@ void AINodeStorage::initialize(const PathfinderOptions & options, const CGameSta
 		return;
 
 	//TODO: fix this code duplication with NodeStorage::initialize, problem is to keep `resetTile` inline
-	int3 pos;
-	const PlayerColor player = playerID;
 	const PlayerColor fowPlayer = ai->playerID;
-	const int3 sizes = gs->getMapSize();
 	const auto & fow = static_cast<const CGameInfoCallback *>(gs)->getPlayerTeam(fowPlayer)->fogOfWarMap;
+	const int3 sizes = gs->getMapSize();
 
-	//make 200% sure that these are loop invariants (also a bit shorter code), let compiler do the rest(loop unswitching)
-	const bool useFlying = options.useFlying;
-	const bool useWaterWalking = options.useWaterWalking;
-
-	for(pos.x=0; pos.x < sizes.x; ++pos.x)
+	parallel_for(blocked_range<size_t>(0, sizes.x), [&](const blocked_range<size_t>& r)
 	{
-		for(pos.y=0; pos.y < sizes.y; ++pos.y)
+		//make 200% sure that these are loop invariants (also a bit shorter code), let compiler do the rest(loop unswitching)
+		const bool useFlying = options.useFlying;
+		const bool useWaterWalking = options.useWaterWalking;
+		const PlayerColor player = playerID;
+
+		int3 pos;
+
+		for(pos.x = r.begin(); pos.x != r.end(); ++pos.x)
 		{
-			for(pos.z=0; pos.z < sizes.z; ++pos.z)
+			for(pos.y = 0; pos.y < sizes.y; ++pos.y)
 			{
-				const TerrainTile * tile = &gs->map->getTile(pos);
-				switch(tile->terType)
+				for(pos.z = 0; pos.z < sizes.z; ++pos.z)
 				{
-				case ETerrainType::ROCK:
-					break;
+					const TerrainTile * tile = &gs->map->getTile(pos);
+					switch(tile->terType)
+					{
+					case ETerrainType::ROCK:
+						break;
 
-				case ETerrainType::WATER:
-					resetTile(pos, ELayer::SAIL, PathfinderUtil::evaluateAccessibility<ELayer::SAIL>(pos, tile, fow, player, gs));
-					if(useFlying)
-						resetTile(pos, ELayer::AIR, PathfinderUtil::evaluateAccessibility<ELayer::AIR>(pos, tile, fow, player, gs));
-					if(useWaterWalking)
-						resetTile(pos, ELayer::WATER, PathfinderUtil::evaluateAccessibility<ELayer::WATER>(pos, tile, fow, player, gs));
-					break;
+					case ETerrainType::WATER:
+						resetTile(pos, ELayer::SAIL, PathfinderUtil::evaluateAccessibility<ELayer::SAIL>(pos, tile, fow, player, gs));
+						if(useFlying)
+							resetTile(pos, ELayer::AIR, PathfinderUtil::evaluateAccessibility<ELayer::AIR>(pos, tile, fow, player, gs));
+						if(useWaterWalking)
+							resetTile(pos, ELayer::WATER, PathfinderUtil::evaluateAccessibility<ELayer::WATER>(pos, tile, fow, player, gs));
+						break;
 
-				default:
-					resetTile(pos, ELayer::LAND, PathfinderUtil::evaluateAccessibility<ELayer::LAND>(pos, tile, fow, player, gs));
-					if(useFlying)
-						resetTile(pos, ELayer::AIR, PathfinderUtil::evaluateAccessibility<ELayer::AIR>(pos, tile, fow, player, gs));
-					break;
+					default:
+						resetTile(pos, ELayer::LAND, PathfinderUtil::evaluateAccessibility<ELayer::LAND>(pos, tile, fow, player, gs));
+						if(useFlying)
+							resetTile(pos, ELayer::AIR, PathfinderUtil::evaluateAccessibility<ELayer::AIR>(pos, tile, fow, player, gs));
+						break;
+					}
 				}
 			}
 		}
-	}
+	});
 }
 
 void AINodeStorage::clear()
 {
+	CCreature::DisableChildLinkage = true;
 	actors.clear();
+	CCreature::DisableChildLinkage = false;
 	heroChainPass = EHeroChainPass::INITIAL;
 	heroChainTurn = 0;
 	heroChainMaxTurns = 1;
@@ -161,7 +170,7 @@ boost::optional<AIPathNode *> AINodeStorage::getOrCreateNode(
 std::vector<CGPathNode *> AINodeStorage::getInitialNodes()
 {
 	if(heroChainPass)
-	{
+{
 		calculateTownPortalTeleportations(heroChain);
 
 		return heroChain;
@@ -184,7 +193,7 @@ std::vector<CGPathNode *> AINodeStorage::getInitialNodes()
 		initialNode->turns = actor->initialTurn;
 		initialNode->moveRemains = actor->initialMovement;
 		initialNode->danger = 0;
-		initialNode->cost = actor->initialTurn;
+		initialNode->setCost(actor->initialTurn);
 		initialNode->action = CGPathNode::ENodeAction::NORMAL;
 
 		if(actor->isMovable)
@@ -205,7 +214,7 @@ std::vector<CGPathNode *> AINodeStorage::getInitialNodes()
 void AINodeStorage::resetTile(const int3 & coord, EPathfindingLayer layer, CGPathNode::EAccessibility accessibility)
 {
 	for(AIPathNode & heroNode : nodes.get(coord, layer))
-	{
+{
 		heroNode.actor = nullptr;
 		heroNode.danger = 0;
 		heroNode.manaCost = 0;
@@ -246,7 +255,7 @@ void AINodeStorage::commit(
 	float cost) const
 {
 	destination->action = action;
-	destination->cost = cost;
+	destination->setCost(cost);
 	destination->moveRemains = movementLeft;
 	destination->turns = turn;
 	destination->armyLoss = source->armyLoss;
@@ -360,61 +369,133 @@ bool AINodeStorage::calculateHeroChainFinal()
 			}
 		});
 	}
-	
+
 	return heroChain.size();
 }
+
+struct DelayedWork
+{
+	AIPathNode * carrier;
+	AIPathNode * other;
+
+	DelayedWork()
+	{
+	}
+	
+	DelayedWork(AIPathNode * carrier, AIPathNode * other) : carrier(carrier), other(other)
+	{
+	}
+};
+
+class HeroChainCalculationTask
+{
+private:
+	AISharedStorage & nodes;
+	AINodeStorage & storage;
+	std::vector<AIPathNode *> existingChains;
+	std::vector<ExchangeCandidate> newChains;
+	uint64_t chainMask;
+	int heroChainTurn;
+	std::vector<CGPathNode *> heroChain;
+	const std::vector<int3> & tiles;
+
+public:
+	HeroChainCalculationTask(
+		AINodeStorage & storage, AISharedStorage & nodes, const std::vector<int3> & tiles, uint64_t chainMask, int heroChainTurn)
+		:existingChains(), newChains(), nodes(nodes), storage(storage), chainMask(chainMask), heroChainTurn(heroChainTurn), heroChain(), tiles(tiles)
+	{
+		existingChains.reserve(NUM_CHAINS);
+		newChains.reserve(NUM_CHAINS);
+	}
+
+	void execute(const blocked_range<size_t>& r)
+	{
+		for(int i = r.begin(); i != r.end(); i++)
+		{
+			auto & pos = tiles[i];
+
+			for(auto layer : phisycalLayers)
+			{
+				auto chains = nodes.get(pos, layer);
+
+				// fast cut inactive nodes
+				if(chains[0].blocked())
+					continue;
+
+				existingChains.clear();
+				newChains.clear();
+
+				for(AIPathNode & node : chains)
+				{
+					if(node.turns <= heroChainTurn && node.action != CGPathNode::ENodeAction::UNKNOWN)
+						existingChains.push_back(&node);
+				}
+
+				std::random_shuffle(existingChains.begin(), existingChains.end());
+
+				for(AIPathNode * node : existingChains)
+				{
+					if(node->actor->isMovable)
+					{
+						calculateHeroChain(node, existingChains, newChains);
+					}
+				}
+
+				cleanupInefectiveChains(newChains);
+				addHeroChain(newChains);
+			}
+		}
+	}
+
+	void calculateHeroChain(
+		AIPathNode * srcNode,
+		const std::vector<AIPathNode *> & variants,
+		std::vector<ExchangeCandidate> & result);
+
+	void calculateHeroChain(
+		AIPathNode * carrier,
+		AIPathNode * other,
+		std::vector<ExchangeCandidate> & result);
+
+	void cleanupInefectiveChains(std::vector<ExchangeCandidate> & result) const;
+	void addHeroChain(const std::vector<ExchangeCandidate> & result);
+
+	ExchangeCandidate calculateExchange(
+		ChainActor * exchangeActor,
+		AIPathNode * carrierParentNode,
+		AIPathNode * otherParentNode) const;
+
+	void flushResult(std::vector<CGPathNode *> & result)
+	{
+		vstd::concatenate(result, heroChain);
+	}
+};
 
 bool AINodeStorage::calculateHeroChain()
 {
 	heroChainPass = EHeroChainPass::CHAIN;
-	heroChain.resize(0);
+	heroChain.clear();
 
-	std::vector<AIPathNode *> existingChains;
-	std::vector<ExchangeCandidate> newChains;
+	std::vector<int3> data(commitedTiles.begin(), commitedTiles.end());
 
-	existingChains.reserve(NUM_CHAINS);
-	newChains.reserve(NUM_CHAINS);
+	CCreature::DisableChildLinkage = true;
 
-	for(auto & pos : commitedTiles)
-	{
-		for(auto layer : phisycalLayers)
-		{
-			auto chains = nodes.get(pos, layer);
+	auto r = blocked_range<size_t>(0, data.size());
+	HeroChainCalculationTask task(*this, nodes, data, chainMask, heroChainTurn);
 
-			// fast cut inactive nodes
-			if(chains[0].blocked())
-				continue;
+	task.execute(r);
+	task.flushResult(heroChain);
 
-			existingChains.clear();
-			newChains.clear();
-
-			for(AIPathNode & node : chains)
-			{
-				if(node.turns <= heroChainTurn && node.action != CGPathNode::ENodeAction::UNKNOWN)
-					existingChains.push_back(&node);
-			}
-
-			for(AIPathNode * node : existingChains)
-			{
-				if(node->actor->isMovable)
-				{
-					calculateHeroChain(node, existingChains, newChains);
-				}
-			}
-
-			cleanupInefectiveChains(newChains);
-			addHeroChain(newChains);
-		}
-	}
+	CCreature::DisableChildLinkage = false;
 
 	commitedTiles.clear();
 
-	return heroChain.size();
+	return !heroChain.empty();
 }
 
 bool AINodeStorage::selectFirstActor()
 {
-	if(!actors.size())
+	if(actors.empty())
 		return false;
 
 	auto strongest = *vstd::maxElementByFun(actors, [](std::shared_ptr<ChainActor> actor) -> uint64_t
@@ -454,6 +535,9 @@ bool AINodeStorage::selectNextActor()
 
 	if(nextActor != actors.end())
 	{
+		if(nextActor->get()->armyValue < 1000)
+			return false;
+
 		chainMask = nextActor->get()->chainMask;
 		commitedTiles = commitedTilesInitial;
 
@@ -463,22 +547,36 @@ bool AINodeStorage::selectNextActor()
 	return false;
 }
 
-void AINodeStorage::cleanupInefectiveChains(std::vector<ExchangeCandidate> & result) const
+void HeroChainCalculationTask::cleanupInefectiveChains(std::vector<ExchangeCandidate> & result) const
 {
 	vstd::erase_if(result, [&](const ExchangeCandidate & chainInfo) -> bool
 	{
 		auto pos = chainInfo.coord;
 		auto chains = nodes.get(pos, EPathfindingLayer::LAND);
+		auto isNotEffective = storage.hasBetterChain(chainInfo.carrierParent, &chainInfo, chains)
+			|| storage.hasBetterChain(chainInfo.carrierParent, &chainInfo, result);
 
-		return hasBetterChain(chainInfo.carrierParent, &chainInfo, chains)
-			|| hasBetterChain(chainInfo.carrierParent, &chainInfo, result);
+#if PATHFINDER_TRACE_LEVEL >= 2
+		if(isNotEffective)
+		{
+			logAi->trace(
+				"Skip exchange %s[%x] -> %s[%x] at %s is ineficient",
+				chainInfo.otherParent->actor->toString(), 
+				chainInfo.otherParent->actor->chainMask,
+				chainInfo.carrierParent->actor->toString(),
+				chainInfo.carrierParent->actor->chainMask,
+				chainInfo.carrierParent->coord.toString());
+		}
+#endif
+
+		return isNotEffective;
 	});
 }
 
-void AINodeStorage::calculateHeroChain(
+void HeroChainCalculationTask::calculateHeroChain(
 	AIPathNode * srcNode, 
 	const std::vector<AIPathNode *> & variants, 
-	std::vector<ExchangeCandidate> & result) const
+	std::vector<ExchangeCandidate> & result)
 {
 	for(AIPathNode * node : variants)
 	{
@@ -531,16 +629,15 @@ void AINodeStorage::calculateHeroChain(
 	}
 }
 
-void AINodeStorage::calculateHeroChain(
+void HeroChainCalculationTask::calculateHeroChain(
 	AIPathNode * carrier, 
 	AIPathNode * other, 
-	std::vector<ExchangeCandidate> & result) const
+	std::vector<ExchangeCandidate> & result)
 {	
 	if(carrier->armyLoss < carrier->actor->armyValue
 		&& (carrier->action != CGPathNode::BATTLE || (carrier->actor->allowBattle && carrier->specialAction))
 		&& carrier->action != CGPathNode::BLOCKING_VISIT
-		&& (other->armyLoss == 0 || other->armyLoss < other->actor->armyValue)
-		&& carrier->actor->canExchange(other->actor))
+		&& (other->armyLoss == 0 || other->armyLoss < other->actor->armyValue))
 	{
 #if PATHFINDER_TRACE_LEVEL >= 2
 		logAi->trace(
@@ -566,20 +663,20 @@ void AINodeStorage::calculateHeroChain(
 			}
 		}
 
-		auto newActor = carrier->actor->exchange(other->actor);
+		auto newActor = carrier->actor->tryExchange(other->actor);
 		
-		result.push_back(calculateExchange(newActor, carrier, other));
+		if(newActor) result.push_back(calculateExchange(newActor, carrier, other));
 	}
 }
 
-void AINodeStorage::addHeroChain(const std::vector<ExchangeCandidate> & result)
+void HeroChainCalculationTask::addHeroChain(const std::vector<ExchangeCandidate> & result)
 {
 	for(const ExchangeCandidate & chainInfo : result)
 	{
 		auto carrier = chainInfo.carrierParent;
 		auto newActor = chainInfo.actor;
 		auto other = chainInfo.otherParent;
-		auto chainNodeOptional = getOrCreateNode(carrier->coord, carrier->layer, newActor);
+		auto chainNodeOptional = storage.getOrCreateNode(carrier->coord, carrier->layer, newActor);
 
 		if(!chainNodeOptional)
 		{
@@ -594,24 +691,34 @@ void AINodeStorage::addHeroChain(const std::vector<ExchangeCandidate> & result)
 		if(exchangeNode->action != CGPathNode::ENodeAction::UNKNOWN)
 		{
 #if PATHFINDER_TRACE_LEVEL >= 2
-			logAi->trace("Exchange at %s node is already in use. Blocked.", carrier->coord.toString());
+			logAi->trace(
+				"Skip exchange %s[%x] -> %s[%x] at %s because node is in use",
+				other->actor->toString(),
+				other->actor->chainMask,
+				carrier->actor->toString(),
+				carrier->actor->chainMask,
+				carrier->coord.toString());
 #endif
 			continue;
 		}
 		
-		if(exchangeNode->turns != 0xFF && exchangeNode->cost < chainInfo.cost)
+		if(exchangeNode->turns != 0xFF && exchangeNode->getCost() < chainInfo.getCost())
 		{
 #if PATHFINDER_TRACE_LEVEL >= 2
 			logAi->trace(
-				"Exchange at %s is is not effective enough. %f < %f", 
-				exchangeNode->coord.toString(), 
-				exchangeNode->getCost(), 
+				"Skip exchange %s[%x] -> %s[%x] at %s because not effective enough. %f < %f",
+				other->actor->toString(),
+				other->actor->chainMask,
+				carrier->actor->toString(),
+				carrier->actor->chainMask,
+				carrier->coord.toString(),
+				exchangeNode->getCost(),
 				chainInfo.getCost());
 #endif
 			continue;
 		}
 
-		commit(exchangeNode, carrier, carrier->action, chainInfo.turns, chainInfo.moveRemains, chainInfo.cost);
+		storage.commit(exchangeNode, carrier, carrier->action, chainInfo.turns, chainInfo.moveRemains, chainInfo.getCost());
 
 		if(carrier->specialAction || carrier->chainOther)
 		{
@@ -644,7 +751,7 @@ void AINodeStorage::addHeroChain(const std::vector<ExchangeCandidate> & result)
 	}
 }
 
-ExchangeCandidate AINodeStorage::calculateExchange(
+ExchangeCandidate HeroChainCalculationTask::calculateExchange(
 	ChainActor * exchangeActor, 
 	AIPathNode * carrierParentNode, 
 	AIPathNode * otherParentNode) const
@@ -658,7 +765,7 @@ ExchangeCandidate AINodeStorage::calculateExchange(
 	candidate.actor = exchangeActor;
 	candidate.armyLoss = carrierParentNode->armyLoss + otherParentNode->armyLoss;
 	candidate.turns = carrierParentNode->turns;
-	candidate.cost = carrierParentNode->cost + otherParentNode->cost / 1000.0;
+	candidate.setCost(carrierParentNode->getCost() + otherParentNode->getCost() / 1000.0);
 	candidate.moveRemains = carrierParentNode->moveRemains;
 
 	if(carrierParentNode->turns < otherParentNode->turns)
@@ -668,7 +775,7 @@ ExchangeCandidate AINodeStorage::calculateExchange(
 			+ carrierParentNode->moveRemains / (float)moveRemains;
 
 		candidate.turns = otherParentNode->turns;
-		candidate.cost += waitingCost;
+		candidate.setCost(candidate.getCost() + waitingCost);
 		candidate.moveRemains = moveRemains;
 	}
 
@@ -873,7 +980,7 @@ struct TowmPortalFinder
 					continue;
 			}
 
-			if(!bestNode || bestNode->cost > node->cost)
+			if(!bestNode || bestNode->getCost() > node->getCost())
 				bestNode = node;
 		}
 
@@ -895,9 +1002,9 @@ struct TowmPortalFinder
 		AIPathNode * node = nodeOptional.get();
 		float movementCost = (float)movementNeeded / (float)hero->maxMovePoints(EPathfindingLayer::LAND);
 
-		movementCost += bestNode->cost;
+		movementCost += bestNode->getCost();
 
-		if(node->action == CGPathNode::UNKNOWN || node->cost > movementCost)
+		if(node->action == CGPathNode::UNKNOWN || node->getCost() > movementCost)
 		{
 			nodeStorage->commit(
 				node,
@@ -1009,7 +1116,7 @@ bool AINodeStorage::hasBetterChain(
 
 		if(node.danger <= candidateNode->danger && candidateNode->actor == node.actor->battleActor)
 		{
-			if(node.cost < candidateNode->cost)
+			if(node.getCost() < candidateNode->getCost())
 			{
 #if PATHFINDER_TRACE_LEVEL >= 2
 				logAi->trace(
@@ -1033,7 +1140,7 @@ bool AINodeStorage::hasBetterChain(
 		auto candidateArmyValue = candidateActor->armyValue - candidateNode->armyLoss;
 
 		if(nodeArmyValue > candidateArmyValue
-			&& node.cost <= candidateNode->cost)
+			&& node.getCost() <= candidateNode->getCost())
 		{
 #if PATHFINDER_TRACE_LEVEL >= 2
 			logAi->trace(
@@ -1052,10 +1159,10 @@ bool AINodeStorage::hasBetterChain(
 		{
 			if(nodeArmyValue == candidateArmyValue
 				&& nodeActor->heroFightingStrength >= candidateActor->heroFightingStrength
-				&& node.cost <= candidateNode->cost)
+				&& node.getCost() <= candidateNode->getCost())
 			{
 				if(nodeActor->heroFightingStrength == candidateActor->heroFightingStrength
-					&& node.cost == candidateNode->cost
+					&& node.getCost() == candidateNode->getCost()
 					&& &node < candidateNode)
 				{
 					continue;
@@ -1141,7 +1248,8 @@ void AINodeStorage::fillChainInfo(const AIPathNode * node, AIPath & path, int pa
 		//if(node->actor->hero->visitablePos() != node->coord)
 		{
 			AIPathNodeInfo pathNode;
-			pathNode.cost = node->cost;
+
+			pathNode.cost = node->getCost();
 			pathNode.targetHero = node->actor->hero;
 			pathNode.chainMask = node->actor->chainMask;
 			pathNode.specialAction = node->specialAction;

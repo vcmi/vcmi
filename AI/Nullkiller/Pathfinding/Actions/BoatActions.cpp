@@ -114,7 +114,7 @@ namespace AIPathfinding
 			source->manaCost);
 #endif
 
-		return hero->mana >= source->manaCost + getManaCost(hero);
+		return hero->mana >= (si32)(source->manaCost + getManaCost(hero));
 	}
 
 	std::string SummonBoatAction::toString() const

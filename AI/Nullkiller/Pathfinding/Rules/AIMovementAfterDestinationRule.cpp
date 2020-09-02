@@ -143,7 +143,7 @@ namespace AIPathfinding
 					destination.node->layer,
 					destinationNode->actor->resourceActor);
 
-				if(!questNode || questNode.get()->cost < destination.cost)
+				if(!questNode || questNode.get()->getCost() < destination.cost)
 				{
 					return false;
 				}
