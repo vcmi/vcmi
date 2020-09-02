@@ -95,11 +95,11 @@ TSubgoal Win::whatToDoToAchieve()
 					{
 						auto towns = cb->getTownsInfo();
 						towns.erase(boost::remove_if(towns,
-									     [](const CGTownInstance * t) -> bool
+										[](const CGTownInstance * t) -> bool
 							{
 								return vstd::contains(t->forbiddenBuildings, BuildingID::GRAIL);
 							}),
-							    towns.end());
+								towns.end());
 						boost::sort(towns, CDistanceSorter(h.get()));
 						if(towns.size())
 						{

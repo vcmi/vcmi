@@ -65,14 +65,13 @@ public:
 
 	ChainActor(){}
 
-	virtual bool canExchange(const ChainActor * other) const;
 	virtual std::string toString() const;
-	ChainActor * exchange(const ChainActor * other) const { return exchange(this, other); }
+	ChainActor * tryExchange(const ChainActor * other) const { return tryExchange(this, other); }
 	void setBaseActor(HeroActor * base);
 	virtual const CGObjectInstance * getActorObject() const	{ return hero; }
 
 protected:
-	virtual ChainActor * exchange(const ChainActor * specialActor, const ChainActor * other) const;
+	virtual ChainActor * tryExchange(const ChainActor * specialActor, const ChainActor * other) const;
 };
 
 class HeroExchangeMap
@@ -80,15 +79,14 @@ class HeroExchangeMap
 private:
 	const HeroActor * actor;
 	std::map<const ChainActor *, HeroActor *> exchangeMap;
-	std::map<const ChainActor *, bool> canExchangeCache;
 	const Nullkiller * ai;
+	boost::shared_mutex sync;
 
 public:
 	HeroExchangeMap(const HeroActor * actor, const Nullkiller * ai);
 	~HeroExchangeMap();
 
-	HeroActor * exchange(const ChainActor * other);
-	bool canExchange(const ChainActor * other);
+	HeroActor * tryExchange(const ChainActor * other);
 
 private:
 	HeroExchangeArmy * pickBestCreatures(const CCreatureSet * army1, const CCreatureSet * army2) const;
@@ -113,10 +111,8 @@ public:
 	HeroActor(const CGHeroInstance * hero, HeroRole heroRole, uint64_t chainMask, const Nullkiller * ai);
 	HeroActor(const ChainActor * carrier, const ChainActor * other, const HeroExchangeArmy * army, const Nullkiller * ai);
 
-	virtual bool canExchange(const ChainActor * other) const override;
-
 protected:
-	virtual ChainActor * exchange(const ChainActor * specialActor, const ChainActor * other) const override;
+	virtual ChainActor * tryExchange(const ChainActor * specialActor, const ChainActor * other) const override;
 };
 
 class ObjectActor : public ChainActor

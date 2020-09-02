@@ -137,6 +137,8 @@ else()
 	target_link_libraries(VCAI PRIVATE fl-static vcmi)
 endif()
 
+target_link_libraries(VCAI PRIVATE TBB::tbb)
+
 vcmi_set_output_dir(VCAI "AI")
 
 set_target_properties(VCAI PROPERTIES ${PCH_PROPERTIES})
