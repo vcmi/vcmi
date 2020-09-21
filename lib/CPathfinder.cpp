@@ -161,7 +161,7 @@ CGPathNode * NodeStorage::getInitialNode()
 
 	initialNode->turns = 0;
 	initialNode->moveRemains = out.hero->movement;
-	initialNode->cost = 0.0;
+	initialNode->setCost(0.0);
 
 	return initialNode;
 }
@@ -169,7 +169,7 @@ CGPathNode * NodeStorage::getInitialNode()
 void NodeStorage::commit(CDestinationNodeInfo & destination, const PathNodeInfo & source)
 {
 	assert(destination.node != source.node->theNodeBefore); //two tiles can't point to each other
-	destination.node->cost = destination.cost;
+	destination.node->setCost(destination.cost);
 	destination.node->moveRemains = destination.movementLeft;
 	destination.node->turns = destination.turn;
 	destination.node->theNodeBefore = source.node;
@@ -289,6 +289,28 @@ CPathfinder::CPathfinder(
 	initializeGraph();
 }
 
+
+void CPathfinder::push(CGPathNode * node)
+{
+	if(node && !node->inPQ)
+	{
+		node->inPQ = true;
+		node->pq = &this->pq;
+		auto handle = pq.push(node);
+		node->pqHandle = handle;
+	}
+}
+
+CGPathNode * CPathfinder::topAndPop()
+{
+	auto node = pq.top();
+
+	pq.pop();
+	node->inPQ = false;
+	node->pq = nullptr;
+	return node;
+}
+
 void CPathfinder::calculatePaths()
 {
 	//logGlobal->info("Calculating paths for hero %s (adress  %d) of player %d", hero->name, hero , hero->tempOwner);
@@ -305,19 +327,19 @@ void CPathfinder::calculatePaths()
 	if(isHeroPatrolLocked())
 		return;
 
-	pq.push(initialNode);
+	push(initialNode);
+
 	while(!pq.empty())
 	{
-		auto node = pq.top();
+		auto node = topAndPop();
 		auto excludeOurHero = node->coord == initialNode->coord;
 
 		source.setNode(gs, node, excludeOurHero);
-		pq.pop();
 		source.node->locked = true;
 
 		int movement = source.node->moveRemains;
 		uint8_t turn = source.node->turns;
-		float cost = source.node->cost;
+		float cost = source.node->getCost();
 
 		hlp->updateTurnInfo(turn);
 		if(!movement)
@@ -368,7 +390,7 @@ void CPathfinder::calculatePaths()
 			}
 
 			if(!destination.blocked)
-				pq.push(destination.node);
+				push(destination.node);
 
 		} //neighbours loop
 
@@ -403,7 +425,7 @@ void CPathfinder::calculatePaths()
 				config->nodeStorage->commit(destination, source);
 
 				if(destination.node->action == CGPathNode::TELEPORT_NORMAL)
-					pq.push(destination.node);
+					push(destination.node);
 			}
 		}
 	} //queue loop
@@ -1367,7 +1389,7 @@ bool CDestinationNodeInfo::isBetterWay() const
 	if(node->turns == 0xff) //we haven't been here before
 		return true;
 	else
-		return cost < node->cost; //this route is faster
+		return cost < node->getCost(); //this route is faster
 }
 
 bool PathNodeInfo::isNodeObjectVisitable() const

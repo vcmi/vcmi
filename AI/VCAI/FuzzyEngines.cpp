@@ -98,7 +98,7 @@ float HeroMovementGoalEngineBase::calculateTurnDistanceInputValue(const Goals::A
 	else
 	{
 		auto pathInfo = ai->myCb->getPathsInfo(goal.hero.h)->getPathInfo(goal.tile);
-		return pathInfo->cost;
+		return pathInfo->getCost();
 	}
 }
 

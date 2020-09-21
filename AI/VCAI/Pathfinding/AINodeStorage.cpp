@@ -119,7 +119,7 @@ CGPathNode * AINodeStorage::getInitialNode()
 	initialNode->turns = 0;
 	initialNode->moveRemains = hero->movement;
 	initialNode->danger = 0;
-	initialNode->cost = 0.0;
+	initialNode->setCost(0.0);
 
 	return initialNode;
 }
@@ -146,7 +146,7 @@ void AINodeStorage::commit(CDestinationNodeInfo & destination, const PathNodeInf
 	{
 		dstNode->moveRemains = destination.movementLeft;
 		dstNode->turns = destination.turn;
-		dstNode->cost = destination.cost;
+		dstNode->setCost(destination.cost);
 		dstNode->danger = srcNode->danger;
 		dstNode->action = destination.action;
 		dstNode->theNodeBefore = srcNode->theNodeBefore;
@@ -305,7 +305,7 @@ bool AINodeStorage::hasBetterChain(const PathNodeInfo & source, CDestinationNode
 
 		if(node.danger <= destinationNode->danger && destinationNode->chainMask == 1 && node.chainMask == 0)
 		{
-			if(node.cost < destinationNode->cost)
+			if(node.getCost() < destinationNode->getCost())
 			{
 #ifdef VCMI_TRACE_PATHFINDER
 				logAi->trace(
@@ -349,7 +349,7 @@ std::vector<AIPath> AINodeStorage::getChainInfo(const int3 & pos, bool isOnLand)
 		while(current != nullptr && current->coord != initialPos)
 		{
 			AIPathNodeInfo pathNode;
-			pathNode.cost = current->cost;
+			pathNode.cost = current->getCost();
 			pathNode.turns = current->turns;
 			pathNode.danger = current->danger;
 			pathNode.coord = current->coord;
