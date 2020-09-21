@@ -80,7 +80,10 @@ RandomMapTab::RandomMapTab()
 	{
 		mapGenOptions->setPlayerCount(btnId);
 		deactivateButtonsFrom(groupMaxTeams.get(), btnId);
-		deactivateButtonsFrom(groupCompOnlyPlayers.get(), btnId);
+
+		// deactive some CompOnlyPlayers buttons to prevent total number of players exceeds PlayerColor::PLAYER_LIMIT_I
+		deactivateButtonsFrom(groupCompOnlyPlayers.get(), PlayerColor::PLAYER_LIMIT_I - btnId + 1);
+
 		validatePlayersCnt(btnId);
 		updateMapInfoByHost();
 	});
@@ -175,7 +178,14 @@ void RandomMapTab::updateMapInfoByHost()
 	mapInfo->mapHeader->players.clear();
 	int playersToGen = PlayerColor::PLAYER_LIMIT_I;
 	if(mapGenOptions->getPlayerCount() != CMapGenOptions::RANDOM_SIZE)
-		playersToGen = mapGenOptions->getPlayerCount();
+	{
+		if(mapGenOptions->getCompOnlyPlayerCount() != CMapGenOptions::RANDOM_SIZE)
+			playersToGen = mapGenOptions->getPlayerCount() + mapGenOptions->getCompOnlyPlayerCount();
+		else
+			playersToGen = mapGenOptions->getPlayerCount();
+	}
+
+
 	mapInfo->mapHeader->howManyTeams = playersToGen;
 
 	for(int i = 0; i < playersToGen; ++i)
@@ -183,7 +193,7 @@ void RandomMapTab::updateMapInfoByHost()
 		PlayerInfo player;
 		player.isFactionRandom = true;
 		player.canComputerPlay = true;
-		if(mapGenOptions->getCompOnlyPlayerCount() != CMapGenOptions::RANDOM_SIZE && i >= mapGenOptions->getHumanOnlyPlayerCount())
+		if(mapGenOptions->getCompOnlyPlayerCount() != CMapGenOptions::RANDOM_SIZE && i >= mapGenOptions->getPlayerCount())
 		{
 			player.canHumanPlay = false;
 		}
@@ -268,9 +278,10 @@ void RandomMapTab::validatePlayersCnt(int playersCnt)
 		mapGenOptions->setTeamCount(playersCnt - 1);
 		groupMaxTeams->setSelected(mapGenOptions->getTeamCount());
 	}
-	if(mapGenOptions->getCompOnlyPlayerCount() >= playersCnt)
+	// total players should not exceed PlayerColor::PLAYER_LIMIT_I (8 in homm3)
+	if(mapGenOptions->getCompOnlyPlayerCount() + playersCnt > PlayerColor::PLAYER_LIMIT_I)
 	{
-		mapGenOptions->setCompOnlyPlayerCount(playersCnt - 1);
+		mapGenOptions->setCompOnlyPlayerCount(PlayerColor::PLAYER_LIMIT_I - playersCnt);
 		groupCompOnlyPlayers->setSelected(mapGenOptions->getCompOnlyPlayerCount());
 	}
 

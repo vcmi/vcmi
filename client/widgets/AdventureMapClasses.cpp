@@ -24,6 +24,7 @@
 
 #include "../gui/CGuiHandler.h"
 #include "../gui/SDL_Pixels.h"
+#include "../gui/SDL_Compat.h"
 
 #include "../widgets/Images.h"
 
