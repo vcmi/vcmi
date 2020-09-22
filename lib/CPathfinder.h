@@ -14,7 +14,8 @@
 #include "HeroBonus.h"
 #include "int3.h"
 
-#include <boost/heap/priority_queue.hpp>
+#include <boost/heap/fibonacci_heap.hpp>
+
 
 class CGHeroInstance;
 class CGObjectInstance;
@@ -25,6 +26,17 @@ class CGWhirlpool;
 class CPathfinderHelper;
 class CPathfinder;
 class PathfinderConfig;
+
+
+template<typename N>
+struct DLL_LINKAGE NodeComparer
+{
+	STRONG_INLINE
+	bool operator()(const N * lhs, const N * rhs) const
+	{
+		return lhs->getCost() > rhs->getCost();
+	}
+};
 
 struct DLL_LINKAGE CGPathNode
 {
@@ -58,16 +70,17 @@ struct DLL_LINKAGE CGPathNode
 	int3 coord; //coordinates
 	ELayer layer;
 	ui32 moveRemains; //remaining movement points after hero reaches the tile
-	float cost; //total cost of the path to this tile measured in turns with fractions
 	ui8 turns; //how many turns we have to wait before reaching the tile - 0 means current turn
 
 	EAccessibility accessible;
 	ENodeAction action;
 	bool locked;
+	bool inPQ;
 
 	CGPathNode()
 		: coord(-1),
-		layer(ELayer::WRONG)
+		layer(ELayer::WRONG),
+		pqHandle(nullptr)
 	{
 		reset();
 	}
@@ -82,6 +95,36 @@ struct DLL_LINKAGE CGPathNode
 		turns = 255;
 		theNodeBefore = nullptr;
 		action = UNKNOWN;
+		inPQ = false;
+		pq = nullptr;
+	}
+
+	STRONG_INLINE
+	float getCost() const
+	{
+		return cost;
+	}
+
+	STRONG_INLINE
+	void setCost(float value)
+	{
+		if(value == cost)
+			return;
+
+		bool getUpNode = value < cost;
+		cost = value;
+		// If the node is in the heap, update the heap.
+		if(inPQ && pq != nullptr)
+		{
+			if(getUpNode)
+			{
+				pq->increase(this->pqHandle, this);
+			}
+			else
+			{
+				pq->decrease(this->pqHandle, this);
+			}
+		}
 	}
 
 	STRONG_INLINE
@@ -105,6 +148,26 @@ struct DLL_LINKAGE CGPathNode
 	{
 		return turns < 255;
 	}
+
+	boost::heap::detail::node_handle
+	<
+		boost::heap::detail::marked_heap_node<CGPathNode *>*,
+		boost::heap::detail::make_fibonacci_heap_base
+		<
+			CGPathNode *,
+			boost::parameter::aux::arg_list
+			<
+				boost::heap::compare<NodeComparer<CGPathNode>>,
+				boost::parameter::aux::empty_arg_list
+			>
+		>::type,
+		CGPathNode *&
+	> pqHandle;
+
+	boost::heap::fibonacci_heap< CGPathNode *, boost::heap::compare<NodeComparer<CGPathNode>> >* pq;
+
+private:
+	float cost; //total cost of the path to this tile measured in turns with fractions
 };
 
 struct DLL_LINKAGE CGPath
@@ -415,15 +478,7 @@ private:
 	} patrolState;
 	std::unordered_set<int3, ShashInt3> patrolTiles;
 
-	struct NodeComparer
-	{
-		STRONG_INLINE
-		bool operator()(const CGPathNode * lhs, const CGPathNode * rhs) const
-		{
-			return lhs->cost > rhs->cost;
-		}
-	};
-	boost::heap::priority_queue<CGPathNode *, boost::heap::compare<NodeComparer> > pq;
+	boost::heap::fibonacci_heap<CGPathNode *, boost::heap::compare<NodeComparer<CGPathNode>> > pq;
 
 	PathNodeInfo source; //current (source) path node -> we took it from the queue
 	CDestinationNodeInfo destination; //destination node -> it's a neighbour of source that we consider
@@ -441,6 +496,12 @@ private:
 
 	void initializePatrol();
 	void initializeGraph();
+
+	STRONG_INLINE
+	void push(CGPathNode * node);
+
+	STRONG_INLINE
+	CGPathNode * topAndPop();
 };
 
 struct DLL_LINKAGE TurnInfo

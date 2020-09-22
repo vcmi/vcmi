@@ -191,7 +191,7 @@ bool CDistanceSorter::operator()(const CGObjectInstance * lhs, const CGObjectIns
 	const CGPathNode * ln = ai->myCb->getPathsInfo(hero)->getPathInfo(lhs->visitablePos());
 	const CGPathNode * rn = ai->myCb->getPathsInfo(hero)->getPathInfo(rhs->visitablePos());
 
-	return ln->cost < rn->cost;
+	return ln->getCost() < rn->getCost();
 }
 
 bool isSafeToVisit(HeroPtr h, crint3 tile)
