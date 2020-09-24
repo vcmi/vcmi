@@ -776,6 +776,12 @@ public:
 	ETerrainType(EETerrainType _num = WRONG) : num(_num)
 	{}
 
+	ETerrainType& operator=(EETerrainType _num)
+	{
+		num = _num;
+		return *this;
+	}
+
 	ID_LIKE_CLASS_COMMON(ETerrainType, EETerrainType)
 
 	EETerrainType num;
