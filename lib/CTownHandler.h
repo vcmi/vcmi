@@ -298,6 +298,11 @@ class DLL_LINKAGE CTownHandler : public IHandlerBase
 
 	std::map<CTown *, JsonNode> warMachinesToLoad;
 	std::vector<BuildingRequirementsHelper> requirementsToLoad;
+
+	const static ETerrainType::EETerrainType defaultGoodTerrain = ETerrainType::EETerrainType::GRASS;
+	const static ETerrainType::EETerrainType defaultEvilTerrain = ETerrainType::EETerrainType::LAVA;
+	const static ETerrainType::EETerrainType defaultNeutralTerrain = ETerrainType::EETerrainType::ROUGH;
+
 	void initializeRequirements();
 	void initializeWarMachines();
 
@@ -319,6 +324,8 @@ class DLL_LINKAGE CTownHandler : public IHandlerBase
 	void loadTown(CTown * town, const JsonNode & source);
 
 	void loadPuzzle(CFaction & faction, const JsonNode & source);
+
+	ETerrainType::EETerrainType getDefaultTerrainForAlignment(EAlignment::EAlignment aligment) const;
 
 	CFaction * loadFromJson(const JsonNode & data, const std::string & identifier);
 

@@ -708,6 +708,22 @@ void CTownHandler::loadPuzzle(CFaction &faction, const JsonNode &source)
 	assert(faction.puzzleMap.size() == GameConstants::PUZZLE_MAP_PIECES);
 }
 
+ETerrainType::EETerrainType CTownHandler::getDefaultTerrainForAlignment(EAlignment::EAlignment alignment) const
+{
+	ETerrainType::EETerrainType terrain = defaultGoodTerrain;
+
+	switch(alignment)
+	{
+	case EAlignment::EAlignment::EVIL:
+		terrain = defaultEvilTerrain;
+		break;
+	case EAlignment::EAlignment::NEUTRAL:
+		terrain = defaultNeutralTerrain;
+		break;
+	}
+	return terrain;
+}
+
 CFaction * CTownHandler::loadFromJson(const JsonNode &source, const std::string & identifier)
 {
 	auto  faction = new CFaction();
@@ -718,14 +734,21 @@ CFaction * CTownHandler::loadFromJson(const JsonNode &source, const std::string 
 	faction->creatureBg120 = source["creatureBackground"]["120px"].String();
 	faction->creatureBg130 = source["creatureBackground"]["130px"].String();
 
-
-	faction->nativeTerrain = ETerrainType(vstd::find_pos(GameConstants::TERRAIN_NAMES,
-		source["nativeTerrain"].String()));
 	int alignment = vstd::find_pos(EAlignment::names, source["alignment"].String());
 	if (alignment == -1)
 		faction->alignment = EAlignment::NEUTRAL;
 	else
 		faction->alignment = static_cast<EAlignment::EAlignment>(alignment);
+
+	auto nativeTerrain = source["nativeTerrain"];
+	int terrainNum = nativeTerrain.isNull()
+		? -1
+		: vstd::find_pos(GameConstants::TERRAIN_NAMES, nativeTerrain.String());
+
+	//Contructor is not called here, but operator=
+	faction->nativeTerrain = terrainNum < 0
+		? getDefaultTerrainForAlignment(faction->alignment)
+		: static_cast<ETerrainType::EETerrainType>(terrainNum);
 
 	if (!source["town"].isNull())
 	{
