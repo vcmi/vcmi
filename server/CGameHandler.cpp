@@ -2508,13 +2508,13 @@ void CGameHandler::heroVisitCastle(const CGTownInstance * obj, const CGHeroInsta
 	vc.tid = obj->id;
 	vc.flags |= 1;
 	sendAndApply(&vc);
-	vistiCastleObjects (obj, hero);
-	giveSpells (obj, hero);
+	visitCastleObjects(obj, hero);
+	giveSpells(obj, hero);
 
 	checkVictoryLossConditionsForPlayer(hero->tempOwner); //transported artifact?
 }
 
-void CGameHandler::vistiCastleObjects (const CGTownInstance *t, const CGHeroInstance *h)
+void CGameHandler::visitCastleObjects(const CGTownInstance * t, const CGHeroInstance * h)
 {
 	std::vector<CGTownBuilding*>::const_iterator i;
 	for (i = t->bonusingBuildings.begin(); i != t->bonusingBuildings.end(); i++)
@@ -3161,9 +3161,9 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 	sendAndApply(&fw);
 
 	if (t->visitingHero)
-		vistiCastleObjects (t, t->visitingHero);
+		visitCastleObjects(t, t->visitingHero);
 	if (t->garrisonHero)
-		vistiCastleObjects (t, t->garrisonHero);
+		visitCastleObjects(t, t->garrisonHero);
 
 	checkVictoryLossConditionsForPlayer(t->tempOwner);
 	return true;
@@ -3828,7 +3828,7 @@ bool CGameHandler::hireHero(const CGObjectInstance *obj, ui8 hid, PlayerColor pl
 
 	if (t)
 	{
-		vistiCastleObjects (t, nh);
+		visitCastleObjects(t, nh);
 		giveSpells (t,nh);
 	}
 	return true;

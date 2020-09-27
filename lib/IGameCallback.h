@@ -80,6 +80,7 @@ public:
 
 	virtual void showCompInfo(ShowInInfobox * comp)=0;
 	virtual void heroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero)=0;
+	virtual void visitCastleObjects(const CGTownInstance * obj, const CGHeroInstance * hero)=0;
 	virtual void stopHeroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero)=0;
 	virtual void startBattlePrimary(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank = false, const CGTownInstance *town = nullptr)=0; //use hero=nullptr for no hero
 	virtual void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, bool creatureBank = false)=0; //if any of armies is hero, hero will be used

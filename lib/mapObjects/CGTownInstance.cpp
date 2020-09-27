@@ -798,6 +798,14 @@ void CGTownInstance::newTurn(CRandomGenerator & rand) const
 				cb->setObjProperty (id, ObjProperty::STRUCTURE_CLEAR_VISITORS, (elem)->id); //reset visitors for Mana Vortex
 		}
 
+		//get Mana Vortex or Stables bonuses
+		//same code is in the CGameHandler::buildStructure method
+		if (visitingHero != nullptr)
+			cb->visitCastleObjects(this, visitingHero);
+
+		if (garrisonHero != nullptr)
+			cb->visitCastleObjects(this, garrisonHero);
+
 		if (tempOwner == PlayerColor::NEUTRAL) //garrison growth for neutral towns
 			{
 				std::vector<SlotID> nativeCrits; //slots
@@ -1536,13 +1544,15 @@ void COPWBonus::onHeroVisit (const CGHeroInstance * h) const
 				}
 				break;
 			case ETownType::DUNGEON: //Mana Vortex
-				if (visitors.empty() && h->mana <= h->manaLimit() * 2)
+				if (visitors.empty())
 				{
-					cb->setManaPoints (heroID, 2 * h->manaLimit());
+					if (h->mana < h->manaLimit() * 2)
+						cb->setManaPoints(heroID, 2 * h->manaLimit());
 					//TODO: investigate line below
 					//cb->setObjProperty (town->id, ObjProperty::VISITED, true);
 					iw.text << VLC->generaltexth->allTexts[579];
 					cb->showInfoDialog(&iw);
+					//extra visit penalty if hero alredy had double mana points (or even more?!)
 					town->addHeroToStructureVisitors(h, id);
 				}
 				break;
