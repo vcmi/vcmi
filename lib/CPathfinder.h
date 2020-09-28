@@ -118,11 +118,11 @@ struct DLL_LINKAGE CGPathNode
 		{
 			if(getUpNode)
 			{
-				pq->increase(this->pqHandle, this);
+				pq->increase(this->pqHandle);
 			}
 			else
 			{
-				pq->decrease(this->pqHandle, this);
+				pq->decrease(this->pqHandle);
 			}
 		}
 	}

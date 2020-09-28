@@ -181,7 +181,7 @@ public:
 	void setPortalDwelling(const CGTownInstance * town, bool forced, bool clear);
 	void visitObjectOnTile(const TerrainTile &t, const CGHeroInstance * h);
 	bool teleportHero(ObjectInstanceID hid, ObjectInstanceID dstid, ui8 source, PlayerColor asker = PlayerColor::NEUTRAL);
-	void vistiCastleObjects (const CGTownInstance *t, const CGHeroInstance *h);
+	void visitCastleObjects(const CGTownInstance * obj, const CGHeroInstance * hero) override;
 	void levelUpHero(const CGHeroInstance * hero, SecondarySkill skill);//handle client respond and send one more request if needed
 	void levelUpHero(const CGHeroInstance * hero);//initial call - check if hero have remaining levelups & handle them
 	void levelUpCommander (const CCommanderInstance * c, int skill); //secondary skill 1 to 6, special skill : skill - 100
