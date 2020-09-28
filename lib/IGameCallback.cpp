@@ -62,7 +62,7 @@ void CPrivilegedInfoCallback::getTilesInRange(std::unordered_set<int3, ShashInt3
 		logGlobal->error("Illegal call to getTilesInRange!");
 		return;
 	}
-	if (radious == -1) //reveal entire map
+	if (radious > 5000) //reveal entire map
 		getAllTiles (tiles, player, -1, 0);
 	else
 	{
@@ -77,8 +77,8 @@ void CPrivilegedInfoCallback::getTilesInRange(std::unordered_set<int3, ShashInt3
 				if(distance <= radious)
 				{
 					if(!player
-						|| (mode == 1  && team->fogOfWarMap[xd][yd][pos.z]==0)
-						|| (mode == -1 && team->fogOfWarMap[xd][yd][pos.z]==1)
+						|| (mode == 1  && team->fogOfWarMap[xd][yd][pos.z] == 0)
+						|| (mode == -1 && team->fogOfWarMap[xd][yd][pos.z] > 0)
 					)
 						tiles.insert(int3(xd,yd,pos.z));
 				}

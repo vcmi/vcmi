@@ -183,6 +183,10 @@ public:
 	std::vector<CGObjectInstance*> guardingCreatures (int3 pos) const;
 	void updateRumor();
 
+	void initSightMap();
+	void addSightObj(const CGObjectInstance * obj, bool add = true);
+	void removeSightnObj(const CGObjectInstance * obj);
+
 	// ----- victory, loss condition checks -----
 
 	EVictoryLossCheckResult checkForVictoryAndLoss(PlayerColor player) const;
@@ -273,6 +277,7 @@ private:
 	void initStartingResources();
 	void initHeroes();
 	void giveCampaignBonusToHero(CGHeroInstance * hero);
+	void addSightObj(TeamID team, const CGObjectInstance * obj, bool add = true);
 	void initFogOfWar();
 	void initStartingBonus();
 	void initTowns();

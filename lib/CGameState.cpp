@@ -732,6 +732,7 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, bool allow
 	buildBonusSystemTree();
 	initVisitingAndGarrisonedHeroes();
 	initFogOfWar();
+	initSightMap();
 
 	// Explicitly initialize static variables
 	for(auto & elem : players)
@@ -1509,6 +1510,62 @@ void CGameState::giveCampaignBonusToHero(CGHeroInstance * hero)
 	}
 }
 
+void CGameState::removeSightnObj(const CGObjectInstance * obj)
+{
+	addSightObj(obj, false);
+}
+
+void CGameState::addSightObj(const CGObjectInstance * obj, bool add)
+{
+	assert(obj);
+	if(!vstd::contains(players, obj->tempOwner))
+		return;
+
+	auto p = getPlayer(obj->tempOwner);
+	if(p->status != EPlayerStatus::INGAME)
+		return;
+
+	addSightObj(p->team, obj, add);
+}
+
+void CGameState::addSightObj(TeamID team, const CGObjectInstance * obj, bool add)
+{
+	auto ts = getTeam(team);
+	std::unordered_set<int3, ShashInt3> tiles;
+	getTilesInRange(tiles, obj->getSightCenter(), obj->getSightRadius());
+	for(int3 t : tiles)
+	{
+		/// This code expect that tile can't be within sight range of more than 254 player-owned objects
+		/// Assert is best way to do these checks since if they fail that's mean code is broken
+		assert(ts->fogOfWarMap[t.x][t.y][t.z] != 255);
+		if(add)
+		{
+			if(ts->fogOfWarMap[t.x][t.y][t.z] == FoWChange::HIDDEN)
+				ts->fogOfWarMap[t.x][t.y][t.z] = FoWChange::WITHIN_SIGHT_RANGE; //Object revealed tile
+			else
+				ts->fogOfWarMap[t.x][t.y][t.z]++; //One more object have sight over tile
+		}
+		else
+		{
+			/// There was no objects with sight over this tile, but for some reason we try to remove sight anyway
+			/// That's mean when ownership or sight radius of object changed sight map wasn't appropriately updated
+			assert(ts->fogOfWarMap[t.x][t.y][t.z] == FoWChange::REVEALED);
+			ts->fogOfWarMap[t.x][t.y][t.z]--;
+		}
+	}
+}
+
+void CGameState::initSightMap()
+{
+	for(CGObjectInstance * obj : map->objects)
+	{
+		if(!obj)
+			continue; //not a flagged object
+
+		addSightObj(obj);
+	}
+}
+
 void CGameState::initFogOfWar()
 {
 	logGlobal->debug("\tFog of war"); //FIXME: should be initialized after all bonuses are set
@@ -1526,18 +1583,6 @@ void CGameState::initFogOfWar()
 			for(int h=0; h<map->height; ++h)
 				for(int v = 0; v < (map->twoLevel ? 2 : 1); ++v)
 					elem.second.fogOfWarMap[g][h][v] = 0;
-
-		for(CGObjectInstance *obj : map->objects)
-		{
-			if(!obj || !vstd::contains(elem.second.players, obj->tempOwner)) continue; //not a flagged object
-
-			std::unordered_set<int3, ShashInt3> tiles;
-			getTilesInRange(tiles, obj->getSightCenter(), obj->getSightRadius(), obj->tempOwner, 1);
-			for(int3 tile : tiles)
-			{
-				elem.second.fogOfWarMap[tile.x][tile.y][tile.z] = 1;
-			}
-		}
 	}
 }
 

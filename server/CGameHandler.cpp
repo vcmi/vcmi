@@ -1856,26 +1856,6 @@ void CGameHandler::newTurn()
 		{
 			n.res[player] = n.res[player] + t->dailyIncome();
 		}
-		if (t->hasBuilt(BuildingID::GRAIL, ETownType::TOWER))
-		{
-			// Skyship, probably easier to handle same as Veil of darkness
-			//do it every new day after veils apply
-			if (player != PlayerColor::NEUTRAL) //do not reveal fow for neutral player
-			{
-				FoWChange fw;
-				fw.mode = 1;
-				fw.player = player;
-				// find all hidden tiles
-				const auto & fow = getPlayerTeam(player)->fogOfWarMap;
-				for (size_t i=0; i<fow.size(); i++)
-					for (size_t j=0; j<fow.at(i).size(); j++)
-						for (size_t k=0; k<fow.at(i).at(j).size(); k++)
-							if (!fow.at(i).at(j).at(k))
-								fw.tiles.insert(int3(i,j,k));
-
-				sendAndApply (&fw);
-			}
-		}
 		if (t->hasBonusOfType (Bonus::DARKNESS))
 		{
 			for (auto & player : gs->players)
@@ -3156,7 +3136,7 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 	// now when everything is built - reveal tiles for lookout tower
 	FoWChange fw;
 	fw.player = t->tempOwner;
-	fw.mode = 1;
+	fw.mode = FoWChange::REVEALED;
 	getTilesInRange(fw.tiles, t->getSightCenter(), t->getSightRadius(), t->tempOwner, 1);
 	sendAndApply(&fw);
 
@@ -6589,21 +6569,6 @@ void CGameHandler::changeFogOfWar(int3 center, ui32 radius, PlayerColor player, 
 {
 	std::unordered_set<int3, ShashInt3> tiles;
 	getTilesInRange(tiles, center, radius, player, hide? -1 : 1);
-	if (hide)
-	{
-		std::unordered_set<int3, ShashInt3> observedTiles; //do not hide tiles observed by heroes. May lead to disastrous AI problems
-		auto p = getPlayer(player);
-		for (auto h : p->heroes)
-		{
-			getTilesInRange(observedTiles, h->getSightCenter(), h->getSightRadius(), h->tempOwner, -1);
-		}
-		for (auto t : p->towns)
-		{
-			getTilesInRange(observedTiles, t->getSightCenter(), t->getSightRadius(), t->tempOwner, -1);
-		}
-		for (auto tile : observedTiles)
-			vstd::erase_if_present (tiles, tile);
-	}
 	changeFogOfWar(tiles, player, hide);
 }
 
@@ -6612,7 +6577,7 @@ void CGameHandler::changeFogOfWar(std::unordered_set<int3, ShashInt3> &tiles, Pl
 	FoWChange fow;
 	fow.tiles = tiles;
 	fow.player = player;
-	fow.mode = hide? 0 : 1;
+	fow.mode = hide ? FoWChange::HIDDEN : FoWChange::REVEALED;
 	sendAndApply(&fow);
 }
 
