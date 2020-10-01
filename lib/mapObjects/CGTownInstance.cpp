@@ -556,13 +556,13 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 		ret.entries.push_back(GrowthInfo::Entry(VLC->generaltexth->allTexts[591], dwellingBonus));// \nExternal dwellings %+d
 
 	//other *-of-legion-like bonuses (%d to growth cumulative with grail)
-	TBonusListPtr bonuses = getBonuses(Selector::type(Bonus::CREATURE_GROWTH).And(Selector::subtype(level)));
-	for(const std::shared_ptr<Bonus> b : *bonuses)
+	TConstBonusListPtr bonuses = getBonuses(Selector::type(Bonus::CREATURE_GROWTH).And(Selector::subtype(level)));
+	for(const auto & b : *bonuses)
 		ret.entries.push_back(GrowthInfo::Entry(b->val, b->Description()));
 
 	//statue-of-legion-like bonus: % to base+castle
-	TBonusListPtr bonuses2 = getBonuses(Selector::type(Bonus::CREATURE_GROWTH_PERCENT));
-	for(const std::shared_ptr<Bonus> b : *bonuses2)
+	TConstBonusListPtr bonuses2 = getBonuses(Selector::type(Bonus::CREATURE_GROWTH_PERCENT));
+	for(const auto & b : *bonuses2)
 		ret.entries.push_back(GrowthInfo::Entry(b->val * (base + castleBonus) / 100, b->Description()));
 
 	if(hasBuilt(BuildingID::GRAIL)) //grail - +50% to ALL (so far added) growth

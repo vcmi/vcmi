@@ -1015,7 +1015,7 @@ bool CPathfinderHelper::passOneTurnLimitCheck(const PathNodeInfo & source) const
 	return true;
 }
 
-TurnInfo::BonusCache::BonusCache(TBonusListPtr bl)
+TurnInfo::BonusCache::BonusCache(TConstBonusListPtr bl)
 {
 	noTerrainPenalty.reserve(ETerrainType::ROCK);
 	for(int i = 0; i < ETerrainType::ROCK; i++)

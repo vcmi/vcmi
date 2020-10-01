@@ -151,7 +151,7 @@ void Timed::prepareEffects(SetStackEffect & sse, const Mechanics * m, const Effe
 	std::vector<Bonus> converted;
     convertBonus(m, duration, converted);
 
-	std::shared_ptr<Bonus> bonus = nullptr;
+	std::shared_ptr<const Bonus> bonus = nullptr;
 	auto casterHero = dynamic_cast<const CGHeroInstance *>(m->caster);
 	if(casterHero)
 		bonus = casterHero->getBonusLocalFirst(Selector::typeSubtype(Bonus::SPECIAL_PECULIAR_ENCHANT, m->getSpellIndex()));

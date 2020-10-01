@@ -22,6 +22,7 @@ class IUpdater;
 class BonusList;
 
 typedef std::shared_ptr<BonusList> TBonusListPtr;
+typedef std::shared_ptr<const BonusList> TConstBonusListPtr;
 typedef std::shared_ptr<ILimiter> TLimiterPtr;
 typedef std::shared_ptr<IPropagator> TPropagatorPtr;
 typedef std::shared_ptr<IUpdater> TUpdaterPtr;
@@ -77,14 +78,14 @@ public:
 	CBonusProxy & operator=(CBonusProxy && other);
 	CBonusProxy & operator=(const CBonusProxy & other);
 
-	TBonusListPtr get() const;
+	TConstBonusListPtr get() const;
 
 	const BonusList * operator->() const;
 private:
 	mutable int64_t cachedLast;
 	const IBonusBearer * target;
 	CSelector selector;
-	mutable TBonusListPtr data;
+	mutable TConstBonusListPtr data;
 };
 
 class DLL_LINKAGE CTotalsProxy
@@ -568,7 +569,7 @@ public:
 
 	//special find functions
 	std::shared_ptr<Bonus> getFirst(const CSelector &select);
-	const std::shared_ptr<Bonus> getFirst(const CSelector &select) const;
+	std::shared_ptr<const Bonus> getFirst(const CSelector &select) const;
 	int valOfBonuses(const CSelector &select) const;
 
 	// conversion / output
@@ -662,7 +663,7 @@ public:
 
 struct BonusLimitationContext
 {
-	const std::shared_ptr<Bonus> b;
+	std::shared_ptr<const Bonus> b;
 	const CBonusSystemNode & node;
 	const BonusList & alreadyAccepted;
 	const BonusList & stillUndecided;
@@ -700,14 +701,14 @@ public:
 	// * root is node on which call was made (nullptr will be replaced with this)
 	//interface
 	IBonusBearer();
-	virtual const TBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = nullptr, const std::string &cachingStr = "") const = 0;
+	virtual TConstBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = nullptr, const std::string &cachingStr = "") const = 0;
 	int valOfBonuses(const CSelector &selector, const std::string &cachingStr = "") const;
 	bool hasBonus(const CSelector &selector, const std::string &cachingStr = "") const;
 	bool hasBonus(const CSelector &selector, const CSelector &limit, const std::string &cachingStr = "") const;
-	const TBonusListPtr getBonuses(const CSelector &selector, const CSelector &limit, const std::string &cachingStr = "") const;
-	const TBonusListPtr getBonuses(const CSelector &selector, const std::string &cachingStr = "") const;
+	TConstBonusListPtr getBonuses(const CSelector &selector, const CSelector &limit, const std::string &cachingStr = "") const;
+	TConstBonusListPtr getBonuses(const CSelector &selector, const std::string &cachingStr = "") const;
 
-	const std::shared_ptr<Bonus> getBonus(const CSelector &selector) const; //returns any bonus visible on node that matches (or nullptr if none matches)
+	std::shared_ptr<const Bonus> getBonus(const CSelector &selector) const; //returns any bonus visible on node that matches (or nullptr if none matches)
 
 	//legacy interface
 	int valOfBonuses(Bonus::BonusType type, const CSelector &selector) const;
@@ -766,8 +767,8 @@ private:
 
 	void getBonusesRec(BonusList &out, const CSelector &selector, const CSelector &limit) const;
 	void getAllBonusesRec(BonusList &out) const;
-	const TBonusListPtr getAllBonusesWithoutCaching(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = nullptr) const;
-	const std::shared_ptr<Bonus> update(const std::shared_ptr<Bonus> b) const;
+	TConstBonusListPtr getAllBonusesWithoutCaching(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = nullptr) const;
+	std::shared_ptr<Bonus> update(const std::shared_ptr<Bonus> & b) const;
 
 public:
 	explicit CBonusSystemNode();
@@ -777,9 +778,9 @@ public:
 
 	void limitBonuses(const BonusList &allBonuses, BonusList &out) const; //out will bo populed with bonuses that are not limited here
 	TBonusListPtr limitBonuses(const BonusList &allBonuses) const; //same as above, returns out by val for convienence
-	const TBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = nullptr, const std::string &cachingStr = "") const override;
+	TConstBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = nullptr, const std::string &cachingStr = "") const override;
 	void getParents(TCNodes &out) const;  //retrieves list of parent nodes (nodes to inherit bonuses from),
-	const std::shared_ptr<Bonus> getBonusLocalFirst(const CSelector &selector) const;
+	std::shared_ptr<const Bonus> getBonusLocalFirst(const CSelector &selector) const;
 
 	//non-const interface
 	void getParents(TNodes &out);  //retrieves list of parent nodes (nodes to inherit bonuses from)
@@ -1165,7 +1166,7 @@ class DLL_LINKAGE IUpdater
 public:
 	virtual ~IUpdater();
 
-	virtual const std::shared_ptr<Bonus> update(const std::shared_ptr<Bonus> b, const CBonusSystemNode & context) const;
+	virtual std::shared_ptr<Bonus> update(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const;
 	virtual std::string toString() const;
 	virtual JsonNode toJsonNode() const;
 
@@ -1190,7 +1191,7 @@ public:
 		h & stepSize;
 	}
 
-	const std::shared_ptr<Bonus> update(const std::shared_ptr<Bonus> b, const CBonusSystemNode & context) const override;
+	std::shared_ptr<Bonus> update(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const override;
 	virtual std::string toString() const override;
 	virtual JsonNode toJsonNode() const override;
 };
@@ -1205,7 +1206,7 @@ public:
 		h & static_cast<IUpdater &>(*this);
 	}
 
-	const std::shared_ptr<Bonus> update(const std::shared_ptr<Bonus> b, const CBonusSystemNode & context) const override;
+	std::shared_ptr<Bonus> update(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const override;
 	virtual std::string toString() const override;
 	virtual JsonNode toJsonNode() const override;
 };
@@ -1220,7 +1221,7 @@ public:
 		h & static_cast<IUpdater &>(*this);
 	}
 
-	const std::shared_ptr<Bonus> update(const std::shared_ptr<Bonus> b, const CBonusSystemNode & context) const override;
+	std::shared_ptr<Bonus> update(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const override;
 	virtual std::string toString() const override;
 	virtual JsonNode toJsonNode() const override;
 };

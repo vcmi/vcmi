@@ -115,7 +115,7 @@ protected:
 		std::stringstream cachingStr;
 		cachingStr << "type_" << Bonus::LEVEL_SPELL_IMMUNITY << "addInfo_1";
 
-		TBonusListPtr levelImmunities = target->getBonuses(Selector::type(Bonus::LEVEL_SPELL_IMMUNITY).And(Selector::info(1)), cachingStr.str());
+		TConstBonusListPtr levelImmunities = target->getBonuses(Selector::type(Bonus::LEVEL_SPELL_IMMUNITY).And(Selector::info(1)), cachingStr.str());
 		
 		return levelImmunities->size() == 0 ||
 		levelImmunities->totalValue() < m->getSpellLevel() ||
@@ -190,7 +190,7 @@ public:
 protected:
 	bool check(const Mechanics * m, const battle::Unit * target) const override
 	{
-		TBonusListPtr levelImmunities = target->getBonuses(Selector::type(Bonus::LEVEL_SPELL_IMMUNITY));
+		TConstBonusListPtr levelImmunities = target->getBonuses(Selector::type(Bonus::LEVEL_SPELL_IMMUNITY));
 		return levelImmunities->size() == 0 ||
 		levelImmunities->totalValue() < m->getSpellLevel() ||
 		m->getSpellLevel() <= 0;

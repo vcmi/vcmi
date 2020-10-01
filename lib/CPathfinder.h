@@ -507,12 +507,12 @@ struct DLL_LINKAGE TurnInfo
 		bool waterWalking;
 		int waterWalkingVal;
 
-		BonusCache(TBonusListPtr bonusList);
+		BonusCache(TConstBonusListPtr bonusList);
 	};
 	std::unique_ptr<BonusCache> bonusCache;
 
 	const CGHeroInstance * hero;
-	TBonusListPtr bonuses;
+	TConstBonusListPtr bonuses;
 	mutable int maxMovePointsLand;
 	mutable int maxMovePointsWater;
 	int nativeTerrain;

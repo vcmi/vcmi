@@ -97,11 +97,11 @@ SlotID StackWithBonuses::unitSlot() const
 	return slot;
 }
 
-const TBonusListPtr StackWithBonuses::getAllBonuses(const CSelector & selector, const CSelector & limit,
+TConstBonusListPtr StackWithBonuses::getAllBonuses(const CSelector & selector, const CSelector & limit,
 	const CBonusSystemNode * root, const std::string & cachingStr) const
 {
 	TBonusListPtr ret = std::make_shared<BonusList>();
-	const TBonusListPtr originalList = origBearer->getAllBonuses(selector, limit, root, cachingStr);
+	TConstBonusListPtr originalList = origBearer->getAllBonuses(selector, limit, root, cachingStr);
 
 	vstd::copy_if(*originalList, std::back_inserter(*ret), [this](const std::shared_ptr<Bonus> & b)
 	{
@@ -177,7 +177,7 @@ void StackWithBonuses::removeUnitBonus(const std::vector<Bonus> & bonus)
 
 void StackWithBonuses::removeUnitBonus(const CSelector & selector)
 {
-	TBonusListPtr toRemove = origBearer->getBonuses(selector);
+	TConstBonusListPtr toRemove = origBearer->getBonuses(selector);
 
 	for(auto b : *toRemove)
 		bonusesToRemove.insert(b);

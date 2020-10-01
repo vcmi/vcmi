@@ -141,8 +141,8 @@ std::vector<si32> CStack::activeSpells() const
 		return b->type != Bonus::NONE;
 	}));
 
-	TBonusListPtr spellEffects = getBonuses(selector, Selector::all, cachingStr.str());
-	for(const std::shared_ptr<Bonus> it : *spellEffects)
+	TConstBonusListPtr spellEffects = getBonuses(selector, Selector::all, cachingStr.str());
+	for(const auto & it : *spellEffects)
 	{
 		if(!vstd::contains(ret, it->sid))  //do not duplicate spells with multiple effects
 			ret.push_back(it->sid);

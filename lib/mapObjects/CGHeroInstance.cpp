@@ -816,7 +816,7 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 		// figure out what to raise - pick strongest creature meeting requirements
 		CreatureID creatureTypeRaised = CreatureID::SKELETON;
 		int requiredCasualtyLevel = 1;
-		const TBonusListPtr improvedNecromancy = getBonuses(Selector::type(Bonus::IMPROVED_NECROMANCY));
+		TConstBonusListPtr improvedNecromancy = getBonuses(Selector::type(Bonus::IMPROVED_NECROMANCY));
 		if(!improvedNecromancy->empty())
 		{
 			auto getCreatureID = [necromancyLevel](std::shared_ptr<Bonus> bonus) -> CreatureID
