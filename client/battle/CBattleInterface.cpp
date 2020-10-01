@@ -78,13 +78,14 @@ static void transformPalette(SDL_Surface *surf, double rCor, double gCor, double
 	SDL_Color *colorsToChange = surf->format->palette->colors;
 	for (int g=0; g<surf->format->palette->ncolors; ++g)
 	{
-		if ((colorsToChange+g)->b != 132 &&
-			(colorsToChange+g)->g != 231 &&
-			(colorsToChange+g)->r != 255) //it's not yellow border
+		SDL_Color *color = &colorsToChange[g];
+		if (color->b != 132 &&
+			color->g != 231 &&
+			color->r != 255) //it's not yellow border
 		{
-			(colorsToChange+g)->r = static_cast<double>((colorsToChange+g)->r) *rCor;
-			(colorsToChange+g)->g = static_cast<double>((colorsToChange+g)->g) *gCor;
-			(colorsToChange+g)->b = static_cast<double>((colorsToChange+g)->b) *bCor;
+            color->r = static_cast<Uint8>(color->r * rCor);
+            color->g = static_cast<Uint8>(color->g * gCor);
+            color->b = static_cast<Uint8>(color->b * bCor);
 		}
 	}
 }
@@ -708,7 +709,7 @@ void CBattleInterface::setBattleCursor(const int myNumber)
 		sectorCursor.insert(sectorCursor.begin() + 2, aboveAttackable ? 14 : -1);
 
 		if (sector < 1.5)
-			cursorIndex = sector;
+			cursorIndex = static_cast<int>(sector);
 		else if (sector >= 1.5 && sector < 2.5)
 			cursorIndex = 2;
 		else if (sector >= 2.5 && sector < 4.5)
@@ -720,7 +721,7 @@ void CBattleInterface::setBattleCursor(const int myNumber)
 	}
 	else
 	{
-		cursorIndex = sector;
+		cursorIndex = static_cast<int>(sector);
 	}
 
 	// Generally should NEVER happen, but to avoid the possibility of having endless loop below... [#1016]
@@ -1082,7 +1083,7 @@ void CBattleInterface::stacksAreAttacked(std::vector<StackAttackedInfo> attacked
 	for(const StackAttackedInfo & attackedInfo : attackedInfos)
 	{
 		++targets;
-		damage += attackedInfo.dmg;
+		damage += (int)attackedInfo.dmg;
 
 		ui8 side = attackedInfo.defender->side;
 		killedBySide.at(side) += attackedInfo.amountKilled;
@@ -1348,7 +1349,7 @@ void CBattleInterface::spellCast(const BattleSpellCast * sc)
 			double diffY = (destcoord.y - srccoord.y)*(destcoord.y - srccoord.y);
 			double distance = sqrt(diffX + diffY);
 
-			int steps = distance / AnimationControls::getSpellEffectSpeed() + 1;
+			int steps = static_cast<int>(distance / AnimationControls::getSpellEffectSpeed() + 1);
 			int dx = (destcoord.x - srccoord.x - first->width())/steps;
 			int dy = (destcoord.y - srccoord.y - first->height())/steps;
 
@@ -1576,9 +1577,9 @@ void CBattleInterface::setAnimSpeed(int set)
 int CBattleInterface::getAnimSpeed() const
 {
 	if(settings["session"]["spectate"].Bool() && !settings["session"]["spectate-battle-speed"].isNull())
-		return vstd::round(settings["session"]["spectate-battle-speed"].Float() *100);
+		return static_cast<int>(vstd::round(settings["session"]["spectate-battle-speed"].Float() *100));
 
-	return vstd::round(settings["battle"]["animationSpeed"].Float() *100);
+	return static_cast<int>(vstd::round(settings["battle"]["animationSpeed"].Float() *100));
 }
 
 CPlayerInterface *CBattleInterface::getCurrentPlayerInterface() const
@@ -2333,7 +2334,8 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 						}
 					};
 
-					std::string estDmgText = formatDmgRange(curInt->cb->battleEstimateDamage(activeStack, shere)); //calculating estimated dmg
+					TDmgRange damage = curInt->cb->battleEstimateDamage(activeStack, shere);
+					std::string estDmgText = formatDmgRange(std::make_pair((ui32)damage.first, (ui32)damage.second)); //calculating estimated dmg
 					consoleMsg = (boost::format(CGI->generaltexth->allTexts[36]) % shere->getName() % estDmgText).str(); //Attack %s (%s damage)
 				}
 				break;
@@ -2345,7 +2347,8 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 					cursorFrame = ECursor::COMBAT_SHOOT;
 
 				realizeAction = [=](){giveCommand(EActionType::SHOOT, myNumber);};
-				std::string estDmgText = formatDmgRange(curInt->cb->battleEstimateDamage(activeStack, shere)); //calculating estimated dmg
+                TDmgRange damage = curInt->cb->battleEstimateDamage(activeStack, shere);
+				std::string estDmgText = formatDmgRange(std::make_pair((ui32)damage.first, (ui32)damage.second)); //calculating estimated dmg
 				//printing - Shoot %s (%d shots left, %s damage)
 				consoleMsg = (boost::format(CGI->generaltexth->allTexts[296]) % shere->getName() % activeStack->shots.available() % estDmgText).str();
 			}
@@ -3227,8 +3230,8 @@ void CBattleInterface::showProjectiles(SDL_Surface *to)
 			SDL_Rect dst;
 			dst.h = image->height();
 			dst.w = image->width();
-			dst.x = it->x - dst.w / 2;
-			dst.y = it->y - dst.h / 2;
+			dst.x = static_cast<int>(it->x - dst.w / 2);
+			dst.y = static_cast<int>(it->y - dst.h / 2);
 
 			image->draw(to, &dst, nullptr);
 		}
@@ -3426,7 +3429,7 @@ void CBattleInterface::showBattleEffects(SDL_Surface *to, const std::vector<cons
 {
 	for (auto & elem : battleEffects)
 	{
-		int currentFrame = floor(elem->currentFrame);
+		int currentFrame = static_cast<int>(floor(elem->currentFrame));
 		currentFrame %= elem->animation->size();
 
 		auto img = elem->animation->getImage(currentFrame);
@@ -3611,7 +3614,7 @@ void CBattleInterface::updateBattleAnimations()
 	}
 
 	//delete anims
-	int preSize = pendingAnims.size();
+	int preSize = static_cast<int>(pendingAnims.size());
 	for (auto it = pendingAnims.begin(); it != pendingAnims.end(); ++it)
 	{
 		if (it->first == nullptr)

@@ -219,7 +219,7 @@ namespace TriggeredEventsDetail
 						event.objectType = type.get();
 					event.objectInstanceName = data["object"].String();
 					if(data["value"].isNumber())
-						event.value = data["value"].Integer();
+						event.value = static_cast<si32>(data["value"].Integer());
 				}
 				break;
 			case EventCondition::HAVE_BUILDING_0:
@@ -240,10 +240,10 @@ namespace TriggeredEventsDetail
 					}
 
 					if (data["type"].isNumber())
-						event.objectType = data["type"].Float();
+						event.objectType = static_cast<si32>(data["type"].Float());
 
 					if (!data["value"].isNull())
-						event.value = data["value"].Float();
+						event.value = static_cast<si32>(data["value"].Float());
 				}
 				break;
 			}
@@ -251,9 +251,9 @@ namespace TriggeredEventsDetail
 			if (!data["position"].isNull())
 			{
 				auto & position = data["position"].Vector();
-				event.position.x = position.at(0).Float();
-				event.position.y = position.at(1).Float();
-				event.position.z = position.at(2).Float();
+				event.position.x = static_cast<si32>(position.at(0).Float());
+				event.position.y = static_cast<si32>(position.at(1).Float());
+				event.position.z = static_cast<si32>(position.at(2).Float());
 			}
 		}
 		return event;
@@ -380,7 +380,7 @@ void CMapFormatJson::serializeAllowedFactions(JsonSerializeFormat & handler, std
 		value.clear();
 		for (std::size_t i=0; i<temp.size(); i++)
 			if(temp[i])
-				value.insert(i);
+				value.insert((TFaction)i);
 	}
 }
 
@@ -580,7 +580,7 @@ void CMapFormatJson::readTeams(JsonDeserializer & handler)
 	else
 	{
 		const JsonVector & srcVector = src.Vector();
-		mapHeader->howManyTeams = srcVector.size();
+		mapHeader->howManyTeams = static_cast<ui8>(srcVector.size());
 
 		for(int team = 0; team < mapHeader->howManyTeams; team++)
 			for(const JsonNode & playerData : srcVector[team].Vector())
@@ -911,7 +911,7 @@ void CMapLoaderJson::readHeader(const bool complete)
 	//do not use map field here, use only mapHeader
 	JsonNode header = getFromArchive(HEADER_FILE_NAME);
 
-	fileVersionMajor = header["versionMajor"].Integer();
+	fileVersionMajor = static_cast<int>(header["versionMajor"].Integer());
 
 	if(fileVersionMajor != VERSION_MAJOR)
 	{
@@ -919,7 +919,7 @@ void CMapLoaderJson::readHeader(const bool complete)
 		throw std::runtime_error("Unsupported map format version");
 	}
 
-	fileVersionMinor = header["versionMinor"].Integer();
+	fileVersionMinor = static_cast<int>(header["versionMinor"].Integer());
 
 	if(fileVersionMinor > VERSION_MINOR)
 	{
@@ -1114,16 +1114,16 @@ void CMapLoaderJson::MapObjectLoader::construct()
 	}
 
 	int3 pos;
-	pos.x = configuration["x"].Float();
-	pos.y = configuration["y"].Float();
-	pos.z = configuration["l"].Float();
+	pos.x = static_cast<si32>(configuration["x"].Float());
+	pos.y = static_cast<si32>(configuration["y"].Float());
+	pos.z = static_cast<si32>(configuration["l"].Float());
 
 	//special case for grail
     if(typeName == "grail")
 	{
 		owner->map->grailPos = pos;
 
-		owner->map->grailRadius = configuration["options"]["grailRadius"].Float();
+		owner->map->grailRadius = static_cast<int>(configuration["options"]["grailRadius"].Float());
 		return;
 	}
 	else if(subtypeName.empty())
@@ -1143,7 +1143,7 @@ void CMapLoaderJson::MapObjectLoader::construct()
 
 	instance = handler->create(appearance);
 
-	instance->id = ObjectInstanceID(owner->map->objects.size());
+	instance->id = ObjectInstanceID((si32)owner->map->objects.size());
 	instance->instanceName = jsonKey;
 	instance->pos = pos;
 	owner->map->addNewObject(instance);

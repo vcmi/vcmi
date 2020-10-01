@@ -163,7 +163,7 @@ void CPlayerInterface::yourTurn()
 		adventureInt->selection = nullptr;
 
 		std::string prefix = settings["session"]["saveprefix"].String();
-		int frequency = settings["general"]["saveFrequency"].Integer();
+		int frequency = static_cast<int>(settings["general"]["saveFrequency"].Integer());
 		if (firstCall)
 		{
 			if(CSH->howManyPlayerInterfaces() == 1)
@@ -320,12 +320,12 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 	if(settings["session"]["spectate"].Bool())
 	{
 		if(!settings["session"]["spectate-hero-speed"].isNull())
-			speed = settings["session"]["spectate-hero-speed"].Integer();
+			speed = static_cast<ui32>(settings["session"]["spectate-hero-speed"].Integer());
 	}
 	else if (makingTurn) // our turn, our hero moves
-		speed = settings["adventure"]["heroSpeed"].Float();
+		speed = static_cast<ui32>(settings["adventure"]["heroSpeed"].Float());
 	else
-		speed = settings["adventure"]["enemySpeed"].Float();
+		speed = static_cast<ui32>(settings["adventure"]["enemySpeed"].Float());
 
 	if (speed == 0)
 	{
@@ -2592,7 +2592,7 @@ void CPlayerInterface::playerStartsTurn(PlayerColor player)
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if (!vstd::contains (GH.listInt, adventureInt))
 	{
-		GH.popInts (GH.listInt.size()); //after map load - remove everything else
+		GH.popInts ((int)GH.listInt.size()); //after map load - remove everything else
 		GH.pushInt (adventureInt);
 	}
 	else
@@ -2729,7 +2729,7 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 			return false;
 		};
 
-		for (i=path.nodes.size()-1; i>0 && (stillMoveHero.data == CONTINUE_MOVE || !canStop(&path.nodes[i])); i--)
+		for (i=(int)path.nodes.size()-1; i>0 && (stillMoveHero.data == CONTINUE_MOVE || !canStop(&path.nodes[i])); i--)
 		{
 			int3 currentCoord = path.nodes[i].coord;
 			int3 nextCoord = path.nodes[i-1].coord;

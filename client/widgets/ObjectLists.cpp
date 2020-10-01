@@ -87,7 +87,7 @@ CListBox::CListBox(CreateFunc create, Point Pos, Point ItemOffset, size_t Visibl
 	{
 		OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 		slider = std::make_shared<CSlider>(SliderPos.topLeft(), SliderPos.w, std::bind(&CListBox::moveToPos, this, _1),
-			VisibleSize, TotalSize, InitialPos, Slider & 2, Slider & 4 ? CSlider::BLUE : CSlider::BROWN);
+			(int)VisibleSize, (int)TotalSize, (int)InitialPos, Slider & 2, Slider & 4 ? CSlider::BLUE : CSlider::BROWN);
 	}
 	reset();
 }
@@ -105,7 +105,7 @@ void CListBox::updatePositions()
 	{
 		redraw();
 		if (slider)
-			slider->moveTo(first);
+			slider->moveTo((int)first);
 	}
 }
 
@@ -124,7 +124,7 @@ void CListBox::resize(size_t newSize)
 {
 	totalSize = newSize;
 	if (slider)
-		slider->setAmount(totalSize);
+		slider->setAmount((int)totalSize);
 	reset();
 }
 

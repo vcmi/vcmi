@@ -121,7 +121,7 @@ void CMapHandler::prepareFOWDefs()
 			elem[j].resize(sizes.z);
 			for(int k = 0; k < sizes.z; ++k)
 			{
-				elem[j][k] = CRandomGenerator::getDefault().nextInt(size - 1);
+				elem[j][k] = CRandomGenerator::getDefault().nextInt((int)size - 1);
 			}
 		}
 	}
@@ -617,7 +617,7 @@ void CMapHandler::CMapWorldViewBlitter::drawObject(SDL_Surface * targetSurf, std
 	if (moving)
 		return;
 
-	Rect scaledSourceRect(sourceRect->x * info->scale, sourceRect->y * info->scale, sourceRect->w, sourceRect->h);
+	Rect scaledSourceRect((int)(sourceRect->x * info->scale), (int)(sourceRect->y * info->scale), sourceRect->w, sourceRect->h);
 	CMapBlitter::drawObject(targetSurf, source, &scaledSourceRect, false);
 }
 
@@ -1295,14 +1295,14 @@ bool CMapHandler::hideObject(const CGObjectInstance * obj, bool fadeout)
 		{
 			for (size_t k = 0; k<(map->twoLevel ? 2 : 1); k++)
 			{
-				auto &objs = ttiles[i][j][k].objects;
+				auto &objs = ttiles[(int)i][(int)j][(int)k].objects;
 				for (size_t x = 0; x < objs.size(); x++)
 				{
 					if (objs[x].obj && objs[x].obj->id == obj->id)
 					{
 						if (fadeout && ADVOPT.objectFading) // object should be faded == erase is delayed until the end of fadeout
 						{
-							if (startObjectFade(objs[x], false, int3(i, j, k)))
+							if (startObjectFade(objs[x], false, int3((si32)i, (si32)j, (si32)k)))
 								objs[x].obj = nullptr;
 							else
 								objs.erase(objs.begin() + x);

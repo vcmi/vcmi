@@ -21,7 +21,7 @@ namespace {
 	{
 		MetaString ret;
 		if (value.isNumber())
-			ret.addTxt(MetaString::ADVOB_TXT, value.Float());
+			ret.addTxt(MetaString::ADVOB_TXT, static_cast<ui32>(value.Float()));
 		else
 			ret << value.String();
 		return ret;
@@ -52,20 +52,20 @@ void CRandomRewardObjectInfo::configureObject(CRewardableObject * object, CRando
 		if (!reward["appearChance"].isNull())
 		{
 			JsonNode chance = reward["appearChance"];
-			si32 diceID = chance["dice"].Float();
+			si32 diceID = static_cast<si32>(chance["dice"].Float());
 
 			if (thrownDice.count(diceID) == 0)
 				thrownDice[diceID] = rng.getIntRange(1, 100)();
 
 			if (!chance["min"].isNull())
 			{
-				int min = chance["min"].Float();
+				int min = static_cast<int>(chance["min"].Float());
 				if (min > thrownDice[diceID])
 					continue;
 			}
 			if (!chance["max"].isNull())
 			{
-				int max = chance["max"].Float();
+				int max = static_cast<int>(chance["max"].Float());
 				if (max < thrownDice[diceID])
 					continue;
 			}
@@ -103,7 +103,7 @@ void CRandomRewardObjectInfo::configureObject(CRewardableObject * object, CRando
 
 		std::vector<SpellID> spells;
 		for (size_t i=0; i<6; i++)
-			IObjectInterface::cb->getAllowedSpells(spells, i);
+			IObjectInterface::cb->getAllowedSpells(spells, static_cast<ui16>(i));
 
 		info.reward.artifacts = JsonRandom::loadArtifacts(reward["artifacts"], rng);
 		info.reward.spells = JsonRandom::loadSpells(reward["spells"], rng, spells);
@@ -119,8 +119,8 @@ void CRandomRewardObjectInfo::configureObject(CRewardableObject * object, CRando
 
 	//TODO: visitMode and selectMode
 
-	object->resetDuration = parameters["resetDuration"].Float();
-	object->canRefuse =parameters["canRefuse"].Bool();
+	object->resetDuration = static_cast<ui16>(parameters["resetDuration"].Float());
+	object->canRefuse = parameters["canRefuse"].Bool();
 }
 
 bool CRandomRewardObjectInfo::givesResources() const

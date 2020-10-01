@@ -157,7 +157,7 @@ public:
 			return (rhs.second < lhs.second);
 		}
 	};
-	boost::heap::priority_queue<TDistance, boost::heap::compare<NodeComparer>> createPiorityQueue();
+	boost::heap::priority_queue<TDistance, boost::heap::compare<NodeComparer>> createPriorityQueue();
 
 private:
 	CMapGenerator * gen;

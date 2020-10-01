@@ -12,7 +12,7 @@
 #include "../windows/CWindowObject.h"
 
 class CMultiLineLabel;
-class SDL_Surface;
+struct SDL_Surface;
 
 class CreditsScreen : public CIntObject
 {

@@ -909,7 +909,7 @@ void CGTownInstance::mergeGarrisonOnSiege() const
 		return SlotID();
 	};
 
-	int count = stacks.size();
+	int count = static_cast<int>(stacks.size());
 	for(int i = 0; i < count; i++)
 	{
 		auto pair = *vstd::maxElementByFun(stacks, [&](std::pair<SlotID, CStackInstance *> elem)
@@ -926,7 +926,7 @@ void CGTownInstance::mergeGarrisonOnSiege() const
 			cb->moveStack(StackLocation(this, pair.first), StackLocation(visitingHero, dst), -1);
 		else
 		{
-			dst = getWeakestStackSlot(pair.second->getPower());
+			dst = getWeakestStackSlot(static_cast<int>(pair.second->getPower()));
 			if(dst.validSlot())
 				cb->swapStacks(StackLocation(this, pair.first), StackLocation(visitingHero, dst));
 		}
@@ -1248,7 +1248,7 @@ const CTown * CGTownInstance::getTown() const
 int CGTownInstance::getTownLevel() const
 {
 	// count all buildings that are not upgrades
-	return boost::range::count_if(builtBuildings, [&](const BuildingID & build)
+	return (int)boost::range::count_if(builtBuildings, [&](const BuildingID & build)
 	{
 		return town->buildings.at(build) && town->buildings.at(build)->upgrade == -1;
 	});
@@ -1502,7 +1502,7 @@ COPWBonus::COPWBonus (BuildingID index, CGTownInstance *TOWN)
 {
 	ID = index;
 	town = TOWN;
-	id = town->bonusingBuildings.size();
+	id = static_cast<si32>(town->bonusingBuildings.size());
 }
 void COPWBonus::setProperty(ui8 what, ui32 val)
 {
@@ -1563,7 +1563,7 @@ CTownBonus::CTownBonus (BuildingID index, CGTownInstance *TOWN)
 {
 	ID = index;
 	town = TOWN;
-	id = town->bonusingBuildings.size();
+	id = static_cast<si32>(town->bonusingBuildings.size());
 }
 void CTownBonus::setProperty (ui8 what, ui32 val)
 {
@@ -1603,7 +1603,7 @@ void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
 						break;
 					case ETownType::DUNGEON://academy of battle scholars
 						what = PrimarySkill::EXPERIENCE;
-						val = h->calculateXp(1000);
+						val = static_cast<int>(h->calculateXp(1000));
 						mid = 583;
 						iw.components.push_back (Component(Component::EXPERIENCE, 0, val, 0));
 						break;

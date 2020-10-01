@@ -43,7 +43,7 @@ static int lodRead(void* opaque, uint8_t* buf, int size)
 {
 	auto video = reinterpret_cast<CVideoPlayer *>(opaque);
 
-	return video->data->read(buf, size);
+	return static_cast<int>(video->data->read(buf, size));
 }
 
 static si64 lodSeek(void * opaque, si64 pos, int whence)

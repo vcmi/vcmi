@@ -183,7 +183,7 @@ bool CSpell::canBeCast(spells::Problem & problem, const CBattleInfoCallback * cb
 				genProblem = ESpellCastProblem::NO_SPELLBOOK;
 			else if(!castingHero->canCastThisSpell(this))
 				genProblem = ESpellCastProblem::HERO_DOESNT_KNOW_SPELL;
-			else if(castingHero->mana < cb->battleGetSpellCost(this, castingHero)) //not enough mana
+			else if(castingHero->mana < (si32)cb->battleGetSpellCost(this, castingHero)) //not enough mana
 				genProblem = ESpellCastProblem::NOT_ENOUGH_MANA;
 		}
 		break;
@@ -631,7 +631,7 @@ std::vector<JsonNode> CSpellHandler::loadLegacyData(size_t dataSize)
 			lineNode["name"].String() = parser.readString();
 
 			parser.readString(); //ignored unused abbreviated name
-			lineNode["level"].Integer() = parser.readNumber();
+			lineNode["level"].Integer() = static_cast<si64>(parser.readNumber());
 
 			auto& schools = lineNode["school"].Struct();
 
@@ -649,13 +649,13 @@ std::vector<JsonNode> CSpellHandler::loadLegacyData(size_t dataSize)
 			};
 
 			auto costs = parser.readNumArray<si32>(GameConstants::SPELL_SCHOOL_LEVELS);
-			lineNode["power"].Integer() = parser.readNumber();
+			lineNode["power"].Integer() = static_cast<si64>(parser.readNumber());
 			auto powers = parser.readNumArray<si32>(GameConstants::SPELL_SCHOOL_LEVELS);
 
 			auto & chances = lineNode["gainChance"].Struct();
 
 			for(size_t i = 0; i < GameConstants::F_NUMBER; i++)
-				chances[ETownType::names[i]].Integer() = parser.readNumber();
+				chances[ETownType::names[i]].Integer() = static_cast<si64>(parser.readNumber());
 
 			auto AIVals = parser.readNumArray<si32>(GameConstants::SPELL_SCHOOL_LEVELS);
 
@@ -744,14 +744,14 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode & json, const std::string & 
 		spell->school[info.id] = schoolNames[info.jsonName].Bool();
 	}
 
-	spell->level = json["level"].Integer();
-	spell->power = json["power"].Integer();
+	spell->level = static_cast<si32>(json["level"].Integer());
+	spell->power = static_cast<si32>(json["power"].Integer());
 
-	spell->defaultProbability = json["defaultGainChance"].Integer();
+	spell->defaultProbability = static_cast<si32>(json["defaultGainChance"].Integer());
 
 	for(const auto & node : json["gainChance"].Struct())
 	{
-		const int chance = node.second.Integer();
+		const int chance = static_cast<int>(node.second.Integer());
 
 		VLC->modh->identifiers.requestIdentifier(node.second.meta, "faction",node.first, [=](si32 factionID)
 		{
@@ -910,7 +910,7 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode & json, const std::string & 
 			}
 			else if(item.isNumber())
 			{
-				newItem.pause = item.Float();
+				newItem.pause = static_cast<int>(item.Float());
 			}
 
 			q.push_back(newItem);
@@ -944,11 +944,11 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode & json, const std::string & 
 
 		CSpell::LevelInfo & levelObject = spell->levels[levelIndex];
 
-		const si32 levelPower     = levelObject.power = levelNode["power"].Integer();
+		const si32 levelPower     = levelObject.power = static_cast<si32>(levelNode["power"].Integer());
 
 		levelObject.description   = levelNode["description"].String();
-		levelObject.cost          = levelNode["cost"].Integer();
-		levelObject.AIValue       = levelNode["aiValue"].Integer();
+		levelObject.cost          = static_cast<si32>(levelNode["cost"].Integer());
+		levelObject.AIValue       = static_cast<si32>(levelNode["aiValue"].Integer());
 		levelObject.smartTarget   = levelNode["targetModifier"]["smart"].Bool();
 		levelObject.clearTarget   = levelNode["targetModifier"]["clearTarget"].Bool();
 		levelObject.clearAffected = levelNode["targetModifier"]["clearAffected"].Bool();

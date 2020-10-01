@@ -52,7 +52,7 @@ public:
 	}
 	float3 unitVector() const
 	{
-		return float3(x, y, z) / mag();
+		return float3(x, y, z) / (float)mag();
 	}
 	// returns distance on Oxy plane (z coord is not used)
 	double dist2d(const float3 &other) const { return std::sqrt(dist2dSQ(other)); }

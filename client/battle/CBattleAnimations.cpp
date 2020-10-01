@@ -495,7 +495,7 @@ bool CMovementAnimation::init()
 
 	if (stack->hasBonus(Selector::type(Bonus::FLYING)))
 	{
-		float distance = sqrt(distanceX * distanceX + distanceY * distanceY);
+		float distance = static_cast<float>(sqrt(distanceX * distanceX + distanceY * distanceY));
 
 		timeToMove *= AnimationControls::getFlightDistance(stack->getCreature()) / distance;
 	}
@@ -829,10 +829,10 @@ bool CShootingAnimation::init()
 	else
 	{
 		// Catapult attack
-		spi.catapultInfo.reset(new CatapultProjectileInfo(Point(spi.x, spi.y), destPos));
+		spi.catapultInfo.reset(new CatapultProjectileInfo(Point((int)spi.x, (int)spi.y), destPos));
 
 		double animSpeed = AnimationControls::getProjectileSpeed() / 10;
-		spi.lastStep = std::abs((destPos.x - spi.x) / animSpeed);
+		spi.lastStep = static_cast<int>(std::abs((destPos.x - spi.x) / animSpeed));
 		spi.dx = animSpeed;
 		spi.dy = 0;
 
@@ -871,7 +871,7 @@ bool CShootingAnimation::init()
 		}
 	}
 
-	spi.frameNum = bestID;
+	spi.frameNum = static_cast<int>(bestID);
 
 	// Set projectile animation start delay which is specified in frames
 	spi.animStartDelay = shooterInfo->animation.attackClimaxFrame;

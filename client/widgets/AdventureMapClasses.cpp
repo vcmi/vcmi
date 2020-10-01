@@ -109,7 +109,7 @@ CList::CList(int Size, Point position, std::string btnUp, std::string btnDown, s
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	scrollUp = std::make_shared<CButton>(Point(0, 0), btnUp, CGI->generaltexth->zelp[helpUp]);
-	scrollDown = std::make_shared<CButton>(Point(0, scrollUp->pos.h + 32*size), btnDown, CGI->generaltexth->zelp[helpDown]);
+	scrollDown = std::make_shared<CButton>(Point(0, scrollUp->pos.h + 32*(int)size), btnDown, CGI->generaltexth->zelp[helpDown]);
 
 	listBox = std::make_shared<CListBox>(create, Point(1,scrollUp->pos.h), Point(0, 32), size, listAmount);
 
@@ -150,7 +150,7 @@ void CList::select(std::shared_ptr<CListItem> which)
 
 int CList::getSelectedIndex()
 {
-	return listBox->getIndexOf(selected);
+	return static_cast<int>(listBox->getIndexOf(selected));
 }
 
 void CList::selectIndex(int which)
@@ -402,8 +402,8 @@ void CMinimapInstance::tileToPixels (const int3 &tile, int &x, int &y, int toX, 
 	double stepX = double(pos.w) / mapSizes.x;
 	double stepY = double(pos.h) / mapSizes.y;
 
-	x = toX + stepX * tile.x;
-	y = toY + stepY * tile.y;
+	x = static_cast<int>(toX + stepX * tile.x);
+	y = static_cast<int>(toY + stepY * tile.y);
 }
 
 void CMinimapInstance::blitTileWithColor(const SDL_Color &color, const int3 &tile, SDL_Surface *to, int toX, int toY)
@@ -446,10 +446,10 @@ void CMinimapInstance::drawScaled(int level)
 
 			//coordinates of rectangle on minimap representing this tile
 			// begin - first to blit, end - first NOT to blit
-			int xBegin = currX;
-			int yBegin = currY;
-			int xEnd = currX + stepX;
-			int yEnd = currY + stepY;
+			int xBegin = static_cast<int>(currX);
+			int yBegin = static_cast<int>(currY);
+			int xEnd = static_cast<int>(currX + stepX);
+			int yEnd = static_cast<int>(currY + stepY);
 
 			for (int y=yBegin; y<yEnd; y++)
 			{
@@ -508,7 +508,7 @@ std::map<int, std::pair<SDL_Color, SDL_Color> > CMinimap::loadColors(std::string
 			logGlobal->error("Error: unknown terrain in terrains.json: %s", m.first);
 			continue;
 		}
-		int terrainID = index - std::begin(GameConstants::TERRAIN_NAMES);
+		int terrainID = static_cast<int>(index - std::begin(GameConstants::TERRAIN_NAMES));
 
 		const JsonVector &unblockedVec = m.second["minimapUnblocked"].Vector();
 		SDL_Color normal =
@@ -554,7 +554,7 @@ int3 CMinimap::translateMousePosition()
 
 	int3 mapSizes = LOCPLINT->cb->getMapSize();
 
-	int3 tile (mapSizes.x * dx, mapSizes.y * dy, level);
+	int3 tile ((si32)(mapSizes.x * dx), (si32)(mapSizes.y * dy), level);
 	return tile;
 }
 
@@ -803,9 +803,9 @@ CInfoBar::VisibleGameStatusInfo::VisibleGameStatusInfo()
 
 	for(size_t i=0; i<halls.size(); i++)
 	{
-		hallIcons.push_back(std::make_shared<CAnimImage>("itmtl", i, 0, 6 + 42 * i , 11));
+		hallIcons.push_back(std::make_shared<CAnimImage>("itmtl", i, 0, 6 + 42 * (int)i , 11));
 		if(halls[i])
-			hallLabels.push_back(std::make_shared<CLabel>( 26 + 42 * i, 64, FONT_SMALL, CENTER, Colors::WHITE, boost::lexical_cast<std::string>(halls[i])));
+			hallLabels.push_back(std::make_shared<CLabel>( 26 + 42 * (int)i, 64, FONT_SMALL, CENTER, Colors::WHITE, boost::lexical_cast<std::string>(halls[i])));
 	}
 }
 
@@ -980,7 +980,7 @@ void CInGameConsole::show(SDL_Surface * to)
 {
 	int number = 0;
 
-	std::vector<std::list< std::pair< std::string, int > >::iterator> toDel;
+	std::vector<std::list< std::pair< std::string, Uint32 > >::iterator> toDel;
 
 	boost::unique_lock<boost::mutex> lock(texts_mx);
 	for(auto it = texts.begin(); it != texts.end(); ++it, ++number)
@@ -991,9 +991,9 @@ void CInGameConsole::show(SDL_Surface * to)
 			leftBottomCorner = LOCPLINT->battleInt->pos.bottomLeft();
 		}
 		graphics->fonts[FONT_MEDIUM]->renderTextLeft(to, it->first, Colors::GREEN,
-			Point(leftBottomCorner.x + 50, leftBottomCorner.y - texts.size() * 20 - 80 + number*20));
+			Point(leftBottomCorner.x + 50, leftBottomCorner.y - (int)texts.size() * 20 - 80 + number*20));
 
-		if(SDL_GetTicks() - it->second > defaultTimeout)
+		if((int)(SDL_GetTicks() - it->second) > defaultTimeout)
 		{
 			toDel.push_back(it);
 		}
@@ -1086,7 +1086,7 @@ void CInGameConsole::keyPressed (const SDL_KeyboardEvent & key)
 
 			if(prevEntDisp == -1)
 			{
-				prevEntDisp = previouslyEntered.size() - 1;
+				prevEntDisp = static_cast<int>(previouslyEntered.size() - 1);
 				enteredText = previouslyEntered[prevEntDisp] + "_";
 				refreshEnteredText();
 			}

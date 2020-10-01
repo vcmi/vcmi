@@ -181,7 +181,7 @@ void CQuestLog::recreateLabelList()
 		if (quests[i].quest->progress != CQuest::COMPLETE)
 			selectQuest(i, currentLabel);
 
-		currentLabel = labels.size();
+		currentLabel = static_cast<int>(labels.size());
 	}
 
 	if (completeMissing) // We can't use block(completeMissing) because if false button state reset to NORMAL
@@ -241,7 +241,7 @@ void CQuestLog::selectQuest(int which, int labelId)
 
 	componentsBox.reset();
 
-	int componentsSize = components.size();
+	int componentsSize = static_cast<int>(components.size());
 	int descriptionHeight = DESCRIPTION_HEIGHT_MAX;
 	if(componentsSize)
 	{

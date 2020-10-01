@@ -72,7 +72,7 @@ bool CQuest::checkQuest(const CGHeroInstance * h) const
 		case MISSION_PRIMARY_STAT:
 			for(int i = 0; i < GameConstants::PRIMARY_SKILLS; ++i)
 			{
-				if(h->getPrimSkillLevel(static_cast<PrimarySkill::PrimarySkill>(i)) < m2stats[i])
+				if(h->getPrimSkillLevel(static_cast<PrimarySkill::PrimarySkill>(i)) < (int)m2stats[i])
 					return false;
 			}
 			return true;
@@ -106,17 +106,17 @@ bool CQuest::checkQuest(const CGHeroInstance * h) const
 							slotsCount++;
 						}
 					}
-					if(count < cre->count) //not enough creatures of this kind
+					if((TQuantity)count < cre->count) //not enough creatures of this kind
 						return false;
 
-					hasExtraCreatures |= count > cre->count;
+					hasExtraCreatures |= (TQuantity)count > cre->count;
 				}
 				return hasExtraCreatures || slotsCount < h->Slots().size();
 			}
 		case MISSION_RESOURCES:
 			for(Res::ERes i = Res::WOOD; i <= Res::GOLD; vstd::advance(i, +1)) //including Mithril ?
 			{	//Quest has no direct access to callback
-				if(h->cb->getResource (h->tempOwner, i) < m7resources[i])
+				if(h->cb->getResource (h->tempOwner, i) < (int)m7resources[i])
 					return false;
 			}
 			return true;
@@ -617,7 +617,7 @@ void CGSeerHut::getCompletionText(MetaString &text, std::vector<Component> &comp
 	quest->getCompletionText (text, components, isCustom, h);
 	switch(rewardType)
 	{
-		case EXPERIENCE: components.push_back(Component (Component::EXPERIENCE, 0, h->calculateXp(rVal), 0));
+		case EXPERIENCE: components.push_back(Component (Component::EXPERIENCE, 0, (si32)h->calculateXp(rVal), 0));
 			break;
 		case MANA_POINTS: components.push_back(Component (Component::PRIM_SKILL, 5, rVal, 0));
 			break;
@@ -771,7 +771,7 @@ void CGSeerHut::finishQuest(const CGHeroInstance * h, ui32 accept) const
 			case CQuest::MISSION_RESOURCES:
 				for (int i = 0; i < 7; ++i)
 				{
-					cb->giveResource(h->getOwner(), static_cast<Res::ERes>(i), -quest->m7resources[i]);
+					cb->giveResource(h->getOwner(), static_cast<Res::ERes>(i), -(int)quest->m7resources[i]);
 				}
 				break;
 			default:

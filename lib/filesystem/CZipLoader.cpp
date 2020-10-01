@@ -32,7 +32,7 @@ CZipStream::~CZipStream()
 
 si64 CZipStream::readMore(ui8 * data, si64 size)
 {
-	return unzReadCurrentFile(file, data, size);
+	return unzReadCurrentFile(file, data, (unsigned int)size);
 }
 
 si64 CZipStream::getSize()
@@ -80,7 +80,7 @@ std::unordered_map<ResourceID, unz64_file_pos> CZipLoader::listFiles(const std::
 
 			filename.resize(info.size_filename);
 			// Get name of current file. Contrary to docs "info" parameter can't be null
-			unzGetCurrentFileInfo64 (file, &info, filename.data(), filename.size(), nullptr, 0, nullptr, 0);
+			unzGetCurrentFileInfo64 (file, &info, filename.data(), (uLong)filename.size(), nullptr, 0, nullptr, 0);
 
 			std::string filenameString(filename.data(), filename.size());
 			unzGetFilePos64(file, &ret[ResourceID(mountPoint + filenameString)]);
@@ -128,7 +128,7 @@ static bool extractCurrent(unzFile file, std::ostream & where)
 
 	while (1)
 	{
-		int readSize = unzReadCurrentFile(file, buffer.data(), buffer.size());
+		int readSize = unzReadCurrentFile(file, buffer.data(), (unsigned int)buffer.size());
 
 		if (readSize < 0) // error
 			break;
@@ -166,7 +166,7 @@ std::vector<std::string> ZipArchive::listFiles(boost::filesystem::path filename)
 
 			zipFilename.resize(info.size_filename);
 			// Get name of current file. Contrary to docs "info" parameter can't be null
-			unzGetCurrentFileInfo64 (file, &info, zipFilename.data(), zipFilename.size(), nullptr, 0, nullptr, 0);
+			unzGetCurrentFileInfo64 (file, &info, zipFilename.data(), (uLong)zipFilename.size(), nullptr, 0, nullptr, 0);
 
 			ret.push_back(std::string(zipFilename.data(), zipFilename.size()));
 		}

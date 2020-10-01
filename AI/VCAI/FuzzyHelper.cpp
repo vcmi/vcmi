@@ -115,7 +115,7 @@ float FuzzyHelper::evaluate(Goals::AdventureSpellCast & g)
 float FuzzyHelper::evaluate(Goals::CompleteQuest & g)
 {
 	// TODO: How to evaluate quest complexity?
-	const float questPenalty = 0.2;
+	const float questPenalty = 0.2f;
 
 	if(!g.parent)
 	{
@@ -150,7 +150,7 @@ float FuzzyHelper::evaluate(Goals::GatherArmy & g)
 {
 	//the more army we need, the more important goal
 	//the more army we lack, the less important goal
-	float army = g.hero->getArmyStrength();
+	float army = static_cast<float>(g.hero->getArmyStrength());
 	float ratio = g.value / std::max(g.value - army, 2000.0f); //2000 is about the value of hero recruited from tavern
 	return 5 * (ratio / (ratio + 2)); //so 50% army gives 2.5, asymptotic 5
 }
@@ -240,7 +240,7 @@ ui64 FuzzyHelper::evaluateDanger(crint3 tile, const CGHeroInstance * visitor, co
 			if(armedObj)
 			{
 				float tacticalAdvantage = tacticalAdvantageEngine.getTacticalAdvantage(visitor, armedObj);
-				objectDanger *= tacticalAdvantage; //this line tends to go infinite for allied towns (?)
+				objectDanger = static_cast<ui64>(objectDanger * tacticalAdvantage); //this line tends to go infinite for allied towns (?)
 			}
 		}
 		if(dangerousObject->ID == Obj::SUBTERRANEAN_GATE)

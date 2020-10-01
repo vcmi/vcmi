@@ -148,7 +148,7 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 			{
 				auto dwelling = dynamic_cast<const CGDwelling *>(obj);
 
-				ui32 val = std::min<ui32>(value, ai->ah->howManyReinforcementsCanBuy(hero.get(), dwelling));
+				ui32 val = std::min((ui32)value, (ui32)ai->ah->howManyReinforcementsCanBuy(hero.get(), dwelling));
 
 				if(val)
 				{

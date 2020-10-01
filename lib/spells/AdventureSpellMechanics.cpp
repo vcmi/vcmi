@@ -324,7 +324,7 @@ ESpellCastResult DimensionDoorMechanics::applyAdventureEffects(const SpellCastEn
 	{
 		SetMovePoints smp;
 		smp.hid = parameters.caster->id;
-		if(movementCost < parameters.caster->movement)
+		if(movementCost < (int)parameters.caster->movement)
 			smp.val = parameters.caster->movement - movementCost;
 		else
 			smp.val = 0;
@@ -352,7 +352,7 @@ ESpellCastResult TownPortalMechanics::applyAdventureEffects(const SpellCastEnvir
 		if(nullptr == destination)
 			return ESpellCastResult::ERROR;
 
-		if(parameters.caster->movement < moveCost)
+		if((int)parameters.caster->movement < moveCost)
 			return ESpellCastResult::ERROR;
 
 		if(destination->visitingHero)
@@ -402,7 +402,7 @@ ESpellCastResult TownPortalMechanics::applyAdventureEffects(const SpellCastEnvir
 			return ESpellCastResult::ERROR;
 		}
 
-		if(parameters.caster->movement < moveCost)
+		if((int)parameters.caster->movement < moveCost)
 		{
 			env->complain("This hero has not enough movement points!");
 			return ESpellCastResult::ERROR;
@@ -445,7 +445,7 @@ ESpellCastResult TownPortalMechanics::beginCast(const SpellCastEnvironment * env
 
 	const int moveCost = movementCost(parameters);
 
-	if(parameters.caster->movement < moveCost)
+	if((int)parameters.caster->movement < moveCost)
 	{
 		InfoWindow iw;
 		iw.player = parameters.caster->tempOwner;
@@ -460,7 +460,7 @@ ESpellCastResult TownPortalMechanics::beginCast(const SpellCastEnvironment * env
 		{
 			if(reply.getType() == JsonNode::JsonType::DATA_INTEGER)
 			{
-				ObjectInstanceID townId(reply.Integer());
+				ObjectInstanceID townId((si32)reply.Integer());
 
 				const CGObjectInstance * o = env->getCb()->getObj(townId, true);
 				if(o == nullptr)

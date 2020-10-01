@@ -196,6 +196,7 @@ public:
 		}
 		catch(ExceptionNotAllowedAction & e)
 		{
+            (void)e;
 			return false;
 		}
 		catch(...)
@@ -536,7 +537,7 @@ void CGameHandler::levelUpCommander(const CCommanderInstance * c)
 			clu.skills.push_back (i);
 		++i;
 	}
-	int skillAmount = clu.skills.size();
+	int skillAmount = static_cast<int>(clu.skills.size());
 
 	if (!skillAmount)
 	{
@@ -685,7 +686,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 	battleQuery->result = boost::make_optional(*battleResult.data);
 
 	//Check how many battle queries were created (number of players blocked by battle)
-	const int queriedPlayers = battleQuery ? boost::count(queries.allQueries(), battleQuery) : 0;
+	const int queriedPlayers = battleQuery ? (int)boost::count(queries.allQueries(), battleQuery) : 0;
 	finishingBattle = make_unique<FinishingBattleHelper>(battleQuery, queriedPlayers);
 
 
@@ -1148,7 +1149,7 @@ void CGameHandler::applyBattleEffects(BattleAttack & bat, std::shared_ptr<battle
 			MetaString text;
 			attackerState->addText(text, MetaString::GENERAL_TXT, 361);
 			attackerState->addNameReplacement(text, false);
-			text.addReplacement(toHeal);
+			text.addReplacement((int)toHeal);
 			def->addNameReplacement(text, true);
 			bat.battleLog.push_back(text);
 		}
@@ -1355,14 +1356,14 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 	{
 		std::vector<BattleHex> tiles;
 		const int tilesToMove = std::max((int)(path.first.size() - creSpeed), 0);
-		int v = path.first.size()-1;
+		int v = (int)path.first.size()-1;
 		path.first.push_back(start);
 
 		// check if gate need to be open or closed at some point
 		BattleHex openGateAtHex, gateMayCloseAtHex;
 		if (canUseGate)
 		{
-			for (int i = path.first.size()-1; i >= 0; i--)
+			for (int i = (int)path.first.size()-1; i >= 0; i--)
 			{
 				auto needOpenGates = [&](BattleHex hex) -> bool
 				{
@@ -1536,7 +1537,7 @@ void CGameHandler::init(StartInfo *si)
 {
 	if (si->seedToBeUsed == 0)
 	{
-		si->seedToBeUsed = std::time(nullptr);
+		si->seedToBeUsed = static_cast<ui32>(std::time(nullptr));
 	}
 	CMapService mapService;
 	gs = new CGameState();
@@ -1871,7 +1872,7 @@ void CGameHandler::newTurn()
 					for (size_t j=0; j<fow.at(i).size(); j++)
 						for (size_t k=0; k<fow.at(i).at(j).size(); k++)
 							if (!fow.at(i).at(j).at(k))
-								fw.tiles.insert(int3(i,j,k));
+								fw.tiles.insert(int3((si32)i,(si32)j,(si32)k));
 
 				sendAndApply (&fw);
 			}
@@ -2214,7 +2215,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 			&& complain("Tiles are not neighboring!"))
 		|| ((h->inTownGarrison)
 			&& complain("Can not move garrisoned hero!"))
-		|| ((h->movement < cost  &&  dst != h->pos  &&  !teleporting)
+		|| (((int)h->movement < cost  &&  dst != h->pos  &&  !teleporting)
 			&& complain("Hero doesn't have any movement points left!"))
 		|| ((transit && !canFly && !CGTeleport::isTeleport(t.topVisitableObj()))
 			&& complain("Hero cannot transit over this tile!"))
@@ -2324,7 +2325,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 
 	//still here? it is standard movement!
 	{
-		tmh.movePoints = h->movement >= cost
+		tmh.movePoints = (int)h->movement >= cost
 						? h->movement - cost
 						: 0;
 
@@ -2671,7 +2672,7 @@ void CGameHandler::useScholarSkill(ObjectInstanceID fromHero, ObjectInstanceID t
 		if (!cs2.spells.empty())//if found new spell - apply
 		{
 			iw.text.addTxt(MetaString::GENERAL_TXT, 140);//learns
-			int size = cs2.spells.size();
+			int size = static_cast<int>(cs2.spells.size());
 			for (auto it : cs2.spells)
 			{
 				iw.components.push_back(Component(Component::SPELL, it, 1, 0));
@@ -2696,7 +2697,7 @@ void CGameHandler::useScholarSkill(ObjectInstanceID fromHero, ObjectInstanceID t
 		if (!cs1.spells.empty())
 		{
 			iw.text.addTxt(MetaString::GENERAL_TXT, 147);//teaches
-			int size = cs1.spells.size();
+			int size = static_cast<int>(cs1.spells.size());
 			for (auto it : cs1.spells)
 			{
 				iw.components.push_back(Component(Component::SPELL, it, 1, 0));
@@ -3235,7 +3236,7 @@ bool CGameHandler::recruitCreatures(ObjectInstanceID objid, ObjectInstanceID dst
 	SlotID slot = dst->getSlotFor(crid);
 
 	if ((!found && complain("Cannot recruit: no such creatures!"))
-		|| (cram  >  VLC->creh->creatures.at(crid)->maxAmount(getPlayer(dst->tempOwner)->resources) && complain("Cannot recruit: lack of resources!"))
+		|| ((si32)cram  >  VLC->creh->creatures.at(crid)->maxAmount(getPlayer(dst->tempOwner)->resources) && complain("Cannot recruit: lack of resources!"))
 		|| (cram<=0  &&  complain("Cannot recruit: cram <= 0!"))
 		|| (!slot.validSlot()  && !warMachine && complain("Cannot recruit: no available slot!")))
 	{
@@ -3443,7 +3444,7 @@ bool CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocat
 		COMPLAIN_RET("Cannot move catapult!");
 
 	if (dst.slot >= GameConstants::BACKPACK_START)
-		vstd::amin(dst.slot, ArtifactPosition(GameConstants::BACKPACK_START + dst.getHolderArtSet()->artifactsInBackpack.size()));
+		vstd::amin(dst.slot, ArtifactPosition(GameConstants::BACKPACK_START + (si32)dst.getHolderArtSet()->artifactsInBackpack.size()));
 
 	if (src.slot == dst.slot  &&  src.artHolder == dst.artHolder)
 		COMPLAIN_RET("Won't move artifact: Dest same as source!");
@@ -3452,7 +3453,7 @@ bool CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocat
 	{
 		//old artifact must be removed first
 		moveArtifact(dst, ArtifactLocation(dst.artHolder, ArtifactPosition(
-			dst.getHolderArtSet()->artifactsInBackpack.size() + GameConstants::BACKPACK_START)));
+			(si32)dst.getHolderArtSet()->artifactsInBackpack.size() + GameConstants::BACKPACK_START)));
 	}
 
 	MoveArtifact ma;
@@ -3666,7 +3667,7 @@ bool CGameHandler::sellCreatures(ui32 count, const IMarket *market, const CGHero
 
 	const CStackInstance &s = hero->getStack(slot);
 
-	if (s.count < count //can't sell more creatures than have
+	if (s.count < (TQuantity)count //can't sell more creatures than have
 		|| (hero->stacksCount() == 1 && hero->needsLastStack() && s.count == count)) //can't sell last stack
 	{
 		COMPLAIN_RET("Not enough creatures in army!");
@@ -3682,7 +3683,7 @@ bool CGameHandler::sellCreatures(ui32 count, const IMarket *market, const CGHero
 		assert(0);
 	}
 
-	changeStackCount(StackLocation(hero, slot), -count);
+	changeStackCount(StackLocation(hero, slot), -(TQuantity)count);
 
 	giveResource(hero->tempOwner, resourceID, b2 * units);
 
@@ -3730,7 +3731,7 @@ bool CGameHandler::sendResources(ui32 val, PlayerColor player, Res::ERes r1, Pla
 
 	vstd::amin(val, curRes1);
 
-	giveResource(player, r1, -val);
+	giveResource(player, r1, -(int)val);
 	giveResource(r2, r1, val);
 
 	return true;
@@ -4421,7 +4422,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 					text.addTxt(MetaString::GENERAL_TXT, 414);
 					healer->addNameReplacement(text, false);
 					destStack->addNameReplacement(text, false);
-					text.addReplacement(toHeal);
+					text.addReplacement((int)toHeal);
 					pack.battleLog.push_back(text);
 
 					UnitChanges info(state->unitId(), UnitChanges::EOperation::RESET_STATE);
@@ -4453,7 +4454,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 			ui64 targetHealth = destStack->getCreature()->MaxHealth() * destStack->baseAmount;
 
 			ui64 canRiseHp = std::min(targetHealth, risedHp);
-			ui32 canRiseAmount = canRiseHp / summonedType.toCreature()->MaxHealth();
+			ui32 canRiseAmount = static_cast<ui32>(canRiseHp / summonedType.toCreature()->MaxHealth());
 
 			battle::UnitInfo info;
 			info.id = gs->curB->battleNextUnitId();
@@ -5500,7 +5501,7 @@ void CGameHandler::handleAfterAttackCasting(bool ranged, const CStack * attacker
 		int staredCreatures = distribution(getRandomGenerator().getStdGenerator());
 
 		double cap = 1 / std::max(chanceToKill, (double)(0.01));//don't divide by 0
-		int maxToKill = (attacker->getCount() + cap - 1) / cap; //not much more than chance * count
+		int maxToKill = static_cast<int>((attacker->getCount() + cap - 1) / cap); //not much more than chance * count
 		vstd::amin(staredCreatures, maxToKill);
 
 		staredCreatures += (attacker->level() * attacker->valOfBonuses(Bonus::DEATH_STARE, 1)) / defender->level();
@@ -5596,7 +5597,7 @@ void CGameHandler::handleAfterAttackCasting(bool ranged, const CStack * attacker
 		{
 			chanceToTrigger = attacker->valOfBonuses(Bonus::DESTRUCTION, 0) / 100.0f;
 			int percentageToDie = attacker->getBonus(Selector::type(Bonus::DESTRUCTION).And(Selector::subtype(0)))->additionalInfo[0];
-			amountToDie = defender->getCount() * percentageToDie * 0.01f;
+			amountToDie = static_cast<int>(defender->getCount() * percentageToDie * 0.01f);
 		}
 		else if(attacker->hasBonusOfType(Bonus::DESTRUCTION, 1)) //killing by count
 		{
@@ -5651,7 +5652,7 @@ bool CGameHandler::sacrificeCreatures(const IMarket * market, const CGHeroInstan
 	{
 		int oldCount = hero->getStackCount(slot[i]);
 
-		if(oldCount < count[i])
+		if(oldCount < (int)count[i])
 		{
 			finish();
 			COMPLAIN_RET("Not enough creatures to sacrifice!")
@@ -5664,7 +5665,7 @@ bool CGameHandler::sacrificeCreatures(const IMarket * market, const CGHeroInstan
 
 		int crid = hero->getStack(slot[i]).type->idNumber;
 
-		changeStackCount(StackLocation(hero, slot[i]), -count[i]);
+		changeStackCount(StackLocation(hero, slot[i]), -(TQuantity)count[i]);
 
 		int dump, exp;
 		market->getOffer(crid, 0, dump, exp, EMarketMode::CREATURE_EXP);
@@ -6372,12 +6373,12 @@ void CGameHandler::spawnWanderingMonsters(CreatureID creatureID)
 	std::vector<int3>::iterator tile;
 	std::vector<int3> tiles;
 	getFreeTiles(tiles);
-	ui32 amount = tiles.size() / 200; //Chance is 0.5% for each tile
+	ui32 amount = (ui32)tiles.size() / 200; //Chance is 0.5% for each tile
 
 	RandomGeneratorUtil::randomShuffle(tiles, getRandomGenerator());
 	logGlobal->trace("Spawning wandering monsters. Found %d free tiles. Creature type: %d", tiles.size(), creatureID.num);
 	const CCreature *cre = VLC->creh->creatures.at(creatureID);
-	for (int i = 0; i < amount; ++i)
+	for (int i = 0; i < (int)amount; ++i)
 	{
 		tile = tiles.begin();
 		logGlobal->trace("\tSpawning monster at %s", tile->toString());

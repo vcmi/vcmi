@@ -56,7 +56,7 @@ void CComponent::init(Etype Type, int Subtype, int Val, ESize imageSize)
 	assert(compType < typeInvalid);
 	assert(size < sizeInvalid);
 
-	setSurface(getFileName()[size], getIndex());
+	setSurface(getFileName()[size], (int)getIndex());
 
 	pos.w = image->pos.w;
 	pos.h = image->pos.h;
@@ -70,7 +70,7 @@ void CComponent::init(Etype Type, int Subtype, int Val, ESize imageSize)
 	std::vector<std::string> textLines = CMessage::breakText(getSubtitle(), std::max<int>(80, pos.w), font);
 	for(auto & line : textLines)
 	{
-		int height = graphics->fonts[font]->getLineHeight();
+		int height = static_cast<int>(graphics->fonts[font]->getLineHeight());
 		auto label = std::make_shared<CLabel>(pos.w/2, pos.h + height/2, font, CENTER, Colors::WHITE, line);
 
 		pos.h += height;
@@ -307,7 +307,7 @@ void CComponentBox::selectionChanged(std::shared_ptr<CSelectableComponent> newSe
 int CComponentBox::selectedIndex()
 {
 	if (selected)
-		return std::find(components.begin(), components.end(), selected) - components.begin();
+		return static_cast<int>(std::find(components.begin(), components.end(), selected) - components.begin());
 	return -1;
 }
 
@@ -392,7 +392,7 @@ void CComponentBox::placeComponents(bool selectable)
 			vstd::amax(pos.w, row.width);
 	}
 
-	int height = (rows.size() - 1) * betweenRows;
+	int height = ((int)rows.size() - 1) * betweenRows;
 	for(auto & row : rows)
 		height += row.height;
 
@@ -407,7 +407,7 @@ void CComponentBox::placeComponents(bool selectable)
 	for (auto & rows_row : rows)
 	{
 		// amount of free space we may add on each side of every component
-		int freeSpace = (pos.w - rows_row.width) / (rows_row.comps * 2);
+		int freeSpace = (pos.w - rows_row.width) / ((int)rows_row.comps * 2);
 		prevComp = nullptr;
 
 		int currentX = 0;

@@ -414,7 +414,7 @@ TSubgoal Explore::exploreNearestNeighbour(HeroPtr h) const
 
 	//look for nearby objs -> visit them if they're close enough
 	const int DIST_LIMIT = 3;
-	const float COST_LIMIT = .2; //todo: fine tune
+	const float COST_LIMIT = .2f; //todo: fine tune
 
 	std::vector<const CGObjectInstance *> nearbyVisitableObjs;
 	for(int x = hpos.x - DIST_LIMIT; x <= hpos.x + DIST_LIMIT; ++x) //get only local objects instead of all possible objects on the map

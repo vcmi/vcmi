@@ -320,7 +320,7 @@ int main(int argc, char * argv[])
 	conf.init();
 	logGlobal->info("Loading settings: %d ms", pomtime.getDiff());
 
-	srand ( time(nullptr) );
+	srand ( (unsigned int)time(nullptr) );
 
 
 	const JsonNode& video = settings["video"];
@@ -379,7 +379,7 @@ int main(int argc, char * argv[])
 				logGlobal->info("\t%s", driverName);
 		}
 
-		config::CConfigHandler::GuiOptionsMap::key_type resPair(res["width"].Float(), res["height"].Float());
+		config::CConfigHandler::GuiOptionsMap::key_type resPair((int)res["width"].Float(), (int)res["height"].Float());
 		if (conf.guiOptions.count(resPair) == 0)
 		{
 			// selected resolution was not found - complain & fallback to something that we do have.
@@ -394,13 +394,13 @@ int main(int argc, char * argv[])
 				Settings newRes = settings.write["video"]["screenRes"];
 				newRes["width"].Float()  = conf.guiOptions.begin()->first.first;
 				newRes["height"].Float() = conf.guiOptions.begin()->first.second;
-				conf.SetResolution(newRes["width"].Float(), newRes["height"].Float());
+				conf.SetResolution((int)newRes["width"].Float(), (int)newRes["height"].Float());
 
 				logGlobal->error("Falling back to %dx%d", newRes["width"].Integer(), newRes["height"].Integer());
 			}
 		}
 
-		setScreenRes(res["width"].Float(), res["height"].Float(), video["bitsPerPixel"].Float(), video["fullscreen"].Bool(), video["displayIndex"].Float());
+		setScreenRes((int)res["width"].Float(), (int)res["height"].Float(), (int)video["bitsPerPixel"].Float(), video["fullscreen"].Bool(), (int)video["displayIndex"].Float());
 		logGlobal->info("\tInitializing screen: %d ms", pomtime.getDiff());
 	}
 
@@ -424,10 +424,10 @@ int main(int argc, char * argv[])
 		//initializing audio
 		CCS->soundh = new CSoundHandler();
 		CCS->soundh->init();
-		CCS->soundh->setVolume(settings["general"]["sound"].Float());
+		CCS->soundh->setVolume((ui32)settings["general"]["sound"].Float());
 		CCS->musich = new CMusicHandler();
 		CCS->musich->init();
-		CCS->musich->setVolume(settings["general"]["music"].Float());
+		CCS->musich->setVolume((ui32)settings["general"]["music"].Float());
 		logGlobal->info("Initializing screen and sound handling: %d ms", pomtime.getDiff());
 	}
 #ifdef __APPLE__

@@ -587,7 +587,7 @@ void CMap::checkForObjectives()
 
 void CMap::addNewArtifactInstance(CArtifactInstance * art)
 {
-	art->id = ArtifactInstanceID(artInstances.size());
+	art->id = ArtifactInstanceID((si32)artInstances.size());
 	artInstances.push_back(art);
 }
 
@@ -599,13 +599,13 @@ void CMap::eraseArtifactInstance(CArtifactInstance * art)
 
 void CMap::addNewQuestInstance(CQuest* quest)
 {
-	quest->qid = quests.size();
+	quest->qid = static_cast<si32>(quests.size());
 	quests.push_back(quest);
 }
 
 void CMap::addNewObject(CGObjectInstance * obj)
 {
-	if(obj->id != ObjectInstanceID(objects.size()))
+	if(obj->id != ObjectInstanceID((si32)objects.size()))
 		throw std::runtime_error("Invalid object instance id");
 
 	if(obj->instanceName == "")

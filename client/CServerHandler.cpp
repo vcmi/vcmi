@@ -288,9 +288,9 @@ bool CServerHandler::isGuest() const
 ui16 CServerHandler::getDefaultPort()
 {
 	if(settings["session"]["serverport"].Integer())
-		return settings["session"]["serverport"].Integer();
+		return static_cast<ui16>(settings["session"]["serverport"].Integer());
 	else
-		return settings["server"]["port"].Integer();
+		return static_cast<ui16>(settings["server"]["port"].Integer());
 }
 
 std::string CServerHandler::getDefaultPortStr()
@@ -418,7 +418,7 @@ void CServerHandler::sendMessage(const std::string & txt) const
 		std::string connectedId, playerColorId;
 		readed >> connectedId;
 		readed >> playerColorId;
-		if(connectedId.length(), playerColorId.length())
+		if(connectedId.length(), playerColorId.length()) // BUG https://bugs.vcmi.eu/view.php?id=3144
 		{
 			ui8 connected = boost::lexical_cast<int>(connectedId);
 			auto color = PlayerColor(boost::lexical_cast<int>(playerColorId));

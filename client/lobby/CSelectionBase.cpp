@@ -234,12 +234,12 @@ void InfoCard::changeSelection()
 		if(pset)
 		{
 			auto name = boost::str(boost::format("%s (%d-%d %s)") % p.second.name % p.second.connection % pid % pset->color.getStr());
-			labelGroupPlayersAssigned->add(24, 285 + labelGroupPlayersAssigned->currentSize()*graphics->fonts[FONT_SMALL]->getLineHeight(), name);
+			labelGroupPlayersAssigned->add(24, 285 + (int)labelGroupPlayersAssigned->currentSize()*(int)graphics->fonts[FONT_SMALL]->getLineHeight(), name);
 		}
 		else
 		{
 			auto name = boost::str(boost::format("%s (%d-%d)") % p.second.name % p.second.connection % pid);
-			labelGroupPlayersUnassigned->add(193, 285 + labelGroupPlayersUnassigned->currentSize()*graphics->fonts[FONT_SMALL]->getLineHeight(), name);
+			labelGroupPlayersUnassigned->add(193, 285 + (int)labelGroupPlayersUnassigned->currentSize()*(int)graphics->fonts[FONT_SMALL]->getLineHeight(), name);
 		}
 	}
 }
@@ -312,7 +312,7 @@ CChatBox::CChatBox(const Rect & rect)
 	captureAllKeys = true;
 	type |= REDRAW_PARENT;
 
-	const int height = graphics->fonts[FONT_SMALL]->getLineHeight();
+	const int height = static_cast<int>(graphics->fonts[FONT_SMALL]->getLineHeight());
 	inputBox = std::make_shared<CTextInput>(Rect(0, rect.h - height, rect.w, height));
 	inputBox->removeUsedEvents(KEYBOARD);
 	chatHistory = std::make_shared<CTextBox>("", Rect(0, 0, rect.w, rect.h - height), 1);
@@ -359,19 +359,19 @@ void CFlagBox::recreate()
 	flagsAllies.clear();
 	flagsEnemies.clear();
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
-	const int alliesX = 5 + labelAllies->getWidth();
-	const int enemiesX = 5 + 133 + labelEnemies->getWidth();
+	const int alliesX = 5 + (int)labelAllies->getWidth();
+	const int enemiesX = 5 + 133 + (int)labelEnemies->getWidth();
 	for(auto i = CSH->si->playerInfos.cbegin(); i != CSH->si->playerInfos.cend(); i++)
 	{
 		auto flag = std::make_shared<CAnimImage>(iconsTeamFlags, i->first.getNum(), 0);
 		if(i->first == CSH->myFirstColor() || CSH->getPlayerTeamId(i->first) == CSH->getPlayerTeamId(CSH->myFirstColor()))
 		{
-			flag->moveTo(Point(pos.x + alliesX + flagsAllies.size()*flag->pos.w, pos.y));
+			flag->moveTo(Point(pos.x + alliesX + (int)flagsAllies.size()*flag->pos.w, pos.y));
 			flagsAllies.push_back(flag);
 		}
 		else
 		{
-			flag->moveTo(Point(pos.x + enemiesX + flagsEnemies.size()*flag->pos.w, pos.y));
+			flag->moveTo(Point(pos.x + enemiesX + (int)flagsEnemies.size()*flag->pos.w, pos.y));
 			flagsEnemies.push_back(flag);
 		}
 	}
@@ -406,7 +406,7 @@ CFlagBox::CFlagBoxTooltipBox::CFlagBoxTooltipBox(std::shared_ptr<CAnimation> ico
 			}
 		}
 
-		int curx = 128 - 9 * flags.size();
+		int curx = 128 - 9 * (int)flags.size();
 		for(auto & flag : flags)
 		{
 			iconsFlags.push_back(std::make_shared<CAnimImage>(icons, flag, 0, curx, 75 + 50 * i));

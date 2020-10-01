@@ -207,8 +207,8 @@ void CCursorHandler::shiftPos( int &x, int &y )
 
 void CCursorHandler::centerCursor()
 {
-	this->xpos = (screen->w / 2.) - (currentCursor->pos.w / 2.);
-	this->ypos = (screen->h / 2.) - (currentCursor->pos.h / 2.);
+	this->xpos = static_cast<int>((screen->w / 2.) - (currentCursor->pos.w / 2.));
+	this->ypos = static_cast<int>((screen->h / 2.) - (currentCursor->pos.h / 2.));
 	SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
 	SDL_WarpMouse(this->xpos, this->ypos);
 	SDL_EventState(SDL_MOUSEMOTION, SDL_ENABLE);

@@ -299,6 +299,7 @@ void CVCMIServer::connectionAccepted(const boost::system::error_code & ec)
 	}
 	catch(std::exception & e)
 	{
+        (void)e;
 		upcomingConnection.reset();
 		logNetwork->info("I guess it was just my imagination!");
 	}
@@ -328,11 +329,13 @@ void CVCMIServer::threadHandleClient(std::shared_ptr<CConnection> c)
 	}
 	catch(boost::system::system_error & e)
 	{
+        (void)e;
 		if(state != EServerState::LOBBY)
 			gh->handleClientDisconnection(c);
 	}
 	catch(const std::exception & e)
 	{
+        (void)e;
 		boost::unique_lock<boost::recursive_mutex> queueLock(mx);
 		logNetwork->error("%s dies... \nWhat happened: %s", c->toString(), e.what());
 	}
@@ -682,7 +685,7 @@ void CVCMIServer::optionNextCastle(PlayerColor player, int dir)
 		else
 		{
 			assert(dir >= -1 && dir <= 1); //othervice std::advance may go out of range
-			auto iter = allowed.find(cur);
+			auto iter = allowed.find((ui8)cur);
 			std::advance(iter, dir);
 			cur = *iter;
 		}
@@ -730,14 +733,14 @@ void CVCMIServer::optionNextHero(PlayerColor player, int dir)
 
 	if(s.hero == PlayerSettings::RANDOM) // first/last available
 	{
-		int max = VLC->heroh->heroes.size(),
+		int max = static_cast<int>(VLC->heroh->heroes.size()),
 			min = 0;
 		s.hero = nextAllowedHero(player, min, max, 0, dir);
 	}
 	else
 	{
 		if(dir > 0)
-			s.hero = nextAllowedHero(player, s.hero, VLC->heroh->heroes.size(), 1, dir);
+			s.hero = nextAllowedHero(player, s.hero, (int)VLC->heroh->heroes.size(), 1, dir);
 		else
 			s.hero = nextAllowedHero(player, -1, s.hero, 1, dir); // min needs to be -1 -- hero at index 0 would be skipped otherwise
 	}

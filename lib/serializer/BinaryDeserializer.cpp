@@ -97,7 +97,7 @@ void CLoadFile::clear()
 void CLoadFile::checkMagicBytes(const std::string &text)
 {
 	std::string loaded = text;
-	read((void*)loaded.data(), text.length());
+	read((void*)loaded.data(), (unsigned int)text.length());
 	if(loaded != text)
 		throw std::runtime_error("Magic bytes doesn't match!");
 }

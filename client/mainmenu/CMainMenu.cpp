@@ -109,7 +109,7 @@ std::shared_ptr<CIntObject> CMenuScreen::createTab(size_t index)
 void CMenuScreen::show(SDL_Surface * to)
 {
 	if(!config["video"].isNull())
-		CCS->videoh->update(config["video"]["x"].Float() + pos.x, config["video"]["y"].Float() + pos.y, to, true, false);
+		CCS->videoh->update((int)config["video"]["x"].Float() + pos.x, (int)config["video"]["y"].Float() + pos.y, to, true, false);
 	CIntObject::show(to);
 }
 
@@ -221,17 +221,17 @@ std::shared_ptr<CButton> CMenuEntry::createButton(CMenuScreen * parent, const Js
 
 	std::pair<std::string, std::string> help;
 	if(!button["help"].isNull() && button["help"].Float() > 0)
-		help = CGI->generaltexth->zelp[button["help"].Float()];
+		help = CGI->generaltexth->zelp[(size_t)button["help"].Float()];
 
-	int posx = button["x"].Float();
+	int posx = static_cast<int>(button["x"].Float());
 	if(posx < 0)
 		posx = pos.w + posx;
 
-	int posy = button["y"].Float();
+	int posy = static_cast<int>(button["y"].Float());
 	if(posy < 0)
 		posy = pos.h + posy;
 
-	return std::make_shared<CButton>(Point(posx, posy), button["name"].String(), help, command, button["hotkey"].Float());
+	return std::make_shared<CButton>(Point(posx, posy), button["name"].String(), help, command, (int)button["hotkey"].Float());
 }
 
 CMenuEntry::CMenuEntry(CMenuScreen * parent, const JsonNode & config)
@@ -358,7 +358,7 @@ std::shared_ptr<CMainMenu> CMainMenu::create()
 
 std::shared_ptr<CPicture> CMainMenu::createPicture(const JsonNode & config)
 {
-	return std::make_shared<CPicture>(config["name"].String(), config["x"].Float(), config["y"].Float());
+	return std::make_shared<CPicture>(config["name"].String(), (int)config["x"].Float(), (int)config["y"].Float());
 }
 
 CMultiMode::CMultiMode(ESelectionScreen ScreenType)

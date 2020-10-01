@@ -260,7 +260,7 @@ void InfoBoxAbstractHeroData::prepareMessage(std::string & text, std::shared_ptr
 		break;
 	case HERO_PRIMARY_SKILL:
 		text = CGI->generaltexth->arraytxt[2+getSubID()];
-		comp = std::make_shared<CComponent>(CComponent::primskill, getSubID(), getValue());
+		comp = std::make_shared<CComponent>(CComponent::primskill, getSubID(), (int)getValue());
 		break;
 	case HERO_MANA:
 		text = CGI->generaltexth->allTexts[149];
@@ -274,8 +274,8 @@ void InfoBoxAbstractHeroData::prepareMessage(std::string & text, std::shared_ptr
 			int  subID = getSubID();
 			if(value)
 			{
-				text = CGI->skillh->skillInfo(subID, value);
-				comp = std::make_shared<CComponent>(CComponent::secskill, subID, value);
+				text = CGI->skillh->skillInfo(subID, (int)value);
+				comp = std::make_shared<CComponent>(CComponent::secskill, subID, (int)value);
 			}
 			break;
 		}
@@ -704,7 +704,7 @@ std::shared_ptr<CIntObject> CKingdHeroList::createHeroItem(size_t index)
 
 	if(index < heroesCount)
 	{
-		auto hero = std::make_shared<CHeroItem>(LOCPLINT->cb->getHeroBySerial(index, false));
+		auto hero = std::make_shared<CHeroItem>(LOCPLINT->cb->getHeroBySerial((int)index, false));
 		addSet(hero->heroArts);
 		return hero;
 	}
@@ -754,7 +754,7 @@ std::shared_ptr<CIntObject> CKingdTownList::createTownItem(size_t index)
 	size_t townsCount = LOCPLINT->cb->howManyTowns();
 
 	if(index < townsCount)
-		return std::make_shared<CTownItem>(LOCPLINT->cb->getTownBySerial(index));
+		return std::make_shared<CTownItem>(LOCPLINT->cb->getTownBySerial((int)index));
 	else
 		return std::make_shared<CAnimImage>("OVSLOT", (index-2) % picCount );
 }
@@ -780,8 +780,8 @@ CTownItem::CTownItem(const CGTownInstance * Town)
 
 	for(size_t i=0; i<town->creatures.size(); i++)
 	{
-		growth.push_back(std::make_shared<CCreaInfo>(Point(401+37*i, 78), town, i, true, true));
-		available.push_back(std::make_shared<CCreaInfo>(Point(48+37*i, 78), town, i, true, false));
+		growth.push_back(std::make_shared<CCreaInfo>(Point(401+37*(int)i, 78), town, (int)i, true, true));
+		available.push_back(std::make_shared<CCreaInfo>(Point(48+37*(int)i, 78), town, (int)i, true, false));
 	}
 }
 
@@ -819,7 +819,7 @@ public:
 		OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 		background = std::make_shared<CAnimImage>("OVSLOT", 4);
 		pos = background->pos;
-		for(size_t i=0; i<9; i++)
+		for(int i=0; i<9; i++)
 			arts.push_back(std::make_shared<CHeroArtPlace>(Point(270+i*48, 65)));
 	}
 };
@@ -839,7 +839,7 @@ public:
 		pos = background->pos;
 		btnLeft = std::make_shared<CButton>(Point(269, 66), "HSBTNS3", CButton::tooltip(), 0);
 		btnRight = std::make_shared<CButton>(Point(675, 66), "HSBTNS5", CButton::tooltip(), 0);
-		for(size_t i=0; i<8; i++)
+		for(int i=0; i<8; i++)
 			arts.push_back(std::make_shared<CHeroArtPlace>(Point(295+i*48, 65)));
 	}
 };
@@ -903,9 +903,9 @@ CHeroItem::CHeroItem(const CGHeroInstance * Hero)
 		std::string hover = CGI->generaltexth->overview[13+it];
 		std::string overlay = CGI->generaltexth->overview[8+it];
 
-		auto button = std::make_shared<CToggleButton>(Point(364+it*112, 46), "OVBUTN3", CButton::tooltip(hover, overlay), 0);
+		auto button = std::make_shared<CToggleButton>(Point(364+(int)it*112, 46), "OVBUTN3", CButton::tooltip(hover, overlay), 0);
 		button->addTextOverlay(CGI->generaltexth->allTexts[stringID[it]], FONT_SMALL, Colors::YELLOW);
-		artButtons->addToggle(it, button);
+		artButtons->addToggle((int)it, button);
 	}
 	artButtons->addCallback(std::bind(&CTabbedInt::setActive, artsTabs, _1));
 	artButtons->addCallback(std::bind(&CHeroItem::onArtChange, this, _1));
@@ -921,14 +921,14 @@ CHeroItem::CHeroItem(const CGHeroInstance * Hero)
 
 	for(size_t i=0; i<GameConstants::PRIMARY_SKILLS; i++)
 	{
-		auto data = std::make_shared<InfoBoxHeroData>(IInfoBoxData::HERO_PRIMARY_SKILL, hero, i);
-		heroInfo.push_back(std::make_shared<InfoBox>(Point(78+i*36, 26), InfoBox::POS_DOWN, InfoBox::SIZE_SMALL, data));
+		auto data = std::make_shared<InfoBoxHeroData>(IInfoBoxData::HERO_PRIMARY_SKILL, hero, (int)i);
+		heroInfo.push_back(std::make_shared<InfoBox>(Point(78+(int)i*36, 26), InfoBox::POS_DOWN, InfoBox::SIZE_SMALL, data));
 	}
 
 	for(size_t i=0; i<GameConstants::SKILL_PER_HERO; i++)
 	{
-		auto data = std::make_shared<InfoBoxHeroData>(IInfoBoxData::HERO_SECONDARY_SKILL, hero, i);
-		heroInfo.push_back(std::make_shared<InfoBox>(Point(410+i*36, 5), InfoBox::POS_NONE, InfoBox::SIZE_SMALL, data));
+		auto data = std::make_shared<InfoBoxHeroData>(IInfoBoxData::HERO_SECONDARY_SKILL, hero, (int)i);
+		heroInfo.push_back(std::make_shared<InfoBox>(Point(410+(int)i*36, 5), InfoBox::POS_NONE, InfoBox::SIZE_SMALL, data));
 	}
 
 	{

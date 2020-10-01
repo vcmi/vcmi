@@ -519,6 +519,6 @@ void JsonArraySerializer::serializeInt(const size_t index, T & value)
 
 	serializeInt64(index, temp);
 
-	if(!owner->saving)
+	if (!owner->saving)
 		value = static_cast<T>(temp);
 };

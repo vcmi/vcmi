@@ -602,7 +602,7 @@ ui64 CGHeroInstance::getTotalStrength() const
 
 TExpType CGHeroInstance::calculateXp(TExpType exp) const
 {
-	return exp * (100 + valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::LEARNING))/100.0;
+	return (TExpType)(exp * (100 + valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::LEARNING))/100.0);
 }
 
 int32_t CGHeroInstance::getCasterUnitId() const
@@ -632,15 +632,15 @@ ui8 CGHeroInstance::getSpellSchoolLevel(const spells::Spell * spell, int * outSe
 
 	vstd::amax(skill, 0); //in case we don't know any school
 	vstd::amin(skill, 3);
-	return skill;
+	return (ui8)skill;
 }
 
 int64_t CGHeroInstance::getSpellBonus(const spells::Spell * spell, int64_t base, const battle::Unit * affectedStack) const
 {
 	//applying sorcery secondary skill
 
-	base *= (100.0 + valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::SORCERY)) / 100.0;
-	base *= (100.0 + valOfBonuses(Bonus::SPELL_DAMAGE) + valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, spell->getIndex())) / 100.0;
+	base = (int64_t)(base * (100 + valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::SORCERY)) / 100.0);
+	base = (int64_t)(base * (100 + valOfBonuses(Bonus::SPELL_DAMAGE) + valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, spell->getIndex())) / 100.0);
 
 	int maxSchoolBonus = 0;
 
@@ -649,17 +649,17 @@ int64_t CGHeroInstance::getSpellBonus(const spells::Spell * spell, int64_t base,
 		vstd::amax(maxSchoolBonus, valOfBonuses(cnf.damagePremyBonus));
 	});
 
-	base *= (100.0 + maxSchoolBonus) / 100.0;
+	base = (int64_t)(base * (100 + maxSchoolBonus) / 100.0);
 
 	if(affectedStack && affectedStack->creatureLevel() > 0) //Hero specials like Solmyr, Deemer
-		base *= (100. + valOfBonuses(Bonus::SPECIAL_SPELL_LEV, spell->getIndex()) / affectedStack->creatureLevel()) / 100.0;
+		base = (int64_t)(base * double(100 + valOfBonuses(Bonus::SPECIAL_SPELL_LEV, spell->getIndex()) / affectedStack->creatureLevel()) / 100.0);
 
 	return base;
 }
 
 int64_t CGHeroInstance::getSpecificSpellBonus(const spells::Spell * spell, int64_t base) const
 {
-	base *= (100.0 + valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, spell->getIndex())) / 100.0;
+	base = (int64_t)(base * (100 + valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, spell->getIndex())) / 100.0);
 	return base;
 }
 
@@ -1089,7 +1089,7 @@ int CGHeroInstance::movementPointsAfterEmbark(int MPsBefore, int basicCost, bool
 	int mp1 = ti->getMaxMovePoints(disembark ? EPathfindingLayer::LAND : EPathfindingLayer::SAIL);
 	int mp2 = ti->getMaxMovePoints(disembark ? EPathfindingLayer::SAIL : EPathfindingLayer::LAND);
 	if(ti->hasBonusOfType(Bonus::FREE_SHIP_BOARDING))
-		ret = (MPsBefore - basicCost) * static_cast<double>(mp1) / mp2;
+		ret = static_cast<int>((MPsBefore - basicCost) * static_cast<double>(mp1) / mp2);
 
 	if(localTi)
 		delete ti;
@@ -1099,7 +1099,7 @@ int CGHeroInstance::movementPointsAfterEmbark(int MPsBefore, int basicCost, bool
 
 EDiggingStatus CGHeroInstance::diggingStatus() const
 {
-	if(movement < maxMovePoints(true))
+	if((int)movement < maxMovePoints(true))
 		return EDiggingStatus::LACK_OF_MOVEMENT;
 
 	return cb->getTile(getPosition(false))->getDiggingStatus();
@@ -1264,11 +1264,11 @@ void CGHeroInstance::setPrimarySkill(PrimarySkill::PrimarySkill primarySkill, si
 
 		if(abs)
 		{
-			skill->val = value;
+			skill->val = static_cast<si32>(value);
 		}
 		else
 		{
-			skill->val += value;
+			skill->val += static_cast<si32>(value);
 		}
 		CBonusSystemNode::treeHasChanged();
 	}
@@ -1287,7 +1287,7 @@ void CGHeroInstance::setPrimarySkill(PrimarySkill::PrimarySkill primarySkill, si
 
 bool CGHeroInstance::gainsLevel() const
 {
-	return exp >= VLC->heroh->reqExp(level+1);
+	return exp >= static_cast<TExpType>(VLC->heroh->reqExp(level+1));
 }
 
 void CGHeroInstance::levelUp(std::vector<SecondarySkill> skills)
@@ -1350,7 +1350,7 @@ bool CGHeroInstance::hasVisions(const CGObjectInstance * target, const int subty
 	if (visionsMultiplier > 0)
 		vstd::amax(visionsRange, 3); //minimum range is 3 tiles, but only if VISIONS bonus present
 
-	const int distance = target->pos.dist2d(getPosition(false));
+	const int distance = static_cast<int>(target->pos.dist2d(getPosition(false)));
 
 	//logGlobal->debug(boost::to_string(boost::format("Visions: dist %d, mult %d, range %d") % distance % visionsMultiplier % visionsRange));
 
@@ -1400,7 +1400,7 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 	handler.serializeBool<ui8>("female", sex, 1, 0, 0xFF);
 
 	{
-		const int legacyHeroes = VLC->modh->settings.data["textData"]["hero"].Integer();
+		const int legacyHeroes = static_cast<int>(VLC->modh->settings.data["textData"]["hero"].Integer());
 		const int moddedStart = legacyHeroes + GameConstants::HERO_PORTRAIT_SHIFT;
 
 		if(handler.saving)

@@ -178,7 +178,7 @@ Goals::TGoalVec PathfindingManager::findPath(
 #ifdef VCMI_TRACE_PATHFINDER
 		logAi->trace("Gather army for %s, value=%s", hero->name, std::to_string(danger));
 #endif
-		result.push_back(sptr(Goals::GatherArmy(danger * SAFE_ATTACK_CONSTANT).sethero(hero).setisAbstract(true)));
+		result.push_back(sptr(Goals::GatherArmy((int)(danger * SAFE_ATTACK_CONSTANT)).sethero(hero).setisAbstract(true)));
 	}
 
 	return result;

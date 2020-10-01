@@ -178,7 +178,7 @@ void CClient::loadGame()
 void CClient::serialize(BinarySerializer & h, const int version)
 {
 	assert(h.saving);
-	ui8 players = playerint.size();
+	ui8 players = static_cast<ui8>(playerint.size());
 	h & players;
 
 	for(auto i = playerint.begin(); i != playerint.end(); i++)

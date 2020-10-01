@@ -102,7 +102,7 @@ void CArchiveLoader::initVIDArchive(const std::string &mountPoint, CFileInputStr
 		offsets.insert(entry.offset);
 		entries[ResourceID(mountPoint + entry.name)] = entry;
 	}
-	offsets.insert(fileStream.getSize());
+	offsets.insert((int)fileStream.getSize());
 
 	// now when we know position of all files their sizes can be set correctly
 	for (auto & entry : entries)

@@ -47,8 +47,8 @@ CLabel::CLabel(int x, int y, EFonts Font, EAlignment Align, const SDL_Color & Co
 
 	if(alignment == TOPLEFT) // causes issues for MIDDLE
 	{
-		pos.w = graphics->fonts[font]->getStringWidth(visibleText().c_str());
-		pos.h = graphics->fonts[font]->getLineHeight();
+		pos.w = (int)graphics->fonts[font]->getStringWidth(visibleText().c_str());
+		pos.h = (int)graphics->fonts[font]->getLineHeight();
 	}
 }
 
@@ -151,8 +151,8 @@ void CTextContainer::blitLine(SDL_Surface *to, Rect destRect, std::string what)
 
 	if (alignment == BOTTOMRIGHT)
 	{
-		where.x += getBorderSize().x + destRect.w - f->getStringWidth(what);
-		where.y += getBorderSize().y + destRect.h - f->getLineHeight();
+		where.x += getBorderSize().x + destRect.w - (int)f->getStringWidth(what);
+		where.y += getBorderSize().y + destRect.h - (int)f->getLineHeight();
 	}
 
 	size_t begin = 0;
@@ -172,7 +172,7 @@ void CTextContainer::blitLine(SDL_Surface *to, Rect destRect, std::string what)
 				f->renderTextLeft(to, toPrint, color, where);
 			begin = end;
 
-			where.x += f->getStringWidth(toPrint);
+			where.x += (int)f->getStringWidth(toPrint);
 		}
 		currDelimeter++;
 	}
@@ -192,24 +192,24 @@ void CMultiLineLabel::showAll(SDL_Surface * to)
 	const auto f = graphics->fonts[font];
 
 	// calculate which lines should be visible
-	int totalLines = lines.size();
+	int totalLines = static_cast<int>(lines.size());
 	int beginLine  = visibleSize.y;
 	int endLine    = getTextLocation().h + visibleSize.y;
 
 	if (beginLine < 0)
 		beginLine = 0;
 	else
-		beginLine /= f->getLineHeight();
+		beginLine /= (int)f->getLineHeight();
 
 	if (endLine < 0)
 		endLine = 0;
 	else
-		endLine /= f->getLineHeight();
+		endLine /= (int)f->getLineHeight();
 	endLine++;
 
 	// and where they should be displayed
-	Point lineStart = getTextLocation().topLeft() - visibleSize + Point(0, beginLine * f->getLineHeight());
-	Point lineSize  = Point(getTextLocation().w, f->getLineHeight());
+	Point lineStart = getTextLocation().topLeft() - visibleSize + Point(0, beginLine * (int)f->getLineHeight());
+	Point lineSize  = Point(getTextLocation().w, (int)f->getLineHeight());
 
 	CSDL_Ext::CClipRectGuard guard(to, getTextLocation()); // to properly trim text that is too big to fit
 
@@ -218,7 +218,7 @@ void CMultiLineLabel::showAll(SDL_Surface * to)
 		if (!lines[i].empty()) //non-empty line
 			blitLine(to, Rect(lineStart, lineSize), lines[i]);
 
-		lineStart.y += f->getLineHeight();
+		lineStart.y += (int)f->getLineHeight();
 	}
 }
 
@@ -227,11 +227,11 @@ void CMultiLineLabel::splitText(const std::string &Txt, bool redrawAfter)
 	lines.clear();
 
 	const auto f = graphics->fonts[font];
-	int lineHeight =  f->getLineHeight();
+	int lineHeight =  static_cast<int>(f->getLineHeight());
 
 	lines = CMessage::breakText(Txt, pos.w, font);
 
-	 textSize.y = lineHeight * lines.size();
+	 textSize.y = lineHeight * (int)lines.size();
 	 textSize.x = 0;
 	for(const std::string &line : lines)
 		vstd::amax( textSize.x, f->getStringWidth(line.c_str()));
@@ -247,7 +247,7 @@ Rect CMultiLineLabel::getTextLocation()
 	if (pos.h <= textSize.y)
 		return pos;
 
-	Point textSize(pos.w, graphics->fonts[font]->getLineHeight() * lines.size());
+	Point textSize(pos.w, (int)graphics->fonts[font]->getLineHeight() * (int)lines.size());
 	Point textOffset(pos.w - textSize.x, pos.h - textSize.y);
 
 	switch(alignment)
@@ -335,7 +335,7 @@ void CTextBox::setText(const std::string &text)
 		OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
 		slider = std::make_shared<CSlider>(Point(pos.w - 32, 0), pos.h, std::bind(&CTextBox::sliderMoved, this, _1),
 		                     label->pos.h, label->textSize.y, 0, false, CSlider::EStyle(sliderStyle));
-		slider->setScrollStep(graphics->fonts[label->font]->getLineHeight());
+		slider->setScrollStep((int)graphics->fonts[label->font]->getLineHeight());
 	}
 }
 
@@ -367,7 +367,7 @@ CGStatusBar::CGStatusBar(int x, int y, std::string name, int maxw)
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	background = std::make_shared<CPicture>(name);
 	pos = background->pos;
-	if((unsigned int)maxw < pos.w)
+	if(maxw < pos.w)
 	{
 		vstd::amin(pos.w, maxw);
 		background->srcRect = new Rect(0, 0, maxw, pos.h);

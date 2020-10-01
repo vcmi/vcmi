@@ -168,14 +168,14 @@ void JsonNode::setType(JsonType Type)
 	//float<->int conversion
 	if(type == JsonType::DATA_FLOAT && Type == JsonType::DATA_INTEGER)
 	{
-		si64 converted = data.Float;
+		si64 converted = static_cast<si64>(data.Float);
 		type = Type;
 		data.Integer = converted;
 		return;
 	}
 	else if(type == JsonType::DATA_INTEGER && Type == JsonType::DATA_FLOAT)
 	{
-		double converted = data.Integer;
+		double converted = static_cast<double>(data.Integer);
 		type = Type;
 		data.Float = converted;
 		return;
@@ -249,7 +249,7 @@ bool JsonNode::isCompact() const
 		return true;
 	case JsonType::DATA_STRUCT:
 		{
-			int propertyCount = data.Struct->size();
+			auto propertyCount = data.Struct->size();
 			if(propertyCount == 0)
 				return true;
 			else if(propertyCount == 1)
@@ -317,7 +317,7 @@ double JsonNode::Float() const
 	if(type == JsonType::DATA_NULL)
 		return floatDefault;
 	else if(type == JsonType::DATA_INTEGER)
-		return data.Integer;
+		return static_cast<double>(data.Integer);
 
 	assert(type == JsonType::DATA_FLOAT);
 	return data.Float;
@@ -329,7 +329,7 @@ si64 JsonNode::Integer() const
 	if(type == JsonType::DATA_NULL)
 		return integetDefault;
 	else if(type == JsonType::DATA_FLOAT)
-		return data.Float;
+		return static_cast<si64>(data.Float);
 
 	assert(type == JsonType::DATA_INTEGER);
 	return data.Integer;
@@ -426,9 +426,9 @@ std::string JsonNode::toJson(bool compact) const
 
 void JsonUtils::parseTypedBonusShort(const JsonVector& source, std::shared_ptr<Bonus> dest)
 {
-	dest->val = source[1].Float();
+	dest->val = static_cast<si32>(source[1].Float());
 	resolveIdentifier(source[2],dest->subtype);
-	dest->additionalInfo = source[3].Float();
+	dest->additionalInfo = static_cast<si32>(source[3].Float());
 	dest->duration = Bonus::PERMANENT; //TODO: handle flags (as integer)
 	dest->turnsRemain = 0;
 }
@@ -479,10 +479,10 @@ void JsonUtils::resolveIdentifier(si32 &var, const JsonNode &node, std::string n
 		switch (value.getType())
 		{
 			case JsonNode::JsonType::DATA_INTEGER:
-				var = value.Integer();
+				var = static_cast<si32>(value.Integer());
 				break;
 			case JsonNode::JsonType::DATA_FLOAT:
-				var = value.Float();
+				var = static_cast<si32>(value.Float());
 				break;
 			case JsonNode::JsonType::DATA_STRING:
 				VLC->modh->identifiers.requestIdentifier(value, [&](si32 identifier)
@@ -504,10 +504,10 @@ void JsonUtils::resolveAddInfo(CAddInfo & var, const JsonNode & node)
 		switch (value.getType())
 		{
 		case JsonNode::JsonType::DATA_INTEGER:
-			var = value.Integer();
+			var = static_cast<si32>(value.Integer());
 			break;
 		case JsonNode::JsonType::DATA_FLOAT:
-			var = value.Float();
+			var = static_cast<si32>(value.Float());
 			break;
 		case JsonNode::JsonType::DATA_STRING:
 			VLC->modh->identifiers.requestIdentifier(value, [&](si32 identifier)
@@ -524,10 +524,10 @@ void JsonUtils::resolveAddInfo(CAddInfo & var, const JsonNode & node)
 					switch(vec[i].getType())
 					{
 						case JsonNode::JsonType::DATA_INTEGER:
-							var[i] = vec[i].Integer();
+							var[i] = static_cast<si32>(vec[i].Integer());
 							break;
 						case JsonNode::JsonType::DATA_FLOAT:
-							var[i] = vec[i].Float();
+							var[i] = static_cast<si32>(vec[i].Float());
 							break;
 						case JsonNode::JsonType::DATA_STRING:
 							VLC->modh->identifiers.requestIdentifier(vec[i], [&var,i](si32 identifier)
@@ -552,10 +552,10 @@ void JsonUtils::resolveIdentifier(const JsonNode &node, si32 &var)
 	switch (node.getType())
 	{
 		case JsonNode::JsonType::DATA_INTEGER:
-			var = node.Integer();
+			var = static_cast<si32>(node.Integer());
 			break;
 		case JsonNode::JsonType::DATA_FLOAT:
-			var = node.Float();
+			var = static_cast<si32>(node.Float());
 			break;
 		case JsonNode::JsonType::DATA_STRING:
 			VLC->modh->identifiers.requestIdentifier(node, [&](si32 identifier)
@@ -712,7 +712,7 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 
 	resolveIdentifier(b->subtype, ability, "subtype");
 
-	b->val = ability["val"].Float();
+	b->val = static_cast<si32>(ability["val"].Float());
 
 	value = &ability["valueType"];
 	if (!value->isNull())
@@ -722,9 +722,9 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 
 	resolveAddInfo(b->additionalInfo, ability);
 
-	b->turnsRemain = ability["turns"].Float();
+	b->turnsRemain = static_cast<si32>(ability["turns"].Float());
 
-	b->sid = ability["sourceID"].Float();
+	b->sid = static_cast<si32>(ability["sourceID"].Float());
 
 	b->description = ability["description"].String();
 
@@ -781,9 +781,9 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 			{
 				std::shared_ptr<GrowsWithLevelUpdater> updater = std::make_shared<GrowsWithLevelUpdater>();
 				const JsonVector param = updaterJson["parameters"].Vector();
-				updater->valPer20 = param[0].Integer();
+				updater->valPer20 = static_cast<int>(param[0].Integer());
 				if(param.size() > 1)
-					updater->stepSize = param[1].Integer();
+					updater->stepSize = static_cast<int>(param[1].Integer());
 				b->addUpdater(updater);
 			}
 			else

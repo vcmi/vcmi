@@ -342,7 +342,7 @@ namespace vstd
 	template <typename Container, typename T2>
 	int find_pos(const Container & c, const T2 &s)
 	{
-		size_t i=0;
+		int i=0;
 		for (auto iter = std::begin(c); iter != std::end(c); iter++, i++)
 			if(*iter == s)
 				return i;
@@ -407,11 +407,11 @@ namespace vstd
 	template <typename t1, typename t2>
 	t1 &amax(t1 &a, const t2 &b)
 	{
-		if(a >= b)
+		if(a >= (t1)b)
 			return a;
 		else
 		{
-			a = b;
+			a = t1(b);
 			return a;
 		}
 	}
@@ -420,11 +420,11 @@ namespace vstd
 	template <typename t1, typename t2>
 	t1 &amin(t1 &a, const t2 &b)
 	{
-		if(a <= b)
+		if(a <= (t1)b)
 			return a;
 		else
 		{
-			a = b;
+			a = t1(b);
 			return a;
 		}
 	}
@@ -442,14 +442,14 @@ namespace vstd
 	template <typename t1, typename t2, typename t3>
 	bool isbetween(const t1 &value, const t2 &min, const t3 &max)
 	{
-		return value > min && value < max;
+		return value > (t1)min && value < (t1)max;
 	}
 
 	//checks if a is within b and c
 	template <typename t1, typename t2, typename t3>
 	bool iswithin(const t1 &value, const t2 &min, const t3 &max)
 	{
-		return value >= min && value <= max;
+		return value >= (t1)min && value <= (t1)max;
 	}
 
 	template <typename t1, typename t2>

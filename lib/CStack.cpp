@@ -316,7 +316,7 @@ std::string CStack::getName() const
 
 bool CStack::canBeHealed() const
 {
-	return getFirstHPleft() < MaxHealth()
+	return getFirstHPleft() < (int32_t)MaxHealth()
 		   && isValidTarget()
 		   && !hasBonusOfType(Bonus::SIEGE_WEAPON);
 }

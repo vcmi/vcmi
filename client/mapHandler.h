@@ -150,7 +150,7 @@ public:
 	}
 	int size() const
 	{
-		return inver.size();
+		return static_cast<int>(inver.size());
 	}
 
 private:

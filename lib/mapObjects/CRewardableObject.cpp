@@ -44,7 +44,7 @@ bool CRewardLimiter::heroAllowed(const CGHeroInstance * hero) const
 	if(!IObjectInterface::cb->getPlayer(hero->tempOwner)->resources.canAfford(resources))
 		return false;
 
-	if(minLevel > hero->level)
+	if(minLevel > (si32)hero->level)
 		return false;
 
 	for(size_t i=0; i<primary.size(); i++)
@@ -80,7 +80,7 @@ std::vector<ui32> CRewardableObject::getAvailableRewards(const CGHeroInstance * 
 			&& visit.limiter.heroAllowed(hero))
 		{
 			logGlobal->trace("Reward %d is allowed", i);
-			ret.push_back(i);
+			ret.push_back(static_cast<ui32>(i));
 		}
 	}
 	return ret;
@@ -161,7 +161,7 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *h) const
 						grantRewardWithMessage(rewards[0]);
 						break;
 					case SELECT_RANDOM: // select one randomly //TODO: use weights
-						grantRewardWithMessage(rewards[CRandomGenerator::getDefault().nextInt(rewards.size()-1)]);
+						grantRewardWithMessage(rewards[CRandomGenerator::getDefault().nextInt((int)rewards.size()-1)]);
 						break;
 				}
 				break;
@@ -360,7 +360,7 @@ void CRewardInfo::loadComponents(std::vector<Component> & comps,
 	if (gainedExp)
 	{
 		comps.push_back(Component(
-			Component::EXPERIENCE, 0, h->calculateXp(gainedExp), 0));
+			Component::EXPERIENCE, 0, (si32)h->calculateXp(gainedExp), 0));
 	}
 	if (gainedLevels) comps.push_back(Component(Component::EXPERIENCE, 0, gainedLevels, 0));
 
@@ -369,7 +369,7 @@ void CRewardInfo::loadComponents(std::vector<Component> & comps,
 	for (size_t i=0; i<primary.size(); i++)
 	{
 		if (primary[i] != 0)
-			comps.push_back(Component(Component::PRIM_SKILL, i, primary[i], 0));
+			comps.push_back(Component(Component::PRIM_SKILL, (ui16)i, primary[i], 0));
 	}
 
 	for (auto & entry : secondary)
@@ -387,7 +387,7 @@ void CRewardInfo::loadComponents(std::vector<Component> & comps,
 	for (size_t i=0; i<resources.size(); i++)
 	{
 		if (resources[i] !=0)
-			comps.push_back(Component(Component::RESOURCE, i, resources[i], 0));
+			comps.push_back(Component(Component::RESOURCE, (ui16)i, resources[i], 0));
 	}
 }
 
@@ -1153,7 +1153,7 @@ std::vector<ui32> CGMagicSpring::getAvailableRewards(const CGHeroInstance * hero
 	{
 		if (pos - tiles[i] == hero->getPosition() && info[i].numOfGrants == 0)
 		{
-			return std::vector<ui32>(1, i);
+			return std::vector<ui32>(1, (ui32)i);
 		}
 	}
 	// hero is either not on visitable tile (should not happen) or tile is already used

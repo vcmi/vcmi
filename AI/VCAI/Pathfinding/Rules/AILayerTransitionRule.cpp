@@ -116,7 +116,7 @@ namespace AIPathfinding
 			auto boatNodeOptional = nodeStorage->getOrCreateNode(
 				node->coord,
 				node->layer,
-				node->chainMask | virtualBoat->getSpecialChain());
+				(int)(node->chainMask | virtualBoat->getSpecialChain()));
 
 			if(boatNodeOptional)
 			{

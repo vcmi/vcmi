@@ -40,7 +40,7 @@ static void retrieveTurretDamageRange(const CGTownInstance * town, const battle:
 	assert(town);
 	assert(turret->getPosition() >= -4 && turret->getPosition() <= -2);
 
-	const float multiplier = (turret->getPosition() == -2) ? 1 : 0.5;
+	const float multiplier = (turret->getPosition() == -2) ? 1.0f : 0.5f;
 
 	//Revised - Where do below values come from?
 	/*int baseMin = 6;
@@ -579,7 +579,7 @@ std::vector<BattleHex> CBattleInfoCallback::battleGetAvailableHexes(const Reacha
 		else
 		{
 			//Not tactics phase -> destination must be reachable and within unit range.
-			if(cache.distances[i] > unitSpeed)
+			if(cache.distances[i] > (int)unitSpeed)
 				continue;
 		}
 
@@ -1901,7 +1901,7 @@ int CBattleInfoCallback::battleGetSurrenderCost(PlayerColor Player) const
 	if(const CGHeroInstance * h = battleGetFightingHero(side))
 		discount += h->valOfBonuses(Bonus::SURRENDER_DISCOUNT);
 
-	ret *= (100.0 - discount) / 100.0;
+	ret = static_cast<int>(ret * (100.0 - discount) / 100.0);
 	vstd::amax(ret, 0); //no negative costs for >100% discounts (impossible in original H3 mechanics, but some day...)
 	return ret;
 }

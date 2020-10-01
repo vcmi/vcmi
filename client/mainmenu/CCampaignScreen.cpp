@@ -77,17 +77,17 @@ std::shared_ptr<CButton> CCampaignScreen::createExitButton(const JsonNode & butt
 {
 	std::pair<std::string, std::string> help;
 	if(!button["help"].isNull() && button["help"].Float() > 0)
-		help = CGI->generaltexth->zelp[button["help"].Float()];
+		help = CGI->generaltexth->zelp[(size_t)button["help"].Float()];
 
-	return std::make_shared<CButton>(Point(button["x"].Float(), button["y"].Float()), button["name"].String(), help, [=](){ close();}, button["hotkey"].Float());
+	return std::make_shared<CButton>(Point((int)button["x"].Float(), (int)button["y"].Float()), button["name"].String(), help, [=](){ close();}, (int)button["hotkey"].Float());
 }
 
 CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
-	pos.x += config["x"].Float();
-	pos.y += config["y"].Float();
+	pos.x += static_cast<int>(config["x"].Float());
+	pos.y += static_cast<int>(config["y"].Float());
 	pos.w = 200;
 	pos.h = 116;
 

@@ -52,19 +52,19 @@ float AnimationControls::getCreatureAnimationSpeed(const CCreature * creature, c
 	//split "Attack time" into "Shoot Time" and "Cast Time"
 
 	// a lot of arbitrary multipliers, mostly to make animation speed closer to H3
-	const float baseSpeed = 0.1;
-	const float speedMult = settings["battle"]["animationSpeed"].Float();
+	const float baseSpeed = 0.1f;
+	const float speedMult = static_cast<float>(settings["battle"]["animationSpeed"].Float());
 	const float speed = baseSpeed / speedMult;
 
 	switch (type)
 	{
 	case CCreatureAnim::MOVING:
-		return speed * 2 * creature->animation.walkAnimationTime / anim->framesInGroup(type);
+		return static_cast<float>(speed * 2 * creature->animation.walkAnimationTime / anim->framesInGroup(type));
 
 	case CCreatureAnim::MOUSEON:
 		return baseSpeed;
 	case CCreatureAnim::HOLDING:
-		return baseSpeed * creature->animation.idleAnimationTime / anim->framesInGroup(type);
+		return static_cast<float>(baseSpeed * creature->animation.idleAnimationTime / anim->framesInGroup(type));
 
 	case CCreatureAnim::SHOOT_UP:
 	case CCreatureAnim::SHOOT_FRONT:
@@ -75,7 +75,7 @@ float AnimationControls::getCreatureAnimationSpeed(const CCreature * creature, c
 	case CCreatureAnim::VCMI_CAST_DOWN:
 	case CCreatureAnim::VCMI_CAST_FRONT:
 	case CCreatureAnim::VCMI_CAST_UP:
-		return speed * 4 * creature->animation.attackAnimationTime / anim->framesInGroup(type);
+		return static_cast<float>(speed * 4 * creature->animation.attackAnimationTime / anim->framesInGroup(type));
 
 	// as strange as it looks like "attackAnimationTime" does not affects melee attacks
 	// necessary because length of these animations must be same for all creatures for synchronization
@@ -110,22 +110,22 @@ float AnimationControls::getCreatureAnimationSpeed(const CCreature * creature, c
 
 float AnimationControls::getProjectileSpeed()
 {
-	return settings["battle"]["animationSpeed"].Float() * 100;
+	return static_cast<float>(settings["battle"]["animationSpeed"].Float() * 100);
 }
 
 float AnimationControls::getSpellEffectSpeed()
 {
-	return settings["battle"]["animationSpeed"].Float() * 30;
+	return static_cast<float>(settings["battle"]["animationSpeed"].Float() * 30);
 }
 
 float AnimationControls::getMovementDuration(const CCreature * creature)
 {
-	return settings["battle"]["animationSpeed"].Float() * 4 / creature->animation.walkAnimationTime;
+	return static_cast<float>(settings["battle"]["animationSpeed"].Float() * 4 / creature->animation.walkAnimationTime);
 }
 
 float AnimationControls::getFlightDistance(const CCreature * creature)
 {
-	return creature->animation.flightAnimationDistance * 200;
+	return static_cast<float>(creature->animation.flightAnimationDistance * 200);
 }
 
 CCreatureAnim::EAnimType CCreatureAnimation::getType() const
@@ -153,7 +153,7 @@ void CCreatureAnimation::shiftColor(const ColorShifter* shifter)
 
 CCreatureAnimation::CCreatureAnimation(const std::string & name_, TSpeedController controller)
 	: name(name_),
-	  speed(0.1),
+	  speed(0.1f),
 	  currentFrame(0),
 	  elapsedTime(0),
 	  type(CCreatureAnim::HOLDING),
@@ -256,7 +256,7 @@ inline int getBorderStrength(float time)
 {
 	float borderStrength = fabs(vstd::round(time) - time) * 2; // generate value in range 0-1
 
-	return borderStrength * 155 + 100; // scale to 0-255
+	return static_cast<int>(borderStrength * 155 + 100); // scale to 0-255
 }
 
 static SDL_Color genShadow(ui8 alpha)
@@ -293,7 +293,7 @@ void CCreatureAnimation::genBorderPalette(IImage::BorderPallete & target)
 
 void CCreatureAnimation::nextFrame(SDL_Surface * dest, bool attacker)
 {
-	size_t frame = floor(currentFrame);
+	size_t frame = static_cast<size_t>(floor(currentFrame));
 
 	std::shared_ptr<IImage> image;
 
@@ -315,7 +315,7 @@ void CCreatureAnimation::nextFrame(SDL_Surface * dest, bool attacker)
 
 int CCreatureAnimation::framesInGroup(CCreatureAnim::EAnimType group) const
 {
-	return forward->size(group);
+	return static_cast<int>(forward->size(group));
 }
 
 bool CCreatureAnimation::isDead() const

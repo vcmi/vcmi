@@ -9,7 +9,7 @@ class VCAI;
 
 class ResourceManagerMock : public ResourceManager
 {	
-	friend class ResourceManagerTest; //everything is public
+	friend struct ResourceManagerTest; //everything is public
 public:
 	using ResourceManager::ResourceManager;
 	//access protected members, TODO: consider other architecture?

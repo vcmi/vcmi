@@ -94,7 +94,7 @@ namespace CGH
 			std::vector<int> pom;
 			for(const JsonNode &value : level.Vector())
 			{
-				pom.push_back(value.Float());
+				pom.push_back((int)value.Float());
 			}
 
 			dest.push_back(pom);
@@ -264,12 +264,12 @@ BattleInfo * BattleInfo::setupBattle(int3 tile, ETerrainType terrain, BFieldType
 				auto obstPtr = std::make_shared<CObstacleInstance>();
 				obstPtr->obstacleType = CObstacleInstance::ABSOLUTE_OBSTACLE;
 				obstPtr->ID = obidgen.getSuchNumber(appropriateAbsoluteObstacle);
-				obstPtr->uniqueID = curB->obstacles.size();
+				obstPtr->uniqueID = static_cast<si32>(curB->obstacles.size());
 				curB->obstacles.push_back(obstPtr);
 
 				for(BattleHex blocked : obstPtr->getBlockedTiles())
 					blockedTiles.push_back(blocked);
-				tilesToBlock -= VLC->heroh->absoluteObstacles[obstPtr->ID].blockedTiles.size() / 2;
+				tilesToBlock -= (int)VLC->heroh->absoluteObstacles[obstPtr->ID].blockedTiles.size() / 2;
 			}
 			catch(RangeGenerator::ExhaustedPossibilities &)
 			{
@@ -317,12 +317,12 @@ BattleInfo * BattleInfo::setupBattle(int3 tile, ETerrainType terrain, BFieldType
 				auto obstPtr = std::make_shared<CObstacleInstance>();
 				obstPtr->ID = obid;
 				obstPtr->pos = posgenerator.getSuchNumber(validPosition);
-				obstPtr->uniqueID = curB->obstacles.size();
+				obstPtr->uniqueID = static_cast<si32>(curB->obstacles.size());
 				curB->obstacles.push_back(obstPtr);
 
 				for(BattleHex blocked : obstPtr->getBlockedTiles())
 					blockedTiles.push_back(blocked);
-				tilesToBlock -= obi.blockedTiles.size();
+				tilesToBlock -= static_cast<int>(obi.blockedTiles.size());
 			}
 		}
 		catch(RangeGenerator::ExhaustedPossibilities &)
@@ -347,11 +347,11 @@ BattleInfo * BattleInfo::setupBattle(int3 tile, ETerrainType terrain, BFieldType
 
 	for (auto position : config["commanderPositions"]["field"].Vector())
 	{
-		commanderField.push_back (position.Float());
+		commanderField.push_back ((int)position.Float());
 	}
 	for (auto position : config["commanderPositions"]["creBank"].Vector())
 	{
-		commanderBank.push_back (position.Float());
+		commanderBank.push_back ((int)position.Float());
 	}
 
 
@@ -444,7 +444,7 @@ BattleInfo * BattleInfo::setupBattle(int3 tile, ETerrainType terrain, BFieldType
 		auto moat = std::make_shared<MoatObstacle>();
 		moat->ID = curB->town->subID;
 		moat->obstacleType = CObstacleInstance::MOAT;
-		moat->uniqueID = curB->obstacles.size();
+		moat->uniqueID = static_cast<si32>(curB->obstacles.size());
 		curB->obstacles.push_back(moat);
 	}
 
@@ -980,7 +980,7 @@ void BattleInfo::removeUnitBonus(uint32_t id, const std::vector<Bonus> & bonus)
 
 uint32_t BattleInfo::nextUnitId() const
 {
-	return stacks.size();
+	return static_cast<uint32_t>(stacks.size());
 }
 
 void BattleInfo::addOrUpdateUnitBonus(CStack * sta, const Bonus & value, bool forceAdd)

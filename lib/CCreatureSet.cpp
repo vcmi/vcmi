@@ -261,7 +261,7 @@ std::string CCreatureSet::getArmyDescription() const
 
 int CCreatureSet::stacksCount() const
 {
-	return stacks.size();
+	return static_cast<int>(stacks.size());
 }
 
 void CCreatureSet::setFormation(bool tight)
@@ -274,7 +274,7 @@ void CCreatureSet::setStackCount(SlotID slot, TQuantity count)
 	assert(hasStackAtSlot(slot));
 	assert(stacks[slot]->count + count > 0);
 	if (VLC->modh->modules.STACK_EXP && count > stacks[slot]->count)
-		stacks[slot]->experience *= (count / static_cast<double>(stacks[slot]->count));
+		stacks[slot]->experience = static_cast<TExpType>(stacks[slot]->experience * (count / static_cast<double>(stacks[slot]->count)));
 	stacks[slot]->count = count;
 	armyChanged();
 }
@@ -520,7 +520,7 @@ void CCreatureSet::serializeJson(JsonSerializeFormat & handler, const std::strin
 			{
 				CStackInstance * new_stack = new CStackInstance();
 				new_stack->serializeJson(handler);
-				putStack(SlotID(idx), new_stack);
+				putStack(SlotID((si32)idx), new_stack);
 			}
 		}
 	}
@@ -570,7 +570,7 @@ int CStackInstance::getExpRank() const
 	int tier = type->level;
 	if (vstd::iswithin(tier, 1, 7))
 	{
-		for (int i = VLC->creh->expRanks[tier].size()-2; i >-1; --i)//sic!
+		for (int i = (int)VLC->creh->expRanks[tier].size()-2; i >-1; --i)//sic!
 		{ //exp values vary from 1st level to max exp at 11th level
 			if (experience >= VLC->creh->expRanks[tier][i])
 				return ++i; //faster, but confusing - 0 index mean 1st level of experience
@@ -579,7 +579,7 @@ int CStackInstance::getExpRank() const
 	}
 	else //higher tier
 	{
-		for (int i = VLC->creh->expRanks[0].size()-2; i >-1; --i)
+		for (int i = (int)VLC->creh->expRanks[0].size()-2; i >-1; --i)
 		{
 			if (experience >= VLC->creh->expRanks[0][i])
 				return ++i;
@@ -633,7 +633,7 @@ void CStackInstance::setType(const CCreature *c)
 	{
 		detachFrom(const_cast<CCreature*>(type));
 		if (type->isMyUpgrade(c) && VLC->modh->modules.STACK_EXP)
-			experience *= VLC->creh->expAfterUpgrade / 100.0;
+			experience = static_cast<TExpType>(experience * VLC->creh->expAfterUpgrade / 100.0);
 	}
 
 	CStackBasicDescriptor::setType(c);
@@ -858,7 +858,7 @@ ArtBearer::ArtBearer CCommanderInstance::bearerType() const
 
 bool CCommanderInstance::gainsLevel() const
 {
-	return experience >= VLC->heroh->reqExp(level+1);
+	return experience >= (TExpType)VLC->heroh->reqExp(level+1);
 }
 
 CStackBasicDescriptor::CStackBasicDescriptor()

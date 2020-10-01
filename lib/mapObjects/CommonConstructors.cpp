@@ -264,7 +264,7 @@ void CBankInstanceConstructor::initTypeData(const JsonNode & input)
 {
 	//TODO: name = input["name"].String();
 	levels = input["levels"].Vector();
-	bankResetDuration = input["resetDuration"].Float();
+	bankResetDuration = static_cast<si32>(input["resetDuration"].Float());
 }
 
 CGObjectInstance *CBankInstanceConstructor::create(const ObjectTemplate & tmpl) const
@@ -276,22 +276,22 @@ BankConfig CBankInstanceConstructor::generateConfig(const JsonNode & level, CRan
 {
 	BankConfig bc;
 
-	bc.chance = level["chance"].Float();
+	bc.chance = static_cast<ui32>(level["chance"].Float());
 
 	bc.guards = JsonRandom::loadCreatures(level["guards"], rng);
-	bc.upgradeChance = level["upgrade_chance"].Float();
-	bc.combatValue = level["combat_value"].Float();
+	bc.upgradeChance = static_cast<ui32>(level["upgrade_chance"].Float());
+	bc.combatValue = static_cast<ui32>(level["combat_value"].Float());
 
 	std::vector<SpellID> spells;
 	for (size_t i=0; i<6; i++)
-		IObjectInterface::cb->getAllowedSpells(spells, i);
+		IObjectInterface::cb->getAllowedSpells(spells, static_cast<ui16>(i));
 
 	bc.resources = Res::ResourceSet(level["reward"]["resources"]);
 	bc.creatures = JsonRandom::loadCreatures(level["reward"]["creatures"], rng);
 	bc.artifacts = JsonRandom::loadArtifacts(level["reward"]["artifacts"], rng);
 	bc.spells    = JsonRandom::loadSpells(level["reward"]["spells"], rng, spells);
 
-	bc.value = level["value"].Float();
+	bc.value = static_cast<ui32>(level["value"].Float());
 
 	return bc;
 }
@@ -304,7 +304,7 @@ void CBankInstanceConstructor::configureObject(CGObjectInstance * object, CRando
 
 	si32 totalChance = 0;
 	for (auto & node : levels)
-		totalChance += node["chance"].Float();
+		totalChance += static_cast<si32>(node["chance"].Float());
 
 	assert(totalChance != 0);
 
@@ -313,7 +313,7 @@ void CBankInstanceConstructor::configureObject(CGObjectInstance * object, CRando
 	int cumulativeChance = 0;
 	for (auto & node : levels)
 	{
-		cumulativeChance += node["chance"].Float();
+		cumulativeChance += static_cast<int>(node["chance"].Float());
 		if (selectedChance < cumulativeChance)
 		{
 			 bank->setConfig(generateConfig(node, rng));
@@ -406,7 +406,7 @@ TPossibleGuards CBankInfo::getPossibleGuards() const
 			//TODO: add fields for flyers, walkers etc...
 		}
 
-		ui8 chance = configEntry["chance"].Float();
+		ui8 chance = static_cast<ui8>(configEntry["chance"].Float());
 		out.push_back(std::make_pair(chance, army));
 	}
 	return out;

@@ -255,7 +255,7 @@ CStackWindow::BonusesSection::BonusesSection(CStackWindow * owner, int yOffset, 
 	size_t visibleSize = preferredSize ? preferredSize.get() : std::min<size_t>(3, totalSize);
 
 	pos.w = owner->pos.w;
-	pos.h = itemHeight * visibleSize;
+	pos.h = itemHeight * (int)visibleSize;
 
 	auto onCreate = [=](size_t index) -> std::shared_ptr<CIntObject>
 	{
@@ -306,7 +306,7 @@ CStackWindow::ButtonsSection::ButtonsSection(CStackWindow * owner, int yOffset)
 				std::vector<std::shared_ptr<CComponent>> resComps;
 				for(TResources::nziterator i(totalCost); i.valid(); i++)
 				{
-					resComps.push_back(std::make_shared<CComponent>(CComponent::resource, i->resType, i->resVal));
+					resComps.push_back(std::make_shared<CComponent>(CComponent::resource, i->resType, (int)i->resVal));
 				}
 
 				if(LOCPLINT->cb->getResourceAmount().canAfford(totalCost))
@@ -318,7 +318,7 @@ CStackWindow::ButtonsSection::ButtonsSection(CStackWindow * owner, int yOffset)
 					LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[314], resComps);
 				}
 			};
-			auto upgradeBtn = std::make_shared<CButton>(Point(221 + buttonIndex * 40, 5), "stackWindow/upgradeButton", CGI->generaltexth->zelp[446], onClick, SDLK_1);
+			auto upgradeBtn = std::make_shared<CButton>(Point(221 + (int)buttonIndex * 40, 5), "stackWindow/upgradeButton", CGI->generaltexth->zelp[446], onClick, SDLK_1);
 
 			upgradeBtn->addOverlay(std::make_shared<CAnimImage>("CPRSMALL", VLC->creh->creatures[upgradeInfo.info.newID[buttonIndex]]->iconIndex));
 
@@ -342,7 +342,7 @@ CStackWindow::ButtonsSection::ButtonsSection(CStackWindow * owner, int yOffset)
 			};
 
 			const JsonNode & text = VLC->generaltexth->localizedTexts["creatureWindow"][btnIDs[buttonIndex]];
-			parent->switchButtons[buttonIndex] = std::make_shared<CButton>(Point(302 + buttonIndex*40, 5), "stackWindow/upgradeButton", CButton::tooltip(text), onSwitch);
+			parent->switchButtons[buttonIndex] = std::make_shared<CButton>(Point(302 + (int)buttonIndex*40, 5), "stackWindow/upgradeButton", CButton::tooltip(text), onSwitch);
 			parent->switchButtons[buttonIndex]->addOverlay(std::make_shared<CAnimImage>("stackWindow/switchModeIcons", buttonIndex));
 		}
 		parent->switchButtons[parent->activeTab]->disable();
@@ -426,7 +426,7 @@ CStackWindow::CommanderMainSection::CommanderMainSection(CStackWindow * owner, i
 			return skillID >= 100;
 		});
 
-		auto onCreate = [=](int index)->std::shared_ptr<CIntObject>
+		auto onCreate = [=](size_t index)->std::shared_ptr<CIntObject>
 		{
 			for(auto skillID : parent->info->levelupInfo->skills)
 			{
@@ -867,7 +867,7 @@ std::string CStackWindow::generateStackExpDescription()
 	boost::replace_first(expText, "%s", CGI->generaltexth->zcrexp[rank]);
 	boost::replace_first(expText, "%i", boost::lexical_cast<std::string>(rank));
 	boost::replace_first(expText, "%i", boost::lexical_cast<std::string>(stack->experience));
-	number = CGI->creh->expRanks[tier][rank] - stack->experience;
+	number = static_cast<int>(CGI->creh->expRanks[tier][rank] - stack->experience);
 	boost::replace_first(expText, "%i", boost::lexical_cast<std::string>(number));
 
 	number = CGI->creh->maxExpPerBattle[tier]; //percent
@@ -878,7 +878,7 @@ std::string CStackWindow::generateStackExpDescription()
 	boost::replace_first(expText, "%i", boost::lexical_cast<std::string>(stack->count)); //Number of Creatures in stack
 
 	int expmin = std::max(CGI->creh->expRanks[tier][std::max(rank-1, 0)], (ui32)1);
-	number = (stack->count * (stack->experience - expmin)) / expmin; //Maximum New Recruits without losing current Rank
+	number = static_cast<int>((stack->count * (stack->experience - expmin)) / expmin); //Maximum New Recruits without losing current Rank
 	boost::replace_first(expText, "%i", boost::lexical_cast<std::string>(number)); //TODO
 
 	boost::replace_first(expText, "%.2f", boost::lexical_cast<std::string>(1)); //TODO Experience Multiplier

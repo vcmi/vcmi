@@ -532,9 +532,9 @@ void CMapGenerator::createDirectConnections()
 			//find tiles with minimum manhattan distance from center of the mass of zone border
 			size_t tilesCount = middleTiles.size() ? middleTiles.size() : 1;
 			int3 middleTile = std::accumulate(middleTiles.begin(), middleTiles.end(), int3(0, 0, 0));
-			middleTile.x /= tilesCount;
-			middleTile.y /= tilesCount;
-			middleTile.z /= tilesCount; //TODO: implement division operator for int3?
+			middleTile.x /= (si32)tilesCount;
+			middleTile.y /= (si32)tilesCount;
+			middleTile.z /= (si32)tilesCount; //TODO: implement division operator for int3?
 			boost::sort(middleTiles, [middleTile](const int3 &lhs, const int3 &rhs) -> bool
 			{
 				//choose tiles with both corrdinates in the middle
@@ -640,8 +640,8 @@ void CMapGenerator::createConnections2()
 					int3 otherTile = tile;
 					otherTile.z = posB.z;
 
-					float distanceFromA = posA.dist2d(tile);
-					float distanceFromB = posB.dist2d(otherTile);
+					float distanceFromA = static_cast<float>(posA.dist2d(tile));
+					float distanceFromB = static_cast<float>(posB.dist2d(otherTile));
 
 					if (distanceFromA > 5 && distanceFromB > 5)
 					{

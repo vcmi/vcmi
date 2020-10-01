@@ -71,5 +71,5 @@ void CSaveFile::clear()
 
 void CSaveFile::putMagicBytes(const std::string &text)
 {
-	write(text.c_str(), text.length());
+	write(text.c_str(), (unsigned int)text.length());
 }

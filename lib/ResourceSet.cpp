@@ -25,7 +25,7 @@ Res::ResourceSet::ResourceSet(const JsonNode & node)
 {
 	reserve(GameConstants::RESOURCE_QUANTITY);
 	for(std::string name : GameConstants::RESOURCE_NAMES)
-		push_back(node[name].Float());
+		push_back((int)node[name].Float());
 }
 
 Res::ResourceSet::ResourceSet(TResource wood, TResource mercury, TResource ore, TResource sulfur, TResource crystal,

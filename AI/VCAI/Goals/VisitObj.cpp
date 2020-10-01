@@ -53,7 +53,7 @@ TGoalVec VisitObj::getAllPossibleSubgoals()
 			if(isSafeToVisit(hero, pos))
 				goalList.push_back(sptr(VisitObj(obj->id.getNum()).sethero(hero)));
 			else
-				goalList.push_back(sptr(GatherArmy(fh->evaluateDanger(pos, hero.h) * SAFE_ATTACK_CONSTANT).sethero(hero).setisAbstract(true)));
+				goalList.push_back(sptr(GatherArmy((int)(fh->evaluateDanger(pos, hero.h) * SAFE_ATTACK_CONSTANT)).sethero(hero).setisAbstract(true)));
 
 			return goalList;
 		}
@@ -67,7 +67,7 @@ TGoalVec VisitObj::getAllPossibleSubgoals()
 				if(isSafeToVisit(potentialVisitor, pos))
 					goalList.push_back(sptr(VisitObj(obj->id.getNum()).sethero(potentialVisitor)));
 				else
-					goalList.push_back(sptr(GatherArmy(fh->evaluateDanger(pos, potentialVisitor) * SAFE_ATTACK_CONSTANT).sethero(potentialVisitor).setisAbstract(true)));
+					goalList.push_back(sptr(GatherArmy((int)(fh->evaluateDanger(pos, potentialVisitor) * SAFE_ATTACK_CONSTANT)).sethero(potentialVisitor).setisAbstract(true)));
 			}
 		}
 		if(!goalList.empty())

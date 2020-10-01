@@ -143,7 +143,7 @@ void ObjectTemplate::readTxt(CLegacyConfigParser & parser)
 	for (size_t i=0; i<9; i++)
 	{
 		if (terrStr[8-i] == '1')
-			allowedTerrains.insert(ETerrainType(i));
+			allowedTerrains.insert(ETerrainType((si32)i));
 	}
 
 	id    = Obj(boost::lexical_cast<int>(strings[5]));
@@ -205,7 +205,7 @@ void ObjectTemplate::readMap(CBinaryReader & reader)
 	for (size_t i=0; i<9; i++)
 	{
 		if (((terrMask >> i) & 1 ) != 0)
-			allowedTerrains.insert(ETerrainType(i));
+			allowedTerrains.insert(ETerrainType((si32)i));
 	}
 
 	id = Obj(reader.readUInt32());
@@ -252,7 +252,7 @@ void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
 	else
 	{
 		for (size_t i=0; i< GameConstants::TERRAIN_TYPES; i++)
-			allowedTerrains.insert(ETerrainType(i));
+			allowedTerrains.insert(ETerrainType((si32)i));
 
 		allowedTerrains.erase(ETerrainType::ROCK);
 	}
@@ -285,7 +285,7 @@ void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
 	for (auto & line : mask)
 		vstd::amax(width, line.String().size());
 
-	setSize(width, height);
+	setSize((ui32)width, (ui32)height);
 
 	for (size_t i=0; i<mask.size(); i++)
 	{
@@ -294,7 +294,7 @@ void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
 			usedTiles[mask.size() - 1 - i][line.size() - 1 - j] = charToTile(line[j]);
 	}
 
-	printPriority = node["zIndex"].Float();
+	printPriority = static_cast<si32>(node["zIndex"].Float());
 
 	afterLoadFixup();
 }
@@ -397,7 +397,7 @@ ui32 ObjectTemplate::getWidth() const
 	ui32 ret = 0;
 	for (const auto &row : usedTiles) //copy is expensive
 	{
-		ret = std::max<ui32>(ret, row.size());
+		ret = std::max<ui32>(ret, (ui32)row.size());
 	}
 	return ret;
 }
@@ -405,7 +405,7 @@ ui32 ObjectTemplate::getWidth() const
 ui32 ObjectTemplate::getHeight() const
 {
 	//TODO: Use 2D array
-	return usedTiles.size();
+	return static_cast<ui32>(usedTiles.size());
 }
 
 void ObjectTemplate::setSize(ui32 width, ui32 height)
@@ -428,7 +428,7 @@ bool ObjectTemplate::isWithin(si32 X, si32 Y) const
 {
 	if (X < 0 || Y < 0)
 		return false;
-	return !(X >= getWidth() || Y >= getHeight());
+	return !(X >= (si32)getWidth() || Y >= (si32)getHeight());
 }
 
 bool ObjectTemplate::isVisitableAt(si32 X, si32 Y) const
@@ -449,9 +449,9 @@ bool ObjectTemplate::isBlockedAt(si32 X, si32 Y) const
 std::set<int3> ObjectTemplate::getBlockedOffsets() const
 {
 	std::set<int3> ret;
-	for(int w = 0; w < getWidth(); ++w)
+	for(int w = 0; w < (int)getWidth(); ++w)
 	{
-		for(int h = 0; h < getHeight(); ++h)
+		for(int h = 0; h < (int)getHeight(); ++h)
 		{
 			if (isBlockedAt(w, h))
 				ret.insert(int3(-w, -h, 0));
@@ -462,9 +462,9 @@ std::set<int3> ObjectTemplate::getBlockedOffsets() const
 
 int3 ObjectTemplate::getBlockMapOffset() const
 {
-	for(int w = 0; w < getWidth(); ++w)
+	for(int w = 0; w < (int)getWidth(); ++w)
 	{
-		for(int h = 0; h < getHeight(); ++h)
+		for(int h = 0; h < (int)getHeight(); ++h)
 		{
 			if (isBlockedAt(w, h))
 				return int3(w, h, 0);
@@ -494,8 +494,8 @@ bool ObjectTemplate::isVisitableFrom(si8 X, si8 Y) const
 
 int3 ObjectTemplate::getVisitableOffset() const
 {
-	for(int y = 0; y < getHeight(); y++)
-		for (int x = 0; x < getWidth(); x++)
+	for(int y = 0; y < (int)getHeight(); y++)
+		for (int x = 0; x < (int)getWidth(); x++)
 			if (isVisitableAt(x, y))
 				return int3(x,y,0);
 

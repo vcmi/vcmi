@@ -10,7 +10,7 @@
 #pragma once
 #include "../windows/CWindowObject.h"
 
-class SDL_Surface;
+struct SDL_Surface;
 class CCampaignState;
 class CButton;
 class CTextBox;

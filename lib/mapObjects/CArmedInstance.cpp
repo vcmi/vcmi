@@ -97,7 +97,7 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 	}
 	else if (!factions.empty()) // no bonus from empty garrison
 	{
-	 	b->val = 2 - factionsInArmy;
+	 	b->val = 2 - (si32)factionsInArmy;
 		b->description = boost::str(boost::format(VLC->generaltexth->arraytxt[114]) % factionsInArmy % b->val); //Troops of %d alignments %d
 		b->description = b->description.substr(0, b->description.size()-2);//trim value
 	}

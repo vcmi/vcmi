@@ -27,7 +27,7 @@ void CRandomGenerator::resetSeed()
 {
 	boost::hash<std::string> stringHash;
 	auto threadIdHash = stringHash(boost::lexical_cast<std::string>(boost::this_thread::get_id()));
-	setSeed(threadIdHash * std::time(nullptr));
+	setSeed((int)(threadIdHash * std::time(nullptr)));
 }
 
 TRandI CRandomGenerator::getIntRange(int lower, int upper)

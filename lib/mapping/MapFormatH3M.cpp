@@ -851,7 +851,7 @@ void CMapLoaderH3M::loadArtifactsOfHero(CGHeroInstance * hero)
 		int amount = reader.readUInt16();
 		for(int ss = 0; ss < amount; ++ss)
 		{
-			loadArtifactToSlot(hero, GameConstants::BACKPACK_START + hero->artifactsInBackpack.size());
+			loadArtifactToSlot(hero, GameConstants::BACKPACK_START + (int)hero->artifactsInBackpack.size());
 		}
 	}
 }
@@ -966,7 +966,7 @@ void CMapLoaderH3M::readObjects()
 		int3 objPos = readInt3();
 
 		int defnum = reader.readUInt32();
-		ObjectInstanceID idToBeGiven = ObjectInstanceID(map->objects.size());
+		ObjectInstanceID idToBeGiven = ObjectInstanceID((si32)map->objects.size());
 
 		ObjectTemplate & objTempl = templates.at(defnum);
 		reader.skip(5);
@@ -1482,7 +1482,7 @@ void CMapLoaderH3M::readObjects()
 			nobj->subID = objTempl.subid;
 		}
 		nobj->appearance = objTempl;
-		assert(idToBeGiven == ObjectInstanceID(map->objects.size()));
+		assert(idToBeGiven == ObjectInstanceID((si32)map->objects.size()));
 
 		{
 			//TODO: define valid typeName and subtypeName fro H3M maps
@@ -2072,11 +2072,11 @@ std::set<BuildingID> CMapLoaderH3M::convertBuildings(const std::set<BuildingID> 
 
 	for(const JsonNode & entry : config["table"].Vector())
 	{
-		int town = entry["town"].Float();
+		int town = static_cast<int>(entry["town"].Float());
 
 		if (town == castleID || town == -1)
 		{
-			mapa[entry["h3"].Float()] = BuildingID((si32)entry["vcmi"].Float());
+			mapa[(int)entry["h3"].Float()] = BuildingID((si32)entry["vcmi"].Float());
 		}
 	}
 

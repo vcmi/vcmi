@@ -22,7 +22,7 @@ struct SharedMemory;
 
 struct StartInfo;
 struct LobbyInfo;
-class PlayerSettings;
+struct PlayerSettings;
 class PlayerColor;
 
 template<typename T> class CApplier;

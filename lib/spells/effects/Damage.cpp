@@ -132,7 +132,7 @@ void Damage::describeEffect(std::vector<MetaString> & log, const Mechanics * m, 
 			std::string text = VLC->generaltexth->allTexts.at(343); //Does %d points of damage.
 			boost::algorithm::trim(text);
 			line << text;
-			line.addReplacement(damage); //no more text afterwards
+			line.addReplacement((int)damage); //no more text afterwards
 			log.push_back(line);
 		}
 	}
@@ -142,7 +142,7 @@ void Damage::describeEffect(std::vector<MetaString> & log, const Mechanics * m, 
 			MetaString line;
 			line.addTxt(MetaString::GENERAL_TXT, 376);
 			line.addReplacement(MetaString::SPELL_NAME, m->getSpellIndex());
-			line.addReplacement(damage);
+			line.addReplacement((int)damage);
 
 			log.push_back(line);
 		}

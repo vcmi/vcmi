@@ -17,8 +17,6 @@
 #include "../Goals/AbstractGoal.h"
 #include "Actions/ISpecialAction.h"
 
-struct AIPathNode;
-
 struct AIPathNode : public CGPathNode
 {
 	uint32_t chainMask;

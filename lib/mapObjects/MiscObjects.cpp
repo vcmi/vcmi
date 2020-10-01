@@ -248,7 +248,7 @@ void CGCreature::newTurn(CRandomGenerator & rand) const
 	{
 		if (stacks.begin()->second->count < VLC->modh->settings.CREEP_SIZE && cb->getDate(Date::DAY_OF_WEEK) == 1 && cb->getDate(Date::DAY) > 1)
 		{
-			ui32 power = temppower * (100 + VLC->modh->settings.WEEKLY_GROWTH) / 100;
+			ui32 power = static_cast<ui32>(temppower * (100 + VLC->modh->settings.WEEKLY_GROWTH) / 100);
 			cb->setObjProperty(id, ObjProperty::MONSTER_COUNT, std::min(power / 1000, (ui32)VLC->modh->settings.CREEP_SIZE)); //set new amount
 			cb->setObjProperty(id, ObjProperty::MONSTER_POWER, power); //increase temppower
 		}
@@ -432,7 +432,7 @@ void CGCreature::fight( const CGHeroInstance *h ) const
 	{
 		if (containsUpgradedStack()) //upgrade
 		{
-			SlotID slotID = SlotID(std::floor((float)stacks.size() / 2));
+			SlotID slotID = SlotID((si32)(std::floor((float)stacks.size() / 2.0f)));
 			const auto & upgrades = getStack(slotID).type->upgrades;
 			if(!upgrades.empty())
 			{
@@ -515,12 +515,12 @@ bool CGCreature::containsUpgradedStack() const
 {
 	//source http://heroescommunity.com/viewthread.php3?TID=27539&PID=830557#focus
 
-	float a = 2992.911117;
-	float b = 14174.264968;
-	float c = 5325.181015;
-	float d = 32788.727920;
+	float a = 2992.911117f;
+	float b = 14174.264968f;
+	float c = 5325.181015f;
+	float d = 32788.727920f;
 
-	int val = std::floor (a*pos.x + b*pos.y + c*pos.z + d);
+	int val = (int)std::floor (a*pos.x + b*pos.y + c*pos.z + d);
 	return ((val % 32768) % 100) < 50;
 }
 
@@ -1126,7 +1126,7 @@ void CGMonolith::initObj(CRandomGenerator & rand)
 
 	channel = findMeChannel(IDs, subID);
 	if(channel == TeleportChannelID())
-		channel = TeleportChannelID(cb->gameState()->map->teleportChannels.size());
+		channel = TeleportChannelID((si32)cb->gameState()->map->teleportChannels.size());
 
 	addToChannel(cb->gameState()->map->teleportChannels, this);
 }
@@ -1178,7 +1178,7 @@ void CGSubterraneanGate::postInit() //matches subterranean gates into pairs
 	{
 		if(obj->channel == TeleportChannelID())
 		{ // if object not linked to channel then create new channel
-			obj->channel = TeleportChannelID(cb->gameState()->map->teleportChannels.size());
+			obj->channel = TeleportChannelID((si32)cb->gameState()->map->teleportChannels.size());
 			addToChannel(cb->gameState()->map->teleportChannels, obj);
 		}
 	};
@@ -1235,7 +1235,7 @@ void CGWhirlpool::onHeroVisit( const CGHeroInstance * h ) const
 				targetstack = (i->first);
 		}
 
-		TQuantity countToTake = h->getStackCount(targetstack) * 0.5;
+		TQuantity countToTake = static_cast<TQuantity>(h->getStackCount(targetstack) * 0.5);
 		vstd::amax(countToTake, 1);
 
 		InfoWindow iw;
@@ -1741,7 +1741,7 @@ void CGScholar::initObj(CRandomGenerator & rand)
 			bonusID = rand.nextInt(GameConstants::PRIMARY_SKILLS -1);
 			break;
 		case SECONDARY_SKILL:
-			bonusID = rand.nextInt(VLC->skillh->size() - 1);
+			bonusID = rand.nextInt((int)VLC->skillh->size() - 1);
 			break;
 		case SPELL:
 			std::vector<SpellID> possibilities;
@@ -1935,7 +1935,7 @@ void CGSirens::onHeroVisit( const CGHeroInstance * h ) const
 
 		for (auto i = h->Slots().begin(); i != h->Slots().end(); i++)
 		{
-			TQuantity drown = i->second->count * 0.3;
+			TQuantity drown = static_cast<TQuantity>(i->second->count * 0.3);
 			if(drown)
 			{
 				cb->changeStackCount(StackLocation(h, i->first), -drown);
@@ -1945,9 +1945,9 @@ void CGSirens::onHeroVisit( const CGHeroInstance * h ) const
 
 		if(xp)
 		{
-			xp = h->calculateXp(xp);
+			xp = h->calculateXp((int)xp);
 			iw.text.addTxt(MetaString::ADVOB_TXT,132);
-			iw.text.addReplacement(xp);
+			iw.text.addReplacement((int)xp);
 			cb->changePrimSkill(h, PrimarySkill::EXPERIENCE, xp, false);
 		}
 		else

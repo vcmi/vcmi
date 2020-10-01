@@ -143,7 +143,11 @@ if(WIN32)
 		# Suppress warnings
 		add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 		add_definitions(-D_SCL_SECURE_NO_WARNINGS)
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj /wd4251")
+		# 4003: not enough actual parameters for macro 'identifier'
+		# 4250: 'class1' : inherits 'class2::member' via dominance
+		# 4251: 'type' : class 'type1' needs to have dll-interface to be used by clients of class 'type2'
+        # 4275: non dll-interface class 'type1' used as base for dll-interface class 'type2'
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj /wd4003 /wd4250 /wd4251 /wd4275")
 
 		if(ENABLE_MULTI_PROCESS_BUILDS)
 			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")

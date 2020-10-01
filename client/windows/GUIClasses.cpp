@@ -257,10 +257,10 @@ void CRecruitmentWindow::availableCreaturesChanged()
 	//normal distance between cards - 18px
 	int requiredSpace = 18;
 	//maximum distance we can use without reaching window borders
-	int availableSpace = pos.w - 50 - creatureWidth * cards.size();
+	int availableSpace = pos.w - 50 - creatureWidth * (int)cards.size();
 
 	if (cards.size() > 1) // avoid division by zero
-		availableSpace /= cards.size() - 1;
+		availableSpace /= (int)cards.size() - 1;
 	else
 		availableSpace = 0;
 
@@ -270,7 +270,7 @@ void CRecruitmentWindow::availableCreaturesChanged()
 	const int totalCreatureWidth = spaceBetween + creatureWidth;
 
 	//now we know total amount of cards and can move them to correct position
-	int curx = pos.w / 2 - (creatureWidth*cards.size()/2) - (spaceBetween*(cards.size()-1)/2);
+	int curx = pos.w / 2 - (creatureWidth*(int)cards.size()/2) - (spaceBetween*((int)cards.size()-1)/2);
 	for(auto & card : cards)
 	{
 		card->moveBy(Point(curx, 64));
@@ -500,20 +500,20 @@ CSystemOptionsWindow::CSystemOptionsWindow()
 	heroMoveSpeed->addToggle(2, std::make_shared<CToggleButton>(Point( 76, 77), "sysopb2.def", CGI->generaltexth->zelp[350]));
 	heroMoveSpeed->addToggle(4, std::make_shared<CToggleButton>(Point(124, 77), "sysopb3.def", CGI->generaltexth->zelp[351]));
 	heroMoveSpeed->addToggle(8, std::make_shared<CToggleButton>(Point(172, 77), "sysopb4.def", CGI->generaltexth->zelp[352]));
-	heroMoveSpeed->setSelected(settings["adventure"]["heroSpeed"].Float());
+	heroMoveSpeed->setSelected((int)settings["adventure"]["heroSpeed"].Float());
 	heroMoveSpeed->addCallback(std::bind(&setIntSetting, "adventure", "heroSpeed", _1));
 
 	enemyMoveSpeed->addToggle(2, std::make_shared<CToggleButton>(Point( 28, 144), "sysopb5.def", CGI->generaltexth->zelp[353]));
 	enemyMoveSpeed->addToggle(4, std::make_shared<CToggleButton>(Point( 76, 144), "sysopb6.def", CGI->generaltexth->zelp[354]));
 	enemyMoveSpeed->addToggle(8, std::make_shared<CToggleButton>(Point(124, 144), "sysopb7.def", CGI->generaltexth->zelp[355]));
 	enemyMoveSpeed->addToggle(0, std::make_shared<CToggleButton>(Point(172, 144), "sysopb8.def", CGI->generaltexth->zelp[356]));
-	enemyMoveSpeed->setSelected(settings["adventure"]["enemySpeed"].Float());
+	enemyMoveSpeed->setSelected((int)settings["adventure"]["enemySpeed"].Float());
 	enemyMoveSpeed->addCallback(std::bind(&setIntSetting, "adventure", "enemySpeed", _1));
 
 	mapScrollSpeed->addToggle(1, std::make_shared<CToggleButton>(Point( 28, 210), "sysopb9.def", CGI->generaltexth->zelp[357]));
 	mapScrollSpeed->addToggle(2, std::make_shared<CToggleButton>(Point( 92, 210), "sysob10.def", CGI->generaltexth->zelp[358]));
 	mapScrollSpeed->addToggle(4, std::make_shared<CToggleButton>(Point(156, 210), "sysob11.def", CGI->generaltexth->zelp[359]));
-	mapScrollSpeed->setSelected(settings["adventure"]["scrollSpeed"].Float());
+	mapScrollSpeed->setSelected((int)settings["adventure"]["scrollSpeed"].Float());
 	mapScrollSpeed->addCallback(std::bind(&setIntSetting, "adventure", "scrollSpeed", _1));
 
 	musicVolume = std::make_shared<CVolumeSlider>(Point(29, 359), "syslb.def", CCS->musich->getVolume(), &CGI->generaltexth->zelp[326]);
@@ -763,7 +763,7 @@ CTavernWindow::HeroPortrait::HeroPortrait(int & sel, int id, int x, int y, const
 		hoverName = CGI->generaltexth->tavernInfo[4];
 		boost::algorithm::replace_first(hoverName,"%s",H->name);
 
-		int artifs = h->artifactsWorn.size() + h->artifactsInBackpack.size();
+		int artifs = (int)h->artifactsWorn.size() + (int)h->artifactsInBackpack.size();
 		for(int i=13; i<=17; i++) //war machines and spellbook don't count
 			if(vstd::contains(h->artifactsWorn, ArtifactPosition(i)))
 				artifs--;
@@ -1484,7 +1484,7 @@ void CHillFortWindow::updateGarrisons()
 			{
 				//reverse iterator is used to display gold as first element
 				int j = 0;
-				for(int res = costs[i].size()-1; (res >= 0) && (j < 2); res--)
+				for(int res = (int)costs[i].size()-1; (res >= 0) && (j < 2); res--)
 				{
 					int val = costs[i][res];
 					if(!val)
@@ -1649,11 +1649,11 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 			{
 				// origin of this row | offset for 2nd row| shift right for short rows
 				//if we have 2 rows, start either from mid or beginning (depending on count), otherwise center the flags
-				int rowStartX = xpos + (j ? 6 + (rowLength[j] < 3 ? 12 : 0) : 24 - 6 * rowLength[j]);
+				int rowStartX = xpos + (j ? 6 + ((int)rowLength[j] < 3 ? 12 : 0) : 24 - 6 * (int)rowLength[j]);
 				int rowStartY = ypos + (j ? 4 : 0);
 
 				for(size_t i=0; i < rowLength[j]; i++)
-					cells.push_back(std::make_shared<CAnimImage>(itgflags, players[i + j*4].getNum(), 0, rowStartX + i*12, rowStartY));
+					cells.push_back(std::make_shared<CAnimImage>(itgflags, players[i + j*4].getNum(), 0, rowStartX + (int)i*12, rowStartY));
 			}
 		}
 	}
@@ -1847,7 +1847,7 @@ void CObjectListWindow::keyPressed (const SDL_KeyboardEvent & key)
 	if(key.state != SDL_PRESSED)
 		return;
 
-	int sel = selected;
+	int sel = static_cast<int>(selected);
 
 	switch(key.keysym.sym)
 	{
@@ -1867,7 +1867,7 @@ void CObjectListWindow::keyPressed (const SDL_KeyboardEvent & key)
 		sel = 0;
 
 	break; case SDLK_END:
-		sel = items.size();
+		sel = static_cast<int>(items.size());
 
 	break; default:
 		return;

@@ -1240,22 +1240,22 @@ int CPathfinderHelper::getMovementCost(
 
 	if(dt->blocked && ti->hasBonusOfType(Bonus::FLYING_MOVEMENT))
 	{
-		ret *= (100.0 + ti->valOfBonuses(Bonus::FLYING_MOVEMENT)) / 100.0;
+		ret = static_cast<int>(ret * (100.0 + ti->valOfBonuses(Bonus::FLYING_MOVEMENT)) / 100.0);
 	}
 	else if(dt->terType == ETerrainType::WATER)
 	{
 		if(hero->boat && ct->hasFavorableWinds() && dt->hasFavorableWinds())
-			ret *= 0.666;
+			ret = static_cast<int>(ret * 0.666);
 		else if(!hero->boat && ti->hasBonusOfType(Bonus::WATER_WALKING))
 		{
-			ret *= (100.0 + ti->valOfBonuses(Bonus::WATER_WALKING)) / 100.0;
+			ret = static_cast<int>(ret * (100.0 + ti->valOfBonuses(Bonus::WATER_WALKING)) / 100.0);
 		}
 	}
 
 	if(src.x != dst.x && src.y != dst.y) //it's diagonal move
 	{
 		int old = ret;
-		ret *= 1.414213;
+		ret = static_cast < int>(ret * 1.414213);
 		//diagonal move costs too much but normal move is possible - allow diagonal move for remaining move points
 		if(ret > remainingMovePoints && remainingMovePoints >= old)
 		{

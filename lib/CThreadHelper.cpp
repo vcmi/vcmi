@@ -18,7 +18,7 @@
 
 CThreadHelper::CThreadHelper(std::vector<std::function<void()> > *Tasks, int Threads)
 {
-	currentTask = 0; amount = Tasks->size();
+	currentTask = 0; amount = (int)Tasks->size();
 	tasks = Tasks;
 	threads = Threads;
 }
