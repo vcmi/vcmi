@@ -60,7 +60,7 @@ void Dispel::serializeJsonUnitEffect(JsonSerializeFormat & handler)
 	handler.serializeBool("dispelNeutral", neutral);
 }
 
-std::shared_ptr<BonusList> Dispel::getBonuses(const Mechanics * m, const battle::Unit * unit) const
+std::shared_ptr<const BonusList> Dispel::getBonuses(const Mechanics * m, const battle::Unit * unit) const
 {
 	auto addSelector = [=](const Bonus * bonus)
 	{

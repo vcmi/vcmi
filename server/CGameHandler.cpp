@@ -1015,7 +1015,7 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 			applyBattleEffects(bat, attackerState, fireShield, stack, distance, true);
 	}
 
-	const std::shared_ptr<Bonus> bonus = attacker->getBonusLocalFirst(Selector::type(Bonus::SPELL_LIKE_ATTACK));
+	std::shared_ptr<const Bonus> bonus = attacker->getBonusLocalFirst(Selector::type(Bonus::SPELL_LIKE_ATTACK));
 	if(bonus && ranged) //TODO: make it work in melee?
 	{
 		//this is need for displaying hit animation
@@ -4492,8 +4492,8 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 			const CStack * stack = gs->curB->battleGetStackByID(ba.stackNumber);
 			SpellID spellID = SpellID(ba.actionSubtype);
 
-			const std::shared_ptr<Bonus> randSpellcaster = stack->getBonusLocalFirst(Selector::type(Bonus::RANDOM_SPELLCASTER));
-			const std::shared_ptr<Bonus> spellcaster = stack->getBonusLocalFirst(Selector::typeSubtype(Bonus::SPELLCASTER, spellID));
+			std::shared_ptr<const Bonus> randSpellcaster = stack->getBonusLocalFirst(Selector::type(Bonus::RANDOM_SPELLCASTER));
+			std::shared_ptr<const Bonus> spellcaster = stack->getBonusLocalFirst(Selector::typeSubtype(Bonus::SPELLCASTER, spellID));
 
 			//TODO special bonus for genies ability
 			if (randSpellcaster && battleGetRandomStackSpell(getRandomGenerator(), stack, CBattleInfoCallback::RANDOM_AIMED) < 0)
@@ -4738,7 +4738,7 @@ void CGameHandler::stackTurnTrigger(const CStack *st)
 
 		if (st->hasBonusOfType(Bonus::POISON))
 		{
-			const std::shared_ptr<Bonus> b = st->getBonusLocalFirst(Selector::source(Bonus::SPELL_EFFECT, SpellID::POISON).And(Selector::type(Bonus::STACK_HEALTH)));
+			std::shared_ptr<const Bonus> b = st->getBonusLocalFirst(Selector::source(Bonus::SPELL_EFFECT, SpellID::POISON).And(Selector::type(Bonus::STACK_HEALTH)));
 			if (b) //TODO: what if not?...
 			{
 				bte.val = std::max (b->val - 10, -(st->valOfBonuses(Bonus::POISON)));
@@ -5412,8 +5412,8 @@ void CGameHandler::attackCasting(bool ranged, Bonus::BonusType attackMode, const
 	if(attacker->hasBonusOfType(attackMode))
 	{
 		std::set<SpellID> spellsToCast;
-		TBonusListPtr spells = attacker->getBonuses(Selector::type(attackMode));
-		for(const std::shared_ptr<Bonus> sf : *spells)
+		TConstBonusListPtr spells = attacker->getBonuses(Selector::type(attackMode));
+		for(const auto & sf : *spells)
 		{
 			spellsToCast.insert(SpellID(sf->subtype));
 		}
@@ -5426,8 +5426,8 @@ void CGameHandler::attackCasting(bool ranged, Bonus::BonusType attackMode, const
 				return;
 			}
 			int32_t spellLevel = 0;
-			TBonusListPtr spellsByType = attacker->getBonuses(Selector::typeSubtype(attackMode, spellID));
-			for(const std::shared_ptr<Bonus> sf : *spellsByType)
+			TConstBonusListPtr spellsByType = attacker->getBonuses(Selector::typeSubtype(attackMode, spellID));
+			for(const auto & sf : *spellsByType)
 			{
 				int meleeRanged;
 				if(sf->additionalInfo.size() < 2)
@@ -5522,8 +5522,8 @@ void CGameHandler::handleAfterAttackCasting(bool ranged, const CStack * attacker
 		return;
 
 	int64_t acidDamage = 0;
-	TBonusListPtr acidBreath = attacker->getBonuses(Selector::type(Bonus::ACID_BREATH));
-	for(const std::shared_ptr<Bonus> b : *acidBreath)
+	TConstBonusListPtr acidBreath = attacker->getBonuses(Selector::type(Bonus::ACID_BREATH));
+	for(const auto & b : *acidBreath)
 	{
 		if(b->additionalInfo[0] > getRandomGenerator().nextInt(99))
 			acidDamage += b->val;
@@ -5916,7 +5916,7 @@ void CGameHandler::runBattle()
 	{
 		if (stack->hasBonusOfType(Bonus::SUMMON_GUARDIANS))
 		{
-			const std::shared_ptr<Bonus> summonInfo = stack->getBonus(Selector::type(Bonus::SUMMON_GUARDIANS));
+			std::shared_ptr<const Bonus> summonInfo = stack->getBonus(Selector::type(Bonus::SUMMON_GUARDIANS));
 			auto accessibility = getAccesibility();
 			CreatureID creatureData = CreatureID(summonInfo->subtype);
 			std::vector<BattleHex> targetHexes;
@@ -5961,7 +5961,7 @@ void CGameHandler::runBattle()
 		auto h = gs->curB->battleGetFightingHero(i);
 		if (h)
 		{
-			TBonusListPtr bl = h->getBonuses(Selector::type(Bonus::OPENING_BATTLE_SPELL));
+			TConstBonusListPtr bl = h->getBonuses(Selector::type(Bonus::OPENING_BATTLE_SPELL));
 
 			for (auto b : *bl)
 			{

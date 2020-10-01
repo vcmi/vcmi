@@ -136,7 +136,7 @@ CBonusProxy & CBonusProxy::operator=(CBonusProxy && other)
 	return *this;
 }
 
-TBonusListPtr CBonusProxy::get() const
+TConstBonusListPtr CBonusProxy::get() const
 {
 	if(target->getTreeVersion() != cachedLast || !data)
 	{
@@ -381,8 +381,8 @@ void BonusList::stackBonuses()
 	while(next < bonuses.size())
 	{
 		bool remove;
-		const std::shared_ptr<Bonus> last = bonuses[next-1];
-		const std::shared_ptr<Bonus> current = bonuses[next];
+		std::shared_ptr<Bonus> last = bonuses[next-1];
+		std::shared_ptr<Bonus> current = bonuses[next];
 
 		if(current->stacking.empty())
 			remove = current == last;
@@ -494,7 +494,7 @@ std::shared_ptr<Bonus> BonusList::getFirst(const CSelector &select)
 	return nullptr;
 }
 
-const std::shared_ptr<Bonus> BonusList::getFirst(const CSelector &selector) const
+std::shared_ptr<const Bonus> BonusList::getFirst(const CSelector &selector) const
 {
 	for (auto & b : bonuses)
 	{
@@ -617,7 +617,7 @@ int IBonusBearer::valOfBonuses(Bonus::BonusType type, int subtype) const
 int IBonusBearer::valOfBonuses(const CSelector &selector, const std::string &cachingStr) const
 {
 	CSelector limit = nullptr;
-	TBonusListPtr hlp = getAllBonuses(selector, limit, nullptr, cachingStr);
+	TConstBonusListPtr hlp = getAllBonuses(selector, limit, nullptr, cachingStr);
 	return hlp->totalValue();
 }
 bool IBonusBearer::hasBonus(const CSelector &selector, const std::string &cachingStr) const
@@ -642,12 +642,12 @@ bool IBonusBearer::hasBonusOfType(Bonus::BonusType type, int subtype) const
 	return hasBonus(s, fmt.str());
 }
 
-const TBonusListPtr IBonusBearer::getBonuses(const CSelector &selector, const std::string &cachingStr) const
+TConstBonusListPtr IBonusBearer::getBonuses(const CSelector &selector, const std::string &cachingStr) const
 {
 	return getAllBonuses(selector, nullptr, nullptr, cachingStr);
 }
 
-const TBonusListPtr IBonusBearer::getBonuses(const CSelector &selector, const CSelector &limit, const std::string &cachingStr) const
+TConstBonusListPtr IBonusBearer::getBonuses(const CSelector &selector, const CSelector &limit, const std::string &cachingStr) const
 {
 	return getAllBonuses(selector, limit, nullptr, cachingStr);
 }
@@ -778,7 +778,7 @@ bool IBonusBearer::isLiving() const //TODO: theoreticaly there exists "LIVING" b
 	return !hasBonus(selector, cachingStr);
 }
 
-const std::shared_ptr<Bonus> IBonusBearer::getBonus(const CSelector &selector) const
+std::shared_ptr<const Bonus> IBonusBearer::getBonus(const CSelector &selector) const
 {
 	auto bonuses = getAllBonuses(selector, Selector::all);
 	return bonuses->getFirst(Selector::all);
@@ -800,7 +800,7 @@ std::shared_ptr<Bonus> CBonusSystemNode::getBonusLocalFirst(const CSelector &sel
 	return nullptr;
 }
 
-const std::shared_ptr<Bonus> CBonusSystemNode::getBonusLocalFirst( const CSelector &selector ) const
+std::shared_ptr<const Bonus> CBonusSystemNode::getBonusLocalFirst( const CSelector &selector ) const
 {
 	return (const_cast<CBonusSystemNode*>(this))->getBonusLocalFirst(selector);
 }
@@ -849,7 +849,7 @@ void CBonusSystemNode::getAllBonusesRec(BonusList &out) const
 		out.push_back(update(b));
 }
 
-const TBonusListPtr CBonusSystemNode::getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root, const std::string &cachingStr) const
+TConstBonusListPtr CBonusSystemNode::getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root, const std::string &cachingStr) const
 {
 	bool limitOnUs = (!root || root == this); //caching won't work when we want to limit bonuses against an external node
 	if (CBonusSystemNode::cachingEnabled && limitOnUs)
@@ -902,7 +902,7 @@ const TBonusListPtr CBonusSystemNode::getAllBonuses(const CSelector &selector, c
 	}
 }
 
-const TBonusListPtr CBonusSystemNode::getAllBonusesWithoutCaching(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root) const
+TConstBonusListPtr CBonusSystemNode::getAllBonusesWithoutCaching(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root) const
 {
 	auto ret = std::make_shared<BonusList>();
 
@@ -936,7 +936,7 @@ const TBonusListPtr CBonusSystemNode::getAllBonusesWithoutCaching(const CSelecto
 	return ret;
 }
 
-const std::shared_ptr<Bonus> CBonusSystemNode::update(const std::shared_ptr<Bonus> b) const
+std::shared_ptr<Bonus> CBonusSystemNode::update(const std::shared_ptr<Bonus> & b) const
 {
 	if(b->updater)
 		return b->updater->update(b, *this);
@@ -2126,7 +2126,7 @@ IUpdater::~IUpdater()
 {
 }
 
-const std::shared_ptr<Bonus> IUpdater::update(const std::shared_ptr<Bonus> b, const CBonusSystemNode & context) const
+std::shared_ptr<Bonus> IUpdater::update(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const
 {
 	return b;
 }
@@ -2149,7 +2149,7 @@ GrowsWithLevelUpdater::GrowsWithLevelUpdater(int valPer20, int stepSize) : valPe
 {
 }
 
-const std::shared_ptr<Bonus> GrowsWithLevelUpdater::update(const std::shared_ptr<Bonus> b, const CBonusSystemNode & context) const
+std::shared_ptr<Bonus> GrowsWithLevelUpdater::update(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const
 {
 	if(context.getNodeType() == CBonusSystemNode::HERO)
 	{
@@ -2186,7 +2186,7 @@ TimesHeroLevelUpdater::TimesHeroLevelUpdater()
 {
 }
 
-const std::shared_ptr<Bonus> TimesHeroLevelUpdater::update(const std::shared_ptr<Bonus> b, const CBonusSystemNode & context) const
+std::shared_ptr<Bonus> TimesHeroLevelUpdater::update(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const
 {
 	if(context.getNodeType() == CBonusSystemNode::HERO)
 	{
@@ -2212,7 +2212,7 @@ TimesStackLevelUpdater::TimesStackLevelUpdater()
 {
 }
 
-const std::shared_ptr<Bonus> TimesStackLevelUpdater::update(const std::shared_ptr<Bonus> b, const CBonusSystemNode & context) const
+std::shared_ptr<Bonus> TimesStackLevelUpdater::update(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const
 {
 	if(context.getNodeType() == CBonusSystemNode::STACK_INSTANCE)
 	{

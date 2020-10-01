@@ -896,7 +896,7 @@ CUnitStateDetached::CUnitStateDetached(const IUnitInfo * unit_, const IBonusBear
 
 }
 
-const TBonusListPtr CUnitStateDetached::getAllBonuses(const CSelector & selector, const CSelector & limit, const CBonusSystemNode * root, const std::string & cachingStr) const
+TConstBonusListPtr CUnitStateDetached::getAllBonuses(const CSelector & selector, const CSelector & limit, const CBonusSystemNode * root, const std::string & cachingStr) const
 {
 	return bonus->getAllBonuses(selector, limit, root, cachingStr);
 }

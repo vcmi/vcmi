@@ -369,7 +369,7 @@ void MoraleLuckBox::set(const IBonusBearer * node)
 	const int hoverTextBase[] = {7, 4};
 	const Bonus::BonusType bonusType[] = {Bonus::LUCK, Bonus::MORALE};
 	int (IBonusBearer::*getValue[])() const = {&IBonusBearer::LuckVal, &IBonusBearer::MoraleVal};
-	TBonusListPtr modifierList(new BonusList());
+	TConstBonusListPtr modifierList(new BonusList());
 
 	if(node)
 	{

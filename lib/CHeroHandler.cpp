@@ -592,7 +592,7 @@ std::vector<std::shared_ptr<Bonus>> SpecialtyBonusToBonuses(const SSpecialtyBonu
 			case Bonus::PRIMARY_SKILL:
 				if((newBonus->subtype == PrimarySkill::ATTACK || newBonus->subtype == PrimarySkill::DEFENSE) && newBonus->limiter)
 				{
-					const std::shared_ptr<CCreatureTypeLimiter> creatureLimiter = std::dynamic_pointer_cast<CCreatureTypeLimiter>(newBonus->limiter);
+					std::shared_ptr<CCreatureTypeLimiter> creatureLimiter = std::dynamic_pointer_cast<CCreatureTypeLimiter>(newBonus->limiter);
 					if(creatureLimiter)
 					{
 						const CCreature * cre = creatureLimiter->creature;

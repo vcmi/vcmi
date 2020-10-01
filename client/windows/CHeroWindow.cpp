@@ -40,11 +40,11 @@
 #include "../mapHandler.h"
 
 
-const TBonusListPtr CHeroWithMaybePickedArtifact::getAllBonuses(const CSelector & selector, const CSelector & limit, const CBonusSystemNode * root, const std::string & cachingStr) const
+TConstBonusListPtr CHeroWithMaybePickedArtifact::getAllBonuses(const CSelector & selector, const CSelector & limit, const CBonusSystemNode * root, const std::string & cachingStr) const
 {
 	TBonusListPtr out(new BonusList());
-	TBonusListPtr heroBonuses = hero->getAllBonuses(selector, limit, hero, cachingStr);
-	TBonusListPtr bonusesFromPickedUpArtifact;
+	TConstBonusListPtr heroBonuses = hero->getAllBonuses(selector, limit, hero, cachingStr);
+	TConstBonusListPtr bonusesFromPickedUpArtifact;
 
 	std::shared_ptr<CArtifactsOfHero::SCommonPart> cp = cww->getCommonPart();
 	if(cp && cp->src.art && cp->src.valid() && cp->src.AOH && cp->src.AOH->getHero() == hero)
@@ -52,10 +52,10 @@ const TBonusListPtr CHeroWithMaybePickedArtifact::getAllBonuses(const CSelector 
 	else
 		bonusesFromPickedUpArtifact = TBonusListPtr(new BonusList());
 
-	for(auto b : *heroBonuses)
+	for(const auto & b : *heroBonuses)
 		out->push_back(b);
 
-	for(auto b : *bonusesFromPickedUpArtifact)
+	for(const auto & b : *bonusesFromPickedUpArtifact)
 		*out -= b;
 	return out;
 }
@@ -352,7 +352,7 @@ void CHeroWindow::dismissCurrent()
 void CHeroWindow::commanderWindow()
 {
 	//bool artSelected = false;
-	const std::shared_ptr<CArtifactsOfHero::SCommonPart> commonInfo = getCommonPart();
+	std::shared_ptr<CArtifactsOfHero::SCommonPart> commonInfo = getCommonPart();
 
 	if(const CArtifactInstance *art = commonInfo->src.art)
 	{
