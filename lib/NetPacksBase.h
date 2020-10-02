@@ -171,7 +171,7 @@ struct Component
 {
 	enum EComponentType {PRIM_SKILL, SEC_SKILL, RESOURCE, CREATURE, ARTIFACT, EXPERIENCE, SPELL, MORALE, LUCK, BUILDING, HERO_PORTRAIT, FLAG};
 	ui16 id, subtype; //id uses ^^^ enums, when id==EXPPERIENCE subtype==0 means exp points and subtype==1 levels)
-	si32 val; // + give; - take
+	si64 val; // + give; - take
 	si16 when; // 0 - now; +x - within x days; -x - per x days
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -186,7 +186,7 @@ struct Component
 	{
 	}
 	DLL_LINKAGE explicit Component(const CStackBasicDescriptor &stack);
-	Component(Component::EComponentType Type, ui16 Subtype, si32 Val, si16 When)
+	Component(Component::EComponentType Type, ui16 Subtype, si64 Val, si16 When)
 		:id(Type),subtype(Subtype),val(Val),when(When)
 	{
 	}

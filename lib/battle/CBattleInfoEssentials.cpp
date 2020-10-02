@@ -279,7 +279,7 @@ bool CBattleInfoEssentials::battleCanFlee(PlayerColor player) const
 	if(side.get() == BattleSide::DEFENDER && battleGetSiegeLevel())
 	{
 		auto town = battleGetDefendedTown();
-		if(!town->hasBuilt(BuildingID::ESCAPE_TUNNEL, ETownType::STRONGHOLD))
+		if(!town->hasBuilt(BuildingSubID::ESCAPE_TUNNEL))
 			return false;
 	}
 

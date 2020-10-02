@@ -343,28 +343,98 @@ void CTownHandler::loadBuildingRequirements(CBuilding * building, const JsonNode
 	requirementsToLoad.push_back(hlp);
 }
 
+template<typename R>
+R CTownHandler::getMappedValue(const std::string key, const R defval, const std::map<std::string, R> & map, bool required) const
+{
+	auto it = map.find(key);
+
+	if(it != map.end())
+		return it->second;
+
+	if(required)
+		logMod->warn("Warning: Property: '%s' is unknown. Correct the typo or update VCMI.", key);
+	return defval;
+}
+
+template<typename R>
+R CTownHandler::getMappedValue(const JsonNode & node, const R defval, const std::map<std::string, R> & map, bool required) const
+{
+	if(!node.isNull() && node.getType() == JsonNode::JsonType::DATA_STRING)
+		return getMappedValue<R>(node.String(), defval, map, required);
+	return defval;
+}
+
 void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, const JsonNode & source)
 {
-	auto ret = new CBuilding();
-
-	static const std::vector<std::string> MODES =
+	static const std::map<std::string, CBuilding::EBuildMode> MODES =
 	{
-		"normal", "auto", "special", "grail"
+		{ "normal", CBuilding::BUILD_NORMAL },
+		{ "auto", CBuilding::BUILD_AUTO },
+		{ "special", CBuilding::BUILD_SPECIAL },
+		{ "grail", CBuilding::BUILD_GRAIL }
 	};
 
-	ret->mode = CBuilding::BUILD_NORMAL;
+	static const std::map<std::string, BuildingID> BUILDING_TYPES =
 	{
-		if(source["mode"].getType() == JsonNode::JsonType::DATA_STRING)
-		{
-			auto rawMode = vstd::find_pos(MODES, source["mode"].String());
-			if(rawMode > 0)
-				ret->mode = static_cast<CBuilding::EBuildMode>(rawMode);
-		}
-	}
+		{ "special1", BuildingID::SPECIAL_1 },
+		{ "special2", BuildingID::SPECIAL_2 },
+		{ "special3", BuildingID::SPECIAL_3 },
+		{ "special4", BuildingID::SPECIAL_4 },
+		{ "grail", BuildingID::GRAIL }
+	};
+
+	static const std::map<std::string, CBuilding::ETowerHeight> LOOKOUT_TYPES =
+	{
+		{ "low", CBuilding::HEIGHT_LOW },
+		{ "average", CBuilding::HEIGHT_AVERAGE },
+		{ "high", CBuilding::HEIGHT_HIGH },
+		{ "skyship", CBuilding::HEIGHT_SKYSHIP }
+	};
+
+	static const std::map<std::string, BuildingSubID::EBuildingSubID> SPECIAL_BUILDINGS =
+	{
+		{ "mysticPond", BuildingSubID::MYSTIC_POND },
+		{ "artifactMerchant", BuildingSubID::ARTIFACT_MERCHANT },
+		{ "freelancersGuild", BuildingSubID::FREELANCERS_GUILD },
+		{ "magicUniversity", BuildingSubID::MAGIC_UNIVERSITY },
+		{ "castleGate", BuildingSubID::CASTLE_GATE },
+		{ "creatureTransformer", BuildingSubID::CREATURE_TRANSFORMER },//only skeleton transformer yet
+		{ "portalOfSummoning", BuildingSubID::PORTAL_OF_SUMMONING },
+		{ "ballistaYard", BuildingSubID::BALLISTA_YARD },
+		{ "stables", BuildingSubID::STABLES },
+		{ "manaVortex", BuildingSubID::MANA_VORTEX },
+		{ "lookoutTower", BuildingSubID::LOOKOUT_TOWER },
+		{ "library", BuildingSubID::LIBRARY },
+		{ "brotherhoodOfSword", BuildingSubID::BROTHERHOOD_OF_SWORD },//morale garrison bonus
+		{ "fountainOfFortune", BuildingSubID::FOUNTAIN_OF_FORTUNE },//luck garrison bonus
+		{ "spellPowerGarrisonBonus", BuildingSubID::SPELL_POWER_GARRISON_BONUS },//such as 'stormclouds', but this name is not ok for good towns
+		{ "attackGarrisonBonus", BuildingSubID::ATTACK_GARRISON_BONUS },
+		{ "defenseGarrisonBonus", BuildingSubID::DEFENSE_GARRISON_BONUS },
+		{ "escapeTunnel", BuildingSubID::ESCAPE_TUNNEL }
+	};
+
+	auto ret = new CBuilding();
+	ret->bid = getMappedValue<BuildingID>(stringID, BuildingID::NONE, BUILDING_TYPES, false);
+
+	if(ret->bid == BuildingID::NONE)
+		ret->bid = source["id"].isNull() ? BuildingID(BuildingID::NONE) : BuildingID(source["id"].Float());
+
+	if (ret->bid == BuildingID::NONE)
+		logMod->error("Error: Building '%s' has not internal ID and won't work properly. Correct the typo or update VCMI.", stringID);
+
+	ret->mode = ret->bid == BuildingID::GRAIL
+		? CBuilding::BUILD_GRAIL
+		: getMappedValue<CBuilding::EBuildMode>(source["mode"], CBuilding::BUILD_NORMAL, MODES);
+
+	ret->subId = getMappedValue<BuildingSubID::EBuildingSubID>(source["type"], BuildingSubID::NONE, SPECIAL_BUILDINGS);
+	ret->height = CBuilding::HEIGHT_NO_TOWER;
+
+	if(ret->subId == BuildingSubID::LOOKOUT_TOWER 
+		|| ret->bid == BuildingID::GRAIL) 
+		ret->height = getMappedValue<CBuilding::ETowerHeight>(source["height"], CBuilding::HEIGHT_NO_TOWER, LOOKOUT_TYPES);
 
 	ret->identifier = stringID;
 	ret->town = town;
-	ret->bid = BuildingID((si32)source["id"].Float());
 	ret->name = source["name"].String();
 	ret->description = source["description"].String();
 	ret->resources = TResources(source["cost"]);

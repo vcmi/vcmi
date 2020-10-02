@@ -112,8 +112,11 @@ void CBuildingRect::hover(bool on)
 void CBuildingRect::clickLeft(tribool down, bool previousState)
 {
 	if( previousState && getBuilding() && area && !down && (parent->selectedBuilding==this))
-		if (!CSDL_Ext::isTransparent(area, GH.current->motion.x-pos.x, GH.current->motion.y-pos.y) ) //inside building image
-			parent->buildingClicked(getBuilding()->bid);
+		if (!CSDL_Ext::isTransparent(area, GH.current->motion.x - pos.x, GH.current->motion.y - pos.y)) //inside building image
+		{
+			auto building = getBuilding();
+			parent->buildingClicked(building->bid, building->subId);
+		}
 }
 
 void CBuildingRect::clickRight(tribool down, bool previousState)
@@ -650,7 +653,7 @@ const CGHeroInstance * CCastleBuildings::getHero()
 		return town->garrisonHero;
 }
 
-void CCastleBuildings::buildingClicked(BuildingID building)
+void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuildingSubID subID)
 {
 	logGlobal->trace("You've clicked on %d", (int)building.toEnum());
 	const CBuilding *b = town->town->buildings.find(building)->second;
@@ -703,82 +706,67 @@ void CCastleBuildings::buildingClicked(BuildingID building)
 				enterBlacksmith(town->town->warMachine);
 				break;
 
+		case BuildingID::SHIP:
+			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[51]); //Cannot build another boat
+			break;
+
 		case BuildingID::SPECIAL_1:
-				switch(town->subID)
+		case BuildingID::SPECIAL_2:
+		case BuildingID::SPECIAL_3:
+				switch(subID)
 				{
-				case ETownType::RAMPART://Mystic Pond
+				case BuildingSubID::NONE:
+						break;
+
+				case BuildingSubID::MYSTIC_POND:
 						enterFountain(building);
 						break;
 
-				case ETownType::TOWER:
-				case ETownType::DUNGEON://Artifact Merchant
-				case ETownType::CONFLUX:
+				case BuildingSubID::ARTIFACT_MERCHANT:
 						if(town->visitingHero)
 							GH.pushIntT<CMarketplaceWindow>(town, town->visitingHero, EMarketMode::RESOURCE_ARTIFACT);
 						else
 							LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % b->Name())); //Only visiting heroes may use the %s.
 						break;
 
-				default:
-					enterBuilding(building);
-					break;
-				}
-				break;
-
-		case BuildingID::SHIP:
-				LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[51]); //Cannot build another boat
-				break;
-
-		case BuildingID::SPECIAL_2:
-				switch(town->subID)
-				{
-				case ETownType::RAMPART: //Fountain of Fortune
+				case BuildingSubID::FOUNTAIN_OF_FORTUNE:
 						enterFountain(building);
 						break;
 
-				case ETownType::STRONGHOLD: //Freelancer's Guild
+				case BuildingSubID::FREELANCERS_GUILD:
 						if(getHero())
 							GH.pushIntT<CMarketplaceWindow>(town, getHero(), EMarketMode::CREATURE_RESOURCE);
 						else
 							LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % b->Name())); //Only visiting heroes may use the %s.
 						break;
 
-				case ETownType::CONFLUX: //Magic University
+				case BuildingSubID::MAGIC_UNIVERSITY:
 						if (getHero())
 							GH.pushIntT<CUniversityWindow>(getHero(), town);
 						else
 							enterBuilding(building);
 						break;
 
-				default:
-						enterBuilding(building);
-						break;
-				}
-				break;
-
-		case BuildingID::SPECIAL_3:
-				switch(town->subID)
-				{
-				case ETownType::CASTLE: //Brotherhood of sword
+				case BuildingSubID::BROTHERHOOD_OF_SWORD:
 						LOCPLINT->showTavernWindow(town);
 						break;
 
-				case ETownType::INFERNO: //Castle Gate
+				case BuildingSubID::CASTLE_GATE:
 						enterCastleGate();
 						break;
 
-				case ETownType::NECROPOLIS: //Skeleton Transformer
+				case BuildingSubID::CREATURE_TRANSFORMER: //Skeleton Transformer
 						GH.pushIntT<CTransformerWindow>(getHero(), town);
 						break;
 
-				case ETownType::DUNGEON: //Portal of Summoning
+				case BuildingSubID::PORTAL_OF_SUMMONING:
 						if (town->creatures[GameConstants::CREATURES_PER_TOWN].second.empty())//No creatures
 							LOCPLINT->showInfoDialog(CGI->generaltexth->tcommands[30]);
 						else
 							enterDwelling(GameConstants::CREATURES_PER_TOWN);
 						break;
 
-				case ETownType::STRONGHOLD: //Ballista Yard
+				case BuildingSubID::BALLISTA_YARD:
 						enterBlacksmith(ArtifactID::BALLISTA);
 						break;
 
@@ -828,7 +816,8 @@ void CCastleBuildings::enterCastleGate()
 	{
 		const CGTownInstance *t = Town;
 		if (t->id != this->town->id && t->visitingHero == nullptr && //another town, empty and this is
-			t->hasBuilt(BuildingID::CASTLE_GATE, ETownType::INFERNO))
+			t->town->faction->index == town->town->faction->index && //the town of the same faction
+			t->hasBuilt(BuildingSubID::CASTLE_GATE)) //and the town has a castle gate
 		{
 			availableTowns.push_back(t->id.getNum());//add to the list
 		}
@@ -1173,6 +1162,7 @@ void CCastleInterface::close()
 void CCastleInterface::castleTeleport(int where)
 {
 	const CGTownInstance * dest = LOCPLINT->cb->getTown(ObjectInstanceID(where));
+	adventureInt->select(town->visitingHero);//according to assert(ho == adventureInt->selection) in the eraseCurrentPathOf
 	LOCPLINT->cb->teleportHero(town->visitingHero, dest);
 	LOCPLINT->eraseCurrentPathOf(town->visitingHero, false);
 }

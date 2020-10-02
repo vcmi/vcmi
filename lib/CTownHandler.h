@@ -46,6 +46,7 @@ public:
 
 	BuildingID bid; //structure ID
 	BuildingID upgrade; /// indicates that building "upgrade" can be improved by this, -1 = empty
+	BuildingSubID::EBuildingSubID subId; /// subtype for special buildings, -1 = the building is not special
 
 	enum EBuildMode
 	{
@@ -54,6 +55,15 @@ public:
 		BUILD_SPECIAL, // 2 - special - building can not be built normally
 		BUILD_GRAIL    // 3 - grail - building reqires grail to be built
 	} mode;
+
+	enum ETowerHeight // for lookup towers and some grails
+	{
+		HEIGHT_NO_TOWER = 5, // building has not 'lookout tower' ability
+		HEIGHT_LOW = 10,     // low lookout tower, but castle without lookout tower gives radius 5
+		HEIGHT_AVERAGE = 15,
+		HEIGHT_HIGH = 20,    // such tower is in the Tower town
+		HEIGHT_SKYSHIP = std::numeric_limits<int>::max()  // grail, open entire map
+	} height;
 
 	CBuilding();
 
@@ -78,6 +88,17 @@ public:
 		h & requirements;
 		h & upgrade;
 		h & mode;
+
+		if(version >= 792)
+		{
+			h & subId;
+			h & height;
+		}
+		else if (!h.saving)
+		{
+			subId = BuildingSubID::NONE;
+			height = CBuilding::HEIGHT_NO_TOWER;
+		}
 		if(!h.saving)
 			deserializeFix();
 	}
@@ -330,6 +351,12 @@ class DLL_LINKAGE CTownHandler : public IHandlerBase
 	CFaction * loadFromJson(const JsonNode & data, const std::string & identifier);
 
 	void loadRandomFaction();
+
+	template<typename R>
+	R getMappedValue(const std::string key, const R defval, const std::map<std::string, R> & map, bool required = true) const;
+	template<typename R>
+	R getMappedValue(const JsonNode& node, const R defval, const std::map<std::string, R> & map, bool required = true) const;
+
 public:
 	std::vector<ConstTransitivePtr<CFaction> > factions;
 

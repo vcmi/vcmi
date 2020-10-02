@@ -153,7 +153,7 @@ public:
 	void enterDwelling(int level);
 	void enterToTheQuickRecruitmentWindow();
 
-	void buildingClicked(BuildingID building);
+	void buildingClicked(BuildingID building, BuildingSubID::EBuildingSubID subID = BuildingSubID::NONE);
 	void addBuilding(BuildingID building);
 	void removeBuilding(BuildingID building);//FIXME: not tested!!!
 };
