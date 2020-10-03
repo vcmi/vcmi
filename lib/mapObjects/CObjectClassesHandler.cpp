@@ -193,9 +193,14 @@ void CObjectClassesHandler::loadObjectEntry(const std::string & identifier, cons
 	}
 
 	logGlobal->debug("Loaded object %s(%d)::%s(%d)", obj->identifier, obj->id, convertedId, id);
-	assert(!obj->subObjects.count(id)); // DO NOT override
-	obj->subObjects[id] = handler;
-	obj->subIds[convertedId] = id;
+
+	//some mods redefine content handlers in the decoration.json in such way:
+	//"core:sign" : { "types" : { "forgeSign" : { ...
+	if (!obj->subObjects.count(id)) // DO NOT override
+	{
+		obj->subObjects[id] = handler;
+		obj->subIds[convertedId] = id;
+	}
 }
 
 CObjectClassesHandler::ObjectContainter * CObjectClassesHandler::loadFromJson(const JsonNode & json, const std::string & name)
