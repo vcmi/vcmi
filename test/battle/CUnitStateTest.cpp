@@ -178,7 +178,7 @@ TEST_F(UnitStateTest, attackWithFrenzy)
 
 	bonusMock.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::IN_FRENZY, Bonus::SPELL_EFFECT, 50, 0));
 
-	int expectedAttack = DEFAULT_ATTACK + 0.5 * DEFAULT_DEFENCE;
+	int expectedAttack = static_cast<int>(DEFAULT_ATTACK + 0.5 * DEFAULT_DEFENCE);
 
 	EXPECT_EQ(subject.getAttack(false), expectedAttack);
 	EXPECT_EQ(subject.getAttack(true), expectedAttack);

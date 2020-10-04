@@ -364,7 +364,7 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 
 	ret->identifier = stringID;
 	ret->town = town;
-	ret->bid = BuildingID((BuildingID::EBuildingID)source["id"].Float());
+	ret->bid = BuildingID((si32)source["id"].Float());
 	ret->name = source["name"].String();
 	ret->description = source["description"].String();
 	ret->resources = TResources(source["cost"]);
