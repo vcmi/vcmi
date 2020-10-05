@@ -528,7 +528,8 @@ void CCreatureHandler::loadCrExpBon()
 		}
 		do //parse everything that's left
 		{
-			ui32 sid = static_cast<ui32>(parser.readNumber()); //id = this particular creature ID
+			auto sid = static_cast<ui32>(parser.readNumber()); //id = this particular creature ID
+
 			b.sid = sid;
 			bl.clear();
 			loadStackExp(b, bl, parser);
