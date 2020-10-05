@@ -510,6 +510,33 @@ public:
 			data = boost::optional<T>();
 		}
 	}
+
+	template <typename T>
+	void load(boost::multi_array<T, 2> & data)
+	{
+		ui32 length = readAndCheckLength();
+		ui32 x, y;
+		load(x);
+		load(y);
+		data.resize(boost::extents[x][y]);
+		assert(length == data.num_elements()); //x*y should be equal to number of elements
+		for (ui32 i = 0; i < length; i++)
+			load(data.data()[i]);
+	}
+
+	template <typename T>
+	void load(boost::multi_array<T, 3> & data)
+	{
+		ui32 length = readAndCheckLength();
+		ui32 x, y, z;
+		load(x);
+		load(y);
+		load(z);
+		data.resize(boost::extents[x][y][z]);
+		assert(length == data.num_elements()); //x*y*z should be equal to number of elements
+		for (ui32 i = 0; i < length; i++)
+			load(data.data()[i]);
+	}
 };
 
 class DLL_LINKAGE CLoadFile : public IBinaryReader

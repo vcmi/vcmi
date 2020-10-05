@@ -22,6 +22,7 @@
 
 #include "CRewardableConstructor.h"
 
+//this function is only used to load legacy data
 static bool isOnVisitableFromTopList(int identifier, int type)
 {
 	if(type == 2 || type == 3 || type == 4 || type == 5) //creature, hero, artifact, resource
@@ -52,43 +53,11 @@ ObjectTemplate::ObjectTemplate():
 	id(Obj::NO_OBJ),
 	subid(0),
 	printPriority(0),
-	stringID("")
+	stringID(""),
+	width(TILES_WIDTH),
+	height(TILES_HEIGHT)
 {
-}
-
-ObjectTemplate::ObjectTemplate(const ObjectTemplate& other):
-	visitDir(other.visitDir),
-	allowedTerrains(other.allowedTerrains),
-	id(other.id),
-	subid(other.subid),
-	printPriority(other.printPriority),
-	animationFile(other.animationFile),
-	editorAnimationFile(other.editorAnimationFile),
-	stringID(other.stringID)
-{
-	//default copy constructor is failing with usedTiles this for unknown reason
-
-	usedTiles.resize(other.usedTiles.size());
-	for(size_t i = 0; i < usedTiles.size(); i++)
-		std::copy(other.usedTiles[i].begin(), other.usedTiles[i].end(), std::back_inserter(usedTiles[i]));
-}
-
-ObjectTemplate & ObjectTemplate::operator=(const ObjectTemplate & rhs)
-{
-	visitDir = rhs.visitDir;
-	allowedTerrains = rhs.allowedTerrains;
-	id = rhs.id;
-	subid = rhs.subid;
-	printPriority = rhs.printPriority;
-	animationFile = rhs.animationFile;
-	editorAnimationFile = rhs.editorAnimationFile;
-	stringID = rhs.stringID;
-
-	usedTiles.clear();
-	usedTiles.resize(rhs.usedTiles.size());
-	for(size_t i = 0; i < usedTiles.size(); i++)
-		std::copy(rhs.usedTiles[i].begin(), rhs.usedTiles[i].end(), std::back_inserter(usedTiles[i]));
-	return *this;
+	setSize(TILES_WIDTH, TILES_HEIGHT);
 }
 
 void ObjectTemplate::afterLoadFixup()
@@ -96,7 +65,7 @@ void ObjectTemplate::afterLoadFixup()
 	if(id == Obj::EVENT)
 	{
 		setSize(1,1);
-		usedTiles[0][0] = VISITABLE;
+		usedTiles[0][0] = EBlockMapBits::VISITABLE;
 		visitDir = 0xFF;
 	}
 	boost::algorithm::replace_all(animationFile, "\\", "/");
@@ -116,21 +85,19 @@ void ObjectTemplate::readTxt(CLegacyConfigParser & parser)
 	std::string & blockStr = strings[1]; //block map, 0 = blocked, 1 = unblocked
 	std::string & visitStr = strings[2]; //visit map, 1 = visitable, 0 = not visitable
 
-	assert(blockStr.size() == 6*8);
-	assert(visitStr.size() == 6*8);
-
-	setSize(8, 6);
-	for (size_t i=0; i<6; i++) // 6 rows
+	setSize(TILES_WIDTH, TILES_HEIGHT);
+	
+	for (size_t j = 0; j < TILES_WIDTH; j++) // 8 columns
 	{
-		for (size_t j=0; j<8; j++) // 8 columns
+		for (size_t i = 0; i < TILES_HEIGHT; i++) // 6 rows
 		{
-			auto & tile = usedTiles[i][j];
-			tile |= VISIBLE; // assume that all tiles are visible
-			if (blockStr[i*8 + j] == '0')
-				tile |= BLOCKED;
+			auto & tile = usedTiles[j][i];
+			tile |= EBlockMapBits::VISIBLE; // assume that all tiles are visible
+			if (blockStr[i * TILES_WIDTH + j] == '0')
+				tile |= EBlockMapBits::BLOCKED;
 
-			if (visitStr[i*8 + j] == '1')
-				tile |= VISITABLE;
+			if (visitStr[i * TILES_WIDTH + j] == '1')
+				tile |= EBlockMapBits::VISITABLE;
 		}
 	}
 
@@ -146,7 +113,7 @@ void ObjectTemplate::readTxt(CLegacyConfigParser & parser)
 			allowedTerrains.insert(ETerrainType(i));
 	}
 
-	id    = Obj(boost::lexical_cast<int>(strings[5]));
+	id = Obj(boost::lexical_cast<int>(strings[5]));
 	subid = boost::lexical_cast<int>(strings[6]);
 	int type  = boost::lexical_cast<int>(strings[7]);
 	printPriority = boost::lexical_cast<int>(strings[8]) * 100; // to have some space in future
@@ -157,6 +124,7 @@ void ObjectTemplate::readTxt(CLegacyConfigParser & parser)
 		visitDir = (8|16|32|64|128);
 
 	readMsk();
+	precalculateOffsets();
 }
 
 void ObjectTemplate::readMsk()
@@ -168,9 +136,9 @@ void ObjectTemplate::readMsk()
 		auto msk = CResourceHandler::get()->load(resID)->readAll();
 		setSize(msk.first.get()[0], msk.first.get()[1]);
 	}
-	else //maximum possible size of H3 object //TODO: remove hardcode and move this data into modding system
+	else //maximum possible size of H3 object //TODO: load object of any size from mods
 	{
-		setSize(8, 6);
+		setSize(TILES_WIDTH, TILES_HEIGHT);
 	}
 }
 
@@ -178,25 +146,25 @@ void ObjectTemplate::readMap(CBinaryReader & reader)
 {
 	animationFile = reader.readString();
 
-	setSize(8, 6);
-	ui8 blockMask[6];
-	ui8 visitMask[6];
+	setSize(TILES_WIDTH, TILES_HEIGHT);
+	ui8 blockMask[TILES_HEIGHT];
+	ui8 visitMask[TILES_HEIGHT];
 	for(auto & byte : blockMask)
 		byte = reader.readUInt8();
 	for(auto & byte : visitMask)
 		byte = reader.readUInt8();
 
-	for (size_t i=0; i<6; i++) // 6 rows
+	for (size_t i=0; i< TILES_HEIGHT; i++) // 6 rows
 	{
-		for (size_t j=0; j<8; j++) // 8 columns
+		for (size_t j=0; j< TILES_WIDTH; j++) // 8 columns
 		{
-			auto & tile = usedTiles[5 - i][7 - j];
-			tile |= VISIBLE; // assume that all tiles are visible
+			auto & tile = usedTiles[7 - j][5 - i];
+			tile |= EBlockMapBits::VISIBLE; // assume that all tiles are visible
 			if (((blockMask[i] >> j) & 1 ) == 0)
-				tile |= BLOCKED;
+				tile |= EBlockMapBits::BLOCKED;
 
 			if (((visitMask[i] >> j) & 1 ) != 0)
-				tile |= VISITABLE;
+				tile |= EBlockMapBits::VISITABLE;
 		}
 	}
 
@@ -222,6 +190,7 @@ void ObjectTemplate::readMap(CBinaryReader & reader)
 	readMsk();
 
 	afterLoadFixup();
+	precalculateOffsets();
 }
 
 void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
@@ -261,42 +230,46 @@ void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
 		logGlobal->warn("Loaded template without allowed terrains!");
 
 
-	auto charToTile = [&](const char & ch) -> ui8
+	auto charToTile = [&](const char & ch) -> EBlockMapBits
 	{
 		switch (ch)
 		{
-			case ' ' : return 0;
-			case '0' : return 0;
-			case 'V' : return VISIBLE;
-			case 'B' : return VISIBLE | BLOCKED;
-			case 'H' : return BLOCKED;
-			case 'A' : return VISIBLE | BLOCKED | VISITABLE;
-			case 'T' : return BLOCKED | VISITABLE;
+			case ' ' : return EBlockMapBits::EMPTY;
+			case '0' : return EBlockMapBits::EMPTY;
+			case 'V' : return EBlockMapBits::VISIBLE;
+			case 'B' : return EBlockMapBits::VISIBLE | EBlockMapBits::BLOCKED;
+			case 'H' : return EBlockMapBits::BLOCKED;
+			case 'A' : return EBlockMapBits::VISIBLE | EBlockMapBits::BLOCKED | EBlockMapBits::VISITABLE;
+			case 'T' : return EBlockMapBits::BLOCKED | EBlockMapBits::VISITABLE;
 			default:
 				logGlobal->error("Unrecognized char %s in template mask", ch);
-				return 0;
+				return EBlockMapBits::EMPTY;
 		}
 	};
 
+	//TODO: init array with 'empty' tiles
+
 	const JsonVector & mask = node["mask"].Vector();
 
-	size_t height = mask.size();
-	size_t width  = 0;
+	//calculate width, height
+	size_t h = mask.size();
+	size_t w = 0;
 	for (auto & line : mask)
-		vstd::amax(width, line.String().size());
+		vstd::amax(w, line.String().size());
 
-	setSize(width, height);
+	setSize(w, h);
 
 	for (size_t i=0; i<mask.size(); i++)
 	{
 		const std::string & line = mask[i].String();
 		for (size_t j=0; j < line.size(); j++)
-			usedTiles[mask.size() - 1 - i][line.size() - 1 - j] = charToTile(line[j]);
+			usedTiles[line.size() - 1 - j][mask.size() - 1 - i] = charToTile(line[j]);
 	}
 
 	printPriority = node["zIndex"].Float();
 
 	afterLoadFixup();
+	precalculateOffsets();
 }
 
 void ObjectTemplate::writeJson(JsonNode & node, const bool withTerrain) const
@@ -341,13 +314,13 @@ void ObjectTemplate::writeJson(JsonNode & node, const bool withTerrain) const
 		}
 	}
 
-	auto tileToChar = [&](const ui8 & tile) -> char
+	auto tileToChar = [&](const EBlockMapBits & tile) -> char
 	{
-		if(tile & VISIBLE)
+		if(tile & EBlockMapBits::VISIBLE)
 		{
-			if(tile & BLOCKED)
+			if(tile & EBlockMapBits::BLOCKED)
 			{
-				if(tile & VISITABLE)
+				if(tile & EBlockMapBits::VISITABLE)
 					return 'A';
 				else
 					return 'B';
@@ -357,9 +330,9 @@ void ObjectTemplate::writeJson(JsonNode & node, const bool withTerrain) const
 		}
 		else
 		{
-			if(tile & BLOCKED)
+			if(tile & EBlockMapBits::BLOCKED)
 			{
-				if(tile & VISITABLE)
+				if(tile & EBlockMapBits::VISITABLE)
 					return 'T';
 				else
 					return 'H';
@@ -368,9 +341,6 @@ void ObjectTemplate::writeJson(JsonNode & node, const bool withTerrain) const
 				return '0';
 		}
 	};
-
-	size_t height = getHeight();
-	size_t width  = getWidth();
 
 	JsonVector & mask = node["mask"].Vector();
 
@@ -390,87 +360,118 @@ void ObjectTemplate::writeJson(JsonNode & node, const bool withTerrain) const
 		node["zIndex"].Float() = printPriority;
 }
 
+void ObjectTemplate::precalculateOffsets() //call when object mask is changed or initialized
+{
+	calculateWidthHeight();
+	calculateBlockMapOffset();
+	calculateVisitableOffset();
+}
+
+void ObjectTemplate::calculateWidthHeight()
+{
+	//sizes are calculated from bottom-right corner (0, 0) to the farthest edge
+
+	//minimum size is (1, 1)
+	ui32 maxX = 0; //will grow
+	ui32 maxY = 0;
+
+	for (int x = 0; x < usedTiles.shape()[0]; x++) //iterate over actual bounds
+	{
+		for (int y = 0; y < usedTiles.shape()[1]; y++)
+		{
+			if (usedTiles[x][y] != EBlockMapBits::EMPTY)
+			{
+				vstd::amax(maxX, x); //assign value if greater
+				vstd::amax(maxY, y); //assign value if greater
+			}
+		}
+	}
+	width = std::min<ui32>(maxX + 1, TILES_WIDTH); // Cannot exceed max width.
+	height = std::min<ui32>(maxY + 1, TILES_HEIGHT); // Cannot exceed max height.
+}
+
 ui32 ObjectTemplate::getWidth() const
 {
-	//TODO: Use 2D array
-	//TODO: better precalculate and store constant value
-	ui32 ret = 0;
-	for (const auto &row : usedTiles) //copy is expensive
-	{
-		ret = std::max<ui32>(ret, row.size());
-	}
-	return ret;
+	return width;
 }
 
 ui32 ObjectTemplate::getHeight() const
 {
-	//TODO: Use 2D array
-	return usedTiles.size();
+	return height;
 }
 
-void ObjectTemplate::setSize(ui32 width, ui32 height)
+void ObjectTemplate::setSize(ui32 Width, ui32 Height)
 {
-	usedTiles.resize(height);
-	for (auto & line : usedTiles)
-		line.resize(width, 0);
+	//the function does NOT modify this->width; this->height
+	vstd::amax(Width, 1); //minimum size is (1,1)?
+	vstd::amax(Height, 1);
+	usedTiles.resize(boost::extents[Width][Height]);
+
+	//calculateWidthHeight(); //TODO: what are the use cases of resizing an object?
 }
 
 bool ObjectTemplate::isVisitable() const
 {
-	for (auto & line : usedTiles)
-		for (auto & tile : line)
-			if (tile & VISITABLE)
-				return true;
-	return false;
+	//default offset = 0,0
+	return usedTiles[visitableOffset.x][visitableOffset.y] & EBlockMapBits::VISITABLE;
 }
 
 bool ObjectTemplate::isWithin(si32 X, si32 Y) const
 {
 	if (X < 0 || Y < 0)
 		return false;
-	return !(X >= getWidth() || Y >= getHeight());
+	return !(X >= width || Y >= height);
 }
 
 bool ObjectTemplate::isVisitableAt(si32 X, si32 Y) const
 {
-	return isWithin(X, Y) && usedTiles[Y][X] & VISITABLE;
+	return isWithin(X, Y) && usedTiles[X][Y] & EBlockMapBits::VISITABLE;
 }
 
 bool ObjectTemplate::isVisibleAt(si32 X, si32 Y) const
 {
-	return isWithin(X, Y) && usedTiles[Y][X] & VISIBLE;
+	return isWithin(X, Y) && usedTiles[X][Y] & EBlockMapBits::VISIBLE;
 }
 
 bool ObjectTemplate::isBlockedAt(si32 X, si32 Y) const
 {
-	return isWithin(X, Y) && usedTiles[Y][X] & BLOCKED;
+	return isWithin(X, Y) && usedTiles[X][Y] & EBlockMapBits::BLOCKED;
 }
 
 std::set<int3> ObjectTemplate::getBlockedOffsets() const
 {
 	std::set<int3> ret;
-	for(int w = 0; w < getWidth(); ++w)
+	for(int w = 0; w < width; ++w)
 	{
-		for(int h = 0; h < getHeight(); ++h)
+		for(int h = 0; h < height; ++h)
 		{
 			if (isBlockedAt(w, h))
-				ret.insert(int3(-w, -h, 0));
+				ret.insert(int3(-w, -h, 0)); //why, oh why it is negative? :v
 		}
 	}
 	return ret;
 }
 
-int3 ObjectTemplate::getBlockMapOffset() const
+void ObjectTemplate::calculateBlockMapOffset()
 {
-	for(int w = 0; w < getWidth(); ++w)
+	blockMapOffset = int3(0, 0, 0); //fall back to default
+
+	for (int w = 0; w < width; ++w)
 	{
-		for(int h = 0; h < getHeight(); ++h)
+		for (int h = 0; h < height; ++h)
 		{
 			if (isBlockedAt(w, h))
-				return int3(w, h, 0);
+			{
+				blockMapOffset = int3(w, h, 0);
+				return; //stop at first
+			}
 		}
 	}
-	return int3(0,0,0);
+}
+
+int3 ObjectTemplate::getBlockMapOffset() const
+{
+	return blockMapOffset;
 }
 
 bool ObjectTemplate::isVisitableFrom(si8 X, si8 Y) const
@@ -492,22 +493,32 @@ bool ObjectTemplate::isVisitableFrom(si8 X, si8 Y) const
 	return dirMap[dy][dx] != 0;
 }
 
+void ObjectTemplate::calculateVisitableOffset()
+{
+	visitableOffset = int3(0, 0, 0);
+
+	for (int x = 0; x < width; x++)
+	{
+		for (int y = 0; y < height; y++)
+		{
+			if (isVisitableAt(x, y))
+			{
+				visitableOffset = int3(x, y, 0);
+				return; //stop at first
+			}
+		}
+	}
+}
+
 int3 ObjectTemplate::getVisitableOffset() const
 {
-	for(int y = 0; y < getHeight(); y++)
-		for (int x = 0; x < getWidth(); x++)
-			if (isVisitableAt(x, y))
-				return int3(x,y,0);
-
     //logGlobal->warn("Warning: getVisitableOffset called on non-visitable obj!");
-	return int3(0,0,0);
+	return visitableOffset;
 }
 
 bool ObjectTemplate::isVisitableFromTop() const
 {
 	return visitDir & 2;
-	//for some reason the line below is never called :?
-	//return isVisitableFrom (0, 1);
 }
 
 bool ObjectTemplate::canBePlacedAt(ETerrainType terrain) const
