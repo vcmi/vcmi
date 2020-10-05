@@ -693,7 +693,7 @@ std::vector<JsonNode> CSpellHandler::loadLegacyData(size_t dataSize)
 	skip(3);
 	read(true,true);//read creature abilities
 
-    //TODO: maybe move to config
+	//TODO: maybe move to config
 	//clone Acid Breath attributes for Acid Breath damage effect
 	JsonNode temp = legacyData[SpellID::ACID_BREATH_DEFENSE];
 	temp["index"].Integer() = SpellID::ACID_BREATH_DAMAGE;
@@ -1036,7 +1036,7 @@ std::vector<bool> CSpellHandler::getDefaultAllowed() const
 
 void CSpellHandler::update780()
 {
-    static_assert(MINIMAL_SERIALIZATION_VERSION < 780, "No longer needed CSpellHandler::update780");
+	static_assert(MINIMAL_SERIALIZATION_VERSION < 780, "No longer needed CSpellHandler::update780");
 
 	auto spellsContent = VLC->modh->content["spells"];
 

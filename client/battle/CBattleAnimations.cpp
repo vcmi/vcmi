@@ -32,7 +32,7 @@
 #include "../../lib/spells/CSpellHandler.h"
 
 CBattleAnimation::CBattleAnimation(CBattleInterface * _owner)
-    : owner(_owner), ID(_owner->animIDhelper++)
+	: owner(_owner), ID(_owner->animIDhelper++)
 {
 	logAnim->trace("Animation #%d created", ID);
 }
@@ -83,9 +83,9 @@ bool CBattleAnimation::isEarliest(bool perStackConcurrency)
 }
 
 CBattleStackAnimation::CBattleStackAnimation(CBattleInterface * owner, const CStack * stack)
-    : CBattleAnimation(owner),
-      myAnim(owner->creAnims[stack->ID]),
-      stack(stack)
+	: CBattleAnimation(owner),
+	  myAnim(owner->creAnims[stack->ID]),
+	  stack(stack)
 {
 	assert(myAnim);
 }
@@ -213,7 +213,7 @@ bool CDefenceAnimation::init()
 	if (!rangedAttack && getMyAnimType() != CCreatureAnim::DEFENCE)
 	{
 		float frameLength = AnimationControls::getCreatureAnimationSpeed(
-		                          stack->getCreature(), owner->creAnims[stack->ID].get(), getMyAnimType());
+								  stack->getCreature(), owner->creAnims[stack->ID].get(), getMyAnimType());
 
 		timeToWait = myAnim->framesInGroup(getMyAnimType()) * frameLength / 2;
 
@@ -339,7 +339,7 @@ bool CMeleeAttackAnimation::init()
 
 	// opponent must face attacker ( = different directions) before he can be attacked
 	if(attackingStack && attackedStack &&
-	    owner->creDir[attackingStack->ID] == owner->creDir[attackedStack->ID])
+		owner->creDir[attackingStack->ID] == owner->creDir[attackedStack->ID])
 		return false;
 
 	//reversed
@@ -392,7 +392,7 @@ bool CMeleeAttackAnimation::init()
 	case 4:
 	case 5:
 		group = mutPosToGroup[mutPos];
-        if(attackingStack->hasBonusOfType(Bonus::TWO_HEX_ATTACK_BREATH))
+		if(attackingStack->hasBonusOfType(Bonus::TWO_HEX_ATTACK_BREATH))
 		{
 			CCreatureAnim::EAnimType group2H = mutPosToGroup2H[mutPos];
 			if(myAnim->framesInGroup(group2H)>0)
@@ -560,15 +560,15 @@ void CMovementAnimation::endAnim()
 }
 
 CMovementAnimation::CMovementAnimation(CBattleInterface *_owner, const CStack *_stack, std::vector<BattleHex> _destTiles, int _distance)
-    : CBattleStackAnimation(_owner, _stack),
-      destTiles(_destTiles),
-      curentMoveIndex(0),
-      oldPos(stack->getPosition()),
-      begX(0), begY(0),
-      distanceX(0), distanceY(0),
-      timeToMove(0.0),
-      progress(0.0),
-      nextHex(destTiles.front())
+	: CBattleStackAnimation(_owner, _stack),
+	  destTiles(_destTiles),
+	  curentMoveIndex(0),
+	  oldPos(stack->getPosition()),
+	  begX(0), begY(0),
+	  distanceX(0), distanceY(0),
+	  timeToMove(0.0),
+	  progress(0.0),
+	  nextHex(destTiles.front())
 {
 	logAnim->debug("Created movement anim for %s", stack->getName());
 }
@@ -840,7 +840,7 @@ bool CShootingAnimation::init()
 
 		// Add explosion anim
 		Point animPos(destPos.x - 126 + img->width() / 2,
-		              destPos.y - 105 + img->height() / 2);
+					  destPos.y - 105 + img->height() / 2);
 
 		owner->addNewAnim( new CEffectAnimation(owner, catapultDamage ? "SGEXPL.DEF" : "CSGRCK.DEF", animPos.x, animPos.y));
 	}
@@ -944,7 +944,7 @@ bool CCastAnimation::init()
 	//reverse unit if necessary
 	if(attackedStack)
 	{
-        if(owner->getCurrentPlayerInterface()->cb->isToReverse(attackingStack->getPosition(), attackedStack->getPosition(), owner->creDir[attackingStack->ID], attackingStack->doubleWide(), owner->creDir[attackedStack->ID]))
+		if(owner->getCurrentPlayerInterface()->cb->isToReverse(attackingStack->getPosition(), attackedStack->getPosition(), owner->creDir[attackingStack->ID], attackingStack->doubleWide(), owner->creDir[attackedStack->ID]))
 		{
 			owner->addNewAnim(new CReverseAnimation(owner, attackingStack, attackingStack->getPosition(), true));
 			return false;
@@ -952,7 +952,7 @@ bool CCastAnimation::init()
 	}
 	else
 	{
-        if(dest.isValid() && owner->getCurrentPlayerInterface()->cb->isToReverse(attackingStack->getPosition(), dest, owner->creDir[attackingStack->ID], false, false))
+		if(dest.isValid() && owner->getCurrentPlayerInterface()->cb->isToReverse(attackingStack->getPosition(), dest, owner->creDir[attackingStack->ID], false, false))
 		{
 			owner->addNewAnim(new CReverseAnimation(owner, attackingStack, attackingStack->getPosition(), true));
 			return false;

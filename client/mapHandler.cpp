@@ -988,7 +988,7 @@ CMapHandler::AnimBitmapHolder CMapHandler::CMapBlitter::findHeroBitmap(const CGH
 		bool moving = !hero->isStanding;
 		int group = getHeroFrameGroup(hero->moveDir, moving);
 
-        if(animation->size(group) > 0)
+		if(animation->size(group) > 0)
 		{
 			int frame = anim % animation->size(group);
 			auto heroImage = animation->getImage(frame, group);
@@ -1073,7 +1073,7 @@ CMapHandler::AnimBitmapHolder CMapHandler::CMapBlitter::findObjectBitmap(const C
 	// normal object
 	std::shared_ptr<CAnimation> animation = graphics->getAnimation(obj);
 	size_t groupSize = animation->size();
-    if(groupSize == 0)
+	if(groupSize == 0)
 		return CMapHandler::AnimBitmapHolder();
 
 	auto bitmap = animation->getImage((anim + getPhaseShift(obj)) % groupSize);

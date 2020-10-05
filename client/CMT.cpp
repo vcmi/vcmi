@@ -146,9 +146,9 @@ static void prog_help(const po::options_description &opts)
 }
 
 static void SDLLogCallback(void*           userdata,
-                           int             category,
-                           SDL_LogPriority priority,
-                           const char*     message)
+						   int             category,
+						   SDL_LogPriority priority,
+						   const char*     message)
 {
 	//todo: convert SDL log priority to vcmi log priority
 	//todo: make separate log domain for SDL
@@ -173,7 +173,7 @@ int main(int argc, char * argv[])
 	// Correct working dir executable folder (not bundle folder) so we can use executable relative paths
 	boost::filesystem::current_path(boost::filesystem::system_complete(argv[0]).parent_path());
 #endif
-    std::cout << "Starting... " << std::endl;
+	std::cout << "Starting... " << std::endl;
 	po::options_description opts("Allowed options");
 	opts.add_options()
 		("help,h", "display help and exit")
@@ -208,7 +208,7 @@ int main(int argc, char * argv[])
 		}
 		catch(std::exception &e)
 		{
-            std::cerr << "Failure during parsing command-line options:\n" << e.what() << std::endl;
+			std::cerr << "Failure during parsing command-line options:\n" << e.what() << std::endl;
 		}
 	}
 
@@ -1196,9 +1196,9 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 	SDL_SetSurfaceBlendMode(screen, SDL_BLENDMODE_NONE);
 
 	screenTexture = SDL_CreateTexture(mainRenderer,
-                                            SDL_PIXELFORMAT_ARGB8888,
-                                            SDL_TEXTUREACCESS_STREAMING,
-                                            w, h);
+											SDL_PIXELFORMAT_ARGB8888,
+											SDL_TEXTUREACCESS_STREAMING,
+											w, h);
 
 	if(nullptr == screenTexture)
 	{
@@ -1286,7 +1286,7 @@ static void handleEvent(SDL_Event & ev)
 				handleQuit(false);
 				return;
 			}
-		    break;
+			break;
 		case EUserEvent::RETURN_TO_MAIN_MENU:
 			{
 				CSH->endGameplay();

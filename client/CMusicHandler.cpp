@@ -27,8 +27,8 @@
 
 // sounds mapped to soundBase enum
 static std::string sounds[] = {
-    "", // invalid
-    "", // todo
+	"", // invalid
+	"", // todo
 	VCMI_SOUND_LIST
 };
 #undef VCMI_SOUND_NAME
@@ -94,19 +94,19 @@ CSoundHandler::CSoundHandler():
 		soundBase::pickup04, soundBase::pickup05, soundBase::pickup06, soundBase::pickup07
 	};
 
-    horseSounds =  // must be the same order as terrains (see ETerrainType);
-    {
+	horseSounds =  // must be the same order as terrains (see ETerrainType);
+	{
 		soundBase::horseDirt, soundBase::horseSand, soundBase::horseGrass,
 		soundBase::horseSnow, soundBase::horseSwamp, soundBase::horseRough,
 		soundBase::horseSubterranean, soundBase::horseLava,
 		soundBase::horseWater, soundBase::horseRock
-    };
+	};
 
 	battleIntroSounds =
 	{
 		soundBase::battle00, soundBase::battle01,
-	    soundBase::battle02, soundBase::battle03, soundBase::battle04,
-	    soundBase::battle05, soundBase::battle06, soundBase::battle07
+		soundBase::battle02, soundBase::battle03, soundBase::battle04,
+		soundBase::battle05, soundBase::battle06, soundBase::battle07
 	};
 };
 
@@ -510,7 +510,7 @@ MusicEntry::MusicEntry(CMusicHandler *owner, std::string setName, std::string mu
 	owner(owner),
 	music(nullptr),
 	loop(looped ? -1 : 1),
-    setName(std::move(setName))
+	setName(std::move(setName))
 {
 	if (!musicURI.empty())
 		load(std::move(musicURI));

@@ -105,9 +105,9 @@ std::array<CBitmapFont::BitmapChar, CBitmapFont::totalChars> CBitmapFont::loadCh
 }
 
 CBitmapFont::CBitmapFont(const std::string & filename):
-    data(CResourceHandler::get()->load(ResourceID("data/" + filename, EResType::BMP_FONT))->readAll()),
-    chars(loadChars()),
-    height(data.first.get()[5])
+	data(CResourceHandler::get()->load(ResourceID("data/" + filename, EResType::BMP_FONT))->readAll()),
+	chars(loadChars()),
+	height(data.first.get()[5])
 {}
 
 size_t CBitmapFont::getLineHeight() const
@@ -234,9 +234,9 @@ int CTrueTypeFont::getFontStyle(const JsonNode &config)
 }
 
 CTrueTypeFont::CTrueTypeFont(const JsonNode & fontConfig):
-    data(loadData(fontConfig)),
-    font(loadFont(fontConfig), TTF_CloseFont),
-    blended(fontConfig["blend"].Bool())
+	data(loadData(fontConfig)),
+	font(loadFont(fontConfig), TTF_CloseFont),
+	blended(fontConfig["blend"].Bool())
 {
 	assert(font);
 
@@ -366,9 +366,9 @@ void CBitmapHanFont::renderText(SDL_Surface * surface, const std::string & data,
 }
 
 CBitmapHanFont::CBitmapHanFont(const JsonNode &config):
-    fallback(new CBitmapFont(config["fallback"].String())),
-    data(CResourceHandler::get()->load(ResourceID("data/" + config["name"].String(), EResType::OTHER))->readAll()),
-    size((size_t)config["size"].Float())
+	fallback(new CBitmapFont(config["fallback"].String())),
+	data(CResourceHandler::get()->load(ResourceID("data/" + config["name"].String(), EResType::OTHER))->readAll()),
+	size((size_t)config["size"].Float())
 {
 	// basic tests to make sure that fonts are OK
 	// 1) fonts must contain 190 "sections", 126 symbols each.

@@ -101,7 +101,7 @@ bool mapSorter::operator()(const std::shared_ptr<CMapInfo> aaa, const std::share
 		{
 		case _numOfMaps: //by number of maps in campaign
 			return CGI->generaltexth->campaignRegionNames[aaa->campaignHeader->mapVersion].size() <
-			       CGI->generaltexth->campaignRegionNames[bbb->campaignHeader->mapVersion].size();
+				   CGI->generaltexth->campaignRegionNames[bbb->campaignHeader->mapVersion].size();
 			break;
 		case _name: //by name
 			return boost::ilexicographical_compare(aaa->campaignHeader->name, bbb->campaignHeader->name);

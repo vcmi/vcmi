@@ -366,8 +366,8 @@ void CDefFile::loadFrame(size_t frame, size_t group, ImageLoader &loader) const
 	const ui32 BaseOffset = currentOffset;
 
 	loader.init(Point(sprite.width, sprite.height),
-	            Point(sprite.leftMargin, sprite.topMargin),
-	            Point(sprite.fullWidth, sprite.fullHeight), palette.get());
+				Point(sprite.leftMargin, sprite.topMargin),
+				Point(sprite.fullWidth, sprite.fullHeight), palette.get());
 
 	switch(sprite.format)
 	{
@@ -1070,7 +1070,7 @@ void CAnimation::duplicateImage(const size_t sourceGroup, const size_t sourceFra
 	if(clone.getType() == JsonNode::JsonType::DATA_NULL)
 	{
 		std::string temp =  name+":"+boost::lexical_cast<std::string>(sourceGroup)+":"+boost::lexical_cast<std::string>(sourceFrame);
-        clone["file"].String() = temp;
+		clone["file"].String() = temp;
 	}
 
 	source[targetGroup].push_back(clone);

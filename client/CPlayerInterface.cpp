@@ -2524,7 +2524,7 @@ void CPlayerInterface::askToAssembleArtifact(const ArtifactLocation &al)
 		if(art == nullptr)
 		{
 			logGlobal->error("artifact location %d points to nothing",
-			                 al.slot.num);
+							 al.slot.num);
 			return;
 		}
 		CHeroArtPlace::askToAssemble(art, al.slot, hero);

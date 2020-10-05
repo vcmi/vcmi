@@ -83,9 +83,9 @@ static void transformPalette(SDL_Surface *surf, double rCor, double gCor, double
 			color->g != 231 &&
 			color->r != 255) //it's not yellow border
 		{
-            color->r = static_cast<Uint8>(color->r * rCor);
-            color->g = static_cast<Uint8>(color->g * gCor);
-            color->b = static_cast<Uint8>(color->b * bCor);
+			color->r = static_cast<Uint8>(color->r * rCor);
+			color->g = static_cast<Uint8>(color->g * gCor);
+			color->b = static_cast<Uint8>(color->b * bCor);
 		}
 	}
 }
@@ -1696,7 +1696,7 @@ void CBattleInterface::enterCreatureCastingMode()
 	if (tacticsMode)
 		return;
 
-    //hero is casting a spell
+	//hero is casting a spell
 	if (spellDestSelectMode)
 		return;
 
@@ -2347,7 +2347,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 					cursorFrame = ECursor::COMBAT_SHOOT;
 
 				realizeAction = [=](){giveCommand(EActionType::SHOOT, myNumber);};
-                TDmgRange damage = curInt->cb->battleEstimateDamage(activeStack, shere);
+				TDmgRange damage = curInt->cb->battleEstimateDamage(activeStack, shere);
 				std::string estDmgText = formatDmgRange(std::make_pair((ui32)damage.first, (ui32)damage.second)); //calculating estimated dmg
 				//printing - Shoot %s (%d shots left, %s damage)
 				consoleMsg = (boost::format(CGI->generaltexth->allTexts[296]) % shere->getName() % activeStack->shots.available() % estDmgText).str();
@@ -3157,7 +3157,7 @@ void CBattleInterface::showHighlightedHexes(SDL_Surface *to)
 
 				spells::Mode mode = spells::Mode::HERO;
 
-                if(spellToCast)//hero casts spell
+				if(spellToCast)//hero casts spell
 				{
 					spell = SpellID(spellToCast->actionSubtype).toSpell();
 					caster = getActiveHero();
@@ -3212,7 +3212,7 @@ void CBattleInterface::showProjectiles(SDL_Surface *to)
 		{
 			// frame we're waiting for is reached OR animation has already finished
 			if (creAnims[it->stackID]->getCurrentFrame() >= it->animStartDelay ||
-			    creAnims[it->stackID]->isShooting() == false)
+				creAnims[it->stackID]->isShooting() == false)
 			{
 				//at this point projectile should become visible
 				creAnims[it->stackID]->pause(); // pause animation
@@ -3311,8 +3311,8 @@ void CBattleInterface::showAliveStacks(SDL_Surface *to, std::vector<const CStack
 	BattleHex currentActionTarget;
 	if(curInt->curAction)
 	{
-        auto target = curInt->curAction->getTarget(curInt->cb.get());
-        if(!target.empty())
+		auto target = curInt->curAction->getTarget(curInt->cb.get());
+		if(!target.empty())
 			currentActionTarget = target.at(0).hexValue;
 	}
 
@@ -3397,7 +3397,7 @@ void CBattleInterface::showAliveStacks(SDL_Surface *to, std::vector<const CStack
 
 			//blitting amount
 			Point textPos(creAnims[stack->ID]->pos.x + xAdd + amountNormal->w/2,
-			              creAnims[stack->ID]->pos.y + yAdd + amountNormal->h/2);
+						  creAnims[stack->ID]->pos.y + yAdd + amountNormal->h/2);
 			graphics->fonts[FONT_TINY]->renderTextCenter(to, makeNumberShort(stack->getCount()), Colors::WHITE, textPos);
 		}
 	}

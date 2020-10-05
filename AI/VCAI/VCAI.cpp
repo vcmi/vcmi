@@ -812,7 +812,7 @@ void VCAI::makeTurn()
 	}
 	catch (boost::thread_interrupted & e)
 	{
-        (void)e;
+	(void)e;
 		logAi->debug("Making turn thread has been interrupted. We'll end without calling endTurn.");
 		return;
 	}
@@ -969,7 +969,7 @@ void VCAI::mainLoop()
 			}
 			catch (boost::thread_interrupted & e)
 			{
-                (void)e;
+				(void)e;
 				logAi->debug("Player %d: Making turn thread received an interruption!", playerID);
 				throw; //rethrow, we want to truly end this thread
 			}
@@ -2332,7 +2332,7 @@ void VCAI::striveToGoal(Goals::TSubgoal basicGoal)
 		}
 		catch (boost::thread_interrupted & e)
 		{
-            (void)e;
+			(void)e;
 			logAi->debug("Player %d: Making turn thread received an interruption!", playerID);
 			throw; //rethrow, we want to truly end this thread
 		}

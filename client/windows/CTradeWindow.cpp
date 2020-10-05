@@ -486,8 +486,8 @@ void CTradeWindow::getPositionsFor(std::vector<Rect> &poss, bool Left, EType typ
 			for (int j = 0; j < 5 ; j++)
 				poss.push_back(Rect(x + dx*j, y + dy*i, w, h));
 
-        poss.push_back(Rect((int)(x + dx * 1.5), (y + dy * 4), w, h));
-        poss.push_back(Rect((int)(x + dx * 2.5), (y + dy * 4), w, h));
+		poss.push_back(Rect((int)(x + dx * 1.5), (y + dy * 4), w, h));
+		poss.push_back(Rect((int)(x + dx * 2.5), (y + dy * 4), w, h));
 	}
 	else
 	{
@@ -836,7 +836,7 @@ void CMarketplaceWindow::selectionChanged(bool side)
 	if(mode == EMarketMode::RESOURCE_RESOURCE)
 		readyToTrade = readyToTrade && (hLeft->id != hRight->id); //for resource trade, two DIFFERENT resources must be selected
 
- 	if(mode == EMarketMode::ARTIFACT_RESOURCE && !hLeft)
+	if(mode == EMarketMode::ARTIFACT_RESOURCE && !hLeft)
 		arts->unmarkSlots(false);
 
 	if(readyToTrade)
@@ -1095,7 +1095,7 @@ CAltarWindow::CAltarWindow(const IMarket * Market, const CGHeroInstance * Hero, 
 	{
 		//%s's Creatures
 		labels.push_back(std::make_shared<CLabel>(155, 30, FONT_SMALL, CENTER, Colors::YELLOW,
-		           boost::str(boost::format(CGI->generaltexth->allTexts[272]) % hero->name)));
+				   boost::str(boost::format(CGI->generaltexth->allTexts[272]) % hero->name)));
 
 		//Altar of Sacrifice
 		labels.push_back(std::make_shared<CLabel>(450, 30, FONT_SMALL, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[479]));

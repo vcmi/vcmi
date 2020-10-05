@@ -74,7 +74,7 @@ void CMessage::init()
 		dialogBorders[i] = make_unique<CAnimation>("DIALGBOX");
 		dialogBorders[i]->preload();
 
-        for(int j=0; j < dialogBorders[i]->size(0); j++)
+		for(int j=0; j < dialogBorders[i]->size(0); j++)
 		{
 			auto image = dialogBorders[i]->getImage(j, 0);
 			//assume blue color initially
@@ -478,7 +478,7 @@ void ComponentsToBlit::blitCompsOnSur( bool blitOr, int inter, int &curh, SDL_Su
 					curw+=inter;
 
 					graphics->fonts[FONT_MEDIUM]->renderTextLeft(ret, CGI->generaltexth->allTexts[4], Colors::WHITE,
-					        Point(curw,middleh-((int)graphics->fonts[FONT_MEDIUM]->getLineHeight()/2)));
+							Point(curw,middleh-((int)graphics->fonts[FONT_MEDIUM]->getLineHeight()/2)));
 
 					curw+=orWidth;
 				}

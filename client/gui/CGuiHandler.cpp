@@ -121,7 +121,7 @@ void CGuiHandler::pushInt(std::shared_ptr<IShowActivatable> newInt)
 	if(!listInt.empty())
 		listInt.front()->deactivate();
 	listInt.push_front(newInt);
-    CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
+	CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
 	newInt->activate();
 	objsToBlit.push_back(newInt);
 	totalRedraw();

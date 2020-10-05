@@ -207,8 +207,8 @@ private:
 		ui32 count;
 		std::string hoverText;
 		OwnedObjectInfo():
-		    imageID(0),
-		    count(0)
+			imageID(0),
+			count(0)
 		{}
 	};
 	std::vector<OwnedObjectInfo> objects;
@@ -309,7 +309,7 @@ class CHeroItem : public CIntObject, public CGarrisonHolder
 	std::shared_ptr<CIntObject> onTabSelected(size_t index);
 
 public:
- 	std::shared_ptr<CArtifactsOfHero> heroArts;
+	std::shared_ptr<CArtifactsOfHero> heroArts;
 
 	void updateGarrisons() override;
 

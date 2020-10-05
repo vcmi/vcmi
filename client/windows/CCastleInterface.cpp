@@ -140,10 +140,10 @@ void CBuildingRect::clickRight(tribool down, bool previousState)
 SDL_Color multiplyColors(const SDL_Color & b, const SDL_Color & a, double f)
 {
 	SDL_Color ret;
-    ret.r = static_cast<Uint8>(a.r * f + b.r * (1 - f));
-    ret.g = static_cast<Uint8>(a.g * f + b.g * (1 - f));
-    ret.b = static_cast<Uint8>(a.b * f + b.b * (1 - f));
-    ret.a = static_cast<Uint8>(a.a * f + b.b * (1 - f));
+	ret.r = static_cast<Uint8>(a.r * f + b.r * (1 - f));
+	ret.g = static_cast<Uint8>(a.g * f + b.g * (1 - f));
+	ret.b = static_cast<Uint8>(a.b * f + b.b * (1 - f));
+	ret.a = static_cast<Uint8>(a.a * f + b.b * (1 - f));
 	return ret;
 }
 
@@ -604,7 +604,7 @@ void CCastleBuildings::recreate()
 		const CStructure * toAdd = *boost::max_element(entry.second, [=](const CStructure * a, const CStructure * b)
 		{
 			return build->getDistance(a->building->bid)
-			     < build->getDistance(b->building->bid);
+				 < build->getDistance(b->building->bid);
 		});
 
 		buildings.push_back(std::make_shared<CBuildingRect>(this, town, toAdd));
@@ -1359,7 +1359,7 @@ CHallInterface::CHallInterface(const CGTownInstance * Town):
 				}
 			}
 			int posX = pos.w/2 - (int)boxList[row].size()*154/2 - ((int)boxList[row].size()-1)*20 + 194*(int)col,
-			    posY = 35 + 104*(int)row;
+				posY = 35 + 104*(int)row;
 
 			if(building)
 				boxes[row].push_back(std::make_shared<CBuildingBox>(posX, posY, town, building));
@@ -1770,10 +1770,10 @@ CBlacksmithDialog::CBlacksmithDialog(bool possible, CreatureID creMachineID, Art
 	anim->clipRect(113,125,200,150);
 
 	title = std::make_shared<CLabel>(165, 28, FONT_BIG, CENTER, Colors::YELLOW,
-	            boost::str(boost::format(CGI->generaltexth->allTexts[274]) % creature->nameSing));
+				boost::str(boost::format(CGI->generaltexth->allTexts[274]) % creature->nameSing));
 	costText = std::make_shared<CLabel>(165, 218, FONT_MEDIUM, CENTER, Colors::WHITE, CGI->generaltexth->jktexts[43]);
 	costValue = std::make_shared<CLabel>(165, 290, FONT_MEDIUM, CENTER, Colors::WHITE,
-	                boost::lexical_cast<std::string>(CGI->arth->artifacts[aid]->price));
+					boost::lexical_cast<std::string>(CGI->arth->artifacts[aid]->price));
 
 	std::string text = boost::str(boost::format(CGI->generaltexth->allTexts[595]) % creature->nameSing);
 	buy = std::make_shared<CButton>(Point(42, 312), "IBUY30.DEF", CButton::tooltip(text), [&](){ close(); }, SDLK_RETURN);

@@ -137,9 +137,9 @@ SDL_Surface * BitmapHandler::loadBitmapFromDir(std::string path, std::string fna
 	else
 	{ //loading via SDL_Image
 		ret = IMG_Load_RW(
-		          //create SDL_RW with our data (will be deleted by SDL)
-		          SDL_RWFromConstMem((void*)readFile.first.get(), (int)readFile.second),
-		          1); // mark it for auto-deleting
+				  //create SDL_RW with our data (will be deleted by SDL)
+				  SDL_RWFromConstMem((void*)readFile.first.get(), (int)readFile.second),
+				  1); // mark it for auto-deleting
 		if (ret)
 		{
 			if (ret->format->palette)

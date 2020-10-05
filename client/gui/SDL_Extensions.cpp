@@ -185,8 +185,8 @@ void CSDL_Ext::alphaTransform(SDL_Surface *src)
 	assert(src->format->BitsPerPixel == 8);
 	SDL_Color colors[] =
 	{
-	    {  0,   0,  0,   0}, {  0,   0,   0,  32}, {  0,   0,   0,  64},
-	    {  0,   0,  0, 128}, {  0,   0,   0, 128}
+		{  0,   0,  0,   0}, {  0,   0,   0,  32}, {  0,   0,   0,  64},
+		{  0,   0,  0, 128}, {  0,   0,   0, 128}
 	};
 
 
