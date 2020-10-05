@@ -49,7 +49,6 @@ class CStackWindow : public CWindowObject
 
 	class CWindowSection : public CIntObject
 	{
-	std::shared_ptr<CIntObject> onCreate(int index);
 	private:
 		std::shared_ptr<CPicture> background;
 	protected:
