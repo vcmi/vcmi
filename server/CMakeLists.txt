@@ -24,7 +24,11 @@ endif()
 
 add_executable(vcmiserver ${server_SRCS} ${server_HEADERS})
 
-target_link_libraries(vcmiserver PRIVATE vcmi)
+set(server_LIBS vcmi)
+if(CMAKE_SYSTEM_NAME MATCHES FreeBSD)
+	set(server_LIBS execinfo ${server_LIBS})
+endif()
+target_link_libraries(vcmiserver PRIVATE ${server_LIBS})
 
 target_include_directories(vcmiserver
 	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
