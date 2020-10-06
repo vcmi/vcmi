@@ -45,7 +45,7 @@ void CButton::update()
 		newPos = 0;
 
 	if (state == HIGHLIGHTED && image->size() < 4)
-		newPos = image->size()-1;
+		newPos = (int)image->size()-1;
 	image->setFrame(newPos);
 
 	if (active)
@@ -474,7 +474,7 @@ CVolumeSlider::CVolumeSlider(const Point & position, const std::string & defName
 	animImage = std::make_shared<CAnimImage>(std::make_shared<CAnimation>(defName), 0, 0, position.x, position.y),
 	pos.x += position.x;
 	pos.y += position.y;
-	pos.w = (animImage->pos.w + 1) * animImage->size();
+	pos.w = (animImage->pos.w + 1) * (int)animImage->size();
 	pos.h = animImage->pos.h;
 	type |= REDRAW_PARENT;
 	setVolume(value);
@@ -483,7 +483,7 @@ CVolumeSlider::CVolumeSlider(const Point & position, const std::string & defName
 void CVolumeSlider::setVolume(int value_)
 {
 	value = value_;
-	moveTo(value * static_cast<double>(animImage->size()) / 100.0);
+	moveTo((int)(value * static_cast<double>(animImage->size()) / 100.0));
 }
 
 void CVolumeSlider::moveTo(int id)
@@ -507,7 +507,7 @@ void CVolumeSlider::clickLeft(tribool down, bool previousState)
 		double px = GH.current->motion.x - pos.x;
 		double rx = px / static_cast<double>(pos.w);
 		// setVolume is out of 100
-		setVolume(rx * 100);
+		setVolume((int)(rx * 100));
 		// Volume config is out of 100, set to increments of 5ish roughly based on the half point of the indicator
 		// 0.0 -> 0, 0.05 -> 5, 0.09 -> 5,...,
 		// 0.1 -> 10, ..., 0.19 -> 15, 0.2 -> 20, ...,
@@ -524,7 +524,7 @@ void CVolumeSlider::clickRight(tribool down, bool previousState)
 	if (down)
 	{
 		double px = GH.current->motion.x - pos.x;
-		int index = px / static_cast<double>(pos.w) * animImage->size();
+		int index = static_cast<int>(px / static_cast<double>(pos.w) * animImage->size());
 		std::string hoverText = helpHandlers[index].first;
 		std::string helpBox = helpHandlers[index].second;
 		if(!helpBox.empty())
@@ -573,7 +573,7 @@ void CSlider::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 	v += 0.5;
 	if(v!=value)
 	{
-		moveTo(v);
+		moveTo((int)v);
 	}
 }
 
@@ -615,7 +615,7 @@ void CSlider::updateSliderPos()
 		{
 			double part = static_cast<double>(value) / positions;
 			part*=(pos.w-48);
-			int newPos = part + pos.x + 16 - slider->pos.x;
+			int newPos = static_cast<int>(part + pos.x + 16 - slider->pos.x);
 			slider->moveBy(Point(newPos, 0));
 		}
 		else
@@ -627,7 +627,7 @@ void CSlider::updateSliderPos()
 		{
 			double part = static_cast<double>(value) / positions;
 			part*=(pos.h-48);
-			int newPos = part + pos.y + 16 - slider->pos.y;
+			int newPos = static_cast<int>(part + pos.y + 16 - slider->pos.y);
 			slider->moveBy(Point(0, newPos));
 		}
 		else
@@ -671,7 +671,7 @@ void CSlider::clickLeft(tribool down, bool previousState)
 		// 		if (rw>1) return;
 		// 		if (rw<0) return;
 		slider->clickLeft(true, slider->mouseState(EIntObjMouseBtnType::LEFT));
-		moveTo(rw * positions  +  0.5);
+		moveTo((int)(rw * positions  +  0.5));
 		return;
 	}
 	if(active & MOVE)

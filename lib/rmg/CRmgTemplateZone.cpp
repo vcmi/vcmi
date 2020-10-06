@@ -36,7 +36,7 @@ void CRmgTemplateZone::addRoadNode(const int3& node)
 	roadNodes.insert(node);
 }
 
-CTileInfo::CTileInfo():nearestObjectDistance(INT_MAX), terrain(ETerrainType::WRONG),roadType(ERoadType::NO_ROAD)
+CTileInfo::CTileInfo():nearestObjectDistance(float(INT_MAX)), terrain(ETerrainType::WRONG),roadType(ERoadType::NO_ROAD)
 {
 	occupied = ETileType::POSSIBLE; //all tiles are initially possible to place objects or passages
 }
@@ -145,8 +145,8 @@ void CRmgTemplateZone::setCenter(const float3 &f)
 	//alternate solution - wrap zone around unitary square. If it doesn't fit on one side, will come out on the opposite side
 	center = f;
 
-	center.x = std::fmod(center.x, 1);
-	center.y = std::fmod(center.y, 1);
+	center.x = static_cast<float>(std::fmod(center.x, 1));
+	center.y = static_cast<float>(std::fmod(center.y, 1));
 
 	if (center.x < 0) //fmod seems to work only for positive numbers? we want to stay positive
 		center.x = 1 - std::abs(center.x);
@@ -291,7 +291,7 @@ void CRmgTemplateZone::fractalize()
 
 				for (auto clearTile : clearedTiles)
 				{
-					float distance = tileToMakePath.dist2dSQ(clearTile);
+					float distance = static_cast<float>(tileToMakePath.dist2dSQ(clearTile));
 
 					if (distance < currentDistance)
 					{
@@ -369,7 +369,7 @@ void CRmgTemplateZone::fractalize()
 
 		for (auto clearTile : freePaths)
 		{
-			float distance = tile.dist2dSQ(clearTile);
+			float distance = static_cast<float>(tile.dist2dSQ(clearTile));
 
 			if (distance < blockDistance)
 			{
@@ -436,7 +436,7 @@ do not leave zone border
 	bool end = false;
 
 	int3 currentPos = src;
-	float distance = currentPos.dist2dSQ (dst);
+	float distance = static_cast<float>(currentPos.dist2dSQ (dst));
 
 	while (!end)
 	{
@@ -469,7 +469,7 @@ do not leave zone border
 								if (clearedTiles)
 									clearedTiles->insert(pos);
 								currentPos = pos;
-								distance = currentPos.dist2dSQ (dst);
+								distance = static_cast<float>(currentPos.dist2dSQ (dst));
 							}
 							else if (gen->isFree(pos))
 							{
@@ -505,7 +505,7 @@ do not leave zone border
 							if (clearedTiles)
 								clearedTiles->insert(pos);
 							anotherPos = pos;
-							lastDistance = currentPos.dist2dSQ(dst);
+							lastDistance = static_cast<float>(currentPos.dist2dSQ(dst));
 						}
 					}
 				}
@@ -534,7 +534,7 @@ do not leave zone border
 
 	return result;
 }
-boost::heap::priority_queue<CRmgTemplateZone::TDistance, boost::heap::compare<CRmgTemplateZone::NodeComparer>> CRmgTemplateZone::createPiorityQueue()
+boost::heap::priority_queue<CRmgTemplateZone::TDistance, boost::heap::compare<CRmgTemplateZone::NodeComparer>> CRmgTemplateZone::createPriorityQueue()
 {
 	return boost::heap::priority_queue<TDistance, boost::heap::compare<NodeComparer>>();
 }
@@ -544,7 +544,7 @@ bool CRmgTemplateZone::createRoad(const int3& src, const int3& dst)
 	//A* algorithm taken from Wiki http://en.wikipedia.org/wiki/A*_search_algorithm
 
 	std::set<int3> closed;    // The set of nodes already evaluated.
-	auto pq = createPiorityQueue();    // The set of tentative nodes to be evaluated, initially containing the start node
+	auto pq = createPriorityQueue();    // The set of tentative nodes to be evaluated, initially containing the start node
 	std::map<int3, int3> cameFrom;  // The map of navigated nodes.
 	std::map<int3, float> distances;
 
@@ -634,7 +634,7 @@ bool CRmgTemplateZone::connectPath(const int3& src, bool onlyStraight)
 	//A* algorithm taken from Wiki http://en.wikipedia.org/wiki/A*_search_algorithm
 
 	std::set<int3> closed;    // The set of nodes already evaluated.
-	auto open = createPiorityQueue();    // The set of tentative nodes to be evaluated, initially containing the start node
+	auto open = createPriorityQueue();    // The set of tentative nodes to be evaluated, initially containing the start node
 	std::map<int3, int3> cameFrom;  // The map of navigated nodes.
 	std::map<int3, float> distances;
 
@@ -676,17 +676,17 @@ bool CRmgTemplateZone::connectPath(const int3& src, bool onlyStraight)
 				if (gen->isBlocked(pos) || gen->getZoneID(pos) != id)
 					return;
 
-				int distance = distances[currentNode] + 1;
+				int distance = static_cast<int>(distances[currentNode]) + 1;
 				int bestDistanceSoFar = std::numeric_limits<int>::max();
 				auto it = distances.find(pos);
 				if (it != distances.end())
-					bestDistanceSoFar = it->second;
+					bestDistanceSoFar = static_cast<int>(it->second);
 
 				if (distance < bestDistanceSoFar)
 				{
 					cameFrom[pos] = currentNode;
-					open.push(std::make_pair(pos, distance));
-					distances[pos] = distance;
+					open.push(std::make_pair(pos, (float)distance));
+					distances[pos] = static_cast<float>(distance);
 				}
 			};
 
@@ -711,7 +711,7 @@ bool CRmgTemplateZone::connectWithCenter(const int3& src, bool onlyStraight)
 	//A* algorithm taken from Wiki http://en.wikipedia.org/wiki/A*_search_algorithm
 
 	std::set<int3> closed;    // The set of nodes already evaluated.
-	auto open = createPiorityQueue(); // The set of tentative nodes to be evaluated, initially containing the start node
+	auto open = createPriorityQueue(); // The set of tentative nodes to be evaluated, initially containing the start node
 	std::map<int3, int3> cameFrom;  // The map of navigated nodes.
 	std::map<int3, float> distances;
 
@@ -761,7 +761,7 @@ bool CRmgTemplateZone::connectWithCenter(const int3& src, bool onlyStraight)
 				int bestDistanceSoFar = std::numeric_limits<int>::max(); //FIXME: boost::limits
 				auto it = distances.find(pos);
 				if (it != distances.end())
-					bestDistanceSoFar = it->second;
+					bestDistanceSoFar = static_cast<int>(it->second);
 
 				if (distance < bestDistanceSoFar)
 				{
@@ -808,8 +808,8 @@ bool CRmgTemplateZone::addMonster(int3 &pos, si32 strength, bool clearSurroundin
 	static const float multiplier1[] = {0.5, 0.75, 1.0, 1.5, 1.5};
 	static const float multiplier2[] = {0.5, 0.75, 1.0, 1.0, 1.5};
 
-	int strength1 = std::max(0.f, (strength - value1[monsterStrength]) * multiplier1[monsterStrength]);
-	int strength2 = std::max(0.f, (strength - value2[monsterStrength]) * multiplier2[monsterStrength]);
+	int strength1 = static_cast<int>(std::max(0.f, (strength - value1[monsterStrength]) * multiplier1[monsterStrength]));
+	int strength2 = static_cast<int>(std::max(0.f, (strength - value2[monsterStrength]) * multiplier2[monsterStrength]));
 
 	strength = strength1 + strength2;
 	if (strength < 2000)
@@ -826,7 +826,7 @@ bool CRmgTemplateZone::addMonster(int3 &pos, si32 strength, bool clearSurroundin
 			continue;
 		if (!vstd::contains(monsterTypes, cre->faction))
 			continue;
-		if ((cre->AIValue * (cre->ammMin + cre->ammMax) / 2 < strength) && (strength < cre->AIValue * 100)) //at least one full monster. size between average size of given stack and 100
+		if (((si32)(cre->AIValue * (cre->ammMin + cre->ammMax) / 2) < strength) && (strength < (si32)cre->AIValue * 100)) //at least one full monster. size between average size of given stack and 100
 		{
 			possibleCreatures.push_back(cre->idNumber);
 		}
@@ -836,7 +836,7 @@ bool CRmgTemplateZone::addMonster(int3 &pos, si32 strength, bool clearSurroundin
 		creId = *RandomGeneratorUtil::nextItem(possibleCreatures, gen->rand);
 		amount = strength / VLC->creh->creatures[creId]->AIValue;
 		if (amount >= 4)
-			amount *= gen->rand.nextDouble(0.75, 1.25);
+			amount = static_cast<int>(amount * gen->rand.nextDouble(0.75, 1.25));
 	}
 	else //just pick any available creature
 	{
@@ -883,7 +883,7 @@ bool CRmgTemplateZone::createTreasurePile(int3 &pos, float minDistance, const CT
 
 	int currentValue = 0;
 	CGObjectInstance * object = nullptr;
-	while (currentValue <= desiredValue - 100) //no objects with value below 100 are avaiable
+	while (currentValue <= (int)desiredValue - 100) //no objects with value below 100 are available
 	{
 		treasures[info.nextTreasurePos] = nullptr;
 
@@ -993,7 +993,7 @@ bool CRmgTemplateZone::createTreasurePile(int3 &pos, float minDistance, const CT
 			if (closestFreeTile.dist2d(visitablePos) < minTreasureDistance)
 			{
 				closestTile = visitablePos + int3 (0, 1, 0); //start below object (y+1), possibly even outside the map, to not make path up through it
-				minTreasureDistance = closestFreeTile.dist2d(visitablePos);
+				minTreasureDistance = static_cast<float>(closestFreeTile.dist2d(visitablePos));
 			}
 		}
 		for (auto visitablePos : info.visitableFromTopPositions) //all objects are accessible from any direction
@@ -1002,7 +1002,7 @@ bool CRmgTemplateZone::createTreasurePile(int3 &pos, float minDistance, const CT
 			if (closestFreeTile.dist2d(visitablePos) < minTreasureDistance)
 			{
 				closestTile = visitablePos;
-				minTreasureDistance = closestFreeTile.dist2d(visitablePos);
+				minTreasureDistance = static_cast<float>(closestFreeTile.dist2d(visitablePos));
 			}
 		}
 		assert (closestTile.valid());
@@ -1415,8 +1415,8 @@ bool CRmgTemplateZone::createRequiredObjects()
 			// smallest distance to zone center, greatest distance to nearest object
 			auto isCloser = [this](const int3 & lhs, const int3 & rhs) -> bool
 			{
-				float lDist = this->pos.dist2d(lhs);
-				float rDist = this->pos.dist2d(rhs);
+				float lDist = static_cast<float>(this->pos.dist2d(lhs));
+				float rDist = static_cast<float>(this->pos.dist2d(rhs));
 				lDist *= (lDist > 12) ? 10 : 1; //objects within 12 tile radius are preferred (smaller distance rating)
 				rDist *= (rDist > 12) ? 10 : 1;
 
@@ -1499,7 +1499,7 @@ void CRmgTemplateZone::createTreasures()
 		//also, normalize it to zone count - higher count means relatively smaller zones
 
 		//this is squared distance for optimization purposes
-		const double minDistance = std::max<float>((125.f / totalDensity), 2);
+		const float minDistance = std::max<float>((125.f / totalDensity), 2.0f);
 		//distance lower than 2 causes objects to overlap and crash
 
 		bool stop = false;
@@ -1567,7 +1567,7 @@ void CRmgTemplateZone::createObstacles2()
 				for (auto temp : handler->getTemplates())
 				{
 					if (temp.canBePlacedAt(terrainType) && temp.getBlockMapOffset().valid())
-						obstaclesBySize[temp.getBlockedOffsets().size()].push_back(temp);
+						obstaclesBySize[(ui8)temp.getBlockedOffsets().size()].push_back(temp);
 				}
 			}
 		}
@@ -1837,7 +1837,7 @@ bool CRmgTemplateZone::findPlaceForObject(CGObjectInstance* obj, si32 min_dist, 
 		{
 			if (areAllTilesAvailable(obj, tile, tilesBlockedByObject))
 			{
-				best_distance = dist;
+				best_distance = static_cast<int>(dist);
 				pos = tile;
 				result = true;
 			}
@@ -1918,7 +1918,7 @@ void CRmgTemplateZone::updateDistances(const int3 & pos)
 	for (auto tile : possibleTiles) //don't need to mark distance for not possible tiles
 	{
 		ui32 d = pos.dist2dSQ(tile); //optimization, only relative distance is interesting
-		gen->setNearestObjectDistance(tile, std::min<float>(d, gen->getNearestObjectDistance(tile)));
+		gen->setNearestObjectDistance(tile, std::min((float)d, gen->getNearestObjectDistance(tile)));
 	}
 }
 
@@ -2015,7 +2015,7 @@ ObjectInfo CRmgTemplateZone::getRandomObject(CTreasurePileInfo &info, ui32 desir
 
 	//calculate actual treasure value range based on remaining value
 	ui32 maxVal = desiredValue - currentValue;
-	ui32 minValue = 0.25f * (desiredValue - currentValue);
+	ui32 minValue = static_cast<ui32>(0.25f * (desiredValue - currentValue));
 
 	//roulette wheel
 	for (ObjectInfo &oi : possibleObjects) //copy constructor turned out to be costly
@@ -2153,7 +2153,7 @@ ObjectInfo CRmgTemplateZone::getRandomObject(CTreasurePileInfo &info, ui32 desir
 		auto it = std::lower_bound(thresholds.begin(), thresholds.end(), r,
 			[](const std::pair<ui32, ObjectInfo*> &rhs, const int lhs)->bool
 		{
-			return rhs.first < lhs;
+			return (int)rhs.first < lhs;
 		});
 		return *(it->second);
 	}
@@ -2163,7 +2163,7 @@ void CRmgTemplateZone::addAllPossibleObjects()
 {
 	ObjectInfo oi;
 
-	int numZones = gen->getZones().size();
+	int numZones = static_cast<int>(gen->getZones().size());
 
 	std::vector<CCreature *> creatures; //native creatures for this zone
 	for (auto cre : VLC->creh->creatures)
@@ -2261,8 +2261,8 @@ void CRmgTemplateZone::addAllPossibleObjects()
 		auto cre = creatures.front();
 		if (cre->faction == townType)
 		{
-			float nativeZonesCount = gen->getZoneCount(cre->faction);
-			oi.value = cre->AIValue * cre->growth * (1 + (nativeZonesCount / gen->getTotalZoneCount()) + (nativeZonesCount / 2));
+			float nativeZonesCount = static_cast<float>(gen->getZoneCount(cre->faction));
+			oi.value = static_cast<ui32>(cre->AIValue * cre->growth * (1 + (nativeZonesCount / gen->getTotalZoneCount()) + (nativeZonesCount / 2)));
 			oi.probability = 40;
 
 			for (auto temp : dwellingHandler->getTemplates())
@@ -2370,7 +2370,7 @@ void CRmgTemplateZone::addAllPossibleObjects()
 		{
 			creaturesAmount = boost::math::round(creaturesAmount / 10) * 10;
 		}
-		return creaturesAmount;
+		return static_cast<int>(creaturesAmount);
 	};
 
 	for (auto creature : creatures)
@@ -2388,7 +2388,7 @@ void CRmgTemplateZone::addAllPossibleObjects()
 			return obj;
 		};
 		oi.setTemplate(Obj::PANDORAS_BOX, 0, terrainType);
-		oi.value = (2 * (creature->AIValue) * creaturesAmount * (1 + (float)(gen->getZoneCount(creature->faction)) / gen->getTotalZoneCount())) / 3;
+		oi.value = static_cast<ui32>((2 * (creature->AIValue) * creaturesAmount * (1 + (float)(gen->getZoneCount(creature->faction)) / gen->getTotalZoneCount())) / 3);
 		oi.probability = 3;
 		possibleObjects.push_back(oi);
 	}
@@ -2409,7 +2409,7 @@ void CRmgTemplateZone::addAllPossibleObjects()
 			}
 
 			RandomGeneratorUtil::randomShuffle(spells, gen->rand);
-			for (int j = 0; j < std::min<int>(12, spells.size()); j++)
+			for (int j = 0; j < std::min(12, (int)spells.size()); j++)
 			{
 				obj->spells.push_back(spells[j]->id);
 			}
@@ -2439,7 +2439,7 @@ void CRmgTemplateZone::addAllPossibleObjects()
 			}
 
 			RandomGeneratorUtil::randomShuffle(spells, gen->rand);
-			for (int j = 0; j < std::min<int>(15, spells.size()); j++)
+			for (int j = 0; j < std::min(15, (int)spells.size()); j++)
 			{
 				obj->spells.push_back(spells[j]->id);
 			}
@@ -2467,7 +2467,7 @@ void CRmgTemplateZone::addAllPossibleObjects()
 		}
 
 		RandomGeneratorUtil::randomShuffle(spells, gen->rand);
-		for (int j = 0; j < std::min<int>(60, spells.size()); j++)
+		for (int j = 0; j < std::min(60, (int)spells.size()); j++)
 		{
 			obj->spells.push_back(spells[j]->id);
 		}
@@ -2485,13 +2485,13 @@ void CRmgTemplateZone::addAllPossibleObjects()
 	{
 		static const int genericSeerHuts = 8;
 		int seerHutsPerType = 0;
-		const int questArtsRemaining = gen->getQuestArtsRemaning().size();
+		const int questArtsRemaining = static_cast<int>(gen->getQuestArtsRemaning().size());
 
 		//general issue is that not many artifact types are available for quests
 
-		if (questArtsRemaining >= genericSeerHuts + creatures.size())
+		if (questArtsRemaining >= genericSeerHuts + (int)creatures.size())
 		{
-			seerHutsPerType = questArtsRemaining / (genericSeerHuts + creatures.size());
+			seerHutsPerType = questArtsRemaining / (genericSeerHuts + (int)creatures.size());
 		}
 		else if (questArtsRemaining >= genericSeerHuts)
 		{
@@ -2516,7 +2516,7 @@ void CRmgTemplateZone::addAllPossibleObjects()
 			return artInfo;
 		};
 
-		for (int i = 0; i < std::min<int>(creatures.size(), questArtsRemaining - genericSeerHuts); i++)
+		for (int i = 0; i < std::min((int)creatures.size(), questArtsRemaining - genericSeerHuts); i++)
 		{
 			auto creature = creatures[i];
 			int creaturesAmount = creatureToCount(creature);
@@ -2547,7 +2547,7 @@ void CRmgTemplateZone::addAllPossibleObjects()
 				return obj;
 			};
 			oi.setTemplate(Obj::SEER_HUT, randomAppearance, terrainType);
-			oi.value = ((2 * (creature->AIValue) * creaturesAmount * (1 + (float)(gen->getZoneCount(creature->faction)) / gen->getTotalZoneCount())) - 4000) / 3;
+			oi.value = static_cast<ui32>(((2 * (creature->AIValue) * creaturesAmount * (1 + (float)(gen->getZoneCount(creature->faction)) / gen->getTotalZoneCount())) - 4000) / 3);
 			oi.probability = 3;
 			possibleObjects.push_back(oi);
 		}

@@ -408,7 +408,7 @@ void CTradeWindow::initItems(bool Left)
 		if(Left || !ids)
 			amount = 7;
 		else
-			amount = ids->size();
+			amount = static_cast<int>(ids->size());
 
 		if(ids)
 			vstd::amin(amount, ids->size());
@@ -486,8 +486,8 @@ void CTradeWindow::getPositionsFor(std::vector<Rect> &poss, bool Left, EType typ
 			for (int j = 0; j < 5 ; j++)
 				poss.push_back(Rect(x + dx*j, y + dy*i, w, h));
 
-		poss.push_back(Rect(x + dx*1.5, y + dy*4, w, h));
-		poss.push_back(Rect(x + dx*2.5, y + dy*4, w, h));
+		poss.push_back(Rect((int)(x + dx * 1.5), (y + dy * 4), w, h));
+		poss.push_back(Rect((int)(x + dx * 2.5), (y + dy * 4), w, h));
 	}
 	else
 	{
@@ -836,7 +836,7 @@ void CMarketplaceWindow::selectionChanged(bool side)
 	if(mode == EMarketMode::RESOURCE_RESOURCE)
 		readyToTrade = readyToTrade && (hLeft->id != hRight->id); //for resource trade, two DIFFERENT resources must be selected
 
- 	if(mode == EMarketMode::ARTIFACT_RESOURCE && !hLeft)
+	if(mode == EMarketMode::ARTIFACT_RESOURCE && !hLeft)
 		arts->unmarkSlots(false);
 
 	if(readyToTrade)
@@ -1095,7 +1095,7 @@ CAltarWindow::CAltarWindow(const IMarket * Market, const CGHeroInstance * Hero, 
 	{
 		//%s's Creatures
 		labels.push_back(std::make_shared<CLabel>(155, 30, FONT_SMALL, CENTER, Colors::YELLOW,
-		           boost::str(boost::format(CGI->generaltexth->allTexts[272]) % hero->name)));
+				   boost::str(boost::format(CGI->generaltexth->allTexts[272]) % hero->name)));
 
 		//Altar of Sacrifice
 		labels.push_back(std::make_shared<CLabel>(450, 30, FONT_SMALL, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[479]));
@@ -1397,7 +1397,7 @@ void CAltarWindow::calcTotalExp()
 			val += valOfArt; //WAS val += valOfArt * arts->artifactsOnAltar.count(*i);
 		}
 	}
-	val = hero->calculateXp(val);
+	val = static_cast<int>(hero->calculateXp(val));
 	expOnAltar->setText(boost::lexical_cast<std::string>(val));
 }
 
@@ -1467,7 +1467,7 @@ void CAltarWindow::showAll(SDL_Surface * to)
 
 		int dmp, val;
 		market->getOffer(arts->commonInfo->src.art->artType->id, 0, dmp, val, EMarketMode::ARTIFACT_EXP);
-		val = hero->calculateXp(val);
+		val = static_cast<int>(hero->calculateXp(val));
 		printAtMiddleLoc(boost::lexical_cast<std::string>(val), 304, 498, FONT_SMALL, Colors::WHITE, to);
 	}
 }
@@ -1493,7 +1493,7 @@ bool CAltarWindow::putOnAltar(std::shared_ptr<CTradeableItem> altarSlot, const C
 
 	int dmp, val;
 	market->getOffer(art->artType->id, 0, dmp, val, EMarketMode::ARTIFACT_EXP);
-	val = hero->calculateXp(val);
+	val = static_cast<int>(hero->calculateXp(val));
 
 	arts->artifactsOnAltar.insert(art);
 	altarSlot->setArtInstance(art);
@@ -1505,7 +1505,7 @@ bool CAltarWindow::putOnAltar(std::shared_ptr<CTradeableItem> altarSlot, const C
 
 void CAltarWindow::moveFromSlotToAltar(ArtifactPosition slotID, std::shared_ptr<CTradeableItem> altarSlot, const CArtifactInstance *art)
 {
-	auto freeBackpackSlot = ArtifactPosition(hero->artifactsInBackpack.size() + GameConstants::BACKPACK_START);
+	auto freeBackpackSlot = ArtifactPosition((si32)hero->artifactsInBackpack.size() + GameConstants::BACKPACK_START);
 	if(arts->commonInfo->src.art)
 	{
 		arts->commonInfo->dst.slotID = freeBackpackSlot;

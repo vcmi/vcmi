@@ -253,7 +253,7 @@ bool CModFilterModel::filterAcceptsRow(int source_row, const QModelIndex & sourc
 
 	for(size_t i = 0; i < base->rowCount(index); i++)
 	{
-		if(filterMatchesThis(index.child(i, 0)))
+		if(filterMatchesThis(index.child((int)i, 0)))
 			return true;
 	}
 

@@ -16,7 +16,7 @@ class CCampaignState;
 class CMapInfo;
 struct PlayerInfo;
 class PlayerColor;
-class SharedMemory;
+struct SharedMemory;
 
 /// Struct which describes the name, the color, the starting bonus of a player
 struct DLL_LINKAGE PlayerSettings

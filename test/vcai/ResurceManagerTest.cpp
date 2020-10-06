@@ -205,7 +205,7 @@ TEST_F(ResourceManagerTest, reservedResources)
 TEST_F(ResourceManagerTest, freeResources)
 {
 	ON_CALL(gcm, getResourceAmount()) //in case callback or gs gets crazy
-		.WillByDefault(Return(TResources(-1, 0, -13.0f, -38763, -93764, -464, -12, -98765)));
+		.WillByDefault(Return(TResources(-1, 0, -13, -38763, -93764, -464, -12, -98765)));
 
 	auto res = rm->freeResources();
 	ASSERT_GE(res[Res::WOOD], 0);

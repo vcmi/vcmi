@@ -178,7 +178,7 @@ void CHeroArtPlace::clickLeft(tribool down, bool previousState)
 					{
 						setMeAsDest();
 						vstd::amin(ourOwner->commonInfo->dst.slotID, ArtifactPosition(
-							ourOwner->curHero->artifactsInBackpack.size() + GameConstants::BACKPACK_START));
+							(si32)ourOwner->curHero->artifactsInBackpack.size() + GameConstants::BACKPACK_START));
 						if(srcInBackpack && srcInSameHero)
 						{
 							if(!ourArt								//cannot move from backpack to AFTER backpack -> combined with vstd::amin above it will guarantee that dest is at most the last artifact
@@ -449,7 +449,7 @@ void CArtifactsOfHero::dispose()
 
 void CArtifactsOfHero::scrollBackpack(int dir)
 {
-	int artsInBackpack = curHero->artifactsInBackpack.size();
+	int artsInBackpack = static_cast<int>(curHero->artifactsInBackpack.size());
 	backpackPos += dir;
 	if(backpackPos < 0)// No guarantee of modulus behavior with negative operands -> we keep it positive
 		backpackPos += artsInBackpack;
@@ -487,7 +487,7 @@ void CArtifactsOfHero::scrollBackpack(int dir)
 		}
 	}
 	for( ; s - omitedSoFar < backpack.size(); s++)
-		eraseSlotData(backpack[s-omitedSoFar], ArtifactPosition(GameConstants::BACKPACK_START + s));
+		eraseSlotData(backpack[s-omitedSoFar], ArtifactPosition(GameConstants::BACKPACK_START + (si32)s));
 
 	//in artifact merchant selling artifacts we may have highlight on one of backpack artifacts -> market needs update, cause artifact under highlight changed
 	if(highlightModeCallback)
@@ -613,7 +613,7 @@ CArtifactsOfHero::CArtifactsOfHero(ArtPlaceMap ArtWorn, std::vector<ArtPlacePtr>
 	for(size_t s=0; s<backpack.size(); ++s)
 	{
 		backpack[s]->ourOwner = this;
-		eraseSlotData(backpack[s], ArtifactPosition(GameConstants::BACKPACK_START + s));
+		eraseSlotData(backpack[s], ArtifactPosition(GameConstants::BACKPACK_START + (si32)s));
 	}
 
 	leftArtRoll->addCallback(std::bind(&CArtifactsOfHero::scrollBackpack, this,-1));
@@ -649,7 +649,7 @@ CArtifactsOfHero::CArtifactsOfHero(const Point & position, bool createCommonPart
 	};
 
 	// Create slots for worn artifacts.
-	for(size_t g = 0; g < GameConstants::BACKPACK_START; g++)
+	for(si32 g = 0; g < GameConstants::BACKPACK_START; g++)
 	{
 		artWorn[ArtifactPosition(g)] = std::make_shared<CHeroArtPlace>(slotPos[g]);
 		artWorn[ArtifactPosition(g)]->ourOwner = this;
@@ -657,7 +657,7 @@ CArtifactsOfHero::CArtifactsOfHero(const Point & position, bool createCommonPart
 	}
 
 	// Create slots for the backpack.
-	for(size_t s=0; s<5; ++s)
+	for(int s=0; s<5; ++s)
 	{
 		auto add = std::make_shared<CHeroArtPlace>(Point(403 + 46 * s, 365));
 

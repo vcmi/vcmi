@@ -75,7 +75,7 @@ public:
 		std::vector<numeric> ret;
 		ret.reserve(size);
 		while (size--)
-			ret.push_back(readNumber());
+			ret.push_back((numeric)readNumber());
 		return ret;
 	}
 

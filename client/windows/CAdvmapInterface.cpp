@@ -448,7 +448,7 @@ int3 CTerrainRect::tileCountOnScreen()
 	case EAdvMapMode::NORMAL:
 		return int3(tilesw, tilesh, 1);
 	case EAdvMapMode::WORLD_VIEW:
-		return int3(tilesw / adventureInt->worldViewScale, tilesh / adventureInt->worldViewScale, 1);
+		return int3((si32)(tilesw / adventureInt->worldViewScale), (si32)(tilesh / adventureInt->worldViewScale), 1);
 	}
 }
 
@@ -1089,7 +1089,7 @@ void CAdvMapInt::show(SDL_Surface * to)
 
 void CAdvMapInt::handleMapScrollingUpdate()
 {
-	int scrollSpeed = settings["adventure"]["scrollSpeed"].Float();
+	int scrollSpeed = static_cast<int>(settings["adventure"]["scrollSpeed"].Float());
 	//if advmap needs updating AND (no dialog is shown OR ctrl is pressed)
 	if((animValHitCount % (4 / scrollSpeed)) == 0
 	   && ((GH.topInt().get() == this) || isCtrlKeyDown()))
@@ -1161,8 +1161,8 @@ void CAdvMapInt::centerOn(int3 on, bool fade)
 		on.y -= CGI->mh->frameH;
 		break;
 	case EAdvMapMode::WORLD_VIEW:
-		on.x -= CGI->mh->tilesW / 2 / worldViewScale;
-		on.y -= CGI->mh->tilesH / 2 / worldViewScale;
+		on.x -= static_cast<si32>(CGI->mh->tilesW / 2 / worldViewScale);
+		on.y -= static_cast<si32>(CGI->mh->tilesH / 2 / worldViewScale);
 		break;
 	}
 

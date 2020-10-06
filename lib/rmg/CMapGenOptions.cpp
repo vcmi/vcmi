@@ -331,7 +331,7 @@ void CMapGenOptions::updateCompOnlyPlayers()
 	}
 
 	// Add some comp only players if necessary
-	int compOnlyPlayersToAdd = getPlayerCount() - players.size();
+	int compOnlyPlayersToAdd = static_cast<int>(getPlayerCount() - players.size());
 
 	if (compOnlyPlayersToAdd < 0)
 	{

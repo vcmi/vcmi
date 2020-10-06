@@ -78,12 +78,12 @@ bool CBattleConsole::addText(const std::string & text)
 		if(text[i] == 10)
 		{
 			texts.push_back( text.substr(firstInToken, i-firstInToken) );
-			firstInToken = i+1;
+			firstInToken = (int)i+1;
 		}
 	}
 
 	texts.push_back( text.substr(firstInToken, text.size()) );
-	lastShown = texts.size()-1;
+	lastShown = (int)texts.size()-1;
 	return true;
 }
 
@@ -242,7 +242,7 @@ void CBattleHero::switchToNextPhase()
 
 		firstFrame = 0;
 
-		lastFrame = animation->size(phase);
+		lastFrame = static_cast<int>(animation->size(phase));
 	}
 
 	currentFrame = firstFrame;
@@ -467,7 +467,7 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult & br, CPlayerInterfa
 		}
 		else
 		{
-			int xPos = 235 - (br.casualties[step].size()*32 + (br.casualties[step].size() - 1)*10)/2; //increment by 42 with each picture
+			int xPos = 235 - ((int)br.casualties[step].size()*32 + ((int)br.casualties[step].size() - 1)*10)/2; //increment by 42 with each picture
 			int yPos = 344 + step * 97;
 			for(auto & elem : br.casualties[step])
 			{
@@ -793,12 +793,12 @@ void CStackQueue::StackBox::setUnit(const battle::Unit * unit, size_t turn)
 
 		if(stateIcon)
 		{
-			if(unit->defended(turn) || (turn > 0 && unit->defended(turn - 1)))
+			if(unit->defended((int)turn) || (turn > 0 && unit->defended((int)turn - 1)))
 			{
 				stateIcon->setFrame(0, 0);
 				stateIcon->visible = true;
 			}
-			else if(unit->waited(turn))
+			else if(unit->waited((int)turn))
 			{
 				stateIcon->setFrame(1, 0);
 				stateIcon->visible = true;

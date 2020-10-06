@@ -98,7 +98,7 @@ void Graphics::initializeBattleGraphics()
 	const JsonNode config(ResourceID("config/battles_graphics.json"));
 
 	// Reserve enough space for the terrains
-	int idx = config["backgrounds"].Vector().size();
+	int idx = static_cast<int>(config["backgrounds"].Vector().size());
 	battleBacks.resize(idx+1);	// 1 to idx, 0 is unused
 
 	idx = 1;
@@ -109,7 +109,7 @@ void Graphics::initializeBattleGraphics()
 
 	//initialization of AC->def name mapping
 	for(const JsonNode &ac : config["ac_mapping"].Vector()) {
-		int ACid = ac["id"].Float();
+		int ACid = static_cast<int>(ac["id"].Float());
 		std::vector< std::string > toAdd;
 
 		for(const JsonNode &defname : ac["defnames"].Vector()) {
@@ -428,7 +428,7 @@ void Graphics::addImageListEntry(size_t index, std::string listName, std::string
 	if (!imageName.empty())
 	{
 		JsonNode entry;
-		entry["frame"].Float() = index;
+		entry["frame"].Float() = static_cast<double>(index);
 		entry["file"].String() = imageName;
 
 		imageLists["SPRITES/" + listName]["images"].Vector().push_back(entry);

@@ -12,7 +12,7 @@
 #include "../../lib/mapping/CCampaignHandler.h"
 
 class CMultiLineLabel;
-class SDL_Surface;
+struct SDL_Surface;
 
 class CPrologEpilogVideo : public CWindowObject
 {

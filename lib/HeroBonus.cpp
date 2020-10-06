@@ -461,7 +461,7 @@ int BonusList::totalValue() const
 	if(hasIndepMin && hasIndepMax)
 		assert(indepMin < indepMax);
 
-	const int notIndepBonuses = boost::count_if(bonuses, [](const std::shared_ptr<Bonus>& b)
+	const int notIndepBonuses = (int)boost::count_if(bonuses, [](const std::shared_ptr<Bonus>& b)
 	{
 		return b->valType != Bonus::INDEPENDENT_MAX && b->valType != Bonus::INDEPENDENT_MIN;
 	});
@@ -1307,7 +1307,7 @@ void CBonusSystemNode::limitBonuses(const BonusList &allBonuses, BonusList &out)
 
 	while(true)
 	{
-		int undecidedCount = undecided.size();
+		int undecidedCount = static_cast<int>(undecided.size());
 		for(int i = 0; i < undecided.size(); i++)
 		{
 			auto b = undecided[i];

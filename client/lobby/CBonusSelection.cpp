@@ -124,15 +124,15 @@ void CBonusSelection::loadPositionsOfGraphics()
 		SCampPositions sc;
 
 		sc.campPrefix = campaign["prefix"].String();
-		sc.colorSuffixLength = campaign["color_suffix_length"].Float();
+		sc.colorSuffixLength = static_cast<int>(campaign["color_suffix_length"].Float());
 
 		for(const JsonNode & desc : campaign["desc"].Vector())
 		{
 			SCampPositions::SRegionDesc rd;
 
 			rd.infix = desc["infix"].String();
-			rd.xpos = desc["x"].Float();
-			rd.ypos = desc["y"].Float();
+			rd.xpos = static_cast<int>(desc["x"].Float());
+			rd.ypos = static_cast<int>(desc["y"].Float());
 			sc.regions.push_back(rd);
 		}
 

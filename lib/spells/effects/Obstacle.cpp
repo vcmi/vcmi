@@ -201,7 +201,7 @@ void Obstacle::apply(BattleStateProxy * battleState, RNG & rng, const Mechanics 
 		}
 		RandomGeneratorUtil::randomShuffle(availableTiles, rng);
 
-		const int patchesToPut = std::min<int>(patchCount, availableTiles.size());
+		const int patchesToPut = std::min(patchCount, (int)availableTiles.size());
 
 		EffectTarget randomTarget;
 		randomTarget.reserve(patchesToPut);

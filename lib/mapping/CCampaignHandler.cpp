@@ -77,7 +77,7 @@ std::unique_ptr<CCampaign> CCampaignHandler::getCampaign( const std::string & na
 	ret->header = readHeaderFromMemory(reader);
 	ret->header.filename = name;
 
-	int howManyScenarios = VLC->generaltexth->campaignRegionNames[ret->header.mapVersion].size();
+	int howManyScenarios = static_cast<int>(VLC->generaltexth->campaignRegionNames[ret->header.mapVersion].size());
 	for(int g=0; g<howManyScenarios; ++g)
 	{
 		CCampaignScenario sc = readScenarioFromMemory(reader, ret->header.version, ret->header.mapVersion);
@@ -101,7 +101,7 @@ std::unique_ptr<CCampaign> CCampaignHandler::getCampaign( const std::string & na
 		//set map piece appropriately, convert vector to string
 		ret->mapPieces[scenarioID].assign(reinterpret_cast< const char* >(file[g].data()), file[g].size());
 		CMapService mapService;
-		ret->scenarios[scenarioID].scenarioName = mapService.loadMapHeader((const ui8*)ret->mapPieces[scenarioID].c_str(), ret->mapPieces[scenarioID].size(), scenarioName)->name;
+		ret->scenarios[scenarioID].scenarioName = mapService.loadMapHeader((const ui8*)ret->mapPieces[scenarioID].c_str(), (int)ret->mapPieces[scenarioID].size(), scenarioName)->name;
 		scenarioID++;
 	}
 
@@ -497,7 +497,7 @@ CMap * CCampaignState::getMap(int scenarioId) const
 	std::string & mapContent = camp->mapPieces.find(scenarioId)->second;
 	auto buffer = reinterpret_cast<const ui8 *>(mapContent.data());
 	CMapService mapService;
-	return mapService.loadMap(buffer, mapContent.size(), scenarioName).release();
+	return mapService.loadMap(buffer, (int)mapContent.size(), scenarioName).release();
 }
 
 std::unique_ptr<CMapHeader> CCampaignState::getHeader(int scenarioId) const
@@ -511,7 +511,7 @@ std::unique_ptr<CMapHeader> CCampaignState::getHeader(int scenarioId) const
 	std::string & mapContent = camp->mapPieces.find(scenarioId)->second;
 	auto buffer = reinterpret_cast<const ui8 *>(mapContent.data());
 	CMapService mapService;
-	return mapService.loadMapHeader(buffer, mapContent.size(), scenarioName);
+	return mapService.loadMapHeader(buffer, (int)mapContent.size(), scenarioName);
 }
 
 std::shared_ptr<CMapInfo> CCampaignState::getMapInfo(int scenarioId) const

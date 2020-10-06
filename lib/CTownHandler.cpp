@@ -364,7 +364,7 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 
 	ret->identifier = stringID;
 	ret->town = town;
-	ret->bid = BuildingID(source["id"].Float());
+	ret->bid = BuildingID((si32)source["id"].Float());
 	ret->name = source["name"].String();
 	ret->description = source["description"].String();
 	ret->resources = TResources(source["cost"]);
@@ -461,9 +461,9 @@ void CTownHandler::loadStructure(CTown &town, const std::string & stringID, cons
 	}
 
 	ret->identifier = stringID;
-	ret->pos.x = source["x"].Float();
-	ret->pos.y = source["y"].Float();
-	ret->pos.z = source["z"].Float();
+	ret->pos.x = static_cast<si32>(source["x"].Float());
+	ret->pos.y = static_cast<si32>(source["y"].Float());
+	ret->pos.z = static_cast<si32>(source["z"].Float());
 
 	ret->hiddenUpgrade = source["hidden"].Bool();
 	ret->defName = source["animation"].String();
@@ -517,8 +517,8 @@ void CTownHandler::loadTownHall(CTown &town, const JsonNode & source)
 CTown::ClientInfo::Point JsonToPoint(const JsonNode & node)
 {
 	CTown::ClientInfo::Point ret;
-	ret.x = node["x"].Float();
-	ret.y = node["y"].Float();
+	ret.x = static_cast<si32>(node["x"].Float());
+	ret.y = static_cast<si32>(node["y"].Float());
 	return ret;
 }
 
@@ -607,29 +607,29 @@ void CTownHandler::loadTown(CTown * town, const JsonNode & source)
 	if(resIter == std::end(GameConstants::RESOURCE_NAMES))
 		town->primaryRes = Res::WOOD_AND_ORE; //Wood + Ore
 	else
-		town->primaryRes = resIter - std::begin(GameConstants::RESOURCE_NAMES);
+		town->primaryRes = static_cast<ui16>(resIter - std::begin(GameConstants::RESOURCE_NAMES));
 
 	warMachinesToLoad[town] = source["warMachine"];
 
-	town->moatDamage = source["moatDamage"].Float();
+	town->moatDamage = static_cast<si32>(source["moatDamage"].Float());
 
-	// Compatability for <= 0.98f mods
+	// Compatibility for <= 0.98f mods
 	if(source["moatHexes"].isNull())
 		town->moatHexes = CTown::defaultMoatHexes();
 	else
 		town->moatHexes = source["moatHexes"].convertTo<std::vector<BattleHex> >();
 
-	town->mageLevel = source["mageGuild"].Float();
+	town->mageLevel = static_cast<ui32>(source["mageGuild"].Float());
 	town->names = source["names"].convertTo<std::vector<std::string> >();
 
 	//  Horde building creature level
 	for(const JsonNode &node : source["horde"].Vector())
-		town->hordeLvl[town->hordeLvl.size()] = node.Float();
+		town->hordeLvl[(int)town->hordeLvl.size()] = static_cast<int>(node.Float());
 
 	// town needs to have exactly 2 horde entries. Validation will take care of 2+ entries
 	// but anything below 2 must be handled here
 	for (size_t i=source["horde"].Vector().size(); i<2; i++)
-		town->hordeLvl[i] = -1;
+		town->hordeLvl[(int)i] = -1;
 
 	const JsonVector & creatures = source["creatures"].Vector();
 
@@ -650,11 +650,11 @@ void CTownHandler::loadTown(CTown * town, const JsonNode & source)
 		}
 	}
 
-	town->defaultTavernChance = source["defaultTavern"].Float();
+	town->defaultTavernChance = static_cast<ui32>(source["defaultTavern"].Float());
 	/// set chance of specific hero class to appear in this town
 	for(auto &node : source["tavern"].Struct())
 	{
-		int chance = node.second.Float();
+		int chance = static_cast<int>(node.second.Float());
 
 		VLC->modh->identifiers.requestIdentifier(node.second.meta, "heroClass",node.first, [=](si32 classID)
 		{
@@ -664,7 +664,7 @@ void CTownHandler::loadTown(CTown * town, const JsonNode & source)
 
 	for(auto &node : source["guildSpells"].Struct())
 	{
-		int chance = node.second.Float();
+		int chance = static_cast<int>(node.second.Float());
 
 		VLC->modh->identifiers.requestIdentifier(node.second.meta, "spell", node.first, [=](si32 spellID)
 		{
@@ -692,10 +692,10 @@ void CTownHandler::loadPuzzle(CFaction &faction, const JsonNode &source)
 		size_t index = faction.puzzleMap.size();
 		SPuzzleInfo spi;
 
-		spi.x = piece["x"].Float();
-		spi.y = piece["y"].Float();
-		spi.whenUncovered = piece["index"].Float();
-		spi.number = index;
+		spi.x = static_cast<si16>(piece["x"].Float());
+		spi.y = static_cast<si16>(piece["y"].Float());
+		spi.whenUncovered = static_cast<ui16>(piece["index"].Float());
+		spi.number = static_cast<ui16>(index);
 
 		// filename calculation
 		std::ostringstream suffix;
@@ -769,7 +769,7 @@ void CTownHandler::loadObject(std::string scope, std::string name, const JsonNod
 {
 	auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
 
-	object->index = factions.size();
+	object->index = static_cast<TFaction>(factions.size());
 	factions.push_back(object);
 
 	if (object->town)
@@ -808,7 +808,7 @@ void CTownHandler::loadObject(std::string scope, std::string name, const JsonNod
 void CTownHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
 	auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
-	object->index = index;
+	object->index = static_cast<TFaction>(index);
 	if (factions.size() > index)
 		assert(factions[index] == nullptr); // ensure that this id was not loaded before
 	else
@@ -917,7 +917,7 @@ std::set<TFaction> CTownHandler::getAllowedFactions(bool withTown) const
 
 	for (size_t i=0; i<allowed.size(); i++)
 		if (allowed[i])
-			allowedFactions.insert(i);
+			allowedFactions.insert((TFaction)i);
 
 	return allowedFactions;
 }

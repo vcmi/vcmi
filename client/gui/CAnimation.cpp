@@ -318,7 +318,7 @@ CDefFile::CDefFile(std::string Name):
 		//8 unknown bytes - skipping
 
 		//13 bytes for name of every frame in this block - not used, skipping
-		it+= 13 * totalEntries;
+		it+= 13 * (int)totalEntries;
 
 		for (ui32 j=0; j<totalEntries; j++)
 		{
@@ -366,8 +366,8 @@ void CDefFile::loadFrame(size_t frame, size_t group, ImageLoader &loader) const
 	const ui32 BaseOffset = currentOffset;
 
 	loader.init(Point(sprite.width, sprite.height),
-	            Point(sprite.leftMargin, sprite.topMargin),
-	            Point(sprite.fullWidth, sprite.fullHeight), palette.get());
+				Point(sprite.leftMargin, sprite.topMargin),
+				Point(sprite.fullWidth, sprite.fullHeight), palette.get());
 
 	switch(sprite.format)
 	{
@@ -603,20 +603,20 @@ SDLImage::SDLImage(const JsonNode & conf)
 
 	const JsonNode & jsonMargins = conf["margins"];
 
-	margins.x = jsonMargins["left"].Integer();
-	margins.y = jsonMargins["top"].Integer();
+	margins.x = static_cast<int>(jsonMargins["left"].Integer());
+	margins.y = static_cast<int>(jsonMargins["top"].Integer());
 
-	fullSize.x = conf["width"].Integer();
-	fullSize.y = conf["height"].Integer();
+	fullSize.x = static_cast<int>(conf["width"].Integer());
+	fullSize.y = static_cast<int>(conf["height"].Integer());
 
 	if(fullSize.x == 0)
 	{
-		fullSize.x = margins.x + surf->w + jsonMargins["right"].Integer();
+		fullSize.x = margins.x + surf->w + (int)jsonMargins["right"].Integer();
 	}
 
 	if(fullSize.y == 0)
 	{
-		fullSize.y = margins.y + surf->h + jsonMargins["bottom"].Integer();
+		fullSize.y = margins.y + surf->h + (int)jsonMargins["bottom"].Integer();
 	}
 }
 
@@ -695,7 +695,7 @@ void SDLImage::draw(SDL_Surface* where, SDL_Rect* dest, SDL_Rect* src, ui8 alpha
 
 std::shared_ptr<IImage> SDLImage::scaleFast(float scale) const
 {
-	auto scaled = CSDL_Ext::scaleSurfaceFast(surf, surf->w * scale, surf->h * scale);
+	auto scaled = CSDL_Ext::scaleSurfaceFast(surf, (int)(surf->w * scale), (int)(surf->h * scale));
 
 	if (scaled->format && scaled->format->palette) // fix color keying, because SDL loses it at this point
 		CSDL_Ext::setColorKey(scaled, scaled->format->palette->colors[0]);
@@ -1070,7 +1070,7 @@ void CAnimation::duplicateImage(const size_t sourceGroup, const size_t sourceFra
 	if(clone.getType() == JsonNode::JsonType::DATA_NULL)
 	{
 		std::string temp =  name+":"+boost::lexical_cast<std::string>(sourceGroup)+":"+boost::lexical_cast<std::string>(sourceFrame);
-        clone["file"].String() = temp;
+		clone["file"].String() = temp;
 	}
 
 	source[targetGroup].push_back(clone);
@@ -1284,7 +1284,7 @@ void CFadeAnimation::draw(SDL_Surface * targetSurface, const SDL_Rect * sourceRe
 		return;
 	}
 
-	CSDL_Ext::setAlpha(fadingSurface, fadingCounter * 255);
+	CSDL_Ext::setAlpha(fadingSurface, (int)(fadingCounter * 255));
 	SDL_BlitSurface(fadingSurface, const_cast<SDL_Rect *>(sourceRect), targetSurface, destRect); //FIXME
 	CSDL_Ext::setAlpha(fadingSurface, 255);
 }

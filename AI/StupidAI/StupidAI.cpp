@@ -54,8 +54,8 @@ struct EnemyInfo
 	void calcDmg(const CStack * ourStack)
 	{
 		TDmgRange retal, dmg = cbc->battleEstimateDamage(ourStack, s, &retal);
-		adi = (dmg.first + dmg.second) / 2;
-		adr = (retal.first + retal.second) / 2;
+		adi = static_cast<int>((dmg.first + dmg.second) / 2);
+		adr = static_cast<int>((retal.first + retal.second) / 2);
 	}
 
 	bool operator==(const EnemyInfo& ei) const

@@ -49,7 +49,7 @@ namespace AIPathfinding
 			source->manaCost);
 #endif
 
-		return hero->mana >= source->manaCost + getManaCost(hero);
+		return hero->mana >= (si32)(source->manaCost + getManaCost(hero));
 	}
 
 	uint32_t SummonBoatAction::getManaCost(const CGHeroInstance * hero) const

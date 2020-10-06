@@ -282,7 +282,7 @@ void CHeroTooltip::init(const InfoAboutHero & hero)
 	if(hero.details)
 	{
 		for(size_t i = 0; i < hero.details->primskills.size(); i++)
-			labels.push_back(std::make_shared<CLabel>(75 + 28 * i, 58, FONT_SMALL, CENTER, Colors::WHITE,
+			labels.push_back(std::make_shared<CLabel>(75 + 28 * (int)i, 58, FONT_SMALL, CENTER, Colors::WHITE,
 					   boost::lexical_cast<std::string>(hero.details->primskills[i])));
 
 		labels.push_back(std::make_shared<CLabel>(158, 98, FONT_TINY, CENTER, Colors::WHITE, boost::lexical_cast<std::string>(hero.details->mana)));

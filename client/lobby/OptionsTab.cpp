@@ -40,15 +40,15 @@ OptionsTab::OptionsTab()
 	background = std::make_shared<CPicture>("ADVOPTBK", 0, 6);
 	pos = background->pos;
 	labelTitle = std::make_shared<CLabel>(222, 30, FONT_BIG, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[515]);
-	labelSubTitle = std::make_shared<CMultiLineLabel>(Rect(60, 44, 320, graphics->fonts[EFonts::FONT_SMALL]->getLineHeight()*2), EFonts::FONT_SMALL, EAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[516]);
+	labelSubTitle = std::make_shared<CMultiLineLabel>(Rect(60, 44, 320, (int)graphics->fonts[EFonts::FONT_SMALL]->getLineHeight()*2), EFonts::FONT_SMALL, EAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[516]);
 
-	labelPlayerNameAndHandicap = std::make_shared<CMultiLineLabel>(Rect(58, 86, 100, graphics->fonts[EFonts::FONT_SMALL]->getLineHeight()*2), EFonts::FONT_SMALL, EAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[517]);
-	labelStartingTown = std::make_shared<CMultiLineLabel>(Rect(163, 86, 70, graphics->fonts[EFonts::FONT_SMALL]->getLineHeight()*2), EFonts::FONT_SMALL, EAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[518]);
-	labelStartingHero = std::make_shared<CMultiLineLabel>(Rect(239, 86, 70, graphics->fonts[EFonts::FONT_SMALL]->getLineHeight()*2), EFonts::FONT_SMALL, EAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[519]);
-	labelStartingBonus = std::make_shared<CMultiLineLabel>(Rect(315, 86, 70, graphics->fonts[EFonts::FONT_SMALL]->getLineHeight()*2), EFonts::FONT_SMALL, EAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[520]);
+	labelPlayerNameAndHandicap = std::make_shared<CMultiLineLabel>(Rect(58, 86, 100, (int)graphics->fonts[EFonts::FONT_SMALL]->getLineHeight()*2), EFonts::FONT_SMALL, EAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[517]);
+	labelStartingTown = std::make_shared<CMultiLineLabel>(Rect(163, 86, 70, (int)graphics->fonts[EFonts::FONT_SMALL]->getLineHeight()*2), EFonts::FONT_SMALL, EAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[518]);
+	labelStartingHero = std::make_shared<CMultiLineLabel>(Rect(239, 86, 70, (int)graphics->fonts[EFonts::FONT_SMALL]->getLineHeight()*2), EFonts::FONT_SMALL, EAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[519]);
+	labelStartingBonus = std::make_shared<CMultiLineLabel>(Rect(315, 86, 70, (int)graphics->fonts[EFonts::FONT_SMALL]->getLineHeight()*2), EFonts::FONT_SMALL, EAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[520]);
 	if(SEL->screenType == ESelectionScreen::newGame || SEL->screenType == ESelectionScreen::loadGame || SEL->screenType == ESelectionScreen::scenarioInfo)
 	{
-		sliderTurnDuration = std::make_shared<CSlider>(Point(55, 551), 194, std::bind(&IServerAPI::setTurnLength, CSH, _1), 1, GameConstants::POSSIBLE_TURNTIME.size(), GameConstants::POSSIBLE_TURNTIME.size(), true, CSlider::BLUE);
+		sliderTurnDuration = std::make_shared<CSlider>(Point(55, 551), 194, std::bind(&IServerAPI::setTurnLength, CSH, _1), 1, (int)GameConstants::POSSIBLE_TURNTIME.size(), (int)GameConstants::POSSIBLE_TURNTIME.size(), true, CSlider::BLUE);
 		labelPlayerTurnDuration = std::make_shared<CLabel>(222, 538, FONT_SMALL, EAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[521]);
 		labelTurnDurationValue = std::make_shared<CLabel>(319, 559, FONT_SMALL, EAlignment::CENTER, Colors::WHITE);
 	}
@@ -466,7 +466,7 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S)
 
 	background = std::make_shared<CPicture>(BitmapHandler::loadBitmap(bgs[s.color.getNum()]), 0, 0, true);
 	labelPlayerName = std::make_shared<CLabel>(55, 10, EFonts::FONT_SMALL, EAlignment::CENTER, Colors::WHITE, s.name);
-	labelWhoCanPlay = std::make_shared<CMultiLineLabel>(Rect(6, 23, 45, graphics->fonts[EFonts::FONT_TINY]->getLineHeight()*2), EFonts::FONT_TINY, EAlignment::CENTER, Colors::WHITE, CGI->generaltexth->arraytxt[206 + whoCanPlay]);
+	labelWhoCanPlay = std::make_shared<CMultiLineLabel>(Rect(6, 23, 45, (int)graphics->fonts[EFonts::FONT_TINY]->getLineHeight()*2), EFonts::FONT_TINY, EAlignment::CENTER, Colors::WHITE, CGI->generaltexth->arraytxt[206 + whoCanPlay]);
 
 	if(SEL->screenType == ESelectionScreen::newGame)
 	{

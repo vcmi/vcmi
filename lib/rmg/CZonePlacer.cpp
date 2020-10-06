@@ -32,12 +32,12 @@ CZonePlacer::~CZonePlacer()
 
 int3 CZonePlacer::cords (const float3 f) const
 {
-	return int3(std::max(0.f, (f.x * gen->map->width)-1), std::max(0.f, (f.y * gen->map->height-1)), f.z);
+	return int3((si32)std::max(0.f, (f.x * gen->map->width)-1), (si32)std::max(0.f, (f.y * gen->map->height-1)), f.z);
 }
 
 float CZonePlacer::getDistance (float distance) const
 {
-	return (distance ? distance * distance : 1e-6);
+	return (distance ? distance * distance : 1e-6f);
 }
 
 void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenerator * rand)
@@ -56,8 +56,8 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 	let's assume we try to fit N circular zones with radius = size on a map
 	*/
 
-	gravityConstant = 4e-3;
-	stiffnessConstant = 4e-3;
+	gravityConstant = 4e-3f;
+	stiffnessConstant = 4e-3f;
 
 	TZoneVector zonesVector(zones.begin(), zones.end());
 	assert (zonesVector.size());
@@ -67,7 +67,7 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 	//0. set zone sizes and surface / underground level
 	prepareZones(zones, zonesVector, underground, rand);
 
-	//gravity-based algorithm. connected zones attract, intersceting zones and map boundaries push back
+	//gravity-based algorithm. connected zones attract, intersecting zones and map boundaries push back
 
 	//remember best solution
 	float bestTotalDistance = 1e10;
@@ -236,7 +236,7 @@ void CZonePlacer::prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const 
 	{
 		int level = levels[zone.first];
 		totalSize[level] += (zone.second->getSize() * zone.second->getSize());
-		float randomAngle = rand->nextDouble(0, pi2);
+		float randomAngle = static_cast<float>(rand->nextDouble(0, pi2));
 		zone.second->setCenter(float3(0.5f + std::sin(randomAngle) * radius, 0.5f + std::cos(randomAngle) * radius, level)); //place zones around circle
 	}
 
@@ -251,10 +251,10 @@ void CZonePlacer::prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const 
 	std::vector<float> prescaler = { 0, 0 };
 	for (int i = 0; i < 2; i++)
 		prescaler[i] = sqrt((width * height) / (totalSize[i] * 3.14f));
-	mapSize = sqrt(width * height);
+	mapSize = static_cast<float>(sqrt(width * height));
 	for (auto zone : zones)
 	{
-		zone.second->setSize(zone.second->getSize() * prescaler[zone.second->getCenter().z]);
+		zone.second->setSize((int)(zone.second->getSize() * prescaler[zone.second->getCenter().z]));
 	}
 }
 
@@ -270,7 +270,7 @@ void CZonePlacer::attractConnectedZones(TZoneMap &zones, TForceVector &forces, T
 		{
 			auto otherZone = zones[con];
 			float3 otherZoneCenter = otherZone->getCenter();
-			float distance = pos.dist2d(otherZoneCenter);
+			float distance = static_cast<float>(pos.dist2d(otherZoneCenter));
 			float minDistance = 0;
 
 			if (pos.z != otherZoneCenter.z)
@@ -300,7 +300,7 @@ void CZonePlacer::separateOverlappingZones(TZoneMap &zones, TForceVector &forces
 		float3 pos = zone.second->getCenter();
 
 		float overlap = 0;
-		//separate overlaping zones
+		//separate overlapping zones
 		for (auto otherZone : zones)
 		{
 			float3 otherZoneCenter = otherZone.second->getCenter();
@@ -308,11 +308,11 @@ void CZonePlacer::separateOverlappingZones(TZoneMap &zones, TForceVector &forces
 			if (zone == otherZone || pos.z != otherZoneCenter.z)
 				continue;
 
-			float distance = pos.dist2d(otherZoneCenter);
+			float distance = static_cast<float>(pos.dist2d(otherZoneCenter));
 			float minDistance = (zone.second->getSize() + otherZone.second->getSize()) / mapSize;
 			if (distance < minDistance)
 			{
-				forceVector -= (((otherZoneCenter - pos)*(minDistance / (distance ? distance : 1e-3))) / getDistance(distance)) * stiffnessConstant; //negative value
+				forceVector -= (((otherZoneCenter - pos)*(minDistance / (distance ? distance : 1e-3f))) / getDistance(distance)) * stiffnessConstant; //negative value
 				overlap += (minDistance - distance); //overlapping of small zones hurts us more
 			}
 		}
@@ -324,7 +324,7 @@ void CZonePlacer::separateOverlappingZones(TZoneMap &zones, TForceVector &forces
 		auto pushAwayFromBoundary = [&forceVector, pos, size, &overlap, this](float x, float y)
 		{
 			float3 boundary = float3(x, y, pos.z);
-			float distance = pos.dist2d(boundary);
+			float distance = static_cast<float>(pos.dist2d(boundary));
 			overlap += std::max<float>(0, distance - size); //check if we're closer to map boundary than value of zone size
 			forceVector -= (boundary - pos) * (size - distance) / this->getDistance(distance) * this->stiffnessConstant; //negative value
 		};
@@ -353,7 +353,7 @@ void CZonePlacer::separateOverlappingZones(TZoneMap &zones, TForceVector &forces
 void CZonePlacer::moveOneZone(TZoneMap &zones, TForceVector &totalForces, TDistanceVector &distances, TDistanceVector &overlaps)
 {
 	float maxRatio = 0;
-	const int maxDistanceMovementRatio = zones.size() * zones.size(); //experimental - the more zones, the greater total distance expected
+	const int maxDistanceMovementRatio = static_cast<int>(zones.size() * zones.size()); //experimental - the more zones, the greater total distance expected
 	std::shared_ptr<CRmgTemplateZone> misplacedZone;
 
 	float totalDistance = 0;
@@ -363,7 +363,7 @@ void CZonePlacer::moveOneZone(TZoneMap &zones, TForceVector &totalForces, TDista
 		totalDistance += zone.second;
 		float overlap = overlaps[zone.first];
 		totalOverlap += overlap;
-		float ratio = (zone.second + overlap) / totalForces[zone.first].mag(); //if distance to actual movement is long, the zone is misplaced
+		float ratio = (zone.second + overlap) / (float)totalForces[zone.first].mag(); //if distance to actual movement is long, the zone is misplaced
 		if (ratio > maxRatio)
 		{
 			maxRatio = ratio;
@@ -384,7 +384,7 @@ void CZonePlacer::moveOneZone(TZoneMap &zones, TForceVector &totalForces, TDista
 			for (auto con : misplacedZone->getConnections())
 			{
 				auto otherZone = zones[con];
-				float distance = otherZone->getCenter().dist2dSQ(ourCenter);
+				float distance = static_cast<float>(otherZone->getCenter().dist2dSQ(ourCenter));
 				if (distance > maxDistance)
 				{
 					maxDistance = distance;
@@ -412,7 +412,7 @@ void CZonePlacer::moveOneZone(TZoneMap &zones, TForceVector &totalForces, TDista
 				if (otherZone.second == misplacedZone || otherZoneCenter.z != ourCenter.z)
 					continue;
 
-				float distance = otherZoneCenter.dist2dSQ(ourCenter);
+				float distance = static_cast<float>(otherZoneCenter.dist2dSQ(ourCenter));
 				if (distance > maxOverlap)
 				{
 					maxOverlap = distance;
@@ -450,7 +450,7 @@ d = 0.01 * dx^3 - 0.1618 * dx^2 + 1 * dx + ...
 	float dy = abs(A.y - B.y) * scaleY;
 
 	//Horner scheme
-	return dx * (1 + dx * (0.1 + dx * 0.01)) + dy * (1.618 + dy * (-0.1618 + dy * 0.01618));
+	return dx * (1.0f + dx * (0.1f + dx * 0.01f)) + dy * (1.618f + dy * (-0.1618f + dy * 0.01618f));
 }
 
 void CZonePlacer::assignZones(const CMapGenOptions * mapGenOptions)
@@ -486,7 +486,7 @@ void CZonePlacer::assignZones(const CMapGenOptions * mapGenOptions)
 		{
 			total += tile;
 		}
-		int size = tiles.size();
+		int size = static_cast<int>(tiles.size());
 		assert(size);
 		zone->setPos(int3(total.x / size, total.y / size, total.z / size));
 	};
@@ -509,7 +509,7 @@ void CZonePlacer::assignZones(const CMapGenOptions * mapGenOptions)
 				for (auto zone : zones)
 				{
 					if (zone.second->getPos().z == k)
-						distances.push_back(std::make_pair(zone.second, pos.dist2dSQ(zone.second->getPos())));
+						distances.push_back(std::make_pair(zone.second, (float)pos.dist2dSQ(zone.second->getPos())));
 					else
 						distances.push_back(std::make_pair(zone.second, std::numeric_limits<float>::max()));
 				}
@@ -557,7 +557,7 @@ void CZonePlacer::assignZones(const CMapGenOptions * mapGenOptions)
 		if (zone.second->getPos().z)
 		{
 			if (!CREATE_FULL_UNDERGROUND)
-				zone.second->discardDistantTiles(zone.second->getSize() + 1);
+				zone.second->discardDistantTiles((float)(zone.second->getSize() + 1));
 
 			//make sure that terrain inside zone is not a rock
 			//FIXME: reorder actions?

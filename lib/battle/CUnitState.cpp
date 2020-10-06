@@ -270,7 +270,7 @@ void CHealth::damage(int64_t & amount)
 	}
 	else
 	{
-		firstHPleft -= amount;
+		firstHPleft -= static_cast<int32_t>(amount);
 	}
 
 	addResurrected(getCount() - oldCount);
@@ -317,7 +317,7 @@ void CHealth::setFromTotal(const int64_t totalHealth)
 {
 	const int32_t unitHealth = owner->MaxHealth();
 	firstHPleft = totalHealth % unitHealth;
-	fullUnits = totalHealth / unitHealth;
+	fullUnits = static_cast<int32_t>(totalHealth / unitHealth);
 
 	if(firstHPleft == 0 && fullUnits >= 1)
 	{
@@ -696,7 +696,7 @@ int CUnitState::getAttack(bool ranged) const
 	{
 		double frenzyPower = (double)inFrenzy->totalValue() / 100;
 		frenzyPower *= (double) (ranged ? defence.getRangedValue() : defence.getMeleeValue());
-		ret += frenzyPower;
+		ret += static_cast<int>(frenzyPower);
 	}
 
 	vstd::amax(ret, 0);

@@ -60,14 +60,14 @@ SDL_Surface * BitmapHandler::loadH3PCX(ui8 * pcx, size_t size)
 		ret = SDL_CreateRGBSurface(0, width, height, 8, 0, 0, 0, 0);
 
 		it = 0xC;
-		for (int i=0; i<height; i++)
+		for (int i=0; i<(int)height; i++)
 		{
 			memcpy((char*)ret->pixels + ret->pitch * i, pcx + it, width);
 			it+= width;
 		}
 
 		//palette - last 256*3 bytes
-		it = size-256*3;
+		it = (int)size-256*3;
 		for (int i=0;i<256;i++)
 		{
 			SDL_Color tp;
@@ -92,7 +92,7 @@ SDL_Surface * BitmapHandler::loadH3PCX(ui8 * pcx, size_t size)
 		ret = SDL_CreateRGBSurface(0, width, height, 24, rmask, gmask, bmask, 0);
 
 		//it == 0xC;
-		for (int i=0; i<height; i++)
+		for (int i=0; i<(int)height; i++)
 		{
 			memcpy((char*)ret->pixels + ret->pitch * i, pcx + it, width*3);
 			it+= width*3;
@@ -137,9 +137,9 @@ SDL_Surface * BitmapHandler::loadBitmapFromDir(std::string path, std::string fna
 	else
 	{ //loading via SDL_Image
 		ret = IMG_Load_RW(
-		          //create SDL_RW with our data (will be deleted by SDL)
-		          SDL_RWFromConstMem((void*)readFile.first.get(), readFile.second),
-		          1); // mark it for auto-deleting
+				  //create SDL_RW with our data (will be deleted by SDL)
+				  SDL_RWFromConstMem((void*)readFile.first.get(), (int)readFile.second),
+				  1); // mark it for auto-deleting
 		if (ret)
 		{
 			if (ret->format->palette)

@@ -228,7 +228,7 @@ void CGameInfoCallback::getThievesGuildInfo(SThievesGuildInfo & thi, const CGObj
 int CGameInfoCallback::howManyTowns(PlayerColor Player) const
 {
 	ERROR_RET_VAL_IF(!hasAccess(Player), "Access forbidden!", -1);
-	return gs->players[Player].towns.size();
+	return static_cast<int>(gs->players[Player].towns.size());
 }
 
 bool CGameInfoCallback::getTownInfo(const CGObjectInstance * town, InfoAboutTown & dest, const CGObjectInstance * selectedObject) const
@@ -314,7 +314,7 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 
 			for(auto & elem : info.army)
 			{
-				if(elem.second.type->AIValue > maxAIValue)
+				if((int)elem.second.type->AIValue > maxAIValue)
 				{
 					maxAIValue = elem.second.type->AIValue;
 					mostStrong = elem.second.type;
@@ -350,7 +350,7 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 
 			for(auto creature : VLC->creh->creatures)
 			{
-				if(creature->faction == factionIndex && creature->AIValue > maxAIValue)
+				if((si16)creature->faction == factionIndex && (int)creature->AIValue > maxAIValue)
 				{
 					maxAIValue = creature->AIValue;
 					mostStrong = creature;
@@ -512,7 +512,7 @@ std::shared_ptr<boost::multi_array<TerrainTile*, 3>> CGameInfoCallback::getAllVi
 			for (size_t z = 0; z < levels; z++)
 			{
 				if (team->fogOfWarMap[x][y][z])
-					tileArray[x][y][z] = &gs->map->getTile(int3(x, y, z));
+					tileArray[x][y][z] = &gs->map->getTile(int3((si32)x, (si32)y, (si32)z));
 				else
 					tileArray[x][y][z] = nullptr;
 			}
@@ -654,7 +654,7 @@ int CGameInfoCallback::getHeroCount( PlayerColor player, bool includeGarrisoned 
 	ERROR_RET_VAL_IF(!p, "No such player!", -1);
 
 	if(includeGarrisoned)
-		return p->heroes.size();
+		return static_cast<int>(p->heroes.size());
 	else
 		for(auto & elem : p->heroes)
 			if(!elem->inTownGarrison)
@@ -751,7 +751,7 @@ int CPlayerSpecificInfoCallback::getHeroSerial(const CGHeroInstance * hero, bool
 			index++;
 
 		if (heroe == hero)
-			return index;
+			return static_cast<int>(index);
 	}
 	return -1;
 }
@@ -821,7 +821,7 @@ const CGHeroInstance* CPlayerSpecificInfoCallback::getHeroBySerial(int serialId,
 
 	if (!includeGarrisoned)
 	{
-		for(ui32 i = 0; i < p->heroes.size() && i<=serialId; i++)
+		for(ui32 i = 0; i < p->heroes.size() && (int)i<=serialId; i++)
 			if(p->heroes[i]->inTownGarrison)
 				serialId++;
 	}

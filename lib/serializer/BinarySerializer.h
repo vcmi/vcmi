@@ -253,7 +253,7 @@ public:
 	template <typename T, typename std::enable_if < !std::is_same<T, bool >::value, int  >::type = 0>
 	void save(const std::vector<T> &data)
 	{
-		ui32 length = data.size();
+		ui32 length = (ui32)data.size();
 		*this & length;
 		for(ui32 i=0;i<length;i++)
 			save(data[i]);
@@ -268,7 +268,7 @@ public:
 	void save(const std::set<T> &data)
 	{
 		std::set<T> &d = const_cast<std::set<T> &>(data);
-		ui32 length = d.size();
+		ui32 length = (ui32)d.size();
 		save(length);
 		for(typename std::set<T>::iterator i=d.begin();i!=d.end();i++)
 			save(*i);
@@ -277,7 +277,7 @@ public:
 	void save(const std::unordered_set<T, U> &data)
 	{
 		std::unordered_set<T, U> &d = const_cast<std::unordered_set<T, U> &>(data);
-		ui32 length = d.size();
+		ui32 length = (ui32)d.size();
 		*this & length;
 		for(typename std::unordered_set<T, U>::iterator i=d.begin();i!=d.end();i++)
 			save(*i);
@@ -286,7 +286,7 @@ public:
 	void save(const std::list<T> &data)
 	{
 		std::list<T> &d = const_cast<std::list<T> &>(data);
-		ui32 length = d.size();
+		ui32 length = (ui32)d.size();
 		*this & length;
 		for(typename std::list<T>::iterator i=d.begin();i!=d.end();i++)
 			save(*i);
@@ -294,7 +294,7 @@ public:
 	void save(const std::string &data)
 	{
 		save(ui32(data.length()));
-		this->write(data.c_str(),data.size());
+		this->write(data.c_str(),(unsigned int)data.size());
 	}
 	template <typename T1, typename T2>
 	void save(const std::pair<T1,T2> &data)

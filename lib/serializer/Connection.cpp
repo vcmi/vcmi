@@ -134,7 +134,7 @@ int CConnection::write(const void * data, unsigned size)
 	try
 	{
 		int ret;
-		ret = asio::write(*socket,asio::const_buffers_1(asio::const_buffer(data,size)));
+		ret = static_cast<int>(asio::write(*socket,asio::const_buffers_1(asio::const_buffer(data,size))));
 		return ret;
 	}
 	catch(...)
@@ -148,7 +148,7 @@ int CConnection::read(void * data, unsigned size)
 {
 	try
 	{
-		int ret = asio::read(*socket,asio::mutable_buffers_1(asio::mutable_buffer(data,size)));
+		int ret = static_cast<int>(asio::read(*socket,asio::mutable_buffers_1(asio::mutable_buffer(data,size))));
 		return ret;
 	}
 	catch(...)

@@ -101,7 +101,7 @@ bool mapSorter::operator()(const std::shared_ptr<CMapInfo> aaa, const std::share
 		{
 		case _numOfMaps: //by number of maps in campaign
 			return CGI->generaltexth->campaignRegionNames[aaa->campaignHeader->mapVersion].size() <
-			       CGI->generaltexth->campaignRegionNames[bbb->campaignHeader->mapVersion].size();
+				   CGI->generaltexth->campaignRegionNames[bbb->campaignHeader->mapVersion].size();
 			break;
 		case _name: //by name
 			return boost::ilexicographical_compare(aaa->campaignHeader->name, bbb->campaignHeader->name);
@@ -185,7 +185,7 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 		listItems.push_back(std::make_shared<ListItem>(Point(30, 129 + i * 25), iconsMapFormats, iconsVictoryCondition, iconsLossCondition));
 
 	labelTabTitle = std::make_shared<CLabel>(205, 28, FONT_MEDIUM, EAlignment::CENTER, Colors::YELLOW, tabTitle);
-	slider = std::make_shared<CSlider>(Point(372, 86), tabType != ESelectionScreen::saveGame ? 480 : 430, std::bind(&SelectionTab::sliderMove, this, _1), positionsToShow, curItems.size(), 0, false, CSlider::BLUE);
+	slider = std::make_shared<CSlider>(Point(372, 86), tabType != ESelectionScreen::saveGame ? 480 : 430, std::bind(&SelectionTab::sliderMove, this, _1), positionsToShow, (int)curItems.size(), 0, false, CSlider::BLUE);
 	filter(0);
 }
 
@@ -242,7 +242,7 @@ void SelectionTab::toggleMode()
 			restoreLastSelection();
 		}
 	}
-	slider->setAmount(curItems.size());
+	slider->setAmount((int)curItems.size());
 	updateListItems();
 	redraw();
 }
@@ -271,21 +271,21 @@ void SelectionTab::keyPressed(const SDL_KeyboardEvent & key)
 		moveBy = +1;
 		break;
 	case SDLK_PAGEUP:
-		moveBy = -listItems.size() + 1;
+		moveBy = -(int)listItems.size() + 1;
 		break;
 	case SDLK_PAGEDOWN:
-		moveBy = +listItems.size() - 1;
+		moveBy = +(int)listItems.size() - 1;
 		break;
 	case SDLK_HOME:
 		select(-slider->getValue());
 		return;
 	case SDLK_END:
-		select(curItems.size() - slider->getValue());
+		select((int)curItems.size() - slider->getValue());
 		return;
 	default:
 		return;
 	}
-	select(selectionPos - slider->getValue() + moveBy);
+	select((int)selectionPos - slider->getValue() + moveBy);
 }
 
 void SelectionTab::onDoubleClick()
@@ -319,7 +319,7 @@ void SelectionTab::filter(int size, bool selectFirst)
 	if(curItems.size())
 	{
 		slider->block(false);
-		slider->setAmount(curItems.size());
+		slider->setAmount((int)curItems.size());
 		sort();
 		if(selectFirst)
 		{
@@ -380,7 +380,7 @@ void SelectionTab::select(int position)
 	if(position < 0)
 		slider->moveBy(position);
 	else if(position >= listItems.size())
-		slider->moveBy(position - listItems.size() + 1);
+		slider->moveBy(position - (int)listItems.size() + 1);
 
 	rememberCurrentSelection();
 
@@ -451,7 +451,7 @@ int SelectionTab::getLine()
 void SelectionTab::selectFileName(std::string fname)
 {
 	boost::to_upper(fname);
-	for(int i = curItems.size() - 1; i >= 0; i--)
+	for(int i = (int)curItems.size() - 1; i >= 0; i--)
 	{
 		if(curItems[i]->fileURI == fname)
 		{

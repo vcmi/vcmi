@@ -71,7 +71,7 @@ DLL_LINKAGE void SetCommanderProperty::applyGs(CGameState *gs)
 			commander->specialSKills.insert (additionalInfo);
 			break;
 		case SECONDARY_SKILL:
-			commander->secondarySkills[additionalInfo] = amount;
+			commander->secondarySkills[additionalInfo] = static_cast<ui8>(amount);
 			break;
 		case ALIVE:
 			if (amount)
@@ -635,7 +635,7 @@ DLL_LINKAGE void HeroRecruited::applyGs(CGameState *gs)
 	gs->hpool.heroesPool.erase(hid);
 	if(h->id == ObjectInstanceID())
 	{
-		h->id = ObjectInstanceID(gs->map->objects.size());
+		h->id = ObjectInstanceID((si32)gs->map->objects.size());
 		gs->map->objects.push_back(h);
 	}
 	else
@@ -721,7 +721,7 @@ DLL_LINKAGE void NewObject::applyGs(CGameState *gs)
 	o->subID = subID;
 	o->pos = pos;
 	o->appearance = VLC->objtypeh->getHandlerFor(o->ID, o->subID)->getTemplates(terrainType).front();
-	id = o->id = ObjectInstanceID(gs->map->objects.size());
+	id = o->id = ObjectInstanceID((si32)gs->map->objects.size());
 
 	gs->map->objects.push_back(o);
 	gs->map->addBlockVisTiles(o);

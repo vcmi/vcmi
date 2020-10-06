@@ -232,7 +232,7 @@ std::vector<JsonNode> CArtHandler::loadLegacyData(size_t dataSize)
 void CArtHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
 	auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
-	object->id = ArtifactID(artifacts.size());
+	object->id = ArtifactID((si32)artifacts.size());
 	object->iconIndex = object->id + 5;
 
 	artifacts.push_back(object);
@@ -265,7 +265,7 @@ void CArtHandler::loadObject(std::string scope, std::string name, const JsonNode
 void CArtHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
 	auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
-	object->id = ArtifactID(index);
+	object->id = ArtifactID((si32)index);
 	object->iconIndex = object->id;
 
 	assert(artifacts[index] == nullptr); // ensure that this id was not loaded before
@@ -323,7 +323,7 @@ CArtifact * CArtHandler::loadFromJson(const JsonNode & node, const std::string &
 
 	art->advMapDef = graphics["map"].String();
 
-	art->price = node["value"].Float();
+	art->price = static_cast<ui32>(node["value"].Float());
 
 	loadSlots(art, node);
 	loadClass(art, node);
@@ -481,12 +481,12 @@ void CArtHandler::loadGrowingArt(CGrowingArtifact * art, const JsonNode & node)
 {
 	for (auto b : node["growing"]["bonusesPerLevel"].Vector())
 	{
-		art->bonusesPerLevel.push_back(std::pair <ui16, Bonus>(b["level"].Float(), Bonus()));
+		art->bonusesPerLevel.push_back(std::pair <ui16, Bonus>((ui16)b["level"].Float(), Bonus()));
 		JsonUtils::parseBonus(b["bonus"], &art->bonusesPerLevel.back().second);
 	}
 	for (auto b : node["growing"]["thresholdBonuses"].Vector())
 	{
-		art->thresholdBonuses.push_back(std::pair <ui16, Bonus>(b["level"].Float(), Bonus()));
+		art->thresholdBonuses.push_back(std::pair <ui16, Bonus>((ui16)b["level"].Float(), Bonus()));
 		JsonUtils::parseBonus(b["bonus"], &art->thresholdBonuses.back().second);
 	}
 }
@@ -647,7 +647,7 @@ void CArtHandler::initAllowedArtifactsList(const std::vector<bool> &allowed)
 		if (allowed[i] && legalArtifact(i))
 			allowedArtifacts.push_back(artifacts[i]);
 	}
-	for (ArtifactID i = ArtifactID::ART_SELECTION; i<ArtifactID(artifacts.size()); i.advance(1)) //try to allow all artifacts added by mods
+	for (ArtifactID i = ArtifactID::ART_SELECTION; i<ArtifactID((si32)artifacts.size()); i.advance(1)) //try to allow all artifacts added by mods
 	{
 		if (legalArtifact(ArtifactID(i)))
 			allowedArtifacts.push_back(artifacts[i]);
@@ -831,7 +831,7 @@ ArtifactPosition CArtifactInstance::firstBackpackSlot(const CArtifactSet *h) con
 {
 	if(!artType->isBig()) //discard big artifact
 		return ArtifactPosition(
-			GameConstants::BACKPACK_START + h->artifactsInBackpack.size());
+			GameConstants::BACKPACK_START + (si32)h->artifactsInBackpack.size());
 
 	return ArtifactPosition::PRE_FIRST;
 }
@@ -1399,7 +1399,7 @@ void CArtifactSet::serializeJsonHero(JsonSerializeFormat & handler, CMap * map)
         for(const ArtifactID & artifactID : backpackTemp)
 		{
 			auto artifact = CArtifactInstance::createArtifact(map, artifactID.toEnum());
-			auto slot = ArtifactPosition(GameConstants::BACKPACK_START + artifactsInBackpack.size());
+			auto slot = ArtifactPosition(GameConstants::BACKPACK_START + (si32)artifactsInBackpack.size());
 			if(artifact->canBePutAt(this, slot))
 				putArtifact(slot, artifact);
 		}

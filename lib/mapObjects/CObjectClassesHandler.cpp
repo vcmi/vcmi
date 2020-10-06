@@ -111,7 +111,7 @@ CObjectClassesHandler::~CObjectClassesHandler()
 std::vector<JsonNode> CObjectClassesHandler::loadLegacyData(size_t dataSize)
 {
 	CLegacyConfigParser parser("Data/Objects.txt");
-	size_t totalNumber = parser.readNumber(); // first line contains number of objects to read and nothing else
+	size_t totalNumber = static_cast<size_t>(parser.readNumber()); // first line contains number of objects to read and nothing else
 	parser.endLine();
 
 	for (size_t i=0; i<totalNumber; i++)
@@ -150,8 +150,8 @@ std::vector<JsonNode> CObjectClassesHandler::loadLegacyData(size_t dataSize)
 template<typename Map>
 si32 selectNextID(const JsonNode & fixedID, const Map & map, si32 defaultID)
 {
-	if (!fixedID.isNull() && fixedID.Float() < defaultID)
-		return fixedID.Float(); // H3M object with fixed ID
+	if (!fixedID.isNull() && (si32)fixedID.Float() < defaultID)
+		return static_cast<si32>(fixedID.Float()); // H3M object with fixed ID
 
 	if (map.empty())
 		return defaultID; // no objects loaded, keep gap for H3M objects
@@ -209,7 +209,7 @@ CObjectClassesHandler::ObjectContainter * CObjectClassesHandler::loadFromJson(co
 	if(json["defaultAiValue"].isNull())
 		obj->groupDefaultAiValue = boost::none;
 	else
-		obj->groupDefaultAiValue = json["defaultAiValue"].Integer();
+		obj->groupDefaultAiValue = static_cast<si32>(json["defaultAiValue"].Integer());
 
 	for (auto entry : json["types"].Struct())
 	{
@@ -229,8 +229,8 @@ void CObjectClassesHandler::loadObject(std::string scope, std::string name, cons
 void CObjectClassesHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
 	auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
-	assert(objects[index] == nullptr); // ensure that this id was not loaded before
-	objects[index] = object;
+	assert(objects[(si32)index] == nullptr); // ensure that this id was not loaded before
+	objects[(si32)index] = object;
 	VLC->modh->identifiers.registerObject(scope, "object", name, object->id);
 }
 
@@ -347,7 +347,7 @@ void CObjectClassesHandler::afterLoadFinalization()
 	size_t currentIndex = portalCount;
 	while(portalVec.size() < 100)
 	{
-		portalVec[currentIndex] = portalVec[currentIndex % portalCount];
+		portalVec[(si32)currentIndex] = portalVec[static_cast<si32>(currentIndex % portalCount)];
 		currentIndex++;
 	}
 }
@@ -425,7 +425,7 @@ static ui32 loadJsonOrMax(const JsonNode & input)
 	if (input.isNull())
 		return std::numeric_limits<ui32>::max();
 	else
-		return input.Float();
+		return static_cast<ui32>(input.Float());
 }
 
 void AObjectTypeHandler::init(const JsonNode & input, boost::optional<std::string> name)
@@ -434,10 +434,10 @@ void AObjectTypeHandler::init(const JsonNode & input, boost::optional<std::strin
 
 	if (!input["rmg"].isNull())
 	{
-		rmgInfo.value =     input["rmg"]["value"].Float();
+		rmgInfo.value =     static_cast<ui32>(input["rmg"]["value"].Float());
 		rmgInfo.mapLimit =  loadJsonOrMax(input["rmg"]["mapLimit"]);
 		rmgInfo.zoneLimit = loadJsonOrMax(input["rmg"]["zoneLimit"]);
-		rmgInfo.rarity =    input["rmg"]["rarity"].Float();
+		rmgInfo.rarity =    static_cast<ui32>(input["rmg"]["rarity"].Float());
 	} // else block is not needed - set in constructor
 
 	for (auto entry : input["templates"].Struct())
@@ -470,7 +470,7 @@ void AObjectTypeHandler::init(const JsonNode & input, boost::optional<std::strin
 	if(input["aiValue"].isNull())
 		aiValue = boost::none;
 	else
-		aiValue = input["aiValue"].Integer();
+		aiValue = static_cast<si32>(input["aiValue"].Integer());
 
 	initTypeData(input);
 }

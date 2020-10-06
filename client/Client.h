@@ -26,7 +26,7 @@ class CBattleGameInterface;
 class CGameState;
 class CGameInterface;
 class CCallback;
-struct BattleAction;
+class BattleAction;
 class CClient;
 class CScriptingModule;
 struct CPathsInfo;

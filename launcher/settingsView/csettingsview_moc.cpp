@@ -95,7 +95,7 @@ void CSettingsView::loadSettings()
 	std::string encoding = settings["general"]["encoding"].String();
 	size_t encodingIndex = boost::range::find(knownEncodingsList, encoding) - knownEncodingsList;
 	if(encodingIndex < ui->comboBoxEncoding->count())
-		ui->comboBoxEncoding->setCurrentIndex(encodingIndex);
+		ui->comboBoxEncoding->setCurrentIndex((int)encodingIndex);
 	ui->comboBoxAutoSave->setCurrentIndex(settings["general"]["saveFrequency"].Integer() > 0 ? 1 : 0);
 }
 

@@ -151,7 +151,7 @@ char BattleHex::getDistance(BattleHex hex1, BattleHex hex2)
 	int y1 = hex1.getY(), y2 = hex2.getY();
 
 	// FIXME: Omit floating point arithmetics
-	int x1 = (hex1.getX() + y1 * 0.5), x2 = (hex2.getX() + y2 * 0.5);
+	int x1 = (int)(hex1.getX() + y1 * 0.5), x2 = (int)(hex2.getX() + y2 * 0.5);
 
 	int xDst = x2 - x1, yDst = y2 - y1;
 

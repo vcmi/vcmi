@@ -47,7 +47,7 @@ void CreatureCostBox::createItems(TResources res)
 
 	if(!resources.empty())
 	{
-		int curx = pos.w / 2 - (16 * resources.size()) - (8 * (resources.size() - 1));
+		int curx = pos.w / 2 - (16 * (int)resources.size()) - (8 * ((int)resources.size() - 1));
 		//reverse to display gold as first resource
 		for(auto & currentRes : boost::adaptors::reverse(resources))
 		{

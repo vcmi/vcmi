@@ -512,7 +512,7 @@ bool JsonParser::extractFloat(JsonNode &node)
 		pos++;
 	}
 
-	result = integerPart;
+	result = static_cast<double>(integerPart);
 
 	if (input[pos] == '.')
 	{
@@ -802,7 +802,7 @@ namespace
 		std::string itemEntryCheck(Validation::ValidationData & validator, const JsonVector items, const JsonNode & schema, size_t index)
 		{
 			validator.currentPath.push_back(JsonNode());
-			validator.currentPath.back().Float() = index;
+			validator.currentPath.back().Float() = static_cast<double>(index);
 			auto onExit = vstd::makeScopeGuard([&]()
 			{
 				validator.currentPath.pop_back();

@@ -319,7 +319,7 @@ void CIdentifierStorage::finalize()
 ContentTypeHandler::ContentTypeHandler(IHandlerBase * handler, std::string objectName):
 	handler(handler),
 	objectName(objectName),
-	originalData(handler->loadLegacyData(VLC->modh->settings.data["textData"][objectName].Float()))
+	originalData(handler->loadLegacyData((size_t)VLC->modh->settings.data["textData"][objectName].Float()))
 {
 	for(auto & node : originalData)
 	{
@@ -385,7 +385,7 @@ bool ContentTypeHandler::loadMod(std::string modName, bool validate)
 		if (vstd::contains(data.Struct(), "index") && !data["index"].isNull())
 		{
 			// try to add H3 object data
-			size_t index = data["index"].Float();
+			size_t index = static_cast<size_t>(data["index"].Float());
 
 			if(originalData.size() > index)
 			{
@@ -643,17 +643,17 @@ void CModHandler::loadConfigFromFile (std::string name)
 	logMod->debug("Loading hardcoded features settings from [%s], result:", paths);
 	settings.data = JsonUtils::assembleFromFiles("config/" + name);
 	const JsonNode & hardcodedFeatures = settings.data["hardcodedFeatures"];
-	settings.MAX_HEROES_AVAILABLE_PER_PLAYER = hardcodedFeatures["MAX_HEROES_AVAILABLE_PER_PLAYER"].Integer();
+	settings.MAX_HEROES_AVAILABLE_PER_PLAYER = static_cast<int>(hardcodedFeatures["MAX_HEROES_AVAILABLE_PER_PLAYER"].Integer());
 	logMod->debug("\tMAX_HEROES_AVAILABLE_PER_PLAYER\t%d", settings.MAX_HEROES_AVAILABLE_PER_PLAYER);
-	settings.MAX_HEROES_ON_MAP_PER_PLAYER = hardcodedFeatures["MAX_HEROES_ON_MAP_PER_PLAYER"].Integer();
+	settings.MAX_HEROES_ON_MAP_PER_PLAYER = static_cast<int>(hardcodedFeatures["MAX_HEROES_ON_MAP_PER_PLAYER"].Integer());
 	logMod->debug("\tMAX_HEROES_ON_MAP_PER_PLAYER\t%d", settings.MAX_HEROES_ON_MAP_PER_PLAYER);
-	settings.CREEP_SIZE = hardcodedFeatures["CREEP_SIZE"].Integer();
+	settings.CREEP_SIZE = static_cast<int>(hardcodedFeatures["CREEP_SIZE"].Integer());
 	logMod->debug("\tCREEP_SIZE\t%d", settings.CREEP_SIZE);
-	settings.WEEKLY_GROWTH = hardcodedFeatures["WEEKLY_GROWTH_PERCENT"].Integer();
+	settings.WEEKLY_GROWTH = static_cast<int>(hardcodedFeatures["WEEKLY_GROWTH_PERCENT"].Integer());
 	logMod->debug("\tWEEKLY_GROWTH\t%d", settings.WEEKLY_GROWTH);
-	settings.NEUTRAL_STACK_EXP = hardcodedFeatures["NEUTRAL_STACK_EXP_DAILY"].Integer();
+	settings.NEUTRAL_STACK_EXP = static_cast<int>(hardcodedFeatures["NEUTRAL_STACK_EXP_DAILY"].Integer());
 	logMod->debug("\tNEUTRAL_STACK_EXP\t%d", settings.NEUTRAL_STACK_EXP);
-	settings.MAX_BUILDING_PER_TURN = hardcodedFeatures["MAX_BUILDING_PER_TURN"].Integer();
+	settings.MAX_BUILDING_PER_TURN = static_cast<int>(hardcodedFeatures["MAX_BUILDING_PER_TURN"].Integer());
 	logMod->debug("\tMAX_BUILDING_PER_TURN\t%d", settings.MAX_BUILDING_PER_TURN);
 	settings.DWELLINGS_ACCUMULATE_CREATURES = hardcodedFeatures["DWELLINGS_ACCUMULATE_CREATURES"].Bool();
 	logMod->debug("\tDWELLINGS_ACCUMULATE_CREATURES\t%d", static_cast<int>(settings.DWELLINGS_ACCUMULATE_CREATURES));

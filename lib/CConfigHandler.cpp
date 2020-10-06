@@ -182,8 +182,8 @@ JsonNode& Settings::operator [](std::string value)
 
 static void setButton(ButtonInfo &button, const JsonNode &g)
 {
-	button.x = g["x"].Float();
-	button.y = g["y"].Float();
+	button.x = static_cast<int>(g["x"].Float());
+	button.y = static_cast<int>(g["y"].Float());
 	button.playerColoured = g["playerColoured"].Float();
 	button.defName = g["graphic"].String();
 
@@ -198,8 +198,8 @@ static void setButton(ButtonInfo &button, const JsonNode &g)
 
 static void setGem(AdventureMapConfig &ac, const int gem, const JsonNode &g)
 {
-	ac.gemX[gem] = g["x"].Float();
-	ac.gemY[gem] = g["y"].Float();
+	ac.gemX[gem] = static_cast<int>(g["x"].Float());
+	ac.gemY[gem] = static_cast<int>(g["y"].Float());
 	ac.gemG.push_back(g["graphic"].String());
 }
 
@@ -220,23 +220,23 @@ void config::CConfigHandler::init()
 
 	for(const JsonNode &g : guisettings_vec)
 	{
-		std::pair<int,int> curRes(g["resolution"]["x"].Float(), g["resolution"]["y"].Float());
+		std::pair<int,int> curRes((int)g["resolution"]["x"].Float(), (int)g["resolution"]["y"].Float());
 		GUIOptions *current = &conf.guiOptions[curRes];
 
-		current->ac.inputLineLength = g["InGameConsole"]["maxInputPerLine"].Float();
-		current->ac.outputLineLength = g["InGameConsole"]["maxOutputPerLine"].Float();
+		current->ac.inputLineLength =  static_cast<int>(g["InGameConsole"]["maxInputPerLine"].Float());
+		current->ac.outputLineLength = static_cast<int>(g["InGameConsole"]["maxOutputPerLine"].Float());
 
-		current->ac.advmapX = g["AdvMap"]["x"].Float();
-		current->ac.advmapY = g["AdvMap"]["y"].Float();
-		current->ac.advmapW = g["AdvMap"]["width"].Float();
-		current->ac.advmapH = g["AdvMap"]["height"].Float();
+		current->ac.advmapX = static_cast<int>(g["AdvMap"]["x"].Float());
+		current->ac.advmapY = static_cast<int>(g["AdvMap"]["y"].Float());
+		current->ac.advmapW = static_cast<int>(g["AdvMap"]["width"].Float());
+		current->ac.advmapH = static_cast<int>(g["AdvMap"]["height"].Float());
 		current->ac.smoothMove = g["AdvMap"]["smoothMove"].Float();
 		current->ac.puzzleSepia = g["AdvMap"]["puzzleSepia"].Float();
 		current->ac.screenFading = g["AdvMap"]["screenFading"].isNull() ? true : g["AdvMap"]["screenFading"].Float(); // enabled by default
 		current->ac.objectFading = g["AdvMap"]["objectFading"].isNull() ? true : g["AdvMap"]["objectFading"].Float();
 
-		current->ac.infoboxX = g["InfoBox"]["x"].Float();
-		current->ac.infoboxY = g["InfoBox"]["y"].Float();
+		current->ac.infoboxX = static_cast<int>(g["InfoBox"]["x"].Float());
+		current->ac.infoboxY = static_cast<int>(g["InfoBox"]["y"].Float());
 
 		setGem(current->ac, 0, g["gem0"]);
 		setGem(current->ac, 1, g["gem1"]);
@@ -246,39 +246,39 @@ void config::CConfigHandler::init()
 		current->ac.mainGraphic = g["background"].String();
 		current->ac.worldViewGraphic = g["backgroundWorldView"].String();
 
-		current->ac.hlistX = g["HeroList"]["x"].Float();
-		current->ac.hlistY = g["HeroList"]["y"].Float();
-		current->ac.hlistSize = g["HeroList"]["size"].Float();
+		current->ac.hlistX =    static_cast<int>(g["HeroList"]["x"].Float());
+		current->ac.hlistY =    static_cast<int>(g["HeroList"]["y"].Float());
+		current->ac.hlistSize = static_cast<int>(g["HeroList"]["size"].Float());
 		current->ac.hlistMB = g["HeroList"]["movePoints"].String();
 		current->ac.hlistMN = g["HeroList"]["manaPoints"].String();
 		current->ac.hlistAU = g["HeroList"]["arrowUp"].String();
 		current->ac.hlistAD = g["HeroList"]["arrowDown"].String();
 
-		current->ac.tlistX = g["TownList"]["x"].Float();
-		current->ac.tlistY = g["TownList"]["y"].Float();
-		current->ac.tlistSize = g["TownList"]["size"].Float();
+		current->ac.tlistX =    static_cast<int>(g["TownList"]["x"].Float());
+		current->ac.tlistY =    static_cast<int>(g["TownList"]["y"].Float());
+		current->ac.tlistSize = static_cast<int>(g["TownList"]["size"].Float());
 		current->ac.tlistAU = g["TownList"]["arrowUp"].String();
 		current->ac.tlistAD = g["TownList"]["arrowDown"].String();
 
-		current->ac.minimapW = g["Minimap"]["width"].Float();
-		current->ac.minimapH = g["Minimap"]["height"].Float();
-		current->ac.minimapX = g["Minimap"]["x"].Float();
-		current->ac.minimapY = g["Minimap"]["y"].Float();
+		current->ac.minimapW = static_cast<int>(g["Minimap"]["width"].Float());
+		current->ac.minimapH = static_cast<int>(g["Minimap"]["height"].Float());
+		current->ac.minimapX = static_cast<int>(g["Minimap"]["x"].Float());
+		current->ac.minimapY = static_cast<int>(g["Minimap"]["y"].Float());
 
-		current->ac.overviewPics = g["Overview"]["pics"].Float();
-		current->ac.overviewSize = g["Overview"]["size"].Float();
+		current->ac.overviewPics = static_cast<int>(g["Overview"]["pics"].Float());
+		current->ac.overviewSize = static_cast<int>(g["Overview"]["size"].Float());
 		current->ac.overviewBg = g["Overview"]["graphic"].String();
 
-		current->ac.statusbarX = g["Statusbar"]["x"].Float();
-		current->ac.statusbarY = g["Statusbar"]["y"].Float();
+		current->ac.statusbarX = static_cast<int>(g["Statusbar"]["x"].Float());
+		current->ac.statusbarY = static_cast<int>(g["Statusbar"]["y"].Float());
 		current->ac.statusbarG = g["Statusbar"]["graphic"].String();
 
-		current->ac.resdatabarX = g["ResDataBar"]["x"].Float();
-		current->ac.resdatabarY = g["ResDataBar"]["y"].Float();
-		current->ac.resOffsetX = g["ResDataBar"]["offsetX"].Float();
-		current->ac.resOffsetY = g["ResDataBar"]["offsetY"].Float();
-		current->ac.resDist = g["ResDataBar"]["resSpace"].Float();
-		current->ac.resDateDist = g["ResDataBar"]["resDateSpace"].Float();
+		current->ac.resdatabarX = static_cast<int>(g["ResDataBar"]["x"].Float());
+		current->ac.resdatabarY = static_cast<int>(g["ResDataBar"]["y"].Float());
+		current->ac.resOffsetX =  static_cast<int>(g["ResDataBar"]["offsetX"].Float());
+		current->ac.resOffsetY =  static_cast<int>(g["ResDataBar"]["offsetY"].Float());
+		current->ac.resDist =     static_cast<int>(g["ResDataBar"]["resSpace"].Float());
+		current->ac.resDateDist = static_cast<int>(g["ResDataBar"]["resDateSpace"].Float());
 		current->ac.resdatabarG = g["ResDataBar"]["graphic"].String();
 
 		setButton(current->ac.kingOverview, g["ButtonKingdomOv"]);
@@ -295,7 +295,7 @@ void config::CConfigHandler::init()
 
 	const JsonNode& screenRes = settings["video"]["screenRes"];
 
-	SetResolution(screenRes["width"].Float(), screenRes["height"].Float());
+	SetResolution((int)screenRes["width"].Float(), (int)screenRes["height"].Float());
 }
 
 // Force instantiation of the SettingsStorage::NodeAccessor class template.

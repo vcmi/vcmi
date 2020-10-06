@@ -608,7 +608,7 @@ void CDrawTerrainOperation::updateTerrainTypes()
 					terrainTile.terType = centerTile.terType;
 					auto testTile = getInvalidTiles(posToTest);
 
-					int nativeTilesCntNorm = testTile.nativeTiles.empty() ? std::numeric_limits<int>::max() : testTile.nativeTiles.size();
+					int nativeTilesCntNorm = testTile.nativeTiles.empty() ? std::numeric_limits<int>::max() : (int)testTile.nativeTiles.size();
 
 					bool putSuitableTile = false;
 					bool addToSuitableTiles = false;
@@ -652,7 +652,7 @@ void CDrawTerrainOperation::updateTerrainTypes()
 						//}
 
 						invalidNativeTilesCnt = nativeTilesCntNorm;
-						invalidForeignTilesCnt = testTile.foreignTiles.size();
+						invalidForeignTilesCnt = static_cast<int>(testTile.foreignTiles.size());
 						suitableTiles.clear();
 						addToSuitableTiles = true;
 					}
@@ -1081,7 +1081,7 @@ CInsertObjectOperation::CInsertObjectOperation(CMap * map, CGObjectInstance * ob
 
 void CInsertObjectOperation::execute()
 {
-	obj->id = ObjectInstanceID(map->objects.size());
+	obj->id = ObjectInstanceID((si32)map->objects.size());
 
 	boost::format fmt("%s_%d");
 	fmt % obj->typeName % obj->id.getNum();

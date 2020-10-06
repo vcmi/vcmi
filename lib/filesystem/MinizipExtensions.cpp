@@ -20,7 +20,7 @@ template <class _Stream> inline uLong streamRead(voidpf opaque, voidpf stream, v
 
 	_Stream * actualStream = static_cast<_Stream *>(stream);
 
-	return actualStream->read((ui8 *)buf, size);
+	return (uLong)actualStream->read((ui8 *)buf, (uLong)size);
 }
 
 template <class _Stream> inline ZPOS64_T streamTell(voidpf opaque, voidpf stream)

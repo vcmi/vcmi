@@ -28,11 +28,11 @@ namespace JsonRandom
 		if (value.isNull())
 			return defaultValue;
 		if (value.isNumber())
-			return value.Float();
+			return static_cast<si32>(value.Float());
 		if (!value["amount"].isNull())
-			return value["amount"].Float();
-		si32 min = value["min"].Float();
-		si32 max = value["max"].Float();
+			return static_cast<si32>(value["amount"].Float());
+		si32 min = static_cast<si32>(value["min"].Float());
+		si32 max = static_cast<si32>(value["max"].Float());
 		return rng.getIntRange(min, max)();
 	}
 
@@ -89,8 +89,8 @@ namespace JsonRandom
 			for (auto & entry : value["slot"].Vector())
 				allowedPositions.insert(VLC->arth->stringToSlot(entry.String()));
 
-		if (!value["minValue"].isNull()) minValue = value["minValue"].Float();
-		if (!value["maxValue"].isNull()) maxValue = value["maxValue"].Float();
+		if (!value["minValue"].isNull()) minValue = static_cast<ui32>(value["minValue"].Float());
+		if (!value["maxValue"].isNull()) maxValue = static_cast<ui32>(value["maxValue"].Float());
 
 		return VLC->arth->pickRandomArtifact(rng, [=](ArtifactID artID) -> bool
 		{
@@ -188,11 +188,11 @@ namespace JsonRandom
 			RandomStackInfo info;
 
 			if (!node["amount"].isNull())
-				info.minAmount = info.maxAmount = node["amount"].Float();
+				info.minAmount = info.maxAmount = static_cast<si32>(node["amount"].Float());
 			else
 			{
-				info.minAmount = node["min"].Float();
-				info.maxAmount = node["max"].Float();
+				info.minAmount = static_cast<si32>(node["min"].Float());
+				info.maxAmount = static_cast<si32>(node["max"].Float());
 			}
 			const CCreature * crea = VLC->creh->creatures[VLC->modh->identifiers.getIdentifier("creature", node["type"]).get()];
 			info.allowedCreatures.push_back(crea);

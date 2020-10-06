@@ -74,7 +74,7 @@ void CMessage::init()
 		dialogBorders[i] = make_unique<CAnimation>("DIALGBOX");
 		dialogBorders[i]->preload();
 
-        for(int j=0; j < dialogBorders[i]->size(0); j++)
+		for(int j=0; j < dialogBorders[i]->size(0); j++)
 		{
 			auto image = dialogBorders[i]->getImage(j, 0);
 			//assume blue color initially
@@ -144,8 +144,8 @@ std::vector<std::string> CMessage::breakText( std::string text, size_t maxLineWi
 			else if (text[currPos]=='}')
 				opened=false;
 			else
-				lineWidth += glyphWidth;
-			currPos += symbolSize;
+				lineWidth += (ui32)glyphWidth;
+			currPos += (ui32)symbolSize;
 		}
 
 		// long line, create line break
@@ -154,7 +154,7 @@ std::vector<std::string> CMessage::breakText( std::string text, size_t maxLineWi
 			if (wordBreak != ui32(-1))
 				currPos = wordBreak;
 			else
-				currPos -= symbolSize;
+				currPos -= (ui32)symbolSize;
 		}
 
 		//non-blank line
@@ -238,7 +238,7 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, PlayerColor play
 	{
 		int bh = 0;
 		// Compute total width of buttons
-		bw = 20*(ret->buttons.size()-1); // space between all buttons
+		bw = 20*((int)ret->buttons.size()-1); // space between all buttons
 		for(auto & elem : ret->buttons) //and add buttons width
 		{
 			bw+=elem->pos.w;
@@ -397,7 +397,7 @@ ComponentsToBlit::~ComponentsToBlit() = default;
 
 ComponentsToBlit::ComponentsToBlit(std::vector<std::shared_ptr<CComponent>> & SComps, int maxw, bool blitOr)
 {
-	int orWidth = graphics->fonts[FONT_MEDIUM]->getStringWidth(CGI->generaltexth->allTexts[4]);
+	int orWidth = static_cast<int>(graphics->fonts[FONT_MEDIUM]->getStringWidth(CGI->generaltexth->allTexts[4]));
 
 	w = h = 0;
 	if(SComps.empty())
@@ -440,7 +440,7 @@ ComponentsToBlit::ComponentsToBlit(std::vector<std::shared_ptr<CComponent>> & SC
 
 void ComponentsToBlit::blitCompsOnSur( bool blitOr, int inter, int &curh, SDL_Surface *ret )
 {
-	int orWidth = graphics->fonts[FONT_MEDIUM]->getStringWidth(CGI->generaltexth->allTexts[4]);
+	int orWidth = static_cast<int>(graphics->fonts[FONT_MEDIUM]->getStringWidth(CGI->generaltexth->allTexts[4]));
 
 	for (auto & elem : comps)//for each row
 	{
@@ -454,9 +454,9 @@ void ComponentsToBlit::blitCompsOnSur( bool blitOr, int inter, int &curh, SDL_Su
 
 		//add space between comps in this row
 		if(blitOr)
-			totalw += (inter*2+orWidth) * (elem.size() - 1);
+			totalw += (inter*2+orWidth) * ((int)elem.size() - 1);
 		else
-			totalw += (inter) * (elem.size() - 1);
+			totalw += (inter) * ((int)elem.size() - 1);
 
 		int middleh = curh + maxHeight/2;//axis for image aligment
 		int curw = ret->w/2 - totalw/2;
@@ -478,7 +478,7 @@ void ComponentsToBlit::blitCompsOnSur( bool blitOr, int inter, int &curh, SDL_Su
 					curw+=inter;
 
 					graphics->fonts[FONT_MEDIUM]->renderTextLeft(ret, CGI->generaltexth->allTexts[4], Colors::WHITE,
-					        Point(curw,middleh-(graphics->fonts[FONT_MEDIUM]->getLineHeight()/2)));
+							Point(curw,middleh-((int)graphics->fonts[FONT_MEDIUM]->getLineHeight()/2)));
 
 					curw+=orWidth;
 				}

@@ -101,7 +101,7 @@ void CGPandoraBox::giveContentsUpToExp(const CGHeroInstance *h) const
 		iw.text.addReplacement(h->name);
 
 		if(expVal)
-			iw.components.push_back(Component(Component::EXPERIENCE,0,expVal,0));
+			iw.components.push_back(Component(Component::EXPERIENCE,0,static_cast<si32>(expVal),0));
 
 		for(int i=0; i<primskills.size(); i++)
 			if(primskills[i])

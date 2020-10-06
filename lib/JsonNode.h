@@ -278,7 +278,7 @@ namespace JsonDetail
 	{
 		static T convertImpl(const JsonNode & node)
 		{
-			return node.Float();
+			return T(node.Float());
 		}
 	};
 

@@ -36,13 +36,13 @@ void IFont::renderTextLeft(SDL_Surface * surface, const std::string & data, cons
 
 void IFont::renderTextRight(SDL_Surface * surface, const std::string & data, const SDL_Color & color, const Point & pos) const
 {
-	Point size(getStringWidth(data), getLineHeight());
+	Point size((int)getStringWidth(data), (int)getLineHeight());
 	renderText(surface, data, color, pos - size);
 }
 
 void IFont::renderTextCenter(SDL_Surface * surface, const std::string & data, const SDL_Color & color, const Point & pos) const
 {
-	Point size(getStringWidth(data), getLineHeight());
+	Point size((int)getStringWidth(data), (int)getLineHeight());
 	renderText(surface, data, color, pos - size / 2);
 }
 
@@ -53,31 +53,31 @@ void IFont::renderTextLinesLeft(SDL_Surface * surface, const std::vector<std::st
 	for(const std::string & line : data)
 	{
 		renderTextLeft(surface, line, color, currPos);
-		currPos.y += getLineHeight();
+		currPos.y += (int)getLineHeight();
 	}
 }
 
 void IFont::renderTextLinesRight(SDL_Surface * surface, const std::vector<std::string> & data, const SDL_Color & color, const Point & pos) const
 {
 	Point currPos = pos;
-	currPos.y -= data.size() * getLineHeight();
+	currPos.y -= (int)data.size() * (int)getLineHeight();
 
 	for(const std::string & line : data)
 	{
 		renderTextRight(surface, line, color, currPos);
-		currPos.y += getLineHeight();
+		currPos.y += (int)getLineHeight();
 	}
 }
 
 void IFont::renderTextLinesCenter(SDL_Surface * surface, const std::vector<std::string> & data, const SDL_Color & color, const Point & pos) const
 {
 	Point currPos = pos;
-	currPos.y -= data.size() * getLineHeight()/2;
+	currPos.y -= (int)data.size() * (int)getLineHeight() / 2;
 
 	for(const std::string & line : data)
 	{
 		renderTextCenter(surface, line, color, currPos);
-		currPos.y += getLineHeight();
+		currPos.y += (int)getLineHeight();
 	}
 }
 
@@ -105,9 +105,9 @@ std::array<CBitmapFont::BitmapChar, CBitmapFont::totalChars> CBitmapFont::loadCh
 }
 
 CBitmapFont::CBitmapFont(const std::string & filename):
-    data(CResourceHandler::get()->load(ResourceID("data/" + filename, EResType::BMP_FONT))->readAll()),
-    chars(loadChars()),
-    height(data.first.get()[5])
+	data(CResourceHandler::get()->load(ResourceID("data/" + filename, EResType::BMP_FONT))->readAll()),
+	chars(loadChars()),
+	height(data.first.get()[5])
 {}
 
 size_t CBitmapFont::getLineHeight() const
@@ -211,12 +211,12 @@ std::pair<std::unique_ptr<ui8[]>, ui64> CTrueTypeFont::loadData(const JsonNode &
 
 TTF_Font * CTrueTypeFont::loadFont(const JsonNode &config)
 {
-	int pointSize = config["size"].Float();
+	int pointSize = static_cast<int>(config["size"].Float());
 
 	if(!TTF_WasInit() && TTF_Init()==-1)
 		throw std::runtime_error(std::string("Failed to initialize true type support: ") + TTF_GetError() + "\n");
 
-	return TTF_OpenFontRW(SDL_RWFromConstMem(data.first.get(), data.second), 1, pointSize);
+	return TTF_OpenFontRW(SDL_RWFromConstMem(data.first.get(), (int)data.second), 1, pointSize);
 }
 
 int CTrueTypeFont::getFontStyle(const JsonNode &config)
@@ -234,9 +234,9 @@ int CTrueTypeFont::getFontStyle(const JsonNode &config)
 }
 
 CTrueTypeFont::CTrueTypeFont(const JsonNode & fontConfig):
-    data(loadData(fontConfig)),
-    font(loadFont(fontConfig), TTF_CloseFont),
-    blended(fontConfig["blend"].Bool())
+	data(loadData(fontConfig)),
+	font(loadFont(fontConfig), TTF_CloseFont),
+	blended(fontConfig["blend"].Bool())
 {
 	assert(font);
 
@@ -315,11 +315,11 @@ void CBitmapHanFont::renderCharacter(SDL_Surface * surface, int characterIndex, 
 
 	// start of line, may differ from 0 due to end of surface or clipped surface
 	int lineBegin = std::max<int>(0, clipRect.y - posY);
-	int lineEnd   = std::min<int>(size, clipRect.y + clipRect.h - posY);
+	int lineEnd   = std::min((int)size, clipRect.y + clipRect.h - posY);
 
 	// start end end of each row, may differ from 0
 	int rowBegin = std::max<int>(0, clipRect.x - posX);
-	int rowEnd   = std::min<int>(size, clipRect.x + clipRect.w - posX);
+	int rowEnd   = std::min<int>((int)size, clipRect.x + clipRect.w - posX);
 
 	//for each line in symbol
 	for(int dy = lineBegin; dy <lineEnd; dy++)
@@ -342,7 +342,7 @@ void CBitmapHanFont::renderCharacter(SDL_Surface * surface, int characterIndex, 
 				colorPutter(dstPixel, color.r, color.g, color.b);
 		}
 	}
-	posX += size + 1;
+	posX += (int)size + 1;
 }
 
 void CBitmapHanFont::renderText(SDL_Surface * surface, const std::string & data, const SDL_Color & color, const Point & pos) const
@@ -360,15 +360,15 @@ void CBitmapHanFont::renderText(SDL_Surface * surface, const std::string & data,
 			fallback->renderCharacter(surface, fallback->chars[ui8(localChar[0])], color, posX, posY);
 
 		if (localChar.size() == 2)
-			renderCharacter(surface, getCharacterIndex(localChar[0], localChar[1]), color, posX, posY);
+			renderCharacter(surface, (int)getCharacterIndex(localChar[0], localChar[1]), color, posX, posY);
 	}
 	SDL_UnlockSurface(surface);
 }
 
 CBitmapHanFont::CBitmapHanFont(const JsonNode &config):
-    fallback(new CBitmapFont(config["fallback"].String())),
-    data(CResourceHandler::get()->load(ResourceID("data/" + config["name"].String(), EResType::OTHER))->readAll()),
-    size(config["size"].Float())
+	fallback(new CBitmapFont(config["fallback"].String())),
+	data(CResourceHandler::get()->load(ResourceID("data/" + config["name"].String(), EResType::OTHER))->readAll()),
+	size((size_t)config["size"].Float())
 {
 	// basic tests to make sure that fonts are OK
 	// 1) fonts must contain 190 "sections", 126 symbols each.

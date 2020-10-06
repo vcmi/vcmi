@@ -441,7 +441,7 @@ void CCreatureAnim::loopPreview(bool warMachine)
 		if (anim->size(elem))
 			available.push_back(elem);
 
-	size_t rnd = CRandomGenerator::getDefault().nextInt(available.size() * 2 - 1);
+	size_t rnd = CRandomGenerator::getDefault().nextInt((int)available.size() * 2 - 1);
 
 	if (rnd >= available.size())
 	{

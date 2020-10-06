@@ -95,7 +95,7 @@ bool CCreature::isEvil () const
 si32 CCreature::maxAmount(const std::vector<si32> &res) const //how many creatures can be bought
 {
 	int ret = 2147483645;
-	int resAmnt = std::min(res.size(),cost.size());
+	int resAmnt = static_cast<int>(std::min(res.size(),cost.size()));
 	for(int i=0;i<resAmnt;i++)
 		if(cost[i])
 			ret = std::min(ret,(int)(res[i]/cost[i]));
@@ -245,7 +245,7 @@ void CCreatureHandler::loadCommanders()
 		skillLevels.push_back (std::vector<ui8>());
 		for (auto skillLevel : skill["levels"].Vector())
 		{
-			skillLevels[i].push_back (skillLevel.Float());
+			skillLevels[i].push_back ((ui8)skillLevel.Float());
 		}
 		++i;
 	}
@@ -254,8 +254,8 @@ void CCreatureHandler::loadCommanders()
 	{
 		std::pair <std::shared_ptr<Bonus>, std::pair <ui8, ui8> > a;
 		a.first = JsonUtils::parseBonus (ability["ability"].Vector());
-		a.second.first = ability["skills"].Vector()[0].Float();
-		a.second.second = ability["skills"].Vector()[1].Float();
+		a.second.first =  static_cast<ui8>(ability["skills"].Vector()[0].Float());
+		a.second.second = static_cast<ui8>(ability["skills"].Vector()[1].Float());
 		skillRequirements.push_back (a);
 	}
 }
@@ -398,7 +398,7 @@ std::vector<JsonNode> CCreatureHandler::loadLegacyData(size_t dataSize)
 void CCreatureHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
 	auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
-	object->setId(CreatureID(creatures.size()));
+	object->setId(CreatureID((si32)creatures.size()));
 	object->iconIndex = object->idNumber + 2;
 
 	creatures.push_back(object);
@@ -432,7 +432,7 @@ void CCreatureHandler::loadObject(std::string scope, std::string name, const Jso
 void CCreatureHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
 	auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
-	object->setId(CreatureID(index));
+	object->setId(CreatureID((si32)index));
 	object->iconIndex = object->idNumber + 2;
 
 	if(data["hasDoubleWeek"].Bool()) //
@@ -528,7 +528,8 @@ void CCreatureHandler::loadCrExpBon()
 		}
 		do //parse everything that's left
 		{
-			auto sid = parser.readNumber(); //id = this particular creature ID
+			auto sid = static_cast<ui32>(parser.readNumber()); //id = this particular creature ID
+
 			b.sid = sid;
 			bl.clear();
 			loadStackExp(b, bl, parser);
@@ -573,8 +574,8 @@ void CCreatureHandler::loadCrExpBon()
 			expBonParser.readString(); //ignore upgrade mod? ->hardcoded
 			expBonParser.readString(); //already calculated
 
-			maxExpPerBattle[i] = expBonParser.readNumber();
-			expRanks[i].push_back(expRanks[i].back() + expBonParser.readNumber());
+			maxExpPerBattle[i] = static_cast<ui32>(expBonParser.readNumber());
+			expRanks[i].push_back(expRanks[i].back() + (ui32)expBonParser.readNumber());
 
 			expBonParser.endLine();
 		}
@@ -654,30 +655,30 @@ CCreature * CCreatureHandler::loadFromJson(const JsonNode & node, const std::str
 
 	cre->cost = Res::ResourceSet(node["cost"]);
 
-	cre->fightValue = node["fightValue"].Float();
-	cre->AIValue = node["aiValue"].Float();
-	cre->growth = node["growth"].Float();
-	cre->hordeGrowth = node["horde"].Float(); // Needed at least until configurable buildings
+	cre->fightValue =  static_cast<ui32>(node["fightValue"].Float());
+	cre->AIValue =     static_cast<ui32>(node["aiValue"].Float());
+	cre->growth =      static_cast<ui32>(node["growth"].Float());
+	cre->hordeGrowth = static_cast<ui32>(node["horde"].Float()); // Needed at least until configurable buildings
 
-	cre->addBonus(node["hitPoints"].Float(), Bonus::STACK_HEALTH);
-	cre->addBonus(node["speed"].Float(), Bonus::STACKS_SPEED);
-	cre->addBonus(node["attack"].Float(), Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK);
-	cre->addBonus(node["defense"].Float(), Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE);
+	cre->addBonus((int)node["hitPoints"].Float(), Bonus::STACK_HEALTH);
+	cre->addBonus((int)node["speed"].Float(), Bonus::STACKS_SPEED);
+	cre->addBonus((int)node["attack"].Float(), Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK);
+	cre->addBonus((int)node["defense"].Float(), Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE);
 
-	cre->addBonus(node["damage"]["min"].Float(), Bonus::CREATURE_DAMAGE, 1);
-	cre->addBonus(node["damage"]["max"].Float(), Bonus::CREATURE_DAMAGE, 2);
+	cre->addBonus((int)node["damage"]["min"].Float(), Bonus::CREATURE_DAMAGE, 1);
+	cre->addBonus((int)node["damage"]["max"].Float(), Bonus::CREATURE_DAMAGE, 2);
 
 	assert(node["damage"]["min"].Float() <= node["damage"]["max"].Float());
 
-	cre->ammMin = node["advMapAmount"]["min"].Float();
-	cre->ammMax = node["advMapAmount"]["max"].Float();
+	cre->ammMin = static_cast<ui32>(node["advMapAmount"]["min"].Float());
+	cre->ammMax = static_cast<ui32>(node["advMapAmount"]["max"].Float());
 	assert(cre->ammMin <= cre->ammMax);
 
 	if (!node["shots"].isNull())
-		cre->addBonus(node["shots"].Float(), Bonus::SHOTS);
+		cre->addBonus((int)node["shots"].Float(), Bonus::SHOTS);
 
 	if (node["spellPoints"].isNull())
-		cre->addBonus(node["spellPoints"].Float(), Bonus::CASTS);
+		cre->addBonus((int)node["spellPoints"].Float(), Bonus::CASTS);
 
 	cre->doubleWide = node["doubleWide"].Bool();
 
@@ -690,7 +691,7 @@ CCreature * CCreatureHandler::loadFromJson(const JsonNode & node, const std::str
 void CCreatureHandler::loadJsonAnimation(CCreature * cre, const JsonNode & graphics)
 {
 	cre->animation.timeBetweenFidgets = graphics["timeBetweenFidgets"].Float();
-	cre->animation.troopCountLocationOffset = graphics["troopCountLocationOffset"].Float();
+	cre->animation.troopCountLocationOffset = static_cast<int>(graphics["troopCountLocationOffset"].Float());
 
 	const JsonNode & animationTime = graphics["animationTime"];
 	cre->animation.walkAnimationTime = animationTime["walk"].Float();
@@ -700,14 +701,14 @@ void CCreatureHandler::loadJsonAnimation(CCreature * cre, const JsonNode & graph
 
 	const JsonNode & missile = graphics["missile"];
 	const JsonNode & offsets = missile["offset"];
-	cre->animation.upperRightMissleOffsetX = offsets["upperX"].Float();
-	cre->animation.upperRightMissleOffsetY = offsets["upperY"].Float();
-	cre->animation.rightMissleOffsetX = offsets["middleX"].Float();
-	cre->animation.rightMissleOffsetY = offsets["middleY"].Float();
-	cre->animation.lowerRightMissleOffsetX = offsets["lowerX"].Float();
-	cre->animation.lowerRightMissleOffsetY = offsets["lowerY"].Float();
+	cre->animation.upperRightMissleOffsetX = static_cast<int>(offsets["upperX"].Float());
+	cre->animation.upperRightMissleOffsetY = static_cast<int>(offsets["upperY"].Float());
+	cre->animation.rightMissleOffsetX =      static_cast<int>(offsets["middleX"].Float());
+	cre->animation.rightMissleOffsetY =      static_cast<int>(offsets["middleY"].Float());
+	cre->animation.lowerRightMissleOffsetX = static_cast<int>(offsets["lowerX"].Float());
+	cre->animation.lowerRightMissleOffsetY = static_cast<int>(offsets["lowerY"].Float());
 
-	cre->animation.attackClimaxFrame = missile["attackClimaxFrame"].Float();
+	cre->animation.attackClimaxFrame = static_cast<int>(missile["attackClimaxFrame"].Float());
 	cre->animation.missleFrameAngles = missile["frameAngles"].convertTo<std::vector<double> >();
 
 	cre->advMapDef = graphics["map"].String();
@@ -717,7 +718,7 @@ void CCreatureHandler::loadJsonAnimation(CCreature * cre, const JsonNode & graph
 
 void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & config)
 {
-	creature->level = config["level"].Float();
+	creature->level = static_cast<ui8>(config["level"].Float());
 	creature->animDefName = config["graphics"]["animation"].String();
 
 	//FIXME: MOD COMPATIBILITY
@@ -813,11 +814,11 @@ void CCreatureHandler::loadStackExperience(CCreature * creature, const JsonNode 
 			{
 				if (val.Float() != lastVal)
 				{
-					bonus->val = val.Float() - lastVal;
+					bonus->val = (int)val.Float() - lastVal;
 					bonus->limiter.reset (new RankRangeLimiter(lowerLimit));
 					creature->addNewBonus (std::make_shared<Bonus>(*bonus));
 				}
-				lastVal = val.Float();
+				lastVal = static_cast<int>(val.Float());
 				++lowerLimit;
 			}
 		}
@@ -1093,10 +1094,10 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 	{
 		if (b.type != Bonus::REBIRTH)
 			b.val = 0; //on-off ability, no value specified
-		curVal = parser.readNumber();// 0 level is never active
+		curVal = static_cast<si32>(parser.readNumber());// 0 level is never active
 		for (int i = 1; i < 11; ++i)
 		{
-			curVal = parser.readNumber();
+			curVal = static_cast<si32>(parser.readNumber());
 			if (curVal == 1)
 			{
 				b.limiter.reset (new RankRangeLimiter(i));
@@ -1107,13 +1108,13 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 	}
 	else
 	{
-		lastVal = parser.readNumber();
+		lastVal = static_cast<si32>(parser.readNumber());
 		if (b.type == Bonus::HATE)
 			lastVal *= 10; //odd fix
 		//FIXME: value for zero level should be stored in our config files (independent of stack exp)
 		for (int i = 1; i < 11; ++i)
 		{
-			curVal = parser.readNumber();
+			curVal = static_cast<si32>(parser.readNumber());
 			if (b.type == Bonus::HATE)
 				curVal *= 10; //odd fix
 			if (curVal > lastVal) //threshold, add new bonus

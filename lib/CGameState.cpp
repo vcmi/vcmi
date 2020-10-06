@@ -484,7 +484,7 @@ std::pair<Obj,int> CGameState::pickObject (CGObjectInstance *obj)
 			{
 				do
 				{
-					f = getRandomGenerator().nextInt(VLC->townh->factions.size() - 1);
+					f = getRandomGenerator().nextInt((int)VLC->townh->factions.size() - 1);
 				}
 				while (VLC->townh->factions[f]->town == nullptr); // find playable faction
 			}
@@ -506,7 +506,7 @@ std::pair<Obj,int> CGameState::pickObject (CGObjectInstance *obj)
 			//if castle alignment available
 			if (auto info = dynamic_cast<CCreGenAsCastleInfo*>(dwl->info))
 			{
-				faction = getRandomGenerator().nextInt(VLC->townh->factions.size() - 1);
+				faction = getRandomGenerator().nextInt((int)VLC->townh->factions.size() - 1);
 				if(info->asCastle && info->instanceId != "")
 				{
 					auto iter = map->instanceNames.find(info->instanceId);
@@ -886,7 +886,7 @@ void CGameState::initGrailPosition()
 						&& !t.visitable
 						&& t.terType != ETerrainType::WATER
 						&& t.terType != ETerrainType::ROCK
-						&& map->grailPos.dist2dSQ(int3(i, j, k)) <= (map->grailRadius * map->grailRadius))
+						&& (int)map->grailPos.dist2dSQ(int3(i, j, k)) <= (map->grailRadius * map->grailRadius))
 						allowedPos.push_back(int3(i,j,k));
 				}
 			}
@@ -915,7 +915,7 @@ void CGameState::initRandomFactionsForPlayers()
 	{
 		if(elem.second.castle==-1)
 		{
-			auto randomID = getRandomGenerator().nextInt(map->players[elem.first.getNum()].allowedFactions.size() - 1);
+			auto randomID = getRandomGenerator().nextInt((int)map->players[elem.first.getNum()].allowedFactions.size() - 1);
 			auto iter = map->players[elem.first.getNum()].allowedFactions.begin();
 			std::advance(iter, randomID);
 
@@ -1207,7 +1207,7 @@ void CGameState::prepareCrossoverHeroes(std::vector<CGameState::CampaignHeroRepl
 			size_t totalArts = GameConstants::BACKPACK_START + hero->artifactsInBackpack.size();
 			for (size_t i = 0; i < totalArts; i++ )
 			{
-				auto artifactPosition = ArtifactPosition(i);
+				auto artifactPosition = ArtifactPosition((si32)i);
 				if(artifactPosition == ArtifactPosition::SPELLBOOK) continue; // do not handle spellbook this way
 
 				const ArtSlotInfo *info = hero->getSlot(artifactPosition);
@@ -2094,7 +2094,7 @@ void CGameState::updateRumor()
 			// Makes sure that map rumors only used if there enough rumors too choose from
 			if(map->rumors.size() && (map->rumors.size() > 1 || !rumor.last.count(RumorState::TYPE_MAP)))
 			{
-				rumorId = rand.nextInt(map->rumors.size() - 1);
+				rumorId = rand.nextInt((int)map->rumors.size() - 1);
 				break;
 			}
 			else
@@ -2104,7 +2104,7 @@ void CGameState::updateRumor()
 		case RumorState::TYPE_RAND:
 			do
 			{
-				rumorId = rand.nextInt(VLC->generaltexth->tavernRumors.size() - 1);
+				rumorId = rand.nextInt((int)VLC->generaltexth->tavernRumors.size() - 1);
 			}
 			while(!VLC->generaltexth->tavernRumors[rumorId].length());
 
@@ -2304,7 +2304,7 @@ bool CGameState::checkForVictory(PlayerColor player, const EventCondition & cond
 		}
 		case EventCondition::DAYS_PASSED:
 		{
-			return gs->day > condition.value;
+			return (si32)gs->day > condition.value;
 		}
 		case EventCondition::IS_HUMAN:
 		{
@@ -2440,7 +2440,7 @@ struct statsHLP
 		int ret = 0;
 		for(auto h : ps->heroes)
 		{
-			ret += h->artifactsInBackpack.size() + h->artifactsWorn.size();
+			ret += (int)h->artifactsInBackpack.size() + (int)h->artifactsWorn.size();
 		}
 		return ret;
 	}
@@ -2816,7 +2816,7 @@ void CGameState::replaceHeroesPlaceholders(const std::vector<CGameState::Campaig
 		{
 			art->artType = VLC->arth->artifacts[art->artType->id];
 			gs->map->artInstances.push_back(art);
-			art->id = ArtifactInstanceID(gs->map->artInstances.size() - 1);
+			art->id = ArtifactInstanceID((si32)gs->map->artInstances.size() - 1);
 		};
 
 		for(auto &&i : heroToPlace->artifactsWorn)
@@ -3079,7 +3079,7 @@ int ArmyDescriptor::getStrength() const
 		for(auto & elem : *this)
 			ret += elem.second.type->AIValue * CCreature::estimateCreatureCount(elem.second.count);
 	}
-	return ret;
+	return static_cast<int>(ret);
 }
 
 TeamState::TeamState()

@@ -12,7 +12,7 @@
 class CLabel;
 class CPicture;
 class CButton;
-class SDL_Surface;
+struct SDL_Surface;
 class JsonNode;
 
 class CCampaignScreen : public CWindowObject

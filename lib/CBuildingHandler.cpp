@@ -33,7 +33,7 @@ BuildingID CBuildingHandler::campToERMU( int camp, int townType, std::set<Buildi
 		{2}, {1}, {1,4}, {0,2},	{0}, {0}, {0}, {0}, {0}
 	};
 
-	int curPos = campToERMU.size();
+	int curPos = static_cast<int>(campToERMU.size());
 	for (int i=0; i<GameConstants::CREATURES_PER_TOWN; ++i)
 	{
 		if(camp == curPos) //non-upgraded

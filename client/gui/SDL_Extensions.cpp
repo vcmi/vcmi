@@ -185,8 +185,8 @@ void CSDL_Ext::alphaTransform(SDL_Surface *src)
 	assert(src->format->BitsPerPixel == 8);
 	SDL_Color colors[] =
 	{
-	    {  0,   0,  0,   0}, {  0,   0,   0,  32}, {  0,   0,   0,  64},
-	    {  0,   0,  0, 128}, {  0,   0,   0, 128}
+		{  0,   0,  0,   0}, {  0,   0,   0,  32}, {  0,   0,   0,  64},
+		{  0,   0,  0, 128}, {  0,   0,   0, 128}
 	};
 
 
@@ -538,7 +538,7 @@ void CSDL_Ext::applyEffectBpp( SDL_Surface * surf, const SDL_Rect * rect, int mo
 					int r = Channels::px<bpp>::r.get(pixel);
 					int g = Channels::px<bpp>::g.get(pixel);
 					int b = Channels::px<bpp>::b.get(pixel);
-					int gray = 0.299 * r + 0.587 * g + 0.114 *b;
+					int gray = static_cast<int>(0.299 * r + 0.587 * g + 0.114 * b);
 
 					r = g = b = gray;
 					r = r + (sepiaDepth * 2);
@@ -573,7 +573,7 @@ void CSDL_Ext::applyEffectBpp( SDL_Surface * surf, const SDL_Rect * rect, int mo
 					int g = Channels::px<bpp>::g.get(pixel);
 					int b = Channels::px<bpp>::b.get(pixel);
 
-					int gray = 0.299 * r + 0.587 * g + 0.114 *b;
+					int gray = static_cast<int>(0.299 * r + 0.587 * g + 0.114 *b);
 					vstd::amax(gray, 255);
 
 					Channels::px<bpp>::r.set(pixel, gray);
@@ -609,8 +609,8 @@ void scaleSurfaceFastInternal(SDL_Surface *surf, SDL_Surface *ret)
 		for(int x = 0; x < ret->w; x++)
 		{
 			//coordinates we want to calculate
-			int origX = floor(factorX * x),
-				origY = floor(factorY * y);
+			int origX = static_cast<int>(floor(factorX * x)),
+				origY = static_cast<int>(floor(factorY * y));
 
 			// Get pointers to source pixels
 			Uint8 *srcPtr = (Uint8*)surf->pixels + origY * surf->pitch + origX * bpp;
@@ -674,10 +674,10 @@ void scaleSurfaceInternal(SDL_Surface *surf, SDL_Surface *ret)
 			Uint8 *p22 = p21 + bpp;
 			// Calculate resulting channels
 #define PX(X, PTR) Channels::px<bpp>::X.get(PTR)
-			int resR = PX(r, p11) * w11 + PX(r, p12) * w12 + PX(r, p21) * w21 + PX(r, p22) * w22;
-			int resG = PX(g, p11) * w11 + PX(g, p12) * w12 + PX(g, p21) * w21 + PX(g, p22) * w22;
-			int resB = PX(b, p11) * w11 + PX(b, p12) * w12 + PX(b, p21) * w21 + PX(b, p22) * w22;
-			int resA = PX(a, p11) * w11 + PX(a, p12) * w12 + PX(a, p21) * w21 + PX(a, p22) * w22;
+			int resR = static_cast<int>(PX(r, p11) * w11 + PX(r, p12) * w12 + PX(r, p21) * w21 + PX(r, p22) * w22);
+			int resG = static_cast<int>(PX(g, p11) * w11 + PX(g, p12) * w12 + PX(g, p21) * w21 + PX(g, p22) * w22);
+			int resB = static_cast<int>(PX(b, p11) * w11 + PX(b, p12) * w12 + PX(b, p21) * w21 + PX(b, p22) * w22);
+			int resA = static_cast<int>(PX(a, p11) * w11 + PX(a, p12) * w12 + PX(a, p21) * w21 + PX(a, p22) * w22);
 			//assert(resR < 256 && resG < 256 && resB < 256 && resA < 256);
 #undef PX
 			Uint8 *dest = (Uint8*)ret->pixels + y * ret->pitch + x * bpp;

@@ -113,14 +113,14 @@ CHeroClass * CHeroClassHandler::loadFromJson(const JsonNode & node, const std::s
 
 	for(const std::string & pSkill : PrimarySkill::names)
 	{
-		heroClass->primarySkillInitial.push_back(node["primarySkills"][pSkill].Float());
-		heroClass->primarySkillLowLevel.push_back(node["lowLevelChance"][pSkill].Float());
-		heroClass->primarySkillHighLevel.push_back(node["highLevelChance"][pSkill].Float());
+		heroClass->primarySkillInitial.push_back((int)node["primarySkills"][pSkill].Float());
+		heroClass->primarySkillLowLevel.push_back((int)node["lowLevelChance"][pSkill].Float());
+		heroClass->primarySkillHighLevel.push_back((int)node["highLevelChance"][pSkill].Float());
 	}
 
 	for(auto skillPair : node["secondarySkills"].Struct())
 	{
-		int probability = skillPair.second.Integer();
+		int probability = static_cast<int>(skillPair.second.Integer());
 		VLC->modh->identifiers.requestIdentifier(skillPair.second.meta, "skill", skillPair.first, [heroClass, probability](si32 skillID)
 		{
 			if(heroClass->secSkillProbability.size() <= skillID)
@@ -135,10 +135,10 @@ CHeroClass * CHeroClassHandler::loadFromJson(const JsonNode & node, const std::s
 		heroClass->commander = VLC->creh->creatures[commanderID];
 	});
 
-	heroClass->defaultTavernChance = node["defaultTavern"].Float();
+	heroClass->defaultTavernChance = static_cast<ui32>(node["defaultTavern"].Float());
 	for(auto & tavern : node["tavern"].Struct())
 	{
-		int value = tavern.second.Float();
+		int value = static_cast<int>(tavern.second.Float());
 
 		VLC->modh->identifiers.requestIdentifier(tavern.second.meta, "faction", tavern.first,
 		[=](si32 factionID)
@@ -199,7 +199,7 @@ std::vector<JsonNode> CHeroClassHandler::loadLegacyData(size_t dataSize)
 void CHeroClassHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
 	auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
-	object->id = heroClasses.size();
+	object->id = static_cast<ui8>(heroClasses.size());
 
 	heroClasses.push_back(object);
 
@@ -217,7 +217,7 @@ void CHeroClassHandler::loadObject(std::string scope, std::string name, const Js
 void CHeroClassHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
 	auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
-	object->id = index;
+	object->id = static_cast<ui8>(index);
 
 	assert(heroClasses[index] == nullptr); // ensure that this id was not loaded before
 	heroClasses[index] = object;
@@ -245,7 +245,7 @@ void CHeroClassHandler::afterLoadFinalization()
 			if (heroClass->selectionProbability.count(faction->index))
 				continue;
 
-			float chance = heroClass->defaultTavernChance * faction->town->defaultTavernChance;
+			float chance = static_cast<float>(heroClass->defaultTavernChance * faction->town->defaultTavernChance);
 			heroClass->selectionProbability[faction->index] = static_cast<int>(sqrt(chance) + 0.5); //FIXME: replace with std::round once MVS supports it
 		}
 		// set default probabilities for gaining secondary skills where not loaded previously
@@ -347,8 +347,8 @@ void CHeroHandler::loadHeroArmy(CHero * hero, const JsonNode & node)
 	{
 		const JsonNode & source = node["army"].Vector()[i];
 
-		hero->initialArmy[i].minAmount = source["min"].Float();
-		hero->initialArmy[i].maxAmount = source["max"].Float();
+		hero->initialArmy[i].minAmount = static_cast<ui32>(source["min"].Float());
+		hero->initialArmy[i].maxAmount = static_cast<ui32>(source["max"].Float());
 
 		assert(hero->initialArmy[i].minAmount <= hero->initialArmy[i].maxAmount);
 
@@ -363,7 +363,7 @@ void CHeroHandler::loadHeroSkills(CHero * hero, const JsonNode & node)
 {
 	for(const JsonNode &set : node["skills"].Vector())
 	{
-		int skillLevel = boost::range::find(NSecondarySkill::levels, set["level"].String()) - std::begin(NSecondarySkill::levels);
+		int skillLevel = static_cast<int>(boost::range::find(NSecondarySkill::levels, set["level"].String()) - std::begin(NSecondarySkill::levels));
 		if (skillLevel < SecSkillLevel::LEVELS_SIZE)
 		{
 			size_t currentIndex = hero->secSkillsInit.size();
@@ -657,10 +657,10 @@ void CHeroHandler::loadHeroSpecialty(CHero * hero, const JsonNode & node)
 		for(const JsonNode &specialty : specialtiesNode.Vector())
 		{
 			SSpecialtyInfo spec;
-			spec.type = specialty["type"].Integer();
-			spec.val = specialty["val"].Integer();
-			spec.subtype = specialty["subtype"].Integer();
-			spec.additionalinfo = specialty["info"].Integer();
+			spec.type =           static_cast<si32>(specialty["type"].Integer());
+			spec.val =            static_cast<si32>(specialty["val"].Integer());
+			spec.subtype =        static_cast<si32>(specialty["subtype"].Integer());
+			spec.additionalinfo = static_cast<si32>(specialty["info"].Integer());
 			//we convert after loading completes, to have all identifiers for json logging
 			hero->specDeprecated.push_back(spec);
 		}
@@ -734,12 +734,12 @@ void CHeroHandler::loadObstacles()
 	{
 		for(const JsonNode &obs : node.Vector())
 		{
-			int ID = obs["id"].Float();
+			int ID = static_cast<int>(obs["id"].Float());
 			CObstacleInfo & obi = out[ID];
 			obi.ID = ID;
 			obi.defName = obs["defname"].String();
-			obi.width = obs["width"].Float();
-			obi.height = obs["height"].Float();
+			obi.width =  static_cast<si32>(obs["width"].Float());
+			obi.height = static_cast<si32>(obs["height"].Float());
 			obi.allowedTerrains = obs["allowedTerrain"].convertTo<std::vector<ETerrainType> >();
 			obi.allowedSpecialBfields = obs["specialBattlefields"].convertTo<std::vector<BFieldType> >();
 			obi.blockedTiles = obs["blockedTiles"].convertTo<std::vector<si16> >();
@@ -774,15 +774,15 @@ void CHeroHandler::loadBallistics()
 		ballParser.readString();
 
 		CHeroHandler::SBallisticsLevelInfo bli;
-		bli.keep   = ballParser.readNumber();
-		bli.tower  = ballParser.readNumber();
-		bli.gate   = ballParser.readNumber();
-		bli.wall   = ballParser.readNumber();
-		bli.shots  = ballParser.readNumber();
-		bli.noDmg  = ballParser.readNumber();
-		bli.oneDmg = ballParser.readNumber();
-		bli.twoDmg = ballParser.readNumber();
-		bli.sum    = ballParser.readNumber();
+		bli.keep   = static_cast<ui8>(ballParser.readNumber());
+		bli.tower  = static_cast<ui8>(ballParser.readNumber());
+		bli.gate   = static_cast<ui8>(ballParser.readNumber());
+		bli.wall   = static_cast<ui8>(ballParser.readNumber());
+		bli.shots  = static_cast<ui8>(ballParser.readNumber());
+		bli.noDmg  = static_cast<ui8>(ballParser.readNumber());
+		bli.oneDmg = static_cast<ui8>(ballParser.readNumber());
+		bli.twoDmg = static_cast<ui8>(ballParser.readNumber());
+		bli.sum    = static_cast<ui8>(ballParser.readNumber());
 		ballistics.push_back(bli);
 
 		assert(bli.noDmg + bli.oneDmg + bli.twoDmg == 100 && bli.sum == 100);
@@ -837,8 +837,8 @@ std::vector<JsonNode> CHeroHandler::loadLegacyData(size_t dataSize)
 void CHeroHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
 	auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
-	object->ID = HeroTypeID(heroes.size());
-	object->imageIndex = heroes.size() + GameConstants::HERO_PORTRAIT_SHIFT; // 2 special frames + some extra portraits
+	object->ID = HeroTypeID((si32)heroes.size());
+	object->imageIndex = (si32)heroes.size() + GameConstants::HERO_PORTRAIT_SHIFT; // 2 special frames + some extra portraits
 
 	heroes.push_back(object);
 
@@ -848,8 +848,8 @@ void CHeroHandler::loadObject(std::string scope, std::string name, const JsonNod
 void CHeroHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
 	auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name));
-	object->ID = HeroTypeID(index);
-	object->imageIndex = index;
+	object->ID = HeroTypeID((si32)index);
+	object->imageIndex = static_cast<si32>(index);
 
 	assert(heroes[index] == nullptr); // ensure that this id was not loaded before
 	heroes[index] = object;
@@ -923,7 +923,7 @@ void CHeroHandler::afterLoadFinalization()
 
 ui32 CHeroHandler::level (ui64 experience) const
 {
-	return boost::range::upper_bound(expPerLevel, experience) - std::begin(expPerLevel);
+	return static_cast<ui32>(boost::range::upper_bound(expPerLevel, experience) - std::begin(expPerLevel));
 }
 
 ui64 CHeroHandler::reqExp (ui32 level) const
@@ -948,7 +948,7 @@ void CHeroHandler::loadTerrains()
 
 	terrCosts.reserve(GameConstants::TERRAIN_TYPES);
 	for(const std::string & name : GameConstants::TERRAIN_NAMES)
-		terrCosts.push_back(config[name]["moveCost"].Float());
+		terrCosts.push_back((int)config[name]["moveCost"].Float());
 }
 
 std::vector<bool> CHeroHandler::getDefaultAllowed() const

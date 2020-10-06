@@ -114,7 +114,7 @@ CObjectHandler::CObjectHandler()
 	const JsonNode config2(ResourceID("config/resources.json"));
 	for(const JsonNode &price : config2["resources_prices"].Vector())
 	{
-		resVals.push_back(price.Float());
+		resVals.push_back(static_cast<ui32>(price.Float()));
 	}
 	logGlobal->trace("\t\tDone loading resource prices!");
 }

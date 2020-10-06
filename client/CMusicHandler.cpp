@@ -27,8 +27,8 @@
 
 // sounds mapped to soundBase enum
 static std::string sounds[] = {
-    "", // invalid
-    "", // todo
+	"", // invalid
+	"", // todo
 	VCMI_SOUND_LIST
 };
 #undef VCMI_SOUND_NAME
@@ -77,7 +77,7 @@ void CAudioBase::setVolume(ui32 percent)
 
 void CSoundHandler::onVolumeChange(const JsonNode &volumeNode)
 {
-	setVolume(volumeNode.Float());
+	setVolume((ui32)volumeNode.Float());
 }
 
 CSoundHandler::CSoundHandler():
@@ -94,19 +94,19 @@ CSoundHandler::CSoundHandler():
 		soundBase::pickup04, soundBase::pickup05, soundBase::pickup06, soundBase::pickup07
 	};
 
-    horseSounds =  // must be the same order as terrains (see ETerrainType);
-    {
+	horseSounds =  // must be the same order as terrains (see ETerrainType);
+	{
 		soundBase::horseDirt, soundBase::horseSand, soundBase::horseGrass,
 		soundBase::horseSnow, soundBase::horseSwamp, soundBase::horseRough,
 		soundBase::horseSubterranean, soundBase::horseLava,
 		soundBase::horseWater, soundBase::horseRock
-    };
+	};
 
 	battleIntroSounds =
 	{
 		soundBase::battle00, soundBase::battle01,
-	    soundBase::battle02, soundBase::battle03, soundBase::battle04,
-	    soundBase::battle05, soundBase::battle06, soundBase::battle07
+		soundBase::battle02, soundBase::battle03, soundBase::battle04,
+		soundBase::battle05, soundBase::battle06, soundBase::battle07
 	};
 };
 
@@ -114,7 +114,7 @@ void CSoundHandler::init()
 {
 	CAudioBase::init();
 	if(ambientConfig["allocateChannels"].isNumber())
-		Mix_AllocateChannels(ambientConfig["allocateChannels"].Integer());
+		Mix_AllocateChannels((int)ambientConfig["allocateChannels"].Integer());
 
 	if (initialized)
 	{
@@ -148,7 +148,7 @@ Mix_Chunk *CSoundHandler::GetSoundChunk(std::string &sound, bool cache)
 			return soundChunks[sound].first;
 
 		auto data = CResourceHandler::get()->load(ResourceID(std::string("SOUNDS/") + sound, EResType::SOUND))->readAll();
-		SDL_RWops *ops = SDL_RWFromMem(data.first.get(), data.second);
+		SDL_RWops *ops = SDL_RWFromMem(data.first.get(), (int)data.second);
 		Mix_Chunk *chunk = Mix_LoadWAV_RW(ops, 1);	// will free ops
 
 		if (cache)
@@ -168,8 +168,8 @@ int CSoundHandler::ambientDistToVolume(int distance) const
 	if(distance >= ambientConfig["distances"].Vector().size())
 		return 0;
 
-	int volume = ambientConfig["distances"].Vector()[distance].Integer();
-	return volume * ambientConfig["volume"].Integer() * getVolume() / 10000;
+	int volume = static_cast<int>(ambientConfig["distances"].Vector()[distance].Integer());
+	return volume * (int)ambientConfig["volume"].Integer() * getVolume() / 10000;
 }
 
 void CSoundHandler::ambientStopSound(std::string soundId)
@@ -270,7 +270,7 @@ void CSoundHandler::soundFinishedCallback(int channel)
 
 int CSoundHandler::ambientGetRange() const
 {
-	return ambientConfig["range"].Integer();
+	return static_cast<int>(ambientConfig["range"].Integer());
 }
 
 bool CSoundHandler::ambientCheckVisitable() const
@@ -322,7 +322,7 @@ void CSoundHandler::ambientStopAllChannels()
 
 void CMusicHandler::onVolumeChange(const JsonNode &volumeNode)
 {
-	setVolume(volumeNode.Float());
+	setVolume((ui32)volumeNode.Float());
 }
 
 CMusicHandler::CMusicHandler():
@@ -510,7 +510,7 @@ MusicEntry::MusicEntry(CMusicHandler *owner, std::string setName, std::string mu
 	owner(owner),
 	music(nullptr),
 	loop(looped ? -1 : 1),
-    setName(std::move(setName))
+	setName(std::move(setName))
 {
 	if (!musicURI.empty())
 		load(std::move(musicURI));
