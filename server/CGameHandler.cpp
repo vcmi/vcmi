@@ -2521,9 +2521,8 @@ void CGameHandler::heroVisitCastle(const CGTownInstance * obj, const CGHeroInsta
 
 void CGameHandler::visitCastleObjects(const CGTownInstance * t, const CGHeroInstance * h)
 {
-	std::vector<CGTownBuilding*>::const_iterator i;
-	for (i = t->bonusingBuildings.begin(); i != t->bonusingBuildings.end(); i++)
-		(*i)->onHeroVisit (h);
+	for (auto building : t->bonusingBuildings)
+		building->onHeroVisit(h);
 }
 
 void CGameHandler::stopHeroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero)

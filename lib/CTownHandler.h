@@ -65,7 +65,10 @@ public:
 		HEIGHT_SKYSHIP = std::numeric_limits<int>::max()  // grail, open entire map
 	} height;
 
-	CBuilding();
+	static const std::map<std::string, CBuilding::EBuildMode> MODES;
+	static const std::map<std::string, CBuilding::ETowerHeight> TOWER_TYPES;
+
+	CBuilding() : town(nullptr), mode(BUILD_NORMAL) {};
 
 	const std::string &Name() const;
 	const std::string &Description() const;
@@ -75,6 +78,8 @@ public:
 
 	// returns how many times build has to be upgraded to become build
 	si32 getDistance(BuildingID build) const;
+	/// input: faction, bid; output: subId, height;
+	void update792(const BuildingID & bid, BuildingSubID::EBuildingSubID & subId, ETowerHeight & height);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -94,10 +99,9 @@ public:
 			h & subId;
 			h & height;
 		}
-		else if (!h.saving)
+		else if(!h.saving)
 		{
-			subId = BuildingSubID::NONE;
-			height = CBuilding::HEIGHT_NO_TOWER;
+			update792(bid, subId, height);
 		}
 		if(!h.saving)
 			deserializeFix();
@@ -352,12 +356,12 @@ class DLL_LINKAGE CTownHandler : public IHandlerBase
 
 	void loadRandomFaction();
 
-	template<typename R>
-	R getMappedValue(const std::string key, const R defval, const std::map<std::string, R> & map, bool required = true) const;
-	template<typename R>
-	R getMappedValue(const JsonNode& node, const R defval, const std::map<std::string, R> & map, bool required = true) const;
-
 public:
+	template<typename R, typename K>
+	static R getMappedValue(const K key, const R defval, const std::map<K, R> & map, bool required = true);
+	template<typename R>
+	static R getMappedValue(const JsonNode & node, const R defval, const std::map<std::string, R> & map, bool required = true);
+
 	std::vector<ConstTransitivePtr<CFaction> > factions;
 
 	CTown * randomTown;

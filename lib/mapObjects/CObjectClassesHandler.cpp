@@ -214,7 +214,7 @@ CObjectClassesHandler::ObjectContainter * CObjectClassesHandler::loadFromJson(co
 	if(json["defaultAiValue"].isNull())
 		obj->groupDefaultAiValue = boost::none;
 	else
-		obj->groupDefaultAiValue = static_cast<si32>(json["defaultAiValue"].Integer());
+		obj->groupDefaultAiValue = static_cast<boost::optional<si32>>(json["defaultAiValue"].Integer());
 
 	for (auto entry : json["types"].Struct())
 	{
@@ -475,7 +475,7 @@ void AObjectTypeHandler::init(const JsonNode & input, boost::optional<std::strin
 	if(input["aiValue"].isNull())
 		aiValue = boost::none;
 	else
-		aiValue = static_cast<si32>(input["aiValue"].Integer());
+		aiValue = static_cast<boost::optional<si32>>(input["aiValue"].Integer());
 
 	initTypeData(input);
 }

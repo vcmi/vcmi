@@ -107,6 +107,18 @@ public:
 		return bType;
 	}
 
+	STRONG_INLINE
+	const BuildingID & getBuildingType() const
+	{
+		return bID;
+	}
+
+	STRONG_INLINE
+	void setBuildingSubtype(BuildingSubID::EBuildingSubID subId)
+	{
+		bType = subId;
+	}
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & bID;
@@ -114,8 +126,6 @@ public:
 
 		if(version >= 792)
 			h & bType;
-		else if(!h.saving)
-			bType = BuildingSubID::NONE;
 	}
 protected:
 	BuildingID bID; //from buildig list
@@ -240,6 +250,9 @@ public:
 			}
 			return false;
 		});
+
+		if(!h.saving && version < 792)
+			updateBonusingBuildings();
 	}
 	//////////////////////////////////////////////////////////////////////////
 
@@ -248,7 +261,8 @@ public:
 	void updateMoraleBonusFromArmy() override;
 	void deserializationFix();
 	void recreateBuildingsBonuses();
-	bool addBonusIfBuilt(BuildingSubID::EBuildingSubID building, Bonus::BonusType type, int val, int subtype = -1);
+	///bid: param to bind a building with a bonus, subId: param to check if already built
+	bool addBonusIfBuilt(BuildingID bid, BuildingSubID::EBuildingSubID subId, Bonus::BonusType type, int val, int subtype = -1);
 	bool addBonusIfBuilt(BuildingID building, Bonus::BonusType type, int val, TPropagatorPtr &prop, int subtype = -1); //returns true if building is built and bonus has been added
 	bool addBonusIfBuilt(BuildingID building, Bonus::BonusType type, int val, int subtype = -1); //convienence version of above
 	void setVisitingHero(CGHeroInstance *h);
@@ -317,8 +331,12 @@ public:
 	void afterAddToMap(CMap * map) override;
 	static void reset();
 protected:
+	static TPropagatorPtr emptyPropagator;
 	void setPropertyDer(ui8 what, ui32 val) override;
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 private:
 	int getDwellingBonus(const std::vector<CreatureID>& creatureIds, const std::vector<ConstTransitivePtr<CGDwelling> >& dwellings) const;
+	void updateBonusingBuildings();
+	bool hasBuiltInOldWay(ETownType::ETownType type, BuildingID bid) const;
+	bool addBonusImpl(BuildingID building, Bonus::BonusType type, int val, TPropagatorPtr & prop, const std::string & description, int subtype = -1);
 };

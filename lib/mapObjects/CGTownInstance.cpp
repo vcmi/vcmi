@@ -435,17 +435,15 @@ void CGDwelling::serializeJsonOptions(JsonSerializeFormat & handler)
 	}
 }
 
+TPropagatorPtr CGTownInstance::emptyPropagator = TPropagatorPtr();
+
 int CGTownInstance::getSightRadius() const //returns sight distance
 {
 	auto ret = CBuilding::HEIGHT_NO_TOWER;
 
 	for(const auto & bid : builtBuildings)
 	{
-		if(bid == BuildingID::SPECIAL_1
-			|| bid == BuildingID::SPECIAL_2
-			|| bid == BuildingID::SPECIAL_3
-			|| bid == BuildingID::SPECIAL_4
-			|| bid == BuildingID::GRAIL)
+		if(bid.IsSpecialOrGrail())
 		{
 			auto height = town->buildings.at(bid)->height;
 			if(ret < height)
@@ -797,6 +795,81 @@ void CGTownInstance::initObj(CRandomGenerator & rand)
 	updateAppearance();
 }
 
+void CGTownInstance::updateBonusingBuildings()
+{
+	if (this->town->faction != nullptr)
+	{
+		//firstly, update subtype for the Bonusing objects, which are already stored in the bonusing list
+		for (auto building : bonusingBuildings)
+		{
+			switch (this->town->faction->index)
+			{
+			case ETownType::CASTLE:
+				if (building->getBuildingType() == BuildingID::SPECIAL_2)
+					building->setBuildingSubtype(BuildingSubID::STABLES);
+				break;
+
+			case ETownType::DUNGEON:
+				if(building->getBuildingType() == BuildingID::SPECIAL_2)
+					building->setBuildingSubtype(BuildingSubID::MANA_VORTEX);
+				break;
+			}
+		}
+	}
+	//secondly, supplement bonusing buildings list and active bonuses; subtypes for these objects are already set in update792
+	for (auto & kvp : town->buildings)
+	{
+		auto & building = kvp.second;
+
+		switch (building->subId)
+		{
+		case BuildingSubID::PORTAL_OF_SUMMONING:
+			creatures.resize(GameConstants::CREATURES_PER_TOWN + 1);
+			break;
+		///'hasBuilt' checking for COPW bonuses is in the COPWBonus::onHeroVisit
+		case BuildingSubID::STABLES:
+			if(getBonusingBuilding(building->subId) == nullptr)
+				bonusingBuildings.push_back(new COPWBonus(BuildingID::STABLES, BuildingSubID::STABLES, this));
+			break;
+
+		case BuildingSubID::MANA_VORTEX:
+			if(getBonusingBuilding(building->subId) == nullptr)
+				bonusingBuildings.push_back(new COPWBonus(BuildingID::MANA_VORTEX, BuildingSubID::MANA_VORTEX, this));
+			break;
+		///add new bonus if bonusing building was built in the user added towns:
+		case BuildingSubID::BROTHERHOOD_OF_SWORD:
+			if(!hasBuiltInOldWay(ETownType::CASTLE, BuildingID::BROTHERHOOD))
+				addBonusIfBuilt(BuildingID::BROTHERHOOD, BuildingSubID::BROTHERHOOD_OF_SWORD, Bonus::MORALE, +2);
+			break;
+
+		case BuildingSubID::FOUNTAIN_OF_FORTUNE:
+			if(!hasBuiltInOldWay(ETownType::RAMPART, BuildingID::FOUNTAIN_OF_FORTUNE))
+				addBonusIfBuilt(BuildingID::FOUNTAIN_OF_FORTUNE, BuildingSubID::FOUNTAIN_OF_FORTUNE, Bonus::LUCK, +2);
+			break;
+
+		case BuildingSubID::SPELL_POWER_GARRISON_BONUS:
+			if(!hasBuiltInOldWay(ETownType::INFERNO, BuildingID::STORMCLOUDS))
+				addBonusIfBuilt(BuildingID::STORMCLOUDS, BuildingSubID::SPELL_POWER_GARRISON_BONUS, Bonus::PRIMARY_SKILL, +2, PrimarySkill::SPELL_POWER);
+			break;
+
+		case BuildingSubID::ATTACK_GARRISON_BONUS:
+			if(!hasBuiltInOldWay(ETownType::FORTRESS, BuildingID::BLOOD_OBELISK))
+				addBonusIfBuilt(BuildingID::BLOOD_OBELISK, BuildingSubID::ATTACK_GARRISON_BONUS, Bonus::PRIMARY_SKILL, +2, PrimarySkill::ATTACK);
+			break;
+
+		case BuildingSubID::DEFENSE_GARRISON_BONUS:
+			if(!hasBuiltInOldWay(ETownType::FORTRESS, BuildingID::GLYPHS_OF_FEAR))
+				addBonusIfBuilt(BuildingID::GLYPHS_OF_FEAR, BuildingSubID::DEFENSE_GARRISON_BONUS, Bonus::PRIMARY_SKILL, +2, PrimarySkill::DEFENSE);
+			break;
+		}
+	}
+}
+
+bool CGTownInstance::hasBuiltInOldWay(ETownType::ETownType type, BuildingID bid) const
+{
+	return (this->town->faction != nullptr && this->town->faction->index == type && hasBuilt(bid));
+}
+
 void CGTownInstance::newTurn(CRandomGenerator & rand) const
 {
 	if (cb->getDate(Date::DAY_OF_WEEK) == 1) //reset on new week
@@ -1122,13 +1195,13 @@ void CGTownInstance::recreateBuildingsBonuses()
 		removeBonus(b);
 
 	//tricky! -> checks tavern only if no bratherhood of sword or not a castle
-	if(!addBonusIfBuilt(BuildingSubID::BROTHERHOOD_OF_SWORD, Bonus::MORALE, +2))
+	if(!addBonusIfBuilt(BuildingID::BROTHERHOOD, BuildingSubID::BROTHERHOOD_OF_SWORD, Bonus::MORALE, +2))
 		addBonusIfBuilt(BuildingID::TAVERN, Bonus::MORALE, +1);
 
-	addBonusIfBuilt(BuildingSubID::FOUNTAIN_OF_FORTUNE, Bonus::LUCK, +2); //fountain of fortune
-	addBonusIfBuilt(BuildingSubID::SPELL_POWER_GARRISON_BONUS, Bonus::PRIMARY_SKILL, +2, PrimarySkill::SPELL_POWER);//works as Brimstone Clouds
-	addBonusIfBuilt(BuildingSubID::ATTACK_GARRISON_BONUS, Bonus::PRIMARY_SKILL, +2, PrimarySkill::ATTACK);//works as Blood Obelisk
-	addBonusIfBuilt(BuildingSubID::DEFENSE_GARRISON_BONUS, Bonus::PRIMARY_SKILL, +2, PrimarySkill::DEFENSE);//works as Glyphs of Fear
+	addBonusIfBuilt(BuildingID::FOUNTAIN_OF_FORTUNE, BuildingSubID::FOUNTAIN_OF_FORTUNE, Bonus::LUCK, +2); //fountain of fortune
+	addBonusIfBuilt(BuildingID::STORMCLOUDS, BuildingSubID::SPELL_POWER_GARRISON_BONUS, Bonus::PRIMARY_SKILL, +2, PrimarySkill::SPELL_POWER);//works as Brimstone Clouds
+	addBonusIfBuilt(BuildingID::BLOOD_OBELISK, BuildingSubID::ATTACK_GARRISON_BONUS, Bonus::PRIMARY_SKILL, +2, PrimarySkill::ATTACK);//works as Blood Obelisk
+	addBonusIfBuilt(BuildingID::GLYPHS_OF_FEAR, BuildingSubID::DEFENSE_GARRISON_BONUS, Bonus::PRIMARY_SKILL, +2, PrimarySkill::DEFENSE);//works as Glyphs of Fear
 
 	if(subID == ETownType::CASTLE) //castle
 	{
@@ -1164,50 +1237,47 @@ void CGTownInstance::recreateBuildingsBonuses()
 	}
 }
 
-bool CGTownInstance::addBonusIfBuilt(BuildingSubID::EBuildingSubID building, Bonus::BonusType type, int val, int subtype)
+bool CGTownInstance::addBonusIfBuilt(BuildingID bid, BuildingSubID::EBuildingSubID subId, Bonus::BonusType type, int val, int subtype)
 {
-	bool ret = false;
+	bool hasBuilt = false;
+	std::ostringstream descr;
 
-	if (hasBuilt(building))
+	for (const auto & bid : builtBuildings)
 	{
-		std::ostringstream descr;
-
-		for (const auto & it : town->buildings)
+		if (town->buildings.at(bid)->subId == subId)
 		{
-			if (it.second->subId == building)
-			{
-				descr << it.second->Name();
-				break;
-			}
+			descr << town->buildings.at(bid)->Name();
+			hasBuilt = true;
+			break;
 		}
-		auto b = std::make_shared<Bonus>(Bonus::PERMANENT, type, Bonus::TOWN_STRUCTURE, val, building, descr.str(), subtype);
-		addNewBonus(b); //looks like a propagator is not necessary in this case
-		ret = true;
 	}
-	return ret;
+	if(hasBuilt)
+		hasBuilt = addBonusImpl(bid, type, val, emptyPropagator, descr.str(), subtype);
+	return hasBuilt;
 }
 
 bool CGTownInstance::addBonusIfBuilt(BuildingID building, Bonus::BonusType type, int val, int subtype)
 {
-	static auto emptyPropagator = TPropagatorPtr();
 	return addBonusIfBuilt(building, type, val, emptyPropagator, subtype);
 }
 
 bool CGTownInstance::addBonusIfBuilt(BuildingID building, Bonus::BonusType type, int val, TPropagatorPtr & prop, int subtype)
 {
-	if(hasBuilt(building))
-	{
-		std::ostringstream descr;
-		descr << town->buildings.at(building)->Name();
+	if(!hasBuilt(building))
+		return false;
+	
+	std::ostringstream descr;
+	descr << town->buildings.at(building)->Name();
+	return addBonusImpl(building, type, val, prop, descr.str(), subtype);
+}
 
-		auto b = std::make_shared<Bonus>(Bonus::PERMANENT, type, Bonus::TOWN_STRUCTURE, val, building, descr.str(), subtype);
-		if(prop)
-			b->addPropagator(prop);
-		addNewBonus(b);
-		return true;
-	}
-
-	return false;
+bool CGTownInstance::addBonusImpl(BuildingID building, Bonus::BonusType type, int val, TPropagatorPtr & prop, const std::string & description, int subtype)
+{
+	auto b = std::make_shared<Bonus>(Bonus::PERMANENT, type, Bonus::TOWN_STRUCTURE, val, building, description, subtype);
+	if(prop)
+		b->addPropagator(prop);
+	addNewBonus(b);
+	return true;
 }
 
 void CGTownInstance::setVisitingHero(CGHeroInstance *h)
@@ -1402,7 +1472,7 @@ CBuilding::TRequired CGTownInstance::genBuildingRequirements(BuildingID buildID,
 	return ret;
 }
 
-void CGTownInstance::addHeroToStructureVisitors( const CGHeroInstance *h, si64 structureInstanceID ) const
+void CGTownInstance::addHeroToStructureVisitors(const CGHeroInstance *h, si64 structureInstanceID ) const
 {
 	if(visitingHero == h)
 		cb->setObjProperty(id, ObjProperty::STRUCTURE_ADD_VISITING_HERO, structureInstanceID); //add to visitors
@@ -1583,7 +1653,7 @@ void COPWBonus::setProperty(ui8 what, ui32 val)
 	}
 }
 
-void COPWBonus::onHeroVisit (const CGHeroInstance * h) const
+void COPWBonus::onHeroVisit(const CGHeroInstance * h) const
 {
 	ObjectInstanceID heroID = h->id;
 	if (town->hasBuilt(bID))
