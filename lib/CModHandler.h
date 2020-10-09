@@ -253,7 +253,7 @@ public:
 
 	CIdentifierStorage identifiers;
 
-	CContentHandler content; //(!)Do not serialize
+	std::shared_ptr<CContentHandler> content; //(!)Do not serialize
 
 	/// receives list of available mods and trying to load mod.json from all of them
 	void initializeConfig();

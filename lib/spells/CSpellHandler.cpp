@@ -1038,7 +1038,7 @@ void CSpellHandler::update780()
 {
 	static_assert(MINIMAL_SERIALIZATION_VERSION < 780, "No longer needed CSpellHandler::update780");
 
-	auto spellsContent = VLC->modh->content["spells"];
+	auto spellsContent = (*VLC->modh->content)["spells"];
 
 	const ContentTypeHandler::ModInfo & coreData = spellsContent.modData.at("core");
 

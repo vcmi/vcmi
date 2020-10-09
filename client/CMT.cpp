@@ -698,7 +698,7 @@ void processCommand(const std::string &message)
 
 		for(auto contentName : contentNames)
 		{
-			auto & content = VLC->modh->content[contentName];
+			auto & content = (*VLC->modh->content)[contentName];
 
 			auto contentOutPath = outPath / contentName;
 			bfs::create_directories(contentOutPath);

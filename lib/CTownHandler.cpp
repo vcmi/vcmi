@@ -107,7 +107,7 @@ void CBuilding::update792(const BuildingID & bid, BuildingSubID::EBuildingSubID 
 		return;
 
 	const auto & faction = town->faction->identifier;
-	auto factionsContent = VLC->modh->content["factions"];
+	auto factionsContent = (*VLC->modh->content)["factions"];
 	auto & coreData = factionsContent.modData.at("core");
 	auto & coreFactions = coreData.modData;
 	auto & currentFaction = coreFactions[faction];
