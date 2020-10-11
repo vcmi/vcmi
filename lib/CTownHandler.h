@@ -46,6 +46,7 @@ public:
 
 	BuildingID bid; //structure ID
 	BuildingID upgrade; /// indicates that building "upgrade" can be improved by this, -1 = empty
+	BuildingSubID::EBuildingSubID subId; /// subtype for special buildings, -1 = the building is not special
 
 	enum EBuildMode
 	{
@@ -55,7 +56,19 @@ public:
 		BUILD_GRAIL    // 3 - grail - building reqires grail to be built
 	} mode;
 
-	CBuilding();
+	enum ETowerHeight // for lookup towers and some grails
+	{
+		HEIGHT_NO_TOWER = 5, // building has not 'lookout tower' ability
+		HEIGHT_LOW = 10,     // low lookout tower, but castle without lookout tower gives radius 5
+		HEIGHT_AVERAGE = 15,
+		HEIGHT_HIGH = 20,    // such tower is in the Tower town
+		HEIGHT_SKYSHIP = std::numeric_limits<int>::max()  // grail, open entire map
+	} height;
+
+	static const std::map<std::string, CBuilding::EBuildMode> MODES;
+	static const std::map<std::string, CBuilding::ETowerHeight> TOWER_TYPES;
+
+	CBuilding() : town(nullptr), mode(BUILD_NORMAL) {};
 
 	const std::string &Name() const;
 	const std::string &Description() const;
@@ -65,6 +78,8 @@ public:
 
 	// returns how many times build has to be upgraded to become build
 	si32 getDistance(BuildingID build) const;
+	/// input: faction, bid; output: subId, height;
+	void update792(const BuildingID & bid, BuildingSubID::EBuildingSubID & subId, ETowerHeight & height);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -78,6 +93,16 @@ public:
 		h & requirements;
 		h & upgrade;
 		h & mode;
+
+		if(version >= 792)
+		{
+			h & subId;
+			h & height;
+		}
+		else if(!h.saving)
+		{
+			update792(bid, subId, height);
+		}
 		if(!h.saving)
 			deserializeFix();
 	}
@@ -330,7 +355,13 @@ class DLL_LINKAGE CTownHandler : public IHandlerBase
 	CFaction * loadFromJson(const JsonNode & data, const std::string & identifier);
 
 	void loadRandomFaction();
+
 public:
+	template<typename R, typename K>
+	static R getMappedValue(const K key, const R defval, const std::map<K, R> & map, bool required = true);
+	template<typename R>
+	static R getMappedValue(const JsonNode & node, const R defval, const std::map<std::string, R> & map, bool required = true);
+
 	std::vector<ConstTransitivePtr<CFaction> > factions;
 
 	CTown * randomTown;

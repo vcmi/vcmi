@@ -186,3 +186,13 @@ LibClasses::~LibClasses()
 {
 	clear();
 }
+
+std::shared_ptr<CContentHandler> LibClasses::getContent() const
+{
+	return modh->content;
+}
+
+void LibClasses::setContent(std::shared_ptr<CContentHandler> content)
+{
+	modh->content = content;
+}

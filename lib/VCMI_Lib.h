@@ -21,6 +21,7 @@ class CObjectClassesHandler;
 class CTownHandler;
 class CGeneralTextHandler;
 class CModHandler;
+class CContentHandler;
 class IBonusTypeHandler;
 class CBonusTypeHandler;
 class CTerrainViewPatternConfig;
@@ -33,6 +34,9 @@ class DLL_LINKAGE LibClasses
 
 	void callWhenDeserializing(); //should be called only by serialize !!!
 	void makeNull(); //sets all handler pointers to null
+	std::shared_ptr<CContentHandler> getContent() const;
+	void setContent(std::shared_ptr<CContentHandler> content);
+
 public:
 	bool IS_AI_ENABLED; //unused?
 
@@ -73,7 +77,16 @@ public:
 		{
 			h & skillh;
 		}
-		h & modh;
+		if(!h.saving)
+		{
+			//modh will be changed and modh->content will be empty after deserialization
+			auto content = getContent();
+			h & modh;
+			setContent(content);
+		}
+		else
+			h & modh;
+
 		h & IS_AI_ENABLED;
 		h & bth;
 		if(!h.saving)

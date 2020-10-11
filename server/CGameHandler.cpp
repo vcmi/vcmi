@@ -2361,9 +2361,14 @@ bool CGameHandler::teleportHero(ObjectInstanceID hid, ObjectInstanceID dstid, ui
 	const CGTownInstance *from = h->visitedTown;
 	if (((h->getOwner() != t->getOwner())
 		&& complain("Cannot teleport hero to another player"))
-	|| ((!from || !from->hasBuilt(BuildingID::CASTLE_GATE, ETownType::INFERNO))
+
+	|| (from->town->faction->index != t->town->faction->index
+		&& complain("Source town and destination town should belong to the same faction"))
+
+	|| ((!from || !from->hasBuilt(BuildingSubID::CASTLE_GATE))
 		&& complain("Hero must be in town with Castle gate for teleporting"))
-	|| (!t->hasBuilt(BuildingID::CASTLE_GATE, ETownType::INFERNO)
+
+	|| (!t->hasBuilt(BuildingSubID::CASTLE_GATE)
 		&& complain("Cannot teleport hero to town without Castle gate in it")))
 			return false;
 	int3 pos = t->visitablePos();
@@ -2511,15 +2516,13 @@ void CGameHandler::heroVisitCastle(const CGTownInstance * obj, const CGHeroInsta
 	sendAndApply(&vc);
 	visitCastleObjects(obj, hero);
 	giveSpells(obj, hero);
-
 	checkVictoryLossConditionsForPlayer(hero->tempOwner); //transported artifact?
 }
 
 void CGameHandler::visitCastleObjects(const CGTownInstance * t, const CGHeroInstance * h)
 {
-	std::vector<CGTownBuilding*>::const_iterator i;
-	for (i = t->bonusingBuildings.begin(); i != t->bonusingBuildings.end(); i++)
-		(*i)->onHeroVisit (h);
+	for (auto building : t->bonusingBuildings)
+		building->onHeroVisit(h);
 }
 
 void CGameHandler::stopHeroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero)
@@ -3082,9 +3085,11 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 	//Performs stuff that has to be done after new building is built
 	auto processAfterBuiltStructure = [t, this](const BuildingID buildingID)
 	{
-		if (buildingID <= BuildingID::MAGES_GUILD_5 || //it's mage guild
-			(t->subID == ETownType::TOWER && buildingID == BuildingID::LIBRARY) ||
-			(t->subID == ETownType::CONFLUX && buildingID == BuildingID::GRAIL))
+		auto isMageGuild = (buildingID <= BuildingID::MAGES_GUILD_5 && buildingID >= BuildingID::MAGES_GUILD_1);
+		auto isLibrary = isMageGuild ? false 
+			: t->town->buildings.at(buildingID)->subId == BuildingSubID::EBuildingSubID::LIBRARY;
+
+		if(isMageGuild || isLibrary || (t->subID == ETownType::CONFLUX && buildingID == BuildingID::GRAIL))
 		{
 			if (t->visitingHero)
 				giveSpells(t,t->visitingHero);
@@ -3830,7 +3835,7 @@ bool CGameHandler::hireHero(const CGObjectInstance *obj, ui8 hid, PlayerColor pl
 	if (t)
 	{
 		visitCastleObjects(t, nh);
-		giveSpells (t,nh);
+		giveSpells(t,nh);
 	}
 	return true;
 }

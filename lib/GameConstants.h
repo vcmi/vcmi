@@ -409,12 +409,90 @@ public:
 	BuildingID(EBuildingID _num = NONE) : num(_num)
 	{}
 
+	STRONG_INLINE
+	bool IsSpecialOrGrail() const
+	{
+		return num == SPECIAL_1 || num == SPECIAL_2 || num == SPECIAL_3 || num == SPECIAL_4 || num == GRAIL;
+	}
+
 	ID_LIKE_CLASS_COMMON(BuildingID, EBuildingID)
 
 	EBuildingID num;
 };
 
 ID_LIKE_OPERATORS(BuildingID, BuildingID::EBuildingID)
+
+namespace BuildingSubID
+{
+	enum EBuildingSubID
+	{
+		DEFAULT = -50,
+		NONE = -1,
+		STABLES,
+		BROTHERHOOD_OF_SWORD,
+		CASTLE_GATE,
+		CREATURE_TRANSFORMER,
+		MYSTIC_POND,
+		FOUNTAIN_OF_FORTUNE,
+		ARTIFACT_MERCHANT,
+		LOOKOUT_TOWER,
+		LIBRARY,
+		MANA_VORTEX,
+		PORTAL_OF_SUMMONING,
+		ESCAPE_TUNNEL,
+		FREELANCERS_GUILD,
+		BALLISTA_YARD,
+		HALL_OF_VALHALLA,
+		MAGIC_UNIVERSITY,
+		SPELL_POWER_GARRISON_BONUS,
+		ATTACK_GARRISON_BONUS,
+		DEFENSE_GARRISON_BONUS
+	};
+}
+
+namespace MappedKeys
+{
+
+	static const std::map<std::string, BuildingID> BUILDING_NAMES_TO_TYPES =
+	{
+		{ "special1", BuildingID::SPECIAL_1 },
+		{ "special2", BuildingID::SPECIAL_2 },
+		{ "special3", BuildingID::SPECIAL_3 },
+		{ "special4", BuildingID::SPECIAL_4 },
+		{ "grail", BuildingID::GRAIL }
+	};
+
+	static const std::map<BuildingID, std::string> BUILDING_TYPES_TO_NAMES =
+	{
+		{ BuildingID::SPECIAL_1, "special1", },
+		{ BuildingID::SPECIAL_2, "special2" },
+		{ BuildingID::SPECIAL_3, "special3" },
+		{ BuildingID::SPECIAL_4, "special4" },
+		{ BuildingID::GRAIL, "grail"}
+	};
+
+	static const std::map<std::string, BuildingSubID::EBuildingSubID> SPECIAL_BUILDINGS =
+	{
+		{ "mysticPond", BuildingSubID::MYSTIC_POND },
+		{ "artifactMerchant", BuildingSubID::ARTIFACT_MERCHANT },
+		{ "freelancersGuild", BuildingSubID::FREELANCERS_GUILD },
+		{ "magicUniversity", BuildingSubID::MAGIC_UNIVERSITY },
+		{ "castleGate", BuildingSubID::CASTLE_GATE },
+		{ "creatureTransformer", BuildingSubID::CREATURE_TRANSFORMER },//only skeleton transformer yet
+		{ "portalOfSummoning", BuildingSubID::PORTAL_OF_SUMMONING },
+		{ "ballistaYard", BuildingSubID::BALLISTA_YARD },
+		{ "stables", BuildingSubID::STABLES },
+		{ "manaVortex", BuildingSubID::MANA_VORTEX },
+		{ "lookoutTower", BuildingSubID::LOOKOUT_TOWER },
+		{ "library", BuildingSubID::LIBRARY },
+		{ "brotherhoodOfSword", BuildingSubID::BROTHERHOOD_OF_SWORD },//morale garrison bonus
+		{ "fountainOfFortune", BuildingSubID::FOUNTAIN_OF_FORTUNE },//luck garrison bonus
+		{ "spellPowerGarrisonBonus", BuildingSubID::SPELL_POWER_GARRISON_BONUS },//such as 'stormclouds', but this name is not ok for good towns
+		{ "attackGarrisonBonus", BuildingSubID::ATTACK_GARRISON_BONUS },
+		{ "defenseGarrisonBonus", BuildingSubID::DEFENSE_GARRISON_BONUS },
+		{ "escapeTunnel", BuildingSubID::ESCAPE_TUNNEL }
+	};
+}
 
 namespace EAiTactic
 {

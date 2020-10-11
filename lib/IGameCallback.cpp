@@ -62,7 +62,7 @@ void CPrivilegedInfoCallback::getTilesInRange(std::unordered_set<int3, ShashInt3
 		logGlobal->error("Illegal call to getTilesInRange!");
 		return;
 	}
-	if (radious == -1) //reveal entire map
+	if(radious == CBuilding::HEIGHT_SKYSHIP) //reveal entire map
 		getAllTiles (tiles, player, -1, 0);
 	else
 	{

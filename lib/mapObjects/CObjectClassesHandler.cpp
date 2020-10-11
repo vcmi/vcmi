@@ -193,9 +193,14 @@ void CObjectClassesHandler::loadObjectEntry(const std::string & identifier, cons
 	}
 
 	logGlobal->debug("Loaded object %s(%d)::%s(%d)", obj->identifier, obj->id, convertedId, id);
-	assert(!obj->subObjects.count(id)); // DO NOT override
-	obj->subObjects[id] = handler;
-	obj->subIds[convertedId] = id;
+
+	//some mods redefine content handlers in the decoration.json in such way:
+	//"core:sign" : { "types" : { "forgeSign" : { ...
+	if (!obj->subObjects.count(id)) // DO NOT override
+	{
+		obj->subObjects[id] = handler;
+		obj->subIds[convertedId] = id;
+	}
 }
 
 CObjectClassesHandler::ObjectContainter * CObjectClassesHandler::loadFromJson(const JsonNode & json, const std::string & name)
@@ -209,7 +214,7 @@ CObjectClassesHandler::ObjectContainter * CObjectClassesHandler::loadFromJson(co
 	if(json["defaultAiValue"].isNull())
 		obj->groupDefaultAiValue = boost::none;
 	else
-		obj->groupDefaultAiValue = static_cast<si32>(json["defaultAiValue"].Integer());
+		obj->groupDefaultAiValue = static_cast<boost::optional<si32>>(json["defaultAiValue"].Integer());
 
 	for (auto entry : json["types"].Struct())
 	{
@@ -470,7 +475,7 @@ void AObjectTypeHandler::init(const JsonNode & input, boost::optional<std::strin
 	if(input["aiValue"].isNull())
 		aiValue = boost::none;
 	else
-		aiValue = static_cast<si32>(input["aiValue"].Integer());
+		aiValue = static_cast<boost::optional<si32>>(input["aiValue"].Integer());
 
 	initTypeData(input);
 }

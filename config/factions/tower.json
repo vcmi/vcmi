@@ -169,13 +169,13 @@
 				"resourceSilo":   { "id" : 15, "requires" : [ "marketplace" ], "produce" : { "gems": 1 } },
 				"blacksmith":     { "id" : 16 },
 
-				"special1":       { "id" : 17, "requires" : [ "marketplace" ] },
+				"special1":       { "type" : "artifactMerchant", "requires" : [ "marketplace" ] },
 				"horde1":         { "id" : 18, "upgrades" : "dwellingLvl2" },
 				"horde1Upgr":     { "id" : 19, "upgrades" : "dwellingUpLvl2", "requires" : [ "horde1" ], "mode" : "auto" },
-				"special2":       { "id" : 21, "requires" : [ "fort" ] },
-				"special3":       { "id" : 22, "requires" : [ "mageGuild1" ] },
-				"special4":       { "id" : 23, "requires" : [ "mageGuild1" ] },
-				"grail":          { "id" : 26, "mode" : "grail", "produce" : { "gold": 5000 } },
+				"special2":       { "type" : "lookoutTower", "height" : "high", "requires" : [ "fort" ] },
+				"special3":       { "type" : "library", "requires" : [ "mageGuild1" ] },
+				"special4":       { "requires" : [ "mageGuild1" ] },
+				"grail":          { "height" : "skyship",  "produce" : { "gold": 5000 } },
 
 				"dwellingLvl1":   { "id" : 30, "requires" : [ "fort" ] },
 				"dwellingLvl2":   { "id" : 31, "requires" : [ "dwellingLvl1" ] },

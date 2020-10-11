@@ -610,7 +610,7 @@ void CModInfo::loadLocalData(const JsonNode & data)
 		validation = validated ? PASSED : FAILED;
 }
 
-CModHandler::CModHandler()
+CModHandler::CModHandler() : content(std::make_shared<CContentHandler>())
 {
     modules.COMMANDERS = false;
     modules.STACK_ARTIFACT = false;
@@ -955,7 +955,7 @@ void CModHandler::load()
 
 	logMod->info("\tInitializing content handler: %d ms", timer.getDiff());
 
-	content.init();
+	content->init();
 
 	for(const TModID & modName : activeMods)
 	{
@@ -965,16 +965,16 @@ void CModHandler::load()
 
 	// first - load virtual "core" mod that contains all data
 	// TODO? move all data into real mods? RoE, AB, SoD, WoG
-	content.preloadData(coreMod);
+	content->preloadData(coreMod);
 	for(const TModID & modName : activeMods)
-		content.preloadData(allMods[modName]);
+		content->preloadData(allMods[modName]);
 	logMod->info("\tParsing mod data: %d ms", timer.getDiff());
 
-	content.load(coreMod);
+	content->load(coreMod);
 	for(const TModID & modName : activeMods)
-		content.load(allMods[modName]);
+		content->load(allMods[modName]);
 
-	content.loadCustom();
+	content->loadCustom();
 
 	logMod->info("\tLoading mod data: %d ms", timer.getDiff());
 
@@ -984,7 +984,7 @@ void CModHandler::load()
 	identifiers.finalize();
 	logMod->info("\tResolving identifiers: %d ms", timer.getDiff());
 
-	content.afterLoadFinalization();
+	content->afterLoadFinalization();
 	logMod->info("\tHandlers post-load finalization: %d ms ", timer.getDiff());
 	logMod->info("\tAll game content loaded in %d ms", totalTime.getDiff());
 }

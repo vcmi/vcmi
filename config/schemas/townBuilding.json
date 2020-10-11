@@ -4,7 +4,6 @@
 	"$schema": "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI town building format",
 	"description" : "Format used to define town buildings in VCMI",
-	"required": [ "id" ],
 
 	"definitions" :
 	{
@@ -28,6 +27,15 @@
 		"id": {
 			"type":"number",
 			"description" : "Numeric identifier of this building"
+		},
+		"type": {
+			"type":"string",
+			"description" : "Subtype for some special buildings"
+		},
+		"height": {
+			"type":"string",
+			"enum" : [ "skyship", "high", "average", "low"],
+			"description" : "Height for lookout towers and some grails"
 		},
 		"mode": {
 			"type":"string",

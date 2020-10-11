@@ -25,11 +25,21 @@
 
 const int NAMES_PER_TOWN=16; // number of town names per faction in H3 files. Json can define any number
 
-CBuilding::CBuilding():
-	town(nullptr),mode(BUILD_NORMAL)
+const std::map<std::string, CBuilding::EBuildMode> CBuilding::MODES =
 {
+	{ "normal", CBuilding::BUILD_NORMAL },
+	{ "auto", CBuilding::BUILD_AUTO },
+	{ "special", CBuilding::BUILD_SPECIAL },
+	{ "grail", CBuilding::BUILD_GRAIL }
+};
 
-}
+const std::map<std::string, CBuilding::ETowerHeight> CBuilding::TOWER_TYPES =
+{
+	{ "low", CBuilding::HEIGHT_LOW },
+	{ "average", CBuilding::HEIGHT_AVERAGE },
+	{ "high", CBuilding::HEIGHT_HIGH },
+	{ "skyship", CBuilding::HEIGHT_SKYSHIP }
+};
 
 const std::string & CBuilding::Name() const
 {
@@ -83,6 +93,52 @@ void CBuilding::deserializeFix()
 	}
 }
 
+void CBuilding::update792(const BuildingID & bid, BuildingSubID::EBuildingSubID & subId, ETowerHeight & height)
+{
+	subId = BuildingSubID::NONE;
+	height = ETowerHeight::HEIGHT_NO_TOWER;
+
+	if(!bid.IsSpecialOrGrail() || town == nullptr || town->faction == nullptr || town->faction->identifier.empty())
+		return;
+
+	const auto buildingName = CTownHandler::getMappedValue<std::string, BuildingID>(bid, std::string(), MappedKeys::BUILDING_TYPES_TO_NAMES);
+
+	if(buildingName.empty())
+		return;
+
+	const auto & faction = town->faction->identifier;
+	auto factionsContent = (*VLC->modh->content)["factions"];
+	auto & coreData = factionsContent.modData.at("core");
+	auto & coreFactions = coreData.modData;
+	auto & currentFaction = coreFactions[faction];
+
+	if (currentFaction.isNull())
+	{
+		const auto index = faction.find(':');
+		const std::string factionDir = index == std::string::npos ? faction : faction.substr(0, index);
+		const auto it = factionsContent.modData.find(factionDir);
+
+		if (it == factionsContent.modData.end())
+		{
+			logMod->warn("Warning: Update old save failed: Faction: '%s' is not found.", factionDir);
+			return;
+		}
+		const std::string modFaction = index == std::string::npos ? faction : faction.substr(index + 1);
+		currentFaction = it->second.modData[modFaction];
+	}
+
+	if (!currentFaction.isNull() && currentFaction.getType() == JsonNode::JsonType::DATA_STRUCT)
+	{
+		const auto & buildings = currentFaction["town"]["buildings"];
+		const auto & currentBuilding = buildings[buildingName];
+
+		subId = CTownHandler::getMappedValue<BuildingSubID::EBuildingSubID>(currentBuilding["type"], BuildingSubID::NONE, MappedKeys::SPECIAL_BUILDINGS);
+		height = CBuilding::HEIGHT_NO_TOWER;
+
+		if (subId == BuildingSubID::LOOKOUT_TOWER || bid == BuildingID::GRAIL)
+			height = CTownHandler::getMappedValue<CBuilding::ETowerHeight>(currentBuilding["height"], CBuilding::HEIGHT_NO_TOWER, CBuilding::TOWER_TYPES);
+	}
+}
 
 CFaction::CFaction()
 {
@@ -343,28 +399,51 @@ void CTownHandler::loadBuildingRequirements(CBuilding * building, const JsonNode
 	requirementsToLoad.push_back(hlp);
 }
 
+template<typename R, typename K>
+R CTownHandler::getMappedValue(const K key, const R defval, const std::map<K, R> & map, bool required)
+{
+	auto it = map.find(key);
+
+	if(it != map.end())
+		return it->second;
+
+	if(required)
+		logMod->warn("Warning: Property: '%s' is unknown. Correct the typo or update VCMI.", key);
+	return defval;
+}
+
+template<typename R>
+R CTownHandler::getMappedValue(const JsonNode & node, const R defval, const std::map<std::string, R> & map, bool required)
+{
+	if(!node.isNull() && node.getType() == JsonNode::JsonType::DATA_STRING)
+		return getMappedValue<R, std::string>(node.String(), defval, map, required);
+	return defval;
+}
+
 void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, const JsonNode & source)
 {
 	auto ret = new CBuilding();
+	ret->bid = getMappedValue<BuildingID, std::string>(stringID, BuildingID::NONE, MappedKeys::BUILDING_NAMES_TO_TYPES, false);
 
-	static const std::vector<std::string> MODES =
-	{
-		"normal", "auto", "special", "grail"
-	};
+	if(ret->bid == BuildingID::NONE)
+		ret->bid = source["id"].isNull() ? BuildingID(BuildingID::NONE) : BuildingID(source["id"].Float());
 
-	ret->mode = CBuilding::BUILD_NORMAL;
-	{
-		if(source["mode"].getType() == JsonNode::JsonType::DATA_STRING)
-		{
-			auto rawMode = vstd::find_pos(MODES, source["mode"].String());
-			if(rawMode > 0)
-				ret->mode = static_cast<CBuilding::EBuildMode>(rawMode);
-		}
-	}
+	if (ret->bid == BuildingID::NONE)
+		logMod->error("Error: Building '%s' has not internal ID and won't work properly. Correct the typo or update VCMI.", stringID);
+
+	ret->mode = ret->bid == BuildingID::GRAIL
+		? CBuilding::BUILD_GRAIL
+		: getMappedValue<CBuilding::EBuildMode>(source["mode"], CBuilding::BUILD_NORMAL, CBuilding::MODES);
+
+	ret->subId = getMappedValue<BuildingSubID::EBuildingSubID>(source["type"], BuildingSubID::NONE, MappedKeys::SPECIAL_BUILDINGS);
+	ret->height = CBuilding::HEIGHT_NO_TOWER;
+
+	if(ret->subId == BuildingSubID::LOOKOUT_TOWER 
+		|| ret->bid == BuildingID::GRAIL) 
+		ret->height = getMappedValue<CBuilding::ETowerHeight>(source["height"], CBuilding::HEIGHT_NO_TOWER, CBuilding::TOWER_TYPES);
 
 	ret->identifier = stringID;
 	ret->town = town;
-	ret->bid = BuildingID((si32)source["id"].Float());
 	ret->name = source["name"].String();
 	ret->description = source["description"].String();
 	ret->resources = TResources(source["cost"]);
