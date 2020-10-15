@@ -1808,7 +1808,7 @@ void CGameHandler::newTurn()
 		handleTownEvents(t, n);
 		if (newWeek) //first day of week
 		{
-			if (t->hasBuilt(BuildingID::PORTAL_OF_SUMMON, ETownType::DUNGEON))
+			if (t->hasBuilt(BuildingSubID::PORTAL_OF_SUMMONING))
 				setPortalDwelling(t, true, (n.specialWeek == NewTurn::PLAGUE ? true : false)); //set creatures for Portal of Summoning
 
 			if (!firstTurn)
@@ -2391,7 +2391,7 @@ void CGameHandler::setOwner(const CGObjectInstance * obj, PlayerColor owner)
 	{
 		if (owner < PlayerColor::PLAYER_LIMIT) //new owner is real player
 		{
-			if (town->hasBuilt(BuildingID::PORTAL_OF_SUMMON, ETownType::DUNGEON))
+			if (town->hasBuilt(BuildingSubID::PORTAL_OF_SUMMONING))
 				setPortalDwelling(town, true, false);
 		}
 
@@ -2414,7 +2414,7 @@ void CGameHandler::setOwner(const CGObjectInstance * obj, PlayerColor owner)
 	{
 		for (const CGTownInstance * t : getPlayer(owner)->towns)
 		{
-			if (t->hasBuilt(BuildingID::PORTAL_OF_SUMMON, ETownType::DUNGEON))
+			if (t->hasBuilt(BuildingSubID::PORTAL_OF_SUMMONING))
 				setPortalDwelling(t);//set initial creatures for all portals of summoning
 		}
 	}
@@ -3076,7 +3076,7 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 			ssi.creatures[level].second.push_back(crea->idNumber);
 			sendAndApply(&ssi);
 		}
-		if (t->subID == ETownType::DUNGEON && buildingID == BuildingID::PORTAL_OF_SUMMON)
+		if (t->town->buildings.at(buildingID)->subId == BuildingSubID::PORTAL_OF_SUMMONING)
 		{
 			setPortalDwelling(t);
 		}
@@ -3541,7 +3541,7 @@ bool CGameHandler::buyArtifact(ObjectInstanceID hid, ArtifactID aid)
 		COMPLAIN_RET_FALSE_IF(getPlayer(hero->getOwner())->resources.at(Res::GOLD) < price, "Not enough gold!");
 
 		if  ((town->hasBuilt(BuildingID::BLACKSMITH) && town->town->warMachine == aid)
-		 || ((town->hasBuilt(BuildingID::BALLISTA_YARD, ETownType::STRONGHOLD)) && aid == ArtifactID::BALLISTA))
+		 || (town->hasBuilt(BuildingSubID::BALLISTA_YARD) && aid == ArtifactID::BALLISTA))
 		{
 			giveResource(hero->getOwner(),Res::GOLD,-price);
 			return giveHeroNewArtifact(hero, art);

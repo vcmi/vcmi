@@ -115,7 +115,7 @@ void CBuildingRect::clickLeft(tribool down, bool previousState)
 		if (!CSDL_Ext::isTransparent(area, GH.current->motion.x - pos.x, GH.current->motion.y - pos.y)) //inside building image
 		{
 			auto building = getBuilding();
-			parent->buildingClicked(building->bid, building->subId);
+			parent->buildingClicked(building->bid, building->subId, building->upgrade);
 		}
 }
 
@@ -653,7 +653,7 @@ const CGHeroInstance * CCastleBuildings::getHero()
 		return town->garrisonHero;
 }
 
-void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuildingSubID subID)
+void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuildingSubID subID, BuildingID::EBuildingID upgrades)
 {
 	logGlobal->trace("You've clicked on %d", (int)building.toEnum());
 	const CBuilding *b = town->town->buildings.find(building)->second;
@@ -719,7 +719,7 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 						break;
 
 				case BuildingSubID::MYSTIC_POND:
-						enterFountain(building);
+						enterFountain(building, subID, upgrades);
 						break;
 
 				case BuildingSubID::ARTIFACT_MERCHANT:
@@ -730,7 +730,7 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 						break;
 
 				case BuildingSubID::FOUNTAIN_OF_FORTUNE:
-						enterFountain(building);
+						enterFountain(building, subID, upgrades);
 						break;
 
 				case BuildingSubID::FREELANCERS_GUILD:
@@ -748,7 +748,10 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 						break;
 
 				case BuildingSubID::BROTHERHOOD_OF_SWORD:
-						LOCPLINT->showTavernWindow(town);
+						if(upgrades == BuildingID::TAVERN)
+							LOCPLINT->showTavernWindow(town);
+						else
+							enterBuilding(building);
 						break;
 
 				case BuildingSubID::CASTLE_GATE:
@@ -839,22 +842,28 @@ void CCastleBuildings::enterToTheQuickRecruitmentWindow()
 	GH.pushIntT<QuickRecruitmentWindow>(town, pos);
 }
 
-void CCastleBuildings::enterFountain(BuildingID building)
+void CCastleBuildings::enterFountain(const BuildingID & building, BuildingSubID::EBuildingSubID subID, BuildingID::EBuildingID upgrades)
 {
-	std::vector<std::shared_ptr<CComponent>> comps(1, std::make_shared<CComponent>(CComponent::building,town->subID,building));
-
+	std::vector<std::shared_ptr<CComponent>> comps(1, std::make_shared<CComponent>(CComponent::building,town->subID, building));
 	std::string descr = town->town->buildings.find(building)->second->Description();
 
-	if ( building == BuildingID::FOUNTAIN_OF_FORTUNE)
-		descr += "\n\n"+town->town->buildings.find(BuildingID::MYSTIC_POND)->second->Description();
+	bool isMysticPondOrItsUpgrade = subID == BuildingSubID::MYSTIC_POND 
+		|| (upgrades != BuildingID::NONE 
+			&& town->town->buildings.find(BuildingID(upgrades))->second->subId == BuildingSubID::MYSTIC_POND);
 
-	if (town->bonusValue.first == 0)//fountain was builded this week
-		descr += "\n\n"+ CGI->generaltexth->allTexts[677];
-	else//fountain produced something;
+	if(upgrades != BuildingID::NONE)
+		descr += "\n\n"+town->town->buildings.find(BuildingID(upgrades))->second->Description();
+
+	if(isMysticPondOrItsUpgrade) //for vanila Rampart like towns
 	{
-		descr+= "\n\n"+ CGI->generaltexth->allTexts[678];
-		boost::algorithm::replace_first(descr,"%s",CGI->generaltexth->restypes[town->bonusValue.first]);
-		boost::algorithm::replace_first(descr,"%d",boost::lexical_cast<std::string>(town->bonusValue.second));
+		if(town->bonusValue.first == 0) //Mystic Pond produced nothing;
+			descr += "\n\n" + CGI->generaltexth->allTexts[677];
+		else //Mystic Pond produced something;
+		{
+			descr += "\n\n" + CGI->generaltexth->allTexts[678];
+			boost::algorithm::replace_first(descr, "%s", CGI->generaltexth->restypes[town->bonusValue.first]);
+			boost::algorithm::replace_first(descr, "%d", boost::lexical_cast<std::string>(town->bonusValue.second));
+		}
 	}
 	LOCPLINT->showInfoDialog(descr, comps);
 }
@@ -1627,7 +1636,7 @@ const CBuilding * CFortScreen::RecruitArea::getMyBuilding()
 	BuildingID myID = BuildingID(BuildingID::DWELL_FIRST).advance(level);
 
 	if (level == GameConstants::CREATURES_PER_TOWN)
-		return town->town->buildings.at(BuildingID::PORTAL_OF_SUMMON);
+		return town->town->getSpecialBuilding(BuildingSubID::PORTAL_OF_SUMMONING);
 
 	if (!town->town->buildings.count(myID))
 		return nullptr;
