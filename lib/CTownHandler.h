@@ -78,6 +78,13 @@ public:
 
 	// returns how many times build has to be upgraded to become build
 	si32 getDistance(BuildingID build) const;
+
+	STRONG_INLINE
+	bool IsTradeBuilding() const
+	{
+		return bid == BuildingID::MARKETPLACE || subId == BuildingSubID::ARTIFACT_MERCHANT || subId == BuildingSubID::FREELANCERS_GUILD;
+	}
+
 	/// input: faction, bid; output: subId, height;
 	void update792(const BuildingID & bid, BuildingSubID::EBuildingSubID & subId, ETowerHeight & height);
 
@@ -204,6 +211,8 @@ public:
 	std::string getFactionName() const;
 	std::string getBuildingScope() const;
 	std::set<si32> getAllBuildings() const;
+	const CBuilding * getSpecialBuilding(BuildingSubID::EBuildingSubID subID) const;
+	BuildingID::EBuildingID getBuildingType(BuildingSubID::EBuildingSubID subID) const;
 
 	CFaction * faction;
 

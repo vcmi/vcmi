@@ -201,6 +201,21 @@ std::set<si32> CTown::getAllBuildings() const
 	return res;
 }
 
+const CBuilding * CTown::getSpecialBuilding(BuildingSubID::EBuildingSubID subID) const
+{
+	for(const auto & kvp : buildings)
+	{
+		if(kvp.second->subId == subID)
+			return buildings.at(kvp.first);
+	}
+	return nullptr;
+}
+
+BuildingID::EBuildingID CTown::getBuildingType(BuildingSubID::EBuildingSubID subID) const
+{
+	auto building = getSpecialBuilding(subID);
+	return building == nullptr ? BuildingID::NONE : building->bid.num;
+}
 
 CTownHandler::CTownHandler()
 {
