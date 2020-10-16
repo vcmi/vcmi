@@ -367,8 +367,10 @@ CGStatusBar::CGStatusBar(int x, int y, std::string name, int maxw)
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	background = std::make_shared<CPicture>(name);
 	pos = background->pos;
-	if(maxw < pos.w)
+
+	if((unsigned)maxw < (unsigned)pos.w) //(insigned)-1 > than any correct value of pos.w
 	{
+		//execution of this block when maxw is incorrect breaks text centralization (issue #3151)
 		vstd::amin(pos.w, maxw);
 		background->srcRect = new Rect(0, 0, maxw, pos.h);
 	}
