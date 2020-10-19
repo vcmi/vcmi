@@ -34,6 +34,7 @@ CSkill::LevelInfo::~LevelInfo()
 CSkill::CSkill(SecondarySkill id, std::string identifier)
 	: id(id), identifier(identifier)
 {
+	gainChance[0] = gainChance[1] = 0; //affects CHeroClassHandler::afterLoadFinalization()
 	levels.resize(NSecondarySkill::levels.size() - 1);
 }
 

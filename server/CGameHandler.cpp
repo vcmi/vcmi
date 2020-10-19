@@ -1812,7 +1812,7 @@ void CGameHandler::newTurn()
 				setPortalDwelling(t, true, (n.specialWeek == NewTurn::PLAGUE ? true : false)); //set creatures for Portal of Summoning
 
 			if (!firstTurn)
-				if (t->hasBuilt(BuildingID::TREASURY, ETownType::RAMPART) && player < PlayerColor::PLAYER_LIMIT)
+				if (t->hasBuilt(BuildingSubID::TREASURY) && player < PlayerColor::PLAYER_LIMIT)
 						n.res[player][Res::GOLD] += hadGold.at(player)/10; //give 10% of starting gold
 
 			if (!vstd::contains(n.cres, t->id))
@@ -3848,8 +3848,18 @@ bool CGameHandler::queryReply(QueryID qid, const JsonNode & answer, PlayerColor 
 	logGlobal->trace(answer.toJson());
 
 	auto topQuery = queries.topQuery(player);
+
 	COMPLAIN_RET_FALSE_IF(!topQuery, "This player doesn't have any queries!");
-	COMPLAIN_RET_FALSE_IF(topQuery->queryID != qid, "This player top query has different ID!");
+
+	if(topQuery->queryID != qid)
+	{
+		auto currentQuery = queries.getQuery(qid);
+
+		if(currentQuery != nullptr && currentQuery->endsByPlayerAnswer())
+			currentQuery->setReply(answer);
+
+		COMPLAIN_RET("This player top query has different ID!"); //topQuery->queryID != qid
+	}
 	COMPLAIN_RET_FALSE_IF(!topQuery->endsByPlayerAnswer(), "This query cannot be ended by player's answer!");
 
 	topQuery->setReply(answer);

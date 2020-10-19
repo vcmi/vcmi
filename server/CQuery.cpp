@@ -248,15 +248,24 @@ std::vector<std::shared_ptr<const CQuery>> Queries::allQueries() const
 	return ret;
 }
 
-std::vector<std::shared_ptr<CQuery>> Queries::allQueries()
+std::vector<QueryPtr> Queries::allQueries()
 {
 	//TODO code duplication with const function :(
-	std::vector<std::shared_ptr<CQuery>> ret;
+	std::vector<QueryPtr> ret;
 	for(auto & playerQueries : queries)
 		for(auto & query : playerQueries.second)
 			ret.push_back(query);
 
 	return ret;
+}
+
+QueryPtr Queries::getQuery(QueryID queryID)
+{
+	for(auto & playerQueries : queries)
+		for(auto & query : playerQueries.second)
+			if(query->queryID == queryID)
+				return query;
+	return nullptr;
 }
 
 void CBattleQuery::notifyObjectAboutRemoval(const CObjectVisitQuery & objectVisit) const

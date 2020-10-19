@@ -219,7 +219,7 @@ public:
 	QueryPtr topQuery(PlayerColor player);
 
 	std::vector<std::shared_ptr<const CQuery>> allQueries() const;
-	std::vector<std::shared_ptr<CQuery>> allQueries();
+	std::vector<QueryPtr> allQueries();
+	QueryPtr getQuery(QueryID queryID);
 	//void removeQuery
-
 };
