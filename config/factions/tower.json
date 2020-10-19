@@ -174,7 +174,7 @@
 				"horde1Upgr":     { "id" : 19, "upgrades" : "dwellingUpLvl2", "requires" : [ "horde1" ], "mode" : "auto" },
 				"special2":       { "type" : "lookoutTower", "height" : "high", "requires" : [ "fort" ] },
 				"special3":       { "type" : "library", "requires" : [ "mageGuild1" ] },
-				"special4":       { "requires" : [ "mageGuild1" ] },
+				"special4":       { "type" : "knowledgeVisitingBonus", "requires" : [ "mageGuild1" ] },
 				"grail":          { "height" : "skyship",  "produce" : { "gold": 5000 } },
 
 				"dwellingLvl1":   { "id" : 30, "requires" : [ "fort" ] },

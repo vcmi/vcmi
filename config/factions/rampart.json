@@ -178,7 +178,7 @@
 				"horde1":         { "id" : 18, "upgrades" : "dwellingLvl2" },
 				"horde1Upgr":     { "id" : 19, "upgrades" : "dwellingUpLvl2", "requires" : [ "horde1" ], "mode" : "auto" },
 				"special2":       { "type" : "fountainOfFortune", "upgrades" : "special1" },
-				"special3":       { "requires" : [ "horde1" ] },
+				"special3":       { "type" : "treasury", "requires" : [ "horde1" ] },
 				"horde2":         { "id" : 24, "upgrades" : "dwellingLvl5" },
 				"horde2Upgr":     { "id" : 25, "upgrades" : "dwellingUpLvl5", "requires" : [ "horde2" ], "mode" : "auto" },
 				"grail":          { "id" : 26, "mode" : "grail", "produce": { "gold": 5000 }},

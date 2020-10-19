@@ -174,7 +174,7 @@
 				"horde1Upgr":     { "id" : 19, "upgrades" : "dwellingUpLvl1", "requires" : [ "horde1" ], "mode" : "auto" },
 				"special2":       { "type" : "spellPowerGarrisonBonus", "requires" : [ "fort" ] },
 				"special3":       { "type" : "castleGate", "requires" : [ "citadel" ] },
-				"special4":       { "requires" : [ "mageGuild1" ] },
+				"special4":       { "type" : "spellPowerVisitingBonus", "requires" : [ "mageGuild1" ] },
 				"horde2":         { "id" : 24, "upgrades" : "dwellingLvl3" },
 				"horde2Upgr":     { "id" : 25, "upgrades" : "dwellingUpLvl3", "requires" : [ "horde2" ], "mode" : "auto" },
 				"grail":          { "id" : 26, "mode" : "grail", "produce": { "gold": 5000 }},
