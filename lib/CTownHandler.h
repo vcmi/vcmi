@@ -85,6 +85,22 @@ public:
 		return bid == BuildingID::MARKETPLACE || subId == BuildingSubID::ARTIFACT_MERCHANT || subId == BuildingSubID::FREELANCERS_GUILD;
 	}
 
+	STRONG_INLINE
+	bool IsWeekBonus() const
+	{
+		return subId == BuildingSubID::STABLES || subId == BuildingSubID::MANA_VORTEX;
+	}
+
+	STRONG_INLINE
+	bool IsVisitingBonus() const
+	{
+		return subId == BuildingSubID::ATTACK_VISITING_BONUS ||
+			subId == BuildingSubID::DEFENSE_VISITING_BONUS || 
+			subId == BuildingSubID::SPELL_POWER_VISITING_BONUS ||
+			subId == BuildingSubID::KNOWLEDGE_VISITING_BONUS ||
+			subId == BuildingSubID::EXPERIENCE_VISITING_BONUS;
+	}
+
 	/// input: faction, bid; output: subId, height;
 	void update792(const BuildingID & bid, BuildingSubID::EBuildingSubID & subId, ETowerHeight & height);
 

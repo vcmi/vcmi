@@ -169,7 +169,7 @@
 				"resourceSilo":   { "id" : 15, "requires" : [ "marketplace" ], "produce": { "wood": 1, "ore": 1 } },
 				"blacksmith":     { "id" : 16 },
 
-				"special1":       { "requires" : [ "allOf", [ "townHall" ], [ "special2" ] ] },
+				"special1":       { "type" : "defenceVisitingBonus", "requires" : [ "allOf", [ "townHall" ], [ "special2" ] ] },
 				"horde1":         { "id" : 18, "upgrades" : "dwellingLvl1" },
 				"horde1Upgr":     { "id" : 19, "upgrades" : "dwellingUpLvl1", "requires" : [ "horde1" ], "mode" : "auto" },
 				"ship":           { "id" : 20, "upgrades" : "shipyard" },

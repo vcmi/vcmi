@@ -442,11 +442,17 @@ namespace BuildingSubID
 		ESCAPE_TUNNEL,
 		FREELANCERS_GUILD,
 		BALLISTA_YARD,
-		HALL_OF_VALHALLA,
+		ATTACK_VISITING_BONUS,
 		MAGIC_UNIVERSITY,
 		SPELL_POWER_GARRISON_BONUS,
 		ATTACK_GARRISON_BONUS,
-		DEFENSE_GARRISON_BONUS
+		DEFENSE_GARRISON_BONUS,
+		DEFENSE_VISITING_BONUS,
+		SPELL_POWER_VISITING_BONUS,
+		KNOWLEDGE_VISITING_BONUS,
+		EXPERIENCE_VISITING_BONUS,
+		LIGHTHOUSE,
+		TREASURY
 	};
 }
 
@@ -490,7 +496,14 @@ namespace MappedKeys
 		{ "spellPowerGarrisonBonus", BuildingSubID::SPELL_POWER_GARRISON_BONUS },//such as 'stormclouds', but this name is not ok for good towns
 		{ "attackGarrisonBonus", BuildingSubID::ATTACK_GARRISON_BONUS },
 		{ "defenseGarrisonBonus", BuildingSubID::DEFENSE_GARRISON_BONUS },
-		{ "escapeTunnel", BuildingSubID::ESCAPE_TUNNEL }
+		{ "escapeTunnel", BuildingSubID::ESCAPE_TUNNEL },
+		{ "attackVisitingBonus", BuildingSubID::ATTACK_VISITING_BONUS },
+		{ "defenceVisitingBonus", BuildingSubID::DEFENSE_VISITING_BONUS },
+		{ "spellPowerVisitingBonus", BuildingSubID::SPELL_POWER_VISITING_BONUS },
+		{ "knowledgeVisitingBonus", BuildingSubID::KNOWLEDGE_VISITING_BONUS },
+		{ "experienceVisitingBonus", BuildingSubID::EXPERIENCE_VISITING_BONUS },
+		{ "lighthouse", BuildingSubID::LIGHTHOUSE },
+		{ "treasury", BuildingSubID::TREASURY }
 	};
 }
 

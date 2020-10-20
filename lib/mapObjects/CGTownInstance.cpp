@@ -744,17 +744,35 @@ bool CGTownInstance::townEnvisagesBuilding(BuildingSubID::EBuildingSubID subId) 
 	return town->getBuildingType(subId) != BuildingID::NONE;
 }
 
-//it does not check hasBuilt(...) because this check is in the OnHeroVisit handler
-bool CGTownInstance::tryAddOnePerWeekBonus(BuildingSubID::EBuildingSubID subID)
+//it does not check hasBuilt because this check is in the OnHeroVisit handler
+void CGTownInstance::tryAddOnePerWeekBonus(BuildingSubID::EBuildingSubID subID)
 {
 	auto bid = town->getBuildingType(subID);
 
-	if(bid == BuildingID::NONE)
-		return false;
-
-	bonusingBuildings.push_back(new COPWBonus(bid, subID, this));
-	return true;
+	if(bid != BuildingID::NONE)
+		bonusingBuildings.push_back(new COPWBonus(bid, subID, this));
 }
+
+void CGTownInstance::tryAddVisitingBonus(BuildingSubID::EBuildingSubID subID)
+{
+	auto bid = town->getBuildingType(subID);
+
+	if(bid != BuildingID::NONE)
+		bonusingBuildings.push_back(new CTownBonus(bid, subID, this));
+}
+
+void CGTownInstance::addTownBonuses()
+{
+	for(const auto & kvp : town->buildings)
+	{
+		if(kvp.second->IsVisitingBonus())
+			bonusingBuildings.push_back(new CTownBonus(kvp.second->bid, kvp.second->subId, this));
+
+		if(kvp.second->IsWeekBonus())
+			bonusingBuildings.push_back(new COPWBonus(kvp.second->bid, kvp.second->subId, this));
+	}
+}
+
 
 void CGTownInstance::initObj(CRandomGenerator & rand) ///initialize town structures
 {
@@ -776,24 +794,7 @@ void CGTownInstance::initObj(CRandomGenerator & rand) ///initialize town structu
 				creatures[level].second.push_back(town->creatures[level][upgradeNum]);
 		}
 	}
-	tryAddOnePerWeekBonus(BuildingSubID::STABLES);
-	tryAddOnePerWeekBonus(BuildingSubID::MANA_VORTEX);
-
-	switch (subID)
-	{
-		//add new visitable objects
-		case ETownType::DUNGEON:
-		case ETownType::TOWER: 
-		case ETownType::INFERNO: 
-		case ETownType::STRONGHOLD:
-			bonusingBuildings.push_back (new CTownBonus(BuildingID::SPECIAL_4, this));
-			break;
-		case ETownType::FORTRESS:
-			bonusingBuildings.push_back (new CTownBonus(BuildingID::SPECIAL_1, this));
-			break;
-	}
-	//add special bonuses from buildings
-
+	addTownBonuses(); //add special bonuses from buildings to the bonusingBuildings vector.
 	recreateBuildingsBonuses();
 	updateAppearance();
 }
@@ -803,18 +804,35 @@ void CGTownInstance::updateBonusingBuildings()
 	if (this->town->faction != nullptr)
 	{
 		//firstly, update subtype for the Bonusing objects, which are already stored in the bonusing list
-		for (auto building : bonusingBuildings)
+		for (auto building : bonusingBuildings) //no garrison bonuses here, only week and visiting bonuses
 		{
 			switch (this->town->faction->index)
 			{
 			case ETownType::CASTLE:
-				if (building->getBuildingType() == BuildingID::SPECIAL_2)
-					building->setBuildingSubtype(BuildingSubID::STABLES);
+				building->setBuildingSubtype(BuildingSubID::STABLES);
 				break;
 
 			case ETownType::DUNGEON:
 				if(building->getBuildingType() == BuildingID::SPECIAL_2)
 					building->setBuildingSubtype(BuildingSubID::MANA_VORTEX);
+				else if(building->getBuildingType() == BuildingID::SPECIAL_4)
+					building->setBuildingSubtype(BuildingSubID::EXPERIENCE_VISITING_BONUS);
+				break;
+
+			case ETownType::TOWER:
+				building->setBuildingSubtype(BuildingSubID::KNOWLEDGE_VISITING_BONUS);
+				break;
+
+			case ETownType::STRONGHOLD:
+				building->setBuildingSubtype(BuildingSubID::ATTACK_VISITING_BONUS);
+				break;
+
+			case ETownType::INFERNO:
+				building->setBuildingSubtype(BuildingSubID::SPELL_POWER_VISITING_BONUS);
+				break;
+
+			case ETownType::FORTRESS:
+				building->setBuildingSubtype(BuildingSubID::DEFENSE_VISITING_BONUS);
 				break;
 			}
 		}
@@ -824,23 +842,24 @@ void CGTownInstance::updateBonusingBuildings()
 	{
 		auto & building = kvp.second;
 
-		switch (building->subId)
+		if(building->subId == BuildingSubID::PORTAL_OF_SUMMONING)
 		{
-		case BuildingSubID::PORTAL_OF_SUMMONING:
 			if(!hasBuiltInOldWay(ETownType::DUNGEON, BuildingID::PORTAL_OF_SUMMON))
 				creatures.resize(GameConstants::CREATURES_PER_TOWN + 1);
-			break;
-		///'hasBuilt' checking for COPW bonuses is in the COPWBonus::onHeroVisit
-		case BuildingSubID::STABLES:
-			if(getBonusingBuilding(building->subId) == nullptr)
-				tryAddOnePerWeekBonus(BuildingSubID::STABLES);
-			break;
-
-		case BuildingSubID::MANA_VORTEX:
-			if(getBonusingBuilding(building->subId) == nullptr)
-				tryAddOnePerWeekBonus(BuildingSubID::MANA_VORTEX);
-			break;
+			continue;
 		}
+		if(!building->IsVisitingBonus() && !building->IsWeekBonus()) //it's not bonusing => nothing to handle
+			continue;
+
+		if(getBonusingBuilding(building->subId) != nullptr) //it's already added => already handled
+			continue;
+
+		///'hasBuilt' checking for bonuses is in the onHeroVisit handler
+		if(building->IsWeekBonus())
+			tryAddOnePerWeekBonus(building->subId);
+
+		if(building->IsVisitingBonus())
+			tryAddVisitingBonus(building->subId);
 	}
 	recreateBuildingsBonuses(); ///Clear all bonuses and recreate
 }
@@ -1180,11 +1199,11 @@ void CGTownInstance::recreateBuildingsBonuses()
 	addBonusIfBuilt(BuildingSubID::SPELL_POWER_GARRISON_BONUS, Bonus::PRIMARY_SKILL, +2, PrimarySkill::SPELL_POWER);//works as Brimstone Clouds
 	addBonusIfBuilt(BuildingSubID::ATTACK_GARRISON_BONUS, Bonus::PRIMARY_SKILL, +2, PrimarySkill::ATTACK);//works as Blood Obelisk
 	addBonusIfBuilt(BuildingSubID::DEFENSE_GARRISON_BONUS, Bonus::PRIMARY_SKILL, +2, PrimarySkill::DEFENSE);//works as Glyphs of Fear
+	addBonusIfBuilt(BuildingSubID::LIGHTHOUSE, Bonus::SEA_MOVEMENT, +500, playerProp);
 
 	if(subID == ETownType::CASTLE) //castle
 	{
-		addBonusIfBuilt(BuildingID::LIGHTHOUSE, Bonus::SEA_MOVEMENT, +500, playerProp);
-		addBonusIfBuilt(BuildingID::GRAIL,      Bonus::MORALE, +2, playerProp); //colossus
+		addBonusIfBuilt(BuildingID::GRAIL, Bonus::MORALE, +2, playerProp); //colossus
 	}
 	else if(subID == ETownType::RAMPART) //rampart
 	{
@@ -1215,14 +1234,14 @@ void CGTownInstance::recreateBuildingsBonuses()
 	}
 }
 
-bool CGTownInstance::addBonusIfBuilt(BuildingSubID::EBuildingSubID subId, Bonus::BonusType type, int val, int subtype)
+bool CGTownInstance::addBonusIfBuilt(BuildingSubID::EBuildingSubID subId, Bonus::BonusType type, int val, TPropagatorPtr & prop, int subtype)
 {
 	BuildingID currentBid = BuildingID::NONE;
 	std::ostringstream descr;
 
 	for(const auto & bid : builtBuildings)
 	{
-		if (town->buildings.at(bid)->subId == subId)
+		if(town->buildings.at(bid)->subId == subId)
 		{
 			descr << town->buildings.at(bid)->Name();
 			currentBid = bid;
@@ -1230,12 +1249,12 @@ bool CGTownInstance::addBonusIfBuilt(BuildingSubID::EBuildingSubID subId, Bonus:
 		}
 	}
 	return currentBid == BuildingID::NONE ? false
-		: addBonusImpl(currentBid, type, val, emptyPropagator, descr.str(), subtype);
+		: addBonusImpl(currentBid, type, val, prop, descr.str(), subtype);
 }
 
-bool CGTownInstance::addBonusIfBuilt(BuildingID building, Bonus::BonusType type, int val, int subtype)
+bool CGTownInstance::addBonusIfBuilt(BuildingSubID::EBuildingSubID subId, Bonus::BonusType type, int val, int subtype)
 {
-	return addBonusIfBuilt(building, type, val, emptyPropagator, subtype);
+	return addBonusIfBuilt(subId, type, val, emptyPropagator, subtype);
 }
 
 bool CGTownInstance::addBonusIfBuilt(BuildingID building, Bonus::BonusType type, int val, TPropagatorPtr & prop, int subtype)
@@ -1246,6 +1265,11 @@ bool CGTownInstance::addBonusIfBuilt(BuildingID building, Bonus::BonusType type,
 	std::ostringstream descr;
 	descr << town->buildings.at(building)->Name();
 	return addBonusImpl(building, type, val, prop, descr.str(), subtype);
+}
+
+bool CGTownInstance::addBonusIfBuilt(BuildingID building, Bonus::BonusType type, int val, int subtype)
+{
+	return addBonusIfBuilt(building, type, val, emptyPropagator, subtype);
 }
 
 bool CGTownInstance::addBonusImpl(BuildingID building, Bonus::BonusType type, int val, TPropagatorPtr & prop, const std::string & description, int subtype)
@@ -1686,9 +1710,10 @@ void COPWBonus::onHeroVisit(const CGHeroInstance * h) const
 		}
 	}
 }
-CTownBonus::CTownBonus (BuildingID index, CGTownInstance *TOWN)
+CTownBonus::CTownBonus (BuildingID index, BuildingSubID::EBuildingSubID subId, CGTownInstance *TOWN)
 {
 	bID = index;
+	bType = subId;
 	town = TOWN;
 	indexOnTV = static_cast<si32>(town->bonusingBuildings.size());
 }
@@ -1699,64 +1724,58 @@ void CTownBonus::setProperty (ui8 what, ui32 val)
 		visitors.insert(ObjectInstanceID(val));
 }
 
-void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
+void CTownBonus::onHeroVisit(const CGHeroInstance * h) const
 {
 	ObjectInstanceID heroID = h->id;
 	if (town->hasBuilt(bID) && visitors.find(heroID) == visitors.end())
 	{
-		si32 mid=0;
+		si32 mid = 0;
 		si64 val = 0;
 		InfoWindow iw;
 		PrimarySkill::PrimarySkill what = PrimarySkill::ATTACK;
 
-		switch (bID)
+		switch (bType)
 		{
-			case BuildingID::SPECIAL_4:
-				switch(town->subID)
-				{
-					case ETownType::TOWER: //wall
-						what = PrimarySkill::KNOWLEDGE;
-						val = 1;
-						mid = 581;
-						iw.components.push_back (Component(Component::PRIM_SKILL, 3, 1, 0));
-						break;
-					case ETownType::INFERNO: //order of fire
-						what = PrimarySkill::SPELL_POWER;
-						val = 1;
-						mid = 582;
-						iw.components.push_back (Component(Component::PRIM_SKILL, 2, 1, 0));
-						break;
-					case ETownType::STRONGHOLD://hall of Valhalla
-						what = PrimarySkill::ATTACK;
-						val = 1;
-						mid = 584;
-						iw.components.push_back (Component(Component::PRIM_SKILL, 0, 1, 0));
-						break;
-					case ETownType::DUNGEON://academy of battle scholars
-						what = PrimarySkill::EXPERIENCE;
-						val = static_cast<int>(h->calculateXp(1000));
-						mid = 583;
-						iw.components.push_back (Component(Component::EXPERIENCE, 0, val, 0));
-						break;
-				}
-				break;
-			case BuildingID::SPECIAL_1:
-				switch(town->subID)
-				{
-					case ETownType::FORTRESS: //cage of warlords
-						what = PrimarySkill::DEFENSE;
-						val = 1;
-						mid = 585;
-						iw.components.push_back (Component(Component::PRIM_SKILL, 1, 1, 0));
-						break;
-				}
-				break;
+		case BuildingSubID::KNOWLEDGE_VISITING_BONUS: //wall of knowledge
+			what = PrimarySkill::KNOWLEDGE;
+			val = 1;
+			mid = 581;
+			iw.components.push_back(Component(Component::PRIM_SKILL, 3, 1, 0));
+			break;
+
+		case BuildingSubID::SPELL_POWER_VISITING_BONUS: //order of fire
+			what = PrimarySkill::SPELL_POWER;
+			val = 1;
+			mid = 582;
+			iw.components.push_back(Component(Component::PRIM_SKILL, 2, 1, 0));
+			break;
+
+		case BuildingSubID::ATTACK_VISITING_BONUS: //hall of Valhalla
+			what = PrimarySkill::ATTACK;
+			val = 1;
+			mid = 584;
+			iw.components.push_back(Component(Component::PRIM_SKILL, 0, 1, 0));
+			break;
+
+		case BuildingSubID::EXPERIENCE_VISITING_BONUS: //academy of battle scholars
+			what = PrimarySkill::EXPERIENCE;
+			val = static_cast<int>(h->calculateXp(1000));
+			mid = 583;
+			iw.components.push_back(Component(Component::EXPERIENCE, 0, val, 0));
+			break;
+
+		case BuildingSubID::DEFENSE_VISITING_BONUS: //cage of warlords
+			what = PrimarySkill::DEFENSE;
+			val = 1;
+			mid = 585;
+			iw.components.push_back(Component(Component::PRIM_SKILL, 1, 1, 0));
+			break;
 		}
 		assert(mid);
 		iw.player = cb->getOwner(heroID);
 		iw.text << VLC->generaltexth->allTexts[mid];
 		cb->showInfoDialog(&iw);
-		cb->changePrimSkill (cb->getHero(heroID), what, val);
+		cb->changePrimSkill(cb->getHero(heroID), what, val);
 		town->addHeroToStructureVisitors(h, indexOnTV);
 	}
 }

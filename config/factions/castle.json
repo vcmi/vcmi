@@ -170,7 +170,7 @@
 				"resourceSilo":   { "id" : 15, "requires" : [ "marketplace" ], "produce": { "ore": 1, "wood": 1 } },
 				"blacksmith":     { "id" : 16 },
 
-				"special1":       { "requires" : [ "shipyard" ] },
+				"special1":       { "type" : "lighthouse", "requires" : [ "shipyard" ] },
 				"horde1":         { "id" : 18, "upgrades" : "dwellingLvl3" },
 				"horde1Upgr":     { "id" : 19, "upgrades" : "dwellingUpLvl3", "requires" : [ "horde1" ], "mode" : "auto" },
 				"ship":           { "id" : 20, "upgrades" : "shipyard" },

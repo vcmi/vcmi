@@ -158,7 +158,7 @@ public:
 	void setProperty(ui8 what, ui32 val) override;
 	void onHeroVisit (const CGHeroInstance * h) const override;
 
-	CTownBonus (BuildingID index, CGTownInstance *TOWN);
+	CTownBonus (BuildingID index, BuildingSubID::EBuildingSubID subId, CGTownInstance *TOWN);
 	CTownBonus () {};
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -262,6 +262,7 @@ public:
 	void deserializationFix();
 	void recreateBuildingsBonuses();
 	///bid: param to bind a building with a bonus, subId: param to check if already built
+	bool addBonusIfBuilt(BuildingSubID::EBuildingSubID subId, Bonus::BonusType type, int val, TPropagatorPtr & prop, int subtype = -1);
 	bool addBonusIfBuilt(BuildingSubID::EBuildingSubID subId, Bonus::BonusType type, int val, int subtype = -1);
 	bool addBonusIfBuilt(BuildingID building, Bonus::BonusType type, int val, TPropagatorPtr &prop, int subtype = -1); //returns true if building is built and bonus has been added
 	bool addBonusIfBuilt(BuildingID building, Bonus::BonusType type, int val, int subtype = -1); //convienence version of above
@@ -342,5 +343,7 @@ private:
 	bool hasBuiltInOldWay(ETownType::ETownType type, BuildingID bid) const;
 	bool addBonusImpl(BuildingID building, Bonus::BonusType type, int val, TPropagatorPtr & prop, const std::string & description, int subtype = -1);
 	bool townEnvisagesBuilding(BuildingSubID::EBuildingSubID bid) const;
-	bool tryAddOnePerWeekBonus(BuildingSubID::EBuildingSubID subID);
+	void tryAddOnePerWeekBonus(BuildingSubID::EBuildingSubID subID);
+	void tryAddVisitingBonus(BuildingSubID::EBuildingSubID subID);
+	void addTownBonuses();
 };
