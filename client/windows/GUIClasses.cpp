@@ -1269,7 +1269,18 @@ CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket
 	bars->preload();
 
 	if(market->o->ID == Obj::TOWN)
-		titlePic = std::make_shared<CAnimImage>(CGI->townh->factions[ETownType::CONFLUX]->town->clientInfo.buildingsIcons, BuildingID::MAGIC_UNIVERSITY);
+	{
+		auto town = dynamic_cast<const CGTownInstance *>(_market);
+
+		if(town)
+		{
+			auto faction = town->town->faction->index;
+			auto bid = town->town->getSpecialBuilding(BuildingSubID::MAGIC_UNIVERSITY)->bid;
+			titlePic = std::make_shared<CAnimImage>(CGI->townh->factions[faction]->town->clientInfo.buildingsIcons, bid);
+		}
+		else
+			titlePic = std::make_shared<CAnimImage>(CGI->townh->factions[ETownType::CONFLUX]->town->clientInfo.buildingsIcons, BuildingID::MAGIC_UNIVERSITY);
+	}
 	else
 		titlePic = std::make_shared<CPicture>("UNIVBLDG");
 

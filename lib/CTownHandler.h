@@ -122,7 +122,7 @@ public:
 			h & subId;
 			h & height;
 		}
-		else if(!h.saving)
+		if(!h.saving && version < 793)
 		{
 			update792(bid, subId, height);
 		}
@@ -228,6 +228,8 @@ public:
 	std::string getBuildingScope() const;
 	std::set<si32> getAllBuildings() const;
 	const CBuilding * getSpecialBuilding(BuildingSubID::EBuildingSubID subID) const;
+	const std::string getGreeting(BuildingSubID::EBuildingSubID subID) const;
+	void setGreeting(BuildingSubID::EBuildingSubID subID, const std::string message) const; //may affect only mutable field
 	BuildingID::EBuildingID getBuildingType(BuildingSubID::EBuildingSubID subID) const;
 
 	CFaction * faction;
@@ -335,6 +337,10 @@ public:
 		}
 		h & defaultTavernChance;
 	}
+	
+private:
+	///generated bonusing buildings messages for all towns of this type.
+	mutable std::map<BuildingSubID::EBuildingSubID, const std::string> specialMessages; //may be changed by CGTownBuilding::getVisitingBonusGreeting() const
 };
 
 class DLL_LINKAGE CTownHandler : public IHandlerBase

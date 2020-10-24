@@ -217,6 +217,16 @@ BuildingID::EBuildingID CTown::getBuildingType(BuildingSubID::EBuildingSubID sub
 	return building == nullptr ? BuildingID::NONE : building->bid.num;
 }
 
+const std::string CTown::getGreeting(BuildingSubID::EBuildingSubID subID) const
+{
+	return VLC->townh->getMappedValue<const std::string, BuildingSubID::EBuildingSubID>(subID, std::string(), specialMessages, false);
+}
+
+void CTown::setGreeting(BuildingSubID::EBuildingSubID subID, const std::string message) const
+{
+	specialMessages.insert(std::pair<BuildingSubID::EBuildingSubID, const std::string>(subID, message));
+}
+
 CTownHandler::CTownHandler()
 {
 	VLC->townh = this;
