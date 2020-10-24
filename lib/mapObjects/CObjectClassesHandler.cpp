@@ -196,10 +196,26 @@ void CObjectClassesHandler::loadObjectEntry(const std::string & identifier, cons
 
 	//some mods redefine content handlers in the decoration.json in such way:
 	//"core:sign" : { "types" : { "forgeSign" : { ...
-	if (!obj->subObjects.count(id)) // DO NOT override
+	static const std::vector<std::string> knownProblemObjects
+	{
+		"hota.hota decorations:hotaPandoraBox"
+		, "hota.hota decorations:hotaSubterreanGate"
+	};
+	bool overrideForce = !obj->subObjects.count(id) ||
+	std::any_of(knownProblemObjects.begin(), knownProblemObjects.end(), [obj, id](const std::string & str)
+	{
+		return str.compare(obj->subObjects[id]->subTypeName) == 0;
+	});
+
+	if (overrideForce) // DO NOT override mod handlers by default
 	{
 		obj->subObjects[id] = handler;
 		obj->subIds[convertedId] = id;
+	}
+	else
+	{
+		logGlobal->warn("Don't override handler %s in object %s(%d)::%s(%d) subTypeName : %s"
+			, obj->handlerName, obj->identifier, obj->id, convertedId, id, obj->subObjects[id]->subTypeName);
 	}
 }
 

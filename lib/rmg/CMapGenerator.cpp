@@ -610,15 +610,16 @@ void CMapGenerator::createConnections2()
 
 				std::vector<int3> commonTiles;
 
-				//required for set_intersection
-				boost::sort(tilesA);
-				boost::sort(tilesB);
-
-				boost::set_intersection(tilesA, tilesB, std::back_inserter(commonTiles), [](const int3 &lhs, const int3 &rhs) -> bool
+				auto lambda = [](const int3 & lhs, const int3 & rhs) -> bool
 				{
-					//ignore z coordinate
-					return lhs.x < rhs.x || lhs.y < rhs.y;
-				});
+					//https://stackoverflow.com/questions/45966807/c-invalid-comparator-assert
+					return std::tie(lhs.x, lhs.y) < std::tie(rhs.x, rhs.y); //ignore z coordinate
+				};
+				//required for set_intersection
+				boost::sort(tilesA, lambda);
+				boost::sort(tilesB, lambda);
+
+				boost::set_intersection(tilesA, tilesB, std::back_inserter(commonTiles), lambda);
 
 				vstd::erase_if(commonTiles, [](const int3 &tile) -> bool
 				{
