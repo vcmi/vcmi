@@ -49,10 +49,10 @@ CondSh<BattleAction *> CBattleInterface::givenCommand(nullptr);
 
 static void onAnimationFinished(const CStack *stack, std::weak_ptr<CCreatureAnimation> anim)
 {
-	if(anim.expired())
+	std::shared_ptr<CCreatureAnimation> animation = anim.lock();
+	if(!animation)
 		return;
 
-	std::shared_ptr<CCreatureAnimation> animation = anim.lock();
 	if (animation->isIdle())
 	{
 		const CCreature *creature = stack->getCreature();
