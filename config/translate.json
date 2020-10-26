@@ -43,7 +43,15 @@
 	},
 	"townHall" :
 	{
-		"missingBase" : "Base building %s must be built first"
+		"missingBase" : "Base building %s must be built first",
+		"greetingManaVortex" : "As you near the %s your body is filled with new energy. You have doubled your normal spell points.",
+		"greetingKnowledge" : "You study the glyphs on the %s and gain insight into the workings of various magics (+1 Knowledge).",
+		"greetingSpellPower" : "The %s teaches you new ways to focus your magical powers (+1 Power).",
+		"greetingExperience" : "A visit to the %s teaches you many new skills (+1000 Experience).",
+		"greetingAttack" : "Some time spent at the %s allows you to learn more effective combat skills (+1 Attack Skill).",
+		"greetingDefence" : "Spending time in the %s, the experienced warriors therein teach you additional defensive skills (+1 Defense).",
+		"hasNotProduced" : "The %s has not produced anything yet.",
+		"hasProduced" : "The %s produced %d %s this week."
 	},
 	"logicalExpressions" :
 	{

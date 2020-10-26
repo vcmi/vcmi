@@ -846,6 +846,23 @@ void CCastleBuildings::enterFountain(const BuildingID & building, BuildingSubID:
 {
 	std::vector<std::shared_ptr<CComponent>> comps(1, std::make_shared<CComponent>(CComponent::building,town->subID, building));
 	std::string descr = town->town->buildings.find(building)->second->Description();
+	std::string hasNotProduced;
+	std::string hasProduced;
+
+	if(this->town->town->faction->index == (TFaction)ETownType::RAMPART)
+	{
+		hasNotProduced = CGI->generaltexth->allTexts[677];
+		hasProduced = CGI->generaltexth->allTexts[678];
+	}
+	else
+	{
+		auto buildingName = town->town->getSpecialBuilding(subID)->Name();
+
+		hasNotProduced = std::string(CGI->generaltexth->localizedTexts["townHall"]["hasNotProduced"].String());
+		hasProduced = std::string(CGI->generaltexth->localizedTexts["townHall"]["hasProduced"].String());
+		boost::algorithm::replace_first(hasNotProduced, "%s", buildingName);
+		boost::algorithm::replace_first(hasProduced, "%s", buildingName);
+	}
 
 	bool isMysticPondOrItsUpgrade = subID == BuildingSubID::MYSTIC_POND 
 		|| (upgrades != BuildingID::NONE 
@@ -857,10 +874,10 @@ void CCastleBuildings::enterFountain(const BuildingID & building, BuildingSubID:
 	if(isMysticPondOrItsUpgrade) //for vanila Rampart like towns
 	{
 		if(town->bonusValue.first == 0) //Mystic Pond produced nothing;
-			descr += "\n\n" + CGI->generaltexth->allTexts[677];
+			descr += "\n\n" + hasNotProduced;
 		else //Mystic Pond produced something;
 		{
-			descr += "\n\n" + CGI->generaltexth->allTexts[678];
+			descr += "\n\n" + hasProduced;
 			boost::algorithm::replace_first(descr, "%s", CGI->generaltexth->restypes[town->bonusValue.first]);
 			boost::algorithm::replace_first(descr, "%d", boost::lexical_cast<std::string>(town->bonusValue.second));
 		}

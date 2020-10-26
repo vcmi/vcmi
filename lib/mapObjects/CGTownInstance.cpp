@@ -1644,11 +1644,11 @@ void CGTownInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 	}
 }
 
-COPWBonus::COPWBonus (BuildingID bid, BuildingSubID::EBuildingSubID subId, CGTownInstance *TOWN)
+COPWBonus::COPWBonus(BuildingID bid, BuildingSubID::EBuildingSubID subId, CGTownInstance * cgTown)
 {
 	bID = bid;
 	bType = subId;
-	town = TOWN;
+	town = cgTown;
 	indexOnTV = static_cast<si32>(town->bonusingBuildings.size());
 }
 
@@ -1701,7 +1701,7 @@ void COPWBonus::onHeroVisit(const CGHeroInstance * h) const
 						cb->setManaPoints(heroID, 2 * h->manaLimit());
 					//TODO: investigate line below
 					//cb->setObjProperty (town->id, ObjProperty::VISITED, true);
-					iw.text << VLC->generaltexth->allTexts[579];
+					iw.text << getVisitingBonusGreeting();
 					cb->showInfoDialog(&iw);
 					//extra visit penalty if hero alredy had double mana points (or even more?!)
 					town->addHeroToStructureVisitors(h, indexOnTV);
@@ -1710,11 +1710,11 @@ void COPWBonus::onHeroVisit(const CGHeroInstance * h) const
 		}
 	}
 }
-CTownBonus::CTownBonus (BuildingID index, BuildingSubID::EBuildingSubID subId, CGTownInstance *TOWN)
+CTownBonus::CTownBonus(BuildingID index, BuildingSubID::EBuildingSubID subId, CGTownInstance * cgTown)
 {
 	bID = index;
 	bType = subId;
-	town = TOWN;
+	town = cgTown;
 	indexOnTV = static_cast<si32>(town->bonusingBuildings.size());
 }
 
@@ -1729,7 +1729,6 @@ void CTownBonus::onHeroVisit(const CGHeroInstance * h) const
 	ObjectInstanceID heroID = h->id;
 	if (town->hasBuilt(bID) && visitors.find(heroID) == visitors.end())
 	{
-		si32 mid = 0;
 		si64 val = 0;
 		InfoWindow iw;
 		PrimarySkill::PrimarySkill what = PrimarySkill::ATTACK;
@@ -1739,41 +1738,35 @@ void CTownBonus::onHeroVisit(const CGHeroInstance * h) const
 		case BuildingSubID::KNOWLEDGE_VISITING_BONUS: //wall of knowledge
 			what = PrimarySkill::KNOWLEDGE;
 			val = 1;
-			mid = 581;
 			iw.components.push_back(Component(Component::PRIM_SKILL, 3, 1, 0));
 			break;
 
 		case BuildingSubID::SPELL_POWER_VISITING_BONUS: //order of fire
 			what = PrimarySkill::SPELL_POWER;
 			val = 1;
-			mid = 582;
 			iw.components.push_back(Component(Component::PRIM_SKILL, 2, 1, 0));
 			break;
 
 		case BuildingSubID::ATTACK_VISITING_BONUS: //hall of Valhalla
 			what = PrimarySkill::ATTACK;
 			val = 1;
-			mid = 584;
 			iw.components.push_back(Component(Component::PRIM_SKILL, 0, 1, 0));
 			break;
 
 		case BuildingSubID::EXPERIENCE_VISITING_BONUS: //academy of battle scholars
 			what = PrimarySkill::EXPERIENCE;
 			val = static_cast<int>(h->calculateXp(1000));
-			mid = 583;
 			iw.components.push_back(Component(Component::EXPERIENCE, 0, val, 0));
 			break;
 
 		case BuildingSubID::DEFENSE_VISITING_BONUS: //cage of warlords
 			what = PrimarySkill::DEFENSE;
 			val = 1;
-			mid = 585;
 			iw.components.push_back(Component(Component::PRIM_SKILL, 1, 1, 0));
 			break;
 		}
-		assert(mid);
 		iw.player = cb->getOwner(heroID);
-		iw.text << VLC->generaltexth->allTexts[mid];
+		iw.text << getVisitingBonusGreeting();
 		cb->showInfoDialog(&iw);
 		cb->changePrimSkill(cb->getHero(heroID), what, val);
 		town->addHeroToStructureVisitors(h, indexOnTV);
@@ -1810,4 +1803,40 @@ int GrowthInfo::totalGrowth() const
 		ret += entry.count;
 
 	return ret;
+}
+
+const std::string CGTownBuilding::getVisitingBonusGreeting() const
+{
+	auto bonusGreeting = town->town->getGreeting(bType);
+
+	if(!bonusGreeting.empty())
+		return bonusGreeting;
+
+	switch(bType)
+	{
+	case BuildingSubID::MANA_VORTEX:
+		bonusGreeting = std::string(VLC->generaltexth->localizedTexts["townHall"]["greetingManaVortex"].String());
+		break;
+	case BuildingSubID::KNOWLEDGE_VISITING_BONUS:
+		bonusGreeting = std::string(VLC->generaltexth->localizedTexts["townHall"]["greetingKnowledge"].String());
+		break;
+	case BuildingSubID::SPELL_POWER_VISITING_BONUS:
+		bonusGreeting = std::string(VLC->generaltexth->localizedTexts["townHall"]["greetingSpellPower"].String());
+		break;
+	case BuildingSubID::ATTACK_VISITING_BONUS:
+		bonusGreeting = std::string(VLC->generaltexth->localizedTexts["townHall"]["greetingAttack"].String());
+		break;
+	case BuildingSubID::EXPERIENCE_VISITING_BONUS:
+		bonusGreeting = std::string(VLC->generaltexth->localizedTexts["townHall"]["greetingExperience"].String());
+		break;
+	case BuildingSubID::DEFENSE_VISITING_BONUS:
+		bonusGreeting = std::string(VLC->generaltexth->localizedTexts["townHall"]["greetingDefence"].String());
+		break;
+	}
+
+	assert(!bonusGreeting.empty());
+	auto buildingName = town->town->getSpecialBuilding(bType)->Name();
+	boost::algorithm::replace_first(bonusGreeting, "%s", buildingName);
+	town->town->setGreeting(bType, bonusGreeting);
+	return bonusGreeting;
 }

@@ -127,9 +127,12 @@ public:
 		if(version >= 792)
 			h & bType;
 	}
+
 protected:
 	BuildingID bID; //from buildig list
 	BuildingSubID::EBuildingSubID bType;
+
+	const std::string getVisitingBonusGreeting() const;
 };
 
 class DLL_LINKAGE COPWBonus : public CGTownBuilding
@@ -251,7 +254,7 @@ public:
 			return false;
 		});
 
-		if(!h.saving && version < 792)
+		if(!h.saving && version < 793)
 			updateBonusingBuildings();
 	}
 	//////////////////////////////////////////////////////////////////////////
