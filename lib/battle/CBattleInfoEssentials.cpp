@@ -386,7 +386,7 @@ PlayerColor CBattleInfoEssentials::battleGetOwner(const battle::Unit * unit) con
 
 	PlayerColor initialOwner = getBattle()->getSidePlayer(unit->unitSide());
 
-	static CSelector selector = Selector::type(Bonus::HYPNOTIZED);
+	static CSelector selector = Selector::type()(Bonus::HYPNOTIZED);
 	static std::string cachingString = "type_103s-1";
 
 	if(unit->hasBonus(selector, cachingString))

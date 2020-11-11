@@ -56,7 +56,7 @@ static int lowestSpeed(const CGHeroInstance * chi)
 	auto i = chi->Slots().begin();
 	//TODO? should speed modifiers (eg from artifacts) affect hero movement?
 
-	static const CSelector selectorSTACKS_SPEED = Selector::type(Bonus::STACKS_SPEED);
+	static const CSelector selectorSTACKS_SPEED = Selector::type()(Bonus::STACKS_SPEED);
 	static const std::string keySTACKS_SPEED = "type_"+std::to_string((si32)Bonus::STACKS_SPEED);
 
 	int ret = (i++)->second->valOfBonuses(selectorSTACKS_SPEED, keySTACKS_SPEED);
@@ -289,7 +289,7 @@ void CGHeroInstance::initHero(CRandomGenerator & rand)
 
 	if(portrait < 0 || portrait == 255)
 		portrait = type->imageIndex;
-	if(!hasBonus(Selector::sourceType(Bonus::HERO_BASE_SKILL)))
+	if(!hasBonus(Selector::sourceType()(Bonus::HERO_BASE_SKILL)))
 	{
 		for(int g=0; g<GameConstants::PRIMARY_SKILLS; ++g)
 		{
@@ -534,7 +534,7 @@ void CGHeroInstance::initObj(CRandomGenerator & rand)
 
 void CGHeroInstance::recreateSecondarySkillsBonuses()
 {
-	auto secondarySkillsBonuses = getBonuses(Selector::sourceType(Bonus::SECONDARY_SKILL));
+	auto secondarySkillsBonuses = getBonuses(Selector::sourceType()(Bonus::SECONDARY_SKILL));
 	for(auto bonus : *secondarySkillsBonuses)
 		removeBonus(bonus);
 
@@ -816,7 +816,7 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 		// figure out what to raise - pick strongest creature meeting requirements
 		CreatureID creatureTypeRaised = CreatureID::SKELETON;
 		int requiredCasualtyLevel = 1;
-		TConstBonusListPtr improvedNecromancy = getBonuses(Selector::type(Bonus::IMPROVED_NECROMANCY));
+		TConstBonusListPtr improvedNecromancy = getBonuses(Selector::type()(Bonus::IMPROVED_NECROMANCY));
 		if(!improvedNecromancy->empty())
 		{
 			auto getCreatureID = [necromancyLevel](std::shared_ptr<Bonus> bonus) -> CreatureID
@@ -988,7 +988,7 @@ int CGHeroInstance::getSpellCost(const CSpell * sp) const
 void CGHeroInstance::pushPrimSkill( PrimarySkill::PrimarySkill which, int val )
 {
 	assert(!hasBonus(Selector::typeSubtype(Bonus::PRIMARY_SKILL, which)
-						.And(Selector::sourceType(Bonus::HERO_BASE_SKILL))));
+						.And(Selector::sourceType()(Bonus::HERO_BASE_SKILL))));
 	addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::PRIMARY_SKILL, Bonus::HERO_BASE_SKILL, val, id.getNum(), which));
 }
 
@@ -1257,9 +1257,9 @@ void CGHeroInstance::setPrimarySkill(PrimarySkill::PrimarySkill primarySkill, si
 {
 	if(primarySkill < PrimarySkill::EXPERIENCE)
 	{
-		auto skill = getBonusLocalFirst(Selector::type(Bonus::PRIMARY_SKILL)
-			.And(Selector::subtype(primarySkill))
-			.And(Selector::sourceType(Bonus::HERO_BASE_SKILL)));
+		auto skill = getBonusLocalFirst(Selector::type()(Bonus::PRIMARY_SKILL)
+			.And(Selector::subtype()(primarySkill))
+			.And(Selector::sourceType()(Bonus::HERO_BASE_SKILL)));
 		assert(skill);
 
 		if(abs)
@@ -1427,7 +1427,7 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 	//primary skills
 	if(handler.saving)
 	{
-		const bool haveSkills = hasBonus(Selector::type(Bonus::PRIMARY_SKILL).And(Selector::sourceType(Bonus::HERO_BASE_SKILL)));
+		const bool haveSkills = hasBonus(Selector::type()(Bonus::PRIMARY_SKILL).And(Selector::sourceType()(Bonus::HERO_BASE_SKILL)));
 
 		if(haveSkills)
 		{
@@ -1435,7 +1435,7 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 
 			for(int i = 0; i < GameConstants::PRIMARY_SKILLS; ++i)
 			{
-				int value = valOfBonuses(Selector::typeSubtype(Bonus::PRIMARY_SKILL, i).And(Selector::sourceType(Bonus::HERO_BASE_SKILL)));
+				int value = valOfBonuses(Selector::typeSubtype(Bonus::PRIMARY_SKILL, i).And(Selector::sourceType()(Bonus::HERO_BASE_SKILL)));
 
 				handler.serializeInt(PrimarySkill::names[i], value, 0);
 			}

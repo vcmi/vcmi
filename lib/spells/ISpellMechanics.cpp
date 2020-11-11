@@ -302,7 +302,7 @@ void BattleCast::cast(const SpellCastEnvironment * env)
 	if(tryMagicMirror)
 	{
 		const std::string magicMirrorCacheStr = "type_MAGIC_MIRROR";
-		static const auto magicMirrorSelector = Selector::type(Bonus::MAGIC_MIRROR);
+		static const auto magicMirrorSelector = Selector::type()(Bonus::MAGIC_MIRROR);
 
 		auto rangeGen = env->getRandomGenerator().getInt64Range(0, 99);
 
@@ -534,7 +534,7 @@ bool BaseMechanics::adaptProblem(ESpellCastProblem::ESpellCastProblem source, Pr
 				return adaptGenericProblem(target);
 
 			//Recanter's Cloak or similar effect. Try to retrieve bonus
-			const auto b = hero->getBonusLocalFirst(Selector::type(Bonus::BLOCK_MAGIC_ABOVE));
+			const auto b = hero->getBonusLocalFirst(Selector::type()(Bonus::BLOCK_MAGIC_ABOVE));
 			//TODO what about other values and non-artifact sources?
 			if(b && b->val == 2 && b->source == Bonus::ARTIFACT)
 			{

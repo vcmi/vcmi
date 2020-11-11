@@ -120,7 +120,7 @@ void Timed::describeEffect(std::vector<MetaString> & log, const Mechanics * m, c
 			{
 				if(bonus.val < 0)
 				{
-					BonusList unitHealth = *target->getBonuses(Selector::type(Bonus::STACK_HEALTH));
+					BonusList unitHealth = *target->getBonuses(Selector::type()(Bonus::STACK_HEALTH));
 
 					auto oldHealth = unitHealth.totalValue();
 					unitHealth.push_back(std::make_shared<Bonus>(bonus));

@@ -493,7 +493,7 @@ bool CMovementAnimation::init()
 	distanceX = endPosition.x - begPosition.x;
 	distanceY = endPosition.y - begPosition.y;
 
-	if (stack->hasBonus(Selector::type(Bonus::FLYING)))
+	if (stack->hasBonus(Selector::type()(Bonus::FLYING)))
 	{
 		float distance = static_cast<float>(sqrt(distanceX * distanceX + distanceY * distanceY));
 

@@ -990,7 +990,7 @@ void CArtifactInstance::deserializationFix()
 
 SpellID CArtifactInstance::getGivenSpellID() const
 {
-	const auto b = getBonusLocalFirst(Selector::type(Bonus::SPELL));
+	const auto b = getBonusLocalFirst(Selector::type()(Bonus::SPELL));
 	if(!b)
 	{
 		logMod->warn("Warning: %s doesn't bear any spell!", nodeName());

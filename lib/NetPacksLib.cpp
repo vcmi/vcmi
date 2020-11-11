@@ -1310,7 +1310,7 @@ DLL_LINKAGE void BattleTriggerEffect::applyGs(CGameState *gs)
 	case Bonus::POISON:
 	{
 		auto b = st->getBonusLocalFirst(Selector::source(Bonus::SPELL_EFFECT, SpellID::POISON)
-				.And(Selector::type(Bonus::STACK_HEALTH)));
+				.And(Selector::type()(Bonus::STACK_HEALTH)));
 		if (b)
 			b->val = val;
 		break;
@@ -1601,7 +1601,7 @@ DLL_LINKAGE void BattleSetStackProperty::applyGs(CGameState * gs)
 		}
 		case UNBIND:
 		{
-			stack->removeBonusesRecursive(Selector::type(Bonus::BIND_EFFECT));
+			stack->removeBonusesRecursive(Selector::type()(Bonus::BIND_EFFECT));
 			break;
 		}
 		case CLONED:

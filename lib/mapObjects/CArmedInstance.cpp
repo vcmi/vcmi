@@ -37,7 +37,7 @@ void CArmedInstance::randomizeArmy(int type)
 }
 
 // Take Angelic Alliance troop-mixing freedom of non-evil units into account.
-CSelector CArmedInstance::nonEvilAlignmentMixSelector = Selector::type(Bonus::NONEVIL_ALIGNMENT_MIX);
+CSelector CArmedInstance::nonEvilAlignmentMixSelector = Selector::type()(Bonus::NONEVIL_ALIGNMENT_MIX);
 
 CArmedInstance::CArmedInstance()
 	:nonEvilAlignmentMix(this, nonEvilAlignmentMixSelector)
@@ -50,7 +50,7 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 	if(!validTypes(false)) //object not randomized, don't bother
 		return;
 
-	auto b = getExportedBonusList().getFirst(Selector::sourceType(Bonus::ARMY).And(Selector::type(Bonus::MORALE)));
+	auto b = getExportedBonusList().getFirst(Selector::sourceType()(Bonus::ARMY).And(Selector::type()(Bonus::MORALE)));
  	if(!b)
 	{
 		b = std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::MORALE, Bonus::ARMY, 0, -1);
@@ -62,7 +62,7 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 	bool hasUndead = false;
 
 	const std::string undeadCacheKey = "type_UNDEAD";
-	static const CSelector undeadSelector = Selector::type(Bonus::UNDEAD);
+	static const CSelector undeadSelector = Selector::type()(Bonus::UNDEAD);
 
 	for(auto slot : Slots())
 	{

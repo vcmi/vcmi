@@ -1172,9 +1172,9 @@ void CGameState::prepareCrossoverHeroes(std::vector<CGameState::CampaignHeroRepl
 		{
 			for(int g=0; g<GameConstants::PRIMARY_SKILLS; ++g)
 			{
-				auto sel = Selector::type(Bonus::PRIMARY_SKILL)
-					.And(Selector::subtype(g))
-					.And(Selector::sourceType(Bonus::HERO_BASE_SKILL));
+				auto sel = Selector::type()(Bonus::PRIMARY_SKILL)
+					.And(Selector::subtype()(g))
+					.And(Selector::sourceType()(Bonus::HERO_BASE_SKILL));
 
 				cgh->getBonusLocalFirst(sel)->val = cgh->type->heroClass->primarySkillInitial[g];
 			}

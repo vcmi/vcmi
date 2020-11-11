@@ -89,8 +89,8 @@ void CAmmo::serializeJson(JsonSerializeFormat & handler)
 
 ///CShots
 CShots::CShots(const battle::Unit * Owner)
-	: CAmmo(Owner, Selector::type(Bonus::SHOTS)),
-	shooter(Owner, Selector::type(Bonus::SHOOTER))
+	: CAmmo(Owner, Selector::type()(Bonus::SHOTS)),
+	shooter(Owner, Selector::type()(Bonus::SHOOTER))
 {
 }
 
@@ -128,7 +128,7 @@ int32_t CShots::total() const
 
 ///CCasts
 CCasts::CCasts(const battle::Unit * Owner):
-	CAmmo(Owner, Selector::type(Bonus::CASTS))
+	CAmmo(Owner, Selector::type()(Bonus::CASTS))
 {
 }
 
@@ -145,10 +145,10 @@ CCasts & CCasts::operator=(const CCasts & other)
 
 ///CRetaliations
 CRetaliations::CRetaliations(const battle::Unit * Owner)
-	: CAmmo(Owner, Selector::type(Bonus::ADDITIONAL_RETALIATION)),
+	: CAmmo(Owner, Selector::type()(Bonus::ADDITIONAL_RETALIATION)),
 	totalCache(0),
-	noRetaliation(Owner, Selector::type(Bonus::SIEGE_WEAPON).Or(Selector::type(Bonus::HYPNOTIZED)).Or(Selector::type(Bonus::NO_RETALIATION))),
-	unlimited(Owner, Selector::type(Bonus::UNLIMITED_RETALIATIONS))
+	noRetaliation(Owner, Selector::type()(Bonus::SIEGE_WEAPON).Or(Selector::type()(Bonus::HYPNOTIZED)).Or(Selector::type()(Bonus::NO_RETALIATION))),
+	unlimited(Owner, Selector::type()(Bonus::UNLIMITED_RETALIATIONS))
 {
 }
 
@@ -388,13 +388,13 @@ CUnitState::CUnitState()
 	counterAttacks(this),
 	health(this),
 	shots(this),
-	totalAttacks(this, Selector::type(Bonus::ADDITIONAL_ATTACK), 1),
+	totalAttacks(this, Selector::type()(Bonus::ADDITIONAL_ATTACK), 1),
 	minDamage(this, Selector::typeSubtype(Bonus::CREATURE_DAMAGE, 0).Or(Selector::typeSubtype(Bonus::CREATURE_DAMAGE, 1)), 0),
 	maxDamage(this, Selector::typeSubtype(Bonus::CREATURE_DAMAGE, 0).Or(Selector::typeSubtype(Bonus::CREATURE_DAMAGE, 2)), 0),
 	attack(this, Selector::typeSubtype(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK), 0),
 	defence(this, Selector::typeSubtype(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE), 0),
-	inFrenzy(this, Selector::type(Bonus::IN_FRENZY)),
-	cloneLifetimeMarker(this, Selector::type(Bonus::NONE).And(Selector::source(Bonus::SPELL_EFFECT, SpellID::CLONE))),
+	inFrenzy(this, Selector::type()(Bonus::IN_FRENZY)),
+	cloneLifetimeMarker(this, Selector::type()(Bonus::NONE).And(Selector::source(Bonus::SPELL_EFFECT, SpellID::CLONE))),
 	cloneID(-1),
 	position()
 {
@@ -618,12 +618,12 @@ void CUnitState::setPosition(BattleHex hex)
 
 int32_t CUnitState::getInitiative(int turn) const
 {
-	return valOfBonuses(Selector::type(Bonus::STACKS_SPEED).And(Selector::turns(turn)));
+	return valOfBonuses(Selector::type()(Bonus::STACKS_SPEED).And(Selector::turns(turn)));
 }
 
 bool CUnitState::canMove(int turn) const
 {
-	return alive() && !hasBonus(Selector::type(Bonus::NOT_ACTIVE).And(Selector::turns(turn))); //eg. Ammo Cart or blinded creature
+	return alive() && !hasBonus(Selector::type()(Bonus::NOT_ACTIVE).And(Selector::turns(turn))); //eg. Ammo Cart or blinded creature
 }
 
 bool CUnitState::defended(int turn) const

@@ -904,7 +904,7 @@ void CBattleInterface::bSpellf()
 	{
 		//TODO: move to spell mechanics, add more information to spell cast problem
 		//Handle Orb of Inhibition-like effects -> we want to display dialog with info, why casting is impossible
-		auto blockingBonus = currentHero()->getBonusLocalFirst(Selector::type(Bonus::BLOCK_ALL_MAGIC));
+		auto blockingBonus = currentHero()->getBonusLocalFirst(Selector::type()(Bonus::BLOCK_ALL_MAGIC));
 		if (!blockingBonus)
 			return;
 
@@ -1638,8 +1638,8 @@ void CBattleInterface::activateStack()
 	redrawBackgroundWithHexes(activeStack);
 
 	//set casting flag to true if creature can use it to not check it every time
-	const auto spellcaster = s->getBonusLocalFirst(Selector::type(Bonus::SPELLCASTER)),
-		randomSpellcaster = s->getBonusLocalFirst(Selector::type(Bonus::RANDOM_SPELLCASTER));
+	const auto spellcaster = s->getBonusLocalFirst(Selector::type()(Bonus::SPELLCASTER)),
+		randomSpellcaster = s->getBonusLocalFirst(Selector::type()(Bonus::RANDOM_SPELLCASTER));
 	if(s->canCast() && (spellcaster || randomSpellcaster))
 	{
 		stackCanCastSpell = true;
