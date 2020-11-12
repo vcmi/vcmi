@@ -1422,7 +1422,7 @@ void CGArtifact::serializeJsonOptions(JsonSerializeFormat& handler)
 
 	if(handler.saving && ID == Obj::SPELL_SCROLL)
 	{
-		const std::shared_ptr<Bonus> b = storedArtifact->getBonusLocalFirst(Selector::type(Bonus::SPELL));
+		const std::shared_ptr<Bonus> b = storedArtifact->getBonusLocalFirst(Selector::type()(Bonus::SPELL));
 		SpellID spellId(b->subtype);
 
 		handler.serializeId("spell", spellId, SpellID::NONE);

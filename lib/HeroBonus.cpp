@@ -92,82 +92,80 @@ const std::map<std::string, TUpdaterPtr> bonusUpdaterMap =
 
 ///CBonusProxy
 CBonusProxy::CBonusProxy(const IBonusBearer * Target, CSelector Selector)
-	: cachedLast(0),
+	: bonusListCachedLast(0),
 	target(Target),
 	selector(Selector),
-	data()
+	bonusList()
 {
 
 }
 
 CBonusProxy::CBonusProxy(const CBonusProxy & other)
-	: cachedLast(other.cachedLast),
+	: bonusListCachedLast(other.bonusListCachedLast),
 	target(other.target),
 	selector(other.selector),
-	data(other.data)
+	bonusList(other.bonusList)
 {
 
 }
 
 CBonusProxy::CBonusProxy(CBonusProxy && other)
-	: cachedLast(0),
+	: bonusListCachedLast(0),
 	target(other.target),
 	selector(),
-	data()
+	bonusList()
 {
-	std::swap(cachedLast, other.cachedLast);
+	std::swap(bonusListCachedLast, other.bonusListCachedLast);
 	std::swap(selector, other.selector);
-	std::swap(data, other.data);
+	std::swap(bonusList, other.bonusList);
 }
 
 CBonusProxy & CBonusProxy::operator=(const CBonusProxy & other)
 {
-	cachedLast = other.cachedLast;
+	bonusListCachedLast = other.bonusListCachedLast;
 	selector = other.selector;
-	data = other.data;
+	bonusList = other.bonusList;
 	return *this;
 }
 
 CBonusProxy & CBonusProxy::operator=(CBonusProxy && other)
 {
-	std::swap(cachedLast, other.cachedLast);
+	std::swap(bonusListCachedLast, other.bonusListCachedLast);
 	std::swap(selector, other.selector);
-	std::swap(data, other.data);
+	std::swap(bonusList, other.bonusList);
 	return *this;
 }
 
-TConstBonusListPtr CBonusProxy::get() const
+TConstBonusListPtr CBonusProxy::getBonusList() const
 {
-	if(target->getTreeVersion() != cachedLast || !data)
+	if(target->getTreeVersion() != bonusListCachedLast || !bonusList)
 	{
 		//TODO: support limiters
-		data = target->getAllBonuses(selector, Selector::all);
-		cachedLast = target->getTreeVersion();
+		bonusList = target->getAllBonuses(selector, Selector::all);
+		bonusListCachedLast = target->getTreeVersion();
 	}
-	return data;
+	return bonusList;
 }
 
 const BonusList * CBonusProxy::operator->() const
 {
-	return get().get();
+	return getBonusList().get();
 }
 
 CTotalsProxy::CTotalsProxy(const IBonusBearer * Target, CSelector Selector, int InitialValue)
-	: target(Target),
-	selector(Selector),
+	: CBonusProxy(Target, Selector),
 	initialValue(InitialValue),
 	meleeCachedLast(0),
 	meleeValue(0),
 	rangedCachedLast(0),
 	rangedValue(0),
 	value(0),
-	cachedLast(0)
+	valueCachedLast(0)
 {
 }
 
 CTotalsProxy::CTotalsProxy(const CTotalsProxy & other)
-	: target(other.target),
-	selector(other.selector),
+	: CBonusProxy(other),
 	initialValue(other.initialValue),
 	meleeCachedLast(other.meleeCachedLast),
 	meleeValue(other.meleeValue),
@@ -178,13 +176,14 @@ CTotalsProxy::CTotalsProxy(const CTotalsProxy & other)
 
 CTotalsProxy & CTotalsProxy::operator=(const CTotalsProxy & other)
 {
+	CBonusProxy::operator=(other);
 	initialValue = other.initialValue;
 	meleeCachedLast = other.meleeCachedLast;
 	meleeValue = other.meleeValue;
 	rangedCachedLast = other.rangedCachedLast;
 	rangedValue = other.rangedValue;
 	value = other.value;
-	cachedLast = other.cachedLast;
+	valueCachedLast = other.valueCachedLast;
 
 	return *this;
 }
@@ -193,20 +192,32 @@ int CTotalsProxy::getValue() const
 {
 	const auto treeVersion = target->getTreeVersion();
 
-	if(treeVersion != cachedLast)
+	if(treeVersion != valueCachedLast)
 	{
-		auto bonuses = target->getBonuses(selector);
+		auto bonuses = getBonusList();
 
 		value = initialValue + bonuses->totalValue();
-		cachedLast = treeVersion;
+		valueCachedLast = treeVersion;
 	}
+	return value;
+}
 
+int CTotalsProxy::getValueAndList(TConstBonusListPtr & outBonusList) const
+{
+	const auto treeVersion = target->getTreeVersion();
+	outBonusList = getBonusList();
+
+	if(treeVersion != valueCachedLast)
+	{
+		value = initialValue + outBonusList->totalValue();
+		valueCachedLast = treeVersion;
+	}
 	return value;
 }
 
 int CTotalsProxy::getMeleeValue() const
 {
-	static const auto limit = Selector::effectRange(Bonus::NO_LIMIT).Or(Selector::effectRange(Bonus::ONLY_MELEE_FIGHT));
+	static const auto limit = Selector::effectRange()(Bonus::NO_LIMIT).Or(Selector::effectRange()(Bonus::ONLY_MELEE_FIGHT));
 
 	const auto treeVersion = target->getTreeVersion();
 
@@ -222,7 +233,7 @@ int CTotalsProxy::getMeleeValue() const
 
 int CTotalsProxy::getRangedValue() const
 {
-	static const auto limit = Selector::effectRange(Bonus::NO_LIMIT).Or(Selector::effectRange(Bonus::ONLY_DISTANCE_FIGHT));
+	static const auto limit = Selector::effectRange()(Bonus::NO_LIMIT).Or(Selector::effectRange()(Bonus::ONLY_DISTANCE_FIGHT));
 
 	const auto treeVersion = target->getTreeVersion();
 
@@ -582,24 +593,28 @@ void BonusList::insert(BonusList::TInternalContainer::iterator position, BonusLi
 }
 
 CSelector IBonusBearer::anaffectedByMoraleSelector
-	= Selector::type(Bonus::NON_LIVING)
-		.Or(Selector::type(Bonus::UNDEAD))
-		.Or(Selector::type(Bonus::NO_MORALE))
-		.Or(Selector::type(Bonus::SIEGE_WEAPON));
+	= Selector::type()(Bonus::NON_LIVING)
+		.Or(Selector::type()(Bonus::UNDEAD))
+		.Or(Selector::type()(Bonus::NO_MORALE))
+		.Or(Selector::type()(Bonus::SIEGE_WEAPON));
 
-CSelector IBonusBearer::moraleSelector = Selector::type(Bonus::MORALE);
-CSelector IBonusBearer::selfMoraleSelector = Selector::type(Bonus::SELF_MORALE);
+CSelector IBonusBearer::moraleSelector = Selector::type()(Bonus::MORALE);
+CSelector IBonusBearer::luckSelector = Selector::type()(Bonus::LUCK);
+CSelector IBonusBearer::selfMoraleSelector = Selector::type()(Bonus::SELF_MORALE);
+CSelector IBonusBearer::selfLuckSelector = Selector::type()(Bonus::SELF_LUCK);
 
 IBonusBearer::IBonusBearer()
 	:anaffectedByMorale(this, anaffectedByMoraleSelector),
 	moraleValue(this, moraleSelector, 0),
-	selfMorale(this, selfMoraleSelector)
+	luckValue(this, luckSelector, 0),
+	selfMorale(this, selfMoraleSelector),
+	selfLuck(this, selfLuckSelector)
 {
 }
 
 int IBonusBearer::valOfBonuses(Bonus::BonusType type, const CSelector &selector) const
 {
-	return valOfBonuses(Selector::type(type).And(selector));
+	return valOfBonuses(Selector::type()(type).And(selector));
 }
 
 int IBonusBearer::valOfBonuses(Bonus::BonusType type, int subtype) const
@@ -607,9 +622,9 @@ int IBonusBearer::valOfBonuses(Bonus::BonusType type, int subtype) const
 	boost::format fmt("type_%ds_%d");
 	fmt % (int)type % subtype;
 
-	CSelector s = Selector::type(type);
+	CSelector s = Selector::type()(type);
 	if(subtype != -1)
-		s = s.And(Selector::subtype(subtype));
+		s = s.And(Selector::subtype()(subtype));
 
 	return valOfBonuses(s, fmt.str());
 }
@@ -635,9 +650,9 @@ bool IBonusBearer::hasBonusOfType(Bonus::BonusType type, int subtype) const
 	boost::format fmt("type_%ds_%d");
 	fmt % (int)type % subtype;
 
-	CSelector s = Selector::type(type);
+	CSelector s = Selector::type()(type);
 	if(subtype != -1)
-		s = s.And(Selector::subtype(subtype));
+		s = s.And(Selector::subtype()(subtype));
 
 	return hasBonus(s, fmt.str());
 }
@@ -678,9 +693,41 @@ int IBonusBearer::LuckVal() const
 	if(hasBonusOfType(Bonus::NO_LUCK))
 		return 0;
 
-	int ret = valOfBonuses(Bonus::LUCK);
+	int ret = luckValue.getValue();
 
-	if(hasBonusOfType(Bonus::SELF_LUCK)) //eg. halfling
+	if(selfLuck.getHasBonus()) //eg. halfling
+		vstd::amax(ret, +1);
+
+	return vstd::abetween(ret, -3, +3);
+}
+
+int IBonusBearer::MoraleValAndBonusList(TConstBonusListPtr & bonusList) const
+{
+	if(anaffectedByMorale.getHasBonus())
+	{
+		if(!bonusList->empty())
+			bonusList = std::make_shared<const BonusList>();
+		return 0;
+	}
+	int ret = moraleValue.getValueAndList(bonusList);
+
+	if(selfMorale.getHasBonus()) //eg. minotaur
+		vstd::amax(ret, +1);
+
+	return vstd::abetween(ret, -3, +3);
+}
+
+int IBonusBearer::LuckValAndBonusList(TConstBonusListPtr & bonusList) const
+{
+	if(hasBonusOfType(Bonus::NO_LUCK))
+	{
+		if(!bonusList->empty())
+			bonusList = std::make_shared<const BonusList>();
+		return 0;
+	}
+	int ret = luckValue.getValueAndList(bonusList);
+
+	if(selfLuck.getHasBonus()) //eg. halfling
 		vstd::amax(ret, +1);
 
 	return vstd::abetween(ret, -3, +3);
@@ -689,7 +736,7 @@ int IBonusBearer::LuckVal() const
 ui32 IBonusBearer::MaxHealth() const
 {
 	const std::string cachingStr = "type_STACK_HEALTH";
-	static const auto selector = Selector::type(Bonus::STACK_HEALTH);
+	static const auto selector = Selector::type()(Bonus::STACK_HEALTH);
 	auto value = valOfBonuses(selector, cachingStr);
 	return std::max(1, value); //never 0
 }
@@ -735,12 +782,12 @@ si32 IBonusBearer::manaLimit() const
 
 int IBonusBearer::getPrimSkillLevel(PrimarySkill::PrimarySkill id) const
 {
-	static const CSelector selectorAllSkills = Selector::type(Bonus::PRIMARY_SKILL);
+	static const CSelector selectorAllSkills = Selector::type()(Bonus::PRIMARY_SKILL);
 	static const std::string keyAllSkills = "type_PRIMARY_SKILL";
 
 	auto allSkills = getBonuses(selectorAllSkills, keyAllSkills);
 
-	int ret = allSkills->valOfBonuses(Selector::subtype(id));
+	int ret = allSkills->valOfBonuses(Selector::subtype()(id));
 
 	vstd::amax(ret, id/2); //minimal value is 0 for attack and defense and 1 for spell power and knowledge
 	return ret;
@@ -754,26 +801,26 @@ si32 IBonusBearer::magicResistance() const
 ui32 IBonusBearer::Speed(int turn, bool useBind) const
 {
 	//war machines cannot move
-	if(hasBonus(Selector::type(Bonus::SIEGE_WEAPON).And(Selector::turns(turn))))
+	if(hasBonus(Selector::type()(Bonus::SIEGE_WEAPON).And(Selector::turns(turn))))
 	{
 		return 0;
 	}
 	//bind effect check - doesn't influence stack initiative
-	if(useBind && hasBonus(Selector::type(Bonus::BIND_EFFECT).And(Selector::turns(turn))))
+	if(useBind && hasBonus(Selector::type()(Bonus::BIND_EFFECT).And(Selector::turns(turn))))
 	{
 		return 0;
 	}
 
-	return valOfBonuses(Selector::type(Bonus::STACKS_SPEED).And(Selector::turns(turn)));
+	return valOfBonuses(Selector::type()(Bonus::STACKS_SPEED).And(Selector::turns(turn)));
 }
 
 bool IBonusBearer::isLiving() const //TODO: theoreticaly there exists "LIVING" bonus in stack experience documentation
 {
 	static const std::string cachingStr = "IBonusBearer::isLiving";
-	static const CSelector selector = Selector::type(Bonus::UNDEAD)
-		.Or(Selector::type(Bonus::NON_LIVING))
-		.Or(Selector::type(Bonus::GARGOYLE))
-		.Or(Selector::type(Bonus::SIEGE_WEAPON));
+	static const CSelector selector = Selector::type()(Bonus::UNDEAD)
+		.Or(Selector::type()(Bonus::NON_LIVING))
+		.Or(Selector::type()(Bonus::GARGOYLE))
+		.Or(Selector::type()(Bonus::SIEGE_WEAPON));
 
 	return !hasBonus(selector, cachingStr);
 }
@@ -1561,17 +1608,42 @@ std::shared_ptr<Bonus> Bonus::addPropagator(TPropagatorPtr Propagator)
 
 namespace Selector
 {
-	DLL_LINKAGE CSelectFieldEqual<Bonus::BonusType> type(&Bonus::type);
-	DLL_LINKAGE CSelectFieldEqual<TBonusSubtype> subtype(&Bonus::subtype);
-	DLL_LINKAGE CSelectFieldEqual<CAddInfo> info(&Bonus::additionalInfo);
-	DLL_LINKAGE CSelectFieldEqual<Bonus::BonusSource> sourceType(&Bonus::source);
-	DLL_LINKAGE CSelectFieldEqual<Bonus::LimitEffect> effectRange(&Bonus::effectRange);
+	DLL_LINKAGE CSelectFieldEqual<Bonus::BonusType> & type()
+	{
+		static CSelectFieldEqual<Bonus::BonusType> stype(&Bonus::type);
+		return stype;
+	}
+
+	DLL_LINKAGE CSelectFieldEqual<TBonusSubtype> & subtype()
+	{
+		static CSelectFieldEqual<TBonusSubtype> ssubtype(&Bonus::subtype);
+		return ssubtype;
+	}
+
+	DLL_LINKAGE CSelectFieldEqual<CAddInfo> & info()
+	{
+		static CSelectFieldEqual<CAddInfo> sinfo(&Bonus::additionalInfo);
+		return sinfo;
+	}
+
+	DLL_LINKAGE CSelectFieldEqual<Bonus::BonusSource> & sourceType()
+	{
+		static CSelectFieldEqual<Bonus::BonusSource> ssourceType(&Bonus::source);
+		return ssourceType;
+	}
+
+	DLL_LINKAGE CSelectFieldEqual<Bonus::LimitEffect> & effectRange()
+	{
+		static CSelectFieldEqual<Bonus::LimitEffect> seffectRange(&Bonus::effectRange);
+		return seffectRange;
+	}
+
 	DLL_LINKAGE CWillLastTurns turns;
 	DLL_LINKAGE CWillLastDays days;
 
 	CSelector DLL_LINKAGE typeSubtype(Bonus::BonusType Type, TBonusSubtype Subtype)
 	{
-		return type(Type).And(subtype(Subtype));
+		return type()(Type).And(subtype()(Subtype));
 	}
 
 	CSelector DLL_LINKAGE typeSubtypeInfo(Bonus::BonusType type, TBonusSubtype subtype, CAddInfo info)
@@ -1796,7 +1868,7 @@ int HasAnotherBonusLimiter::limit(const BonusLimitationContext &context) const
 {
 	CSelector mySelector = isSubtypeRelevant
 							? Selector::typeSubtype(type, subtype)
-							: Selector::type(type);
+							: Selector::type()(type);
 
 	//if we have a bonus of required type accepted, limiter should accept also this bonus
 	if(context.alreadyAccepted.getFirst(mySelector))

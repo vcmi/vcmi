@@ -367,19 +367,11 @@ void MoraleLuckBox::set(const IBonusBearer * node)
 	const int neutralDescr[] = {60, 86}; //eg {Neutral Morale} \n\n Neutral morale means your armies will neither be blessed with extra attacks or freeze in combat.
 	const int componentType[] = {CComponent::luck, CComponent::morale};
 	const int hoverTextBase[] = {7, 4};
-	const Bonus::BonusType bonusType[] = {Bonus::LUCK, Bonus::MORALE};
-	int (IBonusBearer::*getValue[])() const = {&IBonusBearer::LuckVal, &IBonusBearer::MoraleVal};
-	TConstBonusListPtr modifierList(new BonusList());
+	TConstBonusListPtr modifierList = std::make_shared<const BonusList>();
+	bonusValue = 0;
 
 	if(node)
-	{
-		modifierList = node->getBonuses(Selector::type(bonusType[morale]));
-		bonusValue = (node->*getValue[morale])();
-	}
-	else
-	{
-		bonusValue = 0;
-	}
+		bonusValue = morale ? node->MoraleValAndBonusList(modifierList) : node->LuckValAndBonusList(modifierList);
 
 	int mrlt = (bonusValue>0)-(bonusValue<0); //signum: -1 - bad luck / morale, 0 - neutral, 1 - good
 	hoverText = CGI->generaltexth->heroscrn[hoverTextBase[morale] - mrlt];
@@ -402,13 +394,13 @@ void MoraleLuckBox::set(const IBonusBearer * node)
 	}
 	else if(morale && node && node->hasBonusOfType(Bonus::NO_MORALE))
 	{
-		auto noMorale = node->getBonus(Selector::type(Bonus::NO_MORALE));
+		auto noMorale = node->getBonus(Selector::type()(Bonus::NO_MORALE));
 		text += "\n" + noMorale->Description();
 		bonusValue = 0;
 	}
 	else if (!morale && node && node->hasBonusOfType(Bonus::NO_LUCK))
 	{
-		auto noLuck = node->getBonus(Selector::type(Bonus::NO_LUCK));
+		auto noLuck = node->getBonus(Selector::type()(Bonus::NO_LUCK));
 		text += "\n" + noLuck->Description();
 		bonusValue = 0;
 	}

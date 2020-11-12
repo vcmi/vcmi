@@ -1016,7 +1016,7 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 			applyBattleEffects(bat, attackerState, fireShield, stack, distance, true);
 	}
 
-	std::shared_ptr<const Bonus> bonus = attacker->getBonusLocalFirst(Selector::type(Bonus::SPELL_LIKE_ATTACK));
+	std::shared_ptr<const Bonus> bonus = attacker->getBonusLocalFirst(Selector::type()(Bonus::SPELL_LIKE_ATTACK));
 	if(bonus && ranged) //TODO: make it work in melee?
 	{
 		//this is need for displaying hit animation
@@ -1883,7 +1883,7 @@ void CGameHandler::newTurn()
 			{
 				if (getPlayerStatus(player.first) == EPlayerStatus::INGAME &&
 					getPlayerRelations(player.first, t->tempOwner) == PlayerRelations::ENEMIES)
-					changeFogOfWar(t->visitablePos(), t->getBonusLocalFirst(Selector::type(Bonus::DARKNESS))->val, player.first, true);
+					changeFogOfWar(t->visitablePos(), t->getBonusLocalFirst(Selector::type()(Bonus::DARKNESS))->val, player.first, true);
 			}
 		}
 	}
@@ -4463,7 +4463,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 			const CStack * summoner = gs->curB->battleGetStackByID(ba.stackNumber);
 			const CStack * destStack = gs->curB->battleGetStackByPos(target.at(0).hexValue, false);
 
-			CreatureID summonedType(summoner->getBonusLocalFirst(Selector::type(Bonus::DAEMON_SUMMONING))->subtype);//in case summoner can summon more than one type of monsters... scream!
+			CreatureID summonedType(summoner->getBonusLocalFirst(Selector::type()(Bonus::DAEMON_SUMMONING))->subtype);//in case summoner can summon more than one type of monsters... scream!
 
 			ui64 risedHp = summoner->getCount() * summoner->valOfBonuses(Bonus::DAEMON_SUMMONING, summonedType.toEnum());
 			ui64 targetHealth = destStack->getCreature()->MaxHealth() * destStack->baseAmount;
@@ -4508,7 +4508,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 			const CStack * stack = gs->curB->battleGetStackByID(ba.stackNumber);
 			SpellID spellID = SpellID(ba.actionSubtype);
 
-			std::shared_ptr<const Bonus> randSpellcaster = stack->getBonusLocalFirst(Selector::type(Bonus::RANDOM_SPELLCASTER));
+			std::shared_ptr<const Bonus> randSpellcaster = stack->getBonusLocalFirst(Selector::type()(Bonus::RANDOM_SPELLCASTER));
 			std::shared_ptr<const Bonus> spellcaster = stack->getBonusLocalFirst(Selector::typeSubtype(Bonus::SPELLCASTER, spellID));
 
 			//TODO special bonus for genies ability
@@ -4669,7 +4669,7 @@ bool CGameHandler::makeCustomAction(BattleAction & ba)
 
 void CGameHandler::stackEnchantedTrigger(const CStack * st)
 {
-	auto bl = *(st->getBonuses(Selector::type(Bonus::ENCHANTED)));
+	auto bl = *(st->getBonuses(Selector::type()(Bonus::ENCHANTED)));
 	for(auto b : bl)
 	{
 		const CSpell * sp = SpellID(b->subtype).toSpell();
@@ -4708,10 +4708,10 @@ void CGameHandler::stackTurnTrigger(const CStack *st)
 	if (st->alive())
 	{
 		//unbind
-		if (st->hasBonus(Selector::type(Bonus::BIND_EFFECT)))
+		if (st->hasBonus(Selector::type()(Bonus::BIND_EFFECT)))
 		{
 			bool unbind = true;
-			BonusList bl = *(st->getBonuses(Selector::type(Bonus::BIND_EFFECT)));
+			BonusList bl = *(st->getBonuses(Selector::type()(Bonus::BIND_EFFECT)));
 			auto adjacent = gs->curB->battleAdjacentUnits(st);
 
 			for (auto b : bl)
@@ -4754,7 +4754,7 @@ void CGameHandler::stackTurnTrigger(const CStack *st)
 
 		if (st->hasBonusOfType(Bonus::POISON))
 		{
-			std::shared_ptr<const Bonus> b = st->getBonusLocalFirst(Selector::source(Bonus::SPELL_EFFECT, SpellID::POISON).And(Selector::type(Bonus::STACK_HEALTH)));
+			std::shared_ptr<const Bonus> b = st->getBonusLocalFirst(Selector::source(Bonus::SPELL_EFFECT, SpellID::POISON).And(Selector::type()(Bonus::STACK_HEALTH)));
 			if (b) //TODO: what if not?...
 			{
 				bte.val = std::max (b->val - 10, -(st->valOfBonuses(Bonus::POISON)));
@@ -4802,7 +4802,7 @@ void CGameHandler::stackTurnTrigger(const CStack *st)
 				}
 			}
 		}
-		BonusList bl = *(st->getBonuses(Selector::type(Bonus::ENCHANTER)));
+		BonusList bl = *(st->getBonuses(Selector::type()(Bonus::ENCHANTER)));
 		int side = gs->curB->whatSide(st->owner);
 		if(st->canCast() && gs->curB->battleGetEnchanterCounter(side) == 0)
 		{
@@ -5428,7 +5428,7 @@ void CGameHandler::attackCasting(bool ranged, Bonus::BonusType attackMode, const
 	if(attacker->hasBonusOfType(attackMode))
 	{
 		std::set<SpellID> spellsToCast;
-		TConstBonusListPtr spells = attacker->getBonuses(Selector::type(attackMode));
+		TConstBonusListPtr spells = attacker->getBonuses(Selector::type()(attackMode));
 		for(const auto & sf : *spells)
 		{
 			spellsToCast.insert(SpellID(sf->subtype));
@@ -5538,7 +5538,7 @@ void CGameHandler::handleAfterAttackCasting(bool ranged, const CStack * attacker
 		return;
 
 	int64_t acidDamage = 0;
-	TConstBonusListPtr acidBreath = attacker->getBonuses(Selector::type(Bonus::ACID_BREATH));
+	TConstBonusListPtr acidBreath = attacker->getBonuses(Selector::type()(Bonus::ACID_BREATH));
 	for(const auto & b : *acidBreath)
 	{
 		if(b->additionalInfo[0] > getRandomGenerator().nextInt(99))
@@ -5569,7 +5569,7 @@ void CGameHandler::handleAfterAttackCasting(bool ranged, const CStack * attacker
 		if(getRandomGenerator().getDoubleRange(0, 1)() > chanceToTrigger)
 			return;
 
-		int bonusAdditionalInfo = attacker->getBonus(Selector::type(Bonus::TRANSMUTATION))->additionalInfo[0];
+		int bonusAdditionalInfo = attacker->getBonus(Selector::type()(Bonus::TRANSMUTATION))->additionalInfo[0];
 
 		if(defender->getCreature()->idNumber == bonusAdditionalInfo ||
 			(bonusAdditionalInfo == CAddInfo::NONE && defender->getCreature()->idNumber == attacker->getCreature()->idNumber))
@@ -5611,13 +5611,13 @@ void CGameHandler::handleAfterAttackCasting(bool ranged, const CStack * attacker
 		if(attacker->hasBonusOfType(Bonus::DESTRUCTION, 0)) //killing by percentage
 		{
 			chanceToTrigger = attacker->valOfBonuses(Bonus::DESTRUCTION, 0) / 100.0f;
-			int percentageToDie = attacker->getBonus(Selector::type(Bonus::DESTRUCTION).And(Selector::subtype(0)))->additionalInfo[0];
+			int percentageToDie = attacker->getBonus(Selector::type()(Bonus::DESTRUCTION).And(Selector::subtype()(0)))->additionalInfo[0];
 			amountToDie = static_cast<int>(defender->getCount() * percentageToDie * 0.01f);
 		}
 		else if(attacker->hasBonusOfType(Bonus::DESTRUCTION, 1)) //killing by count
 		{
 			chanceToTrigger = attacker->valOfBonuses(Bonus::DESTRUCTION, 1) / 100.0f;
-			amountToDie = attacker->getBonus(Selector::type(Bonus::DESTRUCTION).And(Selector::subtype(1)))->additionalInfo[0];
+			amountToDie = attacker->getBonus(Selector::type()(Bonus::DESTRUCTION).And(Selector::subtype()(1)))->additionalInfo[0];
 		}
 
 		vstd::amin(chanceToTrigger, 1); //cap trigger chance at 100%
@@ -5932,7 +5932,7 @@ void CGameHandler::runBattle()
 	{
 		if (stack->hasBonusOfType(Bonus::SUMMON_GUARDIANS))
 		{
-			std::shared_ptr<const Bonus> summonInfo = stack->getBonus(Selector::type(Bonus::SUMMON_GUARDIANS));
+			std::shared_ptr<const Bonus> summonInfo = stack->getBonus(Selector::type()(Bonus::SUMMON_GUARDIANS));
 			auto accessibility = getAccesibility();
 			CreatureID creatureData = CreatureID(summonInfo->subtype);
 			std::vector<BattleHex> targetHexes;
@@ -5977,7 +5977,7 @@ void CGameHandler::runBattle()
 		auto h = gs->curB->battleGetFightingHero(i);
 		if (h)
 		{
-			TConstBonusListPtr bl = h->getBonuses(Selector::type(Bonus::OPENING_BATTLE_SPELL));
+			TConstBonusListPtr bl = h->getBonuses(Selector::type()(Bonus::OPENING_BATTLE_SPELL));
 
 			for (auto b : *bl)
 			{

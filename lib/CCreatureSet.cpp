@@ -595,7 +595,7 @@ int CStackInstance::getLevel() const
 
 si32 CStackInstance::magicResistance() const
 {
-	si32 val = valOfBonuses(Selector::type(Bonus::MAGIC_RESISTANCE));
+	si32 val = valOfBonuses(Selector::type()(Bonus::MAGIC_RESISTANCE));
 	if (const CGHeroInstance * hero = dynamic_cast<const CGHeroInstance *>(_armyObj))
 	{
 		//resistance skill

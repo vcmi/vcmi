@@ -42,11 +42,14 @@ VCMI_VS11.opensdf
 *.suo
 *.user
 /AI/*/RD
+/AI/BattleAI/*/RD
 /client/RD
 /launcher/RD
 /lib/RD
 /lib/minizip/RD
+/lib/minizip/*/RD
 /scripting/erm/RD
+/scripting/erm/*/RD
 /server/RD
 /test/RD
 /VCMI_VS11.VC.opendb

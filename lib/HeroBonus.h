@@ -77,18 +77,17 @@ public:
 
 	CBonusProxy & operator=(CBonusProxy && other);
 	CBonusProxy & operator=(const CBonusProxy & other);
-
-	TConstBonusListPtr get() const;
-
 	const BonusList * operator->() const;
-private:
-	mutable int64_t cachedLast;
-	const IBonusBearer * target;
+	TConstBonusListPtr getBonusList() const;
+
+protected:
 	CSelector selector;
-	mutable TConstBonusListPtr data;
+	const IBonusBearer * target;
+	mutable int64_t bonusListCachedLast;
+	mutable TConstBonusListPtr bonusList;
 };
 
-class DLL_LINKAGE CTotalsProxy
+class DLL_LINKAGE CTotalsProxy : public CBonusProxy
 {
 public:
 	CTotalsProxy(const IBonusBearer * Target, CSelector Selector, int InitialValue);
@@ -101,13 +100,17 @@ public:
 	int getMeleeValue() const;
 	int getRangedValue() const;
 	int getValue() const;
+	/**
+	Returns total value of all selected bonuses and sets bonusList as a pointer to the list of selected bonuses
+	@param bonusList is the out list of all selected bonuses
+	@return total value of all selected bonuses and 0 otherwise
+	*/
+	int getValueAndList(TConstBonusListPtr & bonusList) const;
 
 private:
-	const IBonusBearer * target;
-	CSelector selector;
 	int initialValue;
 
-	mutable int64_t cachedLast;
+	mutable int64_t valueCachedLast;
 	mutable int value;
 
 	mutable int64_t meleeCachedLast;
@@ -692,8 +695,12 @@ private:
 	CCheckProxy anaffectedByMorale;
 	static CSelector moraleSelector;
 	CTotalsProxy moraleValue;
+	static CSelector luckSelector;
+	CTotalsProxy luckValue;
 	static CSelector selfMoraleSelector;
 	CCheckProxy selfMorale;
+	static CSelector selfLuckSelector;
+	CCheckProxy selfLuck;
 
 public:
 	//new bonusing node interface
@@ -726,6 +733,14 @@ public:
 
 	int MoraleVal() const; //range [-3, +3]
 	int LuckVal() const; //range [-3, +3]
+	/**
+	 Returns total value of all morale bonuses and sets bonusList as a pointer to the list of selected bonuses.
+	 @param bonusList is the out param it's list of all selected bonuses
+	 @return total value of all morale in the range [-3, +3] and 0 otherwise
+	*/
+	int MoraleValAndBonusList(TConstBonusListPtr & bonusList) const;
+	int LuckValAndBonusList(TConstBonusListPtr & bonusList) const;
+
 	ui32 MaxHealth() const; //get max HP of stack with all modifiers
 	bool isLiving() const; //non-undead, non-non living or alive
 	virtual si32 magicResistance() const;
@@ -864,7 +879,10 @@ public:
 	CSelector operator()(const T &valueToCompareAgainst) const
 	{
 		auto ptr2 = ptr; //We need a COPY because we don't want to reference this (might be outlived by lambda)
-		return [ptr2, valueToCompareAgainst](const Bonus *bonus) {  return bonus->*ptr2 == valueToCompareAgainst; };
+		return [ptr2, valueToCompareAgainst](const Bonus *bonus)
+		{
+			return bonus->*ptr2 == valueToCompareAgainst;
+		};
 	}
 };
 
@@ -1112,11 +1130,11 @@ public:
 
 namespace Selector
 {
-	extern DLL_LINKAGE CSelectFieldEqual<Bonus::BonusType> type;
-	extern DLL_LINKAGE CSelectFieldEqual<TBonusSubtype> subtype;
-	extern DLL_LINKAGE CSelectFieldEqual<CAddInfo> info;
-	extern DLL_LINKAGE CSelectFieldEqual<Bonus::BonusSource> sourceType;
-	extern DLL_LINKAGE CSelectFieldEqual<Bonus::LimitEffect> effectRange;
+	extern DLL_LINKAGE CSelectFieldEqual<Bonus::BonusType> & type();
+	extern DLL_LINKAGE CSelectFieldEqual<TBonusSubtype> & subtype();
+	extern DLL_LINKAGE CSelectFieldEqual<CAddInfo> & info();
+	extern DLL_LINKAGE CSelectFieldEqual<Bonus::BonusSource> & sourceType();
+	extern DLL_LINKAGE CSelectFieldEqual<Bonus::LimitEffect> & effectRange();
 	extern DLL_LINKAGE CWillLastTurns turns;
 	extern DLL_LINKAGE CWillLastDays days;
 

@@ -66,7 +66,7 @@ AttackPossibility AttackPossibility::evaluate(const BattleAttackInfo & attackInf
 	auto attacker = attackInfo.attacker;
 	auto defender = attackInfo.defender;
 	const std::string cachingStringBlocksRetaliation = "type_BLOCKS_RETALIATION";
-	static const auto selectorBlocksRetaliation = Selector::type(Bonus::BLOCKS_RETALIATION);
+	static const auto selectorBlocksRetaliation = Selector::type()(Bonus::BLOCKS_RETALIATION);
 	const auto attackerSide = getCbc()->playerToSide(getCbc()->battleGetOwner(attacker));
 	const bool counterAttacksBlocked = attacker->hasBonus(selectorBlocksRetaliation, cachingStringBlocksRetaliation);
 
