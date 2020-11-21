@@ -142,5 +142,6 @@ public:
 protected:
 	ReachabilityInfo getFlyingReachability(const ReachabilityInfo::Parameters & params) const;
 	ReachabilityInfo makeBFS(const AccessibilityInfo & accessibility, const ReachabilityInfo::Parameters & params) const;
+	bool isInObstacle(BattleHex hex, const std::set<BattleHex> & obstacles, const ReachabilityInfo::Parameters & params) const;
 	std::set<BattleHex> getStoppers(BattlePerspective::BattlePerspective whichSidePerspective) const; //get hexes with stopping obstacles (quicksands)
 };
