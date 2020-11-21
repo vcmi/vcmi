@@ -1161,7 +1161,7 @@ ReachabilityInfo CBattleInfoCallback::makeBFS(const AccessibilityInfo &accessibi
 	if(!params.startPosition.isValid()) //if got call for arrow turrets
 		return ret;
 
-	const std::set<BattleHex> quicksands = getStoppers(params.perspective);
+	const std::set<BattleHex> obstacles = getStoppers(params.perspective);
 
 	std::queue<BattleHex> hexq; //bfs queue
 
@@ -1177,11 +1177,19 @@ ReachabilityInfo CBattleInfoCallback::makeBFS(const AccessibilityInfo &accessibi
 	{
 		const BattleHex curHex = hexq.front();
 		hexq.pop();
-
-		//walking stack can't step past the quicksands
-		//TODO what if second hex of two-hex creature enters quicksand
-		if(curHex != params.startPosition && vstd::contains(quicksands, curHex))
-			continue;
+		
+		//walking stack can't step past the obstacles
+		//TODO what if second hex of two-hex creature enters obstacles
+		if(curHex != params.startPosition && vstd::contains(obstacles, curHex))
+		{
+			if(curHex == ESiegeHex::GATE_BRIDGE)
+			{
+				if(battleGetGateState() != EGateState::DESTROYED && params.side == BattleSide::ATTACKER)
+					continue;
+			}
+			else
+				continue;
+		}
 
 		const int costToNeighbour = ret.distances[curHex.hex] + 1;
 		for(BattleHex neighbour : BattleHex::neighbouringTilesCache[curHex.hex])
