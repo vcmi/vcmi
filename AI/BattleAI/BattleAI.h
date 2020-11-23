@@ -9,6 +9,7 @@
  */
 #pragma once
 #include "../../lib/AI_Base.h"
+#include "../../lib/battle/ReachabilityInfo.h"
 #include "PossibleSpellcast.h"
 #include "PotentialTargets.h"
 
@@ -64,12 +65,8 @@ public:
 	void evaluateCreatureSpellcast(const CStack * stack, PossibleSpellcast & ps); //for offensive damaging spells only
 
 	BattleAction activeStack(const CStack * stack) override; //called when it's turn of that stack
-	BattleAction goTowards(const CStack * stack, BattleHex hex );
 
 	boost::optional<BattleAction> considerFleeingOrSurrendering();
-
-	static int distToNearestNeighbour(BattleHex hex, const ReachabilityInfo::TDistances& dists, BattleHex *chosenHex = nullptr);
-	static bool isCloser(const EnemyInfo & ei1, const EnemyInfo & ei2, const ReachabilityInfo::TDistances & dists);
 
 	void print(const std::string &text) const;
 	BattleAction useCatapult(const CStack *stack);
@@ -88,4 +85,7 @@ public:
 	//void battleTriggerEffect(const BattleTriggerEffect & bte) override;
 	//void battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side) override; //called by engine when battle starts; side=0 - left, side=1 - right
 	//void battleCatapultAttacked(const CatapultAttack & ca) override; //called when catapult makes an attack
+
+private:
+	BattleAction goTowards(const CStack * stack, const battle::Unit * enemy) const;
 };

@@ -10,6 +10,9 @@
 #pragma once
 
 #include "../../lib/battle/BattleHex.h"
+#include "../../lib/battle/ReachabilityInfo.h"
+
+class EnemyInfo;
 
 class CStupidAI : public CBattleGameInterface
 {
@@ -39,10 +42,10 @@ public:
 	void battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side) override; //called by engine when battle starts; side=0 - left, side=1 - right
 	void battleCatapultAttacked(const CatapultAttack & ca) override; //called when catapult makes an attack
 
-	BattleAction goTowards(const CStack * stack, BattleHex hex );
-
 	virtual void saveGame(BinarySerializer & h, const int version) override;
 	virtual void loadGame(BinaryDeserializer & h, const int version) override;
 
+private:
+	BattleAction goTowards(const CStack * stack, const CStack * enemy) const;
 };
 

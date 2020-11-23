@@ -69,31 +69,6 @@ bool isMoreProfitable(const EnemyInfo &ei1, const EnemyInfo& ei2)
 	return (ei1.adi-ei1.adr) < (ei2.adi - ei2.adr);
 }
 
-namespace {
-
-int distToNearestNeighbour(BattleHex hex, const ReachabilityInfo::TDistances& dists, BattleHex *chosenHex = nullptr)
-{
-	int ret = 1000000;
-	for(auto & n: hex.neighbouringTiles())
-	{
-		if(dists[n] >= 0 && dists[n] < ret)
-		{
-			ret = dists[n];
-			if(chosenHex)
-				*chosenHex = n;
-		}
-	}
-
-	return ret;
-}
-
-bool isCloser(const EnemyInfo & ei1, const EnemyInfo & ei2, const ReachabilityInfo::TDistances & dists)
-{
-	return distToNearestNeighbour(ei1.s->getPosition(), dists) < distToNearestNeighbour(ei2.s->getPosition(), dists);
-}
-
-}
-
 static bool willSecondHexBlockMoreEnemyShooters(const BattleHex &h1, const BattleHex &h2)
 {
 	int shooters[2] = {0}; //count of shooters on hexes
@@ -111,7 +86,7 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 {
 	//boost::this_thread::sleep(boost::posix_time::seconds(2));
 	print("activeStack called for " + stack->nodeName());
-	auto dists = cb->battleGetDistances(stack, stack->getPosition());
+	ReachabilityInfo dists = cb->getReachability(stack);
 	std::vector<EnemyInfo> enemiesShootable, enemiesReachable, enemiesUnreachable;
 
 	if(stack->type->idNumber == CreatureID::CATAPULT)
@@ -179,12 +154,14 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 	}
 	else if(enemiesUnreachable.size()) //due to #955 - a buggy battle may occur when there are no enemies
 	{
-		assert(enemiesUnreachable.size());
-		const EnemyInfo &ei= *std::min_element(enemiesUnreachable.begin(), enemiesUnreachable.end(), std::bind(isCloser, _1, _2, std::ref(dists)));
-		assert(ei.s);
-		if(distToNearestNeighbour(ei.s->getPosition(), dists) < GameConstants::BFIELD_SIZE)
+		auto closestEnemy = vstd::minElementByFun(enemiesUnreachable, [&](const EnemyInfo & ei) -> int
 		{
-			return goTowards(stack, ei.s->getPosition());
+			return dists.distToNearestNeighbour(stack, ei.s);
+		});
+
+		if(dists.distToNearestNeighbour(stack, closestEnemy->s) < GameConstants::BFIELD_SIZE)
+		{
+			return goTowards(stack, closestEnemy->s);
 		}
 	}
 
@@ -252,11 +229,12 @@ void CStupidAI::print(const std::string &text) const
 	logAi->trace("CStupidAI  [%p]: %s", this, text);
 }
 
-BattleAction CStupidAI::goTowards(const CStack * stack, BattleHex destination)
+BattleAction CStupidAI::goTowards(const CStack * stack, const CStack * enemy) const
 {
 	assert(destination.isValid());
 	auto reachability = cb->getReachability(stack);
 	auto avHexes = cb->battleGetAvailableHexes(reachability, stack);
+	auto destination = enemy->getPosition();
 
 	if(vstd::contains(avHexes, destination))
 		return BattleAction::makeMove(stack, destination);
@@ -269,11 +247,14 @@ BattleAction CStupidAI::goTowards(const CStack * stack, BattleHex destination)
 		return BattleAction::makeDefend(stack);
 	}
 
-	vstd::erase_if(destNeighbours, [&](BattleHex hex){ return !reachability.accessibility.accessible(hex, stack); });
-
-	if(!avHexes.size() || !destNeighbours.size()) //we are blocked or dest is blocked
+	if(!avHexes.size()) //we are blocked or dest is blocked
 	{
-		print("goTowards: Stack cannot move! That's " + stack->nodeName());
+		return BattleAction::makeDefend(stack);
+	}
+
+	BattleHex bestNeighbor = destination;
+	if(reachability.distToNearestNeighbour(stack, enemy, &bestNeighbor) > GameConstants::BFIELD_SIZE)
+	{
 		return BattleAction::makeDefend(stack);
 	}
 
@@ -281,32 +262,24 @@ BattleAction CStupidAI::goTowards(const CStack * stack, BattleHex destination)
 	{
 		// Flying stack doesn't go hex by hex, so we can't backtrack using predecessors.
 		// We just check all available hexes and pick the one closest to the target.
-		auto distToDestNeighbour = [&](BattleHex hex) -> int
+		auto nearestAvailableHex = vstd::minElementByFun(avHexes, [&](BattleHex hex) -> int
 		{
-			auto nearestNeighbourToHex = vstd::minElementByFun(destNeighbours, [&](BattleHex a)
-			{
-				return BattleHex::getDistance(a, hex);
-			});
+			return BattleHex::getDistance(bestNeighbor, hex);
+		});
 
-			return BattleHex::getDistance(*nearestNeighbourToHex, hex);
-		};
-
-		auto nearestAvailableHex = vstd::minElementByFun(avHexes, distToDestNeighbour);
 		return BattleAction::makeMove(stack, *nearestAvailableHex);
 	}
 	else
 	{
-		BattleHex bestNeighbor = destination;
-		if(distToNearestNeighbour(destination, reachability.distances, &bestNeighbor) > GameConstants::BFIELD_SIZE)
-		{
-			print("goTowards: Cannot reach");
-			return BattleAction::makeDefend(stack);
-		}
-
 		BattleHex currentDest = bestNeighbor;
 		while(1)
 		{
-			assert(currentDest.isValid());
+			if(!currentDest.isValid())
+			{
+				logAi->error("CBattleAI::goTowards: internal error");
+				return BattleAction::makeDefend(stack);
+			}
+
 			if(vstd::contains(avHexes, currentDest))
 				return BattleAction::makeMove(stack, currentDest);
 
