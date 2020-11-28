@@ -82,6 +82,34 @@ std::vector<BattleHex> Unit::getSurroundingHexes(BattleHex position, bool twoHex
 	}
 }
 
+std::vector<BattleHex> Unit::getAttackableHexes(const Unit * attacker) const
+{
+	auto defenderHexes = battle::Unit::getHexes(
+		getPosition(),
+		doubleWide(),
+		unitSide());
+	
+	std::vector<BattleHex> targetableHexes;
+
+	for(auto defenderHex : defenderHexes)
+	{
+		auto hexes = battle::Unit::getHexes(
+			defenderHex,
+			attacker->doubleWide(),
+			unitSide());
+
+		if(hexes.size() == 2 && BattleHex::getDistance(hexes.front(), hexes.back()) != 1)
+			hexes.pop_back();
+
+		for(auto hex : hexes)
+			vstd::concatenate(targetableHexes, hex.neighbouringTiles());
+	}
+
+	vstd::removeDuplicates(targetableHexes);
+
+	return targetableHexes;
+}
+
 bool Unit::coversPos(BattleHex pos) const
 {
 	return getPosition() == pos || (doubleWide() && (occupiedHex() == pos));

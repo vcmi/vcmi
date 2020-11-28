@@ -16,6 +16,7 @@
 #include "EnemyInfo.h"
 #include "../../lib/CStopWatch.h"
 #include "../../lib/CThreadHelper.h"
+#include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/spells/ISpellMechanics.h"
 #include "../../lib/CStack.h" // TODO: remove
@@ -59,6 +60,26 @@ SpellTypes spellType(const CSpell * spell)
 		return SpellTypes::BATTLE;
 
 	return SpellTypes::OTHER;
+}
+
+std::vector<BattleHex> CBattleAI::getBrokenWallMoatHexes() const
+{
+	std::vector<BattleHex> result;
+	
+	for(int wallPart = EWallPart::BOTTOM_WALL; wallPart < EWallPart::UPPER_WALL; wallPart++)
+	{
+		auto state = cb->battleGetWallState(wallPart);
+
+		if(state != EWallState::DESTROYED)
+			continue;
+		
+		auto wallHex = cb->wallPartToBattleHex((EWallPart::EWallPart)wallPart);
+		auto moatHex = wallHex.cloneInDirection(BattleHex::LEFT);
+
+		result.push_back(moatHex);
+	}
+
+	return result;
 }
 
 CBattleAI::CBattleAI()
@@ -199,13 +220,28 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 
 					if(dists.distToNearestNeighbour(stack, *closestEnemy) < GameConstants::BFIELD_SIZE)
 					{
-						return goTowards(stack, *closestEnemy);
+						return goTowardsNearest(stack, (*closestEnemy)->getAttackableHexes(stack));
 					}
 				}
 			}
 			else
 			{
 				return BattleAction::makeWait(stack);
+			}
+		}
+
+		if(!stack->hasBonusOfType(Bonus::FLYING)
+			&& stack->unitSide() == BattleSide::ATTACKER
+			&& cb->battleGetSiegeLevel() >= CGTownInstance::CITADEL)
+		{
+			auto brokenWallMoat = getBrokenWallMoatHexes();
+
+			if(brokenWallMoat.size())
+			{
+				if(stack->doubleWide() && vstd::contains(brokenWallMoat, stack->getPosition()))
+					return BattleAction::makeMove(stack, stack->getPosition().cloneInDirection(BattleHex::RIGHT));
+				else
+					return goTowardsNearest(stack, brokenWallMoat);
 			}
 		}
 	}
@@ -217,33 +253,41 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 	{
 		logAi->error("Exception occurred in %s %s",__FUNCTION__, e.what());
 	}
+
 	return BattleAction::makeDefend(stack);
 }
 
-BattleAction CBattleAI::goTowards(const CStack * stack, const battle::Unit * enemy) const
+BattleAction CBattleAI::goTowardsNearest(const CStack * stack, std::vector<BattleHex> hexes) const
 {
 	auto reachability = cb->getReachability(stack);
 	auto avHexes = cb->battleGetAvailableHexes(reachability, stack);
-	auto destination = enemy->getPosition();
 
-	if(vstd::contains(avHexes, destination))
-		return BattleAction::makeMove(stack, destination);
-
-	auto destNeighbours = destination.neighbouringTiles();
-	if(vstd::contains_if(destNeighbours, [&](BattleHex n) { return stack->coversPos(destination); }))
-	{
-		logAi->warn("Warning: already standing on neighbouring tile!");
-		//We shouldn't even be here...
-		return BattleAction::makeDefend(stack);
-	}
-
-	if(!avHexes.size()) //we are blocked or dest is blocked
+	if(!avHexes.size() || !hexes.size()) //we are blocked or dest is blocked
 	{
 		return BattleAction::makeDefend(stack);
 	}
 
-	BattleHex bestNeighbor = destination;
-	if(reachability.distToNearestNeighbour(stack, enemy, &bestNeighbor) > GameConstants::BFIELD_SIZE)
+	std::sort(hexes.begin(), hexes.end(), [&](BattleHex h1, BattleHex h2) -> bool
+	{
+		return reachability.distances[h1] < reachability.distances[h2];
+	});
+
+	for(auto hex : hexes)
+	{
+		if(vstd::contains(avHexes, hex))
+			return BattleAction::makeMove(stack, hex);
+
+		if(stack->coversPos(hex))
+		{
+			logAi->warn("Warning: already standing on neighbouring tile!");
+			//We shouldn't even be here...
+			return BattleAction::makeDefend(stack);
+		}
+	}
+
+	BattleHex bestNeighbor = hexes.front();
+
+	if(reachability.distances[bestNeighbor] > GameConstants::BFIELD_SIZE)
 	{
 		return BattleAction::makeDefend(stack);
 	}
@@ -280,7 +324,49 @@ BattleAction CBattleAI::goTowards(const CStack * stack, const battle::Unit * ene
 
 BattleAction CBattleAI::useCatapult(const CStack * stack)
 {
-	throw std::runtime_error("CBattleAI::useCatapult is not implemented.");
+	BattleAction attack;
+	BattleHex targetHex = BattleHex::INVALID;
+
+	if(cb->battleGetGateState() == EGateState::CLOSED)
+	{
+		targetHex = cb->wallPartToBattleHex(EWallPart::GATE);
+	}
+	else
+	{
+		EWallPart::EWallPart wallParts[] = {
+			EWallPart::KEEP,
+			EWallPart::BOTTOM_TOWER,
+			EWallPart::UPPER_TOWER,
+			EWallPart::BELOW_GATE,
+			EWallPart::OVER_GATE,
+			EWallPart::BOTTOM_WALL,
+			EWallPart::UPPER_WALL
+		};
+
+		for(auto wallPart : wallParts)
+		{
+			auto wallState = cb->battleGetWallState(wallPart);
+
+			if(wallState == EWallState::INTACT || wallState == EWallState::DAMAGED)
+			{
+				targetHex = cb->wallPartToBattleHex(wallPart);
+
+				break;
+			}
+		}
+	}
+
+	if(!targetHex.isValid())
+	{
+		return BattleAction::makeDefend(stack);
+	}
+
+	attack.aimToHex(targetHex);
+	attack.actionType = EActionType::CATAPULT;
+	attack.side = side;
+	attack.stackNumber = stack->ID;
+
+	return attack;
 }
 
 void CBattleAI::attemptCastingSpell()
