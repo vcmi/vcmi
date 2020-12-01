@@ -40,3 +40,42 @@ bool ReachabilityInfo::isReachable(BattleHex hex) const
 {
 	return distances[hex] < INFINITE_DIST;
 }
+
+int ReachabilityInfo::distToNearestNeighbour(
+	const battle::Unit * attacker,
+	const battle::Unit * defender,
+	BattleHex * chosenHex) const
+{
+	int ret = 1000000;
+	auto defenderHexes = battle::Unit::getHexes(
+		defender->getPosition(),
+		defender->doubleWide(),
+		defender->unitSide());
+
+	std::vector<BattleHex> targetableHexes;
+
+	for(auto defenderHex : defenderHexes)
+	{
+		vstd::concatenate(targetableHexes, battle::Unit::getHexes(
+			defenderHex,
+			attacker->doubleWide(),
+			defender->unitSide()));
+	}
+
+	vstd::removeDuplicates(targetableHexes);
+
+	for(auto targetableHex : targetableHexes)
+	{
+		for(auto & n : targetableHex.neighbouringTiles())
+		{
+			if(distances[n] >= 0 && distances[n] < ret)
+			{
+				ret = distances[n];
+				if(chosenHex)
+					*chosenHex = n;
+			}
+		}
+	}
+
+	return ret;
+}
