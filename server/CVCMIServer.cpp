@@ -334,6 +334,7 @@ void CVCMIServer::threadHandleClient(std::shared_ptr<CConnection> c)
 		if(state != EServerState::LOBBY)
 			gh->handleClientDisconnection(c);
 	}
+	/*
 	catch(const std::exception & e)
 	{
         (void)e;
@@ -345,7 +346,7 @@ void CVCMIServer::threadHandleClient(std::shared_ptr<CConnection> c)
 		state = EServerState::SHUTDOWN;
 		handleException();
 		throw;
-	}
+	}*/
 
 	boost::unique_lock<boost::recursive_mutex> queueLock(mx);
 //	if(state != ENDING_AND_STARTING_GAME)
