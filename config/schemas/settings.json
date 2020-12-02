@@ -66,6 +66,10 @@
 				"notifications" : {
 					"type" : "boolean",
 					"default" : false
+				},
+				"extraDump" : {
+					"type" : "boolean",
+					"default" : false
 				}
 			}
 		},
