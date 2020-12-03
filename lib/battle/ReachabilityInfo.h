@@ -45,6 +45,10 @@ struct DLL_LINKAGE ReachabilityInfo
 	bool isReachable(BattleHex hex) const;
 
 	int distToNearestNeighbour(
+		const std::vector<BattleHex> & targetHexes,
+		BattleHex * chosenHex = nullptr) const;
+
+	int distToNearestNeighbour(
 		const battle::Unit * attacker,
 		const battle::Unit * defender,
 		BattleHex * chosenHex = nullptr) const;

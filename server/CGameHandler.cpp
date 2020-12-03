@@ -6117,7 +6117,10 @@ void CGameHandler::runBattle()
 
 				for(auto & elem : gs->curB->stacks)
 				{
-					if(elem->owner != next->owner && elem->isValidTarget())
+					if(elem->getCreature()->idNumber != CreatureID::CATAPULT
+						&& elem->owner != next->owner
+						&& elem->isValidTarget()
+						&& gs->curB->battleCanShoot(next, elem->getPosition()))
 					{
 						target = elem;
 						break;

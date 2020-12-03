@@ -87,5 +87,6 @@ public:
 	//void battleCatapultAttacked(const CatapultAttack & ca) override; //called when catapult makes an attack
 
 private:
-	BattleAction goTowards(const CStack * stack, const battle::Unit * enemy) const;
+	BattleAction goTowardsNearest(const CStack * stack, std::vector<BattleHex> hexes) const;
+	std::vector<BattleHex> getBrokenWallMoatHexes() const;
 };

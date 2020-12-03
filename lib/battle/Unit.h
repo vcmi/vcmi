@@ -80,6 +80,7 @@ public:
 	virtual std::string getDescription() const;
 
 	std::vector<BattleHex> getSurroundingHexes(BattleHex assumedPosition = BattleHex::INVALID) const; // get six or 8 surrounding hexes depending on creature size
+	std::vector<BattleHex> getAttackableHexes(const Unit * attacker) const;
 	static std::vector<BattleHex> getSurroundingHexes(BattleHex position, bool twoHex, ui8 side);
 
 	bool coversPos(BattleHex position) const; //checks also if unit is double-wide
