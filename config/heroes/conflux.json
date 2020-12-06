@@ -174,7 +174,8 @@
 			},
 			"bonuses" : {
 				"health" : {
-					"type" : "STACK_HEALTH",
+					"type" : "CREATURE_DAMAGE",
+					"subtype" : 0,
 					"val" : 5
 				},
 				"attack" : {
