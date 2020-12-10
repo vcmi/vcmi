@@ -172,7 +172,7 @@ std::vector<BattleHex> CTown::defaultMoatHexes()
 	return moatHexes;
 }
 
-std::string CTown::getFactionName() const
+std::string CTown::getLocalizedFactionName() const
 {
 	if(faction == nullptr)
 		return "Random";
@@ -510,7 +510,7 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 		if(stringID == source["upgrades"].String())
 		{
 			throw std::runtime_error(boost::str(boost::format("Building with ID '%s' of town '%s' can't be an upgrade of the same building.") %
-												stringID % ret->town->getFactionName()));
+												stringID % ret->town->getLocalizedFactionName()));
 		}
 
 		VLC->modh->identifiers.requestIdentifier(ret->town->getBuildingScope(), source["upgrades"], [=](si32 identifier)

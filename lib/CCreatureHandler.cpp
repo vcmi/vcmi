@@ -135,9 +135,19 @@ std::string CCreature::nodeName() const
 	return "\"" + namePl + "\"";
 }
 
-bool CCreature::isItNativeTerrain(int terrain) const
+bool CCreature::isItNativeTerrain(ETerrainType::EETerrainType terrain) const
 {
-	return VLC->townh->factions[faction]->nativeTerrain == terrain;
+	auto native = getNativeTerrain();
+	return native == terrain || native == ETerrainType::ANY_TERRAIN;
+}
+
+ETerrainType::EETerrainType CCreature::getNativeTerrain() const
+{
+	//this code is used in the CreatureTerrainLimiter::limit to setup battle bonuses
+	//and in the CGHeroInstance::getNativeTerrain() to setup mevement bonuses or/and penalties.
+	return hasBonusOfType(Bonus::NO_TERRAIN_PENALTY) ?
+		ETerrainType::ANY_TERRAIN
+		: (ETerrainType::EETerrainType)VLC->townh->factions[faction]->nativeTerrain;
 }
 
 void CCreature::setId(CreatureID ID)
@@ -210,10 +220,11 @@ CCreatureHandler::CCreatureHandler()
 	VLC->creh = this;
 
 	allCreatures.setDescription("All creatures");
+	allCreatures.setNodeType(CBonusSystemNode::ENodeTypes::ALL_CREATURES);
 	creaturesOfLevel[0].setDescription("Creatures of unnormalized tier");
+
 	for(int i = 1; i < ARRAY_COUNT(creaturesOfLevel); i++)
 		creaturesOfLevel[i].setDescription("Creatures of tier " + boost::lexical_cast<std::string>(i));
-
 	loadCommanders();
 }
 
@@ -1192,6 +1203,11 @@ void CCreatureHandler::addBonusForTier(int tier, std::shared_ptr<Bonus> b)
 void CCreatureHandler::addBonusForAllCreatures(std::shared_ptr<Bonus> b)
 {
 	allCreatures.addNewBonus(b);
+}
+
+void CCreatureHandler::removeBonusesFromAllCreatures()
+{
+	allCreatures.removeBonuses(Selector::all);
 }
 
 void CCreatureHandler::buildBonusTreeForTiers()

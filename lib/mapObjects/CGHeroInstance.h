@@ -162,7 +162,7 @@ public:
 	bool needsLastStack()const override;
 	TFaction getFaction() const;
 	ui32 getTileCost(const TerrainTile &dest, const TerrainTile &from, const TurnInfo * ti) const; //move cost - applying pathfinding skill, road and terrain modifiers. NOT includes diagonal move penalty, last move levelling
-	int getNativeTerrain() const;
+	ETerrainType::EETerrainType getNativeTerrain() const;
 	ui32 getLowestCreatureSpeed() const;
 	int3 getPosition(bool h3m = false) const; //h3m=true - returns position of hero object; h3m=false - returns position of hero 'manifestation'
 	si32 manaRegain() const; //how many points of mana can hero regain "naturally" in one day
