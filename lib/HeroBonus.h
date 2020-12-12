@@ -520,7 +520,6 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const Bonus &bonus);
 
-
 class DLL_LINKAGE BonusList
 {
 public:
@@ -758,7 +757,7 @@ public:
 	enum ENodeTypes
 	{
 		UNKNOWN, STACK_INSTANCE, STACK_BATTLE, SPECIALTY, ARTIFACT, CREATURE, ARTIFACT_INSTANCE, HERO, PLAYER, TEAM,
-		TOWN_AND_VISITOR, BATTLE, COMMANDER, GLOBAL_EFFECTS
+		TOWN_AND_VISITOR, BATTLE, COMMANDER, GLOBAL_EFFECTS, ALL_CREATURES
 	};
 private:
 	BonusList bonuses; //wielded bonuses (local or up-propagated here)
@@ -1062,9 +1061,9 @@ public:
 class DLL_LINKAGE CreatureFactionLimiter : public ILimiter //applies only to creatures of given faction
 {
 public:
-	si8 faction;
+	TFaction faction;
 	CreatureFactionLimiter();
-	CreatureFactionLimiter(int TerrainType);
+	CreatureFactionLimiter(TFaction faction);
 
 	int limit(const BonusLimitationContext &context) const override;
 	virtual std::string toString() const override;

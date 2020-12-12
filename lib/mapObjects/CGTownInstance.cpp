@@ -1232,6 +1232,16 @@ void CGTownInstance::recreateBuildingsBonuses()
 		addBonusIfBuilt(BuildingID::GRAIL, Bonus::PRIMARY_SKILL, +10, PrimarySkill::ATTACK); //grail
 		addBonusIfBuilt(BuildingID::GRAIL, Bonus::PRIMARY_SKILL, +10, PrimarySkill::DEFENSE); //grail
 	}
+	else if(boost::algorithm::ends_with(this->town->faction->identifier, ":cove") && hasBuilt(BuildingID::GRAIL))
+	{
+		static TPropagatorPtr lsProp(new CPropagatorNodeType(ALL_CREATURES));
+		static auto factionLimiter = std::make_shared<CreatureFactionLimiter>(this->town->faction->index);
+		auto b = std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::NO_TERRAIN_PENALTY, Bonus::TOWN_STRUCTURE, 0, BuildingID::GRAIL, "", -1);
+
+		b->addLimiter(factionLimiter);
+		b->addPropagator(lsProp);
+		VLC->creh->addBonusForAllCreatures(b);
+	}
 }
 
 bool CGTownInstance::addBonusIfBuilt(BuildingSubID::EBuildingSubID subId, Bonus::BonusType type, int val, TPropagatorPtr & prop, int subtype)
@@ -1275,6 +1285,7 @@ bool CGTownInstance::addBonusIfBuilt(BuildingID building, Bonus::BonusType type,
 bool CGTownInstance::addBonusImpl(BuildingID building, Bonus::BonusType type, int val, TPropagatorPtr & prop, const std::string & description, int subtype)
 {
 	auto b = std::make_shared<Bonus>(Bonus::PERMANENT, type, Bonus::TOWN_STRUCTURE, val, building, description, subtype);
+
 	if(prop)
 		b->addPropagator(prop);
 	addNewBonus(b);

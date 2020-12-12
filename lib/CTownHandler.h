@@ -224,7 +224,7 @@ public:
 	// TODO: remove once save and mod compatability not needed
 	static std::vector<BattleHex> defaultMoatHexes();
 
-	std::string getFactionName() const;
+	std::string getLocalizedFactionName() const;
 	std::string getBuildingScope() const;
 	std::set<si32> getAllBuildings() const;
 	const CBuilding * getSpecialBuilding(BuildingSubID::EBuildingSubID subID) const;

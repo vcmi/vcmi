@@ -114,7 +114,14 @@ public:
 
 	ArtifactID warMachine;
 
-	bool isItNativeTerrain(int terrain) const;
+	bool isItNativeTerrain(ETerrainType::EETerrainType terrain) const;
+	/**
+	Returns creature native terrain considering some terrain bonuses.
+	@param considerBonus is used to avoid Dead Lock when this method is called inside getAllBonuses
+	considerBonus = true is called from Pathfinder and fills actual nativeTerrain considering bonus(es).
+	considerBonus = false is called on Battle init and returns already prepared nativeTerrain without Bonus system calling.
+	*/
+	ETerrainType::EETerrainType getNativeTerrain() const;
 	bool isDoubleWide() const; //returns true if unit is double wide on battlefield
 	bool isFlying() const; //returns true if it is a flying unit
 	bool isShooting() const; //returns true if unit can shoot
@@ -241,6 +248,7 @@ public:
 	CreatureID pickRandomMonster(CRandomGenerator & rand, int tier = -1) const; //tier <1 - CREATURES_PER_TOWN> or -1 for any
 	void addBonusForTier(int tier, std::shared_ptr<Bonus> b); //tier must be <1-7>
 	void addBonusForAllCreatures(std::shared_ptr<Bonus> b);
+	void removeBonusesFromAllCreatures();
 
 	CCreatureHandler();
 	~CCreatureHandler();

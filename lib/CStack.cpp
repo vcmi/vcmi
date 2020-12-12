@@ -29,14 +29,16 @@ CStack::CStack(const CStackInstance * Base, PlayerColor O, int I, ui8 Side, Slot
 	owner(O),
 	slot(S),
 	side(Side),
-	initialPosition()
+	initialPosition(),
+	nativeTerrain(ETerrainType::WRONG)
 {
 	health.init(); //???
 }
 
 CStack::CStack()
 	: CBonusSystemNode(STACK_BATTLE),
-	CUnitState()
+	CUnitState(),
+	nativeTerrain(ETerrainType::WRONG)
 {
 	base = nullptr;
 	type = nullptr;
@@ -84,8 +86,8 @@ void CStack::localInit(BattleInfo * battleInfo)
 		attachTo(army);
 		attachTo(const_cast<CCreature *>(type));
 	}
-
-	CUnitState::localInit(this);
+	nativeTerrain = type->getNativeTerrain(); //save nativeTerrain in the variable on the battle start to avoid dead lock
+	CUnitState::localInit(this); //it causes execution of the CStack::isOnNativeTerrain where nativeTerrain will be considered
 	position = initialPosition;
 }
 
@@ -323,7 +325,9 @@ bool CStack::canBeHealed() const
 
 bool CStack::isOnNativeTerrain() const
 {
-	return type->isItNativeTerrain(battle->getTerrainType());
+	//this code is called from CreatureTerrainLimiter::limit on battle start
+	auto res = nativeTerrain == ETerrainType::ANY_TERRAIN || nativeTerrain == battle->getTerrainType();
+	return res;
 }
 
 bool CStack::isOnTerrain(int terrain) const

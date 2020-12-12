@@ -89,10 +89,13 @@ ui32 CGHeroInstance::getTileCost(const TerrainTile & dest, const TerrainTile & f
 			break;
 		}
 	}
-	else if(ti->nativeTerrain != from.terType && !ti->hasBonusOfType(Bonus::NO_TERRAIN_PENALTY, from.terType))
+	else if(ti->nativeTerrain != from.terType //the terrain is not native
+		&& ti->nativeTerrain != ETerrainType::ANY_TERRAIN //no special creature bonus
+		&& !ti->hasBonusOfType(Bonus::NO_TERRAIN_PENALTY, from.terType) //no special movement bonus
+		)
 	{
 		static const CSelector selectorPATHFINDING = Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::PATHFINDING);
-		static const std::string keyPATHFINDING = "type_"+std::to_string((si32)Bonus::SECONDARY_SKILL_PREMY)+"s_"+std::to_string((si32)SecondarySkill::PATHFINDING);
+		static const std::string keyPATHFINDING = "type_" + std::to_string((si32)Bonus::SECONDARY_SKILL_PREMY) + "s_" + std::to_string((si32)SecondarySkill::PATHFINDING);
 
 		ret = VLC->heroh->terrCosts[from.terType];
 		ret -= valOfBonuses(selectorPATHFINDING, keyPATHFINDING);
@@ -102,7 +105,7 @@ ui32 CGHeroInstance::getTileCost(const TerrainTile & dest, const TerrainTile & f
 	return ret;
 }
 
-int CGHeroInstance::getNativeTerrain() const
+ETerrainType::EETerrainType CGHeroInstance::getNativeTerrain() const
 {
 	// NOTE: in H3 neutral stacks will ignore terrain penalty only if placed as topmost stack(s) in hero army.
 	// This is clearly bug in H3 however intended behaviour is not clear.
@@ -110,19 +113,19 @@ int CGHeroInstance::getNativeTerrain() const
 	// will always have best penalty without any influence from player-defined stacks order
 
 	// TODO: What should we do if all hero stacks are neutral creatures?
-	int nativeTerrain = -1;
+	ETerrainType::EETerrainType nativeTerrain = ETerrainType::BORDER;
+
 	for(auto stack : stacks)
 	{
-		int stackNativeTerrain = VLC->townh->factions[stack.second->type->faction]->nativeTerrain;
-		if(stackNativeTerrain == -1)
-			continue;
+		ETerrainType::EETerrainType stackNativeTerrain = stack.second->type->getNativeTerrain(); //consider terrain bonuses e.g. Lodestar.
 
-		if(nativeTerrain == -1)
+		if(stackNativeTerrain == ETerrainType::BORDER)
+			continue;
+		if(nativeTerrain == ETerrainType::BORDER)
 			nativeTerrain = stackNativeTerrain;
 		else if(nativeTerrain != stackNativeTerrain)
-			return -1;
+			return ETerrainType::BORDER;
 	}
-
 	return nativeTerrain;
 }
 

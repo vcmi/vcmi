@@ -1980,13 +1980,13 @@ JsonNode CreatureTerrainLimiter::toJsonNode() const
 	return root;
 }
 
-CreatureFactionLimiter::CreatureFactionLimiter(int Faction)
-	: faction(Faction)
+CreatureFactionLimiter::CreatureFactionLimiter(TFaction creatureFaction)
+	: faction(creatureFaction)
 {
 }
 
 CreatureFactionLimiter::CreatureFactionLimiter()
-	: faction(-1)
+	: faction((TFaction)-1)
 {
 }
 

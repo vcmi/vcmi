@@ -1746,6 +1746,8 @@ void CGameState::initTowns()
 void CGameState::initMapObjects()
 {
 	logGlobal->debug("\tObject initialization");
+	VLC->creh->removeBonusesFromAllCreatures();
+
 //	objCaller->preInit();
 	for(CGObjectInstance *obj : map->objects)
 	{

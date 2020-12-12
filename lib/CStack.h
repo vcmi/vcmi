@@ -27,6 +27,7 @@ public:
 
 	ui32 ID; //unique ID of stack
 	const CCreature * type;
+	ETerrainType::EETerrainType nativeTerrain; //tmp variable to save native terrain value on battle init
 	ui32 baseAmount;
 
 	PlayerColor owner; //owner - player color (255 for neutrals)
