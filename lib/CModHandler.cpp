@@ -66,24 +66,6 @@ CIdentifierStorage::ObjectCallback::ObjectCallback(
 	optional(optional)
 {}
 
-static std::pair<std::string, std::string> splitString(std::string input, char separator)
-{
-	std::pair<std::string, std::string> ret;
-	size_t splitPos = input.find(separator);
-
-	if (splitPos == std::string::npos)
-	{
-		ret.first.clear();
-		ret.second = input;
-	}
-	else
-	{
-		ret.first  = input.substr(0, splitPos);
-		ret.second = input.substr(splitPos + 1);
-	}
-	return ret;
-}
-
 void CIdentifierStorage::requestIdentifier(ObjectCallback callback)
 {
 	checkIdentifier(callback.type);
@@ -99,51 +81,51 @@ void CIdentifierStorage::requestIdentifier(ObjectCallback callback)
 
 void CIdentifierStorage::requestIdentifier(std::string scope, std::string type, std::string name, const std::function<void(si32)> & callback)
 {
-	auto pair = splitString(name, ':'); // remoteScope:name
+	auto pair = vstd::splitStringToPair(name, ':'); // remoteScope:name
 
 	requestIdentifier(ObjectCallback(scope, pair.first, type, pair.second, callback, false));
 }
 
 void CIdentifierStorage::requestIdentifier(std::string scope, std::string fullName, const std::function<void(si32)>& callback)
 {
-	auto scopeAndFullName = splitString(fullName, ':');
-	auto typeAndName = splitString(scopeAndFullName.second, '.');
+	auto scopeAndFullName = vstd::splitStringToPair(fullName, ':');
+	auto typeAndName = vstd::splitStringToPair(scopeAndFullName.second, '.');
 
 	requestIdentifier(ObjectCallback(scope, scopeAndFullName.first, typeAndName.first, typeAndName.second, callback, false));
 }
 
 void CIdentifierStorage::requestIdentifier(std::string type, const JsonNode & name, const std::function<void(si32)> & callback)
 {
-	auto pair = splitString(name.String(), ':'); // remoteScope:name
+	auto pair = vstd::splitStringToPair(name.String(), ':'); // remoteScope:name
 
 	requestIdentifier(ObjectCallback(name.meta, pair.first, type, pair.second, callback, false));
 }
 
 void CIdentifierStorage::requestIdentifier(const JsonNode & name, const std::function<void(si32)> & callback)
 {
-	auto pair  = splitString(name.String(), ':'); // remoteScope:<type.name>
-	auto pair2 = splitString(pair.second,   '.'); // type.name
+	auto pair  = vstd::splitStringToPair(name.String(), ':'); // remoteScope:<type.name>
+	auto pair2 = vstd::splitStringToPair(pair.second,   '.'); // type.name
 
 	requestIdentifier(ObjectCallback(name.meta, pair.first, pair2.first, pair2.second, callback, false));
 }
 
 void CIdentifierStorage::tryRequestIdentifier(std::string scope, std::string type, std::string name, const std::function<void(si32)> & callback)
 {
-	auto pair = splitString(name, ':'); // remoteScope:name
+	auto pair = vstd::splitStringToPair(name, ':'); // remoteScope:name
 
 	requestIdentifier(ObjectCallback(scope, pair.first, type, pair.second, callback, true));
 }
 
 void CIdentifierStorage::tryRequestIdentifier(std::string type, const JsonNode & name, const std::function<void(si32)> & callback)
 {
-	auto pair = splitString(name.String(), ':'); // remoteScope:name
+	auto pair = vstd::splitStringToPair(name.String(), ':'); // remoteScope:name
 
 	requestIdentifier(ObjectCallback(name.meta, pair.first, type, pair.second, callback, true));
 }
 
 boost::optional<si32> CIdentifierStorage::getIdentifier(std::string scope, std::string type, std::string name, bool silent)
 {
-	auto pair = splitString(name, ':'); // remoteScope:name
+	auto pair = vstd::splitStringToPair(name, ':'); // remoteScope:name
 	auto idList = getPossibleIdentifiers(ObjectCallback(scope, pair.first, type, pair.second, std::function<void(si32)>(), silent));
 
 	if (idList.size() == 1)
@@ -156,7 +138,7 @@ boost::optional<si32> CIdentifierStorage::getIdentifier(std::string scope, std::
 
 boost::optional<si32> CIdentifierStorage::getIdentifier(std::string type, const JsonNode & name, bool silent)
 {
-	auto pair = splitString(name.String(), ':'); // remoteScope:name
+	auto pair = vstd::splitStringToPair(name.String(), ':'); // remoteScope:name
 	auto idList = getPossibleIdentifiers(ObjectCallback(name.meta, pair.first, type, pair.second, std::function<void(si32)>(), silent));
 
 	if (idList.size() == 1)
@@ -169,8 +151,8 @@ boost::optional<si32> CIdentifierStorage::getIdentifier(std::string type, const 
 
 boost::optional<si32> CIdentifierStorage::getIdentifier(const JsonNode & name, bool silent)
 {
-	auto pair  = splitString(name.String(), ':'); // remoteScope:<type.name>
-	auto pair2 = splitString(pair.second,   '.'); // type.name
+	auto pair  = vstd::splitStringToPair(name.String(), ':'); // remoteScope:<type.name>
+	auto pair2 = vstd::splitStringToPair(pair.second,   '.'); // type.name
 	auto idList = getPossibleIdentifiers(ObjectCallback(name.meta, pair.first, pair2.first, pair2.second, std::function<void(si32)>(), silent));
 
 	if (idList.size() == 1)
@@ -183,8 +165,8 @@ boost::optional<si32> CIdentifierStorage::getIdentifier(const JsonNode & name, b
 
 boost::optional<si32> CIdentifierStorage::getIdentifier(std::string scope, std::string fullName, bool silent)
 {
-	auto pair  = splitString(fullName, ':'); // remoteScope:<type.name>
-	auto pair2 = splitString(pair.second,   '.'); // type.name
+	auto pair  = vstd::splitStringToPair(fullName, ':'); // remoteScope:<type.name>
+	auto pair2 = vstd::splitStringToPair(pair.second,   '.'); // type.name
 	auto idList = getPossibleIdentifiers(ObjectCallback(scope, pair.first, pair2.first, pair2.second, std::function<void(si32)>(), silent));
 
 	if (idList.size() == 1)
@@ -1010,7 +992,7 @@ void CModHandler::afterLoad(bool onlyEssential)
 
 std::string CModHandler::normalizeIdentifier(const std::string & scope, const std::string & remoteScope, const std::string & identifier)
 {
-	auto p = splitString(identifier, ':');
+	auto p = vstd::splitStringToPair(identifier, ':');
 
 	if(p.first.empty())
 		p.first = scope;
@@ -1023,11 +1005,11 @@ std::string CModHandler::normalizeIdentifier(const std::string & scope, const st
 
 void CModHandler::parseIdentifier(const std::string & fullIdentifier, std::string & scope, std::string & type, std::string & identifier)
 {
-	auto p = splitString(fullIdentifier, ':');
+	auto p = vstd::splitStringToPair(fullIdentifier, ':');
 
 	scope = p.first;
 
-	auto p2 = splitString(p.second, '.');
+	auto p2 = vstd::splitStringToPair(p.second, '.');
 
 	if(p2.first != "")
 	{
@@ -1050,7 +1032,7 @@ std::string CModHandler::makeFullIdentifier(const std::string & scope, const std
 	std::string actualName = identifier;
 
 	//ignore scope if identifier is scoped
-	auto scopeAndName = splitString(identifier, ':');
+	auto scopeAndName = vstd::splitStringToPair(identifier, ':');
 
 	if(scopeAndName.first != "")
 	{

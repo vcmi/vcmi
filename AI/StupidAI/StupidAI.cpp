@@ -231,10 +231,10 @@ void CStupidAI::print(const std::string &text) const
 
 BattleAction CStupidAI::goTowards(const CStack * stack, const CStack * enemy) const
 {
+	auto destination = enemy->getPosition();
 	assert(destination.isValid());
 	auto reachability = cb->getReachability(stack);
 	auto avHexes = cb->battleGetAvailableHexes(reachability, stack);
-	auto destination = enemy->getPosition();
 
 	if(vstd::contains(avHexes, destination))
 		return BattleAction::makeMove(stack, destination);

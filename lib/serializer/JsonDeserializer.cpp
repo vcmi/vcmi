@@ -37,6 +37,18 @@ void JsonDeserializer::serializeInternal(const std::string & fieldName, si32 & v
 	if(identifier != "")
 	{
 		si32 rawId = decoder(identifier);
+
+		if(rawId < 0) //may be, user has installed the mod into another directory...
+		{
+			auto internalId = vstd::splitStringToPair(identifier, ':').second;
+			auto currentScope = getCurrent().meta;
+			auto actualId = currentScope.length() > 0 ? currentScope + ":" + internalId : internalId;
+
+			rawId = decoder(actualId);
+
+			if(rawId >= 0)
+				logMod->warn("Identifier %s has been resolved as %s instead of %s", internalId, actualId, identifier);
+		}
 		if(rawId >= 0)
 			value = rawId;
 	}
