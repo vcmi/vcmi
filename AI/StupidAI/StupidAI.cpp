@@ -161,7 +161,7 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 
 		if(dists.distToNearestNeighbour(stack, closestEnemy->s) < GameConstants::BFIELD_SIZE)
 		{
-			return goTowards(stack, closestEnemy->s);
+			return goTowards(stack, closestEnemy->s->getAttackableHexes(stack));
 		}
 	}
 
@@ -229,31 +229,37 @@ void CStupidAI::print(const std::string &text) const
 	logAi->trace("CStupidAI  [%p]: %s", this, text);
 }
 
-BattleAction CStupidAI::goTowards(const CStack * stack, const CStack * enemy) const
+BattleAction CStupidAI::goTowards(const CStack * stack, std::vector<BattleHex> hexes) const
 {
-	auto destination = enemy->getPosition();
-	assert(destination.isValid());
 	auto reachability = cb->getReachability(stack);
 	auto avHexes = cb->battleGetAvailableHexes(reachability, stack);
 
-	if(vstd::contains(avHexes, destination))
-		return BattleAction::makeMove(stack, destination);
-
-	auto destNeighbours = destination.neighbouringTiles();
-	if(vstd::contains_if(destNeighbours, [&](BattleHex n) { return stack->coversPos(destination); }))
-	{
-		logAi->warn("Warning: already standing on neighbouring tile!");
-		//We shouldn't even be here...
-		return BattleAction::makeDefend(stack);
-	}
-
-	if(!avHexes.size()) //we are blocked or dest is blocked
+	if(!avHexes.size() || !hexes.size()) //we are blocked or dest is blocked
 	{
 		return BattleAction::makeDefend(stack);
 	}
 
-	BattleHex bestNeighbor = destination;
-	if(reachability.distToNearestNeighbour(stack, enemy, &bestNeighbor) > GameConstants::BFIELD_SIZE)
+	std::sort(hexes.begin(), hexes.end(), [&](BattleHex h1, BattleHex h2) -> bool
+	{
+		return reachability.distances[h1] < reachability.distances[h2];
+	});
+
+	for(auto hex : hexes)
+	{
+		if(vstd::contains(avHexes, hex))
+			return BattleAction::makeMove(stack, hex);
+
+		if(stack->coversPos(hex))
+		{
+			logAi->warn("Warning: already standing on neighbouring tile!");
+			//We shouldn't even be here...
+			return BattleAction::makeDefend(stack);
+		}
+	}
+
+	BattleHex bestNeighbor = hexes.front();
+
+	if(reachability.distances[bestNeighbor] > GameConstants::BFIELD_SIZE)
 	{
 		return BattleAction::makeDefend(stack);
 	}
