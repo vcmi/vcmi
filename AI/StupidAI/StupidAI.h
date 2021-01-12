@@ -46,6 +46,6 @@ public:
 	virtual void loadGame(BinaryDeserializer & h, const int version) override;
 
 private:
-	BattleAction goTowards(const CStack * stack, const CStack * enemy) const;
+	BattleAction goTowards(const CStack * stack, std::vector<BattleHex> hexes) const;
 };
 
