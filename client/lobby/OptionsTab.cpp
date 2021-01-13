@@ -88,7 +88,7 @@ size_t OptionsTab::CPlayerSettingsHelper::getImageIndex()
 	switch(type)
 	{
 	case TOWN:
-		switch (settings.castle)
+		switch(settings.castle)
 		{
 		case PlayerSettings::NONE:
 			return TOWN_NONE;

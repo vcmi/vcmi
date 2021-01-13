@@ -85,7 +85,25 @@
 				"gems":    { "type":"number"},
 				"gold":    { "type":"number"}
 			}
+		},
+		"overrides": {
+			"type" : "array",
+			"items" : [
+				{
+					"description" : "The buildings which bonuses should be overridden with bonuses of the current building",
+					"type" : "string"
+				}
+			]
+		},
+		"bonuses": {
+			"type":"array",
+			"description": "Bonuses, provided by this special building on build using bonus system",
+			"items": { "$ref" : "bonus.json" }
+		},
+		"onVisitBonuses": {
+			"type":"array",
+			"description": "Bonuses, provided by this special building on hero visit and applied to the visiting hero",
+			"items": { "$ref" : "bonus.json" }
 		}
-	  
 	}
 }

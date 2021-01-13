@@ -133,6 +133,7 @@ protected:
 	BuildingSubID::EBuildingSubID bType;
 
 	const std::string getVisitingBonusGreeting() const;
+	static const std::string getCustomBonusGreeting(const Bonus & bonus);
 };
 
 class DLL_LINKAGE COPWBonus : public CGTownBuilding
@@ -169,6 +170,9 @@ public:
 		h & static_cast<CGTownBuilding&>(*this);
 		h & visitors;
 	}
+
+private:
+	void applyBonuses(CGHeroInstance * h, const BonusList & bonuses) const;
 };
 
 class DLL_LINKAGE CTownAndVisitingHero : public CBonusSystemNode
@@ -205,7 +209,9 @@ public:
 	ConstTransitivePtr<CGHeroInstance> garrisonHero, visitingHero;
 	ui32 identifier; //special identifier from h3m (only > RoE maps)
 	si32 alignment;
-	std::set<BuildingID> forbiddenBuildings, builtBuildings;
+	std::set<BuildingID> forbiddenBuildings;
+	std::set<BuildingID> builtBuildings;
+	std::set<BuildingID> overriddenBuildings; ///buildings which bonuses are overridden and should not be applied
 	std::vector<CGTownBuilding*> bonusingBuildings;
 	std::vector<SpellID> possibleSpells, obligatorySpells;
 	std::vector<std::vector<SpellID> > spells; //spells[level] -> vector of spells, first will be available in guild
@@ -237,8 +243,8 @@ public:
 		h & events;
 		h & bonusingBuildings;
 
-		for (std::vector<CGTownBuilding*>::iterator i = bonusingBuildings.begin(); i!=bonusingBuildings.end(); i++)
-			(*i)->town = this;
+		for(auto * bonusingBuilding : bonusingBuildings)
+			bonusingBuilding->town = this;
 
 		h & town;
 		h & townAndVis;
@@ -256,6 +262,11 @@ public:
 
 		if(!h.saving && version < 793)
 			updateBonusingBuildings();
+
+		if(version >= 794)
+			h & overriddenBuildings;
+		else if(!h.saving)
+			updateTown794();
 	}
 	//////////////////////////////////////////////////////////////////////////
 
@@ -264,11 +275,6 @@ public:
 	void updateMoraleBonusFromArmy() override;
 	void deserializationFix();
 	void recreateBuildingsBonuses();
-	///bid: param to bind a building with a bonus, subId: param to check if already built
-	bool addBonusIfBuilt(BuildingSubID::EBuildingSubID subId, Bonus::BonusType type, int val, TPropagatorPtr & prop, int subtype = -1);
-	bool addBonusIfBuilt(BuildingSubID::EBuildingSubID subId, Bonus::BonusType type, int val, int subtype = -1);
-	bool addBonusIfBuilt(BuildingID building, Bonus::BonusType type, int val, TPropagatorPtr &prop, int subtype = -1); //returns true if building is built and bonus has been added
-	bool addBonusIfBuilt(BuildingID building, Bonus::BonusType type, int val, int subtype = -1); //convienence version of above
 	void setVisitingHero(CGHeroInstance *h);
 	void setGarrisonedHero(CGHeroInstance *h);
 	const CArmedInstance *getUpperArmy() const; //garrisoned hero if present or the town itself
@@ -318,6 +324,7 @@ public:
 	void removeCapitols (PlayerColor owner) const;
 	void clearArmy() const;
 	void addHeroToStructureVisitors(const CGHeroInstance *h, si64 structureInstanceID) const; //hero must be visiting or garrisoned in town
+	void deleteTownBonus(BuildingID::EBuildingID bid);
 
 	const CTown * getTown() const ;
 
@@ -336,7 +343,6 @@ public:
 	static void reset();
 
 protected:
-	static TPropagatorPtr emptyPropagator;
 	void setPropertyDer(ui8 what, ui32 val) override;
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 
@@ -344,9 +350,10 @@ private:
 	int getDwellingBonus(const std::vector<CreatureID>& creatureIds, const std::vector<ConstTransitivePtr<CGDwelling> >& dwellings) const;
 	void updateBonusingBuildings();
 	bool hasBuiltInOldWay(ETownType::ETownType type, BuildingID bid) const;
-	bool addBonusImpl(BuildingID building, Bonus::BonusType type, int val, TPropagatorPtr & prop, const std::string & description, int subtype = -1);
 	bool townEnvisagesBuilding(BuildingSubID::EBuildingSubID bid) const;
 	void tryAddOnePerWeekBonus(BuildingSubID::EBuildingSubID subID);
 	void tryAddVisitingBonus(BuildingSubID::EBuildingSubID subID);
+	void initOverriddenBids();
 	void addTownBonuses();
+	void updateTown794(); //populate overriddenBuildings and vanila bonuses for old saves 
 };

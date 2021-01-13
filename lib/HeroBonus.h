@@ -418,8 +418,8 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 
 	std::string description;
 
-	Bonus(ui16 Dur, BonusType Type, BonusSource Src, si32 Val, ui32 ID, std::string Desc, si32 Subtype=-1);
-	Bonus(ui16 Dur, BonusType Type, BonusSource Src, si32 Val, ui32 ID, si32 Subtype=-1, ValueType ValType = ADDITIVE_VALUE);
+	Bonus(BonusDuration Duration, BonusType Type, BonusSource Src, si32 Val, ui32 ID, std::string Desc, si32 Subtype=-1);
+	Bonus(BonusDuration Duration, BonusType Type, BonusSource Src, si32 Val, ui32 ID, si32 Subtype=-1, ValueType ValType = ADDITIVE_VALUE);
 	Bonus();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -507,6 +507,10 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 	inline void operator += (const ui32 Val) //no return
 	{
 		val += Val;
+	}
+	STRONG_INLINE static ui32 getSid32(ui32 high, ui32 low)
+	{
+		return (high << 16) + low;
 	}
 
 	std::string Description() const;
@@ -639,30 +643,6 @@ inline BonusList::const_iterator range_end(BonusList const &x)
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const BonusList &bonusList);
 
-class DLL_LINKAGE IPropagator
-{
-public:
-	virtual ~IPropagator();
-	virtual bool shouldBeAttached(CBonusSystemNode *dest);
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{}
-};
-
-class DLL_LINKAGE CPropagatorNodeType : public IPropagator
-{
-	int nodeType; //CBonusSystemNode::ENodeTypes
-public:
-	CPropagatorNodeType();
-	CPropagatorNodeType(int NodeType);
-	bool shouldBeAttached(CBonusSystemNode *dest) override;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & nodeType;
-	}
-};
-
 struct BonusLimitationContext
 {
 	std::shared_ptr<const Bonus> b;
@@ -756,6 +736,7 @@ class DLL_LINKAGE CBonusSystemNode : public virtual IBonusBearer, public boost::
 public:
 	enum ENodeTypes
 	{
+		NONE = -1, 
 		UNKNOWN, STACK_INSTANCE, STACK_BATTLE, SPECIALTY, ARTIFACT, CREATURE, ARTIFACT_INSTANCE, HERO, PLAYER, TEAM,
 		TOWN_AND_VISITOR, BATTLE, COMMANDER, GLOBAL_EFFECTS, ALL_CREATURES
 	};
@@ -855,6 +836,33 @@ public:
 	}
 
 	friend class CBonusProxy;
+};
+
+class DLL_LINKAGE IPropagator
+{
+public:
+	virtual ~IPropagator();
+	virtual bool shouldBeAttached(CBonusSystemNode *dest);
+	virtual CBonusSystemNode::ENodeTypes getPropagatorType() const;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{}
+};
+
+class DLL_LINKAGE CPropagatorNodeType : public IPropagator
+{
+	CBonusSystemNode::ENodeTypes nodeType;
+
+public:
+	CPropagatorNodeType();
+	CPropagatorNodeType(CBonusSystemNode::ENodeTypes NodeType);
+	bool shouldBeAttached(CBonusSystemNode *dest) override;
+	CBonusSystemNode::ENodeTypes getPropagatorType() const override;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & nodeType;
+	}
 };
 
 namespace NBonus

@@ -36,6 +36,7 @@ class DLL_LINKAGE LibClasses
 	void makeNull(); //sets all handler pointers to null
 	std::shared_ptr<CContentHandler> getContent() const;
 	void setContent(std::shared_ptr<CContentHandler> content);
+	void restoreAllCreaturesNodeType794();
 
 public:
 	bool IS_AI_ENABLED; //unused?
@@ -69,6 +70,9 @@ public:
 		h & heroh;
 		h & arth;
 		h & creh;
+		if(!h.saving && version < 794)
+			restoreAllCreaturesNodeType794();
+
 		h & townh;
 		h & objh;
 		h & objtypeh;

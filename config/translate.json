@@ -51,7 +51,9 @@
 		"greetingAttack" : "Some time spent at the %s allows you to learn more effective combat skills (+1 Attack Skill).",
 		"greetingDefence" : "Spending time in the %s, the experienced warriors therein teach you additional defensive skills (+1 Defense).",
 		"hasNotProduced" : "The %s has not produced anything yet.",
-		"hasProduced" : "The %s produced %d %s this week."
+		"hasProduced" : "The %s produced %d %s this week.",
+		"greetingCustomBonus" : "%s gives you +%d %s%s",
+		"greetingCustomUntil" : " until next battle."
 	},
 	"logicalExpressions" :
 	{

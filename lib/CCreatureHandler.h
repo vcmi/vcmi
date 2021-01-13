@@ -249,6 +249,7 @@ public:
 	void addBonusForTier(int tier, std::shared_ptr<Bonus> b); //tier must be <1-7>
 	void addBonusForAllCreatures(std::shared_ptr<Bonus> b);
 	void removeBonusesFromAllCreatures();
+	void restoreAllCreaturesNodeType794(); //restore ALL_CREATURES node type for old saves
 
 	CCreatureHandler();
 	~CCreatureHandler();

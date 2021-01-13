@@ -697,6 +697,19 @@ std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonNode &ability)
 	return b;
 }
 
+std::shared_ptr<Bonus> JsonUtils::parseBuildingBonus(const JsonNode &ability, BuildingID building, std::string description)
+{
+	/*	duration = Bonus::PERMANENT
+		source = Bonus::TOWN_STRUCTURE
+		bonusType, val, subtype - get from json
+	*/
+	auto b = std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::NONE, Bonus::TOWN_STRUCTURE, 0, building, description, -1);
+
+	if(!parseBonus(ability, b.get()))
+		return nullptr;
+	return b;
+}
+
 bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 {
 	const JsonNode *value;
@@ -726,7 +739,8 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 
 	b->sid = static_cast<si32>(ability["sourceID"].Float());
 
-	b->description = ability["description"].String();
+	if(!ability["description"].isNull())
+		b->description = ability["description"].String();
 
 	value = &ability["effectRange"];
 	if (!value->isNull())
@@ -738,7 +752,7 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 		switch (value->getType())
 		{
 		case JsonNode::JsonType::DATA_STRING:
-			b->duration = parseByMap(bonusDurationMap, value, "duration type ");
+			b->duration = (Bonus::BonusDuration)parseByMap(bonusDurationMap, value, "duration type ");
 			break;
 		case JsonNode::JsonType::DATA_VECTOR:
 			{
@@ -747,7 +761,7 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 				{
 					dur |= parseByMap(bonusDurationMap, &d, "duration type ");
 				}
-				b->duration = dur;
+				b->duration = (Bonus::BonusDuration)dur;
 			}
 			break;
 		default:

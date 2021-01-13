@@ -175,7 +175,7 @@
 				"special2":       { "type" : "lookoutTower", "height" : "high", "requires" : [ "fort" ] },
 				"special3":       { "type" : "library", "requires" : [ "mageGuild1" ] },
 				"special4":       { "type" : "knowledgeVisitingBonus", "requires" : [ "mageGuild1" ] },
-				"grail":          { "height" : "skyship",  "produce" : { "gold": 5000 } },
+				"grail":          { "height" : "skyship",  "produce" : { "gold": 5000 }, "bonuses": [ { "type": "PRIMARY_SKILL", "subtype": "primSkill.knowledge", "val": 15 } ] },
 
 				"dwellingLvl1":   { "id" : 30, "requires" : [ "fort" ] },
 				"dwellingLvl2":   { "id" : 31, "requires" : [ "dwellingLvl1" ] },

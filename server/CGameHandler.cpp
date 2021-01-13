@@ -3147,16 +3147,14 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 		processBeforeBuiltStructure(builtID);
 
 	//Take cost
-	if (!force)
-	{
+	if(!force)
 		giveResources(t->tempOwner, -requestedBuilding->resources);
-	}
 
-	//We know what has been built, appluy changes. Do this as final step to properly update town window
+	//We know what has been built, apply changes. Do this as final step to properly update town window
 	sendAndApply(&ns);
 
 	//Other post-built events. To some logic like giving spells to work gamestate changes for new building must be already in place!
-	for (auto builtID : ns.bid)
+	for(auto builtID : ns.bid)
 		processAfterBuiltStructure(builtID);
 
 	// now when everything is built - reveal tiles for lookout tower
@@ -3166,14 +3164,15 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 	getTilesInRange(fw.tiles, t->getSightCenter(), t->getSightRadius(), t->tempOwner, 1);
 	sendAndApply(&fw);
 
-	if (t->visitingHero)
+	if(t->visitingHero)
 		visitCastleObjects(t, t->visitingHero);
-	if (t->garrisonHero)
+	if(t->garrisonHero)
 		visitCastleObjects(t, t->garrisonHero);
 
 	checkVictoryLossConditionsForPlayer(t->tempOwner);
 	return true;
 }
+
 bool CGameHandler::razeStructure (ObjectInstanceID tid, BuildingID bid)
 {
 ///incomplete, simply erases target building
