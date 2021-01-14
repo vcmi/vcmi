@@ -196,3 +196,8 @@ void LibClasses::setContent(std::shared_ptr<CContentHandler> content)
 {
 	modh->content = content;
 }
+
+void LibClasses::restoreAllCreaturesNodeType794()
+{
+	creh->restoreAllCreaturesNodeType794();
+}

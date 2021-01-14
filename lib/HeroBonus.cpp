@@ -71,7 +71,8 @@ const std::map<std::string, TLimiterPtr> bonusLimiterMap =
 	{"SHOOTER_ONLY", std::make_shared<HasAnotherBonusLimiter>(Bonus::SHOOTER)},
 	{"DRAGON_NATURE", std::make_shared<HasAnotherBonusLimiter>(Bonus::DRAGON_NATURE)},
 	{"IS_UNDEAD", std::make_shared<HasAnotherBonusLimiter>(Bonus::UNDEAD)},
-	{"CREATURE_NATIVE_TERRAIN", std::make_shared<CreatureTerrainLimiter>()}
+	{"CREATURE_NATIVE_TERRAIN", std::make_shared<CreatureTerrainLimiter>()},
+	{"CREATURE_FACTION", std::make_shared<CreatureFactionLimiter>()}
 };
 
 const std::map<std::string, TPropagatorPtr> bonusPropagatorMap =
@@ -81,7 +82,8 @@ const std::map<std::string, TPropagatorPtr> bonusPropagatorMap =
 	{"PLAYER_PROPAGATOR", std::make_shared<CPropagatorNodeType>(CBonusSystemNode::PLAYER)},
 	{"HERO", std::make_shared<CPropagatorNodeType>(CBonusSystemNode::HERO)},
 	{"TEAM_PROPAGATOR", std::make_shared<CPropagatorNodeType>(CBonusSystemNode::TEAM)}, //untested
-	{"GLOBAL_EFFECT", std::make_shared<CPropagatorNodeType>(CBonusSystemNode::GLOBAL_EFFECTS)}
+	{"GLOBAL_EFFECT", std::make_shared<CPropagatorNodeType>(CBonusSystemNode::GLOBAL_EFFECTS)},
+	{"ALL_CREATURES", std::make_shared<CPropagatorNodeType>(CBonusSystemNode::ALL_CREATURES)}
 }; //untested
 
 const std::map<std::string, TUpdaterPtr> bonusUpdaterMap =
@@ -1570,8 +1572,8 @@ std::string Bonus::nameForBonus() const
 	}
 }
 
-Bonus::Bonus(ui16 Dur, BonusType Type, BonusSource Src, si32 Val, ui32 ID, std::string Desc, si32 Subtype)
-	: duration(Dur), type(Type), subtype(Subtype), source(Src), val(Val), sid(ID), description(Desc)
+Bonus::Bonus(Bonus::BonusDuration Duration, BonusType Type, BonusSource Src, si32 Val, ui32 ID, std::string Desc, si32 Subtype)
+	: duration((ui16)Duration), type(Type), subtype(Subtype), source(Src), val(Val), sid(ID), description(Desc)
 {
 	turnsRemain = 0;
 	valType = ADDITIVE_VALUE;
@@ -1579,8 +1581,8 @@ Bonus::Bonus(ui16 Dur, BonusType Type, BonusSource Src, si32 Val, ui32 ID, std::
 	boost::algorithm::trim(description);
 }
 
-Bonus::Bonus(ui16 Dur, BonusType Type, BonusSource Src, si32 Val, ui32 ID, si32 Subtype, ValueType ValType)
-	: duration(Dur), type(Type), subtype(Subtype), source(Src), val(Val), sid(ID), valType(ValType)
+Bonus::Bonus(Bonus::BonusDuration Duration, BonusType Type, BonusSource Src, si32 Val, ui32 ID, si32 Subtype, ValueType ValType)
+	: duration((ui16)Duration), type(Type), subtype(Subtype), source(Src), val(Val), sid(ID), valType(ValType)
 {
 	turnsRemain = 0;
 	effectRange = NO_LIMIT;
@@ -1922,15 +1924,25 @@ bool IPropagator::shouldBeAttached(CBonusSystemNode *dest)
 	return false;
 }
 
+CBonusSystemNode::ENodeTypes IPropagator::getPropagatorType() const
+{
+	return CBonusSystemNode::ENodeTypes::NONE;
+}
+
 CPropagatorNodeType::CPropagatorNodeType()
-	:nodeType(0)
+	:nodeType(CBonusSystemNode::ENodeTypes::UNKNOWN)
 {
 
 }
 
-CPropagatorNodeType::CPropagatorNodeType(int NodeType)
+CPropagatorNodeType::CPropagatorNodeType(CBonusSystemNode::ENodeTypes NodeType)
 	: nodeType(NodeType)
 {
+}
+
+CBonusSystemNode::ENodeTypes CPropagatorNodeType::getPropagatorType() const
+{
+	return nodeType;
 }
 
 bool CPropagatorNodeType::shouldBeAttached(CBonusSystemNode *dest)

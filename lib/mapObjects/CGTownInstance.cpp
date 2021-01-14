@@ -21,6 +21,7 @@
 #include "../mapping/CMap.h"
 #include "../CPlayerState.h"
 #include "../serializer/JsonSerializeFormat.h"
+#include "../HeroBonus.h"
 
 std::vector<const CArtifact *> CGTownInstance::merchantArtifacts;
 std::vector<int> CGTownInstance::universitySkills;
@@ -435,8 +436,6 @@ void CGDwelling::serializeJsonOptions(JsonSerializeFormat & handler)
 	}
 }
 
-TPropagatorPtr CGTownInstance::emptyPropagator = TPropagatorPtr();
-
 int CGTownInstance::getSightRadius() const //returns sight distance
 {
 	auto ret = CBuilding::HEIGHT_NO_TOWER;
@@ -753,6 +752,17 @@ void CGTownInstance::tryAddOnePerWeekBonus(BuildingSubID::EBuildingSubID subID)
 		bonusingBuildings.push_back(new COPWBonus(bid, subID, this));
 }
 
+void CGTownInstance::initOverriddenBids()
+{
+	for(const auto & bid : builtBuildings)
+	{
+		auto & overrideThem = town->buildings.at(bid)->overrideBids;
+
+		for(auto & overrideIt : overrideThem)
+			overriddenBuildings.insert(overrideIt);
+	}
+}
+
 void CGTownInstance::tryAddVisitingBonus(BuildingSubID::EBuildingSubID subID)
 {
 	auto bid = town->getBuildingType(subID);
@@ -765,6 +775,9 @@ void CGTownInstance::addTownBonuses()
 {
 	for(const auto & kvp : town->buildings)
 	{
+		if(vstd::contains(overriddenBuildings, kvp.first))
+			continue;
+
 		if(kvp.second->IsVisitingBonus())
 			bonusingBuildings.push_back(new CTownBonus(kvp.second->bid, kvp.second->subId, this));
 
@@ -773,6 +786,36 @@ void CGTownInstance::addTownBonuses()
 	}
 }
 
+void CGTownInstance::deleteTownBonus(BuildingID::EBuildingID bid)
+{
+	size_t i = 0;
+	CGTownBuilding * freeIt = nullptr;
+
+	for(i = 0; i != bonusingBuildings.size(); i++)
+	{
+		if(bonusingBuildings[i]->getBuildingType() == bid)
+		{
+			freeIt = bonusingBuildings[i];
+			break;
+		}
+	}
+	if(freeIt == nullptr)
+		return;
+
+	auto building = town->buildings.at(bid);
+	auto isVisitingBonus = building->IsVisitingBonus();
+	auto isWeekBonus = building->IsWeekBonus();
+
+	if(!isVisitingBonus && !isWeekBonus)
+		return;
+
+	bonusingBuildings.erase(bonusingBuildings.begin() + i);
+
+	if(isVisitingBonus)
+		delete (CTownBonus *)freeIt;
+	else if(isWeekBonus)
+		delete (COPWBonus *)freeIt;
+}
 
 void CGTownInstance::initObj(CRandomGenerator & rand) ///initialize town structures
 {
@@ -794,17 +837,18 @@ void CGTownInstance::initObj(CRandomGenerator & rand) ///initialize town structu
 				creatures[level].second.push_back(town->creatures[level][upgradeNum]);
 		}
 	}
+	initOverriddenBids();
 	addTownBonuses(); //add special bonuses from buildings to the bonusingBuildings vector.
 	recreateBuildingsBonuses();
 	updateAppearance();
 }
 
-void CGTownInstance::updateBonusingBuildings()
+void CGTownInstance::updateBonusingBuildings() //update to version 792
 {
-	if (this->town->faction != nullptr)
+	if(this->town->faction != nullptr)
 	{
 		//firstly, update subtype for the Bonusing objects, which are already stored in the bonusing list
-		for (auto building : bonusingBuildings) //no garrison bonuses here, only week and visiting bonuses
+		for(auto building : bonusingBuildings) //no garrison bonuses here, only week and visiting bonuses
 		{
 			switch (this->town->faction->index)
 			{
@@ -838,7 +882,7 @@ void CGTownInstance::updateBonusingBuildings()
 		}
 	}
 	//secondly, supplement bonusing buildings list and active bonuses; subtypes for these objects are already set in update792
-	for (auto & kvp : town->buildings)
+	for(auto & kvp : town->buildings)
 	{
 		auto & building = kvp.second;
 
@@ -862,6 +906,25 @@ void CGTownInstance::updateBonusingBuildings()
 			tryAddVisitingBonus(building->subId);
 	}
 	recreateBuildingsBonuses(); ///Clear all bonuses and recreate
+}
+
+void CGTownInstance::updateTown794()
+{
+	for(auto builtBuilding : builtBuildings)
+	{
+		auto building = town->buildings.at(builtBuilding);
+
+		for(auto overriddenBid : building->overrideBids)
+			overriddenBuildings.insert(overriddenBid);
+	}
+	for(auto & kvp : town->buildings)
+	{
+		auto & building = kvp.second;
+		//The building acts as a visiting bonus and it has not been overridden.
+		if(building->IsVisitingBonus() && overriddenBuildings.find(kvp.first) == overriddenBuildings.end())
+			tryAddVisitingBonus(building->subId);
+	}
+	recreateBuildingsBonuses();
 }
 
 bool CGTownInstance::hasBuiltInOldWay(ETownType::ETownType type, BuildingID bid) const
@@ -1184,112 +1247,30 @@ void CGTownInstance::updateMoraleBonusFromArmy()
 
 void CGTownInstance::recreateBuildingsBonuses()
 {
-	static TPropagatorPtr playerProp(new CPropagatorNodeType(PLAYER));
-
 	BonusList bl;
 	getExportedBonusList().getBonuses(bl, Selector::sourceType()(Bonus::TOWN_STRUCTURE));
+
 	for(auto b : bl)
 		removeBonus(b);
 
-	//tricky! -> checks tavern only if no bratherhood of sword or not a castle
-	if(!addBonusIfBuilt(BuildingSubID::BROTHERHOOD_OF_SWORD, Bonus::MORALE, +2))
-		addBonusIfBuilt(BuildingID::TAVERN, Bonus::MORALE, +1);
+	for(auto bid : builtBuildings)
+	{
+		if(vstd::contains(overriddenBuildings, bid)) //tricky! -> checks tavern only if no bratherhood of sword
+			continue;
 
-	addBonusIfBuilt(BuildingSubID::FOUNTAIN_OF_FORTUNE, Bonus::LUCK, +2); //fountain of fortune
-	addBonusIfBuilt(BuildingSubID::SPELL_POWER_GARRISON_BONUS, Bonus::PRIMARY_SKILL, +2, PrimarySkill::SPELL_POWER);//works as Brimstone Clouds
-	addBonusIfBuilt(BuildingSubID::ATTACK_GARRISON_BONUS, Bonus::PRIMARY_SKILL, +2, PrimarySkill::ATTACK);//works as Blood Obelisk
-	addBonusIfBuilt(BuildingSubID::DEFENSE_GARRISON_BONUS, Bonus::PRIMARY_SKILL, +2, PrimarySkill::DEFENSE);//works as Glyphs of Fear
-	addBonusIfBuilt(BuildingSubID::LIGHTHOUSE, Bonus::SEA_MOVEMENT, +500, playerProp);
+		auto building = town->buildings.at(bid);
 
-	if(subID == ETownType::CASTLE) //castle
-	{
-		addBonusIfBuilt(BuildingID::GRAIL, Bonus::MORALE, +2, playerProp); //colossus
-	}
-	else if(subID == ETownType::RAMPART) //rampart
-	{
-		addBonusIfBuilt(BuildingID::GRAIL, Bonus::LUCK, +2, playerProp); //guardian spirit
-	}
-	else if(subID == ETownType::TOWER) //tower
-	{
-		addBonusIfBuilt(BuildingID::GRAIL, Bonus::PRIMARY_SKILL, +15, PrimarySkill::KNOWLEDGE); //grail
-	}
-	else if(subID == ETownType::NECROPOLIS) //necropolis
-	{
-		addBonusIfBuilt(BuildingID::COVER_OF_DARKNESS,    Bonus::DARKNESS, +20);
-		addBonusIfBuilt(BuildingID::NECROMANCY_AMPLIFIER, Bonus::SECONDARY_SKILL_PREMY, +10, playerProp, SecondarySkill::NECROMANCY); //necromancy amplifier
-		addBonusIfBuilt(BuildingID::GRAIL, Bonus::SECONDARY_SKILL_PREMY, +20, playerProp, SecondarySkill::NECROMANCY); //Soul prison
-	}
-	else if(subID == ETownType::DUNGEON) //Dungeon
-	{
-		addBonusIfBuilt(BuildingID::GRAIL, Bonus::PRIMARY_SKILL, +12, PrimarySkill::SPELL_POWER); //grail
-	}
-	else if(subID == ETownType::STRONGHOLD) //Stronghold
-	{
-		addBonusIfBuilt(BuildingID::GRAIL, Bonus::PRIMARY_SKILL, +20, PrimarySkill::ATTACK); //grail
-	}
-	else if(subID == ETownType::FORTRESS) //Fortress
-	{
-		addBonusIfBuilt(BuildingID::GRAIL, Bonus::PRIMARY_SKILL, +10, PrimarySkill::ATTACK); //grail
-		addBonusIfBuilt(BuildingID::GRAIL, Bonus::PRIMARY_SKILL, +10, PrimarySkill::DEFENSE); //grail
-	}
-	else if(boost::algorithm::ends_with(this->town->faction->identifier, ":cove") && hasBuilt(BuildingID::GRAIL))
-	{
-		static TPropagatorPtr lsProp(new CPropagatorNodeType(ALL_CREATURES));
-		static auto factionLimiter = std::make_shared<CreatureFactionLimiter>(this->town->faction->index);
-		auto b = std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::NO_TERRAIN_PENALTY, Bonus::TOWN_STRUCTURE, 0, BuildingID::GRAIL, "", -1);
+		if(building->buildingBonuses.empty())
+			continue;
 
-		b->addLimiter(factionLimiter);
-		b->addPropagator(lsProp);
-		VLC->creh->addBonusForAllCreatures(b);
-	}
-}
-
-bool CGTownInstance::addBonusIfBuilt(BuildingSubID::EBuildingSubID subId, Bonus::BonusType type, int val, TPropagatorPtr & prop, int subtype)
-{
-	BuildingID currentBid = BuildingID::NONE;
-	std::ostringstream descr;
-
-	for(const auto & bid : builtBuildings)
-	{
-		if(town->buildings.at(bid)->subId == subId)
+		for(auto bonus : building->buildingBonuses)
 		{
-			descr << town->buildings.at(bid)->Name();
-			currentBid = bid;
-			break;
+			if(bonus->propagator != nullptr && bonus->propagator->getPropagatorType() == ALL_CREATURES)
+				VLC->creh->addBonusForAllCreatures(bonus);
+			else
+				addNewBonus(bonus);
 		}
 	}
-	return currentBid == BuildingID::NONE ? false
-		: addBonusImpl(currentBid, type, val, prop, descr.str(), subtype);
-}
-
-bool CGTownInstance::addBonusIfBuilt(BuildingSubID::EBuildingSubID subId, Bonus::BonusType type, int val, int subtype)
-{
-	return addBonusIfBuilt(subId, type, val, emptyPropagator, subtype);
-}
-
-bool CGTownInstance::addBonusIfBuilt(BuildingID building, Bonus::BonusType type, int val, TPropagatorPtr & prop, int subtype)
-{
-	if(!hasBuilt(building))
-		return false;
-	
-	std::ostringstream descr;
-	descr << town->buildings.at(building)->Name();
-	return addBonusImpl(building, type, val, prop, descr.str(), subtype);
-}
-
-bool CGTownInstance::addBonusIfBuilt(BuildingID building, Bonus::BonusType type, int val, int subtype)
-{
-	return addBonusIfBuilt(building, type, val, emptyPropagator, subtype);
-}
-
-bool CGTownInstance::addBonusImpl(BuildingID building, Bonus::BonusType type, int val, TPropagatorPtr & prop, const std::string & description, int subtype)
-{
-	auto b = std::make_shared<Bonus>(Bonus::PERMANENT, type, Bonus::TOWN_STRUCTURE, val, building, description, subtype);
-
-	if(prop)
-		b->addPropagator(prop);
-	addNewBonus(b);
-	return true;
 }
 
 void CGTownInstance::setVisitingHero(CGHeroInstance *h)
@@ -1738,11 +1719,11 @@ void CTownBonus::setProperty (ui8 what, ui32 val)
 void CTownBonus::onHeroVisit(const CGHeroInstance * h) const
 {
 	ObjectInstanceID heroID = h->id;
-	if (town->hasBuilt(bID) && visitors.find(heroID) == visitors.end())
+	if(town->hasBuilt(bID) && visitors.find(heroID) == visitors.end())
 	{
 		si64 val = 0;
 		InfoWindow iw;
-		PrimarySkill::PrimarySkill what = PrimarySkill::ATTACK;
+		PrimarySkill::PrimarySkill what = PrimarySkill::NONE;
 
 		switch (bType)
 		{
@@ -1775,13 +1756,49 @@ void CTownBonus::onHeroVisit(const CGHeroInstance * h) const
 			val = 1;
 			iw.components.push_back(Component(Component::PRIM_SKILL, 1, 1, 0));
 			break;
+
+		case BuildingSubID::CUSTOM_VISITING_BONUS:
+			const auto building = town->town->buildings.at(bID);
+			if(!h->hasBonusFrom(Bonus::TOWN_STRUCTURE, Bonus::getSid32(building->town->faction->index, building->bid)))
+			{
+				const auto & bonuses = building->onVisitBonuses;
+				applyBonuses(const_cast<CGHeroInstance *>(h), bonuses);
+			}
+			break;
 		}
-		iw.player = cb->getOwner(heroID);
-		iw.text << getVisitingBonusGreeting();
-		cb->showInfoDialog(&iw);
-		cb->changePrimSkill(cb->getHero(heroID), what, val);
-		town->addHeroToStructureVisitors(h, indexOnTV);
+		if(what != PrimarySkill::NONE)
+		{
+			iw.player = cb->getOwner(heroID);
+			iw.text << getVisitingBonusGreeting();
+			cb->showInfoDialog(&iw);
+			cb->changePrimSkill(cb->getHero(heroID), what, val);
+			town->addHeroToStructureVisitors(h, indexOnTV);
+		}
 	}
+}
+
+void CTownBonus::applyBonuses(CGHeroInstance * h, const BonusList & bonuses) const
+{
+	auto addToVisitors = false;
+
+	for(auto bonus : bonuses)
+	{
+		GiveBonus gb;
+		InfoWindow iw;
+
+		gb.bonus = * bonus;
+		gb.id = h->id.getNum();
+		cb->giveHeroBonus(&gb);
+
+		if(bonus->duration == Bonus::PERMANENT)
+			addToVisitors = true;
+
+		iw.player = cb->getOwner(h->id);
+		iw.text << getCustomBonusGreeting(gb.bonus);
+		cb->showInfoDialog(&iw);
+	}
+	if(addToVisitors)
+		town->addHeroToStructureVisitors(h, indexOnTV);
 }
 
 GrowthInfo::Entry::Entry(const std::string &format, int _count)
@@ -1850,4 +1867,23 @@ const std::string CGTownBuilding::getVisitingBonusGreeting() const
 	boost::algorithm::replace_first(bonusGreeting, "%s", buildingName);
 	town->town->setGreeting(bType, bonusGreeting);
 	return bonusGreeting;
+}
+
+const std::string CGTownBuilding::getCustomBonusGreeting(const Bonus & bonus)
+{
+	auto bonusGreeting = std::string(VLC->generaltexth->localizedTexts["townHall"]["greetingCustomBonus"].String()); //"%s gives you +%d %s%s"
+	std::string param = "";
+	std::string until = "";
+
+	if(bonus.type == Bonus::MORALE)
+		param = VLC->generaltexth->allTexts[384];
+	else if(bonus.type == Bonus::LUCK)
+		param = VLC->generaltexth->allTexts[385];
+
+	until = bonus.duration == (ui16)Bonus::ONE_BATTLE
+		? VLC->generaltexth->localizedTexts["townHall"]["greetingCustomUntil"].String() : ".";
+
+	boost::format fmt = boost::format(bonusGreeting) % bonus.description % bonus.val % param % until;
+	std::string greeting = fmt.str();
+	return greeting;
 }

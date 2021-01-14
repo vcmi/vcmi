@@ -8,6 +8,7 @@
  *
  */
 #pragma once
+#include "GameConstants.h"
 
 class JsonNode;
 typedef std::map <std::string, JsonNode> JsonMap;
@@ -168,6 +169,7 @@ namespace JsonUtils
 	///
 	DLL_LINKAGE std::shared_ptr<Bonus> parseBonus(const JsonVector &ability_vec);
 	DLL_LINKAGE std::shared_ptr<Bonus> parseBonus(const JsonNode &ability);
+	DLL_LINKAGE std::shared_ptr<Bonus> parseBuildingBonus(const JsonNode &ability, BuildingID building, std::string description);
 	DLL_LINKAGE bool parseBonus(const JsonNode &ability, Bonus *placement);
 	DLL_LINKAGE std::shared_ptr<ILimiter> parseLimiter(const JsonNode & limiter);
 	DLL_LINKAGE void resolveIdentifier(si32 &var, const JsonNode &node, std::string name);

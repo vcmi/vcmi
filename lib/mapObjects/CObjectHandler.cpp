@@ -260,7 +260,7 @@ void CGObjectInstance::giveDummyBonus(ObjectInstanceID heroID, ui8 duration) con
 	GiveBonus gbonus;
 	gbonus.bonus.type = Bonus::NONE;
 	gbonus.id = heroID.getNum();
-	gbonus.bonus.duration = duration;
+	gbonus.bonus.duration = (Bonus::BonusDuration)duration;
 	gbonus.bonus.source = Bonus::OBJECT;
 	gbonus.bonus.sid = ID;
 	cb->giveHeroBonus(&gbonus);

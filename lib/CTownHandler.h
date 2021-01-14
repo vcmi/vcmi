@@ -16,6 +16,7 @@
 #include "IHandlerBase.h"
 #include "LogicalExpression.h"
 #include "battle/BattleHex.h"
+#include "HeroBonus.h"
 
 class CLegacyConfigParser;
 class JsonNode;
@@ -47,6 +48,9 @@ public:
 	BuildingID bid; //structure ID
 	BuildingID upgrade; /// indicates that building "upgrade" can be improved by this, -1 = empty
 	BuildingSubID::EBuildingSubID subId; /// subtype for special buildings, -1 = the building is not special
+	std::set<BuildingID> overrideBids; /// the building which bonuses should be overridden with bonuses of the current building
+	BonusList buildingBonuses;
+	BonusList onVisitBonuses;
 
 	enum EBuildMode
 	{
@@ -95,14 +99,16 @@ public:
 	bool IsVisitingBonus() const
 	{
 		return subId == BuildingSubID::ATTACK_VISITING_BONUS ||
-			subId == BuildingSubID::DEFENSE_VISITING_BONUS || 
+			subId == BuildingSubID::DEFENSE_VISITING_BONUS ||
 			subId == BuildingSubID::SPELL_POWER_VISITING_BONUS ||
 			subId == BuildingSubID::KNOWLEDGE_VISITING_BONUS ||
-			subId == BuildingSubID::EXPERIENCE_VISITING_BONUS;
+			subId == BuildingSubID::EXPERIENCE_VISITING_BONUS ||
+			subId == BuildingSubID::CUSTOM_VISITING_BONUS;
 	}
 
-	/// input: faction, bid; output: subId, height;
-	void update792(const BuildingID & bid, BuildingSubID::EBuildingSubID & subId, ETowerHeight & height);
+	void addNewBonus(std::shared_ptr<Bonus> b, BonusList & bonusList);
+	void update792();
+	void update794();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -123,9 +129,17 @@ public:
 			h & height;
 		}
 		if(!h.saving && version < 793)
+			update792(); //adjust height, subId
+
+		if(version >= 794)
 		{
-			update792(bid, subId, height);
+			h & overrideBids;
+			h & buildingBonuses;
+			h & onVisitBonuses;
 		}
+		else if(!h.saving)
+			update794(); //populate overrideBids, buildingBonuses, onVisitBonuses
+
 		if(!h.saving)
 			deserializeFix();
 	}
@@ -133,8 +147,8 @@ public:
 	friend class CTownHandler;
 
 private:
-
 	void deserializeFix();
+	const JsonNode & getCurrentFactionForUpdateRoutine() const;
 };
 
 /// This is structure used only by client
@@ -354,18 +368,26 @@ class DLL_LINKAGE CTownHandler : public IHandlerBase
 
 	std::map<CTown *, JsonNode> warMachinesToLoad;
 	std::vector<BuildingRequirementsHelper> requirementsToLoad;
+	std::vector<BuildingRequirementsHelper> overriddenBidsToLoad; //list of buildings, which bonuses should be overridden.
 
 	const static ETerrainType::EETerrainType defaultGoodTerrain = ETerrainType::EETerrainType::GRASS;
 	const static ETerrainType::EETerrainType defaultEvilTerrain = ETerrainType::EETerrainType::LAVA;
 	const static ETerrainType::EETerrainType defaultNeutralTerrain = ETerrainType::EETerrainType::ROUGH;
 
+	static TPropagatorPtr emptyPropagator;
+
 	void initializeRequirements();
+	void initializeOverridden();
 	void initializeWarMachines();
 
 	/// loads CBuilding's into town
-	void loadBuildingRequirements(CBuilding * building, const JsonNode & source);
+	void loadBuildingRequirements(CBuilding * building, const JsonNode & source, std::vector<BuildingRequirementsHelper> & bidsToLoad);
 	void loadBuilding(CTown * town, const std::string & stringID, const JsonNode & source);
 	void loadBuildings(CTown * town, const JsonNode & source);
+
+	std::shared_ptr<Bonus> createBonus(CBuilding * build, Bonus::BonusType type, int val, int subtype = -1);
+	std::shared_ptr<Bonus> createBonus(CBuilding * build, Bonus::BonusType type, int val, TPropagatorPtr & prop, int subtype = -1);
+	std::shared_ptr<Bonus> createBonusImpl(BuildingID building, Bonus::BonusType type, int val, TPropagatorPtr & prop, const std::string & description, int subtype = -1);
 
 	/// loads CStructure's into town
 	void loadStructure(CTown &town, const std::string & stringID, const JsonNode & source);
@@ -383,7 +405,7 @@ class DLL_LINKAGE CTownHandler : public IHandlerBase
 
 	ETerrainType::EETerrainType getDefaultTerrainForAlignment(EAlignment::EAlignment aligment) const;
 
-	CFaction * loadFromJson(const JsonNode & data, const std::string & identifier);
+	CFaction * loadFromJson(const JsonNode & data, const std::string & identifier, TFaction index);
 
 	void loadRandomFaction();
 
@@ -404,6 +426,7 @@ public:
 
 	void loadObject(std::string scope, std::string name, const JsonNode & data) override;
 	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
+	void addBonusesForVanilaBuilding(CBuilding * building);
 
 	void loadCustom() override;
 	void afterLoadFinalization() override;
@@ -416,6 +439,7 @@ public:
 
 	//json serialization helper
 	static std::string encodeFaction(const si32 index);
+	static void loadSpecialBuildingBonuses(const JsonNode & source, BonusList & bonusList, CBuilding * building);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

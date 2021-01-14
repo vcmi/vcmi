@@ -1210,6 +1210,11 @@ void CCreatureHandler::removeBonusesFromAllCreatures()
 	allCreatures.removeBonuses(Selector::all);
 }
 
+void CCreatureHandler::restoreAllCreaturesNodeType794()
+{
+	allCreatures.setNodeType(CBonusSystemNode::ENodeTypes::ALL_CREATURES);
+}
+
 void CCreatureHandler::buildBonusTreeForTiers()
 {
 	for(CCreature *c : creatures)

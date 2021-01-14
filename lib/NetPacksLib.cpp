@@ -245,10 +245,21 @@ DLL_LINKAGE void GiveBonus::applyGs(CGameState *gs)
 	std::string &descr = b->description;
 
 	if(!bdescr.message.size()
-		&& bonus.source == Bonus::OBJECT
 		&& (bonus.type == Bonus::LUCK || bonus.type == Bonus::MORALE))
 	{
-		descr = VLC->generaltexth->arraytxt[bonus.val > 0 ? 110 : 109]; //+/-%d Temporary until next battle"
+		if (bonus.source == Bonus::OBJECT)
+		{
+			descr = VLC->generaltexth->arraytxt[bonus.val > 0 ? 110 : 109]; //+/-%d Temporary until next battle"
+		}
+		else if(bonus.source == Bonus::TOWN_STRUCTURE)
+		{
+			descr = bonus.description;
+			return;
+		}
+		else
+		{
+			bdescr.toString(descr);
+		}
 	}
 	else
 	{
@@ -556,16 +567,27 @@ void TryMoveHero::applyGs(CGameState *gs)
 DLL_LINKAGE void NewStructures::applyGs(CGameState *gs)
 {
 	CGTownInstance *t = gs->getTown(tid);
+
 	for(const auto & id : bid)
 	{
 		assert(t->town->buildings.at(id) != nullptr);
 		t->builtBuildings.insert(id);
-
 		t->updateAppearance();
+		auto currentBuilding = t->town->buildings.at(id);
+
+		if(currentBuilding->overrideBids.empty())
+			continue;
+
+		for(auto overrideBid : currentBuilding->overrideBids)
+		{
+			t->overriddenBuildings.insert(overrideBid);
+			t->deleteTownBonus(overrideBid);
+		}
 	}
 	t->builded = builded;
 	t->recreateBuildingsBonuses();
 }
+
 DLL_LINKAGE void RazeStructures::applyGs(CGameState *gs)
 {
 	CGTownInstance *t = gs->getTown(tid);
