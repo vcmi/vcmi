@@ -1046,6 +1046,7 @@ public:
 	enum ECreatureID
 	{
 		NONE = -1,
+		ARCHER = 2,
 		CAVALIER = 10,
 		CHAMPION = 11,
 		STONE_GOLEM = 32,

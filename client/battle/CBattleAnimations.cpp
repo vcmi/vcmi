@@ -758,11 +758,19 @@ bool CShootingAnimation::init()
 	// If the creature id is 149 then it's a arrow tower which has no additional info so get the
 	// actual arrow tower shooter instead.
 	const CCreature *shooterInfo = shooter->getCreature();
-	if (shooterInfo->idNumber == CreatureID::ARROW_TOWERS)
+
+	if(shooterInfo->idNumber == CreatureID::ARROW_TOWERS)
 	{
 		int creID = owner->siegeH->town->town->clientInfo.siegeShooter;
 		shooterInfo = CGI->creh->creatures[creID];
 	}
+	if(!shooterInfo->animation.missleFrameAngles.size())
+		logAnim->error("Mod error: Creature '%s' on the Archer's tower is not a shooter. Mod should be fixed. Trying to use archer's data instead..."
+			, shooterInfo->nameSing);
+	
+	auto & angles = shooterInfo->animation.missleFrameAngles.size() 
+		? shooterInfo->animation.missleFrameAngles
+		: CGI->creh->creatures[CreatureID::ARCHER]->animation.missleFrameAngles;
 
 	ProjectileInfo spi;
 	spi.shotDone = false;
@@ -844,8 +852,6 @@ bool CShootingAnimation::init()
 
 		owner->addNewAnim( new CEffectAnimation(owner, catapultDamage ? "SGEXPL.DEF" : "CSGRCK.DEF", animPos.x, animPos.y));
 	}
-
-	auto & angles = shooterInfo->animation.missleFrameAngles;
 	double pi = boost::math::constants::pi<double>();
 
 	if (owner->idToProjectile.count(spi.creID) == 0) //in some cases (known one: hero grants shooter bonus to unit) the shooter stack's projectile may not be properly initialized
