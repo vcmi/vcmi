@@ -49,6 +49,7 @@ public:
 	CTabbedInt(CreateFunc create, Point position=Point(), size_t ActiveID=0);
 
 	void setActive(size_t which);
+	size_t getActive() const;
 	//recreate active tab
 	void reset();
 

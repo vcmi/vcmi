@@ -1291,6 +1291,7 @@ static void handleEvent(SDL_Event & ev)
 			{
 				CSH->endGameplay();
 				GH.defActionsDef = 63;
+				CMM->menu->switchToTab("main");
 			}
 			break;
 		case EUserEvent::RESTART_GAME:

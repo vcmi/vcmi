@@ -55,6 +55,7 @@ public:
 
 	void switchToTab(size_t index);
 	void switchToTab(std::string name);
+	size_t getActiveTab() const;
 };
 
 class CMenuEntry : public CIntObject
