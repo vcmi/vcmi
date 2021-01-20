@@ -139,6 +139,11 @@ void CMenuScreen::switchToTab(std::string name)
 	switchToTab(vstd::find_pos(menuNameToEntry, name));
 }
 
+size_t CMenuScreen::getActiveTab() const
+{
+	return tabs->getActive();
+}
+
 //funciton for std::string -> std::function conversion for main menu
 static std::function<void()> genCommand(CMenuScreen * menu, std::vector<std::string> menuType, const std::string & string)
 {
@@ -301,7 +306,7 @@ void CMainMenu::update()
 	{
 		GH.pushInt(CMM);
 		GH.pushInt(menu);
-		menu->switchToTab(0);
+		menu->switchToTab(menu->getActiveTab());
 	}
 
 	// Handles mouse and key input

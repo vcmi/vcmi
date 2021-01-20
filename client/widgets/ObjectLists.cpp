@@ -58,6 +58,11 @@ void CTabbedInt::setActive(size_t which)
 	}
 }
 
+size_t CTabbedInt::getActive() const
+{
+	return activeID;
+}
+
 void CTabbedInt::reset()
 {
 	deleteItem(activeTab);
