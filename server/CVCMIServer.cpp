@@ -228,6 +228,8 @@ void CVCMIServer::prepareToStartGame()
 	if(state == EServerState::GAMEPLAY)
 	{
 		restartGameplay = true;
+		* si = * gh->gs->initialOpts;
+		si->seedToBeUsed = si->seedPostInit = 0;
 		state = EServerState::LOBBY;
 		// FIXME: dirry hack to make sure old CGameHandler::run is finished
 		boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
