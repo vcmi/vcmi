@@ -578,6 +578,7 @@ void CBattleAI::attemptCastingSpell()
 		size_t minTurnSpan = ourUnits/3; //todo: tweak this
 
 		std::vector<battle::Units> newTurnOrder;
+
 		state.battleGetTurnOrder(newTurnOrder, amount, 2);
 
 		const bool turnSpanOK = evaluateQueue(newValueOfStack, newTurnOrder, &state, minTurnSpan, nullptr);
