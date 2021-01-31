@@ -137,7 +137,7 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player)
 
 CPlayerInterface::~CPlayerInterface()
 {
-	CCS->soundh->ambientStopAllChannels();
+	if(CCS->soundh) CCS->soundh->ambientStopAllChannels();
 	logGlobal->trace("\tHuman player interface for player %s being destructed", playerID.getStr());
 	delete showingDialog;
 	delete cingconsole;

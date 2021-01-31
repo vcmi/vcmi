@@ -1066,33 +1066,21 @@ bool CMP_stack::operator()(const battle::Unit * a, const battle::Unit * b)
 	{
 	case 0: //catapult moves after turrets
 		return a->creatureIndex() > b->creatureIndex(); //catapult is 145 and turrets are 149
-	case 1: //fastest first, upper slot first
+	case 1:
+	case 2:
+	case 3:
 		{
 			int as = a->getInitiative(turn), bs = b->getInitiative(turn);
-			if(as != bs)
-				return as > bs;
-
-			if (a->unitSide() == b->unitSide())
-				return a->unitSlot() < b->unitSlot();
-			else if (a->unitSide() == side || b->unitSide() == side)
-				return a->unitSide() != side;
-			//FIXME: what about summoned stacks
-
-			return std::addressof(a) > std::addressof(b);
-		}	
-	case 2: //fastest last, upper slot first
-	case 3: //fastest last, upper slot first
-		{
-			int as = a->getInitiative(turn), bs = b->getInitiative(turn);
+			
 			if(as != bs)
 				return as > bs;
 
 			if(a->unitSide() == b->unitSide())
 				return a->unitSlot() < b->unitSlot();
-			else if (a->unitSide() == side || b->unitSide() == side)
-				return a->unitSide() != side;
-
-			return std::addressof(a) > std::addressof(b);
+			
+			return (a->unitSide() == side || b->unitSide() == side)
+				? a->unitSide() != side
+				: a->unitSide() < b->unitSide();
 		}
 	default:
 		assert(false);

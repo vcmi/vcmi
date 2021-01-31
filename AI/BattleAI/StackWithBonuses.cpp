@@ -14,11 +14,16 @@
 
 void actualizeEffect(TBonusListPtr target, const Bonus & ef)
 {
-	for(auto bonus : *target) //TODO: optimize
+	for(auto & bonus : *target) //TODO: optimize
 	{
 		if(bonus->source == Bonus::SPELL_EFFECT && bonus->type == ef.type && bonus->subtype == ef.subtype)
 		{
-			bonus->turnsRemain = std::max(bonus->turnsRemain, ef.turnsRemain);
+			if(bonus->turnsRemain < ef.turnsRemain)
+			{
+				bonus.reset(new Bonus(*bonus));
+
+				bonus->turnsRemain = ef.turnsRemain;
+			}
 		}
 	}
 }
