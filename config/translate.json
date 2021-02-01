@@ -53,7 +53,8 @@
 		"hasNotProduced" : "The %s has not produced anything yet.",
 		"hasProduced" : "The %s produced %d %s this week.",
 		"greetingCustomBonus" : "%s gives you +%d %s%s",
-		"greetingCustomUntil" : " until next battle."
+		"greetingCustomUntil" : " until next battle.",
+		"greetingInTownMagicWell" : "%s has restored your spell points to maximum."
 	},
 	"logicalExpressions" :
 	{

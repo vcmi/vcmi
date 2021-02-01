@@ -1812,6 +1812,13 @@ void CTownBonus::applyBonuses(CGHeroInstance * h, const BonusList & bonuses) con
 		GiveBonus gb;
 		InfoWindow iw;
 
+		if(bonus->type == Bonus::TOWN_MAGIC_WELL)
+		{
+			if(h->mana >= h->manaLimit())
+				return;
+			cb->setManaPoints(h->id, h->manaLimit());
+			bonus->duration = Bonus::ONE_DAY;
+		}
 		gb.bonus = * bonus;
 		gb.id = h->id.getNum();
 		cb->giveHeroBonus(&gb);
@@ -1895,8 +1902,15 @@ const std::string CGTownBuilding::getVisitingBonusGreeting() const
 	return bonusGreeting;
 }
 
-const std::string CGTownBuilding::getCustomBonusGreeting(const Bonus & bonus)
+const std::string CGTownBuilding::getCustomBonusGreeting(const Bonus & bonus) const
 {
+	if(bonus.type == Bonus::TOWN_MAGIC_WELL)
+	{
+		auto bonusGreeting = std::string(VLC->generaltexth->localizedTexts["townHall"]["greetingInTownMagicWell"].String());
+		auto buildingName = town->town->getSpecialBuilding(bType)->Name();
+		boost::algorithm::replace_first(bonusGreeting, "%s", buildingName);
+		return bonusGreeting;
+	}
 	auto bonusGreeting = std::string(VLC->generaltexth->localizedTexts["townHall"]["greetingCustomBonus"].String()); //"%s gives you +%d %s%s"
 	std::string param = "";
 	std::string until = "";

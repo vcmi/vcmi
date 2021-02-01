@@ -140,7 +140,7 @@ protected:
 	BuildingSubID::EBuildingSubID bType;
 
 	const std::string getVisitingBonusGreeting() const;
-	static const std::string getCustomBonusGreeting(const Bonus & bonus);
+	const std::string getCustomBonusGreeting(const Bonus & bonus) const;
 };
 
 class DLL_LINKAGE COPWBonus : public CGTownBuilding
