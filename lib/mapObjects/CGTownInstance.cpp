@@ -1265,6 +1265,8 @@ void CGTownInstance::recreateBuildingsBonuses()
 
 		for(auto bonus : building->buildingBonuses)
 		{
+			if(bonus->effectRange == Bonus::ONLY_ENEMY_ARMY) //will be added in the 'setupBattle' to Battle node.
+				continue;
 			if(bonus->propagator != nullptr && bonus->propagator->getPropagatorType() == ALL_CREATURES)
 				VLC->creh->addBonusForAllCreatures(bonus);
 			else

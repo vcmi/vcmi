@@ -22,6 +22,11 @@ class CStackBasicDescriptor;
 class DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallback, public IBattleState
 {
 public:
+	enum BattleSide
+	{
+		ATTACKER = 0,
+		DEFENDER
+	};
 	std::array<SideInBattle, 2> sides; //sides[0] - attacker, sides[1] - defender
 	si32 round, activeStack;
 	const CGTownInstance * town; //used during town siege, nullptr if this is not a siege (note that fortless town IS also a siege)
@@ -133,6 +138,8 @@ public:
 
 	void localInit();
 
+	static void setupBonusesFromTown(const CGTownInstance * town, BattleInfo * curB); //besieged city may contain buildings with negative bonuses for enemy army.
+	static void setupBonusesFromUnits(BattleInfo * curB); //besieged city may contain buildings with negative bonuses for enemy army.
 	static BattleInfo * setupBattle(int3 tile, ETerrainType terrain, BFieldType battlefieldType, const CArmedInstance * armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance * town);
 
 	ui8 whatSide(PlayerColor player) const;
@@ -141,6 +148,9 @@ public:
 
 protected:
 	scripting::Pool * getContextPool() const override;
+
+private:
+	static void addOnlyEnemyArmyBonuses(const BonusList & bonusList, BattleInfo * curB, BattleInfo::BattleSide side);
 };
 
 

@@ -428,6 +428,9 @@ int BonusList::totalValue() const
 
 	for(std::shared_ptr<Bonus> b : bonuses)
 	{
+		if(b->effectRange == Bonus::ONLY_ENEMY_ARMY)
+			continue;
+
 		switch(b->valType)
 		{
 		case Bonus::BASE_NUMBER:
@@ -452,7 +455,6 @@ int BonusList::totalValue() const
 			{
 				vstd::amax(indepMax, b->val);
 			}
-
 			break;
 		case Bonus::INDEPENDENT_MIN:
 			if (!hasIndepMin)
@@ -464,7 +466,6 @@ int BonusList::totalValue() const
 			{
 				vstd::amin(indepMin, b->val);
 			}
-
 			break;
 		}
 	}
@@ -595,11 +596,14 @@ void BonusList::insert(BonusList::TInternalContainer::iterator position, BonusLi
 	changed();
 }
 
-CSelector IBonusBearer::anaffectedByMoraleSelector
-	= Selector::type()(Bonus::NON_LIVING)
-		.Or(Selector::type()(Bonus::UNDEAD))
-		.Or(Selector::type()(Bonus::NO_MORALE))
-		.Or(Selector::type()(Bonus::SIEGE_WEAPON));
+CSelector IBonusBearer::anaffectedByMoraleSelector =
+Selector::type()(Bonus::NON_LIVING)
+.Or(Selector::type()(Bonus::UNDEAD))
+.Or(Selector::type()(Bonus::SIEGE_WEAPON))
+.Or(Selector::effectRange()(Bonus::ONLY_ENEMY_ARMY).Not()
+	.And(Selector::type()(Bonus::NO_MORALE)
+		.Or(Selector::type()(Bonus::BLOCK_MORALE))
+	));
 
 CSelector IBonusBearer::moraleSelector = Selector::type()(Bonus::MORALE);
 CSelector IBonusBearer::luckSelector = Selector::type()(Bonus::LUCK);
