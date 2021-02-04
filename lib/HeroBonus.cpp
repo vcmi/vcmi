@@ -26,7 +26,6 @@
 #include "battle/BattleInfo.h"
 
 #define FOREACH_PARENT(pname) 	TNodes lparents; getParents(lparents); for(CBonusSystemNode *pname : lparents)
-#define FOREACH_CPARENT(pname) 	TCNodes lparents; getParents(lparents); for(const CBonusSystemNode *pname : lparents)
 #define FOREACH_RED_CHILD(pname) 	TNodes lchildren; getRedChildren(lchildren); for(CBonusSystemNode *pname : lchildren)
 #define FOREACH_RED_PARENT(pname) 	TNodes lparents; getRedParents(lparents); for(CBonusSystemNode *pname : lparents)
 
@@ -873,26 +872,25 @@ void CBonusSystemNode::getParents(TNodes &out)
 	}
 }
 
-void CBonusSystemNode::getBonusesRec(BonusList &out, const CSelector &selector, const CSelector &limit) const
+void CBonusSystemNode::getAllParents(TCNodes & out) const /*retrieves list of parent nodes (nodes to inherit bonuses from) */
 {
-	BonusList beforeUpdate;
-	FOREACH_CPARENT(p)
+	for(auto & cparent : parents)
 	{
-		p->getBonusesRec(beforeUpdate, selector, limit);
+		const CBonusSystemNode * parent = cparent;
+		out.insert(parent);
+		parent->getAllParents(out);
 	}
-	bonuses.getBonuses(beforeUpdate, selector, limit);
-
-	for(auto b : beforeUpdate)
-		out.push_back(update(b));
 }
 
 void CBonusSystemNode::getAllBonusesRec(BonusList &out) const
 {
 	BonusList beforeUpdate;
-	FOREACH_CPARENT(p)
-	{
-		p->getAllBonusesRec(beforeUpdate);
-	}
+	TCNodes lparents;
+	getAllParents(lparents);
+
+	for(auto parent : lparents)
+		parent->bonuses.getAllBonuses(beforeUpdate);
+
 	bonuses.getAllBonuses(beforeUpdate);
 
 	for(auto b : beforeUpdate)

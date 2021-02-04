@@ -388,7 +388,7 @@ class DLL_LINKAGE CTownHandler : public CHandlerBase<FactionID, Faction, CFactio
 	const static ETerrainType::EETerrainType defaultEvilTerrain = ETerrainType::EETerrainType::LAVA;
 	const static ETerrainType::EETerrainType defaultNeutralTerrain = ETerrainType::EETerrainType::ROUGH;
 
-	static TPropagatorPtr emptyPropagator;
+	static TPropagatorPtr & emptyPropagator();
 
 	void initializeRequirements();
 	void initializeOverridden();

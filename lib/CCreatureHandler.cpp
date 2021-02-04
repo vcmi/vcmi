@@ -1322,14 +1322,20 @@ CreatureID CCreatureHandler::pickRandomMonster(CRandomGenerator & rand, int tier
 	return CreatureID(r);
 }
 
-void CCreatureHandler::addBonusForTier(int tier, std::shared_ptr<Bonus> b)
+void CCreatureHandler::addBonusForTier(int tier, const std::shared_ptr<Bonus> & b)
 {
 	assert(vstd::iswithin(tier, 1, 7));
 	creaturesOfLevel[tier].addNewBonus(b);
 }
 
-void CCreatureHandler::addBonusForAllCreatures(std::shared_ptr<Bonus> b)
+void CCreatureHandler::addBonusForAllCreatures(const std::shared_ptr<Bonus> & b)
 {
+	const auto & exportedBonuses = allCreatures.getExportedBonusList();
+	for(const auto & bonus : exportedBonuses)
+	{
+		if(bonus->type == b->type && bonus->subtype == b->subtype)
+			return;
+	}
 	allCreatures.addNewBonus(b);
 }
 

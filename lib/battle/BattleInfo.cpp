@@ -186,38 +186,70 @@ struct RangeGenerator
 	std::function<int()> myRand;
 };
 
-void BattleInfo::addOnlyEnemyArmyBonuses(const BonusList & bonusList, BattleInfo * curB, BattleInfo::BattleSide side)
+
+std::shared_ptr<Bonus> BattleInfo::makeBonusForEnemy(const std::shared_ptr<Bonus> & b, PlayerColor & enemyColor)
 {
-	for(auto b : bonusList)
+	auto bCopy = std::make_shared<Bonus>(*b);
+	bCopy->effectRange = Bonus::NO_LIMIT;
+	bCopy->propagator.reset();
+	bCopy->limiter.reset(new StackOwnerLimiter(enemyColor));
+	return bCopy;
+}
+
+void BattleInfo::addOnlyEnemyArmyBonuses(const BonusList & bonusList, BattleInfo * curB, BattleInfo::BattleSide enemySide)
+{
+	for(const auto & b : bonusList) //don't copy shared_ptr object, don't change it
 	{
 		if(b->effectRange != Bonus::ONLY_ENEMY_ARMY)
 			continue;
 
-		auto bCopy = std::make_shared<Bonus>(*b);
-		bCopy->effectRange = Bonus::NO_LIMIT;
-		bCopy->propagator.reset();
-		bCopy->limiter.reset(new StackOwnerLimiter(curB->sides[side].color));
+		auto bCopy = makeBonusForEnemy(b, curB->sides[enemySide].color);
 		curB->addNewBonus(bCopy);
 	}
 }
 
-void BattleInfo::setupBonusesFromTown(const CGTownInstance * town, BattleInfo * curB)
+void BattleInfo::setupBonusesFromTownToEnemy(const CGTownInstance * town, BattleInfo * curB)
 {
 	assert(town);
-	for(auto building : town->builtBuildings)
+	for(const auto & building : town->builtBuildings)
 	{
 		const auto & bonuses = town->town->buildings.at(building)->buildingBonuses;
 		addOnlyEnemyArmyBonuses(bonuses, curB, BattleInfo::ATTACKER);
 	}
 }
 
-void BattleInfo::setupBonusesFromUnits(BattleInfo * curB)
+void BattleInfo::setupBonusesFromTownToBothSides(const CGTownInstance * town, BattleInfo * curB)
+{
+	assert(town);
+	for(const auto & building : town->builtBuildings)
+	{
+		const auto & bonuses = town->town->buildings.at(building)->buildingBonuses;
+
+		for(const auto & b : bonuses)
+		{
+			if(b->effectRange == Bonus::ONLY_ENEMY_ARMY)
+			{
+				auto bCopy = makeBonusForEnemy(b, curB->sides[BattleInfo::ATTACKER].color);
+				curB->addNewBonus(bCopy);
+			}
+			else
+			{
+				auto bCopy = std::make_shared<Bonus>(*b);
+				bCopy->propagator.reset();
+				bCopy->limiter.reset(new StackOwnerLimiter(curB->sides[BattleInfo::DEFENDER].color));
+				curB->addNewBonus(bCopy);
+			}
+		}
+	}
+}
+
+void BattleInfo::setupBonusesFromUnitsToEnemy(BattleInfo * curB)
 {
 	for(int i = 0; i < 2; i++)
 	{
 		TNodes nodes;
 		curB->battleGetArmyObject(i)->getRedAncestors(nodes);
-		for(CBonusSystemNode * n : nodes)
+		for(auto n : nodes)
 		{
 			const auto & bonuses = n->getExportedBonusList();
 			addOnlyEnemyArmyBonuses(bonuses, curB, (BattleInfo::BattleSide)!i);
@@ -595,8 +627,13 @@ BattleInfo * BattleInfo::setupBattle(int3 tile, ETerrainType terrain, BFieldType
 		curB->tacticDistance = 0;
 
 	if(town)
-		setupBonusesFromTown(town, curB);
-	setupBonusesFromUnits(curB);
+	{
+		if(town->visitingHero == heroes[BattleSide::DEFENDER])
+			setupBonusesFromTownToBothSides(town, curB);
+		else
+			setupBonusesFromTownToEnemy(town, curB);
+	}
+	setupBonusesFromUnitsToEnemy(curB);
 	return curB;
 }
 
