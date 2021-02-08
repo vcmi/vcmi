@@ -451,6 +451,13 @@ void CServerHandler::sendStartGame(bool allowOnlyAI) const
 {
 	verifyStateBeforeStart(allowOnlyAI ? true : settings["session"]["onlyai"].Bool());
 	LobbyStartGame lsg;
+	if(client)
+	{
+		lsg.initializedStartInfo = std::make_shared<StartInfo>(* const_cast<StartInfo *>(client->getStartInfo(true)));
+		lsg.initializedStartInfo->mode = StartInfo::NEW_GAME;
+		lsg.initializedStartInfo->seedToBeUsed = lsg.initializedStartInfo->seedPostInit = 0;
+		* si = * lsg.initializedStartInfo;
+	}
 	sendLobbyPack(lsg);
 }
 

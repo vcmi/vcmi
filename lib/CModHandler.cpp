@@ -716,50 +716,41 @@ bool CModHandler::checkDependencies(const std::vector <TModID> & input) const
 	return true;
 }
 
-std::vector <TModID> CModHandler::resolveDependencies(std::vector <TModID> input) const
+std::vector <TModID> CModHandler::resolveDependencies(std::vector <TModID> modsToResolve) const
 {
-	// Topological sort algorithm
-	// May not be the fastest one but VCMI does not needs any speed here
-	// Unless user have dozens of mods with complex dependencies this code should be fine
+	std::vector<TModID> brokenMods;
 
-	// first - sort input to have input strictly based on name (and not on hashmap or anything else)
-	boost::range::sort(input);
-
-	std::vector <TModID> output;
-	output.reserve(input.size());
-
-	std::set <TModID> resolvedMods;
-
-	// Check if all mod dependencies are resolved (moved to resolvedMods)
-	auto isResolved = [&](const CModInfo & mod) -> bool
+	auto looksValid = [&](const CModInfo & mod) -> bool
 	{
+		auto res = true;
 		for(const TModID & dependency : mod.dependencies)
 		{
-			if (!vstd::contains(resolvedMods, dependency))
-				return false;
+			if(!(res = vstd::contains(modsToResolve, dependency)))
+				logMod->error("Mod '%s' will not work: it depends on mod '%s', which is not installed.", mod.name, dependency);
 		}
-		return true;
+		return res;
 	};
 
-	while (!input.empty())
+	while(true)
 	{
-		std::set <TModID> toResolve; // list of mods resolved on this iteration
-
-		for (auto it = input.begin(); it != input.end();)
+		for(auto mod : modsToResolve)
 		{
-			if (isResolved(allMods.at(*it)))
-			{
-				toResolve.insert(*it);
-				output.push_back(*it);
-				it = input.erase(it);
-				continue;
-			}
-			it++;
+			if(!looksValid(this->allMods.at(mod)))
+				brokenMods.push_back(mod);
 		}
-		resolvedMods.insert(toResolve.begin(), toResolve.end());
+		if(!brokenMods.empty())
+		{
+			vstd::erase_if(modsToResolve, [&](TModID mid) 
+			{
+				return brokenMods.end() != std::find(brokenMods.begin(), brokenMods.end(), mid);
+			});
+			brokenMods.clear();
+			continue;
+		}
+		break;
 	}
-
-	return output;
+	boost::range::sort(modsToResolve);
+	return modsToResolve;
 }
 
 std::vector<std::string> CModHandler::getModList(std::string path)
