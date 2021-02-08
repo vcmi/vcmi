@@ -281,6 +281,8 @@ public:
 	BONUS_NAME(SPECIAL_BLESS_DAMAGE) /*val = spell (bless), additionalInfo = value per level in percent*/\
 	BONUS_NAME(MAXED_SPELL) /*val = id*/\
 	BONUS_NAME(SPECIAL_PECULIAR_ENCHANT) /*blesses and curses with id = val dependent on unit's level, subtype = 0 or 1 for Coronius*/\
+	BONUS_NAME(SPECIAL_ADD_VALUE_ENCHANT) /*specialty like Aenin, additionalInfo = value to add*/\
+	BONUS_NAME(SPECIAL_FIXED_VALUE_ENCHANT) /*specialty like Melody constant 3 luck, additionalInfo = value to fix.*/\
 	BONUS_NAME(SPECIAL_UPGRADE) /*subtype = base, additionalInfo = target */\
 	BONUS_NAME(DRAGON_NATURE) \
 	BONUS_NAME(CREATURE_DAMAGE)/*subtype 0 = both, 1 = min, 2 = max*/\
