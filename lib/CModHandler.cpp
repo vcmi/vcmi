@@ -725,8 +725,11 @@ std::vector <TModID> CModHandler::resolveDependencies(std::vector <TModID> modsT
 		auto res = true;
 		for(const TModID & dependency : mod.dependencies)
 		{
-			if(!(res = vstd::contains(modsToResolve, dependency)))
+			if(!vstd::contains(modsToResolve, dependency))
+			{
 				logMod->error("Mod '%s' will not work: it depends on mod '%s', which is not installed.", mod.name, dependency);
+				res = false; //continue iterations, since we should show all errors for the current mod.
+			}
 		}
 		return res;
 	};
