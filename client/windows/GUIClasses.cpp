@@ -812,25 +812,29 @@ std::function<void()> CExchangeController::onMoveArmyToRight()
 
 std::function<void()> CExchangeController::onSwapArmy()
 {
-	return [&]() { 
-		auto cb = LOCPLINT->cb;
+	return [&]()
+	{ 
+		std::shared_ptr<CCallback> cb = LOCPLINT->cb;
+		const TSlots & leftSlots = left->Slots();
+		const TSlots & rightSlots = right->Slots();
 
-		for(SlotID i = SlotID(0); i.validSlot(); i.advance(1))
+		for(auto i = leftSlots.begin(), j = rightSlots.begin(); i != leftSlots.end() && j != rightSlots.end(); i++, j++)
 		{
-			if(left->hasStackAtSlot(i) || right->hasStackAtSlot(i))
-				cb->swapCreatures(left, right, SlotID(i), SlotID(i));
+			cb->swapCreatures(left, right, i->first, j->first);
 		}
 	};
 }
 
 void CExchangeController::hdModQuickExchangeArmy(bool leftToRight)
 {
-	auto source = leftToRight ? left : right;
-	auto target = leftToRight ? right : left;
-	auto cb = LOCPLINT->cb;
+	const CGHeroInstance * source = leftToRight ? left : right;
+	const CGHeroInstance * target = leftToRight ? right : left;
+	std::shared_ptr<CCallback> cb = LOCPLINT->cb;
 
 	boost::thread([=]
 	{
+		boost::shared_lock<boost::shared_mutex> gsLock(CGameState::mutex);
+
 		auto slots = source->Slots();
 		std::vector<std::pair<SlotID, CStackInstance *>> stacks(slots.begin(), slots.end());
 
@@ -839,7 +843,11 @@ void CExchangeController::hdModQuickExchangeArmy(bool leftToRight)
 			return a.second->type->level > b.second->type->level;
 		});
 
+		auto originalWaitTillRealize = cb->waitTillRealize;
+		auto originalUnlockGsWhenWating = cb->unlockGsWhenWaiting;
+
 		cb->waitTillRealize = true;
+		cb->unlockGsWhenWaiting = true;
 
 		for(auto pair : stacks)
 		{
@@ -866,7 +874,8 @@ void CExchangeController::hdModQuickExchangeArmy(bool leftToRight)
 			}
 		}
 
-		cb->waitTillRealize = false;
+		cb->waitTillRealize = originalWaitTillRealize;
+		cb->unlockGsWhenWaiting = originalUnlockGsWhenWating;
 	});
 }
 
