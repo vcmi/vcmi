@@ -280,6 +280,20 @@ public:
 	void show(SDL_Surface * to) override;
 };
 
+class CExchangeController
+{
+private:
+	const CGHeroInstance * left;
+	const CGHeroInstance * right;
+
+public:
+	CExchangeController(ObjectInstanceID hero1, ObjectInstanceID hero2);
+	void hdModQuickExchangeArmy(bool leftToRight);
+	std::function<void()> onMoveArmyToRight();
+	std::function<void()> onSwapArmy();
+	std::function<void()> onMoveArmyToLeft();
+};
+
 class CExchangeWindow : public CStatusbarWindow, public CGarrisonHolder, public CWindowWithArtifacts
 {
 	std::array<std::shared_ptr<CHeroWithMaybePickedArtifact>, 2> herosWArt;
@@ -316,6 +330,7 @@ class CExchangeWindow : public CStatusbarWindow, public CGarrisonHolder, public 
 	std::shared_ptr<CButton> moveArtifactsButtonLeft;
 	std::shared_ptr<CButton> echangeArtifactsButton;
 	std::shared_ptr<CButton> moveArtifactsButtonRight;
+	CExchangeController controller;
 
 public:
 	std::array<const CGHeroInstance *, 2> heroInst;
