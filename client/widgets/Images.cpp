@@ -288,10 +288,18 @@ void CAnimImage::showAll(SDL_Surface * to)
 	if(!visible)
 		return;
 
-	if(flags & CShowableAnim::BASE && frame != 0)
-		if(auto img = anim->getImage(0, group))
+	std::vector<size_t> frames = {frame};
+
+	if((flags & CShowableAnim::BASE) && frame != 0)
+	{
+		frames.insert(frames.begin(), 0);
+	}
+
+	for(auto targetFrame : frames)
+	{
+		if(auto img = anim->getImage(targetFrame, group))
 		{
-			if (isScaled())
+			if(isScaled())
 			{
 				auto scaled = img->scaleFast(float(scaledSize.x) / img->width());
 				scaled->draw(to, pos.x, pos.y);
@@ -299,16 +307,6 @@ void CAnimImage::showAll(SDL_Surface * to)
 			else
 				img->draw(to, pos.x, pos.y);
 		}
-
-	if(auto img = anim->getImage(frame, group))
-	{
-		if (isScaled())
-		{
-			auto scaled = img->scaleFast(float(scaledSize.x) / img->width());
-			scaled->draw(to, pos.x, pos.y);
-		}
-		else
-			img->draw(to, pos.x, pos.y);
 	}
 }
 
