@@ -96,6 +96,24 @@ bool CObstacleInfo::isAppropriate(ETerrainType terrainType, int specialBattlefie
 	return vstd::contains(allowedTerrains, terrainType);
 }
 
+void CHeroClassHandler::fillPrimarySkillData(const JsonNode & node, CHeroClass * heroClass, PrimarySkill::PrimarySkill pSkill)
+{
+	const auto & skillName = PrimarySkill::names[pSkill];
+	auto currentPrimarySkillValue = (int)node["primarySkills"][skillName].Integer();
+	//minimal value is 0 for attack and defense and 1 for spell power and knowledge
+	auto primarySkillLegalMinimum = (pSkill == PrimarySkill::ATTACK || pSkill == PrimarySkill::DEFENSE) ? 0 : 1;
+
+	if(currentPrimarySkillValue < primarySkillLegalMinimum)
+	{
+		logMod->error("Hero class '%s' has incorrect initial value '%d' for skill '%s'. Value '%d' will be used instead.",
+			heroClass->identifier, currentPrimarySkillValue, skillName, primarySkillLegalMinimum);
+		currentPrimarySkillValue = primarySkillLegalMinimum;
+	}
+	heroClass->primarySkillInitial.push_back(currentPrimarySkillValue);
+	heroClass->primarySkillLowLevel.push_back((int)node["lowLevelChance"][skillName].Float());
+	heroClass->primarySkillHighLevel.push_back((int)node["highLevelChance"][skillName].Float());
+}
+
 CHeroClass * CHeroClassHandler::loadFromJson(const JsonNode & node, const std::string & identifier)
 {
 	std::string affinityStr[2] = { "might", "magic" };
@@ -111,12 +129,10 @@ CHeroClass * CHeroClassHandler::loadFromJson(const JsonNode & node, const std::s
 	heroClass->name = node["name"].String();
 	heroClass->affinity = vstd::find_pos(affinityStr, node["affinity"].String());
 
-	for(const std::string & pSkill : PrimarySkill::names)
-	{
-		heroClass->primarySkillInitial.push_back((int)node["primarySkills"][pSkill].Float());
-		heroClass->primarySkillLowLevel.push_back((int)node["lowLevelChance"][pSkill].Float());
-		heroClass->primarySkillHighLevel.push_back((int)node["highLevelChance"][pSkill].Float());
-	}
+	fillPrimarySkillData(node, heroClass, PrimarySkill::ATTACK);
+	fillPrimarySkillData(node, heroClass, PrimarySkill::DEFENSE);
+	fillPrimarySkillData(node, heroClass, PrimarySkill::SPELL_POWER);
+	fillPrimarySkillData(node, heroClass, PrimarySkill::KNOWLEDGE);
 
 	for(auto skillPair : node["secondarySkills"].Struct())
 	{

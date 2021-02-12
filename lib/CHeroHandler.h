@@ -236,6 +236,7 @@ struct DLL_LINKAGE CObstacleInfo
 
 class DLL_LINKAGE CHeroClassHandler : public IHandlerBase
 {
+	void fillPrimarySkillData(const JsonNode & node, CHeroClass * heroClass, PrimarySkill::PrimarySkill pSkill);
 	CHeroClass *loadFromJson(const JsonNode & node, const std::string & identifier);
 public:
 	std::vector< ConstTransitivePtr<CHeroClass> > heroClasses;
