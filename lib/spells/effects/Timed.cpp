@@ -213,7 +213,8 @@ void Timed::prepareEffects(SetStackEffect & sse, const Mechanics * m, const Effe
 				power = std::max(5 - tier, 0);
 				break;
 			}
-			if(m->isNegativeSpell()) {
+			if(m->isNegativeSpell())
+			{
 				//negative spells like weakness are defined in json with negative numbers, so we need do same here
 				power = -1 * power;
 			}
@@ -222,14 +223,14 @@ void Timed::prepareEffects(SetStackEffect & sse, const Mechanics * m, const Effe
 				b.val += power;
 			}
 		}
-		else if(addedValueBonus)
+		if(addedValueBonus)
 		{
 			for(Bonus& b : buffer)
 			{
 				b.val += addedValueBonus->additionalInfo[0];
 			}
 		}
-		else if(fixedValueBonus)
+		if(fixedValueBonus)
 		{
 			for(Bonus& b : buffer)
 			{
