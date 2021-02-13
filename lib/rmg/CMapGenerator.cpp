@@ -167,10 +167,14 @@ std::string CMapGenerator::getMapDescription() const
 	const std::string monsterStrengthStr[3] = { "weak", "normal", "strong" };
 
 	int monsterStrengthIndex = mapGenOptions->getMonsterStrength() - EMonsterStrength::GLOBAL_WEAK; //does not start from 0
+	const auto * mapTemplate = mapGenOptions->getMapTemplate();
+
+	if(!mapTemplate)
+		throw rmgException("Map template for Random Map Generator is not found. Could not start the game.");
 
     std::stringstream ss;
     ss << boost::str(boost::format(std::string("Map created by the Random Map Generator.\nTemplate was %s, Random seed was %d, size %dx%d") +
-        ", levels %s, players %d, computers %d, water %s, monster %s, VCMI map") % mapGenOptions->getMapTemplate()->getName() %
+        ", levels %s, players %d, computers %d, water %s, monster %s, VCMI map") % mapTemplate->getName() %
 		randomSeed % map->width % map->height % (map->twoLevel ? "2" : "1") % static_cast<int>(mapGenOptions->getPlayerCount()) %
 		static_cast<int>(mapGenOptions->getCompOnlyPlayerCount()) % waterContentStr[mapGenOptions->getWaterContent()] %
 		monsterStrengthStr[monsterStrengthIndex]);
