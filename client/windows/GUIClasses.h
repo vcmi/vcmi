@@ -280,18 +280,32 @@ public:
 	void show(SDL_Surface * to) override;
 };
 
+class CCallback;
+class CExchangeWindow;
+
 class CExchangeController
 {
 private:
 	const CGHeroInstance * left;
 	const CGHeroInstance * right;
+	std::shared_ptr<CCallback> cb;
+	CExchangeWindow * view;
 
 public:
-	CExchangeController(ObjectInstanceID hero1, ObjectInstanceID hero2);
-	void hdModQuickExchangeArmy(bool leftToRight);
+	CExchangeController(CExchangeWindow * view, ObjectInstanceID hero1, ObjectInstanceID hero2);
 	std::function<void()> onMoveArmyToRight();
 	std::function<void()> onSwapArmy();
 	std::function<void()> onMoveArmyToLeft();
+	std::function<void()> onSwapArtifacts();
+	std::function<void()> onMoveArtifactsToLeft();
+	std::function<void()> onMoveArtifactsToRight();
+
+private:
+	void moveArmy(bool leftToRight);
+	void moveArtifacts(bool leftToRight);
+	void moveArtifact(const CGHeroInstance * source, const CGHeroInstance * target, ArtifactPosition srcPosition);
+	void moveStack(const CGHeroInstance * source, const CGHeroInstance * target, SlotID sourceSlot);
+	void swapArtifacts(ArtifactPosition artPosition);
 };
 
 class CExchangeWindow : public CStatusbarWindow, public CGarrisonHolder, public CWindowWithArtifacts

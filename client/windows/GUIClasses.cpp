@@ -795,93 +795,352 @@ static bool isHdLayoutAvailable()
 	return CResourceHandler::get()->existsResource(ResourceID(std::string("SPRITES/") + HD_EXCHANGE_BG, EResType::IMAGE));
 }
 
-CExchangeController::CExchangeController(ObjectInstanceID hero1, ObjectInstanceID hero2)
-	:left(LOCPLINT->cb->getHero(hero1)), right(LOCPLINT->cb->getHero(hero2))
+class GsThread
+{
+private:
+	struct GsThreadState
+	{
+		boost::shared_lock<boost::shared_mutex> gsLock;
+		std::function<void()> action;
+		std::shared_ptr<CCallback> cb;
+
+		GsThreadState(std::function<void()> action)
+			: action(action), cb(LOCPLINT->cb)
+		{
+		}
+	};
+
+public:
+	GsThread(std::function<void()> action)
+	{
+		boost::thread(std::bind(&GsThread::run, std::make_shared<GsThreadState>(action)));
+	}
+
+private:
+	static void run(std::shared_ptr<GsThreadState> state)
+	{
+		boost::shared_lock<boost::shared_mutex> gsLock(CGameState::mutex);
+
+		auto originalWaitTillRealize = state->cb->waitTillRealize;
+		auto originalUnlockGsWhenWating = state->cb->unlockGsWhenWaiting;
+
+		state->cb->waitTillRealize = true;
+		state->cb->unlockGsWhenWaiting = true;
+
+		state->action();
+
+		state->cb->waitTillRealize = originalWaitTillRealize;
+		state->cb->unlockGsWhenWaiting = originalUnlockGsWhenWating;
+	}
+};
+
+CExchangeController::CExchangeController(CExchangeWindow * view, ObjectInstanceID hero1, ObjectInstanceID hero2)
+	:left(LOCPLINT->cb->getHero(hero1)), right(LOCPLINT->cb->getHero(hero2)), cb(LOCPLINT->cb), view(view)
 {
 }
 
 std::function<void()> CExchangeController::onMoveArmyToLeft()
 {
-	return [&]() { hdModQuickExchangeArmy(false); };
+	return [&]() { moveArmy(false); };
 }
 
 std::function<void()> CExchangeController::onMoveArmyToRight()
 {
-	return [&]() { hdModQuickExchangeArmy(true); };
+	return [&]() { moveArmy(true); };
+}
+
+void CExchangeController::swapArtifacts(ArtifactPosition slot)
+{
+	bool leftHasArt = !left->isPositionFree(slot);
+	bool rightHasArt = !right->isPositionFree(slot);
+
+	if(!leftHasArt && !rightHasArt)
+		return;
+
+	ArtifactLocation leftLocation = ArtifactLocation(left, slot);
+	ArtifactLocation rightLocation = ArtifactLocation(right, slot);
+
+	if(leftHasArt && !left->artifactsWorn.at(slot).artifact->canBePutAt(rightLocation, true))
+		return;
+
+	if(rightHasArt && !right->artifactsWorn.at(slot).artifact->canBePutAt(leftLocation, true))
+		return;
+
+	if(leftHasArt)
+	{
+		if(rightHasArt)
+		{
+			auto art = right->getArt(slot);
+
+			cb->swapArtifacts(leftLocation, rightLocation);
+			cb->swapArtifacts(ArtifactLocation(right, right->getArtPos(art)), leftLocation);
+		}
+		else
+			cb->swapArtifacts(leftLocation, rightLocation);
+	}
+	else
+	{
+		cb->swapArtifacts(rightLocation, leftLocation);
+	}
+}
+
+struct ArtWearingTask
+{
+	ArtifactPosition artPosition;
+	const CGHeroInstance * target;
+	const CArtifactInstance * art;
+
+	ArtWearingTask(ArtifactPosition artPosition, const CGHeroInstance * target, const CArtifactInstance * art)
+		:artPosition(artPosition), target(target), art(art)
+	{
+	}
+};
+
+std::vector<CArtifactInstance *> getBackpackArts(const CGHeroInstance * hero)
+{
+	std::vector<CArtifactInstance *> result;
+
+	for(auto slot : hero->artifactsInBackpack)
+	{
+		result.push_back(slot.artifact);
+	}
+
+	return result;
+}
+
+const std::vector<ArtifactPosition> unmovablePositions = {ArtifactPosition::SPELLBOOK, ArtifactPosition::MACH4};
+
+bool isArtRemovable(const std::pair<ArtifactPosition, ArtSlotInfo> & slot)
+{
+	return slot.second.artifact
+		&& !slot.second.locked
+		&& !vstd::contains(unmovablePositions, slot.first);
+}
+
+std::function<void()> CExchangeController::onSwapArtifacts()
+{
+	return [&]()
+	{
+		GsThread([=]
+		{
+			std::vector<const CGHeroInstance *> sides = {left, right};
+			std::vector<ArtWearingTask> compositeArtWearingTasks;
+
+			for(auto hero : sides)
+			{
+				for(int i = ArtifactPosition::HEAD; i < ArtifactPosition::AFTER_LAST; i++)
+				{
+					auto artPosition = ArtifactPosition(i);
+					auto art = hero->getArt(artPosition);
+
+					if(art && art->canBeDisassembled())
+					{
+						// it is not possible to directly swap Angelic Alliance and Armor of Damned
+						// so move them to backpack first
+						cb->swapArtifacts(
+							ArtifactLocation(hero, artPosition),
+							ArtifactLocation(hero, ArtifactPosition(GameConstants::BACKPACK_START)));
+
+						// and a task to wear it back
+						compositeArtWearingTasks.push_back(
+							ArtWearingTask(artPosition, hero == left ? right : left, art));
+					}
+				}
+			}
+
+			for(int i = ArtifactPosition::HEAD; i < ArtifactPosition::AFTER_LAST; i++)
+			{
+				if(vstd::contains(unmovablePositions, i))
+					continue;
+
+				swapArtifacts(ArtifactPosition(i));
+			}
+
+			auto leftHeroBackpack = getBackpackArts(left);
+			auto rightHeroBackpack = getBackpackArts(right);
+
+			for(auto leftArt : leftHeroBackpack)
+			{
+				cb->swapArtifacts(
+					ArtifactLocation(left, left->getArtPos(leftArt)),
+					ArtifactLocation(right, ArtifactPosition(GameConstants::BACKPACK_START)));
+			}
+
+			for(auto rightArt : rightHeroBackpack)
+			{
+				cb->swapArtifacts(
+					ArtifactLocation(right, right->getArtPos(rightArt)),
+					ArtifactLocation(left, ArtifactPosition(GameConstants::BACKPACK_START)));
+			}
+
+			int maxBackPackSize;
+
+			for(auto wearingTask : compositeArtWearingTasks)
+			{
+				auto currentPos = wearingTask.target->getArtPos(wearingTask.art);
+
+				cb->swapArtifacts(
+					ArtifactLocation(wearingTask.target, currentPos),
+					ArtifactLocation(wearingTask.target, wearingTask.artPosition));
+			}
+
+			view->redraw();
+		});
+	};
+}
+
+std::function<void()> CExchangeController::onMoveArtifactsToLeft()
+{
+	return [&]() { moveArtifacts(false); };
+}
+
+std::function<void()> CExchangeController::onMoveArtifactsToRight()
+{
+	return [&]() { moveArtifacts(true); };
+}
+
+std::vector<std::pair<SlotID, CStackInstance *>> getStacks(const CArmedInstance * source)
+{
+	auto slots = source->Slots();
+
+	return std::vector<std::pair<SlotID, CStackInstance *>>(slots.begin(), slots.end());
 }
 
 std::function<void()> CExchangeController::onSwapArmy()
 {
 	return [&]()
-	{ 
-		std::shared_ptr<CCallback> cb = LOCPLINT->cb;
-		const TSlots & leftSlots = left->Slots();
-		const TSlots & rightSlots = right->Slots();
-
-		for(auto i = leftSlots.begin(), j = rightSlots.begin(); i != leftSlots.end() && j != rightSlots.end(); i++, j++)
+	{
+		GsThread([=]
 		{
-			cb->swapCreatures(left, right, i->first, j->first);
-		}
+			auto leftSlots = getStacks(left);
+			auto rightSlots = getStacks(right);
+
+			auto i = leftSlots.begin(), j = rightSlots.begin();
+
+			for(; i != leftSlots.end() && j != rightSlots.end(); i++, j++)
+			{
+				cb->swapCreatures(left, right, i->first, j->first);
+			}
+
+			if(i != leftSlots.end())
+			{
+				for(; i != leftSlots.end(); i++)
+				{
+					cb->swapCreatures(left, right, i->first, right->getFreeSlot());
+				}
+			}
+			else if(j != rightSlots.end())
+			{
+				for(; j != rightSlots.end(); j++)
+				{
+					cb->swapCreatures(left, right, left->getFreeSlot(), j->first);
+				}
+			}
+		});
 	};
 }
 
-void CExchangeController::hdModQuickExchangeArmy(bool leftToRight)
+void CExchangeController::moveStack(
+	const CGHeroInstance * source,
+	const CGHeroInstance * target,
+	SlotID sourceSlot)
+{
+	auto creature = source->getCreature(sourceSlot);
+	SlotID targetSlot = target->getSlotFor(creature);
+
+	if(targetSlot.validSlot())
+	{
+		if(source->stacksCount() == 1 && source->needsLastStack())
+		{
+			cb->splitStack(
+				source,
+				target,
+				sourceSlot,
+				targetSlot,
+				target->getStackCount(targetSlot) + source->getStackCount(sourceSlot) - 1);
+		}
+		else
+		{
+			cb->mergeOrSwapStacks(source, target, sourceSlot, targetSlot);
+		}
+	}
+}
+
+void CExchangeController::moveArmy(bool leftToRight)
 {
 	const CGHeroInstance * source = leftToRight ? left : right;
 	const CGHeroInstance * target = leftToRight ? right : left;
-	std::shared_ptr<CCallback> cb = LOCPLINT->cb;
 
-	boost::thread([=]
+	GsThread([=]
 	{
-		boost::shared_lock<boost::shared_mutex> gsLock(CGameState::mutex);
-
-		auto slots = source->Slots();
-		std::vector<std::pair<SlotID, CStackInstance *>> stacks(slots.begin(), slots.end());
+		auto stacks = getStacks(source);
 
 		std::sort(stacks.begin(), stacks.end(), [](const std::pair<SlotID, CStackInstance *> & a, const std::pair<SlotID, CStackInstance *> & b)
 		{
 			return a.second->type->level > b.second->type->level;
 		});
 
-		auto originalWaitTillRealize = cb->waitTillRealize;
-		auto originalUnlockGsWhenWating = cb->unlockGsWhenWaiting;
-
-		cb->waitTillRealize = true;
-		cb->unlockGsWhenWaiting = true;
-
 		for(auto pair : stacks)
 		{
-			SlotID i = pair.first;
+			moveStack(source, target, pair.first);
+		}
+	});
+}
 
-			auto creature = source->getCreature(i);
-			SlotID targetSlot = target->getSlotFor(creature);
+void CExchangeController::moveArtifacts(bool leftToRight)
+{
+	const CGHeroInstance * source = leftToRight ? left : right;
+	const CGHeroInstance * target = leftToRight ? right : left;
 
-			if(targetSlot.validSlot())
-			{
-				if(source->stacksCount() == 1 && source->needsLastStack())
-				{
-					cb->splitStack(
-						source,
-						target,
-						i,
-						targetSlot,
-						target->getStackCount(targetSlot) + source->getStackCount(i) - 1);
-				}
-				else
-				{
-					cb->mergeOrSwapStacks(source, target, i, targetSlot);
-				}
-			}
+	GsThread([=]
+	{	
+		while(vstd::contains_if(source->artifactsWorn, isArtRemovable))
+		{
+			auto art = std::find_if(source->artifactsWorn.begin(), source->artifactsWorn.end(), isArtRemovable);
+
+			moveArtifact(source, target, art->first);
 		}
 
-		cb->waitTillRealize = originalWaitTillRealize;
-		cb->unlockGsWhenWaiting = originalUnlockGsWhenWating;
+		while(!source->artifactsInBackpack.empty())
+		{
+			moveArtifact(source, target, source->getArtPos(source->artifactsInBackpack.begin()->artifact));
+		}
+
+		view->redraw();
 	});
+}
+
+void CExchangeController::moveArtifact(
+	const CGHeroInstance * source,
+	const CGHeroInstance * target,
+	ArtifactPosition srcPosition)
+{
+	auto artifact = source->getArt(srcPosition);
+	auto srcLocation = ArtifactLocation(source, srcPosition);
+	bool changeMade = false;
+
+	for(auto slot : artifact->artType->possibleSlots.at(target->bearerType()))
+	{
+		auto existingArtifact = target->getArt(slot);
+		auto existingArtInfo = target->getSlot(slot);
+		ArtifactLocation destLocation(target, slot);
+
+		if(!existingArtifact
+			&& (!existingArtInfo || !existingArtInfo->locked)
+			&& artifact->canBePutAt(destLocation))
+		{
+			cb->swapArtifacts(srcLocation, ArtifactLocation(target, slot));
+			
+			return;
+		}
+	}
+
+	cb->swapArtifacts(srcLocation, ArtifactLocation(target, ArtifactPosition(GameConstants::BACKPACK_START)));
 }
 
 CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID queryID)
 	: CStatusbarWindow(PLAYER_COLORED | BORDERED, isHdLayoutAvailable() ? HD_EXCHANGE_BG : "TRADE2"),
-	controller(hero1, hero2)
+	controller(this, hero1, hero2)
 {
 	const bool hdLayout = isHdLayoutAvailable();
 
@@ -1038,9 +1297,9 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 		moveAllGarrButtonLeft    = std::make_shared<CButton>(Point(325, 118), HD_MOD_PREFIX + "/SWCMR.DEF", CButton::tooltip(CGI->generaltexth->hdModCommands[1]), controller.onMoveArmyToRight());
 		echangeGarrButton        = std::make_shared<CButton>(Point(377, 118), HD_MOD_PREFIX + "/SWXCH.DEF", CButton::tooltip(CGI->generaltexth->hdModCommands[2]), controller.onSwapArmy());
 		moveAllGarrButtonRight   = std::make_shared<CButton>(Point(425, 118), HD_MOD_PREFIX + "/SWCML.DEF", CButton::tooltip(CGI->generaltexth->hdModCommands[1]), controller.onMoveArmyToLeft());
-		moveArtifactsButtonLeft  = std::make_shared<CButton>(Point(325, 154), HD_MOD_PREFIX + "/SWAMR.DEF", CButton::tooltip(CGI->generaltexth->hdModCommands[3]), nothing);
-		echangeArtifactsButton   = std::make_shared<CButton>(Point(377, 154), HD_MOD_PREFIX + "/SWXCH.DEF", CButton::tooltip(CGI->generaltexth->hdModCommands[4]), nothing);
-		moveArtifactsButtonRight = std::make_shared<CButton>(Point(425, 154), HD_MOD_PREFIX + "/SWAML.DEF", CButton::tooltip(CGI->generaltexth->hdModCommands[3]), nothing);
+		moveArtifactsButtonLeft  = std::make_shared<CButton>(Point(325, 154), HD_MOD_PREFIX + "/SWAMR.DEF", CButton::tooltip(CGI->generaltexth->hdModCommands[3]), controller.onMoveArtifactsToRight());
+		echangeArtifactsButton   = std::make_shared<CButton>(Point(377, 154), HD_MOD_PREFIX + "/SWXCH.DEF", CButton::tooltip(CGI->generaltexth->hdModCommands[4]), controller.onSwapArtifacts());
+		moveArtifactsButtonRight = std::make_shared<CButton>(Point(425, 154), HD_MOD_PREFIX + "/SWAML.DEF", CButton::tooltip(CGI->generaltexth->hdModCommands[3]), controller.onMoveArtifactsToLeft());
 	}
 
 	updateWidgets();
