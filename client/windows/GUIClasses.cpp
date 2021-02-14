@@ -795,42 +795,48 @@ static bool isHdLayoutAvailable()
 	return CResourceHandler::get()->existsResource(ResourceID(std::string("SPRITES/") + HD_EXCHANGE_BG, EResType::IMAGE));
 }
 
+// Runs a task asynchronously with gamestate locking and waitTillRealize set to true
 class GsThread
 {
 private:
-	struct GsThreadState
-	{
-		boost::shared_lock<boost::shared_mutex> gsLock;
-		std::function<void()> action;
-		std::shared_ptr<CCallback> cb;
-
-		GsThreadState(std::function<void()> action)
-			: action(action), cb(LOCPLINT->cb)
-		{
-		}
-	};
+	std::function<void()> action;
+	std::shared_ptr<CCallback> cb;
 
 public:
-	GsThread(std::function<void()> action)
+
+	static void run(std::function<void()> action)
 	{
-		boost::thread(std::bind(&GsThread::run, std::make_shared<GsThreadState>(action)));
+		std::shared_ptr<GsThread> instance(new GsThread(action));
+
+
+		boost::thread(std::bind(&GsThread::staticRun, instance));
 	}
 
 private:
-	static void run(std::shared_ptr<GsThreadState> state)
+	GsThread(std::function<void()> action)
+		:action(action), cb(LOCPLINT->cb)
+	{
+	}
+
+	static void staticRun(std::shared_ptr<GsThread> instance)
+	{
+		instance->run();
+	}
+
+	void run()
 	{
 		boost::shared_lock<boost::shared_mutex> gsLock(CGameState::mutex);
 
-		auto originalWaitTillRealize = state->cb->waitTillRealize;
-		auto originalUnlockGsWhenWating = state->cb->unlockGsWhenWaiting;
+		auto originalWaitTillRealize = cb->waitTillRealize;
+		auto originalUnlockGsWhenWating = cb->unlockGsWhenWaiting;
 
-		state->cb->waitTillRealize = true;
-		state->cb->unlockGsWhenWaiting = true;
+		cb->waitTillRealize = true;
+		cb->unlockGsWhenWaiting = true;
 
-		state->action();
+		action();
 
-		state->cb->waitTillRealize = originalWaitTillRealize;
-		state->cb->unlockGsWhenWaiting = originalUnlockGsWhenWating;
+		cb->waitTillRealize = originalWaitTillRealize;
+		cb->unlockGsWhenWaiting = originalUnlockGsWhenWating;
 	}
 };
 
@@ -884,18 +890,6 @@ void CExchangeController::swapArtifacts(ArtifactPosition slot)
 	}
 }
 
-struct ArtWearingTask
-{
-	ArtifactPosition artPosition;
-	const CGHeroInstance * target;
-	const CArtifactInstance * art;
-
-	ArtWearingTask(ArtifactPosition artPosition, const CGHeroInstance * target, const CArtifactInstance * art)
-		:artPosition(artPosition), target(target), art(art)
-	{
-	}
-};
-
 std::vector<CArtifactInstance *> getBackpackArts(const CGHeroInstance * hero)
 {
 	std::vector<CArtifactInstance *> result;
@@ -917,71 +911,80 @@ bool isArtRemovable(const std::pair<ArtifactPosition, ArtSlotInfo> & slot)
 		&& !vstd::contains(unmovablePositions, slot.first);
 }
 
+// Puts all composite arts to backpack and returns their previous location
+std::vector<HeroArtifact> CExchangeController::moveCompositeArtsToBackpack()
+{
+	std::vector<const CGHeroInstance *> sides = {left, right};
+	std::vector<HeroArtifact> artPositions;
+
+	for(auto hero : sides)
+	{
+		for(int i = ArtifactPosition::HEAD; i < ArtifactPosition::AFTER_LAST; i++)
+		{
+			auto artPosition = ArtifactPosition(i);
+			auto art = hero->getArt(artPosition);
+
+			if(art && art->canBeDisassembled())
+			{
+				cb->swapArtifacts(
+					ArtifactLocation(hero, artPosition),
+					ArtifactLocation(hero, ArtifactPosition(GameConstants::BACKPACK_START)));
+
+				artPositions.push_back(HeroArtifact(hero, art, artPosition));
+			}
+		}
+	}
+
+	return artPositions;
+}
+
+void CExchangeController::swapArtifacts()
+{
+	for(int i = ArtifactPosition::HEAD; i < ArtifactPosition::AFTER_LAST; i++)
+	{
+		if(vstd::contains(unmovablePositions, i))
+			continue;
+
+		swapArtifacts(ArtifactPosition(i));
+	}
+
+	auto leftHeroBackpack = getBackpackArts(left);
+	auto rightHeroBackpack = getBackpackArts(right);
+
+	for(auto leftArt : leftHeroBackpack)
+	{
+		cb->swapArtifacts(
+			ArtifactLocation(left, left->getArtPos(leftArt)),
+			ArtifactLocation(right, ArtifactPosition(GameConstants::BACKPACK_START)));
+	}
+
+	for(auto rightArt : rightHeroBackpack)
+	{
+		cb->swapArtifacts(
+			ArtifactLocation(right, right->getArtPos(rightArt)),
+			ArtifactLocation(left, ArtifactPosition(GameConstants::BACKPACK_START)));
+	}
+}
+
 std::function<void()> CExchangeController::onSwapArtifacts()
 {
 	return [&]()
 	{
-		GsThread([=]
+		GsThread::run([=]
 		{
-			std::vector<const CGHeroInstance *> sides = {left, right};
-			std::vector<ArtWearingTask> compositeArtWearingTasks;
+			// it is not possible directly exchange composite artifacts like Angelic Alliance and Armor of Damned
+			auto compositeArtLocations = moveCompositeArtsToBackpack();
 
-			for(auto hero : sides)
+			swapArtifacts();
+
+			for(HeroArtifact artLocation : compositeArtLocations)
 			{
-				for(int i = ArtifactPosition::HEAD; i < ArtifactPosition::AFTER_LAST; i++)
-				{
-					auto artPosition = ArtifactPosition(i);
-					auto art = hero->getArt(artPosition);
-
-					if(art && art->canBeDisassembled())
-					{
-						// it is not possible to directly swap Angelic Alliance and Armor of Damned
-						// so move them to backpack first
-						cb->swapArtifacts(
-							ArtifactLocation(hero, artPosition),
-							ArtifactLocation(hero, ArtifactPosition(GameConstants::BACKPACK_START)));
-
-						// and a task to wear it back
-						compositeArtWearingTasks.push_back(
-							ArtWearingTask(artPosition, hero == left ? right : left, art));
-					}
-				}
-			}
-
-			for(int i = ArtifactPosition::HEAD; i < ArtifactPosition::AFTER_LAST; i++)
-			{
-				if(vstd::contains(unmovablePositions, i))
-					continue;
-
-				swapArtifacts(ArtifactPosition(i));
-			}
-
-			auto leftHeroBackpack = getBackpackArts(left);
-			auto rightHeroBackpack = getBackpackArts(right);
-
-			for(auto leftArt : leftHeroBackpack)
-			{
-				cb->swapArtifacts(
-					ArtifactLocation(left, left->getArtPos(leftArt)),
-					ArtifactLocation(right, ArtifactPosition(GameConstants::BACKPACK_START)));
-			}
-
-			for(auto rightArt : rightHeroBackpack)
-			{
-				cb->swapArtifacts(
-					ArtifactLocation(right, right->getArtPos(rightArt)),
-					ArtifactLocation(left, ArtifactPosition(GameConstants::BACKPACK_START)));
-			}
-
-			int maxBackPackSize;
-
-			for(auto wearingTask : compositeArtWearingTasks)
-			{
-				auto currentPos = wearingTask.target->getArtPos(wearingTask.art);
+				auto target = artLocation.hero == left ? right : left;
+				auto currentPos = target->getArtPos(artLocation.artifact);
 
 				cb->swapArtifacts(
-					ArtifactLocation(wearingTask.target, currentPos),
-					ArtifactLocation(wearingTask.target, wearingTask.artPosition));
+					ArtifactLocation(target, currentPos),
+					ArtifactLocation(target, artLocation.artPosition));
 			}
 
 			view->redraw();
@@ -1010,7 +1013,7 @@ std::function<void()> CExchangeController::onSwapArmy()
 {
 	return [&]()
 	{
-		GsThread([=]
+		GsThread::run([=]
 		{
 			auto leftSlots = getStacks(left);
 			auto rightSlots = getStacks(right);
@@ -1071,7 +1074,7 @@ void CExchangeController::moveArmy(bool leftToRight)
 	const CGHeroInstance * source = leftToRight ? left : right;
 	const CGHeroInstance * target = leftToRight ? right : left;
 
-	GsThread([=]
+	GsThread::run([=]
 	{
 		auto stacks = getStacks(source);
 
@@ -1092,7 +1095,7 @@ void CExchangeController::moveArtifacts(bool leftToRight)
 	const CGHeroInstance * source = leftToRight ? left : right;
 	const CGHeroInstance * target = leftToRight ? right : left;
 
-	GsThread([=]
+	GsThread::run([=]
 	{	
 		while(vstd::contains_if(source->artifactsWorn, isArtRemovable))
 		{
