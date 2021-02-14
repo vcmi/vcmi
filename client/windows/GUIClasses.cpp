@@ -1296,13 +1296,12 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 
 	if (hdLayout && (CGI->generaltexth->hdModCommands.size() >= 5))
 	{
-		auto nothing = []() { logAi->error("test def"); };
-		moveAllGarrButtonLeft    = std::make_shared<CButton>(Point(325, 118), HD_MOD_PREFIX + "/SWCMR.DEF", CButton::tooltip(CGI->generaltexth->hdModCommands[1]), controller.onMoveArmyToRight());
-		echangeGarrButton        = std::make_shared<CButton>(Point(377, 118), HD_MOD_PREFIX + "/SWXCH.DEF", CButton::tooltip(CGI->generaltexth->hdModCommands[2]), controller.onSwapArmy());
-		moveAllGarrButtonRight   = std::make_shared<CButton>(Point(425, 118), HD_MOD_PREFIX + "/SWCML.DEF", CButton::tooltip(CGI->generaltexth->hdModCommands[1]), controller.onMoveArmyToLeft());
-		moveArtifactsButtonLeft  = std::make_shared<CButton>(Point(325, 154), HD_MOD_PREFIX + "/SWAMR.DEF", CButton::tooltip(CGI->generaltexth->hdModCommands[3]), controller.onMoveArtifactsToRight());
-		echangeArtifactsButton   = std::make_shared<CButton>(Point(377, 154), HD_MOD_PREFIX + "/SWXCH.DEF", CButton::tooltip(CGI->generaltexth->hdModCommands[4]), controller.onSwapArtifacts());
-		moveArtifactsButtonRight = std::make_shared<CButton>(Point(425, 154), HD_MOD_PREFIX + "/SWAML.DEF", CButton::tooltip(CGI->generaltexth->hdModCommands[3]), controller.onMoveArtifactsToLeft());
+		moveAllGarrButtonLeft    = std::make_shared<CButton>(Point(325, 118), HD_MOD_PREFIX + "/armRight.DEF", CButton::tooltip(CGI->generaltexth->hdModCommands[1]), controller.onMoveArmyToRight());
+		echangeGarrButton        = std::make_shared<CButton>(Point(377, 118), HD_MOD_PREFIX + "/swapAll.DEF", CButton::tooltip(CGI->generaltexth->hdModCommands[2]), controller.onSwapArmy());
+		moveAllGarrButtonRight   = std::make_shared<CButton>(Point(425, 118), HD_MOD_PREFIX + "/armLeft.DEF", CButton::tooltip(CGI->generaltexth->hdModCommands[1]), controller.onMoveArmyToLeft());
+		moveArtifactsButtonLeft  = std::make_shared<CButton>(Point(325, 154), HD_MOD_PREFIX + "/artRight.DEF", CButton::tooltip(CGI->generaltexth->hdModCommands[3]), controller.onMoveArtifactsToRight());
+		echangeArtifactsButton   = std::make_shared<CButton>(Point(377, 154), HD_MOD_PREFIX + "/swapAll.DEF", CButton::tooltip(CGI->generaltexth->hdModCommands[4]), controller.onSwapArtifacts());
+		moveArtifactsButtonRight = std::make_shared<CButton>(Point(425, 154), HD_MOD_PREFIX + "/artLeft.DEF", CButton::tooltip(CGI->generaltexth->hdModCommands[3]), controller.onMoveArtifactsToLeft());
 	}
 
 	updateWidgets();
