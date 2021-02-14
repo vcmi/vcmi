@@ -283,6 +283,18 @@ public:
 class CCallback;
 class CExchangeWindow;
 
+struct HeroArtifact
+{
+	const CGHeroInstance * hero;
+	const CArtifactInstance * artifact;
+	ArtifactPosition artPosition;
+
+	HeroArtifact(const CGHeroInstance * hero, const CArtifactInstance * artifact, ArtifactPosition artPosition)
+		:hero(hero), artifact(artifact), artPosition(artPosition)
+	{
+	}
+};
+
 class CExchangeController
 {
 private:
@@ -306,6 +318,8 @@ private:
 	void moveArtifact(const CGHeroInstance * source, const CGHeroInstance * target, ArtifactPosition srcPosition);
 	void moveStack(const CGHeroInstance * source, const CGHeroInstance * target, SlotID sourceSlot);
 	void swapArtifacts(ArtifactPosition artPosition);
+	std::vector<HeroArtifact> moveCompositeArtsToBackpack();
+	void swapArtifacts();
 };
 
 class CExchangeWindow : public CStatusbarWindow, public CGarrisonHolder, public CWindowWithArtifacts
