@@ -325,6 +325,11 @@
 		"class" : "elementalist",
 		"female": true,
 		"spellbook": [ "stoneSkin" ],
+		"texts" : {
+			"specialty" : {
+				"description" : "{Stone Skin}\r\n\r\nCasts Stone Skin with increased effect, based on the level of the target unit. (The bonus is greater when used on weaker units)"
+			}
+		},
 		"skills":
 		[
 			{ "skill" : "wisdom", "level": "basic" },
@@ -375,9 +380,9 @@
 		"specialty" : {
 			"bonuses" : {
 				"disruptingRay" : {
-					"addInfo" : 0,
+					"addInfo" : -2,
 					"subtype" : "spell.disruptingRay",
-					"type" : "SPECIAL_PECULIAR_ENCHANT"
+					"type" : "SPECIAL_ADD_VALUE_ENCHANT"
 				}
 			}
 		}

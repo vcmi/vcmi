@@ -151,10 +151,16 @@ void Timed::prepareEffects(SetStackEffect & sse, const Mechanics * m, const Effe
 	std::vector<Bonus> converted;
     convertBonus(m, duration, converted);
 
-	std::shared_ptr<const Bonus> bonus = nullptr;
+	std::shared_ptr<const Bonus> peculiarBonus = nullptr;
+	std::shared_ptr<const Bonus> addedValueBonus = nullptr;
+	std::shared_ptr<const Bonus> fixedValueBonus = nullptr; 
 	auto casterHero = dynamic_cast<const CGHeroInstance *>(m->caster);
 	if(casterHero)
-		bonus = casterHero->getBonusLocalFirst(Selector::typeSubtype(Bonus::SPECIAL_PECULIAR_ENCHANT, m->getSpellIndex()));
+	{ 
+		peculiarBonus = casterHero->getBonusLocalFirst(Selector::typeSubtype(Bonus::SPECIAL_PECULIAR_ENCHANT, m->getSpellIndex()));
+		addedValueBonus = casterHero->getBonusLocalFirst(Selector::typeSubtype(Bonus::SPECIAL_ADD_VALUE_ENCHANT, m->getSpellIndex()));
+		fixedValueBonus = casterHero->getBonusLocalFirst(Selector::typeSubtype(Bonus::SPECIAL_FIXED_VALUE_ENCHANT, m->getSpellIndex()));
+	}
 	//TODO: does hero specialty should affects his stack casting spells?
 
 	for(auto & t : target)
@@ -175,16 +181,17 @@ void Timed::prepareEffects(SetStackEffect & sse, const Mechanics * m, const Effe
 		if(describe)
 			describeEffect(sse.battleLog, m, converted, affected);
 
-		si32 power = 0;
+		const auto tier = std::max(affected->creatureLevel(), 1); //don't divide by 0 for certain creatures (commanders, war machines)
 
 		//Apply hero specials - peculiar enchants
-		const auto tier = std::max(affected->creatureLevel(), 1); //don't divide by 0 for certain creatures (commanders, war machines)
-		if(bonus)
+		if(peculiarBonus)
 		{
-			switch(bonus->additionalInfo[0])
+
+			si32 power = 0;
+			switch (peculiarBonus->additionalInfo[0])
 			{
 			case 0: //normal
-				switch(tier)
+				switch (tier)
 				{
 				case 1:
 				case 2:
@@ -199,22 +206,35 @@ void Timed::prepareEffects(SetStackEffect & sse, const Mechanics * m, const Effe
 					power = 1;
 					break;
 				}
-				for(const Bonus & b : converted)
-				{
-					Bonus specialBonus(b);
-					specialBonus.val = power; //it doesn't necessarily make sense for some spells, use it wisely
-					specialBonus.turnsRemain = duration;
-
-					//additional premy to given effect
-					buffer.push_back(specialBonus);
-				}
 				break;
-			case 1: //only Coronius as yet
+			case 1: 
+				//Coronius style specialty bonus.
+				//Please note that actual Coronius isnt here, because Slayer is a spell that doesnt affect monster stats and is used only in calculateDmgRange
 				power = std::max(5 - tier, 0);
-				Bonus specialBonus(Bonus::N_TURNS, Bonus::PRIMARY_SKILL, Bonus::SPELL_EFFECT, power, m->getSpellIndex(), PrimarySkill::ATTACK);
-				specialBonus.turnsRemain = duration;
-				buffer.push_back(specialBonus);
 				break;
+			}
+			if(m->isNegativeSpell())
+			{
+				//negative spells like weakness are defined in json with negative numbers, so we need do same here
+				power = -1 * power;
+			}
+			for(Bonus& b : buffer)
+			{
+				b.val += power;
+			}
+		}
+		if(addedValueBonus)
+		{
+			for(Bonus& b : buffer)
+			{
+				b.val += addedValueBonus->additionalInfo[0];
+			}
+		}
+		if(fixedValueBonus)
+		{
+			for(Bonus& b : buffer)
+			{
+				b.val = fixedValueBonus->additionalInfo[0];
 			}
 		}
 		if(casterHero && casterHero->hasBonusOfType(Bonus::SPECIAL_BLESS_DAMAGE, m->getSpellIndex())) //TODO: better handling of bonus percentages

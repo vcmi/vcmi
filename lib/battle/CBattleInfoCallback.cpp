@@ -791,7 +791,15 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo & info) 
 		}
 
 		if(isAffected)
+		{ 
 			attackDefenceDifference += SpellID(SpellID::SLAYER).toSpell()->getPower(spLevel);
+			if(info.attacker->hasBonusOfType(Bonus::SPECIAL_PECULIAR_ENCHANT, SpellID::SLAYER))
+			{
+				ui8 attackerTier = info.attacker->unitType()->level;
+				ui8 specialtyBonus = std::max(5 - attackerTier, 0);
+				attackDefenceDifference += specialtyBonus;
+			}
+		}
 	}
 
 	//bonus from attack/defense skills

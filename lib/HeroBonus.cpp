@@ -1468,6 +1468,8 @@ JsonNode subtypeToJson(Bonus::BonusType type, int subtype)
 	case Bonus::SPECIAL_BLESS_DAMAGE:
 	case Bonus::MAXED_SPELL:
 	case Bonus::SPECIAL_PECULIAR_ENCHANT:
+	case Bonus::SPECIAL_ADD_VALUE_ENCHANT:
+	case Bonus::SPECIAL_FIXED_VALUE_ENCHANT:
 		return JsonUtils::stringNode("spell." + (*VLC->spellh)[SpellID::ESpellID(subtype)]->identifier);
 	case Bonus::IMPROVED_NECROMANCY:
 	case Bonus::SPECIAL_UPGRADE:
@@ -1556,6 +1558,8 @@ std::string Bonus::nameForBonus() const
 	case Bonus::SPECIAL_BLESS_DAMAGE:
 	case Bonus::MAXED_SPELL:
 	case Bonus::SPECIAL_PECULIAR_ENCHANT:
+	case Bonus::SPECIAL_ADD_VALUE_ENCHANT:
+	case Bonus::SPECIAL_FIXED_VALUE_ENCHANT:
 		return (*VLC->spellh)[SpellID::ESpellID(subtype)]->identifier;
 	case Bonus::SPECIAL_UPGRADE:
 		return CreatureID::encode(subtype) + "2" + CreatureID::encode(additionalInfo[0]);
