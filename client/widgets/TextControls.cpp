@@ -656,19 +656,20 @@ CFocusable::~CFocusable()
 
 	focusables -= this;
 }
+
 void CFocusable::giveFocus()
 {
+	focus = true;
+	focusGot();
+	redraw();
+
 	if(inputWithFocus)
 	{
 		inputWithFocus->focus = false;
-		inputWithFocus->focusLost();
 		inputWithFocus->redraw();
 	}
 
-	focus = true;
 	inputWithFocus = this;
-	focusGot();
-	redraw();
 }
 
 void CFocusable::moveFocus()
