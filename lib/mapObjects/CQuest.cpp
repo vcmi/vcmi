@@ -11,6 +11,8 @@
 #include "StdInc.h"
 #include "CQuest.h"
 
+#include <vcmi/spells/Spell.h>
+
 #include "../NetPacks.h"
 #include "../CSoundBase.h"
 #include "../CGeneralTextHandler.h"
@@ -23,7 +25,6 @@
 #include "../CModHandler.h"
 #include "../GameConstants.h"
 #include "../StringConstants.h"
-#include "../spells/CSpellHandler.h"
 #include "../CSkillHandler.h"
 #include "../mapping/CMap.h"
 

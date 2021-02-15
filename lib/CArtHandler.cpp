@@ -761,13 +761,13 @@ std::string CArtifactInstance::getEffectiveDescription(const CGHeroInstance * he
 		// we expect scroll description to be like this: This scroll contains the [spell name] spell which is added into your spell book for as long as you carry the scroll.
 		// so we want to replace text in [...] with a spell name
 		// however other language versions don't have name placeholder at all, so we have to be careful
-		int32_t spellID = getGivenSpellID();
+		SpellID spellID = getGivenSpellID();
 		size_t nameStart = text.find_first_of('[');
 		size_t nameEnd = text.find_first_of(']', nameStart);
-		if(spellID >= 0)
+		if(spellID.getNum() >= 0)
 		{
 			if(nameStart != std::string::npos  &&  nameEnd != std::string::npos)
-				text = text.replace(nameStart, nameEnd - nameStart + 1, VLC->spellh->objects[spellID]->name);
+				text = text.replace(nameStart, nameEnd - nameStart + 1, spellID.toSpell(VLC->spells())->getName());
 		}
 	}
 	else if(hero && artType->constituentOf.size()) //display info about set

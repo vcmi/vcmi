@@ -938,7 +938,7 @@ void CGTownInstance::newTurn(CRandomGenerator & rand) const
 	{
 		//give resources if there's a Mystic Pond
 		if (hasBuilt(BuildingSubID::MYSTIC_POND)
-			&& cb->getDate(Date::DAY) != 1 
+			&& cb->getDate(Date::DAY) != 1
 			&& (tempOwner < PlayerColor::PLAYER_LIMIT)
 			)
 		{

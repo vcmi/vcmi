@@ -1773,7 +1773,7 @@ void CGScholar::serializeJsonOptions(JsonSerializeFormat & handler)
 			handler.serializeString("rewardSkill", value);
 			break;
 		case SPELL:
-			value = VLC->spellh->objects.at(bonusID)->identifier;
+			value = SpellID::encode(bonusID);
 			handler.serializeString("rewardSpell", value);
 			break;
 		case RANDOM:

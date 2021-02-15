@@ -18,7 +18,7 @@
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/spells/ISpellMechanics.h"
 #include "../../lib/CStack.h" // TODO: remove
-                              // Eventually only IBattleInfoCallback and battle::Unit should be used, 
+                              // Eventually only IBattleInfoCallback and battle::Unit should be used,
                               // CUnitState should be private and CStack should be removed completely
 
 #define LOGL(text) print(text)
@@ -43,14 +43,14 @@ SpellTypes spellType(const CSpell * spell)
 std::vector<BattleHex> CBattleAI::getBrokenWallMoatHexes() const
 {
 	std::vector<BattleHex> result;
-	
+
 	for(int wallPart = EWallPart::BOTTOM_WALL; wallPart < EWallPart::UPPER_WALL; wallPart++)
 	{
 		auto state = cb->battleGetWallState(wallPart);
 
 		if(state != EWallState::DESTROYED)
 			continue;
-		
+
 		auto wallHex = cb->wallPartToBattleHex((EWallPart::EWallPart)wallPart);
 		auto moatHex = wallHex.cloneInDirection(BattleHex::LEFT);
 
@@ -311,7 +311,7 @@ BattleAction CBattleAI::useCatapult(const CStack * stack)
 	if(cb->battleGetGateState() == EGateState::CLOSED)
 	{
 		targetHex = cb->wallPartToBattleHex(EWallPart::GATE);
-}
+	}
 	else
 	{
 		EWallPart::EWallPart wallParts[] = {

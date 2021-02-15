@@ -10,6 +10,9 @@
 #include "StdInc.h"
 #include "CComponent.h"
 
+#include <vcmi/spells/Service.h>
+#include <vcmi/spells/Spell.h>
+
 #include "../gui/CGuiHandler.h"
 #include "../gui/CCursorHandler.h"
 
@@ -23,7 +26,6 @@
 #include "../../lib/CTownHandler.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/CSkillHandler.h"
-#include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/NetPacksBase.h"
 
@@ -164,7 +166,7 @@ std::string CComponent::getDescription()
 		return art->getEffectiveDescription();
 	}
 	case experience: return CGI->generaltexth->allTexts[241];
-	case spell:      return CGI->spellh->objects[subtype]->getLevelDescription(val);
+	case spell:      return SpellID(subtype).toSpell(CGI->spells())->getLevelDescription(val);
 	case morale:     return CGI->generaltexth->heroscrn[ 4 - (val>0) + (val<0)];
 	case luck:       return CGI->generaltexth->heroscrn[ 7 - (val>0) + (val<0)];
 	case building:   return (*CGI->townh)[subtype]->town->buildings[BuildingID(val)]->Description();
