@@ -6,7 +6,7 @@ local trigger = TriggerBase:new()
 
 function trigger:new(o)
 	o = TriggerBase.new(self, o)
-	o.sub = ApplyDamage.subscribeBefore(EVENT_BUS, function(event)
+	o.sub = ApplyDamage.subscribeBefore(eventBus, function(event)
 		o:call(event)
 	end)
 	return o

@@ -182,6 +182,7 @@
 		<Unit filename="../scripts/lib/erm/MA.lua" />
 		<Unit filename="../scripts/lib/erm/MF.lua" />
 		<Unit filename="../scripts/lib/erm/MF_T.lua" />
+		<Unit filename="../scripts/lib/erm/OB_T.lua" />
 		<Unit filename="../scripts/lib/erm/OW.lua" />
 		<Unit filename="../scripts/lib/erm/PI_T.lua" />
 		<Unit filename="../scripts/lib/erm/ReceiverBase.lua" />

@@ -200,7 +200,7 @@ end
 !?TL client only? depends on time limit feature
 ]]
 
-local supportedTriggers = {"PI", "FU", "GM", "MF", "TM"}
+local supportedTriggers = {"PI", "FU", "GM", "MF", "OB", "TM"}
 
 local TriggerLoaders = {}
 

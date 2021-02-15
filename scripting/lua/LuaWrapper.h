@@ -161,17 +161,25 @@ class OpaqueWrapper : public RegistarBase
 {
 public:
 	using ObjectType = typename std::remove_cv<T>::type;
-	using UDataType = T *;
+	using UDataType = ObjectType *;
+	using CUDataType = const ObjectType *;
+
 	using RegType = detail::RegType<UDataType>;
 	using CustomRegType = detail::CustomRegType;
 
 	void pushMetatable(lua_State * L) const override final
 	{
 		static auto KEY = api::TypeRegistry::get()->getKey<UDataType>();
+		static auto S_KEY = api::TypeRegistry::get()->getKey<CUDataType>();
 
 		LuaStack S(L);
 
 		if(luaL_newmetatable(L, KEY) != 0)
+			adjustMetatable(L);
+
+		S.balance();
+
+		if(luaL_newmetatable(L, S_KEY) != 0)
 			adjustMetatable(L);
 
 		S.balance();

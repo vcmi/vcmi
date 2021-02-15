@@ -39,6 +39,21 @@ const std::vector<ObjectVisitStartedProxy::CustomRegType> ObjectVisitStartedProx
 		&SubscriptionRegistryProxy<ObjectVisitStartedProxy>::subscribeAfter,
 		true
 	},
+	{
+		"getPlayer",
+		LuaMethodWrapper<ObjectVisitStarted, PlayerColor(ObjectVisitStarted:: *)()const, &ObjectVisitStarted::getPlayer>::invoke,
+		false
+	},
+	{
+		"getHero",
+		LuaMethodWrapper<ObjectVisitStarted, ObjectInstanceID(ObjectVisitStarted:: *)()const, &ObjectVisitStarted::getHero>::invoke,
+		false
+	},
+	{
+		"getObject",
+		LuaMethodWrapper<ObjectVisitStarted, ObjectInstanceID(ObjectVisitStarted:: *)()const, &ObjectVisitStarted::getObject>::invoke,
+		false
+	},
 };
 
 }

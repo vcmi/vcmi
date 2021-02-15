@@ -211,16 +211,38 @@ public:
 	bool tryGet(int position, double & value);
 	bool tryGet(int position, std::string & value);
 
-	template<typename T, typename std::enable_if<detail::IsRegularClass<T>::value, int>::type = 0>
-	bool tryGet(int position, T * & value)
+	template<typename T, typename std::enable_if<detail::IsRegularClass<T>::value && std::is_const<T>::value, int>::type = 0>
+	STRONG_INLINE bool tryGet(int position, T * & value)
 	{
-		return tryGetUData(position, value);
+		using NCValue = typename std::remove_const<T>::type;
+
+		using UData = NCValue *;
+		using CUData = T *;
+
+		return tryGetCUData<T *, UData, CUData>(position, value);
 	}
 
-	template<typename T, typename std::enable_if<detail::IsRegularClass<T>::value, int>::type = 0>
-	bool tryGet(int position, std::shared_ptr<T> & value)
+	template<typename T, typename std::enable_if<detail::IsRegularClass<T>::value && !std::is_const<T>::value, int>::type = 0>
+	STRONG_INLINE bool tryGet(int position, T * & value)
 	{
-		return tryGetUData(position, value);
+		return tryGetUData<T *>(position, value);
+	}
+
+	template<typename T, typename std::enable_if<detail::IsRegularClass<T>::value && std::is_const<T>::value, int>::type = 0>
+	STRONG_INLINE bool tryGet(int position, std::shared_ptr<T> & value)
+	{
+		using NCValue = typename std::remove_const<T>::type;
+
+		using UData = std::shared_ptr<NCValue>;
+		using CUData = std::shared_ptr<T>;
+
+		return tryGetCUData<std::shared_ptr<T>, UData, CUData>(position, value);
+	}
+
+	template<typename T, typename std::enable_if<detail::IsRegularClass<T>::value && !std::is_const<T>::value, int>::type = 0>
+	STRONG_INLINE bool tryGet(int position, std::shared_ptr<T> & value)
+	{
+		return tryGetUData<std::shared_ptr<T>>(position, value);
 	}
 
 	template<typename U>
@@ -228,13 +250,67 @@ public:
 	{
 		static auto KEY = api::TypeRegistry::get()->getKey<U>();
 
-		void * raw = luaL_checkudata(L, position, KEY);
+		void * raw = lua_touserdata(L, position);
 
 		if(!raw)
 			return false;
 
-		value = *(static_cast<U *>(raw));
-		return true;
+		if(lua_getmetatable(L, position) == 0)
+			return false;
+
+		lua_getfield(L, LUA_REGISTRYINDEX, KEY);
+
+		if(lua_rawequal(L, -1, -2) == 1)
+		{
+			value = *(static_cast<U *>(raw));
+			lua_pop(L, 2);
+			return true;
+		}
+
+		lua_pop(L, 2);
+		return false;
+	}
+
+	template<typename T, typename U, typename CU>
+	bool tryGetCUData(int position, T & value)
+	{
+		static auto KEY = api::TypeRegistry::get()->getKey<U>();
+		static auto C_KEY = api::TypeRegistry::get()->getKey<CU>();
+
+		void * raw = lua_touserdata(L, position);
+
+		if(!raw)
+			return false;
+
+		if(lua_getmetatable(L, position) == 0)
+			return false;
+
+		//top is metatable
+
+		lua_getfield(L, LUA_REGISTRYINDEX, KEY);
+
+		if(lua_rawequal(L, -1, -2) == 1)
+		{
+			value = *(static_cast<U *>(raw));
+			lua_pop(L, 2);
+			return true;
+		}
+
+		lua_pop(L, 1);
+
+		//top is metatable
+
+		lua_getfield(L, LUA_REGISTRYINDEX, C_KEY);
+
+		if(lua_rawequal(L, -1, -2) == 1)
+		{
+			value = *(static_cast<CU *>(raw));
+			lua_pop(L, 2);
+			return true;
+		}
+
+		lua_pop(L, 2);
+		return false;
 	}
 
 	bool tryGet(int position, JsonNode & value);

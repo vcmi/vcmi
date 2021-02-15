@@ -42,23 +42,26 @@ protected:
 
 TEST_F(ERM_OB_T, ByTypeIndex)
 {
-	EXPECT_CALL(infoMock, getObj(Eq(ObjectInstanceID(234)), _)).WillRepeatedly(Return(&objectMock));
-	EXPECT_CALL(objectMock, getObjGroupIndex()).WillRepeatedly(Return(420));
+	EXPECT_CALL(infoMock, getObj(Eq(ObjectInstanceID(234)), _)).Times(AtLeast(1)).WillRepeatedly(Return(&objectMock));
+	EXPECT_CALL(objectMock, getObjGroupIndex()).Times(AtLeast(1)).WillRepeatedly(Return(420));
 
 	loadScript(VLC->scriptHandler->erm,
 		"VERM\n"
 		"!?OB420;\n"
 		"!!VRv42:S4;\n"
+		"!?OB421;\n"
+		"!!VRv43:S5;\n"
 	);
 
 	SCOPED_TRACE("\n" + subject->code);
 	runClientServer();
 
-	events::ObjectVisitStarted::defaultExecute(&eventBus, nullptr, PlayerColor(2), ObjectInstanceID(234), ObjectInstanceID(235));
+	events::ObjectVisitStarted::defaultExecute(&eventBus, nullptr, PlayerColor(2), ObjectInstanceID(235), ObjectInstanceID(234));
 
 	const JsonNode actualState = context->saveState();
 
 	EXPECT_EQ(actualState["ERM"]["v"]["42"], JsonUtils::floatNode(4)) << actualState.toJson();
+	EXPECT_TRUE(actualState["ERM"]["v"]["43"].isNull()) << actualState.toJson();
 }
 
 }

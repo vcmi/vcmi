@@ -21,10 +21,10 @@ namespace scripting
 namespace api
 {
 
-class ObjectInstanceProxy : public OpaqueWrapper<const IObjectInterface, ObjectInstanceProxy>
+class ObjectInstanceProxy : public OpaqueWrapper<const CGObjectInstance, ObjectInstanceProxy>
 {
 public:
-	using Wrapper = OpaqueWrapper<const IObjectInterface, ObjectInstanceProxy>;
+	using Wrapper = OpaqueWrapper<const CGObjectInstance, ObjectInstanceProxy>;
 	static const std::vector<typename Wrapper::RegType> REGISTER;
 	static const std::vector<typename Wrapper::CustomRegType> REGISTER_CUSTOM;
 };

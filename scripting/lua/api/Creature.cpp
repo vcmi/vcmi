@@ -26,8 +26,6 @@ VCMI_REGISTER_CORE_SCRIPT_API(CreatureProxy, "Creature");
 
 const std::vector<CreatureProxy::RegType> CreatureProxy::REGISTER =
 {
-	{"accessBonuses", LuaCallWrapper<const EntityWithBonuses<CreatureID>>::createFunctor(&EntityWithBonuses<CreatureID>::accessBonuses)},
-
 	{"getCost", LuaCallWrapper<const Creature>::createFunctor(&Creature::getCost)},
 	{"isDoubleWide", LuaCallWrapper<const Creature>::createFunctor(&Creature::isDoubleWide)},
 };
