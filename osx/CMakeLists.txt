@@ -11,10 +11,16 @@ if(APPLE)
 		")
 	endif()
 
+	# Manually fix VCMI library links in AI libraries with install_name_tool
 	install(CODE "
 		set(BU_CHMOD_BUNDLE_ITEMS ON)
 		include(BundleUtilities)
 		fixup_bundle(\"\${CMAKE_INSTALL_PREFIX}/${APP_BUNDLE_DIR}\" \"\" \"\")
+		execute_process(COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change \"libvcmi.dylib\" \"@executable_path/../Frameworks/libvcmi.dylib\" \"\${CMAKE_INSTALL_PREFIX}/${APP_BUNDLE_BINARY_DIR}/AI/libBattleAI.dylib\")
+		execute_process(COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change \"libvcmi.dylib\" \"@executable_path/../Frameworks/libvcmi.dylib\" \"\${CMAKE_INSTALL_PREFIX}/${APP_BUNDLE_BINARY_DIR}/AI/libEmptyAI.dylib\")
+		execute_process(COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change \"libvcmi.dylib\" \"@executable_path/../Frameworks/libvcmi.dylib\" \"\${CMAKE_INSTALL_PREFIX}/${APP_BUNDLE_BINARY_DIR}/AI/libStupidAI.dylib\")
+		execute_process(COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change \"libvcmi.dylib\" \"@executable_path/../Frameworks/libvcmi.dylib\" \"\${CMAKE_INSTALL_PREFIX}/${APP_BUNDLE_BINARY_DIR}/AI/libVCAI.dylib\")
+		execute_process(COMMAND rm \"\${CMAKE_INSTALL_PREFIX}/${APP_BUNDLE_BINARY_DIR}/libvcmi.dylib\")
 	" COMPONENT Runtime)
 endif(APPLE)
 
@@ -22,7 +28,7 @@ endif(APPLE)
 if(WIN32)
 	if(ENABLE_LAUNCHER)
 		# Temporary ugly fix for Qt deployment since windeployqt broken in Vcpkg
-		
+
 		#there are some weird issues with variables used in path not evaluated properly when trying to remove code duplication from below lines
 		if(EXISTS ${CMAKE_BINARY_DIR}/../../vcpkg) #current path to vcpkg main folder on appveyor CI
 			if(CMAKE_SIZEOF_VOID_P EQUAL 8) #64 bit build
