@@ -25,7 +25,6 @@ class EventBusProxy : public OpaqueWrapper<::events::EventBus, EventBusProxy>
 {
 public:
 	using Wrapper = OpaqueWrapper<::events::EventBus, EventBusProxy>;
-	static const std::vector<typename Wrapper::RegType> REGISTER;
 	static const std::vector<typename Wrapper::CustomRegType> REGISTER_CUSTOM;
 };
 

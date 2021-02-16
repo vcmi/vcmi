@@ -24,16 +24,15 @@ class SetResourcesProxy : public SharedWrapper<SetResources, SetResourcesProxy>
 public:
 	using Wrapper = SharedWrapper<SetResources, SetResourcesProxy>;
 
-	static const std::vector<Wrapper::RegType> REGISTER;
 	static const std::vector<typename Wrapper::CustomRegType> REGISTER_CUSTOM;
 
-	static int getAbs(lua_State * L, std::shared_ptr<SetResources> object);
-	static int setAbs(lua_State * L, std::shared_ptr<SetResources> object);
-	static int getPlayer(lua_State * L, std::shared_ptr<SetResources> object);
-	static int setPlayer(lua_State * L, std::shared_ptr<SetResources> object);
-	static int getAmount(lua_State * L, std::shared_ptr<SetResources> object);
-	static int setAmount(lua_State * L, std::shared_ptr<SetResources> object);
-	static int clear(lua_State * L, std::shared_ptr<SetResources> object);
+	static int getAbs(lua_State * L);
+	static int setAbs(lua_State * L);
+	static int getPlayer(lua_State * L);
+	static int setPlayer(lua_State * L);
+	static int getAmount(lua_State * L);
+	static int setAmount(lua_State * L);
+	static int clear(lua_State * L);
 };
 
 }

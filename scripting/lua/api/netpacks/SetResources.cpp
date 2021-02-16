@@ -24,68 +24,85 @@ namespace netpacks
 
 VCMI_REGISTER_SCRIPT_API(SetResourcesProxy, "netpacks.SetResources");
 
-const std::vector<SetResourcesProxy::RegType> SetResourcesProxy::REGISTER =
-{
-	{"getAbs",&SetResourcesProxy::getAbs},
-	{"setAbs",&SetResourcesProxy::setAbs},
-	{"getPlayer",&SetResourcesProxy::getPlayer},
-	{"setPlayer",&SetResourcesProxy::setPlayer},
-	{"setAmount",&SetResourcesProxy::setAmount},
-	{"getAmount",&SetResourcesProxy::getAmount},
-	{"clear",&SetResourcesProxy::clear},
-
-	{
-		"toNetpackLight",
-		&PackForClientProxy<SetResourcesProxy>::toNetpackLight
-	},
-};
-
 const std::vector<SetResourcesProxy::CustomRegType> SetResourcesProxy::REGISTER_CUSTOM =
 {
-	{"new", &Wrapper::constructor, true}
+	{"new", &Wrapper::constructor, true},
+	{"getAbs", &SetResourcesProxy::getAbs, false},
+	{"setAbs", &SetResourcesProxy::setAbs, false},
+	{"getPlayer", &SetResourcesProxy::getPlayer, false},
+	{"setPlayer", &SetResourcesProxy::setPlayer, false},
+	{"setAmount", &SetResourcesProxy::setAmount, false},
+	{"getAmount", &SetResourcesProxy::getAmount, false},
+	{"clear", &SetResourcesProxy::clear, false},
+	{"toNetpackLight", &PackForClientProxy<SetResourcesProxy>::toNetpackLight, false}
 };
 
-int SetResourcesProxy::getAbs(lua_State * L, std::shared_ptr<SetResources> object)
+int SetResourcesProxy::getAbs(lua_State * L)
 {
+	LuaStack S(L);
+	std::shared_ptr<SetResources> object;
+	if(!S.tryGet(1, object))
+		return S.retVoid();
+
 	return LuaStack::quickRetBool(L, object->abs);
 }
 
-int SetResourcesProxy::setAbs(lua_State * L, std::shared_ptr<SetResources> object)
+int SetResourcesProxy::setAbs(lua_State * L)
 {
 	LuaStack S(L);
+
+	std::shared_ptr<SetResources> object;
+	if(!S.tryGet(1, object))
+		return S.retVoid();
+
+
 	bool value = false;
-	if(S.tryGet(1, value))
+	if(S.tryGet(2, value))
 		object->abs = value;
 
 	return S.retVoid();
 }
 
-int SetResourcesProxy::getPlayer(lua_State * L, std::shared_ptr<SetResources> object)
+int SetResourcesProxy::getPlayer(lua_State * L)
 {
 	LuaStack S(L);
+
+	std::shared_ptr<SetResources> object;
+	if(!S.tryGet(1, object))
+		return S.retVoid();
+
 	S.clear();
 	S.push(object->player);
 	return 1;
 }
 
-int SetResourcesProxy::setPlayer(lua_State * L, std::shared_ptr<SetResources> object)
+int SetResourcesProxy::setPlayer(lua_State * L)
 {
 	LuaStack S(L);
+
+	std::shared_ptr<SetResources> object;
+	if(!S.tryGet(1, object))
+		return S.retVoid();
+
 	PlayerColor value;
 
-	if(S.tryGet(1, value))
+	if(S.tryGet(2, value))
 		object->player = value;
 
 	return S.retVoid();
 }
 
-int SetResourcesProxy::getAmount(lua_State * L, std::shared_ptr<SetResources> object)
+int SetResourcesProxy::getAmount(lua_State * L)
 {
 	LuaStack S(L);
 
+	std::shared_ptr<SetResources> object;
+	if(!S.tryGet(1, object))
+		return S.retVoid();
+
 	Res::ERes type = Res::ERes::INVALID;
 
-	if(!S.tryGet(1, type))
+	if(!S.tryGet(2, type))
 		return S.retVoid();
 
 	S.clear();
@@ -95,13 +112,17 @@ int SetResourcesProxy::getAmount(lua_State * L, std::shared_ptr<SetResources> ob
 	return 1;
 }
 
-int SetResourcesProxy::setAmount(lua_State * L, std::shared_ptr<SetResources> object)
+int SetResourcesProxy::setAmount(lua_State * L)
 {
 	LuaStack S(L);
 
+	std::shared_ptr<SetResources> object;
+	if(!S.tryGet(1, object))
+		return S.retVoid();
+
 	Res::ERes type = Res::ERes::INVALID;
 
-	if(!S.tryGet(1, type))
+	if(!S.tryGet(2, type))
 		return S.retVoid();
 
 	int typeIdx = static_cast<int>(type);
@@ -111,7 +132,7 @@ int SetResourcesProxy::setAmount(lua_State * L, std::shared_ptr<SetResources> ob
 
 	TQuantity amount = 0;
 
-	if(!S.tryGet(2, amount))
+	if(!S.tryGet(3, amount))
 		return S.retVoid();
 
 	object->res.at(typeIdx) = amount;
@@ -119,9 +140,14 @@ int SetResourcesProxy::setAmount(lua_State * L, std::shared_ptr<SetResources> ob
 	return S.retVoid();
 }
 
-int SetResourcesProxy::clear(lua_State * L, std::shared_ptr<SetResources> object)
+int SetResourcesProxy::clear(lua_State * L)
 {
 	LuaStack S(L);
+
+	std::shared_ptr<SetResources> object;
+	if(!S.tryGet(1, object))
+		return S.retVoid();
+
 	object->res.amin(0);
 	object->res.positive();
 	return S.retVoid();

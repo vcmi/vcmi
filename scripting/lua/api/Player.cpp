@@ -24,10 +24,6 @@ namespace api
 
 VCMI_REGISTER_CORE_SCRIPT_API(PlayerProxy, "Player");
 
-const std::vector<PlayerProxy::RegType> PlayerProxy::REGISTER =
-{
-};
-
 const std::vector<PlayerProxy::CustomRegType> PlayerProxy::REGISTER_CUSTOM =
 {
 //	virtual PlayerColor getColor() const = 0;

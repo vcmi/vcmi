@@ -25,12 +25,11 @@ class BattleCbProxy : public OpaqueWrapper<const BattleCb, BattleCbProxy>
 public:
 	using Wrapper = OpaqueWrapper<const BattleCb, BattleCbProxy>;
 
-	static const std::vector<typename Wrapper::RegType> REGISTER;
 	static const std::vector<typename Wrapper::CustomRegType> REGISTER_CUSTOM;
 
-	static int getBattlefieldType(lua_State * L, const BattleCb * object);
-	static int getTerrainType(lua_State * L, const BattleCb * object);
-	static int getUnitByPos(lua_State * L, const BattleCb * object);
+	static int getBattlefieldType(lua_State * L);
+	static int getTerrainType(lua_State * L);
+	static int getUnitByPos(lua_State * L);
 };
 
 }

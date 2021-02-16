@@ -24,63 +24,58 @@ namespace netpacks
 
 VCMI_REGISTER_SCRIPT_API(BattleStackMovedProxy, "netpacks.BattleStackMoved");
 
-const std::vector<BattleStackMovedProxy::RegType> BattleStackMovedProxy::REGISTER =
-{
-	{
-		"addTileToMove",
-		&BattleStackMovedProxy::addTileToMove
-	},
-	{
-		"setUnitId",
-		&BattleStackMovedProxy::setUnitId
-	},
-	{
-		"setDistance",
-		&BattleStackMovedProxy::setDistance
-	},
-	{
-		"setTeleporting",
-		&BattleStackMovedProxy::setTeleporting
-	},
-	{
-		"toNetpackLight",
-		&PackForClientProxy<BattleStackMovedProxy>::toNetpackLight
-	}
-};
-
 const std::vector<BattleStackMovedProxy::CustomRegType> BattleStackMovedProxy::REGISTER_CUSTOM =
 {
-	{"new", &Wrapper::constructor, true}
+	{"new", &Wrapper::constructor, true},
+	{"addTileToMove", &BattleStackMovedProxy::addTileToMove, false},
+	{"setUnitId", &BattleStackMovedProxy::setUnitId, false},
+	{"setDistance", &BattleStackMovedProxy::setDistance, false},
+	{"setTeleporting", &BattleStackMovedProxy::setTeleporting, false},
+	{"toNetpackLight", &PackForClientProxy<BattleStackMovedProxy>::toNetpackLight, false}
 };
 
-int BattleStackMovedProxy::addTileToMove(lua_State * L, std::shared_ptr<BattleStackMoved> object)
+int BattleStackMovedProxy::addTileToMove(lua_State * L)
 {
 	LuaStack S(L);
+
+	std::shared_ptr<BattleStackMoved> object;
+	if(!S.tryGet(1, object))
+		return S.retVoid();
+
 	lua_Integer hex = 0;
-	if(!S.tryGetInteger(1, hex))
+	if(!S.tryGetInteger(2, hex))
 		return S.retVoid();
 	object->tilesToMove.emplace_back(hex);
 	return S.retVoid();
 }
 
-int BattleStackMovedProxy::setUnitId(lua_State * L, std::shared_ptr<BattleStackMoved> object)
+int BattleStackMovedProxy::setUnitId(lua_State * L)
 {
 	LuaStack S(L);
-	S.tryGet(1, object->stack);
+	std::shared_ptr<BattleStackMoved> object;
+	if(!S.tryGet(1, object))
+		return S.retVoid();
+	S.tryGet(2, object->stack);
 	return S.retVoid();
 }
 
-int BattleStackMovedProxy::setDistance(lua_State * L, std::shared_ptr<BattleStackMoved> object)
+int BattleStackMovedProxy::setDistance(lua_State * L)
 {
 	LuaStack S(L);
-	S.tryGet(1, object->distance);
+	std::shared_ptr<BattleStackMoved> object;
+	if(!S.tryGet(1, object))
+		return S.retVoid();
+	S.tryGet(2, object->distance);
 	return S.retVoid();
 }
 
-int BattleStackMovedProxy::setTeleporting(lua_State * L, std::shared_ptr<BattleStackMoved> object)
+int BattleStackMovedProxy::setTeleporting(lua_State * L)
 {
 	LuaStack S(L);
-	S.tryGet(1, object->teleporting);
+	std::shared_ptr<BattleStackMoved> object;
+	if(!S.tryGet(1, object))
+		return S.retVoid();
+	S.tryGet(2, object->teleporting);
 	return S.retVoid();
 }
 

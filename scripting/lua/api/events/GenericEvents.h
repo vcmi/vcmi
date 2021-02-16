@@ -27,7 +27,6 @@ class GameResumedProxy : public OpaqueWrapper<::events::GameResumed, GameResumed
 {
 public:
 	using Wrapper = OpaqueWrapper<::events::GameResumed, GameResumedProxy>;
-	static const std::vector<typename Wrapper::RegType> REGISTER;
 	static const std::vector<typename Wrapper::CustomRegType> REGISTER_CUSTOM;
 };
 
@@ -35,7 +34,6 @@ class PlayerGotTurnProxy : public OpaqueWrapper<::events::PlayerGotTurn, PlayerG
 {
 public:
 	using Wrapper = OpaqueWrapper<::events::PlayerGotTurn, PlayerGotTurnProxy>;
-	static const std::vector<typename Wrapper::RegType> REGISTER;
 	static const std::vector<typename Wrapper::CustomRegType> REGISTER_CUSTOM;
 };
 
@@ -43,7 +41,6 @@ class TurnStartedProxy : public OpaqueWrapper<::events::TurnStarted, TurnStarted
 {
 public:
 	using Wrapper = OpaqueWrapper<::events::TurnStarted, TurnStartedProxy>;
-	static const std::vector<typename Wrapper::RegType> REGISTER;
 	static const std::vector<typename Wrapper::CustomRegType> REGISTER_CUSTOM;
 };
 

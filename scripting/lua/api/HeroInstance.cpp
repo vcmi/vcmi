@@ -22,12 +22,10 @@ namespace api
 {
 VCMI_REGISTER_CORE_SCRIPT_API(HeroInstanceProxy, "HeroInstance");
 
-const std::vector<HeroInstanceProxy::RegType> HeroInstanceProxy::REGISTER = {};
-
 const std::vector<HeroInstanceProxy::CustomRegType> HeroInstanceProxy::REGISTER_CUSTOM =
 {
-	{"getStack", LuaMethodWrapper<CGHeroInstance, const CStackInstance *(CCreatureSet:: *)(SlotID)const, &CCreatureSet::getStackPtr>::invoke, false},
-	{"getOwner", LuaMethodWrapper<CGHeroInstance, PlayerColor(CGObjectInstance:: *)()const, &CGObjectInstance::getOwner>::invoke, false},
+	{"getStack", LuaMethodWrapper<CGHeroInstance, decltype(&CCreatureSet::getStackPtr), &CCreatureSet::getStackPtr>::invoke, false},
+	{"getOwner", LuaMethodWrapper<CGHeroInstance, decltype(&CGObjectInstance::getOwner), &CGObjectInstance::getOwner>::invoke, false},
 };
 
 }

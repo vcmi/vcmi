@@ -23,12 +23,11 @@ class InfoWindowProxy : public SharedWrapper<InfoWindow, InfoWindowProxy>
 {
 public:
 	using Wrapper = SharedWrapper<InfoWindow, InfoWindowProxy>;
-	static const std::vector<typename Wrapper::RegType> REGISTER;
 	static const std::vector<typename Wrapper::CustomRegType> REGISTER_CUSTOM;
 
-	static int addReplacement(lua_State * L, std::shared_ptr<InfoWindow> object);
-	static int addText(lua_State * L, std::shared_ptr<InfoWindow> object);
-	static int setPlayer(lua_State * L, std::shared_ptr<InfoWindow> object);
+	static int addReplacement(lua_State * L);
+	static int addText(lua_State * L);
+	static int setPlayer(lua_State * L);
 };
 
 }

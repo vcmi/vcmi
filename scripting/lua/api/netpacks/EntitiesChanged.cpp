@@ -24,39 +24,33 @@ namespace netpacks
 
 VCMI_REGISTER_SCRIPT_API(EntitiesChangedProxy, "netpacks.EntitiesChanged");
 
-const std::vector<EntitiesChangedProxy::RegType> EntitiesChangedProxy::REGISTER =
-{
-	{
-		"update",
-		&EntitiesChangedProxy::update
-	},
-	{
-		"toNetpackLight",
-		&PackForClientProxy<EntitiesChangedProxy>::toNetpackLight
-	},
-};
-
 const std::vector<EntitiesChangedProxy::CustomRegType> EntitiesChangedProxy::REGISTER_CUSTOM =
 {
-	{"new", &Wrapper::constructor, true}
+	{"new", &Wrapper::constructor, true},
+	{"update", &EntitiesChangedProxy::update, false},
+	{"toNetpackLight", &PackForClientProxy<EntitiesChangedProxy>::toNetpackLight, false}
 };
 
-int EntitiesChangedProxy::update(lua_State * L, std::shared_ptr<EntitiesChanged> object)
+int EntitiesChangedProxy::update(lua_State * L)
 {
 	LuaStack S(L);
+
+	std::shared_ptr<EntitiesChanged> object;
+	if(!S.tryGet(1, object))
+		return S.retVoid();
 
 	EntityChanges changes;
 
 	int32_t metaIndex = 0;
 
-	if(!S.tryGet(1, metaIndex))
+	if(!S.tryGet(2, metaIndex))
 		return S.retVoid();
 	changes.metatype = static_cast<Metatype>(metaIndex);
 
-	if(!S.tryGet(2, changes.entityIndex))
+	if(!S.tryGet(3, changes.entityIndex))
 		return S.retVoid();
 
-	if(!S.tryGet(3, changes.data))
+	if(!S.tryGet(4, changes.data))
 		return S.retVoid();
 
 	object->changes.push_back(changes);

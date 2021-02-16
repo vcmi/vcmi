@@ -25,8 +25,14 @@ template <typename Derived>
 class PackForClientProxy
 {
 public:
-	static int toNetpackLight(lua_State * L, typename Derived::UDataType object)
+	static int toNetpackLight(lua_State * L)
 	{
+		typename Derived::UDataType object;
+		LuaStack S(L);
+
+		if(!S.tryGet(1, object))
+			return S.retVoid();
+
 		lua_settop(L, 0);
 		lua_pushlightuserdata(L, static_cast<CPackForClient *>(object.get()));
 		return 1;

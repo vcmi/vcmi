@@ -22,14 +22,12 @@ namespace api
 {
 VCMI_REGISTER_CORE_SCRIPT_API(SkillProxy, "Skill");
 
-const std::vector<SkillProxy::RegType> SkillProxy::REGISTER = {};
-
 const std::vector<SkillProxy::CustomRegType> SkillProxy::REGISTER_CUSTOM =
 {
-	{"getIconIndex", LuaMethodWrapper<Skill, int32_t(Entity:: *)()const, &Entity::getIconIndex>::invoke, false},
-	{"getIndex", LuaMethodWrapper<Skill, int32_t(Entity:: *)()const, &Entity::getIndex>::invoke, false},
-	{"getJsonKey", LuaMethodWrapper<Skill, const std::string &(Entity:: *)()const, &Entity::getJsonKey>::invoke, false},
-	{"getName", LuaMethodWrapper<Skill, const std::string &(Entity:: *)()const, &Entity::getName>::invoke, false},
+	{"getIconIndex", LuaMethodWrapper<Skill, decltype(&Entity::getIconIndex), &Entity::getIconIndex>::invoke, false},
+	{"getIndex", LuaMethodWrapper<Skill, decltype(&Entity::getIndex), &Entity::getIndex>::invoke, false},
+	{"getJsonKey", LuaMethodWrapper<Skill, decltype(&Entity::getJsonKey), &Entity::getJsonKey>::invoke, false},
+	{"getName", LuaMethodWrapper<Skill, decltype(&Entity::getName), &Entity::getName>::invoke, false},
 };
 
 }

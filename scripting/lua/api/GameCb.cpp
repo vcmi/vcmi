@@ -24,19 +24,17 @@ namespace api
 
 VCMI_REGISTER_CORE_SCRIPT_API(GameCbProxy, "Game");
 
-const std::vector<GameCbProxy::RegType> GameCbProxy::REGISTER = {};
-
 const std::vector<GameCbProxy::CustomRegType> GameCbProxy::REGISTER_CUSTOM =
 {
-	{"getDate", LuaMethodWrapper<GameCb, int32_t(GameCb:: *)(Date::EDateType)const, &GameCb::getDate>::invoke, false},
-	{"isAllowed", LuaMethodWrapper<GameCb, bool(GameCb:: *)(int32_t, int32_t)const, &GameCb::isAllowed>::invoke, false},
-	{"getCurrentPlayer", LuaMethodWrapper<GameCb, PlayerColor(GameCb:: *)()const, &GameCb::getLocalPlayer>::invoke, false},
-	{"getPlayer", LuaMethodWrapper<GameCb, const Player * (GameCb:: *)(PlayerColor)const, &GameCb::getPlayer>::invoke, false},
+	{"getDate", LuaMethodWrapper<GameCb, decltype(&GameCb::getDate), &GameCb::getDate>::invoke, false},
+	{"isAllowed", LuaMethodWrapper<GameCb, decltype(&GameCb::isAllowed), &GameCb::isAllowed>::invoke, false},
+	{"getCurrentPlayer", LuaMethodWrapper<GameCb, decltype(&GameCb::getLocalPlayer), &GameCb::getLocalPlayer>::invoke, false},
+	{"getPlayer", LuaMethodWrapper<GameCb, decltype(&GameCb::getPlayer), &GameCb::getPlayer>::invoke, false},
 
-	{"getHero", LuaMethodWrapper<GameCb, const CGHeroInstance *(GameCb:: *)(ObjectInstanceID)const, &GameCb::getHero>::invoke, false},
-	{"getHeroWithSubid", LuaMethodWrapper<GameCb, const CGHeroInstance *(GameCb:: *)(int)const, &GameCb::getHeroWithSubid>::invoke, false},
+	{"getHero", LuaMethodWrapper<GameCb, decltype(&GameCb::getHero), &GameCb::getHero>::invoke, false},
+	{"getHeroWithSubid", LuaMethodWrapper<GameCb, decltype(&GameCb::getHeroWithSubid), &GameCb::getHeroWithSubid>::invoke, false},
 
-	{"getObj", LuaMethodWrapper<GameCb, const CGObjectInstance *(GameCb:: *)(ObjectInstanceID, bool)const, &GameCb::getObj>::invoke, false},
+	{"getObj", LuaMethodWrapper<GameCb, decltype(&GameCb::getObj), &GameCb::getObj>::invoke, false},
 };
 
 }

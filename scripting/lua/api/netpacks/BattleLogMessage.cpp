@@ -24,34 +24,29 @@ namespace netpacks
 
 VCMI_REGISTER_SCRIPT_API(BattleLogMessageProxy, "netpacks.BattleLogMessage");
 
-const std::vector<BattleLogMessageProxy::RegType> BattleLogMessageProxy::REGISTER =
-{
-	{
-		"addText",
-		&BattleLogMessageProxy::addText
-	},
-	{
-		"toNetpackLight",
-		&PackForClientProxy<BattleLogMessageProxy>::toNetpackLight
-	},
-};
-
 const std::vector<BattleLogMessageProxy::CustomRegType> BattleLogMessageProxy::REGISTER_CUSTOM =
 {
-	{"new", &Wrapper::constructor, true}
+	{"new", &Wrapper::constructor, true},
+	{"addText", &BattleLogMessageProxy::addText, false},
+	{"toNetpackLight",&PackForClientProxy<BattleLogMessageProxy>::toNetpackLight, false}
 };
 
-int BattleLogMessageProxy::addText(lua_State * L, std::shared_ptr<BattleLogMessage> object)
+int BattleLogMessageProxy::addText(lua_State * L)
 {
 	LuaStack S(L);
 
-	std::string text;
+	std::shared_ptr<BattleLogMessage> object;
 
-	if(S.tryGet(1, text))
+	if(S.tryGet(1, object))
 	{
-		if(object->lines.empty())
-			object->lines.emplace_back();
-		object->lines.back() << text;
+		std::string text;
+
+		if(S.tryGet(2, text))
+		{
+			if(object->lines.empty())
+				object->lines.emplace_back();
+			object->lines.back() << text;
+		}
 	}
 
 	return S.retVoid();

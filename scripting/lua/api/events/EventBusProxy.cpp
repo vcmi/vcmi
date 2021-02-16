@@ -24,7 +24,6 @@ namespace events
 {
 //No methods here, just an empty metatable for type safety.
 VCMI_REGISTER_CORE_SCRIPT_API(EventBusProxy, "EventBus");
-const std::vector<EventBusProxy::RegType> EventBusProxy::REGISTER = {};
 const std::vector<EventBusProxy::CustomRegType> EventBusProxy::REGISTER_CUSTOM = {};
 
 }

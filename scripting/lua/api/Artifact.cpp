@@ -24,23 +24,21 @@ namespace api
 
 VCMI_REGISTER_CORE_SCRIPT_API(ArtifactProxy, "Artifact");
 
-const std::vector<ArtifactProxy::RegType> ArtifactProxy::REGISTER = {};
-
 const std::vector<ArtifactProxy::CustomRegType> ArtifactProxy::REGISTER_CUSTOM =
 {
-	{"getIconIndex", LuaMethodWrapper<Artifact, int32_t(Entity:: *)()const, &Entity::getIconIndex>::invoke, false},
-	{"getIndex", LuaMethodWrapper<Artifact, int32_t(Entity:: *)()const, &Entity::getIndex>::invoke, false},
-	{"getJsonKey", LuaMethodWrapper<Artifact, const std::string &(Entity:: *)()const, &Entity::getJsonKey>::invoke, false},
-	{"getName", LuaMethodWrapper<Artifact, const std::string &(Entity:: *)()const, &Entity::getName>::invoke, false},
+	{"getIconIndex", LuaMethodWrapper<Artifact, decltype(&Entity::getIconIndex), &Entity::getIconIndex>::invoke, false},
+	{"getIndex", LuaMethodWrapper<Artifact, decltype(&Entity::getIndex), &Entity::getIndex>::invoke, false},
+	{"getJsonKey", LuaMethodWrapper<Artifact, decltype(&Entity::getJsonKey), &Entity::getJsonKey>::invoke, false},
+	{"getName", LuaMethodWrapper<Artifact, decltype(&Entity::getName), &Entity::getName>::invoke, false},
 
-	{"getId", LuaMethodWrapper<Artifact, ArtifactID(EntityT<ArtifactID>::*)()const, &EntityT<ArtifactID>::getId>::invoke, false},
-	{"accessBonuses", LuaMethodWrapper<Artifact, const IBonusBearer *(EntityWithBonuses<ArtifactID>:: *)()const, &EntityWithBonuses<ArtifactID>::accessBonuses>::invoke, false},
+	{"getId", LuaMethodWrapper<Artifact, decltype(&EntityT<ArtifactID>::getId), &EntityT<ArtifactID>::getId>::invoke, false},
+	{"accessBonuses", LuaMethodWrapper<Artifact, decltype(&EntityWithBonuses<ArtifactID>::accessBonuses), &EntityWithBonuses<ArtifactID>::accessBonuses>::invoke, false},
 
-	{"getDescription", LuaMethodWrapper<Artifact, const std::string &(Artifact:: *)()const, &Artifact::getDescription>::invoke, false},
-	{"getEventText", LuaMethodWrapper<Artifact, const std::string &(Artifact:: *)()const, &Artifact::getEventText>::invoke, false},
-	{"isBig", LuaMethodWrapper<Artifact, bool(Artifact:: *)()const, &Artifact::isBig>::invoke, false},
-	{"isTradable", LuaMethodWrapper<Artifact, bool(Artifact:: *)()const, &Artifact::isTradable>::invoke, false},
-	{"getPrice", LuaMethodWrapper<Artifact, uint32_t(Artifact:: *)()const, &Artifact::getPrice>::invoke, false},
+	{"getDescription", LuaMethodWrapper<Artifact, decltype(&Artifact::getDescription), &Artifact::getDescription>::invoke, false},
+	{"getEventText", LuaMethodWrapper<Artifact, decltype(&Artifact::getEventText), &Artifact::getEventText>::invoke, false},
+	{"isBig", LuaMethodWrapper<Artifact, decltype(&Artifact::isBig), &Artifact::isBig>::invoke, false},
+	{"isTradable", LuaMethodWrapper<Artifact, decltype(&Artifact::isTradable), &Artifact::isTradable>::invoke, false},
+	{"getPrice", LuaMethodWrapper<Artifact, decltype(&Artifact::getPrice), &Artifact::getPrice>::invoke, false},
 };
 
 

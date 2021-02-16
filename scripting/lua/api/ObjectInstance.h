@@ -25,7 +25,6 @@ class ObjectInstanceProxy : public OpaqueWrapper<const CGObjectInstance, ObjectI
 {
 public:
 	using Wrapper = OpaqueWrapper<const CGObjectInstance, ObjectInstanceProxy>;
-	static const std::vector<typename Wrapper::RegType> REGISTER;
 	static const std::vector<typename Wrapper::CustomRegType> REGISTER_CUSTOM;
 };
 

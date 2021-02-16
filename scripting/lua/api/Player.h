@@ -23,8 +23,6 @@ class PlayerProxy : public OpaqueWrapper<const Player, PlayerProxy>
 {
 public:
 	using Wrapper = OpaqueWrapper<const Player, PlayerProxy>;
-
-	static const std::vector<typename Wrapper::RegType> REGISTER;
 	static const std::vector<typename Wrapper::CustomRegType> REGISTER_CUSTOM;
 
 };

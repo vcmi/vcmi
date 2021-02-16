@@ -21,7 +21,6 @@ namespace events
 {
 //No methods here, just an empty metatable for type safety.
 VCMI_REGISTER_CORE_SCRIPT_API(EventSubscriptionProxy, "EventSubscription");
-const std::vector<EventSubscriptionProxy::RegType> EventSubscriptionProxy::REGISTER = {};
 const std::vector<EventSubscriptionProxy::CustomRegType> EventSubscriptionProxy::REGISTER_CUSTOM = {};
 }
 }

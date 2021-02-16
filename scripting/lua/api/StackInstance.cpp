@@ -23,15 +23,10 @@ namespace api
 {
 VCMI_REGISTER_CORE_SCRIPT_API(StackInstanceProxy, "StackInstance");
 
-const std::vector<StackInstanceProxy::RegType> StackInstanceProxy::REGISTER =
-{
-
-};
-
 const std::vector<StackInstanceProxy::CustomRegType> StackInstanceProxy::REGISTER_CUSTOM =
 {
-	{"getType", LuaMethodWrapper<CStackInstance, const Creature *(CStackBasicDescriptor:: *)()const, &CStackBasicDescriptor::getType>::invoke, false},
-	{"getCount", LuaMethodWrapper<CStackInstance, TQuantity(CStackBasicDescriptor:: *)()const, &CStackBasicDescriptor::getCount>::invoke, false},
+	{"getType", LuaMethodWrapper<CStackInstance, decltype(&CStackBasicDescriptor::getType), &CStackBasicDescriptor::getType>::invoke, false},
+	{"getCount", LuaMethodWrapper<CStackInstance, decltype(&CStackBasicDescriptor::getCount), &CStackBasicDescriptor::getCount>::invoke, false},
 };
 
 

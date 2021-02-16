@@ -30,8 +30,6 @@ VCMI_REGISTER_SCRIPT_API(GameResumedProxy, "events.GameResumed");
 VCMI_REGISTER_SCRIPT_API(PlayerGotTurnProxy, "events.PlayerGotTurn");
 VCMI_REGISTER_SCRIPT_API(TurnStartedProxy, "events.TurnStarted");
 
-const std::vector<GameResumedProxy::RegType> GameResumedProxy::REGISTER = {};
-
 const std::vector<GameResumedProxy::CustomRegType> GameResumedProxy::REGISTER_CUSTOM =
 {
 	{
@@ -46,18 +44,6 @@ const std::vector<GameResumedProxy::CustomRegType> GameResumedProxy::REGISTER_CU
 	}
 };
 
-const std::vector<PlayerGotTurnProxy::RegType> PlayerGotTurnProxy::REGISTER =
-{
-	{
-		"getPlayer",
-		LuaCallWrapper<PlayerGotTurn>::createFunctor(&PlayerGotTurn::getPlayerIndex)
-	},
-	{
-		"setPlayer",
-		LuaCallWrapper<PlayerGotTurn>::createFunctor(&PlayerGotTurn::setPlayerIndex)
-	},
-};
-
 const std::vector<PlayerGotTurnProxy::CustomRegType> PlayerGotTurnProxy::REGISTER_CUSTOM =
 {
 	{
@@ -69,10 +55,18 @@ const std::vector<PlayerGotTurnProxy::CustomRegType> PlayerGotTurnProxy::REGISTE
 		"subscribeAfter",
 		&SubscriptionRegistryProxy<PlayerGotTurnProxy>::subscribeAfter,
 		true
-	}
+	},
+	{
+		"getPlayer",
+		LuaMethodWrapper<PlayerGotTurn, decltype(&PlayerGotTurn::getPlayerIndex), &PlayerGotTurn::getPlayerIndex>::invoke,
+		false
+	},
+	{
+		"setPlayer",
+		LuaMethodWrapper<PlayerGotTurn, decltype(&PlayerGotTurn::setPlayerIndex), &PlayerGotTurn::setPlayerIndex>::invoke,
+		false
+	},
 };
-
-const std::vector<TurnStartedProxy::RegType> TurnStartedProxy::REGISTER = {};
 
 const std::vector<TurnStartedProxy::CustomRegType> TurnStartedProxy::REGISTER_CUSTOM =
 {

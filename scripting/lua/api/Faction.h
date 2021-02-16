@@ -23,7 +23,6 @@ class FactionProxy : public OpaqueWrapper<const Faction, FactionProxy>
 {
 public:
 	using Wrapper = OpaqueWrapper<const Faction, FactionProxy>;
-	static const std::vector<typename Wrapper::RegType> REGISTER;
 	static const std::vector<typename Wrapper::CustomRegType> REGISTER_CUSTOM;
 };
 

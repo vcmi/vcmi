@@ -24,7 +24,6 @@ class ArtifactProxy : public OpaqueWrapper<const Artifact, ArtifactProxy>
 public:
 	using Wrapper = OpaqueWrapper<const Artifact, ArtifactProxy>;
 
-	static const std::vector<typename Wrapper::RegType> REGISTER;
 	static const std::vector<typename Wrapper::CustomRegType> REGISTER_CUSTOM;
 };
 

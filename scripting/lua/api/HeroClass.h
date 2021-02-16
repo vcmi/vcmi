@@ -23,7 +23,6 @@ class HeroClassProxy : public OpaqueWrapper<const HeroClass, HeroClassProxy>
 {
 public:
 	using Wrapper = OpaqueWrapper<const HeroClass, HeroClassProxy>;
-	static const std::vector<typename Wrapper::RegType> REGISTER;
 	static const std::vector<typename Wrapper::CustomRegType> REGISTER_CUSTOM;
 };
 

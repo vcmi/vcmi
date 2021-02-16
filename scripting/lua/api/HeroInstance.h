@@ -25,7 +25,6 @@ class HeroInstanceProxy : public OpaqueWrapper<const CGHeroInstance, HeroInstanc
 {
 public:
 	using Wrapper = OpaqueWrapper<const CGHeroInstance, HeroInstanceProxy>;
-	static const std::vector<typename Wrapper::RegType> REGISTER;
 	static const std::vector<typename Wrapper::CustomRegType> REGISTER_CUSTOM;
 };
 

@@ -10,9 +10,7 @@
 
 #pragma once
 
-#include "api/Registry.h"
-#include "LuaFunctor.h"
-#include "LuaStack.h"
+#include "LuaCallWrapper.h"
 
 /*
  * Original code is LunaWrapper by nornagon.
@@ -27,13 +25,6 @@ namespace scripting
 
 namespace detail
 {
-	template<typename T>
-	struct RegType
-	{
-		const char * name;
-		std::function<int(lua_State *, T)> functor;
-	};
-
 	struct CustomRegType
 	{
 		const char * name;
@@ -47,40 +38,11 @@ namespace detail
 		using ProxyType = P;
 		using UDataType = U;
 
-		static int invoke(lua_State * L)
-		{
-			static auto KEY = api::TypeRegistry::get()->getKey<UDataType>();
-
-			int i = (int)lua_tonumber(L, lua_upvalueindex(1));
-
-			void * raw = luaL_checkudata(L, 1, KEY);
-
-			if(!raw)
-			{
-				lua_settop(L, 0);
-				return 0;
-			}
-
-			lua_remove(L, 1);
-
-			auto obj = *(static_cast<UDataType *>(raw));
-			return (ProxyType::REGISTER[i].functor)(L, obj);
-		}
-
 		static void setIndexTable(lua_State * L)
 		{
 			lua_pushstring(L, "__index");
 
 			lua_newtable(L);
-			lua_Integer index = 0;
-			for(auto & reg : ProxyType::REGISTER)
-			{
-				lua_pushstring(L, reg.name);
-				lua_pushnumber(L, index);
-				lua_pushcclosure(L, &invoke, 1);
-				lua_rawset(L, -3);
-				index++;
-			}
 
 			for(auto & reg : ProxyType::REGISTER_CUSTOM)
 			{
@@ -164,7 +126,6 @@ public:
 	using UDataType = ObjectType *;
 	using CUDataType = const ObjectType *;
 
-	using RegType = detail::RegType<UDataType>;
 	using CustomRegType = detail::CustomRegType;
 
 	void pushMetatable(lua_State * L) const override final
@@ -202,7 +163,6 @@ class SharedWrapper : public RegistarBase
 public:
 	using ObjectType = typename std::remove_cv<T>::type;
 	using UDataType = std::shared_ptr<T>;
-	using RegType = detail::RegType<UDataType>;
 	using CustomRegType = detail::CustomRegType;
 
 	static int constructor(lua_State * L)
@@ -248,7 +208,6 @@ class UniqueOpaqueWrapper : public api::Registar
 public:
 	using ObjectType = typename std::remove_cv<T>::type;
 	using UDataType = std::unique_ptr<T>;
-	using RegType = detail::RegType<UDataType>;
 	using CustomRegType = detail::CustomRegType;
 
 	void pushMetatable(lua_State * L) const override final

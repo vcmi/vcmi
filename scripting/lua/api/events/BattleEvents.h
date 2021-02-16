@@ -27,7 +27,6 @@ class ApplyDamageProxy : public OpaqueWrapper<::events::ApplyDamage, ApplyDamage
 {
 public:
 	using Wrapper = OpaqueWrapper<::events::ApplyDamage, ApplyDamageProxy>;
-	static const std::vector<typename Wrapper::RegType> REGISTER;
 	static const std::vector<typename Wrapper::CustomRegType> REGISTER_CUSTOM;
 };
 

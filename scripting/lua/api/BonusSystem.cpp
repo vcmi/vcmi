@@ -25,85 +25,127 @@ namespace api
 
 VCMI_REGISTER_SCRIPT_API(BonusProxy, "Bonus");
 
-const std::vector<BonusProxy::RegType> BonusProxy::REGISTER =
-{
-	{"getType", &BonusProxy::getType},
-	{"getSubtype", &BonusProxy::getSubtype},
-	{"getDuration", &BonusProxy::getDuration},
-	{"getTurns", &BonusProxy::getTurns},
-	{"getValueType", &BonusProxy::getValueType},
-	{"getVal", &BonusProxy::getVal},
-	{"getSource", &BonusProxy::getSource},
-	{"getSourceID", &BonusProxy::getSourceID},
-	{"getEffectRange", &BonusProxy::getEffectRange},
-	{"getStacking", &BonusProxy::getStacking},
-	{"getDescription", &BonusProxy::getDescription},
-	{"toJsonNode", &BonusProxy::toJsonNode}
-};
-
 const std::vector<BonusProxy::CustomRegType> BonusProxy::REGISTER_CUSTOM =
 {
-
+	{"getType", &BonusProxy::getType, false},
+	{"getSubtype", &BonusProxy::getSubtype, false},
+	{"getDuration", &BonusProxy::getDuration, false},
+	{"getTurns", &BonusProxy::getTurns, false},
+	{"getValueType", &BonusProxy::getValueType, false},
+	{"getVal", &BonusProxy::getVal, false},
+	{"getSource", &BonusProxy::getSource, false},
+	{"getSourceID", &BonusProxy::getSourceID, false},
+	{"getEffectRange", &BonusProxy::getEffectRange, false},
+	{"getStacking", &BonusProxy::getStacking, false},
+	{"getDescription", &BonusProxy::getDescription, false},
+	{"toJsonNode", &BonusProxy::toJsonNode, false}
 };
 
-int BonusProxy::getType(lua_State * L, std::shared_ptr<const Bonus> object)
+int BonusProxy::getType(lua_State * L)
 {
+	LuaStack S(L);
+	std::shared_ptr<const Bonus> object;
+	if(!S.tryGet(1, object))
+		return S.retNil();
 	return LuaStack::quickRetInt(L, object->type);
 }
 
-int BonusProxy::getSubtype(lua_State * L, std::shared_ptr<const Bonus> object)
+int BonusProxy::getSubtype(lua_State * L)
 {
+	LuaStack S(L);
+	std::shared_ptr<const Bonus> object;
+	if(!S.tryGet(1, object))
+		return S.retNil();
 	return LuaStack::quickRetInt(L, object->subtype);
 }
 
-int BonusProxy::getDuration(lua_State * L, std::shared_ptr<const Bonus> object)
+int BonusProxy::getDuration(lua_State * L)
 {
+	LuaStack S(L);
+	std::shared_ptr<const Bonus> object;
+	if(!S.tryGet(1, object))
+		return S.retNil();
 	return LuaStack::quickRetInt(L, object->duration);
 }
 
-int BonusProxy::getTurns(lua_State * L, std::shared_ptr<const Bonus> object)
+int BonusProxy::getTurns(lua_State * L)
 {
+	LuaStack S(L);
+	std::shared_ptr<const Bonus> object;
+	if(!S.tryGet(1, object))
+		return S.retNil();
 	return LuaStack::quickRetInt(L, object->turnsRemain);
 }
 
-int BonusProxy::getValueType(lua_State * L, std::shared_ptr<const Bonus> object)
+int BonusProxy::getValueType(lua_State * L)
 {
+	LuaStack S(L);
+	std::shared_ptr<const Bonus> object;
+	if(!S.tryGet(1, object))
+		return S.retNil();
 	return LuaStack::quickRetInt(L, object->valType);
 }
 
-int BonusProxy::getVal(lua_State * L, std::shared_ptr<const Bonus> object)
+int BonusProxy::getVal(lua_State * L)
 {
+	LuaStack S(L);
+	std::shared_ptr<const Bonus> object;
+	if(!S.tryGet(1, object))
+		return S.retNil();
 	return LuaStack::quickRetInt(L, object->val);
 }
 
-int BonusProxy::getSource(lua_State * L, std::shared_ptr<const Bonus> object)
+int BonusProxy::getSource(lua_State * L)
 {
+	LuaStack S(L);
+	std::shared_ptr<const Bonus> object;
+	if(!S.tryGet(1, object))
+		return S.retNil();
 	return LuaStack::quickRetInt(L, object->source);
 }
 
-int BonusProxy::getSourceID(lua_State * L, std::shared_ptr<const Bonus> object)
+int BonusProxy::getSourceID(lua_State * L)
 {
+	LuaStack S(L);
+	std::shared_ptr<const Bonus> object;
+	if(!S.tryGet(1, object))
+		return S.retNil();
 	return LuaStack::quickRetInt(L, object->sid);
 }
 
-int BonusProxy::getEffectRange(lua_State * L, std::shared_ptr<const Bonus> object)
+int BonusProxy::getEffectRange(lua_State * L)
 {
+	LuaStack S(L);
+	std::shared_ptr<const Bonus> object;
+	if(!S.tryGet(1, object))
+		return S.retNil();
 	return LuaStack::quickRetInt(L, object->effectRange);
 }
 
-int BonusProxy::getStacking(lua_State * L, std::shared_ptr<const Bonus> object)
+int BonusProxy::getStacking(lua_State * L)
 {
+	LuaStack S(L);
+	std::shared_ptr<const Bonus> object;
+	if(!S.tryGet(1, object))
+		return S.retNil();
 	return LuaStack::quickRetStr(L, object->stacking);
 }
 
-int BonusProxy::getDescription(lua_State * L, std::shared_ptr<const Bonus> object)
+int BonusProxy::getDescription(lua_State * L)
 {
+	LuaStack S(L);
+	std::shared_ptr<const Bonus> object;
+	if(!S.tryGet(1, object))
+		return S.retNil();
 	return LuaStack::quickRetStr(L, object->description);
 }
 
-int BonusProxy::toJsonNode(lua_State * L, std::shared_ptr<const Bonus> object)
+int BonusProxy::toJsonNode(lua_State * L)
 {
 	LuaStack S(L);
+	std::shared_ptr<const Bonus> object;
+	if(!S.tryGet(1, object))
+		return S.retNil();
 	S.clear();
 	S.push(object->toJsonNode());
 	return 1;
@@ -133,67 +175,48 @@ void BonusProxy::adjustStaticTable(lua_State * L) const
 
 VCMI_REGISTER_SCRIPT_API(BonusListProxy, "BonusList");
 
-const std::vector<BonusListProxy::RegType> BonusListProxy::REGISTER =
-{
-
-};
-
 const std::vector<BonusListProxy::CustomRegType> BonusListProxy::REGISTER_CUSTOM =
 {
 
 };
 
-int BonusListProxy::index(lua_State * L)
+std::shared_ptr<const Bonus> BonusListProxy::index(std::shared_ptr<const BonusList> self, int key)
 {
 	//field = __index(self, key)
-	LuaStack S(L);
 
-	std::shared_ptr<const BonusList> self;
-	lua_Integer key = -1;
+	std::shared_ptr<const Bonus> ret;
 
-	if(S.tryGet(1, self) && S.tryGetInteger(2, key))
-	{
-		if((key >= 1) && (key <= self->size()))
-		{
-			std::shared_ptr<const Bonus> ret = (*self)[key-1];
-
-			S.clear();
-			S.push(ret);
-			return 1;
-		}
-	}
-
-	return S.retNil();
+	if((key >= 1) && (key <= self->size()))
+		ret = (*self)[key-1];
+	return ret;
 }
 
 void BonusListProxy::adjustMetatable(lua_State * L) const
 {
 	lua_pushstring(L, "__index");
-	lua_pushcfunction(L, &BonusListProxy::index);
+	lua_pushcclosure(L, LuaFunctionWrapper<decltype(&BonusListProxy::index), &BonusListProxy::index>::invoke, 0);
 	lua_rawset(L, -3);
 }
 
-
 VCMI_REGISTER_SCRIPT_API(BonusBearerProxy, "BonusBearer");
-
-const std::vector<BonusBearerProxy::RegType> BonusBearerProxy::REGISTER =
-{
-	{"getBonuses", &BonusBearerProxy::getBonuses},
-};
 
 const std::vector<BonusBearerProxy::CustomRegType> BonusBearerProxy::REGISTER_CUSTOM =
 {
-
+	{"getBonuses", &BonusBearerProxy::getBonuses, false},
 };
 
-int BonusBearerProxy::getBonuses(lua_State * L, const IBonusBearer * object)
+int BonusBearerProxy::getBonuses(lua_State * L)
 {
 	LuaStack S(L);
 
+	const IBonusBearer * object = nullptr;
+	if(!S.tryGet(1, object))
+		return S.retNil();
+
 	TConstBonusListPtr ret;
 
-	const bool hasSelector = S.isFunction(1);
-	const bool hasRangeSelector = S.isFunction(2);
+	const bool hasSelector = S.isFunction(2);
+	const bool hasRangeSelector = S.isFunction(3);
 
 	if(hasSelector)
 	{

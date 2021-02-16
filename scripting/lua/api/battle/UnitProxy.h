@@ -28,8 +28,6 @@ class UnitProxy : public OpaqueWrapper<const Unit, UnitProxy>
 {
 public:
 	using Wrapper = OpaqueWrapper<const Unit, UnitProxy>;
-
-	static const std::vector<typename Wrapper::RegType> REGISTER;
 	static const std::vector<typename Wrapper::CustomRegType> REGISTER_CUSTOM;
 };
 

@@ -30,7 +30,6 @@ class EventSubscriptionProxy : public UniqueOpaqueWrapper<::events::EventSubscri
 {
 public:
 	using Wrapper = UniqueOpaqueWrapper<::events::EventSubscription, EventSubscriptionProxy>;
-	static const std::vector<typename Wrapper::RegType> REGISTER;
 	static const std::vector<typename Wrapper::CustomRegType> REGISTER_CUSTOM;
 };
 

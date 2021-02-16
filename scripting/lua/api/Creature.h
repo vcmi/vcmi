@@ -24,7 +24,6 @@ class CreatureProxy : public OpaqueWrapper<const Creature, CreatureProxy>
 public:
 	using Wrapper = OpaqueWrapper<const Creature, CreatureProxy>;
 
-	static const std::vector<typename Wrapper::RegType> REGISTER;
 	static const std::vector<typename Wrapper::CustomRegType> REGISTER_CUSTOM;
 };
 

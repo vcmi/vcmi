@@ -25,10 +25,9 @@ class EntitiesChangedProxy : public SharedWrapper<EntitiesChanged, EntitiesChang
 public:
 	using Wrapper = SharedWrapper<EntitiesChanged, EntitiesChangedProxy>;
 
-	static const std::vector<typename Wrapper::RegType> REGISTER;
 	static const std::vector<typename Wrapper::CustomRegType> REGISTER_CUSTOM;
 
-	static int update(lua_State * L, std::shared_ptr<EntitiesChanged> object);
+	static int update(lua_State * L);
 };
 
 }

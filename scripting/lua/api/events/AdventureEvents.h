@@ -29,7 +29,6 @@ class ObjectVisitStartedProxy : public OpaqueWrapper<ObjectVisitStarted, ObjectV
 {
 public:
 	using Wrapper = OpaqueWrapper<ObjectVisitStarted, ObjectVisitStartedProxy>;
-	static const std::vector<typename Wrapper::RegType> REGISTER;
 	static const std::vector<typename Wrapper::CustomRegType> REGISTER_CUSTOM;
 };
 

@@ -25,7 +25,6 @@ class StackInstanceProxy : public OpaqueWrapper<const CStackInstance, StackInsta
 {
 public:
 	using Wrapper = OpaqueWrapper<const CStackInstance, StackInstanceProxy>;
-	static const std::vector<typename Wrapper::RegType> REGISTER;
 	static const std::vector<typename Wrapper::CustomRegType> REGISTER_CUSTOM;
 };
 

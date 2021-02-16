@@ -25,35 +25,13 @@ namespace events
 
 VCMI_REGISTER_SCRIPT_API(ObjectVisitStartedProxy, "events.ObjectVisitStarted");
 
-const std::vector<ObjectVisitStartedProxy::RegType> ObjectVisitStartedProxy::REGISTER = {};
-
 const std::vector<ObjectVisitStartedProxy::CustomRegType> ObjectVisitStartedProxy::REGISTER_CUSTOM =
 {
-	{
-		"subscribeBefore",
-		&SubscriptionRegistryProxy<ObjectVisitStartedProxy>::subscribeBefore,
-		true
-	},
-	{
-		"subscribeAfter",
-		&SubscriptionRegistryProxy<ObjectVisitStartedProxy>::subscribeAfter,
-		true
-	},
-	{
-		"getPlayer",
-		LuaMethodWrapper<ObjectVisitStarted, PlayerColor(ObjectVisitStarted:: *)()const, &ObjectVisitStarted::getPlayer>::invoke,
-		false
-	},
-	{
-		"getHero",
-		LuaMethodWrapper<ObjectVisitStarted, ObjectInstanceID(ObjectVisitStarted:: *)()const, &ObjectVisitStarted::getHero>::invoke,
-		false
-	},
-	{
-		"getObject",
-		LuaMethodWrapper<ObjectVisitStarted, ObjectInstanceID(ObjectVisitStarted:: *)()const, &ObjectVisitStarted::getObject>::invoke,
-		false
-	},
+	{"subscribeBefore", &SubscriptionRegistryProxy<ObjectVisitStartedProxy>::subscribeBefore, true},
+	{"subscribeAfter", &SubscriptionRegistryProxy<ObjectVisitStartedProxy>::subscribeAfter,true},
+	{"getPlayer", LuaMethodWrapper<ObjectVisitStarted, decltype(&ObjectVisitStarted::getPlayer), &ObjectVisitStarted::getPlayer>::invoke, false},
+	{"getHero", LuaMethodWrapper<ObjectVisitStarted, decltype(&ObjectVisitStarted::getHero), &ObjectVisitStarted::getHero>::invoke, false},
+	{"getObject", LuaMethodWrapper<ObjectVisitStarted, decltype(&ObjectVisitStarted::getObject), &ObjectVisitStarted::getObject>::invoke, false},
 };
 
 }

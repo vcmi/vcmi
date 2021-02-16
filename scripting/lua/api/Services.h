@@ -31,7 +31,6 @@ class ServicesProxy : public OpaqueWrapper<const Services, ServicesProxy>
 {
 public:
 	using Wrapper = OpaqueWrapper<const Services, ServicesProxy>;
-	static const std::vector<typename Wrapper::RegType> REGISTER;
 	static const std::vector<typename Wrapper::CustomRegType> REGISTER_CUSTOM;
 };
 
@@ -39,7 +38,6 @@ class ArtifactServiceProxy : public OpaqueWrapper<const ArtifactService, Artifac
 {
 public:
 	using Wrapper = OpaqueWrapper<const ArtifactService, ArtifactServiceProxy>;
-	static const std::vector<typename Wrapper::RegType> REGISTER;
 	static const std::vector<typename Wrapper::CustomRegType> REGISTER_CUSTOM;
 };
 
@@ -47,7 +45,6 @@ class CreatureServiceProxy : public OpaqueWrapper<const CreatureService, Creatur
 {
 public:
 	using Wrapper = OpaqueWrapper<const CreatureService, CreatureServiceProxy>;
-	static const std::vector<typename Wrapper::RegType> REGISTER;
 	static const std::vector<typename Wrapper::CustomRegType> REGISTER_CUSTOM;
 };
 
@@ -55,7 +52,6 @@ class FactionServiceProxy : public OpaqueWrapper<const FactionService, FactionSe
 {
 public:
 	using Wrapper = OpaqueWrapper<const FactionService, FactionServiceProxy>;
-	static const std::vector<typename Wrapper::RegType> REGISTER;
 	static const std::vector<typename Wrapper::CustomRegType> REGISTER_CUSTOM;
 };
 
@@ -63,7 +59,6 @@ class HeroClassServiceProxy : public OpaqueWrapper<const HeroClassService, HeroC
 {
 public:
 	using Wrapper = OpaqueWrapper<const HeroClassService, HeroClassServiceProxy>;
-	static const std::vector<typename Wrapper::RegType> REGISTER;
 	static const std::vector<typename Wrapper::CustomRegType> REGISTER_CUSTOM;
 };
 
@@ -71,7 +66,6 @@ class HeroTypeServiceProxy : public OpaqueWrapper<const HeroTypeService, HeroTyp
 {
 public:
 	using Wrapper = OpaqueWrapper<const HeroTypeService, HeroTypeServiceProxy>;
-	static const std::vector<typename Wrapper::RegType> REGISTER;
 	static const std::vector<typename Wrapper::CustomRegType> REGISTER_CUSTOM;
 };
 
@@ -79,7 +73,6 @@ class SkillServiceProxy : public OpaqueWrapper<const SkillService, SkillServiceP
 {
 public:
 	using Wrapper = OpaqueWrapper<const SkillService, SkillServiceProxy>;
-	static const std::vector<typename Wrapper::RegType> REGISTER;
 	static const std::vector<typename Wrapper::CustomRegType> REGISTER_CUSTOM;
 };
 
@@ -87,7 +80,6 @@ class SpellServiceProxy : public OpaqueWrapper<const spells::Service, SpellServi
 {
 public:
 	using Wrapper = OpaqueWrapper<const spells::Service, SpellServiceProxy>;
-	static const std::vector<typename Wrapper::RegType> REGISTER;
 	static const std::vector<typename Wrapper::CustomRegType> REGISTER_CUSTOM;
 };
 

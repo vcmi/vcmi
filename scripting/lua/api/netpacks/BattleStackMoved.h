@@ -24,14 +24,12 @@ class BattleStackMovedProxy : public SharedWrapper<BattleStackMoved, BattleStack
 public:
 	using Wrapper = SharedWrapper<BattleStackMoved, BattleStackMovedProxy>;
 
-	static const std::vector<Wrapper::RegType> REGISTER;
 	static const std::vector<typename Wrapper::CustomRegType> REGISTER_CUSTOM;
 
-	static int addTileToMove(lua_State * L, std::shared_ptr<BattleStackMoved> object);
-
-	static int setUnitId(lua_State * L, std::shared_ptr<BattleStackMoved> object);
-	static int setDistance(lua_State * L, std::shared_ptr<BattleStackMoved> object);
-	static int setTeleporting(lua_State * L, std::shared_ptr<BattleStackMoved> object);
+	static int addTileToMove(lua_State * L);
+	static int setUnitId(lua_State * L);
+	static int setDistance(lua_State * L);
+	static int setTeleporting(lua_State * L);
 };
 
 }

@@ -22,15 +22,13 @@ namespace api
 {
 VCMI_REGISTER_CORE_SCRIPT_API(ObjectInstanceProxy, "ObjectInstance");
 
-const std::vector<ObjectInstanceProxy::RegType> ObjectInstanceProxy::REGISTER = {};
-
 const std::vector<ObjectInstanceProxy::CustomRegType> ObjectInstanceProxy::REGISTER_CUSTOM =
 {
-	{"getOwner", LuaMethodWrapper<CGObjectInstance, PlayerColor(IObjectInterface:: *)()const, &IObjectInterface::getOwner>::invoke, false},
-	{"getObjGroupIndex", LuaMethodWrapper<CGObjectInstance, int32_t(IObjectInterface:: *)()const, &IObjectInterface::getObjGroupIndex>::invoke, false},
-	{"getObjTypeIndex", LuaMethodWrapper<CGObjectInstance, int32_t(IObjectInterface:: *)()const, &IObjectInterface::getObjTypeIndex>::invoke, false},
-	{"getVisitablePosition", LuaMethodWrapper<CGObjectInstance, int3(IObjectInterface:: *)()const, &IObjectInterface::visitablePos>::invoke, false},
-	{"getPosition", LuaMethodWrapper<CGObjectInstance, int3(IObjectInterface:: *)()const, &IObjectInterface::getPosition>::invoke, false},
+	{"getOwner", LuaMethodWrapper<CGObjectInstance, decltype(&IObjectInterface::getOwner), &IObjectInterface::getOwner>::invoke, false},
+	{"getObjGroupIndex", LuaMethodWrapper<CGObjectInstance, decltype(&IObjectInterface::getObjGroupIndex), &IObjectInterface::getObjGroupIndex>::invoke, false},
+	{"getObjTypeIndex", LuaMethodWrapper<CGObjectInstance, decltype(&IObjectInterface::getObjTypeIndex), &IObjectInterface::getObjTypeIndex>::invoke, false},
+	{"getVisitablePosition", LuaMethodWrapper<CGObjectInstance, decltype(&IObjectInterface::visitablePos), &IObjectInterface::visitablePos>::invoke, false},
+	{"getPosition", LuaMethodWrapper<CGObjectInstance, decltype(IObjectInterface::getPosition), &IObjectInterface::getPosition>::invoke, false},
 };
 
 }

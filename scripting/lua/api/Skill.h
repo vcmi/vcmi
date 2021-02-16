@@ -23,7 +23,6 @@ class SkillProxy : public OpaqueWrapper<const Skill, SkillProxy>
 {
 public:
 	using Wrapper = OpaqueWrapper<const Skill, SkillProxy>;
-	static const std::vector<typename Wrapper::RegType> REGISTER;
 	static const std::vector<typename Wrapper::CustomRegType> REGISTER_CUSTOM;
 };
 

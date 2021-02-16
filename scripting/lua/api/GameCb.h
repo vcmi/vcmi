@@ -25,7 +25,6 @@ class GameCbProxy : public OpaqueWrapper<const GameCb, GameCbProxy>
 public:
 	using Wrapper = OpaqueWrapper<const GameCb, GameCbProxy>;
 
-	static const std::vector<typename Wrapper::RegType> REGISTER;
 	static const std::vector<typename Wrapper::CustomRegType> REGISTER_CUSTOM;
 
 };

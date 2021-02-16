@@ -24,49 +24,35 @@ namespace netpacks
 
 VCMI_REGISTER_SCRIPT_API(BattleUnitsChangedProxy, "netpacks.BattleUnitsChanged");
 
-const std::vector<BattleUnitsChangedProxy::RegType> BattleUnitsChangedProxy::REGISTER =
-{
-	{
-		"toNetpackLight",
-		&PackForClientProxy<BattleUnitsChangedProxy>::toNetpackLight
-	},
-	{
-		"add",
-		&BattleUnitsChangedProxy::add
-	},
-	{
-		"update",
-		&BattleUnitsChangedProxy::update
-	},
-	{
-		"resetState",
-		&BattleUnitsChangedProxy::resetState
-	},
-	{
-		"remove",
-		&BattleUnitsChangedProxy::remove
-	}
-};
-
 const std::vector<BattleUnitsChangedProxy::CustomRegType> BattleUnitsChangedProxy::REGISTER_CUSTOM =
 {
-	{"new", &Wrapper::constructor, true}
+	{"new", &Wrapper::constructor, true},
+	{"add", &BattleUnitsChangedProxy::add, false},
+	{"update", &BattleUnitsChangedProxy::update, false},
+	{"resetState", &BattleUnitsChangedProxy::resetState, false},
+	{"remove", &BattleUnitsChangedProxy::remove, false},
+	{"toNetpackLight", &PackForClientProxy<BattleUnitsChangedProxy>::toNetpackLight, false}
 };
 
-int BattleUnitsChangedProxy::add(lua_State * L, std::shared_ptr<BattleUnitsChanged> object)
+int BattleUnitsChangedProxy::add(lua_State * L)
 {
 	LuaStack S(L);
+	std::shared_ptr<BattleUnitsChanged> object;
+
+	if(!S.tryGet(1, object))
+		return S.retVoid();
+
 	uint32_t id;
 
-	if(!S.tryGet(1, id))
+	if(!S.tryGet(2, id))
 		return S.retVoid();
 
 	UnitChanges changes(id, BattleChanges::EOperation::ADD);
 
-	if(!S.tryGet(2, changes.data))
+	if(!S.tryGet(3, changes.data))
 		return S.retVoid();
 
-	if(!S.tryGet(3, changes.healthDelta))
+	if(!S.tryGet(4, changes.healthDelta))
 		changes.healthDelta = 0;
 
 	object->changedStacks.push_back(changes);
@@ -74,21 +60,25 @@ int BattleUnitsChangedProxy::add(lua_State * L, std::shared_ptr<BattleUnitsChang
 	return S.retVoid();
 }
 
-int BattleUnitsChangedProxy::update(lua_State * L, std::shared_ptr<BattleUnitsChanged> object)
+int BattleUnitsChangedProxy::update(lua_State * L)
 {
 	LuaStack S(L);
+	std::shared_ptr<BattleUnitsChanged> object;
+
+	if(!S.tryGet(1, object))
+		return S.retVoid();
 
 	uint32_t id;
 
-	if(!S.tryGet(1, id))
+	if(!S.tryGet(2, id))
 		return S.retVoid();
 
 	UnitChanges changes(id, BattleChanges::EOperation::UPDATE);
 
-	if(!S.tryGet(2, changes.data))
+	if(!S.tryGet(3, changes.data))
 		return S.retVoid();
 
-	if(!S.tryGet(3, changes.healthDelta))
+	if(!S.tryGet(4, changes.healthDelta))
 		changes.healthDelta = 0;
 
 	object->changedStacks.push_back(changes);
@@ -96,15 +86,25 @@ int BattleUnitsChangedProxy::update(lua_State * L, std::shared_ptr<BattleUnitsCh
 	return S.retVoid();
 }
 
-int BattleUnitsChangedProxy::resetState(lua_State * L, std::shared_ptr<BattleUnitsChanged> object)
+int BattleUnitsChangedProxy::resetState(lua_State * L)
 {
 	LuaStack S(L);
+	std::shared_ptr<BattleUnitsChanged> object;
+
+	if(!S.tryGet(1, object))
+		return S.retVoid();
+	//todo
 	return S.retVoid();
 }
 
-int BattleUnitsChangedProxy::remove(lua_State * L, std::shared_ptr<BattleUnitsChanged> object)
+int BattleUnitsChangedProxy::remove(lua_State * L)
 {
 	LuaStack S(L);
+	std::shared_ptr<BattleUnitsChanged> object;
+
+	if(!S.tryGet(1, object))
+		return S.retVoid();
+	//todo
 	return S.retVoid();
 }
 

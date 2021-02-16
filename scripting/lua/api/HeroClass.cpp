@@ -22,14 +22,12 @@ namespace api
 {
 VCMI_REGISTER_CORE_SCRIPT_API(HeroClassProxy, "HeroClass");
 
-const std::vector<HeroClassProxy::RegType> HeroClassProxy::REGISTER = {};
-
 const std::vector<HeroClassProxy::CustomRegType> HeroClassProxy::REGISTER_CUSTOM =
 {
-	{"getIconIndex", LuaMethodWrapper<HeroClass, int32_t(Entity:: *)()const, &Entity::getIconIndex>::invoke, false},
-	{"getIndex", LuaMethodWrapper<HeroClass, int32_t(Entity:: *)()const, &Entity::getIndex>::invoke, false},
-	{"getJsonKey", LuaMethodWrapper<HeroClass, const std::string &(Entity:: *)()const, &Entity::getJsonKey>::invoke, false},
-	{"getName", LuaMethodWrapper<HeroClass, const std::string &(Entity:: *)()const, &Entity::getName>::invoke, false},
+	{"getIconIndex", LuaMethodWrapper<HeroClass, decltype(&Entity::getIconIndex), &Entity::getIconIndex>::invoke, false},
+	{"getIndex", LuaMethodWrapper<HeroClass, decltype(&Entity::getIndex), &Entity::getIndex>::invoke, false},
+	{"getJsonKey", LuaMethodWrapper<HeroClass, decltype(&Entity::getJsonKey), &Entity::getJsonKey>::invoke, false},
+	{"getName", LuaMethodWrapper<HeroClass, decltype(&Entity::getName), &Entity::getName>::invoke, false},
 };
 
 }

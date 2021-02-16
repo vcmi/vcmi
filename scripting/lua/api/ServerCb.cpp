@@ -22,38 +22,43 @@ namespace api
 
 VCMI_REGISTER_CORE_SCRIPT_API(ServerCbProxy, "Server");
 
-const std::vector<ServerCbProxy::RegType> ServerCbProxy::REGISTER =
+const std::vector<ServerCbProxy::CustomRegType> ServerCbProxy::REGISTER_CUSTOM =
 {
 	{
 		"addToBattleLog",
-		&ServerCbProxy::apply<BattleLogMessage>
+		&ServerCbProxy::apply<BattleLogMessage>,
+		false
 	},
 	{
 		"moveUnit",
-		&ServerCbProxy::apply<BattleStackMoved>
+		&ServerCbProxy::apply<BattleStackMoved>,
+		false
 	},
 	{
 		"changeUnits",
-		&ServerCbProxy::apply<BattleUnitsChanged>
+		&ServerCbProxy::apply<BattleUnitsChanged>,
+		false
 	},
 	{
 		"commitPackage",
-		&ServerCbProxy::commitPackage
+		&ServerCbProxy::commitPackage,
+		false
 	}
 };
 
-const std::vector<ServerCbProxy::CustomRegType> ServerCbProxy::REGISTER_CUSTOM =
+int ServerCbProxy::commitPackage(lua_State * L)
 {
+	LuaStack S(L);
 
-};
+	ServerCallback * object = nullptr;
 
-int ServerCbProxy::commitPackage(lua_State * L, ServerCallback * object)
-{
+	if(!S.tryGet(1, object))
+		return S.retNil();
+
+	lua_remove(L, 1);
+
 	if(lua_isuserdata(L, 1) != 1)
-	{
-		lua_settop(L, 0);
-		return 0;
-	}
+		return S.retVoid();
 
 	lua_getfield(L, 1, "toNetpackLight");
 	lua_insert(L, 1);
@@ -61,23 +66,27 @@ int ServerCbProxy::commitPackage(lua_State * L, ServerCallback * object)
 	int ret = lua_pcall(L, 1, 1, 0);
 
 	if(ret != 0 || !lua_islightuserdata(L, 1))
-	{
-		lua_settop(L, 0);
-		return 0;
-	}
+		return S.retVoid();
+
 
 	CPackForClient * pack = static_cast<CPackForClient *>(lua_touserdata(L, 1));
 
 	object->apply(pack);
 
-	lua_settop(L, 0);
-	return 0;
+	return S.retVoid();
 }
 
 template<typename NetPack>
-int ServerCbProxy::apply(lua_State * L, ServerCallback * object)
+int ServerCbProxy::apply(lua_State * L)
 {
 	LuaStack S(L);
+
+	ServerCallback * object = nullptr;
+
+	if(!S.tryGet(1, object))
+		return S.retNil();
+
+	lua_remove(L, 1);
 
 	std::shared_ptr<NetPack> pack;
 
