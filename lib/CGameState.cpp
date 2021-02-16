@@ -381,8 +381,22 @@ void CGameState::CrossoverHeroesList::addHeroToBothLists(CGHeroInstance * hero)
 
 void CGameState::CrossoverHeroesList::removeHeroFromBothLists(CGHeroInstance * hero)
 {
-	heroesFromPreviousScenario -= hero;
-	heroesFromAnyPreviousScenarios -= hero;
+	for (auto obj : heroesFromPreviousScenario)
+	{
+		if (obj->name == hero->name)
+		{
+			heroesFromPreviousScenario -= obj;
+			break;
+		}
+	}
+	for (auto obj : heroesFromAnyPreviousScenarios)
+	{
+		if (obj->name == hero->name) 
+		{
+			heroesFromAnyPreviousScenarios -= obj;
+			break;
+		}
+	}
 }
 
 CGameState::CampaignHeroReplacement::CampaignHeroReplacement(CGHeroInstance * hero, ObjectInstanceID heroPlaceholderId) : hero(hero), heroPlaceholderId(heroPlaceholderId)

@@ -1399,6 +1399,14 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 {
 	handler.serializeString("biography", biography);
 	handler.serializeInt("experience", exp, 0);
+	if(!handler.saving)
+	{
+		while(gainsLevel())
+		{
+			++level;
+		}
+	}
+
 	handler.serializeString("name", name);
 	handler.serializeBool<ui8>("female", sex, 1, 0, 0xFF);
 
