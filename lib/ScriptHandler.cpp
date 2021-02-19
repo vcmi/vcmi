@@ -89,7 +89,7 @@ void ScriptImpl::serializeJson(vstd::CLoggerBase * logger, JsonSerializeFormat &
 	{
 		resolveHost();
 
-		ResourceID sourcePathId("SCRIPTS/"+sourcePath);
+		ResourceID sourcePathId("SCRIPTS/" + sourcePath);
 
 		auto rawData = CResourceHandler::get()->load(sourcePathId)->readAll();
 
