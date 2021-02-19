@@ -292,10 +292,10 @@ void BattleCast::cast(ServerCallback * server, Target target)
 
 			if(!mirrorTargets.empty())
 			{
-				auto mirrorDesination = (*RandomGeneratorUtil::nextItem(mirrorTargets, *server->getRNG()));
+				auto mirrorDestination = (*RandomGeneratorUtil::nextItem(mirrorTargets, *server->getRNG()));
 
 				Target mirrorTarget;
-				mirrorTarget.emplace_back(mirrorDesination);
+				mirrorTarget.emplace_back(mirrorDestination);
 
 				BattleCast mirror(*this, mainTarget);
 				mirror.cast(server, mirrorTarget);
