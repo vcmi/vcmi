@@ -368,11 +368,11 @@ void CGarrisonSlot::update()
 }
 
 CGarrisonSlot::CGarrisonSlot(CGarrisonInt * Owner, int x, int y, SlotID IID, CGarrisonSlot::EGarrisonType Upg, const CStackInstance * creature_)
-    : ID(IID),
-    owner(Owner),
-    myStack(creature_),
-    creature(creature_ ? creature_->type : nullptr),
-    upg(Upg)
+	: ID(IID),
+	owner(Owner),
+	myStack(creature_),
+	creature(creature_ ? creature_->type : nullptr),
+	upg(Upg)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
@@ -381,8 +381,8 @@ CGarrisonSlot::CGarrisonSlot(CGarrisonInt * Owner, int x, int y, SlotID IID, CGa
 
 	std::string imgName = owner->smallIcons ? "cprsmall" : "TWCRPORT";
 
-	creatureImage =  std::make_shared<CAnimImage>(imgName, 0);
-		creatureImage->disable();
+	creatureImage = std::make_shared<CAnimImage>(imgName, 0);
+	creatureImage->disable();
 
 	selectionImage = std::make_shared<CAnimImage>(imgName, 1);
 	selectionImage->disable();

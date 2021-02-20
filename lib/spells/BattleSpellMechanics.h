@@ -28,7 +28,7 @@ public:
 	void applyEffects(ServerCallback * server, const Target & targets, bool indirect, bool ignoreImmunity) const override;
 
 	bool canBeCast(Problem & problem) const override;
-	bool canBeCastAt(Problem & problem, const Target & target) const override;
+	bool canBeCastAt(const Target & target, Problem & problem) const override;
 
 	void cast(ServerCallback * server, const Target & target) override final;
 	void castEval(ServerCallback * server, const Target & target) override final;

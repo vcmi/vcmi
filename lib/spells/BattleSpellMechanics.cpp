@@ -203,7 +203,7 @@ bool BattleSpellMechanics::canBeCast(Problem & problem) const
 	return effects->applicable(problem, this);
 }
 
-bool BattleSpellMechanics::canBeCastAt(Problem & problem, const Target & target) const
+bool BattleSpellMechanics::canBeCastAt(const Target & target, Problem & problem) const
 {
 	if(!canBeCast(problem))
 		return false;
@@ -618,7 +618,7 @@ std::vector<Destination> BattleSpellMechanics::getPossibleDestinations(size_t in
 
 				detail::ProblemImpl ingored;
 
-				if(canBeCastAt(ingored, tmp))
+				if(canBeCastAt(tmp, ingored))
 					ret.emplace_back(dest);
 			}
 		}

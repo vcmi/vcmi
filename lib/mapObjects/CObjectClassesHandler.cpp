@@ -207,11 +207,11 @@ void CObjectClassesHandler::loadObjectEntry(const std::string & identifier, cons
 		return str.compare(obj->subObjects[id]->subTypeName) == 0;
 	});
 
-	if (overrideForce) // DO NOT override mod handlers by default
+	if(overrideForce) // DO NOT override mod handlers by default
 	{
-	obj->subObjects[id] = handler;
-	obj->subIds[convertedId] = id;
-}
+		obj->subObjects[id] = handler;
+		obj->subIds[convertedId] = id;
+	}
 	else
 	{
 		logGlobal->warn("Don't override handler %s in object %s(%d)::%s(%d) subTypeName : %s"

@@ -785,7 +785,7 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo & info) 
 		}
 
 		if(isAffected)
-		{ 
+		{
 			attackDefenceDifference += SpellID(SpellID::SLAYER).toSpell()->getLevelPower(spLevel);
 			if(info.attacker->hasBonusOfType(Bonus::SPECIAL_PECULIAR_ENCHANT, SpellID::SLAYER))
 			{
@@ -1407,9 +1407,7 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes (const  battl
 			{
 				auto st = battleGetUnitByPos(tile, true);
 				if(st && battleMatchOwner(st, attacker)) //only hostile stacks - does it work well with Berserk?
-				{
 					at.hostileCreaturePositions.insert(tile);
-				}
 			}
 		}
 	}
@@ -1429,43 +1427,41 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes (const  battl
 			//friendly stacks can also be damaged by Dragon Breath
 			auto st = battleGetUnitByPos(tile, true);
 			if(st && st != attacker)
-			{
-					at.friendlyCreaturePositions.insert(tile);
-			}
+				at.friendlyCreaturePositions.insert(tile);
 		}
 	}
 	else if(attacker->hasBonusOfType(Bonus::TWO_HEX_ATTACK_BREATH))
 	{
 		int pos = BattleHex::mutualPosition(destinationTile, hex);
-		if (pos > -1) //only adjacent hexes are subject of dragon breath calculation
+		if(pos > -1) //only adjacent hexes are subject of dragon breath calculation
 		{
-		std::vector<BattleHex> hexes; //only one, in fact
-		int pseudoVector = destinationTile.hex - hex;
-		switch(pseudoVector)
-		{
-		case 1:
-		case -1:
-			BattleHex::checkAndPush(destinationTile.hex + pseudoVector, hexes);
-			break;
-		case WN: //17 //left-down or right-down
-		case -WN: //-17 //left-up or right-up
-		case WN + 1: //18 //right-down
-		case -WN + 1: //-16 //right-up
-			BattleHex::checkAndPush(destinationTile.hex + pseudoVector + (((hex / WN) % 2) ? 1 : -1), hexes);
-			break;
-		case WN - 1: //16 //left-down
-		case -WN - 1: //-18 //left-up
-			BattleHex::checkAndPush(destinationTile.hex + pseudoVector + (((hex / WN) % 2) ? 1 : 0), hexes);
-			break;
-		}
-		for(BattleHex tile : hexes)
-		{
-			//friendly stacks can also be damaged by Dragon Breath
+			std::vector<BattleHex> hexes; //only one, in fact
+			int pseudoVector = destinationTile.hex - hex;
+			switch(pseudoVector)
+			{
+			case 1:
+			case -1:
+				BattleHex::checkAndPush(destinationTile.hex + pseudoVector, hexes);
+				break;
+			case WN: //17 //left-down or right-down
+			case -WN: //-17 //left-up or right-up
+			case WN + 1: //18 //right-down
+			case -WN + 1: //-16 //right-up
+				BattleHex::checkAndPush(destinationTile.hex + pseudoVector + (((hex / WN) % 2) ? 1 : -1), hexes);
+				break;
+			case WN - 1: //16 //left-down
+			case -WN - 1: //-18 //left-up
+				BattleHex::checkAndPush(destinationTile.hex + pseudoVector + (((hex / WN) % 2) ? 1 : 0), hexes);
+				break;
+			}
+			for(BattleHex tile : hexes)
+			{
+				//friendly stacks can also be damaged by Dragon Breath
 				auto st = battleGetUnitByPos(tile, true);
-				if (st != nullptr)
-				at.friendlyCreaturePositions.insert(tile);
+				if(st != nullptr)
+					at.friendlyCreaturePositions.insert(tile);
+			}
 		}
-	}
 	}
 	return at;
 }

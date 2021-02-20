@@ -121,7 +121,7 @@ void ScriptImpl::resolveHost()
 	else if(sourcePathId.getType() == EResType::LUA)
 		host = owner->lua;
 	else
-		throw std::runtime_error("Unknown script language in:"+sourcePath);
+		throw std::runtime_error("Unknown script language in:" + sourcePath);
 }
 
 PoolImpl::PoolImpl(const Environment * ENV)
@@ -217,7 +217,8 @@ std::vector<JsonNode> ScriptHandler::loadLegacyData(size_t dataSize)
 	return std::vector<JsonNode>();
 }
 
-ScriptPtr ScriptHandler::loadFromJson(vstd::CLoggerBase * logger, const std::string & scope, const JsonNode & json, const std::string & identifier) const
+ScriptPtr ScriptHandler::loadFromJson(vstd::CLoggerBase * logger, const std::string & scope,
+	const JsonNode & json, const std::string & identifier) const
 {
 	ScriptPtr ret = std::make_shared<ScriptImpl>(this);
 

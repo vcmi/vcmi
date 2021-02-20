@@ -111,12 +111,14 @@ void CBuildingRect::hover(bool on)
 
 void CBuildingRect::clickLeft(tribool down, bool previousState)
 {
-	if( previousState && getBuilding() && area && !down && (parent->selectedBuilding==this))
-		if (!CSDL_Ext::isTransparent(area, GH.current->motion.x-pos.x, GH.current->motion.y-pos.y) ) //inside building image
+	if(previousState && getBuilding() && area && !down && (parent->selectedBuilding==this))
+	{
+		if(!CSDL_Ext::isTransparent(area, GH.current->motion.x-pos.x, GH.current->motion.y-pos.y)) //inside building image
 		{
 			auto building = getBuilding();
 			parent->buildingClicked(building->bid, building->subId, building->upgrade);
-}
+		}
+	}
 }
 
 void CBuildingRect::clickRight(tribool down, bool previousState)
@@ -606,8 +608,7 @@ void CCastleBuildings::recreate()
 
 		const CStructure * toAdd = *boost::max_element(entry.second, [=](const CStructure * a, const CStructure * b)
 		{
-			return build->getDistance(a->building->bid)
-			     < build->getDistance(b->building->bid);
+			return build->getDistance(a->building->bid) < build->getDistance(b->building->bid);
 		});
 
 		buildings.push_back(std::make_shared<CBuildingRect>(this, town, toAdd));
@@ -866,8 +867,8 @@ void CCastleBuildings::enterFountain(const BuildingID & building, BuildingSubID:
 		boost::algorithm::replace_first(hasProduced, "%s", buildingName);
 	}
 
-	bool isMysticPondOrItsUpgrade = subID == BuildingSubID::MYSTIC_POND 
-		|| (upgrades != BuildingID::NONE 
+	bool isMysticPondOrItsUpgrade = subID == BuildingSubID::MYSTIC_POND
+		|| (upgrades != BuildingID::NONE
 			&& town->town->buildings.find(BuildingID(upgrades))->second->subId == BuildingSubID::MYSTIC_POND);
 
 	if(upgrades != BuildingID::NONE)
@@ -880,9 +881,9 @@ void CCastleBuildings::enterFountain(const BuildingID & building, BuildingSubID:
 		else //Mystic Pond produced something;
 		{
 			descr += "\n\n" + hasProduced;
-		boost::algorithm::replace_first(descr,"%s",CGI->generaltexth->restypes[town->bonusValue.first]);
-		boost::algorithm::replace_first(descr,"%d",boost::lexical_cast<std::string>(town->bonusValue.second));
-	}
+			boost::algorithm::replace_first(descr,"%s",CGI->generaltexth->restypes[town->bonusValue.first]);
+			boost::algorithm::replace_first(descr,"%d",boost::lexical_cast<std::string>(town->bonusValue.second));
+		}
 	}
 	LOCPLINT->showInfoDialog(descr, comps);
 }

@@ -5631,9 +5631,9 @@ void CGameHandler::attackCasting(bool ranged, Bonus::BonusType attackMode, const
 
 			auto m = spell->battleMechanics(&parameters);
 
-			spells::detail::ProblemImpl ingored;
+			spells::detail::ProblemImpl ignored;
 
-			if(!m->canBeCastAt(ingored, target))
+			if(!m->canBeCastAt(target, ignored))
 				continue;
 
 			//check if spell should be cast (probability handling)

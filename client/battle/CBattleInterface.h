@@ -358,6 +358,7 @@ public:
 
 	void displayEffect(ui32 effect, BattleHex destTile); //displays custom effect on the battlefield
 
+	void displaySpellAnimationQueue(const CSpell::TAnimationQueue & q, BattleHex destinationTile);
 	void displaySpellCast(SpellID spellID, BattleHex destinationTile); //displays spell`s cast animation
 	void displaySpellEffect(SpellID spellID, BattleHex destinationTile); //displays spell`s affected animation
 	void displaySpellHit(SpellID spellID, BattleHex destinationTile); //displays spell`s affected animation

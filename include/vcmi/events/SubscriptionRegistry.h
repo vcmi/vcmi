@@ -32,20 +32,20 @@ public:
 	using PostHandler = std::function<void(const E &)>;
 	using BusTag = const void *;
 
-	std::unique_ptr<EventSubscription> subscribeBefore(BusTag tag, PreHandler && cb)
+	std::unique_ptr<EventSubscription> subscribeBefore(BusTag tag, PreHandler && handler)
 	{
 		boost::unique_lock<boost::shared_mutex> lock(mutex);
 
-		auto storage = std::make_shared<PreHandlerStorage>(std::move(cb));
+		auto storage = std::make_shared<PreHandlerStorage>(std::move(handler));
 		preHandlers[tag].push_back(storage);
 		return make_unique<PreSubscription>(tag, storage);
 	}
 
-	std::unique_ptr<EventSubscription> subscribeAfter(BusTag tag, PostHandler && cb)
+	std::unique_ptr<EventSubscription> subscribeAfter(BusTag tag, PostHandler && handler)
 	{
 		boost::unique_lock<boost::shared_mutex> lock(mutex);
 
-		auto storage = std::make_shared<PostHandlerStorage>(std::move(cb));
+		auto storage = std::make_shared<PostHandlerStorage>(std::move(handler));
 		postHandlers[tag].push_back(storage);
 		return make_unique<PostSubscription>(tag, storage);
 	}
@@ -84,18 +84,18 @@ private:
 	class HandlerStorage
 	{
 	public:
-		explicit HandlerStorage(T && cb_)
-			: cb(cb_)
+		explicit HandlerStorage(T && handler_)
+			: handler(handler_)
 		{
 		}
 
 		STRONG_INLINE
 		void operator()(E & event)
 		{
-			cb(event);
+			handler(event);
 		}
 	private:
-		T cb;
+		T handler;
 	};
 
 	using PreHandlerStorage = HandlerStorage<PreHandler>;
@@ -104,8 +104,8 @@ private:
 	class PreSubscription : public EventSubscription
 	{
 	public:
-		PreSubscription(BusTag tag_, std::shared_ptr<PreHandlerStorage> cb_)
-			: cb(cb_),
+		PreSubscription(BusTag tag_, std::shared_ptr<PreHandlerStorage> handler_)
+			: handler(handler_),
 			tag(tag_)
 		{
 		}
@@ -113,18 +113,18 @@ private:
 		virtual ~PreSubscription()
 		{
 			auto registry = E::getRegistry();
-			registry->unsubscribe(tag, cb, registry->preHandlers);
+			registry->unsubscribe(tag, handler, registry->preHandlers);
 		}
 	private:
 		BusTag tag;
-		std::shared_ptr<PreHandlerStorage> cb;
+		std::shared_ptr<PreHandlerStorage> handler;
 	};
 
 	class PostSubscription : public EventSubscription
 	{
 	public:
-		PostSubscription(BusTag tag_, std::shared_ptr<PostHandlerStorage> cb_)
-			: cb(cb_),
+		PostSubscription(BusTag tag_, std::shared_ptr<PostHandlerStorage> handler_)
+			: handler(handler_),
 			tag(tag_)
 		{
 		}
@@ -132,11 +132,11 @@ private:
 		virtual ~PostSubscription()
 		{
 			auto registry = E::getRegistry();
-			registry->unsubscribe(tag, cb, registry->postHandlers);
+			registry->unsubscribe(tag, handler, registry->postHandlers);
 		}
 	private:
 		BusTag tag;
-		std::shared_ptr<PostHandlerStorage> cb;
+		std::shared_ptr<PostHandlerStorage> handler;
 	};
 
 	boost::shared_mutex mutex;

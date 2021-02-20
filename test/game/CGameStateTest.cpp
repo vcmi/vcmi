@@ -297,7 +297,7 @@ TEST_F(CGameStateTest, issue2765)
 
 		auto m = age->battleMechanics(&cast);
 
-		EXPECT_FALSE(m->canBeCastAt(problemMock, target));
+		EXPECT_FALSE(m->canBeCastAt(target, problemMock));
 
 		EXPECT_TRUE(cast.castIfPossible(this, target));//should be possible, but with no effect (change to aimed cast check?)
 
@@ -397,7 +397,7 @@ TEST_F(CGameStateTest, battleResurrection)
 
 		EXPECT_TRUE(m->canBeCast(problemMock));
 
-		EXPECT_TRUE(m->canBeCastAt(problemMock, target));
+		EXPECT_TRUE(m->canBeCastAt(target, problemMock));
 
 		cast.cast(this, target);
 //

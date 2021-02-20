@@ -850,18 +850,18 @@ void CGTownInstance::updateBonusingBuildings() //update to version 792
 		//firstly, update subtype for the Bonusing objects, which are already stored in the bonusing list
 		for(auto building : bonusingBuildings) //no garrison bonuses here, only week and visiting bonuses
 		{
-			switch (this->town->faction->index)
+			switch(this->town->faction->index)
 			{
-		case ETownType::CASTLE:
-				building->setBuildingSubtype(BuildingSubID::STABLES);
+			case ETownType::CASTLE:
+					building->setBuildingSubtype(BuildingSubID::STABLES);
 			break;
 
-		case ETownType::DUNGEON:
+			case ETownType::DUNGEON:
 				if(building->getBuildingType() == BuildingID::SPECIAL_2)
 					building->setBuildingSubtype(BuildingSubID::MANA_VORTEX);
 				else if(building->getBuildingType() == BuildingID::SPECIAL_4)
 					building->setBuildingSubtype(BuildingSubID::EXPERIENCE_VISITING_BONUS);
-			break;
+				break;
 
 			case ETownType::TOWER:
 				building->setBuildingSubtype(BuildingSubID::KNOWLEDGE_VISITING_BONUS);
@@ -875,10 +875,10 @@ void CGTownInstance::updateBonusingBuildings() //update to version 792
 				building->setBuildingSubtype(BuildingSubID::SPELL_POWER_VISITING_BONUS);
 				break;
 
-		case ETownType::FORTRESS:
+			case ETownType::FORTRESS:
 				building->setBuildingSubtype(BuildingSubID::DEFENSE_VISITING_BONUS);
-			break;
-	}
+				break;
+			}
 		}
 	}
 	//secondly, supplement bonusing buildings list and active bonuses; subtypes for these objects are already set in update792
@@ -1264,13 +1264,13 @@ void CGTownInstance::recreateBuildingsBonuses()
 			continue;
 
 		for(auto bonus : building->buildingBonuses)
-{
+		{
 			if(bonus->propagator != nullptr && bonus->propagator->getPropagatorType() == ALL_CREATURES)
 				VLC->creh->addBonusForAllCreatures(bonus);
 			else
 				addNewBonus(bonus);
+		}
 	}
-}
 }
 
 void CGTownInstance::setVisitingHero(CGHeroInstance *h)
@@ -1353,11 +1353,11 @@ int CGTownInstance::getTownLevel() const
 	// count all buildings that are not upgrades
 	int level = 0;
 
-	for (const auto & bid : builtBuildings)
+	for(const auto & bid : builtBuildings)
 	{
 		if(town->buildings.at(bid)->upgrade == BuildingID::NONE)
 			level++;
-}
+	}
 	return level;
 }
 
@@ -1685,7 +1685,7 @@ void COPWBonus::setProperty(ui8 what, ui32 val)
 void COPWBonus::onHeroVisit (const CGHeroInstance * h) const
 {
 	ObjectInstanceID heroID = h->id;
-	if (town->hasBuilt(bID))
+	if(town->hasBuilt(bID))
 	{
 		InfoWindow iw;
 		iw.player = h->tempOwner;
@@ -1693,37 +1693,37 @@ void COPWBonus::onHeroVisit (const CGHeroInstance * h) const
 		switch (this->bType)
 		{
 		case BuildingSubID::STABLES:
-				if (!h->hasBonusFrom(Bonus::OBJECT, Obj::STABLES)) //does not stack with advMap Stables
-				{
-					GiveBonus gb;
-					gb.bonus = Bonus(Bonus::ONE_WEEK, Bonus::LAND_MOVEMENT, Bonus::OBJECT, 600, 94, VLC->generaltexth->arraytxt[100]);
-					gb.id = heroID.getNum();
-					cb->giveHeroBonus(&gb);
+			if(!h->hasBonusFrom(Bonus::OBJECT, Obj::STABLES)) //does not stack with advMap Stables
+			{
+				GiveBonus gb;
+				gb.bonus = Bonus(Bonus::ONE_WEEK, Bonus::LAND_MOVEMENT, Bonus::OBJECT, 600, 94, VLC->generaltexth->arraytxt[100]);
+				gb.id = heroID.getNum();
+				cb->giveHeroBonus(&gb);
 
-					SetMovePoints mp;
-					mp.val = 600;
-					mp.absolute = false;
-					mp.hid = heroID;
-					cb->setMovePoints(&mp);
+				SetMovePoints mp;
+				mp.val = 600;
+				mp.absolute = false;
+				mp.hid = heroID;
+				cb->setMovePoints(&mp);
 
-					iw.text << VLC->generaltexth->allTexts[580];
-					cb->showInfoDialog(&iw);
-				}
-				break;
+				iw.text << VLC->generaltexth->allTexts[580];
+				cb->showInfoDialog(&iw);
+			}
+			break;
 
 		case BuildingSubID::MANA_VORTEX:
-				if (visitors.empty())
-				{
-					if (h->mana < h->manaLimit() * 2)
+			if(visitors.empty())
+			{
+				if(h->mana < h->manaLimit() * 2)
 					cb->setManaPoints (heroID, 2 * h->manaLimit());
-					//TODO: investigate line below
-					//cb->setObjProperty (town->id, ObjProperty::VISITED, true);
-					iw.text << getVisitingBonusGreeting();
-					cb->showInfoDialog(&iw);
-					//extra visit penalty if hero alredy had double mana points (or even more?!)
-					town->addHeroToStructureVisitors(h, indexOnTV);
-				}
-				break;
+				//TODO: investigate line below
+				//cb->setObjProperty (town->id, ObjProperty::VISITED, true);
+				iw.text << getVisitingBonusGreeting();
+				cb->showInfoDialog(&iw);
+				//extra visit penalty if hero alredy had double mana points (or even more?!)
+				town->addHeroToStructureVisitors(h, indexOnTV);
+			}
+			break;
 		}
 	}
 }
@@ -1750,37 +1750,37 @@ void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
 		InfoWindow iw;
 		PrimarySkill::PrimarySkill what = PrimarySkill::NONE;
 
-		switch (bType)
+		switch(bType)
 		{
 		case BuildingSubID::KNOWLEDGE_VISITING_BONUS: //wall of knowledge
-						what = PrimarySkill::KNOWLEDGE;
-						val = 1;
-						iw.components.push_back (Component(Component::PRIM_SKILL, 3, 1, 0));
-						break;
+			what = PrimarySkill::KNOWLEDGE;
+			val = 1;
+			iw.components.push_back(Component(Component::PRIM_SKILL, 3, 1, 0));
+			break;
 
 		case BuildingSubID::SPELL_POWER_VISITING_BONUS: //order of fire
-						what = PrimarySkill::SPELL_POWER;
-						val = 1;
-						iw.components.push_back (Component(Component::PRIM_SKILL, 2, 1, 0));
-						break;
+			what = PrimarySkill::SPELL_POWER;
+			val = 1;
+			iw.components.push_back(Component(Component::PRIM_SKILL, 2, 1, 0));
+			break;
 
 		case BuildingSubID::ATTACK_VISITING_BONUS: //hall of Valhalla
-						what = PrimarySkill::ATTACK;
-						val = 1;
-						iw.components.push_back (Component(Component::PRIM_SKILL, 0, 1, 0));
-						break;
+			what = PrimarySkill::ATTACK;
+			val = 1;
+			iw.components.push_back(Component(Component::PRIM_SKILL, 0, 1, 0));
+			break;
 
 		case BuildingSubID::EXPERIENCE_VISITING_BONUS: //academy of battle scholars
-						what = PrimarySkill::EXPERIENCE;
+			what = PrimarySkill::EXPERIENCE;
 			val = static_cast<int>(h->calculateXp(1000));
-						iw.components.push_back (Component(Component::EXPERIENCE, 0, val, 0));
-						break;
+			iw.components.push_back(Component(Component::EXPERIENCE, 0, val, 0));
+			break;
 
 		case BuildingSubID::DEFENSE_VISITING_BONUS: //cage of warlords
-						what = PrimarySkill::DEFENSE;
-						val = 1;
-						iw.components.push_back (Component(Component::PRIM_SKILL, 1, 1, 0));
-						break;
+			what = PrimarySkill::DEFENSE;
+			val = 1;
+			iw.components.push_back(Component(Component::PRIM_SKILL, 1, 1, 0));
+			break;
 
 		case BuildingSubID::CUSTOM_VISITING_BONUS:
 			const auto building = town->town->buildings.at(bID);
@@ -1788,18 +1788,19 @@ void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
 			{
 				const auto & bonuses = building->onVisitBonuses;
 				applyBonuses(const_cast<CGHeroInstance *>(h), bonuses);
-				}
-				break;
+			}
+			break;
 		}
+
 		if(what != PrimarySkill::NONE)
 		{
-		iw.player = cb->getOwner(heroID);
-			iw.text << getVisitingBonusGreeting();
-		cb->showInfoDialog(&iw);
-		cb->changePrimSkill (cb->getHero(heroID), what, val);
-			town->addHeroToStructureVisitors(h, indexOnTV);
+			iw.player = cb->getOwner(heroID);
+				iw.text << getVisitingBonusGreeting();
+			cb->showInfoDialog(&iw);
+			cb->changePrimSkill (cb->getHero(heroID), what, val);
+				town->addHeroToStructureVisitors(h, indexOnTV);
+		}
 	}
-}
 }
 
 void CTownBonus::applyBonuses(CGHeroInstance * h, const BonusList & bonuses) const

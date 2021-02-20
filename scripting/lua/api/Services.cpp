@@ -39,9 +39,9 @@ const std::vector<ServicesProxy::CustomRegType> ServicesProxy::REGISTER_CUSTOM =
 	{"creatures", LuaMethodWrapper<Services, decltype(&Services::creatures), &Services::creatures>::invoke, false},
 	{"factions", LuaMethodWrapper<Services, decltype(&Services::factions), &Services::factions>::invoke, false},
 	{"heroClasses", LuaMethodWrapper<Services, decltype(&Services::heroClasses), &Services::heroClasses>::invoke, false},
-	{"heroTypes", LuaMethodWrapper<Services,decltype(&Services::heroTypes), &Services::heroTypes>::invoke, false},
+	{"heroTypes", LuaMethodWrapper<Services, decltype(&Services::heroTypes), &Services::heroTypes>::invoke, false},
 	{"spells", LuaMethodWrapper<Services, decltype(&Services::spells), &Services::spells>::invoke, false},
-	{"skills", LuaMethodWrapper<Services,decltype(&Services::skills), &Services::skills>::invoke, false},
+	{"skills", LuaMethodWrapper<Services, decltype(&Services::skills), &Services::skills>::invoke, false},
 };
 
 VCMI_REGISTER_CORE_SCRIPT_API(ArtifactServiceProxy, "Artifacts");

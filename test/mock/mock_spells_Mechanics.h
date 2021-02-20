@@ -25,7 +25,7 @@ public:
 	MOCK_CONST_METHOD1(getAffectedStacks, std::vector<const CStack *>(const Target &));
 
 	MOCK_CONST_METHOD1(canBeCast, bool(Problem &));
-	MOCK_CONST_METHOD2(canBeCastAt, bool(Problem &, const Target &));
+	MOCK_CONST_METHOD2(canBeCastAt, bool(const Target &, Problem &));
 
 	MOCK_CONST_METHOD4(applyEffects, void(ServerCallback *, const Target &, bool, bool));
 

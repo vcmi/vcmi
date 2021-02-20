@@ -563,24 +563,24 @@ void CBattleInterface::deactivate()
 
 void CBattleInterface::keyPressed(const SDL_KeyboardEvent & key)
 {
-	if (key.keysym.sym == SDLK_q && key.state == SDL_PRESSED)
+	if(key.keysym.sym == SDLK_q && key.state == SDL_PRESSED)
 	{
-		if (settings["battle"]["showQueue"].Bool()) //hide queue
+		if(settings["battle"]["showQueue"].Bool()) //hide queue
 			hideQueue();
 		else
 			showQueue();
 
 	}
-	else if (key.keysym.sym == SDLK_f && key.state == SDL_PRESSED)
+	else if(key.keysym.sym == SDLK_f && key.state == SDL_PRESSED)
 	{
 		enterCreatureCastingMode();
 	}
-	else if (key.keysym.sym == SDLK_ESCAPE)
+	else if(key.keysym.sym == SDLK_ESCAPE)
 	{
 		if(!battleActionsStarted)
 			CCS->soundh->stopSound(battleIntroSoundChannel);
 		else
-		endCastingSpell();
+			endCastingSpell();
 	}
 }
 void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
@@ -788,14 +788,14 @@ void CBattleInterface::bOptionsf()
 
 void CBattleInterface::bSurrenderf()
 {
-	if (spellDestSelectMode) //we are casting a spell
+	if(spellDestSelectMode) //we are casting a spell
 		return;
 
 	int cost = curInt->cb->battleGetSurrenderCost();
-	if (cost >= 0)
+	if(cost >= 0)
 	{
 		std::string enemyHeroName = curInt->cb->battleGetEnemyHero().name;
-		if (enemyHeroName.empty())
+		if(enemyHeroName.empty())
 		{
 			logGlobal->warn("Surrender performed without enemy hero, should not happen!");
 			enemyHeroName = "#ENEMY#";
@@ -1462,53 +1462,39 @@ void CBattleInterface::displayEffect(ui32 effect, BattleHex destTile)
 	addNewAnim(new CEffectAnimation(this, customAnim, destTile));
 }
 
-void CBattleInterface::displaySpellCast(SpellID spellID, BattleHex destinationTile)
+void CBattleInterface::displaySpellAnimationQueue(const CSpell::TAnimationQueue & q, BattleHex destinationTile)
 {
-	const CSpell * spell = spellID.toSpell();
-
-	if(spell == nullptr)
-		return;
-
-	for(const CSpell::TAnimation & animation : spell->animationInfo.cast)
+	for(const CSpell::TAnimation & animation : q)
 	{
 		if(animation.pause > 0)
 			addNewAnim(new CDummyAnimation(this, animation.pause));
 		else
 			addNewAnim(new CEffectAnimation(this, animation.resourceName, destinationTile, false, animation.verticalPosition == VerticalPosition::BOTTOM));
 	}
+}
+
+void CBattleInterface::displaySpellCast(SpellID spellID, BattleHex destinationTile)
+{
+	const CSpell * spell = spellID.toSpell();
+
+	if(spell)
+		displaySpellAnimationQueue(spell->animationInfo.cast, destinationTile);
 }
 
 void CBattleInterface::displaySpellEffect(SpellID spellID, BattleHex destinationTile)
 {
 	const CSpell *spell = spellID.toSpell();
 
-	if(spell == nullptr)
-		return;
-
-	for(const CSpell::TAnimation & animation : spell->animationInfo.affect)
-	{
-		if(animation.pause > 0)
-			addNewAnim(new CDummyAnimation(this, animation.pause));
-		else
-			addNewAnim(new CEffectAnimation(this, animation.resourceName, destinationTile, false, animation.verticalPosition == VerticalPosition::BOTTOM));
-
-	}
+	if(spell)
+		displaySpellAnimationQueue(spell->animationInfo.affect, destinationTile);
 }
 
 void CBattleInterface::displaySpellHit(SpellID spellID, BattleHex destinationTile)
 {
 	const CSpell * spell = spellID.toSpell();
 
-	if(spell == nullptr)
-		return;
-
-	for(const CSpell::TAnimation & animation : spell->animationInfo.hit)
-	{
-		if(animation.pause > 0)
-			addNewAnim(new CDummyAnimation(this, animation.pause));
-		else
-			addNewAnim(new CEffectAnimation(this, animation.resourceName, destinationTile, false, animation.verticalPosition == VerticalPosition::BOTTOM));
-	}
+	if(spell)
+		displaySpellAnimationQueue(spell->animationInfo.hit, destinationTile);
 }
 
 void CBattleInterface::battleTriggerEffect(const BattleTriggerEffect & bte)
@@ -1704,13 +1690,12 @@ void CBattleInterface::enterCreatureCastingMode()
 		spells::Target target;
 		target.emplace_back();
 
-
 		spells::BattleCast cast(curInt->cb.get(), caster, spells::Mode::CREATURE_ACTIVE, spell);
 
 		auto m = spell->battleMechanics(&cast);
 		spells::detail::ProblemImpl ignored;
 
-		const bool isCastingPossible = m->canBeCastAt(ignored, target);
+		const bool isCastingPossible = m->canBeCastAt(target, ignored);
 
 		if (isCastingPossible)
 		{
@@ -1762,7 +1747,7 @@ void CBattleInterface::reorderPossibleActionsPriority(const CStack * stack, Mous
 		case PossiblePlayerBattleAction::OBSTACLE:
 			if(!stack->hasBonusOfType(Bonus::NO_SPELLCAST_BY_DEFAULT) && context == MouseHoveredHexContext::OCCUPIED_HEX)
 				return 1;
-					else
+			else
 				return 100;//bottom priority
 			break;
 		case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL:
@@ -2543,7 +2528,7 @@ bool CBattleInterface::isCastingPossibleHere(const CStack *sactive, const CStack
 			auto m = sp->battleMechanics(&cast);
 			spells::detail::ProblemImpl problem; //todo: display problem in status bar
 
-			isCastingPossible = m->canBeCastAt(problem, target);
+			isCastingPossible = m->canBeCastAt(target, problem);
 		}
 	}
 	else
@@ -3022,7 +3007,7 @@ void CBattleInterface::show(SDL_Surface *to)
 	showProjectiles(to);
 
 	if(battleActionsStarted)
-	updateBattleAnimations();
+		updateBattleAnimations();
 
 	SDL_SetClipRect(to, &buf); //restoring previous clip_rect
 

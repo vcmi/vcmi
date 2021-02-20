@@ -697,7 +697,7 @@ bool CModHandler::checkDependencies(const std::vector <TModID> & input) const
 
 		for(const TModID & dep : mod.dependencies)
 		{
-			if (!vstd::contains(input, dep))
+			if(!vstd::contains(input, dep))
 			{
 				logMod->error("Error: Mod %s requires missing %s!", mod.name, dep);
 				return false;
@@ -706,14 +706,14 @@ bool CModHandler::checkDependencies(const std::vector <TModID> & input) const
 
 		for(const TModID & conflicting : mod.conflicts)
 		{
-			if (vstd::contains(input, conflicting))
+			if(vstd::contains(input, conflicting))
 			{
 				logMod->error("Error: Mod %s conflicts with %s!", mod.name, allMods.at(conflicting).name);
 				return false;
 			}
 		}
 
-		if (hasCircularDependency(id))
+		if(hasCircularDependency(id))
 			return false;
 	}
 	return true;
@@ -732,7 +732,7 @@ std::vector <TModID> CModHandler::resolveDependencies(std::vector <TModID> modsT
 			{
 				logMod->error("Mod '%s' will not work: it depends on mod '%s', which is not installed.", mod.name, dependency);
 				res = false; //continue iterations, since we should show all errors for the current mod.
-		}
+			}
 		}
 		return res;
 	};
@@ -745,19 +745,19 @@ std::vector <TModID> CModHandler::resolveDependencies(std::vector <TModID> modsT
 				brokenMods.push_back(mod);
 		}
 		if(!brokenMods.empty())
-			{
+		{
 			vstd::erase_if(modsToResolve, [&](TModID mid)
 			{
 				return brokenMods.end() != std::find(brokenMods.begin(), brokenMods.end(), mid);
 			});
 			brokenMods.clear();
 				continue;
-			}
-		break;
 		}
+		break;
+	}
 	boost::range::sort(modsToResolve);
 	return modsToResolve;
-	}
+}
 
 std::vector<std::string> CModHandler::getModList(std::string path)
 {

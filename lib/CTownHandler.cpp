@@ -560,29 +560,31 @@ R CTownHandler::getMappedValue(const K key, const R defval, const std::map<K, R>
 
 template<typename R>
 R CTownHandler::getMappedValue(const JsonNode & node, const R defval, const std::map<std::string, R> & map, bool required)
-	{
+{
 	if(!node.isNull() && node.getType() == JsonNode::JsonType::DATA_STRING)
 		return getMappedValue<R, std::string>(node.String(), defval, map, required);
 	return defval;
 }
 
 void CTownHandler::addBonusesForVanilaBuilding(CBuilding * building)
-	{
+{
 	std::shared_ptr<Bonus> b;
 	static TPropagatorPtr playerPropagator = std::make_shared<CPropagatorNodeType>(CBonusSystemNode::ENodeTypes::PLAYER);
 
 	if(building->subId == BuildingSubID::NONE)
-		{
+	{
 		if(building->bid == BuildingID::TAVERN)
-			b = createBonus(building, Bonus::MORALE, +1);
-		else if(building->bid == BuildingID::GRAIL
-				&& building->town->faction != nullptr
-				&& boost::algorithm::ends_with(building->town->faction->identifier, ":cove"))
 		{
-				static TPropagatorPtr allCreaturesPropagator(new CPropagatorNodeType(CBonusSystemNode::ENodeTypes::ALL_CREATURES));
-				static auto factionLimiter = std::make_shared<CreatureFactionLimiter>(building->town->faction->index);
-				b = createBonus(building, Bonus::NO_TERRAIN_PENALTY, 0, allCreaturesPropagator);
-				b->addLimiter(factionLimiter);
+			b = createBonus(building, Bonus::MORALE, +1);
+		}
+		else if(building->bid == BuildingID::GRAIL
+			&& building->town->faction != nullptr
+			&& boost::algorithm::ends_with(building->town->faction->identifier, ":cove"))
+		{
+			static TPropagatorPtr allCreaturesPropagator(new CPropagatorNodeType(CBonusSystemNode::ENodeTypes::ALL_CREATURES));
+			static auto factionLimiter = std::make_shared<CreatureFactionLimiter>(building->town->faction->index);
+			b = createBonus(building, Bonus::NO_TERRAIN_PENALTY, 0, allCreaturesPropagator);
+			b->addLimiter(factionLimiter);
 		}
 	}
 	else
