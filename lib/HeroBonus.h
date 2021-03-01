@@ -768,6 +768,9 @@ private:
 	TConstBonusListPtr getAllBonusesWithoutCaching(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = nullptr) const;
 	std::shared_ptr<Bonus> update(const std::shared_ptr<Bonus> & b) const;
 
+protected:
+	bool isHypotheticNode;
+
 public:
 	explicit CBonusSystemNode();
 	explicit CBonusSystemNode(ENodeTypes NodeType);
@@ -810,6 +813,7 @@ public:
 	void reduceBonusDurations(const CSelector &s);
 	virtual std::string bonusToString(const std::shared_ptr<Bonus>& bonus, bool description) const {return "";}; //description or bonus name
 	virtual std::string nodeName() const;
+	bool isHypothetic() const { return isHypotheticNode; }
 
 	void deserializationFix();
 	void exportBonus(std::shared_ptr<Bonus> b);

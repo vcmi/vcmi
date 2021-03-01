@@ -21,7 +21,7 @@ class ChainActor;
 class HeroActor;
 class Nullkiller;
 
-class HeroExchangeArmy : public CCreatureSet
+class HeroExchangeArmy : public CArmedInstance
 {
 public:
 	TResources armyCost;
@@ -29,8 +29,9 @@ public:
 	virtual bool needsLastStack() const override;
 	std::shared_ptr<SpecialAction> getActorAction() const;
 
-	HeroExchangeArmy() : CCreatureSet(), armyCost(), requireBuyArmy(false)
+	HeroExchangeArmy() : CArmedInstance(), armyCost(), requireBuyArmy(false)
 	{
+		CBonusSystemNode::isHypotheticNode = true;
 	}
 };
 

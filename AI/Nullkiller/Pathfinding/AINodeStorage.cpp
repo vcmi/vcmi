@@ -115,9 +115,7 @@ void AINodeStorage::initialize(const PathfinderOptions & options, const CGameSta
 
 void AINodeStorage::clear()
 {
-	CCreature::DisableChildLinkage = true;
 	actors.clear();
-	CCreature::DisableChildLinkage = false;
 	heroChainPass = EHeroChainPass::INITIAL;
 	heroChainTurn = 0;
 	heroChainMaxTurns = 1;
@@ -499,8 +497,6 @@ bool AINodeStorage::calculateHeroChain()
 
 	std::vector<int3> data(commitedTiles.begin(), commitedTiles.end());
 
-	CCreature::DisableChildLinkage = true;
-
 	if(data.size() > 100)
 	{
 		boost::mutex resultMutex;
@@ -529,8 +525,6 @@ bool AINodeStorage::calculateHeroChain()
 		task.execute(r);
 		task.flushResult(heroChain);
 	}
-
-	CCreature::DisableChildLinkage = false;
 
 	commitedTiles.clear();
 

@@ -196,16 +196,12 @@ HeroExchangeMap::HeroExchangeMap(const HeroActor * actor, const Nullkiller * ai)
 
 HeroExchangeMap::~HeroExchangeMap()
 {
-	CCreature::DisableChildLinkage = true;
-
 	for(auto & exchange : exchangeMap)
 	{
 		if(!exchange.second) continue;
 
 		delete exchange.second->creatureSet;
 	}
-
-	CCreature::DisableChildLinkage = false;
 
 	for(auto & exchange : exchangeMap)
 	{
