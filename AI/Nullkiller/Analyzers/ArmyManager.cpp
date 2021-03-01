@@ -84,6 +84,10 @@ class TemporaryArmy : public CArmedInstance
 {
 public:
 	void armyChanged() override {}
+	TemporaryArmy()
+	{
+		CBonusSystemNode::isHypotheticNode = true;
+	}
 };
 
 std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier, const CCreatureSet * target, const CCreatureSet * source) const
