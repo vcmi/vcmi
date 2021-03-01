@@ -26,6 +26,14 @@ project(VCMI)
 # It's used currently to make sure that 3rd-party dependencies in git submodules get proper FOLDER property
 # - Make FindFuzzyLite check for the right version and disable FORCE_BUNDLED_FL by default
 
+if(APPLE)
+  if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+    set(APPLE_MACOS 1)
+  else()
+    set(APPLE_IOS 1)
+  endif()
+endif(APPLE)
+
 ############################################
 #        User-provided options             #
 ############################################
@@ -43,7 +51,9 @@ set(VCMI_VERSION_PATCH 0)
 
 option(ENABLE_ERM "Enable compilation of ERM scripting module" OFF)
 option(ENABLE_LUA "Enable compilation of LUA scripting module" OFF)
-option(ENABLE_LAUNCHER "Enable compilation of launcher" ON)
+if(NOT APPLE_IOS)
+  option(ENABLE_LAUNCHER "Enable compilation of launcher" ON)
+endif()
 option(ENABLE_TEST "Enable compilation of unit tests" ON)
 if(NOT ${CMAKE_VERSION} VERSION_LESS "3.16.0")
 	option(ENABLE_PCH "Enable compilation using precompiled headers" ON)
@@ -53,7 +63,9 @@ option(ENABLE_DEBUG_CONSOLE "Enable debug console for Windows builds" ON)
 option(ENABLE_MULTI_PROCESS_BUILDS "Enable /MP flag for MSVS solution" ON)
 
 # Used for Snap packages and also useful for debugging
-option(ENABLE_MONOLITHIC_INSTALL "Install everything in single directory on Linux and Mac" OFF)
+if(NOT APPLE_IOS)
+  option(ENABLE_MONOLITHIC_INSTALL "Install everything in single directory on Linux and Mac" OFF)
+endif()
 
 # Allow to pass package name from Travis CI
 set(PACKAGE_NAME_SUFFIX "" CACHE STRING "Suffix for CPack package name")
@@ -133,6 +145,10 @@ set(CMAKE_MAP_IMPORTED_CONFIG_MINSIZEREL MinSizeRel Release RelWithDebInfo "")
 # Release falls back to RelWithDebInfo, then MinSizeRel
 set(CMAKE_MAP_IMPORTED_CONFIG_RELEASE Release RelWithDebInfo MinSizeRel "")
 
+if(APPLE_IOS)
+	set(SYSTEM_LIBS ${SYSTEM_LIBS} iconv) # boost.locale
+endif(APPLE_IOS)
+
 if(MINGW OR MSVC)
 	# Windows Vista or newer for FuzzyLite 6 to compile
 	add_definitions(-D_WIN32_WINNT=0x0600)
@@ -209,7 +225,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR NOT WIN32) #so far all *nix compilers support suc
 endif()
 
 # Check if some platform-specific libraries are needed for linking
-if(NOT WIN32)
+if(NOT WIN32 AND NOT ${CMAKE_SYSTEM_NAME} STREQUAL "iOS")
 	include(CheckLibraryExists)
 
 	# Shared memory functions used by Boost.Interprocess
@@ -307,8 +323,13 @@ elseif(APPLE)
 		set(DATA_DIR "." CACHE STRING "Where to install data files")
 	else()
 		set(APP_BUNDLE_DIR "${CMAKE_PROJECT_NAME}.app")
-		set(APP_BUNDLE_CONTENTS_DIR "${APP_BUNDLE_DIR}/Contents")
-		set(APP_BUNDLE_BINARY_DIR "${APP_BUNDLE_CONTENTS_DIR}/MacOS")
+    if(APPLE_MACOS)
+  		set(APP_BUNDLE_CONTENTS_DIR "${APP_BUNDLE_DIR}/Contents")
+  		set(APP_BUNDLE_BINARY_DIR "${APP_BUNDLE_CONTENTS_DIR}/MacOS")
+    else()
+  		set(APP_BUNDLE_CONTENTS_DIR "${APP_BUNDLE_DIR}")
+  		set(APP_BUNDLE_BINARY_DIR "${APP_BUNDLE_DIR}")
+    endif(APPLE_MACOS)
 		set(APP_BUNDLE_RESOURCES_DIR "${APP_BUNDLE_CONTENTS_DIR}/Resources")
 
 		set(BIN_DIR "${APP_BUNDLE_BINARY_DIR}" CACHE STRING "Where to install binaries")
@@ -490,7 +511,7 @@ if(WIN32)
 		add_subdirectory(osx)
 		add_subdirectory(win)
 	endif()
-elseif(APPLE AND NOT ENABLE_MONOLITHIC_INSTALL)
+elseif(APPLE_MACOS AND NOT ENABLE_MONOLITHIC_INSTALL)
 	set(CPACK_MONOLITHIC_INSTALL 1)
 	set(CPACK_GENERATOR "DragNDrop")
 	set(CPACK_DMG_BACKGROUND_IMAGE "${CMAKE_SOURCE_DIR}/osx/dmg_background.png")

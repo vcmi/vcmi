@@ -82,10 +82,6 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #  error "VCMI supports only Windows, OSX, Linux and Android targets"
 #endif
 
-#ifdef VCMI_IOS
-#  error "iOS system isn't yet supported."
-#endif
-
 // Each compiler uses own way to supress fall through warning. Try to find it.
 #ifdef __has_cpp_attribute
 #  if __has_cpp_attribute(fallthrough)
