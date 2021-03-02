@@ -21,10 +21,12 @@
 
 #include "mainmenu/CMainMenu.h"
 
-#ifndef VCMI_ANDROID
-#include "../lib/Interprocess.h"
-#else
+#ifdef VCMI_ANDROID
 #include "../lib/CAndroidVMHelper.h"
+#elif defined(VCMI_IOS)
+//TODO
+#else
+#include "../lib/Interprocess.h"
 #endif
 #include "../lib/CConfigHandler.h"
 #include "../lib/CGeneralTextHandler.h"
@@ -132,7 +134,7 @@ void CServerHandler::resetStateForLobby(const StartInfo::EMode mode, const std::
 	else
 		myNames.push_back(settings["general"]["playerName"].String());
 
-#ifndef VCMI_ANDROID
+#if !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
 	shm.reset();
 
 	if(!settings["session"]["disable-shm"].Bool())
@@ -181,6 +183,8 @@ void CServerHandler::startLocalServerAndConnect()
 		CAndroidVMHelper envHelper;
 		envHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "startServer", true);
 	}
+#elif defined(VCMI_IOS)
+	// TODO
 #else
 	threadRunLocalServer = std::make_shared<boost::thread>(&CServerHandler::threadRunServer, this); //runs server executable;
 #endif
@@ -188,10 +192,7 @@ void CServerHandler::startLocalServerAndConnect()
 
 	th->update();
 
-#ifndef VCMI_ANDROID
-	if(shm)
-		shm->sr->waitTillReady();
-#else
+#ifdef VCMI_ANDROID
 	logNetwork->info("waiting for server");
 	while(!androidTestServerReadyFlag.load())
 	{
@@ -200,12 +201,17 @@ void CServerHandler::startLocalServerAndConnect()
 	}
 	logNetwork->info("waiting for server finished...");
 	androidTestServerReadyFlag = false;
+#elif defined(VCMI_IOS)
+	//TODO
+#else
+	if(shm)
+		shm->sr->waitTillReady();
 #endif
 	logNetwork->trace("Waiting for server: %d ms", th->getDiff());
 
 	th->update(); //put breakpoint here to attach to server before it does something stupid
 
-#ifndef VCMI_ANDROID
+#if !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
 	justConnectToServer(settings["server"]["server"].String(), shm ? shm->sr->port : 0);
 #else
 	justConnectToServer(settings["server"]["server"].String());

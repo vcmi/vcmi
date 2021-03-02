@@ -29,6 +29,8 @@
 #include "../lib/rmg/CMapGenOptions.h"
 #ifdef VCMI_ANDROID
 #include "lib/CAndroidVMHelper.h"
+#elif defined(VCMI_IOS)
+	//TODO
 #else
 #include "../lib/Interprocess.h"
 #endif
@@ -55,7 +57,7 @@
 
 #include "../lib/CGameState.h"
 
-#if defined(__GNUC__) && !defined(__MINGW32__) && !defined(VCMI_ANDROID)
+#if defined(__GNUC__) && !defined(__MINGW32__) && !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
 #include <execinfo.h>
 #endif
 
@@ -157,7 +159,7 @@ void CVCMIServer::run()
 	if(!restartGameplay)
 	{
 		this->announceLobbyThread = vstd::make_unique<boost::thread>(&CVCMIServer::threadAnnounceLobby, this);
-#ifndef VCMI_ANDROID
+#if !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
 		if(cmdLineOptions.count("enable-shm"))
 		{
 			std::string sharedMemoryName = "vcmi_memory";
@@ -171,14 +173,11 @@ void CVCMIServer::run()
 
 		startAsyncAccept();
 
-#ifndef VCMI_ANDROID
+#if !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
 		if(shm)
 		{
 			shm->sr->setToReadyAndNotify(port);
 		}
-#else
-		CAndroidVMHelper vmHelper;
-		vmHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "onServerReady");
 #endif
 	}
 
@@ -829,7 +828,7 @@ ui8 CVCMIServer::getIdOfFirstUnallocatedPlayer() const
 	return 0;
 }
 
-#if defined(__GNUC__) && !defined(__MINGW32__) && !defined(VCMI_ANDROID)
+#if defined(__GNUC__) && !defined(__MINGW32__) && !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
 void handleLinuxSignal(int sig)
 {
 	const int STACKTRACE_SIZE = 100;
@@ -904,13 +903,13 @@ static void handleCommandOptions(int argc, char * argv[], boost::program_options
 
 int main(int argc, char * argv[])
 {
-#ifndef VCMI_ANDROID
+#if !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
 	// Correct working dir executable folder (not bundle folder) so we can use executable relative paths
 	boost::filesystem::current_path(boost::filesystem::system_complete(argv[0]).parent_path());
 #endif
 	// Installs a sig sev segmentation violation handler
 	// to log stacktrace
-#if defined(__GNUC__) && !defined(__MINGW32__) && !defined(VCMI_ANDROID)
+#if defined(__GNUC__) && !defined(__MINGW32__) && !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
 	signal(SIGSEGV, handleLinuxSignal);
 #endif
 
@@ -966,6 +965,7 @@ int main(int argc, char * argv[])
 	return 0;
 }
 
+// TODO iOS
 #ifdef VCMI_ANDROID
 void CVCMIServer::create()
 {
