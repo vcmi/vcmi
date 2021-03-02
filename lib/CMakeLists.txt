@@ -439,6 +439,11 @@ set(lib_HEADERS
 		VCMI_Lib.h
 )
 
+if(APPLE_IOS)
+	set(lib_SRCS ${lib_SRCS} CIOSUtils.m)
+	set(lib_HEADERS ${lib_HEADERS} CIOSUtils.h)
+endif(APPLE_IOS)
+
 assign_source_group(${lib_SRCS} ${lib_HEADERS})
 
 add_library(vcmi SHARED ${lib_SRCS} ${lib_HEADERS})

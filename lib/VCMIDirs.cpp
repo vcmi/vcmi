@@ -349,7 +349,7 @@ class IVCMIDirsUNIX : public IVCMIDirs
 		boost::filesystem::path clientPath() const override;
 		boost::filesystem::path serverPath() const override;
 
-		bool developmentMode() const;
+		virtual bool developmentMode() const;
 };
 
 bool IVCMIDirsUNIX::developmentMode() const
@@ -362,20 +362,60 @@ bfs::path IVCMIDirsUNIX::clientPath() const { return binaryPath() / "vcmiclient"
 bfs::path IVCMIDirsUNIX::serverPath() const { return binaryPath() / "vcmiserver"; }
 
 #ifdef VCMI_APPLE
-class VCMIDirsOSX final : public IVCMIDirsUNIX
+class VCMIDirsApple : public IVCMIDirsUNIX
+{
+	public:
+		bfs::path userConfigPath() const override;
+
+		std::string libraryName(const std::string& basename) const override;
+};
+
+bfs::path VCMIDirsApple::userConfigPath() const { return userDataPath() / "config"; }
+
+std::string VCMIDirsApple::libraryName(const std::string& basename) const { return "lib" + basename + ".dylib"; }
+
+#ifdef VCMI_IOS
+extern "C" {
+#import "CIOSUtils.h"
+}
+
+class VCMIDirsIOS final : public VCMIDirsApple
+{
+	public:
+		bfs::path userDataPath() const override;
+		bfs::path userCachePath() const override;
+		bfs::path userLogsPath() const override;
+
+		std::vector<bfs::path> dataPaths() const override;
+
+		bfs::path libraryPath() const override;
+		bfs::path binaryPath() const override;
+
+		bool developmentMode() const override;
+};
+
+bfs::path VCMIDirsIOS::userDataPath() const { return {ios_documentsPath()}; }
+bfs::path VCMIDirsIOS::userCachePath() const { return {ios_cachesPath()}; }
+bfs::path VCMIDirsIOS::userLogsPath() const { return {ios_documentsPath()}; }
+
+std::vector<bfs::path> VCMIDirsIOS::dataPaths() const { return {userDataPath()}; }
+
+bfs::path VCMIDirsIOS::libraryPath() const { return {ios_frameworksPath()}; }
+bfs::path VCMIDirsIOS::binaryPath() const { return {ios_bundlePath()}; }
+
+bool VCMIDirsIOS::developmentMode() const { return false; }
+#elif defined(VCMI_MAC)
+class VCMIDirsOSX final : public VCMIDirsApple
 {
 	public:
 		boost::filesystem::path userDataPath() const override;
 		boost::filesystem::path userCachePath() const override;
-		boost::filesystem::path userConfigPath() const override;
 		boost::filesystem::path userLogsPath() const override;
 
 		std::vector<boost::filesystem::path> dataPaths() const override;
 
 		boost::filesystem::path libraryPath() const override;
 		boost::filesystem::path binaryPath() const override;
-
-		std::string libraryName(const std::string& basename) const override;
 
 		void init() override;
 };
@@ -436,7 +476,6 @@ bfs::path VCMIDirsOSX::userDataPath() const
 	return bfs::path(homeDir) / "Library" / "Application Support" / "vcmi";
 }
 bfs::path VCMIDirsOSX::userCachePath() const { return userDataPath(); }
-bfs::path VCMIDirsOSX::userConfigPath() const { return userDataPath() / "config"; }
 
 bfs::path VCMIDirsOSX::userLogsPath() const
 {
@@ -463,8 +502,7 @@ std::vector<bfs::path> VCMIDirsOSX::dataPaths() const
 
 bfs::path VCMIDirsOSX::libraryPath() const { return "."; }
 bfs::path VCMIDirsOSX::binaryPath() const { return "."; }
-
-std::string VCMIDirsOSX::libraryName(const std::string& basename) const { return "lib" + basename + ".dylib"; }
+#endif // VCMI_IOS, VCMI_MAC
 #elif defined(VCMI_XDG)
 class VCMIDirsXDG : public IVCMIDirsUNIX
 {
@@ -635,9 +673,11 @@ namespace VCMIDirs
 			static VCMIDirsAndroid singleton;
 		#elif defined(VCMI_XDG)
 			static VCMIDirsXDG singleton;
-		#elif defined(VCMI_APPLE)
+		#elif defined(VCMI_MAC)
 			static VCMIDirsOSX singleton;
-        #endif
+		#elif defined(VCMI_IOS)
+			static VCMIDirsIOS singleton;
+		#endif
 
 		static bool initialized = false;
 		if (!initialized)
