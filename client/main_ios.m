@@ -1,5 +1,6 @@
-#import <UIKit/UIKit.h>
-int main (int argc, char const *argv[])
+@import UIKit;
+
+int main (int argc, char *argv[])
 {
     @autoreleasepool
     {

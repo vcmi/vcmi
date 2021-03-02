@@ -224,6 +224,12 @@ if(CMAKE_COMPILER_IS_GNUCXX OR NOT WIN32) #so far all *nix compilers support suc
 	endif()
 endif()
 
+# TODO: also enable for macOS
+if(APPLE_IOS)
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fmodules")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fmodules")
+endif(APPLE_IOS)
+
 # Check if some platform-specific libraries are needed for linking
 if(NOT WIN32 AND NOT ${CMAKE_SYSTEM_NAME} STREQUAL "iOS")
 	include(CheckLibraryExists)
