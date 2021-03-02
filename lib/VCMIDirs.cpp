@@ -654,7 +654,7 @@ namespace VCMIDirs
 		static bool initialized = false;
 		if (!initialized)
 		{
-			#ifndef VCMI_ANDROID
+			#ifdef VCMI_WINDOWS
 			std::locale::global(boost::locale::generator().generate("en_US.UTF-8"));
 			#endif
 			boost::filesystem::path::imbue(std::locale());
