@@ -154,7 +154,7 @@ endif()
 if(WIN32)
 	set(client_ICON "VCMI_client.rc")
 elseif(APPLE_IOS)
-	set(client_SRCS ${client_SRCS} main_ios.m)
+	set(client_SRCS ${client_SRCS} SDL_uikit_main.c)
 endif()
 
 if(ENABLE_DEBUG_CONSOLE)
@@ -177,7 +177,7 @@ if(WIN32)
 	target_compile_definitions(vcmiclient PRIVATE WINDOWS_IGNORE_PACKING_MISMATCH)
 elseif(APPLE_IOS)
 	target_link_libraries(vcmiclient PRIVATE
-		"-framework QuartzCore -framework CoreGraphics -framework CoreServices -framework ImageIO" # SDL2_image
+		"-framework Foundation -framework UIKit -framework QuartzCore -framework CoreGraphics -framework CoreServices -framework ImageIO" # SDL2_image
 	)
 endif()
 
