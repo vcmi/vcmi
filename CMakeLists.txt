@@ -231,7 +231,7 @@ if(APPLE_IOS)
 endif(APPLE_IOS)
 
 # Check if some platform-specific libraries are needed for linking
-if(NOT WIN32 AND NOT ${CMAKE_SYSTEM_NAME} STREQUAL "iOS")
+if(NOT WIN32 AND NOT APPLE_IOS)
 	include(CheckLibraryExists)
 
 	# Shared memory functions used by Boost.Interprocess

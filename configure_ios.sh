@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-boostPrefix=~/dev/ios/vcmi-ios-deps/Apple-Boost-BuildScript-master/build/boost/1.75.0/ios/release/prefix
+boostPrefix=~/dev/other/Apple-Boost-BuildScript/build/boost/1.75.0/ios/debug/prefix
 ffmpegDir=~/dev/ios/vcmi-ios-deps/mobile-ffmpeg-min-universal
 sdlLibsDir=~/dev/ios/vcmi-ios-deps/SDL2-lib
 
