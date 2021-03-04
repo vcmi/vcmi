@@ -1027,11 +1027,13 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 		if (displayIndex < 0)
 			displayIndex = 0;
 	}
+#ifndef VCMI_IOS
 	if(!checkVideoMode(displayIndex, w, h))
 	{
 		logGlobal->error("Error: SDL says that %dx%d resolution is not available!", w, h);
 		return false;
 	}
+#endif
 
 	bool bufOnScreen = (screenBuf == screen);
 	bool realFullscreen = settings["video"]["realFullscreen"].Bool();
@@ -1124,6 +1126,23 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 		{
 			logGlobal->error("Can't fix aspect ratio for screen");
 		}
+    #elif defined(VCMI_IOS)
+        auto createWindow = [displayIndex](Uint32 extraFlags = 0) {
+            mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex), 0, 0, SDL_WINDOW_FULLSCREEN/*_DESKTOP*/ | SDL_WINDOW_BORDERLESS | SDL_WINDOW_ALLOW_HIGHDPI | extraFlags);
+            return mainWindow != nullptr;
+        };
+        if (!createWindow(SDL_WINDOW_METAL))
+        {
+            logGlobal->warn("Metal unavailable, using OpenGL ES");
+            createWindow();
+        }
+        SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight"); // TODO: isn't setting in Info.plist not enough?
+        SDL_SetHint(SDL_HINT_IOS_HIDE_HOME_INDICATOR, "1");
+        //SDL_HINT_RETURN_KEY_HIDES_IME
+
+        logGlobal->info("before SDL_GetWindowSize %dx%d", w, h);
+        SDL_GetWindowSize(mainWindow, &w, &h);
+        logGlobal->info("after SDL_GetWindowSize %dx%d", w, h);
 	#else
 
 		if(fullscreen)
@@ -1161,7 +1180,7 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 	}
 	else
 	{
-#ifndef VCMI_ANDROID
+#if !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
 
 		if(fullscreen)
 		{

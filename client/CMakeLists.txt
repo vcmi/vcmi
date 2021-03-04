@@ -179,6 +179,9 @@ elseif(APPLE_IOS)
 	target_link_libraries(vcmiclient PRIVATE
 		"-framework Foundation -framework UIKit -framework QuartzCore -framework CoreGraphics -framework CoreServices -framework ImageIO" # SDL2_image
 	)
+
+	target_sources(vcmiclient PRIVATE ${CMAKE_SOURCE_DIR}/client/LaunchScreen.storyboard)
+	set_source_files_properties(${CMAKE_SOURCE_DIR}/client/LaunchScreen.storyboard PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
 endif()
 
 target_link_libraries(vcmiclient PRIVATE
