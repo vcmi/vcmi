@@ -126,6 +126,7 @@ void CTerrainRect::clickLeft(tribool down, bool previousState)
 		return;
 
 #ifdef VCMI_ANDROID
+    // todo ios
 	if(adventureInt->swipeEnabled)
 	{
 		if(handleSwipeStateChange((bool)down == true))
@@ -151,6 +152,7 @@ void CTerrainRect::clickLeft(tribool down, bool previousState)
 void CTerrainRect::clickRight(tribool down, bool previousState)
 {
 #ifdef VCMI_ANDROID
+    // todo ios
 	if(adventureInt->swipeEnabled && isSwiping)
 		return;
 #endif
@@ -180,6 +182,7 @@ void CTerrainRect::mouseMoved(const SDL_MouseMotionEvent & sEvent)
 void CTerrainRect::handleSwipeMove(const SDL_MouseMotionEvent & sEvent)
 {
 #ifdef VCMI_ANDROID
+    // todo ios
 	if(sEvent.state == 0) // any "button" is enough on android
 #else //!VCMI_ANDROID
 	if((sEvent.state & SDL_BUTTON_MMASK) == 0) // swipe only works with middle mouse on other platforms
@@ -1050,6 +1053,7 @@ void CAdvMapInt::show(SDL_Surface * to)
 		handleSwipeUpdate();
 	}
 #ifdef VCMI_ANDROID // on android, map-moving mode is exclusive (TODO technically it might work with both enabled; to be checked)
+    // todo ios
 	else
 #endif // VCMI_ANDROID
 	{
@@ -1452,6 +1456,7 @@ void CAdvMapInt::select(const CArmedInstance *sel, bool centerView)
 void CAdvMapInt::mouseMoved( const SDL_MouseMotionEvent & sEvent )
 {
 #ifdef VCMI_ANDROID
+    // todo ios
 	if(swipeEnabled)
 		return;
 #endif

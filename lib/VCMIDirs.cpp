@@ -389,7 +389,9 @@ class VCMIDirsIOS final : public VCMIDirsApple
 		std::vector<bfs::path> dataPaths() const override;
 
 		bfs::path libraryPath() const override;
+        boost::filesystem::path fullLibraryPath(const std::string & desiredFolder, const std::string & baseLibName) const override;
 		bfs::path binaryPath() const override;
+        bfs::path serverPath() const override;
 
 		bool developmentMode() const override;
 };
@@ -398,10 +400,13 @@ bfs::path VCMIDirsIOS::userDataPath() const { return {ios_documentsPath()}; }
 bfs::path VCMIDirsIOS::userCachePath() const { return {ios_cachesPath()}; }
 bfs::path VCMIDirsIOS::userLogsPath() const { return {ios_documentsPath()}; }
 
-std::vector<bfs::path> VCMIDirsIOS::dataPaths() const { return {userDataPath()}; }
+std::vector<bfs::path> VCMIDirsIOS::dataPaths() const { return {binaryPath(), userDataPath()}; }
 
 bfs::path VCMIDirsIOS::libraryPath() const { return {ios_frameworksPath()}; }
+// todo ios: place AI libs in subdir?
+boost::filesystem::path VCMIDirsIOS::fullLibraryPath(const std::string & desiredFolder, const std::string & baseLibName) const { return libraryPath() / libraryName(baseLibName); }
 bfs::path VCMIDirsIOS::binaryPath() const { return {ios_bundlePath()}; }
+bfs::path VCMIDirsIOS::serverPath() const { return clientPath(); }
 
 bool VCMIDirsIOS::developmentMode() const { return false; }
 #elif defined(VCMI_MAC)

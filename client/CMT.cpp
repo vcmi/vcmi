@@ -433,6 +433,7 @@ int main(int argc, char * argv[])
 
 
 #ifndef VCMI_NO_THREADED_LOAD
+    // todo ios
 	#ifdef VCMI_ANDROID // android loads the data quite slowly so we display native progressbar to prevent having only black screen for few seconds
 	{
 		CAndroidVMHelper vmHelper;
@@ -1136,9 +1137,9 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
             logGlobal->warn("Metal unavailable, using OpenGL ES");
             createWindow();
         }
-        SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight"); // TODO: isn't setting in Info.plist not enough?
+//        SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight"); // TODO: isn't setting in Info.plist not enough?
         SDL_SetHint(SDL_HINT_IOS_HIDE_HOME_INDICATOR, "1");
-        //SDL_HINT_RETURN_KEY_HIDES_IME
+        SDL_SetHint(SDL_HINT_RETURN_KEY_HIDES_IME, "1");
 
         logGlobal->info("before SDL_GetWindowSize %dx%d", w, h);
         SDL_GetWindowSize(mainWindow, &w, &h);
@@ -1315,6 +1316,7 @@ static void handleEvent(SDL_Event & ev)
 {
 	if((ev.type==SDL_QUIT) ||(ev.type == SDL_KEYDOWN && ev.key.keysym.sym==SDLK_F4 && (ev.key.keysym.mod & KMOD_ALT)))
 	{
+        // todo ios
 #ifdef VCMI_ANDROID
 		handleQuit(false);
 #else

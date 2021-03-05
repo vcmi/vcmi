@@ -177,7 +177,9 @@ if(WIN32)
 	target_compile_definitions(vcmiclient PRIVATE WINDOWS_IGNORE_PACKING_MISMATCH)
 elseif(APPLE_IOS)
 	target_link_libraries(vcmiclient PRIVATE
-		"-framework Foundation -framework UIKit -framework QuartzCore -framework CoreGraphics -framework CoreServices -framework ImageIO" # SDL2_image
+		vcmiserver
+		# SDL2_image:
+		"-framework Foundation -framework UIKit -framework QuartzCore -framework CoreGraphics -framework CoreServices -framework ImageIO"
 	)
 
 	target_sources(vcmiclient PRIVATE ${CMAKE_SOURCE_DIR}/client/LaunchScreen.storyboard)

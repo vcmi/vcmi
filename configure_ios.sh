@@ -5,11 +5,12 @@ ffmpegDir=~/dev/ios/vcmi-ios-deps/mobile-ffmpeg-min-universal
 sdlLibsDir=~/dev/ios/vcmi-ios-deps/SDL2-lib
 
 srcDir="../vcmi"
-"${2:-cmake}" "$srcDir" -G "$1" \
+/Users/Shared/xbmc-depends/x86_64-darwin19.6.0-native/bin/cmake "$srcDir" -G Xcode \
   -DENABLE_LAUNCHER=0 \
   -Wno-dev \
   -DCMAKE_TOOLCHAIN_FILE="$srcDir/ios.toolchain.cmake" \
-  -DPLATFORM=OS64 \
+  -DPLATFORM=${1:-OS64} \
+  -DDEPLOYMENT_TARGET=9.0 \
   -DENABLE_BITCODE=0 \
   -DCMAKE_BINARY_DIR=$(pwd) \
   -DCMAKE_PREFIX_PATH="$boostPrefix;$ffmpegDir;$sdlLibsDir" \

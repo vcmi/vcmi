@@ -154,7 +154,9 @@ std::vector<const ISimpleResourceLoader *> CFilesystemList::getResourcesWithName
 	std::vector<const ISimpleResourceLoader *> ret;
 
 	for (auto & loader : loaders)
-		boost::range::copy(loader->getResourcesWithName(resourceName), std::back_inserter(ret));
+        // todo ios
+        if (loader)
+            boost::range::copy(loader->getResourcesWithName(resourceName), std::back_inserter(ret));
 
 	return ret;
 }
