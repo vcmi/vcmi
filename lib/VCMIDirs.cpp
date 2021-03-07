@@ -391,7 +391,6 @@ class VCMIDirsIOS final : public VCMIDirsApple
 		bfs::path libraryPath() const override;
         boost::filesystem::path fullLibraryPath(const std::string & desiredFolder, const std::string & baseLibName) const override;
 		bfs::path binaryPath() const override;
-        bfs::path serverPath() const override;
 
 		bool developmentMode() const override;
 };
@@ -431,7 +430,6 @@ boost::filesystem::path VCMIDirsIOS::fullLibraryPath(const std::string & desired
 #endif
 }
 bfs::path VCMIDirsIOS::binaryPath() const { return {ios_bundlePath()}; }
-bfs::path VCMIDirsIOS::serverPath() const { return clientPath(); }
 
 bool VCMIDirsIOS::developmentMode() const { return false; }
 #elif defined(VCMI_MAC)

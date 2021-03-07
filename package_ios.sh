@@ -2,18 +2,20 @@
 
 pushd bin/Debug
 mkdir -p vcmiclient.app/Frameworks
-cp *.dylib AI/*.dylib vcmiclient.app
-badInstallNamePrefix=$(pwd)
-cd vcmiclient.app
 
+productsDir=$(pwd)
 sdl2Path=~/dev/ios/vcmi-ios-deps/SDL2-lib/lib
-cp "$sdl2Path/libSDL2.dylib" .
-install_name_tool -rpath "$sdl2Path" '@executable_path/Frameworks' vcmiclient
+for app in vcmiclient vcmiserver; do
+  install_name_tool -rpath "$sdl2Path" '@executable_path/Frameworks' "$productsDir/$app.app/$app"
+done
+
+cp *.dylib AI/*.dylib "$sdl2Path/libSDL2.dylib" vcmiclient.app
+cd vcmiclient.app
 
 for b in vcmiclient *.dylib; do
   for l in minizip vcmi; do
     libName="lib${l}.dylib"
-    install_name_tool -change "$badInstallNamePrefix/$libName" "@rpath/$libName" "$b"
+    install_name_tool -change "$productsDir/$libName" "@rpath/$libName" "$b"
   done
   if [ "$b" != vcmiclient ]; then
     install_name_tool -id "@rpath/$b" "$b"
@@ -23,5 +25,15 @@ done
 mv -f *.dylib Frameworks
 popd
 
-cp -f ../vcmi/Info.plist "$badInstallNamePrefix/vcmiclient.app"
-cp -R bin/Debug-iphoneos/* "$badInstallNamePrefix/vcmiclient.app"
+for app in vcmiclient vcmiserver; do
+  cp -f ../vcmi/Info.plist "$productsDir/$app.app"
+done
+sed -i '' -e 's/client/server/g' -e 's/>VCMI</>VCMI server</' "$productsDir/vcmiserver.app/Info.plist"
+
+cp -R bin/Debug-iphoneos/* "$productsDir/vcmiclient.app"
+cp -fR "$productsDir/vcmiclient.app/Frameworks" "$productsDir/vcmiserver.app"
+
+for l in minizip vcmi; do
+  libName="lib${l}.dylib"
+  install_name_tool -change "$productsDir/$libName" "@rpath/$libName" "$productsDir/vcmiserver.app/vcmiserver"
+done

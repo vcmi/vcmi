@@ -101,9 +101,7 @@ public:
 
 	ui8 getIdOfFirstUnallocatedPlayer() const;
 
-#ifdef VCMI_ANDROID
+#if defined(VCMI_ANDROID) || defined(VCMI_IOS)
 	static void create();
-#elif defined(VCMI_IOS)
-    static void create(boost::condition_variable * cond);
 #endif
 };
