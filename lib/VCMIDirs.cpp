@@ -400,11 +400,36 @@ bfs::path VCMIDirsIOS::userDataPath() const { return {ios_documentsPath()}; }
 bfs::path VCMIDirsIOS::userCachePath() const { return {ios_cachesPath()}; }
 bfs::path VCMIDirsIOS::userLogsPath() const { return {ios_documentsPath()}; }
 
-std::vector<bfs::path> VCMIDirsIOS::dataPaths() const { return {binaryPath(), userDataPath()}; }
+std::vector<bfs::path> VCMIDirsIOS::dataPaths() const
+{
+    return {
+#ifdef VCMI_IOS_SIM
+        // fixme ios
+        {"/Users/kambala/Library/Application Support/vcmi"},
+#endif
+        binaryPath(),
+        userDataPath(),
+    };
+}
 
-bfs::path VCMIDirsIOS::libraryPath() const { return {ios_frameworksPath()}; }
+bfs::path VCMIDirsIOS::libraryPath() const
+{
+#ifdef VCMI_IOS_SIM
+// fixme ios
+    return {"/Users/kambala/dev/vcmi/build-sim64/bin/Debug"};
+#else
+    return {ios_frameworksPath()};
+#endif
+}
 // todo ios: place AI libs in subdir?
-boost::filesystem::path VCMIDirsIOS::fullLibraryPath(const std::string & desiredFolder, const std::string & baseLibName) const { return libraryPath() / libraryName(baseLibName); }
+boost::filesystem::path VCMIDirsIOS::fullLibraryPath(const std::string & desiredFolder, const std::string & baseLibName) const
+{
+#ifdef VCMI_IOS_SIM
+    return VCMIDirsApple::fullLibraryPath(desiredFolder, baseLibName);
+#else
+    return libraryPath() / libraryName(baseLibName);
+#endif
+}
 bfs::path VCMIDirsIOS::binaryPath() const { return {ios_bundlePath()}; }
 bfs::path VCMIDirsIOS::serverPath() const { return clientPath(); }
 
