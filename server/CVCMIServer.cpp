@@ -916,7 +916,7 @@ int main(int argc, char * argv[])
 	signal(SIGSEGV, handleLinuxSignal);
 #endif
 
-    // todo ios: double console log
+    // todo ios: double console log in single-process mode. Why removing the lines below breaks connecting to local server?!
 	console = new CConsoleHandler();
 	CBasicLogConfigurator logConfig(VCMIDirs::get().userLogsPath() / "VCMI_Server_log.txt", console);
 	logConfig.configureDefault();
@@ -927,7 +927,6 @@ int main(int argc, char * argv[])
     argc = 1;
     boost::condition_variable * cond = reinterpret_cast<boost::condition_variable *>(argv[1]);
     cond->notify_one();
-//#endif
 #else
 	handleCommandOptions(argc, argv, opts);
 	preinitDLL(console);
@@ -936,7 +935,6 @@ int main(int argc, char * argv[])
 
 	loadDLLClasses();
 	srand((ui32)time(nullptr));
-//#ifdef VCMI_IOS
 #endif
 	try
 	{
