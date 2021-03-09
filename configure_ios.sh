@@ -10,7 +10,7 @@ srcDir="../vcmi"
   -Wno-dev \
   -DCMAKE_TOOLCHAIN_FILE="$srcDir/ios.toolchain.cmake" \
   -DPLATFORM=${1:-OS64} \
-  -DDEPLOYMENT_TARGET=9.0 \
+  -DDEPLOYMENT_TARGET=11.0 \
   -DENABLE_BITCODE=0 \
   -DCMAKE_BINARY_DIR=$(pwd) \
   -DCMAKE_PREFIX_PATH="$boostPrefix;$ffmpegDir;$sdlLibsDir" \
