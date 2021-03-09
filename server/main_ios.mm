@@ -8,9 +8,7 @@
  *
  */
 #import <UIKit/UIKit.h>
-#import <AVFoundation/AVFoundation.h>
 
-//#include "StdInc.h"
 #include "../Global.h"
 #include "CVCMIServer.h"
 
@@ -23,7 +21,6 @@
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 @property (nonatomic, strong) UIWindow *window;
-@property (nonatomic, strong) AVPlayerLooper *looper;
 @end
 
 @implementation AppDelegate
@@ -33,14 +30,6 @@
 	self.window = [[UIWindow alloc] initWithFrame:UIScreen.mainScreen.bounds];
 	self.window.rootViewController = [ViewController new];
 	[self.window makeKeyAndVisible];
-
-    [AVAudioSession.sharedInstance setCategory:AVAudioSessionCategoryPlayback mode:AVAudioSessionModeDefault options:AVAudioSessionCategoryOptionMixWithOthers error:nullptr];
-
-    auto item = [AVPlayerItem playerItemWithURL:[NSBundle.mainBundle URLForResource:@"silence" withExtension:@"wav"]];
-    auto player = [AVQueuePlayer new];
-    player.allowsExternalPlayback = NO;
-    [player play];
-    self.looper = [AVPlayerLooper playerLooperWithPlayer:player templateItem:item];
 
     [NSThread detachNewThreadWithBlock:^
     {

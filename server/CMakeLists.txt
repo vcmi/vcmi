@@ -32,7 +32,7 @@ set(server_LIBS vcmi)
 if(CMAKE_SYSTEM_NAME MATCHES FreeBSD)
 	set(server_LIBS execinfo ${server_LIBS})
 elseif(APPLE_IOS)
-	set(server_LIBS ${server_LIBS} "-framework UIKit -framework AVFoundation")
+	set(server_LIBS ${server_LIBS} "-framework UIKit")
 endif()
 target_link_libraries(vcmiserver PRIVATE ${server_LIBS} minizip::minizip)
 
