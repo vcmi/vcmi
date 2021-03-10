@@ -25,11 +25,6 @@ done
 mv -f *.dylib Frameworks
 popd
 
-for app in vcmiclient vcmiserver; do
-  cp -f ../vcmi/Info.plist "$productsDir/$app.app"
-done
-sed -i '' -e 's/client/server/g' -e 's/>VCMI</>VCMI server</' "$productsDir/vcmiserver.app/Info.plist"
-
 cp -R bin/Debug-iphoneos/* "$productsDir/vcmiclient.app"
 cp -fR "$productsDir/vcmiclient.app/Frameworks" "$productsDir/vcmiserver.app"
 

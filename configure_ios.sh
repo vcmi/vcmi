@@ -6,7 +6,7 @@ sdlLibsDir=~/dev/ios/vcmi-ios-deps/SDL2-lib
 
 srcDir="../vcmi"
 /Users/Shared/xbmc-depends/x86_64-darwin19.6.0-native/bin/cmake "$srcDir" -G Xcode \
-  -DENABLE_LAUNCHER=0 \
+  -DBUNDLE_IDENTIFIER_PREFIX=com.kambala \
   -Wno-dev \
   -DCMAKE_TOOLCHAIN_FILE="$srcDir/ios.toolchain.cmake" \
   -DPLATFORM=${1:-OS64} \

@@ -17,7 +17,7 @@ set(server_HEADERS
 )
 
 if(APPLE_IOS)
-	set(server_SRCS ${server_SRCS} main_ios.mm)
+	set(server_SRCS ${server_SRCS} ios/main.mm)
 endif(APPLE_IOS)
 
 assign_source_group(${server_SRCS} ${server_HEADERS})
@@ -47,8 +47,9 @@ if(WIN32)
 			PROJECT_LABEL "VCMI_server"
 	)
 elseif(APPLE_IOS)
+	set_target_properties(vcmiserver PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_LIST_DIR}/ios/Info.plist.in")
 	# TODO: move to a common dir / add macro?
-	target_sources(vcmiclient PRIVATE ${CMAKE_SOURCE_DIR}/client/LaunchScreen.storyboard)
+	target_sources(vcmiserver PRIVATE ${CMAKE_SOURCE_DIR}/client/LaunchScreen.storyboard)
 	set_source_files_properties(${CMAKE_SOURCE_DIR}/client/LaunchScreen.storyboard PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
 endif()
 
