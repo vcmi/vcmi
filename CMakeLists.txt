@@ -61,8 +61,8 @@ if(APPLE_IOS)
 	set(BUNDLE_IDENTIFIER_PREFIX "eu.vcmi" CACHE STRING "Bundle identifier prefix")
 else()
 	option(ENABLE_LAUNCHER "Enable compilation of launcher" ON)
+	option(ENABLE_TEST "Enable compilation of unit tests" ON)
 endif()
-option(ENABLE_TEST "Enable compilation of unit tests" ON)
 if(NOT ${CMAKE_VERSION} VERSION_LESS "3.16.0")
 	option(ENABLE_PCH "Enable compilation using precompiled headers" ON)
 endif(NOT ${CMAKE_VERSION} VERSION_LESS "3.16.0")
@@ -232,8 +232,11 @@ if(CMAKE_COMPILER_IS_GNUCXX OR NOT WIN32) #so far all *nix compilers support suc
 	endif()
 endif()
 
-# TODO: also enable for macOS
 if(APPLE_IOS)
+	set(CMAKE_XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2") # iPhone + iPad
+	set(CMAKE_XCODE_ATTRIBUTE_GCC_WARN_64_TO_32_BIT_CONVERSION "NO")
+
+	# TODO: also enable for macOS
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fmodules")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fmodules")
 endif(APPLE_IOS)
@@ -336,19 +339,19 @@ elseif(APPLE)
 		set(LIB_DIR "." CACHE STRING "Where to install main library")
 		set(DATA_DIR "." CACHE STRING "Where to install data files")
 	else()
-		set(APP_BUNDLE_DIR "${CMAKE_PROJECT_NAME}.app")
 		if(APPLE_MACOS)
+			set(APP_BUNDLE_DIR "${CMAKE_PROJECT_NAME}.app")
 			set(APP_BUNDLE_CONTENTS_DIR "${APP_BUNDLE_DIR}/Contents")
 			set(APP_BUNDLE_BINARY_DIR "${APP_BUNDLE_CONTENTS_DIR}/MacOS")
-		else()
-			set(APP_BUNDLE_CONTENTS_DIR "${APP_BUNDLE_DIR}")
-			set(APP_BUNDLE_BINARY_DIR "${APP_BUNDLE_DIR}")
-		endif(APPLE_MACOS)
-		set(APP_BUNDLE_RESOURCES_DIR "${APP_BUNDLE_CONTENTS_DIR}/Resources")
+			set(APP_BUNDLE_RESOURCES_DIR "${APP_BUNDLE_CONTENTS_DIR}/Resources")
 
-		set(BIN_DIR "${APP_BUNDLE_BINARY_DIR}" CACHE STRING "Where to install binaries")
-		set(LIB_DIR "${APP_BUNDLE_CONTENTS_DIR}/Frameworks" CACHE STRING "Where to install main library")
-		set(DATA_DIR "${APP_BUNDLE_RESOURCES_DIR}/Data" CACHE STRING "Where to install data files")
+			set(BIN_DIR "${APP_BUNDLE_BINARY_DIR}" CACHE STRING "Where to install binaries")
+			set(LIB_DIR "${APP_BUNDLE_CONTENTS_DIR}/Frameworks" CACHE STRING "Where to install main library")
+			set(DATA_DIR "${APP_BUNDLE_RESOURCES_DIR}/Data" CACHE STRING "Where to install data files")
+		else()
+			set(LIB_DIR "Frameworks")
+			set(DATA_DIR ".")
+		endif(APPLE_MACOS)
 	endif()
 else()
 	# includes lib path which determines where to install shared libraries (either /lib or /lib64)
@@ -415,7 +418,7 @@ install(DIRECTORY scripts DESTINATION ${DATA_DIR})
 install(DIRECTORY Mods DESTINATION ${DATA_DIR})
 
 # that script is useless for Windows
-if(NOT WIN32)
+if(NOT WIN32 AND NOT APPLE_IOS)
 	install(FILES vcmibuilder DESTINATION ${BIN_DIR} PERMISSIONS
 		OWNER_WRITE OWNER_READ OWNER_EXECUTE
 					GROUP_READ GROUP_EXECUTE

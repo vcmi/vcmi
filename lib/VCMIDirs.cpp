@@ -389,7 +389,6 @@ class VCMIDirsIOS final : public VCMIDirsApple
 		std::vector<bfs::path> dataPaths() const override;
 
 		bfs::path libraryPath() const override;
-        boost::filesystem::path fullLibraryPath(const std::string & desiredFolder, const std::string & baseLibName) const override;
 		bfs::path binaryPath() const override;
 
 		bool developmentMode() const override;
@@ -418,15 +417,6 @@ bfs::path VCMIDirsIOS::libraryPath() const
     return {"/Users/kambala/dev/vcmi/build-sim64/bin/Debug"};
 #else
     return {ios_frameworksPath()};
-#endif
-}
-// todo ios: place AI libs in subdir?
-boost::filesystem::path VCMIDirsIOS::fullLibraryPath(const std::string & desiredFolder, const std::string & baseLibName) const
-{
-#ifdef VCMI_IOS_SIM
-    return VCMIDirsApple::fullLibraryPath(desiredFolder, baseLibName);
-#else
-    return libraryPath() / libraryName(baseLibName);
 #endif
 }
 bfs::path VCMIDirsIOS::binaryPath() const { return {ios_bundlePath()}; }

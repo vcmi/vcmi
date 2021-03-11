@@ -56,4 +56,10 @@ endif()
 vcmi_set_output_dir(vcmiserver "")
 enable_pch(vcmiserver)
 
-install(TARGETS vcmiserver DESTINATION ${BIN_DIR})
+if(APPLE_IOS)
+	add_custom_command(TARGET vcmiserver POST_BUILD
+		COMMAND ${CMAKE_COMMAND} --install "${CMAKE_BINARY_DIR}" --config "$<CONFIG>" --prefix "$<TARGET_BUNDLE_CONTENT_DIR:vcmiserver>"
+	)
+else()
+	install(TARGETS vcmiserver DESTINATION ${BIN_DIR})
+endif()
