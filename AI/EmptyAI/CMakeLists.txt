@@ -20,5 +20,6 @@ target_link_libraries(EmptyAI PRIVATE vcmi)
 vcmi_set_output_dir(EmptyAI "AI")
 
 set_target_properties(EmptyAI PROPERTIES ${PCH_PROPERTIES})
+cotire(EmptyAI)
 
 install(TARGETS EmptyAI RUNTIME DESTINATION ${AI_LIB_DIR} LIBRARY DESTINATION ${AI_LIB_DIR})
