@@ -5,7 +5,7 @@ ffmpegDir=~/dev/ios/vcmi-ios-deps/mobile-ffmpeg-min-universal
 sdlLibsDir=~/dev/ios/vcmi-ios-deps/SDL2-lib
 
 srcDir="../vcmi"
-/Users/Shared/xbmc-depends/x86_64-darwin19.6.0-native/bin/cmake "$srcDir" -G Xcode \
+cmake "$srcDir" -G Xcode \
   -DBUNDLE_IDENTIFIER_PREFIX=com.kambala \
   -Wno-dev \
   -DCMAKE_TOOLCHAIN_FILE="$srcDir/ios.toolchain.cmake" \
@@ -18,4 +18,6 @@ srcDir="../vcmi"
   -DSDL2_IMAGE_INCLUDE_DIR=~/dev/ios/vcmi-ios-deps/SDL_image-release-2.0.5 \
   -DSDL2_MIXER_INCLUDE_DIR=~/dev/ios/vcmi-ios-deps/SDL_mixer-release-2.0.4 \
   -DSDL2_TTF_INCLUDE_DIR=~/dev/ios/vcmi-ios-deps/SDL_ttf-release-2.0.15 \
-  -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED=NO
+  -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY='Apple Development' \
+  -DCMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM='4XHN44TEVG'
+  # -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED=NO

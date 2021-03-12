@@ -51,6 +51,7 @@ elseif(APPLE_IOS)
 	set_target_properties(vcmiserver PROPERTIES
 		MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_LIST_DIR}/ios/Info.plist.in"
 		SKIP_BUILD_RPATH 1
+		XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED YES
 	)
 	# TODO: move to a common dir / add macro?
 	target_sources(vcmiserver PRIVATE ${CMAKE_SOURCE_DIR}/client/LaunchScreen.storyboard)
@@ -64,6 +65,7 @@ if(APPLE_IOS)
 	add_custom_command(TARGET vcmiserver POST_BUILD
 		COMMAND ${CMAKE_COMMAND} --install "${CMAKE_BINARY_DIR}" --config "$<CONFIG>" --prefix "$<TARGET_BUNDLE_CONTENT_DIR:vcmiserver>"
 		COMMAND ${CMAKE_INSTALL_NAME_TOOL} -add_rpath @executable_path/Frameworks $<TARGET_FILE:vcmiserver> || true
+		COMMAND ${CMAKE_SOURCE_DIR}/apple_codesign.sh
 	)
 else()
 	install(TARGETS vcmiserver DESTINATION ${BIN_DIR})
