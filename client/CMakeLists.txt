@@ -180,7 +180,10 @@ elseif(APPLE_IOS)
 		"-framework Foundation -framework UIKit -framework QuartzCore -framework CoreGraphics -framework CoreServices -framework ImageIO -framework Metal -framework OpenGLES -framework AVFoundation -framework GameController -framework CoreMotion" # SDL2_image
 	)
 
-	set_target_properties(vcmiclient PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_LIST_DIR}/ios/Info.plist.in")
+	set_target_properties(vcmiclient PROPERTIES
+		MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_LIST_DIR}/ios/Info.plist.in"
+		SKIP_BUILD_RPATH 1
+	)
 
 	target_sources(vcmiclient PRIVATE ${CMAKE_SOURCE_DIR}/client/LaunchScreen.storyboard)
 	set_source_files_properties(${CMAKE_SOURCE_DIR}/client/LaunchScreen.storyboard PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
@@ -207,6 +210,7 @@ enable_pch(vcmiclient)
 if(APPLE_IOS)
 	add_custom_command(TARGET vcmiclient POST_BUILD
 		COMMAND ${CMAKE_COMMAND} --install "${CMAKE_BINARY_DIR}" --config "$<CONFIG>" --prefix "$<TARGET_BUNDLE_CONTENT_DIR:vcmiclient>"
+		COMMAND ${CMAKE_INSTALL_NAME_TOOL} -add_rpath @executable_path/Frameworks $<TARGET_FILE:vcmiclient> || true
 	)
 else()
 	install(TARGETS vcmiclient DESTINATION ${BIN_DIR})

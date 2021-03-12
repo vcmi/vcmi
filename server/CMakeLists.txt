@@ -33,6 +33,7 @@ if(CMAKE_SYSTEM_NAME MATCHES FreeBSD)
 	set(server_LIBS execinfo ${server_LIBS})
 elseif(APPLE_IOS)
 	set(server_LIBS ${server_LIBS} "-framework UIKit")
+	add_dependencies(vcmiserver BattleAI StupidAI VCAI)
 endif()
 target_link_libraries(vcmiserver PRIVATE ${server_LIBS} minizip::minizip)
 
@@ -47,7 +48,10 @@ if(WIN32)
 			PROJECT_LABEL "VCMI_server"
 	)
 elseif(APPLE_IOS)
-	set_target_properties(vcmiserver PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_LIST_DIR}/ios/Info.plist.in")
+	set_target_properties(vcmiserver PROPERTIES
+		MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_LIST_DIR}/ios/Info.plist.in"
+		SKIP_BUILD_RPATH 1
+	)
 	# TODO: move to a common dir / add macro?
 	target_sources(vcmiserver PRIVATE ${CMAKE_SOURCE_DIR}/client/LaunchScreen.storyboard)
 	set_source_files_properties(${CMAKE_SOURCE_DIR}/client/LaunchScreen.storyboard PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
@@ -59,6 +63,7 @@ enable_pch(vcmiserver)
 if(APPLE_IOS)
 	add_custom_command(TARGET vcmiserver POST_BUILD
 		COMMAND ${CMAKE_COMMAND} --install "${CMAKE_BINARY_DIR}" --config "$<CONFIG>" --prefix "$<TARGET_BUNDLE_CONTENT_DIR:vcmiserver>"
+		COMMAND ${CMAKE_INSTALL_NAME_TOOL} -add_rpath @executable_path/Frameworks $<TARGET_FILE:vcmiserver> || true
 	)
 else()
 	install(TARGETS vcmiserver DESTINATION ${BIN_DIR})

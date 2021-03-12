@@ -20,4 +20,4 @@ target_link_libraries(EmptyAI PRIVATE vcmi)
 vcmi_set_output_dir(EmptyAI "AI")
 enable_pch(EmptyAI)
 
-install(TARGETS EmptyAI RUNTIME DESTINATION ${AI_LIB_DIR} LIBRARY DESTINATION ${AI_LIB_DIR})
+install(TARGETS EmptyAI RUNTIME DESTINATION ${AI_LIB_DIR} LIBRARY DESTINATION ${AI_LIB_DIR} OPTIONAL)

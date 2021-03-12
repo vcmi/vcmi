@@ -154,6 +154,7 @@ set(CMAKE_MAP_IMPORTED_CONFIG_MINSIZEREL MinSizeRel Release RelWithDebInfo "")
 set(CMAKE_MAP_IMPORTED_CONFIG_RELEASE Release RelWithDebInfo MinSizeRel "")
 
 if(APPLE_IOS)
+	set(CMAKE_MACOSX_RPATH 1)
 	set(SYSTEM_LIBS ${SYSTEM_LIBS} iconv) # boost.locale
 endif(APPLE_IOS)
 
@@ -268,6 +269,11 @@ find_package(ZLIB REQUIRED)
 if(TARGET zlib::zlib)
 	add_library(ZLIB::ZLIB ALIAS zlib::zlib)
 endif()
+
+# TODO: needed only for device+simulator
+# if(APPLE_IOS)
+# 	set(ZLIB_LIBRARIES "-lz")
+# endif()
 
 find_package(ffmpeg COMPONENTS avutil swscale avformat avcodec)
 option(FORCE_BUNDLED_MINIZIP "Force bundled Minizip library" OFF)
