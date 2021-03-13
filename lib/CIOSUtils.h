@@ -13,3 +13,5 @@ extern const char *ios_cachesPath();
 
 extern const char *ios_bundlePath();
 extern const char *ios_frameworksPath();
+
+extern const char *ios_bundleIdentifier();

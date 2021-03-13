@@ -30,6 +30,11 @@ namespace ELogLevel
 		return ANDROID_LOG_UNKNOWN;
 	}
 }
+#elif defined(VCMI_IOS)
+extern "C" {
+#import "../CIOSUtils.h"
+#include <os/log.h>
+}
 #endif
 
 namespace vstd
@@ -353,6 +358,41 @@ void CLogConsoleTarget::write(const LogRecord & record)
 
 #ifdef VCMI_ANDROID
     __android_log_write(ELogLevel::toAndroid(record.level), ("VCMI-" + record.domain.getName()).c_str(), message.c_str());
+#elif defined(VCMI_IOS)
+    os_log_type_t type;
+    switch (record.level)
+    {
+        case ELogLevel::TRACE:
+            type = OS_LOG_TYPE_DEBUG;
+            break;
+        case ELogLevel::DEBUG:
+            type = OS_LOG_TYPE_DEFAULT;
+            break;
+        case ELogLevel::INFO:
+            type = OS_LOG_TYPE_INFO;
+            break;
+        case ELogLevel::WARN:
+            type = OS_LOG_TYPE_ERROR;
+            break;
+        case ELogLevel::ERROR:
+            type = OS_LOG_TYPE_FAULT;
+            break;
+        default:
+            return;
+    }
+
+    os_log_t currentLog;
+    static std::unordered_map<std::string, decltype(currentLog)> logs;
+    const auto& domainName = record.domain.getName();
+    auto logIt = logs.find(domainName);
+    if (logIt != logs.end())
+        currentLog = logIt->second;
+    else
+    {
+        currentLog = os_log_create(ios_bundleIdentifier(), domainName.c_str());
+        logs.insert({domainName, currentLog});
+    }
+    os_log_with_type(currentLog, type, "%s", message.c_str());
 #else
 
 	const bool printToStdErr = record.level >= ELogLevel::WARN;

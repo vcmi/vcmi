@@ -22,3 +22,5 @@ const char *ios_cachesPath() { return standardPath(NSCachesDirectory); }
 
 const char *ios_bundlePath() { return NSBundle.mainBundle.bundlePath.UTF8String; }
 const char *ios_frameworksPath() { return [NSBundle.mainBundle.bundlePath stringByAppendingPathComponent:@"Frameworks"].UTF8String; } // TODO: sharedFrameworksPath?
+
+const char *ios_bundleIdentifier() { return NSBundle.mainBundle.bundleIdentifier.UTF8String; }
