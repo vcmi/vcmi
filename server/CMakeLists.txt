@@ -52,10 +52,14 @@ elseif(APPLE_IOS)
 		MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_LIST_DIR}/ios/Info.plist.in"
 		SKIP_BUILD_RPATH 1
 		XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED YES
+		XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME AppIcon
 	)
 	# TODO: move to a common dir / add macro?
 	target_sources(vcmiserver PRIVATE ${CMAKE_SOURCE_DIR}/client/LaunchScreen.storyboard)
 	set_source_files_properties(${CMAKE_SOURCE_DIR}/client/LaunchScreen.storyboard PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
+
+	target_sources(vcmiserver PRIVATE ios/Images.xcassets)
+	set_source_files_properties(ios/Images.xcassets PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
 endif()
 
 vcmi_set_output_dir(vcmiserver "")
