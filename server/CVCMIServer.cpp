@@ -29,9 +29,7 @@
 #include "../lib/rmg/CMapGenOptions.h"
 #ifdef VCMI_ANDROID
 #include "lib/CAndroidVMHelper.h"
-#elif defined(VCMI_IOS)
-// todo ios
-#else
+#elif !defined(VCMI_IOS)
 #include "../lib/Interprocess.h"
 #endif
 #include "../lib/VCMI_Lib.h"

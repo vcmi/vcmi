@@ -23,9 +23,7 @@
 
 #ifdef VCMI_ANDROID
 #include "../lib/CAndroidVMHelper.h"
-#elif defined(VCMI_IOS)
-//TODO
-#else
+#elif !defined(VCMI_IOS)
 #include "../lib/Interprocess.h"
 #endif
 #include "../lib/CConfigHandler.h"
@@ -184,7 +182,7 @@ void CServerHandler::startLocalServerAndConnect()
 		envHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "startServer", true);
 	}
 #elif defined(VCMI_IOS)
-	// TODO
+	// todo ios
 #else
 	threadRunLocalServer = std::make_shared<boost::thread>(&CServerHandler::threadRunServer, this); //runs server executable;
 #endif
@@ -202,7 +200,7 @@ void CServerHandler::startLocalServerAndConnect()
 	logNetwork->info("waiting for server finished...");
 	androidTestServerReadyFlag = false;
 #elif defined(VCMI_IOS)
-	//TODO
+    // todo ios
 #else
 	if(shm)
 		shm->sr->waitTillReady();

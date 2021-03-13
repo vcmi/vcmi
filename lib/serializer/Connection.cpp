@@ -71,7 +71,8 @@ CConnection::CConnection(std::string host, ui16 port, std::string Name, std::str
 	boost::system::error_code error = asio::error::host_not_found;
 	socket = std::make_shared<tcp::socket>(*io_service);
 	tcp::resolver resolver(*io_service);
-	tcp::resolver::iterator end, pom, endpoint_iterator = resolver.resolve(tcp::resolver::query(host, std::to_string(port)),error);
+    // todo ios: is new param really needed?
+	tcp::resolver::iterator end, pom, endpoint_iterator = resolver.resolve(tcp::resolver::query(host, std::to_string(port), resolver_query_base::numeric_service), error);
 	if(error)
 	{
 		logNetwork->error("Problem with resolving: \n%s", error.message());
