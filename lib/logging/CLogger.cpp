@@ -392,7 +392,7 @@ void CLogConsoleTarget::write(const LogRecord & record)
         currentLog = os_log_create(ios_bundleIdentifier(), domainName.c_str());
         logs.insert({domainName, currentLog});
     }
-    os_log_with_type(currentLog, type, "%s", message.c_str());
+    os_log_with_type(currentLog, type, "%{public}s", message.c_str());
 #else
 
 	const bool printToStdErr = record.level >= ELogLevel::WARN;
