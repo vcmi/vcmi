@@ -154,7 +154,7 @@ endif()
 if(WIN32)
 	set(client_ICON "VCMI_client.rc")
 elseif(APPLE_IOS)
-	set(client_SRCS ${client_SRCS} SDL_uikit_main.c)
+	set(client_SRCS ${client_SRCS} SDL_uikit_main.m)
 endif()
 
 if(ENABLE_DEBUG_CONSOLE)
