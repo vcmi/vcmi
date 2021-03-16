@@ -410,7 +410,7 @@ int main(int argc, char * argv[])
 		CCS->musich->setVolume((ui32)settings["general"]["music"].Float());
 		logGlobal->info("Initializing screen and sound handling: %d ms", pomtime.getDiff());
 	}
-#ifdef __APPLE__
+#ifdef VCMI_MAC
 	// Ctrl+click should be treated as a right click on Mac OS X
 	SDL_SetHint(SDL_HINT_MAC_CTRL_CLICK_EMULATE_RIGHT_CLICK, "1");
 #endif

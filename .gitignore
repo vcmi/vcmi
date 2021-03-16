@@ -39,6 +39,7 @@ doc/*
 VCMI_VS11.sdf
 *.ipch
 VCMI_VS11.opensdf
+.DS_Store
 
 # Visual Studio
 *.suo
