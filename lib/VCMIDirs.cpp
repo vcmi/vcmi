@@ -410,15 +410,7 @@ std::vector<bfs::path> VCMIDirsIOS::dataPaths() const
     };
 }
 
-bfs::path VCMIDirsIOS::libraryPath() const
-{
-#ifdef VCMI_IOS_SIM
-// fixme ios
-    return {"/Users/kambala/dev/vcmi/build-sim64/bin/Debug"};
-#else
-    return {ios_frameworksPath()};
-#endif
-}
+bfs::path VCMIDirsIOS::libraryPath() const { return {ios_frameworksPath()}; }
 bfs::path VCMIDirsIOS::binaryPath() const { return {ios_bundlePath()}; }
 
 bool VCMIDirsIOS::developmentMode() const { return false; }
