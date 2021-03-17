@@ -1128,8 +1128,15 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 			logGlobal->error("Can't fix aspect ratio for screen");
 		}
     #elif defined(VCMI_IOS)
-        mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex), 0, 0, SDL_WINDOW_FULLSCREEN | SDL_WINDOW_BORDERLESS | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_METAL);
-        SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
+        auto createWindow = [displayIndex](Uint32 extraFlags = 0) {
+            mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex), 0, 0, SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_BORDERLESS | SDL_WINDOW_ALLOW_HIGHDPI | extraFlags);
+            return mainWindow != nullptr;
+        };
+        if (!createWindow(SDL_WINDOW_METAL))
+        {
+            logGlobal->warn("Metal unavailable, using OpenGLES");
+            createWindow();
+        }
         SDL_SetHint(SDL_HINT_IOS_HIDE_HOME_INDICATOR, "1");
         SDL_SetHint(SDL_HINT_RETURN_KEY_HIDES_IME, "1");
 
