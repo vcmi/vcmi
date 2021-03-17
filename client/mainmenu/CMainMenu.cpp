@@ -479,9 +479,7 @@ CSimpleJoinScreen::CSimpleJoinScreen(bool host)
 		inputPort->filters += std::bind(&CTextInput::numberFilter, _1, _2, 0, 65535);
 		buttonOk = std::make_shared<CButton>(Point(26, 142), "MUBCHCK.DEF", CGI->generaltexth->zelp[560], std::bind(&CSimpleJoinScreen::connectToServer, this), SDLK_RETURN);
 
-        #ifndef VCMI_IOS
 		inputAddress->giveFocus();
-        #endif
 	}
 	inputAddress->setText(settings["server"]["server"].String(), true);
 	inputPort->setText(CServerHandler::getDefaultPortStr(), true);
