@@ -11,11 +11,11 @@
 
 #include "../Global.h"
 #include "CVCMIServer.h"
-
-#define SHARED_DATA_DIR @"GameData"
+extern "C" {
+#import "../lib/CIOSUtils.h"
+}
 
 @interface ViewController : UIViewController
-@property (nonatomic, copy) NSURL *sharedPathURL;
 @property (nonatomic, copy) NSArray<NSURL *> *dataDirsInDocuments;
 @end
 
@@ -35,29 +35,13 @@
         [startServerButton.centerYAnchor constraintEqualToAnchor:self.view.centerYAnchor],
     ]];
 
-    auto bundleID = NSBundle.mainBundle.bundleIdentifier;
-    auto lastDotPos = [bundleID rangeOfString:@"." options:NSBackwardsSearch].location;
-    auto groupID = [NSString stringWithFormat:@"group.%@.vcmi", [bundleID substringToIndex:lastDotPos]];
     auto fm = NSFileManager.defaultManager;
-    self.sharedPathURL = [fm containerURLForSecurityApplicationGroupIdentifier:groupID];
-    if (!self.sharedPathURL)
-    {
-        NSLog(@"shared path for group '%@' not available", groupID);
+    auto sharedGameDataUrl = sharedGameDataURL();
+    if (!sharedGameDataUrl || [fm fileExistsAtPath:sharedGameDataUrl.path])
         return;
-    }
-
-    auto dirEnumerator = [fm enumeratorAtURL:self.sharedPathURL includingPropertiesForKeys:@[NSURLNameKey] options:NSDirectoryEnumerationSkipsSubdirectoryDescendants errorHandler:nil];
-    for (NSURL *fileURL in dirEnumerator)
-    {
-        NSString *filename;
-        if ([fileURL getResourceValue:&filename forKey:NSURLNameKey error:nullptr] && [filename caseInsensitiveCompare:SHARED_DATA_DIR] == NSOrderedSame) {
-            NSLog(SHARED_DATA_DIR @" dir already exists in the shared path");
-            return;
-        }
-    }
 
     auto documentsURL = [fm URLForDirectory:NSDocumentDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:nullptr];
-    dirEnumerator = [fm enumeratorAtURL:documentsURL includingPropertiesForKeys:@[NSURLNameKey] options:NSDirectoryEnumerationSkipsSubdirectoryDescendants errorHandler:nil];
+    auto dirEnumerator = [fm enumeratorAtURL:documentsURL includingPropertiesForKeys:@[NSURLNameKey] options:NSDirectoryEnumerationSkipsSubdirectoryDescendants errorHandler:nil];
     auto dataDirs = [NSMutableArray<NSURL *> arrayWithCapacity:3];
     for (NSURL *fileURL in dirEnumerator)
     {
@@ -68,10 +52,7 @@
             [dataDirs addObject:fileURL];
     }
     if (dataDirs.count < 3)
-    {
-        NSLog(@"not all required dirs are present, found only: %@", dataDirs);
         return;
-    }
     self.dataDirsInDocuments = dataDirs;
 
     auto moveDataButton = [UIButton buttonWithType:UIButtonTypeSystem];
@@ -100,17 +81,13 @@
 
 - (void)moveDataToSharedDir:(UIButton *)button
 {
-    button.enabled = NO;
+    [button removeFromSuperview];
     dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
         auto fm = NSFileManager.defaultManager;
-        auto destinationURL = [self.sharedPathURL URLByAppendingPathComponent:SHARED_DATA_DIR];
+        auto destinationURL = sharedGameDataURL();
         [fm createDirectoryAtURL:destinationURL withIntermediateDirectories:YES attributes:nil error:nullptr];
         for (NSURL *dirURL in self.dataDirsInDocuments)
             [fm moveItemAtURL:dirURL toURL:[destinationURL URLByAppendingPathComponent:dirURL.lastPathComponent] error:nullptr];
-
-        dispatch_sync(dispatch_get_main_queue(), ^{
-            [button removeFromSuperview];
-        });
     });
 }
 

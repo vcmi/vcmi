@@ -402,9 +402,9 @@ std::vector<bfs::path> VCMIDirsIOS::dataPaths() const
 {
     return {
 #ifdef VCMI_IOS_SIM
-        // fixme ios
-        {"/Users/kambala/Library/Application Support/vcmi"},
+        {ios_hostApplicationSupportPath()},
 #endif
+        {ios_sharedDataPath()},
         binaryPath(),
         userDataPath(),
     };

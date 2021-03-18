@@ -7,9 +7,24 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#include <TargetConditionals.h>
+
+#ifdef __OBJC__
+@class NSURL;
+#endif
 
 extern const char *ios_documentsPath();
 extern const char *ios_cachesPath();
+
+#ifdef __OBJC__
+NSURL *sharedContainerURL();
+NSURL *sharedGameDataURL();
+#endif
+extern const char *ios_sharedDataPath();
+
+#if TARGET_OS_SIMULATOR
+extern const char *ios_hostApplicationSupportPath();
+#endif
 
 extern const char *ios_bundlePath();
 extern const char *ios_frameworksPath();
