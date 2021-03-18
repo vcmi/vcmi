@@ -161,6 +161,10 @@ if(APPLE_IOS)
 	set(SYSTEM_LIBS ${SYSTEM_LIBS} iconv) # boost.locale
 endif(APPLE_IOS)
 
+if(CMAKE_GENERATOR STREQUAL Xcode)
+	set(CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT[variant=Debug] dwarf)
+endif()
+
 if(MINGW OR MSVC)
 	# Windows Vista or newer for FuzzyLite 6 to compile
 	add_definitions(-D_WIN32_WINNT=0x0600)
