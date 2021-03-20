@@ -11,9 +11,7 @@
 
 #include "../Global.h"
 #include "CVCMIServer.h"
-extern "C" {
 #import "../lib/CIOSUtils.h"
-}
 
 @interface ViewController : UIViewController
 @property (nonatomic, copy) NSArray<NSURL *> *dataDirsInDocuments;

@@ -375,9 +375,7 @@ bfs::path VCMIDirsApple::userConfigPath() const { return userDataPath() / "confi
 std::string VCMIDirsApple::libraryName(const std::string& basename) const { return "lib" + basename + ".dylib"; }
 
 #ifdef VCMI_IOS
-extern "C" {
 #import "CIOSUtils.h"
-}
 
 class VCMIDirsIOS final : public VCMIDirsApple
 {

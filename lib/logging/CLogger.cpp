@@ -31,8 +31,8 @@ namespace ELogLevel
 	}
 }
 #elif defined(VCMI_IOS)
-extern "C" {
 #import "../CIOSUtils.h"
+extern "C" {
 #include <os/log.h>
 }
 #endif
