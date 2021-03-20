@@ -1195,11 +1195,11 @@ void CGameHandler::handleClientDisconnection(std::shared_ptr<CConnection> c)
 {
 	for(auto playerConns : connections)
 	{
-		for(auto conn : playerConns.second)
+		for(auto i = playerConns.second.begin(); i != playerConns.second.end(); )
 		{
-			if(lobby->state != EServerState::SHUTDOWN && conn == c)
+			if(lobby->state != EServerState::SHUTDOWN && *i == c)
 			{
-				vstd::erase_if_present(playerConns.second, conn);
+				i = playerConns.second.erase(i);
 				if(playerConns.second.size())
 					continue;
 				PlayerCheated pc;
@@ -1208,6 +1208,8 @@ void CGameHandler::handleClientDisconnection(std::shared_ptr<CConnection> c)
 				sendAndApply(&pc);
 				checkVictoryLossConditionsForPlayer(playerConns.first);
 			}
+			else
+				++i;
 		}
 	}
 }
@@ -5267,7 +5269,7 @@ void CGameHandler::checkVictoryLossConditionsForAll()
 void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 {
 	const PlayerState * p = getPlayer(player);
-	if (p->status != EPlayerStatus::INGAME) return;
+	if (!p || p->status != EPlayerStatus::INGAME) return;
 
 	auto victoryLossCheckResult = gs->checkForVictoryAndLoss(player);
 
