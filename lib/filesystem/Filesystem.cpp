@@ -171,6 +171,7 @@ void CResourceHandler::initialize()
 	//    |-config
 
 	globalResourceHandler.rootLoader = vstd::make_unique<CFilesystemList>();
+    knownLoaders.clear();
 	knownLoaders["root"] = globalResourceHandler.rootLoader.get();
 	knownLoaders["saves"] = new CFilesystemLoader("SAVES/", VCMIDirs::get().userSavePath());
 	knownLoaders["config"] = new CFilesystemLoader("CONFIG/", VCMIDirs::get().userConfigPath());
