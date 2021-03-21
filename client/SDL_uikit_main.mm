@@ -8,9 +8,11 @@
 #include <SDL_events.h>
 #include <SDL_render.h>
 
-@import UIKit;
+#include "../Global.h"
+#include "CMT.h"
+#include "CFocusableHelper.h"
 
-extern SDL_Window * mainWindow;
+#import <UIKit/UIKit.h>
 
 
 @interface SDLViewObserver : NSObject
@@ -88,6 +90,9 @@ main(int argc, char *argv[])
         __auto_type observer = [SDLViewObserver new];
         [NSNotificationCenter.defaultCenter addObserverForName:UIWindowDidBecomeKeyNotification object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
             [UIApplication.sharedApplication.keyWindow.rootViewController addObserver:observer forKeyPath:NSStringFromSelector(@selector(view)) options:NSKeyValueObservingOptionNew context:NULL];
+        }];
+        [NSNotificationCenter.defaultCenter addObserverForName:UIKeyboardDidHideNotification object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
+            removeFocusFromActiveInput();
         }];
         return SDL_UIKitRunApp(argc, argv, SDL_main);
     }

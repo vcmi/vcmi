@@ -145,6 +145,16 @@ set(client_HEADERS
 		SDLRWwrapper.h
 )
 
+if(APPLE_IOS)
+	set(client_SRCS ${client_SRCS}
+		SDL_uikit_main.mm
+		CFocusableHelper.cpp
+	)
+	set(client_HEADERS ${client_HEADERS}
+		CFocusableHelper.h
+	)
+endif()
+
 assign_source_group(${client_SRCS} ${client_HEADERS} VCMI_client.rc)
 
 if(ANDROID) # android needs client/server to be libraries, not executables, so we can't reuse the build part of this script
@@ -153,8 +163,6 @@ endif()
 
 if(WIN32)
 	set(client_ICON "VCMI_client.rc")
-elseif(APPLE_IOS)
-	set(client_SRCS ${client_SRCS} SDL_uikit_main.m)
 endif()
 
 if(ENABLE_DEBUG_CONSOLE)
