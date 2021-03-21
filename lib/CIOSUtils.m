@@ -10,7 +10,7 @@
 
 #import "CIOSUtils.h"
 
-@import Foundation;
+#import <Foundation/Foundation.h>
 
 static NSString *standardPathNative(NSSearchPathDirectory directory)
 {

@@ -243,10 +243,6 @@ endif()
 if(APPLE_IOS)
 	set(CMAKE_XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2") # iPhone + iPad
 	set(CMAKE_XCODE_ATTRIBUTE_GCC_WARN_64_TO_32_BIT_CONVERSION "NO")
-
-	# TODO: also enable for macOS
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fmodules")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fmodules")
 endif(APPLE_IOS)
 
 # Check if some platform-specific libraries are needed for linking
