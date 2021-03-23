@@ -751,6 +751,38 @@ std::shared_ptr<Bonus> JsonUtils::parseBuildingBonus(const JsonNode &ability, Bu
 	return b;
 }
 
+inline void createOppositeLimiter(Bonus * b)
+{
+	if(b->limiter)
+	{
+		if(!dynamic_cast<OppositeSideLimiter *>(b->limiter.get()))
+		{
+			logMod->error("Wrong Limiter will be ignored: The 'ONLY_ENEMY_ARMY' effectRange is only compatible with the 'OPPOSITE_SIDE' limiter.");
+			b->limiter.reset(new OppositeSideLimiter());
+		}
+	}
+	else
+	{
+		b->limiter = std::make_shared<OppositeSideLimiter>();
+	}
+}
+
+inline void createBattlePropagator(Bonus * b)
+{
+	if(b->propagator)
+	{
+		if(b->propagator->getPropagatorType() != CBonusSystemNode::BATTLE)
+		{
+			logMod->error("Wrong Propagator will be ignored: The 'ONLY_ENEMY_ARMY' effectRange is only compatible with the 'BATTLE_WIDE' propagator.");
+			b->propagator.reset(new CPropagatorNodeType(CBonusSystemNode::BATTLE));
+		}
+	}
+	else
+	{
+		b->propagator = std::make_shared<CPropagatorNodeType>(CBonusSystemNode::BATTLE);
+	}
+}
+
 bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 {
 	const JsonNode *value;
@@ -846,7 +878,16 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 			break;
 		}
 	}
-
+	if(b->effectRange == Bonus::ONLY_ENEMY_ARMY)
+	{
+		createBattlePropagator(b);
+		createOppositeLimiter(b);
+	}
+	else if(b->limiter && dynamic_cast<OppositeSideLimiter *>(b->limiter.get()))
+	{
+		createBattlePropagator(b);
+		b->effectRange = Bonus::ONLY_ENEMY_ARMY;
+	}
 	return true;
 }
 

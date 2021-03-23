@@ -137,10 +137,7 @@ public:
 	const CGHeroInstance * getHero(PlayerColor player) const; //returns fighting hero that belongs to given player
 
 	void localInit();
-
-	static void setupBonusesFromTownToEnemy(const CGTownInstance * town, BattleInfo * curB); //besieged city may contain buildings with negative bonuses for enemy army
-	static void setupBonusesFromTownToBothSides(const CGTownInstance * town, BattleInfo * curB); //if visiting hero is town defender during siege, he/she should receive bonuses
-	static void setupBonusesFromUnitsToEnemy(BattleInfo * curB);
+	static void adjustOppositeBonuses(BattleInfo * curB);
 	static BattleInfo * setupBattle(int3 tile, ETerrainType terrain, BFieldType battlefieldType, const CArmedInstance * armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance * town);
 
 	ui8 whatSide(PlayerColor player) const;
@@ -151,8 +148,7 @@ protected:
 	scripting::Pool * getContextPool() const override;
 
 private:
-	static void addOnlyEnemyArmyBonuses(const BonusList & bonusList, BattleInfo * curB, BattleInfo::BattleSide enemySide);
-	STRONG_INLINE static std::shared_ptr<Bonus> makeBonusForEnemy(const std::shared_ptr<Bonus> & b, PlayerColor & enemyColor);
+	inline static void adjustOppositeBonuses(CBonusSystemNode * node, PlayerColor ownerColor);
 };
 
 

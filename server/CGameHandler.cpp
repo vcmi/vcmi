@@ -682,7 +682,7 @@ void CGameHandler::changeSecSkill(const CGHeroInstance * hero, SecondarySkill wh
 	}
 }
 
-void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2)
+void CGameHandler::endBattle(int3 tile, const CGHeroInstance * heroAttacker, const CGHeroInstance * heroDefender)
 {
 	LOG_TRACE(logGlobal);
 
@@ -691,16 +691,16 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 
 	if (battleResult.get()->result == BattleResult::NORMAL) // give 500 exp for defeating hero, unless he escaped
 	{
-		if (hero1)
+		if(heroAttacker)
 			battleResult.data->exp[1] += 500;
-		if (hero2)
+		if(heroDefender)
 			battleResult.data->exp[0] += 500;
 	}
 
-	if (hero1)
-		battleResult.data->exp[0] = hero1->calculateXp(battleResult.data->exp[0]);//scholar skill
-	if (hero2)
-		battleResult.data->exp[1] = hero2->calculateXp(battleResult.data->exp[1]);
+	if(heroAttacker)
+		battleResult.data->exp[0] = heroAttacker->calculateXp(battleResult.data->exp[0]);//scholar skill
+	if(heroDefender)
+		battleResult.data->exp[1] = heroDefender->calculateXp(battleResult.data->exp[1]);
 
 	const CArmedInstance *bEndArmy1 = gs->curB->sides.at(0).armyObject;
 	const CArmedInstance *bEndArmy2 = gs->curB->sides.at(1).armyObject;
@@ -731,9 +731,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 	const int queriedPlayers = battleQuery ? (int)boost::count(queries.allQueries(), battleQuery) : 0;
 	finishingBattle = make_unique<FinishingBattleHelper>(battleQuery, queriedPlayers);
 
-
 	CasualtiesAfterBattle cab1(bEndArmy1, gs->curB), cab2(bEndArmy2, gs->curB); //calculate casualties before deleting battle
-
 	ChangeSpells cs; //for Eagle Eye
 
 	if (finishingBattle->winnerHero)
@@ -749,7 +747,6 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 			}
 		}
 	}
-
 	std::vector<const CArtifactInstance *> arts; //display them in window
 
 	if (result == BattleResult::NORMAL && finishingBattle->winnerHero)
@@ -760,6 +757,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 			ma->dst = ArtifactLocation(finishingBattle->winnerHero, art->firstAvailableSlot(finishingBattle->winnerHero));
 			sendAndApply(ma);
 		};
+
 		if (finishingBattle->loserHero)
 		{
 			//TODO: wrap it into a function, somehow (boost::variant -_-)
@@ -818,7 +816,6 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 			}
 		}
 	}
-
 	sendAndApply(battleResult.data); //after this point casualties objects are destroyed
 
 	if (arts.size()) //display loot
@@ -876,35 +873,41 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 				iw.text.addReplacement(MetaString::GENERAL_TXT, 141); // " and "
 			iw.components.push_back(Component(Component::SPELL, *it, 0, 0));
 		}
-
 		sendAndApply(&iw);
 		sendAndApply(&cs);
 	}
-
 	cab1.updateArmy(this);
 	cab2.updateArmy(this); //take casualties after battle is deleted
 
-	//if one hero has lost we will erase him
-	if (battleResult.data->winner!=0 && hero1)
+	if(battleResult.data->winner != BattleSide::ATTACKER && heroAttacker) //remove beaten Attacker
 	{
-		RemoveObject ro(hero1->id);
+		RemoveObject ro(heroAttacker->id);
 		sendAndApply(&ro);
 	}
-	if (battleResult.data->winner!=1 && hero2)
+
+	if(battleResult.data->winner != BattleSide::DEFENDER && heroDefender) //remove beaten Defender
 	{
-		auto town = hero2->visitedTown;
-		RemoveObject ro(hero2->id);
+		auto town = heroDefender->visitedTown;
+		RemoveObject ro(heroDefender->id);
 		sendAndApply(&ro);
 
-		if (town && !town->garrisonHero) // TODO: that must be called from CGHeroInstance or CGTownInstance
-			town->battleFinished(hero1, *battleResult.get());
+		if(town && !town->garrisonHero) // TODO: that must be called from CGHeroInstance or CGTownInstance
+			town->battleFinished(heroAttacker, *battleResult.get());
 	}
 
+	if(battleResult.data->winner == BattleSide::DEFENDER 
+		&& heroDefender 
+		&& heroDefender->visitedTown
+		&& !heroDefender->inTownGarrison
+		&& heroDefender->visitedTown->garrisonHero == heroDefender)
+	{
+		garrisonSwapOnSiege(heroDefender->visitedTown->id); //return defending visitor from garrison to its rightful place
+	}
 	//give exp
-	if (battleResult.data->exp[0] && hero1 && battleResult.get()->winner == 0)
-		changePrimSkill(hero1, PrimarySkill::EXPERIENCE, battleResult.data->exp[0]);
-	else if (battleResult.data->exp[1] && hero2 && battleResult.get()->winner == 1)
-		changePrimSkill(hero2, PrimarySkill::EXPERIENCE, battleResult.data->exp[1]);
+	if (battleResult.data->exp[0] && heroAttacker && battleResult.get()->winner == BattleSide::ATTACKER)
+		changePrimSkill(heroAttacker, PrimarySkill::EXPERIENCE, battleResult.data->exp[0]);
+	else if (battleResult.data->exp[1] && heroDefender && battleResult.get()->winner == BattleSide::DEFENDER)
+		changePrimSkill(heroDefender, PrimarySkill::EXPERIENCE, battleResult.data->exp[1]);
 
 	queries.popIfTop(battleQuery);
 
@@ -2504,7 +2507,7 @@ bool CGameHandler::teleportHero(ObjectInstanceID hid, ObjectInstanceID dstid, ui
 	return true;
 }
 
-void CGameHandler::setOwner(const CGObjectInstance * obj, PlayerColor owner)
+void CGameHandler::setOwner(const CGObjectInstance * obj, const PlayerColor owner)
 {
 	PlayerColor oldOwner = getOwner(obj->id);
 	SetObjectProperty sop(obj->id, ObjProperty::OWNER, owner.getNum());
@@ -3487,6 +3490,33 @@ void CGameHandler::moveArmy(const CArmedInstance *src, const CArmedInstance *dst
 			moveStack(sl, StackLocation(dst, pos));
 		}
 	}
+}
+
+bool CGameHandler::garrisonSwapOnSiege(ObjectInstanceID tid)
+{
+	const CGTownInstance * town = getTown(tid);
+
+	if(!town->garrisonHero == !town->visitingHero)
+		return false;
+
+	SetHeroesInTown intown;
+	intown.tid = tid;
+
+	if(town->garrisonHero) //garrison -> vising
+	{
+		intown.garrison = ObjectInstanceID();
+		intown.visiting = town->garrisonHero->id;
+	}
+	else //visiting -> garrison
+	{
+		if(town->armedGarrison())
+			town->mergeGarrisonOnSiege();
+
+		intown.visiting = ObjectInstanceID();
+		intown.garrison = town->visitingHero->id;
+	}
+	sendAndApply(&intown);
+	return true;
 }
 
 bool CGameHandler::garrisonSwap(ObjectInstanceID tid)

@@ -186,73 +186,44 @@ struct RangeGenerator
 	std::function<int()> myRand;
 };
 
-
-std::shared_ptr<Bonus> BattleInfo::makeBonusForEnemy(const std::shared_ptr<Bonus> & b, PlayerColor & enemyColor)
+void BattleInfo::adjustOppositeBonuses(CBonusSystemNode * node, PlayerColor ownerColor)
 {
-	auto bCopy = std::make_shared<Bonus>(*b);
-	bCopy->effectRange = Bonus::NO_LIMIT;
-	bCopy->propagator.reset();
-	bCopy->limiter.reset(new StackOwnerLimiter(enemyColor));
-	return bCopy;
-}
+	auto & bonusList = node->getExportedBonusList();
+	if(bonusList.empty())
+		return;
 
-void BattleInfo::addOnlyEnemyArmyBonuses(const BonusList & bonusList, BattleInfo * curB, BattleInfo::BattleSide enemySide)
-{
-	for(const auto & b : bonusList) //don't copy shared_ptr object, don't change it
+	for(const auto & bonus : bonusList)
 	{
-		if(b->effectRange != Bonus::ONLY_ENEMY_ARMY)
+		if(bonus->effectRange != Bonus::ONLY_ENEMY_ARMY)
 			continue;
 
-		auto bCopy = makeBonusForEnemy(b, curB->sides[enemySide].color);
-		curB->addNewBonus(bCopy);
+		auto limPtr = bonus->limiter.get();
+		if(limPtr)
+			static_cast<OppositeSideLimiter *>(limPtr)->owner = ownerColor;
+		else
+			logGlobal->error("adjustOppositeBonuses. Limiter has been lost. Node is %s", node->nodeShortInfo());
 	}
 }
 
-void BattleInfo::setupBonusesFromTownToEnemy(const CGTownInstance * town, BattleInfo * curB)
-{
-	assert(town);
-	for(const auto & building : town->builtBuildings)
-	{
-		const auto & bonuses = town->town->buildings.at(building)->buildingBonuses;
-		addOnlyEnemyArmyBonuses(bonuses, curB, BattleInfo::ATTACKER);
-	}
-}
-
-void BattleInfo::setupBonusesFromTownToBothSides(const CGTownInstance * town, BattleInfo * curB)
-{
-	assert(town);
-	for(const auto & building : town->builtBuildings)
-	{
-		const auto & bonuses = town->town->buildings.at(building)->buildingBonuses;
-
-		for(const auto & b : bonuses)
-		{
-			if(b->effectRange == Bonus::ONLY_ENEMY_ARMY)
-			{
-				auto bCopy = makeBonusForEnemy(b, curB->sides[BattleInfo::ATTACKER].color);
-				curB->addNewBonus(bCopy);
-			}
-			else
-			{
-				auto bCopy = std::make_shared<Bonus>(*b);
-				bCopy->propagator.reset();
-				bCopy->limiter.reset(new StackOwnerLimiter(curB->sides[BattleInfo::DEFENDER].color));
-				curB->addNewBonus(bCopy);
-			}
-		}
-	}
-}
-
-void BattleInfo::setupBonusesFromUnitsToEnemy(BattleInfo * curB)
+void BattleInfo::adjustOppositeBonuses(BattleInfo * curB)
 {
 	for(int i = 0; i < 2; i++)
 	{
 		TNodes nodes;
-		curB->battleGetArmyObject(i)->getRedAncestors(nodes);
-		for(auto n : nodes)
+		auto * army = curB->battleGetArmyObject(i);
+		auto ownerColor = curB->sides[i].color;
+
+		if(army->getNodeType() == CBonusSystemNode::HERO)
+			adjustOppositeBonuses(army, ownerColor);
+			
+		army->getRedAncestors(nodes);
+
+		for(auto node : nodes)
 		{
-			const auto & bonuses = n->getExportedBonusList();
-			addOnlyEnemyArmyBonuses(bonuses, curB, (BattleInfo::BattleSide)!i);
+			auto currentNodeType = node->getNodeType();
+
+			if(currentNodeType == CBonusSystemNode::ARTIFACT || currentNodeType == CBonusSystemNode::TOWN)
+				adjustOppositeBonuses(node, ownerColor);
 		}
 	}
 }
@@ -626,14 +597,7 @@ BattleInfo * BattleInfo::setupBattle(int3 tile, ETerrainType terrain, BFieldType
 	else
 		curB->tacticDistance = 0;
 
-	if(town)
-	{
-		if(town->visitingHero == heroes[BattleSide::DEFENDER])
-			setupBonusesFromTownToBothSides(town, curB);
-		else
-			setupBonusesFromTownToEnemy(town, curB);
-	}
-	setupBonusesFromUnitsToEnemy(curB);
+	adjustOppositeBonuses(curB);
 	return curB;
 }
 

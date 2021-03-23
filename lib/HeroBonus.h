@@ -56,11 +56,6 @@ public:
 		auto thisCopy = *this;
 		return [thisCopy, rhs](const Bonus *b) mutable { return thisCopy(b) || rhs(b); };
 	}
-	CSelector Not() const
-	{
-		auto thisCopy = *this;
-		return [thisCopy](const Bonus *b) mutable { return !thisCopy(b); };
-	}
 
 	bool operator()(const Bonus *b) const
 	{
@@ -745,7 +740,7 @@ public:
 	{
 		NONE = -1, 
 		UNKNOWN, STACK_INSTANCE, STACK_BATTLE, SPECIALTY, ARTIFACT, CREATURE, ARTIFACT_INSTANCE, HERO, PLAYER, TEAM,
-		TOWN_AND_VISITOR, BATTLE, COMMANDER, GLOBAL_EFFECTS, ALL_CREATURES
+		TOWN_AND_VISITOR, BATTLE, COMMANDER, GLOBAL_EFFECTS, ALL_CREATURES, TOWN
 	};
 private:
 	BonusList bonuses; //wielded bonuses (local or up-propagated here)
@@ -784,16 +779,18 @@ public:
 	TBonusListPtr limitBonuses(const BonusList &allBonuses) const; //same as above, returns out by val for convienence
 	TConstBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = nullptr, const std::string &cachingStr = "") const override;
 	void getParents(TCNodes &out) const;  //retrieves list of parent nodes (nodes to inherit bonuses from),
-	std::shared_ptr<const Bonus> getBonusLocalFirst(const CSelector &selector) const;
+	std::shared_ptr<const Bonus> getBonusLocalFirst(const CSelector & selector) const;
 
 	//non-const interface
 	void getParents(TNodes &out);  //retrieves list of parent nodes (nodes to inherit bonuses from)
+
 	void getRedParents(TNodes &out);  //retrieves list of red parent nodes (nodes bonuses propagate from)
 	void getRedAncestors(TNodes &out);
 	void getRedChildren(TNodes &out);
 	void getRedDescendants(TNodes &out);
 	void getAllParents(TCNodes & out) const;
-	std::shared_ptr<Bonus> getBonusLocalFirst(const CSelector &selector);
+	static PlayerColor retrieveNodeOwner(const CBonusSystemNode * node);
+	std::shared_ptr<Bonus> getBonusLocalFirst(const CSelector & selector);
 
 	void attachTo(CBonusSystemNode *parent);
 	void detachFrom(CBonusSystemNode *parent);
@@ -817,6 +814,7 @@ public:
 	void reduceBonusDurations(const CSelector &s);
 	virtual std::string bonusToString(const std::shared_ptr<Bonus>& bonus, bool description) const {return "";}; //description or bonus name
 	virtual std::string nodeName() const;
+	virtual std::string nodeShortInfo() const;
 	bool isHypothetic() const { return isHypotheticNode; }
 
 	void deserializationFix();
@@ -1120,6 +1118,22 @@ public:
 	PlayerColor owner;
 	StackOwnerLimiter();
 	StackOwnerLimiter(PlayerColor Owner);
+
+	int limit(const BonusLimitationContext &context) const override;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<ILimiter&>(*this);
+		h & owner;
+	}
+};
+
+class DLL_LINKAGE OppositeSideLimiter : public ILimiter //applies only to creatures of enemy army during combat
+{
+public:
+	PlayerColor owner;
+	OppositeSideLimiter();
+	OppositeSideLimiter(PlayerColor Owner);
 
 	int limit(const BonusLimitationContext &context) const override;
 

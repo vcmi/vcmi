@@ -497,13 +497,6 @@ void CCreatureHandler::loadBonuses(JsonNode & creature, std::string bonuses)
 		node["propagator"].String() = "HERO";
 		creature["abilities"]["const_raises_morale"] = node;
 	}
-	if(hasAbility("const_lowers_morale"))
-	{
-		JsonNode node = makeBonusNode("MORALE");
-		node["val"].Float() = -1;
-		node["effectRange"].String() = "ONLY_ENEMY_ARMY";
-		creature["abilities"]["const_lowers_morale"] = node;
-	}
 }
 
 std::vector<JsonNode> CCreatureHandler::loadLegacyData(size_t dataSize)
@@ -870,6 +863,10 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 			if (!ability.second.isNull())
 			{
 				auto b = JsonUtils::parseBonus(ability.second);
+
+				if(b->effectRange == Bonus::ONLY_ENEMY_ARMY) //Opposite Side bonuses should not be exported from CREATURE node.
+					b->propagator.reset();
+
 				b->source = Bonus::CREATURE_ABILITY;
 				b->sid = creature->getIndex();
 				b->duration = Bonus::PERMANENT;

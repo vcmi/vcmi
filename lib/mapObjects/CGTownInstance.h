@@ -274,6 +274,9 @@ public:
 			h & overriddenBuildings;
 		else if(!h.saving)
 			updateTown794();
+
+		if(!h.saving)
+			this->setNodeType(CBonusSystemNode::TOWN);
 	}
 	//////////////////////////////////////////////////////////////////////////
 
@@ -349,11 +352,16 @@ public:
 	void afterAddToMap(CMap * map) override;
 	static void reset();
 
+	STRONG_INLINE bool isBattleOutsideTown(const CGHeroInstance * defendingHero) const
+	{
+		return defendingHero && garrisonHero && defendingHero != garrisonHero;
+	}
 protected:
 	void setPropertyDer(ui8 what, ui32 val) override;
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 
 private:
+	void setOwner(const PlayerColor owner) const;
 	int getDwellingBonus(const std::vector<CreatureID>& creatureIds, const std::vector<ConstTransitivePtr<CGDwelling> >& dwellings) const;
 	void updateBonusingBuildings();
 	bool hasBuiltInOldWay(ETownType::ETownType type, BuildingID bid) const;

@@ -99,6 +99,10 @@ public:
 	ArtBearer::ArtBearer bearerType() const override; //from CArtifactSet
 	virtual std::string nodeName() const override; //from CBonusSystemnode
 	void deserializationFix();
+
+private:
+	void copyOppositeBonusesFromCreature(const CCreature * creature);
+	STRONG_INLINE void removeOppositeBonuses();
 };
 
 class DLL_LINKAGE CCommanderInstance : public CStackInstance

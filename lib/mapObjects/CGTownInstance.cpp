@@ -592,7 +592,6 @@ int CGTownInstance::getDwellingBonus(const std::vector<CreatureID>& creatureIds,
 TResources CGTownInstance::dailyIncome() const
 {
 	TResources ret;
-
 	for (auto & p : town->buildings)
 	{
 		BuildingID buildingUpgrade;
@@ -604,28 +603,28 @@ TResources CGTownInstance::dailyIncome() const
 				buildingUpgrade = p2.first;
 			}
 		}
-
 		if (!hasBuilt(buildingUpgrade)&&(hasBuilt(p.first)))
 		{
 			ret += p.second->produce;
 		}
-
 	}
-
 	return ret;
 }
+
 bool CGTownInstance::hasFort() const
 {
 	return hasBuilt(BuildingID::FORT);
 }
+
 bool CGTownInstance::hasCapitol() const
 {
 	return hasBuilt(BuildingID::CAPITOL);
 }
+
 CGTownInstance::CGTownInstance()
 	:CGDwelling(), IShipyard(this), IMarket(this), town(nullptr), builded(0), destroyed(0), identifier(0), alignment(0xff)
 {
-
+	this->setNodeType(CBonusSystemNode::TOWN);
 }
 
 CGTownInstance::~CGTownInstance()
@@ -653,43 +652,43 @@ bool CGTownInstance::needsLastStack() const
 	else return false;
 }
 
+void CGTownInstance::setOwner(const PlayerColor player) const
+{
+	removeCapitols(player);
+	cb->setOwner(this, player);
+}
+
 void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 {
-	if( !cb->gameState()->getPlayerRelations( getOwner(), h->getOwner() ))//if this is enemy
+	if(!cb->gameState()->getPlayerRelations( getOwner(), h->getOwner() ))//if this is enemy
 	{
 		if(armedGarrison() || visitingHero)
 		{
-			const CGHeroInstance *defendingHero = nullptr;
-			const CArmedInstance *defendingArmy = this;
+			const CGHeroInstance * defendingHero = visitingHero ? visitingHero : garrisonHero;
+			const CArmedInstance * defendingArmy = defendingHero ? (CArmedInstance *)defendingHero : (CArmedInstance *)this;
+			const bool isBattleOutside = isBattleOutsideTown(defendingHero); //defendingHero && garrisonHero && defendingHero != garrisonHero;
 
-			if(visitingHero)
-				defendingHero = visitingHero;
-			else if(garrisonHero)
-				defendingHero = garrisonHero;
-
-			if(defendingHero)
-				defendingArmy = defendingHero;
-
-			bool outsideTown = (defendingHero == visitingHero && garrisonHero);
-
-			//"borrowing" army from garrison to visiting hero
-			if(!outsideTown && armedGarrison() &&
-				visitingHero && defendingHero == visitingHero)
+			if(!isBattleOutside && visitingHero && defendingHero == visitingHero)
 			{
-				mergeGarrisonOnSiege();
-			}
+				//we have two approaches to merge armies: mergeGarrisonOnSiege() and used in the CGameHandler::garrisonSwap(ObjectInstanceID tid)
+				auto nodeSiege = defendingHero->whereShouldBeAttachedOnSiege(isBattleOutside);
 
-			cb->startBattlePrimary(h, defendingArmy, getSightCenter(), h, defendingHero, false, (outsideTown ? nullptr : this));
+				if(nodeSiege == (CBonusSystemNode *)this)
+					cb->garrisonSwapOnSiege(this->id);
+
+				const_cast<CGHeroInstance *>(defendingHero)->inTownGarrison = false; //hack to return visitor from garrison after battle
+			}
+			cb->startBattlePrimary(h, defendingArmy, getSightCenter(), h, defendingHero, false, (isBattleOutside ? nullptr : this));
 		}
 		else
 		{
-			cb->setOwner(this, h->tempOwner);
-			if(cb->gameState()->getPlayerStatus(h->getOwner()) == EPlayerStatus::WINNER)
+			auto heroColor = h->getOwner();
+			setOwner(heroColor);
+			if(cb->gameState()->getPlayerStatus(heroColor) == EPlayerStatus::WINNER)
 			{
 				return; //we just won game, we do not need to perform any extra actions
 				//TODO: check how does H3 behave, visiting town on victory can affect campaigns (spells learned, +1 stat building visited)
 			}
-			removeCapitols(h->getOwner());
 			cb->heroVisitCastle(this, h);
 		}
 	}
@@ -1253,7 +1252,8 @@ void CGTownInstance::recreateBuildingsBonuses()
 	for(auto b : bl)
 		removeBonus(b);
 
-	for(auto bid : builtBuildings)
+	auto owner = this->getOwner();
+	for(const auto bid : builtBuildings)
 	{
 		if(vstd::contains(overriddenBuildings, bid)) //tricky! -> checks tavern only if no bratherhood of sword
 			continue;
@@ -1263,10 +1263,15 @@ void CGTownInstance::recreateBuildingsBonuses()
 		if(building->buildingBonuses.empty())
 			continue;
 
-		for(auto bonus : building->buildingBonuses)
+		for(auto & bonus : building->buildingBonuses)
 		{
-			if(bonus->effectRange == Bonus::ONLY_ENEMY_ARMY) //will be added in the 'setupBattle' to Battle node.
+			if(bonus->limiter && bonus->effectRange == Bonus::ONLY_ENEMY_ARMY) //ONLY_ENEMY_ARMY is only mark for OppositeSide limiter to avoid extra dynamic_cast.
+			{
+				auto bCopy = std::make_shared<Bonus>(*bonus); //just a copy of the shared_ptr has been changed and reassigned.
+				bCopy->limiter = std::make_shared<OppositeSideLimiter>(this->getOwner());
+				addNewBonus(bCopy);
 				continue;
+			}
 			if(bonus->propagator != nullptr && bonus->propagator->getPropagatorType() == ALL_CREATURES)
 				VLC->creh->addBonusForAllCreatures(bonus);
 			else
@@ -1277,14 +1282,7 @@ void CGTownInstance::recreateBuildingsBonuses()
 
 void CGTownInstance::setVisitingHero(CGHeroInstance *h)
 {
-	//if (!(!!visitingHero == !h))
-	//{
-	//	logGlobal->warn("Hero visiting town %s is %s ", name, (visitingHero.get() ? visitingHero->name : "NULL"));
-	//	logGlobal->warn("New hero will be %s ", (h ? h->name : "NULL"));
-	//
-	//}
 	assert(!!visitingHero == !h);
-
 	if(h)
 	{
 		PlayerState *p = cb->gameState()->getPlayerState(h->tempOwner);
@@ -1388,7 +1386,7 @@ const CGTownBuilding * CGTownInstance::getBonusingBuilding(BuildingSubID::EBuild
 
 bool CGTownInstance::hasBuiltSomeTradeBuilding() const
 {
-	for (const auto & bid : builtBuildings)
+	for(const auto & bid : builtBuildings)
 	{
 		if(town->buildings.at(bid)->IsTradeBuilding())
 			return true;
@@ -1492,18 +1490,19 @@ void CGTownInstance::addHeroToStructureVisitors(const CGHeroInstance *h, si64 st
 	}
 }
 
-void CGTownInstance::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
+void CGTownInstance::battleFinished(const CGHeroInstance * hero, const BattleResult & result) const
 {
-	if(result.winner == 0)
+	if(result.winner == BattleSide::ATTACKER)
 	{
+		auto heroColor = hero->getOwner(); //get tempOwner
+
 		clearArmy();
-		removeCapitols(hero->getOwner());
-		cb->setOwner (this, hero->tempOwner); //give control after checkout is done
+		setOwner(heroColor); //give control after checkout is done
 		FoWChange fw;
-		fw.player = hero->tempOwner;
+		fw.player = heroColor;
 		fw.mode = 1;
 		cb->getTilesInRange(fw.tiles, getSightCenter(), getSightRadius(), tempOwner, 1);
-		cb->sendAndApply (&fw);
+		cb->sendAndApply(&fw);
 	}
 }
 

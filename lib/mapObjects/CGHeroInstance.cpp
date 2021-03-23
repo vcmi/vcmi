@@ -1069,11 +1069,29 @@ void CGHeroInstance::deserializationFix()
 	artDeserializationFix(this);
 }
 
-CBonusSystemNode * CGHeroInstance::whereShouldBeAttached(CGameState *gs)
+CBonusSystemNode * CGHeroInstance::whereShouldBeAttachedOnSiege(const bool isBattleOutsideTown) const
+{
+	if(!visitedTown)
+		return nullptr;
+
+	return isBattleOutsideTown ? (CBonusSystemNode *)(& visitedTown->townAndVis)
+		: (CBonusSystemNode *)(visitedTown.get());
+
+}
+
+CBonusSystemNode * CGHeroInstance::whereShouldBeAttachedOnSiege(CGameState * gs)
 {
 	if(visitedTown)
+		return whereShouldBeAttachedOnSiege(visitedTown->isBattleOutsideTown(this));
+
+	return CArmedInstance::whereShouldBeAttached(gs);
+}
+
+CBonusSystemNode * CGHeroInstance::whereShouldBeAttached(CGameState * gs)
+{
+	if (visitedTown)
 	{
-		if(inTownGarrison)
+		if (inTownGarrison)
 			return visitedTown;
 		else
 			return &visitedTown->townAndVis;

@@ -411,7 +411,7 @@ void MoraleLuckBox::set(const IBonusBearer * node)
 
 		for(auto & bonus : * modifierList)
 		{
-			if(bonus->val && bonus->effectRange != Bonus::ONLY_ENEMY_ARMY)
+			if(bonus->val)
 			{
 				addInfo += "\n" + bonus->Description();
 				isListActual = true;
