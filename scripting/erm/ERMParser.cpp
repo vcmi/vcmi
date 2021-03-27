@@ -81,11 +81,12 @@ std::string CERMPreprocessor::retrieveCommandLine()
 
 		if(openedString)
 		{
-			wholeCommand += "\\n";
+			wholeCommand += "\n";
 			if(dash != std::string::npos)
 			{
-				wholeCommand += line.substr(0, dash);
-				line.erase(0,dash);
+				wholeCommand += line.substr(0, dash + 1);
+				line.erase(0,dash + 1);
+				openedString = false;
 			}
 			else //no closing marker -> the whole line is further part of string
 			{

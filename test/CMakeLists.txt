@@ -42,6 +42,8 @@ set(test_SRCS
 		erm/ERM_VR.cpp
 		erm/ERMPersistenceTest.cpp
 		erm/ExamplesTest.cpp
+		erm/interpretter/ERM_VR.cpp
+		erm/interpretter/ErmRunner.cpp
 
 		events/ApplyDamageTest.cpp
 		events/EventBusTest.cpp
@@ -107,6 +109,7 @@ set(test_HEADERS
 		JsonComparer.h
 
 		scripting/ScriptFixture.h
+		erm/interpretter/ErmRunner.h
 
  		map/MapComparer.h
 
