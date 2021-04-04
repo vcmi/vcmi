@@ -716,45 +716,66 @@ bool CModHandler::checkDependencies(const std::vector <TModID> & input) const
 	return true;
 }
 
-std::vector <TModID> CModHandler::resolveDependencies(std::vector <TModID> modsToResolve) const
+std::vector <TModID> CModHandler::resolveDependencies(std::vector <TModID> input) const
 {
-	std::vector<TModID> brokenMods;
+	// Topological sort algorithm
+	// May not be the fastest one but VCMI does not needs any speed here
+	// Unless user have dozens of mods with complex dependencies this code should be fine
 
-	auto looksValid = [&](const CModInfo & mod) -> bool
+	// first - sort input to have input strictly based on name (and not on hashmap or anything else)
+	boost::range::sort(input);
+
+	std::vector <TModID> output;
+	output.reserve(input.size());
+
+	std::set <TModID> resolvedMods;
+
+	// Check if all mod dependencies are resolved (moved to resolvedMods)
+	auto isResolved = [&](const CModInfo & mod) -> bool
 	{
-		auto res = true;
 		for(const TModID & dependency : mod.dependencies)
 		{
-			if(!vstd::contains(modsToResolve, dependency))
-			{
-				logMod->error("Mod '%s' will not work: it depends on mod '%s', which is not installed.", mod.name, dependency);
-				res = false; //continue iterations, since we should show all errors for the current mod.
-			}
+			if (!vstd::contains(resolvedMods, dependency))
+				return false;
 		}
-		return res;
+		return true;
 	};
 
-	while(true)
+	while (true)
 	{
-		for(auto mod : modsToResolve)
+		size_t lastResolvedCount = resolvedMods.size();
+		std::set <TModID> toResolve; // list of mods resolved on this iteration
+
+		for (auto it = input.begin(); it != input.end();)
 		{
-			if(!looksValid(this->allMods.at(mod)))
-				brokenMods.push_back(mod);
-		}
-		if(!brokenMods.empty())
-		{
-			vstd::erase_if(modsToResolve, [&](TModID mid) 
+			if (isResolved(allMods.at(*it)))
 			{
-				return brokenMods.end() != std::find(brokenMods.begin(), brokenMods.end(), mid);
-			});
-			brokenMods.clear();
-			continue;
+				toResolve.insert(*it);
+				output.push_back(*it);
+				it = input.erase(it);
+				continue;
+			}
+			it++;
 		}
-		break;
+		resolvedMods.insert(toResolve.begin(), toResolve.end());
+
+		if (lastResolvedCount == resolvedMods.size()) 
+			break;	// No more mod can be resolved, should be end.
 	}
-	boost::range::sort(modsToResolve);
-	return modsToResolve;
+
+	
+	// Left mods are broken, output all to log.
+	for (auto it = input.begin(); it != input.end(); it++) 
+	{
+		const CModInfo & mod = allMods.at(*it);
+		for(const TModID & dependency : mod.dependencies) 
+			if(!vstd::contains(resolvedMods, dependency))
+				logMod->error("Mod '%s' will not work: it depends on mod '%s', which is not installed.", mod.name, dependency);
+	}
+
+	return output;
 }
+
 
 std::vector<std::string> CModHandler::getModList(std::string path)
 {
