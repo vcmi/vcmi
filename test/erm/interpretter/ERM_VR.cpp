@@ -60,12 +60,212 @@ TEST(ERM_VR_C, SetIntegers_ShouldGenerateSetStatements)
 
 TEST(ERM_VR_C, GetInteger_ShouldGenerateSetStatement)
 {
-	LuaStrings lua = ErmRunner::convertErmToLua({
-		"!#VRv100:C10/20/40;",
-		"!#VRv100:C?v1;"});
+	LuaStrings lua = ErmRunner::convertErmToLua({"!#VRv100:C?v1;"});
 
-	ASSERT_EQ(lua.lines.size(), 12) << lua.text;
-	EXPECT_EQ(lua.lines[8], "v['1'] = v['100']");
+	ASSERT_EQ(lua.lines.size(), 9) << lua.text;
+	EXPECT_EQ(lua.lines[ErmRunner::REGULAR_INSTRUCTION_FIRST_LINE], "v['1'] = v['100']");
+}
+
+TEST(ERM_VR_H, CheckEmptyString_ShouldGenerateCheckAndSetStatement)
+{
+	LuaStrings lua = ErmRunner::convertErmToLua({"!#VRz101:H302;"});
+
+	ASSERT_EQ(lua.lines.size(), 9) << lua.text;
+	EXPECT_EQ(lua.lines[ErmRunner::REGULAR_INSTRUCTION_FIRST_LINE], "ERM.VR(z['101']):H('302')");
+}
+
+TEST(ERM_VR_M1, AnyString_ShouldGenerateSubstringAndSetStatement)
+{
+	LuaStrings lua = ErmRunner::convertErmToLua({"!#VRz101:M1/z102/2/5;"});
+
+	ASSERT_EQ(lua.lines.size(), 9) << lua.text;
+	EXPECT_EQ(lua.lines[ErmRunner::REGULAR_INSTRUCTION_FIRST_LINE], "--VR:M not implemented");
+}
+
+TEST(ERM_VR_M1, WithVariables_ShouldGenerateSubstringAndSetStatement)
+{
+	LuaStrings lua = ErmRunner::convertErmToLua({"!#VRz101:M1/z102/y1/y2;"});
+
+	ASSERT_EQ(lua.lines.size(), 9) << lua.text;
+	EXPECT_EQ(lua.lines[ErmRunner::REGULAR_INSTRUCTION_FIRST_LINE], "--VR:M not implemented");
+}
+
+TEST(ERM_VR_M2, AnyString_ShouldGenerateWordSplitAndSetStatement)
+{
+	LuaStrings lua = ErmRunner::convertErmToLua({"!#VRz101:M2/z102/2;"});
+
+	ASSERT_EQ(lua.lines.size(), 9) << lua.text;
+	EXPECT_EQ(lua.lines[ErmRunner::REGULAR_INSTRUCTION_FIRST_LINE], "--VR:M not implemented");
+}
+
+TEST(ERM_VR_M3, AnyInteger_ShouldGenerateIntToStringConversionAndSetStatement)
+{
+	LuaStrings lua = ErmRunner::convertErmToLua({"!#VRz101:M3/102/16;"});
+
+	ASSERT_EQ(lua.lines.size(), 9) << lua.text;
+	EXPECT_EQ(lua.lines[ErmRunner::REGULAR_INSTRUCTION_FIRST_LINE], "--VR:M not implemented");
+}
+//V
+TEST(ERM_VR_M3, IntegerVariable_ShouldGenerateIntToStringConversionAndSetStatement)
+{
+	LuaStrings lua = ErmRunner::convertErmToLua({"!#VRz101:M3/v1/10;"});
+
+	ASSERT_EQ(lua.lines.size(), 9) << lua.text;
+	EXPECT_EQ(lua.lines[ErmRunner::REGULAR_INSTRUCTION_FIRST_LINE], "--VR:M not implemented");
+}
+
+TEST(ERM_VR_M4, AnyString_ShouldGenerateStringLengthAndSetStatement)
+{
+	LuaStrings lua = ErmRunner::convertErmToLua({"!#VRz101:M4/v2;"});
+
+	ASSERT_EQ(lua.lines.size(), 9) << lua.text;
+	EXPECT_EQ(lua.lines[ErmRunner::REGULAR_INSTRUCTION_FIRST_LINE], "--VR:M not implemented");
+}
+
+TEST(ERM_VR_M5, AnyString_ShouldGenerateFindFirstNonSpaceCharPositionAndSetStatement)
+{
+	LuaStrings lua = ErmRunner::convertErmToLua({"!#VRz101:M5/v2;"});
+
+	ASSERT_EQ(lua.lines.size(), 9) << lua.text;
+	EXPECT_EQ(lua.lines[ErmRunner::REGULAR_INSTRUCTION_FIRST_LINE], "--VR:M not implemented");
+}
+
+TEST(ERM_VR_M6, AnyString_ShouldGenerateFindLastNonSpaceCharPositionAndSetStatement)
+{
+	LuaStrings lua = ErmRunner::convertErmToLua({"!#VRz101:M6/v2;"});
+
+	ASSERT_EQ(lua.lines.size(), 9) << lua.text;
+	EXPECT_EQ(lua.lines[ErmRunner::REGULAR_INSTRUCTION_FIRST_LINE], "--VR:M not implemented");
+}
+
+TEST(ERM_VR_R, AnyVariable_ShouldGenerateRngAndSetStatement)
+{
+	LuaStrings lua = ErmRunner::convertErmToLua({"!#VRv1:R23;"});
+
+	ASSERT_EQ(lua.lines.size(), 9) << lua.text;
+	EXPECT_EQ(lua.lines[ErmRunner::REGULAR_INSTRUCTION_FIRST_LINE], "--VR:R not implemented");
+}
+
+TEST(ERM_VR_S_R, AnyVariable_ShouldGenerateRngAndSetStatement)
+{
+	LuaStrings lua = ErmRunner::convertErmToLua({"!#VRv1:R23;"});
+
+	ASSERT_EQ(lua.lines.size(), 9) << lua.text;
+	EXPECT_EQ(lua.lines[ErmRunner::REGULAR_INSTRUCTION_FIRST_LINE], "--VR:R not implemented");
+}
+
+TEST(ERM_VR_S, DynamicVariable_ShouldGenerateDynamicSetStatement)
+{
+	LuaStrings lua = ErmRunner::convertErmToLua({"!#VRv1:Svy3;"});
+
+	ASSERT_EQ(lua.lines.size(), 9) << lua.text;
+	EXPECT_EQ(lua.lines[ErmRunner::REGULAR_INSTRUCTION_FIRST_LINE], "v['1'] = v[tostring(y['3'])]");
+}
+
+TEST(ERM_VR_T, AnyVariable_ShouldGenerateTimeBasedRngAndSetStatement)
+{
+	LuaStrings lua = ErmRunner::convertErmToLua({"!#VRv1:T23;"});
+
+	ASSERT_EQ(lua.lines.size(), 9) << lua.text;
+	EXPECT_EQ(lua.lines[ErmRunner::REGULAR_INSTRUCTION_FIRST_LINE], "--VR:T not implemented");
+}
+
+TEST(ERM_VR_U, StringVariable_ShouldGenerateSubstringFindAndSetStatement)
+{
+	LuaStrings lua = ErmRunner::convertErmToLua({"!#VRz2:Uz3;"});
+
+	ASSERT_EQ(lua.lines.size(), 9) << lua.text;
+	EXPECT_EQ(lua.lines[ErmRunner::REGULAR_INSTRUCTION_FIRST_LINE], "--VR:U not implemented");
+}
+
+TEST(ERM_VR_U, StringConstant_ShouldGenerateSubstringFindAndSetStatement)
+{
+	LuaStrings lua = ErmRunner::convertErmToLua({"!#VRz2:U^teest^;"});
+
+	ASSERT_EQ(lua.lines.size(), 9) << lua.text;
+	EXPECT_EQ(lua.lines[ErmRunner::REGULAR_INSTRUCTION_FIRST_LINE], "--VR:U not implemented");
+}
+
+TEST(ERM_VR_BIT, LogicalAndOperator_ShouldGenerateSetStatement)
+{
+	LuaStrings lua = ErmRunner::convertErmToLua({"!#VRv1:&8;"});
+
+	ASSERT_EQ(lua.lines.size(), 9) << lua.text;
+	EXPECT_EQ(lua.lines[ErmRunner::REGULAR_INSTRUCTION_FIRST_LINE], "v['1'] = bit.band(v['1'], 8)");
+}
+
+TEST(ERM_VR_BITOR, LogicalOrOperator_ShouldGenerateSetStatement)
+{
+	LuaStrings lua = ErmRunner::convertErmToLua({"!#VRv1:|8;"});
+
+	ASSERT_EQ(lua.lines.size(), 9) << lua.text;
+	EXPECT_EQ(lua.lines[ErmRunner::REGULAR_INSTRUCTION_FIRST_LINE], "v['1'] = bit.bor(v['1'], 8)");
+}
+
+TEST(ERM_VR_BITXOR, LogicalXorOperator_ShouldGenerateSetStatement)
+{
+	LuaStrings lua = ErmRunner::convertErmToLua({"!#VRv1:Xv2;"});
+
+	ASSERT_EQ(lua.lines.size(), 9) << lua.text;
+	EXPECT_EQ(lua.lines[ErmRunner::REGULAR_INSTRUCTION_FIRST_LINE], "v['1'] = bit.bxor(v['1'], v['2'])");
+}
+
+TEST(ERM_VR_PLUS, PlusOperator_ShouldGenerateSetStatement)
+{
+	LuaStrings lua = ErmRunner::convertErmToLua({"!#VRv1:+8;"});
+
+	ASSERT_EQ(lua.lines.size(), 9) << lua.text;
+	EXPECT_EQ(lua.lines[ErmRunner::REGULAR_INSTRUCTION_FIRST_LINE], "v['1'] = v['1'] + 8");
+}
+
+TEST(ERM_VR_PLUS, ConcatenationOperator_ShouldGenerateSetStatement)
+{
+	LuaStrings lua = ErmRunner::convertErmToLua({"!#VRz1:+z3;"});
+
+	ASSERT_EQ(lua.lines.size(), 9) << lua.text;
+	EXPECT_EQ(lua.lines[ErmRunner::REGULAR_INSTRUCTION_FIRST_LINE], "z['1'] = z['1'] .. z['3']");
+}
+
+TEST(ERM_VR_MINUS, MinusOperator_ShouldGenerateSetStatement)
+{
+	LuaStrings lua = ErmRunner::convertErmToLua({"!#VRv1:-v2;"});
+
+	ASSERT_EQ(lua.lines.size(), 9) << lua.text;
+	EXPECT_EQ(lua.lines[ErmRunner::REGULAR_INSTRUCTION_FIRST_LINE], "v['1'] = v['1'] - v['2']");
+}
+
+TEST(ERM_VR_MULT, NultiplicationOperator_ShouldGenerateSetStatement)
+{
+	LuaStrings lua = ErmRunner::convertErmToLua({"!#VRv1:*vy2;"});
+
+	ASSERT_EQ(lua.lines.size(), 9) << lua.text;
+	EXPECT_EQ(lua.lines[ErmRunner::REGULAR_INSTRUCTION_FIRST_LINE], "v['1'] = v['1'] * v[tostring(y['2'])]");
+}
+
+TEST(ERM_VR_DIV, DivisionOperator_ShouldGenerateSetStatement)
+{
+	LuaStrings lua = ErmRunner::convertErmToLua({"!#VRv1::8;"});
+
+	ASSERT_EQ(lua.lines.size(), 9) << lua.text;
+	EXPECT_EQ(lua.lines[ErmRunner::REGULAR_INSTRUCTION_FIRST_LINE], "v['1'] = v['1'] / 8");
+}
+
+TEST(ERM_VR_MOD, ModOperator_ShouldGenerateSetStatement)
+{
+	LuaStrings lua = ErmRunner::convertErmToLua({"!#VRv1:%7;"});
+
+	ASSERT_EQ(lua.lines.size(), 9) << lua.text;
+	EXPECT_EQ(lua.lines[ErmRunner::REGULAR_INSTRUCTION_FIRST_LINE], "v['1'] = v['1'] % 7");
+}
+
+TEST(ERM_VR_MINUS, Composition_ShouldGenerateSetStatement)
+{
+	LuaStrings lua = ErmRunner::convertErmToLua({"!#VRv1:S100 -v2 *v3;"});
+
+	ASSERT_EQ(lua.lines.size(), 11) << lua.text;
+	EXPECT_EQ(lua.lines[ErmRunner::REGULAR_INSTRUCTION_FIRST_LINE], "v['1'] = 100");
+	EXPECT_EQ(lua.lines[ErmRunner::REGULAR_INSTRUCTION_FIRST_LINE + 1], "v['1'] = v['1'] - v['2']");
+	EXPECT_EQ(lua.lines[ErmRunner::REGULAR_INSTRUCTION_FIRST_LINE + 2], "v['1'] = v['1'] * v['3']");
 }
 
 }

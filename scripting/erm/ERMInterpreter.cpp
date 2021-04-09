@@ -651,6 +651,22 @@ namespace ERMConverter
 		}
 	};
 
+	struct VR_X : public GetBodyOption
+	{
+		VR_X()
+		{
+		}
+
+		using GetBodyOption::operator();
+
+		std::string operator()(const TIexp & cmp) const override
+		{
+			Variable p = boost::apply_visitor(LVL1IexpToVar(), cmp);
+
+			return p.str();
+		}
+	};
+
 	struct VR : public Receiver
 	{
 		Variable v;
@@ -677,15 +693,12 @@ namespace ERMConverter
 			case '|':
 				opcode = "bit.bor";
 				break;
-			case 'X':
-				opcode = "bit.bxor";
-				break;
 			default:
 				throw EInterpreterError("Wrong opcode in VR logic expression!");
 				break;
 			}
 
-			boost::format fmt("%s = %s %s(%s, %s)");
+			boost::format fmt("%s = %s(%s, %s)");
 			fmt % v.str() % opcode % v.str() % rhs.str();
 			putLine(fmt.str());
 		}
@@ -699,6 +712,8 @@ namespace ERMConverter
 			switch (trig.opcode)
 			{
 			case '+':
+				opcode = v.name[0] == 'z' ? ".." : "+";
+				break;
 			case '-':
 			case '*':
 			case '%':
@@ -763,6 +778,18 @@ namespace ERMConverter
 				{
 					//TODO
 					putLine("--VR:M not implemented");
+				}
+				break;
+			case 'X': //bit xor
+				{
+					if(!trig.params.is_initialized() || trig.params.get().size() != 1)
+						throw EScriptExecError("VR:X option takes exactly 1 parameter!");
+
+					std::string opt = boost::apply_visitor(VR_X(), trig.params.get()[0]);
+
+					boost::format fmt("%s = bit.bxor(%s, %s)");
+					fmt % v.str() % v.str() % opt;
+					putLine(fmt.str());
 				}
 				break;
 			case 'R': //random variables
