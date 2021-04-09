@@ -24,7 +24,7 @@ namespace test
 			LuaStrings(std::string lua);
 		};
 
-		static class ErmRunner
+		class ErmRunner
 		{
 		public:
 			static const size_t REGULAR_INSTRUCTION_FIRST_LINE;

@@ -117,6 +117,9 @@
 		<Unit filename="erm/ERM_UN.cpp" />
 		<Unit filename="erm/ERM_VR.cpp" />
 		<Unit filename="erm/ExamplesTest.cpp" />
+		<Unit filename="erm/interpretter/ERM_VR.cpp" />
+		<Unit filename="erm/interpretter/ErmRunner.cpp" />
+		<Unit filename="erm/interpretter/ErmRunner.h" />
 		<Unit filename="events/ApplyDamageTest.cpp" />
 		<Unit filename="events/EventBusTest.cpp" />
 		<Unit filename="game/CGameStateTest.cpp" />
