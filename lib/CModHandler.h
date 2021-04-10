@@ -242,9 +242,15 @@ class DLL_LINKAGE CModHandler
 	// - circular dependencies
 	bool checkDependencies(const std::vector <TModID> & input) const;
 
-	// returns load order in which all dependencies are resolved, e.g. loaded after required mods
-	// function assumes that input list is valid (checkDependencies returned true)
-	std::vector <TModID> resolveDependencies(std::vector<TModID> input) const;
+	/**
+	* 1. Set apart mods with resolved dependencies from mods which have unresolved dependencies
+	* 2. Sort resolved mods using topological algorithm
+	* 3. Log all problem mods and their unresolved dependencies
+	*
+	* @param modsToResolve list of valid mod IDs (checkDependencies returned true - TODO: Clarify it.)
+	* @return a vector of the topologically sorted resolved mods: child nodes (dependent mods) have greater index than parents
+	*/
+	std::vector <TModID> validateAndSortDependencies(std::vector <TModID> modsToResolve) const;
 
 	std::vector<std::string> getModList(std::string path);
 	void loadMods(std::string path, std::string parent, const JsonNode & modSettings, bool enableMods);
