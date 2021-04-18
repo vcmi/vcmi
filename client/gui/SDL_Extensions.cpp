@@ -18,6 +18,8 @@
 
 #ifdef VCMI_APPLE
 #include <dispatch/dispatch.h>
+
+extern double ios_screenScale(); // TODO ios: move to appropriate file
 #endif
 
 const SDL_Color Colors::YELLOW = { 229, 215, 123, 0 };
@@ -790,15 +792,37 @@ SDL_Color CSDL_Ext::makeColor(ui8 r, ui8 g, ui8 b, ui8 a)
 
 void CSDL_Ext::startTextInput(SDL_Rect * where)
 {
+	auto impl = [](SDL_Rect * where)
+	{
+		if (SDL_IsTextInputActive() == SDL_FALSE)
+		{
+			SDL_StartTextInput();
+		}
+		SDL_SetTextInputRect(where);
+	};
+
 #ifdef VCMI_APPLE
 	dispatch_async(dispatch_get_main_queue(), ^{
 #endif
 
-	if (SDL_IsTextInputActive() == SDL_FALSE)
-	{
-		SDL_StartTextInput();
-	}
-	SDL_SetTextInputRect(where);
+#ifdef VCMI_IOS
+	// TODO ios: looks like SDL bug actually, try fixing there
+	auto renderer = SDL_GetRenderer(mainWindow);
+	float scaleX, scaleY;
+	SDL_Rect viewport;
+	SDL_RenderGetScale(renderer, &scaleX, &scaleY);
+	SDL_RenderGetViewport(renderer, &viewport);
+
+	auto nativeScale = ios_screenScale();
+	auto rectInScreenCoordinates = *where;
+	rectInScreenCoordinates.x = (viewport.x + rectInScreenCoordinates.x) * scaleX / nativeScale;
+	rectInScreenCoordinates.y = (viewport.y + rectInScreenCoordinates.y) * scaleY / nativeScale;
+	rectInScreenCoordinates.w = rectInScreenCoordinates.w * scaleX / nativeScale;
+	rectInScreenCoordinates.h = rectInScreenCoordinates.h * scaleY / nativeScale;
+	impl(&rectInScreenCoordinates);
+#else
+	impl(where);
+#endif
 
 #ifdef VCMI_APPLE
 	});

@@ -15,6 +15,8 @@
 
 #import <UIKit/UIKit.h>
 
+double ios_screenScale() { return UIScreen.mainScreen.nativeScale; }
+
 
 static int watchReturnKey(void * userdata, SDL_Event * event);
 
