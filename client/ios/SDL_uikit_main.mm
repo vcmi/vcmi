@@ -13,35 +13,38 @@
 #include "CServerHandler.h"
 #include "CFocusableHelper.h"
 
+#import "GameChatKeyboardHanlder.h"
+
 #import <UIKit/UIKit.h>
 
 double ios_screenScale() { return UIScreen.mainScreen.nativeScale; }
 
 
-static int watchReturnKey(void * userdata, SDL_Event * event);
-
-static void sendKeyEvent(SDL_KeyCode keyCode)
-{
-    SDL_Event keyEvent;
-    keyEvent.key = (SDL_KeyboardEvent){
-        .type = SDL_KEYDOWN,
-        .keysym.sym = keyCode,
-    };
-    SDL_PushEvent(&keyEvent);
-}
-
-
 @interface SDLViewObserver : NSObject <UIGestureRecognizerDelegate>
-@property (nonatomic) bool wasChatMessageSent;
+@property (nonatomic, strong) GameChatKeyboardHanlder * gameChatHandler;
 @end
 
 @implementation SDLViewObserver
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context {
-    UIView * view = [object valueForKey:keyPath];
+    UIView * view = [object valueForKeyPath:keyPath];
+
+    UITextField * textField;
+    for (UIView * v in view.subviews) {
+        if ([v isKindOfClass:[UITextField class]]) {
+            textField = (UITextField *)v;
+            break;
+        }
+    }
+
+	auto r = textField.frame;
+	r.size.height = 40;
+	textField.frame = r;
+    textField.backgroundColor = UIColor.whiteColor;
+    self.gameChatHandler.textFieldSDL = textField;
 
     auto longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPress:)];
-    longPress.minimumPressDuration = 0.1;
+    longPress.minimumPressDuration = 0.2;
     [view addGestureRecognizer:longPress];
 
     auto pinch = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(handlePinch:)];
@@ -102,29 +105,7 @@ static void sendKeyEvent(SDL_KeyCode keyCode)
 - (void)handlePinch:(UIGestureRecognizer *)gesture {
     if(gesture.state != UIGestureRecognizerStateBegan || CSH->state != EClientState::GAMEPLAY)
         return;
-
-    // Tab triggers chat message input
-    self.wasChatMessageSent = false;
-    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handleKeyboardDidShowForGameChat:) name:UIKeyboardDidShowNotification object:nil];
-    sendKeyEvent(SDLK_TAB);
-}
-
-#pragma mark - Notifications
-
-- (void)handleKeyboardDidShowForGameChat:(NSNotification *)n {
-    [NSNotificationCenter.defaultCenter removeObserver:self name:n.name object:nil];
-
-    // watch for pressing Return to ignore sending Escape key after keyboard is closed
-    SDL_AddEventWatch(watchReturnKey, (__bridge void *)self);
-    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(handleKeyboardDidHideForGameChat:) name:UIKeyboardDidHideNotification object:nil];
-}
-
-- (void)handleKeyboardDidHideForGameChat:(NSNotification *)n {
-    [NSNotificationCenter.defaultCenter removeObserver:self name:n.name object:nil];
-
-    // discard chat message
-    if(!self.wasChatMessageSent)
-        sendKeyEvent(SDLK_ESCAPE);
+	[self.gameChatHandler triggerInput];
 }
 
 #pragma mark - UIGestureRecognizerDelegate
@@ -146,6 +127,7 @@ main(int argc, char *argv[])
     @autoreleasepool
     {
         auto observer = [SDLViewObserver new];
+		observer.gameChatHandler = [GameChatKeyboardHanlder new];
         [NSNotificationCenter.defaultCenter addObserverForName:UIWindowDidBecomeKeyNotification object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
             [UIApplication.sharedApplication.keyWindow.rootViewController addObserver:observer forKeyPath:NSStringFromSelector(@selector(view)) options:NSKeyValueObservingOptionNew context:NULL];
         }];
@@ -154,15 +136,4 @@ main(int argc, char *argv[])
         }];
         return SDL_UIKitRunApp(argc, argv, SDL_main);
     }
-}
-
-static int watchReturnKey(void * userdata, SDL_Event * event)
-{
-    if(event->type == SDL_KEYDOWN && event->key.keysym.scancode == SDL_SCANCODE_RETURN)
-    {
-        auto self = (__bridge SDLViewObserver *)userdata;
-        self.wasChatMessageSent = true;
-        SDL_DelEventWatch(watchReturnKey, userdata);
-    }
-    return 1;
 }
