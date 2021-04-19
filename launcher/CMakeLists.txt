@@ -53,6 +53,10 @@ set(launcher_FORMS
 		updatedialog_moc.ui
 )
 
+if(APPLE_IOS)
+	set(launcher_SRCS ${launcher_SRCS} ios/mainwindow_moc.mm)
+endif()
+
 assign_source_group(${launcher_SRCS} ${launcher_HEADERS} VCMI_launcher.rc)
 
 # Tell CMake to run moc when necessary:
@@ -98,6 +102,26 @@ if(APPLE)
 	# This makes Xcode project prettier by moving vcmilauncher_autogen directory into vcmiclient subfolder
 	set_property(GLOBAL PROPERTY AUTOGEN_TARGETS_FOLDER vcmilauncher)
 endif()
+if(APPLE_IOS)
+	set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} "-Wl,-e,_qt_main_wrapper")
+
+	set(ENTITLEMENTS_OUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/VCMI.entitlements)
+	configure_file(ios/Entitlements.in ${ENTITLEMENTS_OUT_PATH} @ONLY)
+
+	set_target_properties(vcmilauncher PROPERTIES
+		MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_LIST_DIR}/ios/Info.plist"
+		SKIP_BUILD_RPATH 1
+		XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED YES
+		XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME AppIcon
+		XCODE_ATTRIBUTE_CODE_SIGN_ENTITLEMENTS ${ENTITLEMENTS_OUT_PATH}
+	)
+
+	target_sources(vcmilauncher PRIVATE ${CMAKE_SOURCE_DIR}/client/LaunchScreen.storyboard)
+	set_source_files_properties(${CMAKE_SOURCE_DIR}/client/LaunchScreen.storyboard PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
+
+	target_sources(vcmilauncher PRIVATE ios/Images.xcassets)
+	set_source_files_properties(ios/Images.xcassets PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
+endif()
 
 target_link_libraries(vcmilauncher vcmi Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network)
 target_include_directories(vcmilauncher
@@ -112,11 +136,19 @@ add_custom_command(TARGET vcmilauncher POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/launcher/icons ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/launcher/icons
 )
 
-install(TARGETS vcmilauncher DESTINATION ${BIN_DIR})
-# copy whole directory
-install(DIRECTORY icons DESTINATION ${DATA_DIR}/launcher)
-# Install icons and desktop file on Linux
-if(NOT WIN32 AND NOT APPLE)
-	install(FILES "vcmilauncher.desktop" DESTINATION share/applications)
-	install(FILES "eu.vcmi.VCMI.metainfo.xml" DESTINATION share/metainfo)
+if(APPLE_IOS)
+	add_custom_command(TARGET vcmilauncher POST_BUILD
+		COMMAND ${CMAKE_COMMAND} --install "${CMAKE_BINARY_DIR}" --config "$<CONFIG>" --prefix "$<TARGET_BUNDLE_CONTENT_DIR:vcmilauncher>"
+		COMMAND ${CMAKE_INSTALL_NAME_TOOL} -add_rpath @executable_path/Frameworks $<TARGET_FILE:vcmilauncher> || true
+		COMMAND ${CMAKE_SOURCE_DIR}/apple_codesign.sh
+	)
+else()
+	install(TARGETS vcmilauncher DESTINATION ${BIN_DIR})
+	# copy whole directory
+	install(DIRECTORY icons DESTINATION ${DATA_DIR}/launcher)
+	# Install icons and desktop file on Linux
+	if(NOT WIN32 AND NOT APPLE)
+		install(FILES "vcmilauncher.desktop" DESTINATION share/applications)
+		install(FILES "eu.vcmi.VCMI.metainfo.xml" DESTINATION share/metainfo)
+	endif()
 endif()

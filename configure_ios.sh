@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 
-boostPrefix=~/dev/other/Apple-Boost-BuildScript/build/boost/1.75.0/ios/debug/prefix
+boostPrefix=~/dev/other/Apple-Boost-BuildScript/build-static/boost/1.75.0/ios/debug/prefix
 ffmpegDir=~/dev/ios/vcmi-ios-deps/mobile-ffmpeg-min-universal-4.4
 sdlLibsDir=~/dev/ios/vcmi-ios-deps/SDL2-lib
-prefixPath="$boostPrefix;$ffmpegDir;$sdlLibsDir"
+qtDir=~/dev/Qt-libs/5.15.2/ios
+prefixPath="$boostPrefix;$ffmpegDir;$sdlLibsDir;$qtDir"
 
 # prefixPath="$boostPrefix;$sdlLibsDir"
 # xcodeMajorVersion=$(xcodebuild -version | fgrep Xcode | cut -d ' ' -f 2 | cut -d . -f 1)
