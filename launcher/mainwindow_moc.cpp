@@ -34,9 +34,13 @@ void MainWindow::load()
 	CResourceHandler::initialize();
 	CResourceHandler::load("config/filesystem.json");
 
+#ifdef Q_OS_IOS
+	QDir::addSearchPath("icons", pathToQString(VCMIDirs::get().binaryPath() / "icons"));
+#else
 	for(auto & string : VCMIDirs::get().dataPaths())
 		QDir::addSearchPath("icons", pathToQString(string / "launcher" / "icons"));
 	QDir::addSearchPath("icons", pathToQString(VCMIDirs::get().userDataPath() / "launcher" / "icons"));
+#endif
 
 	settings.init();
 }

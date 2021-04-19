@@ -130,19 +130,20 @@ target_include_directories(vcmilauncher
 vcmi_set_output_dir(vcmilauncher "")
 enable_pch(vcmilauncher)
 
-# Copy to build directory for easier debugging
-add_custom_command(TARGET vcmilauncher POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/launcher/icons
-	COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/launcher/icons ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/launcher/icons
-)
-
 if(APPLE_IOS)
+	install(DIRECTORY icons DESTINATION ${DATA_DIR})
 	add_custom_command(TARGET vcmilauncher POST_BUILD
 		COMMAND ${CMAKE_COMMAND} --install "${CMAKE_BINARY_DIR}" --config "$<CONFIG>" --prefix "$<TARGET_BUNDLE_CONTENT_DIR:vcmilauncher>"
 		COMMAND ${CMAKE_INSTALL_NAME_TOOL} -add_rpath @executable_path/Frameworks $<TARGET_FILE:vcmilauncher> || true
 		COMMAND ${CMAKE_SOURCE_DIR}/apple_codesign.sh
 	)
 else()
+	# Copy to build directory for easier debugging
+	add_custom_command(TARGET vcmilauncher POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/launcher/icons
+		COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/launcher/icons ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/launcher/icons
+	)
+
 	install(TARGETS vcmilauncher DESTINATION ${BIN_DIR})
 	# copy whole directory
 	install(DIRECTORY icons DESTINATION ${DATA_DIR}/launcher)
