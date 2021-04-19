@@ -2,7 +2,7 @@
 
 #include "../../Global.h"
 
-#include <lua.hpp>
+#include <luajit/lua.hpp>
 
 // This header should be treated as a pre compiled header file(PCH) in the compiler building settings.
 

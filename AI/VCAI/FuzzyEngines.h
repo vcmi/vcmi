@@ -13,7 +13,7 @@
 
 class CArmedInstance;
 
-class engineBase //subclasses create fuzzylite variables with "new" that are not freed - this is desired as fl::Engine wants to destroy these...
+class DLL_EXPORT engineBase //subclasses create fuzzylite variables with "new" that are not freed - this is desired as fl::Engine wants to destroy these...
 {
 protected:
 	fl::Engine engine;
@@ -24,7 +24,7 @@ public:
 	engineBase();
 };
 
-class TacticalAdvantageEngine : public engineBase //TODO: rework this engine, it does not work well (example: AI hero with 140 beholders attacked 150 beholders - engine lowered danger 50000 -> 35000)
+class DLL_EXPORT TacticalAdvantageEngine : public engineBase //TODO: rework this engine, it does not work well (example: AI hero with 140 beholders attacked 150 beholders - engine lowered danger 50000 -> 35000)
 {
 public:
 	TacticalAdvantageEngine();
@@ -37,7 +37,7 @@ private:
 	fl::OutputVariable * threat;
 };
 
-class HeroMovementGoalEngineBase : public engineBase //in future - maybe derive from some (GoalEngineBase : public engineBase) class for handling non-movement goals with common utility for goal engines
+class DLL_EXPORT HeroMovementGoalEngineBase : public engineBase //in future - maybe derive from some (GoalEngineBase : public engineBase) class for handling non-movement goals with common utility for goal engines
 {
 public:
 	HeroMovementGoalEngineBase();
@@ -55,14 +55,14 @@ private:
 	float calculateTurnDistanceInputValue(const Goals::AbstractGoal & goal) const;
 };
 
-class VisitTileEngine : public HeroMovementGoalEngineBase
+class DLL_EXPORT VisitTileEngine : public HeroMovementGoalEngineBase
 {
 public:
 	VisitTileEngine();
 	float evaluate(Goals::VisitTile & goal);
 };
 
-class VisitObjEngine : public HeroMovementGoalEngineBase
+class DLL_EXPORT VisitObjEngine : public HeroMovementGoalEngineBase
 {
 public:
 	VisitObjEngine();
