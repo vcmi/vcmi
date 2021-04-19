@@ -398,14 +398,16 @@ bfs::path VCMIDirsIOS::userLogsPath() const { return {ios_documentsPath()}; }
 
 std::vector<bfs::path> VCMIDirsIOS::dataPaths() const
 {
-    return {
+    std::vector<bfs::path> paths;
+    paths.reserve(4);
 #ifdef VCMI_IOS_SIM
-        {ios_hostApplicationSupportPath()},
+    paths.emplace_back(ios_hostApplicationSupportPath());
 #endif
-        {ios_sharedDataPath()},
-        binaryPath(),
-        userDataPath(),
-    };
+    if (auto sharedDataPath = ios_sharedDataPath())
+        paths.emplace_back(sharedDataPath);
+    paths.emplace_back(binaryPath());
+    paths.emplace_back(userDataPath());
+    return paths;
 }
 
 bfs::path VCMIDirsIOS::libraryPath() const { return {ios_frameworksPath()}; }
