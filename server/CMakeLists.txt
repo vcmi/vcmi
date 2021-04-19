@@ -48,8 +48,8 @@ if(WIN32)
 			PROJECT_LABEL "VCMI_server"
 	)
 elseif(APPLE_IOS)
-    set(ENTITLEMENTS_OUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/VCMI.entitlements)
-    configure_file(ios/Entitlements.in ${ENTITLEMENTS_OUT_PATH} @ONLY)
+	set(ENTITLEMENTS_OUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/VCMI.entitlements)
+	configure_file(ios/Entitlements.in ${ENTITLEMENTS_OUT_PATH} @ONLY)
 
 	set_target_properties(vcmiserver PROPERTIES
 		MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_LIST_DIR}/ios/Info.plist"
@@ -70,6 +70,7 @@ vcmi_set_output_dir(vcmiserver "")
 enable_pch(vcmiserver)
 
 if(APPLE_IOS)
+	# TODO: move to a common dir / add macro?
 	add_custom_command(TARGET vcmiserver POST_BUILD
 		COMMAND ${CMAKE_COMMAND} --install "${CMAKE_BINARY_DIR}" --config "$<CONFIG>" --prefix "$<TARGET_BUNDLE_CONTENT_DIR:vcmiserver>"
 		COMMAND ${CMAKE_INSTALL_NAME_TOOL} -add_rpath @executable_path/Frameworks $<TARGET_FILE:vcmiserver> || true

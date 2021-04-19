@@ -190,8 +190,8 @@ elseif(APPLE_IOS)
 		"-framework Foundation -framework UIKit -framework QuartzCore -framework CoreGraphics -framework CoreServices -framework ImageIO -framework Metal -framework OpenGLES -framework AVFoundation -framework GameController -framework CoreMotion" # SDL2_image
 	)
 
-    set(ENTITLEMENTS_OUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/VCMI.entitlements)
-    configure_file(ios/Entitlements.in ${ENTITLEMENTS_OUT_PATH} @ONLY)
+	set(ENTITLEMENTS_OUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/VCMI.entitlements)
+	configure_file(ios/Entitlements.in ${ENTITLEMENTS_OUT_PATH} @ONLY)
 
 	set_target_properties(vcmiclient PROPERTIES
 		MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_LIST_DIR}/ios/Info.plist"
