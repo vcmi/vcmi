@@ -67,9 +67,17 @@ void CSettingsView::loadSettings()
 	int resIndex = ui->comboBoxResolution->findText(QString("%1x%2").arg(resX).arg(resY));
 
 	ui->comboBoxResolution->setCurrentIndex(resIndex);
-	ui->comboBoxFullScreen->setCurrentIndex(settings["video"]["fullscreen"].Bool());
 	ui->comboBoxShowIntro->setCurrentIndex(settings["video"]["showIntro"].Bool());
+
+#ifdef Q_OS_IOS
+	ui->comboBoxFullScreen->setCurrentIndex(true);
+	ui->checkBoxFullScreen->setChecked(false);
+	for (auto widget : std::initializer_list<QWidget *>{ui->comboBoxFullScreen, ui->checkBoxFullScreen})
+		widget->setDisabled(true);
+#else
+	ui->comboBoxFullScreen->setCurrentIndex(settings["video"]["fullscreen"].Bool());
 	ui->checkBoxFullScreen->setChecked(settings["video"]["realFullscreen"].Bool());
+#endif
 
 	int friendlyAIIndex = ui->comboBoxFriendlyAI->findText(QString::fromUtf8(settings["server"]["friendlyAI"].String().c_str()));
 	int neutralAIIndex = ui->comboBoxNeutralAI->findText(QString::fromUtf8(settings["server"]["neutralAI"].String().c_str()));
