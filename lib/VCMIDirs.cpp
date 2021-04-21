@@ -388,11 +388,9 @@ class VCMIDirsIOS final : public VCMIDirsApple
 
 		bfs::path libraryPath() const override;
 		bfs::path binaryPath() const override;
-
-		bool developmentMode() const override;
 };
 
-bfs::path VCMIDirsIOS::userDataPath() const { return {ios_documentsPath()}; }
+bfs::path VCMIDirsIOS::userDataPath() const { return {ios_sharedDataPath() ?: ios_documentsPath()}; }
 bfs::path VCMIDirsIOS::userCachePath() const { return {ios_cachesPath()}; }
 bfs::path VCMIDirsIOS::userLogsPath() const { return {ios_documentsPath()}; }
 
@@ -403,17 +401,14 @@ std::vector<bfs::path> VCMIDirsIOS::dataPaths() const
 #ifdef VCMI_IOS_SIM
     paths.emplace_back(ios_hostApplicationSupportPath());
 #endif
-    if (auto sharedDataPath = ios_sharedDataPath())
-        paths.emplace_back(sharedDataPath);
-    paths.emplace_back(binaryPath());
     paths.emplace_back(userDataPath());
+    paths.emplace_back(ios_documentsPath());
+    paths.emplace_back(binaryPath());
     return paths;
 }
 
 bfs::path VCMIDirsIOS::libraryPath() const { return {ios_frameworksPath()}; }
 bfs::path VCMIDirsIOS::binaryPath() const { return {ios_bundlePath()}; }
-
-bool VCMIDirsIOS::developmentMode() const { return false; }
 #elif defined(VCMI_MAC)
 class VCMIDirsOSX final : public VCMIDirsApple
 {
