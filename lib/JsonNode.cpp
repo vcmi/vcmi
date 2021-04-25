@@ -261,6 +261,28 @@ bool JsonNode::isCompact() const
 	}
 }
 
+bool JsonNode::TryBoolFromString(bool & success) const
+{
+	success = true;
+	if(type == JsonNode::JsonType::DATA_BOOL)
+		return Bool();
+
+	success = type == JsonNode::JsonType::DATA_STRING;
+	if(success)
+	{
+		auto boolParamStr = String();
+		boost::algorithm::trim(boolParamStr);
+		boost::algorithm::to_lower(boolParamStr);
+		success = boolParamStr == "true";
+
+		if(success)
+			return true;
+		
+		success = boolParamStr == "false";
+	}
+	return false;
+}
+
 void JsonNode::clear()
 {
 	setType(JsonType::DATA_NULL);
@@ -623,7 +645,17 @@ std::shared_ptr<ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter)
 				{
 					creatureLimiter->setCreature(CreatureID(creature));
 				});
-				creatureLimiter->includeUpgrades = parameters.size() > 1 ? parameters[1].Bool() : false;
+				auto includeUpgrades = false;
+
+				if(parameters.size() > 1)
+				{
+					bool success = true;
+					includeUpgrades = parameters[1].TryBoolFromString(success);
+
+					if(!success)
+						logMod->error("Second parameter of '%s' limiter should be Bool", limiterType);
+				}
+				creatureLimiter->includeUpgrades = includeUpgrades;
 				return creatureLimiter;
 			}
 			else if(limiterType == "HAS_ANOTHER_BONUS_LIMITER")

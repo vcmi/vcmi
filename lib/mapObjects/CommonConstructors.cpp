@@ -144,21 +144,24 @@ CDwellingInstanceConstructor::CDwellingInstanceConstructor()
 void CDwellingInstanceConstructor::initTypeData(const JsonNode & input)
 {
 	const JsonVector & levels = input["creatures"].Vector();
-	availableCreatures.resize(levels.size());
-	for (size_t i=0; i<levels.size(); i++)
+	const auto totalLevels = levels.size();
+
+	availableCreatures.resize(totalLevels);
+	for(auto currentLevel = 0; currentLevel < totalLevels; currentLevel++)
 	{
-		const JsonVector & creatures = levels[i].Vector();
-		availableCreatures[i].resize(creatures.size());
-		for (size_t j=0; j<creatures.size(); j++)
+		const JsonVector & creaturesOnLevel = levels[currentLevel].Vector();
+		const auto creaturesNumber = creaturesOnLevel.size();
+		availableCreatures[currentLevel].resize(creaturesNumber);
+
+		for(auto currentCreature = 0; currentCreature < creaturesNumber; currentCreature++)
 		{
-			VLC->modh->identifiers.requestIdentifier("creature", creatures[j], [=] (si32 index)
+			VLC->modh->identifiers.requestIdentifier("creature", creaturesOnLevel[currentCreature], [=] (si32 index)
 			{
-				availableCreatures[i][j] = VLC->creh->creatures[index];
+				availableCreatures[currentLevel][currentCreature] = VLC->creh->creatures[index];
 			});
 		}
-		assert(!availableCreatures[i].empty());
+		assert(!availableCreatures[currentLevel].empty());
 	}
-
 	guards = input["guards"];
 }
 
