@@ -73,6 +73,24 @@ TEST_F(ERM_VR, H)
 	EXPECT_EQ(f["202"], JsonUtils::boolNode(false)) << actualState.toJson(true);
 }
 
+TEST_F(ERM_VR, U)
+{
+	std::stringstream source;
+	source << "VERM" << std::endl;
+	source << "!?PI;" << std::endl;
+	source << "!!VRz100:S^Test!^;" << std::endl;
+	source << "!!VRz101:S^est^;" << std::endl;
+	source << "!!VRz100:Uz101;" << std::endl;
+
+	JsonNode actualState = runScript(VLC->scriptHandler->erm, source.str());
+
+	SCOPED_TRACE("\n" + subject->code);
+
+	const JsonNode & f = actualState["ERM"]["F"];
+
+	EXPECT_EQ(f["1"], JsonUtils::boolNode(true)) << actualState.toJson(true);
+}
+
 }
 }
 

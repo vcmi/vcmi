@@ -651,6 +651,22 @@ namespace ERMConverter
 		}
 	};
 
+	struct VR_X : public GetBodyOption
+	{
+		VR_X()
+		{
+		}
+
+		using GetBodyOption::operator();
+
+		std::string operator()(const TIexp & cmp) const override
+		{
+			Variable p = boost::apply_visitor(LVL1IexpToVar(), cmp);
+
+			return p.str();
+		}
+	};
+
 	struct VR : public Receiver
 	{
 		Variable v;
@@ -677,15 +693,12 @@ namespace ERMConverter
 			case '|':
 				opcode = "bit.bor";
 				break;
-			case 'X':
-				opcode = "bit.bxor";
-				break;
 			default:
 				throw EInterpreterError("Wrong opcode in VR logic expression!");
 				break;
 			}
 
-			boost::format fmt("%s = %s %s(%s, %s)");
+			boost::format fmt("%s = %s(%s, %s)");
 			fmt % v.str() % opcode % v.str() % rhs.str();
 			putLine(fmt.str());
 		}
@@ -699,6 +712,8 @@ namespace ERMConverter
 			switch (trig.opcode)
 			{
 			case '+':
+				opcode = v.name[0] == 'z' ? ".." : "+";
+				break;
 			case '-':
 			case '*':
 			case '%':
@@ -759,10 +774,59 @@ namespace ERMConverter
 					putLine(fmt.str());
 				}
 				break;
+			case 'U':
+				{
+					if(!trig.params.is_initialized() || trig.params.get().size() != 1)
+						throw EScriptExecError("VR:H/U need 1 parameter!");
+
+					std::string opt = boost::apply_visitor(VR_S(), trig.params.get()[0]);
+					boost::format fmt("ERM.VR(%s):%c(%s)");
+					fmt % v.str() % (trig.optionCode) % opt;
+					putLine(fmt.str());
+				}
+				break;
 			case 'M': //string operations
 				{
-					//TODO
-					putLine("--VR:M not implemented");
+					if(!trig.params.is_initialized() || trig.params.get().size() < 2)
+						throw EScriptExecError("VR:M needs at least 2 parameters!");
+
+					std::string opt = boost::apply_visitor(VR_X(), trig.params.get()[0]);
+					int paramIndex = 1;
+
+					if(opt == "3")
+					{
+						boost::format fmt("%s = ERM.VR(%s):M3(");
+						fmt % v.str() % v.str();
+						put(fmt.str());
+					}
+					else
+					{
+						auto target = boost::apply_visitor(VR_X(), trig.params.get()[paramIndex++]);
+
+						boost::format fmt("%s = ERM.VR(%s):M%s(");
+						fmt % target % v.str() % opt;
+						put(fmt.str());
+					}
+					
+					for(int i = paramIndex; i < trig.params.get().size(); i++)
+					{
+						opt = boost::apply_visitor(VR_X(), trig.params.get()[i]);
+						if(i > paramIndex) put(",");
+						put(opt);
+					}
+					
+					putLine(")");
+				}
+				break;
+			case 'X': //bit xor
+				{
+					if(!trig.params.is_initialized() || trig.params.get().size() != 1)
+						throw EScriptExecError("VR:X option takes exactly 1 parameter!");
+
+					std::string opt = boost::apply_visitor(VR_X(), trig.params.get()[0]);
+
+					boost::format fmt("%s = bit.bxor(%s, %s)");
+					fmt % v.str() % v.str() % opt;putLine(fmt.str());
 				}
 				break;
 			case 'R': //random variables
@@ -789,16 +853,15 @@ namespace ERMConverter
 					putLine("--VR:T not implemented");
 				}
 				break;
-			case 'U': //search for a substring
-				{
-					//TODO
-					putLine("--VR:U not implemented");
-				}
-				break;
 			case 'V': //convert string to value
 				{
-					//TODO
-					putLine("--VR:V not implemented");
+					if(!trig.params.is_initialized() || trig.params.get().size() != 1)
+						throw EScriptExecError("VR:V option takes exactly 1 parameter!");
+
+					std::string opt = boost::apply_visitor(VR_X(), trig.params.get()[0]);
+					boost::format fmt("%s = tostring(%s)");
+					fmt % v.str() % opt;
+					putLine(fmt.str());
 				}
 				break;
 			default:
