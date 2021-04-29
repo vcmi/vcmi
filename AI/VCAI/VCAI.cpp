@@ -1165,11 +1165,11 @@ void VCAI::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance * ot
 
 			for(auto location : allArtifacts)
 			{
+				if(location.slot == ArtifactPosition::MACH4 || location.slot == ArtifactPosition::SPELLBOOK)
+					continue; // don't attempt to move catapult and spellbook
+
 				if(location.relatedObj() == target && location.slot < ArtifactPosition::AFTER_LAST)
 					continue; //don't reequip artifact we already wear
-
-				if(location.slot == ArtifactPosition::MACH4) // don't attempt to move catapult
-					continue;
 
 				auto s = location.getSlot();
 				if(!s || s->locked) //we can't move locks
