@@ -115,6 +115,27 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 	: CIntObject(LCLICK | WHEEL | KEYBOARD | DOUBLECLICK), callOnSelect(nullptr), tabType(Type), selectionPos(0), sortModeAscending(true)
 {
 	OBJ_CONSTRUCTION;
+
+	// initialize 'generalSortingBy' early
+	switch(tabType)
+	{
+	case ESelectionScreen::newGame:
+		generalSortingBy = ESortBy::_name;
+		break;
+	case ESelectionScreen::loadGame:
+		generalSortingBy = ESortBy::_fileName;
+		break;
+	case ESelectionScreen::saveGame:
+		generalSortingBy = ESortBy::_fileName;
+		break;
+	case ESelectionScreen::campaignList:
+		generalSortingBy = ESortBy::_name;
+		break;
+	default:
+		assert(0);
+		break;
+	}
+
 	if(tabType != ESelectionScreen::campaignList)
 	{
 		sortingBy = _format;
@@ -146,20 +167,16 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 	switch(tabType)
 	{
 	case ESelectionScreen::newGame:
-		generalSortingBy = ESortBy::_name;
 		tabTitle = CGI->generaltexth->arraytxt[229];
 		break;
 	case ESelectionScreen::loadGame:
-		generalSortingBy = ESortBy::_fileName;
 		tabTitle = CGI->generaltexth->arraytxt[230];
 		break;
 	case ESelectionScreen::saveGame:
 		positionsToShow = 16;
-		generalSortingBy = ESortBy::_fileName;
 		tabTitle = CGI->generaltexth->arraytxt[231];
 		break;
 	case ESelectionScreen::campaignList:
-		generalSortingBy = ESortBy::_name;
 		tabTitle = CGI->generaltexth->allTexts[726];
 		type |= REDRAW_PARENT; // we use parent background so we need to make sure it's will be redrawn too
 		pos.w = parent->pos.w;
