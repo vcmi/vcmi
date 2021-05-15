@@ -46,6 +46,7 @@ public:
 	uint64_t armyValue;
 	float heroFightingStrength;
 	uint8_t actorExchangeCount;
+	TResources armyCost;
 
 	ChainActor(){}
 
