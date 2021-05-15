@@ -73,14 +73,16 @@ namespace AIPathfinding
 			}
 		}
 
-		auto hero = nodeStorage->getHero();
-		auto summonBoatSpell = SpellID(SpellID::SUMMON_BOAT).toSpell();
-
-		if(hero->canCastThisSpell(summonBoatSpell)
-			&& hero->getSpellSchoolLevel(summonBoatSpell) >= SecSkillLevel::ADVANCED)
+		for(const CGHeroInstance * hero : nodeStorage->getAllHeroes())
 		{
-			// TODO: For lower school level we might need to check the existance of some boat
-			summonableVirtualBoat.reset(new SummonBoatAction());
+			auto summonBoatSpell = SpellID(SpellID::SUMMON_BOAT).toSpell();
+
+			if(hero->canCastThisSpell(summonBoatSpell)
+				&& hero->getSpellSchoolLevel(summonBoatSpell) >= SecSkillLevel::ADVANCED)
+			{
+				// TODO: For lower school level we might need to check the existance of some boat
+				summonableVirtualBoats[hero] = std::make_shared<SummonBoatAction>();
+			}
 		}
 	}
 
@@ -94,11 +96,15 @@ namespace AIPathfinding
 		{
 			virtualBoat = virtualBoats.at(destination.coord);
 		}
-		else if(
-			summonableVirtualBoat
-			&& summonableVirtualBoat->isAffordableBy(nodeStorage->getHero(), nodeStorage->getAINode(source.node)))
+		else
 		{
-			virtualBoat = summonableVirtualBoat;
+			const CGHeroInstance * hero = nodeStorage->getHero(source.node);
+
+			if(vstd::contains(summonableVirtualBoats, hero)
+				&& summonableVirtualBoats.at(hero)->isAffordableBy(hero, nodeStorage->getAINode(source.node)))
+			{
+				virtualBoat = summonableVirtualBoats.at(hero);
+			}
 		}
 
 		return virtualBoat;
@@ -116,7 +122,7 @@ namespace AIPathfinding
 			auto boatNodeOptional = nodeStorage->getOrCreateNode(
 				node->coord,
 				node->layer,
-				node->chainMask | virtualBoat->getSpecialChain());
+				virtualBoat->getActor(node->actor));
 
 			if(boatNodeOptional)
 			{
