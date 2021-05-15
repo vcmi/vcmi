@@ -1077,7 +1077,7 @@ void VCAI::moveCreaturesToHero(const CGTownInstance * t)
 {
 	if(t->visitingHero && t->armedGarrison() && t->visitingHero->tempOwner == t->tempOwner)
 	{
-		pickBestCreatures(t->visitingHero, t);
+		pickBestCreatures(t->visitingHero, t->getUpperArmy());
 	}
 }
 

@@ -86,6 +86,11 @@ void Nullkiller::makeTurn()
 			choseBestTask(std::make_shared<RecruitHeroBehavior>())
 		};
 
+		if(cb->getDate(Date::DAY) == 1)
+		{
+			bestTasks.push_back(choseBestTask(std::make_shared<StartupBehavior>()));
+		}
+
 		Goals::TSubgoal bestTask = choseBestTask(bestTasks);
 
 		if(bestTask->invalid())

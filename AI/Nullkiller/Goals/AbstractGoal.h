@@ -65,7 +65,8 @@ namespace Goals
 		BUILD_BOAT,
 		COMPLETE_QUEST,
 		ADVENTURE_SPELL_CAST,
-		EXECUTE_HERO_CHAIN
+		EXECUTE_HERO_CHAIN,
+		EXCHANGE_SWAP_TOWN_HEROES
 	};
 
 	class DLL_EXPORT TSubgoal : public std::shared_ptr<AbstractGoal>

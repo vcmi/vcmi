@@ -176,9 +176,9 @@ float getSkillReward(const CGObjectInstance * target, const CGHeroInstance * her
 	case Obj::MARLETTO_TOWER:
 	case Obj::MERCENARY_CAMP:
 	case Obj::SHRINE_OF_MAGIC_GESTURE:
+	case Obj::SHRINE_OF_MAGIC_INCANTATION:
 		return 1;
 	case Obj::ARENA:
-	case Obj::SHRINE_OF_MAGIC_INCANTATION:
 	case Obj::SHRINE_OF_MAGIC_THOUGHT:
 		return 2;
 	case Obj::LIBRARY_OF_ENLIGHTENMENT:
@@ -240,6 +240,9 @@ int32_t getGoldReward(const CGObjectInstance * target, const CGHeroInstance * he
 /// importance
 float PriorityEvaluator::evaluate(Goals::TSubgoal task)
 {
+	if(task->priority > 0)
+		return task->priority;
+
 	auto heroPtr = task->hero;
 
 	if(!heroPtr.validAndSet())
@@ -263,10 +266,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task)
 	uint64_t danger = task->evaluationContext.danger;
 	double result = 0;
 	int rewardType = (goldReward > 0 ? 1 : 0) + (armyReward > 0 ? 1 : 0) + (skillReward > 0 ? 1 : 0);
-
-	if(day == 1)
-		goldReward *= 2;
-
+	
 	try
 	{
 		armyLossPersentageVariable->setValue(armyLossPersentage);

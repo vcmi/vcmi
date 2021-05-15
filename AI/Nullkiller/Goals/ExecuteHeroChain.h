@@ -33,4 +33,25 @@ namespace Goals
 		std::string completeMessage() const override;
 		virtual bool operator==(const ExecuteHeroChain & other) const override;
 	};
+
+	class DLL_EXPORT ExchangeSwapTownHeroes : public CGoal<ExchangeSwapTownHeroes>
+	{
+	private:
+		const CGTownInstance * town;
+		const CGHeroInstance * garrisonHero;
+
+	public:
+		ExchangeSwapTownHeroes(const CGTownInstance * town, const CGHeroInstance * garrisonHero = nullptr);
+
+		TGoalVec getAllPossibleSubgoals() override
+		{
+			return TGoalVec();
+		}
+
+		TSubgoal whatToDoToAchieve() override;
+		void accept(VCAI * ai) override;
+		std::string name() const override;
+		std::string completeMessage() const override;
+		virtual bool operator==(const ExchangeSwapTownHeroes & other) const override;
+	};
 }

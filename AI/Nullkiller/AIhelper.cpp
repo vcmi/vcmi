@@ -216,3 +216,8 @@ float AIhelper::evaluateSecSkill(SecondarySkill skill, const CGHeroInstance * he
 {
 	return heroManager->evaluateSecSkill(skill, hero);
 }
+
+float AIhelper::evaluateHero(const CGHeroInstance * hero) const
+{
+	return heroManager->evaluateHero(hero);
+}
