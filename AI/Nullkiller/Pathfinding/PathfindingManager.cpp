@@ -136,7 +136,7 @@ Goals::TGoalVec PathfindingManager::findPaths(
 
 	for(auto path : chainInfo)
 	{
-		if(hero && hero.get() != path.targetHero || path.nodes.empty())
+		if((hero && hero.get() != path.targetHero) || path.nodes.empty())
 			continue;
 
 		const AIPathNodeInfo & firstNode = path.firstNode();

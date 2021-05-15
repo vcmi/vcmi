@@ -195,7 +195,7 @@ void ExistingSkillRule::evaluateScore(const CGHeroInstance * hero, SecondarySkil
 		upgradesLeft += SecSkillLevel::EXPERT - heroSkill.second;
 	}
 
-	if(score >= 2 || score >= 1 && upgradesLeft <= 1)
+	if(score >= 2 || (score >= 1 && upgradesLeft <= 1))
 		score += 1.5;
 }
 

@@ -10,7 +10,7 @@
 #pragma once
 
 #include "../VCAI.h"
-#include "../AIHelper.h"
+#include "../AIhelper.h"
 
 struct HitMapInfo
 {
