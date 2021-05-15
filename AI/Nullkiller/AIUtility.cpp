@@ -101,16 +101,16 @@ const CGHeroInstance * HeroPtr::get(bool doWeExpectNull) const
 	if(h)
 	{
 		auto obj = cb->getObj(hid);
-		const bool owned = obj && obj->tempOwner == ai->playerID;
+		//const bool owned = obj && obj->tempOwner == ai->playerID;
 
-		if(doWeExpectNull && !owned)
+		if(doWeExpectNull && !obj)
 		{
 			return nullptr;
 		}
 		else
 		{
 			assert(obj);
-			assert(owned);
+			//assert(owned);
 		}
 	}
 
