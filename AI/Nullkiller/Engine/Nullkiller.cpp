@@ -49,11 +49,29 @@ Goals::TSubgoal Nullkiller::choseBestTask(Behavior & behavior)
 	return task;
 }
 
+void Nullkiller::resetAiState()
+{
+	lockedHeroes.clear();
+}
+
+void Nullkiller::updateAiState()
+{
+	auto activeHeroes = ai->getMyHeroes();
+
+	vstd::erase_if(activeHeroes, [&](const HeroPtr & hero) -> bool{
+		return vstd::contains(lockedHeroes, hero);
+	});
+
+	ai->ah->updatePaths(activeHeroes, true);
+}
+
 void Nullkiller::makeTurn()
 {
+	resetAiState();
+
 	while(true)
 	{
-		ai->ah->updatePaths(ai->getMyHeroes(), true);
+		updateAiState();
 
 		Goals::TGoalVec bestTasks = {
 			choseBestTask(CaptureObjectsBehavior()),
