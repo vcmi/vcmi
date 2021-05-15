@@ -16,6 +16,11 @@
 #include "../../../lib/mapping/CMap.h"
 #include "../../../lib/mapObjects/MapObjects.h"
 
+bool HeroExchangeArmy::needsLastStack() const
+{
+	return true;
+}
+
 ChainActor::ChainActor(const CGHeroInstance * hero, uint64_t chainMask)
 	:hero(hero), isMovable(true), chainMask(chainMask), creatureSet(hero),
 	baseActor(this), carrierParent(nullptr), otherParent(nullptr), actorExchangeCount(1), armyCost()
@@ -180,6 +185,17 @@ ChainActor * HeroActor::exchange(const ChainActor * specialActor, const ChainAct
 	return &result->specialActors[index];
 }
 
+HeroExchangeMap::~HeroExchangeMap()
+{
+	for(auto & exchange : exchangeMap)
+	{
+		delete exchange.second->creatureSet;
+		delete exchange.second;
+	}
+
+	exchangeMap.clear();
+}
+
 HeroActor * HeroExchangeMap::exchange(const ChainActor * other)
 {
 	HeroActor * result;
@@ -188,7 +204,6 @@ HeroActor * HeroExchangeMap::exchange(const ChainActor * other)
 		result = exchangeMap.at(other);
 	else 
 	{
-		// TODO: decide where to release this CCreatureSet and HeroActor. Probably custom ~ctor?
 		CCreatureSet * newArmy = pickBestCreatures(actor->creatureSet, other->creatureSet);
 		result = new HeroActor(actor, other, newArmy, ai);
 		exchangeMap[other] = result;
@@ -199,7 +214,7 @@ HeroActor * HeroExchangeMap::exchange(const ChainActor * other)
 
 CCreatureSet * HeroExchangeMap::pickBestCreatures(const CCreatureSet * army1, const CCreatureSet * army2) const
 {
-	CCreatureSet * target = new CCreatureSet();
+	CCreatureSet * target = new HeroExchangeArmy();
 	auto bestArmy = ai->ah->getBestArmy(army1, army2);
 
 	for(auto & slotInfo : bestArmy)

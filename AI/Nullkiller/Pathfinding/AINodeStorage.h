@@ -11,7 +11,7 @@
 #pragma once
 
 #define VCMI_TRACE_PATHFINDER
-#define VCMI_TRACE_PATHFINDER_EX
+#define NVCMI_TRACE_PATHFINDER_EX
 
 #include "../../../lib/CPathfinder.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
@@ -87,7 +87,7 @@ private:
 	std::vector<std::shared_ptr<ChainActor>> actors;
 	std::vector<CGPathNode *> heroChain;
 	bool heroChainPass; // true if we need to calculate hero chain
-	int heroChainMaxTurns = 0;
+	int heroChainTurn;
 
 public:
 	/// more than 1 chain layer for each hero allows us to have more than 1 path to each tile so we can chose more optimal one.
