@@ -52,7 +52,7 @@ void AIPathfinder::updatePaths(std::vector<HeroPtr> heroes)
 
 	logAi->debug("Recalculate all paths");
 
-	storage.reset();
+	storage->clear();
 	storage->setHeroes(heroes, ai);
 
 		auto config = std::make_shared<AIPathfinding::AIPathfinderConfig>(cb, ai, storage);
