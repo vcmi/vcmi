@@ -4,6 +4,7 @@
 #include "../AIHelper.h"
 #include "../Behaviors/CaptureObjectsBehavior.h"
 #include "../Behaviors/RecruitHeroBehavior.h"
+#include "../Behaviors/BuyArmyBehavior.h"
 #include "../Goals/Invalid.h"
 
 extern boost::thread_specific_ptr<CCallback> cb;
@@ -74,6 +75,7 @@ void Nullkiller::makeTurn()
 		updateAiState();
 
 		Goals::TGoalVec bestTasks = {
+			choseBestTask(BuyArmyBehavior()),
 			choseBestTask(CaptureObjectsBehavior()),
 			choseBestTask(RecruitHeroBehavior())
 		};
