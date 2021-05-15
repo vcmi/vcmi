@@ -46,8 +46,8 @@ protected:
 	void setSharedFuzzyVariables(Goals::AbstractGoal & goal);
 
 	fl::InputVariable * strengthRatio;
-	fl::InputVariable * heroStrength;
-	fl::InputVariable * turnDistance;
+	fl::InputVariable * heroStrengthVariable;
+	fl::InputVariable * turnDistanceVariable;
 	fl::InputVariable * missionImportance;
 	fl::OutputVariable * value;
 

@@ -201,11 +201,11 @@ bool isSafeToVisit(HeroPtr h, crint3 tile)
 
 bool isSafeToVisit(HeroPtr h, const CCreatureSet * heroArmy, uint64_t dangerStrength)
 {
-	const ui64 heroStrength = h->getFightingStrength() * heroArmy->getArmyStrength();
+	const ui64 heroStrengthVariable = h->getFightingStrength() * heroArmy->getArmyStrength();
 
 	if(dangerStrength)
 	{
-		if(heroStrength / SAFE_ATTACK_CONSTANT > dangerStrength)
+		if(heroStrengthVariable / SAFE_ATTACK_CONSTANT > dangerStrength)
 		{
 			return true;
 		}
