@@ -44,6 +44,8 @@ public:
 	uint32_t initialMovement;
 	uint32_t initialTurn;
 	uint64_t armyValue;
+	float heroFightingStrength;
+	uint8_t actorExchangeCount;
 
 	ChainActor(){}
 

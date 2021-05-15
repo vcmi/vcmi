@@ -68,6 +68,12 @@ struct AIPath
 	uint64_t getHeroStrength() const;
 };
 
+struct ExchangeCandidate : public AIPathNode
+{
+	AIPathNode * carrierParent;
+	AIPathNode * otherParent;
+};
+
 class AINodeStorage : public INodeStorage
 {
 private:
@@ -110,6 +116,13 @@ public:
 	void updateAINode(CGPathNode * node, std::function<void (AIPathNode *)> updater);
 
 	bool hasBetterChain(const PathNodeInfo & source, CDestinationNodeInfo & destination) const;
+
+	template<class NodeRange>
+	bool hasBetterChain(
+		const CGPathNode * source, 
+		const AIPathNode * destinationNode,
+		const NodeRange & chains) const;
+
 	boost::optional<AIPathNode *> getOrCreateNode(const int3 & coord, const EPathfindingLayer layer, const ChainActor * actor);
 	std::vector<AIPath> getChainInfo(const int3 & pos, bool isOnLand) const;
 	bool isTileAccessible(const HeroPtr & hero, const int3 & pos, const EPathfindingLayer layer) const;
@@ -130,8 +143,20 @@ public:
 private:
 	STRONG_INLINE
 	void resetTile(const int3 & tile, EPathfindingLayer layer, CGPathNode::EAccessibility accessibility);
-	void addHeroChain(AIPathNode * srcNode, std::vector<AIPathNode *> variants);
-	void addHeroChain(AIPathNode * carrier, AIPathNode * other);
+
+	void calculateHeroChain(
+		AIPathNode * srcNode, 
+		const std::vector<AIPathNode *> & variants, 
+		std::vector<ExchangeCandidate> & result) const;
+
+	void calculateHeroChain(
+		AIPathNode * carrier, 
+		AIPathNode * other, 
+		std::vector<ExchangeCandidate> & result) const;
+	
+	void cleanupInefectiveChains(std::vector<ExchangeCandidate> & result) const;
+	void addHeroChain(const std::vector<ExchangeCandidate> & result);
+
 	void calculateTownPortalTeleportations(const PathNodeInfo & source, std::vector<CGPathNode *> & neighbours);
 	void fillChainInfo(const AIPathNode * node, AIPath & path) const;
 	void commit(
@@ -142,8 +167,8 @@ private:
 		int movementLeft, 
 		float cost) const;
 
-	bool AINodeStorage::commitExchange(
-		AIPathNode * exchangeNode, 
+	ExchangeCandidate calculateExchange(
+		ChainActor * exchangeActor, 
 		AIPathNode * carrierParentNode, 
 		AIPathNode * otherParentNode) const;
 };
