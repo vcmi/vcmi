@@ -40,8 +40,7 @@ namespace AIPathfinding
 
 		if(blocker == BlockingReason::DESTINATION_BLOCKVIS && destination.nodeObject)
 		{
-			auto objID = destination.nodeObject->ID;
-			auto enemyHero = objID == Obj::HERO && destination.objectRelations == PlayerRelations::ENEMIES;
+			auto enemyHero = destination.nodeHero && destination.heroRelations == PlayerRelations::ENEMIES;
 
 			if(!enemyHero && !isObjectRemovable(destination.nodeObject))
 			{
@@ -74,7 +73,8 @@ namespace AIPathfinding
 			});
 
 			auto guardsAlreadyBypassed = destGuardians.empty() && srcGuardians.size();
-			if(guardsAlreadyBypassed && nodeStorage->isBattleNode(source.node))
+			auto srcNode = nodeStorage->getAINode(source.node);
+			if(guardsAlreadyBypassed && srcNode->actor->allowBattle)
 			{
 #ifdef VCMI_TRACE_PATHFINDER
 				logAi->trace(
@@ -90,7 +90,7 @@ namespace AIPathfinding
 			auto battleNodeOptional = nodeStorage->getOrCreateNode(
 				destination.coord,
 				destination.node->layer,
-				destNode->chainMask | AINodeStorage::BATTLE_CHAIN);
+				destNode->actor->battleActor);
 
 			if(!battleNodeOptional)
 			{

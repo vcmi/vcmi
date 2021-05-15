@@ -18,29 +18,13 @@ namespace AIPathfinding
 {
 	class VirtualBoatAction : public ISpecialAction
 	{
-	private:
-		uint64_t specialChain;
-
 	public:
-		VirtualBoatAction(uint64_t specialChain)
-			:specialChain(specialChain)
-		{
-		}
-
-		uint64_t getSpecialChain() const
-		{
-			return specialChain;
-		}
+		virtual const ChainActor * getActor(const ChainActor * sourceActor) const = 0;
 	};
 	
 	class SummonBoatAction : public VirtualBoatAction
 	{
 	public:
-		SummonBoatAction()
-			:VirtualBoatAction(AINodeStorage::CAST_CHAIN)
-		{
-		}
-
 		virtual Goals::TSubgoal whatToDo(const HeroPtr & hero) const override;
 
 		virtual void applyOnDestination(
@@ -51,6 +35,8 @@ namespace AIPathfinding
 			const AIPathNode * srcNode) const override;
 
 		bool isAffordableBy(const CGHeroInstance * hero, const AIPathNode * source) const;
+
+		virtual const ChainActor * getActor(const ChainActor * sourceActor) const override;
 
 	private:
 		uint32_t getManaCost(const CGHeroInstance * hero) const;
@@ -63,10 +49,12 @@ namespace AIPathfinding
 
 	public:
 		BuildBoatAction(const IShipyard * shipyard)
-			:VirtualBoatAction(AINodeStorage::RESOURCE_CHAIN), shipyard(shipyard)
+			: shipyard(shipyard)
 		{
 		}
 
 		virtual Goals::TSubgoal whatToDo(const HeroPtr & hero) const override;
+
+		virtual const ChainActor * getActor(const ChainActor * sourceActor) const override;
 	};
 }

@@ -26,14 +26,14 @@ AINodeStorage::AINodeStorage(const int3 & Sizes)
 
 AINodeStorage::~AINodeStorage() = default;
 
-void AINodeStorage::initialize(const PathfinderOptions & options, const CGameState * gs, const CGHeroInstance * hero)
+void AINodeStorage::initialize(const PathfinderOptions & options, const CGameState * gs)
 {
 	//TODO: fix this code duplication with NodeStorage::initialize, problem is to keep `resetTile` inline
 
 	int3 pos;
+	const PlayerColor player = ai->playerID;
 	const int3 sizes = gs->getMapSize();
-	const auto & fow = static_cast<const CGameInfoCallback *>(gs)->getPlayerTeam(hero->tempOwner)->fogOfWarMap;
-	const PlayerColor player = hero->tempOwner;
+	const auto & fow = static_cast<const CGameInfoCallback *>(gs)->getPlayerTeam(player)->fogOfWarMap;
 
 	//make 200% sure that these are loop invariants (also a bit shorter code), let compiler do the rest(loop unswitching)
 	const bool useFlying = options.useFlying;
@@ -70,6 +70,11 @@ void AINodeStorage::initialize(const PathfinderOptions & options, const CGameSta
 	}
 }
 
+void AINodeStorage::reset()
+{
+	actors.clear();
+}
+
 const AIPathNode * AINodeStorage::getAINode(const CGPathNode * node) const
 {
 	return static_cast<const AIPathNode *>(node);
@@ -82,25 +87,20 @@ void AINodeStorage::updateAINode(CGPathNode * node, std::function<void(AIPathNod
 	updater(aiNode);
 }
 
-bool AINodeStorage::isBattleNode(const CGPathNode * node) const
-{
-	return (getAINode(node)->chainMask & BATTLE_CHAIN) > 0;
-}
-
-boost::optional<AIPathNode *> AINodeStorage::getOrCreateNode(const int3 & pos, const EPathfindingLayer layer, int chainNumber)
+boost::optional<AIPathNode *> AINodeStorage::getOrCreateNode(const int3 & pos, const EPathfindingLayer layer, const ChainActor * actor)
 {
 	auto chains = nodes[pos.x][pos.y][pos.z][layer];
 
 	for(AIPathNode & node : chains)
 	{
-		if(node.chainMask == chainNumber)
+		if(node.actor == actor)
 		{
 			return &node;
 		}
 
-		if(node.chainMask == 0)
+		if(!node.actor)
 		{
-			node.chainMask = chainNumber;
+			node.actor = actor;
 
 			return &node;
 		}
@@ -109,19 +109,33 @@ boost::optional<AIPathNode *> AINodeStorage::getOrCreateNode(const int3 & pos, c
 	return boost::none;
 }
 
-CGPathNode * AINodeStorage::getInitialNode()
+std::vector<CGPathNode *> AINodeStorage::getInitialNodes()
 {
-	auto hpos = hero->getPosition(false);
-	auto initialNode =
-		getOrCreateNode(hpos, hero->boat ? EPathfindingLayer::SAIL : EPathfindingLayer::LAND, NORMAL_CHAIN)
-		.get();
+	std::vector<CGPathNode *> initialNodes;
 
-	initialNode->turns = 0;
-	initialNode->moveRemains = hero->movement;
-	initialNode->danger = 0;
-	initialNode->cost = 0.0;
+	for(auto actorPtr : actors)
+	{
+		const ChainActor * actor = actorPtr.get();
+		AIPathNode * initialNode =
+			getOrCreateNode(actor->initialPosition, actor->layer, actor)
+			.get();
 
-	return initialNode;
+		initialNode->turns = actor->initialTurn;
+		initialNode->moveRemains = actor->initialMovement;
+		initialNode->danger = 0;
+		initialNode->cost = 0.0;
+
+		if(actor->isMovable)
+		{
+			initialNodes.push_back(initialNode);
+		}
+		else
+		{
+			initialNode->locked = true;
+		}
+	}
+
+	return initialNodes;
 }
 
 void AINodeStorage::resetTile(const int3 & coord, EPathfindingLayer layer, CGPathNode::EAccessibility accessibility)
@@ -130,7 +144,7 @@ void AINodeStorage::resetTile(const int3 & coord, EPathfindingLayer layer, CGPat
 	{
 		AIPathNode & heroNode = nodes[coord.x][coord.y][coord.z][layer][i];
 
-		heroNode.chainMask = 0;
+		heroNode.actor = nullptr;
 		heroNode.danger = 0;
 		heroNode.manaCost = 0;
 		heroNode.specialAction.reset();
@@ -152,9 +166,9 @@ void AINodeStorage::commit(CDestinationNodeInfo & destination, const PathNodeInf
 		dstNode->theNodeBefore = srcNode->theNodeBefore;
 		dstNode->manaCost = srcNode->manaCost;
 
-		if(dstNode->specialAction)
+		if(dstNode->specialAction && dstNode->actor)
 		{
-			dstNode->specialAction->applyOnDestination(getHero(), destination, source, dstNode, srcNode);
+			dstNode->specialAction->applyOnDestination(dstNode->actor->hero, destination, source, dstNode, srcNode);
 		}
 	});
 }
@@ -173,7 +187,7 @@ std::vector<CGPathNode *> AINodeStorage::calculateNeighbours(
 	{
 		for(EPathfindingLayer i = EPathfindingLayer::LAND; i <= EPathfindingLayer::AIR; i.advance(1))
 		{
-			auto nextNode = getOrCreateNode(neighbour, i, srcNode->chainMask);
+			auto nextNode = getOrCreateNode(neighbour, i, srcNode->actor);
 
 			if(!nextNode || nextNode.get()->accessible == CGPathNode::NOT_SET)
 				continue;
@@ -185,11 +199,37 @@ std::vector<CGPathNode *> AINodeStorage::calculateNeighbours(
 	return neighbours;
 }
 
-void AINodeStorage::setHero(HeroPtr heroPtr, const VCAI * _ai)
+const CGHeroInstance * AINodeStorage::getHero(const CGPathNode * node) const
 {
-	hero = heroPtr.get();
+	auto aiNode = getAINode(node);
+
+	return aiNode->actor->hero;
+}
+
+const std::set<const CGHeroInstance *> AINodeStorage::getAllHeroes() const
+{
+	std::set<const CGHeroInstance *> heroes;
+
+	for(auto actor : actors)
+	{
+		if(actor->hero)
+			heroes.insert(hero);
+	}
+
+	return heroes;
+}
+
+void AINodeStorage::setHeroes(std::vector<HeroPtr> heroes, const VCAI * _ai)
+{
 	cb = _ai->myCb.get();
 	ai = _ai;
+
+	for(auto & hero : heroes)
+	{
+		uint64_t mask = 1 << actors.size();
+
+		actors.push_back(std::make_shared<ChainActor>(hero.get(), mask));
+	}
 }
 
 std::vector<CGPathNode *> AINodeStorage::calculateTeleportations(
@@ -206,7 +246,7 @@ std::vector<CGPathNode *> AINodeStorage::calculateTeleportations(
 
 		for(auto & neighbour : accessibleExits)
 		{
-			auto node = getOrCreateNode(neighbour, source.node->layer, srcNode->chainMask);
+			auto node = getOrCreateNode(neighbour, source.node->layer, srcNode->actor);
 
 			if(!node)
 				continue;
@@ -269,7 +309,7 @@ void AINodeStorage::calculateTownPortalTeleportations(
 			if(targetTown->visitingHero)
 				continue;
 
-			auto nodeOptional = getOrCreateNode(targetTown->visitablePos(), EPathfindingLayer::LAND, srcNode->chainMask | CAST_CHAIN);
+			auto nodeOptional = getOrCreateNode(targetTown->visitablePos(), EPathfindingLayer::LAND, srcNode->actor->castActor);
 
 			if(nodeOptional)
 			{
@@ -297,13 +337,14 @@ bool AINodeStorage::hasBetterChain(const PathNodeInfo & source, CDestinationNode
 
 	for(const AIPathNode & node : chains)
 	{
-		auto sameNode = node.chainMask == destinationNode->chainMask;
+		auto sameNode = node.actor == destinationNode->actor;
+
 		if(sameNode	|| node.action == CGPathNode::ENodeAction::UNKNOWN)
 		{
 			continue;
 		}
 
-		if(node.danger <= destinationNode->danger && destinationNode->chainMask == 1 && node.chainMask == 0)
+		if(node.danger <= destinationNode->danger && destinationNode->actor == node.actor->battleActor)
 		{
 			if(node.cost < destinationNode->cost)
 			{
@@ -323,11 +364,20 @@ bool AINodeStorage::hasBetterChain(const PathNodeInfo & source, CDestinationNode
 	return false;
 }
 
-bool AINodeStorage::isTileAccessible(const int3 & pos, const EPathfindingLayer layer) const
+bool AINodeStorage::isTileAccessible(const HeroPtr & hero, const int3 & pos, const EPathfindingLayer layer) const
 {
-	const AIPathNode & node = nodes[pos.x][pos.y][pos.z][layer][0];
+	auto chains = nodes[pos.x][pos.y][pos.z][layer];
 
-	return node.action != CGPathNode::ENodeAction::UNKNOWN;
+	for(const AIPathNode & node : chains)
+	{
+		if(node.action != CGPathNode::ENodeAction::UNKNOWN 
+			&& node.actor && node.actor->hero == hero.h)
+		{
+			return true;
+		}
+	}
+
+	return false;
 }
 
 std::vector<AIPath> AINodeStorage::getChainInfo(const int3 & pos, bool isOnLand) const
@@ -338,13 +388,15 @@ std::vector<AIPath> AINodeStorage::getChainInfo(const int3 & pos, bool isOnLand)
 
 	for(const AIPathNode & node : chains)
 	{
-		if(node.action == CGPathNode::ENodeAction::UNKNOWN)
+		if(node.action == CGPathNode::ENodeAction::UNKNOWN || !node.actor)
 		{
 			continue;
 		}
 
 		AIPath path;
 		const AIPathNode * current = &node;
+
+		path.targetHero = node.actor->hero;
 
 		while(current != nullptr && current->coord != initialPos)
 		{
@@ -410,4 +462,50 @@ uint64_t AIPath::getTotalDanger(HeroPtr hero) const
 	uint64_t danger = pathDanger > targetObjectDanger ? pathDanger : targetObjectDanger;
 
 	return danger;
+}
+
+ChainActor::ChainActor(const CGHeroInstance * hero, int chainMask)
+	:hero(hero), isMovable(true), chainMask(chainMask)
+{
+	initialPosition = hero->visitablePos();
+	layer = hero->boat ? EPathfindingLayer::SAIL : EPathfindingLayer::LAND;
+	initialMovement = hero->movement;
+	initialTurn = 0;
+
+	setupSpecialActors();
+}
+
+void ChainActor::copyFrom(ChainActor * base)
+{
+	hero = base->hero;
+	layer = base->layer;
+	initialMovement = base->initialMovement;
+	initialTurn = base->initialTurn;
+}
+
+void ChainActor::setupSpecialActors()
+{
+	auto allActors = std::vector<ChainActor *>{ this };
+	specialActors.resize(7);
+
+	for(int i = 1; i < 8; i++)
+	{
+		ChainActor & specialActor = specialActors[i - 1];
+
+		specialActor.copyFrom(this);
+		specialActor.allowBattle = (i & 1) > 0;
+		specialActor.allowSpellCast = (i & 2) > 0;
+		specialActor.allowUseResources = (i & 4) > 0;
+
+		allActors.push_back(&specialActor);
+	}
+
+	for(int i = 0; i <= 8; i++)
+	{
+		ChainActor * actor = allActors[i];
+
+		actor->battleActor = allActors[i | 1];
+		actor->castActor = allActors[i | 2];
+		actor->resourceActor = allActors[i | 4];
+	}
 }
