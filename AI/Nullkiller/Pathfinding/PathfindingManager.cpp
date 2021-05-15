@@ -258,8 +258,3 @@ void PathfindingManager::updatePaths(std::vector<HeroPtr> heroes, bool useHeroCh
 	logAi->debug("AIPathfinder has been reseted.");
 	pathfinder->updatePaths(heroes, useHeroChain);
 }
-
-void PathfindingManager::updatePaths(const HeroPtr & hero)
-{
-	pathfinder->updatePaths(hero);
-}

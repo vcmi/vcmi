@@ -26,6 +26,5 @@ public:
 	std::vector<AIPath> getPathInfo(const HeroPtr & hero, const int3 & tile) const;
 	bool isTileAccessible(const HeroPtr & hero, const int3 & tile) const;
 	void updatePaths(std::vector<HeroPtr> heroes, bool useHeroChain = false);
-	void updatePaths(const HeroPtr & heroes);
 	void init();
 };
