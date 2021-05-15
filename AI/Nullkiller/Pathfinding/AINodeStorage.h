@@ -10,7 +10,7 @@
 
 #pragma once
 
-#define VCMI_TRACE_PATHFINDER 1
+#define VCMI_TRACE_PATHFINDER 0
 
 #include "../../../lib/CPathfinder.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
@@ -39,6 +39,7 @@ struct AIPathNodeInfo
 	uint64_t danger;
 	const CGHeroInstance * targetHero;
 	int parentIndex;
+	std::shared_ptr<const ISpecialAction> specialAction;
 };
 
 struct AIPath
@@ -163,7 +164,10 @@ private:
 	void cleanupInefectiveChains(std::vector<ExchangeCandidate> & result) const;
 	void addHeroChain(const std::vector<ExchangeCandidate> & result);
 
-	void calculateTownPortalTeleportations(const PathNodeInfo & source, std::vector<CGPathNode *> & neighbours);
+	void calculateTownPortalTeleportations(
+		const PathNodeInfo & source,
+		std::vector<CGPathNode *> & neighbours,
+		const CPathfinderHelper * pathfinderHelper);
 	void fillChainInfo(const AIPathNode * node, AIPath & path, int parentIndex) const;
 	void commit(
 		AIPathNode * destination, 

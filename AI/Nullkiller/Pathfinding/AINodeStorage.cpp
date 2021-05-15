@@ -501,7 +501,7 @@ void AINodeStorage::setTownsAndDwellings(
 	{
 		uint64_t mask = 1 << actors.size();
 
-		if(town->getUpperArmy()->getArmyStrength())
+		if(!town->garrisonHero && town->getUpperArmy()->getArmyStrength())
 		{
 			actors.push_back(std::make_shared<TownGarrisonActor>(town, mask));
 		}
@@ -563,7 +563,7 @@ std::vector<CGPathNode *> AINodeStorage::calculateTeleportations(
 
 	if(source.isInitialPosition)
 	{
-		calculateTownPortalTeleportations(source, neighbours);
+		calculateTownPortalTeleportations(source, neighbours, pathfinderHelper);
 	}
 
 	return neighbours;
@@ -571,7 +571,8 @@ std::vector<CGPathNode *> AINodeStorage::calculateTeleportations(
 
 void AINodeStorage::calculateTownPortalTeleportations(
 	const PathNodeInfo & source,
-	std::vector<CGPathNode *> & neighbours)
+	std::vector<CGPathNode *> & neighbours,
+	const CPathfinderHelper * pathfinderHelper)
 {
 	SpellID spellID = SpellID::TOWN_PORTAL;
 	const CSpell * townPortal = spellID.toSpell();
@@ -594,9 +595,12 @@ void AINodeStorage::calculateTownPortalTeleportations(
 
 		// TODO: Copy/Paste from TownPortalMechanics
 		auto skillLevel = hero->getSpellSchoolLevel(townPortal);
-		auto movementCost = GameConstants::BASE_MOVEMENT_COST * (skillLevel >= 3 ? 2 : 3);
+		auto movementNeeded = GameConstants::BASE_MOVEMENT_COST * (skillLevel >= 3 ? 2 : 3);
+		float movementCost = (float)movementNeeded / (float)pathfinderHelper->getMaxMovePoints(EPathfindingLayer::LAND);
 
-		if(hero->movement < movementCost)
+		movementCost += source.node->cost;
+
+		if(source.node->moveRemains < movementNeeded)
 		{
 			return;
 		}
@@ -605,7 +609,7 @@ void AINodeStorage::calculateTownPortalTeleportations(
 		{
 			const CGTownInstance * nearestTown = *vstd::minElementByFun(towns, [&](const CGTownInstance * t) -> int
 			{
-				return hero->visitablePos().dist2dSQ(t->visitablePos());
+				return source.coord.dist2dSQ(t->visitablePos());
 			});
 
 			towns = std::vector<const CGTownInstance *>{ nearestTown };
@@ -613,6 +617,7 @@ void AINodeStorage::calculateTownPortalTeleportations(
 
 		for(const CGTownInstance * targetTown : towns)
 		{
+			// TODO: allow to hide visiting hero in garrison
 			if(targetTown->visitingHero)
 				continue;
 
@@ -626,9 +631,13 @@ void AINodeStorage::calculateTownPortalTeleportations(
 
 				AIPathNode * node = nodeOptional.get();
 
-				node->theNodeBefore = source.node;
-				node->specialAction.reset(new AIPathfinding::TownPortalAction(targetTown));
-				node->moveRemains = source.node->moveRemains;
+				if(node->action == CGPathNode::UNKNOWN || node->cost > movementCost)
+				{
+					node->theNodeBefore = source.node;
+					node->specialAction.reset(new AIPathfinding::TownPortalAction(targetTown));
+					node->moveRemains = source.node->moveRemains + movementNeeded;
+					node->cost = movementCost;
+				}
 				
 				neighbours.push_back(node);
 			}
@@ -764,6 +773,7 @@ void AINodeStorage::fillChainInfo(const AIPathNode * node, AIPath & path, int pa
 			AIPathNodeInfo pathNode;
 			pathNode.cost = node->cost;
 			pathNode.targetHero = node->actor->hero;
+			pathNode.specialAction = node->specialAction;
 			pathNode.turns = node->turns;
 			pathNode.danger = node->danger;
 			pathNode.coord = node->coord;

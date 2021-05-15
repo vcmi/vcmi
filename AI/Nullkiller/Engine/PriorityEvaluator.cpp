@@ -99,7 +99,7 @@ uint64_t getCreatureBankArmyReward(const CGObjectInstance * target, const CGHero
 	return result;
 }
 
-uint64_t getDwellingScore(const CGObjectInstance * target)
+uint64_t getDwellingScore(const CGObjectInstance * target, bool checkGold)
 {
 	auto dwelling = dynamic_cast<const CGDwelling *>(target);
 	uint64_t score = 0;
@@ -109,17 +109,17 @@ uint64_t getDwellingScore(const CGObjectInstance * target)
 		if(creLevel.first && creLevel.second.size())
 		{
 			auto creature = creLevel.second.back().toCreature();
-			if(cb->getResourceAmount().canAfford(creature->cost * creLevel.first))
-			{
-				score += creature->AIValue * creLevel.first;
-			}
+			if(checkGold &&	!cb->getResourceAmount().canAfford(creature->cost * creLevel.first))
+				continue;
+
+			score += creature->AIValue * creLevel.first;
 		}
 	}
 
 	return score;
 }
 
-uint64_t getArmyReward(const CGObjectInstance * target, const CGHeroInstance * hero)
+uint64_t getArmyReward(const CGObjectInstance * target, const CGHeroInstance * hero, bool checkGold)
 {
 	if(!target)
 		return 0;
@@ -127,17 +127,20 @@ uint64_t getArmyReward(const CGObjectInstance * target, const CGHeroInstance * h
 	switch(target->ID)
 	{
 	case Obj::TOWN:
-		return target->tempOwner == PlayerColor::NEUTRAL ? 5000 : 1000;
+		return target->tempOwner == PlayerColor::NEUTRAL ? 1000 : 10000;
 	case Obj::CREATURE_BANK:
 		return getCreatureBankArmyReward(target, hero);
 	case Obj::CREATURE_GENERATOR1:
-		return getDwellingScore(target);
+	case Obj::CREATURE_GENERATOR2:
+	case Obj::CREATURE_GENERATOR3:
+	case Obj::CREATURE_GENERATOR4:
+		return getDwellingScore(target, checkGold);
 	case Obj::CRYPT:
 	case Obj::SHIPWRECK:
 	case Obj::SHIPWRECK_SURVIVOR:
 		return 1500;
 	case Obj::ARTIFACT:
-		return dynamic_cast<const CGArtifact *>(target)->storedArtifact-> artType->getArtClassSerial() == CArtifact::ART_MAJOR ? 3000 : 1500;
+		return dynamic_cast<const CGArtifact *>(target)->storedArtifact-> artType->getArtClassSerial() * 300;
 	case Obj::DRAGON_UTOPIA:
 		return 10000;
 	default:
@@ -259,11 +262,12 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task)
 	auto hero = heroPtr.get();
 	auto armyTotal = task->evaluationContext.heroStrength;
 	double armyLossPersentage = task->evaluationContext.armyLoss / (double)armyTotal;
-	int32_t goldReward = getGoldReward(target, hero);
-	uint64_t armyReward = getArmyReward(target, hero);
-	HeroRole heroRole = ai->ah->getHeroRole(heroPtr);
-	float skillReward = getSkillReward(target, hero, heroRole);
 	uint64_t danger = task->evaluationContext.danger;
+	HeroRole heroRole = ai->ah->getHeroRole(heroPtr);
+	int32_t goldReward = getGoldReward(target, hero);
+	bool checkGold = danger == 0;
+	uint64_t armyReward = getArmyReward(target, hero, checkGold);
+	float skillReward = getSkillReward(target, hero, heroRole);
 	double result = 0;
 	int rewardType = (goldReward > 0 ? 1 : 0) + (armyReward > 0 ? 1 : 0) + (skillReward > 0 ? 1 : 0);
 	

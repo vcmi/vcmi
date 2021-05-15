@@ -79,6 +79,35 @@ const CGHeroInstance * getNearestHero(const CGTownInstance * town)
 	return shortestPath.targetHero;
 }
 
+bool needToRecruitHero(const CGTownInstance * startupTown)
+{
+	if(!ai->canRecruitAnyHero(startupTown))
+		return false;
+
+	if(!startupTown->garrisonHero && !startupTown->visitingHero)
+		return false;
+
+	auto heroToCheck = startupTown->garrisonHero ? startupTown->garrisonHero.get() : startupTown->visitingHero.get();
+	auto paths = cb->getPathsInfo(heroToCheck);
+
+	for(auto obj : ai->visitableObjs)
+	{
+		if(obj->ID == Obj::RESOURCE && obj->subID == Res::GOLD
+			|| obj->ID == Obj::TREASURE_CHEST
+			|| obj->ID == Obj::CAMPFIRE
+			|| obj->ID == Obj::WATER_WHEEL)
+		{
+			auto path = paths->getPathInfo(obj->visitablePos());
+			if(path->accessible == CGPathNode::BLOCKVIS && path->turns != 255)
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
 Goals::TGoalVec StartupBehavior::getTasks()
 {
 	Goals::TGoalVec tasks;
@@ -88,8 +117,8 @@ Goals::TGoalVec StartupBehavior::getTasks()
 		return tasks;
 
 	const CGTownInstance * startupTown = towns.front();
-	bool canRecruitHero = ai->canRecruitAnyHero(startupTown);
-		
+	bool canRecruitHero = needToRecruitHero(startupTown);
+
 	if(towns.size() > 1)
 	{
 		startupTown = *vstd::maxElementByFun(towns, [](const CGTownInstance * town) -> float
@@ -131,14 +160,17 @@ Goals::TGoalVec StartupBehavior::getTasks()
 				auto garrisonHero = startupTown->garrisonHero.get();
 				auto garrisonHeroScore = ai->ah->evaluateHero(garrisonHero);
 
-				if(garrisonHeroScore > visitingHeroScore)
+				if(visitingHeroScore > garrisonHeroScore
+					|| ai->ah->getHeroRole(garrisonHero) == HeroRole::SCOUT && ai->ah->getHeroRole(visitingHero) == HeroRole::MAIN)
 				{
-					if(ai->ah->howManyReinforcementsCanGet(garrisonHero, visitingHero) > 200)
-						tasks.push_back(Goals::sptr(ExchangeSwapTownHeroes(startupTown, garrisonHero).setpriority(100)));
+					if(canRecruitHero || ai->ah->howManyReinforcementsCanGet(visitingHero, garrisonHero) > 200)
+					{
+						tasks.push_back(Goals::sptr(ExchangeSwapTownHeroes(startupTown, visitingHero).setpriority(100)));
+					}
 				}
-				else
+				else if(ai->ah->howManyReinforcementsCanGet(garrisonHero, visitingHero) > 200)
 				{
-					tasks.push_back(Goals::sptr(ExchangeSwapTownHeroes(startupTown, visitingHero).setpriority(100)));
+					tasks.push_back(Goals::sptr(ExchangeSwapTownHeroes(startupTown, garrisonHero).setpriority(100)));
 				}
 			}
 			else if(canRecruitHero)
@@ -157,7 +189,7 @@ Goals::TGoalVec StartupBehavior::getTasks()
 	{
 		for(const CGTownInstance * town : towns)
 		{
-			if(town->garrisonHero)
+			if(town->garrisonHero && town->garrisonHero->movement)
 				tasks.push_back(Goals::sptr(ExchangeSwapTownHeroes(town, nullptr).setpriority(0.0001f)));
 		}
 	}
