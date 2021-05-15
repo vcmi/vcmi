@@ -157,7 +157,10 @@ bool CaptureObjectsBehavior::shouldVisitObject(ObjectIdRef obj) const
 	//it may be hero visiting this obj
 	//we don't try visiting object on which allied or owned hero stands
 	// -> it will just trigger exchange windows and AI will be confused that obj behind doesn't get visited
-	const CGObjectInstance * topObj = cb->getTopObj(obj->visitablePos());
+	const CGObjectInstance * topObj = cb->getTopObj(pos);
+
+	if(!topObj)
+		return false; // partly visible obj but its visitable pos is not visible.
 
 	if(topObj->ID == Obj::HERO && cb->getPlayerRelations(ai->playerID, topObj->tempOwner) != PlayerRelations::ENEMIES)
 		return false;
