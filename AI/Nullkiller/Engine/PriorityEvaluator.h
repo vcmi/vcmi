@@ -28,9 +28,10 @@ public:
 
 private:
 	fl::InputVariable * armyLossPersentageVariable;
-	fl::InputVariable * heroStrengthVariable;
+	fl::InputVariable * armyStrengthVariable;
 	fl::InputVariable * turnDistanceVariable;
 	fl::InputVariable * goldRewardVariable;
 	fl::InputVariable * armyRewardVariable;
+	fl::InputVariable * dangerVariable;
 	fl::OutputVariable * value;
 };
