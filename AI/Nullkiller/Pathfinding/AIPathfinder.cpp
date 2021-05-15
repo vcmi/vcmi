@@ -51,18 +51,20 @@ void AIPathfinder::updatePaths(std::vector<HeroPtr> heroes, bool useHeroChain)
 	}
 
 	logAi->debug("Recalculate all paths");
+	int pass = 0;
 
 	storage->clear();
 	storage->setHeroes(heroes, ai);
 
 	auto config = std::make_shared<AIPathfinding::AIPathfinderConfig>(cb, ai, storage);
-	cb->calculatePaths(config);
 
-	while(useHeroChain && storage->calculateHeroChain())
-	{
-		config = std::make_shared<AIPathfinding::AIPathfinderConfig>(cb, ai, storage);
+	do {
+		logAi->trace("Recalculate paths pass %" PRIi32, pass++);
 		cb->calculatePaths(config);
-	}
+
+		logAi->trace("Recalculate chain pass %" PRIi32, pass);
+		useHeroChain = useHeroChain && storage->calculateHeroChain();
+	} while(useHeroChain);
 }
 
 void AIPathfinder::updatePaths(const HeroPtr & hero)
