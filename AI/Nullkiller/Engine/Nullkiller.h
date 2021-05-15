@@ -20,6 +20,7 @@ public:
 	bool isActive(const CGHeroInstance * hero) const { return activeHero.h == hero; }
 	void setActive(const HeroPtr & hero) { activeHero = hero; }
 	void lockHero(const HeroPtr & hero) { lockedHeroes.insert(hero); }
+	void unlockHero(const HeroPtr & hero) { lockedHeroes.erase(hero); }
 
 private:
 	void resetAiState();
