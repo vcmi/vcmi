@@ -82,6 +82,14 @@ void ExecuteHeroChain::accept(VCAI * ai)
 			{
 				ai->nullkiller->setActive(hero);
 
+				if(node.specialAction)
+				{
+					auto specialGoal = node.specialAction->whatToDo(hero);
+
+					if(specialGoal->isElementar)
+						specialGoal->accept(ai);
+				}
+
 				Goals::VisitTile(node.coord).sethero(hero).accept(ai);
 			}
 
@@ -138,15 +146,13 @@ TSubgoal ExchangeSwapTownHeroes::whatToDoToAchieve()
 
 void ExchangeSwapTownHeroes::accept(VCAI * ai)
 {
-	if(!garrisonHero && town->garrisonHero && town->visitingHero)
-		throw cannotFulfillGoalException("Invalid configuration. Garrison hero is null.");
-
 	if(!garrisonHero)
 	{
 		if(!town->garrisonHero)
 			throw cannotFulfillGoalException("Invalid configuration. There is no hero in town garrison.");
 		
 		cb->swapGarrisonHero(town);
+		ai->buildArmyIn(town);
 		ai->nullkiller->unlockHero(town->visitingHero.get());
 		logAi->debug("Extracted hero %s from garrison of %s", town->visitingHero->name, town->name);
 
@@ -162,7 +168,10 @@ void ExchangeSwapTownHeroes::accept(VCAI * ai)
 	ai->nullkiller->lockHero(town->garrisonHero.get());
 
 	if(town->visitingHero)
+	{
 		ai->nullkiller->unlockHero(town->visitingHero.get());
+		makePossibleUpgrades(town->visitingHero);
+	}
 
 	logAi->debug("Put hero %s to garrison of %s", town->garrisonHero->name, town->name);
 }
