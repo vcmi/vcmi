@@ -54,6 +54,8 @@ set(VCAI_SRCS
 		Goals/CompleteQuest.cpp
 		Engine/Nullkiller.cpp
 		Behaviors/Behavior.cpp
+		Behaviors/CaptureObjectsBehavior.cpp
+		Behaviors/RecruitHeroBehavior.cpp
 		main.cpp
 		VCAI.cpp
 )
@@ -111,6 +113,8 @@ set(VCAI_HEADERS
 		Goals/Goals.h
 		Engine/Nullkiller.h
 		Behaviors/Behavior.h
+		Behaviors/CaptureObjectsBehavior.h
+		Behaviors/RecruitHeroBehavior.h
 		VCAI.h
 )
 

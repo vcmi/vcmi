@@ -4,10 +4,7 @@
 
 class Behavior
 {
-
-};
-
-class CaptureObjectBehavior : public Behavior
-{
-
+public:
+	virtual Goals::TGoalVec getTasks() = 0;
+	virtual std::string toString() const = 0;
 };
