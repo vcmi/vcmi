@@ -94,11 +94,15 @@ namespace Goals
 		float movementCost;
 		int manaCost;
 		uint64_t danger;
+		uint64_t armyLoss;
+		uint64_t heroStrength;
 
 		EvaluationContext()
 			: movementCost(0.0),
 			manaCost(0),
-			danger(0)
+			danger(0),
+			armyLoss(0),
+			heroStrength(0)
 		{
 		}
 	};

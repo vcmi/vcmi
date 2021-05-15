@@ -199,9 +199,9 @@ bool isSafeToVisit(HeroPtr h, crint3 tile)
 	return isSafeToVisit(h, fh->evaluateDanger(tile, h.get()));
 }
 
-bool isSafeToVisit(HeroPtr h, uint64_t dangerStrength)
+bool isSafeToVisit(HeroPtr h, const CCreatureSet * heroArmy, uint64_t dangerStrength)
 {
-	const ui64 heroStrength = h->getTotalStrength();
+	const ui64 heroStrength = h->getFightingStrength() * heroArmy->getArmyStrength();
 
 	if(dangerStrength)
 	{
@@ -216,6 +216,11 @@ bool isSafeToVisit(HeroPtr h, uint64_t dangerStrength)
 	}
 
 	return true; //there's no danger
+}
+
+bool isSafeToVisit(HeroPtr h, uint64_t dangerStrength)
+{
+	return isSafeToVisit(h, h.get(), dangerStrength);
 }
 
 bool isObjectRemovable(const CGObjectInstance * obj)
