@@ -85,7 +85,7 @@ private:
 
 public:
 	/// more than 1 chain layer for each hero allows us to have more than 1 path to each tile so we can chose more optimal one.
-	static const int NUM_CHAINS = 3 * GameConstants::MAX_HEROES_PER_PLAYER;
+	static const int NUM_CHAINS = 5 * GameConstants::MAX_HEROES_PER_PLAYER;
 	
 	AINodeStorage(const int3 & sizes);
 	~AINodeStorage();
@@ -116,7 +116,7 @@ public:
 	void setHeroes(std::vector<HeroPtr> heroes, const VCAI * ai);
 	void setTownsAndDwellings(
 		const std::vector<const CGTownInstance *> & towns,
-		const std::vector<const CGObjectInstance *> & visitableObjs);
+		const std::set<const CGObjectInstance *> & visitableObjs);
 	const CGHeroInstance * getHero(const CGPathNode * node) const;
 	const std::set<const CGHeroInstance *> getAllHeroes() const;
 	void clear();
