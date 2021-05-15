@@ -76,7 +76,7 @@ void AINodeStorage::clear()
 {
 	actors.clear();
 	heroChainPass = false;
-	heroChainTurn = 0;
+	heroChainTurn = 1;
 }
 
 const AIPathNode * AINodeStorage::getAINode(const CGPathNode * node) const
@@ -184,7 +184,7 @@ void AINodeStorage::commit(CDestinationNodeInfo & destination, const PathNodeInf
 			dstNode->specialAction->applyOnDestination(dstNode->actor->hero, destination, source, dstNode, srcNode);
 		}
 
-#ifdef VCMI_TRACE_PATHFINDER_EX
+#if VCMI_TRACE_PATHFINDER >= 2
 		logAi->trace(
 			"Commited %s -> %s, cost: %f, hero: %s, mask: %x, army: %i", 
 			source.coord.toString(),
@@ -310,7 +310,7 @@ void AINodeStorage::calculateHeroChain(
 			continue;
 		}
 
-#ifdef VCMI_TRACE_PATHFINDER_EX
+#if VCMI_TRACE_PATHFINDER >= 2
 		logAi->trace(
 			"Thy exchange %s[%i] -> %s[%i] at %s",
 			node->actor->toString(),
@@ -331,7 +331,7 @@ void AINodeStorage::calculateHeroChain(
 {	
 	if(carrier->actor->canExchange(other->actor))
 	{
-#ifdef VCMI_TRACE_PATHFINDER_EX
+#if VCMI_TRACE_PATHFINDER >= 2
 		logAi->trace(
 			"Exchange allowed %s[%i] -> %s[%i] at %s",
 			other->actor->toString(),
@@ -341,15 +341,18 @@ void AINodeStorage::calculateHeroChain(
 			carrier->coord.toString());
 #endif
 
-		bool hasLessMp = carrier->turns > other->turns || carrier->moveRemains < other->moveRemains;
-		bool hasLessExperience = carrier->actor->hero->exp < other->actor->hero->exp;
-
-		if(hasLessMp && hasLessExperience)
+		if(other->actor->isMovable)
 		{
-#ifdef VCMI_TRACE_PATHFINDER_EX
-			logAi->trace("Exchange at %s is ineficient. Blocked.", carrier->coord.toString());
+			bool hasLessMp = carrier->turns > other->turns || carrier->moveRemains < other->moveRemains;
+			bool hasLessExperience = carrier->actor->hero->exp < other->actor->hero->exp;
+
+			if(hasLessMp && hasLessExperience)
+			{
+#if VCMI_TRACE_PATHFINDER >= 2
+				logAi->trace("Exchange at %s is ineficient. Blocked.", carrier->coord.toString());
 #endif
-			return;
+				return;
+			}
 		}
 
 		auto newActor = carrier->actor->exchange(other->actor);
@@ -369,7 +372,7 @@ void AINodeStorage::addHeroChain(const std::vector<ExchangeCandidate> & result)
 
 		if(!chainNodeOptional)
 		{
-#ifdef VCMI_TRACE_PATHFINDER_EX
+#if VCMI_TRACE_PATHFINDER >= 2
 			logAi->trace("Exchange at %s can not allocate node. Blocked.", carrier->coord.toString());
 #endif
 			continue;
@@ -379,7 +382,7 @@ void AINodeStorage::addHeroChain(const std::vector<ExchangeCandidate> & result)
 
 		if(exchangeNode->action != CGPathNode::ENodeAction::UNKNOWN)
 		{
-#ifdef VCMI_TRACE_PATHFINDER_EX
+#if VCMI_TRACE_PATHFINDER >= 2
 			logAi->trace("Exchange at %s node is already in use. Blocked.", carrier->coord.toString());
 #endif
 			continue;
@@ -387,7 +390,7 @@ void AINodeStorage::addHeroChain(const std::vector<ExchangeCandidate> & result)
 		
 		if(exchangeNode->turns != 0xFF && exchangeNode->cost < chainInfo.cost)
 		{
-#ifdef VCMI_TRACE_PATHFINDER_EX
+#if VCMI_TRACE_PATHFINDER >= 2
 			logAi->trace(
 				"Exchange at %s is is not effective enough. %f < %f", 
 				exchangeNode->coord.toString(), 
@@ -402,7 +405,7 @@ void AINodeStorage::addHeroChain(const std::vector<ExchangeCandidate> & result)
 		exchangeNode->chainOther = other;
 		exchangeNode->armyLoss = chainInfo.armyLoss;
 
-#ifdef VCMI_TRACE_PATHFINDER_EX
+#if VCMI_TRACE_PATHFINDER >= 2
 		logAi->trace(
 			"Chain accepted at %s %s -> %s, mask %x, cost %f, army %i", 
 			exchangeNode->coord.toString(), 
@@ -785,6 +788,16 @@ int3 AIPath::firstTileToGet() const
 	return int3(-1, -1, -1);
 }
 
+int3 AIPath::targetTile() const
+{
+	if(nodes.size())
+	{
+		return nodes.front().coord;
+	}
+
+	return int3(-1, -1, -1);
+}
+
 const AIPathNodeInfo & AIPath::firstNode() const
 {
 	return nodes.back();
@@ -822,4 +835,14 @@ uint64_t AIPath::getTotalDanger(HeroPtr hero) const
 	uint64_t danger = pathDanger > targetObjectDanger ? pathDanger : targetObjectDanger;
 
 	return danger;
+}
+
+std::string AIPath::toString()
+{
+	std::stringstream str;
+	
+	for(auto node : nodes)
+		str << node.targetHero->name << "->" << node.coord.toString() << "; ";
+
+	return str.str();
 }

@@ -22,19 +22,27 @@ extern FuzzyHelper * fh;
 
 using namespace Goals;
 
-std::string CaptureObjectsBehavior::toString() const {
+std::string CaptureObjectsBehavior::toString() const
+{
 	return "Capture objects";
 }
 
-Goals::TGoalVec CaptureObjectsBehavior::getTasks() {
+Goals::TGoalVec CaptureObjectsBehavior::getTasks()
+{
 	Goals::TGoalVec tasks;
-	
-	auto captureObjects = [&](std::vector<const CGObjectInstance*> objs) -> void {
-		if (objs.empty()) {
+
+	auto captureObjects = [&](const std::vector<const CGObjectInstance*> & objs) -> void{
+		if(objs.empty())
+		{
 			return;
 		}
 
-		for (auto objToVisit : objs) {
+		for(auto objToVisit : objs)
+		{			
+#ifdef VCMI_TRACE_PATHFINDER
+			logAi->trace("Checking object %s, %s", objToVisit->getObjectName(), objToVisit->visitablePos().toString());
+#endif
+
 			if(!shouldVisitObject(objToVisit))
 				continue;
 
@@ -42,27 +50,36 @@ Goals::TGoalVec CaptureObjectsBehavior::getTasks() {
 			auto paths = ai->ah->getPathsToTile(pos);
 			std::vector<std::shared_ptr<ExecuteHeroChain>> waysToVisitObj;
 			std::shared_ptr<ExecuteHeroChain> closestWay;
+					
+#ifdef VCMI_TRACE_PATHFINDER
+			logAi->trace("Found %" PRId32 "paths", paths.size());
+#endif
 
 			for(auto & path : paths)
 			{
 #ifdef VCMI_TRACE_PATHFINDER
-				std::stringstream str;
-
-				str << "Path found ";
-
-				for(auto node : path.nodes)
-					str << node.targetHero->name << "->" << node.coord.toString() << "; ";
-
-				logAi->trace(str.str());
+				logAi->trace("Path found %s", path.toString());
 #endif
 
 				if(!shouldVisit(path.targetHero, objToVisit))
-					continue; 
-				
+					continue;
+
 				auto hero = path.targetHero;
 				auto danger = path.getTotalDanger(hero);
+				auto isSafe = isSafeToVisit(hero, path.heroArmy, danger);
+				
+#ifdef VCMI_TRACE_PATHFINDER
+				logAi->trace(
+					"It is %s to visit %s by %s with army %" PRId64 ", danger %" PRId64 " and army loss %" PRId64, 
+					isSafe ? "safe" : "not safe",
+					objToVisit->instanceName, 
+					hero->name,
+					path.getHeroStrength(),
+					danger,
+					path.armyLoss);
+#endif
 
-				if(isSafeToVisit(hero, path.heroArmy, danger))
+				if(isSafe)
 				{
 					auto newWay = std::make_shared<ExecuteHeroChain>(path, objToVisit);
 
@@ -72,26 +89,26 @@ Goals::TGoalVec CaptureObjectsBehavior::getTasks() {
 						closestWay = newWay;
 				}
 			}
-			
+
 			if(waysToVisitObj.empty())
 				continue;
-			
+
 			for(auto way : waysToVisitObj)
 			{
-				way->evaluationContext.closestWayRatio 
+				way->evaluationContext.closestWayRatio
 					= way->evaluationContext.movementCost / closestWay->evaluationContext.movementCost;
 
-				logAi->trace("Behavior %s found %s(%s), danger %d", toString(), way->name(), way->tile.toString(), way->evaluationContext.danger);
-		
 				tasks.push_back(sptr(*way));
 			}
 		}
 	};
 
-	if (specificObjects) {
+	if(specificObjects)
+	{
 		captureObjects(objectsToCapture);
 	}
-	else {
+	else
+	{
 		captureObjects(std::vector<const CGObjectInstance*>(ai->visitableObjs.begin(), ai->visitableObjs.end()));
 	}
 
@@ -102,22 +119,26 @@ bool CaptureObjectsBehavior::shouldVisitObject(ObjectIdRef obj) const
 {
 	const CGObjectInstance* objInstance = obj;
 
-	if (!objInstance || objectTypes.size() && !vstd::contains(objectTypes, objInstance->ID.num)) {
+	if(!objInstance || objectTypes.size() && !vstd::contains(objectTypes, objInstance->ID.num))
+	{
 		return false;
 	}
 
-	if (!objInstance || objectSubTypes.size() && !vstd::contains(objectSubTypes, objInstance->subID)) {
+	if(!objInstance || objectSubTypes.size() && !vstd::contains(objectSubTypes, objInstance->subID))
+	{
 		return false;
 	}
 
 	const int3 pos = objInstance->visitablePos();
 
-	if (vstd::contains(ai->alreadyVisited, objInstance)) {
+	if(vstd::contains(ai->alreadyVisited, objInstance))
+	{
 		return false;
 	}
 
 	auto playerRelations = cb->getPlayerRelations(ai->playerID, objInstance->tempOwner);
-	if (playerRelations != PlayerRelations::ENEMIES && !isWeeklyRevisitable(objInstance)) {
+	if(playerRelations != PlayerRelations::ENEMIES && !isWeeklyRevisitable(objInstance))
+	{
 		return false;
 	}
 
@@ -126,7 +147,7 @@ bool CaptureObjectsBehavior::shouldVisitObject(ObjectIdRef obj) const
 	// -> it will just trigger exchange windows and AI will be confused that obj behind doesn't get visited
 	const CGObjectInstance * topObj = cb->getTopObj(obj->visitablePos());
 
-	if (topObj->ID == Obj::HERO && cb->getPlayerRelations(ai->playerID, topObj->tempOwner) != PlayerRelations::ENEMIES)
+	if(topObj->ID == Obj::HERO && cb->getPlayerRelations(ai->playerID, topObj->tempOwner) != PlayerRelations::ENEMIES)
 		return false;
 	else
 		return true; //all of the following is met

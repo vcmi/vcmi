@@ -10,8 +10,7 @@
 
 #pragma once
 
-#define VCMI_TRACE_PATHFINDER
-#define NVCMI_TRACE_PATHFINDER_EX
+#define VCMI_TRACE_PATHFINDER 1
 
 #include "../../../lib/CPathfinder.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
@@ -61,12 +60,15 @@ struct AIPath
 	uint64_t getTotalDanger(HeroPtr hero) const;
 
 	int3 firstTileToGet() const;
+	int3 targetTile() const;
 
 	const AIPathNodeInfo & firstNode() const;
 
 	float movementCost() const;
 
 	uint64_t getHeroStrength() const;
+
+	std::string toString();
 };
 
 struct ExchangeCandidate : public AIPathNode
