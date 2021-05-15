@@ -62,6 +62,8 @@ Goals::TGoalVec CaptureObjectsBehavior::getTasks() {
 				way->evaluationContext.closestWayRatio 
 					= way->evaluationContext.movementCost / closestWay->evaluationContext.movementCost;
 
+				logAi->trace("Behavior %s found %s(%s), danger %d", toString(), way->name(), way->tile.toString(), way->evaluationContext.danger);
+
 				tasks.push_back(way);
 			}
 		}

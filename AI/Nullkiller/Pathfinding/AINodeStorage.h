@@ -18,6 +18,8 @@
 #include "Actions/ISpecialAction.h"
 #include "Actors.h"
 
+#define VCMI_TRACE_PATHFINDER
+
 struct AIPathNode : public CGPathNode
 {
 	uint64_t danger;
