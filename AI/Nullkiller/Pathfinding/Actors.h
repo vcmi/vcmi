@@ -48,6 +48,7 @@ public:
 	ChainActor(){}
 
 	virtual bool canExchange(const ChainActor * other) const;
+	virtual std::string toString() const;
 	ChainActor * exchange(const ChainActor * other) const { return exchange(this, other); }
 	void setBaseActor(HeroActor * base);
 
@@ -102,9 +103,13 @@ protected:
 
 class DwellingActor : public ChainActor
 {
+private:
+	const CGDwelling * dwelling;
+
 public:
 	DwellingActor(const CGDwelling * dwelling, uint64_t chainMask, bool waitForGrowth, int dayOfWeek);
 	~DwellingActor();
+	virtual std::string toString() const override;
 
 protected:
 	int getInitialTurn(bool waitForGrowth, int dayOfWeek);
@@ -113,6 +118,10 @@ protected:
 
 class TownGarrisonActor : public ChainActor
 {
+private:
+	const CGTownInstance * town;
+
 public:
 	TownGarrisonActor(const CGTownInstance * town, uint64_t chainMask);
+	virtual std::string toString() const override;
 };
