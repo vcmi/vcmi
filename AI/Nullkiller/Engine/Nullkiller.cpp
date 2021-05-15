@@ -16,7 +16,7 @@ Nullkiller::Nullkiller()
 	dangerHitMap.reset(new DangerHitMapAnalyzer());
 }
 
-Goals::TSubgoal Nullkiller::choseBestTask(Goals::TGoalVec tasks)
+Goals::TSubgoal Nullkiller::choseBestTask(Goals::TGoalVec & tasks) const
 {
 	Goals::TSubgoal bestTask = *vstd::maxElementByFun(tasks, [](Goals::TSubgoal goal) -> float{
 		return goal->priority;
@@ -25,15 +25,15 @@ Goals::TSubgoal Nullkiller::choseBestTask(Goals::TGoalVec tasks)
 	return bestTask;
 }
 
-Goals::TSubgoal Nullkiller::choseBestTask(Behavior & behavior)
+Goals::TSubgoal Nullkiller::choseBestTask(std::shared_ptr<Behavior> behavior) const
 {
-	logAi->debug("Checking behavior %s", behavior.toString());
+	logAi->debug("Checking behavior %s", behavior->toString());
 
-	auto tasks = behavior.getTasks();
+	auto tasks = behavior->getTasks();
 
 	if(tasks.empty())
 	{
-		logAi->debug("Behavior %s found no tasks", behavior.toString());
+		logAi->debug("Behavior %s found no tasks", behavior->toString());
 
 		return Goals::sptr(Goals::Invalid());
 	}
@@ -45,7 +45,7 @@ Goals::TSubgoal Nullkiller::choseBestTask(Behavior & behavior)
 
 	auto task = choseBestTask(tasks);
 
-	logAi->debug("Behavior %s returns %s(%s), priority %f", behavior.toString(), task->name(), task->tile.toString(), task->priority);
+	logAi->debug("Behavior %s returns %s(%s), priority %f", behavior->toString(), task->name(), task->tile.toString(), task->priority);
 
 	return task;
 }
@@ -77,9 +77,9 @@ void Nullkiller::makeTurn()
 		updateAiState();
 
 		Goals::TGoalVec bestTasks = {
-			choseBestTask(BuyArmyBehavior()),
-			choseBestTask(CaptureObjectsBehavior()),
-			choseBestTask(RecruitHeroBehavior())
+			choseBestTask(std::make_shared<BuyArmyBehavior>()),
+			choseBestTask(std::make_shared<CaptureObjectsBehavior>()),
+			choseBestTask(std::make_shared<RecruitHeroBehavior>())
 		};
 
 		Goals::TSubgoal bestTask = choseBestTask(bestTasks);
