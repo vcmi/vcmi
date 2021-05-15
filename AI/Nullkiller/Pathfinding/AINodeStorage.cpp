@@ -132,7 +132,8 @@ std::vector<CGPathNode *> AINodeStorage::getInitialNodes()
 		initialNode->turns = actor->initialTurn;
 		initialNode->moveRemains = actor->initialMovement;
 		initialNode->danger = 0;
-		initialNode->cost = 0.0;
+		initialNode->cost = actor->initialTurn;
+		initialNode->action = CGPathNode::ENodeAction::NORMAL;
 
 		if(actor->isMovable)
 		{
@@ -175,6 +176,16 @@ void AINodeStorage::commit(CDestinationNodeInfo & destination, const PathNodeInf
 		{
 			dstNode->specialAction->applyOnDestination(dstNode->actor->hero, destination, source, dstNode, srcNode);
 		}
+
+#ifdef VCMI_TRACE_PATHFINDER_EX
+		logAi->trace(
+			"Commited %s -> %s, cost: %f, hero: %s, mask: %i", 
+			source.coord.toString(),
+			destination.coord.toString(),
+			destination.cost,
+			dstNode->actor->hero->name,
+			dstNode->actor->chainMask);
+#endif
 	});
 }
 
@@ -194,6 +205,7 @@ void AINodeStorage::commit(
 	destination->manaCost = source->manaCost;
 	destination->danger = source->danger;
 	destination->theNodeBefore = source->theNodeBefore;
+	destination->chainOther = nullptr;
 }
 
 std::vector<CGPathNode *> AINodeStorage::calculateNeighbours(
@@ -227,33 +239,53 @@ bool AINodeStorage::calculateHeroChain()
 	heroChainPass = true;
 	heroChain.resize(0);
 
+	std::vector<AIPathNode *> buffer;
+
+	buffer.reserve(NUM_CHAINS);
+
 	foreach_tile_pos([&](const int3 & pos) {
 		auto layer = EPathfindingLayer::LAND;
 		auto chains = nodes[pos.x][pos.y][pos.z][layer];
 
+		buffer.resize(0);
+
 		for(AIPathNode & node : chains)
 		{
-			if(node.locked && node.turns < 1)
-				addHeroChain(&node);
+			if(node.turns <= heroChainMaxTurns && node.action != CGPathNode::ENodeAction::UNKNOWN)
+				buffer.push_back(&node);
+		}
+
+		for(AIPathNode * node : buffer)
+		{
+			addHeroChain(node, buffer);
 		}
 	});
 
 	return heroChain.size();
 }
 
-void AINodeStorage::addHeroChain(AIPathNode * srcNode)
+void AINodeStorage::addHeroChain(AIPathNode * srcNode, std::vector<AIPathNode *> variants)
 {
-	auto chains = nodes[srcNode->coord.x][srcNode->coord.y][srcNode->coord.z][srcNode->layer];
-
-	for(AIPathNode & node : chains)
+	for(AIPathNode * node : variants)
 	{
-		if(!node.locked || !node.actor || node.action == CGPathNode::ENodeAction::UNKNOWN && node.actor->hero)
+		if(node == srcNode || !node->actor || node->turns > heroChainMaxTurns 
+			|| node->action == CGPathNode::ENodeAction::UNKNOWN && node->actor->hero)
 		{
 			continue;
 		}
 
-		addHeroChain(srcNode, &node);
-		addHeroChain(&node, srcNode);
+#ifdef VCMI_TRACE_PATHFINDER_EX
+		logAi->trace(
+			"Thy exchange %s[%i] -> %s[%i] at %s",
+			node->actor->hero->name,
+			node->actor->chainMask,
+			srcNode->actor->hero->name,
+			srcNode->actor->chainMask,
+			srcNode->coord.toString());
+#endif
+
+		addHeroChain(srcNode, node);
+		//addHeroChain(&node, srcNode);
 	}
 }
 
@@ -261,37 +293,65 @@ void AINodeStorage::addHeroChain(AIPathNode * carrier, AIPathNode * other)
 {
 	if(carrier->actor->canExchange(other->actor))
 	{
+#ifdef VCMI_TRACE_PATHFINDER_EX
+		logAi->trace(
+			"Exchange allowed %s[%i] -> %s[%i] at %s",
+			other->actor->hero->name,
+			other->actor->chainMask,
+			carrier->actor->hero->name,
+			carrier->actor->chainMask,
+			carrier->coord.toString());
+#endif
+
 		bool hasLessMp = carrier->turns > other->turns || carrier->moveRemains < other->moveRemains;
 		bool hasLessExperience = carrier->actor->hero->exp < other->actor->hero->exp;
 
-#ifdef VCMI_TRACE_PATHFINDER
-		logAi->trace("Check hero exhange at %s, %s -> %s", carrier->coord.toString(), other->actor->hero->name, carrier->actor->hero->name);
-#endif
-
 		if(hasLessMp && hasLessExperience)
+		{
+#ifdef VCMI_TRACE_PATHFINDER_EX
+			logAi->trace("Exchange at %s is ineficient. Blocked.", carrier->coord.toString());
+#endif
 			return;
+		}
 
 		auto newActor = carrier->actor->exchange(other->actor);
 		auto chainNodeOptional = getOrCreateNode(carrier->coord, carrier->layer, newActor);
 
 		if(!chainNodeOptional)
+		{
+#ifdef VCMI_TRACE_PATHFINDER_EX
+			logAi->trace("Exchange at %s can not allocate node. Blocked.", carrier->coord.toString());
+#endif
 			return;
+		}
 
 		auto chainNode = chainNodeOptional.get();
 
-		if(chainNode->locked)
-			return;
-
-#ifdef VCMI_TRACE_PATHFINDER
-		logAi->trace("Hero exhange at %s, %s -> %s", carrier->coord.toString(), other->actor->hero->name, carrier->actor->hero->name);
+		if(chainNode->action != CGPathNode::ENodeAction::UNKNOWN)
+		{
+#ifdef VCMI_TRACE_PATHFINDER_EX
+			logAi->trace("Exchange at %s node is already in use. Blocked.", carrier->coord.toString());
 #endif
+			return;
+		}
 		
-		commitExchange(chainNode, carrier, other);
-		heroChain.push_back(chainNode);
+		if(commitExchange(chainNode, carrier, other))
+		{
+#ifdef VCMI_TRACE_PATHFINDER_EX
+			logAi->trace(
+				"Chain accepted at %s %s -> %s, mask %i, cost %f", 
+				chainNode->coord.toString(), 
+				other->actor->hero->name, 
+				chainNode->actor->hero->name,
+				chainNode->actor->chainMask,
+				chainNode->cost);
+#endif
+			heroChain.push_back(chainNode);
+		}
 	}
 }
 
-void AINodeStorage::commitExchange(
+bool AINodeStorage::commitExchange(
 	AIPathNode * exchangeNode, 
 	AIPathNode * carrierParentNode, 
 	AIPathNode * otherParentNode) const
@@ -302,7 +362,7 @@ void AINodeStorage::commitExchange(
 
 	auto armyLoss = carrierParentNode->armyLoss + otherParentNode->armyLoss;
 	auto turns = carrierParentNode->turns;
-	auto cost = carrierParentNode->cost;
+	auto cost = carrierParentNode->cost + otherParentNode->cost / 1000.0;
 	auto movementLeft = carrierParentNode->moveRemains;
 
 	if(carrierParentNode->turns < otherParentNode->turns)
@@ -312,27 +372,24 @@ void AINodeStorage::commitExchange(
 			+ carrierParentNode->moveRemains / (float)moveRemains;
 
 		turns = otherParentNode->turns;
-		cost = waitingCost;
+		cost += waitingCost;
 		movementLeft = moveRemains;
 	}
 		
 	if(exchangeNode->turns != 0xFF && exchangeNode->cost < cost)
-		return;
-
-#ifdef VCMI_TRACE_PATHFINDER
-	logAi->trace(
-		"Accepted hero exhange at %s, carrier %s, mp cost %f", 
-		exchangeNode->coord.toString(),
-		carrierActor->hero->name,
-		cost);
+	{
+#ifdef VCMI_TRACE_PATHFINDER_EX
+		logAi->trace("Exchange at %s is is not effective enough. %f < %f", exchangeNode->coord.toString(), exchangeNode->cost, cost);
 #endif
+		return false;
+	}
 	
 	commit(exchangeNode, carrierParentNode, carrierParentNode->action, turns, movementLeft, cost);
 
-	exchangeNode->theNodeBefore = carrierParentNode;
 	exchangeNode->chainOther = otherParentNode;
 	exchangeNode->armyLoss = armyLoss;
-	exchangeNode->manaCost = carrierParentNode->manaCost;
+
+	return true;
 }
 
 const CGHeroInstance * AINodeStorage::getHero(const CGPathNode * node) const
@@ -538,6 +595,7 @@ std::vector<AIPath> AINodeStorage::getChainInfo(const int3 & pos, bool isOnLand)
 		path.heroArmy = node.actor->creatureSet;
 		path.armyLoss = node.armyLoss;
 		path.targetObjectDanger = evaluateDanger(pos, path.targetHero);
+		path.chainMask = node.actor->chainMask;
 		
 		fillChainInfo(&node, path);
 
@@ -551,21 +609,25 @@ void AINodeStorage::fillChainInfo(const AIPathNode * node, AIPath & path) const
 {
 	while(node != nullptr)
 	{
-		if(!node->actor->hero || node->coord == node->actor->hero->visitablePos())
+		if(!node->actor->hero)
 			return;
-
-		AIPathNodeInfo pathNode;
-		pathNode.cost = node->cost;
-		pathNode.targetHero = node->actor->hero;
-		pathNode.turns = node->turns;
-		pathNode.danger = node->danger;
-		pathNode.coord = node->coord;
-
-		path.nodes.push_back(pathNode);
-		path.specialAction = node->specialAction;
 
 		if(node->chainOther)
 			fillChainInfo(node->chainOther, path);
+
+		if(node->actor->hero->visitablePos() != node->coord)
+		{
+			AIPathNodeInfo pathNode;
+			pathNode.cost = node->cost;
+			pathNode.targetHero = node->actor->hero;
+			pathNode.turns = node->turns;
+			pathNode.danger = node->danger;
+			pathNode.coord = node->coord;
+
+			path.nodes.push_back(pathNode);
+		}
+
+		path.specialAction = node->specialAction;
 
 		node = getAINode(node->theNodeBefore);
 	}
@@ -584,6 +646,11 @@ int3 AIPath::firstTileToGet() const
 	}
 
 	return int3(-1, -1, -1);
+}
+
+const AIPathNodeInfo & AIPath::firstNode() const
+{
+	return nodes.back();
 }
 
 uint64_t AIPath::getPathDanger() const

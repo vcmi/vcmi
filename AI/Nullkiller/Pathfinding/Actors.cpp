@@ -82,21 +82,16 @@ void ChainActor::setBaseActor(HeroActor * base)
 	armyValue = base->armyValue;
 	chainMask = base->chainMask;
 	creatureSet = base->creatureSet;
+	isMovable = base->isMovable;
 }
 
 void HeroActor::setupSpecialActors()
 {
 	auto allActors = std::vector<ChainActor *>{ this };
 
-	for(int i = 1; i <= SPECIAL_ACTORS_COUNT; i++)
+	for(ChainActor & specialActor : specialActors)
 	{
-		ChainActor & specialActor = specialActors[i - 1];
-
 		specialActor.setBaseActor(this);
-		specialActor.allowBattle = (i & 1) > 0;
-		specialActor.allowSpellCast = (i & 2) > 0;
-		specialActor.allowUseResources = (i & 4) > 0;
-
 		allActors.push_back(&specialActor);
 	}
 
@@ -104,6 +99,9 @@ void HeroActor::setupSpecialActors()
 	{
 		ChainActor * actor = allActors[i];
 
+		actor->allowBattle = (i & 1) > 0;
+		actor->allowSpellCast = (i & 2) > 0;
+		actor->allowUseResources = (i & 4) > 0;
 		actor->battleActor = allActors[i | 1];
 		actor->castActor = allActors[i | 2];
 		actor->resourceActor = allActors[i | 4];
@@ -180,7 +178,7 @@ CCreatureSet * HeroActor::pickBestCreatures(const CCreatureSet * army1, const CC
 	{
 		for(auto & i : armyPtr->Slots())
 		{
-			creToPower[i.second->type] += i.second->getPower();
+			creToPower[i.second->type] += i.second->count;
 		}
 	}
 	//TODO - consider more than just power (ie morale penalty, hero specialty in certain stacks, etc)
@@ -193,7 +191,7 @@ CCreatureSet * HeroActor::pickBestCreatures(const CCreatureSet * army1, const CC
 		typedef const std::pair<const CCreature *, int> & CrePowerPair;
 		auto creIt = boost::max_element(creToPower, [](CrePowerPair lhs, CrePowerPair rhs)
 		{
-			return lhs.second < rhs.second;
+			return lhs.first->AIValue * lhs.second < rhs.first->AIValue * rhs.second;
 		});
 
 		target->addToSlot(SlotID(i), creIt->first->idNumber, TQuantity(creIt->second));

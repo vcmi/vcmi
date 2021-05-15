@@ -38,39 +38,10 @@ namespace AIPathfinding
 
 		auto srcNode = nodeStorage->getAINode(source.node);
 
-		if(srcNode->specialAction)
+		if(srcNode->specialAction || srcNode->chainOther)
 		{
 			// there is some action on source tile which should be performed before we can bypass it
 			destination.node->theNodeBefore = source.node;
 		}
-
-		auto dstNode = nodeStorage->getAINode(destination.node);
-		auto srcActor = srcNode->actor;
-		auto dstActor = dstNode->actor;
-
-		if(srcActor == dstActor)
-		{
-			return;
-		}
-
-		auto carrierActor = dstActor->carrierParent;
-		auto otherActor = dstActor->otherParent;
-
-		nodeStorage->updateAINode(destination.node, [&](AIPathNode * dstNode) {
-			if(source.coord == destination.coord)
-			{
-				auto carrierNode = nodeStorage->getOrCreateNode(source.coord, source.node->layer, carrierActor).get();
-				auto otherNode = nodeStorage->getOrCreateNode(source.coord, source.node->layer, otherActor).get();
-
-				if(destination.coord != carrierNode->coord)
-					dstNode->theNodeBefore = carrierNode;
-
-				dstNode->chainOther = otherNode;
-
-#ifdef VCMI_TRACE_PATHFINDER
-				logAi->trace("Link Hero exhange at %s, %s -> %s", dstNode->coord.toString(), otherNode->actor->hero->name, carrierNode->actor->hero->name);
-#endif
-			}
-		});
 	}
 }

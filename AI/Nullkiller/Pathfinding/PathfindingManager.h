@@ -20,7 +20,7 @@ public:
 	virtual void init(CPlayerSpecificInfoCallback * CB) = 0;
 	virtual void setAI(VCAI * AI) = 0;
 
-	virtual void updatePaths(std::vector<HeroPtr> heroes) = 0;
+	virtual void updatePaths(std::vector<HeroPtr> heroes, bool useHeroChain = false) = 0;
 	virtual void updatePaths(const HeroPtr & hero) = 0;
 	virtual Goals::TGoalVec howToVisitTile(const HeroPtr & hero, const int3 & tile, bool allowGatherArmy = true) const = 0;
 	virtual Goals::TGoalVec howToVisitObj(const HeroPtr & hero, ObjectIdRef obj, bool allowGatherArmy = true) const = 0;
@@ -47,7 +47,7 @@ public:
 	Goals::TGoalVec howToVisitTile(const int3 & tile, bool allowGatherArmy = true) const override;
 	Goals::TGoalVec howToVisitObj(ObjectIdRef obj, bool allowGatherArmy = true) const override;
 	std::vector<AIPath> getPathsToTile(const HeroPtr & hero, const int3 & tile) const override;
-	void updatePaths(std::vector<HeroPtr> heroes) override;
+	void updatePaths(std::vector<HeroPtr> heroes, bool useHeroChain = false) override;
 	void updatePaths(const HeroPtr & hero) override;
 
 	STRONG_INLINE
