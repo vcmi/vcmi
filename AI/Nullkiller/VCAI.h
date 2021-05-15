@@ -29,6 +29,7 @@
 struct QuestInfo;
 
 class AIhelper;
+class Nullkiller;
 
 class AIStatus
 {
@@ -115,6 +116,7 @@ public:
 	ObjectInstanceID selectedObject;
 
 	AIhelper * ah;
+	std::unique_ptr<Nullkiller> nullkiller;
 
 	VCAI();
 	virtual ~VCAI();
