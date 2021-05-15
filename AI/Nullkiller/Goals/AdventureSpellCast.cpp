@@ -44,6 +44,9 @@ TSubgoal AdventureSpellCast::whatToDoToAchieve()
 	if(hero->mana < hero->getSpellCost(spell))
 		throw cannotFulfillGoalException("Hero has not enough mana to cast " + spell->name);
 
+	if(spellID == SpellID::TOWN_PORTAL && town && town->visitingHero)
+		throw cannotFulfillGoalException("The town is already occupied by " + town->visitingHero->name);
+
 	return iAmElementar();
 }
 
