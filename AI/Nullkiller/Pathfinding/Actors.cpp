@@ -48,7 +48,7 @@ ChainActor::ChainActor(const ChainActor * carrier, const ChainActor * other, con
 	carrierParent(carrier), otherParent(other), chainMask(carrier->chainMask | other->chainMask)
 {
 	baseActor = static_cast<HeroActor *>(this);
-	armyValue = heroArmy->getArmyStrength();
+	armyValue = hero->getFightingStrength() * heroArmy->getArmyStrength();
 }
 
 HeroActor::HeroActor(const CGHeroInstance * hero, int chainMask)

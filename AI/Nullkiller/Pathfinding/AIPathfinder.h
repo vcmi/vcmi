@@ -25,7 +25,7 @@ public:
 	AIPathfinder(CPlayerSpecificInfoCallback * cb, VCAI * ai);
 	std::vector<AIPath> getPathInfo(const HeroPtr & hero, const int3 & tile) const;
 	bool isTileAccessible(const HeroPtr & hero, const int3 & tile) const;
-	void updatePaths(std::vector<HeroPtr> heroes);
+	void updatePaths(std::vector<HeroPtr> heroes, bool useHeroChain = false);
 	void updatePaths(const HeroPtr & heroes);
 	void init();
 };
