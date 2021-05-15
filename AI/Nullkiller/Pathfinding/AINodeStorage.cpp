@@ -411,7 +411,7 @@ bool AINodeStorage::hasBetterChain(const PathNodeInfo & source, CDestinationNode
 					"Block ineficient move %s:->%s, mask=%i, mp diff: %i",
 					source.coord.toString(),
 					destination.coord.toString(),
-					destinationNode->chainMask,
+					destinationNode->actor->chainMask,
 					node.moveRemains - destinationNode->moveRemains);
 #endif
 				return true;
