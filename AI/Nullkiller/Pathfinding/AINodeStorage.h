@@ -10,6 +10,8 @@
 
 #pragma once
 
+#define VCMI_TRACE_PATHFINDER
+
 #include "../../../lib/CPathfinder.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
 #include "../AIUtility.h"
