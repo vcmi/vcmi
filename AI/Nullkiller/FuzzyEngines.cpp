@@ -261,14 +261,14 @@ HeroMovementGoalEngineBase::HeroMovementGoalEngineBase()
 	try
 	{
 		strengthRatio = new fl::InputVariable("strengthRatio"); //hero must be strong enough to defeat guards
-		heroStrength = new fl::InputVariable("heroStrength"); //we want to use weakest possible hero
-		turnDistance = new fl::InputVariable("turnDistance"); //we want to use hero who is near
+		heroStrengthVariable = new fl::InputVariable("heroStrengthVariable"); //we want to use weakest possible hero
+		turnDistanceVariable = new fl::InputVariable("turnDistanceVariable"); //we want to use hero who is near
 		missionImportance = new fl::InputVariable("lockedMissionImportance"); //we may want to preempt hero with low-priority mission
 		value = new fl::OutputVariable("Value");
 		value->setMinimum(0);
 		value->setMaximum(5);
 
-		std::vector<fl::InputVariable *> helper = { strengthRatio, heroStrength, turnDistance, missionImportance };
+		std::vector<fl::InputVariable *> helper = { strengthRatio, heroStrengthVariable, turnDistanceVariable, missionImportance };
 		for(auto val : helper)
 		{
 			engine.addInputVariable(val);
@@ -280,15 +280,15 @@ HeroMovementGoalEngineBase::HeroMovementGoalEngineBase()
 		strengthRatio->setRange(0, SAFE_ATTACK_CONSTANT * 3);
 
 		//strength compared to our main hero
-		heroStrength->addTerm(new fl::Ramp("LOW", 0.5, 0));
-		heroStrength->addTerm(new fl::Triangle("MEDIUM", 0.2, 0.8));
-		heroStrength->addTerm(new fl::Ramp("HIGH", 0.5, 1));
-		heroStrength->setRange(0.0, 1.0);
+		heroStrengthVariable->addTerm(new fl::Ramp("LOW", 0.5, 0));
+		heroStrengthVariable->addTerm(new fl::Triangle("MEDIUM", 0.2, 0.8));
+		heroStrengthVariable->addTerm(new fl::Ramp("HIGH", 0.5, 1));
+		heroStrengthVariable->setRange(0.0, 1.0);
 
-		turnDistance->addTerm(new fl::Ramp("SHORT", 0.5, 0));
-		turnDistance->addTerm(new fl::Triangle("MEDIUM", 0.1, 0.8));
-		turnDistance->addTerm(new fl::Ramp("LONG", 0.5, 10));
-		turnDistance->setRange(0.0, 10.0);
+		turnDistanceVariable->addTerm(new fl::Ramp("SHORT", 0.5, 0));
+		turnDistanceVariable->addTerm(new fl::Triangle("MEDIUM", 0.1, 0.8));
+		turnDistanceVariable->addTerm(new fl::Ramp("LONG", 0.5, 10));
+		turnDistanceVariable->setRange(0.0, 10.0);
 
 		missionImportance->addTerm(new fl::Ramp("LOW", 2.5, 0));
 		missionImportance->addTerm(new fl::Triangle("MEDIUM", 2, 3));
@@ -303,24 +303,24 @@ HeroMovementGoalEngineBase::HeroMovementGoalEngineBase()
 		value->setRange(0.0, 5.0);
 
 		//use unarmed scouts if possible
-		addRule("if strengthRatio is HIGH and heroStrength is LOW then Value is HIGH");
+		addRule("if strengthRatio is HIGH and heroStrengthVariable is LOW then Value is HIGH");
 		//we may want to use secondary hero(es) rather than main hero
-		addRule("if strengthRatio is HIGH and heroStrength is MEDIUM then Value is MEDIUM");
-		addRule("if strengthRatio is HIGH and heroStrength is HIGH then Value is LOW");
+		addRule("if strengthRatio is HIGH and heroStrengthVariable is MEDIUM then Value is MEDIUM");
+		addRule("if strengthRatio is HIGH and heroStrengthVariable is HIGH then Value is LOW");
 		//don't assign targets to heroes who are too weak, but prefer targets of our main hero (in case we need to gather army)
-		addRule("if strengthRatio is LOW and heroStrength is LOW then Value is LOW");
+		addRule("if strengthRatio is LOW and heroStrengthVariable is LOW then Value is LOW");
 		//attempt to arm secondary heroes is not stupid
-		addRule("if strengthRatio is LOW and heroStrength is MEDIUM then Value is HIGH");
-		addRule("if strengthRatio is LOW and heroStrength is HIGH then Value is LOW");
+		addRule("if strengthRatio is LOW and heroStrengthVariable is MEDIUM then Value is HIGH");
+		addRule("if strengthRatio is LOW and heroStrengthVariable is HIGH then Value is LOW");
 
 		//do not cancel important goals
 		addRule("if lockedMissionImportance is HIGH then Value is LOW");
 		addRule("if lockedMissionImportance is MEDIUM then Value is MEDIUM");
 		addRule("if lockedMissionImportance is LOW then Value is HIGH");
 		//pick nearby objects if it's easy, avoid long walks
-		addRule("if turnDistance is SHORT then Value is HIGH");
-		addRule("if turnDistance is MEDIUM then Value is MEDIUM");
-		addRule("if turnDistance is LONG then Value is LOW");
+		addRule("if turnDistanceVariable is SHORT then Value is HIGH");
+		addRule("if turnDistanceVariable is MEDIUM then Value is MEDIUM");
+		addRule("if turnDistanceVariable is LONG then Value is LOW");
 	}
 	catch(fl::Exception & fe)
 	{
@@ -350,8 +350,8 @@ void HeroMovementGoalEngineBase::setSharedFuzzyVariables(Goals::AbstractGoal & g
 	try
 	{
 		strengthRatio->setValue(strengthRatioData);
-		heroStrength->setValue((fl::scalar)goal.hero->getTotalStrength() / ai->primaryHero()->getTotalStrength());
-		turnDistance->setValue(turns);
+		heroStrengthVariable->setValue((fl::scalar)goal.hero->getTotalStrength() / ai->primaryHero()->getTotalStrength());
+		turnDistanceVariable->setValue(turns);
 		missionImportance->setValue(missionImportanceData);
 	}
 	catch(fl::Exception & fe)
