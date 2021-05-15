@@ -330,7 +330,10 @@ void AINodeStorage::calculateHeroChain(
 	AIPathNode * other, 
 	std::vector<ExchangeCandidate> & result) const
 {	
-	if(carrier->actor->canExchange(other->actor))
+	if(carrier->armyLoss < carrier->actor->armyValue
+		&& (carrier->action != CGPathNode::BATTLE || carrier->actor->allowBattle && carrier->specialAction)
+		&& other->armyLoss < other->actor->armyValue
+		&& carrier->actor->canExchange(other->actor))
 	{
 #if VCMI_TRACE_PATHFINDER >= 2
 		logAi->trace(

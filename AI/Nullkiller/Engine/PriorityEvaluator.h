@@ -17,7 +17,7 @@ class CArmedInstance;
 class CBank;
 struct SectorMap;
 
-class PriorityEvaluator : public engineBase
+class PriorityEvaluator
 {
 public:
 	PriorityEvaluator();
@@ -27,11 +27,15 @@ public:
 	float evaluate(Goals::TSubgoal task);
 
 private:
+	fl::Engine * engine;
 	fl::InputVariable * armyLossPersentageVariable;
-	fl::InputVariable * armyStrengthVariable;
+	fl::InputVariable * heroRoleVariable;
 	fl::InputVariable * turnDistanceVariable;
 	fl::InputVariable * goldRewardVariable;
 	fl::InputVariable * armyRewardVariable;
 	fl::InputVariable * dangerVariable;
+	fl::InputVariable * skillRewardVariable;
+	fl::InputVariable * rewardTypeVariable;
+	fl::InputVariable * closestHeroRatioVariable;
 	fl::OutputVariable * value;
 };
