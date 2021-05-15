@@ -1,5 +1,5 @@
 /*
-* ExecuteHeroChain.h, part of VCMI engine
+* ExchangeSwapTownHeroes.h, part of VCMI engine
 *
 * Authors: listed in file AUTHORS in main folder
 *
@@ -13,14 +13,14 @@
 
 namespace Goals
 {
-	class DLL_EXPORT ExecuteHeroChain : public CGoal<ExecuteHeroChain>
+	class DLL_EXPORT ExchangeSwapTownHeroes : public CGoal<ExchangeSwapTownHeroes>
 	{
 	private:
-		AIPath chainPath;
-		std::string targetName;
+		const CGTownInstance * town;
+		const CGHeroInstance * garrisonHero;
 
 	public:
-		ExecuteHeroChain(const AIPath & path, const CGObjectInstance * obj = nullptr);
+		ExchangeSwapTownHeroes(const CGTownInstance * town, const CGHeroInstance * garrisonHero = nullptr);
 
 		TGoalVec getAllPossibleSubgoals() override
 		{
@@ -31,6 +31,6 @@ namespace Goals
 		void accept(VCAI * ai) override;
 		std::string name() const override;
 		std::string completeMessage() const override;
-		virtual bool operator==(const ExecuteHeroChain & other) const override;
+		virtual bool operator==(const ExchangeSwapTownHeroes & other) const override;
 	};
 }

@@ -1,11 +1,11 @@
 /*
- * Fuzzy.cpp, part of VCMI engine
- *
- * Authors: listed in file AUTHORS in main folder
- *
- * License: GNU General Public License v2.0 or later
- * Full text of license available in license.txt file, in main folder
- *
+* PriorityEvaluator.cpp, part of VCMI engine
+*
+* Authors: listed in file AUTHORS in main folder
+*
+* License: GNU General Public License v2.0 or later
+* Full text of license available in license.txt file, in main folder
+*
 */
 #include "StdInc.h"
 #include "PriorityEvaluator.h"
@@ -46,7 +46,7 @@ PriorityEvaluator::~PriorityEvaluator()
 
 void PriorityEvaluator::initVisitTile()
 {
-	auto file = CResourceHandler::get()->load(ResourceID("config/ai-priorities.txt"))->readAll();
+	auto file = CResourceHandler::get()->load(ResourceID("config/ai/object-priorities.txt"))->readAll();
 	std::string str = std::string((char *)file.first.get(), file.second);
 	engine = fl::FllImporter().fromString(str);
 	armyLossPersentageVariable = engine->getInputVariable("armyLoss");
