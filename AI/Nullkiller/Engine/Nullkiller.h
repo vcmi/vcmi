@@ -14,6 +14,7 @@ public:
 	Nullkiller();
 	void makeTurn();
 	bool isActive(const CGHeroInstance * hero) const { return activeHero.h == hero; }
+	void setActive(const HeroPtr & hero) { activeHero = hero; }
 
 private:
 	Goals::TSubgoal choseBestTask(Behavior & behavior);

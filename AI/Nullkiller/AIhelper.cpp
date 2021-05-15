@@ -149,6 +149,11 @@ std::vector<AIPath> AIhelper::getPathsToTile(const HeroPtr & hero, const int3 & 
 	return pathfindingManager->getPathsToTile(hero, tile);
 }
 
+std::vector<AIPath> AIhelper::getPathsToTile(const int3 & tile) const
+{
+	return pathfindingManager->getPathsToTile(tile);
+}
+
 void AIhelper::updatePaths(std::vector<HeroPtr> heroes, bool useHeroChain)
 {
 	pathfindingManager->updatePaths(heroes, useHeroChain);
