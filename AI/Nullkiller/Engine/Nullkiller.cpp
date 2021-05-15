@@ -26,6 +26,8 @@ Goals::TSubgoal Nullkiller::choseBestTask(Goals::TGoalVec tasks)
 
 Goals::TSubgoal Nullkiller::choseBestTask(Behavior & behavior)
 {
+	logAi->debug("Checking behavior %s", behavior.toString());
+
 	auto tasks = behavior.getTasks();
 
 	if(tasks.empty())
@@ -51,7 +53,7 @@ void Nullkiller::makeTurn()
 {
 	while(true)
 	{
-		ai->ah->updatePaths(ai->getMyHeroes());
+		ai->ah->updatePaths(ai->getMyHeroes(), true);
 
 		Goals::TGoalVec bestTasks = {
 			choseBestTask(CaptureObjectsBehavior()),
@@ -71,6 +73,8 @@ void Nullkiller::makeTurn()
 
 		try
 		{
+			activeHero = bestTask->hero;
+
 			bestTask->accept(ai.get());
 		}
 		catch(goalFulfilledException &)
