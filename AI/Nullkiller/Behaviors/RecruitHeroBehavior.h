@@ -1,5 +1,5 @@
 /*
-* Goals.h, part of VCMI engine
+* RecruitHeroBehavior.h, part of VCMI engine
 *
 * Authors: listed in file AUTHORS in main folder
 *
@@ -23,15 +23,3 @@ public:
 	virtual Goals::TGoalVec getTasks() override;
 	virtual std::string toString() const override;
 };
-
-class StartupBehavior : public Behavior
-{
-public:
-	StartupBehavior()
-	{
-	}
-
-	virtual Goals::TGoalVec getTasks() override;
-	virtual std::string toString() const override;
-};
-

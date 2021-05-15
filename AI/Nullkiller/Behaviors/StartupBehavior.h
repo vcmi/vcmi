@@ -1,5 +1,5 @@
 /*
-* BuyArmyBehavior.h, part of VCMI engine
+* StartupBehavior.h, part of VCMI engine
 *
 * Authors: listed in file AUTHORS in main folder
 *
@@ -13,10 +13,10 @@
 #include "Behavior.h"
 #include "../AIUtility.h"
 
-class BuyArmyBehavior : public Behavior
+class StartupBehavior : public Behavior
 {
 public:
-	BuyArmyBehavior()
+	StartupBehavior()
 	{
 	}
 

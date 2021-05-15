@@ -47,6 +47,7 @@ set(VCAI_SRCS
 		Goals/FindObj.cpp
 		Goals/CompleteQuest.cpp
 		Goals/ExecuteHeroChain.cpp
+		Goals/ExchangeSwapTownHeroes.cpp
 		Engine/Nullkiller.cpp
 		Engine/PriorityEvaluator.cpp
 		Engine/DangerHitMapAnalyzer.cpp
@@ -54,6 +55,7 @@ set(VCAI_SRCS
 		Behaviors/CaptureObjectsBehavior.cpp
 		Behaviors/RecruitHeroBehavior.cpp
 		Behaviors/BuyArmyBehavior.cpp
+		Behaviors/StartupBehavior.cpp
 		main.cpp
 		VCAI.cpp
 )
@@ -110,6 +112,7 @@ set(VCAI_HEADERS
 		Goals/FindObj.h
 		Goals/CompleteQuest.h
 		Goals/ExecuteHeroChain.h
+		Goals/ExchangeSwapTownHeroes.h
 		Goals/Goals.h
 		Engine/Nullkiller.h
 		Engine/PriorityEvaluator.h
@@ -118,6 +121,7 @@ set(VCAI_HEADERS
 		Behaviors/CaptureObjectsBehavior.h
 		Behaviors/RecruitHeroBehavior.h
 		Behaviors/BuyArmyBehavior.h
+		Behaviors/StartupBehavior.h
 		VCAI.h
 )
 
