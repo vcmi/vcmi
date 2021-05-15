@@ -78,9 +78,12 @@ void ExecuteHeroChain::accept(VCAI * ai)
 
 		try
 		{
-			ai->nullkiller->setActive(hero);
+			if(hero->movement)
+			{
+				ai->nullkiller->setActive(hero);
 
-			Goals::VisitTile(node.coord).sethero(hero).accept(ai);
+				Goals::VisitTile(node.coord).sethero(hero).accept(ai);
+			}
 
 			// no exception means we were not able to rich the tile
 			ai->nullkiller->lockHero(hero);
