@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "Nullkiller.h"
 #include "../VCAI.h"
-#include "../AIHelper.h"
+#include "../AIhelper.h"
 #include "../Behaviors/CaptureObjectsBehavior.h"
 #include "../Behaviors/RecruitHeroBehavior.h"
 #include "../Behaviors/BuyArmyBehavior.h"

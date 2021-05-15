@@ -131,12 +131,15 @@ bool CaptureObjectsBehavior::shouldVisitObject(ObjectIdRef obj) const
 {
 	const CGObjectInstance* objInstance = obj;
 
-	if(!objInstance || objectTypes.size() && !vstd::contains(objectTypes, objInstance->ID.num))
+	if(!objInstance)
+		return false;
+
+	if(objectTypes.size() && !vstd::contains(objectTypes, objInstance->ID.num))
 	{
 		return false;
 	}
 
-	if(!objInstance || objectSubTypes.size() && !vstd::contains(objectSubTypes, objInstance->subID))
+	if(objectSubTypes.size() && !vstd::contains(objectSubTypes, objInstance->subID))
 	{
 		return false;
 	}
