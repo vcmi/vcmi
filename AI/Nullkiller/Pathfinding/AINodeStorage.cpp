@@ -263,9 +263,6 @@ bool AINodeStorage::calculateHeroChain()
 
 		for(AIPathNode & node : chains)
 		{
-			if(node.coord.x == 60 && node.coord.y == 56 && node.actor)
-				logAi->trace(node.actor->toString());
-
 			if(node.turns <= heroChainTurn && node.action != CGPathNode::ENodeAction::UNKNOWN)
 				existingChains.push_back(&node);
 		}
@@ -304,8 +301,10 @@ void AINodeStorage::calculateHeroChain(
 {
 	for(AIPathNode * node : variants)
 	{
-		if(node == srcNode || !node->actor || node->turns > heroChainTurn 
-			|| node->action == CGPathNode::ENodeAction::UNKNOWN && node->actor->hero
+		if(node == srcNode 
+			|| !node->actor 
+			|| node->turns > heroChainTurn 
+			|| (node->action == CGPathNode::ENodeAction::UNKNOWN && node->actor->hero)
 			|| (node->actor->chainMask & srcNode->actor->chainMask) != 0)
 		{
 			continue;
@@ -331,7 +330,7 @@ void AINodeStorage::calculateHeroChain(
 	std::vector<ExchangeCandidate> & result) const
 {	
 	if(carrier->armyLoss < carrier->actor->armyValue
-		&& (carrier->action != CGPathNode::BATTLE || carrier->actor->allowBattle && carrier->specialAction)
+		&& (carrier->action != CGPathNode::BATTLE || (carrier->actor->allowBattle && carrier->specialAction))
 		&& other->armyLoss < other->actor->armyValue
 		&& carrier->actor->canExchange(other->actor))
 	{
@@ -429,10 +428,7 @@ ExchangeCandidate AINodeStorage::calculateExchange(
 	AIPathNode * otherParentNode) const
 {
 	ExchangeCandidate candidate;
-
-	auto carrierActor = carrierParentNode->actor;
-	auto otherActor = otherParentNode->actor;
-
+	
 	candidate.layer = carrierParentNode->layer;
 	candidate.coord = carrierParentNode->coord;
 	candidate.carrierParent = carrierParentNode;
