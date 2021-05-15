@@ -104,7 +104,18 @@ Goals::TGoalVec PathfindingManager::howToVisitObj(const HeroPtr & hero, ObjectId
 
 std::vector<AIPath> PathfindingManager::getPathsToTile(const HeroPtr & hero, const int3 & tile) const
 {
-	return pathfinder->getPathInfo(hero, tile);
+	auto paths = pathfinder->getPathInfo(tile);
+
+	vstd::erase_if(paths, [&](AIPath & path) -> bool{
+		return path.targetHero != hero.h;
+	});
+
+	return paths;
+}
+
+std::vector<AIPath> PathfindingManager::getPathsToTile(const int3 & tile) const
+{
+	return pathfinder->getPathInfo(tile);
 }
 
 Goals::TGoalVec PathfindingManager::findPaths(
@@ -117,7 +128,7 @@ Goals::TGoalVec PathfindingManager::findPaths(
 	boost::optional<uint64_t> armyValueRequired;
 	uint64_t danger;
 
-	std::vector<AIPath> chainInfo = pathfinder->getPathInfo(hero, dest);
+	std::vector<AIPath> chainInfo = pathfinder->getPathInfo(dest);
 
 #ifdef VCMI_TRACE_PATHFINDER
 	logAi->trace("Trying to find a way for %s to visit tile %s", hero->name, dest.toString());

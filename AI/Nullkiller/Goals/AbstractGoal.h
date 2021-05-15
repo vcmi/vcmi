@@ -64,7 +64,8 @@ namespace Goals
 		TRADE, //val resID at object objid
 		BUILD_BOAT,
 		COMPLETE_QUEST,
-		ADVENTURE_SPELL_CAST
+		ADVENTURE_SPELL_CAST,
+		EXECUTE_HERO_CHAIN
 	};
 
 	class DLL_EXPORT TSubgoal : public std::shared_ptr<AbstractGoal>

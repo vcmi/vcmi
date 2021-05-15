@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "../VCAI.h"
 #include "../AIhelper.h"
+#include "../Goals/ExecuteHeroChain.h"
 #include "CaptureObjectsBehavior.h"
 #include "../AIUtility.h"
 #include "lib/mapping/CMap.h" //for victory conditions
@@ -38,32 +39,51 @@ Goals::TGoalVec CaptureObjectsBehavior::getTasks() {
 				continue;
 
 			const int3 pos = objToVisit->visitablePos();
-			Goals::TGoalVec waysToVisitObj = ai->ah->howToVisitObj(objToVisit, false);
+			auto paths = ai->ah->getPathsToTile(pos);
+			std::vector<std::shared_ptr<ExecuteHeroChain>> waysToVisitObj;
+			std::shared_ptr<ExecuteHeroChain> closestWay;
 
-			vstd::erase_if(waysToVisitObj, [objToVisit](Goals::TSubgoal goal) -> bool
+			for(auto & path : paths)
 			{
-				return !goal->hero.validAndSet() 
-					|| !shouldVisit(goal->hero, objToVisit);
-			});
+#ifdef VCMI_TRACE_PATHFINDER
+				std::stringstream str;
 
+				str << "Path found ";
+
+				for(auto node : path.nodes)
+					str << node.targetHero->name << "->" << node.coord.toString() << "; ";
+
+				logAi->trace(str.str());
+#endif
+
+				if(!shouldVisit(path.targetHero, objToVisit))
+					continue; 
+				
+				auto hero = path.targetHero;
+				auto danger = path.getTotalDanger(hero);
+
+				if(isSafeToVisit(hero, path.heroArmy, danger))
+				{
+					auto newWay = std::make_shared<ExecuteHeroChain>(path, objToVisit);
+
+					waysToVisitObj.push_back(newWay);
+
+					if(!closestWay || closestWay->evaluationContext.movementCost > newWay->evaluationContext.movementCost)
+						closestWay = newWay;
+				}
+			}
+			
 			if(waysToVisitObj.empty())
 				continue;
-
-			Goals::TSubgoal closestWay = *vstd::minElementByFun(waysToVisitObj, [](Goals::TSubgoal goal) -> float {
-				return goal->evaluationContext.movementCost;
-			});
-
-			for(Goals::TSubgoal way : waysToVisitObj)
+			
+			for(auto way : waysToVisitObj)
 			{
-				if(!way->hero->movement)
-					continue;
-
 				way->evaluationContext.closestWayRatio 
 					= way->evaluationContext.movementCost / closestWay->evaluationContext.movementCost;
 
 				logAi->trace("Behavior %s found %s(%s), danger %d", toString(), way->name(), way->tile.toString(), way->evaluationContext.danger);
-
-				tasks.push_back(way);
+		
+				tasks.push_back(sptr(*way));
 			}
 		}
 	};

@@ -39,6 +39,7 @@ struct AIPathNodeInfo
 	int3 coord;
 	uint64_t danger;
 	const CGHeroInstance * targetHero;
+	int parentIndex;
 };
 
 struct AIPath
@@ -158,7 +159,7 @@ private:
 	void addHeroChain(const std::vector<ExchangeCandidate> & result);
 
 	void calculateTownPortalTeleportations(const PathNodeInfo & source, std::vector<CGPathNode *> & neighbours);
-	void fillChainInfo(const AIPathNode * node, AIPath & path) const;
+	void fillChainInfo(const AIPathNode * node, AIPath & path, int parentIndex) const;
 	void commit(
 		AIPathNode * destination, 
 		const AIPathNode * source, 

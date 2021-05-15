@@ -731,7 +731,7 @@ std::vector<AIPath> AINodeStorage::getChainInfo(const int3 & pos, bool isOnLand)
 		path.targetObjectDanger = evaluateDanger(pos, path.targetHero);
 		path.chainMask = node.actor->chainMask;
 		
-		fillChainInfo(&node, path);
+		fillChainInfo(&node, path, -1);
 
 		paths.push_back(path);
 	}
@@ -739,7 +739,7 @@ std::vector<AIPath> AINodeStorage::getChainInfo(const int3 & pos, bool isOnLand)
 	return paths;
 }
 
-void AINodeStorage::fillChainInfo(const AIPathNode * node, AIPath & path) const
+void AINodeStorage::fillChainInfo(const AIPathNode * node, AIPath & path, int parentIndex) const
 {
 	while(node != nullptr)
 	{
@@ -747,7 +747,7 @@ void AINodeStorage::fillChainInfo(const AIPathNode * node, AIPath & path) const
 			return;
 
 		if(node->chainOther)
-			fillChainInfo(node->chainOther, path);
+			fillChainInfo(node->chainOther, path, parentIndex);
 
 		if(node->actor->hero->visitablePos() != node->coord)
 		{
@@ -757,6 +757,9 @@ void AINodeStorage::fillChainInfo(const AIPathNode * node, AIPath & path) const
 			pathNode.turns = node->turns;
 			pathNode.danger = node->danger;
 			pathNode.coord = node->coord;
+			pathNode.parentIndex = parentIndex;
+
+			parentIndex = path.nodes.size();
 
 			path.nodes.push_back(pathNode);
 		}

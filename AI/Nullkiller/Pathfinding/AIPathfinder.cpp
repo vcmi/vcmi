@@ -31,7 +31,7 @@ bool AIPathfinder::isTileAccessible(const HeroPtr & hero, const int3 & tile) con
 		|| storage->isTileAccessible(hero, tile, EPathfindingLayer::SAIL);
 }
 
-std::vector<AIPath> AIPathfinder::getPathInfo(const HeroPtr & hero, const int3 & tile) const
+std::vector<AIPath> AIPathfinder::getPathInfo(const int3 & tile) const
 {
 	const TerrainTile * tileInfo = cb->getTile(tile, false);
 
