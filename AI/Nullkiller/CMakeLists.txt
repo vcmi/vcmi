@@ -55,6 +55,7 @@ set(VCAI_SRCS
 		Goals/ExecuteHeroChain.cpp
 		Engine/Nullkiller.cpp
 		Engine/PriorityEvaluator.cpp
+		Engine/DangerHitMapAnalyzer.cpp
 		Behaviors/Behavior.cpp
 		Behaviors/CaptureObjectsBehavior.cpp
 		Behaviors/RecruitHeroBehavior.cpp
@@ -117,6 +118,7 @@ set(VCAI_HEADERS
 		Goals/Goals.h
 		Engine/Nullkiller.h
 		Engine/PriorityEvaluator.h
+		Engine/DangerHitMapAnalyzer.h
 		Behaviors/Behavior.h
 		Behaviors/CaptureObjectsBehavior.h
 		Behaviors/RecruitHeroBehavior.h

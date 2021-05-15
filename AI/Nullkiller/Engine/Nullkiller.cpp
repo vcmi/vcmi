@@ -13,12 +13,12 @@ extern boost::thread_specific_ptr<VCAI> ai;
 Nullkiller::Nullkiller()
 {
 	priorityEvaluator.reset(new PriorityEvaluator());
+	dangerHitMap.reset(new DangerHitMapAnalyzer());
 }
 
 Goals::TSubgoal Nullkiller::choseBestTask(Goals::TGoalVec tasks)
 {
-	Goals::TSubgoal bestTask = *vstd::maxElementByFun(tasks, [](Goals::TSubgoal goal) -> float
-	{
+	Goals::TSubgoal bestTask = *vstd::maxElementByFun(tasks, [](Goals::TSubgoal goal) -> float{
 		return goal->priority;
 	});
 
@@ -53,6 +53,8 @@ Goals::TSubgoal Nullkiller::choseBestTask(Behavior & behavior)
 void Nullkiller::resetAiState()
 {
 	lockedHeroes.clear();
+
+	dangerHitMap->updateHitMap();
 }
 
 void Nullkiller::updateAiState()
