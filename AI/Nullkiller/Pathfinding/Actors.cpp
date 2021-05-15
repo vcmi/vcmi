@@ -18,25 +18,28 @@
 
 ChainActor::ChainActor(const CGHeroInstance * hero, uint64_t chainMask)
 	:hero(hero), isMovable(true), chainMask(chainMask), creatureSet(hero),
-	baseActor(this), carrierParent(nullptr), otherParent(nullptr)
+	baseActor(this), carrierParent(nullptr), otherParent(nullptr), actorExchangeCount(1)
 {
 	initialPosition = hero->visitablePos();
 	layer = hero->boat ? EPathfindingLayer::SAIL : EPathfindingLayer::LAND;
 	initialMovement = hero->movement;
 	initialTurn = 0;
 	armyValue = hero->getArmyStrength();
+	heroFightingStrength = hero->getFightingStrength();
 }
 
 ChainActor::ChainActor(const ChainActor * carrier, const ChainActor * other, const CCreatureSet * heroArmy)
 	:hero(carrier->hero), isMovable(true), creatureSet(heroArmy), chainMask(carrier->chainMask | other->chainMask),
-	baseActor(this), carrierParent(carrier), otherParent(other)
+	baseActor(this), carrierParent(carrier), otherParent(other), heroFightingStrength(carrier->heroFightingStrength),
+	actorExchangeCount(carrier->actorExchangeCount + other->actorExchangeCount)
 {
 	armyValue = heroArmy->getArmyStrength();
 }
 
 ChainActor::ChainActor(const CGObjectInstance * obj, const CCreatureSet * creatureSet, uint64_t chainMask, int initialTurn)
 	:hero(nullptr), isMovable(false), creatureSet(creatureSet), chainMask(chainMask),
-	baseActor(this), carrierParent(nullptr), otherParent(nullptr), initialTurn(initialTurn), initialMovement(0)
+	baseActor(this), carrierParent(nullptr), otherParent(nullptr), initialTurn(initialTurn), initialMovement(0),
+	heroFightingStrength(0), actorExchangeCount(1)
 {
 	initialPosition = obj->visitablePos();
 	layer = EPathfindingLayer::LAND;
@@ -77,6 +80,7 @@ void ChainActor::setBaseActor(HeroActor * base)
 	chainMask = base->chainMask;
 	creatureSet = base->creatureSet;
 	isMovable = base->isMovable;
+	heroFightingStrength = base->heroFightingStrength;
 }
 
 void HeroActor::setupSpecialActors()

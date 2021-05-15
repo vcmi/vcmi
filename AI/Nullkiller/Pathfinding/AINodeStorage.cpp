@@ -245,15 +245,18 @@ bool AINodeStorage::calculateHeroChain()
 	heroChainPass = true;
 	heroChain.resize(0);
 
-	std::vector<AIPathNode *> buffer;
+	std::vector<AIPathNode *> existingChains;
+	std::vector<ExchangeCandidate> newChains;
 
-	buffer.reserve(NUM_CHAINS);
+	existingChains.reserve(NUM_CHAINS);
+	newChains.reserve(NUM_CHAINS);
 
 	foreach_tile_pos([&](const int3 & pos) {
 		auto layer = EPathfindingLayer::LAND;
 		auto chains = nodes[pos.x][pos.y][pos.z][layer];
 
-		buffer.resize(0);
+		existingChains.resize(0);
+		newChains.resize(0);
 
 		for(AIPathNode & node : chains)
 		{
@@ -261,22 +264,40 @@ bool AINodeStorage::calculateHeroChain()
 				logAi->trace(node.actor->toString());
 
 			if(node.turns <= heroChainMaxTurns && node.action != CGPathNode::ENodeAction::UNKNOWN)
-				buffer.push_back(&node);
+				existingChains.push_back(&node);
 		}
 
-		for(AIPathNode * node : buffer)
+		for(AIPathNode * node : existingChains)
 		{
 			if(node->actor->hero)
 			{
-				addHeroChain(node, buffer);
+				calculateHeroChain(node, existingChains, newChains);
 			}
 		}
+
+		cleanupInefectiveChains(newChains);
+		addHeroChain(newChains);
 	});
 
 	return heroChain.size();
 }
 
-void AINodeStorage::addHeroChain(AIPathNode * srcNode, std::vector<AIPathNode *> variants)
+void AINodeStorage::cleanupInefectiveChains(std::vector<ExchangeCandidate> & result) const
+{
+	vstd::erase_if(result, [&](ExchangeCandidate & chainInfo) -> bool
+	{
+		auto pos = chainInfo.coord;
+		auto chains = nodes[pos.x][pos.y][pos.z][EPathfindingLayer::LAND];
+
+		return hasBetterChain(chainInfo.carrierParent, &chainInfo, chains)
+			|| hasBetterChain(chainInfo.carrierParent, &chainInfo, result);
+	});
+}
+
+void AINodeStorage::calculateHeroChain(
+	AIPathNode * srcNode, 
+	const std::vector<AIPathNode *> & variants, 
+	std::vector<ExchangeCandidate> & result) const
 {
 	for(AIPathNode * node : variants)
 	{
@@ -296,12 +317,14 @@ void AINodeStorage::addHeroChain(AIPathNode * srcNode, std::vector<AIPathNode *>
 			srcNode->coord.toString());
 #endif
 
-		addHeroChain(srcNode, node);
-		//addHeroChain(&node, srcNode);
+		calculateHeroChain(srcNode, node, result);
 	}
 }
 
-void AINodeStorage::addHeroChain(AIPathNode * carrier, AIPathNode * other)
+void AINodeStorage::calculateHeroChain(
+	AIPathNode * carrier, 
+	AIPathNode * other, 
+	std::vector<ExchangeCandidate> & result) const
 {
 	if(!carrier->actor->isMovable)
 		return;
@@ -330,6 +353,18 @@ void AINodeStorage::addHeroChain(AIPathNode * carrier, AIPathNode * other)
 		}
 
 		auto newActor = carrier->actor->exchange(other->actor);
+		
+		result.push_back(calculateExchange(newActor, carrier, other));
+	}
+}
+
+void AINodeStorage::addHeroChain(const std::vector<ExchangeCandidate> & result)
+{
+	for(const ExchangeCandidate & chainInfo : result)
+	{
+		auto carrier = chainInfo.carrierParent;
+		auto newActor = chainInfo.actor;
+		auto other = chainInfo.otherParent;
 		auto chainNodeOptional = getOrCreateNode(carrier->coord, carrier->layer, newActor);
 
 		if(!chainNodeOptional)
@@ -337,74 +372,81 @@ void AINodeStorage::addHeroChain(AIPathNode * carrier, AIPathNode * other)
 #ifdef VCMI_TRACE_PATHFINDER_EX
 			logAi->trace("Exchange at %s can not allocate node. Blocked.", carrier->coord.toString());
 #endif
-			return;
+			continue;
 		}
 
-		auto chainNode = chainNodeOptional.get();
+		auto exchangeNode = chainNodeOptional.get();
 
-		if(chainNode->action != CGPathNode::ENodeAction::UNKNOWN)
+		if(exchangeNode->action != CGPathNode::ENodeAction::UNKNOWN)
 		{
 #ifdef VCMI_TRACE_PATHFINDER_EX
 			logAi->trace("Exchange at %s node is already in use. Blocked.", carrier->coord.toString());
 #endif
-			return;
+			continue;
 		}
 		
-		if(commitExchange(chainNode, carrier, other))
+		if(exchangeNode->turns != 0xFF && exchangeNode->cost < chainInfo.cost)
 		{
 #ifdef VCMI_TRACE_PATHFINDER_EX
 			logAi->trace(
-				"Chain accepted at %s %s -> %s, mask %i, cost %f", 
-				chainNode->coord.toString(), 
-				other->actor->toString(), 
-				chainNode->actor->toString(),
-				chainNode->actor->chainMask,
-				chainNode->cost);
+				"Exchange at %s is is not effective enough. %f < %f", 
+				exchangeNode->coord.toString(), 
+				exchangeNode->cost, 
+				chainInfo.cost);
 #endif
-			heroChain.push_back(chainNode);
+			continue;
 		}
+
+		commit(exchangeNode, carrier, carrier->action, chainInfo.turns, chainInfo.moveRemains, chainInfo.cost);
+
+		exchangeNode->chainOther = other;
+		exchangeNode->armyLoss = chainInfo.armyLoss;
+
+#ifdef VCMI_TRACE_PATHFINDER_EX
+		logAi->trace(
+			"Chain accepted at %s %s -> %s, mask %i, cost %f", 
+			exchangeNode->coord.toString(), 
+			other->actor->toString(), 
+			exchangeNode->actor->toString(),
+			exchangeNode->actor->chainMask,
+			exchangeNode->cost);
+#endif
+		heroChain.push_back(exchangeNode);
 	}
 }
 
-bool AINodeStorage::commitExchange(
-	AIPathNode * exchangeNode, 
+ExchangeCandidate AINodeStorage::calculateExchange(
+	ChainActor * exchangeActor, 
 	AIPathNode * carrierParentNode, 
 	AIPathNode * otherParentNode) const
 {
+	ExchangeCandidate candidate;
+
 	auto carrierActor = carrierParentNode->actor;
-	auto exchangeActor = exchangeNode->actor;
 	auto otherActor = otherParentNode->actor;
 
-	auto armyLoss = carrierParentNode->armyLoss + otherParentNode->armyLoss;
-	auto turns = carrierParentNode->turns;
-	auto cost = carrierParentNode->cost + otherParentNode->cost / 1000.0;
-	auto movementLeft = carrierParentNode->moveRemains;
+	candidate.layer = carrierParentNode->layer;
+	candidate.coord = carrierParentNode->coord;
+	candidate.carrierParent = carrierParentNode;
+	candidate.otherParent = otherParentNode;
+	candidate.actor = exchangeActor;
+	candidate.armyLoss = carrierParentNode->armyLoss + otherParentNode->armyLoss;
+	candidate.turns = carrierParentNode->turns;
+	candidate.cost = carrierParentNode->cost + otherParentNode->cost / 1000.0;
+	candidate.moveRemains = carrierParentNode->moveRemains;
 
 	if(carrierParentNode->turns < otherParentNode->turns)
 	{
-		int moveRemains = exchangeActor->hero->maxMovePoints(exchangeNode->layer);
+		int moveRemains = exchangeActor->hero->maxMovePoints(carrierParentNode->layer);
 		float waitingCost = otherParentNode->turns - carrierParentNode->turns - 1
 			+ carrierParentNode->moveRemains / (float)moveRemains;
 
-		turns = otherParentNode->turns;
-		cost += waitingCost;
-		movementLeft = moveRemains;
+		candidate.turns = otherParentNode->turns;
+		candidate.cost += waitingCost;
+		candidate.moveRemains = moveRemains;
 	}
-		
-	if(exchangeNode->turns != 0xFF && exchangeNode->cost < cost)
-	{
-#ifdef VCMI_TRACE_PATHFINDER_EX
-		logAi->trace("Exchange at %s is is not effective enough. %f < %f", exchangeNode->coord.toString(), exchangeNode->cost, cost);
-#endif
-		return false;
-	}
-	
-	commit(exchangeNode, carrierParentNode, carrierParentNode->action, turns, movementLeft, cost);
 
-	exchangeNode->chainOther = otherParentNode;
-	exchangeNode->armyLoss = armyLoss;
-
-	return true;
+	return candidate;
 }
 
 const CGHeroInstance * AINodeStorage::getHero(const CGPathNode * node) const
@@ -587,13 +629,23 @@ bool AINodeStorage::hasBetterChain(const PathNodeInfo & source, CDestinationNode
 {
 	auto pos = destination.coord;
 	auto chains = nodes[pos.x][pos.y][pos.z][EPathfindingLayer::LAND];
-	auto destinationNode = getAINode(destination.node);
+
+	return hasBetterChain(source.node, getAINode(destination.node), chains);
+}
+
+template<class NodeRange>
+bool AINodeStorage::hasBetterChain(
+	const CGPathNode * source, 
+	const AIPathNode * destinationNode,
+	const NodeRange & chains) const
+{
+	auto dstActor = destinationNode->actor;
 
 	for(const AIPathNode & node : chains)
 	{
 		auto sameNode = node.actor == destinationNode->actor;
 
-		if(sameNode	|| node.action == CGPathNode::ENodeAction::UNKNOWN)
+		if(sameNode	|| node.action == CGPathNode::ENodeAction::UNKNOWN || !node.actor->hero)
 		{
 			continue;
 		}
@@ -605,13 +657,25 @@ bool AINodeStorage::hasBetterChain(const PathNodeInfo & source, CDestinationNode
 #ifdef VCMI_TRACE_PATHFINDER
 				logAi->trace(
 					"Block ineficient move %s:->%s, mask=%i, mp diff: %i",
-					source.coord.toString(),
-					destination.coord.toString(),
+					source->coord.toString(),
+					destinationNode->coord.toString(),
 					destinationNode->actor->chainMask,
 					node.moveRemains - destinationNode->moveRemains);
 #endif
 				return true;
 			}
+		}
+
+		if(dstActor->actorExchangeCount == 1)
+			continue;
+
+		auto nodeActor = node.actor;
+
+		if(nodeActor->armyValue - node.armyLoss >= dstActor->armyValue - destinationNode->armyLoss
+			&& nodeActor->heroFightingStrength >= dstActor->heroFightingStrength
+			&& node.cost >= destinationNode->cost)
+		{
+			return true;
 		}
 	}
 
