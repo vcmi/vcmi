@@ -76,6 +76,7 @@ void AINodeStorage::clear()
 {
 	actors.clear();
 	heroChainPass = false;
+	heroChainTurn = 0;
 }
 
 const AIPathNode * AINodeStorage::getAINode(const CGPathNode * node) const
@@ -185,12 +186,13 @@ void AINodeStorage::commit(CDestinationNodeInfo & destination, const PathNodeInf
 
 #ifdef VCMI_TRACE_PATHFINDER_EX
 		logAi->trace(
-			"Commited %s -> %s, cost: %f, hero: %s, mask: %i", 
+			"Commited %s -> %s, cost: %f, hero: %s, mask: %x, army: %i", 
 			source.coord.toString(),
 			destination.coord.toString(),
 			destination.cost,
 			dstNode->actor->toString(),
-			dstNode->actor->chainMask);
+			dstNode->actor->chainMask,
+			dstNode->actor->armyValue);
 #endif
 	});
 }
@@ -263,13 +265,13 @@ bool AINodeStorage::calculateHeroChain()
 			if(node.coord.x == 60 && node.coord.y == 56 && node.actor)
 				logAi->trace(node.actor->toString());
 
-			if(node.turns <= heroChainMaxTurns && node.action != CGPathNode::ENodeAction::UNKNOWN)
+			if(node.turns <= heroChainTurn && node.action != CGPathNode::ENodeAction::UNKNOWN)
 				existingChains.push_back(&node);
 		}
 
 		for(AIPathNode * node : existingChains)
 		{
-			if(node->actor->hero)
+			if(node->actor->isMovable)
 			{
 				calculateHeroChain(node, existingChains, newChains);
 			}
@@ -301,8 +303,9 @@ void AINodeStorage::calculateHeroChain(
 {
 	for(AIPathNode * node : variants)
 	{
-		if(node == srcNode || !node->actor || node->turns > heroChainMaxTurns 
-			|| node->action == CGPathNode::ENodeAction::UNKNOWN && node->actor->hero)
+		if(node == srcNode || !node->actor || node->turns > heroChainTurn 
+			|| node->action == CGPathNode::ENodeAction::UNKNOWN && node->actor->hero
+			|| (node->actor->chainMask & srcNode->actor->chainMask) != 0)
 		{
 			continue;
 		}
@@ -325,10 +328,7 @@ void AINodeStorage::calculateHeroChain(
 	AIPathNode * carrier, 
 	AIPathNode * other, 
 	std::vector<ExchangeCandidate> & result) const
-{
-	if(!carrier->actor->isMovable)
-		return;
-	
+{	
 	if(carrier->actor->canExchange(other->actor))
 	{
 #ifdef VCMI_TRACE_PATHFINDER_EX
@@ -404,12 +404,13 @@ void AINodeStorage::addHeroChain(const std::vector<ExchangeCandidate> & result)
 
 #ifdef VCMI_TRACE_PATHFINDER_EX
 		logAi->trace(
-			"Chain accepted at %s %s -> %s, mask %i, cost %f", 
+			"Chain accepted at %s %s -> %s, mask %x, cost %f, army %i", 
 			exchangeNode->coord.toString(), 
 			other->actor->toString(), 
 			exchangeNode->actor->toString(),
 			exchangeNode->actor->chainMask,
-			exchangeNode->cost);
+			exchangeNode->cost,
+			exchangeNode->actor->armyValue);
 #endif
 		heroChain.push_back(exchangeNode);
 	}
@@ -496,7 +497,7 @@ void AINodeStorage::setTownsAndDwellings(
 		}
 	}
 
-	auto dayOfWeek = cb->getDate(Date::DAY_OF_WEEK);
+	/*auto dayOfWeek = cb->getDate(Date::DAY_OF_WEEK);
 	auto waitForGrowth = dayOfWeek > 4;
 
 	for(auto obj: visitableObjs)
@@ -524,7 +525,7 @@ void AINodeStorage::setTownsAndDwellings(
 				}
 			}
 		}
-	}
+	}*/
 }
 
 std::vector<CGPathNode *> AINodeStorage::calculateTeleportations(
@@ -636,44 +637,53 @@ bool AINodeStorage::hasBetterChain(const PathNodeInfo & source, CDestinationNode
 template<class NodeRange>
 bool AINodeStorage::hasBetterChain(
 	const CGPathNode * source, 
-	const AIPathNode * destinationNode,
+	const AIPathNode * candidateNode,
 	const NodeRange & chains) const
 {
-	auto dstActor = destinationNode->actor;
+	auto candidateActor = candidateNode->actor;
 
 	for(const AIPathNode & node : chains)
 	{
-		auto sameNode = node.actor == destinationNode->actor;
+		auto sameNode = node.actor == candidateNode->actor;
 
 		if(sameNode	|| node.action == CGPathNode::ENodeAction::UNKNOWN || !node.actor->hero)
 		{
 			continue;
 		}
 
-		if(node.danger <= destinationNode->danger && destinationNode->actor == node.actor->battleActor)
+		if(node.danger <= candidateNode->danger && candidateNode->actor == node.actor->battleActor)
 		{
-			if(node.cost < destinationNode->cost)
+			if(node.cost < candidateNode->cost)
 			{
 #ifdef VCMI_TRACE_PATHFINDER
 				logAi->trace(
 					"Block ineficient move %s:->%s, mask=%i, mp diff: %i",
 					source->coord.toString(),
-					destinationNode->coord.toString(),
-					destinationNode->actor->chainMask,
-					node.moveRemains - destinationNode->moveRemains);
+					candidateNode->coord.toString(),
+					candidateNode->actor->chainMask,
+					node.moveRemains - candidateNode->moveRemains);
 #endif
 				return true;
 			}
 		}
 
-		if(dstActor->actorExchangeCount == 1)
+		if(candidateActor->actorExchangeCount == 1
+			&& (candidateActor->chainMask & node.actor->chainMask) == 0)
 			continue;
 
 		auto nodeActor = node.actor;
+		auto nodeArmyValue = nodeActor->armyValue - node.armyLoss;
+		auto candidateArmyValue = candidateActor->armyValue - candidateNode->armyLoss;
 
-		if(nodeActor->armyValue - node.armyLoss >= dstActor->armyValue - destinationNode->armyLoss
-			&& nodeActor->heroFightingStrength >= dstActor->heroFightingStrength
-			&& node.cost >= destinationNode->cost)
+		if(nodeArmyValue > candidateArmyValue
+			&& node.cost <= candidateNode->cost)
+		{
+			return true;
+		}
+
+		if(nodeArmyValue == candidateArmyValue
+			&& nodeActor->heroFightingStrength >= candidateActor->heroFightingStrength
+			&& node.cost <= candidateNode->cost)
 		{
 			return true;
 		}
