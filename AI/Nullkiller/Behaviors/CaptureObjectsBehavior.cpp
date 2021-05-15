@@ -43,8 +43,7 @@ Goals::TGoalVec CaptureObjectsBehavior::getTasks() {
 			vstd::erase_if(waysToVisitObj, [objToVisit](Goals::TSubgoal goal) -> bool
 			{
 				return !goal->hero.validAndSet() 
-					|| !shouldVisit(goal->hero, objToVisit)
-					|| goal->evaluationContext.danger * 1.5 > goal->hero->getTotalStrength();
+					|| !shouldVisit(goal->hero, objToVisit);
 			});
 
 			if(waysToVisitObj.empty())

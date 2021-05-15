@@ -302,17 +302,9 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task)
 
 	const CGObjectInstance * target = cb->getObj((ObjectInstanceID)objId, false);
 	
-	auto estimateLoss = [](double strength, double danger) -> double
-	{
-		auto ratio = danger / strength;
-
-		return ratio * ratio * ratio * strength;
-	};
-
 	auto hero = heroPtr.get();
-	auto armyTotal = hero->getTotalStrength();
-	auto armyLoss = estimateLoss(armyTotal, task->evaluationContext.danger);
-	double armyLossPersentage = armyLoss / (double)armyTotal;
+	auto armyTotal = task->evaluationContext.heroStrength;
+	double armyLossPersentage = task->evaluationContext.armyLoss / (double)armyTotal;
 	int32_t goldReward = getGoldReward(target, hero);
 	uint64_t armyReward = getArmyReward(target, hero);
 	double result = 0;
