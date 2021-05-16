@@ -97,10 +97,9 @@ namespace Goals
 			return *((T *)this);
 		}
 
-		virtual bool isElementar() const override
-		{
-			return true;
-		}
+		virtual bool isElementar() const override { return true; }
+
+		virtual HeroPtr getHero() const override { return hero; }
 	};
 
 	class DLL_EXPORT Invalid : public ElementarGoal<Invalid>

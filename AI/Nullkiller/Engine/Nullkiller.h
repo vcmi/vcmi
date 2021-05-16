@@ -21,6 +21,7 @@
 
 const float MAX_GOLD_PEASURE = 0.3f;
 const float MIN_PRIORITY = 0.01f;
+const float NEXT_SCAN_MIN_PRIORITY = 0.4f;
 
 enum class HeroLockedReason
 {
@@ -33,12 +34,22 @@ enum class HeroLockedReason
 	HERO_CHAIN = 3
 };
 
+enum class ScanDepth
+{
+	SMALL = 0,
+
+	MEDIUM = 1,
+
+	FULL = 2
+};
+
 class Nullkiller
 {
 private:
 	const CGHeroInstance * activeHero;
 	int3 targetTile;
 	std::map<const CGHeroInstance *, HeroLockedReason> lockedHeroes;
+	ScanDepth scanDepth;
 
 public:
 	std::unique_ptr<DangerHitMapAnalyzer> dangerHitMap;

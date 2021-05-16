@@ -19,10 +19,12 @@ struct PathfinderSettings
 {
 	bool useHeroChain;
 	uint8_t scoutTurnDistanceLimit;
+	uint8_t mainTurnDistanceLimit;
 
 	PathfinderSettings()
 		:useHeroChain(false),
-		scoutTurnDistanceLimit(255)
+		scoutTurnDistanceLimit(255),
+		mainTurnDistanceLimit(255)
 	{ }
 };
 

@@ -104,6 +104,7 @@ Goals::TTask Nullkiller::choseBestTask(Goals::TSubgoal behavior, int decompositi
 
 void Nullkiller::resetAiState()
 {
+	scanDepth = ScanDepth::SMALL;
 	playerID = ai->playerID;
 	lockedHeroes.clear();
 	dangerHitMap->reset();
@@ -139,6 +140,11 @@ void Nullkiller::updateAiState(int pass)
 	PathfinderSettings cfg;
 	cfg.useHeroChain = true;
 	cfg.scoutTurnDistanceLimit = SCOUT_TURN_DISTANCE_LIMIT;
+
+	if(scanDepth != ScanDepth::FULL)
+	{
+		cfg.mainTurnDistanceLimit = MAIN_TURN_DISTANCE_LIMIT * ((int)scanDepth + 1);
+	}
 
 	pathfinder->updatePaths(activeHeroes, cfg);
 
@@ -215,6 +221,20 @@ void Nullkiller::makeTurn()
 		}
 
 		Goals::TTask bestTask = choseBestTask(bestTasks);
+		HeroPtr hero = bestTask->getHero();
+
+		if(bestTask->priority < NEXT_SCAN_MIN_PRIORITY
+			&& hero.validAndSet()
+			&& heroManager->getHeroRole(hero) == HeroRole::MAIN
+			&& scanDepth != ScanDepth::FULL)
+		{
+			logAi->trace(
+				"Goal %s has too low priority %f so increasing scan depth",
+				bestTask->toString(),
+				bestTask->priority);
+			scanDepth = (ScanDepth)((int)scanDepth + 1);
+			continue;
+		}
 
 		if(bestTask->priority < MIN_PRIORITY)
 		{

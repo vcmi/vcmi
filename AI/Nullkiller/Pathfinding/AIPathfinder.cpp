@@ -56,6 +56,7 @@ void AIPathfinder::updatePaths(std::map<const CGHeroInstance *, HeroRole> heroes
 	storage->clear();
 	storage->setHeroes(heroes);
 	storage->setScoutTurnDistanceLimit(pathfinderSettings.scoutTurnDistanceLimit);
+	storage->setMainTurnDistanceLimit(pathfinderSettings.mainTurnDistanceLimit);
 
 	if(pathfinderSettings.useHeroChain)
 	{
