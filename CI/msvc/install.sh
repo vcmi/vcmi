@@ -4,7 +4,7 @@ git submodule update --init --recursive
 cd ..
 
 curl -LfsS -o "vcpkg-export-${VCMI_BUILD_PLATFORM}-windows-v140.7z" \
-	"https://github.com/nullkiller/vcmi-deps-windows/releases/download/v1.3/vcpkg-export-${VCMI_BUILD_PLATFORM}-windows-v140.7z"
+	"https://github.com/vcmi/vcmi-deps-windows/releases/download/v1.3/vcpkg-export-${VCMI_BUILD_PLATFORM}-windows-v140.7z"
 7z x "vcpkg-export-${VCMI_BUILD_PLATFORM}-windows-v140.7z"
 
 rmdir vcpkg\installed\${VCMI_BUILD_PLATFORM}-windows\debug /S/Q

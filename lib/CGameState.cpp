@@ -2056,9 +2056,9 @@ void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out)
 	pathfinder.calculatePaths();
 }
 
-void CGameState::calculatePaths(std::shared_ptr<PathfinderConfig> config, const CGHeroInstance * hero)
+void CGameState::calculatePaths(std::shared_ptr<PathfinderConfig> config)
 {
-	CPathfinder pathfinder(this, hero, config);
+	CPathfinder pathfinder(this, config);
 	pathfinder.calculatePaths();
 }
 
