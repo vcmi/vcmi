@@ -30,6 +30,13 @@ struct AIPathNode : public CGPathNode
 	const AIPathNode * chainOther;
 	std::shared_ptr<const SpecialAction> specialAction;
 	const ChainActor * actor;
+
+	STRONG_INLINE
+	bool blocked() const
+	{
+		return accessible == CGPathNode::EAccessibility::NOT_SET
+			|| accessible == CGPathNode::EAccessibility::BLOCKED;
+	}
 };
 
 struct AIPathNodeInfo
@@ -143,9 +150,7 @@ private:
 	uint8_t scoutTurnDistanceLimit;
 
 public:
-	/// more than 1 chain layer for each hero allows us to have more than 1 path to each tile so we can chose more optimal one.
-	static const int NUM_CHAINS = 10 * GameConstants::MAX_HEROES_PER_PLAYER;
-	
+	/// more than 1 chain layer for each hero allows us to have more than 1 path to each tile so we can chose more optimal one.	
 	AINodeStorage(const Nullkiller * ai, const int3 & sizes);
 	~AINodeStorage();
 

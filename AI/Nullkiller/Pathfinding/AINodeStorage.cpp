@@ -20,12 +20,19 @@
 #include "../../../lib/CPlayerState.h"
 
 std::shared_ptr<boost::multi_array<AIPathNode, 5>> AISharedStorage::shared;
+std::set<int3> commitedTiles;
+std::set<int3> commitedTilesInitial;
+
+const uint64_t FirstActorMask = 1;
+const int BUCKET_COUNT = 11;
+const int BUCKET_SIZE = GameConstants::MAX_HEROES_PER_PLAYER;
+const int NUM_CHAINS = BUCKET_COUNT * BUCKET_SIZE;
 
 AISharedStorage::AISharedStorage(int3 sizes)
 {
 	if(!shared){
 		shared.reset(new boost::multi_array<AIPathNode, 5>(
-			boost::extents[sizes.x][sizes.y][sizes.z][EPathfindingLayer::NUM_LAYERS][AINodeStorage::NUM_CHAINS]));
+			boost::extents[sizes.x][sizes.y][sizes.z][EPathfindingLayer::NUM_LAYERS][NUM_CHAINS]));
 	}
 
 	nodes = shared;
@@ -121,8 +128,19 @@ boost::optional<AIPathNode *> AINodeStorage::getOrCreateNode(
 	const EPathfindingLayer layer, 
 	const ChainActor * actor)
 {
-	for(AIPathNode & node : nodes.get(pos, layer))
+	int bucketIndex = ((uintptr_t)actor) % BUCKET_COUNT;
+	int bucketOffset = bucketIndex * BUCKET_SIZE;
+	auto chains = nodes.get(pos, layer);
+
+	if(chains[0].blocked())
 	{
+		return boost::none;
+	}
+
+	for(auto i = BUCKET_SIZE - 1; i >= 0; i--)
+	{
+		AIPathNode & node = chains[i + bucketOffset];
+
 		if(node.actor == actor)
 		{
 			return &node;
@@ -243,6 +261,11 @@ void AINodeStorage::commit(
 		destination->actor->chainMask,
 		destination->actor->armyValue);
 #endif
+
+	if(destination->turns <= heroChainTurn)
+	{
+		commitedTiles.insert(destination->coord);
+	}
 }
 
 std::vector<CGPathNode *> AINodeStorage::calculateNeighbours(
@@ -271,17 +294,38 @@ std::vector<CGPathNode *> AINodeStorage::calculateNeighbours(
 	return neighbours;
 }
 
+EPathfindingLayer phisycalLayers[2] = {EPathfindingLayer::LAND, EPathfindingLayer::SAIL};
+
 bool AINodeStorage::increaseHeroChainTurnLimit()
 {
 	if(heroChainTurn >= heroChainMaxTurns)
 		return false;
 
 	heroChainTurn++;
+	commitedTiles.clear();
+
+	for(auto layer : phisycalLayers)
+	{
+		foreach_tile_pos([&](const int3 & pos)
+		{
+			auto chains = nodes.get(pos, layer);
+
+			if(!chains[0].blocked())
+			{
+				for(AIPathNode & node : chains)
+				{
+					if(node.turns <= heroChainTurn && node.action != CGPathNode::ENodeAction::UNKNOWN)
+					{
+						commitedTiles.insert(pos);
+						break;
+					}
+				}
+			}
+		});
+	}
 
 	return true;
 }
-
-EPathfindingLayer phisycalLayers[2] = {EPathfindingLayer::LAND, EPathfindingLayer::SAIL};
 
 bool AINodeStorage::calculateHeroChainFinal()
 {
@@ -294,15 +338,18 @@ bool AINodeStorage::calculateHeroChainFinal()
 		{
 			auto chains = nodes.get(pos, layer);
 
-			for(AIPathNode & node : chains)
+			if(!chains[0].blocked())
 			{
-				if(node.turns > heroChainTurn
-					&& !node.locked
-					&& node.action != CGPathNode::ENodeAction::UNKNOWN
-					&& node.actor->actorExchangeCount > 1
-					&& !hasBetterChain(&node, &node, chains))
+				for(AIPathNode & node : chains)
 				{
-					heroChain.push_back(&node);
+					if(node.turns > heroChainTurn
+						&& !node.locked
+						&& node.action != CGPathNode::ENodeAction::UNKNOWN
+						&& node.actor->actorExchangeCount > 1
+						&& !hasBetterChain(&node, &node, chains))
+					{
+						heroChain.push_back(&node);
+					}
 				}
 			}
 		});
@@ -322,14 +369,18 @@ bool AINodeStorage::calculateHeroChain()
 	existingChains.reserve(NUM_CHAINS);
 	newChains.reserve(NUM_CHAINS);
 
-	for(auto layer : phisycalLayers)
+	for(auto & pos : commitedTiles)
 	{
-		foreach_tile_pos([&](const int3 & pos)
+		for(auto layer : phisycalLayers)
 		{
 			auto chains = nodes.get(pos, layer);
 
-			existingChains.resize(0);
-			newChains.resize(0);
+			// fast cut inactive nodes
+			if(chains[0].blocked())
+				continue;
+
+			existingChains.clear();
+			newChains.clear();
 
 			for(AIPathNode & node : chains)
 			{
@@ -347,8 +398,10 @@ bool AINodeStorage::calculateHeroChain()
 
 			cleanupInefectiveChains(newChains);
 			addHeroChain(newChains);
-		});
+		}
 	}
+
+	commitedTiles.clear();
 
 	return heroChain.size();
 }
@@ -364,6 +417,7 @@ bool AINodeStorage::selectFirstActor()
 	});
 
 	chainMask = strongest->chainMask;
+	commitedTilesInitial = commitedTiles;
 
 	return true;
 }
@@ -395,6 +449,7 @@ bool AINodeStorage::selectNextActor()
 	if(nextActor != actors.end())
 	{
 		chainMask = nextActor->get()->chainMask;
+		commitedTiles = commitedTilesInitial;
 
 		return true;
 	}
@@ -657,7 +712,7 @@ void AINodeStorage::setHeroes(std::map<const CGHeroInstance *, HeroRole> heroes)
 
 	for(auto & hero : heroes)
 	{
-		uint64_t mask = 1 << actors.size();
+		uint64_t mask = FirstActorMask << actors.size();
 		auto actor = std::make_shared<HeroActor>(hero.first, hero.second, mask, ai);
 
 		if(actor->hero->tempOwner != ai->playerID)
@@ -678,7 +733,7 @@ void AINodeStorage::setTownsAndDwellings(
 {
 	for(auto town : towns)
 	{
-		uint64_t mask = 1 << actors.size();
+		uint64_t mask = FirstActorMask << actors.size();
 
 		// TODO: investigate logix of second condition || ai->nullkiller->getHeroLockedReason(town->garrisonHero) != HeroLockedReason::DEFENCE
 		// check defence imrove
@@ -695,7 +750,7 @@ void AINodeStorage::setTownsAndDwellings(
 	{
 		if(obj->ID == Obj::HILL_FORT)
 		{
-			uint64_t mask = 1 << actors.size();
+			uint64_t mask = FirstActorMask << actors.size();
 
 			actors.push_back(std::make_shared<HillFortActor>(obj, mask));
 		}
