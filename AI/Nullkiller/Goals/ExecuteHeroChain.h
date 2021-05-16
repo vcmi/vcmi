@@ -13,7 +13,7 @@
 
 namespace Goals
 {
-	class DLL_EXPORT ExecuteHeroChain : public CGoal<ExecuteHeroChain>
+	class DLL_EXPORT ExecuteHeroChain : public ElementarGoal<ExecuteHeroChain>
 	{
 	private:
 		AIPath chainPath;
@@ -22,15 +22,13 @@ namespace Goals
 	public:
 		ExecuteHeroChain(const AIPath & path, const CGObjectInstance * obj = nullptr);
 
-		TGoalVec getAllPossibleSubgoals() override
-		{
-			return TGoalVec();
-		}
-
-		TSubgoal whatToDoToAchieve() override;
+		
 		void accept(VCAI * ai) override;
-		std::string name() const override;
+		std::string toString() const override;
 		virtual bool operator==(const ExecuteHeroChain & other) const override;
 		const AIPath & getPath() const { return chainPath; }
+
+	private:
+		bool moveHeroToTile(const CGHeroInstance * hero, const int3 & tile);
 	};
 }

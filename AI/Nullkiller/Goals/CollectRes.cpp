@@ -29,10 +29,10 @@ bool CollectRes::operator==(const CollectRes & other) const
 	return resID == other.resID;
 }
 
-TGoalVec CollectRes::getAllPossibleSubgoals()
-{
-	TGoalVec ret;
-
+//TGoalVec CollectRes::getAllPossibleSubgoals()
+//{
+//	TGoalVec ret;
+//
 	//auto givesResource = [this](const CGObjectInstance * obj) -> bool
 	//{
 	//	//TODO: move this logic to object side
@@ -107,18 +107,18 @@ TGoalVec CollectRes::getAllPossibleSubgoals()
 	//		vstd::concatenate(ret, waysToGo);
 	//	}
 	//}
-	return ret;
-}
+//	return ret;
+//}
 
-TSubgoal CollectRes::whatToDoToAchieve()
-{
-	auto goals = getAllPossibleSubgoals();
-	auto trade = whatToDoToTrade();
-	if (!trade->invalid())
-		goals.push_back(trade);
-
-	return sptr(Invalid()); //we can always do that
-}
+//TSubgoal CollectRes::whatToDoToAchieve()
+//{
+//	auto goals = getAllPossibleSubgoals();
+//	auto trade = whatToDoToTrade();
+//	if (!trade->invalid())
+//		goals.push_back(trade);
+//
+//	return sptr(Invalid()); //we can always do that
+//}
 
 TSubgoal CollectRes::whatToDoToTrade()
 {

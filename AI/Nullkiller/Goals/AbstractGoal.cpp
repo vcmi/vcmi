@@ -29,7 +29,19 @@ TSubgoal Goals::sptr(const AbstractGoal & tmp)
 	return ptr;
 }
 
-std::string AbstractGoal::name() const //TODO: virtualize
+TTask Goals::taskptr(const AbstractGoal & tmp)
+{
+	TTask ptr;
+
+	if(!tmp.isElementar)
+		throw cannotFulfillGoalException(tmp.toString() + " is not elementar");
+
+	ptr.reset(dynamic_cast<ITask *>(tmp.clone()));
+
+	return ptr;
+}
+
+std::string AbstractGoal::toString() const //TODO: virtualize
 {
 	std::string desc;
 	switch(goalType)
@@ -122,11 +134,6 @@ bool TSubgoal::operator==(const TSubgoal & rhs) const
 bool AbstractGoal::invalid() const
 {
 	return goalType == EGoals::INVALID;
-}
-
-void AbstractGoal::accept(VCAI * ai)
-{
-	ai->tryRealize(*this);
 }
 
 EvaluationContext::EvaluationContext()

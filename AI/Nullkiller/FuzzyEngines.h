@@ -36,37 +36,3 @@ private:
 	fl::InputVariable * castleWalls;
 	fl::OutputVariable * threat;
 };
-
-class HeroMovementGoalEngineBase : public engineBase //in future - maybe derive from some (GoalEngineBase : public engineBase) class for handling non-movement goals with common utility for goal engines
-{
-public:
-	HeroMovementGoalEngineBase();
-
-protected:
-	void setSharedFuzzyVariables(Goals::AbstractGoal & goal);
-
-	fl::InputVariable * strengthRatio;
-	fl::InputVariable * heroStrengthVariable;
-	fl::InputVariable * turnDistanceVariable;
-	fl::InputVariable * missionImportance;
-	fl::OutputVariable * value;
-
-private:
-	float calculateTurnDistanceInputValue(const Goals::AbstractGoal & goal) const;
-};
-
-class VisitTileEngine : public HeroMovementGoalEngineBase
-{
-public:
-	VisitTileEngine();
-	float evaluate(Goals::VisitTile & goal);
-};
-
-class VisitObjEngine : public HeroMovementGoalEngineBase
-{
-public:
-	VisitObjEngine();
-	float evaluate(Goals::VisitObj & goal);
-protected:
-	fl::InputVariable * objectValue;
-};

@@ -29,13 +29,10 @@ namespace Goals
 			: CGoal(Goals::DIG_AT_TILE)
 		{
 			tile = Tile;
-			priority = 20;
 		}
-		TGoalVec getAllPossibleSubgoals() override
-		{
-			return TGoalVec();
-		}
-		TSubgoal whatToDoToAchieve() override;
 		virtual bool operator==(const DigAtTile & other) const override;
+
+	private:
+		//TSubgoal decomposeSingle() const override;
 	};
 }

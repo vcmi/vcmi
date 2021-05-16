@@ -28,13 +28,7 @@ namespace Goals
 			: CGoal(Goals::GET_ART_TYPE)
 		{
 			aid = type;
-			priority = 2;
 		}
-		TGoalVec getAllPossibleSubgoals() override
-		{
-			return TGoalVec();
-		}
-		TSubgoal whatToDoToAchieve() override;
 		virtual bool operator==(const GetArtOfType & other) const override;
 	};
 }

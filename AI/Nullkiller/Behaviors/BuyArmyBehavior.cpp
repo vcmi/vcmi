@@ -29,7 +29,7 @@ std::string BuyArmyBehavior::toString() const
 	return "Buy army";
 }
 
-Goals::TGoalVec BuyArmyBehavior::getTasks()
+Goals::TGoalVec BuyArmyBehavior::decompose() const
 {
 	Goals::TGoalVec tasks;
 

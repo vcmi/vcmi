@@ -13,23 +13,20 @@
 
 namespace Goals
 {
-	class DLL_EXPORT BuildBoat : public CGoal<BuildBoat>
+	class DLL_EXPORT BuildBoat : public ElementarGoal<BuildBoat>
 	{
 	private:
 		const IShipyard * shipyard;
+		TSubgoal decomposeSingle() const override;
 
 	public:
 		BuildBoat(const IShipyard * shipyard)
-			: CGoal(Goals::BUILD_BOAT), shipyard(shipyard)
+			: ElementarGoal(Goals::BUILD_BOAT), shipyard(shipyard)
 		{
-			priority = 0;
 		}
-		TGoalVec getAllPossibleSubgoals() override
-		{
-			return TGoalVec();
-		}
+
 		void accept(VCAI * ai) override;
-		std::string name() const override;
+		std::string toString() const override;
 		virtual bool operator==(const BuildBoat & other) const override;
 	};
 }

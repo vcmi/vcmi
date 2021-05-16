@@ -520,9 +520,6 @@ Goals::EvaluationContext PriorityEvaluator::buildEvaluationContext(Goals::TSubgo
 /// importance
 float PriorityEvaluator::evaluate(Goals::TSubgoal task)
 {
-	if(task->priority > 0)
-		return task->priority;
-
 	auto evaluationContext = buildEvaluationContext(task);
 
 	int rewardType = (evaluationContext.goldReward > 0 ? 1 : 0) 
@@ -561,7 +558,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task)
 
 #ifdef VCMI_TRACE_PATHFINDER
 	logAi->trace("Evaluated %s, loss: %f, turns main: %f, scout: %f, gold: %d, cost: %d, army gain: %d, danger: %d, role: %s, strategical value: %f, cwr: %f, result %f",
-		task->name(),
+		task->toString(),
 		evaluationContext.armyLossPersentage,
 		evaluationContext.movementCostByRole[HeroRole::MAIN],
 		evaluationContext.movementCostByRole[HeroRole::SCOUT],

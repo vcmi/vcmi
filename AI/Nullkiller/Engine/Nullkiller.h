@@ -13,7 +13,6 @@
 #include "../Analyzers/DangerHitMapAnalyzer.h"
 #include "../Analyzers/BuildAnalyzer.h"
 #include "../Goals/AbstractGoal.h"
-#include "../Behaviors/Behavior.h"
 
 const float MAX_GOLD_PEASURE = 0.3f;
 const float MIN_PRIORITY = 0.01f;
@@ -56,6 +55,6 @@ public:
 private:
 	void resetAiState();
 	void updateAiState();
-	Goals::TSubgoal choseBestTask(std::shared_ptr<Behavior> behavior) const;
-	Goals::TSubgoal choseBestTask(Goals::TGoalVec & tasks) const;
+	Goals::TTask choseBestTask(Goals::TSubgoal behavior) const;
+	Goals::TTask choseBestTask(Goals::TTaskVec & tasks) const;
 };

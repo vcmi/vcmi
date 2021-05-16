@@ -24,8 +24,8 @@ bool GetArtOfType::operator==(const GetArtOfType & other) const
 {
 	return other.hero.h == hero.h && other.objid == objid;
 }
-
-TSubgoal GetArtOfType::whatToDoToAchieve()
-{
-	return sptr(FindObj(Obj::ARTIFACT, aid));
-}
+//
+//TSubgoal GetArtOfType::whatToDoToAchieve()
+//{
+//	return sptr(FindObj(Obj::ARTIFACT, aid));
+//}

@@ -17,23 +17,24 @@ class FuzzyHelper;
 
 namespace Goals
 {
-	class DLL_EXPORT BuyArmy : public CGoal<BuyArmy>
+	class DLL_EXPORT BuyArmy : public ElementarGoal<BuyArmy>
 	{
 	private:
 		BuyArmy()
-			: CGoal(Goals::BUY_ARMY)
+			: ElementarGoal(Goals::BUY_ARMY)
 		{
 		}
 	public:
 		BuyArmy(const CGTownInstance * Town, int val)
-			: CGoal(Goals::BUY_ARMY)
+			: ElementarGoal(Goals::BUY_ARMY)
 		{
 			town = Town; //where to buy this army
 			value = val; //expressed in AI unit strength
 			priority = 3;//TODO: evaluate?
 		}
 
-		TSubgoal whatToDoToAchieve() override;
 		virtual bool operator==(const BuyArmy & other) const override;
+
+		virtual std::string toString() const override;
 	};
 }

@@ -17,18 +17,27 @@ class FuzzyHelper;
 
 namespace Goals
 {
-	class DLL_EXPORT RecruitHero : public CGoal<RecruitHero>
+	class DLL_EXPORT RecruitHero : public ElementarGoal<RecruitHero>
 	{
 	public:
-		RecruitHero()
-			: CGoal(Goals::RECRUIT_HERO)
+		RecruitHero(const CGTownInstance * townWithTavern, const CGHeroInstance * heroToBuy)
+			: RecruitHero(townWithTavern)
+		{
+			objid = heroToBuy->id.getNum();
+		}
+
+		RecruitHero(const CGTownInstance * townWithTavern)
+			: ElementarGoal(Goals::RECRUIT_HERO)
 		{
 			priority = 1;
+			town = townWithTavern;
 		}
 
 		virtual bool operator==(const RecruitHero & other) const override
 		{
 			return true;
 		}
+
+		virtual std::string toString() const override;
 	};
 }

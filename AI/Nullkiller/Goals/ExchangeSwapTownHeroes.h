@@ -14,7 +14,7 @@
 
 namespace Goals
 {
-	class DLL_EXPORT ExchangeSwapTownHeroes : public CGoal<ExchangeSwapTownHeroes>
+	class DLL_EXPORT ExchangeSwapTownHeroes : public ElementarGoal<ExchangeSwapTownHeroes>
 	{
 	private:
 		const CGTownInstance * town;
@@ -27,14 +27,8 @@ namespace Goals
 			const CGHeroInstance * garrisonHero = nullptr,
 			HeroLockedReason lockingReason = HeroLockedReason::NOT_LOCKED);
 
-		TGoalVec getAllPossibleSubgoals() override
-		{
-			return TGoalVec();
-		}
-
-		TSubgoal whatToDoToAchieve() override;
 		void accept(VCAI * ai) override;
-		std::string name() const override;
+		std::string toString() const override;
 		virtual bool operator==(const ExchangeSwapTownHeroes & other) const override;
 	};
 }

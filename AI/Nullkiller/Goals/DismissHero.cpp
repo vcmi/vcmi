@@ -26,14 +26,6 @@ bool DismissHero::operator==(const DismissHero & other) const
 	return hero.h == other.hero.h;
 }
 
-TSubgoal DismissHero::whatToDoToAchieve()
-{
-	if(!hero.validAndSet())
-		throw cannotFulfillGoalException("Invalid hero!");
-
-	return iAmElementar();
-}
-
 void DismissHero::accept(VCAI * ai)
 {
 	if(!hero.validAndSet())
@@ -44,7 +36,7 @@ void DismissHero::accept(VCAI * ai)
 	throw goalFulfilledException(sptr(*this));
 }
 
-std::string DismissHero::name() const
+std::string DismissHero::toString() const
 {
 	return "DismissHero " + hero.name;
 }

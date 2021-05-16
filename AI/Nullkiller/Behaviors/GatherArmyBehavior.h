@@ -10,27 +10,29 @@
 #pragma once
 
 #include "lib/VCMI_Lib.h"
-#include "Behavior.h"
+#include "../Goals/CGoal.h"
 #include "../AIUtility.h"
 
-class GatherArmyBehavior : public Behavior {
-private:
-	std::vector<int> objectTypes;
-	std::vector<int> objectSubTypes;
-	std::vector<const CGObjectInstance *> objectsToCapture;
-	bool specificObjects;
-public:
-	GatherArmyBehavior()
+namespace Goals
+{
+	class GatherArmyBehavior : public CGoal<GatherArmyBehavior>
 	{
-		objectTypes = std::vector<int>();
-		specificObjects = false;
-	}
+	public:
+		GatherArmyBehavior()
+		{
+		}
 
-	virtual Goals::TGoalVec getTasks() override;
-	virtual std::string toString() const override;
+		virtual TGoalVec decompose() const override;
+		virtual std::string toString() const override;
 
-private:
-	Goals::TGoalVec deliverArmyToHero(const CGHeroInstance * hero) const;
-	Goals::TGoalVec upgradeArmy(const CGTownInstance * upgrader) const;
-};
+		virtual bool operator==(const GatherArmyBehavior & other) const override
+		{
+			return true;
+		}
+
+	private:
+		TGoalVec deliverArmyToHero(const CGHeroInstance * hero) const;
+		TGoalVec upgradeArmy(const CGTownInstance * upgrader) const;
+	};
+}
 

@@ -26,7 +26,7 @@ bool AdventureSpellCast::operator==(const AdventureSpellCast & other) const
 	return hero.h == other.hero.h;
 }
 
-TSubgoal AdventureSpellCast::whatToDoToAchieve()
+void AdventureSpellCast::accept(VCAI * ai)
 {
 	if(!hero.validAndSet())
 		throw cannotFulfillGoalException("Invalid hero!");
@@ -47,11 +47,6 @@ TSubgoal AdventureSpellCast::whatToDoToAchieve()
 	if(spellID == SpellID::TOWN_PORTAL && town && town->visitingHero)
 		throw cannotFulfillGoalException("The town is already occupied by " + town->visitingHero->name);
 
-	return iAmElementar();
-}
-
-void AdventureSpellCast::accept(VCAI * ai)
-{
 	if(town && spellID == SpellID::TOWN_PORTAL)
 	{
 		ai->selectedObject = town->id;
@@ -73,7 +68,7 @@ void AdventureSpellCast::accept(VCAI * ai)
 	throw goalFulfilledException(sptr(*this));
 }
 
-std::string AdventureSpellCast::name() const
+std::string AdventureSpellCast::toString() const
 {
 	return "AdventureSpellCast " + spellID.toSpell()->name;
 }

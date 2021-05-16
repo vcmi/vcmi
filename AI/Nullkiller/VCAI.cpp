@@ -299,15 +299,6 @@ void VCAI::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, Q
 
 	requestActionASAP([=]()
 	{
-		float goalpriority1 = 0, goalpriority2 = 0;
-
-		auto firstGoal = getGoal(firstHero);
-		if(firstGoal->goalType == Goals::GATHER_ARMY)
-			goalpriority1 = firstGoal->priority;
-		auto secondGoal = getGoal(secondHero);
-		if(secondGoal->goalType == Goals::GATHER_ARMY)
-			goalpriority2 = secondGoal->priority;
-
 		auto transferFrom2to1 = [this](const CGHeroInstance * h1, const CGHeroInstance * h2) -> void
 		{
 			this->pickBestCreatures(h1, h2);
@@ -320,27 +311,12 @@ void VCAI::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, Q
 		{
 			logAi->debug("Heroes owned by different players. Do not exchange army or artifacts.");
 		}
-		else if(nullkiller)
+		else
 		{
 			if(nullkiller->isActive(firstHero))
 				transferFrom2to1(secondHero, firstHero);
 			else
 				transferFrom2to1(firstHero, secondHero);
-		}
-		else if(goalpriority1 > goalpriority2)
-		{
-			transferFrom2to1(firstHero, secondHero);
-		}
-		else if(goalpriority1 < goalpriority2)
-		{
-			transferFrom2to1(secondHero, firstHero);
-		}
-		else //regular criteria
-		{
-			if(firstHero->getFightingStrength() > secondHero->getFightingStrength() && ah->canGetArmy(firstHero, secondHero))
-				transferFrom2to1(firstHero, secondHero);
-			else if(ah->canGetArmy(secondHero, firstHero))
-				transferFrom2to1(secondHero, firstHero);
 		}
 
 		answerQuery(query, 0);
@@ -1403,7 +1379,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 		if(path.nodes.empty())
 		{
 			logAi->error("Hero %s cannot reach %s.", h->name, dst.toString());
-			throw goalFulfilledException(sptr(Goals::VisitTile(dst).sethero(h)));
+			return true;
 		}
 		int i = path.nodes.size() - 1;
 
@@ -1568,11 +1544,6 @@ void VCAI::buildStructure(const CGTownInstance * t, BuildingID building)
 	cb->buildBuilding(t, building); //just do this;
 }
 
-void VCAI::tryRealize(Goals::Explore & g)
-{
-	throw cannotFulfillGoalException("EXPLORE is not an elementar goal!");
-}
-
 void VCAI::tryRealize(Goals::RecruitHero & g)
 {
 	const CGTownInstance * t = g.town;
@@ -1588,56 +1559,6 @@ void VCAI::tryRealize(Goals::RecruitHero & g)
 	else
 	{
 		throw cannotFulfillGoalException("No town to recruit hero!");
-	}
-}
-
-void VCAI::tryRealize(Goals::VisitTile & g)
-{
-	if(!g.hero->movement)
-		throw cannotFulfillGoalException("Cannot visit tile: hero is out of MPs!");
-	if(g.tile == g.hero->visitablePos() && cb->getVisitableObjs(g.hero->visitablePos()).size() < 2)
-	{
-		logAi->warn("Why do I want to move hero %s to tile %s? Already standing on that tile! ", g.hero->name, g.tile.toString());
-		throw goalFulfilledException(sptr(g));
-	}
-	if(ai->moveHeroToTile(g.tile, g.hero.get()))
-	{
-		throw goalFulfilledException(sptr(g));
-	}
-}
-
-void VCAI::tryRealize(Goals::VisitObj & g)
-{
-	auto position = g.tile;
-	if(!g.hero->movement)
-		throw cannotFulfillGoalException("Cannot visit object: hero is out of MPs!");
-	if(position == g.hero->visitablePos() && cb->getVisitableObjs(g.hero->visitablePos()).size() < 2)
-	{
-		logAi->warn("Why do I want to move hero %s to tile %s? Already standing on that tile! ", g.hero->name, g.tile.toString());
-		throw goalFulfilledException(sptr(g));
-	}
-	if(ai->moveHeroToTile(position, g.hero.get()))
-	{
-		throw goalFulfilledException(sptr(g));
-	}
-}
-
-void VCAI::tryRealize(Goals::VisitHero & g)
-{
-	if(!g.hero->movement)
-		throw cannotFulfillGoalException("Cannot visit target hero: hero is out of MPs!");
-
-	const CGObjectInstance * obj = cb->getObj(ObjectInstanceID(g.objid));
-	if(obj)
-	{
-		if(ai->moveHeroToTile(obj->visitablePos(), g.hero.get()))
-		{
-			throw goalFulfilledException(sptr(g));
-		}
-	}
-	else
-	{
-		throw cannotFulfillGoalException("Cannot visit hero: object not found!");
 	}
 }
 
@@ -1773,7 +1694,7 @@ void VCAI::tryRealize(Goals::Invalid & g)
 
 void VCAI::tryRealize(Goals::AbstractGoal & g)
 {
-	logAi->debug("Attempting realizing goal with code %s", g.name());
+	logAi->debug("Attempting realizing goal with code %s", g.toString());
 	throw cannotFulfillGoalException("Unknown type of goal !");
 }
 
@@ -1784,42 +1705,6 @@ const CGTownInstance * VCAI::findTownWithTavern() const
 			return t;
 
 	return nullptr;
-}
-
-Goals::TSubgoal VCAI::getGoal(HeroPtr h) const
-{
-	auto it = lockedHeroes.find(h);
-	if(it != lockedHeroes.end())
-		return it->second;
-	else
-		return sptr(Goals::Invalid());
-}
-
-
-std::vector<HeroPtr> VCAI::getUnblockedHeroes() const
-{
-	std::vector<HeroPtr> ret;
-	for(auto h : cb->getHeroesInfo())
-	{
-		//&& !vstd::contains(lockedHeroes, h)
-		//at this point we assume heroes exhausted their locked goals
-		if(canAct(h))
-			ret.push_back(h);
-	}
-	return ret;
-}
-
-bool VCAI::canAct(HeroPtr h) const
-{
-	auto mission = lockedHeroes.find(h);
-	if(mission != lockedHeroes.end())
-	{
-		//FIXME: I'm afraid there can be other conditions when heroes can act but not move :?
-		if(mission->second->goalType == Goals::DIG_AT_TILE && !mission->second->isElementar)
-			return false;
-	}
-
-	return h->movement;
 }
 
 HeroPtr VCAI::primaryHero() const
@@ -1876,7 +1761,7 @@ void VCAI::recruitHero(const CGTownInstance * t, bool throwing)
 		if(t->visitingHero)
 			moveHeroToTile(t->visitablePos(), t->visitingHero.get());
 
-		throw goalFulfilledException(sptr(Goals::RecruitHero().settown(t)));
+		throw goalFulfilledException(sptr(Goals::RecruitHero(t)));
 	}
 	else if(throwing)
 	{

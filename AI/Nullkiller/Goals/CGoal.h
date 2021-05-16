@@ -23,9 +23,8 @@ namespace Goals
 	public:
 		CGoal<T>(EGoals goal = INVALID) : AbstractGoal(goal)
 		{
-			priority = 0;
 			isElementar = false;
-			isAbstract = false;
+			isAbstract = true;
 			value = 0;
 			aid = -1;
 			objid = -1;
@@ -36,7 +35,6 @@ namespace Goals
 
 		OSETTER(bool, isElementar)
 		OSETTER(bool, isAbstract)
-		OSETTER(float, priority)
 		OSETTER(int, value)
 		OSETTER(int, resID)
 		OSETTER(int, objid)
@@ -45,11 +43,6 @@ namespace Goals
 		OSETTER(HeroPtr, hero)
 		OSETTER(CGTownInstance *, town)
 		OSETTER(int, bid)
-
-		void accept(VCAI * ai) override
-		{
-			ai->tryRealize(static_cast<T &>(*this)); //casting enforces template instantiation
-		}
 
 		CGoal<T> * clone() const override
 		{
@@ -80,5 +73,65 @@ namespace Goals
 		}
 
 		virtual bool operator==(const T & other) const = 0;
+
+		virtual TGoalVec decompose() const override
+		{
+			return {decomposeSingle()};
+		}
+
+	protected:
+		virtual TSubgoal decomposeSingle() const
+		{
+			return sptr(Invalid());
+		}
+	};
+
+	template<typename T> class DLL_EXPORT ElementarGoal : public CGoal<T>, public ITask
+	{
+	public:
+		ElementarGoal<T>(EGoals goal = INVALID) : CGoal(goal)
+		{
+			priority = 0;
+			isElementar = true;
+			isAbstract = false;
+		}
+
+		///Visitor pattern
+		//TODO: make accept work for std::shared_ptr... somehow
+		virtual void accept(VCAI * ai) override //unhandled goal will report standard error
+		{
+			ai->tryRealize(*this);
+		}
+
+		T & setpriority(float p)
+		{
+			priority = p;
+
+			return *((T *)this);
+		}
+	};
+
+	class DLL_EXPORT Invalid : public ElementarGoal<Invalid>
+	{
+	public:
+		Invalid()
+			: ElementarGoal(Goals::INVALID)
+		{
+			priority = -1;
+		}
+		TGoalVec decompose() const override
+		{
+			return TGoalVec();
+		}
+
+		virtual bool operator==(const Invalid & other) const override
+		{
+			return true;
+		}
+
+		virtual std::string toString() const override
+		{
+			return "Invalid";
+		}
 	};
 }

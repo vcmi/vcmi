@@ -23,32 +23,32 @@ bool FindObj::operator==(const FindObj & other) const
 {
 	return other.hero.h == hero.h && other.objid == objid;
 }
-
-TSubgoal FindObj::whatToDoToAchieve()
-{
-	const CGObjectInstance * o = nullptr;
-	if(resID > -1) //specified
-	{
-		for(const CGObjectInstance * obj : ai->visitableObjs)
-		{
-			if(obj->ID == objid && obj->subID == resID)
-			{
-				o = obj;
-				break; //TODO: consider multiple objects and choose best
-			}
-		}
-	}
-	else
-	{
-		for(const CGObjectInstance * obj : ai->visitableObjs)
-		{
-			if(obj->ID == objid)
-			{
-				o = obj;
-				break; //TODO: consider multiple objects and choose best
-			}
-		}
-	}
-	if(o && ai->isAccessible(o->pos)) //we don't use isAccessibleForHero as we don't know which hero it is
-		return sptr(VisitObj(o->id.getNum()));
-}
+//
+//TSubgoal FindObj::whatToDoToAchieve()
+//{
+//	const CGObjectInstance * o = nullptr;
+//	if(resID > -1) //specified
+//	{
+//		for(const CGObjectInstance * obj : ai->visitableObjs)
+//		{
+//			if(obj->ID == objid && obj->subID == resID)
+//			{
+//				o = obj;
+//				break; //TODO: consider multiple objects and choose best
+//			}
+//		}
+//	}
+//	else
+//	{
+//		for(const CGObjectInstance * obj : ai->visitableObjs)
+//		{
+//			if(obj->ID == objid)
+//			{
+//				o = obj;
+//				break; //TODO: consider multiple objects and choose best
+//			}
+//		}
+//	}
+//	if(o && ai->isAccessible(o->pos)) //we don't use isAccessibleForHero as we don't know which hero it is
+//		return sptr(VisitObj(o->id.getNum()));
+//}

@@ -28,7 +28,7 @@ std::string RecruitHeroBehavior::toString() const
 	return "Recruit hero";
 }
 
-Goals::TGoalVec RecruitHeroBehavior::getTasks()
+Goals::TGoalVec RecruitHeroBehavior::decompose() const
 {
 	Goals::TGoalVec tasks;
 	auto towns = cb->getTownsInfo();
@@ -40,7 +40,7 @@ Goals::TGoalVec RecruitHeroBehavior::getTasks()
 			if(cb->getHeroesInfo().size() < cb->getTownsInfo().size() + 1
 				|| cb->getResourceAmount(Res::GOLD) > 10000)
 			{
-				tasks.push_back(Goals::sptr(Goals::RecruitHero().settown(town).setpriority(3)));
+				tasks.push_back(Goals::sptr(Goals::RecruitHero(town).setpriority(3)));
 			}
 		}
 	}

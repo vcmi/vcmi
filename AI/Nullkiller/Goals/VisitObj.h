@@ -9,6 +9,8 @@
 */
 #pragma once
 
+#error not used
+
 #include "CGoal.h"
 
 struct HeroPtr;

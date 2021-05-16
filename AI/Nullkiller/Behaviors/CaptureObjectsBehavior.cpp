@@ -28,7 +28,7 @@ std::string CaptureObjectsBehavior::toString() const
 	return "Capture objects";
 }
 
-Goals::TGoalVec CaptureObjectsBehavior::getTasks()
+Goals::TGoalVec CaptureObjectsBehavior::decompose() const
 {
 	Goals::TGoalVec tasks;
 
@@ -42,7 +42,7 @@ Goals::TGoalVec CaptureObjectsBehavior::getTasks()
 
 		for(auto objToVisit : objs)
 		{			
-#ifdef AI_TRACE_LEVEL >= 1
+#if AI_TRACE_LEVEL >= 1
 			logAi->trace("Checking object %s, %s", objToVisit->getObjectName(), objToVisit->visitablePos().toString());
 #endif
 
@@ -55,19 +55,19 @@ Goals::TGoalVec CaptureObjectsBehavior::getTasks()
 			std::vector<std::shared_ptr<ExecuteHeroChain>> waysToVisitObj;
 			std::shared_ptr<ExecuteHeroChain> closestWay;
 					
-#ifdef AI_TRACE_LEVEL >= 1
+#if AI_TRACE_LEVEL >= 1
 			logAi->trace("Found %d paths", paths.size());
 #endif
 
 			for(auto & path : paths)
 			{
-#ifdef AI_TRACE_LEVEL >= 2
+#if AI_TRACE_LEVEL >= 2
 				logAi->trace("Path found %s", path.toString());
 #endif
 
 				if(path.getFirstBlockedAction())
 				{
-#ifdef AI_TRACE_LEVEL >= 2
+#if AI_TRACE_LEVEL >= 2
 					// TODO: decomposition?
 					logAi->trace("Ignore path. Action is blocked.");
 #endif
@@ -76,7 +76,7 @@ Goals::TGoalVec CaptureObjectsBehavior::getTasks()
 
 				if(ai->nullkiller->dangerHitMap->enemyCanKillOurHeroesAlongThePath(path))
 				{
-#ifdef AI_TRACE_LEVEL >= 2
+#if AI_TRACE_LEVEL >= 2
 					logAi->trace("Ignore path. Target hero can be killed by enemy. Our power %lld", path.heroArmy->getArmyStrength());
 #endif
 					continue;
@@ -98,7 +98,7 @@ Goals::TGoalVec CaptureObjectsBehavior::getTasks()
 
 				auto isSafe = isSafeToVisit(hero, path.heroArmy, danger);
 				
-#ifdef AI_TRACE_LEVEL >= 2
+#if AI_TRACE_LEVEL >= 2
 				logAi->trace(
 					"It is %s to visit %s by %s with army %lld, danger %lld and army loss %lld", 
 					isSafe ? "safe" : "not safe",

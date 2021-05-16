@@ -27,20 +27,16 @@ namespace Goals
 		{
 			objid = ID;
 			resID = -1; //subid unspecified
-			priority = 1;
 		}
 		FindObj(int ID, int subID)
 			: CGoal(Goals::FIND_OBJ)
 		{
 			objid = ID;
 			resID = subID;
-			priority = 1;
 		}
-		TGoalVec getAllPossibleSubgoals() override
-		{
-			return TGoalVec();
-		}
-		TSubgoal whatToDoToAchieve() override;
 		virtual bool operator==(const FindObj & other) const override;
+
+	private:
+		//TSubgoal decomposeSingle() const override;
 	};
 }

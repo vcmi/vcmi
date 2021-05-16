@@ -14,7 +14,6 @@
 #include "../AIhelper.h"
 #include "../AIUtility.h"
 #include "../Goals/BuyArmy.h"
-#include "../Goals/VisitTile.h"
 #include "../Goals/ExecuteHeroChain.h"
 #include "../Goals/DismissHero.h"
 #include "../Goals/ExchangeSwapTownHeroes.h"
@@ -32,7 +31,7 @@ std::string DefenceBehavior::toString() const
 	return "Defend towns";
 }
 
-Goals::TGoalVec DefenceBehavior::getTasks()
+Goals::TGoalVec DefenceBehavior::decompose() const
 {
 	Goals::TGoalVec tasks;
 		
@@ -65,7 +64,7 @@ uint64_t townArmyIncome(const CGTownInstance * town)
 	return result;
 }
 
-void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInstance * town)
+void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInstance * town) const
 {
 	auto basicPriority = 0.3f + std::sqrt(townArmyIncome(town) / 20000.0f)
 		+ town->dailyIncome()[Res::GOLD] / 10000.0f;
@@ -163,7 +162,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 					if(cb->getHeroesInfo().size() < ALLOWED_ROAMING_HEROES)
 					{
 						logAi->debug("Hero %s can be recruited to defend %s", hero->name, town->name);
-						tasks.push_back(Goals::sptr(Goals::RecruitHero().settown(town).setobjid(hero->id.getNum()).setpriority(1)));
+						tasks.push_back(Goals::sptr(Goals::RecruitHero(town, hero).setpriority(1)));
 						continue;
 					}
 					else

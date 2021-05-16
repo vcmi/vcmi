@@ -10,20 +10,28 @@
 #pragma once
 
 #include "lib/VCMI_Lib.h"
-#include "Behavior.h"
+#include "../Goals/CGoal.h"
 #include "../AIUtility.h"
 
-class DefenceBehavior : public Behavior
+namespace Goals
 {
-public:
-	DefenceBehavior()
+	class DefenceBehavior : public CGoal<DefenceBehavior>
 	{
-	}
+	public:
+		DefenceBehavior()
+		{
+		}
 
-	virtual Goals::TGoalVec getTasks() override;
-	virtual std::string toString() const override;
+		virtual Goals::TGoalVec decompose() const override;
+		virtual std::string toString() const override;
 
-private:
-	void evaluateDefence(Goals::TGoalVec & tasks, const CGTownInstance * town);
-};
+		virtual bool operator==(const DefenceBehavior & other) const override
+		{
+			return true;
+		}
+
+	private:
+		void evaluateDefence(Goals::TGoalVec & tasks, const CGTownInstance * town) const;
+	};
+}
 
