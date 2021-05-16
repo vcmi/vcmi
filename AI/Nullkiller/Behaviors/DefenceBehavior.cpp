@@ -16,6 +16,7 @@
 #include "../Goals/BuyArmy.h"
 #include "../Goals/VisitTile.h"
 #include "../Goals/ExecuteHeroChain.h"
+#include "../Goals/DismissHero.h"
 #include "../Goals/ExchangeSwapTownHeroes.h"
 #include "lib/mapping/CMap.h" //for victory conditions
 #include "lib/CPathfinder.h"
@@ -109,13 +110,6 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 
 	auto paths = ai->ah->getPathsToTile(town->visitablePos());
 
-	if(paths.empty())
-	{
-		logAi->debug("No ways to defend town %s", town->name);
-
-		return;
-	}
-
 	for(auto & treat : treats)
 	{
 		logAi->debug(
@@ -131,7 +125,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 		{
 			if(path.getHeroStrength() > treat.danger)
 			{
-				if(dayOfWeek + treat.turn < 6 && isSafeToVisit(path.targetHero, path.heroArmy, treat.danger)
+				if(path.turn() <= treat.turn && dayOfWeek + treat.turn < 6 && isSafeToVisit(path.targetHero, path.heroArmy, treat.danger)
 					|| path.exchangeCount == 1 && path.turn() < treat.turn
 					|| path.turn() < treat.turn - 1)
 				{
@@ -150,7 +144,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 		if(treatIsUnderControl)
 			continue;
 
-		if(ai->canRecruitAnyHero(town))
+		if(cb->getResourceAmount(Res::GOLD) > GameConstants::HERO_GOLD_COST)
 		{
 			auto heroesInTavern = cb->getAvailableHeroes(town);
 
@@ -158,10 +152,47 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 			{
 				if(hero->getTotalStrength() > treat.danger)
 				{
-					tasks.push_back(Goals::sptr(Goals::RecruitHero().settown(town).setobjid(hero->id.getNum()).setpriority(1)));
-					continue;
+					auto myHeroes = cb->getHeroesInfo();
+
+					if(cb->getHeroesInfo().size() < ALLOWED_ROAMING_HEROES)
+					{
+						logAi->debug("Hero %s can be recruited to defend %s", hero->name, town->name);
+						tasks.push_back(Goals::sptr(Goals::RecruitHero().settown(town).setobjid(hero->id.getNum()).setpriority(1)));
+						continue;
+					}
+					else
+					{
+						const CGHeroInstance * weakestHero = nullptr;
+
+						for(auto existingHero : myHeroes)
+						{
+							if(ai->nullkiller->isHeroLocked(existingHero)
+								|| existingHero->getArmyStrength() > hero->getArmyStrength()
+								|| ai->ah->getHeroRole(existingHero) == HeroRole::MAIN
+								|| existingHero->movement
+								|| existingHero->artifactsWorn.size() > (existingHero->hasSpellbook() ? 2 : 1))
+								continue;
+
+							if(!weakestHero || weakestHero->getFightingStrength() > existingHero->getFightingStrength())
+							{
+								weakestHero = existingHero;
+							}
+
+							if(weakestHero)
+							{
+								tasks.push_back(Goals::sptr(Goals::DismissHero(weakestHero)));
+							}
+						}
+					}
 				}
 			}
+		}
+
+		if(paths.empty())
+		{
+			logAi->debug("No ways to defend town %s", town->name);
+
+			continue;
 		}
 
 		for(AIPath & path : paths)

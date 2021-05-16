@@ -134,7 +134,10 @@ Goals::TGoalVec CaptureObjectsBehavior::getTasks()
 				way->evaluationContext.closestWayRatio
 					= way->evaluationContext.movementCost / closestWay->evaluationContext.movementCost;
 
-				tasks.push_back(sptr(*way));
+				if(way->hero && ai->nullkiller->canMove(way->hero.h))
+				{
+					tasks.push_back(sptr(*way));
+				}
 			}
 		}
 	};

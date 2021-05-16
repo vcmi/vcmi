@@ -30,6 +30,7 @@ set(VCAI_SRCS
 		Goals/BuildThis.cpp
 		Goals/Explore.cpp
 		Goals/GatherArmy.cpp
+		Goals/DismissHero.cpp
 		Goals/GatherTroops.cpp
 		Goals/BuyArmy.cpp
 		Goals/AdventureSpellCast.cpp
@@ -96,6 +97,7 @@ set(VCAI_HEADERS
 		Goals/BuildThis.h
 		Goals/Explore.h
 		Goals/GatherArmy.h
+		Goals/DismissHero.h
 		Goals/GatherTroops.h
 		Goals/BuyArmy.h
 		Goals/AdventureSpellCast.h

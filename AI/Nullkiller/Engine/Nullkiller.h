@@ -31,6 +31,7 @@ public:
 	void setActive(const CGHeroInstance * hero) { activeHero = hero; }
 	void lockHero(const CGHeroInstance * hero) { lockedHeroes.insert(hero); }
 	void unlockHero(const CGHeroInstance * hero) { lockedHeroes.erase(hero); }
+	bool canMove(const CGHeroInstance * hero) { return hero->movement; }
 
 private:
 	void resetAiState();

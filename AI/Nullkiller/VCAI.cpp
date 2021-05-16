@@ -2035,7 +2035,11 @@ void VCAI::tryRealize(Goals::Explore & g)
 
 void VCAI::tryRealize(Goals::RecruitHero & g)
 {
-	if(const CGTownInstance * t = findTownWithTavern())
+	const CGTownInstance * t = g.town;
+
+	if(!t) t = findTownWithTavern();
+
+	if(t)
 	{
 		recruitHero(t, true);
 		//TODO try to free way to blocked town
