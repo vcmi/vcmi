@@ -168,3 +168,43 @@ ui64 ArmyManager::howManyReinforcementsCanGet(const CCreatureSet * target, const
 
 	return newArmy > oldArmy ? newArmy - oldArmy : 0;
 }
+
+uint64_t ArmyManager::evaluateStackPower(const CCreature * creature, int count) const
+{
+	return creature->AIValue * count;
+}
+
+SlotInfo ArmyManager::getTotalCreaturesAvailable(CreatureID creatureID) const
+{
+	auto creatureInfo = totalArmy.find(creatureID);
+
+	return creatureInfo == totalArmy.end() ? SlotInfo() : creatureInfo->second;
+}
+
+void ArmyManager::update()
+{
+	logAi->trace("Start analysing army");
+
+	std::vector<const CCreatureSet *> total;
+	auto heroes = cb->getHeroesInfo();
+	auto towns = cb->getTownsInfo();
+
+	std::copy(heroes.begin(), heroes.end(), std::back_inserter(total));
+	std::copy(towns.begin(), towns.end(), std::back_inserter(total));
+
+	totalArmy.clear();
+
+	for(auto army : total)
+	{
+		for(auto slot : army->Slots())
+		{
+			totalArmy[slot.second->getCreatureID()].count += slot.second->count;
+		}
+	}
+
+	for(auto army : totalArmy)
+	{
+		army.second.creature = army.first.toCreature();
+		army.second.power = evaluateStackPower(army.second.creature, army.second.count);
+	}
+}

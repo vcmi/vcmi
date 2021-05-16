@@ -66,21 +66,21 @@ void AIPathfinder::updatePaths(std::vector<HeroPtr> heroes, bool useHeroChain)
 
 	do
 	{
-		logAi->trace("Recalculate paths pass %d", pass++);
-		cb->calculatePaths(config);
-
-		if(useHeroChain)
+		do
 		{
-			logAi->trace("Recalculate chain pass %d", pass);
+			logAi->trace("Recalculate paths pass %d", pass++);
+			cb->calculatePaths(config);
+		} while(useHeroChain && storage->calculateHeroChain());
 
-			continueCalculation = storage->calculateHeroChain();
+		if(!useHeroChain)
+			break;
 
-			if(!continueCalculation)
-			{
-				logAi->trace("Increase chain turn limit");
-
-				continueCalculation = storage->increaseHeroChainTurnLimit() && storage->calculateHeroChain();
-			}
+		if(storage->calculateHeroChainFinal())
+		{
+			logAi->trace("Recalculate paths pass final");
+			cb->calculatePaths(config);
 		}
+
+		continueCalculation = storage->increaseHeroChainTurnLimit() && storage->calculateHeroChain();
 	} while(continueCalculation);
 }

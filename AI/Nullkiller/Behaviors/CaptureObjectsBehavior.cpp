@@ -28,17 +28,6 @@ std::string CaptureObjectsBehavior::toString() const
 	return "Capture objects";
 }
 
-std::shared_ptr<const ISpecialAction> getFirstBlockedAction(const AIPath & path)
-{
-	for(auto node : path.nodes)
-	{
-		if(node.specialAction && !node.specialAction->canAct(node.targetHero))
-			return node.specialAction;
-	}
-
-	return std::shared_ptr<const ISpecialAction>();
-}
-
 Goals::TGoalVec CaptureObjectsBehavior::getTasks()
 {
 	Goals::TGoalVec tasks;
@@ -76,7 +65,7 @@ Goals::TGoalVec CaptureObjectsBehavior::getTasks()
 				logAi->trace("Path found %s", path.toString());
 #endif
 
-				if(getFirstBlockedAction(path))
+				if(path.getFirstBlockedAction())
 				{
 #ifdef VCMI_TRACE_PATHFINDER
 					// TODO: decomposition?
@@ -88,7 +77,7 @@ Goals::TGoalVec CaptureObjectsBehavior::getTasks()
 				if(ai->nullkiller->dangerHitMap->enemyCanKillOurHeroesAlongThePath(path))
 				{
 #ifdef VCMI_TRACE_PATHFINDER
-					logAi->trace("Ignore path. Target hero can be killed by enemy");
+					logAi->trace("Ignore path. Target hero can be killed by enemy. Our power %d", path.heroArmy->getArmyStrength());
 #endif
 					continue;
 				}
@@ -112,7 +101,7 @@ Goals::TGoalVec CaptureObjectsBehavior::getTasks()
 					hero->name,
 					path.getHeroStrength(),
 					danger,
-					path.armyLoss);
+					path.getTotalArmyLoss());
 #endif
 
 				if(isSafe)

@@ -10,12 +10,12 @@
 #pragma once
 #include "fl/Headers.h"
 #include "../Goals/Goals.h"
-#include "../FuzzyEngines.h"
 
-class VCAI;
-class CArmedInstance;
-class CBank;
-struct SectorMap;
+class IEvaluationContextBuilder
+{
+public:
+	virtual Goals::EvaluationContext buildEvaluationContext(Goals::TSubgoal goal) const = 0;
+};
 
 class PriorityEvaluator
 {
@@ -40,4 +40,7 @@ private:
 	fl::InputVariable * rewardTypeVariable;
 	fl::InputVariable * closestHeroRatioVariable;
 	fl::OutputVariable * value;
+	std::map<Goals::EGoals, std::shared_ptr<IEvaluationContextBuilder>> evaluationContextBuilders;
+
+	Goals::EvaluationContext buildEvaluationContext(Goals::TSubgoal goal) const;
 };

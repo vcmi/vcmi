@@ -33,6 +33,32 @@ Goals::TGoalVec BuildingBehavior::getTasks()
 {
 	Goals::TGoalVec tasks;
 
+	TResources resourcesRequired = ai->nullkiller->buildAnalyzer->getResourcesRequiredNow();
+	TResources totalDevelopmentCost = ai->nullkiller->buildAnalyzer->getTotalResourcesRequired();
+	TResources availableResources = cb->getResourceAmount();
+	TResources dailyIncome = ai->nullkiller->buildAnalyzer->getDailyIncome();
+
+	logAi->trace("Resources amount: %s", availableResources.toString());
+
+	resourcesRequired -= availableResources;
+	resourcesRequired.positive();
+
+	logAi->trace("daily income: %s", dailyIncome.toString());
+	logAi->trace("resources required to develop towns now: %s, total: %s",
+		resourcesRequired.toString(),
+		totalDevelopmentCost.toString());
+
+	auto & developmentInfos = ai->nullkiller->buildAnalyzer->getDevelopmentInfo();
+
+	for(auto & developmentInfo : developmentInfos)
+	{
+		auto town = developmentInfo.town;
+
+		for(auto & buildingInfo : developmentInfo.toBuild)
+		{
+			tasks.push_back(sptr(BuildThis(buildingInfo, developmentInfo)));
+		}
+	}
 
 	return tasks;
 }

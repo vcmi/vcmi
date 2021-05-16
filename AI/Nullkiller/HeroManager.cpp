@@ -101,8 +101,10 @@ float HeroManager::evaluateFightingStrength(const CGHeroInstance * hero) const
 	return evaluateSpeciality(hero) + wariorSkillsScores.evaluateSecSkills(hero) + hero->level * 1.5f;
 }
 
-void HeroManager::updateHeroRoles()
+void HeroManager::update()
 {
+	logAi->trace("Start analysing our heroes");
+
 	std::map<HeroPtr, float> scores;
 	auto myHeroes = ai->getMyHeroes();
 
