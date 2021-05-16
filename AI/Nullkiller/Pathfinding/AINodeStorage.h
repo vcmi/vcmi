@@ -13,6 +13,7 @@
 #define PATHFINDER_TRACE_LEVEL 0
 #define AI_TRACE_LEVEL 0
 #define SCOUT_TURN_DISTANCE_LIMIT 3
+#define MAIN_TURN_DISTANCE_LIMIT 5
 
 #include "../../../lib/CPathfinder.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
@@ -147,7 +148,7 @@ private:
 	int heroChainTurn;
 	int heroChainMaxTurns;
 	PlayerColor playerID;
-	uint8_t scoutTurnDistanceLimit;
+	uint8_t turnDistanceLimit[2];
 
 public:
 	/// more than 1 chain layer for each hero allows us to have more than 1 path to each tile so we can chose more optimal one.	
@@ -204,7 +205,8 @@ public:
 	std::vector<AIPath> getChainInfo(const int3 & pos, bool isOnLand) const;
 	bool isTileAccessible(const HeroPtr & hero, const int3 & pos, const EPathfindingLayer layer) const;
 	void setHeroes(std::map<const CGHeroInstance *, HeroRole> heroes);
-	void setScoutTurnDistanceLimit(uint8_t distanceLimit) { scoutTurnDistanceLimit = distanceLimit; }
+	void setScoutTurnDistanceLimit(uint8_t distanceLimit) { turnDistanceLimit[HeroRole::SCOUT] = distanceLimit; }
+	void setMainTurnDistanceLimit(uint8_t distanceLimit) { turnDistanceLimit[HeroRole::MAIN] = distanceLimit; }
 	void setTownsAndDwellings(
 		const std::vector<const CGTownInstance *> & towns,
 		const std::set<const CGObjectInstance *> & visitableObjs);

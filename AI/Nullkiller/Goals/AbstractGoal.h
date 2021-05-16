@@ -74,7 +74,6 @@ namespace Goals
 	public:
 		bool operator==(const TSubgoal & rhs) const;
 		bool operator<(const TSubgoal & rhs) const;
-		//TODO: serialize?
 	};
 
 	typedef std::shared_ptr<ITask> TTask;
@@ -108,7 +107,6 @@ namespace Goals
 		const CGTownInstance *town; VSETTER(CGTownInstance *, town)
 		int bid; VSETTER(int, bid)
 		TSubgoal parent; VSETTER(TSubgoal, parent)
-		//EvaluationContext evaluationContext; VSETTER(EvaluationContext, evaluationContext)
 
 		AbstractGoal(EGoals goal = EGoals::INVALID)
 			: goalType(goal), hero()
@@ -185,6 +183,7 @@ namespace Goals
 		//TODO: make accept work for std::shared_ptr... somehow
 		virtual void accept(VCAI * ai) = 0; //unhandled goal will report standard error
 		virtual std::string toString() const = 0;
+		virtual HeroPtr getHero() const = 0;
 		virtual ~ITask() {}
 	};
 }
