@@ -198,10 +198,12 @@ bool HeroExchangeMap::canExchange(const ChainActor * other)
 				return;
 			}
 
+			TResources availableResources = resources - actor->armyCost - other->armyCost;
+
 			auto upgradeInfo = ai->armyManager->calculateCreateresUpgrade(
 				actor->creatureSet, 
 				other->getActorObject(),
-				resources - actor->armyCost - other->armyCost);
+				availableResources);
 
 			uint64_t reinforcment = upgradeInfo.upgradeValue;
 			
@@ -211,7 +213,10 @@ bool HeroExchangeMap::canExchange(const ChainActor * other)
 			auto obj = other->getActorObject();
 			if(obj && obj->ID == Obj::TOWN)
 			{
-				reinforcment += ai->armyManager->howManyReinforcementsCanBuy(actor->creatureSet, ai->cb->getTown(obj->id));
+				reinforcment += ai->armyManager->howManyReinforcementsCanBuy(
+					actor->creatureSet,
+					ai->cb->getTown(obj->id),
+					availableResources - upgradeInfo.upgradeCost);
 			}
 
 #if PATHFINDER_TRACE_LEVEL >= 2

@@ -43,6 +43,10 @@ class DLL_EXPORT IArmyManager //: public: IAbstractManager
 public:
 	virtual void update() = 0;
 	virtual ui64 howManyReinforcementsCanBuy(const CCreatureSet * target, const CGDwelling * source) const = 0;
+	virtual	ui64 howManyReinforcementsCanBuy(
+		const CCreatureSet * h,
+		const CGDwelling * t,
+		const TResources & availableResources) const = 0;
 	virtual ui64 howManyReinforcementsCanGet(const CGHeroInstance * hero, const CCreatureSet * source) const = 0;
 	virtual ui64 howManyReinforcementsCanGet(const IBonusBearer * armyCarrier, const CCreatureSet * target, const CCreatureSet * source) const = 0;
 	virtual std::vector<SlotInfo> getBestArmy(const IBonusBearer * armyCarrier, const CCreatureSet * target, const CCreatureSet * source) const = 0;
@@ -71,6 +75,10 @@ public:
 	ArmyManager(CPlayerSpecificInfoCallback * CB, const Nullkiller * ai): cb(CB), ai(ai) {}
 	void update() override;
 	ui64 howManyReinforcementsCanBuy(const CCreatureSet * target, const CGDwelling * source) const override;
+	ui64 howManyReinforcementsCanBuy(
+		const CCreatureSet * h,
+		const CGDwelling * t,
+		const TResources & availableResources) const override;
 	ui64 howManyReinforcementsCanGet(const CGHeroInstance * hero, const CCreatureSet * source) const override;
 	ui64 howManyReinforcementsCanGet(const IBonusBearer * armyCarrier, const CCreatureSet * target, const CCreatureSet * source) const override;
 	std::vector<SlotInfo> getBestArmy(const IBonusBearer * armyCarrier, const CCreatureSet * target, const CCreatureSet * source) const override;

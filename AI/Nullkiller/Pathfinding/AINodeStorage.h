@@ -11,7 +11,7 @@
 #pragma once
 
 #define PATHFINDER_TRACE_LEVEL 0
-#define AI_TRACE_LEVEL 0
+#define AI_TRACE_LEVEL 1
 #define SCOUT_TURN_DISTANCE_LIMIT 3
 
 #include "../../../lib/CPathfinder.h"
