@@ -23,13 +23,17 @@ std::shared_ptr<boost::multi_array<AIPathNode, 5>> AISharedStorage::shared;
 std::set<int3> commitedTiles;
 std::set<int3> commitedTilesInitial;
 
-const uint64_t FirstActorMask = 1;
+#ifdef ENVIRONMENT64
 const int BUCKET_COUNT = 11;
+#else
+const int BUCKET_COUNT = 7;
+#endif // ENVIRONMENT64
+
+const uint64_t FirstActorMask = 1;
 const int BUCKET_SIZE = GameConstants::MAX_HEROES_PER_PLAYER;
 const int NUM_CHAINS = BUCKET_COUNT * BUCKET_SIZE;
 const uint64_t MIN_ARMY_STRENGTH_FOR_CHAIN = 5000;
 const uint64_t MIN_ARMY_STRENGTH_FOR_NEXT_ACTOR = 1000;
-
 
 AISharedStorage::AISharedStorage(int3 sizes)
 {
