@@ -64,8 +64,10 @@ namespace Goals
 
 		virtual bool operator==(const CaptureObjectsBehavior & other) const override;
 
+		static Goals::TGoalVec getVisitGoals(const std::vector<AIPath> & paths, const CGObjectInstance * objToVisit = nullptr);
+
 	private:
-		bool shouldVisitObject(ObjectIdRef obj) const;
+		bool shouldVisitObject(const CGObjectInstance * obj) const;
 	};
 }
 

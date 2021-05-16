@@ -12,6 +12,7 @@
 #include "PriorityEvaluator.h"
 #include "../Analyzers/DangerHitMapAnalyzer.h"
 #include "../Analyzers/BuildAnalyzer.h"
+#include "../Analyzers/ObjectClusterizer.h"
 #include "../Goals/AbstractGoal.h"
 
 const float MAX_GOLD_PEASURE = 0.3f;
@@ -31,7 +32,6 @@ enum class HeroLockedReason
 class Nullkiller
 {
 private:
-	std::unique_ptr<PriorityEvaluator> priorityEvaluator;
 	const CGHeroInstance * activeHero;
 	int3 targetTile;
 	std::map<const CGHeroInstance *, HeroLockedReason> lockedHeroes;
@@ -39,6 +39,8 @@ private:
 public:
 	std::unique_ptr<DangerHitMapAnalyzer> dangerHitMap;
 	std::unique_ptr<BuildAnalyzer> buildAnalyzer;
+	std::unique_ptr<ObjectClusterizer> objectClusterizer;
+	std::unique_ptr<PriorityEvaluator> priorityEvaluator;
 
 	Nullkiller();
 	void makeTurn();

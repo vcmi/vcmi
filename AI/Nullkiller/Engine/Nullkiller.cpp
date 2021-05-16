@@ -18,6 +18,7 @@
 #include "../Behaviors/DefenceBehavior.h"
 #include "../Behaviors/BuildingBehavior.h"
 #include "../Behaviors/GatherArmyBehavior.h"
+#include "../Behaviors/ClusterBehavior.h"
 #include "../Goals/Invalid.h"
 
 extern boost::thread_specific_ptr<CCallback> cb;
@@ -30,6 +31,7 @@ Nullkiller::Nullkiller()
 	priorityEvaluator.reset(new PriorityEvaluator());
 	dangerHitMap.reset(new DangerHitMapAnalyzer());
 	buildAnalyzer.reset(new BuildAnalyzer());
+	objectClusterizer.reset(new ObjectClusterizer());
 }
 
 Goals::TTask Nullkiller::choseBestTask(Goals::TTaskVec & tasks) const
@@ -45,7 +47,7 @@ Goals::TTask Nullkiller::choseBestTask(Goals::TSubgoal behavior) const
 {
 	logAi->debug("Checking behavior %s", behavior->toString());
 
-	const int MAX_DEPTH = 0;
+	const int MAX_DEPTH = 10;
 	Goals::TGoalVec goals[MAX_DEPTH + 1];
 	Goals::TTaskVec tasks;
 	std::map<Goals::TSubgoal, Goals::TSubgoal> decompositionMap;
@@ -152,6 +154,7 @@ void Nullkiller::updateAiState()
 	ai->ah->updatePaths(activeHeroes, true);
 	ai->ah->update();
 
+	objectClusterizer->clusterize();
 	buildAnalyzer->update();
 }
 
@@ -204,6 +207,7 @@ void Nullkiller::makeTurn()
 		Goals::TTaskVec bestTasks = {
 			choseBestTask(sptr(BuyArmyBehavior())),
 			choseBestTask(sptr(CaptureObjectsBehavior())),
+			choseBestTask(sptr(ClusterBehavior())),
 			choseBestTask(sptr(RecruitHeroBehavior())),
 			choseBestTask(sptr(DefenceBehavior())),
 			choseBestTask(sptr(BuildingBehavior())),

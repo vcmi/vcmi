@@ -23,6 +23,7 @@
 #include "../AIhelper.h"
 #include "../Engine/Nullkiller.h"
 #include "../Goals/ExecuteHeroChain.h"
+#include "../Goals/UnlockCluster.h"
 
 #define MIN_AI_STRENGHT (0.5f) //lower when combat AI gets smarter
 #define UNGUARDED_OBJECT (100.0f) //we consider unguarded objects 100 times weaker than us
@@ -459,11 +460,18 @@ public:
 		evaluationContext.movementCost += path.movementCost();
 		evaluationContext.closestWayRatio = chain.closestWayRatio;
 
+		std::map<const CGHeroInstance *, float> costsPerHero;
+
 		for(auto & node : path.nodes)
 		{
-			auto role = ai->ah->getHeroRole(node.targetHero);
+			vstd::amax(costsPerHero[node.targetHero], node.cost);
+		}
 
-			evaluationContext.movementCostByRole[role] += node.cost;
+		for(auto pair : costsPerHero)
+		{
+			auto role = ai->ah->getHeroRole(pair.first);
+
+			evaluationContext.movementCostByRole[role] += pair.second;
 		}
 
 		auto heroPtr = task->hero;
@@ -481,6 +489,56 @@ public:
 		evaluationContext.strategicalValue += getStrategicalValue(target);
 		evaluationContext.goldCost += getGoldCost(target, hero, army);
 		vstd::amax(evaluationContext.turn, path.turn());
+	}
+};
+
+class ClusterEvaluationContextBuilder : public IEvaluationContextBuilder
+{
+public:
+	virtual void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
+	{
+		if(task->goalType != Goals::UNLOCK_CLUSTER)
+			return;
+
+		Goals::UnlockCluster & clusterGoal = dynamic_cast<Goals::UnlockCluster &>(*task);
+		std::shared_ptr<ObjectCluster> cluster = clusterGoal.getCluster();
+
+		auto hero = clusterGoal.hero.get();
+		auto role = ai->ah->getHeroRole(clusterGoal.hero);
+
+		std::vector<std::pair<const CGObjectInstance *, ObjectInfo>> objects(cluster->objects.begin(), cluster->objects.end());
+
+		std::sort(objects.begin(), objects.end(), [](std::pair<const CGObjectInstance *, ObjectInfo> o1, std::pair<const CGObjectInstance *, ObjectInfo> o2) -> bool
+		{
+			return o1.second.priority > o2.second.priority;
+		});
+
+		int boost = 1;
+
+		for(auto objInfo : objects)
+		{
+			auto target = objInfo.first;
+			auto day = cb->getDate(Date::DAY);
+			bool checkGold = objInfo.second.danger == 0;
+			auto army = hero;
+
+			evaluationContext.goldReward += getGoldReward(target, hero) / boost;
+			evaluationContext.armyReward += getArmyReward(target, hero, army, checkGold) / boost;
+			evaluationContext.skillReward += getSkillReward(target, hero, role) / boost;
+			evaluationContext.strategicalValue += getStrategicalValue(target) / boost;
+			evaluationContext.goldCost += getGoldCost(target, hero, army) / boost;
+			evaluationContext.movementCostByRole[role] += objInfo.second.movementCost / boost;
+			evaluationContext.movementCost += objInfo.second.movementCost / boost;
+
+			boost <<= 1;
+
+			if(boost > 8)
+				break;
+		}
+
+		const AIPath & pathToCenter = clusterGoal.getPathToCenter();
+
+		vstd::amax(evaluationContext.turn, pathToCenter.turn());
 	}
 };
 
@@ -529,6 +587,7 @@ PriorityEvaluator::PriorityEvaluator()
 	initVisitTile();
 	evaluationContextBuilders.push_back(std::make_shared<ExecuteHeroChainEvaluationContextBuilder>());
 	evaluationContextBuilders.push_back(std::make_shared<BuildThisEvaluationContextBuilder>());
+	evaluationContextBuilders.push_back(std::make_shared<ClusterEvaluationContextBuilder>());
 }
 
 EvaluationContext PriorityEvaluator::buildEvaluationContext(Goals::TSubgoal goal) const
@@ -545,14 +604,14 @@ EvaluationContext PriorityEvaluator::buildEvaluationContext(Goals::TSubgoal goal
 		parts.push_back(goal);
 	}
 
-	for(auto goal : parts)
+	for(auto subgoal : parts)
 	{
-		context.strategicalValue += goal->strategicalValue;
-		context.goldCost += goal->goldCost;
+		context.strategicalValue += subgoal->strategicalValue;
+		context.goldCost += subgoal->goldCost;
 
 		for(auto builder : evaluationContextBuilders)
 		{
-			builder->buildEvaluationContext(context, goal);
+			builder->buildEvaluationContext(context, subgoal);
 		}
 	}
 
