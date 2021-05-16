@@ -58,7 +58,7 @@ public:
 		const TResources & availableResources) const = 0;
 };
 
-struct UpgradeInfo;
+struct StackUpgradeInfo;
 
 class DLL_EXPORT ArmyManager : public IArmyManager
 {
@@ -88,7 +88,7 @@ public:
 
 private:
 	std::vector<SlotInfo> convertToSlots(const CCreatureSet * army) const;
-	std::vector<UpgradeInfo> getPossibleUpgrades(const CCreatureSet * army, const CGObjectInstance * upgrader) const;
-	std::vector<UpgradeInfo> getHillFortUpgrades(const CCreatureSet * army) const;
-	std::vector<UpgradeInfo> getDwellingUpgrades(const CCreatureSet * army, const CGDwelling * dwelling) const;
+	std::vector<StackUpgradeInfo> getPossibleUpgrades(const CCreatureSet * army, const CGObjectInstance * upgrader) const;
+	std::vector<StackUpgradeInfo> getHillFortUpgrades(const CCreatureSet * army) const;
+	std::vector<StackUpgradeInfo> getDwellingUpgrades(const CCreatureSet * army, const CGDwelling * dwelling) const;
 };
