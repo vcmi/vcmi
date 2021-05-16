@@ -178,6 +178,11 @@ Goals::TGoalVec CaptureObjectsBehavior::decompose() const
 #endif
 			vstd::concatenate(tasks, getVisitGoals(paths, objToVisit));
 		}
+
+		vstd::erase_if(tasks, [](TSubgoal task) -> bool
+		{
+			return task->invalid();
+		});
 	};
 
 	if(specificObjects)
@@ -187,12 +192,10 @@ Goals::TGoalVec CaptureObjectsBehavior::decompose() const
 	else
 	{
 		captureObjects(ai->nullkiller->objectClusterizer->getNearbyObjects());
-	}
 
-	vstd::erase_if(tasks, [](TSubgoal task) -> bool
-	{
-		return task->invalid();
-	});
+		if(tasks.empty())
+			captureObjects(ai->nullkiller->objectClusterizer->getFarObjects());
+	}
 
 	return tasks;
 }

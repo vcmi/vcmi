@@ -72,6 +72,11 @@ std::vector<const CGObjectInstance *> ObjectClusterizer::getNearbyObjects() cons
 	return nearObjects.getObjects();
 }
 
+std::vector<const CGObjectInstance *> ObjectClusterizer::getFarObjects() const
+{
+	return farObjects.getObjects();
+}
+
 std::vector<std::shared_ptr<ObjectCluster>> ObjectClusterizer::getLockedClusters() const
 {
 	std::vector<std::shared_ptr<ObjectCluster>> result;
