@@ -15,6 +15,8 @@
 #include "../AIUtility.h"
 #include "Actions/SpecialAction.h"
 
+extern const uint64_t MIN_ARMY_STRENGTH_FOR_CHAIN;
+
 class HeroActor;
 class Nullkiller;
 

@@ -243,8 +243,10 @@ void Nullkiller::makeTurn()
 			return;
 		}
 
+		std::string taskDescr = bestTask->toString();
+
 		boost::this_thread::interruption_point();
-		logAi->debug("Trying to realize %s (value %2.3f)", bestTask->toString(), bestTask->priority);
+		logAi->debug("Trying to realize %s (value %2.3f)", taskDescr, bestTask->priority);
 
 		try
 		{
@@ -256,7 +258,7 @@ void Nullkiller::makeTurn()
 		}
 		catch(std::exception & e)
 		{
-			logAi->debug("Failed to realize subgoal of type %s, I will stop.", bestTask->toString());
+			logAi->debug("Failed to realize subgoal of type %s, I will stop.", taskDescr);
 			logAi->debug("The error message was: %s", e.what());
 
 			return;
