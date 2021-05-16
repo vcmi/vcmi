@@ -28,5 +28,9 @@ public:
 
 	virtual Goals::TGoalVec getTasks() override;
 	virtual std::string toString() const override;
+
+private:
+	Goals::TGoalVec deliverArmyToHero(const CGHeroInstance * hero) const;
+	Goals::TGoalVec upgradeArmy(const CGObjectInstance * upgrader) const;
 };
 

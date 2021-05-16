@@ -1840,7 +1840,10 @@ bool VCAI::isAccessibleForHero(const int3 & pos, HeroPtr h, bool includeAllies) 
 bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 {
 	if(h->inTownGarrison && h->visitedTown)
+	{
 		cb->swapGarrisonHero(h->visitedTown);
+		moveCreaturesToHero(h->visitedTown);
+	}
 
 	//TODO: consider if blockVisit objects change something in our checks: AIUtility::isBlockVisitObj()
 

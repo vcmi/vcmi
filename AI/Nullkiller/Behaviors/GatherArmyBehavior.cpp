@@ -40,122 +40,211 @@ Goals::TGoalVec GatherArmyBehavior::getTasks()
 	{
 		return tasks;
 	}
-	
+
 	for(const CGHeroInstance * hero : heroes)
 	{
-		if(ai->ah->getHeroRole(hero) != HeroRole::MAIN
-			|| hero->getArmyStrength() < 300)
+		if(ai->ah->getHeroRole(hero) == HeroRole::MAIN
+			&& hero->getArmyStrength() >= 300)
 		{
+			vstd::concatenate(tasks, deliverArmyToHero(hero));
+		}
+	}
+
+	auto towns = cb->getTownsInfo();
+
+	for(const CGTownInstance * town : towns)
+	{
+		vstd::concatenate(tasks, upgradeArmy(town));
+	}
+}
+
+Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * hero) const
+{
+	Goals::TGoalVec tasks;
+	const int3 pos = hero->visitablePos();
+
 #ifdef AI_TRACE_LEVEL >= 1
-			logAi->trace("Skipping hero %s", hero->name);
+	logAi->trace("Checking ways to gaher army for hero %s, %s", hero->getObjectName(), pos.toString());
+#endif
+	if(ai->nullkiller->isHeroLocked(hero))
+	{
+#ifdef AI_TRACE_LEVEL >= 1
+		logAi->trace("Skipping locked hero %s, %s", hero->getObjectName(), pos.toString());
+#endif
+		return tasks;
+	}
+
+	auto paths = ai->ah->getPathsToTile(pos);
+	std::vector<std::shared_ptr<ExecuteHeroChain>> waysToVisitObj;
+
+#ifdef AI_TRACE_LEVEL >= 1
+	logAi->trace("Found %d paths", paths.size());
+#endif
+
+	for(const AIPath & path : paths)
+	{
+#ifdef AI_TRACE_LEVEL >= 2
+		logAi->trace("Path found %s", path.toString());
+#endif
+		
+		if(path.containsHero(hero)) continue;
+
+		if(path.getFirstBlockedAction())
+		{
+#ifdef AI_TRACE_LEVEL >= 2
+			// TODO: decomposition?
+			logAi->trace("Ignore path. Action is blocked.");
 #endif
 			continue;
 		}
 
-		const int3 pos = hero->visitablePos();
-
-#ifdef AI_TRACE_LEVEL >= 1
-		logAi->trace("Checking ways to gaher army for hero %s, %s", hero->getObjectName(), pos.toString());
-#endif
-		if(ai->nullkiller->isHeroLocked(hero))
+		if(ai->nullkiller->dangerHitMap->enemyCanKillOurHeroesAlongThePath(path))
 		{
-#ifdef AI_TRACE_LEVEL >= 1
-			logAi->trace("Skipping locked hero %s, %s", hero->getObjectName(), pos.toString());
+#ifdef AI_TRACE_LEVEL >= 2
+			logAi->trace("Ignore path. Target hero can be killed by enemy. Our power %lld", path.heroArmy->getArmyStrength());
 #endif
 			continue;
 		}
 
-		auto paths = ai->ah->getPathsToTile(pos);
-		std::vector<std::shared_ptr<ExecuteHeroChain>> waysToVisitObj;
+		float armyValue = (float)ai->ah->howManyReinforcementsCanGet(hero, path.heroArmy) / hero->getArmyStrength();
 
-#ifdef AI_TRACE_LEVEL >= 1
-		logAi->trace("Found %d paths", paths.size());
-#endif
-
-		for(auto & path : paths)
-		{
-#ifdef AI_TRACE_LEVEL >= 2
-			logAi->trace("Path found %s", path.toString());
-#endif
-			bool skip = path.targetHero == hero;
-
-			for(auto node : path.nodes)
-			{
-				skip |= (node.targetHero == hero);
-			}
-
-			if(skip) continue;
-
-#ifdef AI_TRACE_LEVEL >= 2
-			logAi->trace("Path found %s", path.toString());
-#endif
-
-			if(path.getFirstBlockedAction())
-			{
-#ifdef AI_TRACE_LEVEL >= 2
-				// TODO: decomposition?
-				logAi->trace("Ignore path. Action is blocked.");
-#endif
-				continue;
-			}
-
-			if(ai->nullkiller->dangerHitMap->enemyCanKillOurHeroesAlongThePath(path))
-			{
-#ifdef AI_TRACE_LEVEL >= 2
-				logAi->trace("Ignore path. Target hero can be killed by enemy. Our power %lld", path.heroArmy->getArmyStrength());
-#endif
-				continue;
-			}
-
-			float armyValue = (float)ai->ah->howManyReinforcementsCanGet(hero, path.heroArmy) / hero->getArmyStrength();
-
-			// avoid transferring very small amount of army
-			if(armyValue < 0.1f)
-				continue;
-
-			// avoid trying to move bigger army to the weaker one.
-			if(armyValue > 0.5f)
-				continue;
-
-			auto danger = path.getTotalDanger();
-
-			auto isSafe = isSafeToVisit(hero, path.heroArmy, danger);
-
-#ifdef AI_TRACE_LEVEL >= 2
-			logAi->trace(
-				"It is %s to visit %s by %s with army %lld, danger %lld and army loss %lld",
-				isSafe ? "safe" : "not safe",
-				hero->name,
-				path.targetHero->name,
-				path.getHeroStrength(),
-				danger,
-				path.getTotalArmyLoss());
-#endif
-
-			if(isSafe)
-			{
-				auto newWay = std::make_shared<ExecuteHeroChain>(path, hero);
-
-				newWay->evaluationContext.strategicalValue = armyValue;
-				waysToVisitObj.push_back(newWay);
-			}
-		}
-
-		if(waysToVisitObj.empty())
+		// avoid transferring very small amount of army
+		if(armyValue < 0.1f)
 			continue;
 
-		for(auto way : waysToVisitObj)
+		// avoid trying to move bigger army to the weaker one.
+		if(armyValue > 0.5f)
+			continue;
+
+		auto danger = path.getTotalDanger();
+
+		auto isSafe = isSafeToVisit(hero, path.heroArmy, danger);
+
+#ifdef AI_TRACE_LEVEL >= 2
+		logAi->trace(
+			"It is %s to visit %s by %s with army %lld, danger %lld and army loss %lld",
+			isSafe ? "safe" : "not safe",
+			hero->name,
+			path.targetHero->name,
+			path.getHeroStrength(),
+			danger,
+			path.getTotalArmyLoss());
+#endif
+
+		if(isSafe)
 		{
-			if(ai->nullkiller->arePathHeroesLocked(way->getPath()))
-				continue;
+			auto newWay = std::make_shared<ExecuteHeroChain>(path, hero);
 
-			if(ai->nullkiller->getHeroLockedReason(way->hero.get()) == HeroLockedReason::STARTUP)
-				continue;
-
-			way->evaluationContext.closestWayRatio = 1;
-
-			tasks.push_back(sptr(*way));
+			newWay->evaluationContext.strategicalValue = armyValue;
+			waysToVisitObj.push_back(newWay);
 		}
+	}
+
+	if(waysToVisitObj.empty())
+		return tasks;
+
+	for(auto way : waysToVisitObj)
+	{
+		if(ai->nullkiller->arePathHeroesLocked(way->getPath()))
+			continue;
+
+		if(ai->nullkiller->getHeroLockedReason(way->hero.get()) == HeroLockedReason::STARTUP)
+			continue;
+
+		way->evaluationContext.closestWayRatio = 1;
+
+		tasks.push_back(sptr(*way));
+	}
+
+	return tasks;
+}
+
+Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGObjectInstance * upgrader) const
+{
+	Goals::TGoalVec tasks;
+	const int3 pos = upgrader->visitablePos();
+	TResources availableResources = cb->getResourceAmount();
+
+#ifdef AI_TRACE_LEVEL >= 1
+	logAi->trace("Checking ways to upgrade army in town %s, %s", upgrader->getObjectName(), pos.toString());
+#endif
+	
+	auto paths = ai->ah->getPathsToTile(pos);
+	std::vector<std::shared_ptr<ExecuteHeroChain>> waysToVisitObj;
+
+#ifdef AI_TRACE_LEVEL >= 1
+	logAi->trace("Found %d paths", paths.size());
+#endif
+
+	for(const AIPath & path : paths)
+	{
+#ifdef AI_TRACE_LEVEL >= 2
+		logAi->trace("Path found %s", path.toString());
+#endif
+
+		if(path.getFirstBlockedAction())
+		{
+#ifdef AI_TRACE_LEVEL >= 2
+			// TODO: decomposition?
+			logAi->trace("Ignore path. Action is blocked.");
+#endif
+			continue;
+		}
+
+		if(ai->nullkiller->dangerHitMap->enemyCanKillOurHeroesAlongThePath(path))
+		{
+#ifdef AI_TRACE_LEVEL >= 2
+			logAi->trace("Ignore path. Target hero can be killed by enemy. Our power %lld", path.heroArmy->getArmyStrength());
+#endif
+			continue;
+		}
+
+		auto upgrade = ai->ah->calculateCreateresUpgrade(path.heroArmy, upgrader, availableResources);
+		auto armyValue = (float)upgrade.upgradeValue / path.getHeroStrength();
+
+		if(armyValue < 0.1f || upgrade.upgradeValue < 300) // avoid small upgrades
+			continue;
+
+		auto danger = path.getTotalDanger();
+
+		auto isSafe = isSafeToVisit(path.targetHero, path.heroArmy, danger);
+
+#ifdef AI_TRACE_LEVEL >= 2
+		logAi->trace(
+			"It is %s to visit %s by %s with army %lld, danger %lld and army loss %lld",
+			isSafe ? "safe" : "not safe",
+			upgrader->getObjectName(),
+			path.targetHero->name,
+			path.getHeroStrength(),
+			danger,
+			path.getTotalArmyLoss());
+#endif
+
+		if(isSafe)
+		{
+			auto newWay = std::make_shared<ExecuteHeroChain>(path, upgrader);
+
+			newWay->evaluationContext.strategicalValue = armyValue;
+			newWay->evaluationContext.goldCost = upgrade.upgradeCost[Res::GOLD];
+
+			waysToVisitObj.push_back(newWay);
+		}
+	}
+
+	if(waysToVisitObj.empty())
+		return tasks;
+
+	for(auto way : waysToVisitObj)
+	{
+		if(ai->nullkiller->arePathHeroesLocked(way->getPath()))
+			continue;
+
+		if(ai->nullkiller->getHeroLockedReason(way->hero.get()) == HeroLockedReason::STARTUP)
+			continue;
+
+		way->evaluationContext.closestWayRatio = 1;
+
+		tasks.push_back(sptr(*way));
 	}
 
 	return tasks;

@@ -300,7 +300,7 @@ float getStrategicalValue(const CGObjectInstance * target)
 	case Obj::TOWN:
 		return dynamic_cast<const CGTownInstance *>(target)->hasFort()
 			? (target->tempOwner == PlayerColor::NEUTRAL ? 0.8f : 1.0f)
-			: 0.4f;
+			: 0.5f;
 
 	case Obj::HERO:
 		return cb->getPlayerRelations(target->tempOwner, ai->playerID) == PlayerRelations::ENEMIES
