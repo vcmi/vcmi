@@ -14,6 +14,23 @@
 #include "../../CCallback.h"
 #include "../../lib/mapObjects/MapObjects.h"
 
+class StackUpgradeInfo
+{
+public:
+	CreatureID initialCreature;
+	CreatureID upgradedCreature;
+	TResources cost;
+	int count;
+	uint64_t upgradeValue;
+
+	StackUpgradeInfo(CreatureID initial, CreatureID upgraded, int count)
+		:initialCreature(initial), upgradedCreature(upgraded), count(count)
+	{
+		cost = (upgradedCreature.toCreature()->cost - initialCreature.toCreature()->cost) * count;
+		upgradeValue = (upgradedCreature.toCreature()->AIValue - initialCreature.toCreature()->AIValue) * count;
+	}
+};
+
 void ArmyManager::init(CPlayerSpecificInfoCallback * CB)
 {
 	cb = CB;
@@ -209,22 +226,6 @@ void ArmyManager::update()
 	}
 }
 
-struct UpgradeInfo
-{
-	const CCreature * initialCreature;
-	const CCreature * upgradedCreature;
-	TResources cost;
-	int count;
-	uint64_t upgradeValue;
-
-	UpgradeInfo(CreatureID initial, CreatureID upgraded, int count)
-		:initialCreature(initial.toCreature()), upgradedCreature(upgraded.toCreature()), count(count)
-	{
-		cost = (upgradedCreature->cost - initialCreature->cost) * count;
-		upgradeValue = (upgradedCreature->AIValue - initialCreature->AIValue) * count;
-	}
-};
-
 std::vector<SlotInfo> ArmyManager::convertToSlots(const CCreatureSet * army) const
 {
 	std::vector<SlotInfo> result;
@@ -243,9 +244,9 @@ std::vector<SlotInfo> ArmyManager::convertToSlots(const CCreatureSet * army) con
 	return result;
 }
 
-std::vector<UpgradeInfo> ArmyManager::getHillFortUpgrades(const CCreatureSet * army) const
+std::vector<StackUpgradeInfo> ArmyManager::getHillFortUpgrades(const CCreatureSet * army) const
 {
-	std::vector<UpgradeInfo> upgrades;
+	std::vector<StackUpgradeInfo> upgrades;
 
 	for(auto creature : army->Slots())
 	{
@@ -260,7 +261,7 @@ std::vector<UpgradeInfo> ArmyManager::getHillFortUpgrades(const CCreatureSet * a
 			return cre.toCreature()->AIValue;
 		});
 
-		UpgradeInfo upgrade = UpgradeInfo(initial, strongestUpgrade, creature.second->count);
+		StackUpgradeInfo upgrade = StackUpgradeInfo(initial, strongestUpgrade, creature.second->count);
 
 		if(initial.toCreature()->level == 1)
 			upgrade.cost = TResources();
@@ -271,9 +272,9 @@ std::vector<UpgradeInfo> ArmyManager::getHillFortUpgrades(const CCreatureSet * a
 	return upgrades;
 }
 
-std::vector<UpgradeInfo> ArmyManager::getDwellingUpgrades(const CCreatureSet * army, const CGDwelling * dwelling) const
+std::vector<StackUpgradeInfo> ArmyManager::getDwellingUpgrades(const CCreatureSet * army, const CGDwelling * dwelling) const
 {
-	std::vector<UpgradeInfo> upgrades;
+	std::vector<StackUpgradeInfo> upgrades;
 
 	for(auto creature : army->Slots())
 	{
@@ -299,7 +300,7 @@ std::vector<UpgradeInfo> ArmyManager::getDwellingUpgrades(const CCreatureSet * a
 			return cre.toCreature()->AIValue;
 		});
 
-		UpgradeInfo upgrade = UpgradeInfo(initial, strongestUpgrade, creature.second->count);
+		StackUpgradeInfo upgrade = StackUpgradeInfo(initial, strongestUpgrade, creature.second->count);
 
 		upgrades.push_back(upgrade);
 	}
@@ -307,9 +308,9 @@ std::vector<UpgradeInfo> ArmyManager::getDwellingUpgrades(const CCreatureSet * a
 	return upgrades;
 }
 
-std::vector<UpgradeInfo> ArmyManager::getPossibleUpgrades(const CCreatureSet * army, const CGObjectInstance * upgrader) const
+std::vector<StackUpgradeInfo> ArmyManager::getPossibleUpgrades(const CCreatureSet * army, const CGObjectInstance * upgrader) const
 {
-	std::vector<UpgradeInfo> upgrades;
+	std::vector<StackUpgradeInfo> upgrades;
 
 	if(upgrader->ID == Obj::HILL_FORT)
 	{
@@ -336,9 +337,9 @@ ArmyUpgradeInfo ArmyManager::calculateCreateresUpgrade(
 	if(!upgrader)
 		return ArmyUpgradeInfo();
 
-	std::vector<UpgradeInfo> upgrades = getPossibleUpgrades(army, upgrader);
+	std::vector<StackUpgradeInfo> upgrades = getPossibleUpgrades(army, upgrader);
 
-	vstd::erase_if(upgrades, [&](const UpgradeInfo & u) -> bool
+	vstd::erase_if(upgrades, [&](const StackUpgradeInfo & u) -> bool
 	{
 		return !availableResources.canAfford(u.cost);
 	});
@@ -346,7 +347,7 @@ ArmyUpgradeInfo ArmyManager::calculateCreateresUpgrade(
 	if(upgrades.empty())
 		return ArmyUpgradeInfo();
 
-	std::sort(upgrades.begin(), upgrades.end(), [](const UpgradeInfo & u1, const UpgradeInfo & u2) -> bool
+	std::sort(upgrades.begin(), upgrades.end(), [](const StackUpgradeInfo & u1, const StackUpgradeInfo & u2) -> bool
 	{
 		return u1.upgradeValue > u2.upgradeValue;
 	});
