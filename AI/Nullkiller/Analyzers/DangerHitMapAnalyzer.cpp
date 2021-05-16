@@ -44,6 +44,9 @@ void DangerHitMapAnalyzer::updateHitMap()
 
 	for(auto pair : heroes)
 	{
+		if(ai->cb->getPlayerRelations(ai->playerID, pair.first) != PlayerRelations::ENEMIES)
+			continue;
+
 		ai->pathfinder->updatePaths(pair.second, PathfinderSettings());
 
 		boost::this_thread::interruption_point();
