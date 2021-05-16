@@ -770,6 +770,9 @@ void VCAI::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h)
 		{
 			makePossibleUpgrades(h.get());
 
+			if(!nullkiller || !h->visitedTown->garrisonHero || !nullkiller->isHeroLocked(h->visitedTown->garrisonHero))
+				moveCreaturesToHero(h->visitedTown);
+
 			if(ai->nullkiller->heroManager->getHeroRole(h) == HeroRole::MAIN && !h->hasSpellbook()
 				&& cb->getResourceAmount(Res::GOLD) >= GameConstants::SPELLBOOK_GOLD_COST)
 			{

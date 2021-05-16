@@ -18,7 +18,7 @@ class Nullkiller;
 class AIPathfinder
 {
 private:
-	static std::shared_ptr<AINodeStorage> storage;
+	std::shared_ptr<AINodeStorage> storage;
 	CPlayerSpecificInfoCallback * cb;
 	Nullkiller * ai;
 

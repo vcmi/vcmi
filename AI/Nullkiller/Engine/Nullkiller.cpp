@@ -153,12 +153,11 @@ void Nullkiller::updateAiState()
 	memory->removeInvisibleObjects(cb.get());
 	dangerHitMap->updateHitMap();
 
-	// TODO: move to hero manager
 	auto activeHeroes = cb->getHeroesInfo();
 
-	vstd::erase_if(activeHeroes, [this](const HeroPtr & hero) -> bool
+	vstd::erase_if(activeHeroes, [this](const CGHeroInstance * hero) -> bool
 	{
-		auto lockedReason = getHeroLockedReason(hero.h);
+		auto lockedReason = getHeroLockedReason(hero);
 
 		return lockedReason == HeroLockedReason::DEFENCE;
 	});
