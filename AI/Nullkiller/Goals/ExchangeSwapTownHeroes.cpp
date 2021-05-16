@@ -23,8 +23,11 @@ extern FuzzyHelper * fh;
 
 using namespace Goals;
 
-ExchangeSwapTownHeroes::ExchangeSwapTownHeroes(const CGTownInstance * town, const CGHeroInstance * garrisonHero)
-	:CGoal(Goals::EXCHANGE_SWAP_TOWN_HEROES), town(town), garrisonHero(garrisonHero)
+ExchangeSwapTownHeroes::ExchangeSwapTownHeroes(
+	const CGTownInstance * town, 
+	const CGHeroInstance * garrisonHero,
+	HeroLockedReason lockingReason)
+	:CGoal(Goals::EXCHANGE_SWAP_TOWN_HEROES), town(town), garrisonHero(garrisonHero), lockingReason(lockingReason)
 {
 }
 
@@ -90,7 +93,7 @@ void ExchangeSwapTownHeroes::accept(VCAI * ai)
 		cb->swapGarrisonHero(town); // selected hero left in garrison with strongest army
 	}
 
-	ai->nullkiller->lockHero(garrisonHero);
+	ai->nullkiller->lockHero(garrisonHero, lockingReason);
 
 	if(town->visitingHero && town->visitingHero != garrisonHero)
 	{

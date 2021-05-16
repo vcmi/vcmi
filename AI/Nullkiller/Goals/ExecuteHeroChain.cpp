@@ -69,7 +69,7 @@ void ExecuteHeroChain::accept(VCAI * ai)
 		if(vstd::contains(blockedIndexes, i))
 		{
 			blockedIndexes.insert(node.parentIndex);
-			ai->nullkiller->lockHero(hero.get());
+			ai->nullkiller->lockHero(hero.get(), HeroLockedReason::HERO_CHAIN);
 
 			continue;
 		}
@@ -128,7 +128,7 @@ void ExecuteHeroChain::accept(VCAI * ai)
 							{
 								logAi->warn("Hero %s has %d mp which is not enough to continue his way towards %s.", hero.name, hero->movement, node.coord.toString());
 
-								ai->nullkiller->lockHero(hero.get());
+								ai->nullkiller->lockHero(hero.get(), HeroLockedReason::HERO_CHAIN);
 								return;
 							}
 						}
@@ -148,13 +148,9 @@ void ExecuteHeroChain::accept(VCAI * ai)
 
 				return;
 			}
-
-			// do not lock hero if it is simple one hero chain
-			if(chainPath.exchangeCount == 1)
-				return;
-
+			
 			// no exception means we were not able to rich the tile
-			ai->nullkiller->lockHero(hero.get());
+			ai->nullkiller->lockHero(hero.get(), HeroLockedReason::HERO_CHAIN);
 			blockedIndexes.insert(node.parentIndex);
 		}
 		catch(goalFulfilledException)

@@ -102,6 +102,7 @@ private:
 	std::vector<CGPathNode *> heroChain;
 	bool heroChainPass; // true if we need to calculate hero chain
 	int heroChainTurn;
+	int heroChainMaxTurns;
 	PlayerColor playerID;
 
 public:
@@ -112,6 +113,8 @@ public:
 	~AINodeStorage();
 
 	void initialize(const PathfinderOptions & options, const CGameState * gs) override;
+
+	bool increaseHeroChainTurnLimit();
 
 	virtual std::vector<CGPathNode *> getInitialNodes() override;
 

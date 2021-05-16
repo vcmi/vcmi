@@ -10,6 +10,7 @@
 #pragma once
 
 #include "CGoal.h"
+#include "..\Engine\Nullkiller.h"
 
 namespace Goals
 {
@@ -18,9 +19,13 @@ namespace Goals
 	private:
 		const CGTownInstance * town;
 		const CGHeroInstance * garrisonHero;
+		HeroLockedReason lockingReason;
 
 	public:
-		ExchangeSwapTownHeroes(const CGTownInstance * town, const CGHeroInstance * garrisonHero = nullptr);
+		ExchangeSwapTownHeroes(
+			const CGTownInstance * town,
+			const CGHeroInstance * garrisonHero = nullptr,
+			HeroLockedReason lockingReason = HeroLockedReason::NOT_LOCKED);
 
 		TGoalVec getAllPossibleSubgoals() override
 		{

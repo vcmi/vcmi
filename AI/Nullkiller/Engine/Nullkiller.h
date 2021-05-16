@@ -14,12 +14,23 @@
 #include "../Goals/AbstractGoal.h"
 #include "../Behaviors/Behavior.h"
 
+enum class HeroLockedReason
+{
+	NOT_LOCKED = 0,
+
+	STARTUP = 1,
+
+	DEFENCE = 2,
+
+	HERO_CHAIN = 3
+};
+
 class Nullkiller
 {
 private:
 	std::unique_ptr<PriorityEvaluator> priorityEvaluator;
 	const CGHeroInstance * activeHero;
-	std::set<const CGHeroInstance *> lockedHeroes;
+	std::map<const CGHeroInstance *, HeroLockedReason> lockedHeroes;
 
 public:
 	std::unique_ptr<DangerHitMapAnalyzer> dangerHitMap;
@@ -28,10 +39,11 @@ public:
 	void makeTurn();
 	bool isActive(const CGHeroInstance * hero) const { return activeHero == hero; }
 	bool isHeroLocked(const CGHeroInstance * hero) const { return vstd::contains(lockedHeroes, hero); }
+	HeroLockedReason getHeroLockedReason(const CGHeroInstance * hero) const { return isHeroLocked(hero) ? lockedHeroes.at(hero) : HeroLockedReason::NOT_LOCKED; }
 	void setActive(const CGHeroInstance * hero) { activeHero = hero; }
-	void lockHero(const CGHeroInstance * hero) { lockedHeroes.insert(hero); }
+	void lockHero(const CGHeroInstance * hero, HeroLockedReason lockReason) { lockedHeroes[hero] = lockReason; }
 	void unlockHero(const CGHeroInstance * hero) { lockedHeroes.erase(hero); }
-	bool canMove(const CGHeroInstance * hero) { return hero->movement; }
+	bool arePathHeroesLocked(const AIPath & path) const;
 
 private:
 	void resetAiState();
