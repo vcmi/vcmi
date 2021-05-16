@@ -123,9 +123,6 @@ Goals::TGoalVec CaptureObjectsBehavior::getTasks()
 				if(ai->nullkiller->arePathHeroesLocked(way->getPath()))
 					continue;
 
-				if(ai->nullkiller->getHeroLockedReason(way->hero.get()) == HeroLockedReason::STARTUP)
-					continue;
-
 				way->evaluationContext.closestWayRatio
 					= closestWay->evaluationContext.movementCost / way->evaluationContext.movementCost;
 
@@ -149,7 +146,6 @@ Goals::TGoalVec CaptureObjectsBehavior::getTasks()
 bool CaptureObjectsBehavior::shouldVisitObject(ObjectIdRef obj) const
 {
 	const CGObjectInstance* objInstance = obj;
-
 	if(!objInstance)
 		return false;
 
@@ -161,6 +157,11 @@ bool CaptureObjectsBehavior::shouldVisitObject(ObjectIdRef obj) const
 	if(objectSubTypes.size() && !vstd::contains(objectSubTypes, objInstance->subID))
 	{
 		return false;
+	}
+	
+	if(isObjectRemovable(obj))
+	{
+		return true;
 	}
 
 	const int3 pos = objInstance->visitablePos();

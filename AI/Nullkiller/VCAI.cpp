@@ -652,8 +652,34 @@ void VCAI::showBlockingDialog(const std::string & text, const std::vector<Compon
 	if(selection) //select from multiple components -> take the last one (they're indexed [1-size])
 		sel = components.size();
 
-	if(!selection && cancel) //yes&no -> always answer yes, we are a brave AI :)
-		sel = 1;
+	if(!selection && cancel)
+	{
+		requestActionASAP([=]()
+		{
+			//yes&no -> always answer yes, we are a brave AI :)
+			auto answer = 1;
+			if(nullkiller)
+			{
+				auto hero = nullkiller->getActiveHero();
+				auto target = nullkiller->getTargetTile();
+
+				if(hero.validAndSet() && target.valid())
+				{
+					auto ratio = (float)fh->evaluateDanger(target, hero.get()) / (float)hero->getTotalStrength();
+					bool dangerUnknown = ratio == 0;
+					bool dangerTooHigh = ratio > (1 / SAFE_ATTACK_CONSTANT);
+
+					logAi->trace("Guarded object query hook: %s by %s danger ratio %f", target.toString(), hero.name, ratio);
+
+					if(text.find("guarded") >= 0 && (dangerUnknown || dangerTooHigh))
+						answer = 0; // no
+				}
+			}
+
+			answerQuery(askID, answer);
+		});
+		return;
+	}
 
 	// TODO: Find better way to understand it is Chest of Treasures
 	if(components.size() == 2 && components.front().id == Component::RESOURCE)

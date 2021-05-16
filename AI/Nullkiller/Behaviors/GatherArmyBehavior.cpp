@@ -148,9 +148,6 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 		if(ai->nullkiller->arePathHeroesLocked(way->getPath()))
 			continue;
 
-		if(ai->nullkiller->getHeroLockedReason(way->hero.get()) == HeroLockedReason::STARTUP)
-			continue;
-
 		way->evaluationContext.closestWayRatio = 1;
 
 		tasks.push_back(sptr(*way));
@@ -244,9 +241,6 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader)
 	for(auto way : waysToVisitObj)
 	{
 		if(ai->nullkiller->arePathHeroesLocked(way->getPath()))
-			continue;
-
-		if(ai->nullkiller->getHeroLockedReason(way->hero.get()) == HeroLockedReason::STARTUP)
 			continue;
 
 		way->evaluationContext.closestWayRatio = 1;

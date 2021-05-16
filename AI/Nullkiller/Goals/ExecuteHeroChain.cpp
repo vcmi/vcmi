@@ -88,7 +88,7 @@ void ExecuteHeroChain::accept(VCAI * ai)
 		{
 			if(hero->movement)
 			{
-				ai->nullkiller->setActive(hero.get());
+				ai->nullkiller->setActive(hero.get(), node.coord);
 
 				if(node.specialAction)
 				{
