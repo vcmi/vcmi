@@ -34,6 +34,7 @@ class Nullkiller
 private:
 	std::unique_ptr<PriorityEvaluator> priorityEvaluator;
 	const CGHeroInstance * activeHero;
+	int3 targetTile;
 	std::map<const CGHeroInstance *, HeroLockedReason> lockedHeroes;
 
 public:
@@ -43,9 +44,11 @@ public:
 	Nullkiller();
 	void makeTurn();
 	bool isActive(const CGHeroInstance * hero) const { return activeHero == hero; }
-	bool isHeroLocked(const CGHeroInstance * hero) const { return vstd::contains(lockedHeroes, hero); }
-	HeroLockedReason getHeroLockedReason(const CGHeroInstance * hero) const { return isHeroLocked(hero) ? lockedHeroes.at(hero) : HeroLockedReason::NOT_LOCKED; }
-	void setActive(const CGHeroInstance * hero) { activeHero = hero; }
+	bool isHeroLocked(const CGHeroInstance * hero) const;
+	HeroPtr getActiveHero() { return activeHero; }
+	HeroLockedReason getHeroLockedReason(const CGHeroInstance * hero) const;
+	int3 getTargetTile() const { return targetTile; }
+	void setActive(const CGHeroInstance * hero, int3 tile) { activeHero = hero; targetTile = tile; }
 	void lockHero(const CGHeroInstance * hero, HeroLockedReason lockReason) { lockedHeroes[hero] = lockReason; }
 	void unlockHero(const CGHeroInstance * hero) { lockedHeroes.erase(hero); }
 	bool arePathHeroesLocked(const AIPath & path) const;

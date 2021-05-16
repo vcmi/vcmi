@@ -289,6 +289,15 @@ ui64 FuzzyHelper::evaluateDanger(const CGObjectInstance * obj, const VCAI * ai)
 		const CGTownInstance * cre = dynamic_cast<const CGTownInstance *>(obj);
 		return cre->getUpperArmy()->getArmyStrength();
 	}
+	case Obj::ARTIFACT:
+	case Obj::RESOURCE:
+	{
+		if(!vstd::contains(ai->alreadyVisited, obj))
+		{
+			return 0;
+		}
+		// passthrough
+	}
 	case Obj::MONSTER:
 	case Obj::HERO:
 	case Obj::GARRISON:

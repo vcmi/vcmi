@@ -69,12 +69,13 @@ Goals::TSubgoal Nullkiller::choseBestTask(std::shared_ptr<Behavior> behavior) co
 void Nullkiller::resetAiState()
 {
 	lockedHeroes.clear();
-
 	dangerHitMap->reset();
 }
 
 void Nullkiller::updateAiState()
 {
+	activeHero = nullptr;
+
 	ai->validateVisitableObjs();
 	dangerHitMap->updateHitMap();
 
@@ -94,15 +95,42 @@ void Nullkiller::updateAiState()
 	buildAnalyzer->update();
 }
 
+bool Nullkiller::isHeroLocked(const CGHeroInstance * hero) const
+{
+	return getHeroLockedReason(hero) != HeroLockedReason::NOT_LOCKED;
+}
+
 bool Nullkiller::arePathHeroesLocked(const AIPath & path) const
 {
+	if(getHeroLockedReason(path.targetHero) == HeroLockedReason::STARTUP)
+	{
+#if AI_TRACE_LEVEL >= 1
+		logAi->trace("Hero %s is locked by STARTUP. Discarding %s", path.targetHero->name, path.toString());
+#endif
+		return true;
+	}
+
 	for(auto & node : path.nodes)
 	{
-		if(isHeroLocked(node.targetHero))
+		auto lockReason = getHeroLockedReason(node.targetHero);
+
+		if(lockReason != HeroLockedReason::NOT_LOCKED)
+		{
+#if AI_TRACE_LEVEL >= 1
+			logAi->trace("Hero %s is locked by STARTUP. Discarding %s", path.targetHero->name, path.toString());
+#endif
 			return true;
+		}
 	}
 
 	return false;
+}
+
+HeroLockedReason Nullkiller::getHeroLockedReason(const CGHeroInstance * hero) const
+{
+	auto found = lockedHeroes.find(hero);
+
+	return found != lockedHeroes.end() ? found->second : HeroLockedReason::NOT_LOCKED;
 }
 
 void Nullkiller::makeTurn()
@@ -149,7 +177,7 @@ void Nullkiller::makeTurn()
 		{
 			if(bestTask->hero)
 			{
-				activeHero = bestTask->hero.get();
+				setActive(bestTask->hero.get(), bestTask->tile);
 			}
 
 			bestTask->accept(ai.get());
