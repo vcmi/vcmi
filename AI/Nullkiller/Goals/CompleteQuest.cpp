@@ -199,7 +199,7 @@ TGoalVec CompleteQuest::missionKeymaster() const
 
 TGoalVec CompleteQuest::missionResources() const
 {
-	TGoalVec solutions;
+	TGoalVec solutions = tryCompleteQuest();
 
 	/*auto heroes = cb->getHeroesInfo(); //TODO: choose best / free hero from among many possibilities?
 

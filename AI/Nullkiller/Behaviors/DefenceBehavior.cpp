@@ -14,8 +14,11 @@
 #include "../AIUtility.h"
 #include "../Goals/BuyArmy.h"
 #include "../Goals/ExecuteHeroChain.h"
+#include "../Behaviors/CaptureObjectsBehavior.h"
 #include "../Goals/RecruitHero.h"
 #include "../Goals/DismissHero.h"
+#include "../Goals/Composition.h"
+#include "../Markers/DefendTown.h"
 #include "../Goals/ExchangeSwapTownHeroes.h"
 #include "lib/mapping/CMap.h" //for victory conditions
 #include "lib/CPathfinder.h"
@@ -42,28 +45,9 @@ Goals::TGoalVec DefenceBehavior::decompose() const
 	return tasks;
 }
 
-uint64_t townArmyIncome(const CGTownInstance * town)
-{
-	uint64_t result = 0;
-
-	for(auto creatureInfo : town->creatures)
-	{
-		if(creatureInfo.second.empty())
-			continue;
-
-		auto creature = creatureInfo.second.back().toCreature();
-		result += creature->AIValue * town->getGrowthInfo(creature->level).totalGrowth();
-	}
-
-	return result;
-}
-
 void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInstance * town) const
 {
-	auto basicPriority = 0.3f + std::sqrt(townArmyIncome(town) / 40000.0f)
-		+ town->dailyIncome()[Res::GOLD] / 10000.0f;
-
-	logAi->debug("Evaluating defence for %s, basic priority %f", town->name, basicPriority);
+	logAi->debug("Evaluating defence for %s", town->name);
 
 	auto treatNode = ai->nullkiller->dangerHitMap->getObjectTreat(town);
 	auto treats = { treatNode.fastestDanger, treatNode.maximumDanger };
@@ -195,11 +179,13 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 			continue;
 		}
 
-		std::vector<Goals::ExecuteHeroChain> pathsToDefend;
-		std::map<const CGHeroInstance *, std::vector<AIPath>> defferedPaths;
+		std::vector<int> pathsToDefend;
+		std::map<const CGHeroInstance *, std::vector<int>> defferedPaths;
 
-		for(AIPath & path : paths)
+		for(int i = 0; i < paths.size(); i++)
 		{
+			auto & path = paths[i];
+
 #if AI_TRACE_LEVEL >= 1
 			logAi->trace(
 				"Hero %s can defend town with force %lld in %s turns, cost: %f, path: %s",
@@ -215,27 +201,29 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 					town->name,
 					path.targetHero->name);
 
-				defferedPaths[path.targetHero].push_back(path);
+				defferedPaths[path.targetHero].push_back(i);
 
 				continue;
 			}
 
-			float priority = basicPriority * std::min(SAFE_ATTACK_CONSTANT, (float)path.getHeroStrength() / treat.danger) 
-				- treat.turn * 0.2f;
-
-			if(treat.turn < path.turn())
-				priority /= (path.turn() - treat.turn) * 2;
-
 			if(path.targetHero == town->visitingHero && path.exchangeCount == 1)
 			{
 #if AI_TRACE_LEVEL >= 1
-				logAi->trace("Put %s to garrison of town %s with priority %f",
+				logAi->trace("Put %s to garrison of town %s",
 					path.targetHero->name,
-					town->name,
-					priority);
+					town->name);
 #endif
 
-				tasks.push_back(Goals::sptr(Goals::ExchangeSwapTownHeroes(town, town->visitingHero.get(), HeroLockedReason::DEFENCE).setpriority(priority)));
+				// dismiss creatures we are not able to pick to be able to hide in garrison
+				if(town->garrisonHero
+					|| town->getUpperArmy()->stacksCount() == 0
+					|| town->getUpperArmy()->getArmyStrength() < 500 && town->fortLevel() >= CGTownInstance::CITADEL)
+				{
+					tasks.push_back(
+						Goals::sptr(Composition()
+							.addNext(DefendTown(town, treat, path.targetHero))
+							.addNext(ExchangeSwapTownHeroes(town, town->visitingHero.get(), HeroLockedReason::DEFENCE))));
+				}
 
 				continue;
 			}
@@ -245,25 +233,26 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 				if(ai->nullkiller->arePathHeroesLocked(path))
 				{
 #if AI_TRACE_LEVEL >= 1
-					logAi->trace("Can not move %s to defend town %s with priority %f. Path is locked.",
+					logAi->trace("Can not move %s to defend town %s. Path is locked.",
 						path.targetHero->name,
-						town->name,
-						priority);
+						town->name);
 
 #endif
 					continue;
 				}
 
-				pathsToDefend.push_back(Goals::ExecuteHeroChain(path, town).setpriority(priority));
+				pathsToDefend.push_back(i);
 			}
 		}
 
-		for(Goals::ExecuteHeroChain & chain : pathsToDefend)
+		for(int i : pathsToDefend)
 		{
-			auto path = chain.getPath();
+			AIPath & path = paths[i];
 
-			for(AIPath & defferedPath : defferedPaths[path.targetHero])
+			for(int j : defferedPaths[path.targetHero])
 			{
+				AIPath & defferedPath = paths[j];
+
 				if(defferedPath.getHeroStrength() >= path.getHeroStrength()
 					&& defferedPath.turn() <= path.turn())
 				{
@@ -272,13 +261,35 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 			}
 
 #if AI_TRACE_LEVEL >= 1
-			logAi->trace("Move %s to defend town %s with priority %f",
+			logAi->trace("Move %s to defend town %s",
 				path.targetHero->name,
-				town->name,
-				chain.priority);
+				town->name);
+#endif
+			Composition composition;
+
+			composition.addNext(DefendTown(town, treat, path)).addNext(ExecuteHeroChain(path, town));
+
+			auto firstBlockedAction = path.getFirstBlockedAction();
+			if(firstBlockedAction)
+			{
+				auto subGoal = firstBlockedAction->decompose(path.targetHero);
+
+#if AI_TRACE_LEVEL >= 2
+				logAi->trace("Decomposing special action %s returns %s", firstBlockedAction->toString(), subGoal->toString());
 #endif
 
-			tasks.push_back(Goals::sptr(chain));
+				if(subGoal->invalid())
+				{
+#if AI_TRACE_LEVEL >= 1
+					logAi->trace("Path is invalid. Skipping");
+#endif
+					continue;
+				}
+
+				composition.addNext(subGoal);
+			}
+
+			tasks.push_back(Goals::sptr(composition));
 		}
 	}
 

@@ -155,13 +155,13 @@ Goals::TGoalVec CaptureObjectsBehavior::decompose() const
 		logAi->debug("Scanning objects, count %d", objs.size());
 
 		for(auto objToVisit : objs)
-		{			
+		{
+			if(!objectMatchesFilter(objToVisit))
+				continue;
+	
 #if AI_TRACE_LEVEL >= 1
 			logAi->trace("Checking object %s, %s", objToVisit->getObjectName(), objToVisit->visitablePos().toString());
 #endif
-
-			if(!objectMatchesFilter(objToVisit))
-				continue;
 
 			const int3 pos = objToVisit->visitablePos();
 
