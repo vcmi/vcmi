@@ -206,6 +206,14 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 				path.movementCost(),
 				path.toString());
 #endif
+			if(path.turn() <= treat.turn - 2)
+			{
+				logAi->trace("Deffer defence of %s by %s because he has enough time to rich the town next trun",
+					town->name,
+					path.targetHero->name);
+
+				continue;
+			}
 
 			float priority = basicPriority
 				+ std::min(SAFE_ATTACK_CONSTANT, (float)path.getHeroStrength() / treat.danger) / (treat.turn + 1);

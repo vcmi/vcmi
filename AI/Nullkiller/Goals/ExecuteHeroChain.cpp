@@ -26,9 +26,9 @@ using namespace Goals;
 ExecuteHeroChain::ExecuteHeroChain(const AIPath & path, const CGObjectInstance * obj)
 	:CGoal(Goals::EXECUTE_HERO_CHAIN), chainPath(path)
 {
-	evaluationContext.danger = path.getTotalDanger(hero);
+	evaluationContext.danger = path.getTotalDanger();
 	evaluationContext.movementCost = path.movementCost();
-	evaluationContext.armyLoss = path.armyLoss;
+	evaluationContext.armyLoss = path.getTotalArmyLoss();
 	evaluationContext.heroStrength = path.getHeroStrength();
 	hero = path.targetHero;
 	tile = path.targetTile();
@@ -112,7 +112,28 @@ void ExecuteHeroChain::accept(VCAI * ai)
 					}
 				}
 
-				Goals::VisitTile(node.coord).sethero(hero).accept(ai);
+				try
+				{
+					Goals::VisitTile(node.coord).sethero(hero).accept(ai);
+				}
+				catch(cannotFulfillGoalException)
+				{
+					if(hero->movement > 0)
+					{
+						CGPath path;
+						bool isOk = cb->getPathsInfo(hero.get())->getPath(path, node.coord);
+
+						if(isOk && path.nodes.back().turns > 0)
+						{
+							logAi->warn("Hero %s has %d mp which is not enough to continue his way towards %s.", hero.name, hero->movement, node.coord.toString());
+
+							ai->nullkiller->lockHero(hero.get());
+							return;
+						}
+					}
+
+					throw;
+				}
 			}
 
 			if(node.turns == 0)

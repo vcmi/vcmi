@@ -154,7 +154,7 @@ Goals::TGoalVec PathfindingManager::findPaths(
 #endif
 		if(ai->isTileNotReserved(hero.get(), firstTileToGet))
 		{
-			danger = path.getTotalDanger(hero);
+			danger = path.getTotalDanger();
 
 			if(isSafeToVisit(hero, path.heroArmy, danger))
 			{
@@ -178,7 +178,7 @@ Goals::TGoalVec PathfindingManager::findPaths(
 					solution->evaluationContext.danger = danger;
 
 				solution->evaluationContext.movementCost += path.movementCost();
-				solution->evaluationContext.armyLoss += path.armyLoss;
+				solution->evaluationContext.armyLoss += path.getTotalArmyLoss();
 				solution->evaluationContext.heroStrength = path.getHeroStrength();
 #ifdef VCMI_TRACE_PATHFINDER
 				logAi->trace("It's safe for %s to visit tile %s with danger %s, loss %s, army strength %s, goal %s", 
