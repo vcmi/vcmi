@@ -9,7 +9,7 @@
 */
 #pragma once
 
-#include "CGoal.h"
+#include "../Goals/CGoal.h"
 #include "../Analyzers/ObjectClusterizer.h"
 
 

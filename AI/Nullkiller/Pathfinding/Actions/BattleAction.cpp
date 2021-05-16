@@ -11,7 +11,7 @@
 #include "StdInc.h"
 #include "BattleAction.h"
 #include "../../VCAI.h"
-#include "../../Behaviors/CompleteQuestBehavior.h"
+#include "../../Goals/CompleteQuest.h"
 #include "../../../../lib/mapping/CMap.h" //for victory conditions
 
 extern boost::thread_specific_ptr<CCallback> cb;

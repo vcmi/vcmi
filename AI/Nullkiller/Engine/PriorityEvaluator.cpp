@@ -20,8 +20,10 @@
 #include "../../../CCallback.h"
 #include "../../../lib/filesystem/Filesystem.h"
 #include "../Goals/ExecuteHeroChain.h"
-#include "../Goals/UnlockCluster.h"
+#include "../Markers/UnlockCluster.h"
 #include "../Goals/BuildThis.h"
+#include "../Markers/HeroExchange.h"
+#include "../Markers/ArmyUpgrade.h"
 
 #define MIN_AI_STRENGHT (0.5f) //lower when combat AI gets smarter
 #define UNGUARDED_OBJECT (100.0f) //we consider unguarded objects 100 times weaker than us
@@ -456,6 +458,38 @@ int32_t RewardEvaluator::getGoldReward(const CGObjectInstance * target, const CG
 	}
 }
 
+class HeroExchangeEvaluator : public IEvaluationContextBuilder
+{
+public:
+	virtual void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
+	{
+		if(task->goalType != Goals::HERO_EXCHANGE)
+			return;
+
+		Goals::HeroExchange & heroExchange = dynamic_cast<Goals::HeroExchange &>(*task);
+
+		uint64_t armyStrength = heroExchange.getReinforcementArmyStrength();
+
+		evaluationContext.strategicalValue += 0.5f * armyStrength / heroExchange.hero.get()->getArmyStrength();
+	}
+};
+
+class ArmyUpgradeEvaluator : public IEvaluationContextBuilder
+{
+public:
+	virtual void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
+	{
+		if(task->goalType != Goals::ARMY_UPGRADE)
+			return;
+
+		Goals::ArmyUpgrade & armyUpgrade = dynamic_cast<Goals::ArmyUpgrade &>(*task);
+
+		uint64_t upgradeValue = armyUpgrade.getUpgradeValue();
+
+		evaluationContext.armyReward += upgradeValue;
+	}
+};
+
 class ExecuteHeroChainEvaluationContextBuilder : public IEvaluationContextBuilder
 {
 public:
@@ -610,6 +644,7 @@ PriorityEvaluator::PriorityEvaluator(const Nullkiller * ai)
 	evaluationContextBuilders.push_back(std::make_shared<ExecuteHeroChainEvaluationContextBuilder>());
 	evaluationContextBuilders.push_back(std::make_shared<BuildThisEvaluationContextBuilder>());
 	evaluationContextBuilders.push_back(std::make_shared<ClusterEvaluationContextBuilder>());
+	evaluationContextBuilders.push_back(std::make_shared<HeroExchangeEvaluator>());
 }
 
 EvaluationContext PriorityEvaluator::buildEvaluationContext(Goals::TSubgoal goal) const
@@ -628,7 +663,6 @@ EvaluationContext PriorityEvaluator::buildEvaluationContext(Goals::TSubgoal goal
 
 	for(auto subgoal : parts)
 	{
-		context.strategicalValue += subgoal->strategicalValue;
 		context.goldCost += subgoal->goldCost;
 
 		for(auto builder : evaluationContextBuilders)
