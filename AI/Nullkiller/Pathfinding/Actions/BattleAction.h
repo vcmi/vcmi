@@ -10,11 +10,12 @@
 
 #pragma once
 
-#include "ISpecialAction.h"
+#include "SpecialAction.h"
+#include "../../../../lib/CGameState.h"
 
 namespace AIPathfinding
 {
-	class BattleAction : public ISpecialAction
+	class BattleAction : public SpecialAction
 	{
 	private:
 		const int3 targetTile;
@@ -25,6 +26,28 @@ namespace AIPathfinding
 		{
 		}
 
-		virtual Goals::TSubgoal whatToDo(const CGHeroInstance * hero) const override;
+		virtual void execute(const CGHeroInstance * hero) const override;
+
+		virtual std::string toString() const override;
+	};
+
+	class QuestAction : public SpecialAction
+	{
+	private:
+		QuestInfo questInfo;
+
+	public:
+		QuestAction(QuestInfo questInfo)
+			:questInfo(questInfo)
+		{
+		}
+
+		virtual bool canAct(const AIPathNode * node) const override;
+
+		virtual Goals::TSubgoal decompose(const CGHeroInstance * hero) const override;
+
+		virtual void execute(const CGHeroInstance * hero) const override;
+
+		virtual std::string toString() const override;
 	};
 }

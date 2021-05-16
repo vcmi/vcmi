@@ -29,3 +29,48 @@ std::string BuyArmy::toString() const
 {
 	return "Buy army at " + town->name;
 }
+
+void BuyArmy::accept(VCAI * ai)
+{
+	ui64 valueBought = 0;
+	//buy the stacks with largest AI value
+
+	auto upgradeSuccessfull = ai->makePossibleUpgrades(town);
+
+	auto armyToBuy = ai->ah->getArmyAvailableToBuy(town->getUpperArmy(), town);
+
+	if(armyToBuy.empty())
+	{
+		if(upgradeSuccessfull)
+			return;
+
+		throw cannotFulfillGoalException("No creatures to buy.");
+	}
+
+	for(int i = 0; valueBought < value && i < armyToBuy.size(); i++)
+	{
+		auto res = cb->getResourceAmount();
+		auto & ci = armyToBuy[i];
+
+		if(objid != -1 && ci.creID != objid)
+			continue;
+
+		vstd::amin(ci.count, res / ci.cre->cost);
+
+		if(ci.count)
+		{
+			cb->recruitCreatures(town, town->getUpperArmy(), ci.creID, ci.count, ci.level);
+			valueBought += ci.count * ci.cre->AIValue;
+		}
+	}
+
+	if(!valueBought)
+	{
+		throw cannotFulfillGoalException("No creatures to buy.");
+	}
+
+	if(town->visitingHero)
+	{
+		ai->moveHeroToTile(town->visitablePos(), town->visitingHero.get());
+	}
+}

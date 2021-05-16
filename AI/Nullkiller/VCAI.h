@@ -117,11 +117,8 @@ public:
 	virtual ~VCAI();
 
 	//TODO: use only smart pointers?
-	void tryRealize(Goals::RecruitHero & g);
-	void tryRealize(Goals::BuildThis & g);
 	void tryRealize(Goals::DigAtTile & g);
 	void tryRealize(Goals::Trade & g);
-	void tryRealize(Goals::BuyArmy & g);
 	void tryRealize(Goals::Invalid & g);
 	void tryRealize(Goals::AbstractGoal & g);
 

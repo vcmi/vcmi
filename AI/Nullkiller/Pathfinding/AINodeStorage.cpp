@@ -1033,13 +1033,16 @@ void AINodeStorage::fillChainInfo(const AIPathNode * node, AIPath & path, int pa
 			pathNode.coord = node->coord;
 			pathNode.parentIndex = parentIndex;
 
+			if(pathNode.specialAction)
+			{
+				pathNode.actionIsBlocked = !pathNode.specialAction->canAct(node);
+			}
+
 			parentIndex = path.nodes.size();
 
 			path.nodes.push_back(pathNode);
 		}
-
-		path.specialAction = node->specialAction;
-
+		
 		node = getAINode(node->theNodeBefore);
 	}
 }
@@ -1049,15 +1052,15 @@ AIPath::AIPath()
 {
 }
 
-std::shared_ptr<const ISpecialAction> AIPath::getFirstBlockedAction() const
+std::shared_ptr<const SpecialAction> AIPath::getFirstBlockedAction() const
 {
 	for(auto node : nodes)
 	{
-		if(node.specialAction && !node.specialAction->canAct(node.targetHero))
+		if(node.specialAction && node.actionIsBlocked)
 			return node.specialAction;
 	}
 
-	return std::shared_ptr<const ISpecialAction>();
+	return std::shared_ptr<const SpecialAction>();
 }
 
 int3 AIPath::firstTileToGet() const

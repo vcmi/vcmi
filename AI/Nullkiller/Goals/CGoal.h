@@ -23,7 +23,6 @@ namespace Goals
 	public:
 		CGoal<T>(EGoals goal = INVALID) : AbstractGoal(goal)
 		{
-			isElementar = false;
 			isAbstract = true;
 			value = 0;
 			aid = -1;
@@ -33,7 +32,6 @@ namespace Goals
 			town = nullptr;
 		}
 
-		OSETTER(bool, isElementar)
 		OSETTER(bool, isAbstract)
 		OSETTER(int, value)
 		OSETTER(int, resID)
@@ -47,15 +45,6 @@ namespace Goals
 		CGoal<T> * clone() const override
 		{
 			return new T(static_cast<T const &>(*this)); //casting enforces template instantiation
-		}
-		TSubgoal iAmElementar() const
-		{
-			TSubgoal ptr;
-
-			ptr.reset(clone());
-			ptr->setisElementar(true);
-
-			return ptr;
 		}
 		template<typename Handler> void serialize(Handler & h, const int version)
 		{
@@ -76,7 +65,12 @@ namespace Goals
 
 		virtual TGoalVec decompose() const override
 		{
-			return {decomposeSingle()};
+			TSubgoal single = decomposeSingle();
+
+			if(single->invalid())
+				return {};
+			
+			return {single};
 		}
 
 	protected:
@@ -89,18 +83,20 @@ namespace Goals
 	template<typename T> class DLL_EXPORT ElementarGoal : public CGoal<T>, public ITask
 	{
 	public:
-		ElementarGoal<T>(EGoals goal = INVALID) : CGoal(goal)
+		ElementarGoal<T>(EGoals goal = INVALID) : CGoal(goal), ITask()
 		{
-			priority = 0;
-			isElementar = true;
 			isAbstract = false;
+		}
+
+		ElementarGoal<T>(const ElementarGoal<T> & other) : CGoal(other), ITask(other)
+		{
 		}
 
 		///Visitor pattern
 		//TODO: make accept work for std::shared_ptr... somehow
 		virtual void accept(VCAI * ai) override //unhandled goal will report standard error
 		{
-			ai->tryRealize(*this);
+			ai->tryRealize(*((T *)this));
 		}
 
 		T & setpriority(float p)
@@ -108,6 +104,11 @@ namespace Goals
 			priority = p;
 
 			return *((T *)this);
+		}
+
+		virtual bool isElementar() const override
+		{
+			return true;
 		}
 	};
 

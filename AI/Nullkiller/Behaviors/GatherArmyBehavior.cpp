@@ -135,7 +135,7 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 		{
 			auto newWay = std::make_shared<ExecuteHeroChain>(path, hero);
 
-			newWay->evaluationContext.strategicalValue = armyValue;
+			newWay->strategicalValue = armyValue;
 			waysToVisitObj.push_back(newWay);
 		}
 	}
@@ -148,7 +148,7 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 		if(ai->nullkiller->arePathHeroesLocked(way->getPath()))
 			continue;
 
-		way->evaluationContext.closestWayRatio = 1;
+		way->closestWayRatio = 1;
 
 		tasks.push_back(sptr(*way));
 	}
@@ -228,8 +228,8 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader)
 		{
 			auto newWay = std::make_shared<ExecuteHeroChain>(path, upgrader);
 
-			newWay->evaluationContext.strategicalValue = armyValue;
-			newWay->evaluationContext.goldCost = upgrade.upgradeCost[Res::GOLD];
+			newWay->strategicalValue = armyValue;
+			newWay->goldCost = upgrade.upgradeCost[Res::GOLD];
 
 			waysToVisitObj.push_back(newWay);
 		}
@@ -243,7 +243,7 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader)
 		if(ai->nullkiller->arePathHeroesLocked(way->getPath()))
 			continue;
 
-		way->evaluationContext.closestWayRatio = 1;
+		way->closestWayRatio = 1;
 
 		tasks.push_back(sptr(*way));
 	}

@@ -36,5 +36,7 @@ namespace Goals
 		virtual bool operator==(const BuyArmy & other) const override;
 
 		virtual std::string toString() const override;
+
+		virtual void accept(VCAI * ai) override;
 	};
 }

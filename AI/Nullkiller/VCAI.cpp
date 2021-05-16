@@ -36,8 +36,6 @@ const float SAFE_ATTACK_CONSTANT = 1.5;
 boost::thread_specific_ptr<CCallback> cb;
 boost::thread_specific_ptr<VCAI> ai;
 
-//std::map<int, std::map<int, int> > HeroView::infosCount;
-
 //helper RAII to manage global ai/cb ptrs
 struct SetGlobalState
 {
@@ -364,16 +362,6 @@ void VCAI::objectRemoved(const CGObjectInstance * obj)
 
 	vstd::erase_if_present(visitableObjs, obj);
 	vstd::erase_if_present(alreadyVisited, obj);
-
-	std::function<bool(const Goals::TSubgoal &)> checkRemovalValidity = [&](const Goals::TSubgoal & x) -> bool
-	{
-		if((x->goalType == Goals::VISIT_OBJ) && (x->objid == obj->id.getNum()))
-			return true;
-		else if(x->parent && checkRemovalValidity(x->parent)) //repeat this lambda check recursively on parent goal
-			return true;
-		else
-			return false;
-	};
 
 	//TODO: Find better way to handle hero boat removal
 	if(auto hero = dynamic_cast<const CGHeroInstance *>(obj))
@@ -1544,42 +1532,6 @@ void VCAI::buildStructure(const CGTownInstance * t, BuildingID building)
 	cb->buildBuilding(t, building); //just do this;
 }
 
-void VCAI::tryRealize(Goals::RecruitHero & g)
-{
-	const CGTownInstance * t = g.town;
-
-	if(!t) t = findTownWithTavern();
-
-	if(t)
-	{
-		recruitHero(t, true);
-		//TODO try to free way to blocked town
-		//TODO: adventure map tavern or prison?
-	}
-	else
-	{
-		throw cannotFulfillGoalException("No town to recruit hero!");
-	}
-}
-
-void VCAI::tryRealize(Goals::BuildThis & g)
-{
-	auto b = BuildingID(g.bid);
-	auto t = g.town;
-
-	if (t)
-	{
-		if (cb->canBuildStructure(t, b) == EBuildingState::ALLOWED)
-		{
-			logAi->debug("Player %d will build %s in town of %s at %s",
-				playerID, t->town->buildings.at(b)->Name(), t->name, t->pos.toString());
-			cb->buildBuilding(t, b);
-			throw goalFulfilledException(sptr(g));
-		}
-	}
-	throw cannotFulfillGoalException("Cannot build a given structure!");
-}
-
 void VCAI::tryRealize(Goals::DigAtTile & g)
 {
 	assert(g.hero->visitablePos() == g.tile); //surely we want to crash here?
@@ -1636,55 +1588,6 @@ void VCAI::tryRealize(Goals::Trade & g) //trade
 	{
 		throw cannotFulfillGoalException("No object that could be used to raise resources!");
 	}
-}
-
-void VCAI::tryRealize(Goals::BuyArmy & g)
-{
-	auto t = g.town;
-
-	ui64 valueBought = 0;
-	//buy the stacks with largest AI value
-
-	auto upgradeSuccessfull = makePossibleUpgrades(t);
-
-	auto armyToBuy = ah->getArmyAvailableToBuy(t->getUpperArmy(), t);
-
-	if(armyToBuy.empty())
-	{
-		if(upgradeSuccessfull)
-			throw goalFulfilledException(sptr(g));
-
-		throw cannotFulfillGoalException("No creatures to buy.");
-	}
-
-	for (int i = 0; valueBought < g.value && i < armyToBuy.size(); i++)
-	{
-		auto res = cb->getResourceAmount();
-		auto & ci = armyToBuy[i];
-
-		if(g.objid != -1 && ci.creID != g.objid)
-			continue;
-
-		vstd::amin(ci.count, res / ci.cre->cost);
-
-		if(ci.count)
-		{
-			cb->recruitCreatures(t, t->getUpperArmy(), ci.creID, ci.count, ci.level);
-			valueBought += ci.count * ci.cre->AIValue;
-		}
-	}
-
-	if(!valueBought)
-	{
-		throw cannotFulfillGoalException("No creatures to buy.");
-	}
-
-	if(t->visitingHero)
-	{
-		moveHeroToTile(t->visitablePos(), t->visitingHero.get());
-	}
-
-	throw goalFulfilledException(sptr(g)); //we bought as many creatures as we wanted
 }
 
 void VCAI::tryRealize(Goals::Invalid & g)

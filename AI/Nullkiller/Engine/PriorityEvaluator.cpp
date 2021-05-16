@@ -36,6 +36,23 @@ class CGTownInstance;
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<VCAI> ai;
 
+EvaluationContext::EvaluationContext()
+	: movementCost(0.0),
+	manaCost(0),
+	danger(0),
+	closestWayRatio(1),
+	movementCostByRole(),
+	skillReward(0),
+	goldReward(0),
+	goldCost(0),
+	armyReward(0),
+	armyLossPersentage(0),
+	heroRole(HeroRole::SCOUT),
+	turn(0),
+	strategicalValue(0)
+{
+}
+
 PriorityEvaluator::~PriorityEvaluator()
 {
 	delete engine;
@@ -430,46 +447,59 @@ int32_t getGoldReward(const CGObjectInstance * target, const CGHeroInstance * he
 class ExecuteHeroChainEvaluationContextBuilder : public IEvaluationContextBuilder
 {
 public:
-	virtual Goals::EvaluationContext buildEvaluationContext(Goals::TSubgoal task) const override
+	virtual void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
 	{
+		if(task->goalType != Goals::EXECUTE_HERO_CHAIN)
+			return;
+
 		Goals::ExecuteHeroChain & chain = dynamic_cast<Goals::ExecuteHeroChain &>(*task);
-		auto evaluationContext = task->evaluationContext;
+		const AIPath & path = chain.getPath();
+
+		vstd::amax(evaluationContext.danger, path.getTotalDanger());
+		evaluationContext.movementCost += path.movementCost();
+		evaluationContext.closestWayRatio = chain.closestWayRatio;
+
+		for(auto & node : path.nodes)
+		{
+			auto role = ai->ah->getHeroRole(node.targetHero);
+
+			evaluationContext.movementCostByRole[role] += node.cost;
+		}
 
 		auto heroPtr = task->hero;
 		const CGObjectInstance * target = cb->getObj((ObjectInstanceID)task->objid, false);
 		auto day = cb->getDate(Date::DAY);
 		auto hero = heroPtr.get();
 		bool checkGold = evaluationContext.danger == 0;
-		auto army = chain.getPath().heroArmy;
+		auto army = path.heroArmy;
 
-		evaluationContext.armyLossPersentage = task->evaluationContext.armyLoss / (double)task->evaluationContext.heroStrength;
-		evaluationContext.heroRole = ai->ah->getHeroRole(heroPtr);
-		evaluationContext.goldReward = getGoldReward(target, hero);
-		evaluationContext.armyReward = getArmyReward(target, hero, army, checkGold);
-		evaluationContext.skillReward = getSkillReward(target, hero, evaluationContext.heroRole);
+		vstd::amax(evaluationContext.armyLossPersentage, path.getTotalArmyLoss() / (double)path.getHeroStrength());
+		vstd::amax(evaluationContext.heroRole, ai->ah->getHeroRole(heroPtr));
+		evaluationContext.goldReward += getGoldReward(target, hero);
+		evaluationContext.armyReward += getArmyReward(target, hero, army, checkGold);
+		evaluationContext.skillReward += getSkillReward(target, hero, evaluationContext.heroRole);
 		evaluationContext.strategicalValue += getStrategicalValue(target);
-		evaluationContext.goldCost = getGoldCost(target, hero, army);
-		evaluationContext.turn = chain.getPath().turn();
-
-		return evaluationContext;
+		evaluationContext.goldCost += getGoldCost(target, hero, army);
+		vstd::amax(evaluationContext.turn, path.turn());
 	}
 };
 
 class BuildThisEvaluationContextBuilder : public IEvaluationContextBuilder
 {
 public:
-	virtual Goals::EvaluationContext buildEvaluationContext(Goals::TSubgoal task) const override
+	virtual void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
 	{
-		Goals::EvaluationContext evaluationContext;
+		if(task->goalType != Goals::BUILD_STRUCTURE)
+			return;
+
 		Goals::BuildThis & buildThis = dynamic_cast<Goals::BuildThis &>(*task);
 		auto & bi = buildThis.buildingInfo;
 		
-		evaluationContext.goldReward = 7 * bi.dailyIncome[Res::GOLD] / 2; // 7 day income but half we already have
+		evaluationContext.goldReward += 7 * bi.dailyIncome[Res::GOLD] / 2; // 7 day income but half we already have
 		evaluationContext.heroRole = HeroRole::MAIN;
-		evaluationContext.movementCostByRole[evaluationContext.heroRole] = bi.prerequisitesCount;
-		evaluationContext.armyReward = 0;
-		evaluationContext.strategicalValue = buildThis.townInfo.armyScore / 50000.0;
-		evaluationContext.goldCost = bi.buildCostWithPrerequisits[Res::GOLD];
+		evaluationContext.movementCostByRole[evaluationContext.heroRole] += bi.prerequisitesCount;
+		evaluationContext.strategicalValue += buildThis.townInfo.armyScore / 50000.0;
+		evaluationContext.goldCost += bi.buildCostWithPrerequisits[Res::GOLD];
 
 		if(bi.creatureID != CreatureID::NONE)
 		{
@@ -477,38 +507,56 @@ public:
 
 			if(bi.baseCreatureID == bi.creatureID)
 			{
-				evaluationContext.armyReward = ai->ah->evaluateStackPower(bi.creatureID.toCreature(), bi.creatureGrows);
+				evaluationContext.armyReward += ai->ah->evaluateStackPower(bi.creatureID.toCreature(), bi.creatureGrows);
 			}
-			
-			auto creaturesToUpgrade = ai->ah->getTotalCreaturesAvailable(bi.baseCreatureID);
-			auto upgradedPower = ai->ah->evaluateStackPower(bi.creatureID.toCreature(), creaturesToUpgrade.count);
+			else
+			{
+				auto creaturesToUpgrade = ai->ah->getTotalCreaturesAvailable(bi.baseCreatureID);
+				auto upgradedPower = ai->ah->evaluateStackPower(bi.creatureID.toCreature(), creaturesToUpgrade.count);
 
-			evaluationContext.armyReward = upgradedPower - creaturesToUpgrade.power;
+				evaluationContext.armyReward += upgradedPower - creaturesToUpgrade.power;
+			}
 		}
 		else
 		{
-			evaluationContext.strategicalValue = ai->nullkiller->buildAnalyzer->getGoldPreasure() * evaluationContext.goldReward / 2200.0f;
+			evaluationContext.strategicalValue += ai->nullkiller->buildAnalyzer->getGoldPreasure() * evaluationContext.goldReward / 2200.0f;
 		}
-
-		return evaluationContext;
 	}
 };
 
 PriorityEvaluator::PriorityEvaluator()
 {
 	initVisitTile();
-	evaluationContextBuilders[Goals::EXECUTE_HERO_CHAIN] = std::make_shared<ExecuteHeroChainEvaluationContextBuilder>();
-	evaluationContextBuilders[Goals::BUILD_STRUCTURE] = std::make_shared<BuildThisEvaluationContextBuilder>();
+	evaluationContextBuilders.push_back(std::make_shared<ExecuteHeroChainEvaluationContextBuilder>());
+	evaluationContextBuilders.push_back(std::make_shared<BuildThisEvaluationContextBuilder>());
 }
 
-Goals::EvaluationContext PriorityEvaluator::buildEvaluationContext(Goals::TSubgoal goal) const
+EvaluationContext PriorityEvaluator::buildEvaluationContext(Goals::TSubgoal goal) const
 {
-	auto builder = evaluationContextBuilders.find(goal->goalType);
+	Goals::TGoalVec parts;
+	EvaluationContext context;
 
-	if(builder == evaluationContextBuilders.end())
-		return goal->evaluationContext;
+	if(goal->goalType == Goals::COMPOSITION)
+	{
+		parts = goal->decompose();
+	}
+	else
+	{
+		parts.push_back(goal);
+	}
 
-	return builder->second->buildEvaluationContext(goal);
+	for(auto goal : parts)
+	{
+		context.strategicalValue += goal->strategicalValue;
+		context.goldCost += goal->goldCost;
+
+		for(auto builder : evaluationContextBuilders)
+		{
+			builder->buildEvaluationContext(context, goal);
+		}
+	}
+
+	return context;
 }
 
 /// distance

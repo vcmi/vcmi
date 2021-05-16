@@ -10,15 +10,15 @@
 
 #pragma once
 
-#define VCMI_TRACE_PATHFINDER 1
-#define AI_TRACE_LEVEL 1
+#define VCMI_TRACE_PATHFINDER 2
+#define AI_TRACE_LEVEL 2
 
 #include "../../../lib/CPathfinder.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
 #include "../AIUtility.h"
 #include "../FuzzyHelper.h"
 #include "../Goals/AbstractGoal.h"
-#include "Actions/ISpecialAction.h"
+#include "Actions/SpecialAction.h"
 #include "Actors.h"
 
 struct AIPathNode : public CGPathNode
@@ -27,7 +27,7 @@ struct AIPathNode : public CGPathNode
 	uint64_t armyLoss;
 	uint32_t manaCost;
 	const AIPathNode * chainOther;
-	std::shared_ptr<const ISpecialAction> specialAction;
+	std::shared_ptr<const SpecialAction> specialAction;
 	const ChainActor * actor;
 };
 
@@ -40,13 +40,13 @@ struct AIPathNodeInfo
 	const CGHeroInstance * targetHero;
 	int parentIndex;
 	uint64_t chainMask;
-	std::shared_ptr<const ISpecialAction> specialAction;
+	std::shared_ptr<const SpecialAction> specialAction;
+	bool actionIsBlocked;
 };
 
 struct AIPath
 {
 	std::vector<AIPathNodeInfo> nodes;
-	std::shared_ptr<const ISpecialAction> specialAction;
 	uint64_t targetObjectDanger;
 	uint64_t armyLoss;
 	uint64_t targetObjectArmyLoss;
@@ -81,7 +81,7 @@ struct AIPath
 
 	std::string toString() const;
 
-	std::shared_ptr<const ISpecialAction> getFirstBlockedAction() const;
+	std::shared_ptr<const SpecialAction> getFirstBlockedAction() const;
 
 	bool containsHero(const CGHeroInstance * hero) const;
 };

@@ -19,6 +19,7 @@ namespace Goals
 	{
 	public:
 		RecruitHeroBehavior()
+			:CGoal(RECRUIT_HERO_BEHAVIOR)
 		{
 		}
 

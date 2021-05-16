@@ -11,10 +11,29 @@
 #include "fl/Headers.h"
 #include "../Goals/Goals.h"
 
+struct DLL_EXPORT EvaluationContext
+{
+	float movementCost;
+	std::map<HeroRole, float> movementCostByRole;
+	int manaCost;
+	uint64_t danger;
+	float closestWayRatio;
+	float armyLossPersentage;
+	float armyReward;
+	int32_t goldReward;
+	int32_t goldCost;
+	float skillReward;
+	float strategicalValue;
+	HeroRole heroRole;
+	uint8_t turn;
+
+	EvaluationContext();
+};
+
 class IEvaluationContextBuilder
 {
 public:
-	virtual Goals::EvaluationContext buildEvaluationContext(Goals::TSubgoal goal) const = 0;
+	virtual void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal goal) const = 0;
 };
 
 class PriorityEvaluator
@@ -43,7 +62,7 @@ private:
 	fl::InputVariable * goldPreasureVariable;
 	fl::InputVariable * goldCostVariable;
 	fl::OutputVariable * value;
-	std::map<Goals::EGoals, std::shared_ptr<IEvaluationContextBuilder>> evaluationContextBuilders;
+	std::vector<std::shared_ptr<IEvaluationContextBuilder>> evaluationContextBuilders;
 
-	Goals::EvaluationContext buildEvaluationContext(Goals::TSubgoal goal) const;
+	EvaluationContext buildEvaluationContext(Goals::TSubgoal goal) const;
 };

@@ -11,32 +11,4 @@
 
 #include "CGoal.h"
 
-struct HeroPtr;
-class VCAI;
-class FuzzyHelper;
-
-namespace Goals
-{
-	class DLL_EXPORT FindObj : public CGoal<FindObj>
-	{
-	public:
-		FindObj() {} // empty constructor not allowed
-
-		FindObj(int ID)
-			: CGoal(Goals::FIND_OBJ)
-		{
-			objid = ID;
-			resID = -1; //subid unspecified
-		}
-		FindObj(int ID, int subID)
-			: CGoal(Goals::FIND_OBJ)
-		{
-			objid = ID;
-			resID = subID;
-		}
-		virtual bool operator==(const FindObj & other) const override;
-
-	private:
-		//TSubgoal decomposeSingle() const override;
-	};
-}
+#error not supported

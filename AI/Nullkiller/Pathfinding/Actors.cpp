@@ -9,7 +9,6 @@
 */
 #include "StdInc.h"
 #include "Actors.h"
-#include "../Goals/VisitHero.h"
 #include "../VCAI.h"
 #include "../AIhelper.h"
 #include "../../../CCallback.h"

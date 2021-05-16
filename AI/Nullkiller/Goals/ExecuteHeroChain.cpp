@@ -9,7 +9,6 @@
 */
 #include "StdInc.h"
 #include "ExecuteHeroChain.h"
-#include "VisitTile.h"
 #include "../VCAI.h"
 #include "../FuzzyHelper.h"
 #include "../AIhelper.h"
@@ -26,7 +25,6 @@ using namespace Goals;
 ExecuteHeroChain::ExecuteHeroChain(const AIPath & path, const CGObjectInstance * obj)
 	:ElementarGoal(Goals::EXECUTE_HERO_CHAIN), chainPath(path)
 {
-
 	hero = path.targetHero;
 	tile = path.targetTile();
 
@@ -43,7 +41,10 @@ ExecuteHeroChain::ExecuteHeroChain(const AIPath & path, const CGObjectInstance *
 
 bool ExecuteHeroChain::operator==(const ExecuteHeroChain & other) const
 {
-	return false;
+	return tile == other.tile 
+		&& chainPath.targetHero == other.chainPath.targetHero
+		&& chainPath.nodes.size() == other.chainPath.nodes.size()
+		&& chainPath.chainMask == other.chainPath.chainMask;
 }
 
 void ExecuteHeroChain::accept(VCAI * ai)
@@ -79,18 +80,12 @@ void ExecuteHeroChain::accept(VCAI * ai)
 
 				if(node.specialAction)
 				{
-					if(node.specialAction->canAct(hero))
-					{
-						auto specialGoal = node.specialAction->whatToDo(hero);
-
-						if(!specialGoal->isElementar)
-
-						specialGoal->accept(ai);
-					}
-					else
+					if(node.actionIsBlocked)
 					{
 						throw cannotFulfillGoalException("Path is nondeterministic.");
 					}
+					
+					node.specialAction->execute(hero);
 					
 					if(!heroPtr.validAndSet())
 					{
@@ -192,9 +187,9 @@ std::string ExecuteHeroChain::toString() const
 
 bool ExecuteHeroChain::moveHeroToTile(const CGHeroInstance * hero, const int3 & tile)
 {
-	if(g.tile == g.hero->visitablePos() && cb->getVisitableObjs(g.hero->visitablePos()).size() < 2)
+	if(tile == hero->visitablePos() && cb->getVisitableObjs(hero->visitablePos()).size() < 2)
 	{
-		logAi->warn("Why do I want to move hero %s to tile %s? Already standing on that tile! ", g.hero->name, g.tile.toString());
+		logAi->warn("Why do I want to move hero %s to tile %s? Already standing on that tile! ", hero->name, tile.toString());
 
 		return true;
 	}

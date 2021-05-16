@@ -29,7 +29,6 @@ namespace Goals
 	class CollectRes;
 	class BuyArmy;
 	class BuildBoat;
-	class ClearWayTo;
 	class Invalid;
 	class Trade;
 	class AdventureSpellCast;
@@ -42,18 +41,17 @@ namespace Goals
 		EXPLORE, GATHER_ARMY,
 		BOOST_HERO,
 		RECRUIT_HERO,
+		RECRUIT_HERO_BEHAVIOR,
 		BUILD_STRUCTURE, //if hero set, then in visited town
 		COLLECT_RES,
 		GATHER_TROOPS, // val of creatures with objid
 
-		VISIT_OBJ, //visit or defeat or collect the object
-		FIND_OBJ, //find and visit any obj with objid + resid //TODO: consider universal subid for various types (aid, bid)
-		VISIT_HERO, //heroes can move around - set goal abstract and track hero every turn
+		CAPTURE_OBJECTS,
 
 		GET_ART_TYPE,
 
-		VISIT_TILE, //tile, in conjunction with hero elementar; assumes tile is reachable
-		CLEAR_WAY_TO,
+		DEFENCE,
+		STARTUP,
 		DIG_AT_TILE,//elementar with hero on tile
 		BUY_ARMY, //at specific town
 		TRADE, //val resID at object objid
@@ -62,7 +60,8 @@ namespace Goals
 		ADVENTURE_SPELL_CAST,
 		EXECUTE_HERO_CHAIN,
 		EXCHANGE_SWAP_TOWN_HEROES,
-		DISMISS_HERO
+		DISMISS_HERO,
+		COMPOSITION
 	};
 
 	class DLL_EXPORT TSubgoal : public std::shared_ptr<AbstractGoal>
@@ -89,34 +88,14 @@ namespace Goals
 
 	DLL_EXPORT TSubgoal sptr(const AbstractGoal & tmp);
 	DLL_EXPORT TTask taskptr(const AbstractGoal & tmp);
-
-	struct DLL_EXPORT EvaluationContext
-	{
-		float movementCost;
-		std::map<HeroRole, float> movementCostByRole;
-		int manaCost;
-		uint64_t danger;
-		float closestWayRatio;
-		uint64_t armyLoss;
-		uint64_t heroStrength;
-		float armyLossPersentage;
-		float armyReward;
-		int32_t goldReward;
-		int32_t goldCost;
-		float skillReward;
-		float strategicalValue;
-		HeroRole heroRole;
-		uint8_t turn;
-
-		EvaluationContext();
-	};
-
+	
 	class DLL_EXPORT AbstractGoal
 	{
 	public:
-		bool isElementar; VSETTER(bool, isElementar)
 		bool isAbstract; VSETTER(bool, isAbstract)
 		int value; VSETTER(int, value)
+		float strategicalValue; VSETTER(float, strategicalValue)
+		ui64 goldCost; VSETTER(ui64, goldCost)
 		int resID; VSETTER(int, resID)
 		int objid; VSETTER(int, objid)
 		int aid; VSETTER(int, aid)
@@ -125,12 +104,11 @@ namespace Goals
 		const CGTownInstance *town; VSETTER(CGTownInstance *, town)
 		int bid; VSETTER(int, bid)
 		TSubgoal parent; VSETTER(TSubgoal, parent)
-		EvaluationContext evaluationContext; VSETTER(EvaluationContext, evaluationContext)
+		//EvaluationContext evaluationContext; VSETTER(EvaluationContext, evaluationContext)
 
 		AbstractGoal(EGoals goal = EGoals::INVALID)
-			: goalType(goal), evaluationContext()
+			: goalType(goal), hero()
 		{
-			isElementar = false;
 			isAbstract = false;
 			value = 0;
 			aid = -1;
@@ -139,6 +117,8 @@ namespace Goals
 			tile = int3(-1, -1, -1);
 			town = nullptr;
 			bid = -1;
+			strategicalValue = 0;
+			goldCost = 0;
 		}
 		virtual ~AbstractGoal() {}
 		//FIXME: abstract goal should be abstract, but serializer fails to instantiate subgoals in such case
@@ -159,6 +139,8 @@ namespace Goals
 		bool invalid() const;
 		
 		virtual bool operator==(const AbstractGoal & g) const;
+
+		virtual bool isElementar() const { return false; }
 		
 		bool operator!=(const AbstractGoal & g) const
 		{
@@ -167,6 +149,9 @@ namespace Goals
 
 		template<typename Handler> void serialize(Handler & h, const int version)
 		{
+			float priority;
+			bool isElementar;
+
 			h & goalType;
 			h & isElementar;
 			h & isAbstract;
@@ -187,9 +172,12 @@ namespace Goals
 	public:
 		float priority;
 
+		ITask() : priority(0) {}
+
 		///Visitor pattern
 		//TODO: make accept work for std::shared_ptr... somehow
 		virtual void accept(VCAI * ai) = 0; //unhandled goal will report standard error
 		virtual std::string toString() const = 0;
+		virtual ~ITask() {}
 	};
 }

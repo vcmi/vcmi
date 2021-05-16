@@ -24,18 +24,21 @@ namespace Goals
 		bool specificObjects;
 	public:
 		CaptureObjectsBehavior()
+			:CGoal(CAPTURE_OBJECTS)
 		{
 			objectTypes = std::vector<int>();
 			specificObjects = false;
 		}
 
 		CaptureObjectsBehavior(std::vector<const CGObjectInstance *> objectsToCapture)
+			:CGoal(CAPTURE_OBJECTS)
 		{
 			this->objectsToCapture = objectsToCapture;
 			specificObjects = true;
 		}
 
 		CaptureObjectsBehavior(const CGObjectInstance * objectToCapture)
+			:CGoal(CAPTURE_OBJECTS)
 		{
 			objectsToCapture = std::vector<const CGObjectInstance *>();
 			objectsToCapture.push_back(objectToCapture);
@@ -59,10 +62,7 @@ namespace Goals
 			return *this;
 		}
 
-		virtual bool operator==(const CaptureObjectsBehavior & other) const override
-		{
-			return false;
-		}
+		virtual bool operator==(const CaptureObjectsBehavior & other) const override;
 
 	private:
 		bool shouldVisitObject(ObjectIdRef obj) const;

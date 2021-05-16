@@ -1,5 +1,5 @@
 /*
-* ISpecialAction.h, part of VCMI engine
+* SpecialAction.h, part of VCMI engine
 *
 * Authors: listed in file AUTHORS in main folder
 *
@@ -15,15 +15,17 @@
 
 struct AIPathNode;
 
-class ISpecialAction
+class SpecialAction
 {
 public:
-	virtual bool canAct(const CGHeroInstance * hero) const
+	virtual bool canAct(const AIPathNode * source) const
 	{
 		return true;
 	}
 
-	virtual Goals::TSubgoal whatToDo(const CGHeroInstance * hero) const = 0;
+	virtual Goals::TSubgoal decompose(const CGHeroInstance * hero) const;
+
+	virtual void execute(const CGHeroInstance * hero) const;
 
 	virtual void applyOnDestination(
 		const CGHeroInstance * hero,
@@ -33,4 +35,6 @@ public:
 		const AIPathNode * srcNode) const
 	{
 	}
+
+	virtual std::string toString() const = 0;
 };

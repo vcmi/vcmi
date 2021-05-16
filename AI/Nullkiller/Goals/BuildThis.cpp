@@ -33,3 +33,22 @@ std::string BuildThis::toString() const
 {
 	return "Build " + buildingInfo.name + "(" + std::to_string(bid) + ") in " + town->name;
 }
+
+void BuildThis::accept(VCAI * ai)
+{
+	auto b = BuildingID(bid);
+
+	if(town)
+	{
+		if(cb->canBuildStructure(town, b) == EBuildingState::ALLOWED)
+		{
+			logAi->debug("Player %d will build %s in town of %s at %s",
+				ai->playerID, town->town->buildings.at(b)->Name(), town->name, town->pos.toString());
+			cb->buildBuilding(town, b);
+
+			return;
+		}
+	}
+
+	throw cannotFulfillGoalException("Cannot build a given structure!");
+}

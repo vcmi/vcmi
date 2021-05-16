@@ -13,7 +13,7 @@
 #include "../../../lib/CPathfinder.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
 #include "../AIUtility.h"
-#include "Actions/ISpecialAction.h"
+#include "Actions/SpecialAction.h"
 
 class HeroActor;
 class VCAI;
@@ -102,7 +102,7 @@ private:
 	void setupSpecialActors();
 
 public:
-	std::shared_ptr<ISpecialAction> exchangeAction;
+	std::shared_ptr<SpecialAction> exchangeAction;
 	// chain flags, can be combined meaning hero exchange and so on
 
 	HeroActor(const CGHeroInstance * hero, uint64_t chainMask, const VCAI * ai);

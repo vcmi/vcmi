@@ -26,24 +26,24 @@ bool BuildBoat::operator==(const BuildBoat & other) const
 {
 	return shipyard->o->id == other.shipyard->o->id;
 }
-
-TSubgoal BuildBoat::decomposeSingle() const
-{
-	if(cb->getPlayerRelations(ai->playerID, shipyard->o->tempOwner) == PlayerRelations::ENEMIES)
-	{
-		return sptr(CaptureObjectsBehavior(shipyard->o));
-	}
-
-	if(shipyard->shipyardStatus() != IShipyard::GOOD)
-	{
-		throw cannotFulfillGoalException("Shipyard is busy.");
-	}
-
-	TResources boatCost;
-	shipyard->getBoatCost(boatCost);
-
-	return iAmElementar();
-}
+//
+//TSubgoal BuildBoat::decomposeSingle() const
+//{
+//	if(cb->getPlayerRelations(ai->playerID, shipyard->o->tempOwner) == PlayerRelations::ENEMIES)
+//	{
+//		return sptr(CaptureObjectsBehavior(shipyard->o));
+//	}
+//
+//	if(shipyard->shipyardStatus() != IShipyard::GOOD)
+//	{
+//		throw cannotFulfillGoalException("Shipyard is busy.");
+//	}
+//
+//	TResources boatCost;
+//	shipyard->getBoatCost(boatCost);
+//
+//	return iAmElementar();
+//}
 
 void BuildBoat::accept(VCAI * ai)
 {

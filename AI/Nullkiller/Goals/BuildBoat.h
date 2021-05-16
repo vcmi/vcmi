@@ -17,7 +17,6 @@ namespace Goals
 	{
 	private:
 		const IShipyard * shipyard;
-		TSubgoal decomposeSingle() const override;
 
 	public:
 		BuildBoat(const IShipyard * shipyard)

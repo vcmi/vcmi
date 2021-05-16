@@ -33,7 +33,7 @@ TTask Goals::taskptr(const AbstractGoal & tmp)
 {
 	TTask ptr;
 
-	if(!tmp.isElementar)
+	if(!tmp.isElementar())
 		throw cannotFulfillGoalException(tmp.toString() + " is not elementar");
 
 	ptr.reset(dynamic_cast<ITask *>(tmp.clone()));
@@ -46,30 +46,6 @@ std::string AbstractGoal::toString() const //TODO: virtualize
 	std::string desc;
 	switch(goalType)
 	{
-	case INVALID:
-		return "INVALID";
-	case WIN:
-		return "WIN";
-	case CONQUER:
-		return "CONQUER";
-	case BUILD:
-		return "BUILD";
-	case EXPLORE:
-		desc = "EXPLORE";
-		break;
-	case GATHER_ARMY:
-		desc = "GATHER ARMY";
-		break;
-	case BUY_ARMY:
-		return "BUY ARMY";
-		break;
-	case BOOST_HERO:
-		desc = "BOOST_HERO (unsupported)";
-		break;
-	case RECRUIT_HERO:
-		return "RECRUIT HERO";
-	case BUILD_STRUCTURE:
-		return "BUILD STRUCTURE";
 	case COLLECT_RES:
 		desc = "COLLECT RESOURCE " + GameConstants::RESOURCE_NAMES[resID] + " (" + boost::lexical_cast<std::string>(value) + ")";
 		break;
@@ -83,31 +59,8 @@ std::string AbstractGoal::toString() const //TODO: virtualize
 	case GATHER_TROOPS:
 		desc = "GATHER TROOPS";
 		break;
-	case VISIT_OBJ:
-	{
-		auto obj = cb->getObjInstance(ObjectInstanceID(objid));
-		if(obj)
-			desc = "VISIT OBJ " + obj->getObjectName();
-	}
-	break;
-	case FIND_OBJ:
-		desc = "FIND OBJ " + boost::lexical_cast<std::string>(objid);
-		break;
-	case VISIT_HERO:
-	{
-		auto obj = cb->getObjInstance(ObjectInstanceID(objid));
-		if(obj)
-			desc = "VISIT HERO " + obj->getObjectName();
-	}
-	break;
 	case GET_ART_TYPE:
 		desc = "GET ARTIFACT OF TYPE " + VLC->arth->artifacts[aid]->Name();
-		break;
-	case VISIT_TILE:
-		desc = "VISIT TILE " + tile.toString();
-		break;
-	case CLEAR_WAY_TO:
-		desc = "CLEAR WAY TO " + tile.toString();
 		break;
 	case DIG_AT_TILE:
 		desc = "DIG AT TILE " + tile.toString();
@@ -134,23 +87,4 @@ bool TSubgoal::operator==(const TSubgoal & rhs) const
 bool AbstractGoal::invalid() const
 {
 	return goalType == EGoals::INVALID;
-}
-
-EvaluationContext::EvaluationContext()
-	: movementCost(0.0),
-	manaCost(0),
-	danger(0),
-	closestWayRatio(1),
-	armyLoss(0),
-	heroStrength(0),
-	movementCostByRole(),
-	skillReward(0),
-	goldReward(0),
-	goldCost(0),
-	armyReward(0),
-	armyLossPersentage(0),
-	heroRole(HeroRole::SCOUT),
-	turn(0),
-	strategicalValue(0)
-{
 }
