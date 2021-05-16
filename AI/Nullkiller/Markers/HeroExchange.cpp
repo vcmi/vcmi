@@ -12,6 +12,7 @@
 #include "../VCAI.h"
 #include "../Engine/Nullkiller.h"
 #include "../AIUtility.h"
+#include "../Analyzers/ArmyManager.h"
 
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<VCAI> ai;

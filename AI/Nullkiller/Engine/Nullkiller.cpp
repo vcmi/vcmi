@@ -19,6 +19,7 @@
 #include "../Behaviors/GatherArmyBehavior.h"
 #include "../Behaviors/ClusterBehavior.h"
 #include "../Goals/Invalid.h"
+#include "../Goals/Composition.h"
 
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<VCAI> ai;
@@ -49,6 +50,7 @@ void Nullkiller::init(std::shared_ptr<CCallback> cb, PlayerColor playerID)
 	pathfinder.reset(new AIPathfinder(cb.get(), this));
 	armyManager.reset(new ArmyManager(cb.get(), this));
 	heroManager.reset(new HeroManager(cb.get(), this));
+	decomposer.reset(new DeepDecomposer());
 }
 
 Goals::TTask Nullkiller::choseBestTask(Goals::TTaskVec & tasks) const
@@ -60,76 +62,23 @@ Goals::TTask Nullkiller::choseBestTask(Goals::TTaskVec & tasks) const
 	return bestTask;
 }
 
-Goals::TTask Nullkiller::choseBestTask(Goals::TSubgoal behavior) const
+Goals::TTask Nullkiller::choseBestTask(Goals::TSubgoal behavior, int decompositionMaxDepth) const
 {
 	logAi->debug("Checking behavior %s", behavior->toString());
 
-	const int MAX_DEPTH = 10;
-	Goals::TGoalVec goals[MAX_DEPTH + 1];
-	Goals::TTaskVec tasks;
-	std::map<Goals::TSubgoal, Goals::TSubgoal> decompositionMap;
 	auto start = boost::chrono::high_resolution_clock::now();
-
-	goals[0] = {behavior};
-
-	int depth = 0;
-	while(goals[0].size())
+	
+	Goals::TGoalVec elementarGoals = decomposer->decompose(behavior, decompositionMaxDepth);
+	Goals::TTaskVec tasks;
+	
+	for(auto goal : elementarGoals)
 	{
-		TSubgoal current = goals[depth].back();
+		Goals::TTask task = Goals::taskptr(*goal);
 
-#if AI_TRACE_LEVEL >= 1
-		logAi->trace("Decomposing %s, level: %d", current->toString(), depth);
-#endif
+		if(task->priority <= 0)
+			task->priority = priorityEvaluator->evaluate(goal);
 
-		TGoalVec subgoals = current->decompose();
-
-#if AI_TRACE_LEVEL >= 1
-		logAi->trace("Found %d goals", subgoals.size());
-#endif
-
-		if(depth < MAX_DEPTH)
-		{
-			goals[depth + 1].clear();
-		}
-
-		for(auto subgoal : subgoals)
-		{
-			if(subgoal->isElementar())
-			{
-				auto task = taskptr(*subgoal);
-
-#if AI_TRACE_LEVEL >= 1
-		logAi->trace("Found task %s", task->toString());
-#endif
-
-				if(task->priority <= 0)
-					task->priority = priorityEvaluator->evaluate(subgoal);
-
-				tasks.push_back(task);
-			}
-			else if(depth < MAX_DEPTH)
-			{
-#if AI_TRACE_LEVEL >= 1
-				logAi->trace("Found abstract goal %s", subgoal->toString());
-#endif
-				goals[depth + 1].push_back(subgoal);
-			}
-		}
-
-		if(depth < MAX_DEPTH && goals[depth + 1].size())
-		{
-			depth++;
-		}
-		else
-		{
-			goals[depth].pop_back();
-
-			while(depth > 0 && goals[depth].empty())
-			{
-				depth--;
-				goals[depth].pop_back();
-			}
-		}
+		tasks.push_back(task);
 	}
 
 	if(tasks.empty())
@@ -190,6 +139,7 @@ void Nullkiller::updateAiState(int pass)
 
 	objectClusterizer->clusterize();
 	buildAnalyzer->update();
+	decomposer->reset();
 
 	logAi->debug("AI state updated in %ld", timeElapsed(start));
 }
@@ -234,6 +184,8 @@ HeroLockedReason Nullkiller::getHeroLockedReason(const CGHeroInstance * hero) co
 
 void Nullkiller::makeTurn()
 {
+	const int MAX_DEPTH = 10;
+
 	resetAiState();
 
 	for(int i = 1; i <= MAXPASS; i++)
@@ -241,18 +193,18 @@ void Nullkiller::makeTurn()
 		updateAiState(i);
 
 		Goals::TTaskVec bestTasks = {
-			choseBestTask(sptr(BuyArmyBehavior())),
-			choseBestTask(sptr(CaptureObjectsBehavior())),
-			choseBestTask(sptr(ClusterBehavior())),
-			choseBestTask(sptr(RecruitHeroBehavior())),
-			choseBestTask(sptr(DefenceBehavior())),
-			choseBestTask(sptr(BuildingBehavior())),
-			choseBestTask(sptr(GatherArmyBehavior()))
+			choseBestTask(sptr(BuyArmyBehavior()), 1),
+			choseBestTask(sptr(CaptureObjectsBehavior()), 1),
+			choseBestTask(sptr(ClusterBehavior()), MAX_DEPTH),
+			choseBestTask(sptr(RecruitHeroBehavior()), 1),
+			choseBestTask(sptr(DefenceBehavior()), MAX_DEPTH),
+			choseBestTask(sptr(BuildingBehavior()), 1),
+			choseBestTask(sptr(GatherArmyBehavior()), MAX_DEPTH)
 		};
 
 		if(cb->getDate(Date::DAY) == 1)
 		{
-			bestTasks.push_back(choseBestTask(sptr(StartupBehavior())));
+			bestTasks.push_back(choseBestTask(sptr(StartupBehavior()), 1));
 		}
 
 		Goals::TTask bestTask = choseBestTask(bestTasks);

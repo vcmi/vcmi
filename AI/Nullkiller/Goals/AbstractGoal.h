@@ -143,6 +143,10 @@ namespace Goals
 		virtual bool operator==(const AbstractGoal & g) const;
 
 		virtual bool isElementar() const { return false; }
+
+		virtual bool hasHash() const { return false; }
+
+		virtual uint64_t getHash() const { return 0; }
 		
 		bool operator!=(const AbstractGoal & g) const
 		{

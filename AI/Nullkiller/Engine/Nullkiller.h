@@ -12,12 +12,12 @@
 #include "PriorityEvaluator.h"
 #include "FuzzyHelper.h"
 #include "AIMemory.h"
+#include "DeepDecomposer.h"
 #include "../Analyzers/DangerHitMapAnalyzer.h"
 #include "../Analyzers/BuildAnalyzer.h"
 #include "../Analyzers/ArmyManager.h"
 #include "../Analyzers/HeroManager.h"
 #include "../Analyzers/ObjectClusterizer.h"
-#include "../Goals/AbstractGoal.h"
 
 const float MAX_GOLD_PEASURE = 0.3f;
 const float MIN_PRIORITY = 0.01f;
@@ -50,6 +50,7 @@ public:
 	std::unique_ptr<ArmyManager> armyManager;
 	std::unique_ptr<AIMemory> memory;
 	std::unique_ptr<FuzzyHelper> dangerEvaluator;
+	std::unique_ptr<DeepDecomposer> decomposer;
 	PlayerColor playerID;
 	std::shared_ptr<CCallback> cb;
 
@@ -69,6 +70,6 @@ public:
 private:
 	void resetAiState();
 	void updateAiState(int pass);
-	Goals::TTask choseBestTask(Goals::TSubgoal behavior) const;
+	Goals::TTask choseBestTask(Goals::TSubgoal behavior, int decompositionMaxDepth) const;
 	Goals::TTask choseBestTask(Goals::TTaskVec & tasks) const;
 };

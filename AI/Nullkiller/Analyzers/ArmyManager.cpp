@@ -31,6 +31,11 @@ public:
 	}
 };
 
+uint64_t ArmyManager::howManyReinforcementsCanGet(const CGHeroInstance * hero, const CCreatureSet * source) const
+{
+	return howManyReinforcementsCanGet(hero, hero, source);
+}
+
 std::vector<SlotInfo> ArmyManager::getSortedSlots(const CCreatureSet * target, const CCreatureSet * source) const
 {
 	const CCreatureSet * armies[] = { target, source };
@@ -75,15 +80,84 @@ std::vector<SlotInfo>::iterator ArmyManager::getWeakestCreature(std::vector<Slot
 	return weakest;
 }
 
-std::vector<SlotInfo> ArmyManager::getBestArmy(const CCreatureSet * target, const CCreatureSet * source) const
+std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier, const CCreatureSet * target, const CCreatureSet * source) const
 {
-	auto resultingArmy = getSortedSlots(target, source);
+	auto sortedSlots = getSortedSlots(target, source);
+	std::map<TFaction, uint64_t> alignmentMap;
 
-	if(resultingArmy.size() > GameConstants::ARMY_SIZE)
+	for(auto & slot : sortedSlots)
 	{
-		resultingArmy.resize(GameConstants::ARMY_SIZE);
+		alignmentMap[slot.creature->faction] += slot.power;
 	}
-	else if(source->needsLastStack())
+
+	std::set<TFaction> allowedFactions;
+	std::vector<SlotInfo> resultingArmy;
+	uint64_t armyValue = 0;
+
+	CArmedInstance newArmyInstance;
+	auto bonusModifiers = armyCarrier->getBonuses(Selector::type(Bonus::MORALE));
+
+	for(auto bonus : *bonusModifiers)
+	{
+		// army bonuses will change and object bonuses are temporary
+		if(bonus->source != Bonus::ARMY || bonus->source != Bonus::OBJECT)
+		{
+			newArmyInstance.addNewBonus(bonus);
+		}
+	}
+
+	while(allowedFactions.size() < alignmentMap.size())
+	{
+		auto strongestAlignment = vstd::maxElementByFun(alignmentMap, [&](std::pair<TFaction, uint64_t> pair) -> uint64_t
+		{
+			return vstd::contains(allowedFactions, pair.first) ? 0 : pair.second;
+		});
+
+		allowedFactions.insert(strongestAlignment->first);
+
+		std::vector<SlotInfo> newArmy;
+		uint64_t newValue = 0;
+		newArmyInstance.clear();
+
+		for(auto & slot : sortedSlots)
+		{
+			if(vstd::contains(allowedFactions, slot.creature->faction))
+			{
+				auto slotID = newArmyInstance.getSlotFor(slot.creature);
+
+				if(slotID.validSlot())
+				{
+					newArmyInstance.setCreature(slotID, slot.creature->idNumber, slot.count);
+					newArmy.push_back(slot);
+				}
+			}
+		}
+
+		for(auto & slot : newArmyInstance.Slots())
+		{
+			auto morale = slot.second->MoraleVal();
+			auto multiplier = 1.0f;
+
+			if(morale < 0)
+			{
+				multiplier += morale * 0.083f;
+			}
+
+			newValue += multiplier * slot.second->getPower();
+		}
+
+		if(armyValue >= newValue)
+		{
+			break;
+		}
+
+		resultingArmy = newArmy;
+		armyValue = newValue;
+	}
+
+	if(resultingArmy.size() <= GameConstants::ARMY_SIZE
+		&& allowedFactions.size() == alignmentMap.size()
+		&& source->needsLastStack())
 	{
 		auto weakest = getWeakestCreature(resultingArmy);
 
@@ -99,19 +173,6 @@ std::vector<SlotInfo> ArmyManager::getBestArmy(const CCreatureSet * target, cons
 	}
 
 	return resultingArmy;
-}
-
-bool ArmyManager::canGetArmy(const CArmedInstance * target, const CArmedInstance * source) const
-{
-	//TODO: merge with pickBestCreatures
-	//if (ai->primaryHero().h == source)
-	if(target->tempOwner != source->tempOwner)
-	{
-		logAi->error("Why are we even considering exchange between heroes from different players?");
-		return false;
-	}
-
-	return 0 < howManyReinforcementsCanGet(target, source);
 }
 
 ui64 ArmyManager::howManyReinforcementsCanBuy(const CCreatureSet * h, const CGDwelling * t) const
@@ -162,9 +223,9 @@ std::vector<creInfo> ArmyManager::getArmyAvailableToBuy(const CCreatureSet * her
 	return creaturesInDwellings;
 }
 
-ui64 ArmyManager::howManyReinforcementsCanGet(const CCreatureSet * target, const CCreatureSet * source) const
+ui64 ArmyManager::howManyReinforcementsCanGet(const IBonusBearer * armyCarrier, const CCreatureSet * target, const CCreatureSet * source) const
 {
-	auto bestArmy = getBestArmy(target, source);
+	auto bestArmy = getBestArmy(armyCarrier, target, source);
 	uint64_t newArmy = 0;
 	uint64_t oldArmy = target->getArmyStrength();
 

@@ -13,11 +13,18 @@
 #include "../VCAI.h"
 #include "../../../lib/mapping/CMap.h" //for victory conditions
 #include "../../../lib/CPathfinder.h"
+#include "../../../lib/VCMI_Lib.h"
+#include "../../../lib/CGeneralTextHandler.h"
 
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<VCAI> ai;
 
 using namespace Goals;
+
+bool isKeyMaster(const QuestInfo & q)
+{
+	return q.obj && (q.obj->ID == Obj::BORDER_GATE || q.obj->ID == Obj::BORDERGUARD);
+}
 
 std::string CompleteQuest::toString() const
 {
@@ -26,7 +33,7 @@ std::string CompleteQuest::toString() const
 
 TGoalVec CompleteQuest::decompose() const
 {
-	if(q.obj && (q.obj->ID == Obj::BORDER_GATE || q.obj->ID == Obj::BORDERGUARD))
+	if(isKeyMaster(q))
 	{
 		return missionKeymaster();
 	}
@@ -73,11 +80,35 @@ TGoalVec CompleteQuest::decompose() const
 
 bool CompleteQuest::operator==(const CompleteQuest & other) const
 {
+	if(isKeyMaster(q))
+	{
+		return isKeyMaster(other.q) && q.obj->subID == other.q.obj->subID;
+	}
+	else if(isKeyMaster(other.q))
+	{
+		return false;
+	}
+
 	return q.quest->qid == other.q.quest->qid;
+}
+
+uint64_t CompleteQuest::getHash() const
+{
+	if(isKeyMaster(q))
+	{
+		return q.obj->subID;
+	}
+
+	return q.quest->qid;
 }
 
 std::string CompleteQuest::questToString() const
 {
+	if(isKeyMaster(q))
+	{
+		return "find " + VLC->generaltexth->tentColors[q.obj->subID] + " keymaster tent";
+	}
+
 	if(q.quest->missionType == CQuest::MISSION_NONE)
 		return "inactive quest";
 

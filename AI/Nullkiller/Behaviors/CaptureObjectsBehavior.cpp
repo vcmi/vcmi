@@ -185,6 +185,13 @@ Goals::TGoalVec CaptureObjectsBehavior::decompose() const
 	{
 		captureObjects(objectsToCapture);
 	}
+	else if(objectTypes.size())
+	{
+		captureObjects(
+			std::vector<const CGObjectInstance *>(
+				ai->nullkiller->memory->visitableObjs.begin(),
+				ai->nullkiller->memory->visitableObjs.end()));
+	}
 	else
 	{
 		captureObjects(ai->nullkiller->objectClusterizer->getNearbyObjects());

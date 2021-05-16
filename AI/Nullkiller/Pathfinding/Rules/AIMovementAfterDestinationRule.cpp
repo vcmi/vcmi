@@ -90,6 +90,13 @@ namespace AIPathfinding
 			return bypassBattle(source, destination, pathfinderConfig, pathfinderHelper);
 		}
 
+		if(destination.nodeObject
+			&& (destination.nodeObject->ID == Obj::GARRISON || destination.nodeObject->ID == Obj::GARRISON2)
+			&& destination.objectRelations == PlayerRelations::ENEMIES)
+		{
+			return bypassBattle(source, destination, pathfinderConfig, pathfinderHelper);
+		}
+
 		return false;
 	}
 
