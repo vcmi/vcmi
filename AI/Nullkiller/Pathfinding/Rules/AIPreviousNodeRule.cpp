@@ -23,8 +23,23 @@ namespace AIPathfinding
 		const PathfinderConfig * pathfinderConfig,
 		CPathfinderHelper * pathfinderHelper) const
 	{
-		if(source.node->action == CGPathNode::ENodeAction::BLOCKING_VISIT || source.node->action == CGPathNode::ENodeAction::VISIT)
+		if(source.node->action == CGPathNode::ENodeAction::BLOCKING_VISIT 
+			|| source.node->action == CGPathNode::ENodeAction::VISIT)
 		{
+			if(source.nodeObject)
+			{
+				if((source.nodeObject->ID == Obj::GARRISON || source.nodeObject->ID == Obj::GARRISON2)
+					&& source.heroRelations != PlayerRelations::ENEMIES)
+					return;
+
+				if(source.nodeObject->ID == Obj::BORDER_GATE)
+				{
+					auto quest = dynamic_cast<const CGBorderGate *>(source.nodeObject);
+
+					if(quest->wasMyColorVisited(pathfinderHelper->hero->tempOwner))
+						return;
+				}
+			}
 			// we can not directly bypass objects, we need to interact with them first
 			destination.node->theNodeBefore = source.node;
 
