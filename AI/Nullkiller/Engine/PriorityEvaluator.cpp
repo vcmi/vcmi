@@ -569,19 +569,24 @@ public:
 		}
 
 		auto heroPtr = task->hero;
-		const CGObjectInstance * target = cb->getObj((ObjectInstanceID)task->objid, false);
 		auto day = cb->getDate(Date::DAY);
 		auto hero = heroPtr.get();
 		bool checkGold = evaluationContext.danger == 0;
 		auto army = path.heroArmy;
 
+		const CGObjectInstance * target = cb->getObj((ObjectInstanceID)task->objid, false);
+
+		if (target && cb->getPlayerRelations(target->tempOwner, hero->tempOwner) == PlayerRelations::ENEMIES)
+		{
+			evaluationContext.goldReward += evaluationContext.evaluator.getGoldReward(target, hero);
+			evaluationContext.armyReward += evaluationContext.evaluator.getArmyReward(target, hero, army, checkGold);
+			evaluationContext.skillReward += evaluationContext.evaluator.getSkillReward(target, hero, evaluationContext.heroRole);
+			evaluationContext.strategicalValue += evaluationContext.evaluator.getStrategicalValue(target);
+			evaluationContext.goldCost += evaluationContext.evaluator.getGoldCost(target, hero, army);
+		}
+
 		vstd::amax(evaluationContext.armyLossPersentage, path.getTotalArmyLoss() / (double)path.getHeroStrength());
 		evaluationContext.heroRole = evaluationContext.evaluator.ai->heroManager->getHeroRole(heroPtr);
-		evaluationContext.goldReward += evaluationContext.evaluator.getGoldReward(target, hero);
-		evaluationContext.armyReward += evaluationContext.evaluator.getArmyReward(target, hero, army, checkGold);
-		evaluationContext.skillReward += evaluationContext.evaluator.getSkillReward(target, hero, evaluationContext.heroRole);
-		evaluationContext.strategicalValue += evaluationContext.evaluator.getStrategicalValue(target);
-		evaluationContext.goldCost += evaluationContext.evaluator.getGoldCost(target, hero, army);
 		vstd::amax(evaluationContext.enemyHeroDangerRatio, evaluationContext.evaluator.getEnemyHeroDanger(path) / (double)path.getHeroStrength());
 		vstd::amax(evaluationContext.turn, path.turn());
 	}
@@ -700,7 +705,7 @@ PriorityEvaluator::PriorityEvaluator(const Nullkiller * ai)
 	evaluationContextBuilders.push_back(std::make_shared<ClusterEvaluationContextBuilder>());
 	evaluationContextBuilders.push_back(std::make_shared<HeroExchangeEvaluator>());
 	evaluationContextBuilders.push_back(std::make_shared<ArmyUpgradeEvaluator>());
-	evaluationContextBuilders.push_back(std::make_shared<ArmyUpgradeEvaluator>());
+	evaluationContextBuilders.push_back(std::make_shared<DefendTownEvaluator>());
 }
 
 EvaluationContext PriorityEvaluator::buildEvaluationContext(Goals::TSubgoal goal) const
