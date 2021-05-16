@@ -224,7 +224,7 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader)
 			continue;
 		}
 
-		auto upgrade = ai->nullkiller->armyManager->calculateCreateresUpgrade(path.heroArmy, upgrader, availableResources);
+		auto upgrade = ai->nullkiller->armyManager->calculateCreaturesUpgrade(path.heroArmy, upgrader, availableResources);
 		auto armyValue = (float)upgrade.upgradeValue / path.getHeroStrength();
 
 		if(armyValue < 0.1f || upgrade.upgradeValue < 300) // avoid small upgrades

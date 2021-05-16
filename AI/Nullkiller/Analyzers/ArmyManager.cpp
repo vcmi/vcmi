@@ -146,13 +146,16 @@ std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier,
 			auto morale = slot.second->MoraleVal();
 			auto multiplier = 1.0f;
 
+			const float BadMoraleChance = 0.083f;
+			const float HighMoraleChance = 0.04f;
+
 			if(morale < 0)
 			{
-				multiplier += morale * 0.083f;
+				multiplier += morale * BadMoraleChance;
 			}
 			else if(morale > 0)
 			{
-				multiplier += morale * 0.04f;
+				multiplier += morale * HighMoraleChance;
 			}
 
 			newValue += multiplier * slot.second->getPower();
@@ -439,7 +442,7 @@ std::vector<StackUpgradeInfo> ArmyManager::getPossibleUpgrades(const CCreatureSe
 	return upgrades;
 }
 
-ArmyUpgradeInfo ArmyManager::calculateCreateresUpgrade(
+ArmyUpgradeInfo ArmyManager::calculateCreaturesUpgrade(
 	const CCreatureSet * army,
 	const CGObjectInstance * upgrader,
 	const TResources & availableResources) const

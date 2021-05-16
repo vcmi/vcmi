@@ -95,8 +95,16 @@ TResources getCreatureBankResources(const CGObjectInstance * target, const CGHer
 	auto objectInfo = VLC->objtypeh->getHandlerFor(target->ID, target->subID)->getObjectInfo(target->appearance);
 	CBankInfo * bankInfo = dynamic_cast<CBankInfo *>(objectInfo.get());
 	auto resources = bankInfo->getPossibleResourcesReward();
+	TResources result = TResources();
+	int sum = 0;
 
-	return resources;
+	for(auto & reward : resources)
+	{
+		result += reward.data * reward.chance;
+		sum += reward.chance;
+	}
+
+	return sum > 1 ? result / sum : result;
 }
 
 uint64_t getCreatureBankArmyReward(const CGObjectInstance * target, const CGHeroInstance * hero)
@@ -108,7 +116,7 @@ uint64_t getCreatureBankArmyReward(const CGObjectInstance * target, const CGHero
 
 	for(auto c : creatures)
 	{
-		result += c.type->AIValue * c.count;
+		result += c.data.type->AIValue * c.data.count * c.chance / 100;
 	}
 
 	return result;
@@ -205,7 +213,7 @@ uint64_t RewardEvaluator::getArmyReward(
 	case Obj::TOWN:
 		return target->tempOwner == PlayerColor::NEUTRAL ? 1000 : 10000;
 	case Obj::HILL_FORT:
-		return ai->armyManager->calculateCreateresUpgrade(army, target, ai->cb->getResourceAmount()).upgradeValue;
+		return ai->armyManager->calculateCreaturesUpgrade(army, target, ai->cb->getResourceAmount()).upgradeValue;
 	case Obj::CREATURE_BANK:
 		return getCreatureBankArmyReward(target, hero);
 	case Obj::CREATURE_GENERATOR1:
@@ -239,7 +247,7 @@ int RewardEvaluator::getGoldCost(const CGObjectInstance * target, const CGHeroIn
 	switch(target->ID)
 	{
 	case Obj::HILL_FORT:
-		return ai->armyManager->calculateCreateresUpgrade(army, target, ai->cb->getResourceAmount()).upgradeCost[Res::GOLD];
+		return ai->armyManager->calculateCreaturesUpgrade(army, target, ai->cb->getResourceAmount()).upgradeCost[Res::GOLD];
 	case Obj::SCHOOL_OF_MAGIC:
 	case Obj::SCHOOL_OF_WAR:
 		return 1000;

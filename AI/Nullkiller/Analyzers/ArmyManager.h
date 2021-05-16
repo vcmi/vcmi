@@ -55,7 +55,7 @@ public:
 	virtual std::vector<creInfo> getArmyAvailableToBuy(const CCreatureSet * hero, const CGDwelling * dwelling, TResources availableRes) const = 0;
 	virtual uint64_t evaluateStackPower(const CCreature * creature, int count) const = 0;
 	virtual SlotInfo getTotalCreaturesAvailable(CreatureID creatureID) const = 0;
-	virtual ArmyUpgradeInfo calculateCreateresUpgrade(
+	virtual ArmyUpgradeInfo calculateCreaturesUpgrade(
 		const CCreatureSet * army,
 		const CGObjectInstance * upgrader,
 		const TResources & availableResources) const = 0;
@@ -90,7 +90,7 @@ public:
 	std::shared_ptr<CCreatureSet> getArmyAvailableToBuyAsCCreatureSet(const CGDwelling * dwelling, TResources availableRes) const override;
 	uint64_t evaluateStackPower(const CCreature * creature, int count) const override;
 	SlotInfo getTotalCreaturesAvailable(CreatureID creatureID) const override;
-	ArmyUpgradeInfo calculateCreateresUpgrade(
+	ArmyUpgradeInfo calculateCreaturesUpgrade(
 		const CCreatureSet * army, 
 		const CGObjectInstance * upgrader,
 		const TResources & availableResources) const override;

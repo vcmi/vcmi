@@ -343,7 +343,7 @@ HeroExchangeArmy * HeroExchangeMap::tryUpgrade(
 	TResources resources) const
 {
 	HeroExchangeArmy * target = new HeroExchangeArmy();
-	auto upgradeInfo = ai->armyManager->calculateCreateresUpgrade(army, upgrader, resources);
+	auto upgradeInfo = ai->armyManager->calculateCreaturesUpgrade(army, upgrader, resources);
 
 	if(upgradeInfo.upgradeValue)
 	{

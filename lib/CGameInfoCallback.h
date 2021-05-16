@@ -188,7 +188,7 @@ public:
 	virtual std::shared_ptr<boost::multi_array<TerrainTile*, 3>> getAllVisibleTiles() const;
 	virtual bool isInTheMap(const int3 &pos) const;
 	virtual void getVisibleTilesInRange(std::unordered_set<int3, ShashInt3> &tiles, int3 pos, int radious, int3::EDistanceFormula distanceFormula = int3::DIST_2D) const;
-	virtual void calculatePaths(std::shared_ptr<PathfinderConfig> config, const CGHeroInstance * hero);
+	virtual void calculatePaths(std::shared_ptr<PathfinderConfig> config);
 
 	//town
 	virtual const CGTownInstance* getTown(ObjectInstanceID objid) const;

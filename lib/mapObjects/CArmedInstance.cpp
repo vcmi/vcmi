@@ -89,19 +89,24 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 			factionsInArmy -= mixableFactions - 1;
 	}
 
+	std::string description;
+
 	if(factionsInArmy == 1)
 	{
 		b->val = +1;
-		b->description = VLC->generaltexth->arraytxt[115]; //All troops of one alignment +1
-		b->description = b->description.substr(0, b->description.size()-3);//trim "+1"
+		description = VLC->generaltexth->arraytxt[115]; //All troops of one alignment +1
+		description = description.substr(0, description.size()-3);//trim "+1"
 	}
 	else if (!factions.empty()) // no bonus from empty garrison
 	{
 	 	b->val = 2 - (si32)factionsInArmy;
-		b->description = boost::str(boost::format(VLC->generaltexth->arraytxt[114]) % factionsInArmy % b->val); //Troops of %d alignments %d
-		b->description = b->description.substr(0, b->description.size()-2);//trim value
+		description = boost::str(boost::format(VLC->generaltexth->arraytxt[114]) % factionsInArmy % b->val); //Troops of %d alignments %d
+		description = b->description.substr(0, description.size()-2);//trim value
 	}
-	boost::algorithm::trim(b->description);
+	
+	boost::algorithm::trim(description);
+	b->description = description;
+
 	CBonusSystemNode::treeHasChanged();
 
 	//-1 modifier for any Undead unit in army
