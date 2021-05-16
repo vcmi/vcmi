@@ -316,6 +316,9 @@ float RewardEvaluator::getStrategicalValue(const CGObjectInstance * target) cons
 		return target->subID == Res::GOLD ? 0 : 0.1f * getResourceRequirementStrength(target->subID);
 
 	case Obj::TOWN:
+		if(ai->buildAnalyzer->getDevelopmentInfo().empty())
+			return 1;
+
 		return dynamic_cast<const CGTownInstance *>(target)->hasFort()
 			? (target->tempOwner == PlayerColor::NEUTRAL ? 0.8f : 1.0f)
 			: 0.5f;
