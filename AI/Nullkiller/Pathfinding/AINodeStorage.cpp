@@ -201,11 +201,6 @@ void AINodeStorage::commit(
 	int movementLeft, 
 	float cost) const
 {
-	if(destination->actor->chainMask == 195 && turn == 0)
-	{
-		throw std::exception();
-	}
-
 	destination->action = action;
 	destination->cost = cost;
 	destination->moveRemains = movementLeft;

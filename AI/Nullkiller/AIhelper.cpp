@@ -192,6 +192,11 @@ std::vector<SlotInfo> AIhelper::getSortedSlots(const CCreatureSet * target, cons
 	return armyManager->getSortedSlots(target, source);
 }
 
+std::vector<creInfo> AIhelper::getArmyAvailableToBuy(const CCreatureSet * hero, const CGDwelling * dwelling) const
+{
+	return armyManager->getArmyAvailableToBuy(hero, dwelling);
+}
+
 int AIhelper::selectBestSkill(const HeroPtr & hero, const std::vector<SecondarySkill> & skills) const
 {
 	return heroManager->selectBestSkill(hero, skills);

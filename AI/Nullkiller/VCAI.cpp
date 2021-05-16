@@ -1068,7 +1068,7 @@ void VCAI::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h)
 		{
 			makePossibleUpgrades(h.get());
 
-			if(!h->visitedTown->garrisonHero)
+			if(!nullkiller || !h->visitedTown->garrisonHero || !nullkiller->isHeroLocked(h->visitedTown->garrisonHero))
 				moveCreaturesToHero(h->visitedTown);
 
 			townVisitsThisWeek[h].insert(h->visitedTown);
@@ -2192,46 +2192,33 @@ void VCAI::tryRealize(Goals::BuyArmy & g)
 
 	makePossibleUpgrades(t);
 
-	while (valueBought < g.value)
+	auto armyToBuy = ah->getArmyAvailableToBuy(t->getUpperArmy(), t);
+
+	if(armyToBuy.empty())
+	{
+		throw cannotFulfillGoalException("No creatures to buy.");
+	}
+
+	for (int i = 0; valueBought < g.value && i < armyToBuy.size(); i++)
 	{
 		auto res = ah->allResources();
-		std::vector<creInfo> creaturesInDwellings;
+		auto & ci = armyToBuy[i];
 
-		for (int i = t->creatures.size() - 1; i >= 0; i--)
+		if(g.objid != -1 && ci.creID != g.objid)
+			continue;
+
+		vstd::amin(ci.count, res / ci.cre->cost);
+
+		if(ci.count)
 		{
-			auto ci = infoFromDC(t->creatures[i]);
-
-			if(!ci.count
-				|| ci.creID == -1
-				|| (g.objid != -1 && ci.creID != g.objid)
-				|| t->getUpperArmy()->getSlotFor(ci.creID) == SlotID())
-				continue;
-
-			vstd::amin(ci.count, res / ci.cre->cost); //max count we can afford
-
-			if(!ci.count)
-				continue;
-
-			ci.level = i; //this is important for Dungeon Summoning Portal
-			creaturesInDwellings.push_back(ci);
+			cb->recruitCreatures(t, t->getUpperArmy(), ci.creID, ci.count, ci.level);
+			valueBought += ci.count * ci.cre->AIValue;
 		}
+	}
 
-		if (creaturesInDwellings.empty())
-			throw cannotFulfillGoalException("Can't buy any more creatures!");
-
-		creInfo ci =
-			*boost::max_element(creaturesInDwellings, [](const creInfo & lhs, const creInfo & rhs)
-		{
-			//max value of creatures we can buy with our res
-			int value1 = lhs.cre->AIValue * lhs.count,
-				value2 = rhs.cre->AIValue * rhs.count;
-
-			return value1 < value2;
-		});
-
-
-		cb->recruitCreatures(t, t->getUpperArmy(), ci.creID, ci.count, ci.level);
-		valueBought += ci.count * ci.cre->AIValue;
+	if(!valueBought)
+	{
+		throw cannotFulfillGoalException("No creatures to buy.");
 	}
 
 	if(t->visitingHero)
