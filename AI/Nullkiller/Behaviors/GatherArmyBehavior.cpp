@@ -159,7 +159,7 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 	return tasks;
 }
 
-Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGObjectInstance * upgrader) const
+Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader) const
 {
 	Goals::TGoalVec tasks;
 	const int3 pos = upgrader->visitablePos();
@@ -181,6 +181,13 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGObjectInstance * upgrade
 #ifdef AI_TRACE_LEVEL >= 2
 		logAi->trace("Path found %s", path.toString());
 #endif
+		if(upgrader->visitingHero != path.targetHero)
+		{
+#ifdef AI_TRACE_LEVEL >= 2
+			logAi->trace("Ignore path. Town has visiting hero.");
+#endif
+			continue;
+		}
 
 		if(path.getFirstBlockedAction())
 		{

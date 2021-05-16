@@ -147,7 +147,10 @@ void Nullkiller::makeTurn()
 
 		try
 		{
-			activeHero = bestTask->hero.get();
+			if(bestTask->hero)
+			{
+				activeHero = bestTask->hero.get();
+			}
 
 			bestTask->accept(ai.get());
 		}
@@ -155,12 +158,12 @@ void Nullkiller::makeTurn()
 		{
 			logAi->trace(bestTask->completeMessage());
 		}
-		/*catch(std::exception & e)
+		catch(std::exception & e)
 		{
 			logAi->debug("Failed to realize subgoal of type %s, I will stop.", bestTask->name());
 			logAi->debug("The error message was: %s", e.what());
 
 			return;
-		}*/
+		}
 	}
 }

@@ -88,7 +88,11 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 	{
 		if(!ai->nullkiller->isHeroLocked(town->garrisonHero.get()))
 		{
-			tasks.push_back(Goals::sptr(Goals::ExchangeSwapTownHeroes(town, nullptr).setpriority(5)));
+			if(!town->visitingHero)
+			{
+				tasks.push_back(Goals::sptr(Goals::ExchangeSwapTownHeroes(town, nullptr).setpriority(5)));
+			}
+
 			return;
 		}
 

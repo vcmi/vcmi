@@ -46,5 +46,17 @@ namespace AIPathfinding
 			CDestinationNodeInfo & destination,
 			const PathfinderConfig * pathfinderConfig,
 			CPathfinderHelper * pathfinderHelper) const;
+
+		bool bypassBlocker(
+			const PathNodeInfo & source,
+			CDestinationNodeInfo & destination,
+			const PathfinderConfig * pathfinderConfig,
+			CPathfinderHelper * pathfinderHelper) const;
+
+		bool bypassBattle(
+			const PathNodeInfo & source,
+			CDestinationNodeInfo & destination,
+			const PathfinderConfig * pathfinderConfig,
+			CPathfinderHelper * pathfinderHelper) const;
 	};
 }
