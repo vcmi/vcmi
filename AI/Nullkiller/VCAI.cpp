@@ -603,7 +603,7 @@ void VCAI::init(std::shared_ptr<CCallback> CB)
 	if(!fh)
 		fh = new FuzzyHelper();
 
-	if(playerID.getStr(false) == "red")
+	//if(playerID.getStr(false) == "blue")
 	{
 		nullkiller.reset(new Nullkiller());
 	}
