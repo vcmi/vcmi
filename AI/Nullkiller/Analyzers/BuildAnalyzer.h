@@ -13,7 +13,7 @@
 #include "../../../lib/ResourceSet.h"
 
 
-class BuildingInfo
+class DLL_EXPORT BuildingInfo
 {
 public:
 	BuildingID id;
@@ -38,7 +38,7 @@ public:
 	std::string toString() const;
 };
 
-class TownDevelopmentInfo
+class DLL_EXPORT TownDevelopmentInfo
 {
 public:
 	const CGTownInstance* town;
@@ -63,7 +63,7 @@ public:
 	void addExistingDwelling(const BuildingInfo & existingDwelling);
 };
 
-class BuildAnalyzer
+class DLL_EXPORT BuildAnalyzer
 {
 private:
 	TResources requiredResources;
