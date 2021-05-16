@@ -92,7 +92,7 @@ const CGObjectInstance * ObjectClusterizer::getBlocker(const AIPath & path) cons
 	{
 		auto guardPos = ai->cb->getGuardingCreaturePosition(node->coord);
 		auto blockers = ai->cb->getVisitableObjs(node->coord);
-
+		
 		if(guardPos.valid())
 		{
 			auto guard = ai->cb->getTopObj(ai->cb->getGuardingCreaturePosition(node->coord));
@@ -100,6 +100,16 @@ const CGObjectInstance * ObjectClusterizer::getBlocker(const AIPath & path) cons
 			if(guard)
 			{
 				blockers.insert(blockers.begin(), guard);
+			}
+		}
+
+		if(node->specialAction && node->actionIsBlocked)
+		{
+			auto blockerObject = node->specialAction->targetObject();
+
+			if(blockerObject)
+			{
+				blockers.push_back(blockerObject);
 			}
 		}
 
@@ -113,7 +123,8 @@ const CGObjectInstance * ObjectClusterizer::getBlocker(const AIPath & path) cons
 			|| blocker->ID == Obj::GARRISON2
 			|| blocker->ID == Obj::BORDERGUARD
 			|| blocker->ID == Obj::QUEST_GUARD
-			|| blocker->ID == Obj::BORDER_GATE)
+			|| blocker->ID == Obj::BORDER_GATE
+			|| blocker->ID == Obj::SHIPYARD)
 		{
 			if(!isObjectPassable(blocker))
 				return blocker;
@@ -201,9 +212,15 @@ void ObjectClusterizer::clusterize()
 		
 		bool added = false;
 		bool directlyAccessible = false;
+		std::set<const CGHeroInstance *> heroesProcessed;
 
 		for(auto & path : paths)
 		{
+			if(vstd::contains(heroesProcessed, path.targetHero))
+				continue;
+
+			heroesProcessed.insert(path.targetHero);
+
 			if(path.nodes.size() > 1)
 			{
 				auto blocker = getBlocker(path);
@@ -236,10 +253,13 @@ void ObjectClusterizer::clusterize()
 
 		if(!added || directlyAccessible)
 		{
-			if(paths.front().turn() <= 2)
-				nearObjects.addObject(obj, paths.front(), 0);
+			AIPath & shortestPath = paths.front();
+			float priority = ai->priorityEvaluator->evaluate(Goals::sptr(Goals::ExecuteHeroChain(shortestPath, obj)));
+
+			if(shortestPath.turn() <= 2 || priority > 0.6f)
+				nearObjects.addObject(obj, shortestPath, 0);
 			else
-				farObjects.addObject(obj, paths.front(), 0);
+				farObjects.addObject(obj, shortestPath, 0);
 		}
 	}
 

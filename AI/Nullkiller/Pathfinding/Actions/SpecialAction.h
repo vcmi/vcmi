@@ -37,4 +37,6 @@ public:
 	}
 
 	virtual std::string toString() const = 0;
+
+	virtual const CGObjectInstance * targetObject() const { return nullptr; }
 };

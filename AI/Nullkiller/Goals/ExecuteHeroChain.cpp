@@ -92,7 +92,7 @@ void ExecuteHeroChain::accept(VCAI * ai)
 					}
 				}
 
-					if(node.turns == 0 && node.coord != hero->visitablePos())
+				if(node.turns == 0 && node.coord != hero->visitablePos())
 				{
 					auto targetNode = cb->getPathsInfo(hero)->getPathInfo(node.coord);
 

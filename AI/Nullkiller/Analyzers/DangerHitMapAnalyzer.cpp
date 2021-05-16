@@ -99,6 +99,12 @@ uint64_t DangerHitMapAnalyzer::enemyCanKillOurHeroesAlongThePath(const AIPath & 
 const HitMapNode & DangerHitMapAnalyzer::getObjectTreat(const CGObjectInstance * obj) const
 {
 	auto tile = obj->visitablePos();
+
+	return getTileTreat(tile);
+}
+
+const HitMapNode & DangerHitMapAnalyzer::getTileTreat(const int3 & tile) const
+{
 	const HitMapNode & info = hitMap[tile.x][tile.y][tile.z];
 
 	return info;

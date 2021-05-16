@@ -43,7 +43,8 @@ EvaluationContext::EvaluationContext(const Nullkiller * ai)
 	heroRole(HeroRole::SCOUT),
 	turn(0),
 	strategicalValue(0),
-	evaluator(ai)
+	evaluator(ai),
+	enemyHeroDangerRatio(0)
 {
 }
 
@@ -71,6 +72,7 @@ void PriorityEvaluator::initVisitTile()
 	strategicalValueVariable = engine->getInputVariable("strategicalValue");
 	goldPreasureVariable = engine->getInputVariable("goldPreasure");
 	goldCostVariable = engine->getInputVariable("goldCost");
+	fearVariable = engine->getInputVariable("fear");
 	value = engine->getOutputVariable("Value");
 }
 
@@ -381,6 +383,19 @@ float RewardEvaluator::getSkillReward(const CGObjectInstance * target, const CGH
 	}
 }
 
+uint64_t RewardEvaluator::getEnemyHeroDanger(const AIPath & path) const
+{
+	auto & treatNode = ai->dangerHitMap->getTileTreat(path.targetTile());
+
+	if(treatNode.maximumDanger.danger == 0)
+		return 0;
+	
+	if(treatNode.maximumDanger.turn <= path.turn())
+		return treatNode.maximumDanger.danger;
+
+	return treatNode.fastestDanger.turn <= path.turn() ? treatNode.fastestDanger.danger : 0;
+}
+
 int32_t getArmyCost(const CArmedInstance * army)
 {
 	int32_t value = 0;
@@ -485,6 +500,7 @@ public:
 		evaluationContext.skillReward += evaluationContext.evaluator.getSkillReward(target, hero, evaluationContext.heroRole);
 		evaluationContext.strategicalValue += evaluationContext.evaluator.getStrategicalValue(target);
 		evaluationContext.goldCost += evaluationContext.evaluator.getGoldCost(target, hero, army);
+		vstd::amax(evaluationContext.enemyHeroDangerRatio, evaluationContext.evaluator.getEnemyHeroDanger(path) / (double)path.getHeroStrength());
 		vstd::amax(evaluationContext.turn, path.turn());
 	}
 };
@@ -659,6 +675,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task)
 		goldPreasureVariable->setValue(ai->buildAnalyzer->getGoldPreasure());
 		goldCostVariable->setValue(evaluationContext.goldCost / ((float)cb->getResourceAmount(Res::GOLD) + (float)ai->buildAnalyzer->getDailyIncome()[Res::GOLD] + 1.0f));
 		turnVariable->setValue(evaluationContext.turn);
+		fearVariable->setValue(evaluationContext.enemyHeroDangerRatio);
 
 		engine->process();
 		//engine.process(VISIT_TILE); //TODO: Process only Visit_Tile
@@ -671,7 +688,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task)
 	assert(result >= 0);
 
 #ifdef AI_TRACE_LEVEL >= 1
-	logAi->trace("Evaluated %s, loss: %f, turn: %d, turns main: %f, scout: %f, gold: %d, cost: %d, army gain: %d, danger: %d, role: %s, strategical value: %f, cwr: %f, result %f",
+	logAi->trace("Evaluated %s, loss: %f, turn: %d, turns main: %f, scout: %f, gold: %d, cost: %d, army gain: %d, danger: %d, role: %s, strategical value: %f, cwr: %f, fear: %f, result %f",
 		task->toString(),
 		evaluationContext.armyLossPersentage,
 		(int)evaluationContext.turn,
@@ -684,6 +701,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task)
 		evaluationContext.heroRole == HeroRole::MAIN ? "main" : "scout",
 		evaluationContext.strategicalValue,
 		evaluationContext.closestWayRatio,
+		evaluationContext.enemyHeroDangerRatio,
 		result);
 #endif
 

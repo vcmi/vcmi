@@ -67,5 +67,7 @@ namespace AIPathfinding
 		virtual const ChainActor * getActor(const ChainActor * sourceActor) const override;
 
 		virtual std::string toString() const override;
+
+		virtual const CGObjectInstance * targetObject() const override;
 	};
 }
