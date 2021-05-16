@@ -37,7 +37,7 @@ namespace AIPathfinding
 			AIPathNode * dstMode,
 			const AIPathNode * srcNode) const override;
 
-		virtual bool canAct(const AIPathNode * source) const;
+		virtual bool canAct(const AIPathNode * source) const override;
 
 		virtual const ChainActor * getActor(const ChainActor * sourceActor) const override;
 

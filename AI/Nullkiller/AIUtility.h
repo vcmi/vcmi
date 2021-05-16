@@ -167,7 +167,9 @@ void foreach_neighbour(const int3 & pos, std::function<void(const int3 & pos)> f
 void foreach_neighbour(CCallback * cbp, const int3 & pos, std::function<void(CCallback * cbp, const int3 & pos)> foo); // avoid costly retrieval of thread-specific pointer
 
 bool canBeEmbarkmentPoint(const TerrainTile * t, bool fromWater);
-bool isBlockedBorderGate(int3 tileToHit);
+//bool isBlockedBorderGate(int3 tileToHit);
+bool isObjectPassable(const CGObjectInstance * obj);
+bool isObjectPassable(const CGObjectInstance * obj, PlayerColor playerColor, PlayerRelations::PlayerRelations objectRelations);
 bool isBlockVisitObj(const int3 & pos);
 
 bool isWeeklyRevisitable(const CGObjectInstance * obj);

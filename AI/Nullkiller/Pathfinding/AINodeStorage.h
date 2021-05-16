@@ -106,8 +106,6 @@ class AINodeStorage : public INodeStorage
 private:
 	int3 sizes;
 
-	/// 1-3 - position on map, 4 - layer (air, water, land), 5 - chain (normal, battle, spellcast and combinations)
-	boost::multi_array<AIPathNode, 5> nodes;
 	const CPlayerSpecificInfoCallback * cb;
 	const VCAI * ai;
 	std::unique_ptr<FuzzyHelper> dangerEvaluator;

@@ -113,7 +113,8 @@ const CGObjectInstance * ObjectClusterizer::getBlocker(const AIPath & path) cons
 			|| blocker->ID == Obj::QUEST_GUARD
 			|| blocker->ID == Obj::BORDER_GATE)
 		{
-			return blocker;
+			if(!isObjectPassable(blocker))
+				return blocker;
 		}
 	}
 

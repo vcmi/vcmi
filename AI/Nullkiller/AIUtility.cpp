@@ -258,6 +258,29 @@ bool canBeEmbarkmentPoint(const TerrainTile * t, bool fromWater)
 	return false;
 }
 
+bool isObjectPassable(const CGObjectInstance * obj)
+{
+	return isObjectPassable(obj, ai->playerID, cb->getPlayerRelations(obj->tempOwner, ai->playerID));
+}
+
+// Pathfinder internal helper
+bool isObjectPassable(const CGObjectInstance * obj, PlayerColor playerColor, PlayerRelations::PlayerRelations objectRelations)
+{
+	if((obj->ID == Obj::GARRISON || obj->ID == Obj::GARRISON2)
+		&& objectRelations != PlayerRelations::ENEMIES)
+		return true;
+
+	if(obj->ID == Obj::BORDER_GATE)
+	{
+		auto quest = dynamic_cast<const CGKeys *>(obj);
+
+		if(quest->passableFor(playerColor))
+			return true;
+	}
+
+	return false;
+}
+
 bool isBlockedBorderGate(int3 tileToHit) //TODO: is that function needed? should be handled by pathfinder
 {
 	if(cb->getTile(tileToHit)->topVisitableId() != Obj::BORDER_GATE)

@@ -19,6 +19,9 @@
 #include "../../../lib/PathfinderUtil.h"
 #include "../../../lib/CPlayerState.h"
 
+/// 1-3 - position on map, 4 - layer (air, water, land), 5 - chain (normal, battle, spellcast and combinations)
+boost::multi_array<AIPathNode, 5> nodes;
+
 AINodeStorage::AINodeStorage(const int3 & Sizes)
 	: sizes(Sizes)
 {
@@ -827,6 +830,14 @@ void AINodeStorage::calculateTownPortalTeleportations(std::vector<CGPathNode *> 
 		actorsOfInitial.insert(aiNode->actor->baseActor);
 	}
 
+	std::map<const CGHeroInstance *, int> maskMap;
+
+	for(std::shared_ptr<ChainActor> basicActor : actors)
+	{
+		if(basicActor->hero)
+			maskMap[basicActor->hero] = basicActor->chainMask;
+	}
+
 	for(const ChainActor * actor : actorsOfInitial)
 	{
 		if(!actor->hero)
@@ -851,8 +862,15 @@ void AINodeStorage::calculateTownPortalTeleportations(std::vector<CGPathNode *> 
 			for(const CGTownInstance * targetTown : towns)
 			{
 				// TODO: allow to hide visiting hero in garrison
-				if(targetTown->visitingHero && targetTown->visitingHero != actor->hero)
-					continue;
+				if(targetTown->visitingHero)
+				{
+					auto basicMask = maskMap[targetTown->visitingHero.get()];
+					bool heroIsInChain = (actor->chainMask & basicMask) != 0;
+					bool sameActorInTown = actor->chainMask == basicMask;
+
+					if(sameActorInTown || !heroIsInChain)
+						continue;
+				}
 
 				auto nodeOptional = townPortalFinder.createTownPortalNode(targetTown);
 
