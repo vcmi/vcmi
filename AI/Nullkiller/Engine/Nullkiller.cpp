@@ -233,13 +233,6 @@ void Nullkiller::makeTurn()
 
 		Goals::TTask bestTask = choseBestTask(bestTasks);
 
-		/*if(bestTask->invalid())
-		{
-			logAi->trace("No goals found. Ending turn.");
-
-			return;
-		}*/
-
 		if(bestTask->priority < MIN_PRIORITY)
 		{
 			logAi->trace("Goal %s has too low priority. It is not worth doing it. Ending turn.", bestTask->toString());
