@@ -352,3 +352,10 @@ bool isWeeklyRevisitable(const CGObjectInstance * obj)
 	}
 	return false;
 }
+
+uint64_t timeElapsed(boost::chrono::time_point<boost::chrono::steady_clock> start)
+{
+	auto end = boost::chrono::high_resolution_clock::now();
+
+	return boost::chrono::duration_cast<boost::chrono::milliseconds>(end - start).count();
+}

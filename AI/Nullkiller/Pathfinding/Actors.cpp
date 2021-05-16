@@ -22,8 +22,8 @@ bool HeroExchangeArmy::needsLastStack() const
 	return true;
 }
 
-ChainActor::ChainActor(const CGHeroInstance * hero, uint64_t chainMask)
-	:hero(hero), isMovable(true), chainMask(chainMask), creatureSet(hero),
+ChainActor::ChainActor(const CGHeroInstance * hero, HeroRole heroRole, uint64_t chainMask)
+	:hero(hero), heroRole(heroRole), isMovable(true), chainMask(chainMask), creatureSet(hero),
 	baseActor(this), carrierParent(nullptr), otherParent(nullptr), actorExchangeCount(1), armyCost()
 {
 	initialPosition = hero->visitablePos();
@@ -35,7 +35,7 @@ ChainActor::ChainActor(const CGHeroInstance * hero, uint64_t chainMask)
 }
 
 ChainActor::ChainActor(const ChainActor * carrier, const ChainActor * other, const CCreatureSet * heroArmy)
-	:hero(carrier->hero), isMovable(true), creatureSet(heroArmy), chainMask(carrier->chainMask | other->chainMask),
+	:hero(carrier->hero), heroRole(carrier->heroRole), isMovable(true), creatureSet(heroArmy), chainMask(carrier->chainMask | other->chainMask),
 	baseActor(this), carrierParent(carrier), otherParent(other), heroFightingStrength(carrier->heroFightingStrength),
 	actorExchangeCount(carrier->actorExchangeCount + other->actorExchangeCount), armyCost(carrier->armyCost + other->armyCost)
 {
@@ -43,7 +43,7 @@ ChainActor::ChainActor(const ChainActor * carrier, const ChainActor * other, con
 }
 
 ChainActor::ChainActor(const CGObjectInstance * obj, const CCreatureSet * creatureSet, uint64_t chainMask, int initialTurn)
-	:hero(nullptr), isMovable(false), creatureSet(creatureSet), chainMask(chainMask),
+	:hero(nullptr), heroRole(HeroRole::MAIN), isMovable(false), creatureSet(creatureSet), chainMask(chainMask),
 	baseActor(this), carrierParent(nullptr), otherParent(nullptr), initialTurn(initialTurn), initialMovement(0),
 	heroFightingStrength(0), actorExchangeCount(1), armyCost()
 {
@@ -72,8 +72,8 @@ std::string ObjectActor::toString() const
 	return object->getObjectName() + " at " + object->visitablePos().toString();
 }
 
-HeroActor::HeroActor(const CGHeroInstance * hero, uint64_t chainMask, const Nullkiller * ai)
-	:ChainActor(hero, chainMask)
+HeroActor::HeroActor(const CGHeroInstance * hero, HeroRole heroRole, uint64_t chainMask, const Nullkiller * ai)
+	:ChainActor(hero, heroRole, chainMask)
 {
 	exchangeMap = new HeroExchangeMap(this, ai);
 	setupSpecialActors();
@@ -94,6 +94,7 @@ void ChainActor::setBaseActor(HeroActor * base)
 {
 	baseActor = base;
 	hero = base->hero;
+	heroRole = base->heroRole;
 	layer = base->layer;
 	initialMovement = base->initialMovement;
 	initialTurn = base->initialTurn;

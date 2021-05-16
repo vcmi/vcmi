@@ -16,14 +16,17 @@ void DangerHitMapAnalyzer::updateHitMap()
 	if(upToDate)
 		return;
 
+	logAi->trace("Update danger hitmap");
+
 	upToDate = true;
+	auto start = boost::chrono::high_resolution_clock::now();
 
 	auto cb = ai->cb.get();
 	auto mapSize = ai->cb->getMapSize();
 	hitMap.resize(boost::extents[mapSize.x][mapSize.y][mapSize.z]);
 	enemyHeroAccessibleObjects.clear();
 
-	std::map<PlayerColor, std::vector<const CGHeroInstance *>> heroes;
+	std::map<PlayerColor, std::map<const CGHeroInstance *, HeroRole>> heroes;
 
 	for(const CGObjectInstance * obj : ai->memory->visitableObjs)
 	{
@@ -31,7 +34,7 @@ void DangerHitMapAnalyzer::updateHitMap()
 		{
 			auto hero = dynamic_cast<const CGHeroInstance *>(obj);
 
-			heroes[hero->tempOwner].push_back(hero);
+			heroes[hero->tempOwner][hero] = HeroRole::MAIN;
 		}
 	}
 
@@ -83,6 +86,8 @@ void DangerHitMapAnalyzer::updateHitMap()
 			}
 		});
 	}
+
+	logAi->trace("Danger hit map updated in %ld", timeElapsed(start));
 }
 
 uint64_t DangerHitMapAnalyzer::enemyCanKillOurHeroesAlongThePath(const AIPath & path) const

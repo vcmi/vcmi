@@ -38,7 +38,11 @@ namespace AIPathfinding
 
 		auto blocker = getBlockingReason(source, destination, pathfinderConfig, pathfinderHelper);
 		if(blocker == BlockingReason::NONE)
+		{
+			destination.blocked = nodeStorage->isDistanceLimitReached(source, destination);
+
 			return;
+		}
 
 		auto destGuardians = cb->getGuardingCreatures(destination.coord);
 		bool allowBypass = false;

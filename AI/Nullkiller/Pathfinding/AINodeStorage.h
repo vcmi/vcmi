@@ -11,7 +11,7 @@
 #pragma once
 
 #define PATHFINDER_TRACE_LEVEL 0
-#define AI_TRACE_LEVEL 1
+#define AI_TRACE_LEVEL 0
 
 #include "../../../lib/CPathfinder.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
@@ -162,10 +162,7 @@ public:
 		return hasBetterChain(source, destination);
 	}
 
-	bool isDistanceLimitReached(const PathNodeInfo & source, CDestinationNodeInfo & destination) const
-	{
-		return heroChainPass == EHeroChainPass::CHAIN && destination.node->turns > heroChainTurn;
-	}
+	bool isDistanceLimitReached(const PathNodeInfo & source, CDestinationNodeInfo & destination) const;
 
 	template<class NodeRange>
 	bool hasBetterChain(
@@ -176,7 +173,7 @@ public:
 	boost::optional<AIPathNode *> getOrCreateNode(const int3 & coord, const EPathfindingLayer layer, const ChainActor * actor);
 	std::vector<AIPath> getChainInfo(const int3 & pos, bool isOnLand) const;
 	bool isTileAccessible(const HeroPtr & hero, const int3 & pos, const EPathfindingLayer layer) const;
-	void setHeroes(std::vector<const CGHeroInstance *> heroes);
+	void setHeroes(std::map<const CGHeroInstance *, HeroRole> heroes);
 	void setTownsAndDwellings(
 		const std::vector<const CGTownInstance *> & towns,
 		const std::set<const CGObjectInstance *> & visitableObjs);

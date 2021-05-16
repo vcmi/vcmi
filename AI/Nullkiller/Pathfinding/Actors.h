@@ -27,7 +27,7 @@ public:
 class ChainActor
 {
 protected:
-	ChainActor(const CGHeroInstance * hero, uint64_t chainMask);
+	ChainActor(const CGHeroInstance * hero, HeroRole heroRole, uint64_t chainMask);
 	ChainActor(const ChainActor * carrier, const ChainActor * other, const CCreatureSet * heroArmy);
 	ChainActor(const CGObjectInstance * obj, const CCreatureSet * army, uint64_t chainMask, int initialTurn);
 
@@ -38,6 +38,7 @@ public:
 	bool allowBattle;
 	bool allowSpellCast;
 	const CGHeroInstance * hero;
+	HeroRole heroRole;
 	const CCreatureSet * creatureSet;
 	const ChainActor * battleActor;
 	const ChainActor * castActor;
@@ -105,7 +106,7 @@ public:
 	std::shared_ptr<SpecialAction> exchangeAction;
 	// chain flags, can be combined meaning hero exchange and so on
 
-	HeroActor(const CGHeroInstance * hero, uint64_t chainMask, const Nullkiller * ai);
+	HeroActor(const CGHeroInstance * hero, HeroRole heroRole, uint64_t chainMask, const Nullkiller * ai);
 	HeroActor(const ChainActor * carrier, const ChainActor * other, const CCreatureSet * army, const Nullkiller * ai);
 
 	virtual bool canExchange(const ChainActor * other) const override;

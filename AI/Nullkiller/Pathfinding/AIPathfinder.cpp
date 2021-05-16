@@ -42,13 +42,14 @@ std::vector<AIPath> AIPathfinder::getPathInfo(const int3 & tile) const
 	return storage->getChainInfo(tile, !tileInfo->isWater());
 }
 
-void AIPathfinder::updatePaths(std::vector<const CGHeroInstance *> heroes, bool useHeroChain)
+void AIPathfinder::updatePaths(std::map<const CGHeroInstance *, HeroRole> heroes, bool useHeroChain)
 {
 	if(!storage)
 	{
 		storage.reset(new AINodeStorage(ai, cb->getMapSize()));
 	}
 
+	auto start = boost::chrono::high_resolution_clock::now();
 	logAi->debug("Recalculate all paths");
 	int pass = 0;
 
@@ -89,4 +90,6 @@ void AIPathfinder::updatePaths(std::vector<const CGHeroInstance *> heroes, bool 
 			cb->calculatePaths(config);
 		}
 	} while(storage->increaseHeroChainTurnLimit());
+
+	logAi->trace("Recalculated paths in %ld", timeElapsed(start));
 }

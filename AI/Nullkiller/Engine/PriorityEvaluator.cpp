@@ -640,13 +640,6 @@ EvaluationContext PriorityEvaluator::buildEvaluationContext(Goals::TSubgoal goal
 	return context;
 }
 
-/// distance
-/// nearest hero?
-/// gold income
-/// army income
-/// hero strength - hero skills
-/// danger
-/// importance
 float PriorityEvaluator::evaluate(Goals::TSubgoal task)
 {
 	auto evaluationContext = buildEvaluationContext(task);
@@ -677,7 +670,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task)
 		fearVariable->setValue(evaluationContext.enemyHeroDangerRatio);
 
 		engine->process();
-		//engine.process(VISIT_TILE); //TODO: Process only Visit_Tile
+
 		result = value->getValue();
 	}
 	catch(fl::Exception & fe)
