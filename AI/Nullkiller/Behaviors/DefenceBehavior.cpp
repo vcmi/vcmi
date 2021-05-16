@@ -35,14 +35,9 @@ Goals::TGoalVec DefenceBehavior::decompose() const
 {
 	Goals::TGoalVec tasks;
 		
-	auto heroes = cb->getHeroesInfo();
-
-	if(heroes.size())
+	for(auto town : cb->getTownsInfo())
 	{
-		for(auto town : cb->getTownsInfo())
-		{
-			evaluateDefence(tasks, town);
-		}
+		evaluateDefence(tasks, town);
 	}
 
 	return tasks;

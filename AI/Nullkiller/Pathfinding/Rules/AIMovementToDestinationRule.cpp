@@ -37,7 +37,7 @@ namespace AIPathfinding
 
 		if(blocker == BlockingReason::SOURCE_GUARDED && nodeStorage->getAINode(source.node)->actor->allowBattle)
 		{
-#ifdef VCMI_TRACE_PATHFINDER
+#if PATHFINDER_TRACE_LEVEL >= 1
 			logAi->trace(
 				"Bypass src guard while moving from %s to %s",
 				source.coord.toString(),

@@ -474,7 +474,7 @@ public:
 		auto army = path.heroArmy;
 
 		vstd::amax(evaluationContext.armyLossPersentage, path.getTotalArmyLoss() / (double)path.getHeroStrength());
-		vstd::amax(evaluationContext.heroRole, ai->ah->getHeroRole(heroPtr));
+		evaluationContext.heroRole = ai->ah->getHeroRole(heroPtr);
 		evaluationContext.goldReward += getGoldReward(target, hero);
 		evaluationContext.armyReward += getArmyReward(target, hero, army, checkGold);
 		evaluationContext.skillReward += getSkillReward(target, hero, evaluationContext.heroRole);
@@ -604,17 +604,18 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task)
 	}
 	assert(result >= 0);
 
-#ifdef VCMI_TRACE_PATHFINDER
-	logAi->trace("Evaluated %s, loss: %f, turns main: %f, scout: %f, gold: %d, cost: %d, army gain: %d, danger: %d, role: %s, strategical value: %f, cwr: %f, result %f",
+#ifdef AI_TRACE_LEVEL >= 1
+	logAi->trace("Evaluated %s, loss: %f, turn: %d, turns main: %f, scout: %f, gold: %d, cost: %d, army gain: %d, danger: %d, role: %s, strategical value: %f, cwr: %f, result %f",
 		task->toString(),
 		evaluationContext.armyLossPersentage,
+		(int)evaluationContext.turn,
 		evaluationContext.movementCostByRole[HeroRole::MAIN],
 		evaluationContext.movementCostByRole[HeroRole::SCOUT],
 		evaluationContext.goldReward,
 		evaluationContext.goldCost,
 		evaluationContext.armyReward,
 		evaluationContext.danger,
-		evaluationContext.heroRole ? "scout" : "main",
+		evaluationContext.heroRole == HeroRole::MAIN ? "main" : "scout",
 		evaluationContext.strategicalValue,
 		evaluationContext.closestWayRatio,
 		result);

@@ -363,12 +363,12 @@ ArmyUpgradeInfo ArmyManager::calculateCreateresUpgrade(
 		{
 			SlotInfo upgradedArmy;
 
-			upgradedArmy.creature = upgrade.upgradedCreature;
+			upgradedArmy.creature = upgrade.upgradedCreature.toCreature();
 			upgradedArmy.count = upgrade.count;
 			upgradedArmy.power = evaluateStackPower(upgradedArmy.creature, upgradedArmy.count);
 
 			auto slotToReplace = std::find_if(result.resultingArmy.begin(), result.resultingArmy.end(), [&](const SlotInfo & slot) -> bool {
-				return slot.count == upgradedArmy.count && slot.creature == upgrade.initialCreature;
+				return slot.count == upgradedArmy.count && slot.creature->idNumber == upgrade.initialCreature;
 			});
 
 			resourcesLeft -= upgrade.cost;

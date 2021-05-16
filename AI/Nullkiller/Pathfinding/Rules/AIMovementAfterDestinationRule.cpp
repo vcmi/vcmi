@@ -102,6 +102,11 @@ namespace AIPathfinding
 			auto questObj = dynamic_cast<const IQuestObject *>(destination.nodeObject);
 			auto nodeHero = pathfinderHelper->hero;
 
+			if(destination.nodeObject->ID == Obj::QUEST_GUARD && questObj->quest->missionType == CQuest::MISSION_NONE)
+			{
+				return false;
+			}
+
 			if(!destination.nodeObject->wasVisited(nodeHero->tempOwner)
 				|| !questObj->checkQuest(nodeHero))
 			{
@@ -154,7 +159,7 @@ namespace AIPathfinding
 
 		if(guardsAlreadyBypassed && srcNode->actor->allowBattle)
 		{
-#ifdef VCMI_TRACE_PATHFINDER
+#if PATHFINDER_TRACE_LEVEL >= 1
 			logAi->trace(
 				"Bypass guard at destination while moving %s -> %s",
 				source.coord.toString(),
@@ -182,7 +187,7 @@ namespace AIPathfinding
 
 		if(!battleNodeOptional)
 		{
-#ifdef VCMI_TRACE_PATHFINDER
+#if PATHFINDER_TRACE_LEVEL >= 1
 			logAi->trace(
 				"Can not allocate battle node while moving %s -> %s",
 				source.coord.toString(),
@@ -195,7 +200,7 @@ namespace AIPathfinding
 
 		if(battleNode->locked)
 		{
-#ifdef VCMI_TRACE_PATHFINDER
+#if PATHFINDER_TRACE_LEVEL >= 1
 			logAi->trace(
 				"Block bypass guard at destination while moving %s -> %s",
 				source.coord.toString(),
@@ -222,7 +227,7 @@ namespace AIPathfinding
 
 			battleNode->specialAction = std::make_shared<BattleAction>(destination.coord);
 
-#ifdef VCMI_TRACE_PATHFINDER
+#if PATHFINDER_TRACE_LEVEL >= 1
 			logAi->trace(
 				"Begin bypass guard at destination with danger %s while moving %s -> %s",
 				std::to_string(danger),

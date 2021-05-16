@@ -172,7 +172,7 @@ bool HeroExchangeMap::canExchange(const ChainActor * other)
 			if(!resources.canAfford(actor->armyCost + other->armyCost))
 			{
 				result = false;
-#if AI_TRACE_LEVEL >= 2
+#if PATHFINDER_TRACE_LEVEL >= 2
 				logAi->trace(
 					"Can not afford exchange because of total cost %s but we have %s",
 					(actor->armyCost + other->armyCost).toString(),
@@ -191,7 +191,7 @@ bool HeroExchangeMap::canExchange(const ChainActor * other)
 			if(other->creatureSet->Slots().size())
 				reinforcment += ai->ah->howManyReinforcementsCanGet(actor->creatureSet, other->creatureSet);
 
-#if AI_TRACE_LEVEL >= 2
+#if PATHFINDER_TRACE_LEVEL >= 2
 			logAi->trace(
 				"Exchange %s->%s reinforcement: %d, %f%%",
 				actor->toString(),
