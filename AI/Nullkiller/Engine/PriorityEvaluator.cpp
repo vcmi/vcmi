@@ -712,7 +712,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task)
 		logAi->error("evaluate VisitTile: %s", fe.getWhat());
 	}
 
-#ifdef AI_TRACE_LEVEL >= 1
+#ifdef AI_TRACE_LEVEL >= 2
 	logAi->trace("Evaluated %s, loss: %f, turn: %d, turns main: %f, scout: %f, gold: %d, cost: %d, army gain: %d, danger: %d, role: %s, strategical value: %f, cwr: %f, fear: %f, result %f",
 		task->toString(),
 		evaluationContext.armyLossPersentage,

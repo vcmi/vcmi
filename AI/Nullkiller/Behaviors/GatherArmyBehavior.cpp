@@ -78,7 +78,7 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 	auto paths = ai->nullkiller->pathfinder->getPathInfo(pos);
 
 #if AI_TRACE_LEVEL >= 1
-	logAi->trace("Found %d paths", paths.size());
+	logAi->trace("Gather army found %d paths", paths.size());
 #endif
 
 	for(const AIPath & path : paths)
