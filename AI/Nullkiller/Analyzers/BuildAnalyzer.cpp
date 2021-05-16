@@ -10,6 +10,7 @@
 #include "../StdInc.h"
 #include "../Engine/Nullkiller.h"
 #include "../../../lib/mapping/CMap.h" //for victory conditions
+#include "../Engine/Nullkiller.h"
 
 extern boost::thread_specific_ptr<CCallback> cb;
 
@@ -172,7 +173,7 @@ void BuildAnalyzer::reset()
 }
 
 BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
-	const CGTownInstance* town,
+	const CGTownInstance * town,
 	BuildingID toBuild,
 	bool excludeDwellingDependencies) const
 {
@@ -193,7 +194,7 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 		creature = creatureID.toCreature();
 	}
 
-	auto info = BuildingInfo(buildPtr, creature, baseCreatureID);
+	auto info = BuildingInfo(buildPtr, creature, baseCreatureID, town, ai);
 
 	logAi->trace("checking %s", buildPtr->Name());
 	logAi->trace("buildInfo %s", info.toString());
@@ -298,6 +299,7 @@ void TownDevelopmentInfo::addExistingDwelling(const BuildingInfo & existingDwell
 	existingDwellings.push_back(existingDwelling);
 
 	armyCost += existingDwelling.creatureCost * existingDwelling.creatureGrows;
+	armyStrength += existingDwelling.armyStrength;
 }
 
 void TownDevelopmentInfo::addBuildingToBuild(const BuildingInfo & nextToBuild)
@@ -325,17 +327,22 @@ BuildingInfo::BuildingInfo()
 	buildCostWithPrerequisits = 0;
 	prerequisitesCount = 0;
 	name = "";
+	armyStrength = 0;
 }
 
-BuildingInfo::BuildingInfo(const CBuilding * building, const CCreature * creature, CreatureID baseCreature)
+BuildingInfo::BuildingInfo(
+	const CBuilding * building,
+	const CCreature * creature,
+	CreatureID baseCreature,
+	const CGTownInstance * town,
+	Nullkiller * ai)
 {
 	id = building->bid;
 	buildCost = building->resources;
 	buildCostWithPrerequisits = building->resources;
 	dailyIncome = building->produce;
-	exists = false;;
+	exists = town->hasBuilt(id);
 	prerequisitesCount = 1;
-	name = building->Name();
 
 	if(creature)
 	{
@@ -344,6 +351,23 @@ BuildingInfo::BuildingInfo(const CBuilding * building, const CCreature * creatur
 		creatureCost = creature->cost;
 		creatureLevel = creature->level;
 		baseCreatureID = baseCreature;
+
+		if(exists)
+		{
+			creatureGrows = town->creatureGrowth(creatureID);
+		}
+		else
+		{
+			creatureGrows = creature->growth;
+
+			if(town->hasBuilt(BuildingID::CASTLE))
+				creatureGrows *= 2;
+			else if(town->hasBuilt(BuildingID::CITADEL))
+				creatureGrows += creatureGrows / 2;
+		}
+
+		armyStrength = ai->armyManager->evaluateStackPower(creature, creatureGrows);
+		armyCost = creatureCost * creatureGrows;
 	}
 	else
 	{
@@ -351,7 +375,9 @@ BuildingInfo::BuildingInfo(const CBuilding * building, const CCreature * creatur
 		creatureID = CreatureID::NONE;
 		baseCreatureID = CreatureID::NONE;
 		creatureCost = TResources();
+		armyCost = TResources();
 		creatureLevel = 0;
+		armyStrength = 0;
 	}
 }
 

@@ -603,7 +603,7 @@ public:
 		evaluationContext.goldReward += 7 * bi.dailyIncome[Res::GOLD] / 2; // 7 day income but half we already have
 		evaluationContext.heroRole = HeroRole::MAIN;
 		evaluationContext.movementCostByRole[evaluationContext.heroRole] += bi.prerequisitesCount;
-		evaluationContext.strategicalValue += buildThis.townInfo.armyScore / 50000.0;
+		evaluationContext.strategicalValue += buildThis.townInfo.armyStrength / 50000.0;
 		evaluationContext.goldCost += bi.buildCostWithPrerequisits[Res::GOLD];
 
 		if(bi.creatureID != CreatureID::NONE)
@@ -611,13 +611,18 @@ public:
 			if(bi.baseCreatureID == bi.creatureID)
 			{
 				evaluationContext.strategicalValue += 0.5f + 0.1f * bi.creatureLevel / (float)bi.prerequisitesCount;
-				evaluationContext.armyReward += evaluationContext.evaluator.ai->armyManager->evaluateStackPower(bi.creatureID.toCreature(), bi.creatureGrows);
+				evaluationContext.armyReward += bi.armyStrength;
 			}
 			else
 			{
 				evaluationContext.strategicalValue += 0.05f * bi.creatureLevel / (float)bi.prerequisitesCount;
 				evaluationContext.armyReward += evaluationContext.evaluator.getUpgradeArmyReward(buildThis.town, bi);
 			}
+		}
+		else if(bi.id == BuildingID::CITADEL || bi.id == BuildingID::CASTLE)
+		{
+			evaluationContext.strategicalValue += buildThis.town->creatures.size() * 0.2f;
+			evaluationContext.armyReward += buildThis.townInfo.armyStrength / 2;
 		}
 		else
 		{
