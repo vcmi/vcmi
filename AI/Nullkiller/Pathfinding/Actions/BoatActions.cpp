@@ -11,7 +11,7 @@
 #include "StdInc.h"
 #include "../../VCAI.h"
 #include "../../Goals/AdventureSpellCast.h"
-#include "../../Behaviors/CaptureObjectsBehavior.h"
+#include "../../Goals/CaptureObject.h"
 #include "../../Goals/BuildBoat.h"
 #include "../../../../lib/mapping/CMap.h"
 #include "../../../../lib/mapObjects/MapObjects.h"
@@ -31,7 +31,7 @@ namespace AIPathfinding
 	{
 		if(cb->getPlayerRelations(ai->playerID, shipyard->o->tempOwner) == PlayerRelations::ENEMIES)
 		{
-			return Goals::sptr(Goals::CaptureObjectsBehavior(shipyard->o));
+			return Goals::sptr(Goals::CaptureObject(shipyard->o));
 		}
 		
 		return sptr(Goals::Invalid());

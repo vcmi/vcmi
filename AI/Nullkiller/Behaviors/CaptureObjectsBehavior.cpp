@@ -146,7 +146,8 @@ Goals::TGoalVec CaptureObjectsBehavior::decompose() const
 {
 	Goals::TGoalVec tasks;
 
-	auto captureObjects = [&](const std::vector<const CGObjectInstance*> & objs) -> void{
+	auto captureObjects = [&](const std::vector<const CGObjectInstance*> & objs) -> void
+	{
 		if(objs.empty())
 		{
 			return;

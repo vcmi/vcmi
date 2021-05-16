@@ -66,7 +66,8 @@ namespace Goals
 		UNLOCK_CLUSTER,
 		HERO_EXCHANGE,
 		ARMY_UPGRADE,
-		DEFEND_TOWN
+		DEFEND_TOWN,
+		CAPTURE_OBJECT
 	};
 
 	class DLL_EXPORT TSubgoal : public std::shared_ptr<AbstractGoal>
