@@ -119,6 +119,41 @@ uint64_t getDwellingScore(const CGObjectInstance * target, bool checkGold)
 	return score;
 }
 
+uint64_t evaluateArtifactArmyValue(CArtifactInstance * art)
+{
+	if(art->artType->id == ArtifactID::SPELL_SCROLL)
+		return 1500;
+
+	auto statsValue =
+		4 * art->valOfBonuses(Bonus::LAND_MOVEMENT)
+		+ 700 * art->valOfBonuses(Bonus::MORALE)
+		+ 700 * art->getAttack(false)
+		+ 700 * art->getDefence(false)
+		+ 700 * art->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::KNOWLEDGE)
+		+ 700 * art->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::SPELL_POWER)
+		+ 700 * art->getDefence(false)
+		+ 500 * art->valOfBonuses(Bonus::LUCK);
+
+	auto classValue = 0;
+
+	switch(art->artType->aClass)
+	{
+	case CArtifact::EartClass::ART_MINOR:
+		classValue = 1000;
+		break;
+
+	case CArtifact::EartClass::ART_MAJOR:
+		classValue = 3000;
+		break;
+	case CArtifact::EartClass::ART_RELIC:
+	case CArtifact::EartClass::ART_SPECIAL:
+		classValue = 8000;
+		break;
+	}
+
+	return statsValue > classValue ? statsValue : classValue;
+}
+
 uint64_t getArmyReward(const CGObjectInstance * target, const CGHeroInstance * hero, bool checkGold)
 {
 	if(!target)
@@ -138,9 +173,10 @@ uint64_t getArmyReward(const CGObjectInstance * target, const CGHeroInstance * h
 	case Obj::CRYPT:
 	case Obj::SHIPWRECK:
 	case Obj::SHIPWRECK_SURVIVOR:
+	case Obj::WARRIORS_TOMB:
 		return 1500;
 	case Obj::ARTIFACT:
-		return dynamic_cast<const CGArtifact *>(target)->storedArtifact-> artType->getArtClassSerial() * 300;
+		return evaluateArtifactArmyValue(dynamic_cast<const CGArtifact *>(target)->storedArtifact);
 	case Obj::DRAGON_UTOPIA:
 		return 10000;
 	default:
@@ -220,6 +256,8 @@ int32_t getGoldReward(const CGObjectInstance * target, const CGHeroInstance * he
 		return 100;
 	case Obj::CAMPFIRE:
 		return 800;
+	case Obj::WAGON:
+		return 100;
 	case Obj::CREATURE_BANK:
 		return getCreatureBankResources(target, hero)[Res::GOLD];
 	case Obj::CRYPT:
