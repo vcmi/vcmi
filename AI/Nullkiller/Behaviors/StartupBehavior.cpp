@@ -16,6 +16,7 @@
 #include "../Goals/ExecuteHeroChain.h"
 #include "../Goals/ExchangeSwapTownHeroes.h"
 #include "lib/mapping/CMap.h" //for victory conditions
+#include "lib/mapObjects/MapObjects.h" //for victory conditions
 #include "lib/CPathfinder.h"
 
 extern boost::thread_specific_ptr<CCallback> cb;
@@ -78,7 +79,8 @@ bool needToRecruitHero(const CGTownInstance * startupTown)
 			|| obj->ID == Obj::WATER_WHEEL)
 		{
 			auto path = paths->getPathInfo(obj->visitablePos());
-			if(path->accessible == CGPathNode::BLOCKVIS && path->turns != 255)
+			if((path->accessible == CGPathNode::BLOCKVIS || path->accessible == CGPathNode::VISIT) 
+				&& path->reachable())
 			{
 				return true;
 			}

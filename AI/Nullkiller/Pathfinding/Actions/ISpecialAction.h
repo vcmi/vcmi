@@ -18,6 +18,11 @@ struct AIPathNode;
 class ISpecialAction
 {
 public:
+	virtual bool canAct(const CGHeroInstance * hero) const
+	{
+		return true;
+	}
+
 	virtual Goals::TSubgoal whatToDo(const HeroPtr & hero) const = 0;
 
 	virtual void applyOnDestination(

@@ -28,6 +28,17 @@ std::string CaptureObjectsBehavior::toString() const
 	return "Capture objects";
 }
 
+std::shared_ptr<const ISpecialAction> getFirstBlockedAction(const AIPath & path)
+{
+	for(auto node : path.nodes)
+	{
+		if(node.specialAction && !node.specialAction->canAct(node.targetHero))
+			return node.specialAction;
+	}
+
+	return std::shared_ptr<const ISpecialAction>();
+}
+
 Goals::TGoalVec CaptureObjectsBehavior::getTasks()
 {
 	Goals::TGoalVec tasks;
@@ -65,6 +76,15 @@ Goals::TGoalVec CaptureObjectsBehavior::getTasks()
 				logAi->trace("Path found %s", path.toString());
 #endif
 
+				if(getFirstBlockedAction(path))
+				{
+#ifdef VCMI_TRACE_PATHFINDER
+					// TODO: decomposition?
+					logAi->trace("Ignore path. Action is blocked.");
+#endif
+					continue;
+				}
+
 				if(ai->nullkiller->dangerHitMap->enemyCanKillOurHeroesAlongThePath(path))
 				{
 #ifdef VCMI_TRACE_PATHFINDER
@@ -78,6 +98,10 @@ Goals::TGoalVec CaptureObjectsBehavior::getTasks()
 
 				auto hero = path.targetHero;
 				auto danger = path.getTotalDanger(hero);
+
+				if(danger == 0 && path.exchangeCount > 1)
+					continue;
+
 				auto isSafe = isSafeToVisit(hero, path.heroArmy, danger);
 				
 #ifdef VCMI_TRACE_PATHFINDER
@@ -146,7 +170,8 @@ bool CaptureObjectsBehavior::shouldVisitObject(ObjectIdRef obj) const
 
 	const int3 pos = objInstance->visitablePos();
 
-	if(vstd::contains(ai->alreadyVisited, objInstance))
+	if(objInstance->ID != Obj::CREATURE_GENERATOR1 && vstd::contains(ai->alreadyVisited, objInstance)
+		|| obj->wasVisited(ai->playerID))
 	{
 		return false;
 	}
