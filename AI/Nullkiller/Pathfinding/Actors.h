@@ -84,11 +84,7 @@ private:
 	const Nullkiller * ai;
 
 public:
-	HeroExchangeMap(const HeroActor * actor, const Nullkiller * ai)
-		:actor(actor), ai(ai)
-	{
-	}
-
+	HeroExchangeMap(const HeroActor * actor, const Nullkiller * ai);
 	~HeroExchangeMap();
 
 	HeroActor * exchange(const ChainActor * other);
@@ -106,7 +102,7 @@ public:
 
 private:
 	ChainActor specialActors[SPECIAL_ACTORS_COUNT];
-	HeroExchangeMap * exchangeMap;
+	std::unique_ptr<HeroExchangeMap> exchangeMap;
 
 	void setupSpecialActors();
 

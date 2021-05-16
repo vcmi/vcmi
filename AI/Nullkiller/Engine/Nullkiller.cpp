@@ -118,6 +118,7 @@ void Nullkiller::updateAiState(int pass)
 	activeHero = nullptr;
 
 	memory->removeInvisibleObjects(cb.get());
+
 	dangerHitMap->updateHitMap();
 
 	boost::this_thread::interruption_point();
