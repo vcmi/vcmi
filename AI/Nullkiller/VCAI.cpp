@@ -517,8 +517,17 @@ void VCAI::heroGotLevel(const CGHeroInstance * hero, PrimarySkill::PrimarySkill 
 {
 	LOG_TRACE_PARAMS(logAi, "queryID '%i'", queryID);
 	NET_EVENT_HANDLER;
+
 	status.addQuery(queryID, boost::str(boost::format("Hero %s got level %d") % hero->name % hero->level));
-	requestActionASAP([=](){ answerQuery(queryID, nullkiller->heroManager->selectBestSkill(hero, skills)); });
+	HeroPtr hPtr = hero;
+
+	requestActionASAP([=]()
+	{ 
+		if(hPtr.validAndSet())
+		{
+			answerQuery(queryID, nullkiller->heroManager->selectBestSkill(hPtr, skills));
+		}
+	});
 }
 
 void VCAI::commanderGotLevel(const CCommanderInstance * commander, std::vector<ui32> skills, QueryID queryID)
@@ -566,6 +575,7 @@ void VCAI::showBlockingDialog(const std::string & text, const std::vector<Compon
 
 			answerQuery(askID, answer);
 		});
+
 		return;
 	}
 
@@ -577,7 +587,8 @@ void VCAI::showBlockingDialog(const std::string & text, const std::vector<Compon
 			sel = components.size();
 
 		// TODO: Find better way to understand it is Chest of Treasures
-		if(components.size() == 2
+		if(hero.validAndSet()
+			&& components.size() == 2
 			&& components.front().id == Component::RESOURCE
 			&& nullkiller->heroManager->getHeroRole(hero) != HeroRole::MAIN)
 		{
