@@ -21,6 +21,12 @@ namespace AIPathfinding
 {
 	void BuyArmyAction::execute(const CGHeroInstance * hero) const
 	{
+		if(!hero->visitedTown)
+		{
+			throw cannotFulfillGoalException(
+				hero->name + " being at " + hero->visitablePos().toString() + " has no town to recruit creatures.");
+		}
+
 		ai->recruitCreatures(hero->visitedTown, hero);
 	}
 
