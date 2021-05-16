@@ -82,8 +82,7 @@ namespace Goals
 	typedef std::vector<TSubgoal> TGoalVec;
 
 	//method chaining + clone pattern
-#define VSETTER(type, field) virtual AbstractGoal & set ## field(const type &rhs) {field = rhs; return *this;};
-#define OSETTER(type, field) CGoal<T> & set ## field(const type &rhs) override { field = rhs; return *this; };
+#define SETTER(type, field) AbstractGoal & set ## field(const type &rhs) {field = rhs; return *this;};
 
 #if 0
 #define SETTER
@@ -97,17 +96,16 @@ namespace Goals
 	class DLL_EXPORT AbstractGoal
 	{
 	public:
-		bool isAbstract; VSETTER(bool, isAbstract)
-		int value; VSETTER(int, value)
-		ui64 goldCost; VSETTER(ui64, goldCost)
-		int resID; VSETTER(int, resID)
-		int objid; VSETTER(int, objid)
-		int aid; VSETTER(int, aid)
-		int3 tile; VSETTER(int3, tile)
-		HeroPtr hero; VSETTER(HeroPtr, hero)
-		const CGTownInstance *town; VSETTER(CGTownInstance *, town)
-		int bid; VSETTER(int, bid)
-		TSubgoal parent; VSETTER(TSubgoal, parent)
+		bool isAbstract; SETTER(bool, isAbstract)
+		int value; SETTER(int, value)
+		ui64 goldCost; SETTER(ui64, goldCost)
+		int resID; SETTER(int, resID)
+		int objid; SETTER(int, objid)
+		int aid; SETTER(int, aid)
+		int3 tile; SETTER(int3, tile)
+		HeroPtr hero; SETTER(HeroPtr, hero)
+		const CGTownInstance *town; SETTER(CGTownInstance *, town)
+		int bid; SETTER(int, bid)
 
 		AbstractGoal(EGoals goal = EGoals::INVALID)
 			: goalType(goal), hero()

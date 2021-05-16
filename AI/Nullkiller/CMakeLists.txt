@@ -139,7 +139,11 @@ else()
 	target_link_libraries(VCAI PRIVATE fl-static vcmi)
 endif()
 
-target_link_libraries(VCAI PRIVATE TBB::tbb)
+if(TBB_FOUND)
+	target_link_libraries(VCAI PRIVATE ${TBB_LIBRARIES})
+else()
+	target_link_libraries(VCAI PRIVATE tbb)
+endif()
 
 vcmi_set_output_dir(VCAI "AI")
 

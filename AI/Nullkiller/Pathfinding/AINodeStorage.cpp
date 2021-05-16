@@ -499,7 +499,7 @@ bool AINodeStorage::calculateHeroChain()
 
 	if(data.size() > 100)
 	{
-		std::mutex resultMutex;
+		boost::mutex resultMutex;
 
 		std::random_shuffle(data.begin(), data.end());
 
@@ -511,7 +511,7 @@ bool AINodeStorage::calculateHeroChain()
 			task.execute(r);
 
 			{
-				std::lock_guard<std::mutex> resultLock(resultMutex);
+				boost::lock_guard<boost::mutex> resultLock(resultMutex);
 
 				task.flushResult(heroChain);
 			}
