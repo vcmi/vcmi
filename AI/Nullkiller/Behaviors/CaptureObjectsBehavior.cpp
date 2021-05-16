@@ -97,7 +97,7 @@ Goals::TGoalVec CaptureObjectsBehavior::getTasks()
 					continue;
 
 				auto hero = path.targetHero;
-				auto danger = path.getTotalDanger(hero);
+				auto danger = path.getTotalDanger();
 
 				if(danger == 0 && path.exchangeCount > 1)
 					continue;

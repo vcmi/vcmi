@@ -49,6 +49,7 @@ struct AIPath
 	std::shared_ptr<const ISpecialAction> specialAction;
 	uint64_t targetObjectDanger;
 	uint64_t armyLoss;
+	uint64_t targetObjectArmyLoss;
 	const CGHeroInstance * targetHero;
 	const CCreatureSet * heroArmy;
 	uint64_t chainMask;
@@ -60,7 +61,10 @@ struct AIPath
 	uint64_t getPathDanger() const;
 
 	/// Gets danger of path including danger of visiting the target object like creature bank
-	uint64_t getTotalDanger(HeroPtr hero) const;
+	uint64_t getTotalDanger() const;
+
+	/// Gets danger of path including danger of visiting the target object like creature bank
+	uint64_t getTotalArmyLoss() const;
 
 	int3 firstTileToGet() const;
 	int3 targetTile() const;
@@ -166,6 +170,13 @@ public:
 	uint64_t evaluateDanger(const int3 &  tile, const CGHeroInstance * hero) const
 	{
 		return dangerEvaluator->evaluateDanger(tile, hero, ai);
+	}
+
+	uint64_t evaluateArmyLoss(const CGHeroInstance * hero, uint64_t armyValue, uint64_t danger) const
+	{
+		double ratio = (double)danger / (armyValue * hero->getFightingStrength());
+
+		return (uint64_t)(armyValue * ratio * ratio * ratio);
 	}
 
 private:
