@@ -32,6 +32,7 @@ set(VCAI_SRCS
 		Goals/CollectRes.cpp
 		Goals/Trade.cpp
 		Goals/RecruitHero.cpp
+		Goals/UnlockCluster.cpp
 		Goals/DigAtTile.cpp
 		Goals/GetArtOfType.cpp
 		Goals/ExecuteHeroChain.cpp
@@ -40,6 +41,7 @@ set(VCAI_SRCS
 		Engine/PriorityEvaluator.cpp
 		Analyzers/DangerHitMapAnalyzer.cpp
 		Analyzers/BuildAnalyzer.cpp
+		Analyzers/ObjectClusterizer.cpp
 		Behaviors/CaptureObjectsBehavior.cpp
 		Behaviors/RecruitHeroBehavior.cpp
 		Behaviors/BuyArmyBehavior.cpp
@@ -48,6 +50,7 @@ set(VCAI_SRCS
 		Behaviors/BuildingBehavior.cpp
 		Behaviors/GatherArmyBehavior.cpp
 		Behaviors/CompleteQuestBehavior.cpp
+		Behaviors/ClusterBehavior.cpp
 		main.cpp
 		VCAI.cpp
 )
@@ -87,6 +90,7 @@ set(VCAI_HEADERS
 		Goals/AdventureSpellCast.h
 		Goals/CollectRes.h
 		Goals/Trade.h
+		Goals/UnlockCluster.h
 		Goals/RecruitHero.h
 		Goals/DigAtTile.h
 		Goals/GetArtOfType.h
@@ -97,6 +101,7 @@ set(VCAI_HEADERS
 		Engine/PriorityEvaluator.h
 		Analyzers/DangerHitMapAnalyzer.h
 		Analyzers/BuildAnalyzer.h
+		Analyzers/ObjectClusterizer.h
 		Behaviors/CaptureObjectsBehavior.h
 		Behaviors/RecruitHeroBehavior.h
 		Behaviors/BuyArmyBehavior.h
@@ -105,6 +110,7 @@ set(VCAI_HEADERS
 		Behaviors/BuildingBehavior.h
 		Behaviors/GatherArmyBehavior.h
 		Behaviors/CompleteQuestBehavior.h
+		Behaviors/ClusterBehavior.h
 		VCAI.h
 )
 

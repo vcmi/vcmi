@@ -70,16 +70,16 @@ TGoalVec Composition::decompose() const
 			Composition & other = dynamic_cast<Composition &>(*goal);
 			bool cancel = false;
 
-			for(auto goal : other.subtasks)
+			for(auto subgoal : other.subtasks)
 			{
-				if(goal == last || vstd::contains(tasks, goal))
+				if(subgoal == last || vstd::contains(tasks, subgoal))
 				{
 					cancel = true;
 
 					break;
 				}
 
-				newComposition.addNext(goal);
+				newComposition.addNext(subgoal);
 			}
 
 			if(cancel)
@@ -88,6 +88,11 @@ TGoalVec Composition::decompose() const
 		else
 		{
 			newComposition.addNext(goal);
+		}
+
+		if(newComposition.isElementar() && !newComposition.hero.validAndSet())
+		{
+			logAi->error("Bad");
 		}
 
 		result.push_back(sptr(newComposition));

@@ -61,7 +61,9 @@ namespace Goals
 		EXECUTE_HERO_CHAIN,
 		EXCHANGE_SWAP_TOWN_HEROES,
 		DISMISS_HERO,
-		COMPOSITION
+		COMPOSITION,
+		CLUSTER_BEHAVIOR,
+		UNLOCK_CLUSTER
 	};
 
 	class DLL_EXPORT TSubgoal : public std::shared_ptr<AbstractGoal>
