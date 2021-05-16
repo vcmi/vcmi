@@ -7,11 +7,11 @@
 * Full text of license available in license.txt file, in main folder
 *
 */
-#include "StdInc.h"
+#include "../StdInc.h"
 #include "BuyArmy.h"
 #include "../../../lib/mapObjects/CGTownInstance.h"
-#include "VCAI.h"
-#include "Engine/Nullkiller.h"
+#include "../VCAI.h"
+#include "../Engine/Nullkiller.h"
 
 
 extern boost::thread_specific_ptr<CCallback> cb;

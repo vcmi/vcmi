@@ -10,12 +10,12 @@
 
 #pragma once
 
-#include "AIUtility.h"
+#include "../AIUtility.h"
 
-#include "../../lib/GameConstants.h"
-#include "../../lib/VCMI_Lib.h"
-#include "../../lib/CTownHandler.h"
-#include "../../lib/CBuildingHandler.h"
+#include "../../../lib/GameConstants.h"
+#include "../../../lib/VCMI_Lib.h"
+#include "../../../lib/CTownHandler.h"
+#include "../../../lib/CBuildingHandler.h"
 
 class DLL_EXPORT IHeroManager //: public: IAbstractManager
 {

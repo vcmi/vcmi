@@ -8,11 +8,10 @@
 *
 */
 
-#include "StdInc.h"
+#include "../StdInc.h"
 #include "../Engine/Nullkiller.h"
-#include "../../CCallback.h"
-#include "../../lib/mapObjects/MapObjects.h"
-#include "../../lib/CHeroHandler.h"
+#include "../../../lib/mapObjects/MapObjects.h"
+#include "../../../lib/CHeroHandler.h"
 
 SecondarySkillEvaluator HeroManager::wariorSkillsScores = SecondarySkillEvaluator(
 	{

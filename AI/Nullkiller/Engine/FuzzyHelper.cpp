@@ -7,11 +7,11 @@
  * Full text of license available in license.txt file, in main folder
  *
 */
-#include "StdInc.h"
+#include "../StdInc.h"
 #include "FuzzyHelper.h"
 
-#include "../../lib/mapObjects/CommonConstructors.h"
-#include "Goals/Goals.h"
+#include "../../../lib/mapObjects/CommonConstructors.h"
+#include "../Goals/Goals.h"
 #include "Nullkiller.h"
 
 ui64 FuzzyHelper::estimateBankDanger(const CBank * bank)
