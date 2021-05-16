@@ -11,6 +11,9 @@
 #include "../VCAI.h"
 #include "../Engine/Nullkiller.h"
 #include "../Goals/ExecuteHeroChain.h"
+#include "../Goals/Composition.h"
+#include "../Markers/HeroExchange.h"
+#include "../Markers/ArmyUpgrade.h"
 #include "GatherArmyBehavior.h"
 #include "../AIUtility.h"
 #include "lib/mapping/CMap.h" //for victory conditions
@@ -73,7 +76,6 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 	}
 
 	auto paths = ai->nullkiller->pathfinder->getPathInfo(pos);
-	std::vector<std::shared_ptr<ExecuteHeroChain>> waysToVisitObj;
 
 #if AI_TRACE_LEVEL >= 1
 	logAi->trace("Found %d paths", paths.size());
@@ -87,15 +89,6 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 		
 		if(path.containsHero(hero)) continue;
 
-		if(path.getFirstBlockedAction())
-		{
-#if AI_TRACE_LEVEL >= 2
-			// TODO: decomposition
-			logAi->trace("Ignore path. Action is blocked.");
-#endif
-			continue;
-		}
-
 		if(ai->nullkiller->dangerHitMap->enemyCanKillOurHeroesAlongThePath(path))
 		{
 #if AI_TRACE_LEVEL >= 2
@@ -104,15 +97,35 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 			continue;
 		}
 
-		float armyValue = (float)ai->nullkiller->armyManager->howManyReinforcementsCanGet(hero, path.heroArmy) / hero->getArmyStrength();
+		if(ai->nullkiller->arePathHeroesLocked(path))
+		{
+#if AI_TRACE_LEVEL >= 2
+			logAi->trace("Ignore path because of locked hero");
+#endif
+			continue;
+		}
+
+		HeroExchange heroExchange(hero, path);
+
+		float armyValue = (float)heroExchange.getReinforcementArmyStrength() / hero->getArmyStrength();
 
 		// avoid transferring very small amount of army
 		if(armyValue < 0.1f)
+		{
+#if AI_TRACE_LEVEL >= 2
+			logAi->trace("Army value is too small.");
+#endif
 			continue;
+		}
 
 		// avoid trying to move bigger army to the weaker one.
-		if(armyValue > 0.5f)
+		if(armyValue > 1)
+		{
+#if AI_TRACE_LEVEL >= 2
+			logAi->trace("Army value is too large.");
+#endif
 			continue;
+		}
 
 		auto danger = path.getTotalDanger();
 
@@ -131,24 +144,26 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 
 		if(isSafe)
 		{
-			auto newWay = std::make_shared<ExecuteHeroChain>(path, hero);
+			Composition composition;
+			ExecuteHeroChain exchangePath(path, hero);
 
-			newWay->strategicalValue = armyValue;
-			waysToVisitObj.push_back(newWay);
+			exchangePath.closestWayRatio = 1;
+
+			composition.addNext(heroExchange);
+			composition.addNext(exchangePath);
+
+			auto blockedAction = path.getFirstBlockedAction();
+
+			if(blockedAction)
+			{
+	#if AI_TRACE_LEVEL >= 2
+				logAi->trace("Action is blocked. Considering decomposition.");
+	#endif
+				composition.addNext(blockedAction->decompose(path.targetHero));
+			}
+			
+			tasks.push_back(sptr(composition));
 		}
-	}
-
-	if(waysToVisitObj.empty())
-		return tasks;
-
-	for(auto way : waysToVisitObj)
-	{
-		if(ai->nullkiller->arePathHeroesLocked(way->getPath()))
-			continue;
-
-		way->closestWayRatio = 1;
-
-		tasks.push_back(sptr(*way));
 	}
 
 	return tasks;
@@ -180,6 +195,14 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader)
 		{
 #if AI_TRACE_LEVEL >= 2
 			logAi->trace("Ignore path. Town has visiting hero.");
+#endif
+			continue;
+		}
+
+		if(ai->nullkiller->arePathHeroesLocked(path))
+		{
+#if AI_TRACE_LEVEL >= 2
+			logAi->trace("Ignore path because of locked hero");
 #endif
 			continue;
 		}
@@ -224,26 +247,12 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader)
 
 		if(isSafe)
 		{
-			auto newWay = std::make_shared<ExecuteHeroChain>(path, upgrader);
+			ExecuteHeroChain newWay(path, upgrader);
+			
+			newWay.closestWayRatio = 1;
 
-			newWay->strategicalValue = armyValue;
-			newWay->goldCost = upgrade.upgradeCost[Res::GOLD];
-
-			waysToVisitObj.push_back(newWay);
+			tasks.push_back(sptr(Composition().addNext(ArmyUpgrade(path, upgrader, upgrade)).addNext(newWay)));
 		}
-	}
-
-	if(waysToVisitObj.empty())
-		return tasks;
-
-	for(auto way : waysToVisitObj)
-	{
-		if(ai->nullkiller->arePathHeroesLocked(way->getPath()))
-			continue;
-
-		way->closestWayRatio = 1;
-
-		tasks.push_back(sptr(*way));
 	}
 
 	return tasks;

@@ -63,7 +63,9 @@ namespace Goals
 		DISMISS_HERO,
 		COMPOSITION,
 		CLUSTER_BEHAVIOR,
-		UNLOCK_CLUSTER
+		UNLOCK_CLUSTER,
+		HERO_EXCHANGE,
+		ARMY_UPGRADE
 	};
 
 	class DLL_EXPORT TSubgoal : public std::shared_ptr<AbstractGoal>
@@ -96,7 +98,6 @@ namespace Goals
 	public:
 		bool isAbstract; VSETTER(bool, isAbstract)
 		int value; VSETTER(int, value)
-		float strategicalValue; VSETTER(float, strategicalValue)
 		ui64 goldCost; VSETTER(ui64, goldCost)
 		int resID; VSETTER(int, resID)
 		int objid; VSETTER(int, objid)
@@ -119,7 +120,6 @@ namespace Goals
 			tile = int3(-1, -1, -1);
 			town = nullptr;
 			bid = -1;
-			strategicalValue = 0;
 			goldCost = 0;
 		}
 		virtual ~AbstractGoal() {}

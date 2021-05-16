@@ -24,17 +24,17 @@ set(VCAI_SRCS
 		Goals/BuildBoat.cpp
 		Goals/BuildThis.cpp
 		Goals/DismissHero.cpp
-		Goals/GatherTroops.cpp
 		Goals/BuyArmy.cpp
 		Goals/AdventureSpellCast.cpp
-		Goals/CollectRes.cpp
 		Goals/Trade.cpp
 		Goals/RecruitHero.cpp
-		Goals/UnlockCluster.cpp
 		Goals/DigAtTile.cpp
-		Goals/GetArtOfType.cpp
 		Goals/ExecuteHeroChain.cpp
 		Goals/ExchangeSwapTownHeroes.cpp
+		Goals/CompleteQuest.cpp
+		Markers/ArmyUpgrade.cpp
+		Markers/HeroExchange.cpp
+		Markers/UnlockCluster.cpp
 		Engine/Nullkiller.cpp
 		Engine/PriorityEvaluator.cpp
 		Analyzers/DangerHitMapAnalyzer.cpp
@@ -47,7 +47,6 @@ set(VCAI_SRCS
 		Behaviors/StartupBehavior.cpp
 		Behaviors/BuildingBehavior.cpp
 		Behaviors/GatherArmyBehavior.cpp
-		Behaviors/CompleteQuestBehavior.cpp
 		Behaviors/ClusterBehavior.cpp
 		main.cpp
 		VCAI.cpp
@@ -81,18 +80,18 @@ set(VCAI_HEADERS
 		Goals/BuildBoat.h
 		Goals/BuildThis.h
 		Goals/DismissHero.h
-		Goals/GatherTroops.h
 		Goals/BuyArmy.h
 		Goals/AdventureSpellCast.h
-		Goals/CollectRes.h
 		Goals/Trade.h
-		Goals/UnlockCluster.h
 		Goals/RecruitHero.h
 		Goals/DigAtTile.h
-		Goals/GetArtOfType.h
 		Goals/ExecuteHeroChain.h
 		Goals/ExchangeSwapTownHeroes.h
+		Goals/CompleteQuest.h
 		Goals/Goals.h
+		Markers/ArmyUpgrade.h
+		Markers/HeroExchange.h
+		Markers/UnlockCluster.h
 		Engine/Nullkiller.h
 		Engine/PriorityEvaluator.h
 		Analyzers/DangerHitMapAnalyzer.h
@@ -105,7 +104,6 @@ set(VCAI_HEADERS
 		Behaviors/StartupBehavior.h
 		Behaviors/BuildingBehavior.h
 		Behaviors/GatherArmyBehavior.h
-		Behaviors/CompleteQuestBehavior.h
 		Behaviors/ClusterBehavior.h
 		VCAI.h
 )

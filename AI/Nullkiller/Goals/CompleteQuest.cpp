@@ -8,8 +8,8 @@
 *
 */
 #include "StdInc.h"
-#include "CompleteQuestBehavior.h"
-#include "CaptureObjectsBehavior.h"
+#include "CompleteQuest.h"
+#include "../Behaviors/CaptureObjectsBehavior.h"
 #include "../VCAI.h"
 #include "../../../lib/mapping/CMap.h" //for victory conditions
 #include "../../../lib/CPathfinder.h"
@@ -26,23 +26,6 @@ std::string CompleteQuest::toString() const
 
 TGoalVec CompleteQuest::decompose() const
 {
-	/*TGoalVec solutions;
-
-	auto quests = cb->getMyQuests();
-
-	for(auto & q : quests)
-	{
-		if(q.quest->missionType == CQuest::MISSION_NONE
-			|| q.quest->progress == CQuest::COMPLETE)
-		{
-			continue;
-		}
-
-		vstd::concatenate(solutions, getQuestTasks());
-	}
-
-	return solutions;*/
-
 	if(q.obj && (q.obj->ID == Obj::BORDER_GATE || q.obj->ID == Obj::BORDERGUARD))
 	{
 		return missionKeymaster();

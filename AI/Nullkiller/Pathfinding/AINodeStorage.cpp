@@ -1112,10 +1112,10 @@ AIPath::AIPath()
 
 std::shared_ptr<const SpecialAction> AIPath::getFirstBlockedAction() const
 {
-	for(auto node : nodes)
+	for(auto node = nodes.rbegin(); node != nodes.rend(); node++)
 	{
-		if(node.specialAction && node.actionIsBlocked)
-			return node.specialAction;
+		if(node->specialAction && node->actionIsBlocked)
+			return node->specialAction;
 	}
 
 	return std::shared_ptr<const SpecialAction>();

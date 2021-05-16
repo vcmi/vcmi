@@ -241,7 +241,6 @@ void ObjectClusterizer::clusterize()
 			continue;
 		}
 		
-		bool directlyAccessible = false;
 		std::set<const CGHeroInstance *> heroesProcessed;
 
 		for(auto & path : paths)
@@ -292,44 +291,33 @@ void ObjectClusterizer::clusterize()
 #if AI_TRACE_LEVEL >= 2
 					logAi->trace("Path added to cluster %s%s", blocker->getObjectName(), blocker->visitablePos().toString());
 #endif
+					continue;
 				}
-				else
-				{
-					directlyAccessible = true;
-				}
-			}
-			else
-			{
-				directlyAccessible = true;
 			}
 			
 			heroesProcessed.insert(path.targetHero);
-		}
 
-		if(directlyAccessible)
-		{
-			AIPath & shortestPath = paths.front();
-			float priority = ai->priorityEvaluator->evaluate(Goals::sptr(Goals::ExecuteHeroChain(shortestPath, obj)));
+			float priority = ai->priorityEvaluator->evaluate(Goals::sptr(Goals::ExecuteHeroChain(path, obj)));
 
 			if(priority < MIN_PRIORITY)
 				continue;
-
-			bool interestingObject = shortestPath.turn() <= 2 || priority > 0.5f;
+			
+			bool interestingObject = path.turn() <= 2 || priority > 0.5f;
 
 			if(interestingObject)
 			{
-				nearObjects.addObject(obj, shortestPath, priority);
+				nearObjects.addObject(obj, path, priority);
 			}
 			else
 			{
-				farObjects.addObject(obj, shortestPath, priority);
+				farObjects.addObject(obj, path, priority);
 			}
 
 #if AI_TRACE_LEVEL >= 2
 			logAi->trace("Path %s added to %s objects. Turn: %d, priority: %f",
-				shortestPath.toString(),
+				path.toString(),
 				interestingObject ? "near" : "far",
-				shortestPath.turn(),
+				path.turn(),
 				priority);
 #endif
 		}

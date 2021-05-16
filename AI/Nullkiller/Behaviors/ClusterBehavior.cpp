@@ -12,7 +12,7 @@
 #include "../VCAI.h"
 #include "../Engine/Nullkiller.h"
 #include "../AIUtility.h"
-#include "../Goals/UnlockCluster.h"
+#include "../Markers/UnlockCluster.h"
 #include "../Goals/Composition.h"
 #include "../Behaviors/CaptureObjectsBehavior.h"
 
