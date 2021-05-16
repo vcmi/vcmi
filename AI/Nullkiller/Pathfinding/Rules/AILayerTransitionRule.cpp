@@ -69,7 +69,7 @@ namespace AIPathfinding
 			if(shipyard->shipyardStatus() == IShipyard::GOOD)
 			{
 				int3 boatLocation = shipyard->bestLocation();
-				virtualBoats[boatLocation] = std::make_shared<BuildBoatAction>(shipyard);
+				virtualBoats[boatLocation] = std::make_shared<BuildBoatAction>(cb, shipyard);
 				logAi->debug("Virtual boat added at %s", boatLocation.toString());
 			}
 		}

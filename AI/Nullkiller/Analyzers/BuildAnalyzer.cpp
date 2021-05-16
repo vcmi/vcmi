@@ -12,8 +12,6 @@
 #include "../../../lib/mapping/CMap.h" //for victory conditions
 #include "../Engine/Nullkiller.h"
 
-extern boost::thread_specific_ptr<CCallback> cb;
-
 void BuildAnalyzer::updateTownDwellings(TownDevelopmentInfo & developmentInfo)
 {
 	auto townInfo = developmentInfo.town->town;
@@ -71,7 +69,7 @@ void BuildAnalyzer::updateOtherBuildings(TownDevelopmentInfo & developmentInfo)
 		{BuildingID::TOWN_HALL, BuildingID::CITY_HALL, BuildingID::CAPITOL}
 	};
 
-	if(developmentInfo.existingDwellings.size() >= 2 && cb->getDate(Date::DAY_OF_WEEK) > boost::date_time::Friday)
+	if(developmentInfo.existingDwellings.size() >= 2 && ai->cb->getDate(Date::DAY_OF_WEEK) > boost::date_time::Friday)
 	{
 		otherBuildings.push_back({BuildingID::CITADEL, BuildingID::CASTLE});
 	}
@@ -99,7 +97,7 @@ int32_t convertToGold(const TResources & res)
 
 TResources BuildAnalyzer::getResourcesRequiredNow() const
 {
-	auto resourcesAvailable = cb->getResourceAmount();
+	auto resourcesAvailable = ai->cb->getResourceAmount();
 	auto result = requiredResources - resourcesAvailable;
 
 	result.positive();
@@ -109,7 +107,7 @@ TResources BuildAnalyzer::getResourcesRequiredNow() const
 
 TResources BuildAnalyzer::getTotalResourcesRequired() const
 {
-	auto resourcesAvailable = cb->getResourceAmount();
+	auto resourcesAvailable = ai->cb->getResourceAmount();
 	auto result = totalDevelopmentCost - resourcesAvailable;
 
 	result.positive();
@@ -125,7 +123,7 @@ void BuildAnalyzer::update()
 
 	reset();
 
-	auto towns = cb->getTownsInfo();
+	auto towns = ai->cb->getTownsInfo();
 
 	for(const CGTownInstance* town : towns)
 	{
@@ -159,7 +157,7 @@ void BuildAnalyzer::update()
 
 	updateDailyIncome();
 
-	goldPreasure = (float)armyCost[Res::GOLD] / (1 + cb->getResourceAmount(Res::GOLD) + (float)dailyIncome[Res::GOLD] * 7.0f);
+	goldPreasure = (float)armyCost[Res::GOLD] / (1 + ai->cb->getResourceAmount(Res::GOLD) + (float)dailyIncome[Res::GOLD] * 7.0f);
 
 	logAi->trace("Gold preasure: %f", goldPreasure);
 }
@@ -203,7 +201,7 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 
 	if(!town->hasBuilt(building))
 	{
-		auto canBuild = cb->canBuildStructure(town, building);
+		auto canBuild = ai->cb->canBuildStructure(town, building);
 
 		if(canBuild == EBuildingState::ALLOWED)
 		{
@@ -262,8 +260,8 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 
 void BuildAnalyzer::updateDailyIncome()
 {
-	auto objects = cb->getMyObjects();
-	auto towns = cb->getTownsInfo();
+	auto objects = ai->cb->getMyObjects();
+	auto towns = ai->cb->getTownsInfo();
 	
 	dailyIncome = TResources();
 

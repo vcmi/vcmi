@@ -8,7 +8,6 @@
 *
 */
 #include "StdInc.h"
-#include <tbb/tbb.h>
 #include "AINodeStorage.h"
 #include "Actions/TownPortalAction.h"
 #include "../Goals/Goals.h"
@@ -19,8 +18,6 @@
 #include "../../../lib/mapObjects/MapObjects.h"
 #include "../../../lib/PathfinderUtil.h"
 #include "../../../lib/CPlayerState.h"
-
-using namespace tbb;
 
 std::shared_ptr<boost::multi_array<AIPathNode, 5>> AISharedStorage::shared;
 std::set<int3> commitedTiles;
@@ -504,7 +501,7 @@ bool AINodeStorage::calculateHeroChain()
 	{
 		std::mutex resultMutex;
 
-	std::random_shuffle(data.begin(), data.end());
+		std::random_shuffle(data.begin(), data.end());
 
 		parallel_for(blocked_range<size_t>(0, data.size()), [&](const blocked_range<size_t>& r)
 		{
@@ -526,7 +523,7 @@ bool AINodeStorage::calculateHeroChain()
 		HeroChainCalculationTask task(*this, nodes, data, chainMask, heroChainTurn);
 
 		task.execute(r);
-		task.flushResult(heroChain);\
+		task.flushResult(heroChain);
 	}
 
 	CCreature::DisableChildLinkage = false;

@@ -196,15 +196,26 @@ HeroExchangeMap::HeroExchangeMap(const HeroActor * actor, const Nullkiller * ai)
 
 HeroExchangeMap::~HeroExchangeMap()
 {
+	CCreature::DisableChildLinkage = true;
+
 	for(auto & exchange : exchangeMap)
 	{
 		if(!exchange.second) continue;
 
 		delete exchange.second->creatureSet;
+	}
+
+	CCreature::DisableChildLinkage = false;
+
+	for(auto & exchange : exchangeMap)
+	{
+		if(!exchange.second) continue;
+
 		delete exchange.second;
 	}
 
 	exchangeMap.clear();
+
 }
 
 ExchangeResult HeroExchangeMap::tryExchangeNoLock(const ChainActor * other)
@@ -270,7 +281,7 @@ ExchangeResult HeroExchangeMap::tryExchangeNoLock(const ChainActor * other)
 		}
 
 	if(other->isMovable && other->armyValue <= actor->armyValue / 10 && other->armyValue < MIN_ARMY_STRENGTH_FOR_CHAIN)
-		return nullptr;
+		return result;
 
 	TResources availableResources = resources - actor->armyCost - other->armyCost;
 	HeroExchangeArmy * upgradedInitialArmy = tryUpgrade(actor->creatureSet, other->getActorObject(), availableResources);

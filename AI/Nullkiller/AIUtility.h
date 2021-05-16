@@ -18,8 +18,12 @@
 #include "../../lib/mapObjects/CObjectHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/CPathfinder.h"
+#include <tbb/tbb.h>
+
+using namespace tbb;
 
 class CCallback;
+class Nullkiller;
 struct creInfo;
 
 typedef const int3 & crint3;
@@ -72,6 +76,7 @@ public:
 	}
 
 	const CGHeroInstance * get(bool doWeExpectNull = false) const;
+	const CGHeroInstance * get(CCallback * cb, bool doWeExpectNull = false) const;
 	bool validAndSet() const;
 
 
@@ -168,6 +173,7 @@ void foreach_neighbour(CCallback * cbp, const int3 & pos, std::function<void(CCa
 
 bool canBeEmbarkmentPoint(const TerrainTile * t, bool fromWater);
 bool isObjectPassable(const CGObjectInstance * obj);
+bool isObjectPassable(const Nullkiller * ai, const CGObjectInstance * obj);
 bool isObjectPassable(const CGObjectInstance * obj, PlayerColor playerColor, PlayerRelations::PlayerRelations objectRelations);
 bool isBlockVisitObj(const int3 & pos);
 
@@ -184,7 +190,27 @@ bool compareArtifacts(const CArtifactInstance * a1, const CArtifactInstance * a2
 uint64_t timeElapsed(boost::chrono::time_point<boost::chrono::steady_clock> start);
 
 // todo: move to obj manager
-bool shouldVisit(const CGHeroInstance * h, const CGObjectInstance * obj);
+bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObjectInstance * obj);
+
+template<typename TFunc>
+void pforeachTilePos(crint3 mapSize, TFunc fn)
+{
+	parallel_for(blocked_range<size_t>(0, mapSize.x), [&](const blocked_range<size_t>& r)
+	{
+		int3 pos;
+
+		for(pos.x = r.begin(); pos.x != r.end(); ++pos.x)
+		{
+			for(pos.y = 0; pos.y < mapSize.y; ++pos.y)
+			{
+				for(pos.z = 0; pos.z < mapSize.z; ++pos.z)
+				{
+					fn(pos);
+				}
+			}
+		}
+	});
+}
 
 class CDistanceSorter
 {
@@ -196,4 +222,76 @@ public:
 	{
 	}
 	bool operator()(const CGObjectInstance * lhs, const CGObjectInstance * rhs) const;
+};
+
+template <class T>
+class SharedPool
+{
+public:
+	struct External_Deleter
+	{
+		explicit External_Deleter(std::weak_ptr<SharedPool<T>* > pool)
+			: pool(pool)
+		{
+		}
+
+		void operator()(T * ptr)
+		{
+			std::unique_ptr<T> uptr(ptr);
+
+			if(auto pool_ptr = pool.lock())
+			{
+				(*pool_ptr.get())->add(std::move(uptr));
+			}
+		}
+
+	private:
+		std::weak_ptr<SharedPool<T>* > pool;
+	};
+
+public:
+	using ptr_type = std::unique_ptr<T, External_Deleter>;
+
+	SharedPool(std::function<std::unique_ptr<T>()> elementFactory)
+		: elementFactory(elementFactory), pool(), sync(), instance_tracker(new SharedPool<T>*(this))
+	{}
+	
+	void add(std::unique_ptr<T> t)
+	{
+		std::lock_guard<std::mutex> lock(sync);
+		pool.push_back(std::move(t));
+	}
+
+	ptr_type acquire()
+	{
+		std::lock_guard<std::mutex> lock(sync);
+		bool poolIsEmpty = pool.empty();
+		T * element = poolIsEmpty
+			? elementFactory().release()
+			: pool.back().release();
+
+		ptr_type tmp(
+			element,
+			External_Deleter(std::weak_ptr<SharedPool<T>*>(instance_tracker)));
+
+		if(!poolIsEmpty) pool.pop_back();
+
+		return std::move(tmp);
+	}
+
+	bool empty() const
+	{
+		return pool.empty();
+	}
+
+	size_t size() const
+	{
+		return pool.size();
+	}
+
+private:
+	std::vector<std::unique_ptr<T>> pool;
+	std::function<std::unique_ptr<T>()> elementFactory;
+	std::shared_ptr<SharedPool<T> *> instance_tracker;
+	std::mutex sync;
 };

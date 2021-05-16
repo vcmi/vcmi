@@ -29,8 +29,6 @@
 #define MIN_AI_STRENGHT (0.5f) //lower when combat AI gets smarter
 #define UNGUARDED_OBJECT (100.0f) //we consider unguarded objects 100 times weaker than us
 
-extern boost::thread_specific_ptr<CCallback> cb;
-
 EvaluationContext::EvaluationContext(const Nullkiller * ai)
 	: movementCost(0.0),
 	manaCost(0),
@@ -78,7 +76,7 @@ void PriorityEvaluator::initVisitTile()
 	value = engine->getOutputVariable("Value");
 }
 
-int32_t estimateTownIncome(const CGObjectInstance * target, const CGHeroInstance * hero)
+int32_t estimateTownIncome(CCallback * cb, const CGObjectInstance * target, const CGHeroInstance * hero)
 {
 	auto relations = cb->getPlayerRelations(hero->tempOwner, target->tempOwner);
 
@@ -116,7 +114,7 @@ uint64_t getCreatureBankArmyReward(const CGObjectInstance * target, const CGHero
 	return result;
 }
 
-uint64_t getDwellingScore(const CGObjectInstance * target, bool checkGold)
+uint64_t getDwellingScore(CCallback * cb, const CGObjectInstance * target, bool checkGold)
 {
 	auto dwelling = dynamic_cast<const CGDwelling *>(target);
 	uint64_t score = 0;
@@ -207,14 +205,14 @@ uint64_t RewardEvaluator::getArmyReward(
 	case Obj::TOWN:
 		return target->tempOwner == PlayerColor::NEUTRAL ? 1000 : 10000;
 	case Obj::HILL_FORT:
-		return ai->armyManager->calculateCreateresUpgrade(army, target, cb->getResourceAmount()).upgradeValue;
+		return ai->armyManager->calculateCreateresUpgrade(army, target, ai->cb->getResourceAmount()).upgradeValue;
 	case Obj::CREATURE_BANK:
 		return getCreatureBankArmyReward(target, hero);
 	case Obj::CREATURE_GENERATOR1:
 	case Obj::CREATURE_GENERATOR2:
 	case Obj::CREATURE_GENERATOR3:
 	case Obj::CREATURE_GENERATOR4:
-		return getDwellingScore(target, checkGold);
+		return getDwellingScore(ai->cb.get(), target, checkGold);
 	case Obj::CRYPT:
 	case Obj::SHIPWRECK:
 	case Obj::SHIPWRECK_SURVIVOR:
@@ -225,7 +223,7 @@ uint64_t RewardEvaluator::getArmyReward(
 	case Obj::DRAGON_UTOPIA:
 		return 10000;
 	case Obj::HERO:
-		return cb->getPlayerRelations(target->tempOwner, ai->playerID) == PlayerRelations::ENEMIES
+		return ai->cb->getPlayerRelations(target->tempOwner, ai->playerID) == PlayerRelations::ENEMIES
 			? enemyArmyEliminationRewardRatio * dynamic_cast<const CGHeroInstance *>(target)->getArmyStrength()
 			: 0;
 	default:
@@ -241,7 +239,7 @@ int RewardEvaluator::getGoldCost(const CGObjectInstance * target, const CGHeroIn
 	switch(target->ID)
 	{
 	case Obj::HILL_FORT:
-		return ai->armyManager->calculateCreateresUpgrade(army, target, cb->getResourceAmount()).upgradeCost[Res::GOLD];
+		return ai->armyManager->calculateCreateresUpgrade(army, target, ai->cb->getResourceAmount()).upgradeCost[Res::GOLD];
 	case Obj::SCHOOL_OF_MAGIC:
 	case Obj::SCHOOL_OF_WAR:
 		return 1000;
@@ -325,7 +323,7 @@ float RewardEvaluator::getStrategicalValue(const CGObjectInstance * target) cons
 			: 0.5f;
 
 	case Obj::HERO:
-		return cb->getPlayerRelations(target->tempOwner, ai->playerID) == PlayerRelations::ENEMIES
+		return ai->cb->getPlayerRelations(target->tempOwner, ai->playerID) == PlayerRelations::ENEMIES
 			? getEnemyHeroStrategicalValue(dynamic_cast<const CGHeroInstance *>(target))
 			: 0;
 
@@ -380,7 +378,7 @@ float RewardEvaluator::getSkillReward(const CGObjectInstance * target, const CGH
 	case Obj::WITCH_HUT:
 		return evaluateWitchHutSkillScore(dynamic_cast<const CGWitchHut *>(target), hero, role);
 	case Obj::HERO:
-		return cb->getPlayerRelations(target->tempOwner, ai->playerID) == PlayerRelations::ENEMIES
+		return ai->cb->getPlayerRelations(target->tempOwner, ai->playerID) == PlayerRelations::ENEMIES
 			? enemyHeroEliminationSkillRewardRatio * dynamic_cast<const CGHeroInstance *>(target)->level
 			: 0;
 	default:
@@ -438,7 +436,7 @@ int32_t RewardEvaluator::getGoldReward(const CGObjectInstance * target, const CG
 	case Obj::WATER_WHEEL:
 		return 1000;
 	case Obj::TOWN:
-		return dailyIncomeMultiplier * estimateTownIncome(target, hero);
+		return dailyIncomeMultiplier * estimateTownIncome(ai->cb.get(), target, hero);
 	case Obj::MINE:
 	case Obj::ABANDONED_MINE:
 		return dailyIncomeMultiplier * (isGold ? 1000 : 75);
@@ -459,7 +457,7 @@ int32_t RewardEvaluator::getGoldReward(const CGObjectInstance * target, const CG
 	case Obj::SEA_CHEST:
 		return 1500;
 	case Obj::HERO:
-		return cb->getPlayerRelations(target->tempOwner, ai->playerID) == PlayerRelations::ENEMIES
+		return ai->cb->getPlayerRelations(target->tempOwner, ai->playerID) == PlayerRelations::ENEMIES
 			? heroEliminationBonus + enemyArmyEliminationGoldRewardRatio * getArmyCost(dynamic_cast<const CGHeroInstance *>(target))
 			: 0;
 	default:
@@ -550,7 +548,12 @@ public:
 
 class ExecuteHeroChainEvaluationContextBuilder : public IEvaluationContextBuilder
 {
+private:
+	const Nullkiller * ai;
+
 public:
+	ExecuteHeroChainEvaluationContextBuilder(const Nullkiller * ai) : ai(ai) {}
+
 	virtual void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
 	{
 		if(task->goalType != Goals::EXECUTE_HERO_CHAIN)
@@ -578,14 +581,14 @@ public:
 		}
 
 		auto heroPtr = task->hero;
-		auto day = cb->getDate(Date::DAY);
-		auto hero = heroPtr.get();
+		auto day = ai->cb->getDate(Date::DAY);
+		auto hero = heroPtr.get(ai->cb.get());
 		bool checkGold = evaluationContext.danger == 0;
 		auto army = path.heroArmy;
 
-		const CGObjectInstance * target = cb->getObj((ObjectInstanceID)task->objid, false);
+		const CGObjectInstance * target = ai->cb->getObj((ObjectInstanceID)task->objid, false);
 
-		if (target && cb->getPlayerRelations(target->tempOwner, hero->tempOwner) == PlayerRelations::ENEMIES)
+		if (target && ai->cb->getPlayerRelations(target->tempOwner, hero->tempOwner) == PlayerRelations::ENEMIES)
 		{
 			evaluationContext.goldReward += evaluationContext.evaluator.getGoldReward(target, hero);
 			evaluationContext.armyReward += evaluationContext.evaluator.getArmyReward(target, hero, army, checkGold);
@@ -603,7 +606,12 @@ public:
 
 class ClusterEvaluationContextBuilder : public IEvaluationContextBuilder
 {
+private:
+	const Nullkiller * ai;
+
 public:
+	ClusterEvaluationContextBuilder(const Nullkiller * ai) : ai(ai) {}
+
 	virtual void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
 	{
 		if(task->goalType != Goals::UNLOCK_CLUSTER)
@@ -627,7 +635,7 @@ public:
 		for(auto objInfo : objects)
 		{
 			auto target = objInfo.first;
-			auto day = cb->getDate(Date::DAY);
+			auto day = ai->cb->getDate(Date::DAY);
 			bool checkGold = objInfo.second.danger == 0;
 			auto army = hero;
 
@@ -709,9 +717,9 @@ PriorityEvaluator::PriorityEvaluator(const Nullkiller * ai)
 	:ai(ai)
 {
 	initVisitTile();
-	evaluationContextBuilders.push_back(std::make_shared<ExecuteHeroChainEvaluationContextBuilder>());
+	evaluationContextBuilders.push_back(std::make_shared<ExecuteHeroChainEvaluationContextBuilder>(ai));
 	evaluationContextBuilders.push_back(std::make_shared<BuildThisEvaluationContextBuilder>());
-	evaluationContextBuilders.push_back(std::make_shared<ClusterEvaluationContextBuilder>());
+	evaluationContextBuilders.push_back(std::make_shared<ClusterEvaluationContextBuilder>(ai));
 	evaluationContextBuilders.push_back(std::make_shared<HeroExchangeEvaluator>());
 	evaluationContextBuilders.push_back(std::make_shared<ArmyUpgradeEvaluator>());
 	evaluationContextBuilders.push_back(std::make_shared<DefendTownEvaluator>());
@@ -769,7 +777,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task)
 		closestHeroRatioVariable->setValue(evaluationContext.closestWayRatio);
 		strategicalValueVariable->setValue(evaluationContext.strategicalValue);
 		goldPreasureVariable->setValue(ai->buildAnalyzer->getGoldPreasure());
-		goldCostVariable->setValue(evaluationContext.goldCost / ((float)cb->getResourceAmount(Res::GOLD) + (float)ai->buildAnalyzer->getDailyIncome()[Res::GOLD] + 1.0f));
+		goldCostVariable->setValue(evaluationContext.goldCost / ((float)ai->cb->getResourceAmount(Res::GOLD) + (float)ai->buildAnalyzer->getDailyIncome()[Res::GOLD] + 1.0f));
 		turnVariable->setValue(evaluationContext.turn);
 		fearVariable->setValue(evaluationContext.enemyHeroDangerRatio);
 

@@ -19,10 +19,12 @@ struct ClusterObjectInfo
 	uint8_t turn;
 };
 
+typedef tbb::concurrent_hash_map<const CGObjectInstance *, ClusterObjectInfo> ClusterObjects;
+
 struct ObjectCluster
 {
 public:
-	std::map<const CGObjectInstance *, ClusterObjectInfo> objects;
+	ClusterObjects objects;
 	const CGObjectInstance * blocker;
 
 	void reset()
@@ -45,12 +47,14 @@ public:
 	const CGObjectInstance * calculateCenter() const;
 };
 
+typedef tbb::concurrent_hash_map<const CGObjectInstance *, std::shared_ptr<ObjectCluster>> ClusterMap;
+
 class ObjectClusterizer
 {
 private:
 	ObjectCluster nearObjects;
 	ObjectCluster farObjects;
-	std::map<const CGObjectInstance *, std::shared_ptr<ObjectCluster>> blockedObjects;
+	ClusterMap blockedObjects;
 	const Nullkiller * ai;
 
 public:
