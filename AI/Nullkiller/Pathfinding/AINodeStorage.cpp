@@ -120,7 +120,11 @@ boost::optional<AIPathNode *> AINodeStorage::getOrCreateNode(
 std::vector<CGPathNode *> AINodeStorage::getInitialNodes()
 {
 	if(heroChainPass)
+	{
+		calculateTownPortalTeleportations(heroChain);
+
 		return heroChain;
+	}
 
 	std::vector<CGPathNode *> initialNodes;
 
@@ -146,6 +150,8 @@ std::vector<CGPathNode *> AINodeStorage::getInitialNodes()
 			initialNode->locked = true;
 		}
 	}
+
+	calculateTownPortalTeleportations(initialNodes);
 
 	return initialNodes;
 }
@@ -185,7 +191,7 @@ void AINodeStorage::commit(CDestinationNodeInfo & destination, const PathNodeInf
 			dstNode->specialAction->applyOnDestination(dstNode->actor->hero, destination, source, dstNode, srcNode);
 		}
 
-#if VCMI_TRACE_PATHFINDER >= 2
+#if AI_TRACE_LEVEL >= 2
 		logAi->trace(
 			"Commited %s -> %s, cost: %f, hero: %s, mask: %x, army: %i", 
 			source.coord.toString(),
@@ -310,7 +316,7 @@ void AINodeStorage::calculateHeroChain(
 			continue;
 		}
 
-#if VCMI_TRACE_PATHFINDER >= 2
+#if AI_TRACE_LEVEL >= 2
 		logAi->trace(
 			"Thy exchange %s[%i] -> %s[%i] at %s",
 			node->actor->toString(),
@@ -335,7 +341,7 @@ void AINodeStorage::calculateHeroChain(
 		&& other->armyLoss < other->actor->armyValue
 		&& carrier->actor->canExchange(other->actor))
 	{
-#if VCMI_TRACE_PATHFINDER >= 2
+#if AI_TRACE_LEVEL >= 2
 		logAi->trace(
 			"Exchange allowed %s[%i] -> %s[%i] at %s",
 			other->actor->toString(),
@@ -352,7 +358,7 @@ void AINodeStorage::calculateHeroChain(
 
 			if(hasLessMp && hasLessExperience)
 			{
-#if VCMI_TRACE_PATHFINDER >= 2
+#if AI_TRACE_LEVEL >= 2
 				logAi->trace("Exchange at %s is ineficient. Blocked.", carrier->coord.toString());
 #endif
 				return;
@@ -376,7 +382,7 @@ void AINodeStorage::addHeroChain(const std::vector<ExchangeCandidate> & result)
 
 		if(!chainNodeOptional)
 		{
-#if VCMI_TRACE_PATHFINDER >= 2
+#if AI_TRACE_LEVEL >= 2
 			logAi->trace("Exchange at %s can not allocate node. Blocked.", carrier->coord.toString());
 #endif
 			continue;
@@ -386,7 +392,7 @@ void AINodeStorage::addHeroChain(const std::vector<ExchangeCandidate> & result)
 
 		if(exchangeNode->action != CGPathNode::ENodeAction::UNKNOWN)
 		{
-#if VCMI_TRACE_PATHFINDER >= 2
+#if AI_TRACE_LEVEL >= 2
 			logAi->trace("Exchange at %s node is already in use. Blocked.", carrier->coord.toString());
 #endif
 			continue;
@@ -394,7 +400,7 @@ void AINodeStorage::addHeroChain(const std::vector<ExchangeCandidate> & result)
 		
 		if(exchangeNode->turns != 0xFF && exchangeNode->cost < chainInfo.cost)
 		{
-#if VCMI_TRACE_PATHFINDER >= 2
+#if AI_TRACE_LEVEL >= 2
 			logAi->trace(
 				"Exchange at %s is is not effective enough. %f < %f", 
 				exchangeNode->coord.toString(), 
@@ -406,10 +412,16 @@ void AINodeStorage::addHeroChain(const std::vector<ExchangeCandidate> & result)
 
 		commit(exchangeNode, carrier, carrier->action, chainInfo.turns, chainInfo.moveRemains, chainInfo.cost);
 
+		if(carrier->specialAction || carrier->chainOther)
+		{
+			// there is some action on source tile which should be performed before we can bypass it
+			exchangeNode->theNodeBefore = carrier;
+		}
+
 		exchangeNode->chainOther = other;
 		exchangeNode->armyLoss = chainInfo.armyLoss;
 
-#if VCMI_TRACE_PATHFINDER >= 2
+#if AI_TRACE_LEVEL >= 2
 		logAi->trace(
 			"Chain accepted at %s %s -> %s, mask %x, cost %f, army %i", 
 			exchangeNode->coord.toString(), 
@@ -566,85 +578,120 @@ std::vector<CGPathNode *> AINodeStorage::calculateTeleportations(
 		}
 	}
 
-	if(source.isInitialPosition)
-	{
-		calculateTownPortalTeleportations(source, neighbours, pathfinderHelper);
-	}
-
 	return neighbours;
 }
 
-void AINodeStorage::calculateTownPortalTeleportations(
-	const PathNodeInfo & source,
-	std::vector<CGPathNode *> & neighbours,
-	const CPathfinderHelper * pathfinderHelper)
+void AINodeStorage::getBestInitialNodeForTownPortal()
+{
+
+}
+
+void AINodeStorage::calculateTownPortalTeleportations(std::vector<CGPathNode *> & initialNodes)
 {
 	SpellID spellID = SpellID::TOWN_PORTAL;
 	const CSpell * townPortal = spellID.toSpell();
-	auto srcNode = getAINode(source.node);
-	auto hero = srcNode->actor->hero;
 
-	if(hero->canCastThisSpell(townPortal) && hero->mana >= hero->getSpellCost(townPortal))
+	std::set<const ChainActor *> actorsOfInitial;
+
+	for(const CGPathNode * node : initialNodes)
 	{
-		auto towns = cb->getTownsInfo(false);
+		auto aiNode = getAINode(node);
 
-		vstd::erase_if(towns, [&](const CGTownInstance * t) -> bool
+		actorsOfInitial.insert(aiNode->actor->baseActor);
+	}
+
+	for(const ChainActor * actor : actorsOfInitial)
+	{
+		if(!actor->hero)
+			continue;
+
+		auto hero = actor->hero;
+
+		if(hero->canCastThisSpell(townPortal) && hero->mana >= hero->getSpellCost(townPortal))
 		{
-			return cb->getPlayerRelations(hero->tempOwner, t->tempOwner) == PlayerRelations::ENEMIES;
-		});
+			auto towns = cb->getTownsInfo(false);
 
-		if(!towns.size())
-		{
-			return;
-		}
-
-		// TODO: Copy/Paste from TownPortalMechanics
-		auto skillLevel = hero->getSpellSchoolLevel(townPortal);
-		auto movementNeeded = GameConstants::BASE_MOVEMENT_COST * (skillLevel >= 3 ? 2 : 3);
-		float movementCost = (float)movementNeeded / (float)pathfinderHelper->getMaxMovePoints(EPathfindingLayer::LAND);
-
-		movementCost += source.node->cost;
-
-		if(source.node->moveRemains < movementNeeded)
-		{
-			return;
-		}
-
-		if(skillLevel < SecSkillLevel::ADVANCED)
-		{
-			const CGTownInstance * nearestTown = *vstd::minElementByFun(towns, [&](const CGTownInstance * t) -> int
+			vstd::erase_if(towns, [&](const CGTownInstance * t) -> bool
 			{
-				return source.coord.dist2dSQ(t->visitablePos());
+				return cb->getPlayerRelations(hero->tempOwner, t->tempOwner) == PlayerRelations::ENEMIES;
 			});
 
-			towns = std::vector<const CGTownInstance *>{ nearestTown };
-		}
-
-		for(const CGTownInstance * targetTown : towns)
-		{
-			// TODO: allow to hide visiting hero in garrison
-			if(targetTown->visitingHero)
-				continue;
-
-			auto nodeOptional = getOrCreateNode(targetTown->visitablePos(), EPathfindingLayer::LAND, srcNode->actor->castActor);
-
-			if(nodeOptional)
+			if(!towns.size())
 			{
-#ifdef VCMI_TRACE_PATHFINDER
-				logAi->trace("Adding town portal node at %s", targetTown->name);
+				return; // no towns no need to run loop further
+			}
+
+			// TODO: Copy/Paste from TownPortalMechanics
+			auto skillLevel = hero->getSpellSchoolLevel(townPortal);
+			auto movementNeeded = GameConstants::BASE_MOVEMENT_COST * (skillLevel >= 3 ? 2 : 3);
+
+			for(const CGTownInstance * targetTown : towns)
+			{
+				CGPathNode * bestNode = nullptr;
+
+				for(CGPathNode * node : initialNodes)
+				{
+					auto aiNode = getAINode(node);
+
+					if(aiNode->actor->baseActor != actor
+						|| node->layer != EPathfindingLayer::LAND
+						|| node->moveRemains < movementNeeded)
+					{
+						continue;
+					}
+
+					if(skillLevel < SecSkillLevel::ADVANCED)
+					{
+						const CGTownInstance * nearestTown = *vstd::minElementByFun(towns, [&](const CGTownInstance * t) -> int
+						{
+							return node->coord.dist2dSQ(t->visitablePos());
+						});
+
+						if(targetTown != nearestTown)
+							continue;
+					}
+
+					if(!bestNode || bestNode->cost > node->cost)
+						bestNode = node;
+				}
+
+				if(!bestNode)
+					continue;
+
+				// TODO: allow to hide visiting hero in garrison
+				if(targetTown->visitingHero && targetTown->visitingHero != hero)
+					continue;
+
+				auto nodeOptional = getOrCreateNode(targetTown->visitablePos(), EPathfindingLayer::LAND, actor->castActor);
+
+				if(nodeOptional)
+				{
+					float movementCost = (float)movementNeeded / (float)hero->maxMovePoints(EPathfindingLayer::LAND);
+
+					movementCost += bestNode->cost;
+
+#ifdef AI_TRACE_LEVEL >= 1
+					logAi->trace("Adding town portal node at %s", targetTown->name);
 #endif
 
-				AIPathNode * node = nodeOptional.get();
+					AIPathNode * node = nodeOptional.get();
 
-				if(node->action == CGPathNode::UNKNOWN || node->cost > movementCost)
-				{
-					node->theNodeBefore = source.node;
-					node->specialAction.reset(new AIPathfinding::TownPortalAction(targetTown));
-					node->moveRemains = source.node->moveRemains + movementNeeded;
-					node->cost = movementCost;
+					if(node->action == CGPathNode::UNKNOWN || node->cost > movementCost)
+					{
+						commit(
+							node,
+							getAINode(bestNode),
+							CGPathNode::TELEPORT_NORMAL,
+							bestNode->turns,
+							bestNode->moveRemains - movementNeeded,
+							movementCost);
+
+						node->theNodeBefore = bestNode;
+						node->specialAction.reset(new AIPathfinding::TownPortalAction(targetTown));
+					}
+
+					initialNodes.push_back(node);
 				}
-				
-				neighbours.push_back(node);
 			}
 		}
 	}
@@ -679,7 +726,7 @@ bool AINodeStorage::hasBetterChain(
 		{
 			if(node.cost < candidateNode->cost)
 			{
-#ifdef VCMI_TRACE_PATHFINDER
+#ifdef AI_TRACE_LEVEL >= 1
 				logAi->trace(
 					"Block ineficient move %s:->%s, mask=%i, mp diff: %i",
 					source->coord.toString(),
