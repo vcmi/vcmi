@@ -51,12 +51,12 @@ private:
 	static SecondarySkillEvaluator wariorSkillsScores;
 	static SecondarySkillEvaluator scountSkillsScores;
 
-	CPlayerSpecificInfoCallback * cb; //this is enough, but we downcast from CCallback
+	CCallback * cb; //this is enough, but we downcast from CCallback
 	const Nullkiller * ai;
 	std::map<HeroPtr, HeroRole> heroRoles;
 
 public:
-	HeroManager(CPlayerSpecificInfoCallback * CB, const Nullkiller * ai) : cb(CB), ai(ai) {}
+	HeroManager(CCallback * CB, const Nullkiller * ai) : cb(CB), ai(ai) {}
 	const std::map<HeroPtr, HeroRole> & getHeroRoles() const override;
 	HeroRole getHeroRole(const HeroPtr & hero) const override;
 	int selectBestSkill(const HeroPtr & hero, const std::vector<SecondarySkill> & skills) const override;

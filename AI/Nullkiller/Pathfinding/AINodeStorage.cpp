@@ -19,13 +19,30 @@
 #include "../../../lib/PathfinderUtil.h"
 #include "../../../lib/CPlayerState.h"
 
-/// 1-3 - position on map, 4 - layer (air, water, land), 5 - chain (normal, battle, spellcast and combinations)
-boost::multi_array<AIPathNode, 5> nodes;
+std::shared_ptr<boost::multi_array<AIPathNode, 5>> AISharedStorage::shared;
+
+AISharedStorage::AISharedStorage(int3 sizes)
+{
+	if(!shared){
+		shared.reset(new boost::multi_array<AIPathNode, 5>(
+			boost::extents[sizes.x][sizes.y][sizes.z][EPathfindingLayer::NUM_LAYERS][AINodeStorage::NUM_CHAINS]));
+	}
+
+	nodes = shared;
+}
+
+AISharedStorage::~AISharedStorage()
+{
+	nodes.reset();
+	if(shared && shared.use_count() == 1)
+	{
+		shared.reset();
+	}
+}
 
 AINodeStorage::AINodeStorage(const Nullkiller * ai, const int3 & Sizes)
-	: sizes(Sizes), ai(ai), cb(ai->cb.get())
+	: sizes(Sizes), ai(ai), cb(ai->cb.get()), nodes(Sizes)
 {
-	nodes.resize(boost::extents[sizes.x][sizes.y][sizes.z][EPathfindingLayer::NUM_LAYERS][NUM_CHAINS]);
 	dangerEvaluator.reset(new FuzzyHelper(ai));
 }
 
@@ -104,9 +121,7 @@ boost::optional<AIPathNode *> AINodeStorage::getOrCreateNode(
 	const EPathfindingLayer layer, 
 	const ChainActor * actor)
 {
-	auto chains = nodes[pos.x][pos.y][pos.z][layer];
-
-	for(AIPathNode & node : chains)
+	for(AIPathNode & node : nodes.get(pos, layer))
 	{
 		if(node.actor == actor)
 		{
@@ -165,10 +180,8 @@ std::vector<CGPathNode *> AINodeStorage::getInitialNodes()
 
 void AINodeStorage::resetTile(const int3 & coord, EPathfindingLayer layer, CGPathNode::EAccessibility accessibility)
 {
-	for(int i = 0; i < NUM_CHAINS; i++)
+	for(AIPathNode & heroNode : nodes.get(coord, layer))
 	{
-		AIPathNode & heroNode = nodes[coord.x][coord.y][coord.z][layer][i];
-
 		heroNode.actor = nullptr;
 		heroNode.danger = 0;
 		heroNode.manaCost = 0;
@@ -279,7 +292,7 @@ bool AINodeStorage::calculateHeroChainFinal()
 	{
 		foreach_tile_pos([&](const int3 & pos)
 		{
-			auto chains = nodes[pos.x][pos.y][pos.z][layer];
+			auto chains = nodes.get(pos, layer);
 
 			for(AIPathNode & node : chains)
 			{
@@ -313,7 +326,7 @@ bool AINodeStorage::calculateHeroChain()
 	{
 		foreach_tile_pos([&](const int3 & pos)
 		{
-			auto chains = nodes[pos.x][pos.y][pos.z][layer];
+			auto chains = nodes.get(pos, layer);
 
 			existingChains.resize(0);
 			newChains.resize(0);
@@ -394,7 +407,7 @@ void AINodeStorage::cleanupInefectiveChains(std::vector<ExchangeCandidate> & res
 	vstd::erase_if(result, [&](const ExchangeCandidate & chainInfo) -> bool
 	{
 		auto pos = chainInfo.coord;
-		auto chains = nodes[pos.x][pos.y][pos.z][EPathfindingLayer::LAND];
+		auto chains = nodes.get(pos, EPathfindingLayer::LAND);
 
 		return hasBetterChain(chainInfo.carrierParent, &chainInfo, chains)
 			|| hasBetterChain(chainInfo.carrierParent, &chainInfo, result);
@@ -910,7 +923,7 @@ void AINodeStorage::calculateTownPortalTeleportations(std::vector<CGPathNode *> 
 bool AINodeStorage::hasBetterChain(const PathNodeInfo & source, CDestinationNodeInfo & destination) const
 {
 	auto pos = destination.coord;
-	auto chains = nodes[pos.x][pos.y][pos.z][EPathfindingLayer::LAND];
+	auto chains = nodes.get(pos, EPathfindingLayer::LAND);
 
 	return hasBetterChain(source.node, getAINode(destination.node), chains);
 }
@@ -950,7 +963,7 @@ bool AINodeStorage::hasBetterChain(
 			}
 		}
 
-		if(candidateActor->chainMask != node.actor->chainMask && heroChainPass == EHeroChainPass::CHAIN)
+		if(candidateActor->chainMask != node.actor->chainMask && heroChainPass != EHeroChainPass::FINAL)
 			continue;
 
 		auto nodeActor = node.actor;
@@ -1006,7 +1019,7 @@ bool AINodeStorage::hasBetterChain(
 
 bool AINodeStorage::isTileAccessible(const HeroPtr & hero, const int3 & pos, const EPathfindingLayer layer) const
 {
-	auto chains = nodes[pos.x][pos.y][pos.z][layer];
+	auto chains = nodes.get(pos, layer);
 
 	for(const AIPathNode & node : chains)
 	{
@@ -1026,7 +1039,7 @@ std::vector<AIPath> AINodeStorage::getChainInfo(const int3 & pos, bool isOnLand)
 
 	paths.reserve(NUM_CHAINS / 4);
 
-	auto chains = nodes[pos.x][pos.y][pos.z][isOnLand ? EPathfindingLayer::LAND : EPathfindingLayer::SAIL];
+	auto chains = nodes.get(pos, isOnLand ? EPathfindingLayer::LAND : EPathfindingLayer::SAIL);
 
 	for(const AIPathNode & node : chains)
 	{
@@ -1074,10 +1087,13 @@ void AINodeStorage::fillChainInfo(const AIPathNode * node, AIPath & path, int pa
 			pathNode.danger = node->danger;
 			pathNode.coord = node->coord;
 			pathNode.parentIndex = parentIndex;
+			pathNode.actionIsBlocked = false;
 
 			if(pathNode.specialAction)
 			{
-				pathNode.actionIsBlocked = !pathNode.specialAction->canAct(node);
+				auto targetNode =node->theNodeBefore ?  getAINode(node->theNodeBefore) : node;
+
+				pathNode.actionIsBlocked = !pathNode.specialAction->canAct(targetNode);
 			}
 
 			parentIndex = path.nodes.size();

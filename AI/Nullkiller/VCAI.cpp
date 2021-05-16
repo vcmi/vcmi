@@ -343,6 +343,9 @@ void VCAI::objectRemoved(const CGObjectInstance * obj)
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 
+	if(!nullkiller) // crash protection
+		return;
+
 	nullkiller->memory->removeFromMemory(obj);
 
 	if(obj->ID == Obj::HERO && obj->tempOwner == playerID)
@@ -440,6 +443,9 @@ void VCAI::objectPropertyChanged(const SetObjectProperty * sop)
 	{
 		auto relations = myCb->getPlayerRelations(playerID, (PlayerColor)sop->val);
 		auto obj = myCb->getObj(sop->id, false);
+
+		if(!nullkiller) // crash protection
+			return;
 
 		if(obj)
 		{
@@ -1446,6 +1452,8 @@ void VCAI::finish()
 		makingTurn->join();
 		makingTurn.reset();
 	}
+
+	nullkiller.reset();
 }
 
 void VCAI::requestActionASAP(std::function<void()> whatToDo)

@@ -122,12 +122,16 @@ const CGObjectInstance * ObjectClusterizer::getBlocker(const AIPath & path) cons
 			|| blocker->ID == Obj::MONSTER
 			|| blocker->ID == Obj::GARRISON2
 			|| blocker->ID == Obj::BORDERGUARD
-			|| blocker->ID == Obj::QUEST_GUARD
 			|| blocker->ID == Obj::BORDER_GATE
 			|| blocker->ID == Obj::SHIPYARD)
 		{
 			if(!isObjectPassable(blocker))
 				return blocker;
+		}
+
+		if(blocker->ID == Obj::QUEST_GUARD && node->actionIsBlocked)
+		{
+			return blocker;
 		}
 	}
 
@@ -179,13 +183,25 @@ void ObjectClusterizer::clusterize()
 	blockedObjects.clear();
 
 	Obj ignoreObjects[] = {
-		Obj::MONSTER,
-		Obj::SIGN,
-		Obj::REDWOOD_OBSERVATORY,
-		Obj::MONOLITH_TWO_WAY,
+		Obj::BOAT,
+		Obj::EYE_OF_MAGI,
 		Obj::MONOLITH_ONE_WAY_ENTRANCE,
 		Obj::MONOLITH_ONE_WAY_EXIT,
-		Obj::BUOY
+		Obj::MONOLITH_TWO_WAY,
+		Obj::SUBTERRANEAN_GATE,
+		Obj::WHIRLPOOL,
+		Obj::BUOY,
+		Obj::SIGN,
+		Obj::SIGN,
+		Obj::GARRISON,
+		Obj::MONSTER,
+		Obj::GARRISON2,
+		Obj::BORDERGUARD,
+		Obj::QUEST_GUARD,
+		Obj::BORDER_GATE,
+		Obj::REDWOOD_OBSERVATORY,
+		Obj::CARTOGRAPHER,
+		Obj::PILLAR_OF_FIRE
 	};
 
 	logAi->debug("Begin object clusterization");
@@ -195,10 +211,19 @@ void ObjectClusterizer::clusterize()
 		if(!shouldVisitObject(obj))
 			continue;
 
+#if AI_TRACE_LEVEL >= 2
+		logAi->trace("Check object %s%s.", obj->getObjectName(), obj->visitablePos().toString());
+#endif
+
 		auto paths = ai->pathfinder->getPathInfo(obj->visitablePos());
 
 		if(paths.empty())
+		{
+#if AI_TRACE_LEVEL >= 2
+			logAi->trace("No paths found.");
+#endif
 			continue;
+		}
 
 		std::sort(paths.begin(), paths.end(), [](const AIPath & p1, const AIPath & p2) -> bool
 		{
@@ -209,19 +234,29 @@ void ObjectClusterizer::clusterize()
 		{
 			farObjects.addObject(obj, paths.front(), 0);
 
+#if AI_TRACE_LEVEL >= 2
+			logAi->trace("Object ignored. Moved to far objects with path %s", paths.front().toString());
+#endif
+
 			continue;
 		}
 		
-		bool added = false;
 		bool directlyAccessible = false;
 		std::set<const CGHeroInstance *> heroesProcessed;
 
 		for(auto & path : paths)
 		{
-			if(vstd::contains(heroesProcessed, path.targetHero))
-				continue;
+#if AI_TRACE_LEVEL >= 2
+			logAi->trace("Checking path %s", path.toString());
+#endif
 
-			heroesProcessed.insert(path.targetHero);
+			if(!shouldVisit(path.targetHero, obj))
+			{
+#if AI_TRACE_LEVEL >= 2
+				logAi->trace("Hero %s does not need to visit %s", path.targetHero->name, obj->getObjectName());
+#endif
+				continue;
+			}
 
 			if(path.nodes.size() > 1)
 			{
@@ -229,6 +264,16 @@ void ObjectClusterizer::clusterize()
 
 				if(blocker)
 				{
+					if(vstd::contains(heroesProcessed, path.targetHero))
+					{
+	#if AI_TRACE_LEVEL >= 2
+						logAi->trace("Hero %s is already processed.", path.targetHero->name);
+	#endif
+						continue;
+					}
+
+					heroesProcessed.insert(path.targetHero);
+
 					auto cluster = blockedObjects[blocker];
 
 					if(!cluster)
@@ -237,33 +282,63 @@ void ObjectClusterizer::clusterize()
 						blockedObjects[blocker] = cluster;
 					}
 
-					if(!vstd::contains(cluster->objects, obj))
-					{
-						float priority = ai->priorityEvaluator->evaluate(Goals::sptr(Goals::ExecuteHeroChain(path, obj)));
+					float priority = ai->priorityEvaluator->evaluate(Goals::sptr(Goals::ExecuteHeroChain(path, obj)));
 
-						cluster->addObject(obj, path, priority);
+					if(priority < MIN_PRIORITY)
+						continue;
 
-						added = true;
-					}
+					cluster->addObject(obj, path, priority);
+
+#if AI_TRACE_LEVEL >= 2
+					logAi->trace("Path added to cluster %s%s", blocker->getObjectName(), blocker->visitablePos().toString());
+#endif
+				}
+				else
+				{
+					directlyAccessible = true;
 				}
 			}
 			else
 			{
 				directlyAccessible = true;
 			}
+			
+			heroesProcessed.insert(path.targetHero);
 		}
 
-		if(!added || directlyAccessible)
+		if(directlyAccessible)
 		{
 			AIPath & shortestPath = paths.front();
 			float priority = ai->priorityEvaluator->evaluate(Goals::sptr(Goals::ExecuteHeroChain(shortestPath, obj)));
 
-			if(shortestPath.turn() <= 2 || priority > 0.6f)
-				nearObjects.addObject(obj, shortestPath, 0);
+			if(priority < MIN_PRIORITY)
+				continue;
+
+			bool interestingObject = shortestPath.turn() <= 2 || priority > 0.5f;
+
+			if(interestingObject)
+			{
+				nearObjects.addObject(obj, shortestPath, priority);
+			}
 			else
-				farObjects.addObject(obj, shortestPath, 0);
+			{
+				farObjects.addObject(obj, shortestPath, priority);
+			}
+
+#if AI_TRACE_LEVEL >= 2
+			logAi->trace("Path %s added to %s objects. Turn: %d, priority: %f",
+				shortestPath.toString(),
+				interestingObject ? "near" : "far",
+				shortestPath.turn(),
+				priority);
+#endif
 		}
 	}
+
+	vstd::erase_if(blockedObjects, [](std::pair<const CGObjectInstance *, std::shared_ptr<ObjectCluster>> pair) -> bool
+	{
+		return pair.second->objects.empty();
+	});
 
 	logAi->trace("Near objects count: %i", nearObjects.objects.size());
 	logAi->trace("Far objects count: %i", farObjects.objects.size());

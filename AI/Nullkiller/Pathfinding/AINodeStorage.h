@@ -12,6 +12,7 @@
 
 #define PATHFINDER_TRACE_LEVEL 0
 #define AI_TRACE_LEVEL 0
+#define SCOUT_TURN_DISTANCE_LIMIT 3
 
 #include "../../../lib/CPathfinder.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
@@ -101,6 +102,28 @@ enum EHeroChainPass
 	FINAL // same as SINGLE but for heroes from CHAIN pass
 };
 
+class AISharedStorage
+{
+	/// 1-3 - position on map, 4 - layer (air, water, land), 5 - chain (normal, battle, spellcast and combinations)
+	static std::shared_ptr<boost::multi_array<AIPathNode, 5>> shared;
+	std::shared_ptr<boost::multi_array<AIPathNode, 5>> nodes;
+public:
+	AISharedStorage(int3 mapSize);
+	~AISharedStorage();
+
+	/*STRONG_INLINE
+	boost::detail::multi_array::sub_array<AIPathNode, 1> get(int3 tile, EPathfindingLayer layer)
+	{
+		return (*nodes)[tile.x][tile.y][tile.z][layer];
+	}*/
+
+	STRONG_INLINE
+	boost::detail::multi_array::sub_array<AIPathNode, 1> get(int3 tile, EPathfindingLayer layer) const
+	{
+		return (*nodes)[tile.x][tile.y][tile.z][layer];
+	}
+};
+
 class AINodeStorage : public INodeStorage
 {
 private:
@@ -109,6 +132,7 @@ private:
 	const CPlayerSpecificInfoCallback * cb;
 	const Nullkiller * ai;
 	std::unique_ptr<FuzzyHelper> dangerEvaluator;
+	AISharedStorage nodes;
 	std::vector<std::shared_ptr<ChainActor>> actors;
 	std::vector<CGPathNode *> heroChain;
 	EHeroChainPass heroChainPass; // true if we need to calculate hero chain

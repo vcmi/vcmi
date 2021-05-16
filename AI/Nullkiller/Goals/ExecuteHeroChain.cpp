@@ -20,7 +20,7 @@ extern boost::thread_specific_ptr<VCAI> ai;
 using namespace Goals;
 
 ExecuteHeroChain::ExecuteHeroChain(const AIPath & path, const CGObjectInstance * obj)
-	:ElementarGoal(Goals::EXECUTE_HERO_CHAIN), chainPath(path)
+	:ElementarGoal(Goals::EXECUTE_HERO_CHAIN), chainPath(path), closestWayRatio(1)
 {
 	hero = path.targetHero;
 	tile = path.targetTile();

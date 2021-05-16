@@ -42,12 +42,13 @@ TGoalVec CompleteQuest::decompose() const
 	}
 
 	return solutions;*/
-	logAi->debug("Trying to realize quest: %s", questToString());
 
 	if(q.obj && (q.obj->ID == Obj::BORDER_GATE || q.obj->ID == Obj::BORDERGUARD))
 	{
 		return missionKeymaster();
 	}
+
+	logAi->debug("Trying to realize quest: %s", questToString());
 
 	switch(q.quest->missionType)
 	{
@@ -107,7 +108,7 @@ TGoalVec CompleteQuest::tryCompleteQuest() const
 {
 	TGoalVec solutions;
 
-	auto tasks = CaptureObjectsBehavior(q.obj).decompose(); //TODO: choose best / free hero from among many possibilities?
+	auto tasks = CaptureObjectsBehavior(q.obj).decompose();
 
 	for(auto task : tasks)
 	{
@@ -177,14 +178,14 @@ TGoalVec CompleteQuest::missionLevel() const
 
 TGoalVec CompleteQuest::missionKeymaster() const
 {
-	TGoalVec solutions = tryCompleteQuest();
-
-	if(solutions.empty())
+	if(isObjectPassable(q.obj))
+	{
+		return CaptureObjectsBehavior(q.obj).decompose();
+	}
+	else
 	{
 		return CaptureObjectsBehavior().ofType(Obj::KEYMASTER, q.obj->subID).decompose();
 	}
-
-	return solutions;
 }
 
 TGoalVec CompleteQuest::missionResources() const
