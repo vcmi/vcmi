@@ -56,7 +56,7 @@ Goals::TGoalVec CaptureObjectsBehavior::getTasks()
 			std::shared_ptr<ExecuteHeroChain> closestWay;
 					
 #ifdef VCMI_TRACE_PATHFINDER
-			logAi->trace("Found %" PRId32 "paths", paths.size());
+			logAi->trace("Found %d paths", paths.size());
 #endif
 
 			for(auto & path : paths)
@@ -82,7 +82,7 @@ Goals::TGoalVec CaptureObjectsBehavior::getTasks()
 				
 #ifdef VCMI_TRACE_PATHFINDER
 				logAi->trace(
-					"It is %s to visit %s by %s with army %" PRId64 ", danger %" PRId64 " and army loss %" PRId64, 
+					"It is %s to visit %s by %s with army %lld, danger %lld and army loss %lld", 
 					isSafe ? "safe" : "not safe",
 					objToVisit->instanceName, 
 					hero->name,

@@ -74,7 +74,7 @@ void ExecuteHeroChain::accept(VCAI * ai)
 			continue;
 		}
 
-		logAi->debug("Executing chain node %" PRId32 ". Moving hero %s to %s", i, hero.name, node.coord.toString());
+		logAi->debug("Executing chain node %d. Moving hero %s to %s", i, hero.name, node.coord.toString());
 
 		try
 		{

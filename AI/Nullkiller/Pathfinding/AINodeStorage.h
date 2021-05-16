@@ -10,7 +10,7 @@
 
 #pragma once
 
-#define VCMI_TRACE_PATHFINDER 0
+#undef VCMI_TRACE_PATHFINDER
 
 #include "../../../lib/CPathfinder.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
@@ -19,7 +19,6 @@
 #include "../Goals/AbstractGoal.h"
 #include "Actions/ISpecialAction.h"
 #include "Actors.h"
-#include <inttypes.h>
 
 struct AIPathNode : public CGPathNode
 {
