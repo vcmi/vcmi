@@ -30,8 +30,16 @@ ExecuteHeroChain::ExecuteHeroChain(const AIPath & path, const CGObjectInstance *
 	evaluationContext.movementCost = path.movementCost();
 	evaluationContext.armyLoss = path.getTotalArmyLoss();
 	evaluationContext.heroStrength = path.getHeroStrength();
+
 	hero = path.targetHero;
 	tile = path.targetTile();
+
+	for(auto & node : path.nodes)
+	{
+		auto role = ai->ah->getHeroRole(node.targetHero);
+
+		evaluationContext.movementCostByRole[role] += node.cost;
+	}
 
 	if(obj)
 	{

@@ -18,13 +18,6 @@
 #include "../../lib/CBuildingHandler.h"
 #include "VCAI.h"
 
-enum HeroRole
-{
-	MAIN,
-
-	SCOUT
-};
-
 class DLL_EXPORT IHeroManager //: public: IAbstractManager
 {
 public:
