@@ -744,10 +744,11 @@ void VCAI::makeTurn()
 		}
 	}
 
+	cb->sendMessage("vcmieagles");
+
 	if(cb->getDate(Date::DAY) == 1)
 	{
 		retrieveVisitableObjs();
-		cb->sendMessage("vcmieagles");
 	}
 
 	try

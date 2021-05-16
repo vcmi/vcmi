@@ -45,6 +45,14 @@ namespace AIPathfinding
 			return;
 		}
 
+#if PATHFINDER_TRACE_LEVEL >= 2
+		logAi->trace(
+			"Movement from tile %s is blocked. Try to bypass. Action: %d, blocker: %d",
+			destination.coord.toString(),
+			(int)destination.action,
+			(int)blocker);
+#endif
+
 		auto destGuardians = cb->getGuardingCreatures(destination.coord);
 		bool allowBypass = false;
 
@@ -56,7 +64,15 @@ namespace AIPathfinding
 			break;
 
 		case BlockingReason::DESTINATION_BLOCKVIS:
-			allowBypass = destination.nodeObject && bypassRemovableObject(source, destination, pathfinderConfig, pathfinderHelper);
+			if(destination.nodeHero && destination.heroRelations != PlayerRelations::ENEMIES)
+			{
+				allowBypass = destination.heroRelations == PlayerRelations::SAME_PLAYER
+					&& destination.nodeHero == nodeStorage->getHero(destination.node);
+			}
+			else
+			{
+				allowBypass = destination.nodeObject && bypassRemovableObject(source, destination, pathfinderConfig, pathfinderHelper);
+			}
 			
 			if(allowBypass && destGuardians.size())
 				allowBypass = bypassDestinationGuards(destGuardians, source, destination, pathfinderConfig, pathfinderHelper);
