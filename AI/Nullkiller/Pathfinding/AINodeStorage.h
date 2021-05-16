@@ -10,7 +10,7 @@
 
 #pragma once
 
-#undef VCMI_TRACE_PATHFINDER
+#define VCMI_TRACE_PATHFINDER 1
 
 #include "../../../lib/CPathfinder.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
@@ -50,6 +50,7 @@ struct AIPath
 	const CGHeroInstance * targetHero;
 	const CCreatureSet * heroArmy;
 	uint64_t chainMask;
+	uint8_t exchangeCount;
 
 	AIPath();
 

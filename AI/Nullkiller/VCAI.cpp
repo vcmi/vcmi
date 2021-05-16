@@ -603,7 +603,7 @@ void VCAI::init(std::shared_ptr<CCallback> CB)
 	if(!fh)
 		fh = new FuzzyHelper();
 
-	if(playerID.getStr(false) == "blue")
+	if(playerID.getStr(false) == "red")
 	{
 		nullkiller.reset(new Nullkiller());
 	}
@@ -2823,17 +2823,23 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 	{
 		if(obj->tempOwner != h->tempOwner)
 			return true; //flag just in case
-		bool canRecruitCreatures = false;
+
 		const CGDwelling * d = dynamic_cast<const CGDwelling *>(obj);
+
 		for(auto level : d->creatures)
 		{
 			for(auto c : level.second)
 			{
-				if(h->getSlotFor(CreatureID(c)) != SlotID())
-					canRecruitCreatures = true;
+				if(level.first
+					&& h->getSlotFor(CreatureID(c)) != SlotID()
+					&& cb->getResourceAmount().canAfford(c.toCreature()->cost))
+				{
+					return true;
+				}
 			}
 		}
-		return canRecruitCreatures;
+
+		return false;
 	}
 	case Obj::HILL_FORT:
 	{

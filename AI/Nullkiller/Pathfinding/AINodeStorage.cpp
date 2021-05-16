@@ -331,6 +331,7 @@ void AINodeStorage::calculateHeroChain(
 {	
 	if(carrier->armyLoss < carrier->actor->armyValue
 		&& (carrier->action != CGPathNode::BATTLE || (carrier->actor->allowBattle && carrier->specialAction))
+		&& carrier->action != CGPathNode::BLOCKING_VISIT
 		&& other->armyLoss < other->actor->armyValue
 		&& carrier->actor->canExchange(other->actor))
 	{
@@ -745,6 +746,7 @@ std::vector<AIPath> AINodeStorage::getChainInfo(const int3 & pos, bool isOnLand)
 		path.armyLoss = node.armyLoss;
 		path.targetObjectDanger = evaluateDanger(pos, path.targetHero);
 		path.chainMask = node.actor->chainMask;
+		path.exchangeCount = node.actor->actorExchangeCount;
 		
 		fillChainInfo(&node, path, -1);
 
