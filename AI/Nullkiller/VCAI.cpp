@@ -70,6 +70,7 @@ VCAI::~VCAI()
 {
 	LOG_TRACE(logAi);
 	finish();
+	nullkiller.reset();
 }
 
 void VCAI::availableCreaturesChanged(const CGDwelling * town)
@@ -1485,8 +1486,6 @@ void VCAI::finish()
 		makingTurn->join();
 		makingTurn.reset();
 	}
-
-	nullkiller.reset();
 }
 
 void VCAI::requestActionASAP(std::function<void()> whatToDo)
