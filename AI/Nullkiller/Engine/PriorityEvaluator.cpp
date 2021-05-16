@@ -20,8 +20,8 @@
 #include "../../../CCallback.h"
 #include "../../../lib/filesystem/Filesystem.h"
 #include "../Goals/ExecuteHeroChain.h"
-#include "../Markers/UnlockCluster.h"
 #include "../Goals/BuildThis.h"
+#include "../Markers/UnlockCluster.h"
 #include "../Markers/HeroExchange.h"
 #include "../Markers/ArmyUpgrade.h"
 #include "../Markers/DefendTown.h"
@@ -388,17 +388,22 @@ float RewardEvaluator::getSkillReward(const CGObjectInstance * target, const CGH
 	}
 }
 
-uint64_t RewardEvaluator::getEnemyHeroDanger(const AIPath & path) const
+uint64_t RewardEvaluator::getEnemyHeroDanger(const int3 & tile, uint8_t turn) const
 {
-	auto & treatNode = ai->dangerHitMap->getTileTreat(path.targetTile());
+	auto & treatNode = ai->dangerHitMap->getTileTreat(tile);
 
 	if(treatNode.maximumDanger.danger == 0)
 		return 0;
-	
-	if(treatNode.maximumDanger.turn <= path.turn())
+
+	if(treatNode.maximumDanger.turn <= turn)
 		return treatNode.maximumDanger.danger;
 
-	return treatNode.fastestDanger.turn <= path.turn() ? treatNode.fastestDanger.danger : 0;
+	return treatNode.fastestDanger.turn <= turn ? treatNode.fastestDanger.danger : 0;
+}
+
+uint64_t RewardEvaluator::getEnemyHeroDanger(const AIPath & path) const
+{
+	return getEnemyHeroDanger(path.targetTile(), path.turn());
 }
 
 int32_t getArmyCost(const CArmedInstance * army)
@@ -536,6 +541,10 @@ public:
 		evaluationContext.armyReward += armyIncome * multiplier;
 		evaluationContext.goldReward += dailyIncome * 5 * multiplier;
 		evaluationContext.strategicalValue += strategicalValue * multiplier;
+		vstd::amax(evaluationContext.danger, defendTown.getTreat().danger);
+
+		auto enemyDanger = evaluationContext.evaluator.getEnemyHeroDanger(town->visitablePos(), defendTown.getTurn());
+		vstd::amax(evaluationContext.enemyHeroDangerRatio, enemyDanger / (double)defendTown.getDefenceStrength());
 	}
 };
 
@@ -773,7 +782,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task)
 		logAi->error("evaluate VisitTile: %s", fe.getWhat());
 	}
 
-#ifdef AI_TRACE_LEVEL >= 2
+#if AI_TRACE_LEVEL >= 2
 	logAi->trace("Evaluated %s, loss: %f, turn: %d, turns main: %f, scout: %f, gold: %d, cost: %d, army gain: %d, danger: %d, role: %s, strategical value: %f, cwr: %f, fear: %f, result %f",
 		task->toString(),
 		evaluationContext.armyLossPersentage,
