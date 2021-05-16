@@ -15,8 +15,8 @@
 #include "../Goals/ExecuteHeroChain.h"
 #include "CaptureObjectsBehavior.h"
 #include "../AIUtility.h"
-#include "lib/mapping/CMap.h" //for victory conditions
-#include "lib/CPathfinder.h"
+#include "../../../lib/mapping/CMap.h" //for victory conditions
+#include "../../../lib/CPathfinder.h"
 
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<VCAI> ai;

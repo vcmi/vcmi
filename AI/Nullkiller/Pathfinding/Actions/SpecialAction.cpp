@@ -8,8 +8,7 @@
 *
 */
 
-#pragma once
-
+#include "StdInc.h"
 #include "SpecialAction.h"
 #include "../../VCAI.h"
 #include "../../Goals/CGoal.h"

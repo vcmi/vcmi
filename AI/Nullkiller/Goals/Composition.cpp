@@ -96,7 +96,7 @@ TGoalVec Composition::decompose() const
 	return result;
 }
 
-Composition & Composition::addNext(AbstractGoal & goal)
+Composition & Composition::addNext(const AbstractGoal & goal)
 {
 	return addNext(sptr(goal));
 }
