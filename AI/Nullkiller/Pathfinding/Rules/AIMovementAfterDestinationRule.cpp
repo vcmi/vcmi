@@ -11,6 +11,7 @@
 #include "AIMovementAfterDestinationRule.h"
 #include "../Actions/BattleAction.h"
 #include "../../Goals/Invalid.h"
+#include "AIPreviousNodeRule.h"
 
 namespace AIPathfinding
 {
@@ -94,17 +95,9 @@ namespace AIPathfinding
 		const PathfinderConfig * pathfinderConfig,
 		CPathfinderHelper * pathfinderHelper) const
 	{
-		auto enemyHero = destination.nodeHero && destination.heroRelations == PlayerRelations::ENEMIES;
-
-		if(!enemyHero && !isObjectRemovable(destination.nodeObject))
-		{
-			if(nodeStorage->getHero(destination.node) == destination.nodeHero)
-				return true;
-
-			return false;
-		}
-
-		if(destination.nodeObject->ID == Obj::QUEST_GUARD || destination.nodeObject->ID == Obj::BORDERGUARD)
+		if(destination.nodeObject->ID == Obj::QUEST_GUARD
+			|| destination.nodeObject->ID == Obj::BORDERGUARD
+			|| destination.nodeObject->ID == Obj::BORDER_GATE)
 		{
 			auto questObj = dynamic_cast<const IQuestObject *>(destination.nodeObject);
 			auto nodeHero = pathfinderHelper->hero;
@@ -119,6 +112,18 @@ namespace AIPathfinding
 					node->specialAction.reset(new QuestAction(questInfo));
 				});
 			}
+
+			return true;
+		}
+
+		auto enemyHero = destination.nodeHero && destination.heroRelations == PlayerRelations::ENEMIES;
+
+		if(!enemyHero && !isObjectRemovable(destination.nodeObject))
+		{
+			if(nodeStorage->getHero(destination.node) == destination.nodeHero)
+				return true;
+
+			return false;
 		}
 
 		return true;
@@ -213,12 +218,9 @@ namespace AIPathfinding
 
 			vstd::amax(battleNode->danger, danger);
 
-			battleNode->specialAction = std::make_shared<BattleAction>(destination.coord);
+			AIPreviousNodeRule(nodeStorage).process(source, destination, pathfinderConfig, pathfinderHelper);
 
-			if(source.nodeObject && isObjectRemovable(source.nodeObject))
-			{
-				battleNode->theNodeBefore = source.node;
-			}
+			battleNode->specialAction = std::make_shared<BattleAction>(destination.coord);
 
 #ifdef VCMI_TRACE_PATHFINDER
 			logAi->trace(
