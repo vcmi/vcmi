@@ -69,7 +69,7 @@ void ExchangeSwapTownHeroes::accept(VCAI * ai)
 	if(town->visitingHero && town->visitingHero.get() != garrisonHero)
 		cb->swapGarrisonHero(town);
 
-	makePossibleUpgrades(town);
+	ai->makePossibleUpgrades(town);
 	ai->moveHeroToTile(town->visitablePos(), garrisonHero);
 
 	auto upperArmy = town->getUpperArmy();
@@ -98,7 +98,7 @@ void ExchangeSwapTownHeroes::accept(VCAI * ai)
 	if(town->visitingHero && town->visitingHero != garrisonHero)
 	{
 		ai->nullkiller->unlockHero(town->visitingHero.get());
-		makePossibleUpgrades(town->visitingHero);
+		ai->makePossibleUpgrades(town->visitingHero);
 	}
 
 	logAi->debug("Put hero %s to garrison of %s", garrisonHero->name, town->name);

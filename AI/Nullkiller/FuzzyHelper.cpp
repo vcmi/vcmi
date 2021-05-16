@@ -210,7 +210,7 @@ ui64 FuzzyHelper::evaluateDanger(crint3 tile, const CGHeroInstance * visitor)
 	return evaluateDanger(tile, visitor, ai.get());
 }
 
-ui64 FuzzyHelper::evaluateDanger(crint3 tile, const CGHeroInstance * visitor, const VCAI * ai)
+ui64 FuzzyHelper::evaluateDanger(crint3 tile, const CGHeroInstance * visitor, const VCAI * ai, bool checkGuards)
 {
 	auto cb = ai->myCb;
 	const TerrainTile * t = cb->getTile(tile, false);
@@ -260,12 +260,15 @@ ui64 FuzzyHelper::evaluateDanger(crint3 tile, const CGHeroInstance * visitor, co
 		}
 	}
 
-	auto guards = cb->getGuardingCreatures(tile);
-	for(auto cre : guards)
+	if(checkGuards)
 	{
-		float tacticalAdvantage = tacticalAdvantageEngine.getTacticalAdvantage(visitor, dynamic_cast<const CArmedInstance *>(cre));
+		auto guards = cb->getGuardingCreatures(tile);
+		for(auto cre : guards)
+		{
+			float tacticalAdvantage = tacticalAdvantageEngine.getTacticalAdvantage(visitor, dynamic_cast<const CArmedInstance *>(cre));
 
-		vstd::amax(guardDanger, evaluateDanger(cre, ai) * tacticalAdvantage); //we are interested in strongest monster around
+			vstd::amax(guardDanger, evaluateDanger(cre, ai) * tacticalAdvantage); //we are interested in strongest monster around
+		}
 	}
 
 	//TODO mozna odwiedzic blockvis nie ruszajac straznika

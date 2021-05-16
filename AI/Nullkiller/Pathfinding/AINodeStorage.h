@@ -159,11 +159,12 @@ public:
 
 	bool isMovementIneficient(const PathNodeInfo & source, CDestinationNodeInfo & destination) const
 	{
-		// further chain distribution is calculated as the last stage
-		if(heroChainPass == EHeroChainPass::CHAIN && destination.node->turns > heroChainTurn)
-			return true;
-
 		return hasBetterChain(source, destination);
+	}
+
+	bool isDistanceLimitReached(const PathNodeInfo & source, CDestinationNodeInfo & destination) const
+	{
+		return heroChainPass == EHeroChainPass::CHAIN && destination.node->turns > heroChainTurn;
 	}
 
 	template<class NodeRange>
@@ -185,9 +186,9 @@ public:
 	bool calculateHeroChain();
 	bool calculateHeroChainFinal();
 
-	uint64_t evaluateDanger(const int3 &  tile, const CGHeroInstance * hero) const
+	uint64_t evaluateDanger(const int3 &  tile, const CGHeroInstance * hero, bool checkGuards) const
 	{
-		return dangerEvaluator->evaluateDanger(tile, hero, ai);
+		return dangerEvaluator->evaluateDanger(tile, hero, ai, checkGuards);
 	}
 
 	uint64_t evaluateArmyLoss(const CGHeroInstance * hero, uint64_t armyValue, uint64_t danger) const

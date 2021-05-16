@@ -14,6 +14,7 @@
 #include "../AIUtility.h"
 #include "../Goals/BuyArmy.h"
 #include "../Goals/VisitTile.h"
+#include "../Engine/Nullkiller.h"
 #include "lib/mapping/CMap.h" //for victory conditions
 #include "lib/CPathfinder.h"
 
@@ -33,6 +34,9 @@ Goals::TGoalVec BuyArmyBehavior::getTasks()
 	Goals::TGoalVec tasks;
 
 	if(cb->getDate(Date::DAY) == 1)
+		return tasks;
+
+	if(ai->nullkiller->buildAnalyzer->getGoldPreasure() > MAX_GOLD_PEASURE)
 		return tasks;
 		
 	auto heroes = cb->getHeroesInfo();

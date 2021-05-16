@@ -49,6 +49,7 @@ Goals::TGoalVec BuildingBehavior::getTasks()
 		totalDevelopmentCost.toString());
 
 	auto & developmentInfos = ai->nullkiller->buildAnalyzer->getDevelopmentInfo();
+	auto goldPreasure = ai->nullkiller->buildAnalyzer->getGoldPreasure();
 
 	for(auto & developmentInfo : developmentInfos)
 	{
@@ -56,7 +57,8 @@ Goals::TGoalVec BuildingBehavior::getTasks()
 
 		for(auto & buildingInfo : developmentInfo.toBuild)
 		{
-			tasks.push_back(sptr(BuildThis(buildingInfo, developmentInfo)));
+			if(goldPreasure < MAX_GOLD_PEASURE || buildingInfo.dailyIncome[Res::GOLD] > 0)
+				tasks.push_back(sptr(BuildThis(buildingInfo, developmentInfo)));
 		}
 	}
 

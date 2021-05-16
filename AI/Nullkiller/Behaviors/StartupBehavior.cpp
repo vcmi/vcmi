@@ -177,7 +177,7 @@ Goals::TGoalVec StartupBehavior::getTasks()
 				&& !town->visitingHero
 				&& ai->nullkiller->getHeroLockedReason(town->garrisonHero) != HeroLockedReason::DEFENCE)
 			{
-				tasks.push_back(Goals::sptr(ExchangeSwapTownHeroes(town, nullptr).setpriority(0.0001f)));
+				tasks.push_back(Goals::sptr(ExchangeSwapTownHeroes(town, nullptr).setpriority(MIN_PRIORITY)));
 			}
 		}
 	}

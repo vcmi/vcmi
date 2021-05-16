@@ -70,6 +70,8 @@ private:
 	TResources totalDevelopmentCost;
 	std::vector<TownDevelopmentInfo> developmentInfos;
 	TResources armyCost;
+	TResources dailyIncome;
+	float goldPreasure;
 
 public:
 	void update();
@@ -77,8 +79,8 @@ public:
 	TResources getResourcesRequiredNow() const;
 	TResources getTotalResourcesRequired() const;
 	const std::vector<TownDevelopmentInfo> & getDevelopmentInfo() const { return developmentInfos; }
-
-	TResources getDailyIncome() const;
+	TResources getDailyIncome() const { return dailyIncome; }
+	float getGoldPreasure() const { return goldPreasure; }
 
 private:
 	BuildingInfo getBuildingOrPrerequisite(
@@ -89,5 +91,6 @@ private:
 
 	void updateTownDwellings(TownDevelopmentInfo & developmentInfo);
 	void updateOtherBuildings(TownDevelopmentInfo & developmentInfo);
+	void updateDailyIncome();
 	void reset();
 };

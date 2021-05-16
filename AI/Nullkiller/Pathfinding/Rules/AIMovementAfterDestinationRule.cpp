@@ -47,151 +47,171 @@ namespace AIPathfinding
 	{
 		if(nodeStorage->isMovementIneficient(source, destination))
 		{
+			destination.node->locked = true;
 			destination.blocked = true;
 
 			return;
 		}
 
 		auto blocker = getBlockingReason(source, destination, pathfinderConfig, pathfinderHelper);
-
 		if(blocker == BlockingReason::NONE)
 			return;
 
-		if(blocker == BlockingReason::DESTINATION_BLOCKVIS && destination.nodeObject)
+		auto destGuardians = cb->getGuardingCreatures(destination.coord);
+		bool allowBypass = true;
+
+		switch(blocker)
 		{
-			auto enemyHero = destination.nodeHero && destination.heroRelations == PlayerRelations::ENEMIES;
+		case BlockingReason::DESTINATION_GUARDED:
+			allowBypass = bypassDestinationGuards(destGuardians, source, destination, pathfinderConfig, pathfinderHelper);
 
-			if(!enemyHero && !isObjectRemovable(destination.nodeObject))
+			break;
+
+		case BlockingReason::DESTINATION_BLOCKVIS:
+			allowBypass = destination.nodeObject && bypassRemovableObject(source, destination, pathfinderConfig, pathfinderHelper);
+			
+			if(allowBypass && destGuardians.size())
+				allowBypass = bypassDestinationGuards(destGuardians, source, destination, pathfinderConfig, pathfinderHelper);
+
+			break;
+		}
+
+		destination.blocked = !allowBypass || nodeStorage->isDistanceLimitReached(source, destination);
+		destination.node->locked = !allowBypass;
+	}
+
+	bool AIMovementAfterDestinationRule::bypassRemovableObject(
+		const PathNodeInfo & source,
+		CDestinationNodeInfo & destination,
+		const PathfinderConfig * pathfinderConfig,
+		CPathfinderHelper * pathfinderHelper) const
+	{
+		auto enemyHero = destination.nodeHero && destination.heroRelations == PlayerRelations::ENEMIES;
+
+		if(!enemyHero && !isObjectRemovable(destination.nodeObject))
+		{
+			if(nodeStorage->getHero(destination.node) == destination.nodeHero)
+				return true;
+
+			return false;
+		}
+
+		if(destination.nodeObject->ID == Obj::QUEST_GUARD || destination.nodeObject->ID == Obj::BORDERGUARD)
+		{
+			auto questObj = dynamic_cast<const IQuestObject *>(destination.nodeObject);
+			auto nodeHero = pathfinderHelper->hero;
+
+			if(!destination.nodeObject->wasVisited(nodeHero->tempOwner)
+				|| !questObj->checkQuest(nodeHero))
 			{
-				if(nodeStorage->getHero(destination.node) == destination.nodeHero)
-					return;
-
-				destination.blocked = true;
-			}
-
-			if(destination.nodeObject->ID == Obj::QUEST_GUARD || destination.nodeObject->ID == Obj::BORDERGUARD)
-			{
-				auto questObj = dynamic_cast<const IQuestObject *>(destination.nodeObject);
-				auto nodeHero = pathfinderHelper->hero;
-				
-				if(!destination.nodeObject->wasVisited(nodeHero->tempOwner)
-					|| !questObj->checkQuest(nodeHero))
+				nodeStorage->updateAINode(destination.node, [&](AIPathNode * node)
 				{
-					nodeStorage->updateAINode(destination.node, [&](AIPathNode * node)
-					{
-						auto questInfo = QuestInfo(questObj->quest, destination.nodeObject, destination.coord);
+					auto questInfo = QuestInfo(questObj->quest, destination.nodeObject, destination.coord);
 
-						node->specialAction.reset(new QuestAction(questInfo));
-					});
-				}
+					node->specialAction.reset(new QuestAction(questInfo));
+				});
 			}
-
-			return;
 		}
 
-		if(blocker == BlockingReason::DESTINATION_VISIT)
+		return true;
+	}
+
+	bool AIMovementAfterDestinationRule::bypassDestinationGuards(
+		std::vector<const CGObjectInstance *> destGuardians,
+		const PathNodeInfo & source,
+		CDestinationNodeInfo & destination,
+		const PathfinderConfig * pathfinderConfig,
+		CPathfinderHelper * pathfinderHelper) const
+	{
+		auto srcGuardians = cb->getGuardingCreatures(source.coord);
+
+		if(destGuardians.empty())
 		{
-			return;
+			return false;
 		}
 
-		if(blocker == BlockingReason::DESTINATION_GUARDED)
+		auto srcNode = nodeStorage->getAINode(source.node);
+
+		vstd::erase_if(destGuardians, [&](const CGObjectInstance * destGuard) -> bool
 		{
-			auto srcGuardians = cb->getGuardingCreatures(source.coord);
-			auto destGuardians = cb->getGuardingCreatures(destination.coord);
+			return vstd::contains(srcGuardians, destGuard);
+		});
 
-			if(destGuardians.empty())
-			{
-				destination.blocked = true;
+		auto guardsAlreadyBypassed = destGuardians.empty() && srcGuardians.size();
 
-				return;
-			}
-
-			vstd::erase_if(destGuardians, [&](const CGObjectInstance * destGuard) -> bool
-			{
-				return vstd::contains(srcGuardians, destGuard);
-			});
-
-			auto guardsAlreadyBypassed = destGuardians.empty() && srcGuardians.size();
-			auto srcNode = nodeStorage->getAINode(source.node);
-			if(guardsAlreadyBypassed && srcNode->actor->allowBattle)
-			{
+		if(guardsAlreadyBypassed && srcNode->actor->allowBattle)
+		{
 #ifdef VCMI_TRACE_PATHFINDER
-				logAi->trace(
-					"Bypass guard at destination while moving %s -> %s",
-					source.coord.toString(),
-					destination.coord.toString());
+			logAi->trace(
+				"Bypass guard at destination while moving %s -> %s",
+				source.coord.toString(),
+				destination.coord.toString());
 #endif
 
-				return;
-			}
-
-			const AIPathNode * destNode = nodeStorage->getAINode(destination.node);
-			auto battleNodeOptional = nodeStorage->getOrCreateNode(
-				destination.coord,
-				destination.node->layer,
-				destNode->actor->battleActor);
-
-			if(!battleNodeOptional)
-			{
-#ifdef VCMI_TRACE_PATHFINDER
-				logAi->trace(
-					"Can not allocate battle node while moving %s -> %s",
-					source.coord.toString(),
-					destination.coord.toString());
-#endif
-
-				destination.blocked = true;
-
-				return;
-			}
-
-			AIPathNode * battleNode = battleNodeOptional.get();
-
-			if(battleNode->locked)
-			{
-#ifdef VCMI_TRACE_PATHFINDER
-				logAi->trace(
-					"Block bypass guard at destination while moving %s -> %s",
-					source.coord.toString(),
-					destination.coord.toString());
-#endif
-				destination.blocked = true;
-
-				return;
-			}
-
-			auto hero = nodeStorage->getHero(source.node);
-			auto danger = nodeStorage->evaluateDanger(destination.coord, hero);
-			double actualArmyValue = srcNode->actor->armyValue - srcNode->armyLoss;
-			double loss = nodeStorage->evaluateArmyLoss(hero, actualArmyValue, danger);
-
-			if(loss < actualArmyValue)
-			{
-				destination.node = battleNode;
-				nodeStorage->commit(destination, source);
-
-				battleNode->armyLoss += loss;
-
-				vstd::amax(battleNode->danger, danger);
-
-				battleNode->specialAction = std::make_shared<BattleAction>(destination.coord);
-
-				if(source.nodeObject && isObjectRemovable(source.nodeObject))
-				{
-					battleNode->theNodeBefore = source.node;
-				}
-
-#ifdef VCMI_TRACE_PATHFINDER
-				logAi->trace(
-					"Begin bypass guard at destination with danger %s while moving %s -> %s",
-					std::to_string(danger),
-					source.coord.toString(),
-					destination.coord.toString());
-#endif
-				return;
-			}
+			return true;
 		}
 
-		destination.blocked = true;
+		const AIPathNode * destNode = nodeStorage->getAINode(destination.node);
+		auto battleNodeOptional = nodeStorage->getOrCreateNode(
+			destination.coord,
+			destination.node->layer,
+			destNode->actor->battleActor);
+
+		if(!battleNodeOptional)
+		{
+#ifdef VCMI_TRACE_PATHFINDER
+			logAi->trace(
+				"Can not allocate battle node while moving %s -> %s",
+				source.coord.toString(),
+				destination.coord.toString());
+#endif
+			return false;
+		}
+
+		AIPathNode * battleNode = battleNodeOptional.get();
+
+		if(battleNode->locked)
+		{
+#ifdef VCMI_TRACE_PATHFINDER
+			logAi->trace(
+				"Block bypass guard at destination while moving %s -> %s",
+				source.coord.toString(),
+				destination.coord.toString());
+#endif
+			return false;
+		}
+
+		auto hero = nodeStorage->getHero(source.node);
+		auto danger = nodeStorage->evaluateDanger(destination.coord, hero, true);
+		double actualArmyValue = srcNode->actor->armyValue - srcNode->armyLoss;
+		double loss = nodeStorage->evaluateArmyLoss(hero, actualArmyValue, danger);
+
+		if(loss < actualArmyValue)
+		{
+			destination.node = battleNode;
+			nodeStorage->commit(destination, source);
+
+			battleNode->armyLoss += loss;
+
+			vstd::amax(battleNode->danger, danger);
+
+			battleNode->specialAction = std::make_shared<BattleAction>(destination.coord);
+
+			if(source.nodeObject && isObjectRemovable(source.nodeObject))
+			{
+				battleNode->theNodeBefore = source.node;
+			}
+
+#ifdef VCMI_TRACE_PATHFINDER
+			logAi->trace(
+				"Begin bypass guard at destination with danger %s while moving %s -> %s",
+				std::to_string(danger),
+				source.coord.toString(),
+				destination.coord.toString());
+#endif
+			return true;
+		}
+
+		return false;
 	}
 }

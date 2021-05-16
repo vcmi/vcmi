@@ -104,9 +104,11 @@ namespace Goals
 		float armyLossPersentage;
 		float armyReward;
 		int32_t goldReward;
+		int32_t goldCost;
 		float skillReward;
 		float strategicalValue;
 		HeroRole heroRole;
+		uint8_t turn;
 
 		EvaluationContext()
 			: movementCost(0.0),
@@ -118,9 +120,11 @@ namespace Goals
 			movementCostByRole(),
 			skillReward(0),
 			goldReward(0),
+			goldCost(0),
 			armyReward(0),
 			armyLossPersentage(0),
-			heroRole(HeroRole::SCOUT)
+			heroRole(HeroRole::SCOUT),
+			turn(0)
 		{
 		}
 	};

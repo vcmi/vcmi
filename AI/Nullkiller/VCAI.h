@@ -220,6 +220,7 @@ public:
 	void pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance * other = nullptr);
 	void moveCreaturesToHero(const CGTownInstance * t);
 	void performObjectInteraction(const CGObjectInstance * obj, HeroPtr h);
+	bool makePossibleUpgrades(const CArmedInstance * obj);
 
 	bool moveHeroToTile(int3 dst, HeroPtr h);
 	void buildStructure(const CGTownInstance * t, BuildingID building); //TODO: move to BuildingManager
@@ -401,5 +402,3 @@ public:
 		return msg.c_str();
 	}
 };
-
-void makePossibleUpgrades(const CArmedInstance * obj);
