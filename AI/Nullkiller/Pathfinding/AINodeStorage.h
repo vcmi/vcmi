@@ -11,7 +11,7 @@
 #pragma once
 
 #define PATHFINDER_TRACE_LEVEL 0
-#define AI_TRACE_LEVEL 1	
+#define AI_TRACE_LEVEL 1
 
 #include "../../../lib/CPathfinder.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"

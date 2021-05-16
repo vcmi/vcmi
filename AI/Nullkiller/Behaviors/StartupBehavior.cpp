@@ -92,7 +92,9 @@ bool needToRecruitHero(const CGTownInstance * startupTown)
 	}
 
 	auto basicCount = cb->getTownsInfo().size() + 2;
-	auto boost = (int)std::floor(std::pow(treasureSourcesCount / 3.0, 2));
+	auto boost = (int)std::floor(std::pow(treasureSourcesCount / 2.0, 2));
+
+	logAi->trace("Startup allows %d+%d heroes", basicCount, boost);
 
 	return cb->getHeroCount(ai->playerID, true) < basicCount + boost;
 }
@@ -106,21 +108,24 @@ Goals::TGoalVec StartupBehavior::decompose() const
 		return tasks;
 
 	const CGTownInstance * startupTown = towns.front();
-	bool canRecruitHero = needToRecruitHero(startupTown);
 
 	if(towns.size() > 1)
 	{
 		startupTown = *vstd::maxElementByFun(towns, [](const CGTownInstance * town) -> float
 		{
+			if(town->garrisonHero)
+				return ai->ah->evaluateHero(town->garrisonHero.get());
+
 			auto closestHero = getNearestHero(town);
 
-			if(!closestHero)
-				return 0;
+			if(closestHero)
+				return ai->ah->evaluateHero(closestHero);
 
-			return ai->ah->evaluateHero(closestHero);
+			return 0;
 		});
 	}
 
+	bool canRecruitHero = needToRecruitHero(startupTown);
 	auto closestHero = getNearestHero(startupTown);
 
 	if(closestHero)
@@ -172,6 +177,19 @@ Goals::TGoalVec StartupBehavior::decompose() const
 	if(tasks.empty() && canRecruitHero && !startupTown->visitingHero)
 	{
 		tasks.push_back(Goals::sptr(Goals::RecruitHero(startupTown)));
+	}
+
+	if(tasks.empty() && !startupTown->visitingHero)
+	{
+		for(auto town : towns)
+		{
+			if(!town->visitingHero && needToRecruitHero(town))
+			{
+				tasks.push_back(Goals::sptr(Goals::RecruitHero(town)));
+
+				break;
+			}
+		}
 	}
 
 	if(tasks.empty() && towns.size())
