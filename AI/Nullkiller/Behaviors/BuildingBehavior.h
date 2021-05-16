@@ -19,6 +19,7 @@ namespace Goals
 	{
 	public:
 		BuildingBehavior()
+			:CGoal(Goals::BUILD)
 		{
 		}
 

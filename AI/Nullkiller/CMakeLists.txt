@@ -6,6 +6,7 @@ set(VCAI_SRCS
 		Pathfinding/AINodeStorage.cpp
 		Pathfinding/PathfindingManager.cpp
 		Pathfinding/Actors.cpp
+		Pathfinding/Actions/SpecialAction.cpp
 		Pathfinding/Actions/BattleAction.cpp
 		Pathfinding/Actions/BoatActions.cpp
 		Pathfinding/Actions/TownPortalAction.cpp
@@ -21,6 +22,7 @@ set(VCAI_SRCS
 		FuzzyEngines.cpp
 		FuzzyHelper.cpp
 		Goals/AbstractGoal.cpp
+		Goals/Composition.cpp
 		Goals/BuildBoat.cpp
 		Goals/BuildThis.cpp
 		Goals/DismissHero.cpp
@@ -32,7 +34,6 @@ set(VCAI_SRCS
 		Goals/RecruitHero.cpp
 		Goals/DigAtTile.cpp
 		Goals/GetArtOfType.cpp
-		Goals/FindObj.cpp
 		Goals/ExecuteHeroChain.cpp
 		Goals/ExchangeSwapTownHeroes.cpp
 		Engine/Nullkiller.cpp
@@ -59,7 +60,7 @@ set(VCAI_HEADERS
 		Pathfinding/AINodeStorage.h
 		Pathfinding/PathfindingManager.h
 		Pathfinding/Actors.h
-		Pathfinding/Actions/ISpecialAction.h
+		Pathfinding/Actions/SpecialAction.h
 		Pathfinding/Actions/BattleAction.h
 		Pathfinding/Actions/BoatActions.h
 		Pathfinding/Actions/TownPortalAction.h
@@ -76,6 +77,7 @@ set(VCAI_HEADERS
 		FuzzyHelper.h
 		Goals/AbstractGoal.h
 		Goals/CGoal.h
+		Goals/Composition.h
 		Goals/Invalid.h
 		Goals/BuildBoat.h
 		Goals/BuildThis.h
@@ -88,7 +90,6 @@ set(VCAI_HEADERS
 		Goals/RecruitHero.h
 		Goals/DigAtTile.h
 		Goals/GetArtOfType.h
-		Goals/FindObj.h
 		Goals/ExecuteHeroChain.h
 		Goals/ExchangeSwapTownHeroes.h
 		Goals/Goals.h

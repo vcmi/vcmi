@@ -51,28 +51,32 @@ Goals::TTask Nullkiller::choseBestTask(Goals::TSubgoal behavior) const
 
 	goals[0] = {behavior};
 
-	if(tasks.empty())
-	{
-		logAi->debug("Behavior %s found no tasks", behavior->toString());
-
-		return Goals::taskptr(Goals::Invalid());
-	}
-
-	logAi->trace("Evaluating priorities, tasks count %d", tasks.size());
-
 	int depth = 0;
 	while(goals[0].size())
 	{
 		TSubgoal current = goals[depth].back();
+
+#if AI_TRACE_LEVEL >= 1
+		logAi->trace("Decomposing %s, level: %d", current->toString(), depth);
+#endif
+
 		TGoalVec subgoals = current->decompose();
+
+#if AI_TRACE_LEVEL >= 1
+		logAi->trace("Found %d goals", subgoals.size());
+#endif
 
 		goals[depth + 1].clear();
 
 		for(auto subgoal : subgoals)
 		{
-			if(subgoal->isElementar)
+			if(subgoal->isElementar())
 			{
 				auto task = taskptr(*subgoal);
+
+#if AI_TRACE_LEVEL >= 1
+		logAi->trace("Found task %s", task->toString());
+#endif
 
 				if(task->priority <= 0)
 					task->priority = priorityEvaluator->evaluate(subgoal);
@@ -81,6 +85,9 @@ Goals::TTask Nullkiller::choseBestTask(Goals::TSubgoal behavior) const
 			}
 			else
 			{
+#if AI_TRACE_LEVEL >= 1
+				logAi->trace("Found abstract goal %s", subgoal->toString());
+#endif
 				goals[depth + 1].push_back(subgoal);
 			}
 		}
@@ -91,11 +98,21 @@ Goals::TTask Nullkiller::choseBestTask(Goals::TSubgoal behavior) const
 		}
 		else
 		{
+			goals[depth].pop_back();
+
 			while(depth > 0 && goals[depth].empty())
 			{
 				depth--;
+				goals[depth].pop_back();
 			}
 		}
+	}
+
+	if(tasks.empty())
+	{
+		logAi->debug("Behavior %s found no tasks", behavior->toString());
+
+		return Goals::taskptr(Goals::Invalid());
 	}
 
 	auto task = choseBestTask(tasks);

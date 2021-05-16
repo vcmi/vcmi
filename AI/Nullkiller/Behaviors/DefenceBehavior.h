@@ -19,6 +19,7 @@ namespace Goals
 	{
 	public:
 		DefenceBehavior()
+			:CGoal(DEFENCE)
 		{
 		}
 

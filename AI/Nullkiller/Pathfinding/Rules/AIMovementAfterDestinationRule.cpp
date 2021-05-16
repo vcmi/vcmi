@@ -14,24 +14,6 @@
 
 namespace AIPathfinding
 {
-	class QuestAction : public ISpecialAction
-	{
-	public:
-		QuestAction(QuestInfo questInfo)
-		{
-		}
-
-		virtual bool canAct(const CGHeroInstance * hero) const override
-		{
-			return false;
-		}
-
-		virtual Goals::TSubgoal whatToDo(const CGHeroInstance * hero) const override
-		{
-			return Goals::sptr(Goals::Invalid());
-		}
-	};
-
 	AIMovementAfterDestinationRule::AIMovementAfterDestinationRule(
 		CPlayerSpecificInfoCallback * cb, 
 		std::shared_ptr<AINodeStorage> nodeStorage)
@@ -218,9 +200,9 @@ namespace AIPathfinding
 		}
 
 		auto hero = nodeStorage->getHero(source.node);
-		auto danger = nodeStorage->evaluateDanger(destination.coord, hero, true);
-		double actualArmyValue = srcNode->actor->armyValue - srcNode->armyLoss;
-		double loss = nodeStorage->evaluateArmyLoss(hero, actualArmyValue, danger);
+		uint64_t danger = nodeStorage->evaluateDanger(destination.coord, hero, true);
+		uint64_t actualArmyValue = srcNode->actor->armyValue - srcNode->armyLoss;
+		uint64_t loss = nodeStorage->evaluateArmyLoss(hero, actualArmyValue, danger);
 
 		if(loss < actualArmyValue)
 		{

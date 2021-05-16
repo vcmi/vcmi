@@ -9,7 +9,6 @@
 */
 #pragma once
 
-#include "lib/VCMI_Lib.h"
 #include "../AIUtility.h"
 #include "../../../lib/VCMI_Lib.h"
 #include "../../../CCallback.h"
@@ -21,6 +20,7 @@ namespace Goals
 	{
 	public:
 		CompleteQuestBehavior()
+			:CGoal(COMPLETE_QUEST)
 		{
 		}
 

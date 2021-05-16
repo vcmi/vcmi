@@ -10,13 +10,13 @@
 
 #pragma once
 
-#include "ISpecialAction.h"
+#include "SpecialAction.h"
 #include "../../../../lib/mapping/CMap.h"
 #include "../../../../lib/mapObjects/MapObjects.h"
 
 namespace AIPathfinding
 {
-	class VirtualBoatAction : public ISpecialAction
+	class VirtualBoatAction : public SpecialAction
 	{
 	public:
 		virtual const ChainActor * getActor(const ChainActor * sourceActor) const = 0;
@@ -24,8 +24,11 @@ namespace AIPathfinding
 	
 	class SummonBoatAction : public VirtualBoatAction
 	{
+	private:
+		const CGHeroInstance * hero;
+
 	public:
-		virtual Goals::TSubgoal whatToDo(const CGHeroInstance * hero) const override;
+		virtual void execute(const CGHeroInstance * hero) const override;
 
 		virtual void applyOnDestination(
 			const CGHeroInstance * hero,
@@ -34,9 +37,11 @@ namespace AIPathfinding
 			AIPathNode * dstMode,
 			const AIPathNode * srcNode) const override;
 
-		bool isAffordableBy(const CGHeroInstance * hero, const AIPathNode * source) const;
+		virtual bool canAct(const AIPathNode * source) const;
 
 		virtual const ChainActor * getActor(const ChainActor * sourceActor) const override;
+
+		virtual std::string toString() const override;
 
 	private:
 		uint32_t getManaCost(const CGHeroInstance * hero) const;
@@ -53,8 +58,14 @@ namespace AIPathfinding
 		{
 		}
 
-		virtual Goals::TSubgoal whatToDo(const CGHeroInstance * hero) const override;
+		virtual bool canAct(const AIPathNode * source) const;
+
+		virtual void execute(const CGHeroInstance * hero) const override;
+
+		virtual Goals::TSubgoal decompose(const CGHeroInstance * hero) const override;
 
 		virtual const ChainActor * getActor(const ChainActor * sourceActor) const override;
+
+		virtual std::string toString() const override;
 	};
 }

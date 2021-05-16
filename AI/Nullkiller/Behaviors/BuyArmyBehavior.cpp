@@ -13,7 +13,6 @@
 #include "../AIhelper.h"
 #include "../AIUtility.h"
 #include "../Goals/BuyArmy.h"
-#include "../Goals/VisitTile.h"
 #include "../Engine/Nullkiller.h"
 #include "lib/mapping/CMap.h" //for victory conditions
 #include "lib/CPathfinder.h"

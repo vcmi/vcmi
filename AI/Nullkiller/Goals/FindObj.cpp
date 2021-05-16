@@ -9,7 +9,6 @@
 */
 #include "StdInc.h"
 #include "FindObj.h"
-#include "VisitObj.h"
 #include "../VCAI.h"
 #include "../AIUtility.h"
 

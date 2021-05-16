@@ -10,14 +10,14 @@
 
 #pragma once
 
-#include "ISpecialAction.h"
+#include "SpecialAction.h"
 #include "../../../../lib/mapping/CMap.h"
 #include "../../../../lib/mapObjects/MapObjects.h"
 #include "../../Goals/AdventureSpellCast.h"
 
 namespace AIPathfinding
 {
-	class TownPortalAction : public ISpecialAction
+	class TownPortalAction : public SpecialAction
 	{
 	private:
 		const CGTownInstance * target;
@@ -28,6 +28,8 @@ namespace AIPathfinding
 		{
 		}
 
-		virtual Goals::TSubgoal whatToDo(const CGHeroInstance * hero) const override;
+		virtual void execute(const CGHeroInstance * hero) const override;
+
+		virtual std::string toString() const override;
 	};
 }

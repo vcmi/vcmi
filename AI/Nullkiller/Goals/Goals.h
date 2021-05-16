@@ -20,5 +20,4 @@
 #include "RecruitHero.h"
 #include "GetArtOfType.h"
 #include "DigAtTile.h"
-#include "FindObj.h"
 #include "AdventureSpellCast.h"

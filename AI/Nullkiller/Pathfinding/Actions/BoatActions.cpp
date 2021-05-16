@@ -10,16 +10,30 @@
 
 #include "StdInc.h"
 #include "../../Goals/AdventureSpellCast.h"
+#include "../../Behaviors/CaptureObjectsBehavior.h"
 #include "../../Goals/BuildBoat.h"
 #include "../../../../lib/mapping/CMap.h"
 #include "../../../../lib/mapObjects/MapObjects.h"
 #include "BoatActions.h"
 
+extern boost::thread_specific_ptr<CCallback> cb;
+extern boost::thread_specific_ptr<VCAI> ai;
+
 namespace AIPathfinding
 {
-	Goals::TSubgoal BuildBoatAction::whatToDo(const CGHeroInstance * hero) const
+	void BuildBoatAction::execute(const CGHeroInstance * hero) const
 	{
-		return Goals::sptr(Goals::BuildBoat(shipyard));
+		return Goals::BuildBoat(shipyard).accept(ai.get());
+	}
+
+	Goals::TSubgoal BuildBoatAction::decompose(const CGHeroInstance * hero) const
+	{
+		if(cb->getPlayerRelations(ai->playerID, shipyard->o->tempOwner) == PlayerRelations::ENEMIES)
+		{
+			return Goals::sptr(Goals::CaptureObjectsBehavior(shipyard->o));
+		}
+		
+		return sptr(Goals::Invalid());
 	}
 
 	const ChainActor * BuildBoatAction::getActor(const ChainActor * sourceActor) const
@@ -27,9 +41,9 @@ namespace AIPathfinding
 		return sourceActor->resourceActor;
 	}
 
-	Goals::TSubgoal SummonBoatAction::whatToDo(const CGHeroInstance * hero) const
+	void SummonBoatAction::execute(const CGHeroInstance * hero) const
 	{
-		return Goals::sptr(Goals::AdventureSpellCast(hero, SpellID::SUMMON_BOAT));
+		Goals::AdventureSpellCast(hero, SpellID::SUMMON_BOAT).accept(ai.get());
 	}
 
 	const ChainActor * SummonBoatAction::getActor(const ChainActor * sourceActor) const
@@ -48,8 +62,43 @@ namespace AIPathfinding
 		dstMode->theNodeBefore = source.node;
 	}
 
-	bool SummonBoatAction::isAffordableBy(const CGHeroInstance * hero, const AIPathNode * source) const
+	bool BuildBoatAction::canAct(const AIPathNode * source) const
 	{
+		auto hero = source->actor->hero;
+
+		if(cb->getPlayerRelations(hero->tempOwner, shipyard->o->tempOwner) == PlayerRelations::ENEMIES)
+		{
+#if AI_TRACE_LEVEL > 1
+			logAi->trace("Can not build a boat. Shipyard is enemy.");
+#endif
+			return false;
+		}
+
+		TResources boatCost;
+
+		shipyard->getBoatCost(boatCost);
+
+		if(!cb->getResourceAmount().canAfford(source->actor->armyCost + boatCost))
+		{
+#if AI_TRACE_LEVEL > 1
+			logAi->trace("Can not build a boat. Not enough resources.");
+#endif
+
+			return false;
+		}
+
+		return true;
+	}
+
+	std::string BuildBoatAction::toString() const
+	{
+		return "Build Boat at " + shipyard->o->getObjectName();
+	}
+
+	bool SummonBoatAction::canAct(const AIPathNode * source) const
+	{
+		auto hero = source->actor->hero;
+
 #ifdef VCMI_TRACE_PATHFINDER
 		logAi->trace(
 			"Hero %s has %d mana and needed %d and already spent %d",
@@ -60,6 +109,11 @@ namespace AIPathfinding
 #endif
 
 		return hero->mana >= source->manaCost + getManaCost(hero);
+	}
+
+	std::string SummonBoatAction::toString() const
+	{
+		return "Summon Boat";
 	}
 
 	uint32_t SummonBoatAction::getManaCost(const CGHeroInstance * hero) const

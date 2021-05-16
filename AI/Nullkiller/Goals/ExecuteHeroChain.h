@@ -20,6 +20,8 @@ namespace Goals
 		std::string targetName;
 
 	public:
+		float closestWayRatio;
+
 		ExecuteHeroChain(const AIPath & path, const CGObjectInstance * obj = nullptr);
 
 		

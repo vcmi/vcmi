@@ -9,13 +9,44 @@
 */
 
 #include "StdInc.h"
-#include "../../Goals/VisitTile.h"
 #include "BattleAction.h"
+#include "../../VCAI.h"
+#include "../../Behaviors/CompleteQuestBehavior.h"
+#include "../../../../lib/mapping/CMap.h" //for victory conditions
+
+extern boost::thread_specific_ptr<CCallback> cb;
+extern boost::thread_specific_ptr<VCAI> ai;
 
 namespace AIPathfinding
 {
-	Goals::TSubgoal BattleAction::whatToDo(const CGHeroInstance * hero) const
+	void BattleAction::execute(const CGHeroInstance * hero) const
 	{
-		return Goals::sptr(Goals::VisitTile(targetTile).sethero(hero));
+		ai->moveHeroToTile(targetTile, hero);
+	}
+
+	std::string BattleAction::toString() const
+	{
+		return "Battle at " + targetTile.toString();
+	}
+
+	bool QuestAction::canAct(const AIPathNode * node) const
+	{
+		QuestInfo q = questInfo;
+		return q.quest->checkQuest(node->actor->hero);
+	}
+
+	Goals::TSubgoal QuestAction::decompose(const CGHeroInstance * hero) const
+	{
+		return Goals::sptr(Goals::Invalid());
+	}
+
+	void QuestAction::execute(const CGHeroInstance * hero) const
+	{
+		ai->moveHeroToTile(questInfo.obj->visitablePos(), hero);
+	}
+
+	std::string QuestAction::toString() const
+	{
+		return "Complete Quest";
 	}
 }

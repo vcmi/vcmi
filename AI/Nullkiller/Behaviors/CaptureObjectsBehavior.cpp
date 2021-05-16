@@ -11,6 +11,7 @@
 #include "../VCAI.h"
 #include "../Engine/Nullkiller.h"
 #include "../AIhelper.h"
+#include "../Goals/Composition.h"
 #include "../Goals/ExecuteHeroChain.h"
 #include "CaptureObjectsBehavior.h"
 #include "../AIUtility.h"
@@ -23,9 +24,30 @@ extern FuzzyHelper * fh;
 
 using namespace Goals;
 
+template <typename T>
+bool vectorEquals(const std::vector<T> & v1, const std::vector<T> & v2)
+{
+	return vstd::contains_if(v1, [&](T o) -> bool
+	{
+		return vstd::contains(v2, o);
+	});
+}
+
 std::string CaptureObjectsBehavior::toString() const
 {
 	return "Capture objects";
+}
+
+bool CaptureObjectsBehavior::operator==(const CaptureObjectsBehavior & other) const
+{
+	if(specificObjects != other.specificObjects)
+		return false;
+
+	if(specificObjects)
+		return vectorEquals(objectsToCapture, other.objectsToCapture);
+
+	return vectorEquals(objectTypes, other.objectTypes)
+		&& vectorEquals(objectSubTypes, other.objectSubTypes);
 }
 
 Goals::TGoalVec CaptureObjectsBehavior::decompose() const
@@ -65,15 +87,6 @@ Goals::TGoalVec CaptureObjectsBehavior::decompose() const
 				logAi->trace("Path found %s", path.toString());
 #endif
 
-				if(path.getFirstBlockedAction())
-				{
-#if AI_TRACE_LEVEL >= 2
-					// TODO: decomposition?
-					logAi->trace("Ignore path. Action is blocked.");
-#endif
-					continue;
-				}
-
 				if(ai->nullkiller->dangerHitMap->enemyCanKillOurHeroesAlongThePath(path))
 				{
 #if AI_TRACE_LEVEL >= 2
@@ -91,9 +104,26 @@ Goals::TGoalVec CaptureObjectsBehavior::decompose() const
 				if(ai->ah->getHeroRole(hero) == HeroRole::SCOUT && danger == 0 && path.exchangeCount > 1)
 					continue;
 
-				if(path.specialAction && !path.specialAction->canAct(path.targetHero))
+				auto firstBlockedAction = path.getFirstBlockedAction();
+				if(firstBlockedAction)
 				{
-					auto subGoal = path.specialAction->whatToDo(path.targetHero);
+					auto subGoal = firstBlockedAction->decompose(path.targetHero);
+
+#if AI_TRACE_LEVEL >= 2
+					logAi->trace("Decomposing special action %s returns %s", firstBlockedAction->toString(), subGoal->toString());
+#endif
+
+					if(!subGoal->invalid())
+					{
+						Composition composition;
+
+						composition.addNext(ExecuteHeroChain(path, objToVisit));
+						composition.addNext(subGoal);
+
+						tasks.push_back(sptr(composition));
+					}
+
+					continue;
 				}
 
 				auto isSafe = isSafeToVisit(hero, path.heroArmy, danger);
@@ -115,7 +145,7 @@ Goals::TGoalVec CaptureObjectsBehavior::decompose() const
 
 					waysToVisitObj.push_back(newWay);
 
-					if(!closestWay || closestWay->evaluationContext.movementCost > newWay->evaluationContext.movementCost)
+					if(!closestWay || closestWay->getPath().movementCost() > newWay->getPath().movementCost())
 						closestWay = newWay;
 				}
 			}
@@ -128,8 +158,8 @@ Goals::TGoalVec CaptureObjectsBehavior::decompose() const
 				if(ai->nullkiller->arePathHeroesLocked(way->getPath()))
 					continue;
 
-				way->evaluationContext.closestWayRatio
-					= closestWay->evaluationContext.movementCost / way->evaluationContext.movementCost;
+				way->closestWayRatio
+					= closestWay->getPath().movementCost() / way->getPath().movementCost();
 
 				tasks.push_back(sptr(*way));
 			}

@@ -9,7 +9,6 @@
 */
 #include "StdInc.h"
 #include "GetArtOfType.h"
-#include "FindObj.h"
 #include "../VCAI.h"
 #include "../AIUtility.h"
 

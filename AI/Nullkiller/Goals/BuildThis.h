@@ -49,5 +49,6 @@ namespace Goals
 		}
 		virtual bool operator==(const BuildThis & other) const override;
 		virtual std::string toString() const override;
+		void accept(VCAI * ai) override;
 	};
 }

@@ -19,6 +19,7 @@ namespace Goals
 	{
 	public:
 		GatherArmyBehavior()
+			:CGoal(Goals::GATHER_ARMY)
 		{
 		}
 

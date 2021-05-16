@@ -9,7 +9,6 @@
 */
 #include "StdInc.h"
 #include "DigAtTile.h"
-#include "VisitTile.h"
 #include "../VCAI.h"
 #include "../AIUtility.h"
 
