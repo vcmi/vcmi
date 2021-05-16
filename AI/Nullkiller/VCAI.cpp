@@ -30,7 +30,7 @@ extern FuzzyHelper * fh;
 
 class CGVisitableOPW;
 
-const float SAFE_ATTACK_CONSTANT = 1.5;
+const float SAFE_ATTACK_CONSTANT = 1.2;
 
 //one thread may be turn of AI and another will be handling a side effect for AI2
 boost::thread_specific_ptr<CCallback> cb;
@@ -758,13 +758,12 @@ void VCAI::makeTurn()
 	boost::shared_lock<boost::shared_mutex> gsLock(CGameState::mutex);
 	setThreadName("VCAI::makeTurn");
 
-	switch(cb->getDate(Date::DAY_OF_WEEK))
-	{
-	case 1:
+	if(cb->getDate(Date::DAY_OF_WEEK) == 1)
 	{
 		townVisitsThisWeek.clear();
 		std::vector<const CGObjectInstance *> objs;
 		retrieveVisitableObjs(objs, true);
+
 		for(const CGObjectInstance * obj : objs)
 		{
 			if(isWeeklyRevisitable(obj))
@@ -773,15 +772,15 @@ void VCAI::makeTurn()
 				vstd::erase_if_present(alreadyVisited, obj);
 			}
 		}
-		break;
 	}
-	}
+
 	markHeroAbleToExplore(primaryHero());
 	visitedHeroes.clear();
 
 	if(cb->getDate(Date::DAY) == 1)
 	{
 		retrieveVisitableObjs();
+		cb->sendMessage("vcmieagles");
 	}
 
 	try

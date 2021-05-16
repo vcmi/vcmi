@@ -82,7 +82,7 @@ Goals::TGoalVec ClusterBehavior::decomposeCluster(std::shared_ptr<ObjectCluster>
 		{
 			blockerPaths.back().nodes.insert(blockerPaths.back().nodes.begin(), *node);
 
-			if(node->coord == blockerPos)
+			if(node->coord == blockerPos || cb->getGuardingCreaturePosition(node->coord) == blockerPos)
 				break;
 		}
 
