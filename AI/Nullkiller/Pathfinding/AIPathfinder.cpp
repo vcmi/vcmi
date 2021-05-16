@@ -64,10 +64,10 @@ void AIPathfinder::updatePaths(std::vector<HeroPtr> heroes, bool useHeroChain)
 	auto config = std::make_shared<AIPathfinding::AIPathfinderConfig>(cb, ai, storage);
 
 	do {
-		logAi->trace("Recalculate paths pass %" PRIi32, pass++);
+		logAi->trace("Recalculate paths pass %d", pass++);
 		cb->calculatePaths(config);
 
-		logAi->trace("Recalculate chain pass %" PRIi32, pass);
+		logAi->trace("Recalculate chain pass %d", pass);
 		useHeroChain = useHeroChain && storage->calculateHeroChain();
 	} while(useHeroChain);
 }
