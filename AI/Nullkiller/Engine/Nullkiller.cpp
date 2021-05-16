@@ -45,9 +45,10 @@ Goals::TTask Nullkiller::choseBestTask(Goals::TSubgoal behavior) const
 {
 	logAi->debug("Checking behavior %s", behavior->toString());
 
-	const int MAX_DEPTH = 10;
+	const int MAX_DEPTH = 0;
 	Goals::TGoalVec goals[MAX_DEPTH + 1];
 	Goals::TTaskVec tasks;
+	std::map<Goals::TSubgoal, Goals::TSubgoal> decompositionMap;
 
 	goals[0] = {behavior};
 
@@ -66,7 +67,10 @@ Goals::TTask Nullkiller::choseBestTask(Goals::TSubgoal behavior) const
 		logAi->trace("Found %d goals", subgoals.size());
 #endif
 
-		goals[depth + 1].clear();
+		if(depth < MAX_DEPTH)
+		{
+			goals[depth + 1].clear();
+		}
 
 		for(auto subgoal : subgoals)
 		{
@@ -83,7 +87,7 @@ Goals::TTask Nullkiller::choseBestTask(Goals::TSubgoal behavior) const
 
 				tasks.push_back(task);
 			}
-			else
+			else if(depth < MAX_DEPTH)
 			{
 #if AI_TRACE_LEVEL >= 1
 				logAi->trace("Found abstract goal %s", subgoal->toString());
@@ -92,7 +96,7 @@ Goals::TTask Nullkiller::choseBestTask(Goals::TSubgoal behavior) const
 			}
 		}
 
-		if(goals[depth + 1].size() && depth < MAX_DEPTH)
+		if(depth < MAX_DEPTH && goals[depth + 1].size())
 		{
 			depth++;
 		}
