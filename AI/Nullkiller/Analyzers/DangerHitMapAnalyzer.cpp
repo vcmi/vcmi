@@ -51,7 +51,7 @@ void DangerHitMapAnalyzer::updateHitMap()
 
 		boost::this_thread::interruption_point();
 
-		foreach_tile_pos([&](const int3 & pos)
+		pforeachTilePos(mapSize, [&](const int3 & pos)
 		{
 			for(AIPath & path : ai->pathfinder->getPathInfo(pos))
 			{

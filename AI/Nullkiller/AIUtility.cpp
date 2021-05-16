@@ -115,6 +115,32 @@ const CGHeroInstance * HeroPtr::get(bool doWeExpectNull) const
 	return h;
 }
 
+const CGHeroInstance * HeroPtr::get(CCallback * cb, bool doWeExpectNull) const
+{
+	//TODO? check if these all assertions every time we get info about hero affect efficiency
+	//
+	//behave terribly when attempting unauthorized access to hero that is not ours (or was lost)
+	assert(doWeExpectNull || h);
+
+	if(h)
+	{
+		auto obj = cb->getObj(hid);
+		//const bool owned = obj && obj->tempOwner == ai->playerID;
+
+		if(doWeExpectNull && !obj)
+		{
+			return nullptr;
+		}
+		else
+		{
+			assert(obj);
+			//assert(owned);
+		}
+	}
+
+	return h;
+}
+
 const CGHeroInstance * HeroPtr::operator->() const
 {
 	return get();
@@ -251,6 +277,11 @@ bool canBeEmbarkmentPoint(const TerrainTile * t, bool fromWater)
 	return false;
 }
 
+bool isObjectPassable(const Nullkiller * ai, const CGObjectInstance * obj)
+{
+	return isObjectPassable(obj, ai->playerID, ai->cb->getPlayerRelations(obj->tempOwner, ai->playerID));
+}
+
 bool isObjectPassable(const CGObjectInstance * obj)
 {
 	return isObjectPassable(obj, ai->playerID, cb->getPlayerRelations(obj->tempOwner, ai->playerID));
@@ -355,7 +386,7 @@ uint64_t timeElapsed(boost::chrono::time_point<boost::chrono::steady_clock> star
 }
 
 // todo: move to obj manager
-bool shouldVisit(const CGHeroInstance * h, const CGObjectInstance * obj)
+bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObjectInstance * obj)
 {
 	switch(obj->ID)
 	{
@@ -364,7 +395,7 @@ bool shouldVisit(const CGHeroInstance * h, const CGObjectInstance * obj)
 		return obj->tempOwner != h->tempOwner; //do not visit our towns at random
 	case Obj::BORDER_GATE:
 	{
-		for(auto q : ai->myCb->getMyQuests())
+		for(auto q : ai->cb->getMyQuests())
 		{
 			if(q.obj == obj)
 			{
@@ -378,7 +409,7 @@ bool shouldVisit(const CGHeroInstance * h, const CGObjectInstance * obj)
 	case Obj::SEER_HUT:
 	case Obj::QUEST_GUARD:
 	{
-		for(auto q : ai->myCb->getMyQuests())
+		for(auto q : ai->cb->getMyQuests())
 		{
 			if(q.obj == obj)
 			{
@@ -403,7 +434,7 @@ bool shouldVisit(const CGHeroInstance * h, const CGObjectInstance * obj)
 			{
 				if(level.first
 					&& h->getSlotFor(CreatureID(c)) != SlotID()
-					&& cb->getResourceAmount().canAfford(c.toCreature()->cost))
+					&& ai->cb->getResourceAmount().canAfford(c.toCreature()->cost))
 				{
 					return true;
 				}
@@ -429,7 +460,7 @@ bool shouldVisit(const CGHeroInstance * h, const CGObjectInstance * obj)
 	case Obj::SCHOOL_OF_MAGIC:
 	case Obj::SCHOOL_OF_WAR:
 	{
-		if(cb->getResourceAmount(Res::GOLD) < 1000)
+		if(ai->cb->getResourceAmount(Res::GOLD) < 1000)
 			return false;
 		break;
 	}
@@ -439,10 +470,10 @@ bool shouldVisit(const CGHeroInstance * h, const CGObjectInstance * obj)
 		break;
 	case Obj::TREE_OF_KNOWLEDGE:
 	{
-		if(ai->nullkiller->heroManager->getHeroRole(h) == HeroRole::SCOUT)
+		if(ai->heroManager->getHeroRole(h) == HeroRole::SCOUT)
 			return false;
 
-		TResources myRes = cb->getResourceAmount();
+		TResources myRes = ai->cb->getResourceAmount();
 		if(myRes[Res::GOLD] < 2000 || myRes[Res::GEMS] < 10)
 			return false;
 		break;
@@ -450,14 +481,14 @@ bool shouldVisit(const CGHeroInstance * h, const CGObjectInstance * obj)
 	case Obj::MAGIC_WELL:
 		return h->mana < h->manaLimit();
 	case Obj::PRISON:
-		return ai->myCb->getHeroesInfo().size() < VLC->modh->settings.MAX_HEROES_ON_MAP_PER_PLAYER;
+		return ai->cb->getHeroesInfo().size() < VLC->modh->settings.MAX_HEROES_ON_MAP_PER_PLAYER;
 	case Obj::TAVERN:
 	{
 		//TODO: make AI actually recruit heroes
 		//TODO: only on request
-		if(ai->myCb->getHeroesInfo().size() >= VLC->modh->settings.MAX_HEROES_ON_MAP_PER_PLAYER)
+		if(ai->cb->getHeroesInfo().size() >= VLC->modh->settings.MAX_HEROES_ON_MAP_PER_PLAYER)
 			return false;
-		else if(cb->getResourceAmount(Res::GOLD) < GameConstants::HERO_GOLD_COST)
+		else if(ai->cb->getResourceAmount(Res::GOLD) < GameConstants::HERO_GOLD_COST)
 			return false;
 		break;
 	}

@@ -43,6 +43,13 @@ void Nullkiller::init(std::shared_ptr<CCallback> cb, PlayerColor playerID)
 	this->playerID = playerID;
 
 	priorityEvaluator.reset(new PriorityEvaluator(this));
+	priorityEvaluators.reset(
+		new SharedPool<PriorityEvaluator>(
+			[&]()->std::unique_ptr<PriorityEvaluator>
+			{
+				return std::make_unique<PriorityEvaluator>(this);
+			}));
+
 	dangerHitMap.reset(new DangerHitMapAnalyzer(this));
 	buildAnalyzer.reset(new BuildAnalyzer(this));
 	objectClusterizer.reset(new ObjectClusterizer(this));
@@ -224,16 +231,23 @@ void Nullkiller::makeTurn()
 		HeroPtr hero = bestTask->getHero();
 
 		if(bestTask->priority < NEXT_SCAN_MIN_PRIORITY
-			&& hero.validAndSet()
-			&& heroManager->getHeroRole(hero) == HeroRole::MAIN
 			&& scanDepth != ScanDepth::FULL)
 		{
-			logAi->trace(
-				"Goal %s has too low priority %f so increasing scan depth",
-				bestTask->toString(),
-				bestTask->priority);
-			scanDepth = (ScanDepth)((int)scanDepth + 1);
-			continue;
+			HeroRole heroRole = HeroRole::MAIN;
+
+			if(hero.validAndSet())
+				heroRole = heroManager->getHeroRole(hero);
+
+			if(heroRole == HeroRole::MAIN)
+			{
+				logAi->trace(
+					"Goal %s has too low priority %f so increasing scan depth",
+					bestTask->toString(),
+					bestTask->priority);
+				scanDepth = (ScanDepth)((int)scanDepth + 1);
+
+				continue;
+			}
 		}
 
 		if(bestTask->priority < MIN_PRIORITY)

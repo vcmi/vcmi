@@ -9,8 +9,6 @@
 */
 #pragma once
 
-#include <boost/asio.hpp>
-
 #include "PriorityEvaluator.h"
 #include "FuzzyHelper.h"
 #include "AIMemory.h"
@@ -58,6 +56,7 @@ public:
 	std::unique_ptr<BuildAnalyzer> buildAnalyzer;
 	std::unique_ptr<ObjectClusterizer> objectClusterizer;
 	std::unique_ptr<PriorityEvaluator> priorityEvaluator;
+	std::unique_ptr<SharedPool<PriorityEvaluator>> priorityEvaluators;
 	std::unique_ptr<AIPathfinder> pathfinder;
 	std::unique_ptr<HeroManager> heroManager;
 	std::unique_ptr<ArmyManager> armyManager;

@@ -71,7 +71,7 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(const std::vector<AIPath> 
 			continue;
 		}
 
-		if(objToVisit && !shouldVisit(path.targetHero, objToVisit))
+		if(objToVisit && !shouldVisit(ai->nullkiller.get(), path.targetHero, objToVisit))
 			continue;
 
 		auto hero = path.targetHero;
