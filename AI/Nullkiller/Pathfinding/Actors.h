@@ -21,7 +21,14 @@ class Nullkiller;
 class HeroExchangeArmy : public CCreatureSet
 {
 public:
+	TResources armyCost;
+	bool requireBuyArmy;
 	virtual bool needsLastStack() const override;
+	std::shared_ptr<SpecialAction> getActorAction() const;
+
+	HeroExchangeArmy() : CCreatureSet(), armyCost(), requireBuyArmy(false)
+	{
+	}
 };
 
 class ChainActor
@@ -37,6 +44,7 @@ public:
 	bool allowUseResources;
 	bool allowBattle;
 	bool allowSpellCast;
+	std::shared_ptr<SpecialAction> actorAction;
 	const CGHeroInstance * hero;
 	HeroRole heroRole;
 	const CCreatureSet * creatureSet;
@@ -87,8 +95,8 @@ public:
 	bool canExchange(const ChainActor * other);
 
 private:
-	CCreatureSet * pickBestCreatures(const CCreatureSet * army1, const CCreatureSet * army2) const;
-	CCreatureSet * tryUpgrade(const CCreatureSet * army, const CGObjectInstance * upgrader, TResources resources) const;
+	HeroExchangeArmy * pickBestCreatures(const CCreatureSet * army1, const CCreatureSet * army2) const;
+	HeroExchangeArmy * tryUpgrade(const CCreatureSet * army, const CGObjectInstance * upgrader, TResources resources) const;
 };
 
 class HeroActor : public ChainActor
@@ -107,7 +115,7 @@ public:
 	// chain flags, can be combined meaning hero exchange and so on
 
 	HeroActor(const CGHeroInstance * hero, HeroRole heroRole, uint64_t chainMask, const Nullkiller * ai);
-	HeroActor(const ChainActor * carrier, const ChainActor * other, const CCreatureSet * army, const Nullkiller * ai);
+	HeroActor(const ChainActor * carrier, const ChainActor * other, const HeroExchangeArmy * army, const Nullkiller * ai);
 
 	virtual bool canExchange(const ChainActor * other) const override;
 

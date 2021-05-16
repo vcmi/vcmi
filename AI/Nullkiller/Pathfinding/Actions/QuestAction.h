@@ -1,5 +1,5 @@
 /*
-* BattleAction.h, part of VCMI engine
+* QuestAction.h, part of VCMI engine
 *
 * Authors: listed in file AUTHORS in main folder
 *
@@ -15,16 +15,20 @@
 
 namespace AIPathfinding
 {
-	class BattleAction : public SpecialAction
+	class QuestAction : public SpecialAction
 	{
 	private:
-		const int3 targetTile;
+		QuestInfo questInfo;
 
 	public:
-		BattleAction(const int3 targetTile)
-			:targetTile(targetTile)
+		QuestAction(QuestInfo questInfo)
+			:questInfo(questInfo)
 		{
 		}
+
+		virtual bool canAct(const AIPathNode * node) const override;
+
+		virtual Goals::TSubgoal decompose(const CGHeroInstance * hero) const override;
 
 		virtual void execute(const CGHeroInstance * hero) const override;
 

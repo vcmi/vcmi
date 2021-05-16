@@ -7,6 +7,8 @@ set(VCAI_SRCS
 		Pathfinding/Actors.cpp
 		Pathfinding/Actions/SpecialAction.cpp
 		Pathfinding/Actions/BattleAction.cpp
+		Pathfinding/Actions/QuestAction.cpp
+		Pathfinding/Actions/BuyArmyAction.cpp
 		Pathfinding/Actions/BoatActions.cpp
 		Pathfinding/Actions/TownPortalAction.cpp
 		Pathfinding/Rules/AILayerTransitionRule.cpp
@@ -62,6 +64,8 @@ set(VCAI_HEADERS
 		Pathfinding/Actors.h
 		Pathfinding/Actions/SpecialAction.h
 		Pathfinding/Actions/BattleAction.h
+		Pathfinding/Actions/QuestAction.h
+		Pathfinding/Actions/BuyArmyAction.h
 		Pathfinding/Actions/BoatActions.h
 		Pathfinding/Actions/TownPortalAction.h
 		Pathfinding/Rules/AILayerTransitionRule.h

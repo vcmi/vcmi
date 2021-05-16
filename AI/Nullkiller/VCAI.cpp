@@ -526,6 +526,7 @@ void VCAI::heroGotLevel(const CGHeroInstance * hero, PrimarySkill::PrimarySkill 
 	{ 
 		if(hPtr.validAndSet())
 		{
+			nullkiller->heroManager->update();
 			answerQuery(queryID, nullkiller->heroManager->selectBestSkill(hPtr, skills));
 		}
 	});
