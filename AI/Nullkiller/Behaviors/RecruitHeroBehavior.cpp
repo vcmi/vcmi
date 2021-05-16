@@ -40,7 +40,7 @@ Goals::TGoalVec RecruitHeroBehavior::getTasks()
 			if(cb->getHeroesInfo().size() < cb->getTownsInfo().size() + 1
 				|| cb->getResourceAmount(Res::GOLD) > 10000)
 			{
-				tasks.push_back(Goals::sptr(Goals::RecruitHero().settown(town)));
+				tasks.push_back(Goals::sptr(Goals::RecruitHero().settown(town).setpriority(3)));
 			}
 		}
 	}

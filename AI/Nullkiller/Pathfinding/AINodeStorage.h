@@ -79,13 +79,24 @@ struct AIPath
 
 	uint64_t getHeroStrength() const;
 
-	std::string toString();
+	std::string toString() const;
+
+	std::shared_ptr<const ISpecialAction> AIPath::getFirstBlockedAction() const;
 };
 
 struct ExchangeCandidate : public AIPathNode
 {
 	AIPathNode * carrierParent;
 	AIPathNode * otherParent;
+};
+
+enum EHeroChainPass
+{
+	INITIAL, // single heroes unlimited distance
+
+	CHAIN, // chains with limited distance
+
+	FINAL // same as SINGLE but for heroes from CHAIN pass
 };
 
 class AINodeStorage : public INodeStorage
@@ -100,7 +111,7 @@ private:
 	std::unique_ptr<FuzzyHelper> dangerEvaluator;
 	std::vector<std::shared_ptr<ChainActor>> actors;
 	std::vector<CGPathNode *> heroChain;
-	bool heroChainPass; // true if we need to calculate hero chain
+	EHeroChainPass heroChainPass; // true if we need to calculate hero chain
 	int heroChainTurn;
 	int heroChainMaxTurns;
 	PlayerColor playerID;
@@ -146,7 +157,7 @@ public:
 	bool isMovementIneficient(const PathNodeInfo & source, CDestinationNodeInfo & destination) const
 	{
 		// further chain distribution is calculated as the last stage
-		if(heroChainPass && destination.node->turns > heroChainTurn)
+		if(heroChainPass == EHeroChainPass::CHAIN && destination.node->turns > heroChainTurn)
 			return true;
 
 		return hasBetterChain(source, destination);
@@ -169,6 +180,7 @@ public:
 	const std::set<const CGHeroInstance *> getAllHeroes() const;
 	void clear();
 	bool calculateHeroChain();
+	bool calculateHeroChainFinal();
 
 	uint64_t evaluateDanger(const int3 &  tile, const CGHeroInstance * hero) const
 	{

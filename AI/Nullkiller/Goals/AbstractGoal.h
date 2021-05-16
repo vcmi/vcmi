@@ -96,12 +96,17 @@ namespace Goals
 	{
 		float movementCost;
 		std::map<HeroRole, float> movementCostByRole;
-		float scoutMovementCost;
 		int manaCost;
 		uint64_t danger;
 		float closestWayRatio;
 		uint64_t armyLoss;
 		uint64_t heroStrength;
+		float armyLossPersentage;
+		float armyReward;
+		int32_t goldReward;
+		float skillReward;
+		float strategicalValue;
+		HeroRole heroRole;
 
 		EvaluationContext()
 			: movementCost(0.0),
@@ -110,7 +115,12 @@ namespace Goals
 			closestWayRatio(1),
 			armyLoss(0),
 			heroStrength(0),
-			movementCostByRole()
+			movementCostByRole(),
+			skillReward(0),
+			goldReward(0),
+			armyReward(0),
+			armyLossPersentage(0),
+			heroRole(HeroRole::SCOUT)
 		{
 		}
 	};

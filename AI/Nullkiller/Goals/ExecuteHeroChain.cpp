@@ -175,7 +175,7 @@ void ExecuteHeroChain::accept(VCAI * ai)
 
 std::string ExecuteHeroChain::name() const
 {
-	return "ExecuteHeroChain " + targetName;
+	return "ExecuteHeroChain " + targetName + " by " + chainPath.targetHero->name;
 }
 
 std::string ExecuteHeroChain::completeMessage() const

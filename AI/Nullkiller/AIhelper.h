@@ -80,13 +80,16 @@ public:
 	std::vector<SlotInfo>::iterator getWeakestCreature(std::vector<SlotInfo> & army) const override;
 	std::vector<SlotInfo> getSortedSlots(const CCreatureSet * target, const CCreatureSet * source) const override;
 	std::vector<creInfo> getArmyAvailableToBuy(const CCreatureSet * hero, const CGDwelling * dwelling) const override;
+	uint64_t evaluateStackPower(const CCreature * creature, int count) const override;
+	SlotInfo getTotalCreaturesAvailable(CreatureID creatureID) const override;
 
 	const std::map<HeroPtr, HeroRole> & getHeroRoles() const override;
 	HeroRole getHeroRole(const HeroPtr & hero) const override;
 	int selectBestSkill(const HeroPtr & hero, const std::vector<SecondarySkill> & skills) const override;
-	void updateHeroRoles() override;
 	float evaluateSecSkill(SecondarySkill skill, const CGHeroInstance * hero) const override;
 	float evaluateHero(const CGHeroInstance * hero) const override;
+
+	void update() override;
 
 private:
 	bool notifyGoalCompleted(Goals::TSubgoal goal) override;

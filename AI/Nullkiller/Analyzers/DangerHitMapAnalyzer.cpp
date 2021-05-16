@@ -49,6 +49,9 @@ void DangerHitMapAnalyzer::updateHitMap()
 		{
 			for(AIPath & path : ai->ah->getPathsToTile(pos))
 			{
+				if(path.getFirstBlockedAction())
+					continue;
+
 				auto tileDanger = path.getHeroStrength();
 				auto turn = path.turn();
 				auto & node = hitMap[pos.x][pos.y][pos.z];

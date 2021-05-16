@@ -26,7 +26,7 @@ public:
 	virtual const std::map<HeroPtr, HeroRole> & getHeroRoles() const = 0;
 	virtual int selectBestSkill(const HeroPtr & hero, const std::vector<SecondarySkill> & skills) const = 0;
 	virtual HeroRole getHeroRole(const HeroPtr & hero) const = 0;
-	virtual void updateHeroRoles() = 0;
+	virtual void update() = 0;
 	virtual float evaluateSecSkill(SecondarySkill skill, const CGHeroInstance * hero) const = 0;
 	virtual float evaluateHero(const CGHeroInstance * hero) const = 0;
 };
@@ -64,7 +64,7 @@ public:
 	const std::map<HeroPtr, HeroRole> & getHeroRoles() const override;
 	HeroRole getHeroRole(const HeroPtr & hero) const override;
 	int selectBestSkill(const HeroPtr & hero, const std::vector<SecondarySkill> & skills) const override;
-	void updateHeroRoles() override;
+	void update() override;
 	float evaluateSecSkill(SecondarySkill skill, const CGHeroInstance * hero) const override;
 	float evaluateHero(const CGHeroInstance * hero) const override;
 

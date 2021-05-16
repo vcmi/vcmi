@@ -853,10 +853,10 @@ void VCAI::makeTurn()
 		logAi->debug("Making turn thread has been interrupted. We'll end without calling endTurn.");
 		return;
 	}
-	catch (std::exception & e)
+	/*catch (std::exception & e)
 	{
 		logAi->debug("Making turn thread has caught an exception: %s", e.what());
-	}
+	}*/
 
 	endTurn();
 }
@@ -1079,7 +1079,12 @@ void VCAI::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h)
 				moveCreaturesToHero(h->visitedTown);
 
 			townVisitsThisWeek[h].insert(h->visitedTown);
-			ah->updateHeroRoles();
+
+			if(!ai->nullkiller)
+			{
+				ah->update();
+			}
+
 			if(ah->getHeroRole(h) == HeroRole::MAIN && !h->hasSpellbook() && ah->freeGold() >= GameConstants::SPELLBOOK_GOLD_COST)
 			{
 				if(h->visitedTown->hasBuilt(BuildingID::MAGES_GUILD_1))
@@ -1994,9 +1999,11 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 				doChannelProbing();
 		}
 
-		if(path.nodes[0].action == CGPathNode::BLOCKING_VISIT)
+		if(path.nodes[0].action == CGPathNode::BLOCKING_VISIT || path.nodes[0].action == CGPathNode::BATTLE)
 		{
-			ret = h && i == 0; // when we take resource we do not reach its position. We even might not move
+			// when we take resource we do not reach its position. We even might not move
+			// also guarded town is not get visited automatically after capturing
+			ret = h && i == 0;
 		}
 	}
 	if(h)
@@ -2484,6 +2491,8 @@ void VCAI::recruitHero(const CGTownInstance * t, bool throwing)
 				hero = heroes[1];
 		}
 		cb->recruitHero(t, hero);
+
+		ai->ah->update();
 
 		if(t->visitingHero)
 			moveHeroToTile(t->visitablePos(), t->visitingHero.get());

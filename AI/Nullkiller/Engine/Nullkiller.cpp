@@ -16,6 +16,7 @@
 #include "../Behaviors/BuyArmyBehavior.h"
 #include "../Behaviors/StartupBehavior.h"
 #include "../Behaviors/DefenceBehavior.h"
+#include "../Behaviors/BuildingBehavior.h"
 #include "../Goals/Invalid.h"
 
 extern boost::thread_specific_ptr<CCallback> cb;
@@ -25,6 +26,7 @@ Nullkiller::Nullkiller()
 {
 	priorityEvaluator.reset(new PriorityEvaluator());
 	dangerHitMap.reset(new DangerHitMapAnalyzer());
+	buildAnalyzer.reset(new BuildAnalyzer());
 }
 
 Goals::TSubgoal Nullkiller::choseBestTask(Goals::TGoalVec & tasks) const
@@ -78,14 +80,17 @@ void Nullkiller::updateAiState()
 	// TODO: move to hero manager
 	auto activeHeroes = ai->getMyHeroes();
 
-	vstd::erase_if(activeHeroes, [this](const HeroPtr & hero) -> bool{
+	vstd::erase_if(activeHeroes, [this](const HeroPtr & hero) -> bool
+	{
 		auto lockedReason = getHeroLockedReason(hero.h);
 
 		return lockedReason == HeroLockedReason::DEFENCE || lockedReason == HeroLockedReason::STARTUP;
 	});
 
 	ai->ah->updatePaths(activeHeroes, true);
-	ai->ah->updateHeroRoles();
+	ai->ah->update();
+
+	buildAnalyzer->update();
 }
 
 bool Nullkiller::arePathHeroesLocked(const AIPath & path) const
@@ -111,7 +116,8 @@ void Nullkiller::makeTurn()
 			choseBestTask(std::make_shared<BuyArmyBehavior>()),
 			choseBestTask(std::make_shared<CaptureObjectsBehavior>()),
 			choseBestTask(std::make_shared<RecruitHeroBehavior>()),
-			choseBestTask(std::make_shared<DefenceBehavior>())
+			choseBestTask(std::make_shared<DefenceBehavior>()),
+			choseBestTask(std::make_shared<BuildingBehavior>())
 		};
 
 		if(cb->getDate(Date::DAY) == 1)
@@ -140,12 +146,12 @@ void Nullkiller::makeTurn()
 		{
 			logAi->trace(bestTask->completeMessage());
 		}
-		catch(std::exception & e)
+		/*catch(std::exception & e)
 		{
 			logAi->debug("Failed to realize subgoal of type %s, I will stop.", bestTask->name());
 			logAi->debug("The error message was: %s", e.what());
 
 			return;
-		}
+		}*/
 	}
 }

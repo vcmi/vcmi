@@ -31,6 +31,11 @@ bool BuildThis::operator==(const BuildThis & other) const
 	return town == other.town && bid == other.bid;
 }
 
+std::string BuildThis::name() const
+{
+	return "Build " + buildingInfo.name + "(" + std::to_string(bid) + ") in " + town->name;
+}
+
 TSubgoal BuildThis::whatToDoToAchieve()
 {
 	auto b = BuildingID(bid);

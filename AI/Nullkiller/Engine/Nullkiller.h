@@ -35,6 +35,7 @@ private:
 
 public:
 	std::unique_ptr<DangerHitMapAnalyzer> dangerHitMap;
+	std::unique_ptr<BuildAnalyzer> buildAnalyzer;
 
 	Nullkiller();
 	void makeTurn();

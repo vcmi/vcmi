@@ -76,7 +76,7 @@ void AINodeStorage::initialize(const PathfinderOptions & options, const CGameSta
 void AINodeStorage::clear()
 {
 	actors.clear();
-	heroChainPass = false;
+	heroChainPass = EHeroChainPass::INITIAL;
 	heroChainTurn = 0;
 	heroChainMaxTurns = 1;
 }
@@ -262,9 +262,37 @@ bool AINodeStorage::increaseHeroChainTurnLimit()
 	return true;
 }
 
+EPathfindingLayer phisycalLayers[2] = {EPathfindingLayer::LAND, EPathfindingLayer::SAIL};
+
+bool AINodeStorage::calculateHeroChainFinal()
+{
+	heroChainPass = EHeroChainPass::FINAL;
+	heroChain.resize(0);
+
+	for(auto layer : phisycalLayers)
+	{
+		foreach_tile_pos([&](const int3 & pos)
+		{
+			auto chains = nodes[pos.x][pos.y][pos.z][layer];
+
+			for(AIPathNode & node : chains)
+			{
+				if(node.turns > heroChainTurn
+					&& node.action != CGPathNode::ENodeAction::UNKNOWN
+					&& node.actor->actorExchangeCount > 1)
+				{
+					heroChain.push_back(&node);
+				}
+			}
+		});
+	}
+	
+	return heroChain.size();
+}
+
 bool AINodeStorage::calculateHeroChain()
 {
-	heroChainPass = true;
+	heroChainPass = EHeroChainPass::CHAIN;
 	heroChain.resize(0);
 
 	std::vector<AIPathNode *> existingChains;
@@ -273,37 +301,40 @@ bool AINodeStorage::calculateHeroChain()
 	existingChains.reserve(NUM_CHAINS);
 	newChains.reserve(NUM_CHAINS);
 
-	foreach_tile_pos([&](const int3 & pos) {
-		auto layer = EPathfindingLayer::LAND;
-		auto chains = nodes[pos.x][pos.y][pos.z][layer];
-
-		existingChains.resize(0);
-		newChains.resize(0);
-
-		for(AIPathNode & node : chains)
+	for(auto layer : phisycalLayers)
+	{
+		foreach_tile_pos([&](const int3 & pos)
 		{
-			if(node.turns <= heroChainTurn && node.action != CGPathNode::ENodeAction::UNKNOWN)
-				existingChains.push_back(&node);
-		}
+			auto chains = nodes[pos.x][pos.y][pos.z][layer];
 
-		for(AIPathNode * node : existingChains)
-		{
-			if(node->actor->isMovable)
+			existingChains.resize(0);
+			newChains.resize(0);
+
+			for(AIPathNode & node : chains)
 			{
-				calculateHeroChain(node, existingChains, newChains);
+				if(node.turns <= heroChainTurn && node.action != CGPathNode::ENodeAction::UNKNOWN)
+					existingChains.push_back(&node);
 			}
-		}
 
-		cleanupInefectiveChains(newChains);
-		addHeroChain(newChains);
-	});
+			for(AIPathNode * node : existingChains)
+			{
+				if(node->actor->isMovable)
+				{
+					calculateHeroChain(node, existingChains, newChains);
+				}
+			}
+
+			cleanupInefectiveChains(newChains);
+			addHeroChain(newChains);
+		});
+	}
 
 	return heroChain.size();
 }
 
 void AINodeStorage::cleanupInefectiveChains(std::vector<ExchangeCandidate> & result) const
 {
-	vstd::erase_if(result, [&](ExchangeCandidate & chainInfo) -> bool
+	vstd::erase_if(result, [&](const ExchangeCandidate & chainInfo) -> bool
 	{
 		auto pos = chainInfo.coord;
 		auto chains = nodes[pos.x][pos.y][pos.z][EPathfindingLayer::LAND];
@@ -320,12 +351,27 @@ void AINodeStorage::calculateHeroChain(
 {
 	for(AIPathNode * node : variants)
 	{
-		if(node == srcNode 
-			|| !node->actor 
-			|| node->turns > heroChainTurn 
+		if(node == srcNode || !node->actor)
+			continue;
+
+		if(node->turns > heroChainTurn 
 			|| (node->action == CGPathNode::ENodeAction::UNKNOWN && node->actor->hero)
 			|| (node->actor->chainMask & srcNode->actor->chainMask) != 0)
 		{
+#if AI_TRACE_LEVEL >= 2
+			logAi->trace(
+				"Skip exchange %s[%x] -> %s[%x] at %s because of %s",
+				node->actor->toString(),
+				node->actor->chainMask,
+				srcNode->actor->toString(),
+				srcNode->actor->chainMask,
+				srcNode->coord.toString(),
+				(node->turns > heroChainTurn 
+					? "turn limit" 
+					: (node->action == CGPathNode::ENodeAction::UNKNOWN && node->actor->hero)
+						? "action unknown"
+						: "chain mask"));
+#endif
 			continue;
 		}
 
@@ -793,7 +839,7 @@ bool AINodeStorage::hasBetterChain(
 			}
 		}
 
-		if((candidateActor->chainMask & node.actor->chainMask) == 0)
+		if(candidateActor->chainMask != node.actor->chainMask)
 			continue;
 
 		auto nodeActor = node.actor;
@@ -931,6 +977,17 @@ AIPath::AIPath()
 {
 }
 
+std::shared_ptr<const ISpecialAction> AIPath::getFirstBlockedAction() const
+{
+	for(auto node : nodes)
+	{
+		if(node.specialAction && !node.specialAction->canAct(node.targetHero))
+			return node.specialAction;
+	}
+
+	return std::shared_ptr<const ISpecialAction>();
+}
+
 int3 AIPath::firstTileToGet() const
 {
 	if(nodes.size())
@@ -1005,7 +1062,7 @@ uint64_t AIPath::getTotalArmyLoss() const
 	return armyLoss + targetObjectArmyLoss;
 }
 
-std::string AIPath::toString()
+std::string AIPath::toString() const
 {
 	std::stringstream str;
 

@@ -35,11 +35,6 @@ class CGTownInstance;
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<VCAI> ai;
 
-PriorityEvaluator::PriorityEvaluator()
-{
-	initVisitTile();
-}
-
 PriorityEvaluator::~PriorityEvaluator()
 {
 	delete engine;
@@ -112,7 +107,8 @@ uint64_t getDwellingScore(const CGObjectInstance * target, bool checkGold)
 		if(creLevel.first && creLevel.second.size())
 		{
 			auto creature = creLevel.second.back().toCreature();
-			if(checkGold &&	!cb->getResourceAmount().canAfford(creature->cost * creLevel.first))
+			auto creaturesAreFree = creature->level == 1;
+			if(!creaturesAreFree && checkGold && !cb->getResourceAmount().canAfford(creature->cost * creLevel.first))
 				continue;
 
 			score += creature->AIValue * creLevel.first;
@@ -179,7 +175,7 @@ uint64_t getArmyReward(const CGObjectInstance * target, const CGHeroInstance * h
 	case Obj::SHIPWRECK:
 	case Obj::SHIPWRECK_SURVIVOR:
 	case Obj::WARRIORS_TOMB:
-		return 1500;
+		return 1000;
 	case Obj::ARTIFACT:
 		return evaluateArtifactArmyValue(dynamic_cast<const CGArtifact *>(target)->storedArtifact);
 	case Obj::DRAGON_UTOPIA:
@@ -208,6 +204,34 @@ float getEnemyHeroStrategicalValue(const CGHeroInstance * enemy)
 	return objectValue / 2.0f + enemy->level / 15.0f;
 }
 
+float getResourceRequirementStrength(int resType)
+{
+	TResources requiredResources = ai->nullkiller->buildAnalyzer->getResourcesRequiredNow();
+	TResources dailyIncome = ai->nullkiller->buildAnalyzer->getDailyIncome();
+
+	if(requiredResources[resType] == 0)
+		return 0;
+
+	if(dailyIncome[resType] == 0)
+		return 1;
+
+	return (float)requiredResources[resType] / dailyIncome[resType] / 3;
+}
+
+float getTotalResourceRequirementStrength(int resType)
+{
+	TResources requiredResources = ai->nullkiller->buildAnalyzer->getTotalResourcesRequired();
+	TResources dailyIncome = ai->nullkiller->buildAnalyzer->getDailyIncome();
+
+	if(requiredResources[resType] == 0)
+		return 0;
+
+	if(dailyIncome[resType] == 0)
+		return requiredResources[resType] / 30;
+
+	return (float)requiredResources[resType] / dailyIncome[resType] / 30;
+}
+
 float getStrategicalValue(const CGObjectInstance * target)
 {
 	if(!target)
@@ -215,6 +239,12 @@ float getStrategicalValue(const CGObjectInstance * target)
 
 	switch(target->ID)
 	{
+	case Obj::MINE:
+		return target->subID == Res::GOLD ? 0.8f : 0.05f + 0.3f * getTotalResourceRequirementStrength(target->subID) + 0.5f * getResourceRequirementStrength(target->subID);
+
+	case Obj::RESOURCE:
+		return target->subID == Res::GOLD ? 0 : 0.5f * getResourceRequirementStrength(target->subID);
+
 	case Obj::TOWN:
 		return target->tempOwner == PlayerColor::NEUTRAL ? 0.5 : 1;
 
@@ -261,7 +291,10 @@ float getSkillReward(const CGObjectInstance * target, const CGHeroInstance * her
 	case Obj::MERCENARY_CAMP:
 	case Obj::SHRINE_OF_MAGIC_GESTURE:
 	case Obj::SHRINE_OF_MAGIC_INCANTATION:
+	case Obj::TREE_OF_KNOWLEDGE:
 		return 1;
+	case Obj::LEARNING_STONE:
+		return 1.0f / std::sqrtf(hero->level);
 	case Obj::ARENA:
 	case Obj::SHRINE_OF_MAGIC_THOUGHT:
 		return 2;
@@ -339,6 +372,86 @@ int32_t getGoldReward(const CGObjectInstance * target, const CGHeroInstance * he
 	}
 }
 
+class ExecuteHeroChainEvaluationContextBuilder : public IEvaluationContextBuilder
+{
+public:
+	virtual Goals::EvaluationContext buildEvaluationContext(Goals::TSubgoal task) const override
+	{
+		auto evaluationContext = task->evaluationContext;
+
+		int objId = task->objid;
+
+		if(task->parent)
+			objId = task->parent->objid;
+
+		auto heroPtr = task->hero;
+		const CGObjectInstance * target = cb->getObj((ObjectInstanceID)objId, false);
+		auto day = cb->getDate(Date::DAY);
+		auto hero = heroPtr.get();
+		bool checkGold = evaluationContext.danger == 0;
+
+		evaluationContext.armyLossPersentage = task->evaluationContext.armyLoss / (double)task->evaluationContext.heroStrength;
+		evaluationContext.heroRole = ai->ah->getHeroRole(heroPtr);
+		evaluationContext.goldReward = getGoldReward(target, hero);
+		evaluationContext.armyReward = getArmyReward(target, hero, checkGold);
+		evaluationContext.skillReward = getSkillReward(target, hero, evaluationContext.heroRole);
+		evaluationContext.strategicalValue = getStrategicalValue(target);
+
+		return evaluationContext;
+	}
+};
+
+class BuildThisEvaluationContextBuilder : public IEvaluationContextBuilder
+{
+public:
+	virtual Goals::EvaluationContext buildEvaluationContext(Goals::TSubgoal task) const override
+	{
+		Goals::EvaluationContext evaluationContext;
+		Goals::BuildThis & buildThis = dynamic_cast<Goals::BuildThis &>(*task);
+		auto & bi = buildThis.buildingInfo;
+		
+		evaluationContext.goldReward = bi.dailyIncome[Res::GOLD] / 2;
+		evaluationContext.heroRole = HeroRole::MAIN;
+		evaluationContext.movementCostByRole[evaluationContext.heroRole] = bi.prerequisitesCount;
+		evaluationContext.armyReward = 0;
+		evaluationContext.strategicalValue = buildThis.townInfo.armyScore / 50000.0;
+
+		if(bi.creatureID != CreatureID::NONE)
+		{
+			evaluationContext.strategicalValue += 0.5f + 0.1f * bi.creatureLevel;
+
+			if(bi.baseCreatureID == bi.creatureID)
+			{
+				evaluationContext.armyReward = ai->ah->evaluateStackPower(bi.creatureID.toCreature(), bi.creatureGrows);
+			}
+			
+			auto creaturesToUpgrade = ai->ah->getTotalCreaturesAvailable(bi.baseCreatureID);
+			auto upgradedPower = ai->ah->evaluateStackPower(bi.creatureID.toCreature(), creaturesToUpgrade.count);
+
+			evaluationContext.armyReward = upgradedPower - creaturesToUpgrade.power;
+		}
+		
+		return evaluationContext;
+	}
+};
+
+PriorityEvaluator::PriorityEvaluator()
+{
+	initVisitTile();
+	evaluationContextBuilders[Goals::EXECUTE_HERO_CHAIN] = std::make_shared<ExecuteHeroChainEvaluationContextBuilder>();
+	evaluationContextBuilders[Goals::BUILD_STRUCTURE] = std::make_shared<BuildThisEvaluationContextBuilder>();
+}
+
+Goals::EvaluationContext PriorityEvaluator::buildEvaluationContext(Goals::TSubgoal goal) const
+{
+	auto builder = evaluationContextBuilders.find(goal->goalType);
+
+	if(builder == evaluationContextBuilders.end())
+		return goal->evaluationContext;
+
+	return builder->second->buildEvaluationContext(goal);
+}
+
 /// distance
 /// nearest hero?
 /// gold income
@@ -351,45 +464,28 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task)
 	if(task->priority > 0)
 		return task->priority;
 
-	auto heroPtr = task->hero;
+	auto evaluationContext = buildEvaluationContext(task);
 
-	if(!heroPtr.validAndSet())
-		return 2; 
-
-	int objId = task->objid;
-
-	if(task->parent)
-		objId = task->parent->objid;
-
-	const CGObjectInstance * target = cb->getObj((ObjectInstanceID)objId, false);
+	int rewardType = (evaluationContext.goldReward > 0 ? 1 : 0) 
+		+ (evaluationContext.armyReward > 0 ? 1 : 0)
+		+ (evaluationContext.skillReward > 0 ? 1 : 0)
+		+ (evaluationContext.strategicalValue > 0 ? 1 : 0);
 	
-	auto day = cb->getDate(Date::DAY);
-	auto hero = heroPtr.get();
-	auto armyTotal = task->evaluationContext.heroStrength;
-	double armyLossPersentage = task->evaluationContext.armyLoss / (double)armyTotal;
-	uint64_t danger = task->evaluationContext.danger;
-	HeroRole heroRole = ai->ah->getHeroRole(heroPtr);
-	int32_t goldReward = getGoldReward(target, hero);
-	bool checkGold = danger == 0;
-	uint64_t armyReward = getArmyReward(target, hero, checkGold);
-	float skillReward = getSkillReward(target, hero, heroRole);
-	float strategicalValue = getStrategicalValue(target);
 	double result = 0;
-	int rewardType = (goldReward > 0 ? 1 : 0) + (armyReward > 0 ? 1 : 0) + (skillReward > 0 ? 1 : 0) + (strategicalValue > 0 ? 1 : 0);
-	
+
 	try
 	{
-		armyLossPersentageVariable->setValue(armyLossPersentage);
-		heroRoleVariable->setValue(heroRole);
-		mainTurnDistanceVariable->setValue(task->evaluationContext.movementCostByRole[HeroRole::MAIN]);
-		scoutTurnDistanceVariable->setValue(task->evaluationContext.movementCostByRole[HeroRole::SCOUT]);
-		goldRewardVariable->setValue(goldReward);
-		armyRewardVariable->setValue(armyReward);
-		skillRewardVariable->setValue(skillReward);
-		dangerVariable->setValue(danger);
+		armyLossPersentageVariable->setValue(evaluationContext.armyLossPersentage);
+		heroRoleVariable->setValue(evaluationContext.heroRole);
+		mainTurnDistanceVariable->setValue(evaluationContext.movementCostByRole[HeroRole::MAIN]);
+		scoutTurnDistanceVariable->setValue(evaluationContext.movementCostByRole[HeroRole::SCOUT]);
+		goldRewardVariable->setValue(evaluationContext.goldReward);
+		armyRewardVariable->setValue(evaluationContext.armyReward);
+		skillRewardVariable->setValue(evaluationContext.skillReward);
+		dangerVariable->setValue(evaluationContext.danger);
 		rewardTypeVariable->setValue(rewardType);
-		closestHeroRatioVariable->setValue(task->evaluationContext.closestWayRatio);
-		strategicalValueVariable->setValue(strategicalValue);
+		closestHeroRatioVariable->setValue(evaluationContext.closestWayRatio);
+		strategicalValueVariable->setValue(evaluationContext.strategicalValue);
 
 		engine->process();
 		//engine.process(VISIT_TILE); //TODO: Process only Visit_Tile
@@ -402,16 +498,16 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task)
 	assert(result >= 0);
 
 #ifdef VCMI_TRACE_PATHFINDER
-	logAi->trace("Evaluated %s, hero %s, loss: %f, turns: %f, gold: %d, army gain: %d, danger: %d, role: %s, strategical value: %f, result %f",
+	logAi->trace("Evaluated %s, loss: %f, turns main: %f, scout: %f, gold: %d, army gain: %d, danger: %d, role: %s, strategical value: %f, result %f",
 		task->name(),
-		hero->name,
-		armyLossPersentage,
-		task->evaluationContext.movementCost,
-		goldReward,
-		armyReward,
-		danger,
-		heroRole ? "scout" : "main",
-		strategicalValue,
+		evaluationContext.armyLossPersentage,
+		evaluationContext.movementCostByRole[HeroRole::MAIN],
+		evaluationContext.movementCostByRole[HeroRole::SCOUT],
+		evaluationContext.goldReward,
+		evaluationContext.armyReward,
+		evaluationContext.danger,
+		evaluationContext.heroRole ? "scout" : "main",
+		evaluationContext.strategicalValue,
 		result);
 #endif
 

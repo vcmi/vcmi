@@ -47,6 +47,12 @@ void AIhelper::setAI(VCAI * AI)
 	heroManager->setAI(AI);
 }
 
+void AIhelper::update()
+{
+	armyManager->update();
+	heroManager->update();
+}
+
 bool AIhelper::getBuildingOptions(const CGTownInstance * t)
 {
 	return buildingManager->getBuildingOptions(t);
@@ -162,6 +168,16 @@ void AIhelper::updatePaths(std::vector<HeroPtr> heroes, bool useHeroChain)
 	pathfindingManager->updatePaths(heroes, useHeroChain);
 }
 
+uint64_t AIhelper::evaluateStackPower(const CCreature * creature, int count) const
+{
+	return armyManager->evaluateStackPower(creature, count);
+}
+
+SlotInfo AIhelper::getTotalCreaturesAvailable(CreatureID creatureID) const
+{
+	return armyManager->getTotalCreaturesAvailable(creatureID);
+}
+
 bool AIhelper::canGetArmy(const CArmedInstance * army, const CArmedInstance * source) const
 {
 	return armyManager->canGetArmy(army, source);
@@ -210,11 +226,6 @@ const std::map<HeroPtr, HeroRole> & AIhelper::getHeroRoles() const
 HeroRole AIhelper::getHeroRole(const HeroPtr & hero) const
 {
 	return heroManager->getHeroRole(hero);
-}
-
-void AIhelper::updateHeroRoles()
-{
-	heroManager->updateHeroRoles();
 }
 
 float AIhelper::evaluateSecSkill(SecondarySkill skill, const CGHeroInstance * hero) const
