@@ -12,6 +12,7 @@
 #include "../AIUtility.h"
 #include "../../../lib/ResourceSet.h"
 
+class Nullkiller;
 
 class DLL_EXPORT BuildingInfo
 {
@@ -26,6 +27,8 @@ public:
 	CreatureID baseCreatureID;
 	TResources dailyIncome;
 	uint8_t prerequisitesCount;
+	uint64_t armyStrength;
+	TResources armyCost;
 	std::string name;
 	bool exists = false;
 	bool canBuild = false;
@@ -33,7 +36,12 @@ public:
 
 	BuildingInfo();
 
-	BuildingInfo(const CBuilding* building, const CCreature* creature, CreatureID baseCreatureID);
+	BuildingInfo(
+		const CBuilding * building,
+		const CCreature * creature,
+		CreatureID baseCreature,
+		const CGTownInstance * town,
+		Nullkiller * ai);
 
 	std::string toString() const;
 };
@@ -47,13 +55,12 @@ public:
 	TResources townDevelopmentCost;
 	TResources requiredResources;
 	TResources armyCost;
-	int armyScore;
-	int economicsScore;
+	uint64_t armyStrength;
 	HeroRole townRole;
 	bool hasSomethingToBuild;
 
 	TownDevelopmentInfo(const CGTownInstance* town)
-		:town(town), armyScore(0), economicsScore(0), toBuild(), townDevelopmentCost(), requiredResources(), townRole(HeroRole::SCOUT), hasSomethingToBuild(false)
+		:town(town), armyStrength(0), toBuild(), townDevelopmentCost(), requiredResources(), townRole(HeroRole::SCOUT), hasSomethingToBuild(false)
 	{
 	}
 
@@ -72,8 +79,10 @@ private:
 	TResources armyCost;
 	TResources dailyIncome;
 	float goldPreasure;
+	Nullkiller * ai;
 
 public:
+	BuildAnalyzer(Nullkiller * ai) : ai(ai) {}
 	void update();
 
 	TResources getResourcesRequiredNow() const;
