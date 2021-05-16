@@ -36,9 +36,9 @@ extern const int GOLD_RESERVE;
 
 enum HeroRole
 {
-	SCOUT,
+	SCOUT = 0,
 
-	MAIN
+	MAIN = 1
 };
 
 //provisional class for AI to store a reference to an owned hero object

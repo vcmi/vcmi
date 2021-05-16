@@ -569,12 +569,11 @@ void VCAI::showBlockingDialog(const std::string & text, const std::vector<Compon
 {
 	LOG_TRACE_PARAMS(logAi, "text '%s', askID '%i', soundID '%i', selection '%i', cancel '%i'", text % askID % soundID % selection % cancel);
 	NET_EVENT_HANDLER;
-	int sel = 0;
 	status.addQuery(askID, boost::str(boost::format("Blocking dialog query with %d components - %s")
 									  % components.size() % text));
 
-	if(selection) //select from multiple components -> take the last one (they're indexed [1-size])
-		sel = components.size();
+	auto hero = nullkiller->getActiveHero();
+	auto target = nullkiller->getTargetTile();
 
 	if(!selection && cancel)
 	{
@@ -582,8 +581,6 @@ void VCAI::showBlockingDialog(const std::string & text, const std::vector<Compon
 		{
 			//yes&no -> always answer yes, we are a brave AI :)
 			auto answer = 1;
-			auto hero = nullkiller->getActiveHero();
-			auto target = nullkiller->getTargetTile();
 			auto objects = cb->getVisitableObjs(target);
 
 			if(hero.validAndSet() && target.valid() && objects.size())
@@ -608,14 +605,21 @@ void VCAI::showBlockingDialog(const std::string & text, const std::vector<Compon
 		return;
 	}
 
-	// TODO: Find better way to understand it is Chest of Treasures
-	if(components.size() == 2 && components.front().id == Component::RESOURCE)
-	{
-		sel = 1; // for now lets pick gold from a chest.
-	}
-
 	requestActionASAP([=]()
 	{
+		int sel = 0;
+
+		if(selection) //select from multiple components -> take the last one (they're indexed [1-size])
+			sel = components.size();
+
+		// TODO: Find better way to understand it is Chest of Treasures
+		if(components.size() == 2
+			&& components.front().id == Component::RESOURCE
+			&& ah->getHeroRole(hero) != HeroRole::MAIN)
+		{
+			sel = 1; // for now lets pick gold from a chest.
+		}
+
 		answerQuery(askID, sel);
 	});
 }
@@ -2026,6 +2030,9 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 		break;
 	case Obj::TREE_OF_KNOWLEDGE:
 	{
+		if(ai->ah->getHeroRole(h) == HeroRole::SCOUT)
+			return false;
+
 		TResources myRes = cb->getResourceAmount();
 		if(myRes[Res::GOLD] < 2000 || myRes[Res::GEMS] < 10)
 			return false;

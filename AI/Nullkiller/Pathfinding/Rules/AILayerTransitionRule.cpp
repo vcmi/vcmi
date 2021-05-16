@@ -37,7 +37,7 @@ namespace AIPathfinding
 
 			if(virtualBoat && tryEmbarkVirtualBoat(destination, source, virtualBoat))
 			{
-#ifdef VCMI_TRACE_PATHFINDER
+#if PATHFINDER_TRACE_LEVEL >= 1
 				logAi->trace("Embarking to virtual boat while moving %s -> %s!", source.coord.toString(), destination.coord.toString());
 #endif
 			}
@@ -138,7 +138,7 @@ namespace AIPathfinding
 				}
 				else
 				{
-#ifdef VCMI_TRACE_PATHFINDER
+#if PATHFINDER_TRACE_LEVEL >= 1
 					logAi->trace(
 						"Special transition node already allocated. Blocked moving %s -> %s",
 						source.coord.toString(),

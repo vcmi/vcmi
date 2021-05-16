@@ -36,7 +36,8 @@ namespace AIPathfinding
 			return dynamic_cast<const IQuestObject *>(questInfo.obj)->checkQuest(node->actor->hero);
 		}
 
-		return questInfo.quest->checkQuest(node->actor->hero);
+		return questInfo.quest->progress == CQuest::NOT_ACTIVE 
+			|| questInfo.quest->checkQuest(node->actor->hero);
 	}
 
 	Goals::TSubgoal QuestAction::decompose(const CGHeroInstance * hero) const

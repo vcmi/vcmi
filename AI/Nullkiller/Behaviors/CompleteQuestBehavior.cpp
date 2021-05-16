@@ -129,10 +129,12 @@ TGoalVec CompleteQuest::missionArt() const
 	if(!solutions.empty())
 		return solutions;
 
-	/*for(auto art : q.quest->m5arts)
+	CaptureObjectsBehavior findArts;
+
+	for(auto art : q.quest->m5arts)
 	{
-		solutions.push_back(sptr(GetArtOfType(art))); //TODO: transport?
-	}*/
+		solutions.push_back(sptr(CaptureObjectsBehavior().ofType(Obj::ARTIFACT, art)));
+	}
 
 	return solutions;
 }
@@ -223,21 +225,18 @@ TGoalVec CompleteQuest::missionDestroyObj() const
 	if(!obj)
 		return CaptureObjectsBehavior(q.obj).decompose();
 
-	if(obj->ID == Obj::HERO)
+	auto relations = cb->getPlayerRelations(ai->playerID, obj->tempOwner);
+
+	//if(relations == PlayerRelations::SAME_PLAYER)
+	//{
+	//	auto heroToProtect = cb->getHero(obj->id);
+
+	//	//solutions.push_back(sptr(GatherArmy().sethero(heroToProtect)));
+	//}
+	//else 
+	if(relations == PlayerRelations::ENEMIES)
 	{
-		auto relations = cb->getPlayerRelations(ai->playerID, obj->tempOwner);
-
-		//if(relations == PlayerRelations::SAME_PLAYER)
-		//{
-		//	auto heroToProtect = cb->getHero(obj->id);
-
-		//	//solutions.push_back(sptr(GatherArmy().sethero(heroToProtect)));
-		//}
-		//else 
-		if(relations == PlayerRelations::ENEMIES)
-		{
-			return CaptureObjectsBehavior(obj).decompose();
-		}
+		return CaptureObjectsBehavior(obj).decompose();
 	}
 
 	return TGoalVec();

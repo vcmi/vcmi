@@ -27,7 +27,8 @@ namespace AIPathfinding
 		{
 			// we can not directly bypass objects, we need to interact with them first
 			destination.node->theNodeBefore = source.node;
-#ifdef VCMI_TRACE_PATHFINDER
+
+#if PATHFINDER_TRACE_LEVEL >= 1
 			logAi->trace(
 				"Link src node %s to destination node %s while bypassing visitable obj",
 				source.coord.toString(),
