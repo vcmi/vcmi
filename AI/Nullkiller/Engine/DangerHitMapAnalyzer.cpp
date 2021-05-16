@@ -16,8 +16,14 @@ extern boost::thread_specific_ptr<VCAI> ai;
 
 void DangerHitMapAnalyzer::updateHitMap()
 {
+	if(upToDate)
+		return;
+
+	upToDate = true;
+
 	auto mapSize = cb->getMapSize();
 	hitMap.resize(boost::extents[mapSize.x][mapSize.y][mapSize.z]);
+	enemyHeroAccessibleObjects.clear();
 
 	std::map<PlayerColor, std::vector<HeroPtr>> heroes;
 
@@ -62,6 +68,17 @@ void DangerHitMapAnalyzer::updateHitMap()
 					node.fastestDanger.turn = turn;
 					node.fastestDanger.hero = path.targetHero;
 				}
+
+				if(turn == 0)
+				{
+					auto objects = cb->getVisitableObjs(pos, false);
+					
+					for(auto obj : objects)
+					{
+						if(cb->getPlayerRelations(obj->tempOwner, ai->playerID) != PlayerRelations::ENEMIES)
+							enemyHeroAccessibleObjects[path.targetHero].insert(obj);
+					}
+				}
 			}
 		});
 	}
@@ -77,10 +94,29 @@ uint64_t DangerHitMapAnalyzer::enemyCanKillOurHeroesAlongThePath(const AIPath & 
 		|| info.maximumDanger.turn <= turn && !isSafeToVisit(path.targetHero, path.heroArmy, info.maximumDanger.danger);
 }
 
-const HitMapNode & DangerHitMapAnalyzer::getObjectTreat(const CGObjectInstance * town) const
+const HitMapNode & DangerHitMapAnalyzer::getObjectTreat(const CGObjectInstance * obj) const
 {
-	auto tile = town->visitablePos();
+	auto tile = obj->visitablePos();
 	const HitMapNode & info = hitMap[tile.x][tile.y][tile.z];
 
 	return info;
+}
+
+const std::set<const CGObjectInstance *> empty = {};
+
+const std::set<const CGObjectInstance *> & DangerHitMapAnalyzer::getOneTurnAccessibleObjects(const CGHeroInstance * enemy) const
+{
+	auto result = enemyHeroAccessibleObjects.find(enemy);
+	
+	if(result == enemyHeroAccessibleObjects.end())
+	{
+		return empty;
+	}
+
+	return result->second;
+}
+
+void DangerHitMapAnalyzer::reset()
+{
+	upToDate = false;
 }

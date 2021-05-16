@@ -21,6 +21,7 @@
 #include "../../../lib/filesystem/Filesystem.h"
 #include "../VCAI.h"
 #include "../AIhelper.h"
+#include "../Engine/Nullkiller.h"
 
 #define MIN_AI_STRENGHT (0.5f) //lower when combat AI gets smarter
 #define UNGUARDED_OBJECT (100.0f) //we consider unguarded objects 100 times weaker than us
@@ -58,6 +59,7 @@ void PriorityEvaluator::initVisitTile()
 	skillRewardVariable = engine->getInputVariable("skillReward");
 	rewardTypeVariable = engine->getInputVariable("rewardType");
 	closestHeroRatioVariable = engine->getInputVariable("closestHeroRatio");
+	strategicalValueVariable = engine->getInputVariable("strategicalValue");
 	value = engine->getOutputVariable("Value");
 }
 
@@ -184,6 +186,40 @@ uint64_t getArmyReward(const CGObjectInstance * target, const CGHeroInstance * h
 	case Obj::HERO:
 		return cb->getPlayerRelations(target->tempOwner, ai->playerID) == PlayerRelations::ENEMIES
 			? enemyArmyEliminationRewardRatio * dynamic_cast<const CGHeroInstance *>(target)->getArmyStrength()
+			: 0;
+	default:
+		return 0;
+	}
+}
+
+float getStrategicalValue(const CGObjectInstance * target);
+
+float getEnemyHeroStrategicalValue(const CGHeroInstance * enemy)
+{
+	auto objectsUnderTreat = ai->nullkiller->dangerHitMap->getOneTurnAccessibleObjects(enemy);
+	float objectValue = 0;
+
+	for(auto obj : objectsUnderTreat)
+	{
+		objectValue += getStrategicalValue(obj);
+	}
+
+	return objectValue + enemy->level / 15.0f;
+}
+
+float getStrategicalValue(const CGObjectInstance * target)
+{
+	if(!target)
+		return 0;
+
+	switch(target->ID)
+	{
+	case Obj::TOWN:
+		return target->tempOwner == PlayerColor::NEUTRAL ? 0.5 : 1;
+
+	case Obj::HERO:
+		return cb->getPlayerRelations(target->tempOwner, ai->playerID) == PlayerRelations::ENEMIES
+			? getEnemyHeroStrategicalValue(dynamic_cast<const CGHeroInstance *>(target))
 			: 0;
 	default:
 		return 0;
@@ -336,8 +372,9 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task)
 	bool checkGold = danger == 0;
 	uint64_t armyReward = getArmyReward(target, hero, checkGold);
 	float skillReward = getSkillReward(target, hero, heroRole);
+	float strategicalValue = getStrategicalValue(target);
 	double result = 0;
-	int rewardType = (goldReward > 0 ? 1 : 0) + (armyReward > 0 ? 1 : 0) + (skillReward > 0 ? 1 : 0);
+	int rewardType = (goldReward > 0 ? 1 : 0) + (armyReward > 0 ? 1 : 0) + (skillReward > 0 ? 1 : 0) + (strategicalValue > 0 ? 1 : 0);
 	
 	try
 	{
@@ -350,6 +387,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task)
 		dangerVariable->setValue(danger);
 		rewardTypeVariable->setValue(rewardType);
 		closestHeroRatioVariable->setValue(task->evaluationContext.closestWayRatio);
+		strategicalValueVariable->setValue(strategicalValue);
 
 		engine->process();
 		//engine.process(VISIT_TILE); //TODO: Process only Visit_Tile
