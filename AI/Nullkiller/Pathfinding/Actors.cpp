@@ -88,7 +88,7 @@ std::string ObjectActor::toString() const
 HeroActor::HeroActor(const CGHeroInstance * hero, HeroRole heroRole, uint64_t chainMask, const Nullkiller * ai)
 	:ChainActor(hero, heroRole, chainMask)
 {
-	exchangeMap = new HeroExchangeMap(this, ai);
+	exchangeMap.reset(new HeroExchangeMap(this, ai));
 	setupSpecialActors();
 }
 
@@ -99,7 +99,7 @@ HeroActor::HeroActor(
 	const Nullkiller * ai)
 	:ChainActor(carrier, other,	army)
 {
-	exchangeMap = new HeroExchangeMap(this, ai);
+	exchangeMap.reset(new HeroExchangeMap(this, ai));
 	armyCost += army->armyCost;
 	actorAction = army->getActorAction();
 	setupSpecialActors();
@@ -244,6 +244,11 @@ ChainActor * HeroActor::exchange(const ChainActor * specialActor, const ChainAct
 	return &result->specialActors[index];
 }
 
+HeroExchangeMap::HeroExchangeMap(const HeroActor * actor, const Nullkiller * ai)
+	:actor(actor), ai(ai)
+{
+}
+
 HeroExchangeMap::~HeroExchangeMap()
 {
 	for(auto & exchange : exchangeMap)
@@ -339,7 +344,11 @@ HeroExchangeArmy * HeroExchangeMap::tryUpgrade(
 	}
 
 	if(target->getArmyStrength() <= army->getArmyStrength())
+	{
+		delete target;
+
 		return nullptr;
+	}
 
 	return target;
 }
