@@ -614,22 +614,45 @@ const std::set<const CGHeroInstance *> AINodeStorage::getAllHeroes() const
 	return heroes;
 }
 
-void AINodeStorage::setHeroes(std::vector<const CGHeroInstance *> heroes)
+bool AINodeStorage::isDistanceLimitReached(const PathNodeInfo & source, CDestinationNodeInfo & destination) const
+{
+	if(heroChainPass == EHeroChainPass::CHAIN && destination.node->turns > heroChainTurn)
+	{
+		return true;
+	}
+	
+	auto aiNode = getAINode(destination.node);
+	
+	if(heroChainPass == EHeroChainPass::FINAL)
+	{
+		if(aiNode->actor->heroRole == HeroRole::SCOUT && destination.node->turns > 3)
+			return true;
+	}
+	else if(heroChainPass == EHeroChainPass::INITIAL)
+	{
+		if(aiNode->actor->heroRole == HeroRole::SCOUT && destination.node->turns > 5)
+			return true;
+	}
+
+	return false;
+}
+
+void AINodeStorage::setHeroes(std::map<const CGHeroInstance *, HeroRole> heroes)
 {
 	playerID = ai->playerID;
 
 	for(auto & hero : heroes)
 	{
 		uint64_t mask = 1 << actors.size();
-		auto actor = std::make_shared<HeroActor>(hero, mask, ai);
+		auto actor = std::make_shared<HeroActor>(hero.first, hero.second, mask, ai);
 
-		if(hero->tempOwner != ai->playerID)
+		if(actor->hero->tempOwner != ai->playerID)
 		{
 			bool onLand = !actor->hero->boat;
 			actor->initialMovement = actor->hero->maxMovePoints(onLand);
 		}
 
-		playerID = hero->tempOwner;
+		playerID = actor->hero->tempOwner;
 
 		actors.push_back(actor);
 	}
@@ -926,7 +949,7 @@ bool AINodeStorage::hasBetterChain(
 			}
 		}
 
-		if(candidateActor->chainMask != node.actor->chainMask)
+		if(candidateActor->chainMask != node.actor->chainMask && heroChainPass == EHeroChainPass::CHAIN)
 			continue;
 
 		auto nodeActor = node.actor;
@@ -949,29 +972,32 @@ bool AINodeStorage::hasBetterChain(
 			return true;
 		}
 
-		/*if(nodeArmyValue == candidateArmyValue
-			&& nodeActor->heroFightingStrength >= candidateActor->heroFightingStrength
-			&& node.cost <= candidateNode->cost)
+		if(heroChainPass == EHeroChainPass::FINAL)
 		{
-			if(nodeActor->heroFightingStrength == candidateActor->heroFightingStrength
-				&& node.cost == candidateNode->cost
-				&& &node < candidateNode)
+			if(nodeArmyValue == candidateArmyValue
+				&& nodeActor->heroFightingStrength >= candidateActor->heroFightingStrength
+				&& node.cost <= candidateNode->cost)
 			{
-				continue;
-			}
+				if(nodeActor->heroFightingStrength == candidateActor->heroFightingStrength
+					&& node.cost == candidateNode->cost
+					&& &node < candidateNode)
+				{
+					continue;
+				}
 
 #if AI_TRACE_LEVEL >= 2
-			logAi->trace(
-				"Block ineficient move because of stronger hero %s->%s, hero: %s[%X], army %lld, mp diff: %i",
-				source->coord.toString(),
-				candidateNode->coord.toString(),
-				candidateNode->actor->hero->name,
-				candidateNode->actor->chainMask,
-				candidateNode->actor->armyValue,
-				node.moveRemains - candidateNode->moveRemains);
+				logAi->trace(
+					"Block ineficient move because of stronger hero %s->%s, hero: %s[%X], army %lld, mp diff: %i",
+					source->coord.toString(),
+					candidateNode->coord.toString(),
+					candidateNode->actor->hero->name,
+					candidateNode->actor->chainMask,
+					candidateNode->actor->armyValue,
+					node.moveRemains - candidateNode->moveRemains);
 #endif
-			return true;
-		}*/
+				return true;
+			}
+		}
 	}
 
 	return false;
@@ -1170,7 +1196,7 @@ std::string AIPath::toString() const
 {
 	std::stringstream str;
 
-	str << targetHero->name << "[" << std::hex << chainMask << std::dec << "]" << ": ";
+	str << targetHero->name << "[" << std::hex << chainMask << std::dec << "]" << ", turn " << (int)(turn()) << ": ";
 
 	for(auto node : nodes)
 		str << node.targetHero->name << "[" << std::hex << node.chainMask << std::dec << "]" << "->" << node.coord.toString() << "; ";

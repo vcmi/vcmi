@@ -62,6 +62,7 @@ Goals::TTask Nullkiller::choseBestTask(Goals::TSubgoal behavior) const
 	Goals::TGoalVec goals[MAX_DEPTH + 1];
 	Goals::TTaskVec tasks;
 	std::map<Goals::TSubgoal, Goals::TSubgoal> decompositionMap;
+	auto start = boost::chrono::high_resolution_clock::now();
 
 	goals[0] = {behavior};
 
@@ -127,14 +128,19 @@ Goals::TTask Nullkiller::choseBestTask(Goals::TSubgoal behavior) const
 
 	if(tasks.empty())
 	{
-		logAi->debug("Behavior %s found no tasks", behavior->toString());
+		logAi->debug("Behavior %s found no tasks. Time taken %ld", behavior->toString(), timeElapsed(start));
 
 		return Goals::taskptr(Goals::Invalid());
 	}
 
 	auto task = choseBestTask(tasks);
 
-	logAi->debug("Behavior %s returns %s, priority %f", behavior->toString(), task->toString(), task->priority);
+	logAi->debug(
+		"Behavior %s returns %s, priority %f. Time taken %ld",
+		behavior->toString(),
+		task->toString(),
+		task->priority,
+		timeElapsed(start));
 
 	return task;
 }
@@ -148,26 +154,34 @@ void Nullkiller::resetAiState()
 
 void Nullkiller::updateAiState()
 {
+	auto start = boost::chrono::high_resolution_clock::now();
+
 	activeHero = nullptr;
 
 	memory->removeInvisibleObjects(cb.get());
 	dangerHitMap->updateHitMap();
 
-	auto activeHeroes = cb->getHeroesInfo();
+	heroManager->update();
+	logAi->trace("Updating paths");
 
-	vstd::erase_if(activeHeroes, [this](const CGHeroInstance * hero) -> bool
+	std::map<const CGHeroInstance *, HeroRole> activeHeroes;
+
+	for(auto hero : cb->getHeroesInfo())
 	{
-		auto lockedReason = getHeroLockedReason(hero);
+		if(getHeroLockedReason(hero) == HeroLockedReason::DEFENCE)
+			continue;
 
-		return lockedReason == HeroLockedReason::DEFENCE;
-	});
+		activeHeroes[hero] = heroManager->getHeroRole(hero);
+	}
 
 	pathfinder->updatePaths(activeHeroes, true);
-	heroManager->update();
+
 	armyManager->update();
 
 	objectClusterizer->clusterize();
 	buildAnalyzer->update();
+
+	logAi->debug("AI state updated in %ld", timeElapsed(start));
 }
 
 bool Nullkiller::isHeroLocked(const CGHeroInstance * hero) const

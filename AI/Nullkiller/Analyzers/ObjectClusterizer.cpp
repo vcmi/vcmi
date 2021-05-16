@@ -172,6 +172,8 @@ bool ObjectClusterizer::shouldVisitObject(const CGObjectInstance * obj) const
 
 void ObjectClusterizer::clusterize()
 {
+	auto start = boost::chrono::high_resolution_clock::now();
+
 	nearObjects.reset();
 	farObjects.reset();
 	blockedObjects.clear();
@@ -276,4 +278,6 @@ void ObjectClusterizer::clusterize()
 		}
 #endif
 	}
+
+	logAi->trace("Clusterization complete in %ld", timeElapsed(start));
 }
