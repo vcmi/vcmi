@@ -283,6 +283,17 @@ void BuildAnalyzer::updateDailyIncome()
 	}
 }
 
+bool BuildAnalyzer::hasAnyBuilding(int32_t alignment, BuildingID bid) const
+{
+	for(auto tdi : developmentInfos)
+	{
+		if(tdi.town->alignment == alignment && tdi.town->hasBuilt(bid))
+			return true;
+	}
+
+	return false;
+}
+
 void TownDevelopmentInfo::addExistingDwelling(const BuildingInfo & existingDwelling)
 {
 	existingDwellings.push_back(existingDwelling);

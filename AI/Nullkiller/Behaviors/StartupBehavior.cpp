@@ -73,7 +73,9 @@ bool needToRecruitHero(const CGTownInstance * startupTown)
 	auto heroToCheck = startupTown->garrisonHero ? startupTown->garrisonHero.get() : startupTown->visitingHero.get();
 	auto paths = cb->getPathsInfo(heroToCheck);
 
-	for(auto obj : ai->visitableObjs)
+	int treasureSourcesCount = 0;
+
+	for(auto obj : ai->nullkiller->objectClusterizer->getNearbyObjects())
 	{
 		if(obj->ID == Obj::RESOURCE && obj->subID == Res::GOLD
 			|| obj->ID == Obj::TREASURE_CHEST
@@ -84,12 +86,15 @@ bool needToRecruitHero(const CGTownInstance * startupTown)
 			if((path->accessible == CGPathNode::BLOCKVIS || path->accessible == CGPathNode::VISIT) 
 				&& path->reachable())
 			{
-				return true;
+				treasureSourcesCount++;
 			}
 		}
 	}
 
-	return false;
+	auto basicCount = cb->getTownsInfo().size() + 2;
+	auto boost = (int)std::floor(std::pow(treasureSourcesCount / 3.0, 2));
+
+	return cb->getHeroCount(ai->playerID, true) < basicCount + boost;
 }
 
 Goals::TGoalVec StartupBehavior::decompose() const

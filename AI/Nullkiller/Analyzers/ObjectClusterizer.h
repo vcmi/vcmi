@@ -55,6 +55,7 @@ private:
 public:
 	void clusterize();
 	std::vector<const CGObjectInstance *> getNearbyObjects() const;
+	std::vector<const CGObjectInstance *> getFarObjects() const;
 	std::vector<std::shared_ptr<ObjectCluster>> getLockedClusters() const;
 	const CGObjectInstance * getBlocker(const AIPath & path) const;
 

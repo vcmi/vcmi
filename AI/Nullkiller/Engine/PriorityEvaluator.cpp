@@ -530,6 +530,8 @@ public:
 			evaluationContext.movementCostByRole[role] += objInfo.second.movementCost / boost;
 			evaluationContext.movementCost += objInfo.second.movementCost / boost;
 
+			vstd::amax(evaluationContext.turn, objInfo.second.turn / boost);
+
 			boost <<= 1;
 
 			if(boost > 8)
@@ -538,7 +540,6 @@ public:
 
 		const AIPath & pathToCenter = clusterGoal.getPathToCenter();
 
-		vstd::amax(evaluationContext.turn, pathToCenter.turn());
 	}
 };
 
@@ -561,10 +562,9 @@ public:
 
 		if(bi.creatureID != CreatureID::NONE)
 		{
-			evaluationContext.strategicalValue += (0.5f + 0.1f * bi.creatureLevel) / (float)bi.prerequisitesCount;
-
 			if(bi.baseCreatureID == bi.creatureID)
 			{
+				evaluationContext.strategicalValue += 0.5f + 0.1f * bi.creatureLevel / (float)bi.prerequisitesCount;
 				evaluationContext.armyReward += ai->ah->evaluateStackPower(bi.creatureID.toCreature(), bi.creatureGrows);
 			}
 			else
@@ -572,7 +572,10 @@ public:
 				auto creaturesToUpgrade = ai->ah->getTotalCreaturesAvailable(bi.baseCreatureID);
 				auto upgradedPower = ai->ah->evaluateStackPower(bi.creatureID.toCreature(), creaturesToUpgrade.count);
 
-				evaluationContext.armyReward += upgradedPower - creaturesToUpgrade.power;
+				evaluationContext.strategicalValue += 0.05f * bi.creatureLevel / (float)bi.prerequisitesCount;
+
+				if(!ai->nullkiller->buildAnalyzer->hasAnyBuilding(buildThis.town->alignment, bi.id))
+					evaluationContext.armyReward += upgradedPower - creaturesToUpgrade.power;
 			}
 		}
 		else
