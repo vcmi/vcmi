@@ -78,6 +78,8 @@ void AIPathfinder::updatePaths(std::map<const CGHeroInstance *, HeroRole> heroes
 		{
 			while(storage->calculateHeroChain())
 			{
+				boost::this_thread::interruption_point();
+
 				logAi->trace("Recalculate paths pass %d", pass++);
 				cb->calculatePaths(config);
 			}
@@ -87,6 +89,8 @@ void AIPathfinder::updatePaths(std::map<const CGHeroInstance *, HeroRole> heroes
 
 		if(storage->calculateHeroChainFinal())
 		{
+			boost::this_thread::interruption_point();
+
 			logAi->trace("Recalculate paths pass final");
 			cb->calculatePaths(config);
 		}
