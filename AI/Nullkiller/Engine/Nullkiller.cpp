@@ -25,6 +25,12 @@ extern boost::thread_specific_ptr<VCAI> ai;
 
 using namespace Goals;
 
+#if AI_TRACE_LEVEL >= 1
+#define MAXPASS 1000000
+#else
+#define MAXPASS 30
+#endif
+
 Nullkiller::Nullkiller()
 {
 	memory.reset(new AIMemory());
@@ -152,7 +158,7 @@ void Nullkiller::resetAiState()
 	dangerHitMap->reset();
 }
 
-void Nullkiller::updateAiState()
+void Nullkiller::updateAiState(int pass)
 {
 	auto start = boost::chrono::high_resolution_clock::now();
 
@@ -174,7 +180,10 @@ void Nullkiller::updateAiState()
 		activeHeroes[hero] = heroManager->getHeroRole(hero);
 	}
 
-	pathfinder->updatePaths(activeHeroes, true);
+	PathfinderSettings cfg;
+	cfg.useHeroChain = true;
+
+	pathfinder->updatePaths(activeHeroes, cfg);
 
 	armyManager->update();
 
@@ -226,9 +235,9 @@ void Nullkiller::makeTurn()
 {
 	resetAiState();
 
-	while(true)
+	for(int i = 1; i <= MAXPASS; i++)
 	{
-		updateAiState();
+		updateAiState(i);
 
 		Goals::TTaskVec bestTasks = {
 			choseBestTask(sptr(BuyArmyBehavior())),

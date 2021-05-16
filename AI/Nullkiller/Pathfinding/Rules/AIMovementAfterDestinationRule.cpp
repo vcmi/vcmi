@@ -135,6 +135,13 @@ namespace AIPathfinding
 			return false;
 		}
 
+		auto danger = nodeStorage->evaluateDanger(destination.coord, nodeStorage->getHero(destination.node), true);
+
+		if(danger)
+		{
+			return bypassBattle(source, destination, pathfinderConfig, pathfinderHelper);
+		}
+
 		return true;
 	}
 

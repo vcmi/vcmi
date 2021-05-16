@@ -42,7 +42,7 @@ std::vector<AIPath> AIPathfinder::getPathInfo(const int3 & tile) const
 	return storage->getChainInfo(tile, !tileInfo->isWater());
 }
 
-void AIPathfinder::updatePaths(std::map<const CGHeroInstance *, HeroRole> heroes, bool useHeroChain)
+void AIPathfinder::updatePaths(std::map<const CGHeroInstance *, HeroRole> heroes, PathfinderSettings pathfinderSettings)
 {
 	if(!storage)
 	{
@@ -55,8 +55,9 @@ void AIPathfinder::updatePaths(std::map<const CGHeroInstance *, HeroRole> heroes
 
 	storage->clear();
 	storage->setHeroes(heroes);
+	storage->setScoutTurnDistanceLimit(pathfinderSettings.scoutTurnDistanceLimit);
 
-	if(useHeroChain)
+	if(pathfinderSettings.useHeroChain)
 	{
 		storage->setTownsAndDwellings(cb->getTownsInfo(), ai->memory->visitableObjs);
 	}
@@ -66,7 +67,7 @@ void AIPathfinder::updatePaths(std::map<const CGHeroInstance *, HeroRole> heroes
 	logAi->trace("Recalculate paths pass %d", pass++);
 	cb->calculatePaths(config);
 
-	if(!useHeroChain)
+	if(!pathfinderSettings.useHeroChain)
 		return;
 
 	do

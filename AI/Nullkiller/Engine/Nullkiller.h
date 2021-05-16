@@ -68,7 +68,7 @@ public:
 
 private:
 	void resetAiState();
-	void updateAiState();
+	void updateAiState(int pass);
 	Goals::TTask choseBestTask(Goals::TSubgoal behavior) const;
 	Goals::TTask choseBestTask(Goals::TTaskVec & tasks) const;
 };
