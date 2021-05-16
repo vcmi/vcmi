@@ -44,7 +44,7 @@ void Nullkiller::init(std::shared_ptr<CCallback> cb, PlayerColor playerID)
 
 	priorityEvaluator.reset(new PriorityEvaluator(this));
 	dangerHitMap.reset(new DangerHitMapAnalyzer(this));
-	buildAnalyzer.reset(new BuildAnalyzer());
+	buildAnalyzer.reset(new BuildAnalyzer(this));
 	objectClusterizer.reset(new ObjectClusterizer(this));
 	dangerEvaluator.reset(new FuzzyHelper(this));
 	pathfinder.reset(new AIPathfinder(cb.get(), this));
@@ -70,6 +70,8 @@ Goals::TTask Nullkiller::choseBestTask(Goals::TSubgoal behavior, int decompositi
 	
 	Goals::TGoalVec elementarGoals = decomposer->decompose(behavior, decompositionMaxDepth);
 	Goals::TTaskVec tasks;
+
+	boost::this_thread::interruption_point();
 	
 	for(auto goal : elementarGoals)
 	{
@@ -109,12 +111,16 @@ void Nullkiller::resetAiState()
 
 void Nullkiller::updateAiState(int pass)
 {
+	boost::this_thread::interruption_point();
+
 	auto start = boost::chrono::high_resolution_clock::now();
 
 	activeHero = nullptr;
 
 	memory->removeInvisibleObjects(cb.get());
 	dangerHitMap->updateHitMap();
+
+	boost::this_thread::interruption_point();
 
 	heroManager->update();
 	logAi->trace("Updating paths");
@@ -216,6 +222,7 @@ void Nullkiller::makeTurn()
 			return;
 		}
 
+		boost::this_thread::interruption_point();
 		logAi->debug("Trying to realize %s (value %2.3f)", bestTask->toString(), bestTask->priority);
 
 		try
