@@ -44,7 +44,7 @@ void DangerHitMapAnalyzer::updateHitMap()
 
 	for(auto pair : heroes)
 	{
-		ai->pathfinder->updatePaths(pair.second, false);
+		ai->pathfinder->updatePaths(pair.second, PathfinderSettings());
 
 		foreach_tile_pos([&](const int3 & pos)
 		{

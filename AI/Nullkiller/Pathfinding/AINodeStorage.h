@@ -116,6 +116,7 @@ private:
 	int heroChainTurn;
 	int heroChainMaxTurns;
 	PlayerColor playerID;
+	uint8_t scoutTurnDistanceLimit;
 
 public:
 	/// more than 1 chain layer for each hero allows us to have more than 1 path to each tile so we can chose more optimal one.
@@ -174,6 +175,7 @@ public:
 	std::vector<AIPath> getChainInfo(const int3 & pos, bool isOnLand) const;
 	bool isTileAccessible(const HeroPtr & hero, const int3 & pos, const EPathfindingLayer layer) const;
 	void setHeroes(std::map<const CGHeroInstance *, HeroRole> heroes);
+	void setScoutTurnDistanceLimit(uint8_t distanceLimit) { scoutTurnDistanceLimit = distanceLimit; }
 	void setTownsAndDwellings(
 		const std::vector<const CGTownInstance *> & towns,
 		const std::set<const CGObjectInstance *> & visitableObjs);

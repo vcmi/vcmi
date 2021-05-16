@@ -15,6 +15,17 @@
 
 class Nullkiller;
 
+struct PathfinderSettings
+{
+	bool useHeroChain;
+	uint8_t scoutTurnDistanceLimit;
+
+	PathfinderSettings()
+		:useHeroChain(false),
+		scoutTurnDistanceLimit(255)
+	{ }
+};
+
 class AIPathfinder
 {
 private:
@@ -26,6 +37,6 @@ public:
 	AIPathfinder(CPlayerSpecificInfoCallback * cb, Nullkiller * ai);
 	std::vector<AIPath> getPathInfo(const int3 & tile) const;
 	bool isTileAccessible(const HeroPtr & hero, const int3 & tile) const;
-	void updatePaths(std::map<const CGHeroInstance *, HeroRole> heroes, bool useHeroChain = false);
+	void updatePaths(std::map<const CGHeroInstance *, HeroRole> heroes, PathfinderSettings pathfinderSettings);
 	void init();
 };

@@ -84,6 +84,7 @@ void AINodeStorage::clear()
 	heroChainPass = EHeroChainPass::INITIAL;
 	heroChainTurn = 0;
 	heroChainMaxTurns = 1;
+	scoutTurnDistanceLimit = 255;
 }
 
 const AIPathNode * AINodeStorage::getAINode(const CGPathNode * node) const
@@ -625,12 +626,12 @@ bool AINodeStorage::isDistanceLimitReached(const PathNodeInfo & source, CDestina
 	
 	if(heroChainPass == EHeroChainPass::FINAL)
 	{
-		if(aiNode->actor->heroRole == HeroRole::SCOUT && destination.node->turns > 3)
+		if(aiNode->actor->heroRole == HeroRole::SCOUT && destination.node->turns > scoutTurnDistanceLimit)
 			return true;
 	}
 	else if(heroChainPass == EHeroChainPass::INITIAL)
 	{
-		if(aiNode->actor->heroRole == HeroRole::SCOUT && destination.node->turns > 5)
+		if(aiNode->actor->heroRole == HeroRole::SCOUT && destination.node->turns > scoutTurnDistanceLimit)
 			return true;
 	}
 

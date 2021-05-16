@@ -15,13 +15,13 @@ struct HitMapInfo
 {
 	uint64_t danger;
 	uint8_t turn;
-	const CGHeroInstance * hero;
+	HeroPtr hero;
 
 	void reset()
 	{
 		danger = 0;
 		turn = 255;
-		hero = nullptr;
+		hero = HeroPtr();
 	}
 };
 
