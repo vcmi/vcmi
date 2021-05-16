@@ -9,6 +9,21 @@
  */
 #pragma once
 
+/*********************** TBB.h ********************/
+
+#include "tbb/atomic.h"
+#include "tbb/blocked_range.h"
+#include "tbb/concurrent_hash_map.h"
+#include "tbb/concurrent_unordered_map.h"
+#include "tbb/concurrent_unordered_set.h"
+#include "tbb/concurrent_vector.h"
+#include "tbb/parallel_do.h"
+#include "tbb/parallel_for.h"
+#include "tbb/parallel_for_each.h"
+#include "tbb/parallel_invoke.h"
+
+/*********************** TBB.h ********************/
+
 #include "../../lib/VCMI_Lib.h"
 #include "../../lib/CBuildingHandler.h"
 #include "../../lib/CCreatureHandler.h"
@@ -18,7 +33,6 @@
 #include "../../lib/mapObjects/CObjectHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/CPathfinder.h"
-#include <tbb/tbb.h>
 
 using namespace tbb;
 
@@ -258,13 +272,13 @@ public:
 	
 	void add(std::unique_ptr<T> t)
 	{
-		std::lock_guard<std::mutex> lock(sync);
+		boost::lock_guard<boost::mutex> lock(sync);
 		pool.push_back(std::move(t));
 	}
 
 	ptr_type acquire()
 	{
-		std::lock_guard<std::mutex> lock(sync);
+		boost::lock_guard<boost::mutex> lock(sync);
 		bool poolIsEmpty = pool.empty();
 		T * element = poolIsEmpty
 			? elementFactory().release()
@@ -293,5 +307,5 @@ private:
 	std::vector<std::unique_ptr<T>> pool;
 	std::function<std::unique_ptr<T>()> elementFactory;
 	std::shared_ptr<SharedPool<T> *> instance_tracker;
-	std::mutex sync;
+	boost::mutex sync;
 };

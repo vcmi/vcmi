@@ -30,16 +30,6 @@ namespace Goals
 			town = nullptr;
 		}
 
-		OSETTER(bool, isAbstract)
-		OSETTER(int, value)
-		OSETTER(int, resID)
-		OSETTER(int, objid)
-		OSETTER(int, aid)
-		OSETTER(int3, tile)
-		OSETTER(HeroPtr, hero)
-		OSETTER(CGTownInstance *, town)
-		OSETTER(int, bid)
-
 		CGoal<T> * clone() const override
 		{
 			return new T(static_cast<T const &>(*this)); //casting enforces template instantiation
@@ -99,7 +89,7 @@ namespace Goals
 
 		virtual bool isElementar() const override { return true; }
 
-		virtual HeroPtr getHero() const override { return hero; }
+		virtual HeroPtr getHero() const override { return AbstractGoal::hero; }
 	};
 
 	class DLL_EXPORT Invalid : public ElementarGoal<Invalid>
