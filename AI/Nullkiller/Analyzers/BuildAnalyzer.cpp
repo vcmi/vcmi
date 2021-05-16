@@ -156,6 +156,12 @@ void BuildAnalyzer::update()
 
 		return val1 > val2;
 	});
+
+	updateDailyIncome();
+
+	goldPreasure = (float)armyCost[Res::GOLD] / (1 + cb->getResourceAmount(Res::GOLD) + (float)dailyIncome[Res::GOLD] * 7.0f);
+
+	logAi->trace("Gold preasure: %f", goldPreasure);
 }
 
 void BuildAnalyzer::reset()
@@ -254,11 +260,12 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 	return info;
 }
 
-TResources BuildAnalyzer::getDailyIncome() const
+void BuildAnalyzer::updateDailyIncome()
 {
 	auto objects = cb->getMyObjects();
 	auto towns = cb->getTownsInfo();
-	TResources dailyIncome = TResources();
+	
+	dailyIncome = TResources();
 
 	for(const CGObjectInstance* obj : objects)
 	{
@@ -274,8 +281,6 @@ TResources BuildAnalyzer::getDailyIncome() const
 	{
 		dailyIncome += town->dailyIncome();
 	}
-
-	return dailyIncome;
 }
 
 void TownDevelopmentInfo::addExistingDwelling(const BuildingInfo & existingDwelling)

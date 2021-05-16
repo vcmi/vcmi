@@ -84,7 +84,7 @@ void Nullkiller::updateAiState()
 	{
 		auto lockedReason = getHeroLockedReason(hero.h);
 
-		return lockedReason == HeroLockedReason::DEFENCE || lockedReason == HeroLockedReason::STARTUP;
+		return lockedReason == HeroLockedReason::DEFENCE;
 	});
 
 	ai->ah->updatePaths(activeHeroes, true);
@@ -130,6 +130,13 @@ void Nullkiller::makeTurn()
 		if(bestTask->invalid())
 		{
 			logAi->trace("No goals found. Ending turn.");
+
+			return;
+		}
+
+		if(bestTask->priority < MIN_PRIORITY)
+		{
+			logAi->trace("Goal %s has too low priority. It is not worth doing it. Ending turn.", bestTask->name());
 
 			return;
 		}

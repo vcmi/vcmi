@@ -15,6 +15,9 @@
 #include "../Goals/AbstractGoal.h"
 #include "../Behaviors/Behavior.h"
 
+const float MAX_GOLD_PEASURE = 0.3f;
+const float MIN_PRIORITY = 0.01f;
+
 enum class HeroLockedReason
 {
 	NOT_LOCKED = 0,

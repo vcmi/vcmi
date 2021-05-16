@@ -60,6 +60,7 @@ public:
 	virtual std::string toString() const;
 	ChainActor * exchange(const ChainActor * other) const { return exchange(this, other); }
 	void setBaseActor(HeroActor * base);
+	virtual const CGObjectInstance * getActorObject() const	{ return hero; }
 
 protected:
 	virtual ChainActor * exchange(const ChainActor * specialActor, const ChainActor * other) const;
@@ -86,6 +87,7 @@ public:
 
 private:
 	CCreatureSet * pickBestCreatures(const CCreatureSet * army1, const CCreatureSet * army2) const;
+	CCreatureSet * tryUpgrade(const CCreatureSet * army, const CGObjectInstance * upgrader, TResources resources) const;
 };
 
 class HeroActor : public ChainActor
@@ -112,7 +114,24 @@ protected:
 	virtual ChainActor * exchange(const ChainActor * specialActor, const ChainActor * other) const override;
 };
 
-class DwellingActor : public ChainActor
+class ObjectActor : public ChainActor
+{
+private:
+	const CGObjectInstance * object;
+
+public:
+	ObjectActor(const CGObjectInstance * obj, const CCreatureSet * army, uint64_t chainMask, int initialTurn);
+	virtual std::string toString() const override;
+	const CGObjectInstance * getActorObject() const override;
+};
+
+class HillFortActor : public ObjectActor
+{
+public:
+	HillFortActor(const CGObjectInstance * hillFort, uint64_t chainMask);
+};
+
+class DwellingActor : public ObjectActor
 {
 private:
 	const CGDwelling * dwelling;
@@ -127,7 +146,7 @@ protected:
 	CCreatureSet * getDwellingCreatures(const CGDwelling * dwelling, bool waitForGrowth);
 };
 
-class TownGarrisonActor : public ChainActor
+class TownGarrisonActor : public ObjectActor
 {
 private:
 	const CGTownInstance * town;

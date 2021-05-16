@@ -49,6 +49,7 @@ void PriorityEvaluator::initVisitTile()
 	armyLossPersentageVariable = engine->getInputVariable("armyLoss");
 	heroRoleVariable = engine->getInputVariable("heroRole");
 	dangerVariable = engine->getInputVariable("danger");
+	turnVariable = engine->getInputVariable("turn");
 	mainTurnDistanceVariable = engine->getInputVariable("mainTurnDistance");
 	scoutTurnDistanceVariable = engine->getInputVariable("scoutTurnDistance");
 	goldRewardVariable = engine->getInputVariable("goldReward");
@@ -57,6 +58,8 @@ void PriorityEvaluator::initVisitTile()
 	rewardTypeVariable = engine->getInputVariable("rewardType");
 	closestHeroRatioVariable = engine->getInputVariable("closestHeroRatio");
 	strategicalValueVariable = engine->getInputVariable("strategicalValue");
+	goldPreasureVariable = engine->getInputVariable("goldPreasure");
+	goldCostVariable = engine->getInputVariable("goldCost");
 	value = engine->getOutputVariable("Value");
 }
 
@@ -117,6 +120,25 @@ uint64_t getDwellingScore(const CGObjectInstance * target, bool checkGold)
 	}
 
 	return score;
+}
+
+int getDwellingArmyCost(const CGObjectInstance * target)
+{
+	auto dwelling = dynamic_cast<const CGDwelling *>(target);
+	int cost = 0;
+
+	for(auto & creLevel : dwelling->creatures)
+	{
+		if(creLevel.first && creLevel.second.size())
+		{
+			auto creature = creLevel.second.back().toCreature();
+			auto creaturesAreFree = creature->level == 1;
+			if(!creaturesAreFree)
+				cost += creature->cost[Res::GOLD] * creLevel.first;
+		}
+	}
+
+	return cost;
 }
 
 uint64_t evaluateArtifactArmyValue(CArtifactInstance * art)
@@ -192,6 +214,30 @@ uint64_t getArmyReward(const CGObjectInstance * target, const CGHeroInstance * h
 	}
 }
 
+int getGoldCost(const CGObjectInstance * target, const CGHeroInstance * hero, const CCreatureSet * army)
+{
+	if(!target)
+		return 0;
+
+	switch(target->ID)
+	{
+	case Obj::HILL_FORT:
+		return ai->ah->calculateCreateresUpgrade(army, target, cb->getResourceAmount()).upgradeCost[Res::GOLD];
+	case Obj::SCHOOL_OF_MAGIC:
+	case Obj::SCHOOL_OF_WAR:
+		return 1000;
+	case Obj::UNIVERSITY:
+		return 2000;
+	case Obj::CREATURE_GENERATOR1:
+	case Obj::CREATURE_GENERATOR2:
+	case Obj::CREATURE_GENERATOR3:
+	case Obj::CREATURE_GENERATOR4:
+		return getDwellingArmyCost(target);
+	default:
+		return 0;
+	}
+}
+
 float getStrategicalValue(const CGObjectInstance * target);
 
 float getEnemyHeroStrategicalValue(const CGHeroInstance * enemy)
@@ -216,9 +262,11 @@ float getResourceRequirementStrength(int resType)
 		return 0;
 
 	if(dailyIncome[resType] == 0)
-		return 1;
+		return 1.0f;
 
-	return (float)requiredResources[resType] / dailyIncome[resType] / 3;
+	float ratio = (float)requiredResources[resType] / dailyIncome[resType] / 2;
+
+	return std::min(ratio, 1.0f);
 }
 
 float getTotalResourceRequirementStrength(int resType)
@@ -229,10 +277,11 @@ float getTotalResourceRequirementStrength(int resType)
 	if(requiredResources[resType] == 0)
 		return 0;
 
-	if(dailyIncome[resType] == 0)
-		return requiredResources[resType] / 30;
+	float ratio = dailyIncome[resType] == 0
+		? requiredResources[resType] / 50
+		: (float)requiredResources[resType] / dailyIncome[resType] / 50;
 
-	return (float)requiredResources[resType] / dailyIncome[resType] / 30;
+	return std::min(ratio, 1.0f);
 }
 
 float getStrategicalValue(const CGObjectInstance * target)
@@ -243,18 +292,21 @@ float getStrategicalValue(const CGObjectInstance * target)
 	switch(target->ID)
 	{
 	case Obj::MINE:
-		return target->subID == Res::GOLD ? 0.8f : 0.05f + 0.3f * getTotalResourceRequirementStrength(target->subID) + 0.5f * getResourceRequirementStrength(target->subID);
+		return target->subID == Res::GOLD ? 0.5f : 0.05f * getTotalResourceRequirementStrength(target->subID) + 0.05f * getResourceRequirementStrength(target->subID);
 
 	case Obj::RESOURCE:
-		return target->subID == Res::GOLD ? 0 : 0.5f * getResourceRequirementStrength(target->subID);
+		return target->subID == Res::GOLD ? 0 : 0.3f * getResourceRequirementStrength(target->subID);
 
 	case Obj::TOWN:
-		return target->tempOwner == PlayerColor::NEUTRAL ? 0.5 : 1;
+		return dynamic_cast<const CGTownInstance *>(target)->hasFort()
+			? (target->tempOwner == PlayerColor::NEUTRAL ? 0.8f : 1.0f)
+			: 0.4f;
 
 	case Obj::HERO:
 		return cb->getPlayerRelations(target->tempOwner, ai->playerID) == PlayerRelations::ENEMIES
 			? getEnemyHeroStrategicalValue(dynamic_cast<const CGHeroInstance *>(target))
 			: 0;
+
 	default:
 		return 0;
 	}
@@ -388,13 +440,16 @@ public:
 		auto day = cb->getDate(Date::DAY);
 		auto hero = heroPtr.get();
 		bool checkGold = evaluationContext.danger == 0;
+		auto army = chain.getPath().heroArmy;
 
 		evaluationContext.armyLossPersentage = task->evaluationContext.armyLoss / (double)task->evaluationContext.heroStrength;
 		evaluationContext.heroRole = ai->ah->getHeroRole(heroPtr);
 		evaluationContext.goldReward = getGoldReward(target, hero);
-		evaluationContext.armyReward = getArmyReward(target, hero, chain.getPath().heroArmy, checkGold);
+		evaluationContext.armyReward = getArmyReward(target, hero, army, checkGold);
 		evaluationContext.skillReward = getSkillReward(target, hero, evaluationContext.heroRole);
 		evaluationContext.strategicalValue = getStrategicalValue(target);
+		evaluationContext.goldCost = getGoldCost(target, hero, army);
+		evaluationContext.turn = chain.getPath().turn();
 
 		return evaluationContext;
 	}
@@ -409,15 +464,16 @@ public:
 		Goals::BuildThis & buildThis = dynamic_cast<Goals::BuildThis &>(*task);
 		auto & bi = buildThis.buildingInfo;
 		
-		evaluationContext.goldReward = bi.dailyIncome[Res::GOLD] / 2;
+		evaluationContext.goldReward = 7 * bi.dailyIncome[Res::GOLD] / 2; // 7 day income but half we already have
 		evaluationContext.heroRole = HeroRole::MAIN;
 		evaluationContext.movementCostByRole[evaluationContext.heroRole] = bi.prerequisitesCount;
 		evaluationContext.armyReward = 0;
 		evaluationContext.strategicalValue = buildThis.townInfo.armyScore / 50000.0;
+		evaluationContext.goldCost = bi.buildCostWithPrerequisits[Res::GOLD];
 
 		if(bi.creatureID != CreatureID::NONE)
 		{
-			evaluationContext.strategicalValue += 0.5f + 0.1f * bi.creatureLevel;
+			evaluationContext.strategicalValue += (0.5f + 0.1f * bi.creatureLevel) / (float)bi.prerequisitesCount;
 
 			if(bi.baseCreatureID == bi.creatureID)
 			{
@@ -429,7 +485,11 @@ public:
 
 			evaluationContext.armyReward = upgradedPower - creaturesToUpgrade.power;
 		}
-		
+		else
+		{
+			evaluationContext.strategicalValue = ai->nullkiller->buildAnalyzer->getGoldPreasure() * evaluationContext.goldReward / 300.0f;
+		}
+
 		return evaluationContext;
 	}
 };
@@ -485,6 +545,9 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task)
 		rewardTypeVariable->setValue(rewardType);
 		closestHeroRatioVariable->setValue(evaluationContext.closestWayRatio);
 		strategicalValueVariable->setValue(evaluationContext.strategicalValue);
+		goldPreasureVariable->setValue(ai->nullkiller->buildAnalyzer->getGoldPreasure());
+		goldCostVariable->setValue(evaluationContext.goldCost / ((float)cb->getResourceAmount(Res::GOLD) + (float)ai->nullkiller->buildAnalyzer->getDailyIncome()[Res::GOLD] + 1.0f));
+		turnVariable->setValue(evaluationContext.turn);
 
 		engine->process();
 		//engine.process(VISIT_TILE); //TODO: Process only Visit_Tile
@@ -497,16 +560,18 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task)
 	assert(result >= 0);
 
 #ifdef VCMI_TRACE_PATHFINDER
-	logAi->trace("Evaluated %s, loss: %f, turns main: %f, scout: %f, gold: %d, army gain: %d, danger: %d, role: %s, strategical value: %f, result %f",
+	logAi->trace("Evaluated %s, loss: %f, turns main: %f, scout: %f, gold: %d, cost: %d, army gain: %d, danger: %d, role: %s, strategical value: %f, cwr: %f, result %f",
 		task->name(),
 		evaluationContext.armyLossPersentage,
 		evaluationContext.movementCostByRole[HeroRole::MAIN],
 		evaluationContext.movementCostByRole[HeroRole::SCOUT],
 		evaluationContext.goldReward,
+		evaluationContext.goldCost,
 		evaluationContext.armyReward,
 		evaluationContext.danger,
 		evaluationContext.heroRole ? "scout" : "main",
 		evaluationContext.strategicalValue,
+		evaluationContext.closestWayRatio,
 		result);
 #endif
 

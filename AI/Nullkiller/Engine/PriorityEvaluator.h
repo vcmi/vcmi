@@ -32,6 +32,7 @@ private:
 	fl::InputVariable * heroRoleVariable;
 	fl::InputVariable * mainTurnDistanceVariable;
 	fl::InputVariable * scoutTurnDistanceVariable;
+	fl::InputVariable * turnVariable;
 	fl::InputVariable * goldRewardVariable;
 	fl::InputVariable * armyRewardVariable;
 	fl::InputVariable * dangerVariable;
@@ -39,6 +40,8 @@ private:
 	fl::InputVariable * strategicalValueVariable;
 	fl::InputVariable * rewardTypeVariable;
 	fl::InputVariable * closestHeroRatioVariable;
+	fl::InputVariable * goldPreasureVariable;
+	fl::InputVariable * goldCostVariable;
 	fl::OutputVariable * value;
 	std::map<Goals::EGoals, std::shared_ptr<IEvaluationContextBuilder>> evaluationContextBuilders;
 

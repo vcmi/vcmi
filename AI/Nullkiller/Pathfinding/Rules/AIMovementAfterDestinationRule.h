@@ -32,5 +32,19 @@ namespace AIPathfinding
 			CDestinationNodeInfo & destination,
 			const PathfinderConfig * pathfinderConfig,
 			CPathfinderHelper * pathfinderHelper) const override;
+
+	private:
+		bool bypassDestinationGuards(
+			std::vector<const CGObjectInstance *> destGuardians,
+			const PathNodeInfo & source,
+			CDestinationNodeInfo & destination,
+			const PathfinderConfig * pathfinderConfig,
+			CPathfinderHelper * pathfinderHelper) const;
+
+		bool bypassRemovableObject(
+			const PathNodeInfo & source,
+			CDestinationNodeInfo & destination,
+			const PathfinderConfig * pathfinderConfig,
+			CPathfinderHelper * pathfinderHelper) const;
 	};
 }

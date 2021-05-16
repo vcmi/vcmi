@@ -16,6 +16,8 @@
 #include "../../../lib/mapping/CMap.h"
 #include "../../../lib/mapObjects/MapObjects.h"
 
+CCreatureSet emptyArmy;
+
 bool HeroExchangeArmy::needsLastStack() const
 {
 	return true;
@@ -54,6 +56,21 @@ ChainActor::ChainActor(const CGObjectInstance * obj, const CCreatureSet * creatu
 std::string ChainActor::toString() const
 {
 	return hero->name;
+}
+
+ObjectActor::ObjectActor(const CGObjectInstance * obj, const CCreatureSet * army, uint64_t chainMask, int initialTurn)
+	:ChainActor(obj, army, chainMask, initialTurn), object(obj)
+{
+}
+
+const CGObjectInstance * ObjectActor::getActorObject() const
+{
+	return object;
+}
+
+std::string ObjectActor::toString() const
+{
+	return object->getObjectName() + " at " + object->visitablePos().toString();
 }
 
 HeroActor::HeroActor(const CGHeroInstance * hero, uint64_t chainMask, const VCAI * ai)
@@ -151,18 +168,38 @@ bool HeroExchangeMap::canExchange(const ChainActor * other)
 
 		if(result)
 		{
-			if(other->armyCost.nonZero())
-			{
-				TResources resources = ai->myCb->getResourceAmount();
+			TResources resources = ai->myCb->getResourceAmount();
 
-				if(!resources.canAfford(actor->armyCost + other->armyCost))
-				{
-					result = false;
-					return;
-				}
+			if(!resources.canAfford(actor->armyCost + other->armyCost))
+			{
+				result = false;
+#if AI_TRACE_LEVEL >= 2
+				logAi->trace(
+					"Can not afford exchange because of total cost %s but we have %s",
+					(actor->armyCost + other->armyCost).toString(),
+					resources.toString());
+#endif
+				return;
 			}
 
-			uint64_t reinforcment = ai->ah->howManyReinforcementsCanGet(actor->creatureSet, other->creatureSet);
+			auto upgradeInfo = ai->ah->calculateCreateresUpgrade(
+				actor->creatureSet, 
+				other->getActorObject(),
+				resources - actor->armyCost - other->armyCost);
+
+			uint64_t reinforcment = upgradeInfo.upgradeValue;
+			
+			if(other->creatureSet->Slots().size())
+				reinforcment += ai->ah->howManyReinforcementsCanGet(actor->creatureSet, other->creatureSet);
+
+#if AI_TRACE_LEVEL >= 2
+			logAi->trace(
+				"Exchange %s->%s reinforcement: %d, %f%%",
+				actor->toString(),
+				other->toString(),
+				reinforcment,
+				100.0f * reinforcment / actor->armyValue);
+#endif
 
 			result = reinforcment > actor->armyValue / 10 || reinforcment > 1000;
 		}
@@ -204,12 +241,51 @@ HeroActor * HeroExchangeMap::exchange(const ChainActor * other)
 		result = exchangeMap.at(other);
 	else 
 	{
-		CCreatureSet * newArmy = pickBestCreatures(actor->creatureSet, other->creatureSet);
+		TResources availableResources = ai->myCb->getResourceAmount() - actor->armyCost - other->armyCost;
+		CCreatureSet * upgradedInitialArmy = tryUpgrade(actor->creatureSet, other->getActorObject(), availableResources);
+		CCreatureSet * newArmy;
+		
+		if(other->creatureSet->Slots().size())
+		{
+			if(upgradedInitialArmy)
+			{
+				newArmy = pickBestCreatures(upgradedInitialArmy, other->creatureSet);
+				delete upgradedInitialArmy;
+			}
+			else
+			{
+				newArmy = pickBestCreatures(actor->creatureSet, other->creatureSet);
+			}
+		}
+		else
+		{
+			newArmy = upgradedInitialArmy;
+		}
+
 		result = new HeroActor(actor, other, newArmy, ai);
 		exchangeMap[other] = result;
 	}
 
 	return result;
+}
+
+CCreatureSet * HeroExchangeMap::tryUpgrade(const CCreatureSet * army, const CGObjectInstance * upgrader, TResources resources) const
+{
+	auto upgradeInfo = ai->ah->calculateCreateresUpgrade(army, upgrader, resources);
+
+	if(!upgradeInfo.upgradeValue)
+		return nullptr;
+
+	CCreatureSet * target = new HeroExchangeArmy();
+
+	for(auto & slotInfo : upgradeInfo.resultingArmy)
+	{
+		auto targetSlot = target->getFreeSlot();
+
+		target->addToSlot(targetSlot, slotInfo.creature->idNumber, TQuantity(slotInfo.count));
+	}
+
+	return target;
 }
 
 CCreatureSet * HeroExchangeMap::pickBestCreatures(const CCreatureSet * army1, const CCreatureSet * army2) const
@@ -227,8 +303,13 @@ CCreatureSet * HeroExchangeMap::pickBestCreatures(const CCreatureSet * army1, co
 	return target;
 }
 
+HillFortActor::HillFortActor(const CGObjectInstance * hillFort, uint64_t chainMask)
+	:ObjectActor(hillFort, &emptyArmy, chainMask, 0)
+{
+}
+
 DwellingActor::DwellingActor(const CGDwelling * dwelling, uint64_t chainMask, bool waitForGrowth, int dayOfWeek)
-	:ChainActor(
+	:ObjectActor(
 		dwelling, 
 		getDwellingCreatures(dwelling, waitForGrowth), 
 		chainMask, 
@@ -288,7 +369,7 @@ CCreatureSet * DwellingActor::getDwellingCreatures(const CGDwelling * dwelling, 
 }
 
 TownGarrisonActor::TownGarrisonActor(const CGTownInstance * town, uint64_t chainMask)
-	:ChainActor(town, town->getUpperArmy(), chainMask, 0), town(town)
+	:ObjectActor(town, town->getUpperArmy(), chainMask, 0), town(town)
 {
 }
 

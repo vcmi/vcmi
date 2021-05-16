@@ -762,24 +762,29 @@ void VCAI::loadGame(BinaryDeserializer & h, const int version)
 	serializeInternal(h, version);
 }
 
-void makePossibleUpgrades(const CArmedInstance * obj)
+bool VCAI::makePossibleUpgrades(const CArmedInstance * obj)
 {
 	if(!obj)
-		return;
+		return false;
+
+	bool upgraded = false;
 
 	for(int i = 0; i < GameConstants::ARMY_SIZE; i++)
 	{
 		if(const CStackInstance * s = obj->getStackPtr(SlotID(i)))
 		{
 			UpgradeInfo ui;
-			cb->getUpgradeInfo(obj, SlotID(i), ui);
-			if(ui.oldID >= 0 && cb->getResourceAmount().canAfford(ui.cost[0] * s->count))
+			myCb->getUpgradeInfo(obj, SlotID(i), ui);
+			if(ui.oldID >= 0 && myCb->getResourceAmount().canAfford(ui.cost[0] * s->count))
 			{
-				cb->upgradeCreature(obj, SlotID(i), ui.newID[0]);
+				myCb->upgradeCreature(obj, SlotID(i), ui.newID[0]);
+				upgraded = true;
 				logAi->debug("Upgraded %d %s to %s", s->count, ui.oldID.toCreature()->namePl, ui.newID[0].toCreature()->namePl);
 			}
 		}
 	}
+
+	return upgraded;
 }
 
 void VCAI::makeTurn()
@@ -2203,12 +2208,15 @@ void VCAI::tryRealize(Goals::BuyArmy & g)
 	ui64 valueBought = 0;
 	//buy the stacks with largest AI value
 
-	makePossibleUpgrades(t);
+	auto upgradeSuccessfull = makePossibleUpgrades(t);
 
 	auto armyToBuy = ah->getArmyAvailableToBuy(t->getUpperArmy(), t);
 
 	if(armyToBuy.empty())
 	{
+		if(upgradeSuccessfull)
+			throw goalFulfilledException(sptr(g));
+
 		throw cannotFulfillGoalException("No creatures to buy.");
 	}
 

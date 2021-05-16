@@ -11,6 +11,8 @@
 #include "AINodeStorage.h"
 #include "Actions/TownPortalAction.h"
 #include "../Goals/Goals.h"
+#include "../VCAI.h"
+#include "../Engine/Nullkiller.h"
 #include "../../../CCallback.h"
 #include "../../../lib/mapping/CMap.h"
 #include "../../../lib/mapObjects/MapObjects.h"
@@ -278,6 +280,7 @@ bool AINodeStorage::calculateHeroChainFinal()
 			for(AIPathNode & node : chains)
 			{
 				if(node.turns > heroChainTurn
+					&& !node.locked
 					&& node.action != CGPathNode::ENodeAction::UNKNOWN
 					&& node.actor->actorExchangeCount > 1
 					&& !hasBetterChain(&node, &node, chains))
@@ -450,7 +453,7 @@ void AINodeStorage::calculateHeroChain(
 	if(carrier->armyLoss < carrier->actor->armyValue
 		&& (carrier->action != CGPathNode::BATTLE || (carrier->actor->allowBattle && carrier->specialAction))
 		&& carrier->action != CGPathNode::BLOCKING_VISIT
-		&& other->armyLoss < other->actor->armyValue
+		&& (other->armyLoss == 0 || other->armyLoss < other->actor->armyValue)
 		&& carrier->actor->canExchange(other->actor))
 	{
 #if AI_TRACE_LEVEL >= 2
@@ -632,18 +635,24 @@ void AINodeStorage::setTownsAndDwellings(
 	{
 		uint64_t mask = 1 << actors.size();
 
-		if(!town->garrisonHero && town->getUpperArmy()->getArmyStrength())
+		if(!town->garrisonHero || ai->nullkiller->getHeroLockedReason(town->garrisonHero) != HeroLockedReason::DEFENCE)
 		{
 			actors.push_back(std::make_shared<TownGarrisonActor>(town, mask));
 		}
 	}
 
 	/*auto dayOfWeek = cb->getDate(Date::DAY_OF_WEEK);
-	auto waitForGrowth = dayOfWeek > 4;
+	auto waitForGrowth = dayOfWeek > 4;*/
 
 	for(auto obj: visitableObjs)
 	{
-		const CGDwelling * dwelling = dynamic_cast<const CGDwelling *>(obj);
+		if(obj->ID == Obj::HILL_FORT)
+		{
+			uint64_t mask = 1 << actors.size();
+
+			actors.push_back(std::make_shared<HillFortActor>(obj, mask));
+		}
+		/*const CGDwelling * dwelling = dynamic_cast<const CGDwelling *>(obj);
 
 		if(dwelling)
 		{
@@ -665,8 +674,8 @@ void AINodeStorage::setTownsAndDwellings(
 					actors.push_back(dwellingActor);
 				}
 			}
-		}
-	}*/
+		}*/
+	}
 }
 
 std::vector<CGPathNode *> AINodeStorage::calculateTeleportations(
@@ -979,7 +988,7 @@ std::vector<AIPath> AINodeStorage::getChainInfo(const int3 & pos, bool isOnLand)
 		path.targetHero = node.actor->hero;
 		path.heroArmy = node.actor->creatureSet;
 		path.armyLoss = node.armyLoss;
-		path.targetObjectDanger = evaluateDanger(pos, path.targetHero);
+		path.targetObjectDanger = evaluateDanger(pos, path.targetHero, false);
 		path.targetObjectArmyLoss = evaluateArmyLoss(path.targetHero, path.heroArmy->getArmyStrength(), path.targetObjectDanger);
 		path.chainMask = node.actor->chainMask;
 		path.exchangeCount = node.actor->actorExchangeCount;

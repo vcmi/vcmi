@@ -275,6 +275,35 @@ std::vector<UpgradeInfo> ArmyManager::getDwellingUpgrades(const CCreatureSet * a
 {
 	std::vector<UpgradeInfo> upgrades;
 
+	for(auto creature : army->Slots())
+	{
+		CreatureID initial = creature.second->getCreatureID();
+		auto possibleUpgrades = initial.toCreature()->upgrades;
+
+		vstd::erase_if(possibleUpgrades, [&](CreatureID creID) -> bool
+		{
+			for(auto pair : dwelling->creatures)
+			{
+				if(vstd::contains(pair.second, creID))
+					return false;
+			}
+
+			return true;
+		});
+
+		if(possibleUpgrades.empty())
+			continue;
+
+		CreatureID strongestUpgrade = *vstd::minElementByFun(possibleUpgrades, [](CreatureID cre) -> uint64_t
+		{
+			return cre.toCreature()->AIValue;
+		});
+
+		UpgradeInfo upgrade = UpgradeInfo(initial, strongestUpgrade, creature.second->count);
+
+		upgrades.push_back(upgrade);
+	}
+
 	return upgrades;
 }
 
@@ -304,6 +333,9 @@ ArmyUpgradeInfo ArmyManager::calculateCreateresUpgrade(
 	const CGObjectInstance * upgrader,
 	const TResources & availableResources) const
 {
+	if(!upgrader)
+		return ArmyUpgradeInfo();
+
 	std::vector<UpgradeInfo> upgrades = getPossibleUpgrades(army, upgrader);
 
 	vstd::erase_if(upgrades, [&](const UpgradeInfo & u) -> bool

@@ -38,11 +38,11 @@ Goals::TGoalVec CaptureObjectsBehavior::getTasks()
 			return;
 		}
 
-		logAi->trace("Scanning objects, count %d", objs.size());
+		logAi->debug("Scanning objects, count %d", objs.size());
 
 		for(auto objToVisit : objs)
 		{			
-#ifdef VCMI_TRACE_PATHFINDER
+#ifdef AI_TRACE_LEVEL >= 1
 			logAi->trace("Checking object %s, %s", objToVisit->getObjectName(), objToVisit->visitablePos().toString());
 #endif
 
@@ -55,19 +55,19 @@ Goals::TGoalVec CaptureObjectsBehavior::getTasks()
 			std::vector<std::shared_ptr<ExecuteHeroChain>> waysToVisitObj;
 			std::shared_ptr<ExecuteHeroChain> closestWay;
 					
-#ifdef VCMI_TRACE_PATHFINDER
+#ifdef AI_TRACE_LEVEL >= 1
 			logAi->trace("Found %d paths", paths.size());
 #endif
 
 			for(auto & path : paths)
 			{
-#ifdef VCMI_TRACE_PATHFINDER
+#ifdef AI_TRACE_LEVEL >= 2
 				logAi->trace("Path found %s", path.toString());
 #endif
 
 				if(path.getFirstBlockedAction())
 				{
-#ifdef VCMI_TRACE_PATHFINDER
+#ifdef AI_TRACE_LEVEL >= 2
 					// TODO: decomposition?
 					logAi->trace("Ignore path. Action is blocked.");
 #endif
@@ -76,8 +76,8 @@ Goals::TGoalVec CaptureObjectsBehavior::getTasks()
 
 				if(ai->nullkiller->dangerHitMap->enemyCanKillOurHeroesAlongThePath(path))
 				{
-#ifdef VCMI_TRACE_PATHFINDER
-					logAi->trace("Ignore path. Target hero can be killed by enemy. Our power %d", path.heroArmy->getArmyStrength());
+#ifdef AI_TRACE_LEVEL >= 2
+					logAi->trace("Ignore path. Target hero can be killed by enemy. Our power %lld", path.heroArmy->getArmyStrength());
 #endif
 					continue;
 				}
@@ -93,11 +93,11 @@ Goals::TGoalVec CaptureObjectsBehavior::getTasks()
 
 				auto isSafe = isSafeToVisit(hero, path.heroArmy, danger);
 				
-#ifdef VCMI_TRACE_PATHFINDER
+#ifdef AI_TRACE_LEVEL >= 2
 				logAi->trace(
 					"It is %s to visit %s by %s with army %lld, danger %lld and army loss %lld", 
 					isSafe ? "safe" : "not safe",
-					objToVisit->instanceName, 
+					objToVisit->getObjectName(), 
 					hero->name,
 					path.getHeroStrength(),
 					danger,
@@ -123,8 +123,11 @@ Goals::TGoalVec CaptureObjectsBehavior::getTasks()
 				if(ai->nullkiller->arePathHeroesLocked(way->getPath()))
 					continue;
 
+				if(ai->nullkiller->getHeroLockedReason(way->hero.get()) == HeroLockedReason::STARTUP)
+					continue;
+
 				way->evaluationContext.closestWayRatio
-					= way->evaluationContext.movementCost / closestWay->evaluationContext.movementCost;
+					= closestWay->evaluationContext.movementCost / way->evaluationContext.movementCost;
 
 				tasks.push_back(sptr(*way));
 			}
