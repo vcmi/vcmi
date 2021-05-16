@@ -16,11 +16,13 @@ struct HitMapInfo
 {
 	uint64_t danger;
 	uint8_t turn;
+	const CGHeroInstance * hero;
 
 	void reset()
 	{
 		danger = 0;
 		turn = 255;
+		hero = nullptr;
 	}
 };
 
@@ -40,8 +42,10 @@ class DangerHitMapAnalyzer
 {
 private:
 	boost::multi_array<HitMapNode, 3> hitMap;
+	std::map<const CGHeroInstance *, int> enemyHeroTreatMAp;
 
 public:
 	void updateHitMap();
 	uint64_t enemyCanKillOurHeroesAlongThePath(const AIPath & path) const;
+	const HitMapNode & getObjectTreat(const CGObjectInstance * town) const;
 };

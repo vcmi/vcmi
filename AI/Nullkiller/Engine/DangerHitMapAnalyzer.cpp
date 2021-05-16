@@ -9,6 +9,7 @@
 */
 #include "StdInc.h"
 #include "DangerHitMapAnalyzer.h"
+#include "lib/mapping/CMap.h" //for victory conditions
 
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<VCAI> ai;
@@ -38,7 +39,8 @@ void DangerHitMapAnalyzer::updateHitMap()
 	{
 		ai->ah->updatePaths(pair.second, false);
 
-		foreach_tile_pos([&](const int3 & pos){
+		foreach_tile_pos([&](const int3 & pos)
+		{
 			for(AIPath & path : ai->ah->getPathsToTile(pos))
 			{
 				auto tileDanger = path.getHeroStrength();
@@ -50,6 +52,7 @@ void DangerHitMapAnalyzer::updateHitMap()
 				{
 					node.maximumDanger.danger = tileDanger;
 					node.maximumDanger.turn = turn;
+					node.maximumDanger.hero = path.targetHero;
 				}
 
 				if(turn < node.fastestDanger.turn
@@ -57,6 +60,7 @@ void DangerHitMapAnalyzer::updateHitMap()
 				{
 					node.fastestDanger.danger = tileDanger;
 					node.fastestDanger.turn = turn;
+					node.fastestDanger.hero = path.targetHero;
 				}
 			}
 		});
@@ -71,4 +75,12 @@ uint64_t DangerHitMapAnalyzer::enemyCanKillOurHeroesAlongThePath(const AIPath & 
 
 	return info.fastestDanger.turn <= turn && !isSafeToVisit(path.targetHero, path.heroArmy, info.fastestDanger.danger)
 		|| info.maximumDanger.turn <= turn && !isSafeToVisit(path.targetHero, path.heroArmy, info.maximumDanger.danger);
+}
+
+const HitMapNode & DangerHitMapAnalyzer::getObjectTreat(const CGObjectInstance * town) const
+{
+	auto tile = town->visitablePos();
+	const HitMapNode & info = hitMap[tile.x][tile.y][tile.z];
+
+	return info;
 }

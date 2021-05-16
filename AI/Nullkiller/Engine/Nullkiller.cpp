@@ -15,6 +15,7 @@
 #include "../Behaviors/RecruitHeroBehavior.h"
 #include "../Behaviors/BuyArmyBehavior.h"
 #include "../Behaviors/StartupBehavior.h"
+#include "../Behaviors/DefenceBehavior.h"
 #include "../Goals/Invalid.h"
 
 extern boost::thread_specific_ptr<CCallback> cb;
@@ -95,7 +96,8 @@ void Nullkiller::makeTurn()
 		Goals::TGoalVec bestTasks = {
 			choseBestTask(std::make_shared<BuyArmyBehavior>()),
 			choseBestTask(std::make_shared<CaptureObjectsBehavior>()),
-			choseBestTask(std::make_shared<RecruitHeroBehavior>())
+			choseBestTask(std::make_shared<RecruitHeroBehavior>()),
+			choseBestTask(std::make_shared<DefenceBehavior>())
 		};
 
 		if(cb->getDate(Date::DAY) == 1)
