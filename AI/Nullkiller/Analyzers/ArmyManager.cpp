@@ -189,8 +189,16 @@ std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier,
 
 ui64 ArmyManager::howManyReinforcementsCanBuy(const CCreatureSet * h, const CGDwelling * t) const
 {
+	return howManyReinforcementsCanBuy(h, t, cb->getResourceAmount());
+}
+
+ui64 ArmyManager::howManyReinforcementsCanBuy(
+	const CCreatureSet * h,
+	const CGDwelling * t,
+	const TResources & availableResources) const
+{
 	ui64 aivalue = 0;
-	auto army = getArmyAvailableToBuy(h, t);
+	auto army = getArmyAvailableToBuy(h, t, availableResources);
 
 	for(const creInfo & ci : army)
 	{
