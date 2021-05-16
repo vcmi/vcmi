@@ -9,7 +9,7 @@
 */
 #pragma once
 
-#include "../VCAI.h"
+#include "../AIUtility.h"
 
 struct HitMapInfo
 {

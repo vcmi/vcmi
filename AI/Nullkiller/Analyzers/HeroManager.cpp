@@ -9,7 +9,6 @@
 */
 
 #include "StdInc.h"
-#include "HeroManager.h"
 #include "../Engine/Nullkiller.h"
 #include "../../CCallback.h"
 #include "../../lib/mapObjects/MapObjects.h"

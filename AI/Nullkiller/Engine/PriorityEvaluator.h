@@ -10,8 +10,11 @@
 #pragma once
 #include "fl/Headers.h"
 #include "../Goals/CGoal.h"
+#include "../Pathfinding/AIPathfinder.h"
 
 class BuildingInfo;
+class Nullkiller;
+class CGWitchHut;
 
 class RewardEvaluator
 {

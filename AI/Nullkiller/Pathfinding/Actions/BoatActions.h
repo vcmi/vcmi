@@ -58,7 +58,7 @@ namespace AIPathfinding
 		{
 		}
 
-		virtual bool canAct(const AIPathNode * source) const;
+		virtual bool canAct(const AIPathNode * source) const override;
 
 		virtual void execute(const CGHeroInstance * hero) const override;
 

@@ -8,7 +8,6 @@
 *
 */
 #include "StdInc.h"
-#include "DangerHitMapAnalyzer.h"
 #include "lib/mapping/CMap.h" //for victory conditions
 #include "../Engine/Nullkiller.h"
 

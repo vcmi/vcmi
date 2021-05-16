@@ -23,10 +23,9 @@
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/CondSh.h"
 #include "Pathfinding/AIPathfinder.h"
+#include "Engine/Nullkiller.h"
 
 struct QuestInfo;
-
-class Nullkiller;
 
 class AIStatus
 {
@@ -306,48 +305,5 @@ public:
 		h & heroesUnableToExplore;
 
 		//myCB is restored after load by init call
-	}
-};
-
-class cannotFulfillGoalException : public std::exception
-{
-	std::string msg;
-
-public:
-	explicit cannotFulfillGoalException(crstring _Message)
-		: msg(_Message)
-	{
-	}
-
-	virtual ~cannotFulfillGoalException() throw ()
-	{
-	};
-
-	const char * what() const throw () override
-	{
-		return msg.c_str();
-	}
-};
-
-class goalFulfilledException : public std::exception
-{
-	std::string msg;
-
-public:
-	Goals::TSubgoal goal;
-
-	explicit goalFulfilledException(Goals::TSubgoal Goal)
-		: goal(Goal)
-	{
-		msg = goal->toString();
-	}
-
-	virtual ~goalFulfilledException() throw ()
-	{
-	};
-
-	const char * what() const throw () override
-	{
-		return msg.c_str();
 	}
 };
