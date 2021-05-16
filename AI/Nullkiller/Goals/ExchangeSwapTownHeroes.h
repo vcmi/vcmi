@@ -10,7 +10,7 @@
 #pragma once
 
 #include "CGoal.h"
-#include "..\Engine\Nullkiller.h"
+#include "../Engine/Nullkiller.h"
 
 namespace Goals
 {
