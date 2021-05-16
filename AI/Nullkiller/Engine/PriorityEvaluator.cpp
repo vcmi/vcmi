@@ -310,10 +310,10 @@ float getStrategicalValue(const CGObjectInstance * target)
 	switch(target->ID)
 	{
 	case Obj::MINE:
-		return target->subID == Res::GOLD ? 0.5f : 0.05f * getTotalResourceRequirementStrength(target->subID) + 0.05f * getResourceRequirementStrength(target->subID);
+		return target->subID == Res::GOLD ? 0.5f : 0.02f * getTotalResourceRequirementStrength(target->subID) + 0.02f * getResourceRequirementStrength(target->subID);
 
 	case Obj::RESOURCE:
-		return target->subID == Res::GOLD ? 0 : 0.3f * getResourceRequirementStrength(target->subID);
+		return target->subID == Res::GOLD ? 0 : 0.1f * getResourceRequirementStrength(target->subID);
 
 	case Obj::TOWN:
 		return dynamic_cast<const CGTownInstance *>(target)->hasFort()

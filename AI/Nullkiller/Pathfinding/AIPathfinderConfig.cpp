@@ -43,13 +43,14 @@ namespace AIPathfinding
 
 	CPathfinderHelper * AIPathfinderConfig::getOrCreatePathfinderHelper(const PathNodeInfo & source, CGameState * gs)
 	{
-		if(!pathfindingHelper)
-		{
-			auto hero = aiNodeStorage->getHero(source.node);
+		auto hero = aiNodeStorage->getHero(source.node);
+		auto & helper = pathfindingHelpers[hero];
 
-			pathfindingHelper.reset(new CPathfinderHelper(gs, hero, options));
+		if(!helper)
+		{
+			helper.reset(new CPathfinderHelper(gs, hero, options));
 		}
 
-		return pathfindingHelper.get();
+		return helper.get();
 	}
 }
