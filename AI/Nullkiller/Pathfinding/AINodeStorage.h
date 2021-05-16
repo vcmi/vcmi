@@ -81,7 +81,7 @@ struct AIPath
 
 	std::string toString() const;
 
-	std::shared_ptr<const ISpecialAction> AIPath::getFirstBlockedAction() const;
+	std::shared_ptr<const ISpecialAction> getFirstBlockedAction() const;
 
 	bool containsHero(const CGHeroInstance * hero) const;
 };
