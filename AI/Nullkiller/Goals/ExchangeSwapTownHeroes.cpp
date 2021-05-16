@@ -66,16 +66,37 @@ void ExchangeSwapTownHeroes::accept(VCAI * ai)
 	if(town->visitingHero && town->visitingHero.get() != garrisonHero)
 		cb->swapGarrisonHero(town);
 
+	makePossibleUpgrades(town);
 	ai->moveHeroToTile(town->visitablePos(), garrisonHero);
 
-	cb->swapGarrisonHero(town); // selected hero left in garrison with strongest army
-	ai->nullkiller->lockHero(town->garrisonHero.get());
+	auto upperArmy = town->getUpperArmy();
+	
+	if(!town->garrisonHero && upperArmy->stacksCount() != 0)
+	{
+		// dismiss creatures we are not able to pick to be able to hide in garrison
+		if(upperArmy->getArmyStrength() < 500 
+			&& town->fortLevel() >= CGTownInstance::CITADEL)
+		{
+			for(auto slot : upperArmy->Slots())
+			{
+				cb->dismissCreature(upperArmy, slot.first);
+			}
 
-	if(town->visitingHero)
+			cb->swapGarrisonHero(town);
+		}
+	}
+	else
+	{
+		cb->swapGarrisonHero(town); // selected hero left in garrison with strongest army
+	}
+
+	ai->nullkiller->lockHero(garrisonHero);
+
+	if(town->visitingHero && town->visitingHero != garrisonHero)
 	{
 		ai->nullkiller->unlockHero(town->visitingHero.get());
 		makePossibleUpgrades(town->visitingHero);
 	}
 
-	logAi->debug("Put hero %s to garrison of %s", town->garrisonHero->name, town->name);
+	logAi->debug("Put hero %s to garrison of %s", garrisonHero->name, town->name);
 }

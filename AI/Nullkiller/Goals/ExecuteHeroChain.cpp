@@ -96,7 +96,34 @@ void ExecuteHeroChain::accept(VCAI * ai)
 					}
 				}
 
+				if(node.turns == 0)
+				{
+					auto targetNode = cb->getPathsInfo(hero.get())->getPathInfo(node.coord);
+
+					if(!targetNode->accessible || targetNode->turns != 0)
+					{
+						logAi->error(
+							"Enable to complete chain. Expected hero %s to arive to %s but he in 0 turns but he can not do this",
+							hero.name,
+							node.coord.toString(),
+							hero->visitablePos().toString());
+
+						return;
+					}
+				}
+
 				Goals::VisitTile(node.coord).sethero(hero).accept(ai);
+			}
+
+			if(node.turns == 0)
+			{
+				logAi->error(
+					"Enable to complete chain. Expected hero %s to arive to %s but he is at %s", 
+					hero.name, 
+					node.coord.toString(),
+					hero->visitablePos().toString());
+
+				return;
 			}
 
 			// no exception means we were not able to rich the tile

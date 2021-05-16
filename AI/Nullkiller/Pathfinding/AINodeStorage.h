@@ -10,8 +10,8 @@
 
 #pragma once
 
-#define VCMI_TRACE_PATHFINDER 2
-#define AI_TRACE_LEVEL 2
+#define VCMI_TRACE_PATHFINDER 1
+#define AI_TRACE_LEVEL 1
 
 #include "../../../lib/CPathfinder.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
@@ -39,6 +39,7 @@ struct AIPathNodeInfo
 	uint64_t danger;
 	const CGHeroInstance * targetHero;
 	int parentIndex;
+	uint64_t chainMask;
 	std::shared_ptr<const ISpecialAction> specialAction;
 };
 
@@ -65,6 +66,8 @@ struct AIPath
 	int3 targetTile() const;
 
 	const AIPathNodeInfo & firstNode() const;
+
+	const AIPathNodeInfo & targetNode() const;
 
 	float movementCost() const;
 
@@ -99,7 +102,7 @@ private:
 
 public:
 	/// more than 1 chain layer for each hero allows us to have more than 1 path to each tile so we can chose more optimal one.
-	static const int NUM_CHAINS = 5 * GameConstants::MAX_HEROES_PER_PLAYER;
+	static const int NUM_CHAINS = 10 * GameConstants::MAX_HEROES_PER_PLAYER;
 	
 	AINodeStorage(const int3 & sizes);
 	~AINodeStorage();
@@ -120,10 +123,27 @@ public:
 
 	virtual void commit(CDestinationNodeInfo & destination, const PathNodeInfo & source) override;
 
+	void commit(
+		AIPathNode * destination,
+		const AIPathNode * source,
+		CGPathNode::ENodeAction action,
+		int turn,
+		int movementLeft,
+		float cost) const;
+
 	const AIPathNode * getAINode(const CGPathNode * node) const;
 	void updateAINode(CGPathNode * node, std::function<void (AIPathNode *)> updater);
 
 	bool hasBetterChain(const PathNodeInfo & source, CDestinationNodeInfo & destination) const;
+
+	bool isMovementIneficient(const PathNodeInfo & source, CDestinationNodeInfo & destination) const
+	{
+		// further chain distribution is calculated as the last stage
+		if(heroChainPass && destination.node->turns > heroChainTurn)
+			return true;
+
+		return hasBetterChain(source, destination);
+	}
 
 	template<class NodeRange>
 	bool hasBetterChain(
@@ -167,13 +187,6 @@ private:
 
 	void calculateTownPortalTeleportations(std::vector<CGPathNode *> & neighbours);
 	void fillChainInfo(const AIPathNode * node, AIPath & path, int parentIndex) const;
-	void commit(
-		AIPathNode * destination, 
-		const AIPathNode * source, 
-		CGPathNode::ENodeAction action, 
-		int turn, 
-		int movementLeft, 
-		float cost) const;
 
 	ExchangeCandidate calculateExchange(
 		ChainActor * exchangeActor, 

@@ -32,7 +32,7 @@ extern FuzzyHelper * fh;
 
 class CGVisitableOPW;
 
-const double SAFE_ATTACK_CONSTANT = 1.5;
+const float SAFE_ATTACK_CONSTANT = 1.5;
 
 //one thread may be turn of AI and another will be handling a side effect for AI2
 boost::thread_specific_ptr<CCallback> cb;
@@ -1064,9 +1064,13 @@ void VCAI::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h)
 		checkHeroArmy(h);
 		break;
 	case Obj::TOWN:
-		moveCreaturesToHero(dynamic_cast<const CGTownInstance *>(obj));
 		if(h->visitedTown) //we are inside, not just attacking
 		{
+			makePossibleUpgrades(h.get());
+
+			if(!h->visitedTown->garrisonHero)
+				moveCreaturesToHero(h->visitedTown);
+
 			townVisitsThisWeek[h].insert(h->visitedTown);
 			ah->updateHeroRoles();
 			if(ah->getHeroRole(h) == HeroRole::MAIN && !h->hasSpellbook() && ah->freeGold() >= GameConstants::SPELLBOOK_GOLD_COST)

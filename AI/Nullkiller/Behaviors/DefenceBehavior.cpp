@@ -39,11 +39,6 @@ Goals::TGoalVec DefenceBehavior::getTasks()
 
 	if(heroes.size())
 	{
-		auto mainArmy = *vstd::maxElementByFun(heroes, [](const CGHeroInstance * hero) -> uint64_t
-		{
-			return hero->getTotalStrength();
-		});
-
 		for(auto town : cb->getTownsInfo())
 		{
 			evaluateDefence(tasks, town);
@@ -53,12 +48,40 @@ Goals::TGoalVec DefenceBehavior::getTasks()
 	return tasks;
 }
 
+uint64_t townArmyIncome(const CGTownInstance * town)
+{
+	uint64_t result = 0;
+
+	for(auto creatureInfo : town->creatures)
+	{
+		if(creatureInfo.second.empty())
+			continue;
+
+		auto creature = creatureInfo.second.back().toCreature();
+		result += creature->AIValue * town->getGrowthInfo(creature->level).totalGrowth();
+	}
+
+	return result;
+}
+
 void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInstance * town)
 {
-	logAi->debug("Evaluating defence for %s", town->name);
+	auto basicPriority = 0.3f + std::sqrt(townArmyIncome(town) / 20000.0f)
+		+ town->dailyIncome()[Res::GOLD] / 10000.0f;
+
+	logAi->debug("Evaluating defence for %s, basic priority %f", town->name, basicPriority);
 
 	auto treatNode = ai->nullkiller->dangerHitMap->getObjectTreat(town);
 	auto treats = { treatNode.fastestDanger, treatNode.maximumDanger };
+
+	if(!treatNode.fastestDanger.hero)
+	{
+		logAi->debug("No treat found for town %s", town->name);
+
+		return;
+	}
+
+	int dayOfWeek = cb->getDate(Date::DAY_OF_WEEK);
 
 	if(town->garrisonHero)
 	{
@@ -75,17 +98,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 
 		return;
 	}
-
-	if(town->visitingHero && isSafeToVisit(town->visitingHero.get(), treatNode.maximumDanger.danger))
-	{
-		logAi->debug(
-			"Town %s has visiting hero %s who is strong enough to defend the town", 
-			town->name, 
-			town->visitingHero->name);
-
-		return;
-	}
-
+	
 	uint64_t reinforcement = ai->ah->howManyReinforcementsCanBuy(town->getUpperArmy(), town);
 
 	if(reinforcement)
@@ -103,44 +116,68 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 		return;
 	}
 
-	for(AIPath & path : paths)
-	{
-		for(auto & treat : treats)
-		{
-			if(isSafeToVisit(path.targetHero, path.heroArmy, treat.danger))
-			{
-				logAi->debug(
-					"Hero %s can eliminate danger for town %s using path %s.", 
-					path.targetHero->name,
-					town->name,
-					path.toString());
-
-				return;
-			}
-		}
-	}
-
 	for(auto & treat : treats)
 	{
 		logAi->debug(
-			"Town %s has treat %lld in %s turns, hero: %s", 
+			"Town %s has treat %lld in %s turns, hero: %s",
 			town->name,
 			treat.danger,
 			std::to_string(treat.turn),
 			treat.hero->name);
 
+		bool treatIsUnderControl = false;
+
+		for(AIPath & path : paths)
+		{
+			if(path.getHeroStrength() > treat.danger)
+			{
+				if(dayOfWeek + treat.turn < 6 && isSafeToVisit(path.targetHero, path.heroArmy, treat.danger)
+					|| path.exchangeCount == 1 && path.turn() < treat.turn
+					|| path.turn() < treat.turn - 1)
+				{
+					logAi->debug(
+						"Hero %s can eliminate danger for town %s using path %s.",
+						path.targetHero->name,
+						town->name,
+						path.toString());
+
+					treatIsUnderControl = true;
+					break;
+				}
+			}
+		}
+
+		if(treatIsUnderControl)
+			continue;
+
+		if(ai->canRecruitAnyHero(town))
+		{
+			auto heroesInTavern = cb->getAvailableHeroes(town);
+
+			for(auto hero : heroesInTavern)
+			{
+				if(hero->getTotalStrength() > treat.danger)
+				{
+					tasks.push_back(Goals::sptr(Goals::RecruitHero().settown(town).setobjid(hero->id.getNum()).setpriority(1)));
+					continue;
+				}
+			}
+		}
+
 		for(AIPath & path : paths)
 		{
 #if AI_TRACE_LEVEL >= 1
 			logAi->trace(
-				"Hero %s can defend town with force %lld in %s turns, path: %s",
+				"Hero %s can defend town with force %lld in %s turns, cost: %f, path: %s",
 				path.targetHero->name,
 				path.getHeroStrength(),
 				std::to_string(path.turn()),
+				path.movementCost(),
 				path.toString());
 #endif
 
-			float priority = 0.6f + (float)path.getHeroStrength() / treat.danger / (treat.turn + 1);
+			float priority = basicPriority
+				+ std::min(SAFE_ATTACK_CONSTANT, (float)path.getHeroStrength() / treat.danger) / (treat.turn + 1);
 
 			if(path.targetHero == town->visitingHero && path.exchangeCount == 1)
 			{
@@ -156,7 +193,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 				continue;
 			}
 				
-			if(path.getHeroStrength() * SAFE_ATTACK_CONSTANT >= treat.danger)
+			if(path.turn() <= treat.turn && path.getHeroStrength() * SAFE_ATTACK_CONSTANT >= treat.danger)
 			{
 #if AI_TRACE_LEVEL >= 1
 				logAi->trace("Move %s to defend town %s with priority %f",
