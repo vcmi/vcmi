@@ -156,6 +156,8 @@ uint64_t evaluateArtifactArmyValue(CArtifactInstance * art)
 
 uint64_t getArmyReward(const CGObjectInstance * target, const CGHeroInstance * hero, bool checkGold)
 {
+	const float enemyArmyEliminationRewardRatio = 0.5f;
+
 	if(!target)
 		return 0;
 
@@ -179,6 +181,10 @@ uint64_t getArmyReward(const CGObjectInstance * target, const CGHeroInstance * h
 		return evaluateArtifactArmyValue(dynamic_cast<const CGArtifact *>(target)->storedArtifact);
 	case Obj::DRAGON_UTOPIA:
 		return 10000;
+	case Obj::HERO:
+		return cb->getPlayerRelations(target->tempOwner, ai->playerID) == PlayerRelations::ENEMIES
+			? enemyArmyEliminationRewardRatio * dynamic_cast<const CGHeroInstance *>(target)->getArmyStrength()
+			: 0;
 	default:
 		return 0;
 	}
@@ -202,6 +208,8 @@ float evaluateWitchHutSkillScore(const CGWitchHut * hut, const CGHeroInstance * 
 
 float getSkillReward(const CGObjectInstance * target, const CGHeroInstance * hero, HeroRole role)
 {
+	const float enemyHeroEliminationSkillRewardRatio = 0.5f;
+
 	if(!target)
 		return 0;
 
@@ -224,9 +232,25 @@ float getSkillReward(const CGObjectInstance * target, const CGHeroInstance * her
 		return 8;
 	case Obj::WITCH_HUT:
 		return evaluateWitchHutSkillScore(dynamic_cast<const CGWitchHut *>(target), hero, role);
+	case Obj::HERO:
+		return cb->getPlayerRelations(target->tempOwner, ai->playerID) == PlayerRelations::ENEMIES
+			? enemyHeroEliminationSkillRewardRatio * dynamic_cast<const CGHeroInstance *>(target)->level
+			: 0;
 	default:
 		return 0;
 	}
+}
+
+int32_t getArmyCost(const CArmedInstance * army)
+{
+	int32_t value = 0;
+
+	for(auto stack : army->Slots())
+	{
+		value += stack.second->getCreatureID().toCreature()->cost[Res::GOLD] * stack.second->count;
+	}
+
+	return value;
 }
 
 /// Gets aproximated reward in gold. Daily income is multiplied by 5
@@ -236,6 +260,8 @@ int32_t getGoldReward(const CGObjectInstance * target, const CGHeroInstance * he
 		return 0;
 
 	const int dailyIncomeMultiplier = 5;
+	const float enemyArmyEliminationGoldRewardRatio = 0.2f;
+	const int32_t heroEliminationBonus = GameConstants::HERO_GOLD_COST / 2;
 	auto isGold = target->subID == Res::GOLD; // TODO: other resorces could be sold but need to evaluate market power
 
 	switch(target->ID)
@@ -267,6 +293,10 @@ int32_t getGoldReward(const CGObjectInstance * target, const CGHeroInstance * he
 		return 10000;
 	case Obj::SEA_CHEST:
 		return 1500;
+	case Obj::HERO:
+		return cb->getPlayerRelations(target->tempOwner, ai->playerID) == PlayerRelations::ENEMIES
+			? heroEliminationBonus + enemyArmyEliminationGoldRewardRatio * getArmyCost(dynamic_cast<const CGHeroInstance *>(target))
+			: 0;
 	default:
 		return 0;
 	}
