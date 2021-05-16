@@ -30,7 +30,8 @@ private:
 	fl::Engine * engine;
 	fl::InputVariable * armyLossPersentageVariable;
 	fl::InputVariable * heroRoleVariable;
-	fl::InputVariable * turnDistanceVariable;
+	fl::InputVariable * mainTurnDistanceVariable;
+	fl::InputVariable * scoutTurnDistanceVariable;
 	fl::InputVariable * goldRewardVariable;
 	fl::InputVariable * armyRewardVariable;
 	fl::InputVariable * dangerVariable;

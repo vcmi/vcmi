@@ -53,7 +53,8 @@ void PriorityEvaluator::initVisitTile()
 	armyLossPersentageVariable = engine->getInputVariable("armyLoss");
 	heroRoleVariable = engine->getInputVariable("heroRole");
 	dangerVariable = engine->getInputVariable("danger");
-	turnDistanceVariable = engine->getInputVariable("turnDistance");
+	mainTurnDistanceVariable = engine->getInputVariable("mainTurnDistance");
+	scoutTurnDistanceVariable = engine->getInputVariable("scoutTurnDistance");
 	goldRewardVariable = engine->getInputVariable("goldReward");
 	armyRewardVariable = engine->getInputVariable("armyReward");
 	skillRewardVariable = engine->getInputVariable("skillReward");
@@ -380,7 +381,8 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task)
 	{
 		armyLossPersentageVariable->setValue(armyLossPersentage);
 		heroRoleVariable->setValue(heroRole);
-		turnDistanceVariable->setValue(task->evaluationContext.movementCost);
+		mainTurnDistanceVariable->setValue(task->evaluationContext.movementCostByRole[HeroRole::MAIN]);
+		scoutTurnDistanceVariable->setValue(task->evaluationContext.movementCostByRole[HeroRole::SCOUT]);
 		goldRewardVariable->setValue(goldReward);
 		armyRewardVariable->setValue(armyReward);
 		skillRewardVariable->setValue(skillReward);

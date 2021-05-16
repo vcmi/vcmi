@@ -95,6 +95,8 @@ namespace Goals
 	struct DLL_EXPORT EvaluationContext
 	{
 		float movementCost;
+		std::map<HeroRole, float> movementCostByRole;
+		float scoutMovementCost;
 		int manaCost;
 		uint64_t danger;
 		float closestWayRatio;
@@ -107,7 +109,8 @@ namespace Goals
 			danger(0),
 			closestWayRatio(1),
 			armyLoss(0),
-			heroStrength(0)
+			heroStrength(0),
+			movementCostByRole()
 		{
 		}
 	};
