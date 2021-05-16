@@ -401,11 +401,12 @@ private:
 	int heroChainTurn;
 	std::vector<CGPathNode *> heroChain;
 	const std::vector<int3> & tiles;
+	std::vector<DelayedWork> delayedWork;
 
 public:
 	HeroChainCalculationTask(
 		AINodeStorage & storage, AISharedStorage & nodes, const std::vector<int3> & tiles, uint64_t chainMask, int heroChainTurn)
-		:existingChains(), newChains(), nodes(nodes), storage(storage), chainMask(chainMask), heroChainTurn(heroChainTurn), heroChain(), tiles(tiles)
+		:existingChains(), newChains(), delayedWork(), nodes(nodes), storage(storage), chainMask(chainMask), heroChainTurn(heroChainTurn), heroChain(), tiles(tiles)
 	{
 		existingChains.reserve(NUM_CHAINS);
 		newChains.reserve(NUM_CHAINS);
@@ -443,6 +444,22 @@ public:
 						calculateHeroChain(node, existingChains, newChains);
 					}
 				}
+
+				for(auto delayed = delayedWork.begin(); delayed != delayedWork.end();)
+				{
+					auto newActor = delayed->carrier->actor->tryExchangeNoLock(delayed->other->actor);
+
+					if(!newActor.lockAcquired) continue;
+					
+					if(newActor.actor)
+					{
+						newChains.push_back(calculateExchange(newActor.actor, delayed->carrier, delayed->other));
+					}
+					
+					delayed++;
+				}
+
+				delayedWork.clear();
 
 				cleanupInefectiveChains(newChains);
 				addHeroChain(newChains);
@@ -483,11 +500,34 @@ bool AINodeStorage::calculateHeroChain()
 
 	CCreature::DisableChildLinkage = true;
 
-	auto r = blocked_range<size_t>(0, data.size());
-	HeroChainCalculationTask task(*this, nodes, data, chainMask, heroChainTurn);
+	if(data.size() > 100)
+	{
+		std::mutex resultMutex;
 
-	task.execute(r);
-	task.flushResult(heroChain);
+	std::random_shuffle(data.begin(), data.end());
+
+		parallel_for(blocked_range<size_t>(0, data.size()), [&](const blocked_range<size_t>& r)
+		{
+			//auto r = blocked_range<size_t>(0, data.size());
+			HeroChainCalculationTask task(*this, nodes, data, chainMask, heroChainTurn);
+
+			task.execute(r);
+
+			{
+				std::lock_guard<std::mutex> resultLock(resultMutex);
+
+				task.flushResult(heroChain);
+			}
+		});
+	}
+	else
+	{
+		auto r = blocked_range<size_t>(0, data.size());
+		HeroChainCalculationTask task(*this, nodes, data, chainMask, heroChainTurn);
+
+		task.execute(r);
+		task.flushResult(heroChain);\
+	}
 
 	CCreature::DisableChildLinkage = false;
 
@@ -666,9 +706,10 @@ void HeroChainCalculationTask::calculateHeroChain(
 			}
 		}
 
-		auto newActor = carrier->actor->tryExchange(other->actor);
+		auto newActor = carrier->actor->tryExchangeNoLock(other->actor);
 		
-		if(newActor) result.push_back(calculateExchange(newActor, carrier, other));
+		if(!newActor.lockAcquired) delayedWork.push_back(DelayedWork(carrier, other));
+		if(newActor.actor) result.push_back(calculateExchange(newActor.actor, carrier, other));
 	}
 }
 

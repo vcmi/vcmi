@@ -17,6 +17,7 @@
 
 extern const uint64_t MIN_ARMY_STRENGTH_FOR_CHAIN;
 
+class ChainActor;
 class HeroActor;
 class Nullkiller;
 
@@ -31,6 +32,14 @@ public:
 	HeroExchangeArmy() : CCreatureSet(), armyCost(), requireBuyArmy(false)
 	{
 	}
+};
+
+struct ExchangeResult
+{
+	bool lockAcquired;
+	ChainActor * actor;
+
+	ExchangeResult() : lockAcquired(true), actor(nullptr) {}
 };
 
 class ChainActor
@@ -68,12 +77,12 @@ public:
 	ChainActor(){}
 
 	virtual std::string toString() const;
-	ChainActor * tryExchange(const ChainActor * other) const { return tryExchange(this, other); }
+	ExchangeResult tryExchangeNoLock(const ChainActor * other) const { return tryExchangeNoLock(this, other); }
 	void setBaseActor(HeroActor * base);
 	virtual const CGObjectInstance * getActorObject() const	{ return hero; }
 
 protected:
-	virtual ChainActor * tryExchange(const ChainActor * specialActor, const ChainActor * other) const;
+	virtual ExchangeResult tryExchangeNoLock(const ChainActor * specialActor, const ChainActor * other) const;
 };
 
 class HeroExchangeMap
@@ -88,7 +97,7 @@ public:
 	HeroExchangeMap(const HeroActor * actor, const Nullkiller * ai);
 	~HeroExchangeMap();
 
-	HeroActor * tryExchange(const ChainActor * other);
+	ExchangeResult tryExchangeNoLock(const ChainActor * other);
 
 private:
 	HeroExchangeArmy * pickBestCreatures(const CCreatureSet * army1, const CCreatureSet * army2) const;
@@ -114,7 +123,7 @@ public:
 	HeroActor(const ChainActor * carrier, const ChainActor * other, const HeroExchangeArmy * army, const Nullkiller * ai);
 
 protected:
-	virtual ChainActor * tryExchange(const ChainActor * specialActor, const ChainActor * other) const override;
+	virtual ExchangeResult tryExchangeNoLock(const ChainActor * specialActor, const ChainActor * other) const override;
 };
 
 class ObjectActor : public ChainActor
