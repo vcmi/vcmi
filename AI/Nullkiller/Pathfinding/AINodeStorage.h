@@ -112,6 +112,7 @@ private:
 	std::vector<std::shared_ptr<ChainActor>> actors;
 	std::vector<CGPathNode *> heroChain;
 	EHeroChainPass heroChainPass; // true if we need to calculate hero chain
+	uint64_t chainMask;
 	int heroChainTurn;
 	int heroChainMaxTurns;
 	PlayerColor playerID;
@@ -126,6 +127,8 @@ public:
 	void initialize(const PathfinderOptions & options, const CGameState * gs) override;
 
 	bool increaseHeroChainTurnLimit();
+	bool selectFirstActor();
+	bool selectNextActor();
 
 	virtual std::vector<CGPathNode *> getInitialNodes() override;
 

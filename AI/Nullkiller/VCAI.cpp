@@ -456,11 +456,6 @@ void VCAI::showHillFortWindow(const CGObjectInstance * object, const CGHeroInsta
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
-
-	requestActionASAP([=]()
-	{
-		makePossibleUpgrades(visitor);
-	});
 }
 
 void VCAI::playerBonusChanged(const Bonus & bonus, bool gain)
@@ -781,6 +776,7 @@ void makePossibleUpgrades(const CArmedInstance * obj)
 			if(ui.oldID >= 0 && cb->getResourceAmount().canAfford(ui.cost[0] * s->count))
 			{
 				cb->upgradeCreature(obj, SlotID(i), ui.newID[0]);
+				logAi->debug("Upgraded %d %s to %s", s->count, ui.oldID.toCreature()->namePl, ui.newID[0].toCreature()->namePl);
 			}
 		}
 	}
@@ -1091,6 +1087,9 @@ void VCAI::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h)
 					cb->buyArtifact(h.get(), ArtifactID::SPELLBOOK);
 			}
 		}
+		break;
+	case Obj::HILL_FORT:
+		makePossibleUpgrades(h.get());
 		break;
 	}
 	completeGoal(sptr(Goals::VisitObj(obj->id.getNum()).sethero(h)));

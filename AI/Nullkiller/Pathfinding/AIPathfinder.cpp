@@ -62,25 +62,32 @@ void AIPathfinder::updatePaths(std::vector<HeroPtr> heroes, bool useHeroChain)
 	}
 
 	auto config = std::make_shared<AIPathfinding::AIPathfinderConfig>(cb, ai, storage);
-	bool continueCalculation = false;
+
+	logAi->trace("Recalculate paths pass %d", pass++);
+	cb->calculatePaths(config);
+
+	if(!useHeroChain)
+		return;
 
 	do
 	{
+		storage->selectFirstActor();
+
 		do
 		{
-			logAi->trace("Recalculate paths pass %d", pass++);
-			cb->calculatePaths(config);
-		} while(useHeroChain && storage->calculateHeroChain());
+			while(storage->calculateHeroChain())
+			{
+				logAi->trace("Recalculate paths pass %d", pass++);
+				cb->calculatePaths(config);
+			}
 
-		if(!useHeroChain)
-			break;
+			logAi->trace("Select next actor");
+		} while(storage->selectNextActor());
 
 		if(storage->calculateHeroChainFinal())
 		{
 			logAi->trace("Recalculate paths pass final");
 			cb->calculatePaths(config);
 		}
-
-		continueCalculation = storage->increaseHeroChainTurnLimit() && storage->calculateHeroChain();
-	} while(continueCalculation);
+	} while(storage->increaseHeroChainTurnLimit());
 }

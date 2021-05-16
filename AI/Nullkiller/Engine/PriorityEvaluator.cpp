@@ -22,6 +22,7 @@
 #include "../VCAI.h"
 #include "../AIhelper.h"
 #include "../Engine/Nullkiller.h"
+#include "../Goals/ExecuteHeroChain.h"
 
 #define MIN_AI_STRENGHT (0.5f) //lower when combat AI gets smarter
 #define UNGUARDED_OBJECT (100.0f) //we consider unguarded objects 100 times weaker than us
@@ -153,7 +154,7 @@ uint64_t evaluateArtifactArmyValue(CArtifactInstance * art)
 	return statsValue > classValue ? statsValue : classValue;
 }
 
-uint64_t getArmyReward(const CGObjectInstance * target, const CGHeroInstance * hero, bool checkGold)
+uint64_t getArmyReward(const CGObjectInstance * target, const CGHeroInstance * hero, const CCreatureSet * army, bool checkGold)
 {
 	const float enemyArmyEliminationRewardRatio = 0.5f;
 
@@ -164,6 +165,8 @@ uint64_t getArmyReward(const CGObjectInstance * target, const CGHeroInstance * h
 	{
 	case Obj::TOWN:
 		return target->tempOwner == PlayerColor::NEUTRAL ? 1000 : 10000;
+	case Obj::HILL_FORT:
+		return ai->ah->calculateCreateresUpgrade(army, target, cb->getResourceAmount()).upgradeValue;
 	case Obj::CREATURE_BANK:
 		return getCreatureBankArmyReward(target, hero);
 	case Obj::CREATURE_GENERATOR1:
@@ -377,15 +380,11 @@ class ExecuteHeroChainEvaluationContextBuilder : public IEvaluationContextBuilde
 public:
 	virtual Goals::EvaluationContext buildEvaluationContext(Goals::TSubgoal task) const override
 	{
+		Goals::ExecuteHeroChain & chain = dynamic_cast<Goals::ExecuteHeroChain &>(*task);
 		auto evaluationContext = task->evaluationContext;
 
-		int objId = task->objid;
-
-		if(task->parent)
-			objId = task->parent->objid;
-
 		auto heroPtr = task->hero;
-		const CGObjectInstance * target = cb->getObj((ObjectInstanceID)objId, false);
+		const CGObjectInstance * target = cb->getObj((ObjectInstanceID)task->objid, false);
 		auto day = cb->getDate(Date::DAY);
 		auto hero = heroPtr.get();
 		bool checkGold = evaluationContext.danger == 0;
@@ -393,7 +392,7 @@ public:
 		evaluationContext.armyLossPersentage = task->evaluationContext.armyLoss / (double)task->evaluationContext.heroStrength;
 		evaluationContext.heroRole = ai->ah->getHeroRole(heroPtr);
 		evaluationContext.goldReward = getGoldReward(target, hero);
-		evaluationContext.armyReward = getArmyReward(target, hero, checkGold);
+		evaluationContext.armyReward = getArmyReward(target, hero, chain.getPath().heroArmy, checkGold);
 		evaluationContext.skillReward = getSkillReward(target, hero, evaluationContext.heroRole);
 		evaluationContext.strategicalValue = getStrategicalValue(target);
 

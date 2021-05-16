@@ -281,32 +281,17 @@ ui64 FuzzyHelper::evaluateDanger(const CGObjectInstance * obj, const VCAI * ai)
 
 	switch(obj->ID)
 	{
-	case Obj::HERO:
-	{
-		InfoAboutHero iah;
-		cb->getHeroInfo(obj, iah);
-		return iah.army.getStrength();
-	}
 	case Obj::TOWN:
-	case Obj::GARRISON:
-	case Obj::GARRISON2:
 	{
-		InfoAboutTown iat;
-		cb->getTownInfo(obj, iat);
-		return iat.army.getStrength();
+		const CGTownInstance * cre = dynamic_cast<const CGTownInstance *>(obj);
+		return cre->getUpperArmy()->getArmyStrength();
 	}
 	case Obj::MONSTER:
-	{
-		//TODO!!!!!!!!
-		const CGCreature * cre = dynamic_cast<const CGCreature *>(obj);
-		return cre->getArmyStrength();
-	}
+	case Obj::HERO:
+	case Obj::GARRISON:
+	case Obj::GARRISON2:
 	case Obj::CREATURE_GENERATOR1:
 	case Obj::CREATURE_GENERATOR4:
-	{
-		const CGDwelling * d = dynamic_cast<const CGDwelling *>(obj);
-		return d->getArmyStrength();
-	}
 	case Obj::MINE:
 	case Obj::ABANDONED_MINE:
 	{
