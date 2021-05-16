@@ -45,7 +45,7 @@ namespace AIPathfinding
 		const PathfinderConfig * pathfinderConfig,
 		CPathfinderHelper * pathfinderHelper) const
 	{
-		if(nodeStorage->hasBetterChain(source, destination))
+		if(nodeStorage->isMovementIneficient(source, destination))
 		{
 			destination.blocked = true;
 

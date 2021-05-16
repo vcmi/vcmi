@@ -31,13 +31,17 @@ std::string RecruitHeroBehavior::toString() const
 Goals::TGoalVec RecruitHeroBehavior::getTasks()
 {
 	Goals::TGoalVec tasks;
+	auto towns = cb->getTownsInfo();
 
-	if(ai->canRecruitAnyHero())
+	for(auto town : towns)
 	{
-		if(cb->getHeroesInfo().size() < cb->getTownsInfo().size() + 1
-			|| cb->getResourceAmount(Res::GOLD) > 10000)
+		if(!town->garrisonHero && ai->canRecruitAnyHero(town))
 		{
-			tasks.push_back(Goals::sptr(Goals::RecruitHero()));
+			if(cb->getHeroesInfo().size() < cb->getTownsInfo().size() + 1
+				|| cb->getResourceAmount(Res::GOLD) > 10000)
+			{
+				tasks.push_back(Goals::sptr(Goals::RecruitHero().settown(town)));
+			}
 		}
 	}
 
