@@ -54,7 +54,7 @@ Goals::TGoalVec ClusterBehavior::decomposeCluster(std::shared_ptr<ObjectCluster>
 
 #if AI_TRACE_LEVEL >= 2
 	logAi->trace(
-		"Checking cluster %s, found %d paths",
+		"Checking cluster %s %s, found %d paths",
 		cluster->blocker->getObjectName(),
 		cluster->blocker->visitablePos().toString(),
 		paths.size());

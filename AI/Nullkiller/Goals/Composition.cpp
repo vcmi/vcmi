@@ -90,11 +90,6 @@ TGoalVec Composition::decompose() const
 			newComposition.addNext(goal);
 		}
 
-		if(newComposition.isElementar() && !newComposition.hero.validAndSet())
-		{
-			logAi->error("Bad");
-		}
-
 		result.push_back(sptr(newComposition));
 	}
 

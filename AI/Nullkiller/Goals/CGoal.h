@@ -83,12 +83,12 @@ namespace Goals
 	template<typename T> class DLL_EXPORT ElementarGoal : public CGoal<T>, public ITask
 	{
 	public:
-		ElementarGoal(EGoals goal = INVALID) : CGoal(goal), ITask()
+		ElementarGoal<T>(EGoals goal = INVALID) : CGoal(goal), ITask()
 		{
 			isAbstract = false;
 		}
 
-		ElementarGoal(const ElementarGoal<T> & other) : CGoal(other), ITask(other)
+		ElementarGoal<T>(const ElementarGoal<T> & other) : CGoal(other), ITask(other)
 		{
 		}
 
