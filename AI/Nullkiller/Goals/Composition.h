@@ -31,7 +31,7 @@ namespace Goals
 
 		virtual bool operator==(const Composition & other) const override;
 		virtual std::string toString() const override;
-		void accept(VCAI * ai) override;
+		void accept(AIGateway * ai) override;
 		Composition & addNext(const AbstractGoal & goal);
 		Composition & addNext(TSubgoal goal);
 		virtual TGoalVec decompose() const override;

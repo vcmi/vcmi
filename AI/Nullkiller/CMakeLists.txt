@@ -1,4 +1,4 @@
-set(VCAI_SRCS
+set(Nullkiller_SRCS
 		StdInc.cpp
 
 		Pathfinding/AIPathfinderConfig.cpp
@@ -23,6 +23,7 @@ set(VCAI_SRCS
 		Engine/AIMemory.cpp
 		Goals/AbstractGoal.cpp
 		Goals/Composition.cpp
+		Goals/SaveResources.cpp
 		Goals/BuildBoat.cpp
 		Goals/BuildThis.cpp
 		Goals/DismissHero.cpp
@@ -54,10 +55,10 @@ set(VCAI_SRCS
 		Behaviors/GatherArmyBehavior.cpp
 		Behaviors/ClusterBehavior.cpp
 		main.cpp
-		VCAI.cpp
+		AIGateway.cpp
 )
 
-set(VCAI_HEADERS
+set(Nullkiller_HEADERS
 		StdInc.h
 		
 		Pathfinding/AIPathfinderConfig.h
@@ -85,6 +86,7 @@ set(VCAI_HEADERS
 		Goals/Composition.h
 		Goals/Invalid.h
 		Goals/BuildBoat.h
+		Goals/SaveResources.h
 		Goals/BuildThis.h
 		Goals/DismissHero.h
 		Goals/BuyArmy.h
@@ -115,39 +117,39 @@ set(VCAI_HEADERS
 		Behaviors/BuildingBehavior.h
 		Behaviors/GatherArmyBehavior.h
 		Behaviors/ClusterBehavior.h
-		VCAI.h
+		AIGateway.h
 )
 
-assign_source_group(${VCAI_SRCS} ${VCAI_HEADERS})
+assign_source_group(${Nullkiller_SRCS} ${Nullkiller_HEADERS})
 
 if(ANDROID) # android compiles ai libs into main lib directly, so we skip this library and just reuse sources list
 	return()
 endif()
 
-add_library(VCAI SHARED ${VCAI_SRCS} ${VCAI_HEADERS})
+add_library(Nullkiller SHARED ${Nullkiller_SRCS} ${Nullkiller_HEADERS})
 
 if(FL_FOUND)
-	target_include_directories(VCAI PUBLIC ${FL_INCLUDE_DIRS})
+	target_include_directories(Nullkiller PUBLIC ${FL_INCLUDE_DIRS})
 else()
-	target_include_directories(VCAI PUBLIC ${CMAKE_HOME_DIRECTORY}/AI/FuzzyLite/fuzzylite)
+	target_include_directories(Nullkiller PUBLIC ${CMAKE_HOME_DIRECTORY}/AI/FuzzyLite/fuzzylite)
 endif()
-target_include_directories(VCAI PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(Nullkiller PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 if(FL_FOUND)
-	target_link_libraries(VCAI PRIVATE ${FL_LIBRARIES} vcmi)
+	target_link_libraries(Nullkiller PRIVATE ${FL_LIBRARIES} vcmi)
 else()
-	target_link_libraries(VCAI PRIVATE fl-static vcmi)
+	target_link_libraries(Nullkiller PRIVATE fl-static vcmi)
 endif()
 
 if(TBB_FOUND)
-	target_link_libraries(VCAI PRIVATE ${TBB_LIBRARIES})
+	target_link_libraries(Nullkiller PRIVATE ${TBB_LIBRARIES})
 else()
-	target_link_libraries(VCAI PRIVATE tbb)
+	target_link_libraries(Nullkiller PRIVATE tbb)
 endif()
 
-vcmi_set_output_dir(VCAI "AI")
+vcmi_set_output_dir(Nullkiller "AI")
 
-set_target_properties(VCAI PROPERTIES ${PCH_PROPERTIES})
-cotire(VCAI)
+set_target_properties(Nullkiller PROPERTIES ${PCH_PROPERTIES})
+cotire(Nullkiller)
 
-install(TARGETS VCAI RUNTIME DESTINATION ${AI_LIB_DIR} LIBRARY DESTINATION ${AI_LIB_DIR})
+install(TARGETS Nullkiller RUNTIME DESTINATION ${AI_LIB_DIR} LIBRARY DESTINATION ${AI_LIB_DIR})

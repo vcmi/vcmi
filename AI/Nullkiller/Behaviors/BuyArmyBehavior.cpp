@@ -9,7 +9,7 @@
 */
 #include "StdInc.h"
 #include "BuyArmyBehavior.h"
-#include "../VCAI.h"
+#include "../AIGateway.h"
 #include "../AIUtility.h"
 #include "../Goals/BuyArmy.h"
 #include "../Engine/Nullkiller.h"
@@ -17,7 +17,7 @@
 #include "lib/CPathfinder.h"
 
 extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<VCAI> ai;
+extern boost::thread_specific_ptr<AIGateway> ai;
 
 using namespace Goals;
 
@@ -32,43 +32,43 @@ Goals::TGoalVec BuyArmyBehavior::decompose() const
 
 	if(cb->getDate(Date::DAY) == 1)
 		return tasks;
-
-	if(ai->nullkiller->buildAnalyzer->getGoldPreasure() > MAX_GOLD_PEASURE)
-		return tasks;
 		
 	auto heroes = cb->getHeroesInfo();
 
-	if(heroes.size())
+	if(heroes.empty())
 	{
-		auto mainArmy = vstd::maxElementByFun(heroes, [](const CGHeroInstance * hero) -> uint64_t
-		{
-			return hero->getTotalStrength();
-		});
+		return tasks;
+	}
 
-		for(auto town : cb->getTownsInfo())
-		{
-			const CGHeroInstance * targetHero = *mainArmy;
+	for(auto town : cb->getTownsInfo())
+	{
+		auto townArmyAvailableToBuy = ai->nullkiller->armyManager->getArmyAvailableToBuyAsCCreatureSet(
+			town,
+			ai->nullkiller->getFreeResources());
 
-			/*if(town->visitingHero)
+		for(const CGHeroInstance * targetHero : heroes)
+		{
+			if(ai->nullkiller->buildAnalyzer->getGoldPreasure() > MAX_GOLD_PEASURE
+				&& !town->hasBuilt(BuildingID::CITY_HALL))
 			{
-				targetHero = town->visitingHero.get();
+				continue;
+			}
 
-				if(ai->nullkiller->armyManager->howManyReinforcementsCanGet(targetHero, town->getUpperArmy()))
+			if(ai->nullkiller->heroManager->getHeroRole(targetHero) == HeroRole::MAIN
+				&& targetHero->getArmyStrength() >= 300)
+			{
+				auto reinforcement = ai->nullkiller->armyManager->howManyReinforcementsCanGet(
+					targetHero,
+					targetHero,
+					&*townArmyAvailableToBuy);
+
+				if(reinforcement)
+					vstd::amin(reinforcement, ai->nullkiller->armyManager->howManyReinforcementsCanBuy(town->getUpperArmy(), town));
+
+				if(reinforcement)
 				{
-					tasks.push_back(sptr(VisitTile(town->visitablePos()).sethero(targetHero).setpriority(5)));
-
-					continue;
+					tasks.push_back(Goals::sptr(Goals::BuyArmy(town, reinforcement).setpriority(5)));
 				}
-			}*/
-
-			auto reinforcement = ai->nullkiller->armyManager->howManyReinforcementsCanBuy(targetHero, town);
-
-			if(reinforcement)
-				reinforcement = ai->nullkiller->armyManager->howManyReinforcementsCanBuy(town->getUpperArmy(), town);
-
-			if(reinforcement)
-			{
-				tasks.push_back(Goals::sptr(Goals::BuyArmy(town, reinforcement).setpriority(5)));
 			}
 		}
 	}

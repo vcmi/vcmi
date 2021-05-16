@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "ObjectClusterizer.h"
 #include "../Goals/ExecuteHeroChain.h"
-#include "../VCAI.h"
+#include "../AIGateway.h"
 #include "../Engine/Nullkiller.h"
 #include "lib/mapping/CMap.h" //for victory conditions
 

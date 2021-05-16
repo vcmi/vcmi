@@ -9,16 +9,18 @@
 */
 #include "StdInc.h"
 #include "BuildingBehavior.h"
-#include "../VCAI.h"
+#include "../AIGateway.h"
 #include "../AIUtility.h"
 #include "../Goals/BuyArmy.h"
+#include "../Goals/Composition.h"
 #include "../Goals/BuildThis.h"
+#include "../Goals/SaveResources.h"
 #include "lib/mapping/CMap.h" //for victory conditions
 #include "lib/CPathfinder.h"
 #include "../Engine/Nullkiller.h"
 
 extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<VCAI> ai;
+extern boost::thread_specific_ptr<AIGateway> ai;
 
 using namespace Goals;
 
@@ -33,10 +35,10 @@ Goals::TGoalVec BuildingBehavior::decompose() const
 
 	TResources resourcesRequired = ai->nullkiller->buildAnalyzer->getResourcesRequiredNow();
 	TResources totalDevelopmentCost = ai->nullkiller->buildAnalyzer->getTotalResourcesRequired();
-	TResources availableResources = cb->getResourceAmount();
+	TResources availableResources = ai->nullkiller->getFreeResources();
 	TResources dailyIncome = ai->nullkiller->buildAnalyzer->getDailyIncome();
 
-	logAi->trace("Resources amount: %s", availableResources.toString());
+	logAi->trace("Free resources amount: %s", availableResources.toString());
 
 	resourcesRequired -= availableResources;
 	resourcesRequired.positive();
@@ -56,7 +58,22 @@ Goals::TGoalVec BuildingBehavior::decompose() const
 		for(auto & buildingInfo : developmentInfo.toBuild)
 		{
 			if(goldPreasure < MAX_GOLD_PEASURE || buildingInfo.dailyIncome[Res::GOLD] > 0)
-				tasks.push_back(sptr(BuildThis(buildingInfo, developmentInfo)));
+			{
+				if(buildingInfo.notEnoughRes)
+				{
+					if(ai->nullkiller->getLockedResources().canAfford(buildingInfo.buildCost))
+						continue;
+
+					Composition composition;
+
+					composition.addNext(BuildThis(buildingInfo, developmentInfo));
+					composition.addNext(SaveResources(buildingInfo.buildCost));
+
+					tasks.push_back(sptr(composition));
+				}
+				else
+					tasks.push_back(sptr(BuildThis(buildingInfo, developmentInfo)));
+			}
 		}
 	}
 

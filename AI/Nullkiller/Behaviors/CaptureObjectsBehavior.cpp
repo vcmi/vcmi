@@ -8,7 +8,7 @@
 *
 */
 #include "StdInc.h"
-#include "../VCAI.h"
+#include "../AIGateway.h"
 #include "../Engine/Nullkiller.h"
 #include "../Goals/Composition.h"
 #include "../Goals/ExecuteHeroChain.h"
@@ -16,7 +16,7 @@
 #include "../AIUtility.h"
 
 extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<VCAI> ai;
+extern boost::thread_specific_ptr<AIGateway> ai;
 
 using namespace Goals;
 

@@ -9,13 +9,13 @@
 */
 #include "StdInc.h"
 #include "HeroExchange.h"
-#include "../VCAI.h"
+#include "../AIGateway.h"
 #include "../Engine/Nullkiller.h"
 #include "../AIUtility.h"
 #include "../Analyzers/ArmyManager.h"
 
 extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<VCAI> ai;
+extern boost::thread_specific_ptr<AIGateway> ai;
 
 using namespace Goals;
 

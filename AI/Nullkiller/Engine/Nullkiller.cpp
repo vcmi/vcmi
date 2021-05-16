@@ -9,7 +9,7 @@
 */
 #include "StdInc.h"
 #include "Nullkiller.h"
-#include "../VCAI.h"
+#include "../AIGateway.h"
 #include "../Behaviors/CaptureObjectsBehavior.h"
 #include "../Behaviors/RecruitHeroBehavior.h"
 #include "../Behaviors/BuyArmyBehavior.h"
@@ -22,7 +22,7 @@
 #include "../Goals/Composition.h"
 
 extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<VCAI> ai;
+extern boost::thread_specific_ptr<AIGateway> ai;
 
 using namespace Goals;
 
@@ -111,6 +111,7 @@ Goals::TTask Nullkiller::choseBestTask(Goals::TSubgoal behavior, int decompositi
 
 void Nullkiller::resetAiState()
 {
+	lockedResources = TResources();
 	scanDepth = ScanDepth::SMALL;
 	playerID = ai->playerID;
 	lockedHeroes.clear();
@@ -238,7 +239,7 @@ void Nullkiller::makeTurn()
 			if(hero.validAndSet())
 				heroRole = heroManager->getHeroRole(hero);
 
-			if(heroRole == HeroRole::MAIN)
+			if(heroRole == HeroRole::MAIN || bestTask->priority < MIN_PRIORITY)
 			{
 				logAi->trace(
 					"Goal %s has too low priority %f so increasing scan depth",
@@ -278,4 +279,18 @@ void Nullkiller::makeTurn()
 			return;
 		}
 	}
+}
+
+TResources Nullkiller::getFreeResources() const
+{
+	auto freeRes = cb->getResourceAmount() - lockedResources;
+
+	freeRes.positive();
+
+	return freeRes;
+}
+
+void Nullkiller::lockResources(const TResources & res)
+{
+	lockedResources += res;
 }

@@ -9,7 +9,7 @@
 */
 #include "StdInc.h"
 #include "RecruitHeroBehavior.h"
-#include "../VCAI.h"
+#include "../AIGateway.h"
 #include "../AIUtility.h"
 #include "../Goals/RecruitHero.h"
 #include "../Goals/ExecuteHeroChain.h"
@@ -17,7 +17,7 @@
 #include "lib/CPathfinder.h"
 
 extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<VCAI> ai;
+extern boost::thread_specific_ptr<AIGateway> ai;
 
 using namespace Goals;
 
@@ -36,7 +36,8 @@ Goals::TGoalVec RecruitHeroBehavior::decompose() const
 		if(!town->garrisonHero && !town->visitingHero && ai->canRecruitAnyHero(town))
 		{
 			if(cb->getHeroesInfo().size() < cb->getTownsInfo().size() + 1
-				|| cb->getResourceAmount(Res::GOLD) > 10000)
+				|| (ai->nullkiller->getFreeResources()[Res::GOLD] > 10000
+					&& ai->nullkiller->buildAnalyzer->getGoldPreasure() < MAX_GOLD_PEASURE))
 			{
 				tasks.push_back(Goals::sptr(Goals::RecruitHero(town).setpriority(3)));
 			}

@@ -12,7 +12,7 @@
 #include "CGoal.h"
 
 struct HeroPtr;
-class VCAI;
+class AIGateway;
 
 namespace Goals
 {

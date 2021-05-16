@@ -12,7 +12,7 @@
 #include "AbstractGoal.h"
 
 struct HeroPtr;
-class VCAI;
+class AIGateway;
 
 namespace Goals
 {
@@ -115,7 +115,7 @@ namespace Goals
 			return "Invalid";
 		}
 
-		virtual void accept(VCAI * ai) override
+		virtual void accept(AIGateway * ai) override
 		{
 			throw cannotFulfillGoalException("Can not fulfill Invalid goal!");
 		}

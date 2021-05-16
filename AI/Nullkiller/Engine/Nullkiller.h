@@ -50,6 +50,7 @@ private:
 	int3 targetTile;
 	std::map<const CGHeroInstance *, HeroLockedReason> lockedHeroes;
 	ScanDepth scanDepth;
+	TResources lockedResources;
 
 public:
 	std::unique_ptr<DangerHitMapAnalyzer> dangerHitMap;
@@ -78,6 +79,10 @@ public:
 	void lockHero(const CGHeroInstance * hero, HeroLockedReason lockReason) { lockedHeroes[hero] = lockReason; }
 	void unlockHero(const CGHeroInstance * hero) { lockedHeroes.erase(hero); }
 	bool arePathHeroesLocked(const AIPath & path) const;
+	TResources getFreeResources() const;
+	int32_t getFreeGold() const { return getFreeResources()[Res::GOLD]; }
+	void lockResources(const TResources & res);
+	const TResources & getLockedResources() const { return lockedResources; }
 
 private:
 	void resetAiState();

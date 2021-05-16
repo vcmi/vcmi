@@ -1,5 +1,5 @@
 /*
- * VCAI.cpp, part of VCMI engine
+ * AIGateway.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -20,7 +20,7 @@
 #include "../../lib/serializer/BinarySerializer.h"
 #include "../../lib/serializer/BinaryDeserializer.h"
 
-#include "VCAI.h"
+#include "AIGateway.h"
 #include "Goals/Goals.h"
 
 class CGVisitableOPW;
@@ -29,12 +29,12 @@ const float SAFE_ATTACK_CONSTANT = 1.2;
 
 //one thread may be turn of AI and another will be handling a side effect for AI2
 boost::thread_specific_ptr<CCallback> cb;
-boost::thread_specific_ptr<VCAI> ai;
+boost::thread_specific_ptr<AIGateway> ai;
 
 //helper RAII to manage global ai/cb ptrs
 struct SetGlobalState
 {
-	SetGlobalState(VCAI * AI)
+	SetGlobalState(AIGateway * AI)
 	{
 		assert(!ai.get());
 		assert(!cb.get());
@@ -57,7 +57,7 @@ struct SetGlobalState
 #define NET_EVENT_HANDLER SET_GLOBAL_STATE(this)
 #define MAKING_TURN SET_GLOBAL_STATE(this)
 
-VCAI::VCAI()
+AIGateway::AIGateway()
 {
 	LOG_TRACE(logAi);
 	makingTurn = nullptr;
@@ -66,20 +66,20 @@ VCAI::VCAI()
 	nullkiller.reset(new Nullkiller());
 }
 
-VCAI::~VCAI()
+AIGateway::~AIGateway()
 {
 	LOG_TRACE(logAi);
 	finish();
 	nullkiller.reset();
 }
 
-void VCAI::availableCreaturesChanged(const CGDwelling * town)
+void AIGateway::availableCreaturesChanged(const CGDwelling * town)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::heroMoved(const TryMoveHero & details)
+void AIGateway::heroMoved(const TryMoveHero & details)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
@@ -120,43 +120,43 @@ void VCAI::heroMoved(const TryMoveHero & details)
 	}
 }
 
-void VCAI::heroInGarrisonChange(const CGTownInstance * town)
+void AIGateway::heroInGarrisonChange(const CGTownInstance * town)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::centerView(int3 pos, int focusTime)
+void AIGateway::centerView(int3 pos, int focusTime)
 {
 	LOG_TRACE_PARAMS(logAi, "focusTime '%i'", focusTime);
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::artifactMoved(const ArtifactLocation & src, const ArtifactLocation & dst)
+void AIGateway::artifactMoved(const ArtifactLocation & src, const ArtifactLocation & dst)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::artifactAssembled(const ArtifactLocation & al)
+void AIGateway::artifactAssembled(const ArtifactLocation & al)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::showTavernWindow(const CGObjectInstance * townOrTavern)
+void AIGateway::showTavernWindow(const CGObjectInstance * townOrTavern)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::showThievesGuildWindow(const CGObjectInstance * obj)
+void AIGateway::showThievesGuildWindow(const CGObjectInstance * obj)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::playerBlocked(int reason, bool start)
+void AIGateway::playerBlocked(int reason, bool start)
 {
 	LOG_TRACE_PARAMS(logAi, "reason '%i', start '%i'", reason % start);
 	NET_EVENT_HANDLER;
@@ -167,19 +167,19 @@ void VCAI::playerBlocked(int reason, bool start)
 		status.setMove(start);
 }
 
-void VCAI::showPuzzleMap()
+void AIGateway::showPuzzleMap()
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::showShipyardDialog(const IShipyard * obj)
+void AIGateway::showShipyardDialog(const IShipyard * obj)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::gameOver(PlayerColor player, const EVictoryLossCheckResult & victoryLossCheckResult)
+void AIGateway::gameOver(PlayerColor player, const EVictoryLossCheckResult & victoryLossCheckResult)
 {
 	LOG_TRACE_PARAMS(logAi, "victoryLossCheckResult '%s'", victoryLossCheckResult.messageToSelf);
 	NET_EVENT_HANDLER;
@@ -192,37 +192,37 @@ void VCAI::gameOver(PlayerColor player, const EVictoryLossCheckResult & victoryL
 	{
 		if(victoryLossCheckResult.victory())
 		{
-			logAi->debug("VCAI: Player %d (%s) won. I won! Incredible!", player, player.getStr());
+			logAi->debug("AIGateway: Player %d (%s) won. I won! Incredible!", player, player.getStr());
 			logAi->debug("Turn nr %d", myCb->getDate());
 		}
 		else
 		{
-			logAi->debug("VCAI: Player %d (%s) lost. It's me. What a disappointment! :(", player, player.getStr());
+			logAi->debug("AIGateway: Player %d (%s) lost. It's me. What a disappointment! :(", player, player.getStr());
 		}
 
 		finish();
 	}
 }
 
-void VCAI::artifactPut(const ArtifactLocation & al)
+void AIGateway::artifactPut(const ArtifactLocation & al)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::artifactRemoved(const ArtifactLocation & al)
+void AIGateway::artifactRemoved(const ArtifactLocation & al)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::artifactDisassembled(const ArtifactLocation & al)
+void AIGateway::artifactDisassembled(const ArtifactLocation & al)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::heroVisit(const CGHeroInstance * visitor, const CGObjectInstance * visitedObj, bool start)
+void AIGateway::heroVisit(const CGHeroInstance * visitor, const CGObjectInstance * visitedObj, bool start)
 {
 	LOG_TRACE_PARAMS(logAi, "start '%i'; obj '%s'", start % (visitedObj ? visitedObj->getObjectName() : std::string("n/a")));
 	NET_EVENT_HANDLER;
@@ -235,28 +235,27 @@ void VCAI::heroVisit(const CGHeroInstance * visitor, const CGObjectInstance * vi
 	status.heroVisit(visitedObj, start);
 }
 
-void VCAI::availableArtifactsChanged(const CGBlackMarket * bm)
+void AIGateway::availableArtifactsChanged(const CGBlackMarket * bm)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::heroVisitsTown(const CGHeroInstance * hero, const CGTownInstance * town)
+void AIGateway::heroVisitsTown(const CGHeroInstance * hero, const CGTownInstance * town)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::tileHidden(const std::unordered_set<int3, ShashInt3> & pos)
+void AIGateway::tileHidden(const std::unordered_set<int3, ShashInt3> & pos)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 
 	nullkiller->memory->removeInvisibleObjects(myCb.get());
-	clearPathsInfo();
 }
 
-void VCAI::tileRevealed(const std::unordered_set<int3, ShashInt3> & pos)
+void AIGateway::tileRevealed(const std::unordered_set<int3, ShashInt3> & pos)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
@@ -265,11 +264,9 @@ void VCAI::tileRevealed(const std::unordered_set<int3, ShashInt3> & pos)
 		for(const CGObjectInstance * obj : myCb->getVisitableObjs(tile))
 			addVisitableObj(obj);
 	}
-
-	clearPathsInfo();
 }
 
-void VCAI::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID query)
+void AIGateway::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID query)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
@@ -305,31 +302,31 @@ void VCAI::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, Q
 	});
 }
 
-void VCAI::heroPrimarySkillChanged(const CGHeroInstance * hero, int which, si64 val)
+void AIGateway::heroPrimarySkillChanged(const CGHeroInstance * hero, int which, si64 val)
 {
 	LOG_TRACE_PARAMS(logAi, "which '%i', val '%i'", which % val);
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::showRecruitmentDialog(const CGDwelling * dwelling, const CArmedInstance * dst, int level)
+void AIGateway::showRecruitmentDialog(const CGDwelling * dwelling, const CArmedInstance * dst, int level)
 {
 	LOG_TRACE_PARAMS(logAi, "level '%i'", level);
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::heroMovePointsChanged(const CGHeroInstance * hero)
+void AIGateway::heroMovePointsChanged(const CGHeroInstance * hero)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::garrisonsChanged(ObjectInstanceID id1, ObjectInstanceID id2)
+void AIGateway::garrisonsChanged(ObjectInstanceID id1, ObjectInstanceID id2)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::newObject(const CGObjectInstance * obj)
+void AIGateway::newObject(const CGObjectInstance * obj)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
@@ -339,7 +336,7 @@ void VCAI::newObject(const CGObjectInstance * obj)
 
 //to prevent AI from accessing objects that got deleted while they became invisible (Cover of Darkness, enemy hero moved etc.) below code allows AI to know deletion of objects out of sight
 //see: RemoveObject::applyFirstCl, to keep AI "not cheating" do not use advantage of this and use this function just to prevent crashes
-void VCAI::objectRemoved(const CGObjectInstance * obj)
+void AIGateway::objectRemoved(const CGObjectInstance * obj)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
@@ -355,37 +352,37 @@ void VCAI::objectRemoved(const CGObjectInstance * obj)
 	}
 }
 
-void VCAI::showHillFortWindow(const CGObjectInstance * object, const CGHeroInstance * visitor)
+void AIGateway::showHillFortWindow(const CGObjectInstance * object, const CGHeroInstance * visitor)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::playerBonusChanged(const Bonus & bonus, bool gain)
+void AIGateway::playerBonusChanged(const Bonus & bonus, bool gain)
 {
 	LOG_TRACE_PARAMS(logAi, "gain '%i'", gain);
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::heroCreated(const CGHeroInstance * h)
+void AIGateway::heroCreated(const CGHeroInstance * h)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::advmapSpellCast(const CGHeroInstance * caster, int spellID)
+void AIGateway::advmapSpellCast(const CGHeroInstance * caster, int spellID)
 {
 	LOG_TRACE_PARAMS(logAi, "spellID '%i", spellID);
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::showInfoDialog(const std::string & text, const std::vector<Component> & components, int soundID)
+void AIGateway::showInfoDialog(const std::string & text, const std::vector<Component> & components, int soundID)
 {
 	LOG_TRACE_PARAMS(logAi, "soundID '%i'", soundID);
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::requestRealized(PackageApplied * pa)
+void AIGateway::requestRealized(PackageApplied * pa)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
@@ -404,31 +401,31 @@ void VCAI::requestRealized(PackageApplied * pa)
 	}
 }
 
-void VCAI::receivedResource()
+void AIGateway::receivedResource()
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::showUniversityWindow(const IMarket * market, const CGHeroInstance * visitor)
+void AIGateway::showUniversityWindow(const IMarket * market, const CGHeroInstance * visitor)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::heroManaPointsChanged(const CGHeroInstance * hero)
+void AIGateway::heroManaPointsChanged(const CGHeroInstance * hero)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::heroSecondarySkillChanged(const CGHeroInstance * hero, int which, int val)
+void AIGateway::heroSecondarySkillChanged(const CGHeroInstance * hero, int which, int val)
 {
 	LOG_TRACE_PARAMS(logAi, "which '%d', val '%d'", which % val);
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::battleResultsApplied()
+void AIGateway::battleResultsApplied()
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
@@ -436,7 +433,7 @@ void VCAI::battleResultsApplied()
 	status.setBattle(NO_BATTLE);
 }
 
-void VCAI::objectPropertyChanged(const SetObjectProperty * sop)
+void AIGateway::objectPropertyChanged(const SetObjectProperty * sop)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
@@ -465,32 +462,32 @@ void VCAI::objectPropertyChanged(const SetObjectProperty * sop)
 	}
 }
 
-void VCAI::buildChanged(const CGTownInstance * town, BuildingID buildingID, int what)
+void AIGateway::buildChanged(const CGTownInstance * town, BuildingID buildingID, int what)
 {
 	LOG_TRACE_PARAMS(logAi, "what '%i'", what);
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::heroBonusChanged(const CGHeroInstance * hero, const Bonus & bonus, bool gain)
+void AIGateway::heroBonusChanged(const CGHeroInstance * hero, const Bonus & bonus, bool gain)
 {
 	LOG_TRACE_PARAMS(logAi, "gain '%i'", gain);
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::showMarketWindow(const IMarket * market, const CGHeroInstance * visitor)
+void AIGateway::showMarketWindow(const IMarket * market, const CGHeroInstance * visitor)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions)
+void AIGateway::showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions)
 {
 	//TODO: AI support for ViewXXX spell
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::init(std::shared_ptr<CCallback> CB)
+void AIGateway::init(std::shared_ptr<CCallback> CB)
 {
 	LOG_TRACE(logAi);
 	myCb = CB;
@@ -506,15 +503,15 @@ void VCAI::init(std::shared_ptr<CCallback> CB)
 	retrieveVisitableObjs();
 }
 
-void VCAI::yourTurn()
+void AIGateway::yourTurn()
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 	status.startedTurn();
-	makingTurn = make_unique<boost::thread>(&VCAI::makeTurn, this);
+	makingTurn = make_unique<boost::thread>(&AIGateway::makeTurn, this);
 }
 
-void VCAI::heroGotLevel(const CGHeroInstance * hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> & skills, QueryID queryID)
+void AIGateway::heroGotLevel(const CGHeroInstance * hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> & skills, QueryID queryID)
 {
 	LOG_TRACE_PARAMS(logAi, "queryID '%i'", queryID);
 	NET_EVENT_HANDLER;
@@ -532,7 +529,7 @@ void VCAI::heroGotLevel(const CGHeroInstance * hero, PrimarySkill::PrimarySkill 
 	});
 }
 
-void VCAI::commanderGotLevel(const CCommanderInstance * commander, std::vector<ui32> skills, QueryID queryID)
+void AIGateway::commanderGotLevel(const CCommanderInstance * commander, std::vector<ui32> skills, QueryID queryID)
 {
 	LOG_TRACE_PARAMS(logAi, "queryID '%i'", queryID);
 	NET_EVENT_HANDLER;
@@ -540,7 +537,7 @@ void VCAI::commanderGotLevel(const CCommanderInstance * commander, std::vector<u
 	requestActionASAP([=](){ answerQuery(queryID, 0); });
 }
 
-void VCAI::showBlockingDialog(const std::string & text, const std::vector<Component> & components, QueryID askID, const int soundID, bool selection, bool cancel)
+void AIGateway::showBlockingDialog(const std::string & text, const std::vector<Component> & components, QueryID askID, const int soundID, bool selection, bool cancel)
 {
 	LOG_TRACE_PARAMS(logAi, "text '%s', askID '%i', soundID '%i', selection '%i', cancel '%i'", text % askID % soundID % selection % cancel);
 	NET_EVENT_HANDLER;
@@ -592,7 +589,8 @@ void VCAI::showBlockingDialog(const std::string & text, const std::vector<Compon
 		if(hero.validAndSet()
 			&& components.size() == 2
 			&& components.front().id == Component::RESOURCE
-			&& nullkiller->heroManager->getHeroRole(hero) != HeroRole::MAIN)
+			&& (nullkiller->heroManager->getHeroRole(hero) != HeroRole::MAIN
+			|| nullkiller->buildAnalyzer->getGoldPreasure() > MAX_GOLD_PEASURE))
 		{
 			sel = 1; // for now lets pick gold from a chest.
 		}
@@ -601,7 +599,7 @@ void VCAI::showBlockingDialog(const std::string & text, const std::vector<Compon
 	});
 }
 
-void VCAI::showTeleportDialog(TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID)
+void AIGateway::showTeleportDialog(TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID)
 {
 	NET_EVENT_HANDLER;
 	status.addQuery(askID, boost::str(boost::format("Teleport dialog query with %d exits") % exits.size()));
@@ -644,7 +642,7 @@ void VCAI::showTeleportDialog(TeleportChannelID channel, TTeleportExitsList exit
 	});
 }
 
-void VCAI::showGarrisonDialog(const CArmedInstance * up, const CGHeroInstance * down, bool removableUnits, QueryID queryID)
+void AIGateway::showGarrisonDialog(const CArmedInstance * up, const CGHeroInstance * down, bool removableUnits, QueryID queryID)
 {
 	LOG_TRACE_PARAMS(logAi, "removableUnits '%i', queryID '%i'", removableUnits % queryID);
 	NET_EVENT_HANDLER;
@@ -664,14 +662,14 @@ void VCAI::showGarrisonDialog(const CArmedInstance * up, const CGHeroInstance * 
 	});
 }
 
-void VCAI::showMapObjectSelectDialog(QueryID askID, const Component & icon, const MetaString & title, const MetaString & description, const std::vector<ObjectInstanceID> & objects)
+void AIGateway::showMapObjectSelectDialog(QueryID askID, const Component & icon, const MetaString & title, const MetaString & description, const std::vector<ObjectInstanceID> & objects)
 {
 	NET_EVENT_HANDLER;
 	status.addQuery(askID, "Map object select query");
 	requestActionASAP([=](){ answerQuery(askID, selectedObject.getNum()); });
 }
 
-void VCAI::saveGame(BinarySerializer & h, const int version)
+void AIGateway::saveGame(BinarySerializer & h, const int version)
 {
 	LOG_TRACE_PARAMS(logAi, "version '%i'", version);
 	NET_EVENT_HANDLER;
@@ -681,7 +679,7 @@ void VCAI::saveGame(BinarySerializer & h, const int version)
 	serializeInternal(h, version);
 }
 
-void VCAI::loadGame(BinaryDeserializer & h, const int version)
+void AIGateway::loadGame(BinaryDeserializer & h, const int version)
 {
 	LOG_TRACE_PARAMS(logAi, "version '%i'", version);
 	//NET_EVENT_HANDLER;
@@ -694,7 +692,7 @@ void VCAI::loadGame(BinaryDeserializer & h, const int version)
 	serializeInternal(h, version);
 }
 
-bool VCAI::makePossibleUpgrades(const CArmedInstance * obj)
+bool AIGateway::makePossibleUpgrades(const CArmedInstance * obj)
 {
 	if(!obj)
 		return false;
@@ -707,7 +705,7 @@ bool VCAI::makePossibleUpgrades(const CArmedInstance * obj)
 		{
 			UpgradeInfo ui;
 			myCb->getUpgradeInfo(obj, SlotID(i), ui);
-			if(ui.oldID >= 0 && myCb->getResourceAmount().canAfford(ui.cost[0] * s->count))
+			if(ui.oldID >= 0 && nullkiller->getFreeResources().canAfford(ui.cost[0] * s->count))
 			{
 				myCb->upgradeCreature(obj, SlotID(i), ui.newID[0]);
 				upgraded = true;
@@ -719,7 +717,7 @@ bool VCAI::makePossibleUpgrades(const CArmedInstance * obj)
 	return upgraded;
 }
 
-void VCAI::makeTurn()
+void AIGateway::makeTurn()
 {
 	MAKING_TURN;
 
@@ -727,7 +725,7 @@ void VCAI::makeTurn()
 	logAi->info("Player %d (%s) starting turn, day %d", playerID, playerID.getStr(), day);
 
 	boost::shared_lock<boost::shared_mutex> gsLock(CGameState::mutex);
-	setThreadName("VCAI::makeTurn");
+	setThreadName("AIGateway::makeTurn");
 
 	if(cb->getDate(Date::DAY_OF_WEEK) == 1)
 	{
@@ -776,7 +774,7 @@ void VCAI::makeTurn()
 	endTurn();
 }
 
-void VCAI::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h)
+void AIGateway::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h)
 {
 	LOG_TRACE_PARAMS(logAi, "Hero %s and object %s at %s", h->name % obj->getObjectName() % obj->pos.toString());
 	switch(obj->ID)
@@ -789,11 +787,11 @@ void VCAI::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h)
 		{
 			makePossibleUpgrades(h.get());
 
-			if(!nullkiller || !h->visitedTown->garrisonHero || !nullkiller->isHeroLocked(h->visitedTown->garrisonHero))
+			if(!h->visitedTown->garrisonHero || !nullkiller->isHeroLocked(h->visitedTown->garrisonHero))
 				moveCreaturesToHero(h->visitedTown);
 
-			if(ai->nullkiller->heroManager->getHeroRole(h) == HeroRole::MAIN && !h->hasSpellbook()
-				&& cb->getResourceAmount(Res::GOLD) >= GameConstants::SPELLBOOK_GOLD_COST)
+			if(nullkiller->heroManager->getHeroRole(h) == HeroRole::MAIN && !h->hasSpellbook()
+				&& nullkiller->getFreeGold() >= GameConstants::SPELLBOOK_GOLD_COST)
 			{
 				if(h->visitedTown->hasBuilt(BuildingID::MAGES_GUILD_1))
 					cb->buyArtifact(h.get(), ArtifactID::SPELLBOOK);
@@ -806,7 +804,7 @@ void VCAI::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h)
 	}
 }
 
-void VCAI::moveCreaturesToHero(const CGTownInstance * t)
+void AIGateway::moveCreaturesToHero(const CGTownInstance * t)
 {
 	if(t->visitingHero && t->armedGarrison() && t->visitingHero->tempOwner == t->tempOwner)
 	{
@@ -814,7 +812,7 @@ void VCAI::moveCreaturesToHero(const CGTownInstance * t)
 	}
 }
 
-void VCAI::pickBestCreatures(const CArmedInstance * destinationArmy, const CArmedInstance * source)
+void AIGateway::pickBestCreatures(const CArmedInstance * destinationArmy, const CArmedInstance * source)
 {
 	const CArmedInstance * armies[] = {destinationArmy, source};
 
@@ -897,7 +895,7 @@ void VCAI::pickBestCreatures(const CArmedInstance * destinationArmy, const CArme
 	//TODO - having now strongest possible army, we may want to think about arranging stacks
 }
 
-void VCAI::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance * other)
+void AIGateway::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance * other)
 {
 	auto equipBest = [](const CGHeroInstance * h, const CGHeroInstance * otherh, bool giveStuffToFirstHero) -> void
 	{
@@ -996,7 +994,7 @@ void VCAI::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance * ot
 		equipBest(h, other, false);
 }
 
-void VCAI::recruitCreatures(const CGDwelling * d, const CArmedInstance * recruiter)
+void AIGateway::recruitCreatures(const CGDwelling * d, const CArmedInstance * recruiter)
 {
 	//now used only for visited dwellings / towns, not BuyArmy goal
 	for(int i = 0; i < d->creatures.size(); i++)
@@ -1013,25 +1011,7 @@ void VCAI::recruitCreatures(const CGDwelling * d, const CArmedInstance * recruit
 	}
 }
 
-bool VCAI::isTileNotReserved(const CGHeroInstance * h, int3 t) const
-{
-	if(t.valid())
-	{
-		auto obj = cb->getTopObj(t);
-		if(obj && vstd::contains(ai->reservedObjs, obj)
-			&& vstd::contains(reservedHeroesMap, h)
-			&& !vstd::contains(reservedHeroesMap.at(h), obj))
-			return false; //do not capture object reserved by another hero
-		else
-			return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-
-bool VCAI::canRecruitAnyHero(const CGTownInstance * t) const
+bool AIGateway::canRecruitAnyHero(const CGTownInstance * t) const
 {
 	//TODO: make gathering gold, building tavern or conquering town (?) possible subgoals
 	if(!t)
@@ -1048,7 +1028,7 @@ bool VCAI::canRecruitAnyHero(const CGTownInstance * t) const
 	return true;
 }
 
-void VCAI::battleStart(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool side)
+void AIGateway::battleStart(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool side)
 {
 	NET_EVENT_HANDLER;
 	assert(playerID > PlayerColor::PLAYER_LIMIT || status.getBattle() == UPCOMING_BATTLE);
@@ -1058,7 +1038,7 @@ void VCAI::battleStart(const CCreatureSet * army1, const CCreatureSet * army2, i
 	CAdventureAI::battleStart(army1, army2, tile, hero1, hero2, side);
 }
 
-void VCAI::battleEnd(const BattleResult * br)
+void AIGateway::battleEnd(const BattleResult * br)
 {
 	NET_EVENT_HANDLER;
 	assert(status.getBattle() == ONGOING_BATTLE);
@@ -1069,30 +1049,13 @@ void VCAI::battleEnd(const BattleResult * br)
 	CAdventureAI::battleEnd(br);
 }
 
-void VCAI::waitTillFree()
+void AIGateway::waitTillFree()
 {
 	auto unlock = vstd::makeUnlockSharedGuard(CGameState::mutex);
 	status.waitTillFree();
 }
 
-void VCAI::markHeroUnableToExplore(HeroPtr h)
-{
-	heroesUnableToExplore.insert(h);
-}
-void VCAI::markHeroAbleToExplore(HeroPtr h)
-{
-	vstd::erase_if_present(heroesUnableToExplore, h);
-}
-bool VCAI::isAbleToExplore(HeroPtr h)
-{
-	return !vstd::contains(heroesUnableToExplore, h);
-}
-void VCAI::clearPathsInfo()
-{
-	heroesUnableToExplore.clear();
-}
-
-void VCAI::retrieveVisitableObjs(std::vector<const CGObjectInstance *> & out, bool includeOwned) const
+void AIGateway::retrieveVisitableObjs(std::vector<const CGObjectInstance *> & out, bool includeOwned) const
 {
 	foreach_tile_pos([&](const int3 & pos)
 	{
@@ -1104,7 +1067,7 @@ void VCAI::retrieveVisitableObjs(std::vector<const CGObjectInstance *> & out, bo
 	});
 }
 
-void VCAI::retrieveVisitableObjs()
+void AIGateway::retrieveVisitableObjs()
 {
 	foreach_tile_pos([&](const int3 & pos)
 	{
@@ -1116,7 +1079,7 @@ void VCAI::retrieveVisitableObjs()
 	});
 }
 
-std::vector<const CGObjectInstance *> VCAI::getFlaggedObjects() const
+std::vector<const CGObjectInstance *> AIGateway::getFlaggedObjects() const
 {
 	std::vector<const CGObjectInstance *> ret;
 	for(const CGObjectInstance * obj : nullkiller->memory->visitableObjs)
@@ -1127,7 +1090,7 @@ std::vector<const CGObjectInstance *> VCAI::getFlaggedObjects() const
 	return ret;
 }
 
-void VCAI::addVisitableObj(const CGObjectInstance * obj)
+void AIGateway::addVisitableObj(const CGObjectInstance * obj)
 {
 	if(obj->ID == Obj::EVENT)
 		return;
@@ -1140,7 +1103,7 @@ void VCAI::addVisitableObj(const CGObjectInstance * obj)
 	}
 }
 
-HeroPtr VCAI::getHeroWithGrail() const
+HeroPtr AIGateway::getHeroWithGrail() const
 {
 	for(const CGHeroInstance * h : cb->getHeroesInfo())
 	{
@@ -1150,7 +1113,7 @@ HeroPtr VCAI::getHeroWithGrail() const
 	return nullptr;
 }
 
-bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
+bool AIGateway::moveHeroToTile(int3 dst, HeroPtr h)
 {
 	if(h->inTownGarrison && h->visitedTown)
 	{
@@ -1342,8 +1305,6 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 
 		if(startHpos == h->visitablePos() && !ret) //we didn't move and didn't reach the target
 		{
-			vstd::erase_if_present(lockedHeroes, h); //hero seemingly is confused or has only 95mp which is not enough to move
-			invalidPathHeroes.insert(h);
 			throw cannotFulfillGoalException("Invalid path found!");
 		}
 
@@ -1352,14 +1313,14 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 	return ret;
 }
 
-void VCAI::buildStructure(const CGTownInstance * t, BuildingID building)
+void AIGateway::buildStructure(const CGTownInstance * t, BuildingID building)
 {
 	auto name = t->town->buildings.at(building)->Name();
 	logAi->debug("Player %d will build %s in town of %s at %s", ai->playerID, name, t->name, t->pos.toString());
 	cb->buildBuilding(t, building); //just do this;
 }
 
-void VCAI::tryRealize(Goals::DigAtTile & g)
+void AIGateway::tryRealize(Goals::DigAtTile & g)
 {
 	assert(g.hero->visitablePos() == g.tile); //surely we want to crash here?
 	if(g.hero->diggingStatus() == EDiggingStatus::CAN_DIG)
@@ -1368,12 +1329,11 @@ void VCAI::tryRealize(Goals::DigAtTile & g)
 	}
 	else
 	{
-		ai->lockedHeroes[g.hero] = sptr(g); //hero who tries to dig shouldn't do anything else
 		throw cannotFulfillGoalException("A hero can't dig!\n");
 	}
 }
 
-void VCAI::tryRealize(Goals::Trade & g) //trade
+void AIGateway::tryRealize(Goals::Trade & g) //trade
 {
 	if(cb->getResourceAmount((Res::ERes)g.resID) >= g.value) //goal is already fulfilled. Why we need this check, anyway?
 		throw goalFulfilledException(sptr(g));
@@ -1417,7 +1377,7 @@ void VCAI::tryRealize(Goals::Trade & g) //trade
 	}
 }
 
-const CGTownInstance * VCAI::findTownWithTavern() const
+const CGTownInstance * AIGateway::findTownWithTavern() const
 {
 	for(const CGTownInstance * t : cb->getTownsInfo())
 		if(t->hasBuilt(BuildingID::TAVERN) && !t->visitingHero)
@@ -1426,7 +1386,7 @@ const CGTownInstance * VCAI::findTownWithTavern() const
 	return nullptr;
 }
 
-void VCAI::endTurn()
+void AIGateway::endTurn()
 {
 	logAi->info("Player %d (%s) ends turn", playerID, playerID.getStr());
 	if(!status.haveTurn())
@@ -1443,7 +1403,7 @@ void VCAI::endTurn()
 	logGlobal->info("Player %d (%s) ended turn", playerID, playerID.getStr());
 }
 
-void VCAI::buildArmyIn(const CGTownInstance * t)
+void AIGateway::buildArmyIn(const CGTownInstance * t)
 {
 	makePossibleUpgrades(t->visitingHero);
 	makePossibleUpgrades(t);
@@ -1451,7 +1411,7 @@ void VCAI::buildArmyIn(const CGTownInstance * t)
 	moveCreaturesToHero(t);
 }
 
-void VCAI::recruitHero(const CGTownInstance * t, bool throwing)
+void AIGateway::recruitHero(const CGTownInstance * t, bool throwing)
 {
 	logAi->debug("Trying to recruit a hero in %s at %s", t->name, t->visitablePos().toString());
 
@@ -1479,7 +1439,7 @@ void VCAI::recruitHero(const CGTownInstance * t, bool throwing)
 	}
 }
 
-void VCAI::finish()
+void AIGateway::finish()
 {
 	//we want to lock to avoid multiple threads from calling makingTurn->join() at same time
 	boost::lock_guard<boost::mutex> multipleCleanupGuard(turnInterruptionMutex);
@@ -1492,29 +1452,23 @@ void VCAI::finish()
 	}
 }
 
-void VCAI::requestActionASAP(std::function<void()> whatToDo)
+void AIGateway::requestActionASAP(std::function<void()> whatToDo)
 {
 	boost::thread newThread([this, whatToDo]()
 	{
-		setThreadName("VCAI::requestActionASAP::whatToDo");
+		setThreadName("AIGateway::requestActionASAP::whatToDo");
 		SET_GLOBAL_STATE(this);
 		boost::shared_lock<boost::shared_mutex> gsLock(CGameState::mutex);
 		whatToDo();
 	});
 }
 
-void VCAI::lostHero(HeroPtr h)
+void AIGateway::lostHero(HeroPtr h)
 {
 	logAi->debug("I lost my hero %s. It's best to forget and move on.", h.name);
-
-	vstd::erase_if_present(visitedHeroes, h);
-	for (auto heroVec : visitedHeroes)
-	{
-		vstd::erase_if_present(heroVec.second, h);
-	}
 }
 
-void VCAI::answerQuery(QueryID queryID, int selection)
+void AIGateway::answerQuery(QueryID queryID, int selection)
 {
 	logAi->debug("I'll answer the query %d giving the choice %d", queryID, selection);
 	if(queryID != QueryID(-1))
@@ -1528,7 +1482,7 @@ void VCAI::answerQuery(QueryID queryID, int selection)
 	}
 }
 
-void VCAI::requestSent(const CPackForServer * pack, int requestID)
+void AIGateway::requestSent(const CPackForServer * pack, int requestID)
 {
 	//BNLOG("I have sent request of type %s", typeid(*pack).name());
 	if(auto reply = dynamic_cast<const QueryReply *>(pack))
@@ -1537,7 +1491,7 @@ void VCAI::requestSent(const CPackForServer * pack, int requestID)
 	}
 }
 
-std::string VCAI::getBattleAIName() const
+std::string AIGateway::getBattleAIName() const
 {
 	if(settings["server"]["enemyAI"].getType() == JsonNode::JsonType::DATA_STRING)
 		return settings["server"]["enemyAI"].String();
@@ -1545,12 +1499,12 @@ std::string VCAI::getBattleAIName() const
 		return "BattleAI";
 }
 
-void VCAI::validateObject(const CGObjectInstance * obj)
+void AIGateway::validateObject(const CGObjectInstance * obj)
 {
 	validateObject(obj->id);
 }
 
-void VCAI::validateObject(ObjectIdRef obj)
+void AIGateway::validateObject(ObjectIdRef obj)
 {
 	if(!obj)
 	{

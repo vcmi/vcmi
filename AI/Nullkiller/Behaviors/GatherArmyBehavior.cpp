@@ -8,7 +8,7 @@
 *
 */
 #include "StdInc.h"
-#include "../VCAI.h"
+#include "../AIGateway.h"
 #include "../Engine/Nullkiller.h"
 #include "../Goals/ExecuteHeroChain.h"
 #include "../Goals/Composition.h"
@@ -20,7 +20,7 @@
 #include "lib/CPathfinder.h"
 
 extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<VCAI> ai;
+extern boost::thread_specific_ptr<AIGateway> ai;
 
 using namespace Goals;
 
@@ -173,7 +173,7 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader)
 {
 	Goals::TGoalVec tasks;
 	const int3 pos = upgrader->visitablePos();
-	TResources availableResources = cb->getResourceAmount();
+	TResources availableResources = ai->nullkiller->getFreeResources();
 
 #if AI_TRACE_LEVEL >= 1
 	logAi->trace("Checking ways to upgrade army in town %s, %s", upgrader->getObjectName(), pos.toString());

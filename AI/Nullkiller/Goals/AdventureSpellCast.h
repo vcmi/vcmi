@@ -30,7 +30,7 @@ namespace Goals
 			return spellID.toSpell();
 		}
 
-		void accept(VCAI * ai) override;
+		void accept(AIGateway * ai) override;
 		std::string toString() const override;
 		virtual bool operator==(const AdventureSpellCast & other) const override;
 	};

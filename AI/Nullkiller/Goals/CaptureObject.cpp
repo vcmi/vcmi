@@ -10,7 +10,7 @@
 #include "../StdInc.h"
 #include "CaptureObject.h"
 #include "../../../lib/mapObjects/CGTownInstance.h"
-#include "../VCAI.h"
+#include "../AIGateway.h"
 #include "../Engine/Nullkiller.h"
 #include "../Behaviors/CaptureObjectsBehavior.h"
 

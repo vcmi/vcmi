@@ -11,7 +11,7 @@
 #include "AINodeStorage.h"
 #include "Actions/TownPortalAction.h"
 #include "../Goals/Goals.h"
-#include "../VCAI.h"
+#include "../AIGateway.h"
 #include "../Engine/Nullkiller.h"
 #include "../../../CCallback.h"
 #include "../../../lib/mapping/CMap.h"

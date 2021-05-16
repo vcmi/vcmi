@@ -9,12 +9,12 @@
 */
 #include "StdInc.h"
 #include "AdventureSpellCast.h"
-#include "../VCAI.h"
+#include "../AIGateway.h"
 #include "../../../lib/mapping/CMap.h" //for victory conditions
 #include "../../../lib/CPathfinder.h"
 
 extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<VCAI> ai;
+extern boost::thread_specific_ptr<AIGateway> ai;
 
 using namespace Goals;
 
@@ -23,7 +23,7 @@ bool AdventureSpellCast::operator==(const AdventureSpellCast & other) const
 	return hero.h == other.hero.h;
 }
 
-void AdventureSpellCast::accept(VCAI * ai)
+void AdventureSpellCast::accept(AIGateway * ai)
 {
 	if(!hero.validAndSet())
 		throw cannotFulfillGoalException("Invalid hero!");

@@ -10,7 +10,7 @@
 
 #include "StdInc.h"
 #include "SpecialAction.h"
-#include "../../VCAI.h"
+#include "../../AIGateway.h"
 #include "../../Goals/CGoal.h"
 
 Goals::TSubgoal SpecialAction::decompose(const CGHeroInstance * hero) const
