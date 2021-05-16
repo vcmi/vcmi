@@ -487,7 +487,7 @@ public:
 		}
 		else
 		{
-			evaluationContext.strategicalValue = ai->nullkiller->buildAnalyzer->getGoldPreasure() * evaluationContext.goldReward / 300.0f;
+			evaluationContext.strategicalValue = ai->nullkiller->buildAnalyzer->getGoldPreasure() * evaluationContext.goldReward / 2200.0f;
 		}
 
 		return evaluationContext;
