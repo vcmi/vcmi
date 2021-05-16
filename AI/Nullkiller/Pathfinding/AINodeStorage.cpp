@@ -30,6 +30,9 @@ const uint64_t FirstActorMask = 1;
 const int BUCKET_COUNT = 11;
 const int BUCKET_SIZE = GameConstants::MAX_HEROES_PER_PLAYER;
 const int NUM_CHAINS = BUCKET_COUNT * BUCKET_SIZE;
+const uint64_t MIN_ARMY_STRENGTH_FOR_CHAIN = 5000;
+const uint64_t MIN_ARMY_STRENGTH_FOR_NEXT_ACTOR = 1000;
+
 
 AISharedStorage::AISharedStorage(int3 sizes)
 {
@@ -535,7 +538,7 @@ bool AINodeStorage::selectNextActor()
 
 	if(nextActor != actors.end())
 	{
-		if(nextActor->get()->armyValue < 1000)
+		if(nextActor->get()->armyValue < MIN_ARMY_STRENGTH_FOR_NEXT_ACTOR)
 			return false;
 
 		chainMask = nextActor->get()->chainMask;

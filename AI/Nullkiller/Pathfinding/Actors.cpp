@@ -93,11 +93,11 @@ HeroActor::HeroActor(const CGHeroInstance * hero, HeroRole heroRole, uint64_t ch
 }
 
 HeroActor::HeroActor(
-	const ChainActor * carrier, 
-	const ChainActor * other, 
-	const HeroExchangeArmy * army, 
+	const ChainActor * carrier,
+	const ChainActor * other,
+	const HeroExchangeArmy * army,
 	const Nullkiller * ai)
-	:ChainActor(carrier, other,	army)
+	:ChainActor(carrier, other, army)
 {
 	exchangeMap.reset(new HeroExchangeMap(this, ai));
 	armyCost += army->armyCost;
@@ -124,7 +124,7 @@ void ChainActor::setBaseActor(HeroActor * base)
 
 void HeroActor::setupSpecialActors()
 {
-	auto allActors = std::vector<ChainActor *>{ this };
+	auto allActors = std::vector<ChainActor *>{this};
 
 	for(ChainActor & specialActor : specialActors)
 	{
@@ -240,6 +240,9 @@ HeroActor * HeroExchangeMap::tryExchange(const ChainActor * other)
 		return nullptr;
 	}
 
+	if(other->isMovable && other->armyValue <= actor->armyValue / 10 && other->armyValue < MIN_ARMY_STRENGTH_FOR_CHAIN)
+		return nullptr;
+
 	TResources availableResources = resources - actor->armyCost - other->armyCost;
 	HeroExchangeArmy * upgradedInitialArmy = tryUpgrade(actor->creatureSet, other->getActorObject(), availableResources);
 	HeroExchangeArmy * newArmy;
@@ -277,7 +280,7 @@ HeroActor * HeroExchangeMap::tryExchange(const ChainActor * other)
 		100.0f * reinforcement / actor->armyValue);
 #endif
 
-	if(reinforcement <= actor->armyValue / 10 && reinforcement < 1000)
+	if(reinforcement <= actor->armyValue / 10 && reinforcement < MIN_ARMY_STRENGTH_FOR_CHAIN)
 	{
 		delete newArmy;
 
@@ -367,10 +370,10 @@ HillFortActor::HillFortActor(const CGObjectInstance * hillFort, uint64_t chainMa
 }
 
 DwellingActor::DwellingActor(const CGDwelling * dwelling, uint64_t chainMask, bool waitForGrowth, int dayOfWeek)
-	:ObjectActor(
-		dwelling, 
-		getDwellingCreatures(dwelling, waitForGrowth), 
-		chainMask, 
+	: ObjectActor(
+		dwelling,
+		getDwellingCreatures(dwelling, waitForGrowth),
+		chainMask,
 		getInitialTurn(waitForGrowth, dayOfWeek)),
 	dwelling(dwelling)
 {
@@ -409,7 +412,7 @@ CCreatureSet * DwellingActor::getDwellingCreatures(const CGDwelling * dwelling, 
 
 		auto creature = creatureInfo.second.back().toCreature();
 		auto count = creatureInfo.first;
-			
+
 		if(waitForGrowth)
 		{
 			const CGTownInstance * town = dynamic_cast<const CGTownInstance *>(dwelling);
