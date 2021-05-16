@@ -1750,6 +1750,11 @@ void VCAI::addVisitableObj(const CGObjectInstance * obj)
 	auto teleportObj = dynamic_cast<const CGTeleport *>(obj);
 	if(teleportObj)
 		CGTeleport::addToChannel(knownTeleportChannels, teleportObj);
+
+	if(obj->ID == Obj::HERO && cb->getPlayerRelations(obj->tempOwner, playerID) == PlayerRelations::ENEMIES)
+	{
+		if(nullkiller) nullkiller->dangerHitMap->reset();
+	}
 }
 
 const CGObjectInstance * VCAI::lookForArt(int aid) const

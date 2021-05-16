@@ -35,6 +35,7 @@ private:
 	fl::InputVariable * armyRewardVariable;
 	fl::InputVariable * dangerVariable;
 	fl::InputVariable * skillRewardVariable;
+	fl::InputVariable * strategicalValueVariable;
 	fl::InputVariable * rewardTypeVariable;
 	fl::InputVariable * closestHeroRatioVariable;
 	fl::OutputVariable * value;

@@ -35,7 +35,7 @@ Goals::TGoalVec RecruitHeroBehavior::getTasks()
 
 	for(auto town : towns)
 	{
-		if(!town->garrisonHero && ai->canRecruitAnyHero(town))
+		if(!town->garrisonHero && !town->visitingHero && ai->canRecruitAnyHero(town))
 		{
 			if(cb->getHeroesInfo().size() < cb->getTownsInfo().size() + 1
 				|| cb->getResourceAmount(Res::GOLD) > 10000)

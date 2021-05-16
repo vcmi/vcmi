@@ -67,12 +67,13 @@ void Nullkiller::resetAiState()
 {
 	lockedHeroes.clear();
 
-	dangerHitMap->updateHitMap();
+	dangerHitMap->reset();
 }
 
 void Nullkiller::updateAiState()
 {
 	ai->validateVisitableObjs();
+	dangerHitMap->updateHitMap();
 
 	// TODO: move to hero manager
 	auto activeHeroes = ai->getMyHeroes();

@@ -42,10 +42,13 @@ class DangerHitMapAnalyzer
 {
 private:
 	boost::multi_array<HitMapNode, 3> hitMap;
-	std::map<const CGHeroInstance *, int> enemyHeroTreatMAp;
+	std::map<const CGHeroInstance *, std::set<const CGObjectInstance *>> enemyHeroAccessibleObjects;
+	bool upToDate;
 
 public:
 	void updateHitMap();
 	uint64_t enemyCanKillOurHeroesAlongThePath(const AIPath & path) const;
-	const HitMapNode & getObjectTreat(const CGObjectInstance * town) const;
+	const HitMapNode & getObjectTreat(const CGObjectInstance * obj) const;
+	const std::set<const CGObjectInstance *> & getOneTurnAccessibleObjects(const CGHeroInstance * enemy) const;
+	void reset();
 };
