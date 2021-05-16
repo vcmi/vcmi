@@ -126,6 +126,10 @@ void ExecuteHeroChain::accept(VCAI * ai)
 				return;
 			}
 
+			// do not lock hero if it is simple one hero chain
+			if(chainPath.exchangeCount == 1)
+				return;
+
 			// no exception means we were not able to rich the tile
 			ai->nullkiller->lockHero(hero.get());
 			blockedIndexes.insert(node.parentIndex);

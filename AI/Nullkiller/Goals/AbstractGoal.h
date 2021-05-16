@@ -66,7 +66,8 @@ namespace Goals
 		COMPLETE_QUEST,
 		ADVENTURE_SPELL_CAST,
 		EXECUTE_HERO_CHAIN,
-		EXCHANGE_SWAP_TOWN_HEROES
+		EXCHANGE_SWAP_TOWN_HEROES,
+		DISMISS_HERO
 	};
 
 	class DLL_EXPORT TSubgoal : public std::shared_ptr<AbstractGoal>
