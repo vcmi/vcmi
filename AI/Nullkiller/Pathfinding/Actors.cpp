@@ -190,7 +190,7 @@ bool HeroExchangeMap::canExchange(const ChainActor * other)
 			uint64_t reinforcment = upgradeInfo.upgradeValue;
 			
 			if(other->creatureSet->Slots().size())
-				reinforcment += ai->armyManager->howManyReinforcementsCanGet(actor->creatureSet, other->creatureSet);
+				reinforcment += ai->armyManager->howManyReinforcementsCanGet(actor->hero, actor->creatureSet, other->creatureSet);
 
 #if PATHFINDER_TRACE_LEVEL >= 2
 			logAi->trace(
@@ -291,7 +291,7 @@ CCreatureSet * HeroExchangeMap::tryUpgrade(const CCreatureSet * army, const CGOb
 CCreatureSet * HeroExchangeMap::pickBestCreatures(const CCreatureSet * army1, const CCreatureSet * army2) const
 {
 	CCreatureSet * target = new HeroExchangeArmy();
-	auto bestArmy = ai->armyManager->getBestArmy(army1, army2);
+	auto bestArmy = ai->armyManager->getBestArmy(actor->hero, army1, army2);
 
 	for(auto & slotInfo : bestArmy)
 	{

@@ -36,6 +36,7 @@ set(VCAI_SRCS
 		Markers/HeroExchange.cpp
 		Markers/UnlockCluster.cpp
 		Engine/Nullkiller.cpp
+		Engine/DeepDecomposer.cpp
 		Engine/PriorityEvaluator.cpp
 		Analyzers/DangerHitMapAnalyzer.cpp
 		Analyzers/BuildAnalyzer.cpp
@@ -93,6 +94,7 @@ set(VCAI_HEADERS
 		Markers/HeroExchange.h
 		Markers/UnlockCluster.h
 		Engine/Nullkiller.h
+		Engine/DeepDecomposer.h
 		Engine/PriorityEvaluator.h
 		Analyzers/DangerHitMapAnalyzer.h
 		Analyzers/BuildAnalyzer.h

@@ -45,52 +45,7 @@ void Composition::accept(VCAI * ai)
 
 TGoalVec Composition::decompose() const
 {
-	if(isElementar())
-		return subtasks;
-
-	auto tasks = subtasks;
-	tasks.pop_back();
-
-	TSubgoal last = subtasks.back();
-	auto decomposed = last->decompose();
-	TGoalVec result;
-
-	for(TSubgoal goal : decomposed)
-	{
-		if(goal->invalid() || goal == last || vstd::contains(tasks, goal))
-			continue;
-
-		auto newComposition = Composition(tasks);
-
-		if(goal->goalType == COMPOSITION)
-		{
-			Composition & other = dynamic_cast<Composition &>(*goal);
-			bool cancel = false;
-
-			for(auto subgoal : other.subtasks)
-			{
-				if(subgoal == last || vstd::contains(tasks, subgoal))
-				{
-					cancel = true;
-
-					break;
-				}
-
-				newComposition.addNext(subgoal);
-			}
-
-			if(cancel)
-				continue;
-		}
-		else
-		{
-			newComposition.addNext(goal);
-		}
-
-		result.push_back(sptr(newComposition));
-	}
-
-	return result;
+	return subtasks;
 }
 
 Composition & Composition::addNext(const AbstractGoal & goal)
@@ -100,7 +55,16 @@ Composition & Composition::addNext(const AbstractGoal & goal)
 
 Composition & Composition::addNext(TSubgoal goal)
 {
-	subtasks.push_back(goal);
+	if(goal->goalType == COMPOSITION)
+	{
+		Composition & other = dynamic_cast<Composition &>(*goal);
+		
+		vstd::concatenate(subtasks, other.subtasks);
+	}
+	else
+	{
+		subtasks.push_back(goal);
+	}
 
 	return *this;
 }

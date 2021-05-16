@@ -803,11 +803,33 @@ void VCAI::pickBestCreatures(const CArmedInstance * destinationArmy, const CArme
 {
 	const CArmedInstance * armies[] = {destinationArmy, source};
 
-	auto bestArmy = nullkiller->armyManager->getSortedSlots(destinationArmy, source);
+	auto bestArmy = nullkiller->armyManager->getBestArmy(destinationArmy, destinationArmy, source);
 
 	//foreach best type -> iterate over slots in both armies and if it's the appropriate type, send it to the slot where it belongs
-	for(SlotID i = SlotID(0); i.getNum() < bestArmy.size() && i.validSlot(); i.advance(1)) //i-th strongest creature type will go to i-th slot
+	for(SlotID i = SlotID(0); i.validSlot(); i.advance(1)) //i-th strongest creature type will go to i-th slot
 	{
+		if(i.getNum() >= bestArmy.size())
+		{
+			if(destinationArmy->hasStackAtSlot(i))
+			{
+				auto creature = destinationArmy->getCreature(i);
+				auto targetSlot = source->getSlotFor(creature);
+
+				if(targetSlot.validSlot())
+				{
+					// remove unwanted creatures
+					cb->mergeOrSwapStacks(destinationArmy, source, i, targetSlot);
+				}
+				else if(destinationArmy->getStack(i).getPower() < destinationArmy->getArmyStrength() / 100)
+				{
+					// dismiss creatures if the amount is small
+					cb->dismissCreature(destinationArmy, i);
+				}
+			}
+
+			continue;
+		}
+
 		const CCreature * targetCreature = bestArmy[i.getNum()].creature;
 
 		for(auto armyPtr : armies)
