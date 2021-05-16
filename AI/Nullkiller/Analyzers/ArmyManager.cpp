@@ -11,8 +11,8 @@
 #include "StdInc.h"
 #include "ArmyManager.h"
 #include "../Engine/Nullkiller.h"
-#include "../../CCallback.h"
-#include "../../lib/mapObjects/MapObjects.h"
+#include "../../../CCallback.h"
+#include "../../../lib/mapObjects/MapObjects.h"
 
 class StackUpgradeInfo
 {

@@ -7,9 +7,9 @@
 * Full text of license available in license.txt file, in main folder
 *
 */
-#include "StdInc.h"
+#include "../StdInc.h"
 #include "../Engine/Nullkiller.h"
-#include "lib/mapping/CMap.h" //for victory conditions
+#include "../../../lib/mapping/CMap.h" //for victory conditions
 
 extern boost::thread_specific_ptr<CCallback> cb;
 

@@ -7,12 +7,12 @@
 * Full text of license available in license.txt file, in main folder
 *
 */
-#include "StdInc.h"
+#include "../StdInc.h"
 #include "FuzzyEngines.h"
 #include "../Goals/Goals.h"
 
-#include "../../lib/mapObjects/MapObjects.h"
-#include "VCAI.h"
+#include "../../../lib/mapObjects/MapObjects.h"
+#include "../VCAI.h"
 
 #define MIN_AI_STRENGTH (0.5f) //lower when combat AI gets smarter
 #define UNGUARDED_OBJECT (100.0f) //we consider unguarded objects 100 times weaker than us

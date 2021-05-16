@@ -11,7 +11,7 @@
 
 #include "../Pathfinding/AINodeStorage.h"
 
-struct ObjectInfo
+struct ClusterObjectInfo
 {
 	float priority;
 	float movementCost;
@@ -22,7 +22,7 @@ struct ObjectInfo
 struct ObjectCluster
 {
 public:
-	std::map<const CGObjectInstance *, ObjectInfo> objects;
+	std::map<const CGObjectInstance *, ClusterObjectInfo> objects;
 	const CGObjectInstance * blocker;
 
 	void reset()

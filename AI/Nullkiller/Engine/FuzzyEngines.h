@@ -9,7 +9,7 @@
 */
 #pragma once
 #include <fl/Headers.h>
-#include "Goals/AbstractGoal.h"
+#include "../Goals/AbstractGoal.h"
 
 class CArmedInstance;
 

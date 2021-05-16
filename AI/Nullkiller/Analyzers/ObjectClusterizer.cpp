@@ -44,7 +44,7 @@ const CGObjectInstance * ObjectCluster::calculateCenter() const
 		priority += newPriority;
 	}
 
-	auto closestPair = *vstd::minElementByFun(objects, [&](const std::pair<const CGObjectInstance *, ObjectInfo> & pair) -> int
+	auto closestPair = *vstd::minElementByFun(objects, [&](const std::pair<const CGObjectInstance *, ClusterObjectInfo> & pair) -> int
 	{
 		return pair.first->visitablePos().dist2dSQ(tile);
 	});

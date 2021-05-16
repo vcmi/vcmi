@@ -518,9 +518,9 @@ public:
 		auto hero = clusterGoal.hero.get();
 		auto role = evaluationContext.evaluator.ai->heroManager->getHeroRole(clusterGoal.hero);
 
-		std::vector<std::pair<const CGObjectInstance *, ObjectInfo>> objects(cluster->objects.begin(), cluster->objects.end());
+		std::vector<std::pair<const CGObjectInstance *, ClusterObjectInfo>> objects(cluster->objects.begin(), cluster->objects.end());
 
-		std::sort(objects.begin(), objects.end(), [](std::pair<const CGObjectInstance *, ObjectInfo> o1, std::pair<const CGObjectInstance *, ObjectInfo> o2) -> bool
+		std::sort(objects.begin(), objects.end(), [](std::pair<const CGObjectInstance *, ClusterObjectInfo> o1, std::pair<const CGObjectInstance *, ClusterObjectInfo> o2) -> bool
 		{
 			return o1.second.priority > o2.second.priority;
 		});
@@ -684,7 +684,6 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task)
 	{
 		logAi->error("evaluate VisitTile: %s", fe.getWhat());
 	}
-	assert(result >= 0);
 
 #ifdef AI_TRACE_LEVEL >= 1
 	logAi->trace("Evaluated %s, loss: %f, turn: %d, turns main: %f, scout: %f, gold: %d, cost: %d, army gain: %d, danger: %d, role: %s, strategical value: %f, cwr: %f, fear: %f, result %f",
