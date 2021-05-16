@@ -51,6 +51,7 @@ public:
 	void updateHitMap();
 	uint64_t enemyCanKillOurHeroesAlongThePath(const AIPath & path) const;
 	const HitMapNode & getObjectTreat(const CGObjectInstance * obj) const;
+	const HitMapNode & getTileTreat(const int3 & tile) const;
 	const std::set<const CGObjectInstance *> & getOneTurnAccessibleObjects(const CGHeroInstance * enemy) const;
 	void reset();
 };

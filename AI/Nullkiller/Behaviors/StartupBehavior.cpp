@@ -11,6 +11,7 @@
 #include "StartupBehavior.h"
 #include "../VCAI.h"
 #include "../AIUtility.h"
+#include "../Goals/BuildThis.h"
 #include "../Goals/RecruitHero.h"
 #include "../Goals/ExecuteHeroChain.h"
 #include "../Goals/ExchangeSwapTownHeroes.h"
@@ -121,6 +122,14 @@ Goals::TGoalVec StartupBehavior::decompose() const
 
 			return 0;
 		});
+	}
+
+	if(!startupTown->hasBuilt(BuildingID::TAVERN)
+		&& cb->canBuildStructure(startupTown, BuildingID::TAVERN) == EBuildingState::ALLOWED)
+	{
+		tasks.push_back(Goals::sptr(Goals::BuildThis(BuildingID::TAVERN, startupTown).setpriority(100)));
+
+		return tasks;
 	}
 
 	bool canRecruitHero = needToRecruitHero(startupTown);

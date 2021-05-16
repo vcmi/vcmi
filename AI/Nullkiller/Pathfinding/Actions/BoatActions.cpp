@@ -36,32 +36,6 @@ namespace AIPathfinding
 		return sptr(Goals::Invalid());
 	}
 
-	const ChainActor * BuildBoatAction::getActor(const ChainActor * sourceActor) const
-	{
-		return sourceActor->resourceActor;
-	}
-
-	void SummonBoatAction::execute(const CGHeroInstance * hero) const
-	{
-		Goals::AdventureSpellCast(hero, SpellID::SUMMON_BOAT).accept(ai.get());
-	}
-
-	const ChainActor * SummonBoatAction::getActor(const ChainActor * sourceActor) const
-	{
-		return sourceActor->castActor;
-	}
-
-	void SummonBoatAction::applyOnDestination(
-		const CGHeroInstance * hero,
-		CDestinationNodeInfo & destination,
-		const PathNodeInfo & source,
-		AIPathNode * dstMode,
-		const AIPathNode * srcNode) const
-	{
-		dstMode->manaCost = srcNode->manaCost + getManaCost(hero);
-		dstMode->theNodeBefore = source.node;
-	}
-
 	bool BuildBoatAction::canAct(const AIPathNode * source) const
 	{
 		auto hero = source->actor->hero;
@@ -88,6 +62,37 @@ namespace AIPathfinding
 		}
 
 		return true;
+	}
+
+	const CGObjectInstance * BuildBoatAction::targetObject() const
+	{
+		return shipyard->o;
+	}
+
+	const ChainActor * BuildBoatAction::getActor(const ChainActor * sourceActor) const
+	{
+		return sourceActor->resourceActor;
+	}
+
+	void SummonBoatAction::execute(const CGHeroInstance * hero) const
+	{
+		Goals::AdventureSpellCast(hero, SpellID::SUMMON_BOAT).accept(ai.get());
+	}
+
+	const ChainActor * SummonBoatAction::getActor(const ChainActor * sourceActor) const
+	{
+		return sourceActor->castActor;
+	}
+
+	void SummonBoatAction::applyOnDestination(
+		const CGHeroInstance * hero,
+		CDestinationNodeInfo & destination,
+		const PathNodeInfo & source,
+		AIPathNode * dstMode,
+		const AIPathNode * srcNode) const
+	{
+		dstMode->manaCost = srcNode->manaCost + getManaCost(hero);
+		dstMode->theNodeBefore = source.node;
 	}
 
 	std::string BuildBoatAction::toString() const

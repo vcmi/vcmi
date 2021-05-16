@@ -90,7 +90,7 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 		if(path.getFirstBlockedAction())
 		{
 #if AI_TRACE_LEVEL >= 2
-			// TODO: decomposition?
+			// TODO: decomposition
 			logAi->trace("Ignore path. Action is blocked.");
 #endif
 			continue;
