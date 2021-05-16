@@ -9,7 +9,7 @@
 */
 #include "StdInc.h"
 #include "Actors.h"
-#include "../VCAI.h"
+#include "../AIGateway.h"
 #include "../Engine/Nullkiller.h"
 #include "../../../CCallback.h"
 #include "../../../lib/mapping/CMap.h"

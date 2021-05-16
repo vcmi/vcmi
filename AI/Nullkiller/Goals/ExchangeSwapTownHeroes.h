@@ -27,7 +27,7 @@ namespace Goals
 			const CGHeroInstance * garrisonHero = nullptr,
 			HeroLockedReason lockingReason = HeroLockedReason::NOT_LOCKED);
 
-		void accept(VCAI * ai) override;
+		void accept(AIGateway * ai) override;
 		std::string toString() const override;
 		virtual bool operator==(const ExchangeSwapTownHeroes & other) const override;
 	};

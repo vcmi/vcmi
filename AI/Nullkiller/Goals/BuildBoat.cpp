@@ -9,13 +9,13 @@
 */
 #include "StdInc.h"
 #include "BuildBoat.h"
-#include "../VCAI.h"
+#include "../AIGateway.h"
 #include "../../../lib/mapping/CMap.h" //for victory conditions
 #include "../../../lib/CPathfinder.h"
 #include "../Behaviors/CaptureObjectsBehavior.h"
 
 extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<VCAI> ai;
+extern boost::thread_specific_ptr<AIGateway> ai;
 
 using namespace Goals;
 
@@ -42,7 +42,7 @@ bool BuildBoat::operator==(const BuildBoat & other) const
 //	return iAmElementar();
 //}
 
-void BuildBoat::accept(VCAI * ai)
+void BuildBoat::accept(AIGateway * ai)
 {
 	TResources boatCost;
 	shipyard->getBoatCost(boatCost);

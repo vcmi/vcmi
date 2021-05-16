@@ -12,7 +12,7 @@
 #include "CGoal.h"
 
 struct HeroPtr;
-class VCAI;
+class AIGateway;
 class FuzzyHelper;
 
 namespace Goals
@@ -39,6 +39,6 @@ namespace Goals
 		}
 
 		virtual std::string toString() const override;
-		void accept(VCAI * ai) override;
+		void accept(AIGateway * ai) override;
 	};
 }

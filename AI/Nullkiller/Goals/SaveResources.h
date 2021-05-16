@@ -1,5 +1,5 @@
 /*
-* DismissHero.h, part of VCMI engine
+* SaveResources.h, part of VCMI engine
 *
 * Authors: listed in file AUTHORS in main folder
 *
@@ -13,17 +13,19 @@
 
 namespace Goals
 {
-	class DLL_EXPORT DismissHero : public ElementarGoal<DismissHero>
+	class DLL_EXPORT SaveResources : public ElementarGoal<SaveResources>
 	{
+	private:
+		TResources resources;
+
 	public:
-		DismissHero(HeroPtr hero)
-			: ElementarGoal(Goals::DISMISS_HERO)
+		SaveResources(TResources resources)
+			: ElementarGoal(Goals::SAVE_RESOURCES), resources(resources)
 		{
-			sethero(hero);
 		}
 
 		void accept(AIGateway * ai) override;
 		std::string toString() const override;
-		virtual bool operator==(const DismissHero & other) const override;
+		virtual bool operator==(const SaveResources & other) const override;
 	};
 }

@@ -189,16 +189,48 @@ std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier,
 
 ui64 ArmyManager::howManyReinforcementsCanBuy(const CCreatureSet * h, const CGDwelling * t) const
 {
-	return howManyReinforcementsCanBuy(h, t, cb->getResourceAmount());
+	return howManyReinforcementsCanBuy(h, t, ai->getFreeResources());
+}
+
+std::shared_ptr<CCreatureSet> ArmyManager::getArmyAvailableToBuyAsCCreatureSet(
+	const CGDwelling * dwelling,
+	TResources availableRes) const
+{
+	std::vector<creInfo> creaturesInDwellings;
+	int freeHeroSlots = GameConstants::ARMY_SIZE;
+	auto army = std::make_shared<TemporaryArmy>();
+
+	for(int i = dwelling->creatures.size() - 1; i >= 0; i--)
+	{
+		auto ci = infoFromDC(dwelling->creatures[i]);
+
+		if(!ci.count || ci.creID == -1)
+			continue;
+
+		vstd::amin(ci.count, availableRes / ci.cre->cost); //max count we can afford
+
+		if(!ci.count)
+			continue;
+
+		SlotID dst = army->getFreeSlot();
+
+		if(!dst.validSlot())
+			break;
+
+		army->setCreature(dst, ci.creID, ci.count);
+		availableRes -= ci.cre->cost * ci.count;
+	}
+
+	return army;
 }
 
 ui64 ArmyManager::howManyReinforcementsCanBuy(
-	const CCreatureSet * h,
-	const CGDwelling * t,
+	const CCreatureSet * targetArmy,
+	const CGDwelling * dwelling,
 	const TResources & availableResources) const
 {
 	ui64 aivalue = 0;
-	auto army = getArmyAvailableToBuy(h, t, availableResources);
+	auto army = getArmyAvailableToBuy(targetArmy, dwelling, availableResources);
 
 	for(const creInfo & ci : army)
 	{
@@ -210,10 +242,13 @@ ui64 ArmyManager::howManyReinforcementsCanBuy(
 
 std::vector<creInfo> ArmyManager::getArmyAvailableToBuy(const CCreatureSet * hero, const CGDwelling * dwelling) const
 {
-	return getArmyAvailableToBuy(hero, dwelling, cb->getResourceAmount());
+	return getArmyAvailableToBuy(hero, dwelling, ai->getFreeResources());
 }
 
-std::vector<creInfo> ArmyManager::getArmyAvailableToBuy(const CCreatureSet * hero, const CGDwelling * dwelling, TResources availableRes) const
+std::vector<creInfo> ArmyManager::getArmyAvailableToBuy(
+	const CCreatureSet * hero,
+	const CGDwelling * dwelling,
+	TResources availableRes) const
 {
 	std::vector<creInfo> creaturesInDwellings;
 	int freeHeroSlots = GameConstants::ARMY_SIZE - hero->stacksCount();

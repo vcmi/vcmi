@@ -686,8 +686,9 @@ public:
 			}
 			else
 			{
-				evaluationContext.strategicalValue += 0.05f * bi.creatureLevel / (float)bi.prerequisitesCount;
-				evaluationContext.armyReward += evaluationContext.evaluator.getUpgradeArmyReward(buildThis.town, bi);
+				auto potentialUpgradeValue = evaluationContext.evaluator.getUpgradeArmyReward(buildThis.town, bi);
+				//evaluationContext.strategicalValue += 0.05f * bi.creatureLevel / (float)bi.prerequisitesCount;
+				evaluationContext.armyReward += 0.3f * potentialUpgradeValue / (float)bi.prerequisitesCount;
 			}
 		}
 		else if(bi.id == BuildingID::CITADEL || bi.id == BuildingID::CASTLE)
@@ -777,7 +778,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task)
 		closestHeroRatioVariable->setValue(evaluationContext.closestWayRatio);
 		strategicalValueVariable->setValue(evaluationContext.strategicalValue);
 		goldPreasureVariable->setValue(ai->buildAnalyzer->getGoldPreasure());
-		goldCostVariable->setValue(evaluationContext.goldCost / ((float)ai->cb->getResourceAmount(Res::GOLD) + (float)ai->buildAnalyzer->getDailyIncome()[Res::GOLD] + 1.0f));
+		goldCostVariable->setValue(evaluationContext.goldCost / ((float)ai->getFreeResources()[Res::GOLD] + (float)ai->buildAnalyzer->getDailyIncome()[Res::GOLD] + 1.0f));
 		turnVariable->setValue(evaluationContext.turn);
 		fearVariable->setValue(evaluationContext.enemyHeroDangerRatio);
 

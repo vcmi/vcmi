@@ -97,7 +97,7 @@ int32_t convertToGold(const TResources & res)
 
 TResources BuildAnalyzer::getResourcesRequiredNow() const
 {
-	auto resourcesAvailable = ai->cb->getResourceAmount();
+	auto resourcesAvailable = ai->getFreeResources();
 	auto result = requiredResources - resourcesAvailable;
 
 	result.positive();
@@ -107,7 +107,7 @@ TResources BuildAnalyzer::getResourcesRequiredNow() const
 
 TResources BuildAnalyzer::getTotalResourcesRequired() const
 {
-	auto resourcesAvailable = ai->cb->getResourceAmount();
+	auto resourcesAvailable = ai->getFreeResources();
 	auto result = totalDevelopmentCost - resourcesAvailable;
 
 	result.positive();
@@ -157,7 +157,15 @@ void BuildAnalyzer::update()
 
 	updateDailyIncome();
 
-	goldPreasure = (float)armyCost[Res::GOLD] / (1 + ai->cb->getResourceAmount(Res::GOLD) + (float)dailyIncome[Res::GOLD] * 7.0f);
+	if(ai->cb->getDate(Date::EDateType::DAY) == 1)
+	{
+		goldPreasure = 1;
+	}
+	else
+	{
+		goldPreasure = ai->getLockedResources()[Res::GOLD] / 10000.0f
+			+ (float)armyCost[Res::GOLD] / (1 + ai->getFreeGold() + (float)dailyIncome[Res::GOLD] * 7.0f);
+	}
 
 	logAi->trace("Gold preasure: %f", goldPreasure);
 }
@@ -194,7 +202,7 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 
 	auto info = BuildingInfo(buildPtr, creature, baseCreatureID, town, ai);
 
-	logAi->trace("checking %s", buildPtr->Name());
+	logAi->trace("checking %s", info.name);
 	logAi->trace("buildInfo %s", info.toString());
 
 	buildPtr = nullptr;
@@ -244,6 +252,8 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 				prerequisite.creatureID = info.creatureID;
 				prerequisite.baseCreatureID = info.baseCreatureID;
 				prerequisite.prerequisitesCount++;
+				prerequisite.armyCost = info.armyCost;
+				prerequisite.dailyIncome = info.dailyIncome;
 
 				return prerequisite;
 			}
@@ -296,7 +306,7 @@ void TownDevelopmentInfo::addExistingDwelling(const BuildingInfo & existingDwell
 {
 	existingDwellings.push_back(existingDwelling);
 
-	armyCost += existingDwelling.creatureCost * existingDwelling.creatureGrows;
+	armyCost += existingDwelling.armyCost;
 	armyStrength += existingDwelling.armyStrength;
 }
 
@@ -306,13 +316,14 @@ void TownDevelopmentInfo::addBuildingToBuild(const BuildingInfo & nextToBuild)
 
 	if(nextToBuild.canBuild)
 	{
-		toBuild.push_back(nextToBuild);
 		hasSomethingToBuild = true;
+		toBuild.push_back(nextToBuild);
 	}
 	else if(nextToBuild.notEnoughRes)
 	{
 		requiredResources += nextToBuild.buildCost;
 		hasSomethingToBuild = true;
+		toBuild.push_back(nextToBuild);
 	}
 }
 
@@ -341,6 +352,7 @@ BuildingInfo::BuildingInfo(
 	dailyIncome = building->produce;
 	exists = town->hasBuilt(id);
 	prerequisitesCount = 1;
+	name = building->Name();
 
 	if(creature)
 	{
@@ -352,7 +364,7 @@ BuildingInfo::BuildingInfo(
 
 		if(exists)
 		{
-			creatureGrows = town->creatureGrowth(creatureID);
+			creatureGrows = town->creatureGrowth(creatureLevel - 1);
 		}
 		else
 		{

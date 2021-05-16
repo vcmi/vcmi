@@ -9,7 +9,7 @@
 */
 #pragma once
 
-#include "../VCAI.h"
+#include "../AIGateway.h"
 #error REMOVE THIS FILE
 
 class Behavior : public Goals::AbstractGoal

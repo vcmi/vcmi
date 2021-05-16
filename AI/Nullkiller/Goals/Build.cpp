@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "Build.h"
 #include "BuildThis.h"
-#include "../VCAI.h"
+#include "../AIGateway.h"
 #include "../AIUtility.h"
 #include "../AIhelper.h"
 #include "../FuzzyHelper.h"
@@ -22,7 +22,7 @@
 
 
 extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<VCAI> ai;
+extern boost::thread_specific_ptr<AIGateway> ai;
 extern FuzzyHelper * fh;
 
 using namespace Goals;

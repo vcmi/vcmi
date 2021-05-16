@@ -1397,25 +1397,31 @@ void handleQuit(bool ask)
 {
 	auto quitApplication = []()
 	{
-		if(CSH->client)
-			CSH->endGameplay();
+		if(!settings["session"]["headless"].Bool())
+		{
+			if(CSH->client)
+				CSH->endGameplay();
+		}
 
 		GH.listInt.clear();
 		GH.objsToBlit.clear();
 
 		CMM.reset();
 
-		// cleanup, mostly to remove false leaks from analyzer
-		if(CCS)
+		if(!settings["session"]["headless"].Bool())
 		{
-			CCS->musich->release();
-			CCS->soundh->release();
+			// cleanup, mostly to remove false leaks from analyzer
+			if(CCS)
+			{
+				CCS->musich->release();
+				CCS->soundh->release();
 
-			vstd::clear_pointer(CCS);
+				vstd::clear_pointer(CCS);
+			}
+			CMessage::dispose();
+
+			vstd::clear_pointer(graphics);
 		}
-		CMessage::dispose();
-
-		vstd::clear_pointer(graphics);
 
 		vstd::clear_pointer(VLC);
 

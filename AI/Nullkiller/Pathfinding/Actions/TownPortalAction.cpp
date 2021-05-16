@@ -17,7 +17,7 @@
 using namespace AIPathfinding;
 
 extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<VCAI> ai;
+extern boost::thread_specific_ptr<AIGateway> ai;
 
 void TownPortalAction::execute(const CGHeroInstance * hero) const
 {

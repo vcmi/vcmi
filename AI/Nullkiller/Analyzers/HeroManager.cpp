@@ -102,7 +102,7 @@ std::vector<std::vector<const CGHeroInstance *>> clusterizeHeroes(CCallback * cb
 		{
 			auto hero = std::find_if(cluster->begin(), cluster->end(), [&](const CGHeroInstance * h) -> bool
 			{
-				return paths->getNode(h->visitablePos())->turns <= SCOUT_TURN_DISTANCE_LIMIT;
+				return paths->getNode(h->visitablePos())->turns < SCOUT_TURN_DISTANCE_LIMIT;
 			});
 
 			if(hero != cluster->end())

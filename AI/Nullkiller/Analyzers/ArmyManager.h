@@ -44,8 +44,8 @@ public:
 	virtual void update() = 0;
 	virtual ui64 howManyReinforcementsCanBuy(const CCreatureSet * target, const CGDwelling * source) const = 0;
 	virtual	ui64 howManyReinforcementsCanBuy(
-		const CCreatureSet * h,
-		const CGDwelling * t,
+		const CCreatureSet * targetArmy,
+		const CGDwelling * dwelling,
 		const TResources & availableResources) const = 0;
 	virtual ui64 howManyReinforcementsCanGet(const CGHeroInstance * hero, const CCreatureSet * source) const = 0;
 	virtual ui64 howManyReinforcementsCanGet(const IBonusBearer * armyCarrier, const CCreatureSet * target, const CCreatureSet * source) const = 0;
@@ -60,6 +60,7 @@ public:
 		const CGObjectInstance * upgrader,
 		const TResources & availableResources) const = 0;
 	virtual std::vector<creInfo> getArmyAvailableToBuy(const CCreatureSet * hero, const CGDwelling * dwelling) const = 0;
+	virtual std::shared_ptr<CCreatureSet> getArmyAvailableToBuyAsCCreatureSet(const CGDwelling * dwelling, TResources availableRes) const = 0;
 };
 
 struct StackUpgradeInfo;
@@ -76,8 +77,8 @@ public:
 	void update() override;
 	ui64 howManyReinforcementsCanBuy(const CCreatureSet * target, const CGDwelling * source) const override;
 	ui64 howManyReinforcementsCanBuy(
-		const CCreatureSet * h,
-		const CGDwelling * t,
+		const CCreatureSet * targetArmy,
+		const CGDwelling * dwelling,
 		const TResources & availableResources) const override;
 	ui64 howManyReinforcementsCanGet(const CGHeroInstance * hero, const CCreatureSet * source) const override;
 	ui64 howManyReinforcementsCanGet(const IBonusBearer * armyCarrier, const CCreatureSet * target, const CCreatureSet * source) const override;
@@ -86,6 +87,7 @@ public:
 	std::vector<SlotInfo> getSortedSlots(const CCreatureSet * target, const CCreatureSet * source) const override;
 	std::vector<creInfo> getArmyAvailableToBuy(const CCreatureSet * hero, const CGDwelling * dwelling, TResources availableRes) const override;
 	std::vector<creInfo> getArmyAvailableToBuy(const CCreatureSet * hero, const CGDwelling * dwelling) const override;
+	std::shared_ptr<CCreatureSet> getArmyAvailableToBuyAsCCreatureSet(const CGDwelling * dwelling, TResources availableRes) const override;
 	uint64_t evaluateStackPower(const CCreature * creature, int count) const override;
 	SlotInfo getTotalCreaturesAvailable(CreatureID creatureID) const override;
 	ArmyUpgradeInfo calculateCreateresUpgrade(

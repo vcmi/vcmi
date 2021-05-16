@@ -11,7 +11,7 @@
 #pragma once
 
 #include "../AINodeStorage.h"
-#include "../../VCAI.h"
+#include "../../AIGateway.h"
 #include "../Actions/BoatActions.h"
 #include "../../../../CCallback.h"
 #include "../../../../lib/mapping/CMap.h"

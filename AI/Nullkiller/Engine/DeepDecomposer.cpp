@@ -9,7 +9,7 @@
 */
 #include "StdInc.h"
 #include "DeepDecomposer.h"
-#include "../VCAI.h"
+#include "../AIGateway.h"
 #include "../Behaviors/CaptureObjectsBehavior.h"
 #include "../Behaviors/RecruitHeroBehavior.h"
 #include "../Behaviors/BuyArmyBehavior.h"
@@ -22,7 +22,7 @@
 #include "../Goals/Composition.h"
 
 extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<VCAI> ai;
+extern boost::thread_specific_ptr<AIGateway> ai;
 
 using namespace Goals;
 

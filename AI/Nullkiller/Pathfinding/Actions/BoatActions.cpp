@@ -9,7 +9,7 @@
 */
 
 #include "StdInc.h"
-#include "../../VCAI.h"
+#include "../../AIGateway.h"
 #include "../../Goals/AdventureSpellCast.h"
 #include "../../Goals/CaptureObject.h"
 #include "../../Goals/BuildBoat.h"
@@ -18,7 +18,7 @@
 #include "BoatActions.h"
 
 extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<VCAI> ai;
+extern boost::thread_specific_ptr<AIGateway> ai;
 
 namespace AIPathfinding
 {

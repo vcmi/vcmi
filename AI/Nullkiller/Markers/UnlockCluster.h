@@ -14,7 +14,7 @@
 
 
 struct HeroPtr;
-class VCAI;
+class AIGateway;
 class FuzzyHelper;
 
 namespace Goals

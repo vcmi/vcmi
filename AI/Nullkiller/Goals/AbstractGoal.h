@@ -16,7 +16,7 @@
 #include "../AIUtility.h"
 
 struct HeroPtr;
-class VCAI;
+class AIGateway;
 class FuzzyHelper;
 
 namespace Goals
@@ -67,7 +67,8 @@ namespace Goals
 		HERO_EXCHANGE,
 		ARMY_UPGRADE,
 		DEFEND_TOWN,
-		CAPTURE_OBJECT
+		CAPTURE_OBJECT,
+		SAVE_RESOURCES
 	};
 
 	class DLL_EXPORT TSubgoal : public std::shared_ptr<AbstractGoal>
@@ -83,10 +84,6 @@ namespace Goals
 
 	//method chaining + clone pattern
 #define SETTER(type, field) AbstractGoal & set ## field(const type &rhs) {field = rhs; return *this;};
-
-#if 0
-#define SETTER
-#endif // _DEBUG
 
 	enum { LOW_PR = -1 };
 
@@ -150,25 +147,6 @@ namespace Goals
 		{
 			return !(*this == g);
 		}
-
-		template<typename Handler> void serialize(Handler & h, const int version)
-		{
-			float priority;
-			bool isElementar;
-
-			h & goalType;
-			h & isElementar;
-			h & isAbstract;
-			h & priority;
-			h & value;
-			h & resID;
-			h & objid;
-			h & aid;
-			h & tile;
-			h & hero;
-			h & town;
-			h & bid;
-		}
 	};
 
 	class DLL_EXPORT ITask
@@ -180,7 +158,7 @@ namespace Goals
 
 		///Visitor pattern
 		//TODO: make accept work for std::shared_ptr... somehow
-		virtual void accept(VCAI * ai) = 0; //unhandled goal will report standard error
+		virtual void accept(AIGateway * ai) = 0; //unhandled goal will report standard error
 		virtual std::string toString() const = 0;
 		virtual HeroPtr getHero() const = 0;
 		virtual ~ITask() {}

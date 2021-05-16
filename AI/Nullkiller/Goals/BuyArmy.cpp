@@ -10,12 +10,12 @@
 #include "../StdInc.h"
 #include "BuyArmy.h"
 #include "../../../lib/mapObjects/CGTownInstance.h"
-#include "../VCAI.h"
+#include "../AIGateway.h"
 #include "../Engine/Nullkiller.h"
 
 
 extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<VCAI> ai;
+extern boost::thread_specific_ptr<AIGateway> ai;
 
 using namespace Goals;
 
@@ -29,7 +29,7 @@ std::string BuyArmy::toString() const
 	return "Buy army at " + town->name;
 }
 
-void BuyArmy::accept(VCAI * ai)
+void BuyArmy::accept(AIGateway * ai)
 {
 	ui64 valueBought = 0;
 	//buy the stacks with largest AI value

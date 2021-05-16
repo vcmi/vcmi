@@ -8,13 +8,13 @@
  *
  */
 #include "StdInc.h"
-#include "VCAI.h"
+#include "AIGateway.h"
 
 #ifdef __GNUC__
 #define strcpy_s(a, b, c) strncpy(a, c, b)
 #endif
 
-static const char * g_cszAiName = "VCAI";
+static const char * g_cszAiName = "Nullkiller";
 
 extern "C" DLL_EXPORT int GetGlobalAiVersion()
 {
@@ -28,5 +28,5 @@ extern "C" DLL_EXPORT void GetAiName(char * name)
 
 extern "C" DLL_EXPORT void GetNewAI(std::shared_ptr<CGlobalAI> & out)
 {
-	out = std::make_shared<VCAI>();
+	out = std::make_shared<AIGateway>();
 }

@@ -9,7 +9,7 @@
 */
 #include "StdInc.h"
 #include "BuildThis.h"
-#include "../VCAI.h"
+#include "../AIGateway.h"
 #include "../AIUtility.h"
 #include "../../../lib/mapping/CMap.h" //for victory conditions
 #include "../../../lib/CPathfinder.h"
@@ -17,9 +17,24 @@
 
 
 extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<VCAI> ai;
+extern boost::thread_specific_ptr<AIGateway> ai;
 
 using namespace Goals;
+
+
+BuildThis::BuildThis(BuildingID Bid, const CGTownInstance * tid)
+	: ElementarGoal(Goals::BUILD_STRUCTURE)
+{
+	buildingInfo = BuildingInfo(
+		tid->town->buildings.at(Bid),
+		nullptr,
+		CreatureID::NONE,
+		tid,
+		nullptr);
+
+	bid = Bid;
+	town = tid;
+}
 
 bool BuildThis::operator==(const BuildThis & other) const
 {
@@ -28,10 +43,10 @@ bool BuildThis::operator==(const BuildThis & other) const
 
 std::string BuildThis::toString() const
 {
-	return "Build " + buildingInfo.name + "(" + std::to_string(bid) + ") in " + town->name;
+	return "Build " + buildingInfo.name + " in " + town->name;
 }
 
-void BuildThis::accept(VCAI * ai)
+void BuildThis::accept(AIGateway * ai)
 {
 	auto b = BuildingID(bid);
 

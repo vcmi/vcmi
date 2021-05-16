@@ -9,7 +9,7 @@
 */
 #include "StdInc.h"
 #include "DefendTown.h"
-#include "../VCAI.h"
+#include "../AIGateway.h"
 #include "../Engine/Nullkiller.h"
 #include "../AIUtility.h"
 

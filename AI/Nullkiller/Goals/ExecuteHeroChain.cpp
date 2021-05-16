@@ -9,13 +9,13 @@
 */
 #include "StdInc.h"
 #include "ExecuteHeroChain.h"
-#include "../VCAI.h"
+#include "../AIGateway.h"
 #include "../../../lib/mapping/CMap.h" //for victory conditions
 #include "../../../lib/CPathfinder.h"
 #include "../Engine/Nullkiller.h"
 
 extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<VCAI> ai;
+extern boost::thread_specific_ptr<AIGateway> ai;
 
 using namespace Goals;
 
@@ -44,7 +44,7 @@ bool ExecuteHeroChain::operator==(const ExecuteHeroChain & other) const
 		&& chainPath.chainMask == other.chainPath.chainMask;
 }
 
-void ExecuteHeroChain::accept(VCAI * ai)
+void ExecuteHeroChain::accept(AIGateway * ai)
 {
 	logAi->debug("Executing hero chain towards %s. Path %s", targetName, chainPath.toString());
 
@@ -58,6 +58,11 @@ void ExecuteHeroChain::accept(VCAI * ai)
 
 		const CGHeroInstance * hero = node.targetHero;
 		HeroPtr heroPtr = hero;
+
+		if(node.parentIndex >= i)
+		{
+			logAi->error("Invalid parentIndex while executing node " + node.coord.toString());
+		}
 
 		if(vstd::contains(blockedIndexes, i))
 		{

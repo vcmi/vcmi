@@ -9,7 +9,7 @@
 */
 #include "StdInc.h"
 #include "Composition.h"
-#include "../VCAI.h"
+#include "../AIGateway.h"
 #include "../AIUtility.h"
 #include "../../../lib/mapping/CMap.h" //for victory conditions
 #include "../../../lib/CPathfinder.h"
@@ -17,7 +17,7 @@
 
 
 extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<VCAI> ai;
+extern boost::thread_specific_ptr<AIGateway> ai;
 
 using namespace Goals;
 
@@ -38,7 +38,7 @@ std::string Composition::toString() const
 	return result;
 }
 
-void Composition::accept(VCAI * ai)
+void Composition::accept(AIGateway * ai)
 {
 	taskptr(*subtasks.back())->accept(ai);
 }

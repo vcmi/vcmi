@@ -1,5 +1,5 @@
 /*
-* DismissHero.cpp, part of VCMI engine
+* SaveResources.cpp, part of VCMI engine
 *
 * Authors: listed in file AUTHORS in main folder
 *
@@ -8,32 +8,32 @@
 *
 */
 #include "StdInc.h"
-#include "DismissHero.h"
+#include "SaveResources.h"
 #include "../AIGateway.h"
 #include "../../../lib/mapping/CMap.h" //for victory conditions
 #include "../../../lib/CPathfinder.h"
+#include "../Behaviors/CaptureObjectsBehavior.h"
 
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<AIGateway> ai;
 
 using namespace Goals;
 
-bool DismissHero::operator==(const DismissHero & other) const
+bool SaveResources::operator==(const SaveResources & other) const
 {
-	return hero.h == other.hero.h;
+	return true;
 }
 
-void DismissHero::accept(AIGateway * ai)
+void SaveResources::accept(AIGateway * ai)
 {
-	if(!hero.validAndSet())
-		throw cannotFulfillGoalException("Invalid hero!");
+	ai->nullkiller->lockResources(resources);
 
-	cb->dismissHero(hero.h);
+	logAi->debug("Locked %s resources", resources.toString());
 
 	throw goalFulfilledException(sptr(*this));
 }
 
-std::string DismissHero::toString() const
+std::string SaveResources::toString() const
 {
-	return "DismissHero " + hero.name;
+	return "SaveResources " + resources.toString();
 }
