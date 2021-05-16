@@ -484,9 +484,17 @@ void AINodeStorage::setHeroes(std::vector<HeroPtr> heroes, const VCAI * _ai)
 	for(auto & hero : heroes)
 	{
 		uint64_t mask = 1 << actors.size();
+		auto actor = std::make_shared<HeroActor>(hero.get(), mask, ai);
+
+		if(hero->tempOwner != ai->playerID)
+		{
+			bool onLand = !actor->hero->boat;
+			actor->initialMovement = actor->hero->maxMovePoints(onLand);
+		}
 
 		playerID = hero->tempOwner;
-		actors.push_back(std::make_shared<HeroActor>(hero.get(), mask, ai));
+
+		actors.push_back(actor);
 	}
 }
 

@@ -55,6 +55,7 @@ set(VCAI_SRCS
 		Behaviors/CaptureObjectsBehavior.cpp
 		Behaviors/RecruitHeroBehavior.cpp
 		Behaviors/BuyArmyBehavior.cpp
+		Behaviors/DefenceBehavior.cpp
 		Behaviors/StartupBehavior.cpp
 		main.cpp
 		VCAI.cpp
@@ -121,6 +122,7 @@ set(VCAI_HEADERS
 		Behaviors/CaptureObjectsBehavior.h
 		Behaviors/RecruitHeroBehavior.h
 		Behaviors/BuyArmyBehavior.h
+		Behaviors/DefenceBehavior.h
 		Behaviors/StartupBehavior.h
 		VCAI.h
 )
