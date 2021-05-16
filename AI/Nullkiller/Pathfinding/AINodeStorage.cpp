@@ -175,6 +175,11 @@ std::vector<CGPathNode *> AINodeStorage::getInitialNodes()
 			getOrCreateNode(actor->initialPosition, actor->layer, actor)
 			.get();
 
+		if(!initialNode)
+			continue;
+
+		initialNode->inPQ = false;
+		initialNode->pq = nullptr;
 		initialNode->turns = actor->initialTurn;
 		initialNode->moveRemains = actor->initialMovement;
 		initialNode->danger = 0;
@@ -254,7 +259,7 @@ void AINodeStorage::commit(
 		"Commited %s -> %s, cost: %f, turn: %s, mp: %d, hero: %s, mask: %x, army: %lld",
 		source->coord.toString(),
 		destination->coord.toString(),
-		destination->cost,
+		destination->getCost(),
 		std::to_string(destination->turns),
 		destination->moveRemains,
 		destination->actor->toString(),
@@ -599,8 +604,8 @@ void AINodeStorage::addHeroChain(const std::vector<ExchangeCandidate> & result)
 			logAi->trace(
 				"Exchange at %s is is not effective enough. %f < %f", 
 				exchangeNode->coord.toString(), 
-				exchangeNode->cost, 
-				chainInfo.cost);
+				exchangeNode->getCost(), 
+				chainInfo.getCost());
 #endif
 			continue;
 		}
@@ -629,7 +634,7 @@ void AINodeStorage::addHeroChain(const std::vector<ExchangeCandidate> & result)
 			other->actor->toString(), 
 			exchangeNode->actor->toString(),
 			exchangeNode->actor->chainMask,
-			exchangeNode->cost,
+			exchangeNode->getCost(),
 			std::to_string(exchangeNode->turns),
 			exchangeNode->moveRemains,
 			exchangeNode->actor->armyValue);
