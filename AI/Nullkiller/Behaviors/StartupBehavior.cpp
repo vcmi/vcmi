@@ -53,7 +53,8 @@ const CGHeroInstance * getNearestHero(const CGTownInstance * town)
 
 	auto shortestPath = getShortestPath(town, paths);
 
-	if(shortestPath.nodes.size() > 1 
+	if(shortestPath.nodes.size() > 1
+		|| shortestPath.turn() != 0
 		|| shortestPath.targetHero->visitablePos().dist2dSQ(town->visitablePos()) > 4
 		|| town->garrisonHero && shortestPath.targetHero == town->garrisonHero.get())
 		return nullptr;

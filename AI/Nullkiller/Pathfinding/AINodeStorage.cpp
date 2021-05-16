@@ -411,7 +411,9 @@ void AINodeStorage::calculateHeroChain(
 			continue;
 
 		if(node->action == CGPathNode::ENodeAction::BATTLE
-			|| node->action == CGPathNode::ENodeAction::TELEPORT_BATTLE)
+			|| node->action == CGPathNode::ENodeAction::TELEPORT_BATTLE
+			|| node->action == CGPathNode::ENodeAction::TELEPORT_NORMAL
+			|| node->action == CGPathNode::ENodeAction::TELEPORT_BLOCKING_VISIT)
 		{
 			continue;
 		}

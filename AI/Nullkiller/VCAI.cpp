@@ -200,11 +200,15 @@ void VCAI::gameOver(PlayerColor player, const EVictoryLossCheckResult & victoryL
 	LOG_TRACE_PARAMS(logAi, "victoryLossCheckResult '%s'", victoryLossCheckResult.messageToSelf);
 	NET_EVENT_HANDLER;
 	logAi->debug("Player %d (%s): I heard that player %d (%s) %s.", playerID, playerID.getStr(), player, player.getStr(), (victoryLossCheckResult.victory() ? "won" : "lost"));
+
+	// some whitespace to flush stream
+	logAi->debug(std::string(200, ' '));
+
 	if(player == playerID)
 	{
 		if(victoryLossCheckResult.victory())
 		{
-			logAi->debug("VCAI: I won! Incredible!");
+			logAi->debug("VCAI: Player %d (%s) won. I won! Incredible!", player, player.getStr());
 			logAi->debug("Turn nr %d", myCb->getDate());
 		}
 		else

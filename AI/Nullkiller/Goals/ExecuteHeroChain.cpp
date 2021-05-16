@@ -102,13 +102,23 @@ void ExecuteHeroChain::accept(VCAI * ai)
 					{
 						//TODO: decompose
 					}
+
+					if(!hero.validAndSet())
+					{
+						logAi->error("Hero %s was lost trying to execute special action. Exit hero chain.", hero.name);
+
+						return;
+					}
 				}
 
 				if(node.turns == 0 && node.coord != hero->visitablePos())
 				{
 					auto targetNode = cb->getPathsInfo(hero.get())->getPathInfo(node.coord);
 
-					if(!targetNode->accessible || targetNode->turns != 0)
+					if(targetNode->accessible == CGPathNode::EAccessibility::NOT_SET
+						|| targetNode->accessible == CGPathNode::EAccessibility::BLOCKED
+						|| targetNode->accessible == CGPathNode::EAccessibility::FLYABLE
+						|| targetNode->turns != 0)
 					{
 						logAi->error(
 							"Enable to complete chain. Expected hero %s to arive to %s in 0 turns but he can not do this",
@@ -127,6 +137,13 @@ void ExecuteHeroChain::accept(VCAI * ai)
 					}
 					catch(cannotFulfillGoalException)
 					{
+						if(!hero.validAndSet())
+						{
+							logAi->error("Hero %s was lost. Exit hero chain.", hero.name);
+
+							return;
+						}
+
 						if(hero->movement > 0)
 						{
 							CGPath path;
