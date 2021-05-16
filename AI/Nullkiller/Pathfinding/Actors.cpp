@@ -283,6 +283,7 @@ HeroActor * HeroExchangeMap::exchange(const ChainActor * other)
 			{
 				newArmy = pickBestCreatures(upgradedInitialArmy, other->creatureSet);
 				newArmy->armyCost = upgradedInitialArmy->armyCost;
+				newArmy->requireBuyArmy = upgradedInitialArmy->requireBuyArmy;
 
 				delete upgradedInitialArmy;
 			}

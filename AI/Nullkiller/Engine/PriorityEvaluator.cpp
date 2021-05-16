@@ -24,6 +24,7 @@
 #include "../Goals/BuildThis.h"
 #include "../Markers/HeroExchange.h"
 #include "../Markers/ArmyUpgrade.h"
+#include "../Markers/DefendTown.h"
 
 #define MIN_AI_STRENGHT (0.5f) //lower when combat AI gets smarter
 #define UNGUARDED_OBJECT (100.0f) //we consider unguarded objects 100 times weaker than us
@@ -493,6 +494,51 @@ public:
 	}
 };
 
+class DefendTownEvaluator : public IEvaluationContextBuilder
+{
+private:
+	uint64_t townArmyIncome(const CGTownInstance * town) const
+	{
+		uint64_t result = 0;
+
+		for(auto creatureInfo : town->creatures)
+		{
+			if(creatureInfo.second.empty())
+				continue;
+
+			auto creature = creatureInfo.second.back().toCreature();
+			result += creature->AIValue * town->getGrowthInfo(creature->level).totalGrowth();
+		}
+
+		return result;
+	}
+
+public:
+	virtual void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
+	{
+		if(task->goalType != Goals::DEFEND_TOWN)
+			return;
+
+		Goals::DefendTown & defendTown = dynamic_cast<Goals::DefendTown &>(*task);
+		const CGTownInstance * town = defendTown.town;
+		auto & treat = defendTown.getTreat();
+
+		auto armyIncome = townArmyIncome(town);
+		auto dailyIncome = town->dailyIncome()[Res::GOLD];
+
+		auto strategicalValue = std::sqrt(armyIncome / 20000.0f) + dailyIncome / 10000.0f;
+
+		float multiplier = 1;
+
+		if(treat.turn < defendTown.getTurn())
+			multiplier /= 1 + (defendTown.getTurn() - treat.turn);
+
+		evaluationContext.armyReward += armyIncome * multiplier;
+		evaluationContext.goldReward += dailyIncome * 5 * multiplier;
+		evaluationContext.strategicalValue += strategicalValue * multiplier;
+	}
+};
+
 class ExecuteHeroChainEvaluationContextBuilder : public IEvaluationContextBuilder
 {
 public:
@@ -653,6 +699,8 @@ PriorityEvaluator::PriorityEvaluator(const Nullkiller * ai)
 	evaluationContextBuilders.push_back(std::make_shared<BuildThisEvaluationContextBuilder>());
 	evaluationContextBuilders.push_back(std::make_shared<ClusterEvaluationContextBuilder>());
 	evaluationContextBuilders.push_back(std::make_shared<HeroExchangeEvaluator>());
+	evaluationContextBuilders.push_back(std::make_shared<ArmyUpgradeEvaluator>());
+	evaluationContextBuilders.push_back(std::make_shared<ArmyUpgradeEvaluator>());
 }
 
 EvaluationContext PriorityEvaluator::buildEvaluationContext(Goals::TSubgoal goal) const

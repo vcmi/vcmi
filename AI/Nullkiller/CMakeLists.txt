@@ -37,6 +37,7 @@ set(VCAI_SRCS
 		Markers/ArmyUpgrade.cpp
 		Markers/HeroExchange.cpp
 		Markers/UnlockCluster.cpp
+		Markers/DefendTown.cpp
 		Engine/Nullkiller.cpp
 		Engine/DeepDecomposer.cpp
 		Engine/PriorityEvaluator.cpp
@@ -97,6 +98,7 @@ set(VCAI_HEADERS
 		Markers/ArmyUpgrade.h
 		Markers/HeroExchange.h
 		Markers/UnlockCluster.h
+		Markers/DefendTown.h
 		Engine/Nullkiller.h
 		Engine/DeepDecomposer.h
 		Engine/PriorityEvaluator.h

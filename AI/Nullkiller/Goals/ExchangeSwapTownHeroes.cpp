@@ -61,24 +61,15 @@ void ExchangeSwapTownHeroes::accept(VCAI * ai)
 
 	auto upperArmy = town->getUpperArmy();
 	
-	if(!town->garrisonHero && upperArmy->stacksCount() != 0)
+	if(!town->garrisonHero)
 	{
-		// dismiss creatures we are not able to pick to be able to hide in garrison
-		if(upperArmy->getArmyStrength() < 500 
-			&& town->fortLevel() >= CGTownInstance::CITADEL)
+		while(upperArmy->stacksCount() != 0)
 		{
-			for(auto slot : upperArmy->Slots())
-			{
-				cb->dismissCreature(upperArmy, slot.first);
-			}
-
-			cb->swapGarrisonHero(town);
+			cb->dismissCreature(upperArmy, upperArmy->Slots().begin()->first);
 		}
 	}
-	else
-	{
-		cb->swapGarrisonHero(town); // selected hero left in garrison with strongest army
-	}
+	
+	cb->swapGarrisonHero(town);
 
 	ai->nullkiller->lockHero(garrisonHero, lockingReason);
 

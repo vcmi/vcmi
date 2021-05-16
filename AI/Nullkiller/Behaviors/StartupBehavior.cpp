@@ -176,7 +176,13 @@ Goals::TGoalVec StartupBehavior::decompose() const
 			}
 			else if(canRecruitHero)
 			{
-				tasks.push_back(Goals::sptr(ExchangeSwapTownHeroes(startupTown, visitingHero, HeroLockedReason::STARTUP).setpriority(100)));
+				auto canPickTownArmy = startupTown->stacksCount() == 0
+					|| ai->nullkiller->armyManager->howManyReinforcementsCanGet(startupTown->visitingHero, startupTown) > 0;
+
+				if(canPickTownArmy)
+				{
+					tasks.push_back(Goals::sptr(ExchangeSwapTownHeroes(startupTown, visitingHero, HeroLockedReason::STARTUP).setpriority(100)));
+				}
 			}
 		}
 	}
