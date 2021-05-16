@@ -172,8 +172,13 @@ Goals::TGoalVec StartupBehavior::getTasks()
 	{
 		for(const CGTownInstance * town : towns)
 		{
-			if(town->garrisonHero && town->garrisonHero->movement && ai->nullkiller->getHeroLockedReason(town->garrisonHero) != HeroLockedReason::DEFENCE)
+			if(town->garrisonHero
+				&& town->garrisonHero->movement
+				&& !town->visitingHero
+				&& ai->nullkiller->getHeroLockedReason(town->garrisonHero) != HeroLockedReason::DEFENCE)
+			{
 				tasks.push_back(Goals::sptr(ExchangeSwapTownHeroes(town, nullptr).setpriority(0.0001f)));
+			}
 		}
 	}
 

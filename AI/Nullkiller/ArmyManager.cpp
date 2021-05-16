@@ -208,3 +208,143 @@ void ArmyManager::update()
 		army.second.power = evaluateStackPower(army.second.creature, army.second.count);
 	}
 }
+
+struct UpgradeInfo
+{
+	const CCreature * initialCreature;
+	const CCreature * upgradedCreature;
+	TResources cost;
+	int count;
+	uint64_t upgradeValue;
+
+	UpgradeInfo(CreatureID initial, CreatureID upgraded, int count)
+		:initialCreature(initial.toCreature()), upgradedCreature(upgraded.toCreature()), count(count)
+	{
+		cost = (upgradedCreature->cost - initialCreature->cost) * count;
+		upgradeValue = (upgradedCreature->AIValue - initialCreature->AIValue) * count;
+	}
+};
+
+std::vector<SlotInfo> ArmyManager::convertToSlots(const CCreatureSet * army) const
+{
+	std::vector<SlotInfo> result;
+
+	for(auto slot : army->Slots())
+	{
+		SlotInfo slotInfo;
+
+		slotInfo.creature = slot.second->getCreatureID().toCreature();
+		slotInfo.count = slot.second->count;
+		slotInfo.power = evaluateStackPower(slotInfo.creature, slotInfo.count);
+
+		result.push_back(slotInfo);
+	}
+
+	return result;
+}
+
+std::vector<UpgradeInfo> ArmyManager::getHillFortUpgrades(const CCreatureSet * army) const
+{
+	std::vector<UpgradeInfo> upgrades;
+
+	for(auto creature : army->Slots())
+	{
+		CreatureID initial = creature.second->getCreatureID();
+		auto possibleUpgrades = initial.toCreature()->upgrades;
+
+		if(possibleUpgrades.empty())
+			continue;
+
+		CreatureID strongestUpgrade = *vstd::minElementByFun(possibleUpgrades, [](CreatureID cre) -> uint64_t
+		{
+			return cre.toCreature()->AIValue;
+		});
+
+		UpgradeInfo upgrade = UpgradeInfo(initial, strongestUpgrade, creature.second->count);
+
+		if(initial.toCreature()->level == 1)
+			upgrade.cost = TResources();
+
+		upgrades.push_back(upgrade);
+	}
+
+	return upgrades;
+}
+
+std::vector<UpgradeInfo> ArmyManager::getDwellingUpgrades(const CCreatureSet * army, const CGDwelling * dwelling) const
+{
+	std::vector<UpgradeInfo> upgrades;
+
+	return upgrades;
+}
+
+std::vector<UpgradeInfo> ArmyManager::getPossibleUpgrades(const CCreatureSet * army, const CGObjectInstance * upgrader) const
+{
+	std::vector<UpgradeInfo> upgrades;
+
+	if(upgrader->ID == Obj::HILL_FORT)
+	{
+		upgrades = getHillFortUpgrades(army);
+	}
+	else
+	{
+		auto dwelling = dynamic_cast<const CGDwelling *>(upgrader);
+
+		if(dwelling)
+		{
+			upgrades = getDwellingUpgrades(army, dwelling);
+		}
+	}
+
+	return upgrades;
+}
+
+ArmyUpgradeInfo ArmyManager::calculateCreateresUpgrade(
+	const CCreatureSet * army,
+	const CGObjectInstance * upgrader,
+	const TResources & availableResources) const
+{
+	std::vector<UpgradeInfo> upgrades = getPossibleUpgrades(army, upgrader);
+
+	vstd::erase_if(upgrades, [&](const UpgradeInfo & u) -> bool
+	{
+		return !availableResources.canAfford(u.cost);
+	});
+
+	if(upgrades.empty())
+		return ArmyUpgradeInfo();
+
+	std::sort(upgrades.begin(), upgrades.end(), [](const UpgradeInfo & u1, const UpgradeInfo & u2) -> bool
+	{
+		return u1.upgradeValue > u2.upgradeValue;
+	});
+
+	TResources resourcesLeft = availableResources;
+	ArmyUpgradeInfo result;
+	
+	result.resultingArmy = convertToSlots(army);
+
+	for(auto upgrade : upgrades)
+	{
+		if(resourcesLeft.canAfford(upgrade.cost))
+		{
+			SlotInfo upgradedArmy;
+
+			upgradedArmy.creature = upgrade.upgradedCreature;
+			upgradedArmy.count = upgrade.count;
+			upgradedArmy.power = evaluateStackPower(upgradedArmy.creature, upgradedArmy.count);
+
+			auto slotToReplace = std::find_if(result.resultingArmy.begin(), result.resultingArmy.end(), [&](const SlotInfo & slot) -> bool {
+				return slot.count == upgradedArmy.count && slot.creature == upgrade.initialCreature;
+			});
+
+			resourcesLeft -= upgrade.cost;
+			result.upgradeCost += upgrade.cost;
+			result.upgradeValue += upgrade.upgradeValue;
+
+			*slotToReplace = upgradedArmy;
+		}
+	}
+
+	return result;
+}

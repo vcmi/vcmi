@@ -279,7 +279,8 @@ bool AINodeStorage::calculateHeroChainFinal()
 			{
 				if(node.turns > heroChainTurn
 					&& node.action != CGPathNode::ENodeAction::UNKNOWN
-					&& node.actor->actorExchangeCount > 1)
+					&& node.actor->actorExchangeCount > 1
+					&& !hasBetterChain(&node, &node, chains))
 				{
 					heroChain.push_back(&node);
 				}
@@ -332,6 +333,55 @@ bool AINodeStorage::calculateHeroChain()
 	return heroChain.size();
 }
 
+bool AINodeStorage::selectFirstActor()
+{
+	if(!actors.size())
+		return false;
+
+	auto strongest = *vstd::maxElementByFun(actors, [](std::shared_ptr<ChainActor> actor) -> uint64_t
+	{
+		return actor->armyValue;
+	});
+
+	chainMask = strongest->chainMask;
+
+	return true;
+}
+
+bool AINodeStorage::selectNextActor()
+{
+	auto currentActor = std::find_if(actors.begin(), actors.end(), [&](std::shared_ptr<ChainActor> actor)-> bool
+	{
+		return actor->chainMask == chainMask;
+	});
+
+	auto nextActor = actors.end();
+
+	for(auto actor = actors.begin(); actor != actors.end(); actor++)
+	{
+		if(actor->get()->armyValue > currentActor->get()->armyValue
+			|| actor->get()->armyValue == currentActor->get()->armyValue && actor <= currentActor)
+		{
+			continue;
+		}
+
+		if(nextActor == actors.end()
+			|| actor->get()->armyValue > nextActor->get()->armyValue)
+		{
+			nextActor = actor;
+		}
+	}
+
+	if(nextActor != actors.end())
+	{
+		chainMask = nextActor->get()->chainMask;
+
+		return true;
+	}
+
+	return false;
+}
+
 void AINodeStorage::cleanupInefectiveChains(std::vector<ExchangeCandidate> & result) const
 {
 	vstd::erase_if(result, [&](const ExchangeCandidate & chainInfo) -> bool
@@ -352,6 +402,9 @@ void AINodeStorage::calculateHeroChain(
 	for(AIPathNode * node : variants)
 	{
 		if(node == srcNode || !node->actor)
+			continue;
+
+		if((node->actor->chainMask & chainMask) == 0 && (srcNode->actor->chainMask & chainMask) == 0)
 			continue;
 
 		if(node->turns > heroChainTurn 

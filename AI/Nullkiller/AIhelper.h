@@ -82,6 +82,10 @@ public:
 	std::vector<creInfo> getArmyAvailableToBuy(const CCreatureSet * hero, const CGDwelling * dwelling) const override;
 	uint64_t evaluateStackPower(const CCreature * creature, int count) const override;
 	SlotInfo getTotalCreaturesAvailable(CreatureID creatureID) const override;
+	ArmyUpgradeInfo calculateCreateresUpgrade(
+		const CCreatureSet * army,
+		const CGObjectInstance * upgrader,
+		const TResources & availableResources) const override;
 
 	const std::map<HeroPtr, HeroRole> & getHeroRoles() const override;
 	HeroRole getHeroRole(const HeroPtr & hero) const override;

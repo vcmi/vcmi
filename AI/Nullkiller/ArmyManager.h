@@ -25,6 +25,18 @@ struct SlotInfo
 	uint64_t power;
 };
 
+struct ArmyUpgradeInfo
+{
+	std::vector<SlotInfo> resultingArmy;
+	uint64_t upgradeValue;
+	TResources upgradeCost;
+
+	ArmyUpgradeInfo()
+		: resultingArmy(), upgradeValue(0), upgradeCost()
+	{
+	}
+};
+
 class DLL_EXPORT IArmyManager //: public: IAbstractManager
 {
 public:
@@ -40,7 +52,13 @@ public:
 	virtual std::vector<creInfo> getArmyAvailableToBuy(const CCreatureSet * hero, const CGDwelling * dwelling) const = 0;
 	virtual uint64_t evaluateStackPower(const CCreature * creature, int count) const = 0;
 	virtual SlotInfo getTotalCreaturesAvailable(CreatureID creatureID) const = 0;
+	virtual ArmyUpgradeInfo calculateCreateresUpgrade(
+		const CCreatureSet * army,
+		const CGObjectInstance * upgrader,
+		const TResources & availableResources) const = 0;
 };
+
+struct UpgradeInfo;
 
 class DLL_EXPORT ArmyManager : public IArmyManager
 {
@@ -63,4 +81,14 @@ public:
 	std::vector<creInfo> getArmyAvailableToBuy(const CCreatureSet * hero, const CGDwelling * dwelling) const override;
 	uint64_t evaluateStackPower(const CCreature * creature, int count) const override;
 	SlotInfo getTotalCreaturesAvailable(CreatureID creatureID) const override;
+	ArmyUpgradeInfo calculateCreateresUpgrade(
+		const CCreatureSet * army, 
+		const CGObjectInstance * upgrader,
+		const TResources & availableResources) const override;
+
+private:
+	std::vector<SlotInfo> convertToSlots(const CCreatureSet * army) const;
+	std::vector<UpgradeInfo> getPossibleUpgrades(const CCreatureSet * army, const CGObjectInstance * upgrader) const;
+	std::vector<UpgradeInfo> getHillFortUpgrades(const CCreatureSet * army) const;
+	std::vector<UpgradeInfo> getDwellingUpgrades(const CCreatureSet * army, const CGDwelling * dwelling) const;
 };

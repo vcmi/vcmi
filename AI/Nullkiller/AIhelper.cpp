@@ -213,6 +213,14 @@ std::vector<creInfo> AIhelper::getArmyAvailableToBuy(const CCreatureSet * hero, 
 	return armyManager->getArmyAvailableToBuy(hero, dwelling);
 }
 
+ArmyUpgradeInfo AIhelper::calculateCreateresUpgrade(
+	const CCreatureSet * army,
+	const CGObjectInstance * upgrader,
+	const TResources & availableResources) const
+{
+	return armyManager->calculateCreateresUpgrade(army, upgrader, availableResources);
+}
+
 int AIhelper::selectBestSkill(const HeroPtr & hero, const std::vector<SecondarySkill> & skills) const
 {
 	return heroManager->selectBestSkill(hero, skills);
