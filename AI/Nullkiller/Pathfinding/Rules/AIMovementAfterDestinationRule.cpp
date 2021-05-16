@@ -58,7 +58,7 @@ namespace AIPathfinding
 			return;
 
 		auto destGuardians = cb->getGuardingCreatures(destination.coord);
-		bool allowBypass = true;
+		bool allowBypass = false;
 
 		switch(blocker)
 		{
@@ -74,10 +74,36 @@ namespace AIPathfinding
 				allowBypass = bypassDestinationGuards(destGuardians, source, destination, pathfinderConfig, pathfinderHelper);
 
 			break;
+
+		case BlockingReason::DESTINATION_VISIT:
+			allowBypass = true;
+
+			break;
+
+		case BlockingReason::DESTINATION_BLOCKED:
+			allowBypass = bypassBlocker(source, destination, pathfinderConfig, pathfinderHelper);
+
+			break;
 		}
 
 		destination.blocked = !allowBypass || nodeStorage->isDistanceLimitReached(source, destination);
 		destination.node->locked = !allowBypass;
+	}
+
+	bool AIMovementAfterDestinationRule::bypassBlocker(
+		const PathNodeInfo & source,
+		CDestinationNodeInfo & destination,
+		const PathfinderConfig * pathfinderConfig,
+		CPathfinderHelper * pathfinderHelper) const
+	{
+		auto enemyHero = destination.nodeHero && destination.heroRelations == PlayerRelations::ENEMIES;
+
+		if(enemyHero)
+		{
+			return bypassBattle(source, destination, pathfinderConfig, pathfinderHelper);
+		}
+
+		return false;
 	}
 
 	bool AIMovementAfterDestinationRule::bypassRemovableObject(
@@ -151,6 +177,16 @@ namespace AIPathfinding
 			return true;
 		}
 
+		return bypassBattle(source, destination, pathfinderConfig, pathfinderHelper);
+	}
+
+	bool AIMovementAfterDestinationRule::bypassBattle(
+		const PathNodeInfo & source,
+		CDestinationNodeInfo & destination,
+		const PathfinderConfig * pathfinderConfig,
+		CPathfinderHelper * pathfinderHelper) const
+	{
+		const AIPathNode *  srcNode = nodeStorage->getAINode(source.node);
 		const AIPathNode * destNode = nodeStorage->getAINode(destination.node);
 		auto battleNodeOptional = nodeStorage->getOrCreateNode(
 			destination.coord,

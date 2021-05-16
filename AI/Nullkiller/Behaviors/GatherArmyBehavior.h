@@ -31,6 +31,6 @@ public:
 
 private:
 	Goals::TGoalVec deliverArmyToHero(const CGHeroInstance * hero) const;
-	Goals::TGoalVec upgradeArmy(const CGObjectInstance * upgrader) const;
+	Goals::TGoalVec upgradeArmy(const CGTownInstance * upgrader) const;
 };
 

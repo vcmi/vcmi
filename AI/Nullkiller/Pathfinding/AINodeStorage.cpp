@@ -476,7 +476,7 @@ void AINodeStorage::calculateHeroChain(
 
 		if(other->actor->isMovable)
 		{
-			bool hasLessMp = carrier->turns > other->turns || carrier->moveRemains < other->moveRemains;
+			bool hasLessMp = carrier->turns > other->turns || (carrier->turns == other->turns && carrier->moveRemains < other->moveRemains);
 			bool hasLessExperience = carrier->actor->hero->exp < other->actor->hero->exp;
 
 			if(hasLessMp && hasLessExperience)
