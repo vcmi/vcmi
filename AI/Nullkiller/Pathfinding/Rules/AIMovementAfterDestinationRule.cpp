@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "AIMovementAfterDestinationRule.h"
 #include "../Actions/BattleAction.h"
+#include "../Actions/QuestAction.h"
 #include "../../Goals/Invalid.h"
 #include "AIPreviousNodeRule.h"
 

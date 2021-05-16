@@ -1,5 +1,5 @@
 /*
-* BattleAction.h, part of VCMI engine
+* BuyArmyAction.h, part of VCMI engine
 *
 * Authors: listed in file AUTHORS in main folder
 *
@@ -15,19 +15,17 @@
 
 namespace AIPathfinding
 {
-	class BattleAction : public SpecialAction
+	class BuyArmyAction : public SpecialAction
 	{
 	private:
-		const int3 targetTile;
 
 	public:
-		BattleAction(const int3 targetTile)
-			:targetTile(targetTile)
+		bool canAct(const AIPathNode * source) const override
 		{
+			return true;
 		}
 
-		virtual void execute(const CGHeroInstance * hero) const override;
-
-		virtual std::string toString() const override;
+		void execute(const CGHeroInstance * hero) const override;
+		std::string toString() const override;
 	};
 }

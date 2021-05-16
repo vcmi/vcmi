@@ -9,7 +9,7 @@
 */
 
 #include "StdInc.h"
-#include "BattleAction.h"
+#include "BuyArmyAction.h"
 #include "../../VCAI.h"
 #include "../../Goals/CompleteQuest.h"
 #include "../../../../lib/mapping/CMap.h" //for victory conditions
@@ -19,13 +19,13 @@ extern boost::thread_specific_ptr<VCAI> ai;
 
 namespace AIPathfinding
 {
-	void BattleAction::execute(const CGHeroInstance * hero) const
+	void BuyArmyAction::execute(const CGHeroInstance * hero) const
 	{
-		ai->moveHeroToTile(targetTile, hero);
+		ai->recruitCreatures(hero->visitedTown, hero);
 	}
 
-	std::string BattleAction::toString() const
+	std::string BuyArmyAction::toString() const
 	{
-		return "Battle at " + targetTile.toString();
+		return "Buy Army";
 	}
 }

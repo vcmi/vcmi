@@ -613,6 +613,12 @@ void AINodeStorage::addHeroChain(const std::vector<ExchangeCandidate> & result)
 			exchangeNode->theNodeBefore = carrier;
 		}
 
+		if(exchangeNode->actor->actorAction)
+		{
+			exchangeNode->theNodeBefore = carrier;
+			exchangeNode->specialAction = exchangeNode->actor->actorAction;
+		}
+
 		exchangeNode->chainOther = other;
 		exchangeNode->armyLoss = chainInfo.armyLoss;
 
