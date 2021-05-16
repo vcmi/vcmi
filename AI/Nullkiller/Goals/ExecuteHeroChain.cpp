@@ -96,7 +96,16 @@ void ExecuteHeroChain::accept(VCAI * ai)
 					{
 						auto specialGoal = node.specialAction->whatToDo(hero);
 
-						specialGoal->accept(ai);
+						try
+						{
+							specialGoal->accept(ai);
+						}
+						catch(cannotFulfillGoalException e)
+						{
+							logAi->warn("Can not complete %s because of an exception: %s", specialGoal->name(), e.what());
+
+							throw;
+						}
 					}
 					else
 					{
@@ -104,7 +113,7 @@ void ExecuteHeroChain::accept(VCAI * ai)
 					}
 				}
 
-				if(node.turns == 0)
+				if(node.turns == 0 && node.coord != hero->visitablePos())
 				{
 					auto targetNode = cb->getPathsInfo(hero.get())->getPathInfo(node.coord);
 
@@ -145,6 +154,9 @@ void ExecuteHeroChain::accept(VCAI * ai)
 					}
 				}
 			}
+
+			if(node.coord == hero->visitablePos())
+				continue;
 
 			if(node.turns == 0)
 			{

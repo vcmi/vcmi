@@ -60,6 +60,7 @@ set(VCAI_SRCS
 		Behaviors/DefenceBehavior.cpp
 		Behaviors/StartupBehavior.cpp
 		Behaviors/BuildingBehavior.cpp
+		Behaviors/GatherArmyBehavior.cpp
 		main.cpp
 		VCAI.cpp
 )
@@ -130,6 +131,7 @@ set(VCAI_HEADERS
 		Behaviors/DefenceBehavior.h
 		Behaviors/StartupBehavior.h
 		Behaviors/BuildingBehavior.h
+		Behaviors/GatherArmyBehavior.h
 		VCAI.h
 )
 

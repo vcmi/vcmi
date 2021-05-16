@@ -186,3 +186,22 @@ float AbstractGoal::accept(FuzzyHelper * f)
 {
 	return f->evaluate(*this);
 }
+
+EvaluationContext::EvaluationContext()
+	: movementCost(0.0),
+	manaCost(0),
+	danger(0),
+	closestWayRatio(1),
+	armyLoss(0),
+	heroStrength(0),
+	movementCostByRole(),
+	skillReward(0),
+	goldReward(0),
+	goldCost(0),
+	armyReward(0),
+	armyLossPersentage(0),
+	heroRole(HeroRole::SCOUT),
+	turn(0),
+	strategicalValue(0)
+{
+}
