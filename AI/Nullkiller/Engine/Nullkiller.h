@@ -10,7 +10,8 @@
 #pragma once
 
 #include "PriorityEvaluator.h"
-#include "DangerHitMapAnalyzer.h"
+#include "../Analyzers/DangerHitMapAnalyzer.h"
+#include "../Analyzers/BuildAnalyzer.h"
 #include "../Goals/AbstractGoal.h"
 #include "../Behaviors/Behavior.h"
 
