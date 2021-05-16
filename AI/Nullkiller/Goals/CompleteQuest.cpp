@@ -120,19 +120,14 @@ std::string CompleteQuest::questToString() const
 
 TGoalVec CompleteQuest::tryCompleteQuest() const
 {
-	TGoalVec solutions;
+	auto paths = ai->nullkiller->pathfinder->getPathInfo(q.obj->visitablePos());
 
-	auto tasks = CaptureObjectsBehavior(q.obj).decompose();
-
-	for(auto task : tasks)
+	vstd::erase_if(paths, [&](const AIPath & path) -> bool
 	{
-		if(task->hero && q.quest->checkQuest(task->hero.get()))
-		{
-			solutions.push_back(task);
-		}
-	}
-
-	return solutions;
+		return !q.quest->checkQuest(path.targetHero);
+	});
+	
+	return CaptureObjectsBehavior::getVisitGoals(paths, q.obj);
 }
 
 TGoalVec CompleteQuest::missionArt() const
@@ -159,7 +154,7 @@ TGoalVec CompleteQuest::missionHero() const
 	if(solutions.empty())
 	{
 		//rule of a thumb - quest heroes usually are locked in prisons
-		return CaptureObjectsBehavior().ofType(Obj::PRISON).decompose();
+		solutions.push_back(sptr(CaptureObjectsBehavior().ofType(Obj::PRISON)));
 	}
 
 	return solutions;
