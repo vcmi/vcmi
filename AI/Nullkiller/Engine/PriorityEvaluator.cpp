@@ -349,7 +349,7 @@ float getSkillReward(const CGObjectInstance * target, const CGHeroInstance * her
 	case Obj::TREE_OF_KNOWLEDGE:
 		return 1;
 	case Obj::LEARNING_STONE:
-		return 1.0f / std::sqrtf(hero->level);
+		return 1.0f / std::sqrt(hero->level);
 	case Obj::ARENA:
 	case Obj::SHRINE_OF_MAGIC_THOUGHT:
 		return 2;
