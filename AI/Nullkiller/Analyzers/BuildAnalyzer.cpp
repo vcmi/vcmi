@@ -8,7 +8,7 @@
 *
 */
 #include "StdInc.h"
-#include "BuildAnalyzer.h"
+#include "../Engine/Nullkiller.h"
 #include "lib/mapping/CMap.h" //for victory conditions
 
 extern boost::thread_specific_ptr<CCallback> cb;

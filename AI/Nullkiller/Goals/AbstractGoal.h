@@ -183,3 +183,46 @@ namespace Goals
 		virtual ~ITask() {}
 	};
 }
+
+class cannotFulfillGoalException : public std::exception
+{
+	std::string msg;
+
+public:
+	explicit cannotFulfillGoalException(crstring _Message)
+		: msg(_Message)
+	{
+	}
+
+	virtual ~cannotFulfillGoalException() throw ()
+	{
+	};
+
+	const char * what() const throw () override
+	{
+		return msg.c_str();
+	}
+};
+
+class goalFulfilledException : public std::exception
+{
+	std::string msg;
+
+public:
+	Goals::TSubgoal goal;
+
+	explicit goalFulfilledException(Goals::TSubgoal Goal)
+		: goal(Goal)
+	{
+		msg = goal->toString();
+	}
+
+	virtual ~goalFulfilledException() throw ()
+	{
+	};
+
+	const char * what() const throw () override
+	{
+		return msg.c_str();
+	}
+};

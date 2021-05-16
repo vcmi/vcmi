@@ -10,9 +10,9 @@
 #pragma once
 
 #include "../AIUtility.h"
-#include "../../../lib/VCMI_Lib.h"
 #include "../../../CCallback.h"
 #include "../Goals/CGoal.h"
+#include "../../../lib/CGameState.h"
 
 namespace Goals
 {

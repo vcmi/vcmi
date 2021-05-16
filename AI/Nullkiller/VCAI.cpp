@@ -8,8 +8,6 @@
  *
  */
 #include "StdInc.h"
-#include "VCAI.h"
-#include "Goals/Goals.h"
 
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/mapObjects/MapObjects.h"
@@ -22,8 +20,8 @@
 #include "../../lib/serializer/BinarySerializer.h"
 #include "../../lib/serializer/BinaryDeserializer.h"
 
-#include "Engine/Nullkiller.h"
-
+#include "VCAI.h"
+#include "Goals/Goals.h"
 
 class CGVisitableOPW;
 

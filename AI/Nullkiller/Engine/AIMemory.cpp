@@ -9,7 +9,6 @@
 */
 #include "StdInc.h"
 #include "AIMemory.h"
-#include "../../../lib/mapObjects/MapObjects.h"
 
 void AIMemory::removeFromMemory(const CGObjectInstance * obj)
 {

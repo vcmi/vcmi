@@ -16,7 +16,6 @@
 #include "../../lib/VCMI_Lib.h"
 #include "../../lib/CTownHandler.h"
 #include "../../lib/CBuildingHandler.h"
-#include "VCAI.h"
 
 class DLL_EXPORT IHeroManager //: public: IAbstractManager
 {

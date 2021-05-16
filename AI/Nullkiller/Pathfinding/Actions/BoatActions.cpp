@@ -9,6 +9,7 @@
 */
 
 #include "StdInc.h"
+#include "../../VCAI.h"
 #include "../../Goals/AdventureSpellCast.h"
 #include "../../Behaviors/CaptureObjectsBehavior.h"
 #include "../../Goals/BuildBoat.h"

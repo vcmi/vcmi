@@ -12,6 +12,7 @@
 #include "../../../lib/VCMI_Lib.h"
 #include "../AIUtility.h"
 #include "../Goals/CGoal.h"
+#include "../Pathfinding/AINodeStorage.h"
 
 namespace Goals
 {

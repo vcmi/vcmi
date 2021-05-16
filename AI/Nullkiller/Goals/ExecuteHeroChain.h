@@ -10,6 +10,7 @@
 #pragma once
 
 #include "CGoal.h"
+#include "../Pathfinding/AIPathfinder.h"
 
 namespace Goals
 {

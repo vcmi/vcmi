@@ -9,13 +9,8 @@
 */
 #pragma once
 
-#include "PriorityEvaluator.h"
-#include "../Analyzers/DangerHitMapAnalyzer.h"
-#include "../Analyzers/BuildAnalyzer.h"
-#include "../Analyzers/ArmyManager.h"
-#include "../Analyzers/HeroManager.h"
-#include "../Analyzers/ObjectClusterizer.h"
-#include "../Goals/AbstractGoal.h"
+#include "../AIUtility.h"
+#include "../../../lib/mapObjects/MapObjects.h"
 
 class AIMemory
 {

@@ -10,7 +10,6 @@
 #pragma once
 
 #include "AbstractGoal.h"
-#include "../VCAI.h"
 
 struct HeroPtr;
 class VCAI;
