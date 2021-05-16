@@ -93,6 +93,55 @@ namespace AIPathfinding
 		return false;
 	}
 
+	bool AIMovementAfterDestinationRule::bypassQuest(
+		const PathNodeInfo & source,
+		CDestinationNodeInfo & destination,
+		const PathfinderConfig * pathfinderConfig,
+		CPathfinderHelper * pathfinderHelper) const
+	{
+		const AIPathNode * destinationNode = nodeStorage->getAINode(destination.node);
+		auto questObj = dynamic_cast<const IQuestObject *>(destination.nodeObject);
+		auto questInfo = QuestInfo(questObj->quest, destination.nodeObject, destination.coord);
+		auto nodeHero = pathfinderHelper->hero;
+		QuestAction questAction(questInfo);
+
+		if(destination.nodeObject->ID == Obj::QUEST_GUARD && questObj->quest->missionType == CQuest::MISSION_NONE)
+		{
+			return false;
+		}
+
+		if(!questAction.canAct(destinationNode))
+		{
+			if(!destinationNode->actor->allowUseResources)
+			{
+				boost::optional<AIPathNode *> questNode = nodeStorage->getOrCreateNode(
+					destination.coord,
+					destination.node->layer,
+					destinationNode->actor->resourceActor);
+
+				if(!questNode || questNode.get()->cost < destination.cost)
+				{
+					return false;
+				}
+
+				destinationNode = questNode.get();
+				destination.node = questNode.get();
+
+				nodeStorage->commit(destination, source);
+				AIPreviousNodeRule(nodeStorage).process(source, destination, pathfinderConfig, pathfinderHelper);
+			}
+
+			nodeStorage->updateAINode(destination.node, [&](AIPathNode * node)
+			{
+				auto questInfo = QuestInfo(questObj->quest, destination.nodeObject, destination.coord);
+
+				node->specialAction.reset(new QuestAction(questAction));
+			});
+		}
+
+		return true;
+	}
+
 	bool AIMovementAfterDestinationRule::bypassRemovableObject(
 		const PathNodeInfo & source,
 		CDestinationNodeInfo & destination,
@@ -103,26 +152,7 @@ namespace AIPathfinding
 			|| destination.nodeObject->ID == Obj::BORDERGUARD
 			|| destination.nodeObject->ID == Obj::BORDER_GATE)
 		{
-			auto questObj = dynamic_cast<const IQuestObject *>(destination.nodeObject);
-			auto nodeHero = pathfinderHelper->hero;
-
-			if(destination.nodeObject->ID == Obj::QUEST_GUARD && questObj->quest->missionType == CQuest::MISSION_NONE)
-			{
-				return false;
-			}
-
-			if(!destination.nodeObject->wasVisited(nodeHero->tempOwner)
-				|| !questObj->checkQuest(nodeHero))
-			{
-				nodeStorage->updateAINode(destination.node, [&](AIPathNode * node)
-				{
-					auto questInfo = QuestInfo(questObj->quest, destination.nodeObject, destination.coord);
-
-					node->specialAction.reset(new QuestAction(questInfo));
-				});
-			}
-
-			return true;
+			return bypassQuest(source, destination, pathfinderConfig, pathfinderHelper);
 		}
 
 		auto enemyHero = destination.nodeHero && destination.heroRelations == PlayerRelations::ENEMIES;

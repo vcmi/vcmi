@@ -182,6 +182,7 @@ void Nullkiller::updateAiState(int pass)
 
 	PathfinderSettings cfg;
 	cfg.useHeroChain = true;
+	cfg.scoutTurnDistanceLimit = SCOUT_TURN_DISTANCE_LIMIT;
 
 	pathfinder->updatePaths(activeHeroes, cfg);
 

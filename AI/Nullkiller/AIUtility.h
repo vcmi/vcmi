@@ -167,7 +167,6 @@ void foreach_neighbour(const int3 & pos, std::function<void(const int3 & pos)> f
 void foreach_neighbour(CCallback * cbp, const int3 & pos, std::function<void(CCallback * cbp, const int3 & pos)> foo); // avoid costly retrieval of thread-specific pointer
 
 bool canBeEmbarkmentPoint(const TerrainTile * t, bool fromWater);
-//bool isBlockedBorderGate(int3 tileToHit);
 bool isObjectPassable(const CGObjectInstance * obj);
 bool isObjectPassable(const CGObjectInstance * obj, PlayerColor playerColor, PlayerRelations::PlayerRelations objectRelations);
 bool isBlockVisitObj(const int3 & pos);
@@ -183,6 +182,9 @@ bool compareArmyStrength(const CArmedInstance * a1, const CArmedInstance * a2);
 bool compareArtifacts(const CArtifactInstance * a1, const CArtifactInstance * a2);
 
 uint64_t timeElapsed(boost::chrono::time_point<boost::chrono::steady_clock> start);
+
+// todo: move to obj manager
+bool shouldVisit(const CGHeroInstance * h, const CGObjectInstance * obj);
 
 class CDistanceSorter
 {

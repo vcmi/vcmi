@@ -68,8 +68,7 @@ namespace Goals
 		static Goals::TGoalVec getVisitGoals(const std::vector<AIPath> & paths, const CGObjectInstance * objToVisit = nullptr);
 
 	private:
-		bool shouldVisitObject(const CGObjectInstance * obj) const;
-		static bool shouldVisit(HeroPtr h, const CGObjectInstance * obj);
+		bool objectMatchesFilter(const CGObjectInstance * obj) const;
 	};
 }
 
