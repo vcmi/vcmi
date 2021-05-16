@@ -410,6 +410,12 @@ void AINodeStorage::calculateHeroChain(
 		if((node->actor->chainMask & chainMask) == 0 && (srcNode->actor->chainMask & chainMask) == 0)
 			continue;
 
+		if(node->action == CGPathNode::ENodeAction::BATTLE
+			|| node->action == CGPathNode::ENodeAction::TELEPORT_BATTLE)
+		{
+			continue;
+		}
+
 		if(node->turns > heroChainTurn 
 			|| (node->action == CGPathNode::ENodeAction::UNKNOWN && node->actor->hero)
 			|| (node->actor->chainMask & srcNode->actor->chainMask) != 0)
@@ -635,7 +641,9 @@ void AINodeStorage::setTownsAndDwellings(
 	{
 		uint64_t mask = 1 << actors.size();
 
-		if(!town->garrisonHero || ai->nullkiller->getHeroLockedReason(town->garrisonHero) != HeroLockedReason::DEFENCE)
+		// TODO: investigate logix of second condition || ai->nullkiller->getHeroLockedReason(town->garrisonHero) != HeroLockedReason::DEFENCE
+		// check defence imrove
+		if(!town->garrisonHero)
 		{
 			actors.push_back(std::make_shared<TownGarrisonActor>(town, mask));
 		}
@@ -1117,6 +1125,20 @@ uint64_t AIPath::getTotalDanger() const
 	uint64_t danger = pathDanger > targetObjectDanger ? pathDanger : targetObjectDanger;
 
 	return danger;
+}
+
+bool AIPath::containsHero(const CGHeroInstance * hero) const
+{
+	if(targetHero == hero)
+		return true;
+
+	for(auto node : nodes)
+	{
+		if(node.targetHero == hero)
+			return true;
+	}
+
+	return false;
 }
 
 uint64_t AIPath::getTotalArmyLoss() const

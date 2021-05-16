@@ -96,16 +96,7 @@ void ExecuteHeroChain::accept(VCAI * ai)
 					{
 						auto specialGoal = node.specialAction->whatToDo(hero);
 
-						try
-						{
-							specialGoal->accept(ai);
-						}
-						catch(cannotFulfillGoalException e)
-						{
-							logAi->warn("Can not complete %s because of an exception: %s", specialGoal->name(), e.what());
-
-							throw;
-						}
+						specialGoal->accept(ai);
 					}
 					else
 					{

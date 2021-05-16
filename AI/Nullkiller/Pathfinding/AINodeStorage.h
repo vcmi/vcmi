@@ -82,6 +82,8 @@ struct AIPath
 	std::string toString() const;
 
 	std::shared_ptr<const ISpecialAction> AIPath::getFirstBlockedAction() const;
+
+	bool containsHero(const CGHeroInstance * hero) const;
 };
 
 struct ExchangeCandidate : public AIPathNode
