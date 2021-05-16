@@ -14,8 +14,6 @@
 #include "../../../lib/mapping/CMap.h"
 #include "../Engine/Nullkiller.h"
 
-std::shared_ptr<AINodeStorage> AIPathfinder::storage;
-
 AIPathfinder::AIPathfinder(CPlayerSpecificInfoCallback * cb, Nullkiller * ai)
 	:cb(cb), ai(ai)
 {
