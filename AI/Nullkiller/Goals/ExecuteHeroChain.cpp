@@ -103,36 +103,38 @@ void ExecuteHeroChain::accept(VCAI * ai)
 					if(!targetNode->accessible || targetNode->turns != 0)
 					{
 						logAi->error(
-							"Enable to complete chain. Expected hero %s to arive to %s but he in 0 turns but he can not do this",
+							"Enable to complete chain. Expected hero %s to arive to %s in 0 turns but he can not do this",
 							hero.name,
-							node.coord.toString(),
-							hero->visitablePos().toString());
+							node.coord.toString());
 
 						return;
 					}
 				}
 
-				try
+				if(hero->movement)
 				{
-					Goals::VisitTile(node.coord).sethero(hero).accept(ai);
-				}
-				catch(cannotFulfillGoalException)
-				{
-					if(hero->movement > 0)
+					try
 					{
-						CGPath path;
-						bool isOk = cb->getPathsInfo(hero.get())->getPath(path, node.coord);
-
-						if(isOk && path.nodes.back().turns > 0)
-						{
-							logAi->warn("Hero %s has %d mp which is not enough to continue his way towards %s.", hero.name, hero->movement, node.coord.toString());
-
-							ai->nullkiller->lockHero(hero.get());
-							return;
-						}
+						Goals::VisitTile(node.coord).sethero(hero).accept(ai);
 					}
+					catch(cannotFulfillGoalException)
+					{
+						if(hero->movement > 0)
+						{
+							CGPath path;
+							bool isOk = cb->getPathsInfo(hero.get())->getPath(path, node.coord);
 
-					throw;
+							if(isOk && path.nodes.back().turns > 0)
+							{
+								logAi->warn("Hero %s has %d mp which is not enough to continue his way towards %s.", hero.name, hero->movement, node.coord.toString());
+
+								ai->nullkiller->lockHero(hero.get());
+								return;
+							}
+						}
+
+						throw;
+					}
 				}
 			}
 

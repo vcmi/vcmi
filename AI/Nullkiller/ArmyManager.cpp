@@ -110,37 +110,49 @@ bool ArmyManager::canGetArmy(const CArmedInstance * target, const CArmedInstance
 ui64 ArmyManager::howManyReinforcementsCanBuy(const CCreatureSet * h, const CGDwelling * t) const
 {
 	ui64 aivalue = 0;
-	TResources availableRes = cb->getResourceAmount();
-	int freeHeroSlots = GameConstants::ARMY_SIZE - h->stacksCount();
+	auto army = getArmyAvailableToBuy(h, t);
 
-	for(auto const dc : t->creatures)
+	for(const creInfo & ci : army)
 	{
-		creInfo ci = infoFromDC(dc);
+		aivalue += ci.count * ci.cre->AIValue;
+	}
+
+	return aivalue;
+}
+
+std::vector<creInfo> ArmyManager::getArmyAvailableToBuy(const CCreatureSet * hero, const CGDwelling * dwelling) const
+{
+	auto availableRes = cb->getResourceAmount();
+	std::vector<creInfo> creaturesInDwellings;
+	int freeHeroSlots = GameConstants::ARMY_SIZE - hero->stacksCount();
+
+	for(int i = dwelling->creatures.size() - 1; i >= 0; i--)
+	{
+		auto ci = infoFromDC(dwelling->creatures[i]);
 
 		if(!ci.count || ci.creID == -1)
 			continue;
 
+		SlotID dst = hero->getSlotFor(ci.creID);
+		if(!hero->hasStackAtSlot(dst)) //need another new slot for this stack
+		{
+			if(!freeHeroSlots) //no more place for stacks
+				continue;
+			else
+				freeHeroSlots--; //new slot will be occupied
+		}
+
 		vstd::amin(ci.count, availableRes / ci.cre->cost); //max count we can afford
 
-		if(ci.count && ci.creID != -1) //valid creature at this level
-		{
-			//can be merged with another stack?
-			SlotID dst = h->getSlotFor(ci.creID);
-			if(!h->hasStackAtSlot(dst)) //need another new slot for this stack
-			{
-				if(!freeHeroSlots) //no more place for stacks
-					continue;
-				else
-					freeHeroSlots--; //new slot will be occupied
-			}
+		if(!ci.count)
+			continue;
 
-			//we found matching occupied or free slot
-			aivalue += ci.count * ci.cre->AIValue;
-			availableRes -= ci.cre->cost * ci.count;
-		}
+		ci.level = i; //this is important for Dungeon Summoning Portal
+		creaturesInDwellings.push_back(ci);
+		availableRes -= ci.cre->cost * ci.count;
 	}
 
-	return aivalue;
+	return creaturesInDwellings;
 }
 
 ui64 ArmyManager::howManyReinforcementsCanGet(const CCreatureSet * target, const CCreatureSet * source) const
