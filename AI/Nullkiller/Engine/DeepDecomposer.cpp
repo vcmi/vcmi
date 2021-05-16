@@ -139,6 +139,21 @@ Goals::TSubgoal DeepDecomposer::unwrapComposition(Goals::TSubgoal goal)
 	return goal->goalType == Goals::COMPOSITION ? goal->decompose().back() : goal;
 }
 
+bool isEquivalentGoals(TSubgoal goal1, TSubgoal goal2)
+{
+	if(goal1 == goal2) return true;
+
+	if(goal1->goalType == Goals::CAPTURE_OBJECT && goal2->goalType == Goals::CAPTURE_OBJECT)
+	{
+		auto o1 = cb->getObj(ObjectInstanceID(goal1->objid));
+		auto o2 = cb->getObj(ObjectInstanceID(goal2->objid));
+
+		return o1->ID == Obj::SHIPYARD && o1->ID == o2->ID;
+	}
+
+	return false;
+}
+
 bool DeepDecomposer::isCompositionLoop(TSubgoal goal)
 {
 	auto goalsToTest = goal->goalType == Goals::COMPOSITION ? goal->decompose() : TGoalVec{goal};
@@ -149,7 +164,7 @@ bool DeepDecomposer::isCompositionLoop(TSubgoal goal)
 		{
 			auto parent = unwrapComposition(goals[i].back());
 
-			if(parent == goalToTest)
+			if(isEquivalentGoals(parent, goalToTest))
 			{
 				return true;
 			}

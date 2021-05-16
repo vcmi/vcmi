@@ -29,6 +29,7 @@ set(VCAI_SRCS
 		Goals/BuyArmy.cpp
 		Goals/AdventureSpellCast.cpp
 		Goals/Trade.cpp
+		Goals/CaptureObject.cpp
 		Goals/RecruitHero.cpp
 		Goals/DigAtTile.cpp
 		Goals/ExecuteHeroChain.cpp
@@ -89,6 +90,7 @@ set(VCAI_HEADERS
 		Goals/BuyArmy.h
 		Goals/AdventureSpellCast.h
 		Goals/Trade.h
+		Goals/CaptureObject.h
 		Goals/RecruitHero.h
 		Goals/DigAtTile.h
 		Goals/ExecuteHeroChain.h

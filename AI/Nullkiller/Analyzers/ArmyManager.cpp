@@ -108,7 +108,7 @@ std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier,
 		// army bonuses will change and object bonuses are temporary
 		if(bonus->source != Bonus::ARMY || bonus->source != Bonus::OBJECT)
 		{
-			newArmyInstance.addNewBonus(bonus);
+			newArmyInstance.addNewBonus(std::make_shared<Bonus>(*bonus));
 		}
 	}
 
