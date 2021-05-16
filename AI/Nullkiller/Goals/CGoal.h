@@ -83,12 +83,12 @@ namespace Goals
 	template<typename T> class DLL_EXPORT ElementarGoal : public CGoal<T>, public ITask
 	{
 	public:
-		ElementarGoal<T>(EGoals goal = INVALID) : CGoal(goal), ITask()
+		ElementarGoal<T>(EGoals goal = INVALID) : CGoal<T>(goal), ITask()
 		{
-			isAbstract = false;
+			AbstractGoal::isAbstract = false;
 		}
 
-		ElementarGoal<T>(const ElementarGoal<T> & other) : CGoal(other), ITask(other)
+		ElementarGoal<T>(const ElementarGoal<T> & other) : CGoal<T>(other), ITask(other)
 		{
 		}
 
@@ -101,7 +101,7 @@ namespace Goals
 
 		T & setpriority(float p)
 		{
-			priority = p;
+			ITask::priority = p;
 
 			return *((T *)this);
 		}
