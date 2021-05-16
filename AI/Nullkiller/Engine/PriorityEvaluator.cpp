@@ -201,10 +201,10 @@ float getEnemyHeroStrategicalValue(const CGHeroInstance * enemy)
 
 	for(auto obj : objectsUnderTreat)
 	{
-		objectValue += getStrategicalValue(obj);
+		vstd::amax(objectValue, getStrategicalValue(obj));
 	}
 
-	return objectValue + enemy->level / 15.0f;
+	return objectValue / 2.0f + enemy->level / 15.0f;
 }
 
 float getStrategicalValue(const CGObjectInstance * target)
@@ -400,7 +400,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task)
 	assert(result >= 0);
 
 #ifdef VCMI_TRACE_PATHFINDER
-	logAi->trace("Evaluated %s, hero %s, loss: %f, turns: %f, gold: %d, army gain: %d, danger: %d, role: %s, result %f",
+	logAi->trace("Evaluated %s, hero %s, loss: %f, turns: %f, gold: %d, army gain: %d, danger: %d, role: %s, strategical value: %f, result %f",
 		task->name(),
 		hero->name,
 		armyLossPersentage,
@@ -409,6 +409,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task)
 		armyReward,
 		danger,
 		heroRole ? "scout" : "main",
+		strategicalValue,
 		result);
 #endif
 

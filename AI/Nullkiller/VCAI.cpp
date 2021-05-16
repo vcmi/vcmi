@@ -546,14 +546,21 @@ void VCAI::objectPropertyChanged(const SetObjectProperty * sop)
 	NET_EVENT_HANDLER;
 	if(sop->what == ObjProperty::OWNER)
 	{
-		if(myCb->getPlayerRelations(playerID, (PlayerColor)sop->val) == PlayerRelations::ENEMIES)
+		auto relations = myCb->getPlayerRelations(playerID, (PlayerColor)sop->val);
+		auto obj = myCb->getObj(sop->id, false);
+
+		if(obj)
 		{
-			//we want to visit objects owned by oppponents
-			auto obj = myCb->getObj(sop->id, false);
-			if(obj)
+			if(relations == PlayerRelations::ENEMIES)
 			{
+				//we want to visit objects owned by oppponents
 				addVisitableObj(obj); // TODO: Remove once save compatability broken. In past owned objects were removed from this set
 				vstd::erase_if_present(alreadyVisited, obj);
+			}
+			else if(relations == PlayerRelations::SAME_PLAYER && obj->ID == Obj::TOWN && nullkiller)
+			{
+				// reevaluate defence for a new town
+				nullkiller->dangerHitMap->reset();
 			}
 		}
 	}

@@ -227,13 +227,25 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 					priority);
 #endif
 
-				tasks.push_back(Goals::sptr(Goals::ExchangeSwapTownHeroes(town, town->visitingHero.get()).setpriority(priority)));
+				tasks.push_back(Goals::sptr(Goals::ExchangeSwapTownHeroes(town, town->visitingHero.get(), HeroLockedReason::DEFENCE).setpriority(priority)));
 
 				continue;
 			}
 				
 			if(path.turn() <= treat.turn && path.getHeroStrength() * SAFE_ATTACK_CONSTANT >= treat.danger)
 			{
+				if(ai->nullkiller->arePathHeroesLocked(path))
+				{
+#if AI_TRACE_LEVEL >= 1
+					logAi->trace("Can not move %s to defend town %s with priority %f. Path is locked.",
+						path.targetHero->name,
+						town->name,
+						priority);
+
+#endif
+					continue;
+				}
+
 #if AI_TRACE_LEVEL >= 1
 				logAi->trace("Move %s to defend town %s with priority %f",
 					path.targetHero->name,
@@ -242,8 +254,6 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 #endif
 
 				tasks.push_back(Goals::sptr(Goals::ExecuteHeroChain(path, town).setpriority(priority)));
-
-				continue;
 			}
 		}
 	}

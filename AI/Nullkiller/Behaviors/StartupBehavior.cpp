@@ -18,6 +18,7 @@
 #include "lib/mapping/CMap.h" //for victory conditions
 #include "lib/mapObjects/MapObjects.h" //for victory conditions
 #include "lib/CPathfinder.h"
+#include "../Engine/Nullkiller.h"
 
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<VCAI> ai;
@@ -147,17 +148,17 @@ Goals::TGoalVec StartupBehavior::getTasks()
 				{
 					if(canRecruitHero || ai->ah->howManyReinforcementsCanGet(visitingHero, garrisonHero) > 200)
 					{
-						tasks.push_back(Goals::sptr(ExchangeSwapTownHeroes(startupTown, visitingHero).setpriority(100)));
+						tasks.push_back(Goals::sptr(ExchangeSwapTownHeroes(startupTown, visitingHero, HeroLockedReason::STARTUP).setpriority(100)));
 					}
 				}
 				else if(ai->ah->howManyReinforcementsCanGet(garrisonHero, visitingHero) > 200)
 				{
-					tasks.push_back(Goals::sptr(ExchangeSwapTownHeroes(startupTown, garrisonHero).setpriority(100)));
+					tasks.push_back(Goals::sptr(ExchangeSwapTownHeroes(startupTown, garrisonHero, HeroLockedReason::STARTUP).setpriority(100)));
 				}
 			}
 			else if(canRecruitHero)
 			{
-				tasks.push_back(Goals::sptr(ExchangeSwapTownHeroes(startupTown, visitingHero).setpriority(100)));
+				tasks.push_back(Goals::sptr(ExchangeSwapTownHeroes(startupTown, visitingHero, HeroLockedReason::STARTUP).setpriority(100)));
 			}
 		}
 	}
@@ -171,7 +172,7 @@ Goals::TGoalVec StartupBehavior::getTasks()
 	{
 		for(const CGTownInstance * town : towns)
 		{
-			if(town->garrisonHero && town->garrisonHero->movement)
+			if(town->garrisonHero && town->garrisonHero->movement && ai->nullkiller->getHeroLockedReason(town->garrisonHero) != HeroLockedReason::DEFENCE)
 				tasks.push_back(Goals::sptr(ExchangeSwapTownHeroes(town, nullptr).setpriority(0.0001f)));
 		}
 	}

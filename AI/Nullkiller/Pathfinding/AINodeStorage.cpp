@@ -77,7 +77,8 @@ void AINodeStorage::clear()
 {
 	actors.clear();
 	heroChainPass = false;
-	heroChainTurn = 1;
+	heroChainTurn = 0;
+	heroChainMaxTurns = 1;
 }
 
 const AIPathNode * AINodeStorage::getAINode(const CGPathNode * node) const
@@ -249,6 +250,16 @@ std::vector<CGPathNode *> AINodeStorage::calculateNeighbours(
 	}
 	
 	return neighbours;
+}
+
+bool AINodeStorage::increaseHeroChainTurnLimit()
+{
+	if(heroChainTurn >= heroChainMaxTurns)
+		return false;
+
+	heroChainTurn++;
+
+	return true;
 }
 
 bool AINodeStorage::calculateHeroChain()

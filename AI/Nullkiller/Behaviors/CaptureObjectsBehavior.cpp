@@ -99,7 +99,7 @@ Goals::TGoalVec CaptureObjectsBehavior::getTasks()
 				auto hero = path.targetHero;
 				auto danger = path.getTotalDanger();
 
-				if(danger == 0 && path.exchangeCount > 1)
+				if(ai->ah->getHeroRole(hero) == HeroRole::SCOUT && danger == 0 && path.exchangeCount > 1)
 					continue;
 
 				auto isSafe = isSafeToVisit(hero, path.heroArmy, danger);
@@ -131,13 +131,13 @@ Goals::TGoalVec CaptureObjectsBehavior::getTasks()
 
 			for(auto way : waysToVisitObj)
 			{
+				if(ai->nullkiller->arePathHeroesLocked(way->getPath()))
+					continue;
+
 				way->evaluationContext.closestWayRatio
 					= way->evaluationContext.movementCost / closestWay->evaluationContext.movementCost;
 
-				if(way->hero && ai->nullkiller->canMove(way->hero.h))
-				{
-					tasks.push_back(sptr(*way));
-				}
+				tasks.push_back(sptr(*way));
 			}
 		}
 	};
