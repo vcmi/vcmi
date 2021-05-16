@@ -69,7 +69,7 @@ void ExecuteHeroChain::accept(VCAI * ai)
 		if(vstd::contains(blockedIndexes, i))
 		{
 			blockedIndexes.insert(node.parentIndex);
-			ai->nullkiller->lockHero(hero);
+			ai->nullkiller->lockHero(hero.get());
 
 			continue;
 		}
@@ -80,21 +80,27 @@ void ExecuteHeroChain::accept(VCAI * ai)
 		{
 			if(hero->movement)
 			{
-				ai->nullkiller->setActive(hero);
+				ai->nullkiller->setActive(hero.get());
 
 				if(node.specialAction)
 				{
-					auto specialGoal = node.specialAction->whatToDo(hero);
+					if(node.specialAction->canAct(hero.get()))
+					{
+						auto specialGoal = node.specialAction->whatToDo(hero);
 
-					if(specialGoal->isElementar)
 						specialGoal->accept(ai);
+					}
+					else
+					{
+						//TODO: decompose
+					}
 				}
 
 				Goals::VisitTile(node.coord).sethero(hero).accept(ai);
 			}
 
 			// no exception means we were not able to rich the tile
-			ai->nullkiller->lockHero(hero);
+			ai->nullkiller->lockHero(hero.get());
 			blockedIndexes.insert(node.parentIndex);
 		}
 		catch(goalFulfilledException)

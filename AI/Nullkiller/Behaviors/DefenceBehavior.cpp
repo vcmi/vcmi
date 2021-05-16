@@ -62,7 +62,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 
 	if(town->garrisonHero)
 	{
-		if(ai->nullkiller->isActive(town->garrisonHero.get()))
+		if(!ai->nullkiller->isHeroLocked(town->garrisonHero.get()))
 		{
 			tasks.push_back(Goals::sptr(Goals::ExchangeSwapTownHeroes(town, nullptr).setpriority(5)));
 			return;
@@ -70,8 +70,8 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 
 		logAi->debug(
 			"Hero %s in garrison of town %s is suposed to defend the town",
-			town->name,
-			town->garrisonHero->name);
+			town->garrisonHero->name,
+			town->name);
 
 		return;
 	}
@@ -107,9 +107,13 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 	{
 		for(auto & treat : treats)
 		{
-			if(path.turn() < treat.turn && isSafeToVisit(path.targetHero, path.heroArmy, treat.danger))
+			if(isSafeToVisit(path.targetHero, path.heroArmy, treat.danger))
 			{
-				logAi->debug("Town %s is not in danger.", town->name);
+				logAi->debug(
+					"Hero %s can eliminate danger for town %s using path %s.", 
+					path.targetHero->name,
+					town->name,
+					path.toString());
 
 				return;
 			}
@@ -141,15 +145,18 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 			if(path.targetHero == town->visitingHero && path.exchangeCount == 1)
 			{
 #if AI_TRACE_LEVEL >= 1
-				logAi->trace("Put %s to garrison of town %s with priority %f", 
+				logAi->trace("Put %s to garrison of town %s with priority %f",
 					path.targetHero->name,
 					town->name,
 					priority);
 #endif
 
 				tasks.push_back(Goals::sptr(Goals::ExchangeSwapTownHeroes(town, town->visitingHero.get()).setpriority(priority)));
+
+				continue;
 			}
-			else if(path.getHeroStrength() * SAFE_ATTACK_CONSTANT >= treat.danger)
+				
+			if(path.getHeroStrength() * SAFE_ATTACK_CONSTANT >= treat.danger)
 			{
 #if AI_TRACE_LEVEL >= 1
 				logAi->trace("Move %s to defend town %s with priority %f",
@@ -159,6 +166,8 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 #endif
 
 				tasks.push_back(Goals::sptr(Goals::ExecuteHeroChain(path, town).setpriority(priority)));
+
+				continue;
 			}
 		}
 	}

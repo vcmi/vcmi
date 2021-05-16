@@ -18,18 +18,19 @@ class Nullkiller
 {
 private:
 	std::unique_ptr<PriorityEvaluator> priorityEvaluator;
-	HeroPtr activeHero;
-	std::set<HeroPtr> lockedHeroes;
+	const CGHeroInstance * activeHero;
+	std::set<const CGHeroInstance *> lockedHeroes;
 
 public:
 	std::unique_ptr<DangerHitMapAnalyzer> dangerHitMap;
 
 	Nullkiller();
 	void makeTurn();
-	bool isActive(const CGHeroInstance * hero) const { return activeHero.h == hero; }
-	void setActive(const HeroPtr & hero) { activeHero = hero; }
-	void lockHero(const HeroPtr & hero) { lockedHeroes.insert(hero); }
-	void unlockHero(const HeroPtr & hero) { lockedHeroes.erase(hero); }
+	bool isActive(const CGHeroInstance * hero) const { return activeHero == hero; }
+	bool isHeroLocked(const CGHeroInstance * hero) const { return vstd::contains(lockedHeroes, hero); }
+	void setActive(const CGHeroInstance * hero) { activeHero = hero; }
+	void lockHero(const CGHeroInstance * hero) { lockedHeroes.insert(hero); }
+	void unlockHero(const CGHeroInstance * hero) { lockedHeroes.erase(hero); }
 
 private:
 	void resetAiState();

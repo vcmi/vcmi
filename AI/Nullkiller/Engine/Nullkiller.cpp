@@ -77,8 +77,8 @@ void Nullkiller::updateAiState()
 	// TODO: move to hero manager
 	auto activeHeroes = ai->getMyHeroes();
 
-	vstd::erase_if(activeHeroes, [&](const HeroPtr & hero) -> bool{
-		return vstd::contains(lockedHeroes, hero);
+	vstd::erase_if(activeHeroes, [this](const HeroPtr & hero) -> bool{
+		return isHeroLocked(hero.h);
 	});
 
 	ai->ah->updatePaths(activeHeroes, true);
@@ -96,13 +96,16 @@ void Nullkiller::makeTurn()
 		Goals::TGoalVec bestTasks = {
 			choseBestTask(std::make_shared<BuyArmyBehavior>()),
 			choseBestTask(std::make_shared<CaptureObjectsBehavior>()),
-			choseBestTask(std::make_shared<RecruitHeroBehavior>()),
-			choseBestTask(std::make_shared<DefenceBehavior>())
+			choseBestTask(std::make_shared<RecruitHeroBehavior>())
 		};
 
 		if(cb->getDate(Date::DAY) == 1)
 		{
 			bestTasks.push_back(choseBestTask(std::make_shared<StartupBehavior>()));
+		}
+		else
+		{
+			bestTasks.push_back(choseBestTask(std::make_shared<DefenceBehavior>()));
 		}
 
 		Goals::TSubgoal bestTask = choseBestTask(bestTasks);
@@ -118,7 +121,7 @@ void Nullkiller::makeTurn()
 
 		try
 		{
-			activeHero = bestTask->hero;
+			activeHero = bestTask->hero.get();
 
 			bestTask->accept(ai.get());
 		}
