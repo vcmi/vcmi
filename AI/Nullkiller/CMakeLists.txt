@@ -51,13 +51,15 @@ set(VCAI_SRCS
 		Goals/ExchangeSwapTownHeroes.cpp
 		Engine/Nullkiller.cpp
 		Engine/PriorityEvaluator.cpp
-		Engine/DangerHitMapAnalyzer.cpp
+		Analyzers/DangerHitMapAnalyzer.cpp
+		Analyzers/BuildAnalyzer.cpp
 		Behaviors/Behavior.cpp
 		Behaviors/CaptureObjectsBehavior.cpp
 		Behaviors/RecruitHeroBehavior.cpp
 		Behaviors/BuyArmyBehavior.cpp
 		Behaviors/DefenceBehavior.cpp
 		Behaviors/StartupBehavior.cpp
+		Behaviors/BuildingBehavior.cpp
 		main.cpp
 		VCAI.cpp
 )
@@ -119,13 +121,15 @@ set(VCAI_HEADERS
 		Goals/Goals.h
 		Engine/Nullkiller.h
 		Engine/PriorityEvaluator.h
-		Engine/DangerHitMapAnalyzer.h
+		Analyzers/DangerHitMapAnalyzer.h
+		Analyzers/BuildAnalyzer.h
 		Behaviors/Behavior.h
 		Behaviors/CaptureObjectsBehavior.h
 		Behaviors/RecruitHeroBehavior.h
 		Behaviors/BuyArmyBehavior.h
 		Behaviors/DefenceBehavior.h
 		Behaviors/StartupBehavior.h
+		Behaviors/BuildingBehavior.h
 		VCAI.h
 )
 
