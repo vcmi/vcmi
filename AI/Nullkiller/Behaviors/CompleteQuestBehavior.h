@@ -16,33 +16,33 @@
 
 namespace Goals
 {
-	class CompleteQuestBehavior : public CGoal<CompleteQuestBehavior>
+	class CompleteQuest : public CGoal<CompleteQuest>
 	{
+	private:
+		QuestInfo q;
+
 	public:
-		CompleteQuestBehavior()
-			:CGoal(COMPLETE_QUEST)
+		CompleteQuest(const QuestInfo & quest)
+			:CGoal(COMPLETE_QUEST), q(quest)
 		{
 		}
 
 		virtual Goals::TGoalVec decompose() const override;
 		virtual std::string toString() const override;
 
-		virtual bool operator==(const CompleteQuestBehavior & other) const override
-		{
-			return true;
-		}
+		virtual bool operator==(const CompleteQuest & other) const override;
 
 	private:
-		TGoalVec getQuestTasks(const QuestInfo & q) const;
-		TGoalVec tryCompleteQuest(const QuestInfo & q) const;
-		TGoalVec missionArt(const QuestInfo & q) const;
-		TGoalVec missionHero(const QuestInfo & q) const;
-		TGoalVec missionArmy(const QuestInfo & q) const;
-		TGoalVec missionResources(const QuestInfo & q) const;
-		TGoalVec missionDestroyObj(const QuestInfo & q) const;
-		TGoalVec missionIncreasePrimaryStat(const QuestInfo & q) const;
-		TGoalVec missionLevel(const QuestInfo & q) const;
-		TGoalVec missionKeymaster(const QuestInfo & q) const;
-		std::string questToString(const QuestInfo & q) const;
+		TGoalVec getQuestTasks() const;
+		TGoalVec tryCompleteQuest() const;
+		TGoalVec missionArt() const;
+		TGoalVec missionHero() const;
+		TGoalVec missionArmy() const;
+		TGoalVec missionResources() const;
+		TGoalVec missionDestroyObj() const;
+		TGoalVec missionIncreasePrimaryStat() const;
+		TGoalVec missionLevel() const;
+		TGoalVec missionKeymaster() const;
+		std::string questToString() const;
 	};
 }

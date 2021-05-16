@@ -582,12 +582,15 @@ void VCAI::showBlockingDialog(const std::string & text, const std::vector<Compon
 		{
 			//yes&no -> always answer yes, we are a brave AI :)
 			auto answer = 1;
-			if(nullkiller)
-			{
-				auto hero = nullkiller->getActiveHero();
-				auto target = nullkiller->getTargetTile();
+			auto hero = nullkiller->getActiveHero();
+			auto target = nullkiller->getTargetTile();
+			auto objects = cb->getVisitableObjs(target);
 
-				if(hero.validAndSet() && target.valid())
+			if(hero.validAndSet() && target.valid() && objects.size())
+			{
+				auto objType = objects.front()->ID;
+
+				if(objType == Obj::ARTIFACT || objType == Obj::RESOURCE)
 				{
 					auto ratio = (float)fh->evaluateDanger(target, hero.get()) / (float)hero->getTotalStrength();
 					bool dangerUnknown = ratio == 0;

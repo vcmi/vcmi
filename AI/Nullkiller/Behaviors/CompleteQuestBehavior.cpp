@@ -1,5 +1,5 @@
 /*
-* CompleteQuestBehavior.cpp, part of VCMI engine
+* CompleteQuest.cpp, part of VCMI engine
 *
 * Authors: listed in file AUTHORS in main folder
 *
@@ -21,57 +21,59 @@ extern FuzzyHelper * fh;
 
 using namespace Goals;
 
-std::string CompleteQuestBehavior::toString() const
+std::string CompleteQuest::toString() const
 {
-	return "Complete Quests";
+	return "Complete quest " + questToString();
 }
 
-TGoalVec CompleteQuestBehavior::decompose() const
+TGoalVec CompleteQuest::decompose() const
 {
-	TGoalVec solutions;
+	/*TGoalVec solutions;
 
 	auto quests = cb->getMyQuests();
 
 	for(auto & q : quests)
 	{
-		if(q.quest->missionType == CQuest::MISSION_NONE || q.quest->progress == CQuest::COMPLETE)
+		if(q.quest->missionType == CQuest::MISSION_NONE
+			|| q.quest->progress == CQuest::COMPLETE)
 		{
 			continue;
 		}
 
-		vstd::concatenate(solutions, getQuestTasks(q));
+		vstd::concatenate(solutions, getQuestTasks());
 	}
 
-	return solutions;
-}
+	return solutions;*/
+	logAi->debug("Trying to realize quest: %s", questToString());
 
-TGoalVec CompleteQuestBehavior::getQuestTasks(const QuestInfo & q) const
-{
-	logAi->debug("Trying to realize quest: %s", questToString(q));
+	if(q.obj && (q.obj->ID == Obj::BORDER_GATE || q.obj->ID == Obj::BORDERGUARD))
+	{
+		return missionKeymaster();
+	}
 
 	switch(q.quest->missionType)
 	{
 	case CQuest::MISSION_ART:
-		return missionArt(q);
+		return missionArt();
 
 	case CQuest::MISSION_HERO:
-		return missionHero(q);
+		return missionHero();
 
 	case CQuest::MISSION_ARMY:
-		return missionArmy(q);
+		return missionArmy();
 
 	case CQuest::MISSION_RESOURCES:
-		return missionResources(q);
+		return missionResources();
 
 	case CQuest::MISSION_KILL_HERO:
 	case CQuest::MISSION_KILL_CREATURE:
-		return missionDestroyObj(q);
+		return missionDestroyObj();
 
 	case CQuest::MISSION_PRIMARY_STAT:
-		return missionIncreasePrimaryStat(q);
+		return missionIncreasePrimaryStat();
 
 	case CQuest::MISSION_LEVEL:
-		return missionLevel(q);
+		return missionLevel();
 
 	case CQuest::MISSION_PLAYER:
 		if(ai->playerID.getNum() != q.quest->m13489val)
@@ -80,14 +82,19 @@ TGoalVec CompleteQuestBehavior::getQuestTasks(const QuestInfo & q) const
 		break;
 
 	case CQuest::MISSION_KEYMASTER:
-		return missionKeymaster(q);
+		return missionKeymaster();
 
 	} //end of switch
 
 	return TGoalVec();
 }
 
-std::string CompleteQuestBehavior::questToString(const QuestInfo & q) const
+bool CompleteQuest::operator==(const CompleteQuest & other) const
+{
+	return q.quest->qid == other.q.quest->qid;
+}
+
+std::string CompleteQuest::questToString() const
 {
 	if(q.quest->missionType == CQuest::MISSION_NONE)
 		return "inactive quest";
@@ -98,7 +105,7 @@ std::string CompleteQuestBehavior::questToString(const QuestInfo & q) const
 	return ms.toString();
 }
 
-TGoalVec CompleteQuestBehavior::tryCompleteQuest(const QuestInfo & q) const
+TGoalVec CompleteQuest::tryCompleteQuest() const
 {
 	TGoalVec solutions;
 
@@ -115,9 +122,9 @@ TGoalVec CompleteQuestBehavior::tryCompleteQuest(const QuestInfo & q) const
 	return solutions;
 }
 
-TGoalVec CompleteQuestBehavior::missionArt(const QuestInfo & q) const
+TGoalVec CompleteQuest::missionArt() const
 {
-	TGoalVec solutions = tryCompleteQuest(q);
+	TGoalVec solutions = tryCompleteQuest();
 
 	if(!solutions.empty())
 		return solutions;
@@ -130,9 +137,9 @@ TGoalVec CompleteQuestBehavior::missionArt(const QuestInfo & q) const
 	return solutions;
 }
 
-TGoalVec CompleteQuestBehavior::missionHero(const QuestInfo & q) const
+TGoalVec CompleteQuest::missionHero() const
 {
-	TGoalVec solutions = tryCompleteQuest(q);
+	TGoalVec solutions = tryCompleteQuest();
 
 	if(solutions.empty())
 	{
@@ -143,9 +150,9 @@ TGoalVec CompleteQuestBehavior::missionHero(const QuestInfo & q) const
 	return solutions;
 }
 
-TGoalVec CompleteQuestBehavior::missionArmy(const QuestInfo & q) const
+TGoalVec CompleteQuest::missionArmy() const
 {
-	TGoalVec solutions = tryCompleteQuest(q);
+	TGoalVec solutions = tryCompleteQuest();
 
 	if(!solutions.empty())
 		return solutions;
@@ -158,19 +165,19 @@ TGoalVec CompleteQuestBehavior::missionArmy(const QuestInfo & q) const
 	return solutions;
 }
 
-TGoalVec CompleteQuestBehavior::missionIncreasePrimaryStat(const QuestInfo & q) const
+TGoalVec CompleteQuest::missionIncreasePrimaryStat() const
 {
-	return tryCompleteQuest(q);
+	return tryCompleteQuest();
 }
 
-TGoalVec CompleteQuestBehavior::missionLevel(const QuestInfo & q) const
+TGoalVec CompleteQuest::missionLevel() const
 {
-	return tryCompleteQuest(q);
+	return tryCompleteQuest();
 }
 
-TGoalVec CompleteQuestBehavior::missionKeymaster(const QuestInfo & q) const
+TGoalVec CompleteQuest::missionKeymaster() const
 {
-	TGoalVec solutions = tryCompleteQuest(q);
+	TGoalVec solutions = tryCompleteQuest();
 
 	if(solutions.empty())
 	{
@@ -180,7 +187,7 @@ TGoalVec CompleteQuestBehavior::missionKeymaster(const QuestInfo & q) const
 	return solutions;
 }
 
-TGoalVec CompleteQuestBehavior::missionResources(const QuestInfo & q) const
+TGoalVec CompleteQuest::missionResources() const
 {
 	TGoalVec solutions;
 
@@ -209,7 +216,7 @@ TGoalVec CompleteQuestBehavior::missionResources(const QuestInfo & q) const
 	return solutions;
 }
 
-TGoalVec CompleteQuestBehavior::missionDestroyObj(const QuestInfo & q) const
+TGoalVec CompleteQuest::missionDestroyObj() const
 {
 	auto obj = cb->getObjByQuestIdentifier(q.quest->m13489val);
 

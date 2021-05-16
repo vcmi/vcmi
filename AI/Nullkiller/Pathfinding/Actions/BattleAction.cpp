@@ -31,13 +31,17 @@ namespace AIPathfinding
 
 	bool QuestAction::canAct(const AIPathNode * node) const
 	{
-		QuestInfo q = questInfo;
-		return q.quest->checkQuest(node->actor->hero);
+		if(questInfo.obj->ID == Obj::BORDER_GATE || questInfo.obj->ID == Obj::BORDERGUARD)
+		{
+			return dynamic_cast<const IQuestObject *>(questInfo.obj)->checkQuest(node->actor->hero);
+		}
+
+		return questInfo.quest->checkQuest(node->actor->hero);
 	}
 
 	Goals::TSubgoal QuestAction::decompose(const CGHeroInstance * hero) const
 	{
-		return Goals::sptr(Goals::Invalid());
+		return Goals::sptr(Goals::CompleteQuest(questInfo));
 	}
 
 	void QuestAction::execute(const CGHeroInstance * hero) const
