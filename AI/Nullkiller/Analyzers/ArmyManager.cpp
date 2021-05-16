@@ -80,6 +80,12 @@ std::vector<SlotInfo>::iterator ArmyManager::getWeakestCreature(std::vector<Slot
 	return weakest;
 }
 
+class TemporaryArmy : public CArmedInstance
+{
+public:
+	void armyChanged() override {}
+};
+
 std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier, const CCreatureSet * target, const CCreatureSet * source) const
 {
 	auto sortedSlots = getSortedSlots(target, source);
@@ -94,7 +100,7 @@ std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier,
 	std::vector<SlotInfo> resultingArmy;
 	uint64_t armyValue = 0;
 
-	CArmedInstance newArmyInstance;
+	TemporaryArmy newArmyInstance;
 	auto bonusModifiers = armyCarrier->getBonuses(Selector::type(Bonus::MORALE));
 
 	for(auto bonus : *bonusModifiers)
@@ -133,6 +139,8 @@ std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier,
 			}
 		}
 
+		newArmyInstance.updateMoraleBonusFromArmy();
+
 		for(auto & slot : newArmyInstance.Slots())
 		{
 			auto morale = slot.second->MoraleVal();
@@ -141,6 +149,10 @@ std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier,
 			if(morale < 0)
 			{
 				multiplier += morale * 0.083f;
+			}
+			else if(morale > 0)
+			{
+				multiplier += morale * 0.04f;
 			}
 
 			newValue += multiplier * slot.second->getPower();
