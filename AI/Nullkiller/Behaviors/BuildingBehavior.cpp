@@ -29,7 +29,7 @@ std::string BuildingBehavior::toString() const
 	return "Build";
 }
 
-Goals::TGoalVec BuildingBehavior::getTasks()
+Goals::TGoalVec BuildingBehavior::decompose() const
 {
 	Goals::TGoalVec tasks;
 

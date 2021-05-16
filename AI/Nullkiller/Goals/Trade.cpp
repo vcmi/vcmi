@@ -16,8 +16,3 @@ bool Trade::operator==(const Trade & other) const
 {
 	return resID == other.resID;
 }
-
-TSubgoal Trade::whatToDoToAchieve()
-{
-	return iAmElementar();
-}

@@ -30,9 +30,7 @@ namespace Goals
 			resID = rid;
 			value = val;
 			objid = Objid;
-			priority = 3; //trading is instant, but picking resources is free
 		}
-		TSubgoal whatToDoToAchieve() override;
 		virtual bool operator==(const Trade & other) const override;
 	};
 }

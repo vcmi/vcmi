@@ -10,17 +10,23 @@
 #pragma once
 
 #include "lib/VCMI_Lib.h"
-#include "Behavior.h"
 #include "../AIUtility.h"
+#include "../Goals/CGoal.h"
 
-class BuyArmyBehavior : public Behavior
+namespace Goals
 {
-public:
-	BuyArmyBehavior()
+	class BuyArmyBehavior : public CGoal<BuyArmyBehavior>
 	{
-	}
+	public:
+		BuyArmyBehavior()
+		{
+		}
 
-	virtual Goals::TGoalVec getTasks() override;
-	virtual std::string toString() const override;
-};
-
+		virtual Goals::TGoalVec decompose() const override;
+		virtual std::string toString() const override;
+		virtual bool operator==(const BuyArmyBehavior & other) const override
+		{
+			return true;
+		}
+	};
+}

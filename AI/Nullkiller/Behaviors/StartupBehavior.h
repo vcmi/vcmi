@@ -10,17 +10,25 @@
 #pragma once
 
 #include "lib/VCMI_Lib.h"
-#include "Behavior.h"
+#include "../Goals/CGoal.h"
 #include "../AIUtility.h"
 
-class StartupBehavior : public Behavior
+namespace Goals
 {
-public:
-	StartupBehavior()
+	class StartupBehavior : public CGoal<StartupBehavior>
 	{
-	}
+	public:
+		StartupBehavior()
+		{
+		}
 
-	virtual Goals::TGoalVec getTasks() override;
-	virtual std::string toString() const override;
-};
+		virtual TGoalVec decompose() const override;
+		virtual std::string toString() const override;
+
+		virtual bool operator==(const StartupBehavior & other) const override
+		{
+			return true;
+		}
+	};
+}
 

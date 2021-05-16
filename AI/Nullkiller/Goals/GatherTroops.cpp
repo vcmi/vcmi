@@ -43,30 +43,30 @@ int GatherTroops::getCreaturesCount(const CArmedInstance * army)
 
 	return count;
 }
+//
+//TSubgoal GatherTroops::whatToDoToAchieve()
+//{
+//	logAi->trace("Entering GatherTroops::whatToDoToAchieve");
+//
+//	auto heroes = cb->getHeroesInfo(true);
+//
+//	for(auto hero : heroes)
+//	{
+//		if(getCreaturesCount(hero) >= this->value)
+//		{
+//			logAi->trace("Completing GATHER_TROOPS by hero %s", hero->name);
+//
+//			throw goalFulfilledException(sptr(*this));
+//		}
+//	}
+//
+//	return sptr(Invalid());
+//}
 
-TSubgoal GatherTroops::whatToDoToAchieve()
-{
-	logAi->trace("Entering GatherTroops::whatToDoToAchieve");
-
-	auto heroes = cb->getHeroesInfo(true);
-
-	for(auto hero : heroes)
-	{
-		if(getCreaturesCount(hero) >= this->value)
-		{
-			logAi->trace("Completing GATHER_TROOPS by hero %s", hero->name);
-
-			throw goalFulfilledException(sptr(*this));
-		}
-	}
-
-	return sptr(Invalid());
-}
-
-
-TGoalVec GatherTroops::getAllPossibleSubgoals()
-{
-	TGoalVec solutions;
+//
+//TGoalVec GatherTroops::getAllPossibleSubgoals()
+//{
+//	TGoalVec solutions;
 
 	//for(const CGTownInstance * t : cb->getTownsInfo())
 	//{
@@ -136,6 +136,6 @@ TGoalVec GatherTroops::getAllPossibleSubgoals()
 	//	return goal->hero && !goal->hero->getSlotFor(creID).validSlot() && !goal->hero->getFreeSlot().validSlot();
 	//});
 
-	return solutions;
-	//TODO: exchange troops between heroes
-}
+//	return solutions;
+//	//TODO: exchange troops between heroes
+//}

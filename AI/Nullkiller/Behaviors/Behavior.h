@@ -10,10 +10,10 @@
 #pragma once
 
 #include "../VCAI.h"
+#error REMOVE THIS FILE
 
-class Behavior
+class Behavior : public Goals::AbstractGoal
 {
 public:
-	virtual Goals::TGoalVec getTasks() = 0;
 	virtual std::string toString() const = 0;
 };

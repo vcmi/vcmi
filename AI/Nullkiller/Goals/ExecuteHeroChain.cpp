@@ -24,22 +24,11 @@ extern FuzzyHelper * fh;
 using namespace Goals;
 
 ExecuteHeroChain::ExecuteHeroChain(const AIPath & path, const CGObjectInstance * obj)
-	:CGoal(Goals::EXECUTE_HERO_CHAIN), chainPath(path)
+	:ElementarGoal(Goals::EXECUTE_HERO_CHAIN), chainPath(path)
 {
-	evaluationContext.danger = path.getTotalDanger();
-	evaluationContext.movementCost = path.movementCost();
-	evaluationContext.armyLoss = path.getTotalArmyLoss();
-	evaluationContext.heroStrength = path.getHeroStrength();
 
 	hero = path.targetHero;
 	tile = path.targetTile();
-
-	for(auto & node : path.nodes)
-	{
-		auto role = ai->ah->getHeroRole(node.targetHero);
-
-		evaluationContext.movementCostByRole[role] += node.cost;
-	}
 
 	if(obj)
 	{
@@ -57,14 +46,11 @@ bool ExecuteHeroChain::operator==(const ExecuteHeroChain & other) const
 	return false;
 }
 
-TSubgoal ExecuteHeroChain::whatToDoToAchieve()
-{
-	return iAmElementar();
-}
-
 void ExecuteHeroChain::accept(VCAI * ai)
 {
 	logAi->debug("Executing hero chain towards %s. Path %s", targetName, chainPath.toString());
+
+	ai->nullkiller->setActive(chainPath.targetHero, tile);
 
 	std::set<int> blockedIndexes;
 
@@ -89,7 +75,6 @@ void ExecuteHeroChain::accept(VCAI * ai)
 		{
 			if(hero->movement)
 			{
-
 				ai->nullkiller->setActive(hero, node.coord);
 
 				if(node.specialAction)
@@ -97,6 +82,8 @@ void ExecuteHeroChain::accept(VCAI * ai)
 					if(node.specialAction->canAct(hero))
 					{
 						auto specialGoal = node.specialAction->whatToDo(hero);
+
+						if(!specialGoal->isElementar)
 
 						specialGoal->accept(ai);
 					}
@@ -135,7 +122,10 @@ void ExecuteHeroChain::accept(VCAI * ai)
 				{
 					try
 					{
-						Goals::VisitTile(node.coord).sethero(hero).accept(ai);
+						if(moveHeroToTile(hero, node.coord))
+						{
+							continue;
+						}
 					}
 					catch(cannotFulfillGoalException)
 					{
@@ -195,7 +185,19 @@ void ExecuteHeroChain::accept(VCAI * ai)
 	}
 }
 
-std::string ExecuteHeroChain::name() const
+std::string ExecuteHeroChain::toString() const
 {
 	return "ExecuteHeroChain " + targetName + " by " + chainPath.targetHero->name;
+}
+
+bool ExecuteHeroChain::moveHeroToTile(const CGHeroInstance * hero, const int3 & tile)
+{
+	if(g.tile == g.hero->visitablePos() && cb->getVisitableObjs(g.hero->visitablePos()).size() < 2)
+	{
+		logAi->warn("Why do I want to move hero %s to tile %s? Already standing on that tile! ", g.hero->name, g.tile.toString());
+
+		return true;
+	}
+
+	return ai->moveHeroToTile(tile, hero);
 }

@@ -23,17 +23,13 @@ namespace Goals
 		GatherTroops()
 			: CGoal(Goals::GATHER_TROOPS)
 		{
-			priority = 2;
 		}
 		GatherTroops(int type, int val)
 			: CGoal(Goals::GATHER_TROOPS)
 		{
 			objid = type;
 			value = val;
-			priority = 2;
 		}
-		TGoalVec getAllPossibleSubgoals() override;
-		TSubgoal whatToDoToAchieve() override;
 		virtual bool operator==(const GatherTroops & other) const override;
 
 	private:

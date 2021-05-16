@@ -27,11 +27,11 @@ ExchangeSwapTownHeroes::ExchangeSwapTownHeroes(
 	const CGTownInstance * town, 
 	const CGHeroInstance * garrisonHero,
 	HeroLockedReason lockingReason)
-	:CGoal(Goals::EXCHANGE_SWAP_TOWN_HEROES), town(town), garrisonHero(garrisonHero), lockingReason(lockingReason)
+	:ElementarGoal(Goals::EXCHANGE_SWAP_TOWN_HEROES), town(town), garrisonHero(garrisonHero), lockingReason(lockingReason)
 {
 }
 
-std::string ExchangeSwapTownHeroes::name() const
+std::string ExchangeSwapTownHeroes::toString() const
 {
 	return "Exchange and swap heroes of " + town->name;
 }
@@ -39,11 +39,6 @@ std::string ExchangeSwapTownHeroes::name() const
 bool ExchangeSwapTownHeroes::operator==(const ExchangeSwapTownHeroes & other) const
 {
 	return town == other.town;
-}
-
-TSubgoal ExchangeSwapTownHeroes::whatToDoToAchieve()
-{
-	return iAmElementar();
 }
 
 void ExchangeSwapTownHeroes::accept(VCAI * ai)

@@ -92,7 +92,7 @@ bool needToRecruitHero(const CGTownInstance * startupTown)
 	return false;
 }
 
-Goals::TGoalVec StartupBehavior::getTasks()
+Goals::TGoalVec StartupBehavior::decompose() const
 {
 	Goals::TGoalVec tasks;
 	auto towns = cb->getTownsInfo();
@@ -166,7 +166,7 @@ Goals::TGoalVec StartupBehavior::getTasks()
 
 	if(tasks.empty() && canRecruitHero && !startupTown->visitingHero)
 	{
-		tasks.push_back(Goals::sptr(Goals::RecruitHero()));
+		tasks.push_back(Goals::sptr(Goals::RecruitHero(startupTown)));
 	}
 
 	if(tasks.empty() && towns.size())

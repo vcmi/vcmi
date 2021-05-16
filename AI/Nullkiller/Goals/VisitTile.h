@@ -9,6 +9,8 @@
 */
 #pragma once
 
+#error not used
+
 #include "CGoal.h"
 
 struct HeroPtr;
@@ -27,7 +29,6 @@ namespace Goals
 			: CGoal(Goals::VISIT_TILE)
 		{
 			tile = Tile;
-			priority = 5;
 		}
 		virtual bool operator==(const VisitTile & other) const override;
 	};

@@ -25,7 +25,7 @@ bool BuyArmy::operator==(const BuyArmy & other) const
 	return town == other.town && objid == other.objid;
 }
 
-TSubgoal BuyArmy::whatToDoToAchieve()
+std::string BuyArmy::toString() const
 {
-	return iAmElementar();
+	return "Buy army at " + town->name;
 }

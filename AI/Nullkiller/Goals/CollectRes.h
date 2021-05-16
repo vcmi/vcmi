@@ -29,10 +29,9 @@ namespace Goals
 		{
 			resID = rid;
 			value = val;
-			priority = 2;
 		}
-		TGoalVec getAllPossibleSubgoals() override;
-		TSubgoal whatToDoToAchieve() override;
+		/*TGoalVec getAllPossibleSubgoals() override;
+		TSubgoal whatToDoToAchieve() override;*/
 		TSubgoal whatToDoToTrade();
 		virtual bool operator==(const CollectRes & other) const override;
 	};

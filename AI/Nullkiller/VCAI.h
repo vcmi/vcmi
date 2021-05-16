@@ -117,11 +117,7 @@ public:
 	virtual ~VCAI();
 
 	//TODO: use only smart pointers?
-	void tryRealize(Goals::Explore & g);
 	void tryRealize(Goals::RecruitHero & g);
-	void tryRealize(Goals::VisitTile & g);
-	void tryRealize(Goals::VisitObj & g);
-	void tryRealize(Goals::VisitHero & g);
 	void tryRealize(Goals::BuildThis & g);
 	void tryRealize(Goals::DigAtTile & g);
 	void tryRealize(Goals::Trade & g);
@@ -241,9 +237,6 @@ public:
 	const CGTownInstance * findTownWithTavern() const;
 	bool canRecruitAnyHero(const CGTownInstance * t = NULL) const;
 
-	Goals::TSubgoal getGoal(HeroPtr h) const;
-	bool canAct(HeroPtr h) const;
-	std::vector<HeroPtr> getUnblockedHeroes() const;
 	std::vector<HeroPtr> getMyHeroes() const;
 	HeroPtr primaryHero() const;
 
@@ -374,7 +367,7 @@ public:
 	explicit goalFulfilledException(Goals::TSubgoal Goal)
 		: goal(Goal)
 	{
-		msg = goal->name();
+		msg = goal->toString();
 	}
 
 	virtual ~goalFulfilledException() throw ()

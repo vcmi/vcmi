@@ -23,6 +23,8 @@
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<VCAI> ai;
 
+using namespace Goals;
+
 Nullkiller::Nullkiller()
 {
 	priorityEvaluator.reset(new PriorityEvaluator());
@@ -30,38 +32,75 @@ Nullkiller::Nullkiller()
 	buildAnalyzer.reset(new BuildAnalyzer());
 }
 
-Goals::TSubgoal Nullkiller::choseBestTask(Goals::TGoalVec & tasks) const
+Goals::TTask Nullkiller::choseBestTask(Goals::TTaskVec & tasks) const
 {
-	Goals::TSubgoal bestTask = *vstd::maxElementByFun(tasks, [](Goals::TSubgoal goal) -> float{
-		return goal->priority;
+	Goals::TTask bestTask = *vstd::maxElementByFun(tasks, [](Goals::TTask task) -> float{
+		return task->priority;
 	});
 
 	return bestTask;
 }
 
-Goals::TSubgoal Nullkiller::choseBestTask(std::shared_ptr<Behavior> behavior) const
+Goals::TTask Nullkiller::choseBestTask(Goals::TSubgoal behavior) const
 {
 	logAi->debug("Checking behavior %s", behavior->toString());
 
-	auto tasks = behavior->getTasks();
+	const int MAX_DEPTH = 10;
+	Goals::TGoalVec goals[MAX_DEPTH + 1];
+	Goals::TTaskVec tasks;
+
+	goals[0] = {behavior};
 
 	if(tasks.empty())
 	{
 		logAi->debug("Behavior %s found no tasks", behavior->toString());
 
-		return Goals::sptr(Goals::Invalid());
+		return Goals::taskptr(Goals::Invalid());
 	}
 
 	logAi->trace("Evaluating priorities, tasks count %d", tasks.size());
 
-	for(auto task : tasks)
+	int depth = 0;
+	while(goals[0].size())
 	{
-		task->setpriority(priorityEvaluator->evaluate(task));
+		TSubgoal current = goals[depth].back();
+		TGoalVec subgoals = current->decompose();
+
+		goals[depth + 1].clear();
+
+		for(auto subgoal : subgoals)
+		{
+			if(subgoal->isElementar)
+			{
+				auto task = taskptr(*subgoal);
+
+				if(task->priority <= 0)
+					task->priority = priorityEvaluator->evaluate(subgoal);
+
+				tasks.push_back(task);
+			}
+			else
+			{
+				goals[depth + 1].push_back(subgoal);
+			}
+		}
+
+		if(goals[depth + 1].size() && depth < MAX_DEPTH)
+		{
+			depth++;
+		}
+		else
+		{
+			while(depth > 0 && goals[depth].empty())
+			{
+				depth--;
+			}
+		}
 	}
 
 	auto task = choseBestTask(tasks);
 
-	logAi->debug("Behavior %s returns %s(%s), priority %f", behavior->toString(), task->name(), task->tile.toString(), task->priority);
+	logAi->debug("Behavior %s returns %s, priority %f", behavior->toString(), task->toString(), task->priority);
 
 	return task;
 }
@@ -141,54 +180,49 @@ void Nullkiller::makeTurn()
 	{
 		updateAiState();
 
-		Goals::TGoalVec bestTasks = {
-			choseBestTask(std::make_shared<BuyArmyBehavior>()),
-			choseBestTask(std::make_shared<CaptureObjectsBehavior>()),
-			choseBestTask(std::make_shared<RecruitHeroBehavior>()),
-			choseBestTask(std::make_shared<DefenceBehavior>()),
-			choseBestTask(std::make_shared<BuildingBehavior>()),
-			choseBestTask(std::make_shared<GatherArmyBehavior>())
+		Goals::TTaskVec bestTasks = {
+			choseBestTask(sptr(BuyArmyBehavior())),
+			choseBestTask(sptr(CaptureObjectsBehavior())),
+			choseBestTask(sptr(RecruitHeroBehavior())),
+			choseBestTask(sptr(DefenceBehavior())),
+			choseBestTask(sptr(BuildingBehavior())),
+			choseBestTask(sptr(GatherArmyBehavior()))
 		};
 
 		if(cb->getDate(Date::DAY) == 1)
 		{
-			bestTasks.push_back(choseBestTask(std::make_shared<StartupBehavior>()));
+			bestTasks.push_back(choseBestTask(sptr(StartupBehavior())));
 		}
 
-		Goals::TSubgoal bestTask = choseBestTask(bestTasks);
+		Goals::TTask bestTask = choseBestTask(bestTasks);
 
-		if(bestTask->invalid())
+		/*if(bestTask->invalid())
 		{
 			logAi->trace("No goals found. Ending turn.");
 
 			return;
-		}
+		}*/
 
 		if(bestTask->priority < MIN_PRIORITY)
 		{
-			logAi->trace("Goal %s has too low priority. It is not worth doing it. Ending turn.", bestTask->name());
+			logAi->trace("Goal %s has too low priority. It is not worth doing it. Ending turn.", bestTask->toString());
 
 			return;
 		}
 
-		logAi->debug("Trying to realize %s (value %2.3f)", bestTask->name(), bestTask->priority);
+		logAi->debug("Trying to realize %s (value %2.3f)", bestTask->toString(), bestTask->priority);
 
 		try
 		{
-			if(bestTask->hero)
-			{
-				setActive(bestTask->hero.get(), bestTask->tile);
-			}
-
 			bestTask->accept(ai.get());
 		}
 		catch(goalFulfilledException &)
 		{
-			logAi->trace("Task %s completed", bestTask->name());
+			logAi->trace("Task %s completed", bestTask->toString());
 		}
 		catch(std::exception & e)
 		{
-			logAi->debug("Failed to realize subgoal of type %s, I will stop.", bestTask->name());
+			logAi->debug("Failed to realize subgoal of type %s, I will stop.", bestTask->toString());
 			logAi->debug("The error message was: %s", e.what());
 
 			return;

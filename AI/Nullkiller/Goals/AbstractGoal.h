@@ -22,21 +22,16 @@ class FuzzyHelper;
 namespace Goals
 {
 	class AbstractGoal;
-	class Explore;
+	class ITask;
 	class RecruitHero;
-	class VisitTile;
-	class VisitObj;
-	class VisitHero;
 	class BuildThis;
 	class DigAtTile;
 	class CollectRes;
 	class BuyArmy;
 	class BuildBoat;
-	class GatherArmy;
 	class ClearWayTo;
 	class Invalid;
 	class Trade;
-	class CompleteQuest;
 	class AdventureSpellCast;
 
 	enum EGoals
@@ -78,6 +73,8 @@ namespace Goals
 		//TODO: serialize?
 	};
 
+	typedef std::shared_ptr<ITask> TTask;
+	typedef std::vector<TTask> TTaskVec;
 	typedef std::vector<TSubgoal> TGoalVec;
 
 	//method chaining + clone pattern
@@ -91,6 +88,7 @@ namespace Goals
 	enum { LOW_PR = -1 };
 
 	DLL_EXPORT TSubgoal sptr(const AbstractGoal & tmp);
+	DLL_EXPORT TTask taskptr(const AbstractGoal & tmp);
 
 	struct DLL_EXPORT EvaluationContext
 	{
@@ -117,23 +115,21 @@ namespace Goals
 	{
 	public:
 		bool isElementar; VSETTER(bool, isElementar)
-			bool isAbstract; VSETTER(bool, isAbstract)
-			float priority; VSETTER(float, priority)
-			int value; VSETTER(int, value)
-			int resID; VSETTER(int, resID)
-			int objid; VSETTER(int, objid)
-			int aid; VSETTER(int, aid)
-			int3 tile; VSETTER(int3, tile)
-			HeroPtr hero; VSETTER(HeroPtr, hero)
-			const CGTownInstance *town; VSETTER(CGTownInstance *, town)
-			int bid; VSETTER(int, bid)
-			TSubgoal parent; VSETTER(TSubgoal, parent)
-			EvaluationContext evaluationContext; VSETTER(EvaluationContext, evaluationContext)
+		bool isAbstract; VSETTER(bool, isAbstract)
+		int value; VSETTER(int, value)
+		int resID; VSETTER(int, resID)
+		int objid; VSETTER(int, objid)
+		int aid; VSETTER(int, aid)
+		int3 tile; VSETTER(int3, tile)
+		HeroPtr hero; VSETTER(HeroPtr, hero)
+		const CGTownInstance *town; VSETTER(CGTownInstance *, town)
+		int bid; VSETTER(int, bid)
+		TSubgoal parent; VSETTER(TSubgoal, parent)
+		EvaluationContext evaluationContext; VSETTER(EvaluationContext, evaluationContext)
 
-			AbstractGoal(EGoals goal = EGoals::INVALID)
+		AbstractGoal(EGoals goal = EGoals::INVALID)
 			: goalType(goal), evaluationContext()
 		{
-			priority = 0;
 			isElementar = false;
 			isAbstract = false;
 			value = 0;
@@ -150,25 +146,18 @@ namespace Goals
 		{
 			return const_cast<AbstractGoal *>(this);
 		}
-		virtual TGoalVec getAllPossibleSubgoals()
+
+		virtual TGoalVec decompose() const
 		{
 			return TGoalVec();
-		}
-		virtual TSubgoal whatToDoToAchieve()
-		{
-			return sptr(AbstractGoal());
 		}
 
 		EGoals goalType;
 
-		virtual std::string name() const;
+		virtual std::string toString() const;
 
 		bool invalid() const;
-
-		///Visitor pattern
-		//TODO: make accept work for std::shared_ptr... somehow
-		virtual void accept(VCAI * ai); //unhandled goal will report standard error
-
+		
 		virtual bool operator==(const AbstractGoal & g) const;
 		
 		bool operator!=(const AbstractGoal & g) const
@@ -191,5 +180,16 @@ namespace Goals
 			h & town;
 			h & bid;
 		}
+	};
+
+	class DLL_EXPORT ITask
+	{
+	public:
+		float priority;
+
+		///Visitor pattern
+		//TODO: make accept work for std::shared_ptr... somehow
+		virtual void accept(VCAI * ai) = 0; //unhandled goal will report standard error
+		virtual std::string toString() const = 0;
 	};
 }

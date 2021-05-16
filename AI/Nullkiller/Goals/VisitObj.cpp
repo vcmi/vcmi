@@ -38,6 +38,4 @@ VisitObj::VisitObj(int Objid)
 		tile = obj->visitablePos();
 	else
 		logAi->error("VisitObj constructed with invalid object instance %d", Objid);
-
-	priority = 3;
 }

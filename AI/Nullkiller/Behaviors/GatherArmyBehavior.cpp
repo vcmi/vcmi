@@ -23,14 +23,12 @@ extern FuzzyHelper * fh;
 
 using namespace Goals;
 
-#define AI_TRACE_LEVEL 2
-
 std::string GatherArmyBehavior::toString() const
 {
 	return "Gather army";
 }
 
-Goals::TGoalVec GatherArmyBehavior::getTasks()
+Goals::TGoalVec GatherArmyBehavior::decompose() const
 {
 	Goals::TGoalVec tasks;
 
@@ -65,12 +63,12 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 	Goals::TGoalVec tasks;
 	const int3 pos = hero->visitablePos();
 
-#ifdef AI_TRACE_LEVEL >= 1
+#if AI_TRACE_LEVEL >= 1
 	logAi->trace("Checking ways to gaher army for hero %s, %s", hero->getObjectName(), pos.toString());
 #endif
 	if(ai->nullkiller->isHeroLocked(hero))
 	{
-#ifdef AI_TRACE_LEVEL >= 1
+#if AI_TRACE_LEVEL >= 1
 		logAi->trace("Skipping locked hero %s, %s", hero->getObjectName(), pos.toString());
 #endif
 		return tasks;
@@ -79,13 +77,13 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 	auto paths = ai->ah->getPathsToTile(pos);
 	std::vector<std::shared_ptr<ExecuteHeroChain>> waysToVisitObj;
 
-#ifdef AI_TRACE_LEVEL >= 1
+#if AI_TRACE_LEVEL >= 1
 	logAi->trace("Found %d paths", paths.size());
 #endif
 
 	for(const AIPath & path : paths)
 	{
-#ifdef AI_TRACE_LEVEL >= 2
+#if AI_TRACE_LEVEL >= 2
 		logAi->trace("Path found %s", path.toString());
 #endif
 		
@@ -93,7 +91,7 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 
 		if(path.getFirstBlockedAction())
 		{
-#ifdef AI_TRACE_LEVEL >= 2
+#if AI_TRACE_LEVEL >= 2
 			// TODO: decomposition?
 			logAi->trace("Ignore path. Action is blocked.");
 #endif
@@ -102,7 +100,7 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 
 		if(ai->nullkiller->dangerHitMap->enemyCanKillOurHeroesAlongThePath(path))
 		{
-#ifdef AI_TRACE_LEVEL >= 2
+#if AI_TRACE_LEVEL >= 2
 			logAi->trace("Ignore path. Target hero can be killed by enemy. Our power %lld", path.heroArmy->getArmyStrength());
 #endif
 			continue;
@@ -122,7 +120,7 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const CGHeroInstance * her
 
 		auto isSafe = isSafeToVisit(hero, path.heroArmy, danger);
 
-#ifdef AI_TRACE_LEVEL >= 2
+#if AI_TRACE_LEVEL >= 2
 		logAi->trace(
 			"It is %s to visit %s by %s with army %lld, danger %lld and army loss %lld",
 			isSafe ? "safe" : "not safe",
@@ -164,25 +162,25 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader)
 	const int3 pos = upgrader->visitablePos();
 	TResources availableResources = cb->getResourceAmount();
 
-#ifdef AI_TRACE_LEVEL >= 1
+#if AI_TRACE_LEVEL >= 1
 	logAi->trace("Checking ways to upgrade army in town %s, %s", upgrader->getObjectName(), pos.toString());
 #endif
 	
 	auto paths = ai->ah->getPathsToTile(pos);
 	std::vector<std::shared_ptr<ExecuteHeroChain>> waysToVisitObj;
 
-#ifdef AI_TRACE_LEVEL >= 1
+#if AI_TRACE_LEVEL >= 1
 	logAi->trace("Found %d paths", paths.size());
 #endif
 
 	for(const AIPath & path : paths)
 	{
-#ifdef AI_TRACE_LEVEL >= 2
+#if AI_TRACE_LEVEL >= 2
 		logAi->trace("Path found %s", path.toString());
 #endif
 		if(upgrader->visitingHero != path.targetHero)
 		{
-#ifdef AI_TRACE_LEVEL >= 2
+#if AI_TRACE_LEVEL >= 2
 			logAi->trace("Ignore path. Town has visiting hero.");
 #endif
 			continue;
@@ -190,7 +188,7 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader)
 
 		if(path.getFirstBlockedAction())
 		{
-#ifdef AI_TRACE_LEVEL >= 2
+#if AI_TRACE_LEVEL >= 2
 			// TODO: decomposition?
 			logAi->trace("Ignore path. Action is blocked.");
 #endif
@@ -199,7 +197,7 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader)
 
 		if(ai->nullkiller->dangerHitMap->enemyCanKillOurHeroesAlongThePath(path))
 		{
-#ifdef AI_TRACE_LEVEL >= 2
+#if AI_TRACE_LEVEL >= 2
 			logAi->trace("Ignore path. Target hero can be killed by enemy. Our power %lld", path.heroArmy->getArmyStrength());
 #endif
 			continue;
@@ -215,7 +213,7 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const CGTownInstance * upgrader)
 
 		auto isSafe = isSafeToVisit(path.targetHero, path.heroArmy, danger);
 
-#ifdef AI_TRACE_LEVEL >= 2
+#if AI_TRACE_LEVEL >= 2
 		logAi->trace(
 			"It is %s to visit %s by %s with army %lld, danger %lld and army loss %lld",
 			isSafe ? "safe" : "not safe",

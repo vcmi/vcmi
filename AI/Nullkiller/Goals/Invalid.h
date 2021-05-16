@@ -16,26 +16,4 @@ class VCAI;
 
 namespace Goals
 {
-	class DLL_EXPORT Invalid : public CGoal<Invalid>
-	{
-	public:
-		Invalid()
-			: CGoal(Goals::INVALID)
-		{
-			priority = -1e10;
-		}
-		TGoalVec getAllPossibleSubgoals() override
-		{
-			return TGoalVec();
-		}
-		TSubgoal whatToDoToAchieve() override
-		{
-			return iAmElementar();
-		}
-
-		virtual bool operator==(const Invalid & other) const override
-		{
-			return true;
-		}
-	};
 }

@@ -27,24 +27,18 @@ set(VCAI_SRCS
 		Goals/GatherTroops.cpp
 		Goals/BuyArmy.cpp
 		Goals/AdventureSpellCast.cpp
-		Goals/Win.cpp
-		Goals/VisitTile.cpp
-		Goals/VisitObj.cpp
-		Goals/VisitHero.cpp
 		Goals/CollectRes.cpp
 		Goals/Trade.cpp
 		Goals/RecruitHero.cpp
 		Goals/DigAtTile.cpp
 		Goals/GetArtOfType.cpp
 		Goals/FindObj.cpp
-		Goals/CompleteQuest.cpp
 		Goals/ExecuteHeroChain.cpp
 		Goals/ExchangeSwapTownHeroes.cpp
 		Engine/Nullkiller.cpp
 		Engine/PriorityEvaluator.cpp
 		Analyzers/DangerHitMapAnalyzer.cpp
 		Analyzers/BuildAnalyzer.cpp
-		Behaviors/Behavior.cpp
 		Behaviors/CaptureObjectsBehavior.cpp
 		Behaviors/RecruitHeroBehavior.cpp
 		Behaviors/BuyArmyBehavior.cpp
@@ -52,6 +46,7 @@ set(VCAI_SRCS
 		Behaviors/StartupBehavior.cpp
 		Behaviors/BuildingBehavior.cpp
 		Behaviors/GatherArmyBehavior.cpp
+		Behaviors/CompleteQuestBehavior.cpp
 		main.cpp
 		VCAI.cpp
 )
@@ -88,17 +83,12 @@ set(VCAI_HEADERS
 		Goals/GatherTroops.h
 		Goals/BuyArmy.h
 		Goals/AdventureSpellCast.h
-		Goals/Win.h
-		Goals/VisitTile.h
-		Goals/VisitObj.h
-		Goals/VisitHero.h
 		Goals/CollectRes.h
 		Goals/Trade.h
 		Goals/RecruitHero.h
 		Goals/DigAtTile.h
 		Goals/GetArtOfType.h
 		Goals/FindObj.h
-		Goals/CompleteQuest.h
 		Goals/ExecuteHeroChain.h
 		Goals/ExchangeSwapTownHeroes.h
 		Goals/Goals.h
@@ -106,7 +96,6 @@ set(VCAI_HEADERS
 		Engine/PriorityEvaluator.h
 		Analyzers/DangerHitMapAnalyzer.h
 		Analyzers/BuildAnalyzer.h
-		Behaviors/Behavior.h
 		Behaviors/CaptureObjectsBehavior.h
 		Behaviors/RecruitHeroBehavior.h
 		Behaviors/BuyArmyBehavior.h
@@ -114,6 +103,7 @@ set(VCAI_HEADERS
 		Behaviors/StartupBehavior.h
 		Behaviors/BuildingBehavior.h
 		Behaviors/GatherArmyBehavior.h
+		Behaviors/CompleteQuestBehavior.h
 		VCAI.h
 )
 

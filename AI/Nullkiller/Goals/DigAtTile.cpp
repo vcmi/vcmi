@@ -24,16 +24,16 @@ bool DigAtTile::operator==(const DigAtTile & other) const
 {
 	return other.hero.h == hero.h && other.tile == tile;
 }
-
-TSubgoal DigAtTile::whatToDoToAchieve()
-{
-	const CGObjectInstance * firstObj = vstd::frontOrNull(cb->getVisitableObjs(tile));
-	if(firstObj && firstObj->ID == Obj::HERO && firstObj->tempOwner == ai->playerID) //we have hero at dest
-	{
-		const CGHeroInstance * h = dynamic_cast<const CGHeroInstance *>(firstObj);
-		sethero(h).setisElementar(true);
-		return sptr(*this);
-	}
-
-	return sptr(VisitTile(tile));
-}
+//
+//TSubgoal DigAtTile::decomposeSingle() const
+//{
+//	const CGObjectInstance * firstObj = vstd::frontOrNull(cb->getVisitableObjs(tile));
+//	if(firstObj && firstObj->ID == Obj::HERO && firstObj->tempOwner == ai->playerID) //we have hero at dest
+//	{
+//		const CGHeroInstance * h = dynamic_cast<const CGHeroInstance *>(firstObj);
+//		sethero(h).setisElementar(true);
+//		return sptr(*this);
+//	}
+//
+//	return sptr(VisitTile(tile));
+//}

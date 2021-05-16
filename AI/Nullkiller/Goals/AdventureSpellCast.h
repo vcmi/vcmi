@@ -13,21 +13,16 @@
 
 namespace Goals
 {
-	class DLL_EXPORT AdventureSpellCast : public CGoal<AdventureSpellCast>
+	class DLL_EXPORT AdventureSpellCast : public ElementarGoal<AdventureSpellCast>
 	{
 	private:
 		SpellID spellID;
 
 	public:
 		AdventureSpellCast(HeroPtr hero, SpellID spellID)
-			: CGoal(Goals::ADVENTURE_SPELL_CAST), spellID(spellID)
+			: ElementarGoal(Goals::ADVENTURE_SPELL_CAST), spellID(spellID)
 		{
 			sethero(hero);
-		}
-
-		TGoalVec getAllPossibleSubgoals() override
-		{
-			return TGoalVec();
 		}
 
 		const CSpell * getSpell() const
@@ -35,9 +30,8 @@ namespace Goals
 			return spellID.toSpell();
 		}
 
-		TSubgoal whatToDoToAchieve() override;
 		void accept(VCAI * ai) override;
-		std::string name() const override;
+		std::string toString() const override;
 		virtual bool operator==(const AdventureSpellCast & other) const override;
 	};
 }
