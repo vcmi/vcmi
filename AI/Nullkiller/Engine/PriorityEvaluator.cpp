@@ -447,7 +447,7 @@ public:
 		evaluationContext.goldReward = getGoldReward(target, hero);
 		evaluationContext.armyReward = getArmyReward(target, hero, army, checkGold);
 		evaluationContext.skillReward = getSkillReward(target, hero, evaluationContext.heroRole);
-		evaluationContext.strategicalValue = getStrategicalValue(target);
+		evaluationContext.strategicalValue += getStrategicalValue(target);
 		evaluationContext.goldCost = getGoldCost(target, hero, army);
 		evaluationContext.turn = chain.getPath().turn();
 
