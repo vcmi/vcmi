@@ -536,21 +536,19 @@ CStackInstance::CStackInstance()
 }
 
 CStackInstance::CStackInstance(CreatureID id, TQuantity Count, bool isHypothetic)
-	: armyObj(_armyObj)
+	: CBonusSystemNode(isHypothetic), armyObj(_armyObj)
 {
 	init();
 	setType(id);
 	count = Count;
-	CBonusSystemNode::isHypotheticNode = isHypothetic;
 }
 
 CStackInstance::CStackInstance(const CCreature *cre, TQuantity Count, bool isHypothetic)
-	: armyObj(_armyObj)
+	: CBonusSystemNode(isHypothetic), armyObj(_armyObj)
 {
 	init();
 	setType(cre);
 	count = Count;
-	CBonusSystemNode::isHypotheticNode = isHypothetic;
 }
 
 void CStackInstance::init()

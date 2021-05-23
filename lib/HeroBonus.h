@@ -751,6 +751,7 @@ private:
 
 	ENodeTypes nodeType;
 	std::string description;
+	bool isHypotheticNode;
 
 	static const bool cachingEnabled;
 	mutable BonusList cachedBonuses;
@@ -768,11 +769,9 @@ private:
 	TConstBonusListPtr getAllBonusesWithoutCaching(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = nullptr) const;
 	std::shared_ptr<Bonus> update(const std::shared_ptr<Bonus> & b) const;
 
-protected:
-	bool isHypotheticNode;
-
 public:
 	explicit CBonusSystemNode();
+	explicit CBonusSystemNode(bool isHypotetic);
 	explicit CBonusSystemNode(ENodeTypes NodeType);
 	CBonusSystemNode(CBonusSystemNode && other);
 	virtual ~CBonusSystemNode();

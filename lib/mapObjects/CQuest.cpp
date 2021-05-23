@@ -60,6 +60,33 @@ static std::string & visitedTxt(const bool visited)
 	return VLC->generaltexth->allTexts[id];
 }
 
+bool CQuest::checkMissionArmy(const CQuest * q, const CCreatureSet * army)
+{
+	std::vector<CStackBasicDescriptor>::const_iterator cre;
+	TSlots::const_iterator it;
+	ui32 count;
+	ui32 slotsCount = 0;
+	bool hasExtraCreatures = false;
+	for(cre = q->m6creatures.begin(); cre != q->m6creatures.end(); ++cre)
+	{
+		for(count = 0, it = army->Slots().begin(); it != army->Slots().end(); ++it)
+		{
+			if(it->second->type == cre->type)
+			{
+				count += it->second->count;
+				slotsCount++;
+			}
+		}
+
+		if((TQuantity)count < cre->count) //not enough creatures of this kind
+			return false;
+
+		hasExtraCreatures |= (TQuantity)count > cre->count;
+	}
+
+	return hasExtraCreatures || slotsCount < army->Slots().size();
+}
+
 bool CQuest::checkQuest(const CGHeroInstance * h) const
 {
 	switch (missionType)
@@ -91,29 +118,7 @@ bool CQuest::checkQuest(const CGHeroInstance * h) const
 			}
 			return true;
 		case MISSION_ARMY:
-			{
-				std::vector<CStackBasicDescriptor>::const_iterator cre;
-				TSlots::const_iterator it;
-				ui32 count;
-				ui32 slotsCount = 0;
-				bool hasExtraCreatures = false;
-				for(cre = m6creatures.begin(); cre != m6creatures.end(); ++cre)
-				{
-					for(count = 0, it = h->Slots().begin(); it !=  h->Slots().end(); ++it)
-					{
-						if(it->second->type == cre->type)
-						{
-							count += it->second->count;
-							slotsCount++;
-						}
-					}
-					if((TQuantity)count < cre->count) //not enough creatures of this kind
-						return false;
-
-					hasExtraCreatures |= (TQuantity)count > cre->count;
-				}
-				return hasExtraCreatures || slotsCount < h->Slots().size();
-			}
+			return checkMissionArmy(this, h);
 		case MISSION_RESOURCES:
 			for(Res::ERes i = Res::WOOD; i <= Res::GOLD; vstd::advance(i, +1)) //including Mithril ?
 			{	//Quest has no direct access to callback

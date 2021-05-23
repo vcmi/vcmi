@@ -85,8 +85,8 @@ class TemporaryArmy : public CArmedInstance
 public:
 	void armyChanged() override {}
 	TemporaryArmy()
+		:CArmedInstance(true)
 	{
-		CBonusSystemNode::isHypotheticNode = true;
 	}
 };
 

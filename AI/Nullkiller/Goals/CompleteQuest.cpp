@@ -162,17 +162,14 @@ TGoalVec CompleteQuest::missionHero() const
 
 TGoalVec CompleteQuest::missionArmy() const
 {
-	TGoalVec solutions = tryCompleteQuest();
+	auto paths = ai->nullkiller->pathfinder->getPathInfo(q.obj->visitablePos());
 
-	if(!solutions.empty())
-		return solutions;
-	/*
-	for(auto creature : q.quest->m6creatures)
+	vstd::erase_if(paths, [&](const AIPath & path) -> bool
 	{
-		solutions.push_back(sptr(GatherTroops(creature.type->idNumber, creature.count)));
-	}*/
+		return !CQuest::checkMissionArmy(q.quest, path.heroArmy);
+	});
 
-	return solutions;
+	return CaptureObjectsBehavior::getVisitGoals(paths, q.obj);
 }
 
 TGoalVec CompleteQuest::missionIncreasePrimaryStat() const
