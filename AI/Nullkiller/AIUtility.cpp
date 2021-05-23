@@ -407,7 +407,6 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 	case Obj::BORDERGUARD: //open borderguard if possible
 		return (dynamic_cast<const CGKeys *>(obj))->wasMyColorVisited(ai->playerID);
 	case Obj::SEER_HUT:
-	case Obj::QUEST_GUARD:
 	{
 		for(auto q : ai->cb->getMyQuests())
 		{

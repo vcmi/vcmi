@@ -40,7 +40,12 @@ void CArmedInstance::randomizeArmy(int type)
 CSelector CArmedInstance::nonEvilAlignmentMixSelector = Selector::type()(Bonus::NONEVIL_ALIGNMENT_MIX);
 
 CArmedInstance::CArmedInstance()
-	:nonEvilAlignmentMix(this, nonEvilAlignmentMixSelector)
+	:CArmedInstance(false)
+{
+}
+
+CArmedInstance::CArmedInstance(bool isHypotetic)
+	:CBonusSystemNode(isHypotetic), nonEvilAlignmentMix(this, nonEvilAlignmentMixSelector)
 {
 	battle = nullptr;
 }

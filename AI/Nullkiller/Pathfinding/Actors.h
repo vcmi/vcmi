@@ -29,9 +29,8 @@ public:
 	virtual bool needsLastStack() const override;
 	std::shared_ptr<SpecialAction> getActorAction() const;
 
-	HeroExchangeArmy() : CArmedInstance(), armyCost(), requireBuyArmy(false)
+	HeroExchangeArmy() : CArmedInstance(true), armyCost(), requireBuyArmy(false)
 	{
-		CBonusSystemNode::isHypotheticNode = true;
 	}
 };
 

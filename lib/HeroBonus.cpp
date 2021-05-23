@@ -989,12 +989,17 @@ std::shared_ptr<Bonus> CBonusSystemNode::update(const std::shared_ptr<Bonus> & b
 }
 
 CBonusSystemNode::CBonusSystemNode()
+	:CBonusSystemNode(false)
+{
+}
+
+CBonusSystemNode::CBonusSystemNode(bool isHypotetic)
 	: bonuses(true),
 	exportedBonuses(true),
 	nodeType(UNKNOWN),
 	cachedLast(0),
 	sync(),
-	isHypotheticNode(false)
+	isHypotheticNode(isHypotetic)
 {
 }
 
@@ -1015,17 +1020,20 @@ CBonusSystemNode::CBonusSystemNode(CBonusSystemNode && other):
 	description(other.description),
 	cachedLast(0),
 	sync(),
-	isHypotheticNode(false)
+	isHypotheticNode(other.isHypotheticNode)
 {
 	std::swap(parents, other.parents);
 	std::swap(children, other.children);
 
 	//fixing bonus tree without recalculation
 
-	for(CBonusSystemNode * n : parents)
+	if(!isHypothetic())
 	{
-		n->children -= &other;
-		n->children.push_back(this);
+		for(CBonusSystemNode * n : parents)
+		{
+			n->children -= &other;
+			n->children.push_back(this);
+		}
 	}
 
 	for(CBonusSystemNode * n : children)
