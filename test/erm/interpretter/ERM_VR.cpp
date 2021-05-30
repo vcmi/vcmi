@@ -151,15 +151,7 @@ TEST(ERM_VR_R, AnyVariable_ShouldGenerateRngAndSetStatement)
 	LuaStrings lua = ErmRunner::convertErmToLua({"!#VRv1:R23;"});
 
 	ASSERT_EQ(lua.lines.size(), 9) << lua.text;
-	EXPECT_EQ(lua.lines[ErmRunner::REGULAR_INSTRUCTION_FIRST_LINE], "--VR:R not implemented");
-}
-
-TEST(ERM_VR_S_R, AnyVariable_ShouldGenerateRngAndSetStatement)
-{
-	LuaStrings lua = ErmRunner::convertErmToLua({"!#VRv1:R23;"});
-
-	ASSERT_EQ(lua.lines.size(), 9) << lua.text;
-	EXPECT_EQ(lua.lines[ErmRunner::REGULAR_INSTRUCTION_FIRST_LINE], "--VR:R not implemented");
+	EXPECT_EQ(lua.lines[ErmRunner::REGULAR_INSTRUCTION_FIRST_LINE], "v['1'] = ERM.VR(v['1']):R(23)");
 }
 
 TEST(ERM_VR_S, DynamicVariable_ShouldGenerateDynamicSetStatement)
@@ -175,7 +167,7 @@ TEST(ERM_VR_T, AnyVariable_ShouldGenerateTimeBasedRngAndSetStatement)
 	LuaStrings lua = ErmRunner::convertErmToLua({"!#VRv1:T23;"});
 
 	ASSERT_EQ(lua.lines.size(), 9) << lua.text;
-	EXPECT_EQ(lua.lines[ErmRunner::REGULAR_INSTRUCTION_FIRST_LINE], "--VR:T not implemented");
+	EXPECT_EQ(lua.lines[ErmRunner::REGULAR_INSTRUCTION_FIRST_LINE], "v['1'] = ERM.VR(v['1']):T(23)");
 }
 
 TEST(ERM_VR_U, StringVariable_ShouldGenerateSubstringFindAndSetStatement)

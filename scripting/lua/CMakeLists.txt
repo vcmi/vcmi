@@ -37,6 +37,7 @@ set(lib_SRCS
 		api/Skill.cpp
 		api/Spell.cpp
 		api/StackInstance.cpp
+		api/Rng.cpp
 )
 
 add_library(vcmiLua SHARED ${lib_SRCS})

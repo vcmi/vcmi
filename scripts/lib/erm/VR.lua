@@ -1,5 +1,5 @@
+local Rng = require("Rng")
 local ReceiverBase = require("core:erm.ReceiverBase")
-
 local VR = ReceiverBase:new()
 
 function VR:new(ERM, v)
@@ -74,5 +74,18 @@ function VR:M6()
 	return lastPos
 end
 
+function VR:T(maxVal)
+	local rng = Rng.getDefault()
+	local r = rng:nextInt(maxVal)
+	
+	return self.v + r
+end
+
+function VR:R(maxVal)
+	local rng = Rng.getDefault()
+	local r = rng:nextInt(maxVal)
+	
+	return self.v + r
+end
 
 return VR
