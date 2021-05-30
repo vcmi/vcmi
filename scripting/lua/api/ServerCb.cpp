@@ -15,6 +15,8 @@
 
 #include "../LuaStack.h"
 #include "../../../lib/NetPacks.h"
+#include "../../../lib/CRandomGenerator.h"
+
 namespace scripting
 {
 namespace api
@@ -43,8 +45,26 @@ const std::vector<ServerCbProxy::CustomRegType> ServerCbProxy::REGISTER_CUSTOM =
 		"commitPackage",
 		&ServerCbProxy::commitPackage,
 		false
+	},
+	{
+		"getRNG",
+		&ServerCbProxy::getRNG,
+		false
 	}
 };
+
+int ServerCbProxy::getRNG(lua_State * L)
+{
+	LuaStack S(L);
+	ServerCallback * obj = nullptr;
+
+	if(!S.tryGet(1, obj))
+		return S.retVoid();
+
+	S.clear();
+	S.push(dynamic_cast<CRandomGenerator *>(obj->getRNG()));
+	return S.retPushed();
+}
 
 int ServerCbProxy::commitPackage(lua_State * L)
 {

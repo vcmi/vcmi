@@ -10,6 +10,7 @@
 #include "StdInc.h"
 
 #include "../scripting/ScriptFixture.h"
+#include "../../../lib/CRandomGenerator.h"
 
 
 namespace test
@@ -91,37 +92,95 @@ TEST_F(ERM_VR, U)
 	EXPECT_EQ(f["1"], JsonUtils::boolNode(true)) << actualState.toJson(true);
 }
 
-TEST_F(ERM_VR, T)
+class ERM_VR_RNG : public ERM_VR
 {
+protected:
+	void doTest(char rngType)
+	{
+		std::stringstream source;
+		source << "VERM" << std::endl;
+		source << "!?PI;" << std::endl;
+		source << "!!VRv1:S10 " << rngType << "20;" << std::endl;
+
+		double average = 0;
+		int testCount = 100;
+
+		for(int i = 0; i < testCount; i++)
+		{
+			JsonNode actualState;
+
+			if(rngType == 'R')
+			{
+				loadScript(VLC->scriptHandler->erm, source.str());
+				runServer();
+				actualState = context->saveState();
+			}
+			else
+			{
+				actualState = runScript(VLC->scriptHandler->erm, source.str());
+			}
+
+			SCOPED_TRACE("\n" + subject->code);
+
+			const JsonNode & v = actualState["ERM"]["v"];
+
+			EXPECT_TRUE(v["1"].isNumber()) << actualState.toJson(true);
+
+			int rngValue = v["1"].Integer();
+
+			average += rngValue;
+
+			ASSERT_GE(rngValue, 10);
+			ASSERT_LE(rngValue, 30);
+		}
+
+		average /= testCount;
+
+		EXPECT_NEAR(average, 20, 3) << "rng median should be in the middle of range ";
+	}
+};
+
+TEST_F(ERM_VR_RNG, T)
+{
+	doTest('T');
+}
+
+TEST_F(ERM_VR_RNG, R)
+{
+	CRandomGenerator rng;
+	EXPECT_CALL(serverMock, getRNG()).WillRepeatedly(Return(&rng));
+
+	doTest('R');
+}
+
+TEST_F(ERM_VR_RNG, R_SEEDED)
+{
+	int expectedRandomValue = 2;
+
+	CRandomGenerator rng;
+	rng.setSeed(0x7ade6321);
+	EXPECT_CALL(serverMock, getRNG()).WillRepeatedly(Return(&rng));
+
 	std::stringstream source;
 	source << "VERM" << std::endl;
 	source << "!?PI;" << std::endl;
-	source << "!!VRv1:S10 T20;" << std::endl;
+	source << "!!VRv1:R20;" << std::endl;
 
-	double average = 0;
-	int testCount = 100;
+	JsonNode actualState;
 
-	for(int i = 0; i < testCount; i++)
-	{
-		JsonNode actualState = runScript(VLC->scriptHandler->erm, source.str());
+	loadScript(VLC->scriptHandler->erm, source.str());
+	runServer();
+	actualState = context->saveState();
 
-		SCOPED_TRACE("\n" + subject->code);
+	SCOPED_TRACE("\n" + subject->code);
 
-		const JsonNode & v = actualState["ERM"]["v"];
+	const JsonNode & v = actualState["ERM"]["v"];
 
-		EXPECT_TRUE(v["1"].isNumber()) << actualState.toJson(true);
+	EXPECT_TRUE(v["1"].isNumber()) << actualState.toJson(true);
 
-		int rngValue = v["1"].Integer();
+	int rngValue = v["1"].Integer();
 
-		average += rngValue;
-
-		ASSERT_GE(rngValue, 10);
-		ASSERT_LE(rngValue, 30);
-	}
-
-	average /= testCount;
-
-	EXPECT_NEAR(average, 20, 3) << "rng median should be in the middle of range ";
+	EXPECT_EQ(rngValue, expectedRandomValue);
 }
 
 }

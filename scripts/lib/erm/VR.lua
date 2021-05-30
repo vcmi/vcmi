@@ -82,7 +82,7 @@ function VR:T(maxVal)
 end
 
 function VR:R(maxVal)
-	local rng = Rng.getDefault()
+	local rng = SERVER:getRNG()
 	local r = rng:nextInt(maxVal)
 	
 	return self.v + r

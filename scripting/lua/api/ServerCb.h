@@ -29,6 +29,7 @@ public:
 	template<typename NetPack>
 	static int apply(lua_State * L);
 	static int commitPackage(lua_State * L);
+	static int getRNG(lua_State * L);
 };
 
 }

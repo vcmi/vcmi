@@ -1,5 +1,5 @@
 /*
- * Rng.cpp, part of VCMI engine
+ * RngProxy.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -9,7 +9,7 @@
  */
 #include "StdInc.h"
 
-#include "Rng.h"
+#include "RngProxy.h"
 #include "Registry.h"
 #include "../LuaStack.h"
 #include "../LuaCallWrapper.h"
