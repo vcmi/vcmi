@@ -158,6 +158,12 @@ add_subdirectory_with_folder("3rdparty" googletest EXCLUDE_FROM_ALL)
 add_executable(vcmitest ${test_SRCS} ${test_HEADERS} ${mock_HEADERS})
 target_link_libraries(vcmitest PRIVATE gtest gmock vcmi ${SYSTEM_LIBS} VCAI)
 
+if(FL_FOUND)
+	target_link_libraries(vcmitest PRIVATE ${FL_LIBRARIES})
+else()
+	target_link_libraries(vcmitest PRIVATE fl-static)
+endif()
+
 target_include_directories(vcmitest
 		PUBLIC	${CMAKE_CURRENT_SOURCE_DIR}
 		PRIVATE	${GTestSrc}
