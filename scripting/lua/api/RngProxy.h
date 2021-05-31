@@ -19,10 +19,10 @@ namespace scripting
 namespace api
 {
 
-class RngProxy : public OpaqueWrapper<CRandomGenerator, RngProxy>
+class RngProxy : public OpaqueWrapper<vstd::RNG, RngProxy>
 {
 public:
-	using Wrapper = OpaqueWrapper<CRandomGenerator, RngProxy>;
+	using Wrapper = OpaqueWrapper<vstd::RNG, RngProxy>;
 
 	static const std::vector<typename Wrapper::CustomRegType> REGISTER_CUSTOM;
 

@@ -30,14 +30,14 @@ void CRandomGenerator::resetSeed()
 	setSeed((int)(threadIdHash * std::time(nullptr)));
 }
 
-TRandI CRandomGenerator::getIntRange(int lower, int upper)
+vstd::TRandI CRandomGenerator::getIntRange(int lower, int upper)
 {
-	return std::bind(TIntDist(lower, upper), std::ref(rand));
+	return std::bind(vstd::TIntDist(lower, upper), std::ref(rand));
 }
 
 vstd::TRandI64 CRandomGenerator::getInt64Range(int64_t lower, int64_t upper)
 {
-	return std::bind(TInt64Dist(lower, upper), std::ref(rand));
+	return std::bind(vstd::TInt64Dist(lower, upper), std::ref(rand));
 }
 
 int CRandomGenerator::nextInt(int upper)
@@ -52,12 +52,12 @@ int CRandomGenerator::nextInt(int lower, int upper)
 
 int CRandomGenerator::nextInt()
 {
-	return TIntDist()(rand);
+	return vstd::TIntDist()(rand);
 }
 
 vstd::TRand CRandomGenerator::getDoubleRange(double lower, double upper)
 {
-    return std::bind(TRealDist(lower, upper), std::ref(rand));
+    return std::bind(vstd::TRealDist(lower, upper), std::ref(rand));
 }
 
 double CRandomGenerator::nextDouble(double upper)
@@ -72,7 +72,7 @@ double CRandomGenerator::nextDouble(double lower, double upper)
 
 double CRandomGenerator::nextDouble()
 {
-	return TRealDist()(rand);
+	return vstd::TRealDist()(rand);
 }
 
 CRandomGenerator & CRandomGenerator::getDefault()

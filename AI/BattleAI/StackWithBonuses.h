@@ -25,6 +25,14 @@ class CStack;
 class RNGStub : public vstd::RNG
 {
 public:
+	vstd::TRandI getIntRange(int lower, int upper) override
+	{
+		return [=]()->int
+		{
+			return (lower + upper) / 2;
+		};
+	}
+
 	vstd::TRandI64 getInt64Range(int64_t lower, int64_t upper) override
 	{
 		return [=]()->int64_t
@@ -39,6 +47,36 @@ public:
 		{
 			return (lower + upper)/2;
 		};
+	}
+
+	int nextInt() override
+	{
+		return 10;
+	}
+
+	int nextInt(int upperBound) override
+	{
+		return upperBound / 2;
+	}
+
+	int nextInt(int lowerBound, int upperBound) override
+	{
+		return (lowerBound + upperBound) / 2;
+	}
+
+	double nextDouble() override
+	{
+		return 10;
+	}
+
+	double nextDouble(double upperBound) override
+	{
+		return upperBound / 2;
+	}
+
+	double nextDouble(double lowerBound, double upperBound) override
+	{
+		return (lowerBound + upperBound) / 2;
 	}
 };
 

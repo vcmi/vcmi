@@ -13,10 +13,6 @@
 #include <vstd/RNG.h>
 
 typedef std::mt19937 TGenerator;
-typedef std::uniform_int_distribution<int> TIntDist;
-typedef std::uniform_int_distribution<int64_t> TInt64Dist;
-typedef std::uniform_real_distribution<double> TRealDist;
-typedef std::function<int()> TRandI;
 
 /// The random generator randomly generates integers and real numbers("doubles") between
 /// a given range. This is a header only class and mainly a wrapper for
@@ -37,19 +33,19 @@ public:
 	/// Generate several integer numbers within the same range.
 	/// e.g.: auto a = gen.getIntRange(0,10); a(); a(); a();
 	/// requires: lower <= upper
-	TRandI getIntRange(int lower, int upper);
+	vstd::TRandI getIntRange(int lower, int upper) override;
 
 	vstd::TRandI64 getInt64Range(int64_t lower, int64_t upper) override;
 
 	/// Generates an integer between 0 and upper.
 	/// requires: 0 <= upper
-	int nextInt(int upper);
+	int nextInt(int upper) override;
 
 	/// requires: lower <= upper
-	int nextInt(int lower, int upper);
+	int nextInt(int lower, int upper) override;
 
 	/// Generates an integer between 0 and the maximum value it can hold.
-	int nextInt();
+	int nextInt() override;
 
 	/// Generate several double/real numbers within the same range.
 	/// e.g.: auto a = gen.getDoubleRange(4.5,10.2); a(); a(); a();
@@ -58,13 +54,13 @@ public:
 
 	/// Generates a double between 0 and upper.
 	/// requires: 0 <= upper
-	double nextDouble(double upper);
+	double nextDouble(double upper) override;
 
 	/// requires: lower <= upper
-	double nextDouble(double lower, double upper);
+	double nextDouble(double lower, double upper) override;
 
 	/// Generates a double between 0.0 and 1.0.
-	double nextDouble();
+	double nextDouble() override;
 
 	/// Gets a globally accessible RNG which will be constructed once per thread. For the
 	/// seed a combination of the thread ID and current time in milliseconds will be used.

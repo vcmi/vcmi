@@ -48,23 +48,10 @@ const std::vector<ServerCbProxy::CustomRegType> ServerCbProxy::REGISTER_CUSTOM =
 	},
 	{
 		"getRNG",
-		&ServerCbProxy::getRNG,
+		LuaMethodWrapper<ServerCallback, decltype(&ServerCallback::getRNG), &ServerCallback::getRNG>::invoke,
 		false
 	}
 };
-
-int ServerCbProxy::getRNG(lua_State * L)
-{
-	LuaStack S(L);
-	ServerCallback * obj = nullptr;
-
-	if(!S.tryGet(1, obj))
-		return S.retVoid();
-
-	S.clear();
-	S.push(dynamic_cast<CRandomGenerator *>(obj->getRNG()));
-	return S.retPushed();
-}
 
 int ServerCbProxy::commitPackage(lua_State * L)
 {

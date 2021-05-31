@@ -24,7 +24,7 @@ VCMI_REGISTER_SCRIPT_API(RngProxy, "Rng");
 const std::vector<RngProxy::CustomRegType> RngProxy::REGISTER_CUSTOM =
 {
 	{"getDefault", &RngProxy::getDefault, true},
-	{"nextInt", LuaMethodWrapper<CRandomGenerator, int(CRandomGenerator::*)(int), &CRandomGenerator::nextInt>::invoke, false}
+	{"nextInt", LuaMethodWrapper<vstd::RNG, int(vstd::RNG::*)(int), &vstd::RNG::nextInt>::invoke, false}
 };
 
 int RngProxy::getDefault(lua_State * L)
@@ -32,7 +32,7 @@ int RngProxy::getDefault(lua_State * L)
 	LuaStack S(L);
 
 	S.clear();
-	S.push(&CRandomGenerator::getDefault());
+	S.push(static_cast<vstd::RNG *>(&CRandomGenerator::getDefault()));
 
 	return S.retPushed();
 }

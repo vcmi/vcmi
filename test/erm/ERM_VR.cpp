@@ -11,6 +11,7 @@
 
 #include "../scripting/ScriptFixture.h"
 #include "../../../lib/CRandomGenerator.h"
+#include "../mock/mock_vstd_RNG.h"
 
 
 namespace test
@@ -92,74 +93,46 @@ TEST_F(ERM_VR, U)
 	EXPECT_EQ(f["1"], JsonUtils::boolNode(true)) << actualState.toJson(true);
 }
 
-class ERM_VR_RNG : public ERM_VR
+TEST_F(ERM_VR, T)
 {
-protected:
-	void doTest(char rngType)
+	std::stringstream source;
+	source << "VERM" << std::endl;
+	source << "!?PI;" << std::endl;
+	source << "!!VRv1:S10 T20;" << std::endl;
+
+	double average = 0;
+	int testCount = 30;
+
+	for(int i = 0; i < testCount; i++)
 	{
-		std::stringstream source;
-		source << "VERM" << std::endl;
-		source << "!?PI;" << std::endl;
-		source << "!!VRv1:S10 " << rngType << "20;" << std::endl;
+		JsonNode actualState = runScript(VLC->scriptHandler->erm, source.str());
 
-		double average = 0;
-		int testCount = 100;
+		SCOPED_TRACE("\n" + subject->code);
 
-		for(int i = 0; i < testCount; i++)
-		{
-			JsonNode actualState;
+		const JsonNode & v = actualState["ERM"]["v"];
 
-			if(rngType == 'R')
-			{
-				loadScript(VLC->scriptHandler->erm, source.str());
-				runServer();
-				actualState = context->saveState();
-			}
-			else
-			{
-				actualState = runScript(VLC->scriptHandler->erm, source.str());
-			}
+		EXPECT_TRUE(v["1"].isNumber()) << actualState.toJson(true);
 
-			SCOPED_TRACE("\n" + subject->code);
+		int rngValue = v["1"].Integer();
 
-			const JsonNode & v = actualState["ERM"]["v"];
+		average += rngValue;
 
-			EXPECT_TRUE(v["1"].isNumber()) << actualState.toJson(true);
-
-			int rngValue = v["1"].Integer();
-
-			average += rngValue;
-
-			ASSERT_GE(rngValue, 10);
-			ASSERT_LE(rngValue, 30);
-		}
-
-		average /= testCount;
-
-		EXPECT_NEAR(average, 20, 3) << "rng median should be in the middle of range ";
+		ASSERT_GE(rngValue, 10);
+		ASSERT_LE(rngValue, 30);
 	}
-};
 
-TEST_F(ERM_VR_RNG, T)
-{
-	doTest('T');
+	average /= testCount;
+
+	EXPECT_NEAR(average, 20, 3) << "rng median should be in the middle of range ";
 }
 
-TEST_F(ERM_VR_RNG, R)
-{
-	CRandomGenerator rng;
-	EXPECT_CALL(serverMock, getRNG()).WillRepeatedly(Return(&rng));
-
-	doTest('R');
-}
-
-TEST_F(ERM_VR_RNG, R_SEEDED)
+TEST_F(ERM_VR, R)
 {
 	int expectedRandomValue = 2;
 
-	CRandomGenerator rng;
-	rng.setSeed(0x7ade6321);
-	EXPECT_CALL(serverMock, getRNG()).WillRepeatedly(Return(&rng));
+	vstd::RNGMock rngMock;
+	EXPECT_CALL(rngMock, nextInt(20)).WillRepeatedly(Return(expectedRandomValue));
+	EXPECT_CALL(serverMock, getRNG()).WillRepeatedly(Return(&rngMock));
 
 	std::stringstream source;
 	source << "VERM" << std::endl;
