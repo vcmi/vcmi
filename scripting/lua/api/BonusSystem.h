@@ -11,6 +11,7 @@
 #pragma once
 
 #include "../LuaWrapper.h"
+#include "../../../lib/HeroBonus.h"
 
 class Bonus;
 class BonusList;
@@ -40,6 +41,7 @@ public:
 	static int getEffectRange(lua_State * L);
 	static int getStacking(lua_State * L);
 	static int toJsonNode(lua_State * L);
+	static int createBonus(lua_State * L);
 
 protected:
 	virtual void adjustStaticTable(lua_State * L) const override;

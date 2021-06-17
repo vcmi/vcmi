@@ -3,6 +3,8 @@ require("battle.Unit")
 local battle = BATTLE
 
 local ReceiverBase = require("core:erm.ReceiverBase")
+local Bonus = require("Bonus")
+local SetStackEffect = require("netpacks.SetStackEffect")
 
 local BM = ReceiverBase:new()
 
@@ -11,13 +13,26 @@ function BM:new(ERM, unitId)
 	return ReceiverBase.new(self,{ERM = ERM, unitId = unitId})
 end
 
-function BM:A(x, p1)
-	if type(p1) == "nil" then
+function BM:A(x, attackValue)
+	if type(attackValue) == "nil" then
 		local unit = battle:getUnitById(self.unitId)
-
-		return unit:getAttack(false)
+		local currentAttack = unit:getAttack(false)
+	
+		return currentAttack
 	else
-		error("!!BM:A set is not implemented")
+		local stackEffect = SetStackEffect.new()
+		local bonus = Bonus.new(
+			Bonus['ONE_BATTLE'],
+			Bonus['PRIMARY_SKILL'],
+			Bonus['OTHER'],
+			attackValue,
+			0,
+			0,
+			Bonus['BASE_NUMBER'])
+		
+		stackEffect:addBonus(self.unitId, bonus)
+		
+		SERVER:applyStackEffect(stackEffect)
 	end
 end
 
