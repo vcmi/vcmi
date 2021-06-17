@@ -52,16 +52,10 @@ TEST_F(ERM_BM, GetAttack)
 	EXPECT_EQ(actualState["ERM"]["v"]["1"].Float(), ATTACK_VALUE);
 }
 
-#if 0
-
 TEST_F(ERM_BM, SetAttack)
 {
 	const int32_t ATTACK_VALUE = 345;
 	const uint32_t UNIT_ID = 42;
-
-	battle::UnitFake & unit1 = unitsFake.add(0);
-
-	EXPECT_CALL(binfoMock, battleGetUnitByID(Eq(UNIT_ID))).WillOnce(Return(&unit1));
 
 	auto checkApply = [&](SetStackEffect * pack)
 	{
@@ -91,9 +85,8 @@ TEST_F(ERM_BM, SetAttack)
 
 	loadScript(VLC->scriptHandler->erm, source.str());
 	SCOPED_TRACE("\n" + subject->code);
-	run();
+	runServer();
 }
-#endif // 0
 
 }
 }

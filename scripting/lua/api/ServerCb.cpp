@@ -40,6 +40,11 @@ const std::vector<ServerCbProxy::CustomRegType> ServerCbProxy::REGISTER_CUSTOM =
 		false
 	},
 	{
+		"applyStackEffect",
+		&ServerCbProxy::apply<SetStackEffect>,
+		false
+	},
+	{
 		"commitPackage",
 		&ServerCbProxy::commitPackage,
 		false

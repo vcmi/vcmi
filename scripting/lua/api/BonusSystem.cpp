@@ -11,8 +11,6 @@
 
 #include "BonusSystem.h"
 
-#include "../../../lib/HeroBonus.h"
-
 #include "Registry.h"
 
 #include "../LuaStack.h"
@@ -27,6 +25,7 @@ VCMI_REGISTER_SCRIPT_API(BonusProxy, "Bonus");
 
 const std::vector<BonusProxy::CustomRegType> BonusProxy::REGISTER_CUSTOM =
 {
+	{"new", &BonusProxy::createBonus, true},
 	{"getType", &BonusProxy::getType, false},
 	{"getSubtype", &BonusProxy::getSubtype, false},
 	{"getDuration", &BonusProxy::getDuration, false},
@@ -40,6 +39,55 @@ const std::vector<BonusProxy::CustomRegType> BonusProxy::REGISTER_CUSTOM =
 	{"getDescription", &BonusProxy::getDescription, false},
 	{"toJsonNode", &BonusProxy::toJsonNode, false}
 };
+
+int BonusProxy::createBonus(lua_State * L)
+{
+	LuaStack S(L);
+
+	int bonusDuration;
+	int idx = 1;
+	int bonusType;
+	int bonusSource;
+	int bonusValue;
+	int id;
+	int subType;
+	int valueType;
+
+	if(!S.tryGet(idx++, bonusDuration))
+		return luaL_error(L, "Invalid bonus duration");
+
+	if(!S.tryGet(idx++, bonusType))
+		return luaL_error(L, "Invalid bonus type");
+
+	if(!S.tryGet(idx++, bonusSource))
+		return luaL_error(L, "Invalid bonus source");
+
+	if(!S.tryGet(idx++, bonusValue))
+		return luaL_error(L, "Invalid bonus value");
+
+	if(!S.tryGet(idx++, id))
+		id = 0;
+
+	if(!S.tryGet(idx++, subType))
+		subType = -1;
+
+	if(!S.tryGet(idx++, valueType))
+		valueType = Bonus::ValueType::ADDITIVE_VALUE;
+
+	std::shared_ptr<const Bonus> bonus = std::make_shared<Bonus>(
+		(Bonus::BonusDuration)bonusDuration,
+		(Bonus::BonusType)bonusType,
+		(Bonus::BonusSource)bonusSource,
+		bonusValue,
+		id,
+		subType,
+		(Bonus::ValueType)valueType);
+
+	S.clear();
+	S.push(bonus);
+
+	return 1;
+}
 
 int BonusProxy::getType(lua_State * L)
 {

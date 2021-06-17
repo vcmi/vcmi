@@ -21,6 +21,7 @@ set(lib_SRCS
 		api/netpacks/EntitiesChanged.cpp
 		api/netpacks/InfoWindow.cpp
 		api/netpacks/SetResources.cpp
+		api/netpacks/SetStackEffect.cpp
 
 		api/Artifact.cpp
 		api/BattleCb.cpp
