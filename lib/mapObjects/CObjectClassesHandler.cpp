@@ -148,30 +148,43 @@ std::vector<JsonNode> CObjectClassesHandler::loadLegacyData(size_t dataSize)
 
 /// selects preferred ID (or subID) for new object
 template<typename Map>
-si32 selectNextID(const JsonNode & fixedID, const Map & map, si32 defaultID)
+si32 selectNextID(const JsonNode & fixedID, const Map & map, si32 fixedObjectsBound)
 {
-	if (!fixedID.isNull() && (si32)fixedID.Float() < defaultID)
-		return static_cast<si32>(fixedID.Float()); // H3M object with fixed ID
+	assert(fixedObjectsBound > 0);
+	if(fixedID.isNull())
+	{
+		auto lastID = map.empty() ? 0 : map.rbegin()->first;
+		return lastID < fixedObjectsBound ? fixedObjectsBound : lastID + 1;
+	}
+	auto id = static_cast<si32>(fixedID.Float());
+	if(id >= fixedObjectsBound)
+		logGlobal->error("Getting next ID overflowed: %d >= %d", id, fixedObjectsBound);
 
-	if (map.empty())
-		return defaultID; // no objects loaded, keep gap for H3M objects
-	if (map.rbegin()->first >= defaultID)
-		return map.rbegin()->first + 1; // some modded objects loaded, return next available
-
-	return defaultID; // some H3M objects loaded, first modded found
+	return id;
 }
 
-void CObjectClassesHandler::loadObjectEntry(const std::string & identifier, const JsonNode & entry, ObjectContainter * obj)
+void CObjectClassesHandler::loadObjectEntry(const std::string & identifier, const JsonNode & entry, ObjectContainter * obj, bool isSubobject)
 {
-	if (!handlerConstructors.count(obj->handlerName))
+	static const si32 fixedObjectsBound = 1000; // legacy value for backward compatibilitty
+	static const si32 fixedSubobjectsBound = 10000000; // large enough arbitrary value to avoid ID-collisions
+	si32 usedBound = fixedObjectsBound;
+
+	if(!handlerConstructors.count(obj->handlerName))
 	{
 		logGlobal->error("Handler with name %s was not found!", obj->handlerName);
 		return;
 	}
+	const auto convertedId = VLC->modh->normalizeIdentifier(entry.meta, "core", identifier);
+	const auto & entryIndex = entry["index"];
+	bool useSelectNextID = !isSubobject || entryIndex.isNull();
 
-	std::string convertedId = VLC->modh->normalizeIdentifier(entry.meta, "core", identifier);
-
-	si32 id = selectNextID(entry["index"], obj->subObjects, 1000);
+	if(useSelectNextID && isSubobject)
+	{
+		usedBound = fixedSubobjectsBound;
+		logGlobal->error("Subobject index is Null. convertedId = '%s' obj->id = %d", convertedId, obj->id);
+	}
+	si32 id = useSelectNextID ? selectNextID(entryIndex, obj->subObjects, usedBound) 
+		: (si32)entryIndex.Float();
 
 	auto handler = handlerConstructors.at(obj->handlerName)();
 	handler->setType(obj->id, id);
@@ -196,46 +209,54 @@ void CObjectClassesHandler::loadObjectEntry(const std::string & identifier, cons
 
 	//some mods redefine content handlers in the decoration.json in such way:
 	//"core:sign" : { "types" : { "forgeSign" : { ...
-	static const std::vector<std::string> knownProblemObjects
+	static const std::vector<std::string> breakersRMG
 	{
 		"hota.hota decorations:hotaPandoraBox"
 		, "hota.hota decorations:hotaSubterreanGate"
 	};
-	bool overrideForce = !obj->subObjects.count(id) ||
-	std::any_of(knownProblemObjects.begin(), knownProblemObjects.end(), [obj, id](const std::string & str)
-	{
-		return str.compare(obj->subObjects[id]->subTypeName) == 0;
-	});
+	const bool isExistingKey = obj->subObjects.count(id) > 0;
+	const bool isBreaker = std::any_of(breakersRMG.begin(), breakersRMG.end(),
+		[&handler](const std::string & str)
+		{
+			return str.compare(handler->subTypeName) == 0;
+		});
+	const bool passedHandler = !isExistingKey && !isBreaker;
 
-	if (overrideForce) // DO NOT override mod handlers by default
+	if(passedHandler)
 	{
 		obj->subObjects[id] = handler;
 		obj->subIds[convertedId] = id;
 	}
+	else if(isExistingKey) //It's supposed that fan mods handlers are not overridden by default handlers
+	{
+		logGlobal->trace("Handler '%s' has not been overridden with handler '%s' in object %s(%d)::%s(%d)",
+			obj->subObjects[id]->subTypeName, obj->handlerName, obj->identifier, obj->id, convertedId, id);
+	}
 	else
 	{
-		logGlobal->warn("Don't override handler %s in object %s(%d)::%s(%d) subTypeName : %s"
-			, obj->handlerName, obj->identifier, obj->id, convertedId, id, obj->subObjects[id]->subTypeName);
+		logGlobal->warn("Handler '%s' for object %s(%d)::%s(%d) has not been activated as RMG breaker",
+			obj->handlerName, obj->identifier, obj->id, convertedId, id);
 	}
 }
 
 CObjectClassesHandler::ObjectContainter * CObjectClassesHandler::loadFromJson(const JsonNode & json, const std::string & name)
 {
 	auto obj = new ObjectContainter();
+	static const si32 fixedObjectsBound = 256; //Legacy value for backward compatibility
+
 	obj->identifier = name;
 	obj->name = json["name"].String();
 	obj->handlerName = json["handler"].String();
 	obj->base = json["base"];
-	obj->id = selectNextID(json["index"], objects, 256);
+	obj->id = selectNextID(json["index"], objects, fixedObjectsBound);
+
 	if(json["defaultAiValue"].isNull())
 		obj->groupDefaultAiValue = boost::none;
 	else
 		obj->groupDefaultAiValue = static_cast<boost::optional<si32>>(json["defaultAiValue"].Integer());
 
 	for (auto entry : json["types"].Struct())
-	{
 		loadObjectEntry(entry.first, entry.second, obj);
-	}
 
 	return obj;
 }
@@ -257,6 +278,8 @@ void CObjectClassesHandler::loadObject(std::string scope, std::string name, cons
 
 void CObjectClassesHandler::loadSubObject(const std::string & identifier, JsonNode config, si32 ID, boost::optional<si32> subID)
 {
+	static const bool isSubObject = true;
+
 	config.setType(JsonNode::JsonType::DATA_STRUCT); // ensure that input is not NULL
 	assert(objects.count(ID));
 	if (subID)
@@ -265,10 +288,8 @@ void CObjectClassesHandler::loadSubObject(const std::string & identifier, JsonNo
 		assert(config["index"].isNull());
 		config["index"].Float() = subID.get();
 	}
-
 	inheritNodeWithMeta(config, objects.at(ID)->base);
-
-	loadObjectEntry(identifier, config, objects[ID]);
+	loadObjectEntry(identifier, config, objects[ID], isSubObject);
 }
 
 void CObjectClassesHandler::removeSubObject(si32 ID, si32 subID)
