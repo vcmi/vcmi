@@ -187,6 +187,10 @@ target_include_directories(vcmi
 	PRIVATE ${FFMPEG_INCLUDE_DIRS}
 )
 
+target_include_directories(vcmiclient
+	PRIVATE ${FFMPEG_INCLUDE_DIRS}
+)
+
 vcmi_set_output_dir(vcmiclient "")
 
 set_target_properties(vcmiclient PROPERTIES ${PCH_PROPERTIES})
