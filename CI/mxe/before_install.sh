@@ -4,7 +4,7 @@
 sudo apt-get install -qq nsis ninja-build
 
 # MXE repository was too slow for Travis far too often
-wget https://github.com/vcmi/vcmi-deps-mxe/releases/download/2018-02-10/mxe-$MXE_TARGET-2018-02-10.tar
+wget -nv https://github.com/vcmi/vcmi-deps-mxe/releases/download/2018-02-10/mxe-$MXE_TARGET-2018-02-10.tar
 tar -xvf mxe-$MXE_TARGET-2018-02-10.tar
 sudo dpkg -i mxe-*.deb
 sudo apt-get install -f --yes
@@ -35,5 +35,7 @@ mxe-$MXE_TARGET-qtbase
 fi # Disable
 
 # alias for CMake
-sudo mv /usr/bin/cmake /usr/bin/cmake.orig
-sudo ln -s /usr/lib/mxe/usr/bin/$MXE_TARGET-cmake /usr/bin/cmake
+
+CMAKE_LOCATION=$(which cmake)
+sudo mv $CMAKE_LOCATION $CMAKE_LOCATION.orig
+sudo ln -s /usr/lib/mxe/usr/bin/$MXE_TARGET-cmake $CMAKE_LOCATION

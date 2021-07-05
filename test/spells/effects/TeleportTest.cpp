@@ -56,7 +56,9 @@ TEST_F(TeleportApplyTest, MovesUnit)
 	BattleHex destination(10, 10);
 	auto & unit = unitsFake.add(BattleSide::ATTACKER);
 
+	setupEmptyBattlefield();
 	ON_CALL(unit, getPosition()).WillByDefault(Return(initial));
+	ON_CALL(mechanicsMock, getEffectLevel()).WillByDefault(Return(1));
 	EXPECT_CALL(unit, unitId()).Times(AtLeast(1)).WillRepeatedly(Return(unitId));
 
 	EXPECT_CALL(*battleFake, moveUnit(Eq(unitId), Eq(destination)));

@@ -13,6 +13,13 @@ then
 	TMP_BRANCH="$APPVEYOR_REPO_BRANCH"
 	TMP_PRID="$APPVEYOR_PULL_REQUEST_NUMBER"
 	TMP_COMMIT="$APPVEYOR_REPO_COMMIT"
+elif [ ! -z "${GITHUB_RUN_ID}" ];
+then
+	echo "Using Github environment variables!"
+	TMP_JOBID="$GITHUB_RUN_ID"
+	TMP_BRANCH=${GITHUB_REF#refs/heads/}
+	TMP_PRID="$PULL_REQUEST"
+	TMP_COMMIT=$(git rev-parse --short "$GITHUB_SHA")
 else
 	echo "No Travir or AppVeyor environment variables found!"
 	exit
