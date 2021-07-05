@@ -1,26 +1,16 @@
 #!/bin/sh
 
-#new Clang
-sudo add-apt-repository --yes ppa:h-rayflood/llvm
+sudo apt-get update
 
-#new SDL2
-sudo add-apt-repository --yes ppa:zoogie/sdl2-snapshots
+# Boost
+wget -nv https://boostorg.jfrog.io/artifactory/main/release/1.66.0/source/boost_1_66_0.tar.gz
+tar xfz boost_1_66_0.tar.gz
+cd boost_1_66_0
+./bootstrap.sh --with-libraries=program_options,filesystem,system,thread,locale,date_time
+./b2
+sudo ./b2 install
 
-#new Qt
-sudo add-apt-repository --yes ppa:beineri/opt-qt571-trusty
-
-#new CMake
-sudo add-apt-repository --yes ppa:george-edison55/cmake-3.x
-
-sudo apt-get update -qq
-
-sudo apt-get install -qq $SUPPORT
-sudo apt-get install -qq $PACKAGE
-sudo apt-get install -qq cmake ninja-build libboost1.54-all-dev zlib1g-dev
-sudo apt-get install -qq libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev
-sudo apt-get install -qq libavformat-dev libswscale-dev
-sudo apt-get install -qq qt57declarative
-
-#setup compiler
-source /opt/qt57/bin/qt57-env.sh
-export CC=${REAL_CC} CXX=${REAL_CXX}
+# Dependencies
+sudo apt-get install libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev
+sudo apt-get install qtbase5-dev
+sudo apt-get install ninja-build zlib1g-dev libavformat-dev libswscale-dev libtbb-dev

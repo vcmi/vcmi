@@ -42,6 +42,12 @@ TEST(MapFormat, Random)
 	SCOPED_TRACE("MapFormat_Random start");
 
 	CMapGenOptions opt;
+	CRmgTemplate tmpl;
+
+	const_cast<CRmgTemplate::CPlayerCountRange &>(tmpl.getCpuPlayers()).addRange(1, 4);
+	const_cast<CRmgTemplate::Zones &>(tmpl.getZones())[0] = std::make_shared<rmg::ZoneOptions>();
+
+	opt.setMapTemplate(&tmpl);
 
 	opt.setHeight(CMapHeader::MAP_SIZE_MIDDLE);
 	opt.setWidth(CMapHeader::MAP_SIZE_MIDDLE);
@@ -54,7 +60,6 @@ TEST(MapFormat, Random)
 	opt.setPlayerTypeForStandardPlayer(PlayerColor(3), EPlayerType::AI);
 
 	CMapGenerator gen;
-
 	std::unique_ptr<CMap> initialMap = gen.generate(&opt, TEST_RANDOM_SEED);
 	initialMap->name = "Test";
 	SCOPED_TRACE("MapFormat_Random generated");
