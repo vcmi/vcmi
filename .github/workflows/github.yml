@@ -1,9 +1,6 @@
 name: CMake
 
-on:
-  push:
-  pull_request:
-    branches: [ develop ]
+on: [ push ]
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
@@ -27,10 +24,14 @@ jobs:
           - platform: mac
             os: macos-latest
             test: 0
+            pack: 1
+            extension: dmg
           - platform: mxe
             os: ubuntu-20.04
             mxe: i686-w64-mingw32.shared
             test: 0
+            pack: 1
+            extension: exe
             
     runs-on: ${{ matrix.os }}
 
@@ -74,24 +75,39 @@ jobs:
         ninja
 
     - name: Test
+      if: ${{ matrix.test == 1 }}
       run: |
         cd ${{github.workspace}}/build
         ctest -C Release -V
-      if: ${{ matrix.test == 1 }}
   
-    - name: Upload build
+    - name: Pack
       id: cpack
+      if: ${{ matrix.pack == 1 }}
       run: |
         cd ${{github.workspace}}/build
-        source ${{github.workspace}}/CI/${{matrix.platform}}/upload_package.sh
-      env:
-        DEPLOY_RSA: ${{ secrets.DEPLOY_RSA }}
+        cpack
         
     - name: Additional logs
       if: ${{ failure() && steps.cpack.outcome == 'failure' && matrix.platform == 'mxe' }}
       run: |
         cat ${{github.workspace}}/build/_CPack_Packages/win32/NSIS/project.nsi
         cat ${{github.workspace}}/build/_CPack_Packages/win32/NSIS/NSISOutput.log
+        
+    - name: Artifacts
+      if: ${{ matrix.pack == 1 }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }}
+        path: ${{github.workspace}}/build/${{ env.VCMI_PACKAGE_FILE_NAME }}.${{ matrix.extension }}
+  
+    - name: Upload build
+      if: ${{ matrix.pack == 1 && github.ref == 'refs/heads/develop' }}
+      run: |
+        cd ${{github.workspace}}/build
+        source ${{github.workspace}}/CI/${{matrix.platform}}/upload_package.sh
+      env:
+        DEPLOY_RSA: ${{ secrets.DEPLOY_RSA }}
+        PACKAGE_EXTENSION: ${{ matrix.extension }}
         
     - uses: act10ns/slack@v1
       with:
