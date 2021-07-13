@@ -104,7 +104,7 @@ jobs:
       if: ${{ matrix.pack == 1 && github.ref == 'refs/heads/develop' }}
       run: |
         cd ${{github.workspace}}/build
-        source ${{github.workspace}}/CI/${{matrix.platform}}/upload_package.sh
+        source ${{github.workspace}}/CI/upload_package.sh
       env:
         DEPLOY_RSA: ${{ secrets.DEPLOY_RSA }}
         PACKAGE_EXTENSION: ${{ matrix.extension }}
