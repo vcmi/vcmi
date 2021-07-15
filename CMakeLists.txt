@@ -64,7 +64,7 @@ set(PACKAGE_FILE_NAME "" CACHE STRING "Override for CPack package filename")
 #        Miscellaneous options             #
 ############################################
 
-set(CMAKE_MODULE_PATH ${CMAKE_HOME_DIRECTORY}/cmake_modules)
+set(CMAKE_MODULE_PATH ${CMAKE_HOME_DIRECTORY}/cmake_modules ${PROJECT_SOURCE_DIR}/CI)
 # Contains custom functions and macros, but don't altering any options
 include(VCMIUtils)
 vcmi_print_important_variables()
@@ -88,7 +88,7 @@ define_property(
 # Generate Version.cpp
 if(ENABLE_GITVERSION)
 	add_custom_target(update_version ALL
-		COMMAND ${CMAKE_COMMAND} -DGIT_SHA1="${GIT_SHA1}" -P "${CMAKE_MODULE_PATH}/Version.cmake"
+		COMMAND ${CMAKE_COMMAND} -DGIT_SHA1="${GIT_SHA1}" -P "${PROJECT_SOURCE_DIR}/cmake_modules/Version.cmake"
 	)
 else()
 	add_definitions(-DVCMI_NO_EXTRA_VERSION)

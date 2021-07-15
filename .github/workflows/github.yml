@@ -1,0 +1,118 @@
+name: CMake
+
+on: [ push ]
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - platform: linux
+            os: ubuntu-20.04
+            cc: clang-10
+            cxx: clang++-10
+            test: 0
+          - platform: linux
+            os: ubuntu-20.04
+            cc: gcc-9
+            cxx: g++-9
+            test: 0
+          - platform: mac
+            os: macos-latest
+            test: 0
+            pack: 1
+            extension: dmg
+          - platform: mxe
+            os: ubuntu-20.04
+            mxe: i686-w64-mingw32.shared
+            test: 0
+            pack: 1
+            extension: exe
+            
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+
+    - name: Dependencies
+      run: source ${{github.workspace}}/CI/${{matrix.platform}}/before_install.sh
+      env:
+        MXE_TARGET: ${{ matrix.mxe }}
+        
+    - name: Git branch name
+      id: git-branch-name
+      uses: EthanSK/git-branch-name-action@v1
+
+    - name: Build Number
+      run: |
+        source ${{github.workspace}}/CI/get_package_name.sh
+        echo VCMI_PACKAGE_FILE_NAME="$VCMI_PACKAGE_FILE_NAME" >> $GITHUB_ENV
+        echo VCMI_PACKAGE_NAME_SUFFIX="$VCMI_PACKAGE_NAME_SUFFIX" >> $GITHUB_ENV
+      env:
+        PULL_REQUEST: ${{ github.event.pull_request.number }}
+
+    - name: Configure CMake
+      run: |
+        mkdir ${{github.workspace}}/build
+        cd ${{github.workspace}}/build
+        cmake -G Ninja .. -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
+            -DENABLE_TEST=${{matrix.test}} \
+            -DPACKAGE_NAME_SUFFIX:STRING="$VCMI_PACKAGE_NAME_SUFFIX" \
+            -DPACKAGE_FILE_NAME:STRING="$VCMI_PACKAGE_FILE_NAME"
+      env:
+        CC: ${{ matrix.cc }}
+        CXX: ${{ matrix.cxx }}
+
+    - name: Build
+      run: |
+        cd ${{github.workspace}}/build
+        ninja
+
+    - name: Test
+      if: ${{ matrix.test == 1 }}
+      run: |
+        cd ${{github.workspace}}/build
+        ctest -C Release -V
+  
+    - name: Pack
+      id: cpack
+      if: ${{ matrix.pack == 1 }}
+      run: |
+        cd ${{github.workspace}}/build
+        cpack
+        
+    - name: Additional logs
+      if: ${{ failure() && steps.cpack.outcome == 'failure' && matrix.platform == 'mxe' }}
+      run: |
+        cat ${{github.workspace}}/build/_CPack_Packages/win32/NSIS/project.nsi
+        cat ${{github.workspace}}/build/_CPack_Packages/win32/NSIS/NSISOutput.log
+        
+    - name: Artifacts
+      if: ${{ matrix.pack == 1 }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }}
+        path: ${{github.workspace}}/build/${{ env.VCMI_PACKAGE_FILE_NAME }}.${{ matrix.extension }}
+  
+    - name: Upload build
+      if: ${{ matrix.pack == 1 && github.ref == 'refs/heads/develop' }}
+      run: |
+        cd ${{github.workspace}}/build
+        source ${{github.workspace}}/CI/upload_package.sh
+      env:
+        DEPLOY_RSA: ${{ secrets.DEPLOY_RSA }}
+        PACKAGE_EXTENSION: ${{ matrix.extension }}
+        
+    - uses: act10ns/slack@v1
+      with:
+        status: ${{ job.status }}
+        channel: '#notifications'
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      if: always()

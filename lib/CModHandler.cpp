@@ -719,45 +719,67 @@ bool CModHandler::checkDependencies(const std::vector <TModID> & input) const
 	return true;
 }
 
-std::vector <TModID> CModHandler::resolveDependencies(std::vector <TModID> modsToResolve) const
+// Returned vector affects the resource loaders call order (see CFilesystemList::load).
+// The loaders call order matters when dependent mod overrides resources in its dependencies.
+std::vector <TModID> CModHandler::validateAndSortDependencies(std::vector <TModID> modsToResolve) const
 {
-	std::vector<TModID> brokenMods;
+	// Topological sort algorithm.
+	// TODO: Investigate possible ways to improve performance.
+	boost::range::sort(modsToResolve); // Sort mods per name
+	std::vector <TModID> sortedValidMods; // Vector keeps order of elements (LIFO) 
+	sortedValidMods.reserve(modsToResolve.size()); // push_back calls won't cause memory reallocation
+	std::set <TModID> resolvedModIDs; // Use a set for validation for performance reason, but set does not keep order of elements
 
-	auto looksValid = [&](const CModInfo & mod) -> bool
+	// Mod is resolved if it has not dependencies or all its dependencies are already resolved
+	auto isResolved = [&](const CModInfo & mod) -> CModInfo::EValidationStatus
 	{
-		auto res = true;
+		if(mod.dependencies.size() > resolvedModIDs.size())
+			return CModInfo::PENDING;
+
 		for(const TModID & dependency : mod.dependencies)
 		{
-			if(!vstd::contains(modsToResolve, dependency))
-			{
-				logMod->error("Mod '%s' will not work: it depends on mod '%s', which is not installed.", mod.name, dependency);
-				res = false; //continue iterations, since we should show all errors for the current mod.
-			}
+			if(!vstd::contains(resolvedModIDs, dependency))
+				return CModInfo::PENDING;
 		}
-		return res;
+		return CModInfo::PASSED;
 	};
 
 	while(true)
 	{
-		for(auto mod : modsToResolve)
+		std::set <TModID> resolvedOnCurrentTreeLevel;
+		for(auto it = modsToResolve.begin(); it != modsToResolve.end();) // One iteration - one level of mods tree
 		{
-			if(!looksValid(this->allMods.at(mod)))
-				brokenMods.push_back(mod);
-		}
-		if(!brokenMods.empty())
-		{
-			vstd::erase_if(modsToResolve, [&](TModID mid)
+			if(isResolved(allMods.at(*it)) == CModInfo::PASSED)
 			{
-				return brokenMods.end() != std::find(brokenMods.begin(), brokenMods.end(), mid);
-			});
-			brokenMods.clear();
+				resolvedOnCurrentTreeLevel.insert(*it); // Not to the resolvedModIDs, so current node childs will be resolved on the next iteration
+				sortedValidMods.push_back(*it);
+				it = modsToResolve.erase(it);
 				continue;
+			}
+			it++;
 		}
+		if(resolvedOnCurrentTreeLevel.size())
+		{
+			resolvedModIDs.insert(resolvedOnCurrentTreeLevel.begin(), resolvedOnCurrentTreeLevel.end());
+		            continue;
+		}
+		// If there're no valid mods on the current mods tree level, no more mod can be resolved, should be end.
 		break;
 	}
-	boost::range::sort(modsToResolve);
-	return modsToResolve;
+
+	// Left mods have unresolved dependencies, output all to log.
+	for(const auto & brokenModID : modsToResolve)
+	{
+		const CModInfo & brokenMod = allMods.at(brokenModID);
+		for(const TModID & dependency : brokenMod.dependencies)
+		{
+			if(!vstd::contains(resolvedModIDs, dependency))
+				logMod->error("Mod '%s' will not work: it depends on mod '%s', which is not installed.", brokenMod.name, dependency);
+		}
+	}
+	return sortedValidMods;
 }
+
 
 std::vector<std::string> CModHandler::getModList(std::string path)
 {
@@ -898,7 +920,7 @@ static ui32 calculateModChecksum(const std::string modName, ISimpleResourceLoade
 
 void CModHandler::loadModFilesystems()
 {
-	activeMods = resolveDependencies(activeMods);
+	activeMods = validateAndSortDependencies(activeMods);
 
 	coreMod.updateChecksum(calculateModChecksum("core", CResourceHandler::get("core")));
 

@@ -4,7 +4,7 @@
 sudo apt-get install -qq nsis ninja-build
 
 # MXE repository was too slow for Travis far too often
-wget https://github.com/vcmi/vcmi-deps-mxe/releases/download/2019-06-28/mxe-i686-w64-mingw32.shared-2019-06-28.tar
+wget -nv https://github.com/vcmi/vcmi-deps-mxe/releases/download/2019-06-28/mxe-i686-w64-mingw32.shared-2019-06-28.tar
 tar -xvf mxe-i686-w64-mingw32.shared-2019-06-28.tar
 sudo dpkg -i mxe-*.deb
 sudo apt-get install -f --yes
@@ -36,5 +36,7 @@ mxe-i686-w64-mingw32.static-luajit
 fi # Disable
 
 # alias for CMake
-sudo mv /usr/bin/cmake /usr/bin/cmake.orig
-sudo ln -s /usr/lib/mxe/usr/bin/$MXE_TARGET-cmake /usr/bin/cmake
+
+CMAKE_LOCATION=$(which cmake)
+sudo mv $CMAKE_LOCATION $CMAKE_LOCATION.orig
+sudo ln -s /usr/lib/mxe/usr/bin/$MXE_TARGET-cmake $CMAKE_LOCATION

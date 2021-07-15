@@ -90,11 +90,7 @@ set(test_SRCS
  		spells/targetConditions/ReceptiveFeatureConditionTest.cpp
  		spells/targetConditions/SpellEffectConditionTest.cpp
  		spells/targetConditions/TargetConditionItemFixture.cpp
-
-		vcai/mock_ResourceManager.cpp
-		vcai/mock_VCAI.cpp
-		vcai/ResurceManagerTest.cpp
-
+		
 		mock/BattleFake.cpp
  		mock/mock_IGameCallback.cpp
  		mock/mock_MapService.cpp
@@ -147,16 +143,12 @@ set(mock_HEADERS
 		mock/mock_UnitInfo.h
 		mock/mock_vstd_RNG.h
 		mock/mock_CPSICallback.h
-
-		vcai/mock_ResourceManager.h
-		vcai/mock_VCAI.h
-		vcai/mock_VCAI_CGoal.h
 )
 
 add_subdirectory_with_folder("3rdparty" googletest EXCLUDE_FROM_ALL)
 
 add_executable(vcmitest ${test_SRCS} ${test_HEADERS} ${mock_HEADERS})
-target_link_libraries(vcmitest PRIVATE gtest gmock vcmi ${SYSTEM_LIBS} VCAI)
+target_link_libraries(vcmitest PRIVATE gtest gmock vcmi ${SYSTEM_LIBS})
 
 target_include_directories(vcmitest
 		PUBLIC	${CMAKE_CURRENT_SOURCE_DIR}

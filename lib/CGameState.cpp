@@ -1158,7 +1158,7 @@ CGameState::CrossoverHeroesList CGameState::getCrossoverHeroesFromPreviousScenar
 
 	auto campaignState = scenarioOps->campState;
 	auto bonus = campaignState->getBonusForCurrentMap();
-	if (bonus && bonus->type == CScenarioTravel::STravelBonus::HEROES_FROM_PREVIOUS_SCENARIO)
+	if(bonus && bonus->type == CScenarioTravel::STravelBonus::HEROES_FROM_PREVIOUS_SCENARIO)
 	{
 		std::vector<CGHeroInstance *> heroes;
 		for(auto & node : campaignState->camp->scenarios[bonus->info2].crossoverHeroes)
@@ -1172,12 +1172,8 @@ CGameState::CrossoverHeroesList CGameState::getCrossoverHeroesFromPreviousScenar
 	{
 		if(!campaignState->mapsConquered.empty())
 		{
-			std::vector<CGHeroInstance *> heroes;
-			for(auto & node : campaignState->camp->scenarios[campaignState->mapsConquered.back()].crossoverHeroes)
-			{
-				auto h = CCampaignState::crossoverDeserialize(node);
-				heroes.push_back(h);
-			}
+			std::vector<CGHeroInstance *> heroes = {};
+
 			crossoverHeroes.heroesFromAnyPreviousScenarios = crossoverHeroes.heroesFromPreviousScenario = heroes;
 			crossoverHeroes.heroesFromPreviousScenario = heroes;
 
@@ -1190,7 +1186,7 @@ CGameState::CrossoverHeroesList CGameState::getCrossoverHeroesFromPreviousScenar
 				// remove heroes which didn't reached the end of the scenario, but were available at the start
 				for(auto hero : lostCrossoverHeroes)
 				{
-//					auto hero = CCampaignState::crossoverDeserialize(node);
+					//					auto hero = CCampaignState::crossoverDeserialize(node);
 					vstd::erase_if(crossoverHeroes.heroesFromAnyPreviousScenarios, [hero](CGHeroInstance * h)
 					{
 						return hero->subID == h->subID;
@@ -1202,11 +1198,12 @@ CGameState::CrossoverHeroesList CGameState::getCrossoverHeroesFromPreviousScenar
 				{
 					auto hero = CCampaignState::crossoverDeserialize(node);
 					// add new heroes and replace old heroes with newer ones
-					auto it = range::find_if(crossoverHeroes.heroesFromAnyPreviousScenarios,  [hero](CGHeroInstance * h)
+					auto it = range::find_if(crossoverHeroes.heroesFromAnyPreviousScenarios, [hero](CGHeroInstance * h)
 					{
 						return hero->subID == h->subID;
 					});
-					if (it != crossoverHeroes.heroesFromAnyPreviousScenarios.end())
+
+					if(it != crossoverHeroes.heroesFromAnyPreviousScenarios.end())
 					{
 						// replace old hero with newer one
 						crossoverHeroes.heroesFromAnyPreviousScenarios[it - crossoverHeroes.heroesFromAnyPreviousScenarios.begin()] = hero;
@@ -1215,6 +1212,11 @@ CGameState::CrossoverHeroesList CGameState::getCrossoverHeroesFromPreviousScenar
 					{
 						// add new hero
 						crossoverHeroes.heroesFromAnyPreviousScenarios.push_back(hero);
+					}
+
+					if(mapNr == campaignState->mapsConquered.back())
+					{
+						crossoverHeroes.heroesFromPreviousScenario.push_back(hero);
 					}
 				}
 			}

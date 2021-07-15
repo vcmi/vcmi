@@ -194,6 +194,7 @@ TEST_F(TargetConditionTest, StoresNormalLevelCondition)
 
 TEST_F(TargetConditionTest, StoresReceptiveFeature)
 {
+	redirectFactoryToStub();
 	auto itemStub = std::make_shared<StrictMock<ItemMock>>();
 	EXPECT_CALL(factoryMock, createReceptiveFeature()).WillOnce(Return(itemStub));
 	setupSubject(JsonNode());
