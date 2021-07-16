@@ -181,6 +181,20 @@ void CCreature::fillWarMachine()
 	warMachine = ArtifactID::NONE; //this creature is not artifact
 }
 
+void CCreature::updateOppositeBonuses()
+{
+	auto & bonusList = getExportedBonusList();
+	for(auto & bonus : bonusList)
+	{
+		if(bonus->effectRange == Bonus::ONLY_ENEMY_ARMY //Opposite Side bonuses should not be exported from CREATURE node.
+			|| (bonus->propagator && bonus->propagator->getPropagatorType() == CBonusSystemNode::BATTLE))
+		{
+			bonus->effectRange == Bonus::ONLY_ENEMY_ARMY;
+			bonus->propagator.reset();
+		}
+	}
+}
+
 static void AddAbility(CCreature *cre, const JsonVector &ability_vec)
 {
 	auto nsf = std::make_shared<Bonus>();
@@ -188,22 +202,14 @@ static void AddAbility(CCreature *cre, const JsonVector &ability_vec)
 
 	auto it = bonusNameMap.find(type);
 
-	if (it == bonusNameMap.end()) {
-		if (type == "DOUBLE_WIDE")
+	if(it == bonusNameMap.end())
+	{
+		if(type == "DOUBLE_WIDE")
 			cre->doubleWide = true;
-		else if (type == "ENEMY_MORALE_DECREASING") {
-			cre->addBonus(-1, Bonus::MORALE);
-			cre->getBonusList().back()->effectRange = Bonus::ONLY_ENEMY_ARMY;
-		}
-		else if (type == "ENEMY_LUCK_DECREASING") {
-			cre->addBonus(-1, Bonus::LUCK);
-			cre->getBonusList().back()->effectRange = Bonus::ONLY_ENEMY_ARMY;
-		} else
+		else
 			logGlobal->error("Error: invalid ability type %s in creatures config", type);
-
 		return;
 	}
-
 	nsf->type = it->second;
 
 	JsonUtils::parseTypedBonusShort(ability_vec,nsf);
@@ -318,13 +324,6 @@ void CCreatureHandler::loadBonuses(JsonNode & creature, std::string bonuses)
 		node["val"].Float() = 1;
 		node["propagator"].String() = "HERO";
 		creature["abilities"]["const_raises_morale"] = node;
-	}
-	if(hasAbility("const_lowers_morale"))
-	{
-		JsonNode node = makeBonusNode("MORALE");
-		node["val"].Float() = -1;
-		node["effectRange"].String() = "ONLY_ENEMY_ARMY";
-		creature["abilities"]["const_lowers_morale"] = node;
 	}
 }
 
@@ -740,6 +739,10 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 			if (!ability.second.isNull())
 			{
 				auto b = JsonUtils::parseBonus(ability.second);
+
+				if(b->effectRange == Bonus::ONLY_ENEMY_ARMY) //Opposite Side bonuses should not be exported from CREATURE node.
+					b->propagator.reset();
+
 				b->source = Bonus::CREATURE_ABILITY;
 				b->duration = Bonus::PERMANENT;
 				creature->addNewBonus(b);
@@ -1194,14 +1197,20 @@ CreatureID CCreatureHandler::pickRandomMonster(CRandomGenerator & rand, int tier
 	return CreatureID(r);
 }
 
-void CCreatureHandler::addBonusForTier(int tier, std::shared_ptr<Bonus> b)
+void CCreatureHandler::addBonusForTier(int tier, const std::shared_ptr<Bonus> & b)
 {
 	assert(vstd::iswithin(tier, 1, 7));
 	creaturesOfLevel[tier].addNewBonus(b);
 }
 
-void CCreatureHandler::addBonusForAllCreatures(std::shared_ptr<Bonus> b)
+void CCreatureHandler::addBonusForAllCreatures(const std::shared_ptr<Bonus> & b)
 {
+	const auto & exportedBonuses = allCreatures.getExportedBonusList();
+	for(const auto & bonus : exportedBonuses)
+	{
+		if(bonus->type == b->type && bonus->subtype == b->subtype)
+			return;
+	}
 	allCreatures.addNewBonus(b);
 }
 

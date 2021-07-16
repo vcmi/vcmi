@@ -223,6 +223,7 @@ public:
 	//void lootArtifacts (TArtHolder source, TArtHolder dest, std::vector<ui32> &arts); //after battle - move al arts to winer
 	bool buySecSkill( const IMarket *m, const CGHeroInstance *h, SecondarySkill skill);
 	bool garrisonSwap(ObjectInstanceID tid);
+	bool garrisonSwapOnSiege(ObjectInstanceID tid);
 	bool upgradeCreature( ObjectInstanceID objid, SlotID pos, CreatureID upgID );
 	bool recruitCreatures(ObjectInstanceID objid, ObjectInstanceID dst, CreatureID crid, ui32 cram, si32 level);
 	bool buildStructure(ObjectInstanceID tid, BuildingID bid, bool force=false);//force - for events: no cost, no checkings

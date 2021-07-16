@@ -339,10 +339,13 @@
 			{
 				"type" : "DRAGON_NATURE"
 			},
-			"const_lowers_morale" :
+			"descreaseMorale" :
 			{
+				"type" : "MORALE",
+				"effectRange": "ONLY_ENEMY_ARMY",
+				"val" : -1,
 				"stacking" : "Undead Dragons"
-			}
+			},
 		},
 		"upgrades": ["ghostDragon"],
 		"graphics" :
@@ -369,8 +372,11 @@
 			{
 				"type" : "DRAGON_NATURE"
 			},
-			"const_lowers_morale" :
+			"descreaseMorale" :
 			{
+				"type" : "MORALE",
+				"effectRange": "ONLY_ENEMY_ARMY",
+				"val" : -1,
 				"stacking" : "Undead Dragons"
 			},
 			"age" :

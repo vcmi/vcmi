@@ -1489,24 +1489,23 @@ void CPlayerInterface::objectPropertyChanged(const SetObjectProperty * sop)
 	{
 		const CGObjectInstance * obj = cb->getObj(sop->id);
 		std::set<int3> pos = obj->getBlockedPos();
-		for (auto & po : pos)
+
+		for(auto & po : pos)
 		{
-			if (cb->isVisible(po))
+			if(cb->isVisible(po))
 				adventureInt->minimap.showTile(po);
 		}
-
-		if (obj->ID == Obj::TOWN)
+		if(obj->ID == Obj::TOWN)
 		{
-			if (obj->tempOwner == playerID)
+			if(obj->tempOwner == playerID)
 				towns.push_back(static_cast<const CGTownInstance *>(obj));
 			else
 				towns -= obj;
+
 			adventureInt->townList.update();
 		}
-
 		assert(cb->getTownsInfo().size() == towns.size());
 	}
-
 }
 
 void CPlayerInterface::initializeHeroTownList()

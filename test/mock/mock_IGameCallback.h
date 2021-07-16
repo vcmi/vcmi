@@ -76,6 +76,7 @@ public:
 	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, bool creatureBank = false) override {}; //if any of armies is hero, hero will be used, visitable tile of second obj is place of battle
 	void setAmount(ObjectInstanceID objid, ui32 val) override {};
 	bool moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, bool transit = false, PlayerColor asker = PlayerColor::NEUTRAL) override {return false;};
+	bool garrisonSwapOnSiege(ObjectInstanceID tid) override {};
 	void giveHeroBonus(GiveBonus * bonus) override {};
 	void setMovePoints(SetMovePoints * smp) override {};
 	void setManaPoints(ObjectInstanceID hid, int val) override {};

@@ -183,6 +183,48 @@ struct RangeGenerator
 	std::function<int()> myRand;
 };
 
+void BattleInfo::adjustOppositeBonuses(CBonusSystemNode * node, PlayerColor ownerColor)
+{
+	auto & bonusList = node->getExportedBonusList();
+	if(bonusList.empty())
+		return;
+
+	for(const auto & bonus : bonusList)
+	{
+		if(bonus->effectRange != Bonus::ONLY_ENEMY_ARMY)
+			continue;
+
+		auto limPtr = bonus->limiter.get();
+		if(limPtr)
+			static_cast<OppositeSideLimiter *>(limPtr)->owner = ownerColor;
+		else
+			logGlobal->error("adjustOppositeBonuses. Limiter has been lost. Node is %s", node->nodeShortInfo());
+	}
+}
+
+void BattleInfo::adjustOppositeBonuses(BattleInfo * curB)
+{
+	for(int i = 0; i < 2; i++)
+	{
+		TNodes nodes;
+		auto * army = curB->battleGetArmyObject(i);
+		auto ownerColor = curB->sides[i].color;
+
+		if(army->getNodeType() == CBonusSystemNode::HERO)
+			adjustOppositeBonuses(army, ownerColor);
+			
+		army->getRedAncestors(nodes);
+
+		for(auto node : nodes)
+		{
+			auto currentNodeType = node->getNodeType();
+
+			if(currentNodeType == CBonusSystemNode::ARTIFACT || currentNodeType == CBonusSystemNode::TOWN)
+				adjustOppositeBonuses(node, ownerColor);
+		}
+	}
+}
+
 BattleInfo * BattleInfo::setupBattle(int3 tile, ETerrainType terrain, BFieldType battlefieldType, const CArmedInstance * armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance * town)
 {
 	CMP_stack cmpst;
@@ -525,8 +567,8 @@ BattleInfo * BattleInfo::setupBattle(int3 tile, ETerrainType terrain, BFieldType
 	//overlay premies given
 
 	//native terrain bonuses
-	auto nativeTerrain = std::make_shared<CreatureTerrainLimiter>();
-
+	static auto nativeTerrain = std::make_shared<CreatureTerrainLimiter>();
+	
 	curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::STACKS_SPEED, Bonus::TERRAIN_NATIVE, 1, 0, 0)->addLimiter(nativeTerrain));
 	curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::PRIMARY_SKILL, Bonus::TERRAIN_NATIVE, 1, 0, PrimarySkill::ATTACK)->addLimiter(nativeTerrain));
 	curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::PRIMARY_SKILL, Bonus::TERRAIN_NATIVE, 1, 0, PrimarySkill::DEFENSE)->addLimiter(nativeTerrain));
@@ -552,30 +594,10 @@ BattleInfo * BattleInfo::setupBattle(int3 tile, ETerrainType terrain, BFieldType
 	else
 		curB->tacticDistance = 0;
 
-
-	// workaround  bonuses affecting only enemy - DOES NOT WORK
-	for(int i = 0; i < 2; i++)
-	{
-		TNodes nodes;
-		curB->battleGetArmyObject(i)->getRedAncestors(nodes);
-		for(CBonusSystemNode *n : nodes)
-		{
-			for(auto b : n->getExportedBonusList())
-			{
-				if(b->effectRange == Bonus::ONLY_ENEMY_ARMY/* && b->propagator && b->propagator->shouldBeAttached(curB)*/)
-				{
-					auto bCopy = std::make_shared<Bonus>(*b);
-					bCopy->effectRange = Bonus::NO_LIMIT;
-					bCopy->propagator.reset();
-					bCopy->limiter.reset(new StackOwnerLimiter(curB->sides[!i].color));
-					curB->addNewBonus(bCopy);
-				}
-			}
-		}
-	}
-
+	adjustOppositeBonuses(curB);
 	return curB;
 }
+
 
 const CGHeroInstance * BattleInfo::getHero(PlayerColor player) const
 {

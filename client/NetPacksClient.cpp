@@ -543,7 +543,7 @@ void InfoWindow::applyCl(CClient *cl)
 		logNetwork->warn("We received InfoWindow for not our player...");
 }
 
-void SetObjectProperty::applyCl(CClient *cl)
+void SetObjectProperty::applyCl(CClient * cl)
 {
 	//inform all players that see this object
 	for(auto it = cl->playerint.cbegin(); it != cl->playerint.cend(); ++it)

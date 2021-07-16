@@ -323,7 +323,7 @@ public:
 	BONUS_NAME(GARGOYLE) /* gargoyle is special than NON_LIVING, cannot be rised or healed */ \
 	BONUS_NAME(SPECIAL_ADD_VALUE_ENCHANT) /*specialty spell like Aenin has, increased effect of spell, additionalInfo = value to add*/\
 	BONUS_NAME(SPECIAL_FIXED_VALUE_ENCHANT) /*specialty spell like Melody has, constant spell effect (i.e. 3 luck), additionalInfo = value to fix.*/\
-
+	BONUS_NAME(TOWN_MAGIC_WELL) /*one-time pseudo-bonus to implement Magic Well in the town*/ \
 	/* end of list */
 
 
@@ -455,6 +455,10 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 		{
 			h & updater;
 		}
+		if(version < 795 && !h.saving) //Opposite Side bonuses are introduced
+		{
+			updateOppositeBonuses();
+		}
 	}
 
 	template <typename Ptr>
@@ -522,6 +526,10 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 	std::shared_ptr<Bonus> addLimiter(TLimiterPtr Limiter); //returns this for convenient chain-calls
 	std::shared_ptr<Bonus> addPropagator(TPropagatorPtr Propagator); //returns this for convenient chain-calls
 	std::shared_ptr<Bonus> addUpdater(TUpdaterPtr Updater); //returns this for convenient chain-calls
+
+	inline void createOppositeLimiter();
+	inline void createBattlePropagator();
+	void updateOppositeBonuses();
 };
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const Bonus &bonus);
@@ -740,7 +748,7 @@ public:
 	{
 		NONE = -1, 
 		UNKNOWN, STACK_INSTANCE, STACK_BATTLE, SPECIALTY, ARTIFACT, CREATURE, ARTIFACT_INSTANCE, HERO, PLAYER, TEAM,
-		TOWN_AND_VISITOR, BATTLE, COMMANDER, GLOBAL_EFFECTS, ALL_CREATURES
+		TOWN_AND_VISITOR, BATTLE, COMMANDER, GLOBAL_EFFECTS, ALL_CREATURES, TOWN
 	};
 private:
 	BonusList bonuses; //wielded bonuses (local or up-propagated here)
@@ -762,7 +770,6 @@ private:
 	// [property key]_[value] => only for selector
 	mutable std::map<std::string, TBonusListPtr > cachedRequests;
 
-	void getBonusesRec(BonusList &out, const CSelector &selector, const CSelector &limit) const;
 	void getAllBonusesRec(BonusList &out) const;
 	TConstBonusListPtr getAllBonusesWithoutCaching(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = nullptr) const;
 	std::shared_ptr<Bonus> update(const std::shared_ptr<Bonus> & b) const;
@@ -777,15 +784,18 @@ public:
 	TBonusListPtr limitBonuses(const BonusList &allBonuses) const; //same as above, returns out by val for convienence
 	TConstBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = nullptr, const std::string &cachingStr = "") const override;
 	void getParents(TCNodes &out) const;  //retrieves list of parent nodes (nodes to inherit bonuses from),
-	std::shared_ptr<const Bonus> getBonusLocalFirst(const CSelector &selector) const;
+	std::shared_ptr<const Bonus> getBonusLocalFirst(const CSelector & selector) const;
 
 	//non-const interface
 	void getParents(TNodes &out);  //retrieves list of parent nodes (nodes to inherit bonuses from)
+
 	void getRedParents(TNodes &out);  //retrieves list of red parent nodes (nodes bonuses propagate from)
 	void getRedAncestors(TNodes &out);
 	void getRedChildren(TNodes &out);
 	void getRedDescendants(TNodes &out);
-	std::shared_ptr<Bonus> getBonusLocalFirst(const CSelector &selector);
+	void getAllParents(TCNodes & out) const;
+	static PlayerColor retrieveNodeOwner(const CBonusSystemNode * node);
+	std::shared_ptr<Bonus> getBonusLocalFirst(const CSelector & selector);
 
 	void attachTo(CBonusSystemNode *parent);
 	void detachFrom(CBonusSystemNode *parent);
@@ -809,13 +819,14 @@ public:
 	void reduceBonusDurations(const CSelector &s);
 	virtual std::string bonusToString(const std::shared_ptr<Bonus>& bonus, bool description) const {return "";}; //description or bonus name
 	virtual std::string nodeName() const;
+	virtual std::string nodeShortInfo() const;
 
 	void deserializationFix();
 	void exportBonus(std::shared_ptr<Bonus> b);
 	void exportBonuses();
 
 	const BonusList &getBonusList() const;
-	BonusList &getExportedBonusList();
+	BonusList & getExportedBonusList();
 	CBonusSystemNode::ENodeTypes getNodeType() const;
 	void setNodeType(CBonusSystemNode::ENodeTypes type);
 	const TNodesVector &getParentNodes() const;
@@ -1110,6 +1121,22 @@ public:
 	PlayerColor owner;
 	StackOwnerLimiter();
 	StackOwnerLimiter(PlayerColor Owner);
+
+	int limit(const BonusLimitationContext &context) const override;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<ILimiter&>(*this);
+		h & owner;
+	}
+};
+
+class DLL_LINKAGE OppositeSideLimiter : public ILimiter //applies only to creatures of enemy army during combat
+{
+public:
+	PlayerColor owner;
+	OppositeSideLimiter();
+	OppositeSideLimiter(PlayerColor Owner);
 
 	int limit(const BonusLimitationContext &context) const override;
 

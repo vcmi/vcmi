@@ -184,7 +184,7 @@ public:
 	bool moveStack(const StackLocation & src, const StackLocation & dst, TQuantity count = -1) override {return false;}
 
 	void removeAfterVisit(const CGObjectInstance * object) override {};
-
+	bool garrisonSwapOnSiege(ObjectInstanceID tid) override {return false;};
 	void giveHeroNewArtifact(const CGHeroInstance * h, const CArtifact * artType, ArtifactPosition pos) override {};
 	void giveHeroArtifact(const CGHeroInstance * h, const CArtifactInstance * a, ArtifactPosition pos) override {};
 	void putArtifact(const ArtifactLocation & al, const CArtifactInstance * a) override {};

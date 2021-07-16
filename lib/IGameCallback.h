@@ -87,6 +87,7 @@ public:
 	virtual void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, bool creatureBank = false)=0; //if any of armies is hero, hero will be used, visitable tile of second obj is place of battle
 	virtual void setAmount(ObjectInstanceID objid, ui32 val)=0;
 	virtual bool moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, bool transit = false, PlayerColor asker = PlayerColor::NEUTRAL)=0;
+	virtual bool garrisonSwapOnSiege(ObjectInstanceID tid)=0;
 	virtual void giveHeroBonus(GiveBonus * bonus)=0;
 	virtual void setMovePoints(SetMovePoints * smp)=0;
 	virtual void setManaPoints(ObjectInstanceID hid, int val)=0;

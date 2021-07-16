@@ -627,10 +627,38 @@ void CStackInstance::setType(CreatureID creID)
 		setType((const CCreature*)nullptr);
 }
 
+
+void CStackInstance::copyOppositeBonusesFromCreature(const CCreature * creature)
+{
+	auto owner = _armyObj ? _armyObj->getOwner() : PlayerColor::NEUTRAL;
+
+	if(owner == PlayerColor::UNFLAGGABLE)
+		owner = PlayerColor::NEUTRAL;
+
+	auto & creatureBonuses = const_cast<CCreature *>(type)->getExportedBonusList();
+
+	for(auto & creatureBonus : creatureBonuses)
+	{
+		if(creatureBonus->effectRange == Bonus::ONLY_ENEMY_ARMY) //it has better prformance than dynamic_cast
+		{
+			auto bCopy = std::make_shared<Bonus>(*creatureBonus);
+			bCopy->propagator.reset(new CPropagatorNodeType(CBonusSystemNode::BATTLE));
+			bCopy->limiter.reset(new OppositeSideLimiter(owner));
+			this->addNewBonus(bCopy);
+		}
+	}
+}
+
+void CStackInstance::removeOppositeBonuses()
+{
+	removeBonuses(Selector::effectRange()(Bonus::ONLY_ENEMY_ARMY));
+}
+
 void CStackInstance::setType(const CCreature *c)
 {
 	if(type)
 	{
+		removeOppositeBonuses();
 		detachFrom(const_cast<CCreature*>(type));
 		if (type->isMyUpgrade(c) && VLC->modh->modules.STACK_EXP)
 			experience = static_cast<TExpType>(experience * VLC->creh->expAfterUpgrade / 100.0);
@@ -639,7 +667,11 @@ void CStackInstance::setType(const CCreature *c)
 	CStackBasicDescriptor::setType(c);
 
 	if(type)
-		attachTo(const_cast<CCreature*>(type));
+	{
+		auto creature = const_cast<CCreature*>(type);
+		copyOppositeBonusesFromCreature(creature);
+		attachTo(creature);
+	}
 }
 std::string CStackInstance::bonusToString(const std::shared_ptr<Bonus>& bonus, bool description) const
 {
@@ -659,7 +691,7 @@ std::string CStackInstance::bonusToGraphics(const std::shared_ptr<Bonus>& bonus)
 	return VLC->getBth()->bonusToGraphics(bonus);
 }
 
-void CStackInstance::setArmyObj(const CArmedInstance *ArmyObj)
+void CStackInstance::setArmyObj(const CArmedInstance * ArmyObj)
 {
 	if(_armyObj)
 		detachFrom(const_cast<CArmedInstance*>(_armyObj));
@@ -667,6 +699,24 @@ void CStackInstance::setArmyObj(const CArmedInstance *ArmyObj)
 	_armyObj = ArmyObj;
 	if(ArmyObj)
 	{
+		auto owner = _armyObj->getOwner();
+
+		if(owner == PlayerColor::UNFLAGGABLE)
+			owner = PlayerColor::NEUTRAL;
+
+		auto & bonusList = getExportedBonusList();
+
+		for(auto & bonus : bonusList)
+		{
+			if(bonus->effectRange != Bonus::ONLY_ENEMY_ARMY)
+				continue;
+
+			auto limPtr = bonus->limiter.get();
+			if(limPtr)
+				static_cast<OppositeSideLimiter *>(limPtr)->owner = owner;
+			else
+				logGlobal->error("setArmyObj. Limiter has been lost. Creature is %s", type ? type->nodeShortInfo() : std::string("No creature"));
+		}
 		attachTo(const_cast<CArmedInstance*>(_armyObj));
 	}
 }

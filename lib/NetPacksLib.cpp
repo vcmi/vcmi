@@ -392,43 +392,45 @@ DLL_LINKAGE void RemoveObject::applyGs(CGameState *gs)
 	//unblock tiles
 	gs->map->removeBlockVisTiles(obj);
 
-	if(obj->ID==Obj::HERO)
+	if(obj->ID == Obj::HERO) //remove beaten hero
 	{
-		CGHeroInstance *h = static_cast<CGHeroInstance*>(obj);
-		PlayerState *p = gs->getPlayer(h->tempOwner);
-		gs->map->heroesOnMap -= h;
-		p->heroes -= h;
-		h->detachFrom(h->whereShouldBeAttached(gs));
-		h->tempOwner = PlayerColor::NEUTRAL; //no one owns beaten hero
-		vstd::erase_if(h->artifactsInBackpack, [](const ArtSlotInfo& asi)
+		CGHeroInstance * beatenHero = static_cast<CGHeroInstance*>(obj);
+		PlayerState * p = gs->getPlayer(beatenHero->tempOwner);
+		gs->map->heroesOnMap -= beatenHero;
+		p->heroes -= beatenHero;
+		beatenHero->detachFrom(beatenHero->whereShouldBeAttachedOnSiege(gs));
+		beatenHero->tempOwner = PlayerColor::NEUTRAL; //no one owns beaten hero
+
+		vstd::erase_if(beatenHero->artifactsInBackpack, [](const ArtSlotInfo& asi)
 		{
 			return asi.artifact->artType->id == ArtifactID::GRAIL;
 		});
 
-		if(h->visitedTown)
+		if(beatenHero->visitedTown)
 		{
-			if(h->inTownGarrison)
-				h->visitedTown->garrisonHero = nullptr;
+			if(beatenHero->visitedTown->garrisonHero == beatenHero)
+				beatenHero->visitedTown->garrisonHero = nullptr;
 			else
-				h->visitedTown->visitingHero = nullptr;
-			h->visitedTown = nullptr;
-		}
+				beatenHero->visitedTown->visitingHero = nullptr;
 
+			beatenHero->visitedTown = nullptr;
+			beatenHero->inTownGarrison = false;
+		}
 		//return hero to the pool, so he may reappear in tavern
-		gs->hpool.heroesPool[h->subID] = h;
-		if(!vstd::contains(gs->hpool.pavailable, h->subID))
-			gs->hpool.pavailable[h->subID] = 0xff;
+		gs->hpool.heroesPool[beatenHero->subID] = beatenHero;
+
+		if(!vstd::contains(gs->hpool.pavailable, beatenHero->subID))
+			gs->hpool.pavailable[beatenHero->subID] = 0xff;
 
 		gs->map->objects[id.getNum()] = nullptr;
 
 		//If hero on Boat is removed, the Boat disappears
-		if(h->boat)
+		if(beatenHero->boat)
 		{
-			gs->map->instanceNames.erase(h->boat->instanceName);
-			gs->map->objects[h->boat->id.getNum()].dellNull();
-			h->boat = nullptr;
+			gs->map->instanceNames.erase(beatenHero->boat->instanceName);
+			gs->map->objects[beatenHero->boat->id.getNum()].dellNull();
+			beatenHero->boat = nullptr;
 		}
-
 		return;
 	}
 
