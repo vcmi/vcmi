@@ -31,6 +31,9 @@ public:
 	CStackBasicDescriptor(const CCreature *c, TQuantity Count);
 	virtual ~CStackBasicDescriptor() = default;
 
+	const Creature * getType() const;
+	TQuantity getCount() const;
+
 	virtual void setType(const CCreature * c);
 
 	template <typename Handler> void serialize(Handler &h, const int version)

@@ -64,7 +64,7 @@ bool Sacrifice::applicable(Problem & problem, const Mechanics * m) const
 	auto mainFilter = std::bind(&UnitEffect::getStackFilter, this, m, true, _1);
 	auto predicate = std::bind(&UnitEffect::eraseByImmunityFilter, this, m, _1);
 
-	auto targets = m->cb->battleGetUnitsIf(mainFilter);
+	auto targets = m->battle()->battleGetUnitsIf(mainFilter);
 	vstd::erase_if(targets, predicate);
 
 	bool targetExists = false;
@@ -117,7 +117,7 @@ bool Sacrifice::applicable(Problem & problem, const Mechanics * m, const EffectT
 	return true;
 }
 
-void Sacrifice::apply(BattleStateProxy * battleState, RNG & rng, const Mechanics * m, const EffectTarget & target) const
+void Sacrifice::apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const
 {
 	if(target.size() != 2)
 	{
@@ -136,11 +136,11 @@ void Sacrifice::apply(BattleStateProxy * battleState, RNG & rng, const Mechanics
 	EffectTarget healTarget;
 	healTarget.emplace_back(target.front());
 
-	Heal::apply(calculateHealEffectValue(m, victim), battleState, rng, m, healTarget);
+	Heal::apply(calculateHealEffectValue(m, victim), server, m, healTarget);
 
 	BattleUnitsChanged removeUnits;
 	removeUnits.changedStacks.emplace_back(victim->unitId(), UnitChanges::EOperation::REMOVE);
-	battleState->apply(&removeUnits);
+	server->apply(&removeUnits);
 }
 
 bool Sacrifice::isValidTarget(const Mechanics * m, const battle::Unit * unit) const

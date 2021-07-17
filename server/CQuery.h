@@ -19,8 +19,6 @@ class CGameHandler;
 class CObjectVisitQuery;
 class CQuery;
 class Queries;
-class CSpell;
-class SpellCastEnvironment;
 
 typedef std::shared_ptr<CQuery> QueryPtr;
 

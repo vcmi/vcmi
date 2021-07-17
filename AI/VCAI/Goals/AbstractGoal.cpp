@@ -91,7 +91,7 @@ std::string AbstractGoal::name() const //TODO: virtualize
 	}
 	break;
 	case GET_ART_TYPE:
-		desc = "GET ARTIFACT OF TYPE " + VLC->arth->artifacts[aid]->Name();
+		desc = "GET ARTIFACT OF TYPE " + VLC->artifacts()->getByIndex(aid)->getName();
 		break;
 	case VISIT_TILE:
 		desc = "VISIT TILE " + tile.toString();

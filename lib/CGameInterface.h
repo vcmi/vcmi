@@ -18,6 +18,9 @@
 #include "mapObjects/CObjectHandler.h"
 
 using boost::logic::tribool;
+
+class Environment;
+
 class CCallback;
 class CBattleCallback;
 class ICallback;
@@ -53,7 +56,10 @@ class CSaveFile;
 class BinaryDeserializer;
 class BinarySerializer;
 struct ArtifactLocation;
-class CScriptingModule;
+namespace scripting
+{
+	class Module;
+}
 
 class DLL_LINKAGE CBattleGameInterface : public IBattleEventsReceiver
 {
@@ -63,15 +69,11 @@ public:
 	std::string dllName;
 
 	virtual ~CBattleGameInterface() {};
-	virtual void init(std::shared_ptr<CBattleCallback> CB){};
+	virtual void init(std::shared_ptr<Environment> ENV, std::shared_ptr<CBattleCallback> CB){};
 
 	//battle call-ins
 	virtual BattleAction activeStack(const CStack * stack)=0; //called when it's turn of that stack
 	virtual void yourTacticPhase(int distance){}; //called when interface has opportunity to use Tactics skill -> use cb->battleMakeTacticAction from this function
-
-	virtual void saveGame(BinarySerializer & h, const int version);
-	virtual void loadGame(BinaryDeserializer & h, const int version);
-
 };
 
 /// Central class for managing human player / AI interface logic
@@ -79,7 +81,7 @@ class DLL_LINKAGE CGameInterface : public CBattleGameInterface, public IGameEven
 {
 public:
 	virtual ~CGameInterface() = default;
-	virtual void init(std::shared_ptr<CCallback> CB){};
+	virtual void init(std::shared_ptr<Environment> ENV, std::shared_ptr<CCallback> CB){};
 	virtual void yourTurn(){}; //called AFTER playerStartsTurn(player)
 
 	//pskill is gained primary skill, interface has to choose one of given skills and call callback with selection id
@@ -98,6 +100,9 @@ public:
 	virtual void finish(){}; //if for some reason we want to end
 
 	virtual void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions){};
+
+	virtual void saveGame(BinarySerializer & h, const int version) = 0;
+	virtual void loadGame(BinaryDeserializer & h, const int version) = 0;
 };
 
 class DLL_LINKAGE CDynLibHandler
@@ -105,12 +110,13 @@ class DLL_LINKAGE CDynLibHandler
 public:
 	static std::shared_ptr<CGlobalAI> getNewAI(std::string dllname);
 	static std::shared_ptr<CBattleGameInterface> getNewBattleAI(std::string dllname);
-	static std::shared_ptr<CScriptingModule> getNewScriptingModule(std::string dllname);
+	static std::shared_ptr<scripting::Module> getNewScriptingModule(const boost::filesystem::path & dllname);
 };
 
 class DLL_LINKAGE CGlobalAI : public CGameInterface // AI class (to derivate)
 {
 public:
+	std::shared_ptr<Environment> env;
 	CGlobalAI();
 	virtual BattleAction activeStack(const CStack * stack) override;
 };
@@ -132,7 +138,7 @@ public:
 	virtual void battleNewRound(int round) override;
 	virtual void battleCatapultAttacked(const CatapultAttack & ca) override;
 	virtual void battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side) override;
-	virtual void battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa, const std::vector<MetaString> & battleLog) override;
+	virtual void battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa) override;
 	virtual void actionStarted(const BattleAction &action) override;
 	virtual void battleNewRoundFirst(int round) override;
 	virtual void actionFinished(const BattleAction &action) override;
@@ -142,8 +148,8 @@ public:
 	virtual void battleAttack(const BattleAttack *ba) override;
 	virtual void battleSpellCast(const BattleSpellCast *sc) override;
 	virtual void battleEnd(const BattleResult *br) override;
-	virtual void battleUnitsChanged(const std::vector<UnitChanges> & units, const std::vector<CustomEffectInfo> & customEffects, const std::vector<MetaString> & battleLog) override;
+	virtual void battleUnitsChanged(const std::vector<UnitChanges> & units, const std::vector<CustomEffectInfo> & customEffects) override;
 
-	virtual void saveGame(BinarySerializer & h, const int version) override; //saving
-	virtual void loadGame(BinaryDeserializer & h, const int version) override; //loading
+	virtual void saveGame(BinarySerializer & h, const int version) override;
+	virtual void loadGame(BinaryDeserializer & h, const int version) override;
 };

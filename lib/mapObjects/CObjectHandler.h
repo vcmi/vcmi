@@ -23,6 +23,7 @@ struct BattleResult;
 class JsonSerializeFormat;
 class CRandomGenerator;
 class CMap;
+class JsonNode;
 
 // This one teleport-specific, but has to be available everywhere in callbacks and netpacks
 // For now it's will be there till teleports code refactored and moved into own file
@@ -35,6 +36,13 @@ public:
 
 	IObjectInterface();
 	virtual ~IObjectInterface();
+
+	virtual int32_t getObjGroupIndex() const = 0;
+	virtual int32_t getObjTypeIndex() const = 0;
+
+	virtual PlayerColor getOwner() const = 0;
+	virtual int3 visitablePos() const = 0;
+	virtual int3 getPosition() const = 0;
 
 	virtual void onHeroVisit(const CGHeroInstance * h) const;
 	virtual void onHeroLeave(const CGHeroInstance * h) const;
@@ -126,10 +134,13 @@ public:
 	CGObjectInstance();
 	~CGObjectInstance();
 
+	int32_t getObjGroupIndex() const override;
+	int32_t getObjTypeIndex() const override;
+
 	/// "center" tile from which the sight distance is calculated
 	int3 getSightCenter() const;
 
-	PlayerColor getOwner() const;
+	PlayerColor getOwner() const override;
 	void setOwner(PlayerColor ow);
 
 	/** APPEARANCE ACCESSORS **/
@@ -137,7 +148,8 @@ public:
 	int getWidth() const; //returns width of object graphic in tiles
 	int getHeight() const; //returns height of object graphic in tiles
 	bool visitableAt(int x, int y) const; //returns true if object is visitable at location (x, y) (h3m pos)
-	int3 visitablePos() const;
+	int3 visitablePos() const override;
+	int3 getPosition() const override;
 	bool blockingAt(int x, int y) const; //returns true if object is blocking location (x, y) (h3m pos)
 	bool coveringAt(int x, int y) const; //returns true if object covers with picture location (x, y) (h3m pos)
 	std::set<int3> getBlockedPos() const; //returns set of positions blocked by this object
@@ -202,6 +214,7 @@ public:
 	///Entry point of Json (de-)serialization
 	void serializeJson(JsonSerializeFormat & handler);
 
+	virtual void updateFrom(const JsonNode & data);
 protected:
 	/// virtual method that allows synchronously update object state on server and all clients
 	virtual void setPropertyDer(ui8 what, ui32 val);

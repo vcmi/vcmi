@@ -120,7 +120,7 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 
 	for(const auto spell : mySpells)
 	{
-		int * sitesPerOurTab = spell->isCombatSpell() ? sitesPerTabBattle : sitesPerTabAdv;
+		int * sitesPerOurTab = spell->isCombat() ? sitesPerTabBattle : sitesPerTabAdv;
 
 		++sitesPerOurTab[4];
 
@@ -332,7 +332,7 @@ void CSpellWindow::computeSpellsPerArea()
 	spellsCurSite.reserve(mySpells.size());
 	for(const CSpell * spell : mySpells)
 	{
-		if(spell->isCombatSpell() ^ !battleSpellsOnly
+		if(spell->isCombat() ^ !battleSpellsOnly
 			&& ((selectedTab == 4) || spell->school.at((ESpellSchool)selectedTab))
 			)
 		{
@@ -522,7 +522,7 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 {
 	if(mySpell && !down)
 	{
-		int spellCost = owner->myInt->cb->getSpellCost(mySpell, owner->myHero);
+		auto spellCost = owner->myInt->cb->getSpellCost(mySpell, owner->myHero);
 		if(spellCost > owner->myHero->mana) //insufficient mana
 		{
 			owner->myInt->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[206]) % spellCost % owner->myHero->mana));
@@ -531,8 +531,8 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 
 		//anything that is not combat spell is adventure spell
 		//this not an error in general to cast even creature ability with hero
-		const bool combatSpell = mySpell->isCombatSpell();
-		if(mySpell->isCombatSpell() != !mySpell->isAdventureSpell())
+		const bool combatSpell = mySpell->isCombat();
+		if(combatSpell == mySpell->isAdventure())
 		{
 			logGlobal->error("Spell have invalid flags");
 			return;
@@ -545,7 +545,7 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 		if((combatSpell ^ inCombat) || inCastle)
 		{
 			std::vector<std::shared_ptr<CComponent>> hlp(1, std::make_shared<CComponent>(CComponent::spell, mySpell->id, 0));
-			owner->myInt->showInfoDialog(mySpell->getLevelInfo(schoolLevel).description, hlp);
+			owner->myInt->showInfoDialog(mySpell->getLevelDescription(schoolLevel), hlp);
 		}
 		else if(combatSpell)
 		{
@@ -600,7 +600,7 @@ void CSpellWindow::SpellArea::clickRight(tribool down, bool previousState)
 			boost::algorithm::replace_first(dmgInfo, "%d", boost::lexical_cast<std::string>(causedDmg));
 		}
 
-		CRClickPopup::createAndPush(mySpell->getLevelInfo(schoolLevel).description + dmgInfo, std::make_shared<CComponent>(CComponent::spell, mySpell->id));
+		CRClickPopup::createAndPush(mySpell->getLevelDescription(schoolLevel) + dmgInfo, std::make_shared<CComponent>(CComponent::spell, mySpell->id));
 	}
 }
 
@@ -625,7 +625,7 @@ void CSpellWindow::SpellArea::setSpell(const CSpell * spell)
 	mySpell = spell;
 	if(mySpell)
 	{
-		int whichSchool = 0; //0 - air magic, 1 - fire magic, 2 - water magic, 3 - earth magic,
+		int32_t whichSchool = 0; //0 - air magic, 1 - fire magic, 2 - water magic, 3 - earth magic,
 		schoolLevel = owner->myHero->getSpellSchoolLevel(mySpell, &whichSchool);
 		auto spellCost = owner->myInt->cb->getSpellCost(mySpell, owner->myHero);
 

@@ -15,6 +15,8 @@
 #include "CSpellHandler.h"
 #include "Problem.h"
 
+#include <vcmi/spells/Caster.h>
+
 #include "../CGeneralTextHandler.h"
 #include "../filesystem/Filesystem.h"
 
@@ -101,12 +103,17 @@ CSpell::LevelInfo::~LevelInfo()
 
 ///CSpell
 CSpell::CSpell():
-	id(SpellID::NONE), level(0),
+	id(SpellID::NONE),
+	level(0),
 	power(0),
-	combatSpell(false), creatureAbility(false),
+	combat(false),
+	creatureAbility(false),
 	positiveness(ESpellPositiveness::NEUTRAL),
 	defaultProbability(0),
-	isRising(false), isDamage(false), isOffensive(false), isSpecial(true),
+	rising(false),
+	damage(false),
+	offensive(false),
+	special(true),
 	targetType(spells::AimType::NO_TARGET),
 	mechanics(),
 	adventureMechanics()
@@ -119,7 +126,7 @@ CSpell::~CSpell()
 
 }
 
-bool CSpell::adventureCast(const SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
+bool CSpell::adventureCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
 {
 	assert(env);
 
@@ -131,13 +138,12 @@ bool CSpell::adventureCast(const SpellCastEnvironment * env, const AdventureSpel
 	return adventureMechanics->adventureCast(env, parameters);
 }
 
-
-const CSpell::LevelInfo & CSpell::getLevelInfo(const int level) const
+const CSpell::LevelInfo & CSpell::getLevelInfo(const int32_t level) const
 {
 	if(level < 0 || level >= GameConstants::SPELL_SCHOOL_LEVELS)
 	{
-		logGlobal->error("CSpell::getLevelInfo invalid school level %d", level);
-		throw std::runtime_error("Invalid school level");
+		logGlobal->error("CSpell::getLevelInfo: invalid school level %d", level);
+		return levels.at(0);
 	}
 
 	return levels.at(level);
@@ -146,7 +152,7 @@ const CSpell::LevelInfo & CSpell::getLevelInfo(const int level) const
 int64_t CSpell::calculateDamage(const spells::Caster * caster) const
 {
 	//check if spell really does damage - if not, return 0
-	if(!isDamageSpell())
+	if(!isDamage())
 		return 0;
 	auto rawDamage = calculateRawEffectValue(caster->getEffectLevel(this), caster->getEffectPower(this), 1);
 
@@ -165,63 +171,7 @@ bool CSpell::canBeCast(spells::Problem & problem, const CBattleInfoCallback * cb
 	spells::BattleCast event(cb, caster, mode, this);
 	auto mechanics = battleMechanics(&event);
 
-	ESpellCastProblem::ESpellCastProblem genProblem = cb->battleCanCastSpell(caster, mode);
-	if(genProblem != ESpellCastProblem::OK)
-		return mechanics->adaptProblem(genProblem, problem);
-
-	switch(mode)
-	{
-	case spells::Mode::HERO:
-		{
-			const CGHeroInstance * castingHero = dynamic_cast<const CGHeroInstance *>(caster);//todo: unify hero|creature spell cost
-			if(!castingHero)
-			{
-				logGlobal->debug("CSpell::canBeCast: invalid caster");
-				genProblem = ESpellCastProblem::NO_HERO_TO_CAST_SPELL;
-			}
-			else if(!castingHero->getArt(ArtifactPosition::SPELLBOOK))
-				genProblem = ESpellCastProblem::NO_SPELLBOOK;
-			else if(!castingHero->canCastThisSpell(this))
-				genProblem = ESpellCastProblem::HERO_DOESNT_KNOW_SPELL;
-			else if(castingHero->mana < (si32)cb->battleGetSpellCost(this, castingHero)) //not enough mana
-				genProblem = ESpellCastProblem::NOT_ENOUGH_MANA;
-		}
-		break;
-	}
-
-	if(genProblem != ESpellCastProblem::OK)
-		return mechanics->adaptProblem(genProblem, problem);
-
-	if(!isCombatSpell())
-		return mechanics->adaptProblem(ESpellCastProblem::ADVMAP_SPELL_INSTEAD_OF_BATTLE_SPELL, problem);
-
-	const PlayerColor player = caster->getOwner();
-	const auto side = cb->playerToSide(player);
-
-	if(!side)
-		return mechanics->adaptProblem(ESpellCastProblem::INVALID, problem);
-
-	//effect like Recanter's Cloak. Blocks also passive casting.
-	//TODO: check creature abilities to block
-	//TODO: check any possible caster
-	if(cb->battleMaxSpellLevel(side.get()) < level || cb->battleMinSpellLevel(side.get()) > level)
-		return mechanics->adaptProblem(ESpellCastProblem::SPELL_LEVEL_LIMIT_EXCEEDED, problem);
-
 	return mechanics->canBeCast(problem);
-}
-
-std::vector<BattleHex> CSpell::rangeInHexes(const CBattleInfoCallback * cb, spells::Mode mode, const spells::Caster * caster, BattleHex centralHex) const
-{
-	spells::BattleCast event(cb, caster, mode, this);
-	return battleMechanics(&event)->rangeInHexes(centralHex);
-}
-
-std::vector<const CStack *> CSpell::getAffectedStacks(const CBattleInfoCallback * cb, spells::Mode mode, const spells::Caster * caster, int spellLvl, const spells::Target & target) const
-{
-	//TODO: remove and add new method to BattleCast
-	spells::BattleCast event(cb, caster, mode, this);
-	event.setSpellLevel(spellLvl);
-	return battleMechanics(&event)->getAffectedStacks(target);
 }
 
 spells::AimType CSpell::getTargetType() const
@@ -245,9 +195,29 @@ void CSpell::forEachSchool(const std::function<void(const spells::SchoolInfo &, 
 	}
 }
 
+SpellID CSpell::getId() const
+{
+	return id;
+}
+
+const std::string & CSpell::getName() const
+{
+	return name;
+}
+
+const std::string & CSpell::getJsonKey() const
+{
+	return identifier;
+}
+
 int32_t CSpell::getIndex() const
 {
 	return id.toEnum();
+}
+
+int32_t CSpell::getIconIndex() const
+{
+	return getIndex();
 }
 
 int32_t CSpell::getLevel() const
@@ -255,14 +225,14 @@ int32_t CSpell::getLevel() const
 	return level;
 }
 
-bool CSpell::isCombatSpell() const
+bool CSpell::isCombat() const
 {
-	return combatSpell;
+	return combat;
 }
 
-bool CSpell::isAdventureSpell() const
+bool CSpell::isAdventure() const
 {
-	return !combatSpell;
+	return !combat;
 }
 
 bool CSpell::isCreatureAbility() const
@@ -298,24 +268,19 @@ boost::logic::tribool CSpell::getPositiveness() const
 	}
 }
 
-bool CSpell::isRisingSpell() const
+bool CSpell::isDamage() const
 {
-	return isRising;
+	return damage;
 }
 
-bool CSpell::isDamageSpell() const
+bool CSpell::isOffensive() const
 {
-	return isDamage;
+	return offensive;
 }
 
-bool CSpell::isOffensiveSpell() const
+bool CSpell::isSpecial() const
 {
-	return isOffensive;
-}
-
-bool CSpell::isSpecialSpell() const
-{
-	return isSpecial;
+	return special;
 }
 
 bool CSpell::hasEffects() const
@@ -333,19 +298,49 @@ const std::string & CSpell::getIconImmune() const
 	return iconImmune;
 }
 
+const std::string & CSpell::getIconBook() const
+{
+	return iconBook;
+}
+
+const std::string & CSpell::getIconEffect() const
+{
+	return iconEffect;
+}
+
+const std::string & CSpell::getIconScenarioBonus() const
+{
+	return iconScenarioBonus;
+}
+
+const std::string & CSpell::getIconScroll() const
+{
+	return iconScroll;
+}
+
 const std::string & CSpell::getCastSound() const
 {
 	return castSound;
 }
 
-si32 CSpell::getCost(const int skillLevel) const
+int32_t CSpell::getCost(const int32_t skillLevel) const
 {
 	return getLevelInfo(skillLevel).cost;
 }
 
-si32 CSpell::getPower(const int skillLevel) const
+int32_t CSpell::getBasePower() const
+{
+	return power;
+}
+
+int32_t CSpell::getLevelPower(const int32_t skillLevel) const
 {
 	return getLevelInfo(skillLevel).power;
+}
+
+const std::string & CSpell::getLevelDescription(const int32_t skillLevel) const
+{
+	return getLevelInfo(skillLevel).description;
 }
 
 si32 CSpell::getProbability(const TFaction factionId) const
@@ -391,34 +386,6 @@ void CSpell::getEffects(std::vector<Bonus> & lst, const int level, const bool cu
 	}
 }
 
-bool CSpell::canBeCastAt(const CBattleInfoCallback * cb,  spells::Mode mode, const spells::Caster * caster, BattleHex destination) const
-{
-	if(canBeCast(cb, mode, caster))
-	{
-		spells::BattleCast event(cb, caster, mode, this);
-		spells::Target tmp;
-		tmp.emplace_back(destination);
-		return battleMechanics(&event)->canBeCastAt(tmp);
-	}
-	else
-	{
-		return false;
-	}
-}
-
-bool CSpell::canBeCastAt(const CBattleInfoCallback * cb,  spells::Mode mode, const spells::Caster * caster, const spells::Target & target) const
-{
-	if(canBeCast(cb, mode, caster))
-	{
-		spells::BattleCast event(cb, caster, mode, this);
-		return battleMechanics(&event)->canBeCastAt(target);
-	}
-	else
-	{
-		return false;
-	}
-}
-
 int64_t CSpell::adjustRawDamage(const spells::Caster * caster, const battle::Unit * affectedCreature, int64_t rawDamage) const
 {
 	auto ret = rawDamage;
@@ -459,23 +426,23 @@ int64_t CSpell::adjustRawDamage(const spells::Caster * caster, const battle::Uni
 
 int64_t CSpell::calculateRawEffectValue(int32_t effectLevel, int32_t basePowerMultiplier, int32_t levelPowerMultiplier) const
 {
-	return basePowerMultiplier * power + levelPowerMultiplier * getPower(effectLevel);
+	return (int64_t)basePowerMultiplier * getBasePower() + levelPowerMultiplier * getLevelPower(effectLevel);
 }
 
 void CSpell::setIsOffensive(const bool val)
 {
-	isOffensive = val;
+	offensive = val;
 
 	if(val)
 	{
 		positiveness = CSpell::NEGATIVE;
-		isDamage = true;
+		damage = true;
 	}
 }
 
 void CSpell::setIsRising(const bool val)
 {
-	isRising = val;
+	rising = val;
 
 	if(val)
 	{
@@ -532,6 +499,24 @@ void CSpell::setupMechanics()
 std::unique_ptr<spells::Mechanics> CSpell::battleMechanics(const spells::IBattleCast * event) const
 {
 	return mechanics->create(event);
+}
+
+void CSpell::registerIcons(const IconRegistar & cb) const
+{
+	cb(getIndex(), "SPELLS", iconBook);
+	cb(getIndex()+1, "SPELLINT", iconEffect);
+	cb(getIndex(), "SPELLBON", iconScenarioBonus);
+	cb(getIndex(), "SPELLSCR", iconScroll);
+}
+
+void CSpell::updateFrom(const JsonNode & data)
+{
+	//todo:CSpell::updateFrom
+}
+
+void CSpell::serializeJson(JsonSerializeFormat & handler)
+{
+
 }
 
 ///CSpell::AnimationInfo
@@ -693,7 +678,7 @@ std::vector<JsonNode> CSpellHandler::loadLegacyData(size_t dataSize)
 	skip(3);
 	read(true,true);//read creature abilities
 
-	//TODO: maybe move to config
+    //TODO: maybe move to config
 	//clone Acid Breath attributes for Acid Breath damage effect
 	JsonNode temp = legacyData[SpellID::ACID_BREATH_DEFENSE];
 	temp["index"].Integer() = SpellID::ACID_BREATH_DAMAGE;
@@ -710,7 +695,7 @@ const std::vector<std::string> & CSpellHandler::getTypeNames() const
 	return typeNames;
 }
 
-CSpell * CSpellHandler::loadFromJson(const JsonNode & json, const std::string & identifier, size_t index)
+CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
 {
 	using namespace SpellConfig;
 
@@ -725,12 +710,12 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode & json, const std::string & 
 	if(type == "ability")
 	{
 		spell->creatureAbility = true;
-		spell->combatSpell = true;
+		spell->combat = true;
 	}
 	else
 	{
 		spell->creatureAbility = false;
-		spell->combatSpell = type == "combat";
+		spell->combat = type == "combat";
 	}
 
 	spell->name = json["name"].String();
@@ -753,7 +738,7 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode & json, const std::string & 
 	{
 		const int chance = static_cast<int>(node.second.Integer());
 
-		VLC->modh->identifiers.requestIdentifier(node.second.meta, "faction",node.first, [=](si32 factionID)
+		VLC->modh->identifiers.requestIdentifier(node.second.meta, "faction", node.first, [=](si32 factionID)
 		{
 			spell->probabilities[factionID] = chance;
 		});
@@ -788,7 +773,7 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode & json, const std::string & 
 
 	//by default all flags are set to false in constructor
 
-	spell->isDamage = flags["damage"].Bool(); //do this before "offensive"
+	spell->damage = flags["damage"].Bool(); //do this before "offensive"
 
 	if(flags["offensive"].Bool())
 	{
@@ -800,7 +785,7 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode & json, const std::string & 
 		spell->setIsRising(true);
 	}
 
-	const bool implicitPositiveness = spell->isOffensive || spell->isRising; //(!) "damage" does not mean NEGATIVE  --AVS
+	const bool implicitPositiveness = spell->offensive || spell->rising; //(!) "damage" does not mean NEGATIVE  --AVS
 
 	if(flags["indifferent"].Bool())
 	{
@@ -820,7 +805,7 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode & json, const std::string & 
 		logMod->error("Spell %s: no positiveness specified, assumed NEUTRAL.", spell->name);
 	}
 
-	spell->isSpecial = flags["special"].Bool();
+	spell->special = flags["special"].Bool();
 
 	auto findBonus = [&](std::string name, std::vector<Bonus::BonusType> & vec)
 	{
@@ -988,7 +973,7 @@ CSpell * CSpellHandler::loadFromJson(const JsonNode & json, const std::string & 
 		{
 			levelObject.battleEffects = levelNode["battleEffects"];
 
-			if(!levelObject.cumulativeEffects.empty() || !levelObject.effects.empty() || spell->isOffensiveSpell())
+			if(!levelObject.cumulativeEffects.empty() || !levelObject.effects.empty() || spell->isOffensive())
 				logGlobal->error("Mixing %s special effects with old format effects gives unpredictable result", spell->name);
 		}
 	}
@@ -1028,7 +1013,7 @@ std::vector<bool> CSpellHandler::getDefaultAllowed() const
 
 	for(const CSpell * s : objects)
 	{
-		allowedSpells.push_back( !(s->isSpecialSpell() || s->isCreatureAbility()));
+		allowedSpells.push_back( !(s->isSpecial() || s->isCreatureAbility()));
 	}
 
 	return allowedSpells;
@@ -1036,7 +1021,7 @@ std::vector<bool> CSpellHandler::getDefaultAllowed() const
 
 void CSpellHandler::update780()
 {
-	static_assert(MINIMAL_SERIALIZATION_VERSION < 780, "No longer needed CSpellHandler::update780");
+    static_assert(MINIMAL_SERIALIZATION_VERSION < 780, "No longer needed CSpellHandler::update780");
 
 	auto spellsContent = (*VLC->modh->content)["spells"];
 

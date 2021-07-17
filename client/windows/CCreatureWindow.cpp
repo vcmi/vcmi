@@ -10,6 +10,9 @@
 #include "StdInc.h"
 #include "CCreatureWindow.h"
 
+#include <vcmi/spells/Spell.h>
+#include <vcmi/spells/Service.h>
+
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../widgets/Buttons.h"
@@ -26,7 +29,6 @@
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CModHandler.h"
 #include "../../lib/CHeroHandler.h"
-#include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/CGameState.h"
 
 using namespace CSDL_Ext;
@@ -193,7 +195,7 @@ CStackWindow::ActiveSpellsSection::ActiveSpellsSection(CStackWindow * owner, int
 	std::vector<si32> spells = battleStack->activeSpells();
 	for(si32 effect : spells)
 	{
-		const CSpell * sp = CGI->spellh->objects[effect];
+		const spells::Spell * spell = CGI->spells()->getByIndex(effect);
 
 		std::string spellText;
 
@@ -204,7 +206,7 @@ CStackWindow::ActiveSpellsSection::ActiveSpellsSection(CStackWindow * owner, int
 		if (hasGraphics)
 		{
 			spellText = CGI->generaltexth->allTexts[610]; //"%s, duration: %d rounds."
-			boost::replace_first(spellText, "%s", sp->name);
+			boost::replace_first(spellText, "%s", spell->getName());
 			//FIXME: support permanent duration
 			int duration = battleStack->getBonusLocalFirst(Selector::source(Bonus::SPELL_EFFECT,effect))->turnsRemain;
 			boost::replace_first(spellText, "%d", boost::lexical_cast<std::string>(duration));
@@ -320,7 +322,7 @@ CStackWindow::ButtonsSection::ButtonsSection(CStackWindow * owner, int yOffset)
 			};
 			auto upgradeBtn = std::make_shared<CButton>(Point(221 + (int)buttonIndex * 40, 5), "stackWindow/upgradeButton", CGI->generaltexth->zelp[446], onClick, SDLK_1);
 
-			upgradeBtn->addOverlay(std::make_shared<CAnimImage>("CPRSMALL", VLC->creh->creatures[upgradeInfo.info.newID[buttonIndex]]->iconIndex));
+			upgradeBtn->addOverlay(std::make_shared<CAnimImage>("CPRSMALL", VLC->creh->objects[upgradeInfo.info.newID[buttonIndex]]->iconIndex));
 
 			upgrade[buttonIndex] = upgradeBtn;
 		}
@@ -520,7 +522,7 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 	if(battleStack != nullptr) // in battle
 	{
 		addStatLabel(EStat::ATTACK, parent->info->creature->getAttack(battleStack->isShooter()), battleStack->getAttack(battleStack->isShooter()));
-		addStatLabel(EStat::DEFENCE, parent->info->creature->getDefence(battleStack->isShooter()), battleStack->getDefence(battleStack->isShooter()));
+		addStatLabel(EStat::DEFENCE, parent->info->creature->getDefense(battleStack->isShooter()), battleStack->getDefense(battleStack->isShooter()));
 		addStatLabel(EStat::DAMAGE, parent->info->stackNode->getMinDamage(battleStack->isShooter()) * dmgMultiply, battleStack->getMaxDamage(battleStack->isShooter()) * dmgMultiply);
 		addStatLabel(EStat::HEALTH, parent->info->creature->MaxHealth(), battleStack->MaxHealth());
 		addStatLabel(EStat::SPEED, parent->info->creature->Speed(), battleStack->Speed());
@@ -540,7 +542,7 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 		const bool caster = parent->info->stackNode->valOfBonuses(Bonus::CASTS);
 
 		addStatLabel(EStat::ATTACK, parent->info->creature->getAttack(shooter), parent->info->stackNode->getAttack(shooter));
-		addStatLabel(EStat::DEFENCE, parent->info->creature->getDefence(shooter), parent->info->stackNode->getDefence(shooter));
+		addStatLabel(EStat::DEFENCE, parent->info->creature->getDefense(shooter), parent->info->stackNode->getDefense(shooter));
 		addStatLabel(EStat::DAMAGE, parent->info->stackNode->getMinDamage(shooter) * dmgMultiply, parent->info->stackNode->getMaxDamage(shooter) * dmgMultiply);
 		addStatLabel(EStat::HEALTH, parent->info->creature->MaxHealth(), parent->info->stackNode->MaxHealth());
 		addStatLabel(EStat::SPEED, parent->info->creature->Speed(), parent->info->stackNode->Speed());

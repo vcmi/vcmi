@@ -11,6 +11,8 @@
 
 #include "CUnitState.h"
 
+#include <vcmi/spells/Spell.h>
+
 #include "../NetPacks.h"
 #include "../CCreatureHandler.h"
 
@@ -368,7 +370,6 @@ void CHealth::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeInt("resurrected", resurrected, 0);
 }
 
-
 ///CUnitState
 CUnitState::CUnitState()
 	: env(nullptr),
@@ -468,9 +469,9 @@ int32_t CUnitState::getCasterUnitId() const
 	return static_cast<int32_t>(unitId());
 }
 
-ui8 CUnitState::getSpellSchoolLevel(const spells::Spell * spell, int * outSelectedSchool) const
+int32_t CUnitState::getSpellSchoolLevel(const spells::Spell * spell, int32_t * outSelectedSchool) const
 {
-	int skill = valOfBonuses(Selector::typeSubtype(Bonus::SPELLCASTER, spell->getIndex()));
+	int32_t skill = valOfBonuses(Selector::typeSubtype(Bonus::SPELLCASTER, spell->getIndex()));
 	vstd::abetween(skill, 0, 3);
 	return skill;
 }
@@ -486,19 +487,19 @@ int64_t CUnitState::getSpecificSpellBonus(const spells::Spell * spell, int64_t b
 	return base;
 }
 
-int CUnitState::getEffectLevel(const spells::Spell * spell) const
+int32_t CUnitState::getEffectLevel(const spells::Spell * spell) const
 {
 	return getSpellSchoolLevel(spell);
 }
 
-int CUnitState::getEffectPower(const spells::Spell * spell) const
+int32_t CUnitState::getEffectPower(const spells::Spell * spell) const
 {
 	return valOfBonuses(Bonus::CREATURE_SPELL_POWER) * getCount() / 100;
 }
 
-int CUnitState::getEnchantPower(const spells::Spell * spell) const
+int32_t CUnitState::getEnchantPower(const spells::Spell * spell) const
 {
-	int res = valOfBonuses(Bonus::CREATURE_ENCHANT_POWER);
+	int32_t res = valOfBonuses(Bonus::CREATURE_ENCHANT_POWER);
 	if(res <= 0)
 		res = 3;//default for creatures
 	return res;
@@ -509,7 +510,7 @@ int64_t CUnitState::getEffectValue(const spells::Spell * spell) const
 	return static_cast<int64_t>(getCount()) * valOfBonuses(Bonus::SPECIFIC_SPELL_POWER, spell->getIndex());
 }
 
-const PlayerColor CUnitState::getOwner() const
+PlayerColor CUnitState::getCasterOwner() const
 {
 	return env->unitEffectiveOwner(this);
 }
@@ -703,7 +704,7 @@ int CUnitState::getAttack(bool ranged) const
 	return ret;
 }
 
-int CUnitState::getDefence(bool ranged) const
+int CUnitState::getDefense(bool ranged) const
 {
 	if(!inFrenzy->empty())
 	{
@@ -735,9 +736,6 @@ std::shared_ptr<CUnitState> CUnitState::acquireState() const
 
 void CUnitState::serializeJson(JsonSerializeFormat & handler)
 {
-	if(!handler.saving)
-		reset();
-
 	handler.serializeBool("cloned", cloned);
 	handler.serializeBool("defending", defending);
 	handler.serializeBool("defendingAnim", defendingAnim);
@@ -807,8 +805,8 @@ void CUnitState::load(const JsonNode & data)
 {
 	//TODO: use instance resolver
 	reset();
-    JsonDeserializer deser(nullptr, data);
-    deser.serializeStruct("state", *this);
+	JsonDeserializer deser(nullptr, data);
+	deser.serializeStruct("state", *this);
 }
 
 void CUnitState::damage(int64_t & amount)
@@ -942,7 +940,7 @@ int32_t CUnitStateDetached::unitBaseAmount() const
 	return unit->unitBaseAmount();
 }
 
-void CUnitStateDetached::spendMana(const spells::PacketSender * server, const int spellCost) const
+void CUnitStateDetached::spendMana(ServerCallback * server, const int spellCost) const
 {
 	if(spellCost != 1)
 		logGlobal->warn("Unexpected spell cost %d for creature", spellCost);

@@ -263,6 +263,7 @@ void registerTypesClientPacks1(Serializer &s)
 	s.template registerType<CPackForClient, ChangeObjectVisitors>();
 	s.template registerType<CPackForClient, ShowWorldViewEx>();
 	s.template registerType<CPackForClient, PrepareHeroLevelUp>();
+	s.template registerType<CPackForClient, EntitiesChanged>();
 }
 
 template<typename Serializer>
@@ -272,6 +273,7 @@ void registerTypesClientPacks2(Serializer &s)
 	s.template registerType<CPackForClient, BattleNextRound>();
 	s.template registerType<CPackForClient, BattleSetActiveStack>();
 	s.template registerType<CPackForClient, BattleResult>();
+	s.template registerType<CPackForClient, BattleLogMessage>();
 	s.template registerType<CPackForClient, BattleStackMoved>();
 	s.template registerType<CPackForClient, BattleAttack>();
 	s.template registerType<CPackForClient, StartAction>();
@@ -341,8 +343,6 @@ void registerTypesServerPacks(Serializer &s)
 	s.template registerType<CPackForServer, DigWithHero>();
 	s.template registerType<CPackForServer, CastAdvSpell>();
 	s.template registerType<CPackForServer, CastleTeleportHero>();
-	s.template registerType<CPackForServer, CommitPackage>();
-
 	s.template registerType<CPackForServer, SaveGame>();
 	s.template registerType<CPackForServer, PlayerMessage>();
 }

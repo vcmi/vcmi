@@ -58,7 +58,7 @@ bool IMarket::getOffer(int id1, int id2, int &val1, int &val2, EMarketMode::EMar
 			const double effectivenessArray[] = {0.0, 0.3, 0.45, 0.50, 0.65, 0.7, 0.85, 0.9, 1.0};
 			double effectiveness = effectivenessArray[std::min(getMarketEfficiency(), 8)];
 
-			double r = VLC->creh->creatures[id1]->cost[6], //value of given creature in gold
+			double r = VLC->creh->objects[id1]->cost[6], //value of given creature in gold
 				g = VLC->objh->resVals[id2] / effectiveness; //value of wanted resource
 
 			if(r>g) //if given resource is more expensive than wanted
@@ -81,7 +81,7 @@ bool IMarket::getOffer(int id1, int id2, int &val1, int &val2, EMarketMode::EMar
 		{
 			double effectiveness = std::min((getMarketEfficiency() + 3.0) / 20.0, 0.6);
 			double r = VLC->objh->resVals[id1], //value of offered resource
-				g = VLC->arth->artifacts[id2]->price / effectiveness; //value of bought artifact in gold
+				g = VLC->artifacts()->getByIndex(id2)->getPrice() / effectiveness; //value of bought artifact in gold
 
 			if(id1 != 6) //non-gold prices are doubled
 				r /= 2;
@@ -93,7 +93,7 @@ bool IMarket::getOffer(int id1, int id2, int &val1, int &val2, EMarketMode::EMar
 	case EMarketMode::ARTIFACT_RESOURCE:
 		{
 			double effectiveness = std::min((getMarketEfficiency() + 3.0) / 20.0, 0.6);
-			double r = VLC->arth->artifacts[id1]->price * effectiveness,
+			double r = VLC->artifacts()->getByIndex(id1)->getPrice() * effectiveness,
 				g = VLC->objh->resVals[id2];
 
 // 			if(id2 != 6) //non-gold prices are doubled
@@ -106,14 +106,14 @@ bool IMarket::getOffer(int id1, int id2, int &val1, int &val2, EMarketMode::EMar
 	case EMarketMode::CREATURE_EXP:
 		{
 			val1 = 1;
-			val2 = (VLC->creh->creatures[id1]->AIValue / 40) * 5;
+			val2 = (VLC->creh->objects[id1]->AIValue / 40) * 5;
 		}
 		break;
 	case EMarketMode::ARTIFACT_EXP:
 		{
 			val1 = 1;
 
-			int givenClass = VLC->arth->artifacts[id1]->getArtClassSerial();
+			int givenClass = VLC->arth->objects[id1]->getArtClassSerial();
 			if(givenClass < 0 || givenClass > 3)
 			{
 				val2 = 0;

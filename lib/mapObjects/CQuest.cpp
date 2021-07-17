@@ -11,6 +11,8 @@
 #include "StdInc.h"
 #include "CQuest.h"
 
+#include <vcmi/spells/Spell.h>
+
 #include "../NetPacks.h"
 #include "../CSoundBase.h"
 #include "../CGeneralTextHandler.h"
@@ -23,7 +25,6 @@
 #include "../CModHandler.h"
 #include "../GameConstants.h"
 #include "../StringConstants.h"
-#include "../spells/CSpellHandler.h"
 #include "../CSkillHandler.h"
 #include "../mapping/CMap.h"
 
@@ -179,9 +180,9 @@ void CQuest::getVisitText(MetaString &iwText, std::vector<Component> &components
 			break;
 		case MISSION_HERO:
 			//FIXME: portrait may not match hero, if custom portrait was set in map editor
-			components.push_back(Component(Component::HERO_PORTRAIT, VLC->heroh->heroes[m13489val]->imageIndex, 0, 0));
+			components.push_back(Component(Component::HERO_PORTRAIT, VLC->heroh->objects[m13489val]->imageIndex, 0, 0));
 			if(!isCustom)
-				iwText.addReplacement(VLC->heroh->heroes[m13489val]->name);
+				iwText.addReplacement(VLC->heroh->objects[m13489val]->name);
 			break;
 		case MISSION_KILL_CREATURE:
 			{
@@ -317,7 +318,7 @@ void CQuest::getRolloverText(MetaString &ms, bool onHover) const
 			}
 			break;
 		case MISSION_HERO:
-			ms.addReplacement(VLC->heroh->heroes[m13489val]->name);
+			ms.addReplacement(VLC->heroh->objects[m13489val]->name);
 			break;
 		case MISSION_PLAYER:
 			ms.addReplacement(VLC->generaltexth->colors[m13489val]);
@@ -400,7 +401,7 @@ void CQuest::getCompletionText(MetaString &iwText, std::vector<Component> &compo
 			break;
 		case MISSION_HERO:
 			if (!isCustomComplete)
-				iwText.addReplacement(VLC->heroh->heroes[m13489val]->name);
+				iwText.addReplacement(VLC->heroh->objects[m13489val]->name);
 			break;
 		case MISSION_PLAYER:
 			if (!isCustomComplete)
@@ -477,7 +478,7 @@ void CQuest::serializeJson(JsonSerializeFormat & handler, const std::string & fi
         }
 		break;
 	case MISSION_HERO:
-		handler.serializeId<ui32>("hero", m13489val, 0, &CHeroHandler::decodeHero, &CHeroHandler::encodeHero);
+		handler.serializeId<ui32, ui32, HeroTypeID>("hero", m13489val, 0);
 		break;
 	case MISSION_PLAYER:
 		handler.serializeEnum("player",  m13489val, PlayerColor::CANNOT_DETERMINE.getNum(), GameConstants::PLAYER_COLOR_NAMES);
@@ -817,7 +818,7 @@ void CGSeerHut::completeQuest (const CGHeroInstance * h) const //reward
 			cb->changeSecSkill(h, SecondarySkill(rID), rVal, false);
 			break;
 		case ARTIFACT:
-			cb->giveHeroNewArtifact(h, VLC->arth->artifacts[rID],ArtifactPosition::FIRST_AVAILABLE);
+			cb->giveHeroNewArtifact(h, VLC->arth->objects[rID],ArtifactPosition::FIRST_AVAILABLE);
 			break;
 		case SPELL:
 		{
@@ -931,15 +932,15 @@ void CGSeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
 			identifier = CSkillHandler::encodeSkill(rID);
 			break;
 		case ARTIFACT:
-			identifier = ArtifactID(rID).toArtifact()->identifier;
+			identifier = ArtifactID(rID).toArtifact(VLC->artifacts())->getJsonKey();
 			amount = 1;
 			break;
 		case SPELL:
-			identifier = SpellID(rID).toSpell()->identifier;
+			identifier = SpellID(rID).toSpell(VLC->spells())->getJsonKey();
 			amount = 1;
 			break;
 		case CREATURE:
-			identifier = CreatureID(rID).toCreature()->identifier;
+			identifier = CreatureID(rID).toCreature(VLC->creatures())->getJsonKey();
 			break;
 		default:
 			assert(false);

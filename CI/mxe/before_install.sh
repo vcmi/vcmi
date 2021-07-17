@@ -3,18 +3,22 @@
 # Install nsis for installer creation
 sudo apt-get install -qq nsis ninja-build
 
+wget http://security.ubuntu.com/ubuntu/pool/main/o/openssl1.0/libssl1.0.0_1.0.2n-1ubuntu5.6_amd64.deb
+sudo apt install ./libssl1.0.0_1.0.2n-1ubuntu5.6_amd64.deb
+
+
 # MXE repository was too slow for Travis far too often
-wget -nv https://github.com/vcmi/vcmi-deps-mxe/releases/download/2018-02-10/mxe-$MXE_TARGET-2018-02-10.tar
-tar -xvf mxe-$MXE_TARGET-2018-02-10.tar
+wget -nv https://github.com/vcmi/vcmi-deps-mxe/releases/download/2021-02-20/mxe-i686-w64-mingw32.shared-2021-01-22.tar
+tar -xvf mxe-i686-w64-mingw32.shared-2021-01-22.tar
 sudo dpkg -i mxe-*.deb
 sudo apt-get install -f --yes
 
 if false; then
 # Add MXE repository and key
-echo "deb http://pkg.mxe.cc/repos/apt/debian wheezy main" \
+echo "deb http://pkg.mxe.cc/repos/apt trusty main" \
     | sudo tee /etc/apt/sources.list.d/mxeapt.list
 
-sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys D43A795B73B16ABE9643FE1AFD8FFF16DB45C6AB
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 86B72ED9
 
 # Install needed packages
 sudo apt-get update -qq
@@ -30,7 +34,8 @@ mxe-$MXE_TARGET-sdl2-mixer \
 mxe-$MXE_TARGET-sdl2-ttf \
 mxe-$MXE_TARGET-ffmpeg \
 mxe-$MXE_TARGET-qt \
-mxe-$MXE_TARGET-qtbase
+mxe-$MXE_TARGET-qtbase \
+mxe-i686-w64-mingw32.static-luajit
 
 fi # Disable
 

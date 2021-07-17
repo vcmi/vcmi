@@ -20,6 +20,7 @@
 #include "CTownHandler.h"
 #include "CBuildingHandler.h"
 #include "spells/CSpellHandler.h"
+#include "spells/effects/Registry.h"
 #include "CSkillHandler.h"
 #include "CGeneralTextHandler.h"
 #include "CModHandler.h"
@@ -30,6 +31,7 @@
 #include "CConsoleHandler.h"
 #include "rmg/CRmgTemplateStorage.h"
 #include "mapping/CMapEditManager.h"
+#include "ScriptHandler.h"
 
 LibClasses * VLC = nullptr;
 
@@ -53,9 +55,90 @@ DLL_LINKAGE void loadDLLClasses(bool onlyEssential)
 	VLC->init(onlyEssential);
 }
 
+const ArtifactService * LibClasses::artifacts() const
+{
+	return arth;
+}
+
+const CreatureService * LibClasses::creatures() const
+{
+	return creh;
+}
+
+const FactionService * LibClasses::factions() const
+{
+	return townh;
+}
+
+const HeroClassService * LibClasses::heroClasses() const
+{
+	return &heroh->classes;
+}
+
+const HeroTypeService * LibClasses::heroTypes() const
+{
+	return heroh;
+}
+
+const scripting::Service * LibClasses::scripts() const
+{
+	return scriptHandler;
+}
+
+const spells::Service * LibClasses::spells() const
+{
+	return spellh;
+}
+
+const SkillService * LibClasses::skills() const
+{
+	return skillh;
+}
+
 const IBonusTypeHandler * LibClasses::getBth() const
 {
 	return bth;
+}
+
+const spells::effects::Registry * LibClasses::spellEffects() const
+{
+	return spells::effects::GlobalRegistry::get();
+}
+
+spells::effects::Registry * LibClasses::spellEffects()
+{
+	return spells::effects::GlobalRegistry::get();
+}
+
+void LibClasses::updateEntity(Metatype metatype, int32_t index, const JsonNode & data)
+{
+	switch(metatype)
+	{
+	case Metatype::ARTIFACT:
+		arth->updateEntity(index, data);
+		break;
+	case Metatype::CREATURE:
+		creh->updateEntity(index, data);
+		break;
+	case Metatype::FACTION:
+		townh->updateEntity(index, data);
+		break;
+	case Metatype::HERO_CLASS:
+		heroh->classes.updateEntity(index, data);
+		break;
+	case Metatype::HERO_TYPE:
+		heroh->updateEntity(index, data);
+		break;
+	case Metatype::SKILL:
+		skillh->updateEntity(index, data);
+		break;
+	case Metatype::SPELL:
+		spellh->updateEntity(index, data);
+		break;
+	default:
+		logGlobal->error("Invalid Metatype id %d", static_cast<int32_t>(metatype));
+		break;
+	}
 }
 
 void LibClasses::loadFilesystem(bool onlyEssential)
@@ -81,7 +164,7 @@ void LibClasses::loadFilesystem(bool onlyEssential)
 
 static void logHandlerLoaded(const std::string & name, CStopWatch & timer)
 {
-   logGlobal->info("\t\t %s handler: %d ms", name, timer.getDiff());
+	logGlobal->info("\t\t %s handler: %d ms", name, timer.getDiff());
 }
 
 template <class Handler> void createHandler(Handler *&handler, const std::string &name, CStopWatch &timer)
@@ -120,6 +203,8 @@ void LibClasses::init(bool onlyEssential)
 
 	createHandler(tplh, "Template", pomtime); //templates need already resolved identifiers (refactor?)
 
+	createHandler(scriptHandler, "Script", pomtime);
+
 	logGlobal->info("\tInitializing handlers: %d ms", totalTime.getDiff());
 
 	modh->load();
@@ -145,6 +230,7 @@ void LibClasses::clear()
 	delete bth;
 	delete tplh;
 	delete terviewh;
+	delete scriptHandler;
 	makeNull();
 }
 
@@ -163,6 +249,7 @@ void LibClasses::makeNull()
 	bth = nullptr;
 	tplh = nullptr;
 	terviewh = nullptr;
+	scriptHandler = nullptr;
 }
 
 LibClasses::LibClasses()
@@ -180,6 +267,11 @@ void LibClasses::callWhenDeserializing()
 	//arth->load(true);
 	//modh->recreateHandlers();
 	//modh->loadConfigFromFile ("defaultMods"); //TODO: remember last saved config
+}
+
+void LibClasses::scriptsLoaded()
+{
+	scriptHandler->performRegistration(this);
 }
 
 LibClasses::~LibClasses()
@@ -201,3 +293,10 @@ void LibClasses::restoreAllCreaturesNodeType794()
 {
 	creh->restoreAllCreaturesNodeType794();
 }
+
+void LibClasses::update800()
+{
+	vstd::clear_pointer(scriptHandler);
+	scriptHandler = new scripting::ScriptHandler();
+}
+

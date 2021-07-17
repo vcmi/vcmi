@@ -18,6 +18,7 @@
 				<Linker>
 					<Add option="-lboost_system$(#boost.libsuffix32)" />
 					<Add option="-lVCMI_lib" />
+					<Add directory="$(#boost.lib32)" />
 				</Linker>
 			</Target>
 			<Target title="Release-win32">
@@ -34,6 +35,7 @@
 					<Add option="-s" />
 					<Add option="-lboost_system$(#boost.libsuffix32)" />
 					<Add option="-lVCMI_lib" />
+					<Add directory="$(#boost.lib32)" />
 				</Linker>
 			</Target>
 			<Target title="Debug-win64">
@@ -41,10 +43,11 @@
 				<Option output="../StupidAI" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Debug/x64" />
 				<Option type="3" />
-				<Option compiler="gcc" />
+				<Option compiler="gnu_gcc_compiler_x64" />
 				<Linker>
 					<Add option="-lboost_system$(#boost.libsuffix64)" />
 					<Add option="-lVCMI_lib" />
+					<Add directory="$(#boost.lib64)" />
 				</Linker>
 			</Target>
 		</Build>
@@ -61,13 +64,12 @@
 			<Add option="-Wno-overloaded-virtual" />
 			<Add option="-DBOOST_ALL_DYN_LINK" />
 			<Add option="-DBOOST_SYSTEM_NO_DEPRECATED" />
-			<Add option="-D_WIN32_WINNT=0x0501" />
+			<Add option="-D_WIN32_WINNT=0x0600" />
 			<Add option="-D_WIN32" />
 			<Add directory="$(#boost.include)" />
 			<Add directory="../../include" />
 		</Compiler>
 		<Linker>
-			<Add directory="$(#boost.lib32)" />
 			<Add directory="../.." />
 		</Linker>
 		<Unit filename="StdInc.h">
@@ -77,10 +79,6 @@
 		<Unit filename="StupidAI.cpp" />
 		<Unit filename="StupidAI.h" />
 		<Unit filename="main.cpp" />
-		<Extensions>
-			<code_completion />
-			<envvars />
-			<debugger />
-		</Extensions>
+		<Extensions />
 	</Project>
 </CodeBlocks_project_file>

@@ -818,7 +818,7 @@ bool CRmgTemplateZone::addMonster(int3 &pos, si32 strength, bool clearSurroundin
 	CreatureID creId = CreatureID::NONE;
 	int amount = 0;
 	std::vector<CreatureID> possibleCreatures;
-	for (auto cre : VLC->creh->creatures)
+	for (auto cre : VLC->creh->objects)
 	{
 		if (cre->special)
 			continue;
@@ -834,14 +834,14 @@ bool CRmgTemplateZone::addMonster(int3 &pos, si32 strength, bool clearSurroundin
 	if (possibleCreatures.size())
 	{
 		creId = *RandomGeneratorUtil::nextItem(possibleCreatures, gen->rand);
-		amount = strength / VLC->creh->creatures[creId]->AIValue;
+		amount = strength / VLC->creh->objects[creId]->AIValue;
 		if (amount >= 4)
 			amount = static_cast<int>(amount * gen->rand.nextDouble(0.75, 1.25));
 	}
 	else //just pick any available creature
 	{
 		creId = CreatureID(132); //Azure Dragon
-		amount = strength / VLC->creh->creatures[creId]->AIValue;
+		amount = strength / VLC->creh->objects[creId]->AIValue;
 	}
 
 	auto guardFactory = VLC->objtypeh->getHandlerFor(Obj::MONSTER, creId);
@@ -1142,9 +1142,9 @@ void CRmgTemplateZone::initTownType ()
 				town->builtBuildings.insert(BuildingID::FORT);
 			town->builtBuildings.insert(BuildingID::DEFAULT);
 
-			for (auto spell : VLC->spellh->objects) //add all regular spells to town
+			for(auto spell : VLC->spellh->objects) //add all regular spells to town
 			{
-				if (!spell->isSpecialSpell() && !spell->isCreatureAbility())
+				if(!spell->isSpecial() && !spell->isCreatureAbility())
 					town->possibleSpells.push_back(spell->id);
 			}
 
@@ -1192,9 +1192,9 @@ void CRmgTemplateZone::initTownType ()
 		town->builtBuildings.insert(BuildingID::FORT);
 		town->builtBuildings.insert(BuildingID::DEFAULT);
 
-		for (auto spell : VLC->spellh->objects) //add all regular spells to town
+		for(auto spell : VLC->spellh->objects) //add all regular spells to town
 		{
-			if (!spell->isSpecialSpell() && !spell->isCreatureAbility())
+			if(!spell->isSpecial() && !spell->isCreatureAbility())
 				town->possibleSpells.push_back(spell->id);
 		}
 		//towns are big objects and should be centered around visitable position
@@ -1266,7 +1266,7 @@ void CRmgTemplateZone::initTerrainType ()
 {
 
 	if (matchTerrainToTown && townType != ETownType::NEUTRAL)
-		terrainType = VLC->townh->factions[townType]->nativeTerrain;
+		terrainType = (*VLC->townh)[townType]->nativeTerrain;
 	else
 		terrainType = *RandomGeneratorUtil::nextItem(terrainTypes, gen->rand);
 
@@ -2166,7 +2166,7 @@ void CRmgTemplateZone::addAllPossibleObjects()
 	int numZones = static_cast<int>(gen->getZones().size());
 
 	std::vector<CCreature *> creatures; //native creatures for this zone
-	for (auto cre : VLC->creh->creatures)
+	for (auto cre : VLC->creh->objects)
 	{
 		if (!cre->special && cre->faction == townType)
 		{
@@ -2300,7 +2300,7 @@ void CRmgTemplateZone::addAllPossibleObjects()
 					out.push_back(spell->id);
 				}
 			}
-			auto a = CArtifactInstance::createScroll(RandomGeneratorUtil::nextItem(out, gen->rand)->toSpell());
+			auto a = CArtifactInstance::createScroll(*RandomGeneratorUtil::nextItem(out, gen->rand));
 			obj->storedArtifact = a;
 			return obj;
 		};
@@ -2433,7 +2433,6 @@ void CRmgTemplateZone::addAllPossibleObjects()
 			std::vector <CSpell *> spells;
 			for (auto spell : VLC->spellh->objects)
 			{
-
 				if (gen->isAllowedSpell(spell->id) && spell->school[(ESpellSchool)i])
 					spells.push_back(spell);
 			}

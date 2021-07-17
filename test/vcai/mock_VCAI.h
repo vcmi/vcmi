@@ -22,7 +22,7 @@ class VCAIMock : public VCAI
 {
 public:
 	VCAIMock();
-	~VCAIMock() override;
+	virtual ~VCAIMock();
 
 	//overloading all "override" methods from VCAI. AI should never call them, anyway
 	MOCK_CONST_METHOD0(getBattleAIName, std::string());

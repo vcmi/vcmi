@@ -45,6 +45,8 @@
 #include <boost/uuid/uuid_generators.hpp>
 #include "../lib/serializer/Cast.h"
 
+#include <vcmi/events/EventBus.h>
+
 template<typename T> class CApplyOnLobby;
 
 #ifdef VCMI_ANDROID

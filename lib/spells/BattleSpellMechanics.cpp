@@ -134,7 +134,7 @@ BattleSpellMechanics::BattleSpellMechanics(const IBattleCast * event, std::share
 
 BattleSpellMechanics::~BattleSpellMechanics() = default;
 
-void BattleSpellMechanics::applyEffects(BattleStateProxy * battleState, vstd::RNG & rng, const Target & targets, bool indirect, bool ignoreImmunity) const
+void BattleSpellMechanics::applyEffects(ServerCallback * server, const Target & targets, bool indirect, bool ignoreImmunity) const
 {
 	auto callback = [&](const effects::Effect * effect, bool & stop)
 	{
@@ -142,12 +142,12 @@ void BattleSpellMechanics::applyEffects(BattleStateProxy * battleState, vstd::RN
 		{
 			if(ignoreImmunity)
 			{
-				effect->apply(battleState, rng, this, targets);
+				effect->apply(server, this, targets);
 			}
 			else
 			{
 				EffectTarget filtered = effect->filterTarget(this, targets);
-				effect->apply(battleState, rng, this, filtered);
+				effect->apply(server, this, filtered);
 			}
 		}
 	};
@@ -157,14 +157,56 @@ void BattleSpellMechanics::applyEffects(BattleStateProxy * battleState, vstd::RN
 
 bool BattleSpellMechanics::canBeCast(Problem & problem) const
 {
+	auto genProblem = battle()->battleCanCastSpell(caster, mode);
+	if(genProblem != ESpellCastProblem::OK)
+		return adaptProblem(genProblem, problem);
+
+	switch(mode)
+	{
+	case Mode::HERO:
+		{
+			const CGHeroInstance * castingHero = dynamic_cast<const CGHeroInstance *>(caster);//todo: unify hero|creature spell cost
+			if(!castingHero)
+			{
+				logGlobal->debug("CSpell::canBeCast: invalid caster");
+				genProblem = ESpellCastProblem::NO_HERO_TO_CAST_SPELL;
+			}
+			else if(!castingHero->getArt(ArtifactPosition::SPELLBOOK))
+				genProblem = ESpellCastProblem::NO_SPELLBOOK;
+			else if(!castingHero->canCastThisSpell(owner))
+				genProblem = ESpellCastProblem::HERO_DOESNT_KNOW_SPELL;
+			else if(castingHero->mana < battle()->battleGetSpellCost(owner, castingHero)) //not enough mana
+				genProblem = ESpellCastProblem::NOT_ENOUGH_MANA;
+		}
+		break;
+	}
+
+	if(genProblem != ESpellCastProblem::OK)
+		return adaptProblem(genProblem, problem);
+
+	if(!owner->isCombat())
+		return adaptProblem(ESpellCastProblem::ADVMAP_SPELL_INSTEAD_OF_BATTLE_SPELL, problem);
+
+	const PlayerColor player = caster->getCasterOwner();
+	const auto side = battle()->playerToSide(player);
+
+	if(!side)
+		return adaptProblem(ESpellCastProblem::INVALID, problem);
+
+	//effect like Recanter's Cloak. Blocks also passive casting.
+	//TODO: check creature abilities to block
+	//TODO: check any possible caster
+
+	if(battle()->battleMaxSpellLevel(side.get()) < getSpellLevel() || battle()->battleMinSpellLevel(side.get()) > getSpellLevel())
+		return adaptProblem(ESpellCastProblem::SPELL_LEVEL_LIMIT_EXCEEDED, problem);
+
 	return effects->applicable(problem, this);
 }
 
-bool BattleSpellMechanics::canBeCastAt(const Target & target) const
+bool BattleSpellMechanics::canBeCastAt(const Target & target, Problem & problem) const
 {
-	detail::ProblemImpl problem;
-
-	//TODO: send problem to caller (for battle log message in BattleInterface)
+	if(!canBeCast(problem))
+		return false;
 
 	Target spellTarget = transformSpellTarget(target);
 
@@ -190,7 +232,7 @@ std::vector<const CStack *> BattleSpellMechanics::getAffectedStacks(const Target
 		if(dest.unitValue)
 		{
 			//FIXME: remove and return battle::Unit
-			stacks.insert(cb->battleGetStackByID(dest.unitValue->unitId(), false));
+			stacks.insert(battle()->battleGetStackByID(dest.unitValue->unitId(), false));
 		}
 	}
 
@@ -199,7 +241,7 @@ std::vector<const CStack *> BattleSpellMechanics::getAffectedStacks(const Target
 	return res;
 }
 
-void BattleSpellMechanics::cast(const PacketSender * server, vstd::RNG & rng, const Target & target)
+void BattleSpellMechanics::cast(ServerCallback * server, const Target & target)
 {
 	BattleSpellCast sc;
 
@@ -219,22 +261,22 @@ void BattleSpellMechanics::cast(const PacketSender * server, vstd::RNG & rng, co
 	const CGHeroInstance * otherHero = nullptr;
 	{
 		//check it there is opponent hero
-		const ui8 otherSide = cb->otherSide(casterSide);
+		const ui8 otherSide = battle()->otherSide(casterSide);
 
-		if(cb->battleHasHero(otherSide))
-			otherHero = cb->battleGetFightingHero(otherSide);
+		if(battle()->battleHasHero(otherSide))
+			otherHero = battle()->battleGetFightingHero(otherSide);
 	}
 
 	//calculate spell cost
 	if(mode == Mode::HERO)
 	{
 		auto casterHero = dynamic_cast<const CGHeroInstance *>(caster);
-		spellCost = cb->battleGetSpellCost(owner, casterHero);
+		spellCost = battle()->battleGetSpellCost(owner, casterHero);
 
 		if(nullptr != otherHero) //handle mana channel
 		{
 			int manaChannel = 0;
-			for(const CStack * stack : cb->battleGetAllStacks(true)) //TODO: shouldn't bonus system handle it somehow?
+			for(const CStack * stack : battle()->battleGetAllStacks(true)) //TODO: shouldn't bonus system handle it somehow?
 			{
 				if(stack->owner == otherHero->tempOwner)
 				{
@@ -251,7 +293,9 @@ void BattleSpellMechanics::cast(const PacketSender * server, vstd::RNG & rng, co
 		sc.activeCast = true;
 	}
 
-	beforeCast(sc, rng, target);
+	beforeCast(sc, *server->getRNG(), target);
+
+	BattleLogMessage castDescription;
 
 	switch (mode)
 	{
@@ -263,7 +307,7 @@ void BattleSpellMechanics::cast(const PacketSender * server, vstd::RNG & rng, co
 			MetaString line;
 			caster->getCastDescription(owner, affectedUnits, line);
 			if(!line.message.empty())
-				sc.battleLog.push_back(line);
+				castDescription.lines.push_back(line);
 		}
 		break;
 
@@ -276,13 +320,13 @@ void BattleSpellMechanics::cast(const PacketSender * server, vstd::RNG & rng, co
 	for(auto & unit : affectedUnits)
 		sc.affectedCres.insert(unit->unitId());
 
-	server->sendAndApply(&sc);
+	if(!castDescription.lines.empty())
+		server->apply(&castDescription);
 
-	{
-		BattleStateProxy proxy(server);
-		for(auto & p : effectsToApply)
-			p.first->apply(&proxy, rng, this, p.second);
-	}
+	server->apply(&sc);
+
+	for(auto & p : effectsToApply)
+		p.first->apply(server, this, p.second);
 
 //	afterCast();
 
@@ -360,8 +404,9 @@ void BattleSpellMechanics::beforeCast(BattleSpellCast & sc, vstd::RNG & rng, con
 		addCustomEffect(sc, unit, 78);
 }
 
-void BattleSpellMechanics::cast(IBattleState * battleState, vstd::RNG & rng, const Target & target)
+void BattleSpellMechanics::castEval(ServerCallback * server, const Target & target)
 {
+	affectedUnits.clear();
 	//TODO: evaluate caster updates (mana usage etc.)
 	//TODO: evaluate random values
 
@@ -369,27 +414,15 @@ void BattleSpellMechanics::cast(IBattleState * battleState, vstd::RNG & rng, con
 
 	effectsToApply = effects->prepare(this, target, spellTarget);
 
-	std::set<const battle::Unit *> stacks = collectTargets();
+	std::set<const battle::Unit *> unitTargets = collectTargets();
 
-	for(const battle::Unit * one : stacks)
-	{
-		auto selector = std::bind(&BattleSpellMechanics::counteringSelector, this, _1);
+	auto selector = std::bind(&BattleSpellMechanics::counteringSelector, this, _1);
 
-		std::vector<Bonus> buffer;
-		auto bl = one->getBonuses(selector);
+	std::copy(std::begin(unitTargets), std::end(unitTargets), std::back_inserter(affectedUnits));
+	doRemoveEffects(server, affectedUnits, selector);
 
-		for(auto item : *bl)
-			buffer.emplace_back(*item);
-
-		if(!buffer.empty())
-			battleState->removeUnitBonus(one->unitId(), buffer);
-	}
-
-	{
-		BattleStateProxy proxy(battleState);
-		for(auto & p : effectsToApply)
-			p.first->apply(&proxy, rng, this, p.second);
-	}
+	for(auto & p : effectsToApply)
+		p.first->apply(server, this, p.second);
 }
 
 void BattleSpellMechanics::addCustomEffect(BattleSpellCast & sc, const battle::Unit * target, ui32 effect)
@@ -419,7 +452,7 @@ std::set<const battle::Unit *> BattleSpellMechanics::collectTargets() const
 	return result;
 }
 
-void BattleSpellMechanics::doRemoveEffects(const PacketSender * server, const std::vector<const battle::Unit *> & targets, const CSelector & selector)
+void BattleSpellMechanics::doRemoveEffects(ServerCallback * server, const std::vector<const battle::Unit *> & targets, const CSelector & selector)
 {
 	SetStackEffect sse;
 
@@ -436,7 +469,7 @@ void BattleSpellMechanics::doRemoveEffects(const PacketSender * server, const st
 	}
 
 	if(!sse.toRemove.empty())
-		server->sendAndApply(&sse);
+		server->apply(&sse);
 }
 
 bool BattleSpellMechanics::counteringSelector(const Bonus * bonus) const
@@ -583,7 +616,9 @@ std::vector<Destination> BattleSpellMechanics::getPossibleDestinations(size_t in
 				Target tmp = current;
 				tmp.emplace_back(dest);
 
-				if(canBeCastAt(tmp))
+				detail::ProblemImpl ingored;
+
+				if(canBeCastAt(tmp, ingored))
 					ret.emplace_back(dest);
 			}
 		}
@@ -630,6 +665,12 @@ std::vector<BattleHex> BattleSpellMechanics::rangeInHexes(BattleHex centralHex, 
 
 	return ret;
 }
+
+const Spell * BattleSpellMechanics::getSpell() const
+{
+	return owner;
+}
+
 
 }
 

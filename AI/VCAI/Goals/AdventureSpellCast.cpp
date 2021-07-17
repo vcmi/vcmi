@@ -33,16 +33,16 @@ TSubgoal AdventureSpellCast::whatToDoToAchieve()
 
 	auto spell = getSpell();
 
-	logAi->trace("Decomposing adventure spell cast of %s for hero %s", spell->name, hero->name);
+	logAi->trace("Decomposing adventure spell cast of %s for hero %s", spell->getName(), hero->name);
 
-	if(!spell->isAdventureSpell())
-		throw cannotFulfillGoalException(spell->name + " is not an adventure spell.");
+	if(!spell->isAdventure())
+		throw cannotFulfillGoalException(spell->getName() + " is not an adventure spell.");
 
 	if(!hero->canCastThisSpell(spell))
-		throw cannotFulfillGoalException("Hero can not cast " + spell->name);
+		throw cannotFulfillGoalException("Hero can not cast " + spell->getName());
 
 	if(hero->mana < hero->getSpellCost(spell))
-		throw cannotFulfillGoalException("Hero has not enough mana to cast " + spell->name);
+		throw cannotFulfillGoalException("Hero has not enough mana to cast " + spell->getName());
 
 	if(spellID == SpellID::TOWN_PORTAL && town && town->visitingHero)
 		throw cannotFulfillGoalException("The town is already occupied by " + town->visitingHero->name);
@@ -75,10 +75,10 @@ void AdventureSpellCast::accept(VCAI * ai)
 
 std::string AdventureSpellCast::name() const
 {
-	return "AdventureSpellCast " + spellID.toSpell()->name;
+	return "AdventureSpellCast " + getSpell()->getName();
 }
 
 std::string AdventureSpellCast::completeMessage() const
 {
-	return "Spell casted successfully  " + spellID.toSpell()->name;
+	return "Spell cast successfully " + getSpell()->getName();
 }

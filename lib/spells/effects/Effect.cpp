@@ -45,9 +45,9 @@ void Effect::serializeJson(JsonSerializeFormat & handler)
 	serializeJsonEffect(handler);
 }
 
-std::shared_ptr<Effect> Effect::create(const std::string & type)
+std::shared_ptr<Effect> Effect::create(const Registry * registry, const std::string & type)
 {
-	auto factory = Registry::get()->find(type);
+	auto factory = registry->find(type);
 
 	if(factory)
 	{

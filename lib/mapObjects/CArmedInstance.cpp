@@ -26,7 +26,7 @@ void CArmedInstance::randomizeArmy(int type)
 		{
 			int level = randID / 2;
 			bool upgrade = randID % 2;
-			elem.second->setType(VLC->townh->factions[type]->town->creatures[level][upgrade]);
+			elem.second->setType((*VLC->townh)[type]->town->creatures[level][upgrade]);
 
 			randID = -1;
 		}
@@ -67,7 +67,7 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 	for(auto slot : Slots())
 	{
 		const CStackInstance * inst = slot.second;
-		const CCreature * creature  = VLC->creh->creatures[inst->getCreatureID()];
+		const CCreature * creature  = VLC->creh->objects[inst->getCreatureID()];
 
 		factions.insert(creature->faction);
 		// Check for undead flag instead of faction (undead mummies are neutral)
@@ -82,7 +82,7 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 
 		for(TFaction f : factions)
 		{
-			if (VLC->townh->factions[f]->alignment != EAlignment::EVIL)
+			if ((*VLC->townh)[f]->alignment != EAlignment::EVIL)
 				mixableFactions++;
 		}
 		if (mixableFactions > 0)
@@ -129,7 +129,7 @@ void CArmedInstance::armyChanged()
 CBonusSystemNode * CArmedInstance::whereShouldBeAttached(CGameState *gs)
 {
 	if(tempOwner < PlayerColor::PLAYER_LIMIT)
-		return gs->getPlayer(tempOwner);
+		return gs->getPlayerState(tempOwner);
 	else
 		return &gs->globalEffects;
 }

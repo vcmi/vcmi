@@ -92,6 +92,11 @@
 			"description": "List of configuration files for objects",
 			"items": { "type":"string", "format" : "textFile" }
 		},
+		"scripts": {
+			"type":"array",
+			"description": "List of configuration files for scripts",
+			"items": { "type":"string", "format" : "textFile" }
+		},
 		"spells": {
 			"type":"array",
 			"description": "List of configuration files for spells",
@@ -106,7 +111,7 @@
 			"type":"array",
 			"description": "List of configuration files for RMG templates",
 			"items": { "type":"string", "format" : "textFile" }
-		
+
 		},
 
 		"changelog" : {

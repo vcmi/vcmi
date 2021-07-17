@@ -61,56 +61,44 @@ bool Teleport::applicable(Problem & problem, const Mechanics * m) const
 	return UnitEffect::applicable(problem, m);
 }
 
-void Teleport::apply(BattleStateProxy * battleState, RNG & rng, const Mechanics * m, const EffectTarget & target) const
-{
-	BattleStackMoved pack;
-	std::string errorMessage;
-
-	if(prepareEffects(errorMessage, pack, m, target))
-		battleState->apply(&pack);
-	else
-		battleState->complain(errorMessage);
-}
-
-bool Teleport::prepareEffects(std::string & errorMessage, BattleStackMoved & pack, const Mechanics * m, const EffectTarget & target) const
+void Teleport::apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const
 {
 	if(target.size() != 2)
 	{
-		errorMessage = "Teleport requires 2 destinations.";
-		return false;
+		server->complain("Teleport requires 2 destinations.");
+		return;
 	}
 
 	auto targetUnit = target[0].unitValue;
 	if(nullptr == targetUnit)
 	{
-		errorMessage = "No unit to teleport";
-		return false;
+		server->complain("No unit to teleport");
+		return;
 	}
 
 	const BattleHex destination = target[1].hexValue;
 	if(!destination.isValid())
 	{
-		errorMessage = "Invalid teleport destination";
-		return false;
+		server->complain("Invalid teleport destination");
+		return;
 	}
 
 	//TODO: move here all teleport checks
-	if(!m->cb->battleCanTeleportTo(targetUnit, destination, m->getEffectLevel()))
+	if(!m->battle()->battleCanTeleportTo(targetUnit, destination, m->getEffectLevel()))
 	{
-		errorMessage = "Forbidden teleport.";
-		return false;
+		server->complain("Forbidden teleport.");
+		return;
 	}
 
+	BattleStackMoved pack;
 	pack.distance = 0;
 	pack.stack = targetUnit->unitId();
 	std::vector<BattleHex> tiles;
 	tiles.push_back(destination);
 	pack.tilesToMove = tiles;
 	pack.teleporting = true;
-
-	return true;
+	server->apply(&pack);
 }
-
 
 void Teleport::serializeJsonUnitEffect(JsonSerializeFormat & handler)
 {
