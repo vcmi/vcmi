@@ -1223,7 +1223,12 @@ PrimarySkill::PrimarySkill CGHeroInstance::nextPrimarySkill(CRandomGenerator & r
 			break;
 		}
 	}
-
+	if(primarySkill >= GameConstants::PRIMARY_SKILLS)
+	{
+		primarySkill = rand.nextInt(GameConstants::PRIMARY_SKILLS - 1);
+		logGlobal->error("Wrong values in primarySkill%sLevel for hero class %s", level > 9 ? "Low" : "High", type->heroClass->identifier);
+		randomValue = 100 / GameConstants::PRIMARY_SKILLS;
+	}
 	logGlobal->trace("The hero gets the primary skill %d with a probability of %d %%.", primarySkill, randomValue);
 	return static_cast<PrimarySkill::PrimarySkill>(primarySkill);
 }
