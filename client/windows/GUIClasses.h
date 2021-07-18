@@ -310,6 +310,12 @@ class CExchangeWindow : public CStatusbarWindow, public CGarrisonHolder, public 
 	std::array<std::shared_ptr<CButton>, 2> questlogButton;
 
 	std::shared_ptr<CGarrisonInt> garr;
+	std::shared_ptr<CButton> moveAllGarrButtonLeft;
+	std::shared_ptr<CButton> echangeGarrButton;
+	std::shared_ptr<CButton> moveAllGarrButtonRight;
+	std::shared_ptr<CButton> moveArtifactsButtonLeft;
+	std::shared_ptr<CButton> echangeArtifactsButton;
+	std::shared_ptr<CButton> moveArtifactsButtonRight;
 
 public:
 	std::array<const CGHeroInstance *, 2> heroInst;

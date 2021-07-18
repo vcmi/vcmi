@@ -110,6 +110,8 @@ public:
 	std::vector<std::string> tavernInfo;
 	std::vector<std::string> tavernRumors;
 
+	std::vector<std::string> newCommands; // extra commands for HD mod
+
 	std::vector<std::pair<std::string,std::string>> zelp;
 	std::vector<std::string> lossCondtions;
 	std::vector<std::string> victoryConditions;
