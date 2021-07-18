@@ -32,7 +32,7 @@ void AdventureSpellCast::accept(AIGateway * ai)
 
 	logAi->trace("Decomposing adventure spell cast of %s for hero %s", spell->name, hero->name);
 
-	if(!spell->isAdventureSpell())
+	if(!spell->isAdventure())
 		throw cannotFulfillGoalException(spell->name + " is not an adventure spell.");
 
 	if(!hero->canCastThisSpell(spell))

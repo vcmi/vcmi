@@ -487,7 +487,7 @@ void AIGateway::showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositio
 	NET_EVENT_HANDLER;
 }
 
-void AIGateway::init(std::shared_ptr<CCallback> CB)
+void AIGateway::init(std::shared_ptr<Environment> env, std::shared_ptr<CCallback> CB)
 {
 	LOG_TRACE(logAi);
 	myCb = CB;
@@ -1005,7 +1005,7 @@ void AIGateway::recruitCreatures(const CGDwelling * d, const CArmedInstance * re
 		int count = d->creatures[i].first;
 		CreatureID creID = d->creatures[i].second.back();
 
-		vstd::amin(count, cb->getResourceAmount() / VLC->creh->creatures[creID]->cost);
+		vstd::amin(count, cb->getResourceAmount() / VLC->creh->objects[creID]->cost);
 		if(count > 0)
 			cb->recruitCreatures(d, recruiter, creID, count, i);
 	}
