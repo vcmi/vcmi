@@ -15,6 +15,8 @@
 
 #include "../LuaStack.h"
 #include "../../../lib/NetPacks.h"
+#include "../../../lib/CRandomGenerator.h"
+
 namespace scripting
 {
 namespace api
@@ -42,6 +44,11 @@ const std::vector<ServerCbProxy::CustomRegType> ServerCbProxy::REGISTER_CUSTOM =
 	{
 		"commitPackage",
 		&ServerCbProxy::commitPackage,
+		false
+	},
+	{
+		"getRNG",
+		LuaMethodWrapper<ServerCallback, decltype(&ServerCallback::getRNG), &ServerCallback::getRNG>::invoke,
 		false
 	}
 };

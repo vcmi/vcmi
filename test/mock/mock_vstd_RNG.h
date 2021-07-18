@@ -18,6 +18,13 @@ namespace vstd
 class RNGMock : public RNG
 {
 public:
+	MOCK_METHOD0(nextInt, int());
+	MOCK_METHOD1(nextInt, int(int));
+	MOCK_METHOD2(nextInt, int(int, int));
+	MOCK_METHOD0(nextDouble, double());
+	MOCK_METHOD1(nextDouble, double(double));
+	MOCK_METHOD2(nextDouble, double(double, double));
+	MOCK_METHOD2(getIntRange, TRandI(int, int));
 	MOCK_METHOD2(getInt64Range, TRandI64(int64_t, int64_t));
 	MOCK_METHOD2(getDoubleRange, TRand(double, double));
 };

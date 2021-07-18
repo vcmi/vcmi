@@ -829,12 +829,6 @@ namespace ERMConverter
 					fmt % v.str() % v.str() % opt;putLine(fmt.str());
 				}
 				break;
-			case 'R': //random variables
-				{
-					//TODO
-					putLine("--VR:R not implemented");
-				}
-				break;
 			case 'S': //setting variable
 				{
 					if(!trig.params.is_initialized() || trig.params.get().size() != 1)
@@ -847,12 +841,6 @@ namespace ERMConverter
 					endLine();
 				}
 				break;
-			case 'T': //random variables
-				{
-					//TODO
-					putLine("--VR:T not implemented");
-				}
-				break;
 			case 'V': //convert string to value
 				{
 					if(!trig.params.is_initialized() || trig.params.get().size() != 1)
@@ -861,6 +849,18 @@ namespace ERMConverter
 					std::string opt = boost::apply_visitor(VR_X(), trig.params.get()[0]);
 					boost::format fmt("%s = tostring(%s)");
 					fmt % v.str() % opt;
+					putLine(fmt.str());
+				}
+				break;
+			case 'T':
+			case 'R':
+				{
+					if(!trig.params.is_initialized() || trig.params.get().size() != 1)
+						throw EScriptExecError("VR:H option takes exactly 1 parameter!");
+
+					std::string opt = boost::apply_visitor(VR_X(), trig.params.get()[0]);
+					boost::format fmt("%s = ERM.VR(%s):%c(%s)");
+					fmt % v.str() % v.str() % (trig.optionCode) % opt;
 					putLine(fmt.str());
 				}
 				break;

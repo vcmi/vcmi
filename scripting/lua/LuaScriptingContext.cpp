@@ -25,7 +25,6 @@
 #include "../../lib/battle/IBattleInfoCallback.h"
 #include "../../lib/CGameInfoCallback.h"
 
-
 namespace scripting
 {
 
