@@ -24,6 +24,7 @@ MULTIPLAYER:
 * Loading support. Save from single client could be used to load all clients.
 * Restart support. All clients will restart together on same server.
 * Hotseat mixed with network game. Multiple colors can be controlled by each client.
+* Turn time limit implemented.
 
 SPELLS:
 * Implemented cumulative effects for spells
