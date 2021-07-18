@@ -129,7 +129,8 @@ void CCampaignScreen::CCampaignButton::show(SDL_Surface * to)
 	}
 	else if(CCS->videoh->fname == video) // When you got out of the bounds of the button then close the video
 	{
-		CCS->videoh->close();
+		// Don't close the video to prevent crash, may lead to memory leak
+		// CCS->videoh->close();
 		redraw();
 	}
 }
