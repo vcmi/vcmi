@@ -62,6 +62,7 @@
 #include "CServerHandler.h"
 // FIXME: only needed for CGameState::mutex
 #include "../lib/CGameState.h"
+#include "gui/NotificationHandler.h"
 
 
 // The macro below is used to mark functions that are called by client when game state changes.
@@ -165,6 +166,8 @@ void CPlayerInterface::yourTurn()
 		LOCPLINT = this;
 		GH.curInt = this;
 		adventureInt->selection = nullptr;
+
+		NotificationHandler::notify("Your turn");
 
 		std::string prefix = settings["session"]["saveprefix"].String();
 		int frequency = static_cast<int>(settings["general"]["saveFrequency"].Integer());
