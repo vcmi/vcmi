@@ -89,6 +89,7 @@ public:
 	void setImageOrder(int state1, int state2, int state3, int state4);
 	void setAnimateLonelyFrame(bool agreement);
 	void block(bool on);
+	void setPosition(Point position);
 
 	/// State modifiers
 	bool isBlocked();

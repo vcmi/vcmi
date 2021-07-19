@@ -17,6 +17,7 @@
 #include "CComponent.h"
 
 #include "../windows/CHeroWindow.h"
+#include "../windows/CHeroExchangeWindow.h"
 #include "../windows/CSpellWindow.h"
 #include "../windows/GUIClasses.h"
 #include "../CPlayerInterface.h"

@@ -14,6 +14,8 @@ set(client_SRCS
 		gui/Fonts.cpp
 		gui/Geometries.cpp
 		gui/SDL_Extensions.cpp
+		gui/GuiJsonLoader.cpp
+		gui/GuiController.cpp
 
 		widgets/AdventureMapClasses.cpp
 		widgets/Buttons.cpp
@@ -30,6 +32,7 @@ set(client_SRCS
 		windows/CCreatureWindow.cpp
 		windows/CreaturePurchaseCard.cpp
 		windows/CHeroWindow.cpp
+		windows/CHeroExchangeWindow.cpp
 		windows/CKingdomInterface.cpp
 		windows/CQuestLog.cpp
 		windows/CSpellWindow.cpp
@@ -87,6 +90,8 @@ set(client_HEADERS
 		gui/SDL_Compat.h
 		gui/SDL_Extensions.h
 		gui/SDL_Pixels.h
+		gui/GuiJsonLoader.h
+		gui/GuiController.h
 
 		widgets/AdventureMapClasses.h
 		widgets/Buttons.h
@@ -102,6 +107,7 @@ set(client_HEADERS
 		windows/CCreatureWindow.h
 		windows/CreaturePurchaseCard.h
 		windows/CHeroWindow.h
+		windows/CHeroExchangeWindow.h
 		windows/CKingdomInterface.h
 		windows/CQuestLog.h
 		windows/CSpellWindow.h

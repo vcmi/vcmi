@@ -332,6 +332,10 @@ CGeneralTextHandler::CGeneralTextHandler()
 	readToVector("DATA/TENTCOLR.TXT", tentColors);
 	readToVector("DATA/SKILLLEV.TXT", levels);
 
+	static const char * HD_MOD_COMMANDS = "DATA/HDCOMMANDS.TXT";
+	if (CResourceHandler::get()->existsResource(ResourceID(HD_MOD_COMMANDS, EResType::TEXT)))
+		readToVector(HD_MOD_COMMANDS, hdModCommands);
+
 	localizedTexts = JsonNode(ResourceID("config/translate.json", EResType::TEXT));
 
 	{

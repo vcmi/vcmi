@@ -28,6 +28,7 @@
 #include "widgets/CComponent.h"
 #include "windows/CTradeWindow.h"
 #include "windows/CSpellWindow.h"
+#include "windows/CHeroExchangeWindow.h"
 #include "../lib/CConfigHandler.h"
 #include "battle/CCreatureAnimation.h"
 #include "Graphics.h"

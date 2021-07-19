@@ -12,6 +12,7 @@
 
 #include "CAdvmapInterface.h"
 #include "CCreatureWindow.h"
+#include "CHeroExchangeWindow.h"
 #include "CKingdomInterface.h"
 #include "GUIClasses.h"
 

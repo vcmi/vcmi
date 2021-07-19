@@ -259,6 +259,17 @@ CButton::CButton(Point position, const std::string &defName, const std::pair<std
 	}
 }
 
+void CButton::setPosition(Point position)
+{
+	if(image)
+	{
+		pos.x = position.x;
+		image->pos.x = position.x;
+		pos.y = position.y;
+		image->pos.y = position.y;
+	}
+}
+
 void CButton::setIndex(size_t index, bool playerColoredButton)
 {
 	if (index == currentImage || index>=imageNames.size())
