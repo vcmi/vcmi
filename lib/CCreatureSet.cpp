@@ -58,7 +58,10 @@ bool CCreatureSet::setCreature(SlotID slot, CreatureID type, TQuantity quantity)
 	if(hasStackAtSlot(slot)) //remove old creature
 		eraseStack(slot);
 
-	putStack(slot, new CStackInstance(type, quantity));
+	auto armyObj = castToArmyObj();
+	bool isHypotheticArmy = armyObj ? armyObj->isHypothetic() : false;
+
+	putStack(slot, new CStackInstance(type, quantity, isHypotheticArmy));
 	return true;
 }
 
@@ -532,16 +535,16 @@ CStackInstance::CStackInstance()
 	init();
 }
 
-CStackInstance::CStackInstance(CreatureID id, TQuantity Count)
-	: armyObj(_armyObj)
+CStackInstance::CStackInstance(CreatureID id, TQuantity Count, bool isHypothetic)
+	: CBonusSystemNode(isHypothetic), armyObj(_armyObj)
 {
 	init();
 	setType(id);
 	count = Count;
 }
 
-CStackInstance::CStackInstance(const CCreature *cre, TQuantity Count)
-	: armyObj(_armyObj)
+CStackInstance::CStackInstance(const CCreature *cre, TQuantity Count, bool isHypothetic)
+	: CBonusSystemNode(isHypothetic), armyObj(_armyObj)
 {
 	init();
 	setType(cre);

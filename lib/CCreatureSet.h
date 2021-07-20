@@ -49,6 +49,7 @@ class DLL_LINKAGE CStackInstance : public CBonusSystemNode, public CStackBasicDe
 {
 protected:
 	const CArmedInstance *_armyObj; //stack must be part of some army, army must be part of some object
+
 public:
 	// hlp variable used during loading map, when object (hero or town) have creatures that must have same alignment.
 	// idRand < 0 -> normal, non-random creature
@@ -85,8 +86,8 @@ public:
 	std::string getName() const; //plural or singular
 	virtual void init();
 	CStackInstance();
-	CStackInstance(CreatureID id, TQuantity count);
-	CStackInstance(const CCreature *cre, TQuantity count);
+	CStackInstance(CreatureID id, TQuantity count, bool isHypothetic = false);
+	CStackInstance(const CCreature *cre, TQuantity count, bool isHypothetic = false);
 	virtual ~CStackInstance();
 
 	void setType(CreatureID creID);

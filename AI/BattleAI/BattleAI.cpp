@@ -167,11 +167,22 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 			if(bestSpellcast.is_initialized() && bestSpellcast->value > bestAttack.damageDiff())
 				return BattleAction::makeCreatureSpellcast(stack, bestSpellcast->dest, bestSpellcast->spell->id);
 			else if(bestAttack.attack.shooting)
+			{
+				auto &target = bestAttack;
+				logAi->debug("BattleAI: %s -> %s x %d, shot, from %d curpos %d dist %d speed %d: %lld %lld %lld",
+					target.attackerState->unitType()->identifier,
+					target.affectedUnits[0]->unitType()->identifier,
+					(int)target.affectedUnits.size(), (int)target.from, (int)bestAttack.attack.attacker->getPosition().hex,
+					bestAttack.attack.chargedFields, bestAttack.attack.attacker->Speed(0, true),
+					target.damageDealt, target.damageReceived, target.attackValue()
+				);
+
 				return BattleAction::makeShotAttack(stack, bestAttack.attack.defender);
+			}
 			else
 			{
 				auto &target = bestAttack;
-				logAi->debug("BattleAI: %s -> %s %d from, %d curpos %d dist %d speed %d: %lld %lld %lld",
+				logAi->debug("BattleAI: %s -> %s x %d, mellee, from %d curpos %d dist %d speed %d: %lld %lld %lld",
 					target.attackerState->unitType()->identifier,
 					target.affectedUnits[0]->unitType()->identifier,
 					(int)target.affectedUnits.size(), (int)target.from, (int)bestAttack.attack.attacker->getPosition().hex,

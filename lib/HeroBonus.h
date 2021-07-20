@@ -751,6 +751,7 @@ private:
 
 	ENodeTypes nodeType;
 	std::string description;
+	bool isHypotheticNode;
 
 	static const bool cachingEnabled;
 	mutable BonusList cachedBonuses;
@@ -761,6 +762,7 @@ private:
 	// This string needs to be unique, that's why it has to be setted in the following manner:
 	// [property key]_[value] => only for selector
 	mutable std::map<std::string, TBonusListPtr > cachedRequests;
+	mutable boost::mutex sync;
 
 	void getBonusesRec(BonusList &out, const CSelector &selector, const CSelector &limit) const;
 	void getAllBonusesRec(BonusList &out) const;
@@ -769,6 +771,7 @@ private:
 
 public:
 	explicit CBonusSystemNode();
+	explicit CBonusSystemNode(bool isHypotetic);
 	explicit CBonusSystemNode(ENodeTypes NodeType);
 	CBonusSystemNode(CBonusSystemNode && other);
 	virtual ~CBonusSystemNode();
@@ -809,6 +812,7 @@ public:
 	void reduceBonusDurations(const CSelector &s);
 	virtual std::string bonusToString(const std::shared_ptr<Bonus>& bonus, bool description) const {return "";}; //description or bonus name
 	virtual std::string nodeName() const;
+	bool isHypothetic() const { return isHypotheticNode; }
 
 	void deserializationFix();
 	void exportBonus(std::shared_ptr<Bonus> b);

@@ -901,8 +901,7 @@ TConstBonusListPtr CBonusSystemNode::getAllBonuses(const CSelector &selector, co
 	if (CBonusSystemNode::cachingEnabled && limitOnUs)
 	{
 		// Exclusive access for one thread
-		static boost::mutex m;
-		boost::mutex::scoped_lock lock(m);
+		boost::lock_guard<boost::mutex> lock(sync);
 
 		// If the bonus system tree changes(state of a single node or the relations to each other) then
 		// cache all bonus objects. Selector objects doesn't matter.
@@ -990,10 +989,17 @@ std::shared_ptr<Bonus> CBonusSystemNode::update(const std::shared_ptr<Bonus> & b
 }
 
 CBonusSystemNode::CBonusSystemNode()
+	:CBonusSystemNode(false)
+{
+}
+
+CBonusSystemNode::CBonusSystemNode(bool isHypotetic)
 	: bonuses(true),
 	exportedBonuses(true),
 	nodeType(UNKNOWN),
-	cachedLast(0)
+	cachedLast(0),
+	sync(),
+	isHypotheticNode(isHypotetic)
 {
 }
 
@@ -1001,7 +1007,9 @@ CBonusSystemNode::CBonusSystemNode(ENodeTypes NodeType)
 	: bonuses(true),
 	exportedBonuses(true),
 	nodeType(NodeType),
-	cachedLast(0)
+	cachedLast(0),
+	sync(),
+	isHypotheticNode(false)
 {
 }
 
@@ -1010,17 +1018,22 @@ CBonusSystemNode::CBonusSystemNode(CBonusSystemNode && other):
 	exportedBonuses(std::move(other.exportedBonuses)),
 	nodeType(other.nodeType),
 	description(other.description),
-	cachedLast(0)
+	cachedLast(0),
+	sync(),
+	isHypotheticNode(other.isHypotheticNode)
 {
 	std::swap(parents, other.parents);
 	std::swap(children, other.children);
 
 	//fixing bonus tree without recalculation
 
-	for(CBonusSystemNode * n : parents)
+	if(!isHypothetic())
 	{
-		n->children -= &other;
-		n->children.push_back(this);
+		for(CBonusSystemNode * n : parents)
+		{
+			n->children -= &other;
+			n->children.push_back(this);
+		}
 	}
 
 	for(CBonusSystemNode * n : children)
@@ -1051,12 +1064,16 @@ void CBonusSystemNode::attachTo(CBonusSystemNode *parent)
 	assert(!vstd::contains(parents, parent));
 	parents.push_back(parent);
 
-	if(parent->actsAsBonusSourceOnly())
-		parent->newRedDescendant(this);
-	else
-		newRedDescendant(parent);
+	if(!isHypothetic())
+	{
+		if(parent->actsAsBonusSourceOnly())
+			parent->newRedDescendant(this);
+		else
+			newRedDescendant(parent);
 
-	parent->newChildAttached(this);
+		parent->newChildAttached(this);
+	}
+
 	CBonusSystemNode::treeHasChanged();
 }
 
@@ -1064,13 +1081,21 @@ void CBonusSystemNode::detachFrom(CBonusSystemNode *parent)
 {
 	assert(vstd::contains(parents, parent));
 
-	if(parent->actsAsBonusSourceOnly())
-		parent->removedRedDescendant(this);
-	else
-		removedRedDescendant(parent);
+	if(!isHypothetic())
+	{
+		if(parent->actsAsBonusSourceOnly())
+			parent->removedRedDescendant(this);
+		else
+			removedRedDescendant(parent);
+	}
 
 	parents -= parent;
-	parent->childDetached(this);
+
+	if(!isHypothetic())
+	{
+		parent->childDetached(this);
+	}
+
 	CBonusSystemNode::treeHasChanged();
 }
 
@@ -1189,7 +1214,6 @@ void CBonusSystemNode::childDetached(CBonusSystemNode *child)
 		logBonus->error("Error! %s #cannot be detached from# %s", child->nodeName(), nodeName());
 		throw std::runtime_error("internal error");
 	}
-
 }
 
 void CBonusSystemNode::detachFromAll()

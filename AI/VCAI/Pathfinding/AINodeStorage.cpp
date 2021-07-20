@@ -26,7 +26,7 @@ AINodeStorage::AINodeStorage(const int3 & Sizes)
 
 AINodeStorage::~AINodeStorage() = default;
 
-void AINodeStorage::initialize(const PathfinderOptions & options, const CGameState * gs, const CGHeroInstance * hero)
+void AINodeStorage::initialize(const PathfinderOptions & options, const CGameState * gs)
 {
 	//TODO: fix this code duplication with NodeStorage::initialize, problem is to keep `resetTile` inline
 
@@ -109,7 +109,7 @@ boost::optional<AIPathNode *> AINodeStorage::getOrCreateNode(const int3 & pos, c
 	return boost::none;
 }
 
-CGPathNode * AINodeStorage::getInitialNode()
+std::vector<CGPathNode *> AINodeStorage::getInitialNodes()
 {
 	auto hpos = hero->getPosition(false);
 	auto initialNode =
@@ -121,7 +121,7 @@ CGPathNode * AINodeStorage::getInitialNode()
 	initialNode->danger = 0;
 	initialNode->setCost(0.0);
 
-	return initialNode;
+	return {initialNode};
 }
 
 void AINodeStorage::resetTile(const int3 & coord, EPathfindingLayer layer, CGPathNode::EAccessibility accessibility)

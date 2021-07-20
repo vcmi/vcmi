@@ -1,12 +1,12 @@
 /*
- * CommonConstructors.h, part of VCMI engine
- *
- * Authors: listed in file AUTHORS in main folder
- *
- * License: GNU General Public License v2.0 or later
- * Full text of license available in license.txt file, in main folder
- *
- */
+* CommonConstructors.h, part of VCMI engine
+*
+* Authors: listed in file AUTHORS in main folder
+*
+* License: GNU General Public License v2.0 or later
+* Full text of license available in license.txt file, in main folder
+*
+*/
 #pragma once
 
 #include "CObjectClassesHandler.h"
@@ -34,7 +34,7 @@ protected:
 		return obj;
 	}
 public:
-	CDefaultObjectTypeHandler(){}
+	CDefaultObjectTypeHandler() {}
 
 	CGObjectInstance * create(const ObjectTemplate & tmpl) const override
 	{
@@ -164,6 +164,15 @@ struct BankConfig
 
 typedef std::vector<std::pair<ui8, IObjectInfo::CArmyStructure>> TPossibleGuards;
 
+template <typename T>
+struct DLL_LINKAGE PossibleReward
+{
+	int chance;
+	T data;
+
+	PossibleReward(int chance, const T & data) : chance(chance), data(data) {}
+};
+
 class DLL_LINKAGE CBankInfo : public IObjectInfo
 {
 	const JsonVector & config;
@@ -171,6 +180,8 @@ public:
 	CBankInfo(const JsonVector & Config);
 
 	TPossibleGuards getPossibleGuards() const;
+	std::vector<PossibleReward<TResources>> getPossibleResourcesReward() const;
+	std::vector<PossibleReward<CStackBasicDescriptor>> getPossibleCreaturesReward() const;
 
 	// These functions should try to evaluate minimal possible/max possible guards to give provide information on possible thread to AI
 	CArmyStructure minGuards() const override;

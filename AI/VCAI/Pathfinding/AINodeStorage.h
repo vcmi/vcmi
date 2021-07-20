@@ -80,9 +80,9 @@ public:
 	AINodeStorage(const int3 & sizes);
 	~AINodeStorage();
 
-	void initialize(const PathfinderOptions & options, const CGameState * gs, const CGHeroInstance * hero) override;
+	void initialize(const PathfinderOptions & options, const CGameState * gs) override;
 
-	virtual CGPathNode * getInitialNode() override;
+	virtual std::vector<CGPathNode *> getInitialNodes() override;
 
 	virtual std::vector<CGPathNode *> calculateNeighbours(
 		const PathNodeInfo & source,
@@ -106,11 +106,7 @@ public:
 	bool isTileAccessible(const int3 & pos, const EPathfindingLayer layer) const;
 
 	void setHero(HeroPtr heroPtr, const VCAI * ai);
-
-	const CGHeroInstance * getHero() const
-	{
-		return hero;
-	}
+	const CGHeroInstance * getHero() const { return hero; }
 
 	uint64_t evaluateDanger(const int3 &  tile) const
 	{

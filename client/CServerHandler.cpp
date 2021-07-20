@@ -579,6 +579,8 @@ void CServerHandler::debugStartTest(std::string filename, bool save)
 	else
 		startLocalServerAndConnect();
 
+	boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+
 	while(!settings["session"]["headless"].Bool() && !dynamic_cast<CLobbyScreen *>(GH.topInt().get()))
 		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
 	while(!mi || mapInfo->fileURI != CSH->mi->fileURI)
