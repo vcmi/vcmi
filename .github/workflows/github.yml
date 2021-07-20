@@ -31,6 +31,7 @@ jobs:
             mxe: i686-w64-mingw32.shared
             test: 0
             pack: 1
+            cpack_args: -D CPACK_NSIS_EXECUTABLE=`which makensis`
             extension: exe
             
     runs-on: ${{ matrix.os }}
@@ -85,7 +86,7 @@ jobs:
       if: ${{ matrix.pack == 1 }}
       run: |
         cd ${{github.workspace}}/build
-        cpack
+        cpack ${{ matrix.cpack_args }}
         
     - name: Additional logs
       if: ${{ failure() && steps.cpack.outcome == 'failure' && matrix.platform == 'mxe' }}
