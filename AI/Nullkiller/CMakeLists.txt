@@ -141,11 +141,7 @@ else()
 	target_link_libraries(Nullkiller PRIVATE fl-static vcmi)
 endif()
 
-if(TBB_FOUND)
-	target_link_libraries(Nullkiller PRIVATE ${TBB_LIBRARIES})
-else()
-	target_link_libraries(Nullkiller PRIVATE tbb)
-endif()
+target_link_libraries(Nullkiller PRIVATE TBB::tbb)
 
 vcmi_set_output_dir(Nullkiller "AI")
 
