@@ -460,7 +460,9 @@ void CBonusSelection::increaseDifficulty()
 
 void CBonusSelection::decreaseDifficulty()
 {
-	CSH->setDifficulty(CSH->si->difficulty - 1);
+	// avoid negative overflow (0 - 1 = 255)
+	if (CSH->si->difficulty > 0)
+		CSH->setDifficulty(CSH->si->difficulty - 1);
 }
 
 CBonusSelection::CRegion::CRegion(int id, bool accessible, bool selectable, const SCampPositions & campDsc)
