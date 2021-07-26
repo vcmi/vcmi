@@ -209,15 +209,17 @@ void MovementCostRule::process(
 	int moveAtNextTile = destination.movementLeft;
 	int cost = pathfinderHelper->getMovementCost(source, destination, moveAtNextTile);
 	int remains = moveAtNextTile - cost;
-	int maxMovePoints = pathfinderHelper->getMaxMovePoints(destination.node->layer);
+	int sourceLayerMaxMovePoints = pathfinderHelper->getMaxMovePoints(source.node->layer);
+
 	if(remains < 0)
 	{
 		//occurs rarely, when hero with low movepoints tries to leave the road
-		costAtNextTile += static_cast<float>(moveAtNextTile) / maxMovePoints;//we spent all points of current turn
+		costAtNextTile += static_cast<float>(moveAtNextTile) / sourceLayerMaxMovePoints;//we spent all points of current turn
 		pathfinderHelper->updateTurnInfo(++turnAtNextTile);
 
-		maxMovePoints = pathfinderHelper->getMaxMovePoints(destination.node->layer);
-		moveAtNextTile = maxMovePoints;
+		int destinationLayerMaxMovePoints = pathfinderHelper->getMaxMovePoints(destination.node->layer);
+
+		moveAtNextTile = destinationLayerMaxMovePoints;
 
 		cost = pathfinderHelper->getMovementCost(source, destination, moveAtNextTile); //cost must be updated, movement points changed :(
 		remains = moveAtNextTile - cost;
@@ -231,7 +233,7 @@ void MovementCostRule::process(
 		cost = moveAtNextTile - remains;
 	}
 
-	costAtNextTile += static_cast<float>(cost) / maxMovePoints;
+	costAtNextTile += static_cast<float>(cost) / sourceLayerMaxMovePoints;
 
 	destination.cost = costAtNextTile;
 	destination.turn = turnAtNextTile;
