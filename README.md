@@ -1,4 +1,4 @@
-[![Travis Build Status](https://travis-ci.org/vcmi/vcmi.svg?branch=develop)](https://travis-ci.org/vcmi/vcmi)
+[![GitHub](https://github.com/vcmi/vcmi/actions/workflows/github.yml/badge.svg)](https://github.com/vcmi/vcmi/actions/workflows/github.yml)
 [![AppVeyor Build status](https://ci.appveyor.com/api/projects/status/github/vcmi/vcmi?branch=develop&svg=true)](https://ci.appveyor.com/project/vcmi/vcmi)
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/vcmi/badge.svg)](https://scan.coverity.com/projects/vcmi)
 # VCMI Project
