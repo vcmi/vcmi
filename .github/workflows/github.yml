@@ -1,7 +1,11 @@
-name: CMake
+name: VCMI
 
-on: [ push ]
-
+on:
+    push:
+      branches:
+        - features/*
+        - develop
+    pull_request:
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
@@ -16,16 +20,19 @@ jobs:
             cc: clang-10
             cxx: clang++-10
             test: 0
+            cmake_args: -G Ninja
           - platform: linux
             os: ubuntu-20.04
             cc: gcc-9
             cxx: g++-9
             test: 0
+            cmake_args: -G Ninja
           - platform: mac
             os: macos-latest
             test: 0
             pack: 1
             extension: dmg
+            cmake_args: -G Ninja
           - platform: mxe
             os: ubuntu-20.04
             mxe: i686-w64-mingw32.shared
@@ -33,8 +40,18 @@ jobs:
             pack: 1
             cpack_args: -D CPACK_NSIS_EXECUTABLE=`which makensis`
             extension: exe
+            cmake_args: -G Ninja
+          - platform: msvc
+            os: windows-latest
+            test: 0
+            pack: 1
+            extension: exe
+            cmake_args: -G "Visual Studio 16 2019" -A x64 '-DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake'
             
     runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
 
     steps:
     - uses: actions/checkout@v2
@@ -42,9 +59,10 @@ jobs:
         submodules: recursive
 
     - name: Dependencies
-      run: source ${{github.workspace}}/CI/${{matrix.platform}}/before_install.sh
+      run: source '${{github.workspace}}/CI/${{matrix.platform}}/before_install.sh'
       env:
         MXE_TARGET: ${{ matrix.mxe }}
+        VCMI_BUILD_PLATFORM: x64
         
     - name: Git branch name
       id: git-branch-name
@@ -52,7 +70,7 @@ jobs:
 
     - name: Build Number
       run: |
-        source ${{github.workspace}}/CI/get_package_name.sh
+        source '${{github.workspace}}/CI/get_package_name.sh'
         echo VCMI_PACKAGE_FILE_NAME="$VCMI_PACKAGE_FILE_NAME" >> $GITHUB_ENV
         echo VCMI_PACKAGE_NAME_SUFFIX="$VCMI_PACKAGE_NAME_SUFFIX" >> $GITHUB_ENV
       env:
@@ -60,9 +78,9 @@ jobs:
 
     - name: Configure CMake
       run: |
-        mkdir ${{github.workspace}}/build
-        cd ${{github.workspace}}/build
-        cmake -G Ninja .. -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
+        mkdir '${{github.workspace}}/build'
+        cd '${{github.workspace}}/build'
+        cmake ${{matrix.cmake_args}} .. -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
             -DENABLE_TEST=${{matrix.test}} \
             -DPACKAGE_NAME_SUFFIX:STRING="$VCMI_PACKAGE_NAME_SUFFIX" \
             -DPACKAGE_FILE_NAME:STRING="$VCMI_PACKAGE_FILE_NAME"
@@ -71,28 +89,35 @@ jobs:
         CXX: ${{ matrix.cxx }}
 
     - name: Build
+      if: ${{ matrix.platform != 'msvc' }}
       run: |
-        cd ${{github.workspace}}/build
+        cd '${{github.workspace}}/build'
         ninja
+        
+    - name: Build MSVC
+      if: ${{ matrix.platform == 'msvc' }}
+      run: |
+        cd '${{github.workspace}}/build'
+        cmake --build . --config ${{env.BUILD_TYPE}}
 
     - name: Test
       if: ${{ matrix.test == 1 }}
       run: |
-        cd ${{github.workspace}}/build
+        cd '${{github.workspace}}/build'
         ctest -C Release -V
   
     - name: Pack
       id: cpack
       if: ${{ matrix.pack == 1 }}
       run: |
-        cd ${{github.workspace}}/build
-        cpack ${{ matrix.cpack_args }}
+        cd '${{github.workspace}}/build'
+        cpack -C Release ${{ matrix.cpack_args }}
         
     - name: Additional logs
       if: ${{ failure() && steps.cpack.outcome == 'failure' && matrix.platform == 'mxe' }}
       run: |
-        cat ${{github.workspace}}/build/_CPack_Packages/win32/NSIS/project.nsi
-        cat ${{github.workspace}}/build/_CPack_Packages/win32/NSIS/NSISOutput.log
+        cat '${{github.workspace}}/build/_CPack_Packages/win32/NSIS/project.nsi'
+        cat '${{github.workspace}}/build/_CPack_Packages/win32/NSIS/NSISOutput.log'
         
     - name: Artifacts
       if: ${{ matrix.pack == 1 }}
@@ -102,10 +127,10 @@ jobs:
         path: ${{github.workspace}}/build/${{ env.VCMI_PACKAGE_FILE_NAME }}.${{ matrix.extension }}
   
     - name: Upload build
-      if: ${{ matrix.pack == 1 && github.ref == 'refs/heads/develop' }}
+      if: ${{ matrix.pack == 1 && github.ref == 'refs/heads/develop' && matrix.platform != 'msvc' }}
       run: |
-        cd ${{github.workspace}}/build
-        source ${{github.workspace}}/CI/upload_package.sh
+        cd '${{github.workspace}}/build'
+        source '${{github.workspace}}/CI/upload_package.sh'
       env:
         DEPLOY_RSA: ${{ secrets.DEPLOY_RSA }}
         PACKAGE_EXTENSION: ${{ matrix.extension }}

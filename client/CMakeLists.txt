@@ -178,7 +178,7 @@ target_link_libraries(vcmiclient PRIVATE
 		${FFMPEG_LIBRARIES} ${FFMPEG_EXTRA_LINKING_OPTIONS} ${TBB_LIBRARIES}
 )
 
-target_include_directories(vcmi
+target_include_directories(vcmiclient
 	PUBLIC	${CMAKE_CURRENT_SOURCE_DIR}
 	PUBLIC	${SDL2_INCLUDE_DIR}
 	PRIVATE ${SDL2_TTF_INCLUDE_DIR}

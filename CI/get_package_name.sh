@@ -17,7 +17,7 @@ elif [ ! -z "${GITHUB_RUN_ID}" ];
 then
 	echo "Using Github environment variables!"
 	TMP_JOBID="$GITHUB_RUN_ID"
-	TMP_BRANCH=${GITHUB_REF#refs/heads/}
+	TMP_BRANCH=$(basename ${GITHUB_REF#refs/heads/})
 	TMP_PRID="$PULL_REQUEST"
 	TMP_COMMIT=$(git rev-parse --short "$GITHUB_SHA")
 else

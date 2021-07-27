@@ -122,7 +122,7 @@ if(APPLE)
 	set(CMAKE_MACOSX_RPATH 0)
 endif(APPLE)
 
-if(WIN32)
+if(MINGW OR MSVC)
 	# Windows Vista or newer for FuzzyLite 6 to compile
 	add_definitions(-D_WIN32_WINNT=0x0600)
 
@@ -177,7 +177,7 @@ if(WIN32)
 			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Og")
 		endif()
 	endif(MINGW)
-endif(WIN32)
+endif(MINGW OR MSVC)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR NOT WIN32) #so far all *nix compilers support such parameters
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -Wall -Wextra -Wpointer-arith -Wuninitialized")
@@ -345,7 +345,8 @@ if(NOT WIN32)
 					WORLD_READ WORLD_EXECUTE)
 endif()
 
-if(MINGW)
+
+if(WIN32)
 	file(GLOB dep_files
 		${dep_files}
 		"${CMAKE_FIND_ROOT_PATH}/bin/*.dll")
@@ -378,7 +379,7 @@ if(MINGW)
 
 	install(FILES ${dep_files} DESTINATION ${BIN_DIR})
 	install(FILES ${dep_qwindows} DESTINATION ${BIN_DIR}/platforms)
-endif(MINGW)
+endif(WIN32)
 
 #######################################
 #       Packaging section             #
