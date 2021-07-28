@@ -230,6 +230,14 @@ CHeroClass * CHeroClassHandler::loadFromJson(const std::string & scope, const Js
 	fillPrimarySkillData(node, heroClass, PrimarySkill::SPELL_POWER);
 	fillPrimarySkillData(node, heroClass, PrimarySkill::KNOWLEDGE);
 
+	auto percentSumm = std::accumulate(heroClass->primarySkillLowLevel.begin(), heroClass->primarySkillLowLevel.end(), 0);
+	if(percentSumm != 100)
+		logMod->error("Hero class %s has wrong lowLevelChance values: summ should be 100, but %d instead", heroClass->identifier, percentSumm);
+
+	percentSumm = std::accumulate(heroClass->primarySkillHighLevel.begin(), heroClass->primarySkillHighLevel.end(), 0);
+	if(percentSumm != 100)
+		logMod->error("Hero class %s has wrong highLevelChance values: summ should be 100, but %d instead", heroClass->identifier, percentSumm);
+
 	for(auto skillPair : node["secondarySkills"].Struct())
 	{
 		int probability = static_cast<int>(skillPair.second.Integer());

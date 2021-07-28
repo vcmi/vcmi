@@ -56,7 +56,8 @@ namespace GameConstants
 	const int SKILL_GOLD_COST = 2000;
 	const int BATTLE_PENALTY_DISTANCE = 10; //if the distance is > than this, then shooting stack has distance penalty
 	const int ARMY_SIZE = 7;
-	const int SKILL_PER_HERO=8;
+	const int SKILL_PER_HERO = 8;
+	const ui32 HERO_HIGH_LEVEL = 10; // affects primary skill upgrade order
 
 	const int SKILL_QUANTITY=28;
 	const int PRIMARY_SKILLS=4;
