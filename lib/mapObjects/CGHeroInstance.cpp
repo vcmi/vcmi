@@ -1213,7 +1213,8 @@ PrimarySkill::PrimarySkill CGHeroInstance::nextPrimarySkill(CRandomGenerator & r
 {
 	assert(gainsLevel());
 	int randomValue = rand.nextInt(99), pom = 0, primarySkill = 0;
-	const auto & skillChances = (level > 9) ? type->heroClass->primarySkillLowLevel : type->heroClass->primarySkillHighLevel;
+	const auto isLowLevelHero = level < GameConstants::HERO_HIGH_LEVEL;
+	const auto & skillChances = isLowLevelHero ? type->heroClass->primarySkillLowLevel : type->heroClass->primarySkillHighLevel;
 
 	for(; primarySkill < GameConstants::PRIMARY_SKILLS; ++primarySkill)
 	{
@@ -1223,7 +1224,12 @@ PrimarySkill::PrimarySkill CGHeroInstance::nextPrimarySkill(CRandomGenerator & r
 			break;
 		}
 	}
-
+	if(primarySkill >= GameConstants::PRIMARY_SKILLS)
+	{
+		primarySkill = rand.nextInt(GameConstants::PRIMARY_SKILLS - 1);
+		logGlobal->error("Wrong values in primarySkill%sLevel for hero class %s", isLowLevelHero ? "Low" : "High", type->heroClass->identifier);
+		randomValue = 100 / GameConstants::PRIMARY_SKILLS;
+	}
 	logGlobal->trace("The hero gets the primary skill %d with a probability of %d %%.", primarySkill, randomValue);
 	return static_cast<PrimarySkill::PrimarySkill>(primarySkill);
 }
