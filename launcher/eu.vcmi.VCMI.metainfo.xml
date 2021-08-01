@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+	<id>eu.vcmi.VCMI</id>
+	<metadata_license>CC-BY-SA-4.0</metadata_license>
+	<project_license>GPL-2.0-or-later</project_license>
+	<name>VCMI</name>
+	<summary>Open-source game engine for Heroes of Might and Magic III</summary>
+	<description>
+		<p>VCMI is an open-source engine for Heroes of Might and Magic III with new possibilities. Years of intensive work resulted in an impressive amount of features. Among the current features are:</p>
+		<ul>
+			<li>Complete gameplay mechanics</li>
+			<li>Almost all objects, abilities, spells and other content</li>
+			<li>Basic battle AI and adventure AI</li>
+			<li>Many GUI improvements: high resolutions, stack queue, creature window</li>
+			<li>Advanced and easy mod support - add new towns, creatures, heroes, artifacts and spells without limits or conflicts</li>
+			<li>Launcher for easy configuration - download mods from our server and install them immediately!</li>
+			<li>Random map generator that supports objects added by mods</li>
+		</ul>
+		<p>Note: In order to play the game using VCMI you need to own data files for Heroes of Might and Magic III: The Shadow of Death.</p>
+		<p>VCMI is an open-source project released under the GNU General Public License version 2 or later.</p>
+		<p>If you want help, please check our forum, bug tracker or GitHub page.</p>
+	</description>
+	<screenshots>
+		<screenshot type="default">
+			<image>https://media.moddb.com/images/engines/1/1/766/moddb_screenshot_1.png</image>
+		</screenshot>
+		<screenshot>
+			<image>https://media.moddb.com/images/engines/1/1/766/moddb_screenshot_2.png</image>
+		</screenshot>
+		<screenshot>
+			<image>https://media.moddb.com/images/engines/1/1/766/moddb_screenshot_3.png</image>
+		</screenshot>
+		<screenshot>
+			<image>https://media.moddb.com/images/engines/1/1/766/moddb_screenshot_4.png</image>
+		</screenshot>
+	</screenshots>
+	<url type="homepage">https://vcmi.eu/</url>
+	<url type="bugtracker">https://bugs.vcmi.eu/</url>
+	<url type="faq">https://vcmi.eu/faq/</url>
+	<releases>
+		<release version="0.99" date="2016-11-01" />
+	</releases>
+	<developer_name>VCMI Team</developer_name>
+	<content_rating type="oars-1.1">
+		<content_attribute id="violence-cartoon">moderate</content_attribute>
+		<content_attribute id="violence-fantasy">moderate</content_attribute>
+		<content_attribute id="violence-bloodshed">moderate</content_attribute>
+		<content_attribute id="social-chat">intense</content_attribute>
+	</content_rating>
+	<provides>
+		<binary>vcmibuilder</binary>
+		<binary>vcmiclient</binary>
+		<binary>vcmilauncher</binary>
+		<binary>vcmiserver</binary>
+	</provides>
+</component>
