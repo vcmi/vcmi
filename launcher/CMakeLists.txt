@@ -122,4 +122,5 @@ install(DIRECTORY icons DESTINATION ${DATA_DIR}/launcher)
 # Install icons and desktop file on Linux
 if(NOT WIN32 AND NOT APPLE)
 	install(FILES "vcmilauncher.desktop" DESTINATION share/applications)
+	install(FILES "eu.vcmi.VCMI.metainfo.xml" DESTINATION share/metainfo)
 endif()
