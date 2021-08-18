@@ -1089,9 +1089,9 @@ CBonusSystemNode * CGHeroInstance::whereShouldBeAttachedOnSiege(CGameState * gs)
 
 CBonusSystemNode * CGHeroInstance::whereShouldBeAttached(CGameState * gs)
 {
-	if (visitedTown)
+	if(visitedTown)
 	{
-		if (inTownGarrison)
+		if(inTownGarrison)
 			return visitedTown;
 		else
 			return &visitedTown->townAndVis;

@@ -833,7 +833,7 @@ std::shared_ptr<const Bonus> IBonusBearer::getBonus(const CSelector &selector) c
 
 const CStack * retrieveStackBattle(const CBonusSystemNode * node)
 {
-	switch (node->getNodeType())
+	switch(node->getNodeType())
 	{
 	case CBonusSystemNode::STACK_BATTLE:
 		return static_cast<const CStack*>(node);
@@ -844,7 +844,7 @@ const CStack * retrieveStackBattle(const CBonusSystemNode * node)
 
 const CStackInstance * retrieveStackInstance(const CBonusSystemNode * node)
 {
-	switch (node->getNodeType())
+	switch(node->getNodeType())
 	{
 	case CBonusSystemNode::STACK_INSTANCE:
 		return (static_cast<const CStackInstance *>(node));
@@ -857,15 +857,15 @@ const CStackInstance * retrieveStackInstance(const CBonusSystemNode * node)
 
 PlayerColor CBonusSystemNode::retrieveNodeOwner(const CBonusSystemNode * node)
 {
-	if (!node)
+	if(!node)
 		return PlayerColor::CANNOT_DETERMINE;
 
 	const CStack * stack = retrieveStackBattle(node);
-	if (stack)
+	if(stack)
 		return stack->owner;
 
 	const CStackInstance * csi = retrieveStackInstance(node);
-	if (csi && csi->armyObj)
+	if(csi && csi->armyObj)
 		return csi->armyObj->getOwner();
 
 	return PlayerColor::NEUTRAL;
@@ -1377,10 +1377,10 @@ void CBonusSystemNode::removedRedDescendant(CBonusSystemNode *descendant)
 	TNodes redParents;
 	getRedAncestors(redParents); //get all red parents recursively
 
-	for (auto parent : redParents)
+	for(auto parent : redParents)
 	{
-		for (auto b : parent->exportedBonuses)
-			if (b->propagator)
+		for(auto b : parent->exportedBonuses)
+			if(b->propagator)
 				descendant->unpropagateBonus(b);
 	}
 }
@@ -2334,6 +2334,52 @@ std::shared_ptr<Bonus> Bonus::addUpdater(TUpdaterPtr Updater)
 {
 	updater = Updater;
 	return this->shared_from_this();
+}
+
+void Bonus::createOppositeLimiter()
+{
+	if(limiter)
+	{
+		if(!dynamic_cast<OppositeSideLimiter *>(limiter.get()))
+		{
+			logMod->error("Wrong Limiter will be ignored: The 'ONLY_ENEMY_ARMY' effectRange is only compatible with the 'OPPOSITE_SIDE' limiter.");
+			limiter.reset(new OppositeSideLimiter());
+		}
+	}
+	else
+	{
+		limiter = std::make_shared<OppositeSideLimiter>();
+	}
+}
+
+void Bonus::createBattlePropagator()
+{
+	if(propagator)
+	{
+		if(propagator->getPropagatorType() != CBonusSystemNode::BATTLE)
+		{
+			logMod->error("Wrong Propagator will be ignored: The 'ONLY_ENEMY_ARMY' effectRange is only compatible with the 'BATTLE_WIDE' propagator.");
+			propagator.reset(new CPropagatorNodeType(CBonusSystemNode::BATTLE));
+		}
+	}
+	else
+	{
+		propagator = std::make_shared<CPropagatorNodeType>(CBonusSystemNode::BATTLE);
+	}
+}
+
+void Bonus::updateOppositeBonuses()
+{
+	if(effectRange == Bonus::ONLY_ENEMY_ARMY)
+	{
+		createBattlePropagator();
+		createOppositeLimiter();
+	}
+	else if(limiter && dynamic_cast<OppositeSideLimiter *>(limiter.get()))
+	{
+		createBattlePropagator();
+		effectRange = Bonus::ONLY_ENEMY_ARMY;
+	}
 }
 
 IUpdater::~IUpdater()

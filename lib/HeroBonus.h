@@ -455,6 +455,10 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 		{
 			h & updater;
 		}
+		if(version < 801 && !h.saving) //Opposite Side bonuses are introduced
+		{
+			updateOppositeBonuses();
+		}
 	}
 
 	template <typename Ptr>
@@ -522,6 +526,10 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 	std::shared_ptr<Bonus> addLimiter(TLimiterPtr Limiter); //returns this for convenient chain-calls
 	std::shared_ptr<Bonus> addPropagator(TPropagatorPtr Propagator); //returns this for convenient chain-calls
 	std::shared_ptr<Bonus> addUpdater(TUpdaterPtr Updater); //returns this for convenient chain-calls
+
+	inline void createOppositeLimiter();
+	inline void createBattlePropagator();
+	void updateOppositeBonuses();
 };
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const Bonus &bonus);

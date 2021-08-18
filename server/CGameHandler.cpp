@@ -904,9 +904,9 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance * heroAttacker, con
 		garrisonSwapOnSiege(heroDefender->visitedTown->id); //return defending visitor from garrison to its rightful place
 	}
 	//give exp
-	if (battleResult.data->exp[0] && heroAttacker && battleResult.get()->winner == BattleSide::ATTACKER)
+	if(battleResult.data->exp[0] && heroAttacker && battleResult.get()->winner == BattleSide::ATTACKER)
 		changePrimSkill(heroAttacker, PrimarySkill::EXPERIENCE, battleResult.data->exp[0]);
-	else if (battleResult.data->exp[1] && heroDefender && battleResult.get()->winner == BattleSide::DEFENDER)
+	else if(battleResult.data->exp[1] && heroDefender && battleResult.get()->winner == BattleSide::DEFENDER)
 		changePrimSkill(heroDefender, PrimarySkill::EXPERIENCE, battleResult.data->exp[1]);
 
 	queries.popIfTop(battleQuery);

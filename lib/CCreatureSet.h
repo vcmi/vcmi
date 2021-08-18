@@ -102,7 +102,7 @@ public:
 
 private:
 	void copyOppositeBonusesFromCreature(const CCreature * creature);
-	STRONG_INLINE void removeOppositeBonuses();
+	inline void removeOppositeBonuses();
 };
 
 class DLL_LINKAGE CCommanderInstance : public CStackInstance
