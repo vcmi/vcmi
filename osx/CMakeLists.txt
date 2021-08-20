@@ -18,6 +18,7 @@ if(APPLE)
 		fixup_bundle(\"\${CMAKE_INSTALL_PREFIX}/${APP_BUNDLE_DIR}\" \"\" \"\")
 		execute_process(COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change \"libvcmi.dylib\" \"@executable_path/../Frameworks/libvcmi.dylib\" \"\${CMAKE_INSTALL_PREFIX}/${APP_BUNDLE_BINARY_DIR}/AI/libBattleAI.dylib\")
 		execute_process(COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change \"libvcmi.dylib\" \"@executable_path/../Frameworks/libvcmi.dylib\" \"\${CMAKE_INSTALL_PREFIX}/${APP_BUNDLE_BINARY_DIR}/AI/libEmptyAI.dylib\")
+		execute_process(COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change \"libvcmi.dylib\" \"@executable_path/../Frameworks/libvcmi.dylib\" \"\${CMAKE_INSTALL_PREFIX}/${APP_BUNDLE_BINARY_DIR}/AI/libNullkiller.dylib\")
 		execute_process(COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change \"libvcmi.dylib\" \"@executable_path/../Frameworks/libvcmi.dylib\" \"\${CMAKE_INSTALL_PREFIX}/${APP_BUNDLE_BINARY_DIR}/AI/libStupidAI.dylib\")
 		execute_process(COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change \"libvcmi.dylib\" \"@executable_path/../Frameworks/libvcmi.dylib\" \"\${CMAKE_INSTALL_PREFIX}/${APP_BUNDLE_BINARY_DIR}/AI/libVCAI.dylib\")
 
