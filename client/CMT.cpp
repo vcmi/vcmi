@@ -198,7 +198,13 @@ int main(int argc, char * argv[])
 		("donotstartserver,d","do not attempt to start server and just connect to it instead server")
 		("serverport", po::value<si64>(), "override port specified in config file")
 		("saveprefix", po::value<std::string>(), "prefix for auto save files")
-		("savefrequency", po::value<si64>(), "limit auto save creation to each N days");
+		("savefrequency", po::value<si64>(), "limit auto save creation to each N days")
+		// 
+    ("host,ho", po::value<std::string>(), "create host game")
+    ("join,j", po::value<std::string>(), "join server, server:port")
+    ("agent,a", po::value<std::string>(), "agent name, agent name (log name)");
+	
+
 
 	if(argc > 1)
 	{
@@ -229,9 +235,20 @@ int main(int argc, char * argv[])
 	std::cout.flags(std::ios::unitbuf);
 	console = new CConsoleHandler();
 	*console->cb = processCommand;
-	console->start();
+	console->start();	
 
-	const bfs::path logPath = VCMIDirs::get().userCachePath() / "VCMI_Client_log.txt";
+	// agent name for different log files
+	std::string agent = "";
+	if (vm.count("agent")) {
+		agent = vm["agent"].as<std::string>();
+	}
+	std::string file = "VCMI_CLIENT_";
+	std::string ext = ".log";
+	std::string filename = file.append(agent);
+	filename = filename.append(ext);
+	//
+
+	const bfs::path logPath = VCMIDirs::get().userCachePath() / filename;
 	logConfig = new CBasicLogConfigurator(logPath, console);
 	logConfig->configureDefault();
 	logGlobal->info(NAME);
@@ -297,6 +314,11 @@ int main(int argc, char * argv[])
 	logConfig->configure();
 	logGlobal->debug("settings = %s", settings.toJsonNode().toJson());
 
+	// New attrs
+	setSettingString("session/agent", "agent", "");
+	setSettingString("session/join", "join", "");
+	setSettingString("session/host", "host", "");
+
 	// Some basic data validation to produce better error messages in cases of incorrect install
 	auto testFile = [](std::string filename, std::string message) -> bool
 	{
@@ -306,6 +328,7 @@ int main(int argc, char * argv[])
 		logGlobal->error("Error: %s was not found!", message);
 		return false;
 	};
+
 
 	if (!testFile("DATA/HELP.TXT", "Heroes III data") ||
 		!testFile("MODS/VCMI/MOD.JSON", "VCMI data"))
