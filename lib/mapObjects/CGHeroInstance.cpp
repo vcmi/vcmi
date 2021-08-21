@@ -70,7 +70,7 @@ static int lowestSpeed(const CGHeroInstance * chi)
 
 ui32 CGHeroInstance::getTileCost(const TerrainTile & dest, const TerrainTile & from, const TurnInfo * ti) const
 {
-	unsigned ret = GameConstants::BASE_MOVEMENT_COST;
+	int64_t ret = GameConstants::BASE_MOVEMENT_COST;
 
 	//if there is road both on dest and src tiles - use road movement cost
 	if(dest.roadType != ERoadType::NO_ROAD && from.roadType != ERoadType::NO_ROAD)
@@ -105,7 +105,7 @@ ui32 CGHeroInstance::getTileCost(const TerrainTile & dest, const TerrainTile & f
 		if(ret < GameConstants::BASE_MOVEMENT_COST)
 			ret = GameConstants::BASE_MOVEMENT_COST;
 	}
-	return ret;
+	return (ui32)ret;
 }
 
 ETerrainType::EETerrainType CGHeroInstance::getNativeTerrain() const
