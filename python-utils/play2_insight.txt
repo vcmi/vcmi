@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 Settings:
 LVL: info
 DIR: /Users/xsa-osx/Library/Application Support/vcmi
@@ -6,6 +7,11 @@ TEXT: Requesting hero movement
 FILTER: None
 
 
+=======
+info
+/Users/xsa-osx/Library/Application Support/vcmi
+VCMI_CLIENT_play2.log
+>>>>>>> 4ce19d7a55895e9b3b45c0ed3840ec205509c65d
 TRACE bonus [0x70000ef63000] - Loaded bonus type NONE
 
 TRACE global [0x70000ef63000] - Requesting hero movement to (60 67 1)
