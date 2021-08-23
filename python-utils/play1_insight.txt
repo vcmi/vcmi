@@ -1,0 +1,88 @@
+Settings:
+LVL: info
+DIR: /Users/xsa-osx/Library/Application Support/vcmi
+FILE: VCMI_CLIENT_play1.log
+TEXT: Requesting hero movement
+FILTER: None
+
+
+TRACE bonus [0x70000fd0d000] - Loaded bonus type NONE
+
+TRACE global [0x70000f6e9000] - Requesting hero movement to (4 5 0)
+
+TRACE global [0x70000f6e9000] - Requesting hero movement to (5 5 0)
+
+TRACE global [0x70000f6e9000] - Requesting hero movement to (6 5 0)
+
+TRACE global [0x70000f6e9000] - Requesting hero movement to (7 5 0)
+
+TRACE global [0x70000f6e9000] - Requesting hero movement to (8 5 0)
+
+TRACE global [0x70000f6e9000] - Requesting hero movement to (9 5 0)
+
+TRACE global [0x70000f6e9000] - Requesting hero movement to (10 5 0)
+
+TRACE global [0x70000f6e9000] - Requesting hero movement to (10 5 0)
+
+TRACE global [0x70000f6e9000] - Requesting hero movement to (11 5 0)
+
+TRACE global [0x70000f6e9000] - Requesting hero movement to (9 4 0)
+
+TRACE global [0x70000f6e9000] - Requesting hero movement to (8 5 0)
+
+TRACE global [0x70000f6e9000] - Requesting hero movement to (7 5 0)
+
+TRACE global [0x70000f6e9000] - Requesting hero movement to (6 6 0)
+
+TRACE global [0x70000f76c000] - Requesting hero movement to (5 6 0)
+
+TRACE global [0x70000f76c000] - Requesting hero movement to (4 6 0)
+
+TRACE global [0x70000f76c000] - Requesting hero movement to (3 6 0)
+
+TRACE global [0x70000f76c000] - Requesting hero movement to (3 7 0)
+
+TRACE global [0x70000f76c000] - Requesting hero movement to (3 8 0)
+
+TRACE global [0x70000f76c000] - Requesting hero movement to (2 9 0)
+
+TRACE global [0x70000f76c000] - Requesting hero movement to (2 10 0)
+
+TRACE global [0x70000f76c000] - Requesting hero movement to (2 11 0)
+
+TRACE global [0x70000f76c000] - Requesting hero movement to (2 12 0)
+
+TRACE global [0x70000f76c000] - Requesting hero movement to (3 13 0)
+
+TRACE global [0x70000f76c000] - Requesting hero movement to (3 14 0)
+
+TRACE global [0x70000f76c000] - Requesting hero movement to (4 15 0)
+
+TRACE global [0x70000f76c000] - Requesting hero movement to (5 14 0)
+
+TRACE global [0x70000f76c000] - Requesting hero movement to (5 15 0)
+
+TRACE global [0x70000f76c000] - Requesting hero movement to (6 16 0)
+
+TRACE global [0x70000f76c000] - Requesting hero movement to (6 17 0)
+
+TRACE global [0x70000f7ef000] - Requesting hero movement to (7 16 0)
+
+TRACE global [0x70000f7ef000] - Requesting hero movement to (8 17 0)
+
+TRACE global [0x70000f7ef000] - Requesting hero movement to (8 18 0)
+
+TRACE global [0x70000f7ef000] - Requesting hero movement to (8 19 0)
+
+TRACE global [0x70000f7ef000] - Requesting hero movement to (8 20 0)
+
+TRACE global [0x70000f7ef000] - Requesting hero movement to (9 20 0)
+
+TRACE global [0x70000f7ef000] - Requesting hero movement to (10 21 0)
+
+TRACE global [0x70000f7ef000] - Requesting hero movement to (11 21 0)
+
+TRACE global [0x70000f7ef000] - Requesting hero movement to (12 21 0)
+
+TRACE global [0x70000f7ef000] - Requesting hero movement to (13 22 0)
+
