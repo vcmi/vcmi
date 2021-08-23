@@ -314,11 +314,6 @@ int main(int argc, char * argv[])
 	logConfig->configure();
 	logGlobal->debug("settings = %s", settings.toJsonNode().toJson());
 
-	// New attrs
-	setSettingString("session/agent", "agent", "");
-	setSettingString("session/join", "join", "");
-	setSettingString("session/host", "host", "");
-
 	// Some basic data validation to produce better error messages in cases of incorrect install
 	auto testFile = [](std::string filename, std::string message) -> bool
 	{
@@ -505,6 +500,7 @@ int main(int argc, char * argv[])
 		logGlobal->info("Message handler: %d ms", pomtime.getDiff());
 
 		CCS->curh->show();
+		// TODO: implement MP
 	}
 
 
@@ -525,6 +521,11 @@ int main(int argc, char * argv[])
 		session["testsave"].String() = vm["testsave"].as<std::string>();
 		session["onlyai"].Bool() = true;
 		boost::thread(&CServerHandler::debugStartTest, CSH, session["testsave"].String(), true);
+	}
+	else if(vm.count("host"))
+	{
+		// TODO: headless multyplayer
+		// GH.curInt = CMainMenu::create().get();
 	}
 	else
 	{
