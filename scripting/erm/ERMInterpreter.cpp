@@ -988,7 +988,7 @@ namespace ERMConverter
 						fmt % name;
 						fmt % params;
 
-						boost::apply_visitor(GenericReceiver(out, fmt.str(), (name=="DO")), bo[0]);
+						bo[0].apply_visitor(GenericReceiver(out, fmt.str(), (name=="DO")));
 					}
 					else
 					{
