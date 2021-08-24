@@ -988,7 +988,8 @@ namespace ERMConverter
 						fmt % name;
 						fmt % params;
 
-						bo[0].apply_visitor(GenericReceiver(out, fmt.str(), (name=="DO")));
+						GenericReceiver receiver(out, fmt.str(), (name == "DO"));
+						bo[0].apply_visitor(receiver);
 					}
 					else
 					{
