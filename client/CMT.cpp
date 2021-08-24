@@ -246,7 +246,6 @@ int main(int argc, char * argv[])
 	std::string ext = ".log";
 	std::string filename = file.append(agent);
 	filename = filename.append(ext);
-	//
 
 	const bfs::path logPath = VCMIDirs::get().userCachePath() / filename;
 	logConfig = new CBasicLogConfigurator(logPath, console);
@@ -258,7 +257,10 @@ int main(int argc, char * argv[])
 	// Init filesystem and settings
 	preinitDLL(::console);
 	settings.init();
+
+	Settings general = settings.write["general"];
 	Settings session = settings.write["session"];
+
 	auto setSettingBool = [](std::string key, std::string arg) {
 		Settings s = settings.write(vstd::split(key, "/"));
 		if(::vm.count(arg))
@@ -305,10 +307,17 @@ int main(int argc, char * argv[])
 	setSettingBool("session/disable-shm", "disable-shm");
 	setSettingBool("session/enable-shm-uuid", "enable-shm-uuid");
 
+
+// BUG: this not write to a settings model? or not..
 	// Init special testing settings
 	setSettingInteger("session/serverport", "serverport", 0);
 	setSettingString("session/saveprefix", "saveprefix", "");
 	setSettingInteger("general/saveFrequency", "savefrequency", 1);
+
+	// Init agent name in settings file if param is not null
+	if (vm.count("agent")) {
+		general["playerName"].String() = vm["agent"].as<std::string>();
+	}
 
 	// Initialize logging based on settings
 	logConfig->configure();
