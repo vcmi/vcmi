@@ -51,7 +51,7 @@ bool UnitEffect::applicable(Problem & problem, const Mechanics * m) const
 	auto mainFilter = std::bind(&UnitEffect::getStackFilter, this, m, true, _1);
 	auto predicate = std::bind(&UnitEffect::eraseByImmunityFilter, this, m, _1);
 
-	auto targets = m->cb->battleGetUnitsIf(mainFilter);
+	auto targets = m->battle()->battleGetUnitsIf(mainFilter);
 	vstd::erase_if(targets, predicate);
 	if(targets.empty())
 	{
@@ -123,7 +123,7 @@ EffectTarget UnitEffect::transformTargetByRange(const Mechanics * m, const Targe
 	if(m->isMassive())
 	{
 		//ignore spellTarget and add all stacks
-		auto units = m->cb->battleGetUnitsIf(mainFilter);
+		auto units = m->battle()->battleGetUnitsIf(mainFilter);
 		for(auto unit : units)
 			targets.insert(unit);
 	}
@@ -147,7 +147,7 @@ EffectTarget UnitEffect::transformTargetByRange(const Mechanics * m, const Targe
 					return unit->coversPos(dest.hexValue) && mainFilter(unit);
 				};
 
-				auto units = m->cb->battleGetUnitsIf(predicate);
+				auto units = m->battle()->battleGetUnitsIf(predicate);
 
 				for(auto unit : units)
 				{
@@ -209,7 +209,7 @@ EffectTarget UnitEffect::transformTargetByChain(const Mechanics * m, const Targe
 
 	std::set<BattleHex> possibleHexes;
 
-	auto possibleTargets = m->cb->battleGetUnitsIf([&](const battle::Unit * unit) -> bool
+	auto possibleTargets = m->battle()->battleGetUnitsIf([&](const battle::Unit * unit) -> bool
 	{
 		return isValidTarget(m, unit);
 	});
@@ -225,7 +225,7 @@ EffectTarget UnitEffect::transformTargetByChain(const Mechanics * m, const Targe
 
 	for(int32_t targetIndex = 0; targetIndex < chainLength; ++targetIndex)
 	{
-		auto unit = m->cb->battleGetUnitByPos(destHex, true);
+		auto unit = m->battle()->battleGetUnitByPos(destHex, true);
 
 		if(!unit)
 			break;

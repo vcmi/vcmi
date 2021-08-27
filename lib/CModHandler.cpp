@@ -24,6 +24,9 @@
 #include "IHandlerBase.h"
 #include "spells/CSpellHandler.h"
 #include "CSkillHandler.h"
+#include "ScriptHandler.h"
+
+#include <vstd/StringUtils.h>
 
 CIdentifierStorage::CIdentifierStorage():
 	state(LOADING)
@@ -420,7 +423,7 @@ void CContentHandler::init()
 	handlers.insert(std::make_pair("spells", ContentTypeHandler(VLC->spellh, "spell")));
 	handlers.insert(std::make_pair("skills", ContentTypeHandler(VLC->skillh, "skill")));
 	handlers.insert(std::make_pair("templates", ContentTypeHandler((IHandlerBase *)VLC->tplh, "template")));
-
+	handlers.insert(std::make_pair("scripts", ContentTypeHandler(VLC->scriptHandler, "script")));
 	//TODO: any other types of moddables?
 }
 
@@ -694,7 +697,7 @@ bool CModHandler::checkDependencies(const std::vector <TModID> & input) const
 
 		for(const TModID & dep : mod.dependencies)
 		{
-			if (!vstd::contains(input, dep))
+			if(!vstd::contains(input, dep))
 			{
 				logMod->error("Error: Mod %s requires missing %s!", mod.name, dep);
 				return false;
@@ -703,14 +706,14 @@ bool CModHandler::checkDependencies(const std::vector <TModID> & input) const
 
 		for(const TModID & conflicting : mod.conflicts)
 		{
-			if (vstd::contains(input, conflicting))
+			if(vstd::contains(input, conflicting))
 			{
 				logMod->error("Error: Mod %s conflicts with %s!", mod.name, allMods.at(conflicting).name);
 				return false;
 			}
 		}
 
-		if (hasCircularDependency(id))
+		if(hasCircularDependency(id))
 			return false;
 	}
 	return true;
@@ -971,6 +974,8 @@ void CModHandler::load()
 	content->load(coreMod);
 	for(const TModID & modName : activeMods)
 		content->load(allMods[modName]);
+
+	VLC->scriptHandler->performRegistration(VLC);//todo: this should be done before any other handlers load
 
 	content->loadCustom();
 

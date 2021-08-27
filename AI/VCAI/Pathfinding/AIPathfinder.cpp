@@ -56,11 +56,11 @@ void AIPathfinder::updatePaths(std::vector<HeroPtr> heroes)
 	auto calculatePaths = [&](const CGHeroInstance * hero, std::shared_ptr<AIPathfinding::AIPathfinderConfig> config)
 	{
 		logAi->debug("Recalculate paths for %s", hero->name);
-
-		cb->calculatePaths(config, hero);
+		
+		cb->calculatePaths(config);
 	};
 
-	std::vector<Task> calculationTasks;
+	std::vector<CThreadHelper::Task> calculationTasks;
 
 	for(HeroPtr hero : heroes)
 	{

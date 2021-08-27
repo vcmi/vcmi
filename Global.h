@@ -727,24 +727,6 @@ namespace vstd
 	}
 
 	using boost::math::round;
-
-	static std::pair<std::string, std::string> splitStringToPair(std::string input, char separator)
-	{
-		std::pair<std::string, std::string> ret;
-		size_t splitPos = input.find(separator);
-
-		if (splitPos == std::string::npos)
-		{
-			ret.first.clear();
-			ret.second = input;
-		}
-		else
-		{
-			ret.first = input.substr(0, splitPos);
-			ret.second = input.substr(splitPos + 1);
-		}
-		return ret;
-	}
 }
 using vstd::operator-=;
 using vstd::make_unique;

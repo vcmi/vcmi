@@ -218,5 +218,5 @@ int SpellCreatedObstacle::getAnimationYOffset(int imageHeight) const
 
 std::vector<BattleHex> MoatObstacle::getAffectedTiles() const
 {
-	return VLC->townh->factions[ID]->town->moatHexes;
+	return (*VLC->townh)[ID]->town->moatHexes;
 }

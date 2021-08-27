@@ -159,7 +159,7 @@ void CRecruitmentWindow::buy()
 		if(dst->ID == Obj::HERO)
 		{
 			txt = CGI->generaltexth->allTexts[425]; //The %s would join your hero, but there aren't enough provisions to support them.
-			boost::algorithm::replace_first(txt, "%s", slider->getValue() > 1 ? CGI->creh->creatures[crid]->namePl : CGI->creh->creatures[crid]->nameSing);
+			boost::algorithm::replace_first(txt, "%s", slider->getValue() > 1 ? CGI->creh->objects[crid]->namePl : CGI->creh->objects[crid]->nameSing);
 		}
 		else
 		{
@@ -249,7 +249,7 @@ void CRecruitmentWindow::availableCreaturesChanged()
 
 		//create new cards
 		for(auto & creature : boost::adaptors::reverse(dwelling->creatures[i].second))
-			cards.push_back(std::make_shared<CCreatureCard>(this, CGI->creh->creatures[creature], amount));
+			cards.push_back(std::make_shared<CCreatureCard>(this, CGI->creh->objects[creature], amount));
 	}
 
 	const int creatureWidth = 102;
@@ -1040,7 +1040,7 @@ CPuzzleWindow::CPuzzleWindow(const int3 & GrailPos, double discoveredRatio)
 
 	int faction = LOCPLINT->cb->getStartInfo()->playerInfos.find(LOCPLINT->playerID)->second.castle;
 
-	auto & puzzleMap = CGI->townh->factions[faction]->puzzleMap;
+	auto & puzzleMap = (*CGI->townh)[faction]->puzzleMap;
 
 	for(auto & elem : puzzleMap)
 	{
@@ -1276,10 +1276,10 @@ CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket
 		{
 			auto faction = town->town->faction->index;
 			auto bid = town->town->getSpecialBuilding(BuildingSubID::MAGIC_UNIVERSITY)->bid;
-			titlePic = std::make_shared<CAnimImage>(CGI->townh->factions[faction]->town->clientInfo.buildingsIcons, bid);
+			titlePic = std::make_shared<CAnimImage>((*CGI->townh)[faction]->town->clientInfo.buildingsIcons, bid);
 		}
 		else
-			titlePic = std::make_shared<CAnimImage>(CGI->townh->factions[ETownType::CONFLUX]->town->clientInfo.buildingsIcons, BuildingID::MAGIC_UNIVERSITY);
+			titlePic = std::make_shared<CAnimImage>((*CGI->townh)[ETownType::CONFLUX]->town->clientInfo.buildingsIcons, BuildingID::MAGIC_UNIVERSITY);
 	}
 	else
 		titlePic = std::make_shared<CPicture>("UNIVBLDG");

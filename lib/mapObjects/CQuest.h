@@ -52,6 +52,7 @@ public:
 	CQuest();
 	virtual ~CQuest(){};
 
+	static bool checkMissionArmy(const CQuest * q, const CCreatureSet * army);
 	virtual bool checkQuest (const CGHeroInstance * h) const; //determines whether the quest is complete or not
 	virtual void getVisitText (MetaString &text, std::vector<Component> &components, bool isCustom, bool FirstVisit, const CGHeroInstance * h = nullptr) const;
 	virtual void getCompletionText (MetaString &text, std::vector<Component> &components, bool isCustom, const CGHeroInstance * h = nullptr) const;

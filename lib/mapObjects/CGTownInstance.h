@@ -119,6 +119,13 @@ public:
 		bType = subId;
 	}
 
+	PlayerColor getOwner() const override;
+	int32_t getObjGroupIndex() const override;
+	int32_t getObjTypeIndex() const override;
+
+	int3 visitablePos() const override;
+	int3 getPosition() const override;
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & bID;

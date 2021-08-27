@@ -9,11 +9,12 @@
  */
 #pragma once
 
+#include <vcmi/Services.h>
+
 #include "../lib/ConstTransitivePtr.h"
 
 class CModHandler;
 class CMapHandler;
-class CArtHandler;
 class CHeroHandler;
 class CCreatureHandler;
 class CSpellHandler;
@@ -48,11 +49,25 @@ extern CClientState * CCS;
 
 /// CGameInfo class
 /// for allowing different functions for accessing game informations
-class CGameInfo
+class CGameInfo : public Services
 {
 public:
+	const ArtifactService * artifacts() const override;
+	const CreatureService * creatures() const override;
+	const FactionService * factions() const override;
+	const HeroClassService * heroClasses() const override;
+	const HeroTypeService * heroTypes() const override;
+	const scripting::Service * scripts() const override;
+	const spells::Service * spells() const override;
+	const SkillService * skills() const override;
+
+	void updateEntity(Metatype metatype, int32_t index, const JsonNode & data) override;
+
+	const spells::effects::Registry * spellEffects() const override;
+	spells::effects::Registry * spellEffects() override;
+
+
 	ConstTransitivePtr<CModHandler> modh; //public?
-	ConstTransitivePtr<CArtHandler> arth;
 	ConstTransitivePtr<CHeroHandler> heroh;
 	ConstTransitivePtr<CCreatureHandler> creh;
 	ConstTransitivePtr<CSpellHandler> spellh;
@@ -65,8 +80,8 @@ public:
 
 	void setFromLib();
 
-	friend class CClient;
-
 	CGameInfo();
+private:
+	const Services * globalServices;
 };
 extern const CGameInfo* CGI;

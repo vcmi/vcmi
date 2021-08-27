@@ -28,9 +28,10 @@ CStupidAI::~CStupidAI()
 	print("destroyed");
 }
 
-void CStupidAI::init(std::shared_ptr<CBattleCallback> CB)
+void CStupidAI::init(std::shared_ptr<Environment> ENV, std::shared_ptr<CBattleCallback> CB)
 {
 	print("init called, saving ptr to IBattleCallback");
+	env = ENV;
 	cbc = cb = CB;
 }
 
@@ -74,10 +75,12 @@ static bool willSecondHexBlockMoreEnemyShooters(const BattleHex &h1, const Battl
 	int shooters[2] = {0}; //count of shooters on hexes
 
 	for(int i = 0; i < 2; i++)
+	{
 		for (auto & neighbour : (i ? h2 : h1).neighbouringTiles())
-			if(const CStack *s = cbc->battleGetStackByPos(neighbour))
-				if(s->getCreature()->isShooting())
-						shooters[i]++;
+			if(const CStack * s = cbc->battleGetStackByPos(neighbour))
+				if(s->isShooter())
+					shooters[i]++;
+	}
 
 	return shooters[0] < shooters[1];
 }
@@ -173,7 +176,7 @@ void CStupidAI::battleAttack(const BattleAttack *ba)
 	print("battleAttack called");
 }
 
-void CStupidAI::battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa, const std::vector<MetaString> & battleLog)
+void CStupidAI::battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa)
 {
 	print("battleStacksAttacked called");
 }
@@ -292,16 +295,4 @@ BattleAction CStupidAI::goTowards(const CStack * stack, std::vector<BattleHex> h
 			currentDest = reachability.predecessors[currentDest];
 		}
 	}
-}
-
-void CStupidAI::saveGame(BinarySerializer & h, const int version)
-{
-	//TODO to be implemented with saving/loading during the battles
-	assert(0);
-}
-
-void CStupidAI::loadGame(BinaryDeserializer & h, const int version)
-{
-	//TODO to be implemented with saving/loading during the battles
-	assert(0);
 }

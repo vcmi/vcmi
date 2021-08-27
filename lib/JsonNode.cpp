@@ -455,8 +455,7 @@ void JsonUtils::parseTypedBonusShort(const JsonVector& source, std::shared_ptr<B
 	dest->turnsRemain = 0;
 }
 
-
-std::shared_ptr<Bonus> JsonUtils::parseBonus (const JsonVector &ability_vec) //TODO: merge with AddAbility, create universal parser for all bonus properties
+std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonVector & ability_vec)
 {
 	auto b = std::make_shared<Bonus>();
 	std::string type = ability_vec[0].String();
@@ -471,8 +470,9 @@ std::shared_ptr<Bonus> JsonUtils::parseBonus (const JsonVector &ability_vec) //T
 	parseTypedBonusShort(ability_vec, b);
 	return b;
 }
+
 template <typename T>
-const T & parseByMap(const std::map<std::string, T> & map, const JsonNode * val, std::string err)
+const T parseByMap(const std::map<std::string, T> & map, const JsonNode * val, std::string err)
 {
 	static T defaultValue = T();
 	if (!val->isNull())
@@ -491,6 +491,15 @@ const T & parseByMap(const std::map<std::string, T> & map, const JsonNode * val,
 	}
 	else
 		return defaultValue;
+}
+
+template <typename T>
+const T parseByMapN(const std::map<std::string, T> & map, const JsonNode * val, std::string err)
+{
+	if(val->isNumber())
+		return static_cast<T>(val->Integer());
+	else
+		return parseByMap<T>(map, val, err);
 }
 
 void JsonUtils::resolveIdentifier(si32 &var, const JsonNode &node, std::string name)
@@ -761,7 +770,7 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 
 	value = &ability["valueType"];
 	if (!value->isNull())
-		b->valType = static_cast<Bonus::ValueType>(parseByMap(bonusValueMap, value, "value type "));
+		b->valType = static_cast<Bonus::ValueType>(parseByMapN(bonusValueMap, value, "value type "));
 
 	b->stacking = ability["stacking"].String();
 
@@ -776,7 +785,7 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 
 	value = &ability["effectRange"];
 	if (!value->isNull())
-		b->effectRange = static_cast<Bonus::LimitEffect>(parseByMap(bonusLimitEffect, value, "effect range "));
+		b->effectRange = static_cast<Bonus::LimitEffect>(parseByMapN(bonusLimitEffect, value, "effect range "));
 
 	value = &ability["duration"];
 	if (!value->isNull())
@@ -791,7 +800,7 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 				ui16 dur = 0;
 				for (const JsonNode & d : value->Vector())
 				{
-					dur |= parseByMap(bonusDurationMap, &d, "duration type ");
+					dur |= parseByMapN(bonusDurationMap, &d, "duration type ");
 				}
 				b->duration = (Bonus::BonusDuration)dur;
 			}

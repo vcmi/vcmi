@@ -10,8 +10,6 @@
 #include "StdInc.h"
 #include "BattleAI.h"
 
-#include <vstd/RNG.h>
-
 #include "StackWithBonuses.h"
 #include "EnemyInfo.h"
 #include "../../lib/CStopWatch.h"
@@ -20,31 +18,11 @@
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/spells/ISpellMechanics.h"
 #include "../../lib/CStack.h" // TODO: remove
-                              // Eventually only IBattleInfoCallback and battle::Unit should be used, 
+                              // Eventually only IBattleInfoCallback and battle::Unit should be used,
                               // CUnitState should be private and CStack should be removed completely
 
 #define LOGL(text) print(text)
 #define LOGFL(text, formattingEl) print(boost::str(boost::format(text) % formattingEl))
-
-class RNGStub : public vstd::RNG
-{
-public:
-	vstd::TRandI64 getInt64Range(int64_t lower, int64_t upper) override
-	{
-		return [=]()->int64_t
-		{
-			return (lower + upper)/2;
-		};
-	}
-
-	vstd::TRand getDoubleRange(double lower, double upper) override
-	{
-		return [=]()->double
-		{
-			return (lower + upper)/2;
-		};
-	}
-};
 
 enum class SpellTypes
 {
@@ -53,10 +31,10 @@ enum class SpellTypes
 
 SpellTypes spellType(const CSpell * spell)
 {
-	if(!spell->isCombatSpell() || spell->isCreatureAbility())
+	if(!spell->isCombat() || spell->isCreatureAbility())
 		return SpellTypes::OTHER;
 
-	if(spell->isOffensiveSpell() || spell->hasEffects() || spell->hasBattleEffects())
+	if(spell->isOffensive() || spell->hasEffects() || spell->hasBattleEffects())
 		return SpellTypes::BATTLE;
 
 	return SpellTypes::OTHER;
@@ -65,14 +43,14 @@ SpellTypes spellType(const CSpell * spell)
 std::vector<BattleHex> CBattleAI::getBrokenWallMoatHexes() const
 {
 	std::vector<BattleHex> result;
-	
+
 	for(int wallPart = EWallPart::BOTTOM_WALL; wallPart < EWallPart::UPPER_WALL; wallPart++)
 	{
 		auto state = cb->battleGetWallState(wallPart);
 
 		if(state != EWallState::DESTROYED)
 			continue;
-		
+
 		auto wallHex = cb->wallPartToBattleHex((EWallPart::EWallPart)wallPart);
 		auto moatHex = wallHex.cloneInDirection(BattleHex::LEFT);
 
@@ -83,7 +61,9 @@ std::vector<BattleHex> CBattleAI::getBrokenWallMoatHexes() const
 }
 
 CBattleAI::CBattleAI()
-	: side(-1), wasWaitingForRealize(false), wasUnlockingGs(false)
+	: side(-1),
+	wasWaitingForRealize(false),
+	wasUnlockingGs(false)
 {
 }
 
@@ -97,12 +77,13 @@ CBattleAI::~CBattleAI()
 	}
 }
 
-void CBattleAI::init(std::shared_ptr<CBattleCallback> CB)
+void CBattleAI::init(std::shared_ptr<Environment> ENV, std::shared_ptr<CBattleCallback> CB)
 {
 	setCbc(CB);
+	env = ENV;
 	cb = CB;
 	playerID = *CB->getPlayerID(); //TODO should be sth in callback
-	wasWaitingForRealize = cb->waitTillRealize;
+	wasWaitingForRealize = CB->waitTillRealize;
 	wasUnlockingGs = CB->unlockGsWhenWaiting;
 	CB->waitTillRealize = true;
 	CB->unlockGsWhenWaiting = false;
@@ -131,7 +112,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 
 		attemptCastingSpell();
 
-		if(auto ret = getCbc()->battleIsFinished())
+		if(auto ret = cb->battleIsFinished())
 		{
 			//spellcast may finish battle
 			//send special preudo-action
@@ -144,7 +125,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 			return *action;
 		//best action is from effective owner point if view, we are effective owner as we received "activeStack"
 
-	
+
 		//evaluate casting spell for spellcasting stack
 		boost::optional<PossibleSpellcast> bestSpellcast(boost::none);
 		//TODO: faerie dragon type spell should be selected by server
@@ -174,7 +155,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 			}
 		}
 
-		HypotheticBattle hb(getCbc());
+		HypotheticBattle hb(env.get(), cb);
 
 		PotentialTargets targets(stack, &hb);
 
@@ -186,11 +167,22 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 			if(bestSpellcast.is_initialized() && bestSpellcast->value > bestAttack.damageDiff())
 				return BattleAction::makeCreatureSpellcast(stack, bestSpellcast->dest, bestSpellcast->spell->id);
 			else if(bestAttack.attack.shooting)
+			{
+				auto &target = bestAttack;
+				logAi->debug("BattleAI: %s -> %s x %d, shot, from %d curpos %d dist %d speed %d: %lld %lld %lld",
+					target.attackerState->unitType()->identifier,
+					target.affectedUnits[0]->unitType()->identifier,
+					(int)target.affectedUnits.size(), (int)target.from, (int)bestAttack.attack.attacker->getPosition().hex,
+					bestAttack.attack.chargedFields, bestAttack.attack.attacker->Speed(0, true),
+					target.damageDealt, target.damageReceived, target.attackValue()
+				);
+
 				return BattleAction::makeShotAttack(stack, bestAttack.attack.defender);
+			}
 			else
 			{
 				auto &target = bestAttack;
-				logAi->debug("BattleAI: %s -> %s %d from, %d curpos %d dist %d speed %d: %lld %lld %lld",
+				logAi->debug("BattleAI: %s -> %s x %d, mellee, from %d curpos %d dist %d speed %d: %lld %lld %lld",
 					target.attackerState->unitType()->identifier,
 					target.affectedUnits[0]->unitType()->identifier,
 					(int)target.affectedUnits.size(), (int)target.from, (int)bestAttack.attack.attacker->getPosition().hex,
@@ -199,7 +191,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 				);
 
 				return BattleAction::makeMeleeAttack(stack,	bestAttack.attack.defender->getPosition(), bestAttack.from);
-			}
+		}
 		}
 		else if(bestSpellcast.is_initialized())
 		{
@@ -210,7 +202,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 			if(stack->waited())
 			{
 				//ThreatMap threatsToUs(stack); // These lines may be usefull but they are't used in the code.
-				auto dists = getCbc()->getReachability(stack);
+				auto dists = cb->getReachability(stack);
 				if(!targets.unreachableEnemies.empty())
 				{
 					auto closestEnemy = vstd::minElementByFun(targets.unreachableEnemies, [&](const battle::Unit * enemy) -> int
@@ -242,7 +234,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 					return BattleAction::makeMove(stack, stack->getPosition().cloneInDirection(BattleHex::RIGHT));
 				else
 					return goTowardsNearest(stack, brokenWallMoat);
-			}
+	}
 		}
 	}
 	catch(boost::thread_interrupted &)
@@ -279,10 +271,10 @@ BattleAction CBattleAI::goTowardsNearest(const CStack * stack, std::vector<Battl
 
 		if(stack->coversPos(hex))
 		{
-			logAi->warn("Warning: already standing on neighbouring tile!");
-			//We shouldn't even be here...
-			return BattleAction::makeDefend(stack);
-		}
+		logAi->warn("Warning: already standing on neighbouring tile!");
+		//We shouldn't even be here...
+		return BattleAction::makeDefend(stack);
+	}
 	}
 
 	BattleHex bestNeighbor = hexes.front();
@@ -381,9 +373,9 @@ void CBattleAI::attemptCastingSpell()
 	LOGL("Casting spells sounds like fun. Let's see...");
 	//Get all spells we can cast
 	std::vector<const CSpell*> possibleSpells;
-	vstd::copy_if(VLC->spellh->objects, std::back_inserter(possibleSpells), [hero](const CSpell *s) -> bool
+	vstd::copy_if(VLC->spellh->objects, std::back_inserter(possibleSpells), [hero, this](const CSpell *s) -> bool
 	{
-		return s->canBeCast(getCbc().get(), spells::Mode::HERO, hero);
+		return s->canBeCast(cb.get(), spells::Mode::HERO, hero);
 	});
 	LOGFL("I can cast %d spells.", possibleSpells.size());
 
@@ -398,7 +390,7 @@ void CBattleAI::attemptCastingSpell()
 	std::vector<PossibleSpellcast> possibleCasts;
 	for(auto spell : possibleSpells)
 	{
-		spells::BattleCast temp(getCbc().get(), hero, spells::Mode::HERO, spell);
+		spells::BattleCast temp(cb.get(), hero, spells::Mode::HERO, spell);
 
 		for(auto & target : temp.findPotentialTargets())
 		{
@@ -500,8 +492,6 @@ void CBattleAI::attemptCastingSpell()
 		return ourTurnSpan >= minTurnSpan;
 	};
 
-	RNGStub rngStub;
-
 	ValueMap valueOfStack;
 	ValueMap healthOfStack;
 
@@ -536,7 +526,8 @@ void CBattleAI::attemptCastingSpell()
 	{
 		bool enemyHadTurn = false;
 
-		HypotheticBattle state(cb);
+		HypotheticBattle state(env.get(), cb);
+
 		evaluateQueue(valueOfStack, turnOrder, &state, 0, &enemyHadTurn);
 
 		if(!enemyHadTurn)
@@ -551,13 +542,17 @@ void CBattleAI::attemptCastingSpell()
 		}
 	}
 
-	auto evaluateSpellcast = [&] (PossibleSpellcast * ps)
+	struct ScriptsCache
 	{
-		HypotheticBattle state(cb);
+		//todo: re-implement scripts context cache
+	};
+
+	auto evaluateSpellcast = [&] (PossibleSpellcast * ps, std::shared_ptr<ScriptsCache>)
+	{
+		HypotheticBattle state(env.get(), cb);
 
 		spells::BattleCast cast(&state, hero, spells::Mode::HERO, ps->spell);
-		cast.target = ps->dest;
-		cast.cast(&state, rngStub);
+		cast.castEval(state.getServerCallback(), ps->dest);
 		ValueMap newHealthOfStack;
 		ValueMap newValueOfStack;
 
@@ -617,10 +612,12 @@ void CBattleAI::attemptCastingSpell()
 		}
 	};
 
-	std::vector<std::function<void()>> tasks;
+	using EvalRunner = ThreadPool<ScriptsCache>;
+
+	EvalRunner::Tasks tasks;
 
 	for(PossibleSpellcast & psc : possibleCasts)
-		tasks.push_back(std::bind(evaluateSpellcast, &psc));
+		tasks.push_back(std::bind(evaluateSpellcast, &psc, _1));
 
 	uint32_t threadCount = boost::thread::hardware_concurrency();
 
@@ -632,8 +629,15 @@ void CBattleAI::attemptCastingSpell()
 
 	CStopWatch timer;
 
-	CThreadHelper threadHelper(&tasks, threadCount);
-	threadHelper.run();
+	std::vector<std::shared_ptr<ScriptsCache>> scriptsPool;
+
+	for(uint32_t idx = 0; idx < threadCount; idx++)
+	{
+		scriptsPool.emplace_back();
+	}
+
+	EvalRunner runner(&tasks, scriptsPool);
+	runner.run();
 
 	LOGFL("Evaluation took %d ms", timer.getDiff());
 
@@ -666,9 +670,9 @@ void CBattleAI::evaluateCreatureSpellcast(const CStack * stack, PossibleSpellcas
 	using ValueMap = PossibleSpellcast::ValueMap;
 
 	RNGStub rngStub;
-	HypotheticBattle state(getCbc());
-	TStacks all = getCbc()->battleGetAllStacks(false);
-	
+	HypotheticBattle state(env.get(), cb);
+	TStacks all = cb->battleGetAllStacks(false);
+
 	ValueMap healthOfStack;
 	ValueMap newHealthOfStack;
 
@@ -678,8 +682,7 @@ void CBattleAI::evaluateCreatureSpellcast(const CStack * stack, PossibleSpellcas
 	}
 
 	spells::BattleCast cast(&state, stack, spells::Mode::CREATURE_ACTIVE, ps.spell);
-	cast.target = ps.dest;
-	cast.cast(&state, rngStub);
+	cast.castEval(state.getServerCallback(), ps.dest);
 
 	for(auto unit : all)
 	{
@@ -710,7 +713,7 @@ void CBattleAI::evaluateCreatureSpellcast(const CStack * stack, PossibleSpellcas
 	}
 
 	ps.value = totalGain;
-};
+}
 
 void CBattleAI::battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool Side)
 {

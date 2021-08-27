@@ -40,7 +40,7 @@ public:
 
 	EffectsToApply prepare(const Mechanics * m, const Target & aimPoint, const Target & spellTarget) const;
 
-	void serializeJson(JsonSerializeFormat & handler, const int level);
+	void serializeJson(const Registry * registry, JsonSerializeFormat & handler, const int level);
 };
 
 

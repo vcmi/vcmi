@@ -10,6 +10,7 @@
 #pragma once
 
 #include "CCreatureSet.h"
+#include "int3.h"
 
 class CQuest;
 class CGObjectInstance;

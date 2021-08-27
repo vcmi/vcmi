@@ -70,14 +70,14 @@ void CTeamVisited::setPropertyDer(ui8 what, ui32 val)
 
 bool CTeamVisited::wasVisited(PlayerColor player) const
 {
-	return wasVisited(cb->getPlayer(player)->team);
+	return wasVisited(cb->getPlayerState(player)->team);
 }
 
 bool CTeamVisited::wasVisited(TeamID team) const
 {
 	for(auto i : players)
 	{
-		if(cb->getPlayer(i)->team == team)
+		if(cb->getPlayerState(i)->team == team)
 			return true;
 	}
 	return false;
@@ -193,7 +193,7 @@ void CGCreature::onHeroVisit( const CGHeroInstance * h ) const
 			std::string tmp = VLC->generaltexth->advobtxt[90];
 			boost::algorithm::replace_first(tmp,"%d",boost::lexical_cast<std::string>(getStackCount(SlotID(0))));
 			boost::algorithm::replace_first(tmp,"%d",boost::lexical_cast<std::string>(action));
-			boost::algorithm::replace_first(tmp,"%s",VLC->creh->creatures[subID]->namePl);
+			boost::algorithm::replace_first(tmp,"%s",VLC->creh->objects[subID]->namePl);
 			ynd.text << tmp;
 			cb->showBlockingDialog(&ynd);
 			break;
@@ -226,7 +226,7 @@ void CGCreature::initObj(CRandomGenerator & rand)
 
 	stacks[SlotID(0)]->setType(CreatureID(subID));
 	TQuantity &amount = stacks[SlotID(0)]->count;
-	CCreature &c = *VLC->creh->creatures[subID];
+	CCreature &c = *VLC->creh->objects[subID];
 	if(amount == 0)
 	{
 		amount = rand.nextInt(c.ammMin, c.ammMax);
@@ -299,11 +299,11 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 		powerFactor = -3;
 
 	std::set<CreatureID> myKindCres; //what creatures are the same kind as we
-	const CCreature * myCreature = VLC->creh->creatures[subID];
+	const CCreature * myCreature = VLC->creh->objects[subID];
 	myKindCres.insert(myCreature->idNumber); //we
 	myKindCres.insert(myCreature->upgrades.begin(), myCreature->upgrades.end()); //our upgrades
 
-	for(ConstTransitivePtr<CCreature> &crea : VLC->creh->creatures)
+	for(ConstTransitivePtr<CCreature> &crea : VLC->creh->objects)
 	{
 		if(vstd::contains(crea->upgrades, myCreature->idNumber)) //it's our base creatures
 			myKindCres.insert(crea->idNumber);
@@ -337,7 +337,7 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 			return JOIN_FOR_FREE;
 
 		else if(diplomacy * 2  +  sympathy  +  1 >= character)
-			return VLC->creh->creatures[subID]->cost[6] * getStackCount(SlotID(0)); //join for gold
+			return VLC->creh->objects[subID]->cost[6] * getStackCount(SlotID(0)); //join for gold
 	}
 
 	//we are still here - creatures have not joined hero, flee or fight
@@ -437,7 +437,7 @@ void CGCreature::fight( const CGHeroInstance *h ) const
 			if(!upgrades.empty())
 			{
 				auto it = RandomGeneratorUtil::nextItem(upgrades, CRandomGenerator::getDefault());
-				cb->changeStackType(StackLocation(this, slotID), VLC->creh->creatures[*it]);
+				cb->changeStackType(StackLocation(this, slotID), VLC->creh->objects[*it]);
 			}
 		}
 	}
@@ -471,7 +471,7 @@ void CGCreature::battleFinished(const CGHeroInstance *hero, const BattleResult &
 	{
 		//merge stacks into one
 		TSlots::const_iterator i;
-		CCreature * cre = VLC->creh->creatures[formation.basicType];
+		CCreature * cre = VLC->creh->objects[formation.basicType];
 		for(i = stacks.begin(); i != stacks.end(); i++)
 		{
 			if(cre->isMyUpgrade(i->second->type))
@@ -582,7 +582,7 @@ void CGCreature::giveReward(const CGHeroInstance * h) const
 
 	if(gainedArtifact != ArtifactID::NONE)
 	{
-		cb->giveHeroNewArtifact(h, VLC->arth->artifacts[gainedArtifact], ArtifactPosition::FIRST_AVAILABLE);
+		cb->giveHeroNewArtifact(h, VLC->arth->objects[gainedArtifact], ArtifactPosition::FIRST_AVAILABLE);
 		iw.components.push_back(Component(Component::ARTIFACT, gainedArtifact, 0, 0));
 	}
 
@@ -1295,7 +1295,7 @@ void CGArtifact::initObj(CRandomGenerator & rand)
 			storedArtifact = a;
 		}
 		if(!storedArtifact->artType)
-			storedArtifact->setType(VLC->arth->artifacts[subID]);
+			storedArtifact->setType(VLC->arth->objects[subID]);
 	}
 	if(ID == Obj::SPELL_SCROLL)
 		subID = 1;
@@ -1308,7 +1308,7 @@ void CGArtifact::initObj(CRandomGenerator & rand)
 
 std::string CGArtifact::getObjectName() const
 {
-	return VLC->arth->artifacts[subID]->Name();
+	return VLC->artifacts()->getByIndex(subID)->getName();
 }
 
 void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
@@ -1326,8 +1326,12 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 					iw.text << message;
 				else
 				{
-					if(VLC->arth->artifacts[subID]->EventText().size())
-						iw.text << std::pair<ui8, ui32>(MetaString::ART_EVNTS, subID);
+					auto artifact = ArtifactID(subID).toArtifact(VLC->artifacts());
+
+					if((artifact != nullptr) && (!artifact->getEventText().empty()))
+					{
+						iw.text.addTxt(MetaString::ART_EVNTS, subID);
+					}
 					else //fix for mod artifacts with no event text
 					{
 						iw.text.addTxt(MetaString::ADVOB_TXT, 183); //% has found treasure
@@ -1769,7 +1773,7 @@ void CGScholar::serializeJsonOptions(JsonSerializeFormat & handler)
 			handler.serializeString("rewardSkill", value);
 			break;
 		case SPELL:
-			value = VLC->spellh->objects.at(bonusID)->identifier;
+			value = SpellID::encode(bonusID);
 			handler.serializeString("rewardSpell", value);
 			break;
 		case RANDOM:

@@ -1,0 +1,77 @@
+VERM
+
+!?FU42;
+
+; example 2 --- simple arithmetics
+![defun add [x y] [+ x y]]
+
+; example 1 --- Hello World
+![setq-erm z 1 ^Hello world!^]
+
+; example 2 --- simple arithmetics
+![setq-erm z 2 [add 2 3]]
+
+![progn
+	[setq i 30]
+	[setq doCounter 0]
+	[setq doMax 4]
+	[do [< doCounter doMax]
+		[progn
+			[setq doCounter [+ doCounter 1]]
+			[setq-erm z i ^Test^]
+			[setq i [+ i 1]]
+		]
+	]
+]
+
+; example 3 --- semantic macros
+![defmacro doNTimes [times body]
+	`[progn
+		[setq doCounter 0]
+		[setq doMax ,times]
+		[do [< doCounter doMax]
+			[progn
+				[setq doCounter [+ doCounter 1]]
+				,body
+			]
+		]
+	]
+]
+
+![progn
+	[setq i 40]
+	[doNTimes 4
+		[progn
+			[setq-erm z i ^Test^]
+			[setq i [+ i 1]]
+		]
+	]
+]
+
+; example 4 --- conditional expression
+![if [> 2 1] [setq-erm z 3 ^2>1^] [setq-erm z 3 ^2<=1^]]
+
+; example 5 --- lambda expressions
+![
+	[lambda [x y]
+		[if [> x y]
+			[setq-erm z 4 ^x>y^]
+			[setq-erm z 4 ^x<=y^]
+		]
+	]
+	2 3
+]
+
+
+; example 6 --- resursion
+![defun factorial [n]
+	[if [= n 0] 1
+		[* n [factorial [- n 1]]]
+	]
+]
+
+![setq-erm v 1 [factorial 0]]
+![setq-erm v 2 [factorial 8]]
+
+!?PI;
+!!FU42:P0;

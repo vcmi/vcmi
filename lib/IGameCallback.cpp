@@ -29,6 +29,7 @@
 #include "mapping/CMap.h"
 #include "CPlayerState.h"
 #include "CSkillHandler.h"
+#include "ScriptHandler.h"
 
 #include "serializer/Connection.h"
 
@@ -126,11 +127,11 @@ void CPrivilegedInfoCallback::getAllTiles(std::unordered_set<int3, ShashInt3> & 
 void CPrivilegedInfoCallback::pickAllowedArtsSet(std::vector<const CArtifact *> & out, CRandomGenerator & rand)
 {
 	for (int j = 0; j < 3 ; j++)
-		out.push_back(VLC->arth->artifacts[VLC->arth->pickRandomArtifact(rand, CArtifact::ART_TREASURE)]);
+		out.push_back(VLC->arth->objects[VLC->arth->pickRandomArtifact(rand, CArtifact::ART_TREASURE)]);
 	for (int j = 0; j < 3 ; j++)
-		out.push_back(VLC->arth->artifacts[VLC->arth->pickRandomArtifact(rand, CArtifact::ART_MINOR)]);
+		out.push_back(VLC->arth->objects[VLC->arth->pickRandomArtifact(rand, CArtifact::ART_MINOR)]);
 
-	out.push_back(VLC->arth->artifacts[VLC->arth->pickRandomArtifact(rand, CArtifact::ART_MAJOR)]);
+	out.push_back(VLC->arth->objects[VLC->arth->pickRandomArtifact(rand, CArtifact::ART_MAJOR)]);
 }
 
 void CPrivilegedInfoCallback::getAllowedSpells(std::vector<SpellID> & out, ui16 level)
@@ -138,10 +139,10 @@ void CPrivilegedInfoCallback::getAllowedSpells(std::vector<SpellID> & out, ui16 
 	for (ui32 i = 0; i < gs->map->allowedSpell.size(); i++) //spellh size appears to be greater (?)
 	{
 
-		const CSpell *spell = SpellID(i).toSpell();
-		if (isAllowed (0, spell->id) && spell->level == level)
+		const spells::Spell * spell = SpellID(i).toSpell();
+		if(isAllowed(0, spell->getIndex()) && spell->getLevel() == level)
 		{
-			out.push_back(spell->id);
+			out.push_back(spell->getId());
 		}
 	}
 }
@@ -220,9 +221,9 @@ TeamState *CNonConstInfoCallback::getPlayerTeam(PlayerColor color)
 	return const_cast<TeamState*>(CGameInfoCallback::getPlayerTeam(color));
 }
 
-PlayerState * CNonConstInfoCallback::getPlayer( PlayerColor color, bool verbose )
+PlayerState * CNonConstInfoCallback::getPlayerState( PlayerColor color, bool verbose )
 {
-	return const_cast<PlayerState*>(CGameInfoCallback::getPlayer(color, verbose));
+	return const_cast<PlayerState*>(CGameInfoCallback::getPlayerState(color, verbose));
 }
 
 CArtifactInstance * CNonConstInfoCallback::getArtInstance( ArtifactInstanceID aid )
@@ -240,27 +241,9 @@ CArmedInstance * CNonConstInfoCallback::getArmyInstance(ObjectInstanceID oid)
 	return dynamic_cast<CArmedInstance *>(getObjInstance(oid));
 }
 
-const CGObjectInstance * IGameCallback::putNewObject(Obj ID, int subID, int3 pos)
-{
-	NewObject no;
-	no.ID = ID; //creature
-	no.subID= subID;
-	no.pos = pos;
-	commitPackage(&no);
-	return getObj(no.id); //id field will be filled during applying on gs
-}
-
-const CGCreature * IGameCallback::putNewMonster(CreatureID creID, int count, int3 pos)
-{
-	const CGObjectInstance *m = putNewObject(Obj::MONSTER, creID, pos);
-	setObjProperty(m->id, ObjProperty::MONSTER_COUNT, count);
-	setObjProperty(m->id, ObjProperty::MONSTER_POWER, (si64)1000*count);
-	return dynamic_cast<const CGCreature*>(m);
-}
-
 bool IGameCallback::isVisitCoveredByAnotherQuery(const CGObjectInstance *obj, const CGHeroInstance *hero)
 {
 	//only server knows
-	assert(0);
+	logGlobal->error("isVisitCoveredByAnotherQuery call on client side");
 	return false;
 }

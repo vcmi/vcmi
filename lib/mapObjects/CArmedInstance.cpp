@@ -26,7 +26,7 @@ void CArmedInstance::randomizeArmy(int type)
 		{
 			int level = randID / 2;
 			bool upgrade = randID % 2;
-			elem.second->setType(VLC->townh->factions[type]->town->creatures[level][upgrade]);
+			elem.second->setType((*VLC->townh)[type]->town->creatures[level][upgrade]);
 
 			randID = -1;
 		}
@@ -40,7 +40,12 @@ void CArmedInstance::randomizeArmy(int type)
 CSelector CArmedInstance::nonEvilAlignmentMixSelector = Selector::type()(Bonus::NONEVIL_ALIGNMENT_MIX);
 
 CArmedInstance::CArmedInstance()
-	:nonEvilAlignmentMix(this, nonEvilAlignmentMixSelector)
+	:CArmedInstance(false)
+{
+}
+
+CArmedInstance::CArmedInstance(bool isHypotetic)
+	:CBonusSystemNode(isHypotetic), nonEvilAlignmentMix(this, nonEvilAlignmentMixSelector)
 {
 	battle = nullptr;
 }
@@ -67,7 +72,7 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 	for(auto slot : Slots())
 	{
 		const CStackInstance * inst = slot.second;
-		const CCreature * creature  = VLC->creh->creatures[inst->getCreatureID()];
+		const CCreature * creature  = VLC->creh->objects[inst->getCreatureID()];
 
 		factions.insert(creature->faction);
 		// Check for undead flag instead of faction (undead mummies are neutral)
@@ -82,26 +87,31 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 
 		for(TFaction f : factions)
 		{
-			if (VLC->townh->factions[f]->alignment != EAlignment::EVIL)
+			if ((*VLC->townh)[f]->alignment != EAlignment::EVIL)
 				mixableFactions++;
 		}
 		if (mixableFactions > 0)
 			factionsInArmy -= mixableFactions - 1;
 	}
 
+	std::string description;
+
 	if(factionsInArmy == 1)
 	{
 		b->val = +1;
-		b->description = VLC->generaltexth->arraytxt[115]; //All troops of one alignment +1
-		b->description = b->description.substr(0, b->description.size()-3);//trim "+1"
+		description = VLC->generaltexth->arraytxt[115]; //All troops of one alignment +1
+		description = description.substr(0, description.size()-3);//trim "+1"
 	}
 	else if (!factions.empty()) // no bonus from empty garrison
 	{
 	 	b->val = 2 - (si32)factionsInArmy;
-		b->description = boost::str(boost::format(VLC->generaltexth->arraytxt[114]) % factionsInArmy % b->val); //Troops of %d alignments %d
-		b->description = b->description.substr(0, b->description.size()-2);//trim value
+		description = boost::str(boost::format(VLC->generaltexth->arraytxt[114]) % factionsInArmy % b->val); //Troops of %d alignments %d
+		description = b->description.substr(0, description.size()-2);//trim value
 	}
-	boost::algorithm::trim(b->description);
+	
+	boost::algorithm::trim(description);
+	b->description = description;
+
 	CBonusSystemNode::treeHasChanged();
 
 	//-1 modifier for any Undead unit in army
@@ -129,7 +139,7 @@ void CArmedInstance::armyChanged()
 CBonusSystemNode * CArmedInstance::whereShouldBeAttached(CGameState *gs)
 {
 	if(tempOwner < PlayerColor::PLAYER_LIMIT)
-		return gs->getPlayer(tempOwner);
+		return gs->getPlayerState(tempOwner);
 	else
 		return &gs->globalEffects;
 }

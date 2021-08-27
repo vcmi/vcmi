@@ -13,7 +13,7 @@
 #include "../JsonNode.h"
 
 JsonSerializer::JsonSerializer(const IInstanceResolver * instanceResolver_, JsonNode & root_):
-	JsonTreeSerializer(instanceResolver_, &root_, true)
+	JsonTreeSerializer(instanceResolver_, &root_, true, false)
 {
 
 }

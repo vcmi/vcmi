@@ -243,7 +243,7 @@ void CArmyTooltip::init(const InfoAboutArmy &army)
 			continue;
 		}
 
-		icons.push_back(std::make_shared<CAnimImage>("CPRSMALL", slot.second.type->iconIndex, 0, slotsPos[slot.first.getNum()].x, slotsPos[slot.first.getNum()].y));
+		icons.push_back(std::make_shared<CAnimImage>("CPRSMALL", slot.second.type->getIconIndex(), 0, slotsPos[slot.first.getNum()].x, slotsPos[slot.first.getNum()].y));
 
 		std::string subtitle;
 		if(army.army.isDetailed)
@@ -443,12 +443,12 @@ CCreaturePic::CCreaturePic(int x, int y, const CCreature * cre, bool Big, bool A
 
 	TFaction faction = cre->faction;
 
-	assert(CGI->townh->factions.size() > faction);
+	assert(CGI->townh->size() > faction);
 
 	if(Big)
-		bg = std::make_shared<CPicture>(CGI->townh->factions[faction]->creatureBg130);
+		bg = std::make_shared<CPicture>((*CGI->townh)[faction]->creatureBg130);
 	else
-		bg = std::make_shared<CPicture>(CGI->townh->factions[faction]->creatureBg120);
+		bg = std::make_shared<CPicture>((*CGI->townh)[faction]->creatureBg120);
 	anim = std::make_shared<CCreatureAnim>(0, 0, cre->animDefName);
 	anim->clipRect(cre->isDoubleWide()?170:150, 155, bg->pos.w, bg->pos.h);
 	anim->startPreview(cre->hasBonusOfType(Bonus::SIEGE_WEAPON));

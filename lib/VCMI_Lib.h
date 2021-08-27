@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include <vcmi/Services.h>
+
 class CConsoleHandler;
 class CArtHandler;
 class CHeroHandler;
@@ -26,9 +28,15 @@ class IBonusTypeHandler;
 class CBonusTypeHandler;
 class CTerrainViewPatternConfig;
 class CRmgTemplateStorage;
+class IHandlerBase;
+
+namespace scripting
+{
+	class ScriptHandler;
+}
 
 /// Loads and constructs several handlers
-class DLL_LINKAGE LibClasses
+class DLL_LINKAGE LibClasses : public Services
 {
 	CBonusTypeHandler * bth;
 
@@ -41,7 +49,21 @@ class DLL_LINKAGE LibClasses
 public:
 	bool IS_AI_ENABLED; //unused?
 
-	const IBonusTypeHandler * getBth() const;
+	const ArtifactService * artifacts() const override;
+	const CreatureService * creatures() const override;
+	const FactionService * factions() const override;
+	const HeroClassService * heroClasses() const override;
+	const HeroTypeService * heroTypes() const override;
+	const scripting::Service * scripts() const override;
+	const spells::Service * spells() const override;
+	const SkillService * skills() const override;
+
+	void updateEntity(Metatype metatype, int32_t index, const JsonNode & data) override;
+
+	const spells::effects::Registry * spellEffects() const override;
+	spells::effects::Registry * spellEffects() override;
+
+	const IBonusTypeHandler * getBth() const; //deprecated
 
 	CArtHandler * arth;
 	CHeroHandler * heroh;
@@ -55,6 +77,7 @@ public:
 	CModHandler * modh;
 	CTerrainViewPatternConfig * terviewh;
 	CRmgTemplateStorage * tplh;
+	scripting::ScriptHandler * scriptHandler;
 
 	LibClasses(); //c-tor, loads .lods and NULLs handlers
 	~LibClasses();
@@ -64,9 +87,23 @@ public:
 
 	void loadFilesystem(bool onlyEssential);// basic initialization. should be called before init()
 
+	void scriptsLoaded();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		if(version >= 800)
+		{
+			h & scriptHandler;//must be first (or second after modh), it can modify factories other handlers depends on
+			if(!h.saving)
+			{
+				scriptsLoaded();
+			}
+		}
+		else if(!h.saving)
+		{
+			update800();
+		}
+
 		h & heroh;
 		h & arth;
 		h & creh;
@@ -93,11 +130,15 @@ public:
 
 		h & IS_AI_ENABLED;
 		h & bth;
+
 		if(!h.saving)
 		{
 			callWhenDeserializing();
 		}
 	}
+
+private:
+	void update800();
 };
 
 extern DLL_LINKAGE LibClasses * VLC;

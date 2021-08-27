@@ -63,7 +63,7 @@
 			<Add option="-Wno-unused-parameter" />
 			<Add option="-Wno-overloaded-virtual" />
 			<Add option="-fpermissive" />
-			<Add option="-D_WIN32_WINNT=0x0501" />
+			<Add option="-D_WIN32_WINNT=0x0600" />
 			<Add option="-D_WIN32" />
 			<Add option="-DBOOST_ALL_DYN_LINK" />
 			<Add directory="$(#boost.include)" />
@@ -80,9 +80,6 @@
 		</Unit>
 		<Unit filename="exp_funcs.cpp" />
 		<Extensions>
-			<code_completion />
-			<envvars />
-			<debugger />
 			<lib_finder disable_auto="1" />
 		</Extensions>
 	</Project>

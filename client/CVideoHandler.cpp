@@ -287,11 +287,32 @@ bool CVideoPlayer::nextFrame()
 					}
 					else
 					{
-						pict.data[0] = (ui8 *)dest->pixels;
+						/* Avoid buffer overflow caused by sws_scale():
+						 *     http://trac.ffmpeg.org/ticket/9254
+						 * Currently (ffmpeg-4.4 with SSE3 enabled) sws_scale()
+						 * has a few requirements for target data buffers on rescaling:
+						 * 1. buffer has to be aligned to be usable for SIMD instructions
+						 * 2. buffer has to be padded to allow small overflow by SIMD instructions
+						 * Unfortunately SDL_Surface does not provide these guarantees.
+						 * This means that atempt to rescale directly into SDL surface causes
+						 * memory corruption. Usually it happens on campaign selection screen
+						 * where short video moves start spinning on mouse hover.
+						 *
+						 * To fix [1.] we use av_malloc() for memory allocation.
+						 * To fix [2.] we add an `ffmpeg_pad` that provides plenty of space.
+						 * We have to use intermdiate buffer and then use memcpy() to land it
+						 * to SDL_Surface.
+						 */
+						size_t pic_bytes = dest->pitch * dest->h;
+						size_t ffmped_pad = 1024; /* a few bytes of overflow will go here */
+						void * for_sws = av_malloc (pic_bytes + ffmped_pad);
+						pict.data[0] = (ui8 *)for_sws;
 						pict.linesize[0] = dest->pitch;
 
 						sws_scale(sws, frame->data, frame->linesize,
 								  0, codecContext->height, pict.data, pict.linesize);
+						memcpy(dest->pixels, for_sws, pic_bytes);
+						av_free(for_sws);
 					}
 				}
 			}

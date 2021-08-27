@@ -11,10 +11,12 @@
 #include "StdInc.h"
 #include "CGPandoraBox.h"
 
+#include <vcmi/spells/Spell.h>
+#include <vcmi/spells/Service.h>
+
 #include "../NetPacks.h"
 #include "../CSoundBase.h"
 
-#include "../spells/CSpellHandler.h"
 #include "../CSkillHandler.h"
 #include "../StartInfo.h"
 #include "../IGameCallback.h"
@@ -158,8 +160,8 @@ void CGPandoraBox::giveContentsAfterExp(const CGHeroInstance *h) const
 
 			for (; i != spells.cend(); i++)
 			{
-				const CSpell * sp = (*i).toSpell();
-				if(h->canLearnSpell(sp))
+				auto spell = (*i).toSpell(VLC->spells());
+				if(h->canLearnSpell(spell))
 				{
 					iw.components.push_back(Component(Component::SPELL, *i, 0, 0));
 					spellsToGive.insert(*i);
@@ -265,7 +267,7 @@ void CGPandoraBox::giveContentsAfterExp(const CGHeroInstance *h) const
 	cb->giveResources(h->getOwner(), resources);
 
 	for(auto & elem : artifacts)
-		cb->giveHeroNewArtifact(h, VLC->arth->artifacts[elem],ArtifactPosition::FIRST_AVAILABLE);
+		cb->giveHeroNewArtifact(h, VLC->arth->objects[elem],ArtifactPosition::FIRST_AVAILABLE);
 
 	iw.components.clear();
 	iw.text.clear();
