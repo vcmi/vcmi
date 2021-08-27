@@ -159,6 +159,22 @@ static void SDLLogCallback(void*           userdata,
 #if defined(VCMI_WINDOWS) && !defined(__GNUC__) && defined(VCMI_WITH_DEBUG_CONSOLE)
 int wmain(int argc, wchar_t* argv[])
 #elif defined(VCMI_APPLE) || defined(VCMI_ANDROID)
+std::string initLogFilenameFromArgs()
+{
+    std::string agent = "";
+    std::string file = "VCMI_CLIENT";
+    std::string ext = ".log";
+    if (vm.count("agent")) {
+        agent = vm["agent"].as<std::string>();
+    }
+    if (agent != "") {
+        file.append("_");
+    }
+    std::string filename = file.append(agent);
+    filename = filename.append(ext);
+    return filename;
+}
+
 int SDL_main(int argc, char *argv[])
 #else
 int main(int argc, char * argv[])
@@ -199,12 +215,9 @@ int main(int argc, char * argv[])
 		("serverport", po::value<si64>(), "override port specified in config file")
 		("saveprefix", po::value<std::string>(), "prefix for auto save files")
 		("savefrequency", po::value<si64>(), "limit auto save creation to each N days")
-		// 
-    ("host,ho", po::value<std::string>(), "create host game")
-    ("join,j", po::value<std::string>(), "join server, server:port")
-    ("agent,a", po::value<std::string>(), "agent name, agent name (log name)");
-	
-
+        ("host,ho", po::value<std::string>(), "create host game")
+        ("join,j", po::value<std::string>(), "join server, server:port")
+        ("agent,a", po::value<std::string>(), "agent name, agent name (log name)");
 
 	if(argc > 1)
 	{
@@ -237,17 +250,7 @@ int main(int argc, char * argv[])
 	*console->cb = processCommand;
 	console->start();	
 
-	// agent name for different log files
-	std::string agent = "";
-	if (vm.count("agent")) {
-		agent = vm["agent"].as<std::string>();
-	}
-	std::string file = "VCMI_CLIENT_";
-	std::string ext = ".log";
-	std::string filename = file.append(agent);
-	filename = filename.append(ext);
-
-	const bfs::path logPath = VCMIDirs::get().userCachePath() / filename;
+    const bfs::path logPath = VCMIDirs::get().userCachePath() / initLogFilenameFromArgs();
 	logConfig = new CBasicLogConfigurator(logPath, console);
 	logConfig->configureDefault();
 	logGlobal->info(NAME);
@@ -308,7 +311,6 @@ int main(int argc, char * argv[])
 	setSettingBool("session/enable-shm-uuid", "enable-shm-uuid");
 
 
-// BUG: this not write to a settings model? or not..
 	// Init special testing settings
 	setSettingInteger("session/serverport", "serverport", 0);
 	setSettingString("session/saveprefix", "saveprefix", "");
@@ -332,7 +334,6 @@ int main(int argc, char * argv[])
 		logGlobal->error("Error: %s was not found!", message);
 		return false;
 	};
-
 
 	if (!testFile("DATA/HELP.TXT", "Heroes III data") ||
 		!testFile("MODS/VCMI/MOD.JSON", "VCMI data"))
