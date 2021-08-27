@@ -511,7 +511,6 @@ int main(int argc, char * argv[])
 		logGlobal->info("Message handler: %d ms", pomtime.getDiff());
 
 		CCS->curh->show();
-		// TODO: implement MP
 	}
 
 
