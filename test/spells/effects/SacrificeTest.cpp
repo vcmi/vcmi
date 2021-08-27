@@ -200,13 +200,15 @@ TEST_F(SacrificeApplyTest, ResurrectsTarget)
 
 	EXPECT_CALL(targetUnit, acquire()).WillOnce(Return(targetUnitState));
 
+	EXPECT_CALL(serverMock, apply(Matcher<BattleUnitsChanged *>(_))).Times(AtLeast(1));
+
 	setupDefaultRNG();
 
 	EffectTarget target;
 	target.emplace_back(&targetUnit, BattleHex());
 	target.emplace_back(&victim, BattleHex());
 
-	subject->apply(battleProxy.get(), rngMock, &mechanicsMock, target);
+	subject->apply(&serverMock, &mechanicsMock, target);
 
 	EXPECT_EQ(targetUnitState->getAvailableHealth(), expectedHealValue);
 }

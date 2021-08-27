@@ -111,10 +111,30 @@ bool mapSorter::operator()(const std::shared_ptr<CMapInfo> aaa, const std::share
 	}
 }
 
+// pick sorting order based on selection
+static ESortBy getSortBySelectionScreen(ESelectionScreen Type)
+{
+	switch(Type)
+	{
+	case ESelectionScreen::newGame:
+		return ESortBy::_name;
+	case ESelectionScreen::loadGame:
+	case ESelectionScreen::saveGame:
+		return ESortBy::_fileName;
+	case ESelectionScreen::campaignList:
+		return ESortBy::_name;
+	}
+	// Should not reach here. But let's not crash the game.
+	return ESortBy::_name;
+}
+
 SelectionTab::SelectionTab(ESelectionScreen Type)
 	: CIntObject(LCLICK | WHEEL | KEYBOARD | DOUBLECLICK), callOnSelect(nullptr), tabType(Type), selectionPos(0), sortModeAscending(true)
 {
 	OBJ_CONSTRUCTION;
+
+	generalSortingBy = getSortBySelectionScreen(tabType);
+
 	if(tabType != ESelectionScreen::campaignList)
 	{
 		sortingBy = _format;
@@ -146,20 +166,16 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 	switch(tabType)
 	{
 	case ESelectionScreen::newGame:
-		generalSortingBy = ESortBy::_name;
 		tabTitle = CGI->generaltexth->arraytxt[229];
 		break;
 	case ESelectionScreen::loadGame:
-		generalSortingBy = ESortBy::_fileName;
 		tabTitle = CGI->generaltexth->arraytxt[230];
 		break;
 	case ESelectionScreen::saveGame:
 		positionsToShow = 16;
-		generalSortingBy = ESortBy::_fileName;
 		tabTitle = CGI->generaltexth->arraytxt[231];
 		break;
 	case ESelectionScreen::campaignList:
-		generalSortingBy = ESortBy::_name;
 		tabTitle = CGI->generaltexth->allTexts[726];
 		type |= REDRAW_PARENT; // we use parent background so we need to make sure it's will be redrawn too
 		pos.w = parent->pos.w;

@@ -48,6 +48,10 @@
 		"MODS/":
 		[
 			{"type" : "dir",  "path" : "Mods", "depth": 1}
+		],
+		"SCRIPTS/":
+		[
+			{"type" : "dir",  "path" : "scripts"}
 		]
 	}
 }

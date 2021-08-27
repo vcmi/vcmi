@@ -16,7 +16,6 @@
 class CButton;
 struct SDL_Surface;
 class CGHeroInstance;
-class CArtifact;
 class CHeroWindow;
 class LClickableAreaHero;
 class LRClickableAreaWText;

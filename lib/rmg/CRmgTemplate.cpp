@@ -82,20 +82,6 @@ public:
 	}
 };
 
-class FactionEncoder
-{
-public:
-	static si32 decode(const std::string & json)
-	{
-		return VLC->townh->decodeFaction(json);
-	}
-
-	static std::string encode(si32 id)
-	{
-		return VLC->townh->encodeFaction(id);
-	}
-};
-
 const std::set<ETerrainType> ZoneOptions::DEFAULT_TERRAIN_TYPES =
 {
 	ETerrainType::DIRT,
@@ -338,8 +324,8 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 		handler.serializeIdArray<ETerrainType, TerrainEncoder>("terrainTypes", terrainTypes, DEFAULT_TERRAIN_TYPES);
 
 	handler.serializeBool("townsAreSameType", townsAreSameType, false);
-	handler.serializeIdArray<TFaction, FactionEncoder>("allowedMonsters", monsterTypes, VLC->townh->getAllowedFactions(false));
-	handler.serializeIdArray<TFaction, FactionEncoder>("allowedTowns", townTypes, VLC->townh->getAllowedFactions(true));
+	handler.serializeIdArray<TFaction, FactionID>("allowedMonsters", monsterTypes, VLC->townh->getAllowedFactions(false));
+	handler.serializeIdArray<TFaction, FactionID>("allowedTowns", townTypes, VLC->townh->getAllowedFactions(true));
 
 	{
 		//TODO: add support for std::map to serializeEnum

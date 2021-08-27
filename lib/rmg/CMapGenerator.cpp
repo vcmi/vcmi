@@ -116,7 +116,7 @@ void CMapGenerator::initPrisonsRemaining()
 
 void CMapGenerator::initQuestArtsRemaining()
 {
-	for (auto art : VLC->arth->artifacts)
+	for (auto art : VLC->arth->objects)
 	{
 		if (art->aClass == CArtifact::ART_TREASURE && VLC->arth->legalArtifact(art->id) && art->constituentOf.empty()) //don't use parts of combined artifacts
 			questArtifacts.push_back(art->id);
@@ -189,7 +189,7 @@ std::string CMapGenerator::getMapDescription() const
 		if(pSettings.getStartingTown() != CMapGenOptions::CPlayerSettings::RANDOM_TOWN)
 		{
 			ss << ", " << GameConstants::PLAYER_COLOR_NAMES[pSettings.getColor().getNum()]
-			   << " town choice is " << VLC->townh->factions[pSettings.getStartingTown()]->name;
+			   << " town choice is " << (*VLC->townh)[pSettings.getStartingTown()]->name;
 		}
 	}
 

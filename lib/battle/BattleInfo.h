@@ -101,6 +101,7 @@ public:
 	void moveUnit(uint32_t id, BattleHex destination) override;
 	void setUnitState(uint32_t id, const JsonNode & data, int64_t healthDelta) override;
 	void removeUnit(uint32_t id) override;
+	void updateUnit(uint32_t id, const JsonNode & data) override;
 
 	void addUnitBonus(uint32_t id, const std::vector<Bonus> & bonus) override;
 	void updateUnitBonus(uint32_t id, const std::vector<Bonus> & bonus) override;
@@ -137,7 +138,9 @@ public:
 	ui8 whatSide(PlayerColor player) const;
 
 	static BattlefieldBI::BattlefieldBI battlefieldTypeToBI(BFieldType bfieldType); //converts above to ERM BI format
-	static int battlefieldTypeToTerrain(int bfieldType); //converts above to ERM BI format
+
+protected:
+	scripting::Pool * getContextPool() const override;
 };
 
 

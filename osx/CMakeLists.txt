@@ -18,8 +18,19 @@ if(APPLE)
 		fixup_bundle(\"\${CMAKE_INSTALL_PREFIX}/${APP_BUNDLE_DIR}\" \"\" \"\")
 		execute_process(COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change \"libvcmi.dylib\" \"@executable_path/../Frameworks/libvcmi.dylib\" \"\${CMAKE_INSTALL_PREFIX}/${APP_BUNDLE_BINARY_DIR}/AI/libBattleAI.dylib\")
 		execute_process(COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change \"libvcmi.dylib\" \"@executable_path/../Frameworks/libvcmi.dylib\" \"\${CMAKE_INSTALL_PREFIX}/${APP_BUNDLE_BINARY_DIR}/AI/libEmptyAI.dylib\")
+		execute_process(COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change \"libvcmi.dylib\" \"@executable_path/../Frameworks/libvcmi.dylib\" \"\${CMAKE_INSTALL_PREFIX}/${APP_BUNDLE_BINARY_DIR}/AI/libNullkiller.dylib\")
 		execute_process(COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change \"libvcmi.dylib\" \"@executable_path/../Frameworks/libvcmi.dylib\" \"\${CMAKE_INSTALL_PREFIX}/${APP_BUNDLE_BINARY_DIR}/AI/libStupidAI.dylib\")
 		execute_process(COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change \"libvcmi.dylib\" \"@executable_path/../Frameworks/libvcmi.dylib\" \"\${CMAKE_INSTALL_PREFIX}/${APP_BUNDLE_BINARY_DIR}/AI/libVCAI.dylib\")
+
+		set(ENABLE_ERM ${ENABLE_ERM})
+		if(ENABLE_ERM)
+			execute_process(COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change \"libvcmi.dylib\" \"@executable_path/../Frameworks/libvcmi.dylib\" \"\${CMAKE_INSTALL_PREFIX}/${APP_BUNDLE_BINARY_DIR}/scripting/libvcmiERM.dylib\")
+		endif()
+		set(ENABLE_LUA ${ENABLE_LUA})
+		if(ENABLE_LUA)
+			execute_process(COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change \"libvcmi.dylib\" \"@executable_path/../Frameworks/libvcmi.dylib\" \"\${CMAKE_INSTALL_PREFIX}/${APP_BUNDLE_BINARY_DIR}/scripting/libvcmiLua.dylib\")
+		endif()
+
 		execute_process(COMMAND rm \"\${CMAKE_INSTALL_PREFIX}/${APP_BUNDLE_BINARY_DIR}/libvcmi.dylib\")
 	" COMPONENT Runtime)
 endif(APPLE)
@@ -48,7 +59,7 @@ if(WIN32)
 					file(COPY ${CMAKE_BINARY_DIR}/../../vcpkg/installed/x86-windows/plugins/platforms DESTINATION \${CMAKE_INSTALL_PREFIX})
 				")
 			endif()
-		else() #not vcpkg build - lines below do not work properly
+		else() #not appveyor build - lines below do not work properly
 			install(CODE "
 			execute_process(
 				COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_BINARY_DIR}/bin/\${BUILD_TYPE}/bearer \${CMAKE_INSTALL_PREFIX}/bearer
@@ -60,6 +71,17 @@ if(WIN32)
 		endif()
 	endif()
 
+	
+	#TODO: check if some equivalent of block below can be used for above block (easy qt dependencies copy)
+	if(ENABLE_LUA)
+		if(EXISTS ${LUA_INCLUDE_DIR}/../../bin/lua51.dll)
+			install(CODE "
+				file(COPY ${LUA_INCLUDE_DIR}/../../bin/lua51.dll DESTINATION \${CMAKE_INSTALL_PREFIX})
+			")
+		endif()
+	endif()
+
+	#LuaJIT will not be copied automatically by not meeting criteria for this block of code
 	install(CODE "
 		if(\"\${BUILD_TYPE}\" STREQUAL \"Debug\")
 			set(dirs \"${CMAKE_PREFIX_PATH}/debug/bin/\")

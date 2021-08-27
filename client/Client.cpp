@@ -44,11 +44,12 @@
 #include "lobby/CBonusSelection.h"
 #include "battle/CBattleInterface.h"
 #include "../lib/CThreadHelper.h"
-#include "../lib/CScriptingModule.h"
 #include "../lib/registerTypes/RegisterTypes.h"
 #include "gui/CGuiHandler.h"
 #include "CMT.h"
 #include "CServerHandler.h"
+#include "../lib/ScriptHandler.h"
+#include <vcmi/events/EventBus.h>
 
 #ifdef VCMI_ANDROID
 #include "lib/CAndroidVMHelper.h"
@@ -105,6 +106,39 @@ public:
 	}
 };
 
+CPlayerEnvironment::CPlayerEnvironment(PlayerColor player_, CClient * cl_, std::shared_ptr<CCallback> mainCallback_)
+	: player(player_),
+	cl(cl_),
+	mainCallback(mainCallback_)
+{
+
+}
+
+const Services * CPlayerEnvironment::services() const
+{
+	return VLC;
+}
+
+vstd::CLoggerBase * CPlayerEnvironment::logger() const
+{
+	return logGlobal;
+}
+
+events::EventBus * CPlayerEnvironment::eventBus() const
+{
+	return cl->eventBus();//always get actual value
+}
+
+const CPlayerEnvironment::BattleCb * CPlayerEnvironment::battle() const
+{
+	return mainCallback.get();
+}
+
+const CPlayerEnvironment::GameCb * CPlayerEnvironment::game() const
+{
+	return mainCallback.get();
+}
+
 
 CClient::CClient()
 {
@@ -114,7 +148,36 @@ CClient::CClient()
 	registerTypesClientPacks2(*applier);
 	IObjectInterface::cb = this;
 	gs = nullptr;
-	erm = nullptr;
+}
+
+CClient::~CClient()
+{
+	IObjectInterface::cb = nullptr;
+}
+
+const Services * CClient::services() const
+{
+	return VLC; //todo: this should be CGI
+}
+
+const CClient::BattleCb * CClient::battle() const
+{
+	return this;
+}
+
+const CClient::GameCb * CClient::game() const
+{
+	return this;
+}
+
+vstd::CLoggerBase * CClient::logger() const
+{
+	return logGlobal;
+}
+
+events::EventBus * CClient::eventBus() const
+{
+	return clientEventBus.get();
 }
 
 void CClient::newGame()
@@ -122,11 +185,14 @@ void CClient::newGame()
 	CSH->th->update();
 	CMapService mapService;
 	gs = new CGameState();
+	gs->preInit(VLC);
 	logNetwork->trace("\tCreating gamestate: %i", CSH->th->getDiff());
 	gs->init(&mapService, CSH->si.get(), settings["general"]["saveRandomMaps"].Bool());
 	logNetwork->trace("Initializing GameState (together): %d ms", CSH->th->getDiff());
 
 	initMapHandler();
+	reinitScripting();
+	initPlayerEnvironments();
 	initPlayerInterfaces();
 }
 
@@ -168,10 +234,16 @@ void CClient::loadGame()
 		throw; //obviously we cannot continue here
 	}
 	logNetwork->trace("Loaded common part of save %d ms", CSH->th->getDiff());
-
+	gs->preInit(VLC);
 	gs->updateOnLoad(CSH->si.get());
 	initMapHandler();
+
+	reinitScripting();
+
+	initPlayerEnvironments();
+
 	serialize(loader->serializer, loader->serializer.fileVersion);
+
 	initPlayerInterfaces();
 }
 
@@ -189,6 +261,13 @@ void CClient::serialize(BinarySerializer & h, const int version)
 		h & i->second->dllName;
 		h & i->second->human;
 		i->second->saveGame(h, version);
+	}
+
+	if(version >= 800)
+	{
+		JsonNode scriptsState;
+		clientScripts->serializeState(h.saving, scriptsState);
+		h & scriptsState;
 	}
 }
 
@@ -253,6 +332,17 @@ void CClient::serialize(BinaryDeserializer & h, const int version)
 		}
 		nInt.reset();
 	}
+
+	{
+		JsonNode scriptsState;
+		if(version >= 800)
+		{
+			h & scriptsState;
+		}
+
+		clientScripts->serializeState(h.saving, scriptsState);
+	}
+
 	logNetwork->trace("Loaded client part of save %d ms", CSH->th->getDiff());
 }
 
@@ -270,6 +360,8 @@ void CClient::save(const std::string & fname)
 
 void CClient::endGame()
 {
+	clientScripts.reset();
+
 	//suggest interfaces to finish their stuff (AI should interrupt any bg working threads)
 	for(auto & i : playerint)
 		i.second->finish();
@@ -296,8 +388,8 @@ void CClient::endGame()
 
 	playerint.clear();
 	battleints.clear();
-	callbacks.clear();
 	battleCallbacks.clear();
+	playerEnvironments.clear();
 	logNetwork->info("Deleted playerInts.");
 	logNetwork->info("Client stopped.");
 }
@@ -319,6 +411,24 @@ void CClient::initMapHandler()
 	pathCache.clear();
 }
 
+void CClient::initPlayerEnvironments()
+{
+	playerEnvironments.clear();
+
+	auto allPlayers = CSH->getAllClientPlayers(CSH->c->connectionID);
+
+	for(auto & color : allPlayers)
+	{
+		logNetwork->info("Preparing environment for player %s", color.getStr());
+		playerEnvironments[color] = std::make_shared<CPlayerEnvironment>(color, this, std::make_shared<CCallback>(gs, color, this));
+	}
+
+	if(settings["session"]["spectate"].Bool())
+	{
+		playerEnvironments[PlayerColor::SPECTATOR] = std::make_shared<CPlayerEnvironment>(PlayerColor::SPECTATOR, this, std::make_shared<CCallback>(gs, boost::none, this));
+	}
+}
+
 void CClient::initPlayerInterfaces()
 {
 	for(auto & elem : gs->scenarioOps->playerInfos)
@@ -327,19 +437,20 @@ void CClient::initPlayerInterfaces()
 		if(!vstd::contains(CSH->getAllClientPlayers(CSH->c->connectionID), color))
 			continue;
 
-		if(vstd::contains(playerint, color))
-			continue;
-
-		logNetwork->trace("Preparing interface for player %s", color.getStr());
-		if(elem.second.isControlledByAI())
+		if(!vstd::contains(playerint, color))
 		{
-			auto AiToGive = aiNameForPlayer(elem.second, false);
-			logNetwork->info("Player %s will be lead by %s", color, AiToGive);
-			installNewPlayerInterface(CDynLibHandler::getNewAI(AiToGive), color);
-		}
-		else
-		{
-			installNewPlayerInterface(std::make_shared<CPlayerInterface>(color), color);
+			logNetwork->info("Preparing interface for player %s", color.getStr());
+			if(elem.second.isControlledByAI())
+			{
+				auto AiToGive = aiNameForPlayer(elem.second, false);
+				logNetwork->info("Player %s will be lead by %s", color.getStr(), AiToGive);
+				installNewPlayerInterface(CDynLibHandler::getNewAI(AiToGive), color);
+			}
+			else
+			{
+				logNetwork->info("Player %s will be lead by human", color.getStr());
+				installNewPlayerInterface(std::make_shared<CPlayerInterface>(color), color);
+			}
 		}
 	}
 
@@ -379,41 +490,32 @@ std::string CClient::aiNameForPlayer(bool battleAI)
 	return goodAI;
 }
 
-void CClient::installNewPlayerInterface(std::shared_ptr<CGameInterface> gameInterface, boost::optional<PlayerColor> color, bool battlecb)
+void CClient::installNewPlayerInterface(std::shared_ptr<CGameInterface> gameInterface, PlayerColor color, bool battlecb)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
-	PlayerColor colorUsed = color.get_value_or(PlayerColor::UNFLAGGABLE);
 
-	if(!color)
-		privilegedGameEventReceivers.push_back(gameInterface);
+	playerint[color] = gameInterface;
 
-	playerint[colorUsed] = gameInterface;
-
-	logGlobal->trace("\tInitializing the interface for player %s", colorUsed);
+	logGlobal->trace("\tInitializing the interface for player %s", color.getStr());
 	auto cb = std::make_shared<CCallback>(gs, color, this);
-	callbacks[colorUsed] = cb;
-	battleCallbacks[colorUsed] = cb;
-	gameInterface->init(cb);
+	battleCallbacks[color] = cb;
+	gameInterface->init(playerEnvironments.at(color), cb);
 
 	installNewBattleInterface(gameInterface, color, battlecb);
 }
 
-void CClient::installNewBattleInterface(std::shared_ptr<CBattleGameInterface> battleInterface, boost::optional<PlayerColor> color, bool needCallback)
+void CClient::installNewBattleInterface(std::shared_ptr<CBattleGameInterface> battleInterface, PlayerColor color, bool needCallback)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
-	PlayerColor colorUsed = color.get_value_or(PlayerColor::UNFLAGGABLE);
 
-	if(!color)
-		privilegedBattleEventReceivers.push_back(battleInterface);
-
-	battleints[colorUsed] = battleInterface;
+	battleints[color] = battleInterface;
 
 	if(needCallback)
 	{
-		logGlobal->trace("\tInitializing the battle interface for player %s", *color);
+		logGlobal->trace("\tInitializing the battle interface for player %s", color.getStr());
 		auto cbc = std::make_shared<CBattleCallback>(color, this);
-		battleCallbacks[colorUsed] = cbc;
-		battleInterface->init(cbc);
+		battleCallbacks[color] = cbc;
+		battleInterface->init(playerEnvironments.at(color), cbc);
 	}
 }
 
@@ -437,14 +539,6 @@ void CClient::handlePack(CPack * pack)
 	delete pack;
 }
 
-void CClient::commitPackage(CPackForClient * pack)
-{
-	CommitPackage cp;
-	cp.freePack = false;
-	cp.packToCommit = pack;
-	sendRequest(&cp, PlayerColor::NEUTRAL);
-}
-
 int CClient::sendRequest(const CPackForServer * request, PlayerColor player)
 {
 	static ui32 requestCounter = 0;
@@ -464,6 +558,7 @@ int CClient::sendRequest(const CPackForServer * request, PlayerColor player)
 
 void CClient::battleStarted(const BattleInfo * info)
 {
+	setBattle(info);
 	for(auto & battleCb : battleCallbacks)
 	{
 		if(vstd::contains_if(info->sides, [&](const SideInBattle& side) {return side.color == battleCb.first; })
@@ -472,9 +567,6 @@ void CClient::battleStarted(const BattleInfo * info)
 			battleCb.second->setBattle(info);
 		}
 	}
-// 	for(ui8 side : info->sides)
-// 		if(battleCallbacks.count(side))
-// 			battleCallbacks[side]->setBattle(info);
 
 	std::shared_ptr<CPlayerInterface> att, def;
 	auto & leftSide = info->sides[0], & rightSide = info->sides[1];
@@ -552,6 +644,8 @@ void CClient::battleFinished()
 
 	if(settings["session"]["spectate"].Bool() && !settings["session"]["spectate-skip-battle"].Bool())
 		battleCallbacks[PlayerColor::SPECTATOR]->setBattle(nullptr);
+
+	setBattle(nullptr);
 }
 
 void CClient::startPlayerBattleAction(PlayerColor color)
@@ -644,6 +738,23 @@ PlayerColor CClient::getLocalPlayer() const
 		return LOCPLINT->playerID;
 	return getCurrentPlayer();
 }
+
+scripting::Pool * CClient::getGlobalContextPool() const
+{
+	return clientScripts.get();
+}
+
+scripting::Pool * CClient::getContextPool() const
+{
+	return clientScripts.get();
+}
+
+void CClient::reinitScripting()
+{
+	clientEventBus = make_unique<events::EventBus>();
+	clientScripts.reset(new scripting::PoolImpl(this));
+}
+
 
 #ifdef VCMI_ANDROID
 extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_notifyServerClosed(JNIEnv * env, jobject cls)

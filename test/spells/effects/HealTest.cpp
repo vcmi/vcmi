@@ -41,6 +41,7 @@ protected:
 
 TEST_F(HealTest, NotApplicableToHealthyUnit)
 {
+	EffectFixture::setupEffect(JsonNode());
 	auto & unit = unitsFake.add(BattleSide::ATTACKER);
 
 	EXPECT_CALL(unit, isValidTarget(Eq(false))).WillOnce(Return(true));
@@ -58,6 +59,7 @@ TEST_F(HealTest, NotApplicableToHealthyUnit)
 
 TEST_F(HealTest, ApplicableToWoundedUnit)
 {
+	EffectFixture::setupEffect(JsonNode());
 	auto & unit = unitsFake.add(BattleSide::ATTACKER);
 	unit.makeAlive();
 	EXPECT_CALL(unit, isValidTarget(Eq(false))).WillOnce(Return(true));
@@ -372,12 +374,14 @@ TEST_P(HealApplyTest, Heals)
 
 	EXPECT_CALL(*battleFake, setUnitState(Eq(unitId), _, Gt(0))).Times(1);
 
+	EXPECT_CALL(serverMock, apply(Matcher<BattleUnitsChanged *>(_))).Times(1);
+
 	setupDefaultRNG();
 
 	EffectTarget target;
 	target.emplace_back(&targetUnit, BattleHex());
 
-	subject->apply(battleProxy.get(), rngMock, &mechanicsMock, target);
+	subject->apply(&serverMock, &mechanicsMock, target);
 
 	switch(healLevel)
 	{

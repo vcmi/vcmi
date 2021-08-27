@@ -9,8 +9,14 @@
  */
 #include "StdInc.h"
 #include "StackWithBonuses.h"
-#include "../../lib/NetPacksBase.h"
+
+#include <vcmi/events/EventBus.h>
+
+#include "../../lib/NetPacks.h"
 #include "../../lib/CStack.h"
+#include "../../lib/ScriptHandler.h"
+
+using scripting::Pool;
 
 void actualizeEffect(TBonusListPtr target, const Bonus & ef)
 {
@@ -191,19 +197,27 @@ void StackWithBonuses::removeUnitBonus(const CSelector & selector)
 	vstd::erase_if(bonusesToUpdate, [&](const Bonus & b){return selector(&b);});
 }
 
-void StackWithBonuses::spendMana(const spells::PacketSender * server, const int spellCost) const
+void StackWithBonuses::spendMana(ServerCallback * server, const int spellCost) const
 {
 	//TODO: evaluate cast use
 }
 
-HypotheticBattle::HypotheticBattle(Subject realBattle)
+HypotheticBattle::HypotheticBattle(const Environment * ENV, Subject realBattle)
 	: BattleProxy(realBattle),
+	env(ENV),
 	bonusTreeVersion(1)
 {
 	auto activeUnit = realBattle->battleActiveUnit();
 	activeUnitId = activeUnit ? activeUnit->unitId() : -1;
 
-	nextId = 0xF0000000;
+	nextId = 0x00F00000;
+
+	eventBus.reset(new events::EventBus());
+
+	localEnvironment.reset(new HypotheticEnvironment(this, env));
+	serverCallback.reset(new HypotheticServerCallback(this));
+
+	pool.reset(new scripting::PoolImpl(localEnvironment.get(), serverCallback.get()));
 }
 
 bool HypotheticBattle::unitHasAmmoCart(const battle::Unit * unit) const
@@ -348,6 +362,11 @@ void HypotheticBattle::removeUnit(uint32_t id)
 	}
 }
 
+void HypotheticBattle::updateUnit(uint32_t id, const JsonNode & data)
+{
+	//TODO:
+}
+
 void HypotheticBattle::addUnitBonus(uint32_t id, const std::vector<Bonus> & bonus)
 {
 	getForUpdate(id)->addUnitBonus(bonus);
@@ -400,3 +419,107 @@ int64_t HypotheticBattle::getTreeVersion() const
 {
 	return getBattleNode()->getTreeVersion() + bonusTreeVersion;
 }
+
+Pool * HypotheticBattle::getContextPool() const
+{
+	return pool.get();
+}
+
+ServerCallback * HypotheticBattle::getServerCallback()
+{
+	return serverCallback.get();
+}
+
+HypotheticBattle::HypotheticServerCallback::HypotheticServerCallback(HypotheticBattle * owner_)
+	:owner(owner_)
+{
+
+}
+
+void HypotheticBattle::HypotheticServerCallback::complain(const std::string & problem)
+{
+	logAi->error(problem);
+}
+
+bool HypotheticBattle::HypotheticServerCallback::describeChanges() const
+{
+	return false;
+}
+
+vstd::RNG * HypotheticBattle::HypotheticServerCallback::getRNG()
+{
+	return &rngStub;
+}
+
+void HypotheticBattle::HypotheticServerCallback::apply(CPackForClient * pack)
+{
+	logAi->error("Package of type %s is not allowed in battle evaluation", typeid(pack).name());
+}
+
+void HypotheticBattle::HypotheticServerCallback::apply(BattleLogMessage * pack)
+{
+	pack->applyBattle(owner);
+}
+
+void HypotheticBattle::HypotheticServerCallback::apply(BattleStackMoved * pack)
+{
+	pack->applyBattle(owner);
+}
+
+void HypotheticBattle::HypotheticServerCallback::apply(BattleUnitsChanged * pack)
+{
+	pack->applyBattle(owner);
+}
+
+void HypotheticBattle::HypotheticServerCallback::apply(SetStackEffect * pack)
+{
+	pack->applyBattle(owner);
+}
+
+void HypotheticBattle::HypotheticServerCallback::apply(StacksInjured * pack)
+{
+	pack->applyBattle(owner);
+}
+
+void HypotheticBattle::HypotheticServerCallback::apply(BattleObstaclesChanged * pack)
+{
+	pack->applyBattle(owner);
+}
+
+void HypotheticBattle::HypotheticServerCallback::apply(CatapultAttack * pack)
+{
+	pack->applyBattle(owner);
+}
+
+HypotheticBattle::HypotheticEnvironment::HypotheticEnvironment(HypotheticBattle * owner_, const Environment * upperEnvironment)
+	: owner(owner_),
+	env(upperEnvironment)
+{
+
+}
+
+const Services * HypotheticBattle::HypotheticEnvironment::services() const
+{
+	return env->services();
+}
+
+const Environment::BattleCb * HypotheticBattle::HypotheticEnvironment::battle() const
+{
+	return owner;
+}
+
+const Environment::GameCb * HypotheticBattle::HypotheticEnvironment::game() const
+{
+	return env->game();
+}
+
+vstd::CLoggerBase * HypotheticBattle::HypotheticEnvironment::logger() const
+{
+	return env->logger();
+}
+
+events::EventBus * HypotheticBattle::HypotheticEnvironment::eventBus() const
+{
+	return owner->eventBus.get();
+}
+

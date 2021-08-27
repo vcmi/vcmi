@@ -1,0 +1,17 @@
+VERM
+
+!?PI;
+![setq-erm v 1 [car[list 5 6 7]]]
+![setq-erm v 2 [car '[5 6 7]]]
+![setq-erm v 3
+	[car
+		[cdr
+			'[5 6 7]
+		]
+	]
+]
+
+
+
+
+

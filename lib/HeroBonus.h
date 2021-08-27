@@ -555,8 +555,8 @@ public:
 	void clear();
 	bool empty() const { return bonuses.empty(); }
 	void resize(TInternalContainer::size_type sz, std::shared_ptr<Bonus> c = nullptr );
-	std::shared_ptr<Bonus> &operator[] (TInternalContainer::size_type n) { return bonuses[n]; }
-	const std::shared_ptr<Bonus> &operator[] (TInternalContainer::size_type n) const { return bonuses[n]; }
+	STRONG_INLINE std::shared_ptr<Bonus> &operator[] (TInternalContainer::size_type n) { return bonuses[n]; }
+	STRONG_INLINE const std::shared_ptr<Bonus> &operator[] (TInternalContainer::size_type n) const { return bonuses[n]; }
 	std::shared_ptr<Bonus> &back() { return bonuses.back(); }
 	std::shared_ptr<Bonus> &front() { return bonuses.front(); }
 	const std::shared_ptr<Bonus> &back() const { return bonuses.back(); }
@@ -710,7 +710,7 @@ public:
 	virtual int getMinDamage(bool ranged) const;
 	virtual int getMaxDamage(bool ranged) const;
 	virtual int getAttack(bool ranged) const;
-	virtual int getDefence(bool ranged) const;
+	virtual int getDefense(bool ranged) const;
 
 	int MoraleVal() const; //range [-3, +3]
 	int LuckVal() const; //range [-3, +3]
@@ -751,6 +751,7 @@ private:
 
 	ENodeTypes nodeType;
 	std::string description;
+	bool isHypotheticNode;
 
 	static const bool cachingEnabled;
 	mutable BonusList cachedBonuses;
@@ -761,6 +762,7 @@ private:
 	// This string needs to be unique, that's why it has to be setted in the following manner:
 	// [property key]_[value] => only for selector
 	mutable std::map<std::string, TBonusListPtr > cachedRequests;
+	mutable boost::mutex sync;
 
 	void getBonusesRec(BonusList &out, const CSelector &selector, const CSelector &limit) const;
 	void getAllBonusesRec(BonusList &out) const;
@@ -769,6 +771,7 @@ private:
 
 public:
 	explicit CBonusSystemNode();
+	explicit CBonusSystemNode(bool isHypotetic);
 	explicit CBonusSystemNode(ENodeTypes NodeType);
 	CBonusSystemNode(CBonusSystemNode && other);
 	virtual ~CBonusSystemNode();
@@ -809,13 +812,15 @@ public:
 	void reduceBonusDurations(const CSelector &s);
 	virtual std::string bonusToString(const std::shared_ptr<Bonus>& bonus, bool description) const {return "";}; //description or bonus name
 	virtual std::string nodeName() const;
+	bool isHypothetic() const { return isHypotheticNode; }
 
 	void deserializationFix();
 	void exportBonus(std::shared_ptr<Bonus> b);
 	void exportBonuses();
 
 	const BonusList &getBonusList() const;
-	BonusList &getExportedBonusList();
+	BonusList & getExportedBonusList();
+	const BonusList & getExportedBonusList() const;
 	CBonusSystemNode::ENodeTypes getNodeType() const;
 	void setNodeType(CBonusSystemNode::ENodeTypes type);
 	const TNodesVector &getParentNodes() const;
@@ -1012,7 +1017,7 @@ public:
 	bool includeUpgrades;
 
 	CCreatureTypeLimiter();
-	CCreatureTypeLimiter(const CCreature &Creature, bool IncludeUpgrades = true);
+	CCreatureTypeLimiter(const CCreature & creature_, bool IncludeUpgrades = true);
 	void setCreature (CreatureID id);
 
 	int limit(const BonusLimitationContext &context) const override;

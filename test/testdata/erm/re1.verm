@@ -1,0 +1,11 @@
+VERM
+
+!?PI;
+	; Display 10, 8, 6, 4, 2 (1 will not be displayed, same as 0)
+	!!re i/10/1/-2:;
+	  !!IF:M^%Vi^;
+	!!en:;
+
+	!!re i/1/10/3:;
+	  !!IF:M^%Vi^;
+	!!en:;

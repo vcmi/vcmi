@@ -40,6 +40,16 @@ public:
 	//returns int3 with coordinates decreased by given number
 	int3 operator-(const si32 i) const { return int3(x - i, y - i, z - i); }
 
+	//returns int3 with coordinates multiplied by given number
+	int3 operator*(const double i) const { return int3((int)(x * i), (int)(y * i), (int)(z * i)); }
+	//returns int3 with coordinates divided by given number
+	int3 operator/(const double i) const { return int3((int)(x / i), (int)(y / i), (int)(z / i)); }
+
+	//returns int3 with coordinates multiplied by given number
+	int3 operator*(const si32 i) const { return int3(x * i, y * i, z * i); }
+	//returns int3 with coordinates divided by given number
+	int3 operator/(const si32 i) const { return int3(x / i, y / i, z / i); }
+
 	int3 & operator+=(const int3 & i)
 	{
 		x += i.x;

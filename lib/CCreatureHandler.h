@@ -9,6 +9,9 @@
  */
 #pragma once
 
+#include <vcmi/Creature.h>
+#include <vcmi/CreatureService.h>
+
 #include "HeroBonus.h"
 #include "ConstTransitivePtr.h"
 #include "ResourceSet.h"
@@ -20,8 +23,9 @@
 class CLegacyConfigParser;
 class CCreatureHandler;
 class CCreature;
+class JsonSerializeFormat;
 
-class DLL_LINKAGE CCreature : public CBonusSystemNode
+class DLL_LINKAGE CCreature : public Creature, public CBonusSystemNode
 {
 public:
 	std::string identifier;
@@ -122,10 +126,38 @@ public:
 	considerBonus = false is called on Battle init and returns already prepared nativeTerrain without Bonus system calling.
 	*/
 	ETerrainType::EETerrainType getNativeTerrain() const;
-	bool isDoubleWide() const; //returns true if unit is double wide on battlefield
-	bool isFlying() const; //returns true if it is a flying unit
-	bool isShooting() const; //returns true if unit can shoot
-	bool isUndead() const; //returns true if unit is undead
+	int32_t getIndex() const override;
+	int32_t getIconIndex() const override;
+	const std::string & getName() const override;
+	const std::string & getJsonKey() const override;
+	void registerIcons(const IconRegistar & cb) const override;
+	CreatureID getId() const override;
+	virtual const IBonusBearer * accessBonuses() const override;
+	const std::string & getPluralName() const override;
+	const std::string & getSingularName() const override;
+	uint32_t getMaxHealth() const override;
+
+	int32_t getAdvMapAmountMin() const override;
+	int32_t getAdvMapAmountMax() const override;
+	int32_t getAIValue() const override;
+	int32_t getFightValue() const override;
+	int32_t getLevel() const override;
+	int32_t getGrowth() const override;
+	int32_t getHorde() const override;
+	int32_t getFactionIndex() const override;
+
+	int32_t getBaseAttack() const override;
+	int32_t getBaseDefense() const override;
+	int32_t getBaseDamageMin() const override;
+	int32_t getBaseDamageMax() const override;
+	int32_t getBaseHitPoints() const override;
+	int32_t getBaseSpellPoints() const override;
+	int32_t getBaseSpeed() const override;
+	int32_t getBaseShots() const override;
+
+	int32_t getCost(int32_t resIndex) const override;
+	bool isDoubleWide() const override; //returns true if unit is double wide on battlefield
+
 	bool isGood () const;
 	bool isEvil () const;
 	si32 maxAmount(const std::vector<si32> &res) const; //how many creatures can be bought
@@ -135,7 +167,6 @@ public:
 
 	bool valid() const;
 
-	void setId(CreatureID ID); //assigns idNumber and updates bonuses to reference it
 	void addBonus(int val, Bonus::BonusType type, int subtype = -1);
 	std::string nodeName() const override;
 
@@ -147,6 +178,9 @@ public:
 		else
 			return ammMin + (ranGen() % (ammMax - ammMin));
 	}
+
+	void updateFrom(const JsonNode & data);
+	void serializeJson(JsonSerializeFormat & handler);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -197,20 +231,15 @@ private:
 	void fillWarMachine();
 };
 
-class DLL_LINKAGE CCreatureHandler : public IHandlerBase
+class DLL_LINKAGE CCreatureHandler : public CHandlerBase<CreatureID, Creature, CCreature, CreatureService>
 {
 private:
 	CBonusSystemNode allCreatures;
 	CBonusSystemNode creaturesOfLevel[GameConstants::CREATURES_PER_TOWN + 1];//index 0 is used for creatures of unknown tier or outside <1-7> range
 
-	/// load one creature from json config
-	CCreature * loadFromJson(const JsonNode & node, const std::string & identifier);
-
 	void loadJsonAnimation(CCreature * creature, const JsonNode & graphics);
 	void loadStackExperience(CCreature * creature, const JsonNode &input);
 	void loadCreatureJson(CCreature * creature, const JsonNode & config);
-
-	/// loading functions
 
 	/// adding abilities from ZCRTRAIT.TXT
 	void loadBonuses(JsonNode & creature, std::string bonuses);
@@ -228,9 +257,12 @@ private:
 	/// help function for parsing CREXPBON.txt
 	int stringToNumber(std::string & s);
 
+protected:
+	const std::vector<std::string> & getTypeNames() const override;
+	CCreature * loadFromJson(const std::string & scope, const JsonNode & node, const std::string & identifier, size_t index) override;
+
 public:
 	std::set<CreatureID> doubledCreatures; //they get double week
-	std::vector<ConstTransitivePtr<CCreature> > creatures; //creature ID -> creature info.
 
 	//stack exp
 	std::vector<std::vector<ui32> > expRanks; // stack experience needed for certain rank, index 0 for other tiers (?)
@@ -263,16 +295,13 @@ public:
 
 	std::vector<JsonNode> loadLegacyData(size_t dataSize) override;
 
-	void loadObject(std::string scope, std::string name, const JsonNode & data) override;
-	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
-
 	std::vector<bool> getDefaultAllowed() const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		//TODO: should be optimized, not all these informations needs to be serialized (same for ccreature)
 		h & doubledCreatures;
-		h & creatures;
+		h & objects;
 		h & expRanks;
 		h & maxExpPerBattle;
 		h & expAfterUpgrade;

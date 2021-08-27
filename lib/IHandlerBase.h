@@ -9,18 +9,15 @@
  */
 #pragma once
 
- #include "../lib/ConstTransitivePtr.h"
- #include "VCMI_Lib.h"
+#include "../lib/ConstTransitivePtr.h"
+#include "VCMI_Lib.h"
 
 class JsonNode;
+class Entity;
 
 /// base class for all handlers that can be accessed from mod system
 class DLL_LINKAGE IHandlerBase
 {
-	// there also should be private member with such signature:
-	// Object * loadFromJson(const JsonNode & json);
-	// where Object is type of data loaded by handler
-	// primary used in loadObject methods
 protected:
 	/// Calls modhandler. Mostly needed to avoid large number of includes in headers
 	void registerObject(std::string scope, std::string type_name, std::string name, si32 index);
@@ -54,7 +51,7 @@ public:
 	virtual ~IHandlerBase(){}
 };
 
-template <class _ObjectID, class _Object> class CHandlerBase: public IHandlerBase
+template <class _ObjectID, class _ObjectBase, class _Object, class _ServiceBase> class CHandlerBase : public _ServiceBase, public IHandlerBase
 {
 public:
 	virtual ~CHandlerBase()
@@ -65,45 +62,104 @@ public:
 		}
 
 	}
+
+	const Entity * getBaseByIndex(const int32_t index) const override
+	{
+		return getByIndex(index);
+	}
+
+	const _ObjectBase * getById(const _ObjectID & id) const override
+	{
+		return (*this)[id].get();
+	}
+
+	const _ObjectBase * getByIndex(const int32_t index) const override
+	{
+		return (*this)[_ObjectID(index)].get();
+	}
+
+	void forEachBase(const std::function<void(const Entity * entity, bool & stop)> & cb) const override
+	{
+		forEachT(cb);
+	}
+
+	void forEach(const std::function<void(const _ObjectBase * entity, bool & stop)> & cb) const override
+	{
+		forEachT(cb);
+	}
+
 	void loadObject(std::string scope, std::string name, const JsonNode & data) override
 	{
-		auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name), objects.size());
+		auto object = loadFromJson(scope, data, normalizeIdentifier(scope, "core", name), objects.size());
 
 		objects.push_back(object);
 
 		for(auto type_name : getTypeNames())
-			registerObject(scope, type_name, name, object->id);
+			registerObject(scope, type_name, name, object->getIndex());
 	}
+
 	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override
 	{
-		auto object = loadFromJson(data, normalizeIdentifier(scope, "core", name), index);
+		auto object = loadFromJson(scope, data, normalizeIdentifier(scope, "core", name), index);
 
 		assert(objects[index] == nullptr); // ensure that this id was not loaded before
 		objects[index] = object;
 
 		for(auto type_name : getTypeNames())
-			registerObject(scope, type_name, name, object->id);
+			registerObject(scope, type_name, name, object->getIndex());
 	}
 
 	ConstTransitivePtr<_Object> operator[] (const _ObjectID id) const
 	{
-		const auto raw_id = id.toEnum();
+		const int32_t raw_id = id.getNum();
+		return operator[](raw_id);
+	}
 
-		if (raw_id < 0 || raw_id >= objects.size())
+	ConstTransitivePtr<_Object> operator[] (int32_t index) const
+	{
+		if(index < 0 || index >= objects.size())
 		{
-			logMod->error("%s id %d is invalid", getTypeNames()[0], static_cast<si64>(raw_id));
+			logMod->error("%s id %d is invalid", getTypeNames()[0], index);
 			throw std::runtime_error("internal error");
 		}
 
-		return objects[raw_id];
+		return objects[index];
 	}
+
+	void updateEntity(int32_t index, const JsonNode & data)
+	{
+		if(index < 0 || index >= objects.size())
+		{
+			logMod->error("%s id %d is invalid", getTypeNames()[0], index);
+		}
+		else
+		{
+			objects.at(index)->updateFrom(data);
+		}
+	}
+
 	size_t size() const
 	{
 		return objects.size();
 	}
+
 protected:
-	virtual _Object * loadFromJson(const JsonNode & json, const std::string & identifier, size_t index) = 0;
+	virtual _Object * loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index) = 0;
 	virtual const std::vector<std::string> & getTypeNames() const = 0;
+
+	template<typename ItemType>
+	void forEachT(const std::function<void(const ItemType *, bool &)> & cb) const
+	{
+		bool stop = false;
+
+		for(auto & object : objects)
+		{
+			cb(object.get(), stop);
+			if(stop)
+				break;
+		}
+	}
+
 public: //todo: make private
 	std::vector<ConstTransitivePtr<_Object>> objects;
 };

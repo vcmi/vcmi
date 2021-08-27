@@ -20,7 +20,6 @@ namespace detail
 {
 class RegistryImpl : public Registry
 {
-	using DataPtr = std::shared_ptr<IEffectFactory>;
 public:
 	RegistryImpl() = default;
 	~RegistryImpl() = default;
@@ -34,13 +33,13 @@ public:
 			return iter->second.get();
 	}
 
-	void add(const std::string & name, IEffectFactory * item) override
+	void add(const std::string & name, FactoryPtr item) override
 	{
-		data[name].reset(item);
+		data[name] = item;
 	}
 
 private:
-	std::map<std::string, DataPtr> data;
+	std::map<std::string, FactoryPtr> data;
 };
 
 }
@@ -49,7 +48,7 @@ Registry::Registry() = default;
 
 Registry::~Registry() = default;
 
-Registry * Registry::get()
+Registry * GlobalRegistry::get()
 {
 	static std::unique_ptr<Registry> Instance = make_unique<detail::RegistryImpl>();
 	return Instance.get();

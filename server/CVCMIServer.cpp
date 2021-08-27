@@ -170,7 +170,7 @@ void CVCMIServer::run()
 #endif
 
 		startAsyncAccept();
-		
+
 #ifndef VCMI_ANDROID
 		if(shm)
 		{
@@ -735,14 +735,14 @@ void CVCMIServer::optionNextHero(PlayerColor player, int dir)
 
 	if(s.hero == PlayerSettings::RANDOM) // first/last available
 	{
-		int max = static_cast<int>(VLC->heroh->heroes.size()),
+		int max = static_cast<int>(VLC->heroh->size()),
 			min = 0;
 		s.hero = nextAllowedHero(player, min, max, 0, dir);
 	}
 	else
 	{
 		if(dir > 0)
-			s.hero = nextAllowedHero(player, s.hero, (int)VLC->heroh->heroes.size(), 1, dir);
+			s.hero = nextAllowedHero(player, s.hero, (int)VLC->heroh->size(), 1, dir);
 		else
 			s.hero = nextAllowedHero(player, -1, s.hero, 1, dir); // min needs to be -1 -- hero at index 0 would be skipped otherwise
 	}
@@ -796,8 +796,8 @@ void CVCMIServer::optionNextBonus(PlayerColor player, int dir)
 
 bool CVCMIServer::canUseThisHero(PlayerColor player, int ID)
 {
-	return VLC->heroh->heroes.size() > ID
-		&& si->playerInfos[player].castle == VLC->heroh->heroes[ID]->heroClass->faction
+	return VLC->heroh->size() > ID
+		&& si->playerInfos[player].castle == VLC->heroh->objects[ID]->heroClass->faction
 		&& !vstd::contains(getUsedHeroes(), ID)
 		&& mi->mapHeader->allowedHeroes[ID];
 }

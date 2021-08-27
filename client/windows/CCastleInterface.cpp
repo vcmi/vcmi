@@ -111,12 +111,14 @@ void CBuildingRect::hover(bool on)
 
 void CBuildingRect::clickLeft(tribool down, bool previousState)
 {
-	if( previousState && getBuilding() && area && !down && (parent->selectedBuilding==this))
-		if (!CSDL_Ext::isTransparent(area, GH.current->motion.x - pos.x, GH.current->motion.y - pos.y)) //inside building image
+	if(previousState && getBuilding() && area && !down && (parent->selectedBuilding==this))
+	{
+		if(!CSDL_Ext::isTransparent(area, GH.current->motion.x-pos.x, GH.current->motion.y-pos.y)) //inside building image
 		{
 			auto building = getBuilding();
 			parent->buildingClicked(building->bid, building->subId, building->upgrade);
 		}
+	}
 }
 
 void CBuildingRect::clickRight(tribool down, bool previousState)
@@ -231,7 +233,7 @@ std::string CBuildingRect::getSubtitle()//hover text for building
 		if(availableCreatures.size())
 		{
 			int creaID = availableCreatures.back();//taking last of available creatures
-			return CGI->generaltexth->allTexts[16] + " " + CGI->creh->creatures.at(creaID)->namePl;
+			return CGI->generaltexth->allTexts[16] + " " + CGI->creh->objects.at(creaID)->namePl;
 		}
 		else
 		{
@@ -271,7 +273,7 @@ CDwellingInfoBox::CDwellingInfoBox(int centerX, int centerY, const CGTownInstanc
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	background->colorize(Town->tempOwner);
 
-	const CCreature * creature = CGI->creh->creatures.at(Town->creatures.at(level).second.back());
+	const CCreature * creature = CGI->creh->objects.at(Town->creatures.at(level).second.back());
 
 	title = std::make_shared<CLabel>(80, 30, FONT_SMALL, CENTER, Colors::WHITE, creature->namePl);
 	animation = std::make_shared<CCreaturePic>(30, 44, creature, true, true);
@@ -606,8 +608,7 @@ void CCastleBuildings::recreate()
 
 		const CStructure * toAdd = *boost::max_element(entry.second, [=](const CStructure * a, const CStructure * b)
 		{
-			return build->getDistance(a->building->bid)
-				 < build->getDistance(b->building->bid);
+			return build->getDistance(a->building->bid) < build->getDistance(b->building->bid);
 		});
 
 		buildings.push_back(std::make_shared<CBuildingRect>(this, town, toAdd));
@@ -731,7 +732,7 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 
 				case BuildingSubID::FOUNTAIN_OF_FORTUNE:
 						enterFountain(building, subID, upgrades);
-						break;
+					break;
 
 				case BuildingSubID::FREELANCERS_GUILD:
 						if(getHero())
@@ -751,7 +752,7 @@ void CCastleBuildings::buildingClicked(BuildingID building, BuildingSubID::EBuil
 						if(upgrades == BuildingID::TAVERN)
 							LOCPLINT->showTavernWindow(town);
 						else
-							enterBuilding(building);
+						enterBuilding(building);
 						break;
 
 				case BuildingSubID::CASTLE_GATE:
@@ -794,9 +795,11 @@ void CCastleBuildings::enterBlacksmith(ArtifactID artifactID)
 		LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % town->town->buildings.find(BuildingID::BLACKSMITH)->second->Name()));
 		return;
 	}
-	int price = CGI->arth->artifacts[artifactID]->price;
+	auto art = artifactID.toArtifact(CGI->artifacts());
+
+	int price = art->getPrice();
 	bool possible = LOCPLINT->cb->getResourceAmount(Res::GOLD) >= price && !hero->hasArt(artifactID);
-	CreatureID cre = artifactID.toArtifact()->warMachine;
+	CreatureID cre = art->getWarMachine();
 	GH.pushIntT<CBlacksmithDialog>(possible, cre, artifactID, hero->id);
 }
 
@@ -844,7 +847,7 @@ void CCastleBuildings::enterToTheQuickRecruitmentWindow()
 
 void CCastleBuildings::enterFountain(const BuildingID & building, BuildingSubID::EBuildingSubID subID, BuildingID::EBuildingID upgrades)
 {
-	std::vector<std::shared_ptr<CComponent>> comps(1, std::make_shared<CComponent>(CComponent::building,town->subID, building));
+	std::vector<std::shared_ptr<CComponent>> comps(1, std::make_shared<CComponent>(CComponent::building,town->subID,building));
 	std::string descr = town->town->buildings.find(building)->second->Description();
 	std::string hasNotProduced;
 	std::string hasProduced;
@@ -864,8 +867,8 @@ void CCastleBuildings::enterFountain(const BuildingID & building, BuildingSubID:
 		boost::algorithm::replace_first(hasProduced, "%s", buildingName);
 	}
 
-	bool isMysticPondOrItsUpgrade = subID == BuildingSubID::MYSTIC_POND 
-		|| (upgrades != BuildingID::NONE 
+	bool isMysticPondOrItsUpgrade = subID == BuildingSubID::MYSTIC_POND
+		|| (upgrades != BuildingID::NONE
 			&& town->town->buildings.find(BuildingID(upgrades))->second->subId == BuildingSubID::MYSTIC_POND);
 
 	if(upgrades != BuildingID::NONE)
@@ -878,8 +881,8 @@ void CCastleBuildings::enterFountain(const BuildingID & building, BuildingSubID:
 		else //Mystic Pond produced something;
 		{
 			descr += "\n\n" + hasProduced;
-			boost::algorithm::replace_first(descr, "%s", CGI->generaltexth->restypes[town->bonusValue.first]);
-			boost::algorithm::replace_first(descr, "%d", boost::lexical_cast<std::string>(town->bonusValue.second));
+			boost::algorithm::replace_first(descr,"%s",CGI->generaltexth->restypes[town->bonusValue.first]);
+			boost::algorithm::replace_first(descr,"%d",boost::lexical_cast<std::string>(town->bonusValue.second));
 		}
 	}
 	LOCPLINT->showInfoDialog(descr, comps);
@@ -972,9 +975,9 @@ CCreaInfo::CCreaInfo(Point position, const CGTownInstance * Town, int Level, boo
 	addUsedEvents(LCLICK | RCLICK | HOVER);
 
 	ui32 creatureID = town->creatures[level].second.back();
-	creature = CGI->creh->creatures[creatureID];
+	creature = CGI->creh->objects[creatureID];
 
-	picture = std::make_shared<CAnimImage>("CPRSMALL", creature->iconIndex, 0, 8, 0);
+	picture = std::make_shared<CAnimImage>("CPRSMALL", creature->getIconIndex(), 0, 8, 0);
 
 	std::string value;
 	if(showAvailable)
@@ -1627,7 +1630,7 @@ CFortScreen::RecruitArea::RecruitArea(int posX, int posY, const CGTownInstance *
 		Rect sizes(287, 4, 96, 18);
 		values.push_back(std::make_shared<LabeledValue>(sizes, CGI->generaltexth->allTexts[190], CGI->generaltexth->fcommands[0], getMyCreature()->getAttack(false)));
 		sizes.y+=20;
-		values.push_back(std::make_shared<LabeledValue>(sizes, CGI->generaltexth->allTexts[191], CGI->generaltexth->fcommands[1], getMyCreature()->getDefence(false)));
+		values.push_back(std::make_shared<LabeledValue>(sizes, CGI->generaltexth->allTexts[191], CGI->generaltexth->fcommands[1], getMyCreature()->getDefense(false)));
 		sizes.y+=21;
 		values.push_back(std::make_shared<LabeledValue>(sizes, CGI->generaltexth->allTexts[199], CGI->generaltexth->fcommands[2], getMyCreature()->getMinDamage(false), getMyCreature()->getMaxDamage(false)));
 		sizes.y+=20;
@@ -1642,9 +1645,9 @@ CFortScreen::RecruitArea::RecruitArea(int posX, int posY, const CGTownInstance *
 const CCreature * CFortScreen::RecruitArea::getMyCreature()
 {
 	if(!town->creatures.at(level).second.empty()) // built
-		return VLC->creh->creatures[town->creatures.at(level).second.back()];
+		return VLC->creh->objects[town->creatures.at(level).second.back()];
 	if(!town->town->creatures.at(level).empty()) // there are creatures on this level
-		return VLC->creh->creatures[town->town->creatures.at(level).front()];
+		return VLC->creh->objects[town->town->creatures.at(level).front()];
 	return nullptr;
 }
 
@@ -1750,13 +1753,13 @@ CMageGuildScreen::Scroll::Scroll(Point position, const CSpell *Spell)
 void CMageGuildScreen::Scroll::clickLeft(tribool down, bool previousState)
 {
 	if(down)
-		LOCPLINT->showInfoDialog(spell->getLevelInfo(0).description, std::make_shared<CComponent>(CComponent::spell, spell->id));
+		LOCPLINT->showInfoDialog(spell->getLevelDescription(0), std::make_shared<CComponent>(CComponent::spell, spell->id));
 }
 
 void CMageGuildScreen::Scroll::clickRight(tribool down, bool previousState)
 {
 	if(down)
-		CRClickPopup::createAndPush(spell->getLevelInfo(0).description, std::make_shared<CComponent>(CComponent::spell, spell->id));
+		CRClickPopup::createAndPush(spell->getLevelDescription(0), std::make_shared<CComponent>(CComponent::spell, spell->id));
 }
 
 void CMageGuildScreen::Scroll::hover(bool on)
@@ -1781,15 +1784,15 @@ CBlacksmithDialog::CBlacksmithDialog(bool possible, CreatureID creMachineID, Art
 	animBG = std::make_shared<CPicture>("TPSMITBK", 64, 50);
 	animBG->needRefresh = true;
 
-	const CCreature * creature = CGI->creh->creatures[creMachineID];
+	const CCreature * creature = CGI->creh->objects[creMachineID];
 	anim = std::make_shared<CCreatureAnim>(64, 50, creature->animDefName);
 	anim->clipRect(113,125,200,150);
 
 	title = std::make_shared<CLabel>(165, 28, FONT_BIG, CENTER, Colors::YELLOW,
-				boost::str(boost::format(CGI->generaltexth->allTexts[274]) % creature->nameSing));
+	            boost::str(boost::format(CGI->generaltexth->allTexts[274]) % creature->nameSing));
 	costText = std::make_shared<CLabel>(165, 218, FONT_MEDIUM, CENTER, Colors::WHITE, CGI->generaltexth->jktexts[43]);
 	costValue = std::make_shared<CLabel>(165, 290, FONT_MEDIUM, CENTER, Colors::WHITE,
-					boost::lexical_cast<std::string>(CGI->arth->artifacts[aid]->price));
+	                boost::lexical_cast<std::string>(aid.toArtifact(CGI->artifacts())->getPrice()));
 
 	std::string text = boost::str(boost::format(CGI->generaltexth->allTexts[595]) % creature->nameSing);
 	buy = std::make_shared<CButton>(Point(42, 312), "IBUY30.DEF", CButton::tooltip(text), [&](){ close(); }, SDLK_RETURN);

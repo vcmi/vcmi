@@ -363,17 +363,17 @@ void CMapFormatJson::serializeAllowedFactions(JsonSerializeFormat & handler, std
 	//TODO: unify allowed factions with others - make them std::vector<bool>
 
 	std::vector<bool> temp;
-	temp.resize(VLC->townh->factions.size(), false);
+	temp.resize(VLC->townh->size(), false);
 	auto standard = VLC->townh->getDefaultAllowed();
 
     if(handler.saving)
 	{
-		for(auto faction : VLC->townh->factions)
+		for(auto faction : VLC->townh->objects)
 			if(faction->town && vstd::contains(value, faction->index))
 				temp[std::size_t(faction->index)] = true;
 	}
 
-	handler.serializeLIC("allowedFactions", &CTownHandler::decodeFaction, &CTownHandler::encodeFaction, standard, temp);
+	handler.serializeLIC("allowedFactions", &FactionID::decode, &FactionID::encode, standard, temp);
 
 	if(!handler.saving)
 	{
@@ -395,7 +395,7 @@ void CMapFormatJson::serializeHeader(JsonSerializeFormat & handler)
 
 	serializePlayerInfo(handler);
 
-	handler.serializeLIC("allowedHeroes", &CHeroHandler::decodeHero, &CHeroHandler::encodeHero, VLC->heroh->getDefaultAllowed(), mapHeader->allowedHeroes);
+	handler.serializeLIC("allowedHeroes", &HeroTypeID::decode, &HeroTypeID::encode, VLC->heroh->getDefaultAllowed(), mapHeader->allowedHeroes);
 
 	handler.serializeString("victoryString", mapHeader->victoryMessage);
 	handler.serializeInt("victoryIconIndex", mapHeader->victoryIconIndex);
@@ -513,7 +513,7 @@ void CMapFormatJson::serializePlayerInfo(JsonSerializeFormat & handler)
 							}
 							else
 							{
-								temp = VLC->heroh->heroes[hero->subID]->identifier;
+								temp = VLC->heroh->objects[hero->subID]->identifier;
 							}
 							handler.serializeString("type", temp);
 						}
@@ -529,21 +529,19 @@ void CMapFormatJson::serializePlayerInfo(JsonSerializeFormat & handler)
 
 			for(const auto & hero : handler.getCurrent().Struct())
 			{
-                const JsonNode & data = hero.second;
-                const std::string instanceName = hero.first;
+				const JsonNode & data = hero.second;
+				const std::string instanceName = hero.first;
 
-                SHeroName hname;
+				SHeroName hname;
 				hname.heroId = -1;
 				std::string rawId = data["type"].String();
 
 				if(rawId != "")
-				{
-					hname.heroId = VLC->heroh->decodeHero(rawId);
-				}
+					hname.heroId = HeroTypeID::decode(rawId);
 
-                hname.heroName = data["name"].String();
+				hname.heroName = data["name"].String();
 
-                if(instanceName == info.mainHeroInstance)
+				if(instanceName == info.mainHeroInstance)
 				{
 					//this is main hero
 					info.mainCustomHeroName = hname.heroName;
@@ -702,7 +700,7 @@ void CMapFormatJson::readDisposedHeroes(JsonSerializeFormat & handler)
 
 	for(const auto & entry : data.Struct())
 	{
-		HeroTypeID type(VLC->heroh->decodeHero(entry.first));
+		HeroTypeID type(HeroTypeID::decode(entry.first));
 
 		ui8 mask = 0;
 
@@ -737,7 +735,7 @@ void CMapFormatJson::writeDisposedHeroes(JsonSerializeFormat & handler)
 
 	for(const DisposedHero & hero : map->disposedHeroes)
 	{
-		std::string type = VLC->heroh->encodeHero(hero.heroId);
+		std::string type = HeroTypeID::encode(hero.heroId);
 
 		auto definition = definitions->enterStruct(type);
 

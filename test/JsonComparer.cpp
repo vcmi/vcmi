@@ -63,10 +63,17 @@ bool JsonComparer::isEmpty(const JsonNode & value)
 
 void JsonComparer::check(const bool condition, const std::string & message)
 {
-	if(strict)
-		ASSERT_TRUE(condition) << buildMessage(message);
-	else
-		EXPECT_TRUE(condition) << buildMessage(message);
+	if(!condition)
+	{
+		if(strict)
+		{
+			GTEST_FAIL() << buildMessage(message);
+		}
+		else
+		{
+			ADD_FAILURE() << buildMessage(message);
+		}
+	}
 }
 
 void JsonComparer::checkEqualInteger(const si64 actual, const si64 expected)
@@ -79,7 +86,7 @@ void JsonComparer::checkEqualInteger(const si64 actual, const si64 expected)
 
 void JsonComparer::checkEqualFloat(const double actual, const double expected)
 {
-	if(std::abs(actual - expected) > 1e-6)
+	if(std::abs(actual - expected) > 1e-8)
 	{
 		check(false, boost::str(boost::format("'%d' != '%d' (diff %d)") % actual % expected % (expected - actual)));
 	}
@@ -121,9 +128,8 @@ void JsonComparer::checkEqualJson(const JsonNode & actual, const JsonNode & expe
 
 	const bool validType = actual.getType() == expected.getType();
 
-	check(validType, "type mismatch");
-
 	//do detail checks avoiding assertions in JsonNode
+
 	if(validType)
 	{
 		switch (actual.getType())
@@ -152,6 +158,14 @@ void JsonComparer::checkEqualJson(const JsonNode & actual, const JsonNode & expe
 			check(false, "Unknown Json type");
 			break;
 		}
+	}
+	else if(actual.isNumber() && expected.isNumber())
+	{
+		checkEqualFloat(actual.Float(),expected.Float());
+	}
+	else
+	{
+		check(false, "type mismatch. \n expected:\n"+expected.toJson(true)+"\n actual:\n" +actual.toJson(true));
 	}
 }
 

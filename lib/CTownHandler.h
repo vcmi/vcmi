@@ -9,6 +9,9 @@
  */
 #pragma once
 
+#include <vcmi/Faction.h>
+#include <vcmi/FactionService.h>
+
 #include "ConstTransitivePtr.h"
 #include "ResourceSet.h"
 #include "int3.h"
@@ -23,6 +26,7 @@ class JsonNode;
 class CTown;
 class CFaction;
 struct BattleHex;
+class JsonSerializeFormat;
 
 /// a typical building encountered in every castle ;]
 /// this is structure available to both client and server
@@ -193,12 +197,9 @@ struct DLL_LINKAGE SPuzzleInfo
 	}
 };
 
-class DLL_LINKAGE CFaction
+class DLL_LINKAGE CFaction : public Faction
 {
 public:
-	CFaction();
-	~CFaction();
-
 	std::string name; //town name, by default - from TownName.txt
 	std::string identifier;
 
@@ -212,9 +213,22 @@ public:
 	std::string creatureBg120;
 	std::string creatureBg130;
 
-
-
 	std::vector<SPuzzleInfo> puzzleMap;
+
+	CFaction();
+	~CFaction();
+
+	int32_t getIndex() const override;
+	int32_t getIconIndex() const override;
+	const std::string & getName() const override;
+	const std::string & getJsonKey() const override;
+	void registerIcons(const IconRegistar & cb) const override;
+	FactionID getId() const override;
+
+	bool hasTown() const override;
+
+	void updateFrom(const JsonNode & data);
+	void serializeJson(JsonSerializeFormat & handler);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -357,7 +371,7 @@ private:
 	mutable std::map<BuildingSubID::EBuildingSubID, const std::string> specialMessages; //may be changed by CGTownBuilding::getVisitingBonusGreeting() const
 };
 
-class DLL_LINKAGE CTownHandler : public IHandlerBase
+class DLL_LINKAGE CTownHandler : public CHandlerBase<FactionID, Faction, CFaction, FactionService>
 {
 	struct BuildingRequirementsHelper
 	{
@@ -404,10 +418,8 @@ class DLL_LINKAGE CTownHandler : public IHandlerBase
 	void loadPuzzle(CFaction & faction, const JsonNode & source);
 
 	ETerrainType::EETerrainType getDefaultTerrainForAlignment(EAlignment::EAlignment aligment) const;
-
-	CFaction * loadFromJson(const JsonNode & data, const std::string & identifier, TFaction index);
-
 	void loadRandomFaction();
+
 
 public:
 	template<typename R, typename K>
@@ -415,11 +427,9 @@ public:
 	template<typename R>
 	static R getMappedValue(const JsonNode & node, const R defval, const std::map<std::string, R> & map, bool required = true);
 
-	std::vector<ConstTransitivePtr<CFaction> > factions;
-
 	CTown * randomTown;
 
-	CTownHandler(); //c-tor, set pointer in VLC to this
+	CTownHandler();
 	~CTownHandler();
 
 	std::vector<JsonNode> loadLegacyData(size_t dataSize) override;
@@ -434,16 +444,11 @@ public:
 	std::vector<bool> getDefaultAllowed() const override;
 	std::set<TFaction> getAllowedFactions(bool withTown = true) const;
 
-	//json serialization helper
-	static si32 decodeFaction(const std::string & identifier);
-
-	//json serialization helper
-	static std::string encodeFaction(const si32 index);
 	static void loadSpecialBuildingBonuses(const JsonNode & source, BonusList & bonusList, CBuilding * building);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & factions;
+		h & objects;
 
 		if(version >= 770)
 		{
@@ -454,4 +459,8 @@ public:
 			loadRandomFaction();
 		}
 	}
+
+protected:
+	const std::vector<std::string> & getTypeNames() const override;
+	CFaction * loadFromJson(const std::string & scope, const JsonNode & data, const std::string & identifier, size_t index) override;
 };

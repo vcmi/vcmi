@@ -27,7 +27,6 @@ namespace battle
 	class UnitInfo;
 }
 
-
 class DLL_LINKAGE IBattleInfo
 {
 public:
@@ -79,6 +78,7 @@ public:
 	virtual void setUnitState(uint32_t id, const JsonNode & data, int64_t healthDelta) = 0;
 	virtual void moveUnit(uint32_t id, BattleHex destination) = 0;
 	virtual void removeUnit(uint32_t id) = 0;
+	virtual void updateUnit(uint32_t id, const JsonNode & data) = 0;
 
 	virtual void addUnitBonus(uint32_t id, const std::vector<Bonus> & bonus) = 0;
 	virtual void updateUnitBonus(uint32_t id, const std::vector<Bonus> & bonus) = 0;

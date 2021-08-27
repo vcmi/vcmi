@@ -14,6 +14,8 @@
 
 #include <boost/program_options.hpp>
 
+#include <vcmi/scripting/Service.h>
+
 #include "gui/SDL_Extensions.h"
 #include "CGameInfo.h"
 #include "mapHandler.h"
@@ -46,9 +48,9 @@
 #include "../lib/NetPacks.h"
 #include "CMessage.h"
 #include "../lib/CModHandler.h"
+#include "../lib/ScriptHandler.h"
 #include "../lib/CTownHandler.h"
 #include "../lib/CArtHandler.h"
-#include "../lib/CScriptingModule.h"
 #include "../lib/GameConstants.h"
 #include "gui/CGuiHandler.h"
 #include "../lib/logging/CBasicLogConfigurator.h"
@@ -95,14 +97,13 @@ SDL_Surface *screen = nullptr, //main screen surface
 	*screen2 = nullptr, //and hlp surface (used to store not-active interfaces layer)
 	*screenBuf = screen; //points to screen (if only advmapint is present) or screen2 (else) - should be used when updating controls which are not regularly redrawed
 
-std::queue<SDL_Event> events;
+std::queue<SDL_Event> SDLEventsQueue;
 boost::mutex eventsM;
 
 static po::variables_map vm;
 
 //static bool setResolution = false; //set by event handling thread after resolution is adjusted
 
-static bool ermInteractiveMode = false; //structurize when time is right
 void processCommand(const std::string &message);
 static void setScreenRes(int w, int h, int bpp, bool fullscreen, int displayIndex, bool resetVideo=true);
 void playIntro();
@@ -248,7 +249,7 @@ int main(int argc, char * argv[])
 	std::cout.flags(std::ios::unitbuf);
 	console = new CConsoleHandler();
 	*console->cb = processCommand;
-	console->start();	
+    console->start();
 
     const bfs::path logPath = VCMIDirs::get().userCachePath() / initLogFilenameFromArgs();
 	logConfig = new CBasicLogConfigurator(logPath, console);
@@ -610,28 +611,9 @@ void processCommand(const std::string &message)
 //	if(LOCPLINT && LOCPLINT->cingconsole)
 //		LOCPLINT->cingconsole->print(message);
 
-	if(ermInteractiveMode)
-	{
-		if(cn == "exit")
-		{
-			ermInteractiveMode = false;
-			return;
-		}
-		else
-		{
-			if(CSH->client && CSH->client->erm)
-				CSH->client->erm->executeUserCommand(message);
-			std::cout << "erm>";
-		}
-	}
-	else if(message==std::string("die, fool"))
+	if(message==std::string("die, fool"))
 	{
 		exit(EXIT_SUCCESS);
-	}
-	else if(cn == "erm")
-	{
-		ermInteractiveMode = true;
-		std::cout << "erm>";
 	}
 	else if(cn==std::string("activate"))
 	{
@@ -756,6 +738,28 @@ void processCommand(const std::string &message)
 			}
 		}
 
+		std::cout << "\rExtracting done :)\n";
+		std::cout << " Extracted files can be found in " << outPath << " directory\n";
+	}
+	else if(message=="get scripts")
+	{
+		std::cout << "Command accepted.\t";
+
+		const bfs::path outPath =
+			VCMIDirs::get().userCachePath() / "extracted" / "scripts";
+
+		bfs::create_directories(outPath);
+
+		for(auto & kv : VLC->scriptHandler->objects)
+		{
+			std::string name = kv.first;
+			boost::algorithm::replace_all(name,":","_");
+
+			const scripting::ScriptImpl * script = kv.second.get();
+			bfs::path filePath = outPath / (name + ".lua");
+			bfs::ofstream file(filePath);
+			file << script->getSource();
+		}
 		std::cout << "\rExtracting done :)\n";
 		std::cout << " Extracted files can be found in " << outPath << " directory\n";
 	}
@@ -925,7 +929,7 @@ void processCommand(const std::string &message)
 	{
 		YourTurn yt;
 		yt.player = player;
-		yt.daysWithoutCastle = CSH->client->getPlayer(player)->daysWithoutCastle;
+		yt.daysWithoutCastle = CSH->client->getPlayerState(player)->daysWithoutCastle;
 		yt.applyCl(CSH->client);
 	};
 
@@ -1394,7 +1398,7 @@ static void handleEvent(SDL_Event & ev)
 
 	{
 		boost::unique_lock<boost::mutex> lock(eventsM);
-		events.push(ev);
+		SDLEventsQueue.push(ev);
 	}
 
 }
@@ -1427,25 +1431,31 @@ void handleQuit(bool ask)
 {
 	auto quitApplication = []()
 	{
-		if(CSH->client)
-			CSH->endGameplay();
+		if(!settings["session"]["headless"].Bool())
+		{
+			if(CSH->client)
+				CSH->endGameplay();
+		}
 
 		GH.listInt.clear();
 		GH.objsToBlit.clear();
 
 		CMM.reset();
 
-		// cleanup, mostly to remove false leaks from analyzer
-		if(CCS)
+		if(!settings["session"]["headless"].Bool())
 		{
-			CCS->musich->release();
-			CCS->soundh->release();
+			// cleanup, mostly to remove false leaks from analyzer
+			if(CCS)
+			{
+				CCS->musich->release();
+				CCS->soundh->release();
 
-			vstd::clear_pointer(CCS);
+				vstd::clear_pointer(CCS);
+			}
+			CMessage::dispose();
+
+			vstd::clear_pointer(graphics);
 		}
-		CMessage::dispose();
-
-		vstd::clear_pointer(graphics);
 
 		vstd::clear_pointer(VLC);
 

@@ -10,6 +10,7 @@
 #pragma once
 
 #include "lib/CGameInfoCallback.h"
+#include "lib/battle/CPlayerBattleCallback.h"
 #include "lib/int3.h" // for int3
 
 class CGHeroInstance;
@@ -92,11 +93,12 @@ public:
 	int battleMakeAction(const BattleAction * action) override;//for casting spells by hero - DO NOT use it for moving active stack
 	bool battleMakeTacticAction(BattleAction * action) override; // performs tactic phase actions
 
+	scripting::Pool * getContextPool() const override;
+
 	friend class CCallback;
 	friend class CClient;
 };
 
-class CPlayerInterface;
 class CCallback : public CPlayerSpecificInfoCallback, public IGameActionCallback, public CBattleCallback
 {
 public:
@@ -111,9 +113,7 @@ public:
 	virtual void calculatePaths(const CGHeroInstance *hero, CPathsInfo &out);
 
 	//Set of metrhods that allows adding more interfaces for this player that'll receive game event call-ins.
-	void registerGameInterface(std::shared_ptr<IGameEventsReceiver> gameEvents);
 	void registerBattleInterface(std::shared_ptr<IBattleEventsReceiver> battleEvents);
-	void unregisterGameInterface(std::shared_ptr<IGameEventsReceiver> gameEvents);
 	void unregisterBattleInterface(std::shared_ptr<IBattleEventsReceiver> battleEvents);
 
 //commands

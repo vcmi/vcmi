@@ -16,6 +16,9 @@
 #include "../mapObjects/CGTownInstance.h"
 #include "../CGeneralTextHandler.h"
 
+//TODO: remove
+#include "../IGameCallback.h"
+
 ///BattleInfo
 std::pair< std::vector<BattleHex>, int > BattleInfo::getPath(BattleHex start, BattleHex dest, const CStack * stack)
 {
@@ -202,7 +205,7 @@ BattleInfo * BattleInfo::setupBattle(int3 tile, ETerrainType terrain, BFieldType
 	if(town)
 	{
 		curB->town = town;
-		curB->terrainType = VLC->townh->factions[town->subID]->nativeTerrain;
+		curB->terrainType = (*VLC->townh)[town->subID]->nativeTerrain;
 	}
 	else
 	{
@@ -734,7 +737,6 @@ const IBonusBearer * BattleInfo::asBearer() const
 
 int64_t BattleInfo::getActualDamage(const TDmgRange & damage, int32_t attackerCount, vstd::RNG & rng) const
 {
-
 	if(damage.first != damage.second)
 	{
 		int64_t sum = 0;
@@ -920,6 +922,11 @@ void BattleInfo::removeUnit(uint32_t id)
 	}
 }
 
+void BattleInfo::updateUnit(uint32_t id, const JsonNode & data)
+{
+	//TODO
+}
+
 void BattleInfo::addUnitBonus(uint32_t id, const std::vector<Bonus> & bonus)
 {
 	CStack * sta = getStack(id, false);
@@ -1032,7 +1039,7 @@ void BattleInfo::updateObstacle(const ObstacleChanges& changes)
 
 			// Currently we only support to update the "revealed" property
 			spellObstacle->revealed = changedObstacle->revealed;
-			
+
 			break;
 		}
 	}
@@ -1060,6 +1067,13 @@ CGHeroInstance * BattleInfo::battleGetFightingHero(ui8 side) const
 	return const_cast<CGHeroInstance*>(CBattleInfoEssentials::battleGetFightingHero(side));
 }
 
+scripting::Pool * BattleInfo::getContextPool() const
+{
+	//this is real battle, use global scripting context pool
+	//TODO: make this line not ugly
+	return IObjectInterface::cb->getGlobalContextPool();
+}
+
 bool CMP_stack::operator()(const battle::Unit * a, const battle::Unit * b)
 {
 	switch(phase)
@@ -1071,17 +1085,17 @@ bool CMP_stack::operator()(const battle::Unit * a, const battle::Unit * b)
 	case 3:
 		{
 			int as = a->getInitiative(turn), bs = b->getInitiative(turn);
-			
+
 			if(as != bs)
 				return as > bs;
 
 			if(a->unitSide() == b->unitSide())
 				return a->unitSlot() < b->unitSlot();
-			
+
 			return (a->unitSide() == side || b->unitSide() == side)
 				? a->unitSide() != side
 				: a->unitSide() < b->unitSide();
-		}
+			}
 	default:
 		assert(false);
 		return false;

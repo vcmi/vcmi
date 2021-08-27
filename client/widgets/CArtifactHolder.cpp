@@ -25,7 +25,6 @@
 #include "../../CCallback.h"
 
 #include "../../lib/CArtHandler.h"
-#include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
 
 #include "../../lib/mapObjects/CGHeroInstance.h"
@@ -45,10 +44,11 @@ void CHeroArtPlace::createImage()
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
 	si32 imageIndex = 0;
-	if(ourArt)
-		imageIndex = ourArt->artType->iconIndex;
+
 	if(locked)
 		imageIndex = ArtifactID::ART_LOCK;
+	else if(ourArt)
+		imageIndex = ourArt->artType->getIconIndex();
 
 	image = std::make_shared<CAnimImage>("artifact", imageIndex);
 	if(!ourArt)
@@ -68,7 +68,7 @@ void CHeroArtPlace::lockSlot(bool on)
 	if (on)
 		image->setFrame(ArtifactID::ART_LOCK);
 	else if (ourArt)
-		image->setFrame(ourArt->artType->iconIndex);
+		image->setFrame(ourArt->artType->getIconIndex());
 	else
 		image->setFrame(0);
 }
@@ -172,7 +172,7 @@ void CHeroArtPlace::clickLeft(tribool down, bool previousState)
 					else if(cur->isBig())
 					{
 						//war machines cannot go to backpack
-						LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[153]) % cur->Name()));
+						LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[153]) % cur->getName()));
 					}
 					else
 					{
@@ -197,18 +197,6 @@ void CHeroArtPlace::clickLeft(tribool down, bool previousState)
 				(!ourArt || ourOwner->curHero->tempOwner == LOCPLINT->playerID))
 			{
 				setMeAsDest();
-//
-// 				// Special case when the dest artifact can't be fit into the src slot.
-// 				//CGI->arth->unequipArtifact(ourOwner->curHero->artifWorn, slotID);
-// 				const CArtifactsOfHero* srcAOH = ourOwner->commonInfo->src.AOH;
-// 				ui16 srcSlotID = ourOwner->commonInfo->src.slotID;
-// 				if (ourArt && srcSlotID < 19 && !ourArt->canBePutAt(ArtifactLocation(srcAOH->curHero, srcSlotID)))
-// 				{
-// 					// Put dest artifact into owner's backpack.
-// 					ourOwner->commonInfo->src.AOH = ourOwner;
-// 					ourOwner->commonInfo->src.slotID = ourOwner->curHero->artifacts.size() + 19;
-// 				}
-
 				ourOwner->realizeCurrentTransaction();
 			}
 		}
@@ -226,14 +214,12 @@ bool CHeroArtPlace::askToAssemble(const CArtifactInstance *art, ArtifactPosition
 	for(const CArtifact *combination : assemblyPossibilities)
 	{
 		LOCPLINT->showArtifactAssemblyDialog(
-			art->artType->id,
-			combination->id,
-			true,
-			std::bind(&CCallback::assembleArtifacts, LOCPLINT->cb.get(), hero, slot, true, combination->id),
-			0);
+			art->artType,
+			combination,
+			std::bind(&CCallback::assembleArtifacts, LOCPLINT->cb.get(), hero, slot, true, combination->id));
 
 		if(assemblyPossibilities.size() > 2)
-			logGlobal->warn("More than one possibility of assembling on %s... taking only first", art->artType->Name());
+			logGlobal->warn("More than one possibility of assembling on %s... taking only first", art->artType->getName());
 		return true;
 	}
 	return false;
@@ -243,14 +229,14 @@ void CHeroArtPlace::clickRight(tribool down, bool previousState)
 {
 	if(ourArt && down && !locked && text.size() && !picked)  //if there is no description or it's a lock, do nothing ;]
 	{
-		if (slotID < GameConstants::BACKPACK_START)
+		if(slotID < GameConstants::BACKPACK_START)
 		{
 			if(ourOwner->allowedAssembling)
 			{
 				std::vector<const CArtifact *> assemblyPossibilities = ourArt->assemblyPossibilities(ourOwner->curHero);
 
 				// If the artifact can be assembled, display dialog.
-				if (askToAssemble(ourArt, slotID, ourOwner->curHero))
+				if(askToAssemble(ourArt, slotID, ourOwner->curHero))
 				{
 					return;
 				}
@@ -259,11 +245,9 @@ void CHeroArtPlace::clickRight(tribool down, bool previousState)
 				if(ourArt->canBeDisassembled())
 				{
 					LOCPLINT->showArtifactAssemblyDialog(
-						ourArt->artType->id,
-						0,
-						false,
-						std::bind(&CCallback::assembleArtifacts, LOCPLINT->cb.get(), ourOwner->curHero, slotID, false, ArtifactID()),
-						0);
+						ourArt->artType,
+						nullptr,
+						std::bind(&CCallback::assembleArtifacts, LOCPLINT->cb.get(), ourOwner->curHero, slotID, false, ArtifactID()));
 					return;
 				}
 			}
@@ -294,7 +278,7 @@ void CHeroArtPlace::select ()
 		}
 	}
 
-	CCS->curh->dragAndDropCursor(make_unique<CAnimImage>("artifact", ourArt->artType->iconIndex));
+	CCS->curh->dragAndDropCursor(make_unique<CAnimImage>("artifact", ourArt->artType->getIconIndex()));
 	ourOwner->commonInfo->src.setTo(this, false);
 	ourOwner->markPossibleSlots(ourArt);
 
@@ -389,7 +373,7 @@ void CHeroArtPlace::setArtifact(const CArtifactInstance *art)
 	}
 
 	image->enable();
-	image->setFrame(locked ? ArtifactID::ART_LOCK : art->artType->iconIndex);
+	image->setFrame(locked ? ArtifactID::ART_LOCK : art->artType->getIconIndex());
 
 	text = art->getEffectiveDescription(ourOwner->curHero);
 
@@ -414,7 +398,7 @@ void CHeroArtPlace::setArtifact(const CArtifactInstance *art)
 	if (locked) // Locks should appear as empty.
 		hoverText = CGI->generaltexth->allTexts[507];
 	else
-		hoverText = boost::str(boost::format(CGI->generaltexth->heroscrn[1]) % ourArt->artType->Name());
+		hoverText = boost::str(boost::format(CGI->generaltexth->heroscrn[1]) % ourArt->artType->getName());
 }
 
 void CArtifactsOfHero::SCommonPart::reset()
@@ -769,7 +753,7 @@ void CArtifactsOfHero::artifactMoved(const ArtifactLocation &src, const Artifact
 			commonInfo->src.art = dst.getArt();
 			commonInfo->src.slotID = dst.slot;
 			assert(commonInfo->src.AOH);
-			CCS->curh->dragAndDropCursor(make_unique<CAnimImage>("artifact", dst.getArt()->artType->iconIndex));
+			CCS->curh->dragAndDropCursor(make_unique<CAnimImage>("artifact", dst.getArt()->artType->getIconIndex()));
 			markPossibleSlots(dst.getArt());
 		}
 	}
@@ -1020,7 +1004,7 @@ void CCommanderArtPlace::createImage()
 
 	int imageIndex = 0;
 	if(ourArt)
-		imageIndex = ourArt->artType->iconIndex;
+		imageIndex = ourArt->artType->getIconIndex();
 
 	image = std::make_shared<CAnimImage>("artifact", imageIndex);
 	if(!ourArt)
@@ -1055,7 +1039,7 @@ void CCommanderArtPlace::setArtifact(const CArtifactInstance * art)
 	}
 
 	image->enable();
-	image->setFrame(art->artType->iconIndex);
+	image->setFrame(art->artType->getIconIndex());
 
 	text = art->getEffectiveDescription();
 

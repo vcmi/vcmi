@@ -30,12 +30,15 @@
 #include "BattleSpellMechanics.h"
 
 #include "effects/Effects.h"
+#include "effects/Registry.h"
 #include "effects/Damage.h"
 #include "effects/Timed.h"
 
 #include "CSpellHandler.h"
+#include "../NetPacks.h"
 
 #include "../CHeroHandler.h"//todo: remove
+#include "../IGameCallback.h"//todo: remove
 
 namespace spells
 {
@@ -70,10 +73,10 @@ protected:
 	void loadEffects(const JsonNode & config, const int level)
 	{
 		JsonDeserializer deser(nullptr, config);
-		effects->serializeJson(deser, level);
+		effects->serializeJson(VLC->spellEffects(), deser, level);
 	}
 private:
-	std::shared_ptr<TargetCondition> targetCondition;
+	std::shared_ptr<IReceptiveCheck> targetCondition;
 };
 
 class ConfigurableMechanicsFactory : public CustomMechanicsFactory
@@ -100,7 +103,7 @@ public:
 			const CSpell::LevelInfo & levelInfo = s->getLevelInfo(level);
 			assert(levelInfo.battleEffects.isNull());
 
-			if(s->isOffensiveSpell())
+			if(s->isOffensive())
 			{
 				//default constructed object should be enough
 				effects->add("directDamage", std::make_shared<effects::Damage>(), level);
@@ -130,32 +133,10 @@ public:
 	}
 };
 
-BattleStateProxy::BattleStateProxy(const PacketSender * server_)
-	: server(server_),
-	battleState(nullptr),
-	describe(true)
-{
-}
 
-BattleStateProxy::BattleStateProxy(IBattleState * battleState_)
-	: server(nullptr),
-	battleState(battleState_),
-	describe(false)
-{
-}
-
-void BattleStateProxy::complain(const std::string & problem) const
-{
-	if(server)
-		server->complain(problem);
-	else
-		logGlobal->error(problem);
-}
-
-
-BattleCast::BattleCast(const CBattleInfoCallback * cb, const Caster * caster_, const Mode mode_, const CSpell * spell_)
+BattleCast::BattleCast(const CBattleInfoCallback * cb_, const Caster * caster_, const Mode mode_, const CSpell * spell_)
 	: spell(spell_),
-	cb(cb),
+	cb(cb_),
 	caster(caster_),
 	mode(mode_),
 	magicSkillLevel(),
@@ -165,12 +146,13 @@ BattleCast::BattleCast(const CBattleInfoCallback * cb, const Caster * caster_, c
 	smart(boost::logic::indeterminate),
 	massive(boost::logic::indeterminate)
 {
-
+	gameCb = IObjectInterface::cb; //FIXME: pass player callback (problem is that BattleAI do not have one)
 }
 
 BattleCast::BattleCast(const BattleCast & orig, const Caster * caster_)
 	: spell(orig.spell),
 	cb(orig.cb),
+	gameCb(orig.gameCb),
 	caster(caster_),
 	mode(Mode::MAGIC_MIRROR),
 	magicSkillLevel(orig.magicSkillLevel),
@@ -202,6 +184,11 @@ const Caster * BattleCast::getCaster() const
 const CBattleInfoCallback * BattleCast::getBattle() const
 {
 	return cb;
+}
+
+const IGameInfoCallback * BattleCast::getGame() const
+{
+	return gameCb;
 }
 
 BattleCast::OptionalValue BattleCast::getSpellLevel() const
@@ -254,32 +241,18 @@ void BattleCast::setEffectValue(BattleCast::Value64 value)
 	effectValue = boost::make_optional(value);
 }
 
-void BattleCast::aimToHex(const BattleHex & destination)
-{
-	target.push_back(Destination(destination));
-}
-
-void BattleCast::aimToUnit(const battle::Unit * destination)
-{
-	if(nullptr == destination)
-		logGlobal->error("BattleCast::aimToUnit: invalid unit.");
-	else
-		target.push_back(Destination(destination));
-}
-
-void BattleCast::applyEffects(const SpellCastEnvironment * env, bool indirect, bool ignoreImmunity) const
+void BattleCast::applyEffects(ServerCallback * server, Target target,  bool indirect, bool ignoreImmunity) const
 {
 	auto m = spell->battleMechanics(this);
 
-	BattleStateProxy proxy(env);
-
-	m->applyEffects(&proxy, env->getRandomGenerator(), target, indirect, ignoreImmunity);
+	m->applyEffects(server, target, indirect, ignoreImmunity);
 }
 
-void BattleCast::cast(const SpellCastEnvironment * env)
+void BattleCast::cast(ServerCallback * server, Target target)
 {
 	if(target.empty())
-		aimToHex(BattleHex::INVALID);
+		target.emplace_back();
+
 	auto m = spell->battleMechanics(this);
 
 	const battle::Unit * mainTarget = nullptr;
@@ -294,9 +267,9 @@ void BattleCast::cast(const SpellCastEnvironment * env)
 	}
 
 	bool tryMagicMirror = (mainTarget != nullptr) && (mode == Mode::HERO || mode == Mode::CREATURE_ACTIVE);//TODO: recheck
-	tryMagicMirror = tryMagicMirror && (mainTarget->unitOwner() != caster->getOwner()) && !spell->isPositive();//TODO: recheck
+	tryMagicMirror = tryMagicMirror && (mainTarget->unitOwner() != caster->getCasterOwner()) && !spell->isPositive();//TODO: recheck
 
-	m->cast(env, env->getRandomGenerator(), target);
+	m->cast(server, target);
 
 	//Magic Mirror effect
 	if(tryMagicMirror)
@@ -304,7 +277,7 @@ void BattleCast::cast(const SpellCastEnvironment * env)
 		const std::string magicMirrorCacheStr = "type_MAGIC_MIRROR";
 		static const auto magicMirrorSelector = Selector::type()(Bonus::MAGIC_MIRROR);
 
-		auto rangeGen = env->getRandomGenerator().getInt64Range(0, 99);
+		auto rangeGen = server->getRNG()->getInt64Range(0, 99);
 
 		const int mirrorChance = mainTarget->valOfBonuses(magicMirrorSelector, magicMirrorCacheStr);
 
@@ -313,40 +286,42 @@ void BattleCast::cast(const SpellCastEnvironment * env)
 			auto mirrorTargets = cb->battleGetUnitsIf([this](const battle::Unit * unit)
 			{
 				//Get all caster stacks. Magic mirror can reflect to immune creature (with no effect)
-				return unit->unitOwner() == caster->getOwner() && unit->isValidTarget(true);
+				return unit->unitOwner() == caster->getCasterOwner() && unit->isValidTarget(true);
 			});
 
 
 			if(!mirrorTargets.empty())
 			{
-				auto mirrorTarget = (*RandomGeneratorUtil::nextItem(mirrorTargets, env->getRandomGenerator()));
+				auto mirrorDestination = (*RandomGeneratorUtil::nextItem(mirrorTargets, *server->getRNG()));
+
+				Target mirrorTarget;
+				mirrorTarget.emplace_back(mirrorDestination);
 
 				BattleCast mirror(*this, mainTarget);
-				mirror.aimToUnit(mirrorTarget);
-				mirror.cast(env);
+				mirror.cast(server, mirrorTarget);
 			}
 		}
 	}
 }
 
-void BattleCast::cast(IBattleState * battleState, vstd::RNG & rng)
+void BattleCast::castEval(ServerCallback * server, Target target)
 {
 	//TODO: make equivalent to normal cast
 	if(target.empty())
-		aimToHex(BattleHex::INVALID);
+		target.emplace_back();
 	auto m = spell->battleMechanics(this);
 
 	//TODO: reflection
 	//TODO: random effects evaluation
 
-	m->cast(battleState, rng, target);
+	m->castEval(server, target);
 }
 
-bool BattleCast::castIfPossible(const SpellCastEnvironment * env)
+bool BattleCast::castIfPossible(ServerCallback * server, Target target)
 {
 	if(spell->canBeCast(cb, mode, caster))
 	{
-		cast(env);
+		cast(server, target);
 		return true;
 	}
 	return false;
@@ -433,8 +408,7 @@ std::unique_ptr<ISpellMechanicsFactory> ISpellMechanicsFactory::get(const CSpell
 
 ///Mechanics
 Mechanics::Mechanics()
-	: cb(nullptr),
-	caster(nullptr),
+	: caster(nullptr),
 	casterSide(0)
 {
 
@@ -450,10 +424,12 @@ BaseMechanics::BaseMechanics(const IBattleCast * event)
 	massive(event->isMassive())
 {
 	cb = event->getBattle();
+	gameCb = event->getGame();
+
 	caster = event->getCaster();
 
 	//FIXME: do not crash on invalid side
-	casterSide = cb->playerToSide(caster->getOwner()).get();
+	casterSide = cb->playerToSide(caster->getCasterOwner()).get();
 
 	{
 		auto value = event->getSpellLevel();
@@ -585,17 +561,17 @@ int32_t BaseMechanics::getSpellIndex() const
 
 SpellID BaseMechanics::getSpellId() const
 {
-	return owner->id;
+	return owner->getId();
 }
 
 std::string BaseMechanics::getSpellName() const
 {
-	return owner->name;
+	return owner->getName();
 }
 
 int32_t BaseMechanics::getSpellLevel() const
 {
-	return owner->level;
+	return owner->getLevel();
 }
 
 bool BaseMechanics::isSmart() const
@@ -650,7 +626,7 @@ int64_t BaseMechanics::adjustEffectValue(const battle::Unit * target) const
 	return owner->adjustRawDamage(caster, target, getEffectValue());
 }
 
-int64_t BaseMechanics::applySpellBonus(int64_t value, const battle::Unit* target) const
+int64_t BaseMechanics::applySpellBonus(int64_t value, const battle::Unit * target) const
 {
 	return caster->getSpellBonus(owner, value, target);
 }
@@ -684,7 +660,7 @@ bool BaseMechanics::ownerMatches(const battle::Unit * unit) const
 
 bool BaseMechanics::ownerMatches(const battle::Unit * unit, const boost::logic::tribool positivness) const
 {
-    return cb->battleMatchOwner(caster->getOwner(), unit, positivness);
+    return cb->battleMatchOwner(caster->getCasterOwner(), unit, positivness);
 }
 
 IBattleCast::Value BaseMechanics::getEffectLevel() const
@@ -714,7 +690,7 @@ IBattleCast::Value64 BaseMechanics::getEffectValue() const
 
 PlayerColor BaseMechanics::getCasterColor() const
 {
-	return caster->getOwner();
+	return caster->getCasterOwner();
 }
 
 std::vector<AimType> BaseMechanics::getTargetTypes() const
@@ -736,6 +712,32 @@ std::vector<AimType> BaseMechanics::getTargetTypes() const
 
 	return ret;
 }
+
+const CreatureService * BaseMechanics::creatures() const
+{
+	return VLC->creatures(); //todo: redirect
+}
+
+const scripting::Service * BaseMechanics::scripts() const
+{
+	return VLC->scripts(); //todo: redirect
+}
+
+const Service * BaseMechanics::spells() const
+{
+	return VLC->spells(); //todo: redirect
+}
+
+const IGameInfoCallback * BaseMechanics::game() const
+{
+	return gameCb;
+}
+
+const CBattleInfoCallback * BaseMechanics::battle() const
+{
+	return cb;
+}
+
 
 } //namespace spells
 

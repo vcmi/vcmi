@@ -25,7 +25,7 @@ public:
 
 	void getCasterName(MetaString & text) const override;
 	void getCastDescription(const Spell * spell, const std::vector<const battle::Unit *> & attacked, MetaString & text) const override;
-	void spendMana(const PacketSender * server, const int spellCost) const override;
+	void spendMana(ServerCallback * server, const int spellCost) const override;
 
 private:
 	const Caster * actualCaster;

@@ -279,7 +279,7 @@ creInfo infoFromDC(const dwellingContent & dc)
 	ci.creID = dc.second.size() ? dc.second.back() : CreatureID(-1); //should never be accessed
 	if (ci.creID != -1)
 	{
-		ci.cre = VLC->creh->creatures[ci.creID];
+		ci.cre = VLC->creh->objects[ci.creID];
 		ci.level = ci.cre->level; //this is cretaure tier, while tryRealize expects dwelling level. Ignore.
 	}
 	else
