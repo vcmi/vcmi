@@ -1282,7 +1282,7 @@ namespace ERMConverter
 
 			ERM::Tidentifier tid = trig.identifier.get();
 
-			if(tid.size() == 0)
+			if(tid.empty())
 				throw EInterpreterError("Function must have identifier");
 
 			Variable v = boost::apply_visitor(LVL1IexpToVar(), tid[0]);
@@ -1432,7 +1432,7 @@ bool ERMInterpreter::isATrigger( const ERM::TLine & line )
 	case 0: //v-exp
 		{
 			TVExp vexp = boost::get<TVExp>(line);
-			if(vexp.children.size() == 0)
+			if(vexp.children.empty())
 				return false;
 
 			switch (getExpType(vexp.children[0]))
@@ -1614,7 +1614,7 @@ namespace VERMInterpreter
 			if(asSymbol)
 			{
 				children.resize(children.size()+1);
-				for(int i=children.size()-1; i >0; i--)
+				for(auto i=children.size()-1; i >0; i--)
 				{
 					children[i] = children[i-1];
 				}
@@ -1718,7 +1718,7 @@ namespace VERMInterpreter
 	}
 	VOption OptionConverterVisitor::operator()( ERM::TSymbol const& cmd ) const
 	{
-		if(cmd.symModifier.size() == 0)
+		if(cmd.symModifier.empty())
 			return VSymbol(cmd.sym);
 		else
 			return VNode(cmd);
