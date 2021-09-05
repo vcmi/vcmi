@@ -187,7 +187,8 @@ std::vector<LineInfo> ERMParser::parseFile(CERMPreprocessor & preproc)
 	}
 	catch (ParseErrorException & e)
 	{
-		logGlobal->error("Stopped parsing file.");
+		logGlobal->error("ERM Parser Error. File: '%s' Line: %d Exception: '%s'"
+			, preproc.getCurFileName(), preproc.getCurLineNo(), e.what());
 		throw;
 	}
 	return ret;

@@ -7,7 +7,14 @@ set(lib_SRCS
 		ERMScriptModule.cpp
 )
 
-add_library(vcmiERM SHARED ${lib_SRCS})
+set(lib_HDRS
+		StdInc.h
+		ERMParser.h
+		ERMInterpreter.h
+		ERMScriptModule.h
+)
+
+add_library(vcmiERM SHARED ${lib_SRCS} ${lib_HDRS})
 target_link_libraries(vcmiERM ${Boost_LIBRARIES} vcmi)
 
 vcmi_set_output_dir(vcmiERM "scripting")

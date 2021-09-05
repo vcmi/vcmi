@@ -40,9 +40,11 @@ set(test_SRCS
 		erm/ERM_MF.cpp
 		erm/ERM_TM_T.cpp
 		erm/ERM_VR.cpp
+		erm/ERM_UN.cpp
 		erm/ERMPersistenceTest.cpp
 		erm/ExamplesTest.cpp
 		erm/interpretter/ERM_VR.cpp
+		erm/interpretter/ERM_UN.cpp
 		erm/interpretter/ErmRunner.cpp
 
 		events/ApplyDamageTest.cpp

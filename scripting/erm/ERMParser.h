@@ -37,6 +37,11 @@ public:
 	{
 		return lineNo;
 	}
+
+	const std::string& getCurFileName() const
+	{
+		return fname;
+	}
 };
 
 //various classes that represent ERM/VERM AST
