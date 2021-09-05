@@ -27,12 +27,12 @@ jobs:
             cxx: g++-9
             test: 0
             cmake_args: -G Ninja
-          - platform: mac
-            os: macos-latest
-            test: 0
-            pack: 1
-            extension: dmg
-            cmake_args: -G Ninja
+#          - platform: mac
+#            os: macos-latest
+#            test: 0
+#            pack: 1
+#            extension: dmg
+#            cmake_args: -G Ninja
           - platform: mxe
             os: ubuntu-20.04
             mxe: i686-w64-mingw32.shared
@@ -111,7 +111,8 @@ jobs:
       if: ${{ matrix.pack == 1 }}
       run: |
         cd '${{github.workspace}}/build'
-        cpack -C Release ${{ matrix.cpack_args }}
+        CPACK_PATH=`which -a cpack | grep -m1 -v -i chocolatey`
+        "$CPACK_PATH" -C Release ${{ matrix.cpack_args }}
         
     - name: Additional logs
       if: ${{ failure() && steps.cpack.outcome == 'failure' && matrix.platform == 'mxe' }}

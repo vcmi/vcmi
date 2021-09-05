@@ -1,6 +1,7 @@
 #!/bin/sh
 
 brew update
+brew pin python@3.9
 brew install smpeg2 libpng freetype qt5 ffmpeg ninja boost tbb luajit
 brew install sdl2 sdl2_ttf sdl2_image sdl2_mixer
 

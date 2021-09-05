@@ -3,8 +3,8 @@
 # Install nsis for installer creation
 sudo apt-get install -qq nsis ninja-build
 
-wget http://security.ubuntu.com/ubuntu/pool/main/o/openssl1.0/libssl1.0.0_1.0.2n-1ubuntu5.6_amd64.deb
-sudo apt install ./libssl1.0.0_1.0.2n-1ubuntu5.6_amd64.deb
+wget http://security.ubuntu.com/ubuntu/pool/main/o/openssl1.0/libssl1.0.0_1.0.2n-1ubuntu5.7_amd64.deb
+sudo apt install ./libssl1.0.0_1.0.2n-1ubuntu5.7_amd64.deb
 
 
 # MXE repository was too slow for Travis far too often
