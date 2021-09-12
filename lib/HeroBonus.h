@@ -417,6 +417,7 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 	TLimiterPtr limiter;
 	TPropagatorPtr propagator;
 	TUpdaterPtr updater;
+	TUpdaterPtr propagationUpdater;
 
 	std::string description;
 
@@ -454,6 +455,10 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 		if(version >= 781)
 		{
 			h & updater;
+		}
+		if(version >= 801)
+		{
+			h & propagationUpdater;
 		}
 		if(version < 801 && !h.saving) //Opposite Side bonuses are introduced
 		{
@@ -526,9 +531,6 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 	std::shared_ptr<Bonus> addLimiter(TLimiterPtr Limiter); //returns this for convenient chain-calls
 	std::shared_ptr<Bonus> addPropagator(TPropagatorPtr Propagator); //returns this for convenient chain-calls
 	std::shared_ptr<Bonus> addUpdater(TUpdaterPtr Updater); //returns this for convenient chain-calls
-
-	inline void createOppositeLimiter();
-	inline void createBattlePropagator();
 	void updateOppositeBonuses();
 };
 
@@ -774,7 +776,7 @@ private:
 
 	void getAllBonusesRec(BonusList &out) const;
 	TConstBonusListPtr getAllBonusesWithoutCaching(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = nullptr) const;
-	std::shared_ptr<Bonus> update(const std::shared_ptr<Bonus> & b) const;
+	std::shared_ptr<Bonus> getUpdatedBonus(const std::shared_ptr<Bonus> & b, const TUpdaterPtr updater) const;
 
 public:
 	explicit CBonusSystemNode();
@@ -808,7 +810,7 @@ public:
 
 	void newChildAttached(CBonusSystemNode *child);
 	void childDetached(CBonusSystemNode *child);
-	void propagateBonus(std::shared_ptr<Bonus> b);
+	void propagateBonus(std::shared_ptr<Bonus> b, const CBonusSystemNode & source);
 	void unpropagateBonus(std::shared_ptr<Bonus> b);
 	void removeBonus(const std::shared_ptr<Bonus>& b);
 	void removeBonuses(const CSelector & selector);
@@ -842,6 +844,11 @@ public:
 	static void treeHasChanged();
 
 	int64_t getTreeVersion() const override;
+
+	virtual PlayerColor getOwner() const
+	{
+		return PlayerColor::NEUTRAL;
+	}
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1225,7 +1232,7 @@ class DLL_LINKAGE IUpdater
 public:
 	virtual ~IUpdater();
 
-	virtual std::shared_ptr<Bonus> update(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const;
+	virtual std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const;
 	virtual std::string toString() const;
 	virtual JsonNode toJsonNode() const;
 
@@ -1250,7 +1257,7 @@ public:
 		h & stepSize;
 	}
 
-	std::shared_ptr<Bonus> update(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const override;
+	std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const override;
 	virtual std::string toString() const override;
 	virtual JsonNode toJsonNode() const override;
 };
@@ -1265,7 +1272,7 @@ public:
 		h & static_cast<IUpdater &>(*this);
 	}
 
-	std::shared_ptr<Bonus> update(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const override;
+	std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const override;
 	virtual std::string toString() const override;
 	virtual JsonNode toJsonNode() const override;
 };
@@ -1280,7 +1287,22 @@ public:
 		h & static_cast<IUpdater &>(*this);
 	}
 
-	std::shared_ptr<Bonus> update(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const override;
+	std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const override;
+	virtual std::string toString() const override;
+	virtual JsonNode toJsonNode() const override;
+};
+
+class DLL_LINKAGE OwnerUpdater : public IUpdater
+{
+public:
+	OwnerUpdater();
+
+	template <typename Handler> void serialize(Handler& h, const int version)
+	{
+		h & static_cast<IUpdater &>(*this);
+	}
+
+	std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus>& b, const CBonusSystemNode& context) const override;
 	virtual std::string toString() const override;
 	virtual JsonNode toJsonNode() const override;
 };

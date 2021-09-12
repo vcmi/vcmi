@@ -406,19 +406,15 @@ void MoraleLuckBox::set(const IBonusBearer * node)
 	}
 	else
 	{
-		bool isListActual = false;
 		std::string addInfo = "";
-
 		for(auto & bonus : * modifierList)
 		{
 			if(bonus->val)
-			{
 				addInfo += "\n" + bonus->Description();
-				isListActual = true;
-			}
 		}
-		text = isListActual ? text + addInfo
-			: text + CGI->generaltexth->arraytxt[noneTxtId];//no modifiers
+		text = addInfo.empty() 
+			? text + CGI->generaltexth->arraytxt[noneTxtId] 
+			: text + addInfo;
 	}
 	std::string imageName;
 	if (small)

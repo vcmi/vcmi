@@ -137,7 +137,6 @@ public:
 	const CGHeroInstance * getHero(PlayerColor player) const; //returns fighting hero that belongs to given player
 
 	void localInit();
-	static void adjustOppositeBonuses(BattleInfo * curB);
 	static BattleInfo * setupBattle(int3 tile, ETerrainType terrain, BFieldType battlefieldType, const CArmedInstance * armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance * town);
 
 	ui8 whatSide(PlayerColor player) const;
@@ -146,9 +145,6 @@ public:
 
 protected:
 	scripting::Pool * getContextPool() const override;
-
-private:
-	inline static void adjustOppositeBonuses(CBonusSystemNode * node, PlayerColor ownerColor);
 };
 
 

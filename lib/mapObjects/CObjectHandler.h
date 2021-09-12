@@ -118,12 +118,12 @@ public:
 	Obj ID;
 	/// Subtype of object, depends on type
 	si32 subID;
+	/// Current owner of an object (when below PLAYER_LIMIT)
+	PlayerColor tempOwner;
 	/// Index of object in map's list of objects
 	ObjectInstanceID id;
 	/// Defines appearance of object on map (animation, blocked tiles, blit order, etc)
 	ObjectTemplate appearance;
-	/// Current owner of an object (when below PLAYER_LIMIT)
-	PlayerColor tempOwner;
 	/// If true hero can visit this object only from neighbouring tiles and can't stand on this object
 	bool blockVisit;
 
@@ -140,7 +140,10 @@ public:
 	/// "center" tile from which the sight distance is calculated
 	int3 getSightCenter() const;
 
-	PlayerColor getOwner() const override;
+	PlayerColor getOwner() const override 
+	{
+		return this->tempOwner;
+	}
 	void setOwner(PlayerColor ow);
 
 	/** APPEARANCE ACCESSORS **/
@@ -213,8 +216,8 @@ public:
 
 	///Entry point of Json (de-)serialization
 	void serializeJson(JsonSerializeFormat & handler);
-
 	virtual void updateFrom(const JsonNode & data);
+
 protected:
 	/// virtual method that allows synchronously update object state on server and all clients
 	virtual void setPropertyDer(ui8 what, ui32 val);

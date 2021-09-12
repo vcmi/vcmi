@@ -901,7 +901,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance * heroAttacker, con
 		&& !heroDefender->inTownGarrison
 		&& heroDefender->visitedTown->garrisonHero == heroDefender)
 	{
-		garrisonSwapOnSiege(heroDefender->visitedTown->id); //return defending visitor from garrison to its rightful place
+		swapGarrisonOnSiege(heroDefender->visitedTown->id); //return defending visitor from garrison to its rightful place
 	}
 	//give exp
 	if(battleResult.data->exp[0] && heroAttacker && battleResult.get()->winner == BattleSide::ATTACKER)
@@ -3492,7 +3492,7 @@ void CGameHandler::moveArmy(const CArmedInstance *src, const CArmedInstance *dst
 	}
 }
 
-bool CGameHandler::garrisonSwapOnSiege(ObjectInstanceID tid)
+bool CGameHandler::swapGarrisonOnSiege(ObjectInstanceID tid)
 {
 	const CGTownInstance * town = getTown(tid);
 

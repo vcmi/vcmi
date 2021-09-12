@@ -223,17 +223,12 @@ public:
 		{
 			fillWarMachine();
 		}
-		if(version < 801 && !h.saving) // Opposite bonuses are introduced
-		{
-			updateOppositeBonuses();
-		}
 	}
 
 	CCreature();
 
 private:
 	void fillWarMachine();
-	void updateOppositeBonuses();
 };
 
 class DLL_LINKAGE CCreatureHandler : public CHandlerBase<CreatureID, Creature, CCreature, CreatureService>

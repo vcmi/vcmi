@@ -665,8 +665,8 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 		if(armedGarrison() || visitingHero)
 		{
 			const CGHeroInstance * defendingHero = visitingHero ? visitingHero : garrisonHero;
-			const CArmedInstance * defendingArmy = defendingHero ? (CArmedInstance *)defendingHero : (CArmedInstance *)this;
-			const bool isBattleOutside = isBattleOutsideTown(defendingHero); //defendingHero && garrisonHero && defendingHero != garrisonHero;
+			const CArmedInstance * defendingArmy = defendingHero ? (CArmedInstance *)defendingHero : this;
+			const bool isBattleOutside = isBattleOutsideTown(defendingHero);
 
 			if(!isBattleOutside && visitingHero && defendingHero == visitingHero)
 			{
@@ -674,7 +674,7 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 				auto nodeSiege = defendingHero->whereShouldBeAttachedOnSiege(isBattleOutside);
 
 				if(nodeSiege == (CBonusSystemNode *)this)
-					cb->garrisonSwapOnSiege(this->id);
+					cb->swapGarrisonOnSiege(this->id);
 
 				const_cast<CGHeroInstance *>(defendingHero)->inTownGarrison = false; //hack to return visitor from garrison after battle
 			}
@@ -742,15 +742,6 @@ bool CGTownInstance::townEnvisagesBuilding(BuildingSubID::EBuildingSubID subId) 
 	return town->getBuildingType(subId) != BuildingID::NONE;
 }
 
-//it does not check hasBuilt because this check is in the OnHeroVisit handler
-void CGTownInstance::tryAddOnePerWeekBonus(BuildingSubID::EBuildingSubID subID)
-{
-	auto bid = town->getBuildingType(subID);
-
-	if(bid != BuildingID::NONE)
-		bonusingBuildings.push_back(new COPWBonus(bid, subID, this));
-}
-
 void CGTownInstance::initOverriddenBids()
 {
 	for(const auto & bid : builtBuildings)
@@ -762,11 +753,30 @@ void CGTownInstance::initOverriddenBids()
 	}
 }
 
+bool CGTownInstance::isBonusingBuildingAdded(BuildingID::EBuildingID bid) const
+{
+	auto present = std::find_if(bonusingBuildings.begin(), bonusingBuildings.end(), [&](CGTownBuilding* building)
+		{
+			return building->getBuildingType().num == bid;
+		});
+
+	return present != bonusingBuildings.end();
+}
+
+//it does not check hasBuilt because this check is in the OnHeroVisit handler
+void CGTownInstance::tryAddOnePerWeekBonus(BuildingSubID::EBuildingSubID subID)
+{
+	auto bid = town->getBuildingType(subID);
+
+	if(bid != BuildingID::NONE && !isBonusingBuildingAdded(bid))
+		bonusingBuildings.push_back(new COPWBonus(bid, subID, this));
+}
+
 void CGTownInstance::tryAddVisitingBonus(BuildingSubID::EBuildingSubID subID)
 {
 	auto bid = town->getBuildingType(subID);
 
-	if(bid != BuildingID::NONE)
+	if(bid != BuildingID::NONE && !isBonusingBuildingAdded(bid))
 		bonusingBuildings.push_back(new CTownBonus(bid, subID, this));
 }
 
@@ -782,6 +792,28 @@ void CGTownInstance::addTownBonuses()
 
 		if(kvp.second->IsWeekBonus())
 			bonusingBuildings.push_back(new COPWBonus(kvp.second->bid, kvp.second->subId, this));
+	}
+}
+
+void CGTownInstance::fixBonusingDuplicates() //For versions 794-800
+{
+	std::map<BuildingID::EBuildingID, int> bids;
+
+	for(auto i = 0; i != bonusingBuildings.size(); i++)
+	{
+		auto bid = bonusingBuildings[i]->getBuildingType();
+		if(!bids.count(bid))
+			bids.insert({ bid, 0 });
+		else
+			bids[bid]++;
+	}
+	for(auto & pair : bids)
+	{
+		if(!pair.second)
+			continue;
+
+		for(auto i = 0; i < pair.second; i++)
+			deleteTownBonus(pair.first);
 	}
 }
 

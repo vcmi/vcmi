@@ -275,6 +275,9 @@ public:
 		else if(!h.saving)
 			updateTown794();
 
+		if(!h.saving && (version >= 794 && version < 801))
+			fixBonusingDuplicates();
+
 		if(!h.saving)
 			this->setNodeType(CBonusSystemNode::TOWN);
 	}
@@ -366,9 +369,11 @@ private:
 	void updateBonusingBuildings();
 	bool hasBuiltInOldWay(ETownType::ETownType type, BuildingID bid) const;
 	bool townEnvisagesBuilding(BuildingSubID::EBuildingSubID bid) const;
+	bool isBonusingBuildingAdded(BuildingID::EBuildingID bid) const;
 	void tryAddOnePerWeekBonus(BuildingSubID::EBuildingSubID subID);
 	void tryAddVisitingBonus(BuildingSubID::EBuildingSubID subID);
 	void initOverriddenBids();
 	void addTownBonuses();
 	void updateTown794(); //populate overriddenBuildings and vanila bonuses for old saves 
+	void fixBonusingDuplicates(); //For versions 794-800.
 };

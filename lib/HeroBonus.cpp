@@ -857,18 +857,7 @@ const CStackInstance * retrieveStackInstance(const CBonusSystemNode * node)
 
 PlayerColor CBonusSystemNode::retrieveNodeOwner(const CBonusSystemNode * node)
 {
-	if(!node)
-		return PlayerColor::CANNOT_DETERMINE;
-
-	const CStack * stack = retrieveStackBattle(node);
-	if(stack)
-		return stack->owner;
-
-	const CStackInstance * csi = retrieveStackInstance(node);
-	if(csi && csi->armyObj)
-		return csi->armyObj->getOwner();
-
-	return PlayerColor::NEUTRAL;
+	return node ? node->getOwner() : PlayerColor::CANNOT_DETERMINE;
 }
 
 std::shared_ptr<Bonus> CBonusSystemNode::getBonusLocalFirst(const CSelector & selector)
@@ -931,7 +920,12 @@ void CBonusSystemNode::getAllBonusesRec(BonusList &out) const
 	bonuses.getAllBonuses(beforeUpdate);
 
 	for(auto b : beforeUpdate)
-		out.push_back(update(b));
+	{
+		auto updated = b->updater 
+			? getUpdatedBonus(b, b->updater) 
+			: b;
+		out.push_back(updated);
+	}
 }
 
 TConstBonusListPtr CBonusSystemNode::getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root, const std::string &cachingStr) const
@@ -1020,11 +1014,10 @@ TConstBonusListPtr CBonusSystemNode::getAllBonusesWithoutCaching(const CSelector
 	return ret;
 }
 
-std::shared_ptr<Bonus> CBonusSystemNode::update(const std::shared_ptr<Bonus> & b) const
+std::shared_ptr<Bonus> CBonusSystemNode::getUpdatedBonus(const std::shared_ptr<Bonus> & b, const TUpdaterPtr updater) const
 {
-	if(b->updater)
-		return b->updater->update(b, *this);
-	return b;
+	assert(updater);
+	return updater->createUpdatedBonus(b, * this);
 }
 
 CBonusSystemNode::CBonusSystemNode()
@@ -1215,23 +1208,25 @@ bool CBonusSystemNode::actsAsBonusSourceOnly() const
 	case CREATURE:
 	case ARTIFACT:
 	case ARTIFACT_INSTANCE:
-	case TOWN:
 		return true;
 	default:
 		return false;
 	}
 }
 
-void CBonusSystemNode::propagateBonus(std::shared_ptr<Bonus> b)
+void CBonusSystemNode::propagateBonus(std::shared_ptr<Bonus> b, const CBonusSystemNode & source)
 {
 	if(b->propagator->shouldBeAttached(this))
 	{
-		bonuses.push_back(b);
-		logBonus->trace("#$# %s #propagated to# %s",  b->Description(), nodeName());
+		auto propagated = b->propagationUpdater 
+			? source.getUpdatedBonus(b, b->propagationUpdater)
+			: b;
+		bonuses.push_back(propagated);
+		logBonus->trace("#$# %s #propagated to# %s",  propagated->Description(), nodeName());
 	}
 
 	FOREACH_RED_CHILD(child)
-		child->propagateBonus(b);
+		child->propagateBonus(b, source);
 }
 
 void CBonusSystemNode::unpropagateBonus(std::shared_ptr<Bonus> b)
@@ -1340,30 +1335,17 @@ void CBonusSystemNode::newRedDescendant(CBonusSystemNode * descendant)
 	for(auto b : exportedBonuses)
 	{
 		if(b->propagator)
-			descendant->propagateBonus(b);
+			descendant->propagateBonus(b, *this);
 	}
 	TNodes redParents;
 	getRedAncestors(redParents); //get all red parents recursively
 
-	//it's not in the 'getRedParents' due to infinite recursion loop.
-	//it's actual only for battle, otherwise, when garrison hero is linking to the town, town's 'children' is already empty
-	if(descendant->nodeType == BATTLE && nodeType == TOWN) //acts as a pure bonus source, but has bonus bearers.
-	{
-		for(auto child : children)
-		{
-			for(auto b : child->exportedBonuses)
-			{
-				if(b->propagator && b->propagator->getPropagatorType() == BATTLE)
-					descendant->propagateBonus(b);
-			}
-		}
-	}
 	for(auto parent : redParents)
 	{
 		for(auto b : parent->exportedBonuses)
 		{
 			if(b->propagator)
-				descendant->propagateBonus(b);
+				descendant->propagateBonus(b, *this);
 		}
 	}
 }
@@ -1406,7 +1388,7 @@ void CBonusSystemNode::getRedDescendants(TNodes &out)
 void CBonusSystemNode::exportBonus(std::shared_ptr<Bonus> b)
 {
 	if(b->propagator)
-		propagateBonus(b);
+		propagateBonus(b, *this);
 	else
 		bonuses.push_back(b);
 
@@ -2336,24 +2318,13 @@ std::shared_ptr<Bonus> Bonus::addUpdater(TUpdaterPtr Updater)
 	return this->shared_from_this();
 }
 
-void Bonus::createOppositeLimiter()
+// Update ONLY_ENEMY_ARMY bonuses from old saves to make them workable.
+// Also, we should foreseen possible errors in bonus configuration and fix them.
+void Bonus::updateOppositeBonuses()
 {
-	if(limiter)
-	{
-		if(!dynamic_cast<OppositeSideLimiter *>(limiter.get()))
-		{
-			logMod->error("Wrong Limiter will be ignored: The 'ONLY_ENEMY_ARMY' effectRange is only compatible with the 'OPPOSITE_SIDE' limiter.");
-			limiter.reset(new OppositeSideLimiter());
-		}
-	}
-	else
-	{
-		limiter = std::make_shared<OppositeSideLimiter>();
-	}
-}
+	if(effectRange != Bonus::ONLY_ENEMY_ARMY)
+		return;
 
-void Bonus::createBattlePropagator()
-{
 	if(propagator)
 	{
 		if(propagator->getPropagatorType() != CBonusSystemNode::BATTLE)
@@ -2366,27 +2337,26 @@ void Bonus::createBattlePropagator()
 	{
 		propagator = std::make_shared<CPropagatorNodeType>(CBonusSystemNode::BATTLE);
 	}
-}
-
-void Bonus::updateOppositeBonuses()
-{
-	if(effectRange == Bonus::ONLY_ENEMY_ARMY)
+	if(limiter)
 	{
-		createBattlePropagator();
-		createOppositeLimiter();
+		if(!dynamic_cast<OppositeSideLimiter*>(limiter.get()))
+		{
+			logMod->error("Wrong Limiter will be ignored: The 'ONLY_ENEMY_ARMY' effectRange is only compatible with the 'OPPOSITE_SIDE' limiter.");
+			limiter.reset(new OppositeSideLimiter());
+		}
 	}
-	else if(limiter && dynamic_cast<OppositeSideLimiter *>(limiter.get()))
+	else
 	{
-		createBattlePropagator();
-		effectRange = Bonus::ONLY_ENEMY_ARMY;
+		limiter = std::make_shared<OppositeSideLimiter>();
 	}
+	propagationUpdater = std::make_shared<OwnerUpdater>();
 }
 
 IUpdater::~IUpdater()
 {
 }
 
-std::shared_ptr<Bonus> IUpdater::update(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const
+std::shared_ptr<Bonus> IUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const
 {
 	return b;
 }
@@ -2409,7 +2379,7 @@ GrowsWithLevelUpdater::GrowsWithLevelUpdater(int valPer20, int stepSize) : valPe
 {
 }
 
-std::shared_ptr<Bonus> GrowsWithLevelUpdater::update(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const
+std::shared_ptr<Bonus> GrowsWithLevelUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const
 {
 	if(context.getNodeType() == CBonusSystemNode::HERO)
 	{
@@ -2446,7 +2416,7 @@ TimesHeroLevelUpdater::TimesHeroLevelUpdater()
 {
 }
 
-std::shared_ptr<Bonus> TimesHeroLevelUpdater::update(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const
+std::shared_ptr<Bonus> TimesHeroLevelUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const
 {
 	if(context.getNodeType() == CBonusSystemNode::HERO)
 	{
@@ -2472,7 +2442,7 @@ TimesStackLevelUpdater::TimesStackLevelUpdater()
 {
 }
 
-std::shared_ptr<Bonus> TimesStackLevelUpdater::update(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const
+std::shared_ptr<Bonus> TimesStackLevelUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const
 {
 	if(context.getNodeType() == CBonusSystemNode::STACK_INSTANCE)
 	{
@@ -2505,4 +2475,31 @@ std::string TimesStackLevelUpdater::toString() const
 JsonNode TimesStackLevelUpdater::toJsonNode() const
 {
 	return JsonUtils::stringNode("TIMES_STACK_LEVEL");
+}
+
+OwnerUpdater::OwnerUpdater()
+{
+}
+
+std::string OwnerUpdater::toString() const
+{
+	return "OwnerUpdater";
+}
+
+JsonNode OwnerUpdater::toJsonNode() const
+{
+	return JsonUtils::stringNode("BONUS_OWNER_UPDATER");
+}
+
+std::shared_ptr<Bonus> OwnerUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const
+{
+	auto owner = CBonusSystemNode::retrieveNodeOwner(&context);
+
+	if(owner == PlayerColor::UNFLAGGABLE)
+		owner = PlayerColor::NEUTRAL;
+
+	std::shared_ptr<Bonus> updated = std::make_shared<Bonus>(
+		(Bonus::BonusDuration)b->duration, b->type, b->source, b->val, b->sid, b->subtype, b->valType);
+	updated->limiter = std::make_shared<OppositeSideLimiter>(owner);
+	return updated;
 }

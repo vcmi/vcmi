@@ -20,6 +20,7 @@
 struct BattleStackAttacked;
 class BattleInfo;
 
+//Represents STACK_BATTLE nodes
 class DLL_LINKAGE CStack : public CBonusSystemNode, public battle::CUnitState, public battle::IUnitEnvironment
 {
 public:
@@ -78,6 +79,11 @@ public:
 	PlayerColor unitEffectiveOwner(const battle::Unit * unit) const override;
 
 	void spendMana(ServerCallback * server, const int spellCost) const override;
+
+	PlayerColor getOwner() const override
+	{
+		return this->owner;
+	}
 
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{

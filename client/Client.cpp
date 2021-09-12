@@ -558,7 +558,6 @@ int CClient::sendRequest(const CPackForServer * request, PlayerColor player)
 
 void CClient::battleStarted(const BattleInfo * info)
 {
-	BattleInfo::adjustOppositeBonuses(const_cast<BattleInfo *>(info));
 	setBattle(info);
 
 	for(auto & battleCb : battleCallbacks)

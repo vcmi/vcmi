@@ -38,6 +38,11 @@ public:
 	CArmedInstance();
 	CArmedInstance(bool isHypotetic);
 
+	PlayerColor getOwner() const override
+	{
+		return this->tempOwner;
+	}
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGObjectInstance&>(*this);

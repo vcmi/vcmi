@@ -339,7 +339,7 @@
 			{
 				"type" : "DRAGON_NATURE"
 			},
-			"descreaseMorale" :
+			"decreaseMorale" :
 			{
 				"type" : "MORALE",
 				"effectRange": "ONLY_ENEMY_ARMY",
@@ -372,7 +372,7 @@
 			{
 				"type" : "DRAGON_NATURE"
 			},
-			"descreaseMorale" :
+			"decreaseMorale" :
 			{
 				"type" : "MORALE",
 				"effectRange": "ONLY_ENEMY_ARMY",
