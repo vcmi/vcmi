@@ -182,12 +182,21 @@ void PoolImpl::serializeState(const bool saving, JsonNode & data)
 }
 
 ScriptHandler::ScriptHandler()
+	:erm(nullptr), lua(nullptr)
 {
 	boost::filesystem::path filePath = VCMIDirs::get().fullLibraryPath("scripting", "vcmiERM");
-	erm = CDynLibHandler::getNewScriptingModule(filePath);
+
+	if (boost::filesystem::exists(filePath))
+	{
+		erm = CDynLibHandler::getNewScriptingModule(filePath);
+	}
 
 	filePath = VCMIDirs::get().fullLibraryPath("scripting", "vcmiLua");
-	lua = CDynLibHandler::getNewScriptingModule(filePath);
+
+	if (boost::filesystem::exists(filePath))
+	{
+		lua = CDynLibHandler::getNewScriptingModule(filePath);
+	}
 }
 
 ScriptHandler::~ScriptHandler() = default;
