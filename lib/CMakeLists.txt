@@ -254,6 +254,7 @@ set(lib_HEADERS
 		filesystem/ISimpleResourceLoader.h
 		filesystem/MinizipExtensions.h
 		filesystem/ResourceID.h
+		filesystem/find_steam_game.h
 
 		logging/CBasicLogConfigurator.h
 		logging/CLogger.h
