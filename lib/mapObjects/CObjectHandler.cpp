@@ -119,14 +119,6 @@ CObjectHandler::CObjectHandler()
 	logGlobal->trace("\t\tDone loading resource prices!");
 }
 
-PlayerColor CGObjectInstance::getOwner() const
-{
-	//if (state)
-	//	return state->owner;
-	//else
-		return tempOwner; //won't have owner
-}
-
 CGObjectInstance::CGObjectInstance():
 	pos(-1,-1,-1),
 	ID(Obj::NO_OBJ),

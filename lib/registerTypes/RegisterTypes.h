@@ -143,6 +143,8 @@ void registerTypesMapObjectTypes(Serializer &s)
 
 	s.template registerType<ILimiter, AnyOfLimiter>();
 	s.template registerType<ILimiter, NoneOfLimiter>();
+	s.template registerType<ILimiter, OppositeSideLimiter>();
+	s.template registerType<IUpdater, OwnerUpdater>();
 	//new types (other than netpacks) must register here
 	//order of type registration is critical for loading old savegames
 }

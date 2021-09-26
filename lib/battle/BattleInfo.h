@@ -22,6 +22,11 @@ class CStackBasicDescriptor;
 class DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallback, public IBattleState
 {
 public:
+	enum BattleSide
+	{
+		ATTACKER = 0,
+		DEFENDER
+	};
 	std::array<SideInBattle, 2> sides; //sides[0] - attacker, sides[1] - defender
 	si32 round, activeStack;
 	const CGTownInstance * town; //used during town siege, nullptr if this is not a siege (note that fortless town IS also a siege)
@@ -132,7 +137,6 @@ public:
 	const CGHeroInstance * getHero(PlayerColor player) const; //returns fighting hero that belongs to given player
 
 	void localInit();
-
 	static BattleInfo * setupBattle(int3 tile, ETerrainType terrain, BFieldType battlefieldType, const CArmedInstance * armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance * town);
 
 	ui8 whatSide(PlayerColor player) const;

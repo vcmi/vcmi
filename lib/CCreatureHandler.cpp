@@ -497,13 +497,6 @@ void CCreatureHandler::loadBonuses(JsonNode & creature, std::string bonuses)
 		node["propagator"].String() = "HERO";
 		creature["abilities"]["const_raises_morale"] = node;
 	}
-	if(hasAbility("const_lowers_morale"))
-	{
-		JsonNode node = makeBonusNode("MORALE");
-		node["val"].Float() = -1;
-		node["effectRange"].String() = "ONLY_ENEMY_ARMY";
-		creature["abilities"]["const_lowers_morale"] = node;
-	}
 }
 
 std::vector<JsonNode> CCreatureHandler::loadLegacyData(size_t dataSize)
@@ -1322,14 +1315,20 @@ CreatureID CCreatureHandler::pickRandomMonster(CRandomGenerator & rand, int tier
 	return CreatureID(r);
 }
 
-void CCreatureHandler::addBonusForTier(int tier, std::shared_ptr<Bonus> b)
+void CCreatureHandler::addBonusForTier(int tier, const std::shared_ptr<Bonus> & b)
 {
 	assert(vstd::iswithin(tier, 1, 7));
 	creaturesOfLevel[tier].addNewBonus(b);
 }
 
-void CCreatureHandler::addBonusForAllCreatures(std::shared_ptr<Bonus> b)
+void CCreatureHandler::addBonusForAllCreatures(const std::shared_ptr<Bonus> & b)
 {
+	const auto & exportedBonuses = allCreatures.getExportedBonusList();
+	for(const auto & bonus : exportedBonuses)
+	{
+		if(bonus->type == b->type && bonus->subtype == b->subtype)
+			return;
+	}
 	allCreatures.addNewBonus(b);
 }
 

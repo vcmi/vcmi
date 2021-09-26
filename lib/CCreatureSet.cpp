@@ -662,16 +662,15 @@ std::string CStackInstance::bonusToGraphics(const std::shared_ptr<Bonus>& bonus)
 	return VLC->getBth()->bonusToGraphics(bonus);
 }
 
-void CStackInstance::setArmyObj(const CArmedInstance *ArmyObj)
+void CStackInstance::setArmyObj(const CArmedInstance * ArmyObj)
 {
 	if(_armyObj)
 		detachFrom(const_cast<CArmedInstance*>(_armyObj));
 
 	_armyObj = ArmyObj;
+
 	if(ArmyObj)
-	{
 		attachTo(const_cast<CArmedInstance*>(_armyObj));
-	}
 }
 
 std::string CStackInstance::getQuantityTXT(bool capitalized) const
@@ -712,6 +711,11 @@ std::string CStackInstance::nodeName() const
 		oss << "[UNDEFINED TYPE]";
 
 	return oss.str();
+}
+
+PlayerColor CStackInstance::getOwner() const
+{
+	return _armyObj ? _armyObj->getOwner() : PlayerColor::NEUTRAL;
 }
 
 void CStackInstance::deserializationFix()

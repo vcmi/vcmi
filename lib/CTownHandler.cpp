@@ -377,7 +377,11 @@ JsonNode readBuilding(CLegacyConfigParser & parser)
 	return ret;
 }
 
-TPropagatorPtr CTownHandler::emptyPropagator = std::make_shared<CPropagatorNodeType>();
+TPropagatorPtr & CTownHandler::emptyPropagator()
+{
+	static TPropagatorPtr emptyProp(nullptr);
+	return emptyProp;
+}
 
 std::vector<JsonNode> CTownHandler::loadLegacyData(size_t dataSize)
 {
@@ -618,7 +622,7 @@ void CTownHandler::addBonusesForVanilaBuilding(CBuilding * building)
 
 std::shared_ptr<Bonus> CTownHandler::createBonus(CBuilding * build, Bonus::BonusType type, int val, int subtype)
 {
-	return createBonus(build, type, val, emptyPropagator, subtype);
+	return createBonus(build, type, val, emptyPropagator(), subtype);
 }
 
 std::shared_ptr<Bonus> CTownHandler::createBonus(CBuilding * build, Bonus::BonusType type, int val, TPropagatorPtr & prop, int subtype)
@@ -657,7 +661,7 @@ void CTownHandler::loadSpecialBuildingBonuses(const JsonNode & source, BonusList
 		//JsonUtils::parseBuildingBonus produces UNKNOWN type propagator instead of empty.
 		if(bonus->propagator != nullptr
 			&& bonus->propagator->getPropagatorType() == CBonusSystemNode::ENodeTypes::UNKNOWN)
-				bonus->addPropagator(emptyPropagator);
+				bonus->addPropagator(emptyPropagator());
 		building->addNewBonus(bonus, bonusList);
 	}
 }

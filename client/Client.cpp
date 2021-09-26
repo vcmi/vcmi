@@ -559,6 +559,7 @@ int CClient::sendRequest(const CPackForServer * request, PlayerColor player)
 void CClient::battleStarted(const BattleInfo * info)
 {
 	setBattle(info);
+
 	for(auto & battleCb : battleCallbacks)
 	{
 		if(vstd::contains_if(info->sides, [&](const SideInBattle& side) {return side.color == battleCb.first; })

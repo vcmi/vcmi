@@ -99,6 +99,7 @@ public:
 	ArtBearer::ArtBearer bearerType() const override; //from CArtifactSet
 	virtual std::string nodeName() const override; //from CBonusSystemnode
 	void deserializationFix();
+	PlayerColor getOwner() const override;
 };
 
 class DLL_LINKAGE CCommanderInstance : public CStackInstance

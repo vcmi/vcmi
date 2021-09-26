@@ -528,8 +528,8 @@ BattleInfo * BattleInfo::setupBattle(int3 tile, ETerrainType terrain, BFieldType
 	//overlay premies given
 
 	//native terrain bonuses
-	auto nativeTerrain = std::make_shared<CreatureTerrainLimiter>();
-
+	static auto nativeTerrain = std::make_shared<CreatureTerrainLimiter>();
+	
 	curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::STACKS_SPEED, Bonus::TERRAIN_NATIVE, 1, 0, 0)->addLimiter(nativeTerrain));
 	curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::PRIMARY_SKILL, Bonus::TERRAIN_NATIVE, 1, 0, PrimarySkill::ATTACK)->addLimiter(nativeTerrain));
 	curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::PRIMARY_SKILL, Bonus::TERRAIN_NATIVE, 1, 0, PrimarySkill::DEFENSE)->addLimiter(nativeTerrain));
@@ -555,30 +555,9 @@ BattleInfo * BattleInfo::setupBattle(int3 tile, ETerrainType terrain, BFieldType
 	else
 		curB->tacticDistance = 0;
 
-
-	// workaround  bonuses affecting only enemy - DOES NOT WORK
-	for(int i = 0; i < 2; i++)
-	{
-		TNodes nodes;
-		curB->battleGetArmyObject(i)->getRedAncestors(nodes);
-		for(CBonusSystemNode *n : nodes)
-		{
-			for(auto b : n->getExportedBonusList())
-			{
-				if(b->effectRange == Bonus::ONLY_ENEMY_ARMY/* && b->propagator && b->propagator->shouldBeAttached(curB)*/)
-				{
-					auto bCopy = std::make_shared<Bonus>(*b);
-					bCopy->effectRange = Bonus::NO_LIMIT;
-					bCopy->propagator.reset();
-					bCopy->limiter.reset(new StackOwnerLimiter(curB->sides[!i].color));
-					curB->addNewBonus(bCopy);
-				}
-			}
-		}
-	}
-
 	return curB;
 }
+
 
 const CGHeroInstance * BattleInfo::getHero(PlayerColor player) const
 {

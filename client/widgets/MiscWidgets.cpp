@@ -404,18 +404,18 @@ void MoraleLuckBox::set(const IBonusBearer * node)
 		text += "\n" + noLuck->Description();
 		bonusValue = 0;
 	}
-	else if(modifierList->empty())
-		text += CGI->generaltexth->arraytxt[noneTxtId];//no modifiers
 	else
 	{
-		for(auto& elem : *modifierList)
+		std::string addInfo = "";
+		for(auto & bonus : * modifierList)
 		{
-			if(elem->val != 0)
-				//no bonuses with value 0
-				text += "\n" + elem->Description();
+			if(bonus->val)
+				addInfo += "\n" + bonus->Description();
 		}
+		text = addInfo.empty() 
+			? text + CGI->generaltexth->arraytxt[noneTxtId] 
+			: text + addInfo;
 	}
-
 	std::string imageName;
 	if (small)
 		imageName = morale ? "IMRL30": "ILCK30";

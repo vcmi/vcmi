@@ -846,7 +846,7 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 			break;
 		}
 	}
-
+	b->updateOppositeBonuses();
 	return true;
 }
 
