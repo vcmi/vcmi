@@ -254,7 +254,6 @@ set(lib_HEADERS
 		filesystem/ISimpleResourceLoader.h
 		filesystem/MinizipExtensions.h
 		filesystem/ResourceID.h
-		filesystem/find_steam_game.h
 
 		logging/CBasicLogConfigurator.h
 		logging/CLogger.h
@@ -411,6 +410,9 @@ target_include_directories(vcmi
 	PUBLIC ${ZLIB_INCLUDE_DIR}
 	PRIVATE ${SDL2_INCLUDE_DIR}
 )
+if(WIN32)
+	target_include_directories(vcmi PRIVATE "${CMAKE_HOME_DIRECTORY}/3rdparty/find_steam_game")
+endif()
 
 if(WIN32)
 	set_target_properties(vcmi

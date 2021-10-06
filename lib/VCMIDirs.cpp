@@ -10,7 +10,10 @@
 
 #include "StdInc.h"
 #include "VCMIDirs.h"
-#include "filesystem/find_steam_game.h"
+#ifdef VCMI_WINDOWS
+#include "find_steam_game.h"
+#define VCMI_GOG_ID "1207658787"
+#endif
 
 namespace bfs = boost::filesystem;
 
@@ -317,13 +320,11 @@ std::vector<bfs::path> VCMIDirsWIN32::dataPaths() const
 	// Add game store paths
 #ifdef VCMI_WINDOWS
 	char gogPath[_FSG_PATH_MAX];
-	fsg_get_gog_game_path(gogPath, "1207658787");
+	fsg_get_gog_game_path(gogPath, VCMI_GOG_ID);
 	if (strlen(gogPath) > 0)
 	{
 		paths.push_back(bfs::path(gogPath));
 	}
-	// TODO: steam path for Heroes 3 HD Edition
-	// TODO: Ubisoft Connect
 #endif
 	return paths;
 }
