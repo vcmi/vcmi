@@ -11,7 +11,7 @@
 #include "StdInc.h"
 #include "VCMIDirs.h"
 #ifdef VCMI_WINDOWS
-#include "find_steam_game.h"
+#include "filesystem/find_steam_game.h"
 #define VCMI_GOG_ID "1207658787"
 #endif
 

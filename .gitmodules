@@ -5,6 +5,3 @@
 	path = AI/FuzzyLite
 	url = https://github.com/fuzzylite/fuzzylite.git
 	branch = release
-[submodule "3rdparty/find_steam_game"]
-	path = 3rdparty/find_steam_game
-	url = https://github.com/cxong/find_steam_game
