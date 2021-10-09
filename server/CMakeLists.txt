@@ -24,7 +24,7 @@ endif()
 
 add_executable(vcmiserver ${server_SRCS} ${server_HEADERS})
 
-set(server_LIBS vcmi)
+set(server_LIBS vcmi vcmiERM)
 if(CMAKE_SYSTEM_NAME MATCHES FreeBSD)
 	set(server_LIBS execinfo ${server_LIBS})
 endif()
