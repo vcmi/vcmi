@@ -1000,7 +1000,7 @@ bool CGTeleport::isExitPassable(CGameState * gs, const CGHeroInstance * h, const
 			return false;
 
 		// Check if it's friendly hero or not
-		if(gs->getPlayerRelations(h->tempOwner, objTopVisObj->tempOwner))
+		if(gs->getPlayerRelations(h->tempOwner, objTopVisObj->tempOwner) != PlayerRelations::ENEMIES)
 		{
 			// Exchange between heroes only possible via subterranean gates
 			if(!dynamic_cast<const CGSubterraneanGate *>(obj))
@@ -1269,7 +1269,12 @@ void CGWhirlpool::teleportDialogAnswered(const CGHeroInstance *hero, ui32 answer
 		dPos = exits[answer].second;
 	else
 	{
-		auto obj = cb->getObj(getRandomExit(hero));
+		auto exit = getRandomExit(hero);
+
+		if(exit == ObjectInstanceID())
+			return;
+
+		auto obj = cb->getObj(exit);
 		std::set<int3> tiles = obj->getBlockedPos();
 		dPos = CGHeroInstance::convertPosition(*RandomGeneratorUtil::nextItem(tiles, CRandomGenerator::getDefault()), true);
 	}
