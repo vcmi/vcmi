@@ -1505,6 +1505,7 @@ void CPlayerInterface::objectPropertyChanged(const SetObjectProperty * sop)
 				towns -= obj;
 
 			adventureInt->townList.update();
+			adventureInt->minimap.update();
 		}
 		assert(cb->getTownsInfo().size() == towns.size());
 	}

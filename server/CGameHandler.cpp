@@ -887,12 +887,8 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance * heroAttacker, con
 
 	if(battleResult.data->winner != BattleSide::DEFENDER && heroDefender) //remove beaten Defender
 	{
-		auto town = heroDefender->visitedTown;
 		RemoveObject ro(heroDefender->id);
 		sendAndApply(&ro);
-
-		if(town && !town->garrisonHero) // TODO: that must be called from CGHeroInstance or CGTownInstance
-			town->battleFinished(heroAttacker, *battleResult.get());
 	}
 
 	if(battleResult.data->winner == BattleSide::DEFENDER 
@@ -5341,7 +5337,22 @@ void CGameHandler::objectVisited(const CGObjectInstance * obj, const CGHeroInsta
 
 	auto startVisit = [&](ObjectVisitStarted & event)
 	{
-		visitQuery = std::make_shared<CObjectVisitQuery>(this, obj, h, obj->visitablePos());
+		auto visitedObject = obj;
+
+		if(obj->ID == Obj::HERO)
+		{
+			auto visitedHero = static_cast<const CGHeroInstance *>(obj);
+			const auto visitedTown = visitedHero->visitedTown;
+
+			if(visitedTown)
+			{
+				const bool isEnemy = visitedHero->getOwner() != h->getOwner();
+
+				if(isEnemy && !visitedTown->isBattleOutsideTown(visitedHero))
+					visitedObject = visitedTown;
+			}
+		}
+		visitQuery = std::make_shared<CObjectVisitQuery>(this, visitedObject, h, visitedObject->visitablePos());
 		queries.addQuery(visitQuery); //TODO real visit pos
 
 		HeroVisit hv;
