@@ -683,7 +683,8 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 		else
 		{
 			auto heroColor = h->getOwner();
-			setOwner(heroColor);
+			onTownCaptured(heroColor);
+
 			if(cb->gameState()->getPlayerStatus(heroColor) == EPlayerStatus::WINNER)
 			{
 				return; //we just won game, we do not need to perform any extra actions
@@ -1362,7 +1363,7 @@ void CGTownInstance::setGarrisonedHero(CGHeroInstance *h)
 
 bool CGTownInstance::armedGarrison() const
 {
-	return stacksCount() || garrisonHero;
+	return !stacks.empty() || garrisonHero;
 }
 
 const CTown * CGTownInstance::getTown() const
@@ -1526,16 +1527,19 @@ void CGTownInstance::battleFinished(const CGHeroInstance * hero, const BattleRes
 {
 	if(result.winner == BattleSide::ATTACKER)
 	{
-		auto heroColor = hero->getOwner(); //get tempOwner
-
 		clearArmy();
-		setOwner(heroColor); //give control after checkout is done
-		FoWChange fw;
-		fw.player = heroColor;
-		fw.mode = 1;
-		cb->getTilesInRange(fw.tiles, getSightCenter(), getSightRadius(), tempOwner, 1);
-		cb->sendAndApply(&fw);
+		onTownCaptured(hero->getOwner());
 	}
+}
+
+void CGTownInstance::onTownCaptured(const PlayerColor winner) const
+{
+	setOwner(winner);
+	FoWChange fw;
+	fw.player = winner;
+	fw.mode = 1;
+	cb->getTilesInRange(fw.tiles, getSightCenter(), getSightRadius(), winner, 1);
+	cb->sendAndApply(& fw);
 }
 
 void CGTownInstance::afterAddToMap(CMap * map)
