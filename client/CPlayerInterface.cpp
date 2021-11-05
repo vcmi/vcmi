@@ -2386,16 +2386,16 @@ void CPlayerInterface::acceptTurn()
 	}
 }
 
-void CPlayerInterface::tryDiggging(const CGHeroInstance *h)
+void CPlayerInterface::tryDiggging(const CGHeroInstance * h)
 {
-	std::string hlp;
-	CGI->mh->getTerrainDescr(h->getPosition(false), hlp, false);
-	auto isDiggingPossible = h->diggingStatus();
-	if (hlp.length())
-		isDiggingPossible = EDiggingStatus::TILE_OCCUPIED; //TODO integrate with canDig
-
 	int msgToShow = -1;
-	switch(isDiggingPossible)
+	const bool isBlocked = CGI->mh->hasObjectHole(h->getPosition(false)); // Don't dig in the pit.
+
+	const auto diggingStatus = isBlocked
+		? EDiggingStatus::TILE_OCCUPIED
+		: h->diggingStatus().num;
+
+	switch(diggingStatus)
 	{
 	case EDiggingStatus::CAN_DIG:
 		break;
@@ -2412,7 +2412,7 @@ void CPlayerInterface::tryDiggging(const CGHeroInstance *h)
 		assert(0);
 	}
 
-	if (msgToShow < 0)
+	if(msgToShow < 0)
 		cb->dig(h);
 	else
 		showInfoDialog(CGI->generaltexth->allTexts[msgToShow]);
