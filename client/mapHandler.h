@@ -382,9 +382,10 @@ public:
 	CMapHandler();
 	~CMapHandler();
 
-	void getTerrainDescr(const int3 &pos, std::string & out, bool terName); //if tername == false => empty string when tile is clear
+	void getTerrainDescr(const int3 & pos, std::string & out, bool isRMB) const; // isRMB = whether Right Mouse Button is clicked
 	bool printObject(const CGObjectInstance * obj, bool fadein = false); //puts appropriate things to tiles, so obj will be visible on map
 	bool hideObject(const CGObjectInstance * obj, bool fadeout = false); //removes appropriate things from ttiles, so obj will be no longer visible on map (but still will exist)
+	bool hasObjectHole(const int3 & pos) const; // Checks if TerrainTile2 tile has a pit remained after digging.
 	void init();
 
 	EMapAnimRedrawStatus drawTerrainRectNew(SDL_Surface * targetSurface, const MapDrawingInfo * info, bool redrawOnlyAnim = false);
