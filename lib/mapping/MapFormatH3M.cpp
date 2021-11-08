@@ -220,15 +220,24 @@ void CMapLoaderH3M::readPlayerInfo()
 		else
 			totalFactions--; //exclude conflux for ROE
 
-		for(int fact = 0; fact < totalFactions; ++fact)
+		const bool isFactionRandom = mapHeader->players[i].isFactionRandom = reader.readBool();
+		const ui16 allFactionsMask = (mapHeader->version == EMapFormat::ROE)
+			? 0b1111111
+			: 0b11111111;
+		const bool allFactionsAllowed = mapHeader->version == EMapFormat::VCMI
+			|| (isFactionRandom && ((allowedFactions & allFactionsMask) == allFactionsMask));
+
+		if(!allFactionsAllowed)
 		{
-			if(!(allowedFactions & (1 << fact)))
+			mapHeader->players[i].allowedFactions.clear();
+
+			for(int fact = 0; fact < totalFactions; ++fact)
 			{
-				mapHeader->players[i].allowedFactions.erase(fact);
+				if(allowedFactions & (1 << fact))
+					mapHeader->players[i].allowedFactions.insert(fact);
 			}
 		}
 
-		mapHeader->players[i].isFactionRandom = reader.readBool();
 		mapHeader->players[i].hasMainTown = reader.readBool();
 		if(mapHeader->players[i].hasMainTown)
 		{

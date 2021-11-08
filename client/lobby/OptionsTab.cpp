@@ -33,7 +33,7 @@
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/mapping/CMapInfo.h"
 
-OptionsTab::OptionsTab()
+OptionsTab::OptionsTab() : humanPlayers(0)
 {
 	recActions = 0;
 	OBJ_CONSTRUCTION;
@@ -57,11 +57,15 @@ OptionsTab::OptionsTab()
 void OptionsTab::recreate()
 {
 	entries.clear();
+	humanPlayers = 0;
 
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	for(auto & pInfo : SEL->getStartInfo()->playerInfos)
 	{
-		entries.insert(std::make_pair(pInfo.first, std::make_shared<PlayerOptionsEntry>(pInfo.second)));
+		if(pInfo.second.isControlledByHuman())
+			humanPlayers++;
+
+		entries.insert(std::make_pair(pInfo.first, std::make_shared<PlayerOptionsEntry>(pInfo.second, * this)));
 	}
 
 	if(sliderTurnDuration)
@@ -437,8 +441,8 @@ void OptionsTab::SelectedBox::clickRight(tribool down, bool previousState)
 	}
 }
 
-OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S)
-	: pi(SEL->getPlayerInfo(S.color.getNum())), s(S)
+OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, const OptionsTab & parent)
+	: pi(SEL->getPlayerInfo(S.color.getNum())), s(S), parentTab(parent)
 {
 	OBJ_CONSTRUCTION;
 	defActions |= SHARE_POS;
@@ -493,7 +497,12 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S)
 
 	if(SEL->screenType != ESelectionScreen::scenarioInfo && SEL->getPlayerInfo(s.color.getNum()).canHumanPlay)
 	{
-		flag = std::make_shared<CButton>(Point(-43, 2), flags[s.color.getNum()], CGI->generaltexth->zelp[180], std::bind(&IServerAPI::setPlayer, CSH, s.color));
+		flag = std::make_shared<CButton>(
+			Point(-43, 2),
+			flags[s.color.getNum()],
+			CGI->generaltexth->zelp[180],
+			std::bind(&OptionsTab::onSetPlayerClicked, &parentTab, s)
+		);
 		flag->hoverable = true;
 		flag->block(CSH->isGuest());
 	}
@@ -503,6 +512,12 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S)
 	town = std::make_shared<SelectedBox>(Point(119, 2), s, TOWN);
 	hero = std::make_shared<SelectedBox>(Point(195, 2), s, HERO);
 	bonus = std::make_shared<SelectedBox>(Point(271, 2), s, BONUS);
+}
+
+void OptionsTab::onSetPlayerClicked(const PlayerSettings & ps) const
+{
+	if(ps.isControlledByAI() || humanPlayers > 1)
+		CSH->setPlayer(ps.color);
 }
 
 void OptionsTab::PlayerOptionsEntry::hideUnavailableButtons()
