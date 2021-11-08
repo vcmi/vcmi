@@ -31,6 +31,7 @@ class OptionsTab : public CIntObject
 
 	std::shared_ptr<CLabel> labelPlayerTurnDuration;
 	std::shared_ptr<CLabel> labelTurnDurationValue;
+	ui8 humanPlayers;
 
 public:
 	enum SelType
@@ -115,8 +116,11 @@ public:
 		std::shared_ptr<SelectedBox> bonus;
 		enum {HUMAN_OR_CPU, HUMAN, CPU} whoCanPlay;
 
-		PlayerOptionsEntry(const PlayerSettings & S);
+		PlayerOptionsEntry(const PlayerSettings & S, const OptionsTab & parentTab);
 		void hideUnavailableButtons();
+
+	private:
+		const OptionsTab & parentTab;
 	};
 
 	std::shared_ptr<CSlider> sliderTurnDuration;
@@ -124,4 +128,5 @@ public:
 
 	OptionsTab();
 	void recreate();
+	void onSetPlayerClicked(const PlayerSettings & ps) const;
 };
