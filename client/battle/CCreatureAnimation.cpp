@@ -210,14 +210,19 @@ bool CCreatureAnimation::incrementFrame(float timePassed)
 {
 	elapsedTime += timePassed;
 	currentFrame += timePassed * speed;
+	const auto framesNumber = framesInGroup(type);
 
-	if (currentFrame >= float(framesInGroup(type)))
+	if(framesNumber <= 0)
+	{
+		endAnimation();
+	}
+	else if(currentFrame >= float(framesNumber))
 	{
 		// just in case of extremely low fps (or insanely high speed)
-		while (currentFrame >= float(framesInGroup(type)))
-			currentFrame -= framesInGroup(type);
+		while(currentFrame >= float(framesNumber))
+			currentFrame -= framesNumber;
 
-		if (once)
+		if(once)
 			setType(CCreatureAnim::HOLDING);
 
 		endAnimation();
