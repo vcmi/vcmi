@@ -143,3 +143,11 @@ jobs:
       env:
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
       if: always()
+      
+    - name: Trigger Android
+      uses: peter-evans/repository-dispatch@v1
+      if: ${{ github.ref == 'refs/heads/develop' && matrix.platform == 'mxe' }}
+      with:
+        token: ${{ secrets.VCMI_ANDROID_ACCESS_TOKEN }}
+        repository: vcmi/vcmi-android
+        event-type: vcmi
