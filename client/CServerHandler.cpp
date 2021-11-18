@@ -45,6 +45,8 @@
 #include <boost/uuid/uuid_generators.hpp>
 #include "../lib/serializer/Cast.h"
 
+#include <vcmi/events/EventBus.h>
+
 template<typename T> class CApplyOnLobby;
 
 #ifdef VCMI_ANDROID
@@ -576,6 +578,8 @@ void CServerHandler::debugStartTest(std::string filename, bool save)
 		justConnectToServer("127.0.0.1", 3030);
 	else
 		startLocalServerAndConnect();
+
+	boost::this_thread::sleep(boost::posix_time::milliseconds(100));
 
 	while(!settings["session"]["headless"].Bool() && !dynamic_cast<CLobbyScreen *>(GH.topInt().get()))
 		boost::this_thread::sleep(boost::posix_time::milliseconds(50));

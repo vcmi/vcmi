@@ -45,12 +45,6 @@
 
 // TODO: as Tow suggested these template should all be part of CClient
 // This will require rework spectator interface properly though
-template<typename T, typename ... Args, typename ... Args2>
-void callPrivilegedInterfaces(CClient * cl, void (T::*ptr)(Args...), Args2 && ...args)
-{
-	for(auto &ger : cl->privilegedGameEventReceivers)
-		((*ger).*ptr)(std::forward<Args2>(args)...);
-}
 
 template<typename T, typename ... Args, typename ... Args2>
 bool callOnlyThatInterface(CClient * cl, PlayerColor player, void (T::*ptr)(Args...), Args2 && ...args)
@@ -67,7 +61,6 @@ template<typename T, typename ... Args, typename ... Args2>
 bool callInterfaceIfPresent(CClient * cl, PlayerColor player, void (T::*ptr)(Args...), Args2 && ...args)
 {
 	bool called = callOnlyThatInterface(cl, player, ptr, std::forward<Args2>(args)...);
-	callPrivilegedInterfaces(cl, ptr, std::forward<Args2>(args)...);
 	return called;
 }
 
@@ -85,17 +78,9 @@ void callOnlyThatBattleInterface(CClient * cl, PlayerColor player, void (T::*ptr
 }
 
 template<typename T, typename ... Args, typename ... Args2>
-void callPrivilegedBattleInterfaces(CClient * cl, void (T::*ptr)(Args...), Args2 && ...args)
-{
-	for(auto & ber : cl->privilegedBattleEventReceivers)
-		((*ber).*ptr)(std::forward<Args2>(args)...);
-}
-
-template<typename T, typename ... Args, typename ... Args2>
 void callBattleInterfaceIfPresent(CClient * cl, PlayerColor player, void (T::*ptr)(Args...), Args2 && ...args)
 {
 	callOnlyThatInterface(cl, player, ptr, std::forward<Args2>(args)...);
-	callPrivilegedBattleInterfaces(cl, ptr, std::forward<Args2>(args)...);
 }
 
 //calls all normal interfaces and privileged ones, playerints may be updated when iterating over it, so we need a copy
@@ -116,9 +101,7 @@ void callBattleInterfaceIfPresentForBothSides(CClient * cl, void (T::*ptr)(Args.
 	{
 		callOnlyThatBattleInterface(cl, PlayerColor::SPECTATOR, ptr, std::forward<Args2>(args)...);
 	}
-	callPrivilegedBattleInterfaces(cl, ptr, std::forward<Args2>(args)...);
 }
-
 
 void SetResources::applyCl(CClient *cl)
 {
@@ -307,7 +290,7 @@ void GiveBonus::applyCl(CClient *cl)
 		break;
 	case PLAYER:
 		{
-			const PlayerState *p = GS(cl)->getPlayer(PlayerColor(id));
+			const PlayerState *p = GS(cl)->getPlayerState(PlayerColor(id));
 			callInterfaceIfPresent(cl, PlayerColor(id), &IGameEventsReceiver::playerBonusChanged, *p->getBonusList().back(), true);
 		}
 		break;
@@ -351,7 +334,7 @@ void RemoveBonus::applyCl(CClient *cl)
 		break;
 	case PLAYER:
 		{
-			//const PlayerState *p = GS(cl)->getPlayer(id);
+			//const PlayerState *p = GS(cl)->getPlayerState(id);
 			callInterfaceIfPresent(cl, PlayerColor(id), &IGameEventsReceiver::playerBonusChanged, bonus, false);
 		}
 		break;
@@ -370,7 +353,7 @@ void RemoveObject::applyFirstCl(CClient *cl)
 	{
 		//below line contains little cheat for AI so it will be aware of deletion of enemy heroes that moved or got re-covered by FoW
 		//TODO: loose requirements as next AI related crashes appear, for example another player collects object that got re-covered by FoW, unsure if AI code workarounds this
-		if(GS(cl)->isVisible(o, i->first) || (!cl->getPlayer(i->first)->human && o->ID == Obj::HERO && o->tempOwner != i->first))
+		if(GS(cl)->isVisible(o, i->first) || (!cl->getPlayerState(i->first)->human && o->ID == Obj::HERO && o->tempOwner != i->first))
 			i->second->objectRemoved(o);
 	}
 }
@@ -387,7 +370,7 @@ void TryMoveHero::applyFirstCl(CClient *cl)
 	//check if playerint will have the knowledge about movement - if not, directly update maphandler
 	for(auto i=cl->playerint.begin(); i!=cl->playerint.end(); i++)
 	{
-		auto ps = GS(cl)->getPlayer(i->first);
+		auto ps = GS(cl)->getPlayerState(i->first);
 		if(ps && (GS(cl)->isVisible(start - int3(1, 0, 0), i->first) || GS(cl)->isVisible(end - int3(1, 0, 0), i->first)))
 		{
 			if(ps->human)
@@ -543,7 +526,7 @@ void InfoWindow::applyCl(CClient *cl)
 		logNetwork->warn("We received InfoWindow for not our player...");
 }
 
-void SetObjectProperty::applyCl(CClient *cl)
+void SetObjectProperty::applyCl(CClient * cl)
 {
 	//inform all players that see this object
 	for(auto it = cl->playerint.cbegin(); it != cl->playerint.cend(); ++it)
@@ -611,8 +594,6 @@ void BattleStart::applyFirstCl(CClient *cl)
 		info->tile, info->sides[0].hero, info->sides[1].hero);
 	callOnlyThatBattleInterface(cl, PlayerColor::SPECTATOR, &IBattleEventsReceiver::battleStartBefore, info->sides[0].armyObject, info->sides[1].armyObject,
 		info->tile, info->sides[0].hero, info->sides[1].hero);
-	callPrivilegedBattleInterfaces(cl, &IBattleEventsReceiver::battleStartBefore, info->sides[0].armyObject, info->sides[1].armyObject,
-		info->tile, info->sides[0].hero, info->sides[1].hero);
 }
 
 void BattleStart::applyCl(CClient *cl)
@@ -651,6 +632,11 @@ void BattleSetActiveStack::applyCl(CClient *cl)
 	cl->startPlayerBattleAction(playerToCall);
 }
 
+void BattleLogMessage::applyCl(CClient * cl)
+{
+	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleLogMessage, lines);
+}
+
 void BattleTriggerEffect::applyCl(CClient * cl)
 {
 	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleTriggerEffect, *this);
@@ -680,7 +666,7 @@ void BattleAttack::applyFirstCl(CClient *cl)
 
 void BattleAttack::applyCl(CClient *cl)
 {
-	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleStacksAttacked, bsa, battleLog);
+	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleStacksAttacked, bsa);
 }
 
 void StartAction::applyFirstCl(CClient *cl)
@@ -702,7 +688,7 @@ void SetStackEffect::applyCl(CClient *cl)
 
 void StacksInjured::applyCl(CClient *cl)
 {
-	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleStacksAttacked, stacks, battleLog);
+	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleStacksAttacked, stacks);
 }
 
 void BattleResultsApplied::applyCl(CClient *cl)
@@ -714,7 +700,7 @@ void BattleResultsApplied::applyCl(CClient *cl)
 
 void BattleUnitsChanged::applyCl(CClient * cl)
 {
-	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleUnitsChanged, changedStacks, customEffects, battleLog);
+	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleUnitsChanged, changedStacks, customEffects);
 }
 
 void BattleObstaclesChanged::applyCl(CClient *cl)
@@ -795,7 +781,7 @@ void PlayerMessageClient::applyCl(CClient *cl)
 	if(player.isSpectator())
 		str << "Spectator: " << text;
 	else
-		str << cl->getPlayer(player)->nodeName() <<": " << text;
+		str << cl->getPlayerState(player)->nodeName() <<": " << text;
 	if(LOCPLINT)
 		LOCPLINT->cingconsole->print(str.str());
 }
@@ -917,4 +903,10 @@ void SetAvailableArtifacts::applyCl(CClient *cl)
 		assert(bm);
 		callInterfaceIfPresent(cl, cl->getTile(bm->visitablePos())->visitableObjects.back()->tempOwner, &IGameEventsReceiver::availableArtifactsChanged, bm);
 	}
+}
+
+
+void EntitiesChanged::applyCl(CClient *cl)
+{
+	cl->invalidatePaths();
 }

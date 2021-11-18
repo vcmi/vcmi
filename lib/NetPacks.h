@@ -157,6 +157,20 @@ struct YourTurn : public CPackForClient
 	}
 };
 
+struct EntitiesChanged: public CPackForClient
+{
+	std::vector<EntityChanges> changes;
+
+	EntitiesChanged(){};
+	void applyCl(CClient * cl);
+	DLL_LINKAGE void applyGs(CGameState * gs);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & changes;
+	}
+};
+
 struct SetResources : public CPackForClient
 {
 	SetResources():abs(true){};
@@ -447,8 +461,7 @@ struct SetCommanderProperty : public CPackForClient
 	void applyCl(CClient *cl){};
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
-	ObjectInstanceID heroid; //for commander attached to hero
-	StackLocation sl; //for commander not on the hero?
+	ObjectInstanceID heroid;
 
 	ECommanderProperty which;
 	TExpType amount; //0 for dead, >0 for alive
@@ -458,7 +471,6 @@ struct SetCommanderProperty : public CPackForClient
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & heroid;
-		h & sl;
 		h & which;
 		h & amount;
 		h & additionalInfo;
@@ -715,7 +727,7 @@ struct OpenWindow : public CPackForClient
 	}
 };
 
-struct NewObject  : public CPackForClient
+struct NewObject : public CPackForClient
 {
 	NewObject():subID(0){}
 	void applyCl(CClient *cl);
@@ -735,7 +747,7 @@ struct NewObject  : public CPackForClient
 	}
 };
 
-struct SetAvailableArtifacts  : public CPackForClient
+struct SetAvailableArtifacts : public CPackForClient
 {
 	SetAvailableArtifacts():id(0){}
 	void applyCl(CClient *cl);
@@ -766,10 +778,6 @@ struct NewArtifact : public CPackForClient
 };
 
 struct CGarrisonOperationPack : CPackForClient
-{
-};
-
-struct CArtifactOperationPack : CPackForClient
 {
 };
 
@@ -902,6 +910,10 @@ struct GetEngagedHeroIds : boost::static_visitor<boost::optional<ObjectInstanceI
 			return s->armyObj->id;
 		return boost::optional<ObjectInstanceID>();
 	}
+};
+
+struct CArtifactOperationPack : CPackForClient
+{
 };
 
 struct PutArtifact : CArtifactOperationPack
@@ -1404,6 +1416,22 @@ struct BattleResult : public CPackForClient
 	}
 };
 
+struct BattleLogMessage : public CPackForClient
+{
+	std::vector<MetaString> lines;
+
+	BattleLogMessage(){}
+
+	void applyCl(CClient * cl);
+	DLL_LINKAGE void applyGs(CGameState * gs);
+	DLL_LINKAGE void applyBattle(IBattleState * battleState);
+
+	template <typename Handler> void serialize(Handler & h, const int version)
+	{
+		h & lines;
+	}
+};
+
 struct BattleStackMoved : public CPackForClient
 {
 	ui32 stack;
@@ -1435,13 +1463,11 @@ struct BattleUnitsChanged : public CPackForClient
 	void applyCl(CClient *cl);
 
 	std::vector<UnitChanges> changedStacks;
-	std::vector<MetaString> battleLog;
 	std::vector<CustomEffectInfo> customEffects;
 
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & changedStacks;
-		h & battleLog;
 		h & customEffects;
 	}
 };
@@ -1527,7 +1553,6 @@ struct BattleAttack : public CPackForClient
 
 	SpellID spellID; //for SPELL_LIKE
 
-	std::vector<MetaString> battleLog;
 	std::vector<CustomEffectInfo> customEffects;
 
 	bool shot() const//distance attack - decrease number of shots
@@ -1564,7 +1589,6 @@ struct BattleAttack : public CPackForClient
 		h & stackAttacking;
 		h & flags;
 		h & spellID;
-		h & battleLog;
 		h & customEffects;
 		h & attackerChanges;
 	}
@@ -1617,7 +1641,6 @@ struct BattleSpellCast : public CPackForClient
 	si32 casterStack;// -1 if not cated by creature, >=0 caster stack ID
 	bool castByHero; //if true - spell has been cast by hero, otherwise by a creature
 
-	std::vector<MetaString> battleLog;
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & side;
@@ -1628,7 +1651,6 @@ struct BattleSpellCast : public CPackForClient
 		h & affectedCres;
 		h & casterStack;
 		h & castByHero;
-		h & battleLog;
 		h & activeCast;
 	}
 };
@@ -1644,13 +1666,11 @@ struct SetStackEffect : public CPackForClient
 	std::vector<std::pair<ui32, std::vector<Bonus>>> toUpdate;
 	std::vector<std::pair<ui32, std::vector<Bonus>>> toRemove;
 
-	std::vector<MetaString> battleLog;
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & toAdd;
 		h & toUpdate;
 		h & toRemove;
-		h & battleLog;
 	}
 };
 
@@ -1663,12 +1683,10 @@ struct StacksInjured : public CPackForClient
 	void applyCl(CClient * cl);
 
 	std::vector<BattleStackAttacked> stacks;
-	std::vector<MetaString> battleLog;
 
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & stacks;
-		h & battleLog;
 	}
 };
 
@@ -1846,30 +1864,6 @@ struct ShowWorldViewEx : public CPackForClient
 };
 
 /***********************************************************************************************************/
-
-struct CommitPackage : public CPackForServer
-{
-	bool freePack; //for local usage, DO NOT serialize
-	bool applyGh(CGameHandler *gh);
-	CPackForClient *packToCommit;
-
-	CommitPackage()
-	{
-		freePack = true;
-		packToCommit = nullptr;
-	}
-	~CommitPackage()
-	{
-		if(freePack)
-			delete packToCommit;
-	}
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<CPackForServer &>(*this);
-		h & packToCommit;
-	}
-};
 
 struct EndTurn : public CPackForServer
 {

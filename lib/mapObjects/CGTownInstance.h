@@ -119,6 +119,13 @@ public:
 		bType = subId;
 	}
 
+	PlayerColor getOwner() const override;
+	int32_t getObjGroupIndex() const override;
+	int32_t getObjTypeIndex() const override;
+
+	int3 visitablePos() const override;
+	int3 getPosition() const override;
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & bID;
@@ -133,7 +140,7 @@ protected:
 	BuildingSubID::EBuildingSubID bType;
 
 	const std::string getVisitingBonusGreeting() const;
-	static const std::string getCustomBonusGreeting(const Bonus & bonus);
+	const std::string getCustomBonusGreeting(const Bonus & bonus) const;
 };
 
 class DLL_LINKAGE COPWBonus : public CGTownBuilding
@@ -267,6 +274,12 @@ public:
 			h & overriddenBuildings;
 		else if(!h.saving)
 			updateTown794();
+
+		if(!h.saving && (version >= 794 && version < 801))
+			fixBonusingDuplicates();
+
+		if(!h.saving)
+			this->setNodeType(CBonusSystemNode::TOWN);
 	}
 	//////////////////////////////////////////////////////////////////////////
 
@@ -336,24 +349,32 @@ public:
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void onHeroLeave(const CGHeroInstance * h) const override;
 	void initObj(CRandomGenerator & rand) override;
-	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
+	void battleFinished(const CGHeroInstance * hero, const BattleResult & result) const override;
 	std::string getObjectName() const override;
 
 	void afterAddToMap(CMap * map) override;
 	static void reset();
 
+	inline bool isBattleOutsideTown(const CGHeroInstance * defendingHero) const
+	{
+		return defendingHero && garrisonHero && defendingHero != garrisonHero;
+	}
 protected:
 	void setPropertyDer(ui8 what, ui32 val) override;
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 
 private:
+	void setOwner(const PlayerColor owner) const;
+	void onTownCaptured(const PlayerColor winner) const;
 	int getDwellingBonus(const std::vector<CreatureID>& creatureIds, const std::vector<ConstTransitivePtr<CGDwelling> >& dwellings) const;
 	void updateBonusingBuildings();
 	bool hasBuiltInOldWay(ETownType::ETownType type, BuildingID bid) const;
 	bool townEnvisagesBuilding(BuildingSubID::EBuildingSubID bid) const;
+	bool isBonusingBuildingAdded(BuildingID::EBuildingID bid) const;
 	void tryAddOnePerWeekBonus(BuildingSubID::EBuildingSubID subID);
 	void tryAddVisitingBonus(BuildingSubID::EBuildingSubID subID);
 	void initOverriddenBids();
 	void addTownBonuses();
 	void updateTown794(); //populate overriddenBuildings and vanila bonuses for old saves 
+	void fixBonusingDuplicates(); //For versions 794-800.
 };

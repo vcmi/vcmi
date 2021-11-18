@@ -139,7 +139,9 @@ float FuzzyHelper::evaluate(Goals::VisitHero & g)
 {
 	auto obj = ai->myCb->getObj(ObjectInstanceID(g.objid)); //we assume for now that these goals are similar
 	if(!obj)
+	{
 		return -100; //hero died in the meantime
+	}
 	else
 	{
 		g.setpriority(Goals::VisitTile(obj->visitablePos()).sethero(g.hero).accept(this));

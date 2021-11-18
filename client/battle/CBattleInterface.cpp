@@ -38,6 +38,8 @@
 #include "../../lib/CondSh.h"
 #include "../../lib/CRandomGenerator.h"
 #include "../../lib/spells/CSpellHandler.h"
+#include "../../lib/spells/ISpellMechanics.h"
+#include "../../lib/spells/Problem.h"
 #include "../../lib/CTownHandler.h"
 #include "../../lib/CGameState.h"
 #include "../../lib/mapping/CMap.h"
@@ -398,7 +400,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 	for(auto hex : bfield)
 		addChild(hex.get());
 
-	if (tacticsMode)
+	if(tacticsMode)
 		bTacticNextStack();
 
 	CCS->musich->stopMusic();
@@ -415,7 +417,6 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 	};
 
 	CCS->soundh->setCallback(battleIntroSoundChannel, onIntroPlayed);
-	memset(stackCountOutsideHexes, 1, GameConstants::BFIELD_SIZE *sizeof(bool)); //initialize array with trues
 
 	currentAction = PossiblePlayerBattleAction::INVALID;
 	selectedAction = PossiblePlayerBattleAction::INVALID;
@@ -562,19 +563,19 @@ void CBattleInterface::deactivate()
 
 void CBattleInterface::keyPressed(const SDL_KeyboardEvent & key)
 {
-	if (key.keysym.sym == SDLK_q && key.state == SDL_PRESSED)
+	if(key.keysym.sym == SDLK_q && key.state == SDL_PRESSED)
 	{
-		if (settings["battle"]["showQueue"].Bool()) //hide queue
+		if(settings["battle"]["showQueue"].Bool()) //hide queue
 			hideQueue();
 		else
 			showQueue();
 
 	}
-	else if (key.keysym.sym == SDLK_f && key.state == SDL_PRESSED)
+	else if(key.keysym.sym == SDLK_f && key.state == SDL_PRESSED)
 	{
 		enterCreatureCastingMode();
 	}
-	else if (key.keysym.sym == SDLK_ESCAPE)
+	else if(key.keysym.sym == SDLK_ESCAPE)
 	{
 		if(!battleActionsStarted)
 			CCS->soundh->stopSound(battleIntroSoundChannel);
@@ -787,11 +788,11 @@ void CBattleInterface::bOptionsf()
 
 void CBattleInterface::bSurrenderf()
 {
-	if (spellDestSelectMode) //we are casting a spell
+	if(spellDestSelectMode) //we are casting a spell
 		return;
 
 	int cost = curInt->cb->battleGetSurrenderCost();
-	if (cost >= 0)
+	if(cost >= 0)
 	{
 		std::string enemyHeroName = curInt->cb->battleGetEnemyHero().name;
 		if(enemyHeroName.empty())
@@ -871,7 +872,7 @@ void CBattleInterface::bAutofightf()
 		blockUI(true);
 
 		auto ai = CDynLibHandler::getNewBattleAI(settings["server"]["friendlyAI"].String());
-		ai->init(curInt->cb);
+		ai->init(curInt->env, curInt->cb);
 		ai->battleStart(army1, army2, int3(0,0,0), attackingHeroInstance, defendingHeroInstance, curInt->cb->battleGetMySide());
 		curInt->autofightingAI = ai;
 		curInt->cb->registerBattleInterface(ai);
@@ -910,14 +911,14 @@ void CBattleInterface::bSpellf()
 
 		if (blockingBonus->source == Bonus::ARTIFACT)
 		{
-			const int artID = blockingBonus->sid;
+			const int32_t artID = blockingBonus->sid;
 			//If we have artifact, put name of our hero. Otherwise assume it's the enemy.
 			//TODO check who *really* is source of bonus
 			std::string heroName = myHero->hasArt(artID) ? myHero->name : enemyHero().name;
 
 			//%s wields the %s, an ancient artifact which creates a p dead to all magic.
 			LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[683])
-										% heroName % CGI->arth->artifacts[artID]->Name()));
+										% heroName % CGI->artifacts()->getByIndex(artID)->getName()));
 		}
 	}
 }
@@ -964,7 +965,7 @@ void CBattleInterface::unitAdded(const CStack * stack)
 
 	if(stack->initialPosition < 0) //turret
 	{
-		const CCreature *turretCreature = CGI->creh->creatures[siegeH->town->town->clientInfo.siegeShooter];
+		const CCreature *turretCreature = CGI->creh->objects[siegeH->town->town->clientInfo.siegeShooter];
 
 		creAnims[stack->ID] = AnimationControls::getAnimation(turretCreature);
 
@@ -1012,7 +1013,7 @@ void CBattleInterface::initStackProjectile(const CStack * stack)
 {
 	const CCreature * creature;//creature whose shots should be loaded
 	if(stack->getCreature()->idNumber == CreatureID::ARROW_TOWERS)
-		creature = CGI->creh->creatures[siegeH->town->town->clientInfo.siegeShooter];
+		creature = CGI->creh->objects[siegeH->town->town->clientInfo.siegeShooter];
 	else
 		creature = stack->getCreature();
 
@@ -1062,7 +1063,7 @@ void CBattleInterface::stackMoved(const CStack *stack, std::vector<BattleHex> de
 	waitForAnims();
 }
 
-void CBattleInterface::stacksAreAttacked(std::vector<StackAttackedInfo> attackedInfos, const std::vector<MetaString> & battleLog)
+void CBattleInterface::stacksAreAttacked(std::vector<StackAttackedInfo> attackedInfos)
 {
 	for(auto & attackedInfo : attackedInfos)
 	{
@@ -1089,8 +1090,6 @@ void CBattleInterface::stacksAreAttacked(std::vector<StackAttackedInfo> attacked
 		killedBySide.at(side) += attackedInfo.amountKilled;
 	}
 
-	int killed = killedBySide[0] + killedBySide[1];
-
 	for(ui8 side = 0; side < 2; side++)
 	{
 		if(killedBySide.at(side) > killedBySide.at(1-side))
@@ -1106,11 +1105,6 @@ void CBattleInterface::stacksAreAttacked(std::vector<StackAttackedInfo> attacked
 		if (attackedInfo.cloneKilled)
 			stackRemoved(attackedInfo.defender->ID);
 	}
-
-	if(!battleLog.empty())
-		displayBattleLog(battleLog);
-	else
-		printConsoleAttacked(attackedInfos.front().defender, damage, killed, attackedInfos.front().attacker, (targets > 1)); //creatures perish
 }
 
 void CBattleInterface::stackAttacking( const CStack *attacker, BattleHex dest, const CStack *attacked, bool shooting )
@@ -1377,9 +1371,6 @@ void CBattleInterface::spellCast(const BattleSpellCast * sc)
 			displayEffect(elem.effect, stack->getPosition());
 	}
 
-	//displaying message in console
-	displayBattleLog(sc->battleLog);
-
 	waitForAnims();
 	//mana absorption
 	if (sc->manaGained > 0)
@@ -1393,9 +1384,6 @@ void CBattleInterface::spellCast(const BattleSpellCast * sc)
 
 void CBattleInterface::battleStacksEffectsSet(const SetStackEffect & sse)
 {
-	for(const MetaString & line : sse.battleLog)
-		console->addText(line.toString());
-
 	if(activeStack != nullptr)
 		redrawBackgroundWithHexes(activeStack);
 }
@@ -1474,55 +1462,39 @@ void CBattleInterface::displayEffect(ui32 effect, BattleHex destTile)
 	addNewAnim(new CEffectAnimation(this, customAnim, destTile));
 }
 
-void CBattleInterface::displaySpellAnimation(const CSpell::TAnimation & animation, BattleHex destinationTile)
+void CBattleInterface::displaySpellAnimationQueue(const CSpell::TAnimationQueue & q, BattleHex destinationTile)
 {
-	if (animation.pause > 0)
+	for(const CSpell::TAnimation & animation : q)
 	{
-		addNewAnim(new CDummyAnimation(this, animation.pause));
-	}
-	else
-	{
-		addNewAnim(new CEffectAnimation(this, animation.resourceName, destinationTile, false, animation.verticalPosition == VerticalPosition::BOTTOM));
+		if(animation.pause > 0)
+			addNewAnim(new CDummyAnimation(this, animation.pause));
+		else
+			addNewAnim(new CEffectAnimation(this, animation.resourceName, destinationTile, false, animation.verticalPosition == VerticalPosition::BOTTOM));
 	}
 }
 
 void CBattleInterface::displaySpellCast(SpellID spellID, BattleHex destinationTile)
 {
-	const CSpell *spell = spellID.toSpell();
+	const CSpell * spell = spellID.toSpell();
 
-	if (spell == nullptr)
-		return;
-
-	for (const CSpell::TAnimation & animation : spell->animationInfo.cast)
-	{
-		displaySpellAnimation(animation, destinationTile);
-	}
+	if(spell)
+		displaySpellAnimationQueue(spell->animationInfo.cast, destinationTile);
 }
 
 void CBattleInterface::displaySpellEffect(SpellID spellID, BattleHex destinationTile)
 {
 	const CSpell *spell = spellID.toSpell();
 
-	if (spell == nullptr)
-		return;
-
-	for (const CSpell::TAnimation & animation : spell->animationInfo.affect)
-	{
-		displaySpellAnimation(animation, destinationTile);
-	}
+	if(spell)
+		displaySpellAnimationQueue(spell->animationInfo.affect, destinationTile);
 }
 
 void CBattleInterface::displaySpellHit(SpellID spellID, BattleHex destinationTile)
 {
-	const CSpell *spell = spellID.toSpell();
+	const CSpell * spell = spellID.toSpell();
 
-	if (spell == nullptr)
-		return;
-
-	for (const CSpell::TAnimation & animation : spell->animationInfo.hit)
-	{
-		displaySpellAnimation(animation, destinationTile);
-	}
+	if(spell)
+		displaySpellAnimationQueue(spell->animationInfo.hit, destinationTile);
 }
 
 void CBattleInterface::battleTriggerEffect(const BattleTriggerEffect & bte)
@@ -1712,9 +1684,18 @@ void CBattleInterface::enterCreatureCastingMode()
 
 	if (vstd::contains(possibleActions, PossiblePlayerBattleAction::NO_LOCATION))
 	{
-		const spells::Caster *caster = activeStack;
-		const CSpell *spell = SpellID(creatureSpellToCast).toSpell();
-		const bool isCastingPossible = spell->canBeCastAt(curInt->cb.get(), spells::Mode::CREATURE_ACTIVE, caster, BattleHex::INVALID);
+		const spells::Caster * caster = activeStack;
+		const CSpell * spell = SpellID(creatureSpellToCast).toSpell();
+
+		spells::Target target;
+		target.emplace_back();
+
+		spells::BattleCast cast(curInt->cb.get(), caster, spells::Mode::CREATURE_ACTIVE, spell);
+
+		auto m = spell->battleMechanics(&cast);
+		spells::detail::ProblemImpl ignored;
+
+		const bool isCastingPossible = m->canBeCastAt(target, ignored);
 
 		if (isCastingPossible)
 		{
@@ -1732,7 +1713,7 @@ void CBattleInterface::enterCreatureCastingMode()
 		auto actionFilterPredicate = [](const PossiblePlayerBattleAction x)
 		{
 			return (x != PossiblePlayerBattleAction::ANY_LOCATION) && (x != PossiblePlayerBattleAction::NO_LOCATION) &&
-				(x != PossiblePlayerBattleAction::FREE_LOCATION) && (x != PossiblePlayerBattleAction::AIMED_SPELL_CREATURE) && 
+				(x != PossiblePlayerBattleAction::FREE_LOCATION) && (x != PossiblePlayerBattleAction::AIMED_SPELL_CREATURE) &&
 				(x != PossiblePlayerBattleAction::OBSTACLE);
 		};
 
@@ -1784,9 +1765,9 @@ void CBattleInterface::reorderPossibleActionsPriority(const CStack * stack, Mous
 		case PossiblePlayerBattleAction::MOVE_STACK:
 			return 8; break;
 		case PossiblePlayerBattleAction::CATAPULT:
-			return 9; break;		
+			return 9; break;
 		case PossiblePlayerBattleAction::HEAL:
-			return 10; break;	
+			return 10; break;
 		default:
 			return 200; break;
 		}
@@ -1798,39 +1779,6 @@ void CBattleInterface::reorderPossibleActionsPriority(const CStack * stack, Mous
 	};
 
 	std::make_heap(possibleActions.begin(), possibleActions.end(), comparer);
-}
-
-void CBattleInterface::printConsoleAttacked(const CStack * defender, int dmg, int killed, const CStack * attacker, bool multiple)
-{
-	std::string formattedText;
-	if(attacker) //ignore if stacks were killed by spell
-	{
-		MetaString text;
-		attacker->addText(text, MetaString::GENERAL_TXT, 376);
-		attacker->addNameReplacement(text);
-		text.addReplacement(dmg);
-		formattedText = text.toString();
-	}
-
-	if(killed > 0)
-	{
-		if(attacker)
-			formattedText.append(" ");
-
-		boost::format txt;
-		if(killed > 1)
-		{
-			txt = boost::format(CGI->generaltexth->allTexts[379]) % killed % (multiple ? CGI->generaltexth->allTexts[43] : defender->getCreature()->namePl); // creatures perish
-		}
-		else //killed == 1
-		{
-			txt = boost::format(CGI->generaltexth->allTexts[378]) % (multiple ? CGI->generaltexth->allTexts[42] : defender->getCreature()->nameSing); // creature perishes
-		}
-		std::string trimmed = boost::to_string(txt);
-		boost::algorithm::trim(trimmed); // these default h3 texts have unnecessary new lines, so get rid of them before displaying
-		formattedText.append(trimmed);
-	}
-	console->addText(formattedText);
 }
 
 void CBattleInterface::endAction(const BattleAction* action)
@@ -2571,7 +2519,16 @@ bool CBattleInterface::isCastingPossibleHere(const CStack *sactive, const CStack
 		else
 		{
 			const spells::Mode mode = creatureCasting ? spells::Mode::CREATURE_ACTIVE : spells::Mode::HERO;
-			isCastingPossible = sp->canBeCastAt(curInt->cb.get(), mode, caster, myNumber);
+
+			spells::Target target;
+			target.emplace_back(myNumber);
+
+			spells::BattleCast cast(curInt->cb.get(), caster, mode, sp);
+
+			auto m = sp->battleMechanics(&cast);
+			spells::detail::ProblemImpl problem; //todo: display problem in status bar
+
+			isCastingPossible = m->canBeCastAt(target, problem);
 		}
 	}
 	else
@@ -3064,7 +3021,7 @@ void CBattleInterface::show(SDL_Surface *to)
 		//we may have changed active interface (another side in hot-seat),
 		// so we can't continue drawing with old setting.
 		show(to);
-	}		
+	}
 }
 
 void CBattleInterface::showBackground(SDL_Surface *to)
@@ -3172,7 +3129,9 @@ void CBattleInterface::showHighlightedHexes(SDL_Surface *to)
 				if(caster && spell) //when casting spell
 				{
 					// printing shaded hex(es)
-					auto shaded = spell->rangeInHexes(curInt->cb.get(), mode, caster, currentlyHoveredHex);
+					spells::BattleCast event(curInt->cb.get(), caster, mode, spell);
+					auto shaded = spell->battleMechanics(&event)->rangeInHexes(currentlyHoveredHex);
+
 					for(BattleHex shadedHex : shaded)
 					{
 						if((shadedHex.getX() != 0) && (shadedHex.getX() != GameConstants::BFIELD_WIDTH - 1))
@@ -3691,7 +3650,17 @@ void CBattleInterface::redrawBackgroundWithHexes(const CStack *activeStack)
 	attackableHexes.clear();
 	if (activeStack)
 		occupyableHexes = curInt->cb->battleGetAvailableHexes(activeStack, true, &attackableHexes);
-	curInt->cb->battleGetStackCountOutsideHexes(stackCountOutsideHexes);
+
+	auto fillStackCountOutsideHexes = [&]()
+	{
+		auto accessibility = curInt->cb->getAccesibility();
+
+		for(int i = 0; i < accessibility.size(); i++)
+			stackCountOutsideHexes.at(i) = (accessibility[i] == EAccessibility::ACCESSIBLE);
+	};
+
+	fillStackCountOutsideHexes();
+
 	//prepare background graphic with hexes and shaded hexes
 	blitAt(background, 0, 0, backgroundWithHexes);
 

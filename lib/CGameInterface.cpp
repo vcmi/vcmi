@@ -126,9 +126,9 @@ std::shared_ptr<CBattleGameInterface> CDynLibHandler::getNewBattleAI(std::string
 	return createAnyAI<CBattleGameInterface>(dllname, "GetNewBattleAI");
 }
 
-std::shared_ptr<CScriptingModule> CDynLibHandler::getNewScriptingModule(std::string dllname)
+std::shared_ptr<scripting::Module> CDynLibHandler::getNewScriptingModule(const boost::filesystem::path & dllname)
 {
-	return createAny<CScriptingModule>(dllname, "GetNewModule");
+	return createAny<scripting::Module>(dllname, "GetNewModule");
 }
 
 BattleAction CGlobalAI::activeStack(const CStack * stack)
@@ -160,13 +160,13 @@ void CAdventureAI::battleStart(const CCreatureSet * army1, const CCreatureSet * 
 	assert(!battleAI);
 	assert(cbc);
 	battleAI = CDynLibHandler::getNewBattleAI(getBattleAIName());
-	battleAI->init(cbc);
+	battleAI->init(env, cbc);
 	battleAI->battleStart(army1, army2, tile, hero1, hero2, side);
 }
 
-void CAdventureAI::battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa, const std::vector<MetaString> & battleLog)
+void CAdventureAI::battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa)
 {
-	battleAI->battleStacksAttacked(bsa, battleLog);
+	battleAI->battleStacksAttacked(bsa);
 }
 
 void CAdventureAI::actionStarted(const BattleAction & action)
@@ -215,9 +215,9 @@ void CAdventureAI::battleEnd(const BattleResult * br)
 	battleAI.reset();
 }
 
-void CAdventureAI::battleUnitsChanged(const std::vector<UnitChanges> & units, const std::vector<CustomEffectInfo> & customEffects, const std::vector<MetaString> & battleLog)
+void CAdventureAI::battleUnitsChanged(const std::vector<UnitChanges> & units, const std::vector<CustomEffectInfo> & customEffects)
 {
-	battleAI->battleUnitsChanged(units, customEffects, battleLog);
+	battleAI->battleUnitsChanged(units, customEffects);
 }
 
 BattleAction CAdventureAI::activeStack(const CStack * stack)
@@ -233,20 +233,17 @@ void CAdventureAI::yourTacticPhase(int distance)
 void CAdventureAI::saveGame(BinarySerializer & h, const int version) /*saving */
 {
 	LOG_TRACE_PARAMS(logAi, "version '%i'", version);
-	CGlobalAI::saveGame(h, version);
 	bool hasBattleAI = static_cast<bool>(battleAI);
 	h & hasBattleAI;
 	if(hasBattleAI)
 	{
-		h & std::string(battleAI->dllName);
-		battleAI->saveGame(h, version);
+		h & battleAI->dllName;
 	}
 }
 
 void CAdventureAI::loadGame(BinaryDeserializer & h, const int version) /*loading */
 {
 	LOG_TRACE_PARAMS(logAi, "version '%i'", version);
-	CGlobalAI::loadGame(h, version);
 	bool hasBattleAI = false;
 	h & hasBattleAI;
 	if(hasBattleAI)
@@ -255,15 +252,6 @@ void CAdventureAI::loadGame(BinaryDeserializer & h, const int version) /*loading
 		h & dllName;
 		battleAI = CDynLibHandler::getNewBattleAI(dllName);
 		assert(cbc); //it should have been set by the one who new'ed us
-		battleAI->init(cbc);
-		//battleAI->loadGame(h, version);
+		battleAI->init(env, cbc);
 	}
-}
-
-void CBattleGameInterface::saveGame(BinarySerializer & h, const int version)
-{
-}
-
-void CBattleGameInterface::loadGame(BinaryDeserializer & h, const int version)
-{
 }

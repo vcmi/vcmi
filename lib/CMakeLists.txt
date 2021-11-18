@@ -21,6 +21,13 @@ set(lib_SRCS
 		battle/SiegeInfo.cpp
 		battle/Unit.cpp
 
+		events/ApplyDamage.cpp
+		events/GameResumed.cpp
+		events/ObjectVisitEnded.cpp
+		events/ObjectVisitStarted.cpp
+		events/PlayerGotTurn.cpp
+		events/TurnStarted.cpp
+
 		filesystem/AdapterLoaders.cpp
 		filesystem/CArchiveLoader.cpp
 		filesystem/CBinaryReader.cpp
@@ -92,6 +99,7 @@ set(lib_SRCS
 		serializer/JsonDeserializer.cpp
 		serializer/JsonSerializeFormat.cpp
 		serializer/JsonSerializer.cpp
+		serializer/JsonUpdater.cpp
 
 		spells/AbilityCaster.cpp
 		spells/AdventureSpellMechanics.cpp
@@ -138,7 +146,9 @@ set(lib_SRCS
 		CHeroHandler.cpp
 		CModHandler.cpp
 		CPathfinder.cpp
+		CPlayerState.cpp
 		CRandomGenerator.cpp
+		CScriptingModule.cpp
 		CSkillHandler.cpp
 		CStack.cpp
 		CThreadHelper.cpp
@@ -153,6 +163,7 @@ set(lib_SRCS
 		NetPacksLib.cpp
 		StartInfo.cpp
 		ResourceSet.cpp
+		ScriptHandler.cpp
 		VCMIDirs.cpp
 		VCMI_Lib.cpp
 
@@ -166,11 +177,34 @@ set_source_files_properties(${CMAKE_BINARY_DIR}/Version.cpp
 
 set(lib_HEADERS
 		../include/vstd/CLoggerBase.h
+		../Global.h
+		StdInc.h
+
 		../include/vstd/ContainerUtils.h
 		../include/vstd/RNG.h
 		../include/vstd/StringUtils.h
-		StdInc.h
-		../Global.h
+
+		../include/vcmi/events/ApplyDamage.h
+		../include/vcmi/events/Event.h
+		../include/vcmi/events/EventBus.h
+		../include/vcmi/events/SubscriptionRegistry.h
+
+		../include/vcmi/scripting/Service.h
+
+		../include/vcmi/spells/Caster.h
+		../include/vcmi/spells/Magic.h
+		../include/vcmi/spells/Service.h
+		../include/vcmi/spells/Spell.h
+
+		../include/vcmi/Artifact.h
+		../include/vcmi/ArtifactService.h
+		../include/vcmi/Creature.h
+		../include/vcmi/CreatureService.h
+		../include/vcmi/Entity.h
+		../include/vcmi/Environment.h
+		../include/vcmi/Services.h
+
+		abilities/Ability.h
 
 		battle/AccessibilityInfo.h
 		battle/BattleAction.h
@@ -185,12 +219,20 @@ set(lib_HEADERS
 		battle/CPlayerBattleCallback.h
 		battle/CUnitState.h
 		battle/Destination.h
+		battle/IBattleInfoCallback.h
 		battle/IBattleState.h
 		battle/IUnitInfo.h
 		battle/ReachabilityInfo.h
 		battle/SideInBattle.h
 		battle/SiegeInfo.h
 		battle/Unit.h
+
+		events/ApplyDamage.h
+		events/GameResumed.h
+		events/ObjectVisitEnded.h
+		events/ObjectVisitStarted.h
+		events/PlayerGotTurn.h
+		events/TurnStarted.h
 
 		filesystem/AdapterLoaders.h
 		filesystem/CArchiveLoader.h
@@ -264,6 +306,7 @@ set(lib_HEADERS
 		serializer/JsonDeserializer.h
 		serializer/JsonSerializeFormat.h
 		serializer/JsonSerializer.h
+		serializer/JsonUpdater.h
 		serializer/Cast.h
 
 		spells/AbilityCaster.h
@@ -272,7 +315,6 @@ set(lib_HEADERS
 		spells/BonusCaster.h
 		spells/CSpellHandler.h
 		spells/ISpellMechanics.h
-		spells/Magic.h
 		spells/Problem.h
 		spells/ProxyCaster.h
 		spells/TargetCondition.h
@@ -295,6 +337,7 @@ set(lib_HEADERS
 		spells/effects/Timed.h
 		spells/effects/RemoveObstacle.h
 		spells/effects/Sacrifice.h
+
 		AI_Base.h
 		CAndroidVMHelper.h
 		CArtHandler.h
@@ -340,6 +383,7 @@ set(lib_HEADERS
 		NetPacksLobby.h
 		PathfinderUtil.h
 		ResourceSet.h
+		ScriptHandler.h
 		ScopeGuard.h
 		StartInfo.h
 		StringConstants.h

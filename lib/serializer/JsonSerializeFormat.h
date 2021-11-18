@@ -129,6 +129,7 @@ public:
 	};
 
 	const bool saving;
+	const bool updating;
 
 	JsonSerializeFormat() = delete;
 	virtual ~JsonSerializeFormat() = default;
@@ -420,7 +421,7 @@ public:
 	virtual void serializeRaw(const std::string & fieldName, JsonNode & value, const boost::optional<const JsonNode &> defaultValue) = 0;
 
 protected:
-	JsonSerializeFormat(const IInstanceResolver * instanceResolver_, const bool saving_);
+	JsonSerializeFormat(const IInstanceResolver * instanceResolver_, const bool saving_, const bool updating_);
 
 	///bool <-> Json bool, indeterminate is default
 	virtual void serializeInternal(const std::string & fieldName, boost::logic::tribool & value) = 0;

@@ -12,8 +12,10 @@
 
 #include "../JsonNode.h"
 
+#include <vstd/StringUtils.h>
+
 JsonDeserializer::JsonDeserializer(const IInstanceResolver * instanceResolver_, const JsonNode & root_):
-	JsonTreeSerializer(instanceResolver_, &root_, false)
+	JsonTreeSerializer(instanceResolver_, &root_, false, false)
 {
 
 }

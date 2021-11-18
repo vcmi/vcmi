@@ -41,7 +41,7 @@ MapObjectsEvaluator::MapObjectsEvaluator()
 					objectDatabase[CompoundMapObjectID(primaryID, secondaryID)] = 0;
 				}
 			}
-		}	
+		}
 	}
 }
 
@@ -62,7 +62,7 @@ boost::optional<int> MapObjectsEvaluator::getObjectValue(const CGObjectInstance 
 	{
 		//special case handling: in-game heroes have hero ID as object subID, but when reading configs available hero object subID's are hero classes
 		auto hero = dynamic_cast<const CGHeroInstance*>(obj);
-		return getObjectValue(obj->ID, hero->type->heroClass->id);
+		return getObjectValue(obj->ID, hero->type->heroClass->getIndex());
 	}
 	else if(obj->ID == Obj::PRISON)
 	{
@@ -77,7 +77,7 @@ boost::optional<int> MapObjectsEvaluator::getObjectValue(const CGObjectInstance 
 		{
 			for(auto & creatureID : creLevel.second)
 			{
-				auto creature = VLC->creh->creatures[creatureID];
+				auto creature = VLC->creh->objects[creatureID];
 				aiValue += (creature->AIValue * creature->growth);
 			}
 		}

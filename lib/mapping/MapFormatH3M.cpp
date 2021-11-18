@@ -220,15 +220,24 @@ void CMapLoaderH3M::readPlayerInfo()
 		else
 			totalFactions--; //exclude conflux for ROE
 
-		for(int fact = 0; fact < totalFactions; ++fact)
+		const bool isFactionRandom = mapHeader->players[i].isFactionRandom = reader.readBool();
+		const ui16 allFactionsMask = (mapHeader->version == EMapFormat::ROE)
+			? 0b1111111
+			: 0b11111111;
+		const bool allFactionsAllowed = mapHeader->version == EMapFormat::VCMI
+			|| (isFactionRandom && ((allowedFactions & allFactionsMask) == allFactionsMask));
+
+		if(!allFactionsAllowed)
 		{
-			if(!(allowedFactions & (1 << fact)))
+			mapHeader->players[i].allowedFactions.clear();
+
+			for(int fact = 0; fact < totalFactions; ++fact)
 			{
-				mapHeader->players[i].allowedFactions.erase(fact);
+				if(allowedFactions & (1 << fact))
+					mapHeader->players[i].allowedFactions.insert(fact);
 			}
 		}
 
-		mapHeader->players[i].isFactionRandom = reader.readBool();
 		mapHeader->players[i].hasMainTown = reader.readBool();
 		if(mapHeader->players[i].hasMainTown)
 		{
@@ -602,7 +611,7 @@ void CMapLoaderH3M::readTeamInfo()
 
 void CMapLoaderH3M::readAllowedHeroes()
 {
-	mapHeader->allowedHeroes.resize(VLC->heroh->heroes.size(), true);
+	mapHeader->allowedHeroes.resize(VLC->heroh->size(), true);
 
 	const int bytes = mapHeader->version == EMapFormat::ROE ? 16 : 20;
 
@@ -646,7 +655,7 @@ void CMapLoaderH3M::readDisposedHeroes()
 
 void CMapLoaderH3M::readAllowedArtifacts()
 {
-	map->allowedArtifact.resize (VLC->arth->artifacts.size(),true); //handle new artifacts, make them allowed by default
+	map->allowedArtifact.resize (VLC->arth->objects.size(),true); //handle new artifacts, make them allowed by default
 
 	// Reading allowed artifacts:  17 or 18 bytes
 	if(map->version != EMapFormat::ROE)
@@ -660,7 +669,7 @@ void CMapLoaderH3M::readAllowedArtifacts()
 	// ban combo artifacts
 	if (map->version == EMapFormat::ROE || map->version == EMapFormat::AB)
 	{
-		for(CArtifact * artifact : VLC->arth->artifacts)
+		for(CArtifact * artifact : VLC->arth->objects)
 		{
 			// combo
 			if (artifact->constituents)
@@ -712,7 +721,7 @@ void CMapLoaderH3M::readAllowedSpellsAbilities()
 
 	//do not generate special abilities and spells
 	for (auto spell : VLC->spellh->objects)
-		if (spell->isSpecialSpell() || spell->isCreatureAbility())
+		if (spell->isSpecial() || spell->isCreatureAbility())
 			map->allowedSpell[spell->id] = false;
 }
 
@@ -873,7 +882,7 @@ bool CMapLoaderH3M::loadArtifactToSlot(CGHeroInstance * hero, int slot)
 	bool isArt  =  aid != artmask;
 	if(isArt)
 	{
-		const CArtifact * art = ArtifactID(aid).toArtifact();
+		const Artifact * art = ArtifactID(aid).toArtifact(VLC->artifacts());
 
 		if(nullptr == art)
 		{
@@ -1370,7 +1379,7 @@ void CMapLoaderH3M::readObjects()
 						mask[1] = reader.readUInt8();
 
 						castleSpec->allowedFactions.clear();
-						castleSpec->allowedFactions.resize(VLC->townh->factions.size(), false);
+						castleSpec->allowedFactions.resize(VLC->townh->size(), false);
 
 						for(int i = 0; i < MASK_SIZE; i++)
 							castleSpec->allowedFactions[i] = ((mask[0] & (1 << i))>0);
@@ -1423,7 +1432,7 @@ void CMapLoaderH3M::readObjects()
 				}
 				else
 				{
-					logGlobal->info("Hero placeholder: %s at %s", VLC->heroh->heroes[htid]->name, objPos.toString());
+					logGlobal->info("Hero placeholder: %s at %s", VLC->heroh->objects[htid]->name, objPos.toString());
 					hp->power = 0;
 				}
 
@@ -1887,7 +1896,7 @@ void CMapLoaderH3M::readQuest(IQuestObject * guard)
 			guard->quest->m6creatures.resize(typeNumber);
 			for(int hh = 0; hh < typeNumber; ++hh)
 			{
-				guard->quest->m6creatures[hh].type = VLC->creh->creatures[reader.readUInt16()];
+				guard->quest->m6creatures[hh].type = VLC->creh->objects[reader.readUInt16()];
 				guard->quest->m6creatures[hh].count = reader.readUInt16();
 			}
 			break;

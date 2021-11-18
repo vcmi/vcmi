@@ -11,6 +11,29 @@
 
 #include "ConstTransitivePtr.h"
 
+class Artifact;
+class ArtifactService;
+class Creature;
+class CreatureService;
+
+namespace spells
+{
+	class Spell;
+	class Service;
+}
+
+class CArtifact;
+class CArtifactInstance;
+class CCreature;
+class CHero;
+class CSpell;
+class CSkill;
+class CGameInfoCallback;
+class CNonConstInfoCallback;
+
+struct IdTag
+{};
+
 namespace GameConstants
 {
 	DLL_LINKAGE extern const std::string VCMI_VERSION;
@@ -33,7 +56,8 @@ namespace GameConstants
 	const int SKILL_GOLD_COST = 2000;
 	const int BATTLE_PENALTY_DISTANCE = 10; //if the distance is > than this, then shooting stack has distance penalty
 	const int ARMY_SIZE = 7;
-	const int SKILL_PER_HERO=8;
+	const int SKILL_PER_HERO = 8;
+	const ui32 HERO_HIGH_LEVEL = 10; // affects primary skill upgrade order
 
 	const int SKILL_QUANTITY=28;
 	const int PRIMARY_SKILLS=4;
@@ -55,15 +79,6 @@ namespace GameConstants
 	const std::array<int, 11> POSSIBLE_TURNTIME = {1, 2, 4, 6, 8, 10, 15, 20, 25, 30, 0};
 }
 
-class CArtifact;
-class CArtifactInstance;
-class CCreature;
-class CHero;
-class CSpell;
-class CSkill;
-class CGameInfoCallback;
-class CNonConstInfoCallback;
-
 #define ID_LIKE_CLASS_COMMON(CLASS_NAME, ENUM_NAME)	\
 CLASS_NAME(const CLASS_NAME & other)				\
 {													\
@@ -80,6 +95,10 @@ explicit CLASS_NAME(si32 id)						\
 operator ENUM_NAME() const							\
 {													\
 	return num;										\
+}													\
+si32 getNum() const									\
+{													\
+	return static_cast<si32>(num);										\
 }													\
 ENUM_NAME toEnum() const							\
 {													\
@@ -152,15 +171,23 @@ explicit CLASS_NAME(si32 id)								\
 {}
 
 template < typename Derived, typename NumericType>
-class BaseForID
+class BaseForID : public IdTag
 {
 protected:
 	NumericType num;
+
 public:
 	NumericType getNum() const
 	{
 		return num;
 	}
+
+	//to make it more similar to IDLIKE
+	NumericType toEnum() const
+	{
+		return num;
+	}
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & num;
@@ -223,9 +250,18 @@ class ObjectInstanceID : public BaseForID<ObjectInstanceID, si32>
 	friend class CNonConstInfoCallback;
 };
 
+class HeroClassID : public BaseForID<HeroClassID, si32>
+{
+	INSTID_LIKE_CLASS_COMMON(HeroClassID, si32)
+};
+
 class HeroTypeID : public BaseForID<HeroTypeID, si32>
 {
 	INSTID_LIKE_CLASS_COMMON(HeroTypeID, si32)
+
+	///json serialization helpers
+	static si32 decode(const std::string & identifier);
+	static std::string encode(const si32 index);
 };
 
 class SlotID : public BaseForID<SlotID, si32>
@@ -319,8 +355,6 @@ public:
 	SecondarySkill(ESecondarySkill _num = WRONG) : num(_num)
 	{}
 
-	DLL_LINKAGE const CSkill * toSkill() const;
-
 	ID_LIKE_CLASS_COMMON(SecondarySkill, ESecondarySkill)
 
 	ESecondarySkill num;
@@ -333,7 +367,7 @@ namespace EAlignment
 	enum EAlignment { GOOD, EVIL, NEUTRAL };
 }
 
-namespace ETownType
+namespace ETownType//deprecated
 {
 	enum ETownType
 	{
@@ -341,6 +375,28 @@ namespace ETownType
 		CASTLE, RAMPART, TOWER, INFERNO, NECROPOLIS, DUNGEON, STRONGHOLD, FORTRESS, CONFLUX, NEUTRAL
 	};
 }
+
+class FactionID : public BaseForID<FactionID, si32>
+{
+	INSTID_LIKE_CLASS_COMMON(FactionID, si32)
+
+	DLL_LINKAGE static const FactionID ANY;
+	DLL_LINKAGE static const FactionID CASTLE;
+	DLL_LINKAGE static const FactionID RAMPART;
+	DLL_LINKAGE static const FactionID TOWER;
+	DLL_LINKAGE static const FactionID INFERNO;
+	DLL_LINKAGE static const FactionID NECROPOLIS;
+	DLL_LINKAGE static const FactionID DUNGEON;
+	DLL_LINKAGE static const FactionID STRONGHOLD;
+	DLL_LINKAGE static const FactionID FORTRESS;
+	DLL_LINKAGE static const FactionID CONFLUX;
+	DLL_LINKAGE static const FactionID NEUTRAL;
+
+	///json serialization helpers
+	static si32 decode(const std::string & identifier);
+	static std::string encode(const si32 index);
+};
+
 
 class BuildingID
 {
@@ -1028,6 +1084,7 @@ public:
 	{}
 
 	DLL_LINKAGE const CArtifact * toArtifact() const;
+	DLL_LINKAGE const Artifact * toArtifact(const ArtifactService * service) const;
 
 	///json serialization helpers
 	static si32 decode(const std::string & identifier);
@@ -1078,6 +1135,7 @@ public:
 	{}
 
 	DLL_LINKAGE const CCreature * toCreature() const;
+	DLL_LINKAGE const Creature * toCreature(const CreatureService * creatures) const;
 
 	ID_LIKE_CLASS_COMMON(CreatureID, ECreatureID)
 
@@ -1124,7 +1182,8 @@ public:
 	SpellID(ESpellID _num = NONE) : num(_num)
 	{}
 
-	DLL_LINKAGE const CSpell * toSpell() const;
+	DLL_LINKAGE const CSpell * toSpell() const; //deprecated
+	DLL_LINKAGE const spells::Spell * toSpell(const spells::Service * service) const;
 
 	ID_LIKE_CLASS_COMMON(SpellID, ESpellID)
 

@@ -17,10 +17,16 @@ namespace AIPathfinding
 {
 	class AIPathfinderConfig : public PathfinderConfig
 	{
+	private:
+		const CGHeroInstance * hero;
+		std::unique_ptr<CPathfinderHelper> helper;
+
 	public:
 		AIPathfinderConfig(
 			CPlayerSpecificInfoCallback * cb,
 			VCAI * ai,
 			std::shared_ptr<AINodeStorage> nodeStorage);
+
+		virtual CPathfinderHelper * getOrCreatePathfinderHelper(const PathNodeInfo & source, CGameState * gs) override;
 	};
 }

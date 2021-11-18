@@ -33,14 +33,14 @@ DLL_LINKAGE void SetResources::applyGs(CGameState *gs)
 {
 	assert(player < PlayerColor::PLAYER_LIMIT);
 	if(abs)
-		gs->getPlayer(player)->resources = res;
+		gs->getPlayerState(player)->resources = res;
 	else
-		gs->getPlayer(player)->resources += res;
+		gs->getPlayerState(player)->resources += res;
 
 	//just ensure that player resources are not negative
 	//server is responsible to check if player can afford deal
 	//but events on server side are allowed to take more than player have
-	gs->getPlayer(player)->resources.positive();
+	gs->getPlayerState(player)->resources.positive();
 }
 
 DLL_LINKAGE void SetPrimSkill::applyGs(CGameState *gs)
@@ -206,7 +206,7 @@ DLL_LINKAGE void FoWChange::applyGs(CGameState *gs)
 
 DLL_LINKAGE void SetAvailableHeroes::applyGs(CGameState *gs)
 {
-	PlayerState *p = gs->getPlayer(player);
+	PlayerState *p = gs->getPlayerState(player);
 	p->availableHeroes.clear();
 
 	for (int i = 0; i < GameConstants::AVAILABLE_HEROES_PER_PLAYER; i++)
@@ -227,7 +227,7 @@ DLL_LINKAGE void GiveBonus::applyGs(CGameState *gs)
 		cbsn = gs->getHero(ObjectInstanceID(id));
 		break;
 	case PLAYER:
-		cbsn = gs->getPlayer(PlayerColor(id));
+		cbsn = gs->getPlayerState(PlayerColor(id));
 		break;
 	case TOWN:
 		cbsn = gs->getTown(ObjectInstanceID(id));
@@ -288,14 +288,14 @@ DLL_LINKAGE void ChangeObjectVisitors::applyGs(CGameState *gs)
 	switch (mode) {
 		case VISITOR_ADD:
 			gs->getHero(hero)->visitedObjects.insert(object);
-			gs->getPlayer(gs->getHero(hero)->tempOwner)->visitedObjects.insert(object);
+			gs->getPlayerState(gs->getHero(hero)->tempOwner)->visitedObjects.insert(object);
 			break;
 		case VISITOR_ADD_TEAM:
 			{
 				TeamState *ts = gs->getPlayerTeam(gs->getHero(hero)->tempOwner);
 				for (auto & color : ts->players)
 				{
-					gs->getPlayer(color)->visitedObjects.insert(object);
+					gs->getPlayerState(color)->visitedObjects.insert(object);
 				}
 			}
 			break;
@@ -322,7 +322,7 @@ DLL_LINKAGE void ChangeObjectVisitors::applyGs(CGameState *gs)
 
 DLL_LINKAGE void PlayerEndsGame::applyGs(CGameState *gs)
 {
-	PlayerState *p = gs->getPlayer(player);
+	PlayerState *p = gs->getPlayerState(player);
 	if(victoryLossCheckResult.victory())
 	{
 		p->status = EPlayerStatus::WINNER;
@@ -368,7 +368,7 @@ DLL_LINKAGE void RemoveBonus::applyGs(CGameState *gs)
 	if (who == HERO)
 		node = gs->getHero(ObjectInstanceID(whoID));
 	else
-		node = gs->getPlayer(PlayerColor(whoID));
+		node = gs->getPlayerState(PlayerColor(whoID));
 
 	BonusList &bonuses = node->getExportedBonusList();
 
@@ -392,43 +392,44 @@ DLL_LINKAGE void RemoveObject::applyGs(CGameState *gs)
 	//unblock tiles
 	gs->map->removeBlockVisTiles(obj);
 
-	if(obj->ID==Obj::HERO)
+	if(obj->ID == Obj::HERO) //remove beaten hero
 	{
-		CGHeroInstance *h = static_cast<CGHeroInstance*>(obj);
-		PlayerState *p = gs->getPlayer(h->tempOwner);
-		gs->map->heroesOnMap -= h;
-		p->heroes -= h;
-		h->detachFrom(h->whereShouldBeAttached(gs));
-		h->tempOwner = PlayerColor::NEUTRAL; //no one owns beaten hero
-		vstd::erase_if(h->artifactsInBackpack, [](const ArtSlotInfo& asi)
+		CGHeroInstance * beatenHero = static_cast<CGHeroInstance*>(obj);
+		PlayerState * p = gs->getPlayerState(beatenHero->tempOwner);
+		gs->map->heroesOnMap -= beatenHero;
+		p->heroes -= beatenHero;
+		beatenHero->detachFrom(beatenHero->whereShouldBeAttachedOnSiege(gs));
+		beatenHero->tempOwner = PlayerColor::NEUTRAL; //no one owns beaten hero
+		vstd::erase_if(beatenHero->artifactsInBackpack, [](const ArtSlotInfo& asi)
 		{
 			return asi.artifact->artType->id == ArtifactID::GRAIL;
 		});
 
-		if(h->visitedTown)
+		if(beatenHero->visitedTown)
 		{
-			if(h->inTownGarrison)
-				h->visitedTown->garrisonHero = nullptr;
+			if(beatenHero->visitedTown->garrisonHero == beatenHero)
+				beatenHero->visitedTown->garrisonHero = nullptr;
 			else
-				h->visitedTown->visitingHero = nullptr;
-			h->visitedTown = nullptr;
-		}
+				beatenHero->visitedTown->visitingHero = nullptr;
 
+			beatenHero->visitedTown = nullptr;
+			beatenHero->inTownGarrison = false;
+		}
 		//return hero to the pool, so he may reappear in tavern
-		gs->hpool.heroesPool[h->subID] = h;
-		if(!vstd::contains(gs->hpool.pavailable, h->subID))
-			gs->hpool.pavailable[h->subID] = 0xff;
+		gs->hpool.heroesPool[beatenHero->subID] = beatenHero;
+
+		if(!vstd::contains(gs->hpool.pavailable, beatenHero->subID))
+			gs->hpool.pavailable[beatenHero->subID] = 0xff;
 
 		gs->map->objects[id.getNum()] = nullptr;
 
 		//If hero on Boat is removed, the Boat disappears
-		if(h->boat)
+		if(beatenHero->boat)
 		{
-			gs->map->instanceNames.erase(h->boat->instanceName);
-			gs->map->objects[h->boat->id.getNum()].dellNull();
-			h->boat = nullptr;
+			gs->map->instanceNames.erase(beatenHero->boat->instanceName);
+			gs->map->objects[beatenHero->boat->id.getNum()].dellNull();
+			beatenHero->boat = nullptr;
 		}
-
 		return;
 	}
 
@@ -642,7 +643,7 @@ DLL_LINKAGE void HeroRecruited::applyGs(CGameState *gs)
 	assert(vstd::contains(gs->hpool.heroesPool, hid));
 	CGHeroInstance *h = gs->hpool.heroesPool[hid];
 	CGTownInstance *t = gs->getTown(tid);
-	PlayerState *p = gs->getPlayer(player);
+	PlayerState *p = gs->getPlayerState(player);
 
 	assert(!h->boat);
 
@@ -684,14 +685,14 @@ DLL_LINKAGE void GiveHero::applyGs(CGameState *gs)
 
 	//bonus system
 	h->detachFrom(&gs->globalEffects);
-	h->attachTo(gs->getPlayer(player));
-	h->appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, h->type->heroClass->id)->getTemplates().front();
+	h->attachTo(gs->getPlayerState(player));
+	h->appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, h->type->heroClass->getIndex())->getTemplates().front();
 
 	gs->map->removeBlockVisTiles(h,true);
 	h->setOwner(player);
 	h->movement =  h->maxMovePoints(true);
 	gs->map->heroesOnMap.push_back(h);
-	gs->getPlayer(h->getOwner())->heroes.push_back(h);
+	gs->getPlayerState(h->getOwner())->heroes.push_back(h);
 	gs->map->addBlockVisTiles(h);
 	h->inTownGarrison = false;
 }
@@ -707,7 +708,7 @@ DLL_LINKAGE void NewObject::applyGs(CGameState *gs)
 		testObject.appearance = VLC->objtypeh->getHandlerFor(ID, subID)->getTemplates(ETerrainType::WATER).front();
 
 		const int3 previousXAxisTile = int3(pos.x - 1, pos.y, pos.z);
-		assert(gs->isInTheMap(previousXAxisTile) && (testObject.visitablePos() == previousXAxisTile)); 
+		assert(gs->isInTheMap(previousXAxisTile) && (testObject.visitablePos() == previousXAxisTile));
 	}
 	else
 	{
@@ -1031,7 +1032,7 @@ DLL_LINKAGE void EraseArtifact::applyGs(CGameState *gs)
 	auto slot = al.getSlot();
 	if(slot->locked)
 	{
-		logGlobal->debug("Erasing locked artifact: %s", slot->artifact->artType->Name());
+		logGlobal->debug("Erasing locked artifact: %s", slot->artifact->artType->getName());
 		DisassembledArtifact dis;
 		dis.al.artHolder = al.artHolder;
 		auto aset = al.getHolderArtSet();
@@ -1051,12 +1052,12 @@ DLL_LINKAGE void EraseArtifact::applyGs(CGameState *gs)
 			}
 		}
 		assert(found && "Failed to determine the assembly this locked artifact belongs to");
-		logGlobal->debug("Found the corresponding assembly: %s", dis.al.getSlot()->artifact->artType->Name());
+		logGlobal->debug("Found the corresponding assembly: %s", dis.al.getSlot()->artifact->artType->getName());
 		dis.applyGs(gs);
 	}
 	else
 	{
-		logGlobal->debug("Erasing artifact %s", slot->artifact->artType->Name());
+		logGlobal->debug("Erasing artifact %s", slot->artifact->artType->getName());
 	}
 	al.removeArtifact();
 }
@@ -1188,7 +1189,7 @@ DLL_LINKAGE void NewTurn::applyGs(CGameState *gs)
 	for(auto i = res.cbegin(); i != res.cend(); i++)
 	{
 		assert(i->first < PlayerColor::PLAYER_LIMIT);
-		gs->getPlayer(i->first)->resources = i->second;
+		gs->getPlayerState(i->first)->resources = i->second;
 	}
 
 	for(auto creatureSet : cres) //set available creatures in towns
@@ -1237,10 +1238,10 @@ DLL_LINKAGE void SetObjectProperty::applyGs(CGameState *gs)
 		{
 			CGTownInstance *t = static_cast<CGTownInstance*>(obj);
 			if(t->tempOwner < PlayerColor::PLAYER_LIMIT)
-				gs->getPlayer(t->tempOwner)->towns -= t;
+				gs->getPlayerState(t->tempOwner)->towns -= t;
 			if(val < PlayerColor::PLAYER_LIMIT_I)
 			{
-				PlayerState * p = gs->getPlayer(PlayerColor(val));
+				PlayerState * p = gs->getPlayerState(PlayerColor(val));
 				p->towns.push_back(t);
 
 				//reset counter before NewTurn to avoid no town message if game loaded at turn when one already captured
@@ -1389,6 +1390,16 @@ void BattleResult::applyGs(CGameState *gs)
 	gs->curB.dellNull();
 }
 
+DLL_LINKAGE void BattleLogMessage::applyGs(CGameState *gs)
+{
+	//nothing
+}
+
+DLL_LINKAGE void BattleLogMessage::applyBattle(IBattleState * battleState)
+{
+	//nothing
+}
+
 DLL_LINKAGE void BattleStackMoved::applyGs(CGameState *gs)
 {
 	applyBattle(gs->curB);
@@ -1445,7 +1456,7 @@ DLL_LINKAGE void StartAction::applyGs(CGameState *gs)
 	}
 	else
 	{
-		gs->curB->sides[ba.side].usedSpellsHistory.push_back(SpellID(ba.actionSubtype).toSpell());
+		gs->curB->sides[ba.side].usedSpellsHistory.push_back(SpellID(ba.actionSubtype));
 	}
 
 	switch(ba.actionType)
@@ -1531,6 +1542,9 @@ DLL_LINKAGE void BattleUnitsChanged::applyBattle(IBattleState * battleState)
 			break;
 		case BattleChanges::EOperation::ADD:
 			battleState->addUnit(elem.id, elem.data);
+			break;
+		case BattleChanges::EOperation::UPDATE:
+			battleState->updateUnit(elem.id, elem.data);
 			break;
 		default:
 			logNetwork->error("Unknown unit operation %d", (int)elem.operation);
@@ -1644,8 +1658,8 @@ DLL_LINKAGE void PlayerCheated::applyGs(CGameState *gs)
 	if(!player.isValidPlayer())
 		return;
 
-	gs->getPlayer(player)->enteredLosingCheatCode = losingCheatCode;
-	gs->getPlayer(player)->enteredWinningCheatCode = winningCheatCode;
+	gs->getPlayerState(player)->enteredLosingCheatCode = losingCheatCode;
+	gs->getPlayerState(player)->enteredWinningCheatCode = winningCheatCode;
 }
 
 DLL_LINKAGE void YourTurn::applyGs(CGameState *gs)
@@ -1659,4 +1673,10 @@ DLL_LINKAGE void YourTurn::applyGs(CGameState *gs)
 DLL_LINKAGE Component::Component(const CStackBasicDescriptor &stack)
 	: id(CREATURE), subtype(stack.type->idNumber), val(stack.count), when(0)
 {
+}
+
+DLL_LINKAGE void EntitiesChanged::applyGs(CGameState * gs)
+{
+	for(const auto & change : changes)
+		gs->updateEntity(change.metatype, change.entityIndex, change.data);
 }

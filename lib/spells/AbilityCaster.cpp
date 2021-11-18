@@ -11,12 +11,14 @@
 
 #include "AbilityCaster.h"
 
+#include <vcmi/spells/Spell.h>
+
 #include "../battle/Unit.h"
 
 namespace spells
 {
 
-AbilityCaster::AbilityCaster(const battle::Unit * actualCaster_, int baseSpellLevel_)
+AbilityCaster::AbilityCaster(const battle::Unit * actualCaster_, int32_t baseSpellLevel_)
 	: ProxyCaster(actualCaster_),
 	actualCaster(actualCaster_),
 	baseSpellLevel(baseSpellLevel_)
@@ -25,9 +27,9 @@ AbilityCaster::AbilityCaster(const battle::Unit * actualCaster_, int baseSpellLe
 
 AbilityCaster::~AbilityCaster() = default;
 
-ui8 AbilityCaster::getSpellSchoolLevel(const Spell * spell, int * outSelectedSchool) const
+int32_t AbilityCaster::getSpellSchoolLevel(const Spell * spell, int32_t * outSelectedSchool) const
 {
-	int skill = baseSpellLevel;
+	auto skill = baseSpellLevel;
 
 	if(spell->getLevel() > 0)
 	{
@@ -40,7 +42,7 @@ ui8 AbilityCaster::getSpellSchoolLevel(const Spell * spell, int * outSelectedSch
 	return static_cast<ui8>(skill); //todo: unify spell school level type
 }
 
-int AbilityCaster::getEffectLevel(const Spell * spell) const
+int32_t AbilityCaster::getEffectLevel(const Spell * spell) const
 {
 	return getSpellSchoolLevel(spell);
 }
@@ -50,7 +52,7 @@ void AbilityCaster::getCastDescription(const Spell * spell, const std::vector<co
 	//do nothing
 }
 
-void AbilityCaster::spendMana(const PacketSender * server, const int spellCost) const
+void AbilityCaster::spendMana(ServerCallback * server, const int32_t spellCost) const
 {
 	//do nothing
 }

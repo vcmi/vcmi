@@ -12,12 +12,22 @@
 
 #include "../../lib/CRandomGenerator.h"
 
-void CEmptyAI::init(std::shared_ptr<CCallback> CB)
+void CEmptyAI::saveGame(BinarySerializer & h, const int version)
+{
+}
+
+void CEmptyAI::loadGame(BinaryDeserializer & h, const int version)
+{
+}
+
+void CEmptyAI::init(std::shared_ptr<Environment> ENV, std::shared_ptr<CCallback> CB)
 {
 	cb = CB;
+	env = ENV;
 	human=false;
 	playerID = *cb->getMyColor();
 }
+
 void CEmptyAI::yourTurn()
 {
 	cb->endTurn();

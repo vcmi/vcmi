@@ -139,11 +139,12 @@ void CLobbyScreen::startScenario(bool allowOnlyAI)
 	{
 		(void)e;	// unused
 		// You must position yourself prior to starting the game.
-		CInfoWindow::showYesNoDialog(std::ref(CGI->generaltexth->allTexts[530]), CInfoWindow::TCompsInfo(), 0, std::bind(&CLobbyScreen::startScenario, this, true), PlayerColor(1));
+		CInfoWindow::showInfoDialog(std::ref(CGI->generaltexth->allTexts[530]), CInfoWindow::TCompsInfo(), PlayerColor(1));
 	}
 	catch(ExceptionNoTemplate & e)
 	{
 		(void)e; // unused
+		// Could not create a random map that fits current choices.
 		CInfoWindow::showInfoDialog(std::ref(CGI->generaltexth->allTexts[751]), CInfoWindow::TCompsInfo(), PlayerColor(1));
 	}
 	catch(...)

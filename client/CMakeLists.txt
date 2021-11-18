@@ -159,7 +159,7 @@ if(ENABLE_DEBUG_CONSOLE)
 else()
 	add_executable(vcmiclient WIN32 ${client_SRCS} ${client_HEADERS} ${client_ICON})
 endif(ENABLE_DEBUG_CONSOLE)
-add_dependencies(vcmiclient vcmiserver BattleAI StupidAI VCAI)
+add_dependencies(vcmiclient vcmiserver BattleAI StupidAI VCAI Nullkiller)
 
 if(WIN32)
 	set_target_properties(vcmiclient
@@ -175,10 +175,10 @@ endif()
 
 target_link_libraries(vcmiclient PRIVATE
 		vcmi ${SDL2_LIBRARY} ${SDL2_IMAGE_LIBRARY} ${SDL2_MIXER_LIBRARY} ${SDL2_TTF_LIBRARY}
-		${FFMPEG_LIBRARIES} ${FFMPEG_EXTRA_LINKING_OPTIONS}
+		${FFMPEG_LIBRARIES} ${FFMPEG_EXTRA_LINKING_OPTIONS} ${TBB_LIBRARIES}
 )
 
-target_include_directories(vcmi
+target_include_directories(vcmiclient
 	PUBLIC	${CMAKE_CURRENT_SOURCE_DIR}
 	PUBLIC	${SDL2_INCLUDE_DIR}
 	PRIVATE ${SDL2_TTF_INCLUDE_DIR}

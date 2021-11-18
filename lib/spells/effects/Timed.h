@@ -30,7 +30,7 @@ public:
 	Timed();
 	virtual ~Timed();
 
-	void apply(BattleStateProxy * battleState, RNG & rng, const Mechanics * m, const EffectTarget & target) const override;
+	void apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const override;
 
 protected:
 	void serializeJsonUnitEffect(JsonSerializeFormat & handler) override final;
@@ -38,7 +38,7 @@ protected:
 private:
 	void convertBonus(const Mechanics * m, int32_t & duration, std::vector<Bonus> & converted) const;
 	void describeEffect(std::vector<MetaString> & log, const Mechanics * m, const std::vector<Bonus> & bonuses, const battle::Unit * target) const;
-	void prepareEffects(SetStackEffect & sse, const Mechanics * m, const EffectTarget & target, bool describe) const;
+
 };
 
 }

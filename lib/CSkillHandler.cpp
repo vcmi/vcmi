@@ -42,6 +42,43 @@ CSkill::~CSkill()
 {
 }
 
+int32_t CSkill::getIndex() const
+{
+	return id.num;
+}
+
+int32_t CSkill::getIconIndex() const
+{
+	return getIndex(); //TODO: actual value with skill level
+}
+
+const std::string & CSkill::getName() const
+{
+	return name;
+}
+
+const std::string & CSkill::getJsonKey() const
+{
+	return identifier;
+}
+
+void CSkill::registerIcons(const IconRegistar & cb) const
+{
+	for(int level = 1; level <= 3; level++)
+	{
+		int frame = 2 + level + 3 * id;
+		const LevelInfo & skillAtLevel = at(level);
+		cb(frame, "SECSK32", skillAtLevel.iconSmall);
+		cb(frame, "SECSKILL", skillAtLevel.iconMedium);
+		cb(frame, "SECSK82", skillAtLevel.iconLarge);
+	}
+}
+
+SecondarySkill CSkill::getId() const
+{
+	return id;
+}
+
 void CSkill::addNewBonus(const std::shared_ptr<Bonus> & b, int level)
 {
 	b->source = Bonus::SECONDARY_SKILL;
@@ -85,6 +122,17 @@ std::string CSkill::toString() const
 	ss << *this;
 	return ss.str();
 }
+
+void CSkill::updateFrom(const JsonNode & data)
+{
+
+}
+
+void CSkill::serializeJson(JsonSerializeFormat & handler)
+{
+
+}
+
 
 ///CSkillHandler
 CSkillHandler::CSkillHandler()
@@ -147,7 +195,7 @@ const std::string & CSkillHandler::skillName(int skill) const
 	return objects[skill]->name;
 }
 
-CSkill * CSkillHandler::loadFromJson(const JsonNode & json, const std::string & identifier, size_t index)
+CSkill * CSkillHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
 {
 	CSkill * skill = new CSkill(SecondarySkill((si32)index), identifier);
 

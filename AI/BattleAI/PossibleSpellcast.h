@@ -10,8 +10,9 @@
 
 #pragma once
 
+#include <vcmi/spells/Magic.h>
+
 #include "../../lib/battle/Destination.h"
-#include "../../lib/spells/Magic.h"
 
 class CSpell;
 

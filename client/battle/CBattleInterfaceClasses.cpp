@@ -448,8 +448,8 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult & br, CPlayerInterfa
 
 			if(best != stacks.end()) //should be always but to be safe...
 			{
-				icons.push_back(std::make_shared<CAnimImage>("TWCRPORT", (*best)->type->idNumber+2, 0, xs[i], 38));
-				sideNames[i] = CGI->creh->creatures[(*best)->type->idNumber]->namePl;
+				icons.push_back(std::make_shared<CAnimImage>("TWCRPORT", (*best)->type->getIconIndex(), 0, xs[i], 38));
+				sideNames[i] = (*best)->type->getPluralName();
 			}
 		}
 	}
@@ -471,7 +471,7 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult & br, CPlayerInterfa
 			int yPos = 344 + step * 97;
 			for(auto & elem : br.casualties[step])
 			{
-				icons.push_back(std::make_shared<CAnimImage>("CPRSMALL", CGI->creh->creatures[elem.first]->iconIndex, 0, xPos, yPos));
+				icons.push_back(std::make_shared<CAnimImage>("CPRSMALL", CGI->creatures()->getByIndex(elem.first)->getIconIndex(), 0, xPos, yPos));
 				std::ostringstream amount;
 				amount<<elem.second;
 				labels.push_back(std::make_shared<CLabel>(xPos + 16, yPos + 42, FONT_SMALL, CENTER, Colors::WHITE, amount.str()));

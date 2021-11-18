@@ -8,6 +8,9 @@
  *
  */
 #include "StdInc.h"
+
+#include <vcmi/Artifact.h>
+
 #include "windows/CAdvmapInterface.h"
 #include "battle/CBattleInterface.h"
 #include "battle/CBattleInterfaceClasses.h"
@@ -82,7 +85,7 @@ using namespace CSDL_Ext;
 
 void processCommand(const std::string &message, CClient *&client);
 
-extern std::queue<SDL_Event> events;
+extern std::queue<SDL_Event> SDLEventsQueue;
 extern boost::mutex eventsM;
 boost::recursive_mutex * CPlayerInterface::pim = new boost::recursive_mutex;
 
@@ -144,9 +147,10 @@ CPlayerInterface::~CPlayerInterface()
 	if (LOCPLINT == this)
 		LOCPLINT = nullptr;
 }
-void CPlayerInterface::init(std::shared_ptr<CCallback> CB)
+void CPlayerInterface::init(std::shared_ptr<Environment> ENV, std::shared_ptr<CCallback> CB)
 {
 	cb = CB;
+	env = ENV;
 	initializeHeroTownList();
 
 	// always recreate advmap interface to avoid possible memory-corruption bugs
@@ -372,10 +376,10 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 	//check if user cancelled movement
 	{
 		boost::unique_lock<boost::mutex> un(eventsM);
-		while(!events.empty())
+		while(!SDLEventsQueue.empty())
 		{
-			SDL_Event ev = events.front();
-			events.pop();
+			SDL_Event ev = SDLEventsQueue.front();
+			SDLEventsQueue.pop();
 			switch(ev.type)
 			{
 			case SDL_MOUSEBUTTONDOWN:
@@ -692,7 +696,7 @@ void CPlayerInterface::battleStart(const CCreatureSet *army1, const CCreatureSet
 	if (settings["adventure"]["quickCombat"].Bool())
 	{
 		autofightingAI = CDynLibHandler::getNewBattleAI(settings["server"]["friendlyAI"].String());
-		autofightingAI->init(cb);
+		autofightingAI->init(env, cb);
 		autofightingAI->battleStart(army1, army2, int3(0,0,0), hero1, hero2, side);
 		isAutoFightOn = true;
 		cb->registerBattleInterface(autofightingAI);
@@ -707,7 +711,7 @@ void CPlayerInterface::battleStart(const CCreatureSet *army1, const CCreatureSet
 	BATTLE_EVENT_POSSIBLE_RETURN;
 }
 
-void CPlayerInterface::battleUnitsChanged(const std::vector<UnitChanges> & units, const std::vector<CustomEffectInfo> & customEffects, const std::vector<MetaString> & battleLog)
+void CPlayerInterface::battleUnitsChanged(const std::vector<UnitChanges> & units, const std::vector<CustomEffectInfo> & customEffects)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BATTLE_EVENT_POSSIBLE_RETURN;
@@ -769,7 +773,6 @@ void CPlayerInterface::battleUnitsChanged(const std::vector<UnitChanges> & units
 	}
 
 	battleInt->displayCustomEffects(customEffects);
-	battleInt->displayBattleLog(battleLog);
 }
 
 void CPlayerInterface::battleObstaclesChanged(const std::vector<ObstacleChanges> & obstacles)
@@ -919,6 +922,14 @@ void CPlayerInterface::battleEnd(const BattleResult *br)
 	battleInt->battleFinished(*br);
 }
 
+void CPlayerInterface::battleLogMessage(const std::vector<MetaString> & lines)
+{
+	EVENT_HANDLER_CALLED_BY_CLIENT;
+	BATTLE_EVENT_POSSIBLE_RETURN;
+
+	battleInt->displayBattleLog(lines);
+}
+
 void CPlayerInterface::battleStackMoved(const CStack * stack, std::vector<BattleHex> dest, int distance)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
@@ -948,7 +959,7 @@ void CPlayerInterface::battleTriggerEffect (const BattleTriggerEffect & bte)
 	RETURN_IF_QUICK_COMBAT;
 	battleInt->battleTriggerEffect(bte);
 }
-void CPlayerInterface::battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa, const std::vector<MetaString> & battleLog)
+void CPlayerInterface::battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BATTLE_EVENT_POSSIBLE_RETURN;
@@ -977,7 +988,7 @@ void CPlayerInterface::battleStacksAttacked(const std::vector<BattleStackAttacke
 		StackAttackedInfo to_put = {defender, elem.damageAmount, elem.killedAmount, attacker, remoteAttack, elem.killed(), elem.willRebirth(), elem.cloneKilled()};
 		arg.push_back(to_put);
 	}
-	battleInt->stacksAreAttacked(arg, battleLog);
+	battleInt->stacksAreAttacked(arg);
 }
 void CPlayerInterface::battleAttack(const BattleAttack * ba)
 {
@@ -1424,29 +1435,20 @@ void CPlayerInterface::showGarrisonDialog( const CArmedInstance *up, const CGHer
  * Shows the dialog that appears when right-clicking an artifact that can be assembled
  * into a combinational one on an artifact screen. Does not require the combination of
  * artifacts to be legal.
- * @param artifactID ID of a constituent artifact.
- * @param assembleTo ID of artifact to assemble a constituent into, not used when assemble
- * is false.
- * @param assemble True if the artifact is to be assembled, false if it is to be disassembled.
  */
-void CPlayerInterface::showArtifactAssemblyDialog (ui32 artifactID, ui32 assembleTo, bool assemble, CFunctionList<bool()> onYes, CFunctionList<bool()> onNo)
+void CPlayerInterface::showArtifactAssemblyDialog(const Artifact * artifact, const Artifact * assembledArtifact, CFunctionList<bool()> onYes)
 {
-	const CArtifact &artifact = *CGI->arth->artifacts[artifactID];
-	std::string text = artifact.Description();
+	std::string text = artifact->getDescription();
 	text += "\n\n";
 	std::vector<std::shared_ptr<CComponent>> scs;
 
-	if(assemble)
+	if(assembledArtifact)
 	{
-		const CArtifact &assembledArtifact = *CGI->arth->artifacts[assembleTo];
-
 		// You possess all of the components to...
-		text += boost::str(boost::format(CGI->generaltexth->allTexts[732]) % assembledArtifact.Name());
+		text += boost::str(boost::format(CGI->generaltexth->allTexts[732]) % assembledArtifact->getName());
 
 		// Picture of assembled artifact at bottom.
-		auto sc = std::make_shared<CComponent>(CComponent::artifact, assembledArtifact.id, 0);
-		//sc->description = assembledArtifact.Description();
-		//sc->subtitle = assembledArtifact.Name();
+		auto sc = std::make_shared<CComponent>(CComponent::artifact, assembledArtifact->getIndex(), 0);
 		scs.push_back(sc);
 	}
 	else
@@ -1455,7 +1457,7 @@ void CPlayerInterface::showArtifactAssemblyDialog (ui32 artifactID, ui32 assembl
 		text += CGI->generaltexth->allTexts[733];
 	}
 
-	showYesNoDialog(text, onYes, onNo, scs);
+	showYesNoDialog(text, onYes, nullptr, scs);
 }
 
 void CPlayerInterface::requestRealized( PackageApplied *pa )
@@ -1489,24 +1491,24 @@ void CPlayerInterface::objectPropertyChanged(const SetObjectProperty * sop)
 	{
 		const CGObjectInstance * obj = cb->getObj(sop->id);
 		std::set<int3> pos = obj->getBlockedPos();
-		for (auto & po : pos)
+
+		for(auto & po : pos)
 		{
-			if (cb->isVisible(po))
+			if(cb->isVisible(po))
 				adventureInt->minimap.showTile(po);
 		}
-
-		if (obj->ID == Obj::TOWN)
+		if(obj->ID == Obj::TOWN)
 		{
-			if (obj->tempOwner == playerID)
+			if(obj->tempOwner == playerID)
 				towns.push_back(static_cast<const CGTownInstance *>(obj));
 			else
 				towns -= obj;
-			adventureInt->townList.update();
-		}
 
+			adventureInt->townList.update();
+			adventureInt->minimap.update();
+		}
 		assert(cb->getTownsInfo().size() == towns.size());
 	}
-
 }
 
 void CPlayerInterface::initializeHeroTownList()
@@ -1612,8 +1614,8 @@ void CPlayerInterface::playerBlocked(int reason, bool start)
 {
 	if(reason == PlayerBlocked::EReason::UPCOMING_BATTLE)
 	{
-		if(CSH->howManyPlayerInterfaces() > 1 && LOCPLINT != this && LOCPLINT->makingTurn == false) 
-		{ 
+		if(CSH->howManyPlayerInterfaces() > 1 && LOCPLINT != this && LOCPLINT->makingTurn == false)
+		{
 			//one of our players who isn't last in order got attacked not by our another player (happens for example in hotseat mode)
 			boost::unique_lock<boost::mutex> lock(eventsM); //TODO: copied from yourTurn, no idea if it's needed
 			LOCPLINT = this;
@@ -2236,13 +2238,13 @@ void CPlayerInterface::advmapSpellCast(const CGHeroInstance * caster, int spellI
 	if(spellID == SpellID::FLY || spellID == SpellID::WATER_WALK)
 		eraseCurrentPathOf(caster, false);
 
-	const CSpell * spell = CGI->spellh->objects.at(spellID);
+	const spells::Spell * spell = CGI->spells()->getByIndex(spellID);
 
 	if(spellID == SpellID::VIEW_EARTH)
 	{
 		//TODO: implement on server side
-		int level = caster->getSpellSchoolLevel(spell);
-		adventureInt->worldViewOptions.showAllTerrain = (level>2);
+		const auto level = caster->getSpellSchoolLevel(spell);
+		adventureInt->worldViewOptions.showAllTerrain = (level > 2);
 	}
 
 	auto castSoundPath = spell->getCastSound();
@@ -2360,7 +2362,7 @@ void CPlayerInterface::acceptTurn()
 		components.push_back(Component(Component::FLAG, playerColor.getNum(), 0, 0));
 		MetaString text;
 
-		const auto & optDaysWithoutCastle = cb->getPlayer(playerColor)->daysWithoutCastle;
+		const auto & optDaysWithoutCastle = cb->getPlayerState(playerColor)->daysWithoutCastle;
 
 		if(optDaysWithoutCastle)
 		{
@@ -2384,16 +2386,16 @@ void CPlayerInterface::acceptTurn()
 	}
 }
 
-void CPlayerInterface::tryDiggging(const CGHeroInstance *h)
+void CPlayerInterface::tryDiggging(const CGHeroInstance * h)
 {
-	std::string hlp;
-	CGI->mh->getTerrainDescr(h->getPosition(false), hlp, false);
-	auto isDiggingPossible = h->diggingStatus();
-	if (hlp.length())
-		isDiggingPossible = EDiggingStatus::TILE_OCCUPIED; //TODO integrate with canDig
-
 	int msgToShow = -1;
-	switch(isDiggingPossible)
+	const bool isBlocked = CGI->mh->hasObjectHole(h->getPosition(false)); // Don't dig in the pit.
+
+	const auto diggingStatus = isBlocked
+		? EDiggingStatus::TILE_OCCUPIED
+		: h->diggingStatus().num;
+
+	switch(diggingStatus)
 	{
 	case EDiggingStatus::CAN_DIG:
 		break;
@@ -2410,7 +2412,7 @@ void CPlayerInterface::tryDiggging(const CGHeroInstance *h)
 		assert(0);
 	}
 
-	if (msgToShow < 0)
+	if(msgToShow < 0)
 		cb->dig(h);
 	else
 		showInfoDialog(CGI->generaltexth->allTexts[msgToShow]);
@@ -2646,9 +2648,9 @@ bool CPlayerInterface::capturedAllEvents()
 	if (ignoreEvents)
 	{
 		boost::unique_lock<boost::mutex> un(eventsM);
-		while(!events.empty())
+		while(!SDLEventsQueue.empty())
 		{
-			events.pop();
+			SDLEventsQueue.pop();
 		}
 		return true;
 	}

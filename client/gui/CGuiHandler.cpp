@@ -23,7 +23,7 @@
 #include "../CPlayerInterface.h"
 #include "../battle/CBattleInterface.h"
 
-extern std::queue<SDL_Event> events;
+extern std::queue<SDL_Event> SDLEventsQueue;
 extern boost::mutex eventsM;
 
 boost::thread_specific_ptr<bool> inGuiThread;
@@ -188,18 +188,18 @@ void CGuiHandler::handleEvents()
 		return;
 
 	boost::unique_lock<boost::mutex> lock(eventsM);
-	while(!events.empty())
+	while(!SDLEventsQueue.empty())
 	{
 		continueEventHandling = true;
-		SDL_Event ev = events.front();
+		SDL_Event ev = SDLEventsQueue.front();
 		current = &ev;
-		events.pop();
+		SDLEventsQueue.pop();
 
 		// In a sequence of mouse motion events, skip all but the last one.
 		// This prevents freezes when every motion event takes longer to handle than interval at which
 		// the events arrive (like dragging on the minimap in world view, with redraw at every event)
 		// so that the events would start piling up faster than they can be processed.
-		if ((ev.type == SDL_MOUSEMOTION) && !events.empty() && (events.front().type == SDL_MOUSEMOTION))
+		if ((ev.type == SDL_MOUSEMOTION) && !SDLEventsQueue.empty() && (SDLEventsQueue.front().type == SDL_MOUSEMOTION))
 			continue;
 
 		handleCurrentEvent();

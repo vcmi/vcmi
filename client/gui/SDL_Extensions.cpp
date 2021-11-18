@@ -819,12 +819,15 @@ void CSDL_Ext::setDefaultColorKey(SDL_Surface * surface)
 
 void CSDL_Ext::setDefaultColorKeyPresize(SDL_Surface * surface)
 {
-	uint32_t key = mapColor(surface,Colors::DEFAULT_KEY_COLOR);
+	uint32_t key = mapColor(surface, Colors::DEFAULT_KEY_COLOR);
 	auto & color = surface->format->palette->colors[key];
 
 	// set color key only if exactly such color was found
 	if (color.r == Colors::DEFAULT_KEY_COLOR.r && color.g == Colors::DEFAULT_KEY_COLOR.g && color.b == Colors::DEFAULT_KEY_COLOR.b)
+	{
 		SDL_SetColorKey(surface, SDL_TRUE, key);
+		color.a = SDL_ALPHA_TRANSPARENT;
+	}
 }
 
 

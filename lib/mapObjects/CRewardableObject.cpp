@@ -41,7 +41,7 @@ bool CRewardLimiter::heroAllowed(const CGHeroInstance * hero) const
 			return false;
 	}
 
-	if(!IObjectInterface::cb->getPlayer(hero->tempOwner)->resources.canAfford(resources))
+	if(!IObjectInterface::cb->getPlayerState(hero->tempOwner)->resources.canAfford(resources))
 		return false;
 
 	if(minLevel > (si32)hero->level)
@@ -295,7 +295,7 @@ void CRewardableObject::grantRewardAfterLevelup(const CVisitInfo & info, const C
 	}
 
 	for(ArtifactID art : info.reward.artifacts)
-		cb->giveHeroNewArtifact(hero, VLC->arth->artifacts[art],ArtifactPosition::FIRST_AVAILABLE);
+		cb->giveHeroNewArtifact(hero, VLC->arth->objects[art],ArtifactPosition::FIRST_AVAILABLE);
 
 	if(!info.reward.spells.empty())
 	{
@@ -326,11 +326,11 @@ bool CRewardableObject::wasVisited(PlayerColor player) const
 		case VISIT_BONUS:
 			return false;
 		case VISIT_ONCE:
-			return vstd::contains(cb->getPlayer(player)->visitedObjects, ObjectInstanceID(id));
+			return vstd::contains(cb->getPlayerState(player)->visitedObjects, ObjectInstanceID(id));
 		case VISIT_HERO:
 			return false;
 		case VISIT_PLAYER:
-			return vstd::contains(cb->getPlayer(player)->visitedObjects, ObjectInstanceID(id));
+			return vstd::contains(cb->getPlayerState(player)->visitedObjects, ObjectInstanceID(id));
 		default:
 			return false;
 	}
@@ -774,7 +774,7 @@ void CGBonusingObject::onHeroVisit(const CGHeroInstance *h) const
 			if(slot.second->type->idNumber == CreatureID::CAVALIER)
 			{
 				cb->changeStackType(StackLocation(h, slot.first),
-									VLC->creh->creatures[CreatureID::CHAMPION]);
+									VLC->creh->objects[CreatureID::CHAMPION]);
 			}
 		}
 	}
@@ -854,7 +854,7 @@ void CGOnceVisitable::initObj(CRandomGenerator & rand)
 			info[1].reward.bonuses.push_back(bonus);
 			info[0].limiter.numOfGrants = 1;
 			info[0].message.addTxt(MetaString::ADVOB_TXT, 162);
-			info[0].message.addReplacement(VLC->arth->artifacts[info[0].reward.artifacts.back()]->Name());
+			info[0].message.addReplacement(VLC->arth->objects[info[0].reward.artifacts.back()]->getName());
 			info[1].message.addTxt(MetaString::ADVOB_TXT, 163);
 		}
 		break;
@@ -870,7 +870,7 @@ void CGOnceVisitable::initObj(CRandomGenerator & rand)
 				loadRandomArtifact(rand, info[0], 10, 10, 0, 0);
 				info[0].limiter.numOfGrants = 1;
 				info[0].message.addTxt(MetaString::ADVOB_TXT, 155);
-				info[0].message.addReplacement(VLC->arth->artifacts[info[0].reward.artifacts.back()]->Name());
+				info[0].message.addReplacement(VLC->arth->objects[info[0].reward.artifacts.back()]->getName());
 			}
 			else if(hlp < 90) //2 - 5 of non-gold resource
 			{

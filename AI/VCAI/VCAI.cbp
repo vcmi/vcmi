@@ -78,7 +78,7 @@
 			<Add option="-Wno-overloaded-virtual" />
 			<Add option="-DBOOST_ALL_DYN_LINK" />
 			<Add option="-DBOOST_SYSTEM_NO_DEPRECATED" />
-			<Add option="-D_WIN32_WINNT=0x0501" />
+			<Add option="-D_WIN32_WINNT=0x0600" />
 			<Add option="-D_WIN32" />
 			<Add option="-DFL_CPP11" />
 			<Add directory="$(#boost.include)" />
@@ -185,9 +185,6 @@
 		<Unit filename="VCAI.h" />
 		<Unit filename="main.cpp" />
 		<Extensions>
-			<code_completion />
-			<envvars />
-			<debugger />
 			<lib_finder disable_auto="1" />
 		</Extensions>
 	</Project>

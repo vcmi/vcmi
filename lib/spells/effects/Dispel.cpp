@@ -11,8 +11,10 @@
 
 #include "Dispel.h"
 #include "Registry.h"
+
+#include <vcmi/spells/Spell.h>
+
 #include "../ISpellMechanics.h"
-#include "../CSpellHandler.h"
 
 #include "../../NetPacks.h"
 #include "../../battle/IBattleState.h"
@@ -36,13 +38,42 @@ Dispel::Dispel()
 
 Dispel::~Dispel() = default;
 
-void Dispel::apply(BattleStateProxy * battleState, RNG & rng, const Mechanics * m, const EffectTarget & target) const
+void Dispel::apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const
 {
+	const bool describe = server->describeChanges();
 	SetStackEffect sse;
-	prepareEffects(sse, rng, m, target, battleState->describe);
+	BattleLogMessage blm;
+
+	for(auto & t : target)
+	{
+		const battle::Unit * unit = t.unitValue;
+		if(unit)
+		{
+			//special case for DISPEL_HELPFUL_SPELLS
+			if(describe && positive && !negative && !neutral)
+			{
+				MetaString line;
+				unit->addText(line, MetaString::GENERAL_TXT, -555, true);
+				unit->addNameReplacement(line, true);
+				blm.lines.push_back(std::move(line));
+			}
+
+			std::vector<Bonus> buffer;
+			auto bl = getBonuses(m, unit);
+
+			for(auto item : *bl)
+				buffer.emplace_back(*item);
+
+			if(!buffer.empty())
+				sse.toRemove.push_back(std::make_pair(unit->unitId(), buffer));
+		}
+	}
 
 	if(!sse.toRemove.empty())
-		battleState->apply(&sse);
+		server->apply(&sse);
+
+	if(describe && !blm.lines.empty())
+		server->apply(&blm);
 }
 
 bool Dispel::isValidTarget(const Mechanics * m, const battle::Unit * unit) const
@@ -62,78 +93,51 @@ void Dispel::serializeJsonUnitEffect(JsonSerializeFormat & handler)
 
 std::shared_ptr<const BonusList> Dispel::getBonuses(const Mechanics * m, const battle::Unit * unit) const
 {
-	auto addSelector = [=](const Bonus * bonus)
+	auto sel = [=](const Bonus * bonus)
 	{
 		if(bonus->source == Bonus::SPELL_EFFECT)
 		{
-			const CSpell * sourceSpell = SpellID(bonus->sid).toSpell();
+			const Spell * sourceSpell = SpellID(bonus->sid).toSpell(m->spells());
 			if(!sourceSpell)
 				return false;//error
-			if(bonus->sid == m->getSpellIndex())
+
+			//Special case: DISRUPTING_RAY and ACID_BREATH_DEFENSE are "immune" to dispell
+			//Other even PERMANENT effects can be removed (f.e. BIND)
+			if(sourceSpell->getIndex() == SpellID::DISRUPTING_RAY || sourceSpell->getIndex() == SpellID::ACID_BREATH_DEFENSE)
+				return false;
+			//Special case: do not remove lifetime marker
+			if(sourceSpell->getIndex() == SpellID::CLONE)
+				return false;
+			//stack may have inherited effects
+			if(sourceSpell->isAdventure())
 				return false;
 
-			if(positive && sourceSpell->isPositive())
-				return true;
-			if(negative && sourceSpell->isNegative())
-				return true;
-			if(neutral && sourceSpell->isNeutral())
-				return true;
+			if(sourceSpell->getIndex() == m->getSpellIndex())
+				return false;
 
+			auto positiveness = sourceSpell->getPositiveness();
+
+			if(boost::logic::indeterminate(positiveness))
+			{
+				if(neutral)
+					return true;
+			}
+			else if(positiveness)
+			{
+				if(positive)
+					return true;
+			}
+			else
+			{
+				if(negative)
+					return true;
+			}
 		}
 		return false;
 	};
-	CSelector selector = CSelector(mainSelector).And(CSelector(addSelector));
+	CSelector selector(sel);
 
 	return unit->getBonuses(selector);
-}
-
-bool Dispel::mainSelector(const Bonus * bonus)
-{
-	if(bonus->source == Bonus::SPELL_EFFECT)
-	{
-		const CSpell * sourceSpell = SpellID(bonus->sid).toSpell();
-		if(!sourceSpell)
-			return false;//error
-		//Special case: DISRUPTING_RAY and ACID_BREATH_DEFENSE are "immune" to dispell
-		//Other even PERMANENT effects can be removed (f.e. BIND)
-		if(sourceSpell->id == SpellID::DISRUPTING_RAY || sourceSpell->id == SpellID::ACID_BREATH_DEFENSE)
-			return false;
-		//Special case:do not remove lifetime marker
-		if(sourceSpell->id == SpellID::CLONE)
-			return false;
-		//stack may have inherited effects
-		return sourceSpell->isCombatSpell();
-	}
-	//not spell effect
-	return false;
-}
-
-void Dispel::prepareEffects(SetStackEffect & pack, RNG & rng, const Mechanics * m, const EffectTarget & target, bool describe) const
-{
-	for(auto & t : target)
-	{
-		const battle::Unit * unit = t.unitValue;
-		if(unit)
-		{
-			//special case for DISPEL_HELPFUL_SPELLS
-			if(describe && positive && !negative && !neutral)
-			{
-				MetaString line;
-				unit->addText(line, MetaString::GENERAL_TXT, -555, true);
-				unit->addNameReplacement(line, true);
-				pack.battleLog.push_back(std::move(line));
-			}
-
-			std::vector<Bonus> buffer;
-			auto bl = getBonuses(m, unit);
-
-			for(auto item : *bl)
-				buffer.emplace_back(*item);
-
-			if(!buffer.empty())
-				pack.toRemove.push_back(std::make_pair(unit->unitId(), buffer));
-		}
-	}
 }
 
 }

@@ -31,6 +31,7 @@ protected:
 	void SetUp() override
 	{
 		EffectFixture::setUp();
+		setupEffect(JsonNode());
 	}
 };
 
@@ -46,26 +47,37 @@ protected:
 	void SetUp() override
 	{
 		EffectFixture::setUp();
+		setupEffect(JsonNode());
 	}
 };
 
 TEST_F(TeleportApplyTest, MovesUnit)
 {
+	battleFake->setupEmptyBattlefield();
+
 	uint32_t unitId = 42;
 	BattleHex initial(1, 1);
 	BattleHex destination(10, 10);
+
+	EXPECT_CALL(*battleFake, getUnitsIf(_)).Times(AtLeast(0));
+
 	auto & unit = unitsFake.add(BattleSide::ATTACKER);
 
-	ON_CALL(unit, getPosition()).WillByDefault(Return(initial));
+	EXPECT_CALL(unit, getPosition()).WillRepeatedly(Return(initial));
 	EXPECT_CALL(unit, unitId()).Times(AtLeast(1)).WillRepeatedly(Return(unitId));
+	EXPECT_CALL(unit, unitSide()).Times(AtLeast(1));
+	EXPECT_CALL(unit, doubleWide()).WillRepeatedly(Return(false));
+	EXPECT_CALL(unit, isValidTarget(Eq(false))).WillRepeatedly(Return(true));
 
 	EXPECT_CALL(*battleFake, moveUnit(Eq(unitId), Eq(destination)));
+	EXPECT_CALL(mechanicsMock, getEffectLevel()).WillRepeatedly(Return(0));
+	EXPECT_CALL(serverMock, apply(Matcher<BattleStackMoved *>(_))).Times(1);
 
 	Target target;
 	target.emplace_back(&unit, BattleHex());
 	target.emplace_back(destination);
 
-    subject->apply(battleProxy.get(), rngMock, &mechanicsMock, target);
+    subject->apply(&serverMock, &mechanicsMock, target);
 }
 
 }

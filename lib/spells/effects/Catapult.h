@@ -24,7 +24,7 @@ public:
 	virtual ~Catapult();
 
 	bool applicable(Problem & problem, const Mechanics * m) const override;
-	void apply(BattleStateProxy * battleState, RNG & rng, const Mechanics * m, const EffectTarget & target) const override;
+	void apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const override;
 
 protected:
 	void serializeJsonEffect(JsonSerializeFormat & handler) override;

@@ -8,7 +8,7 @@
  *
  */
 #pragma once
- 
+
 #include <boost/spirit/home/support/unused.hpp>
 
 namespace spirit = boost::spirit;
@@ -16,24 +16,40 @@ namespace spirit = boost::spirit;
 class CERMPreprocessor
 {
 	std::string fname;
-	std::ifstream file;
+	std::stringstream sourceStream;
 	int lineNo;
-	enum {INVALID, ERM, VERM} version;
+
 
 	void getline(std::string &ret);
 
 public:
-	CERMPreprocessor(const std::string &Fname);
+	enum class Version : ui8
+	{
+		INVALID,
+		ERM,
+		VERM
+	};
+	Version version;
+
+	CERMPreprocessor(const std::string & source);
 	std::string retrieveCommandLine();
 	int getCurLineNo() const
 	{
 		return lineNo;
+	}
+
+	const std::string& getCurFileName() const
+	{
+		return fname;
 	}
 };
 
 //various classes that represent ERM/VERM AST
 namespace ERM
 {
+	using ValType = int; //todo: set to int64_t
+	using IType = int; //todo: set to int32_t
+
 	struct TStringConstant
 	{
 		std::string str;
@@ -105,25 +121,25 @@ namespace ERM
 		TStringConstant string;
 	};
 
-	struct TVarConcatString 
+	struct TVarConcatString
 	{
 		TVarExp var;
 		TStringConstant string;
 	};
 
-	typedef boost::variant<TVarConcatString, TStringConstant, TCurriedString, TSemiCompare, TMacroDef, TIexp, TVarpExp, boost::spirit::unused_type> TBodyOptionItem;
+	typedef boost::variant<TVarConcatString, TStringConstant, TCurriedString, TSemiCompare, TMacroDef, TIexp, TVarpExp> TBodyOptionItem;
 
 	typedef std::vector<TBodyOptionItem> TNormalBodyOptionList;
 
 	struct TNormalBodyOption
 	{
 		char optionCode;
-		TNormalBodyOptionList params;
+		boost::optional<TNormalBodyOptionList> params;
 	};
 	typedef boost::variant<TVRLogic, TVRArithmetic, TNormalBodyOption> TBodyOption;
 
-	typedef boost::variant<TIexp, TArithmeticOp > TIdentifierInternal;
-	typedef std::vector< TIdentifierInternal > Tidentifier;
+//	typedef boost::variant<TIexp, TArithmeticOp > TIdentifierInternal;
+	typedef std::vector< TIexp > Tidentifier;
 
 	struct TComparison
 	{
@@ -160,7 +176,7 @@ namespace ERM
 
 	struct Ttrigger : TTriggerBase
 	{
-		Ttrigger() 
+		Ttrigger()
 		{
 			pre = true;
 		}
@@ -209,7 +225,7 @@ namespace ERM
 		>
 		Tcmd;
 		Tcmd cmd;
-		std::string comment;
+		//std::string comment;
 	};
 
 	//vector expression
@@ -239,6 +255,8 @@ namespace ERM
 
 	//script line
 	typedef boost::variant<TVExp, TERMline> TLine;
+
+	template <typename T> class ERM_grammar;
 }
 
 struct LineInfo
@@ -249,17 +267,16 @@ struct LineInfo
 
 class ERMParser
 {
+public:
+	std::shared_ptr<ERM::ERM_grammar<std::string::const_iterator>> ERMgrammar;
+
+	ERMParser();
+	virtual ~ERMParser();
+
+	std::vector<LineInfo> parseFile(CERMPreprocessor & preproc);
 private:
-	std::string srcFile;
 	void repairEncoding(char * str, int len) const; //removes nonstandard ascii characters from string
 	void repairEncoding(std::string & str) const; //removes nonstandard ascii characters from string
-	enum ELineType{COMMAND_FULL, COMMENT, UNFINISHED, END_OF};
-	int countHatsBeforeSemicolon(const std::string & line) const;
 	ERM::TLine parseLine(const std::string & line, int realLineNo);
-
-
-public:
-	ERMParser(std::string file);
-	std::vector<LineInfo> parseFile();
-	static ERM::TLine parseLine(const std::string & line);
+	ERM::TLine parseLine(const std::string & line);
 };

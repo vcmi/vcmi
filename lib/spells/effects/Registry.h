@@ -24,7 +24,7 @@ namespace spells
 namespace effects
 {
 
-class IEffectFactory
+class DLL_LINKAGE IEffectFactory
 {
 public:
 	IEffectFactory() = default;
@@ -33,16 +33,22 @@ public:
 	virtual Effect * create() const = 0;
 };
 
-class Registry
+class DLL_LINKAGE Registry
 {
 public:
+	using FactoryPtr = std::shared_ptr<IEffectFactory>;
+
+	Registry();
 	virtual ~Registry();
 	virtual const IEffectFactory * find(const std::string & name) const = 0;
-	virtual void add(const std::string & name, IEffectFactory * item) = 0;
+	virtual void add(const std::string & name, FactoryPtr item) = 0;
+};
 
+class DLL_LINKAGE GlobalRegistry
+{
+	GlobalRegistry() = default;
+public:
     static Registry * get();
-protected:
-	Registry();
 };
 
 template<typename E>
@@ -64,8 +70,8 @@ class RegisterEffect
 public:
 	RegisterEffect(const std::string & name)
 	{
-		IEffectFactory * f = new EffectFactory<E>();
-		Registry::get()->add(name, f);
+		auto f = std::make_shared<EffectFactory<E>>();
+		GlobalRegistry::get()->add(name, f);
 	}
 };
 

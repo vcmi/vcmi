@@ -29,7 +29,6 @@
 #include "../../lib/CStack.h"
 #include "../../lib/CTownHandler.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
-#include "../../lib/spells/CSpellHandler.h"
 
 CBattleAnimation::CBattleAnimation(CBattleInterface * _owner)
 	: owner(_owner), ID(_owner->animIDhelper++)
@@ -762,15 +761,15 @@ bool CShootingAnimation::init()
 	if(shooterInfo->idNumber == CreatureID::ARROW_TOWERS)
 	{
 		int creID = owner->siegeH->town->town->clientInfo.siegeShooter;
-		shooterInfo = CGI->creh->creatures[creID];
+		shooterInfo = CGI->creh->operator[](creID);
 	}
 	if(!shooterInfo->animation.missleFrameAngles.size())
 		logAnim->error("Mod error: Creature '%s' on the Archer's tower is not a shooter. Mod should be fixed. Trying to use archer's data instead..."
 			, shooterInfo->nameSing);
-	
-	auto & angles = shooterInfo->animation.missleFrameAngles.size() 
+
+	auto & angles = shooterInfo->animation.missleFrameAngles.size()
 		? shooterInfo->animation.missleFrameAngles
-		: CGI->creh->creatures[CreatureID::ARCHER]->animation.missleFrameAngles;
+		: CGI->creh->operator[](CreatureID::ARCHER)->animation.missleFrameAngles;
 
 	ProjectileInfo spi;
 	spi.shotDone = false;

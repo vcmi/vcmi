@@ -475,8 +475,8 @@ void CMapGenOptions::CPlayerSettings::setStartingTown(si32 value)
 	assert(value >= -1);
 	if(value >= 0)
 	{
-		assert(value < static_cast<int>(VLC->townh->factions.size()));
-		assert(VLC->townh->factions[value]->town != nullptr);
+		assert(value < static_cast<int>(VLC->townh->size()));
+		assert((*VLC->townh)[value]->town != nullptr);
 	}
 	startingTown = value;
 }

@@ -1394,29 +1394,51 @@ CMapHandler::CMapHandler()
 	egdeAnimation->preload();
 }
 
-void CMapHandler::getTerrainDescr( const int3 &pos, std::string & out, bool terName )
+bool CMapHandler::hasObjectHole(const int3 & pos) const
 {
-	out.clear();
-	TerrainTile2 & tt = ttiles[pos.x][pos.y][pos.z];
-	const TerrainTile &t = map->getTile(pos);
+	const TerrainTile2 & tt = ttiles[pos.x][pos.y][pos.z];
+
 	for(auto & elem : tt.objects)
 	{
-		if(elem.obj && elem.obj->ID == Obj::HOLE) //Hole
-		{
-			out = elem.obj->getObjectName();
-			return;
-		}
+		if(elem.obj && elem.obj->ID == Obj::HOLE)
+			return true;
 	}
+	return false;
+}
+
+void CMapHandler::getTerrainDescr(const int3 & pos, std::string & out, bool isRMB) const
+{
+	const TerrainTile & t = map->getTile(pos);
 
 	if(t.hasFavorableWinds())
-		out = CGI->objtypeh->getObjectName(Obj::FAVORABLE_WINDS);
-	else if(terName)
 	{
-		out = CGI->generaltexth->terrainNames[t.terType];
-		if(t.getDiggingStatus(false) == EDiggingStatus::CAN_DIG)
+		out = CGI->objtypeh->getObjectName(Obj::FAVORABLE_WINDS);
+		return;
+	}
+	const TerrainTile2 & tt = ttiles[pos.x][pos.y][pos.z];
+	bool isTile2Terrain = false;
+	out.clear();
+
+	for(auto & elem : tt.objects)
+	{
+		if(elem.obj)
 		{
-			out = boost::str(boost::format("%s %s") % out % CGI->generaltexth->allTexts[330]); /// digging ok
+			out = elem.obj->getObjectName();
+			if(elem.obj->ID == Obj::HOLE)
+				return;
+
+			isTile2Terrain = elem.obj->isTile2Terrain();
+			break;
 		}
+	}
+	if(!isTile2Terrain || out.empty())
+		out = CGI->generaltexth->terrainNames[t.terType];
+
+	if(t.getDiggingStatus(false) == EDiggingStatus::CAN_DIG)
+	{
+		out = boost::str(boost::format(isRMB ? "%s\r\n%s" : "%s %s") // New line for the Message Box, space for the Status Bar
+			% out 
+			% CGI->generaltexth->allTexts[330]); // 'digging ok'
 	}
 }
 

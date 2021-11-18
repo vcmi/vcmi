@@ -163,7 +163,7 @@ std::string InfoBoxAbstractHeroData::getNameText()
 	case HERO_EXPERIENCE:
 		return CGI->generaltexth->jktexts[6];
 	case HERO_SPECIAL:
-		return CGI->heroh->heroes[getSubID()]->specName;
+		return CGI->heroh->objects[getSubID()]->specName;
 	case HERO_SECONDARY_SKILL:
 		if (getValue())
 			return CGI->skillh->skillName(getSubID());
@@ -229,7 +229,7 @@ size_t InfoBoxAbstractHeroData::getImageIndex()
 	switch (type)
 	{
 	case HERO_SPECIAL:
-		return VLC->heroh->heroes[getSubID()]->imageIndex;
+		return CGI->heroh->objects[getSubID()]->imageIndex;
 	case HERO_PRIMARY_SKILL:
 		return getSubID();
 	case HERO_MANA:
@@ -256,7 +256,7 @@ void InfoBoxAbstractHeroData::prepareMessage(std::string & text, std::shared_ptr
 	switch (type)
 	{
 	case HERO_SPECIAL:
-		text = CGI->heroh->heroes[getSubID()]->specDescr;
+		text = CGI->heroh->objects[getSubID()]->specDescr;
 		break;
 	case HERO_PRIMARY_SKILL:
 		text = CGI->generaltexth->arraytxt[2+getSubID()];

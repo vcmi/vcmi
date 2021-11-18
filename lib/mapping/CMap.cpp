@@ -30,7 +30,7 @@ SHeroName::SHeroName() : heroId(-1)
 
 PlayerInfo::PlayerInfo(): canHumanPlay(false), canComputerPlay(false),
 	aiTactic(EAiTactic::RANDOM), isFactionRandom(false), hasRandomHero(false), mainCustomHeroPortrait(-1), mainCustomHeroId(-1), hasMainTown(false),
-	generateHeroAtMainTown(false), team(TeamID::NO_TEAM), /* following are unused */ generateHero(false), p7(0), powerPlaceholders(-1)
+	generateHeroAtMainTown(false), posOfMainTown(-1), team(TeamID::NO_TEAM), /* following are unused */ generateHero(false), p7(0), powerPlaceholders(-1)
 {
 	allowedFactions = VLC->townh->getAllowedFactions();
 }
@@ -519,11 +519,11 @@ void CMap::checkForObjectives()
 			switch (cond.condition)
 			{
 				case EventCondition::HAVE_ARTIFACT:
-					boost::algorithm::replace_first(event.onFulfill, "%s", VLC->arth->artifacts[cond.objectType]->Name());
+					boost::algorithm::replace_first(event.onFulfill, "%s", VLC->arth->objects[cond.objectType]->getName());
 					break;
 
 				case EventCondition::HAVE_CREATURES:
-					boost::algorithm::replace_first(event.onFulfill, "%s", VLC->creh->creatures[cond.objectType]->nameSing);
+					boost::algorithm::replace_first(event.onFulfill, "%s", VLC->creh->objects[cond.objectType]->nameSing);
 					boost::algorithm::replace_first(event.onFulfill, "%d", boost::lexical_cast<std::string>(cond.value));
 					break;
 
