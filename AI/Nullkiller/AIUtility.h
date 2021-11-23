@@ -218,7 +218,7 @@ bool compareHeroStrength(HeroPtr h1, HeroPtr h2);
 bool compareArmyStrength(const CArmedInstance * a1, const CArmedInstance * a2);
 bool compareArtifacts(const CArtifactInstance * a1, const CArtifactInstance * a2);
 
-uint64_t timeElapsed(std::chrono::time_point<std::chrono::steady_clock> start);
+uint64_t timeElapsed(std::chrono::time_point<std::chrono::high_resolution_clock> start);
 
 // todo: move to obj manager
 bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObjectInstance * obj);

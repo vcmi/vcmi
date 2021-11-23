@@ -378,7 +378,7 @@ bool isWeeklyRevisitable(const CGObjectInstance * obj)
 	return false;
 }
 
-uint64_t timeElapsed(std::chrono::time_point<std::chrono::steady_clock> start)
+uint64_t timeElapsed(std::chrono::time_point<std::chrono::high_resolution_clock> start)
 {
 	auto end = std::chrono::high_resolution_clock::now();
 
