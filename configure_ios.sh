@@ -4,7 +4,13 @@ boostPrefix=~/dev/other/Apple-Boost-BuildScript/build-static/boost/1.75.0/ios/de
 ffmpegDir=~/dev/ios/vcmi-ios-deps/mobile-ffmpeg-min-universal-4.4
 sdlLibsDir=~/dev/ios/vcmi-ios-deps/SDL2-lib
 qtDir=~/dev/Qt-libs/5.15.2/ios
-prefixPath="$boostPrefix;$ffmpegDir;$sdlLibsDir;$qtDir"
+tbbDir=~/dev/ios/vcmi-ios-deps/oneTBB-2021.4.0/build/install
+luajitDir=~/dev/ios/vcmi-ios-deps/LuaJIT-2.1/ios64
+if [[ "$1" ]]; then
+	tbbDir=~/dev/ios/vcmi-ios-deps/oneTBB-2021.4.0/build-sim/install
+	luajitDir=~/dev/ios/vcmi-ios-deps/LuaJIT-2.1/sim64
+fi
+prefixPath="$boostPrefix;$ffmpegDir;$sdlLibsDir;$qtDir;$tbbDir;$luajitDir"
 
 # prefixPath="$boostPrefix;$sdlLibsDir"
 # xcodeMajorVersion=$(xcodebuild -version | fgrep Xcode | cut -d ' ' -f 2 | cut -d . -f 1)
