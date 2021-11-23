@@ -73,7 +73,7 @@ Goals::TTask Nullkiller::choseBestTask(Goals::TSubgoal behavior, int decompositi
 {
 	logAi->debug("Checking behavior %s", behavior->toString());
 
-	auto start = boost::chrono::high_resolution_clock::now();
+	auto start = std::chrono::high_resolution_clock::now();
 	
 	Goals::TGoalVec elementarGoals = decomposer->decompose(behavior, decompositionMaxDepth);
 	Goals::TTaskVec tasks;
@@ -122,7 +122,7 @@ void Nullkiller::updateAiState(int pass)
 {
 	boost::this_thread::interruption_point();
 
-	auto start = boost::chrono::high_resolution_clock::now();
+	auto start = std::chrono::high_resolution_clock::now();
 
 	activeHero = nullptr;
 

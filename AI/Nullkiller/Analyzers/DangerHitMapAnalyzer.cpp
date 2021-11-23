@@ -19,7 +19,7 @@ void DangerHitMapAnalyzer::updateHitMap()
 	logAi->trace("Update danger hitmap");
 
 	upToDate = true;
-	auto start = boost::chrono::high_resolution_clock::now();
+	auto start = std::chrono::high_resolution_clock::now();
 
 	auto cb = ai->cb.get();
 	auto mapSize = ai->cb->getMapSize();

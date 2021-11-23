@@ -178,7 +178,7 @@ bool ObjectClusterizer::shouldVisitObject(const CGObjectInstance * obj) const
 
 void ObjectClusterizer::clusterize()
 {
-	auto start = boost::chrono::high_resolution_clock::now();
+	auto start = std::chrono::high_resolution_clock::now();
 
 	nearObjects.reset();
 	farObjects.reset();
