@@ -137,4 +137,4 @@ target_link_libraries(Nullkiller PRIVATE TBB::tbb)
 vcmi_set_output_dir(Nullkiller "AI")
 enable_pch(Nullkiller)
 
-install(TARGETS Nullkiller RUNTIME DESTINATION ${AI_LIB_DIR} LIBRARY DESTINATION ${AI_LIB_DIR})
+install(TARGETS Nullkiller RUNTIME DESTINATION ${AI_LIB_DIR} LIBRARY DESTINATION ${AI_LIB_DIR} OPTIONAL)

@@ -21,9 +21,12 @@ prefixPath="$boostPrefix;$ffmpegDir;$sdlLibsDir;$qtDir;$tbbDir;$luajitDir"
 # fi
 
 srcDir="../vcmi"
-cmake "$srcDir" -G Xcode -T buildsystem=1 \
+# cmake "$srcDir" -G Xcode -T buildsystem=1 \
+cmake "$srcDir" -G Xcode \
   -DBUNDLE_IDENTIFIER_PREFIX=com.kambala \
+  -DENABLE_PCH=OFF \
   -Wno-dev \
+  -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
   -DCMAKE_TOOLCHAIN_FILE="$srcDir/ios.toolchain.cmake" \
   -DPLATFORM=${1:-OS64} \
   -DDEPLOYMENT_TARGET=11.0 \

@@ -195,7 +195,7 @@ elseif(APPLE_IOS)
 
 	set_target_properties(vcmiclient PROPERTIES
 		MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_LIST_DIR}/ios/Info.plist"
-		SKIP_BUILD_RPATH 1
+		XCODE_ATTRIBUTE_LD_RUNPATH_SEARCH_PATHS "@executable_path/Frameworks"
 		XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED YES
 		XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME AppIcon
 		XCODE_ATTRIBUTE_CODE_SIGN_ENTITLEMENTS ${ENTITLEMENTS_OUT_PATH}
@@ -229,7 +229,6 @@ enable_pch(vcmiclient)
 if(APPLE_IOS)
 	add_custom_command(TARGET vcmiclient POST_BUILD
 		COMMAND ${CMAKE_COMMAND} --install "${CMAKE_BINARY_DIR}" --config "$<CONFIG>" --prefix "$<TARGET_BUNDLE_CONTENT_DIR:vcmiclient>"
-		COMMAND ${CMAKE_INSTALL_NAME_TOOL} -add_rpath @executable_path/Frameworks $<TARGET_FILE:vcmiclient> || true
 		COMMAND ${CMAKE_SOURCE_DIR}/apple_codesign.sh
 	)
 else()
