@@ -49,7 +49,7 @@ void AIPathfinder::updatePaths(std::map<const CGHeroInstance *, HeroRole> heroes
 		storage.reset(new AINodeStorage(ai, cb->getMapSize()));
 	}
 
-	auto start = boost::chrono::high_resolution_clock::now();
+	auto start = std::chrono::high_resolution_clock::now();
 	logAi->debug("Recalculate all paths");
 	int pass = 0;
 
