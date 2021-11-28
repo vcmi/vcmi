@@ -238,6 +238,30 @@ void RebalanceStacks::applyCl(CClient * cl)
 	dispatchGarrisonChange(cl, srcArmy, dstArmy);
 }
 
+void BulkRebalanceStacks::applyCl(CClient * cl)
+{
+	if(!moves.empty())
+	{
+		auto destArmy = moves[0].srcArmy == moves[0].dstArmy
+			? ObjectInstanceID()
+			: moves[0].dstArmy;
+		dispatchGarrisonChange(cl, moves[0].srcArmy, destArmy);
+	}
+}
+
+void BulkSmartRebalanceStacks::applyCl(CClient * cl)
+{
+	if(!moves.empty())
+	{
+		assert(moves[0].srcArmy == moves[0].dstArmy);
+		dispatchGarrisonChange(cl, moves[0].srcArmy, ObjectInstanceID());
+	}
+	else if(!changes.empty())
+	{
+		dispatchGarrisonChange(cl, changes[0].army, ObjectInstanceID());
+	}
+}
+
 void PutArtifact::applyCl(CClient *cl)
 {
 	callInterfaceIfPresent(cl, al.owningPlayer(), &IGameEventsReceiver::artifactPut, al);

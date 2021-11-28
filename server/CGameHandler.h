@@ -249,6 +249,10 @@ public:
 	bool razeStructure(ObjectInstanceID tid, BuildingID bid);
 	bool disbandCreature( ObjectInstanceID id, SlotID pos );
 	bool arrangeStacks( ObjectInstanceID id1, ObjectInstanceID id2, ui8 what, SlotID p1, SlotID p2, si32 val, PlayerColor player);
+	bool bulkMoveArmy(ObjectInstanceID srcArmy, ObjectInstanceID destArmy, SlotID srcSlot);
+	bool bulkSplitStack(SlotID src, ObjectInstanceID srcOwner, si32 howMany);
+	bool bulkMergeStacks(SlotID slotSrc, ObjectInstanceID srcOwner);
+	bool bulkSmartSplitStack(SlotID slotSrc, ObjectInstanceID srcOwner);
 	void save(const std::string &fname);
 	void load(const std::string &fname);
 
@@ -353,7 +357,9 @@ private:
 	void checkVictoryLossConditions(const std::set<PlayerColor> & playerColors);
 	void checkVictoryLossConditionsForAll();
 
-
+	const std::string complainNoCreatures;
+	const std::string complainNotEnoughCreatures;
+	const std::string complainInvalidSlot;
 };
 
 class ExceptionNotAllowedAction : public std::exception

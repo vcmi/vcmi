@@ -1020,6 +1020,21 @@ DLL_LINKAGE void RebalanceStacks::applyGs(CGameState * gs)
 	CBonusSystemNode::treeHasChanged();
 }
 
+DLL_LINKAGE void BulkRebalanceStacks::applyGs(CGameState * gs)
+{
+	for(auto & move : moves)
+		move.applyGs(gs);
+}
+
+DLL_LINKAGE void BulkSmartRebalanceStacks::applyGs(CGameState * gs)
+{
+	for(auto & move : moves)
+		move.applyGs(gs);
+
+	for(auto & change : changes)
+		change.applyGs(gs);
+}
+
 DLL_LINKAGE void PutArtifact::applyGs(CGameState *gs)
 {
 	assert(art->canBePutAt(al));

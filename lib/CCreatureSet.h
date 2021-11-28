@@ -142,6 +142,20 @@ public:
 typedef std::map<SlotID, CStackInstance*> TSlots;
 typedef std::map<SlotID, std::pair<CreatureID, TQuantity>> TSimpleSlots;
 
+typedef std::pair<const CCreature*, SlotID> TPairCreatureSlot;
+typedef std::map<const CCreature*, SlotID> TMapCreatureSlot;
+
+struct DLL_LINKAGE CreatureSlotComparer
+{
+	bool operator()(const TPairCreatureSlot & lhs, const TPairCreatureSlot & rhs);
+};
+
+typedef std::priority_queue<
+	TPairCreatureSlot,
+	std::vector<TPairCreatureSlot>,
+	CreatureSlotComparer
+> TCreatureQueue;
+
 class IArmyDescriptor
 {
 public:
@@ -209,7 +223,17 @@ public:
 	SlotID findStack(const CStackInstance *stack) const; //-1 if none
 	SlotID getSlotFor(CreatureID creature, ui32 slotsAmount = GameConstants::ARMY_SIZE) const; //returns -1 if no slot available
 	SlotID getSlotFor(const CCreature *c, ui32 slotsAmount = GameConstants::ARMY_SIZE) const; //returns -1 if no slot available
-	SlotID getFreeSlot(ui32 slotsAmount = GameConstants::ARMY_SIZE) const;
+	bool hasCreatureSlots(const CCreature * c, SlotID exclude) const;
+	std::vector<SlotID> getCreatureSlots(const CCreature * c, SlotID exclude, TQuantity ignoreAmount = -1) const;
+	bool isCreatureBalanced(const CCreature* c, TQuantity ignoreAmount = 1) const; // Check if the creature is evenly distributed across slots
+
+	SlotID getFreeSlot(ui32 slotsAmount = GameConstants::ARMY_SIZE) const; //returns first free slot
+	std::vector<SlotID> getFreeSlots(ui32 slotsAmount = GameConstants::ARMY_SIZE) const;
+	std::queue<SlotID> getFreeSlotsQueue(ui32 slotsAmount = GameConstants::ARMY_SIZE) const;
+
+	TMapCreatureSlot getCreatureMap() const;
+	TCreatureQueue getCreatureQueue(SlotID exclude) const;
+
 	bool mergableStacks(std::pair<SlotID, SlotID> &out, SlotID preferable = SlotID()) const; //looks for two same stacks, returns slot positions;
 	bool validTypes(bool allowUnrandomized = false) const; //checks if all types of creatures are set properly
 	bool slotEmpty(SlotID slot) const;
