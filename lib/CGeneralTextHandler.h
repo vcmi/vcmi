@@ -110,7 +110,7 @@ public:
 	std::vector<std::string> tavernInfo;
 	std::vector<std::string> tavernRumors;
 
-	std::vector<std::string> hdModCommands;
+	std::vector<std::string> qeModCommands;
 
 	std::vector<std::pair<std::string,std::string>> zelp;
 	std::vector<std::string> lossCondtions;

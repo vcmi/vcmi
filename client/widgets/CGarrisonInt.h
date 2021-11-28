@@ -51,6 +51,7 @@ public:
 	virtual void hover (bool on) override; //call-in
 	const CArmedInstance * getObj() const;
 	bool our() const;
+	SlotID getSlot() const { return ID; }
 	bool ally() const;
 	void clickRight(tribool down, bool previousState) override;
 	void clickLeft(tribool down, bool previousState) override;

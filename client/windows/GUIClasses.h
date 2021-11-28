@@ -311,6 +311,8 @@ public:
 	std::function<void()> onSwapArtifacts();
 	std::function<void()> onMoveArtifactsToLeft();
 	std::function<void()> onMoveArtifactsToRight();
+	std::function<void()> onMoveStackToLeft(SlotID slotID);
+	std::function<void()> onMoveStackToRight(SlotID slotID);
 
 private:
 	void moveArmy(bool leftToRight);
@@ -358,6 +360,8 @@ class CExchangeWindow : public CStatusbarWindow, public CGarrisonHolder, public 
 	std::shared_ptr<CButton> moveArtifactsButtonLeft;
 	std::shared_ptr<CButton> echangeArtifactsButton;
 	std::shared_ptr<CButton> moveArtifactsButtonRight;
+	std::vector<std::shared_ptr<CButton>> moveStackLeftButtons;
+	std::vector<std::shared_ptr<CButton>> moveStackRightButtons;
 	CExchangeController controller;
 
 public:
@@ -369,6 +373,8 @@ public:
 	void questlog(int whichHero); //questlog button callback; whichHero: 0 - left, 1 - right
 
 	void updateWidgets();
+
+	const CGarrisonSlot * getSelectedSlotID() const;
 
 	CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID queryID);
 	~CExchangeWindow();
