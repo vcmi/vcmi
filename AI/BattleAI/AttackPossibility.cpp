@@ -118,8 +118,6 @@ AttackPossibility AttackPossibility::evaluate(const BattleAttackInfo & attackInf
 			if(!ap.attackerState->alive())
 				break;
 
-			assert(u->unitId() != attacker->unitId());
-
 			auto defenderState = u->acquireState();
 			ap.affectedUnits.push_back(defenderState);
 
