@@ -78,6 +78,12 @@ public:
 	virtual void save(const std::string &fname) = 0;
 	virtual void sendMessage(const std::string &mess, const CGObjectInstance * currentObject = nullptr) = 0;
 	virtual void buildBoat(const IShipyard *obj) = 0;
+
+	// To implement high-level army management bulk actions
+	virtual int bulkMoveArmy(ObjectInstanceID srcArmy, ObjectInstanceID destArmy, SlotID srcSlot) = 0;
+	virtual int bulkSplitStack(ObjectInstanceID armyId, SlotID srcSlot, int howMany = 1) = 0;
+	virtual int bulkSmartSplitStack(ObjectInstanceID armyId, SlotID srcSlot) = 0;
+	virtual int bulkMergeStacks(ObjectInstanceID armyId, SlotID srcSlot) = 0;
 };
 
 struct CPackForServer;
@@ -99,7 +105,9 @@ public:
 	friend class CClient;
 };
 
-class CCallback : public CPlayerSpecificInfoCallback, public IGameActionCallback, public CBattleCallback
+class CCallback : public CPlayerSpecificInfoCallback,
+	public IGameActionCallback,
+	public CBattleCallback
 {
 public:
 	CCallback(CGameState * GS, boost::optional<PlayerColor> Player, CClient *C);
@@ -125,6 +133,10 @@ public:
 	int mergeOrSwapStacks(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2) override; //first goes to the second
 	int mergeStacks(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2) override; //first goes to the second
 	int splitStack(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2, int val) override;
+	int bulkMoveArmy(ObjectInstanceID srcArmy, ObjectInstanceID destArmy, SlotID srcSlot) override;
+	int bulkSplitStack(ObjectInstanceID armyId, SlotID srcSlot, int howMany = 1) override;
+	int bulkSmartSplitStack(ObjectInstanceID armyId, SlotID srcSlot) override;
+	int bulkMergeStacks(ObjectInstanceID armyId, SlotID srcSlot) override;
 	bool dismissHero(const CGHeroInstance * hero) override;
 	bool swapArtifacts(const ArtifactLocation &l1, const ArtifactLocation &l2) override;
 	bool assembleArtifacts(const CGHeroInstance * hero, ArtifactPosition artifactSlot, bool assemble, ArtifactID assembleTo) override;

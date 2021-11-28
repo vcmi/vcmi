@@ -109,9 +109,38 @@ int CCallback::mergeStacks(const CArmedInstance *s1, const CArmedInstance *s2, S
 	sendRequest(&pack);
 	return 0;
 }
+
 int CCallback::splitStack(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2, int val)
 {
 	ArrangeStacks pack(3,p1,p2,s1->id,s2->id,val);
+	sendRequest(&pack);
+	return 0;
+}
+
+int CCallback::bulkMoveArmy(ObjectInstanceID srcArmy, ObjectInstanceID destArmy, SlotID srcSlot)
+{
+	BulkMoveArmy pack(srcArmy, destArmy, srcSlot);
+	sendRequest(&pack);
+	return 0;
+}
+
+int CCallback::bulkSplitStack(ObjectInstanceID armyId, SlotID srcSlot, int howMany)
+{
+	BulkSplitStack pack(armyId, srcSlot, howMany);
+	sendRequest(&pack);
+	return 0;
+}
+
+int CCallback::bulkSmartSplitStack(ObjectInstanceID armyId, SlotID srcSlot)
+{
+	BulkSmartSplitStack pack(armyId, srcSlot);
+	sendRequest(&pack);
+	return 0;
+}
+
+int CCallback::bulkMergeStacks(ObjectInstanceID armyId, SlotID srcSlot)
+{
+	BulkMergeStacks pack(armyId, srcSlot);
 	sendRequest(&pack);
 	return 0;
 }

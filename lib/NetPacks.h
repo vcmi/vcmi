@@ -886,7 +886,7 @@ struct RebalanceStacks : CGarrisonOperationPack
 	TQuantity count;
 
 	void applyCl(CClient *cl);
-	DLL_LINKAGE void applyGs(CGameState *gs);
+	DLL_LINKAGE void applyGs(CGameState * gs);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -895,6 +895,36 @@ struct RebalanceStacks : CGarrisonOperationPack
 		h & srcSlot;
 		h & dstSlot;
 		h & count;
+	}
+};
+
+struct BulkRebalanceStacks : CGarrisonOperationPack
+{
+	std::vector<RebalanceStacks> moves;
+
+	void applyCl(CClient * cl);
+	DLL_LINKAGE void applyGs(CGameState * gs);
+
+	template <typename Handler> 
+	void serialize(Handler & h, const int version)
+	{
+		h & moves;
+	}
+};
+
+struct BulkSmartRebalanceStacks : CGarrisonOperationPack
+{
+	std::vector<RebalanceStacks> moves;
+	std::vector<ChangeStackCount> changes;
+
+	void applyCl(CClient * cl);
+	DLL_LINKAGE void applyGs(CGameState * gs);
+
+	template <typename Handler> 
+	void serialize(Handler & h, const int version)
+	{
+		h & moves;
+		h & changes;
 	}
 };
 
@@ -1943,6 +1973,102 @@ struct ArrangeStacks : public CPackForServer
 		h & id1;
 		h & id2;
 		h & val;
+	}
+};
+
+struct BulkMoveArmy : public CPackForServer
+{
+	SlotID srcSlot;
+	ObjectInstanceID srcArmy;
+	ObjectInstanceID destArmy;
+
+	BulkMoveArmy()
+	{};
+
+	BulkMoveArmy(ObjectInstanceID srcArmy, ObjectInstanceID destArmy, SlotID srcSlot)
+		: srcArmy(srcArmy), destArmy(destArmy), srcSlot(srcSlot)
+	{};
+
+	bool applyGh(CGameHandler * gh);
+
+	template <typename Handler>
+	void serialize(Handler & h, const int version)
+	{
+		h & static_cast<CPackForServer&>(*this);
+		h & srcSlot;
+		h & srcArmy;
+		h & destArmy;
+	}
+};
+
+struct BulkSplitStack : public CPackForServer
+{
+	SlotID src;
+	ObjectInstanceID srcOwner;
+	si32 amount;
+
+	BulkSplitStack() : amount(0)
+	{};
+
+	BulkSplitStack(ObjectInstanceID srcOwner, SlotID src, si32 howMany)
+		: src(src), srcOwner(srcOwner), amount(howMany) 
+	{};
+
+	bool applyGh(CGameHandler * gh);
+
+	template <typename Handler> 
+	void serialize(Handler & h, const int version)
+	{
+		h & static_cast<CPackForServer&>(*this);
+		h & src;
+		h & srcOwner;
+		h & amount;
+	}
+};
+
+struct BulkMergeStacks : public CPackForServer
+{
+	SlotID src;
+	ObjectInstanceID srcOwner;
+
+	BulkMergeStacks()
+	{};
+
+	BulkMergeStacks(ObjectInstanceID srcOwner, SlotID src)
+		: src(src), srcOwner(srcOwner)
+	{};
+
+	bool applyGh(CGameHandler * gh);
+
+	template <typename Handler>
+	void serialize(Handler & h, const int version)
+	{
+		h & static_cast<CPackForServer&>(*this);
+		h & src;
+		h & srcOwner;
+	}
+};
+
+struct BulkSmartSplitStack : public CPackForServer
+{
+	SlotID src;
+	ObjectInstanceID srcOwner;
+
+	BulkSmartSplitStack()
+	{};
+
+	BulkSmartSplitStack(ObjectInstanceID srcOwner, SlotID src)
+		: src(src), srcOwner(srcOwner)
+	{};
+
+	bool applyGh(CGameHandler * gh);
+
+	template <typename Handler>
+	void serialize(Handler & h, const int version)
+	{
+		h & static_cast<CPackForServer&>(*this);
+		h & src;
+		h & srcOwner;
 	}
 };
 

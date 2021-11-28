@@ -1629,6 +1629,9 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 
 CGameHandler::CGameHandler(CVCMIServer * lobby)
 	: lobby(lobby)
+	, complainNoCreatures("No creatures to split")
+	, complainNotEnoughCreatures("Cannot split that stack, not enough creatures!")
+	, complainInvalidSlot("Invalid slot accessed!")
 {
 	QID = 1;
 	IObjectInterface::cb = this;
@@ -2962,6 +2965,259 @@ void CGameHandler::load(const std::string & filename)
 	gs->updateOnLoad(lobby->si.get());
 }
 
+bool CGameHandler::bulkSplitStack(SlotID slotSrc, ObjectInstanceID srcOwner, si32 howMany)
+{
+	if(!slotSrc.validSlot() && complain(complainInvalidSlot))
+		return false;
+
+	const CArmedInstance * army = static_cast<const CArmedInstance*>(getObjInstance(srcOwner));
+	const CCreatureSet & creatureSet = *army;
+
+	if((!vstd::contains(creatureSet.stacks, slotSrc) && complain(complainNoCreatures))
+		|| (howMany < 1 && complain("Invalid split parameter!")))
+	{
+		return false;
+	}
+	auto actualAmount = army->getStackCount(slotSrc);
+
+	if(actualAmount <= howMany && complain(complainNotEnoughCreatures)) // '<=' because it's not intended just for moving a stack
+		return false;
+
+	auto freeSlots = creatureSet.getFreeSlots();
+
+	if(freeSlots.empty() && complain("No empty stacks"))
+		return false;
+
+	BulkRebalanceStacks bulkRS;
+
+	for(auto slot : freeSlots)
+	{
+		RebalanceStacks rs;
+		rs.srcArmy = army->id;
+		rs.dstArmy = army->id;
+		rs.srcSlot = slotSrc;
+		rs.dstSlot = slot;
+		rs.count = howMany;
+
+		bulkRS.moves.push_back(rs);
+		actualAmount -= howMany;
+
+		if(actualAmount <= howMany)
+			break;
+	}
+	sendAndApply(&bulkRS);
+	return true;
+}
+
+bool CGameHandler::bulkMergeStacks(SlotID slotSrc, ObjectInstanceID srcOwner)
+{
+	if(!slotSrc.validSlot() && complain(complainInvalidSlot))
+		return false;
+
+	const CArmedInstance * army = static_cast<const CArmedInstance*>(getObjInstance(srcOwner));
+	const CCreatureSet & creatureSet = *army;
+
+	if(!vstd::contains(creatureSet.stacks, slotSrc) && complain(complainNoCreatures))
+		return false;
+
+	auto actualAmount = creatureSet.getStackCount(slotSrc);
+
+	if(actualAmount < 1 && complain(complainNoCreatures))
+		return false;
+
+	auto currentCreature = creatureSet.getCreature(slotSrc);
+
+	if(!currentCreature && complain(complainNoCreatures))
+		return false;
+
+	auto creatureSlots = creatureSet.getCreatureSlots(currentCreature, slotSrc);
+
+	if(!creatureSlots.size())
+		return false;
+
+	BulkRebalanceStacks bulkRS;
+
+	for(auto slot : creatureSlots)
+	{
+		RebalanceStacks rs;
+		rs.srcArmy = army->id;
+		rs.dstArmy = army->id;
+		rs.srcSlot = slot;
+		rs.dstSlot = slotSrc;
+		rs.count = creatureSet.getStackCount(slot);
+		bulkRS.moves.push_back(rs);
+	}
+	sendAndApply(&bulkRS);
+	return true;
+}
+
+bool CGameHandler::bulkMoveArmy(ObjectInstanceID srcArmy, ObjectInstanceID destArmy, SlotID srcSlot)
+{
+	if(!srcSlot.validSlot() && complain(complainInvalidSlot))
+		return false;
+
+	const CArmedInstance * armySrc = static_cast<const CArmedInstance*>(getObjInstance(srcArmy));
+	const CCreatureSet & setSrc = *armySrc;
+
+	if(!vstd::contains(setSrc.stacks, srcSlot) && complain(complainNoCreatures))
+		return false;
+
+	const CArmedInstance * armyDest = static_cast<const CArmedInstance*>(getObjInstance(destArmy));
+	const CCreatureSet & setDest = *armyDest;
+	auto freeSlots = setDest.getFreeSlotsQueue();
+
+	typedef std::map<SlotID, std::pair<SlotID, TQuantity>> TRebalanceMap;
+	TRebalanceMap moves;
+
+	auto srcQueue = setSrc.getCreatureQueue(srcSlot); // Exclude srcSlot, it should be moved last
+	auto slotsLeft = setSrc.stacksCount();
+	auto destMap = setDest.getCreatureMap();
+	TMapCreatureSlot::key_compare keyComp = destMap.key_comp();
+
+	while(!srcQueue.empty())
+	{
+		auto pair = srcQueue.top();
+		srcQueue.pop();
+
+		auto currCreature = pair.first;
+		auto currSlot = pair.second;
+		const auto quantity = setSrc.getStackCount(currSlot);
+
+		TMapCreatureSlot::iterator lb = destMap.lower_bound(currCreature);
+		const bool alreadyExists = (lb != destMap.end() && !(keyComp(currCreature, lb->first)));
+
+		if(!alreadyExists)
+		{
+			if(freeSlots.empty())
+				continue;
+
+			auto currFreeSlot = freeSlots.front();
+			freeSlots.pop();
+			destMap.insert(lb, TMapCreatureSlot::value_type(currCreature, currFreeSlot));
+		}
+		moves.insert(std::make_pair(currSlot, std::make_pair(destMap[currCreature], quantity)));
+		slotsLeft--;
+	}
+	if(slotsLeft == 1)
+	{
+		auto lastCreature = setSrc.getCreature(srcSlot);
+		auto slotToMove = SlotID();
+		// Try to find a slot for last creature
+		if(destMap.find(lastCreature) == destMap.end())
+		{
+			if(!freeSlots.empty())
+				slotToMove = freeSlots.front();
+		}
+		else
+		{
+			slotToMove = destMap[lastCreature];
+		}
+
+		if(slotToMove != SlotID())
+		{
+			const bool needsLastStack = armySrc->needsLastStack();
+			const auto quantity = setSrc.getStackCount(srcSlot) - (needsLastStack ? 1 : 0);
+			moves.insert(std::make_pair(srcSlot, std::make_pair(slotToMove, quantity)));
+		}
+	}
+	BulkRebalanceStacks bulkRS;
+
+	for(auto & move : moves)
+	{
+		RebalanceStacks rs;
+		rs.srcArmy = armySrc->id;
+		rs.dstArmy = armyDest->id;
+		rs.srcSlot = move.first;
+		rs.dstSlot = move.second.first;
+		rs.count = move.second.second;
+		bulkRS.moves.push_back(rs);
+	}
+	sendAndApply(&bulkRS);
+	return true;
+}
+
+bool CGameHandler::bulkSmartSplitStack(SlotID slotSrc, ObjectInstanceID srcOwner)
+{
+	if(!slotSrc.validSlot() && complain(complainInvalidSlot))
+		return false;
+
+	const CArmedInstance * army = static_cast<const CArmedInstance*>(getObjInstance(srcOwner));
+	const CCreatureSet & creatureSet = *army;
+
+	if(!vstd::contains(creatureSet.stacks, slotSrc) && complain(complainNoCreatures))
+		return false;
+
+	auto actualAmount = creatureSet.getStackCount(slotSrc);
+
+	if(actualAmount <= 1 && complain(complainNoCreatures))
+		return false;
+
+	auto freeSlot = creatureSet.getFreeSlot();
+	auto currentCreature = creatureSet.getCreature(slotSrc);
+
+	if(freeSlot == SlotID() && creatureSet.isCreatureBalanced(currentCreature))
+		return true;
+
+	auto creatureSlots = creatureSet.getCreatureSlots(currentCreature, SlotID(-1), 1); // Ignore slots where's only 1 creature, don't ignore slotSrc
+	TQuantity totalCreatures = 0;
+
+	for(auto slot : creatureSlots)
+		totalCreatures += creatureSet.getStackCount(slot);
+
+	if(totalCreatures <= 1 && complain("Total creatures number is invalid"))
+		return false;
+
+	if(freeSlot != SlotID())
+		creatureSlots.push_back(freeSlot);
+
+	if(creatureSlots.empty() && complain("No available slots for smart rebalancing"))
+		return false;
+
+	const auto totalCreatureSlots = creatureSlots.size();
+	const auto rem = totalCreatures % totalCreatureSlots;
+	const auto quotient = totalCreatures / totalCreatureSlots;
+
+	// totalCreatures == rem * (quotient + 1) + (totalCreatureSlots - rem) * quotient;
+	// Proof: r(q+1)+(s-r)q = rq+r+qs-rq = r+qs = total, where total/s = q+r/s
+
+	BulkSmartRebalanceStacks bulkSRS;
+
+	if(freeSlot != SlotID())
+	{
+		RebalanceStacks rs;
+		rs.srcArmy = rs.dstArmy = army->id;
+		rs.srcSlot = slotSrc;
+		rs.dstSlot = freeSlot;
+		rs.count = 1;
+		bulkSRS.moves.push_back(rs);
+	}
+	auto currSlot = 0;
+	auto check = 0;
+
+	for(auto slot : creatureSlots)
+	{
+		ChangeStackCount csc;
+
+		csc.army = army->id;
+		csc.slot = slot;
+		csc.count = (currSlot < rem)
+			? quotient + 1
+			: quotient;
+		csc.absoluteValue = true;
+		bulkSRS.changes.push_back(csc);
+		currSlot++;
+		check += csc.count;
+	}
+
+	if(check != totalCreatures)
+	{
+		complain((boost::format("Failure: totalCreatures=%d but check=%d") % totalCreatures % check).str());
+		return false;
+	}
+	sendAndApply(&bulkSRS);
+	return true;
+}
+
 bool CGameHandler::arrangeStacks(ObjectInstanceID id1, ObjectInstanceID id2, ui8 what, SlotID p1, SlotID p2, si32 val, PlayerColor player)
 {
 	const CArmedInstance * s1 = static_cast<const CArmedInstance *>(getObjInstance(id1)),
@@ -2970,7 +3226,7 @@ bool CGameHandler::arrangeStacks(ObjectInstanceID id1, ObjectInstanceID id2, ui8
 	StackLocation sl1(s1, p1), sl2(s2, p2);
 	if (!sl1.slot.validSlot()  ||  !sl2.slot.validSlot())
 	{
-		complain("Invalid slot accessed!");
+		complain(complainInvalidSlot);
 		return false;
 	}
 
@@ -3051,8 +3307,8 @@ bool CGameHandler::arrangeStacks(ObjectInstanceID id1, ObjectInstanceID id2, ui8
 		}
 
 		//general conditions checking
-		if ((!vstd::contains(S1.stacks,p1) && complain("no creatures to split"))
-			|| (val<1  && complain("no creatures to split")) )
+		if ((!vstd::contains(S1.stacks,p1) && complain(complainNoCreatures))
+			|| (val<1  && complain(complainNoCreatures)) )
 		{
 			return false;
 		}
@@ -3087,7 +3343,7 @@ bool CGameHandler::arrangeStacks(ObjectInstanceID id1, ObjectInstanceID id2, ui8
 		{
 			if (s1->getStackCount(p1) < val)//not enough creatures
 			{
-				complain("Cannot split that stack, not enough creatures!");
+				complain(complainNotEnoughCreatures);
 				return false;
 			}
 
@@ -6793,7 +7049,11 @@ bool CGameHandler::isBlockedByQueries(const CPack *pack, PlayerColor player)
 	auto query = queries.topQuery(player);
 	if (query && query->blocksPack(pack))
 	{
-		complain(boost::str(boost::format("Player %s has to answer queries  before attempting any further actions. Top query is %s!") % player % query->toString()));
+		complain(boost::str(boost::format(
+			"\r\n| Player \"%s\" has to answer queries before attempting any further actions.\r\n| Top Query: \"%s\"\r\n")
+			% boost::to_upper_copy<std::string>(player.getStr())
+			% query->toString()
+		));
 		return true;
 	}
 

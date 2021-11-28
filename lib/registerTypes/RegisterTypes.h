@@ -317,6 +317,8 @@ void registerTypesClientPacks2(Serializer &s)
 
 	s.template registerType<CPackForClient, SaveGameClient>();
 	s.template registerType<CPackForClient, PlayerMessageClient>();
+	s.template registerType<CGarrisonOperationPack, BulkRebalanceStacks>();
+	s.template registerType<CGarrisonOperationPack, BulkSmartRebalanceStacks>();
 }
 
 template<typename Serializer>
@@ -347,6 +349,10 @@ void registerTypesServerPacks(Serializer &s)
 	s.template registerType<CPackForServer, CastleTeleportHero>();
 	s.template registerType<CPackForServer, SaveGame>();
 	s.template registerType<CPackForServer, PlayerMessage>();
+	s.template registerType<CPackForServer, BulkSplitStack>();
+	s.template registerType<CPackForServer, BulkMergeStacks>();
+	s.template registerType<CPackForServer, BulkSmartSplitStack>();
+	s.template registerType<CPackForServer, BulkMoveArmy>();
 }
 
 template<typename Serializer>

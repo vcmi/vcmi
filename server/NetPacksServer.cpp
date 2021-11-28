@@ -123,6 +123,26 @@ bool ArrangeStacks::applyGh(CGameHandler * gh)
 	return gh->arrangeStacks(id1, id2, what, p1, p2, val, gh->getPlayerAt(c));
 }
 
+bool BulkMoveArmy::applyGh(CGameHandler * gh)
+{
+	return gh->bulkMoveArmy(srcArmy, destArmy, srcSlot);
+}
+
+bool BulkSplitStack::applyGh(CGameHandler * gh)
+{
+	return gh->bulkSplitStack(src, srcOwner, amount);
+}
+
+bool BulkMergeStacks::applyGh(CGameHandler* gh)
+{
+	return gh->bulkMergeStacks(src, srcOwner);
+}
+
+bool BulkSmartSplitStack::applyGh(CGameHandler * gh)
+{
+	return gh->bulkSmartSplitStack(src, srcOwner);
+}
+
 bool DisbandCreature::applyGh(CGameHandler * gh)
 {
 	throwOnWrongOwner(gh, id);
