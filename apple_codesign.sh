@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-if [[ "$PLATFORM_NAME" == *simulator* || -z "$EXPANDED_CODE_SIGN_IDENTITY" ]]; then
+if [[ "$PLATFORM_NAME" == *simulator* || "$CODE_SIGNING_ALLOWED_FOR_APPS" == 'NO' || -z "$EXPANDED_CODE_SIGN_IDENTITY" ]]; then
   exit 0
 fi
 
