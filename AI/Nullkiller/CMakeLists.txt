@@ -138,3 +138,6 @@ vcmi_set_output_dir(Nullkiller "AI")
 enable_pch(Nullkiller)
 
 install(TARGETS Nullkiller RUNTIME DESTINATION ${AI_LIB_DIR} LIBRARY DESTINATION ${AI_LIB_DIR} OPTIONAL)
+if(APPLE_IOS)
+	install(IMPORTED_RUNTIME_ARTIFACTS TBB::tbb LIBRARY DESTINATION ${LIB_DIR} OPTIONAL) # CMake 3.21+
+endif()
