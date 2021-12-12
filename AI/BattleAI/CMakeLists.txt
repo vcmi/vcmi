@@ -38,4 +38,4 @@ target_link_libraries(BattleAI PRIVATE vcmi)
 vcmi_set_output_dir(BattleAI "AI")
 enable_pch(BattleAI)
 
-install(TARGETS BattleAI RUNTIME DESTINATION ${AI_LIB_DIR} LIBRARY DESTINATION ${AI_LIB_DIR})
+install(TARGETS BattleAI RUNTIME DESTINATION ${AI_LIB_DIR} LIBRARY DESTINATION ${AI_LIB_DIR} COMPONENT AI)

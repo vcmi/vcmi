@@ -423,9 +423,9 @@ endif()
 #        Installation section         #
 #######################################
 
-install(DIRECTORY config DESTINATION ${DATA_DIR})
-install(DIRECTORY scripts DESTINATION ${DATA_DIR})
-install(DIRECTORY Mods DESTINATION ${DATA_DIR})
+install(DIRECTORY config DESTINATION ${DATA_DIR} COMPONENT core)
+install(DIRECTORY scripts DESTINATION ${DATA_DIR} COMPONENT core)
+install(DIRECTORY Mods DESTINATION ${DATA_DIR} COMPONENT core)
 
 # that script is useless for Windows
 if(NOT WIN32 AND NOT APPLE_IOS)

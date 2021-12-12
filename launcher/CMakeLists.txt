@@ -131,9 +131,10 @@ vcmi_set_output_dir(vcmilauncher "")
 enable_pch(vcmilauncher)
 
 if(APPLE_IOS)
-	install(DIRECTORY icons DESTINATION ${DATA_DIR})
+	install(DIRECTORY icons DESTINATION ${DATA_DIR} COMPONENT launcher)
 	add_custom_command(TARGET vcmilauncher POST_BUILD
-		COMMAND ${CMAKE_COMMAND} --install "${CMAKE_BINARY_DIR}" --config "$<CONFIG>" --prefix "$<TARGET_BUNDLE_CONTENT_DIR:vcmilauncher>"
+		COMMAND ${CMAKE_COMMAND} --install "${CMAKE_BINARY_DIR}" --config "$<CONFIG>" --component core --prefix "$<TARGET_BUNDLE_CONTENT_DIR:vcmilauncher>"
+		COMMAND ${CMAKE_COMMAND} --install "${CMAKE_BINARY_DIR}" --config "$<CONFIG>" --component launcher --prefix "$<TARGET_BUNDLE_CONTENT_DIR:vcmilauncher>"
 		COMMAND ${CMAKE_SOURCE_DIR}/apple_codesign.sh
 	)
 else()

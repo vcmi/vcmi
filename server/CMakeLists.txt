@@ -33,7 +33,6 @@ if(CMAKE_SYSTEM_NAME MATCHES FreeBSD)
 	set(server_LIBS execinfo ${server_LIBS})
 elseif(APPLE_IOS)
 	set(server_LIBS ${server_LIBS} "-framework UIKit")
-	add_dependencies(vcmiserver BattleAI StupidAI VCAI)
 endif()
 target_link_libraries(vcmiserver PRIVATE ${server_LIBS} minizip::minizip)
 
@@ -72,7 +71,7 @@ enable_pch(vcmiserver)
 if(APPLE_IOS)
 	# TODO: move to a common dir / add macro?
 	add_custom_command(TARGET vcmiserver POST_BUILD
-		COMMAND ${CMAKE_COMMAND} --install "${CMAKE_BINARY_DIR}" --config "$<CONFIG>" --prefix "$<TARGET_BUNDLE_CONTENT_DIR:vcmiserver>"
+		COMMAND ${CMAKE_COMMAND} --install "${CMAKE_BINARY_DIR}" --config "$<CONFIG>" --component core --prefix "$<TARGET_BUNDLE_CONTENT_DIR:vcmiserver>"
 		COMMAND ${CMAKE_SOURCE_DIR}/apple_codesign.sh
 	)
 else()
