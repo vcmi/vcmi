@@ -1504,7 +1504,7 @@ std::vector<const battle::Unit*> CBattleInfoCallback::getAttackedBattleUnits(con
 			if (vstd::contains(at.hostileCreaturePositions, hex))
 				return true;
 			if (vstd::contains(at.friendlyCreaturePositions, hex))
-				return true;
+				return false;
 		}
 		return false;
 	});
