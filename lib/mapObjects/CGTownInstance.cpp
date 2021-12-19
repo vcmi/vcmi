@@ -1931,9 +1931,13 @@ const std::string CGTownBuilding::getVisitingBonusGreeting() const
 		bonusGreeting = std::string(VLC->generaltexth->localizedTexts["townHall"]["greetingDefence"].String());
 		break;
 	}
-
-	assert(!bonusGreeting.empty());
 	auto buildingName = town->town->getSpecialBuilding(bType)->Name();
+
+	if(bonusGreeting.empty())
+	{
+		bonusGreeting = "Error: Bonus greeting for '%s' is not localized.";
+		logGlobal->error("'%s' building of '%s' faction has not localized bonus greeting.", buildingName, town->town->getLocalizedFactionName());
+	}
 	boost::algorithm::replace_first(bonusGreeting, "%s", buildingName);
 	town->town->setGreeting(bType, bonusGreeting);
 	return bonusGreeting;
