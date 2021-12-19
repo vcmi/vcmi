@@ -216,14 +216,14 @@ void CMapLoaderH3M::readPlayerInfo()
 		ui16 totalFactions = GameConstants::F_NUMBER;
 
 		if(mapHeader->version != EMapFormat::ROE)
-			allowedFactions += reader.readUInt8() * 256;
+			allowedFactions += reader.readUInt8() * 256; // 256 = 2^8 = 0b100000000
 		else
 			totalFactions--; //exclude conflux for ROE
 
 		const bool isFactionRandom = mapHeader->players[i].isFactionRandom = reader.readBool();
 		const ui16 allFactionsMask = (mapHeader->version == EMapFormat::ROE)
-			? 0b1111111
-			: 0b11111111;
+			? 0b11111111   // 8 towns for ROE
+			: 0b111111111; // 8 towns + Conflux
 		const bool allFactionsAllowed = mapHeader->version == EMapFormat::VCMI
 			|| (isFactionRandom && ((allowedFactions & allFactionsMask) == allFactionsMask));
 
