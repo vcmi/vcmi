@@ -163,7 +163,7 @@ if(ENABLE_DEBUG_CONSOLE)
 else()
 	add_executable(vcmiclient WIN32 ${client_SRCS} ${client_HEADERS} ${client_ICON})
 endif(ENABLE_DEBUG_CONSOLE)
-add_dependencies(vcmiclient vcmiserver BattleAI StupidAI VCAI Nullkiller)
+add_dependencies(vcmiclient vcmiserver BattleAI StupidAI VCAI Nullkiller BattleML)
 
 if(WIN32)
 	set_target_properties(vcmiclient
