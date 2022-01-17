@@ -173,6 +173,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 
 		root["currentSide"].Integer() = cb->battleGetMySide();
 		root["activeStackId"].Integer() = stack->unitId();
+
 		root["terrain"].Integer() = cb->battleTerrainType();
 		root["battlefield"].Integer() = cb->battleGetBattlefieldType();
 
@@ -190,19 +191,22 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 
 			// creature
 			unitNode["doubleWide"].Bool() = unit->doubleWide();
+			unitNode["creatureType"].Integer() = unit->creatureId();
+			unitNode["creatureLevel"].Integer() = unit->creatureLevel();
+			unitNode["creatureName"].String() = unit->unitType()->identifier;
 
 			// stats
 			unitNode["attack"].Integer() = unit->getAttack(false);
 			unitNode["defence"].Integer() = unit->getDefense(false);
 			unitNode["minDamage"].Integer() = unit->getMinDamage(false);
-			unitNode["maxDamage"].Integer() = unit->getMinDamage(false);
+			unitNode["maxDamage"].Integer() = unit->getMaxDamage(false);
 
 			auto & ranged = unitNode["ranged"];
 
 			ranged["attack"].Integer() = unit->getAttack(true);
 			ranged["defence"].Integer() = unit->getDefense(true);
 			ranged["minDamage"].Integer() = unit->getMinDamage(true);
-			ranged["maxDamage"].Integer() = unit->getMinDamage(true);
+			ranged["maxDamage"].Integer() = unit->getMaxDamage(true);
 
 			unitNode["morale"].Integer() = unit->MoraleVal();
 			unitNode["luck"].Integer() = unit->LuckVal();
@@ -240,6 +244,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 				unitNode["canRetalitate"].Bool() = index == 0 ? unit->ableToRetaliate() : true;
 				unitNode["canMove"].Bool() = unit->canMove(index);
 				unitNode["defended"].Bool() = unit->defended(index);
+				unitNode["canWait"].Bool() = stack->waited(index);
 				unitNode["speed"].Integer() = unit->Speed(index);
 				unitNode["initiative"].Integer() = unit->getInitiative(index);
 				unitNode["id"].Integer() = unit->unitId();
@@ -249,6 +254,56 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 
 			orderNode.Vector().push_back(turnNode);
 		}
+
+		auto & actions = root["actions"];
+		auto & attackPossibilities = actions["possibleAttacks"].Vector();
+
+		for(auto attackPossibility : targets.possibleAttacks)
+		{
+			JsonNode attackNode;
+
+			for(auto unit : attackPossibility.affectedUnits)
+			{
+				JsonNode unitId;
+
+				unitId.Integer() = unit->unitId();
+
+				attackNode["affectedUnitIds"].Vector().push_back(unitId);
+			}
+
+			attackNode["moveToHex"].Integer() = attackPossibility.from;
+			attackNode["defenderId"].Integer() = attackPossibility.attack.defender->unitId();
+			attackNode["shooting"].Bool() = attackPossibility.attack.shooting;
+			attackNode["damageDealt"].Integer() = attackPossibility.damageDealt;
+			attackNode["damageReceived"]["retalitation"].Integer() = attackPossibility.damageReceived;
+			attackNode["damageReceived"]["collateral"].Integer() = attackPossibility.collateralDamage;
+			attackNode["shootersBlockedDamage"].Integer() = attackPossibility.shootersBlockedDmg;
+
+			attackPossibilities.push_back(attackNode);
+		}
+
+		ReachabilityInfo dists = cb->getReachability(stack);
+		auto stackSpeed = stack->Speed();
+		JsonVector & possibleMoves = actions["possibleMoves"].Vector();
+		
+		for(BattleHex hex = BattleHex(0); hex.isValid(); hex = hex + 1)
+		{
+			EAccessibility accessibility = dists.accessibility[hex];
+
+			if(accessibility != EAccessibility::ACCESSIBLE
+				|| stackSpeed < dists.distances[hex])
+			{
+				continue;
+			}
+
+			JsonNode movementNode;
+
+			movementNode.Integer() = hex;
+			possibleMoves.push_back(movementNode);
+		}
+
+		actions["canWait"].Bool() = !stack->waited();
+		actions["canDefend"].Bool() = !stack->defended();
 
 		std::ofstream file;
 		file.open("data.json");
