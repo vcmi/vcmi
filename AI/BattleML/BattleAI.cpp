@@ -9,6 +9,7 @@
  */
 #include "StdInc.h"
 #include "BattleAI.h"
+#include <boost/asio.hpp>
 
 #include "StackWithBonuses.h"
 #include "EnemyInfo.h"
@@ -167,8 +168,6 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 
 		auto stacks = cb->battleGetAllStacks();
 
-		//AccessibilityInfo access = cb->getReachability();
-
 		JsonNode root;
 
 		root["currentSide"].Integer() = cb->battleGetMySide();
@@ -188,6 +187,9 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 			unitNode["canCast"].Bool() = unit->canCast();
 			unitNode["shots"].Integer() = unit->shots.total();
 			unitNode["side"].Integer() = unit->unitSide();
+			unitNode["stackCount"].Integer() = unit->getCount();
+			unitNode["healthLeft"].Integer() = unit->getFirstHPleft();
+			unitNode["totalHealthLeft"].Integer() = unit->getAvailableHealth();
 
 			// creature
 			unitNode["doubleWide"].Bool() = unit->doubleWide();
@@ -208,6 +210,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 			ranged["minDamage"].Integer() = unit->getMinDamage(true);
 			ranged["maxDamage"].Integer() = unit->getMaxDamage(true);
 
+			unitNode["creatureHealth"].Integer() = unit->MaxHealth();
 			unitNode["morale"].Integer() = unit->MoraleVal();
 			unitNode["luck"].Integer() = unit->LuckVal();
 			unitNode["speed"].Integer() = unit->Speed();
@@ -291,7 +294,8 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 			EAccessibility accessibility = dists.accessibility[hex];
 
 			if(accessibility != EAccessibility::ACCESSIBLE
-				|| stackSpeed < dists.distances[hex])
+				|| stackSpeed < dists.distances[hex]
+				|| dists.distances[hex] == 0)
 			{
 				continue;
 			}
@@ -305,10 +309,83 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 		actions["canWait"].Bool() = !stack->waited();
 		actions["canDefend"].Bool() = !stack->defended();
 
-		std::ofstream file;
-		file.open("data.json");
-		file << root.toJson();
-		file.close();
+		boost::asio::io_service io_service;
+		boost::asio::ip::tcp::socket socket(io_service);
+
+		socket.connect(
+			boost::asio::ip::tcp::endpoint(
+				boost::asio::ip::address::from_string("127.0.0.1"),
+				9999));
+
+		std::string json = root.toJson();
+
+		boost::system::error_code error;
+		boost::asio::write(socket, boost::asio::buffer(json), error);
+
+		if(!error)
+		{
+			logAi->debug("Battle state sent!");
+
+			boost::asio::streambuf receive_buffer;
+			boost::asio::read(socket, receive_buffer, boost::asio::transfer_all(), error);
+
+			if(error && error != boost::asio::error::eof)
+			{
+				logAi->error("Reading reply failed! " + error.message());
+			}
+			else
+			{
+				const char * reply = boost::asio::buffer_cast<const char *>(receive_buffer.data());
+				JsonNode data(reply, receive_buffer.size());
+
+				logAi->debug("Reply received! " + data.toJson());
+
+				if(vstd::contains(data.Struct(), "type"))
+				{
+					auto actionType = data["type"].Integer();
+
+					if(actionType == 3)
+					{
+						return BattleAction::makeWait(stack);
+					}
+					else if(actionType == 4)
+					{
+						return BattleAction::makeDefend(stack);
+					}
+					else if(actionType == 0)
+					{
+						BattleHex targetHex = BattleHex(data["moveToHex"].Integer());
+
+						// TODO: verification
+						return BattleAction::makeMove(stack, targetHex);
+					}
+
+					auto targetId = data["targetId"].Integer();
+					auto targetStack = cb->battleGetStackByID(targetId);
+
+					if(actionType == 1)
+					{
+						return BattleAction::makeShotAttack(stack, targetStack);
+					}
+					else if(actionType == 2)
+					{
+						BattleHex targetHex = BattleHex(data["moveToHex"].Integer());
+
+						return BattleAction::makeMeleeAttack(stack, targetStack->getPosition(), targetHex);
+					}
+				}
+			}
+		}
+		else
+		{
+			logAi->error("Battle state sending failed! " + error.message());
+		}
+
+		socket.close();
+
+		//type: move = 0, shot = 1, mellee = 2, wait = 3, defence = 4
+		//targetId: number, required for shot and mellee
+		//moveToHex: number of battlefield hex, required for move, mellee
 
 		if(!targets.possibleAttacks.empty())
 		{
