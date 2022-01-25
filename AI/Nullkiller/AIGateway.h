@@ -123,7 +123,7 @@ public:
 	void finish() override;
 
 	void availableCreaturesChanged(const CGDwelling * town) override;
-	void heroMoved(const TryMoveHero & details) override;
+	void heroMoved(const TryMoveHero & details, bool verbose = true) override;
 	void heroInGarrisonChange(const CGTownInstance * town) override;
 	void centerView(int3 pos, int focusTime) override;
 	void tileHidden(const std::unordered_set<int3, ShashInt3> & pos) override;

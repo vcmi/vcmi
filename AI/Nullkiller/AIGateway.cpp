@@ -79,7 +79,7 @@ void AIGateway::availableCreaturesChanged(const CGDwelling * town)
 	NET_EVENT_HANDLER;
 }
 
-void AIGateway::heroMoved(const TryMoveHero & details)
+void AIGateway::heroMoved(const TryMoveHero & details, bool verbose)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
@@ -89,8 +89,8 @@ void AIGateway::heroMoved(const TryMoveHero & details)
 
 	const int3 from = CGHeroInstance::convertPosition(details.start, false);
 	const int3 to = CGHeroInstance::convertPosition(details.end, false);
-	const CGObjectInstance * o1 = vstd::frontOrNull(cb->getVisitableObjs(from));
-	const CGObjectInstance * o2 = vstd::frontOrNull(cb->getVisitableObjs(to));
+	const CGObjectInstance * o1 = vstd::frontOrNull(cb->getVisitableObjs(from, verbose));
+	const CGObjectInstance * o2 = vstd::frontOrNull(cb->getVisitableObjs(to, verbose));
 
 	if(details.result == TryMoveHero::TELEPORTATION)
 	{

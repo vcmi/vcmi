@@ -433,12 +433,19 @@ void TryMoveHero::applyCl(CClient *cl)
 			i.second->tileRevealed(fowRevealed);
 
 	//notify interfaces about move
+	auto gs = cl->gameState();
+
 	for(auto i=cl->playerint.begin(); i!=cl->playerint.end(); i++)
 	{
+		if(i->first != PlayerColor::SPECTATOR && gs->checkForStandardLoss(i->first)) // Do not notify vanquished player's interface
+			continue;
+
 		if(GS(cl)->isVisible(start - int3(1, 0, 0), i->first)
 			|| GS(cl)->isVisible(end - int3(1, 0, 0), i->first))
 		{
-			i->second->heroMoved(*this);
+			// src and dst of enemy hero move may be not visible => 'verbose' should be false
+			const bool verbose = cl->getPlayerRelations(i->first, player) != PlayerRelations::ENEMIES;
+			i->second->heroMoved(*this, verbose);
 		}
 	}
 

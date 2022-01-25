@@ -135,7 +135,7 @@ public:
 	void heroGotLevel(const CGHeroInstance *hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> &skills, QueryID queryID) override;
 	void commanderGotLevel (const CCommanderInstance * commander, std::vector<ui32> skills, QueryID queryID) override;
 	void heroInGarrisonChange(const CGTownInstance *town) override;
-	void heroMoved(const TryMoveHero & details) override;
+	void heroMoved(const TryMoveHero & details, bool verbose = true) override;
 	void heroPrimarySkillChanged(const CGHeroInstance * hero, int which, si64 val) override;
 	void heroSecondarySkillChanged(const CGHeroInstance * hero, int which, int val) override;
 	void heroManaPointsChanged(const CGHeroInstance * hero) override;
