@@ -493,10 +493,12 @@ std::vector<const CGHeroInstance *> CGameInfoCallback::getAvailableHeroes(const 
 
 const TerrainTile * CGameInfoCallback::getTile( int3 tile, bool verbose) const
 {
-	ERROR_VERBOSE_OR_NOT_RET_VAL_IF(!isVisible(tile), verbose, tile.toString() + " is not visible!", nullptr);
+	if(isVisible(tile))
+		return &gs->map->getTile(tile);
 
-	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
-	return &gs->map->getTile(tile);
+	if(verbose)
+		logGlobal->error("\r\n%s: %s\r\n", BOOST_CURRENT_FUNCTION, tile.toString() + " is not visible!");
+	return nullptr;
 }
 
 //TODO: typedef?

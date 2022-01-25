@@ -234,7 +234,7 @@ STRONG_INLINE void delObjRect(const int & x, const int & y, const int & z, const
 			return;
 		}
 }
-void CPlayerInterface::heroMoved(const TryMoveHero & details)
+void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	waitWhileDialog();

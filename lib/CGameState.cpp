@@ -2457,8 +2457,8 @@ PlayerColor CGameState::checkForStandardWin() const
 bool CGameState::checkForStandardLoss( PlayerColor player ) const
 {
 	//std loss condition is: player lost all towns and heroes
-	const PlayerState &p = *CGameInfoCallback::getPlayerState(player);
-	return !p.heroes.size() && !p.towns.size();
+	const PlayerState & pState = *CGameInfoCallback::getPlayerState(player);
+	return pState.checkVanquished();
 }
 
 struct statsHLP

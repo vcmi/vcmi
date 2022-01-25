@@ -49,6 +49,11 @@ public:
 	const IBonusBearer * accessBonuses() const override;
 	int getResourceAmount(int type) const override;
 
+	bool checkVanquished() const
+	{
+		return heroes.empty() && towns.empty();
+	}
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & color;
