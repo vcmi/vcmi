@@ -9,6 +9,7 @@
  */
 #include "StdInc.h"
 #include "BattleAI.h"
+#include "BattleExchangeVariant.h"
 
 #include "StackWithBonuses.h"
 #include "EnemyInfo.h"
@@ -92,7 +93,7 @@ void CBattleAI::init(std::shared_ptr<Environment> ENV, std::shared_ptr<CBattleCa
 
 BattleAction CBattleAI::activeStack( const CStack * stack )
 {
-	LOG_TRACE_PARAMS(logAi, "stack: %s", stack->nodeName())	;
+	LOG_TRACE_PARAMS(logAi, "stack: %s", stack->nodeName());
 	setCbc(cb); //TODO: make solid sure that AIs always use their callbacks (need to take care of event handlers too)
 	try
 	{
@@ -157,17 +158,33 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 		}
 
 		HypotheticBattle hb(env.get(), cb);
-
+		int turn = 0;
+		
 		PotentialTargets targets(stack, &hb);
+		BattleExchangeEvaluator scoreEvaluator(cb, env);
 
 		if(!targets.possibleAttacks.empty())
 		{
-			AttackPossibility bestAttack = targets.bestAction();
+			logAi->trace("Evaluating attack for %s", stack->getDescription());
 
+			auto evaluationResult = scoreEvaluator.findBestTarget(stack, targets, hb);
+			auto & bestAttack = evaluationResult.bestAttack;
+			
 			//TODO: consider more complex spellcast evaluation, f.e. because "re-retaliation" during enemy move in same turn for melee attack etc.
 			if(bestSpellcast.is_initialized() && bestSpellcast->value > bestAttack.damageDiff())
 				return BattleAction::makeCreatureSpellcast(stack, bestSpellcast->dest, bestSpellcast->spell->id);
-			else if(bestAttack.attack.shooting)
+
+			if(evaluationResult.wait)
+			{
+				return BattleAction::makeWait(stack);
+			}
+
+			if(evaluationResult.score == EvaluationResult::INEFFECTIVE_SCORE)
+			{
+				return BattleAction::makeDefend(stack);
+			}
+			
+			if(bestAttack.attack.shooting)
 			{
 				auto &target = bestAttack;
 				logAi->debug("BattleAI: %s -> %s x %d, shot, from %d curpos %d dist %d speed %d: %lld %lld %lld",
@@ -285,13 +302,31 @@ BattleAction CBattleAI::goTowardsNearest(const CStack * stack, std::vector<Battl
 		return BattleAction::makeDefend(stack);
 	}
 
+	BattleExchangeEvaluator scoreEvaluator(cb, env);
+	HypotheticBattle hb(env.get(), cb);
+
+	scoreEvaluator.updateReachabilityMap(hb);
+
 	if(stack->hasBonusOfType(Bonus::FLYING))
 	{
+		std::set<BattleHex> moatHexes;
+
+		if(hb.battleGetSiegeLevel() >= BuildingID::CITADEL)
+		{
+			auto townMoat = hb.getDefendedTown()->town->moatHexes;
+
+			moatHexes = std::set<BattleHex>(townMoat.begin(), townMoat.end());
+		}
 		// Flying stack doesn't go hex by hex, so we can't backtrack using predecessors.
 		// We just check all available hexes and pick the one closest to the target.
 		auto nearestAvailableHex = vstd::minElementByFun(avHexes, [&](BattleHex hex) -> int
 		{
-			return BattleHex::getDistance(bestNeighbor, hex);
+			auto distance = BattleHex::getDistance(bestNeighbor, hex);
+
+			if(vstd::contains(moatHexes, hex))
+				distance += 100;
+
+			return scoreEvaluator.checkPositionBlocksOurStacks(hb, stack, hex) ? 100 + distance : distance;
 		});
 
 		return BattleAction::makeMove(stack, *nearestAvailableHex);
@@ -303,11 +338,11 @@ BattleAction CBattleAI::goTowardsNearest(const CStack * stack, std::vector<Battl
 		{
 			if(!currentDest.isValid())
 			{
-				logAi->error("CBattleAI::goTowards: internal error");
 				return BattleAction::makeDefend(stack);
 			}
 
-			if(vstd::contains(avHexes, currentDest))
+			if(vstd::contains(avHexes, currentDest)
+				&& !scoreEvaluator.checkPositionBlocksOurStacks(hb, stack, currentDest))
 				return BattleAction::makeMove(stack, currentDest);
 
 			currentDest = reachability.predecessors[currentDest];

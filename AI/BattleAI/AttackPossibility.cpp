@@ -123,10 +123,11 @@ AttackPossibility AttackPossibility::evaluate(const BattleAttackInfo & attackInf
 
 			for(int i = 0; i < totalAttacks; i++)
 			{
-				si64 damageDealt, damageReceived;
+				int64_t damageDealt, damageReceived, enemyDpsReduce, ourDpsReduce;
 
 				TDmgRange retaliation(0, 0);
 				auto attackDmg = getCbc()->battleEstimateDamage(ap.attack, &retaliation);
+				TDmgRange enemyDamageBeforeAttack = getCbc()->battleEstimateDamage(BattleAttackInfo(u, attacker, u->canShoot()));
 
 				vstd::amin(attackDmg.first, defenderState->getAvailableHealth());
 				vstd::amin(attackDmg.second, defenderState->getAvailableHealth());
@@ -137,29 +138,42 @@ AttackPossibility AttackPossibility::evaluate(const BattleAttackInfo & attackInf
 				damageDealt = (attackDmg.first + attackDmg.second) / 2;
 				ap.attackerState->afterAttack(attackInfo.shooting, false);
 
+				auto enemiesKilled = damageDealt / u->MaxHealth() + (damageDealt % u->MaxHealth() >= u->getFirstHPleft() ? 1 : 0);
+				auto enemyDps = (enemyDamageBeforeAttack.first + enemyDamageBeforeAttack.second) / 2;
+
+				enemyDpsReduce = enemiesKilled
+					? (int64_t)(enemyDps * enemiesKilled / (double)u->getCount())
+					: (int64_t)(enemyDps / (double)u->getCount() * damageDealt / u->getFirstHPleft());
+
 				//FIXME: use ranged retaliation
 				damageReceived = 0;
+				ourDpsReduce = 0;
+
 				if (!attackInfo.shooting && defenderState->ableToRetaliate() && !counterAttacksBlocked)
 				{
 					damageReceived = (retaliation.first + retaliation.second) / 2;
 					defenderState->afterAttack(attackInfo.shooting, true);
+
+					auto ourUnitsKilled = damageReceived / attacker->MaxHealth() + (damageReceived % attacker->MaxHealth() >= attacker->getFirstHPleft() ? 1 : 0);
+
+					ourDpsReduce = (int64_t)(damageDealt * ourUnitsKilled / (double)attacker->getCount());
 				}
 
 				bool isEnemy = state->battleMatchOwner(attacker, u);
 
 				// this includes enemy units as well as attacker units under enemy's mind control
 				if(isEnemy)
-					ap.damageDealt += damageDealt;
+					ap.damageDealt += enemyDpsReduce;
 
 				// damaging attacker's units (even those under enemy's mind control) is considered friendly fire
 				if(attackerSide == u->unitSide())
-					ap.collateralDamage += damageDealt;
+					ap.collateralDamage += enemyDpsReduce;
 
 				if(u->unitId() == defender->unitId() || 
 					(!attackInfo.shooting && CStack::isMeleeAttackPossible(u, attacker, hex)))
 				{
 					//FIXME: handle RANGED_RETALIATION ?
-					ap.damageReceived += damageReceived;
+					ap.damageReceived += ourDpsReduce;
 				}
 
 				ap.attackerState->damage(damageReceived);

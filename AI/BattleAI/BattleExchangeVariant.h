@@ -1,0 +1,100 @@
+/*
+ * BattleExchangeVariant.h, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+#pragma once
+
+#include "../../lib/AI_Base.h"
+#include "../../lib/battle/ReachabilityInfo.h"
+#include "PotentialTargets.h"
+#include "StackWithBonuses.h"
+
+struct AttackerValue
+{
+	int64_t value;
+	bool isRetalitated;
+	BattleHex position;
+
+	AttackerValue()
+	{
+		value = 0;
+		isRetalitated = false;
+	}
+};
+
+class BattleExchangeVariant
+{
+public:
+	BattleExchangeVariant()
+		:dpsScore(0), attackerValue()
+	{
+	}
+
+	int64_t trackAttack(const AttackPossibility & ap, HypotheticBattle * state);
+
+	int64_t trackAttack(
+		std::shared_ptr<StackWithBonuses> attacker,
+		std::shared_ptr<StackWithBonuses> defender,
+		bool shooting,
+		bool isOurAttack,
+		std::shared_ptr<CBattleInfoCallback> cb,
+		bool evaluateOnly = false);
+
+	int64_t getScore() const { return dpsScore; }
+
+	void adjustPositions(
+		std::vector<const battle::Unit *> attackers,
+		const AttackPossibility & ap,
+		std::map<BattleHex, battle::Units> & reachabilityMap);
+
+private:
+	int64_t dpsScore;
+	std::map<uint32_t, AttackerValue> attackerValue;
+
+	int64_t calculateDpsReduce(
+		const battle::Unit * attacker,
+		const battle::Unit * defender,
+		uint64_t damageDealt,
+		std::shared_ptr<CBattleInfoCallback> cb) const;
+};
+
+struct EvaluationResult
+{
+	static const int64_t INEFFECTIVE_SCORE = -1000000;
+
+	AttackPossibility bestAttack;
+	bool wait;
+	int64_t score;
+	bool defend;
+
+	EvaluationResult(AttackPossibility & ap)
+		:wait(false), score(0), bestAttack(ap), defend(false)
+	{
+	}
+};
+
+class BattleExchangeEvaluator
+{
+private:
+	std::shared_ptr<CBattleInfoCallback> cb;
+	std::shared_ptr<Environment> env;
+	std::map<BattleHex, std::vector<const battle::Unit *>> reachabilityMap;
+	std::vector<battle::Units> turnOrder;
+
+public:
+	BattleExchangeEvaluator(std::shared_ptr<CBattleInfoCallback> cb, std::shared_ptr<Environment> env)
+		:cb(cb), reachabilityMap(), env(env), turnOrder()
+	{
+	}
+
+	EvaluationResult findBestTarget(const battle::Unit * activeStack, PotentialTargets & targets, HypotheticBattle & hb);
+	int64_t calculateExchange(const AttackPossibility & ap);
+	void updateReachabilityMap(HypotheticBattle & hb);
+	std::vector<const battle::Unit *> getExchangeUnits(const AttackPossibility & ap);
+	bool checkPositionBlocksOurStacks(HypotheticBattle & hb, const battle::Unit * unit, BattleHex position);
+};
