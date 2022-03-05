@@ -65,7 +65,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 	{
 		if(!ai->nullkiller->isHeroLocked(town->garrisonHero.get()))
 		{
-			if(!town->visitingHero)
+			if(!town->visitingHero && cb->getHeroesInfo().size() < GameConstants::MAX_HEROES_PER_PLAYER)
 			{
 				tasks.push_back(Goals::sptr(Goals::ExchangeSwapTownHeroes(town, nullptr).setpriority(5)));
 			}
