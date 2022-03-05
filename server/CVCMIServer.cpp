@@ -301,9 +301,8 @@ void CVCMIServer::connectionAccepted(const boost::system::error_code & ec)
 	}
 	catch(std::exception & e)
 	{
-        (void)e;
+		logNetwork->error("Failure processing new connection! %s", e.what());
 		upcomingConnection.reset();
-		logNetwork->info("I guess it was just my imagination!");
 	}
 
 	startAsyncAccept();
