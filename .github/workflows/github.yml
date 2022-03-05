@@ -27,12 +27,12 @@ jobs:
             cxx: g++-9
             test: 0
             cmake_args: -G Ninja
-#          - platform: mac
-#            os: macos-latest
-#            test: 0
-#            pack: 1
-#            extension: dmg
-#            cmake_args: -G Ninja
+          - platform: mac
+            os: macos-latest
+            test: 0
+            pack: 1
+            extension: dmg
+            cmake_args: -G Ninja
           - platform: mxe
             os: ubuntu-20.04
             mxe: i686-w64-mingw32.shared
@@ -46,7 +46,7 @@ jobs:
             test: 0
             pack: 1
             extension: exe
-            cmake_args: -G "Visual Studio 16 2019" -A x64 '-DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake'
+            cmake_args: -G "Visual Studio 17 2022" -A x64 '-DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake'
             
     runs-on: ${{ matrix.os }}
     defaults:
