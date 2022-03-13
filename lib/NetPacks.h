@@ -2179,6 +2179,25 @@ struct ExchangeArtifacts : public CPackForServer
 	}
 };
 
+struct BulkMoveArtifacts : public CPackForServer
+{
+	ObjectInstanceID srcHero;
+	ObjectInstanceID dstHero;
+
+	BulkMoveArtifacts() = default;
+
+	BulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID dstHero) : srcHero(srcHero), dstHero(dstHero)
+	{}
+
+	bool applyGh(CGameHandler* gh);
+	template <typename Handler> void serialize(Handler& h, const int version)
+	{
+		h & static_cast<CPackForServer&>(*this);
+		h & srcHero;
+		h & dstHero;
+	}
+};
+
 struct AssembleArtifacts : public CPackForServer
 {
 	AssembleArtifacts():assemble(false){};

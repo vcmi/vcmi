@@ -3885,6 +3885,11 @@ bool CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocat
 	return true;
 }
 
+bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID dstHero)
+{
+	return true;
+}
+
 /**
  * Assembles or disassembles a combination artifact.
  * @param heroID ID of hero holding the artifact(s).
