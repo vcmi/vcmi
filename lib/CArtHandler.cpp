@@ -1437,3 +1437,25 @@ void CArtifactSet::serializeJsonSlot(JsonSerializeFormat & handler, const Artifa
 		}
 	}
 }
+
+ArtifactLocation ArtifactUtils::getArtifactDstLocation(const CGHeroInstance * source, const CGHeroInstance * target, ArtifactPosition srcPosition)
+{
+	auto artifact = source->getArt(srcPosition);
+	auto srcLocation = ArtifactLocation(source, srcPosition);
+
+	for (auto slot : artifact->artType->possibleSlots.at(target->bearerType()))
+	{
+		auto existingArtifact = target->getArt(slot);
+		auto existingArtInfo = target->getSlot(slot);
+		ArtifactLocation destLocation(target, slot);
+
+		if (!existingArtifact
+			&& (!existingArtInfo || !existingArtInfo->locked)
+			&& artifact->canBePutAt(destLocation))
+		{
+			return ArtifactLocation(target, slot);
+		}
+	}
+
+	return ArtifactLocation(target, ArtifactPosition(GameConstants::BACKPACK_START));
+}

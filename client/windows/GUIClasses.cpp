@@ -1158,24 +1158,9 @@ void CExchangeController::moveArtifact(
 {
 	auto artifact = source->getArt(srcPosition);
 	auto srcLocation = ArtifactLocation(source, srcPosition);
+	auto dstLocation = ArtifactUtils::getArtifactDstLocation(source, target, srcPosition);
 
-	for(auto slot : artifact->artType->possibleSlots.at(target->bearerType()))
-	{
-		auto existingArtifact = target->getArt(slot);
-		auto existingArtInfo = target->getSlot(slot);
-		ArtifactLocation destLocation(target, slot);
-
-		if(!existingArtifact
-			&& (!existingArtInfo || !existingArtInfo->locked)
-			&& artifact->canBePutAt(destLocation))
-		{
-			cb->swapArtifacts(srcLocation, ArtifactLocation(target, slot));
-			
-			return;
-		}
-	}
-
-	cb->swapArtifacts(srcLocation, ArtifactLocation(target, ArtifactPosition(GameConstants::BACKPACK_START)));
+	cb->swapArtifacts(srcLocation, dstLocation);
 }
 
 CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID queryID)

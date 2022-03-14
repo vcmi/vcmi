@@ -362,3 +362,9 @@ private:
 
 	void serializeJsonSlot(JsonSerializeFormat & handler, const ArtifactPosition & slot, CMap * map);//normal slots
 };
+
+namespace ArtifactUtils
+{
+	// Calculates where an artifact gets placed when it gets transferred from one hero to another.
+	ArtifactLocation getArtifactDstLocation(const CGHeroInstance * source, const CGHeroInstance * target, ArtifactPosition srcPosition);
+}
