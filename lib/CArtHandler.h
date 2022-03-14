@@ -366,5 +366,5 @@ private:
 namespace ArtifactUtils
 {
 	// Calculates where an artifact gets placed when it gets transferred from one hero to another.
-	ArtifactLocation getArtifactDstLocation(const CGHeroInstance * source, const CGHeroInstance * target, ArtifactPosition srcPosition);
+	DLL_LINKAGE ArtifactLocation getArtifactDstLocation(const CGHeroInstance * source, const CGHeroInstance * target, ArtifactPosition srcPosition);
 }

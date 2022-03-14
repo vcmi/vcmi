@@ -3830,6 +3830,12 @@ bool CGameHandler::garrisonSwap(ObjectInstanceID tid)
 
 // With the amount of changes done to the function, it's more like transferArtifacts.
 // Function moves artifact from src to dst. If dst is not a backpack and is already occupied, old dst art goes to backpack and is replaced.
+bool CGameHandler::moveArtifactImpl(const ArtifactLocation & al1, const ArtifactLocation & al2)
+{
+
+	return true;
+}
+
 bool CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocation &al2)
 {
 	ArtifactLocation src = al1, dst = al2;
@@ -3887,6 +3893,22 @@ bool CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocat
 
 bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID dstHero)
 {
+	const CGHeroInstance * psrcHero = getHero(srcHero);
+	const CGHeroInstance * pdstHero = getHero(dstHero);
+
+	while (vstd::contains_if(psrcHero->artifactsWorn, CArtHandler::isArtRemovable))
+	{
+		auto art = std::find_if(psrcHero->artifactsWorn.begin(), psrcHero->artifactsWorn.end(), CArtHandler::isArtRemovable);
+		auto artSrcPos = art->first;
+
+		auto artifact = psrcHero->getArt(artSrcPos);
+		auto srcLocation = ArtifactLocation(psrcHero, artSrcPos);
+		auto dstLocation = ArtifactUtils::getArtifactDstLocation(psrcHero, pdstHero, artSrcPos);
+
+
+
+	}
+
 	return true;
 }
 
