@@ -230,6 +230,20 @@ public:
 	}
 };
 
+struct DLL_LINKAGE ArtSlotInfo
+{
+	ConstTransitivePtr<CArtifactInstance> artifact;
+	ui8 locked; //if locked, then artifact points to the combined artifact
+
+	ArtSlotInfo() : locked(false) {}
+
+	template <typename Handler> void serialize(Handler& h, const int version)
+	{
+		h& artifact;
+		h& locked;
+	}
+};
+
 class DLL_LINKAGE CArtHandler : public CHandlerBase<ArtifactID, Artifact, CArtifact, ArtifactService>
 {
 public:
@@ -237,6 +251,8 @@ public:
 
 	std::vector<CArtifact *> allowedArtifacts;
 	std::set<ArtifactID> growingArtifacts;
+
+	static const std::vector<ArtifactPosition> UNMOVABLE_POSITIONS;
 
 	void addBonuses(CArtifact *art, const JsonNode &bonusList);
 
@@ -268,6 +284,8 @@ public:
 
 	std::vector<bool> getDefaultAllowed() const override;
 
+	static bool isArtRemovable(const std::pair<ArtifactPosition, ArtSlotInfo>& slot);
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & objects;
@@ -293,20 +311,6 @@ private:
 	void loadGrowingArt(CGrowingArtifact * art, const JsonNode & node);
 
 	void erasePickedArt(ArtifactID id);
-};
-
-struct DLL_LINKAGE ArtSlotInfo
-{
-	ConstTransitivePtr<CArtifactInstance> artifact;
-	ui8 locked; //if locked, then artifact points to the combined artifact
-
-	ArtSlotInfo() : locked(false) {}
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & artifact;
-		h & locked;
-	}
 };
 
 class DLL_LINKAGE CArtifactSet

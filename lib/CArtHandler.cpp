@@ -48,6 +48,8 @@
 	ART_POS(SHOULDERS)  \
 	ART_POS(HEAD)
 
+const std::vector<ArtifactPosition>CArtHandler::UNMOVABLE_POSITIONS = { ArtifactPosition::SPELLBOOK, ArtifactPosition::MACH4 };
+
 int32_t CArtifact::getIndex() const
 {
 	return id.toEnum();
@@ -711,6 +713,13 @@ void CArtHandler::afterLoadFinalization()
 		}
 	}
 	CBonusSystemNode::treeHasChanged();
+}
+
+bool CArtHandler::isArtRemovable(const std::pair<ArtifactPosition, ArtSlotInfo>& slot)
+{
+	return slot.second.artifact
+		&& !slot.second.locked
+		&& !vstd::contains(UNMOVABLE_POSITIONS, slot.first);
 }
 
 CArtifactInstance::CArtifactInstance()

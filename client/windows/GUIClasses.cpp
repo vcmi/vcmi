@@ -902,15 +902,6 @@ std::vector<CArtifactInstance *> getBackpackArts(const CGHeroInstance * hero)
 	return result;
 }
 
-const std::vector<ArtifactPosition> unmovablePositions = {ArtifactPosition::SPELLBOOK, ArtifactPosition::MACH4};
-
-bool isArtRemovable(const std::pair<ArtifactPosition, ArtSlotInfo> & slot)
-{
-	return slot.second.artifact
-		&& !slot.second.locked
-		&& !vstd::contains(unmovablePositions, slot.first);
-}
-
 // Puts all composite arts to backpack and returns their previous location
 std::vector<HeroArtifact> CExchangeController::moveCompositeArtsToBackpack()
 {
@@ -942,7 +933,7 @@ void CExchangeController::swapArtifacts()
 {
 	for(int i = ArtifactPosition::HEAD; i < ArtifactPosition::AFTER_LAST; i++)
 	{
-		if(vstd::contains(unmovablePositions, i))
+		if(vstd::contains(CArtHandler::UNMOVABLE_POSITIONS, i))
 			continue;
 
 		swapArtifacts(ArtifactPosition(i));
@@ -1144,9 +1135,9 @@ void CExchangeController::moveArtifacts(bool leftToRight)
 
 	GsThread::run([=]
 	{	
-		while(vstd::contains_if(source->artifactsWorn, isArtRemovable))
+		while(vstd::contains_if(source->artifactsWorn, CArtHandler::isArtRemovable))
 		{
-			auto art = std::find_if(source->artifactsWorn.begin(), source->artifactsWorn.end(), isArtRemovable);
+			auto art = std::find_if(source->artifactsWorn.begin(), source->artifactsWorn.end(), CArtHandler::isArtRemovable);
 
 			moveArtifact(source, target, art->first);
 		}
