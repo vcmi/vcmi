@@ -355,7 +355,7 @@ void registerTypesServerPacks(Serializer &s)
 	s.template registerType<CPackForServer, BulkMergeStacks>();
 	s.template registerType<CPackForServer, BulkSmartSplitStack>();
 	s.template registerType<CPackForServer, BulkMoveArmy>();
-	s.template registerType<CPackForServer, BulkMoveArtifacts>();
+	s.template registerType<CPackForServer, BulkExchangeArtifacts>();
 }
 
 template<typename Serializer>

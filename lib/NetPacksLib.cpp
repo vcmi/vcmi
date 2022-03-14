@@ -1099,6 +1099,12 @@ DLL_LINKAGE void MoveArtifact::applyGs(CGameState *gs)
 	}
 }
 
+DLL_LINKAGE void BulkMoveArtifact::applyGs(CGameState * gs)
+{
+	for (auto & artifact : artifacts)
+		artifact.applyGs(gs);
+}
+
 DLL_LINKAGE void AssembledArtifact::applyGs(CGameState *gs)
 {
 	CArtifactSet *artSet = al.getHolderArtSet();

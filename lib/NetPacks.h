@@ -988,6 +988,19 @@ struct MoveArtifact : CArtifactOperationPack
 	}
 };
 
+struct BulkMoveArtifact : CArtifactOperationPack
+{
+	std::vector<MoveArtifact> artifacts;
+
+	void applyCl(CClient * cl);
+	DLL_LINKAGE void applyGs(CGameState * gs);
+
+	template <typename Handler> void serialize(Handler & h, const int version)
+	{
+		h & artifacts;
+	}
+};
+
 struct AssembledArtifact : CArtifactOperationPack
 {
 	ArtifactLocation al; //where assembly will be put
@@ -2179,14 +2192,14 @@ struct ExchangeArtifacts : public CPackForServer
 	}
 };
 
-struct BulkMoveArtifacts : public CPackForServer
+struct BulkExchangeArtifacts : public CPackForServer
 {
 	ObjectInstanceID srcHero;
 	ObjectInstanceID dstHero;
 
-	BulkMoveArtifacts() = default;
+	BulkExchangeArtifacts() = default;
 
-	BulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID dstHero) : srcHero(srcHero), dstHero(dstHero)
+	BulkExchangeArtifacts(ObjectInstanceID srcHero, ObjectInstanceID dstHero) : srcHero(srcHero), dstHero(dstHero)
 	{}
 
 	bool applyGh(CGameHandler* gh);

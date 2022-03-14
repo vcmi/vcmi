@@ -183,7 +183,7 @@ bool CCallback::assembleArtifacts (const CGHeroInstance * hero, ArtifactPosition
 
 bool CCallback::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID dstHero)
 {
-	BulkMoveArtifacts bma(srcHero, dstHero);
+	BulkExchangeArtifacts bma(srcHero, dstHero);
 	sendRequest(&bma);
 	return true;
 }
