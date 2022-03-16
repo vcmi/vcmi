@@ -933,7 +933,7 @@ void CExchangeController::swapArtifacts()
 {
 	for(int i = ArtifactPosition::HEAD; i < ArtifactPosition::AFTER_LAST; i++)
 	{
-		if(vstd::contains(CArtHandler::UNMOVABLE_POSITIONS, i))
+		if(vstd::contains(ArtifactUtils::unmovablePositions(), i))
 			continue;
 
 		swapArtifacts(ArtifactPosition(i));
@@ -1135,9 +1135,9 @@ void CExchangeController::moveArtifacts(bool leftToRight)
 
 	GsThread::run([=]
 	{	
-		while(vstd::contains_if(source->artifactsWorn, CArtHandler::isArtRemovable))
+		while(vstd::contains_if(source->artifactsWorn, ArtifactUtils::isArtRemovable))
 		{
-			auto art = std::find_if(source->artifactsWorn.begin(), source->artifactsWorn.end(), CArtHandler::isArtRemovable);
+			auto art = std::find_if(source->artifactsWorn.begin(), source->artifactsWorn.end(), ArtifactUtils::isArtRemovable);
 
 			moveArtifact(source, target, art->first);
 		}

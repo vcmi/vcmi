@@ -252,8 +252,6 @@ public:
 	std::vector<CArtifact *> allowedArtifacts;
 	std::set<ArtifactID> growingArtifacts;
 
-	static const std::vector<ArtifactPosition> UNMOVABLE_POSITIONS;
-
 	void addBonuses(CArtifact *art, const JsonNode &bonusList);
 
 	void fillList(std::vector<CArtifact*> &listToBeFilled, CArtifact::EartClass artifactClass); //fills given empty list with allowed artifacts of given class. No side effects
@@ -283,8 +281,6 @@ public:
 	void afterLoadFinalization() override;
 
 	std::vector<bool> getDefaultAllowed() const override;
-
-	static bool isArtRemovable(const std::pair<ArtifactPosition, ArtSlotInfo>& slot);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -367,4 +363,6 @@ namespace ArtifactUtils
 {
 	// Calculates where an artifact gets placed when it gets transferred from one hero to another.
 	DLL_LINKAGE ArtifactLocation getArtifactDstLocation(const CGHeroInstance * source, const CGHeroInstance * target, ArtifactPosition srcPosition);
+	DLL_LINKAGE std::vector<ArtifactPosition> unmovablePositions();
+	DLL_LINKAGE bool isArtRemovable(const std::pair<ArtifactPosition, ArtSlotInfo> & slot);
 }

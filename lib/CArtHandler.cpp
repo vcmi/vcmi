@@ -48,8 +48,6 @@
 	ART_POS(SHOULDERS)  \
 	ART_POS(HEAD)
 
-const std::vector<ArtifactPosition>CArtHandler::UNMOVABLE_POSITIONS = { ArtifactPosition::SPELLBOOK, ArtifactPosition::MACH4 };
-
 int32_t CArtifact::getIndex() const
 {
 	return id.toEnum();
@@ -713,13 +711,6 @@ void CArtHandler::afterLoadFinalization()
 		}
 	}
 	CBonusSystemNode::treeHasChanged();
-}
-
-bool CArtHandler::isArtRemovable(const std::pair<ArtifactPosition, ArtSlotInfo>& slot)
-{
-	return slot.second.artifact
-		&& !slot.second.locked
-		&& !vstd::contains(UNMOVABLE_POSITIONS, slot.first);
 }
 
 CArtifactInstance::CArtifactInstance()
@@ -1458,4 +1449,16 @@ ArtifactLocation ArtifactUtils::getArtifactDstLocation(const CGHeroInstance * so
 	}
 
 	return ArtifactLocation(target, ArtifactPosition(GameConstants::BACKPACK_START));
+}
+
+DLL_LINKAGE std::vector<ArtifactPosition> ArtifactUtils::unmovablePositions()
+{
+	return { ArtifactPosition::SPELLBOOK, ArtifactPosition::MACH4 };
+}
+
+DLL_LINKAGE bool ArtifactUtils::isArtRemovable(const std::pair<ArtifactPosition, ArtSlotInfo> & slot)
+{
+	return slot.second.artifact
+		&& !slot.second.locked
+		&& !vstd::contains(unmovablePositions(), slot.first);
 }
