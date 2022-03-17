@@ -3831,9 +3831,7 @@ bool CGameHandler::garrisonSwap(ObjectInstanceID tid)
 	}
 }
 
-// With the amount of changes done to the function, it's more like transferArtifacts.
-// Function moves artifact from src to dst. If dst is not a backpack and is already occupied, old dst art goes to backpack and is replaced.
-boost::optional<MoveArtifact> CGameHandler::moveArtifactImpl(const ArtifactLocation & al1, const ArtifactLocation & al2)
+boost::optional<MoveArtifact> CGameHandler::calcArtifactDst(const ArtifactLocation & al1, const ArtifactLocation & al2)
 {
 	ArtifactLocation src = al1, dst = al2;
 	const PlayerColor srcPlayer = src.owningPlayer(), dstPlayer = dst.owningPlayer();
@@ -3879,6 +3877,36 @@ boost::optional<MoveArtifact> CGameHandler::moveArtifactImpl(const ArtifactLocat
 	ma.dst = dst;
 
 	return { ma };
+}
+
+// With the amount of changes done to the function, it's more like transferArtifacts.
+// Function moves artifact from src to dst. If dst is not a backpack and is already occupied, old dst art goes to backpack and is replaced.
+bool CGameHandler::moveArtifactImpl(const ArtifactLocation & al1, const ArtifactLocation & al2, std::vector<MoveArtifact> * artifactsToMove)
+{
+	auto ma = calcArtifactDst(al1, al2);
+
+	if (!ma)
+		return false;
+
+	auto dst = (*ma).dst;
+	auto destArtifact = dst.getArt();
+
+	boost::optional<MoveArtifact> ma2;
+
+	if (dst.slot < GameConstants::BACKPACK_START && destArtifact) //moving art to another slot
+	{
+		//old artifact must be removed first
+		ma2 = calcArtifactDst(dst, ArtifactLocation(dst.artHolder, ArtifactPosition(
+			(si32)dst.getHolderArtSet()->artifactsInBackpack.size() + GameConstants::BACKPACK_START)));
+
+		if (!ma2)
+			return false;
+	}
+
+	artifactsToMove->push_back(*ma);
+	artifactsToMove->push_back(*ma2);
+
+	return true;
 }
 
 bool CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocation &al2)
