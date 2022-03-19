@@ -3969,18 +3969,40 @@ bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID 
 	const CGHeroInstance * psrcHero = getHero(srcHero);
 	const CGHeroInstance * pdstHero = getHero(dstHero);
 
-	while (vstd::contains_if(psrcHero->artifactsWorn, ArtifactUtils::isArtRemovable))
-	{
-		auto art = std::find_if(psrcHero->artifactsWorn.begin(), psrcHero->artifactsWorn.end(), ArtifactUtils::isArtRemovable);
-		auto artSrcPos = art->first;
+	std::vector<MoveArtifact> artifacts;
 
+	auto getArtSrcDst = [](const CGHeroInstance * psrcHero, const CGHeroInstance * pdstHero, ArtifactPosition artSrcPos) -> auto{
 		auto artifact = psrcHero->getArt(artSrcPos);
 		auto srcLocation = ArtifactLocation(psrcHero, artSrcPos);
 		auto dstLocation = ArtifactUtils::getArtifactDstLocation(psrcHero, pdstHero, artSrcPos);
 
+		return std::make_pair(srcLocation, dstLocation);
+	};
 
+	for (auto it = psrcHero->artifactsWorn.begin(); it != psrcHero->artifactsWorn.end(); it++)
+	{
+		if (ArtifactUtils::isArtRemovable(*it))
+		{
+			// TODO-C++17: replace with structured bindings
+			ArtifactLocation srcLocation, dstLocation;
+			std::tie(srcLocation, dstLocation) = getArtSrcDst(psrcHero, pdstHero, it->first);
 
+			moveArtifactImpl(srcLocation, dstLocation, &artifacts);
+		}
 	}
+
+	for (auto it = psrcHero->artifactsInBackpack.begin(); it != psrcHero->artifactsInBackpack.end(); it++)
+	{
+		// TODO-C++17: replace with structured bindings
+		ArtifactLocation srcLocation, dstLocation;
+		std::tie(srcLocation, dstLocation) = getArtSrcDst(psrcHero, pdstHero, psrcHero->getArtPos(it->artifact));
+
+		moveArtifactImpl(srcLocation, dstLocation, &artifacts);
+	}
+
+	BulkMoveArtifact bma;
+	bma.artifacts = artifacts;
+	sendAndApply(&bma);
 
 	return true;
 }
