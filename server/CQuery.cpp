@@ -368,6 +368,10 @@ bool CGarrisonDialogQuery::blocksPack(const CPack * pack) const
 				return true;
 		return false;
 	}
+
+	if (auto arts = dynamic_ptr_cast<BulkExchangeArtifacts>(pack))
+		return !vstd::contains(ourIds, arts->srcHero) || !vstd::contains(ourIds, arts->dstHero);
+
 	if(auto dismiss = dynamic_ptr_cast<DisbandCreature>(pack))
 		return !vstd::contains(ourIds, dismiss->id);
 

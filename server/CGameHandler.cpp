@@ -3904,7 +3904,9 @@ bool CGameHandler::moveArtifactImpl(const ArtifactLocation & al1, const Artifact
 	}
 
 	artifactsToMove->push_back(*ma);
-	artifactsToMove->push_back(*ma2);
+
+	if(ma2)
+		artifactsToMove->push_back(*ma2);
 
 	return true;
 }
@@ -3979,6 +3981,7 @@ bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID 
 		return std::make_pair(srcLocation, dstLocation);
 	};
 
+	// Move over artifacts that are worn
 	for (auto it = psrcHero->artifactsWorn.begin(); it != psrcHero->artifactsWorn.end(); it++)
 	{
 		if (ArtifactUtils::isArtRemovable(*it))
@@ -3991,6 +3994,7 @@ bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID 
 		}
 	}
 
+	// Move over artifacts that are in backpack
 	for (auto it = psrcHero->artifactsInBackpack.begin(); it != psrcHero->artifactsInBackpack.end(); it++)
 	{
 		// TODO-C++17: replace with structured bindings

@@ -1133,22 +1133,7 @@ void CExchangeController::moveArtifacts(bool leftToRight)
 		return;
 	}
 
-	GsThread::run([=]
-	{	
-		while(vstd::contains_if(source->artifactsWorn, ArtifactUtils::isArtRemovable))
-		{
-			auto art = std::find_if(source->artifactsWorn.begin(), source->artifactsWorn.end(), ArtifactUtils::isArtRemovable);
-
-			moveArtifact(source, target, art->first);
-		}
-
-		while(!source->artifactsInBackpack.empty())
-		{
-			moveArtifact(source, target, source->getArtPos(source->artifactsInBackpack.begin()->artifact));
-		}
-
-		view->redraw();
-	});
+	cb->bulkMoveArtifacts(source->id, target->id);
 }
 
 void CExchangeController::moveArtifact(
