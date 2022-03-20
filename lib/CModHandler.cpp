@@ -200,20 +200,25 @@ void CIdentifierStorage::registerObject(std::string scope, std::string type, std
 std::vector<CIdentifierStorage::ObjectData> CIdentifierStorage::getPossibleIdentifiers(const ObjectCallback & request)
 {
 	std::set<std::string> allowedScopes;
+	bool isValidScope = true;
 
 	if (request.remoteScope.empty())
 	{
 		// normally ID's from all required mods, own mod and virtual "core" mod are allowed
-		if (request.localScope != "core" && request.localScope != "")
-			allowedScopes = VLC->modh->getModData(request.localScope).dependencies;
+		if(request.localScope != "core" && !request.localScope.empty())
+		{
+			allowedScopes = VLC->modh->getModDependencies(request.localScope, isValidScope);
 
+			if(!isValidScope)
+				return std::vector<ObjectData>();
+		}
 		allowedScopes.insert(request.localScope);
 		allowedScopes.insert("core");
 	}
 	else
 	{
 		//...unless destination mod was specified explicitly
-		//note: getModData does not work for "core" by design
+		//note: getModDependencies does not work for "core" by design
 
 		//for map format support core mod has access to any mod
 		//TODO: better solution for access from map?
@@ -224,7 +229,11 @@ std::vector<CIdentifierStorage::ObjectData> CIdentifierStorage::getPossibleIdent
 		else
 		{
 			// allow only available to all core mod or dependencies
-			auto myDeps = VLC->modh->getModData(request.localScope).dependencies;
+			auto myDeps = VLC->modh->getModDependencies(request.localScope, isValidScope);
+
+			if(!isValidScope)
+				return std::vector<ObjectData>();
+
 			if(request.remoteScope == "core" || request.remoteScope == request.localScope || myDeps.count(request.remoteScope))
 				allowedScopes.insert(request.remoteScope);
 		}
@@ -931,18 +940,16 @@ void CModHandler::loadModFilesystems()
 	}
 }
 
-CModInfo & CModHandler::getModData(TModID modId)
+std::set<TModID> CModHandler::getModDependencies(TModID modId, bool & isModFound)
 {
 	auto it = allMods.find(modId);
+	isModFound = (it != allMods.end());
 
-	if(it == allMods.end())
-	{
-		throw std::runtime_error("Mod not found '" + modId+"'");
-	}
-	else
-	{
-		return it->second;
-	}
+	if(isModFound)
+		return it->second.dependencies;
+
+	logMod->error("Mod not found: '%s'", modId);
+	return std::set<TModID>();
 }
 
 void CModHandler::initializeConfig()

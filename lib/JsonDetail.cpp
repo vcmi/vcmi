@@ -997,10 +997,15 @@ namespace
 		bool testFilePresence(std::string scope, ResourceID resource)
 		{
 			std::set<std::string> allowedScopes;
-			if (scope != "core" && scope != "") // all real mods may have dependencies
+			if(scope != "core" && !scope.empty()) // all real mods may have dependencies
 			{
 				//NOTE: recursive dependencies are not allowed at the moment - update code if this changes
-				allowedScopes = VLC->modh->getModData(scope).dependencies;
+				bool found = true;
+				allowedScopes = VLC->modh->getModDependencies(scope, found);
+
+				if(!found)
+					return false;
+
 				allowedScopes.insert("core"); // all mods can use H3 files
 			}
 			allowedScopes.insert(scope); // mods can use their own files
