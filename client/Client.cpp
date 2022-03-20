@@ -288,6 +288,7 @@ void CClient::serialize(BinaryDeserializer & h, const int version)
 		std::string dllname;
 		PlayerColor pid;
 		bool isHuman = false;
+		auto prevInt = LOCPLINT;
 
 		h & pid;
 		h & dllname;
@@ -331,6 +332,7 @@ void CClient::serialize(BinaryDeserializer & h, const int version)
 			continue;
 		}
 		nInt.reset();
+		LOCPLINT = prevInt;
 	}
 
 	{
