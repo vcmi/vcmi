@@ -266,7 +266,7 @@ public:
 	void loadMods(bool onlyEssential = false);
 	void loadModFilesystems();
 
-	CModInfo & getModData(TModID modId);
+	std::set<TModID> getModDependencies(TModID modId, bool & isModFound);
 
 	/// returns list of all (active) mods
 	std::vector<std::string> getAllMods();
