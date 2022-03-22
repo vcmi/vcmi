@@ -2582,6 +2582,9 @@ void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const Artifact
 		if (artWin)
 			artWin->artifactMoved(src, dst);
 	}
+
+	GH.totalRedraw();
+
 	askToAssembleArtifact(dst);
 }
 

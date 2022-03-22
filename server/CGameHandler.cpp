@@ -3888,6 +3888,8 @@ bool CGameHandler::moveArtifactImpl(const ArtifactLocation & al1, const Artifact
 	if (!ma)
 		return false;
 
+	artifactsToMove->push_back(*ma);
+
 	auto dst = (*ma).dst;
 	auto destArtifact = dst.getArt();
 
@@ -3900,13 +3902,10 @@ bool CGameHandler::moveArtifactImpl(const ArtifactLocation & al1, const Artifact
 			(si32)dst.getHolderArtSet()->artifactsInBackpack.size() + GameConstants::BACKPACK_START)));
 
 		if (!ma2)
-			return false;
-	}
+			COMPLAIN_RET("Unable to remove old artifact while moving new one over");
 
-	artifactsToMove->push_back(*ma);
-
-	if(ma2)
 		artifactsToMove->push_back(*ma2);
+	}
 
 	return true;
 }
@@ -3914,55 +3913,14 @@ bool CGameHandler::moveArtifactImpl(const ArtifactLocation & al1, const Artifact
 bool CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocation &al2)
 {
 	ArtifactLocation src = al1, dst = al2;
-	const PlayerColor srcPlayer = src.owningPlayer(), dstPlayer = dst.owningPlayer();
-	const CArmedInstance *srcObj = src.relatedObj(), *dstObj = dst.relatedObj();
 
-	// Make sure exchange is even possible between the two heroes.
-	if (!isAllowedExchange(srcObj->id, dstObj->id))
-		COMPLAIN_RET("That heroes cannot make any exchange!");
+	std::vector<MoveArtifact> artifacts;
+	if (!moveArtifactImpl(src, dst, &artifacts))
+		COMPLAIN_RET("Unable to move artifact");
 
-	const CArtifactInstance *srcArtifact = src.getArt();
-	const CArtifactInstance *destArtifact = dst.getArt();
-
-	if (srcArtifact == nullptr)
-		COMPLAIN_RET("No artifact to move!");
-	if (destArtifact && srcPlayer != dstPlayer)
-		COMPLAIN_RET("Can't touch artifact on hero of another player!");
-
-	// Check if src/dest slots are appropriate for the artifacts exchanged.
-	// Moving to the backpack is always allowed.
-	if ((!srcArtifact || dst.slot < GameConstants::BACKPACK_START)
-		&& srcArtifact && !srcArtifact->canBePutAt(dst, true))
-		COMPLAIN_RET("Cannot move artifact!");
-
-	auto srcSlot = src.getSlot();
-	auto dstSlot = dst.getSlot();
-
-	if ((srcSlot && srcSlot->locked) || (dstSlot && dstSlot->locked))
-		COMPLAIN_RET("Cannot move artifact locks.");
-
-	if (dst.slot >= GameConstants::BACKPACK_START && srcArtifact->artType->isBig())
-		COMPLAIN_RET("Cannot put big artifacts in backpack!");
-	if (src.slot == ArtifactPosition::MACH4 || dst.slot == ArtifactPosition::MACH4)
-		COMPLAIN_RET("Cannot move catapult!");
-
-	if (dst.slot >= GameConstants::BACKPACK_START)
-		vstd::amin(dst.slot, ArtifactPosition(GameConstants::BACKPACK_START + (si32)dst.getHolderArtSet()->artifactsInBackpack.size()));
-
-	if (src.slot == dst.slot  &&  src.artHolder == dst.artHolder)
-		COMPLAIN_RET("Won't move artifact: Dest same as source!");
-
-	if (dst.slot < GameConstants::BACKPACK_START  &&  destArtifact) //moving art to another slot
-	{
-		//old artifact must be removed first
-		moveArtifact(dst, ArtifactLocation(dst.artHolder, ArtifactPosition(
-			(si32)dst.getHolderArtSet()->artifactsInBackpack.size() + GameConstants::BACKPACK_START)));
-	}
-
-	MoveArtifact ma;
-	ma.src = src;
-	ma.dst = dst;
-	sendAndApply(&ma);
+	BulkMoveArtifact bma;
+	bma.artifacts = artifacts;
+	sendAndApply(&bma);
 	return true;
 }
 
@@ -3973,6 +3931,7 @@ bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID 
 
 	std::vector<MoveArtifact> artifacts;
 
+	// Gets the source location and dest location of an artifact
 	auto getArtSrcDst = [](const CGHeroInstance * psrcHero, const CGHeroInstance * pdstHero, ArtifactPosition artSrcPos) -> auto{
 		auto artifact = psrcHero->getArt(artSrcPos);
 		auto srcLocation = ArtifactLocation(psrcHero, artSrcPos);
