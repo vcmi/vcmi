@@ -97,7 +97,9 @@ CBonusProxy::CBonusProxy(const IBonusBearer * Target, CSelector Selector)
 	: bonusListCachedLast(0),
 	target(Target),
 	selector(Selector),
-	bonusList()
+	bonusList(),
+	currentBonusListIndex(0),
+	swapGuard()
 {
 
 }
@@ -106,27 +108,34 @@ CBonusProxy::CBonusProxy(const CBonusProxy & other)
 	: bonusListCachedLast(other.bonusListCachedLast),
 	target(other.target),
 	selector(other.selector),
-	bonusList(other.bonusList)
+	currentBonusListIndex(other.currentBonusListIndex),
+	swapGuard()
 {
-
+	bonusList[currentBonusListIndex] = other.bonusList[currentBonusListIndex];
 }
 
 CBonusProxy::CBonusProxy(CBonusProxy && other)
 	: bonusListCachedLast(0),
 	target(other.target),
 	selector(),
-	bonusList()
+	bonusList(),
+	currentBonusListIndex(0),
+	swapGuard()
 {
 	std::swap(bonusListCachedLast, other.bonusListCachedLast);
 	std::swap(selector, other.selector);
 	std::swap(bonusList, other.bonusList);
+	std::swap(currentBonusListIndex, other.currentBonusListIndex);
 }
 
 CBonusProxy & CBonusProxy::operator=(const CBonusProxy & other)
 {
-	bonusListCachedLast = other.bonusListCachedLast;
+	boost::lock_guard<boost::mutex> lock(swapGuard);
+
 	selector = other.selector;
-	bonusList = other.bonusList;
+	swapBonusList(other.bonusList[other.currentBonusListIndex]);
+	bonusListCachedLast = other.bonusListCachedLast;
+
 	return *this;
 }
 
@@ -135,18 +144,42 @@ CBonusProxy & CBonusProxy::operator=(CBonusProxy && other)
 	std::swap(bonusListCachedLast, other.bonusListCachedLast);
 	std::swap(selector, other.selector);
 	std::swap(bonusList, other.bonusList);
+	std::swap(currentBonusListIndex, other.currentBonusListIndex);
+
 	return *this;
+}
+
+void CBonusProxy::swapBonusList(TConstBonusListPtr other) const
+{
+	// The idea here is to avoid changing active bonusList while it can be read by a different thread.
+	// Because such use of shared ptr is not thread safe
+	// So to avoid this we change the second offline instance and swap active index
+	auto newCurrent = 1 - currentBonusListIndex;
+	bonusList[newCurrent] = other;
+	currentBonusListIndex = newCurrent;
 }
 
 TConstBonusListPtr CBonusProxy::getBonusList() const
 {
-	if(target->getTreeVersion() != bonusListCachedLast || !bonusList)
+	auto needUpdateBonusList = [&]() -> bool
 	{
-		//TODO: support limiters
-		bonusList = target->getAllBonuses(selector, Selector::all);
-		bonusListCachedLast = target->getTreeVersion();
+		return target->getTreeVersion() != bonusListCachedLast || !bonusList[currentBonusListIndex];
+	};
+
+	// avoid locking if everything is up-to-date
+	if(needUpdateBonusList())
+	{
+		boost::lock_guard<boost::mutex>lock(swapGuard);
+
+		if(needUpdateBonusList())
+		{
+			//TODO: support limiters
+			swapBonusList(target->getAllBonuses(selector, Selector::all));
+			bonusListCachedLast = target->getTreeVersion();
+		}
 	}
-	return bonusList;
+
+	return bonusList[currentBonusListIndex];
 }
 
 const BonusList * CBonusProxy::operator->() const

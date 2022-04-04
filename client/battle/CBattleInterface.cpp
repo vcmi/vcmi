@@ -2799,6 +2799,11 @@ void CBattleInterface::requestAutofightingAIToTakeAction()
 	{
 		auto ba = make_unique<BattleAction>(curInt->autofightingAI->activeStack(activeStack));
 
+		if(curInt->cb->battleIsFinished())
+		{
+			return; // battle finished with spellcast
+		}
+
 		if (curInt->isAutoFightOn)
 		{
 			if (tacticsMode)
