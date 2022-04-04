@@ -1148,7 +1148,7 @@ bool AINodeStorage::hasBetterChain(
 	{
 		auto sameNode = node.actor == candidateNode->actor;
 
-		if(sameNode	|| node.action == CGPathNode::ENodeAction::UNKNOWN || !node.actor->hero)
+		if(sameNode	|| node.action == CGPathNode::ENodeAction::UNKNOWN || !node.actor || !node.actor->hero)
 		{
 			continue;
 		}

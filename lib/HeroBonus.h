@@ -84,7 +84,10 @@ protected:
 	CSelector selector;
 	const IBonusBearer * target;
 	mutable int64_t bonusListCachedLast;
-	mutable TConstBonusListPtr bonusList;
+	mutable TConstBonusListPtr bonusList[2];
+	mutable int currentBonusListIndex;
+	mutable boost::mutex swapGuard;
+	void swapBonusList(TConstBonusListPtr other) const;
 };
 
 class DLL_LINKAGE CTotalsProxy : public CBonusProxy
