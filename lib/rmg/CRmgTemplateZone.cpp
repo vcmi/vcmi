@@ -1401,8 +1401,11 @@ bool CRmgTemplateZone::createRequiredObjects()
 		auto tilesBlockedByObject = obj.first->getBlockedOffsets();
 
 		bool finished = false;
-		while (!finished)
+		bool attempt = true;
+		while (!finished && attempt)
 		{
+			attempt = false;
+
 			std::vector<int3> tiles(possibleTiles.begin(), possibleTiles.end());
 			//new tiles vector after each object has been placed, OR misplaced area has been sealed off
 
@@ -1433,11 +1436,12 @@ bool CRmgTemplateZone::createRequiredObjects()
 			for (auto tile : tiles)
 			{
 				//code partially adapted from findPlaceForObject()
-
-				if (areAllTilesAvailable(obj.first, tile, tilesBlockedByObject))
+				if(areAllTilesAvailable(obj.first, tile, tilesBlockedByObject))
 					gen->setOccupied(pos, ETileType::BLOCKED); //why?
 				else
 					continue;
+
+				attempt = true;
 
 				EObjectPlacingResult::EObjectPlacingResult result = tryToPlaceObjectAndConnectToPath(obj.first, tile);
 				if (result == EObjectPlacingResult::SUCCESS)
@@ -2243,41 +2247,48 @@ void CRmgTemplateZone::addAllPossibleObjects()
 	oi.maxPerZone = std::numeric_limits<ui32>().max();
 
 	//dwellings
+	auto dwellingTypes = {Obj::CREATURE_GENERATOR1, Obj::CREATURE_GENERATOR4};
 
-	auto subObjects = VLC->objtypeh->knownSubObjects(Obj::CREATURE_GENERATOR1);
-
-	//don't spawn original "neutral" dwellings that got replaced by Conflux dwellings in AB
-	static int elementalConfluxROE[] = { 7, 13, 16, 47 };
-	for (int i = 0; i < 4; i++)
-		vstd::erase_if_present(subObjects, elementalConfluxROE[i]);
-
-	for (auto secondaryID : subObjects)
+	for(auto dwellingType : dwellingTypes)
 	{
-		auto dwellingHandler = dynamic_cast<const CDwellingInstanceConstructor*>(VLC->objtypeh->getHandlerFor(Obj::CREATURE_GENERATOR1, secondaryID).get());
-		auto creatures = dwellingHandler->getProducedCreatures();
-		if (creatures.empty())
-			continue;
+		auto subObjects = VLC->objtypeh->knownSubObjects(dwellingType);
 
-		auto cre = creatures.front();
-		if (cre->faction == townType)
+		if(dwellingType == Obj::CREATURE_GENERATOR1)
 		{
-			float nativeZonesCount = static_cast<float>(gen->getZoneCount(cre->faction));
-			oi.value = static_cast<ui32>(cre->AIValue * cre->growth * (1 + (nativeZonesCount / gen->getTotalZoneCount()) + (nativeZonesCount / 2)));
-			oi.probability = 40;
+			//don't spawn original "neutral" dwellings that got replaced by Conflux dwellings in AB
+			static int elementalConfluxROE[] = {7, 13, 16, 47};
+			for(int i = 0; i < 4; i++)
+				vstd::erase_if_present(subObjects, elementalConfluxROE[i]);
+		}
 
-			for (auto temp : dwellingHandler->getTemplates())
+		for(auto secondaryID : subObjects)
+		{
+			auto dwellingHandler = dynamic_cast<const CDwellingInstanceConstructor *>(VLC->objtypeh->getHandlerFor(dwellingType, secondaryID).get());
+			auto creatures = dwellingHandler->getProducedCreatures();
+			if(creatures.empty())
+				continue;
+
+			auto cre = creatures.front();
+			if(cre->faction == townType)
 			{
-				if (temp.canBePlacedAt(terrainType))
-				{
-					oi.generateObject = [temp, secondaryID]() -> CGObjectInstance *
-					{
-						auto obj = VLC->objtypeh->getHandlerFor(Obj::CREATURE_GENERATOR1, secondaryID)->create(temp);
-						obj->tempOwner = PlayerColor::NEUTRAL;
-						return obj;
-					};
+				float nativeZonesCount = static_cast<float>(gen->getZoneCount(cre->faction));
+				oi.value = static_cast<ui32>(cre->AIValue * cre->growth * (1 + (nativeZonesCount / gen->getTotalZoneCount()) + (nativeZonesCount / 2)));
+				oi.probability = 40;
 
-					oi.templ = temp;
-					possibleObjects.push_back(oi);
+				for(auto tmplate : dwellingHandler->getTemplates())
+				{
+					if(tmplate.canBePlacedAt(terrainType))
+					{
+						oi.generateObject = [tmplate, secondaryID, dwellingType]() -> CGObjectInstance *
+						{
+							auto obj = VLC->objtypeh->getHandlerFor(dwellingType, secondaryID)->create(tmplate);
+							obj->tempOwner = PlayerColor::NEUTRAL;
+							return obj;
+						};
+
+						oi.templ = tmplate;
+						possibleObjects.push_back(oi);
+					}
 				}
 			}
 		}
