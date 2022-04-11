@@ -20,10 +20,30 @@ struct AttackerValue
 	bool isRetalitated;
 	BattleHex position;
 
-	AttackerValue()
+	AttackerValue();
+};
+
+struct MoveTarget
+{
+	int64_t score;
+	std::vector<BattleHex> positions;
+
+	MoveTarget();
+};
+
+struct EvaluationResult
+{
+	static const int64_t INEFFECTIVE_SCORE = -1000000;
+
+	AttackPossibility bestAttack;
+	MoveTarget bestMove;
+	bool wait;
+	int64_t score;
+	bool defend;
+
+	EvaluationResult(const AttackPossibility & ap)
+		:wait(false), score(0), bestAttack(ap), defend(false)
 	{
-		value = 0;
-		isRetalitated = false;
 	}
 };
 
@@ -55,27 +75,6 @@ public:
 private:
 	int64_t dpsScore;
 	std::map<uint32_t, AttackerValue> attackerValue;
-
-	int64_t calculateDpsReduce(
-		const battle::Unit * attacker,
-		const battle::Unit * defender,
-		uint64_t damageDealt,
-		std::shared_ptr<CBattleInfoCallback> cb) const;
-};
-
-struct EvaluationResult
-{
-	static const int64_t INEFFECTIVE_SCORE = -1000000;
-
-	AttackPossibility bestAttack;
-	bool wait;
-	int64_t score;
-	bool defend;
-
-	EvaluationResult(AttackPossibility & ap)
-		:wait(false), score(0), bestAttack(ap), defend(false)
-	{
-	}
 };
 
 class BattleExchangeEvaluator
@@ -93,8 +92,10 @@ public:
 	}
 
 	EvaluationResult findBestTarget(const battle::Unit * activeStack, PotentialTargets & targets, HypotheticBattle & hb);
-	int64_t calculateExchange(const AttackPossibility & ap);
+	int64_t calculateExchange(const AttackPossibility & ap, PotentialTargets & targets, HypotheticBattle & hb);
 	void updateReachabilityMap(HypotheticBattle & hb);
-	std::vector<const battle::Unit *> getExchangeUnits(const AttackPossibility & ap);
+	std::vector<const battle::Unit *> getExchangeUnits(const AttackPossibility & ap, PotentialTargets & targets, HypotheticBattle & hb);
 	bool checkPositionBlocksOurStacks(HypotheticBattle & hb, const battle::Unit * unit, BattleHex position);
+	MoveTarget findMoveTowardsUnreachable(const battle::Unit * activeStack, PotentialTargets & targets, HypotheticBattle & hb);
+	std::vector<const battle::Unit *> getAdjacentUnits(const battle::Unit * unit);
 };

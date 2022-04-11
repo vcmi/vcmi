@@ -70,7 +70,12 @@ int ReachabilityInfo::distToNearestNeighbour(
 	const battle::Unit * defender,
 	BattleHex * chosenHex) const
 {
-	auto attackableHexes = defender->getAttackableHexes(attacker);
+	auto attackableHexes = defender->getHexes();
+
+	if(attacker->doubleWide())
+	{
+		vstd::concatenate(attackableHexes, battle::Unit::getHexes(defender->occupiedHex(), true, attacker->unitSide()));
+	}
 
 	return distToNearestNeighbour(attackableHexes, chosenHex);
 }

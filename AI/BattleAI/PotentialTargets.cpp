@@ -13,9 +13,7 @@
 
 PotentialTargets::PotentialTargets(const battle::Unit * attacker, const HypotheticBattle * state)
 {
-	auto attIter = state->stackStates.find(attacker->unitId());
-	const battle::Unit * attackerInfo = (attIter == state->stackStates.end()) ? attacker : attIter->second.get();
-
+	auto attackerInfo = state->battleGetUnitByID(attacker->unitId());
 	auto reachability = state->getReachability(attackerInfo);
 	auto avHexes = state->battleGetAvailableHexes(reachability, attackerInfo);
 
@@ -95,7 +93,7 @@ PotentialTargets::PotentialTargets(const battle::Unit * attacker, const Hypothet
 
 	if (!possibleAttacks.empty())
 	{
-		auto &bestAp = possibleAttacks[0];
+		auto & bestAp = possibleAttacks[0];
 
 		logGlobal->info("Battle AI best: %s -> %s at %d from %d, affects %d units: %lld %lld %lld %lld",
 			bestAp.attack.attacker->unitType()->identifier,
@@ -112,10 +110,10 @@ int64_t PotentialTargets::bestActionValue() const
 	return bestAction().attackValue();
 }
 
-AttackPossibility PotentialTargets::bestAction() const
+const AttackPossibility & PotentialTargets::bestAction() const
 {
 	if(possibleAttacks.empty())
 		throw std::runtime_error("No best action, since we don't have any actions");
-	return possibleAttacks[0];
+	return possibleAttacks.at(0);
 	//return *vstd::maxElementByFun(possibleAttacks, [](const AttackPossibility &ap) { return ap.attackValue(); } );
 }

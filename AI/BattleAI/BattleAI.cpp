@@ -94,7 +94,10 @@ void CBattleAI::init(std::shared_ptr<Environment> ENV, std::shared_ptr<CBattleCa
 BattleAction CBattleAI::activeStack( const CStack * stack )
 {
 	LOG_TRACE_PARAMS(logAi, "stack: %s", stack->nodeName());
+
+	BattleAction result = BattleAction::makeDefend(stack);
 	setCbc(cb); //TODO: make solid sure that AIs always use their callbacks (need to take care of event handlers too)
+
 	try
 	{
 		if(stack->type->idNumber == CreatureID::CATAPULT)
@@ -162,82 +165,81 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 		
 		PotentialTargets targets(stack, &hb);
 		BattleExchangeEvaluator scoreEvaluator(cb, env);
+		auto moveTarget = scoreEvaluator.findMoveTowardsUnreachable(stack, targets, hb);
+
+		int64_t score = EvaluationResult::INEFFECTIVE_SCORE;
 
 		if(!targets.possibleAttacks.empty())
 		{
+#if BATTLE_TRACE_LEVEL==1
 			logAi->trace("Evaluating attack for %s", stack->getDescription());
+#endif
 
 			auto evaluationResult = scoreEvaluator.findBestTarget(stack, targets, hb);
 			auto & bestAttack = evaluationResult.bestAttack;
-			
+
 			//TODO: consider more complex spellcast evaluation, f.e. because "re-retaliation" during enemy move in same turn for melee attack etc.
 			if(bestSpellcast.is_initialized() && bestSpellcast->value > bestAttack.damageDiff())
+			{
+				// return because spellcast value is damage dealt and score is dps reduce
 				return BattleAction::makeCreatureSpellcast(stack, bestSpellcast->dest, bestSpellcast->spell->id);
-
-			if(evaluationResult.wait)
-			{
-				return BattleAction::makeWait(stack);
 			}
 
-			if(evaluationResult.score == EvaluationResult::INEFFECTIVE_SCORE)
+			if(evaluationResult.score > score)
 			{
-				return BattleAction::makeDefend(stack);
-			}
-			
-			if(bestAttack.attack.shooting)
-			{
-				auto &target = bestAttack;
-				logAi->debug("BattleAI: %s -> %s x %d, shot, from %d curpos %d dist %d speed %d: %lld %lld %lld",
-					target.attackerState->unitType()->identifier,
-					target.affectedUnits[0]->unitType()->identifier,
-					(int)target.affectedUnits.size(), (int)target.from, (int)bestAttack.attack.attacker->getPosition().hex,
+				auto & target = bestAttack;
+				score = evaluationResult.score;
+				std::string action;
+
+				if(evaluationResult.wait)
+				{
+					result = BattleAction::makeWait(stack);
+					action = "wait";
+				}
+				else if(bestAttack.attack.shooting)
+				{
+
+					result = BattleAction::makeShotAttack(stack, bestAttack.attack.defender);
+					action = "shot";
+				}
+				else
+				{
+					result = BattleAction::makeMeleeAttack(stack, bestAttack.attack.defender->getPosition(), bestAttack.from);
+					action = "mellee";
+				}
+
+				logAi->debug("BattleAI: %s -> %s x %d, %s, from %d curpos %d dist %d speed %d: %lld %lld %lld",
+					bestAttack.attackerState->unitType()->identifier,
+					bestAttack.affectedUnits[0]->unitType()->identifier,
+					(int)bestAttack.affectedUnits[0]->getCount(), action, (int)bestAttack.from, (int)bestAttack.attack.attacker->getPosition().hex,
 					bestAttack.attack.chargedFields, bestAttack.attack.attacker->Speed(0, true),
-					target.damageDealt, target.damageReceived, target.attackValue()
+					bestAttack.damageDealt, bestAttack.damageReceived, bestAttack.attackValue()
 				);
-
-				return BattleAction::makeShotAttack(stack, bestAttack.attack.defender);
 			}
-			else
-			{
-				auto &target = bestAttack;
-				logAi->debug("BattleAI: %s -> %s x %d, mellee, from %d curpos %d dist %d speed %d: %lld %lld %lld",
-					target.attackerState->unitType()->identifier,
-					target.affectedUnits[0]->unitType()->identifier,
-					(int)target.affectedUnits.size(), (int)target.from, (int)bestAttack.attack.attacker->getPosition().hex,
-					bestAttack.attack.chargedFields, bestAttack.attack.attacker->Speed(0, true),
-					target.damageDealt, target.damageReceived, target.attackValue()
-				);
-
-				return BattleAction::makeMeleeAttack(stack,	bestAttack.attack.defender->getPosition(), bestAttack.from);
-		}
 		}
 		else if(bestSpellcast.is_initialized())
 		{
 			return BattleAction::makeCreatureSpellcast(stack, bestSpellcast->dest, bestSpellcast->spell->id);
 		}
-		else
+
+			//ThreatMap threatsToUs(stack); // These lines may be usefull but they are't used in the code.
+		if(moveTarget.score > score)
 		{
+			score = moveTarget.score;
+
 			if(stack->waited())
 			{
-				//ThreatMap threatsToUs(stack); // These lines may be usefull but they are't used in the code.
-				auto dists = cb->getReachability(stack);
-				if(!targets.unreachableEnemies.empty())
-				{
-					auto closestEnemy = vstd::minElementByFun(targets.unreachableEnemies, [&](const battle::Unit * enemy) -> int
-					{
-						return dists.distToNearestNeighbour(stack, enemy);
-					});
-
-					if(dists.distToNearestNeighbour(stack, *closestEnemy) < GameConstants::BFIELD_SIZE)
-					{
-						return goTowardsNearest(stack, (*closestEnemy)->getAttackableHexes(stack));
-					}
-				}
+				result = goTowardsNearest(stack, moveTarget.positions);
 			}
 			else
 			{
-				return BattleAction::makeWait(stack);
+				result = BattleAction::makeWait(stack);
 			}
+		}
+
+		if(score > EvaluationResult::INEFFECTIVE_SCORE)
+		{
+			return result;
 		}
 
 		if(!stack->hasBonusOfType(Bonus::FLYING)
@@ -252,7 +254,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 					return BattleAction::makeMove(stack, stack->getPosition().cloneInDirection(BattleHex::RIGHT));
 				else
 					return goTowardsNearest(stack, brokenWallMoat);
-	}
+			}
 		}
 	}
 	catch(boost::thread_interrupted &)
@@ -264,7 +266,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 		logAi->error("Exception occurred in %s %s",__FUNCTION__, e.what());
 	}
 
-	return BattleAction::makeDefend(stack);
+	return result;
 }
 
 BattleAction CBattleAI::goTowardsNearest(const CStack * stack, std::vector<BattleHex> hexes) const
@@ -289,10 +291,10 @@ BattleAction CBattleAI::goTowardsNearest(const CStack * stack, std::vector<Battl
 
 		if(stack->coversPos(hex))
 		{
-		logAi->warn("Warning: already standing on neighbouring tile!");
-		//We shouldn't even be here...
-		return BattleAction::makeDefend(stack);
-	}
+			logAi->warn("Warning: already standing on neighbouring tile!");
+			//We shouldn't even be here...
+			return BattleAction::makeDefend(stack);
+		}
 	}
 
 	BattleHex bestNeighbor = hexes.front();

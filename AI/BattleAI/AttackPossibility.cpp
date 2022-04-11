@@ -28,6 +28,22 @@ int64_t AttackPossibility::attackValue() const
 	return damageDiff();
 }
 
+int64_t AttackPossibility::calculateDpsReduce(
+	const battle::Unit * attacker,
+	const battle::Unit * defender,
+	uint64_t damageDealt,
+	std::shared_ptr<CBattleInfoCallback> cb)
+{
+	vstd::amin(damageDealt, defender->getAvailableHealth());
+
+	auto enemyDamageBeforeAttack = cb->battleEstimateDamage(BattleAttackInfo(defender, attacker, defender->canShoot()));
+	auto enemiesKilled = damageDealt / defender->MaxHealth() + (damageDealt % defender->MaxHealth() >= defender->getFirstHPleft() ? 1 : 0);
+	auto enemyDps = (enemyDamageBeforeAttack.first + enemyDamageBeforeAttack.second) / 2;
+	auto dpsPerEnemy = enemyDps / (double)defender->getCount();
+
+	return (int64_t)(dpsPerEnemy * (enemiesKilled + damageDealt / (double)defender->MaxHealth()) / 2);
+}
+
 int64_t AttackPossibility::evaluateBlockedShootersDmg(const BattleAttackInfo & attackInfo, BattleHex hex, const HypotheticBattle * state)
 {
 	int64_t res = 0;
@@ -136,14 +152,8 @@ AttackPossibility AttackPossibility::evaluate(const BattleAttackInfo & attackInf
 				vstd::amin(retaliation.second, ap.attackerState->getAvailableHealth());
 
 				damageDealt = (attackDmg.first + attackDmg.second) / 2;
+				enemyDpsReduce = calculateDpsReduce(attacker, defender, damageDealt, getCbc());
 				ap.attackerState->afterAttack(attackInfo.shooting, false);
-
-				auto enemiesKilled = damageDealt / u->MaxHealth() + (damageDealt % u->MaxHealth() >= u->getFirstHPleft() ? 1 : 0);
-				auto enemyDps = (enemyDamageBeforeAttack.first + enemyDamageBeforeAttack.second) / 2;
-
-				enemyDpsReduce = enemiesKilled
-					? (int64_t)(enemyDps * enemiesKilled / (double)u->getCount())
-					: (int64_t)(enemyDps / (double)u->getCount() * damageDealt / u->getFirstHPleft());
 
 				//FIXME: use ranged retaliation
 				damageReceived = 0;
@@ -152,11 +162,8 @@ AttackPossibility AttackPossibility::evaluate(const BattleAttackInfo & attackInf
 				if (!attackInfo.shooting && defenderState->ableToRetaliate() && !counterAttacksBlocked)
 				{
 					damageReceived = (retaliation.first + retaliation.second) / 2;
+					ourDpsReduce = calculateDpsReduce(defender, attacker, damageReceived, getCbc());
 					defenderState->afterAttack(attackInfo.shooting, true);
-
-					auto ourUnitsKilled = damageReceived / attacker->MaxHealth() + (damageReceived % attacker->MaxHealth() >= attacker->getFirstHPleft() ? 1 : 0);
-
-					ourDpsReduce = (int64_t)(damageDealt * ourUnitsKilled / (double)attacker->getCount());
 				}
 
 				bool isEnemy = state->battleMatchOwner(attacker, u);

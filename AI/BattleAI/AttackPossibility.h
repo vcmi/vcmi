@@ -13,6 +13,8 @@
 #include "common.h"
 #include "StackWithBonuses.h"
 
+#define BATTLE_TRACE_LEVEL 0
+
 class AttackPossibility
 {
 public:
@@ -35,6 +37,12 @@ public:
 	int64_t attackValue() const;
 
 	static AttackPossibility evaluate(const BattleAttackInfo & attackInfo, BattleHex hex, const HypotheticBattle * state);
+
+	static int64_t calculateDpsReduce(
+		const battle::Unit * attacker,
+		const battle::Unit * defender,
+		uint64_t damageDealt,
+		std::shared_ptr<CBattleInfoCallback> cb);
 
 private:
 	static int64_t evaluateBlockedShootersDmg(const BattleAttackInfo & attackInfo, BattleHex hex, const HypotheticBattle * state);
