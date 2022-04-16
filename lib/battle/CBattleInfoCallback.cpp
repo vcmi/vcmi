@@ -1968,7 +1968,7 @@ boost::optional<int> CBattleInfoCallback::battleIsFinished() const
 {
 	auto units = battleGetUnitsIf([=](const battle::Unit * unit)
 	{
-		return unit->alive() && !unit->isTurret() && unit->alive();
+		return unit->alive() && !unit->isTurret() && !unit->hasBonusOfType(Bonus::SIEGE_WEAPON);
 	});
 
 	std::array<bool, 2> hasUnit = {false, false}; //index is BattleSide
@@ -1976,20 +1976,26 @@ boost::optional<int> CBattleInfoCallback::battleIsFinished() const
 	for(auto & unit : units)
 	{
 		//todo: move SIEGE_WEAPON check to Unit state
-		if(!unit->hasBonusOfType(Bonus::SIEGE_WEAPON))
+		hasUnit.at(unit->unitSide()) = true;
+
+		if(hasUnit[0] && hasUnit[1])
+			return boost::none;
+	}
+	
+	hasUnit = {false, false};
+
+	for(auto & unit : units)
+	{
+		if(!unit->isClone() && !unit->acquireState()->summoned && !dynamic_cast <const CCommanderInstance *>(unit))
 		{
 			hasUnit.at(unit->unitSide()) = true;
 		}
-
-		if(hasUnit[0] && hasUnit[1])
-			break;
 	}
 
 	if(!hasUnit[0] && !hasUnit[1])
 		return 2;
 	if(!hasUnit[1])
 		return 0;
-	if(!hasUnit[0])
+	else
 		return 1;
-	return boost::none;
 }
