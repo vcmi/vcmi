@@ -51,16 +51,22 @@ static void showInfoDialog(const CGHeroInstance* h, const ui32 txtID, const ui16
 
 static int lowestSpeed(const CGHeroInstance * chi)
 {
+	static const CSelector selectorSTACKS_SPEED = Selector::type()(Bonus::STACKS_SPEED);
+	static const std::string keySTACKS_SPEED = "type_" + std::to_string((si32)Bonus::STACKS_SPEED);
+
 	if(!chi->stacksCount())
 	{
+		if(chi->commander && chi->commander->alive)
+		{
+			return chi->commander->valOfBonuses(selectorSTACKS_SPEED, keySTACKS_SPEED);
+		}
+
 		logGlobal->error("Hero %d (%s) has no army!", chi->id.getNum(), chi->name);
 		return 20;
 	}
+
 	auto i = chi->Slots().begin();
 	//TODO? should speed modifiers (eg from artifacts) affect hero movement?
-
-	static const CSelector selectorSTACKS_SPEED = Selector::type()(Bonus::STACKS_SPEED);
-	static const std::string keySTACKS_SPEED = "type_"+std::to_string((si32)Bonus::STACKS_SPEED);
 
 	int ret = (i++)->second->valOfBonuses(selectorSTACKS_SPEED, keySTACKS_SPEED);
 	for(; i != chi->Slots().end(); i++)

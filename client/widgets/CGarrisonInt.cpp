@@ -328,7 +328,7 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 			bool lastHeroStackSelected = false;
 			if(selectedObj->stacksCount() == 1
 				&& owner->getSelection()->upg != upg
-				&& dynamic_cast<const CGHeroInstance*>(selectedObj))
+				&& selectedObj->needsLastStack())
 			{
 				lastHeroStackSelected = true;
 			}
