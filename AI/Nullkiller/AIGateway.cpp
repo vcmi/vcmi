@@ -1022,6 +1022,8 @@ bool AIGateway::canRecruitAnyHero(const CGTownInstance * t) const
 		return false;
 	if(cb->getHeroesInfo().size() >= ALLOWED_ROAMING_HEROES)
 		return false;
+	if(cb->getHeroesInfo().size() >= VLC->modh->settings.MAX_HEROES_ON_MAP_PER_PLAYER)
+		return false;
 	if(!cb->getAvailableHeroes(t).size())
 		return false;
 
