@@ -49,6 +49,7 @@ set(client_SRCS
 		lobby/CLobbyScreen.cpp
 		lobby/CSavingScreen.cpp
 		lobby/CScenarioInfoScreen.cpp
+		lobby/CCampaignInfoScreen.cpp
 		lobby/OptionsTab.cpp
 		lobby/RandomMapTab.cpp
 		lobby/SelectionTab.cpp
@@ -121,6 +122,7 @@ set(client_HEADERS
 		lobby/CLobbyScreen.h
 		lobby/CSavingScreen.h
 		lobby/CScenarioInfoScreen.h
+		lobby/CCampaignInfoScreen.h
 		lobby/OptionsTab.h
 		lobby/RandomMapTab.h
 		lobby/SelectionTab.h
