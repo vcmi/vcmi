@@ -360,6 +360,8 @@ void CBonusSelection::updateAfterStateChange()
 		buttonStart->disable();
 		buttonRestart->enable();
 		buttonBack->block(false);
+		buttonDifficultyLeft->disable();
+		buttonDifficultyRight->disable();
 	}
 	if(CSH->campaignBonus == -1)
 	{
@@ -449,7 +451,7 @@ void CBonusSelection::restartMap()
 	close();
 	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[67], [=]()
 	{
-		CSH->startCampaignScenario();
+		LOCPLINT->sendCustomEvent(EUserEvent::RESTART_GAME);
 	}, 0);
 }
 

@@ -23,7 +23,8 @@
 #include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
 #include "../mainmenu/CMainMenu.h"
-#include "../lobby/CBonusSelection.h"
+#include "../lobby/CSelectionBase.h"
+#include "../lobby/CCampaignInfoScreen.h"
 #include "../lobby/CSavingScreen.h"
 #include "../lobby/CScenarioInfoScreen.h"
 #include "../Graphics.h"
@@ -51,6 +52,7 @@
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/VCMI_Lib.h"
 #include "../../lib/StartInfo.h"
+#include "../../lib/mapping/CMapInfo.h"
 
 #ifdef _MSC_VER
 #pragma warning (disable : 4355)
@@ -1964,7 +1966,7 @@ void CAdventureOptions::showScenarioInfo()
 {
 	if(LOCPLINT->cb->getStartInfo()->campState)
 	{
-		GH.pushIntT<CBonusSelection>();
+		GH.pushIntT<CCampaignInfoScreen>();
 	}
 	else
 	{
