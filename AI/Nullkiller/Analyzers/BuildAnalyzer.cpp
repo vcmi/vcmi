@@ -194,7 +194,9 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 	{
 		int level = toBuild - BuildingID::DWELL_FIRST;
 		auto creatures = townInfo->creatures.at(level % GameConstants::CREATURES_PER_TOWN);
-		auto creatureID = creatures.at(level / GameConstants::CREATURES_PER_TOWN);
+		auto creatureID = creatures.size() > level / GameConstants::CREATURES_PER_TOWN
+			? creatures.at(level / GameConstants::CREATURES_PER_TOWN)
+			: creatures.front();
 
 		baseCreatureID = creatures.front();
 		creature = creatureID.toCreature();
