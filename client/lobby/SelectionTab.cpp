@@ -268,10 +268,14 @@ void SelectionTab::clickLeft(tribool down, bool previousState)
 	if(down)
 	{
 		int line = getLine();
+
 		if(line != -1)
+		{
 			select(line);
+		}
 	}
 }
+
 void SelectionTab::keyPressed(const SDL_KeyboardEvent & key)
 {
 	if(key.state != SDL_PRESSED)
