@@ -59,6 +59,8 @@ public:
 
 extern "C" {
 #include <libavformat/avformat.h>
+#include <libavcodec/avcodec.h>
+#include <libavutil/imgutils.h>
 #include <libswscale/swscale.h>
 }
 
@@ -94,7 +96,7 @@ class CVideoPlayer : public IMainVideoPlayer
 	int stream;					// stream index in video
 	AVFormatContext *format;
 	AVCodecContext *codecContext; // codec context for stream
-	AVCodec *codec;
+	const AVCodec *codec;
 	AVFrame *frame;
 	struct SwsContext *sws;
 
