@@ -143,11 +143,14 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay, bool scal
 	}
 
 	codecContext = avcodec_alloc_context3(codec);
+	if(!codecContext)
+		return false;
 	// Get a pointer to the codec context for the video stream
 	int ret = avcodec_parameters_to_context(codecContext, format->streams[stream]->codecpar);
 	if (ret < 0)
 	{
 		//We cannot get codec from parameters
+		avcodec_free_context(&codecContext);
 		return false;
 	}
 
@@ -410,7 +413,6 @@ void CVideoPlayer::close()
 	if (codecContext)
 	{
 		avcodec_free_context(&codecContext);
-		codecContext = nullptr;
 	}
 
 	if (format)
