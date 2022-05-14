@@ -1071,8 +1071,12 @@ void CPlayerInterface::battleAttack(const BattleAttack * ba)
 			else
 				shift = -1;
 		}
-		const CStack * attacked = cb->battleGetStackByID(ba->bsa.begin()->stackAttacked);
-		battleInt->stackAttacking(attacker, ba->counter() ? BattleHex(attackTarget + shift) : attackTarget, attacked, false);
+
+		if(!ba->bsa.empty())
+		{
+			const CStack * attacked = cb->battleGetStackByID(ba->bsa.begin()->stackAttacked);
+			battleInt->stackAttacking(attacker, ba->counter() ? BattleHex(attackTarget + shift) : attackTarget, attacked, false);
+		}
 	}
 
 	//battleInt->waitForAnims(); //FIXME: freeze
