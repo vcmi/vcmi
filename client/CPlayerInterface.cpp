@@ -852,6 +852,12 @@ BattleAction CPlayerInterface::activeStack(const CStack * stack) //called when i
 		if (isAutoFightOn)
 		{
 			auto ret = autofightingAI->activeStack(stack);
+
+			if(cb->battleIsFinished())
+			{
+				return BattleAction::makeDefend(stack); // battle finished with spellcast
+			}
+
 			if (isAutoFightOn)
 			{
 				return ret;
@@ -863,6 +869,11 @@ BattleAction CPlayerInterface::activeStack(const CStack * stack) //called when i
 	}
 
 	CBattleInterface *b = battleInt;
+
+	if(!b)
+	{
+		return BattleAction::makeDefend(stack); // probably battle is finished already
+	}
 
 	if(CBattleInterface::givenCommand.get())
 	{
