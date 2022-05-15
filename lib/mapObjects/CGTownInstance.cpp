@@ -1285,8 +1285,7 @@ void CGTownInstance::recreateBuildingsBonuses()
 	for(auto b : bl)
 		removeBonus(b);
 
-	auto owner = this->getOwner();
-	for(const auto bid : builtBuildings)
+	for(const auto & bid : builtBuildings)
 	{
 		if(vstd::contains(overriddenBuildings, bid)) //tricky! -> checks tavern only if no bratherhood of sword
 			continue;
@@ -1586,13 +1585,13 @@ void CGTownInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 
 			boost::logic::tribool hasFort(false);
 
-			for(const BuildingID id : forbiddenBuildings)
+			for(const BuildingID & id : forbiddenBuildings)
 			{
 				buildingsLIC.none.insert(id);
 				customBuildings = true;
 			}
 
-			for(const BuildingID id : builtBuildings)
+			for(const BuildingID & id : builtBuildings)
 			{
 				if(id == BuildingID::DEFAULT)
 					continue;
