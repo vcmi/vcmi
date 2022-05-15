@@ -73,6 +73,7 @@ public:
 	float heroFightingStrength;
 	uint8_t actorExchangeCount;
 	TResources armyCost;
+	std::shared_ptr<TurnInfo> tiCache;
 
 	ChainActor(){}
 
@@ -80,6 +81,7 @@ public:
 	ExchangeResult tryExchangeNoLock(const ChainActor * other) const { return tryExchangeNoLock(this, other); }
 	void setBaseActor(HeroActor * base);
 	virtual const CGObjectInstance * getActorObject() const	{ return hero; }
+	int maxMovePoints(CGPathNode::ELayer layer);
 
 protected:
 	virtual ExchangeResult tryExchangeNoLock(const ChainActor * specialActor, const ChainActor * other) const;
