@@ -290,10 +290,13 @@ bool CCreature::isItNativeTerrain(ETerrainType::EETerrainType terrain) const
 
 ETerrainType::EETerrainType CCreature::getNativeTerrain() const
 {
+	const std::string cachingStringBlocksRetaliation = "type_NO_TERRAIN_PENALTY";
+	static const auto selectorBlocksRetaliation = Selector::type()(Bonus::NO_TERRAIN_PENALTY);
+
 	//this code is used in the CreatureTerrainLimiter::limit to setup battle bonuses
 	//and in the CGHeroInstance::getNativeTerrain() to setup mevement bonuses or/and penalties.
-	return hasBonusOfType(Bonus::NO_TERRAIN_PENALTY) ?
-		ETerrainType::ANY_TERRAIN
+	return hasBonus(selectorBlocksRetaliation, selectorBlocksRetaliation)
+		? ETerrainType::ANY_TERRAIN
 		: (ETerrainType::EETerrainType)(*VLC->townh)[faction]->nativeTerrain;
 }
 
