@@ -372,7 +372,7 @@ void CSpell::getEffects(std::vector<Bonus> & lst, const int level, const bool cu
 
 	lst.reserve(lst.size() + effects.size());
 
-	for(const auto b : effects)
+	for(const auto& b : effects)
 	{
 		Bonus nb(*b);
 

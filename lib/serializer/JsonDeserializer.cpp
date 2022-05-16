@@ -63,7 +63,7 @@ void JsonDeserializer::serializeInternal(const std::string & fieldName, std::vec
 	value.clear();
 	value.reserve(data.size());
 
-	for(const JsonNode elem : data)
+	for(const JsonNode& elem : data)
 	{
 		si32 rawId = decoder(elem.String());
 

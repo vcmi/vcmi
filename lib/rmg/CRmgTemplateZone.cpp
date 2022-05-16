@@ -419,7 +419,7 @@ void CRmgTemplateZone::fractalize()
 
 void CRmgTemplateZone::connectLater()
 {
-	for (const int3 node : tilesToConnectLater)
+	for (const int3& node : tilesToConnectLater)
 	{
 		if (!connectWithCenter(node, true))
 			logGlobal->error("Failed to connect node %s with center of the zone", node.toString());
