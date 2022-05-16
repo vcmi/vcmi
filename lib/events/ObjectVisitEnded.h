@@ -28,7 +28,6 @@ public:
 private:
 	PlayerColor player;
 	ObjectInstanceID heroId;
-	bool enabled;
 };
 
 }
