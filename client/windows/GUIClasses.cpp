@@ -1167,7 +1167,6 @@ void CExchangeController::moveArtifact(
 {
 	auto artifact = source->getArt(srcPosition);
 	auto srcLocation = ArtifactLocation(source, srcPosition);
-	bool changeMade = false;
 
 	for(auto slot : artifact->artType->possibleSlots.at(target->bearerType()))
 	{
