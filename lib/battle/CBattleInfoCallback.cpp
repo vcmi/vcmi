@@ -1782,7 +1782,7 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(CRandomGenerator & rand, c
 			return stacks.front();
 	};
 
-	for(const SpellID spellID : allPossibleSpells)
+	for(const SpellID& spellID : allPossibleSpells)
 	{
 		std::stringstream cachingStr;
 		cachingStr << "source_" << Bonus::SPELL_EFFECT << "id_" << spellID.num;
