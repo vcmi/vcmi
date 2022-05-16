@@ -703,6 +703,7 @@ public:
 	// * root is node on which call was made (nullptr will be replaced with this)
 	//interface
 	IBonusBearer();
+	virtual ~IBonusBearer() = default;
 	virtual TConstBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = nullptr, const std::string &cachingStr = "") const = 0;
 	int valOfBonuses(const CSelector &selector, const std::string &cachingStr = "") const;
 	bool hasBonus(const CSelector &selector, const std::string &cachingStr = "") const;
