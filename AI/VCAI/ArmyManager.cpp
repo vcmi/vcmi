@@ -113,7 +113,7 @@ ui64 ArmyManager::howManyReinforcementsCanBuy(const CCreatureSet * h, const CGDw
 	TResources availableRes = cb->getResourceAmount();
 	int freeHeroSlots = GameConstants::ARMY_SIZE - h->stacksCount();
 
-	for(auto const dc : t->creatures)
+	for(auto const & dc : t->creatures)
 	{
 		creInfo ci = infoFromDC(dc);
 
