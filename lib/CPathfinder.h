@@ -232,6 +232,7 @@ struct DLL_LINKAGE CDestinationNodeInfo : public PathNodeInfo
 class IPathfindingRule
 {
 public:
+	virtual ~IPathfindingRule() = default;
 	virtual void process(
 		const PathNodeInfo & source,
 		CDestinationNodeInfo & destination,
@@ -419,6 +420,7 @@ public:
 	}
 
 	void initialize(const PathfinderOptions & options, const CGameState * gs) override;
+	virtual ~NodeStorage() = default;
 
 	virtual std::vector<CGPathNode *> getInitialNodes() override;
 
@@ -456,6 +458,7 @@ private:
 
 public:
 	SingleHeroPathfinderConfig(CPathsInfo & out, CGameState * gs, const CGHeroInstance * hero);
+	virtual ~SingleHeroPathfinderConfig() = default;
 
 	virtual CPathfinderHelper * getOrCreatePathfinderHelper(const PathNodeInfo & source, CGameState * gs) override;
 
@@ -545,7 +548,7 @@ public:
 	const PathfinderOptions & options;
 
 	CPathfinderHelper(CGameState * gs, const CGHeroInstance * Hero, const PathfinderOptions & Options);
-	~CPathfinderHelper();
+	virtual ~CPathfinderHelper();
 	void initializePatrol();
 	bool isHeroPatrolLocked() const;
 	bool isPatrolMovementAllowed(const int3 & dst) const;
