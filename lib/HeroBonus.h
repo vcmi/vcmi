@@ -128,6 +128,7 @@ class DLL_LINKAGE CCheckProxy
 public:
 	CCheckProxy(const IBonusBearer * Target, CSelector Selector);
 	CCheckProxy(const CCheckProxy & other);
+	CCheckProxy& operator= (const CCheckProxy & other) = default;
 
 	bool getHasBonus() const;
 
