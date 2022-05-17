@@ -1,7 +1,7 @@
 # Minimum required version greatly affect CMake behavior
 # So cmake_minimum_required must be called before the project()
-# 2.8.12 is used since it's present in Ubuntu 14.04 and Cotire require it
-cmake_minimum_required(VERSION 3.13.0)
+# 3.10.0 is used since it's minimal in MXE dependencies for now
+cmake_minimum_required(VERSION 3.10.0)
 
 project(VCMI)
 # TODO
