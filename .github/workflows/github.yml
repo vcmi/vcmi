@@ -47,7 +47,7 @@ jobs:
             pack: 1
             extension: exe
             cmake_args: -G "Visual Studio 17 2022" -A x64 '-DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake'
-            
+
     runs-on: ${{ matrix.os }}
     defaults:
       run:
@@ -63,7 +63,7 @@ jobs:
       env:
         MXE_TARGET: ${{ matrix.mxe }}
         VCMI_BUILD_PLATFORM: x64
-        
+
     - name: Git branch name
       id: git-branch-name
       uses: EthanSK/git-branch-name-action@v1
@@ -89,13 +89,6 @@ jobs:
         CXX: ${{ matrix.cxx }}
 
     - name: Build
-      if: ${{ matrix.platform != 'msvc' }}
-      run: |
-        cd '${{github.workspace}}/build'
-        ninja
-        
-    - name: Build MSVC
-      if: ${{ matrix.platform == 'msvc' }}
       run: |
         cd '${{github.workspace}}/build'
         cmake --build . --config ${{env.BUILD_TYPE}}
@@ -105,7 +98,7 @@ jobs:
       run: |
         cd '${{github.workspace}}/build'
         ctest -C Release -V
-  
+
     - name: Pack
       id: cpack
       if: ${{ matrix.pack == 1 }}
@@ -113,20 +106,20 @@ jobs:
         cd '${{github.workspace}}/build'
         CPACK_PATH=`which -a cpack | grep -m1 -v -i chocolatey`
         "$CPACK_PATH" -C Release ${{ matrix.cpack_args }}
-        
+
     - name: Additional logs
       if: ${{ failure() && steps.cpack.outcome == 'failure' && matrix.platform == 'mxe' }}
       run: |
         cat '${{github.workspace}}/build/_CPack_Packages/win32/NSIS/project.nsi'
         cat '${{github.workspace}}/build/_CPack_Packages/win32/NSIS/NSISOutput.log'
-        
+
     - name: Artifacts
       if: ${{ matrix.pack == 1 }}
       uses: actions/upload-artifact@v2
       with:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }}
         path: ${{github.workspace}}/build/${{ env.VCMI_PACKAGE_FILE_NAME }}.${{ matrix.extension }}
-  
+
     - name: Upload build
       if: ${{ matrix.pack == 1 && github.ref == 'refs/heads/develop' && matrix.platform != 'msvc' }}
       run: |
@@ -135,7 +128,7 @@ jobs:
       env:
         DEPLOY_RSA: ${{ secrets.DEPLOY_RSA }}
         PACKAGE_EXTENSION: ${{ matrix.extension }}
-        
+
     - uses: act10ns/slack@v1
       with:
         status: ${{ job.status }}
@@ -143,7 +136,7 @@ jobs:
       env:
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
       if: always()
-      
+
     - name: Trigger Android
       uses: peter-evans/repository-dispatch@v1
       if: ${{ github.ref == 'refs/heads/develop' && matrix.platform == 'mxe' }}
