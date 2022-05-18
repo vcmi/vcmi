@@ -1106,14 +1106,17 @@ void CRmgTemplateZone::initTownType ()
 	//cut a ring around town to ensure crunchPath always hits it.
 	auto cutPathAroundTown = [this](const CGTownInstance * town)
 	{
+        auto clearPos = [this](const int3 & pos)
+        {
+            if (gen->isPossible(pos))
+                gen->setOccupied(pos, ETileType::FREE);
+        };
 		for (auto blockedTile : town->getBlockedPos())
 		{
-			gen->foreach_neighbour(blockedTile, [this](const int3 & pos)
-			{
-				if (gen->isPossible(pos))
-					gen->setOccupied(pos, ETileType::FREE);
-			});
+			gen->foreach_neighbour(blockedTile, clearPos);
 		}
+        //clear town entry
+        gen->foreach_neighbour(town->visitablePos()+int3{0,1,0}, clearPos);
 	};
 
 	auto addNewTowns = [&totalTowns, this, &cutPathAroundTown](int count, bool hasFort, PlayerColor player)
@@ -1316,8 +1319,8 @@ bool CRmgTemplateZone::placeMines ()
 			mine->producedResource = res;
 			mine->tempOwner = PlayerColor::NEUTRAL;
 			mine->producedQuantity = mine->defaultResProduction();
-			if (!i)
-				addCloseObject(mine, 1500); //only firts one is close
+			if (i<2)
+				addCloseObject(mine, 1500); //only first two are close
 			else
 				addRequiredObject(mine, 1500);
 		}
