@@ -20,13 +20,13 @@ jobs:
             cc: clang-10
             cxx: clang++-10
             test: 0
-            cmake_args: -G Ninja
+            cmake_args: -G Ninja -DFORCE_BUNDLED_FL=OFF
           - platform: linux
             os: ubuntu-20.04
             cc: gcc-9
             cxx: g++-9
             test: 0
-            cmake_args: -G Ninja
+            cmake_args: -G Ninja -DFORCE_BUNDLED_FL=OFF
           - platform: mac
             os: macos-latest
             test: 0
