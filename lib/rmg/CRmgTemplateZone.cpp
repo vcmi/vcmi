@@ -792,7 +792,7 @@ void CRmgTemplateZone::addCloseObject(CGObjectInstance * obj, si32 strength)
 }
 void CRmgTemplateZone::addNearbyObject(CGObjectInstance * obj, CGObjectInstance * nearbyTarget)
 {
-    nearbyObjects.push_back(std::make_pair(obj, nearbyTarget));
+	nearbyObjects.push_back(std::make_pair(obj, nearbyTarget));
 }
 
 void CRmgTemplateZone::addToConnectLater(const int3& src)
@@ -1110,17 +1110,17 @@ void CRmgTemplateZone::initTownType ()
 	//cut a ring around town to ensure crunchPath always hits it.
 	auto cutPathAroundTown = [this](const CGTownInstance * town)
 	{
-        auto clearPos = [this](const int3 & pos)
-        {
-            if (gen->isPossible(pos))
-                gen->setOccupied(pos, ETileType::FREE);
-        };
+		auto clearPos = [this](const int3 & pos)
+		{
+			if (gen->isPossible(pos))
+				gen->setOccupied(pos, ETileType::FREE);
+		};
 		for (auto blockedTile : town->getBlockedPos())
 		{
 			gen->foreach_neighbour(blockedTile, clearPos);
 		}
-        //clear town entry
-        gen->foreach_neighbour(town->visitablePos()+int3{0,1,0}, clearPos);
+		//clear town entry
+		gen->foreach_neighbour(town->visitablePos()+int3{0,1,0}, clearPos);
 	};
 
 	auto addNewTowns = [&totalTowns, this, &cutPathAroundTown](int count, bool hasFort, PlayerColor player)
@@ -1494,37 +1494,37 @@ bool CRmgTemplateZone::createRequiredObjects()
 			}
 		}
 	}
-    
-    //create nearby objects (e.g. extra resources close to mines)
-    for(const auto &object : nearbyObjects)
-    {
-        auto obj = object.first;
-        std::set<int3> possiblePositions;
-        for (auto blockedTile : object.second->getBlockedPos())
-        {
-            gen->foreachDirectNeighbour(blockedTile, [this, &possiblePositions](int3 pos)
-            {
-                if (!gen->isBlocked(pos))
-                {
-                    //some resources still could be unaccessible, at least one free cell shall be
-                    gen->foreach_neighbour(pos, [this, &possiblePositions, &pos](int3 p)
-                                                {
-                        if(gen->isFree(p))
-                            possiblePositions.insert(pos);
-                    });
-                }
-            });
-        }
-        
-        if(possiblePositions.empty())
-        {
-            delete obj; //is it correct way to prevent leak?
-            continue;
-        }
-        
-        auto pos = *RandomGeneratorUtil::nextItem(possiblePositions, gen->rand);
-        placeObject(obj, pos);
-    }
+
+	//create nearby objects (e.g. extra resources close to mines)
+	for(const auto &object : nearbyObjects)
+	{
+		auto obj = object.first;
+		std::set<int3> possiblePositions;
+		for (auto blockedTile : object.second->getBlockedPos())
+		{
+			gen->foreachDirectNeighbour(blockedTile, [this, &possiblePositions](int3 pos)
+			{
+				if (!gen->isBlocked(pos))
+				{
+					//some resources still could be unaccessible, at least one free cell shall be
+					gen->foreach_neighbour(pos, [this, &possiblePositions, &pos](int3 p)
+												{
+						if(gen->isFree(p))
+							possiblePositions.insert(pos);
+					});
+				}
+			});
+		}
+
+		if(possiblePositions.empty())
+		{
+			delete obj; //is it correct way to prevent leak?
+			continue;
+		}
+
+		auto pos = *RandomGeneratorUtil::nextItem(possiblePositions, gen->rand);
+		placeObject(obj, pos);
+	}
 
 	return true;
 }
