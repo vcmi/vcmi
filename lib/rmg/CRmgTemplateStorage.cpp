@@ -17,11 +17,6 @@
 
 using namespace rmg;
 
-const std::map<std::string, CRmgTemplate *> & CRmgTemplateStorage::getTemplates() const
-{
-	return templates;
-}
-
 void CRmgTemplateStorage::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
 	//unused
@@ -30,29 +25,19 @@ void CRmgTemplateStorage::loadObject(std::string scope, std::string name, const 
 
 void CRmgTemplateStorage::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
-	auto tpl = new CRmgTemplate();
 	try
 	{
 		JsonDeserializer handler(nullptr, data);
 		auto fullKey = normalizeIdentifier(scope, "core", name);
-		tpl->setId(name);
-		tpl->serializeJson(handler);
-		tpl->validate();
-		templates[fullKey] = tpl;
+		templates[fullKey].setId(name);
+		templates[fullKey].serializeJson(handler);
+		templates[fullKey].validate();
+		
 	}
 	catch(const std::exception & e)
 	{
-		logGlobal->error("Template %s has errors. Message: %s.", tpl->getName(), std::string(e.what()));
+		logGlobal->error("Template %s has errors. Message: %s.", name, std::string(e.what()));
 	}
-}
-
-CRmgTemplateStorage::CRmgTemplateStorage()
-{
-}
-
-CRmgTemplateStorage::~CRmgTemplateStorage()
-{
-	for (auto & pair : templates) delete pair.second;
 }
 
 std::vector<bool> CRmgTemplateStorage::getDefaultAllowed() const
@@ -65,4 +50,14 @@ std::vector<JsonNode> CRmgTemplateStorage::loadLegacyData(size_t dataSize)
 {
 	return std::vector<JsonNode>();
 	//it would be cool to load old rmg.txt files
+}
+
+const CRmgTemplate* CRmgTemplateStorage::getTemplate(const std::string & templateName) const
+{
+	for(auto i=templates.cbegin(); i!=templates.cend(); ++i)
+	{
+		if(i->first==templateName)
+			return &i->second;
+	}
+	return nullptr;
 }
