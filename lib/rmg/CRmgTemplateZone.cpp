@@ -1517,7 +1517,10 @@ bool CRmgTemplateZone::createRequiredObjects()
         }
         
         if(possiblePositions.empty())
+        {
+            delete obj; //is it correct way to prevent leak?
             continue;
+        }
         
         auto pos = *RandomGeneratorUtil::nextItem(possiblePositions, gen->rand);
         placeObject(obj, pos);
