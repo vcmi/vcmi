@@ -1,7 +1,7 @@
 # Minimum required version greatly affect CMake behavior
 # So cmake_minimum_required must be called before the project()
-# 2.8.12 is used since it's present in Ubuntu 14.04 and Cotire require it
-cmake_minimum_required(VERSION 2.8.12)
+# 3.10.0 is used since it's minimal in MXE dependencies for now
+cmake_minimum_required(VERSION 3.10.0)
 
 project(VCMI)
 # TODO
@@ -118,6 +118,12 @@ include(UseDoxygen OPTIONAL)
 #        Compile and linking options       #
 ############################################
 
+#Enable C++14 Globally
+set (CMAKE_CXX_STANDARD 14)
+#General visibility options
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
+
 if(APPLE)
 	set(CMAKE_MACOSX_RPATH 0)
 endif(APPLE)
@@ -180,7 +186,7 @@ if(MINGW OR MSVC)
 endif(MINGW OR MSVC)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR NOT WIN32) #so far all *nix compilers support such parameters
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -Wall -Wextra -Wpointer-arith -Wuninitialized")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpointer-arith -Wuninitialized")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-strict-aliasing -Wno-switch -Wno-sign-compare -Wno-unused-local-typedefs")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-parameter -Wno-overloaded-virtual -Wno-type-limits -Wno-unknown-pragmas")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-reorder")
@@ -190,7 +196,6 @@ if(CMAKE_COMPILER_IS_GNUCXX OR NOT WIN32) #so far all *nix compilers support suc
 	endif()
 
 	if(UNIX)
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
 		set(SYSTEM_LIBS ${SYSTEM_LIBS} ${CMAKE_DL_LIBS})
 	endif()
 endif()

@@ -181,13 +181,15 @@ struct DLL_LINKAGE QuestInfo //universal interface for human and AI
 	QuestInfo (const CQuest * Quest, const CGObjectInstance * Obj, int3 Tile) :
 		quest (Quest), obj (Obj), tile (Tile){};
 
-	//FIXME: assignment operator should return QuestInfo &
-	bool operator= (const QuestInfo &qi)
+	QuestInfo (const QuestInfo &qi) : quest(qi.quest), obj(qi.obj), tile(qi.tile)
+	{};
+
+	const QuestInfo& operator= (const QuestInfo &qi)
 	{
 		quest = qi.quest;
 		obj = qi.obj;
 		tile = qi.tile;
-		return true;
+		return *this;
 	}
 
 	bool operator== (const QuestInfo & qi) const

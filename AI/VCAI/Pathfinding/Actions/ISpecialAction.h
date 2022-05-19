@@ -18,6 +18,7 @@ struct AIPathNode;
 class ISpecialAction
 {
 public:
+	virtual ~ISpecialAction() = default;
 	virtual Goals::TSubgoal whatToDo(const HeroPtr & hero) const = 0;
 
 	virtual void applyOnDestination(

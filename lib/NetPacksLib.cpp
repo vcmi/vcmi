@@ -709,6 +709,7 @@ DLL_LINKAGE void NewObject::applyGs(CGameState *gs)
 
 		const int3 previousXAxisTile = int3(pos.x - 1, pos.y, pos.z);
 		assert(gs->isInTheMap(previousXAxisTile) && (testObject.visitablePos() == previousXAxisTile));
+		UNUSED(previousXAxisTile);
 	}
 	else
 	{

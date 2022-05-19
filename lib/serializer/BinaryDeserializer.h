@@ -521,7 +521,7 @@ public:
 	std::unique_ptr<FileStream> sfile;
 
 	CLoadFile(const boost::filesystem::path & fname, int minimalVersion = SERIALIZATION_VERSION); //throws!
-	~CLoadFile();
+	virtual ~CLoadFile();
 	int read(void * data, unsigned size) override; //throws!
 
 	void openNextFile(const boost::filesystem::path & fname, int minimalVersion); //throws!

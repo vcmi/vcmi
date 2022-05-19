@@ -43,6 +43,7 @@ public:
 	using Object = std::shared_ptr<TargetConditionItem>;
 
 	static const TargetConditionItemFactory * getDefault();
+	virtual ~TargetConditionItemFactory() = default;
 
 	virtual Object createAbsoluteLevel() const = 0;
 	virtual Object createAbsoluteSpell() const = 0;

@@ -17,6 +17,7 @@ struct IPointerCaster
 	virtual boost::any castSharedPtr(const boost::any &ptr) const = 0; // takes std::shared_ptr<From>, performs dynamic cast, returns std::shared_ptr<To>
 	virtual boost::any castWeakPtr(const boost::any &ptr) const = 0; // takes std::weak_ptr<From>, performs dynamic cast, returns std::weak_ptr<To>. The object under poitner must live.
 	//virtual boost::any castUniquePtr(const boost::any &ptr) const = 0; // takes std::unique_ptr<From>, performs dynamic cast, returns std::unique_ptr<To>
+	virtual ~IPointerCaster() = default;
 };
 
 template <typename From, typename To>
