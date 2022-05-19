@@ -205,11 +205,6 @@ void CMapGenOptions::setMapTemplate(const CRmgTemplate * value)
 	assert(0);
 }
 
-const std::map<std::string, CRmgTemplate *> & CMapGenOptions::getAvailableTemplates() const
-{
-	return VLC->tplh->getTemplates();
-}
-
 void CMapGenOptions::finalize(CRandomGenerator & rand)
 {
 	logGlobal->info("RMG settings: players %d, teams %d, computer players %d, computer teams %d, water %d, monsters %d",
@@ -394,59 +389,15 @@ bool CMapGenOptions::checkOptions() const
 
 const CRmgTemplate * CMapGenOptions::getPossibleTemplate(CRandomGenerator & rand) const
 {
-	// Find potential templates
-	const auto & tpls = getAvailableTemplates();
-	std::list<const CRmgTemplate *> potentialTpls;
-	for(const auto & tplPair : tpls)
-	{
-		const auto & tpl = tplPair.second;
-		int3 tplSize(width, height, (hasTwoLevels ? 2 : 1));
-		if(tpl->matchesSize(tplSize))
-		{
-			bool isPlayerCountValid = false;
-			if (getPlayerCount() != RANDOM_SIZE)
-			{
-				if (tpl->getPlayers().isInRange(getPlayerCount()))
-					isPlayerCountValid = true;
-			}
-			else
-			{
-				// Human players shouldn't be banned when playing with random player count
-				auto playerNumbers = tpl->getPlayers().getNumbers();
-				if(countHumanPlayers() <= *boost::min_element(playerNumbers))
-				{
-					isPlayerCountValid = true;
-				}
-			}
-
-			if (isPlayerCountValid)
-			{
-				bool isCpuPlayerCountValid = false;
-				if(compOnlyPlayerCount != RANDOM_SIZE)
-				{
-					if (tpl->getCpuPlayers().isInRange(compOnlyPlayerCount))
-						isCpuPlayerCountValid = true;
-				}
-				else
-				{
-					isCpuPlayerCountValid = true;
-				}
-
-				if(isCpuPlayerCountValid)
-					potentialTpls.push_back(tpl);
-			}
-		}
-	}
+	int3 tplSize(width, height, (hasTwoLevels ? 2 : 1));
+	
+	auto templates = VLC->tplh->getTemplates(tplSize, getPlayerCount(), countHumanPlayers(), compOnlyPlayerCount);
 
 	// Select tpl
-	if(potentialTpls.empty())
-	{
+	if(templates.empty())
 		return nullptr;
-	}
-	else
-	{
-		return *RandomGeneratorUtil::nextItem(potentialTpls, rand);
-	}
+	
+	return *RandomGeneratorUtil::nextItem(templates, rand);
 }
 
 CMapGenOptions::CPlayerSettings::CPlayerSettings() : color(0), startingTown(RANDOM_TOWN), playerType(EPlayerType::AI)
