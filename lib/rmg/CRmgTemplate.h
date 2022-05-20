@@ -24,7 +24,8 @@ namespace ETemplateZoneType
 		PLAYER_START,
 		CPU_START,
 		TREASURE,
-		JUNCTION
+		JUNCTION,
+		WATER
 	};
 }
 
@@ -93,6 +94,8 @@ public:
 	void setId(TRmgTemplateZoneId value);
 
 	ETemplateZoneType::ETemplateZoneType getType() const;
+	void setType(ETemplateZoneType::ETemplateZoneType value);
+	
 	int getSize() const;
 	void setSize(int value);
 	boost::optional<int> getOwner() const;

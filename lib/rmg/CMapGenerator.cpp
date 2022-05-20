@@ -279,19 +279,30 @@ void CMapGenerator::genZones()
 	getEditManager()->clearTerrain(&rand);
 	getEditManager()->getTerrainSelection().selectRange(MapRect(int3(0, 0, 0), mapGenOptions.getWidth(), mapGenOptions.getHeight()));
 	getEditManager()->drawTerrain(ETerrainType::GRASS, &rand);
+	
 
 	auto tmpl = mapGenOptions.getMapTemplate();
 	zones.clear();
 	for(const auto & option : tmpl->getZones())
 	{
 		auto zone = std::make_shared<CRmgTemplateZone>(this);
-		zone->setOptions(option.second.get());
+		zone->setOptions(*option.second.get());
 		zones[zone->getId()] = zone;
 	}
 
 	CZonePlacer placer(this);
 	placer.placeZones(&rand);
 	placer.assignZones();
+	
+	//add special zone for water
+	zoneWater.first = zones.size();
+	zoneWater.second = std::make_shared<CRmgTemplateZone>(this);
+	{
+		rmg::ZoneOptions options;
+		options.setId(zoneWater.first);
+		options.setType(ETemplateZoneType::WATER);
+		zoneWater.second->setOptions(options);
+	}
 
 	logGlobal->info("Zones generated successfully");
 }
@@ -315,11 +326,16 @@ void CMapGenerator::fillZones()
 	for (auto it : zones)
 		it.second->initFreeTiles();
 	
-	createDirectConnections(); //direct
+	//TODO: connections may lay on water in NORMAL mode
+	if(getMapGenOptions().getWaterContent()!=EWaterContent::ISLANDS)
+		createDirectConnections(); //direct
 	
 	//make sure all connections are passable before creating borders
 	for (auto it : zones)
+	{
 		it.second->createBorder(); //once direct connections are done
+		it.second->createWater(getMapGenOptions().getWaterContent());
+	}
 	
 	createConnections2(); //subterranean gates and monoliths
 	
@@ -865,4 +881,8 @@ ui32 CMapGenerator::getZoneCount(TFaction faction)
 ui32 CMapGenerator::getTotalZoneCount() const
 {
 	return zonesTotal;
+}
+CMapGenerator::Zones::value_type CMapGenerator::getZoneWater() const
+{
+	return zoneWater;
 }

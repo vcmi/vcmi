@@ -91,7 +91,7 @@ class DLL_LINKAGE CRmgTemplateZone : public rmg::ZoneOptions
 public:
 	CRmgTemplateZone(CMapGenerator * Gen);
 
-	void setOptions(const rmg::ZoneOptions * options);
+	void setOptions(const rmg::ZoneOptions & options);
 	bool isUnderground() const;
 
 	float3 getCenter() const;
@@ -105,7 +105,7 @@ public:
 	void initFreeTiles ();
 	std::set<int3> getTileInfo() const;
 	std::set<int3> getPossibleTiles() const;
-	void discardDistantTiles (float distance);
+	std::vector<int3> discardDistantTiles (float distance);
 	void clearTiles();
 
 	void addRequiredObject(CGObjectInstance * obj, si32 guardStrength=0);
@@ -126,6 +126,7 @@ public:
 	EObjectPlacingResult::EObjectPlacingResult tryToPlaceObjectAndConnectToPath(CGObjectInstance *obj, int3 &pos); //return true if the position cna be connected
 	bool createRequiredObjects();
 	void createTreasures();
+	void createWater(EWaterContent::EWaterContent waterContent);
 	void createObstacles1();
 	void createObstacles2();
 	bool crunchPath(const int3 &src, const int3 &dst, bool onlyStraight, std::set<int3>* clearedTiles = nullptr);

@@ -96,6 +96,8 @@ public:
 	void registerZone (TFaction faction);
 	ui32 getZoneCount(TFaction faction);
 	ui32 getTotalZoneCount() const;
+	
+	Zones::value_type getZoneWater() const;
 
 	TRmgTemplateZoneId getZoneID(const int3& tile) const;
 	void setZoneID(const int3& tile, TRmgTemplateZoneId zid);
@@ -108,6 +110,8 @@ private:
 	Zones zones;
 	std::map<TFaction, ui32> zonesPerFaction;
 	ui32 zonesTotal; //zones that have their main town only
+	
+	std::pair<Zones::key_type, Zones::mapped_type> zoneWater;
 
 	CTileInfo*** tiles;
 	boost::multi_array<TRmgTemplateZoneId, 3> zoneColouring; //[z][x][y]

@@ -119,9 +119,9 @@ bool CRmgTemplateZone::isUnderground() const
 	return getPos().z;
 }
 
-void CRmgTemplateZone::setOptions(const ZoneOptions * options)
+void CRmgTemplateZone::setOptions(const ZoneOptions& options)
 {
-	ZoneOptions::operator=(*options);
+	ZoneOptions::operator=(options);
 }
 
 void CRmgTemplateZone::setQuestArtZone(std::shared_ptr<CRmgTemplateZone> otherZone)
@@ -183,7 +183,7 @@ std::set<int3> CRmgTemplateZone::getPossibleTiles() const
 	return possibleTiles;
 }
 
-void CRmgTemplateZone::discardDistantTiles (float distance)
+std::vector<int3> CRmgTemplateZone::discardDistantTiles (float distance)
 {
 	//TODO: mark tiles beyond zone as unavailable, but allow to connect with adjacent zones
 
@@ -195,10 +195,19 @@ void CRmgTemplateZone::discardDistantTiles (float distance)
 	//		//gen->setOccupied(tile, ETileType::BLOCKED); //fixme: crash at rendering?
 	//	}
 	//}
-	vstd::erase_if (tileinfo, [distance, this](const int3 &tile) -> bool
+	std::vector<int3> discardedTiles;
+	for(auto& tile : tileinfo)
 	{
-		return tile.dist2d(this->pos) > distance;
-	});
+		if(tile.dist2d(this->pos) > distance)
+		{
+			discardedTiles.push_back(tile);
+		}
+	};
+	for(auto& tile : discardedTiles)
+	{
+		tileinfo.erase(tile);
+	}
+	return discardedTiles;
 }
 
 void CRmgTemplateZone::clearTiles()
@@ -230,6 +239,9 @@ void CRmgTemplateZone::createBorder()
 				return; //optimization - do it only once
 			if (gen->getZoneID(pos) != id) //optimization - better than set search
 			{
+				//bugfix with missing pos
+				if (gen->isPossible(pos))
+					gen->setOccupied(pos, ETileType::BLOCKED);
 				//we are edge if at least one tile does not belong to zone
 				//mark all nearby tiles blocked and we're done
 				gen->foreach_neighbour (pos, [this](int3 &nearbyPos)
@@ -241,6 +253,38 @@ void CRmgTemplateZone::createBorder()
 			}
 		});
 	}
+}
+
+void CRmgTemplateZone::createWater(EWaterContent::EWaterContent waterContent)
+{
+	if(waterContent == EWaterContent::NONE || isUnderground())
+		return; //do nothing
+	
+	std::vector<int3> waterVector = discardDistantTiles((float)(getSize() + 1));
+	
+	if(waterContent == EWaterContent::ISLANDS)
+	{
+		for (auto& tile : tileinfo)
+		{
+			if (gen->shouldBeBlocked(tile))
+			{
+				waterVector.push_back(tile);
+			}
+		}
+	}
+	
+	//case EWaterContent::NORMAL (shall be executed for ISLANDS as well)
+	auto zoneWaterPair = gen->getZoneWater();
+	for(auto& tile : waterVector)
+	{
+		zoneWaterPair.second->addTile(tile);
+		gen->setZoneID(tile, zoneWaterPair.first);
+		gen->setOccupied(tile, ETileType::POSSIBLE);
+		tileinfo.erase(tile);
+		possibleTiles.erase(tile);
+	}
+	gen->getEditManager()->getTerrainSelection().setSelection(waterVector);
+	gen->getEditManager()->drawTerrain(ETerrainType::WATER, &gen->rand);
 }
 
 void CRmgTemplateZone::fractalize()
@@ -1822,7 +1866,7 @@ bool CRmgTemplateZone::canObstacleBePlacedHere(ObjectTemplate &temp, int3 &pos)
 	for (auto blockingTile : tilesBlockedByObject)
 	{
 		int3 t = pos + blockingTile;
-		if (!gen->map->isInTheMap(t) || !(gen->isPossible(t) || gen->shouldBeBlocked(t)))
+		if (!gen->map->isInTheMap(t) || gen->getZoneID(t)!=getId() || !(gen->isPossible(t) || gen->shouldBeBlocked(t)))
 		{
 			return false; //if at least one tile is not possible, object can't be placed here
 		}

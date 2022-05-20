@@ -196,6 +196,11 @@ ETemplateZoneType::ETemplateZoneType ZoneOptions::getType() const
 {
 	return type;
 }
+	
+void ZoneOptions::setType(ETemplateZoneType::ETemplateZoneType value)
+{
+	type = value;
+}
 
 int ZoneOptions::getSize() const
 {

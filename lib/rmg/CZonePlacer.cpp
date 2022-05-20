@@ -13,6 +13,7 @@
 #include "CZonePlacer.h"
 #include "CRmgTemplateZone.h"
 #include "../mapping/CMap.h"
+#include "../mapping/CMapEditManager.h"
 
 #include "CZoneGraphGenerator.h"
 
