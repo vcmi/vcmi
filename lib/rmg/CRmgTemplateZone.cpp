@@ -1261,27 +1261,26 @@ void CRmgTemplateZone::randomizeTownType(bool prohibitNonUnderground)
 	{
 		if(isUnderground())
 		{
-			//intentionally use AND condition in order to have some choice. If no random options remains - use pure random
-			//TODO: perhaps add NECROPOLIS
+			//intentionally use AND condition in order to have some choice. If poor random options remains - use pure random
 			//TODO: support new towns from mods to be defined as underground towns
-			if(townTypesAllowed.find(ETownType::DUNGEON) != townTypesAllowed.end() && townTypesAllowed.find(ETownType::INFERNO) != townTypesAllowed.end())
+			if(townTypesAllowed.find(ETownType::DUNGEON) != townTypesAllowed.end() && townTypesAllowed.find(ETownType::INFERNO) != townTypesAllowed.end() && townTypesAllowed.find(ETownType::NECROPOLIS) != townTypesAllowed.end())
 			{
-				townTypesAllowed = {ETownType::DUNGEON, ETownType::INFERNO};
-				//DUNGEON shall have higher probability to be selected for underground zones
-				townType = *RandomGeneratorUtil::nextItem(townTypesAllowed, gen->rand);
-				if(townType == ETownType::INFERNO)
-				{
-					townType = *RandomGeneratorUtil::nextItem(townTypesAllowed, gen->rand);
-					return;
-				}
+				townTypesAllowed.erase(ETownType::CASTLE);
+				townTypesAllowed.erase(ETownType::RAMPART);
+				townTypesAllowed.erase(ETownType::TOWER);
+				townTypesAllowed.erase(ETownType::STRONGHOLD);
+				townTypesAllowed.erase(ETownType::FORTRESS);
+				townTypesAllowed.erase(ETownType::CONFLUX);
 			}
 		}
 		else
 		{
-			//prohibit DUNGEON on surface if there are options for randomize
-			if(townTypesAllowed.size()>1)
+			//prohibit on surface if there are options for randomize
+			if(townTypesAllowed.size()>=6)
 			{
 				townTypesAllowed.erase(ETownType::DUNGEON);
+				townTypesAllowed.erase(ETownType::NECROPOLIS);
+				townTypesAllowed.erase(ETownType::INFERNO);
 			}
 		}
 	}
