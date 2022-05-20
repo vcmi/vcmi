@@ -1304,33 +1304,13 @@ bool CRmgTemplateZone::placeMines ()
 	static const Res::ERes woodOre[] = {Res::ERes::WOOD, Res::ERes::ORE};
 	static const Res::ERes preciousResources[] = {Res::ERes::GEMS, Res::ERes::CRYSTAL, Res::ERes::MERCURY, Res::ERes::SULFUR};
 
-	std::array<TObjectTypeHandler, 7> factoryMine =
-	{
-		VLC->objtypeh->getHandlerFor(Obj::MINE, 0),
-		VLC->objtypeh->getHandlerFor(Obj::MINE, 1),
-		VLC->objtypeh->getHandlerFor(Obj::MINE, 2),
-		VLC->objtypeh->getHandlerFor(Obj::MINE, 3),
-		VLC->objtypeh->getHandlerFor(Obj::MINE, 4),
-		VLC->objtypeh->getHandlerFor(Obj::MINE, 5),
-		VLC->objtypeh->getHandlerFor(Obj::MINE, 6)
-	};
-    std::array<TObjectTypeHandler, 7> factoryRes =
-    {
-        VLC->objtypeh->getHandlerFor(Obj::RESOURCE, 0),
-        VLC->objtypeh->getHandlerFor(Obj::RESOURCE, 1),
-        VLC->objtypeh->getHandlerFor(Obj::RESOURCE, 2),
-        VLC->objtypeh->getHandlerFor(Obj::RESOURCE, 3),
-        VLC->objtypeh->getHandlerFor(Obj::RESOURCE, 4),
-        VLC->objtypeh->getHandlerFor(Obj::RESOURCE, 5),
-        VLC->objtypeh->getHandlerFor(Obj::RESOURCE, 6)
-    };
     std::vector<CGMine*> tempmines;
 
 	for (const auto & res : woodOre)
 	{
 		for (int i = 0; i < mines[res]; i++)
 		{
-			auto mine = (CGMine *) factoryMine.at(static_cast<si32>(res))->create(ObjectTemplate());
+			auto mine = (CGMine*) VLC->objtypeh->getHandlerFor(Obj::MINE, res)->create(ObjectTemplate());
             tempmines.emplace_back(mine);
 			mine->producedResource = res;
 			mine->tempOwner = PlayerColor::NEUTRAL;
@@ -1345,7 +1325,7 @@ bool CRmgTemplateZone::placeMines ()
 	{
 		for (int i = 0; i < mines[res]; i++)
 		{
-			auto mine = (CGMine *) factoryMine.at(static_cast<si32>(res))->create(ObjectTemplate());
+			auto mine = (CGMine*) VLC->objtypeh->getHandlerFor(Obj::MINE, res)->create(ObjectTemplate());
             tempmines.emplace_back(mine);
 			mine->producedResource = res;
 			mine->tempOwner = PlayerColor::NEUTRAL;
@@ -1355,7 +1335,7 @@ bool CRmgTemplateZone::placeMines ()
 	}
 	for (int i = 0; i < mines[Res::GOLD]; i++)
 	{
-		auto mine = (CGMine *) factoryMine.at(Res::GOLD)->create(ObjectTemplate());
+		auto mine = (CGMine*) VLC->objtypeh->getHandlerFor(Obj::MINE, Res::GOLD)->create(ObjectTemplate());
         tempmines.emplace_back(mine);
 		mine->producedResource = Res::GOLD;
 		mine->tempOwner = PlayerColor::NEUTRAL;
@@ -1368,8 +1348,8 @@ bool CRmgTemplateZone::placeMines ()
     {
         for(int rc = gen->rand.nextInt(1,3); rc>0; --rc)
         {
-            auto resourse = (CGResource*) factoryRes.at(mine->producedResource)->create(ObjectTemplate());
-            resourse->amount = 0;
+			auto resourse = (CGResource*) VLC->objtypeh->getHandlerFor(Obj::RESOURCE, mine->producedResource)->create(ObjectTemplate());
+            resourse->amount = CGResource::RANDOM_AMOUNT;
             addNearbyObject(resourse, mine);
         }
     }
@@ -1519,11 +1499,12 @@ bool CRmgTemplateZone::createRequiredObjects()
 		if(possiblePositions.empty())
 		{
 			delete obj; //is it correct way to prevent leak?
-			continue;
 		}
-
-		auto pos = *RandomGeneratorUtil::nextItem(possiblePositions, gen->rand);
-		placeObject(obj, pos);
+		else
+		{
+			auto pos = *RandomGeneratorUtil::nextItem(possiblePositions, gen->rand);
+			placeObject(obj, pos);
+		}
 	}
 
 	return true;
