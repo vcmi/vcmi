@@ -298,7 +298,6 @@ void CMapGenerator::genZones()
 
 void CMapGenerator::fillZones()
 {
-    dump(0);
 	//init native town count with 0
 	for (auto faction : VLC->townh->getAllowedFactions())
 		zonesPerFaction[faction] = 0;
@@ -311,17 +310,19 @@ void CMapGenerator::fillZones()
 	//place main town in the middle
 	for (auto it : zones)
 		it.second->initTownType();
-    dump(1);
+	
 	//make sure there are some free tiles in the zone
 	for (auto it : zones)
 		it.second->initFreeTiles();
-    dump(2);
+	
 	createDirectConnections(); //direct
+	
 	//make sure all connections are passable before creating borders
 	for (auto it : zones)
 		it.second->createBorder(); //once direct connections are done
+	
 	createConnections2(); //subterranean gates and monoliths
-    dump(3);
+	
 	std::vector<std::shared_ptr<CRmgTemplateZone>> treasureZones;
     for (auto it : zones)
 	{
@@ -330,20 +331,20 @@ void CMapGenerator::fillZones()
 			treasureZones.push_back(it.second);
         //break;
 	}
-    dump(4);
+	
 	//set apriopriate free/occupied tiles, including blocked underground rock
 	createObstaclesCommon1();
-    dump(5);
 	//set back original terrain for underground zones
 	for (auto it : zones)
 		it.second->createObstacles1();
+	
 	createObstaclesCommon2();
 	//place actual obstacles matching zone terrain
 	for (auto it : zones)
 	{
 		it.second->createObstacles2();
 	}
-    dump(6);
+
 	#define PRINT_MAP_BEFORE_ROADS true
 	if (PRINT_MAP_BEFORE_ROADS) //enable to debug
 	{
@@ -393,7 +394,7 @@ void CMapGenerator::fillZones()
 	auto grailZone = *RandomGeneratorUtil::nextItem(treasureZones, rand);
 
 	map->grailPos = *RandomGeneratorUtil::nextItem(*grailZone->getFreePaths(), rand);
-    dump(7);
+
 	logGlobal->info("Zones filled successfully");
 }
 
