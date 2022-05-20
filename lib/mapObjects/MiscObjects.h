@@ -215,7 +215,9 @@ protected:
 class DLL_LINKAGE CGResource : public CArmedInstance
 {
 public:
+	static const ui32 RANDOM_AMOUNT = 0;
 	ui32 amount; //0 if random
+	
 	std::string message;
 
 	CGResource();

@@ -838,14 +838,14 @@ std::string CGResource::getHoverText(PlayerColor player) const
 
 CGResource::CGResource()
 {
-	amount = 0;
+	amount = CGResource::RANDOM_AMOUNT;
 }
 
 void CGResource::initObj(CRandomGenerator & rand)
 {
 	blockVisit = true;
 
-	if(!amount)
+	if(amount == CGResource::RANDOM_AMOUNT)
 	{
 		switch(subID)
 		{
