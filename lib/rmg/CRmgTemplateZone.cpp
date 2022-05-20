@@ -790,6 +790,10 @@ void CRmgTemplateZone::addCloseObject(CGObjectInstance * obj, si32 strength)
 {
 	closeObjects.push_back(std::make_pair(obj, strength));
 }
+void CRmgTemplateZone::addNearbyObject(CGObjectInstance * obj, CGObjectInstance * nearbyTarget)
+{
+	nearbyObjects.push_back(std::make_pair(obj, nearbyTarget));
+}
 
 void CRmgTemplateZone::addToConnectLater(const int3& src)
 {
@@ -1106,14 +1110,17 @@ void CRmgTemplateZone::initTownType ()
 	//cut a ring around town to ensure crunchPath always hits it.
 	auto cutPathAroundTown = [this](const CGTownInstance * town)
 	{
+		auto clearPos = [this](const int3 & pos)
+		{
+			if (gen->isPossible(pos))
+				gen->setOccupied(pos, ETileType::FREE);
+		};
 		for (auto blockedTile : town->getBlockedPos())
 		{
-			gen->foreach_neighbour(blockedTile, [this](const int3 & pos)
-			{
-				if (gen->isPossible(pos))
-					gen->setOccupied(pos, ETileType::FREE);
-			});
+			gen->foreach_neighbour(blockedTile, clearPos);
 		}
+		//clear town entry
+		gen->foreach_neighbour(town->visitablePos()+int3{0,1,0}, clearPos);
 	};
 
 	auto addNewTowns = [&totalTowns, this, &cutPathAroundTown](int count, bool hasFort, PlayerColor player)
@@ -1323,27 +1330,19 @@ bool CRmgTemplateZone::placeMines ()
 	static const Res::ERes woodOre[] = {Res::ERes::WOOD, Res::ERes::ORE};
 	static const Res::ERes preciousResources[] = {Res::ERes::GEMS, Res::ERes::CRYSTAL, Res::ERes::MERCURY, Res::ERes::SULFUR};
 
-	std::array<TObjectTypeHandler, 7> factory =
-	{
-		VLC->objtypeh->getHandlerFor(Obj::MINE, 0),
-		VLC->objtypeh->getHandlerFor(Obj::MINE, 1),
-		VLC->objtypeh->getHandlerFor(Obj::MINE, 2),
-		VLC->objtypeh->getHandlerFor(Obj::MINE, 3),
-		VLC->objtypeh->getHandlerFor(Obj::MINE, 4),
-		VLC->objtypeh->getHandlerFor(Obj::MINE, 5),
-		VLC->objtypeh->getHandlerFor(Obj::MINE, 6)
-	};
+    std::vector<CGMine*> tempmines;
 
 	for (const auto & res : woodOre)
 	{
 		for (int i = 0; i < mines[res]; i++)
 		{
-			auto mine = (CGMine *) factory.at(static_cast<si32>(res))->create(ObjectTemplate());
+			auto mine = (CGMine*) VLC->objtypeh->getHandlerFor(Obj::MINE, res)->create(ObjectTemplate());
+            tempmines.emplace_back(mine);
 			mine->producedResource = res;
 			mine->tempOwner = PlayerColor::NEUTRAL;
 			mine->producedQuantity = mine->defaultResProduction();
 			if (!i)
-				addCloseObject(mine, 1500); //only firts one is close
+				addCloseObject(mine, 1500); //only first is close
 			else
 				addRequiredObject(mine, 1500);
 		}
@@ -1352,7 +1351,8 @@ bool CRmgTemplateZone::placeMines ()
 	{
 		for (int i = 0; i < mines[res]; i++)
 		{
-			auto mine = (CGMine *) factory.at(static_cast<si32>(res))->create(ObjectTemplate());
+			auto mine = (CGMine*) VLC->objtypeh->getHandlerFor(Obj::MINE, res)->create(ObjectTemplate());
+            tempmines.emplace_back(mine);
 			mine->producedResource = res;
 			mine->tempOwner = PlayerColor::NEUTRAL;
 			mine->producedQuantity = mine->defaultResProduction();
@@ -1361,12 +1361,24 @@ bool CRmgTemplateZone::placeMines ()
 	}
 	for (int i = 0; i < mines[Res::GOLD]; i++)
 	{
-		auto mine = (CGMine *) factory.at(Res::GOLD)->create(ObjectTemplate());
+		auto mine = (CGMine*) VLC->objtypeh->getHandlerFor(Obj::MINE, Res::GOLD)->create(ObjectTemplate());
+        tempmines.emplace_back(mine);
 		mine->producedResource = Res::GOLD;
 		mine->tempOwner = PlayerColor::NEUTRAL;
 		mine->producedQuantity = mine->defaultResProduction();
 		addRequiredObject(mine, 7000);
 	}
+    
+    //create extra resources
+    for(auto* mine : tempmines)
+    {
+        for(int rc = gen->rand.nextInt(1,3); rc>0; --rc)
+        {
+			auto resourse = (CGResource*) VLC->objtypeh->getHandlerFor(Obj::RESOURCE, mine->producedResource)->create(ObjectTemplate());
+            resourse->amount = CGResource::RANDOM_AMOUNT;
+            addNearbyObject(resourse, mine);
+        }
+    }
 
 	return true;
 }
@@ -1486,6 +1498,38 @@ bool CRmgTemplateZone::createRequiredObjects()
 				else
 					throw (rmgException("Wrong result of tryToPlaceObjectAndConnectToPath()"));
 			}
+		}
+	}
+
+	//create nearby objects (e.g. extra resources close to mines)
+	for(const auto &object : nearbyObjects)
+	{
+		auto obj = object.first;
+		std::set<int3> possiblePositions;
+		for (auto blockedTile : object.second->getBlockedPos())
+		{
+			gen->foreachDirectNeighbour(blockedTile, [this, &possiblePositions](int3 pos)
+			{
+				if (!gen->isBlocked(pos))
+				{
+					//some resources still could be unaccessible, at least one free cell shall be
+					gen->foreach_neighbour(pos, [this, &possiblePositions, &pos](int3 p)
+												{
+						if(gen->isFree(p))
+							possiblePositions.insert(pos);
+					});
+				}
+			});
+		}
+
+		if(possiblePositions.empty())
+		{
+			delete obj; //is it correct way to prevent leak?
+		}
+		else
+		{
+			auto pos = *RandomGeneratorUtil::nextItem(possiblePositions, gen->rand);
+			placeObject(obj, pos);
 		}
 	}
 
