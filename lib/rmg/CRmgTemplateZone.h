@@ -89,11 +89,10 @@ struct DLL_LINKAGE CTreasurePileInfo
 class DLL_LINKAGE CRmgTemplateZone : public rmg::ZoneOptions
 {
 public:
-	CRmgTemplateZone();
+	CRmgTemplateZone(CMapGenerator * Gen);
 
 	void setOptions(const rmg::ZoneOptions * options);
-
-	void setGenPtr(CMapGenerator * Gen);
+	bool isUnderground() const;
 
 	float3 getCenter() const;
 	void setCenter(const float3 &f);
@@ -169,7 +168,7 @@ private:
 
 	std::vector<ObjectInfo> possibleObjects;
 	int minGuardedValue;
-
+	
 	//content info
 	std::vector<std::pair<CGObjectInstance*, ui32>> requiredObjects;
 	std::vector<std::pair<CGObjectInstance*, ui32>> closeObjects;

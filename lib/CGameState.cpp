@@ -853,9 +853,9 @@ void CGameState::initNewGame(const IMapService * mapService, bool allowSavingRan
 		CStopWatch sw;
 
 		// Gen map
-		CMapGenerator mapGenerator;
+		CMapGenerator mapGenerator(*scenarioOps->mapGenOptions, scenarioOps->seedToBeUsed);
 
-		std::unique_ptr<CMap> randomMap = mapGenerator.generate(scenarioOps->mapGenOptions.get(), scenarioOps->seedToBeUsed);
+		std::unique_ptr<CMap> randomMap = mapGenerator.generate();
 
 		if(allowSavingRandomMap)
 		{

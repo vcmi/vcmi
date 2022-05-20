@@ -103,25 +103,25 @@ void CTileInfo::setRoadType(ERoadType::ERoadType value)
 }
 
 
-CRmgTemplateZone::CRmgTemplateZone()
+CRmgTemplateZone::CRmgTemplateZone(CMapGenerator * Gen)
 	: ZoneOptions(),
 	townType(ETownType::NEUTRAL),
 	terrainType (ETerrainType::GRASS),
 	minGuardedValue(0),
 	questArtZone(),
-	gen(nullptr)
+	gen(Gen)
 {
 
+}
+
+bool CRmgTemplateZone::isUnderground() const
+{
+	return getPos().z;
 }
 
 void CRmgTemplateZone::setOptions(const ZoneOptions * options)
 {
 	ZoneOptions::operator=(*options);
-}
-
-void CRmgTemplateZone::setGenPtr(CMapGenerator * Gen)
-{
-	gen = Gen;
 }
 
 void CRmgTemplateZone::setQuestArtZone(std::shared_ptr<CRmgTemplateZone> otherZone)
@@ -381,10 +381,10 @@ void CRmgTemplateZone::fractalize()
 			gen->setOccupied(tile, ETileType::BLOCKED);
 	}
 
-	#define PRINT_FRACTALIZED_MAP false
+	#define PRINT_FRACTALIZED_MAP true
 	if (PRINT_FRACTALIZED_MAP) //enable to debug
 	{
-		std::ofstream out(boost::to_string(boost::format("zone %d") % id));
+		std::ofstream out(boost::to_string(boost::format("zone_%d.txt") % id));
 		int levels = gen->map->twoLevel ? 2 : 1;
 		int width =  gen->map->width;
 		int height = gen->map->height;
@@ -618,7 +618,7 @@ bool CRmgTemplateZone::createRoad(const int3& src, const int3& dst)
 			if (!directNeighbourFound)
 			{
 				movementCost = 2.1f; //moving diagonally is penalized over moving two tiles straight
-				gen->foreachDiagonaltNeighbour(currentNode, foo);
+				gen->foreachDiagonalNeighbour(currentNode, foo);
 			}
 		}
 
@@ -801,7 +801,7 @@ bool CRmgTemplateZone::addMonster(int3 &pos, si32 strength, bool clearSurroundin
 	//precalculate actual (randomized) monster strength based on this post
 	//http://forum.vcmi.eu/viewtopic.php?p=12426#12426
 
-	int mapMonsterStrength = gen->mapGenOptions->getMonsterStrength();
+	int mapMonsterStrength = gen->getMapGenOptions().getMonsterStrength();
 	int monsterStrength = (zoneGuard ? 0 : zoneMonsterStrength) + mapMonsterStrength - 1; //array index from 0 to 4
 	static const int value1[] = {2500, 1500, 1000, 500, 0};
 	static const int value2[] = {7500, 7500, 7500, 5000, 5000};
@@ -1174,7 +1174,7 @@ void CRmgTemplateZone::initTownType ()
 		if (playerInfo.canAnyonePlay())
 		{
 			player = PlayerColor(player_id);
-			townType = gen->mapGenOptions->getPlayersSettings().find(player)->second.getStartingTown();
+			townType = gen->getMapGenOptions().getPlayersSettings().find(player)->second.getStartingTown();
 
 			if (townType == CMapGenOptions::CPlayerSettings::RANDOM_TOWN)
 				randomizeTownType();
@@ -1271,7 +1271,7 @@ void CRmgTemplateZone::initTerrainType ()
 		terrainType = *RandomGeneratorUtil::nextItem(terrainTypes, gen->rand);
 
 	//TODO: allow new types of terrain?
-	if (pos.z)
+	if (isUnderground())
 	{
 		if (terrainType != ETerrainType::LAVA)
 			terrainType = ETerrainType::SUBTERRANEAN;
@@ -1288,8 +1288,8 @@ void CRmgTemplateZone::initTerrainType ()
 void CRmgTemplateZone::paintZoneTerrain (ETerrainType terrainType)
 {
 	std::vector<int3> tiles(tileinfo.begin(), tileinfo.end());
-	gen->editManager->getTerrainSelection().setSelection(tiles);
-	gen->editManager->drawTerrain(terrainType, &gen->rand);
+	gen->getEditManager()->getTerrainSelection().setSelection(tiles);
+	gen->getEditManager()->drawTerrain(terrainType, &gen->rand);
 }
 
 bool CRmgTemplateZone::placeMines ()
@@ -1468,7 +1468,7 @@ bool CRmgTemplateZone::createRequiredObjects()
 
 void CRmgTemplateZone::createTreasures()
 {
-	int mapMonsterStrength = gen->mapGenOptions->getMonsterStrength();
+	int mapMonsterStrength = gen->getMapGenOptions().getMonsterStrength();
 	int monsterStrength = zoneMonsterStrength + mapMonsterStrength - 1; //array index from 0 to 4
 
 	static int minGuardedValues[] = { 6500, 4167, 3000, 1833, 1333 };
@@ -1545,8 +1545,8 @@ void CRmgTemplateZone::createObstacles1()
 				accessibleTiles.push_back(tile);
 			}
 		}
-		gen->editManager->getTerrainSelection().setSelection(accessibleTiles);
-		gen->editManager->drawTerrain(terrainType, &gen->rand);
+		gen->getEditManager()->getTerrainSelection().setSelection(accessibleTiles);
+		gen->getEditManager()->drawTerrain(terrainType, &gen->rand);
 	}
 }
 
@@ -1585,7 +1585,7 @@ void CRmgTemplateZone::createObstacles2()
 		return p1.first > p2.first; //bigger obstacles first
 	});
 
-	auto sel = gen->editManager->getTerrainSelection();
+	auto sel = gen->getEditManager()->getTerrainSelection();
 	sel.clearSelection();
 
 	auto tryToPlaceObstacleHere = [this, &possibleObstacles](int3& tile, int index)-> bool
@@ -1680,8 +1680,8 @@ void CRmgTemplateZone::drawRoads()
 			tiles.push_back(tile);
 	}
 
-	gen->editManager->getTerrainSelection().setSelection(tiles);
-	gen->editManager->drawRoad(ERoadType::COBBLESTONE_ROAD, &gen->rand);
+	gen->getEditManager()->getTerrainSelection().setSelection(tiles);
+	gen->getEditManager()->drawRoad(ERoadType::COBBLESTONE_ROAD, &gen->rand);
 }
 
 
@@ -1878,7 +1878,7 @@ void CRmgTemplateZone::checkAndPlaceObject(CGObjectInstance* object, const int3 
 		object->appearance = templates.front();
 	}
 
-	gen->editManager->insertObject(object);
+	gen->getEditManager()->insertObject(object);
 }
 
 void CRmgTemplateZone::placeObject(CGObjectInstance* object, const int3 &pos, bool updateDistance)

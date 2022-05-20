@@ -94,6 +94,7 @@ public:
 	};
 
 	CMapGenOptions();
+	CMapGenOptions(const CMapGenOptions&) = delete;
 
 	si32 getWidth() const;
 	void setWidth(si32 value);

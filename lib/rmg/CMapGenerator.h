@@ -52,16 +52,16 @@ class DLL_LINKAGE CMapGenerator
 public:
 	using Zones = std::map<TRmgTemplateZoneId, std::shared_ptr<CRmgTemplateZone>>;
 
-	explicit CMapGenerator();
+	explicit CMapGenerator(CMapGenOptions& mapGenOptions, int RandomSeed = std::time(nullptr));
 	~CMapGenerator(); // required due to std::unique_ptr
-
-	std::unique_ptr<CMap> generate(CMapGenOptions * mapGenOptions, int RandomSeed = std::time(nullptr));
-
-	CMapGenOptions * mapGenOptions;
-	std::unique_ptr<CMap> map;
+	
+	mutable std::unique_ptr<CMap> map;
 	CRandomGenerator rand;
-	int randomSeed;
-	CMapEditManager * editManager;
+	
+	CMapEditManager* getEditManager() const;
+	const CMapGenOptions& getMapGenOptions() const;
+	
+	std::unique_ptr<CMap> generate();
 
 	Zones & getZones();
 	void createDirectConnections();
@@ -69,7 +69,7 @@ public:
 	void findZonesForQuestArts();
 	void foreach_neighbour(const int3 &pos, std::function<void(int3& pos)> foo);
 	void foreachDirectNeighbour(const int3 &pos, std::function<void(int3& pos)> foo);
-	void foreachDiagonaltNeighbour(const int3& pos, std::function<void(int3& pos)> foo);
+	void foreachDiagonalNeighbour(const int3& pos, std::function<void(int3& pos)> foo);
 
 	bool isBlocked(const int3 &tile) const;
 	bool shouldBeBlocked(const int3 &tile) const;
@@ -101,6 +101,9 @@ public:
 	void setZoneID(const int3& tile, TRmgTemplateZoneId zid);
 
 private:
+	int randomSeed;
+	CMapGenOptions& mapGenOptions;
+	
 	std::list<rmg::ZoneConnection> connectionsLeft;
 	Zones zones;
 	std::map<TFaction, ui32> zonesPerFaction;
