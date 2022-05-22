@@ -1,0 +1,136 @@
+{
+    "version": 2,
+    "configurePresets": [
+        {
+            "name": "default-release",
+            "hidden": true,
+            "binaryDir": "${sourceDir}/out/build/${presetName}",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
+                "PACKAGE_FILE_NAME" : "$env{VCMI_PACKAGE_FILE_NAME}",
+                "PACKAGE_NAME_SUFFIX" : "$env{VCMI_PACKAGE_NAME_SUFFIX}",
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+                "FORCE_BUNDLED_FL" : "0",
+                "ENABLE_TEST": "0"
+            }
+        },
+        {
+            "name": "linux-clang-release",
+            "displayName": "Clang x86_64-pc-linux-gnu",
+            "description": "VCMI Linux Clang",
+            "inherits": "default-release",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "/usr/bin/clang",
+                "CMAKE_CXX_COMPILER": "/usr/bin/clang++"
+            }
+        },
+        {
+            "name": "linux-gcc-release",
+            "displayName": "GCC x86_64-pc-linux-gnu",
+            "description": "VCMI Linux GCC",
+            "inherits": "default-release",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "/usr/bin/gcc",
+                "CMAKE_CXX_COMPILER": "/usr/bin/g++"
+            }
+        },
+        {
+            "name": "windows-msvc-release",
+            "displayName": "Windows x64 RelWithDebInfo",
+            "description": "VCMI RelWithDebInfo build",
+            "inherits": "default-release",
+            "generator": "Visual Studio 17 2022",
+            "architecture": {
+                "value": "x64",
+                "strategy": "set"
+            },
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake",
+                "CMAKE_POLICY_DEFAULT_CMP0091": "NEW",
+                "FORCE_BUNDLED_MINIZIP": "ON"
+            },
+            "vendor": { "microsoft.com/VisualStudioSettings/CMake/1.0": { "hostOS": [ "Windows" ] } }
+        },
+        {
+            "name": "macos-ninja-release",
+            "displayName": "Ninja release",
+            "description": "VCMI MacOS Ninja",
+            "inherits": "default-release"
+        },
+        {
+            "name": "macos-xcode-release",
+            "displayName": "XCode release",
+            "description": "VCMI MacOS Xcode",
+            "inherits": "default-release",
+            "generator": "Xcode"
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "default-release",
+            "hidden": true,
+            "configuration": "RelWithDebInfo"
+        },
+        {
+            "name": "linux-clang-release",
+            "configurePreset": "linux-clang-release",
+            "inherits": "default-release"
+        },
+        {
+            "name": "linux-gcc-release",
+            "configurePreset": "linux-gcc-release",
+            "inherits": "default-release"
+        },
+        {
+            "name": "macos-xcode-release",
+            "configurePreset": "macos-xcode-release",
+            "inherits": "default-release"
+        },
+        {
+            "name": "macos-ninja-release",
+            "configurePreset": "macos-ninja-release",
+            "inherits": "default-release"
+        },
+        {
+            "name": "windows-msvc-release",
+            "configurePreset": "windows-msvc-release",
+            "inherits": "default-release"
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "default-release",
+            "hidden": true,
+            "output": {
+                "shortProgress": true,
+                "verbosity": "verbose"
+            }
+        },
+        {
+          "name": "linux-clang-release",
+          "configurePreset": "linux-clang-release",
+          "inherits": "default-release"
+        },
+        {
+            "name": "linux-gcc-release",
+            "configurePreset": "linux-gcc-release",
+            "inherits": "default-release"
+        },
+        {
+            "name": "macos-xcode-release",
+            "configurePreset": "macos-xcode-release",
+            "inherits": "default-release"
+        },
+        {
+            "name": "macos-ninja-release",
+            "configurePreset": "macos-ninja-release",
+            "inherits": "default-release"
+        },
+        {
+            "name": "windows-msvc-release",
+            "configurePreset": "windows-msvc-release",
+            "inherits": "default-release"
+        }
+    ]
+}
