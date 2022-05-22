@@ -295,7 +295,7 @@ void CMapGenerator::genZones()
 	placer.assignZones();
 	
 	//add special zone for water
-	zoneWater.first = zones.size();
+	zoneWater.first = zones.size()+1;
 	zoneWater.second = std::make_shared<CRmgTemplateZone>(this);
 	{
 		std::vector<CTreasureInfo> treasuresWater;
@@ -341,6 +341,7 @@ void CMapGenerator::fillZones()
 	}
 	
 	generateWater();
+	generateWater();
 	
 	createConnections2(); //subterranean gates and monoliths
 	
@@ -369,7 +370,7 @@ void CMapGenerator::fillZones()
 		it.second->createObstacles2();
 	}
 
-	#define PRINT_MAP_BEFORE_ROADS true
+	#define PRINT_MAP_BEFORE_ROADS false
 	if (PRINT_MAP_BEFORE_ROADS) //enable to debug
 	{
 		std::ofstream out("road_debug.txt");
@@ -735,39 +736,129 @@ void CMapGenerator::generateWater()
 		return;
 	
 	std::list<int3> tilesQueue(waterTiles.begin(), waterTiles.end());
-	std::set<int3> tilesChecked;
-	std::set<int3> coastTiles;
+	std::set<int3> tilesChecked = waterTiles;
+	std::map<int, std::set<int3>> coastTiles;
 	std::map<int3, int> tilesDist;
 	
-	auto coastSearch = [this, &tilesDist, &tilesChecked, &coastTiles](const int3 & t)
-	{
-		if(tilesChecked.find(t)!=tilesChecked.end())
-			return;
-		
-		if(getZoneID(t)==zoneWater.first)
-		{
-			tilesChecked.insert(t);
-		}
-		else
-		{
-			tilesDist[t] = 1;
-			coastTiles.insert(t);
-			tilesChecked.insert(t);
-		}
-	};
-	
-	//find coast
 	for(auto& tile : waterTiles)
 	{
 		tilesDist[tile] = 0;
-		tilesChecked.insert(tile);
-		foreach_neighbour(tile, coastSearch);
+	}
+	
+	auto coastSearch = [&tilesDist, &tilesChecked, &coastTiles, &tilesQueue](const int3 & src, const int3 & dst)
+	{
+		if(tilesChecked.find(dst)!=tilesChecked.end())
+			return;
+		
+		tilesDist[dst] = tilesDist[src] + 1;
+		coastTiles[tilesDist[dst]].insert(dst);
+		tilesChecked.insert(dst);
+		tilesQueue.push_back(dst);
+	};
+	
+	while(!tilesQueue.empty())
+	{
+		int3 tile = tilesQueue.front();
+		tilesQueue.pop_front();
+		foreachDirectNeighbour(tile, std::bind(coastSearch, tile, std::placeholders::_1));
 	}
 	
 	
-	//search the path
+	{
+		std::ofstream out("water_zone_before.txt");
+		int levels = map->twoLevel ? 2 : 1;
+		int width =  map->width;
+		int height = map->height;
+		for (int k = 0; k < levels; k++)
+		{
+			for(int j=0; j<height; j++)
+			{
+				for (int i=0; i<width; i++)
+				{
+					int3 tile{i,j,k};
+					out << std::setw(3) << tilesDist[tile];
+				}
+				out << std::endl;
+			}
+			out << std::endl;
+		}
+		out << std::endl;
+	}
 	
+	auto coastPlacer = [&tilesDist, &tilesChecked, &tilesQueue](const int3 & src, const int3 & dst)
+	{
+		if(tilesChecked.find(dst)!=tilesChecked.end())
+			return;
+		
+		if(tilesDist[dst] > 0 && tilesDist[src]-tilesDist[dst] == 1)
+		{
+			tilesQueue.push_back(dst);
+			tilesChecked.insert(dst);
+		}
+	};
 	
+	tilesChecked.clear();
+	for(int coastId=3; coastId>=1; --coastId)
+	{
+		//amount of iterations shall be proportion of coast perimeter
+		const int coastLength = coastTiles[coastId].size() / (coastId+3);
+		for(int coastIter = 0; coastIter < coastLength; ++coastIter)
+		{
+			int3 tile = *RandomGeneratorUtil::nextItem(coastTiles[coastId], rand);
+			if(tilesChecked.find(tile)!=tilesChecked.end())
+				continue;
+			
+			tilesQueue.push_back(tile);
+			tilesChecked.insert(tile);
+		}
+	}
+	
+	while(!tilesQueue.empty())
+	{
+		int3 tile = tilesQueue.front();
+		tilesQueue.pop_front();
+		
+		auto zoneId = getZoneID(tile);
+		if(zoneId == zoneWater.first)
+			continue;
+		
+		zones[zoneId]->removeTile(tile);
+		zoneWater.second->addTile(tile);
+		setZoneID(tile, zoneWater.first);
+		setOccupied(tile, ETileType::USED);
+		
+		foreach_neighbour(tile, std::bind(coastPlacer, tile, std::placeholders::_1));
+	}
+	
+	{
+		std::ofstream out("water_zone_after.txt");
+		int levels = map->twoLevel ? 2 : 1;
+		int width =  map->width;
+		int height = map->height;
+		for (int k = 0; k < levels; k++)
+		{
+			for(int j=0; j<height; j++)
+			{
+				for (int i=0; i<width; i++)
+				{
+					int3 tile{i,j,k};
+					int d = tilesDist[tile];
+					if(d == 0)
+						out << '~';
+					if(d>9)
+						out << '#';
+					if(d>0 && d<=9)
+						out << d;
+				}
+				out << std::endl;
+			}
+			out << std::endl;
+		}
+		out << std::endl;
+	}
+	
+	dump(false);
+	dump(true);
 }
 
 void CMapGenerator::addHeaderInfo()
@@ -936,4 +1027,45 @@ ui32 CMapGenerator::getTotalZoneCount() const
 CMapGenerator::Zones::value_type CMapGenerator::getZoneWater() const
 {
 	return zoneWater;
+}
+
+void CMapGenerator::dump(bool zoneId)
+{
+	static int id = 0;
+	std::ofstream out(boost::to_string(boost::format("zone_%d.txt") % id++));
+	int levels = map->twoLevel ? 2 : 1;
+	int width =  map->width;
+	int height = map->height;
+	for (int k = 0; k < levels; k++)
+	{
+		for(int j=0; j<height; j++)
+		{
+			for (int i=0; i<width; i++)
+			{
+				if(zoneId)
+				{
+					out << getZoneID(int3(i, j, k));
+				}
+				else
+				{
+					char t = '?';
+					switch (getTile(int3(i, j, k)).getTileType())
+					{
+						case ETileType::FREE:
+							t = ' '; break;
+						case ETileType::BLOCKED:
+							t = '#'; break;
+						case ETileType::POSSIBLE:
+							t = '-'; break;
+						case ETileType::USED:
+							t = 'O'; break;
+					}
+					out << t;
+				}
+			}
+			out << std::endl;
+		}
+		out << std::endl;
+	}
+	out << std::endl;
 }

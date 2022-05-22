@@ -174,6 +174,12 @@ void CRmgTemplateZone::addTile (const int3 &pos)
 	tileinfo.insert(pos);
 }
 
+void CRmgTemplateZone::removeTile(const int3 & pos)
+{
+	tileinfo.erase(pos);
+	possibleTiles.erase(pos);
+}
+
 std::set<int3> CRmgTemplateZone::getTileInfo () const
 {
 	return tileinfo;
@@ -279,7 +285,7 @@ void CRmgTemplateZone::createWater(EWaterContent::EWaterContent waterContent)
 	{
 		zoneWaterPair.second->addTile(tile);
 		gen->setZoneID(tile, zoneWaterPair.first);
-		gen->setOccupied(tile, ETileType::POSSIBLE);
+		gen->setOccupied(tile, ETileType::USED);
 		tileinfo.erase(tile);
 		possibleTiles.erase(tile);
 	}
@@ -423,7 +429,7 @@ void CRmgTemplateZone::fractalize()
 			gen->setOccupied(tile, ETileType::BLOCKED);
 	}
 
-	#define PRINT_FRACTALIZED_MAP true
+	#define PRINT_FRACTALIZED_MAP false
 	if (PRINT_FRACTALIZED_MAP) //enable to debug
 	{
 		std::ofstream out(boost::to_string(boost::format("zone_%d.txt") % id));
@@ -1808,26 +1814,19 @@ bool CRmgTemplateZone::fill()
 {
 	initTerrainType();
 	
+	addAllPossibleObjects();
+	
 	if(type!=ETemplateZoneType::WATER)
 	{
 		//zone center should be always clear to allow other tiles to connect
 		gen->setOccupied(pos, ETileType::FREE);
 		freePaths.insert(pos);
-	}
-
-	//if(type!=ETemplateZoneType::WATER)
-		addAllPossibleObjects ();
-
-	if(type!=ETemplateZoneType::WATER)
-	{
 		connectLater(); //ideally this should work after fractalize, but fails
 		fractalize();
 		placeMines();
 		createRequiredObjects();
-	}
-	
-	//if(type!=ETemplateZoneType::WATER)
 		createTreasures();
+	}
 
 	logGlobal->info("Zone %d filled successfully", id);
 	return true;

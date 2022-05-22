@@ -102,6 +102,7 @@ public:
 	int3 getAccessibleOffset(ObjectTemplate &appearance, int3 &tile) const;
 
 	void addTile (const int3 &pos);
+	void removeTile(const int3 & pos);
 	void initFreeTiles ();
 	std::set<int3> getTileInfo() const;
 	std::set<int3> getPossibleTiles() const;

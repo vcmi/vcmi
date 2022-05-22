@@ -135,5 +135,7 @@ private:
 	void fillZones();
 	void createObstaclesCommon1();
 	void createObstaclesCommon2();
+	
+	void dump(bool zoneId);
 
 };
