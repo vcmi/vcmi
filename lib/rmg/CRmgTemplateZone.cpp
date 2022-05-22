@@ -1301,58 +1301,39 @@ void CRmgTemplateZone::paintZoneTerrain (ETerrainType terrainType)
 
 bool CRmgTemplateZone::placeMines ()
 {
-	static const Res::ERes woodOre[] = {Res::ERes::WOOD, Res::ERes::ORE};
-	static const Res::ERes preciousResources[] = {Res::ERes::GEMS, Res::ERes::CRYSTAL, Res::ERes::MERCURY, Res::ERes::SULFUR};
-
-    std::vector<CGMine*> tempmines;
-
-	for (const auto & res : woodOre)
+	using namespace Res;
+	static const std::map<ERes, int> mineValue{{ERes::WOOD, 1500}, {ERes::ORE, 1500}, {ERes::GEMS, 3500}, {ERes::CRYSTAL, 3500}, {ERes::MERCURY, 3500}, {ERes::SULFUR, 3500}, {ERes::GOLD, 7000}};
+	
+	std::vector<CGMine*> createdMines;
+	
+	for(const auto & mineInfo : mines)
 	{
-		for (int i = 0; i < mines[res]; i++)
+		ERes res = (ERes)mineInfo.first;
+		for(int i = 0; i < mineInfo.second; ++i)
 		{
 			auto mine = (CGMine*) VLC->objtypeh->getHandlerFor(Obj::MINE, res)->create(ObjectTemplate());
-            tempmines.emplace_back(mine);
 			mine->producedResource = res;
 			mine->tempOwner = PlayerColor::NEUTRAL;
 			mine->producedQuantity = mine->defaultResProduction();
-			if (!i)
-				addCloseObject(mine, 1500); //only first is close
+			createdMines.push_back(mine);
+			
+			if(!i && (res == ERes::WOOD || res == ERes::ORE))
+				addCloseObject(mine, mineValue.at(res)); //only first woor&ore mines are close
 			else
-				addRequiredObject(mine, 1500);
+				addRequiredObject(mine, mineValue.at(res));
 		}
 	}
-	for (const auto & res : preciousResources)
+	
+	//create extra resources
+	for(auto * mine : createdMines)
 	{
-		for (int i = 0; i < mines[res]; i++)
+		for(int rc = gen->rand.nextInt(1, 3); rc > 0; --rc)
 		{
-			auto mine = (CGMine*) VLC->objtypeh->getHandlerFor(Obj::MINE, res)->create(ObjectTemplate());
-            tempmines.emplace_back(mine);
-			mine->producedResource = res;
-			mine->tempOwner = PlayerColor::NEUTRAL;
-			mine->producedQuantity = mine->defaultResProduction();
-			addRequiredObject(mine, 3500);
+			auto resourse = (CGResource*) VLC->objtypeh->getHandlerFor(Obj::RESOURCE, mine->producedResource)->create(ObjectTemplate());
+			resourse->amount = CGResource::RANDOM_AMOUNT;
+			addNearbyObject(resourse, mine);
 		}
 	}
-	for (int i = 0; i < mines[Res::GOLD]; i++)
-	{
-		auto mine = (CGMine*) VLC->objtypeh->getHandlerFor(Obj::MINE, Res::GOLD)->create(ObjectTemplate());
-        tempmines.emplace_back(mine);
-		mine->producedResource = Res::GOLD;
-		mine->tempOwner = PlayerColor::NEUTRAL;
-		mine->producedQuantity = mine->defaultResProduction();
-		addRequiredObject(mine, 7000);
-	}
-    
-    //create extra resources
-    for(auto* mine : tempmines)
-    {
-        for(int rc = gen->rand.nextInt(1,3); rc>0; --rc)
-        {
-			auto resourse = (CGResource*) VLC->objtypeh->getHandlerFor(Obj::RESOURCE, mine->producedResource)->create(ObjectTemplate());
-            resourse->amount = CGResource::RANDOM_AMOUNT;
-            addNearbyObject(resourse, mine);
-        }
-    }
 
 	return true;
 }
@@ -1476,7 +1457,7 @@ bool CRmgTemplateZone::createRequiredObjects()
 	}
 
 	//create nearby objects (e.g. extra resources close to mines)
-	for(const auto &object : nearbyObjects)
+	for(const auto & object : nearbyObjects)
 	{
 		auto obj = object.first;
 		std::set<int3> possiblePositions;
