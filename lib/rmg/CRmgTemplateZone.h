@@ -126,7 +126,11 @@ public:
 	EObjectPlacingResult::EObjectPlacingResult tryToPlaceObjectAndConnectToPath(CGObjectInstance *obj, int3 &pos); //return true if the position cna be connected
 	bool createRequiredObjects();
 	void createTreasures();
+	
 	void createWater(EWaterContent::EWaterContent waterContent);
+	//const std::set<int3>& getCoastTiles() const;
+	//void computeCoastTiles();
+	
 	void createObstacles1();
 	void createObstacles2();
 	bool crunchPath(const int3 &src, const int3 &dst, bool onlyStraight, std::set<int3>* clearedTiles = nullptr);
@@ -183,6 +187,7 @@ private:
 	std::set<int3> tileinfo; //irregular area assined to zone
 	std::set<int3> possibleTiles; //optimization purposes for treasure generation
 	std::set<int3> freePaths; //core paths of free tiles that all other objects will be linked to
+	std::set<int3> coastTiles; //tiles bordered to water
 
 	std::set<int3> roadNodes; //tiles to be connected with roads
 	std::set<int3> roads; //all tiles with roads

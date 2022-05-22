@@ -36,6 +36,7 @@ public:
 	ui32 max;
 	ui16 density;
 	CTreasureInfo();
+	CTreasureInfo(ui32 min, ui32 max, ui16 density);
 
 	bool operator ==(const CTreasureInfo & other) const;
 

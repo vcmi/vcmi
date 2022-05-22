@@ -283,8 +283,6 @@ void CRmgTemplateZone::createWater(EWaterContent::EWaterContent waterContent)
 		tileinfo.erase(tile);
 		possibleTiles.erase(tile);
 	}
-	gen->getEditManager()->getTerrainSelection().setSelection(waterVector);
-	gen->getEditManager()->drawTerrain(ETerrainType::WATER, &gen->rand);
 }
 
 void CRmgTemplateZone::fractalize()
@@ -1341,24 +1339,31 @@ void CRmgTemplateZone::randomizeTownType(bool prohibitNonUnderground)
 
 void CRmgTemplateZone::initTerrainType ()
 {
-
-	if (matchTerrainToTown && townType != ETownType::NEUTRAL)
-		terrainType = (*VLC->townh)[townType]->nativeTerrain;
-	else
-		terrainType = *RandomGeneratorUtil::nextItem(terrainTypes, gen->rand);
-
-	//TODO: allow new types of terrain?
-	if (isUnderground())
+	if (type==ETemplateZoneType::WATER)
 	{
-		if (terrainType != ETerrainType::LAVA)
-			terrainType = ETerrainType::SUBTERRANEAN;
+		terrainType = ETerrainType::WATER;
 	}
 	else
 	{
-		if (terrainType == ETerrainType::SUBTERRANEAN)
-			terrainType = ETerrainType::DIRT;
-	}
+		if (matchTerrainToTown && townType != ETownType::NEUTRAL)
+			terrainType = (*VLC->townh)[townType]->nativeTerrain;
+		else
+			terrainType = *RandomGeneratorUtil::nextItem(terrainTypes, gen->rand);
 
+		//TODO: allow new types of terrain?
+		{
+			if (isUnderground())
+			{
+				if (terrainType != ETerrainType::LAVA)
+					terrainType = ETerrainType::SUBTERRANEAN;
+			}
+			else
+			{
+				if (terrainType == ETerrainType::SUBTERRANEAN)
+					terrainType = ETerrainType::DIRT;
+			}
+		}
+	}
 	paintZoneTerrain (terrainType);
 }
 
@@ -1802,18 +1807,27 @@ void CRmgTemplateZone::drawRoads()
 bool CRmgTemplateZone::fill()
 {
 	initTerrainType();
+	
+	if(type!=ETemplateZoneType::WATER)
+	{
+		//zone center should be always clear to allow other tiles to connect
+		gen->setOccupied(pos, ETileType::FREE);
+		freePaths.insert(pos);
+	}
 
-	//zone center should be always clear to allow other tiles to connect
-	gen->setOccupied(pos, ETileType::FREE);
-	freePaths.insert(pos);
+	//if(type!=ETemplateZoneType::WATER)
+		addAllPossibleObjects ();
 
-	addAllPossibleObjects ();
-
-	connectLater(); //ideally this should work after fractalize, but fails
-	fractalize();
-	placeMines();
-	createRequiredObjects();
-	createTreasures();
+	if(type!=ETemplateZoneType::WATER)
+	{
+		connectLater(); //ideally this should work after fractalize, but fails
+		fractalize();
+		placeMines();
+		createRequiredObjects();
+	}
+	
+	//if(type!=ETemplateZoneType::WATER)
+		createTreasures();
 
 	logGlobal->info("Zone %d filled successfully", id);
 	return true;
@@ -2745,5 +2759,13 @@ ObjectInfo::ObjectInfo()
 
 void ObjectInfo::setTemplate (si32 type, si32 subtype, ETerrainType terrainType)
 {
-	templ = VLC->objtypeh->getHandlerFor(type, subtype)->getTemplates(terrainType).front();
+	auto templHandler = VLC->objtypeh->getHandlerFor(type, subtype);
+	if(!templHandler)
+		return;
+	
+	auto templates = templHandler->getTemplates(terrainType);
+	if(templates.empty())
+		return;
+	
+	templ = templates.front();
 }

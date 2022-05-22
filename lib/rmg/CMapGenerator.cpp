@@ -298,9 +298,12 @@ void CMapGenerator::genZones()
 	zoneWater.first = zones.size();
 	zoneWater.second = std::make_shared<CRmgTemplateZone>(this);
 	{
+		std::vector<CTreasureInfo> treasuresWater;
+		treasuresWater.emplace_back(500, 3000, 9);
 		rmg::ZoneOptions options;
 		options.setId(zoneWater.first);
 		options.setType(ETemplateZoneType::WATER);
+		options.setTreasureInfo(treasuresWater);
 		zoneWater.second->setOptions(options);
 	}
 
@@ -337,6 +340,8 @@ void CMapGenerator::fillZones()
 		it.second->createWater(getMapGenOptions().getWaterContent());
 	}
 	
+	generateWater();
+	
 	createConnections2(); //subterranean gates and monoliths
 	
 	std::vector<std::shared_ptr<CRmgTemplateZone>> treasureZones;
@@ -347,6 +352,9 @@ void CMapGenerator::fillZones()
 			treasureZones.push_back(it.second);
         //break;
 	}
+	
+	zoneWater.second->initFreeTiles();
+	zoneWater.second->fill();
 	
 	//set apriopriate free/occupied tiles, including blocked underground rock
 	createObstaclesCommon1();
@@ -717,6 +725,49 @@ void CMapGenerator::createConnections2()
 			zoneB->addRequiredObject(teleport2, strength);
 		}
 	}
+}
+
+void CMapGenerator::generateWater()
+{
+	auto waterTiles = zoneWater.second->getTileInfo();
+	int waterTilesCount = waterTiles.size();
+	if(!waterTilesCount)
+		return;
+	
+	std::list<int3> tilesQueue(waterTiles.begin(), waterTiles.end());
+	std::set<int3> tilesChecked;
+	std::set<int3> coastTiles;
+	std::map<int3, int> tilesDist;
+	
+	auto coastSearch = [this, &tilesDist, &tilesChecked, &coastTiles](const int3 & t)
+	{
+		if(tilesChecked.find(t)!=tilesChecked.end())
+			return;
+		
+		if(getZoneID(t)==zoneWater.first)
+		{
+			tilesChecked.insert(t);
+		}
+		else
+		{
+			tilesDist[t] = 1;
+			coastTiles.insert(t);
+			tilesChecked.insert(t);
+		}
+	};
+	
+	//find coast
+	for(auto& tile : waterTiles)
+	{
+		tilesDist[tile] = 0;
+		tilesChecked.insert(tile);
+		foreach_neighbour(tile, coastSearch);
+	}
+	
+	
+	//search the path
+	
+	
 }
 
 void CMapGenerator::addHeaderInfo()

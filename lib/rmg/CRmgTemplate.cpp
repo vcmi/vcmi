@@ -39,6 +39,12 @@ CTreasureInfo::CTreasureInfo()
 
 }
 
+CTreasureInfo::CTreasureInfo(ui32 imin, ui32 imax, ui16 idensity)
+	: min(imin), max(imax), density(idensity)
+{
+	
+}
+
 bool CTreasureInfo::operator==(const CTreasureInfo & other) const
 {
 	return (min == other.min) && (max == other.max) && (density == other.density);
@@ -307,7 +313,8 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 		"playerStart",
 		"cpuStart",
 		"treasure",
-		"junction"
+		"junction",
+		"water"
 	};
 
 	handler.serializeEnum("type", type, zoneTypes);
