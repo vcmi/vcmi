@@ -51,7 +51,7 @@ std::vector<JsonNode> CRmgTemplateStorage::loadLegacyData(size_t dataSize)
 	//it would be cool to load old rmg.txt files
 }
 
-const CRmgTemplate* CRmgTemplateStorage::getTemplate(const std::string & templateName) const
+const CRmgTemplate * CRmgTemplateStorage::getTemplate(const std::string & templateName) const
 {
 	auto iter = templates.find(templateName);
 	if(iter==templates.end())
@@ -59,9 +59,9 @@ const CRmgTemplate* CRmgTemplateStorage::getTemplate(const std::string & templat
 	return &iter->second;
 }
 
-std::vector<const CRmgTemplate*> CRmgTemplateStorage::getTemplates() const
+std::vector<const CRmgTemplate *> CRmgTemplateStorage::getTemplates() const
 {
-	std::vector<const CRmgTemplate*> result;
+	std::vector<const CRmgTemplate *> result;
 	for(auto i=templates.cbegin(); i!=templates.cend(); ++i)
 	{
 		result.push_back(&i->second);
@@ -69,9 +69,9 @@ std::vector<const CRmgTemplate*> CRmgTemplateStorage::getTemplates() const
 	return result;
 }
 
-std::vector<const CRmgTemplate*> CRmgTemplateStorage::getTemplates(const int3& filterSize, si8 filterPlayers, si8 filterHumanPlayers, si8 filterCpuPlayers) const
+std::vector<const CRmgTemplate *> CRmgTemplateStorage::getTemplates(const int3& filterSize, si8 filterPlayers, si8 filterHumanPlayers, si8 filterCpuPlayers) const
 {
-	std::vector<const CRmgTemplate*> result;
+	std::vector<const CRmgTemplate *> result;
 	for(auto i=templates.cbegin(); i!=templates.cend(); ++i)
 	{
 		auto& tmpl = i->second;

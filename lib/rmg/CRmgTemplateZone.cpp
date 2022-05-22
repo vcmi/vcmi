@@ -381,7 +381,7 @@ void CRmgTemplateZone::fractalize()
 			gen->setOccupied(tile, ETileType::BLOCKED);
 	}
 
-	#define PRINT_FRACTALIZED_MAP true
+	#define PRINT_FRACTALIZED_MAP false
 	if (PRINT_FRACTALIZED_MAP) //enable to debug
 	{
 		std::ofstream out(boost::to_string(boost::format("zone_%d.txt") % id));
@@ -1254,10 +1254,10 @@ void CRmgTemplateZone::initTownType ()
 	}
 }
 
-void CRmgTemplateZone::randomizeTownType(bool prohibitNonUnderground)
+void CRmgTemplateZone::randomizeTownType(bool matchUndergroundType)
 {
 	auto townTypesAllowed = (townTypes.size() ? townTypes : getDefaultTownTypes());
-	if(prohibitNonUnderground && gen->getMapGenOptions().getHasTwoLevels())
+	if(matchUndergroundType && gen->getMapGenOptions().getHasTwoLevels())
 	{
 		if(isUnderground())
 		{
