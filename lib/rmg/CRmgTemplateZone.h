@@ -204,4 +204,6 @@ private:
 	bool canObstacleBePlacedHere(ObjectTemplate &temp, int3 &pos);
 	void setTemplateForObject(CGObjectInstance* obj);
 	void checkAndPlaceObject(CGObjectInstance* object, const int3 &pos);
+	
+	bool isGuardNeededForTreasure(int value);
 };

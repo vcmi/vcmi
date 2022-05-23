@@ -285,7 +285,7 @@ void CRmgTemplateZone::createWater(EWaterContent::EWaterContent waterContent)
 	{
 		zoneWaterPair.second->addTile(tile);
 		gen->setZoneID(tile, zoneWaterPair.first);
-		gen->setOccupied(tile, ETileType::USED);
+		gen->setOccupied(tile, ETileType::POSSIBLE);
 		tileinfo.erase(tile);
 		possibleTiles.erase(tile);
 	}
@@ -1010,12 +1010,12 @@ bool CRmgTemplateZone::createTreasurePile(int3 &pos, float minDistance, const CT
 
 			for (auto tile : boundaryCopy)
 			{
-				if (gen->isPossible(tile)) //we can place new treasure only on possible tile
+				if (gen->isPossible(tile) && gen->getZoneID(tile)==getId()) //we can place new treasure only on possible tile
 				{
 					bool here = true;
 					gen->foreach_neighbour (tile, [this, &here, minDistance](int3 pos)
 					{
-						if (!(gen->isBlocked(pos) || gen->isPossible(pos)) || gen->getNearestObjectDistance(pos) < minDistance)
+						if (!(gen->isBlocked(pos) || gen->isPossible(pos)) || gen->getZoneID(pos)!=getId() || gen->getNearestObjectDistance(pos) < minDistance)
 							here = false;
 					});
 					if (here)
@@ -1089,7 +1089,7 @@ bool CRmgTemplateZone::createTreasurePile(int3 &pos, float minDistance, const CT
 			});
 		}
 
-		bool isPileGuarded = currentValue >= minGuardedValue;
+		bool isPileGuarded = isGuardNeededForTreasure(currentValue);
 
 		for (auto tile : boundary) //guard must be standing there
 		{
@@ -1109,7 +1109,7 @@ bool CRmgTemplateZone::createTreasurePile(int3 &pos, float minDistance, const CT
 					visitableOffset.x += 1;
 				placeObject(treasure.second, treasure.first + visitableOffset);
 			}
-			if (addMonster(guardPos, currentValue, false))
+			if (isPileGuarded && addMonster(guardPos, currentValue, false))
 			{//block only if the object is guarded
 				for (auto tile : boundary)
 				{
@@ -1636,7 +1636,7 @@ void CRmgTemplateZone::createTreasures()
 			//optimization - don't check tiles which are not allowed
 			vstd::erase_if(possibleTiles, [this](const int3 &tile) -> bool
 			{
-				return !gen->isPossible(tile);
+				return (!gen->isPossible(tile)) || gen->getZoneID(tile)!=getId();
 			});
 
 
@@ -1825,8 +1825,9 @@ bool CRmgTemplateZone::fill()
 		fractalize();
 		placeMines();
 		createRequiredObjects();
-		createTreasures();
 	}
+	
+	createTreasures();
 
 	logGlobal->info("Zone %d filled successfully", id);
 	return true;
@@ -1837,7 +1838,7 @@ bool CRmgTemplateZone::findPlaceForTreasurePile(float min_dist, int3 &pos, int v
 	float best_distance = 0;
 	bool result = false;
 
-	bool needsGuard = value > minGuardedValue;
+	bool needsGuard = isGuardNeededForTreasure(value);
 
 	//logGlobal->info("Min dist for density %f is %d", density, min_dist);
 	for(auto tile : possibleTiles)
@@ -1849,7 +1850,7 @@ bool CRmgTemplateZone::findPlaceForTreasurePile(float min_dist, int3 &pos, int v
 			bool allTilesAvailable = true;
 			gen->foreach_neighbour (tile, [this, &allTilesAvailable, needsGuard](int3 neighbour)
 			{
-				if (!(gen->isPossible(neighbour) || gen->shouldBeBlocked(neighbour) || (!needsGuard && gen->isFree(neighbour))))
+				if (!(gen->isPossible(neighbour) || gen->shouldBeBlocked(neighbour) || gen->getZoneID(neighbour)==getId() || (!needsGuard && gen->isFree(neighbour))))
 				{
 					allTilesAvailable = false; //all present tiles must be already blocked or ready for new objects
 				}
@@ -1879,7 +1880,7 @@ bool CRmgTemplateZone::canObstacleBePlacedHere(ObjectTemplate &temp, int3 &pos)
 	for (auto blockingTile : tilesBlockedByObject)
 	{
 		int3 t = pos + blockingTile;
-		if (!gen->map->isInTheMap(t) || gen->getZoneID(t)!=getId() || !(gen->isPossible(t) || gen->shouldBeBlocked(t)))
+		if (!gen->map->isInTheMap(t) || !(gen->isPossible(t) || gen->shouldBeBlocked(t)) || !temp.canBePlacedAt(gen->map->getTile(t).terType))
 		{
 			return false; //if at least one tile is not possible, object can't be placed here
 		}
@@ -1936,7 +1937,7 @@ bool CRmgTemplateZone::areAllTilesAvailable(CGObjectInstance* obj, int3& tile, s
 	for (auto blockingTile : tilesBlockedByObject)
 	{
 		int3 t = tile + blockingTile;
-		if (!gen->map->isInTheMap(t) || !gen->isPossible(t))
+		if (!gen->map->isInTheMap(t) || !gen->isPossible(t) || gen->getZoneID(t)!=getId())
 		{
 			//if at least one tile is not possible, object can't be placed here
 			return false;
@@ -2092,6 +2093,11 @@ std::vector<int3> CRmgTemplateZone::getAccessibleOffsets (const CGObjectInstance
 	});
 
 	return tiles;
+}
+
+bool CRmgTemplateZone::isGuardNeededForTreasure(int value)
+{
+	return getType() != ETemplateZoneType::WATER && value > minGuardedValue;
 }
 
 bool CRmgTemplateZone::guardObject(CGObjectInstance* object, si32 str, bool zoneGuard, bool addToFreePaths)
@@ -2296,15 +2302,6 @@ void CRmgTemplateZone::addAllPossibleObjects()
 
 	int numZones = static_cast<int>(gen->getZones().size());
 
-	std::vector<CCreature *> creatures; //native creatures for this zone
-	for (auto cre : VLC->creh->objects)
-	{
-		if (!cre->special && cre->faction == townType)
-		{
-			creatures.push_back(cre);
-		}
-	}
-
 	for (auto primaryID : VLC->objtypeh->knownObjects())
 	{
 		for (auto secondaryID : VLC->objtypeh->knownSubObjects(primaryID))
@@ -2332,6 +2329,9 @@ void CRmgTemplateZone::addAllPossibleObjects()
 			}
 		}
 	}
+	
+	if(type==ETemplateZoneType::WATER)
+		return;
 
 	//prisons
 	//levels 1, 5, 10, 20, 30
@@ -2372,6 +2372,15 @@ void CRmgTemplateZone::addAllPossibleObjects()
 
 	//all following objects are unlimited
 	oi.maxPerZone = std::numeric_limits<ui32>().max();
+	
+	std::vector<CCreature *> creatures; //native creatures for this zone
+	for (auto cre : VLC->creh->objects)
+	{
+		if (!cre->special && cre->faction == townType)
+		{
+			creatures.push_back(cre);
+		}
+	}
 
 	//dwellings
 	auto dwellingTypes = {Obj::CREATURE_GENERATOR1, Obj::CREATURE_GENERATOR4};

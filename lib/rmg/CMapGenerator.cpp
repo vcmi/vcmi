@@ -299,7 +299,7 @@ void CMapGenerator::genZones()
 	zoneWater.second = std::make_shared<CRmgTemplateZone>(this);
 	{
 		std::vector<CTreasureInfo> treasuresWater;
-		treasuresWater.emplace_back(500, 3000, 9);
+		treasuresWater.emplace_back(3000, 10000, 9);
 		rmg::ZoneOptions options;
 		options.setId(zoneWater.first);
 		options.setType(ETemplateZoneType::WATER);
@@ -357,6 +357,8 @@ void CMapGenerator::fillZones()
 	zoneWater.second->initFreeTiles();
 	zoneWater.second->fill();
 	
+	dump(false);
+	
 	//set apriopriate free/occupied tiles, including blocked underground rock
 	createObstaclesCommon1();
 	//set back original terrain for underground zones
@@ -366,11 +368,11 @@ void CMapGenerator::fillZones()
 	createObstaclesCommon2();
 	//place actual obstacles matching zone terrain
 	for (auto it : zones)
-	{
 		it.second->createObstacles2();
-	}
+	
+	zoneWater.second->createObstacles2();
 
-	#define PRINT_MAP_BEFORE_ROADS false
+	#define PRINT_MAP_BEFORE_ROADS true
 	if (PRINT_MAP_BEFORE_ROADS) //enable to debug
 	{
 		std::ofstream out("road_debug.txt");
@@ -825,7 +827,7 @@ void CMapGenerator::generateWater()
 		zones[zoneId]->removeTile(tile);
 		zoneWater.second->addTile(tile);
 		setZoneID(tile, zoneWater.first);
-		setOccupied(tile, ETileType::USED);
+		setOccupied(tile, ETileType::POSSIBLE);
 		
 		foreach_neighbour(tile, std::bind(coastPlacer, tile, std::placeholders::_1));
 	}
