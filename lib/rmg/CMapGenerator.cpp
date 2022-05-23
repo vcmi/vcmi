@@ -341,7 +341,6 @@ void CMapGenerator::fillZones()
 	}
 	
 	generateWater();
-	generateWater();
 	
 	createConnections2(); //subterranean gates and monoliths
 	
@@ -370,7 +369,7 @@ void CMapGenerator::fillZones()
 	for (auto it : zones)
 		it.second->createObstacles2();
 	
-	zoneWater.second->createObstacles2();
+	//zoneWater.second->createObstacles2();
 
 	#define PRINT_MAP_BEFORE_ROADS true
 	if (PRINT_MAP_BEFORE_ROADS) //enable to debug
@@ -730,7 +729,7 @@ void CMapGenerator::createConnections2()
 	}
 }
 
-void CMapGenerator::generateWater()
+void CMapGenerator::generateWater(bool debug)
 {
 	auto waterTiles = zoneWater.second->getTileInfo();
 	int waterTilesCount = waterTiles.size();
@@ -767,7 +766,7 @@ void CMapGenerator::generateWater()
 	
 	
 	{
-		std::ofstream out("water_zone_before.txt");
+		std::ofstream out("water_zone.txt");
 		int levels = map->twoLevel ? 2 : 1;
 		int width =  map->width;
 		int height = map->height;
@@ -778,7 +777,13 @@ void CMapGenerator::generateWater()
 				for (int i=0; i<width; i++)
 				{
 					int3 tile{i,j,k};
-					out << std::setw(3) << tilesDist[tile];
+					int d = tilesDist[tile];
+					if(d == 0)
+						out << '~';
+					if(d>9)
+						out << '#';
+					if(d>0 && d<=9)
+						out << d;
 				}
 				out << std::endl;
 			}
@@ -786,6 +791,9 @@ void CMapGenerator::generateWater()
 		}
 		out << std::endl;
 	}
+	
+	if(debug)
+		return;
 	
 	auto coastPlacer = [&tilesDist, &tilesChecked, &tilesQueue](const int3 & src, const int3 & dst)
 	{
@@ -832,35 +840,74 @@ void CMapGenerator::generateWater()
 		foreach_neighbour(tile, std::bind(coastPlacer, tile, std::placeholders::_1));
 	}
 	
+	generateWater(true);
+	
+	for(int coastId=3; coastId>=1; --coastId)
 	{
-		std::ofstream out("water_zone_after.txt");
-		int levels = map->twoLevel ? 2 : 1;
-		int width =  map->width;
-		int height = map->height;
-		for (int k = 0; k < levels; k++)
+		for(auto& tile : coastTiles[coastId])
 		{
-			for(int j=0; j<height; j++)
+			auto zoneId = getZoneID(tile);
+			if(zoneId == zoneWater.first) //for swapped tiles
+				continue;
+			
+			std::set<int3> waterCoast;
+			foreach_neighbour(tile, [this, &coastTiles, &waterCoast](const int3 & t)
 			{
-				for (int i=0; i<width; i++)
+				if(getZoneID(t)==zoneWater.first)
 				{
-					int3 tile{i,j,k};
-					int d = tilesDist[tile];
-					if(d == 0)
-						out << '~';
-					if(d>9)
-						out << '#';
-					if(d>0 && d<=9)
-						out << d;
+					coastTiles[0].insert(t);
+					waterCoast.insert(t);
 				}
-				out << std::endl;
+			});
+			
+			if(waterCoast.size()>=6)
+			{
+				zones[zoneId]->removeTile(tile);
+				zoneWater.second->addTile(tile);
+				setZoneID(tile, zoneWater.first);
+				setOccupied(tile, ETileType::POSSIBLE);
 			}
-			out << std::endl;
+			else if(waterCoast.size()>=5)
+			{
+				for(auto& t : waterCoast)
+				{
+					zoneWater.second->removeTile(t);
+					zones[zoneId]->addTile(t);
+					setZoneID(t, zoneId);
+					setOccupied(t, ETileType::BLOCKED);
+				}
+			}
 		}
-		out << std::endl;
 	}
 	
-	dump(false);
-	dump(true);
+	for(auto& tile : coastTiles[0])
+	{
+		//auto zoneId = getZoneID(tile);
+		if(getZoneID(tile) != zoneWater.first) //for ground tiles
+			continue;
+		
+		std::set<int3> groundCoast;
+		TRmgTemplateZoneId zoneId = -1;
+		foreach_neighbour(tile, [this, &groundCoast, &zoneId](const int3 & t)
+		{
+			if(getZoneID(t)!=zoneWater.first)
+			{
+				zoneId = getZoneID(t);
+				groundCoast.insert(t);
+			}
+		});
+		
+		if(groundCoast.size()>5)
+		{
+			assert(zoneId != -1 && zoneId != zoneWater.first);
+			zoneWater.second->removeTile(tile);
+			zones[zoneId]->addTile(tile);
+			setZoneID(tile, zoneId);
+			setOccupied(tile, ETileType::BLOCKED);
+		}
+	}
+	
+	generateWater(true);
 }
 
 void CMapGenerator::addHeaderInfo()

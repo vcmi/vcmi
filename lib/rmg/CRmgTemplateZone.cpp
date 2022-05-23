@@ -1825,9 +1825,8 @@ bool CRmgTemplateZone::fill()
 		fractalize();
 		placeMines();
 		createRequiredObjects();
+		createTreasures();
 	}
-	
-	createTreasures();
 
 	logGlobal->info("Zone %d filled successfully", id);
 	return true;
