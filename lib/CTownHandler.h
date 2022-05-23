@@ -207,6 +207,7 @@ public:
 
 	ETerrainType nativeTerrain;
 	EAlignment::EAlignment alignment;
+	bool preferUndergroundPlacement;
 
 	CTown * town; //NOTE: can be null
 
@@ -237,6 +238,7 @@ public:
 		h & index;
 		h & nativeTerrain;
 		h & alignment;
+		h & preferUndergroundPlacement;
 		h & town;
 		h & creatureBg120;
 		h & creatureBg130;
