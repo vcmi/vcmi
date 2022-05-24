@@ -298,11 +298,13 @@ void CRmgTemplateZone::createWater(EWaterContent::EWaterContent waterContent, bo
 		if(tilesChecked.find(dst)!=tilesChecked.end())
 			return;
 		
-		tilesDist[dst] = tilesDist[src] + 1;
-		coastTilesMap[tilesDist[dst]].insert(dst);
-		tilesChecked.insert(dst);
 		if(tileinfo.find(dst) != tileinfo.end())
+		{
+			tilesDist[dst] = tilesDist[src] + 1;
+			coastTilesMap[tilesDist[dst]].insert(dst);
+			tilesChecked.insert(dst);
 			tilesQueue.push_back(dst);
+		}
 	};
 	
 	//fills the distance-to-water map
@@ -325,6 +327,34 @@ void CRmgTemplateZone::createWater(EWaterContent::EWaterContent waterContent, bo
 			tilesChecked.insert(dst);
 		}
 	};
+	
+	{
+		std::ofstream out("water_dist.txt");
+		int levels = gen->map->twoLevel ? 2 : 1;
+		int width =  gen->map->width;
+		int height = gen->map->height;
+		for (int k = 0; k < levels; k++)
+		{
+			for(int j=0; j<height; j++)
+			{
+				for (int i=0; i<width; i++)
+				{
+					int3 tile{i,j,k};
+					int d = tilesDist[tile];
+					if(d == 0)
+						out << '~';
+					if(d>9)
+						out << '#';
+					if(d>0 && d<=9)
+						out << d;
+				}
+				out << std::endl;
+			}
+			out << std::endl;
+		}
+		out << std::endl;
+	}
+
 	
 	//generating some irregularity of coast
 	int coastIdMax = fmin(sqrt(coastTilesMap.size()), 7.f); //size of coastTilesMap shows the most distant tile from water
@@ -435,6 +465,13 @@ void CRmgTemplateZone::createWater(EWaterContent::EWaterContent waterContent, bo
 		{
 			waterTiles.erase(tile);
 		}
+		else
+		{
+			if(groundCoastNum > 0)
+			{
+				coastTiles.insert(tile);
+			}
+		}
 	}
 	
 	//do not set water on tiles belong to other zones
@@ -442,11 +479,36 @@ void CRmgTemplateZone::createWater(EWaterContent::EWaterContent waterContent, bo
 	{
 		return tileinfo.find(tile) == tileinfo.end();
 	});
-	vstd::erase_if(coastTilesMap[0], [&waterTiles](const int3 & tile)
+	
 	{
-		return waterTiles.find(tile) == waterTiles.end();
-	});
-	coastTiles = coastTilesMap[0];
+		std::ofstream out("water_zone.txt");
+		int levels = gen->map->twoLevel ? 2 : 1;
+		int width =  gen->map->width;
+		int height = gen->map->height;
+		for (int k = 0; k < levels; k++)
+		{
+			for(int j=0; j<height; j++)
+			{
+				for (int i=0; i<width; i++)
+				{
+					int3 tile{i,j,k};
+					if(coastTiles.count(tile))
+						out << '@';
+					else if(waterTiles.count(tile))
+						out << '~';
+					else if(tileinfo.count(tile))
+						out << '*';
+					else
+						out << '.';
+					//out << d;
+				}
+				out << std::endl;
+			}
+			out << std::endl;
+		}
+		out << std::endl;
+	}
+
 	
 	//transforming waterTiles to actual water
 	for(auto& tile : waterTiles)
@@ -472,13 +534,12 @@ void CRmgTemplateZone::waterConnection(CRmgTemplateZone& dst)
 		addFreePath(t);
 		gen->foreach_neighbour(t, [this](const int3 & tt)
 		{
-			if(gen->shouldBeBlocked(tt))
-				gen->setOccupied(tt, ETileType::POSSIBLE);
-			gen->foreachDirectNeighbour(tt, [this](const int3 & ttt)
+			gen->setOccupied(tt, ETileType::FREE);
+			/*gen->foreachDirectNeighbour(tt, [this](const int3 & ttt)
 			{
 				if(gen->shouldBeBlocked(ttt))
 					gen->setOccupied(ttt, ETileType::POSSIBLE);
-			});
+			});*/
 		});
 	};
 	
@@ -498,14 +559,16 @@ void CRmgTemplateZone::waterConnection(CRmgTemplateZone& dst)
 		if(freePaths.empty())
 		{
 			setPos(resTile);
-			cleanupLambda(resTile);
+			//cleanupLambda(resTile);
+			addFreePath(resTile);
 			foundPath = true;
 			break;
 		}
 		
 		if(connectPath(resTile, false))
 		{
-			cleanupLambda(resTile);
+			//cleanupLambda(resTile);
+			addFreePath(resTile);
 			foundPath = true;
 			break;
 		}
@@ -514,8 +577,8 @@ void CRmgTemplateZone::waterConnection(CRmgTemplateZone& dst)
 	{
 		resTile = *RandomGeneratorUtil::nextItem(dst.getCoastTiles(), gen->rand);
 		setPos(resTile);
-		cleanupLambda(resTile);
-		
+		//cleanupLambda(resTile);
+		addFreePath(resTile);
 	}
 	
 	auto shipyard = (CGShipyard*) VLC->objtypeh->getHandlerFor(Obj::SHIPYARD, 0)->create(ObjectTemplate());
@@ -1083,8 +1146,9 @@ void CRmgTemplateZone::addNearbyObject(CGObjectInstance * obj, CGObjectInstance 
 }
 void CRmgTemplateZone::addPositionObject(CGObjectInstance * obj, const int3 & position, si32 strength)
 {
-	requiredObjects.push_back(std::make_pair(obj, strength));
+	closeObjects.push_back(std::make_pair(obj, strength));
 	requestedPositions[obj] = position;
+	cleanupPosition[obj] = true;
 }
 
 void CRmgTemplateZone::addToConnectLater(const int3& src)
@@ -1722,8 +1786,6 @@ bool CRmgTemplateZone::createRequiredObjects()
 				logGlobal->error("Failed to fill zone %d due to lack of space", id);
 				return false;
 			}
-			if (requestedPositions.find(obj)!=requestedPositions.end())
-				pos = requestedPositions[obj];
 			if (tryToPlaceObjectAndConnectToPath(obj, pos) == EObjectPlacingResult::SUCCESS)
 			{
 				//paths to required objects constitute main paths of zone. otherwise they just may lead to middle and create dead zones
@@ -1754,17 +1816,24 @@ bool CRmgTemplateZone::createRequiredObjects()
 				return !this->isAccessibleFromSomewhere(obj.first->appearance, tile);
 			});
 
+			auto targetPostion = requestedPositions.find(obj.first)!=requestedPositions.end() ? requestedPositions[obj.first] : pos;
 			// smallest distance to zone center, greatest distance to nearest object
-			auto isCloser = [this](const int3 & lhs, const int3 & rhs) -> bool
+			auto isCloser = [this, &targetPostion, &tilesBlockedByObject](const int3 & lhs, const int3 & rhs) -> bool
 			{
-				float lDist = static_cast<float>(this->pos.dist2d(lhs));
-				float rDist = static_cast<float>(this->pos.dist2d(rhs));
+				float lDist = std::numeric_limits<float>::max();
+				float rDist = std::numeric_limits<float>::max();
+				for(int3 t : tilesBlockedByObject)
+				{
+					t += targetPostion;
+					lDist = fmin(lDist, static_cast<float>(t.dist2d(lhs)));
+					rDist = fmin(rDist, static_cast<float>(t.dist2d(rhs)));
+				}
 				lDist *= (lDist > 12) ? 10 : 1; //objects within 12 tile radius are preferred (smaller distance rating)
 				rDist *= (rDist > 12) ? 10 : 1;
 
 				return (lDist * 0.5f - std::sqrt(gen->getNearestObjectDistance(lhs))) < (rDist * 0.5f - std::sqrt(gen->getNearestObjectDistance(rhs)));
 			};
-
+			
 			boost::sort(tiles, isCloser);
 
 			if (tiles.empty())
@@ -1788,6 +1857,20 @@ bool CRmgTemplateZone::createRequiredObjects()
 					placeObject(obj.first, tile);
 					guardObject(obj.first, obj.second, (obj.first->ID == Obj::MONOLITH_TWO_WAY), true);
 					finished = true;
+					
+					//cleanup position
+					if(cleanupPosition[obj.first])
+					{
+						for (auto blockedTile : tilesBlockedByObject)
+						{
+							gen->foreach_neighbour(blockedTile+tile, [this](int3 pos)
+							{
+								if(gen->isPossible(pos))
+									gen->setOccupied(pos, ETileType::FREE);
+							});
+						}
+					}
+					
 					break;
 				}
 				else if (result == EObjectPlacingResult::CANNOT_FIT)
@@ -1834,6 +1917,9 @@ bool CRmgTemplateZone::createRequiredObjects()
 		}
 	}
 
+	requiredObjects.clear();
+	closeObjects.clear();
+	nearbyObjects.clear();
 	return true;
 }
 
@@ -2073,6 +2159,7 @@ bool CRmgTemplateZone::fill()
 		//zone center should be always clear to allow other tiles to connect
 		initFreeTiles();
 		connectLater(); //ideally this should work after fractalize, but fails
+		createRequiredObjects();
 		fractalize();
 		placeMines();
 		createRequiredObjects();

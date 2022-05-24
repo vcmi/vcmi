@@ -185,6 +185,7 @@ private:
 	std::vector<std::pair<CGObjectInstance*, CGObjectInstance*>> nearbyObjects;
 	std::vector<CGObjectInstance*> objects;
 	std::map<CGObjectInstance*, int3> requestedPositions;
+	std::map<CGObjectInstance*, bool> cleanupPosition;
 
 	//placement info
 	int3 pos;
