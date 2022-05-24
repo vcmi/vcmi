@@ -8,10 +8,10 @@
 #
 # ::
 #
-#   MINIZIP_LIBRARY, the name of the library to link against
-#   MINIZIP_FOUND, if false, do not try to link to Minizip
-#   MINIZIP_INCLUDE_DIR, where to find unzip.h
-#   MINIZIP_VERSION_STRING, human-readable string containing the version of Minizip
+#   minizip_LIBRARY, the name of the library to link against
+#   minizip_FOUND, if false, do not try to link to Minizip
+#   minizip_INCLUDE_DIR, where to find unzip.h
+#   minizip_VERSION_STRING, human-readable string containing the version of Minizip
 #
 #=============================================================================
 # Copyright 2003-2009 Kitware, Inc.
@@ -37,36 +37,44 @@ if (NOT WIN32)
     find_package(PkgConfig)
     if (PKG_CONFIG_FOUND)
         pkg_check_modules(_MINIZIP minizip)
-        set(MINIZIP_VERSION_STRING ${_MINIZIP_VERSION})
+        set(minizip_VERSION_STRING ${_minizip_VERSION})
     endif ()
 endif ()
 
-find_path(MINIZIP_INCLUDE_DIR 
+find_path(minizip_INCLUDE_DIR 
     minizip/unzip.h
   HINTS
-    ${_MINIZIP_INCLUDEDIR}
+    ${_minizip_INCLUDEDIR}
     ENV MINIZIPDIR
   PATH_SUFFIXES 
     MINIZIP
     include
 )
 
-find_library(MINIZIP_LIBRARY
+find_library(minizip_LIBRARY
   NAMES 
     minizip
   HINTS
-    ${_MINIZIP_LIBDIR}
+    ${_minizip_LIBDIR}
     ENV MINIZIPDIR
   PATH_SUFFIXES 
     lib 
     ${VC_LIB_PATH_SUFFIX}
 )
 
-set(MINIZIP_LIBRARIES ${MINIZIP_LIBRARY})
-set(MINIZIP_INCLUDE_DIRS ${MINIZIP_INCLUDE_DIR})
+set(minizip_LIBRARIES ${minizip_LIBRARY})
+set(minizip_INCLUDE_DIRS ${minizip_INCLUDE_DIR})
 
 include(FindPackageHandleStandardArgs)
 
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(MINIZIP
-                                  REQUIRED_VARS MINIZIP_LIBRARY MINIZIP_INCLUDE_DIR
-                                  VERSION_VAR MINIZIP_VERSION_STRING)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(minizip
+                                  REQUIRED_VARS minizip_LIBRARY minizip_INCLUDE_DIR
+                                  VERSION_VAR minizip_VERSION_STRING)
+
+if (NOT TARGET "minizip::minizip" AND minizip_FOUND)
+	add_library(minizip::minizip UNKNOWN IMPORTED)
+	set_target_properties(minizip::minizip PROPERTIES
+		INTERFACE_INCLUDE_DIRECTORIES "${minizip_INCLUDE_DIR}")
+	set_target_properties(minizip::minizip PROPERTIES
+		IMPORTED_LOCATION "${minizip_LIBRARY}")
+endif()

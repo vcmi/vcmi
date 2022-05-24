@@ -173,23 +173,17 @@ if(WIN32)
 	)
 	set_property(DIRECTORY ${CMAKE_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT vcmiclient)
 	if(NOT ENABLE_DEBUG_CONSOLE)
-		target_link_libraries(vcmiclient ${SDLMAIN_LIBRARY})
+		target_link_libraries(vcmiclient SDL2::SDL2main)
 	endif()
 endif()
 
 target_link_libraries(vcmiclient PRIVATE
-		vcmi ${SDL2_LIBRARY} ${SDL2_IMAGE_LIBRARY} ${SDL2_MIXER_LIBRARY} ${SDL2_TTF_LIBRARY}
-		${FFMPEG_LIBRARIES} ${FFMPEG_EXTRA_LINKING_OPTIONS} ${TBB_LIBRARIES}
+		vcmi SDL2::SDL2 SDL2::Image SDL2::Mixer SDL2::TTF
+		ffmpeg::swscale ffmpeg::avutil ffmpeg::avcodec ffmpeg::avformat TBB::tbb
 )
 
 target_include_directories(vcmiclient
-	PUBLIC	${CMAKE_CURRENT_SOURCE_DIR}
-	PUBLIC	${SDL2_INCLUDE_DIR}
-	PRIVATE ${SDL2_TTF_INCLUDE_DIR}
-	PRIVATE ${SDL2_MIXER_INCLUDE_DIR}
-	PRIVATE ${SDL2_IMAGE_INCLUDE_DIR}
-	PRIVATE ${FFMPEG_INCLUDE_DIRS}
-)
+	PUBLIC	${CMAKE_CURRENT_SOURCE_DIR})
 
 vcmi_set_output_dir(vcmiclient "")
 
