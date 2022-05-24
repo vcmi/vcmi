@@ -298,16 +298,32 @@ void CMapGenerator::genZones()
 	zoneWater.first = zones.size()+1;
 	zoneWater.second = std::make_shared<CRmgTemplateZone>(this);
 	{
-		std::vector<CTreasureInfo> treasuresWater;
-		treasuresWater.emplace_back(3000, 10000, 9);
+		//std::vector<CTreasureInfo> treasuresWater;
+		//treasuresWater.emplace_back(3000, 10000, 9);
 		rmg::ZoneOptions options;
 		options.setId(zoneWater.first);
 		options.setType(ETemplateZoneType::WATER);
-		options.setTreasureInfo(treasuresWater);
+		//options.setTreasureInfo(treasuresWater);
 		zoneWater.second->setOptions(options);
 	}
 
 	logGlobal->info("Zones generated successfully");
+}
+
+void CMapGenerator::createWaterTreasures()
+{
+	ui32 waterTreasure = getZoneWater().second->getTileInfo().size();
+	//add treasures on water
+	getZoneWater().second->addTreasureInfo(CTreasureInfo{1000, 3000, 9});
+	getZoneWater().second->addTreasureInfo(CTreasureInfo{5000, 10000, 1});
+	if(waterTreasure > 1000)
+		getZoneWater().second->addTreasureInfo(CTreasureInfo{2000, 4000, 2});
+	if(waterTreasure > 2500)
+		getZoneWater().second->addTreasureInfo(CTreasureInfo{4000, 7000, 2});
+	if(waterTreasure > 3600)
+		getZoneWater().second->addTreasureInfo(CTreasureInfo{7000, 9000, 3});
+	if(waterTreasure > 6400)
+		getZoneWater().second->addTreasureInfo(CTreasureInfo{9000, waterTreasure*2, 4});
 }
 
 void CMapGenerator::fillZones()
@@ -350,6 +366,7 @@ void CMapGenerator::fillZones()
 			treasureZones.push_back(it.second);
 	}
 	
+	createWaterTreasures();
 	zoneWater.second->initFreeTiles();
 	zoneWater.second->fill();
 	

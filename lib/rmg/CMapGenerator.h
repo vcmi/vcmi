@@ -98,6 +98,7 @@ public:
 	ui32 getTotalZoneCount() const;
 	
 	Zones::value_type getZoneWater() const;
+	void createWaterTreasures();
 
 	TRmgTemplateZoneId getZoneID(const int3& tile) const;
 	void setZoneID(const int3& tile, TRmgTemplateZoneId zid);

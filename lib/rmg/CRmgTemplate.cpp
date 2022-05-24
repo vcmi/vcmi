@@ -275,6 +275,11 @@ void ZoneOptions::setTreasureInfo(const std::vector<CTreasureInfo> & value)
 {
 	treasureInfo = value;
 }
+	
+void ZoneOptions::addTreasureInfo(const CTreasureInfo & value)
+{
+	treasureInfo.push_back(value);
+}
 
 const std::vector<CTreasureInfo> & ZoneOptions::getTreasureInfo() const
 {

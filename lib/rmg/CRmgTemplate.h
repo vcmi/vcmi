@@ -114,6 +114,7 @@ public:
 	std::map<TResource, ui16> getMinesInfo() const;
 
 	void setTreasureInfo(const std::vector<CTreasureInfo> & value);
+	void addTreasureInfo(const CTreasureInfo & value);
 	const std::vector<CTreasureInfo> & getTreasureInfo() const;
 
 	TRmgTemplateZoneId getMinesLikeZone() const;
