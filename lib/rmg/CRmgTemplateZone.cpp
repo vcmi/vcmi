@@ -1844,10 +1844,11 @@ bool CRmgTemplateZone::createRequiredObjects()
 			for (auto tile : tiles)
 			{
 				//code partially adapted from findPlaceForObject()
-				if(areAllTilesAvailable(obj.first, tile, tilesBlockedByObject))
-					gen->setOccupied(pos, ETileType::BLOCKED); //why?
-				else
+				if(!areAllTilesAvailable(obj.first, tile, tilesBlockedByObject))
 					continue;
+					//gen->setOccupied(pos, ETileType::BLOCKED); //why?
+				//else
+					//continue;
 
 				attempt = true;
 

@@ -385,8 +385,6 @@ void CMapGenerator::fillZones()
 	
 	createWaterTreasures();
 	zoneWater.second->initFreeTiles();
-	dump(false);
-	
 	zoneWater.second->fill();
 	
 	dump(false);
@@ -401,12 +399,9 @@ void CMapGenerator::fillZones()
 	//place actual obstacles matching zone terrain
 	for (auto it : zones)
 		it.second->createObstacles2();
-	
-	dump(false);
-	
+		
 	zoneWater.second->createObstacles2();
 	
-	dump(false);
 
 	#define PRINT_MAP_BEFORE_ROADS true
 	if (PRINT_MAP_BEFORE_ROADS) //enable to debug
