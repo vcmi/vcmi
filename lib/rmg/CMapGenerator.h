@@ -102,6 +102,8 @@ public:
 
 	TRmgTemplateZoneId getZoneID(const int3& tile) const;
 	void setZoneID(const int3& tile, TRmgTemplateZoneId zid);
+	
+	void dump(bool zoneId);
 
 private:
 	int randomSeed;
@@ -135,7 +137,5 @@ private:
 	void fillZones();
 	void createObstaclesCommon1();
 	void createObstaclesCommon2();
-	
-	void dump(bool zoneId);
 
 };

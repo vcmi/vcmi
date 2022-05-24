@@ -189,7 +189,7 @@ std::set<int3> CRmgTemplateZone::getPossibleTiles() const
 	return possibleTiles;
 }
 
-std::vector<int3> CRmgTemplateZone::discardDistantTiles (float distance)
+std::set<int3> CRmgTemplateZone::collectDistantTiles (float distance) const
 {
 	//TODO: mark tiles beyond zone as unavailable, but allow to connect with adjacent zones
 
@@ -201,18 +201,14 @@ std::vector<int3> CRmgTemplateZone::discardDistantTiles (float distance)
 	//		//gen->setOccupied(tile, ETileType::BLOCKED); //fixme: crash at rendering?
 	//	}
 	//}
-	std::vector<int3> discardedTiles;
+	std::set<int3> discardedTiles;
 	for(auto& tile : tileinfo)
 	{
 		if(tile.dist2d(this->pos) > distance)
 		{
-			discardedTiles.push_back(tile);
+			discardedTiles.insert(tile);
 		}
 	};
-	for(auto& tile : discardedTiles)
-	{
-		tileinfo.erase(tile);
-	}
 	return discardedTiles;
 }
 
@@ -261,34 +257,223 @@ void CRmgTemplateZone::createBorder()
 	}
 }
 
-void CRmgTemplateZone::createWater(EWaterContent::EWaterContent waterContent)
+void CRmgTemplateZone::createWater(EWaterContent::EWaterContent waterContent, bool debug)
 {
+	//TODO: support NORMAL mode
+	if(waterContent == EWaterContent::NORMAL)
+		return;
+	
 	if(waterContent == EWaterContent::NONE || isUnderground())
 		return; //do nothing
 	
-	std::vector<int3> waterVector = discardDistantTiles((float)(getSize() + 1));
+	std::set<int3> waterTiles = collectDistantTiles((float)(getSize() + 1));
 	
+	//add border tiles as water for ISLANDS
 	if(waterContent == EWaterContent::ISLANDS)
 	{
 		for (auto& tile : tileinfo)
 		{
 			if (gen->shouldBeBlocked(tile))
 			{
-				waterVector.push_back(tile);
+				waterTiles.insert(tile);
 			}
 		}
 	}
 	
-	//case EWaterContent::NORMAL (shall be executed for ISLANDS as well)
-	auto zoneWaterPair = gen->getZoneWater();
-	for(auto& tile : waterVector)
+	
+	
+	std::list<int3> tilesQueue(waterTiles.begin(), waterTiles.end()); //tiles need to be processed
+	std::set<int3> tilesChecked = waterTiles; //tiles already processed
+	std::map<int, std::set<int3>> coastTiles; //key: distance to water; value: tiles with that distance
+	std::map<int3, int> tilesDist; //key: tile; value: distance to water
+	
+	//optimization: prefill distance for all tiles marked for water with 0
+	for(auto& tile : waterTiles)
 	{
-		zoneWaterPair.second->addTile(tile);
-		gen->setZoneID(tile, zoneWaterPair.first);
+		tilesDist[tile] = 0;
+	}
+	
+	//lambda for increasing distance of negihbour tiles
+	auto coastSearch = [&tilesDist, &tilesChecked, &coastTiles, &tilesQueue](const int3 & src, const int3 & dst)
+	{
+		if(tilesChecked.find(dst)!=tilesChecked.end())
+			return;
+		
+		tilesDist[dst] = tilesDist[src] + 1;
+		coastTiles[tilesDist[dst]].insert(dst);
+		tilesChecked.insert(dst);
+		tilesQueue.push_back(dst);
+	};
+	
+	//fills the distance-to-water map
+	while(!tilesQueue.empty())
+	{
+		int3 tile = tilesQueue.front();
+		tilesQueue.pop_front();
+		gen->foreachDirectNeighbour(tile, std::bind(coastSearch, tile, std::placeholders::_1));
+	}
+	
+	//lambda which finds all neighbour tiles need to became water
+	auto coastPlacer = [&tilesDist, &tilesChecked, &tilesQueue](const int3 & src, const int3 & dst)
+	{
+		if(tilesChecked.find(dst)!=tilesChecked.end())
+			return;
+		
+		if(tilesDist[dst] > 0 && tilesDist[src]-tilesDist[dst] == 1)
+		{
+			tilesQueue.push_back(dst);
+			tilesChecked.insert(dst);
+		}
+	};
+	
+	//generating some irregularity of coast
+	int coastIdMax = fmin(sqrt(coastTiles.size()), 7.f); //size of coastTiles shows the most distant tile from water
+	assert(coastIdMax>0);
+	tilesChecked.clear();
+	for(int coastId=coastIdMax; coastId>=1; --coastId)
+	{
+		//amount of iterations shall be proportion of coast perimeter
+		const int coastLength = coastTiles[coastId].size() / (coastId+3);
+		for(int coastIter = 0; coastIter < coastLength; ++coastIter)
+		{
+			int3 tile = *RandomGeneratorUtil::nextItem(coastTiles[coastId], gen->rand);
+			if(tilesChecked.find(tile)!=tilesChecked.end())
+				continue;
+			if(gen->isUsed(tile) || gen->isFree(tile)) //prevent placing water nearby town
+				continue;
+			
+			tilesQueue.push_back(tile);
+			tilesChecked.insert(tile);
+		}
+	}
+	
+	//if tile is marked as water - connect it with "big" water
+	while(!tilesQueue.empty())
+	{
+		int3 tile = tilesQueue.front();
+		tilesQueue.pop_front();
+		
+		if(waterTiles.find(tile)!=waterTiles.end())
+			continue;
+		
+		waterTiles.insert(tile);
+
+		gen->foreach_neighbour(tile, std::bind(coastPlacer, tile, std::placeholders::_1));
+	}
+	
+	/*for(auto& tile : waterTiles)
+	{
+		gen->getZoneWater().second->addTile(tile);
+		gen->setZoneID(tile, gen->getZoneWater().first);
+		gen->setOccupied(tile, ETileType::USED);
+		tileinfo.erase(tile);
+		possibleTiles.erase(tile);
+	}
+	
+	gen->dump(false);*/
+	
+	//start filtering of narrow places and coast atrifacts
+	std::vector<int3> waterAdd;
+	for(int coastId=1; coastId<=coastIdMax; ++coastId)
+	{
+		for(auto& tile : coastTiles[coastId])
+		{
+			//collect neighbout water tiles
+			auto collectionLambda = [&waterTiles, &coastTiles](const int3 & t, std::set<int3> & outCollection)
+			{
+				if(waterTiles.find(t)!=waterTiles.end())
+				{
+					coastTiles[0].insert(t);
+					outCollection.insert(t);
+				}
+			};
+			std::set<int3> waterCoastDirect, waterCoastDiag;
+			gen->foreachDirectNeighbour(tile, std::bind(collectionLambda, std::placeholders::_1, std::ref(waterCoastDirect)));
+			gen->foreachDiagonalNeighbour(tile, std::bind(collectionLambda, std::placeholders::_1, std::ref(waterCoastDiag)));
+			
+			//remove tiles which are mostly covered by water
+			if(waterCoastDirect.size()>=3)
+			{
+				waterAdd.push_back(tile);
+				continue;
+			}
+			if(waterCoastDiag.size()==4 && waterCoastDirect.size()==2)
+			{
+				waterAdd.push_back(tile);
+				continue;
+			}
+			if(waterCoastDirect.size()==2 && waterCoastDiag.size()>=2)
+			{
+				int3 diagSum, dirSum;
+				for(auto & i : waterCoastDiag)
+					diagSum += i - tile;
+				for(auto & i : waterCoastDirect)
+					dirSum += i - tile;
+				if(diagSum == int3() || dirSum == int3())
+				{
+					waterAdd.push_back(tile);
+					continue;
+				}
+				if(waterCoastDiag.size()==3 && diagSum != dirSum)
+				{
+					waterAdd.push_back(tile);
+					continue;
+				}
+			}
+		}
+	}
+	for(auto & i : waterAdd)
+		waterTiles.insert(i);
+	
+	//transforming waterTiles to actual water
+	/*for(auto& tile : waterTiles)
+	{
+		gen->getZoneWater().second->addTile(tile);
+		gen->setZoneID(tile, gen->getZoneWater().first);
+		gen->setOccupied(tile, ETileType::USED);
+		tileinfo.erase(tile);
+		possibleTiles.erase(tile);
+	}
+	gen->dump(false);*/
+	
+	//filtering tiny "lakes"
+	for(auto& tile : coastTiles[0]) //now it's only coast-water tiles
+	{
+		if(waterTiles.find(tile) == waterTiles.end()) //for ground tiles
+			continue;
+		
+		std::set<int3> groundCoast;
+		gen->foreach_neighbour(tile, [this, &waterTiles, &groundCoast](const int3 & t)
+		{
+			if(waterTiles.find(t) == waterTiles.end() && tileinfo.find(t) != tileinfo.end()) //for ground tiles of same zone
+			{
+				groundCoast.insert(t);
+			}
+		});
+		
+		if(groundCoast.size()>=5)
+		{
+			waterTiles.erase(tile);
+		}
+	}
+	
+	//do not set water on tiles belong to other zones
+	vstd::erase_if(waterTiles, [this](const int3 & tile)
+	{
+		return tileinfo.find(tile) == tileinfo.end();
+	});
+	
+	//transforming waterTiles to actual water
+	for(auto& tile : waterTiles)
+	{
+		gen->getZoneWater().second->addTile(tile);
+		gen->setZoneID(tile, gen->getZoneWater().first);
 		gen->setOccupied(tile, ETileType::POSSIBLE);
 		tileinfo.erase(tile);
 		possibleTiles.erase(tile);
 	}
+	
+	gen->dump(false);
 }
 
 void CRmgTemplateZone::fractalize()

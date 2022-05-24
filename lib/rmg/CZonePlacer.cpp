@@ -558,7 +558,11 @@ void CZonePlacer::assignZones()
 		if (zone.second->isUnderground())
 		{
 			if (!CREATE_FULL_UNDERGROUND)
-				zone.second->discardDistantTiles((float)(zone.second->getSize() + 1));
+			{
+				auto discardTile = zone.second->collectDistantTiles((float)(zone.second->getSize() + 1));
+				for(auto& t : discardTile)
+					zone.second->removeTile(t);
+			}
 
 			//make sure that terrain inside zone is not a rock
 			//FIXME: reorder actions?

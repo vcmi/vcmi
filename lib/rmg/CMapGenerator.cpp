@@ -340,7 +340,7 @@ void CMapGenerator::fillZones()
 		it.second->createWater(getMapGenOptions().getWaterContent());
 	}
 	
-	generateWater();
+	generateWater(true);
 	
 	createConnections2(); //subterranean gates and monoliths
 	

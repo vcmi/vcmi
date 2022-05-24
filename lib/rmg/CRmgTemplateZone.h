@@ -106,7 +106,7 @@ public:
 	void initFreeTiles ();
 	std::set<int3> getTileInfo() const;
 	std::set<int3> getPossibleTiles() const;
-	std::vector<int3> discardDistantTiles (float distance);
+	std::set<int3> collectDistantTiles (float distance) const;
 	void clearTiles();
 
 	void addRequiredObject(CGObjectInstance * obj, si32 guardStrength=0);
@@ -128,7 +128,7 @@ public:
 	bool createRequiredObjects();
 	void createTreasures();
 	
-	void createWater(EWaterContent::EWaterContent waterContent);
+	void createWater(EWaterContent::EWaterContent waterContent, bool debug=false);
 	//const std::set<int3>& getCoastTiles() const;
 	//void computeCoastTiles();
 	
