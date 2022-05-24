@@ -112,6 +112,7 @@ public:
 	void addRequiredObject(CGObjectInstance * obj, si32 guardStrength=0);
 	void addCloseObject(CGObjectInstance * obj, si32 guardStrength = 0);
 	void addNearbyObject(CGObjectInstance * obj, CGObjectInstance * nearbyTarget);
+	void addPositionObject(CGObjectInstance * obj, const int3 & position, si32 guardStrength=0);
 	void addToConnectLater(const int3& src);
 	bool addMonster(int3 &pos, si32 strength, bool clearSurroundingTiles = true, bool zoneGuard = false);
 	bool createTreasurePile(int3 &pos, float minDistance, const CTreasureInfo& treasureInfo);
@@ -183,6 +184,7 @@ private:
 	std::vector<std::pair<CGObjectInstance*, ui32>> closeObjects;
 	std::vector<std::pair<CGObjectInstance*, CGObjectInstance*>> nearbyObjects;
 	std::vector<CGObjectInstance*> objects;
+	std::map<CGObjectInstance*, int3> requestedPositions;
 
 	//placement info
 	int3 pos;

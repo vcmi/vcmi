@@ -485,39 +485,42 @@ void CRmgTemplateZone::waterConnection(CRmgTemplateZone& dst)
 	//set boarding tiles
 	int randomAttemps = 5;
 	bool foundPath = false;
+	int3 resTile;
 	for(auto tileIter = dst.getCoastTiles().begin(); tileIter != dst.getCoastTiles().end(); ++tileIter)
 	{
-		int3 tile = *tileIter;
+		resTile = *tileIter;
 		if(randomAttemps-- > 0)
 		{
-			tile = *RandomGeneratorUtil::nextItem(dst.getCoastTiles(), gen->rand);
+			resTile = *RandomGeneratorUtil::nextItem(dst.getCoastTiles(), gen->rand);
 			tileIter = dst.getCoastTiles().begin();
 		}
 		
 		if(freePaths.empty())
 		{
-			setPos(tile);
-			cleanupLambda(tile);
+			setPos(resTile);
+			cleanupLambda(resTile);
 			foundPath = true;
 			break;
 		}
 		
-		if(connectPath(tile, false))
+		if(connectPath(resTile, false))
 		{
-			cleanupLambda(tile);
+			cleanupLambda(resTile);
 			foundPath = true;
 			break;
 		}
 	}
 	if(!foundPath)
 	{
-		setPos(*RandomGeneratorUtil::nextItem(dst.getCoastTiles(), gen->rand));
-		cleanupLambda(getPos());
+		resTile = *RandomGeneratorUtil::nextItem(dst.getCoastTiles(), gen->rand);
+		setPos(resTile);
+		cleanupLambda(resTile);
+		
 	}
 	
 	auto shipyard = (CGShipyard*) VLC->objtypeh->getHandlerFor(Obj::SHIPYARD, 0)->create(ObjectTemplate());
 	shipyard->tempOwner = PlayerColor::NEUTRAL;
-	dst.addRequiredObject(shipyard, 3500);
+	dst.addPositionObject(shipyard, resTile, 3500);
 	
 }
 
@@ -1077,6 +1080,11 @@ void CRmgTemplateZone::addCloseObject(CGObjectInstance * obj, si32 strength)
 void CRmgTemplateZone::addNearbyObject(CGObjectInstance * obj, CGObjectInstance * nearbyTarget)
 {
 	nearbyObjects.push_back(std::make_pair(obj, nearbyTarget));
+}
+void CRmgTemplateZone::addPositionObject(CGObjectInstance * obj, const int3 & position, si32 strength)
+{
+	requiredObjects.push_back(std::make_pair(obj, strength));
+	requestedPositions[obj] = position;
 }
 
 void CRmgTemplateZone::addToConnectLater(const int3& src)
@@ -1714,6 +1722,8 @@ bool CRmgTemplateZone::createRequiredObjects()
 				logGlobal->error("Failed to fill zone %d due to lack of space", id);
 				return false;
 			}
+			if (requestedPositions.find(obj)!=requestedPositions.end())
+				pos = requestedPositions[obj];
 			if (tryToPlaceObjectAndConnectToPath(obj, pos) == EObjectPlacingResult::SUCCESS)
 			{
 				//paths to required objects constitute main paths of zone. otherwise they just may lead to middle and create dead zones
