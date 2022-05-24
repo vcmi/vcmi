@@ -98,7 +98,7 @@ public:
 	void setCenter(const float3 &f);
 	int3 getPos() const;
 	void setPos(const int3 &pos);
-	bool isAccessibleFromAnywhere(ObjectTemplate &appearance, int3 &tile) const;
+	bool isAccessibleFromSomewhere(ObjectTemplate &appearance, int3 &tile) const;
 	int3 getAccessibleOffset(ObjectTemplate &appearance, int3 &tile) const;
 
 	void addTile (const int3 &pos);

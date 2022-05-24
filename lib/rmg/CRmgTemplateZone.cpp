@@ -259,10 +259,6 @@ void CRmgTemplateZone::createBorder()
 
 void CRmgTemplateZone::createWater(EWaterContent::EWaterContent waterContent, bool debug)
 {
-	//TODO: support NORMAL mode
-	if(waterContent == EWaterContent::NORMAL)
-		return;
-	
 	if(waterContent == EWaterContent::NONE || isUnderground())
 		return; //do nothing
 	
@@ -280,8 +276,6 @@ void CRmgTemplateZone::createWater(EWaterContent::EWaterContent waterContent, bo
 		}
 	}
 	
-	
-	
 	std::list<int3> tilesQueue(waterTiles.begin(), waterTiles.end()); //tiles need to be processed
 	std::set<int3> tilesChecked = waterTiles; //tiles already processed
 	std::map<int, std::set<int3>> coastTiles; //key: distance to water; value: tiles with that distance
@@ -294,7 +288,7 @@ void CRmgTemplateZone::createWater(EWaterContent::EWaterContent waterContent, bo
 	}
 	
 	//lambda for increasing distance of negihbour tiles
-	auto coastSearch = [&tilesDist, &tilesChecked, &coastTiles, &tilesQueue](const int3 & src, const int3 & dst)
+	auto coastSearch = [this, &tilesDist, &tilesChecked, &coastTiles, &tilesQueue](const int3 & src, const int3 & dst)
 	{
 		if(tilesChecked.find(dst)!=tilesChecked.end())
 			return;
@@ -302,7 +296,8 @@ void CRmgTemplateZone::createWater(EWaterContent::EWaterContent waterContent, bo
 		tilesDist[dst] = tilesDist[src] + 1;
 		coastTiles[tilesDist[dst]].insert(dst);
 		tilesChecked.insert(dst);
-		tilesQueue.push_back(dst);
+		if(tileinfo.find(dst) != tileinfo.end())
+			tilesQueue.push_back(dst);
 	};
 	
 	//fills the distance-to-water map
@@ -361,17 +356,6 @@ void CRmgTemplateZone::createWater(EWaterContent::EWaterContent waterContent, bo
 		gen->foreach_neighbour(tile, std::bind(coastPlacer, tile, std::placeholders::_1));
 	}
 	
-	/*for(auto& tile : waterTiles)
-	{
-		gen->getZoneWater().second->addTile(tile);
-		gen->setZoneID(tile, gen->getZoneWater().first);
-		gen->setOccupied(tile, ETileType::USED);
-		tileinfo.erase(tile);
-		possibleTiles.erase(tile);
-	}
-	
-	gen->dump(false);*/
-	
 	//start filtering of narrow places and coast atrifacts
 	std::vector<int3> waterAdd;
 	for(int coastId=1; coastId<=coastIdMax; ++coastId)
@@ -424,17 +408,6 @@ void CRmgTemplateZone::createWater(EWaterContent::EWaterContent waterContent, bo
 	}
 	for(auto & i : waterAdd)
 		waterTiles.insert(i);
-	
-	//transforming waterTiles to actual water
-	/*for(auto& tile : waterTiles)
-	{
-		gen->getZoneWater().second->addTile(tile);
-		gen->setZoneID(tile, gen->getZoneWater().first);
-		gen->setOccupied(tile, ETileType::USED);
-		tileinfo.erase(tile);
-		possibleTiles.erase(tile);
-	}
-	gen->dump(false);*/
 	
 	//filtering tiny "lakes"
 	for(auto& tile : coastTiles[0]) //now it's only coast-water tiles
@@ -1690,7 +1663,7 @@ bool CRmgTemplateZone::createRequiredObjects()
 			boost::remove_if(tiles, [obj, this](int3 &tile)-> bool
 			{
 				//object must be accessible from at least one surounding tile
-				return !this->isAccessibleFromAnywhere(obj.first->appearance, tile);
+				return !this->isAccessibleFromSomewhere(obj.first->appearance, tile);
 			});
 
 			// smallest distance to zone center, greatest distance to nearest object
@@ -1750,7 +1723,7 @@ bool CRmgTemplateZone::createRequiredObjects()
 		{
 			gen->foreachDirectNeighbour(blockedTile, [this, &possiblePositions](int3 pos)
 			{
-				if (!gen->isBlocked(pos))
+				if (!gen->isBlocked(pos) && tileinfo.count(pos))
 				{
 					//some resources still could be unaccessible, at least one free cell shall be
 					gen->foreach_neighbour(pos, [this, &possiblePositions, &pos](int3 p)
@@ -2072,7 +2045,7 @@ bool CRmgTemplateZone::canObstacleBePlacedHere(ObjectTemplate &temp, int3 &pos)
 	return true;
 }
 
-bool CRmgTemplateZone::isAccessibleFromAnywhere (ObjectTemplate &appearance,  int3 &tile) const
+bool CRmgTemplateZone::isAccessibleFromSomewhere (ObjectTemplate &appearance,  int3 &tile) const
 {
 	return getAccessibleOffset(appearance, tile).valid();
 }
@@ -2094,7 +2067,7 @@ int3 CRmgTemplateZone::getAccessibleOffset(ObjectTemplate &appearance, int3 &til
 					int3 nearbyPos = tile + offset;
 					if (gen->map->isInTheMap(nearbyPos))
 					{
-						if (appearance.isVisitableFrom(x, y) && !gen->isBlocked(nearbyPos))
+						if (appearance.isVisitableFrom(x, y) && !gen->isBlocked(nearbyPos) && tileinfo.find(nearbyPos)!=tileinfo.end())
 							ret = nearbyPos;
 					}
 				}
@@ -2143,7 +2116,7 @@ bool CRmgTemplateZone::findPlaceForObject(CGObjectInstance* obj, si32 min_dist, 
 	for (auto tile : tileinfo)
 	{
 		//object must be accessible from at least one surounding tile
-		if (!isAccessibleFromAnywhere(obj->appearance, tile))
+		if (!isAccessibleFromSomewhere(obj->appearance, tile))
 			continue;
 
 		auto ti = gen->getTile(tile);
@@ -2353,7 +2326,7 @@ ObjectInfo CRmgTemplateZone::getRandomObject(CTreasurePileInfo &info, ui32 desir
 				//objectsVisitableFromBottom++;
 				//there must be free tiles under object
 				auto blockedOffsets = oi.templ.getBlockedOffsets();
-				if (!isAccessibleFromAnywhere(oi.templ, newVisitablePos))
+				if (!isAccessibleFromSomewhere(oi.templ, newVisitablePos))
 					continue;
 			}
 
