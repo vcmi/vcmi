@@ -326,6 +326,13 @@ void CMapGenerator::createWaterTreasures()
 		getZoneWater().second->addTreasureInfo(CTreasureInfo{9000, waterTreasure*2, 4});
 }
 
+void CMapGenerator::prepareWaterTiles()
+{
+	for(auto & t : zoneWater.second->getTileInfo())
+		if(shouldBeBlocked(t))
+			setOccupied(t, ETileType::POSSIBLE);
+}
+
 void CMapGenerator::fillZones()
 {
 	//init native town count with 0
@@ -353,8 +360,18 @@ void CMapGenerator::fillZones()
 	for (auto it : zones)
 	{
 		it.second->createBorder(); //once direct connections are done
+	}
+	for (auto it : zones)
+	{
 		it.second->createWater(getMapGenOptions().getWaterContent());
 	}
+	dump(false);
+	dump(true);
+	for (auto it : zones)
+	{
+		zoneWater.second->waterConnection(*it.second);
+	}
+	dump(false);
 	
 	createConnections2(); //subterranean gates and monoliths
 	
@@ -368,6 +385,8 @@ void CMapGenerator::fillZones()
 	
 	createWaterTreasures();
 	zoneWater.second->initFreeTiles();
+	dump(false);
+	
 	zoneWater.second->fill();
 	
 	dump(false);
@@ -383,7 +402,11 @@ void CMapGenerator::fillZones()
 	for (auto it : zones)
 		it.second->createObstacles2();
 	
-	//zoneWater.second->createObstacles2();
+	dump(false);
+	
+	zoneWater.second->createObstacles2();
+	
+	dump(false);
 
 	#define PRINT_MAP_BEFORE_ROADS true
 	if (PRINT_MAP_BEFORE_ROADS) //enable to debug

@@ -129,7 +129,8 @@ public:
 	void createTreasures();
 	
 	void createWater(EWaterContent::EWaterContent waterContent, bool debug=false);
-	//const std::set<int3>& getCoastTiles() const;
+	void waterConnection(CRmgTemplateZone& dst);
+	const std::set<int3>& getCoastTiles() const;
 	//void computeCoastTiles();
 	
 	void createObstacles1();
@@ -144,6 +145,7 @@ public:
 
 	void setQuestArtZone(std::shared_ptr<CRmgTemplateZone> otherZone);
 	std::set<int3>* getFreePaths();
+	void addFreePath(const int3 &);
 
 	ObjectInfo getRandomObject (CTreasurePileInfo &info, ui32 desiredValue, ui32 maxValue, ui32 currentValue);
 
@@ -193,6 +195,7 @@ private:
 	std::set<int3> roadNodes; //tiles to be connected with roads
 	std::set<int3> roads; //all tiles with roads
 	std::set<int3> tilesToConnectLater; //will be connected after paths are fractalized
+	
 
 	bool createRoad(const int3 &src, const int3 &dst);
 	void drawRoads(); //actually updates tiles

@@ -99,6 +99,7 @@ public:
 	
 	Zones::value_type getZoneWater() const;
 	void createWaterTreasures();
+	void prepareWaterTiles();
 
 	TRmgTemplateZoneId getZoneID(const int3& tile) const;
 	void setZoneID(const int3& tile, TRmgTemplateZoneId zid);
