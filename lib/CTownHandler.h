@@ -238,7 +238,6 @@ public:
 		h & index;
 		h & nativeTerrain;
 		h & alignment;
-		h & preferUndergroundPlacement;
 		h & town;
 		h & creatureBg120;
 		h & creatureBg130;
