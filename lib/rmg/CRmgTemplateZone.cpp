@@ -374,19 +374,21 @@ void CRmgTemplateZone::createWater(EWaterContent::EWaterContent waterContent, bo
 			std::set<int3> waterCoastDirect, waterCoastDiag;
 			gen->foreachDirectNeighbour(tile, std::bind(collectionLambda, std::placeholders::_1, std::ref(waterCoastDirect)));
 			gen->foreachDiagonalNeighbour(tile, std::bind(collectionLambda, std::placeholders::_1, std::ref(waterCoastDiag)));
+			int waterCoastDirectNum = waterCoastDirect.size();
+			int waterCoastDiagNum = waterCoastDiag.size();
 			
 			//remove tiles which are mostly covered by water
-			if(waterCoastDirect.size()>=3)
+			if(waterCoastDirectNum >= 3)
 			{
 				waterAdd.push_back(tile);
 				continue;
 			}
-			if(waterCoastDiag.size()==4 && waterCoastDirect.size()==2)
+			if(waterCoastDiagNum == 4 && waterCoastDirectNum == 2)
 			{
 				waterAdd.push_back(tile);
 				continue;
 			}
-			if(waterCoastDirect.size()==2 && waterCoastDiag.size()>=2)
+			if(waterCoastDirectNum == 2 && waterCoastDiagNum >= 2)
 			{
 				int3 diagSum, dirSum;
 				for(auto & i : waterCoastDiag)
@@ -398,7 +400,7 @@ void CRmgTemplateZone::createWater(EWaterContent::EWaterContent waterContent, bo
 					waterAdd.push_back(tile);
 					continue;
 				}
-				if(waterCoastDiag.size()==3 && diagSum != dirSum)
+				if(waterCoastDiagNum == 3 && diagSum != dirSum)
 				{
 					waterAdd.push_back(tile);
 					continue;
@@ -415,16 +417,16 @@ void CRmgTemplateZone::createWater(EWaterContent::EWaterContent waterContent, bo
 		if(waterTiles.find(tile) == waterTiles.end()) //for ground tiles
 			continue;
 		
-		std::set<int3> groundCoast;
-		gen->foreach_neighbour(tile, [this, &waterTiles, &groundCoast](const int3 & t)
+		int groundCoastNum = 0;
+		gen->foreach_neighbour(tile, [this, &waterTiles, &groundCoastNum](const int3 & t)
 		{
 			if(waterTiles.find(t) == waterTiles.end() && tileinfo.find(t) != tileinfo.end()) //for ground tiles of same zone
 			{
-				groundCoast.insert(t);
+				groundCoastNum++;
 			}
 		});
 		
-		if(groundCoast.size()>=5)
+		if(groundCoastNum >= 5)
 		{
 			waterTiles.erase(tile);
 		}
