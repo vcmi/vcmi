@@ -352,9 +352,9 @@ void CMapGenerator::fillZones()
 	for (auto it : zones)
 		it.second->initFreeTiles();
 	
+	
 	//TODO: connections may lay on water in NORMAL mode
-	if(getMapGenOptions().getWaterContent()!=EWaterContent::ISLANDS)
-		createDirectConnections(); //direct
+	createDirectConnections(); //direct
 	
 	//make sure all connections are passable before creating borders
 	for (auto it : zones)
@@ -562,6 +562,8 @@ void CMapGenerator::findZonesForQuestArts()
 
 void CMapGenerator::createDirectConnections()
 {
+	bool islandsMode = getMapGenOptions().getWaterContent()==EWaterContent::ISLANDS;
+	
 	for (auto connection : mapGenOptions.getMapTemplate()->getConnections())
 	{
 		auto zoneA = zones[connection.getZoneA()];
@@ -579,6 +581,12 @@ void CMapGenerator::createDirectConnections()
 		int3 posB = zoneB->getPos();
 		// auto zoneAid = zoneA->getId();
 		auto zoneBid = zoneB->getId();
+		
+		if(islandsMode && !zoneA->isUnderground() && !zoneB->isUnderground())
+		{
+			//skip connection - connected by water
+			continue;
+		}
 
 		if (posA.z == posB.z)
 		{

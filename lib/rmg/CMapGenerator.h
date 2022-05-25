@@ -110,7 +110,7 @@ private:
 	int randomSeed;
 	CMapGenOptions& mapGenOptions;
 	
-	std::list<rmg::ZoneConnection> connectionsLeft;
+	std::vector<rmg::ZoneConnection> connectionsLeft;
 	Zones zones;
 	std::map<TFaction, ui32> zonesPerFaction;
 	ui32 zonesTotal; //zones that have their main town only
