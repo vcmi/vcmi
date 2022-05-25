@@ -532,12 +532,51 @@ void CRmgTemplateZone::waterConnection(CRmgTemplateZone& dst)
 	if(isUnderground() || dst.getCoastTiles().empty())
 		return;
 	
-	auto coastTile = dst.createShipyard(3500);
-	if(!coastTile.valid())
+	int3 coastTile(-1, -1, -1);
+	int zoneTowns = dst.playerTowns.getTownCount()+dst.playerTowns.getCastleCount()+dst.neutralTowns.getTownCount()+dst.neutralTowns.getCastleCount();
+	
+	if(dst.getType() == ETemplateZoneType::PLAYER_START || dst.getType() == ETemplateZoneType::CPU_START || zoneTowns)
 	{
-		//just create a ship
-		coastTile = *RandomGeneratorUtil::nextItem(dst.getCoastTiles(), gen->rand);
-		auto boat = (CGBoat*) VLC->objtypeh->getHandlerFor(Obj::BOAT, 0)->create(ObjectTemplate());
+		coastTile = dst.createShipyard(3500);
+		if(!coastTile.valid())
+		{
+			//TODO: just create a ship
+			auto subObjects = VLC->objtypeh->knownSubObjects(Obj::BOAT);
+			auto* boat = (CGBoat*) VLC->objtypeh->getHandlerFor(Obj::BOAT, *RandomGeneratorUtil::nextItem(subObjects, gen->rand))->create(ObjectTemplate());
+			
+			for(int3 islandTile(-1, -1, -1); !islandTile.valid() || !dst.connectPath(islandTile, false); )
+			{
+				islandTile = {-1, -1, -1};
+				coastTile = *RandomGeneratorUtil::nextItem(dst.getCoastTiles(), gen->rand);
+				if(gen->getZoneID(coastTile)!=id)
+					continue;
+				
+				gen->foreach_neighbour(coastTile, [this, &dst, &islandTile](const int3 & islandTileCandidate)
+									   {
+					if(gen->map->isInTheMap(islandTileCandidate) && gen->getZoneID(islandTileCandidate)==dst.getId() && gen->isPossible(islandTileCandidate))
+						islandTile = islandTileCandidate;
+				});
+			}
+			addObjectAtPosition(boat, coastTile);
+		}
+	}
+	else
+	{
+		auto subObjects = VLC->objtypeh->knownSubObjects(Obj::BOAT);
+		auto* boat = (CGBoat*) VLC->objtypeh->getHandlerFor(Obj::BOAT, *RandomGeneratorUtil::nextItem(subObjects, gen->rand))->create(ObjectTemplate());
+		for(int3 islandTile(-1, -1, -1); !islandTile.valid() || !dst.connectPath(islandTile, false); )
+		{
+			islandTile = {-1, -1, -1};
+			coastTile = *RandomGeneratorUtil::nextItem(dst.getCoastTiles(), gen->rand);
+			if(gen->getZoneID(coastTile)!=id)
+				continue;
+			
+			gen->foreach_neighbour(coastTile, [this, &dst, &islandTile](const int3 & islandTileCandidate)
+			{
+				if(gen->map->isInTheMap(islandTileCandidate) && gen->getZoneID(islandTileCandidate)==dst.getId() && gen->isPossible(islandTileCandidate))
+					islandTile = islandTileCandidate;
+			});
+		}
 		addObjectAtPosition(boat, coastTile);
 	}
 			
@@ -1129,8 +1168,10 @@ void CRmgTemplateZone::addNearbyObject(CGObjectInstance * obj, CGObjectInstance 
 }
 void CRmgTemplateZone::addObjectAtPosition(CGObjectInstance * obj, const int3 & position, si32 strength)
 {
+	closeObjects.push_back(std::make_pair(obj, strength));
+	requestedPositions[obj] = position;
 	//TODO: use strength
-	instantObjects.push_back(std::make_pair(obj, position));
+	//instantObjects.push_back(std::make_pair(obj, position));
 }
 
 void CRmgTemplateZone::addToConnectLater(const int3& src)
@@ -1729,7 +1770,7 @@ bool CRmgTemplateZone::placeMines ()
 	return true;
 }
 
-EObjectPlacingResult::EObjectPlacingResult CRmgTemplateZone::tryToPlaceObjectAndConnectToPath(CGObjectInstance *obj, int3 &pos)
+EObjectPlacingResult::EObjectPlacingResult CRmgTemplateZone::tryToPlaceObjectAndConnectToPath(CGObjectInstance * obj, const int3 & pos)
 {
 	//check if we can find a path around this object. Tiles will be set to "USED" after object is successfully placed.
 	obj->pos = pos;
@@ -1799,14 +1840,15 @@ bool CRmgTemplateZone::createRequiredObjects()
 				return !this->isAccessibleFromSomewhere(obj.first->appearance, tile);
 			});
 
+			auto targetPostion = requestedPositions.find(obj.first)!=requestedPositions.end() ? requestedPositions[obj.first] : pos;
 			// smallest distance to zone center, greatest distance to nearest object
-			auto isCloser = [this, &tilesBlockedByObject](const int3 & lhs, const int3 & rhs) -> bool
+			auto isCloser = [this, &targetPostion, &tilesBlockedByObject](const int3 & lhs, const int3 & rhs) -> bool
 			{
 				float lDist = std::numeric_limits<float>::max();
 				float rDist = std::numeric_limits<float>::max();
 				for(int3 t : tilesBlockedByObject)
 				{
-					t += this->pos;
+					t += targetPostion;
 					lDist = fmin(lDist, static_cast<float>(t.dist2d(lhs)));
 					rDist = fmin(rDist, static_cast<float>(t.dist2d(rhs)));
 				}
@@ -1885,6 +1927,22 @@ bool CRmgTemplateZone::createRequiredObjects()
 			placeObject(obj, pos);
 		}
 	}
+	
+	//create object on specific positions
+	//TODO: implement guards
+	for (const auto &obj : instantObjects)
+	{
+		auto placementPos = obj.second;
+		if(obj.first->ID == Obj::BOAT) //special case, somehow boats are shifted
+			placementPos.x += 1;
+		
+		if (tryToPlaceObjectAndConnectToPath(obj.first, placementPos) == EObjectPlacingResult::SUCCESS)
+		{
+			//paths to required objects constitute main paths of zone. otherwise they just may lead to middle and create dead zones
+			placeObject(obj.first, placementPos);
+			//TODO: guardObject(...)
+		}
+	}
 
 	requiredObjects.clear();
 	closeObjects.clear();
@@ -1911,7 +1969,8 @@ int3 CRmgTemplateZone::createShipyard(si32 guardStrength)
 
 bool CRmgTemplateZone::createShipyard(const int3 & position, si32 guardStrength)
 {
-	auto shipyard = (CGShipyard*) VLC->objtypeh->getHandlerFor(Obj::SHIPYARD, 0)->create(ObjectTemplate());
+	auto subObjects = VLC->objtypeh->knownSubObjects(Obj::SHIPYARD);
+	auto shipyard = (CGShipyard*) VLC->objtypeh->getHandlerFor(Obj::SHIPYARD, *RandomGeneratorUtil::nextItem(subObjects, gen->rand))->create(ObjectTemplate());
 	shipyard->tempOwner = PlayerColor::NEUTRAL;
 	
 	setTemplateForObject(shipyard);

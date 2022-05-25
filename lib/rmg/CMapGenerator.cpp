@@ -317,13 +317,13 @@ void CMapGenerator::createWaterTreasures()
 	getZoneWater().second->addTreasureInfo(CTreasureInfo{1000, 3000, 9});
 	getZoneWater().second->addTreasureInfo(CTreasureInfo{5000, 10000, 1});
 	if(waterTreasure > 1000)
-		getZoneWater().second->addTreasureInfo(CTreasureInfo{2000, 4000, 2});
+		getZoneWater().second->addTreasureInfo(CTreasureInfo{2000, 6000, 2});
 	if(waterTreasure > 2500)
-		getZoneWater().second->addTreasureInfo(CTreasureInfo{4000, 7000, 2});
+		getZoneWater().second->addTreasureInfo(CTreasureInfo{2000, 6000, 2});
 	if(waterTreasure > 3600)
-		getZoneWater().second->addTreasureInfo(CTreasureInfo{7000, 9000, 3});
+		getZoneWater().second->addTreasureInfo(CTreasureInfo{2000, 6000, 3});
 	if(waterTreasure > 6400)
-		getZoneWater().second->addTreasureInfo(CTreasureInfo{9000, waterTreasure*2, 4});
+		getZoneWater().second->addTreasureInfo(CTreasureInfo{2000, waterTreasure, 4});
 }
 
 void CMapGenerator::prepareWaterTiles()

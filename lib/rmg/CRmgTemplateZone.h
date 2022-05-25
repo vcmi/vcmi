@@ -125,7 +125,7 @@ public:
 	void createBorder();
 	void fractalize();
 	void connectLater();
-	EObjectPlacingResult::EObjectPlacingResult tryToPlaceObjectAndConnectToPath(CGObjectInstance *obj, int3 &pos); //return true if the position cna be connected
+	EObjectPlacingResult::EObjectPlacingResult tryToPlaceObjectAndConnectToPath(CGObjectInstance * obj, const int3 & pos); //return true if the position can be connected
 	bool createRequiredObjects();
 	bool createShipyard(const int3& pos, si32 guardStrength=0);
 	int3 createShipyard(si32 guardStrength=0);
@@ -187,6 +187,7 @@ private:
 	std::vector<std::pair<CGObjectInstance*, int3>> instantObjects;
 	std::vector<std::pair<CGObjectInstance*, CGObjectInstance*>> nearbyObjects;
 	std::vector<CGObjectInstance*> objects;
+	std::map<CGObjectInstance*, int3> requestedPositions;
 
 	//placement info
 	int3 pos;
