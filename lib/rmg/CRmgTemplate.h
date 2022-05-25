@@ -180,6 +180,7 @@ public:
 	~CRmgTemplate();
 
 	bool matchesSize(const int3 & value) const;
+	bool isWaterContentAllowed(EWaterContent::EWaterContent waterContent) const;
 
 	void setId(const std::string & value);
 	const std::string & getName() const;
@@ -200,6 +201,7 @@ private:
 	CPlayerCountRange players, cpuPlayers;
 	Zones zones;
 	std::vector<rmg::ZoneConnection> connections;
+	std::set<EWaterContent::EWaterContent> allowedWaterContent;
 
 	void afterLoad();
 	void serializeSize(JsonSerializeFormat & handler, int3 & value, const std::string & fieldName);

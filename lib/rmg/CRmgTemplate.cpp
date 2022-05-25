@@ -438,6 +438,11 @@ bool CRmgTemplate::matchesSize(const int3 & value) const
 	return minSquare <= square && square <= maxSquare;
 }
 
+bool CRmgTemplate::isWaterContentAllowed(EWaterContent::EWaterContent waterContent) const
+{
+	return waterContent == EWaterContent::EWaterContent::RANDOM || allowedWaterContent.count(waterContent);
+}
+
 void CRmgTemplate::setId(const std::string & value)
 {
 	id = value;
@@ -640,6 +645,14 @@ void CRmgTemplate::afterLoad()
 		zone1->addConnection(id2);
 		zone2->addConnection(id1);
 	}
+	
+	if(allowedWaterContent.empty() || allowedWaterContent.count(EWaterContent::EWaterContent::RANDOM))
+	{
+		allowedWaterContent.insert(EWaterContent::EWaterContent::NONE);
+		allowedWaterContent.insert(EWaterContent::EWaterContent::NORMAL);
+		allowedWaterContent.insert(EWaterContent::EWaterContent::ISLANDS);
+	}
+	allowedWaterContent.erase(EWaterContent::EWaterContent::RANDOM);
 }
 
 void CRmgTemplate::serializeSize(JsonSerializeFormat & handler, int3 & value, const std::string & fieldName)
