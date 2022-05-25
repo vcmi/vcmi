@@ -375,6 +375,10 @@ void CMapGenerator::fillZones()
 	
 	createConnections2(); //subterranean gates and monoliths
 	
+	createWaterTreasures();
+	zoneWater.second->initFreeTiles();
+	zoneWater.second->fill();
+	
 	std::vector<std::shared_ptr<CRmgTemplateZone>> treasureZones;
     for (auto it : zones)
 	{
@@ -382,10 +386,6 @@ void CMapGenerator::fillZones()
 		if (it.second->getType() == ETemplateZoneType::TREASURE)
 			treasureZones.push_back(it.second);
 	}
-	
-	createWaterTreasures();
-	zoneWater.second->initFreeTiles();
-	zoneWater.second->fill();
 	
 	dump(false);
 	
