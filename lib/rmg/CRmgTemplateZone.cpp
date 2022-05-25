@@ -453,7 +453,7 @@ void CRmgTemplateZone::createWater(EWaterContent::EWaterContent waterContent, bo
 			continue;
 		
 		int groundCoastNum = 0;
-		gen->foreach_neighbour(tile, [this, &waterTiles, &groundCoastNum](const int3 & t)
+		gen->foreachDirectNeighbour(tile, [this, &waterTiles, &groundCoastNum](const int3 & t)
 		{
 			if(waterTiles.find(t) == waterTiles.end() && tileinfo.find(t) != tileinfo.end()) //for ground tiles of same zone
 			{
@@ -461,7 +461,7 @@ void CRmgTemplateZone::createWater(EWaterContent::EWaterContent waterContent, bo
 			}
 		});
 		
-		if(groundCoastNum >= 5)
+		if(groundCoastNum >= 3)
 		{
 			waterTiles.erase(tile);
 		}
@@ -478,6 +478,10 @@ void CRmgTemplateZone::createWater(EWaterContent::EWaterContent waterContent, bo
 	vstd::erase_if(waterTiles, [this](const int3 & tile)
 	{
 		return tileinfo.find(tile) == tileinfo.end();
+	});
+	vstd::erase_if(coastTiles, [&waterTiles](const int3 & tile)
+				   {
+		return waterTiles.find(tile) == waterTiles.end();
 	});
 	
 	{
@@ -528,63 +532,39 @@ void CRmgTemplateZone::waterConnection(CRmgTemplateZone& dst)
 	if(isUnderground() || dst.getCoastTiles().empty())
 		return;
 	
-	
-	auto cleanupLambda = [this](const int3 & t)
+	auto coastTile = dst.createShipyard(3500);
+	if(!coastTile.valid())
 	{
-		addFreePath(t);
-		gen->foreach_neighbour(t, [this](const int3 & tt)
-		{
-			gen->setOccupied(tt, ETileType::FREE);
-			/*gen->foreachDirectNeighbour(tt, [this](const int3 & ttt)
-			{
-				if(gen->shouldBeBlocked(ttt))
-					gen->setOccupied(ttt, ETileType::POSSIBLE);
-			});*/
-		});
-	};
-	
-	//set boarding tiles
-	int randomAttemps = 5;
-	bool foundPath = false;
-	int3 resTile;
-	for(auto tileIter = dst.getCoastTiles().begin(); tileIter != dst.getCoastTiles().end(); ++tileIter)
-	{
-		resTile = *tileIter;
-		if(randomAttemps-- > 0)
-		{
-			resTile = *RandomGeneratorUtil::nextItem(dst.getCoastTiles(), gen->rand);
-			tileIter = dst.getCoastTiles().begin();
-		}
-		
-		if(freePaths.empty())
-		{
-			setPos(resTile);
-			//cleanupLambda(resTile);
-			addFreePath(resTile);
-			foundPath = true;
-			break;
-		}
-		
-		if(connectPath(resTile, false))
-		{
-			//cleanupLambda(resTile);
-			addFreePath(resTile);
-			foundPath = true;
-			break;
-		}
+		//just create a ship
+		coastTile = *RandomGeneratorUtil::nextItem(dst.getCoastTiles(), gen->rand);
+		auto boat = (CGBoat*) VLC->objtypeh->getHandlerFor(Obj::BOAT, 0)->create(ObjectTemplate());
+		addObjectAtPosition(boat, coastTile);
 	}
-	if(!foundPath)
+			
+	if(freePaths.empty())
 	{
-		resTile = *RandomGeneratorUtil::nextItem(dst.getCoastTiles(), gen->rand);
-		setPos(resTile);
-		//cleanupLambda(resTile);
-		addFreePath(resTile);
+		setPos(coastTile);
+		addFreePath(coastTile);
+	}
+		
+	if(connectPath(coastTile, true))
+	{
+		addFreePath(coastTile);
+	}
+	else
+	{
+		logGlobal->error("Cannot build water route for zone %d", dst.getId());
 	}
 	
-	auto shipyard = (CGShipyard*) VLC->objtypeh->getHandlerFor(Obj::SHIPYARD, 0)->create(ObjectTemplate());
-	shipyard->tempOwner = PlayerColor::NEUTRAL;
-	dst.addPositionObject(shipyard, resTile, 3500);
-	
+	//block other coast tiles
+	for(auto & tile : getCoastTiles())
+	{
+		if(tile == coastTile)
+			continue;
+		
+		if(gen->isPossible(tile))
+			gen->setOccupied(tile, ETileType::BLOCKED);
+	}
 }
 
 const std::set<int3>& CRmgTemplateZone::getCoastTiles() const
@@ -612,9 +592,7 @@ void CRmgTemplateZone::fractalize()
 
 	for (auto tile : tileinfo)
 	{
-		if (gen->isFree(tile))
-			clearedTiles.push_back(tile);
-		else if (gen->isPossible(tile))
+		if (gen->isPossible(tile))
 			possibleTiles.insert(tile);
 	}
 	assert (clearedTiles.size()); //this should come from zone connections
@@ -625,7 +603,7 @@ void CRmgTemplateZone::fractalize()
 	{
 		//junction is not fractalized, has only one straight path
 		//everything else remains blocked
-		while (possibleTiles.size())
+		while (!possibleTiles.empty())
 		{
 			//link tiles in random order
 			std::vector<int3> tilesToMakePath(possibleTiles.begin(), possibleTiles.end());
@@ -679,28 +657,29 @@ void CRmgTemplateZone::fractalize()
 	//cut straight paths towards the center. A* is too slow for that.
 	for (auto node : nodes)
 	{
-		boost::sort(nodes, [&node](const int3& ourNode, const int3& otherNode) -> bool
+		auto subnodes = nodes;
+		boost::sort(subnodes, [&node](const int3& ourNode, const int3& otherNode) -> bool
 		{
 			return node.dist2dSQ(ourNode) < node.dist2dSQ(otherNode);
-		}
-		);
+		});
 
 		std::vector <int3> nearbyNodes;
-		if (nodes.size() >= 2)
+		if (subnodes.size() >= 2)
 		{
-			nearbyNodes.push_back(nodes[1]); //node[0] is our node we want to connect
+			nearbyNodes.push_back(subnodes[1]); //node[0] is our node we want to connect
 		}
-		if (nodes.size() >= 3)
+		if (subnodes.size() >= 3)
 		{
-			nearbyNodes.push_back(nodes[2]);
+			nearbyNodes.push_back(subnodes[2]);
 		}
 
 		//connect with all the paths
+		//connectPath(node, true);
 		crunchPath(node, findClosestTile(freePaths, node), true, &freePaths);
 		//connect with nearby nodes
 		for (auto nearbyNode : nearbyNodes)
 		{
-			crunchPath(node, nearbyNode, true, &freePaths);
+			crunchPath(node, nearbyNode, true, &freePaths); //do not allow to make another path network
 		}
 	}
 	for (auto node : nodes)
@@ -713,6 +692,9 @@ void CRmgTemplateZone::fractalize()
 	for (auto tile : tileinfo)
 	{
 		if (!gen->isPossible(tile))
+			continue;
+		
+		if(freePaths.count(tile))
 			continue;
 
 		bool closeTileFound = false;
@@ -1049,7 +1031,8 @@ bool CRmgTemplateZone::connectPath(const int3& src, bool onlyStraight)
 	}
 	for (auto tile : closed) //these tiles are sealed off and can't be connected anymore
 	{
-		gen->setOccupied (tile, ETileType::BLOCKED);
+		if(gen->isPossible(tile))
+			gen->setOccupied (tile, ETileType::BLOCKED);
 		vstd::erase_if_present(possibleTiles, tile);
 	}
 	return false;
@@ -1144,11 +1127,10 @@ void CRmgTemplateZone::addNearbyObject(CGObjectInstance * obj, CGObjectInstance 
 {
 	nearbyObjects.push_back(std::make_pair(obj, nearbyTarget));
 }
-void CRmgTemplateZone::addPositionObject(CGObjectInstance * obj, const int3 & position, si32 strength)
+void CRmgTemplateZone::addObjectAtPosition(CGObjectInstance * obj, const int3 & position, si32 strength)
 {
-	closeObjects.push_back(std::make_pair(obj, strength));
-	requestedPositions[obj] = position;
-	cleanupPosition[obj] = true;
+	//TODO: use strength
+	instantObjects.push_back(std::make_pair(obj, position));
 }
 
 void CRmgTemplateZone::addToConnectLater(const int3& src)
@@ -1369,7 +1351,7 @@ bool CRmgTemplateZone::createTreasurePile(int3 &pos, float minDistance, const CT
 
 		for (auto tile : info.occupiedPositions)
 		{
-			if (gen->map->isInTheMap(tile)) //pile boundary may reach map border
+			if (gen->map->isInTheMap(tile) && gen->isPossible(tile)) //pile boundary may reach map border
 				gen->setOccupied(tile, ETileType::BLOCKED); //so that crunch path doesn't cut through objects
 		}
 
@@ -1433,9 +1415,9 @@ bool CRmgTemplateZone::createTreasurePile(int3 &pos, float minDistance, const CT
 			}
 			else //mo monster in this pile, make some free space (needed?)
 			{
-				for (auto tile : boundary)
-					if (gen->isPossible(tile))
-						gen->setOccupied(tile, ETileType::FREE);
+				//for (auto tile : boundary)
+					//if (gen->isPossible(tile))
+						//gen->setOccupied(tile, ETileType::FREE);
 			}
 		}
 		else if (isPileGuarded)//we couldn't make a connection to this location, block it
@@ -1453,7 +1435,8 @@ bool CRmgTemplateZone::createTreasurePile(int3 &pos, float minDistance, const CT
 	}
 	else //we did not place eveyrthing successfully
 	{
-		gen->setOccupied(pos, ETileType::BLOCKED); //TODO: refactor stop condition
+		if(gen->isPossible(pos))
+			gen->setOccupied(pos, ETileType::BLOCKED); //TODO: refactor stop condition
 		vstd::erase_if_present(possibleTiles, pos);
 		return false;
 	}
@@ -1816,15 +1799,14 @@ bool CRmgTemplateZone::createRequiredObjects()
 				return !this->isAccessibleFromSomewhere(obj.first->appearance, tile);
 			});
 
-			auto targetPostion = requestedPositions.find(obj.first)!=requestedPositions.end() ? requestedPositions[obj.first] : pos;
 			// smallest distance to zone center, greatest distance to nearest object
-			auto isCloser = [this, &targetPostion, &tilesBlockedByObject](const int3 & lhs, const int3 & rhs) -> bool
+			auto isCloser = [this, &tilesBlockedByObject](const int3 & lhs, const int3 & rhs) -> bool
 			{
 				float lDist = std::numeric_limits<float>::max();
 				float rDist = std::numeric_limits<float>::max();
 				for(int3 t : tilesBlockedByObject)
 				{
-					t += targetPostion;
+					t += this->pos;
 					lDist = fmin(lDist, static_cast<float>(t.dist2d(lhs)));
 					rDist = fmin(rDist, static_cast<float>(t.dist2d(rhs)));
 				}
@@ -1858,20 +1840,6 @@ bool CRmgTemplateZone::createRequiredObjects()
 					placeObject(obj.first, tile);
 					guardObject(obj.first, obj.second, (obj.first->ID == Obj::MONOLITH_TWO_WAY), true);
 					finished = true;
-					
-					//cleanup position
-					if(cleanupPosition[obj.first])
-					{
-						for (auto blockedTile : tilesBlockedByObject)
-						{
-							gen->foreach_neighbour(blockedTile+tile, [this](int3 pos)
-							{
-								if(gen->isPossible(pos))
-									gen->setOccupied(pos, ETileType::FREE);
-							});
-						}
-					}
-					
 					break;
 				}
 				else if (result == EObjectPlacingResult::CANNOT_FIT)
@@ -1922,6 +1890,118 @@ bool CRmgTemplateZone::createRequiredObjects()
 	closeObjects.clear();
 	nearbyObjects.clear();
 	return true;
+}
+
+int3 CRmgTemplateZone::createShipyard(si32 guardStrength)
+{
+	for(int randomAttempts = 0; randomAttempts<5; ++randomAttempts)
+	{
+		auto coastTile = *RandomGeneratorUtil::nextItem(getCoastTiles(), gen->rand);
+		if(gen->getZoneID(coastTile)==gen->getZoneWater().first && createShipyard(coastTile, guardStrength))
+			return coastTile;
+	}
+	//if no success on random selection, use brute force
+	for(const auto& coastTile : getCoastTiles())
+	{
+		if(gen->getZoneID(coastTile)==gen->getZoneWater().first && createShipyard(coastTile, guardStrength))
+			return coastTile;
+	}
+	return int3(-1,-1,-1);
+}
+
+bool CRmgTemplateZone::createShipyard(const int3 & position, si32 guardStrength)
+{
+	auto shipyard = (CGShipyard*) VLC->objtypeh->getHandlerFor(Obj::SHIPYARD, 0)->create(ObjectTemplate());
+	shipyard->tempOwner = PlayerColor::NEUTRAL;
+	
+	setTemplateForObject(shipyard);
+	std::vector<int3> offsets;
+	auto tilesBlockedByObject = shipyard->getBlockedOffsets();
+	tilesBlockedByObject.insert(shipyard->getVisitableOffset());
+	shipyard->getOutOffsets(offsets);
+	
+	int3 targetTile(-1, -1, -1);
+	std::set<int3> shipAccessCandidates;
+	
+	for(auto& candidateTile : possibleTiles)
+	{
+		bool foundTargetPosition = false;
+		for(const auto & offset : offsets)
+		{
+			if(candidateTile+offset == position)
+			{
+				std::set<int3> tilesBlockedAbsolute;
+				//check space under object
+				bool allClear = true;
+				for(const auto & objectTileOffset : tilesBlockedByObject)
+				{
+					auto objectTile = candidateTile + objectTileOffset;
+					tilesBlockedAbsolute.insert(objectTile);
+					if(!gen->map->isInTheMap(objectTile) || !gen->isPossible(objectTile) || gen->getZoneID(objectTile)!=id)
+					{
+						allClear = false;
+						break;
+					}
+				}
+				if(!allClear) //cannot place shipyard anyway
+					break;
+				
+				//prepare temporary map
+				for(auto& blockedPos : tilesBlockedAbsolute)
+					gen->setOccupied(blockedPos, ETileType::USED);
+				
+				//check if position is accessible
+				gen->foreach_neighbour(position, [this, &shipAccessCandidates](const int3 & v)
+				{
+					if(gen->map->isInTheMap(v) && !gen->isBlocked(v) && gen->getZoneID(v)==id)
+					{
+						//make sure that it's possible to create path to boarding position
+						if(crunchPath(v, findClosestTile(freePaths, v), false, nullptr))
+							shipAccessCandidates.insert(v);
+					}
+				});
+				
+				//rollback temporary map
+				for(auto& blockedPos : tilesBlockedAbsolute)
+					gen->setOccupied(blockedPos, ETileType::POSSIBLE);
+				
+				if(!shipAccessCandidates.empty())
+				{
+					foundTargetPosition = true;
+				}
+				
+				break; //no need to check other offsets as we already found position
+			}
+		}
+		
+		if(foundTargetPosition && isAccessibleFromSomewhere(shipyard->appearance, candidateTile))
+		{
+			targetTile = candidateTile;
+			break;
+		}
+		
+		shipAccessCandidates.clear(); //invalidate positions
+	}
+	
+	if(!targetTile.valid())
+	{
+		delete shipyard;
+		return false;
+	}
+	
+	placeObject(shipyard, targetTile);
+	guardObject(shipyard, guardStrength, false, true);
+	
+	for(auto& accessPosition : shipAccessCandidates)
+	{
+		if(connectPath(accessPosition, false))
+		{
+			gen->setOccupied(accessPosition, ETileType::FREE);
+			return true;
+		}
+	}
+	
+	throw rmgException("Cannot find path to shipyard boarding position");
 }
 
 void CRmgTemplateZone::createTreasures()
@@ -2062,8 +2142,8 @@ void CRmgTemplateZone::createObstacles2()
 	//reverse order, since obstacles begin in bottom-right corner, while the map coordinates begin in top-left
 	for (auto tile : boost::adaptors::reverse(tileinfo))
 	{
-		//fill tiles that should be blocked with obstacles or are just possible (with some probability)
-		if (gen->shouldBeBlocked(tile) || (gen->isPossible(tile) && gen->rand.nextInt(1,100) < 60))
+		//fill tiles that should be blocked with obstacles
+		if (gen->shouldBeBlocked(tile))
 		{
 			//start from biggets obstacles
 			for (int i = 0; i < possibleObstacles.size(); i++)
@@ -2153,20 +2233,22 @@ bool CRmgTemplateZone::fill()
 	{
 		initFreeTiles();
 		connectLater();
-		fractalize();
+		createRequiredObjects();
+		createTreasures();
+		//fractalize();
 	}
 	else
 	{
 		//zone center should be always clear to allow other tiles to connect
 		initFreeTiles();
 		connectLater(); //ideally this should work after fractalize, but fails
-		createRequiredObjects();
 		fractalize();
 		placeMines();
 		createRequiredObjects();
+		createTreasures();
 	}
 	
-	createTreasures();
+	gen->dump(false);
 
 	logGlobal->info("Zone %d filled successfully", id);
 	return true;
@@ -2227,12 +2309,12 @@ bool CRmgTemplateZone::canObstacleBePlacedHere(ObjectTemplate &temp, int3 &pos)
 	return true;
 }
 
-bool CRmgTemplateZone::isAccessibleFromSomewhere (ObjectTemplate &appearance,  int3 &tile) const
+bool CRmgTemplateZone::isAccessibleFromSomewhere(ObjectTemplate & appearance, const int3 & tile) const
 {
 	return getAccessibleOffset(appearance, tile).valid();
 }
 
-int3 CRmgTemplateZone::getAccessibleOffset(ObjectTemplate &appearance, int3 &tile) const
+int3 CRmgTemplateZone::getAccessibleOffset(ObjectTemplate & appearance, const int3 & tile) const
 {
 	auto tilesBlockedByObject = appearance.getBlockedOffsets();
 
@@ -2461,7 +2543,7 @@ bool CRmgTemplateZone::guardObject(CGObjectInstance* object, si32 str, bool zone
 	{
 		for (auto pos : tiles)
 		{
-			if (!gen->isFree(pos))
+			if (gen->isPossible(pos))
 				gen->setOccupied(pos, ETileType::BLOCKED);
 		}
 		gen->foreach_neighbour (guardTile, [&](int3& pos)

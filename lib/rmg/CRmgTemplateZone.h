@@ -98,10 +98,10 @@ public:
 	void setCenter(const float3 &f);
 	int3 getPos() const;
 	void setPos(const int3 &pos);
-	bool isAccessibleFromSomewhere(ObjectTemplate &appearance, int3 &tile) const;
-	int3 getAccessibleOffset(ObjectTemplate &appearance, int3 &tile) const;
+	bool isAccessibleFromSomewhere(ObjectTemplate & appearance, const int3 & tile) const;
+	int3 getAccessibleOffset(ObjectTemplate & appearance, const int3 & tile) const;
 
-	void addTile (const int3 &pos);
+	void addTile (const int3 & pos);
 	void removeTile(const int3 & pos);
 	void initFreeTiles ();
 	std::set<int3> getTileInfo() const;
@@ -112,7 +112,7 @@ public:
 	void addRequiredObject(CGObjectInstance * obj, si32 guardStrength=0);
 	void addCloseObject(CGObjectInstance * obj, si32 guardStrength = 0);
 	void addNearbyObject(CGObjectInstance * obj, CGObjectInstance * nearbyTarget);
-	void addPositionObject(CGObjectInstance * obj, const int3 & position, si32 guardStrength=0);
+	void addObjectAtPosition(CGObjectInstance * obj, const int3 & position, si32 guardStrength=0);
 	void addToConnectLater(const int3& src);
 	bool addMonster(int3 &pos, si32 strength, bool clearSurroundingTiles = true, bool zoneGuard = false);
 	bool createTreasurePile(int3 &pos, float minDistance, const CTreasureInfo& treasureInfo);
@@ -127,6 +127,8 @@ public:
 	void connectLater();
 	EObjectPlacingResult::EObjectPlacingResult tryToPlaceObjectAndConnectToPath(CGObjectInstance *obj, int3 &pos); //return true if the position cna be connected
 	bool createRequiredObjects();
+	bool createShipyard(const int3& pos, si32 guardStrength=0);
+	int3 createShipyard(si32 guardStrength=0);
 	void createTreasures();
 	
 	void createWater(EWaterContent::EWaterContent waterContent, bool debug=false);
@@ -182,10 +184,9 @@ private:
 	//content info
 	std::vector<std::pair<CGObjectInstance*, ui32>> requiredObjects;
 	std::vector<std::pair<CGObjectInstance*, ui32>> closeObjects;
+	std::vector<std::pair<CGObjectInstance*, int3>> instantObjects;
 	std::vector<std::pair<CGObjectInstance*, CGObjectInstance*>> nearbyObjects;
 	std::vector<CGObjectInstance*> objects;
-	std::map<CGObjectInstance*, int3> requestedPositions;
-	std::map<CGObjectInstance*, bool> cleanupPosition;
 
 	//placement info
 	int3 pos;
