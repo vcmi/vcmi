@@ -357,9 +357,29 @@ void CMapGenerator::fillZones()
 	dump(false);
 	for (auto it : zones)
 	{
-		it.second->createWater(getMapGenOptions().getWaterContent());
+		try
+		{
+			it.second->createWater(getMapGenOptions().getWaterContent());
+		}
+		catch (rmgException &e)
+		{
+			dump(false);
+			logGlobal->error("createWater exception: %s", e.what());
+			throw;
+		}
 	}
-	zoneWater.second->waterInitFreeTiles();
+	
+	try
+	{
+		zoneWater.second->waterInitFreeTiles();
+	}
+	catch (rmgException &e)
+	{
+		dump(false);
+		logGlobal->error("waterInitFreeTiles exception: %s", e.what());
+		throw;
+	}
+	
 	dump(false);
 	//TODO: connections may lay on water in NORMAL mode
 	createDirectConnections(); //direct
@@ -378,7 +398,15 @@ void CMapGenerator::fillZones()
 	
 	createWaterTreasures();
 	zoneWater.second->initFreeTiles();
-	zoneWater.second->fill();
+	try
+	{
+		zoneWater.second->fill();
+	}
+	catch (rmgException &e)
+	{
+		dump(false);
+		logGlobal->error("Water fill: %s", e.what());
+	}
 	
 	dump(false);
 	

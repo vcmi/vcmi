@@ -461,24 +461,34 @@ void CRmgTemplateZone::createWater(EWaterContent::EWaterContent waterContent, bo
 		if(waterTiles.find(tile) == waterTiles.end()) //for ground tiles
 			continue;
 		
-		int groundCoastNum = 0;
-		gen->foreachDirectNeighbour(tile, [this, &waterTiles, &groundCoastNum](const int3 & t)
+		std::vector<int3> groundCoast;
+		gen->foreachDirectNeighbour(tile, [this, &waterTiles, &groundCoast](const int3 & t)
 		{
 			if(waterTiles.find(t) == waterTiles.end() && tileinfo.find(t) != tileinfo.end()) //for ground tiles of same zone
 			{
-				groundCoastNum++;
+				groundCoast.push_back(t);
 			}
 		});
 		
-		if(groundCoastNum >= 3)
+		if(groundCoast.size() >= 3)
 		{
 			waterTiles.erase(tile);
 		}
 		else
 		{
-			if(groundCoastNum > 0)
+			if(groundCoast.size() == 2)
 			{
-				coastTiles.insert(tile);
+				if(groundCoast[0]+groundCoast[1] == int3())
+				{
+					waterTiles.erase(tile);
+				}
+			}
+			else
+			{
+				if(!groundCoast.empty())
+				{
+					coastTiles.insert(tile);
+				}
 			}
 		}
 	}
@@ -769,7 +779,7 @@ bool CRmgTemplateZone::isWaterConnected(TRmgTemplateZoneId zone, const int3 & ti
 	if(lakeId == 0)
 		return false;
 	
-	return gen->getZoneWater().second->lakes.at(lakeId-1).keepConnections.count(zone);
+	return gen->getZoneWater().second->lakes.at(lakeId-1).connectedZones.count(zone) && gen->getZoneWater().second->lakes.at(lakeId-1).keepConnections.count(zone);
 }
 
 void CRmgTemplateZone::fractalize()
