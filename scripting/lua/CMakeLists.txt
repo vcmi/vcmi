@@ -40,7 +40,7 @@ set(lib_SRCS
 )
 
 add_library(vcmiLua SHARED ${lib_SRCS})
-target_link_libraries(vcmiLua ${Boost_LIBRARIES} ${LUA_LIBRARY} vcmi)
+target_link_libraries(vcmiLua Boost::boost luajit::luajit vcmi)
 
 vcmi_set_output_dir(vcmiLua "scripting")
 

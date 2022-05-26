@@ -74,11 +74,7 @@ if(WIN32)
 	
 	#TODO: check if some equivalent of block below can be used for above block (easy qt dependencies copy)
 	if(ENABLE_LUA)
-		if(EXISTS ${LUA_INCLUDE_DIR}/../../bin/lua51.dll)
-			install(CODE "
-				file(COPY ${LUA_INCLUDE_DIR}/../../bin/lua51.dll DESTINATION \${CMAKE_INSTALL_PREFIX})
-			")
-		endif()
+		install_vcpkg_imported_tgt(luajit::luajit)
 	endif()
 
 	#LuaJIT will not be copied automatically by not meeting criteria for this block of code
