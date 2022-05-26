@@ -63,13 +63,11 @@ endif()
 # to always look for includes there:
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-if("${CMAKE_VERSION}" VERSION_LESS 2.8.12)
-	# Executables fail to build with Qt 5 in the default configuration
-	# without -fPIE. We add that here.
-	set(CMAKE_CXX_FLAGS "${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS} ${CMAKE_CXX_FLAGS}")
+if(TARGET Qt6::Core)
+	qt_wrap_ui(launcher_UI_HEADERS ${launcher_FORMS})
+else()
+	qt5_wrap_ui(launcher_UI_HEADERS ${launcher_FORMS})
 endif()
-
-qt5_wrap_ui(launcher_UI_HEADERS ${launcher_FORMS})
 
 if(WIN32)
 	set(launcher_ICON VCMI_launcher.rc)
@@ -90,7 +88,7 @@ if(WIN32)
 	# - cmake_policy in all possible places
 	# - used NO_POLICY_SCOPE to make sure no other parts reset policies
 	# Still nothing worked, warning kept appearing and WinMain didn't link automatically
-	target_link_libraries(vcmilauncher Qt5::WinMain)
+	target_link_libraries(vcmilauncher Qt${QT_VERSION_MAJOR}::WinMain)
 endif()
 
 if(APPLE)
@@ -98,7 +96,7 @@ if(APPLE)
 	set_property(GLOBAL PROPERTY AUTOGEN_TARGETS_FOLDER vcmilauncher)
 endif()
 
-target_link_libraries(vcmilauncher vcmi Qt5::Widgets Qt5::Network)
+target_link_libraries(vcmilauncher vcmi Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network)
 target_include_directories(vcmilauncher
 	PUBLIC	${CMAKE_CURRENT_SOURCE_DIR}
 )
