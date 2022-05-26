@@ -113,6 +113,7 @@ public:
 	void addCloseObject(CGObjectInstance * obj, si32 guardStrength = 0);
 	void addNearbyObject(CGObjectInstance * obj, CGObjectInstance * nearbyTarget);
 	void addObjectAtPosition(CGObjectInstance * obj, const int3 & position, si32 guardStrength=0);
+
 	void addToConnectLater(const int3& src);
 	bool addMonster(int3 &pos, si32 strength, bool clearSurroundingTiles = true, bool zoneGuard = false);
 	bool createTreasurePile(int3 &pos, float minDistance, const CTreasureInfo& treasureInfo);
