@@ -15,8 +15,6 @@
 #include "../mapping/CMap.h"
 #include "../mapping/CMapEditManager.h"
 
-#include "CZoneGraphGenerator.h"
-
 class CRandomGenerator;
 
 CZonePlacer::CZonePlacer(CMapGenerator * Gen)

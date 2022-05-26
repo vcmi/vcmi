@@ -134,7 +134,9 @@ public:
 	void createTreasures();
 	
 	void createWater(EWaterContent::EWaterContent waterContent, bool debug=false);
+	void waterInitFreeTiles();
 	void waterConnection(CRmgTemplateZone& dst);
+	bool waterKeepConnection(TRmgTemplateZoneId zoneA, TRmgTemplateZoneId zoneB);
 	const std::set<int3>& getCoastTiles() const;
 	//void computeCoastTiles();
 	
@@ -142,7 +144,7 @@ public:
 	void createObstacles2();
 	bool crunchPath(const int3 &src, const int3 &dst, bool onlyStraight, std::set<int3>* clearedTiles = nullptr);
 	bool connectPath(const int3& src, bool onlyStraight);
-	bool connectWithCenter(const int3& src, bool onlyStraight);
+	bool connectWithCenter(const int3& src, bool onlyStraight, bool passTroughBlocked = false);
 	void updateDistances(const int3 & pos);
 
 	std::vector<int3> getAccessibleOffsets (const CGObjectInstance* object);
@@ -173,9 +175,20 @@ public:
 	boost::heap::priority_queue<TDistance, boost::heap::compare<NodeComparer>> createPriorityQueue();
 
 private:
+	
+	//subclass to store disconnected parts of water zone
+	struct Lake
+	{
+		std::set<int3> tiles;
+		std::set<int3> coast;
+		std::map<int3, int> distance;
+		std::set<TRmgTemplateZoneId> connectedZones;
+		std::set<TRmgTemplateZoneId> keepConnections;
+	};
+	
 	CMapGenerator * gen;
+	
 	//template info
-
 	si32 townType;
 	ETerrainType terrainType;
 	std::weak_ptr<CRmgTemplateZone> questArtZone; //artifacts required for Seer Huts will be placed here - or not if null
@@ -202,8 +215,9 @@ private:
 	std::set<int3> roadNodes; //tiles to be connected with roads
 	std::set<int3> roads; //all tiles with roads
 	std::set<int3> tilesToConnectLater; //will be connected after paths are fractalized
+	std::vector<Lake> lakes; //disconnected parts of zone. Used to work with water zones
+	std::map<int3, int> lakeMap; //map tile on lakeId which is position of lake in lakes array +1
 	
-
 	bool createRoad(const int3 &src, const int3 &dst);
 	void drawRoads(); //actually updates tiles
 

@@ -295,6 +295,9 @@ void CRmgTemplateZone::createWater(EWaterContent::EWaterContent waterContent, bo
 	//lambda for increasing distance of negihbour tiles
 	auto coastSearch = [this, &tilesDist, &tilesChecked, &coastTilesMap, &tilesQueue](const int3 & src, const int3 & dst)
 	{
+		if(!gen->map->isInTheMap(dst))
+			return;
+		
 		if(tilesChecked.find(dst)!=tilesChecked.end())
 			return;
 		
@@ -315,21 +318,10 @@ void CRmgTemplateZone::createWater(EWaterContent::EWaterContent waterContent, bo
 		gen->foreachDirectNeighbour(tile, std::bind(coastSearch, tile, std::placeholders::_1));
 	}
 	
-	//lambda which finds all neighbour tiles need to became water
-	auto coastPlacer = [&tilesDist, &tilesChecked, &tilesQueue](const int3 & src, const int3 & dst)
+#ifdef _DEBUG
 	{
-		if(tilesChecked.find(dst)!=tilesChecked.end())
-			return;
-		
-		if(tilesDist[dst] > 0 && tilesDist[src]-tilesDist[dst] == 1)
-		{
-			tilesQueue.push_back(dst);
-			tilesChecked.insert(dst);
-		}
-	};
-	
-	{
-		std::ofstream out("water_dist.txt");
+		static int _distId = 0;
+		std::ofstream out("water_dist"+std::to_string(_distId++)+".txt");
 		int levels = gen->map->twoLevel ? 2 : 1;
 		int width =  gen->map->width;
 		int height = gen->map->height;
@@ -354,7 +346,24 @@ void CRmgTemplateZone::createWater(EWaterContent::EWaterContent waterContent, bo
 		}
 		out << std::endl;
 	}
-
+#endif
+	
+	//lambda which finds all neighbour tiles need to became water
+	auto coastPlacer = [this, &tilesDist, &tilesChecked, &tilesQueue](const int3 & src, const int3 & dst)
+	{
+		if(!gen->map->isInTheMap(dst))
+			return;
+		
+		if(tilesChecked.find(dst)!=tilesChecked.end())
+			return;
+		
+		if(tilesDist[dst] > 0 && tilesDist[src]-tilesDist[dst] == 1)
+		{
+			tilesQueue.push_back(dst);
+			tilesChecked.insert(dst);
+		}
+	};
+	
 	
 	//generating some irregularity of coast
 	int coastIdMax = fmin(sqrt(coastTilesMap.size()), 7.f); //size of coastTilesMap shows the most distant tile from water
@@ -484,8 +493,10 @@ void CRmgTemplateZone::createWater(EWaterContent::EWaterContent waterContent, bo
 		return waterTiles.find(tile) == waterTiles.end();
 	});
 	
+#ifdef _DEBUG
 	{
-		std::ofstream out("water_zone.txt");
+		static int _zoneId = 0;
+		std::ofstream out("water_zone"+std::to_string(_zoneId++)+".txt");
 		int levels = gen->map->twoLevel ? 2 : 1;
 		int width =  gen->map->width;
 		int height = gen->map->height;
@@ -512,6 +523,7 @@ void CRmgTemplateZone::createWater(EWaterContent::EWaterContent waterContent, bo
 		}
 		out << std::endl;
 	}
+#endif
 
 	
 	//transforming waterTiles to actual water
@@ -527,10 +539,182 @@ void CRmgTemplateZone::createWater(EWaterContent::EWaterContent waterContent, bo
 	gen->dump(false);
 }
 
+void CRmgTemplateZone::waterInitFreeTiles()
+{
+	std::set<int3> tilesAll(tileinfo.begin(), tileinfo.end()); //water tiles
+	std::list<int3> tilesQueue; //tiles need to be processed
+	std::set<int3> tilesChecked;
+	
+	//lambda for increasing distance of negihbour tiles
+	auto lakeSearch = [this, &tilesAll, &tilesQueue](const int3 & dst)
+	{
+		if(!gen->map->isInTheMap(dst))
+			return;
+		
+		if(tilesAll.find(dst) == tilesAll.end())
+		{
+			if(lakes.back().tiles.find(dst)==lakes.back().tiles.end())
+			{
+				//we reach land! let's store this information
+				assert(gen->getZoneID(dst) != gen->getZoneWater().first);
+				lakes.back().connectedZones.insert(gen->getZoneID(dst));
+				lakes.back().coast.insert(dst);
+				lakes.back().distance[dst] = 0;
+				return;
+			}
+		}
+		else
+		{
+			if(lakes.back().tiles.insert(dst).second)
+			{
+				tilesQueue.push_back(dst);
+			}
+		}
+	};
+	
+	auto depthSearch = [this, &tilesChecked, &tilesQueue](const int3 & src, const int3 & dst)
+	{
+		if(!gen->map->isInTheMap(dst))
+			return;
+		
+		if(tilesChecked.find(dst)!=tilesChecked.end())
+			return;
+		
+		if(lakes.back().tiles.find(dst) != lakes.back().tiles.end())
+		{
+			lakes.back().distance[dst] = lakes.back().distance[src] + 1;
+			tilesChecked.insert(dst);
+			tilesQueue.push_back(dst);
+		}
+	};
+	
+	while(!tilesAll.empty())
+	{
+		//add some random tile as initial
+		tilesQueue.push_back(*tilesAll.begin());
+		setPos(tilesQueue.front());
+		addFreePath(tilesQueue.front());
+		lakes.emplace_back();
+		lakes.back().tiles.insert(tilesQueue.front());
+		
+		//find lake
+		while(!tilesQueue.empty())
+		{
+			int3 tile = tilesQueue.front();
+			tilesQueue.pop_front();
+			gen->foreachDirectNeighbour(tile, lakeSearch);
+		}
+		
+		//fill distance map
+		tilesQueue.assign(lakes.back().coast.begin(), lakes.back().coast.end());
+		while(!tilesQueue.empty())
+		{
+			int3 tile = tilesQueue.front();
+			tilesQueue.pop_front();
+			gen->foreachDirectNeighbour(tile, std::bind(depthSearch, tile, std::placeholders::_1));
+		}
+		
+		//cleanup
+		int lakeIdx = lakes.size();
+		for(auto& t : lakes.back().tiles)
+		{
+			assert(lakeMap.find(t)==lakeMap.end());
+			lakeMap[t] = lakeIdx;
+			tilesAll.erase(t);
+		}
+	}
+	
+#ifdef _DEBUG
+	{
+		std::ofstream out1("lakes_id.txt");
+		std::ofstream out2("lakes_map.txt");
+		std::ofstream out3("lakes_dist.txt");
+		int levels = gen->map->twoLevel ? 2 : 1;
+		int width =  gen->map->width;
+		int height = gen->map->height;
+		for (int k = 0; k < levels; k++)
+		{
+			for(int j=0; j<height; j++)
+			{
+				for (int i=0; i<width; i++)
+				{
+					int3 tile{i,j,k};
+					if(lakeMap[tile]>9)
+						out1 << '#';
+					else
+						out1 << lakeMap[tile];
+					
+					bool found = false;
+					for(auto& lake : lakes)
+					{
+						if(lake.coast.count(tile))
+						{
+							out2 << '@';
+							out3 << lake.distance[tile];
+							found = true;
+						}
+						else if(lake.tiles.count(tile))
+						{
+							out2 << '~';
+							out3 << lake.distance[tile];
+							found = true;
+						}
+					}
+					if(!found)
+					{
+						out2 << ' ';
+						out3 << ' ';
+					}
+				}
+				out1 << std::endl;
+				out2 << std::endl;
+				out3 << std::endl;
+			}
+			out1 << std::endl;
+			out2 << std::endl;
+			out3 << std::endl;
+		}
+		out1 << std::endl;
+		out2 << std::endl;
+		out3 << std::endl;
+	}
+#endif
+}
+
+bool CRmgTemplateZone::waterKeepConnection(TRmgTemplateZoneId zoneA, TRmgTemplateZoneId zoneB)
+{
+	for(auto & lake : lakes)
+	{
+		if(lake.connectedZones.count(zoneA) && lake.connectedZones.count(zoneB))
+		{
+			lake.keepConnections.insert(zoneA);
+			lake.keepConnections.insert(zoneB);
+			return true;
+		}
+	}
+	return false;
+}
+
 void CRmgTemplateZone::waterConnection(CRmgTemplateZone& dst)
 {
 	if(isUnderground() || dst.getCoastTiles().empty())
 		return;
+	
+	//block zones are not connected by template
+	for(auto& lake : lakes)
+	{
+		if(lake.connectedZones.count(dst.getId()))
+		{
+			if(!lake.keepConnections.count(dst.getId()))
+			{
+				for(auto & ct : lake.coast)
+				{
+					if(gen->getZoneID(ct)==dst.getId())
+						gen->setOccupied(ct, ETileType::BLOCKED);
+				}
+			}
+		}
+	}
 	
 	int3 coastTile(-1, -1, -1);
 	int zoneTowns = dst.playerTowns.getTownCount()+dst.playerTowns.getCastleCount()+dst.neutralTowns.getTownCount()+dst.neutralTowns.getCastleCount();
@@ -550,12 +734,6 @@ void CRmgTemplateZone::waterConnection(CRmgTemplateZone& dst)
 		
 	if(coastTile.valid())
 	{
-		if(freePaths.empty())
-		{
-			setPos(coastTile);
-			addFreePath(coastTile);
-		}
-			
 		if(connectPath(coastTile, true))
 		{
 			addFreePath(coastTile);
@@ -1048,7 +1226,7 @@ bool CRmgTemplateZone::connectPath(const int3& src, bool onlyStraight)
 	return false;
 }
 
-bool CRmgTemplateZone::connectWithCenter(const int3& src, bool onlyStraight)
+bool CRmgTemplateZone::connectWithCenter(const int3& src, bool onlyStraight, bool passThroughBlocked)
 ///connect current tile to any other free tile within zone
 {
 	//A* algorithm taken from Wiki http://en.wikipedia.org/wiki/A*_search_algorithm
@@ -1084,7 +1262,7 @@ bool CRmgTemplateZone::connectWithCenter(const int3& src, bool onlyStraight)
 		}
 		else
 		{
-			auto foo = [this, &open, &closed, &cameFrom, &currentNode, &distances](int3& pos) -> void
+			auto foo = [this, &open, &closed, &cameFrom, &currentNode, &distances, passThroughBlocked](int3& pos) -> void
 			{
 				if (vstd::contains(closed, pos))
 					return;
@@ -1097,6 +1275,8 @@ bool CRmgTemplateZone::connectWithCenter(const int3& src, bool onlyStraight)
 					movementCost = 1;
 				else if (gen->isPossible(pos))
 					movementCost = 2;
+				else if(passThroughBlocked && gen->shouldBeBlocked(pos))
+					movementCost = 3;
 				else
 					return;
 
@@ -2327,8 +2507,8 @@ bool CRmgTemplateZone::fill()
 		initFreeTiles();
 		connectLater();
 		createRequiredObjects();
+		fractalize();
 		createTreasures();
-		//fractalize();
 	}
 	else
 	{
@@ -2636,12 +2816,12 @@ bool CRmgTemplateZone::guardObject(CGObjectInstance* object, si32 str, bool zone
 	{
 		for (auto pos : tiles)
 		{
-			if (gen->isPossible(pos))
+			if (gen->isPossible(pos) && gen->getZoneID(pos)==id)
 				gen->setOccupied(pos, ETileType::BLOCKED);
 		}
 		gen->foreach_neighbour (guardTile, [&](int3& pos)
 		{
-			if (gen->isPossible(pos))
+			if (gen->isPossible(pos) && gen->getZoneID(pos)==id)
 				gen->setOccupied (pos, ETileType::FREE);
 		});
 

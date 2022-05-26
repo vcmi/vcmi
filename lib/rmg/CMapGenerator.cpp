@@ -298,12 +298,9 @@ void CMapGenerator::genZones()
 	zoneWater.first = zones.size()+1;
 	zoneWater.second = std::make_shared<CRmgTemplateZone>(this);
 	{
-		//std::vector<CTreasureInfo> treasuresWater;
-		//treasuresWater.emplace_back(3000, 10000, 9);
 		rmg::ZoneOptions options;
 		options.setId(zoneWater.first);
 		options.setType(ETemplateZoneType::WATER);
-		//options.setTreasureInfo(treasuresWater);
 		zoneWater.second->setOptions(options);
 	}
 
@@ -352,32 +349,38 @@ void CMapGenerator::fillZones()
 	for (auto it : zones)
 		it.second->initFreeTiles();
 	
-	
-	//TODO: connections may lay on water in NORMAL mode
-	createDirectConnections(); //direct
-	
 	//make sure all connections are passable before creating borders
 	for (auto it : zones)
 	{
 		it.second->createBorder(); //once direct connections are done
 	}
+	dump(false);
 	for (auto it : zones)
 	{
 		it.second->createWater(getMapGenOptions().getWaterContent());
 	}
+	zoneWater.second->waterInitFreeTiles();
+	dump(false);
+	//TODO: connections may lay on water in NORMAL mode
+	createDirectConnections(); //direct
+	dump(false);
+	
+	createConnections2(); //subterranean gates and monoliths
+	
 	dump(false);
 	dump(true);
+	
 	for (auto it : zones)
 	{
 		zoneWater.second->waterConnection(*it.second);
 	}
 	dump(false);
 	
-	createConnections2(); //subterranean gates and monoliths
-	
 	createWaterTreasures();
 	zoneWater.second->initFreeTiles();
 	zoneWater.second->fill();
+	
+	dump(false);
 	
 	std::vector<std::shared_ptr<CRmgTemplateZone>> treasureZones;
     for (auto it : zones)
@@ -562,12 +565,18 @@ void CMapGenerator::findZonesForQuestArts()
 
 void CMapGenerator::createDirectConnections()
 {
-	bool islandsMode = getMapGenOptions().getWaterContent()==EWaterContent::ISLANDS;
+	bool waterMode = getMapGenOptions().getWaterContent() != EWaterContent::NONE;
 	
 	for (auto connection : mapGenOptions.getMapTemplate()->getConnections())
 	{
 		auto zoneA = zones[connection.getZoneA()];
 		auto zoneB = zones[connection.getZoneB()];
+		
+		if(waterMode && !zoneA->isUnderground() && !zoneB->isUnderground())
+		{
+			if(zoneWater.second->waterKeepConnection(connection.getZoneA(), connection.getZoneB()))
+				continue; //do not add to connectionsLeft to avoid portal generation!
+		}
 
 		//rearrange tiles in random order
 		auto tilesCopy = zoneA->getTileInfo();
@@ -582,18 +591,14 @@ void CMapGenerator::createDirectConnections()
 		// auto zoneAid = zoneA->getId();
 		auto zoneBid = zoneB->getId();
 		
-		if(islandsMode && !zoneA->isUnderground() && !zoneB->isUnderground())
-		{
-			//skip connection - connected by water
-			continue;
-		}
+		
 
 		if (posA.z == posB.z)
 		{
 			std::vector<int3> middleTiles;
 			for (auto tile : tilesCopy)
 			{
-				if (isBlocked(tile)) //tiles may be occupied by subterranean gates already placed
+				if (isUsed(tile) || getZoneID(tile)==zoneWater.first) //tiles may be occupied by towns or water
 					continue;
 				foreachDirectNeighbour(tile, [tile, &middleTiles, this, zoneBid](int3 & pos) //must be direct since paths also also generated between direct neighbours
 				{
@@ -626,8 +631,8 @@ void CMapGenerator::createDirectConnections()
 				if (guardPos.valid())
 				{
 					//zones can make paths only in their own area
-					zoneA->connectWithCenter(guardPos, true);
-					zoneB->connectWithCenter(guardPos, true);
+					zoneA->connectWithCenter(guardPos, true, true);
+					zoneB->connectWithCenter(guardPos, true, true);
 
 					bool monsterPresent = zoneA->addMonster(guardPos, connection.getGuardStrength(), false, true);
 					zoneB->updateDistances(guardPos); //place next objects away from guard in both zones
