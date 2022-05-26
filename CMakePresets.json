@@ -16,10 +16,18 @@
             }
         },
         {
+            "name" : "linux-release",
+            "inherits" : "default-release",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX" : "/usr/local"
+            }
+        },      
+        {
             "name": "linux-clang-release",
             "displayName": "Clang x86_64-pc-linux-gnu",
             "description": "VCMI Linux Clang",
-            "inherits": "default-release",
+            "inherits": "linux-release",
             "cacheVariables": {
                 "CMAKE_C_COMPILER": "/usr/bin/clang",
                 "CMAKE_CXX_COMPILER": "/usr/bin/clang++"
@@ -29,7 +37,7 @@
             "name": "linux-gcc-release",
             "displayName": "GCC x86_64-pc-linux-gnu",
             "description": "VCMI Linux GCC",
-            "inherits": "default-release",
+            "inherits": "linux-release",
             "cacheVariables": {
                 "CMAKE_C_COMPILER": "/usr/bin/gcc",
                 "CMAKE_CXX_COMPILER": "/usr/bin/g++"
