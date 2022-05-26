@@ -26,6 +26,8 @@ class JsonNode;
 class CMapGenerator;
 class CTileInfo;
 
+#define _BETA
+
 typedef std::vector<JsonNode> JsonVector;
 
 class rmgException : public std::exception

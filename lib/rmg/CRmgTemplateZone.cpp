@@ -599,7 +599,7 @@ void CRmgTemplateZone::waterInitFreeTiles()
 		}
 	}
 	
-#ifdef _DEBUG
+#ifdef _BETA
 	{
 		std::ofstream out1("lakes_id.txt");
 		std::ofstream out2("lakes_map.txt");

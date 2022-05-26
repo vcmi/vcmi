@@ -352,10 +352,18 @@ void CMapGenerator::fillZones()
 	for (auto it : zones)
 		it.second->createBorder(); //once direct connections are done
 	
+#ifdef _BETA
+	dump(false);
+#endif
+	
 	for (auto it : zones)
 		it.second->createWater(getMapGenOptions().getWaterContent());
 	
 	zoneWater.second->waterInitFreeTiles();
+	
+#ifdef _BETA
+	dump(false);
+#endif
 
 	createDirectConnections(); //direct
 	createConnections2(); //subterranean gates and monoliths
@@ -374,6 +382,10 @@ void CMapGenerator::fillZones()
 		if (it.second->getType() == ETemplateZoneType::TREASURE)
 			treasureZones.push_back(it.second);
 	}
+	
+#ifdef _BETA
+	dump(false);
+#endif
 		
 	//set apriopriate free/occupied tiles, including blocked underground rock
 	createObstaclesCommon1();
@@ -388,6 +400,9 @@ void CMapGenerator::fillZones()
 		
 	zoneWater.second->createObstacles2();
 	
+#ifdef _BETA
+	dump(false);
+#endif
 
 	#define PRINT_MAP_BEFORE_ROADS false
 	if (PRINT_MAP_BEFORE_ROADS) //enable to debug
