@@ -1214,7 +1214,7 @@ bool CRmgTemplateZone::connectPath(const int3& src, bool onlyStraight)
 					return;
 
 				//no paths through blocked or occupied tiles, stay within zone
-				if (gen->isBlocked(pos) || gen->getZoneID(pos) != id)
+				if (!gen->map->isInTheMap(pos) || gen->isBlocked(pos) || gen->getZoneID(pos) != id)
 					return;
 
 				int distance = static_cast<int>(distances[currentNode]) + 1;
@@ -1710,6 +1710,7 @@ void CRmgTemplateZone::initTownType ()
 
 			if (totalTowns <= 0)
 			{
+				//FIXME: discovered bug with small zones - getPos is close to map boarder and we have outOfMap exception
 				//register MAIN town of zone
 				gen->registerZone(town->subID);
 				//first town in zone goes in the middle
@@ -2175,7 +2176,7 @@ bool CRmgTemplateZone::makeShip(TRmgTemplateZoneId land, const int3 & coast)
 	auto* boat = (CGBoat*) VLC->objtypeh->getHandlerFor(Obj::BOAT, *RandomGeneratorUtil::nextItem(subObjects, gen->rand))->create(ObjectTemplate());
 	
 	auto targetPos = boat->getVisitableOffset() + coast + int3{1, 0, 0}; //+1 offset for boat - bug?
-	if (gen->isPossible(targetPos) && gen->getZoneID(targetPos)==getId())
+	if (gen->map->isInTheMap(targetPos) && gen->isPossible(targetPos) && gen->getZoneID(targetPos)==getId())
 	{
 		//don't connect to path because it's not initialized
 		addObjectAtPosition(boat, targetPos);
