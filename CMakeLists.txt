@@ -120,6 +120,7 @@ include(UseDoxygen OPTIONAL)
 
 #Enable C++14 Globally
 set (CMAKE_CXX_STANDARD 14)
+
 #General visibility options
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
@@ -378,9 +379,38 @@ endif()
 
 
 if(WIN32)
-	file(GLOB dep_files
-		${dep_files}
-		"${CMAKE_FIND_ROOT_PATH}/bin/*.dll")
+       #Conan imports enabled
+       if(DEFINED CONAN_CXX_FLAGS)
+               message("Conan Windows build enabled\n")
+               foreach(lp_dir IN LISTS CMAKE_LIBRARY_PATH)
+                       #DLLs is in bindir on Conan
+                       file(GLOB dep_files
+                               ${dep_files}
+                               "${lp_dir}/../bin/*.dll")
+                       file(GLOB dep_files
+                               ${dep_files}
+                               "${lp_dir}/*.dll")
+                       #Search for Qt windows plugin
+                       file(GLOB dep_plugin
+                               ${dep_plugin}
+                               "${lp_dir}/qwindows.dll")
+               endforeach()
+               #Install Qt windows plugin
+               install(
+                       FILES ${dep_plugin}
+                       DESTINATION ${BIN_DIR}/platforms
+               )
+       else()
+               file(GLOB dep_files
+                       ${dep_files}
+                       "${CMAKE_FIND_ROOT_PATH}/bin/*.dll")
+       endif()
+
+	if((${CMAKE_VERSION} VERSION_LESS "3.14.0") AND VCPKG_TOOLCHAIN)
+		message(WARNING "CMake is too old for modern vcpkg")
+	elif(VCPKG_TOOLCHAIN)
+		set(X_VCPKG_APPLOCAL_DEPS_INSTALL ON)
+	endif()
 
 	if((${CMAKE_CROSSCOMPILING}) AND (DEFINED MSYS))
 		message(STATUS "Detected MXE build")

@@ -6,9 +6,6 @@ on:
         - features/*
         - develop
     pull_request:
-env:
-  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
-  BUILD_TYPE: Release
 
 jobs:
   build:
@@ -16,33 +13,45 @@ jobs:
       matrix:
         include:
           - platform: linux
-            os: ubuntu-20.04
+            os: ubuntu-latest
             test: 0
             preset: linux-clang-release
+            build: RelWithDebInfo
           - platform: linux
-            os: ubuntu-20.04
+            os: ubuntu-latest
             test: 0
             preset: linux-gcc-release
+            build: RelWithDebInfo
           - platform: mac
             os: macos-latest
             test: 0
             pack: 1
             extension: dmg
             preset: macos-ninja-release
+            build: RelWithDebInfo
           - platform: mxe
-            os: ubuntu-20.04
+            os: ubuntu-latest
             mxe: i686-w64-mingw32.shared
             test: 0
             pack: 1
             cpack_args: -D CPACK_NSIS_EXECUTABLE=`which makensis`
             extension: exe
             cmake_args: -G Ninja
+            build: Release
           - platform: msvc
             os: windows-latest
             test: 0
             pack: 1
             extension: exe
             preset: windows-msvc-release
+            build: RelWithDebInfo
+          - platform: msvc-conan
+            os: windows-2019
+            test: 0
+            pack: 1
+            extension: exe
+            preset: windows-msvc-conan
+            build: RelWithDebInfo
     runs-on: ${{ matrix.os }}
     defaults:
       run:
@@ -52,6 +61,8 @@ jobs:
     - uses: actions/checkout@v3
       with:
         submodules: recursive
+
+    - uses: turtlebrowser/get-conan@main
 
     - name: Dependencies
       run: source '${{github.workspace}}/CI/${{matrix.platform}}/before_install.sh'
@@ -78,7 +89,7 @@ jobs:
         cd '${{github.workspace}}/out/build/${{matrix.preset}}'
         cmake \
             ../.. -GNinja \
-            ${{matrix.cmake_args}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
+            ${{matrix.cmake_args}} -DCMAKE_BUILD_TYPE=${{matrix.build}} \
             -DENABLE_TEST=${{matrix.test}} \
             -DPACKAGE_NAME_SUFFIX:STRING="$VCMI_PACKAGE_NAME_SUFFIX" \
             -DPACKAGE_FILE_NAME:STRING="$VCMI_PACKAGE_FILE_NAME"
@@ -112,7 +123,7 @@ jobs:
       run: |
         cd '${{github.workspace}}/out/build/${{matrix.preset}}'
         CPACK_PATH=`which -a cpack | grep -m1 -v -i chocolatey`
-        "$CPACK_PATH" -C ${{env.BUILD_TYPE}} ${{ matrix.cpack_args }}
+        "$CPACK_PATH" -C ${{matrix.build}} ${{ matrix.cpack_args }}
         rm -rf _CPack_Packages
 
     - name: Additional logs
