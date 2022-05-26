@@ -349,67 +349,24 @@ void CMapGenerator::fillZones()
 	for (auto it : zones)
 		it.second->initFreeTiles();
 	
-	//make sure all connections are passable before creating borders
 	for (auto it : zones)
-	{
 		it.second->createBorder(); //once direct connections are done
-	}
-	dump(false);
+	
 	for (auto it : zones)
-	{
-		try
-		{
-			it.second->createWater(getMapGenOptions().getWaterContent());
-		}
-		catch (rmgException &e)
-		{
-			dump(false);
-			logGlobal->error("createWater exception: %s", e.what());
-			throw;
-		}
-	}
+		it.second->createWater(getMapGenOptions().getWaterContent());
 	
-	try
-	{
-		zoneWater.second->waterInitFreeTiles();
-	}
-	catch (rmgException &e)
-	{
-		dump(false);
-		logGlobal->error("waterInitFreeTiles exception: %s", e.what());
-		throw;
-	}
-	
-	dump(false);
-	//TODO: connections may lay on water in NORMAL mode
+	zoneWater.second->waterInitFreeTiles();
+
 	createDirectConnections(); //direct
-	dump(false);
-	
 	createConnections2(); //subterranean gates and monoliths
 	
-	dump(false);
-	dump(true);
-	
 	for (auto it : zones)
-	{
 		zoneWater.second->waterConnection(*it.second);
-	}
-	dump(false);
 	
 	createWaterTreasures();
 	zoneWater.second->initFreeTiles();
-	try
-	{
-		zoneWater.second->fill();
-	}
-	catch (rmgException &e)
-	{
-		dump(false);
-		logGlobal->error("Water fill: %s", e.what());
-	}
-	
-	dump(false);
-	
+	zoneWater.second->fill();
+
 	std::vector<std::shared_ptr<CRmgTemplateZone>> treasureZones;
     for (auto it : zones)
 	{
@@ -417,9 +374,7 @@ void CMapGenerator::fillZones()
 		if (it.second->getType() == ETemplateZoneType::TREASURE)
 			treasureZones.push_back(it.second);
 	}
-	
-	dump(false);
-	
+		
 	//set apriopriate free/occupied tiles, including blocked underground rock
 	createObstaclesCommon1();
 	//set back original terrain for underground zones
@@ -434,7 +389,7 @@ void CMapGenerator::fillZones()
 	zoneWater.second->createObstacles2();
 	
 
-	#define PRINT_MAP_BEFORE_ROADS true
+	#define PRINT_MAP_BEFORE_ROADS false
 	if (PRINT_MAP_BEFORE_ROADS) //enable to debug
 	{
 		std::ofstream out("road_debug.txt");

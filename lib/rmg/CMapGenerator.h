@@ -16,8 +16,6 @@
 #include "../int3.h"
 #include "CRmgTemplate.h"
 
-#define _DEBUG
-
 class CMap;
 class CRmgTemplate;
 class CRmgTemplateZone;

@@ -503,39 +503,6 @@ void CRmgTemplateZone::createWater(EWaterContent::EWaterContent waterContent, bo
 		return waterTiles.find(tile) == waterTiles.end();
 	});
 	
-#ifdef _DEBUG
-	{
-		static int _zoneId = 0;
-		std::ofstream out("water_zone"+std::to_string(_zoneId++)+".txt");
-		int levels = gen->map->twoLevel ? 2 : 1;
-		int width =  gen->map->width;
-		int height = gen->map->height;
-		for (int k = 0; k < levels; k++)
-		{
-			for(int j=0; j<height; j++)
-			{
-				for (int i=0; i<width; i++)
-				{
-					int3 tile{i,j,k};
-					if(coastTiles.count(tile))
-						out << '@';
-					else if(waterTiles.count(tile))
-						out << '~';
-					else if(tileinfo.count(tile))
-						out << '*';
-					else
-						out << '.';
-					//out << d;
-				}
-				out << std::endl;
-			}
-			out << std::endl;
-		}
-		out << std::endl;
-	}
-#endif
-
-	
 	//transforming waterTiles to actual water
 	for(auto& tile : waterTiles)
 	{
@@ -545,8 +512,6 @@ void CRmgTemplateZone::createWater(EWaterContent::EWaterContent waterContent, bo
 		tileinfo.erase(tile);
 		possibleTiles.erase(tile);
 	}
-	
-	gen->dump(false);
 }
 
 void CRmgTemplateZone::waterInitFreeTiles()
@@ -755,16 +720,6 @@ void CRmgTemplateZone::waterConnection(CRmgTemplateZone& dst)
 					
 		}
 	}
-	
-	//block other coast tiles
-	/*for(auto & tile : getCoastTiles())
-	{
-		if(tile == coastTile)
-			continue;
-		
-		if(gen->isPossible(tile))
-			gen->setOccupied(tile, ETileType::BLOCKED);
-	}*/
 }
 
 const std::set<int3>& CRmgTemplateZone::getCoastTiles() const
@@ -883,7 +838,6 @@ void CRmgTemplateZone::fractalize()
 		}
 
 		//connect with all the paths
-		//connectPath(node, true);
 		crunchPath(node, findClosestTile(freePaths, node), true, &freePaths);
 		//connect with nearby nodes
 		for (auto nearbyNode : nearbyNodes)
@@ -2044,9 +1998,6 @@ bool CRmgTemplateZone::createRequiredObjects()
 				//code partially adapted from findPlaceForObject()
 				if(!areAllTilesAvailable(obj.first, tile, tilesBlockedByObject))
 					continue;
-					//gen->setOccupied(pos, ETileType::BLOCKED); //why?
-				//else
-					//continue;
 
 				attempt = true;
 
