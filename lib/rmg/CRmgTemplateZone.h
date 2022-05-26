@@ -138,6 +138,7 @@ public:
 	void waterConnection(CRmgTemplateZone& dst);
 	bool waterKeepConnection(TRmgTemplateZoneId zoneA, TRmgTemplateZoneId zoneB);
 	const std::set<int3>& getCoastTiles() const;
+	bool isWaterConnected(TRmgTemplateZoneId zone, const int3 & tile) const;
 	//void computeCoastTiles();
 	
 	void createObstacles1();

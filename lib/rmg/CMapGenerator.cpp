@@ -571,20 +571,11 @@ void CMapGenerator::createDirectConnections()
 	{
 		auto zoneA = zones[connection.getZoneA()];
 		auto zoneB = zones[connection.getZoneB()];
-		
-		if(waterMode && !zoneA->isUnderground() && !zoneB->isUnderground())
-		{
-			if(zoneWater.second->waterKeepConnection(connection.getZoneA(), connection.getZoneB()))
-				continue; //do not add to connectionsLeft to avoid portal generation!
-		}
 
 		//rearrange tiles in random order
-		auto tilesCopy = zoneA->getTileInfo();
-		std::vector<int3> tiles(tilesCopy.begin(), tilesCopy.end());
+		const auto & tiles = zoneA->getTileInfo();
 
 		int3 guardPos(-1,-1,-1);
-
-		auto otherZoneTiles = zoneB->getTileInfo();
 
 		int3 posA = zoneA->getPos();
 		int3 posB = zoneB->getPos();
@@ -596,7 +587,7 @@ void CMapGenerator::createDirectConnections()
 		if (posA.z == posB.z)
 		{
 			std::vector<int3> middleTiles;
-			for (auto tile : tilesCopy)
+			for (const auto& tile : tiles)
 			{
 				if (isUsed(tile) || getZoneID(tile)==zoneWater.first) //tiles may be occupied by towns or water
 					continue;
@@ -646,6 +637,12 @@ void CMapGenerator::createDirectConnections()
 					break; //we're done with this connection
 				}
 			}
+		}
+		
+		if(waterMode && !zoneA->isUnderground() && !zoneB->isUnderground())
+		{
+			if(zoneWater.second->waterKeepConnection(connection.getZoneA(), connection.getZoneB()))
+				continue; //do not add to connectionsLeft to avoid portal generation!
 		}
 
 		if (!guardPos.valid())

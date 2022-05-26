@@ -712,47 +712,49 @@ void CRmgTemplateZone::waterConnection(CRmgTemplateZone& dst)
 					if(gen->getZoneID(ct)==dst.getId())
 						gen->setOccupied(ct, ETileType::BLOCKED);
 				}
+				continue;
 			}
-		}
-	}
 	
-	int3 coastTile(-1, -1, -1);
-	int zoneTowns = dst.playerTowns.getTownCount()+dst.playerTowns.getCastleCount()+dst.neutralTowns.getTownCount()+dst.neutralTowns.getCastleCount();
-	
-	if(dst.getType() == ETemplateZoneType::PLAYER_START || dst.getType() == ETemplateZoneType::CPU_START || zoneTowns)
-	{
-		coastTile = dst.createShipyard(3500);
-		if(!coastTile.valid())
-		{
-			coastTile = makeShip(dst.getId());
+			int3 coastTile(-1, -1, -1);
+			int zoneTowns = dst.playerTowns.getTownCount()+dst.playerTowns.getCastleCount()+dst.neutralTowns.getTownCount()+dst.neutralTowns.getCastleCount();
+			
+			if(dst.getType() == ETemplateZoneType::PLAYER_START || dst.getType() == ETemplateZoneType::CPU_START || zoneTowns)
+			{
+				coastTile = dst.createShipyard(3500);
+				if(!coastTile.valid())
+				{
+					coastTile = makeShip(dst.getId());
+				}
+			}
+			else
+			{
+				coastTile = makeShip(dst.getId());
+			}
+				
+			if(coastTile.valid())
+			{
+				if(connectPath(coastTile, true))
+				{
+					addFreePath(coastTile);
+				}
+				else
+					logGlobal->error("Cannot build water route for zone %d", dst.getId());
+			}
+			else
+				logGlobal->error("No entry from water to zone %d", dst.getId());
+					
 		}
 	}
-	else
-	{
-		coastTile = makeShip(dst.getId());
-	}
-		
-	if(coastTile.valid())
-	{
-		if(connectPath(coastTile, true))
-		{
-			addFreePath(coastTile);
-		}
-		else
-			logGlobal->error("Cannot build water route for zone %d", dst.getId());
-	}
-	else
-		logGlobal->error("No entry from water to zone %d", dst.getId());
 	
 	//block other coast tiles
-	for(auto & tile : getCoastTiles())
+	/*for(auto & tile : getCoastTiles())
 	{
 		if(tile == coastTile)
 			continue;
 		
 		if(gen->isPossible(tile))
 			gen->setOccupied(tile, ETileType::BLOCKED);
-	}
+	}*/
 }
 
 const std::set<int3>& CRmgTemplateZone::getCoastTiles() const
@@ -760,6 +762,15 @@ const std::set<int3>& CRmgTemplateZone::getCoastTiles() const
 	return coastTiles;
 }
 
+
+bool CRmgTemplateZone::isWaterConnected(TRmgTemplateZoneId zone, const int3 & tile) const
+{
+	int lakeId = gen->getZoneWater().second->lakeMap.at(tile);
+	if(lakeId == 0)
+		return false;
+	
+	return gen->getZoneWater().second->lakes.at(lakeId-1).keepConnections.count(zone);
+}
 
 void CRmgTemplateZone::fractalize()
 {
@@ -1271,6 +1282,7 @@ bool CRmgTemplateZone::connectWithCenter(const int3& src, bool onlyStraight, boo
 					return;
 
 				float movementCost = 0;
+				
 				if (gen->isFree(pos))
 					movementCost = 1;
 				else if (gen->isPossible(pos))
@@ -2102,13 +2114,13 @@ int3 CRmgTemplateZone::makeShip(TRmgTemplateZoneId land)
 	for(int randomAttempts = 0; randomAttempts<5; ++randomAttempts)
 	{
 		auto coastTile = *RandomGeneratorUtil::nextItem(gen->getZones()[land]->getCoastTiles(), gen->rand);
-		if(gen->getZoneID(coastTile)==gen->getZoneWater().first && makeShip(land, coastTile))
+		if(gen->getZoneID(coastTile)==gen->getZoneWater().first && isWaterConnected(land, coastTile) && makeShip(land, coastTile))
 			return coastTile;
 	}
 	//if no success on random selection, use brute force
 	for(const auto& coastTile : gen->getZones()[land]->getCoastTiles())
 	{
-		if(gen->getZoneID(coastTile)==gen->getZoneWater().first && makeShip(land, coastTile))
+		if(gen->getZoneID(coastTile)==gen->getZoneWater().first && isWaterConnected(land, coastTile) && makeShip(land, coastTile))
 			return coastTile;
 	}
 	return int3(-1,-1,-1);
@@ -2169,13 +2181,13 @@ int3 CRmgTemplateZone::createShipyard(si32 guardStrength)
 	for(int randomAttempts = 0; randomAttempts<5; ++randomAttempts)
 	{
 		auto coastTile = *RandomGeneratorUtil::nextItem(getCoastTiles(), gen->rand);
-		if(gen->getZoneID(coastTile)==gen->getZoneWater().first && createShipyard(coastTile, guardStrength))
+		if(gen->getZoneID(coastTile)==gen->getZoneWater().first && isWaterConnected(id, coastTile) && createShipyard(coastTile, guardStrength))
 			return coastTile;
 	}
 	//if no success on random selection, use brute force
 	for(const auto& coastTile : getCoastTiles())
 	{
-		if(gen->getZoneID(coastTile)==gen->getZoneWater().first && createShipyard(coastTile, guardStrength))
+		if(gen->getZoneID(coastTile)==gen->getZoneWater().first && isWaterConnected(id, coastTile) && createShipyard(coastTile, guardStrength))
 			return coastTile;
 	}
 	return int3(-1,-1,-1);
