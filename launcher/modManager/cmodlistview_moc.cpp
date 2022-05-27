@@ -358,7 +358,7 @@ void CModListView::on_lineEdit_textChanged(const QString & arg1)
 	//Hack due to lack QRegularExpression::UnanchoredWildcardConversion in Qt5
 	baseStr.chop(3);
 	baseStr.remove(0,5);
-	QRegularExpression regExp =  QRegularExpression(baseStr, reOptions);
+	QRegularExpression regExp{baseStr, reOptions};
 	filterModel->setFilterRegularExpression(regExp);
 }
 
