@@ -36,7 +36,7 @@ void CSettingsView::setDisplayList()
 {
 	QStringList list;
 
-	for (const auto & screen : QGuiApplication::screens())
+	for (const auto screen : QGuiApplication::screens())
 	{
 		QString string;
 		const auto & rect = screen->geometry();
