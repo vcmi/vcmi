@@ -1424,6 +1424,7 @@ bool CRmgTemplateZone::createTreasurePile(int3 &pos, float minDistance, const CT
 		else
 		{
 			object = oi.generateObject();
+			object->appearance = oi.templ;
 
 			//remove from possible objects
 			auto oiptr = std::find(possibleObjects.begin(), possibleObjects.end(), oi);
@@ -1517,7 +1518,7 @@ bool CRmgTemplateZone::createTreasurePile(int3 &pos, float minDistance, const CT
 
 		for (auto tile : info.occupiedPositions)
 		{
-			if (gen->map->isInTheMap(tile) && gen->isPossible(tile)) //pile boundary may reach map border
+			if (gen->map->isInTheMap(tile) && gen->isPossible(tile) && gen->getZoneID(tile)==id) //pile boundary may reach map border
 				gen->setOccupied(tile, ETileType::BLOCKED); //so that crunch path doesn't cut through objects
 		}
 
@@ -1561,8 +1562,6 @@ bool CRmgTemplateZone::createTreasurePile(int3 &pos, float minDistance, const CT
 			for (auto treasure : treasures)
 			{
 				int3 visitableOffset = treasure.second->getVisitableOffset();
-				if (treasure.second->ID == Obj::SEER_HUT) //FIXME: find generic solution or figure out why Seer Hut doesn't behave correctly
-					visitableOffset.x += 1;
 				placeObject(treasure.second, treasure.first + visitableOffset);
 			}
 			if (isPileGuarded && addMonster(guardPos, currentValue, false))
