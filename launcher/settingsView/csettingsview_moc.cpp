@@ -36,10 +36,10 @@ void CSettingsView::setDisplayList()
 {
 	QStringList list;
 
-	for (auto & screen : QGuiApplication::screens())
+	for (const auto & screen : QGuiApplication::screens())
 	{
 		QString string;
-		auto rect = screen->geometry();
+		const auto & rect = screen->geometry();
 		QTextStream(&string) << screen->name() << " - " << rect.width() << "x" << rect.height();
 		list << string;
 	}
