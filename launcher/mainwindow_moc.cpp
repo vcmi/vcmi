@@ -100,10 +100,9 @@ void MainWindow::on_startGameButton_clicked()
 void MainWindow::startExecutable(QString name)
 {
 	QProcess process;
-	const QStringList args;
 
 	// Start the executable
-	if(process.startDetached(name, args))
+	if(process.startDetached(name, {}))
 	{
 		close(); // exit launcher
 	}
