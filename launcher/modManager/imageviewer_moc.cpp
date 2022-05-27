@@ -27,8 +27,7 @@ ImageViewer::~ImageViewer()
 
 QSize ImageViewer::calculateWindowSize()
 {
-	const auto & screen = QGuiApplication::primaryScreen();
-	return screen->availableGeometry().size() * 0.8;
+	return QGuiApplication::primaryScreen()->availableGeometry().size() * 0.8;
 }
 
 void ImageViewer::showPixmap(QPixmap & pixmap, QWidget * parent)
