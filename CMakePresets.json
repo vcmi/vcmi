@@ -22,7 +22,7 @@
             "cacheVariables": {
                 "CMAKE_INSTALL_PREFIX" : "/usr/local"
             }
-        },      
+        },
         {
             "name": "linux-clang-release",
             "displayName": "Clang x86_64-pc-linux-gnu",
@@ -101,6 +101,12 @@
         },
         {
             "name": "windows-msvc-release",
+            "configurePreset": "windows-msvc-release",
+            "inherits": "default-release",
+            "configuration": "Release"
+        },
+        {
+            "name": "windows-msvc-relwithdebinfo",
             "configurePreset": "windows-msvc-release",
             "inherits": "default-release"
         }
