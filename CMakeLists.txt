@@ -124,6 +124,14 @@ set (CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 
+#Global fallback mapping
+# RelWithDebInfo falls back to Release, then MinSizeRel
+set(CMAKE_MAP_IMPORTED_CONFIG_RELWITHDEBINFO RelWithDebInfo Release MinSizeRel "")
+# MinSizeRel falls back to Release, then RelWithDebInfo
+set(CMAKE_MAP_IMPORTED_CONFIG_MINSIZEREL MinSizeRel Release RelWithDebInfo "")
+# Release falls back to RelWithDebInfo, then MinSizeRel
+set(CMAKE_MAP_IMPORTED_CONFIG_RELEASE Release RelWithDebInfo MinSizeRel "")
+
 if(APPLE)
 	set(CMAKE_MACOSX_RPATH 0)
 endif(APPLE)
@@ -216,39 +224,56 @@ endif()
 #        Finding packages                  #
 ############################################
 
-set(FFmpeg_FIND_COMPONENTS AVFORMAT SWSCALE)
-find_package(Boost 1.48.0 COMPONENTS date_time filesystem locale program_options system thread REQUIRED)
+find_package(Boost 1.48.0 REQUIRED COMPONENTS date_time filesystem locale program_options system thread)
 find_package(ZLIB REQUIRED)
-find_package(FFmpeg REQUIRED)
-find_package(Minizip)
-if(MINIZIP_FOUND)
-	add_definitions(-DUSE_SYSTEM_MINIZIP)
+find_package(ffmpeg REQUIRED COMPONENTS avutil swscale avformat avcodec)
+option(FORCE_BUNDLED_MINIZIP "Force bundled Minizip library" OFF)
+if(NOT FORCE_BUNDLED_MINIZIP)
+	find_package(minizip)
+	if(TARGET minizip::minizip)
+		add_definitions(-DUSE_SYSTEM_MINIZIP)
+	endif()
 endif()
 
 find_package(SDL2 REQUIRED)
 find_package(SDL2_image REQUIRED)
 find_package(SDL2_mixer REQUIRED)
+if(TARGET SDL2_mixer::SDL2_mixer)
+	add_library(SDL2::Mixer ALIAS SDL2_mixer::SDL2_mixer)
+endif()
 find_package(SDL2_ttf REQUIRED)
+if(TARGET SDL2_ttf::SDL2_ttf)
+	add_library(SDL2::TTF ALIAS SDL2_ttf::SDL2_ttf)
+endif()
 find_package(TBB REQUIRED)
 
 if(ENABLE_LAUNCHER)
 	# Widgets finds its own dependencies (QtGui and QtCore).
-	find_package(Qt5Widgets REQUIRED)
-	find_package(Qt5Network REQUIRED)
+	find_package(Qt5 COMPONENTS Widgets Network REQUIRED)
 endif()
 
 if(ENABLE_LUA)
+	find_package(luajit)
 	# MXE paths hardcoded for current dependencies pack - tried and could not make it work another way
-	if((MINGW) AND (${CMAKE_CROSSCOMPILING}) AND (DEFINED MSYS))
-		set(LUA_INCLUDE_DIR "/usr/lib/mxe/usr/i686-w64-mingw32.static/include/luajit-2.0")
-		set(LUA_LIBRARY "/usr/lib/mxe/usr/i686-w64-mingw32.static/lib/libluajit-5.1.a")
+	if((MINGW) AND (${CMAKE_CROSSCOMPILING}) AND (DEFINED MSYS) AND (NOT TARGET luajit::luajit))
+		add_library(luajit::luajit STATIC IMPORTED)
+		set_target_properties(luajit::luajit PROPERTIES
+			INTERFACE_INCLUDE_DIRECTORIES "/usr/lib/mxe/usr/i686-w64-mingw32.static/include/luajit-2.0")
+		set_target_properties(luajit::luajit PROPERTIES
+			IMPORTED_LOCATION "/usr/lib/mxe/usr/i686-w64-mingw32.static/lib/libluajit-5.1.a")
 	endif()
-	find_package(LuaJIT)
-	if(LUAJIT_FOUND)
+	if(TARGET luajit::luajit)
 		message(STATUS "Using LuaJIT provided by system")
 	else()
 		message(STATUS "Cannot find LuaJIT! Fallback to using usual Lua.")
 		find_package(Lua REQUIRED)
+		if(Lua_FOUND)
+			add_library(luajit::luajit UNKNOWN IMPORTED)
+			set_target_properties(luajit::luajit PROPERTIES
+				INTERFACE_INCLUDE_DIRECTORIES "${LUA_INCLUDE_DIR}")
+			set_target_properties(luajit::luajit PROPERTIES
+				IMPORTED_LOCATION "${LUA_LIBRARIES}")
+		endif()
 	endif()
 endif()
 
@@ -318,9 +343,9 @@ endif()
 if(ENABLE_LUA)
 	add_subdirectory(scripting/lua)
 endif()
-if(NOT MINIZIP_FOUND)
+if(NOT TARGET minizip::minizip)
 	add_subdirectory_with_folder("3rdparty" lib/minizip)
-	set(MINIZIP_LIBRARIES minizip)
+	add_library(minizip::minizip ALIAS minizip)
 endif()
 add_subdirectory(lib)
 add_subdirectory(client)
@@ -371,19 +396,19 @@ if(WIN32)
 			${Qtbin_folder}/Qt5Core${debug_postfix}.dll
 			${Qtbin_folder}/Qt5Gui${debug_postfix}.dll
 			${Qtbin_folder}/Qt5Widgets${debug_postfix}.dll
+			${Qtbin_folder}/Qt5Network${debug_postfix}.dll
 			${Qtbin_folder}/icu*.dll)
-		file(GLOB dep_qwindows
-			${Qtbin_folder}/../plugins/platforms/qwindows${debug_postfix}.dll)
-	endif()
-
-	if (ENABLE_LAUNCHER)
-		file(GLOB dep_files
-			${dep_files}
-			${Qtbin_folder}/Qt5Network${debug_postfix}.dll)
+		get_target_property(integration_type Qt5::QWindowsIntegrationPlugin TYPE)
+		if(NOT(integration_type STREQUAL "INTERFACE_LIBRARY"))
+			get_target_property(integration_loc Qt5::QWindowsIntegrationPlugin LOCATION)
+			install(
+				FILES ${integration_loc}
+				DESTINATION ${BIN_DIR}/platforms
+			)
+		endif()
 	endif()
 
 	install(FILES ${dep_files} DESTINATION ${BIN_DIR})
-	install(FILES ${dep_qwindows} DESTINATION ${BIN_DIR}/platforms)
 endif(WIN32)
 
 #######################################

@@ -19,7 +19,7 @@
 # (To distribute this file outside of CMake, substitute the full
 #  License text for the above reference.)
 
-find_path(FL_INCLUDE_DIR 
+find_path(fuzzylite_INCLUDE_DIR 
     fl/fuzzylite.h
   HINTS
     ENV FLDIR
@@ -35,7 +35,7 @@ else()
   set(VC_LIB_PATH_SUFFIX lib/x86)
 endif()
 
-find_library(FL_LIBRARY
+find_library(fuzzylite_LIBRARY
   NAMES 
     fuzzylite
   HINTS
@@ -46,12 +46,20 @@ find_library(FL_LIBRARY
     ${VC_LIB_PATH_SUFFIX}
 )
 
-set(FL_LIBRARIES ${FL_LIBRARY})
-set(FL_INCLUDE_DIRS ${FL_INCLUDE_DIR})
+set(fuzzylite_LIBRARIES ${fuzzylite_LIBRARY})
+set(fuzzylite_INCLUDE_DIRS ${fuzzylite_INCLUDE_DIR})
 
 include(FindPackageHandleStandardArgs)
 
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(FL
-                                  REQUIRED_VARS FL_LIBRARIES FL_INCLUDE_DIRS)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(fuzzylite
+                                  REQUIRED_VARS fuzzylite_LIBRARIES fuzzylite_INCLUDE_DIRS)
 
-mark_as_advanced(FL_LIBRARY FL_INCLUDE_DIR)
+if (NOT TARGET "fuzzylite::fuzzylite" AND fuzzylite_FOUND)
+	add_library(fuzzylite::fuzzylite UNKNOWN IMPORTED)
+	set_target_properties(fuzzylite::fuzzylite PROPERTIES
+		INTERFACE_INCLUDE_DIRECTORIES "${fuzzylite_INCLUDE_DIR}")
+	set_target_properties(fuzzylite::fuzzylite PROPERTIES
+		IMPORTED_LOCATION "${fuzzylite_LIBRARY}")
+endif()
+
+mark_as_advanced(fuzzylite_LIBRARY fuzzylite_INCLUDE_DIR)

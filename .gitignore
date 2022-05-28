@@ -3,6 +3,9 @@
 /launcher/vcmilauncher
 /launcher/vcmilauncher_automoc.cpp
 
+build/
+.cache/*
+out/
 *.dll
 *.exe
 *.depend

@@ -279,7 +279,6 @@ void CMapGenerator::genZones()
 	getEditManager()->clearTerrain(&rand);
 	getEditManager()->getTerrainSelection().selectRange(MapRect(int3(0, 0, 0), mapGenOptions.getWidth(), mapGenOptions.getHeight()));
 	getEditManager()->drawTerrain(ETerrainType::GRASS, &rand);
-	
 
 	auto tmpl = mapGenOptions.getMapTemplate();
 	zones.clear();

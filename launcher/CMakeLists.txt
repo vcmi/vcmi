@@ -101,8 +101,6 @@ endif()
 target_link_libraries(vcmilauncher vcmi Qt5::Widgets Qt5::Network)
 target_include_directories(vcmilauncher
 	PUBLIC	${CMAKE_CURRENT_SOURCE_DIR}
-	PRIVATE	${Qt5Widgets_INCLUDE_DIRS}
-	PRIVATE	${Qt5Network_INCLUDE_DIRS}
 )
 vcmi_set_output_dir(vcmilauncher "")
 

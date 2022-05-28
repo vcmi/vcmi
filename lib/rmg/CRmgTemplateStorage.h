@@ -30,7 +30,7 @@ public:
 	virtual void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
 	
 	const CRmgTemplate* getTemplate(const std::string & templateName) const;
-	std::vector<const CRmgTemplate*> getTemplates() const;
+	std::vector<const CRmgTemplate *> getTemplates() const;
 
 private:
 	std::map<std::string, CRmgTemplate> templates;
