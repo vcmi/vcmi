@@ -15,6 +15,7 @@
 
 #include <QJsonArray>
 #include <QCryptographicHash>
+#include <QRegularExpression>
 
 #include "cmodlistmodel_moc.h"
 #include "cmodmanager.h"
@@ -352,8 +353,16 @@ void CModListView::on_allModsView_activated(const QModelIndex & index)
 
 void CModListView::on_lineEdit_textChanged(const QString & arg1)
 {
-	QRegExp regExp(arg1, Qt::CaseInsensitive, QRegExp::Wildcard);
-	filterModel->setFilterRegExp(regExp);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+	auto baseStr = QRegularExpression::wildcardToRegularExpression(arg1, QRegularExpression::UnanchoredWildcardConversion);
+#else
+	auto baseStr = QRegularExpression::wildcardToRegularExpression(arg1);
+	//Hack due to lack QRegularExpression::UnanchoredWildcardConversion in Qt5
+	baseStr.chop(3);
+	baseStr.remove(0,5);
+#endif
+	QRegularExpression regExp{baseStr, QRegularExpression::CaseInsensitiveOption};
+	filterModel->setFilterRegularExpression(regExp);
 }
 
 void CModListView::on_comboBox_currentIndexChanged(int index)

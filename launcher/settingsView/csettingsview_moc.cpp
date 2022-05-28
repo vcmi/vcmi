@@ -12,6 +12,7 @@
 #include "ui_csettingsview_moc.h"
 
 #include <QFileInfo>
+#include <QGuiApplication>
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/VCMIDirs.h"
@@ -34,12 +35,12 @@ static const std::string knownEncodingsList[] = //TODO: remove hardcode
 void CSettingsView::setDisplayList()
 {
 	QStringList list;
-	QDesktopWidget * widget = QApplication::desktop();
-	for(int display = 0; display < widget->screenCount(); display++)
+
+	for (const auto screen : QGuiApplication::screens())
 	{
 		QString string;
-		auto rect = widget->screenGeometry(display);
-		QTextStream(&string) << display << " - " << rect.width() << "x" << rect.height();
+		const auto & rect = screen->geometry();
+		QTextStream(&string) << screen->name() << " - " << rect.width() << "x" << rect.height();
 		list << string;
 	}
 
