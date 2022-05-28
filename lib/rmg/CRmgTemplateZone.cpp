@@ -295,9 +295,6 @@ void CRmgTemplateZone::createWater(EWaterContent::EWaterContent waterContent, bo
 	//lambda for increasing distance of negihbour tiles
 	auto coastSearch = [this, &tilesDist, &tilesChecked, &coastTilesMap, &tilesQueue](const int3 & src, const int3 & dst)
 	{
-		if(!gen->map->isInTheMap(dst))
-			return;
-		
 		if(tilesChecked.find(dst)!=tilesChecked.end())
 			return;
 		
@@ -349,11 +346,8 @@ void CRmgTemplateZone::createWater(EWaterContent::EWaterContent waterContent, bo
 #endif
 	
 	//lambda which finds all neighbour tiles need to became water
-	auto coastPlacer = [this, &tilesDist, &tilesChecked, &tilesQueue](const int3 & src, const int3 & dst)
+	auto coastPlacer = [&tilesDist, &tilesChecked, &tilesQueue](const int3 & src, const int3 & dst)
 	{
-		if(!gen->map->isInTheMap(dst))
-			return;
-		
 		if(tilesChecked.find(dst)!=tilesChecked.end())
 			return;
 		
@@ -523,9 +517,6 @@ void CRmgTemplateZone::waterInitFreeTiles()
 	//lambda for increasing distance of negihbour tiles
 	auto lakeSearch = [this, &tilesAll, &tilesQueue](const int3 & dst)
 	{
-		if(!gen->map->isInTheMap(dst))
-			return;
-		
 		if(tilesAll.find(dst) == tilesAll.end())
 		{
 			if(lakes.back().tiles.find(dst)==lakes.back().tiles.end())
@@ -549,9 +540,6 @@ void CRmgTemplateZone::waterInitFreeTiles()
 	
 	auto depthSearch = [this, &tilesChecked, &tilesQueue](const int3 & src, const int3 & dst)
 	{
-		if(!gen->map->isInTheMap(dst))
-			return;
-		
 		if(tilesChecked.find(dst)!=tilesChecked.end())
 			return;
 		
@@ -1168,7 +1156,7 @@ bool CRmgTemplateZone::connectPath(const int3& src, bool onlyStraight)
 					return;
 
 				//no paths through blocked or occupied tiles, stay within zone
-				if (!gen->map->isInTheMap(pos) || gen->isBlocked(pos) || gen->getZoneID(pos) != id)
+				if (gen->isBlocked(pos) || gen->getZoneID(pos) != id)
 					return;
 
 				int distance = static_cast<int>(distances[currentNode]) + 1;
@@ -2068,7 +2056,7 @@ bool CRmgTemplateZone::makeShip(TRmgTemplateZoneId land, const int3 & coast)
 	std::vector<int3> landTiles;
 	gen->foreach_neighbour(coast, [this, &landTiles, land](const int3 & t)
 	{
-		if(gen->map->isInTheMap(t) && land == gen->getZoneID(t) && gen->isPossible(t))
+		if(land == gen->getZoneID(t) && gen->isPossible(t))
 		{
 			landTiles.push_back(t);
 		}
@@ -2170,7 +2158,7 @@ bool CRmgTemplateZone::createShipyard(const int3 & position, si32 guardStrength)
 				//check if position is accessible
 				gen->foreach_neighbour(position, [this, &shipAccessCandidates](const int3 & v)
 				{
-					if(gen->map->isInTheMap(v) && !gen->isBlocked(v) && gen->getZoneID(v)==id)
+					if(!gen->isBlocked(v) && gen->getZoneID(v)==id)
 					{
 						//make sure that it's possible to create path to boarding position
 						if(crunchPath(v, findClosestTile(freePaths, v), false, nullptr))
