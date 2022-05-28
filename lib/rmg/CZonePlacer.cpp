@@ -40,15 +40,15 @@ float CZonePlacer::getDistance (float distance) const
 	return (distance ? distance * distance : 1e-6f);
 }
 
-void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenerator * rand)
+void CZonePlacer::placeZones(CRandomGenerator * rand)
 {
 	logGlobal->info("Starting zone placement");
 
-	width = mapGenOptions->getWidth();
-	height = mapGenOptions->getHeight();
+	width = gen->getMapGenOptions().getWidth();
+	height = gen->getMapGenOptions().getHeight();
 
 	auto zones = gen->getZones();
-	bool underground = mapGenOptions->getHasTwoLevels();
+	bool underground = gen->getMapGenOptions().getHasTwoLevels();
 
 	/*
 	gravity-based algorithm
@@ -174,7 +174,7 @@ void CZonePlacer::prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const 
 			if (boost::optional<int> owner = zone.second->getOwner())
 			{
 				auto player = PlayerColor(*owner - 1);
-				auto playerSettings = gen->mapGenOptions->getPlayersSettings();
+				auto playerSettings = gen->getMapGenOptions().getPlayersSettings();
 				si32 faction = CMapGenOptions::CPlayerSettings::RANDOM_TOWN;
 				if (vstd::contains(playerSettings, player))
 					faction = playerSettings[player].getStartingTown();
@@ -453,12 +453,12 @@ d = 0.01 * dx^3 - 0.1618 * dx^2 + 1 * dx + ...
 	return dx * (1.0f + dx * (0.1f + dx * 0.01f)) + dy * (1.618f + dy * (-0.1618f + dy * 0.01618f));
 }
 
-void CZonePlacer::assignZones(const CMapGenOptions * mapGenOptions)
+void CZonePlacer::assignZones()
 {
 	logGlobal->info("Starting zone colouring");
 
-	auto width = mapGenOptions->getWidth();
-	auto height = mapGenOptions->getHeight();
+	auto width = gen->getMapGenOptions().getWidth();
+	auto height = gen->getMapGenOptions().getHeight();
 
 	//scale to Medium map to ensure smooth results
 	scaleX = 72.f / width;
@@ -554,7 +554,7 @@ void CZonePlacer::assignZones(const CMapGenOptions * mapGenOptions)
 
 		//TODO: similiar for islands
 		#define	CREATE_FULL_UNDERGROUND true //consider linking this with water amount
-		if (zone.second->getPos().z)
+		if (zone.second->isUnderground())
 		{
 			if (!CREATE_FULL_UNDERGROUND)
 				zone.second->discardDistantTiles((float)(zone.second->getSize() + 1));

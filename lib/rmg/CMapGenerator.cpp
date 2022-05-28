@@ -46,7 +46,7 @@ void CMapGenerator::foreachDirectNeighbour(const int3& pos, std::function<void(i
 	}
 }
 
-void CMapGenerator::foreachDiagonaltNeighbour(const int3& pos, std::function<void(int3& pos)> foo)
+void CMapGenerator::foreachDiagonalNeighbour(const int3& pos, std::function<void(int3& pos)> foo)
 {
 	for (const int3 &dir : dirsDiagonal)
 	{
@@ -57,11 +57,13 @@ void CMapGenerator::foreachDiagonaltNeighbour(const int3& pos, std::function<voi
 }
 
 
-CMapGenerator::CMapGenerator() :
-	mapGenOptions(nullptr), randomSeed(0), editManager(nullptr),
+CMapGenerator::CMapGenerator(CMapGenOptions& mapGenOptions, int RandomSeed) :
+	mapGenOptions(mapGenOptions), randomSeed(RandomSeed),
 	zonesTotal(0), tiles(nullptr), prisonsRemaining(0),
     monolithIndex(0)
 {
+	rand.setSeed(this->randomSeed);
+	mapGenOptions.finalize(rand);
 }
 
 void CMapGenerator::initTiles()
@@ -89,8 +91,8 @@ CMapGenerator::~CMapGenerator()
 {
 	if (tiles)
 	{
-		int width = mapGenOptions->getWidth();
-		int height = mapGenOptions->getHeight();
+		int width = mapGenOptions.getWidth();
+		int height = mapGenOptions.getHeight();
 		for (int i=0; i < width; i++)
 		{
 			for(int j=0; j < height; j++)
@@ -111,7 +113,7 @@ void CMapGenerator::initPrisonsRemaining()
 		if (isAllowed)
 			prisonsRemaining++;
 	}
-	prisonsRemaining = std::max<int> (0, prisonsRemaining - 16 * mapGenOptions->getPlayerCount()); //so at least 16 heroes will be available for every player
+	prisonsRemaining = std::max<int> (0, prisonsRemaining - 16 * mapGenOptions.getPlayerCount()); //so at least 16 heroes will be available for every player
 }
 
 void CMapGenerator::initQuestArtsRemaining()
@@ -123,26 +125,27 @@ void CMapGenerator::initQuestArtsRemaining()
 	}
 }
 
-std::unique_ptr<CMap> CMapGenerator::generate(CMapGenOptions * mapGenOptions, int randomSeed)
+const CMapGenOptions& CMapGenerator::getMapGenOptions() const
 {
-	this->mapGenOptions = mapGenOptions;
-	this->randomSeed = randomSeed;
+	return mapGenOptions;
+}
 
-	assert(mapGenOptions);
+CMapEditManager* CMapGenerator::getEditManager() const
+{
+	if(!map)
+		return nullptr;
+	return map->getEditManager();
+}
 
-	rand.setSeed(this->randomSeed);
-	mapGenOptions->finalize(rand);
-
+std::unique_ptr<CMap> CMapGenerator::generate()
+{
 	map = make_unique<CMap>();
-	editManager = map->getEditManager();
-
 	try
 	{
-		editManager->getUndoManager().setUndoRedoLimit(0);
+		map->getEditManager()->getUndoManager().setUndoRedoLimit(0);
 		//FIXME:  somehow mapGenOption is nullptr at this point :?
 		addHeaderInfo();
 		initTiles();
-
 		initPrisonsRemaining();
 		initQuestArtsRemaining();
 		genZones();
@@ -160,14 +163,13 @@ std::unique_ptr<CMap> CMapGenerator::generate(CMapGenOptions * mapGenOptions, in
 
 std::string CMapGenerator::getMapDescription() const
 {
-	assert(mapGenOptions);
 	assert(map);
 
 	const std::string waterContentStr[3] = { "none", "normal", "islands" };
 	const std::string monsterStrengthStr[3] = { "weak", "normal", "strong" };
 
-	int monsterStrengthIndex = mapGenOptions->getMonsterStrength() - EMonsterStrength::GLOBAL_WEAK; //does not start from 0
-	const auto * mapTemplate = mapGenOptions->getMapTemplate();
+	int monsterStrengthIndex = mapGenOptions.getMonsterStrength() - EMonsterStrength::GLOBAL_WEAK; //does not start from 0
+	const auto * mapTemplate = mapGenOptions.getMapTemplate();
 
 	if(!mapTemplate)
 		throw rmgException("Map template for Random Map Generator is not found. Could not start the game.");
@@ -175,11 +177,11 @@ std::string CMapGenerator::getMapDescription() const
     std::stringstream ss;
     ss << boost::str(boost::format(std::string("Map created by the Random Map Generator.\nTemplate was %s, Random seed was %d, size %dx%d") +
         ", levels %s, players %d, computers %d, water %s, monster %s, VCMI map") % mapTemplate->getName() %
-		randomSeed % map->width % map->height % (map->twoLevel ? "2" : "1") % static_cast<int>(mapGenOptions->getPlayerCount()) %
-		static_cast<int>(mapGenOptions->getCompOnlyPlayerCount()) % waterContentStr[mapGenOptions->getWaterContent()] %
+		randomSeed % map->width % map->height % (map->twoLevel ? "2" : "1") % static_cast<int>(mapGenOptions.getPlayerCount()) %
+		static_cast<int>(mapGenOptions.getCompOnlyPlayerCount()) % waterContentStr[mapGenOptions.getWaterContent()] %
 		monsterStrengthStr[monsterStrengthIndex]);
 
-	for(const auto & pair : mapGenOptions->getPlayersSettings())
+	for(const auto & pair : mapGenOptions.getPlayersSettings())
 	{
 		const auto & pSettings = pair.second;
 		if(pSettings.getPlayerType() == EPlayerType::HUMAN)
@@ -211,13 +213,13 @@ void CMapGenerator::addPlayerInfo()
 	{
 		if (i == CPHUMAN)
 		{
-			playerCount = mapGenOptions->getPlayerCount();
-			teamCount = mapGenOptions->getTeamCount();
+			playerCount = mapGenOptions.getPlayerCount();
+			teamCount = mapGenOptions.getTeamCount();
 		}
 		else
 		{
-			playerCount = mapGenOptions->getCompOnlyPlayerCount();
-			teamCount = mapGenOptions->getCompOnlyTeamCount();
+			playerCount = mapGenOptions.getCompOnlyPlayerCount();
+			teamCount = mapGenOptions.getCompOnlyTeamCount();
 		}
 
 		if(playerCount == 0)
@@ -246,7 +248,7 @@ void CMapGenerator::addPlayerInfo()
 
 	// Team numbers are assigned randomly to every player
 	//TODO: allow customize teams in rmg template
-	for(const auto & pair : mapGenOptions->getPlayersSettings())
+	for(const auto & pair : mapGenOptions.getPlayersSettings())
 	{
 		const auto & pSettings = pair.second;
 		PlayerInfo player;
@@ -262,36 +264,34 @@ void CMapGenerator::addPlayerInfo()
 			logGlobal->error("Not enough places in team for %s player", ((j == CPUONLY) ? "CPU" : "CPU or human"));
 			assert (teamNumbers[j].size());
 		}
-        auto itTeam = RandomGeneratorUtil::nextItem(teamNumbers[j], rand);
+		auto itTeam = RandomGeneratorUtil::nextItem(teamNumbers[j], rand);
 		player.team = TeamID(*itTeam);
 		teamNumbers[j].erase(itTeam);
 		map->players[pSettings.getColor().getNum()] = player;
 	}
 
-	map->howManyTeams = (mapGenOptions->getTeamCount() == 0 ? mapGenOptions->getPlayerCount() : mapGenOptions->getTeamCount())
-			+ (mapGenOptions->getCompOnlyTeamCount() == 0 ? mapGenOptions->getCompOnlyPlayerCount() : mapGenOptions->getCompOnlyTeamCount());
+	map->howManyTeams = (mapGenOptions.getTeamCount() == 0 ? mapGenOptions.getPlayerCount() : mapGenOptions.getTeamCount())
+			+ (mapGenOptions.getCompOnlyTeamCount() == 0 ? mapGenOptions.getCompOnlyPlayerCount() : mapGenOptions.getCompOnlyTeamCount());
 }
 
 void CMapGenerator::genZones()
 {
-	editManager->clearTerrain(&rand);
-	editManager->getTerrainSelection().selectRange(MapRect(int3(0, 0, 0), mapGenOptions->getWidth(), mapGenOptions->getHeight()));
-	editManager->drawTerrain(ETerrainType::GRASS, &rand);
+	getEditManager()->clearTerrain(&rand);
+	getEditManager()->getTerrainSelection().selectRange(MapRect(int3(0, 0, 0), mapGenOptions.getWidth(), mapGenOptions.getHeight()));
+	getEditManager()->drawTerrain(ETerrainType::GRASS, &rand);
 
-	auto tmpl = mapGenOptions->getMapTemplate();
+	auto tmpl = mapGenOptions.getMapTemplate();
 	zones.clear();
 	for(const auto & option : tmpl->getZones())
 	{
-		auto zone = std::make_shared<CRmgTemplateZone>();
+		auto zone = std::make_shared<CRmgTemplateZone>(this);
 		zone->setOptions(option.second.get());
 		zones[zone->getId()] = zone;
-		//todo: move to CRmgTemplateZone constructor
-		zone->setGenPtr(this);//immediately set gen pointer before taking any actions on zones
 	}
 
 	CZonePlacer placer(this);
-	placer.placeZones(mapGenOptions, &rand);
-	placer.assignZones(mapGenOptions);
+	placer.placeZones(&rand);
+	placer.assignZones();
 
 	logGlobal->info("Zones generated successfully");
 }
@@ -310,18 +310,19 @@ void CMapGenerator::fillZones()
 	//place main town in the middle
 	for (auto it : zones)
 		it.second->initTownType();
-
+	
 	//make sure there are some free tiles in the zone
 	for (auto it : zones)
 		it.second->initFreeTiles();
-
+	
 	createDirectConnections(); //direct
+	
 	//make sure all connections are passable before creating borders
 	for (auto it : zones)
 		it.second->createBorder(); //once direct connections are done
-
+	
 	createConnections2(); //subterranean gates and monoliths
-
+	
 	std::vector<std::shared_ptr<CRmgTemplateZone>> treasureZones;
 	for (auto it : zones)
 	{
@@ -329,12 +330,13 @@ void CMapGenerator::fillZones()
 		if (it.second->getType() == ETemplateZoneType::TREASURE)
 			treasureZones.push_back(it.second);
 	}
-
+	
 	//set apriopriate free/occupied tiles, including blocked underground rock
 	createObstaclesCommon1();
 	//set back original terrain for underground zones
 	for (auto it : zones)
 		it.second->createObstacles1();
+	
 	createObstaclesCommon2();
 	//place actual obstacles matching zone terrain
 	for (auto it : zones)
@@ -345,7 +347,7 @@ void CMapGenerator::fillZones()
 	#define PRINT_MAP_BEFORE_ROADS false
 	if (PRINT_MAP_BEFORE_ROADS) //enable to debug
 	{
-		std::ofstream out("road debug");
+		std::ofstream out("road_debug.txt");
 		int levels = map->twoLevel ? 2 : 1;
 		int width = map->width;
 		int height = map->height;
@@ -413,8 +415,8 @@ void CMapGenerator::createObstaclesCommon1()
 				}
 			}
 		}
-		editManager->getTerrainSelection().setSelection(rockTiles);
-		editManager->drawTerrain(ETerrainType::ROCK, &rand);
+		getEditManager()->getTerrainSelection().setSelection(rockTiles);
+		getEditManager()->drawTerrain(ETerrainType::ROCK, &rand);
 	}
 }
 
@@ -483,7 +485,7 @@ void CMapGenerator::findZonesForQuestArts()
 {
 	//we want to place arties in zones that were not yet filled (higher index)
 
-	for (auto connection : mapGenOptions->getMapTemplate()->getConnections())
+	for (auto connection : mapGenOptions.getMapTemplate()->getConnections())
 	{
 		auto zoneA = zones[connection.getZoneA()];
 		auto zoneB = zones[connection.getZoneB()];
@@ -501,7 +503,7 @@ void CMapGenerator::findZonesForQuestArts()
 
 void CMapGenerator::createDirectConnections()
 {
-	for (auto connection : mapGenOptions->getMapTemplate()->getConnections())
+	for (auto connection : mapGenOptions.getMapTemplate()->getConnections())
 	{
 		auto zoneA = zones[connection.getZoneA()];
 		auto zoneB = zones[connection.getZoneB()];
@@ -703,9 +705,9 @@ void CMapGenerator::createConnections2()
 void CMapGenerator::addHeaderInfo()
 {
 	map->version = EMapFormat::VCMI;
-	map->width = mapGenOptions->getWidth();
-	map->height = mapGenOptions->getHeight();
-	map->twoLevel = mapGenOptions->getHasTwoLevels();
+	map->width = mapGenOptions.getWidth();
+	map->height = mapGenOptions.getHeight();
+	map->twoLevel = mapGenOptions.getHasTwoLevels();
 	map->name = VLC->generaltexth->allTexts[740];
 	map->description = getMapDescription();
 	map->difficulty = 1;

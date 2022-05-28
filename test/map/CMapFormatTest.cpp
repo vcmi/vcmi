@@ -59,9 +59,9 @@ TEST(MapFormat, Random)
 	opt.setPlayerTypeForStandardPlayer(PlayerColor(2), EPlayerType::AI);
 	opt.setPlayerTypeForStandardPlayer(PlayerColor(3), EPlayerType::AI);
 
-	CMapGenerator gen;
+	CMapGenerator gen(opt, TEST_RANDOM_SEED);
 
-	std::unique_ptr<CMap> initialMap = gen.generate(&opt, TEST_RANDOM_SEED);
+	std::unique_ptr<CMap> initialMap = gen.generate();
 	initialMap->name = "Test";
 	SCOPED_TRACE("MapFormat_Random generated");
 

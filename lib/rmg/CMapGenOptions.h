@@ -94,6 +94,7 @@ public:
 	};
 
 	CMapGenOptions();
+	CMapGenOptions(const CMapGenOptions&) = delete;
 
 	si32 getWidth() const;
 	void setWidth(si32 value);
@@ -140,8 +141,6 @@ public:
 	/// Default: Not set/random.
 	const CRmgTemplate * getMapTemplate() const;
 	void setMapTemplate(const CRmgTemplate * value);
-
-	const std::map<std::string, CRmgTemplate *> & getAvailableTemplates() const;
 
 	/// Finalizes the options. All random sizes for various properties will be overwritten by numbers from
 	/// a random number generator by keeping the options in a valid state. Check options should return true, otherwise
