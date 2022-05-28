@@ -1766,35 +1766,22 @@ void CRmgTemplateZone::initTownType ()
 	}
 }
 
-void CRmgTemplateZone::randomizeTownType(bool prohibitNonUnderground)
+void CRmgTemplateZone::randomizeTownType(bool matchUndergroundType)
 {
 	auto townTypesAllowed = (townTypes.size() ? townTypes : getDefaultTownTypes());
-	if(prohibitNonUnderground && gen->getMapGenOptions().getHasTwoLevels())
+	if(matchUndergroundType && gen->getMapGenOptions().getHasTwoLevels())
 	{
-		if(isUnderground())
+		std::set<TFaction> townTypesVerify;
+		for(TFaction factionIdx : townTypesAllowed)
 		{
-			//intentionally use AND condition in order to have some choice. If poor random options remains - use pure random
-			//TODO: support new towns from mods to be defined as underground towns
-			if(townTypesAllowed.find(ETownType::DUNGEON) != townTypesAllowed.end() && townTypesAllowed.find(ETownType::INFERNO) != townTypesAllowed.end() && townTypesAllowed.find(ETownType::NECROPOLIS) != townTypesAllowed.end())
+			bool preferUnderground = (*VLC->townh)[factionIdx]->preferUndergroundPlacement;
+			if(isUnderground() ? preferUnderground : !preferUnderground)
 			{
-				townTypesAllowed.erase(ETownType::CASTLE);
-				townTypesAllowed.erase(ETownType::RAMPART);
-				townTypesAllowed.erase(ETownType::TOWER);
-				townTypesAllowed.erase(ETownType::STRONGHOLD);
-				townTypesAllowed.erase(ETownType::FORTRESS);
-				townTypesAllowed.erase(ETownType::CONFLUX);
+				townTypesVerify.insert(factionIdx);
 			}
 		}
-		else
-		{
-			//prohibit on surface if there are options for randomize
-			if(townTypesAllowed.size()>=6)
-			{
-				townTypesAllowed.erase(ETownType::DUNGEON);
-				townTypesAllowed.erase(ETownType::NECROPOLIS);
-				townTypesAllowed.erase(ETownType::INFERNO);
-			}
-		}
+		if(!townTypesVerify.empty())
+			townTypesAllowed = townTypesVerify;
 	}
 	
 	townType = *RandomGeneratorUtil::nextItem(townTypesAllowed, gen->rand);

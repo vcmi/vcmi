@@ -264,7 +264,7 @@ void CMapGenerator::addPlayerInfo()
 			logGlobal->error("Not enough places in team for %s player", ((j == CPUONLY) ? "CPU" : "CPU or human"));
 			assert (teamNumbers[j].size());
 		}
-        auto itTeam = RandomGeneratorUtil::nextItem(teamNumbers[j], rand);
+		auto itTeam = RandomGeneratorUtil::nextItem(teamNumbers[j], rand);
 		player.team = TeamID(*itTeam);
 		teamNumbers[j].erase(itTeam);
 		map->players[pSettings.getColor().getNum()] = player;
@@ -376,7 +376,7 @@ void CMapGenerator::fillZones()
 	zoneWater.second->fill();
 
 	std::vector<std::shared_ptr<CRmgTemplateZone>> treasureZones;
-    for (auto it : zones)
+	for (auto it : zones)
 	{
 		it.second->fill();
 		if (it.second->getType() == ETemplateZoneType::TREASURE)

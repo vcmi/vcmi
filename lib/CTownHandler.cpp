@@ -211,6 +211,7 @@ CFaction::CFaction()
 	town = nullptr;
 	index = 0;
 	alignment = EAlignment::NEUTRAL;
+	preferUndergroundPlacement = false;
 }
 
 CFaction::~CFaction()
@@ -1099,6 +1100,9 @@ CFaction * CTownHandler::loadFromJson(const std::string & scope, const JsonNode 
 	int terrainNum = nativeTerrain.isNull()
 		? -1
 		: vstd::find_pos(GameConstants::TERRAIN_NAMES, nativeTerrain.String());
+	
+	auto preferUndergound = source["preferUndergroundPlacement"];
+	faction->preferUndergroundPlacement = preferUndergound.isNull() ? false : preferUndergound.Bool();
 
 	//Contructor is not called here, but operator=
 	faction->nativeTerrain = terrainNum < 0

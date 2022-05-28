@@ -121,7 +121,7 @@ public:
 	bool placeMines ();
 	void initTownType ();
 	void paintZoneTerrain (ETerrainType terrainType);
-	void randomizeTownType(bool prohibitNonUnderground = false); //helper function
+	void randomizeTownType(bool matchUndergroundType = false); //helper function
 	void initTerrainType ();
 	void createBorder();
 	void fractalize();

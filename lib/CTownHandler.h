@@ -207,6 +207,7 @@ public:
 
 	ETerrainType nativeTerrain;
 	EAlignment::EAlignment alignment;
+	bool preferUndergroundPlacement;
 
 	CTown * town; //NOTE: can be null
 
