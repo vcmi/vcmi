@@ -637,14 +637,12 @@ void CMapGenerator::createDirectConnections()
 			}
 		}
 		
-		if(waterMode && !zoneA->isUnderground() && !zoneB->isUnderground())
-		{
-			if(zoneWater.second->waterKeepConnection(connection.getZoneA(), connection.getZoneB()))
-				continue; //do not add to connectionsLeft to avoid portal generation!
-		}
 
 		if (!guardPos.valid())
-			connectionsLeft.push_back(connection);
+		{
+			if(!waterMode || posA.z != posB.z || !zoneWater.second->waterKeepConnection(connection.getZoneA(), connection.getZoneB()))
+				connectionsLeft.push_back(connection);
+		}
 	}
 }
 

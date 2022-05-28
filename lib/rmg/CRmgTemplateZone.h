@@ -129,9 +129,9 @@ public:
 	EObjectPlacingResult::EObjectPlacingResult tryToPlaceObjectAndConnectToPath(CGObjectInstance * obj, const int3 & pos); //return true if the position can be connected
 	bool createRequiredObjects();
 	bool createShipyard(const int3 & pos, si32 guardStrength=0);
-	int3 createShipyard(si32 guardStrength=0);
+	int3 createShipyard(const std::set<int3> & lake, si32 guardStrength=0);
 	bool makeShip(TRmgTemplateZoneId land, const int3 & coast);
-	int3 makeShip(TRmgTemplateZoneId land);
+	int3 makeShip(TRmgTemplateZoneId land, const std::set<int3> & lake);
 	void createTreasures();
 	
 	void createWater(EWaterContent::EWaterContent waterContent, bool debug=false);

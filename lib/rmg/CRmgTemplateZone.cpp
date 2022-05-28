@@ -684,7 +684,7 @@ void CRmgTemplateZone::waterConnection(CRmgTemplateZone& dst)
 			{
 				for(auto & ct : lake.coast)
 				{
-					if(gen->getZoneID(ct)==dst.getId())
+					if(gen->getZoneID(ct)==dst.getId() && gen->isPossible(ct))
 						gen->setOccupied(ct, ETileType::BLOCKED);
 				}
 				continue;
@@ -695,15 +695,15 @@ void CRmgTemplateZone::waterConnection(CRmgTemplateZone& dst)
 			
 			if(dst.getType() == ETemplateZoneType::PLAYER_START || dst.getType() == ETemplateZoneType::CPU_START || zoneTowns)
 			{
-				coastTile = dst.createShipyard(3500);
+				coastTile = dst.createShipyard(lake.tiles, 3500);
 				if(!coastTile.valid())
 				{
-					coastTile = makeShip(dst.getId());
+					coastTile = makeShip(dst.getId(), lake.tiles);
 				}
 			}
 			else
 			{
-				coastTile = makeShip(dst.getId());
+				coastTile = makeShip(dst.getId(), lake.tiles);
 			}
 				
 			if(coastTile.valid())
@@ -2050,16 +2050,18 @@ bool CRmgTemplateZone::createRequiredObjects()
 	return true;
 }
 
-int3 CRmgTemplateZone::makeShip(TRmgTemplateZoneId land)
+int3 CRmgTemplateZone::makeShip(TRmgTemplateZoneId land, const std::set<int3> & lake)
 {
+	std::set<int3> lakeCoast;
+	std::set_intersection(gen->getZones()[land]->getCoastTiles().begin(), gen->getZones()[land]->getCoastTiles().end(), lake.begin(), lake.end(), std::inserter(lakeCoast, lakeCoast.begin()));
 	for(int randomAttempts = 0; randomAttempts<5; ++randomAttempts)
 	{
-		auto coastTile = *RandomGeneratorUtil::nextItem(gen->getZones()[land]->getCoastTiles(), gen->rand);
+		auto coastTile = *RandomGeneratorUtil::nextItem(lakeCoast, gen->rand);
 		if(gen->getZoneID(coastTile)==gen->getZoneWater().first && isWaterConnected(land, coastTile) && makeShip(land, coastTile))
 			return coastTile;
 	}
 	//if no success on random selection, use brute force
-	for(const auto& coastTile : gen->getZones()[land]->getCoastTiles())
+	for(const auto& coastTile : lakeCoast)
 	{
 		if(gen->getZoneID(coastTile)==gen->getZoneWater().first && isWaterConnected(land, coastTile) && makeShip(land, coastTile))
 			return coastTile;
@@ -2117,16 +2119,18 @@ bool CRmgTemplateZone::makeShip(TRmgTemplateZoneId land, const int3 & coast)
 	return false;
 }
 
-int3 CRmgTemplateZone::createShipyard(si32 guardStrength)
+int3 CRmgTemplateZone::createShipyard(const std::set<int3> & lake, si32 guardStrength)
 {
+	std::set<int3> lakeCoast;
+	std::set_intersection(getCoastTiles().begin(), getCoastTiles().end(), lake.begin(), lake.end(), std::inserter(lakeCoast, lakeCoast.begin()));
 	for(int randomAttempts = 0; randomAttempts<5; ++randomAttempts)
 	{
-		auto coastTile = *RandomGeneratorUtil::nextItem(getCoastTiles(), gen->rand);
+		auto coastTile = *RandomGeneratorUtil::nextItem(lakeCoast, gen->rand);
 		if(gen->getZoneID(coastTile)==gen->getZoneWater().first && isWaterConnected(id, coastTile) && createShipyard(coastTile, guardStrength))
 			return coastTile;
 	}
 	//if no success on random selection, use brute force
-	for(const auto& coastTile : getCoastTiles())
+	for(const auto& coastTile : lakeCoast)
 	{
 		if(gen->getZoneID(coastTile)==gen->getZoneWater().first && isWaterConnected(id, coastTile) && createShipyard(coastTile, guardStrength))
 			return coastTile;
