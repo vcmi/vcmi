@@ -473,9 +473,9 @@ void CGuiHandler::renderFrame()
 		SDL_RenderPresent(mainRenderer);
 
 		disposed.clear();
+		
+		mainFPSmng->framerateDelay(); // holds a constant FPS
 	}
-
-	mainFPSmng->framerateDelay(); // holds a constant FPS
 }
 
 
