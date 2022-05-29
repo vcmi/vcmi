@@ -387,9 +387,6 @@ if(WIN32)
                        file(GLOB dep_files
                                ${dep_files}
                                "${lp_dir}/../bin/*.dll")
-                       file(GLOB dep_files
-                               ${dep_files}
-                               "${lp_dir}/*.dll")
                        #Search for Qt windows plugin
                        file(GLOB dep_plugin
                                ${dep_plugin}
@@ -406,6 +403,7 @@ if(WIN32)
                        "${CMAKE_FIND_ROOT_PATH}/bin/*.dll")
        endif()
 
+	message("${dep_files}")
 	if((${CMAKE_VERSION} VERSION_LESS "3.14.0") AND VCPKG_TOOLCHAIN)
 		message(WARNING "CMake is too old for modern vcpkg")
 	elif(VCPKG_TOOLCHAIN)
