@@ -89,3 +89,13 @@ if(VCPKG_TOOLCHAIN)
 
 	" COMPONENT Runtime)
 endif(VCPKG_TOOLCHAIN)
+
+if(CONAN_C_FLAGS AND MSVC)
+	install(CODE "
+			set(dirs \"${CMAKE_PREFIX_PATH}/bin/\")
+			set(BU_CHMOD_BUNDLE_ITEMS ON)
+			include(BundleUtilities)
+			fixup_bundle(\"\${CMAKE_INSTALL_PREFIX}/VCMI_Client.exe\" \"\" \"\${dirs}\")
+
+	" COMPONENT Runtime)
+endif()
