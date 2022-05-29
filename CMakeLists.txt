@@ -383,10 +383,6 @@ if(WIN32)
        if(DEFINED CONAN_CXX_FLAGS)
                message("Conan Windows build enabled\n")
                foreach(lp_dir IN LISTS CMAKE_LIBRARY_PATH)
-                       #DLLs is in bindir on Conan
-                       file(GLOB dep_files
-                               ${dep_files}
-                               "${lp_dir}/../bin/*.dll")
                        #Search for Qt windows plugin
                        file(GLOB dep_plugin
                                ${dep_plugin}
