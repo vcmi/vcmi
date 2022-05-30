@@ -397,21 +397,21 @@ const CRmgTemplate * CMapGenOptions::getPossibleTemplate(CRandomGenerator & rand
 	
 	vstd::erase_if(templates, [this, &tplSize, humanPlayers](const CRmgTemplate * tmpl)
 	{
-		if (!tmpl->matchesSize(tplSize))
+		if(!tmpl->matchesSize(tplSize))
 			return true;
 		
 		if(!tmpl->isWaterContentAllowed(getWaterContent()))
 			return true;
 		
-		if (getPlayerCount() != -1)
+		if(getPlayerCount() != -1)
 		{
 			if (!tmpl->getPlayers().isInRange(getPlayerCount()))
-				return true;;
+				return true;
 		}
 		else
 		{
 			// Human players shouldn't be banned when playing with random player count
-			if (humanPlayers > *boost::min_element(tmpl->getPlayers().getNumbers()))
+			if(humanPlayers > *boost::min_element(tmpl->getPlayers().getNumbers()))
 				return true;
 		}
 		

@@ -294,7 +294,7 @@ void CMapGenerator::genZones()
 	placer.assignZones();
 	
 	//add special zone for water
-	zoneWater.first = zones.size()+1;
+	zoneWater.first = zones.size() + 1;
 	zoneWater.second = std::make_shared<CRmgTemplateZone>(this);
 	{
 		rmg::ZoneOptions options;
@@ -308,18 +308,9 @@ void CMapGenerator::genZones()
 
 void CMapGenerator::createWaterTreasures()
 {
-	ui32 waterTreasure = getZoneWater().second->getTileInfo().size();
 	//add treasures on water
-	getZoneWater().second->addTreasureInfo(CTreasureInfo{1000, 3000, 9});
-	getZoneWater().second->addTreasureInfo(CTreasureInfo{5000, 10000, 1});
-	if(waterTreasure > 1000)
-		getZoneWater().second->addTreasureInfo(CTreasureInfo{2000, 6000, 2});
-	if(waterTreasure > 2500)
-		getZoneWater().second->addTreasureInfo(CTreasureInfo{2000, 6000, 2});
-	if(waterTreasure > 3600)
-		getZoneWater().second->addTreasureInfo(CTreasureInfo{2000, 6000, 3});
-	if(waterTreasure > 6400)
-		getZoneWater().second->addTreasureInfo(CTreasureInfo{2000, waterTreasure, 4});
+	getZoneWater().second->addTreasureInfo(CTreasureInfo{100, 1000, 5});
+	getZoneWater().second->addTreasureInfo(CTreasureInfo{2000, 6000, 1});
 }
 
 void CMapGenerator::prepareWaterTiles()
@@ -341,21 +332,21 @@ void CMapGenerator::fillZones()
 
 	//we need info about all town types to evaluate dwellings and pandoras with creatures properly
 	//place main town in the middle
-	for (auto it : zones)
+	for(auto it : zones)
 		it.second->initTownType();
 	
 	//make sure there are some free tiles in the zone
-	for (auto it : zones)
+	for(auto it : zones)
 		it.second->initFreeTiles();
 	
-	for (auto it : zones)
+	for(auto it : zones)
 		it.second->createBorder(); //once direct connections are done
 	
 #ifdef _BETA
 	dump(false);
 #endif
 	
-	for (auto it : zones)
+	for(auto it : zones)
 		it.second->createWater(getMapGenOptions().getWaterContent());
 	
 	zoneWater.second->waterInitFreeTiles();
@@ -367,7 +358,7 @@ void CMapGenerator::fillZones()
 	createDirectConnections(); //direct
 	createConnections2(); //subterranean gates and monoliths
 	
-	for (auto it : zones)
+	for(auto it : zones)
 		zoneWater.second->waterConnection(*it.second);
 	
 	createWaterTreasures();
@@ -375,7 +366,7 @@ void CMapGenerator::fillZones()
 	zoneWater.second->fill();
 
 	std::vector<std::shared_ptr<CRmgTemplateZone>> treasureZones;
-	for (auto it : zones)
+	for(auto it : zones)
 	{
 		it.second->fill();
 		if (it.second->getType() == ETemplateZoneType::TREASURE)
@@ -389,12 +380,12 @@ void CMapGenerator::fillZones()
 	//set apriopriate free/occupied tiles, including blocked underground rock
 	createObstaclesCommon1();
 	//set back original terrain for underground zones
-	for (auto it : zones)
+	for(auto it : zones)
 		it.second->createObstacles1();
 	
 	createObstaclesCommon2();
 	//place actual obstacles matching zone terrain
-	for (auto it : zones)
+	for(auto it : zones)
 		it.second->createObstacles2();
 		
 	zoneWater.second->createObstacles2();
@@ -438,15 +429,15 @@ void CMapGenerator::fillZones()
 		out << std::endl;
 	}
 
-	for (auto it : zones)
+	for(auto it : zones)
 	{
 		it.second->connectRoads(); //draw roads after everything else has been placed
 	}
 
 	//find place for Grail
-	if (treasureZones.empty())
+	if(treasureZones.empty())
 	{
-		for (auto it : zones)
+		for(auto it : zones)
 			treasureZones.push_back(it.second);
 	}
 	auto grailZone = *RandomGeneratorUtil::nextItem(treasureZones, rand);
@@ -579,8 +570,6 @@ void CMapGenerator::createDirectConnections()
 		// auto zoneAid = zoneA->getId();
 		auto zoneBid = zoneB->getId();
 		
-		
-
 		if (posA.z == posB.z)
 		{
 			std::vector<int3> middleTiles;
@@ -636,7 +625,6 @@ void CMapGenerator::createDirectConnections()
 			}
 		}
 		
-
 		if (!guardPos.valid())
 		{
 			if(!waterMode || posA.z != posB.z || !zoneWater.second->waterKeepConnection(connection.getZoneA(), connection.getZoneB()))
