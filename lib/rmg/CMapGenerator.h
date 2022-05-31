@@ -26,6 +26,8 @@ class JsonNode;
 class CMapGenerator;
 class CTileInfo;
 
+//#define _BETA
+
 typedef std::vector<JsonNode> JsonVector;
 
 class rmgException : public std::exception
@@ -96,18 +98,26 @@ public:
 	void registerZone (TFaction faction);
 	ui32 getZoneCount(TFaction faction);
 	ui32 getTotalZoneCount() const;
+	
+	Zones::value_type getZoneWater() const;
+	void createWaterTreasures();
+	void prepareWaterTiles();
 
 	TRmgTemplateZoneId getZoneID(const int3& tile) const;
 	void setZoneID(const int3& tile, TRmgTemplateZoneId zid);
+	
+	void dump(bool zoneId);
 
 private:
 	int randomSeed;
 	CMapGenOptions& mapGenOptions;
 	
-	std::list<rmg::ZoneConnection> connectionsLeft;
+	std::vector<rmg::ZoneConnection> connectionsLeft;
 	Zones zones;
 	std::map<TFaction, ui32> zonesPerFaction;
 	ui32 zonesTotal; //zones that have their main town only
+	
+	std::pair<Zones::key_type, Zones::mapped_type> zoneWater;
 
 	CTileInfo*** tiles;
 	boost::multi_array<TRmgTemplateZoneId, 3> zoneColouring; //[z][x][y]

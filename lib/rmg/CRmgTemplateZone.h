@@ -91,26 +91,29 @@ class DLL_LINKAGE CRmgTemplateZone : public rmg::ZoneOptions
 public:
 	CRmgTemplateZone(CMapGenerator * Gen);
 
-	void setOptions(const rmg::ZoneOptions * options);
+	void setOptions(const rmg::ZoneOptions & options);
 	bool isUnderground() const;
 
 	float3 getCenter() const;
 	void setCenter(const float3 &f);
 	int3 getPos() const;
 	void setPos(const int3 &pos);
-	bool isAccessibleFromAnywhere(ObjectTemplate &appearance, int3 &tile) const;
-	int3 getAccessibleOffset(ObjectTemplate &appearance, int3 &tile) const;
+	bool isAccessibleFromSomewhere(ObjectTemplate & appearance, const int3 & tile) const;
+	int3 getAccessibleOffset(ObjectTemplate & appearance, const int3 & tile) const;
 
-	void addTile (const int3 &pos);
+	void addTile (const int3 & pos);
+	void removeTile(const int3 & pos);
 	void initFreeTiles ();
 	std::set<int3> getTileInfo() const;
 	std::set<int3> getPossibleTiles() const;
-	void discardDistantTiles (float distance);
+	std::set<int3> collectDistantTiles (float distance) const;
 	void clearTiles();
 
 	void addRequiredObject(CGObjectInstance * obj, si32 guardStrength=0);
 	void addCloseObject(CGObjectInstance * obj, si32 guardStrength = 0);
 	void addNearbyObject(CGObjectInstance * obj, CGObjectInstance * nearbyTarget);
+	void addObjectAtPosition(CGObjectInstance * obj, const int3 & position, si32 guardStrength=0);
+
 	void addToConnectLater(const int3& src);
 	bool addMonster(int3 &pos, si32 strength, bool clearSurroundingTiles = true, bool zoneGuard = false);
 	bool createTreasurePile(int3 &pos, float minDistance, const CTreasureInfo& treasureInfo);
@@ -123,21 +126,35 @@ public:
 	void createBorder();
 	void fractalize();
 	void connectLater();
-	EObjectPlacingResult::EObjectPlacingResult tryToPlaceObjectAndConnectToPath(CGObjectInstance *obj, int3 &pos); //return true if the position cna be connected
+	EObjectPlacingResult::EObjectPlacingResult tryToPlaceObjectAndConnectToPath(CGObjectInstance * obj, const int3 & pos); //return true if the position can be connected
 	bool createRequiredObjects();
+	bool createShipyard(const int3 & pos, si32 guardStrength=0);
+	int3 createShipyard(const std::set<int3> & lake, si32 guardStrength=0);
+	bool makeBoat(TRmgTemplateZoneId land, const int3 & coast);
+	int3 makeBoat(TRmgTemplateZoneId land, const std::set<int3> & lake);
 	void createTreasures();
+	
+	void createWater(EWaterContent::EWaterContent waterContent, bool debug=false);
+	void waterInitFreeTiles();
+	void waterConnection(CRmgTemplateZone& dst);
+	bool waterKeepConnection(TRmgTemplateZoneId zoneA, TRmgTemplateZoneId zoneB);
+	const std::set<int3>& getCoastTiles() const;
+	bool isWaterConnected(TRmgTemplateZoneId zone, const int3 & tile) const;
+	//void computeCoastTiles();
+	
 	void createObstacles1();
 	void createObstacles2();
 	bool crunchPath(const int3 &src, const int3 &dst, bool onlyStraight, std::set<int3>* clearedTiles = nullptr);
 	bool connectPath(const int3& src, bool onlyStraight);
-	bool connectWithCenter(const int3& src, bool onlyStraight);
+	bool connectWithCenter(const int3& src, bool onlyStraight, bool passTroughBlocked = false);
 	void updateDistances(const int3 & pos);
 
 	std::vector<int3> getAccessibleOffsets (const CGObjectInstance* object);
-	bool areAllTilesAvailable(CGObjectInstance* obj, int3& tile, std::set<int3>& tilesBlockedByObject) const;
+	bool areAllTilesAvailable(CGObjectInstance* obj, int3& tile, const std::set<int3>& tilesBlockedByObject) const;
 
 	void setQuestArtZone(std::shared_ptr<CRmgTemplateZone> otherZone);
 	std::set<int3>* getFreePaths();
+	void addFreePath(const int3 &);
 
 	ObjectInfo getRandomObject (CTreasurePileInfo &info, ui32 desiredValue, ui32 maxValue, ui32 currentValue);
 
@@ -160,9 +177,20 @@ public:
 	boost::heap::priority_queue<TDistance, boost::heap::compare<NodeComparer>> createPriorityQueue();
 
 private:
+	
+	//subclass to store disconnected parts of water zone
+	struct Lake
+	{
+		std::set<int3> tiles;
+		std::set<int3> coast;
+		std::map<int3, int> distance;
+		std::set<TRmgTemplateZoneId> connectedZones;
+		std::set<TRmgTemplateZoneId> keepConnections;
+	};
+	
 	CMapGenerator * gen;
+	
 	//template info
-
 	si32 townType;
 	ETerrainType terrainType;
 	std::weak_ptr<CRmgTemplateZone> questArtZone; //artifacts required for Seer Huts will be placed here - or not if null
@@ -173,8 +201,10 @@ private:
 	//content info
 	std::vector<std::pair<CGObjectInstance*, ui32>> requiredObjects;
 	std::vector<std::pair<CGObjectInstance*, ui32>> closeObjects;
+	std::vector<std::pair<CGObjectInstance*, int3>> instantObjects;
 	std::vector<std::pair<CGObjectInstance*, CGObjectInstance*>> nearbyObjects;
 	std::vector<CGObjectInstance*> objects;
+	std::map<CGObjectInstance*, int3> requestedPositions;
 
 	//placement info
 	int3 pos;
@@ -182,11 +212,14 @@ private:
 	std::set<int3> tileinfo; //irregular area assined to zone
 	std::set<int3> possibleTiles; //optimization purposes for treasure generation
 	std::set<int3> freePaths; //core paths of free tiles that all other objects will be linked to
+	std::set<int3> coastTiles; //tiles bordered to water
 
 	std::set<int3> roadNodes; //tiles to be connected with roads
 	std::set<int3> roads; //all tiles with roads
 	std::set<int3> tilesToConnectLater; //will be connected after paths are fractalized
-
+	std::vector<Lake> lakes; //disconnected parts of zone. Used to work with water zones
+	std::map<int3, int> lakeMap; //map tile on lakeId which is position of lake in lakes array +1
+	
 	bool createRoad(const int3 &src, const int3 &dst);
 	void drawRoads(); //actually updates tiles
 
@@ -197,4 +230,6 @@ private:
 	bool canObstacleBePlacedHere(ObjectTemplate &temp, int3 &pos);
 	void setTemplateForObject(CGObjectInstance* obj);
 	void checkAndPlaceObject(CGObjectInstance* object, const int3 &pos);
+	
+	bool isGuardNeededForTreasure(int value);
 };
