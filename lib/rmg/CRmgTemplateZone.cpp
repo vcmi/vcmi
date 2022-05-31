@@ -2613,6 +2613,7 @@ void CRmgTemplateZone::placeObject(CGObjectInstance* object, const int3 &pos, bo
 	case Obj::MONOLITH_ONE_WAY_ENTRANCE:
 	case Obj::MONOLITH_ONE_WAY_EXIT:
 	case Obj::SUBTERRANEAN_GATE:
+	case Obj::SHIPYARD:
 		{
 			addRoadNode(object->visitablePos());
 		}
