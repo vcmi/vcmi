@@ -249,7 +249,8 @@ find_package(TBB REQUIRED)
 
 if(ENABLE_LAUNCHER)
 	# Widgets finds its own dependencies (QtGui and QtCore).
-	find_package(Qt5 COMPONENTS Widgets Network REQUIRED)
+	find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Network)
+	find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Network)
 endif()
 
 if(ENABLE_LUA)
@@ -389,7 +390,7 @@ if(WIN32)
 	endif()
 
 	if(ENABLE_LAUNCHER)
-		get_target_property(QtCore_location Qt5::Core LOCATION)
+		get_target_property(QtCore_location Qt${QT_VERSION_MAJOR}::Core LOCATION)
 		get_filename_component(Qtbin_folder ${QtCore_location} PATH)
 		file(GLOB dep_files
 			${dep_files}
@@ -398,9 +399,9 @@ if(WIN32)
 			${Qtbin_folder}/Qt5Widgets${debug_postfix}.dll
 			${Qtbin_folder}/Qt5Network${debug_postfix}.dll
 			${Qtbin_folder}/icu*.dll)
-		get_target_property(integration_type Qt5::QWindowsIntegrationPlugin TYPE)
+		get_target_property(integration_type Qt${QT_VERSION_MAJOR}::QWindowsIntegrationPlugin TYPE)
 		if(NOT(integration_type STREQUAL "INTERFACE_LIBRARY"))
-			get_target_property(integration_loc Qt5::QWindowsIntegrationPlugin LOCATION)
+			get_target_property(integration_loc Qt${QT_VERSION_MAJOR}::QWindowsIntegrationPlugin LOCATION)
 			install(
 				FILES ${integration_loc}
 				DESTINATION ${BIN_DIR}/platforms

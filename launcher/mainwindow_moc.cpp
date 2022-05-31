@@ -102,7 +102,7 @@ void MainWindow::startExecutable(QString name)
 	QProcess process;
 
 	// Start the executable
-	if(process.startDetached(name))
+	if(process.startDetached(name, {}))
 	{
 		close(); // exit launcher
 	}
