@@ -255,6 +255,7 @@ void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
 			allowedTerrains.insert(ETerrainType((si32)i));
 
 		allowedTerrains.erase(ETerrainType::ROCK);
+		allowedTerrains.erase(ETerrainType::WATER);
 	}
 
 	if(withTerrain && allowedTerrains.empty())
@@ -327,8 +328,8 @@ void ObjectTemplate::writeJson(JsonNode & node, const bool withTerrain) const
 
 	if(withTerrain)
 	{
-		//assumed that ROCK terrain not included
-		if(allowedTerrains.size() < (GameConstants::TERRAIN_TYPES - 1))
+		//assumed that ROCK and WATER terrains are not included
+		if(allowedTerrains.size() < (GameConstants::TERRAIN_TYPES - 2))
 		{
 			JsonVector & data = node["allowedTerrains"].Vector();
 

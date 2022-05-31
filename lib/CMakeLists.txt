@@ -86,7 +86,6 @@ set(lib_SRCS
 		rmg/CRmgTemplate.cpp
 		rmg/CRmgTemplateStorage.cpp
 		rmg/CRmgTemplateZone.cpp
-		rmg/CZoneGraphGenerator.cpp
 		rmg/CZonePlacer.cpp
 
 		serializer/BinaryDeserializer.cpp
@@ -292,7 +291,6 @@ set(lib_HEADERS
 		rmg/CRmgTemplate.h
 		rmg/CRmgTemplateStorage.h
 		rmg/CRmgTemplateZone.h
-		rmg/CZoneGraphGenerator.h
 		rmg/CZonePlacer.h
 		rmg/float3.h
 

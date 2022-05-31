@@ -11,9 +11,9 @@
 #pragma once
 
 #include "../GameConstants.h"
-#include "../CRandomGenerator.h"
 
 class CRmgTemplate;
+class CRandomGenerator;
 
 namespace EWaterContent
 {

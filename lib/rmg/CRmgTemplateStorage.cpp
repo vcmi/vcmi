@@ -68,36 +68,3 @@ std::vector<const CRmgTemplate *> CRmgTemplateStorage::getTemplates() const
 	}
 	return result;
 }
-
-std::vector<const CRmgTemplate *> CRmgTemplateStorage::getTemplates(const int3& filterSize, si8 filterPlayers, si8 filterHumanPlayers, si8 filterCpuPlayers) const
-{
-	std::vector<const CRmgTemplate *> result;
-	for(auto i=templates.cbegin(); i!=templates.cend(); ++i)
-	{
-		auto& tmpl = i->second;
-		
-		if (!tmpl.matchesSize(filterSize))
-			continue;
-		
-		if (filterPlayers != -1)
-		{
-			if (!tmpl.getPlayers().isInRange(filterPlayers))
-				continue;
-		}
-		else
-		{
-			// Human players shouldn't be banned when playing with random player count
-			if (filterHumanPlayers > *boost::min_element(tmpl.getPlayers().getNumbers()))
-				continue;
-		}
-		
-		if(filterCpuPlayers != -1)
-		{
-			if (!tmpl.getCpuPlayers().isInRange(filterCpuPlayers))
-				continue;
-		}
-		
-		result.push_back(&i->second);
-	}
-	return result;
-}
