@@ -78,6 +78,11 @@ void CMapGenerator::loadConfig()
 	}
 }
 
+const CMapGenerator::Config & CMapGenerator::getConfig() const
+{
+	return config;
+}
+
 void CMapGenerator::initTiles()
 {
 	map->initTerrain();
@@ -321,8 +326,10 @@ void CMapGenerator::genZones()
 void CMapGenerator::createWaterTreasures()
 {
 	//add treasures on water
-	getZoneWater().second->addTreasureInfo(CTreasureInfo{100, 1000, 5});
-	getZoneWater().second->addTreasureInfo(CTreasureInfo{2000, 6000, 1});
+	for(auto & treasureInfo : getConfig().waterTreasure)
+	{
+		getZoneWater().second->addTreasureInfo(treasureInfo);
+	}
 }
 
 void CMapGenerator::prepareWaterTiles()

@@ -641,7 +641,7 @@ void CRmgTemplateZone::waterConnection(CRmgTemplateZone& dst)
 			
 			if(dst.getType() == ETemplateZoneType::PLAYER_START || dst.getType() == ETemplateZoneType::CPU_START || zoneTowns)
 			{
-				coastTile = dst.createShipyard(lake.tiles, 3500);
+				coastTile = dst.createShipyard(lake.tiles, gen->getConfig().shipyardGuard);
 				if(!coastTile.valid())
 				{
 					coastTile = makeBoat(dst.getId(), lake.tiles);

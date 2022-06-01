@@ -63,6 +63,8 @@ public:
 	explicit CMapGenerator(CMapGenOptions& mapGenOptions, int RandomSeed = std::time(nullptr));
 	~CMapGenerator(); // required due to std::unique_ptr
 	
+	const Config & getConfig() const;
+	
 	mutable std::unique_ptr<CMap> map;
 	CRandomGenerator rand;
 	
