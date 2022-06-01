@@ -52,6 +52,12 @@ public:
 class DLL_LINKAGE CMapGenerator
 {
 public:
+	struct Config
+	{
+		std::vector<CTreasureInfo> waterTreasure;
+		int shipyardGuard;
+	};
+	
 	using Zones = std::map<TRmgTemplateZoneId, std::shared_ptr<CRmgTemplateZone>>;
 
 	explicit CMapGenerator(CMapGenOptions& mapGenOptions, int RandomSeed = std::time(nullptr));
@@ -111,6 +117,7 @@ public:
 private:
 	int randomSeed;
 	CMapGenOptions& mapGenOptions;
+	Config config;
 	
 	std::vector<rmg::ZoneConnection> connectionsLeft;
 	Zones zones;
@@ -129,6 +136,8 @@ private:
 	void checkIsOnMap(const int3 &tile) const; //throws
 
 	/// Generation methods
+	void loadConfig();
+	
 	std::string getMapDescription() const;
 
 	void initPrisonsRemaining();

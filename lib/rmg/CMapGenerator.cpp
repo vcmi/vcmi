@@ -62,8 +62,20 @@ CMapGenerator::CMapGenerator(CMapGenOptions& mapGenOptions, int RandomSeed) :
 	zonesTotal(0), tiles(nullptr), prisonsRemaining(0),
     monolithIndex(0)
 {
+	loadConfig();
 	rand.setSeed(this->randomSeed);
 	mapGenOptions.finalize(rand);
+}
+
+void CMapGenerator::loadConfig()
+{
+	static const ResourceID path("config/randomMap.json");
+	JsonNode randomMapJson(path);
+	config.shipyardGuard = randomMapJson["waterZone"]["shipyard"]["guard"].Integer();
+	for(auto & treasure : randomMapJson["waterZone"]["treasure"].Vector())
+	{
+		config.waterTreasure.emplace_back(treasure["min"].Integer(), treasure["max"].Integer(), treasure["density"].Integer());
+	}
 }
 
 void CMapGenerator::initTiles()

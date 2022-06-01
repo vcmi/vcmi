@@ -1,0 +1,16 @@
+{
+  "waterZone" :
+  {
+    "treasure" :
+    [
+        { "min" : 20000, "max" : 30000, "density" : 1 },
+        { "min" : 15000, "max" : 20000, "density" : 6 },
+        { "min" : 10000, "max" : 15000, "density" : 9 },
+        { "min" : 1000, "max" : 10000, "density" : 9 }
+    ],
+    "shipyard" :
+    {
+      "guard" : 3500
+    }
+  }
+}

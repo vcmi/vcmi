@@ -2386,26 +2386,13 @@ bool CRmgTemplateZone::fill()
 	
 	addAllPossibleObjects();
 	
-	if(type==ETemplateZoneType::WATER)
-	{
-		initFreeTiles();
-		connectLater();
-		createRequiredObjects();
-		fractalize();
-		createTreasures();
-	}
-	else
-	{
-		//zone center should be always clear to allow other tiles to connect
-		initFreeTiles();
-		connectLater(); //ideally this should work after fractalize, but fails
-		fractalize();
-		placeMines();
-		createRequiredObjects();
-		createTreasures();
-	}
-	
-	gen->dump(false);
+	//zone center should be always clear to allow other tiles to connect
+	initFreeTiles();
+	connectLater(); //ideally this should work after fractalize, but fails
+	fractalize();
+	placeMines();
+	createRequiredObjects();
+	createTreasures();
 
 	logGlobal->info("Zone %d filled successfully", id);
 	return true;
