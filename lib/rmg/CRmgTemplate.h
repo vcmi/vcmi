@@ -181,6 +181,7 @@ public:
 
 	bool matchesSize(const int3 & value) const;
 	bool isWaterContentAllowed(EWaterContent::EWaterContent waterContent) const;
+	const std::set<EWaterContent::EWaterContent> & getWaterContentAllowed() const;
 
 	void setId(const std::string & value);
 	const std::string & getName() const;
