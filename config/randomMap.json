@@ -8,8 +8,8 @@
   {
     "treasure" :
     [
-        { "min" : 2000, "max" : 6000, "density" : 5 },
-        { "min" : 100, "max" : 1000, "density" : 1 }
+        { "min" : 2000, "max" : 6000, "density" : 1 },
+        { "min" : 100, "max" : 1000, "density" : 5 }
     ],
     "shipyard" :
     {
