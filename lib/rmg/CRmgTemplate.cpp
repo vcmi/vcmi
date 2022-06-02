@@ -359,7 +359,7 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 			rawStrength = static_cast<decltype(rawStrength)>(zoneMonsterStrength);
 			rawStrength++;
 		}
-		handler.serializeEnum("monsters", rawStrength, STRENGTH);
+		handler.serializeEnum("monsters", rawStrength, EMonsterStrength::ZONE_NORMAL + 1, STRENGTH);
 		if(!handler.saving)
 		{
 			rawStrength--;
