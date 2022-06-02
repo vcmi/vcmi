@@ -54,8 +54,20 @@ class DLL_LINKAGE CMapGenerator
 public:
 	struct Config
 	{
+		std::vector<ETerrainType> terrainUndergroundAllowed;
+		std::vector<ETerrainType> terrainGroundProhibit;
 		std::vector<CTreasureInfo> waterTreasure;
 		int shipyardGuard;
+		int mineExtraResources;
+		std::map<Res::ERes, int> mineValues;
+		int minGuardStrength;
+		ERoadType::ERoadType defaultRoadType;
+		int treasureValueLimit;
+		std::vector<int> prisonExperience, prisonValues;
+		std::vector<int> scrollValues;
+		int pandoraMultiplierGold, pandoraMultiplierExperience, pandoraMultiplierSpells, pandoraSpellSchool, pandoraSpell60;
+		std::vector<int> pandoraCreatureValues;
+		std::vector<int> questValues, questRewardValues;
 	};
 	
 	using Zones = std::map<TRmgTemplateZoneId, std::shared_ptr<CRmgTemplateZone>>;

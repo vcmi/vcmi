@@ -69,13 +69,75 @@ CMapGenerator::CMapGenerator(CMapGenOptions& mapGenOptions, int RandomSeed) :
 
 void CMapGenerator::loadConfig()
 {
+	static std::map<std::string, ETerrainType> terrainMap
+	{
+		{"dirt", ETerrainType::DIRT},
+		{"sand", ETerrainType::SAND},
+		{"grass", ETerrainType::GRASS},
+		{"snow", ETerrainType::SNOW},
+		{"swamp", ETerrainType::SWAMP},
+		{"subterranean", ETerrainType::SUBTERRANEAN},
+		{"lava", ETerrainType::LAVA},
+		{"rough", ETerrainType::ROUGH}
+	};
+	static const std::map<std::string, Res::ERes> resMap
+	{
+		{"wood", Res::ERes::WOOD},
+		{"ore", Res::ERes::ORE},
+		{"gems", Res::ERes::GEMS},
+		{"crystal", Res::ERes::CRYSTAL},
+		{"mercury", Res::ERes::MERCURY},
+		{"sulfur", Res::ERes::SULFUR},
+		{"gold", Res::ERes::GOLD},
+	};
+	static std::map<std::string, ERoadType::ERoadType> roadTypeMap
+	{
+		{"dirt_road", ERoadType::DIRT_ROAD},
+		{"gravel_road", ERoadType::GRAVEL_ROAD},
+		{"cobblestone_road", ERoadType::COBBLESTONE_ROAD}
+	};
 	static const ResourceID path("config/randomMap.json");
 	JsonNode randomMapJson(path);
-	config.shipyardGuard = randomMapJson["waterZone"]["shipyard"]["guard"].Integer();
+	for(auto& s : randomMapJson["terrain"]["undergroundAllow"].Vector())
+	{
+		if(!s.isNull())
+			config.terrainUndergroundAllowed.push_back(terrainMap[s.String()]);
+	}
+	for(auto& s : randomMapJson["terrain"]["groundProhibit"].Vector())
+	{
+		if(!s.isNull())
+			config.terrainGroundProhibit.push_back(terrainMap[s.String()]);
+	}
+	config.shipyardGuard = randomMapJson["waterZone"]["shipyard"]["value"].Integer();
 	for(auto & treasure : randomMapJson["waterZone"]["treasure"].Vector())
 	{
 		config.waterTreasure.emplace_back(treasure["min"].Integer(), treasure["max"].Integer(), treasure["density"].Integer());
 	}
+	for(auto& s : resMap)
+	{
+		config.mineValues[s.second] = randomMapJson["mines"]["value"][s.first].Integer();
+	}
+	config.mineExtraResources = randomMapJson["mines"]["extraResourcesLimit"].Integer();
+	config.minGuardStrength = randomMapJson["minGuardStrength"].Integer();
+	config.defaultRoadType = roadTypeMap[randomMapJson["defaultRoadType"].String()];
+	config.treasureValueLimit = randomMapJson["treasureValueLimit"].Integer();
+	for(auto & i : randomMapJson["prisons"]["experience"].Vector())
+		config.prisonExperience.push_back(i.Integer());
+	for(auto & i : randomMapJson["prisons"]["value"].Vector())
+		config.prisonValues.push_back(i.Integer());
+	for(auto & i : randomMapJson["scrolls"]["value"].Vector())
+		config.scrollValues.push_back(i.Integer());
+	for(auto & i : randomMapJson["pandoras"]["creaturesValue"].Vector())
+		config.pandoraCreatureValues.push_back(i.Integer());
+	for(auto & i : randomMapJson["quests"]["value"].Vector())
+		config.questValues.push_back(i.Integer());
+	for(auto & i : randomMapJson["quests"]["rewardValue"].Vector())
+		config.questRewardValues.push_back(i.Integer());
+	config.pandoraMultiplierGold = randomMapJson["pandoras"]["valueMultiplierGold"].Integer();
+	config.pandoraMultiplierExperience = randomMapJson["pandoras"]["valueMultiplierExperience"].Integer();
+	config.pandoraMultiplierSpells = randomMapJson["pandoras"]["valueMultiplierSpells"].Integer();
+	config.pandoraSpellSchool = randomMapJson["pandoras"]["valueSpellSchool"].Integer();
+	config.pandoraSpell60 = randomMapJson["pandoras"]["valueSpell60"].Integer();
 }
 
 const CMapGenerator::Config & CMapGenerator::getConfig() const

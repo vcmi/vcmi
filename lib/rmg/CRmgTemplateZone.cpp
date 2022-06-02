@@ -1266,7 +1266,7 @@ bool CRmgTemplateZone::addMonster(int3 &pos, si32 strength, bool clearSurroundin
 	int strength2 = static_cast<int>(std::max(0.f, (strength - value2[monsterStrength]) * multiplier2[monsterStrength]));
 
 	strength = strength1 + strength2;
-	if (strength < 2000)
+	if (strength < gen->getConfig().minGuardStrength)
 		return false; //no guard at all
 
 	CreatureID creId = CreatureID::NONE;
@@ -1742,14 +1742,14 @@ void CRmgTemplateZone::initTerrainType ()
 
 		//TODO: allow new types of terrain?
 		{
-			if (isUnderground())
+			if(isUnderground())
 			{
-				if (terrainType != ETerrainType::LAVA)
+				if(std::find(gen->getConfig().terrainUndergroundAllowed.cbegin(), gen->getConfig().terrainUndergroundAllowed.cend(), terrainType) == gen->getConfig().terrainUndergroundAllowed.cend())
 					terrainType = ETerrainType::SUBTERRANEAN;
 			}
 			else
 			{
-				if (terrainType == ETerrainType::SUBTERRANEAN)
+				if(std::find(gen->getConfig().terrainGroundProhibit.cbegin(), gen->getConfig().terrainGroundProhibit.cend(), terrainType) != gen->getConfig().terrainGroundProhibit.cend())
 					terrainType = ETerrainType::DIRT;
 			}
 		}
@@ -1767,8 +1767,6 @@ void CRmgTemplateZone::paintZoneTerrain (ETerrainType terrainType)
 bool CRmgTemplateZone::placeMines ()
 {
 	using namespace Res;
-	static const std::map<ERes, int> mineValue{{ERes::WOOD, 1500}, {ERes::ORE, 1500}, {ERes::GEMS, 3500}, {ERes::CRYSTAL, 3500}, {ERes::MERCURY, 3500}, {ERes::SULFUR, 3500}, {ERes::GOLD, 7000}};
-	
 	std::vector<CGMine*> createdMines;
 	
 	for(const auto & mineInfo : mines)
@@ -1783,22 +1781,26 @@ bool CRmgTemplateZone::placeMines ()
 			createdMines.push_back(mine);
 			
 			if(!i && (res == ERes::WOOD || res == ERes::ORE))
-				addCloseObject(mine, mineValue.at(res)); //only first woor&ore mines are close
+				addCloseObject(mine, gen->getConfig().mineValues.at(res)); //only first woor&ore mines are close
 			else
-				addRequiredObject(mine, mineValue.at(res));
+				addRequiredObject(mine, gen->getConfig().mineValues.at(res));
 		}
 	}
 	
 	//create extra resources
-	for(auto * mine : createdMines)
+	if(int extraRes = gen->getConfig().mineExtraResources)
 	{
-		for(int rc = gen->rand.nextInt(1, 3); rc > 0; --rc)
+		for(auto * mine : createdMines)
 		{
-			auto resourse = (CGResource*) VLC->objtypeh->getHandlerFor(Obj::RESOURCE, mine->producedResource)->create(ObjectTemplate());
-			resourse->amount = CGResource::RANDOM_AMOUNT;
-			addNearbyObject(resourse, mine);
+			for(int rc = gen->rand.nextInt(1, extraRes); rc > 0; --rc)
+			{
+				auto resourse = (CGResource*) VLC->objtypeh->getHandlerFor(Obj::RESOURCE, mine->producedResource)->create(ObjectTemplate());
+				resourse->amount = CGResource::RANDOM_AMOUNT;
+				addNearbyObject(resourse, mine);
+			}
 		}
 	}
+		
 
 	return true;
 }
@@ -2376,7 +2378,7 @@ void CRmgTemplateZone::drawRoads()
 	}
 
 	gen->getEditManager()->getTerrainSelection().setSelection(tiles);
-	gen->getEditManager()->drawRoad(ERoadType::COBBLESTONE_ROAD, &gen->rand);
+	gen->getEditManager()->drawRoad(gen->getConfig().defaultRoadType, &gen->rand);
 }
 
 
@@ -2819,11 +2821,11 @@ ObjectInfo CRmgTemplateZone::getRandomObject(CTreasurePileInfo &info, ui32 desir
 		}
 	}
 
-	if (thresholds.empty())
+	if(thresholds.empty())
 	{
 		ObjectInfo oi;
 		//Generate pandora Box with gold if the value is extremely high
-		if (minValue > 20000) //we don't have object valuable enough
+		if(minValue > gen->getConfig().treasureValueLimit) //we don't have object valuable enough
 		{
 			oi.generateObject = [minValue]() -> CGObjectInstance *
 			{
@@ -2901,17 +2903,17 @@ void CRmgTemplateZone::addAllPossibleObjects()
 
 	//prisons
 	//levels 1, 5, 10, 20, 30
-	static int prisonExp[] = { 0, 5000, 15000, 90000, 500000 };
-	static int prisonValues[] = { 2500, 5000, 10000, 20000, 30000 };
-
-	for (int i = 0; i < 5; i++)
+	//static int prisonExp[] = { 0, 5000, 15000, 90000, 500000 };
+	//static int prisonValues[] = { 2500, 5000, 10000, 20000, 30000 };
+	static int prisonsLevels = std::min(gen->getConfig().prisonExperience.size(), gen->getConfig().prisonValues.size());
+	for(int i = 0; i < prisonsLevels; i++)
 	{
 		oi.generateObject = [i, this]() -> CGObjectInstance *
 		{
 			std::vector<ui32> possibleHeroes;
-			for (int j = 0; j < gen->map->allowedHeroes.size(); j++)
+			for(int j = 0; j < gen->map->allowedHeroes.size(); j++)
 			{
-				if (gen->map->allowedHeroes[j])
+				if(gen->map->allowedHeroes[j])
 					possibleHeroes.push_back(j);
 			}
 
@@ -2921,7 +2923,7 @@ void CRmgTemplateZone::addAllPossibleObjects()
 
 
 			obj->subID = hid; //will be initialized later
-			obj->exp = prisonExp[i];
+			obj->exp = gen->getConfig().prisonExperience[i];
 			obj->setOwner(PlayerColor::NEUTRAL);
 			gen->map->allowedHeroes[hid] = false; //ban this hero
 			gen->decreasePrisonsRemaining();
@@ -2930,7 +2932,7 @@ void CRmgTemplateZone::addAllPossibleObjects()
 			return obj;
 		};
 		oi.setTemplate(Obj::PRISON, 0, terrainType);
-		oi.value = prisonValues[i];
+		oi.value = gen->getConfig().prisonValues[i];
 		oi.probability = 30;
 		oi.maxPerZone = gen->getPrisonsRemaning() / 5; //probably not perfect, but we can't generate more prisons than hereos.
 		possibleObjects.push_back(oi);
@@ -2996,9 +2998,7 @@ void CRmgTemplateZone::addAllPossibleObjects()
 		}
 	}
 
-	static const int scrollValues[] = { 500, 2000, 3000, 4000, 5000 };
-
-	for (int i = 0; i < 5; i++)
+	for(int i = 0; i < gen->getConfig().scrollValues.size(); i++)
 	{
 		oi.generateObject = [i, this]() -> CGObjectInstance *
 		{
@@ -3018,13 +3018,13 @@ void CRmgTemplateZone::addAllPossibleObjects()
 			return obj;
 		};
 		oi.setTemplate(Obj::SPELL_SCROLL, 0, terrainType);
-		oi.value = scrollValues[i];
+		oi.value = gen->getConfig().scrollValues[i];
 		oi.probability = 30;
 		possibleObjects.push_back(oi);
 	}
 
 	//pandora box with gold
-	for (int i = 1; i < 5; i++)
+	for(int i = 1; i < 5; i++)
 	{
 		oi.generateObject = [i]() -> CGObjectInstance *
 		{
@@ -3034,7 +3034,7 @@ void CRmgTemplateZone::addAllPossibleObjects()
 			return obj;
 		};
 		oi.setTemplate(Obj::PANDORAS_BOX, 0, terrainType);
-		oi.value = i * 5000;
+		oi.value = i * gen->getConfig().pandoraMultiplierGold;
 		oi.probability = 5;
 		possibleObjects.push_back(oi);
 	}
@@ -3050,20 +3050,22 @@ void CRmgTemplateZone::addAllPossibleObjects()
 			return obj;
 		};
 		oi.setTemplate(Obj::PANDORAS_BOX, 0, terrainType);
-		oi.value = i * 6000;
+		oi.value = i * gen->getConfig().pandoraMultiplierExperience;
 		oi.probability = 20;
 		possibleObjects.push_back(oi);
 	}
 
 	//pandora box with creatures
-	static const int tierValues[] = { 5000, 7000, 9000, 12000, 16000, 21000, 27000 };
+	const std::vector<int> & tierValues = gen->getConfig().pandoraCreatureValues;
 
-	auto creatureToCount = [](CCreature * creature) -> int
+	auto creatureToCount = [&tierValues](CCreature * creature) -> int
 	{
 		if (!creature->AIValue) //bug #2681
 			return 0; //this box won't be generated
 
-		int actualTier = creature->level > 7 ? 6 : creature->level - 1;
+		int actualTier = creature->level > tierValues.size() ?
+						 tierValues.size() - 1 :
+						 creature->level - 1;
 		float creaturesAmount = ((float)tierValues[actualTier]) / creature->AIValue;
 		if (creaturesAmount <= 5)
 		{
@@ -3130,7 +3132,7 @@ void CRmgTemplateZone::addAllPossibleObjects()
 			return obj;
 		};
 		oi.setTemplate(Obj::PANDORAS_BOX, 0, terrainType);
-		oi.value = (i + 1) * 2500; //5000 - 15000
+		oi.value = (i + 1) * gen->getConfig().pandoraMultiplierSpells; //5000 - 15000
 		oi.probability = 2;
 		possibleObjects.push_back(oi);
 	}
@@ -3159,7 +3161,7 @@ void CRmgTemplateZone::addAllPossibleObjects()
 			return obj;
 		};
 		oi.setTemplate(Obj::PANDORAS_BOX, 0, terrainType);
-		oi.value = 15000;
+		oi.value = gen->getConfig().pandoraSpellSchool;
 		oi.probability = 2;
 		possibleObjects.push_back(oi);
 	}
@@ -3187,7 +3189,7 @@ void CRmgTemplateZone::addAllPossibleObjects()
 		return obj;
 	};
 	oi.setTemplate(Obj::PANDORAS_BOX, 0, terrainType);
-	oi.value = 30000;
+	oi.value = gen->getConfig().pandoraSpell60;
 	oi.probability = 2;
 	possibleObjects.push_back(oi);
 
@@ -3228,7 +3230,7 @@ void CRmgTemplateZone::addAllPossibleObjects()
 			return artInfo;
 		};
 
-		for (int i = 0; i < std::min((int)creatures.size(), questArtsRemaining - genericSeerHuts); i++)
+		for(int i = 0; i < std::min((int)creatures.size(), questArtsRemaining - genericSeerHuts); i++)
 		{
 			auto creature = creatures[i];
 			int creaturesAmount = creatureToCount(creature);
@@ -3264,15 +3266,13 @@ void CRmgTemplateZone::addAllPossibleObjects()
 			possibleObjects.push_back(oi);
 		}
 
-		static int seerExpGold[] = { 5000, 10000, 15000, 20000 };
-		static int seerValues[] = { 2000, 5333, 8666, 12000 };
-
-		for (int i = 0; i < 4; i++) //seems that code for exp and gold reward is similiar
+		static int seerLevels = std::min(gen->getConfig().questValues.size(), gen->getConfig().questRewardValues.size());
+		for(int i = 0; i < seerLevels; i++) //seems that code for exp and gold reward is similiar
 		{
 			int randomAppearance = *RandomGeneratorUtil::nextItem(VLC->objtypeh->knownSubObjects(Obj::SEER_HUT), gen->rand);
 
 			oi.setTemplate(Obj::SEER_HUT, randomAppearance, terrainType);
-			oi.value = seerValues[i];
+			oi.value = gen->getConfig().questValues[i];
 			oi.probability = 10;
 
 			oi.generateObject = [i, randomAppearance, this, generateArtInfo]() -> CGObjectInstance *
@@ -3282,7 +3282,7 @@ void CRmgTemplateZone::addAllPossibleObjects()
 
 				obj->rewardType = CGSeerHut::EXPERIENCE;
 				obj->rID = 0; //unitialized?
-				obj->rVal = seerExpGold[i];
+				obj->rVal = gen->getConfig().questRewardValues[i];
 
 				obj->quest->missionType = CQuest::MISSION_ART;
 				ArtifactID artid = *RandomGeneratorUtil::nextItem(gen->getQuestArtsRemaning(), gen->rand);
@@ -3305,7 +3305,7 @@ void CRmgTemplateZone::addAllPossibleObjects()
 				auto obj = (CGSeerHut *) factory->create(ObjectTemplate());
 				obj->rewardType = CGSeerHut::RESOURCES;
 				obj->rID = Res::GOLD;
-				obj->rVal = seerExpGold[i];
+				obj->rVal = gen->getConfig().questRewardValues[i];
 
 				obj->quest->missionType = CQuest::MISSION_ART;
 				ArtifactID artid = *RandomGeneratorUtil::nextItem(gen->getQuestArtsRemaning(), gen->rand);
