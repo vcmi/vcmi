@@ -2903,8 +2903,6 @@ void CRmgTemplateZone::addAllPossibleObjects()
 
 	//prisons
 	//levels 1, 5, 10, 20, 30
-	//static int prisonExp[] = { 0, 5000, 15000, 90000, 500000 };
-	//static int prisonValues[] = { 2500, 5000, 10000, 20000, 30000 };
 	static int prisonsLevels = std::min(gen->getConfig().prisonExperience.size(), gen->getConfig().prisonValues.size());
 	for(int i = 0; i < prisonsLevels; i++)
 	{
