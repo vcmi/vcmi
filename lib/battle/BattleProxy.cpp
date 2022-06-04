@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "BattleProxy.h"
 #include "Unit.h"
+#include "ETerrainType.h"
 
 ///BattleProxy
 

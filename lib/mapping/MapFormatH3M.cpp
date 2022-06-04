@@ -942,7 +942,7 @@ void CMapLoaderH3M::readTerrain()
 				tile.roadType = static_cast<ERoadType::ERoadType>(reader.readUInt8());
 				tile.roadDir = reader.readUInt8();
 				tile.extTileFlags = reader.readUInt8();
-				tile.blocked = ((tile.terType == ETerrainType::ROCK || tile.terType == ETerrainType::BORDER ) ? true : false); //underground tiles are always blocked
+				tile.blocked = ((!tile.terType.isPassable() || tile.terType == ETerrainType("BORDER") ) ? true : false); //underground tiles are always blocked
 				tile.visitable = 0;
 			}
 		}

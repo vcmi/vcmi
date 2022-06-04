@@ -16,6 +16,7 @@
 #include "ResourceSet.h"
 #include "int3.h"
 #include "GameConstants.h"
+#include "ETerrainType.h"
 #include "IHandlerBase.h"
 #include "LogicalExpression.h"
 #include "battle/BattleHex.h"
@@ -385,9 +386,9 @@ class DLL_LINKAGE CTownHandler : public CHandlerBase<FactionID, Faction, CFactio
 	std::vector<BuildingRequirementsHelper> requirementsToLoad;
 	std::vector<BuildingRequirementsHelper> overriddenBidsToLoad; //list of buildings, which bonuses should be overridden.
 
-	const static ETerrainType::EETerrainType defaultGoodTerrain = ETerrainType::EETerrainType::GRASS;
-	const static ETerrainType::EETerrainType defaultEvilTerrain = ETerrainType::EETerrainType::LAVA;
-	const static ETerrainType::EETerrainType defaultNeutralTerrain = ETerrainType::EETerrainType::ROUGH;
+	const static ETerrainType defaultGoodTerrain;
+	const static ETerrainType defaultEvilTerrain;
+	const static ETerrainType defaultNeutralTerrain;
 
 	static TPropagatorPtr & emptyPropagator();
 
@@ -418,7 +419,7 @@ class DLL_LINKAGE CTownHandler : public CHandlerBase<FactionID, Faction, CFactio
 
 	void loadPuzzle(CFaction & faction, const JsonNode & source);
 
-	ETerrainType::EETerrainType getDefaultTerrainForAlignment(EAlignment::EAlignment aligment) const;
+	ETerrainType getDefaultTerrainForAlignment(EAlignment::EAlignment aligment) const;
 	void loadRandomFaction();
 
 

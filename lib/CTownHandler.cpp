@@ -26,6 +26,10 @@
 
 const int NAMES_PER_TOWN=16; // number of town names per faction in H3 files. Json can define any number
 
+const ETerrainType CTownHandler::defaultGoodTerrain{"GRASS"};
+const ETerrainType CTownHandler::defaultEvilTerrain{"LAVA"};
+const ETerrainType CTownHandler::defaultNeutralTerrain{"ROUGH"};
+
 const std::map<std::string, CBuilding::EBuildMode> CBuilding::MODES =
 {
 	{ "normal", CBuilding::BUILD_NORMAL },
@@ -1062,9 +1066,9 @@ void CTownHandler::loadPuzzle(CFaction &faction, const JsonNode &source)
 	assert(faction.puzzleMap.size() == GameConstants::PUZZLE_MAP_PIECES);
 }
 
-ETerrainType::EETerrainType CTownHandler::getDefaultTerrainForAlignment(EAlignment::EAlignment alignment) const
+ETerrainType CTownHandler::getDefaultTerrainForAlignment(EAlignment::EAlignment alignment) const
 {
-	ETerrainType::EETerrainType terrain = defaultGoodTerrain;
+	ETerrainType terrain = defaultGoodTerrain;
 
 	switch(alignment)
 	{
@@ -1107,7 +1111,7 @@ CFaction * CTownHandler::loadFromJson(const std::string & scope, const JsonNode 
 	//Contructor is not called here, but operator=
 	faction->nativeTerrain = terrainNum < 0
 		? getDefaultTerrainForAlignment(faction->alignment)
-		: static_cast<ETerrainType::EETerrainType>(terrainNum);
+		: ETerrainType(terrainNum);
 
 	if (!source["town"].isNull())
 	{

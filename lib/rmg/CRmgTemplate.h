@@ -14,6 +14,7 @@
 #include "../GameConstants.h"
 #include "../ResourceSet.h"
 #include "CMapGenOptions.h"
+#include "ETerrainType.h"
 
 class JsonSerializeFormat;
 
@@ -65,7 +66,6 @@ private:
 class DLL_LINKAGE ZoneOptions
 {
 public:
-	static const std::set<ETerrainType> DEFAULT_TERRAIN_TYPES;
 	static const TRmgTemplateZoneId NO_ZONE;
 
 	class DLL_LINKAGE CTownInfo

@@ -705,7 +705,7 @@ DLL_LINKAGE void NewObject::applyGs(CGameState *gs)
 	{
 		CGObjectInstance testObject = CGObjectInstance();
 		testObject.pos = pos;
-		testObject.appearance = VLC->objtypeh->getHandlerFor(ID, subID)->getTemplates(ETerrainType::WATER).front();
+		testObject.appearance = VLC->objtypeh->getHandlerFor(ID, subID)->getTemplates(ETerrainType("WATER")).front();
 
 		const int3 previousXAxisTile = int3(pos.x - 1, pos.y, pos.z);
 		assert(gs->isInTheMap(previousXAxisTile) && (testObject.visitablePos() == previousXAxisTile));
@@ -722,7 +722,7 @@ DLL_LINKAGE void NewObject::applyGs(CGameState *gs)
 	{
 	case Obj::BOAT:
 		o = new CGBoat();
-		terrainType = ETerrainType::WATER; //TODO: either boat should only spawn on water, or all water objects should be handled this way
+		terrainType = ETerrainType("WATER"); //TODO: either boat should only spawn on water, or all water objects should be handled this way
 		break;
 	case Obj::MONSTER: //probably more options will be needed
 		o = new CGCreature();

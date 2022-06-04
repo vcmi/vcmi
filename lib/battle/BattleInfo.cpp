@@ -610,7 +610,7 @@ CStack * BattleInfo::getStack(int stackID, bool onlyAlive)
 
 BattleInfo::BattleInfo()
 	: round(-1), activeStack(-1), town(nullptr), tile(-1,-1,-1),
-	battlefieldType(BFieldType::NONE), terrainType(ETerrainType::WRONG),
+	battlefieldType(BFieldType::NONE), terrainType(),
 	tacticsSide(0), tacticDistance(0)
 {
 	setBattle(this);

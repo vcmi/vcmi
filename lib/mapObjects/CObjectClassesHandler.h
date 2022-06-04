@@ -178,11 +178,11 @@ public:
 
 	/// returns all templates matching parameters
 	std::vector<ObjectTemplate> getTemplates() const;
-	std::vector<ObjectTemplate> getTemplates(si32 terrainType) const;
+	std::vector<ObjectTemplate> getTemplates(const ETerrainType & terrainType) const;
 
 	/// returns preferred template for this object, if present (e.g. one of 3 possible templates for town - village, fort and castle)
 	/// note that appearance will not be changed - this must be done separately (either by assignment or via pack from server)
-	boost::optional<ObjectTemplate> getOverride(si32 terrainType, const CGObjectInstance * object) const;
+	boost::optional<ObjectTemplate> getOverride(const ETerrainType & terrainType, const CGObjectInstance * object) const;
 
 	const RandomMapInfo & getRMGInfo();
 

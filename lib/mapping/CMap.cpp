@@ -123,7 +123,7 @@ CCastleEvent::CCastleEvent() : town(nullptr)
 
 }
 
-TerrainTile::TerrainTile() : terType(ETerrainType::BORDER), terView(0), riverType(ERiverType::NO_RIVER),
+TerrainTile::TerrainTile() : terType("BORDER"), terView(0), riverType(ERiverType::NO_RIVER),
 	riverDir(0), roadType(ERoadType::NO_ROAD), roadDir(0), extTileFlags(0), visitable(false),
 	blocked(false)
 {
@@ -132,13 +132,13 @@ TerrainTile::TerrainTile() : terType(ETerrainType::BORDER), terView(0), riverTyp
 
 bool TerrainTile::entrableTerrain(const TerrainTile * from) const
 {
-	return entrableTerrain(from ? from->terType != ETerrainType::WATER : true, from ? from->terType == ETerrainType::WATER : true);
+	return entrableTerrain(from ? from->terType.isLand() : true, from ? from->terType.isWater() : true);
 }
 
 bool TerrainTile::entrableTerrain(bool allowLand, bool allowSea) const
 {
-	return terType != ETerrainType::ROCK
-			&& ((allowSea && terType == ETerrainType::WATER)  ||  (allowLand && terType != ETerrainType::WATER));
+	return terType != ETerrainType("ROCK")
+			&& ((allowSea && terType.isWater())  ||  (allowLand && terType.isLand()));
 }
 
 bool TerrainTile::isClear(const TerrainTile * from) const
@@ -164,7 +164,7 @@ CGObjectInstance * TerrainTile::topVisitableObj(bool excludeTop) const
 
 EDiggingStatus TerrainTile::getDiggingStatus(const bool excludeTop) const
 {
-	if(terType == ETerrainType::WATER || terType == ETerrainType::ROCK)
+	if(terType.isWater() || terType == ETerrainType("ROCK"))
 		return EDiggingStatus::WRONG_TERRAIN;
 
 	int allowedBlocked = excludeTop ? 1 : 0;
@@ -181,7 +181,7 @@ bool TerrainTile::hasFavorableWinds() const
 
 bool TerrainTile::isWater() const
 {
-	return terType == ETerrainType::WATER;
+	return terType.isWater();
 }
 
 void CMapHeader::setupEvents()

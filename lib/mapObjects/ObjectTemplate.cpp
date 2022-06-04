@@ -247,15 +247,16 @@ void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
 	if(withTerrain && !node["allowedTerrains"].isNull())
 	{
 		for (auto & entry : node["allowedTerrains"].Vector())
-			allowedTerrains.insert(ETerrainType(vstd::find_pos(GameConstants::TERRAIN_NAMES, entry.String())));
+			allowedTerrains.insert(entry.String());
 	}
 	else
 	{
-		for (size_t i=0; i< GameConstants::TERRAIN_TYPES; i++)
-			allowedTerrains.insert(ETerrainType((si32)i));
-
-		allowedTerrains.erase(ETerrainType::ROCK);
-		allowedTerrains.erase(ETerrainType::WATER);
+		for(auto & i : ETerrainType::terrains())
+		{
+			if(i == ETerrainType("ROCK") || i == ETerrainType("WATER"))
+				continue;
+			allowedTerrains.insert(i);
+		}
 	}
 
 	if(withTerrain && allowedTerrains.empty())
@@ -336,7 +337,7 @@ void ObjectTemplate::writeJson(JsonNode & node, const bool withTerrain) const
 			for(auto type : allowedTerrains)
 			{
 				JsonNode value(JsonNode::JsonType::DATA_STRING);
-				value.String() = GameConstants::TERRAIN_NAMES[type.num];
+				value.String() = type.toString();
 				data.push_back(value);
 			}
 		}

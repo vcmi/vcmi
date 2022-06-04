@@ -89,18 +89,6 @@ public:
 	}
 };
 
-const std::set<ETerrainType> ZoneOptions::DEFAULT_TERRAIN_TYPES =
-{
-	ETerrainType::DIRT,
-	ETerrainType::SAND,
-	ETerrainType::GRASS,
-	ETerrainType::SNOW,
-	ETerrainType::SWAMP,
-	ETerrainType::ROUGH,
-	ETerrainType::SUBTERRANEAN,
-	ETerrainType::LAVA
-};
-
 const TRmgTemplateZoneId ZoneOptions::NO_ZONE = -1;
 
 ZoneOptions::CTownInfo::CTownInfo()
@@ -149,7 +137,7 @@ ZoneOptions::ZoneOptions()
 	playerTowns(),
 	neutralTowns(),
 	matchTerrainToTown(true),
-	terrainTypes(DEFAULT_TERRAIN_TYPES),
+	terrainTypes(ETerrainType::DEFAULT_TERRAIN_TYPES),
 	townsAreSameType(false),
 	townTypes(),
 	monsterTypes(),
@@ -231,8 +219,8 @@ const std::set<ETerrainType> & ZoneOptions::getTerrainTypes() const
 
 void ZoneOptions::setTerrainTypes(const std::set<ETerrainType> & value)
 {
-	assert(value.find(ETerrainType::WRONG) == value.end() && value.find(ETerrainType::BORDER) == value.end() &&
-		   value.find(ETerrainType::WATER) == value.end() && value.find(ETerrainType::ROCK) == value.end());
+	//assert(value.find(ETerrainType::WRONG) == value.end() && value.find(ETerrainType::BORDER) == value.end() &&
+	//	   value.find(ETerrainType::WATER) == value.end() && value.find(ETerrainType::ROCK) == value.end());
 	terrainTypes = value;
 }
 
@@ -338,8 +326,8 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 
 	#undef SERIALIZE_ZONE_LINK
 
-	if(terrainTypeLikeZone == NO_ZONE)
-		handler.serializeIdArray<ETerrainType, TerrainEncoder>("terrainTypes", terrainTypes, DEFAULT_TERRAIN_TYPES);
+	//if(terrainTypeLikeZone == NO_ZONE)
+	//	handler.serializeIdArray<ETerrainType, TerrainEncoder>("terrainTypes", terrainTypes, ETerrainType::DEFAULT_TERRAIN_TYPES);
 
 	handler.serializeBool("townsAreSameType", townsAreSameType, false);
 	handler.serializeIdArray<TFaction, FactionID>("allowedMonsters", monsterTypes, VLC->townh->getAllowedFactions(false));

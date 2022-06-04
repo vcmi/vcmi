@@ -1030,10 +1030,11 @@ ui64 CHeroHandler::reqExp (ui32 level) const
 void CHeroHandler::loadTerrains()
 {
 	const JsonNode config(ResourceID("config/terrains.json"));
-
-	terrCosts.reserve(GameConstants::TERRAIN_TYPES);
-	for(const std::string & name : GameConstants::TERRAIN_NAMES)
-		terrCosts.push_back((int)config[name]["moveCost"].Float());
+	
+	for(auto & node : config.Struct())
+	{
+		terrCosts[node.first] = node.second["moveCost"].Integer();
+	}
 }
 
 std::vector<bool> CHeroHandler::getDefaultAllowed() const

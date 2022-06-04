@@ -963,8 +963,8 @@ void CGameState::initGrailPosition()
 					const TerrainTile &t = map->getTile(int3(i, j, k));
 					if(!t.blocked
 						&& !t.visitable
-						&& t.terType != ETerrainType::WATER
-						&& t.terType != ETerrainType::ROCK
+						&& t.terType.isLand()
+						&& t.terType != ETerrainType("ROCK")
 						&& (int)map->grailPos.dist2dSQ(int3(i, j, k)) <= (map->grailRadius * map->grailRadius))
 						allowedPos.push_back(int3(i,j,k));
 				}
@@ -1940,31 +1940,28 @@ BFieldType CGameState::battleGetBattlefieldType(int3 tile, CRandomGenerator & ra
 	if(map->isCoastalTile(tile)) //coastal tile is always ground
 		return BFieldType::SAND_SHORE;
 
-	switch(t.terType)
-	{
-	case ETerrainType::DIRT:
+	if(t.terType == ETerrainType("DIRT"))
 		return BFieldType(rand.nextInt(3, 5));
-	case ETerrainType::SAND:
+	if(t.terType == ETerrainType("SAND"))
 		return BFieldType::SAND_MESAS; //TODO: coast support
-	case ETerrainType::GRASS:
+	if(t.terType == ETerrainType("GRASS"))
 		return BFieldType(rand.nextInt(6, 7));
-	case ETerrainType::SNOW:
+	if(t.terType == ETerrainType("SNOW"))
 		return BFieldType(rand.nextInt(10, 11));
-	case ETerrainType::SWAMP:
+	if(t.terType == ETerrainType("SWAMP"))
 		return BFieldType::SWAMP_TREES;
-	case ETerrainType::ROUGH:
+	if(t.terType == ETerrainType("ROUGH"))
 		return BFieldType::ROUGH;
-	case ETerrainType::SUBTERRANEAN:
+	if(t.terType == ETerrainType("SUBTERRANEAN"))
 		return BFieldType::SUBTERRANEAN;
-	case ETerrainType::LAVA:
+	if(t.terType == ETerrainType("LAVA"))
 		return BFieldType::LAVA;
-	case ETerrainType::WATER:
+	if(t.terType == ETerrainType("WATER"))
 		return BFieldType::SHIP;
-	case ETerrainType::ROCK:
+	if(t.terType == ETerrainType("ROCK"))
 		return BFieldType::ROCKLANDS;
-	default:
-		return BFieldType::NONE;
-	}
+	
+	return BFieldType::NONE;
 }
 
 UpgradeInfo CGameState::getUpgradeInfo(const CStackInstance &stack)
@@ -2143,11 +2140,11 @@ void CGameState::updateRumor()
 			SThievesGuildInfo tgi;
 			obtainPlayersStats(tgi, 20);
 			rumorId = *RandomGeneratorUtil::nextItem(sRumorTypes, rand);
-			if(rumorId == RumorState::RUMOR_GRAIL)
+			/*if(rumorId == RumorState::RUMOR_GRAIL)
 			{
 				rumorExtra = getTile(map->grailPos)->terType;
 				break;
-			}
+			}*/
 
 			std::vector<PlayerColor> players = {};
 			switch(rumorId)

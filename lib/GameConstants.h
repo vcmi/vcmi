@@ -912,36 +912,6 @@ enum class EActionType : int32_t
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const EActionType actionType);
 
-class DLL_LINKAGE ETerrainType
-{
-public:
-	enum EETerrainType
-	{
-		ANY_TERRAIN = -3,
-		WRONG = -2, BORDER = -1, DIRT, SAND, GRASS, SNOW, SWAMP,
-		ROUGH, SUBTERRANEAN, LAVA, WATER, ROCK // ROCK is also intended to be max value.
-	};
-
-	ETerrainType(EETerrainType _num = WRONG) : num(_num)
-	{}
-
-	ETerrainType& operator=(EETerrainType _num)
-	{
-		num = _num;
-		return *this;
-	}
-
-	ID_LIKE_CLASS_COMMON(ETerrainType, EETerrainType)
-
-	EETerrainType num;
-
-	std::string toString() const;
-};
-
-DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const ETerrainType terrainType);
-
-ID_LIKE_OPERATORS(ETerrainType, ETerrainType::EETerrainType)
-
 class DLL_LINKAGE EDiggingStatus
 {
 public:

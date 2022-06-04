@@ -32,7 +32,7 @@ CStack::CStack(const CStackInstance * Base, PlayerColor O, int I, ui8 Side, Slot
 	slot(S),
 	side(Side),
 	initialPosition(),
-	nativeTerrain(ETerrainType::WRONG)
+	nativeTerrain()
 {
 	health.init(); //???
 }
@@ -40,7 +40,7 @@ CStack::CStack(const CStackInstance * Base, PlayerColor O, int I, ui8 Side, Slot
 CStack::CStack()
 	: CBonusSystemNode(STACK_BATTLE),
 	CUnitState(),
-	nativeTerrain(ETerrainType::WRONG)
+	nativeTerrain()
 {
 	base = nullptr;
 	type = nullptr;
@@ -328,7 +328,7 @@ bool CStack::canBeHealed() const
 bool CStack::isOnNativeTerrain() const
 {
 	//this code is called from CreatureTerrainLimiter::limit on battle start
-	auto res = nativeTerrain == ETerrainType::ANY_TERRAIN || nativeTerrain == battle->getTerrainType();
+	auto res = nativeTerrain == ETerrainType::ANY || nativeTerrain == battle->getTerrainType();
 	return res;
 }
 

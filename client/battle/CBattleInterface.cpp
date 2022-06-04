@@ -454,7 +454,7 @@ CBattleInterface::~CBattleInterface()
 
 	if (adventureInt && adventureInt->selection)
 	{
-		int terrain = LOCPLINT->cb->getTile(adventureInt->selection->visitablePos())->terType;
+		int terrain = LOCPLINT->cb->getTile(adventureInt->selection->visitablePos())->terType.id();
 		CCS->musich->playMusicFromSet("terrain", terrain, true);
 	}
 	animsAreDisplayed.setn(false);

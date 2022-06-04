@@ -273,7 +273,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 	{
 		updateAmbientSounds();
 		//We may need to change music - select new track, music handler will change it if needed
-		CCS->musich->playMusicFromSet("terrain", LOCPLINT->cb->getTile(hero->visitablePos())->terType, true);
+		CCS->musich->playMusicFromSet("terrain", LOCPLINT->cb->getTile(hero->visitablePos())->terType.id(), true);
 
 		if (details.result == TryMoveHero::TELEPORTATION)
 		{
@@ -2734,7 +2734,7 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 
 	{
 		path.convert(0);
-		ETerrainType currentTerrain = ETerrainType::BORDER; // not init yet
+		ETerrainType currentTerrain = ETerrainType("BORDER"); // not init yet
 		ETerrainType newTerrain;
 		int sh = -1;
 
@@ -2770,7 +2770,7 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 					destinationTeleportPos = int3(-1);
 				}
 				if(i != path.nodes.size() - 1)
-					sh = CCS->soundh->playSound(CCS->soundh->horseSounds[currentTerrain], -1);
+					sh = CCS->soundh->playSound(CCS->soundh->horseSounds[currentTerrain.id()], -1);
 				continue;
 			}
 
@@ -2791,7 +2791,7 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 				if (newTerrain != currentTerrain)
 				{
 					CCS->soundh->stopSound(sh);
-					sh = CCS->soundh->playSound(CCS->soundh->horseSounds[newTerrain], -1);
+					sh = CCS->soundh->playSound(CCS->soundh->horseSounds[newTerrain.id()], -1);
 					currentTerrain = newTerrain;
 				}
 			}

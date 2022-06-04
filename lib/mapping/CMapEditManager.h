@@ -13,6 +13,7 @@
 #include "../CRandomGenerator.h"
 #include "../int3.h"
 #include "../GameConstants.h"
+#include "ETerrainType.h"
 
 class CGObjectInstance;
 class CTerrainViewPatternConfig;

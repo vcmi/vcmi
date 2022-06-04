@@ -627,7 +627,7 @@ void CMapHandler::CMapBlitter::drawTileTerrain(SDL_Surface * targetSurf, const T
 
 	ui8 rotation = tinfo.extTileFlags % 4;
 
-	drawElement(EMapCacheType::TERRAIN, parent->terrainImages[tinfo.terType][tinfo.terView][rotation], nullptr, targetSurf, &destRect);
+	drawElement(EMapCacheType::TERRAIN, parent->terrainImages[tinfo.terType.id()][tinfo.terView][rotation], nullptr, targetSurf, &destRect);
 }
 
 void CMapHandler::CMapWorldViewBlitter::init(const MapDrawingInfo * drawingInfo)
@@ -1432,7 +1432,7 @@ void CMapHandler::getTerrainDescr(const int3 & pos, std::string & out, bool isRM
 		}
 	}
 	if(!isTile2Terrain || out.empty())
-		out = CGI->generaltexth->terrainNames[t.terType];
+		out = CGI->generaltexth->terrainNames[t.terType.id()];
 
 	if(t.getDiggingStatus(false) == EDiggingStatus::CAN_DIG)
 	{

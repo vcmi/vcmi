@@ -762,19 +762,15 @@ void CDrawTerrainOperation::updateTerrainViews()
 
 ETerrainGroup::ETerrainGroup CDrawTerrainOperation::getTerrainGroup(ETerrainType terType) const
 {
-	switch(terType)
-	{
-	case ETerrainType::DIRT:
+	if(terType == ETerrainType("DIRT"))
 		return ETerrainGroup::DIRT;
-	case ETerrainType::SAND:
+	if(terType == ETerrainType("SAND"))
 		return ETerrainGroup::SAND;
-	case ETerrainType::WATER:
+	if(terType == ETerrainType("WATER"))
 		return ETerrainGroup::WATER;
-	case ETerrainType::ROCK:
+	if(terType == ETerrainType("ROCK"))
 		return ETerrainGroup::ROCK;
-	default:
-		return ETerrainGroup::NORMAL;
-	}
+	return ETerrainGroup::NORMAL;
 }
 
 CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainView(const int3 & pos, const std::vector<TerrainViewPattern> * pattern, int recDepth) const
@@ -951,15 +947,9 @@ CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainVi
 
 bool CDrawTerrainOperation::isSandType(ETerrainType terType) const
 {
-	switch(terType)
-	{
-	case ETerrainType::WATER:
-	case ETerrainType::SAND:
-	case ETerrainType::ROCK:
+	if(terType == ETerrainType("WATER") || terType == ETerrainType("SAND") || terType == ETerrainType("ROCK"))
 		return true;
-	default:
-		return false;
-	}
+	return false;
 }
 
 void CDrawTerrainOperation::invalidateTerrainViews(const int3 & centerPos)
@@ -986,7 +976,7 @@ CDrawTerrainOperation::InvalidTiles CDrawTerrainOperation::getInvalidTiles(const
 			auto valid = validateTerrainView(pos, ptrConfig->getTerrainTypePatternById("n1")).result;
 
 			// Special validity check for rock & water
-			if(valid && (terType == ETerrainType::WATER || terType == ETerrainType::ROCK))
+			if(valid && (terType.isWater() || !terType.isPassable()))
 			{
 				static const std::string patternIds[] = { "s1", "s2" };
 				for(auto & patternId : patternIds)
@@ -996,7 +986,7 @@ CDrawTerrainOperation::InvalidTiles CDrawTerrainOperation::getInvalidTiles(const
 				}
 			}
 			// Additional validity check for non rock OR water
-			else if(!valid && (terType != ETerrainType::WATER && terType != ETerrainType::ROCK))
+			else if(!valid && (terType.isLand() && terType.isPassable()))
 			{
 				static const std::string patternIds[] = { "n2", "n3" };
 				for(auto & patternId : patternIds)
@@ -1059,12 +1049,12 @@ CClearTerrainOperation::CClearTerrainOperation(CMap * map, CRandomGenerator * ge
 {
 	CTerrainSelection terrainSel(map);
 	terrainSel.selectRange(MapRect(int3(0, 0, 0), map->width, map->height));
-	addOperation(make_unique<CDrawTerrainOperation>(map, terrainSel, ETerrainType::WATER, gen));
+	addOperation(make_unique<CDrawTerrainOperation>(map, terrainSel, ETerrainType("WATER"), gen));
 	if(map->twoLevel)
 	{
 		terrainSel.clearSelection();
 		terrainSel.selectRange(MapRect(int3(0, 0, 1), map->width, map->height));
-		addOperation(make_unique<CDrawTerrainOperation>(map, terrainSel, ETerrainType::ROCK, gen));
+		addOperation(make_unique<CDrawTerrainOperation>(map, terrainSel, ETerrainType("ROCK"), gen));
 	}
 }
 

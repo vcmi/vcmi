@@ -18,6 +18,7 @@
 #include "GameConstants.h"
 #include "HeroBonus.h"
 #include "IHandlerBase.h"
+#include "ETerrainType.h"
 
 class CHeroClass;
 class CGameInfo;
@@ -315,7 +316,7 @@ public:
 	CHeroClassHandler classes;
 
 	//default costs of going through terrains. -1 means terrain is impassable
-	std::vector<int> terrCosts;
+	std::map<std::string, int> terrCosts;
 
 	struct SBallisticsLevelInfo
 	{

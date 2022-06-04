@@ -36,7 +36,7 @@ void CRmgTemplateZone::addRoadNode(const int3& node)
 	roadNodes.insert(node);
 }
 
-CTileInfo::CTileInfo():nearestObjectDistance(float(INT_MAX)), terrain(ETerrainType::WRONG),roadType(ERoadType::NO_ROAD)
+CTileInfo::CTileInfo():nearestObjectDistance(float(INT_MAX)), terrain() ,roadType(ERoadType::NO_ROAD)
 {
 	occupied = ETileType::POSSIBLE; //all tiles are initially possible to place objects or passages
 }
@@ -106,7 +106,7 @@ void CTileInfo::setRoadType(ERoadType::ERoadType value)
 CRmgTemplateZone::CRmgTemplateZone(CMapGenerator * Gen)
 	: ZoneOptions(),
 	townType(ETownType::NEUTRAL),
-	terrainType (ETerrainType::GRASS),
+	terrainType (ETerrainType("GRASS")),
 	minGuardedValue(0),
 	questArtZone(),
 	gen(Gen)
@@ -1731,7 +1731,7 @@ void CRmgTemplateZone::initTerrainType ()
 {
 	if (type==ETemplateZoneType::WATER)
 	{
-		terrainType = ETerrainType::WATER;
+		terrainType = ETerrainType("WATER");
 	}
 	else
 	{
@@ -1745,12 +1745,12 @@ void CRmgTemplateZone::initTerrainType ()
 			if(isUnderground())
 			{
 				if(!vstd::contains(gen->getConfig().terrainUndergroundAllowed, terrainType))
-					terrainType = ETerrainType::SUBTERRANEAN;
+					terrainType = ETerrainType("SUBTERRANEAN");
 			}
 			else
 			{
 				if(vstd::contains(gen->getConfig().terrainGroundProhibit, terrainType))
-					terrainType = ETerrainType::DIRT;
+					terrainType = ETerrainType("DIRT");
 			}
 		}
 	}

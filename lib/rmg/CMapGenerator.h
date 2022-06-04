@@ -26,7 +26,7 @@ class JsonNode;
 class CMapGenerator;
 class CTileInfo;
 
-//#define _BETA
+#define _BETA
 
 typedef std::vector<JsonNode> JsonVector;
 

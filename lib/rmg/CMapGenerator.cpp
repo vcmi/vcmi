@@ -69,17 +69,6 @@ CMapGenerator::CMapGenerator(CMapGenOptions& mapGenOptions, int RandomSeed) :
 
 void CMapGenerator::loadConfig()
 {
-	static std::map<std::string, ETerrainType> terrainMap
-	{
-		{"dirt", ETerrainType::DIRT},
-		{"sand", ETerrainType::SAND},
-		{"grass", ETerrainType::GRASS},
-		{"snow", ETerrainType::SNOW},
-		{"swamp", ETerrainType::SWAMP},
-		{"subterranean", ETerrainType::SUBTERRANEAN},
-		{"lava", ETerrainType::LAVA},
-		{"rough", ETerrainType::ROUGH}
-	};
 	static const std::map<std::string, Res::ERes> resMap
 	{
 		{"wood", Res::ERes::WOOD},
@@ -101,12 +90,12 @@ void CMapGenerator::loadConfig()
 	for(auto& s : randomMapJson["terrain"]["undergroundAllow"].Vector())
 	{
 		if(!s.isNull())
-			config.terrainUndergroundAllowed.push_back(terrainMap[s.String()]);
+			config.terrainUndergroundAllowed.emplace_back(s.String());
 	}
 	for(auto& s : randomMapJson["terrain"]["groundProhibit"].Vector())
 	{
 		if(!s.isNull())
-			config.terrainGroundProhibit.push_back(terrainMap[s.String()]);
+			config.terrainGroundProhibit.emplace_back(s.String());
 	}
 	config.shipyardGuard = randomMapJson["waterZone"]["shipyard"]["value"].Integer();
 	for(auto & treasure : randomMapJson["waterZone"]["treasure"].Vector())
@@ -357,7 +346,7 @@ void CMapGenerator::genZones()
 {
 	getEditManager()->clearTerrain(&rand);
 	getEditManager()->getTerrainSelection().selectRange(MapRect(int3(0, 0, 0), mapGenOptions.getWidth(), mapGenOptions.getHeight()));
-	getEditManager()->drawTerrain(ETerrainType::GRASS, &rand);
+	getEditManager()->drawTerrain(ETerrainType("GRASS"), &rand);
 
 	auto tmpl = mapGenOptions.getMapTemplate();
 	zones.clear();
@@ -547,7 +536,7 @@ void CMapGenerator::createObstaclesCommon1()
 			}
 		}
 		getEditManager()->getTerrainSelection().setSelection(rockTiles);
-		getEditManager()->drawTerrain(ETerrainType::ROCK, &rand);
+		getEditManager()->drawTerrain(ETerrainType("ROCK"), &rand);
 	}
 }
 
@@ -561,7 +550,7 @@ void CMapGenerator::createObstaclesCommon2()
 			for (int y = 0; y < map->height; y++)
 			{
 				int3 tile(x, y, 1);
-				if (map->getTile(tile).terType == ETerrainType::ROCK)
+				if (map->getTile(tile).terType == ETerrainType("ROCK"))
 				{
 					setOccupied(tile, ETileType::USED);
 				}

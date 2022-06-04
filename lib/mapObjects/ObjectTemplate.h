@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../GameConstants.h"
+#include "ETerrainType.h"
 
 class CBinaryReader;
 class CLegacyConfigParser;

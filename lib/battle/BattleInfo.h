@@ -14,6 +14,7 @@
 #include "IBattleState.h"
 #include "SiegeInfo.h"
 #include "SideInBattle.h"
+#include "ETerrainType.h"
 
 class CStack;
 class CStackInstance;

@@ -16,7 +16,7 @@
 
 ETerrainType CBattleInfoEssentials::battleTerrainType() const
 {
-	RETURN_IF_NOT_BATTLE(ETerrainType::WRONG);
+	RETURN_IF_NOT_BATTLE(ETerrainType());
 	return getBattle()->getTerrainType();
 }
 

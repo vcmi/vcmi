@@ -960,12 +960,7 @@ void CMapLoaderJson::readTerrainTile(const std::string & src, TerrainTile & tile
 	{//terrain type
 		const std::string typeCode = src.substr(0, 2);
 
-		int rawType = vstd::find_pos(terrainCodes, typeCode);
-
-		if(rawType < 0)
-			throw std::runtime_error("Invalid terrain type code in "+src);
-
-		tile.terType = ETerrainType(rawType);
+		tile.terType = ETerrainType(typeCode);
 	}
 	int startPos = 2; //0+typeCode fixed length
 	{//terrain view
@@ -1298,7 +1293,7 @@ std::string CMapSaverJson::writeTerrainTile(const TerrainTile & tile)
 	out.setf(std::ios::dec, std::ios::basefield);
 	out.unsetf(std::ios::showbase);
 
-	out << terrainCodes.at(int(tile.terType)) << (int)tile.terView << flipCodes[tile.extTileFlags % 4];
+	out << tile.terType.toString().substr(0, 2) << (int)tile.terView << flipCodes[tile.extTileFlags % 4];
 
 	if(tile.roadType != ERoadType::NO_ROAD)
 		out << roadCodes.at(int(tile.roadType)) << (int)tile.roadDir << flipCodes[(tile.extTileFlags >> 4) % 4];
