@@ -1744,12 +1744,12 @@ void CRmgTemplateZone::initTerrainType ()
 		{
 			if(isUnderground())
 			{
-				if(std::find(gen->getConfig().terrainUndergroundAllowed.cbegin(), gen->getConfig().terrainUndergroundAllowed.cend(), terrainType) == gen->getConfig().terrainUndergroundAllowed.cend())
+				if(!vstd::contains(gen->getConfig().terrainUndergroundAllowed, terrainType))
 					terrainType = ETerrainType::SUBTERRANEAN;
 			}
 			else
 			{
-				if(std::find(gen->getConfig().terrainGroundProhibit.cbegin(), gen->getConfig().terrainGroundProhibit.cend(), terrainType) != gen->getConfig().terrainGroundProhibit.cend())
+				if(vstd::contains(gen->getConfig().terrainGroundProhibit, terrainType))
 					terrainType = ETerrainType::DIRT;
 			}
 		}
@@ -1781,7 +1781,7 @@ bool CRmgTemplateZone::placeMines ()
 			createdMines.push_back(mine);
 			
 			if(!i && (res == ERes::WOOD || res == ERes::ORE))
-				addCloseObject(mine, gen->getConfig().mineValues.at(res)); //only first woor&ore mines are close
+				addCloseObject(mine, gen->getConfig().mineValues.at(res)); //only first wood&ore mines are close
 			else
 				addRequiredObject(mine, gen->getConfig().mineValues.at(res));
 		}
