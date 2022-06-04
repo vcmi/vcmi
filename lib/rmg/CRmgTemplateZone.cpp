@@ -2074,69 +2074,62 @@ bool CRmgTemplateZone::createShipyard(const int3 & position, si32 guardStrength)
 	shipyard->tempOwner = PlayerColor::NEUTRAL;
 	
 	setTemplateForObject(shipyard);
-	std::vector<int3> offsets;
+	std::vector<int3> outOffsets;
 	auto tilesBlockedByObject = shipyard->getBlockedOffsets();
 	tilesBlockedByObject.insert(shipyard->getVisitableOffset());
-	shipyard->getOutOffsets(offsets);
+	shipyard->getOutOffsets(outOffsets);
 	
 	int3 targetTile(-1, -1, -1);
 	std::set<int3> shipAccessCandidates;
 	
-	for(auto& candidateTile : possibleTiles)
+	for(const auto & outOffset : outOffsets)
 	{
-		bool foundTargetPosition = false;
-		for(const auto & offset : offsets)
+		auto candidateTile = position - outOffset;
+		std::set<int3> tilesBlockedAbsolute;
+		
+		//check space under object
+		bool allClear = true;
+		for(const auto & objectTileOffset : tilesBlockedByObject)
 		{
-			if(candidateTile+offset == position)
+			auto objectTile = candidateTile + objectTileOffset;
+			tilesBlockedAbsolute.insert(objectTile);
+			if(!gen->map->isInTheMap(objectTile) || !gen->isPossible(objectTile) || gen->getZoneID(objectTile)!=id)
 			{
-				std::set<int3> tilesBlockedAbsolute;
-				//check space under object
-				bool allClear = true;
-				for(const auto & objectTileOffset : tilesBlockedByObject)
-				{
-					auto objectTile = candidateTile + objectTileOffset;
-					tilesBlockedAbsolute.insert(objectTile);
-					if(!gen->map->isInTheMap(objectTile) || !gen->isPossible(objectTile) || gen->getZoneID(objectTile)!=id)
-					{
-						allClear = false;
-						break;
-					}
-				}
-				if(!allClear) //cannot place shipyard anyway
-					break;
-				
-				//prepare temporary map
-				for(auto& blockedPos : tilesBlockedAbsolute)
-					gen->setOccupied(blockedPos, ETileType::USED);
-				
-				//check if position is accessible
-				gen->foreach_neighbour(position, [this, &shipAccessCandidates](const int3 & v)
-				{
-					if(!gen->isBlocked(v) && gen->getZoneID(v)==id)
-					{
-						//make sure that it's possible to create path to boarding position
-						if(crunchPath(v, findClosestTile(freePaths, v), false, nullptr))
-							shipAccessCandidates.insert(v);
-					}
-				});
-				
-				//rollback temporary map
-				for(auto& blockedPos : tilesBlockedAbsolute)
-					gen->setOccupied(blockedPos, ETileType::POSSIBLE);
-				
-				if(!shipAccessCandidates.empty())
-				{
-					foundTargetPosition = true;
-				}
-				
-				break; //no need to check other offsets as we already found position
+				allClear = false;
+				break;
 			}
 		}
+		if(!allClear) //cannot place shipyard anyway
+			continue;
 		
-		if(foundTargetPosition && isAccessibleFromSomewhere(shipyard->appearance, candidateTile))
+		//prepare temporary map
+		for(auto& blockedPos : tilesBlockedAbsolute)
+			gen->setOccupied(blockedPos, ETileType::USED);
+		
+		
+		//check if boarding position is accessible
+		gen->foreach_neighbour(position, [this, &shipAccessCandidates](const int3 & v)
+		{
+			if(!gen->isBlocked(v) && gen->getZoneID(v)==id)
+			{
+				//make sure that it's possible to create path to boarding position
+				if(connectWithCenter(v, false, false))
+					shipAccessCandidates.insert(v);
+			}
+		});
+		
+		//check if we can connect shipyard entrance with path
+		if(!connectWithCenter(candidateTile + shipyard->getVisitableOffset(), false))
+			shipAccessCandidates.clear();
+				
+		//rollback temporary map
+		for(auto& blockedPos : tilesBlockedAbsolute)
+			gen->setOccupied(blockedPos, ETileType::POSSIBLE);
+		
+		if(!shipAccessCandidates.empty() && isAccessibleFromSomewhere(shipyard->appearance, candidateTile))
 		{
 			targetTile = candidateTile;
-			break;
+			break; //no need to check other offsets as we already found position
 		}
 		
 		shipAccessCandidates.clear(); //invalidate positions
@@ -2148,19 +2141,24 @@ bool CRmgTemplateZone::createShipyard(const int3 & position, si32 guardStrength)
 		return false;
 	}
 	
-	placeObject(shipyard, targetTile);
-	guardObject(shipyard, guardStrength, false, true);
-	
-	for(auto& accessPosition : shipAccessCandidates)
+	if(tryToPlaceObjectAndConnectToPath(shipyard, targetTile)==EObjectPlacingResult::SUCCESS)
 	{
-		if(connectPath(accessPosition, false))
+		placeObject(shipyard, targetTile);
+		guardObject(shipyard, guardStrength, false, true);
+	
+		for(auto& accessPosition : shipAccessCandidates)
 		{
-			gen->setOccupied(accessPosition, ETileType::FREE);
-			return true;
+			if(connectPath(accessPosition, false))
+			{
+				gen->setOccupied(accessPosition, ETileType::FREE);
+				return true;
+			}
 		}
 	}
 	
-	throw rmgException("Cannot find path to shipyard boarding position");
+	logGlobal->warn("Cannot find path to shipyard boarding position");
+	delete shipyard;
+	return false;
 }
 
 void CRmgTemplateZone::createTreasures()
@@ -2208,7 +2206,12 @@ void CRmgTemplateZone::createTreasures()
 			//optimization - don't check tiles which are not allowed
 			vstd::erase_if(possibleTiles, [this](const int3 &tile) -> bool
 			{
-				return (!gen->isPossible(tile)) || gen->getZoneID(tile)!=getId();
+				//for water area we sholdn't place treasures close to coast
+				for(auto & lake : lakes)
+					if(vstd::contains(lake.distance, tile) && lake.distance[tile] < 2)
+						return true;
+				
+				return !gen->isPossible(tile) || gen->getZoneID(tile)!=getId();
 			});
 
 
