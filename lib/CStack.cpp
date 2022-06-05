@@ -332,7 +332,7 @@ bool CStack::isOnNativeTerrain() const
 	return res;
 }
 
-bool CStack::isOnTerrain(int terrain) const
+bool CStack::isOnTerrain(const ETerrainType & terrain) const
 {
 	return battle->getTerrainType() == terrain;
 }

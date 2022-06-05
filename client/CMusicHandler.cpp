@@ -19,6 +19,7 @@
 #include "../lib/StringConstants.h"
 #include "../lib/CRandomGenerator.h"
 #include "../lib/VCMIDirs.h"
+#include "../lib/ETerrainType.h"
 
 #define VCMI_SOUND_NAME(x)
 #define VCMI_SOUND_FILE(y) #y,
@@ -354,7 +355,7 @@ CMusicHandler::CMusicHandler():
 	JsonNode terrains(ResourceID("config/terrains.json"));
 	for (auto entry : terrains.Struct())
 	{
-		int terrIndex = vstd::find_pos(GameConstants::TERRAIN_NAMES, entry.first);
+		int terrIndex = ETerrainType(entry.first).id();
 		addEntryToSet("terrain", terrIndex, "Music/" + entry.second["music"].String());
 	}
 }

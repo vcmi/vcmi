@@ -17,6 +17,7 @@
 #include "CRmgTemplate.h"
 #include "../mapObjects/ObjectTemplate.h"
 #include <boost/heap/priority_queue.hpp> //A*
+#include "ETerrainType.h"
 
 class CMapGenerator;
 class CTileInfo;

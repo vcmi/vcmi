@@ -106,7 +106,7 @@ void CTileInfo::setRoadType(ERoadType::ERoadType value)
 CRmgTemplateZone::CRmgTemplateZone(CMapGenerator * Gen)
 	: ZoneOptions(),
 	townType(ETownType::NEUTRAL),
-	terrainType (ETerrainType("GRASS")),
+	terrainType (ETerrainType("grass")),
 	minGuardedValue(0),
 	questArtZone(),
 	gen(Gen)
@@ -1731,7 +1731,7 @@ void CRmgTemplateZone::initTerrainType ()
 {
 	if (type==ETemplateZoneType::WATER)
 	{
-		terrainType = ETerrainType("WATER");
+		terrainType = ETerrainType("water");
 	}
 	else
 	{
@@ -1745,12 +1745,12 @@ void CRmgTemplateZone::initTerrainType ()
 			if(isUnderground())
 			{
 				if(!vstd::contains(gen->getConfig().terrainUndergroundAllowed, terrainType))
-					terrainType = ETerrainType("SUBTERRANEAN");
+					terrainType = ETerrainType("subterra");
 			}
 			else
 			{
 				if(vstd::contains(gen->getConfig().terrainGroundProhibit, terrainType))
-					terrainType = ETerrainType("DIRT");
+					terrainType = ETerrainType("dirt");
 			}
 		}
 	}
@@ -2569,7 +2569,8 @@ void CRmgTemplateZone::checkAndPlaceObject(CGObjectInstance* object, const int3 
 	if (object->appearance.id == Obj::NO_OBJ)
 	{
 		auto terrainType = gen->map->getTile(pos).terType;
-		auto templates = VLC->objtypeh->getHandlerFor(object->ID, object->subID)->getTemplates(terrainType);
+		auto h = VLC->objtypeh->getHandlerFor(object->ID, object->subID);
+		auto templates = h->getTemplates(terrainType);
 		if (templates.empty())
 			throw rmgException(boost::to_string(boost::format("Did not find graphics for object (%d,%d) at %s (terrain %d)") % object->ID % object->subID % pos.toString() % terrainType));
 

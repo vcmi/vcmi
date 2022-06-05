@@ -14,6 +14,7 @@
 #include "CCreatureHandler.h" //todo: remove
 #include "battle/BattleHex.h"
 #include "mapObjects/CGHeroInstance.h" // for commander serialization
+#include "ETerrainType.h"
 
 #include "battle/CUnitState.h"
 
@@ -50,7 +51,7 @@ public:
 
 	bool canBeHealed() const; //for first aid tent - only harmed stacks that are not war machines
 	bool isOnNativeTerrain() const;
-	bool isOnTerrain(int terrain) const;
+	bool isOnTerrain(const ETerrainType & terrain) const;
 
 	ui32 level() const;
 	si32 magicResistance() const override; //include aura of resistance

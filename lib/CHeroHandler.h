@@ -18,7 +18,6 @@
 #include "GameConstants.h"
 #include "HeroBonus.h"
 #include "IHandlerBase.h"
-#include "ETerrainType.h"
 
 class CHeroClass;
 class CGameInfo;
@@ -27,6 +26,7 @@ struct BattleHex;
 class JsonNode;
 class CRandomGenerator;
 class JsonSerializeFormat;
+class ETerrainType;
 
 struct SSpecialtyInfo
 {	si32 type;

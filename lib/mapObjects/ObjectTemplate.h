@@ -10,12 +10,12 @@
 #pragma once
 
 #include "../GameConstants.h"
-#include "ETerrainType.h"
 
 class CBinaryReader;
 class CLegacyConfigParser;
 class JsonNode;
 class int3;
+class ETerrainType;
 
 class DLL_LINKAGE ObjectTemplate
 {

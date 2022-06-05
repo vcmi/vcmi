@@ -964,7 +964,7 @@ void CGameState::initGrailPosition()
 					if(!t.blocked
 						&& !t.visitable
 						&& t.terType.isLand()
-						&& t.terType != ETerrainType("ROCK")
+						&& t.terType != ETerrainType("rock")
 						&& (int)map->grailPos.dist2dSQ(int3(i, j, k)) <= (map->grailRadius * map->grailRadius))
 						allowedPos.push_back(int3(i,j,k));
 				}
@@ -1940,25 +1940,25 @@ BFieldType CGameState::battleGetBattlefieldType(int3 tile, CRandomGenerator & ra
 	if(map->isCoastalTile(tile)) //coastal tile is always ground
 		return BFieldType::SAND_SHORE;
 
-	if(t.terType == ETerrainType("DIRT"))
+	if(t.terType == ETerrainType("dirt"))
 		return BFieldType(rand.nextInt(3, 5));
-	if(t.terType == ETerrainType("SAND"))
+	if(t.terType == ETerrainType("sand"))
 		return BFieldType::SAND_MESAS; //TODO: coast support
-	if(t.terType == ETerrainType("GRASS"))
+	if(t.terType == ETerrainType("grass"))
 		return BFieldType(rand.nextInt(6, 7));
-	if(t.terType == ETerrainType("SNOW"))
+	if(t.terType == ETerrainType("snow"))
 		return BFieldType(rand.nextInt(10, 11));
-	if(t.terType == ETerrainType("SWAMP"))
+	if(t.terType == ETerrainType("swamp"))
 		return BFieldType::SWAMP_TREES;
 	if(t.terType == ETerrainType("ROUGH"))
 		return BFieldType::ROUGH;
-	if(t.terType == ETerrainType("SUBTERRANEAN"))
+	if(t.terType == ETerrainType("subterra"))
 		return BFieldType::SUBTERRANEAN;
-	if(t.terType == ETerrainType("LAVA"))
+	if(t.terType == ETerrainType("lava"))
 		return BFieldType::LAVA;
-	if(t.terType == ETerrainType("WATER"))
+	if(t.terType == ETerrainType("water"))
 		return BFieldType::SHIP;
-	if(t.terType == ETerrainType("ROCK"))
+	if(t.terType == ETerrainType("rock"))
 		return BFieldType::ROCKLANDS;
 	
 	return BFieldType::NONE;

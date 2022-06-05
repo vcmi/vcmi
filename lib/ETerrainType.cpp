@@ -14,20 +14,19 @@ const ETerrainType ETerrainType::ANY("ANY");
 
 const std::array<std::string, 10> ETerrainTypePredefined
 {
-	"DIRT", "SAND", "GRASS", "SNOW", "SWAMP",
-	"ROUGH", "SUBTERRANEAN", "LAVA", "WATER", "ROCK" // ROCK is also intended to be max value.
+	"dirt", "sand", "grass", "snow", "swamp", "rough", "subterra", "lava", "water", "rock"
 };
 
 const std::set<ETerrainType> ETerrainType::DEFAULT_TERRAIN_TYPES
 {
-	ETerrainType("DIRT"),
-	ETerrainType("SAND"),
-	ETerrainType("GRASS"),
-	ETerrainType("SNOW"),
-	ETerrainType("SWAMP"),
-	ETerrainType("ROUGH"),
-	ETerrainType("SUBTERRANEAN"),
-	ETerrainType("LAVA")
+	ETerrainType("dirt"),
+	ETerrainType("sand"),
+	ETerrainType("grass"),
+	ETerrainType("snow"),
+	ETerrainType("swamp"),
+	ETerrainType("rough"),
+	ETerrainType("subterra"),
+	ETerrainType("lava")
 };
 
 std::ostream & operator<<(std::ostream & os, const ETerrainType terrainType)
@@ -84,7 +83,7 @@ std::vector<ETerrainType> & ETerrainType::terrains()
 int ETerrainType::id() const
 {
 	auto iter = std::find(ETerrainType::terrains().begin(), ETerrainType::terrains().end(), *this);
-	if(iter == ETerrainType::terrains().end())
+	if(iter != ETerrainType::terrains().end())
 		return iter - ETerrainType::terrains().begin();
 	
 	ETerrainType::terrains().push_back(*this);
@@ -93,17 +92,17 @@ int ETerrainType::id() const
 	
 bool ETerrainType::isLand() const
 {
-	return type != "WATER";
+	return type != "water";
 }
 bool ETerrainType::isWater() const
 {
-	return type == "WATER";
+	return type == "water";
 }
 bool ETerrainType::isPassable() const
 {
-	return type != "ROCK";
+	return type != "rock";
 }
 bool ETerrainType::isUnderground() const
 {
-	return type != "SUBTERRANEAN";
+	return type != "subterra";
 }

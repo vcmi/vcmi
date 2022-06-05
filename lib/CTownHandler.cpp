@@ -26,8 +26,8 @@
 
 const int NAMES_PER_TOWN=16; // number of town names per faction in H3 files. Json can define any number
 
-const ETerrainType CTownHandler::defaultGoodTerrain{"GRASS"};
-const ETerrainType CTownHandler::defaultEvilTerrain{"LAVA"};
+const ETerrainType CTownHandler::defaultGoodTerrain{"grass"};
+const ETerrainType CTownHandler::defaultEvilTerrain{"lava"};
 const ETerrainType CTownHandler::defaultNeutralTerrain{"ROUGH"};
 
 const std::map<std::string, CBuilding::EBuildMode> CBuilding::MODES =
@@ -1099,19 +1099,15 @@ CFaction * CTownHandler::loadFromJson(const std::string & scope, const JsonNode 
 		faction->alignment = EAlignment::NEUTRAL;
 	else
 		faction->alignment = static_cast<EAlignment::EAlignment>(alignment);
-
-	auto nativeTerrain = source["nativeTerrain"];
-	int terrainNum = nativeTerrain.isNull()
-		? -1
-		: vstd::find_pos(GameConstants::TERRAIN_NAMES, nativeTerrain.String());
 	
 	auto preferUndergound = source["preferUndergroundPlacement"];
 	faction->preferUndergroundPlacement = preferUndergound.isNull() ? false : preferUndergound.Bool();
 
 	//Contructor is not called here, but operator=
-	faction->nativeTerrain = terrainNum < 0
+	auto nativeTerrain = source["nativeTerrain"];
+	faction->nativeTerrain = nativeTerrain.isNull()
 		? getDefaultTerrainForAlignment(faction->alignment)
-		: ETerrainType(terrainNum);
+		: ETerrainType(nativeTerrain.String());
 
 	if (!source["town"].isNull())
 	{

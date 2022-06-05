@@ -502,14 +502,6 @@ std::map<int, std::pair<SDL_Color, SDL_Color> > CMinimap::loadColors(std::string
 
 	for(auto &m : config.Struct())
 	{
-		auto index = boost::find(GameConstants::TERRAIN_NAMES, m.first);
-		if (index == std::end(GameConstants::TERRAIN_NAMES))
-		{
-			logGlobal->error("Error: unknown terrain in terrains.json: %s", m.first);
-			continue;
-		}
-		int terrainID = static_cast<int>(index - std::begin(GameConstants::TERRAIN_NAMES));
-
 		const JsonVector &unblockedVec = m.second["minimapUnblocked"].Vector();
 		SDL_Color normal =
 		{
@@ -528,7 +520,7 @@ std::map<int, std::pair<SDL_Color, SDL_Color> > CMinimap::loadColors(std::string
 			ui8(255)
 		};
 
-		ret.insert(std::make_pair(terrainID, std::make_pair(normal, blocked)));
+		ret.insert(std::make_pair(ETerrainType(m.first).id(), std::make_pair(normal, blocked)));
 	}
 	return ret;
 }

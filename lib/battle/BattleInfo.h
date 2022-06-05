@@ -14,11 +14,11 @@
 #include "IBattleState.h"
 #include "SiegeInfo.h"
 #include "SideInBattle.h"
-#include "ETerrainType.h"
 
 class CStack;
 class CStackInstance;
 class CStackBasicDescriptor;
+class ETerrainType;
 
 class DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallback, public IBattleState
 {

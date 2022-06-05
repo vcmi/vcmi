@@ -253,7 +253,7 @@ void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
 	{
 		for(auto & i : ETerrainType::terrains())
 		{
-			if(i == ETerrainType("ROCK") || i == ETerrainType("WATER"))
+			if(i == ETerrainType("rock") || i == ETerrainType("water"))
 				continue;
 			allowedTerrains.insert(i);
 		}

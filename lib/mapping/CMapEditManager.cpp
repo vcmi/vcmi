@@ -762,13 +762,13 @@ void CDrawTerrainOperation::updateTerrainViews()
 
 ETerrainGroup::ETerrainGroup CDrawTerrainOperation::getTerrainGroup(ETerrainType terType) const
 {
-	if(terType == ETerrainType("DIRT"))
+	if(terType == ETerrainType("dirt"))
 		return ETerrainGroup::DIRT;
-	if(terType == ETerrainType("SAND"))
+	if(terType == ETerrainType("sand"))
 		return ETerrainGroup::SAND;
-	if(terType == ETerrainType("WATER"))
+	if(terType == ETerrainType("water"))
 		return ETerrainGroup::WATER;
-	if(terType == ETerrainType("ROCK"))
+	if(terType == ETerrainType("rock"))
 		return ETerrainGroup::ROCK;
 	return ETerrainGroup::NORMAL;
 }
@@ -947,7 +947,7 @@ CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainVi
 
 bool CDrawTerrainOperation::isSandType(ETerrainType terType) const
 {
-	if(terType == ETerrainType("WATER") || terType == ETerrainType("SAND") || terType == ETerrainType("ROCK"))
+	if(terType == ETerrainType("water") || terType == ETerrainType("sand") || terType == ETerrainType("rock"))
 		return true;
 	return false;
 }
@@ -1049,12 +1049,12 @@ CClearTerrainOperation::CClearTerrainOperation(CMap * map, CRandomGenerator * ge
 {
 	CTerrainSelection terrainSel(map);
 	terrainSel.selectRange(MapRect(int3(0, 0, 0), map->width, map->height));
-	addOperation(make_unique<CDrawTerrainOperation>(map, terrainSel, ETerrainType("WATER"), gen));
+	addOperation(make_unique<CDrawTerrainOperation>(map, terrainSel, ETerrainType("water"), gen));
 	if(map->twoLevel)
 	{
 		terrainSel.clearSelection();
 		terrainSel.selectRange(MapRect(int3(0, 0, 1), map->width, map->height));
-		addOperation(make_unique<CDrawTerrainOperation>(map, terrainSel, ETerrainType("ROCK"), gen));
+		addOperation(make_unique<CDrawTerrainOperation>(map, terrainSel, ETerrainType("rock"), gen));
 	}
 }
 

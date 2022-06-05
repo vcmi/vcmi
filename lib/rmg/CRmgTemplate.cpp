@@ -66,12 +66,12 @@ class TerrainEncoder
 public:
 	static si32 decode(const std::string & identifier)
 	{
-		return vstd::find_pos(GameConstants::TERRAIN_NAMES, identifier);
+		return vstd::find_pos(ETerrainType::terrains(), identifier);
 	}
 
 	static std::string encode(const si32 index)
 	{
-		return (index >=0 && index < GameConstants::TERRAIN_TYPES) ? GameConstants::TERRAIN_NAMES[index] : "<INVALID TERRAIN>";
+		return (index >=0 && index < ETerrainType::terrains().size()) ? ETerrainType::terrains()[index].toString() : "<INVALID TERRAIN>";
 	}
 };
 

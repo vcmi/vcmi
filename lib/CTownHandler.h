@@ -16,11 +16,11 @@
 #include "ResourceSet.h"
 #include "int3.h"
 #include "GameConstants.h"
-#include "ETerrainType.h"
 #include "IHandlerBase.h"
 #include "LogicalExpression.h"
 #include "battle/BattleHex.h"
 #include "HeroBonus.h"
+#include "ETerrainType.h"
 
 class CLegacyConfigParser;
 class JsonNode;

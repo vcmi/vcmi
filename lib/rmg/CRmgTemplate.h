@@ -14,9 +14,9 @@
 #include "../GameConstants.h"
 #include "../ResourceSet.h"
 #include "CMapGenOptions.h"
-#include "ETerrainType.h"
 
 class JsonSerializeFormat;
+class ETerrainType;
 
 namespace ETemplateZoneType
 {

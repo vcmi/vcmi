@@ -1009,8 +1009,8 @@ TurnInfo::BonusCache::BonusCache(TConstBonusListPtr bl)
 {
 	for(int i = 0; i < ETerrainType::terrains().size(); ++i)
 	{
-		noTerrainPenalty[i] = static_cast<bool>(
-				bl->getFirst(Selector::type()(Bonus::NO_TERRAIN_PENALTY).And(Selector::subtype()(i))));
+		noTerrainPenalty.push_back(static_cast<bool>(
+				bl->getFirst(Selector::type()(Bonus::NO_TERRAIN_PENALTY).And(Selector::subtype()(i)))));
 	}
 
 	freeShipBoarding = static_cast<bool>(bl->getFirst(Selector::type()(Bonus::FREE_SHIP_BOARDING)));
@@ -1173,7 +1173,7 @@ void CPathfinderHelper::getNeighbours(
 			continue;
 
 		const TerrainTile & hlpt = map->getTile(hlp);
-		if(hlpt.terType == ETerrainType("ROCK"))
+		if(hlpt.terType == ETerrainType("rock"))
 			continue;
 
 // 		//we cannot visit things from blocked tiles

@@ -19,12 +19,12 @@
 #include "JsonNode.h"
 #include "IHandlerBase.h"
 #include "CRandomGenerator.h"
-#include "ETerrainType.h"
 
 class CLegacyConfigParser;
 class CCreatureHandler;
 class CCreature;
 class JsonSerializeFormat;
+class ETerrainType;
 
 class DLL_LINKAGE CCreature : public Creature, public CBonusSystemNode
 {

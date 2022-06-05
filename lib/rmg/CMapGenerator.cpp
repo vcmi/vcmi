@@ -346,7 +346,7 @@ void CMapGenerator::genZones()
 {
 	getEditManager()->clearTerrain(&rand);
 	getEditManager()->getTerrainSelection().selectRange(MapRect(int3(0, 0, 0), mapGenOptions.getWidth(), mapGenOptions.getHeight()));
-	getEditManager()->drawTerrain(ETerrainType("GRASS"), &rand);
+	getEditManager()->drawTerrain(ETerrainType("grass"), &rand);
 
 	auto tmpl = mapGenOptions.getMapTemplate();
 	zones.clear();
@@ -536,7 +536,7 @@ void CMapGenerator::createObstaclesCommon1()
 			}
 		}
 		getEditManager()->getTerrainSelection().setSelection(rockTiles);
-		getEditManager()->drawTerrain(ETerrainType("ROCK"), &rand);
+		getEditManager()->drawTerrain(ETerrainType("rock"), &rand);
 	}
 }
 
@@ -550,7 +550,7 @@ void CMapGenerator::createObstaclesCommon2()
 			for (int y = 0; y < map->height; y++)
 			{
 				int3 tile(x, y, 1);
-				if (map->getTile(tile).terType == ETerrainType("ROCK"))
+				if (map->getTile(tile).terType == ETerrainType("rock"))
 				{
 					setOccupied(tile, ETileType::USED);
 				}
