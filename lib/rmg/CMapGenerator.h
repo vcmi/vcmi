@@ -52,10 +52,30 @@ public:
 class DLL_LINKAGE CMapGenerator
 {
 public:
+	struct Config
+	{
+		std::vector<ETerrainType> terrainUndergroundAllowed;
+		std::vector<ETerrainType> terrainGroundProhibit;
+		std::vector<CTreasureInfo> waterTreasure;
+		int shipyardGuard;
+		int mineExtraResources;
+		std::map<Res::ERes, int> mineValues;
+		int minGuardStrength;
+		ERoadType::ERoadType defaultRoadType;
+		int treasureValueLimit;
+		std::vector<int> prisonExperience, prisonValues;
+		std::vector<int> scrollValues;
+		int pandoraMultiplierGold, pandoraMultiplierExperience, pandoraMultiplierSpells, pandoraSpellSchool, pandoraSpell60;
+		std::vector<int> pandoraCreatureValues;
+		std::vector<int> questValues, questRewardValues;
+	};
+	
 	using Zones = std::map<TRmgTemplateZoneId, std::shared_ptr<CRmgTemplateZone>>;
 
 	explicit CMapGenerator(CMapGenOptions& mapGenOptions, int RandomSeed = std::time(nullptr));
 	~CMapGenerator(); // required due to std::unique_ptr
+	
+	const Config & getConfig() const;
 	
 	mutable std::unique_ptr<CMap> map;
 	CRandomGenerator rand;
@@ -111,6 +131,7 @@ public:
 private:
 	int randomSeed;
 	CMapGenOptions& mapGenOptions;
+	Config config;
 	
 	std::vector<rmg::ZoneConnection> connectionsLeft;
 	Zones zones;
@@ -129,6 +150,8 @@ private:
 	void checkIsOnMap(const int3 &tile) const; //throws
 
 	/// Generation methods
+	void loadConfig();
+	
 	std::string getMapDescription() const;
 
 	void initPrisonsRemaining();

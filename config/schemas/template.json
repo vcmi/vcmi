@@ -60,6 +60,12 @@
 					"minimum" : 0
 				}
 			}
+		},
+		"waterContent":
+		{
+			"enum": ["none", "normal", "islands"],
+			"additionalProperties" : false,
+			"type": "string"
 		}
 	},
 
@@ -72,6 +78,10 @@
 		"connections":{
 			"type": "array",
 			"items":{"$ref" : "#/definitions/connection"}	
+		},
+		"allowedWaterContent": {
+			"type": "array",
+			"items": {"$ref" : "#/definitions/waterContent"}
 		},
 		"required" : ["zones", "connections"],
 		"additionalProperties" : false

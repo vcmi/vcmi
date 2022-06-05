@@ -10,6 +10,7 @@
 
 #include "StdInc.h"
 #include <vstd/ContainerUtils.h>
+#include <boost/bimap.hpp>
 #include "CRmgTemplate.h"
 
 #include "../mapping/CMap.h"
@@ -359,7 +360,7 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 			rawStrength = static_cast<decltype(rawStrength)>(zoneMonsterStrength);
 			rawStrength++;
 		}
-		handler.serializeEnum("monsters", rawStrength, STRENGTH);
+		handler.serializeEnum("monsters", rawStrength, EMonsterStrength::ZONE_NORMAL + 1, STRENGTH);
 		if(!handler.saving)
 		{
 			rawStrength--;
@@ -441,6 +442,11 @@ bool CRmgTemplate::matchesSize(const int3 & value) const
 bool CRmgTemplate::isWaterContentAllowed(EWaterContent::EWaterContent waterContent) const
 {
 	return waterContent == EWaterContent::EWaterContent::RANDOM || allowedWaterContent.count(waterContent);
+}
+
+const std::set<EWaterContent::EWaterContent> & CRmgTemplate::getWaterContentAllowed() const
+{
+	return allowedWaterContent;
 }
 
 void CRmgTemplate::setId(const std::string & value)
@@ -582,6 +588,32 @@ void CRmgTemplate::serializeJson(JsonSerializeFormat & handler)
 	{
 		auto connectionsData = handler.enterArray("connections");
 		connectionsData.serializeStruct(connections);
+	}
+	
+	{
+		boost::bimap<EWaterContent::EWaterContent, std::string> enc;
+		enc.insert({EWaterContent::NONE, "none"});
+		enc.insert({EWaterContent::NORMAL, "normal"});
+		enc.insert({EWaterContent::ISLANDS, "islands"});
+		JsonNode node;
+		if(handler.saving)
+		{
+			node.setType(JsonNode::JsonType::DATA_VECTOR);
+			for(auto wc : allowedWaterContent)
+			{
+				JsonNode n;
+				n.String() = enc.left.at(wc);
+				node.Vector().push_back(n);
+			}
+		}
+		handler.serializeRaw("allowedWaterContent", node, boost::none);
+		if(!handler.saving)
+		{
+			for(auto wc : node.Vector())
+			{
+				allowedWaterContent.insert(enc.right.at(std::string(wc.String())));
+			}
+		}
 	}
 
 	{
