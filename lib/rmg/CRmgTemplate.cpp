@@ -149,7 +149,9 @@ ZoneOptions::ZoneOptions()
 	terrainTypeLikeZone(NO_ZONE),
 	treasureLikeZone(NO_ZONE)
 {
-
+	for(auto & terr : ETerrainType::terrains())
+		if(terr.isLand() && terr.isPassable())
+			terrainTypes.insert(terr);
 }
 
 ZoneOptions & ZoneOptions::operator=(const ZoneOptions & other)

@@ -29,6 +29,7 @@
 #include "CMT.h"
 #include "CMusicHandler.h"
 #include "../lib/CRandomGenerator.h"
+#include "../lib/ETerrainType.h"
 
 #define ADVOPT (conf.go()->ac)
 
@@ -212,7 +213,7 @@ void CMapHandler::initTerrainGraphics()
 		}
 	};
 
-	loadFlipped(GameConstants::TERRAIN_TYPES, terrainAnimations, terrainImages, TERRAIN_FILES);
+	loadFlipped(ETerrainType::terrains().size(), terrainAnimations, terrainImages, TERRAIN_FILES);
 	loadFlipped(3, roadAnimations, roadImages, ROAD_FILES);
 	loadFlipped(4, riverAnimations, riverImages, RIVER_FILES);
 
@@ -626,6 +627,9 @@ void CMapHandler::CMapBlitter::drawTileTerrain(SDL_Surface * targetSurf, const T
 	Rect destRect(realTileRect);
 
 	ui8 rotation = tinfo.extTileFlags % 4;
+	
+	if(parent->terrainImages[tinfo.terType.id()].size()<=tinfo.terView)
+		return;
 
 	drawElement(EMapCacheType::TERRAIN, parent->terrainImages[tinfo.terType.id()][tinfo.terView][rotation], nullptr, targetSurf, &destRect);
 }
