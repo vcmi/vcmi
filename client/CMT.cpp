@@ -1057,8 +1057,9 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 			renderHeight = pHeight;
 			minDiff = diff;
 		}
-		/* select largest resolution meets prior conditions */
-		else if (diff == minDiff && pWidth > renderWidth)
+		/* select largest resolution meets prior conditions.
+		 * since there are resolutions like 1366x768(not exactly 16:9), a deviation of 0.005 is allowed. */
+		else if (fabs(diff - minDiff) < 0.005f && pWidth > renderWidth)
 		{
 			renderWidth = pWidth;
 			renderHeight = pHeight;
