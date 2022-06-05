@@ -51,6 +51,7 @@ public:
 	void init(); // needs to be called directly before the main game loop to reset the internal timer
 	void framerateDelay(); // needs to be called every game update cycle
 	ui32 getElapsedMilliseconds() const {return this->timeElapsed;}
+	ui32 getFrameNumber() const { return accumulatedFrames; }
 };
 
 // Handles GUI logic and drawing
