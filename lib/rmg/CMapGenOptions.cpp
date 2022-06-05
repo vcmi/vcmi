@@ -246,7 +246,7 @@ void CMapGenOptions::finalize(CRandomGenerator & rand)
 
 	if(waterContent == EWaterContent::RANDOM)
 	{
-		waterContent = static_cast<EWaterContent::EWaterContent>(rand.nextInt(EWaterContent::NONE, EWaterContent::ISLANDS));
+		waterContent = *RandomGeneratorUtil::nextItem(mapTemplate->getWaterContentAllowed(), rand);
 	}
 	if(monsterStrength == EMonsterStrength::RANDOM)
 	{
