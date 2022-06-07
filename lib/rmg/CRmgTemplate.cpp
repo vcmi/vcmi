@@ -328,7 +328,7 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 	#undef SERIALIZE_ZONE_LINK
 
 	//if(terrainTypeLikeZone == NO_ZONE)
-	//	handler.serializeIdArray<ETerrainType, TerrainEncoder>("terrainTypes", terrainTypes, ETerrainType::DEFAULT_TERRAIN_TYPES);
+		//handler.serializeIdArray<ETerrainType, TerrainEncoder>("terrainTypes", terrainTypes, b);
 
 	handler.serializeBool("townsAreSameType", townsAreSameType, false);
 	handler.serializeIdArray<TFaction, FactionID>("allowedMonsters", monsterTypes, VLC->townh->getAllowedFactions(false));

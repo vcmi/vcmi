@@ -12,7 +12,20 @@
 #include "VCMI_Lib.h"
 #include "CModHandler.h"
 
+//regular expression to change id for string at config
+//("allowedTerrain"\s*:\s*\[.*)9(.*\],\n)
+//\1"rock"\2
+
 const ETerrainType ETerrainType::ANY("ANY");
+
+ETerrainType ETerrainType::createTerrainTypeH3M(int tId)
+{
+	static std::vector<std::string> terrainsH3M
+	{
+		"dirt", "sand", "grass", "snow", "swamp", "rough", "subterra", "lava", "water", "rock"
+	};
+	return ETerrainType(terrainsH3M.at(tId));
+}
 
 ETerrainType::Manager::Manager()
 {
@@ -63,11 +76,6 @@ std::string ETerrainType::toString() const
 ETerrainType::ETerrainType(const std::string & _type) : type(_type)
 {}
 	
-ETerrainType::ETerrainType(int _type)
-{
-	*this = ETerrainType::Manager::terrains().at(_type);
-}
-	
 ETerrainType& ETerrainType::operator=(const ETerrainType & _type)
 {
 	type = _type.type;
@@ -97,6 +105,10 @@ bool operator<(const ETerrainType & l, const ETerrainType & r)
 	
 int ETerrainType::id() const
 {
+	if(type == "ANY") return -3;
+	if(type == "WRONG") return -2;
+	if(type == "BORDER") return -1;
+	
 	auto _terrains = ETerrainType::Manager::terrains();
 	auto iter = std::find(_terrains.begin(), _terrains.end(), *this);
 	return iter - _terrains.begin();

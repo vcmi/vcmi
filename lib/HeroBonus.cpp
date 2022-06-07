@@ -2078,11 +2078,6 @@ bool CPropagatorNodeType::shouldBeAttached(CBonusSystemNode *dest)
 	return nodeType == dest->getNodeType();
 }
 
-CreatureTerrainLimiter::CreatureTerrainLimiter(int TerrainType)
-	: terrainType(TerrainType)
-{
-}
-
 CreatureTerrainLimiter::CreatureTerrainLimiter()
 	: terrainType()
 {

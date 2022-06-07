@@ -61,7 +61,6 @@ namespace GameConstants
 
 	const int SKILL_QUANTITY=28;
 	const int PRIMARY_SKILLS=4;
-	const int TERRAIN_TYPES=10;
 	const int RESOURCE_QUANTITY=8;
 	const int HEROES_PER_TYPE=8; //amount of heroes of each type
 

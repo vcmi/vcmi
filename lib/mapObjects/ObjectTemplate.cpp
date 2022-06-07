@@ -143,7 +143,7 @@ void ObjectTemplate::readTxt(CLegacyConfigParser & parser)
 	for (size_t i=0; i<9; i++)
 	{
 		if (terrStr[8-i] == '1')
-			allowedTerrains.insert(ETerrainType((si32)i));
+			allowedTerrains.insert(ETerrainType::createTerrainTypeH3M(i));
 	}
 
 	id    = Obj(boost::lexical_cast<int>(strings[5]));
@@ -205,7 +205,7 @@ void ObjectTemplate::readMap(CBinaryReader & reader)
 	for (size_t i=0; i<9; i++)
 	{
 		if (((terrMask >> i) & 1 ) != 0)
-			allowedTerrains.insert(ETerrainType((si32)i));
+			allowedTerrains.insert(ETerrainType::createTerrainTypeH3M(i));
 	}
 
 	id = Obj(reader.readUInt32());
@@ -330,7 +330,7 @@ void ObjectTemplate::writeJson(JsonNode & node, const bool withTerrain) const
 	if(withTerrain)
 	{
 		//assumed that ROCK and WATER terrains are not included
-		if(allowedTerrains.size() < (GameConstants::TERRAIN_TYPES - 2))
+		if(allowedTerrains.size() < (ETerrainType::Manager::terrains().size() - 2))
 		{
 			JsonVector & data = node["allowedTerrains"].Vector();
 

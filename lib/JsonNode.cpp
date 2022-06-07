@@ -720,7 +720,7 @@ std::shared_ptr<ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter)
 				{
 					VLC->modh->identifiers.requestIdentifier("terrain", parameters[0], [=](si32 terrain)
 					{
-						terrainLimiter->terrainType = terrain;
+						//terrainLimiter->terrainType = terrain;
 					});
 				}
 				return terrainLimiter;

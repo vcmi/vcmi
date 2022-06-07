@@ -636,9 +636,6 @@ void CMapHandler::CMapBlitter::drawTileTerrain(SDL_Surface * targetSurf, const T
 
 	ui8 rotation = tinfo.extTileFlags % 4;
 	
-	if(tinfo.terType.id() > 10)
-		return;
-	
 	if(parent->terrainImages[tinfo.terType.id()].size()<=tinfo.terView)
 		return;
 

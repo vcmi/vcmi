@@ -39,7 +39,7 @@ public:
 	 };*/
 	
 	ETerrainType(const std::string & _type = "");
-	ETerrainType(int _typeId);
+	static ETerrainType createTerrainTypeH3M(int tId);
 	
 	int id() const;
 	

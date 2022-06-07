@@ -106,7 +106,7 @@ ui32 CGHeroInstance::getTileCost(const TerrainTile & dest, const TerrainTile & f
 		static const CSelector selectorPATHFINDING = Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::PATHFINDING);
 		static const std::string keyPATHFINDING = "type_"+std::to_string((si32)Bonus::SECONDARY_SKILL_PREMY)+"s_"+std::to_string((si32)SecondarySkill::PATHFINDING);
 
-		ret = VLC->heroh->terrCosts[from.terType.toString()];
+		ret = VLC->heroh->terrCosts[from.terType];
 		ret -= valOfBonuses(selectorPATHFINDING, keyPATHFINDING);
 		if(ret < GameConstants::BASE_MOVEMENT_COST)
 			ret = GameConstants::BASE_MOVEMENT_COST;

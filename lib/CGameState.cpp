@@ -1950,7 +1950,7 @@ BFieldType CGameState::battleGetBattlefieldType(int3 tile, CRandomGenerator & ra
 		return BFieldType(rand.nextInt(10, 11));
 	if(t.terType == ETerrainType("swamp"))
 		return BFieldType::SWAMP_TREES;
-	if(t.terType == ETerrainType("ROUGH"))
+	if(t.terType == ETerrainType("rough"))
 		return BFieldType::ROUGH;
 	if(t.terType == ETerrainType("subterra"))
 		return BFieldType::SUBTERRANEAN;
@@ -2140,11 +2140,11 @@ void CGameState::updateRumor()
 			SThievesGuildInfo tgi;
 			obtainPlayersStats(tgi, 20);
 			rumorId = *RandomGeneratorUtil::nextItem(sRumorTypes, rand);
-			/*if(rumorId == RumorState::RUMOR_GRAIL)
+			if(rumorId == RumorState::RUMOR_GRAIL)
 			{
-				rumorExtra = getTile(map->grailPos)->terType;
+				rumorExtra = getTile(map->grailPos)->terType.id();
 				break;
-			}*/
+			}
 
 			std::vector<PlayerColor> players = {};
 			switch(rumorId)

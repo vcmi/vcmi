@@ -28,7 +28,7 @@ const int NAMES_PER_TOWN=16; // number of town names per faction in H3 files. Js
 
 const ETerrainType CTownHandler::defaultGoodTerrain{"grass"};
 const ETerrainType CTownHandler::defaultEvilTerrain{"lava"};
-const ETerrainType CTownHandler::defaultNeutralTerrain{"ROUGH"};
+const ETerrainType CTownHandler::defaultNeutralTerrain{"rough"};
 
 const std::map<std::string, CBuilding::EBuildMode> CBuilding::MODES =
 {

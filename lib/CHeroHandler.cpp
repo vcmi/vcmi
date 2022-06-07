@@ -826,7 +826,8 @@ void CHeroHandler::loadObstacles()
 			obi.defName = obs["defname"].String();
 			obi.width =  static_cast<si32>(obs["width"].Float());
 			obi.height = static_cast<si32>(obs["height"].Float());
-			obi.allowedTerrains = obs["allowedTerrain"].convertTo<std::vector<ETerrainType> >();
+			for(auto & t : obs["allowedTerrain"].Vector())
+				obi.allowedTerrains.emplace_back(t.String());
 			obi.allowedSpecialBfields = obs["specialBattlefields"].convertTo<std::vector<BFieldType> >();
 			obi.blockedTiles = obs["blockedTiles"].convertTo<std::vector<si16> >();
 			obi.isAbsoluteObstacle = absolute;
@@ -1029,11 +1030,9 @@ ui64 CHeroHandler::reqExp (ui32 level) const
 
 void CHeroHandler::loadTerrains()
 {
-	const JsonNode config(ResourceID("config/terrains.json"));
-	
-	for(auto & node : config.Struct())
+	for(auto & terrain : ETerrainType::Manager::terrains())
 	{
-		terrCosts[node.first] = node.second["moveCost"].Integer();
+		terrCosts[terrain] = ETerrainType::Manager::getInfo(terrain)["moveCost"].Integer();
 	}
 }
 

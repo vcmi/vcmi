@@ -935,7 +935,7 @@ void CMapLoaderH3M::readTerrain()
 			for(int z = 0; z < map->height; z++)
 			{
 				auto & tile = map->getTile(int3(z, c, a));
-				tile.terType = ETerrainType(reader.readUInt8());
+				tile.terType = ETerrainType::createTerrainTypeH3M(reader.readUInt8());
 				tile.terView = reader.readUInt8();
 				tile.riverType = static_cast<ERiverType::ERiverType>(reader.readUInt8());
 				tile.riverDir = reader.readUInt8();
