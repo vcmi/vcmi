@@ -376,9 +376,9 @@ CHeroHandler::CHeroHandler()
 {
 	loadObstacles();
 	loadTerrains();
-	for (int i = 0; i < GameConstants::TERRAIN_TYPES; ++i)
+	for(int i = 0; i < ETerrainType::Manager::terrains().size(); ++i)
 	{
-		VLC->modh->identifiers.registerObject("core", "terrain", ETerrainType::terrains()[i].toString(), i);
+		VLC->modh->identifiers.registerObject("core", "terrain", ETerrainType::Manager::terrains()[i].toString(), i);
 	}
 	loadBallistics();
 	loadExperience();

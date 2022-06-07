@@ -352,11 +352,10 @@ CMusicHandler::CMusicHandler():
 			addEntryToSet("enemy-turn", AIThemeID++, file.getName());
 	}
 
-	JsonNode terrains(ResourceID("config/terrains.json"));
-	for (auto entry : terrains.Struct())
+	for(auto & terrain : ETerrainType::Manager::terrains())
 	{
-		int terrIndex = ETerrainType(entry.first).id();
-		addEntryToSet("terrain", terrIndex, "Music/" + entry.second["music"].String());
+		auto & entry = ETerrainType::Manager::getInfo(terrain);
+		addEntryToSet("terrain", terrain.id(), "Music/" + entry["music"].String());
 	}
 }
 

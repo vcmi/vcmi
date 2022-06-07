@@ -1739,7 +1739,6 @@ void CRmgTemplateZone::initTerrainType ()
 			terrainType = (*VLC->townh)[townType]->nativeTerrain;
 		else
 		{
-			auto & ttt = ETerrainType::terrains();
 			terrainType = *RandomGeneratorUtil::nextItem(terrainTypes, gen->rand);
 		}
 
@@ -2499,11 +2498,7 @@ void CRmgTemplateZone::setTemplateForObject(CGObjectInstance* obj)
 	{
 		auto templates = VLC->objtypeh->getHandlerFor(obj->ID, obj->subID)->getTemplates(gen->map->getTile(getPos()).terType);
 		if (templates.empty())
-		{
-			templates = VLC->objtypeh->getHandlerFor(obj->ID, obj->subID)->getTemplates();
-			if(templates.empty())
-				throw rmgException(boost::to_string(boost::format("Did not find graphics for object (%d,%d) at %s") % obj->ID % obj->subID % pos.toString()));
-		}
+			throw rmgException(boost::to_string(boost::format("Did not find graphics for object (%d,%d) at %s") % obj->ID % obj->subID % pos.toString()));
 
 		obj->appearance = templates.front();
 	}

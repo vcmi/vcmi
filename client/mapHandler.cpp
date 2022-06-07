@@ -20,6 +20,7 @@
 #include "../lib/CGameState.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/CTownHandler.h"
+#include "../lib/CModHandler.h"
 #include "Graphics.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/CConfigHandler.h"
@@ -30,6 +31,8 @@
 #include "CMusicHandler.h"
 #include "../lib/CRandomGenerator.h"
 #include "../lib/ETerrainType.h"
+#include "../lib/filesystem/ResourceID.h"
+#include "../lib/JsonDetail.h"
 
 #define ADVOPT (conf.go()->ac)
 
@@ -143,7 +146,7 @@ EMapAnimRedrawStatus CMapHandler::drawTerrainRectNew(SDL_Surface * targetSurface
 
 void CMapHandler::initTerrainGraphics()
 {
-	static const std::vector<std::string> TERRAIN_FILES =
+	/*static const std::vector<std::string> TERRAIN_FILES =
 	{
 		"DIRTTL",
 		"SANDTL",
@@ -156,7 +159,7 @@ void CMapHandler::initTerrainGraphics()
 		"LAVATL",
 		"WATRTL",
 		"ROCKTL"
-	};
+	};*/
 
 	static const std::vector<std::string> ROAD_FILES =
 	{
@@ -172,6 +175,7 @@ void CMapHandler::initTerrainGraphics()
 		"mudrvr",
 		"lavrvr"
 	};
+	
 
 	auto loadFlipped = [](int types, TFlippedAnimations & animation, TFlippedCache & cache, const std::vector<std::string> & files)
 	{
@@ -212,10 +216,14 @@ void CMapHandler::initTerrainGraphics()
 			}
 		}
 	};
-
-	loadFlipped(ETerrainType::terrains().size(), terrainAnimations, terrainImages, TERRAIN_FILES);
-	loadFlipped(3, roadAnimations, roadImages, ROAD_FILES);
-	loadFlipped(4, riverAnimations, riverImages, RIVER_FILES);
+	
+	std::vector<std::string> terrainFiles;
+	for(auto & terrain : ETerrainType::Manager::terrains())
+		terrainFiles.push_back(ETerrainType::Manager::getInfo(terrain)["tiles"].String());
+	
+	loadFlipped(terrainFiles.size(), terrainAnimations, terrainImages, terrainFiles);
+	loadFlipped(ROAD_FILES.size(), roadAnimations, roadImages, ROAD_FILES);
+	loadFlipped(RIVER_FILES.size(), riverAnimations, riverImages, RIVER_FILES);
 
 	// Create enough room for the whole map and its frame
 
@@ -627,6 +635,9 @@ void CMapHandler::CMapBlitter::drawTileTerrain(SDL_Surface * targetSurf, const T
 	Rect destRect(realTileRect);
 
 	ui8 rotation = tinfo.extTileFlags % 4;
+	
+	if(tinfo.terType.id() > 10)
+		return;
 	
 	if(parent->terrainImages[tinfo.terType.id()].size()<=tinfo.terView)
 		return;

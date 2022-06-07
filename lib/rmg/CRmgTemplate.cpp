@@ -66,12 +66,12 @@ class TerrainEncoder
 public:
 	static si32 decode(const std::string & identifier)
 	{
-		return vstd::find_pos(ETerrainType::terrains(), identifier);
+		return vstd::find_pos(ETerrainType::Manager::terrains(), identifier);
 	}
 
 	static std::string encode(const si32 index)
 	{
-		return (index >=0 && index < ETerrainType::terrains().size()) ? ETerrainType::terrains()[index].toString() : "<INVALID TERRAIN>";
+		return (index >=0 && index < ETerrainType::Manager::terrains().size()) ? ETerrainType::Manager::terrains()[index].toString() : "<INVALID TERRAIN>";
 	}
 };
 
@@ -137,7 +137,6 @@ ZoneOptions::ZoneOptions()
 	playerTowns(),
 	neutralTowns(),
 	matchTerrainToTown(true),
-	terrainTypes(ETerrainType::DEFAULT_TERRAIN_TYPES),
 	townsAreSameType(false),
 	townTypes(),
 	monsterTypes(),
@@ -149,7 +148,7 @@ ZoneOptions::ZoneOptions()
 	terrainTypeLikeZone(NO_ZONE),
 	treasureLikeZone(NO_ZONE)
 {
-	for(auto & terr : ETerrainType::terrains())
+	for(auto & terr : ETerrainType::Manager::terrains())
 		if(terr.isLand() && terr.isPassable())
 			terrainTypes.insert(terr);
 }

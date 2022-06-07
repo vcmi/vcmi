@@ -80,5 +80,9 @@
 	"skills" :
 	[
         "config/skills.json"
+	],
+	"terrains":
+	[
+		"config/terrains.json"
 	]
 }

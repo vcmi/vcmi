@@ -251,9 +251,9 @@ void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
 	}
 	else
 	{
-		for(auto & i : ETerrainType::terrains())
+		for(auto & i : ETerrainType::Manager::terrains())
 		{
-			if(i == ETerrainType("rock") || i == ETerrainType("water"))
+			if(!i.isPassable() || i.isWater())
 				continue;
 			allowedTerrains.insert(i);
 		}

@@ -16,14 +16,27 @@
 class DLL_LINKAGE ETerrainType
 {
 public:
+	
+	friend class Manager;
+	
+	class Manager
+	{
+	public:
+		static std::vector<ETerrainType> terrains();
+		static const JsonNode & getInfo(const ETerrainType &);
+		
+	private:
+		static Manager & get();
+		Manager();
+		std::map<std::string, JsonNode> terrainInfo;
+	};
+	
 	/*enum EETerrainType
 	 {
 	 ANY_TERRAIN = -3,
 	 WRONG = -2, BORDER = -1, DIRT, SAND, GRASS, SNOW, SWAMP,
 	 ROUGH, SUBTERRANEAN, LAVA, WATER, ROCK // ROCK is also intended to be max value.
 	 };*/
-	static std::vector<ETerrainType> & terrains();
-	static const std::set<ETerrainType> DEFAULT_TERRAIN_TYPES;
 	
 	ETerrainType(const std::string & _type = "");
 	ETerrainType(int _typeId);
@@ -57,5 +70,7 @@ protected:
 	
 	std::string type;
 };
+
+DLL_LINKAGE void loadTerrainTypes();
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const ETerrainType terrainType);

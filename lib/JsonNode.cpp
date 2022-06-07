@@ -59,6 +59,15 @@ JsonNode::JsonNode(const ResourceID & fileURI):
 	*this = parser.parse(fileURI.getName());
 }
 
+JsonNode::JsonNode(const std::string & idx, const ResourceID & fileURI):
+type(JsonType::DATA_NULL)
+{
+	auto file = CResourceHandler::get(idx)->load(fileURI)->readAll();
+	
+	JsonParser parser(reinterpret_cast<char*>(file.first.get()), file.second);
+	*this = parser.parse(fileURI.getName());
+}
+
 JsonNode::JsonNode(ResourceID && fileURI, bool &isValidSyntax):
 	type(JsonType::DATA_NULL)
 {

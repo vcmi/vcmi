@@ -9,25 +9,46 @@
  */
 
 #include "ETerrainType.h"
+#include "VCMI_Lib.h"
+#include "CModHandler.h"
 
 const ETerrainType ETerrainType::ANY("ANY");
 
-const std::array<std::string, 10> ETerrainTypePredefined
+ETerrainType::Manager::Manager()
 {
-	"dirt", "sand", "grass", "snow", "swamp", "rough", "subterra", "lava", "water", "rock"
-};
+	auto allConfigs = VLC->modh->getActiveMods();
+	allConfigs.insert(allConfigs.begin(), "core");
+	for(auto & mod : allConfigs)
+	{
+		if(!CResourceHandler::get(mod)->existsResource(ResourceID("config/terrains.json")))
+			continue;
+		
+		JsonNode terrs(mod, ResourceID("config/terrains.json"));
+		for(auto & terr : terrs.Struct())
+		{
+			terrainInfo[terr.first] = terr.second;
+		}
+	}
+}
 
-const std::set<ETerrainType> ETerrainType::DEFAULT_TERRAIN_TYPES
+ETerrainType::Manager & ETerrainType::Manager::get()
 {
-	ETerrainType("dirt"),
-	ETerrainType("sand"),
-	ETerrainType("grass"),
-	ETerrainType("snow"),
-	ETerrainType("swamp"),
-	ETerrainType("rough"),
-	ETerrainType("subterra"),
-	ETerrainType("lava")
-};
+	static ETerrainType::Manager manager;
+	return manager;
+}
+
+std::vector<ETerrainType> ETerrainType::Manager::terrains()
+{
+	std::vector<ETerrainType> _terrains;
+	for(const auto & info : ETerrainType::Manager::get().terrainInfo)
+		_terrains.push_back(info.first);
+	return _terrains;
+}
+
+const JsonNode & ETerrainType::Manager::getInfo(const ETerrainType & terrain)
+{
+	return ETerrainType::Manager::get().terrainInfo.at(terrain.toString());
+}
 
 std::ostream & operator<<(std::ostream & os, const ETerrainType terrainType)
 {
@@ -44,7 +65,7 @@ ETerrainType::ETerrainType(const std::string & _type) : type(_type)
 	
 ETerrainType::ETerrainType(int _type)
 {
-	type = ETerrainTypePredefined[_type];
+	*this = ETerrainType::Manager::terrains().at(_type);
 }
 	
 ETerrainType& ETerrainType::operator=(const ETerrainType & _type)
@@ -73,21 +94,12 @@ bool operator<(const ETerrainType & l, const ETerrainType & r)
 {
 	return l.type < r.type;
 }
-
-std::vector<ETerrainType> & ETerrainType::terrains()
-{
-	static std::vector<ETerrainType> _terrains(ETerrainTypePredefined.begin(), ETerrainTypePredefined.end());
-	return _terrains;
-}
 	
 int ETerrainType::id() const
 {
-	auto iter = std::find(ETerrainType::terrains().begin(), ETerrainType::terrains().end(), *this);
-	if(iter != ETerrainType::terrains().end())
-		return iter - ETerrainType::terrains().begin();
-	
-	ETerrainType::terrains().push_back(*this);
-	return ETerrainType::terrains().size() - 1;
+	auto _terrains = ETerrainType::Manager::terrains();
+	auto iter = std::find(_terrains.begin(), _terrains.end(), *this);
+	return iter - _terrains.begin();
 }
 	
 bool ETerrainType::isLand() const

@@ -60,6 +60,7 @@ public:
 	//Create tree from JSON file
  	explicit JsonNode(ResourceID && fileURI);
  	explicit JsonNode(const ResourceID & fileURI);
+	explicit JsonNode(const std::string& idx, const ResourceID & fileURI);
 	explicit JsonNode(ResourceID && fileURI, bool & isValidSyntax);
 	//Copy c-tor
 	JsonNode(const JsonNode &copy);
