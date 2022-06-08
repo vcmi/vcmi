@@ -28,6 +28,7 @@ public:
 	private:
 		static Manager & get();
 		Manager();
+		
 		std::map<std::string, JsonNode> terrainInfo;
 	};
 	

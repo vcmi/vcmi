@@ -343,9 +343,13 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 		handler.serializeRaw("terrainTypes", node, boost::none);
 		if(!handler.saving)
 		{
-			for(auto ttype : node.Vector())
+			if(!node.Vector().empty())
 			{
-				terrainTypes.emplace(ttype.String());
+				terrainTypes.clear();
+				for(auto ttype : node.Vector())
+				{
+					terrainTypes.emplace(ttype.String());
+				}
 			}
 		}
 	}

@@ -53,7 +53,8 @@
 		"minimapUnblocked" : [ 132, 48, 0 ],
 		"minimapBlocked"   : [  90,  8, 0 ],
 		"music" : "Underground.mp3",
-		"tiles" : "SUBBTL"
+		"tiles" : "SUBBTL",
+		"type" : "SUB"
 	},
 	"lava" :
 	{
@@ -69,7 +70,8 @@
 		"minimapUnblocked" : [ 8, 81, 148 ],
 		"minimapBlocked"   : [ 8, 81, 148 ],
 		"music" : "Water.mp3",
-		"tiles" : "WATRTL"
+		"tiles" : "WATRTL",
+		"type" : "WATER"
 	},
 	"rock" :
 	{
@@ -77,6 +79,7 @@
 		"minimapUnblocked" : [ 0, 0, 0 ],
 		"minimapBlocked"   : [ 0, 0, 0 ],
 		"music" : "Underground.mp3", // Impossible in H3
-		"tiles" : "ROCKTL"
+		"tiles" : "ROCKTL",
+		"type" : "ROCK"
 	}
 }

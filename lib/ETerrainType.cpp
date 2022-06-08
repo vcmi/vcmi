@@ -40,6 +40,11 @@ ETerrainType::Manager::Manager()
 		for(auto & terr : terrs.Struct())
 		{
 			terrainInfo[terr.first] = terr.second;
+			if(terr.second["type"].isNull())
+			{
+				terrainInfo[terr.first]["type"].setType(JsonNode::JsonType::DATA_STRING);
+				terrainInfo[terr.first]["type"].String() = "LAND";
+			}
 		}
 	}
 }
@@ -116,17 +121,17 @@ int ETerrainType::id() const
 	
 bool ETerrainType::isLand() const
 {
-	return type != "water";
+	return !isWater();
 }
 bool ETerrainType::isWater() const
 {
-	return type == "water";
+	return ETerrainType::Manager::getInfo(*this)["type"].String() == "WATER";
 }
 bool ETerrainType::isPassable() const
 {
-	return type != "rock";
+	return ETerrainType::Manager::getInfo(*this)["type"].String() != "ROCK";
 }
 bool ETerrainType::isUnderground() const
 {
-	return type != "subterra";
+	return ETerrainType::Manager::getInfo(*this)["type"].String() == "SUB";
 }
