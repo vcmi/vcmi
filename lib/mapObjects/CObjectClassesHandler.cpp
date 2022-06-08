@@ -195,7 +195,7 @@ void CObjectClassesHandler::loadObjectEntry(const std::string & identifier, cons
 	else
 		handler->init(entry);
 
-	if (handler->getTemplates().empty())
+	//if (handler->getTemplates().empty())
 	{
 		auto range = legacyTemplates.equal_range(std::make_pair(obj->id, id));
 		for (auto & templ : boost::make_iterator_range(range.first, range.second))

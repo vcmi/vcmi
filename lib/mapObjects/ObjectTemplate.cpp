@@ -145,6 +145,16 @@ void ObjectTemplate::readTxt(CLegacyConfigParser & parser)
 		if (terrStr[8-i] == '1')
 			allowedTerrains.insert(ETerrainType::createTerrainTypeH3M(i));
 	}
+	
+	//assuming that object can be placed on other land terrains
+	if(allowedTerrains.size() >= 8 && !allowedTerrains.count(ETerrainType("water")))
+	{
+		for(auto & terrain : ETerrainType::Manager::terrains())
+		{
+			if(terrain.isLand() && terrain.isPassable())
+				allowedTerrains.insert(terrain);
+		}
+	}
 
 	id    = Obj(boost::lexical_cast<int>(strings[5]));
 	subid = boost::lexical_cast<int>(strings[6]);
@@ -206,6 +216,16 @@ void ObjectTemplate::readMap(CBinaryReader & reader)
 	{
 		if (((terrMask >> i) & 1 ) != 0)
 			allowedTerrains.insert(ETerrainType::createTerrainTypeH3M(i));
+	}
+	
+	//assuming that object can be placed on other land terrains
+	if(allowedTerrains.size() >= 8 && !allowedTerrains.count(ETerrainType("water")))
+	{
+		for(auto & terrain : ETerrainType::Manager::terrains())
+		{
+			if(terrain.isLand() && terrain.isPassable())
+				allowedTerrains.insert(terrain);
+		}
 	}
 
 	id = Obj(reader.readUInt32());
