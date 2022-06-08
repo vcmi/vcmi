@@ -1250,6 +1250,17 @@ void CRmgTemplateZone::addToConnectLater(const int3& src)
 	tilesToConnectLater.insert(src);
 }
 
+int CRmgTemplateZone::chooseRandomAppearance(si32 ObjID) const
+{
+	auto factories = VLC->objtypeh->knownSubObjects(ObjID);
+	vstd::erase_if(factories, [this, ObjID](si32 f)
+	{
+		return VLC->objtypeh->getHandlerFor(ObjID, f)->getTemplates(terrainType).empty();
+	});
+	
+	return *RandomGeneratorUtil::nextItem(factories, gen->rand);
+}
+
 bool CRmgTemplateZone::addMonster(int3 &pos, si32 strength, bool clearSurroundingTiles, bool zoneGuard)
 {
 	//precalculate actual (randomized) monster strength based on this post
@@ -2071,8 +2082,8 @@ int3 CRmgTemplateZone::createShipyard(const std::set<int3> & lake, si32 guardStr
 
 bool CRmgTemplateZone::createShipyard(const int3 & position, si32 guardStrength)
 {
-	auto subObjects = VLC->objtypeh->knownSubObjects(Obj::SHIPYARD);
-	auto shipyard = (CGShipyard*) VLC->objtypeh->getHandlerFor(Obj::SHIPYARD, *RandomGeneratorUtil::nextItem(subObjects, gen->rand))->create(ObjectTemplate());
+	int subtype = chooseRandomAppearance(Obj::SHIPYARD);
+	auto shipyard = (CGShipyard*) VLC->objtypeh->getHandlerFor(Obj::SHIPYARD, subtype)->create(ObjectTemplate());
 	shipyard->tempOwner = PlayerColor::NEUTRAL;
 	
 	setTemplateForObject(shipyard);
@@ -3242,7 +3253,7 @@ void CRmgTemplateZone::addAllPossibleObjects()
 			if (!creaturesAmount)
 				continue;
 
-			int randomAppearance = *RandomGeneratorUtil::nextItem(VLC->objtypeh->knownSubObjects(Obj::SEER_HUT), gen->rand);
+			int randomAppearance = chooseRandomAppearance(Obj::SEER_HUT);
 
 			oi.generateObject = [creature, creaturesAmount, randomAppearance, this, generateArtInfo]() -> CGObjectInstance *
 			{
@@ -3273,7 +3284,7 @@ void CRmgTemplateZone::addAllPossibleObjects()
 		static int seerLevels = std::min(gen->getConfig().questValues.size(), gen->getConfig().questRewardValues.size());
 		for(int i = 0; i < seerLevels; i++) //seems that code for exp and gold reward is similiar
 		{
-			int randomAppearance = *RandomGeneratorUtil::nextItem(VLC->objtypeh->knownSubObjects(Obj::SEER_HUT), gen->rand);
+			int randomAppearance = chooseRandomAppearance(Obj::SEER_HUT);
 
 			oi.setTemplate(Obj::SEER_HUT, randomAppearance, terrainType);
 			oi.value = gen->getConfig().questValues[i];

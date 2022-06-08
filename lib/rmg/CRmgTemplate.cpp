@@ -327,8 +327,28 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 
 	#undef SERIALIZE_ZONE_LINK
 
-	//if(terrainTypeLikeZone == NO_ZONE)
-		//handler.serializeIdArray<ETerrainType, TerrainEncoder>("terrainTypes", terrainTypes, b);
+	if(terrainTypeLikeZone == NO_ZONE)
+	{
+		JsonNode node;
+		if(handler.saving)
+		{
+			node.setType(JsonNode::JsonType::DATA_VECTOR);
+			for(auto & ttype : terrainTypes)
+			{
+				JsonNode n;
+				n.String() = ttype.toString();
+				node.Vector().push_back(n);
+			}
+		}
+		handler.serializeRaw("terrainTypes", node, boost::none);
+		if(!handler.saving)
+		{
+			for(auto ttype : node.Vector())
+			{
+				terrainTypes.emplace(ttype.String());
+			}
+		}
+	}
 
 	handler.serializeBool("townsAreSameType", townsAreSameType, false);
 	handler.serializeIdArray<TFaction, FactionID>("allowedMonsters", monsterTypes, VLC->townh->getAllowedFactions(false));

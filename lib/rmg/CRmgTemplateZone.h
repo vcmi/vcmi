@@ -231,6 +231,7 @@ private:
 	bool canObstacleBePlacedHere(ObjectTemplate &temp, int3 &pos);
 	void setTemplateForObject(CGObjectInstance* obj);
 	void checkAndPlaceObject(CGObjectInstance* object, const int3 &pos);
+	int chooseRandomAppearance(si32 ObjID) const;
 	
 	bool isGuardNeededForTreasure(int value);
 };
