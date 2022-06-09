@@ -359,9 +359,9 @@ CMusicHandler::CMusicHandler():
 	}
 }
 
-void CMusicHandler::addEntryToSet(std::string set, int musicID, std::string musicURI)
+void CMusicHandler::addEntryToSet(const std::string & set, int musicID, const std::string & musicURI)
 {
-	musicsSet[set][musicID] = musicURI;
+	musicsSet[set][std::to_string(musicID)] = musicURI;
 }
 
 void CMusicHandler::init()
@@ -387,7 +387,7 @@ void CMusicHandler::release()
 	CAudioBase::release();
 }
 
-void CMusicHandler::playMusic(std::string musicURI, bool loop)
+void CMusicHandler::playMusic(const std::string & musicURI, bool loop)
 {
 	if (current && current->isTrack(musicURI))
 		return;
@@ -395,7 +395,7 @@ void CMusicHandler::playMusic(std::string musicURI, bool loop)
 	queueNext(this, "", musicURI, loop);
 }
 
-void CMusicHandler::playMusicFromSet(std::string whichSet, bool loop)
+void CMusicHandler::playMusicFromSet(const std::string & whichSet, bool loop)
 {
 	auto selectedSet = musicsSet.find(whichSet);
 	if (selectedSet == musicsSet.end())
@@ -412,7 +412,7 @@ void CMusicHandler::playMusicFromSet(std::string whichSet, bool loop)
 }
 
 
-void CMusicHandler::playMusicFromSet(std::string whichSet, int entryID, bool loop)
+void CMusicHandler::playMusicFromSet(const std::string & whichSet, int entryID, bool loop)
 {
 	auto selectedSet = musicsSet.find(whichSet);
 	if (selectedSet == musicsSet.end())
@@ -421,7 +421,7 @@ void CMusicHandler::playMusicFromSet(std::string whichSet, int entryID, bool loo
 		return;
 	}
 
-	auto selectedEntry = selectedSet->second.find(entryID);
+	auto selectedEntry = selectedSet->second.find(std::to_string(entryID));
 	if (selectedEntry == selectedSet->second.end())
 	{
 		logGlobal->error("Error: playing non-existing entry %d from set: %s", entryID, whichSet);
@@ -451,7 +451,7 @@ void CMusicHandler::queueNext(std::unique_ptr<MusicEntry> queued)
 	}
 }
 
-void CMusicHandler::queueNext(CMusicHandler *owner, std::string setName, std::string musicURI, bool looped)
+void CMusicHandler::queueNext(CMusicHandler *owner, const std::string & setName, const std::string & musicURI, bool looped)
 {
 	try
 	{
