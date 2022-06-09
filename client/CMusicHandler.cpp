@@ -341,27 +341,24 @@ CMusicHandler::CMusicHandler():
 		return true;
 	});
 
-	int battleMusicID = 0;
-	int AIThemeID = 0;
-
 	for(const ResourceID & file : mp3files)
 	{
 		if(boost::algorithm::istarts_with(file.getName(), "MUSIC/Combat"))
-			addEntryToSet("battle", battleMusicID++, file.getName());
+			addEntryToSet("battle", file.getName(), file.getName());
 		else if(boost::algorithm::istarts_with(file.getName(), "MUSIC/AITheme"))
-			addEntryToSet("enemy-turn", AIThemeID++, file.getName());
+			addEntryToSet("enemy-turn", file.getName(), file.getName());
 	}
 
 	for(auto & terrain : ETerrainType::Manager::terrains())
 	{
 		auto & entry = ETerrainType::Manager::getInfo(terrain);
-		addEntryToSet("terrain", terrain.id(), "Music/" + entry["music"].String());
+		addEntryToSet("terrain", terrain.toString(), "Music/" + entry["music"].String());
 	}
 }
 
-void CMusicHandler::addEntryToSet(const std::string & set, int musicID, const std::string & musicURI)
+void CMusicHandler::addEntryToSet(const std::string & set, const std::string & musicID, const std::string & musicURI)
 {
-	musicsSet[set][std::to_string(musicID)] = musicURI;
+	musicsSet[set][musicID] = musicURI;
 }
 
 void CMusicHandler::init()
@@ -411,8 +408,7 @@ void CMusicHandler::playMusicFromSet(const std::string & whichSet, bool loop)
 	queueNext(this, whichSet, "", loop);
 }
 
-
-void CMusicHandler::playMusicFromSet(const std::string & whichSet, int entryID, bool loop)
+void CMusicHandler::playMusicFromSet(const std::string & whichSet, const std::string & entryID, bool loop)
 {
 	auto selectedSet = musicsSet.find(whichSet);
 	if (selectedSet == musicsSet.end())
@@ -421,10 +417,10 @@ void CMusicHandler::playMusicFromSet(const std::string & whichSet, int entryID, 
 		return;
 	}
 
-	auto selectedEntry = selectedSet->second.find(std::to_string(entryID));
+	auto selectedEntry = selectedSet->second.find(entryID);
 	if (selectedEntry == selectedSet->second.end())
 	{
-		logGlobal->error("Error: playing non-existing entry %d from set: %s", entryID, whichSet);
+		logGlobal->error("Error: playing non-existing entry %s from set: %s", entryID, whichSet);
 		return;
 	}
 
@@ -551,7 +547,7 @@ bool MusicEntry::play()
 
 	if (!setName.empty())
 	{
-		auto set = owner->musicsSet[setName];
+		const auto & set = owner->musicsSet[setName];
 		load(RandomGeneratorUtil::nextItem(set, CRandomGenerator::getDefault())->second);
 	}
 

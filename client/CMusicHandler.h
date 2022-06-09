@@ -135,7 +135,7 @@ public:
 	CMusicHandler();
 
 	/// add entry with URI musicURI in set. Track will have ID musicID
-	void addEntryToSet(const std::string & set, int entryID, const std::string & musicURI);
+	void addEntryToSet(const std::string & set, const std::string & entryID, const std::string & musicURI);
 
 	void init() override;
 	void release() override;
@@ -146,7 +146,7 @@ public:
 	/// play random track from this set
 	void playMusicFromSet(const std::string & musicSet, bool loop);
 	/// play specific track from set
-	void playMusicFromSet(const std::string & musicSet, int entryID, bool loop);
+	void playMusicFromSet(const std::string & musicSet, const std::string & entryID, bool loop);
 	void stopMusic(int fade_ms=1000);
 	void musicFinishedCallback();
 
