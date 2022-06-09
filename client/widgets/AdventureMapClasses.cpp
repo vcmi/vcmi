@@ -391,9 +391,9 @@ const SDL_Color & CMinimapInstance::getTileColor(const int3 & pos)
 
 	// else - use terrain color (blocked version or normal)
 	if (tile->blocked && (!tile->visitable))
-		return parent->colors.find(tile->terType.id())->second.second;
+		return parent->colors.find(tile->terType)->second.second;
 	else
-		return parent->colors.find(tile->terType.id())->second.first;
+		return parent->colors.find(tile->terType)->second.first;
 }
 void CMinimapInstance::tileToPixels (const int3 &tile, int &x, int &y, int toX, int toY)
 {
@@ -494,15 +494,14 @@ void CMinimapInstance::showAll(SDL_Surface * to)
 	}
 }
 
-std::map<int, std::pair<SDL_Color, SDL_Color> > CMinimap::loadColors(std::string from)
+std::map<ETerrainType, std::pair<SDL_Color, SDL_Color> > CMinimap::loadColors()
 {
-	std::map<int, std::pair<SDL_Color, SDL_Color> > ret;
+	std::map<ETerrainType, std::pair<SDL_Color, SDL_Color> > ret;
 
-	const JsonNode config(ResourceID(from, EResType::TEXT));
-
-	for(auto &m : config.Struct())
+	for(auto & terrain : ETerrainType::Manager::terrains())
 	{
-		const JsonVector &unblockedVec = m.second["minimapUnblocked"].Vector();
+		auto & m = ETerrainType::Manager::getInfo(terrain);
+		const JsonVector &unblockedVec = m["minimapUnblocked"].Vector();
 		SDL_Color normal =
 		{
 			ui8(unblockedVec[0].Float()),
@@ -511,7 +510,7 @@ std::map<int, std::pair<SDL_Color, SDL_Color> > CMinimap::loadColors(std::string
 			ui8(255)
 		};
 
-		const JsonVector &blockedVec = m.second["minimapBlocked"].Vector();
+		const JsonVector &blockedVec = m["minimapBlocked"].Vector();
 		SDL_Color blocked =
 		{
 			ui8(blockedVec[0].Float()),
@@ -520,7 +519,7 @@ std::map<int, std::pair<SDL_Color, SDL_Color> > CMinimap::loadColors(std::string
 			ui8(255)
 		};
 
-		ret.insert(std::make_pair(ETerrainType(m.first).id(), std::make_pair(normal, blocked)));
+		ret[terrain] = std::make_pair(normal, blocked);
 	}
 	return ret;
 }
@@ -528,7 +527,7 @@ std::map<int, std::pair<SDL_Color, SDL_Color> > CMinimap::loadColors(std::string
 CMinimap::CMinimap(const Rect & position)
 	: CIntObject(LCLICK | RCLICK | HOVER | MOVE, position.topLeft()),
 	level(0),
-	colors(loadColors("config/terrains.json"))
+	colors(loadColors())
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	pos.w = position.w;

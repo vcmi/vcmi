@@ -30,6 +30,7 @@ struct InfoAboutTown;
 class CHeroTooltip;
 class CTownTooltip;
 class CTextBox;
+class ETerrainType;
 
 /// Base UI Element for hero\town lists
 class CList : public CIntObject
@@ -216,7 +217,7 @@ protected:
 	int level;
 
 	//to initialize colors
-	std::map<int, std::pair<SDL_Color, SDL_Color> > loadColors(std::string from);
+	std::map<ETerrainType, std::pair<SDL_Color, SDL_Color> > loadColors();
 
 	void clickLeft(tribool down, bool previousState) override;
 	void clickRight(tribool down, bool previousState) override;
@@ -227,7 +228,7 @@ protected:
 
 public:
 	// terrainID -> (normal color, blocked color)
-	const std::map<int, std::pair<SDL_Color, SDL_Color> > colors;
+	const std::map<ETerrainType, std::pair<SDL_Color, SDL_Color> > colors;
 
 	CMinimap(const Rect & position);
 
