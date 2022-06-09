@@ -241,7 +241,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	waitWhileDialog();
-	if (LOCPLINT != this)
+	if(LOCPLINT != this)
 		return;
 
 	if(settings["session"]["spectate"].Bool() && settings["session"]["spectate-ignore-hero"].Bool())
@@ -250,17 +250,17 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 	const CGHeroInstance * hero = cb->getHero(details.id); //object representing this hero
 	int3 hp = details.start;
 
-	if (!hero)
+	if(!hero)
 	{
 		//AI hero left the visible area (we can't obtain info)
 		//TODO very evil workaround -> retrieve pointer to hero so we could animate it
 		// TODO -> we should not need full CGHeroInstance structure to display animation or it should not be handled by playerint (but by the client itself)
-		const TerrainTile2 &tile = CGI->mh->ttiles[hp.x-1][hp.y][hp.z];
-		for (auto & elem : tile.objects)
-			if (elem.obj && elem.obj->id == details.id)
+		const TerrainTile2 & tile = CGI->mh->ttiles[hp.x - 1][hp.y][hp.z];
+		for(auto & elem : tile.objects)
+			if(elem.obj && elem.obj->id == details.id)
 				hero = dynamic_cast<const CGHeroInstance *>(elem.obj);
 
-		if (!hero) //still nothing...
+		if(!hero) //still nothing...
 			return;
 	}
 
@@ -269,21 +269,21 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 		&& adventureInt->terrain.currentPath					//in case if movement has been canceled in the meantime and path was already erased
 		&& adventureInt->terrain.currentPath->nodes.size() == 3;//FIXME should be 2 but works nevertheless...
 
-	if (makingTurn  &&  hero->tempOwner == playerID) //we are moving our hero - we may need to update assigned path
+	if(makingTurn && hero->tempOwner == playerID) //we are moving our hero - we may need to update assigned path
 	{
 		updateAmbientSounds();
 		//We may need to change music - select new track, music handler will change it if needed
 		CCS->musich->playMusicFromSet("terrain", LOCPLINT->cb->getTile(hero->visitablePos())->terType, true);
 
-		if (details.result == TryMoveHero::TELEPORTATION)
+		if(details.result == TryMoveHero::TELEPORTATION)
 		{
-			if (adventureInt->terrain.currentPath)
+			if(adventureInt->terrain.currentPath)
 			{
 				assert(adventureInt->terrain.currentPath->nodes.size() >= 2);
 				std::vector<CGPathNode>::const_iterator nodesIt = adventureInt->terrain.currentPath->nodes.end() - 1;
 
-				if ((nodesIt)->coord == CGHeroInstance::convertPosition(details.start, false)
-					&& (nodesIt-1)->coord == CGHeroInstance::convertPosition(details.end, false))
+				if((nodesIt)->coord == CGHeroInstance::convertPosition(details.start, false)
+					&& (nodesIt - 1)->coord == CGHeroInstance::convertPosition(details.end, false))
 				{
 					//path was between entrance and exit of teleport -> OK, erase node as usual
 					removeLastNodeFromPath(hero);
@@ -302,14 +302,14 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 					//TODO: smooth disappear / appear effect
 		}
 
-		if (hero->pos != details.end //hero didn't change tile but visit succeeded
+		if(hero->pos != details.end //hero didn't change tile but visit succeeded
 			|| directlyAttackingCreature) // or creature was attacked from endangering tile.
 		{
 			eraseCurrentPathOf(hero, false);
 		}
-		else if (adventureInt->terrain.currentPath  &&  hero->pos == details.end) //&& hero is moving
+		else if(adventureInt->terrain.currentPath && hero->pos == details.end) //&& hero is moving
 		{
-			if (details.start != details.end) //so we don't touch path when revisiting with spacebar
+			if(details.start != details.end) //so we don't touch path when revisiting with spacebar
 				removeLastNodeFromPath(hero);
 		}
 	}
@@ -329,12 +329,12 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 		if(!settings["session"]["spectate-hero-speed"].isNull())
 			speed = static_cast<ui32>(settings["session"]["spectate-hero-speed"].Integer());
 	}
-	else if (makingTurn) // our turn, our hero moves
+	else if(makingTurn) // our turn, our hero moves
 		speed = static_cast<ui32>(settings["adventure"]["heroSpeed"].Float());
 	else
 		speed = static_cast<ui32>(settings["adventure"]["enemySpeed"].Float());
 
-	if (speed == 0)
+	if(speed == 0)
 	{
 		//FIXME: is this a proper solution?
 		CGI->mh->hideObject(hero);
@@ -348,11 +348,19 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 
 	initMovement(details, hero, hp);
 
+	auto waitFrame = [&]()
+	{
+		int frameNumber = GH.mainFPSmng->getFrameNumber();
+
+		auto unlockPim = vstd::makeUnlockGuard(*pim);
+		while(frameNumber == GH.mainFPSmng->getFrameNumber())
+			SDL_Delay(5);
+	};
+
 	//first initializing done
-	GH.mainFPSmng->framerateDelay(); // after first move
 
 	//main moving
-	for (int i=1; i<32; i+=2*speed)
+	for(int i = 1; i < 32; i += 2 * speed)
 	{
 		movementPxStep(details, i, hp, hero);
 #ifndef VCMI_ANDROID
@@ -363,8 +371,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 
 		//evil returns here ...
 		//todo: get rid of it
-		auto unlockPim = vstd::makeUnlockGuard(*pim); //let frame to be rendered
-		GH.mainFPSmng->framerateDelay(); //for animation purposes
+		waitFrame(); //for animation purposes
 	}
 	//main moving done
 
