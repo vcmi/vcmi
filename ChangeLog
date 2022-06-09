@@ -40,6 +40,13 @@ SOUND:
 * Fixed many mising or wrong pickup and visit sounds for map objects
 * All map objects now have ambient sounds identical to OH3
 
+RANDOM MAP GENERATOR:
+* Random map generator supports water modes (normal, islands)
+* Added config randomMap.json with settings for map generator
+* Added parameter for template allowedWaterContent
+* Extra resource packs appear nearby mines
+* Underground can be player starting place for factions allowed to be placed underground
+
 0.98 -> 0.99
 
 GENERAL:
