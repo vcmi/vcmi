@@ -130,6 +130,7 @@ set(lib_SRCS
 
 		vstd/StringUtils.cpp
 
+		ETerrainType.cpp
 		CAndroidVMHelper.cpp
 		CArtHandler.cpp
 		CBonusTypeHandler.cpp
@@ -337,6 +338,7 @@ set(lib_HEADERS
 		spells/effects/Sacrifice.h
 
 		AI_Base.h
+		ETerrainType.h
 		CAndroidVMHelper.h
 		CArtHandler.h
 		CBonusTypeHandler.h
