@@ -93,20 +93,38 @@ CSoundHandler::CSoundHandler():
 		soundBase::pickup04, soundBase::pickup05, soundBase::pickup06, soundBase::pickup07
 	};
 
-	horseSounds =  // must be the same order as terrains (see ETerrainType);
-	{
-		soundBase::horseDirt, soundBase::horseSand, soundBase::horseGrass,
-		soundBase::horseSnow, soundBase::horseSwamp, soundBase::horseRough,
-		soundBase::horseSubterranean, soundBase::horseLava,
-		soundBase::horseWater, soundBase::horseRock
-	};
-
 	battleIntroSounds =
 	{
 		soundBase::battle00, soundBase::battle01,
 		soundBase::battle02, soundBase::battle03, soundBase::battle04,
 		soundBase::battle05, soundBase::battle06, soundBase::battle07
 	};
+	
+	//predefine terrain set
+	//TODO: need refactoring - support custom sounds for new terrains and load from json
+	int h3mTerrId = 0;
+	for(auto snd :
+	{
+		soundBase::horseDirt, soundBase::horseSand, soundBase::horseGrass,
+		soundBase::horseSnow, soundBase::horseSwamp, soundBase::horseRough,
+		soundBase::horseSubterranean, soundBase::horseLava,
+		soundBase::horseWater, soundBase::horseRock
+	})
+	{
+		horseSounds[ETerrainType::createTerrainTypeH3M(h3mTerrId++)] = snd;
+	}
+	for(auto & terrain : ETerrainType::Manager::terrains())
+	{
+		//since all sounds are hardcoded, let's keep it
+		if(vstd::contains(horseSounds, terrain))
+			continue;
+		
+		const auto & param = ETerrainType::Manager::getInfo(terrain)["horseSoundId"];
+		if(param.isNull())
+			horseSounds[terrain] = horseSounds.at(ETerrainType::createTerrainTypeH3M(9)); //let's have rock as default
+		else
+			horseSounds[terrain] = horseSounds.at(ETerrainType::createTerrainTypeH3M(param.Integer()));
+	}
 };
 
 void CSoundHandler::init()
