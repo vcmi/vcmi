@@ -519,14 +519,14 @@ void CMapGenerator::fillZones()
 
 void CMapGenerator::createObstaclesCommon1()
 {
-	if (map->twoLevel) //underground
+	if(map->twoLevel) //underground
 	{
 		//negative approach - create rock tiles first, then make sure all accessible tiles have no rock
 		std::vector<int3> rockTiles;
 
-		for (int x = 0; x < map->width; x++)
+		for(int x = 0; x < map->width; x++)
 		{
-			for (int y = 0; y < map->height; y++)
+			for(int y = 0; y < map->height; y++)
 			{
 				int3 tile(x, y, 1);
 				if (shouldBeBlocked(tile))
@@ -536,21 +536,29 @@ void CMapGenerator::createObstaclesCommon1()
 			}
 		}
 		getEditManager()->getTerrainSelection().setSelection(rockTiles);
-		getEditManager()->drawTerrain(ETerrainType("rock"), &rand);
+		
+		//collect all rock terrain types
+		std::vector<ETerrainType> rockTerrains;
+		for(auto & terrain : ETerrainType::Manager::terrains())
+			if(!terrain.isPassable())
+				rockTerrains.push_back(terrain);
+		auto rockTerrain = *RandomGeneratorUtil::nextItem(rockTerrains, rand);
+		
+		getEditManager()->drawTerrain(rockTerrain, &rand);
 	}
 }
 
 void CMapGenerator::createObstaclesCommon2()
 {
-	if (map->twoLevel)
+	if(map->twoLevel)
 	{
 		//finally mark rock tiles as occupied, spawn no obstacles there
-		for (int x = 0; x < map->width; x++)
+		for(int x = 0; x < map->width; x++)
 		{
-			for (int y = 0; y < map->height; y++)
+			for(int y = 0; y < map->height; y++)
 			{
 				int3 tile(x, y, 1);
-				if (map->getTile(tile).terType == ETerrainType("rock"))
+				if(!map->getTile(tile).terType.isPassable())
 				{
 					setOccupied(tile, ETileType::USED);
 				}

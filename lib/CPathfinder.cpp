@@ -1173,7 +1173,7 @@ void CPathfinderHelper::getNeighbours(
 			continue;
 
 		const TerrainTile & hlpt = map->getTile(hlp);
-		if(hlpt.terType == ETerrainType("rock"))
+		if(!hlpt.terType.isPassable())
 			continue;
 
 // 		//we cannot visit things from blocked tiles

@@ -766,9 +766,9 @@ ETerrainGroup::ETerrainGroup CDrawTerrainOperation::getTerrainGroup(ETerrainType
 		return ETerrainGroup::DIRT;
 	if(terType == ETerrainType("sand"))
 		return ETerrainGroup::SAND;
-	if(terType == ETerrainType("water"))
+	if(terType.isWater())
 		return ETerrainGroup::WATER;
-	if(terType == ETerrainType("rock"))
+	if(!terType.isPassable())
 		return ETerrainGroup::ROCK;
 	return ETerrainGroup::NORMAL;
 }
@@ -947,7 +947,7 @@ CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainVi
 
 bool CDrawTerrainOperation::isSandType(ETerrainType terType) const
 {
-	if(terType == ETerrainType("water") || terType == ETerrainType("sand") || terType == ETerrainType("rock"))
+	if(terType.isWater() || terType == ETerrainType("sand") || !terType.isPassable())
 		return true;
 	return false;
 }

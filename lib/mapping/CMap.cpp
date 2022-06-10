@@ -137,7 +137,7 @@ bool TerrainTile::entrableTerrain(const TerrainTile * from) const
 
 bool TerrainTile::entrableTerrain(bool allowLand, bool allowSea) const
 {
-	return terType != ETerrainType("rock")
+	return terType.isPassable()
 			&& ((allowSea && terType.isWater())  ||  (allowLand && terType.isLand()));
 }
 
@@ -164,7 +164,7 @@ CGObjectInstance * TerrainTile::topVisitableObj(bool excludeTop) const
 
 EDiggingStatus TerrainTile::getDiggingStatus(const bool excludeTop) const
 {
-	if(terType.isWater() || terType == ETerrainType("rock"))
+	if(terType.isWater() || !terType.isPassable())
 		return EDiggingStatus::WRONG_TERRAIN;
 
 	int allowedBlocked = excludeTop ? 1 : 0;

@@ -1742,7 +1742,13 @@ void CRmgTemplateZone::initTerrainType ()
 {
 	if (type==ETemplateZoneType::WATER)
 	{
-		terrainType = ETerrainType("water");
+		//collect all water terrain types
+		std::vector<ETerrainType> waterTerrains;
+		for(auto & terrain : ETerrainType::Manager::terrains())
+			if(terrain.isWater())
+				waterTerrains.push_back(terrain);
+		
+		terrainType = *RandomGeneratorUtil::nextItem(waterTerrains, gen->rand);
 	}
 	else
 	{
@@ -1758,11 +1764,19 @@ void CRmgTemplateZone::initTerrainType ()
 			if(isUnderground())
 			{
 				if(!vstd::contains(gen->getConfig().terrainUndergroundAllowed, terrainType))
-					terrainType = ETerrainType("subterra");
+				{
+					//collect all underground terrain types
+					std::vector<ETerrainType> undegroundTerrains;
+					for(auto & terrain : ETerrainType::Manager::terrains())
+						if(terrain.isUnderground())
+							undegroundTerrains.push_back(terrain);
+					
+					terrainType = *RandomGeneratorUtil::nextItem(undegroundTerrains, gen->rand);
+				}
 			}
 			else
 			{
-				if(vstd::contains(gen->getConfig().terrainGroundProhibit, terrainType))
+				if(vstd::contains(gen->getConfig().terrainGroundProhibit, terrainType) || terrainType.isUnderground())
 					terrainType = ETerrainType("dirt");
 			}
 		}

@@ -964,7 +964,7 @@ void CGameState::initGrailPosition()
 					if(!t.blocked
 						&& !t.visitable
 						&& t.terType.isLand()
-						&& t.terType != ETerrainType("rock")
+						&& t.terType.isPassable()
 						&& (int)map->grailPos.dist2dSQ(int3(i, j, k)) <= (map->grailRadius * map->grailRadius))
 						allowedPos.push_back(int3(i,j,k));
 				}
@@ -1952,13 +1952,13 @@ BFieldType CGameState::battleGetBattlefieldType(int3 tile, CRandomGenerator & ra
 		return BFieldType::SWAMP_TREES;
 	if(t.terType == ETerrainType("rough"))
 		return BFieldType::ROUGH;
-	if(t.terType == ETerrainType("subterra"))
+	if(t.terType.isUnderground())
 		return BFieldType::SUBTERRANEAN;
 	if(t.terType == ETerrainType("lava"))
 		return BFieldType::LAVA;
-	if(t.terType == ETerrainType("water"))
+	if(t.terType.isWater())
 		return BFieldType::SHIP;
-	if(t.terType == ETerrainType("rock"))
+	if(!t.terType.isPassable())
 		return BFieldType::ROCKLANDS;
 	
 	return BFieldType::NONE;
