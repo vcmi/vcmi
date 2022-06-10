@@ -130,7 +130,6 @@ set(lib_SRCS
 
 		vstd/StringUtils.cpp
 
-		ETerrainType.cpp
 		CAndroidVMHelper.cpp
 		CArtHandler.cpp
 		CBonusTypeHandler.cpp
@@ -151,6 +150,7 @@ set(lib_SRCS
 		CScriptingModule.cpp
 		CSkillHandler.cpp
 		CStack.cpp
+		CTerrainType.cpp
 		CThreadHelper.cpp
 		CTownHandler.cpp
 		GameConstants.cpp
@@ -338,7 +338,6 @@ set(lib_HEADERS
 		spells/effects/Sacrifice.h
 
 		AI_Base.h
-		ETerrainType.h
 		CAndroidVMHelper.h
 		CArtHandler.h
 		CBonusTypeHandler.h
@@ -364,6 +363,7 @@ set(lib_HEADERS
 		CSoundBase.h
 		CStack.h
 		CStopWatch.h
+		CTerrainType.h
 		CThreadHelper.h
 		CTownHandler.h
 		FunctionList.h

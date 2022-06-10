@@ -14,9 +14,9 @@
 #include "../NetPacks.h"
 #include "../mapObjects/CGTownInstance.h"
 
-ETerrainType CBattleInfoEssentials::battleTerrainType() const
+CTerrainType CBattleInfoEssentials::battleTerrainType() const
 {
-	RETURN_IF_NOT_BATTLE(ETerrainType());
+	RETURN_IF_NOT_BATTLE(CTerrainType());
 	return getBattle()->getTerrainType();
 }
 

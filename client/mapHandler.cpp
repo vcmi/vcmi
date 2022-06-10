@@ -30,7 +30,7 @@
 #include "CMT.h"
 #include "CMusicHandler.h"
 #include "../lib/CRandomGenerator.h"
-#include "../lib/ETerrainType.h"
+#include "../lib/CTerrainType.h"
 #include "../lib/filesystem/ResourceID.h"
 #include "../lib/JsonDetail.h"
 
@@ -218,8 +218,8 @@ void CMapHandler::initTerrainGraphics()
 	};
 	
 	std::vector<std::string> terrainFiles;
-	for(auto & terrain : ETerrainType::Manager::terrains())
-		terrainFiles.push_back(ETerrainType::Manager::getInfo(terrain)["tiles"].String());
+	for(auto & terrain : CTerrainType::Manager::terrains())
+		terrainFiles.push_back(CTerrainType::Manager::getInfo(terrain)["tiles"].String());
 	
 	loadFlipped(terrainFiles.size(), terrainAnimations, terrainImages, terrainFiles);
 	loadFlipped(ROAD_FILES.size(), roadAnimations, roadImages, ROAD_FILES);

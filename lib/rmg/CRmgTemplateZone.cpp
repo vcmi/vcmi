@@ -86,12 +86,12 @@ ETileType::ETileType CTileInfo::getTileType() const
 	return occupied;
 }
 
-ETerrainType CTileInfo::getTerrainType() const
+CTerrainType CTileInfo::getTerrainType() const
 {
 	return terrain;
 }
 
-void CTileInfo::setTerrainType(ETerrainType value)
+void CTileInfo::setTerrainType(CTerrainType value)
 {
 	terrain = value;
 }
@@ -106,7 +106,7 @@ void CTileInfo::setRoadType(ERoadType::ERoadType value)
 CRmgTemplateZone::CRmgTemplateZone(CMapGenerator * Gen)
 	: ZoneOptions(),
 	townType(ETownType::NEUTRAL),
-	terrainType (ETerrainType("grass")),
+	terrainType (CTerrainType("grass")),
 	minGuardedValue(0),
 	questArtZone(),
 	gen(Gen)
@@ -1743,8 +1743,8 @@ void CRmgTemplateZone::initTerrainType ()
 	if (type==ETemplateZoneType::WATER)
 	{
 		//collect all water terrain types
-		std::vector<ETerrainType> waterTerrains;
-		for(auto & terrain : ETerrainType::Manager::terrains())
+		std::vector<CTerrainType> waterTerrains;
+		for(auto & terrain : CTerrainType::Manager::terrains())
 			if(terrain.isWater())
 				waterTerrains.push_back(terrain);
 		
@@ -1766,8 +1766,8 @@ void CRmgTemplateZone::initTerrainType ()
 				if(!vstd::contains(gen->getConfig().terrainUndergroundAllowed, terrainType))
 				{
 					//collect all underground terrain types
-					std::vector<ETerrainType> undegroundTerrains;
-					for(auto & terrain : ETerrainType::Manager::terrains())
+					std::vector<CTerrainType> undegroundTerrains;
+					for(auto & terrain : CTerrainType::Manager::terrains())
 						if(terrain.isUnderground())
 							undegroundTerrains.push_back(terrain);
 					
@@ -1777,14 +1777,14 @@ void CRmgTemplateZone::initTerrainType ()
 			else
 			{
 				if(vstd::contains(gen->getConfig().terrainGroundProhibit, terrainType) || terrainType.isUnderground())
-					terrainType = ETerrainType("dirt");
+					terrainType = CTerrainType("dirt");
 			}
 		}
 	}
 	paintZoneTerrain (terrainType);
 }
 
-void CRmgTemplateZone::paintZoneTerrain (ETerrainType terrainType)
+void CRmgTemplateZone::paintZoneTerrain (CTerrainType terrainType)
 {
 	std::vector<int3> tiles(tileinfo.begin(), tileinfo.end());
 	gen->getEditManager()->getTerrainSelection().setSelection(tiles);
@@ -3367,7 +3367,7 @@ ObjectInfo::ObjectInfo()
 
 }
 
-void ObjectInfo::setTemplate (si32 type, si32 subtype, ETerrainType terrainType)
+void ObjectInfo::setTemplate (si32 type, si32 subtype, CTerrainType terrainType)
 {
 	auto templHandler = VLC->objtypeh->getHandlerFor(type, subtype);
 	if(!templHandler)

@@ -243,7 +243,7 @@ void CMapEditManager::clearTerrain(CRandomGenerator * gen)
 	execute(make_unique<CClearTerrainOperation>(map, gen ? gen : &(this->gen)));
 }
 
-void CMapEditManager::drawTerrain(ETerrainType terType, CRandomGenerator * gen)
+void CMapEditManager::drawTerrain(CTerrainType terType, CRandomGenerator * gen)
 {
 	execute(make_unique<CDrawTerrainOperation>(map, terrainSel, terType, gen ? gen : &(this->gen)));
 	terrainSel.clearSelection();
@@ -534,7 +534,7 @@ void CTerrainViewPatternConfig::flipPattern(TerrainViewPattern & pattern, int fl
 }
 
 
-CDrawTerrainOperation::CDrawTerrainOperation(CMap * map, const CTerrainSelection & terrainSel, ETerrainType terType, CRandomGenerator * gen)
+CDrawTerrainOperation::CDrawTerrainOperation(CMap * map, const CTerrainSelection & terrainSel, CTerrainType terType, CRandomGenerator * gen)
 	: CMapOperation(map), terrainSel(terrainSel), terType(terType), gen(gen)
 {
 
@@ -760,11 +760,11 @@ void CDrawTerrainOperation::updateTerrainViews()
 	}
 }
 
-ETerrainGroup::ETerrainGroup CDrawTerrainOperation::getTerrainGroup(ETerrainType terType) const
+ETerrainGroup::ETerrainGroup CDrawTerrainOperation::getTerrainGroup(CTerrainType terType) const
 {
-	if(terType == ETerrainType("dirt"))
+	if(terType == CTerrainType("dirt"))
 		return ETerrainGroup::DIRT;
-	if(terType == ETerrainType("sand"))
+	if(terType == CTerrainType("sand"))
 		return ETerrainGroup::SAND;
 	if(terType.isWater())
 		return ETerrainGroup::WATER;
@@ -807,7 +807,7 @@ CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainVi
 		int cy = pos.y + (i / 3) - 1;
 		int3 currentPos(cx, cy, pos.z);
 		bool isAlien = false;
-		ETerrainType terType;
+		CTerrainType terType;
 		if(!map->isInTheMap(currentPos))
 		{
 			// position is not in the map, so take the ter type from the neighbor tile
@@ -945,9 +945,9 @@ CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainVi
 	}
 }
 
-bool CDrawTerrainOperation::isSandType(ETerrainType terType) const
+bool CDrawTerrainOperation::isSandType(CTerrainType terType) const
 {
-	if(terType.isWater() || terType == ETerrainType("sand") || !terType.isPassable())
+	if(terType.isWater() || terType == CTerrainType("sand") || !terType.isPassable())
 		return true;
 	return false;
 }
@@ -1049,12 +1049,12 @@ CClearTerrainOperation::CClearTerrainOperation(CMap * map, CRandomGenerator * ge
 {
 	CTerrainSelection terrainSel(map);
 	terrainSel.selectRange(MapRect(int3(0, 0, 0), map->width, map->height));
-	addOperation(make_unique<CDrawTerrainOperation>(map, terrainSel, ETerrainType("water"), gen));
+	addOperation(make_unique<CDrawTerrainOperation>(map, terrainSel, CTerrainType("water"), gen));
 	if(map->twoLevel)
 	{
 		terrainSel.clearSelection();
 		terrainSel.selectRange(MapRect(int3(0, 0, 1), map->width, map->height));
-		addOperation(make_unique<CDrawTerrainOperation>(map, terrainSel, ETerrainType("rock"), gen));
+		addOperation(make_unique<CDrawTerrainOperation>(map, terrainSel, CTerrainType("rock"), gen));
 	}
 }
 

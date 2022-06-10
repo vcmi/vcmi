@@ -494,13 +494,13 @@ void CMinimapInstance::showAll(SDL_Surface * to)
 	}
 }
 
-std::map<ETerrainType, std::pair<SDL_Color, SDL_Color> > CMinimap::loadColors()
+std::map<CTerrainType, std::pair<SDL_Color, SDL_Color> > CMinimap::loadColors()
 {
-	std::map<ETerrainType, std::pair<SDL_Color, SDL_Color> > ret;
+	std::map<CTerrainType, std::pair<SDL_Color, SDL_Color> > ret;
 
-	for(auto & terrain : ETerrainType::Manager::terrains())
+	for(auto & terrain : CTerrainType::Manager::terrains())
 	{
-		auto & m = ETerrainType::Manager::getInfo(terrain);
+		auto & m = CTerrainType::Manager::getInfo(terrain);
 		const JsonVector &unblockedVec = m["minimapUnblocked"].Vector();
 		SDL_Color normal =
 		{

@@ -282,19 +282,19 @@ std::string CCreature::nodeName() const
 	return "\"" + namePl + "\"";
 }
 
-bool CCreature::isItNativeTerrain(const ETerrainType & terrain) const
+bool CCreature::isItNativeTerrain(const CTerrainType & terrain) const
 {
 	auto native = getNativeTerrain();
-	return native == terrain || native == ETerrainType::ANY;
+	return native == terrain || native == CTerrainType::ANY;
 }
 
-ETerrainType CCreature::getNativeTerrain() const
+CTerrainType CCreature::getNativeTerrain() const
 {
 	//this code is used in the CreatureTerrainLimiter::limit to setup battle bonuses
 	//and in the CGHeroInstance::getNativeTerrain() to setup mevement bonuses or/and penalties.
 	return hasBonusOfType(Bonus::NO_TERRAIN_PENALTY) ?
-		ETerrainType::ANY
-		: (ETerrainType)(*VLC->townh)[faction]->nativeTerrain;
+		CTerrainType::ANY
+		: (CTerrainType)(*VLC->townh)[faction]->nativeTerrain;
 }
 
 void CCreature::updateFrom(const JsonNode & data)

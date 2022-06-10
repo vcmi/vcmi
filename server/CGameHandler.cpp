@@ -2215,9 +2215,9 @@ void CGameHandler::setupBattle(int3 tile, const CArmedInstance *armies[2], const
 	battleResult.set(nullptr);
 
 	const auto t = getTile(tile);
-	ETerrainType terrain = t->terType;
+	CTerrainType terrain = t->terType;
 	if (gs->map->isCoastalTile(tile)) //coastal tile is always ground
-		terrain = ETerrainType("sand");
+		terrain = CTerrainType("sand");
 
 	BFieldType terType = gs->battleGetBattlefieldType(tile, getRandomGenerator());
 	if (heroes[0] && heroes[0]->boat && heroes[1] && heroes[1]->boat)

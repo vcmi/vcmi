@@ -13,7 +13,7 @@
 #include "../CRandomGenerator.h"
 #include "../int3.h"
 #include "../GameConstants.h"
-#include "ETerrainType.h"
+#include "CTerrainType.h"
 
 class CGObjectInstance;
 class CTerrainViewPatternConfig;
@@ -169,7 +169,7 @@ public:
 	void clearTerrain(CRandomGenerator * gen = nullptr);
 
 	/// Draws terrain at the current terrain selection. The selection will be cleared automatically.
-	void drawTerrain(ETerrainType terType, CRandomGenerator * gen = nullptr);
+	void drawTerrain(CTerrainType terType, CRandomGenerator * gen = nullptr);
 
 	/// Draws roads at the current terrain selection. The selection will be cleared automatically.
 	void drawRoad(ERoadType::ERoadType roadType, CRandomGenerator * gen = nullptr);
@@ -354,7 +354,7 @@ private:
 class CDrawTerrainOperation : public CMapOperation
 {
 public:
-	CDrawTerrainOperation(CMap * map, const CTerrainSelection & terrainSel, ETerrainType terType, CRandomGenerator * gen);
+	CDrawTerrainOperation(CMap * map, const CTerrainSelection & terrainSel, CTerrainType terType, CRandomGenerator * gen);
 
 	void execute() override;
 	void undo() override;
@@ -385,16 +385,16 @@ private:
 	InvalidTiles getInvalidTiles(const int3 & centerPos) const;
 
 	void updateTerrainViews();
-	ETerrainGroup::ETerrainGroup getTerrainGroup(ETerrainType terType) const;
+	ETerrainGroup::ETerrainGroup getTerrainGroup(CTerrainType terType) const;
 	/// Validates the terrain view of the given position and with the given pattern. The first method wraps the
 	/// second method to validate the terrain view with the given pattern in all four flip directions(horizontal, vertical).
 	ValidationResult validateTerrainView(const int3 & pos, const std::vector<TerrainViewPattern> * pattern, int recDepth = 0) const;
 	ValidationResult validateTerrainViewInner(const int3 & pos, const TerrainViewPattern & pattern, int recDepth = 0) const;
 	/// Tests whether the given terrain type is a sand type. Sand types are: Water, Sand and Rock
-	bool isSandType(ETerrainType terType) const;
+	bool isSandType(CTerrainType terType) const;
 
 	CTerrainSelection terrainSel;
-	ETerrainType terType;
+	CTerrainType terType;
 	CRandomGenerator * gen;
 	std::set<int3> invalidatedTerViews;
 };

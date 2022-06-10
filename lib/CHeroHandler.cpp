@@ -176,7 +176,7 @@ std::vector<BattleHex> CObstacleInfo::getBlocked(BattleHex hex) const
 	return ret;
 }
 
-bool CObstacleInfo::isAppropriate(ETerrainType terrainType, int specialBattlefield) const
+bool CObstacleInfo::isAppropriate(CTerrainType terrainType, int specialBattlefield) const
 {
 	if(specialBattlefield != -1)
 		return vstd::contains(allowedSpecialBfields, specialBattlefield);
@@ -376,9 +376,9 @@ CHeroHandler::CHeroHandler()
 {
 	loadObstacles();
 	loadTerrains();
-	for(int i = 0; i < ETerrainType::Manager::terrains().size(); ++i)
+	for(int i = 0; i < CTerrainType::Manager::terrains().size(); ++i)
 	{
-		VLC->modh->identifiers.registerObject("core", "terrain", ETerrainType::Manager::terrains()[i].toString(), i);
+		VLC->modh->identifiers.registerObject("core", "terrain", CTerrainType::Manager::terrains()[i].toString(), i);
 	}
 	loadBallistics();
 	loadExperience();
@@ -1030,9 +1030,9 @@ ui64 CHeroHandler::reqExp (ui32 level) const
 
 void CHeroHandler::loadTerrains()
 {
-	for(auto & terrain : ETerrainType::Manager::terrains())
+	for(auto & terrain : CTerrainType::Manager::terrains())
 	{
-		terrCosts[terrain] = ETerrainType::Manager::getInfo(terrain)["moveCost"].Integer();
+		terrCosts[terrain] = CTerrainType::Manager::getInfo(terrain)["moveCost"].Integer();
 	}
 }
 

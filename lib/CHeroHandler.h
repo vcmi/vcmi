@@ -26,7 +26,7 @@ struct BattleHex;
 class JsonNode;
 class CRandomGenerator;
 class JsonSerializeFormat;
-class ETerrainType;
+class CTerrainType;
 
 struct SSpecialtyInfo
 {	si32 type;
@@ -249,7 +249,7 @@ struct DLL_LINKAGE CObstacleInfo
 {
 	si32 ID;
 	std::string defName;
-	std::vector<ETerrainType> allowedTerrains;
+	std::vector<CTerrainType> allowedTerrains;
 	std::vector<BFieldType> allowedSpecialBfields;
 
 	ui8 isAbsoluteObstacle; //there may only one such obstacle in battle and its position is always the same
@@ -258,7 +258,7 @@ struct DLL_LINKAGE CObstacleInfo
 
 	std::vector<BattleHex> getBlocked(BattleHex hex) const; //returns vector of hexes blocked by obstacle when it's placed on hex 'hex'
 
-	bool isAppropriate(ETerrainType terrainType, int specialBattlefield = -1) const;
+	bool isAppropriate(CTerrainType terrainType, int specialBattlefield = -1) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -316,7 +316,7 @@ public:
 	CHeroClassHandler classes;
 
 	//default costs of going through terrains. -1 means terrain is impassable
-	std::map<ETerrainType, int> terrCosts;
+	std::map<CTerrainType, int> terrCosts;
 
 	struct SBallisticsLevelInfo
 	{

@@ -26,9 +26,9 @@
 
 const int NAMES_PER_TOWN=16; // number of town names per faction in H3 files. Json can define any number
 
-const ETerrainType CTownHandler::defaultGoodTerrain{"grass"};
-const ETerrainType CTownHandler::defaultEvilTerrain{"lava"};
-const ETerrainType CTownHandler::defaultNeutralTerrain{"rough"};
+const CTerrainType CTownHandler::defaultGoodTerrain{"grass"};
+const CTerrainType CTownHandler::defaultEvilTerrain{"lava"};
+const CTerrainType CTownHandler::defaultNeutralTerrain{"rough"};
 
 const std::map<std::string, CBuilding::EBuildMode> CBuilding::MODES =
 {
@@ -1066,9 +1066,9 @@ void CTownHandler::loadPuzzle(CFaction &faction, const JsonNode &source)
 	assert(faction.puzzleMap.size() == GameConstants::PUZZLE_MAP_PIECES);
 }
 
-ETerrainType CTownHandler::getDefaultTerrainForAlignment(EAlignment::EAlignment alignment) const
+CTerrainType CTownHandler::getDefaultTerrainForAlignment(EAlignment::EAlignment alignment) const
 {
-	ETerrainType terrain = defaultGoodTerrain;
+	CTerrainType terrain = defaultGoodTerrain;
 
 	switch(alignment)
 	{
@@ -1107,7 +1107,7 @@ CFaction * CTownHandler::loadFromJson(const std::string & scope, const JsonNode 
 	auto nativeTerrain = source["nativeTerrain"];
 	faction->nativeTerrain = nativeTerrain.isNull()
 		? getDefaultTerrainForAlignment(faction->alignment)
-		: ETerrainType(nativeTerrain.String());
+		: CTerrainType(nativeTerrain.String());
 
 	if (!source["town"].isNull())
 	{

@@ -2734,8 +2734,8 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 
 	{
 		path.convert(0);
-		ETerrainType currentTerrain = ETerrainType("BORDER"); // not init yet
-		ETerrainType newTerrain;
+		CTerrainType currentTerrain = CTerrainType("BORDER"); // not init yet
+		CTerrainType newTerrain;
 		int sh = -1;
 
 		auto canStop = [&](CGPathNode * node) -> bool

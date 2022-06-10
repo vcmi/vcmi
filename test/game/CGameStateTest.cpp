@@ -193,7 +193,7 @@ public:
 
 		const auto t = gameCallback->getTile(tile);
 
-		ETerrainType terrain = t->terType;
+		CTerrainType terrain = t->terType;
 		BFieldType terType = BFieldType::GRASS_HILLS;
 
 		//send info about battles

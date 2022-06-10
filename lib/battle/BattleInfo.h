@@ -18,7 +18,7 @@
 class CStack;
 class CStackInstance;
 class CStackBasicDescriptor;
-class ETerrainType;
+class CTerrainType;
 
 class DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallback, public IBattleState
 {
@@ -37,7 +37,7 @@ public:
 	SiegeInfo si;
 
 	BFieldType battlefieldType; //like !!BA:B
-	ETerrainType terrainType; //used for some stack nativity checks (not the bonus limiters though that have their own copy)
+	CTerrainType terrainType; //used for some stack nativity checks (not the bonus limiters though that have their own copy)
 
 	ui8 tacticsSide; //which side is requested to play tactics phase
 	ui8 tacticDistance; //how many hexes we can go forward (1 = only hexes adjacent to margin line)
@@ -73,7 +73,7 @@ public:
 	battle::Units getUnitsIf(battle::UnitFilter predicate) const override;
 
 	BFieldType getBattlefieldType() const override;
-	ETerrainType getTerrainType() const override;
+	CTerrainType getTerrainType() const override;
 
 	ObstacleCList getAllObstacles() const override;
 
@@ -138,7 +138,7 @@ public:
 	const CGHeroInstance * getHero(PlayerColor player) const; //returns fighting hero that belongs to given player
 
 	void localInit();
-	static BattleInfo * setupBattle(int3 tile, ETerrainType terrain, BFieldType battlefieldType, const CArmedInstance * armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance * town);
+	static BattleInfo * setupBattle(int3 tile, CTerrainType terrain, BFieldType battlefieldType, const CArmedInstance * armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance * town);
 
 	ui8 whatSide(PlayerColor player) const;
 
