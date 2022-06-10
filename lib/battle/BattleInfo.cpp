@@ -15,6 +15,7 @@
 #include "../filesystem/Filesystem.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../CGeneralTextHandler.h"
+#include "../CTerrainType.h"
 
 //TODO: remove
 #include "../IGameCallback.h"

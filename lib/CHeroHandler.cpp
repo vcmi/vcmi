@@ -19,6 +19,7 @@
 #include "CCreatureHandler.h"
 #include "CModHandler.h"
 #include "CTownHandler.h"
+#include "CTerrainType.h"
 #include "mapObjects/CObjectHandler.h" //for hero specialty
 #include "CSkillHandler.h"
 #include <math.h>

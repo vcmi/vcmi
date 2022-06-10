@@ -19,6 +19,7 @@
 #include "CObjectHandler.h"
 #include "../CModHandler.h"
 #include "../JsonNode.h"
+#include "../CTerrainType.h"
 
 #include "CRewardableConstructor.h"
 

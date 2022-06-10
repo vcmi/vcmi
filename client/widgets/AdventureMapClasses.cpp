@@ -42,6 +42,7 @@
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/CModHandler.h"
 #include "../../lib/CTownHandler.h"
+#include "../../lib/CTerrainType.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/JsonNode.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"

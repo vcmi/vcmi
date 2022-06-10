@@ -16,6 +16,7 @@
 #include "../mapping/CMap.h"
 #include "../VCMI_Lib.h"
 #include "../CTownHandler.h"
+#include "../CTerrainType.h"
 #include "../serializer/JsonSerializeFormat.h"
 #include "../StringConstants.h"
 
