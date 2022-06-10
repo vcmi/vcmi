@@ -13,6 +13,7 @@
 #include "../int3.h"
 #include "../GameConstants.h"
 #include "../ResourceSet.h"
+#include "../CTerrainType.h"
 #include "CMapGenOptions.h"
 
 class JsonSerializeFormat;
