@@ -381,27 +381,6 @@ int main(int argc, char * argv[])
 				logGlobal->info("\t%s", driverName);
 		}
 
-		config::CConfigHandler::GuiOptionsMap::key_type resPair((int)res["width"].Float(), (int)res["height"].Float());
-		if (conf.guiOptions.count(resPair) == 0)
-		{
-			// selected resolution was not found - complain & fallback to something that we do have.
-			logGlobal->error("Selected resolution %dx%d was not found!", resPair.first, resPair.second);
-			if (conf.guiOptions.empty())
-			{
-				logGlobal->error("Unable to continue - no valid resolutions found! Please reinstall VCMI to fix this");
-				exit(1);
-			}
-			else
-			{
-				Settings newRes = settings.write["video"]["screenRes"];
-				newRes["width"].Float()  = conf.guiOptions.begin()->first.first;
-				newRes["height"].Float() = conf.guiOptions.begin()->first.second;
-				conf.SetResolution((int)newRes["width"].Float(), (int)newRes["height"].Float());
-
-				logGlobal->error("Falling back to %dx%d", newRes["width"].Integer(), newRes["height"].Integer());
-			}
-		}
-
 		setScreenRes((int)res["width"].Float(), (int)res["height"].Float(), (int)video["bitsPerPixel"].Float(), video["fullscreen"].Bool(), (int)video["displayIndex"].Float());
 		logGlobal->info("\tInitializing screen: %d ms", pomtime.getDiff());
 	}
@@ -1056,6 +1035,54 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 	bool bufOnScreen = (screenBuf == screen);
 	bool realFullscreen = settings["video"]["realFullscreen"].Bool();
 
+	/* match best rendering resolution */
+	int renderWidth = 0, renderHeight = 0;
+	auto aspectRatio = (float)w / (float)h;
+	auto minDiff = 10.f;
+	for (const auto& pair : conf.guiOptions)
+	{
+		int pWidth, pHeight;
+		std::tie(pWidth, pHeight) = pair.first;
+		/* filter out resolution which is larger than window */
+		if (pWidth > w || pHeight > h)
+		{
+			continue;
+		}
+		auto ratio = (float)pWidth / (float)pHeight;
+		auto diff = fabs(aspectRatio - ratio);
+		/* select closest aspect ratio */
+		if (diff < minDiff)
+		{
+			renderWidth = pWidth;
+			renderHeight = pHeight;
+			minDiff = diff;
+		}
+		/* select largest resolution meets prior conditions.
+		 * since there are resolutions like 1366x768(not exactly 16:9), a deviation of 0.005 is allowed. */
+		else if (fabs(diff - minDiff) < 0.005f && pWidth > renderWidth)
+		{
+			renderWidth = pWidth;
+			renderHeight = pHeight;
+		}
+	}
+	if (renderWidth == 0)
+	{
+		// no matching resolution for upscaling - complain & fallback to default resolution.
+		logGlobal->error("Failed to match rendering resolution for %dx%d!", w, h);
+		Settings newRes = settings.write["video"]["screenRes"];
+		std::tie(w, h) = conf.guiOptions.begin()->first;
+		newRes["width"].Float() = w;
+		newRes["height"].Float() = h;
+		conf.SetResolution(w, h);
+		logGlobal->error("Falling back to %dx%d", w, h);
+		renderWidth = w;
+		renderHeight = h;
+	}
+	else
+	{
+		logGlobal->info("Set logical rendering resolution to %dx%d", renderWidth, renderHeight);
+	}
+
 	cleanupRenderer();
 
 	if(nullptr == mainWindow)
@@ -1101,10 +1128,10 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 		if(fullscreen)
 		{
 			if(realFullscreen)
-				mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex), w, h, SDL_WINDOW_FULLSCREEN);
+				mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex), renderWidth, renderHeight, SDL_WINDOW_FULLSCREEN);
 			else //in windowed full-screen mode use desktop resolution
 				mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex),SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex), 0, 0, SDL_WINDOW_FULLSCREEN_DESKTOP);
-			SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+			SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "best");
 		}
 		else
 		{
@@ -1143,8 +1170,8 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 
 				SDL_DisplayMode mode;
 				SDL_GetDesktopDisplayMode(displayIndex, &mode);
-				mode.w = w;
-				mode.h = h;
+				mode.w = renderWidth;
+				mode.h = renderHeight;
 
 				SDL_SetWindowDisplayMode(mainWindow, &mode);
 			}
@@ -1155,7 +1182,7 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 
 			SDL_SetWindowPosition(mainWindow, SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex));
 
-			SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+			SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "best");
 		}
 		else
 		{
@@ -1168,7 +1195,7 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 
 	if(!(fullscreen && realFullscreen))
 	{
-		SDL_RenderSetLogicalSize(mainRenderer, w, h);
+		SDL_RenderSetLogicalSize(mainRenderer, renderWidth, renderHeight);
 
 //following line is bugged not only on android, do not re-enable without checking
 //#ifndef VCMI_ANDROID
@@ -1191,10 +1218,10 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 		int amask = 0xFF000000;
 	#endif
 
-	screen = SDL_CreateRGBSurface(0,w,h,bpp,rmask,gmask,bmask,amask);
+	screen = SDL_CreateRGBSurface(0,renderWidth,renderHeight,bpp,rmask,gmask,bmask,amask);
 	if(nullptr == screen)
 	{
-		logGlobal->error("Unable to create surface %dx%d with %d bpp: %s", w, h, bpp, SDL_GetError());
+		logGlobal->error("Unable to create surface %dx%d with %d bpp: %s", renderWidth, renderHeight, bpp, SDL_GetError());
 		throw std::runtime_error("Unable to create surface");
 	}
 	//No blending for screen itself. Required for proper cursor rendering.
@@ -1203,7 +1230,7 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 	screenTexture = SDL_CreateTexture(mainRenderer,
 											SDL_PIXELFORMAT_ARGB8888,
 											SDL_TEXTUREACCESS_STREAMING,
-											w, h);
+											renderWidth, renderHeight);
 
 	if(nullptr == screenTexture)
 	{
