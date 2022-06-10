@@ -70,7 +70,7 @@ int ChainActor::maxMovePoints(CGPathNode::ELayer layer)
 {
 #if AI_TRACE_LEVEL > 0
 	if(!hero)
-		throw std::exception("Asking movement points for static actor");
+		throw std::logic_error("Asking movement points for static actor");
 #endif
 
 	return hero->maxMovePointsCached(layer, tiCache.get());
