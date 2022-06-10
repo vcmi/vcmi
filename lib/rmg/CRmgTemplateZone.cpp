@@ -1864,6 +1864,9 @@ bool CRmgTemplateZone::createRequiredObjects()
 	for(const auto &object : requiredObjects)
 	{
 		auto obj = object.first;
+		if (!obj->appearance.canBePlacedAt(terrainType))
+			continue;
+		
 		int3 pos;
 		while (true)
 		{
@@ -1872,6 +1875,7 @@ bool CRmgTemplateZone::createRequiredObjects()
 				logGlobal->error("Failed to fill zone %d due to lack of space", id);
 				return false;
 			}
+
 			if (tryToPlaceObjectAndConnectToPath(obj, pos) == EObjectPlacingResult::SUCCESS)
 			{
 				//paths to required objects constitute main paths of zone. otherwise they just may lead to middle and create dead zones
@@ -1885,6 +1889,9 @@ bool CRmgTemplateZone::createRequiredObjects()
 	for (const auto &obj : closeObjects)
 	{
 		setTemplateForObject(obj.first);
+		if (!obj.first->appearance.canBePlacedAt(terrainType))
+			continue;
+		
 		auto tilesBlockedByObject = obj.first->getBlockedOffsets();
 
 		bool finished = false;

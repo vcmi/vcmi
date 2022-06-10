@@ -1961,6 +1961,9 @@ BFieldType CGameState::battleGetBattlefieldType(int3 tile, CRandomGenerator & ra
 	if(!t.terType.isPassable())
 		return BFieldType::ROCKLANDS;
 	
+	//TODO: STUB, support new battlegrounds
+	return BFieldType::DIRT_HILLS;
+	
 	return BFieldType::NONE;
 }
 
