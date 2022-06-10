@@ -19,7 +19,7 @@ public:
 	
 	friend class Manager;
 	
-	class Manager
+	class DLL_LINKAGE Manager
 	{
 	public:
 		static std::vector<CTerrainType> terrains();
