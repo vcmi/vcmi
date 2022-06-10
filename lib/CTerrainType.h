@@ -13,7 +13,7 @@
 #include "ConstTransitivePtr.h"
 #include "JsonNode.h"
 
-class DLL_LINKAGE ETerrainType
+class DLL_LINKAGE CTerrainType
 {
 public:
 	
@@ -22,8 +22,8 @@ public:
 	class Manager
 	{
 	public:
-		static std::vector<ETerrainType> terrains();
-		static const JsonNode & getInfo(const ETerrainType &);
+		static std::vector<CTerrainType> terrains();
+		static const JsonNode & getInfo(const CTerrainType &);
 		
 	private:
 		static Manager & get();
@@ -39,19 +39,19 @@ public:
 	 ROUGH, SUBTERRANEAN, LAVA, WATER, ROCK // ROCK is also intended to be max value.
 	 };*/
 	
-	ETerrainType(const std::string & _type = "");
-	static ETerrainType createTerrainTypeH3M(int tId);
+	CTerrainType(const std::string & _type = "");
+	static CTerrainType createTerrainTypeH3M(int tId);
 	
 	int id() const;
 	
-	ETerrainType& operator=(const ETerrainType & _type);
-	ETerrainType& operator=(const std::string & _type);
+	CTerrainType& operator=(const CTerrainType & _type);
+	CTerrainType& operator=(const std::string & _type);
 	
-	DLL_LINKAGE friend bool operator==(const ETerrainType & l, const ETerrainType & r);
-	DLL_LINKAGE friend bool operator!=(const ETerrainType & l, const ETerrainType & r);
-	DLL_LINKAGE friend bool operator<(const ETerrainType & l, const ETerrainType & r);
+	DLL_LINKAGE friend bool operator==(const CTerrainType & l, const CTerrainType & r);
+	DLL_LINKAGE friend bool operator!=(const CTerrainType & l, const CTerrainType & r);
+	DLL_LINKAGE friend bool operator<(const CTerrainType & l, const CTerrainType & r);
 	
-	static const ETerrainType ANY;
+	static const CTerrainType ANY;
 	
 	bool isLand() const;
 	bool isWater() const;
@@ -74,4 +74,4 @@ protected:
 
 DLL_LINKAGE void loadTerrainTypes();
 
-DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const ETerrainType terrainType);
+DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const CTerrainType terrainType);

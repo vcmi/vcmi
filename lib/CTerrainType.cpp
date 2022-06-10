@@ -8,7 +8,7 @@
  *
  */
 
-#include "ETerrainType.h"
+#include "CTerrainType.h"
 #include "VCMI_Lib.h"
 #include "CModHandler.h"
 
@@ -16,18 +16,18 @@
 //("allowedTerrain"\s*:\s*\[.*)9(.*\],\n)
 //\1"rock"\2
 
-const ETerrainType ETerrainType::ANY("ANY");
+const CTerrainType CTerrainType::ANY("ANY");
 
-ETerrainType ETerrainType::createTerrainTypeH3M(int tId)
+CTerrainType CTerrainType::createTerrainTypeH3M(int tId)
 {
 	static std::vector<std::string> terrainsH3M
 	{
 		"dirt", "sand", "grass", "snow", "swamp", "rough", "subterra", "lava", "water", "rock"
 	};
-	return ETerrainType(terrainsH3M.at(tId));
+	return CTerrainType(terrainsH3M.at(tId));
 }
 
-ETerrainType::Manager::Manager()
+CTerrainType::Manager::Manager()
 {
 	auto allConfigs = VLC->modh->getActiveMods();
 	allConfigs.insert(allConfigs.begin(), "core");
@@ -49,89 +49,89 @@ ETerrainType::Manager::Manager()
 	}
 }
 
-ETerrainType::Manager & ETerrainType::Manager::get()
+CTerrainType::Manager & CTerrainType::Manager::get()
 {
-	static ETerrainType::Manager manager;
+	static CTerrainType::Manager manager;
 	return manager;
 }
 
-std::vector<ETerrainType> ETerrainType::Manager::terrains()
+std::vector<CTerrainType> CTerrainType::Manager::terrains()
 {
-	std::vector<ETerrainType> _terrains;
-	for(const auto & info : ETerrainType::Manager::get().terrainInfo)
+	std::vector<CTerrainType> _terrains;
+	for(const auto & info : CTerrainType::Manager::get().terrainInfo)
 		_terrains.push_back(info.first);
 	return _terrains;
 }
 
-const JsonNode & ETerrainType::Manager::getInfo(const ETerrainType & terrain)
+const JsonNode & CTerrainType::Manager::getInfo(const CTerrainType & terrain)
 {
-	return ETerrainType::Manager::get().terrainInfo.at(terrain.toString());
+	return CTerrainType::Manager::get().terrainInfo.at(terrain.toString());
 }
 
-std::ostream & operator<<(std::ostream & os, const ETerrainType terrainType)
+std::ostream & operator<<(std::ostream & os, const CTerrainType terrainType)
 {
 	return os << terrainType.toString();
 }
 	
-std::string ETerrainType::toString() const
+std::string CTerrainType::toString() const
 {
 	return type;
 }
 
-ETerrainType::ETerrainType(const std::string & _type) : type(_type)
+CTerrainType::CTerrainType(const std::string & _type) : type(_type)
 {}
 	
-ETerrainType& ETerrainType::operator=(const ETerrainType & _type)
+CTerrainType& CTerrainType::operator=(const CTerrainType & _type)
 {
 	type = _type.type;
 	return *this;
 }
 	
-ETerrainType& ETerrainType::operator=(const std::string & _type)
+CTerrainType& CTerrainType::operator=(const std::string & _type)
 {
 	type = _type;
 	return *this;
 }
 
-bool operator==(const ETerrainType & l, const ETerrainType & r)
+bool operator==(const CTerrainType & l, const CTerrainType & r)
 {
 	return l.type == r.type;
 }
 
-bool operator!=(const ETerrainType & l, const ETerrainType & r)
+bool operator!=(const CTerrainType & l, const CTerrainType & r)
 {
 	return l.type != r.type;
 }
 	
-bool operator<(const ETerrainType & l, const ETerrainType & r)
+bool operator<(const CTerrainType & l, const CTerrainType & r)
 {
 	return l.type < r.type;
 }
 	
-int ETerrainType::id() const
+int CTerrainType::id() const
 {
 	if(type == "ANY") return -3;
 	if(type == "WRONG") return -2;
 	if(type == "BORDER") return -1;
 	
-	auto _terrains = ETerrainType::Manager::terrains();
+	auto _terrains = CTerrainType::Manager::terrains();
 	auto iter = std::find(_terrains.begin(), _terrains.end(), *this);
 	return iter - _terrains.begin();
 }
 	
-bool ETerrainType::isLand() const
+bool CTerrainType::isLand() const
 {
 	return !isWater();
 }
-bool ETerrainType::isWater() const
+bool CTerrainType::isWater() const
 {
-	return ETerrainType::Manager::getInfo(*this)["type"].String() == "WATER";
+	return CTerrainType::Manager::getInfo(*this)["type"].String() == "WATER";
 }
-bool ETerrainType::isPassable() const
+bool CTerrainType::isPassable() const
 {
-	return ETerrainType::Manager::getInfo(*this)["type"].String() != "ROCK";
+	return CTerrainType::Manager::getInfo(*this)["type"].String() != "ROCK";
 }
-bool ETerrainType::isUnderground() const
+bool CTerrainType::isUnderground() const
 {
-	return ETerrainType::Manager::getInfo(*this)["type"].String() == "SUB";
+	return CTerrainType::Manager::getInfo(*this)["type"].String() == "SUB";
 }
