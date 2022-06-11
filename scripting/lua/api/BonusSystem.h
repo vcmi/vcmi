@@ -12,7 +12,7 @@
 
 #include "../LuaWrapper.h"
 
-class Bonus;
+struct Bonus;
 class BonusList;
 class IBonusBearer;
 

@@ -158,7 +158,9 @@ if(MINGW OR MSVC)
 		add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 		add_definitions(-D_SCL_SECURE_NO_WARNINGS)
 		# 4250: 'class1' : inherits 'class2::member' via dominance
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj  /wd4250")
+		# 4251: class 'xxx' needs to have dll-interface to be used by clients of class 'yyy'
+		# 4275: non dll-interface class 'xxx' used as base for dll-interface class
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj /wd4250 /wd4251 /wd4275")
 
 		if(ENABLE_MULTI_PROCESS_BUILDS)
 			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")

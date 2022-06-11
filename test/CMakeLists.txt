@@ -147,6 +147,9 @@ set(mock_HEADERS
 		mock/mock_CPSICallback.h
 )
 
+if(MSVC)
+	set(gtest_force_shared_crt ON CACHE BOOL "Use shared (DLL) run-time lib even when Google Test is built as static lib." FORCE)
+endif()
 add_subdirectory_with_folder("3rdparty" googletest EXCLUDE_FROM_ALL)
 
 add_executable(vcmitest ${test_SRCS} ${test_HEADERS} ${mock_HEADERS})
