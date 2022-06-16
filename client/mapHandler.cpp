@@ -30,7 +30,7 @@
 #include "CMT.h"
 #include "CMusicHandler.h"
 #include "../lib/CRandomGenerator.h"
-#include "../lib/CTerrainType.h"
+#include "../lib/Terrain.h"
 #include "../lib/filesystem/ResourceID.h"
 #include "../lib/JsonDetail.h"
 
@@ -146,21 +146,6 @@ EMapAnimRedrawStatus CMapHandler::drawTerrainRectNew(SDL_Surface * targetSurface
 
 void CMapHandler::initTerrainGraphics()
 {
-	/*static const std::vector<std::string> TERRAIN_FILES =
-	{
-		"DIRTTL",
-		"SANDTL",
-		"GRASTL",
-		"SNOWTL",
-		"SWMPTL",
-
-		"ROUGTL",
-		"SUBBTL",
-		"LAVATL",
-		"WATRTL",
-		"ROCKTL"
-	};*/
-
 	static const std::vector<std::string> ROAD_FILES =
 	{
 		"dirtrd",
@@ -218,8 +203,8 @@ void CMapHandler::initTerrainGraphics()
 	};
 	
 	std::vector<std::string> terrainFiles;
-	for(auto & terrain : CTerrainType::Manager::terrains())
-		terrainFiles.push_back(CTerrainType::Manager::getInfo(terrain)["tiles"].String());
+	for(auto & terrain : Terrain::Manager::terrains())
+		terrainFiles.push_back(Terrain::Manager::getInfo(terrain)["tiles"].String());
 	
 	loadFlipped(terrainFiles.size(), terrainAnimations, terrainImages, terrainFiles);
 	loadFlipped(ROAD_FILES.size(), roadAnimations, roadImages, ROAD_FILES);

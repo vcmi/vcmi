@@ -19,7 +19,7 @@
 #include "CCreatureHandler.h"
 #include "CModHandler.h"
 #include "CTownHandler.h"
-#include "CTerrainType.h"
+#include "Terrain.h"
 #include "mapObjects/CObjectHandler.h" //for hero specialty
 #include "CSkillHandler.h"
 #include <math.h>
@@ -177,7 +177,7 @@ std::vector<BattleHex> CObstacleInfo::getBlocked(BattleHex hex) const
 	return ret;
 }
 
-bool CObstacleInfo::isAppropriate(CTerrainType terrainType, int specialBattlefield) const
+bool CObstacleInfo::isAppropriate(Terrain terrainType, int specialBattlefield) const
 {
 	if(specialBattlefield != -1)
 		return vstd::contains(allowedSpecialBfields, specialBattlefield);
@@ -377,9 +377,9 @@ CHeroHandler::CHeroHandler()
 {
 	loadObstacles();
 	loadTerrains();
-	for(int i = 0; i < CTerrainType::Manager::terrains().size(); ++i)
+	for(int i = 0; i < Terrain::Manager::terrains().size(); ++i)
 	{
-		VLC->modh->identifiers.registerObject("core", "terrain", CTerrainType::Manager::terrains()[i].toString(), i);
+		VLC->modh->identifiers.registerObject("core", "terrain", Terrain::Manager::terrains()[i].toString(), i);
 	}
 	loadBallistics();
 	loadExperience();
@@ -1031,9 +1031,9 @@ ui64 CHeroHandler::reqExp (ui32 level) const
 
 void CHeroHandler::loadTerrains()
 {
-	for(auto & terrain : CTerrainType::Manager::terrains())
+	for(auto & terrain : Terrain::Manager::terrains())
 	{
-		terrCosts[terrain] = CTerrainType::Manager::getInfo(terrain)["moveCost"].Integer();
+		terrCosts[terrain] = Terrain::Manager::getInfo(terrain)["moveCost"].Integer();
 	}
 }
 

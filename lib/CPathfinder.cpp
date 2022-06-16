@@ -1007,7 +1007,7 @@ bool CPathfinderHelper::passOneTurnLimitCheck(const PathNodeInfo & source) const
 
 TurnInfo::BonusCache::BonusCache(TConstBonusListPtr bl)
 {
-	for(int i = 0; i < CTerrainType::Manager::terrains().size(); ++i)
+	for(int i = 0; i < Terrain::Manager::terrains().size(); ++i)
 	{
 		noTerrainPenalty.push_back(static_cast<bool>(
 				bl->getFirst(Selector::type()(Bonus::NO_TERRAIN_PENALTY).And(Selector::subtype()(i)))));

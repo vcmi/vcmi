@@ -42,7 +42,7 @@
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/CModHandler.h"
 #include "../../lib/CTownHandler.h"
-#include "../../lib/CTerrainType.h"
+#include "../../lib/Terrain.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/JsonNode.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
@@ -495,13 +495,13 @@ void CMinimapInstance::showAll(SDL_Surface * to)
 	}
 }
 
-std::map<CTerrainType, std::pair<SDL_Color, SDL_Color> > CMinimap::loadColors()
+std::map<Terrain, std::pair<SDL_Color, SDL_Color> > CMinimap::loadColors()
 {
-	std::map<CTerrainType, std::pair<SDL_Color, SDL_Color> > ret;
+	std::map<Terrain, std::pair<SDL_Color, SDL_Color> > ret;
 
-	for(auto & terrain : CTerrainType::Manager::terrains())
+	for(auto & terrain : Terrain::Manager::terrains())
 	{
-		auto & m = CTerrainType::Manager::getInfo(terrain);
+		auto & m = Terrain::Manager::getInfo(terrain);
 		const JsonVector &unblockedVec = m["minimapUnblocked"].Vector();
 		SDL_Color normal =
 		{

@@ -54,8 +54,8 @@ class DLL_LINKAGE CMapGenerator
 public:
 	struct Config
 	{
-		std::vector<CTerrainType> terrainUndergroundAllowed;
-		std::vector<CTerrainType> terrainGroundProhibit;
+		std::vector<Terrain> terrainUndergroundAllowed;
+		std::vector<Terrain> terrainGroundProhibit;
 		std::vector<CTreasureInfo> waterTreasure;
 		int shipyardGuard;
 		int mineExtraResources;

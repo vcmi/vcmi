@@ -15,7 +15,7 @@ class CBinaryReader;
 class CLegacyConfigParser;
 class JsonNode;
 class int3;
-class CTerrainType;
+class Terrain;
 
 class DLL_LINKAGE ObjectTemplate
 {
@@ -31,7 +31,7 @@ class DLL_LINKAGE ObjectTemplate
 	/// directions from which object can be entered, format same as for moveDir in CGHeroInstance(but 0 - 7)
 	ui8 visitDir;
 	/// list of terrains on which this object can be placed
-	std::set<CTerrainType> allowedTerrains;
+	std::set<Terrain> allowedTerrains;
 
 	void afterLoadFixup();
 
@@ -71,7 +71,7 @@ public:
 	bool isVisitableFromTop() const;
 
 	// Checks if object can be placed on specific terrain
-	bool canBePlacedAt(CTerrainType terrain) const;
+	bool canBePlacedAt(Terrain terrain) const;
 
 	ObjectTemplate();
 	//custom copy constructor is required

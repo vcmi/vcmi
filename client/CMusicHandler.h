@@ -16,7 +16,7 @@ struct _Mix_Music;
 struct SDL_RWops;
 typedef struct _Mix_Music Mix_Music;
 struct Mix_Chunk;
-class CTerrainType;
+class Terrain;
 
 class CAudioBase {
 protected:
@@ -83,7 +83,7 @@ public:
 	// Sets
 	std::vector<soundBase::soundID> pickupSounds;
 	std::vector<soundBase::soundID> battleIntroSounds;
-	std::map<CTerrainType, soundBase::soundID> horseSounds;
+	std::map<Terrain, soundBase::soundID> horseSounds;
 };
 
 // Helper //now it looks somewhat useless

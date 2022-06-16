@@ -1,5 +1,5 @@
 /*
- * ETerrainType.h, part of VCMI engine
+ * Terrain.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -13,7 +13,7 @@
 #include "ConstTransitivePtr.h"
 #include "JsonNode.h"
 
-class DLL_LINKAGE CTerrainType
+class DLL_LINKAGE Terrain
 {
 public:
 	
@@ -22,8 +22,8 @@ public:
 	class DLL_LINKAGE Manager
 	{
 	public:
-		static std::vector<CTerrainType> terrains();
-		static const JsonNode & getInfo(const CTerrainType &);
+		static std::vector<Terrain> terrains();
+		static const JsonNode & getInfo(const Terrain &);
 		
 	private:
 		static Manager & get();
@@ -39,19 +39,19 @@ public:
 	 ROUGH, SUBTERRANEAN, LAVA, WATER, ROCK // ROCK is also intended to be max value.
 	 };*/
 	
-	CTerrainType(const std::string & _type = "");
-	static CTerrainType createTerrainTypeH3M(int tId);
+	Terrain(const std::string & _type = "");
+	static Terrain createTerrainTypeH3M(int tId);
 	
 	int id() const;
 	
-	CTerrainType& operator=(const CTerrainType & _type);
-	CTerrainType& operator=(const std::string & _type);
+	Terrain& operator=(const Terrain & _type);
+	Terrain& operator=(const std::string & _type);
 	
-	DLL_LINKAGE friend bool operator==(const CTerrainType & l, const CTerrainType & r);
-	DLL_LINKAGE friend bool operator!=(const CTerrainType & l, const CTerrainType & r);
-	DLL_LINKAGE friend bool operator<(const CTerrainType & l, const CTerrainType & r);
+	DLL_LINKAGE friend bool operator==(const Terrain & l, const Terrain & r);
+	DLL_LINKAGE friend bool operator!=(const Terrain & l, const Terrain & r);
+	DLL_LINKAGE friend bool operator<(const Terrain & l, const Terrain & r);
 	
-	static const CTerrainType ANY;
+	static const Terrain ANY;
 	
 	bool isLand() const;
 	bool isWater() const;
@@ -74,4 +74,4 @@ protected:
 
 DLL_LINKAGE void loadTerrainTypes();
 
-DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const CTerrainType terrainType);
+DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const Terrain terrainType);

@@ -960,7 +960,7 @@ void CMapLoaderJson::readTerrainTile(const std::string & src, TerrainTile & tile
 	{//terrain type
 		const std::string typeCode = src.substr(0, 2);
 
-		tile.terType = CTerrainType(typeCode);
+		tile.terType = Terrain(src);
 	}
 	int startPos = 2; //0+typeCode fixed length
 	{//terrain view

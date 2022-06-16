@@ -24,7 +24,7 @@ class CLegacyConfigParser;
 class CCreatureHandler;
 class CCreature;
 class JsonSerializeFormat;
-class CTerrainType;
+class Terrain;
 
 class DLL_LINKAGE CCreature : public Creature, public CBonusSystemNode
 {
@@ -119,14 +119,14 @@ public:
 
 	ArtifactID warMachine;
 
-	bool isItNativeTerrain(const CTerrainType & terrain) const;
+	bool isItNativeTerrain(const Terrain & terrain) const;
 	/**
 	Returns creature native terrain considering some terrain bonuses.
 	@param considerBonus is used to avoid Dead Lock when this method is called inside getAllBonuses
 	considerBonus = true is called from Pathfinder and fills actual nativeTerrain considering bonus(es).
 	considerBonus = false is called on Battle init and returns already prepared nativeTerrain without Bonus system calling.
 	*/
-	CTerrainType getNativeTerrain() const;
+	Terrain getNativeTerrain() const;
 	int32_t getIndex() const override;
 	int32_t getIconIndex() const override;
 	const std::string & getName() const override;

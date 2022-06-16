@@ -150,7 +150,6 @@ set(lib_SRCS
 		CScriptingModule.cpp
 		CSkillHandler.cpp
 		CStack.cpp
-		CTerrainType.cpp
 		CThreadHelper.cpp
 		CTownHandler.cpp
 		GameConstants.cpp
@@ -164,6 +163,7 @@ set(lib_SRCS
 		StartInfo.cpp
 		ResourceSet.cpp
 		ScriptHandler.cpp
+		Terrain.cpp
 		VCMIDirs.cpp
 		VCMI_Lib.cpp
 
@@ -363,7 +363,6 @@ set(lib_HEADERS
 		CSoundBase.h
 		CStack.h
 		CStopWatch.h
-		CTerrainType.h
 		CThreadHelper.h
 		CTownHandler.h
 		FunctionList.h
@@ -387,6 +386,7 @@ set(lib_HEADERS
 		ScopeGuard.h
 		StartInfo.h
 		StringConstants.h
+		Terrain.h
 		UnlockGuard.h
 		VCMIDirs.h
 		vcmi_endian.h

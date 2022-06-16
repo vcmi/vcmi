@@ -346,7 +346,7 @@ void CMapGenerator::genZones()
 {
 	getEditManager()->clearTerrain(&rand);
 	getEditManager()->getTerrainSelection().selectRange(MapRect(int3(0, 0, 0), mapGenOptions.getWidth(), mapGenOptions.getHeight()));
-	getEditManager()->drawTerrain(CTerrainType("grass"), &rand);
+	getEditManager()->drawTerrain(Terrain("grass"), &rand);
 
 	auto tmpl = mapGenOptions.getMapTemplate();
 	zones.clear();
@@ -538,8 +538,8 @@ void CMapGenerator::createObstaclesCommon1()
 		getEditManager()->getTerrainSelection().setSelection(rockTiles);
 		
 		//collect all rock terrain types
-		std::vector<CTerrainType> rockTerrains;
-		for(auto & terrain : CTerrainType::Manager::terrains())
+		std::vector<Terrain> rockTerrains;
+		for(auto & terrain : Terrain::Manager::terrains())
 			if(!terrain.isPassable())
 				rockTerrains.push_back(terrain);
 		auto rockTerrain = *RandomGeneratorUtil::nextItem(rockTerrains, rand);

@@ -13,7 +13,7 @@
 #include "IGameCallback.h"
 #include "HeroBonus.h"
 #include "int3.h"
-#include "CTerrainType.h"
+#include "Terrain.h"
 
 #include <boost/heap/fibonacci_heap.hpp>
 
@@ -522,7 +522,7 @@ struct DLL_LINKAGE TurnInfo
 	TConstBonusListPtr bonuses;
 	mutable int maxMovePointsLand;
 	mutable int maxMovePointsWater;
-	CTerrainType nativeTerrain;
+	Terrain nativeTerrain;
 
 	TurnInfo(const CGHeroInstance * Hero, const int Turn = 0);
 	bool isLayerAvailable(const EPathfindingLayer layer) const;

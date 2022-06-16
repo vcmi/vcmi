@@ -11,7 +11,7 @@
 
 #include "GameConstants.h"
 #include "JsonNode.h"
-#include "CTerrainType.h"
+#include "Terrain.h"
 
 class CCreature;
 struct Bonus;
@@ -1082,7 +1082,7 @@ public:
 class DLL_LINKAGE CreatureTerrainLimiter : public ILimiter //applies only to creatures that are on specified terrain, default native terrain
 {
 public:
-	CTerrainType terrainType;
+	Terrain terrainType;
 	CreatureTerrainLimiter();
 	CreatureTerrainLimiter(int TerrainType);
 

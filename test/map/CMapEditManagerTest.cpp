@@ -33,30 +33,30 @@ TEST(MapManager, DrawTerrain_Type)
 
 		// 1x1 Blow up
 		editManager->getTerrainSelection().select(int3(5, 5, 0));
-		editManager->drawTerrain(CTerrainType("grass"));
+		editManager->drawTerrain(Terrain("grass"));
 		static const int3 squareCheck[] = { int3(5,5,0), int3(5,4,0), int3(4,4,0), int3(4,5,0) };
 		for(int i = 0; i < ARRAY_COUNT(squareCheck); ++i)
 		{
-			EXPECT_EQ(map->getTile(squareCheck[i]).terType, CTerrainType("grass"));
+			EXPECT_EQ(map->getTile(squareCheck[i]).terType, Terrain("grass"));
 		}
 
 		// Concat to square
 		editManager->getTerrainSelection().select(int3(6, 5, 0));
-		editManager->drawTerrain(CTerrainType("grass"));
-		EXPECT_EQ(map->getTile(int3(6, 4, 0)).terType, CTerrainType("grass"));
+		editManager->drawTerrain(Terrain("grass"));
+		EXPECT_EQ(map->getTile(int3(6, 4, 0)).terType, Terrain("grass"));
 		editManager->getTerrainSelection().select(int3(6, 5, 0));
-		editManager->drawTerrain(CTerrainType("lava"));
-		EXPECT_EQ(map->getTile(int3(4, 4, 0)).terType, CTerrainType("grass"));
-		EXPECT_EQ(map->getTile(int3(7, 4, 0)).terType, CTerrainType("lava"));
+		editManager->drawTerrain(Terrain("lava"));
+		EXPECT_EQ(map->getTile(int3(4, 4, 0)).terType, Terrain("grass"));
+		EXPECT_EQ(map->getTile(int3(7, 4, 0)).terType, Terrain("lava"));
 
 		// Special case water,rock
 		editManager->getTerrainSelection().selectRange(MapRect(int3(10, 10, 0), 10, 5));
-		editManager->drawTerrain(CTerrainType("grass"));
+		editManager->drawTerrain(Terrain("grass"));
 		editManager->getTerrainSelection().selectRange(MapRect(int3(15, 17, 0), 10, 5));
-		editManager->drawTerrain(CTerrainType("grass"));
+		editManager->drawTerrain(Terrain("grass"));
 		editManager->getTerrainSelection().select(int3(21, 16, 0));
-		editManager->drawTerrain(CTerrainType("grass"));
-		EXPECT_EQ(map->getTile(int3(20, 15, 0)).terType, CTerrainType("grass"));
+		editManager->drawTerrain(Terrain("grass"));
+		EXPECT_EQ(map->getTile(int3(20, 15, 0)).terType, Terrain("grass"));
 
 		// Special case non water,rock
 		static const int3 diagonalCheck[] = { int3(31,42,0), int3(32,42,0), int3(32,43,0), int3(33,43,0), int3(33,44,0),
@@ -66,16 +66,16 @@ TEST(MapManager, DrawTerrain_Type)
 		{
 			editManager->getTerrainSelection().select(diagonalCheck[i]);
 		}
-		editManager->drawTerrain(CTerrainType("grass"));
-		EXPECT_EQ(map->getTile(int3(35, 44, 0)).terType, CTerrainType("water"));
+		editManager->drawTerrain(Terrain("grass"));
+		EXPECT_EQ(map->getTile(int3(35, 44, 0)).terType, Terrain("water"));
 
 		// Rock case
 		editManager->getTerrainSelection().selectRange(MapRect(int3(1, 1, 1), 15, 15));
-		editManager->drawTerrain(CTerrainType("subterra"));
+		editManager->drawTerrain(Terrain("subterra"));
 		std::vector<int3> vec({ int3(6, 6, 1), int3(7, 6, 1), int3(8, 6, 1), int3(5, 7, 1), int3(6, 7, 1), int3(7, 7, 1),
 								int3(8, 7, 1), int3(4, 8, 1), int3(5, 8, 1), int3(6, 8, 1)});
 		editManager->getTerrainSelection().setSelection(vec);
-		editManager->drawTerrain(CTerrainType("rock"));
+		editManager->drawTerrain(Terrain("rock"));
 		EXPECT_TRUE(!map->getTile(int3(5, 6, 1)).terType.isPassable() || !map->getTile(int3(7, 8, 1)).terType.isPassable());
 
 		//todo: add checks here and enable, also use smaller size

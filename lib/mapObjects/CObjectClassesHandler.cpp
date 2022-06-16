@@ -569,7 +569,7 @@ std::vector<ObjectTemplate> AObjectTypeHandler::getTemplates() const
 	return templates;
 }
 
-std::vector<ObjectTemplate> AObjectTypeHandler::getTemplates(const CTerrainType & terrainType) const
+std::vector<ObjectTemplate> AObjectTypeHandler::getTemplates(const Terrain & terrainType) const
 {
 	std::vector<ObjectTemplate> templates = getTemplates();
 	std::vector<ObjectTemplate> filtered;
@@ -586,7 +586,7 @@ std::vector<ObjectTemplate> AObjectTypeHandler::getTemplates(const CTerrainType 
 		return filtered;
 }
 
-boost::optional<ObjectTemplate> AObjectTypeHandler::getOverride(const CTerrainType & terrainType, const CGObjectInstance * object) const
+boost::optional<ObjectTemplate> AObjectTypeHandler::getOverride(const Terrain & terrainType, const CGObjectInstance * object) const
 {
 	std::vector<ObjectTemplate> ret = getTemplates(terrainType);
 	for (auto & tmpl : ret)

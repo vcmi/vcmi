@@ -1940,21 +1940,21 @@ BFieldType CGameState::battleGetBattlefieldType(int3 tile, CRandomGenerator & ra
 	if(map->isCoastalTile(tile)) //coastal tile is always ground
 		return BFieldType::SAND_SHORE;
 
-	if(t.terType == CTerrainType("dirt"))
+	if(t.terType == Terrain("dirt"))
 		return BFieldType(rand.nextInt(3, 5));
-	if(t.terType == CTerrainType("sand"))
+	if(t.terType == Terrain("sand"))
 		return BFieldType::SAND_MESAS; //TODO: coast support
-	if(t.terType == CTerrainType("grass"))
+	if(t.terType == Terrain("grass"))
 		return BFieldType(rand.nextInt(6, 7));
-	if(t.terType == CTerrainType("snow"))
+	if(t.terType == Terrain("snow"))
 		return BFieldType(rand.nextInt(10, 11));
-	if(t.terType == CTerrainType("swamp"))
+	if(t.terType == Terrain("swamp"))
 		return BFieldType::SWAMP_TREES;
-	if(t.terType == CTerrainType("rough"))
+	if(t.terType == Terrain("rough"))
 		return BFieldType::ROUGH;
 	if(t.terType.isUnderground())
 		return BFieldType::SUBTERRANEAN;
-	if(t.terType == CTerrainType("lava"))
+	if(t.terType == Terrain("lava"))
 		return BFieldType::LAVA;
 	if(t.terType.isWater())
 		return BFieldType::SHIP;

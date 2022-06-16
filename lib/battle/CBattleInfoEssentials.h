@@ -46,7 +46,7 @@ public:
 	BattlePerspective::BattlePerspective battleGetMySide() const;
 	const IBonusBearer * getBattleNode() const;
 
-	CTerrainType battleTerrainType() const override;
+	Terrain battleTerrainType() const override;
 	BFieldType battleGetBattlefieldType() const override;
 	int32_t battleGetEnchanterCounter(ui8 side) const;
 

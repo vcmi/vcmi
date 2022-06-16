@@ -14,7 +14,7 @@
 
 struct CObstacleInstance;
 class BFieldType;
-class CTerrainType;
+class Terrain;
 
 namespace battle
 {
@@ -34,7 +34,7 @@ class DLL_LINKAGE IBattleInfoCallback
 public:
 	virtual scripting::Pool * getContextPool() const = 0;
 
-	virtual CTerrainType battleTerrainType() const = 0;
+	virtual Terrain battleTerrainType() const = 0;
 	virtual BFieldType battleGetBattlefieldType() const = 0;
 
 	///return none if battle is ongoing; otherwise the victorious side (0/1) or 2 if it is a draw

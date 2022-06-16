@@ -19,7 +19,7 @@
 #include "CObjectHandler.h"
 #include "../CModHandler.h"
 #include "../JsonNode.h"
-#include "../CTerrainType.h"
+#include "../Terrain.h"
 
 #include "CRewardableConstructor.h"
 
@@ -144,13 +144,13 @@ void ObjectTemplate::readTxt(CLegacyConfigParser & parser)
 	for (size_t i=0; i<9; i++)
 	{
 		if (terrStr[8-i] == '1')
-			allowedTerrains.insert(CTerrainType::createTerrainTypeH3M(i));
+			allowedTerrains.insert(Terrain::createTerrainTypeH3M(i));
 	}
 	
 	//assuming that object can be placed on other land terrains
-	if(allowedTerrains.size() >= 8 && !allowedTerrains.count(CTerrainType("water")))
+	if(allowedTerrains.size() >= 8 && !allowedTerrains.count(Terrain("water")))
 	{
-		for(auto & terrain : CTerrainType::Manager::terrains())
+		for(auto & terrain : Terrain::Manager::terrains())
 		{
 			if(terrain.isLand() && terrain.isPassable())
 				allowedTerrains.insert(terrain);
@@ -216,13 +216,13 @@ void ObjectTemplate::readMap(CBinaryReader & reader)
 	for (size_t i=0; i<9; i++)
 	{
 		if (((terrMask >> i) & 1 ) != 0)
-			allowedTerrains.insert(CTerrainType::createTerrainTypeH3M(i));
+			allowedTerrains.insert(Terrain::createTerrainTypeH3M(i));
 	}
 	
 	//assuming that object can be placed on other land terrains
-	if(allowedTerrains.size() >= 8 && !allowedTerrains.count(CTerrainType("water")))
+	if(allowedTerrains.size() >= 8 && !allowedTerrains.count(Terrain("water")))
 	{
-		for(auto & terrain : CTerrainType::Manager::terrains())
+		for(auto & terrain : Terrain::Manager::terrains())
 		{
 			if(terrain.isLand() && terrain.isPassable())
 				allowedTerrains.insert(terrain);
@@ -272,7 +272,7 @@ void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
 	}
 	else
 	{
-		for(auto & i : CTerrainType::Manager::terrains())
+		for(auto & i : Terrain::Manager::terrains())
 		{
 			if(!i.isPassable() || i.isWater())
 				continue;
@@ -351,7 +351,7 @@ void ObjectTemplate::writeJson(JsonNode & node, const bool withTerrain) const
 	if(withTerrain)
 	{
 		//assumed that ROCK and WATER terrains are not included
-		if(allowedTerrains.size() < (CTerrainType::Manager::terrains().size() - 2))
+		if(allowedTerrains.size() < (Terrain::Manager::terrains().size() - 2))
 		{
 			JsonVector & data = node["allowedTerrains"].Vector();
 
@@ -533,7 +533,7 @@ bool ObjectTemplate::isVisitableFromTop() const
 	//return isVisitableFrom (0, 1);
 }
 
-bool ObjectTemplate::canBePlacedAt(CTerrainType terrain) const
+bool ObjectTemplate::canBePlacedAt(Terrain terrain) const
 {
 	return allowedTerrains.count(terrain) != 0;
 }

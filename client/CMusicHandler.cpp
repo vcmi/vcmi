@@ -19,7 +19,7 @@
 #include "../lib/StringConstants.h"
 #include "../lib/CRandomGenerator.h"
 #include "../lib/VCMIDirs.h"
-#include "../lib/CTerrainType.h"
+#include "../lib/Terrain.h"
 
 #define VCMI_SOUND_NAME(x)
 #define VCMI_SOUND_FILE(y) #y,
@@ -111,19 +111,19 @@ CSoundHandler::CSoundHandler():
 		soundBase::horseWater, soundBase::horseRock
 	})
 	{
-		horseSounds[CTerrainType::createTerrainTypeH3M(h3mTerrId++)] = snd;
+		horseSounds[Terrain::createTerrainTypeH3M(h3mTerrId++)] = snd;
 	}
-	for(auto & terrain : CTerrainType::Manager::terrains())
+	for(auto & terrain : Terrain::Manager::terrains())
 	{
 		//since all sounds are hardcoded, let's keep it
 		if(vstd::contains(horseSounds, terrain))
 			continue;
 		
-		const auto & param = CTerrainType::Manager::getInfo(terrain)["horseSoundId"];
+		const auto & param = Terrain::Manager::getInfo(terrain)["horseSoundId"];
 		if(param.isNull())
-			horseSounds[terrain] = horseSounds.at(CTerrainType::createTerrainTypeH3M(9)); //let's have rock as default
+			horseSounds[terrain] = horseSounds.at(Terrain::createTerrainTypeH3M(9)); //let's have rock as default
 		else
-			horseSounds[terrain] = horseSounds.at(CTerrainType::createTerrainTypeH3M(param.Integer()));
+			horseSounds[terrain] = horseSounds.at(Terrain::createTerrainTypeH3M(param.Integer()));
 	}
 };
 
@@ -367,9 +367,9 @@ CMusicHandler::CMusicHandler():
 			addEntryToSet("enemy-turn", file.getName(), file.getName());
 	}
 
-	for(auto & terrain : CTerrainType::Manager::terrains())
+	for(auto & terrain : Terrain::Manager::terrains())
 	{
-		auto & entry = CTerrainType::Manager::getInfo(terrain);
+		auto & entry = Terrain::Manager::getInfo(terrain);
 		addEntryToSet("terrain", terrain.toString(), "Music/" + entry["music"].String());
 	}
 }

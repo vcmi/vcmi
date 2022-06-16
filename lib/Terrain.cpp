@@ -1,5 +1,5 @@
 /*
- * ETerrainType.cpp, part of VCMI engine
+ * Terrain.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -8,7 +8,7 @@
  *
  */
 
-#include "CTerrainType.h"
+#include "Terrain.h"
 #include "VCMI_Lib.h"
 #include "CModHandler.h"
 
@@ -16,18 +16,18 @@
 //("allowedTerrain"\s*:\s*\[.*)9(.*\],\n)
 //\1"rock"\2
 
-const CTerrainType CTerrainType::ANY("ANY");
+const Terrain Terrain::ANY("ANY");
 
-CTerrainType CTerrainType::createTerrainTypeH3M(int tId)
+Terrain Terrain::createTerrainTypeH3M(int tId)
 {
 	static std::vector<std::string> terrainsH3M
 	{
 		"dirt", "sand", "grass", "snow", "swamp", "rough", "subterra", "lava", "water", "rock"
 	};
-	return CTerrainType(terrainsH3M.at(tId));
+	return Terrain(terrainsH3M.at(tId));
 }
 
-CTerrainType::Manager::Manager()
+Terrain::Manager::Manager()
 {
 	auto allConfigs = VLC->modh->getActiveMods();
 	allConfigs.insert(allConfigs.begin(), "core");
@@ -49,89 +49,89 @@ CTerrainType::Manager::Manager()
 	}
 }
 
-CTerrainType::Manager & CTerrainType::Manager::get()
+Terrain::Manager & Terrain::Manager::get()
 {
-	static CTerrainType::Manager manager;
+	static Terrain::Manager manager;
 	return manager;
 }
 
-std::vector<CTerrainType> CTerrainType::Manager::terrains()
+std::vector<Terrain> Terrain::Manager::terrains()
 {
-	std::vector<CTerrainType> _terrains;
-	for(const auto & info : CTerrainType::Manager::get().terrainInfo)
+	std::vector<Terrain> _terrains;
+	for(const auto & info : Terrain::Manager::get().terrainInfo)
 		_terrains.push_back(info.first);
 	return _terrains;
 }
 
-const JsonNode & CTerrainType::Manager::getInfo(const CTerrainType & terrain)
+const JsonNode & Terrain::Manager::getInfo(const Terrain & terrain)
 {
-	return CTerrainType::Manager::get().terrainInfo.at(terrain.toString());
+	return Terrain::Manager::get().terrainInfo.at(terrain.toString());
 }
 
-std::ostream & operator<<(std::ostream & os, const CTerrainType terrainType)
+std::ostream & operator<<(std::ostream & os, const Terrain terrainType)
 {
 	return os << terrainType.toString();
 }
 	
-std::string CTerrainType::toString() const
+std::string Terrain::toString() const
 {
 	return type;
 }
 
-CTerrainType::CTerrainType(const std::string & _type) : type(_type)
+Terrain::Terrain(const std::string & _type) : type(_type)
 {}
 	
-CTerrainType& CTerrainType::operator=(const CTerrainType & _type)
+Terrain& Terrain::operator=(const Terrain & _type)
 {
 	type = _type.type;
 	return *this;
 }
 	
-CTerrainType& CTerrainType::operator=(const std::string & _type)
+Terrain& Terrain::operator=(const std::string & _type)
 {
 	type = _type;
 	return *this;
 }
 
-bool operator==(const CTerrainType & l, const CTerrainType & r)
+bool operator==(const Terrain & l, const Terrain & r)
 {
 	return l.type == r.type;
 }
 
-bool operator!=(const CTerrainType & l, const CTerrainType & r)
+bool operator!=(const Terrain & l, const Terrain & r)
 {
 	return l.type != r.type;
 }
 	
-bool operator<(const CTerrainType & l, const CTerrainType & r)
+bool operator<(const Terrain & l, const Terrain & r)
 {
 	return l.type < r.type;
 }
 	
-int CTerrainType::id() const
+int Terrain::id() const
 {
 	if(type == "ANY") return -3;
 	if(type == "WRONG") return -2;
 	if(type == "BORDER") return -1;
 	
-	auto _terrains = CTerrainType::Manager::terrains();
+	auto _terrains = Terrain::Manager::terrains();
 	auto iter = std::find(_terrains.begin(), _terrains.end(), *this);
 	return iter - _terrains.begin();
 }
 	
-bool CTerrainType::isLand() const
+bool Terrain::isLand() const
 {
 	return !isWater();
 }
-bool CTerrainType::isWater() const
+bool Terrain::isWater() const
 {
-	return CTerrainType::Manager::getInfo(*this)["type"].String() == "WATER";
+	return Terrain::Manager::getInfo(*this)["type"].String() == "WATER";
 }
-bool CTerrainType::isPassable() const
+bool Terrain::isPassable() const
 {
-	return CTerrainType::Manager::getInfo(*this)["type"].String() != "ROCK";
+	return Terrain::Manager::getInfo(*this)["type"].String() != "ROCK";
 }
-bool CTerrainType::isUnderground() const
+bool Terrain::isUnderground() const
 {
-	return CTerrainType::Manager::getInfo(*this)["type"].String() == "SUB";
+	return Terrain::Manager::getInfo(*this)["type"].String() == "SUB";
 }

@@ -13,11 +13,11 @@
 #include "../int3.h"
 #include "../GameConstants.h"
 #include "../ResourceSet.h"
-#include "../CTerrainType.h"
+#include "../Terrain.h"
 #include "CMapGenOptions.h"
 
 class JsonSerializeFormat;
-class CTerrainType;
+class Terrain;
 
 namespace ETemplateZoneType
 {
@@ -102,8 +102,8 @@ public:
 	void setSize(int value);
 	boost::optional<int> getOwner() const;
 
-	const std::set<CTerrainType> & getTerrainTypes() const;
-	void setTerrainTypes(const std::set<CTerrainType> & value);
+	const std::set<Terrain> & getTerrainTypes() const;
+	void setTerrainTypes(const std::set<Terrain> & value);
 
 	std::set<TFaction> getDefaultTownTypes() const;
 	const std::set<TFaction> & getTownTypes() const;
@@ -135,7 +135,7 @@ protected:
 	CTownInfo playerTowns;
 	CTownInfo neutralTowns;
 	bool matchTerrainToTown;
-	std::set<CTerrainType> terrainTypes;
+	std::set<Terrain> terrainTypes;
 	bool townsAreSameType;
 
 	std::set<TFaction> townTypes;
