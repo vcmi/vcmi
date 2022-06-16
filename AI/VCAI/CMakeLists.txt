@@ -114,8 +114,6 @@ target_include_directories(VCAI PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(VCAI PRIVATE vcmi fuzzylite::fuzzylite)
 
 vcmi_set_output_dir(VCAI "AI")
-
-set_target_properties(VCAI PROPERTIES ${PCH_PROPERTIES})
-cotire(VCAI)
+enable_pch(VCAI)
 
 install(TARGETS VCAI RUNTIME DESTINATION ${AI_LIB_DIR} LIBRARY DESTINATION ${AI_LIB_DIR})

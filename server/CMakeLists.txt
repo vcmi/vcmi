@@ -43,8 +43,6 @@ if(WIN32)
 endif()
 
 vcmi_set_output_dir(vcmiserver "")
-
-set_target_properties(vcmiserver PROPERTIES ${PCH_PROPERTIES})
-cotire(vcmiserver)
+enable_pch(vcmiserver)
 
 install(TARGETS vcmiserver DESTINATION ${BIN_DIR})

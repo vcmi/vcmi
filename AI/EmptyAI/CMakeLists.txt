@@ -18,7 +18,6 @@ target_include_directories(EmptyAI PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(EmptyAI PRIVATE vcmi)
 
 vcmi_set_output_dir(EmptyAI "AI")
-
-set_target_properties(EmptyAI PROPERTIES ${PCH_PROPERTIES})
+enable_pch(EmptyAI)
 
 install(TARGETS EmptyAI RUNTIME DESTINATION ${AI_LIB_DIR} LIBRARY DESTINATION ${AI_LIB_DIR})

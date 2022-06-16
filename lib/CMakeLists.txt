@@ -420,8 +420,7 @@ endif()
 
 vcmi_set_output_dir(vcmi "")
 
-set_target_properties(vcmi PROPERTIES ${PCH_PROPERTIES})
-cotire(vcmi)
+enable_pch(vcmi)
 
 # We want to deploy assets into build directory for easier debugging without install
 add_custom_command(TARGET vcmi POST_BUILD
