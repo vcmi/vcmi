@@ -43,9 +43,7 @@ add_library(vcmiLua SHARED ${lib_SRCS})
 target_link_libraries(vcmiLua Boost::boost luajit::luajit vcmi)
 
 vcmi_set_output_dir(vcmiLua "scripting")
-
-set_target_properties(vcmiLua PROPERTIES ${PCH_PROPERTIES})
-cotire(vcmiLua)
+enable_pch(vcmiLua)
 
 install(TARGETS vcmiLua DESTINATION ${SCRIPTING_LIB_DIR})
 

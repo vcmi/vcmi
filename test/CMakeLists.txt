@@ -177,8 +177,7 @@ endif()
 
 vcmi_set_output_dir(vcmitest "")
 
-set_target_properties(vcmitest PROPERTIES ${PCH_PROPERTIES})
-cotire(vcmitest)
+enable_pch(vcmitest)
 
 file (GLOB_RECURSE testdata "testdata/*.*")
 foreach(resource ${testdata})
