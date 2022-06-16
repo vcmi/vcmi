@@ -42,7 +42,7 @@ public:
 	Terrain(const std::string & _type = "");
 	static Terrain createTerrainTypeH3M(int tId);
 	
-	int id() const;
+	int id() const; //TODO: has to be complitely removed
 	
 	Terrain& operator=(const Terrain & _type);
 	Terrain& operator=(const std::string & _type);
