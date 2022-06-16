@@ -424,8 +424,7 @@ std::vector<CGHeroInstance *> CCampaignScenario::getLostCrossoverHeroes()
 
 std::vector<JsonNode> CCampaignScenario::update787(std::vector<CGHeroInstance *> & heroes)
 {
-	//TODO: fix backward compatibility before merge or remove this function
-	//static_assert(MINIMAL_SERIALIZATION_VERSION < 787, "No longer needed CCampaignScenario::update787");
+	static_assert(MINIMAL_SERIALIZATION_VERSION < 787, "No longer needed CCampaignScenario::update787");
 	std::vector<JsonNode> heroesNew;
 	for(auto hero : heroes)
 	{

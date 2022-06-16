@@ -379,7 +379,7 @@ CHeroHandler::CHeroHandler()
 	loadTerrains();
 	for(int i = 0; i < Terrain::Manager::terrains().size(); ++i)
 	{
-		VLC->modh->identifiers.registerObject("core", "terrain", Terrain::Manager::terrains()[i].toString(), i);
+		VLC->modh->identifiers.registerObject("core", "terrain", Terrain::Manager::terrains()[i], i);
 	}
 	loadBallistics();
 	loadExperience();
@@ -1033,7 +1033,7 @@ void CHeroHandler::loadTerrains()
 {
 	for(auto & terrain : Terrain::Manager::terrains())
 	{
-		terrCosts[terrain] = Terrain::Manager::getInfo(terrain)["moveCost"].Integer();
+		terrCosts[terrain] = Terrain::Manager::getInfo(terrain).moveCost;
 	}
 }
 

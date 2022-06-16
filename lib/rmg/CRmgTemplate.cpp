@@ -72,7 +72,7 @@ public:
 
 	static std::string encode(const si32 index)
 	{
-		return (index >=0 && index < Terrain::Manager::terrains().size()) ? Terrain::Manager::terrains()[index].toString() : "<INVALID TERRAIN>";
+		return (index >=0 && index < Terrain::Manager::terrains().size()) ? static_cast<std::string>(Terrain::Manager::terrains()[index]) : "<INVALID TERRAIN>";
 	}
 };
 
@@ -337,7 +337,7 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 			for(auto & ttype : terrainTypes)
 			{
 				JsonNode n;
-				n.String() = ttype.toString();
+				n.String() = ttype;
 				node.Vector().push_back(n);
 			}
 		}

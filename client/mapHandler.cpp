@@ -204,7 +204,7 @@ void CMapHandler::initTerrainGraphics()
 	
 	std::vector<std::string> terrainFiles;
 	for(auto & terrain : Terrain::Manager::terrains())
-		terrainFiles.push_back(Terrain::Manager::getInfo(terrain)["tiles"].String());
+		terrainFiles.push_back(Terrain::Manager::getInfo(terrain).tilesFilename);
 	
 	loadFlipped(terrainFiles.size(), terrainAnimations, terrainImages, terrainFiles);
 	loadFlipped(ROAD_FILES.size(), roadAnimations, roadImages, ROAD_FILES);

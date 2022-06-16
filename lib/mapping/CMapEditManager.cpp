@@ -1030,7 +1030,7 @@ void CTerrainViewPatternUtils::printDebuggingInfoAboutTile(const CMap * map, int
 			{
 				auto debugTile = map->getTile(debugPos);
 
-				std::string terType = debugTile.terType.toString().substr(0, 6);
+				std::string terType = static_cast<std::string>(debugTile.terType).substr(0, 6);
 				line += terType;
 				line.insert(line.end(), PADDED_LENGTH - terType.size(), ' ');
 			}

@@ -502,21 +502,19 @@ std::map<Terrain, std::pair<SDL_Color, SDL_Color> > CMinimap::loadColors()
 	for(auto & terrain : Terrain::Manager::terrains())
 	{
 		auto & m = Terrain::Manager::getInfo(terrain);
-		const JsonVector &unblockedVec = m["minimapUnblocked"].Vector();
 		SDL_Color normal =
 		{
-			ui8(unblockedVec[0].Float()),
-			ui8(unblockedVec[1].Float()),
-			ui8(unblockedVec[2].Float()),
+			ui8(m.minimapUnblocked[0]),
+			ui8(m.minimapUnblocked[1]),
+			ui8(m.minimapUnblocked[2]),
 			ui8(255)
 		};
 
-		const JsonVector &blockedVec = m["minimapBlocked"].Vector();
 		SDL_Color blocked =
 		{
-			ui8(blockedVec[0].Float()),
-			ui8(blockedVec[1].Float()),
-			ui8(blockedVec[2].Float()),
+			ui8(m.minimapBlocked[0]),
+			ui8(m.minimapBlocked[1]),
+			ui8(m.minimapBlocked[2]),
 			ui8(255)
 		};
 

@@ -19,17 +19,33 @@ public:
 	
 	friend class Manager;
 	
+	struct Info
+	{
+		enum class Type
+		{
+			Land, Water, Subterranean, Rock
+		};
+		
+		int moveCost;
+		std::array<int, 3> minimapBlocked;
+		std::array<int, 3> minimapUnblocked;
+		std::string musicFilename;
+		std::string tilesFilename;
+		int horseSoundId;
+		Type type;
+	};
+	
 	class DLL_LINKAGE Manager
 	{
 	public:
 		static std::vector<Terrain> terrains();
-		static const JsonNode & getInfo(const Terrain &);
+		static const Info & getInfo(const Terrain &);
 		
 	private:
 		static Manager & get();
 		Manager();
 		
-		std::map<std::string, JsonNode> terrainInfo;
+		std::map<Terrain, Info> terrainInfo;
 	};
 	
 	/*enum EETerrainType
@@ -42,7 +58,7 @@ public:
 	Terrain(const std::string & _type = "");
 	static Terrain createTerrainTypeH3M(int tId);
 	
-	int id() const; //TODO: has to be complitely removed
+	int id() const; //TODO: has to be completely removed
 	
 	Terrain& operator=(const Terrain & _type);
 	Terrain& operator=(const std::string & _type);
@@ -58,10 +74,8 @@ public:
 	bool isPassable() const; //ROCK
 	bool isUnderground() const;
 	bool isNative() const;
-	
-	void setWater(bool);
-	
-	std::string toString() const;
+		
+	operator std::string() const;
 	
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -72,7 +86,5 @@ protected:
 	
 	std::string name;
 };
-
-DLL_LINKAGE void loadTerrainTypes();
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const Terrain terrainType);

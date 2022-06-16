@@ -455,7 +455,7 @@ CBattleInterface::~CBattleInterface()
 	if (adventureInt && adventureInt->selection)
 	{
 		auto & terrain = LOCPLINT->cb->getTile(adventureInt->selection->visitablePos())->terType;
-		CCS->musich->playMusicFromSet("terrain", terrain.toString(), true);
+		CCS->musich->playMusicFromSet("terrain", terrain, true);
 	}
 	animsAreDisplayed.setn(false);
 }

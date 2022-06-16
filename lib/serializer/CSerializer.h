@@ -13,7 +13,7 @@
 #include "../GameConstants.h"
 
 const ui32 SERIALIZATION_VERSION = 802;
-const ui32 MINIMAL_SERIALIZATION_VERSION = 802; //TODO: ensure backward compatibility for 753 version
+const ui32 MINIMAL_SERIALIZATION_VERSION = 753;
 const std::string SAVEGAME_MAGIC = "VCMISVG";
 
 class CHero;

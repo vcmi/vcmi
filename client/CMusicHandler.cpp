@@ -119,11 +119,7 @@ CSoundHandler::CSoundHandler():
 		if(vstd::contains(horseSounds, terrain))
 			continue;
 		
-		const auto & param = Terrain::Manager::getInfo(terrain)["horseSoundId"];
-		if(param.isNull())
-			horseSounds[terrain] = horseSounds.at(Terrain::createTerrainTypeH3M(9)); //let's have rock as default
-		else
-			horseSounds[terrain] = horseSounds.at(Terrain::createTerrainTypeH3M(param.Integer()));
+		horseSounds[terrain] = horseSounds.at(Terrain::createTerrainTypeH3M(Terrain::Manager::getInfo(terrain).horseSoundId));
 	}
 };
 
@@ -370,7 +366,7 @@ CMusicHandler::CMusicHandler():
 	for(auto & terrain : Terrain::Manager::terrains())
 	{
 		auto & entry = Terrain::Manager::getInfo(terrain);
-		addEntryToSet("terrain", terrain.toString(), "Music/" + entry["music"].String());
+		addEntryToSet("terrain", terrain, "Music/" + entry.musicFilename);
 	}
 }
 

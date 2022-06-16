@@ -1021,8 +1021,7 @@ std::vector<bool> CSpellHandler::getDefaultAllowed() const
 
 void CSpellHandler::update780()
 {
-	//TODO: fix backward compatibility before merge or remove this function
-    //static_assert(MINIMAL_SERIALIZATION_VERSION < 780, "No longer needed CSpellHandler::update780");
+    static_assert(MINIMAL_SERIALIZATION_VERSION < 780, "No longer needed CSpellHandler::update780");
 
 	auto spellsContent = (*VLC->modh->content)["spells"];
 

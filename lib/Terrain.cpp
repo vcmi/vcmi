@@ -39,12 +39,50 @@ Terrain::Manager::Manager()
 		JsonNode terrs(mod, ResourceID("config/terrains.json"));
 		for(auto & terr : terrs.Struct())
 		{
-			terrainInfo[terr.first] = terr.second;
+			Terrain::Info info;
+			info.moveCost = terr.second["moveCost"].Integer();
+			const JsonVector &unblockedVec = terr.second["minimapUnblocked"].Vector();
+			info.minimapUnblocked =
+			{
+				ui8(unblockedVec[0].Float()),
+				ui8(unblockedVec[1].Float()),
+				ui8(unblockedVec[2].Float())
+			};
+			
+			const JsonVector &blockedVec = terr.second["minimapBlocked"].Vector();
+			info.minimapBlocked =
+			{
+				ui8(blockedVec[0].Float()),
+				ui8(blockedVec[1].Float()),
+				ui8(blockedVec[2].Float())
+			};
+			info.musicFilename = terr.second["music"].String();
+			info.tilesFilename = terr.second["tiles"].String();
+			
 			if(terr.second["type"].isNull())
 			{
-				terrainInfo[terr.first]["type"].setType(JsonNode::JsonType::DATA_STRING);
-				terrainInfo[terr.first]["type"].String() = "LAND";
+				info.type = Terrain::Info::Type::Land;
 			}
+			else
+			{
+				auto s = terr.second["type"].String();
+				if(s == "LAND") info.type = Terrain::Info::Type::Land;
+				if(s == "WATER") info.type = Terrain::Info::Type::Water;
+				if(s == "SUB") info.type = Terrain::Info::Type::Subterranean;
+				if(s == "ROCK") info.type = Terrain::Info::Type::Rock;
+			}
+			
+			if(terr.second["horseSoundId"].isNull())
+			{
+				info.horseSoundId = 9; //rock sound as default
+			}
+			else
+			{
+				info.horseSoundId = terr.second["horseSoundId"].Integer();
+			}
+			
+			
+			terrainInfo[Terrain(terr.first)] = info;
 		}
 	}
 }
@@ -63,17 +101,17 @@ std::vector<Terrain> Terrain::Manager::terrains()
 	return _terrains;
 }
 
-const JsonNode & Terrain::Manager::getInfo(const Terrain & terrain)
+const Terrain::Info & Terrain::Manager::getInfo(const Terrain & terrain)
 {
-	return Terrain::Manager::get().terrainInfo.at(terrain.toString());
+	return Terrain::Manager::get().terrainInfo.at(terrain);
 }
 
 std::ostream & operator<<(std::ostream & os, const Terrain terrainType)
 {
-	return os << terrainType.toString();
+	return os << static_cast<const std::string &>(terrainType);
 }
 	
-std::string Terrain::toString() const
+Terrain::operator std::string() const
 {
 	return name;
 }
@@ -125,15 +163,15 @@ bool Terrain::isLand() const
 }
 bool Terrain::isWater() const
 {
-	return Terrain::Manager::getInfo(*this)["type"].String() == "WATER";
+	return Terrain::Manager::getInfo(*this).type == Terrain::Info::Type::Water;
 }
 bool Terrain::isPassable() const
 {
-	return Terrain::Manager::getInfo(*this)["type"].String() != "ROCK";
+	return Terrain::Manager::getInfo(*this).type != Terrain::Info::Type::Rock;
 }
 bool Terrain::isUnderground() const
 {
-	return Terrain::Manager::getInfo(*this)["type"].String() == "SUB";
+	return Terrain::Manager::getInfo(*this).type == Terrain::Info::Type::Subterranean;
 }
 bool Terrain::isNative() const
 {
