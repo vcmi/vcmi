@@ -57,6 +57,7 @@ public:
 	bool isWater() const;
 	bool isPassable() const; //ROCK
 	bool isUnderground() const;
+	bool isNative() const;
 	
 	void setWater(bool);
 	
@@ -64,12 +65,12 @@ public:
 	
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & type;
+		h & name;
 	}
 	
 protected:
 	
-	std::string type;
+	std::string name;
 };
 
 DLL_LINKAGE void loadTerrainTypes();

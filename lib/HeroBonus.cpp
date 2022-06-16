@@ -2089,7 +2089,7 @@ int CreatureTerrainLimiter::limit(const BonusLimitationContext &context) const
 	const CStack *stack = retrieveStackBattle(&context.node);
 	if(stack)
 	{
-		if(terrainType.toString().empty())//terrainType not specified = native
+		if(terrainType.isNative())//terrainType not specified = native
 			return !stack->isOnNativeTerrain();
 		return !stack->isOnTerrain(terrainType);
 	}
@@ -2100,8 +2100,7 @@ int CreatureTerrainLimiter::limit(const BonusLimitationContext &context) const
 std::string CreatureTerrainLimiter::toString() const
 {
 	boost::format fmt("CreatureTerrainLimiter(terrainType=%s)");
-	//fmt % (terrainType >= 0 ? GameConstants::TERRAIN_NAMES[terrainType] : "native");
-	fmt % terrainType.toString();
+	fmt % (terrainType.isNative() ? "native" : terrainType.toString());
 	return fmt.str();
 }
 
@@ -2110,7 +2109,8 @@ JsonNode CreatureTerrainLimiter::toJsonNode() const
 	JsonNode root(JsonNode::JsonType::DATA_STRUCT);
 
 	root["type"].String() = "CREATURE_TERRAIN_LIMITER";
-	root["parameters"].Vector().push_back(JsonUtils::stringNode(terrainType.toString()));
+	if(!terrainType.isNative())
+		root["parameters"].Vector().push_back(JsonUtils::stringNode(terrainType.toString()));
 
 	return root;
 }

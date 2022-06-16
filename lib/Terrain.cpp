@@ -75,44 +75,44 @@ std::ostream & operator<<(std::ostream & os, const Terrain terrainType)
 	
 std::string Terrain::toString() const
 {
-	return type;
+	return name;
 }
 
-Terrain::Terrain(const std::string & _type) : type(_type)
+Terrain::Terrain(const std::string & _name) : name(_name)
 {}
 	
-Terrain& Terrain::operator=(const Terrain & _type)
+Terrain& Terrain::operator=(const Terrain & _name)
 {
-	type = _type.type;
+	name = _name.name;
 	return *this;
 }
 	
-Terrain& Terrain::operator=(const std::string & _type)
+Terrain& Terrain::operator=(const std::string & _name)
 {
-	type = _type;
+	name = _name;
 	return *this;
 }
 
 bool operator==(const Terrain & l, const Terrain & r)
 {
-	return l.type == r.type;
+	return l.name == r.name;
 }
 
 bool operator!=(const Terrain & l, const Terrain & r)
 {
-	return l.type != r.type;
+	return l.name != r.name;
 }
 	
 bool operator<(const Terrain & l, const Terrain & r)
 {
-	return l.type < r.type;
+	return l.name < r.name;
 }
 	
 int Terrain::id() const
 {
-	if(type == "ANY") return -3;
-	if(type == "WRONG") return -2;
-	if(type == "BORDER") return -1;
+	if(name == "ANY") return -3;
+	if(name == "WRONG") return -2;
+	if(name == "BORDER") return -1;
 	
 	auto _terrains = Terrain::Manager::terrains();
 	auto iter = std::find(_terrains.begin(), _terrains.end(), *this);
@@ -134,4 +134,8 @@ bool Terrain::isPassable() const
 bool Terrain::isUnderground() const
 {
 	return Terrain::Manager::getInfo(*this)["type"].String() == "SUB";
+}
+bool Terrain::isNative() const
+{
+	return name.empty();
 }

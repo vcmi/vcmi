@@ -1084,7 +1084,7 @@ class DLL_LINKAGE CreatureTerrainLimiter : public ILimiter //applies only to cre
 public:
 	Terrain terrainType;
 	CreatureTerrainLimiter();
-	CreatureTerrainLimiter(int TerrainType);
+	CreatureTerrainLimiter(const Terrain& terrain);
 
 	int limit(const BonusLimitationContext &context) const override;
 	virtual std::string toString() const override;
