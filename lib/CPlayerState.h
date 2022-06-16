@@ -18,7 +18,7 @@
 class CGHeroInstance;
 class CGTownInstance;
 class CGDwelling;
-class QuestInfo;
+struct QuestInfo;
 
 struct DLL_LINKAGE PlayerState : public CBonusSystemNode, public Player
 {

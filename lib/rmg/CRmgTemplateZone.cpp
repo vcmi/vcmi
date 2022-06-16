@@ -1753,7 +1753,9 @@ void CRmgTemplateZone::initTerrainType ()
 	else
 	{
 		if (matchTerrainToTown && townType != ETownType::NEUTRAL)
+		{
 			terrainType = (*VLC->townh)[townType]->nativeTerrain;
+		}
 		else
 		{
 			terrainType = *RandomGeneratorUtil::nextItem(terrainTypes, gen->rand);

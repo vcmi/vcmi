@@ -466,6 +466,7 @@ void CGuiHandler::renderFrame()
 
 		SDL_UpdateTexture(screenTexture, nullptr, screen->pixels, screen->pitch);
 
+		SDL_RenderClear(mainRenderer);
 		SDL_RenderCopy(mainRenderer, screenTexture, nullptr, nullptr);
 
 		CCS->curh->render();
