@@ -249,7 +249,7 @@ void CMapEditManager::drawTerrain(Terrain terType, CRandomGenerator * gen)
 	terrainSel.clearSelection();
 }
 
-void CMapEditManager::drawRoad(ERoadType::ERoadType roadType, CRandomGenerator* gen)
+void CMapEditManager::drawRoad(const std::string & roadType, CRandomGenerator* gen)
 {
 	execute(make_unique<CDrawRoadsOperation>(map, terrainSel, roadType, gen ? gen : &(this->gen)));
 	terrainSel.clearSelection();

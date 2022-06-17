@@ -53,12 +53,12 @@ public:
 	ETileType::ETileType getTileType() const;
 	void setTerrainType(Terrain value);
 
-	void setRoadType(ERoadType::ERoadType value);
+	void setRoadType(const std::string & value);
 private:
 	float nearestObjectDistance;
 	ETileType::ETileType occupied;
 	Terrain terrain;
-	ERoadType::ERoadType roadType;
+	std::string roadType;
 };
 
 struct DLL_LINKAGE ObjectInfo

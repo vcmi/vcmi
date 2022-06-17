@@ -79,22 +79,22 @@ ui32 CGHeroInstance::getTileCost(const TerrainTile & dest, const TerrainTile & f
 	int64_t ret = GameConstants::BASE_MOVEMENT_COST;
 
 	//if there is road both on dest and src tiles - use road movement cost
-	if(dest.roadType != ERoadType::NO_ROAD && from.roadType != ERoadType::NO_ROAD)
+	if(dest.roadType != ROAD_NAMES[0] && from.roadType != ROAD_NAMES[0])
 	{
-		int road = std::min(dest.roadType,from.roadType); //used road ID
-		switch(road)
+		int roadPos = std::min(vstd::find_pos(ROAD_NAMES, dest.roadType), vstd::find_pos(ROAD_NAMES, from.roadType)); //used road ID
+		switch(roadPos)
 		{
-		case ERoadType::DIRT_ROAD:
+		case 1:
 			ret = 75;
 			break;
-		case ERoadType::GRAVEL_ROAD:
+		case 2:
 			ret = 65;
 			break;
-		case ERoadType::COBBLESTONE_ROAD:
+		case 3:
 			ret = 50;
 			break;
 		default:
-			logGlobal->error("Unknown road type: %d", road);
+			logGlobal->error("Unknown road type: %d", roadPos);
 			break;
 		}
 	}

@@ -148,7 +148,7 @@ static bool ruleIsAny(const std::string & rule)
 #endif
 
 ///CDrawRoadsOperation
-CDrawRoadsOperation::CDrawRoadsOperation(CMap * map, const CTerrainSelection & terrainSel, ERoadType::ERoadType roadType, CRandomGenerator * gen):
+CDrawRoadsOperation::CDrawRoadsOperation(CMap * map, const CTerrainSelection & terrainSel, const std::string & roadType, CRandomGenerator * gen):
 	CMapOperation(map),terrainSel(terrainSel), roadType(roadType), gen(gen)
 {
 
@@ -225,7 +225,7 @@ void CDrawRoadsOperation::flipPattern(RoadPattern& pattern, int flip) const
 
 bool CDrawRoadsOperation::needUpdateTile(const TerrainTile & tile) const
 {
-	return tile.roadType != ERoadType::NO_ROAD; //TODO: this method should be virtual for river support
+	return tile.roadType != ROAD_NAMES[0]; //TODO: this method should be virtual for river support
 }
 
 void CDrawRoadsOperation::updateTiles(std::set<int3> & invalidated)
@@ -263,7 +263,7 @@ bool CDrawRoadsOperation::tileHasSomething(const int3& pos) const
 {
 //TODO: this method should be virtual for river support
 
-   return map->getTile(pos).roadType != ERoadType::NO_ROAD;
+   return map->getTile(pos).roadType != ROAD_NAMES[0];
 }
 
 

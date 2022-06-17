@@ -59,7 +59,7 @@ public:
 		int mineExtraResources;
 		std::map<Res::ERes, int> mineValues;
 		int minGuardStrength;
-		ERoadType::ERoadType defaultRoadType;
+		std::string defaultRoadType;
 		int treasureValueLimit;
 		std::vector<int> prisonExperience, prisonValues;
 		std::vector<int> scrollValues;
@@ -99,7 +99,7 @@ public:
 	bool isRoad(const int3 &tile) const;
 
 	void setOccupied(const int3 &tile, ETileType::ETileType state);
-	void setRoad(const int3 &tile, ERoadType::ERoadType roadType);
+	void setRoad(const int3 &tile, const std::string & roadType);
 
 	CTileInfo getTile(const int3 & tile) const;
 	bool isAllowedSpell(SpellID sid) const;

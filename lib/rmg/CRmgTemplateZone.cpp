@@ -36,7 +36,7 @@ void CRmgTemplateZone::addRoadNode(const int3& node)
 	roadNodes.insert(node);
 }
 
-CTileInfo::CTileInfo():nearestObjectDistance(float(INT_MAX)), terrain() ,roadType(ERoadType::NO_ROAD)
+CTileInfo::CTileInfo():nearestObjectDistance(float(INT_MAX)), terrain()
 {
 	occupied = ETileType::POSSIBLE; //all tiles are initially possible to place objects or passages
 }
@@ -69,7 +69,7 @@ bool CTileInfo::isFree() const
 
 bool CTileInfo::isRoad() const
 {
-	return roadType != ERoadType::NO_ROAD;
+	return roadType != ROAD_NAMES[0];
 }
 
 bool CTileInfo::isUsed() const
@@ -96,7 +96,7 @@ void CTileInfo::setTerrainType(Terrain value)
 	terrain = value;
 }
 
-void CTileInfo::setRoadType(ERoadType::ERoadType value)
+void CTileInfo::setRoadType(const std::string & value)
 {
 	roadType = value;
 //	setOccupied(ETileType::FREE);
@@ -989,7 +989,7 @@ bool CRmgTemplateZone::createRoad(const int3& src, const int3& dst)
 	std::map<int3, int3> cameFrom;  // The map of navigated nodes.
 	std::map<int3, float> distances;
 
-	gen->setRoad (src, ERoadType::NO_ROAD); //just in case zone guard already has road under it. Road under nodes will be added at very end
+	gen->setRoad (src, ROAD_NAMES[0]); //just in case zone guard already has road under it. Road under nodes will be added at very end
 
 	cameFrom[src] = int3(-1, -1, -1); //first node points to finish condition
 	pq.push(std::make_pair(src, 0.f));
@@ -1012,8 +1012,8 @@ bool CRmgTemplateZone::createRoad(const int3& src, const int3& dst)
 			while (cameFrom[backTracking].valid())
 			{
 				// add node to path
-				roads.insert (backTracking);
-				gen->setRoad (backTracking, ERoadType::COBBLESTONE_ROAD);
+				roads.insert(backTracking);
+				gen->setRoad(backTracking, gen->getConfig().defaultRoadType);
 				//logGlobal->trace("Setting road at tile %s", backTracking);
 				// do the same for the predecessor
 				backTracking = cameFrom[backTracking];

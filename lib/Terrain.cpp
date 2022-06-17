@@ -81,6 +81,11 @@ Terrain::Manager::Manager()
 				info.horseSoundId = terr.second["horseSoundId"].Integer();
 			}
 			
+			if(!terr.second["text"].isNull())
+			{
+				info.terrainText = terr.second["text"].String();
+			}
+			
 			
 			terrainInfo[Terrain(terr.first)] = info;
 		}

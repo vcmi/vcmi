@@ -677,21 +677,8 @@ enum class ETeleportChannelType
 };
 
 
-namespace ERiverType
-{
-	enum ERiverType
-	{
-		NO_RIVER, CLEAR_RIVER, ICY_RIVER, MUDDY_RIVER, LAVA_RIVER
-	};
-}
-
-namespace ERoadType
-{
-	enum ERoadType
-	{
-		NO_ROAD, DIRT_ROAD, GRAVEL_ROAD, COBBLESTONE_ROAD
-	};
-}
+static std::vector<std::string> RIVER_NAMES {"", "rw", "ri", "rm", "rl"};
+static std::vector<std::string> ROAD_NAMES {"", "pd", "pg", "pc"};
 
 class Obj
 {

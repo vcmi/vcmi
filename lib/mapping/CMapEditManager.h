@@ -172,7 +172,7 @@ public:
 	void drawTerrain(Terrain terType, CRandomGenerator * gen = nullptr);
 
 	/// Draws roads at the current terrain selection. The selection will be cleared automatically.
-	void drawRoad(ERoadType::ERoadType roadType, CRandomGenerator * gen = nullptr);
+	void drawRoad(const std::string & roadType, CRandomGenerator * gen = nullptr);
 
 	void insertObject(CGObjectInstance * obj);
 

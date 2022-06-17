@@ -146,69 +146,68 @@ EMapAnimRedrawStatus CMapHandler::drawTerrainRectNew(SDL_Surface * targetSurface
 
 void CMapHandler::initTerrainGraphics()
 {
-	static const std::vector<std::string> ROAD_FILES =
+	static const std::map<std::string, std::string> ROAD_FILES =
 	{
-		"dirtrd",
-		"gravrd",
-		"cobbrd"
+		{ROAD_NAMES[1], "dirtrd"},
+		{ROAD_NAMES[2], "gravrd"},
+		{ROAD_NAMES[3], "cobbrd"}
 	};
 
-	static const std::vector<std::string> RIVER_FILES =
+	static const std::map<std::string, std::string> RIVER_FILES =
 	{
-		"clrrvr",
-		"icyrvr",
-		"mudrvr",
-		"lavrvr"
+		{RIVER_NAMES[1], "clrrvr"},
+		{RIVER_NAMES[2], "icyrvr"},
+		{RIVER_NAMES[3], "mudrvr"},
+		{RIVER_NAMES[4], "lavrvr"}
 	};
 	
 
-	auto loadFlipped = [](int types, TFlippedAnimations & animation, TFlippedCache & cache, const std::vector<std::string> & files)
+	auto loadFlipped = [](TFlippedAnimations & animation, TFlippedCache & cache, const std::map<std::string, std::string> & files)
 	{
-		animation.resize(types);
-		cache.resize(types);
-
 		//no rotation and basic setup
-		for(int i = 0; i < types; i++)
+		for(auto & type : files)
 		{
-			animation[i][0] = make_unique<CAnimation>(files[i]);
-			animation[i][0]->preload();
-			const size_t views = animation[i][0]->size(0);
-			cache[i].resize(views);
+			animation[type.first][0] = make_unique<CAnimation>(type.second);
+			animation[type.first][0]->preload();
+			const size_t views = animation[type.first][0]->size(0);
+			cache[type.first].resize(views);
 
 			for(int j = 0; j < views; j++)
-				cache[i][j][0] = animation[i][0]->getImage(j);
+				cache[type.first][j][0] = animation[type.first][0]->getImage(j);
 		}
 
 		for(int rotation = 1; rotation < 4; rotation++)
 		{
-			for(int i = 0; i < types; i++)
+			for(auto & type : files)
 			{
-				animation[i][rotation] = make_unique<CAnimation>(files[i]);
-				animation[i][rotation]->preload();
-				const size_t views = animation[i][rotation]->size(0);
+				animation[type.first][rotation] = make_unique<CAnimation>(type.second);
+				animation[type.first][rotation]->preload();
+				const size_t views = animation[type.first][rotation]->size(0);
 
 				for(int j = 0; j < views; j++)
 				{
-					auto image = animation[i][rotation]->getImage(j);
+					auto image = animation[type.first][rotation]->getImage(j);
 
 					if(rotation == 2 || rotation == 3)
 						image->horizontalFlip();
 					if(rotation == 1 || rotation == 3)
 						image->verticalFlip();
 
-					cache[i][j][rotation] = image;
+					cache[type.first][j][rotation] = image;
 				}
 			}
 		}
 	};
 	
-	std::vector<std::string> terrainFiles;
+	std::map<std::string, std::string> terrainFiles;
 	for(auto & terrain : Terrain::Manager::terrains())
-		terrainFiles.push_back(Terrain::Manager::getInfo(terrain).tilesFilename);
+	{
+		terrainFiles[terrain] = Terrain::Manager::getInfo(terrain).tilesFilename;
+	}
 	
-	loadFlipped(terrainFiles.size(), terrainAnimations, terrainImages, terrainFiles);
-	loadFlipped(ROAD_FILES.size(), roadAnimations, roadImages, ROAD_FILES);
-	loadFlipped(RIVER_FILES.size(), riverAnimations, riverImages, RIVER_FILES);
+	loadFlipped(terrainAnimations, terrainImages, terrainFiles);
+	loadFlipped(roadAnimations, roadImages, ROAD_FILES);
+	loadFlipped(riverAnimations, riverImages, RIVER_FILES);
 
 	// Create enough room for the whole map and its frame
 
@@ -621,10 +620,10 @@ void CMapHandler::CMapBlitter::drawTileTerrain(SDL_Surface * targetSurf, const T
 
 	ui8 rotation = tinfo.extTileFlags % 4;
 	
-	if(parent->terrainImages[tinfo.terType.id()].size()<=tinfo.terView)
+	if(parent->terrainImages[tinfo.terType].size()<=tinfo.terView)
 		return;
 
-	drawElement(EMapCacheType::TERRAIN, parent->terrainImages[tinfo.terType.id()][tinfo.terView][rotation], nullptr, targetSurf, &destRect);
+	drawElement(EMapCacheType::TERRAIN, parent->terrainImages[tinfo.terType][tinfo.terView][rotation], nullptr, targetSurf, &destRect);
 }
 
 void CMapHandler::CMapWorldViewBlitter::init(const MapDrawingInfo * drawingInfo)
@@ -799,21 +798,21 @@ void CMapHandler::CMapBlitter::drawObjects(SDL_Surface * targetSurf, const Terra
 
 void CMapHandler::CMapBlitter::drawRoad(SDL_Surface * targetSurf, const TerrainTile & tinfo, const TerrainTile * tinfoUpper) const
 {
-	if (tinfoUpper && tinfoUpper->roadType != ERoadType::NO_ROAD)
+	if (tinfoUpper && tinfoUpper->roadType != ROAD_NAMES[0])
 	{
 		ui8 rotation = (tinfoUpper->extTileFlags >> 4) % 4;
 		Rect source(0, tileSize / 2, tileSize, tileSize / 2);
 		Rect dest(realPos.x, realPos.y, tileSize, tileSize / 2);
-		drawElement(EMapCacheType::ROADS, parent->roadImages[tinfoUpper->roadType - 1][tinfoUpper->roadDir][rotation],
+		drawElement(EMapCacheType::ROADS, parent->roadImages[tinfoUpper->roadType][tinfoUpper->roadDir][rotation],
 				&source, targetSurf, &dest);
 	}
 
-	if(tinfo.roadType != ERoadType::NO_ROAD) //print road from this tile
+	if(tinfo.roadType != ROAD_NAMES[0]) //print road from this tile
 	{
 		ui8 rotation = (tinfo.extTileFlags >> 4) % 4;
 		Rect source(0, 0, tileSize, halfTileSizeCeil);
 		Rect dest(realPos.x, realPos.y + tileSize / 2, tileSize, tileSize / 2);
-		drawElement(EMapCacheType::ROADS, parent->roadImages[tinfo.roadType - 1][tinfo.roadDir][rotation],
+		drawElement(EMapCacheType::ROADS, parent->roadImages[tinfo.roadType][tinfo.roadDir][rotation],
 				&source, targetSurf, &dest);
 	}
 }
@@ -822,7 +821,7 @@ void CMapHandler::CMapBlitter::drawRiver(SDL_Surface * targetSurf, const Terrain
 {
 	Rect destRect(realTileRect);
 	ui8 rotation = (tinfo.extTileFlags >> 2) % 4;
-	drawElement(EMapCacheType::RIVERS, parent->riverImages[tinfo.riverType-1][tinfo.riverDir][rotation], nullptr, targetSurf, &destRect);
+	drawElement(EMapCacheType::RIVERS, parent->riverImages[tinfo.riverType][tinfo.riverDir][rotation], nullptr, targetSurf, &destRect);
 }
 
 void CMapHandler::CMapBlitter::drawFow(SDL_Surface * targetSurf) const
@@ -873,7 +872,7 @@ void CMapHandler::CMapBlitter::blit(SDL_Surface * targetSurf, const MapDrawingIn
 			if(isVisible || info->showAllTerrain)
 			{
 				drawTileTerrain(targetSurf, tinfo, tile);
-				if (tinfo.riverType)
+				if(tinfo.riverType != RIVER_NAMES[0])
 					drawRiver(targetSurf, tinfo);
 				drawRoad(targetSurf, tinfo, tinfoUpper);
 			}
@@ -1323,13 +1322,13 @@ bool CMapHandler::canStartHeroMovement()
 
 void CMapHandler::updateWater() //shift colors in palettes of water tiles
 {
-	for(auto & elem : terrainImages[7])
+	for(auto & elem : terrainImages["lava"])
 	{
 		for(auto img : elem)
 			img->shiftPalette(246, 9);
 	}
 
-	for(auto & elem : terrainImages[8])
+	for(auto & elem : terrainImages["water"])
 	{
 		for(auto img : elem)
 		{
@@ -1338,7 +1337,7 @@ void CMapHandler::updateWater() //shift colors in palettes of water tiles
 		}
 	}
 
-	for(auto & elem : riverImages[0])
+	for(auto & elem : riverImages["clrrvr"])
 	{
 		for(auto img : elem)
 		{
@@ -1347,7 +1346,7 @@ void CMapHandler::updateWater() //shift colors in palettes of water tiles
 		}
 	}
 
-	for(auto & elem : riverImages[2])
+	for(auto & elem : riverImages["mudrvr"])
 	{
 		for(auto img : elem)
 		{
@@ -1357,7 +1356,7 @@ void CMapHandler::updateWater() //shift colors in palettes of water tiles
 		}
 	}
 
-	for(auto & elem : riverImages[3])
+	for(auto & elem : riverImages["lavrvr"])
 	{
 		for(auto img : elem)
 			img->shiftPalette(240, 9);
@@ -1429,7 +1428,7 @@ void CMapHandler::getTerrainDescr(const int3 & pos, std::string & out, bool isRM
 		}
 	}
 	if(!isTile2Terrain || out.empty())
-		out = CGI->generaltexth->terrainNames[t.terType.id()];
+		out = CGI->generaltexth->terrainNames[t.terType];
 
 	if(t.getDiggingStatus(false) == EDiggingStatus::CAN_DIG)
 	{

@@ -79,12 +79,6 @@ void CMapGenerator::loadConfig()
 		{"sulfur", Res::ERes::SULFUR},
 		{"gold", Res::ERes::GOLD},
 	};
-	static std::map<std::string, ERoadType::ERoadType> roadTypeMap
-	{
-		{"dirt_road", ERoadType::DIRT_ROAD},
-		{"gravel_road", ERoadType::GRAVEL_ROAD},
-		{"cobblestone_road", ERoadType::COBBLESTONE_ROAD}
-	};
 	static const ResourceID path("config/randomMap.json");
 	JsonNode randomMapJson(path);
 	for(auto& s : randomMapJson["terrain"]["undergroundAllow"].Vector())
@@ -108,7 +102,7 @@ void CMapGenerator::loadConfig()
 	}
 	config.mineExtraResources = randomMapJson["mines"]["extraResourcesLimit"].Integer();
 	config.minGuardStrength = randomMapJson["minGuardStrength"].Integer();
-	config.defaultRoadType = roadTypeMap[randomMapJson["defaultRoadType"].String()];
+	config.defaultRoadType = randomMapJson["defaultRoadType"].String();
 	config.treasureValueLimit = randomMapJson["treasureValueLimit"].Integer();
 	for(auto & i : randomMapJson["prisons"]["experience"].Vector())
 		config.prisonExperience.push_back(i.Integer());
@@ -901,7 +895,7 @@ void CMapGenerator::setOccupied(const int3 &tile, ETileType::ETileType state)
 	tiles[tile.x][tile.y][tile.z].setOccupied(state);
 }
 
-void CMapGenerator::setRoad(const int3& tile, ERoadType::ERoadType roadType)
+void CMapGenerator::setRoad(const int3& tile, const std::string & roadType)
 {
 	checkIsOnMap(tile);
 

@@ -31,6 +31,7 @@ public:
 		std::array<int, 3> minimapUnblocked;
 		std::string musicFilename;
 		std::string tilesFilename;
+		std::string terrainText;
 		int horseSoundId;
 		Type type;
 	};
