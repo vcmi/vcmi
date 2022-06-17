@@ -1350,12 +1350,6 @@ void CPlayerInterface::heroBonusChanged( const CGHeroInstance *hero, const Bonus
 
 template <typename Handler> void CPlayerInterface::serializeTempl( Handler &h, const int version )
 {
-	if(version < 774 && !h.saving)
-	{
-		bool observerInDuelMode = false;
-		h & observerInDuelMode;
-	}
-
 	h & wanderingHeroes;
 	h & towns;
 	h & sleepingHeroes;

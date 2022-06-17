@@ -128,10 +128,7 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & meta;
-		if(version >= 782)
-		{
-			h & flags;
-		}
+		h & flags;
 		h & type;
 		switch(type)
 		{
@@ -153,10 +150,7 @@ public:
 			h & data.Struct;
 			break;
 		case JsonType::DATA_INTEGER:
-			if(version >= 770)
-			{
-				h & data.Integer;
-			}
+			h & data.Integer;
 			break;
 		}
 	}

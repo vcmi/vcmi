@@ -89,15 +89,7 @@ public:
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
 			h & patrolling;
-			if(version >= 755) //save format backward compatibility
-			{
-				h & initialPos;
-			}
-			else if(!h.saving)
-			{
-				patrolling = false;
-				initialPos = int3();
-			}
+			h & initialPos;
 			h & patrolRadius;
 		}
 	} patrol;
@@ -287,7 +279,6 @@ protected:
 
 private:
 	void levelUpAutomatically(CRandomGenerator & rand);
-	void recreateSpecialtyBonuses(std::vector<HeroSpecial*> & specialtyDeprecated);
 
 public:
 	std::string getHeroTypeName() const;
@@ -316,18 +307,8 @@ public:
 		h & visitedTown;
 		h & boat;
 		h & type;
-		if(version < 781)
-		{
-			std::vector<HeroSpecial*> specialtyDeprecated;
-			h & specialtyDeprecated;
-			if(!h.saving)
-				recreateSpecialtyBonuses(specialtyDeprecated);
-		}
 		h & commander;
 		h & visitedObjects;
 		BONUS_TREE_DESERIALIZATION_FIX
-		//visitied town pointer will be restored by map serialization method
-		if(version < 777 && !h.saving)
-			recreateSecondarySkillsBonuses();
 	}
 };

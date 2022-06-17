@@ -288,15 +288,3 @@ void LibClasses::setContent(std::shared_ptr<CContentHandler> content)
 {
 	modh->content = content;
 }
-
-void LibClasses::restoreAllCreaturesNodeType794()
-{
-	creh->restoreAllCreaturesNodeType794();
-}
-
-void LibClasses::update800()
-{
-	vstd::clear_pointer(scriptHandler);
-	scriptHandler = new scripting::ScriptHandler();
-}
-

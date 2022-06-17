@@ -87,14 +87,7 @@ public:
 		h & isCustomFirst;
 		h & isCustomNext;
 		h & isCustomComplete;
-		if(version >= 757)
-		{
-			h & completedOption;
-		}
-		else if(!h.saving)
-		{
-			completedOption = 1;
-		}
+		h & completedOption;
 	}
 
 	void serializeJson(JsonSerializeFormat & handler, const std::string & fieldName);

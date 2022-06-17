@@ -97,10 +97,7 @@ public:
 		h & subid;
 		h & printPriority;
 		h & visitDir;
-		if(version >= 770)
-		{
-			h & editorAnimationFile;
-		}
+		h & editorAnimationFile;
 	}
 };
 

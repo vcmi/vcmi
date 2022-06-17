@@ -212,18 +212,8 @@ public:
 
 		h & doubleWide;
 		h & special;
-		if(version>=759)
-		{
-			h & identifier;
-		}
-		if(version >= 771)
-		{
-			h & warMachine;
-		}
-		else if(!h.saving)
-		{
-			fillWarMachine();
-		}
+		h & identifier;
+		h & warMachine;
 	}
 
 	CCreature();
@@ -282,7 +272,6 @@ public:
 	void addBonusForTier(int tier, const std::shared_ptr<Bonus> & b); //tier must be <1-7>
 	void addBonusForAllCreatures(const std::shared_ptr<Bonus> & b); //due to CBonusSystem::addNewBonus(const std::shared_ptr<Bonus>& b);
 	void removeBonusesFromAllCreatures();
-	void restoreAllCreaturesNodeType794(); //restore ALL_CREATURES node type for old saves
 
 	CCreatureHandler();
 	~CCreatureHandler();

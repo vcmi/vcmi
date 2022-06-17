@@ -56,19 +56,7 @@ struct DLL_LINKAGE PlayerSettings
 		h & color;
 		h & handicap;
 		h & name;
-		if(version < 787)
-		{
-			ui8 oldConnectedId = 0;
-			h & oldConnectedId;
-			if(oldConnectedId)
-			{
-				connectedPlayerIDs.insert(oldConnectedId);
-			}
-		}
-		else
-		{
-			h & connectedPlayerIDs;
-		}
+		h & connectedPlayerIDs;
 		h & team;
 		h & compOnly;
 	}

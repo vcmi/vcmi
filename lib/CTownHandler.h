@@ -112,8 +112,6 @@ public:
 	}
 
 	void addNewBonus(std::shared_ptr<Bonus> b, BonusList & bonusList);
-	void update792();
-	void update794();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -127,33 +125,14 @@ public:
 		h & requirements;
 		h & upgrade;
 		h & mode;
-
-		if(version >= 792)
-		{
-			h & subId;
-			h & height;
-		}
-		if(!h.saving && version < 793)
-			update792(); //adjust height, subId
-
-		if(version >= 794)
-		{
-			h & overrideBids;
-			h & buildingBonuses;
-			h & onVisitBonuses;
-		}
-		else if(!h.saving)
-			update794(); //populate overrideBids, buildingBonuses, onVisitBonuses
-
-		if(!h.saving)
-			deserializeFix();
+		h & subId;
+		h & height;
+		h & overrideBids;
+		h & buildingBonuses;
+		h & onVisitBonuses;
 	}
 
 	friend class CTownHandler;
-
-private:
-	void deserializeFix();
-	const JsonNode & getCurrentFactionForUpdateRoutine() const;
 };
 
 /// This is structure used only by client
@@ -357,14 +336,7 @@ public:
 		h & warMachine;
 		h & clientInfo;
 		h & moatDamage;
-		if(version >= 758)
-		{
-			h & moatHexes;
-		}
-		else if(!h.saving)
-		{
-			moatHexes = defaultMoatHexes();
-		}
+		h & moatHexes;
 		h & defaultTavernChance;
 	}
 	
@@ -451,15 +423,7 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & objects;
-
-		if(version >= 770)
-		{
-			h & randomTown;
-		}
-		else if(!h.saving)
-		{
-			loadRandomFaction();
-		}
+		h & randomTown;
 	}
 
 protected:

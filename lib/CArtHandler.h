@@ -102,19 +102,8 @@ public:
 		h & constituentOf;
 		h & aClass;
 		h & id;
-		if(version >= 759)
-		{
-			h & identifier;
-		}
-
-		if(version >= 771)
-		{
-			h & warMachine;
-		}
-		else if(!h.saving)
-		{
-			fillWarMachine();
-		}
+		h & identifier;
+		h & warMachine;
 	}
 
 	CArtifact();

@@ -210,19 +210,10 @@ public:
 		h & templates;
 		h & rmgInfo;
 		h & objectName;
-		if(version >= 759)
-		{
-			h & typeName;
-			h & subTypeName;
-		}
-		if(version >= 778)
-		{
-			h & sounds;
-		}
-		if(version >= 789)
-		{
-			h & aiValue;
-		}
+		h & typeName;
+		h & subTypeName;
+		h & sounds;
+		h & aiValue;
 	}
 };
 
@@ -253,19 +244,10 @@ class DLL_LINKAGE CObjectClassesHandler : public IHandlerBase
 			h & handlerName;
 			h & base;
 			h & subObjects;
-			if(version >= 759)
-			{
-				h & identifier;
-				h & subIds;
-			}
-			if(version >= 778)
-			{
-				h & sounds;
-			}
-			if(version >= 789)
-			{
-				h & groupDefaultAiValue;
-			}
+			h & identifier;
+			h & subIds;
+			h & sounds;
+			h & groupDefaultAiValue;
 		}
 	};
 

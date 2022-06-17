@@ -213,13 +213,9 @@ public:
 	///Entry point of binary (de-)serialization
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		if(version >= 759)
-		{
-			h & instanceName;
-			h & typeName;
-			h & subTypeName;
-		}
-
+		h & instanceName;
+		h & typeName;
+		h & subTypeName;
 		h & pos;
 		h & ID;
 		h & subID;

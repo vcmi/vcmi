@@ -439,36 +439,15 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 		h & val;
 		h & sid;
 		h & description;
-		if(version >= 783)
-		{
-			h & additionalInfo;
-		}
-		else
-		{
-			additionalInfo.resize(1, -1);
-			h & additionalInfo[0];
-		}
+		h & additionalInfo;
 		h & turnsRemain;
 		h & valType;
-		if(version >= 784)
-		{
-			h & stacking;
-		}
+		h & stacking;
 		h & effectRange;
 		h & limiter;
 		h & propagator;
-		if(version >= 781)
-		{
-			h & updater;
-		}
-		if(version >= 801)
-		{
-			h & propagationUpdater;
-		}
-		if(version < 801 && !h.saving) //Opposite Side bonuses are introduced
-		{
-			updateOppositeBonuses();
-		}
+		h & updater;
+		h & propagationUpdater;
 	}
 
 	template <typename Ptr>
@@ -1000,10 +979,7 @@ public:
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & static_cast<ILimiter&>(*this);
-		if(version >= 786)
-		{
-			h & limiters;
-		}
+		h & limiters;
 	}
 };
 
