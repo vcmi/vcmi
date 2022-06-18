@@ -62,8 +62,87 @@ CMapGenerator::CMapGenerator(CMapGenOptions& mapGenOptions, int RandomSeed) :
 	zonesTotal(0), tiles(nullptr), prisonsRemaining(0),
     monolithIndex(0)
 {
+	loadConfig();
 	rand.setSeed(this->randomSeed);
 	mapGenOptions.finalize(rand);
+}
+
+void CMapGenerator::loadConfig()
+{
+	static std::map<std::string, ETerrainType> terrainMap
+	{
+		{"dirt", ETerrainType::DIRT},
+		{"sand", ETerrainType::SAND},
+		{"grass", ETerrainType::GRASS},
+		{"snow", ETerrainType::SNOW},
+		{"swamp", ETerrainType::SWAMP},
+		{"subterranean", ETerrainType::SUBTERRANEAN},
+		{"lava", ETerrainType::LAVA},
+		{"rough", ETerrainType::ROUGH}
+	};
+	static const std::map<std::string, Res::ERes> resMap
+	{
+		{"wood", Res::ERes::WOOD},
+		{"ore", Res::ERes::ORE},
+		{"gems", Res::ERes::GEMS},
+		{"crystal", Res::ERes::CRYSTAL},
+		{"mercury", Res::ERes::MERCURY},
+		{"sulfur", Res::ERes::SULFUR},
+		{"gold", Res::ERes::GOLD},
+	};
+	static std::map<std::string, ERoadType::ERoadType> roadTypeMap
+	{
+		{"dirt_road", ERoadType::DIRT_ROAD},
+		{"gravel_road", ERoadType::GRAVEL_ROAD},
+		{"cobblestone_road", ERoadType::COBBLESTONE_ROAD}
+	};
+	static const ResourceID path("config/randomMap.json");
+	JsonNode randomMapJson(path);
+	for(auto& s : randomMapJson["terrain"]["undergroundAllow"].Vector())
+	{
+		if(!s.isNull())
+			config.terrainUndergroundAllowed.push_back(terrainMap[s.String()]);
+	}
+	for(auto& s : randomMapJson["terrain"]["groundProhibit"].Vector())
+	{
+		if(!s.isNull())
+			config.terrainGroundProhibit.push_back(terrainMap[s.String()]);
+	}
+	config.shipyardGuard = randomMapJson["waterZone"]["shipyard"]["value"].Integer();
+	for(auto & treasure : randomMapJson["waterZone"]["treasure"].Vector())
+	{
+		config.waterTreasure.emplace_back(treasure["min"].Integer(), treasure["max"].Integer(), treasure["density"].Integer());
+	}
+	for(auto& s : resMap)
+	{
+		config.mineValues[s.second] = randomMapJson["mines"]["value"][s.first].Integer();
+	}
+	config.mineExtraResources = randomMapJson["mines"]["extraResourcesLimit"].Integer();
+	config.minGuardStrength = randomMapJson["minGuardStrength"].Integer();
+	config.defaultRoadType = roadTypeMap[randomMapJson["defaultRoadType"].String()];
+	config.treasureValueLimit = randomMapJson["treasureValueLimit"].Integer();
+	for(auto & i : randomMapJson["prisons"]["experience"].Vector())
+		config.prisonExperience.push_back(i.Integer());
+	for(auto & i : randomMapJson["prisons"]["value"].Vector())
+		config.prisonValues.push_back(i.Integer());
+	for(auto & i : randomMapJson["scrolls"]["value"].Vector())
+		config.scrollValues.push_back(i.Integer());
+	for(auto & i : randomMapJson["pandoras"]["creaturesValue"].Vector())
+		config.pandoraCreatureValues.push_back(i.Integer());
+	for(auto & i : randomMapJson["quests"]["value"].Vector())
+		config.questValues.push_back(i.Integer());
+	for(auto & i : randomMapJson["quests"]["rewardValue"].Vector())
+		config.questRewardValues.push_back(i.Integer());
+	config.pandoraMultiplierGold = randomMapJson["pandoras"]["valueMultiplierGold"].Integer();
+	config.pandoraMultiplierExperience = randomMapJson["pandoras"]["valueMultiplierExperience"].Integer();
+	config.pandoraMultiplierSpells = randomMapJson["pandoras"]["valueMultiplierSpells"].Integer();
+	config.pandoraSpellSchool = randomMapJson["pandoras"]["valueSpellSchool"].Integer();
+	config.pandoraSpell60 = randomMapJson["pandoras"]["valueSpell60"].Integer();
+}
+
+const CMapGenerator::Config & CMapGenerator::getConfig() const
+{
+	return config;
 }
 
 void CMapGenerator::initTiles()
@@ -285,15 +364,41 @@ void CMapGenerator::genZones()
 	for(const auto & option : tmpl->getZones())
 	{
 		auto zone = std::make_shared<CRmgTemplateZone>(this);
-		zone->setOptions(option.second.get());
+		zone->setOptions(*option.second.get());
 		zones[zone->getId()] = zone;
 	}
 
 	CZonePlacer placer(this);
 	placer.placeZones(&rand);
 	placer.assignZones();
+	
+	//add special zone for water
+	zoneWater.first = zones.size() + 1;
+	zoneWater.second = std::make_shared<CRmgTemplateZone>(this);
+	{
+		rmg::ZoneOptions options;
+		options.setId(zoneWater.first);
+		options.setType(ETemplateZoneType::WATER);
+		zoneWater.second->setOptions(options);
+	}
 
 	logGlobal->info("Zones generated successfully");
+}
+
+void CMapGenerator::createWaterTreasures()
+{
+	//add treasures on water
+	for(auto & treasureInfo : getConfig().waterTreasure)
+	{
+		getZoneWater().second->addTreasureInfo(treasureInfo);
+	}
+}
+
+void CMapGenerator::prepareWaterTiles()
+{
+	for(auto & t : zoneWater.second->getTileInfo())
+		if(shouldBeBlocked(t))
+			setOccupied(t, ETileType::POSSIBLE);
 }
 
 void CMapGenerator::fillZones()
@@ -308,41 +413,67 @@ void CMapGenerator::fillZones()
 
 	//we need info about all town types to evaluate dwellings and pandoras with creatures properly
 	//place main town in the middle
-	for (auto it : zones)
+	for(auto it : zones)
 		it.second->initTownType();
 	
 	//make sure there are some free tiles in the zone
-	for (auto it : zones)
+	for(auto it : zones)
 		it.second->initFreeTiles();
 	
-	createDirectConnections(); //direct
-	
-	//make sure all connections are passable before creating borders
-	for (auto it : zones)
+	for(auto it : zones)
 		it.second->createBorder(); //once direct connections are done
 	
+#ifdef _BETA
+	dump(false);
+#endif
+	
+	for(auto it : zones)
+		it.second->createWater(getMapGenOptions().getWaterContent());
+	
+	zoneWater.second->waterInitFreeTiles();
+	
+#ifdef _BETA
+	dump(false);
+#endif
+
+	createDirectConnections(); //direct
 	createConnections2(); //subterranean gates and monoliths
 	
+	for(auto it : zones)
+		zoneWater.second->waterConnection(*it.second);
+	
+	createWaterTreasures();
+	zoneWater.second->initFreeTiles();
+	zoneWater.second->fill();
+
 	std::vector<std::shared_ptr<CRmgTemplateZone>> treasureZones;
-	for (auto it : zones)
+	for(auto it : zones)
 	{
 		it.second->fill();
 		if (it.second->getType() == ETemplateZoneType::TREASURE)
 			treasureZones.push_back(it.second);
 	}
 	
+#ifdef _BETA
+	dump(false);
+#endif
+		
 	//set apriopriate free/occupied tiles, including blocked underground rock
 	createObstaclesCommon1();
 	//set back original terrain for underground zones
-	for (auto it : zones)
+	for(auto it : zones)
 		it.second->createObstacles1();
 	
 	createObstaclesCommon2();
 	//place actual obstacles matching zone terrain
-	for (auto it : zones)
-	{
+	for(auto it : zones)
 		it.second->createObstacles2();
-	}
+		
+	zoneWater.second->createObstacles2();
+	
+#ifdef _BETA
+	dump(false);
+#endif
 
 	#define PRINT_MAP_BEFORE_ROADS false
 	if (PRINT_MAP_BEFORE_ROADS) //enable to debug
@@ -379,15 +510,15 @@ void CMapGenerator::fillZones()
 		out << std::endl;
 	}
 
-	for (auto it : zones)
+	for(auto it : zones)
 	{
 		it.second->connectRoads(); //draw roads after everything else has been placed
 	}
 
 	//find place for Grail
-	if (treasureZones.empty())
+	if(treasureZones.empty())
 	{
-		for (auto it : zones)
+		for(auto it : zones)
 			treasureZones.push_back(it.second);
 	}
 	auto grailZone = *RandomGeneratorUtil::nextItem(treasureZones, rand);
@@ -503,30 +634,29 @@ void CMapGenerator::findZonesForQuestArts()
 
 void CMapGenerator::createDirectConnections()
 {
+	bool waterMode = getMapGenOptions().getWaterContent() != EWaterContent::NONE;
+	
 	for (auto connection : mapGenOptions.getMapTemplate()->getConnections())
 	{
 		auto zoneA = zones[connection.getZoneA()];
 		auto zoneB = zones[connection.getZoneB()];
 
 		//rearrange tiles in random order
-		auto tilesCopy = zoneA->getTileInfo();
-		std::vector<int3> tiles(tilesCopy.begin(), tilesCopy.end());
+		const auto & tiles = zoneA->getTileInfo();
 
 		int3 guardPos(-1,-1,-1);
-
-		auto otherZoneTiles = zoneB->getTileInfo();
 
 		int3 posA = zoneA->getPos();
 		int3 posB = zoneB->getPos();
 		// auto zoneAid = zoneA->getId();
 		auto zoneBid = zoneB->getId();
-
+		
 		if (posA.z == posB.z)
 		{
 			std::vector<int3> middleTiles;
-			for (auto tile : tilesCopy)
+			for (const auto& tile : tiles)
 			{
-				if (isBlocked(tile)) //tiles may be occupied by subterranean gates already placed
+				if (isUsed(tile) || getZoneID(tile)==zoneWater.first) //tiles may be occupied by towns or water
 					continue;
 				foreachDirectNeighbour(tile, [tile, &middleTiles, this, zoneBid](int3 & pos) //must be direct since paths also also generated between direct neighbours
 				{
@@ -559,8 +689,8 @@ void CMapGenerator::createDirectConnections()
 				if (guardPos.valid())
 				{
 					//zones can make paths only in their own area
-					zoneA->connectWithCenter(guardPos, true);
-					zoneB->connectWithCenter(guardPos, true);
+					zoneA->connectWithCenter(guardPos, true, true);
+					zoneB->connectWithCenter(guardPos, true, true);
 
 					bool monsterPresent = zoneA->addMonster(guardPos, connection.getGuardStrength(), false, true);
 					zoneB->updateDistances(guardPos); //place next objects away from guard in both zones
@@ -575,9 +705,12 @@ void CMapGenerator::createDirectConnections()
 				}
 			}
 		}
-
+		
 		if (!guardPos.valid())
-			connectionsLeft.push_back(connection);
+		{
+			if(!waterMode || posA.z != posB.z || !zoneWater.second->waterKeepConnection(connection.getZoneA(), connection.getZoneB()))
+				connectionsLeft.push_back(connection);
+		}
 	}
 }
 
@@ -864,4 +997,49 @@ ui32 CMapGenerator::getZoneCount(TFaction faction)
 ui32 CMapGenerator::getTotalZoneCount() const
 {
 	return zonesTotal;
+}
+CMapGenerator::Zones::value_type CMapGenerator::getZoneWater() const
+{
+	return zoneWater;
+}
+
+void CMapGenerator::dump(bool zoneId)
+{
+	static int id = 0;
+	std::ofstream out(boost::to_string(boost::format("zone_%d.txt") % id++));
+	int levels = map->twoLevel ? 2 : 1;
+	int width =  map->width;
+	int height = map->height;
+	for (int k = 0; k < levels; k++)
+	{
+		for(int j=0; j<height; j++)
+		{
+			for (int i=0; i<width; i++)
+			{
+				if(zoneId)
+				{
+					out << getZoneID(int3(i, j, k));
+				}
+				else
+				{
+					char t = '?';
+					switch (getTile(int3(i, j, k)).getTileType())
+					{
+						case ETileType::FREE:
+							t = ' '; break;
+						case ETileType::BLOCKED:
+							t = '#'; break;
+						case ETileType::POSSIBLE:
+							t = '-'; break;
+						case ETileType::USED:
+							t = 'O'; break;
+					}
+					out << t;
+				}
+			}
+			out << std::endl;
+		}
+		out << std::endl;
+	}
+	out << std::endl;
 }

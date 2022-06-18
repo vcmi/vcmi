@@ -10,6 +10,7 @@
 
 #include "StdInc.h"
 #include <vstd/ContainerUtils.h>
+#include <boost/bimap.hpp>
 #include "CRmgTemplate.h"
 
 #include "../mapping/CMap.h"
@@ -37,6 +38,12 @@ CTreasureInfo::CTreasureInfo()
 	density(0)
 {
 
+}
+
+CTreasureInfo::CTreasureInfo(ui32 imin, ui32 imax, ui16 idensity)
+	: min(imin), max(imax), density(idensity)
+{
+	
 }
 
 bool CTreasureInfo::operator==(const CTreasureInfo & other) const
@@ -196,6 +203,11 @@ ETemplateZoneType::ETemplateZoneType ZoneOptions::getType() const
 {
 	return type;
 }
+	
+void ZoneOptions::setType(ETemplateZoneType::ETemplateZoneType value)
+{
+	type = value;
+}
 
 int ZoneOptions::getSize() const
 {
@@ -264,6 +276,11 @@ void ZoneOptions::setTreasureInfo(const std::vector<CTreasureInfo> & value)
 {
 	treasureInfo = value;
 }
+	
+void ZoneOptions::addTreasureInfo(const CTreasureInfo & value)
+{
+	treasureInfo.push_back(value);
+}
 
 const std::vector<CTreasureInfo> & ZoneOptions::getTreasureInfo() const
 {
@@ -302,7 +319,8 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 		"playerStart",
 		"cpuStart",
 		"treasure",
-		"junction"
+		"junction",
+		"water"
 	};
 
 	handler.serializeEnum("type", type, zoneTypes);
@@ -342,7 +360,7 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 			rawStrength = static_cast<decltype(rawStrength)>(zoneMonsterStrength);
 			rawStrength++;
 		}
-		handler.serializeEnum("monsters", rawStrength, STRENGTH);
+		handler.serializeEnum("monsters", rawStrength, EMonsterStrength::ZONE_NORMAL + 1, STRENGTH);
 		if(!handler.saving)
 		{
 			rawStrength--;
@@ -419,6 +437,16 @@ bool CRmgTemplate::matchesSize(const int3 & value) const
 	const int64_t maxSquare = maxSize.x * maxSize.y * maxSize.z;
 
 	return minSquare <= square && square <= maxSquare;
+}
+
+bool CRmgTemplate::isWaterContentAllowed(EWaterContent::EWaterContent waterContent) const
+{
+	return waterContent == EWaterContent::EWaterContent::RANDOM || allowedWaterContent.count(waterContent);
+}
+
+const std::set<EWaterContent::EWaterContent> & CRmgTemplate::getWaterContentAllowed() const
+{
+	return allowedWaterContent;
 }
 
 void CRmgTemplate::setId(const std::string & value)
@@ -561,6 +589,32 @@ void CRmgTemplate::serializeJson(JsonSerializeFormat & handler)
 		auto connectionsData = handler.enterArray("connections");
 		connectionsData.serializeStruct(connections);
 	}
+	
+	{
+		boost::bimap<EWaterContent::EWaterContent, std::string> enc;
+		enc.insert({EWaterContent::NONE, "none"});
+		enc.insert({EWaterContent::NORMAL, "normal"});
+		enc.insert({EWaterContent::ISLANDS, "islands"});
+		JsonNode node;
+		if(handler.saving)
+		{
+			node.setType(JsonNode::JsonType::DATA_VECTOR);
+			for(auto wc : allowedWaterContent)
+			{
+				JsonNode n;
+				n.String() = enc.left.at(wc);
+				node.Vector().push_back(n);
+			}
+		}
+		handler.serializeRaw("allowedWaterContent", node, boost::none);
+		if(!handler.saving)
+		{
+			for(auto wc : node.Vector())
+			{
+				allowedWaterContent.insert(enc.right.at(std::string(wc.String())));
+			}
+		}
+	}
 
 	{
 		auto zonesData = handler.enterStruct("zones");
@@ -623,6 +677,14 @@ void CRmgTemplate::afterLoad()
 		zone1->addConnection(id2);
 		zone2->addConnection(id1);
 	}
+	
+	if(allowedWaterContent.empty() || allowedWaterContent.count(EWaterContent::EWaterContent::RANDOM))
+	{
+		allowedWaterContent.insert(EWaterContent::EWaterContent::NONE);
+		allowedWaterContent.insert(EWaterContent::EWaterContent::NORMAL);
+		allowedWaterContent.insert(EWaterContent::EWaterContent::ISLANDS);
+	}
+	allowedWaterContent.erase(EWaterContent::EWaterContent::RANDOM);
 }
 
 void CRmgTemplate::serializeSize(JsonSerializeFormat & handler, int3 & value, const std::string & fieldName)

@@ -14,6 +14,7 @@
 #include "../mapping/CMap.h"
 #include "CRmgTemplateStorage.h"
 #include "CRmgTemplate.h"
+#include "CRandomGenerator.h"
 #include "../VCMI_Lib.h"
 #include "../CTownHandler.h"
 
@@ -245,7 +246,7 @@ void CMapGenOptions::finalize(CRandomGenerator & rand)
 
 	if(waterContent == EWaterContent::RANDOM)
 	{
-		waterContent = static_cast<EWaterContent::EWaterContent>(rand.nextInt(EWaterContent::NONE, EWaterContent::ISLANDS));
+		waterContent = *RandomGeneratorUtil::nextItem(mapTemplate->getWaterContentAllowed(), rand);
 	}
 	if(monsterStrength == EMonsterStrength::RANDOM)
 	{
@@ -390,9 +391,39 @@ bool CMapGenOptions::checkOptions() const
 const CRmgTemplate * CMapGenOptions::getPossibleTemplate(CRandomGenerator & rand) const
 {
 	int3 tplSize(width, height, (hasTwoLevels ? 2 : 1));
+	auto humanPlayers = countHumanPlayers();
 	
-	auto templates = VLC->tplh->getTemplates(tplSize, getPlayerCount(), countHumanPlayers(), compOnlyPlayerCount);
-
+	auto templates = VLC->tplh->getTemplates();
+	
+	vstd::erase_if(templates, [this, &tplSize, humanPlayers](const CRmgTemplate * tmpl)
+	{
+		if(!tmpl->matchesSize(tplSize))
+			return true;
+		
+		if(!tmpl->isWaterContentAllowed(getWaterContent()))
+			return true;
+		
+		if(getPlayerCount() != -1)
+		{
+			if (!tmpl->getPlayers().isInRange(getPlayerCount()))
+				return true;
+		}
+		else
+		{
+			// Human players shouldn't be banned when playing with random player count
+			if(humanPlayers > *boost::min_element(tmpl->getPlayers().getNumbers()))
+				return true;
+		}
+		
+		if(compOnlyPlayerCount != -1)
+		{
+			if (!tmpl->getCpuPlayers().isInRange(compOnlyPlayerCount))
+				return true;
+		}
+		
+		return false;
+	});
+	
 	// Select tpl
 	if(templates.empty())
 		return nullptr;

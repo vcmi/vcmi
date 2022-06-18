@@ -48,7 +48,9 @@ option(ENABLE_ERM "Enable compilation of ERM scripting module" ON)
 option(ENABLE_LUA "Enable compilation of LUA scripting module" ON)
 option(ENABLE_LAUNCHER "Enable compilation of launcher" ON)
 option(ENABLE_TEST "Enable compilation of unit tests" ON)
-option(ENABLE_PCH "Enable compilation using precompiled headers" ON)
+if(NOT ${CMAKE_VERSION} VERSION_LESS "3.16.0")
+	option(ENABLE_PCH "Enable compilation using precompiled headers" ON)
+endif(NOT ${CMAKE_VERSION} VERSION_LESS "3.16.0")
 option(ENABLE_GITVERSION "Enable Version.cpp with Git commit hash" ON)
 option(ENABLE_DEBUG_CONSOLE "Enable debug console for Windows builds" ON)
 option(ENABLE_MULTI_PROCESS_BUILDS "Enable /MP flag for MSVS solution" ON)
@@ -95,18 +97,14 @@ else()
 endif(ENABLE_GITVERSION)
 
 # Precompiled header configuration
-if(ENABLE_PCH)
-	include(cotire)
-	set(PCH_PROPERTIES
-		COTIRE_ENABLE_PRECOMPILED_HEADER ${ENABLE_PCH}
-		COTIRE_ADD_UNITY_BUILD FALSE
-		COTIRE_CXX_PREFIX_HEADER_INIT "StdInc.h"
-	)
-else()
-	set(PCH_PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
-	macro(cotire ignore)
-	endmacro(cotire)
-endif(ENABLE_PCH)
+if(ENABLE_PCH AND NOT ${CMAKE_VERSION} VERSION_LESS "3.16.0")
+	macro(enable_pch name)
+		target_precompile_headers(${name} PRIVATE $<$<COMPILE_LANGUAGE:CXX>:<StdInc.h$<ANGLE-R>>)
+	endmacro(enable_pch)
+else(ENABLE_PCH AND NOT ${CMAKE_VERSION} VERSION_LESS "3.16.0")
+	macro(enable_pch ignore)
+	endmacro(enable_pch)
+endif(ENABLE_PCH AND NOT ${CMAKE_VERSION} VERSION_LESS "3.16.0")
 
 ############################################
 #        Documentation section             #
@@ -159,7 +157,9 @@ if(MINGW OR MSVC)
 		add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 		add_definitions(-D_SCL_SECURE_NO_WARNINGS)
 		# 4250: 'class1' : inherits 'class2::member' via dominance
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj  /wd4250")
+		# 4251: class 'xxx' needs to have dll-interface to be used by clients of class 'yyy'
+		# 4275: non dll-interface class 'xxx' used as base for dll-interface class
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj /wd4250 /wd4251 /wd4275")
 
 		if(ENABLE_MULTI_PROCESS_BUILDS)
 			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")

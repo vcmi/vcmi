@@ -135,8 +135,6 @@ target_link_libraries(Nullkiller PRIVATE vcmi fuzzylite::fuzzylite)
 target_link_libraries(Nullkiller PRIVATE TBB::tbb)
 
 vcmi_set_output_dir(Nullkiller "AI")
-
-set_target_properties(Nullkiller PROPERTIES ${PCH_PROPERTIES})
-cotire(Nullkiller)
+enable_pch(Nullkiller)
 
 install(TARGETS Nullkiller RUNTIME DESTINATION ${AI_LIB_DIR} LIBRARY DESTINATION ${AI_LIB_DIR})

@@ -186,9 +186,7 @@ target_include_directories(vcmiclient
 	PUBLIC	${CMAKE_CURRENT_SOURCE_DIR})
 
 vcmi_set_output_dir(vcmiclient "")
-
-set_target_properties(vcmiclient PROPERTIES ${PCH_PROPERTIES})
-cotire(vcmiclient)
+enable_pch(vcmiclient)
 
 install(TARGETS vcmiclient DESTINATION ${BIN_DIR})
 

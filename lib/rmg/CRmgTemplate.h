@@ -24,7 +24,8 @@ namespace ETemplateZoneType
 		PLAYER_START,
 		CPU_START,
 		TREASURE,
-		JUNCTION
+		JUNCTION,
+		WATER
 	};
 }
 
@@ -35,6 +36,7 @@ public:
 	ui32 max;
 	ui16 density;
 	CTreasureInfo();
+	CTreasureInfo(ui32 min, ui32 max, ui16 density);
 
 	bool operator ==(const CTreasureInfo & other) const;
 
@@ -93,6 +95,8 @@ public:
 	void setId(TRmgTemplateZoneId value);
 
 	ETemplateZoneType::ETemplateZoneType getType() const;
+	void setType(ETemplateZoneType::ETemplateZoneType value);
+	
 	int getSize() const;
 	void setSize(int value);
 	boost::optional<int> getOwner() const;
@@ -110,6 +114,7 @@ public:
 	std::map<TResource, ui16> getMinesInfo() const;
 
 	void setTreasureInfo(const std::vector<CTreasureInfo> & value);
+	void addTreasureInfo(const CTreasureInfo & value);
 	const std::vector<CTreasureInfo> & getTreasureInfo() const;
 
 	TRmgTemplateZoneId getMinesLikeZone() const;
@@ -175,6 +180,8 @@ public:
 	~CRmgTemplate();
 
 	bool matchesSize(const int3 & value) const;
+	bool isWaterContentAllowed(EWaterContent::EWaterContent waterContent) const;
+	const std::set<EWaterContent::EWaterContent> & getWaterContentAllowed() const;
 
 	void setId(const std::string & value);
 	const std::string & getName() const;
@@ -195,6 +202,7 @@ private:
 	CPlayerCountRange players, cpuPlayers;
 	Zones zones;
 	std::vector<rmg::ZoneConnection> connections;
+	std::set<EWaterContent::EWaterContent> allowedWaterContent;
 
 	void afterLoad();
 	void serializeSize(JsonSerializeFormat & handler, int3 & value, const std::string & fieldName);

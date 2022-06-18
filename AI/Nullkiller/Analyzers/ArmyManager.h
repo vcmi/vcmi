@@ -63,7 +63,7 @@ public:
 	virtual std::shared_ptr<CCreatureSet> getArmyAvailableToBuyAsCCreatureSet(const CGDwelling * dwelling, TResources availableRes) const = 0;
 };
 
-struct StackUpgradeInfo;
+class StackUpgradeInfo;
 
 class DLL_EXPORT ArmyManager : public IArmyManager
 {

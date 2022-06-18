@@ -107,10 +107,7 @@ target_include_directories(vcmilauncher
 	PUBLIC	${CMAKE_CURRENT_SOURCE_DIR}
 )
 vcmi_set_output_dir(vcmilauncher "")
-
-# temporary(?) disabled - generation of PCH takes too much time since cotire is trying to collect all Qt headers
-#set_target_properties(vcmilauncher PROPERTIES ${PCH_PROPERTIES})
-#cotire(vcmilauncher)
+enable_pch(vcmilauncher)
 
 # Copy to build directory for easier debugging
 add_custom_command(TARGET vcmilauncher POST_BUILD

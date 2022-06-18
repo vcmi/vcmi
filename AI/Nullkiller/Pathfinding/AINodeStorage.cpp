@@ -809,7 +809,7 @@ ExchangeCandidate HeroChainCalculationTask::calculateExchange(
 
 	if(carrierParentNode->turns < otherParentNode->turns)
 	{
-		int moveRemains = exchangeActor->hero->maxMovePoints(carrierParentNode->layer);
+		int moveRemains = exchangeActor->maxMovePoints(carrierParentNode->layer);
 		float waitingCost = otherParentNode->turns - carrierParentNode->turns - 1
 			+ carrierParentNode->moveRemains / (float)moveRemains;
 
