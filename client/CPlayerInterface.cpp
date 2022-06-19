@@ -2771,7 +2771,8 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 				destinationTeleport = destTeleportObj->id;
 				destinationTeleportPos = nextCoord;
 				doMovement(h->pos, false);
-				if (path.nodes[i-1].action == CGPathNode::TELEPORT_BLOCKING_VISIT)
+				if (path.nodes[i-1].action == CGPathNode::TELEPORT_BLOCKING_VISIT
+					|| path.nodes[i-1].action == CGPathNode::TELEPORT_BATTLE)
 				{
 					destinationTeleport = ObjectInstanceID();
 					destinationTeleportPos = int3(-1);
