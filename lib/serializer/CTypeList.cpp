@@ -45,6 +45,21 @@ ui16 CTypeList::getTypeID(const std::type_info *type, bool throws) const
 	return descriptor->typeID;
 }
 
+CTypeList::TypeInfoPtr CTypeList::getTypeDescriptor(ui16 typeID) const
+{
+	auto found = std::find_if(typeInfos.begin(), typeInfos.end(), [typeID](const std::pair<const std::type_info *, TypeInfoPtr> & p) -> bool
+		{
+			return p.second->typeID == typeID;
+		});
+
+	if(found != typeInfos.end())
+	{
+		return found->second;
+	}
+
+	return TypeInfoPtr();
+}
+
 std::vector<CTypeList::TypeInfoPtr> CTypeList::castSequence(TypeInfoPtr from, TypeInfoPtr to) const
 {
 	if(!strcmp(from->name, to->name))
