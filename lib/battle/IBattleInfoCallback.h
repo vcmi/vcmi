@@ -13,7 +13,7 @@
 #include "BattleHex.h"
 
 struct CObstacleInstance;
-class BFieldType;
+class BattleField;
 class Terrain;
 
 namespace battle
@@ -35,7 +35,7 @@ public:
 	virtual scripting::Pool * getContextPool() const = 0;
 
 	virtual Terrain battleTerrainType() const = 0;
-	virtual BFieldType battleGetBattlefieldType() const = 0;
+	virtual BattleField battleGetBattlefieldType() const = 0;
 
 	///return none if battle is ongoing; otherwise the victorious side (0/1) or 2 if it is a draw
 	virtual boost::optional<int> battleIsFinished() const = 0;

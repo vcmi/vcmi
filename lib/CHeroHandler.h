@@ -27,6 +27,7 @@ class JsonNode;
 class CRandomGenerator;
 class JsonSerializeFormat;
 class Terrain;
+class BattleField;
 
 struct SSpecialtyInfo
 {	si32 type;
@@ -227,7 +228,7 @@ struct DLL_LINKAGE CObstacleInfo
 	si32 ID;
 	std::string defName;
 	std::vector<Terrain> allowedTerrains;
-	std::vector<BFieldType> allowedSpecialBfields;
+	std::vector<BattleField> allowedSpecialBfields;
 
 	ui8 isAbsoluteObstacle; //there may only one such obstacle in battle and its position is always the same
 	si32 width, height; //how much space to the right and up is needed to place obstacle (affects only placement algorithm)
@@ -235,7 +236,7 @@ struct DLL_LINKAGE CObstacleInfo
 
 	std::vector<BattleHex> getBlocked(BattleHex hex) const; //returns vector of hexes blocked by obstacle when it's placed on hex 'hex'
 
-	bool isAppropriate(Terrain terrainType, int specialBattlefield = -1) const;
+	bool isAppropriate(const Terrain & terrainType, const BattleField & specialBattlefield) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

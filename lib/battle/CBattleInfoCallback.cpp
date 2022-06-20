@@ -1059,7 +1059,7 @@ AccessibilityInfo CBattleInfoCallback::getAccesibility() const
 
 	//special battlefields with logically unavailable tiles
 	std::vector<BattleHex> impassableHexes;
-	if(battleGetBattlefieldType().num == BFieldType::SHIP_TO_SHIP)
+	if(battleGetBattlefieldType() == BattleField::SHIP_TO_SHIP)
 	{
 		impassableHexes =
 		{

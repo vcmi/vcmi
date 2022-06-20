@@ -101,14 +101,9 @@ void Graphics::initializeBattleGraphics()
 {
 	const JsonNode config(ResourceID("config/battles_graphics.json"));
 
-	// Reserve enough space for the terrains
-	int idx = static_cast<int>(config["backgrounds"].Vector().size());
-	battleBacks.resize(idx+1);	// 1 to idx, 0 is unused
-
-	idx = 1;
-	for(const JsonNode &t : config["backgrounds"].Vector()) {
-		battleBacks[idx].push_back(t.String());
-		idx++;
+	for(auto & t : config["backgrounds"].Struct())
+	{
+		battleBacks[t.first] = t.second.String();
 	}
 
 	//initialization of AC->def name mapping

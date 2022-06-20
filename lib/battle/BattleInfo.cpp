@@ -187,7 +187,7 @@ struct RangeGenerator
 	std::function<int()> myRand;
 };
 
-BattleInfo * BattleInfo::setupBattle(int3 tile, Terrain terrain, BFieldType battlefieldType, const CArmedInstance * armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance * town)
+BattleInfo * BattleInfo::setupBattle(const int3 & tile, const Terrain & terrain, const BattleField & battlefieldType, const CArmedInstance * armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance * town)
 {
 	CMP_stack cmpst;
 	auto curB = new BattleInfo();
@@ -246,17 +246,17 @@ BattleInfo * BattleInfo::setupBattle(int3 tile, Terrain terrain, BFieldType batt
 		r.srand(tile);
 		r.rand(1,8); //battle sound ID to play... can't do anything with it here
 		int tilesToBlock = r.rand(5,12);
-		const int specialBattlefield = battlefieldTypeToBI(battlefieldType);
+		//const int specialBattlefield = battlefieldTypeToBI(battlefieldType);
 
 		std::vector<BattleHex> blockedTiles;
 
 		auto appropriateAbsoluteObstacle = [&](int id)
 		{
-			return VLC->heroh->absoluteObstacles[id].isAppropriate(curB->terrainType, specialBattlefield);
+			return VLC->heroh->absoluteObstacles[id].isAppropriate(curB->terrainType, battlefieldType);
 		};
 		auto appropriateUsualObstacle = [&](int id) -> bool
 		{
-			return VLC->heroh->obstacles[id].isAppropriate(curB->terrainType, specialBattlefield);
+			return VLC->heroh->obstacles[id].isAppropriate(curB->terrainType, battlefieldType);
 		};
 
 		if(r.rand(1,100) <= 40) //put cliff-like obstacle
@@ -460,7 +460,7 @@ BattleInfo * BattleInfo::setupBattle(int3 tile, Terrain terrain, BFieldType batt
 
 	//giving terrain overlay premies
 	int bonusSubtype = -1;
-	switch(battlefieldType)
+	/*switch(battlefieldType)
 	{
 	case BFieldType::MAGIC_PLAINS:
 		{
@@ -525,7 +525,7 @@ BattleInfo * BattleInfo::setupBattle(int3 tile, Terrain terrain, BFieldType batt
 			curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::BLOCK_MAGIC_ABOVE, Bonus::TERRAIN_OVERLAY, 1, battlefieldType, 0, Bonus::INDEPENDENT_MIN));
 			break;
 		}
-	}
+	}*/
 	//overlay premies given
 
 	//native terrain bonuses
@@ -580,30 +580,6 @@ ui8 BattleInfo::whatSide(PlayerColor player) const
 	return -1;
 }
 
-BattlefieldBI::BattlefieldBI BattleInfo::battlefieldTypeToBI(BFieldType bfieldType)
-{
-	static const std::map<BFieldType, BattlefieldBI::BattlefieldBI> theMap =
-	{
-		{BFieldType::CLOVER_FIELD, BattlefieldBI::CLOVER_FIELD},
-		{BFieldType::CURSED_GROUND, BattlefieldBI::CURSED_GROUND},
-		{BFieldType::EVIL_FOG, BattlefieldBI::EVIL_FOG},
-		{BFieldType::FAVORABLE_WINDS, BattlefieldBI::NONE},
-		{BFieldType::FIERY_FIELDS, BattlefieldBI::FIERY_FIELDS},
-		{BFieldType::HOLY_GROUND, BattlefieldBI::HOLY_GROUND},
-		{BFieldType::LUCID_POOLS, BattlefieldBI::LUCID_POOLS},
-		{BFieldType::MAGIC_CLOUDS, BattlefieldBI::MAGIC_CLOUDS},
-		{BFieldType::MAGIC_PLAINS, BattlefieldBI::MAGIC_PLAINS},
-		{BFieldType::ROCKLANDS, BattlefieldBI::ROCKLANDS},
-		{BFieldType::SAND_SHORE, BattlefieldBI::COASTAL}
-	};
-
-	auto itr = theMap.find(bfieldType);
-	if(itr != theMap.end())
-		return itr->second;
-
-	return BattlefieldBI::NONE;
-}
-
 CStack * BattleInfo::getStack(int stackID, bool onlyAlive)
 {
 	return const_cast<CStack *>(battleGetStackByID(stackID, onlyAlive));
@@ -611,7 +587,7 @@ CStack * BattleInfo::getStack(int stackID, bool onlyAlive)
 
 BattleInfo::BattleInfo()
 	: round(-1), activeStack(-1), town(nullptr), tile(-1,-1,-1),
-	battlefieldType(BFieldType::NONE), terrainType(),
+	battlefieldType(BattleField::NONE), terrainType(),
 	tacticsSide(0), tacticDistance(0)
 {
 	setBattle(this);
@@ -640,7 +616,7 @@ battle::Units BattleInfo::getUnitsIf(battle::UnitFilter predicate) const
 }
 
 
-BFieldType BattleInfo::getBattlefieldType() const
+BattleField BattleInfo::getBattlefieldType() const
 {
 	return battlefieldType;
 }

@@ -18,6 +18,11 @@
 
 const Terrain Terrain::ANY("ANY");
 
+const BattleField BattleField::NONE("");
+const BattleField BattleField::SAND_SHORE("sand_shore");
+const BattleField BattleField::SHIP_TO_SHIP("ship_to_ship");
+const BattleField BattleField::CURSED_GROUND("cursed_ground");
+
 Terrain Terrain::createTerrainTypeH3M(int tId)
 {
 	static std::array<std::string, 10> terrainsH3M
@@ -201,4 +206,23 @@ bool Terrain::isUnderground() const
 bool Terrain::isNative() const
 {
 	return name.empty();
+}
+
+bool operator==(const BattleField & l, const BattleField & r)
+{
+	return l.name == r.name;
+}
+
+bool operator!=(const BattleField & l, const BattleField & r)
+{
+	return l.name != r.name;
+}
+
+bool operator<(const BattleField & l, const BattleField & r)
+{
+	return l.name < r.name;
+}
+BattleField::operator std::string() const
+{
+	return name;
 }

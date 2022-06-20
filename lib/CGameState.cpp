@@ -1894,19 +1894,19 @@ void CGameState::initVisitingAndGarrisonedHeroes()
 	}
 }
 
-BFieldType CGameState::battleGetBattlefieldType(int3 tile, CRandomGenerator & rand)
+BattleField CGameState::battleGetBattlefieldType(int3 tile, CRandomGenerator & rand)
 {
 	if(!tile.valid() && curB)
 		tile = curB->tile;
 	else if(!tile.valid() && !curB)
-		return BFieldType::NONE;
+		return BattleField::NONE;
 
 	const TerrainTile &t = map->getTile(tile);
 	//fight in mine -> subterranean
-	if(dynamic_cast<const CGMine *>(t.visitableObjects.front()))
-		return BFieldType::SUBTERRANEAN;
+	//if(dynamic_cast<const CGMine *>(t.visitableObjects.front()))
+	//	return BFieldType::SUBTERRANEAN;
 
-	for(auto &obj : map->objects)
+	/*for(auto &obj : map->objects)
 	{
 		//look only for objects covering given tile
 		if( !obj || obj->pos.z != tile.z || !obj->coveringAt(tile.x, tile.y))
@@ -1964,7 +1964,9 @@ BFieldType CGameState::battleGetBattlefieldType(int3 tile, CRandomGenerator & ra
 	//TODO: STUB, support new battlegrounds
 	return BFieldType::DIRT_HILLS;
 	
-	return BFieldType::NONE;
+	return BFieldType::NONE;*/
+	
+	return BattleField::SAND_SHORE;
 }
 
 UpgradeInfo CGameState::getUpgradeInfo(const CStackInstance &stack)
