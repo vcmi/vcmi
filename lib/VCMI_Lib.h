@@ -44,7 +44,6 @@ class DLL_LINKAGE LibClasses : public Services
 	void makeNull(); //sets all handler pointers to null
 	std::shared_ptr<CContentHandler> getContent() const;
 	void setContent(std::shared_ptr<CContentHandler> content);
-	void restoreAllCreaturesNodeType794();
 
 public:
 	bool IS_AI_ENABLED; //unused?
@@ -91,33 +90,20 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		if(version >= 800)
+		h & scriptHandler;//must be first (or second after modh), it can modify factories other handlers depends on
+		if(!h.saving)
 		{
-			h & scriptHandler;//must be first (or second after modh), it can modify factories other handlers depends on
-			if(!h.saving)
-			{
-				scriptsLoaded();
-			}
-		}
-		else if(!h.saving)
-		{
-			update800();
+			scriptsLoaded();
 		}
 
 		h & heroh;
 		h & arth;
 		h & creh;
-		if(!h.saving && version < 794)
-			restoreAllCreaturesNodeType794();
-
 		h & townh;
 		h & objh;
 		h & objtypeh;
 		h & spellh;
-		if(version >= 777)
-		{
-			h & skillh;
-		}
+		h & skillh;
 		if(!h.saving)
 		{
 			//modh will be changed and modh->content will be empty after deserialization

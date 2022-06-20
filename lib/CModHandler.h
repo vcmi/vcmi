@@ -303,32 +303,9 @@ public:
 			h & ALL_CREATURES_GET_DOUBLE_MONTHS;
 			h & MAX_HEROES_AVAILABLE_PER_PLAYER;
 			h & MAX_HEROES_ON_MAP_PER_PLAYER;
-			if(version >= 756)
-			{
-				h & WINNING_HERO_WITH_NO_TROOPS_RETREATS;
-			}
-			else if(!h.saving)
-			{
-				WINNING_HERO_WITH_NO_TROOPS_RETREATS = true;
-			}
-
-			if(version >= 776)
-			{
-				h & BLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE;
-			}
-			else if(!h.saving)
-			{
-				BLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE = true;
-			}
-
-			if(version >= 791)
-			{
-				h & NO_RANDOM_SPECIAL_WEEKS_AND_MONTHS;
-			}
-			else if(!h.saving)
-			{
-				NO_RANDOM_SPECIAL_WEEKS_AND_MONTHS = false;
-			}
+			h & WINNING_HERO_WITH_NO_TROOPS_RETREATS;
+			h & BLACK_MARKET_MONTHLY_ARTIFACTS_CHANGE;
+			h & NO_RANDOM_SPECIAL_WEEKS_AND_MONTHS;
 		}
 	} settings;
 
