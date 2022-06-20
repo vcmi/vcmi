@@ -27,6 +27,16 @@ Terrain Terrain::createTerrainTypeH3M(int tId)
 	return Terrain(terrainsH3M.at(tId));
 }
 
+Terrain Terrain::createTerrainByCode(const std::string & typeCode)
+{
+	for(const auto & terrain : Manager::terrains())
+	{
+		if(Manager::getInfo(terrain).typeCode == typeCode)
+			return terrain;
+	}
+	return Terrain::ANY;
+}
+
 Terrain::Manager::Manager()
 {
 	auto allConfigs = VLC->modh->getActiveMods();
@@ -84,6 +94,16 @@ Terrain::Manager::Manager()
 			if(!terr.second["text"].isNull())
 			{
 				info.terrainText = terr.second["text"].String();
+			}
+			
+			if(terr.second["code"].isNull())
+			{
+				info.typeCode = terr.first.substr(0, 2);
+			}
+			else
+			{
+				info.typeCode = terr.second["code"].String();
+				assert(info.typeCode.length() == 2);
 			}
 			
 			

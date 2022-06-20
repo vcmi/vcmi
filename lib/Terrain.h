@@ -32,6 +32,7 @@ public:
 		std::string musicFilename;
 		std::string tilesFilename;
 		std::string terrainText;
+		std::string typeCode;
 		int horseSoundId;
 		Type type;
 	};
@@ -58,6 +59,7 @@ public:
 	
 	Terrain(const std::string & _type = "");
 	static Terrain createTerrainTypeH3M(int tId);
+	static Terrain createTerrainByCode(const std::string & typeCode);
 	
 	int id() const; //TODO: has to be completely removed
 	

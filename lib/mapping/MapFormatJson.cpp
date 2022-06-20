@@ -323,11 +323,6 @@ namespace TriggeredEventsDetail
 
 namespace TerrainDetail
 {
-	static const std::array<std::string, 10> terrainCodes =
-	{
-		"dt", "sa", "gr", "sn", "sw", "rg", "sb", "lv", "wt", "rc"
-	};
-
 	static const std::array<char, 4> flipCodes =
 	{
 		'_', '-', '|', '+'
@@ -950,8 +945,7 @@ void CMapLoaderJson::readTerrainTile(const std::string & src, TerrainTile & tile
 	using namespace TerrainDetail;
 	{//terrain type
 		const std::string typeCode = src.substr(0, 2);
-
-		tile.terType = Terrain(src);
+		tile.terType = Terrain::createTerrainByCode(typeCode);
 	}
 	int startPos = 2; //0+typeCode fixed length
 	{//terrain view
@@ -1281,7 +1275,7 @@ std::string CMapSaverJson::writeTerrainTile(const TerrainTile & tile)
 	out.setf(std::ios::dec, std::ios::basefield);
 	out.unsetf(std::ios::showbase);
 
-	out << static_cast<std::string>(tile.terType).substr(0, 2) << (int)tile.terView << flipCodes[tile.extTileFlags % 4];
+	out << Terrain::Manager::getInfo(tile.terType).typeCode << (int)tile.terView << flipCodes[tile.extTileFlags % 4];
 
 	if(tile.roadType != ROAD_NAMES[0])
 		out << tile.roadType << (int)tile.roadDir << flipCodes[(tile.extTileFlags >> 4) % 4];

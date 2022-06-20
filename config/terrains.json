@@ -5,7 +5,8 @@
 		"minimapUnblocked" : [ 82, 56, 8 ],
 		"minimapBlocked"   : [ 57, 40, 8 ],
 		"music" : "Dirt.mp3",
-		"tiles" : "DIRTTL"
+		"tiles" : "DIRTTL",
+		"code" : "dt"
 	},
 	"sand" :
 	{
@@ -13,7 +14,8 @@
 		"minimapUnblocked" : [ 222, 207, 140 ],
 		"minimapBlocked"   : [ 165, 158, 107 ],
 		"music" : "Sand.mp3",
-		"tiles" : "SANDTL"
+		"tiles" : "SANDTL",
+		"code" : "sa"
 	},
 	"grass" :
 	{
@@ -21,7 +23,8 @@
 		"minimapUnblocked" : [ 0, 65, 0 ],
 		"minimapBlocked"   : [ 0, 48, 0 ],
 		"music" : "Grass.mp3",
-		"tiles" : "GRASTL"
+		"tiles" : "GRASTL",
+		"code" : "gr"
 	},
 	"snow" :
 	{
@@ -29,7 +32,8 @@
 		"minimapUnblocked" : [ 181, 199, 198 ],
 		"minimapBlocked"   : [ 140, 158, 156 ],
 		"music" : "Snow.mp3",
-		"tiles" : "SNOWTL"
+		"tiles" : "SNOWTL",
+		"code" : "sn"
 	},
 	"swamp" :
 	{
@@ -37,7 +41,8 @@
 		"minimapUnblocked" : [ 74, 134, 107 ],
 		"minimapBlocked"   : [ 33,  89,  66 ],
 		"music" : "Swamp.mp3",
-		"tiles" : "SWMPTL"
+		"tiles" : "SWMPTL",
+		"code" : "sw"
 	},
 	"rough" :
 	{
@@ -45,7 +50,8 @@
 		"minimapUnblocked" : [ 132, 113, 49 ],
 		"minimapBlocked"   : [  99,  81, 33 ],
 		"music" : "Rough.mp3",
-		"tiles" : "ROUGTL"
+		"tiles" : "ROUGTL",
+		"code" : "rg"
 	},
 	"subterra" :
 	{
@@ -54,7 +60,8 @@
 		"minimapBlocked"   : [  90,  8, 0 ],
 		"music" : "Underground.mp3",
 		"tiles" : "SUBBTL",
-		"type" : "SUB"
+		"type" : "SUB",
+		"code" : "sb"
 	},
 	"lava" :
 	{
@@ -62,7 +69,8 @@
 		"minimapUnblocked" : [ 74, 73, 74 ],
 		"minimapBlocked"   : [ 41, 40, 41 ],
 		"music" : "Lava.mp3",
-		"tiles" : "LAVATL"
+		"tiles" : "LAVATL",
+		"code" : "lv"
 	},
 	"water" :
 	{
@@ -71,7 +79,8 @@
 		"minimapBlocked"   : [ 8, 81, 148 ],
 		"music" : "Water.mp3",
 		"tiles" : "WATRTL",
-		"type" : "WATER"
+		"type" : "WATER",
+		"code" : "wt"
 	},
 	"rock" :
 	{
@@ -80,6 +89,7 @@
 		"minimapBlocked"   : [ 0, 0, 0 ],
 		"music" : "Underground.mp3", // Impossible in H3
 		"tiles" : "ROCKTL",
-		"type" : "ROCK"
+		"type" : "ROCK",
+		"code" : "rc"
 	}
 }
