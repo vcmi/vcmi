@@ -230,3 +230,8 @@ BattleField::operator std::string() const
 {
 	return name;
 }
+
+int BattleField::hash() const
+{
+	return std::hash<std::string>{}(name);
+}

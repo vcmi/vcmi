@@ -483,7 +483,7 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, const Terrain & terrain,
 	}
 	if(bonusSubtype == -1)
 	{ //common part for cases 9, 14, 15, 16, 17
-		curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::MAGIC_SCHOOL_SKILL,Bonus::TERRAIN_OVERLAY, 3, battlefieldType, bonusSubtype));
+		curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::MAGIC_SCHOOL_SKILL,Bonus::TERRAIN_OVERLAY, 3, battlefieldType.hash(), bonusSubtype));
 	}
 	else if(battlefieldType == BattleField("holy_ground"))
 	{
@@ -491,14 +491,14 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, const Terrain & terrain,
 		goodArmyDesc.erase(goodArmyDesc.size() - 2, 2); //omitting hardcoded +1 in description
 		std::string evilArmyDesc = VLC->generaltexth->arraytxt[124];
 		evilArmyDesc.erase(evilArmyDesc.size() - 2, 2);
-		curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::MORALE, Bonus::TERRAIN_OVERLAY, +1, battlefieldType, goodArmyDesc, 0)->addLimiter(good));
-		curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::MORALE, Bonus::TERRAIN_OVERLAY, -1, battlefieldType, evilArmyDesc, 0)->addLimiter(evil));
+		curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::MORALE, Bonus::TERRAIN_OVERLAY, +1, battlefieldType.hash(), goodArmyDesc, 0)->addLimiter(good));
+		curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::MORALE, Bonus::TERRAIN_OVERLAY, -1, battlefieldType.hash(), evilArmyDesc, 0)->addLimiter(evil));
 	}
 	else if(battlefieldType == BattleField("clover_field"))
 	{ //+2 luck bonus for neutral creatures
 		std::string desc = VLC->generaltexth->arraytxt[83];
 		desc.erase(desc.size() - 2, 2);
-		curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::LUCK, Bonus::TERRAIN_OVERLAY, +2, battlefieldType, desc, 0)->addLimiter(neutral));
+		curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::LUCK, Bonus::TERRAIN_OVERLAY, +2, battlefieldType.hash(), desc, 0)->addLimiter(neutral));
 	}
 	else if(battlefieldType == BattleField("evil_fog"))
 	{
@@ -506,14 +506,14 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, const Terrain & terrain,
 		goodArmyDesc.erase(goodArmyDesc.size() - 2, 2);
 		std::string evilArmyDesc = VLC->generaltexth->arraytxt[125];
 		evilArmyDesc.erase(evilArmyDesc.size() - 2, 2);
-		curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::MORALE, Bonus::TERRAIN_OVERLAY, -1, battlefieldType, goodArmyDesc, 0)->addLimiter(good));
-		curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::MORALE, Bonus::TERRAIN_OVERLAY, +1, battlefieldType, evilArmyDesc, 0)->addLimiter(evil));
+		curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::MORALE, Bonus::TERRAIN_OVERLAY, -1, battlefieldType.hash(), goodArmyDesc, 0)->addLimiter(good));
+		curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::MORALE, Bonus::TERRAIN_OVERLAY, +1, battlefieldType.hash(), evilArmyDesc, 0)->addLimiter(evil));
 	}
 	else if(battlefieldType == BattleField("cursed_ground"))
 	{
-		curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::NO_MORALE, Bonus::TERRAIN_OVERLAY, 0, battlefieldType, VLC->generaltexth->arraytxt[112], 0));
-		curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::NO_LUCK, Bonus::TERRAIN_OVERLAY, 0, battlefieldType, VLC->generaltexth->arraytxt[81], 0));
-		curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::BLOCK_MAGIC_ABOVE, Bonus::TERRAIN_OVERLAY, 1, battlefieldType, 0, Bonus::INDEPENDENT_MIN));
+		curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::NO_MORALE, Bonus::TERRAIN_OVERLAY, 0, battlefieldType.hash(), VLC->generaltexth->arraytxt[112], 0));
+		curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::NO_LUCK, Bonus::TERRAIN_OVERLAY, 0, battlefieldType.hash(), VLC->generaltexth->arraytxt[81], 0));
+		curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::BLOCK_MAGIC_ABOVE, Bonus::TERRAIN_OVERLAY, 1, battlefieldType.hash(), 0, Bonus::INDEPENDENT_MIN));
 	}
 	//overlay premies given
 

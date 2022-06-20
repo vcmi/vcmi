@@ -36,6 +36,7 @@ public:
 	DLL_LINKAGE friend bool operator<(const BattleField & l, const BattleField & r);
 	
 	operator std::string() const;
+	int hash() const;
 	
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
