@@ -225,7 +225,6 @@ public:
 
 struct DLL_LINKAGE CObstacleInfo
 {
-	si32 ID;
 	std::string defName;
 	std::vector<Terrain> allowedTerrains;
 	std::vector<BattleField> allowedSpecialBfields;
@@ -240,7 +239,6 @@ struct DLL_LINKAGE CObstacleInfo
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & ID;
 		h & defName;
 		h & allowedTerrains;
 		h & allowedSpecialBfields;
@@ -317,8 +315,8 @@ public:
 	};
 	std::vector<SBallisticsLevelInfo> ballistics; //info about ballistics ability per level; [0] - none; [1] - basic; [2] - adv; [3] - expert
 
-	std::map<int, CObstacleInfo> obstacles; //info about obstacles that may be placed on battlefield
-	std::map<int, CObstacleInfo> absoluteObstacles; //info about obstacles that may be placed on battlefield
+	std::vector<CObstacleInfo> obstacles; //info about obstacles that may be placed on battlefield
+	std::vector<CObstacleInfo> absoluteObstacles; //info about obstacles that may be placed on battlefield
 
 	ui32 level(ui64 experience) const; //calculates level corresponding to given experience amount
 	ui64 reqExp(ui32 level) const; //calculates experience required for given level

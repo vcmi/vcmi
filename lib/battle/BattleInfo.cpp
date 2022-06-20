@@ -239,7 +239,8 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, const Terrain & terrain,
 	//randomize obstacles
  	if (town == nullptr && !creatureBank) //do it only when it's not siege and not creature bank
  	{
-		const int ABSOLUTE_OBSTACLES_COUNT = 34, USUAL_OBSTACLES_COUNT = 91; //shouldn't be changes if we want H3-like obstacle placement
+		const int ABSOLUTE_OBSTACLES_COUNT = VLC->heroh->absoluteObstacles.size();
+		const int USUAL_OBSTACLES_COUNT = VLC->heroh->obstacles.size(); //shouldn't be changes if we want H3-like obstacle placement
 
 		RandGen r;
 		auto ourRand = [&](){ return r.rand(); };

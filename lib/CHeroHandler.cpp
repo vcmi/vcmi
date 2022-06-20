@@ -817,13 +817,12 @@ void CHeroHandler::loadExperience()
 
 void CHeroHandler::loadObstacles()
 {
-	auto loadObstacles = [](const JsonNode &node, bool absolute, std::map<int, CObstacleInfo> &out)
+	auto loadObstacles = [](const JsonNode & node, bool absolute, std::vector<CObstacleInfo> & out)
 	{
 		for(const JsonNode &obs : node.Vector())
 		{
-			int ID = static_cast<int>(obs["id"].Float());
-			CObstacleInfo & obi = out[ID];
-			obi.ID = ID;
+			out.emplace_back();
+			CObstacleInfo & obi = out.back();
 			obi.defName = obs["defname"].String();
 			obi.width =  static_cast<si32>(obs["width"].Float());
 			obi.height = static_cast<si32>(obs["height"].Float());
