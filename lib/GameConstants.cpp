@@ -236,38 +236,6 @@ std::ostream & operator<<(std::ostream & os, const EActionType actionType)
 	else return os << it->second;
 }
 
-std::ostream & operator<<(std::ostream & os, const ETerrainType terrainType)
-{
-	static const std::map<ETerrainType::EETerrainType, std::string> terrainTypeToString =
-	{
-	#define DEFINE_ELEMENT(element) {ETerrainType::element, #element}
-		DEFINE_ELEMENT(WRONG),
-		DEFINE_ELEMENT(BORDER),
-		DEFINE_ELEMENT(DIRT),
-		DEFINE_ELEMENT(SAND),
-		DEFINE_ELEMENT(GRASS),
-		DEFINE_ELEMENT(SNOW),
-		DEFINE_ELEMENT(SWAMP),
-		DEFINE_ELEMENT(ROUGH),
-		DEFINE_ELEMENT(SUBTERRANEAN),
-		DEFINE_ELEMENT(LAVA),
-		DEFINE_ELEMENT(WATER),
-		DEFINE_ELEMENT(ROCK)
-	#undef DEFINE_ELEMENT
-	};
-
-	auto it = terrainTypeToString.find(terrainType.num);
-	if (it == terrainTypeToString.end()) return os << "<Unknown type>";
-	else return os << it->second;
-}
-
-std::string ETerrainType::toString() const
-{
-	std::stringstream ss;
-	ss << *this;
-	return ss.str();
-}
-
 std::ostream & operator<<(std::ostream & os, const EPathfindingLayer pathfindingLayer)
 {
 	static const std::map<EPathfindingLayer::EEPathfindingLayer, std::string> pathfinderLayerToString

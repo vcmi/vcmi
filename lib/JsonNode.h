@@ -60,6 +60,7 @@ public:
 	//Create tree from JSON file
  	explicit JsonNode(ResourceID && fileURI);
  	explicit JsonNode(const ResourceID & fileURI);
+	explicit JsonNode(const std::string& idx, const ResourceID & fileURI);
 	explicit JsonNode(ResourceID && fileURI, bool & isValidSyntax);
 	//Copy c-tor
 	JsonNode(const JsonNode &copy);
@@ -127,10 +128,7 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & meta;
-		if(version >= 782)
-		{
-			h & flags;
-		}
+		h & flags;
 		h & type;
 		switch(type)
 		{
@@ -152,10 +150,7 @@ public:
 			h & data.Struct;
 			break;
 		case JsonType::DATA_INTEGER:
-			if(version >= 770)
-			{
-				h & data.Integer;
-			}
+			h & data.Integer;
 			break;
 		}
 	}

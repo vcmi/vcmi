@@ -422,17 +422,6 @@ std::vector<CGHeroInstance *> CCampaignScenario::getLostCrossoverHeroes()
 	return lostCrossoverHeroes;
 }
 
-std::vector<JsonNode> CCampaignScenario::update787(std::vector<CGHeroInstance *> & heroes)
-{
-	static_assert(MINIMAL_SERIALIZATION_VERSION < 787, "No longer needed CCampaignScenario::update787");
-	std::vector<JsonNode> heroesNew;
-	for(auto hero : heroes)
-	{
-		heroesNew.push_back(CCampaignState::crossoverSerialize(hero));
-	}
-	return heroesNew;
-}
-
 void CCampaignState::setCurrentMapAsConquered(const std::vector<CGHeroInstance *> & heroes)
 {
 	camp->scenarios[*currentMap].crossoverHeroes.clear();

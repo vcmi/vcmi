@@ -36,7 +36,7 @@ void CRmgTemplateZone::addRoadNode(const int3& node)
 	roadNodes.insert(node);
 }
 
-CTileInfo::CTileInfo():nearestObjectDistance(float(INT_MAX)), terrain(ETerrainType::WRONG),roadType(ERoadType::NO_ROAD)
+CTileInfo::CTileInfo():nearestObjectDistance(float(INT_MAX)), terrain()
 {
 	occupied = ETileType::POSSIBLE; //all tiles are initially possible to place objects or passages
 }
@@ -69,7 +69,7 @@ bool CTileInfo::isFree() const
 
 bool CTileInfo::isRoad() const
 {
-	return roadType != ERoadType::NO_ROAD;
+	return roadType != ROAD_NAMES[0];
 }
 
 bool CTileInfo::isUsed() const
@@ -86,17 +86,17 @@ ETileType::ETileType CTileInfo::getTileType() const
 	return occupied;
 }
 
-ETerrainType CTileInfo::getTerrainType() const
+Terrain CTileInfo::getTerrainType() const
 {
 	return terrain;
 }
 
-void CTileInfo::setTerrainType(ETerrainType value)
+void CTileInfo::setTerrainType(Terrain value)
 {
 	terrain = value;
 }
 
-void CTileInfo::setRoadType(ERoadType::ERoadType value)
+void CTileInfo::setRoadType(const std::string & value)
 {
 	roadType = value;
 //	setOccupied(ETileType::FREE);
@@ -106,7 +106,7 @@ void CTileInfo::setRoadType(ERoadType::ERoadType value)
 CRmgTemplateZone::CRmgTemplateZone(CMapGenerator * Gen)
 	: ZoneOptions(),
 	townType(ETownType::NEUTRAL),
-	terrainType (ETerrainType::GRASS),
+	terrainType (Terrain("grass")),
 	minGuardedValue(0),
 	questArtZone(),
 	gen(Gen)
@@ -989,7 +989,7 @@ bool CRmgTemplateZone::createRoad(const int3& src, const int3& dst)
 	std::map<int3, int3> cameFrom;  // The map of navigated nodes.
 	std::map<int3, float> distances;
 
-	gen->setRoad (src, ERoadType::NO_ROAD); //just in case zone guard already has road under it. Road under nodes will be added at very end
+	gen->setRoad (src, ROAD_NAMES[0]); //just in case zone guard already has road under it. Road under nodes will be added at very end
 
 	cameFrom[src] = int3(-1, -1, -1); //first node points to finish condition
 	pq.push(std::make_pair(src, 0.f));
@@ -1012,8 +1012,8 @@ bool CRmgTemplateZone::createRoad(const int3& src, const int3& dst)
 			while (cameFrom[backTracking].valid())
 			{
 				// add node to path
-				roads.insert (backTracking);
-				gen->setRoad (backTracking, ERoadType::COBBLESTONE_ROAD);
+				roads.insert(backTracking);
+				gen->setRoad(backTracking, gen->getConfig().defaultRoadType);
 				//logGlobal->trace("Setting road at tile %s", backTracking);
 				// do the same for the predecessor
 				backTracking = cameFrom[backTracking];
@@ -1248,6 +1248,17 @@ void CRmgTemplateZone::addObjectAtPosition(CGObjectInstance * obj, const int3 & 
 void CRmgTemplateZone::addToConnectLater(const int3& src)
 {
 	tilesToConnectLater.insert(src);
+}
+
+int CRmgTemplateZone::chooseRandomAppearance(si32 ObjID) const
+{
+	auto factories = VLC->objtypeh->knownSubObjects(ObjID);
+	vstd::erase_if(factories, [this, ObjID](si32 f)
+	{
+		return VLC->objtypeh->getHandlerFor(ObjID, f)->getTemplates(terrainType).empty();
+	});
+	
+	return *RandomGeneratorUtil::nextItem(factories, gen->rand);
 }
 
 bool CRmgTemplateZone::addMonster(int3 &pos, si32 strength, bool clearSurroundingTiles, bool zoneGuard)
@@ -1731,33 +1742,51 @@ void CRmgTemplateZone::initTerrainType ()
 {
 	if (type==ETemplateZoneType::WATER)
 	{
-		terrainType = ETerrainType::WATER;
+		//collect all water terrain types
+		std::vector<Terrain> waterTerrains;
+		for(auto & terrain : Terrain::Manager::terrains())
+			if(terrain.isWater())
+				waterTerrains.push_back(terrain);
+		
+		terrainType = *RandomGeneratorUtil::nextItem(waterTerrains, gen->rand);
 	}
 	else
 	{
 		if (matchTerrainToTown && townType != ETownType::NEUTRAL)
+		{
 			terrainType = (*VLC->townh)[townType]->nativeTerrain;
+		}
 		else
+		{
 			terrainType = *RandomGeneratorUtil::nextItem(terrainTypes, gen->rand);
+		}
 
 		//TODO: allow new types of terrain?
 		{
 			if(isUnderground())
 			{
 				if(!vstd::contains(gen->getConfig().terrainUndergroundAllowed, terrainType))
-					terrainType = ETerrainType::SUBTERRANEAN;
+				{
+					//collect all underground terrain types
+					std::vector<Terrain> undegroundTerrains;
+					for(auto & terrain : Terrain::Manager::terrains())
+						if(terrain.isUnderground())
+							undegroundTerrains.push_back(terrain);
+					
+					terrainType = *RandomGeneratorUtil::nextItem(undegroundTerrains, gen->rand);
+				}
 			}
 			else
 			{
-				if(vstd::contains(gen->getConfig().terrainGroundProhibit, terrainType))
-					terrainType = ETerrainType::DIRT;
+				if(vstd::contains(gen->getConfig().terrainGroundProhibit, terrainType) || terrainType.isUnderground())
+					terrainType = Terrain("dirt");
 			}
 		}
 	}
 	paintZoneTerrain (terrainType);
 }
 
-void CRmgTemplateZone::paintZoneTerrain (ETerrainType terrainType)
+void CRmgTemplateZone::paintZoneTerrain (Terrain terrainType)
 {
 	std::vector<int3> tiles(tileinfo.begin(), tileinfo.end());
 	gen->getEditManager()->getTerrainSelection().setSelection(tiles);
@@ -1837,6 +1866,9 @@ bool CRmgTemplateZone::createRequiredObjects()
 	for(const auto &object : requiredObjects)
 	{
 		auto obj = object.first;
+		if (!obj->appearance.canBePlacedAt(terrainType))
+			continue;
+		
 		int3 pos;
 		while (true)
 		{
@@ -1845,6 +1877,7 @@ bool CRmgTemplateZone::createRequiredObjects()
 				logGlobal->error("Failed to fill zone %d due to lack of space", id);
 				return false;
 			}
+
 			if (tryToPlaceObjectAndConnectToPath(obj, pos) == EObjectPlacingResult::SUCCESS)
 			{
 				//paths to required objects constitute main paths of zone. otherwise they just may lead to middle and create dead zones
@@ -1858,6 +1891,9 @@ bool CRmgTemplateZone::createRequiredObjects()
 	for (const auto &obj : closeObjects)
 	{
 		setTemplateForObject(obj.first);
+		if (!obj.first->appearance.canBePlacedAt(terrainType))
+			continue;
+		
 		auto tilesBlockedByObject = obj.first->getBlockedOffsets();
 
 		bool finished = false;
@@ -2069,8 +2105,8 @@ int3 CRmgTemplateZone::createShipyard(const std::set<int3> & lake, si32 guardStr
 
 bool CRmgTemplateZone::createShipyard(const int3 & position, si32 guardStrength)
 {
-	auto subObjects = VLC->objtypeh->knownSubObjects(Obj::SHIPYARD);
-	auto shipyard = (CGShipyard*) VLC->objtypeh->getHandlerFor(Obj::SHIPYARD, *RandomGeneratorUtil::nextItem(subObjects, gen->rand))->create(ObjectTemplate());
+	int subtype = chooseRandomAppearance(Obj::SHIPYARD);
+	auto shipyard = (CGShipyard*) VLC->objtypeh->getHandlerFor(Obj::SHIPYARD, subtype)->create(ObjectTemplate());
 	shipyard->tempOwner = PlayerColor::NEUTRAL;
 	
 	setTemplateForObject(shipyard);
@@ -2569,7 +2605,8 @@ void CRmgTemplateZone::checkAndPlaceObject(CGObjectInstance* object, const int3 
 	if (object->appearance.id == Obj::NO_OBJ)
 	{
 		auto terrainType = gen->map->getTile(pos).terType;
-		auto templates = VLC->objtypeh->getHandlerFor(object->ID, object->subID)->getTemplates(terrainType);
+		auto h = VLC->objtypeh->getHandlerFor(object->ID, object->subID);
+		auto templates = h->getTemplates(terrainType);
 		if (templates.empty())
 			throw rmgException(boost::to_string(boost::format("Did not find graphics for object (%d,%d) at %s (terrain %d)") % object->ID % object->subID % pos.toString() % terrainType));
 
@@ -3239,7 +3276,7 @@ void CRmgTemplateZone::addAllPossibleObjects()
 			if (!creaturesAmount)
 				continue;
 
-			int randomAppearance = *RandomGeneratorUtil::nextItem(VLC->objtypeh->knownSubObjects(Obj::SEER_HUT), gen->rand);
+			int randomAppearance = chooseRandomAppearance(Obj::SEER_HUT);
 
 			oi.generateObject = [creature, creaturesAmount, randomAppearance, this, generateArtInfo]() -> CGObjectInstance *
 			{
@@ -3270,7 +3307,7 @@ void CRmgTemplateZone::addAllPossibleObjects()
 		static int seerLevels = std::min(gen->getConfig().questValues.size(), gen->getConfig().questRewardValues.size());
 		for(int i = 0; i < seerLevels; i++) //seems that code for exp and gold reward is similiar
 		{
-			int randomAppearance = *RandomGeneratorUtil::nextItem(VLC->objtypeh->knownSubObjects(Obj::SEER_HUT), gen->rand);
+			int randomAppearance = chooseRandomAppearance(Obj::SEER_HUT);
 
 			oi.setTemplate(Obj::SEER_HUT, randomAppearance, terrainType);
 			oi.value = gen->getConfig().questValues[i];
@@ -3332,7 +3369,7 @@ ObjectInfo::ObjectInfo()
 
 }
 
-void ObjectInfo::setTemplate (si32 type, si32 subtype, ETerrainType terrainType)
+void ObjectInfo::setTemplate (si32 type, si32 subtype, Terrain terrainType)
 {
 	auto templHandler = VLC->objtypeh->getHandlerFor(type, subtype);
 	if(!templHandler)

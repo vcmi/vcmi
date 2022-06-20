@@ -227,14 +227,7 @@ public:
 		h & hpool;
 		h & globalEffects;
 		h & rand;
-		if(version >= 755) //save format backward compatibility
-		{
-			h & rumor;
-		}
-		else if(!h.saving)
-		{
-			rumor = RumorState();
-		}
+		h & rumor;
 
 		BONUS_TREE_DESERIALIZATION_FIX
 	}

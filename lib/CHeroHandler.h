@@ -26,6 +26,7 @@ struct BattleHex;
 class JsonNode;
 class CRandomGenerator;
 class JsonSerializeFormat;
+class Terrain;
 
 struct SSpecialtyInfo
 {	si32 type;
@@ -119,15 +120,7 @@ public:
 		h & initialArmy;
 		h & heroClass;
 		h & secSkillsInit;
-		if(version >= 781)
-		{
-			h & specialty;
-		}
-		else
-		{
-			h & specDeprecated;
-			h & specialtyDeprecated;
-		}
+		h & specialty;
 		h & spells;
 		h & haveSpellBook;
 		h & sex;
@@ -141,14 +134,8 @@ public:
 		h & iconSpecLarge;
 		h & portraitSmall;
 		h & portraitLarge;
-		if(version >= 759)
-		{
-			h & identifier;
-		}
-		if(version >= 790)
-		{
-			h & battleImage;
-		}
+		h & identifier;
+		h & battleImage;
 	}
 };
 
@@ -211,16 +198,7 @@ public:
 		h & identifier;
 		h & name;
 		h & faction;
-		if(version >= 800)
-		{
-			h & id;
-		}
-		else
-		{
-			ui8 old_id = 0;
-			h & old_id;
-			id = HeroClassID(old_id);
-		}
+		h & id;
 		h & defaultTavernChance;
 		h & primarySkillInitial;
 		h & primarySkillLowLevel;
@@ -248,7 +226,7 @@ struct DLL_LINKAGE CObstacleInfo
 {
 	si32 ID;
 	std::string defName;
-	std::vector<ETerrainType> allowedTerrains;
+	std::vector<Terrain> allowedTerrains;
 	std::vector<BFieldType> allowedSpecialBfields;
 
 	ui8 isAbsoluteObstacle; //there may only one such obstacle in battle and its position is always the same
@@ -257,7 +235,7 @@ struct DLL_LINKAGE CObstacleInfo
 
 	std::vector<BattleHex> getBlocked(BattleHex hex) const; //returns vector of hexes blocked by obstacle when it's placed on hex 'hex'
 
-	bool isAppropriate(ETerrainType terrainType, int specialBattlefield = -1) const;
+	bool isAppropriate(Terrain terrainType, int specialBattlefield = -1) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -315,7 +293,7 @@ public:
 	CHeroClassHandler classes;
 
 	//default costs of going through terrains. -1 means terrain is impassable
-	std::vector<int> terrCosts;
+	std::map<Terrain, int> terrCosts;
 
 	struct SBallisticsLevelInfo
 	{

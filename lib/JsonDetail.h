@@ -57,7 +57,7 @@ public:
 };
 
 //Internal class for string -> JsonNode conversion
-class JsonParser
+class DLL_LINKAGE JsonParser
 {
 	std::string errors;     // Contains description of all encountered errors
 	constString input;      // Input data

@@ -79,28 +79,28 @@ ui32 CGHeroInstance::getTileCost(const TerrainTile & dest, const TerrainTile & f
 	int64_t ret = GameConstants::BASE_MOVEMENT_COST;
 
 	//if there is road both on dest and src tiles - use road movement cost
-	if(dest.roadType != ERoadType::NO_ROAD && from.roadType != ERoadType::NO_ROAD)
+	if(dest.roadType != ROAD_NAMES[0] && from.roadType != ROAD_NAMES[0])
 	{
-		int road = std::min(dest.roadType,from.roadType); //used road ID
-		switch(road)
+		int roadPos = std::min(vstd::find_pos(ROAD_NAMES, dest.roadType), vstd::find_pos(ROAD_NAMES, from.roadType)); //used road ID
+		switch(roadPos)
 		{
-		case ERoadType::DIRT_ROAD:
+		case 1:
 			ret = 75;
 			break;
-		case ERoadType::GRAVEL_ROAD:
+		case 2:
 			ret = 65;
 			break;
-		case ERoadType::COBBLESTONE_ROAD:
+		case 3:
 			ret = 50;
 			break;
 		default:
-			logGlobal->error("Unknown road type: %d", road);
+			logGlobal->error("Unknown road type: %d", roadPos);
 			break;
 		}
 	}
 	else if(ti->nativeTerrain != from.terType //the terrain is not native
-		&& ti->nativeTerrain != ETerrainType::ANY_TERRAIN //no special creature bonus
-		&& !ti->hasBonusOfType(Bonus::NO_TERRAIN_PENALTY, from.terType) //no special movement bonus
+		&& ti->nativeTerrain != Terrain::ANY //no special creature bonus
+		&& !ti->hasBonusOfType(Bonus::NO_TERRAIN_PENALTY, from.terType.id()) //no special movement bonus
 		)
 	{
 		static const CSelector selectorPATHFINDING = Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::PATHFINDING);
@@ -114,7 +114,7 @@ ui32 CGHeroInstance::getTileCost(const TerrainTile & dest, const TerrainTile & f
 	return (ui32)ret;
 }
 
-ETerrainType::EETerrainType CGHeroInstance::getNativeTerrain() const
+Terrain CGHeroInstance::getNativeTerrain() const
 {
 	// NOTE: in H3 neutral stacks will ignore terrain penalty only if placed as topmost stack(s) in hero army.
 	// This is clearly bug in H3 however intended behaviour is not clear.
@@ -122,18 +122,18 @@ ETerrainType::EETerrainType CGHeroInstance::getNativeTerrain() const
 	// will always have best penalty without any influence from player-defined stacks order
 
 	// TODO: What should we do if all hero stacks are neutral creatures?
-	ETerrainType::EETerrainType nativeTerrain = ETerrainType::BORDER;
+	Terrain nativeTerrain("BORDER");
 
 	for(auto stack : stacks)
 	{
-		ETerrainType::EETerrainType stackNativeTerrain = stack.second->type->getNativeTerrain(); //consider terrain bonuses e.g. Lodestar.
+		Terrain stackNativeTerrain = stack.second->type->getNativeTerrain(); //consider terrain bonuses e.g. Lodestar.
 
-		if(stackNativeTerrain == ETerrainType::BORDER)
+		if(stackNativeTerrain == Terrain("BORDER"))
 			continue;
-		if(nativeTerrain == ETerrainType::BORDER)
+		if(nativeTerrain == Terrain("BORDER"))
 			nativeTerrain = stackNativeTerrain;
 		else if(nativeTerrain != stackNativeTerrain)
-			return ETerrainType::BORDER;
+			return Terrain("BORDER");
 	}
 	return nativeTerrain;
 }
@@ -558,23 +558,6 @@ void CGHeroInstance::recreateSecondarySkillsBonuses()
 	for(auto skill_info : secSkills)
 		if(skill_info.second > 0)
 			updateSkillBonus(SecondarySkill(skill_info.first), skill_info.second);
-}
-
-void CGHeroInstance::recreateSpecialtyBonuses(std::vector<HeroSpecial *> & specialtyDeprecated)
-{
-	auto HeroSpecialToSpecialtyBonus = [](HeroSpecial & hs) -> SSpecialtyBonus
-	{
-		SSpecialtyBonus sb;
-		sb.growsWithLevel = hs.growsWithLevel;
-		sb.bonuses = hs.getBonusList();
-		return sb;
-	};
-
-	for(HeroSpecial * hs : specialtyDeprecated)
-	{
-		for(std::shared_ptr<Bonus> b : SpecialtyBonusToBonuses(HeroSpecialToSpecialtyBonus(*hs), type->ID.getNum()))
-			addNewBonus(b);
-	}
 }
 
 void CGHeroInstance::updateSkillBonus(SecondarySkill which, int val)

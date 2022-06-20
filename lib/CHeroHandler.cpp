@@ -19,6 +19,7 @@
 #include "CCreatureHandler.h"
 #include "CModHandler.h"
 #include "CTownHandler.h"
+#include "Terrain.h"
 #include "mapObjects/CObjectHandler.h" //for hero specialty
 #include "CSkillHandler.h"
 #include <math.h>
@@ -176,7 +177,7 @@ std::vector<BattleHex> CObstacleInfo::getBlocked(BattleHex hex) const
 	return ret;
 }
 
-bool CObstacleInfo::isAppropriate(ETerrainType terrainType, int specialBattlefield) const
+bool CObstacleInfo::isAppropriate(Terrain terrainType, int specialBattlefield) const
 {
 	if(specialBattlefield != -1)
 		return vstd::contains(allowedSpecialBfields, specialBattlefield);
@@ -376,9 +377,9 @@ CHeroHandler::CHeroHandler()
 {
 	loadObstacles();
 	loadTerrains();
-	for (int i = 0; i < GameConstants::TERRAIN_TYPES; ++i)
+	for(int i = 0; i < Terrain::Manager::terrains().size(); ++i)
 	{
-		VLC->modh->identifiers.registerObject("core", "terrain", GameConstants::TERRAIN_NAMES[i], i);
+		VLC->modh->identifiers.registerObject("core", "terrain", Terrain::Manager::terrains()[i], i);
 	}
 	loadBallistics();
 	loadExperience();
@@ -826,7 +827,8 @@ void CHeroHandler::loadObstacles()
 			obi.defName = obs["defname"].String();
 			obi.width =  static_cast<si32>(obs["width"].Float());
 			obi.height = static_cast<si32>(obs["height"].Float());
-			obi.allowedTerrains = obs["allowedTerrain"].convertTo<std::vector<ETerrainType> >();
+			for(auto & t : obs["allowedTerrain"].Vector())
+				obi.allowedTerrains.emplace_back(t.String());
 			obi.allowedSpecialBfields = obs["specialBattlefields"].convertTo<std::vector<BFieldType> >();
 			obi.blockedTiles = obs["blockedTiles"].convertTo<std::vector<si16> >();
 			obi.isAbsoluteObstacle = absolute;
@@ -1029,11 +1031,10 @@ ui64 CHeroHandler::reqExp (ui32 level) const
 
 void CHeroHandler::loadTerrains()
 {
-	const JsonNode config(ResourceID("config/terrains.json"));
-
-	terrCosts.reserve(GameConstants::TERRAIN_TYPES);
-	for(const std::string & name : GameConstants::TERRAIN_NAMES)
-		terrCosts.push_back((int)config[name]["moveCost"].Float());
+	for(auto & terrain : Terrain::Manager::terrains())
+	{
+		terrCosts[terrain] = Terrain::Manager::getInfo(terrain).moveCost;
+	}
 }
 
 std::vector<bool> CHeroHandler::getDefaultAllowed() const
