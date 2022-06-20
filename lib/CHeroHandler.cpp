@@ -179,7 +179,7 @@ std::vector<BattleHex> CObstacleInfo::getBlocked(BattleHex hex) const
 
 bool CObstacleInfo::isAppropriate(const Terrain & terrainType, const BattleField & specialBattlefield) const
 {
-	if(specialBattlefield != BattleField::NONE)
+	if(!allowedSpecialBfields.empty() && specialBattlefield != BattleField::NONE)
 		return vstd::contains(allowedSpecialBfields, specialBattlefield);
 
 	return vstd::contains(allowedTerrains, terrainType);
