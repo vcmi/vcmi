@@ -7,7 +7,8 @@
 		"music" : "Dirt.mp3",
 		"tiles" : "DIRTTL",
 		"code" : "dt",
-		"battleFields" : ["dirt_birches", "dirt_hills", "dirt_pines"]
+		"battleFields" : ["dirt_birches", "dirt_hills", "dirt_pines"],
+		"terrainViewPatterns" : "dirt"
 	},
 	"sand" :
 	{
@@ -17,7 +18,9 @@
 		"music" : "Sand.mp3",
 		"tiles" : "SANDTL",
 		"code" : "sa",
-		"battleFields" : ["sand_mesas"]
+		"battleFields" : ["sand_mesas"],
+		"transitionRequired" : true,
+		"terrainViewPatterns" : "sand"
 	},
 	"grass" :
 	{
@@ -89,7 +92,9 @@
 		"tiles" : "WATRTL",
 		"type" : "WATER",
 		"code" : "wt",
-		"battleFields" : ["ship"]
+		"battleFields" : ["ship"],
+		"transitionRequired" : true,
+		"terrainViewPatterns" : "water"
 	},
 	"rock" :
 	{
@@ -100,6 +105,8 @@
 		"tiles" : "ROCKTL",
 		"type" : "ROCK",
 		"code" : "rc",
-		"battleFields" : ["rocklands"]
+		"battleFields" : ["rocklands"],
+		"transitionRequired" : true,
+		"terrainViewPatterns" : "rock"
 	}
 }

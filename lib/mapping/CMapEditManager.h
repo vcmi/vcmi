@@ -211,18 +211,6 @@ private:
 	std::list<std::unique_ptr<CMapOperation> > operations;
 };
 
-namespace ETerrainGroup
-{
-	enum ETerrainGroup
-	{
-		NORMAL,
-		DIRT,
-		SAND,
-		WATER,
-		ROCK
-	};
-}
-
 /// The terrain view pattern describes a specific composition of terrain tiles
 /// in a 3x3 matrix and notes which terrain view frame numbers can be used.
 struct DLL_LINKAGE TerrainViewPattern
@@ -338,15 +326,14 @@ public:
 	CTerrainViewPatternConfig();
 	~CTerrainViewPatternConfig();
 
-	const std::vector<TVPVector> & getTerrainViewPatternsForGroup(ETerrainGroup::ETerrainGroup terGroup) const;
-	boost::optional<const TerrainViewPattern &> getTerrainViewPatternById(ETerrainGroup::ETerrainGroup terGroup, const std::string & id) const;
-	boost::optional<const TVPVector &> getTerrainViewPatternsById(ETerrainGroup::ETerrainGroup terGroup, const std::string & id) const;
+	const std::vector<TVPVector> & getTerrainViewPatterns(const Terrain & terrain) const;
+	boost::optional<const TerrainViewPattern &> getTerrainViewPatternById(const Terrain & terrain, const std::string & id) const;
+	boost::optional<const TVPVector &> getTerrainViewPatternsById(const Terrain & terrain, const std::string & id) const;
 	const TVPVector * getTerrainTypePatternById(const std::string & id) const;
-	ETerrainGroup::ETerrainGroup getTerrainGroup(const std::string & terGroup) const;
 	void flipPattern(TerrainViewPattern & pattern, int flip) const;
 
 private:
-	std::map<ETerrainGroup::ETerrainGroup, std::vector<TVPVector> > terrainViewPatterns;
+	std::map<std::string, std::vector<TVPVector> > terrainViewPatterns;
 	std::map<std::string, TVPVector> terrainTypePatterns;
 };
 
@@ -385,13 +372,10 @@ private:
 	InvalidTiles getInvalidTiles(const int3 & centerPos) const;
 
 	void updateTerrainViews();
-	ETerrainGroup::ETerrainGroup getTerrainGroup(Terrain terType) const;
 	/// Validates the terrain view of the given position and with the given pattern. The first method wraps the
 	/// second method to validate the terrain view with the given pattern in all four flip directions(horizontal, vertical).
 	ValidationResult validateTerrainView(const int3 & pos, const std::vector<TerrainViewPattern> * pattern, int recDepth = 0) const;
 	ValidationResult validateTerrainViewInner(const int3 & pos, const TerrainViewPattern & pattern, int recDepth = 0) const;
-	/// Tests whether the given terrain type is a sand type. Sand types are: Water, Sand and Rock
-	bool isSandType(Terrain terType) const;
 
 	CTerrainSelection terrainSel;
 	Terrain terType;

@@ -116,6 +116,18 @@ Terrain::Manager::Manager()
 				}
 			}
 			
+			info.transitionRequired = false;
+			if(!terr.second["transitionRequired"].isNull())
+			{
+				info.transitionRequired = terr.second["transitionRequired"].Bool();
+			}
+			
+			info.terrainViewPatterns = "normal";
+			if(!terr.second["terrainViewPatterns"].isNull())
+			{
+				info.terrainViewPatterns = terr.second["terrainViewPatterns"].String();
+			}
+			
 			terrainInfo[Terrain(terr.first)] = info;
 		}
 	}
@@ -210,6 +222,10 @@ bool Terrain::isUnderground() const
 bool Terrain::isNative() const
 {
 	return name.empty();
+}
+bool Terrain::isTransitionRequired() const
+{
+	return Terrain::Manager::getInfo(*this).transitionRequired;
 }
 
 bool operator==(const BattleField & l, const BattleField & r)

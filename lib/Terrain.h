@@ -62,12 +62,14 @@ public:
 		};
 		
 		int moveCost;
+		bool transitionRequired;
 		std::array<int, 3> minimapBlocked;
 		std::array<int, 3> minimapUnblocked;
 		std::string musicFilename;
 		std::string tilesFilename;
 		std::string terrainText;
 		std::string typeCode;
+		std::string terrainViewPatterns;
 		int horseSoundId;
 		Type type;
 		std::vector<BattleField> battleFields;
@@ -113,6 +115,8 @@ public:
 	bool isPassable() const; //ROCK
 	bool isUnderground() const;
 	bool isNative() const;
+	bool isTransitionRequired() const;
+	
 		
 	operator std::string() const;
 	
