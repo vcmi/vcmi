@@ -247,7 +247,6 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, const Terrain & terrain,
 		r.srand(tile);
 		r.rand(1,8); //battle sound ID to play... can't do anything with it here
 		int tilesToBlock = r.rand(5,12);
-		//const int specialBattlefield = battlefieldTypeToBI(battlefieldType);
 
 		std::vector<BattleHex> blockedTiles;
 
@@ -461,72 +460,61 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, const Terrain & terrain,
 
 	//giving terrain overlay premies
 	int bonusSubtype = -1;
-	/*switch(battlefieldType)
-	{
-	case BFieldType::MAGIC_PLAINS:
-		{
-			bonusSubtype = 0;
-		}
-		FALLTHROUGH
-	case BFieldType::FIERY_FIELDS:
-		{
-			if(bonusSubtype == -1) bonusSubtype = 1;
-		}
-		FALLTHROUGH
-	case BFieldType::ROCKLANDS:
-		{
-			if(bonusSubtype == -1) bonusSubtype = 8;
-		}
-		FALLTHROUGH
-	case BFieldType::MAGIC_CLOUDS:
-		{
-			if(bonusSubtype == -1) bonusSubtype = 2;
-		}
-		FALLTHROUGH
-	case BFieldType::LUCID_POOLS:
-		{
-			if(bonusSubtype == -1) bonusSubtype = 4;
-		}
 
-		{ //common part for cases 9, 14, 15, 16, 17
-			curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::MAGIC_SCHOOL_SKILL, Bonus::TERRAIN_OVERLAY, 3, battlefieldType, bonusSubtype));
-			break;
-		}
-	case BFieldType::HOLY_GROUND:
-		{
-			std::string goodArmyDesc = VLC->generaltexth->arraytxt[123];
-			goodArmyDesc.erase(goodArmyDesc.size() - 2, 2); //omitting hardcoded +1 in description
-			std::string evilArmyDesc = VLC->generaltexth->arraytxt[124];
-			evilArmyDesc.erase(evilArmyDesc.size() - 2, 2);
-			curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::MORALE, Bonus::TERRAIN_OVERLAY, +1, battlefieldType, goodArmyDesc, 0)->addLimiter(good));
-			curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::MORALE, Bonus::TERRAIN_OVERLAY, -1, battlefieldType, evilArmyDesc, 0)->addLimiter(evil));
-			break;
-		}
-	case BFieldType::CLOVER_FIELD:
-		{ //+2 luck bonus for neutral creatures
-			std::string desc = VLC->generaltexth->arraytxt[83];
-			desc.erase(desc.size() - 2, 2);
-			curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::LUCK, Bonus::TERRAIN_OVERLAY, +2, battlefieldType, desc, 0)->addLimiter(neutral));
-			break;
-		}
-	case BFieldType::EVIL_FOG:
-		{
-			std::string goodArmyDesc = VLC->generaltexth->arraytxt[126];
-			goodArmyDesc.erase(goodArmyDesc.size() - 2, 2);
-			std::string evilArmyDesc = VLC->generaltexth->arraytxt[125];
-			evilArmyDesc.erase(evilArmyDesc.size() - 2, 2);
-			curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::MORALE, Bonus::TERRAIN_OVERLAY, -1, battlefieldType, goodArmyDesc, 0)->addLimiter(good));
-			curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::MORALE, Bonus::TERRAIN_OVERLAY, +1, battlefieldType, evilArmyDesc, 0)->addLimiter(evil));
-			break;
-		}
-	case BFieldType::CURSED_GROUND:
-		{
-			curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::NO_MORALE, Bonus::TERRAIN_OVERLAY, 0, battlefieldType, VLC->generaltexth->arraytxt[112], 0));
-			curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::NO_LUCK, Bonus::TERRAIN_OVERLAY, 0, battlefieldType, VLC->generaltexth->arraytxt[81], 0));
-			curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::BLOCK_MAGIC_ABOVE, Bonus::TERRAIN_OVERLAY, 1, battlefieldType, 0, Bonus::INDEPENDENT_MIN));
-			break;
-		}
-	}*/
+	if(battlefieldType == BattleField("magic_plains"))
+	{
+		bonusSubtype = 0;
+	}
+	if(battlefieldType == BattleField("fiery_fields"))
+	{
+		if(bonusSubtype == -1) bonusSubtype = 1;
+	}
+	if(battlefieldType == BattleField("rocklands"))
+	{
+		if(bonusSubtype == -1) bonusSubtype = 8;
+	}
+	if(battlefieldType == BattleField("magic_clouds"))
+	{
+		if(bonusSubtype == -1) bonusSubtype = 2;
+	}
+	if(battlefieldType == BattleField("lucid_pools"))
+	{
+		if(bonusSubtype == -1) bonusSubtype = 4;
+	}
+	if(bonusSubtype == -1)
+	{ //common part for cases 9, 14, 15, 16, 17
+		curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::MAGIC_SCHOOL_SKILL,Bonus::TERRAIN_OVERLAY, 3, battlefieldType, bonusSubtype));
+	}
+	else if(battlefieldType == BattleField("holy_ground"))
+	{
+		std::string goodArmyDesc = VLC->generaltexth->arraytxt[123];
+		goodArmyDesc.erase(goodArmyDesc.size() - 2, 2); //omitting hardcoded +1 in description
+		std::string evilArmyDesc = VLC->generaltexth->arraytxt[124];
+		evilArmyDesc.erase(evilArmyDesc.size() - 2, 2);
+		curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::MORALE, Bonus::TERRAIN_OVERLAY, +1, battlefieldType, goodArmyDesc, 0)->addLimiter(good));
+		curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::MORALE, Bonus::TERRAIN_OVERLAY, -1, battlefieldType, evilArmyDesc, 0)->addLimiter(evil));
+	}
+	else if(battlefieldType == BattleField("clover_field"))
+	{ //+2 luck bonus for neutral creatures
+		std::string desc = VLC->generaltexth->arraytxt[83];
+		desc.erase(desc.size() - 2, 2);
+		curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::LUCK, Bonus::TERRAIN_OVERLAY, +2, battlefieldType, desc, 0)->addLimiter(neutral));
+	}
+	else if(battlefieldType == BattleField("evil_fog"))
+	{
+		std::string goodArmyDesc = VLC->generaltexth->arraytxt[126];
+		goodArmyDesc.erase(goodArmyDesc.size() - 2, 2);
+		std::string evilArmyDesc = VLC->generaltexth->arraytxt[125];
+		evilArmyDesc.erase(evilArmyDesc.size() - 2, 2);
+		curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::MORALE, Bonus::TERRAIN_OVERLAY, -1, battlefieldType, goodArmyDesc, 0)->addLimiter(good));
+		curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::MORALE, Bonus::TERRAIN_OVERLAY, +1, battlefieldType, evilArmyDesc, 0)->addLimiter(evil));
+	}
+	else if(battlefieldType == BattleField("cursed_ground"))
+	{
+		curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::NO_MORALE, Bonus::TERRAIN_OVERLAY, 0, battlefieldType, VLC->generaltexth->arraytxt[112], 0));
+		curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::NO_LUCK, Bonus::TERRAIN_OVERLAY, 0, battlefieldType, VLC->generaltexth->arraytxt[81], 0));
+		curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::BLOCK_MAGIC_ABOVE, Bonus::TERRAIN_OVERLAY, 1, battlefieldType, 0, Bonus::INDEPENDENT_MIN));
+	}
 	//overlay premies given
 
 	//native terrain bonuses
