@@ -61,7 +61,6 @@ namespace GameConstants
 
 	const int SKILL_QUANTITY=28;
 	const int PRIMARY_SKILLS=4;
-	const int TERRAIN_TYPES=10;
 	const int RESOURCE_QUANTITY=8;
 	const int HEROES_PER_TYPE=8; //amount of heroes of each type
 
@@ -678,21 +677,8 @@ enum class ETeleportChannelType
 };
 
 
-namespace ERiverType
-{
-	enum ERiverType
-	{
-		NO_RIVER, CLEAR_RIVER, ICY_RIVER, MUDDY_RIVER, LAVA_RIVER
-	};
-}
-
-namespace ERoadType
-{
-	enum ERoadType
-	{
-		NO_ROAD, DIRT_ROAD, GRAVEL_ROAD, COBBLESTONE_ROAD
-	};
-}
+static std::vector<std::string> RIVER_NAMES {"", "rw", "ri", "rm", "rl"};
+static std::vector<std::string> ROAD_NAMES {"", "pd", "pg", "pc"};
 
 class Obj
 {
@@ -911,36 +897,6 @@ enum class EActionType : int32_t
 };
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const EActionType actionType);
-
-class DLL_LINKAGE ETerrainType
-{
-public:
-	enum EETerrainType
-	{
-		ANY_TERRAIN = -3,
-		WRONG = -2, BORDER = -1, DIRT, SAND, GRASS, SNOW, SWAMP,
-		ROUGH, SUBTERRANEAN, LAVA, WATER, ROCK // ROCK is also intended to be max value.
-	};
-
-	ETerrainType(EETerrainType _num = WRONG) : num(_num)
-	{}
-
-	ETerrainType& operator=(EETerrainType _num)
-	{
-		num = _num;
-		return *this;
-	}
-
-	ID_LIKE_CLASS_COMMON(ETerrainType, EETerrainType)
-
-	EETerrainType num;
-
-	std::string toString() const;
-};
-
-DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const ETerrainType terrainType);
-
-ID_LIKE_OPERATORS(ETerrainType, ETerrainType::EETerrainType)
 
 class DLL_LINKAGE EDiggingStatus
 {

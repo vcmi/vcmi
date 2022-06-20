@@ -184,28 +184,26 @@ void CZonePlacer::prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const 
 					zonesToPlace.push_back(zone);
 				else
 				{
-					switch ((*VLC->townh)[faction]->nativeTerrain)
+					auto & tt = (*VLC->townh)[faction]->nativeTerrain;
+					if(tt == Terrain("dirt"))
 					{
-					case ETerrainType::GRASS:
-					case ETerrainType::SWAMP:
-					case ETerrainType::SNOW:
-					case ETerrainType::SAND:
-					case ETerrainType::ROUGH:
-						//surface
-						zonesOnLevel[0]++;
-						levels[zone.first] = 0;
-						break;
-					case ETerrainType::LAVA:
-					case ETerrainType::SUBTERRANEAN:
-						//underground
-						zonesOnLevel[1]++;
-						levels[zone.first] = 1;
-						break;
-					case ETerrainType::DIRT:
-					default:
 						//any / random
 						zonesToPlace.push_back(zone);
-						break;
+					}
+					else
+					{
+						if(tt.isUnderground())
+						{
+							//underground
+							zonesOnLevel[1]++;
+							levels[zone.first] = 1;
+						}
+						else
+						{
+							//surface
+							zonesOnLevel[0]++;
+							levels[zone.first] = 0;
+						}
 					}
 				}
 			}
@@ -564,7 +562,7 @@ void CZonePlacer::assignZones()
 
 			//make sure that terrain inside zone is not a rock
 			//FIXME: reorder actions?
-			zone.second->paintZoneTerrain (ETerrainType::SUBTERRANEAN);
+			zone.second->paintZoneTerrain (Terrain("subterra"));
 		}
 	}
 	logGlobal->info("Finished zone colouring");

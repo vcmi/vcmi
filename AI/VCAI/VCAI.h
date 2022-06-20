@@ -347,11 +347,6 @@ public:
 		h & visitableObjs;
 		h & alreadyVisited;
 		h & reservedObjs;
-		if (version < 788 && !h.saving)
-		{
-			TResources saving;
-			h & saving; //mind the ambiguity
-		}
 		h & status;
 		h & battlename;
 		h & heroesUnableToExplore;

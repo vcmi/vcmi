@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "BattleProxy.h"
 #include "Unit.h"
+#include "Terrain.h"
 
 ///BattleProxy
 
@@ -46,7 +47,7 @@ BFieldType BattleProxy::getBattlefieldType() const
 	return subject->battleGetBattlefieldType();
 }
 
-ETerrainType BattleProxy::getTerrainType() const
+Terrain BattleProxy::getTerrainType() const
 {
 	return subject->battleTerrainType();
 }

@@ -67,14 +67,6 @@ public:
 		h & dwellings;
 		h & quests;
 		h & visitedObjects;
-
-		if(version < 760)
-		{
-			//was: h & getBonusList();
-			BonusList junk;
-			h & junk;
-		}
-
 		h & status;
 		h & daysWithoutCastle;
 		h & enteredLosingCheatCode;

@@ -69,17 +69,6 @@ CMapGenerator::CMapGenerator(CMapGenOptions& mapGenOptions, int RandomSeed) :
 
 void CMapGenerator::loadConfig()
 {
-	static std::map<std::string, ETerrainType> terrainMap
-	{
-		{"dirt", ETerrainType::DIRT},
-		{"sand", ETerrainType::SAND},
-		{"grass", ETerrainType::GRASS},
-		{"snow", ETerrainType::SNOW},
-		{"swamp", ETerrainType::SWAMP},
-		{"subterranean", ETerrainType::SUBTERRANEAN},
-		{"lava", ETerrainType::LAVA},
-		{"rough", ETerrainType::ROUGH}
-	};
 	static const std::map<std::string, Res::ERes> resMap
 	{
 		{"wood", Res::ERes::WOOD},
@@ -90,23 +79,17 @@ void CMapGenerator::loadConfig()
 		{"sulfur", Res::ERes::SULFUR},
 		{"gold", Res::ERes::GOLD},
 	};
-	static std::map<std::string, ERoadType::ERoadType> roadTypeMap
-	{
-		{"dirt_road", ERoadType::DIRT_ROAD},
-		{"gravel_road", ERoadType::GRAVEL_ROAD},
-		{"cobblestone_road", ERoadType::COBBLESTONE_ROAD}
-	};
 	static const ResourceID path("config/randomMap.json");
 	JsonNode randomMapJson(path);
 	for(auto& s : randomMapJson["terrain"]["undergroundAllow"].Vector())
 	{
 		if(!s.isNull())
-			config.terrainUndergroundAllowed.push_back(terrainMap[s.String()]);
+			config.terrainUndergroundAllowed.emplace_back(s.String());
 	}
 	for(auto& s : randomMapJson["terrain"]["groundProhibit"].Vector())
 	{
 		if(!s.isNull())
-			config.terrainGroundProhibit.push_back(terrainMap[s.String()]);
+			config.terrainGroundProhibit.emplace_back(s.String());
 	}
 	config.shipyardGuard = randomMapJson["waterZone"]["shipyard"]["value"].Integer();
 	for(auto & treasure : randomMapJson["waterZone"]["treasure"].Vector())
@@ -119,7 +102,7 @@ void CMapGenerator::loadConfig()
 	}
 	config.mineExtraResources = randomMapJson["mines"]["extraResourcesLimit"].Integer();
 	config.minGuardStrength = randomMapJson["minGuardStrength"].Integer();
-	config.defaultRoadType = roadTypeMap[randomMapJson["defaultRoadType"].String()];
+	config.defaultRoadType = randomMapJson["defaultRoadType"].String();
 	config.treasureValueLimit = randomMapJson["treasureValueLimit"].Integer();
 	for(auto & i : randomMapJson["prisons"]["experience"].Vector())
 		config.prisonExperience.push_back(i.Integer());
@@ -357,7 +340,7 @@ void CMapGenerator::genZones()
 {
 	getEditManager()->clearTerrain(&rand);
 	getEditManager()->getTerrainSelection().selectRange(MapRect(int3(0, 0, 0), mapGenOptions.getWidth(), mapGenOptions.getHeight()));
-	getEditManager()->drawTerrain(ETerrainType::GRASS, &rand);
+	getEditManager()->drawTerrain(Terrain("grass"), &rand);
 
 	auto tmpl = mapGenOptions.getMapTemplate();
 	zones.clear();
@@ -530,14 +513,14 @@ void CMapGenerator::fillZones()
 
 void CMapGenerator::createObstaclesCommon1()
 {
-	if (map->twoLevel) //underground
+	if(map->twoLevel) //underground
 	{
 		//negative approach - create rock tiles first, then make sure all accessible tiles have no rock
 		std::vector<int3> rockTiles;
 
-		for (int x = 0; x < map->width; x++)
+		for(int x = 0; x < map->width; x++)
 		{
-			for (int y = 0; y < map->height; y++)
+			for(int y = 0; y < map->height; y++)
 			{
 				int3 tile(x, y, 1);
 				if (shouldBeBlocked(tile))
@@ -547,21 +530,29 @@ void CMapGenerator::createObstaclesCommon1()
 			}
 		}
 		getEditManager()->getTerrainSelection().setSelection(rockTiles);
-		getEditManager()->drawTerrain(ETerrainType::ROCK, &rand);
+		
+		//collect all rock terrain types
+		std::vector<Terrain> rockTerrains;
+		for(auto & terrain : Terrain::Manager::terrains())
+			if(!terrain.isPassable())
+				rockTerrains.push_back(terrain);
+		auto rockTerrain = *RandomGeneratorUtil::nextItem(rockTerrains, rand);
+		
+		getEditManager()->drawTerrain(rockTerrain, &rand);
 	}
 }
 
 void CMapGenerator::createObstaclesCommon2()
 {
-	if (map->twoLevel)
+	if(map->twoLevel)
 	{
 		//finally mark rock tiles as occupied, spawn no obstacles there
-		for (int x = 0; x < map->width; x++)
+		for(int x = 0; x < map->width; x++)
 		{
-			for (int y = 0; y < map->height; y++)
+			for(int y = 0; y < map->height; y++)
 			{
 				int3 tile(x, y, 1);
-				if (map->getTile(tile).terType == ETerrainType::ROCK)
+				if(!map->getTile(tile).terType.isPassable())
 				{
 					setOccupied(tile, ETileType::USED);
 				}
@@ -904,7 +895,7 @@ void CMapGenerator::setOccupied(const int3 &tile, ETileType::ETileType state)
 	tiles[tile.x][tile.y][tile.z].setOccupied(state);
 }
 
-void CMapGenerator::setRoad(const int3& tile, ERoadType::ERoadType roadType)
+void CMapGenerator::setRoad(const int3& tile, const std::string & roadType)
 {
 	checkIsOnMap(tile);
 

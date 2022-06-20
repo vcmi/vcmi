@@ -24,6 +24,7 @@ class CLegacyConfigParser;
 class CCreatureHandler;
 class CCreature;
 class JsonSerializeFormat;
+class Terrain;
 
 class DLL_LINKAGE CCreature : public Creature, public CBonusSystemNode
 {
@@ -118,14 +119,14 @@ public:
 
 	ArtifactID warMachine;
 
-	bool isItNativeTerrain(ETerrainType::EETerrainType terrain) const;
+	bool isItNativeTerrain(const Terrain & terrain) const;
 	/**
 	Returns creature native terrain considering some terrain bonuses.
 	@param considerBonus is used to avoid Dead Lock when this method is called inside getAllBonuses
 	considerBonus = true is called from Pathfinder and fills actual nativeTerrain considering bonus(es).
 	considerBonus = false is called on Battle init and returns already prepared nativeTerrain without Bonus system calling.
 	*/
-	ETerrainType::EETerrainType getNativeTerrain() const;
+	Terrain getNativeTerrain() const;
 	int32_t getIndex() const override;
 	int32_t getIconIndex() const override;
 	const std::string & getName() const override;
@@ -211,18 +212,8 @@ public:
 
 		h & doubleWide;
 		h & special;
-		if(version>=759)
-		{
-			h & identifier;
-		}
-		if(version >= 771)
-		{
-			h & warMachine;
-		}
-		else if(!h.saving)
-		{
-			fillWarMachine();
-		}
+		h & identifier;
+		h & warMachine;
 	}
 
 	CCreature();
@@ -281,7 +272,6 @@ public:
 	void addBonusForTier(int tier, const std::shared_ptr<Bonus> & b); //tier must be <1-7>
 	void addBonusForAllCreatures(const std::shared_ptr<Bonus> & b); //due to CBonusSystem::addNewBonus(const std::shared_ptr<Bonus>& b);
 	void removeBonusesFromAllCreatures();
-	void restoreAllCreaturesNodeType794(); //restore ALL_CREATURES node type for old saves
 
 	CCreatureHandler();
 	~CCreatureHandler();

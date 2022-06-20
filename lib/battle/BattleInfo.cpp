@@ -15,6 +15,7 @@
 #include "../filesystem/Filesystem.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../CGeneralTextHandler.h"
+#include "../Terrain.h"
 
 //TODO: remove
 #include "../IGameCallback.h"
@@ -186,7 +187,7 @@ struct RangeGenerator
 	std::function<int()> myRand;
 };
 
-BattleInfo * BattleInfo::setupBattle(int3 tile, ETerrainType terrain, BFieldType battlefieldType, const CArmedInstance * armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance * town)
+BattleInfo * BattleInfo::setupBattle(int3 tile, Terrain terrain, BFieldType battlefieldType, const CArmedInstance * armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance * town)
 {
 	CMP_stack cmpst;
 	auto curB = new BattleInfo();
@@ -610,7 +611,7 @@ CStack * BattleInfo::getStack(int stackID, bool onlyAlive)
 
 BattleInfo::BattleInfo()
 	: round(-1), activeStack(-1), town(nullptr), tile(-1,-1,-1),
-	battlefieldType(BFieldType::NONE), terrainType(ETerrainType::WRONG),
+	battlefieldType(BFieldType::NONE), terrainType(),
 	tacticsSide(0), tacticDistance(0)
 {
 	setBattle(this);
@@ -644,7 +645,7 @@ BFieldType BattleInfo::getBattlefieldType() const
 	return battlefieldType;
 }
 
-ETerrainType BattleInfo::getTerrainType() const
+Terrain BattleInfo::getTerrainType() const
 {
 	return terrainType;
 }

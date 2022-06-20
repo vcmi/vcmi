@@ -110,11 +110,7 @@ struct DLL_LINKAGE PlayerInfo
 		h & posOfMainTown;
 		h & team;
 		h & generateHero;
-
-		if(version >= 770)
-		{
-			h & mainHeroInstance;
-		}
+		h & mainHeroInstance;
 	}
 };
 
@@ -164,16 +160,9 @@ struct DLL_LINKAGE EventCondition
 		h & objectType;
 		h & position;
 		h & condition;
-		//(!!!) should be `version >= 759` here, but do not try to "fix" it
-		if(version > 759)
-		{
-			h & objectSubtype;
-			h & objectInstanceName;
-		}
-		if(version >= 770)
-		{
-			h & metaType;
-		}
+		h & objectSubtype;
+		h & objectInstanceName;
+		h & metaType;
 	}
 };
 
@@ -495,9 +484,6 @@ public:
 		h & CGTownInstance::merchantArtifacts;
 		h & CGTownInstance::universitySkills;
 
-		if(formatVersion >= 759)
-		{
-			h & instanceNames;
-		}
+		h & instanceNames;
 	}
 };

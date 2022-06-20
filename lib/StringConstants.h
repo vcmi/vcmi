@@ -16,10 +16,6 @@
 ///
 namespace GameConstants
 {
-	const std::string TERRAIN_NAMES [TERRAIN_TYPES] = {
-	    "dirt", "sand", "grass", "snow", "swamp", "rough", "subterra", "lava", "water", "rock"
-	};
-
 	const std::string RESOURCE_NAMES [RESOURCE_QUANTITY] = {
 	    "wood", "mercury", "ore", "sulfur", "crystal", "gems", "gold", "mithril"
 	};

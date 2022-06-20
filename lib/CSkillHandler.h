@@ -35,12 +35,9 @@ public:
 		template <typename Handler> void serialize(Handler & h, const int version)
 		{
 			h & description;
-			if(version >= 785)
-			{
-				h & iconSmall;
-				h & iconMedium;
-				h & iconLarge;
-			}
+			h & iconSmall;
+			h & iconMedium;
+			h & iconLarge;
 			h & effects;
 		}
 	};
@@ -78,10 +75,7 @@ public:
 		h & id;
 		h & identifier;
 		h & name;
-		if(version >= 785)
-		{
-			h & gainChance;
-		}
+		h & gainChance;
 		h & levels;
 	}
 
