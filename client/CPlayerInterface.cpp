@@ -1350,12 +1350,6 @@ void CPlayerInterface::heroBonusChanged( const CGHeroInstance *hero, const Bonus
 
 template <typename Handler> void CPlayerInterface::serializeTempl( Handler &h, const int version )
 {
-	if(version < 774 && !h.saving)
-	{
-		bool observerInDuelMode = false;
-		h & observerInDuelMode;
-	}
-
 	h & wanderingHeroes;
 	h & towns;
 	h & sleepingHeroes;
@@ -2741,8 +2735,8 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 
 	{
 		path.convert(0);
-		ETerrainType currentTerrain = ETerrainType::BORDER; // not init yet
-		ETerrainType newTerrain;
+		Terrain currentTerrain = Terrain("BORDER"); // not init yet
+		Terrain newTerrain;
 		int sh = -1;
 
 		auto canStop = [&](CGPathNode * node) -> bool
@@ -2777,7 +2771,9 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 					destinationTeleportPos = int3(-1);
 				}
 				if(i != path.nodes.size() - 1)
+				{
 					sh = CCS->soundh->playSound(CCS->soundh->horseSounds[currentTerrain], -1);
+				}
 				continue;
 			}
 
@@ -2795,7 +2791,7 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 #endif
 			{
 				newTerrain = cb->getTile(CGHeroInstance::convertPosition(currentCoord, false))->terType;
-				if (newTerrain != currentTerrain)
+				if(newTerrain != currentTerrain)
 				{
 					CCS->soundh->stopSound(sh);
 					sh = CCS->soundh->playSound(CCS->soundh->horseSounds[newTerrain], -1);

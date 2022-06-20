@@ -163,6 +163,7 @@ set(lib_SRCS
 		StartInfo.cpp
 		ResourceSet.cpp
 		ScriptHandler.cpp
+		Terrain.cpp
 		VCMIDirs.cpp
 		VCMI_Lib.cpp
 
@@ -385,6 +386,7 @@ set(lib_HEADERS
 		ScopeGuard.h
 		StartInfo.h
 		StringConstants.h
+		Terrain.h
 		UnlockGuard.h
 		VCMIDirs.h
 		vcmi_endian.h

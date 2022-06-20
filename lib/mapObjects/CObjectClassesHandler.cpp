@@ -1,4 +1,4 @@
-﻿/*
+/*
  * CObjectClassesHandler.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
@@ -195,7 +195,7 @@ void CObjectClassesHandler::loadObjectEntry(const std::string & identifier, cons
 	else
 		handler->init(entry);
 
-	if (handler->getTemplates().empty())
+	//if (handler->getTemplates().empty())
 	{
 		auto range = legacyTemplates.equal_range(std::make_pair(obj->id, id));
 		for (auto & templ : boost::make_iterator_range(range.first, range.second))
@@ -569,14 +569,14 @@ std::vector<ObjectTemplate> AObjectTypeHandler::getTemplates() const
 	return templates;
 }
 
-std::vector<ObjectTemplate> AObjectTypeHandler::getTemplates(si32 terrainType) const// FIXME: replace with ETerrainType
+std::vector<ObjectTemplate> AObjectTypeHandler::getTemplates(const Terrain & terrainType) const
 {
 	std::vector<ObjectTemplate> templates = getTemplates();
 	std::vector<ObjectTemplate> filtered;
 
 	std::copy_if(templates.begin(), templates.end(), std::back_inserter(filtered), [&](const ObjectTemplate & obj)
 	{
-		return obj.canBePlacedAt(ETerrainType(terrainType));
+		return obj.canBePlacedAt(terrainType);
 	});
 	// H3 defines allowed terrains in a weird way - artifacts, monsters and resources have faulty masks here
 	// Perhaps we should re-define faulty templates and remove this workaround (already done for resources)
@@ -586,7 +586,7 @@ std::vector<ObjectTemplate> AObjectTypeHandler::getTemplates(si32 terrainType) c
 		return filtered;
 }
 
-boost::optional<ObjectTemplate> AObjectTypeHandler::getOverride(si32 terrainType, const CGObjectInstance * object) const
+boost::optional<ObjectTemplate> AObjectTypeHandler::getOverride(const Terrain & terrainType, const CGObjectInstance * object) const
 {
 	std::vector<ObjectTemplate> ret = getTemplates(terrainType);
 	for (auto & tmpl : ret)

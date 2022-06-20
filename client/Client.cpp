@@ -274,12 +274,6 @@ void CClient::serialize(BinarySerializer & h, const int version)
 void CClient::serialize(BinaryDeserializer & h, const int version)
 {
 	assert(!h.saving);
-	if(version < 787)
-	{
-		bool hotSeat = false;
-		h & hotSeat;
-	}
-
 	ui8 players = 0;
 	h & players;
 
@@ -337,11 +331,7 @@ void CClient::serialize(BinaryDeserializer & h, const int version)
 
 	{
 		JsonNode scriptsState;
-		if(version >= 800)
-		{
-			h & scriptsState;
-		}
-
+		h & scriptsState;
 		clientScripts->serializeState(h.saving, scriptsState);
 	}
 
