@@ -20,7 +20,7 @@ const Terrain Terrain::ANY("ANY");
 
 Terrain Terrain::createTerrainTypeH3M(int tId)
 {
-	static std::vector<std::string> terrainsH3M
+	static std::array<std::string, 10> terrainsH3M
 	{
 		"dirt", "sand", "grass", "snow", "swamp", "rough", "subterra", "lava", "water", "rock"
 	};
