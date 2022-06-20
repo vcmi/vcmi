@@ -835,11 +835,18 @@ void CHeroHandler::loadObstacles()
 			obi.isAbsoluteObstacle = absolute;
 		}
 	};
-
-	const JsonNode config(ResourceID("config/obstacles.json"));
-	loadObstacles(config["obstacles"], false, obstacles);
-	loadObstacles(config["absoluteObstacles"], true, absoluteObstacles);
-	//loadObstacles(config["moats"], true, moats);
+	
+	auto allConfigs = VLC->modh->getActiveMods();
+	allConfigs.insert(allConfigs.begin(), "core");
+	for(auto & mod : allConfigs)
+	{
+		if(!CResourceHandler::get(mod)->existsResource(ResourceID("config/obstacles.json")))
+			continue;
+		
+		const JsonNode config(mod, ResourceID("config/obstacles.json"));
+		loadObstacles(config["obstacles"], false, obstacles);
+		loadObstacles(config["absoluteObstacles"], true, absoluteObstacles);
+	}
 }
 
 /// convert h3-style ID (e.g. Gobin Wolf Rider) to vcmi (e.g. goblinWolfRider)
