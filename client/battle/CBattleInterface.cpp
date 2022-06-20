@@ -201,13 +201,12 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 	else
 	{
 		auto bfieldType = curInt->cb->battleGetBattlefieldType();
-		//if (graphics->battleBacks.size() <= bfieldType || bfieldType < 0)
-		//	logGlobal->error("%d is not valid battlefield type index!", bfieldType);
-		//else if (graphics->battleBacks[bfieldType].empty())
-		//	logGlobal->error("%d battlefield type does not have any backgrounds!", bfieldType);
-		//else
+		if(!vstd::contains(graphics->battleBacks, bfieldType))
 		{
-			//const std::string bgName = *RandomGeneratorUtil::nextItem(graphics->battleBacks[bfieldType], CRandomGenerator::getDefault());
+			logGlobal->error("%s is not valid battlefield type!", static_cast<std::string>(bfieldType));
+		}
+		else
+		{
 			background = BitmapHandler::loadBitmap(graphics->battleBacks[bfieldType], false);
 		}
 	}
