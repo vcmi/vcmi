@@ -12,8 +12,8 @@
 #include "../ConstTransitivePtr.h"
 #include "../GameConstants.h"
 
-const ui32 SERIALIZATION_VERSION = 801;
-const ui32 MINIMAL_SERIALIZATION_VERSION = 753;
+const ui32 SERIALIZATION_VERSION = 802;
+const ui32 MINIMAL_SERIALIZATION_VERSION = 802;
 const std::string SAVEGAME_MAGIC = "VCMISVG";
 
 class CHero;

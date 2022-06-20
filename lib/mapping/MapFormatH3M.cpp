@@ -935,14 +935,14 @@ void CMapLoaderH3M::readTerrain()
 			for(int z = 0; z < map->height; z++)
 			{
 				auto & tile = map->getTile(int3(z, c, a));
-				tile.terType = ETerrainType(reader.readUInt8());
+				tile.terType = Terrain::createTerrainTypeH3M(reader.readUInt8());
 				tile.terView = reader.readUInt8();
-				tile.riverType = static_cast<ERiverType::ERiverType>(reader.readUInt8());
+				tile.riverType = RIVER_NAMES[reader.readUInt8()];
 				tile.riverDir = reader.readUInt8();
-				tile.roadType = static_cast<ERoadType::ERoadType>(reader.readUInt8());
+				tile.roadType = ROAD_NAMES[reader.readUInt8()];
 				tile.roadDir = reader.readUInt8();
 				tile.extTileFlags = reader.readUInt8();
-				tile.blocked = ((tile.terType == ETerrainType::ROCK || tile.terType == ETerrainType::BORDER ) ? true : false); //underground tiles are always blocked
+				tile.blocked = ((!tile.terType.isPassable() || tile.terType == Terrain("BORDER") ) ? true : false); //underground tiles are always blocked
 				tile.visitable = 0;
 			}
 		}

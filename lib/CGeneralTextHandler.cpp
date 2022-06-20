@@ -17,6 +17,7 @@
 #include "CModHandler.h"
 #include "GameConstants.h"
 #include "VCMI_Lib.h"
+#include "Terrain.h"
 
 size_t Unicode::getCharacterSize(char firstByte)
 {
@@ -309,6 +310,7 @@ void CGeneralTextHandler::readToVector(std::string sourceName, std::vector<std::
 
 CGeneralTextHandler::CGeneralTextHandler()
 {
+	std::vector<std::string> h3mTerrainNames;
 	readToVector("DATA/VCDESC.TXT",   victoryConditions);
 	readToVector("DATA/LCDESC.TXT",   lossCondtions);
 	readToVector("DATA/TCOMMAND.TXT", tcommands);
@@ -317,7 +319,7 @@ CGeneralTextHandler::CGeneralTextHandler()
 	readToVector("DATA/ADVEVENT.TXT", advobtxt);
 	readToVector("DATA/XTRAINFO.TXT", xtrainfo);
 	readToVector("DATA/RESTYPES.TXT", restypes);
-	readToVector("DATA/TERRNAME.TXT", terrainNames);
+	readToVector("DATA/TERRNAME.TXT", h3mTerrainNames);
 	readToVector("DATA/RANDSIGN.TXT", randsign);
 	readToVector("DATA/CRGEN1.TXT",   creGens);
 	readToVector("DATA/CRGEN4.TXT",   creGens4);
@@ -331,6 +333,17 @@ CGeneralTextHandler::CGeneralTextHandler()
 	readToVector("DATA/HEROSCRN.TXT", heroscrn);
 	readToVector("DATA/TENTCOLR.TXT", tentColors);
 	readToVector("DATA/SKILLLEV.TXT", levels);
+	
+	for(int i = 0; i < h3mTerrainNames.size(); ++i)
+	{
+		terrainNames[Terrain::createTerrainTypeH3M(i)] = h3mTerrainNames[i];
+	}
+	for(auto & terrain : Terrain::Manager::terrains())
+	{
+		if(!Terrain::Manager::getInfo(terrain).terrainText.empty())
+			terrainNames[terrain] = Terrain::Manager::getInfo(terrain).terrainText;
+	}
+	
 
 	static const char * QE_MOD_COMMANDS = "DATA/QECOMMANDS.TXT";
 	if (CResourceHandler::get()->existsResource(ResourceID(QE_MOD_COMMANDS, EResType::TEXT)))

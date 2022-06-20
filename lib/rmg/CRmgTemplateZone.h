@@ -17,6 +17,7 @@
 #include "CRmgTemplate.h"
 #include "../mapObjects/ObjectTemplate.h"
 #include <boost/heap/priority_queue.hpp> //A*
+#include "Terrain.h"
 
 class CMapGenerator;
 class CTileInfo;
@@ -48,16 +49,16 @@ public:
 	bool isUsed() const;
 	bool isRoad() const;
 	void setOccupied(ETileType::ETileType value);
-	ETerrainType getTerrainType() const;
+	Terrain getTerrainType() const;
 	ETileType::ETileType getTileType() const;
-	void setTerrainType(ETerrainType value);
+	void setTerrainType(Terrain value);
 
-	void setRoadType(ERoadType::ERoadType value);
+	void setRoadType(const std::string & value);
 private:
 	float nearestObjectDistance;
 	ETileType::ETileType occupied;
-	ETerrainType terrain;
-	ERoadType::ERoadType roadType;
+	Terrain terrain;
+	std::string roadType;
 };
 
 struct DLL_LINKAGE ObjectInfo
@@ -69,7 +70,7 @@ struct DLL_LINKAGE ObjectInfo
 	//ui32 maxPerMap; //unused
 	std::function<CGObjectInstance *()> generateObject;
 
-	void setTemplate (si32 type, si32 subtype, ETerrainType terrain);
+	void setTemplate (si32 type, si32 subtype, Terrain terrain);
 
 	ObjectInfo();
 
@@ -120,7 +121,7 @@ public:
 	bool fill ();
 	bool placeMines ();
 	void initTownType ();
-	void paintZoneTerrain (ETerrainType terrainType);
+	void paintZoneTerrain (Terrain terrainType);
 	void randomizeTownType(bool matchUndergroundType = false); //helper function
 	void initTerrainType ();
 	void createBorder();
@@ -192,7 +193,7 @@ private:
 	
 	//template info
 	si32 townType;
-	ETerrainType terrainType;
+	Terrain terrainType;
 	std::weak_ptr<CRmgTemplateZone> questArtZone; //artifacts required for Seer Huts will be placed here - or not if null
 
 	std::vector<ObjectInfo> possibleObjects;
@@ -230,6 +231,7 @@ private:
 	bool canObstacleBePlacedHere(ObjectTemplate &temp, int3 &pos);
 	void setTemplateForObject(CGObjectInstance* obj);
 	void checkAndPlaceObject(CGObjectInstance* object, const int3 &pos);
+	int chooseRandomAppearance(si32 ObjID) const;
 	
 	bool isGuardNeededForTreasure(int value);
 };

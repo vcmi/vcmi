@@ -18,7 +18,7 @@ struct TerrainTile;
 class CDrawRoadsOperation : public CMapOperation
 {
 public:
-	CDrawRoadsOperation(CMap * map, const CTerrainSelection & terrainSel, ERoadType::ERoadType roadType, CRandomGenerator * gen);
+	CDrawRoadsOperation(CMap * map, const CTerrainSelection & terrainSel, const std::string & roadType, CRandomGenerator * gen);
 	void execute() override;
 	void undo() override;
 	void redo() override;
@@ -53,6 +53,6 @@ private:
 	bool tileHasSomething(const int3 & pos) const;
 	
 	CTerrainSelection terrainSel;
-	ERoadType::ERoadType roadType;
+	std::string roadType;
 	CRandomGenerator * gen;	
 };

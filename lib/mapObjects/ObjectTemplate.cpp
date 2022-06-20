@@ -19,6 +19,7 @@
 #include "CObjectHandler.h"
 #include "../CModHandler.h"
 #include "../JsonNode.h"
+#include "../Terrain.h"
 
 #include "CRewardableConstructor.h"
 
@@ -143,7 +144,17 @@ void ObjectTemplate::readTxt(CLegacyConfigParser & parser)
 	for (size_t i=0; i<9; i++)
 	{
 		if (terrStr[8-i] == '1')
-			allowedTerrains.insert(ETerrainType((si32)i));
+			allowedTerrains.insert(Terrain::createTerrainTypeH3M(i));
+	}
+	
+	//assuming that object can be placed on other land terrains
+	if(allowedTerrains.size() >= 8 && !allowedTerrains.count(Terrain("water")))
+	{
+		for(auto & terrain : Terrain::Manager::terrains())
+		{
+			if(terrain.isLand() && terrain.isPassable())
+				allowedTerrains.insert(terrain);
+		}
 	}
 
 	id    = Obj(boost::lexical_cast<int>(strings[5]));
@@ -205,7 +216,17 @@ void ObjectTemplate::readMap(CBinaryReader & reader)
 	for (size_t i=0; i<9; i++)
 	{
 		if (((terrMask >> i) & 1 ) != 0)
-			allowedTerrains.insert(ETerrainType((si32)i));
+			allowedTerrains.insert(Terrain::createTerrainTypeH3M(i));
+	}
+	
+	//assuming that object can be placed on other land terrains
+	if(allowedTerrains.size() >= 8 && !allowedTerrains.count(Terrain("water")))
+	{
+		for(auto & terrain : Terrain::Manager::terrains())
+		{
+			if(terrain.isLand() && terrain.isPassable())
+				allowedTerrains.insert(terrain);
+		}
 	}
 
 	id = Obj(reader.readUInt32());
@@ -247,15 +268,16 @@ void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
 	if(withTerrain && !node["allowedTerrains"].isNull())
 	{
 		for (auto & entry : node["allowedTerrains"].Vector())
-			allowedTerrains.insert(ETerrainType(vstd::find_pos(GameConstants::TERRAIN_NAMES, entry.String())));
+			allowedTerrains.insert(entry.String());
 	}
 	else
 	{
-		for (size_t i=0; i< GameConstants::TERRAIN_TYPES; i++)
-			allowedTerrains.insert(ETerrainType((si32)i));
-
-		allowedTerrains.erase(ETerrainType::ROCK);
-		allowedTerrains.erase(ETerrainType::WATER);
+		for(auto & i : Terrain::Manager::terrains())
+		{
+			if(!i.isPassable() || i.isWater())
+				continue;
+			allowedTerrains.insert(i);
+		}
 	}
 
 	if(withTerrain && allowedTerrains.empty())
@@ -329,14 +351,14 @@ void ObjectTemplate::writeJson(JsonNode & node, const bool withTerrain) const
 	if(withTerrain)
 	{
 		//assumed that ROCK and WATER terrains are not included
-		if(allowedTerrains.size() < (GameConstants::TERRAIN_TYPES - 2))
+		if(allowedTerrains.size() < (Terrain::Manager::terrains().size() - 2))
 		{
 			JsonVector & data = node["allowedTerrains"].Vector();
 
 			for(auto type : allowedTerrains)
 			{
 				JsonNode value(JsonNode::JsonType::DATA_STRING);
-				value.String() = GameConstants::TERRAIN_NAMES[type.num];
+				value.String() = type;
 				data.push_back(value);
 			}
 		}
@@ -511,7 +533,7 @@ bool ObjectTemplate::isVisitableFromTop() const
 	//return isVisitableFrom (0, 1);
 }
 
-bool ObjectTemplate::canBePlacedAt(ETerrainType terrain) const
+bool ObjectTemplate::canBePlacedAt(Terrain terrain) const
 {
 	return allowedTerrains.count(terrain) != 0;
 }
