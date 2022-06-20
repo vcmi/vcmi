@@ -13,6 +13,40 @@
 #include "ConstTransitivePtr.h"
 #include "JsonNode.h"
 
+class DLL_LINKAGE BattleField
+{
+public:
+	//   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines
+	//8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields
+	//15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog
+	//21. "favorable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship
+	/*enum EBFieldType {NONE = -1, NONE2, SAND_SHORE, SAND_MESAS, DIRT_BIRCHES, DIRT_HILLS, DIRT_PINES, GRASS_HILLS,
+	 GRASS_PINES, LAVA, MAGIC_PLAINS, SNOW_MOUNTAINS, SNOW_TREES, SUBTERRANEAN, SWAMP_TREES, FIERY_FIELDS,
+	 ROCKLANDS, MAGIC_CLOUDS, LUCID_POOLS, HOLY_GROUND, CLOVER_FIELD, EVIL_FOG, FAVORABLE_WINDS, CURSED_GROUND,
+	 ROUGH, SHIP_TO_SHIP, SHIP
+	 };*/
+	
+	BattleField(const std::string & type = "") : name(type)
+	{}
+	
+	static const BattleField NONE;
+	
+	DLL_LINKAGE friend bool operator==(const BattleField & l, const BattleField & r);
+	DLL_LINKAGE friend bool operator!=(const BattleField & l, const BattleField & r);
+	DLL_LINKAGE friend bool operator<(const BattleField & l, const BattleField & r);
+	
+	operator std::string() const;
+	
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & name;
+	}
+	
+protected:
+	
+	std::string name;
+};
+
 class DLL_LINKAGE Terrain
 {
 public:
@@ -35,6 +69,7 @@ public:
 		std::string typeCode;
 		int horseSoundId;
 		Type type;
+		std::vector<BattleField> battleFields;
 	};
 	
 	class DLL_LINKAGE Manager
@@ -85,43 +120,6 @@ public:
 		h & name;
 	}
 	
-protected:
-	
-	std::string name;
-};
-
-class DLL_LINKAGE BattleField
-{
-public:
-	//   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines
-	//8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields
-	//15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog
-	//21. "favorable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship
-	/*enum EBFieldType {NONE = -1, NONE2, SAND_SHORE, SAND_MESAS, DIRT_BIRCHES, DIRT_HILLS, DIRT_PINES, GRASS_HILLS,
-		GRASS_PINES, LAVA, MAGIC_PLAINS, SNOW_MOUNTAINS, SNOW_TREES, SUBTERRANEAN, SWAMP_TREES, FIERY_FIELDS,
-		ROCKLANDS, MAGIC_CLOUDS, LUCID_POOLS, HOLY_GROUND, CLOVER_FIELD, EVIL_FOG, FAVORABLE_WINDS, CURSED_GROUND,
-		ROUGH, SHIP_TO_SHIP, SHIP
-	};*/
-	
-	BattleField(const std::string & type = "") : name(type)
-	{}
-	
-	static const BattleField NONE;
-	static const BattleField SAND_SHORE;
-	static const BattleField SHIP_TO_SHIP;
-	static const BattleField CURSED_GROUND;
-	
-	DLL_LINKAGE friend bool operator==(const BattleField & l, const BattleField & r);
-	DLL_LINKAGE friend bool operator!=(const BattleField & l, const BattleField & r);
-	DLL_LINKAGE friend bool operator<(const BattleField & l, const BattleField & r);
-	
-	operator std::string() const;
-	
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & name;
-	}
-		
 protected:
 	
 	std::string name;

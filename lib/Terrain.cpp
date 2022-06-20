@@ -19,9 +19,6 @@
 const Terrain Terrain::ANY("ANY");
 
 const BattleField BattleField::NONE("");
-const BattleField BattleField::SAND_SHORE("sand_shore");
-const BattleField BattleField::SHIP_TO_SHIP("ship_to_ship");
-const BattleField BattleField::CURSED_GROUND("cursed_ground");
 
 Terrain Terrain::createTerrainTypeH3M(int tId)
 {
@@ -111,6 +108,13 @@ Terrain::Manager::Manager()
 				assert(info.typeCode.length() == 2);
 			}
 			
+			if(!terr.second["battleFields"].isNull())
+			{
+				for(auto & t : terr.second["battleFields"].Vector())
+				{
+					info.battleFields.emplace_back(t.String());
+				}
+			}
 			
 			terrainInfo[Terrain(terr.first)] = info;
 		}
