@@ -24,7 +24,7 @@ jobs:
             test: 0
             preset: linux-gcc-release
           - platform: mac
-            os: macos-latest
+            os: macos-10.14
             test: 0
             pack: 1
             extension: dmg
