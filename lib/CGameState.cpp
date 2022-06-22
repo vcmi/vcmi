@@ -1894,17 +1894,17 @@ void CGameState::initVisitingAndGarrisonedHeroes()
 	}
 }
 
-BFieldType CGameState::battleGetBattlefieldType(int3 tile, CRandomGenerator & rand)
+BattleField CGameState::battleGetBattlefieldType(int3 tile, CRandomGenerator & rand)
 {
 	if(!tile.valid() && curB)
 		tile = curB->tile;
 	else if(!tile.valid() && !curB)
-		return BFieldType::NONE;
+		return BattleField::NONE;
 
 	const TerrainTile &t = map->getTile(tile);
 	//fight in mine -> subterranean
 	if(dynamic_cast<const CGMine *>(t.visitableObjects.front()))
-		return BFieldType::SUBTERRANEAN;
+		return BattleField("subterranean");
 
 	for(auto &obj : map->objects)
 	{
@@ -1915,56 +1915,32 @@ BFieldType CGameState::battleGetBattlefieldType(int3 tile, CRandomGenerator & ra
 		switch(obj->ID)
 		{
 		case Obj::CLOVER_FIELD:
-			return BFieldType::CLOVER_FIELD;
+			return BattleField("clover_field");
 		case Obj::CURSED_GROUND1: case Obj::CURSED_GROUND2:
-			return BFieldType::CURSED_GROUND;
+			return BattleField("cursed_ground");
 		case Obj::EVIL_FOG:
-			return BFieldType::EVIL_FOG;
+			return BattleField("evil_fog");
 		case Obj::FAVORABLE_WINDS:
-			return BFieldType::FAVORABLE_WINDS;
+			return BattleField("favorable_winds");
 		case Obj::FIERY_FIELDS:
-			return BFieldType::FIERY_FIELDS;
+			return BattleField("fiery_fields");
 		case Obj::HOLY_GROUNDS:
-			return BFieldType::HOLY_GROUND;
+			return BattleField("holy_ground");
 		case Obj::LUCID_POOLS:
-			return BFieldType::LUCID_POOLS;
+			return BattleField("lucid_pools");
 		case Obj::MAGIC_CLOUDS:
-			return BFieldType::MAGIC_CLOUDS;
+			return BattleField("magic_clouds");
 		case Obj::MAGIC_PLAINS1: case Obj::MAGIC_PLAINS2:
-			return BFieldType::MAGIC_PLAINS;
+			return BattleField("magic_plains");
 		case Obj::ROCKLANDS:
-			return BFieldType::ROCKLANDS;
+			return BattleField("rocklands");
 		}
 	}
 
 	if(map->isCoastalTile(tile)) //coastal tile is always ground
-		return BFieldType::SAND_SHORE;
-
-	if(t.terType == Terrain("dirt"))
-		return BFieldType(rand.nextInt(3, 5));
-	if(t.terType == Terrain("sand"))
-		return BFieldType::SAND_MESAS; //TODO: coast support
-	if(t.terType == Terrain("grass"))
-		return BFieldType(rand.nextInt(6, 7));
-	if(t.terType == Terrain("snow"))
-		return BFieldType(rand.nextInt(10, 11));
-	if(t.terType == Terrain("swamp"))
-		return BFieldType::SWAMP_TREES;
-	if(t.terType == Terrain("rough"))
-		return BFieldType::ROUGH;
-	if(t.terType.isUnderground())
-		return BFieldType::SUBTERRANEAN;
-	if(t.terType == Terrain("lava"))
-		return BFieldType::LAVA;
-	if(t.terType.isWater())
-		return BFieldType::SHIP;
-	if(!t.terType.isPassable())
-		return BFieldType::ROCKLANDS;
+		return BattleField("sand_shore");
 	
-	//TODO: STUB, support new battlegrounds
-	return BFieldType::DIRT_HILLS;
-	
-	return BFieldType::NONE;
+	return *RandomGeneratorUtil::nextItem(Terrain::Manager::getInfo(t.terType).battleFields, rand);
 }
 
 UpgradeInfo CGameState::getUpgradeInfo(const CStackInstance &stack)
