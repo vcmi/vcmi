@@ -20,6 +20,7 @@
 #include "CZonePlacer.h"
 #include "CRmgTemplateZone.h"
 #include "../mapObjects/CObjectClassesHandler.h"
+#include "TileInfo.h"
 
 static const int3 dirs4[] = {int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0)};
 static const int3 dirsDiagonal[] = { int3(1,1,0),int3(1,-1,0),int3(-1,1,0),int3(-1,-1,0) };

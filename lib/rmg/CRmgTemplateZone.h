@@ -34,32 +34,6 @@ namespace EObjectPlacingResult
 		SEALED_OFF
 	};
 }
-class DLL_LINKAGE CTileInfo
-{
-public:
-
-	CTileInfo();
-
-	float getNearestObjectDistance() const;
-	void setNearestObjectDistance(float value);
-	bool isBlocked() const;
-	bool shouldBeBlocked() const;
-	bool isPossible() const;
-	bool isFree() const;
-	bool isUsed() const;
-	bool isRoad() const;
-	void setOccupied(ETileType::ETileType value);
-	Terrain getTerrainType() const;
-	ETileType::ETileType getTileType() const;
-	void setTerrainType(Terrain value);
-
-	void setRoadType(const std::string & value);
-private:
-	float nearestObjectDistance;
-	ETileType::ETileType occupied;
-	Terrain terrain;
-	std::string roadType;
-};
 
 struct DLL_LINKAGE ObjectInfo
 {
