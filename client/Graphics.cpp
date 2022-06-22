@@ -24,6 +24,7 @@
 #include "gui/CAnimation.h"
 #include <SDL_ttf.h>
 #include "../lib/CThreadHelper.h"
+#include "../lib/CModHandler.h"
 #include "CGameInfo.h"
 #include "../lib/VCMI_Lib.h"
 #include "../CCallback.h"
@@ -99,28 +100,35 @@ void Graphics::loadPaletteAndColors()
 
 void Graphics::initializeBattleGraphics()
 {
-	const JsonNode config(ResourceID("config/battles_graphics.json"));
+	auto allConfigs = VLC->modh->getActiveMods();
+	allConfigs.insert(allConfigs.begin(), "core");
+	for(auto & mod : allConfigs)
+	{
+		if(!CResourceHandler::get(mod)->existsResource(ResourceID("config/battles_graphics.json")))
+			continue;
+			
+		const JsonNode config(mod, ResourceID("config/battles_graphics.json"));
 
-	// Reserve enough space for the terrains
-	int idx = static_cast<int>(config["backgrounds"].Vector().size());
-	battleBacks.resize(idx+1);	// 1 to idx, 0 is unused
-
-	idx = 1;
-	for(const JsonNode &t : config["backgrounds"].Vector()) {
-		battleBacks[idx].push_back(t.String());
-		idx++;
-	}
-
-	//initialization of AC->def name mapping
-	for(const JsonNode &ac : config["ac_mapping"].Vector()) {
-		int ACid = static_cast<int>(ac["id"].Float());
-		std::vector< std::string > toAdd;
-
-		for(const JsonNode &defname : ac["defnames"].Vector()) {
-			toAdd.push_back(defname.String());
+		if(!config["backgrounds"].isNull())
+		for(auto & t : config["backgrounds"].Struct())
+		{
+			battleBacks[t.first] = t.second.String();
 		}
 
-		battleACToDef[ACid] = toAdd;
+		//initialization of AC->def name mapping
+		if(!config["ac_mapping"].isNull())
+		for(const JsonNode &ac : config["ac_mapping"].Vector())
+		{
+			int ACid = static_cast<int>(ac["id"].Float());
+			std::vector< std::string > toAdd;
+
+			for(const JsonNode &defname : ac["defnames"].Vector())
+			{
+				toAdd.push_back(defname.String());
+			}
+
+			battleACToDef[ACid] = toAdd;
+		}
 	}
 }
 Graphics::Graphics()

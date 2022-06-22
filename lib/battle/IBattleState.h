@@ -16,6 +16,7 @@ class UnitChanges;
 struct Bonus;
 class JsonNode;
 class JsonSerializeFormat;
+class BattleField;
 
 namespace vstd
 {
@@ -40,7 +41,7 @@ public:
 
 	virtual battle::Units getUnitsIf(battle::UnitFilter predicate) const = 0;
 
-	virtual BFieldType getBattlefieldType() const = 0;
+	virtual BattleField getBattlefieldType() const = 0;
 	virtual Terrain getTerrainType() const = 0;
 
 	virtual ObstacleCList getAllObstacles() const = 0;
