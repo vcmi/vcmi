@@ -130,10 +130,9 @@ TEST(MapManager, DrawTerrain_View)
 			if(patternParts.size() != 2) throw std::runtime_error("A pattern should consist of two parts, the group and the id. Continue with next pattern.");
 			const auto & groupStr = patternParts[0];
 			const auto & id = patternParts[1];
-			auto terGroup = VLC->terviewh->getTerrainGroup(groupStr);
 
 			// Get mapping range
-			const auto & pattern = VLC->terviewh->getTerrainViewPatternById(terGroup, id);
+			const auto & pattern = VLC->terviewh->getTerrainViewPatternById(groupStr, id);
 			const auto & mapping = (*pattern).mapping;
 
 			const auto & positionsNode = node["pos"].Vector();

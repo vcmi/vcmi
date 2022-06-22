@@ -19,6 +19,7 @@ class CStack;
 class CStackInstance;
 class CStackBasicDescriptor;
 class Terrain;
+class BattleField;
 
 class DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallback, public IBattleState
 {
@@ -36,7 +37,7 @@ public:
 	std::vector<std::shared_ptr<CObstacleInstance> > obstacles;
 	SiegeInfo si;
 
-	BFieldType battlefieldType; //like !!BA:B
+	BattleField battlefieldType; //like !!BA:B
 	Terrain terrainType; //used for some stack nativity checks (not the bonus limiters though that have their own copy)
 
 	ui8 tacticsSide; //which side is requested to play tactics phase
@@ -72,7 +73,7 @@ public:
 
 	battle::Units getUnitsIf(battle::UnitFilter predicate) const override;
 
-	BFieldType getBattlefieldType() const override;
+	BattleField getBattlefieldType() const override;
 	Terrain getTerrainType() const override;
 
 	ObstacleCList getAllObstacles() const override;
@@ -138,11 +139,9 @@ public:
 	const CGHeroInstance * getHero(PlayerColor player) const; //returns fighting hero that belongs to given player
 
 	void localInit();
-	static BattleInfo * setupBattle(int3 tile, Terrain terrain, BFieldType battlefieldType, const CArmedInstance * armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance * town);
+	static BattleInfo * setupBattle(const int3 & tile, const Terrain & terrain, const BattleField & battlefieldType, const CArmedInstance * armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance * town);
 
 	ui8 whatSide(PlayerColor player) const;
-
-	static BattlefieldBI::BattlefieldBI battlefieldTypeToBI(BFieldType bfieldType); //converts above to ERM BI format
 
 protected:
 	scripting::Pool * getContextPool() const override;

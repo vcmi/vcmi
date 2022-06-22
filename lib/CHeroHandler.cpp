@@ -177,9 +177,9 @@ std::vector<BattleHex> CObstacleInfo::getBlocked(BattleHex hex) const
 	return ret;
 }
 
-bool CObstacleInfo::isAppropriate(Terrain terrainType, int specialBattlefield) const
+bool CObstacleInfo::isAppropriate(const Terrain & terrainType, const BattleField & specialBattlefield) const
 {
-	if(specialBattlefield != -1)
+	if(!allowedSpecialBfields.empty() && specialBattlefield != BattleField::NONE)
 		return vstd::contains(allowedSpecialBfields, specialBattlefield);
 
 	return vstd::contains(allowedTerrains, terrainType);
@@ -817,28 +817,35 @@ void CHeroHandler::loadExperience()
 
 void CHeroHandler::loadObstacles()
 {
-	auto loadObstacles = [](const JsonNode &node, bool absolute, std::map<int, CObstacleInfo> &out)
+	auto loadObstacles = [](const JsonNode & node, bool absolute, std::vector<CObstacleInfo> & out)
 	{
 		for(const JsonNode &obs : node.Vector())
 		{
-			int ID = static_cast<int>(obs["id"].Float());
-			CObstacleInfo & obi = out[ID];
-			obi.ID = ID;
+			out.emplace_back();
+			CObstacleInfo & obi = out.back();
 			obi.defName = obs["defname"].String();
 			obi.width =  static_cast<si32>(obs["width"].Float());
 			obi.height = static_cast<si32>(obs["height"].Float());
 			for(auto & t : obs["allowedTerrain"].Vector())
 				obi.allowedTerrains.emplace_back(t.String());
-			obi.allowedSpecialBfields = obs["specialBattlefields"].convertTo<std::vector<BFieldType> >();
+			for(auto & t : obs["specialBattlefields"].Vector())
+				obi.allowedSpecialBfields.emplace_back(t.String());
 			obi.blockedTiles = obs["blockedTiles"].convertTo<std::vector<si16> >();
 			obi.isAbsoluteObstacle = absolute;
 		}
 	};
-
-	const JsonNode config(ResourceID("config/obstacles.json"));
-	loadObstacles(config["obstacles"], false, obstacles);
-	loadObstacles(config["absoluteObstacles"], true, absoluteObstacles);
-	//loadObstacles(config["moats"], true, moats);
+	
+	auto allConfigs = VLC->modh->getActiveMods();
+	allConfigs.insert(allConfigs.begin(), "core");
+	for(auto & mod : allConfigs)
+	{
+		if(!CResourceHandler::get(mod)->existsResource(ResourceID("config/obstacles.json")))
+			continue;
+		
+		const JsonNode config(mod, ResourceID("config/obstacles.json"));
+		loadObstacles(config["obstacles"], false, obstacles);
+		loadObstacles(config["absoluteObstacles"], true, absoluteObstacles);
+	}
 }
 
 /// convert h3-style ID (e.g. Gobin Wolf Rider) to vcmi (e.g. goblinWolfRider)

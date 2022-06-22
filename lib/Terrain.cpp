@@ -18,6 +18,8 @@
 
 const Terrain Terrain::ANY("ANY");
 
+const BattleField BattleField::NONE("");
+
 Terrain Terrain::createTerrainTypeH3M(int tId)
 {
 	static std::array<std::string, 10> terrainsH3M
@@ -106,6 +108,25 @@ Terrain::Manager::Manager()
 				assert(info.typeCode.length() == 2);
 			}
 			
+			if(!terr.second["battleFields"].isNull())
+			{
+				for(auto & t : terr.second["battleFields"].Vector())
+				{
+					info.battleFields.emplace_back(t.String());
+				}
+			}
+			
+			info.transitionRequired = false;
+			if(!terr.second["transitionRequired"].isNull())
+			{
+				info.transitionRequired = terr.second["transitionRequired"].Bool();
+			}
+			
+			info.terrainViewPatterns = "normal";
+			if(!terr.second["terrainViewPatterns"].isNull())
+			{
+				info.terrainViewPatterns = terr.second["terrainViewPatterns"].String();
+			}
 			
 			terrainInfo[Terrain(terr.first)] = info;
 		}
@@ -201,4 +222,32 @@ bool Terrain::isUnderground() const
 bool Terrain::isNative() const
 {
 	return name.empty();
+}
+bool Terrain::isTransitionRequired() const
+{
+	return Terrain::Manager::getInfo(*this).transitionRequired;
+}
+
+bool operator==(const BattleField & l, const BattleField & r)
+{
+	return l.name == r.name;
+}
+
+bool operator!=(const BattleField & l, const BattleField & r)
+{
+	return l.name != r.name;
+}
+
+bool operator<(const BattleField & l, const BattleField & r)
+{
+	return l.name < r.name;
+}
+BattleField::operator std::string() const
+{
+	return name;
+}
+
+int BattleField::hash() const
+{
+	return std::hash<std::string>{}(name);
 }
