@@ -155,7 +155,7 @@ TEST_F(ERM_BU_G, Get)
 	source << "!?PI;" << std::endl;
 	source << "!!BU:G?v1;" << std::endl;
 
-	EXPECT_CALL(binfoMock, battleGetBattlefieldType()).WillOnce(Return(BFieldType::SNOW_TREES));
+	EXPECT_CALL(binfoMock, battleGetBattlefieldType()).WillOnce(Return(BattleField("snow_trees")));
 
 
 	loadScript(VLC->scriptHandler->erm, source.str());
@@ -174,7 +174,7 @@ TEST_F(ERM_BU_G, Get2)
 	source << "!?PI;" << std::endl;
 	source << "!!BU:G?v1;" << std::endl;
 
-	EXPECT_CALL(binfoMock, battleGetBattlefieldType()).WillOnce(Return(BFieldType::EVIL_FOG));
+	EXPECT_CALL(binfoMock, battleGetBattlefieldType()).WillOnce(Return(BattleField("evil_fog")));
 
 	loadScript(VLC->scriptHandler->erm, source.str());
 	runServer();
