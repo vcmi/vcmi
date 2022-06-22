@@ -2219,9 +2219,9 @@ void CGameHandler::setupBattle(int3 tile, const CArmedInstance *armies[2], const
 	if (gs->map->isCoastalTile(tile)) //coastal tile is always ground
 		terrain = Terrain("sand");
 
-	BFieldType terType = gs->battleGetBattlefieldType(tile, getRandomGenerator());
+	BattleField terType = gs->battleGetBattlefieldType(tile, getRandomGenerator());
 	if (heroes[0] && heroes[0]->boat && heroes[1] && heroes[1]->boat)
-		terType = BFieldType::SHIP_TO_SHIP;
+		terType = BattleField("ship_to_ship");
 
 	//send info about battles
 	BattleStart bs;
