@@ -12,7 +12,7 @@
 class CGObjectInstance;
 class ObjectTemplate;
 
-class ObjectManager
+class DLL_LINKAGE ObjectManager
 {
 public:
 	

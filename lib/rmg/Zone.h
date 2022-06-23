@@ -37,18 +37,26 @@ public:
 	void initFreeTiles();
 	const std::set<int3> & getTileInfo() const;
 	const std::set<int3> & getPossibleTiles() const;
+	void addPossibleTile(const int3 & pos);
+	void removePossibleTile(const int3 & pos);
 	void clearTiles();
+	
+	void fractalize();
 	
 	const std::set<int3>& getFreePaths() const;
 	void addFreePath(const int3 &);
 	
 	si32 getTownType() const;
+	void setTownType(si32 town);
 	const Terrain & getTerrainType() const;
+	void setTerrainType(const Terrain & terrain);
 	
 	bool crunchPath(const int3 & src, const int3 & dst, bool onlyStraight, std::set<int3> * clearedTiles = nullptr);
 	bool connectPath(const int3 & src, bool onlyStraight);
 	bool connectWithCenter(const int3 & src, bool onlyStraight, bool passTroughBlocked = false);
-
+	void addToConnectLater(const int3& src);
+	void connectLater();
+	
 protected:
 	CMapGenerator * gen;
 	
@@ -59,6 +67,7 @@ protected:
 	std::set<int3> possibleTiles; //optimization purposes for treasure generation
 	std::set<int3> freePaths; //core paths of free tiles that all other objects will be linked to
 	std::set<int3> coastTiles; //tiles bordered to water
+	std::set<int3> tilesToConnectLater; //will be connected after paths are fractalized
 	
 	//template info
 	si32 townType;

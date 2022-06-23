@@ -8,6 +8,8 @@
 #include "Zone.h"
 #include "CMapGenerator.h"
 #include "Functions.h"
+#include "TileInfo.h"
+#include "../mapping/CMap.h"
 
 Zone::Zone(CMapGenerator * Gen)
 					: ZoneOptions(),
@@ -64,6 +66,11 @@ void Zone::addTile (const int3 &Pos)
 	tileinfo.insert(Pos);
 }
 
+void Zone::addPossibleTile(const int3 & Pos)
+{
+	possibleTiles.insert(Pos);
+}
+
 void Zone::removeTile(const int3 & Pos)
 {
 	tileinfo.erase(Pos);
@@ -78,6 +85,11 @@ const std::set<int3> & Zone::getTileInfo() const
 const std::set<int3> & Zone::getPossibleTiles() const
 {
 	return possibleTiles;
+}
+
+void Zone::removePossibleTile(const int3 & Pos)
+{
+	possibleTiles.erase(Pos);
 }
 
 void Zone::clearTiles()
@@ -100,6 +112,26 @@ void Zone::initFreeTiles()
 const std::set<int3> & Zone::getFreePaths() const
 {
 	return freePaths;
+}
+
+si32 Zone::getTownType() const
+{
+	return townType;
+}
+
+void Zone::setTownType(si32 town)
+{
+	townType = town;
+}
+
+const Terrain & Zone::getTerrainType() const
+{
+	return terrainType;
+}
+
+void Zone::setTerrainType(const Terrain & terrain)
+{
+	terrainType = terrain;
 }
 
 void Zone::addFreePath(const int3 & p)
@@ -372,4 +404,193 @@ bool Zone::connectWithCenter(const int3 & src, bool onlyStraight, bool passThrou
 		
 	}
 	return false;
+}
+
+void Zone::addToConnectLater(const int3 & src)
+{
+	tilesToConnectLater.insert(src);
+}
+
+void Zone::connectLater()
+{
+	for(const int3 & node : tilesToConnectLater)
+	{
+		if(!connectWithCenter(node, true))
+			logGlobal->error("Failed to connect node %s with center of the zone", node.toString());
+	}
+}
+
+void Zone::fractalize()
+{
+	for(auto tile : tileinfo)
+	{
+		if(gen->isFree(tile))
+			freePaths.insert(tile);
+	}
+	std::vector<int3> clearedTiles(freePaths.begin(), freePaths.end());
+	std::set<int3> possibleTiles;
+	std::set<int3> tilesToIgnore; //will be erased in this iteration
+	
+	//the more treasure density, the greater distance between paths. Scaling is experimental.
+	int totalDensity = 0;
+	for(auto ti : treasureInfo)
+		totalDensity += ti.density;
+	const float minDistance = 10 * 10; //squared
+	
+	for(auto tile : tileinfo)
+	{
+		if(gen->isPossible(tile))
+			possibleTiles.insert(tile);
+	}
+	assert (clearedTiles.size()); //this should come from zone connections
+	
+	std::vector<int3> nodes; //connect them with a grid
+	
+	if(type != ETemplateZoneType::JUNCTION)
+	{
+		//junction is not fractalized, has only one straight path
+		//everything else remains blocked
+		while(!possibleTiles.empty())
+		{
+			//link tiles in random order
+			std::vector<int3> tilesToMakePath(possibleTiles.begin(), possibleTiles.end());
+			RandomGeneratorUtil::randomShuffle(tilesToMakePath, gen->rand);
+			
+			int3 nodeFound(-1, -1, -1);
+			
+			for(auto tileToMakePath : tilesToMakePath)
+			{
+				//find closest free tile
+				float currentDistance = 1e10;
+				int3 closestTile(-1, -1, -1);
+				
+				for(auto clearTile : clearedTiles)
+				{
+					float distance = static_cast<float>(tileToMakePath.dist2dSQ(clearTile));
+					
+					if(distance < currentDistance)
+					{
+						currentDistance = distance;
+						closestTile = clearTile;
+					}
+					if(currentDistance <= minDistance)
+					{
+						//this tile is close enough. Forget about it and check next one
+						tilesToIgnore.insert(tileToMakePath);
+						break;
+					}
+				}
+				//if tiles is not close enough, make path to it
+				if (currentDistance > minDistance)
+				{
+					nodeFound = tileToMakePath;
+					nodes.push_back(nodeFound);
+					clearedTiles.push_back(nodeFound); //from now on nearby tiles will be considered handled
+					break; //next iteration - use already cleared tiles
+				}
+			}
+			
+			for(auto tileToClear : tilesToIgnore)
+			{
+				//these tiles are already connected, ignore them
+				vstd::erase_if_present(possibleTiles, tileToClear);
+			}
+			if(!nodeFound.valid()) //nothing else can be done (?)
+				break;
+			tilesToIgnore.clear();
+		}
+	}
+	
+	//cut straight paths towards the center. A* is too slow for that.
+	for (auto node : nodes)
+	{
+		auto subnodes = nodes;
+		boost::sort(subnodes, [&node](const int3& ourNode, const int3& otherNode) -> bool
+					{
+			return node.dist2dSQ(ourNode) < node.dist2dSQ(otherNode);
+		});
+		
+		std::vector <int3> nearbyNodes;
+		if (subnodes.size() >= 2)
+		{
+			nearbyNodes.push_back(subnodes[1]); //node[0] is our node we want to connect
+		}
+		if (subnodes.size() >= 3)
+		{
+			nearbyNodes.push_back(subnodes[2]);
+		}
+		
+		//connect with all the paths
+		crunchPath(node, findClosestTile(freePaths, node), true, &freePaths);
+		//connect with nearby nodes
+		for (auto nearbyNode : nearbyNodes)
+		{
+			crunchPath(node, nearbyNode, true, &freePaths); //do not allow to make another path network
+		}
+	}
+	for (auto node : nodes)
+		gen->setOccupied(node, ETileType::FREE); //make sure they are clear
+	
+	//now block most distant tiles away from passages
+	
+	float blockDistance = minDistance * 0.25f;
+	
+	for (auto tile : tileinfo)
+	{
+		if(!gen->isPossible(tile))
+			continue;
+		
+		if(freePaths.count(tile))
+			continue;
+		
+		bool closeTileFound = false;
+		
+		for(auto clearTile : freePaths)
+		{
+			float distance = static_cast<float>(tile.dist2dSQ(clearTile));
+			
+			if(distance < blockDistance)
+			{
+				closeTileFound = true;
+				break;
+			}
+		}
+		if (!closeTileFound) //this tile is far enough from passages
+			gen->setOccupied(tile, ETileType::BLOCKED);
+	}
+	
+#define PRINT_FRACTALIZED_MAP false
+	if (PRINT_FRACTALIZED_MAP) //enable to debug
+	{
+		std::ofstream out(boost::to_string(boost::format("zone_%d.txt") % id));
+		int levels = gen->map->twoLevel ? 2 : 1;
+		int width =  gen->map->width;
+		int height = gen->map->height;
+		for (int k = 0; k < levels; k++)
+		{
+			for(int j=0; j<height; j++)
+			{
+				for (int i=0; i<width; i++)
+				{
+					char t = '?';
+					switch (gen->getTile(int3(i, j, k)).getTileType())
+					{
+						case ETileType::FREE:
+							t = ' '; break;
+						case ETileType::BLOCKED:
+							t = '#'; break;
+						case ETileType::POSSIBLE:
+							t = '-'; break;
+						case ETileType::USED:
+							t = 'O'; break;
+					}
+					
+					out << t;
+				}
+				out << std::endl;
+			}
+			out << std::endl;
+		}
+		out << std::endl;
+	}
 }

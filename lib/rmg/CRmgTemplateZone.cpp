@@ -92,12 +92,6 @@ void CRmgTemplateZone::setCenter(const float3 &f)
 		center.y = 1 - std::abs(center.y);
 }
 
-
-bool CRmgTemplateZone::pointIsIn(int x, int y)
-{
-	return true;
-}
-
 int3 CRmgTemplateZone::getPos() const
 {
 	return pos;

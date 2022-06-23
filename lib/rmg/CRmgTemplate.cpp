@@ -307,6 +307,21 @@ std::vector<TRmgTemplateZoneId> ZoneOptions::getConnections() const
 	return connections;
 }
 
+bool ZoneOptions::areTownsSameType() const
+{
+	return townsAreSameType;
+}
+
+const ZoneOptions::CTownInfo & ZoneOptions::getPlayerTowns() const
+{
+	return playerTowns;
+}
+
+const ZoneOptions::CTownInfo & ZoneOptions::getNeutralTowns() const
+{
+	return neutralTowns;
+}
+
 void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 {
 	static const std::vector<std::string> zoneTypes =

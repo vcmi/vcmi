@@ -105,6 +105,8 @@ public:
 	const std::set<Terrain> & getTerrainTypes() const;
 	void setTerrainTypes(const std::set<Terrain> & value);
 
+	const CTownInfo & getPlayerTowns() const;
+	const CTownInfo & getNeutralTowns() const;
 	std::set<TFaction> getDefaultTownTypes() const;
 	const std::set<TFaction> & getTownTypes() const;
 	const std::set<TFaction> & getMonsterTypes() const;
@@ -129,6 +131,8 @@ public:
 	void serializeJson(JsonSerializeFormat & handler);
 	
 	EMonsterStrength::EMonsterStrength zoneMonsterStrength;
+	
+	bool areTownsSameType() const;
 
 protected:
 	TRmgTemplateZoneId id;

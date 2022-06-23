@@ -11,14 +11,16 @@
 #include <boost/heap/priority_queue.hpp> //A*
 
 class CMapGenerator;
+class ObjectManager;
+class ObjectTemplate;
 
-std::set<int3> collectDistantTiles(const Zone & zone, float distance);
+std::set<int3> DLL_LINKAGE collectDistantTiles(const Zone & zone, float distance);
 
-void createBorder(CMapGenerator & gen, const Zone & zone);
+void DLL_LINKAGE createBorder(CMapGenerator & gen, const Zone & zone);
 
-si32 getRandomTownType(const Zone & zone, CRandomGenerator & generator, bool matchUndergroundType);
+si32 DLL_LINKAGE getRandomTownType(const Zone & zone, CRandomGenerator & generator, bool matchUndergroundType = false);
 
-void paintZoneTerrain(const Zone & zone, CMapGenerator & gen, const Terrain & terrainType);
+void DLL_LINKAGE paintZoneTerrain(const Zone & zone, CMapGenerator & gen, const Terrain & terrainType);
 
 //A* priority queue
 typedef std::pair<int3, float> TDistance;
@@ -30,3 +32,14 @@ struct NodeComparer
 	}
 };
 boost::heap::priority_queue<TDistance, boost::heap::compare<NodeComparer>> createPriorityQueue();
+
+bool DLL_LINKAGE placeMines(const Zone & zone, CMapGenerator & gen, ObjectManager & manager);
+
+void DLL_LINKAGE initTownType(Zone & zone, CMapGenerator & gen, ObjectManager & manager);
+
+void DLL_LINKAGE createObstacles1(const Zone & zone, CMapGenerator & gen);
+void DLL_LINKAGE createObstacles2(const Zone & zone, CMapGenerator & gen, ObjectManager & manager);
+bool canObstacleBePlacedHere(const CMapGenerator & gen, ObjectTemplate &temp, int3 &pos);
+void placeSubterraneanGate(Zone & zone, ObjectManager & manager, int3 pos, si32 guardStrength);
+
+int chooseRandomAppearance(CRandomGenerator & generator, si32 ObjID, const Terrain & terrain);
