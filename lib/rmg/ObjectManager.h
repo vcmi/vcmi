@@ -12,7 +12,7 @@
 class CGObjectInstance;
 class ObjectTemplate;
 
-class DLL_LINKAGE ObjectManager
+class DLL_LINKAGE ObjectManager: public Modificator
 {
 public:
 	
@@ -24,6 +24,8 @@ public:
 	};
 	
 	ObjectManager(Zone & zone, RmgMap & map, CRandomGenerator & generator);
+	
+	void process() override;
 	
 	void addRequiredObject(CGObjectInstance * obj, si32 guardStrength=0);
 	void addCloseObject(CGObjectInstance * obj, si32 guardStrength = 0);

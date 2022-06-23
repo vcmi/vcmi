@@ -39,10 +39,12 @@ struct DLL_LINKAGE CTreasurePileInfo
 	int3 nextTreasurePos;
 };
 
-class DLL_LINKAGE TreasurePlacer
+class DLL_LINKAGE TreasurePlacer: public Modificator
 {
 public:
 	TreasurePlacer(Zone & zone, RmgMap & map, CRandomGenerator & generator);
+	
+	void process() override;
 	
 	void createTreasures(ObjectManager & manager);
 	

@@ -21,6 +21,13 @@ TreasurePlacer::TreasurePlacer(Zone & zone, RmgMap & map, CRandomGenerator & gen
 {
 }
 
+void TreasurePlacer::process()
+{
+	auto * m = zone.getModificator<ObjectManager>();
+	if(m)
+		createTreasures(*m);
+}
+
 void TreasurePlacer::setQuestArtZone(std::shared_ptr<TreasurePlacer> otherZone)
 {
 	questArtZone = otherZone;

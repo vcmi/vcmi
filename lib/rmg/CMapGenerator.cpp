@@ -18,13 +18,14 @@
 #include "../StringConstants.h"
 #include "../filesystem/Filesystem.h"
 #include "CZonePlacer.h"
-#include "CRmgTemplateZone.h"
 #include "../mapObjects/CObjectClassesHandler.h"
 #include "TileInfo.h"
 #include "Zone.h"
 #include "Functions.h"
 #include "RmgMap.h"
 #include "ObjectManager.h"
+#include "TreasurePlacer.h"
+#include "RoadPlacer.h"
 
 CMapGenerator::CMapGenerator(CMapGenOptions& mapGenOptions, int RandomSeed) :
 	mapGenOptions(mapGenOptions), randomSeed(RandomSeed),
@@ -99,6 +100,11 @@ const CMapGenerator::Config & CMapGenerator::getConfig() const
 
 CMapGenerator::~CMapGenerator()
 {
+}
+
+const CMapGenOptions& CMapGenerator::getMapGenOptions() const
+{
+	return mapGenOptions;
 }
 
 void CMapGenerator::initPrisonsRemaining()
@@ -268,6 +274,9 @@ void CMapGenerator::genZones()
 		auto zone = std::make_shared<Zone>(*map);
 		zone->setOptions(*option.second.get());
 		map->getZones()[zone->getId()] = zone;
+		zone->addModificator<ObjectManager>(rand);
+		zone->addModificator<TreasurePlacer>(rand);
+		zone->addModificator<RoadPlacer>(rand);
 	}
 
 	CZonePlacer placer(*map);
@@ -314,8 +323,7 @@ void CMapGenerator::fillZones()
 	
 	for(auto it : map->getZones())
 	{
-		ObjectManager manager(*it.second, *map, rand);
-		initTownType(*it.second, rand, *map, manager);
+		initTownType(*it.second, rand, *map, *it.second->getModificator<ObjectManager>());
 		it.second->initFreeTiles();
 		createBorder(*map, *it.second);
 		
@@ -342,8 +350,8 @@ void CMapGenerator::fillZones()
 	map->dump(false);
 #endif
 
-	//createDirectConnections(); //direct
-	//createConnections2(); //subterranean gates and monoliths
+	createDirectConnections(); //direct
+	createConnections2(); //subterranean gates and monoliths
 	
 	//for(auto it : zones)
 	//	zoneWater.second->waterConnection(*it.second);
@@ -373,6 +381,12 @@ void CMapGenerator::fillZones()
 	//place actual obstacles matching zone terrain
 	//for(auto it : zones)
 	//	it.second->createObstacles2();
+	
+	for(auto it : map->getZones())
+	{
+		createObstacles1(*it.second, *map, rand);
+		createObstacles2(*it.second, *map, rand, *it.second->getModificator<ObjectManager>());
+	}
 		
 	//zoneWater.second->createObstacles2();
 	
@@ -453,7 +467,7 @@ void CMapGenerator::findZonesForQuestArts()
 	}
 }
 
-/*void CMapGenerator::createDirectConnections()
+void CMapGenerator::createDirectConnections()
 {
 	bool waterMode = getMapGenOptions().getWaterContent() != EWaterContent::NONE;
 	
@@ -477,11 +491,11 @@ void CMapGenerator::findZonesForQuestArts()
 			std::vector<int3> middleTiles;
 			for(const auto& tile : tiles)
 			{
-				if(isUsed(tile) || getZoneID(tile)==zoneWater.first) //tiles may be occupied by towns or water
+				if(map->isUsed(tile)/* || map->getZoneID(tile) == zoneWater.first*/) //tiles may be occupied by towns or water
 					continue;
-				foreachDirectNeighbour(tile, [tile, &middleTiles, this, zoneBid](int3 & pos) //must be direct since paths also also generated between direct neighbours
+				map->foreachDirectNeighbour(tile, [tile, &middleTiles, this, zoneBid](int3 & pos) //must be direct since paths also also generated between direct neighbours
 				{
-					if(getZoneID(pos) == zoneBid)
+					if(map->getZoneID(pos) == zoneBid)
 						middleTiles.push_back(tile);
 				});
 			}
@@ -513,15 +527,15 @@ void CMapGenerator::findZonesForQuestArts()
 					zoneA->connectWithCenter(guardPos, true, true);
 					zoneB->connectWithCenter(guardPos, true, true);
 
-					bool monsterPresent = zoneA->addMonster(guardPos, connection.getGuardStrength(), false, true);
-					zoneB->updateDistances(guardPos); //place next objects away from guard in both zones
+					bool monsterPresent = zoneA->getModificator<ObjectManager>()->addMonster(guardPos, connection.getGuardStrength(), false, true);
+					zoneB->getModificator<ObjectManager>()->updateDistances(guardPos); //place next objects away from guard in both zones
 
 					//set free tile only after connection is made to the center of the zone
 					if (!monsterPresent)
-						setOccupied(guardPos, ETileType::FREE); //just in case monster is too weak to spawn
+						map->setOccupied(guardPos, ETileType::FREE); //just in case monster is too weak to spawn
 
-					zoneA->addRoadNode(guardPos);
-					zoneB->addRoadNode(guardPos);
+					zoneA->getModificator<RoadPlacer>()->addRoadNode(guardPos);
+					zoneB->getModificator<RoadPlacer>()->addRoadNode(guardPos);
 					break; //we're done with this connection
 				}
 			}
@@ -529,7 +543,7 @@ void CMapGenerator::findZonesForQuestArts()
 		
 		if (!guardPos.valid())
 		{
-			if(!waterMode || posA.z != posB.z || !zoneWater.second->waterKeepConnection(connection.getZoneA(), connection.getZoneB()))
+			if(!waterMode || posA.z != posB.z/* || !zoneWater.second->waterKeepConnection(connection.getZoneA(), connection.getZoneB())*/)
 				connectionsLeft.push_back(connection);
 		}
 	}
@@ -539,8 +553,8 @@ void CMapGenerator::createConnections2()
 {
 	for (auto & connection : connectionsLeft)
 	{
-		auto zoneA = zones[connection.getZoneA()];
-		auto zoneB = zones[connection.getZoneB()];
+		auto zoneA = map->getZones()[connection.getZoneA()];
+		auto zoneB = map->getZones()[connection.getZoneB()];
 
 		int3 guardPos(-1, -1, -1);
 
@@ -606,24 +620,24 @@ void CMapGenerator::createConnections2()
 
 					if (distanceFromA > 5 && distanceFromB > 5)
 					{
-						if (zoneA->areAllTilesAvailable(gate1, tile, tilesBlockedByObject) &&
-							zoneB->areAllTilesAvailable(gate2, otherTile, tilesBlockedByObject))
+						if (zoneA->getModificator<ObjectManager>()->areAllTilesAvailable(gate1, tile, tilesBlockedByObject) &&
+							zoneB->getModificator<ObjectManager>()->areAllTilesAvailable(gate2, otherTile, tilesBlockedByObject))
 						{
-							if (zoneA->getAccessibleOffset(sgt, tile).valid() && zoneB->getAccessibleOffset(sgt, otherTile).valid())
+							if (zoneA->getModificator<ObjectManager>()->getAccessibleOffset(sgt, tile).valid() && zoneB->getModificator<ObjectManager>()->getAccessibleOffset(sgt, otherTile).valid())
 							{
-								EObjectPlacingResult::EObjectPlacingResult result1 = zoneA->tryToPlaceObjectAndConnectToPath(gate1, tile);
-								EObjectPlacingResult::EObjectPlacingResult result2 = zoneB->tryToPlaceObjectAndConnectToPath(gate2, otherTile);
+								ObjectManager::EObjectPlacingResult result1 = zoneA->getModificator<ObjectManager>()->tryToPlaceObjectAndConnectToPath(gate1, tile);
+								ObjectManager::EObjectPlacingResult result2 = zoneB->getModificator<ObjectManager>()->tryToPlaceObjectAndConnectToPath(gate2, otherTile);
 
-								if ((result1 == EObjectPlacingResult::SUCCESS) && (result2 == EObjectPlacingResult::SUCCESS))
+								if ((result1 == ObjectManager::EObjectPlacingResult::SUCCESS) && (result2 == ObjectManager::EObjectPlacingResult::SUCCESS))
 								{
-									zoneA->placeObject(gate1, tile);
-									zoneA->guardObject(gate1, strength, true, true);
-									zoneB->placeObject(gate2, otherTile);
-									zoneB->guardObject(gate2, strength, true, true);
+									zoneA->getModificator<ObjectManager>()->placeObject(gate1, tile);
+									zoneA->getModificator<ObjectManager>()->guardObject(gate1, strength, true, true);
+									zoneB->getModificator<ObjectManager>()->placeObject(gate2, otherTile);
+									zoneB->getModificator<ObjectManager>()->guardObject(gate2, strength, true, true);
 									guardPos = tile; //set to break the loop
 									break;
 								}
-								else if ((result1 == EObjectPlacingResult::SEALED_OFF) || (result2 == EObjectPlacingResult::SEALED_OFF))
+								else if ((result1 == ObjectManager::EObjectPlacingResult::SEALED_OFF) || (result2 == ObjectManager::EObjectPlacingResult::SEALED_OFF))
 								{
 									//sealed-off tiles were blocked, exit inner loop and get another tile set
 									continueOuterLoop = true;
@@ -650,11 +664,11 @@ void CMapGenerator::createConnections2()
 			auto teleport1 = factory->create(ObjectTemplate());
 			auto teleport2 = factory->create(ObjectTemplate());
 
-			zoneA->addRequiredObject(teleport1, strength);
-			zoneB->addRequiredObject(teleport2, strength);
+			zoneA->getModificator<ObjectManager>()->addRequiredObject(teleport1, strength);
+			zoneB->getModificator<ObjectManager>()->addRequiredObject(teleport2, strength);
 		}
 	}
-}*/
+}
 
 void CMapGenerator::addHeaderInfo()
 {

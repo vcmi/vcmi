@@ -16,6 +16,11 @@ RoadPlacer::RoadPlacer(Zone & zone, RmgMap & map, CRandomGenerator & generator) 
 {
 }
 
+void RoadPlacer::process()
+{
+	drawRoads();
+}
+
 bool RoadPlacer::createRoad(const int3 & src, const int3 & dst)
 {
 	//A* algorithm taken from Wiki http://en.wikipedia.org/wiki/A*_search_algorithm

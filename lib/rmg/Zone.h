@@ -14,6 +14,12 @@
 
 class RmgMap;
 
+class Modificator
+{
+public:
+	virtual void process() = 0;
+};
+
 class DLL_LINKAGE Zone : public rmg::ZoneOptions
 {
 public:
@@ -52,8 +58,24 @@ public:
 	void addToConnectLater(const int3& src);
 	void connectLater();
 	
+	template<class T>
+	T* getModificator()
+	{
+		for(auto & m : modificators)
+			if(auto * mm = dynamic_cast<T*>(m.get()))
+				return mm;
+		return nullptr;
+	}
+	
+	template<class T>
+	void addModificator(CRandomGenerator & generator)
+	{
+		modificators.push_back(std::make_unique<T>(*this, map, generator));
+	}
+	
 protected:
 	RmgMap & map;
+	std::list<std::unique_ptr<Modificator>> modificators;
 	
 	//placement info
 	int3 pos;

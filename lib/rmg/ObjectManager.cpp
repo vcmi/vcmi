@@ -20,6 +20,11 @@ ObjectManager::ObjectManager(Zone & zone, RmgMap & map, CRandomGenerator & gener
 	
 }
 
+void ObjectManager::process()
+{
+	createRequiredObjects();
+}
+
 void ObjectManager::addRequiredObject(CGObjectInstance * obj, si32 strength)
 {
 	requiredObjects.push_back(std::make_pair(obj, strength));
