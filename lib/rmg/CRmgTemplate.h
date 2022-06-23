@@ -107,6 +107,7 @@ public:
 
 	std::set<TFaction> getDefaultTownTypes() const;
 	const std::set<TFaction> & getTownTypes() const;
+	const std::set<TFaction> & getMonsterTypes() const;
 
 	void setTownTypes(const std::set<TFaction> & value);
 	void setMonsterTypes(const std::set<TFaction> & value);
@@ -126,6 +127,8 @@ public:
 	std::vector<TRmgTemplateZoneId> getConnections() const;
 
 	void serializeJson(JsonSerializeFormat & handler);
+	
+	EMonsterStrength::EMonsterStrength zoneMonsterStrength;
 
 protected:
 	TRmgTemplateZoneId id;
@@ -140,8 +143,6 @@ protected:
 
 	std::set<TFaction> townTypes;
 	std::set<TFaction> monsterTypes;
-
-	EMonsterStrength::EMonsterStrength zoneMonsterStrength;
 
 	std::map<TResource, ui16> mines; //obligatory mines to spawn in this zone
 

@@ -252,6 +252,11 @@ void ZoneOptions::setMonsterTypes(const std::set<TFaction> & value)
 	monsterTypes = value;
 }
 
+const std::set<TFaction> & ZoneOptions::getMonsterTypes() const
+{
+	return monsterTypes;
+}
+
 void ZoneOptions::setMinesInfo(const std::map<TResource, ui16> & value)
 {
 	mines = value;

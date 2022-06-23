@@ -198,7 +198,6 @@ private:
 	bool createRoad(const int3 &src, const int3 &dst);
 	void drawRoads(); //actually updates tiles
 
-	bool pointIsIn(int x, int y);
 	void addAllPossibleObjects (); //add objects, including zone-specific, to possibleObjects
 	bool findPlaceForObject(CGObjectInstance* obj, si32 min_dist, int3 &pos);
 	bool findPlaceForTreasurePile(float min_dist, int3 &pos, int value);
