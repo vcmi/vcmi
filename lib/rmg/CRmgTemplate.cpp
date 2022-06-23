@@ -312,7 +312,7 @@ bool ZoneOptions::areTownsSameType() const
 	return townsAreSameType;
 }
 
-bool ZoneOptions::matchTerrainToTown() const
+bool ZoneOptions::isMatchTerrainToTown() const
 {
 	return matchTerrainToTown;
 }

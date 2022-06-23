@@ -18,33 +18,15 @@
 
 class CMap;
 class CRmgTemplate;
-class CRmgTemplateZone;
 class CMapGenOptions;
 class CTerrainViewPatternConfig;
 class CMapEditManager;
 class JsonNode;
 class CMapGenerator;
 class CTileInfo;
+class Zone;
 
 typedef std::vector<JsonNode> JsonVector;
-
-class rmgException : public std::exception
-{
-	std::string msg;
-public:
-	explicit rmgException(const std::string& _Message) : msg(_Message)
-	{
-	}
-
-	virtual ~rmgException() throw ()
-	{
-	};
-
-	const char *what() const throw () override
-	{
-		return msg.c_str();
-	}
-};
 
 /// The map generator creates a map randomly.
 class DLL_LINKAGE CMapGenerator
@@ -68,7 +50,7 @@ public:
 		std::vector<int> questValues, questRewardValues;
 	};
 	
-	using Zones = std::map<TRmgTemplateZoneId, std::shared_ptr<CRmgTemplateZone>>;
+	using Zones = std::map<TRmgTemplateZoneId, std::shared_ptr<Zone>>;
 
 	explicit CMapGenerator(CMapGenOptions& mapGenOptions, int RandomSeed = std::time(nullptr));
 	~CMapGenerator(); // required due to std::unique_ptr

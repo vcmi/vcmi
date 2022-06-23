@@ -133,7 +133,7 @@ public:
 	EMonsterStrength::EMonsterStrength zoneMonsterStrength;
 	
 	bool areTownsSameType() const;
-	bool matchTerrainToTown() const;
+	bool isMatchTerrainToTown() const;
 
 protected:
 	TRmgTemplateZoneId id;

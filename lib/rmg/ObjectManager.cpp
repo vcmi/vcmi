@@ -14,7 +14,7 @@
 #include "../mapping/CMap.h"
 #include "../mapping/CMapEditManager.h"
 
-ObjectManager::ObjectManager(CMapGenerator & gen, Zone & zone) : gen(gen), zone(zone)
+ObjectManager::ObjectManager(Zone & zone, CMapGenerator & gen) : gen(gen), zone(zone)
 {
 	
 }

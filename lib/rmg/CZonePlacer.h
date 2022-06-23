@@ -10,20 +10,20 @@
 
 #pragma once
 
-#include "CMapGenerator.h"
 #include "float3.h"
 #include "../int3.h"
+#include "../GameConstants.h"
 
 class CZoneGraph;
 class CMap;
 class CRandomGenerator;
-class CRmgTemplateZone;
 class CMapGenerator;
+class Zone;
 
-typedef std::vector<std::pair<TRmgTemplateZoneId, std::shared_ptr<CRmgTemplateZone>>> TZoneVector;
-typedef std::map <TRmgTemplateZoneId, std::shared_ptr<CRmgTemplateZone>> TZoneMap;
-typedef std::map <std::shared_ptr<CRmgTemplateZone>, float3> TForceVector;
-typedef std::map <std::shared_ptr<CRmgTemplateZone>, float> TDistanceVector;
+typedef std::vector<std::pair<TRmgTemplateZoneId, std::shared_ptr<Zone>>> TZoneVector;
+typedef std::map<TRmgTemplateZoneId, std::shared_ptr<Zone>> TZoneMap;
+typedef std::map<std::shared_ptr<Zone>, float3> TForceVector;
+typedef std::map<std::shared_ptr<Zone>, float> TDistanceVector;
 
 class CZonePlacer
 {

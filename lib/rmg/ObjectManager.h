@@ -23,7 +23,7 @@ public:
 		SEALED_OFF
 	};
 	
-	ObjectManager(CMapGenerator & gen, Zone & zone);
+	ObjectManager(Zone & zone, CMapGenerator & gen);
 	
 	void addRequiredObject(CGObjectInstance * obj, si32 guardStrength=0);
 	void addCloseObject(CGObjectInstance * obj, si32 guardStrength = 0);

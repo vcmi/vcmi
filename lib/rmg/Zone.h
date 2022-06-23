@@ -22,7 +22,7 @@ class Modificator
 class DLL_LINKAGE Zone : public rmg::ZoneOptions
 {
 public:
-	Zone(CMapGenerator * Gen);
+	Zone(CMapGenerator & Gen);
 	
 	void setOptions(const rmg::ZoneOptions & options);
 	bool isUnderground() const;
@@ -58,7 +58,7 @@ public:
 	void connectLater();
 	
 protected:
-	CMapGenerator * gen;
+	CMapGenerator & gen;
 	
 	//placement info
 	int3 pos;

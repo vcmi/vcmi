@@ -21,6 +21,8 @@
 #include "CRmgTemplateZone.h"
 #include "../mapObjects/CObjectClassesHandler.h"
 #include "TileInfo.h"
+#include "Zone.h"
+#include "Functions.h"
 
 static const int3 dirs4[] = {int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0)};
 static const int3 dirsDiagonal[] = { int3(1,1,0),int3(1,-1,0),int3(-1,1,0),int3(-1,-1,0) };
@@ -347,7 +349,7 @@ void CMapGenerator::genZones()
 	zones.clear();
 	for(const auto & option : tmpl->getZones())
 	{
-		auto zone = std::make_shared<CRmgTemplateZone>(this);
+		auto zone = std::make_shared<Zone>(this);
 		zone->setOptions(*option.second.get());
 		zones[zone->getId()] = zone;
 	}
@@ -358,7 +360,7 @@ void CMapGenerator::genZones()
 	
 	//add special zone for water
 	zoneWater.first = zones.size() + 1;
-	zoneWater.second = std::make_shared<CRmgTemplateZone>(this);
+	zoneWater.second = std::make_shared<Zone>(this);
 	{
 		rmg::ZoneOptions options;
 		options.setId(zoneWater.first);

@@ -431,13 +431,13 @@ void initTerrainType(Zone & zone, CMapGenerator & gen)
 			if(terrain.isWater())
 				waterTerrains.push_back(terrain);
 		
-		zone.setTerrainType(*RandomGeneratorUtil::nextItem(waterTerrains, gen.rand))
+		zone.setTerrainType(*RandomGeneratorUtil::nextItem(waterTerrains, gen.rand));
 	}
 	else
 	{
-		if(zone.matchTerrainToTown() && zone.getTownType() != ETownType::NEUTRAL)
+		if(zone.isMatchTerrainToTown() && zone.getTownType() != ETownType::NEUTRAL)
 		{
-			zone.setTerrainType((*VLC->townh)[townType]->nativeTerrain);
+			zone.setTerrainType((*VLC->townh)[zone.getTownType()]->nativeTerrain);
 		}
 		else
 		{
@@ -446,9 +446,9 @@ void initTerrainType(Zone & zone, CMapGenerator & gen)
 		
 		//TODO: allow new types of terrain?
 		{
-			if(isUnderground())
+			if(zone.isUnderground())
 			{
-				if(!vstd::contains(gen->getConfig().terrainUndergroundAllowed, zone.getTerrainType()))
+				if(!vstd::contains(gen.getConfig().terrainUndergroundAllowed, zone.getTerrainType()))
 				{
 					//collect all underground terrain types
 					std::vector<Terrain> undegroundTerrains;
@@ -456,7 +456,7 @@ void initTerrainType(Zone & zone, CMapGenerator & gen)
 						if(terrain.isUnderground())
 							undegroundTerrains.push_back(terrain);
 					
-					zone.setTerrainType(*RandomGeneratorUtil::nextItem(undegroundTerrains, gen->rand));
+					zone.setTerrainType(*RandomGeneratorUtil::nextItem(undegroundTerrains, gen.rand));
 				}
 			}
 			else
@@ -477,7 +477,7 @@ bool processZone(Zone & zone, CMapGenerator & gen)
 	initTerrainType(zone, gen);
 	paintZoneTerrain(zone, gen, zone.getTerrainType());
 	
-	treasurePlacer.addAllPossibleObjects()
+	treasurePlacer.addAllPossibleObjects();
 	
 	//zone center should be always clear to allow other tiles to connect
 	zone.initFreeTiles();
@@ -485,8 +485,8 @@ bool processZone(Zone & zone, CMapGenerator & gen)
 	zone.fractalize();
 	placeMines(zone, gen, manager);
 	manager.createRequiredObjects();
-	treasurePlacer.createTreasures();
+	treasurePlacer.createTreasures(manager);
 	
-	logGlobal->info("Zone %d filled successfully", id);
+	logGlobal->info("Zone %d filled successfully", zone.getId());
 	return true;
 }

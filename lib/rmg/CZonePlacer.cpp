@@ -11,9 +11,11 @@
 #include "StdInc.h"
 #include "../CRandomGenerator.h"
 #include "CZonePlacer.h"
-#include "CRmgTemplateZone.h"
 #include "../mapping/CMap.h"
 #include "../mapping/CMapEditManager.h"
+#include "CMapGenerator.h"
+#include "Zone.h"
+#include "Functions.h"
 
 class CRandomGenerator;
 
@@ -72,7 +74,7 @@ void CZonePlacer::placeZones(CRandomGenerator * rand)
 	float bestTotalDistance = 1e10;
 	float bestTotalOverlap = 1e10;
 
-	std::map<std::shared_ptr<CRmgTemplateZone>, float3> bestSolution;
+	std::map<std::shared_ptr<Zone>, float3> bestSolution;
 
 	TForceVector forces;
 	TForceVector totalForces; //  both attraction and pushback, overcomplicated?
@@ -351,7 +353,7 @@ void CZonePlacer::moveOneZone(TZoneMap &zones, TForceVector &totalForces, TDista
 {
 	float maxRatio = 0;
 	const int maxDistanceMovementRatio = static_cast<int>(zones.size() * zones.size()); //experimental - the more zones, the greater total distance expected
-	std::shared_ptr<CRmgTemplateZone> misplacedZone;
+	std::shared_ptr<Zone> misplacedZone;
 
 	float totalDistance = 0;
 	float totalOverlap = 0;
@@ -371,7 +373,7 @@ void CZonePlacer::moveOneZone(TZoneMap &zones, TForceVector &totalForces, TDista
 
 	if (maxRatio > maxDistanceMovementRatio && misplacedZone)
 	{
-		std::shared_ptr<CRmgTemplateZone> targetZone;
+		std::shared_ptr<Zone> targetZone;
 		float3 ourCenter = misplacedZone->getCenter();
 
 		if (totalDistance > totalOverlap)
@@ -463,7 +465,7 @@ void CZonePlacer::assignZones()
 
 	auto zones = gen->getZones();
 
-	typedef std::pair<std::shared_ptr<CRmgTemplateZone>, float> Dpair;
+	typedef std::pair<std::shared_ptr<Zone>, float> Dpair;
 	std::vector <Dpair> distances;
 	distances.reserve(zones.size());
 
@@ -475,7 +477,7 @@ void CZonePlacer::assignZones()
 		return lhs.second / lhs.first->getSize() < rhs.second / rhs.first->getSize();
 	};
 
-	auto moveZoneToCenterOfMass = [](std::shared_ptr<CRmgTemplateZone> zone) -> void
+	auto moveZoneToCenterOfMass = [](std::shared_ptr<Zone> zone) -> void
 	{
 		int3 total(0, 0, 0);
 		auto tiles = zone->getTileInfo();
@@ -555,14 +557,14 @@ void CZonePlacer::assignZones()
 		{
 			if (!CREATE_FULL_UNDERGROUND)
 			{
-				auto discardTile = zone.second->collectDistantTiles((float)(zone.second->getSize() + 1));
-				for(auto& t : discardTile)
+				auto discardTiles = collectDistantTiles(*zone.second, zone.second->getSize() + 1.f);
+				for(auto& t : discardTiles)
 					zone.second->removeTile(t);
 			}
 
 			//make sure that terrain inside zone is not a rock
 			//FIXME: reorder actions?
-			zone.second->paintZoneTerrain (Terrain("subterra"));
+			paintZoneTerrain(*zone.second, *gen, Terrain("subterra"));
 		}
 	}
 	logGlobal->info("Finished zone colouring");
