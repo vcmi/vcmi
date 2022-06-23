@@ -46,9 +46,9 @@ public:
 	
 	void setQuestArtZone(std::shared_ptr<TreasurePlacer> otherZone);
 	bool createTreasurePile(ObjectManager & manager, int3 &pos, float minDistance, const CTreasureInfo& treasureInfo);
+	void addAllPossibleObjects(); //add objects, including zone-specific, to possibleObjects
 	
 protected:
-	void addAllPossibleObjects(); //add objects, including zone-specific, to possibleObjects
 	bool isGuardNeededForTreasure(int value);
 	bool findPlaceForTreasurePile(float min_dist, int3 &pos, int value);
 	ObjectInfo getRandomObject(const ObjectManager & manager, CTreasurePileInfo &info, ui32 desiredValue, ui32 maxValue, ui32 currentValue);

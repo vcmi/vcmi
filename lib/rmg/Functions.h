@@ -36,6 +36,7 @@ boost::heap::priority_queue<TDistance, boost::heap::compare<NodeComparer>> creat
 bool DLL_LINKAGE placeMines(const Zone & zone, CMapGenerator & gen, ObjectManager & manager);
 
 void DLL_LINKAGE initTownType(Zone & zone, CMapGenerator & gen, ObjectManager & manager);
+void DLL_LINKAGE initTerrainType(Zone & zone, CMapGenerator & gen);
 
 void DLL_LINKAGE createObstacles1(const Zone & zone, CMapGenerator & gen);
 void DLL_LINKAGE createObstacles2(const Zone & zone, CMapGenerator & gen, ObjectManager & manager);
@@ -43,3 +44,5 @@ bool canObstacleBePlacedHere(const CMapGenerator & gen, ObjectTemplate &temp, in
 void placeSubterraneanGate(Zone & zone, ObjectManager & manager, int3 pos, si32 guardStrength);
 
 int chooseRandomAppearance(CRandomGenerator & generator, si32 ObjID, const Terrain & terrain);
+
+bool processZone(Zone & zone, CMapGenerator & gen);

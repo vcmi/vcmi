@@ -312,6 +312,11 @@ bool ZoneOptions::areTownsSameType() const
 	return townsAreSameType;
 }
 
+bool ZoneOptions::matchTerrainToTown() const
+{
+	return matchTerrainToTown;
+}
+
 const ZoneOptions::CTownInfo & ZoneOptions::getPlayerTowns() const
 {
 	return playerTowns;

@@ -8,6 +8,8 @@
 #include "Functions.h"
 #include "CMapGenerator.h"
 #include "ObjectManager.h"
+#include "RoadPlacer.h"
+#include "TreasurePlacer.h"
 #include "../CTownHandler.h"
 #include "../mapping/CMapEditManager.h"
 #include "../mapping/CMap.h"
@@ -417,4 +419,74 @@ int chooseRandomAppearance(CRandomGenerator & generator, si32 ObjID, const Terra
 	});
 	
 	return *RandomGeneratorUtil::nextItem(factories, generator);
+}
+
+void initTerrainType(Zone & zone, CMapGenerator & gen)
+{
+	if(zone.getType()==ETemplateZoneType::WATER)
+	{
+		//collect all water terrain types
+		std::vector<Terrain> waterTerrains;
+		for(auto & terrain : Terrain::Manager::terrains())
+			if(terrain.isWater())
+				waterTerrains.push_back(terrain);
+		
+		zone.setTerrainType(*RandomGeneratorUtil::nextItem(waterTerrains, gen.rand))
+	}
+	else
+	{
+		if(zone.matchTerrainToTown() && zone.getTownType() != ETownType::NEUTRAL)
+		{
+			zone.setTerrainType((*VLC->townh)[townType]->nativeTerrain);
+		}
+		else
+		{
+			zone.setTerrainType(*RandomGeneratorUtil::nextItem(zone.getTerrainTypes(), gen.rand));
+		}
+		
+		//TODO: allow new types of terrain?
+		{
+			if(isUnderground())
+			{
+				if(!vstd::contains(gen->getConfig().terrainUndergroundAllowed, zone.getTerrainType()))
+				{
+					//collect all underground terrain types
+					std::vector<Terrain> undegroundTerrains;
+					for(auto & terrain : Terrain::Manager::terrains())
+						if(terrain.isUnderground())
+							undegroundTerrains.push_back(terrain);
+					
+					zone.setTerrainType(*RandomGeneratorUtil::nextItem(undegroundTerrains, gen->rand));
+				}
+			}
+			else
+			{
+				if(vstd::contains(gen.getConfig().terrainGroundProhibit, zone.getTerrainType()) || zone.getTerrainType().isUnderground())
+					zone.setTerrainType(Terrain("dirt"));
+			}
+		}
+	}
+}
+
+bool processZone(Zone & zone, CMapGenerator & gen)
+{
+	ObjectManager manager(zone, gen);
+	RoadPlacer roadPlacer(zone, gen);
+	TreasurePlacer treasurePlacer(zone, gen);
+	
+	initTerrainType(zone, gen);
+	paintZoneTerrain(zone, gen, zone.getTerrainType());
+	
+	treasurePlacer.addAllPossibleObjects()
+	
+	//zone center should be always clear to allow other tiles to connect
+	zone.initFreeTiles();
+	zone.connectLater(); //ideally this should work after fractalize, but fails
+	zone.fractalize();
+	placeMines(zone, gen, manager);
+	manager.createRequiredObjects();
+	treasurePlacer.createTreasures();
+	
+	logGlobal->info("Zone %d filled successfully", id);
+	return true;
 }
