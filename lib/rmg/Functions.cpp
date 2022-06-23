@@ -10,6 +10,8 @@
 #include "ObjectManager.h"
 #include "RoadPlacer.h"
 #include "TreasurePlacer.h"
+#include "RmgMap.h"
+#include "TileInfo.h"
 #include "../CTownHandler.h"
 #include "../mapping/CMapEditManager.h"
 #include "../mapping/CMap.h"
@@ -31,7 +33,7 @@ std::set<int3> collectDistantTiles(const Zone& zone, float distance)
 	return discardedTiles;
 }
 
-void createBorder(CMapGenerator & gen, const Zone & zone)
+void createBorder(RmgMap & gen, const Zone & zone)
 {
 	for(auto & tile : zone.getTileInfo())
 	{
@@ -79,11 +81,11 @@ si32 getRandomTownType(const Zone & zone, CRandomGenerator & generator, bool mat
 	return *RandomGeneratorUtil::nextItem(townTypesAllowed, generator);
 }
 
-void paintZoneTerrain(const Zone & zone, CMapGenerator & gen, const Terrain & terrainType)
+void paintZoneTerrain(const Zone & zone, CRandomGenerator & generator, RmgMap & map, const Terrain & terrainType)
 {
 	std::vector<int3> tiles(zone.getTileInfo().begin(), zone.getTileInfo().end());
-	gen.getEditManager()->getTerrainSelection().setSelection(tiles);
-	gen.getEditManager()->drawTerrain(terrainType, &gen.rand);
+	map.getEditManager()->getTerrainSelection().setSelection(tiles);
+	map.getEditManager()->drawTerrain(terrainType, &generator);
 }
 
 boost::heap::priority_queue<TDistance, boost::heap::compare<NodeComparer>> createPriorityQueue()
@@ -131,28 +133,28 @@ bool placeMines(const Zone & zone, CMapGenerator & gen, ObjectManager & manager)
 	return true;
 }
 
-void initTownType(Zone & zone, CMapGenerator & gen, ObjectManager & manager)
+void initTownType(Zone & zone, CRandomGenerator & generator, RmgMap & map, ObjectManager & manager)
 {
 	//FIXME: handle case that this player is not present -> towns should be set to neutral
 	int totalTowns = 0;
 	
 	//cut a ring around town to ensure crunchPath always hits it.
-	auto cutPathAroundTown = [&gen](const CGTownInstance * town)
+	auto cutPathAroundTown = [&map](const CGTownInstance * town)
 	{
-		auto clearPos = [&gen](const int3 & pos)
+		auto clearPos = [&map](const int3 & pos)
 		{
-			if (gen.isPossible(pos))
-				gen.setOccupied(pos, ETileType::FREE);
+			if (map.isPossible(pos))
+				map.setOccupied(pos, ETileType::FREE);
 		};
 		for(auto blockedTile : town->getBlockedPos())
 		{
-			gen.foreach_neighbour(blockedTile, clearPos);
+			map.foreach_neighbour(blockedTile, clearPos);
 		}
 		//clear town entry
-		gen.foreach_neighbour(town->visitablePos() + int3{0,1,0}, clearPos);
+		map.foreach_neighbour(town->visitablePos() + int3{0,1,0}, clearPos);
 	};
 	
-	auto addNewTowns = [&zone, &gen, &manager, &totalTowns, &cutPathAroundTown](int count, bool hasFort, PlayerColor player)
+	auto addNewTowns = [&zone, &generator, &manager, &map, &totalTowns, &cutPathAroundTown](int count, bool hasFort, PlayerColor player)
 	{
 		for(int i = 0; i < count; i++)
 		{
@@ -163,9 +165,9 @@ void initTownType(Zone & zone, CMapGenerator & gen, ObjectManager & manager)
 				if(!zone.areTownsSameType())
 				{
 					if (zone.getTownTypes().size())
-						subType = *RandomGeneratorUtil::nextItem(zone.getTownTypes(), gen.rand);
+						subType = *RandomGeneratorUtil::nextItem(zone.getTownTypes(), generator);
 					else
-						subType = *RandomGeneratorUtil::nextItem(zone.getDefaultTownTypes(), gen.rand); //it is possible to have zone with no towns allowed
+						subType = *RandomGeneratorUtil::nextItem(zone.getDefaultTownTypes(), generator); //it is possible to have zone with no towns allowed
 				}
 			}
 			
@@ -188,7 +190,7 @@ void initTownType(Zone & zone, CMapGenerator & gen, ObjectManager & manager)
 			{
 				//FIXME: discovered bug with small zones - getPos is close to map boarder and we have outOfMap exception
 				//register MAIN town of zone
-				gen.registerZone(town->subID);
+				map.registerZone(town->subID);
 				//first town in zone goes in the middle
 				manager.placeObject(town, zone.getPos() + town->getVisitableOffset(), true);
 				cutPathAroundTown(town);
@@ -206,20 +208,20 @@ void initTownType(Zone & zone, CMapGenerator & gen, ObjectManager & manager)
 		//set zone types to player faction, generate main town
 		logGlobal->info("Preparing playing zone");
 		int player_id = *zone.getOwner() - 1;
-		auto & playerInfo = gen.map->players[player_id];
+		auto & playerInfo = map.map().players[player_id];
 		PlayerColor player(player_id);
 		if(playerInfo.canAnyonePlay())
 		{
 			player = PlayerColor(player_id);
-			zone.setTownType(gen.getMapGenOptions().getPlayersSettings().find(player)->second.getStartingTown());
+			zone.setTownType(map.getMapGenOptions().getPlayersSettings().find(player)->second.getStartingTown());
 			
 			if(zone.getTownType() == CMapGenOptions::CPlayerSettings::RANDOM_TOWN)
-				zone.setTownType(getRandomTownType(zone, gen.rand, true));
+				zone.setTownType(getRandomTownType(zone, generator, true));
 		}
 		else //no player - randomize town
 		{
 			player = PlayerColor::NEUTRAL;
-			zone.setTownType(getRandomTownType(zone, gen.rand));
+			zone.setTownType(getRandomTownType(zone, generator));
 		}
 		
 		auto townFactory = VLC->objtypeh->getHandlerFor(Obj::TOWN, zone.getTownType());
@@ -241,7 +243,7 @@ void initTownType(Zone & zone, CMapGenerator & gen, ObjectManager & manager)
 		
 		totalTowns++;
 		//register MAIN town of zone only
-		gen.registerZone(town->subID);
+		map.registerZone(town->subID);
 		
 		if(playerInfo.canAnyonePlay()) //configure info for owning player
 		{
@@ -266,7 +268,7 @@ void initTownType(Zone & zone, CMapGenerator & gen, ObjectManager & manager)
 	}
 	else //randomize town types for any other zones as well
 	{
-		zone.setTownType(getRandomTownType(zone, gen.rand));
+		zone.setTownType(getRandomTownType(zone, generator));
 	}
 	
 	addNewTowns(zone.getNeutralTowns().getCastleCount(), true, PlayerColor::NEUTRAL);
@@ -275,23 +277,23 @@ void initTownType(Zone & zone, CMapGenerator & gen, ObjectManager & manager)
 	if(!totalTowns) //if there's no town present, get random faction for dwellings and pandoras
 	{
 		//25% chance for neutral
-		if (gen.rand.nextInt(1, 100) <= 25)
+		if (generator.nextInt(1, 100) <= 25)
 		{
 			zone.setTownType(ETownType::NEUTRAL);
 		}
 		else
 		{
 			if(zone.getTownTypes().size())
-				zone.setTownType(*RandomGeneratorUtil::nextItem(zone.getTownTypes(), gen.rand));
+				zone.setTownType(*RandomGeneratorUtil::nextItem(zone.getTownTypes(), generator));
 			else if(zone.getMonsterTypes().size())
-				zone.setTownType(*RandomGeneratorUtil::nextItem(zone.getMonsterTypes(), gen.rand)); //this happens in Clash of Dragons in treasure zones, where all towns are banned
+				zone.setTownType(*RandomGeneratorUtil::nextItem(zone.getMonsterTypes(), generator)); //this happens in Clash of Dragons in treasure zones, where all towns are banned
 			else //just in any case
-				zone.setTownType(getRandomTownType(zone, gen.rand));
+				zone.setTownType(getRandomTownType(zone, generator));
 		}
 	}
 }
 
-void createObstacles1(const Zone & zone, CMapGenerator & gen)
+void createObstacles1(const Zone & zone, RmgMap & map, CRandomGenerator & generator)
 {
 	if(zone.isUnderground()) //underground
 	{
@@ -299,17 +301,17 @@ void createObstacles1(const Zone & zone, CMapGenerator & gen)
 		std::vector<int3> accessibleTiles;
 		for(auto tile : zone.getTileInfo())
 		{
-			if(gen.isFree(tile) || gen.isUsed(tile))
+			if(map.isFree(tile) || map.isUsed(tile))
 			{
 				accessibleTiles.push_back(tile);
 			}
 		}
-		gen.getEditManager()->getTerrainSelection().setSelection(accessibleTiles);
-		gen.getEditManager()->drawTerrain(zone.getTerrainType(), &gen.rand);
+		map.getEditManager()->getTerrainSelection().setSelection(accessibleTiles);
+		map.getEditManager()->drawTerrain(zone.getTerrainType(), &generator);
 	}
 }
 
-void createObstacles2(const Zone & zone, CMapGenerator & gen, ObjectManager & manager)
+void createObstacles2(const Zone & zone, RmgMap & map, CRandomGenerator & generator, ObjectManager & manager)
 {
 	typedef std::vector<ObjectTemplate> obstacleVector;
 	//obstacleVector possibleObstacles;
@@ -343,14 +345,14 @@ void createObstacles2(const Zone & zone, CMapGenerator & gen, ObjectManager & ma
 		return p1.first > p2.first; //bigger obstacles first
 	});
 	
-	auto sel = gen.getEditManager()->getTerrainSelection();
+	auto sel = map.getEditManager()->getTerrainSelection();
 	sel.clearSelection();
 	
-	auto tryToPlaceObstacleHere = [&gen, &manager, &possibleObstacles](int3& tile, int index)-> bool
+	auto tryToPlaceObstacleHere = [&map, &generator, &manager, &possibleObstacles](int3& tile, int index)-> bool
 	{
-		auto temp = *RandomGeneratorUtil::nextItem(possibleObstacles[index].second, gen.rand);
+		auto temp = *RandomGeneratorUtil::nextItem(possibleObstacles[index].second, generator);
 		int3 obstaclePos = tile + temp.getBlockMapOffset();
-		if(canObstacleBePlacedHere(gen, temp, obstaclePos)) //can be placed here
+		if(canObstacleBePlacedHere(map, temp, obstaclePos)) //can be placed here
 		{
 			auto obj = VLC->objtypeh->getHandlerFor(temp.id, temp.subid)->create(temp);
 			manager.placeObject(obj, obstaclePos, false);
@@ -363,7 +365,7 @@ void createObstacles2(const Zone & zone, CMapGenerator & gen, ObjectManager & ma
 	for(auto tile : boost::adaptors::reverse(zone.getTileInfo()))
 	{
 		//fill tiles that should be blocked with obstacles
-		if(gen.shouldBeBlocked(tile))
+		if(map.shouldBeBlocked(tile))
 		{
 			//start from biggets obstacles
 			for(int i = 0; i < possibleObstacles.size(); i++)
@@ -376,16 +378,16 @@ void createObstacles2(const Zone & zone, CMapGenerator & gen, ObjectManager & ma
 	//cleanup - remove unused possible tiles to make space for roads
 	for(auto tile : zone.getTileInfo())
 	{
-		if(gen.isPossible(tile))
+		if(map.isPossible(tile))
 		{
-			gen.setOccupied(tile, ETileType::FREE);
+			map.setOccupied(tile, ETileType::FREE);
 		}
 	}
 }
 
-bool canObstacleBePlacedHere(const CMapGenerator & gen, ObjectTemplate &temp, int3 &pos)
+bool canObstacleBePlacedHere(const RmgMap & map, ObjectTemplate &temp, int3 &pos)
 {
-	if (!gen.map->isInTheMap(pos)) //blockmap may fit in the map, but botom-right corner does not
+	if (!map.isOnMap(pos)) //blockmap may fit in the map, but botom-right corner does not
 		return false;
 	
 	auto tilesBlockedByObject = temp.getBlockedOffsets();
@@ -393,7 +395,7 @@ bool canObstacleBePlacedHere(const CMapGenerator & gen, ObjectTemplate &temp, in
 	for (auto blockingTile : tilesBlockedByObject)
 	{
 		int3 t = pos + blockingTile;
-		if (!gen.map->isInTheMap(t) || !(gen.isPossible(t) || gen.shouldBeBlocked(t)) || !temp.canBePlacedAt(gen.map->getTile(t).terType))
+		if(!map.isOnMap(t) || !(map.isPossible(t) || map.shouldBeBlocked(t)) || !temp.canBePlacedAt(map.getTile(t).getTerrainType()))
 		{
 			return false; //if at least one tile is not possible, object can't be placed here
 		}
@@ -468,7 +470,7 @@ void initTerrainType(Zone & zone, CMapGenerator & gen)
 	}
 }
 
-bool processZone(Zone & zone, CMapGenerator & gen)
+/*bool processZone(Zone & zone, CMapGenerator & gen)
 {
 	ObjectManager manager(zone, gen);
 	RoadPlacer roadPlacer(zone, gen);
@@ -489,4 +491,96 @@ bool processZone(Zone & zone, CMapGenerator & gen)
 	
 	logGlobal->info("Zone %d filled successfully", zone.getId());
 	return true;
+}*/
+
+void createObstaclesCommon1(RmgMap & map, CRandomGenerator & generator)
+{
+	if(map.map().twoLevel) //underground
+	{
+		//negative approach - create rock tiles first, then make sure all accessible tiles have no rock
+		std::vector<int3> rockTiles;
+		
+		for(int x = 0; x < map.map().width; x++)
+		{
+			for(int y = 0; y < map.map().height; y++)
+			{
+				int3 tile(x, y, 1);
+				if (map.shouldBeBlocked(tile))
+				{
+					rockTiles.push_back(tile);
+				}
+			}
+		}
+		map.getEditManager()->getTerrainSelection().setSelection(rockTiles);
+		
+		//collect all rock terrain types
+		std::vector<Terrain> rockTerrains;
+		for(auto & terrain : Terrain::Manager::terrains())
+			if(!terrain.isPassable())
+				rockTerrains.push_back(terrain);
+		auto rockTerrain = *RandomGeneratorUtil::nextItem(rockTerrains, generator);
+		
+		map.getEditManager()->drawTerrain(rockTerrain, &generator);
+	}
+}
+
+void createObstaclesCommon2(RmgMap & map, CRandomGenerator & generator)
+{
+	if(map.map().twoLevel)
+	{
+		//finally mark rock tiles as occupied, spawn no obstacles there
+		for(int x = 0; x < map.map().width; x++)
+		{
+			for(int y = 0; y < map.map().height; y++)
+			{
+				int3 tile(x, y, 1);
+				if(!map.map().getTile(tile).terType.isPassable())
+				{
+					map.setOccupied(tile, ETileType::USED);
+				}
+			}
+		}
+	}
+	
+	//tighten obstacles to improve visuals
+	
+	for (int i = 0; i < 3; ++i)
+	{
+		int blockedTiles = 0;
+		int freeTiles = 0;
+		
+		for (int z = 0; z < (map.map().twoLevel ? 2 : 1); z++)
+		{
+			for (int x = 0; x < map.map().width; x++)
+			{
+				for (int y = 0; y < map.map().height; y++)
+				{
+					int3 tile(x, y, z);
+					if (!map.isPossible(tile)) //only possible tiles can change
+						continue;
+					
+					int blockedNeighbours = 0;
+					int freeNeighbours = 0;
+					map.foreach_neighbour(tile, [&map, &blockedNeighbours, &freeNeighbours](int3 &pos)
+					{
+						if (map.isBlocked(pos))
+							blockedNeighbours++;
+						if (map.isFree(pos))
+							freeNeighbours++;
+					});
+					if (blockedNeighbours > 4)
+					{
+						map.setOccupied(tile, ETileType::BLOCKED);
+						blockedTiles++;
+					}
+					else if (freeNeighbours > 4)
+					{
+						map.setOccupied(tile, ETileType::FREE);
+						freeTiles++;
+					}
+				}
+			}
+		}
+		logGlobal->trace("Set %d tiles to BLOCKED and %d tiles to FREE", blockedTiles, freeTiles);
+	}
 }

@@ -8,10 +8,11 @@
 #include "RoadPlacer.h"
 #include "Functions.h"
 #include "CMapGenerator.h"
+#include "RmgMap.h"
 #include "../mapping/CMap.h"
 #include "../mapping/CMapEditManager.h"
 
-RoadPlacer::RoadPlacer(Zone & zone, CMapGenerator & gen) : zone(zone), gen(gen)
+RoadPlacer::RoadPlacer(Zone & zone, RmgMap & map, CRandomGenerator & generator) : zone(zone), map(map), generator(generator)
 {
 }
 
@@ -24,7 +25,7 @@ bool RoadPlacer::createRoad(const int3 & src, const int3 & dst)
 	std::map<int3, int3> cameFrom;  // The map of navigated nodes.
 	std::map<int3, float> distances;
 	
-	gen.setRoad(src, ROAD_NAMES[0]); //just in case zone guard already has road under it. Road under nodes will be added at very end
+	map.setRoad(src, ROAD_NAMES[0]); //just in case zone guard already has road under it. Road under nodes will be added at very end
 	
 	cameFrom[src] = int3(-1, -1, -1); //first node points to finish condition
 	pq.push(std::make_pair(src, 0.f));
@@ -37,9 +38,9 @@ bool RoadPlacer::createRoad(const int3 & src, const int3 & dst)
 		pq.pop(); //remove top element
 		int3 currentNode = node.first;
 		closed.insert (currentNode);
-		auto currentTile = &gen.map->getTile(currentNode);
+		auto currentTile = &map.map().getTile(currentNode);
 		
-		if (currentNode == dst || gen.isRoad(currentNode))
+		if (currentNode == dst || map.isRoad(currentNode))
 		{
 			// The goal node was reached. Trace the path using
 			// the saved parent information and return path
@@ -48,7 +49,8 @@ bool RoadPlacer::createRoad(const int3 & src, const int3 & dst)
 			{
 				// add node to path
 				roads.insert(backTracking);
-				gen.setRoad(backTracking, gen.getConfig().defaultRoadType);
+				map.setRoad(backTracking, ROAD_NAMES[1]);
+				//gen.setRoad(backTracking, gen.getConfig().defaultRoadType);
 				//logGlobal->trace("Setting road at tile %s", backTracking);
 				// do the same for the predecessor
 				backTracking = cameFrom[backTracking];
@@ -72,14 +74,14 @@ bool RoadPlacer::createRoad(const int3 & src, const int3 & dst)
 				
 				if (distance < bestDistanceSoFar)
 				{
-					auto tile = &gen.map->getTile(pos);
-					bool canMoveBetween = gen.map->canMoveBetween(currentNode, pos);
+					auto tile = &map.map().getTile(pos);
+					bool canMoveBetween = map.map().canMoveBetween(currentNode, pos);
 					
-					if ((gen.isFree(pos) && gen.isFree(currentNode)) //empty path
+					if((map.isFree(pos) && map.isFree(currentNode)) //empty path
 						|| ((tile->visitable || currentTile->visitable) && canMoveBetween) //moving from or to visitable object
 						|| pos == dst) //we already compledted the path
 					{
-						if (gen.getZoneID(pos) == zone.getId() || pos == dst) //otherwise guard position may appear already connected to other zone.
+						if (map.getZoneID(pos) == zone.getId() || pos == dst) //otherwise guard position may appear already connected to other zone.
 						{
 							cameFrom[pos] = currentNode;
 							distances[pos] = distance;
@@ -90,11 +92,11 @@ bool RoadPlacer::createRoad(const int3 & src, const int3 & dst)
 				}
 			};
 			
-			gen.foreachDirectNeighbour (currentNode, foo); // roads cannot be rendered correctly for diagonal directions
+			map.foreachDirectNeighbour(currentNode, foo); // roads cannot be rendered correctly for diagonal directions
 			if (!directNeighbourFound)
 			{
 				movementCost = 2.1f; //moving diagonally is penalized over moving two tiles straight
-				gen.foreachDiagonalNeighbour(currentNode, foo);
+				map.foreachDiagonalNeighbour(currentNode, foo);
 			}
 		}
 		
@@ -109,17 +111,18 @@ void RoadPlacer::drawRoads()
 	std::vector<int3> tiles;
 	for (auto tile : roads)
 	{
-		if(gen.map->isInTheMap(tile))
+		if(map.isOnMap(tile))
 			tiles.push_back (tile);
 	}
 	for (auto tile : roadNodes)
 	{
-		if (gen.getZoneID(tile) == zone.getId()) //mark roads for our nodes, but not for zone guards in other zones
+		if (map.getZoneID(tile) == zone.getId()) //mark roads for our nodes, but not for zone guards in other zones
 			tiles.push_back(tile);
 	}
 	
-	gen.getEditManager()->getTerrainSelection().setSelection(tiles);
-	gen.getEditManager()->drawRoad(gen.getConfig().defaultRoadType, &gen.rand);
+	map.getEditManager()->getTerrainSelection().setSelection(tiles);
+	//map.getEditManager()->drawRoad(gen.getConfig().defaultRoadType, &generator);
+	map.getEditManager()->drawRoad(ROAD_NAMES[1], &generator);
 }
 
 void RoadPlacer::addRoadNode(const int3& node)

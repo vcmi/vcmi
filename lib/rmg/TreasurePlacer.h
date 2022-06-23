@@ -11,6 +11,8 @@
 
 class CGObjectInstance;
 class ObjectManager;
+class RmgMap;
+class CMapGenerator;
 
 struct DLL_LINKAGE ObjectInfo
 {
@@ -21,7 +23,7 @@ struct DLL_LINKAGE ObjectInfo
 	//ui32 maxPerMap; //unused
 	std::function<CGObjectInstance *()> generateObject;
 	
-	void setTemplate (si32 type, si32 subtype, Terrain terrain);
+	void setTemplate(si32 type, si32 subtype, Terrain terrain);
 	
 	ObjectInfo();
 	
@@ -40,13 +42,13 @@ struct DLL_LINKAGE CTreasurePileInfo
 class DLL_LINKAGE TreasurePlacer
 {
 public:
-	TreasurePlacer(Zone & zone, CMapGenerator & gen);
+	TreasurePlacer(Zone & zone, RmgMap & map, CRandomGenerator & generator);
 	
 	void createTreasures(ObjectManager & manager);
 	
 	void setQuestArtZone(std::shared_ptr<TreasurePlacer> otherZone);
 	bool createTreasurePile(ObjectManager & manager, int3 &pos, float minDistance, const CTreasureInfo& treasureInfo);
-	void addAllPossibleObjects(); //add objects, including zone-specific, to possibleObjects
+	void addAllPossibleObjects(CMapGenerator & gen); //add objects, including zone-specific, to possibleObjects
 	
 protected:
 	bool isGuardNeededForTreasure(int value);
@@ -54,7 +56,8 @@ protected:
 	ObjectInfo getRandomObject(const ObjectManager & manager, CTreasurePileInfo &info, ui32 desiredValue, ui32 maxValue, ui32 currentValue);
 	
 protected:
-	CMapGenerator & gen;
+	RmgMap & map;
+	CRandomGenerator & generator;
 	Zone & zone;
 	
 	std::vector<ObjectInfo> possibleObjects;

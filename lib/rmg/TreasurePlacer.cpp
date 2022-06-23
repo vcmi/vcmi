@@ -9,6 +9,7 @@
 #include "CMapGenerator.h"
 #include "Functions.h"
 #include "ObjectManager.h"
+#include "RmgMap.h"
 #include "../mapObjects/CommonConstructors.h"
 #include "../mapObjects/MapObjects.h" //needed to resolve templates for CommonConstructors.h
 #include "../CCreatureHandler.h"
@@ -16,7 +17,7 @@
 #include "../mapping/CMap.h"
 #include "../mapping/CMapEditManager.h"
 
-TreasurePlacer::TreasurePlacer(Zone & zone, CMapGenerator & gen) : zone(zone), gen(gen)
+TreasurePlacer::TreasurePlacer(Zone & zone, RmgMap & map, CRandomGenerator & generator) : zone(zone), map(map), generator(generator)
 {
 }
 
@@ -25,11 +26,11 @@ void TreasurePlacer::setQuestArtZone(std::shared_ptr<TreasurePlacer> otherZone)
 	questArtZone = otherZone;
 }
 
-void TreasurePlacer::addAllPossibleObjects()
+void TreasurePlacer::addAllPossibleObjects(CMapGenerator & gen)
 {
 	ObjectInfo oi;
 	
-	int numZones = static_cast<int>(gen.getZones().size());
+	int numZones = static_cast<int>(map.getZones().size());
 	
 	for(auto primaryID : VLC->objtypeh->knownObjects())
 	{
@@ -67,16 +68,16 @@ void TreasurePlacer::addAllPossibleObjects()
 	static int prisonsLevels = std::min(gen.getConfig().prisonExperience.size(), gen.getConfig().prisonValues.size());
 	for(int i = 0; i < prisonsLevels; i++)
 	{
-		oi.generateObject = [i, this]() -> CGObjectInstance *
+		oi.generateObject = [&gen, i, this]() -> CGObjectInstance *
 		{
 			std::vector<ui32> possibleHeroes;
-			for(int j = 0; j < gen.map->allowedHeroes.size(); j++)
+			for(int j = 0; j < map.map().allowedHeroes.size(); j++)
 			{
-				if(gen.map->allowedHeroes[j])
+				if(map.map().allowedHeroes[j])
 					possibleHeroes.push_back(j);
 			}
 			
-			auto hid = *RandomGeneratorUtil::nextItem(possibleHeroes, gen.rand);
+			auto hid = *RandomGeneratorUtil::nextItem(possibleHeroes, generator);
 			auto factory = VLC->objtypeh->getHandlerFor(Obj::PRISON, 0);
 			auto obj = (CGHeroInstance *) factory->create(ObjectTemplate());
 			
@@ -84,7 +85,7 @@ void TreasurePlacer::addAllPossibleObjects()
 			obj->subID = hid; //will be initialized later
 			obj->exp = gen.getConfig().prisonExperience[i];
 			obj->setOwner(PlayerColor::NEUTRAL);
-			gen.map->allowedHeroes[hid] = false; //ban this hero
+			map.map().allowedHeroes[hid] = false; //ban this hero
 			gen.decreasePrisonsRemaining();
 			obj->appearance = VLC->objtypeh->getHandlerFor(Obj::PRISON, 0)->getTemplates(zone.getTerrainType()).front(); //can't init template with hero subID
 			
@@ -134,8 +135,8 @@ void TreasurePlacer::addAllPossibleObjects()
 			auto cre = creatures.front();
 			if(cre->faction == zone.getTownType())
 			{
-				float nativeZonesCount = static_cast<float>(gen.getZoneCount(cre->faction));
-				oi.value = static_cast<ui32>(cre->AIValue * cre->growth * (1 + (nativeZonesCount / gen.getTotalZoneCount()) + (nativeZonesCount / 2)));
+				float nativeZonesCount = static_cast<float>(map.getZoneCount(cre->faction));
+				oi.value = static_cast<ui32>(cre->AIValue * cre->growth * (1 + (nativeZonesCount / map.getTotalZoneCount()) + (nativeZonesCount / 2)));
 				oi.probability = 40;
 				
 				for(auto tmplate : dwellingHandler->getTemplates())
@@ -167,12 +168,12 @@ void TreasurePlacer::addAllPossibleObjects()
 			
 			for(auto spell : VLC->spellh->objects) //spellh size appears to be greater (?)
 			{
-				if(gen.isAllowedSpell(spell->id) && spell->level == i + 1)
+				if(map.isAllowedSpell(spell->id) && spell->level == i + 1)
 				{
 					out.push_back(spell->id);
 				}
 			}
-			auto a = CArtifactInstance::createScroll(*RandomGeneratorUtil::nextItem(out, gen.rand));
+			auto a = CArtifactInstance::createScroll(*RandomGeneratorUtil::nextItem(out, generator));
 			obj->storedArtifact = a;
 			return obj;
 		};
@@ -262,7 +263,7 @@ void TreasurePlacer::addAllPossibleObjects()
 			return obj;
 		};
 		oi.setTemplate(Obj::PANDORAS_BOX, 0, zone.getTerrainType());
-		oi.value = static_cast<ui32>((2 * (creature->AIValue) * creaturesAmount * (1 + (float)(gen.getZoneCount(creature->faction)) / gen.getTotalZoneCount())) / 3);
+		oi.value = static_cast<ui32>((2 * (creature->AIValue) * creaturesAmount * (1 + (float)(map.getZoneCount(creature->faction)) / map.getTotalZoneCount())) / 3);
 		oi.probability = 3;
 		possibleObjects.push_back(oi);
 	}
@@ -278,11 +279,11 @@ void TreasurePlacer::addAllPossibleObjects()
 			std::vector <CSpell *> spells;
 			for(auto spell : VLC->spellh->objects)
 			{
-				if(gen.isAllowedSpell(spell->id) && spell->level == i)
+				if(map.isAllowedSpell(spell->id) && spell->level == i)
 					spells.push_back(spell);
 			}
 			
-			RandomGeneratorUtil::randomShuffle(spells, gen.rand);
+			RandomGeneratorUtil::randomShuffle(spells, generator);
 			for(int j = 0; j < std::min(12, (int)spells.size()); j++)
 			{
 				obj->spells.push_back(spells[j]->id);
@@ -307,11 +308,11 @@ void TreasurePlacer::addAllPossibleObjects()
 			std::vector <CSpell *> spells;
 			for(auto spell : VLC->spellh->objects)
 			{
-				if(gen.isAllowedSpell(spell->id) && spell->school[(ESpellSchool)i])
+				if(map.isAllowedSpell(spell->id) && spell->school[(ESpellSchool)i])
 					spells.push_back(spell);
 			}
 			
-			RandomGeneratorUtil::randomShuffle(spells, gen.rand);
+			RandomGeneratorUtil::randomShuffle(spells, generator);
 			for(int j = 0; j < std::min(15, (int)spells.size()); j++)
 			{
 				obj->spells.push_back(spells[j]->id);
@@ -335,11 +336,11 @@ void TreasurePlacer::addAllPossibleObjects()
 		std::vector <CSpell *> spells;
 		for(auto spell : VLC->spellh->objects)
 		{
-			if(gen.isAllowedSpell(spell->id))
+			if(map.isAllowedSpell(spell->id))
 				spells.push_back(spell);
 		}
 		
-		RandomGeneratorUtil::randomShuffle(spells, gen.rand);
+		RandomGeneratorUtil::randomShuffle(spells, generator);
 		for(int j = 0; j < std::min(60, (int)spells.size()); j++)
 		{
 			obj->spells.push_back(spells[j]->id);
@@ -397,9 +398,9 @@ void TreasurePlacer::addAllPossibleObjects()
 			if(!creaturesAmount)
 				continue;
 			
-			int randomAppearance = chooseRandomAppearance(gen.rand, Obj::SEER_HUT, zone.getTerrainType());
+			int randomAppearance = chooseRandomAppearance(generator, Obj::SEER_HUT, zone.getTerrainType());
 			
-			oi.generateObject = [creature, creaturesAmount, randomAppearance, this, generateArtInfo]() -> CGObjectInstance *
+			oi.generateObject = [&gen, creature, creaturesAmount, randomAppearance, this, generateArtInfo]() -> CGObjectInstance *
 			{
 				auto factory = VLC->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
 				auto obj = (CGSeerHut *) factory->create(ObjectTemplate());
@@ -408,7 +409,7 @@ void TreasurePlacer::addAllPossibleObjects()
 				obj->rVal = creaturesAmount;
 				
 				obj->quest->missionType = CQuest::MISSION_ART;
-				ArtifactID artid = *RandomGeneratorUtil::nextItem(gen.getQuestArtsRemaning(), gen.rand);
+				ArtifactID artid = *RandomGeneratorUtil::nextItem(gen.getQuestArtsRemaning(), generator);
 				obj->quest->m5arts.push_back(artid);
 				obj->quest->lastDay = -1;
 				obj->quest->isCustomFirst = obj->quest->isCustomNext = obj->quest->isCustomComplete = false;
@@ -421,7 +422,7 @@ void TreasurePlacer::addAllPossibleObjects()
 				return obj;
 			};
 			oi.setTemplate(Obj::SEER_HUT, randomAppearance, zone.getTerrainType());
-			oi.value = static_cast<ui32>(((2 * (creature->AIValue) * creaturesAmount * (1 + (float)(gen.getZoneCount(creature->faction)) / gen.getTotalZoneCount())) - 4000) / 3);
+			oi.value = static_cast<ui32>(((2 * (creature->AIValue) * creaturesAmount * (1 + (float)(map.getZoneCount(creature->faction)) / map.getTotalZoneCount())) - 4000) / 3);
 			oi.probability = 3;
 			possibleObjects.push_back(oi);
 		}
@@ -435,7 +436,7 @@ void TreasurePlacer::addAllPossibleObjects()
 			oi.value = gen.getConfig().questValues[i];
 			oi.probability = 10;
 			
-			oi.generateObject = [i, randomAppearance, this, generateArtInfo]() -> CGObjectInstance *
+			oi.generateObject = [&gen, i, randomAppearance, this, generateArtInfo]() -> CGObjectInstance *
 			{
 				auto factory = VLC->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
 				auto obj = (CGSeerHut *) factory->create(ObjectTemplate());
@@ -445,7 +446,7 @@ void TreasurePlacer::addAllPossibleObjects()
 				obj->rVal = gen.getConfig().questRewardValues[i];
 				
 				obj->quest->missionType = CQuest::MISSION_ART;
-				ArtifactID artid = *RandomGeneratorUtil::nextItem(gen.getQuestArtsRemaning(), gen.rand);
+				ArtifactID artid = *RandomGeneratorUtil::nextItem(gen.getQuestArtsRemaning(), generator);
 				obj->quest->m5arts.push_back(artid);
 				obj->quest->lastDay = -1;
 				obj->quest->isCustomFirst = obj->quest->isCustomNext = obj->quest->isCustomComplete = false;
@@ -459,7 +460,7 @@ void TreasurePlacer::addAllPossibleObjects()
 			
 			possibleObjects.push_back(oi);
 			
-			oi.generateObject = [i, randomAppearance, this, generateArtInfo]() -> CGObjectInstance *
+			oi.generateObject = [&gen, i, randomAppearance, this, generateArtInfo]() -> CGObjectInstance *
 			{
 				auto factory = VLC->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
 				auto obj = (CGSeerHut *) factory->create(ObjectTemplate());
@@ -468,7 +469,7 @@ void TreasurePlacer::addAllPossibleObjects()
 				obj->rVal = gen.getConfig().questRewardValues[i];
 				
 				obj->quest->missionType = CQuest::MISSION_ART;
-				ArtifactID artid = *RandomGeneratorUtil::nextItem(gen.getQuestArtsRemaning(), gen.rand);
+				ArtifactID artid = *RandomGeneratorUtil::nextItem(gen.getQuestArtsRemaning(), generator);
 				obj->quest->m5arts.push_back(artid);
 				obj->quest->lastDay = -1;
 				obj->quest->isCustomFirst = obj->quest->isCustomNext = obj->quest->isCustomComplete = false;
@@ -500,14 +501,14 @@ bool TreasurePlacer::findPlaceForTreasurePile(float min_dist, int3 &pos, int val
 	//logGlobal->info("Min dist for density %f is %d", density, min_dist);
 	for(auto tile : zone.getPossibleTiles())
 	{
-		auto dist = gen.getNearestObjectDistance(tile);
+		auto dist = map.getNearestObjectDistance(tile);
 		
 		if((dist >= min_dist) && (dist > best_distance))
 		{
 			bool allTilesAvailable = true;
-			gen.foreach_neighbour(tile, [this, &allTilesAvailable, needsGuard](int3 neighbour)
+			map.foreach_neighbour(tile, [this, &allTilesAvailable, needsGuard](int3 neighbour)
 			{
-				if(!(gen.isPossible(neighbour) || gen.shouldBeBlocked(neighbour) || gen.getZoneID(neighbour)==zone.getId() || (!needsGuard && gen.isFree(neighbour))))
+				if(!(map.isPossible(neighbour) || map.shouldBeBlocked(neighbour) || map.getZoneID(neighbour)==zone.getId() || (!needsGuard && map.isFree(neighbour))))
 				{
 					allTilesAvailable = false; //all present tiles must be already blocked or ready for new objects
 				}
@@ -522,7 +523,7 @@ bool TreasurePlacer::findPlaceForTreasurePile(float min_dist, int3 &pos, int val
 	}
 	if(result)
 	{
-		gen.setOccupied(pos, ETileType::BLOCKED); //block that tile //FIXME: why?
+		map.setOccupied(pos, ETileType::BLOCKED); //block that tile //FIXME: why?
 	}
 	return result;
 }
@@ -539,7 +540,7 @@ bool TreasurePlacer::createTreasurePile(ObjectManager & manager, int3 &pos, floa
 	int maxValue = treasureInfo.max;
 	int minValue = treasureInfo.min;
 	
-	ui32 desiredValue = (gen.rand.nextInt(minValue, maxValue));
+	ui32 desiredValue = (generator.nextInt(minValue, maxValue));
 	
 	int currentValue = 0;
 	CGObjectInstance * object = nullptr;
@@ -549,8 +550,8 @@ bool TreasurePlacer::createTreasurePile(ObjectManager & manager, int3 &pos, floa
 		
 		for(auto treasurePos : treasures)
 		{
-			gen.foreach_neighbour(treasurePos.first, [&boundary](int3 pos)
-								   {
+			map.foreach_neighbour(treasurePos.first, [&boundary](int3 pos)
+			{
 				boundary.insert(pos);
 			});
 		}
@@ -563,7 +564,7 @@ bool TreasurePlacer::createTreasurePile(ObjectManager & manager, int3 &pos, floa
 		for(auto tile : boundary)
 		{
 			//we can't extend boundary anymore
-			if(!(gen.isBlocked(tile) || gen.isPossible(tile)))
+			if(!(map.isBlocked(tile) || map.isPossible(tile)))
 				break;
 		}
 		
@@ -619,12 +620,12 @@ bool TreasurePlacer::createTreasurePile(ObjectManager & manager, int3 &pos, floa
 			
 			for(auto tile : boundaryCopy)
 			{
-				if(gen.isPossible(tile) && gen.getZoneID(tile) == zone.getId()) //we can place new treasure only on possible tile
+				if(map.isPossible(tile) && map.getZoneID(tile) == zone.getId()) //we can place new treasure only on possible tile
 				{
 					bool here = true;
-					gen.foreach_neighbour (tile, [this, &here, minDistance](int3 pos)
+					map.foreach_neighbour (tile, [this, &here, minDistance](int3 pos)
 					{
-						if(!(gen.isBlocked(pos) || gen.isPossible(pos)) || gen.getZoneID(pos) != zone.getId() || gen.getNearestObjectDistance(pos) < minDistance)
+						if(!(map.isBlocked(pos) || map.isPossible(pos)) || map.getZoneID(pos) != zone.getId() || map.getNearestObjectDistance(pos) < minDistance)
 							here = false;
 					});
 					if(here)
@@ -670,8 +671,8 @@ bool TreasurePlacer::createTreasurePile(ObjectManager & manager, int3 &pos, floa
 		
 		for(auto tile : info.occupiedPositions)
 		{
-			if(gen.map->isInTheMap(tile) && gen.isPossible(tile) && gen.getZoneID(tile) == zone.getId()) //pile boundary may reach map border
-				gen.setOccupied(tile, ETileType::BLOCKED); //so that crunch path doesn't cut through objects
+			if(map.isOnMap(tile) && map.isPossible(tile) && map.getZoneID(tile) == zone.getId()) //pile boundary may reach map border
+				map.setOccupied(tile, ETileType::BLOCKED); //so that crunch path doesn't cut through objects
 		}
 		
 		if(!zone.connectPath(closestTile, false)) //this place is sealed off, need to find new position
@@ -684,16 +685,16 @@ bool TreasurePlacer::createTreasurePile(ObjectManager & manager, int3 &pos, floa
 		
 		for(auto tile : info.visitableFromBottomPositions)
 		{
-			gen.foreach_neighbour(tile, [tile, &boundary](int3 pos)
-								   {
+			map.foreach_neighbour(tile, [tile, &boundary](int3 pos)
+			{
 				if(pos.y >= tile.y) //don't block these objects from above
 					boundary.insert(pos);
 			});
 		}
 		for(auto tile : info.visitableFromTopPositions)
 		{
-			gen.foreach_neighbour(tile, [&boundary](int3 pos)
-								   {
+			map.foreach_neighbour(tile, [&boundary](int3 pos)
+			{
 				boundary.insert(pos);
 			});
 		}
@@ -702,7 +703,7 @@ bool TreasurePlacer::createTreasurePile(ObjectManager & manager, int3 &pos, floa
 		
 		for(auto tile : boundary) //guard must be standing there
 		{
-			if(gen.isFree(tile)) //this tile could be already blocked, don't place a monster here
+			if(map.isFree(tile)) //this tile could be already blocked, don't place a monster here
 			{
 				guardPos = tile;
 				break;
@@ -720,14 +721,14 @@ bool TreasurePlacer::createTreasurePile(ObjectManager & manager, int3 &pos, floa
 			{//block only if the object is guarded
 				for(auto tile : boundary)
 				{
-					if(gen.isPossible(tile))
-						gen.setOccupied(tile, ETileType::BLOCKED);
+					if(map.isPossible(tile))
+						map.setOccupied(tile, ETileType::BLOCKED);
 				}
 				//do not spawn anything near monster
-				gen.foreach_neighbour(guardPos, [this](int3 pos)
-									   {
-					if(gen.isPossible(pos))
-						gen.setOccupied(pos, ETileType::FREE);
+				map.foreach_neighbour(guardPos, [this](int3 pos)
+				{
+					if(map.isPossible(pos))
+						map.setOccupied(pos, ETileType::FREE);
 				});
 			}
 		}
@@ -735,8 +736,8 @@ bool TreasurePlacer::createTreasurePile(ObjectManager & manager, int3 &pos, floa
 		{
 			for(auto treasure : treasures)
 			{
-				if(gen.isPossible(treasure.first))
-					gen.setOccupied(treasure.first, ETileType::BLOCKED);
+				if(map.isPossible(treasure.first))
+					map.setOccupied(treasure.first, ETileType::BLOCKED);
 				
 				delete treasure.second;
 			}
@@ -746,8 +747,8 @@ bool TreasurePlacer::createTreasurePile(ObjectManager & manager, int3 &pos, floa
 	}
 	else //we did not place eveyrthing successfully
 	{
-		if(gen.isPossible(pos))
-			gen.setOccupied(pos, ETileType::BLOCKED); //TODO: refactor stop condition
+		if(map.isPossible(pos))
+			map.setOccupied(pos, ETileType::BLOCKED); //TODO: refactor stop condition
 		zone.removePossibleTile(pos);
 		return false;
 	}
@@ -843,12 +844,12 @@ ObjectInfo TreasurePlacer::getRandomObject(const ObjectManager & manager, CTreas
 			for(auto blockingTile : blockedOffsets)
 			{
 				int3 t = info.nextTreasurePos + newVisitableOffset + blockingTile;
-				if(!gen.map->isInTheMap(t) || vstd::contains(info.occupiedPositions, t))
+				if(!map.isOnMap(t) || vstd::contains(info.occupiedPositions, t))
 				{
 					fitsBlockmap = false; //if at least one tile is not possible, object can't be placed here
 					break;
 				}
-				if(!(gen.isPossible(t) || gen.isBlocked(t))) //blocked tiles of object may cover blocked tiles, but not used or free tiles
+				if(!(map.isPossible(t) || map.isBlocked(t))) //blocked tiles of object may cover blocked tiles, but not used or free tiles
 				{
 					fitsBlockmap = false;
 					break;
@@ -859,7 +860,7 @@ ObjectInfo TreasurePlacer::getRandomObject(const ObjectManager & manager, CTreas
 			
 			total += oi.probability;
 			
-			thresholds.push_back (std::make_pair (total, &oi));
+			thresholds.push_back(std::make_pair (total, &oi));
 		}
 	}
 	
@@ -867,7 +868,7 @@ ObjectInfo TreasurePlacer::getRandomObject(const ObjectManager & manager, CTreas
 	{
 		ObjectInfo oi;
 		//Generate pandora Box with gold if the value is extremely high
-		if(minValue > gen.getConfig().treasureValueLimit) //we don't have object valuable enough
+		/*if(minValue > gen.getConfig().treasureValueLimit) //we don't have object valuable enough
 		{
 			oi.generateObject = [minValue]() -> CGObjectInstance *
 			{
@@ -880,7 +881,7 @@ ObjectInfo TreasurePlacer::getRandomObject(const ObjectManager & manager, CTreas
 			oi.value = minValue;
 			oi.probability = 0;
 		}
-		else //generate empty object with 0 value if the value if we can't spawn anything
+		else //generate empty object with 0 value if the value if we can't spawn anything*/
 		{
 			oi.generateObject = []() -> CGObjectInstance *
 			{
@@ -894,7 +895,7 @@ ObjectInfo TreasurePlacer::getRandomObject(const ObjectManager & manager, CTreas
 	}
 	else
 	{
-		int r = gen.rand.nextInt (1, total);
+		int r = generator.nextInt (1, total);
 		
 		//binary search = fastest
 		auto it = std::lower_bound(thresholds.begin(), thresholds.end(), r,
@@ -908,7 +909,7 @@ ObjectInfo TreasurePlacer::getRandomObject(const ObjectManager & manager, CTreas
 
 void TreasurePlacer::createTreasures(ObjectManager & manager)
 {
-	int mapMonsterStrength = gen.getMapGenOptions().getMonsterStrength();
+	int mapMonsterStrength = map.getMapGenOptions().getMonsterStrength();
 	int monsterStrength = zone.zoneMonsterStrength + mapMonsterStrength - 1; //array index from 0 to 4
 	
 	static int minGuardedValues[] = { 6500, 4167, 3000, 1833, 1333 };
@@ -958,7 +959,7 @@ void TreasurePlacer::createTreasures(ObjectManager & manager)
 					if(vstd::contains(lake.distance, tile) && lake.distance[tile] < 2)
 						return true;*/
 				
-				if(!gen.isPossible(tile) || gen.getZoneID(tile)!=zone.getId())
+				if(!map.isPossible(tile) || map.getZoneID(tile) != zone.getId())
 					possibleTilesToRemove.push_back(tile);
 			}
 			for(auto tile : possibleTilesToRemove)
@@ -978,4 +979,23 @@ void TreasurePlacer::createTreasures(ObjectManager & manager)
 			
 		} while (!stop);
 	}
+}
+
+ObjectInfo::ObjectInfo()
+: templ(), value(0), probability(0), maxPerZone(1)
+{
+	
+}
+
+void ObjectInfo::setTemplate(si32 type, si32 subtype, Terrain terrainType)
+{
+	auto templHandler = VLC->objtypeh->getHandlerFor(type, subtype);
+	if(!templHandler)
+		return;
+	
+	auto templates = templHandler->getTemplates(terrainType);
+	if(templates.empty())
+		return;
+	
+	templ = templates.front();
 }

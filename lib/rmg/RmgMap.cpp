@@ -9,15 +9,17 @@
 #include "TileInfo.h"
 #include "CMapGenOptions.h"
 #include "Zone.h"
-#include "../mapping/CMap.h"
 #include "../mapping/CMapEditManager.h"
+#include "../CTownHandler.h"
 
 static const int3 dirs4[] = {int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0)};
 static const int3 dirsDiagonal[] = { int3(1,1,0),int3(1,-1,0),int3(-1,1,0),int3(-1,-1,0) };
 
 RmgMap::RmgMap(const CMapGenOptions& mapGenOptions) :
-mapGenOptions(mapGenOptions), zonesTotal(0), tiles(nullptr)
+	mapGenOptions(mapGenOptions), zonesTotal(0), tiles(nullptr)
 {
+	mapInstance = std::make_unique<CMap>();
+	getEditManager()->getUndoManager().setUndoRedoLimit(0);
 }
 
 void RmgMap::foreach_neighbour(const int3 &pos, std::function<void(int3& pos)> foo)
@@ -26,8 +28,8 @@ void RmgMap::foreach_neighbour(const int3 &pos, std::function<void(int3& pos)> f
 	{
 		int3 n = pos + dir;
 		/*important notice: perform any translation before this function is called,
-		 so the actual map position is checked*/
-		if(map->isInTheMap(n))
+		 so the actual mapInstance->position is checked*/
+		if(mapInstance->isInTheMap(n))
 			foo(n);
 	}
 }
@@ -37,7 +39,7 @@ void RmgMap::foreachDirectNeighbour(const int3& pos, std::function<void(int3& po
 	for(const int3 &dir : dirs4)
 	{
 		int3 n = pos + dir;
-		if(map->isInTheMap(n))
+		if(mapInstance->isInTheMap(n))
 			foo(n);
 	}
 }
@@ -47,19 +49,19 @@ void RmgMap::foreachDiagonalNeighbour(const int3& pos, std::function<void(int3& 
 	for (const int3 &dir : dirsDiagonal)
 	{
 		int3 n = pos + dir;
-		if (map->isInTheMap(n))
+		if (mapInstance->isInTheMap(n))
 			foo(n);
 	}
 }
 
 void RmgMap::initTiles()
 {
-	map->initTerrain();
+	mapInstance->initTerrain();
 	
-	int width = map->width;
-	int height = map->height;
+	int width = mapInstance->width;
+	int height = mapInstance->height;
 	
-	int level = map->twoLevel ? 2 : 1;
+	int level = mapInstance->twoLevel ? 2 : 1;
 	tiles = new CTileInfo**[width];
 	for (int i = 0; i < width; ++i)
 	{
@@ -70,7 +72,11 @@ void RmgMap::initTiles()
 		}
 	}
 	
-	zoneColouring.resize(boost::extents[map->twoLevel ? 2 : 1][map->width][map->height]);
+	zoneColouring.resize(boost::extents[mapInstance->twoLevel ? 2 : 1][mapInstance->width][mapInstance->height]);
+	
+	//init native town count with 0
+	for (auto faction : VLC->townh->getAllowedFactions())
+		zonesPerFaction[faction] = 0;
 }
 
 RmgMap::~RmgMap()
@@ -91,16 +97,29 @@ RmgMap::~RmgMap()
 	}
 }
 
+CMap & RmgMap::map()
+{
+	return *mapInstance;
+}
+
 CMapEditManager* RmgMap::getEditManager() const
 {
-	if(!map)
-		return nullptr;
-	return map->getEditManager();
+	return mapInstance->getEditManager();
+}
+
+bool RmgMap::isOnMap(const int3 & tile) const
+{
+	return mapInstance->isInTheMap(tile);
+}
+
+const CMapGenOptions& RmgMap::getMapGenOptions() const
+{
+	return mapGenOptions;
 }
 
 void RmgMap::checkIsOnMap(const int3& tile) const
 {
-	if (!map->isInTheMap(tile))
+	if (!mapInstance->isInTheMap(tile))
 		throw rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile.toString()));
 }
 
@@ -184,4 +203,86 @@ void RmgMap::setZoneID(const int3& tile, TRmgTemplateZoneId zid)
 	checkIsOnMap(tile);
 	
 	zoneColouring[tile.z][tile.x][tile.y] = zid;
+}
+
+void RmgMap::setNearestObjectDistance(int3 &tile, float value)
+{
+	checkIsOnMap(tile);
+	
+	tiles[tile.x][tile.y][tile.z].setNearestObjectDistance(value);
+}
+
+float RmgMap::getNearestObjectDistance(const int3 &tile) const
+{
+	checkIsOnMap(tile);
+	
+	return tiles[tile.x][tile.y][tile.z].getNearestObjectDistance();
+}
+
+void RmgMap::registerZone(TFaction faction)
+{
+	zonesPerFaction[faction]++;
+	zonesTotal++;
+}
+
+ui32 RmgMap::getZoneCount(TFaction faction)
+{
+	return zonesPerFaction[faction];
+}
+
+ui32 RmgMap::getTotalZoneCount() const
+{
+	return zonesTotal;
+}
+
+bool RmgMap::isAllowedSpell(SpellID sid) const
+{
+	assert(sid >= 0);
+	if (sid < mapInstance->allowedSpell.size())
+	{
+		return mapInstance->allowedSpell[sid];
+	}
+	else
+		return false;
+}
+
+void RmgMap::dump(bool zoneId) const
+{
+	static int id = 0;
+	std::ofstream out(boost::to_string(boost::format("zone_%d.txt") % id++));
+	int levels = mapInstance->twoLevel ? 2 : 1;
+	int width =  mapInstance->width;
+	int height = mapInstance->height;
+	for (int k = 0; k < levels; k++)
+	{
+		for(int j=0; j<height; j++)
+		{
+			for (int i=0; i<width; i++)
+			{
+				if(zoneId)
+				{
+					out << getZoneID(int3(i, j, k));
+				}
+				else
+				{
+					char t = '?';
+					switch (getTile(int3(i, j, k)).getTileType())
+					{
+						case ETileType::FREE:
+							t = ' '; break;
+						case ETileType::BLOCKED:
+							t = '#'; break;
+						case ETileType::POSSIBLE:
+							t = '-'; break;
+						case ETileType::USED:
+							t = 'O'; break;
+					}
+					out << t;
+				}
+			}
+			out << std::endl;
+		}
+		out << std::endl;
+	}
+	out << std::endl;
 }

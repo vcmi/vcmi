@@ -6,16 +6,17 @@
 //
 
 #include "Zone.h"
-#include "CMapGenerator.h"
+#include "RmgMap.h"
 #include "Functions.h"
 #include "TileInfo.h"
 #include "../mapping/CMap.h"
+#include "../CRandomGenerator.h"
 
-Zone::Zone(CMapGenerator & Gen)
+Zone::Zone(RmgMap & Gen)
 					: ZoneOptions(),
 					townType(ETownType::NEUTRAL),
 					terrainType(Terrain("grass")),
-					gen(Gen)
+					map(Gen)
 {
 	
 }
@@ -101,7 +102,7 @@ void Zone::initFreeTiles()
 {
 	vstd::copy_if(tileinfo, vstd::set_inserter(possibleTiles), [this](const int3 &tile) -> bool
 	{
-		return gen.isPossible(tile);
+		return map.isPossible(tile);
 	});
 	if(freePaths.empty())
 	{
@@ -136,7 +137,7 @@ void Zone::setTerrainType(const Terrain & terrain)
 
 void Zone::addFreePath(const int3 & p)
 {
-	gen.setOccupied(p, ETileType::FREE);
+	map.setOccupied(p, ETileType::FREE);
 	freePaths.insert(p);
 }
 
@@ -173,19 +174,19 @@ bool Zone::crunchPath(const int3 &src, const int3 &dst, bool onlyStraight, std::
 				}
 				if (pos.dist2dSQ (dst) < distance)
 				{
-					if (!gen.isBlocked(pos))
+					if (!map.isBlocked(pos))
 					{
-						if (gen.getZoneID(pos) == id)
+						if (map.getZoneID(pos) == id)
 						{
-							if (gen.isPossible(pos))
+							if (map.isPossible(pos))
 							{
-								gen.setOccupied (pos, ETileType::FREE);
+								map.setOccupied (pos, ETileType::FREE);
 								if (clearedTiles)
 									clearedTiles->insert(pos);
 								currentPos = pos;
 								distance = static_cast<float>(currentPos.dist2dSQ (dst));
 							}
-							else if (gen.isFree(pos))
+							else if (map.isFree(pos))
 							{
 								end = true;
 								result = true;
@@ -197,9 +198,9 @@ bool Zone::crunchPath(const int3 &src, const int3 &dst, bool onlyStraight, std::
 		};
 		
 		if (onlyStraight)
-			gen.foreachDirectNeighbour (currentPos, processNeighbours);
+			map.foreachDirectNeighbour (currentPos, processNeighbours);
 		else
-			gen.foreach_neighbour (currentPos,processNeighbours);
+			map.foreach_neighbour (currentPos,processNeighbours);
 		
 		int3 anotherPos(-1, -1, -1);
 		
@@ -212,9 +213,9 @@ bool Zone::crunchPath(const int3 &src, const int3 &dst, bool onlyStraight, std::
 			{
 				if (currentPos.dist2dSQ(dst) < lastDistance) //try closest tiles from all surrounding unused tiles
 				{
-					if (gen.getZoneID(pos) == id)
+					if (map.getZoneID(pos) == id)
 					{
-						if (gen.isPossible(pos))
+						if (map.isPossible(pos))
 						{
 							if (clearedTiles)
 								clearedTiles->insert(pos);
@@ -225,16 +226,16 @@ bool Zone::crunchPath(const int3 &src, const int3 &dst, bool onlyStraight, std::
 				}
 			};
 			if (onlyStraight)
-				gen.foreachDirectNeighbour(currentPos, processNeighbours2);
+				map.foreachDirectNeighbour(currentPos, processNeighbours2);
 			else
-				gen.foreach_neighbour(currentPos, processNeighbours2);
+				map.foreach_neighbour(currentPos, processNeighbours2);
 			
 			
 			if (anotherPos.valid())
 			{
 				if (clearedTiles)
 					clearedTiles->insert(anotherPos);
-				gen.setOccupied(anotherPos, ETileType::FREE);
+				map.setOccupied(anotherPos, ETileType::FREE);
 				currentPos = anotherPos;
 			}
 		}
@@ -275,13 +276,13 @@ bool Zone::connectPath(const int3 & src, bool onlyStraight)
 		
 		closed.insert(currentNode);
 		
-		if (gen.isFree(currentNode)) //we reached free paths, stop
+		if (map.isFree(currentNode)) //we reached free paths, stop
 		{
 			// Trace the path using the saved parent information and return path
 			int3 backTracking = currentNode;
 			while (cameFrom[backTracking].valid())
 			{
-				gen.setOccupied(backTracking, ETileType::FREE);
+				map.setOccupied(backTracking, ETileType::FREE);
 				backTracking = cameFrom[backTracking];
 			}
 			return true;
@@ -294,7 +295,7 @@ bool Zone::connectPath(const int3 & src, bool onlyStraight)
 					return;
 				
 				//no paths through blocked or occupied tiles, stay within zone
-				if (gen.isBlocked(pos) || gen.getZoneID(pos) != id)
+				if (map.isBlocked(pos) || map.getZoneID(pos) != id)
 					return;
 				
 				int distance = static_cast<int>(distances[currentNode]) + 1;
@@ -312,16 +313,16 @@ bool Zone::connectPath(const int3 & src, bool onlyStraight)
 			};
 			
 			if (onlyStraight)
-				gen.foreachDirectNeighbour(currentNode, foo);
+				map.foreachDirectNeighbour(currentNode, foo);
 			else
-				gen.foreach_neighbour(currentNode, foo);
+				map.foreach_neighbour(currentNode, foo);
 		}
 		
 	}
 	for (auto tile : closed) //these tiles are sealed off and can't be connected anymore
 	{
-		if(gen.isPossible(tile))
-			gen.setOccupied (tile, ETileType::BLOCKED);
+		if(map.isPossible(tile))
+			map.setOccupied (tile, ETileType::BLOCKED);
 		vstd::erase_if_present(possibleTiles, tile);
 	}
 	return false;
@@ -356,7 +357,7 @@ bool Zone::connectWithCenter(const int3 & src, bool onlyStraight, bool passThrou
 			int3 backTracking = currentNode;
 			while (cameFrom[backTracking].valid())
 			{
-				gen.setOccupied(backTracking, ETileType::FREE);
+				map.setOccupied(backTracking, ETileType::FREE);
 				backTracking = cameFrom[backTracking];
 			}
 			return true;
@@ -368,16 +369,16 @@ bool Zone::connectWithCenter(const int3 & src, bool onlyStraight, bool passThrou
 				if (vstd::contains(closed, pos))
 					return;
 				
-				if (gen.getZoneID(pos) != id)
+				if (map.getZoneID(pos) != id)
 					return;
 				
 				float movementCost = 0;
 				
-				if (gen.isFree(pos))
+				if (map.isFree(pos))
 					movementCost = 1;
-				else if (gen.isPossible(pos))
+				else if (map.isPossible(pos))
 					movementCost = 2;
-				else if(passThroughBlocked && gen.shouldBeBlocked(pos))
+				else if(passThroughBlocked && map.shouldBeBlocked(pos))
 					movementCost = 3;
 				else
 					return;
@@ -397,9 +398,9 @@ bool Zone::connectWithCenter(const int3 & src, bool onlyStraight, bool passThrou
 			};
 			
 			if (onlyStraight)
-				gen.foreachDirectNeighbour(currentNode, foo);
+				map.foreachDirectNeighbour(currentNode, foo);
 			else
-				gen.foreach_neighbour(currentNode, foo);
+				map.foreach_neighbour(currentNode, foo);
 		}
 		
 	}
@@ -420,11 +421,11 @@ void Zone::connectLater()
 	}
 }
 
-void Zone::fractalize()
+void Zone::fractalize(CRandomGenerator & generator)
 {
 	for(auto tile : tileinfo)
 	{
-		if(gen.isFree(tile))
+		if(map.isFree(tile))
 			freePaths.insert(tile);
 	}
 	std::vector<int3> clearedTiles(freePaths.begin(), freePaths.end());
@@ -439,7 +440,7 @@ void Zone::fractalize()
 	
 	for(auto tile : tileinfo)
 	{
-		if(gen.isPossible(tile))
+		if(map.isPossible(tile))
 			possibleTiles.insert(tile);
 	}
 	assert (clearedTiles.size()); //this should come from zone connections
@@ -454,7 +455,7 @@ void Zone::fractalize()
 		{
 			//link tiles in random order
 			std::vector<int3> tilesToMakePath(possibleTiles.begin(), possibleTiles.end());
-			RandomGeneratorUtil::randomShuffle(tilesToMakePath, gen.rand);
+			RandomGeneratorUtil::randomShuffle(tilesToMakePath, generator);
 			
 			int3 nodeFound(-1, -1, -1);
 			
@@ -529,7 +530,7 @@ void Zone::fractalize()
 		}
 	}
 	for (auto node : nodes)
-		gen.setOccupied(node, ETileType::FREE); //make sure they are clear
+		map.setOccupied(node, ETileType::FREE); //make sure they are clear
 	
 	//now block most distant tiles away from passages
 	
@@ -537,7 +538,7 @@ void Zone::fractalize()
 	
 	for (auto tile : tileinfo)
 	{
-		if(!gen.isPossible(tile))
+		if(!map.isPossible(tile))
 			continue;
 		
 		if(freePaths.count(tile))
@@ -556,16 +557,16 @@ void Zone::fractalize()
 			}
 		}
 		if (!closeTileFound) //this tile is far enough from passages
-			gen.setOccupied(tile, ETileType::BLOCKED);
+			map.setOccupied(tile, ETileType::BLOCKED);
 	}
 	
 #define PRINT_FRACTALIZED_MAP false
 	if (PRINT_FRACTALIZED_MAP) //enable to debug
 	{
 		std::ofstream out(boost::to_string(boost::format("zone_%d.txt") % id));
-		int levels = gen.map->twoLevel ? 2 : 1;
-		int width =  gen.map->width;
-		int height = gen.map->height;
+		int levels = map.map().twoLevel ? 2 : 1;
+		int width =  map.map().width;
+		int height = map.map().height;
 		for (int k = 0; k < levels; k++)
 		{
 			for(int j=0; j<height; j++)
@@ -573,7 +574,7 @@ void Zone::fractalize()
 				for (int i=0; i<width; i++)
 				{
 					char t = '?';
-					switch (gen.getTile(int3(i, j, k)).getTileType())
+					switch (map.getTile(int3(i, j, k)).getTileType())
 					{
 						case ETileType::FREE:
 							t = ' '; break;

@@ -13,15 +13,15 @@
 #include "CZonePlacer.h"
 #include "../mapping/CMap.h"
 #include "../mapping/CMapEditManager.h"
-#include "CMapGenerator.h"
+#include "RmgMap.h"
 #include "Zone.h"
 #include "Functions.h"
 
 class CRandomGenerator;
 
-CZonePlacer::CZonePlacer(CMapGenerator * Gen)
+CZonePlacer::CZonePlacer(RmgMap & Gen)
 	: width(0), height(0), scaleX(0), scaleY(0), mapSize(0), gravityConstant(0), stiffnessConstant(0),
-	gen(Gen)
+	map(Gen)
 {
 
 }
@@ -33,7 +33,7 @@ CZonePlacer::~CZonePlacer()
 
 int3 CZonePlacer::cords (const float3 f) const
 {
-	return int3((si32)std::max(0.f, (f.x * gen->map->width)-1), (si32)std::max(0.f, (f.y * gen->map->height-1)), f.z);
+	return int3((si32)std::max(0.f, (f.x * map.map().width)-1), (si32)std::max(0.f, (f.y * map.map().height-1)), f.z);
 }
 
 float CZonePlacer::getDistance (float distance) const
@@ -45,11 +45,11 @@ void CZonePlacer::placeZones(CRandomGenerator * rand)
 {
 	logGlobal->info("Starting zone placement");
 
-	width = gen->getMapGenOptions().getWidth();
-	height = gen->getMapGenOptions().getHeight();
+	width = map.getMapGenOptions().getWidth();
+	height = map.getMapGenOptions().getHeight();
 
-	auto zones = gen->getZones();
-	bool underground = gen->getMapGenOptions().getHasTwoLevels();
+	auto zones = map.getZones();
+	bool underground = map.getMapGenOptions().getHasTwoLevels();
 
 	/*
 	gravity-based algorithm
@@ -175,7 +175,7 @@ void CZonePlacer::prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const 
 			if (boost::optional<int> owner = zone.second->getOwner())
 			{
 				auto player = PlayerColor(*owner - 1);
-				auto playerSettings = gen->getMapGenOptions().getPlayersSettings();
+				auto playerSettings = map.getMapGenOptions().getPlayersSettings();
 				si32 faction = CMapGenOptions::CPlayerSettings::RANDOM_TOWN;
 				if (vstd::contains(playerSettings, player))
 					faction = playerSettings[player].getStartingTown();
@@ -452,18 +452,18 @@ d = 0.01 * dx^3 - 0.1618 * dx^2 + 1 * dx + ...
 	return dx * (1.0f + dx * (0.1f + dx * 0.01f)) + dy * (1.618f + dy * (-0.1618f + dy * 0.01618f));
 }
 
-void CZonePlacer::assignZones()
+void CZonePlacer::assignZones(CRandomGenerator * rand)
 {
 	logGlobal->info("Starting zone colouring");
 
-	auto width = gen->getMapGenOptions().getWidth();
-	auto height = gen->getMapGenOptions().getHeight();
+	auto width = map.getMapGenOptions().getWidth();
+	auto height = map.getMapGenOptions().getHeight();
 
 	//scale to Medium map to ensure smooth results
 	scaleX = 72.f / width;
 	scaleY = 72.f / height;
 
-	auto zones = gen->getZones();
+	auto zones = map.getZones();
 
 	typedef std::pair<std::shared_ptr<Zone>, float> Dpair;
 	std::vector <Dpair> distances;
@@ -490,7 +490,7 @@ void CZonePlacer::assignZones()
 		zone->setPos(int3(total.x / size, total.y / size, total.z / size));
 	};
 
-	int levels = gen->map->twoLevel ? 2 : 1;
+	int levels = map.map().twoLevel ? 2 : 1;
 
 	/*
 	1. Create Voronoi diagram
@@ -542,7 +542,7 @@ void CZonePlacer::assignZones()
 				}
 				auto zone = boost::min_element(distances, compareByDistance)->first; //closest tile belongs to zone
 				zone->addTile(pos);
-				gen->setZoneID(pos, zone->getId());
+				map.setZoneID(pos, zone->getId());
 			}
 		}
 	}
@@ -564,7 +564,7 @@ void CZonePlacer::assignZones()
 
 			//make sure that terrain inside zone is not a rock
 			//FIXME: reorder actions?
-			paintZoneTerrain(*zone.second, *gen, Terrain("subterra"));
+			paintZoneTerrain(*zone.second, *rand, map, Terrain("subterra"));
 		}
 	}
 	logGlobal->info("Finished zone colouring");

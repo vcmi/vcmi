@@ -12,17 +12,12 @@
 #include "../int3.h"
 #include "CRmgTemplate.h"
 
-class CMapGenerator;
-
-class Modificator
-{
-	
-};
+class RmgMap;
 
 class DLL_LINKAGE Zone : public rmg::ZoneOptions
 {
 public:
-	Zone(CMapGenerator & Gen);
+	Zone(RmgMap & map);
 	
 	void setOptions(const rmg::ZoneOptions & options);
 	bool isUnderground() const;
@@ -41,7 +36,7 @@ public:
 	void removePossibleTile(const int3 & pos);
 	void clearTiles();
 	
-	void fractalize();
+	void fractalize(CRandomGenerator & generator);
 	
 	const std::set<int3>& getFreePaths() const;
 	void addFreePath(const int3 &);
@@ -58,7 +53,7 @@ public:
 	void connectLater();
 	
 protected:
-	CMapGenerator & gen;
+	RmgMap & map;
 	
 	//placement info
 	int3 pos;

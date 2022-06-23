@@ -23,7 +23,7 @@ public:
 		SEALED_OFF
 	};
 	
-	ObjectManager(Zone & zone, CMapGenerator & gen);
+	ObjectManager(Zone & zone, RmgMap & map, CRandomGenerator & generator);
 	
 	void addRequiredObject(CGObjectInstance * obj, si32 guardStrength=0);
 	void addCloseObject(CGObjectInstance * obj, si32 guardStrength = 0);
@@ -49,7 +49,8 @@ public:
 	void updateDistances(const int3 & pos);
 	
 protected:
-	CMapGenerator & gen;
+	RmgMap & map;
+	CRandomGenerator & generator;
 	Zone & zone;
 	
 	//content info

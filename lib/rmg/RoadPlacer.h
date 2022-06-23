@@ -11,7 +11,7 @@
 class DLL_LINKAGE RoadPlacer
 {
 public:
-	RoadPlacer(Zone & zone, CMapGenerator & gen);
+	RoadPlacer(Zone & zone, RmgMap & map, CRandomGenerator & generator);
 	
 	void addRoadNode(const int3 & node);
 	void connectRoads(); //fills "roads" according to "roadNodes"
@@ -21,7 +21,8 @@ protected:
 	void drawRoads(); //actually updates tiles
 	
 protected:
-	CMapGenerator & gen;
+	RmgMap & map;
+	CRandomGenerator & generator;
 	Zone & zone;
 	
 	std::set<int3> roadNodes; //tiles to be connected with roads

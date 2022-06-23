@@ -8,8 +8,8 @@
 #pragma once
 #include "../int3.h"
 #include "../GameConstants.h"
+#include "../mapping/CMap.h"
 
-class CMap;
 class CMapEditManager;
 class CTileInfo;
 class CMapGenOptions;
@@ -36,12 +36,14 @@ public:
 class RmgMap
 {
 public:
-	mutable std::unique_ptr<CMap> map;
+	mutable std::unique_ptr<CMap> mapInstance;
+	CMap & map();
 	
-	RmpMap(const CMapGenOptions& mapGenOptions);
+	RmgMap(const CMapGenOptions& mapGenOptions);
 	~RmgMap();
 	
 	CMapEditManager* getEditManager() const;
+	const CMapGenOptions& getMapGenOptions() const;
 	
 	void foreach_neighbour(const int3 &pos, std::function<void(int3& pos)> foo);
 	void foreachDirectNeighbour(const int3 &pos, std::function<void(int3& pos)> foo);
@@ -53,6 +55,7 @@ public:
 	bool isFree(const int3 &tile) const;
 	bool isUsed(const int3 &tile) const;
 	bool isRoad(const int3 &tile) const;
+	bool isOnMap(const int3 & tile) const;
 	
 	void setOccupied(const int3 &tile, ETileType::ETileType state);
 	void setRoad(const int3 &tile, const std::string & roadType);
@@ -69,9 +72,17 @@ public:
 	
 	Zones & getZones();
 	
+	void registerZone(TFaction faction);
+	ui32 getZoneCount(TFaction faction);
+	ui32 getTotalZoneCount() const;
+	void initTiles();
+	
+	bool isAllowedSpell(SpellID sid) const;
+	
+	void dump(bool zoneId) const;
+	
 private:
 	void checkIsOnMap(const int3 &tile) const; //throws
-	void initTiles();
 	
 private:
 	Zones zones;
