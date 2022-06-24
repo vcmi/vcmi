@@ -360,19 +360,25 @@ void CMapGenerator::fillZones()
 	//zoneWater.second->initFreeTiles();
 	//zoneWater.second->fill();
 
-	/*std::vector<std::shared_ptr<CRmgTemplateZone>> treasureZones;
-	for(auto it : zones)
+	std::vector<std::shared_ptr<Zone>> treasureZones;
+	for(auto it : map->getZones())
 	{
-		it.second->fill();
+		processZone(*it.second, *this, *map);
+		
 		if (it.second->getType() == ETemplateZoneType::TREASURE)
 			treasureZones.push_back(it.second);
-	}*/
+	}
 #ifdef _BETA
 	map->dump(false);
 #endif
 		
 	//set apriopriate free/occupied tiles, including blocked underground rock
 	createObstaclesCommon1(*map, rand);
+	for(auto it : map->getZones())
+	{
+		createObstacles1(*it.second, *map, rand);
+	}
+	
 	//set back original terrain for underground zones
 	//for(auto it : zones)
 //		it.second->createObstacles1();
@@ -384,7 +390,6 @@ void CMapGenerator::fillZones()
 	
 	for(auto it : map->getZones())
 	{
-		createObstacles1(*it.second, *map, rand);
 		createObstacles2(*it.second, *map, rand, *it.second->getModificator<ObjectManager>());
 	}
 		
@@ -429,20 +434,21 @@ void CMapGenerator::fillZones()
 		out << std::endl;
 	}
 
-	/*for(auto it : zones)
+	for(auto it : map->getZones())
 	{
-		it.second->connectRoads(); //draw roads after everything else has been placed
+		it.second->getModificator<RoadPlacer>()->process();
+		//it.second->connectRoads(); //draw roads after everything else has been placed
 	}
 
 	//find place for Grail
 	if(treasureZones.empty())
 	{
-		for(auto it : zones)
+		for(auto it : map->getZones())
 			treasureZones.push_back(it.second);
 	}
 	auto grailZone = *RandomGeneratorUtil::nextItem(treasureZones, rand);
 
-	map->grailPos = *RandomGeneratorUtil::nextItem(*grailZone->getFreePaths(), rand);*/
+	map->map().grailPos = *RandomGeneratorUtil::nextItem(grailZone->getFreePaths(), rand);
 
 	logGlobal->info("Zones filled successfully");
 }

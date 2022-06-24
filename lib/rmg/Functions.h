@@ -46,7 +46,7 @@ void placeSubterraneanGate(Zone & zone, ObjectManager & manager, int3 pos, si32 
 
 int chooseRandomAppearance(CRandomGenerator & generator, si32 ObjID, const Terrain & terrain);
 
-//bool processZone(Zone & zone, CMapGenerator & gen);
+bool processZone(Zone & zone, CMapGenerator & gen, RmgMap & map);
 
 void createObstaclesCommon1(RmgMap & map, CRandomGenerator & generator);
 void createObstaclesCommon2(RmgMap & map, CRandomGenerator & generator);

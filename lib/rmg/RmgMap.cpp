@@ -97,7 +97,7 @@ RmgMap::~RmgMap()
 	}
 }
 
-CMap & RmgMap::map()
+CMap & RmgMap::map() const
 {
 	return *mapInstance;
 }

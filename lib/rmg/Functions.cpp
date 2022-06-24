@@ -395,7 +395,7 @@ bool canObstacleBePlacedHere(const RmgMap & map, ObjectTemplate &temp, int3 &pos
 	for (auto blockingTile : tilesBlockedByObject)
 	{
 		int3 t = pos + blockingTile;
-		if(!map.isOnMap(t) || !(map.isPossible(t) || map.shouldBeBlocked(t)) || !temp.canBePlacedAt(map.getTile(t).getTerrainType()))
+		if(!map.isOnMap(t) || !(map.isPossible(t) || map.shouldBeBlocked(t)) || !temp.canBePlacedAt(map.map().getTile(t).terType))
 		{
 			return false; //if at least one tile is not possible, object can't be placed here
 		}
@@ -470,28 +470,27 @@ void initTerrainType(Zone & zone, CMapGenerator & gen)
 	}
 }
 
-/*bool processZone(Zone & zone, CMapGenerator & gen)
+bool processZone(Zone & zone, CMapGenerator & gen, RmgMap & map)
 {
-	ObjectManager manager(zone, gen);
-	RoadPlacer roadPlacer(zone, gen);
-	TreasurePlacer treasurePlacer(zone, gen);
-	
 	initTerrainType(zone, gen);
-	paintZoneTerrain(zone, gen, zone.getTerrainType());
+	paintZoneTerrain(zone, gen.rand, map, zone.getTerrainType());
 	
-	treasurePlacer.addAllPossibleObjects();
+	auto * obMgr = zone.getModificator<ObjectManager>();
+	auto * trPlacer = zone.getModificator<TreasurePlacer>();
+	trPlacer->addAllPossibleObjects(gen);
 	
 	//zone center should be always clear to allow other tiles to connect
 	zone.initFreeTiles();
 	zone.connectLater(); //ideally this should work after fractalize, but fails
-	zone.fractalize();
-	placeMines(zone, gen, manager);
-	manager.createRequiredObjects();
-	treasurePlacer.createTreasures(manager);
+	zone.fractalize(gen.rand);
+	placeMines(zone, gen, *obMgr);
+	
+	obMgr->process();
+	trPlacer->process();
 	
 	logGlobal->info("Zone %d filled successfully", zone.getId());
 	return true;
-}*/
+}
 
 void createObstaclesCommon1(RmgMap & map, CRandomGenerator & generator)
 {

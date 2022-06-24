@@ -37,7 +37,7 @@ class RmgMap
 {
 public:
 	mutable std::unique_ptr<CMap> mapInstance;
-	CMap & map();
+	CMap & map() const;
 	
 	RmgMap(const CMapGenOptions& mapGenOptions);
 	~RmgMap();
