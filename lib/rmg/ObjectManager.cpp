@@ -9,6 +9,7 @@
 #include "CMapGenerator.h"
 #include "TileInfo.h"
 #include "RmgMap.h"
+#include "RoadPlacer.h"
 #include "../CCreatureHandler.h"
 #include "../mapObjects/CommonConstructors.h"
 #include "../mapObjects/MapObjects.h" //needed to resolve templates for CommonConstructors.h
@@ -413,7 +414,7 @@ void ObjectManager::placeObject(CGObjectInstance* object, const int3 &pos, bool 
 		case Obj::SUBTERRANEAN_GATE:
 		case Obj::SHIPYARD:
 		{
-			//addRoadNode(object->visitablePos());
+			zone.getModificator<RoadPlacer>()->addRoadNode(object->visitablePos());
 		}
 			break;
 			

@@ -18,7 +18,7 @@ RoadPlacer::RoadPlacer(Zone & zone, RmgMap & map, CRandomGenerator & generator) 
 
 void RoadPlacer::process()
 {
-	drawRoads();
+	connectRoads();
 }
 
 bool RoadPlacer::createRoad(const int3 & src, const int3 & dst)
