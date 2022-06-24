@@ -48,7 +48,7 @@ public:
 	
 	void createTreasures(ObjectManager & manager);
 	
-	void setQuestArtZone(std::shared_ptr<TreasurePlacer> otherZone);
+	void setQuestArtZone(Zone * otherZone);
 	bool createTreasurePile(ObjectManager & manager, int3 &pos, float minDistance, const CTreasureInfo& treasureInfo);
 	void addAllPossibleObjects(CMapGenerator & gen); //add objects, including zone-specific, to possibleObjects
 	
@@ -65,5 +65,5 @@ protected:
 	std::vector<ObjectInfo> possibleObjects;
 	int minGuardedValue;
 	
-	std::weak_ptr<TreasurePlacer> questArtZone; //artifacts required for Seer Huts will be placed here - or not if null
+	Zone* questArtZone; //artifacts required for Seer Huts will be placed here - or not if null
 };

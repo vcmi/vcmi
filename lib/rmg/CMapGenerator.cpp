@@ -132,7 +132,7 @@ std::unique_ptr<CMap> CMapGenerator::generate()
 	try
 	{
 		addHeaderInfo();
-		map->initTiles();
+		map->initTiles(rand);
 		initPrisonsRemaining();
 		initQuestArtsRemaining();
 		genZones();
@@ -263,22 +263,6 @@ void CMapGenerator::addPlayerInfo()
 
 void CMapGenerator::genZones()
 {
-	map->getEditManager()->clearTerrain(&rand);
-	map->getEditManager()->getTerrainSelection().selectRange(MapRect(int3(0, 0, 0), mapGenOptions.getWidth(), mapGenOptions.getHeight()));
-	map->getEditManager()->drawTerrain(Terrain("grass"), &rand);
-
-	auto tmpl = mapGenOptions.getMapTemplate();
-	map->getZones().clear();
-	for(const auto & option : tmpl->getZones())
-	{
-		auto zone = std::make_shared<Zone>(*map);
-		zone->setOptions(*option.second.get());
-		map->getZones()[zone->getId()] = zone;
-		zone->addModificator<ObjectManager>(rand);
-		zone->addModificator<TreasurePlacer>(rand);
-		zone->addModificator<RoadPlacer>(rand);
-	}
-
 	CZonePlacer placer(*map);
 	placer.placeZones(&rand);
 	placer.assignZones(&rand);
@@ -462,14 +446,14 @@ void CMapGenerator::findZonesForQuestArts()
 		auto zoneA = map->getZones()[connection.getZoneA()];
 		auto zoneB = map->getZones()[connection.getZoneB()];
 
-		/*if (zoneA->getId() > zoneB->getId())
+		if (zoneA->getId() > zoneB->getId())
 		{
-			zoneB->setQuestArtZone(zoneA);
+			zoneB->getModificator<TreasurePlacer>()->setQuestArtZone(zoneA.get());
 		}
 		else if (zoneA->getId() < zoneB->getId())
 		{
-			zoneA->setQuestArtZone(zoneB);
-		}*/
+			zoneA->getModificator<TreasurePlacer>()->setQuestArtZone(zoneB.get());
+		}
 	}
 }
 

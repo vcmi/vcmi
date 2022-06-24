@@ -17,7 +17,7 @@
 #include "../mapping/CMap.h"
 #include "../mapping/CMapEditManager.h"
 
-TreasurePlacer::TreasurePlacer(Zone & zone, RmgMap & map, CRandomGenerator & generator) : zone(zone), map(map), generator(generator)
+TreasurePlacer::TreasurePlacer(Zone & zone, RmgMap & map, CRandomGenerator & generator) : zone(zone), map(map), generator(generator), questArtZone(nullptr)
 {
 }
 
@@ -28,7 +28,7 @@ void TreasurePlacer::process()
 		createTreasures(*m);
 }
 
-void TreasurePlacer::setQuestArtZone(std::shared_ptr<TreasurePlacer> otherZone)
+void TreasurePlacer::setQuestArtZone(Zone * otherZone)
 {
 	questArtZone = otherZone;
 }
@@ -362,7 +362,7 @@ void TreasurePlacer::addAllPossibleObjects(CMapGenerator & gen)
 	
 	//seer huts with creatures or generic rewards
 	
-	if(questArtZone.lock()) //we won't be placing seer huts if there is no zone left to place arties
+	if(questArtZone) //we won't be placing seer huts if there is no zone left to place arties
 	{
 		static const int genericSeerHuts = 8;
 		int seerHutsPerType = 0;
@@ -424,7 +424,7 @@ void TreasurePlacer::addAllPossibleObjects(CMapGenerator & gen)
 				gen.banQuestArt(artid);
 				
 				
-				this->questArtZone.lock()->possibleObjects.push_back(generateArtInfo(artid));
+				this->questArtZone->getModificator<TreasurePlacer>()->possibleObjects.push_back(generateArtInfo(artid));
 				
 				return obj;
 			};
@@ -460,7 +460,7 @@ void TreasurePlacer::addAllPossibleObjects(CMapGenerator & gen)
 				
 				gen.banQuestArt(artid);
 				
-				this->questArtZone.lock()->possibleObjects.push_back(generateArtInfo(artid));
+				this->questArtZone->getModificator<TreasurePlacer>()->possibleObjects.push_back(generateArtInfo(artid));
 				
 				return obj;
 			};
@@ -483,7 +483,7 @@ void TreasurePlacer::addAllPossibleObjects(CMapGenerator & gen)
 				
 				gen.banQuestArt(artid);
 				
-				this->questArtZone.lock()->possibleObjects.push_back(generateArtInfo(artid));
+				this->questArtZone->getModificator<TreasurePlacer>()->possibleObjects.push_back(generateArtInfo(artid));
 				
 				return obj;
 			};

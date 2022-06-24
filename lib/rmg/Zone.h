@@ -23,7 +23,7 @@ public:
 class DLL_LINKAGE Zone : public rmg::ZoneOptions
 {
 public:
-	Zone(RmgMap & map);
+	Zone(RmgMap & map, CRandomGenerator & generator);
 	
 	void setOptions(const rmg::ZoneOptions & options);
 	bool isUnderground() const;
@@ -42,7 +42,7 @@ public:
 	void removePossibleTile(const int3 & pos);
 	void clearTiles();
 	
-	void fractalize(CRandomGenerator & generator);
+	void fractalize();
 	
 	const std::set<int3>& getFreePaths() const;
 	void addFreePath(const int3 &);
@@ -74,6 +74,7 @@ public:
 	}
 	
 protected:
+	CRandomGenerator & generator;
 	RmgMap & map;
 	std::list<std::unique_ptr<Modificator>> modificators;
 	

@@ -12,11 +12,12 @@
 #include "../mapping/CMap.h"
 #include "../CRandomGenerator.h"
 
-Zone::Zone(RmgMap & Gen)
+Zone::Zone(RmgMap & map, CRandomGenerator & generator)
 					: ZoneOptions(),
 					townType(ETownType::NEUTRAL),
 					terrainType(Terrain("grass")),
-					map(Gen)
+					map(map),
+					generator(generator)
 {
 	
 }
@@ -421,7 +422,7 @@ void Zone::connectLater()
 	}
 }
 
-void Zone::fractalize(CRandomGenerator & generator)
+void Zone::fractalize()
 {
 	for(auto tile : tileinfo)
 	{
