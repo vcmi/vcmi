@@ -25,10 +25,6 @@ Object::Instance::Instance(const Object& parent, CGObjectInstance & object): dPa
 	dBlockedArea = dObject.getBlockedPos();
 	if(dObject.isVisitable())
 		dBlockedArea.add(dObject.visitablePos());
-	if(!dObject.pos.valid())
-		dBlockedArea.translate(int3(1, 1, 1));
-	if(!dBlockedArea.empty() && dBlockedArea.getTiles().begin()->z == -1)
-		dBlockedArea.translate(int3(0, 0, 1));
 }
 
 Object::Instance::Instance(const Object& parent, CGObjectInstance & object, const int3 & position): Instance(parent, object)
@@ -53,8 +49,10 @@ int3 Object::Instance::getVisitablePosition() const
 
 Rmg::Area Object::Instance::getAccessibleArea() const
 {
+	auto neighbours = Rmg::Area({getVisitablePosition()}).getBorderOutside();
+	Rmg::Area visitable = Rmg::Area(neighbours) - dBlockedArea;
 	Rmg::Area accessibleArea;
-	for(auto & from : dBlockedArea.getBorderOutside())
+	for(auto & from : visitable.getTiles())
 	{
 		if(isVisitableFrom(from))
 			accessibleArea.add(from);
@@ -64,9 +62,11 @@ Rmg::Area Object::Instance::getAccessibleArea() const
 
 void Object::Instance::setPosition(const int3 & position)
 {
-	dBlockedArea.translate(position - dPosition);
 	dPosition = position;
 	dObject.pos = dPosition;
+	dBlockedArea.assign(dObject.getBlockedPos());
+	if(dObject.isVisitable())
+		dBlockedArea.add(dObject.visitablePos());
 	dParent.dFullAreaCache.clear();
 }
 
@@ -80,14 +80,9 @@ void Object::Instance::setTemplate(const Terrain & terrain)
 		
 		dObject.appearance = templates.front();
 	}
-	dBlockedArea = dObject.getBlockedPos();
+	dBlockedArea.assign(dObject.getBlockedPos());
 	if(dObject.isVisitable())
 		dBlockedArea.add(dObject.visitablePos());
-	if(!dObject.pos.valid())
-		dBlockedArea.translate(int3(1, 1, 1));
-	if(!dBlockedArea.empty() && dBlockedArea.getTiles().begin()->z == -1)
-		dBlockedArea.translate(int3(0, 0, 1));
-	//dBlockedArea.translate(dPosition);
 	dParent.dFullAreaCache.clear();
 }
 

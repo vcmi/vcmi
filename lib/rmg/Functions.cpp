@@ -139,7 +139,7 @@ void initTownType(Zone & zone, CRandomGenerator & generator, RmgMap & map, Objec
 		}
 	};
 	
-	auto addNewTowns = [&zone, &generator, &manager, &map, &totalTowns](int count, bool hasFort, PlayerColor player)
+	auto addNewTowns = [&zone, &generator, &manager, &map, &totalTowns, &freeBoundaries](int count, bool hasFort, PlayerColor player)
 	{
 		for(int i = 0; i < count; i++)
 		{

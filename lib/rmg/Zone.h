@@ -52,6 +52,7 @@ public:
 	
 	bool crunchPath(const int3 & src, const int3 & dst, bool onlyStraight, std::set<int3> * clearedTiles = nullptr);
 	bool connectPath(const int3 & src, bool onlyStraight);
+	bool connectPath(const Rmg::Area & src, bool onlyStraight);
 	bool connectWithCenter(const int3 & src, bool onlyStraight, bool passTroughBlocked = false);
 	void addToConnectLater(const int3& src);
 	void connectLater();

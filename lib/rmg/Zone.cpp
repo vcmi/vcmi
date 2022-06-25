@@ -241,7 +241,7 @@ bool Zone::crunchPath(const int3 &src, const int3 &dst, bool onlyStraight, std::
 	return result;
 }
 
-bool Zone::connectPath(const int3 & src, bool onlyStraight)
+bool Zone::connectPath(const Rmg::Area & src, bool onlyStraight)
 ///connect current tile to any other free tile within zone
 {
 	auto area = dAreaPossible + dAreaFree;
@@ -256,6 +256,12 @@ bool Zone::connectPath(const int3 & src, bool onlyStraight)
 	for(auto & t : path.getPathArea().getTiles())
 		map.setOccupied(t, ETileType::FREE);
 	return true;
+}
+
+bool Zone::connectPath(const int3 & src, bool onlyStraight)
+///connect current tile to any other free tile within zone
+{
+	return connectPath(Rmg::Area({src}), onlyStraight);
 }
 
 bool Zone::connectWithCenter(const int3 & src, bool onlyStraight, bool passThroughBlocked)

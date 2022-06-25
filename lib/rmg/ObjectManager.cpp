@@ -231,7 +231,7 @@ bool ObjectManager::createRequiredObjects()
 			possibleArea.erase(pos); //do not place again at this point
 			auto possibleAreaTemp = zone.areaPossible();
 			zone.areaPossible().subtract(rmgObject.getArea());
-			if(zone.connectPath(rmgObject.getVisitablePosition(), false))
+			if(zone.connectPath(rmgObject.getAccessibleArea(), false))
 			{
 				placeObject(rmgObject);
 				guardObject(&rmgObject.instances().front()->object(), object.second, (obj->ID == Obj::MONOLITH_TWO_WAY), true);
@@ -255,7 +255,7 @@ bool ObjectManager::createRequiredObjects()
 				float dist = rmgObject.getArea().distanceSqr(zone.getPos());
 				dist *= (dist > 12.f * 12.f) ? 10.f : 1.f; //tiles closer 12 are preferrable
 				dist = 1000000.f - dist; //some big number
-				return dist + std::sqrt(map.getNearestObjectDistance(tile));
+				return dist + map.getNearestObjectDistance(tile);
 			});
 			if(!pos.valid())
 			{
@@ -265,7 +265,7 @@ bool ObjectManager::createRequiredObjects()
 			possibleArea.erase(pos); //do not place again at this point
 			auto possibleAreaTemp = zone.areaPossible();
 			zone.areaPossible().subtract(rmgObject.getArea());
-			if(zone.connectPath(rmgObject.getVisitablePosition(), false))
+			if(zone.connectPath(rmgObject.getAccessibleArea(), false))
 			{
 				placeObject(rmgObject);
 				guardObject(&rmgObject.instances().front()->object(), object.second, (obj->ID == Obj::MONOLITH_TWO_WAY), true);
@@ -376,11 +376,10 @@ void ObjectManager::checkAndPlaceObject(CGObjectInstance* object, const int3 &po
 
 void ObjectManager::placeObject(Rmg::Object & object, bool updateDistance)
 {
+	object.finalize(map);
 	zone.areaPossible().subtract(object.getArea());
 	zone.areaUsed().unite(object.getArea());
 	zone.areaUsed().erase(object.getVisitablePosition());
-	zone.freePaths().add(object.getVisitablePosition());
-	object.finalize(map);
 	
 	if(updateDistance)
 		updateDistances(object.getPosition());
@@ -406,11 +405,10 @@ void ObjectManager::placeObject(CGObjectInstance* object, const int3 &pos, bool 
 {
 	Rmg::Object rmgObject(*object);
 	rmgObject.setPosition(pos);
+	rmgObject.finalize(map);
 	zone.areaPossible().subtract(rmgObject.getArea());
 	zone.areaUsed().unite(rmgObject.getArea());
 	zone.areaUsed().erase(rmgObject.getVisitablePosition());
-	zone.freePaths().add(rmgObject.getVisitablePosition());
-	rmgObject.finalize(map);
 	
 	if(updateDistance)
 		updateDistances(pos);

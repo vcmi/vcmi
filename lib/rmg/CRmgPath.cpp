@@ -54,8 +54,7 @@ Path Path::search(const Tileset & dst, bool straight, std::function<float(const 
 	if(dst.empty())
 		return result;
 	
-	result.dPath.assign(dst);
-	int3 src = result.dPath.nearest(dPath);
+	int3 src = Rmg::Area(dst).nearest(dPath);
 	
 	Tileset closed;    // The set of nodes already evaluated.
 	auto open = createPriorityQueue(); // The set of tentative nodes to be evaluated, initially containing the start node
@@ -75,7 +74,7 @@ Path Path::search(const Tileset & dst, bool straight, std::function<float(const 
 		
 		closed.insert(currentNode);
 		
-		if(dPath.contains(currentNode) && !dst.count(currentNode)) //we reached connection, stop
+		if(dPath.contains(currentNode)) //we reached connection, stop
 		{
 			// Trace the path using the saved parent information and return path
 			int3 backTracking = currentNode;
