@@ -143,40 +143,45 @@ bool ObjectManager::areAllTilesAvailable(CGObjectInstance* obj, int3& tile, cons
 	return true;
 }
 
-bool ObjectManager::findPlaceForObject(const Rmg::Area & searchArea, Rmg::Object & obj, si32 min_dist, int3 &pos)
+int3 ObjectManager::findPlaceForObject(const Rmg::Area & searchArea, Rmg::Object & obj, std::function<float(const int3)> weightFunction)
 {
-	//we need object apperance to deduce free tile
-	obj.setTemplate(zone.getTerrainType());
-	
-	int best_distance = 0;
-	bool result = false;
+	float bestWeight = 0.f;
+	int3 result(-1, -1, -1);
 	
 	auto appropriateArea = searchArea.getSubarea([&obj, &searchArea](const int3 & tile)
 	{
 		obj.setPosition(tile);
-		return searchArea.contains(obj.getArea()) && obj.getAccessibleArea().overlap(searchArea);
+		return searchArea.contains(obj.getArea()) && searchArea.overlap(obj.getAccessibleArea());
 	});
-		
+	
 	for (auto tile : appropriateArea.getTiles())
 	{
 		obj.setPosition(tile);
+		float weight = weightFunction(tile);
+		if(weight > bestWeight)
+		{
+			bestWeight = weight;
+			result = tile;
+		}
+	}
+	if(result.valid())
+		obj.setPosition(result);
+	return result;
+}
 
+int3 ObjectManager::findPlaceForObject(const Rmg::Area & searchArea, Rmg::Object & obj, si32 min_dist)
+{
+	return findPlaceForObject(searchArea, obj, [this, min_dist](const int3 & tile)
+	{
 		auto ti = map.getTile(tile);
 		auto dist = ti.getNearestObjectDistance();
 		//avoid borders
-		if(dist >= min_dist && dist > best_distance)
+		if(dist >= min_dist)
 		{
-			if(searchArea.contains(obj.getArea()))
-			{
-				best_distance = static_cast<int>(dist);
-				pos = tile;
-				result = true;
-			}
+			return dist;
 		}
-	}
-	
-	obj.setPosition(pos);
-	return result;
+		return -1.f;
+	});
 }
 
 ObjectManager::EObjectPlacingResult ObjectManager::tryToPlaceObjectAndConnectToPath(CGObjectInstance * obj, const int3 & pos)
@@ -216,7 +221,9 @@ bool ObjectManager::createRequiredObjects()
 		while(true)
 		{
 			Rmg::Object rmgObject(*obj);
-			if(!findPlaceForObject(possibleArea, rmgObject, 3, pos))
+			rmgObject.setTemplate(zone.getTerrainType());
+			pos = findPlaceForObject(possibleArea, rmgObject, 3);
+			if(!pos.valid())
 			{
 				logGlobal->error("Failed to fill zone %d due to lack of space", zone.getId());
 				return false;
@@ -227,108 +234,81 @@ bool ObjectManager::createRequiredObjects()
 			if(zone.connectPath(rmgObject.getVisitablePosition(), false))
 			{
 				rmgObject.finalize(map);
-				//if(updateDistance)
 				updateDistances(pos);
+				guardObject(&rmgObject.instances().front()->object(), object.second, (obj->ID == Obj::MONOLITH_TWO_WAY), true);
 				break;
 			}
 			zone.areaPossible() = possibleAreaTemp;
-			
-			//if(tryToPlaceObjectAndConnectToPath(obj, pos) == EObjectPlacingResult::SUCCESS)
-			{
-				//paths to required objects constitute main paths of zone. otherwise they just may lead to middle and create dead zones
-				//placeObject(obj, pos);
-				//guardObject(obj, object.second, (obj->ID == Obj::MONOLITH_TWO_WAY), true);
-				//break;
-			}
 		}
 	}
 	
-	/*for(const auto &obj : closeObjects)
+	for(const auto &object : closeObjects)
 	{
-		setTemplateForObject(obj.first);
-		if (!obj.first->appearance.canBePlacedAt(zone.getTerrainType()))
-			continue;
-		
-		auto tilesBlockedByObject = obj.first->getBlockedOffsets();
-		
-		bool finished = false;
-		bool attempt = true;
-		while (!finished && attempt)
+		auto * obj = object.first;
+		int3 pos;
+		auto possibleArea = zone.areaPossible();
+		while(true)
 		{
-			attempt = false;
-			
-			std::vector<int3> tiles = zone.areaPossible().getTilesVector();
-			//new tiles vector after each object has been placed, OR misplaced area has been sealed off
-			
-			boost::remove_if(tiles, [obj, this](int3 &tile)-> bool
+			Rmg::Object rmgObject(*obj);
+			rmgObject.setTemplate(zone.getTerrainType());
+			pos = findPlaceForObject(possibleArea, rmgObject, [this, &rmgObject](const int3 & tile)
 			{
-				//object must be accessible from at least one surounding tile
-				return !this->isAccessibleFromSomewhere(obj.first->appearance, tile);
+				float dist = rmgObject.getArea().distanceSqr(zone.getPos());
+				dist *= (dist > 12.f * 12.f) ? 10.f : 1.f; //tiles closer 12 are preferrable
+				dist = 1000000.f - dist; //some big number
+				return dist + std::sqrt(map.getNearestObjectDistance(tile));
 			});
-			
-			auto targetPosition = requestedPositions.find(obj.first)!=requestedPositions.end() ? requestedPositions[obj.first] : zone.getPos();
-			// smallest distance to zone center, greatest distance to nearest object
-			auto isCloser = [this, &targetPosition, &tilesBlockedByObject](const int3 & lhs, const int3 & rhs) -> bool
-			{
-				float lDist = std::numeric_limits<float>::max();
-				float rDist = std::numeric_limits<float>::max();
-				for(int3 t : tilesBlockedByObject)
-				{
-					t += targetPosition;
-					lDist = fmin(lDist, static_cast<float>(t.dist2d(lhs)));
-					rDist = fmin(rDist, static_cast<float>(t.dist2d(rhs)));
-				}
-				lDist *= (lDist > 12) ? 10 : 1; //objects within 12 tile radius are preferred (smaller distance rating)
-				rDist *= (rDist > 12) ? 10 : 1;
-				
-				return (lDist * 0.5f - std::sqrt(map.getNearestObjectDistance(lhs))) < (rDist * 0.5f - std::sqrt(map.getNearestObjectDistance(rhs)));
-			};
-			
-			boost::sort(tiles, isCloser);
-			
-			if (tiles.empty())
+			if(!pos.valid())
 			{
 				logGlobal->error("Failed to fill zone %d due to lack of space", zone.getId());
 				return false;
 			}
-			for (auto tile : tiles)
+			possibleArea.erase(pos); //do not place again at this point
+			auto possibleAreaTemp = zone.areaPossible();
+			zone.areaPossible().subtract(rmgObject.getArea());
+			if(zone.connectPath(rmgObject.getVisitablePosition(), false))
 			{
-				//code partially adapted from findPlaceForObject()
-				if(!areAllTilesAvailable(obj.first, tile, tilesBlockedByObject))
-					continue;
-				
-				attempt = true;
-				
-				EObjectPlacingResult result = tryToPlaceObjectAndConnectToPath(obj.first, tile);
-				if (result == EObjectPlacingResult::SUCCESS)
-				{
-					placeObject(obj.first, tile);
-					guardObject(obj.first, obj.second, (obj.first->ID == Obj::MONOLITH_TWO_WAY), true);
-					finished = true;
-					break;
-				}
-				else if (result == EObjectPlacingResult::CANNOT_FIT)
-					continue; // next tile
-				else if (result == EObjectPlacingResult::SEALED_OFF)
-				{
-					break; //tiles expired, pick new ones
-				}
-				else
-					throw (rmgException("Wrong result of tryToPlaceObjectAndConnectToPath()"));
+				rmgObject.finalize(map);
+				updateDistances(pos);
+				guardObject(&rmgObject.instances().front()->object(), object.second, (obj->ID == Obj::MONOLITH_TWO_WAY), true);
+				break;
 			}
+			zone.areaPossible() = possibleAreaTemp;
 		}
 	}
 	
 	//create nearby objects (e.g. extra resources close to mines)
 	for(const auto & object : nearbyObjects)
 	{
+		/*auto * obj = object.first;
+		int3 pos;
+		auto possibleArea = obj.second;
+		Rmg::Object rmgObject(*obj);
+		rmgObject.setTemplate(zone.getTerrainType());
+		pos = findPlaceForObject(possibleArea, rmgObject, [this, &rmgObject](const int3 & tile)
+		{
+			float dist = rmgObject.getArea().distanceSqr(zone.getPos());
+			dist *= (dist > 12) ? 10 : 1;
+			return dist * 0.5f - std::sqrt(map.getNearestObjectDistance(tile));
+		});
+		if(!pos.valid())
+		{
+			logGlobal->error("Failed to fill zone %d due to lack of space", zone.getId());
+			return false;
+		}
+		possibleArea.erase(pos); //do not place again at this point
+		auto possibleAreaTemp = zone.areaPossible();
+		zone.areaPossible().subtract(rmgObject.getArea());
+		rmgObject.finalize(map);
+		updateDistances(pos);
+
 		auto obj = object.first;
 		std::set<int3> possiblePositions;
 		for (auto blockedTile : object.second->getBlockedPos())
 		{
 			map.foreachDirectNeighbour(blockedTile, [this, &possiblePositions](int3 pos)
 			{
-				if (!map.isBlocked(pos) && zone.getTileInfo().count(pos))
+				if (!map.isBlocked(pos) && zone.getArea().contains(pos))
 				{
 					//some resources still could be unaccessible, at least one free cell shall be
 					map.foreach_neighbour(pos, [this, &possiblePositions, &pos](int3 p)
@@ -348,18 +328,16 @@ bool ObjectManager::createRequiredObjects()
 		{
 			auto pos = *RandomGeneratorUtil::nextItem(possiblePositions, generator);
 			placeObject(obj, pos);
-		}
-	}*/
+		}*/
+	}
 	
 	//create object on specific positions
 	//TODO: implement guards
 	for (const auto &obj : instantObjects)
 	{
-		if(tryToPlaceObjectAndConnectToPath(obj.first, obj.second)==EObjectPlacingResult::SUCCESS)
-		{
-			placeObject(obj.first, obj.second);
-			//TODO: guardObject(...)
-		}
+		Rmg::Object rmgObject(*obj.first);
+		rmgObject.setPosition(obj.second);
+		rmgObject.finalize(map);
 	}
 	
 	requiredObjects.clear();

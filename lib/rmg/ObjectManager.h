@@ -40,7 +40,8 @@ public:
 	std::vector<int3> getAccessibleOffsets(const CGObjectInstance* object) const;
 	
 	bool areAllTilesAvailable(CGObjectInstance* obj, int3 & tile, const std::set<int3>& tilesBlockedByObject) const;
-	bool findPlaceForObject(const Rmg::Area & searhArea, Rmg::Object & obj, si32 min_dist, int3 & pos);
+	int3 findPlaceForObject(const Rmg::Area & searchArea, Rmg::Object & obj, si32 min_dist);
+	int3 findPlaceForObject(const Rmg::Area & searchArea, Rmg::Object & obj, std::function<float(const int3)> weightFunction);
 	EObjectPlacingResult tryToPlaceObjectAndConnectToPath(CGObjectInstance * obj, const int3 & pos); //return true if the position can be connected
 	
 	void placeObject(Rmg::Object & object, bool updateDistance = true);
@@ -63,5 +64,4 @@ protected:
 	std::vector<std::pair<CGObjectInstance*, int3>> instantObjects;
 	std::vector<std::pair<CGObjectInstance*, CGObjectInstance*>> nearbyObjects;
 	std::vector<CGObjectInstance*> objects;
-	std::map<CGObjectInstance*, int3> requestedPositions;
 };
