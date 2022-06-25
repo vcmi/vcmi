@@ -39,6 +39,7 @@ public:
 	Rmg::Area & area();
 	Rmg::Area & areaPossible();
 	Rmg::Area & freePaths();
+	Rmg::Area & areaUsed();
 	
 	void initFreeTiles();
 	void clearTiles();
@@ -54,6 +55,8 @@ public:
 	bool connectWithCenter(const int3 & src, bool onlyStraight, bool passTroughBlocked = false);
 	void addToConnectLater(const int3& src);
 	void connectLater();
+	
+	
 	
 	template<class T>
 	T* getModificator()
@@ -82,7 +85,7 @@ protected:
 	Rmg::Area dAreaPossible;
 	Rmg::Area dAreaFree; //core paths of free tiles that all other objects will be linked to
 	Rmg::Area dTilesToConnectLater; //will be connected after paths are fractalized
-	std::vector<Rmg::Object> dObjects;
+	Rmg::Area dAreaUsed;
 	
 	//template info
 	si32 townType;

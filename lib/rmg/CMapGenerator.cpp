@@ -329,12 +329,12 @@ void CMapGenerator::fillZones()
 	//	it.second->createWater(getMapGenOptions().getWaterContent());
 	
 	//zoneWater.second->waterInitFreeTiles();
+
+	createDirectConnections(); //direct
 	
 #ifdef _BETA
 	map->dump(false);
 #endif
-
-	createDirectConnections(); //direct
 	//createConnections2(); //subterranean gates and monoliths
 	
 	//for(auto it : zones)

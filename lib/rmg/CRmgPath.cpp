@@ -75,7 +75,7 @@ Path Path::search(const Tileset & dst, bool straight, std::function<float(const 
 		
 		closed.insert(currentNode);
 		
-		if(dPath.contains(currentNode)) //we reached connection, stop
+		if(dPath.contains(currentNode) && !dst.count(currentNode)) //we reached connection, stop
 		{
 			// Trace the path using the saved parent information and return path
 			int3 backTracking = currentNode;
@@ -96,7 +96,7 @@ Path Path::search(const Tileset & dst, bool straight, std::function<float(const 
 				if(!dArea.contains(pos))
 					return;
 				
-				float movementCost = moveCostFunction(currentNode, pos);
+				float movementCost = moveCostFunction(currentNode, pos) + currentNode.dist2dSQ(pos);
 				
 				float distance = distances[currentNode] + movementCost; //we prefer to use already free paths
 				int bestDistanceSoFar = std::numeric_limits<int>::max(); //FIXME: boost::limits

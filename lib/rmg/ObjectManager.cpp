@@ -233,8 +233,7 @@ bool ObjectManager::createRequiredObjects()
 			zone.areaPossible().subtract(rmgObject.getArea());
 			if(zone.connectPath(rmgObject.getVisitablePosition(), false))
 			{
-				rmgObject.finalize(map);
-				updateDistances(pos);
+				placeObject(rmgObject);
 				guardObject(&rmgObject.instances().front()->object(), object.second, (obj->ID == Obj::MONOLITH_TWO_WAY), true);
 				break;
 			}
@@ -268,8 +267,7 @@ bool ObjectManager::createRequiredObjects()
 			zone.areaPossible().subtract(rmgObject.getArea());
 			if(zone.connectPath(rmgObject.getVisitablePosition(), false))
 			{
-				rmgObject.finalize(map);
-				updateDistances(pos);
+				placeObject(rmgObject);
 				guardObject(&rmgObject.instances().front()->object(), object.second, (obj->ID == Obj::MONOLITH_TWO_WAY), true);
 				break;
 			}
@@ -337,7 +335,7 @@ bool ObjectManager::createRequiredObjects()
 	{
 		Rmg::Object rmgObject(*obj.first);
 		rmgObject.setPosition(obj.second);
-		rmgObject.finalize(map);
+		placeObject(rmgObject);
 	}
 	
 	requiredObjects.clear();
@@ -379,6 +377,9 @@ void ObjectManager::checkAndPlaceObject(CGObjectInstance* object, const int3 &po
 void ObjectManager::placeObject(Rmg::Object & object, bool updateDistance)
 {
 	zone.areaPossible().subtract(object.getArea());
+	zone.areaUsed().unite(object.getArea());
+	zone.areaUsed().erase(object.getVisitablePosition());
+	zone.freePaths().add(object.getVisitablePosition());
 	object.finalize(map);
 	
 	if(updateDistance)
@@ -393,9 +394,7 @@ void ObjectManager::placeObject(Rmg::Object & object, bool updateDistance)
 		case Obj::MONOLITH_ONE_WAY_EXIT:
 		case Obj::SUBTERRANEAN_GATE:
 		case Obj::SHIPYARD:
-		{
 			zone.getModificator<RoadPlacer>()->addRoadNode(object.getVisitablePosition());
-		}
 			break;
 			
 		default:
@@ -408,6 +407,9 @@ void ObjectManager::placeObject(CGObjectInstance* object, const int3 &pos, bool 
 	Rmg::Object rmgObject(*object);
 	rmgObject.setPosition(pos);
 	zone.areaPossible().subtract(rmgObject.getArea());
+	zone.areaUsed().unite(rmgObject.getArea());
+	zone.areaUsed().erase(rmgObject.getVisitablePosition());
+	zone.freePaths().add(rmgObject.getVisitablePosition());
 	rmgObject.finalize(map);
 	
 	if(updateDistance)

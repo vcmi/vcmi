@@ -79,6 +79,11 @@ Rmg::Area & Zone::areaPossible()
 	return dAreaPossible;
 }
 
+Rmg::Area & Zone::areaUsed()
+{
+	return dAreaUsed;
+}
+
 void Zone::clearTiles()
 {
 	dArea.clear();
@@ -239,7 +244,8 @@ bool Zone::crunchPath(const int3 &src, const int3 &dst, bool onlyStraight, std::
 bool Zone::connectPath(const int3 & src, bool onlyStraight)
 ///connect current tile to any other free tile within zone
 {
-	Rmg::Path freePath(dAreaPossible + dAreaFree);
+	auto area = dAreaPossible + dAreaFree;
+	Rmg::Path freePath(area);
 	freePath.connect(dAreaFree);
 	auto path = freePath.search(src, onlyStraight);
 	if(path.getPathArea().empty())
@@ -265,7 +271,7 @@ bool Zone::connectWithCenter(const int3 & src, bool onlyStraight, bool passThrou
 	};
 	auto area = dAreaPossible + dAreaFree;
 	if(passThroughBlocked)
-		area = dArea;
+		area = dArea - dAreaUsed;
 	Rmg::Path freePath(area, getPos());
 	auto path = freePath.search(src, onlyStraight, movementCost);
 	if(path.getPathArea().empty())

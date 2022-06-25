@@ -23,12 +23,12 @@ using namespace Rmg;
 Object::Instance::Instance(const Object& parent, CGObjectInstance & object): dParent(parent), dObject(object)
 {
 	dBlockedArea = dObject.getBlockedPos();
+	if(dObject.isVisitable())
+		dBlockedArea.add(dObject.visitablePos());
 	if(!dObject.pos.valid())
 		dBlockedArea.translate(int3(1, 1, 1));
 	if(!dBlockedArea.empty() && dBlockedArea.getTiles().begin()->z == -1)
 		dBlockedArea.translate(int3(0, 0, 1));
-	if(dObject.isVisitable())
-		dBlockedArea.add(dObject.getVisitableOffset());
 }
 
 Object::Instance::Instance(const Object& parent, CGObjectInstance & object, const int3 & position): Instance(parent, object)
@@ -48,7 +48,7 @@ const int3 & Object::Instance::getPosition() const
 
 int3 Object::Instance::getVisitablePosition() const
 {
-	return dObject.getVisitableOffset() + dPosition;
+	return dObject.visitablePos();
 }
 
 Rmg::Area Object::Instance::getAccessibleArea() const
@@ -66,6 +66,7 @@ void Object::Instance::setPosition(const int3 & position)
 {
 	dBlockedArea.translate(position - dPosition);
 	dPosition = position;
+	dObject.pos = dPosition;
 	dParent.dFullAreaCache.clear();
 }
 
@@ -80,11 +81,13 @@ void Object::Instance::setTemplate(const Terrain & terrain)
 		dObject.appearance = templates.front();
 	}
 	dBlockedArea = dObject.getBlockedPos();
+	if(dObject.isVisitable())
+		dBlockedArea.add(dObject.visitablePos());
+	if(!dObject.pos.valid())
+		dBlockedArea.translate(int3(1, 1, 1));
 	if(!dBlockedArea.empty() && dBlockedArea.getTiles().begin()->z == -1)
 		dBlockedArea.translate(int3(0, 0, 1));
-	if(dObject.isVisitable())
-		dBlockedArea.add(dObject.getVisitableOffset());
-	dBlockedArea.translate(dPosition);
+	//dBlockedArea.translate(dPosition);
 	dParent.dFullAreaCache.clear();
 }
 
@@ -240,7 +243,7 @@ void Object::Instance::finalize(RmgMap & map)
 		if (templates.empty())
 			throw rmgException(boost::to_string(boost::format("Did not find graphics for object (%d,%d) at %s (terrain %d)") % dObject.ID % dObject.subID % dPosition.toString() % terrainType));
 		
-		dObject.appearance = templates.front();
+		setTemplate(terrainType);
 	}
 	
 	for(auto & tile : dBlockedArea.getTiles())
@@ -265,3 +268,4 @@ void Object::finalize(RmgMap & map)
 		iter->finalize(map);
 	}
 }
+ 

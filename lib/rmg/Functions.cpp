@@ -31,28 +31,25 @@ std::set<int3> collectDistantTiles(const Zone& zone, float distance)
 
 void createBorder(RmgMap & gen, const Zone & zone)
 {
-	for(auto & tile : zone.getArea().getTiles())
+	for(auto & tile : zone.getArea().getBorderOutside())
 	{
-		bool edge = false;
-		gen.foreach_neighbour(tile, [&zone, &edge, &gen](int3 &pos)
+		if(gen.isOnMap(tile) && gen.getZoneID(tile) != zone.getId()) //optimization - better than set search
 		{
-			if (edge)
-				return; //optimization - do it only once
-			if (gen.getZoneID(pos) != zone.getId()) //optimization - better than set search
+			if(gen.isPossible(tile))
 			{
-				//bugfix with missing pos
-				if (gen.isPossible(pos))
-					gen.setOccupied(pos, ETileType::BLOCKED);
-				//we are edge if at least one tile does not belong to zone
-				//mark all nearby tiles blocked and we're done
-				gen.foreach_neighbour(pos, [&gen](int3 &nearbyPos)
-				{
-					if (gen.isPossible(nearbyPos))
-						gen.setOccupied(nearbyPos, ETileType::BLOCKED);
-				});
-				edge = true;
+				gen.setOccupied(tile, ETileType::BLOCKED);
+				gen.getZones().at(gen.getZoneID(tile))->areaPossible().erase(tile);
 			}
-		});
+			
+			gen.foreach_neighbour(tile, [&gen](int3 &nearbyPos)
+			{
+				if(gen.isPossible(nearbyPos))
+				{
+					gen.setOccupied(nearbyPos, ETileType::BLOCKED);
+					gen.getZones().at(gen.getZoneID(nearbyPos))->areaPossible().erase(nearbyPos);
+				}
+			});
+		}
 	}
 }
 
@@ -129,23 +126,20 @@ void initTownType(Zone & zone, CRandomGenerator & generator, RmgMap & map, Objec
 	//FIXME: handle case that this player is not present -> towns should be set to neutral
 	int totalTowns = 0;
 	
-	//cut a ring around town to ensure crunchPath always hits it.
-	auto cutPathAroundTown = [&map](const CGTownInstance * town)
+	auto freeBoundaries = [&map, &zone](const Rmg::Object & rmgObject)
 	{
-		auto clearPos = [&map](const int3 & pos)
+		for(auto & t : rmgObject.getArea().getBorderOutside())
 		{
-			if (map.isPossible(pos))
-				map.setOccupied(pos, ETileType::FREE);
-		};
-		for(auto blockedTile : town->getBlockedPos())
-		{
-			map.foreach_neighbour(blockedTile, clearPos);
+			if(map.isOnMap(t))
+			{
+				map.setOccupied(t, ETileType::FREE);
+				zone.areaPossible().erase(t);
+				zone.freePaths().add(t);
+			}
 		}
-		//clear town entry
-		map.foreach_neighbour(town->visitablePos() + int3{0,1,0}, clearPos);
 	};
 	
-	auto addNewTowns = [&zone, &generator, &manager, &map, &totalTowns, &cutPathAroundTown](int count, bool hasFort, PlayerColor player)
+	auto addNewTowns = [&zone, &generator, &manager, &map, &totalTowns](int count, bool hasFort, PlayerColor player)
 	{
 		for(int i = 0; i < count; i++)
 		{
@@ -183,9 +177,11 @@ void initTownType(Zone & zone, CRandomGenerator & generator, RmgMap & map, Objec
 				//register MAIN town of zone
 				map.registerZone(town->subID);
 				//first town in zone goes in the middle
-				manager.placeObject(town, zone.getPos() + town->getVisitableOffset(), true);
-				cutPathAroundTown(town);
-				zone.setPos(town->visitablePos()); //roads lead to mian town
+				Rmg::Object rmgObject(*town);
+				rmgObject.setPosition(zone.getPos() + town->getVisitableOffset());
+				manager.placeObject(rmgObject);
+				freeBoundaries(rmgObject);
+				zone.setPos(town->visitablePos()); //roads lead to main town
 			}
 			else
 				manager.addRequiredObject(town);
@@ -228,9 +224,11 @@ void initTownType(Zone & zone, CRandomGenerator & generator, RmgMap & map, Objec
 				town->possibleSpells.push_back(spell->id);
 		}
 		//towns are big objects and should be centered around visitable position
-		manager.placeObject(town, zone.getPos() + town->getVisitableOffset(), true);
-		cutPathAroundTown(town);
-		zone.setPos(town->visitablePos()); //roads lead to mian town
+		Rmg::Object rmgObject(*town);
+		rmgObject.setPosition(zone.getPos() + town->getVisitableOffset());
+		manager.placeObject(rmgObject);
+		freeBoundaries(rmgObject);
+		zone.setPos(town->visitablePos()); //roads lead to main town
 		
 		totalTowns++;
 		//register MAIN town of zone only
