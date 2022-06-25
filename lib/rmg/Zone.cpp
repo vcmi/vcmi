@@ -336,7 +336,7 @@ void Zone::fractalize()
 		while(!possibleTiles.empty())
 		{
 			//link tiles in random order
-			std::vector<int3> tilesToMakePath(possibleTiles.getTiles().begin(), possibleTiles.getTiles().end());
+			std::vector<int3> tilesToMakePath = possibleTiles.getTilesVector();
 			RandomGeneratorUtil::randomShuffle(tilesToMakePath, generator);
 			
 			int3 nodeFound(-1, -1, -1);
@@ -367,10 +367,13 @@ void Zone::fractalize()
 	auto areas = connectedAreas(clearedTiles);
 	for(auto & area : areas)
 	{
+		if(dAreaFree.overlap(area))
+			continue; //already found
+			
 		Rmg::Path path(dAreaPossible + dAreaFree);
 		path.connect(dAreaFree);
-		path.search(area, false);
-		if(path.getPathArea().empty())
+		auto res = path.search(area, false);
+		if(res.getPathArea().empty())
 		{
 			dAreaPossible.subtract(area);
 			dAreaFree.subtract(area);
@@ -379,9 +382,9 @@ void Zone::fractalize()
 		}
 		else
 		{
-			dAreaPossible.subtract(path.getPathArea());
-			dAreaFree.unite(path.getPathArea());
-			for(auto & t : path.getPathArea().getTiles())
+			dAreaPossible.subtract(res.getPathArea());
+			dAreaFree.unite(res.getPathArea());
+			for(auto & t : res.getPathArea().getTiles())
 				map.setOccupied(t, ETileType::FREE);
 		}
 	}

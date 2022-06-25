@@ -473,7 +473,7 @@ bool processZone(Zone & zone, CMapGenerator & gen, RmgMap & map)
 	//zone center should be always clear to allow other tiles to connect
 	zone.initFreeTiles();
 	zone.connectLater(); //ideally this should work after fractalize, but fails
-	//zone.fractalize();
+	zone.fractalize();
 	placeMines(zone, gen, *obMgr);
 	
 	obMgr->process();
