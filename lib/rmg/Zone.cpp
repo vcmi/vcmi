@@ -11,6 +11,7 @@
 #include "TileInfo.h"
 #include "../mapping/CMap.h"
 #include "../CRandomGenerator.h"
+#include "CRmgPath.h"
 
 Zone::Zone(RmgMap & map, CRandomGenerator & generator)
 					: ZoneOptions(),
@@ -63,57 +64,44 @@ void Zone::setPos(const int3 &Pos)
 	pos = Pos;
 }
 
-void Zone::addTile (const int3 &Pos)
+Rmg::Area & Zone::area()
 {
-	tileinfo.insert(Pos);
+	return dArea;
 }
 
-void Zone::addPossibleTile(const int3 & Pos)
+Rmg::Area & Zone::areaPossible()
 {
-	possibleTiles.insert(Pos);
-}
-
-void Zone::removeTile(const int3 & Pos)
-{
-	tileinfo.erase(Pos);
-	possibleTiles.erase(Pos);
-}
-
-const std::set<int3> & Zone::getTileInfo() const
-{
-	return tileinfo;
-}
-
-const std::set<int3> & Zone::getPossibleTiles() const
-{
-	return possibleTiles;
-}
-
-void Zone::removePossibleTile(const int3 & Pos)
-{
-	possibleTiles.erase(Pos);
+	return dAreaPossible;
 }
 
 void Zone::clearTiles()
 {
-	tileinfo.clear();
+	dArea.clear();
+	dAreaPossible.clear();
+	dAreaBlocked.clear();
+	dAreaFree.clear();
 }
 
 void Zone::initFreeTiles()
 {
-	vstd::copy_if(tileinfo, vstd::set_inserter(possibleTiles), [this](const int3 &tile) -> bool
+	Rmg::Tileset possibleTiles;
+	vstd::copy_if(dArea.getTiles(), vstd::set_inserter(possibleTiles), [this](const int3 &tile) -> bool
 	{
 		return map.isPossible(tile);
 	});
-	if(freePaths.empty())
+	dAreaPossible.assign(possibleTiles);
+	
+	if(dAreaFree.empty())
 	{
-		addFreePath(pos); //zone must have at least one free tile where other paths go - for instance in the center
+		dAreaPossible.erase(pos);
+		dAreaBlocked.erase(pos);
+		dAreaFree.add(pos); //zone must have at least one free tile where other paths go - for instance in the center
 	}
 }
 
-const std::set<int3> & Zone::getFreePaths() const
+Rmg::Area & Zone::freePaths()
 {
-	return freePaths;
+	return dAreaFree;
 }
 
 si32 Zone::getTownType() const
@@ -134,12 +122,6 @@ const Terrain & Zone::getTerrainType() const
 void Zone::setTerrainType(const Terrain & terrain)
 {
 	terrainType = terrain;
-}
-
-void Zone::addFreePath(const int3 & p)
-{
-	map.setOccupied(p, ETileType::FREE);
-	freePaths.insert(p);
 }
 
 bool Zone::crunchPath(const int3 &src, const int3 &dst, bool onlyStraight, std::set<int3>* clearedTiles)
@@ -182,12 +164,12 @@ bool Zone::crunchPath(const int3 &src, const int3 &dst, bool onlyStraight, std::
 							if (map.isPossible(pos))
 							{
 								map.setOccupied (pos, ETileType::FREE);
-								if (clearedTiles)
+								if(clearedTiles)
 									clearedTiles->insert(pos);
 								currentPos = pos;
 								distance = static_cast<float>(currentPos.dist2dSQ (dst));
 							}
-							else if (map.isFree(pos))
+							else if(map.isFree(pos))
 							{
 								end = true;
 								result = true;
@@ -236,7 +218,7 @@ bool Zone::crunchPath(const int3 &src, const int3 &dst, bool onlyStraight, std::
 			{
 				if (clearedTiles)
 					clearedTiles->insert(anotherPos);
-				map.setOccupied(anotherPos, ETileType::FREE);
+				//map.setOccupied(anotherPos, ETileType::FREE);
 				currentPos = anotherPos;
 			}
 		}
@@ -254,199 +236,86 @@ bool Zone::crunchPath(const int3 &src, const int3 &dst, bool onlyStraight, std::
 bool Zone::connectPath(const int3 & src, bool onlyStraight)
 ///connect current tile to any other free tile within zone
 {
-	//A* algorithm taken from Wiki http://en.wikipedia.org/wiki/A*_search_algorithm
+	Rmg::Path freePath(dAreaPossible + dAreaFree);
+	freePath.connect(dAreaFree);
+	auto path = freePath.search(src, onlyStraight);
+	if(path.getPathArea().empty())
+		return false;
 	
-	std::set<int3> closed;    // The set of nodes already evaluated.
-	auto open = createPriorityQueue();    // The set of tentative nodes to be evaluated, initially containing the start node
-	std::map<int3, int3> cameFrom;  // The map of navigated nodes.
-	std::map<int3, float> distances;
-	
-	//int3 currentNode = src;
-	
-	cameFrom[src] = int3(-1, -1, -1); //first node points to finish condition
-	distances[src] = 0.f;
-	open.push(std::make_pair(src, 0.f));
-	// Cost from start along best known path.
-	// Estimated total cost from start to goal through y.
-	
-	while (!open.empty())
-	{
-		auto node = open.top();
-		open.pop();
-		int3 currentNode = node.first;
-		
-		closed.insert(currentNode);
-		
-		if (map.isFree(currentNode)) //we reached free paths, stop
-		{
-			// Trace the path using the saved parent information and return path
-			int3 backTracking = currentNode;
-			while (cameFrom[backTracking].valid())
-			{
-				map.setOccupied(backTracking, ETileType::FREE);
-				backTracking = cameFrom[backTracking];
-			}
-			return true;
-		}
-		else
-		{
-			auto foo = [this, &open, &closed, &cameFrom, &currentNode, &distances](int3& pos) -> void
-			{
-				if (vstd::contains(closed, pos))
-					return;
-				
-				//no paths through blocked or occupied tiles, stay within zone
-				if (map.isBlocked(pos) || map.getZoneID(pos) != id)
-					return;
-				
-				int distance = static_cast<int>(distances[currentNode]) + 1;
-				int bestDistanceSoFar = std::numeric_limits<int>::max();
-				auto it = distances.find(pos);
-				if (it != distances.end())
-					bestDistanceSoFar = static_cast<int>(it->second);
-				
-				if (distance < bestDistanceSoFar)
-				{
-					cameFrom[pos] = currentNode;
-					open.push(std::make_pair(pos, (float)distance));
-					distances[pos] = static_cast<float>(distance);
-				}
-			};
-			
-			if (onlyStraight)
-				map.foreachDirectNeighbour(currentNode, foo);
-			else
-				map.foreach_neighbour(currentNode, foo);
-		}
-		
-	}
-	for (auto tile : closed) //these tiles are sealed off and can't be connected anymore
-	{
-		if(map.isPossible(tile))
-			map.setOccupied (tile, ETileType::BLOCKED);
-		vstd::erase_if_present(possibleTiles, tile);
-	}
-	return false;
+	dAreaPossible.subtract(path.getPathArea());
+	dAreaBlocked.subtract(path.getPathArea());
+	dAreaFree.unite(path.getPathArea());
+	for(auto & t : path.getPathArea().getTiles())
+		map.setOccupied(t, ETileType::FREE);
+	return true;
 }
 
 bool Zone::connectWithCenter(const int3 & src, bool onlyStraight, bool passThroughBlocked)
 ///connect current tile to any other free tile within zone
 {
-	//A* algorithm taken from Wiki http://en.wikipedia.org/wiki/A*_search_algorithm
-	
-	std::set<int3> closed;    // The set of nodes already evaluated.
-	auto open = createPriorityQueue(); // The set of tentative nodes to be evaluated, initially containing the start node
-	std::map<int3, int3> cameFrom;  // The map of navigated nodes.
-	std::map<int3, float> distances;
-	
-	cameFrom[src] = int3(-1, -1, -1); //first node points to finish condition
-	distances[src] = 0;
-	open.push(std::make_pair(src, 0.f));
-	// Cost from start along best known path.
-	
-	while (!open.empty())
+	auto movementCost = [this](const int3 & s, const int3 & d)
 	{
-		auto node = open.top();
-		open.pop();
-		int3 currentNode = node.first;
-		
-		closed.insert(currentNode);
-		
-		if (currentNode == pos) //we reached center of the zone, stop
-		{
-			// Trace the path using the saved parent information and return path
-			int3 backTracking = currentNode;
-			while (cameFrom[backTracking].valid())
-			{
-				map.setOccupied(backTracking, ETileType::FREE);
-				backTracking = cameFrom[backTracking];
-			}
-			return true;
-		}
-		else
-		{
-			auto foo = [this, &open, &closed, &cameFrom, &currentNode, &distances, passThroughBlocked](int3& pos) -> void
-			{
-				if (vstd::contains(closed, pos))
-					return;
-				
-				if (map.getZoneID(pos) != id)
-					return;
-				
-				float movementCost = 0;
-				
-				if (map.isFree(pos))
-					movementCost = 1;
-				else if (map.isPossible(pos))
-					movementCost = 2;
-				else if(passThroughBlocked && map.shouldBeBlocked(pos))
-					movementCost = 3;
-				else
-					return;
-				
-				float distance = distances[currentNode] + movementCost; //we prefer to use already free paths
-				int bestDistanceSoFar = std::numeric_limits<int>::max(); //FIXME: boost::limits
-				auto it = distances.find(pos);
-				if (it != distances.end())
-					bestDistanceSoFar = static_cast<int>(it->second);
-				
-				if (distance < bestDistanceSoFar)
-				{
-					cameFrom[pos] = currentNode;
-					open.push(std::make_pair(pos, distance));
-					distances[pos] = distance;
-				}
-			};
-			
-			if (onlyStraight)
-				map.foreachDirectNeighbour(currentNode, foo);
-			else
-				map.foreach_neighbour(currentNode, foo);
-		}
-		
-	}
-	return false;
+		if(map.isFree(pos))
+			return 1;
+		else if (map.isPossible(pos))
+			return 2;
+		return 3;
+	};
+	auto area = dAreaPossible + dAreaFree;
+	if(passThroughBlocked)
+		area.unite(dAreaBlocked);
+	Rmg::Path freePath(area, getPos());
+	auto path = freePath.search(src, onlyStraight, movementCost);
+	if(path.getPathArea().empty())
+		return false;
+	
+	dAreaPossible.subtract(path.getPathArea());
+	dAreaBlocked.subtract(path.getPathArea());
+	dAreaFree.unite(path.getPathArea());
+	for(auto & t : path.getPathArea().getTiles())
+		map.setOccupied(t, ETileType::FREE);
+	return true;
 }
 
 void Zone::addToConnectLater(const int3 & src)
 {
-	tilesToConnectLater.insert(src);
+	dTilesToConnectLater.add(src);
 }
 
 void Zone::connectLater()
 {
-	for(const int3 & node : tilesToConnectLater)
+	auto movementCost = [this](const int3 & s, const int3 & d)
 	{
-		if(!connectWithCenter(node, true))
-			logGlobal->error("Failed to connect node %s with center of the zone", node.toString());
-	}
+		if(map.isFree(pos))
+			return 1;
+		else if (map.isPossible(pos))
+			return 2;
+		return 3;
+	};
+	auto area = dAreaPossible + dAreaFree;
+	Rmg::Path freePath(area, getPos());
+	auto path = freePath.search(dTilesToConnectLater, true, movementCost);
+	if(path.getPathArea().empty())
+		logGlobal->error("Failed to connect node with center of the zone");
+	
+	dAreaPossible.subtract(path.getPathArea());
+	dAreaBlocked.subtract(path.getPathArea());
+	dAreaFree.unite(path.getPathArea());
+	for(auto & t : path.getPathArea().getTiles())
+		map.setOccupied(t, ETileType::FREE);
 }
 
 void Zone::fractalize()
 {
-	for(auto tile : tileinfo)
-	{
-		if(map.isFree(tile))
-			freePaths.insert(tile);
-	}
-	std::vector<int3> clearedTiles(freePaths.begin(), freePaths.end());
-	std::set<int3> possibleTiles;
-	std::set<int3> tilesToIgnore; //will be erased in this iteration
+	Rmg::Area clearedTiles(dAreaFree);
+	Rmg::Area possibleTiles(dAreaPossible);
+	Rmg::Area tilesToIgnore; //will be erased in this iteration
 	
 	//the more treasure density, the greater distance between paths. Scaling is experimental.
 	int totalDensity = 0;
 	for(auto ti : treasureInfo)
 		totalDensity += ti.density;
 	const float minDistance = 10 * 10; //squared
-	
-	for(auto tile : tileinfo)
-	{
-		if(map.isPossible(tile))
-			possibleTiles.insert(tile);
-	}
-	assert (clearedTiles.size()); //this should come from zone connections
-	
-	std::vector<int3> nodes; //connect them with a grid
 	
 	if(type != ETemplateZoneType::JUNCTION)
 	{
@@ -455,7 +324,7 @@ void Zone::fractalize()
 		while(!possibleTiles.empty())
 		{
 			//link tiles in random order
-			std::vector<int3> tilesToMakePath(possibleTiles.begin(), possibleTiles.end());
+			std::vector<int3> tilesToMakePath(possibleTiles.getTiles().begin(), possibleTiles.getTiles().end());
 			RandomGeneratorUtil::randomShuffle(tilesToMakePath, generator);
 			
 			int3 nodeFound(-1, -1, -1);
@@ -463,40 +332,19 @@ void Zone::fractalize()
 			for(auto tileToMakePath : tilesToMakePath)
 			{
 				//find closest free tile
-				float currentDistance = 1e10;
-				int3 closestTile(-1, -1, -1);
-				
-				for(auto clearTile : clearedTiles)
+				int3 closestTile = clearedTiles.nearest(tileToMakePath);
+				if(closestTile.dist2dSQ(tileToMakePath) <= minDistance)
+					tilesToIgnore.add(tileToMakePath);
+				else
 				{
-					float distance = static_cast<float>(tileToMakePath.dist2dSQ(clearTile));
-					
-					if(distance < currentDistance)
-					{
-						currentDistance = distance;
-						closestTile = clearTile;
-					}
-					if(currentDistance <= minDistance)
-					{
-						//this tile is close enough. Forget about it and check next one
-						tilesToIgnore.insert(tileToMakePath);
-						break;
-					}
-				}
-				//if tiles is not close enough, make path to it
-				if (currentDistance > minDistance)
-				{
+					//if tiles are not close enough, make path to it
 					nodeFound = tileToMakePath;
-					nodes.push_back(nodeFound);
-					clearedTiles.push_back(nodeFound); //from now on nearby tiles will be considered handled
+					clearedTiles.add(nodeFound); //from now on nearby tiles will be considered handled
 					break; //next iteration - use already cleared tiles
 				}
 			}
 			
-			for(auto tileToClear : tilesToIgnore)
-			{
-				//these tiles are already connected, ignore them
-				vstd::erase_if_present(possibleTiles, tileToClear);
-			}
+			possibleTiles.subtract(tilesToIgnore);
 			if(!nodeFound.valid()) //nothing else can be done (?)
 				break;
 			tilesToIgnore.clear();
@@ -504,62 +352,42 @@ void Zone::fractalize()
 	}
 	
 	//cut straight paths towards the center. A* is too slow for that.
-	for (auto node : nodes)
+	auto areas = connectedAreas(clearedTiles);
+	for(auto & area : areas)
 	{
-		auto subnodes = nodes;
-		boost::sort(subnodes, [&node](const int3& ourNode, const int3& otherNode) -> bool
-					{
-			return node.dist2dSQ(ourNode) < node.dist2dSQ(otherNode);
-		});
-		
-		std::vector <int3> nearbyNodes;
-		if (subnodes.size() >= 2)
+		Rmg::Path path(dAreaPossible + dAreaFree);
+		path.connect(dAreaFree);
+		path.search(area, false);
+		if(path.getPathArea().empty())
 		{
-			nearbyNodes.push_back(subnodes[1]); //node[0] is our node we want to connect
+			dAreaBlocked.unite(area);
+			dAreaPossible.subtract(area);
+			dAreaFree.subtract(area);
+			for(auto & t : area.getTiles())
+				map.setOccupied(t, ETileType::BLOCKED);
 		}
-		if (subnodes.size() >= 3)
+		else
 		{
-			nearbyNodes.push_back(subnodes[2]);
-		}
-		
-		//connect with all the paths
-		crunchPath(node, findClosestTile(freePaths, node), true, &freePaths);
-		//connect with nearby nodes
-		for (auto nearbyNode : nearbyNodes)
-		{
-			crunchPath(node, nearbyNode, true, &freePaths); //do not allow to make another path network
+			dAreaPossible.subtract(path.getPathArea());
+			dAreaBlocked.subtract(path.getPathArea());
+			dAreaFree.unite(path.getPathArea());
+			for(auto & t : path.getPathArea().getTiles())
+				map.setOccupied(t, ETileType::FREE);
 		}
 	}
-	for (auto node : nodes)
-		map.setOccupied(node, ETileType::FREE); //make sure they are clear
 	
 	//now block most distant tiles away from passages
-	
 	float blockDistance = minDistance * 0.25f;
-	
-	for (auto tile : tileinfo)
+	auto areaToBlock = dArea.getSubarea([this, blockDistance](const int3 & t)
 	{
-		if(!map.isPossible(tile))
-			continue;
-		
-		if(freePaths.count(tile))
-			continue;
-		
-		bool closeTileFound = false;
-		
-		for(auto clearTile : freePaths)
-		{
-			float distance = static_cast<float>(tile.dist2dSQ(clearTile));
-			
-			if(distance < blockDistance)
-			{
-				closeTileFound = true;
-				break;
-			}
-		}
-		if (!closeTileFound) //this tile is far enough from passages
-			map.setOccupied(tile, ETileType::BLOCKED);
-	}
+		float distance = static_cast<float>(dAreaFree.distanceSqr(t));
+		return distance > blockDistance;
+	});
+	dAreaPossible.subtract(areaToBlock);
+	dAreaFree.subtract(areaToBlock);
+	dAreaBlocked.subtract(areaToBlock);
+	for(auto & t : areaToBlock.getTiles())
+		map.setOccupied(t, ETileType::BLOCKED);
 	
 #define PRINT_FRACTALIZED_MAP false
 	if (PRINT_FRACTALIZED_MAP) //enable to debug

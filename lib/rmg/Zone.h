@@ -11,6 +11,7 @@
 #include "float3.h"
 #include "../int3.h"
 #include "CRmgTemplate.h"
+#include "CRmgArea.h"
 
 class RmgMap;
 
@@ -33,19 +34,13 @@ public:
 	int3 getPos() const;
 	void setPos(const int3 &pos);
 	
-	void addTile(const int3 & pos);
-	void removeTile(const int3 & pos);
+	Rmg::Area & area();
+	Rmg::Area & areaPossible();
+	Rmg::Area & freePaths();
+	
 	void initFreeTiles();
-	const std::set<int3> & getTileInfo() const;
-	const std::set<int3> & getPossibleTiles() const;
-	void addPossibleTile(const int3 & pos);
-	void removePossibleTile(const int3 & pos);
 	void clearTiles();
-	
 	void fractalize();
-	
-	const std::set<int3>& getFreePaths() const;
-	void addFreePath(const int3 &);
 	
 	si32 getTownType() const;
 	void setTownType(si32 town);
@@ -81,11 +76,11 @@ protected:
 	//placement info
 	int3 pos;
 	float3 center;
-	std::set<int3> tileinfo; //irregular area assined to zone
-	std::set<int3> possibleTiles; //optimization purposes for treasure generation
-	std::set<int3> freePaths; //core paths of free tiles that all other objects will be linked to
-	std::set<int3> coastTiles; //tiles bordered to water
-	std::set<int3> tilesToConnectLater; //will be connected after paths are fractalized
+	Rmg::Area dArea; //irregular area assined to zone
+	Rmg::Area dAreaPossible;
+	Rmg::Area dAreaBlocked;
+	Rmg::Area dAreaFree; //core paths of free tiles that all other objects will be linked to
+	Rmg::Area dTilesToConnectLater; //will be connected after paths are fractalized
 	
 	//template info
 	si32 townType;

@@ -13,6 +13,12 @@
 
 using namespace Rmg;
 
+const std::function<float(const int3 &, const int3 &)> Path::DEFAULT_MOVEMENT_FUNCTION =
+[](const int3 & src, const int3 & dst)
+{
+	return 1.f;
+};
+
 //A* priority queue
 typedef std::pair<int3, float> TDistance;
 struct NodeComparer
@@ -22,7 +28,6 @@ struct NodeComparer
 		return (rhs.second < lhs.second);
 	}
 };
-//boost::heap::priority_queue<TDistance, boost::heap::compare<NodeComparer>> createPriorityQueue();
 boost::heap::priority_queue<TDistance, boost::heap::compare<NodeComparer>> createPriorityQueue()
 {
 	return boost::heap::priority_queue<TDistance, boost::heap::compare<NodeComparer>>();
@@ -42,7 +47,7 @@ bool Path::valid() const
 	return !dPath.empty();
 }
 
-Path Path::search(const Tileset & dst, bool straigth) const
+Path Path::search(const Tileset & dst, bool straight, std::function<float(const int3 &, const int3 &)> moveCostFunction) const
 {
 	//A* algorithm taken from Wiki http://en.wikipedia.org/wiki/A*_search_algorithm
 	Path result(dArea);
@@ -83,7 +88,7 @@ Path Path::search(const Tileset & dst, bool straigth) const
 		}
 		else
 		{
-			auto foo = [this, &open, &closed, &cameFrom, &currentNode, &distances](const int3& pos) -> void
+			auto foo = [this, &open, &closed, &cameFrom, &currentNode, &distances, &moveCostFunction](const int3& pos) -> void
 			{
 				if(closed.count(pos))
 					return;
@@ -91,12 +96,7 @@ Path Path::search(const Tileset & dst, bool straigth) const
 				if(!dArea.contains(pos))
 					return;
 				
-				float movementCost = 0;
-				
-				if(dPath.contains(pos))
-					movementCost = 1;
-				else
-					movementCost = 2;
+				float movementCost = moveCostFunction(currentNode, pos);
 				
 				float distance = distances[currentNode] + movementCost; //we prefer to use already free paths
 				int bestDistanceSoFar = std::numeric_limits<int>::max(); //FIXME: boost::limits
@@ -114,7 +114,7 @@ Path Path::search(const Tileset & dst, bool straigth) const
 			
 			auto dirs = int3::getDirs();
 			std::vector<int3> neighbors(dirs.begin(), dirs.end());
-			if (straigth)
+			if(straight)
 				neighbors = { { int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0) } };
 			for(auto & i : neighbors)
 			{
@@ -124,56 +124,40 @@ Path Path::search(const Tileset & dst, bool straigth) const
 		
 	}
 	
+	result.dPath.clear();
 	return result;
 }
 
-Path Path::search(const int3 & dst, bool straight) const
+Path Path::search(const int3 & dst, bool straight, std::function<float(const int3 &, const int3 &)> moveCostFunction) const
 {
-	return search(Tileset{dst}, straight);
+	return search(Tileset{dst}, straight, moveCostFunction);
 }
 
-Path Path::search(const Area & dst, bool straight) const
+Path Path::search(const Area & dst, bool straight, std::function<float(const int3 &, const int3 &)> moveCostFunction) const
 {
-	return search(dst.getTiles(), straight);
+	return search(dst.getTiles(), straight, moveCostFunction);
 }
 
-Path Path::search(const Path & dst, bool straight) const
+Path Path::search(const Path & dst, bool straight, std::function<float(const int3 &, const int3 &)> moveCostFunction) const
 {
 	assert(dst.dArea == dArea);
-	return search(dst.dPath, straight);
+	return search(dst.dPath, straight, moveCostFunction);
 }
 
-bool Path::connect(const int3 & path)
+void Path::connect(const int3 & path)
 {
 	dPath.add(path);
-	if(dPath.connected())
-	{
-		return true;
-	}
-	return false;
 }
 
-bool Path::connect(const Tileset & path)
+void Path::connect(const Tileset & path)
 {
 	Area a(path);
 	dPath.unite(a);
-	if(dPath.connected())
-	{
-		return true;
-	}
-	return false;
 }
 
-bool Path::connect(const Path & path)
+void Path::connect(const Path & path)
 {
-	//assert(path.dArea == dArea);
-	auto newPath = path.dPath + dPath;
-	if(newPath.connected())
-	{
-		dPath = newPath;
-		return true;
-	}
-	return false;
+	dPath = path.dPath + dPath;
 }
 
 const Area & Path::getPathArea() const

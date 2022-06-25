@@ -13,10 +13,10 @@
 #include "../GameConstants.h"
 #include "../int3.h"
 #include "CRmgArea.h"
-#include "CMapGenerator.h"
 
 class CGObjectInstance;
-class CMapGenerator;
+class RmgMap;
+class Terrain;
 
 namespace Rmg {
 class Object
@@ -34,14 +34,14 @@ public:
 		int3 getVisitablePosition() const;
 		bool isVisitableFrom(const int3 & tile) const;
 		bool isVisitableFrom(const int3 & tile, const int3 & potentialPosition) const;
-		void setTemplate(ETerrainType terrain);
+		void setTemplate(const Terrain & terrain);
 		
 		const int3 & getPosition() const;
 		void setPosition(const int3 & position);
 		const CGObjectInstance & object() const;
 		CGObjectInstance & object();
 		
-		void finalize(CMapGenerator & generator);
+		void finalize(RmgMap & map);
 		
 	private:
 		Area dBlockedArea;
@@ -66,11 +66,11 @@ public:
 	
 	const int3 & getPosition() const;
 	void setPosition(const int3 & position);
-	void setTemplate(ETerrainType terrain);
+	void setTemplate(const Terrain & terrain);
 	
 	const Area & getArea() const;  //lazy cache invalidation
 	
-	void finalize(CMapGenerator & generator);
+	void finalize(RmgMap & map);
 	
 private:
 	std::list<Instance> dInstances;

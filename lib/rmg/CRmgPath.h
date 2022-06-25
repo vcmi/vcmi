@@ -19,18 +19,20 @@ namespace Rmg
 class Path
 {
 public:
+	const static std::function<float(const int3 &, const int3 &)> DEFAULT_MOVEMENT_FUNCTION;
+	
 	Path(const Area & area);
 	Path(const Area & area, const int3 & src);
 	bool valid() const;
 	
-	Path search(const Tileset & dst, bool straight) const;
-	Path search(const int3 & dst, bool straight) const;
-	Path search(const Area & dst, bool straight) const;
-	Path search(const Path & dst, bool straight) const;
+	Path search(const Tileset & dst, bool straight, std::function<float(const int3 &, const int3 &)> moveCostFunction = DEFAULT_MOVEMENT_FUNCTION) const;
+	Path search(const int3 & dst, bool straight, std::function<float(const int3 &, const int3 &)> moveCostFunction = DEFAULT_MOVEMENT_FUNCTION) const;
+	Path search(const Area & dst, bool straight, std::function<float(const int3 &, const int3 &)> moveCostFunction = DEFAULT_MOVEMENT_FUNCTION) const;
+	Path search(const Path & dst, bool straight, std::function<float(const int3 &, const int3 &)> moveCostFunction = DEFAULT_MOVEMENT_FUNCTION) const;
 	
-	bool connect(const Path & path);
-	bool connect(const int3 & path); //TODO: force connection?
-	bool connect(const Tileset & path); //TODO: force connection?
+	void connect(const Path & path);
+	void connect(const int3 & path); //TODO: force connection?
+	void connect(const Tileset & path); //TODO: force connection?
 	
 	const Area & getPathArea() const;
 	

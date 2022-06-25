@@ -15,6 +15,24 @@ class ObjectManager;
 class ObjectTemplate;
 class CMapGenerator;
 
+class rmgException : public std::exception
+{
+	std::string msg;
+public:
+	explicit rmgException(const std::string& _Message) : msg(_Message)
+	{
+	}
+	
+	virtual ~rmgException() throw ()
+	{
+	};
+	
+	const char *what() const throw () override
+	{
+		return msg.c_str();
+	}
+};
+
 std::set<int3> DLL_LINKAGE collectDistantTiles(const Zone & zone, float distance);
 
 void DLL_LINKAGE createBorder(RmgMap & gen, const Zone & zone);

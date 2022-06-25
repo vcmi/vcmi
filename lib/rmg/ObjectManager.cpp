@@ -15,6 +15,7 @@
 #include "../mapObjects/MapObjects.h" //needed to resolve templates for CommonConstructors.h
 #include "../mapping/CMap.h"
 #include "../mapping/CMapEditManager.h"
+#include "Functions.h"
 
 ObjectManager::ObjectManager(Zone & zone, RmgMap & map, CRandomGenerator & generator) : zone(zone), map(map), generator(generator)
 {

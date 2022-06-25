@@ -9,13 +9,14 @@
  */
 
 #include "CRmgObject.h"
-#include "CMapGenerator.h"
+#include "RmgMap.h"
 #include "../mapObjects/CObjectHandler.h"
 #include "../mapping/CMapEditManager.h"
 #include "../mapping/CMap.h"
 #include "../VCMI_Lib.h"
 #include "../mapObjects/CommonConstructors.h"
 #include "../mapObjects/MapObjects.h" //needed to resolve templates for CommonConstructors.h
+#include "Functions.h"
 
 using namespace Rmg;
 
@@ -53,13 +54,13 @@ void Object::Instance::setPosition(const int3 & position)
 	dParent.dFullAreaCache.clear();
 }
 
-void Object::Instance::setTemplate(ETerrainType terrain)
+void Object::Instance::setTemplate(const Terrain & terrain)
 {
 	if(dObject.appearance.id == Obj::NO_OBJ)
 	{
 		auto templates = VLC->objtypeh->getHandlerFor(dObject.ID, dObject.subID)->getTemplates(terrain);
 		if(templates.empty())
-			throw rmgException(boost::to_string(boost::format("Did not find graphics for object (%d,%d) at %s") % dObject.ID % dObject.subID % terrain.toString()));
+			throw rmgException(boost::to_string(boost::format("Did not find graphics for object (%d,%d) at %s") % dObject.ID % dObject.subID % static_cast<std::string>(terrain)));
 		
 		dObject.appearance = templates.front();
 	}
@@ -171,7 +172,7 @@ void Object::setPosition(const int3 & position)
 	dPosition = position;
 }
 
-void Object::setTemplate(ETerrainType terrain)
+void Object::setTemplate(const Terrain & terrain)
 {
 	for(auto& i : dInstances)
 		i.setTemplate(terrain);
@@ -190,24 +191,24 @@ const Area & Object::getArea() const
 	return dFullAreaCache;
 }
 
-void Object::Instance::finalize(CMapGenerator & generator)
+void Object::Instance::finalize(RmgMap & map)
 {
-	if(!generator.map->isInTheMap(dPosition))
+	if(!map.isOnMap(dPosition))
 		throw rmgException(boost::to_string(boost::format("Position of object %d at %s is outside the map") % dObject.id % dPosition.toString()));
 	dObject.pos = dPosition;
 	
-	if (dObject.isVisitable() && !generator.map->isInTheMap(dObject.visitablePos()))
+	if (dObject.isVisitable() && !map.isOnMap(dObject.visitablePos()))
 		throw rmgException(boost::to_string(boost::format("Visitable tile %s of object %d at %s is outside the map") % dObject.visitablePos().toString() % dObject.id % dObject.pos.toString()));
 	
 	for (auto & tile : dObject.getBlockedPos())
 	{
-		if (!generator.map->isInTheMap(tile))
+		if(!map.isOnMap(tile))
 			throw rmgException(boost::to_string(boost::format("Tile %s of object %d at %s is outside the map") % tile.toString() % dObject.id % dObject.pos.toString()));
 	}
 	
 	if (dObject.appearance.id == Obj::NO_OBJ)
 	{
-		auto terrainType = generator.map->getTile(dPosition).terType;
+		auto terrainType = map.map().getTile(dPosition).terType;
 		auto templates = VLC->objtypeh->getHandlerFor(dObject.ID, dObject.subID)->getTemplates(terrainType);
 		if (templates.empty())
 			throw rmgException(boost::to_string(boost::format("Did not find graphics for object (%d,%d) at %s (terrain %d)") % dObject.ID % dObject.subID % dPosition.toString() % terrainType));
@@ -216,25 +217,25 @@ void Object::Instance::finalize(CMapGenerator & generator)
 	}
 	
 	for(auto & tile : dBlockedArea.getTiles())
-		generator.setOccupied(tile, ETileType::ETileType::USED);
-	generator.setOccupied(getVisitablePosition(), ETileType::ETileType::USED);
+		map.setOccupied(tile, ETileType::ETileType::USED);
+	map.setOccupied(getVisitablePosition(), ETileType::ETileType::USED);
 	
-	generator.getEditManager()->insertObject(&dObject);
+	map.getEditManager()->insertObject(&dObject);
 }
 
-void Object::finalize(CMapGenerator & generator)
+void Object::finalize(RmgMap & map)
 {
 	if(dInstances.empty())
 		throw rmgException("Cannot finalize object without instances");
 		
 	Area a = dInstances.front().getBlockedArea();
-	dInstances.front().finalize(generator);
+	dInstances.front().finalize(map);
 	
 	for(auto iter = std::next(dInstances.begin()); iter != dInstances.end(); ++iter)
 	{
 		if(a.overlap(iter->getBlockedArea()))
 			throw rmgException("Cannot finalize object: overlapped instance");
 		a.unite(iter->getBlockedArea());
-		iter->finalize(generator);
+		iter->finalize(map);
 	}
 }
