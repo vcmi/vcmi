@@ -47,6 +47,17 @@ int3 Object::Instance::getVisitablePosition() const
 	return dObject.getVisitableOffset() + dPosition;
 }
 
+Rmg::Area Object::Instance::getAccessibleArea() const
+{
+	Rmg::Area accessibleArea;
+	for(auto & from : dBlockedArea.getBorderOutside())
+	{
+		if(isVisitableFrom(from))
+			accessibleArea.add(from);
+	}
+	return accessibleArea;
+}
+
 void Object::Instance::setPosition(const int3 & position)
 {
 	dBlockedArea.translate(position - dPosition);
@@ -163,6 +174,15 @@ const int3 & Object::getPosition() const
 int3 Object::getVisitablePosition() const
 {
 	return dInstances.front().getVisitablePosition();
+}
+
+Rmg::Area Object::getAccessibleArea() const
+{
+	Rmg::Area accessibleArea;
+	for(auto & i : dInstances)
+		accessibleArea.unite(i.getAccessibleArea());
+	accessibleArea.subtract(dFullAreaCache);
+	return accessibleArea;
 }
 
 void Object::setPosition(const int3 & position)

@@ -34,6 +34,7 @@ public:
 		int3 getVisitablePosition() const;
 		bool isVisitableFrom(const int3 & tile) const;
 		bool isVisitableFrom(const int3 & tile, const int3 & potentialPosition) const;
+		Area getAccessibleArea() const;
 		void setTemplate(const Terrain & terrain);
 		
 		const int3 & getPosition() const;
@@ -63,6 +64,7 @@ public:
 	std::list<const Instance*> instances() const;
 	
 	int3 getVisitablePosition() const;
+	Area getAccessibleArea() const;
 	
 	const int3 & getPosition() const;
 	void setPosition(const int3 & position);
