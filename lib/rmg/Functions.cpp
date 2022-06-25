@@ -346,7 +346,9 @@ void createObstacles2(const Zone & zone, RmgMap & map, CRandomGenerator & genera
 		if(canObstacleBePlacedHere(map, temp, obstaclePos)) //can be placed here
 		{
 			auto obj = VLC->objtypeh->getHandlerFor(temp.id, temp.subid)->create(temp);
-			manager.placeObject(obj, obstaclePos, false);
+			Rmg::Object rmgObject(*obj);
+			rmgObject.setPosition(obstaclePos);
+			manager.placeObject(rmgObject, false);
 			return true;
 		}
 		return false;
@@ -473,11 +475,11 @@ bool processZone(Zone & zone, CMapGenerator & gen, RmgMap & map)
 	//zone center should be always clear to allow other tiles to connect
 	zone.initFreeTiles();
 	zone.connectLater(); //ideally this should work after fractalize, but fails
-	zone.fractalize();
+	//zone.fractalize();
 	placeMines(zone, gen, *obMgr);
 	
 	obMgr->process();
-	trPlacer->process();
+	//trPlacer->process();
 	
 	logGlobal->info("Zone %d filled successfully", zone.getId());
 	return true;
@@ -534,7 +536,7 @@ void createObstaclesCommon2(RmgMap & map, CRandomGenerator & generator)
 	
 	//tighten obstacles to improve visuals
 	
-	for (int i = 0; i < 3; ++i)
+	/*for (int i = 0; i < 3; ++i)
 	{
 		int blockedTiles = 0;
 		int freeTiles = 0;
@@ -572,5 +574,5 @@ void createObstaclesCommon2(RmgMap & map, CRandomGenerator & generator)
 			}
 		}
 		logGlobal->trace("Set %d tiles to BLOCKED and %d tiles to FREE", blockedTiles, freeTiles);
-	}
+	}*/
 }

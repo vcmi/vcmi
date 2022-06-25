@@ -12,6 +12,7 @@
 #include "../int3.h"
 #include "CRmgTemplate.h"
 #include "CRmgArea.h"
+#include "CRmgObject.h"
 
 class RmgMap;
 
@@ -81,6 +82,7 @@ protected:
 	Rmg::Area dAreaPossible;
 	Rmg::Area dAreaFree; //core paths of free tiles that all other objects will be linked to
 	Rmg::Area dTilesToConnectLater; //will be connected after paths are fractalized
+	std::vector<Rmg::Object> dObjects;
 	
 	//template info
 	si32 townType;

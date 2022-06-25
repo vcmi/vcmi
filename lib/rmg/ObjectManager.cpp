@@ -16,6 +16,7 @@
 #include "../mapping/CMap.h"
 #include "../mapping/CMapEditManager.h"
 #include "Functions.h"
+#include "CRmgObject.h"
 
 ObjectManager::ObjectManager(Zone & zone, RmgMap & map, CRandomGenerator & generator) : zone(zone), map(map), generator(generator)
 {
@@ -142,28 +143,30 @@ bool ObjectManager::areAllTilesAvailable(CGObjectInstance* obj, int3& tile, cons
 	return true;
 }
 
-bool ObjectManager::findPlaceForObject(CGObjectInstance* obj, si32 min_dist, int3 &pos)
+bool ObjectManager::findPlaceForObject(const Rmg::Area & searchArea, Rmg::Object & obj, si32 min_dist, int3 &pos)
 {
 	//we need object apperance to deduce free tile
-	setTemplateForObject(obj);
+	obj.setTemplate(zone.getTerrainType());
 	
 	int best_distance = 0;
 	bool result = false;
 	
-	auto tilesBlockedByObject = obj->getBlockedOffsets();
-	
-	for (auto tile : zone.area().getTiles())
+	auto appropriateArea = searchArea.getSubarea([&obj, &searchArea](const int3 & tile)
 	{
-		//object must be accessible from at least one surounding tile
-		if (!isAccessibleFromSomewhere(obj->appearance, tile))
-			continue;
+		obj.setPosition(tile);
+		return searchArea.contains(obj.getArea()) && obj.getAccessibleArea().overlap(searchArea);
+	});
 		
+	for (auto tile : appropriateArea.getTiles())
+	{
+		obj.setPosition(tile);
+
 		auto ti = map.getTile(tile);
 		auto dist = ti.getNearestObjectDistance();
 		//avoid borders
-		if (map.isPossible(tile) && (dist >= min_dist) && (dist > best_distance))
+		if(dist >= min_dist && dist > best_distance)
 		{
-			if (areAllTilesAvailable(obj, tile, tilesBlockedByObject))
+			if(searchArea.contains(obj.getArea()))
 			{
 				best_distance = static_cast<int>(dist);
 				pos = tile;
@@ -171,10 +174,8 @@ bool ObjectManager::findPlaceForObject(CGObjectInstance* obj, si32 min_dist, int
 			}
 		}
 	}
-	if (result)
-	{
-		map.setOccupied(pos, ETileType::BLOCKED); //block that tile
-	}
+	
+	obj.setPosition(pos);
 	return result;
 }
 
@@ -209,30 +210,40 @@ bool ObjectManager::createRequiredObjects()
 	
 	for(const auto &object : requiredObjects)
 	{
-		auto obj = object.first;
-		if(!obj->appearance.canBePlacedAt(zone.getTerrainType()))
-			continue;
-		
+		auto * obj = object.first;
 		int3 pos;
+		auto possibleArea = zone.areaPossible();
 		while(true)
 		{
-			if(!findPlaceForObject(obj, 3, pos))
+			Rmg::Object rmgObject(*obj);
+			if(!findPlaceForObject(possibleArea, rmgObject, 3, pos))
 			{
 				logGlobal->error("Failed to fill zone %d due to lack of space", zone.getId());
 				return false;
 			}
+			possibleArea.erase(pos); //do not place again at this point
+			auto possibleAreaTemp = zone.areaPossible();
+			zone.areaPossible().subtract(rmgObject.getArea());
+			if(zone.connectPath(rmgObject.getVisitablePosition(), false))
+			{
+				rmgObject.finalize(map);
+				//if(updateDistance)
+				updateDistances(pos);
+				break;
+			}
+			zone.areaPossible() = possibleAreaTemp;
 			
-			if(tryToPlaceObjectAndConnectToPath(obj, pos) == EObjectPlacingResult::SUCCESS)
+			//if(tryToPlaceObjectAndConnectToPath(obj, pos) == EObjectPlacingResult::SUCCESS)
 			{
 				//paths to required objects constitute main paths of zone. otherwise they just may lead to middle and create dead zones
-				placeObject(obj, pos);
-				guardObject(obj, object.second, (obj->ID == Obj::MONOLITH_TWO_WAY), true);
-				break;
+				//placeObject(obj, pos);
+				//guardObject(obj, object.second, (obj->ID == Obj::MONOLITH_TWO_WAY), true);
+				//break;
 			}
 		}
 	}
 	
-	for(const auto &obj : closeObjects)
+	/*for(const auto &obj : closeObjects)
 	{
 		setTemplateForObject(obj.first);
 		if (!obj.first->appearance.canBePlacedAt(zone.getTerrainType()))
@@ -317,7 +328,7 @@ bool ObjectManager::createRequiredObjects()
 		{
 			map.foreachDirectNeighbour(blockedTile, [this, &possiblePositions](int3 pos)
 			{
-				if (!map.isBlocked(pos)/* && zone.getTileInfo().count(pos)*/)
+				if (!map.isBlocked(pos) && zone.getTileInfo().count(pos))
 				{
 					//some resources still could be unaccessible, at least one free cell shall be
 					map.foreach_neighbour(pos, [this, &possiblePositions, &pos](int3 p)
@@ -338,7 +349,7 @@ bool ObjectManager::createRequiredObjects()
 			auto pos = *RandomGeneratorUtil::nextItem(possiblePositions, generator);
 			placeObject(obj, pos);
 		}
-	}
+	}*/
 	
 	//create object on specific positions
 	//TODO: implement guards
@@ -387,21 +398,40 @@ void ObjectManager::checkAndPlaceObject(CGObjectInstance* object, const int3 &po
 	map.getEditManager()->insertObject(object);
 }
 
+void ObjectManager::placeObject(Rmg::Object & object, bool updateDistance)
+{
+	zone.areaPossible().subtract(object.getArea());
+	object.finalize(map);
+	
+	if(updateDistance)
+		updateDistances(object.getPosition());
+	
+	switch(object.instances().front()->object().ID)
+	{
+		case Obj::TOWN:
+		case Obj::RANDOM_TOWN:
+		case Obj::MONOLITH_TWO_WAY:
+		case Obj::MONOLITH_ONE_WAY_ENTRANCE:
+		case Obj::MONOLITH_ONE_WAY_EXIT:
+		case Obj::SUBTERRANEAN_GATE:
+		case Obj::SHIPYARD:
+		{
+			zone.getModificator<RoadPlacer>()->addRoadNode(object.getVisitablePosition());
+		}
+			break;
+			
+		default:
+			break;
+	}
+}
+
 void ObjectManager::placeObject(CGObjectInstance* object, const int3 &pos, bool updateDistance)
 {
-	checkAndPlaceObject(object, pos);
+	Rmg::Object rmgObject(*object);
+	rmgObject.setPosition(pos);
+	zone.areaPossible().subtract(rmgObject.getArea());
+	rmgObject.finalize(map);
 	
-	auto points = object->getBlockedPos();
-	if(object->isVisitable())
-		points.insert(pos + object->getVisitableOffset());
-	points.insert(pos);
-	for(auto p : points)
-	{
-		if(map.isOnMap(p))
-		{
-			map.setOccupied(p, ETileType::USED);
-		}
-	}
 	if(updateDistance)
 		updateDistances(pos);
 	

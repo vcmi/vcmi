@@ -8,6 +8,7 @@
 #pragma once
 
 #include "Zone.h"
+#include "CRmgObject.h"
 
 class CGObjectInstance;
 class ObjectTemplate;
@@ -39,9 +40,10 @@ public:
 	std::vector<int3> getAccessibleOffsets(const CGObjectInstance* object) const;
 	
 	bool areAllTilesAvailable(CGObjectInstance* obj, int3 & tile, const std::set<int3>& tilesBlockedByObject) const;
-	bool findPlaceForObject(CGObjectInstance* obj, si32 min_dist, int3 & pos);
+	bool findPlaceForObject(const Rmg::Area & searhArea, Rmg::Object & obj, si32 min_dist, int3 & pos);
 	EObjectPlacingResult tryToPlaceObjectAndConnectToPath(CGObjectInstance * obj, const int3 & pos); //return true if the position can be connected
 	
+	void placeObject(Rmg::Object & object, bool updateDistance = true);
 	void placeObject(CGObjectInstance* object, const int3 & pos, bool updateDistance = true);
 	bool guardObject(CGObjectInstance* object, si32 str, bool zoneGuard = false, bool addToFreePaths = false);
 	bool addMonster(int3 &pos, si32 strength, bool clearSurroundingTiles = true, bool zoneGuard = false);

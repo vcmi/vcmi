@@ -335,7 +335,7 @@ void CMapGenerator::fillZones()
 #endif
 
 	createDirectConnections(); //direct
-	createConnections2(); //subterranean gates and monoliths
+	//createConnections2(); //subterranean gates and monoliths
 	
 	//for(auto it : zones)
 	//	zoneWater.second->waterConnection(*it.second);

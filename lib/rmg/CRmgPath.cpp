@@ -55,7 +55,7 @@ Path Path::search(const Tileset & dst, bool straight, std::function<float(const 
 		return result;
 	
 	result.dPath.assign(dst);
-	int3 src = result.dPath.nearest(dArea);
+	int3 src = result.dPath.nearest(dPath);
 	
 	Tileset closed;    // The set of nodes already evaluated.
 	auto open = createPriorityQueue(); // The set of tentative nodes to be evaluated, initially containing the start node
@@ -155,9 +155,14 @@ void Path::connect(const Tileset & path)
 	dPath.unite(a);
 }
 
+void Path::connect(const Area & path)
+{
+	dPath.unite(path);
+}
+
 void Path::connect(const Path & path)
 {
-	dPath = path.dPath + dPath;
+	dPath.unite(path.dPath);
 }
 
 const Area & Path::getPathArea() const

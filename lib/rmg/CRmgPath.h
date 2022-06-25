@@ -32,6 +32,7 @@ public:
 	
 	void connect(const Path & path);
 	void connect(const int3 & path); //TODO: force connection?
+	void connect(const Area & path); //TODO: force connection?
 	void connect(const Tileset & path); //TODO: force connection?
 	
 	const Area & getPathArea() const;

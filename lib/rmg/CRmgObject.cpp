@@ -23,8 +23,12 @@ using namespace Rmg;
 Object::Instance::Instance(const Object& parent, CGObjectInstance & object): dParent(parent), dObject(object)
 {
 	dBlockedArea = dObject.getBlockedPos();
+	if(!dObject.pos.valid())
+		dBlockedArea.translate(int3(1, 1, 1));
 	if(!dBlockedArea.empty() && dBlockedArea.getTiles().begin()->z == -1)
 		dBlockedArea.translate(int3(0, 0, 1));
+	if(dObject.isVisitable())
+		dBlockedArea.add(dObject.getVisitableOffset());
 }
 
 Object::Instance::Instance(const Object& parent, CGObjectInstance & object, const int3 & position): Instance(parent, object)
@@ -78,7 +82,10 @@ void Object::Instance::setTemplate(const Terrain & terrain)
 	dBlockedArea = dObject.getBlockedPos();
 	if(!dBlockedArea.empty() && dBlockedArea.getTiles().begin()->z == -1)
 		dBlockedArea.translate(int3(0, 0, 1));
+	if(dObject.isVisitable())
+		dBlockedArea.add(dObject.getVisitableOffset());
 	dBlockedArea.translate(dPosition);
+	dParent.dFullAreaCache.clear();
 }
 
 bool Object::Instance::isVisitableFrom(const int3 & position) const
@@ -181,14 +188,14 @@ Rmg::Area Object::getAccessibleArea() const
 	Rmg::Area accessibleArea;
 	for(auto & i : dInstances)
 		accessibleArea.unite(i.getAccessibleArea());
-	accessibleArea.subtract(dFullAreaCache);
+	accessibleArea.subtract(getArea());
 	return accessibleArea;
 }
 
 void Object::setPosition(const int3 & position)
 {
 	for(auto& i : dInstances)
-		i.setPosition(position - dPosition);
+		i.setPosition(position);
 	dPosition = position;
 }
 
@@ -238,7 +245,6 @@ void Object::Instance::finalize(RmgMap & map)
 	
 	for(auto & tile : dBlockedArea.getTiles())
 		map.setOccupied(tile, ETileType::ETileType::USED);
-	map.setOccupied(getVisitablePosition(), ETileType::ETileType::USED);
 	
 	map.getEditManager()->insertObject(&dObject);
 }
