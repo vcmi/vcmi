@@ -757,7 +757,6 @@ bool TreasurePlacer::createTreasurePile(ObjectManager & manager, int3 &pos, floa
 		if(map.isPossible(pos))
 			map.setOccupied(pos, ETileType::BLOCKED); //TODO: refactor stop condition
 		zone.areaPossible().erase(pos);
-		zone.areaBlocked().add(pos);
 		return false;
 	}
 }

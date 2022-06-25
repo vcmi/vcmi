@@ -79,16 +79,10 @@ Rmg::Area & Zone::areaPossible()
 	return dAreaPossible;
 }
 
-Rmg::Area & Zone::areaBlocked()
-{
-	return dAreaPossible;
-}
-
 void Zone::clearTiles()
 {
 	dArea.clear();
 	dAreaPossible.clear();
-	dAreaBlocked.clear();
 	dAreaFree.clear();
 }
 
@@ -104,7 +98,6 @@ void Zone::initFreeTiles()
 	if(dAreaFree.empty())
 	{
 		dAreaPossible.erase(pos);
-		dAreaBlocked.erase(pos);
 		dAreaFree.add(pos); //zone must have at least one free tile where other paths go - for instance in the center
 	}
 }
@@ -253,7 +246,6 @@ bool Zone::connectPath(const int3 & src, bool onlyStraight)
 		return false;
 	
 	dAreaPossible.subtract(path.getPathArea());
-	dAreaBlocked.subtract(path.getPathArea());
 	dAreaFree.unite(path.getPathArea());
 	for(auto & t : path.getPathArea().getTiles())
 		map.setOccupied(t, ETileType::FREE);
@@ -273,14 +265,13 @@ bool Zone::connectWithCenter(const int3 & src, bool onlyStraight, bool passThrou
 	};
 	auto area = dAreaPossible + dAreaFree;
 	if(passThroughBlocked)
-		area.unite(dAreaBlocked);
+		area = dArea;
 	Rmg::Path freePath(area, getPos());
 	auto path = freePath.search(src, onlyStraight, movementCost);
 	if(path.getPathArea().empty())
 		return false;
 	
 	dAreaPossible.subtract(path.getPathArea());
-	dAreaBlocked.subtract(path.getPathArea());
 	dAreaFree.unite(path.getPathArea());
 	for(auto & t : path.getPathArea().getTiles())
 		map.setOccupied(t, ETileType::FREE);
@@ -309,7 +300,6 @@ void Zone::connectLater()
 		logGlobal->error("Failed to connect node with center of the zone");
 	
 	dAreaPossible.subtract(path.getPathArea());
-	dAreaBlocked.subtract(path.getPathArea());
 	dAreaFree.unite(path.getPathArea());
 	for(auto & t : path.getPathArea().getTiles())
 		map.setOccupied(t, ETileType::FREE);
@@ -370,7 +360,6 @@ void Zone::fractalize()
 		path.search(area, false);
 		if(path.getPathArea().empty())
 		{
-			dAreaBlocked.unite(area);
 			dAreaPossible.subtract(area);
 			dAreaFree.subtract(area);
 			for(auto & t : area.getTiles())
@@ -379,7 +368,6 @@ void Zone::fractalize()
 		else
 		{
 			dAreaPossible.subtract(path.getPathArea());
-			dAreaBlocked.subtract(path.getPathArea());
 			dAreaFree.unite(path.getPathArea());
 			for(auto & t : path.getPathArea().getTiles())
 				map.setOccupied(t, ETileType::FREE);
@@ -395,7 +383,6 @@ void Zone::fractalize()
 	});
 	dAreaPossible.subtract(areaToBlock);
 	dAreaFree.subtract(areaToBlock);
-	dAreaBlocked.subtract(areaToBlock);
 	for(auto & t : areaToBlock.getTiles())
 		map.setOccupied(t, ETileType::BLOCKED);
 	

@@ -37,7 +37,6 @@ public:
 	const Rmg::Area & getArea() const;
 	Rmg::Area & area();
 	Rmg::Area & areaPossible();
-	Rmg::Area & areaBlocked();
 	Rmg::Area & freePaths();
 	
 	void initFreeTiles();
@@ -80,7 +79,6 @@ protected:
 	float3 center;
 	Rmg::Area dArea; //irregular area assined to zone
 	Rmg::Area dAreaPossible;
-	Rmg::Area dAreaBlocked;
 	Rmg::Area dAreaFree; //core paths of free tiles that all other objects will be linked to
 	Rmg::Area dTilesToConnectLater; //will be connected after paths are fractalized
 	
