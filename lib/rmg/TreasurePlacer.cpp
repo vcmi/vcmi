@@ -506,7 +506,7 @@ bool TreasurePlacer::findPlaceForTreasurePile(float min_dist, int3 &pos, int val
 	bool needsGuard = isGuardNeededForTreasure(value);
 	
 	//logGlobal->info("Min dist for density %f is %d", density, min_dist);
-	for(auto tile : zone.getPossibleTiles())
+	for(auto tile : zone.areaPossible().getTiles())
 	{
 		auto dist = map.getNearestObjectDistance(tile);
 		
@@ -658,7 +658,7 @@ bool TreasurePlacer::createTreasurePile(ObjectManager & manager, int3 &pos, floa
 		
 		for(auto visitablePos : info.visitableFromBottomPositions) //objects that are not visitable from top must be accessible from bottom or side
 		{
-			int3 closestFreeTile = findClosestTile(zone.getFreePaths(), visitablePos);
+			int3 closestFreeTile = zone.freePaths().nearest(visitablePos);
 			if(closestFreeTile.dist2d(visitablePos) < minTreasureDistance)
 			{
 				closestTile = visitablePos + int3 (0, 1, 0); //start below object (y+1), possibly even outside the map, to not make path up through it
@@ -667,7 +667,7 @@ bool TreasurePlacer::createTreasurePile(ObjectManager & manager, int3 &pos, floa
 		}
 		for(auto visitablePos : info.visitableFromTopPositions) //all objects are accessible from any direction
 		{
-			int3 closestFreeTile = findClosestTile(zone.getFreePaths(), visitablePos);
+			int3 closestFreeTile = zone.freePaths().nearest(visitablePos);
 			if(closestFreeTile.dist2d(visitablePos) < minTreasureDistance)
 			{
 				closestTile = visitablePos;
@@ -756,7 +756,8 @@ bool TreasurePlacer::createTreasurePile(ObjectManager & manager, int3 &pos, floa
 	{
 		if(map.isPossible(pos))
 			map.setOccupied(pos, ETileType::BLOCKED); //TODO: refactor stop condition
-		zone.removePossibleTile(pos);
+		zone.areaPossible().erase(pos);
+		zone.areaBlocked().add(pos);
 		return false;
 	}
 }
@@ -959,7 +960,7 @@ void TreasurePlacer::createTreasures(ObjectManager & manager)
 		do {
 			//optimization - don't check tiles which are not allowed
 			std::vector<int3> possibleTilesToRemove;
-			for(auto tile : zone.getPossibleTiles())
+			for(auto tile : zone.areaPossible().getTiles())
 			{
 				//for water area we sholdn't place treasures close to coast
 				/*for(auto & lake : lakes)
@@ -970,7 +971,9 @@ void TreasurePlacer::createTreasures(ObjectManager & manager)
 					possibleTilesToRemove.push_back(tile);
 			}
 			for(auto tile : possibleTilesToRemove)
-				zone.removePossibleTile(tile);
+			{
+				zone.areaPossible().erase(tile);
+			}
 			
 			int3 treasureTilePos;
 			//If we are able to place at least one object with value lower than minGuardedValue, it's ok

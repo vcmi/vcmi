@@ -60,13 +60,13 @@ bool Area::connected() const
 	while(!queue.empty())
 	{
 		auto t = queue.front();
+		connected.erase(t);
 		queue.pop_front();
 		
 		for(auto & i : int3::getDirs())
 		{
 			if(connected.count(t + i))
 			{
-				connected.erase(t + i);
 				queue.push_back(t + i);
 			}
 		}
@@ -86,15 +86,15 @@ std::list<Area> Rmg::connectedAreas(const Area & area)
 		while(!queue.empty())
 		{
 			auto t = queue.front();
+			connected.erase(t);
+			result.back().add(t);
 			queue.pop_front();
 			
 			for(auto & i : int3::getDirs())
 			{
 				if(connected.count(t + i))
 				{
-					connected.erase(t + i);
 					queue.push_back(t + i);
-					result.back().add(t + i);
 				}
 			}
 		}
@@ -105,6 +105,11 @@ std::list<Area> Rmg::connectedAreas(const Area & area)
 const Tileset & Area::getTiles() const
 {
 	return dTiles;
+}
+
+std::vector<int3> Area::getTilesVector() const
+{
+	return std::vector<int3>{dTiles.begin(), dTiles.end()};
 }
 
 const Tileset & Area::getBorder() const
@@ -201,7 +206,7 @@ int Area::distanceSqr(const Area & area) const
 
 int3 Area::nearest(const int3 & tile) const
 {
-	return *std::min_element(dTiles.cbegin(), dTiles.cend(), std::bind(&int3::dist2dSQ, &tile, std::placeholders::_1));
+	return findClosestTile(dTiles, tile);
 }
 
 int3 Area::nearest(const Area & area) const

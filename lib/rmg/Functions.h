@@ -41,17 +41,6 @@ si32 DLL_LINKAGE getRandomTownType(const Zone & zone, CRandomGenerator & generat
 
 void DLL_LINKAGE paintZoneTerrain(const Zone & zone, CRandomGenerator & generator, RmgMap & map, const Terrain & terrainType);
 
-//A* priority queue
-typedef std::pair<int3, float> TDistance;
-struct NodeComparer
-{
-	bool operator()(const TDistance & lhs, const TDistance & rhs) const
-	{
-		return (rhs.second < lhs.second);
-	}
-};
-boost::heap::priority_queue<TDistance, boost::heap::compare<NodeComparer>> createPriorityQueue();
-
 bool DLL_LINKAGE placeMines(const Zone & zone, CMapGenerator & gen, ObjectManager & manager);
 
 void DLL_LINKAGE initTownType(Zone & zone, CRandomGenerator & generator, RmgMap & map, ObjectManager & manager);

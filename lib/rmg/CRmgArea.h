@@ -30,6 +30,7 @@ namespace Rmg
 		Area & operator= (const Area &);
 		
 		const Tileset & getTiles() const;
+		std::vector<int3> getTilesVector() const;
 		const Tileset & getBorder() const; //lazy cache invalidation
 		const Tileset & getBorderOutside() const; //lazy cache invalidation
 		

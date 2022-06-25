@@ -38,7 +38,7 @@ public:
 	
 private:
 	
-	const Area & dArea;
+	const Area dArea;
 	Area dPath;
 };
 }

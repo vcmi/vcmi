@@ -432,7 +432,7 @@ void CMapGenerator::fillZones()
 	}
 	auto grailZone = *RandomGeneratorUtil::nextItem(treasureZones, rand);
 
-	map->map().grailPos = *RandomGeneratorUtil::nextItem(grailZone->getFreePaths(), rand);
+	map->map().grailPos = *RandomGeneratorUtil::nextItem(grailZone->freePaths().getTiles(), rand);
 
 	logGlobal->info("Zones filled successfully");
 }
@@ -467,7 +467,7 @@ void CMapGenerator::createDirectConnections()
 		auto zoneB = map->getZones()[connection.getZoneB()];
 
 		//rearrange tiles in random order
-		const auto & tiles = zoneA->getTileInfo();
+		const auto & tiles = zoneA->area().getTiles();
 
 		int3 guardPos(-1,-1,-1);
 
@@ -565,12 +565,10 @@ void CMapGenerator::createConnections2()
 			while (!guardPos.valid())
 			{
 				bool continueOuterLoop = false;
+				
 				//find common tiles for both zones
-				auto tileSetA = zoneA->getPossibleTiles(),
-					tileSetB = zoneB->getPossibleTiles();
-
-				std::vector<int3> tilesA(tileSetA.begin(), tileSetA.end()),
-					tilesB(tileSetB.begin(), tileSetB.end());
+				std::vector<int3> tilesA = zoneA->areaPossible().getTilesVector(),
+					tilesB = zoneB->areaPossible().getTilesVector();
 
 				std::vector<int3> commonTiles;
 

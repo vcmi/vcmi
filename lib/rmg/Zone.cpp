@@ -64,12 +64,22 @@ void Zone::setPos(const int3 &Pos)
 	pos = Pos;
 }
 
+const Rmg::Area & Zone::getArea() const
+{
+	return dArea;
+}
+
 Rmg::Area & Zone::area()
 {
 	return dArea;
 }
 
 Rmg::Area & Zone::areaPossible()
+{
+	return dAreaPossible;
+}
+
+Rmg::Area & Zone::areaBlocked()
 {
 	return dAreaPossible;
 }

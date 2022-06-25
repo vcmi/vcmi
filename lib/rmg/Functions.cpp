@@ -22,20 +22,16 @@
 
 std::set<int3> collectDistantTiles(const Zone& zone, float distance)
 {
-	std::set<int3> discardedTiles;
-	for(auto & tile : zone.getTileInfo())
+	auto subarea = zone.getArea().getSubarea([&zone, distance](const int3 & t)
 	{
-		if(tile.dist2d(zone.getPos()) > distance)
-		{
-			discardedTiles.insert(tile);
-		}
-	};
-	return discardedTiles;
+		return t.dist2d(zone.getPos()) > distance;
+	});
+	return subarea.getTiles();
 }
 
 void createBorder(RmgMap & gen, const Zone & zone)
 {
-	for(auto & tile : zone.getTileInfo())
+	for(auto & tile : zone.getArea().getTiles())
 	{
 		bool edge = false;
 		gen.foreach_neighbour(tile, [&zone, &edge, &gen](int3 &pos)
@@ -83,14 +79,9 @@ si32 getRandomTownType(const Zone & zone, CRandomGenerator & generator, bool mat
 
 void paintZoneTerrain(const Zone & zone, CRandomGenerator & generator, RmgMap & map, const Terrain & terrainType)
 {
-	std::vector<int3> tiles(zone.getTileInfo().begin(), zone.getTileInfo().end());
-	map.getEditManager()->getTerrainSelection().setSelection(tiles);
+	auto v = zone.getArea().getTilesVector();
+	map.getEditManager()->getTerrainSelection().setSelection(v);
 	map.getEditManager()->drawTerrain(terrainType, &generator);
-}
-
-boost::heap::priority_queue<TDistance, boost::heap::compare<NodeComparer>> createPriorityQueue()
-{
-	return boost::heap::priority_queue<TDistance, boost::heap::compare<NodeComparer>>();
 }
 
 bool placeMines(const Zone & zone, CMapGenerator & gen, ObjectManager & manager)
@@ -299,7 +290,7 @@ void createObstacles1(const Zone & zone, RmgMap & map, CRandomGenerator & genera
 	{
 		//now make sure all accessible tiles have no additional rock on them
 		std::vector<int3> accessibleTiles;
-		for(auto tile : zone.getTileInfo())
+		for(auto tile : zone.getArea().getTiles())
 		{
 			if(map.isFree(tile) || map.isUsed(tile))
 			{
@@ -362,7 +353,7 @@ void createObstacles2(const Zone & zone, RmgMap & map, CRandomGenerator & genera
 	};
 	
 	//reverse order, since obstacles begin in bottom-right corner, while the map coordinates begin in top-left
-	for(auto tile : boost::adaptors::reverse(zone.getTileInfo()))
+	for(auto tile : boost::adaptors::reverse(zone.getArea().getTiles()))
 	{
 		//fill tiles that should be blocked with obstacles
 		if(map.shouldBeBlocked(tile))
@@ -376,7 +367,7 @@ void createObstacles2(const Zone & zone, RmgMap & map, CRandomGenerator & genera
 		}
 	}
 	//cleanup - remove unused possible tiles to make space for roads
-	for(auto tile : zone.getTileInfo())
+	for(auto tile : zone.getArea().getTiles())
 	{
 		if(map.isPossible(tile))
 		{

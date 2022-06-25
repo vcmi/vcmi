@@ -62,7 +62,7 @@ void ObjectManager::setTemplateForObject(CGObjectInstance* obj)
 
 void ObjectManager::updateDistances(const int3 & pos)
 {
-	for (auto tile : zone.getPossibleTiles()) //don't need to mark distance for not possible tiles
+	for (auto tile : zone.areaPossible().getTiles()) //don't need to mark distance for not possible tiles
 	{
 		ui32 d = pos.dist2dSQ(tile); //optimization, only relative distance is interesting
 		map.setNearestObjectDistance(tile, std::min((float)d, map.getNearestObjectDistance(tile)));
@@ -92,7 +92,7 @@ int3 ObjectManager::getAccessibleOffset(ObjectTemplate & appearance, const int3 
 					int3 nearbyPos = tile + offset;
 					if(map.isOnMap(nearbyPos))
 					{
-						if(appearance.isVisitableFrom(x, y) && !map.isBlocked(nearbyPos) && zone.getTileInfo().count(nearbyPos))
+						if(appearance.isVisitableFrom(x, y) && !map.isBlocked(nearbyPos)/* && zone.getTileInfo().count(nearbyPos)*/)
 							ret = nearbyPos;
 					}
 				}
@@ -152,7 +152,7 @@ bool ObjectManager::findPlaceForObject(CGObjectInstance* obj, si32 min_dist, int
 	
 	auto tilesBlockedByObject = obj->getBlockedOffsets();
 	
-	for (auto tile : zone.getTileInfo())
+	for (auto tile : zone.area().getTiles())
 	{
 		//object must be accessible from at least one surounding tile
 		if (!isAccessibleFromSomewhere(obj->appearance, tile))
@@ -246,7 +246,7 @@ bool ObjectManager::createRequiredObjects()
 		{
 			attempt = false;
 			
-			std::vector<int3> tiles(zone.getPossibleTiles().begin(), zone.getPossibleTiles().end());
+			std::vector<int3> tiles = zone.areaPossible().getTilesVector();
 			//new tiles vector after each object has been placed, OR misplaced area has been sealed off
 			
 			boost::remove_if(tiles, [obj, this](int3 &tile)-> bool
@@ -317,7 +317,7 @@ bool ObjectManager::createRequiredObjects()
 		{
 			map.foreachDirectNeighbour(blockedTile, [this, &possiblePositions](int3 pos)
 			{
-				if (!map.isBlocked(pos) && zone.getTileInfo().count(pos))
+				if (!map.isBlocked(pos)/* && zone.getTileInfo().count(pos)*/)
 				{
 					//some resources still could be unaccessible, at least one free cell shall be
 					map.foreach_neighbour(pos, [this, &possiblePositions, &pos](int3 p)

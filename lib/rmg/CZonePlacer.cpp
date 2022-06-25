@@ -480,7 +480,7 @@ void CZonePlacer::assignZones(CRandomGenerator * rand)
 	auto moveZoneToCenterOfMass = [](std::shared_ptr<Zone> zone) -> void
 	{
 		int3 total(0, 0, 0);
-		auto tiles = zone->getTileInfo();
+		auto tiles = zone->area().getTiles();
 		for (auto tile : tiles)
 		{
 			total += tile;
@@ -512,7 +512,7 @@ void CZonePlacer::assignZones(CRandomGenerator * rand)
 					else
 						distances.push_back(std::make_pair(zone.second, std::numeric_limits<float>::max()));
 				}
-				boost::min_element(distances, compareByDistance)->first->addTile(pos); //closest tile belongs to zone
+				boost::min_element(distances, compareByDistance)->first->area().add(pos); //closest tile belongs to zone
 			}
 		}
 	}
@@ -541,7 +541,7 @@ void CZonePlacer::assignZones(CRandomGenerator * rand)
 						distances.push_back (std::make_pair(zone.second, std::numeric_limits<float>::max()));
 				}
 				auto zone = boost::min_element(distances, compareByDistance)->first; //closest tile belongs to zone
-				zone->addTile(pos);
+				zone->area().add(pos);
 				map.setZoneID(pos, zone->getId());
 			}
 		}
@@ -559,7 +559,7 @@ void CZonePlacer::assignZones(CRandomGenerator * rand)
 			{
 				auto discardTiles = collectDistantTiles(*zone.second, zone.second->getSize() + 1.f);
 				for(auto& t : discardTiles)
-					zone.second->removeTile(t);
+					zone.second->area().erase(t);
 			}
 
 			//make sure that terrain inside zone is not a rock

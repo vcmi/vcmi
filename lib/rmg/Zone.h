@@ -34,8 +34,10 @@ public:
 	int3 getPos() const;
 	void setPos(const int3 &pos);
 	
+	const Rmg::Area & getArea() const;
 	Rmg::Area & area();
 	Rmg::Area & areaPossible();
+	Rmg::Area & areaBlocked();
 	Rmg::Area & freePaths();
 	
 	void initFreeTiles();
