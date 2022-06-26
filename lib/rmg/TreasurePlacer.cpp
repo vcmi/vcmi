@@ -548,7 +548,9 @@ std::vector<ObjectInfo> TreasurePlacer::prepareTreasurePile(const CTreasureInfo&
 	while(currentValue <= (int)desiredValue - 100) //no objects with value below 100 are available
 	{
 		auto oi = getRandomObject(desiredValue, currentValue);
-		if(oi.templ.isVisitableFromTop())
+		if(oi.value == 0) //fail
+			break;
+		/*if(!oi.templ.isVisitableFromTop())
 		{
 			if(hasLargeObject)
 				continue; //only one large object per treasure pile
@@ -556,7 +558,7 @@ std::vector<ObjectInfo> TreasurePlacer::prepareTreasurePile(const CTreasureInfo&
 			hasLargeObject = true;
 			objectInfos.insert(objectInfos.begin(), oi); //large object shall at first place
 		}
-		else
+		else*/
 		{
 			objectInfos.push_back(oi);
 		}
@@ -576,16 +578,38 @@ Rmg::Object TreasurePlacer::constuctTreasurePile(const std::vector<ObjectInfo> &
 	Rmg::Object rmgObject;
 	for(auto & oi : treasureInfos)
 	{
-		int3 nextPos;
-		if(!rmgObject.getArea().empty())
-		{
-			nextPos = *RandomGeneratorUtil::nextItem(rmgObject.getAccessibleArea().getTiles(), generator);
-		}
+		auto blockedArea = rmgObject.getArea();
+		auto accessibleArea = rmgObject.getAccessibleArea();
+		if(accessibleArea.empty())
+			accessibleArea.add(int3());
 		
 		auto * object = oi.generateObject();
 		object->appearance = oi.templ;
 		auto & instance = rmgObject.addInstance(*object);
-		instance.setPosition(nextPos);
+
+		do
+		{
+			if(accessibleArea.empty())
+			{
+				//fail - fallback
+				rmgObject.clear();
+				return rmgObject;
+			}
+			
+			int3 nextPos = *RandomGeneratorUtil::nextItem(accessibleArea.getTiles(), generator);
+			instance.setPosition(nextPos);
+			
+			auto instanceAccessibleArea = instance.getAccessibleArea();
+			if(instance.getBlockedArea().getTiles().size() == 1)
+				instanceAccessibleArea.add(instance.getVisitablePosition());
+			
+			//condition for good position
+			if(!blockedArea.overlap(instance.getBlockedArea()) && accessibleArea.overlap(instanceAccessibleArea))
+				break;
+			
+			//fail - new position
+			accessibleArea.erase(nextPos);
+		} while(true);
 	}
 	return rmgObject;
 }
@@ -1084,6 +1108,9 @@ void TreasurePlacer::createTreasures(ObjectManager & manager)
 			int value = std::accumulate(treasurePileInfos.begin(), treasurePileInfos.end(), 0, [](int v, const ObjectInfo & oi){return v + oi.value;});
 			
 			auto rmgObject = constuctTreasurePile(treasurePileInfos);
+			if(rmgObject.instances().empty()) //handle incorrect placement
+				continue;
+			
 			int3 pos;
 			auto possibleArea = zone.areaPossible();
 			while(true)
