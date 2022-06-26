@@ -1127,7 +1127,7 @@ void TreasurePlacer::createTreasures(ObjectManager & manager)
 				if(zone.connectPath(rmgObject.getAccessibleArea(), true))
 				{
 					manager.placeObject(rmgObject);
-					manager.guardObject(&rmgObject.instances().back()->object(), value, false, true);
+					//manager.guardObject(&rmgObject.instances().back()->object(), value, false, true);
 					break;
 				}
 				zone.areaPossible() = possibleAreaTemp;
