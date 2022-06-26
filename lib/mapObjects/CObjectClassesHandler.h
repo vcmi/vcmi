@@ -15,6 +15,7 @@
 #include "../ConstTransitivePtr.h"
 #include "../IHandlerBase.h"
 #include "../JsonNode.h"
+#include "Terrain.h"
 
 class JsonNode;
 class CRandomGenerator;
@@ -148,6 +149,9 @@ class DLL_LINKAGE AObjectTypeHandler : public boost::noncopyable
 	SObjectSounds sounds;
 
 	boost::optional<si32> aiValue;
+
+	BattleField battlefield;
+
 protected:
 	void preInitObject(CGObjectInstance * obj) const;
 	virtual bool objectFilter(const CGObjectInstance *, const ObjectTemplate &) const;
@@ -179,6 +183,7 @@ public:
 	/// returns all templates matching parameters
 	std::vector<ObjectTemplate> getTemplates() const;
 	std::vector<ObjectTemplate> getTemplates(const Terrain & terrainType) const;
+	BattleField getBattlefield() const;
 
 	/// returns preferred template for this object, if present (e.g. one of 3 possible templates for town - village, fort and castle)
 	/// note that appearance will not be changed - this must be done separately (either by assignment or via pack from server)
