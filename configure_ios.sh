@@ -20,8 +20,8 @@ prefixPath="$globalPrefix;$qtDir"
 srcDir="../vcmi"
 # cmake "$srcDir" -G Xcode -T buildsystem=1 \
 cmake "$srcDir" -G Xcode \
+  -DFORCE_BUNDLED_MINIZIP=ON \
   -DBUNDLE_IDENTIFIER_PREFIX=com.kambala \
-  -DENABLE_PCH=OFF \
   -Wno-dev \
   -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
   -DCMAKE_TOOLCHAIN_FILE="$srcDir/ios.toolchain.cmake" \
