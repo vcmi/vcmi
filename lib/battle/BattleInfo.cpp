@@ -467,7 +467,7 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, const Terrain & terrain,
 	}
 	if(battlefieldType == BattleField("fiery_fields"))
 	{
-		if(bonusSubtype == -1) bonusSubtype = 1;
+		if(bonusSubtype == -1) bonusSubtype = 2;
 	}
 	if(battlefieldType == BattleField("rocklands"))
 	{
@@ -475,13 +475,13 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, const Terrain & terrain,
 	}
 	if(battlefieldType == BattleField("magic_clouds"))
 	{
-		if(bonusSubtype == -1) bonusSubtype = 2;
+		if(bonusSubtype == -1) bonusSubtype = 1;
 	}
 	if(battlefieldType == BattleField("lucid_pools"))
 	{
 		if(bonusSubtype == -1) bonusSubtype = 4;
 	}
-	if(bonusSubtype == -1)
+	if(bonusSubtype != -1)
 	{ //common part for cases 9, 14, 15, 16, 17
 		curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::MAGIC_SCHOOL_SKILL,Bonus::TERRAIN_OVERLAY, 3, battlefieldType.hash(), bonusSubtype));
 	}

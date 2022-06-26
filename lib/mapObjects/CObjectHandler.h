@@ -159,21 +159,9 @@ public:
 	std::set<int3> getBlockedOffsets() const; //returns set of relative positions blocked by this object
 	bool isVisitable() const; //returns true if object is visitable
 
-	bool isTile2Terrain() const
-	{
-		return ID.num == Obj::CLOVER_FIELD
-			|| ID.num == Obj::CURSED_GROUND1
-			|| ID.num == Obj::CURSED_GROUND2
-			|| ID.num == Obj::EVIL_FOG
-			|| ID.num == Obj::FAVORABLE_WINDS
-			|| ID.num == Obj::FIERY_FIELDS
-			|| ID.num == Obj::HOLY_GROUNDS
-			|| ID.num == Obj::LUCID_POOLS
-			|| ID.num == Obj::MAGIC_CLOUDS
-			|| ID.num == Obj::MAGIC_PLAINS1
-			|| ID.num == Obj::MAGIC_PLAINS2
-			|| ID.num == Obj::ROCKLANDS;
-	}
+	BattleField getBattlefield() const;
+
+	virtual bool isTile2Terrain() const { return false; }
 
 	boost::optional<std::string> getAmbientSound() const;
 	boost::optional<std::string> getVisitSound() const;
