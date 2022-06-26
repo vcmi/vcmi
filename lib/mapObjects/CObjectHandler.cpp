@@ -400,6 +400,11 @@ void CGObjectInstance::serializeJsonOwner(JsonSerializeFormat & handler)
 		tempOwner = PlayerColor(temp);
 }
 
+BattleField CGObjectInstance::getBattlefield() const
+{
+	return VLC->objtypeh->getHandlerFor(ID, subID)->getBattlefield();
+}
+
 CGObjectInstanceBySubIdFinder::CGObjectInstanceBySubIdFinder(CGObjectInstance * obj) : obj(obj)
 {
 
