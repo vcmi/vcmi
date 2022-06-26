@@ -27,7 +27,7 @@ cmake "$srcDir" -G Xcode \
   -DCMAKE_TOOLCHAIN_FILE="$srcDir/ios.toolchain.cmake" \
   -DPLATFORM=$platform \
   -DDEPLOYMENT_TARGET=11.0 \
-  -DENABLE_BITCODE=0 \
+  -DENABLE_BITCODE=OFF \
   -DCMAKE_BINARY_DIR=$(pwd) \
   -DCMAKE_PREFIX_PATH="$prefixPath" \
   -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY='Apple Development' \
