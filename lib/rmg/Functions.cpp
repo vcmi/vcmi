@@ -179,7 +179,7 @@ void initTownType(Zone & zone, CRandomGenerator & generator, RmgMap & map, Objec
 				//first town in zone goes in the middle
 				Rmg::Object rmgObject(*town);
 				rmgObject.setPosition(zone.getPos() + town->getVisitableOffset());
-				manager.placeObject(rmgObject);
+				manager.placeObject(rmgObject, false, true);
 				freeBoundaries(rmgObject);
 				zone.setPos(town->visitablePos()); //roads lead to main town
 			}
@@ -226,7 +226,7 @@ void initTownType(Zone & zone, CRandomGenerator & generator, RmgMap & map, Objec
 		//towns are big objects and should be centered around visitable position
 		Rmg::Object rmgObject(*town);
 		rmgObject.setPosition(zone.getPos() + town->getVisitableOffset());
-		manager.placeObject(rmgObject);
+		manager.placeObject(rmgObject, false, true);
 		freeBoundaries(rmgObject);
 		zone.setPos(town->visitablePos()); //roads lead to main town
 		
@@ -346,7 +346,7 @@ void createObstacles2(const Zone & zone, RmgMap & map, CRandomGenerator & genera
 			auto obj = VLC->objtypeh->getHandlerFor(temp.id, temp.subid)->create(temp);
 			Rmg::Object rmgObject(*obj);
 			rmgObject.setPosition(obstaclePos);
-			manager.placeObject(rmgObject, false);
+			manager.placeObject(rmgObject, false, false);
 			return true;
 		}
 		return false;

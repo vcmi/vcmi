@@ -498,43 +498,6 @@ bool TreasurePlacer::isGuardNeededForTreasure(int value)
 	return zone.getType() != ETemplateZoneType::WATER && value > minGuardedValue;
 }
 
-bool TreasurePlacer::findPlaceForTreasurePile(float min_dist, int3 &pos, int value)
-{
-	float best_distance = 0;
-	bool result = false;
-	
-	bool needsGuard = isGuardNeededForTreasure(value);
-	
-	//logGlobal->info("Min dist for density %f is %d", density, min_dist);
-	for(auto tile : zone.areaPossible().getTiles())
-	{
-		auto dist = map.getNearestObjectDistance(tile);
-		
-		if((dist >= min_dist) && (dist > best_distance))
-		{
-			bool allTilesAvailable = true;
-			map.foreach_neighbour(tile, [this, &allTilesAvailable, needsGuard](int3 neighbour)
-			{
-				if(!(map.isPossible(neighbour) || map.shouldBeBlocked(neighbour) || map.getZoneID(neighbour)==zone.getId() || (!needsGuard && map.isFree(neighbour))))
-				{
-					allTilesAvailable = false; //all present tiles must be already blocked or ready for new objects
-				}
-			});
-			if(allTilesAvailable)
-			{
-				best_distance = dist;
-				pos = tile;
-				result = true;
-			}
-		}
-	}
-	if(result)
-	{
-		map.setOccupied(pos, ETileType::BLOCKED); //block that tile //FIXME: why?
-	}
-	return result;
-}
-
 std::vector<ObjectInfo> TreasurePlacer::prepareTreasurePile(const CTreasureInfo& treasureInfo)
 {
 	std::vector<ObjectInfo> objectInfos;
@@ -597,7 +560,7 @@ Rmg::Object TreasurePlacer::constuctTreasurePile(const std::vector<ObjectInfo> &
 			}
 			
 			int3 nextPos = *RandomGeneratorUtil::nextItem(accessibleArea.getTiles(), generator);
-			instance.setPosition(nextPos);
+			instance.setPosition(nextPos - rmgObject.getPosition());
 			
 			auto instanceAccessibleArea = instance.getAccessibleArea();
 			if(instance.getBlockedArea().getTiles().size() == 1)
@@ -612,232 +575,6 @@ Rmg::Object TreasurePlacer::constuctTreasurePile(const std::vector<ObjectInfo> &
 		} while(true);
 	}
 	return rmgObject;
-}
-
-bool TreasurePlacer::createTreasurePile(ObjectManager & manager, int3 &pos, float minDistance, const CTreasureInfo& treasureInfo)
-{
-	CTreasurePileInfo info;
-	
-	std::map<int3, CGObjectInstance *> treasures;
-	std::set<int3> boundary;
-	int3 guardPos (-1,-1,-1);
-	info.nextTreasurePos = pos;
-	
-	int maxValue = treasureInfo.max;
-	int minValue = treasureInfo.min;
-	
-	ui32 desiredValue = (generator.nextInt(minValue, maxValue));
-	
-	int currentValue = 0;
-	CGObjectInstance * object = nullptr;
-	while (currentValue <= (int)desiredValue - 100) //no objects with value below 100 are available
-	{
-		treasures[info.nextTreasurePos] = nullptr;
-		
-		for(auto treasurePos : treasures)
-		{
-			map.foreach_neighbour(treasurePos.first, [&boundary](int3 pos)
-			{
-				boundary.insert(pos);
-			});
-		}
-		for(auto treasurePos : treasures)
-		{
-			//leaving only boundary around objects
-			vstd::erase_if_present(boundary, treasurePos.first);
-		}
-		
-		for(auto tile : boundary)
-		{
-			//we can't extend boundary anymore
-			if(!(map.isBlocked(tile) || map.isPossible(tile)))
-				break;
-		}
-		
-		ObjectInfo oi = getRandomObject(manager, info, desiredValue, maxValue, currentValue);
-		if(!oi.value) //0 value indicates no object
-		{
-			vstd::erase_if_present(treasures, info.nextTreasurePos);
-			break;
-		}
-		else
-		{
-			object = oi.generateObject();
-			object->appearance = oi.templ;
-			
-			//remove from possible objects
-			auto oiptr = std::find(possibleObjects.begin(), possibleObjects.end(), oi);
-			assert (oiptr != possibleObjects.end());
-			oiptr->maxPerZone--;
-			if(!oiptr->maxPerZone)
-				possibleObjects.erase(oiptr);
-			
-			//update treasure pile area
-			int3 visitablePos = info.nextTreasurePos;
-			
-			if(oi.templ.isVisitableFromTop())
-				info.visitableFromTopPositions.insert(visitablePos); //can be accessed from any direction
-			else
-				info.visitableFromBottomPositions.insert(visitablePos); //can be accessed only from bottom or side
-			
-			for(auto blockedOffset : oi.templ.getBlockedOffsets())
-			{
-				int3 blockPos = info.nextTreasurePos + blockedOffset + oi.templ.getVisitableOffset(); //object will be moved to align vistable pos to treasure pos
-				info.occupiedPositions.insert(blockPos);
-				info.blockedPositions.insert(blockPos);
-			}
-			info.occupiedPositions.insert(visitablePos + oi.templ.getVisitableOffset());
-			
-			currentValue += oi.value;
-			
-			treasures[info.nextTreasurePos] = object;
-			
-			//now find place for next object
-			int3 placeFound(-1,-1,-1);
-			
-			//randomize next position from among possible ones
-			std::vector<int3> boundaryCopy (boundary.begin(), boundary.end());
-			//RandomGeneratorUtil::randomShuffle(boundaryCopy, gen.rand);
-			auto chooseTopTile = [](const int3 & lhs, const int3 & rhs) -> bool
-			{
-				return lhs.y < rhs.y;
-			};
-			boost::sort(boundaryCopy, chooseTopTile); //start from top tiles to allow objects accessible from bottom
-			
-			for(auto tile : boundaryCopy)
-			{
-				if(map.isPossible(tile) && map.getZoneID(tile) == zone.getId()) //we can place new treasure only on possible tile
-				{
-					bool here = true;
-					map.foreach_neighbour (tile, [this, &here, minDistance](int3 pos)
-					{
-						if(!(map.isBlocked(pos) || map.isPossible(pos)) || map.getZoneID(pos) != zone.getId() || map.getNearestObjectDistance(pos) < minDistance)
-							here = false;
-					});
-					if(here)
-					{
-						placeFound = tile;
-						break;
-					}
-				}
-			}
-			if(placeFound.valid())
-				info.nextTreasurePos = placeFound;
-			else
-				break; //no more place to add any objects
-		}
-	}
-	
-	if(treasures.size())
-	{
-		//find object closest to free path, then connect it to the middle of the zone
-		
-		int3 closestTile = int3(-1,-1,-1);
-		float minTreasureDistance = 1e10;
-		
-		for(auto visitablePos : info.visitableFromBottomPositions) //objects that are not visitable from top must be accessible from bottom or side
-		{
-			int3 closestFreeTile = zone.freePaths().nearest(visitablePos);
-			if(closestFreeTile.dist2d(visitablePos) < minTreasureDistance)
-			{
-				closestTile = visitablePos + int3 (0, 1, 0); //start below object (y+1), possibly even outside the map, to not make path up through it
-				minTreasureDistance = static_cast<float>(closestFreeTile.dist2d(visitablePos));
-			}
-		}
-		for(auto visitablePos : info.visitableFromTopPositions) //all objects are accessible from any direction
-		{
-			int3 closestFreeTile = zone.freePaths().nearest(visitablePos);
-			if(closestFreeTile.dist2d(visitablePos) < minTreasureDistance)
-			{
-				closestTile = visitablePos;
-				minTreasureDistance = static_cast<float>(closestFreeTile.dist2d(visitablePos));
-			}
-		}
-		assert (closestTile.valid());
-		
-		for(auto tile : info.occupiedPositions)
-		{
-			if(map.isOnMap(tile) && map.isPossible(tile) && map.getZoneID(tile) == zone.getId()) //pile boundary may reach map border
-				map.setOccupied(tile, ETileType::BLOCKED); //so that crunch path doesn't cut through objects
-		}
-		
-		if(!zone.connectPath(closestTile, false)) //this place is sealed off, need to find new position
-		{
-			return false;
-		}
-		
-		//update boundary around our objects, including knowledge about objects visitable from bottom
-		boundary.clear();
-		
-		for(auto tile : info.visitableFromBottomPositions)
-		{
-			map.foreach_neighbour(tile, [tile, &boundary](int3 pos)
-			{
-				if(pos.y >= tile.y) //don't block these objects from above
-					boundary.insert(pos);
-			});
-		}
-		for(auto tile : info.visitableFromTopPositions)
-		{
-			map.foreach_neighbour(tile, [&boundary](int3 pos)
-			{
-				boundary.insert(pos);
-			});
-		}
-		
-		bool isPileGuarded = isGuardNeededForTreasure(currentValue);
-		
-		for(auto tile : boundary) //guard must be standing there
-		{
-			if(map.isFree(tile)) //this tile could be already blocked, don't place a monster here
-			{
-				guardPos = tile;
-				break;
-			}
-		}
-		
-		if(guardPos.valid())
-		{
-			for(auto treasure : treasures)
-			{
-				int3 visitableOffset = treasure.second->getVisitableOffset();
-				manager.placeObject(treasure.second, treasure.first + visitableOffset);
-			}
-			if(isPileGuarded && manager.addMonster(guardPos, currentValue, false))
-			{//block only if the object is guarded
-				for(auto tile : boundary)
-				{
-					if(map.isPossible(tile))
-						map.setOccupied(tile, ETileType::BLOCKED);
-				}
-				//do not spawn anything near monster
-				map.foreach_neighbour(guardPos, [this](int3 pos)
-				{
-					if(map.isPossible(pos))
-						map.setOccupied(pos, ETileType::FREE);
-				});
-			}
-		}
-		else if(isPileGuarded)//we couldn't make a connection to this location, block it
-		{
-			for(auto treasure : treasures)
-			{
-				if(map.isPossible(treasure.first))
-					map.setOccupied(treasure.first, ETileType::BLOCKED);
-				
-				delete treasure.second;
-			}
-		}
-		
-		return true;
-	}
-	else //we did not place eveyrthing successfully
-	{
-		if(map.isPossible(pos))
-			map.setOccupied(pos, ETileType::BLOCKED); //TODO: refactor stop condition
-		zone.areaPossible().erase(pos);
-		return false;
-	}
 }
 
 ObjectInfo TreasurePlacer::getRandomObject(ui32 desiredValue, ui32 currentValue)
@@ -904,159 +641,6 @@ ObjectInfo TreasurePlacer::getRandomObject(ui32 desiredValue, ui32 currentValue)
 	}
 }
 
-ObjectInfo TreasurePlacer::getRandomObject(const ObjectManager & manager, CTreasurePileInfo &info, ui32 desiredValue, ui32 maxValue, ui32 currentValue)
-{
-	//int objectsVisitableFromBottom = 0; //for debug
-	
-	std::vector<std::pair<ui32, ObjectInfo*>> thresholds; //handle complex object via pointer
-	ui32 total = 0;
-	
-	//calculate actual treasure value range based on remaining value
-	ui32 maxVal = desiredValue - currentValue;
-	ui32 minValue = static_cast<ui32>(0.25f * (desiredValue - currentValue));
-	
-	//roulette wheel
-	for(ObjectInfo &oi : possibleObjects) //copy constructor turned out to be costly
-	{
-		if(oi.value > maxVal)
-			break; //this assumes values are sorted in ascending order
-		if(oi.value >= minValue && oi.maxPerZone > 0)
-		{
-			int3 newVisitableOffset = oi.templ.getVisitableOffset(); //visitablePos assumes object will be shifter by visitableOffset
-			int3 newVisitablePos = info.nextTreasurePos;
-			
-			if(!oi.templ.isVisitableFromTop())
-			{
-				//objectsVisitableFromBottom++;
-				//there must be free tiles under object
-				auto blockedOffsets = oi.templ.getBlockedOffsets();
-				if(!manager.isAccessibleFromSomewhere(oi.templ, newVisitablePos))
-					continue;
-			}
-			
-			//NOTE: y coordinate grows downwards
-			if(info.visitableFromBottomPositions.size() + info.visitableFromTopPositions.size()) //do not try to match first object in zone
-			{
-				bool fitsHere = false;
-				
-				if(oi.templ.isVisitableFromTop()) //new can be accessed from any direction
-				{
-					for(auto tile : info.visitableFromTopPositions)
-					{
-						int3 actualTile = tile + newVisitableOffset;
-						if(newVisitablePos.areNeighbours(actualTile)) //we access other removable object from any position
-						{
-							fitsHere = true;
-							break;
-						}
-					}
-					for(auto tile : info.visitableFromBottomPositions)
-					{
-						int3 actualTile = tile + newVisitableOffset;
-						if(newVisitablePos.areNeighbours(actualTile) && newVisitablePos.y >= actualTile.y) //we access existing static object from side or bottom only
-						{
-							fitsHere = true;
-							break;
-						}
-					}
-				}
-				else //if new object is not visitable from top, it must be accessible from below or side
-				{
-					for(auto tile : info.visitableFromTopPositions)
-					{
-						int3 actualTile = tile + newVisitableOffset;
-						if(newVisitablePos.areNeighbours(actualTile) && newVisitablePos.y <= actualTile.y) //we access existing removable object from top or side only
-						{
-							fitsHere = true;
-							break;
-						}
-					}
-					for(auto tile : info.visitableFromBottomPositions)
-					{
-						int3 actualTile = tile + newVisitableOffset;
-						if(newVisitablePos.areNeighbours(actualTile) && newVisitablePos.y == actualTile.y) //we access other static object from side only
-						{
-							fitsHere = true;
-							break;
-						}
-					}
-				}
-				if(!fitsHere)
-					continue;
-			}
-			
-			//now check blockmap, including our already reserved pile area
-			
-			bool fitsBlockmap = true;
-			
-			std::set<int3> blockedOffsets = oi.templ.getBlockedOffsets();
-			blockedOffsets.insert (newVisitableOffset);
-			for(auto blockingTile : blockedOffsets)
-			{
-				int3 t = info.nextTreasurePos + newVisitableOffset + blockingTile;
-				if(!map.isOnMap(t) || vstd::contains(info.occupiedPositions, t))
-				{
-					fitsBlockmap = false; //if at least one tile is not possible, object can't be placed here
-					break;
-				}
-				if(!(map.isPossible(t) || map.isBlocked(t))) //blocked tiles of object may cover blocked tiles, but not used or free tiles
-				{
-					fitsBlockmap = false;
-					break;
-				}
-			}
-			if(!fitsBlockmap)
-				continue;
-			
-			total += oi.probability;
-			
-			thresholds.push_back(std::make_pair (total, &oi));
-		}
-	}
-	
-	if(thresholds.empty())
-	{
-		ObjectInfo oi;
-		//Generate pandora Box with gold if the value is extremely high
-		/*if(minValue > gen.getConfig().treasureValueLimit) //we don't have object valuable enough
-		{
-			oi.generateObject = [minValue]() -> CGObjectInstance *
-			{
-				auto factory = VLC->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0);
-				auto obj = (CGPandoraBox *) factory->create(ObjectTemplate());
-				obj->resources[Res::GOLD] = minValue;
-				return obj;
-			};
-			oi.setTemplate(Obj::PANDORAS_BOX, 0, zone.getTerrainType());
-			oi.value = minValue;
-			oi.probability = 0;
-		}
-		else //generate empty object with 0 value if the value if we can't spawn anything*/
-		{
-			oi.generateObject = []() -> CGObjectInstance *
-			{
-				return nullptr;
-			};
-			oi.setTemplate(Obj::PANDORAS_BOX, 0, zone.getTerrainType()); //TODO: null template or something? should be never used, but hell knows
-			oi.value = 0; // this field is checked to determine no object
-			oi.probability = 0;
-		}
-		return oi;
-	}
-	else
-	{
-		int r = generator.nextInt(1, total);
-		
-		//binary search = fastest
-		auto it = std::lower_bound(thresholds.begin(), thresholds.end(), r,
-								   [](const std::pair<ui32, ObjectInfo*> &rhs, const int lhs)->bool
-		{
-			return (int)rhs.first < lhs;
-		});
-		return *(it->second);
-	}
-}
-
 void TreasurePlacer::createTreasures(ObjectManager & manager)
 {
 	int mapMonsterStrength = map.getMapGenOptions().getMonsterStrength();
@@ -1111,6 +695,9 @@ void TreasurePlacer::createTreasures(ObjectManager & manager)
 			if(rmgObject.instances().empty()) //handle incorrect placement
 				continue;
 			
+			//guard treasure pile
+			bool guarded = manager.addGuard(rmgObject, value);
+			
 			int3 pos;
 			auto possibleArea = zone.areaPossible();
 			while(true)
@@ -1126,8 +713,7 @@ void TreasurePlacer::createTreasures(ObjectManager & manager)
 				zone.areaPossible().subtract(rmgObject.getArea());
 				if(zone.connectPath(rmgObject.getAccessibleArea(), true))
 				{
-					manager.placeObject(rmgObject);
-					//manager.guardObject(&rmgObject.instances().back()->object(), value, false, true);
+					manager.placeObject(rmgObject, guarded, true);
 					break;
 				}
 				zone.areaPossible() = possibleAreaTemp;

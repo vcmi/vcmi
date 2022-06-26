@@ -618,9 +618,9 @@ void CMapGenerator::createConnections2()
 
 								if ((result1 == ObjectManager::EObjectPlacingResult::SUCCESS) && (result2 == ObjectManager::EObjectPlacingResult::SUCCESS))
 								{
-									zoneA->getModificator<ObjectManager>()->placeObject(gate1, tile);
+									zoneA->getModificator<ObjectManager>()->placeObject(gate1, tile, true);
 									zoneA->getModificator<ObjectManager>()->guardObject(gate1, strength, true, true);
-									zoneB->getModificator<ObjectManager>()->placeObject(gate2, otherTile);
+									zoneB->getModificator<ObjectManager>()->placeObject(gate2, otherTile, true);
 									zoneB->getModificator<ObjectManager>()->guardObject(gate2, strength, true, true);
 									guardPos = tile; //set to break the loop
 									break;

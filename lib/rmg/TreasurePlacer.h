@@ -30,15 +30,6 @@ struct DLL_LINKAGE ObjectInfo
 	bool operator==(const ObjectInfo& oi) const { return (templ == oi.templ); }
 };
 
-struct DLL_LINKAGE CTreasurePileInfo
-{
-	std::set<int3> visitableFromBottomPositions; //can be visited only from bottom or side
-	std::set<int3> visitableFromTopPositions; //they can be visited from any direction
-	std::set<int3> blockedPositions;
-	std::set<int3> occupiedPositions; //blocked + visitable
-	int3 nextTreasurePos;
-};
-
 class DLL_LINKAGE TreasurePlacer: public Modificator
 {
 public:
@@ -49,13 +40,10 @@ public:
 	void createTreasures(ObjectManager & manager);
 	
 	void setQuestArtZone(Zone * otherZone);
-	bool createTreasurePile(ObjectManager & manager, int3 &pos, float minDistance, const CTreasureInfo& treasureInfo);
 	void addAllPossibleObjects(CMapGenerator & gen); //add objects, including zone-specific, to possibleObjects
 	
 protected:
 	bool isGuardNeededForTreasure(int value);
-	bool findPlaceForTreasurePile(float min_dist, int3 &pos, int value);
-	ObjectInfo getRandomObject(const ObjectManager & manager, CTreasurePileInfo &info, ui32 desiredValue, ui32 maxValue, ui32 currentValue);
 	
 	ObjectInfo getRandomObject(ui32 desiredValue, ui32 currentValue);
 	std::vector<ObjectInfo> prepareTreasurePile(const CTreasureInfo & treasureInfo);

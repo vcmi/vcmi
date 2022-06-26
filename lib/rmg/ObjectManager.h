@@ -12,6 +12,7 @@
 
 class CGObjectInstance;
 class ObjectTemplate;
+class CGCreature;
 
 class DLL_LINKAGE ObjectManager: public Modificator
 {
@@ -44,8 +45,10 @@ public:
 	int3 findPlaceForObject(const Rmg::Area & searchArea, Rmg::Object & obj, std::function<float(const int3)> weightFunction) const;
 	EObjectPlacingResult tryToPlaceObjectAndConnectToPath(CGObjectInstance * obj, const int3 & pos); //return true if the position can be connected
 	
-	void placeObject(Rmg::Object & object, bool updateDistance = true);
-	void placeObject(CGObjectInstance* object, const int3 & pos, bool updateDistance = true);
+	CGCreature * chooseGuard(si32 str, bool zoneGuard = false);
+	bool addGuard(Rmg::Object & object, si32 str, bool zoneGuard = false);
+	void placeObject(Rmg::Object & object, bool guarded, bool updateDistance);
+	void placeObject(CGObjectInstance* object, const int3 & pos, bool updateDistance);
 	bool guardObject(CGObjectInstance* object, si32 str, bool zoneGuard = false, bool addToFreePaths = false);
 	bool addMonster(int3 &pos, si32 strength, bool clearSurroundingTiles = true, bool zoneGuard = false);
 	void setTemplateForObject(CGObjectInstance* obj);

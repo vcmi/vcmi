@@ -22,9 +22,7 @@ using namespace Rmg;
 
 Object::Instance::Instance(const Object& parent, CGObjectInstance & object): dParent(parent), dObject(object)
 {
-	dBlockedArea = dObject.getBlockedPos();
-	if(dObject.isVisitable())
-		dBlockedArea.add(dObject.visitablePos());
+	setPosition(dPosition);
 }
 
 Object::Instance::Instance(const Object& parent, CGObjectInstance & object, const int3 & position): Instance(parent, object)
@@ -68,7 +66,7 @@ void Object::Instance::setPosition(const int3 & position)
 	dPosition = position;
 	dObject.pos = dPosition + dParent.getPosition();
 	dBlockedArea.assign(dObject.getBlockedPos());
-	if(dObject.isVisitable())
+	if(dObject.isVisitable() || dBlockedArea.empty())
 		dBlockedArea.add(dObject.visitablePos());
 	dParent.dFullAreaCache.clear();
 }
@@ -83,10 +81,7 @@ void Object::Instance::setTemplate(const Terrain & terrain)
 		
 		dObject.appearance = templates.front();
 	}
-	dBlockedArea.assign(dObject.getBlockedPos());
-	if(dObject.isVisitable())
-		dBlockedArea.add(dObject.visitablePos());
-	dParent.dFullAreaCache.clear();
+	setPosition(getPosition(false));
 }
 
 void Object::Instance::clear()
@@ -102,7 +97,7 @@ bool Object::Instance::isVisitableFrom(const int3 & position) const
 	if(tilesBlockedByObject.count(visitable))
 		return false;
 	return dObject.appearance.isVisitableFrom(position.x - visitable.x, position.y - visitable.y);*/
-	return isVisitableFrom(position, dPosition);
+	return isVisitableFrom(position, getPosition(true));
 }
 
 bool Object::Instance::isVisitableFrom(const int3 & position, const int3 & potential) const
@@ -187,7 +182,11 @@ const int3 & Object::getPosition() const
 
 int3 Object::getVisitablePosition() const
 {
-	return dInstances.front().getVisitablePosition();
+	for(auto & instance : dInstances)
+		if(!getArea().contains(instance.getVisitablePosition()))
+			return instance.getVisitablePosition();
+	
+	return dInstances.back().getVisitablePosition(); //fallback - return position of last object
 }
 
 Rmg::Area Object::getAccessibleArea() const
@@ -241,7 +240,7 @@ void Object::Instance::finalize(RmgMap & map)
 	
 	if (dObject.appearance.id == Obj::NO_OBJ)
 	{
-		auto terrainType = map.map().getTile(dPosition).terType;
+		auto terrainType = map.map().getTile(getPosition(true)).terType;
 		auto templates = VLC->objtypeh->getHandlerFor(dObject.ID, dObject.subID)->getTemplates(terrainType);
 		if (templates.empty())
 			throw rmgException(boost::to_string(boost::format("Did not find graphics for object (%d,%d) at %s (terrain %d)") % dObject.ID % dObject.subID % getPosition(true).toString() % terrainType));

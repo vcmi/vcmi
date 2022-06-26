@@ -222,6 +222,7 @@ bool ObjectManager::createRequiredObjects()
 		{
 			Rmg::Object rmgObject(*obj);
 			rmgObject.setTemplate(zone.getTerrainType());
+			bool guarded = addGuard(rmgObject, object.second, (obj->ID == Obj::MONOLITH_TWO_WAY));
 			pos = findPlaceForObject(possibleArea, rmgObject, 3);
 			if(!pos.valid())
 			{
@@ -233,8 +234,7 @@ bool ObjectManager::createRequiredObjects()
 			zone.areaPossible().subtract(rmgObject.getArea());
 			if(zone.connectPath(rmgObject.getAccessibleArea(), false))
 			{
-				placeObject(rmgObject);
-				guardObject(&rmgObject.instances().front()->object(), object.second, (obj->ID == Obj::MONOLITH_TWO_WAY), true);
+				placeObject(rmgObject, guarded, true);
 				break;
 			}
 			zone.areaPossible() = possibleAreaTemp;
@@ -250,6 +250,7 @@ bool ObjectManager::createRequiredObjects()
 		{
 			Rmg::Object rmgObject(*obj);
 			rmgObject.setTemplate(zone.getTerrainType());
+			bool guarded = addGuard(rmgObject, object.second, (obj->ID == Obj::MONOLITH_TWO_WAY));
 			pos = findPlaceForObject(possibleArea, rmgObject, [this, &rmgObject](const int3 & tile)
 			{
 				float dist = rmgObject.getArea().distanceSqr(zone.getPos());
@@ -267,8 +268,7 @@ bool ObjectManager::createRequiredObjects()
 			zone.areaPossible().subtract(rmgObject.getArea());
 			if(zone.connectPath(rmgObject.getAccessibleArea(), false))
 			{
-				placeObject(rmgObject);
-				guardObject(&rmgObject.instances().front()->object(), object.second, (obj->ID == Obj::MONOLITH_TWO_WAY), true);
+				placeObject(rmgObject, guarded, true);
 				break;
 			}
 			zone.areaPossible() = possibleAreaTemp;
@@ -335,7 +335,7 @@ bool ObjectManager::createRequiredObjects()
 	{
 		Rmg::Object rmgObject(*obj.first);
 		rmgObject.setPosition(obj.second);
-		placeObject(rmgObject);
+		placeObject(rmgObject, false, false);
 	}
 	
 	requiredObjects.clear();
@@ -374,7 +374,7 @@ void ObjectManager::checkAndPlaceObject(CGObjectInstance* object, const int3 &po
 	map.getEditManager()->insertObject(object);
 }
 
-void ObjectManager::placeObject(Rmg::Object & object, bool updateDistance)
+void ObjectManager::placeObject(Rmg::Object & object, bool guarded, bool updateDistance)
 {
 	object.finalize(map);
 	zone.areaPossible().subtract(object.getArea());
@@ -430,6 +430,87 @@ void ObjectManager::placeObject(CGObjectInstance* object, const int3 &pos, bool 
 		default:
 			break;
 	}
+}
+
+CGCreature * ObjectManager::chooseGuard(si32 strength, bool zoneGuard)
+{
+	//precalculate actual (randomized) monster strength based on this post
+	//http://forum.vcmi.eu/viewtopic.php?p=12426#12426
+	
+	int mapMonsterStrength = map.getMapGenOptions().getMonsterStrength();
+	int monsterStrength = (zoneGuard ? 0 : zone.zoneMonsterStrength) + mapMonsterStrength - 1; //array index from 0 to 4
+	static const int value1[] = {2500, 1500, 1000, 500, 0};
+	static const int value2[] = {7500, 7500, 7500, 5000, 5000};
+	static const float multiplier1[] = {0.5, 0.75, 1.0, 1.5, 1.5};
+	static const float multiplier2[] = {0.5, 0.75, 1.0, 1.0, 1.5};
+	
+	int strength1 = static_cast<int>(std::max(0.f, (strength - value1[monsterStrength]) * multiplier1[monsterStrength]));
+	int strength2 = static_cast<int>(std::max(0.f, (strength - value2[monsterStrength]) * multiplier2[monsterStrength]));
+	
+	strength = strength1 + strength2;
+	//if (strength < gen.getConfig().minGuardStrength)
+	//	return false; //no guard at all
+	
+	CreatureID creId = CreatureID::NONE;
+	int amount = 0;
+	std::vector<CreatureID> possibleCreatures;
+	for(auto cre : VLC->creh->objects)
+	{
+		if(cre->special)
+			continue;
+		if(!cre->AIValue) //bug #2681
+			continue;
+		if(!vstd::contains(zone.getMonsterTypes(), cre->faction))
+			continue;
+		if(((si32)(cre->AIValue * (cre->ammMin + cre->ammMax) / 2) < strength) && (strength < (si32)cre->AIValue * 100)) //at least one full monster. size between average size of given stack and 100
+		{
+			possibleCreatures.push_back(cre->idNumber);
+		}
+	}
+	if(possibleCreatures.size())
+	{
+		creId = *RandomGeneratorUtil::nextItem(possibleCreatures, generator);
+		amount = strength / VLC->creh->objects[creId]->AIValue;
+		if (amount >= 4)
+			amount = static_cast<int>(amount * generator.nextDouble(0.75, 1.25));
+	}
+	else //just pick any available creature
+	{
+		creId = CreatureID(132); //Azure Dragon
+		amount = strength / VLC->creh->objects[creId]->AIValue;
+	}
+	
+	auto guardFactory = VLC->objtypeh->getHandlerFor(Obj::MONSTER, creId);
+	
+	auto guard = (CGCreature *) guardFactory->create(ObjectTemplate());
+	guard->character = CGCreature::HOSTILE;
+	auto  hlp = new CStackInstance(creId, amount);
+	//will be set during initialization
+	guard->putStack(SlotID(0), hlp);
+	return guard;
+}
+
+bool ObjectManager::addGuard(Rmg::Object & object, si32 str, bool zoneGuard)
+{
+	auto * guard = chooseGuard(str, zoneGuard);
+	if(!guard)
+		return false;
+	
+	Rmg::Area visitablePos({object.getVisitablePosition()});
+	visitablePos.unite(visitablePos.getBorderOutside());
+	
+	auto accessibleArea = object.getAccessibleArea();
+	accessibleArea.intersect(visitablePos);
+	if(accessibleArea.empty())
+	{
+		delete guard;
+		return false;
+	}
+	
+	auto & instance = object.addInstance(*guard);
+	instance.setPosition(*accessibleArea.getTiles().begin() - object.getPosition());
+		
+	return true;
 }
 
 bool ObjectManager::guardObject(CGObjectInstance* object, si32 str, bool zoneGuard, bool addToFreePaths)
@@ -531,7 +612,7 @@ bool ObjectManager::addMonster(int3 &pos, si32 strength, bool clearSurroundingTi
 	//will be set during initialization
 	guard->putStack(SlotID(0), hlp);
 	
-	placeObject(guard, pos);
+	placeObject(guard, pos, true);
 	
 	if(clearSurroundingTiles)
 	{
