@@ -535,6 +535,61 @@ bool TreasurePlacer::findPlaceForTreasurePile(float min_dist, int3 &pos, int val
 	return result;
 }
 
+std::vector<ObjectInfo> TreasurePlacer::prepareTreasurePile(const CTreasureInfo& treasureInfo)
+{
+	std::vector<ObjectInfo> objectInfos;
+	int maxValue = treasureInfo.max;
+	int minValue = treasureInfo.min;
+	
+	const ui32 desiredValue = generator.nextInt(minValue, maxValue);
+	
+	int currentValue = 0;
+	bool hasLargeObject = false;
+	while(currentValue <= (int)desiredValue - 100) //no objects with value below 100 are available
+	{
+		auto oi = getRandomObject(desiredValue, currentValue);
+		if(oi.templ.isVisitableFromTop())
+		{
+			if(hasLargeObject)
+				continue; //only one large object per treasure pile
+			
+			hasLargeObject = true;
+			objectInfos.insert(objectInfos.begin(), oi); //large object shall at first place
+		}
+		else
+		{
+			objectInfos.push_back(oi);
+		}
+		
+		//remove from possible objects
+		auto oiptr = std::find(possibleObjects.begin(), possibleObjects.end(), oi);
+		oiptr->maxPerZone--;
+		
+		currentValue += oi.value;
+	}
+	
+	return objectInfos;
+}
+
+Rmg::Object TreasurePlacer::constuctTreasurePile(const std::vector<ObjectInfo> & treasureInfos)
+{
+	Rmg::Object rmgObject;
+	for(auto & oi : treasureInfos)
+	{
+		int3 nextPos;
+		if(!rmgObject.getArea().empty())
+		{
+			nextPos = *RandomGeneratorUtil::nextItem(rmgObject.getAccessibleArea().getTiles(), generator);
+		}
+		
+		auto * object = oi.generateObject();
+		object->appearance = oi.templ;
+		auto & instance = rmgObject.addInstance(*object);
+		instance.setPosition(nextPos);
+	}
+	return rmgObject;
+}
+
 bool TreasurePlacer::createTreasurePile(ObjectManager & manager, int3 &pos, float minDistance, const CTreasureInfo& treasureInfo)
 {
 	CTreasurePileInfo info;
@@ -1020,37 +1075,37 @@ void TreasurePlacer::createTreasures(ObjectManager & manager)
 		//distance lower than 2 causes objects to overlap and crash
 		
 		bool stop = false;
-		do {
-			//optimization - don't check tiles which are not allowed
-			std::vector<int3> possibleTilesToRemove;
-			for(auto tile : zone.areaPossible().getTiles())
-			{
-				//for water area we sholdn't place treasures close to coast
-				/*for(auto & lake : lakes)
-					if(vstd::contains(lake.distance, tile) && lake.distance[tile] < 2)
-						return true;*/
-				
-				if(!map.isPossible(tile) || map.getZoneID(tile) != zone.getId())
-					possibleTilesToRemove.push_back(tile);
-			}
-			for(auto tile : possibleTilesToRemove)
-			{
-				zone.areaPossible().erase(tile);
-			}
+		do
+		{
+			auto treasurePileInfos = prepareTreasurePile(t);
+			if(treasurePileInfos.empty())
+				break;
 			
-			int3 treasureTilePos;
-			//If we are able to place at least one object with value lower than minGuardedValue, it's ok
-			do
+			int value = std::accumulate(treasurePileInfos.begin(), treasurePileInfos.end(), 0, [](int v, const ObjectInfo & oi){return v + oi.value;});
+			
+			auto rmgObject = constuctTreasurePile(treasurePileInfos);
+			int3 pos;
+			auto possibleArea = zone.areaPossible();
+			while(true)
 			{
-				if (!findPlaceForTreasurePile(minDistance, treasureTilePos, t.min))
+				pos = manager.findPlaceForObject(possibleArea, rmgObject, minDistance);
+				if(!pos.valid())
 				{
 					stop = true;
+					break; //we placed all objects
+				}
+				possibleArea.erase(pos); //do not place again at this point
+				auto possibleAreaTemp = zone.areaPossible();
+				zone.areaPossible().subtract(rmgObject.getArea());
+				if(zone.connectPath(rmgObject.getAccessibleArea(), true))
+				{
+					manager.placeObject(rmgObject);
+					manager.guardObject(&rmgObject.instances().back()->object(), value, false, true);
 					break;
 				}
+				zone.areaPossible() = possibleAreaTemp;
 			}
-			while (!createTreasurePile(manager, treasureTilePos, minDistance, t)); //failed creation - position was wrong, cannot connect it
-			
-		} while (!stop);
+		} while(!stop);
 	}
 }
 

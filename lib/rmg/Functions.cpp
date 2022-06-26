@@ -477,7 +477,7 @@ bool processZone(Zone & zone, CMapGenerator & gen, RmgMap & map)
 	placeMines(zone, gen, *obMgr);
 	
 	obMgr->process();
-	//trPlacer->process();
+	trPlacer->process();
 	
 	logGlobal->info("Zone %d filled successfully", zone.getId());
 	return true;

@@ -143,7 +143,7 @@ bool ObjectManager::areAllTilesAvailable(CGObjectInstance* obj, int3& tile, cons
 	return true;
 }
 
-int3 ObjectManager::findPlaceForObject(const Rmg::Area & searchArea, Rmg::Object & obj, std::function<float(const int3)> weightFunction)
+int3 ObjectManager::findPlaceForObject(const Rmg::Area & searchArea, Rmg::Object & obj, std::function<float(const int3)> weightFunction) const
 {
 	float bestWeight = 0.f;
 	int3 result(-1, -1, -1);
@@ -169,7 +169,7 @@ int3 ObjectManager::findPlaceForObject(const Rmg::Area & searchArea, Rmg::Object
 	return result;
 }
 
-int3 ObjectManager::findPlaceForObject(const Rmg::Area & searchArea, Rmg::Object & obj, si32 min_dist)
+int3 ObjectManager::findPlaceForObject(const Rmg::Area & searchArea, Rmg::Object & obj, si32 min_dist) const
 {
 	return findPlaceForObject(searchArea, obj, [this, min_dist](const int3 & tile)
 	{

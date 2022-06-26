@@ -89,6 +89,12 @@ void Object::Instance::setTemplate(const Terrain & terrain)
 	dParent.dFullAreaCache.clear();
 }
 
+void Object::Instance::clear()
+{
+	delete &dObject;
+	dParent.dFullAreaCache.clear();
+}
+
 bool Object::Instance::isVisitableFrom(const int3 & position) const
 {
 	/*auto tilesBlockedByObject = dObject.getBlockedPos();
@@ -264,5 +270,13 @@ void Object::finalize(RmgMap & map)
 		a.unite(iter->getBlockedArea());
 		iter->finalize(map);
 	}
+}
+
+void Object::clear()
+{
+	for(auto & instance : dInstances)
+		instance.clear();
+	dInstances.clear();
+	dFullAreaCache.clear();
 }
  

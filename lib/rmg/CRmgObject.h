@@ -43,6 +43,7 @@ public:
 		CGObjectInstance & object();
 		
 		void finalize(RmgMap & map);
+		void clear();
 		
 	private:
 		Area dBlockedArea;
@@ -73,6 +74,7 @@ public:
 	const Area & getArea() const;  //lazy cache invalidation
 	
 	void finalize(RmgMap & map);
+	void clear();
 	
 private:
 	std::list<Instance> dInstances;

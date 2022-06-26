@@ -58,6 +58,8 @@ protected:
 	ObjectInfo getRandomObject(const ObjectManager & manager, CTreasurePileInfo &info, ui32 desiredValue, ui32 maxValue, ui32 currentValue);
 	
 	ObjectInfo getRandomObject(ui32 desiredValue, ui32 currentValue);
+	std::vector<ObjectInfo> prepareTreasurePile(const CTreasureInfo & treasureInfo);
+	Rmg::Object constuctTreasurePile(const std::vector<ObjectInfo> & treasureInfos);
 	
 	
 protected:
