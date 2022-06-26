@@ -529,3 +529,14 @@ public:
 protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 };
+
+class DLL_LINKAGE CGTerrainPatch : public CGObjectInstance
+{
+public:
+	CGTerrainPatch() = default;
+
+	virtual bool isTile2Terrain() const override
+	{
+		return true;
+	}
+};

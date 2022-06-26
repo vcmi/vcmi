@@ -42,6 +42,11 @@ public:
 	{
 		h & name;
 	}
+
+	bool isSpecial() const
+	{
+		return name.find('_') >= 0; // hack for special battlefields, move to JSON
+	}
 	
 protected:
 	

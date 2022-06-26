@@ -97,6 +97,7 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER("oncePerHero", CGVisitableOPH);
 	SET_HANDLER("oncePerWeek", CGVisitableOPW);
 	SET_HANDLER("witch", CGWitchHut);
+	SET_HANDLER("terrain", CGTerrainPatch);
 
 #undef SET_HANDLER_CLASS
 #undef SET_HANDLER
@@ -514,6 +515,11 @@ void AObjectTypeHandler::init(const JsonNode & input, boost::optional<std::strin
 	else
 		aiValue = static_cast<boost::optional<si32>>(input["aiValue"].Integer());
 
+	if(input["battleground"].isNull())
+		battlefield = BattleField::NONE;
+	else
+		battlefield = BattleField(input["battleground"].String());
+
 	initTypeData(input);
 }
 
@@ -567,6 +573,11 @@ void AObjectTypeHandler::addTemplate(JsonNode config)
 std::vector<ObjectTemplate> AObjectTypeHandler::getTemplates() const
 {
 	return templates;
+}
+
+BattleField AObjectTypeHandler::getBattlefield() const
+{
+	return battlefield;
 }
 
 std::vector<ObjectTemplate> AObjectTypeHandler::getTemplates(const Terrain & terrainType) const
