@@ -37,7 +37,7 @@ public:
 		Area getAccessibleArea() const;
 		void setTemplate(const Terrain & terrain);
 		
-		const int3 & getPosition() const;
+		int3 getPosition(bool isAbsolute = false) const;
 		void setPosition(const int3 & position);
 		const CGObjectInstance & object() const;
 		CGObjectInstance & object();

@@ -37,9 +37,12 @@ const Area & Object::Instance::getBlockedArea() const
 	return dBlockedArea;
 }
 
-const int3 & Object::Instance::getPosition() const
+int3 Object::Instance::getPosition(bool isAbsolute) const
 {
-	return dPosition;
+	if(isAbsolute)
+		return dPosition + dParent.getPosition();
+	else
+		return dPosition;
 }
 
 int3 Object::Instance::getVisitablePosition() const
@@ -63,7 +66,7 @@ Rmg::Area Object::Instance::getAccessibleArea() const
 void Object::Instance::setPosition(const int3 & position)
 {
 	dPosition = position;
-	dObject.pos = dPosition;
+	dObject.pos = dPosition + dParent.getPosition();
 	dBlockedArea.assign(dObject.getBlockedPos());
 	if(dObject.isVisitable())
 		dBlockedArea.add(dObject.visitablePos());
@@ -99,7 +102,7 @@ bool Object::Instance::isVisitableFrom(const int3 & position) const
 bool Object::Instance::isVisitableFrom(const int3 & position, const int3 & potential) const
 {
 	//auto blockedTiles = getBlockedArea() - dPosition + potential;
-	auto visitable = getVisitablePosition() - dPosition + potential;
+	auto visitable = getVisitablePosition() - getPosition(true) + potential;
 	//if(tilesBlockedByObject.count(visitable))
 	//	return false;
 	//auto visitable = getVisitablePosition();
@@ -128,10 +131,10 @@ Object::Object(CGObjectInstance & object)
 
 Object::Object(const Object & object)
 {
-	int3 dPosition = object.dPosition;
-	ui32 dStrenght = object.dStrenght;
+	dStrenght = object.dStrenght;
 	for(auto & i : object.dInstances)
-		addInstance(const_cast<CGObjectInstance &>(i.object()), i.getPosition());
+		addInstance(const_cast<CGObjectInstance &>(i.object()));
+	setPosition(object.dPosition);
 }
 
 std::list<Object::Instance*> Object::instances()
@@ -192,9 +195,9 @@ Rmg::Area Object::getAccessibleArea() const
 
 void Object::setPosition(const int3 & position)
 {
-	for(auto& i : dInstances)
-		i.setPosition(position);
 	dPosition = position;
+	for(auto& i : dInstances)
+		i.setPosition(i.getPosition());
 }
 
 void Object::setTemplate(const Terrain & terrain)
@@ -218,9 +221,8 @@ const Area & Object::getArea() const
 
 void Object::Instance::finalize(RmgMap & map)
 {
-	if(!map.isOnMap(dPosition))
-		throw rmgException(boost::to_string(boost::format("Position of object %d at %s is outside the map") % dObject.id % dPosition.toString()));
-	dObject.pos = dPosition;
+	if(!map.isOnMap(getPosition(true)))
+		throw rmgException(boost::to_string(boost::format("Position of object %d at %s is outside the map") % dObject.id % getPosition(true).toString()));
 	
 	if (dObject.isVisitable() && !map.isOnMap(dObject.visitablePos()))
 		throw rmgException(boost::to_string(boost::format("Visitable tile %s of object %d at %s is outside the map") % dObject.visitablePos().toString() % dObject.id % dObject.pos.toString()));
@@ -236,7 +238,7 @@ void Object::Instance::finalize(RmgMap & map)
 		auto terrainType = map.map().getTile(dPosition).terType;
 		auto templates = VLC->objtypeh->getHandlerFor(dObject.ID, dObject.subID)->getTemplates(terrainType);
 		if (templates.empty())
-			throw rmgException(boost::to_string(boost::format("Did not find graphics for object (%d,%d) at %s (terrain %d)") % dObject.ID % dObject.subID % dPosition.toString() % terrainType));
+			throw rmgException(boost::to_string(boost::format("Did not find graphics for object (%d,%d) at %s (terrain %d)") % dObject.ID % dObject.subID % getPosition(true).toString() % terrainType));
 		
 		setTemplate(terrainType);
 	}

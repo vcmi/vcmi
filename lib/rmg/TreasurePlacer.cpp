@@ -761,6 +761,70 @@ bool TreasurePlacer::createTreasurePile(ObjectManager & manager, int3 &pos, floa
 	}
 }
 
+ObjectInfo TreasurePlacer::getRandomObject(ui32 desiredValue, ui32 currentValue)
+{
+	std::vector<std::pair<ui32, ObjectInfo*>> thresholds; //handle complex object via pointer
+	ui32 total = 0;
+	
+	//calculate actual treasure value range based on remaining value
+	ui32 maxVal = desiredValue - currentValue;
+	ui32 minValue = static_cast<ui32>(0.25f * (desiredValue - currentValue));
+	
+	for(ObjectInfo & oi : possibleObjects) //copy constructor turned out to be costly
+	{
+		if(oi.value > maxVal)
+			continue; //this assumes values are sorted in ascending order TODO: do we need continue or break?
+		
+		if(oi.value >= minValue && oi.maxPerZone > 0)
+		{
+			total += oi.probability;
+			thresholds.push_back(std::make_pair(total, &oi));
+		}
+	}
+	
+	if(thresholds.empty())
+	{
+		ObjectInfo oi;
+		//Generate pandora Box with gold if the value is extremely high
+		if(minValue > 30000) //we don't have object valuable enough TODO: use gen.getConfig().treasureValueLimit
+		{
+			oi.generateObject = [minValue]() -> CGObjectInstance *
+			{
+				auto factory = VLC->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0);
+				auto obj = (CGPandoraBox *) factory->create(ObjectTemplate());
+				obj->resources[Res::GOLD] = minValue;
+				return obj;
+			};
+			oi.setTemplate(Obj::PANDORAS_BOX, 0, zone.getTerrainType());
+			oi.value = minValue;
+			oi.probability = 0;
+		}
+		else //generate empty object with 0 value if the value if we can't spawn anything*/
+		{
+			oi.generateObject = []() -> CGObjectInstance *
+			{
+				return nullptr;
+			};
+			oi.setTemplate(Obj::PANDORAS_BOX, 0, zone.getTerrainType()); //TODO: null template or something? should be never used, but hell knows
+			oi.value = 0; // this field is checked to determine no object
+			oi.probability = 0;
+		}
+		return oi;
+	}
+	else
+	{
+		int r = generator.nextInt(1, total);
+		
+		//binary search = fastest
+		auto it = std::lower_bound(thresholds.begin(), thresholds.end(), r,
+								   [](const std::pair<ui32, ObjectInfo*> &rhs, const int lhs)->bool
+								   {
+			return (int)rhs.first < lhs;
+		});
+		return *(it->second);
+	}
+}
+
 ObjectInfo TreasurePlacer::getRandomObject(const ObjectManager & manager, CTreasurePileInfo &info, ui32 desiredValue, ui32 maxValue, ui32 currentValue)
 {
 	//int objectsVisitableFromBottom = 0; //for debug
@@ -902,7 +966,7 @@ ObjectInfo TreasurePlacer::getRandomObject(const ObjectManager & manager, CTreas
 	}
 	else
 	{
-		int r = generator.nextInt (1, total);
+		int r = generator.nextInt(1, total);
 		
 		//binary search = fastest
 		auto it = std::lower_bound(thresholds.begin(), thresholds.end(), r,

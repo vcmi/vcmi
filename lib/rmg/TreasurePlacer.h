@@ -57,6 +57,9 @@ protected:
 	bool findPlaceForTreasurePile(float min_dist, int3 &pos, int value);
 	ObjectInfo getRandomObject(const ObjectManager & manager, CTreasurePileInfo &info, ui32 desiredValue, ui32 maxValue, ui32 currentValue);
 	
+	ObjectInfo getRandomObject(ui32 desiredValue, ui32 currentValue);
+	
+	
 protected:
 	RmgMap & map;
 	CRandomGenerator & generator;
