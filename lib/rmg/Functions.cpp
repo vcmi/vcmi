@@ -10,6 +10,7 @@
 #include "ObjectManager.h"
 #include "RoadPlacer.h"
 #include "TreasurePlacer.h"
+#include "ConnectionsPlacer.h"
 #include "RmgMap.h"
 #include "TileInfo.h"
 #include "../CTownHandler.h"
@@ -386,7 +387,7 @@ bool canObstacleBePlacedHere(const RmgMap & map, ObjectTemplate &temp, int3 &pos
 	for (auto blockingTile : tilesBlockedByObject)
 	{
 		int3 t = pos + blockingTile;
-		if(!map.isOnMap(t) || !(map.isPossible(t) || map.shouldBeBlocked(t)) || !temp.canBePlacedAt(map.map().getTile(t).terType))
+		if(!map.isOnMap(t) || !(/*map.isPossible(t) || */map.shouldBeBlocked(t)) || !temp.canBePlacedAt(map.map().getTile(t).terType))
 		{
 			return false; //if at least one tile is not possible, object can't be placed here
 		}
@@ -465,13 +466,20 @@ bool processZone(Zone & zone, CMapGenerator & gen, RmgMap & map)
 {
 	initTerrainType(zone, gen);
 	paintZoneTerrain(zone, gen.rand, map, zone.getTerrainType());
+	//zone center should be always clear to allow other tiles to connect
+	zone.initFreeTiles();
 	
 	auto * obMgr = zone.getModificator<ObjectManager>();
 	auto * trPlacer = zone.getModificator<TreasurePlacer>();
+	auto * cnPlacer = zone.getModificator<ConnectionsPlacer>();
+	
+	for(auto c : gen.getMapGenOptions().getMapTemplate()->getConnections())
+		cnPlacer->addConnection(c);
+	
 	trPlacer->addAllPossibleObjects(gen);
 	
-	//zone center should be always clear to allow other tiles to connect
-	zone.initFreeTiles();
+	cnPlacer->process();
+	
 	zone.connectLater(); //ideally this should work after fractalize, but fails
 	zone.fractalize();
 	placeMines(zone, gen, *obMgr);

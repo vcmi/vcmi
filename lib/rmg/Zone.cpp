@@ -247,13 +247,23 @@ bool Zone::connectPath(const Rmg::Area & src, bool onlyStraight)
 	auto area = dAreaPossible + dAreaFree;
 	Rmg::Path freePath(area);
 	freePath.connect(dAreaFree);
-	auto path = freePath.search(src, onlyStraight);
-	if(path.getPathArea().empty())
-		return false;
 	
-	dAreaPossible.subtract(path.getPathArea());
-	dAreaFree.unite(path.getPathArea());
-	for(auto & t : path.getPathArea().getTiles())
+	//connect to all pieces
+	Rmg::Area potentialPath;
+	auto goals = connectedAreas(src);
+	for(auto & goal : goals)
+	{
+		auto path = freePath.search(goal, onlyStraight);
+		if(path.getPathArea().empty())
+			return false;
+		
+		potentialPath.unite(path.getPathArea());
+		freePath.connect(path.getPathArea());
+	}
+	
+	dAreaPossible.subtract(potentialPath);
+	dAreaFree.unite(potentialPath);
+	for(auto & t : potentialPath.getTiles())
 		map.setOccupied(t, ETileType::FREE);
 	return true;
 }
@@ -262,32 +272,6 @@ bool Zone::connectPath(const int3 & src, bool onlyStraight)
 ///connect current tile to any other free tile within zone
 {
 	return connectPath(Rmg::Area({src}), onlyStraight);
-}
-
-bool Zone::connectWithCenter(const int3 & src, bool onlyStraight, bool passThroughBlocked)
-///connect current tile to any other free tile within zone
-{
-	auto movementCost = [this](const int3 & s, const int3 & d)
-	{
-		if(map.isFree(pos))
-			return 1;
-		else if (map.isPossible(pos))
-			return 2;
-		return 3;
-	};
-	auto area = dAreaPossible + dAreaFree;
-	if(passThroughBlocked)
-		area = dArea - dAreaUsed;
-	Rmg::Path freePath(area, getPos());
-	auto path = freePath.search(src, onlyStraight, movementCost);
-	if(path.getPathArea().empty())
-		return false;
-	
-	dAreaPossible.subtract(path.getPathArea());
-	dAreaFree.unite(path.getPathArea());
-	for(auto & t : path.getPathArea().getTiles())
-		map.setOccupied(t, ETileType::FREE);
-	return true;
 }
 
 void Zone::addToConnectLater(const int3 & src)

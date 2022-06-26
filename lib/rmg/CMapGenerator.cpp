@@ -309,7 +309,6 @@ void CMapGenerator::fillZones()
 	{
 		initTownType(*it.second, rand, *map, *it.second->getModificator<ObjectManager>());
 		it.second->initFreeTiles();
-		createBorder(*map, *it.second);
 		
 		//it.second->initTownType();
 	}
@@ -330,7 +329,7 @@ void CMapGenerator::fillZones()
 	
 	//zoneWater.second->waterInitFreeTiles();
 
-	createDirectConnections(); //direct
+	//createDirectConnections(); //direct
 	
 #ifdef _BETA
 	map->dump(false);
@@ -347,6 +346,7 @@ void CMapGenerator::fillZones()
 	std::vector<std::shared_ptr<Zone>> treasureZones;
 	for(auto it : map->getZones())
 	{
+		//createBorder(*map, *it.second);
 		processZone(*it.second, *this, *map);
 		
 		if (it.second->getType() == ETemplateZoneType::TREASURE)
@@ -368,6 +368,11 @@ void CMapGenerator::fillZones()
 //		it.second->createObstacles1();
 	
 	createObstaclesCommon2(*map, rand);
+	
+#ifdef _BETA
+	map->dump(false);
+#endif
+	
 	//place actual obstacles matching zone terrain
 	//for(auto it : zones)
 	//	it.second->createObstacles2();
@@ -514,8 +519,8 @@ void CMapGenerator::createDirectConnections()
 				if (guardPos.valid())
 				{
 					//zones can make paths only in their own area
-					zoneA->connectWithCenter(guardPos, true, true);
-					zoneB->connectWithCenter(guardPos, true, true);
+					zoneA->connectPath(guardPos, true);
+					zoneB->connectPath(guardPos, true);
 
 					bool monsterPresent = zoneA->getModificator<ObjectManager>()->addMonster(guardPos, connection.getGuardStrength(), false, true);
 					zoneB->getModificator<ObjectManager>()->updateDistances(guardPos); //place next objects away from guard in both zones

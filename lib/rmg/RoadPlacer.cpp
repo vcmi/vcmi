@@ -33,11 +33,9 @@ bool RoadPlacer::createRoad(const Rmg::Area & dst)
 		if(res.getPathArea().empty())
 		{
 			logGlobal->warn("Failed to create road");
-			roads.unite(dst);
 			return false;
 		}
 	}
-	roads.unite(dst);
 	roads.unite(res.getPathArea());
 	return true;
 	
@@ -65,17 +63,19 @@ void RoadPlacer::drawRoads()
 void RoadPlacer::addRoadNode(const int3& node)
 {
 	roadNodes.add(node);
-	roads.add(node);
 }
 
 void RoadPlacer::connectRoads()
 {
 	logGlobal->debug("Started building roads");
+	if(roadNodes.empty())
+		return;
+	
+	roads.add(*roadNodes.getTiles().begin());
 	
 	auto areas = connectedAreas(roadNodes);
 	for(auto & area : areas)
 	{
-		roads.subtract(area);
 		createRoad(area);
 	}
 	

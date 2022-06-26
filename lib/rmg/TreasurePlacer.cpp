@@ -531,6 +531,8 @@ std::vector<ObjectInfo> TreasurePlacer::prepareTreasurePile(const CTreasureInfo&
 		oiptr->maxPerZone--;
 		
 		currentValue += oi.value;
+		
+		break;
 	}
 	
 	return objectInfos;
@@ -711,7 +713,7 @@ void TreasurePlacer::createTreasures(ObjectManager & manager)
 				possibleArea.erase(pos); //do not place again at this point
 				auto possibleAreaTemp = zone.areaPossible();
 				zone.areaPossible().subtract(rmgObject.getArea());
-				if(zone.connectPath(rmgObject.getAccessibleArea(), true))
+				if(zone.connectPath(rmgObject.getAccessibleArea(), false))
 				{
 					manager.placeObject(rmgObject, guarded, true);
 					break;

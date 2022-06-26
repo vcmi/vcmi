@@ -65,7 +65,7 @@ public:
 	std::list<const Instance*> instances() const;
 	
 	int3 getVisitablePosition() const;
-	Area getAccessibleArea() const;
+	Area getAccessibleArea(bool exceptLast = false) const;
 	
 	const int3 & getPosition() const;
 	void setPosition(const int3 & position);

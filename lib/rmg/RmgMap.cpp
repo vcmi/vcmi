@@ -14,6 +14,7 @@
 #include "ObjectManager.h"
 #include "RoadPlacer.h"
 #include "TreasurePlacer.h"
+#include "ConnectionsPlacer.h"
 #include "Functions.h"
 
 static const int3 dirs4[] = {int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0)};
@@ -94,6 +95,7 @@ void RmgMap::initTiles(CRandomGenerator & generator)
 		zone->setOptions(*option.second.get());
 		zones[zone->getId()] = zone;
 		zone->addModificator<ObjectManager>(generator);
+		zone->addModificator<ConnectionsPlacer>(generator);
 		zone->addModificator<TreasurePlacer>(generator);
 		zone->addModificator<RoadPlacer>(generator);
 	}

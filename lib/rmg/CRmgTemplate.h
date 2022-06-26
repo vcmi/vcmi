@@ -58,6 +58,8 @@ public:
 	int getGuardStrength() const;
 
 	void serializeJson(JsonSerializeFormat & handler);
+	
+	friend bool operator==(const ZoneConnection &, const ZoneConnection &);
 private:
 	TRmgTemplateZoneId zoneA;
 	TRmgTemplateZoneId zoneB;

@@ -182,6 +182,7 @@ const int3 & Object::getPosition() const
 
 int3 Object::getVisitablePosition() const
 {
+	assert(!dInstances.empty());
 	for(auto & instance : dInstances)
 		if(!getArea().contains(instance.getVisitablePosition()))
 			return instance.getVisitablePosition();
@@ -189,11 +190,11 @@ int3 Object::getVisitablePosition() const
 	return dInstances.back().getVisitablePosition(); //fallback - return position of last object
 }
 
-Rmg::Area Object::getAccessibleArea() const
+Rmg::Area Object::getAccessibleArea(bool exceptLast) const
 {
 	Rmg::Area accessibleArea;
-	for(auto & i : dInstances)
-		accessibleArea.unite(i.getAccessibleArea());
+	for(auto i = dInstances.begin(); i != (exceptLast ? std::prev(dInstances.end()) : dInstances.end()); ++i)
+		accessibleArea.unite(i->getAccessibleArea());
 	accessibleArea.subtract(getArea());
 	return accessibleArea;
 }

@@ -446,6 +446,11 @@ int ZoneConnection::getGuardStrength() const
 {
 	return guardStrength;
 }
+	
+bool operator==(const ZoneConnection & l, const ZoneConnection & r)
+{
+	return l.zoneA == r.zoneA && l.zoneB == r.zoneB && l.guardStrength == r.guardStrength;
+}
 
 void ZoneConnection::serializeJson(JsonSerializeFormat & handler)
 {

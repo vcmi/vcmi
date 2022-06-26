@@ -147,10 +147,14 @@ int3 ObjectManager::findPlaceForObject(const Rmg::Area & searchArea, Rmg::Object
 {
 	float bestWeight = 0.f;
 	int3 result(-1, -1, -1);
+	auto usedTilesBorder = zone.areaUsed().getBorderOutside();
 	
-	auto appropriateArea = searchArea.getSubarea([&obj, &searchArea](const int3 & tile)
+	auto appropriateArea = searchArea.getSubarea([&obj, &searchArea, &usedTilesBorder](const int3 & tile)
 	{
 		obj.setPosition(tile);
+		if(usedTilesBorder.count(tile))
+			return false;
+		
 		return searchArea.contains(obj.getArea()) && searchArea.overlap(obj.getAccessibleArea());
 	});
 	
@@ -232,7 +236,7 @@ bool ObjectManager::createRequiredObjects()
 			possibleArea.erase(pos); //do not place again at this point
 			auto possibleAreaTemp = zone.areaPossible();
 			zone.areaPossible().subtract(rmgObject.getArea());
-			if(zone.connectPath(rmgObject.getAccessibleArea(), false))
+			if(zone.connectPath(rmgObject.getAccessibleArea(guarded), false))
 			{
 				placeObject(rmgObject, guarded, true);
 				break;
@@ -266,7 +270,7 @@ bool ObjectManager::createRequiredObjects()
 			possibleArea.erase(pos); //do not place again at this point
 			auto possibleAreaTemp = zone.areaPossible();
 			zone.areaPossible().subtract(rmgObject.getArea());
-			if(zone.connectPath(rmgObject.getAccessibleArea(), false))
+			if(zone.connectPath(rmgObject.getAccessibleArea(guarded), false))
 			{
 				placeObject(rmgObject, guarded, true);
 				break;
@@ -381,8 +385,22 @@ void ObjectManager::placeObject(Rmg::Object & object, bool guarded, bool updateD
 	zone.areaUsed().unite(object.getArea());
 	zone.areaUsed().erase(object.getVisitablePosition());
 	
+	if(guarded)
+	{
+		auto guardedArea = object.instances().back()->getAccessibleArea();
+		auto areaToBlock = object.getAccessibleArea(true);
+		areaToBlock.subtract(guardedArea);
+		zone.areaPossible().subtract(areaToBlock);
+		for(auto & i : areaToBlock.getTiles())
+			if(map.isOnMap(i) && map.isPossible(i))
+				map.setOccupied(i, ETileType::BLOCKED);
+	}
+	
 	if(updateDistance)
 		updateDistances(object.getPosition());
+	
+	//zone.getModificator<RoadPlacer>()->addRoadNode(object.getVisitablePosition());
+	//return;
 	
 	switch(object.instances().front()->object().ID)
 	{
@@ -412,6 +430,8 @@ void ObjectManager::placeObject(CGObjectInstance* object, const int3 &pos, bool 
 	
 	if(updateDistance)
 		updateDistances(pos);
+	
+	//return;
 	
 	switch(object->ID)
 	{
@@ -506,9 +526,21 @@ bool ObjectManager::addGuard(Rmg::Object & object, si32 str, bool zoneGuard)
 		delete guard;
 		return false;
 	}
+	auto guardTiles = accessibleArea.getTilesVector();
+	auto guardPos = *std::min_element(guardTiles.begin(), guardTiles.end(), [&object](const int3 & l, const int3 & r)
+	{
+		auto p = object.getVisitablePosition();
+		if(l.y > r.y)
+			return true;
+		
+		if(l.y == r.y)
+			return abs(l.x - p.x) < abs(r.x - p.x);
+		
+		return false;
+	});
 	
 	auto & instance = object.addInstance(*guard);
-	instance.setPosition(*accessibleArea.getTiles().begin() - object.getPosition());
+	instance.setPosition(guardPos - object.getPosition());
 		
 	return true;
 }
