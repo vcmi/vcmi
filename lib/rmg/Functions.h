@@ -49,7 +49,6 @@ void DLL_LINKAGE initTerrainType(Zone & zone, CMapGenerator & gen);
 void DLL_LINKAGE createObstacles1(const Zone & zone, RmgMap & map, CRandomGenerator & generator);
 void DLL_LINKAGE createObstacles2(const Zone & zone, RmgMap & map, CRandomGenerator & generator, ObjectManager & manager);
 bool canObstacleBePlacedHere(const RmgMap & gen, ObjectTemplate &temp, int3 &pos);
-void placeSubterraneanGate(Zone & zone, ObjectManager & manager, int3 pos, si32 guardStrength);
 
 int chooseRandomAppearance(CRandomGenerator & generator, si32 ObjID, const Terrain & terrain);
 

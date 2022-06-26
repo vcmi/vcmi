@@ -13,6 +13,7 @@
 #include "ConnectionsPlacer.h"
 #include "RmgMap.h"
 #include "TileInfo.h"
+#include "CRmgPath.h"
 #include "../CTownHandler.h"
 #include "../mapping/CMapEditManager.h"
 #include "../mapping/CMap.h"
@@ -395,15 +396,6 @@ bool canObstacleBePlacedHere(const RmgMap & map, ObjectTemplate &temp, int3 &pos
 	return true;
 }
 
-void placeSubterraneanGate(Zone & zone, ObjectManager & manager, int3 pos, si32 guardStrength)
-{
-	auto factory = VLC->objtypeh->getHandlerFor(Obj::SUBTERRANEAN_GATE, 0);
-	auto gate = factory->create(ObjectTemplate());
-	manager.placeObject(gate, pos, true);
-	zone.addToConnectLater(manager.getAccessibleOffset(gate->appearance, pos)); //guard will be placed on accessibleOffset
-	manager.guardObject(gate, guardStrength, true);
-}
-
 int chooseRandomAppearance(CRandomGenerator & generator, si32 ObjID, const Terrain & terrain)
 {
 	auto factories = VLC->objtypeh->knownSubObjects(ObjID);
@@ -476,11 +468,10 @@ bool processZone(Zone & zone, CMapGenerator & gen, RmgMap & map)
 	for(auto c : gen.getMapGenOptions().getMapTemplate()->getConnections())
 		cnPlacer->addConnection(c);
 	
-	trPlacer->addAllPossibleObjects(gen);
+	trPlacer->addAllPossibleObjects();
 	
 	cnPlacer->process();
 	
-	zone.connectLater(); //ideally this should work after fractalize, but fails
 	zone.fractalize();
 	placeMines(zone, gen, *obMgr);
 	

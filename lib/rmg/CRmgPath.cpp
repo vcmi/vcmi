@@ -15,7 +15,7 @@ using namespace Rmg;
 
 const std::function<float(const int3 &, const int3 &)> Path::DEFAULT_MOVEMENT_FUNCTION =
 [](const int3 & src, const int3 & dst)
-{
+{	
 	return 1.f;
 };
 

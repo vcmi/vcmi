@@ -33,14 +33,14 @@ struct DLL_LINKAGE ObjectInfo
 class DLL_LINKAGE TreasurePlacer: public Modificator
 {
 public:
-	TreasurePlacer(Zone & zone, RmgMap & map, CRandomGenerator & generator);
+	TreasurePlacer(Zone & zone, RmgMap & map, CMapGenerator & generator);
 	
 	void process() override;
 	
 	void createTreasures(ObjectManager & manager);
 	
 	void setQuestArtZone(Zone * otherZone);
-	void addAllPossibleObjects(CMapGenerator & gen); //add objects, including zone-specific, to possibleObjects
+	void addAllPossibleObjects(); //add objects, including zone-specific, to possibleObjects
 	
 protected:
 	bool isGuardNeededForTreasure(int value);
@@ -52,7 +52,7 @@ protected:
 	
 protected:
 	RmgMap & map;
-	CRandomGenerator & generator;
+	CMapGenerator & generator;
 	Zone & zone;
 	
 	std::vector<ObjectInfo> possibleObjects;

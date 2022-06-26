@@ -11,7 +11,7 @@
 class DLL_LINKAGE RoadPlacer: public Modificator
 {
 public:
-	RoadPlacer(Zone & zone, RmgMap & map, CRandomGenerator & generator);
+	RoadPlacer(Zone & zone, RmgMap & map, CMapGenerator & generator);
 	
 	void process() override;
 	
@@ -24,7 +24,7 @@ protected:
 	
 protected:
 	RmgMap & map;
-	CRandomGenerator & generator;
+	CMapGenerator & generator;
 	Zone & zone;
 	
 	Rmg::Area roadNodes; //tiles to be connected with roads

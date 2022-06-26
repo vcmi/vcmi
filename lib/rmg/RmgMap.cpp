@@ -16,6 +16,7 @@
 #include "TreasurePlacer.h"
 #include "ConnectionsPlacer.h"
 #include "Functions.h"
+#include "CMapGenerator.h"
 
 static const int3 dirs4[] = {int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0)};
 static const int3 dirsDiagonal[] = { int3(1,1,0),int3(1,-1,0),int3(-1,1,0),int3(-1,-1,0) };
@@ -59,7 +60,7 @@ void RmgMap::foreachDiagonalNeighbour(const int3& pos, std::function<void(int3& 
 	}
 }
 
-void RmgMap::initTiles(CRandomGenerator & generator)
+void RmgMap::initTiles(CMapGenerator & generator)
 {
 	mapInstance->initTerrain();
 	
@@ -83,9 +84,9 @@ void RmgMap::initTiles(CRandomGenerator & generator)
 	for (auto faction : VLC->townh->getAllowedFactions())
 		zonesPerFaction[faction] = 0;
 	
-	getEditManager()->clearTerrain(&generator);
+	getEditManager()->clearTerrain(&generator.rand);
 	getEditManager()->getTerrainSelection().selectRange(MapRect(int3(0, 0, 0), mapGenOptions.getWidth(), mapGenOptions.getHeight()));
-	getEditManager()->drawTerrain(Terrain("grass"), &generator);
+	getEditManager()->drawTerrain(Terrain("grass"), &generator.rand);
 	
 	auto tmpl = mapGenOptions.getMapTemplate();
 	zones.clear();
@@ -94,10 +95,10 @@ void RmgMap::initTiles(CRandomGenerator & generator)
 		auto zone = std::make_shared<Zone>(*this, generator);
 		zone->setOptions(*option.second.get());
 		zones[zone->getId()] = zone;
-		zone->addModificator<ObjectManager>(generator);
-		zone->addModificator<ConnectionsPlacer>(generator);
-		zone->addModificator<TreasurePlacer>(generator);
-		zone->addModificator<RoadPlacer>(generator);
+		zone->addModificator<ObjectManager>();
+		zone->addModificator<ConnectionsPlacer>();
+		zone->addModificator<TreasurePlacer>();
+		zone->addModificator<RoadPlacer>();
 	}
 }
 

@@ -18,7 +18,7 @@
 #include "Functions.h"
 #include "CRmgObject.h"
 
-ObjectManager::ObjectManager(Zone & zone, RmgMap & map, CRandomGenerator & generator) : zone(zone), map(map), generator(generator)
+ObjectManager::ObjectManager(Zone & zone, RmgMap & map, CMapGenerator & generator) : zone(zone), map(map), generator(generator)
 {
 	
 }
@@ -49,18 +49,6 @@ void ObjectManager::addObjectAtPosition(CGObjectInstance * obj, const int3 & pos
 	instantObjects.push_back(std::make_pair(obj, position));
 }
 
-void ObjectManager::setTemplateForObject(CGObjectInstance* obj)
-{
-	if(obj->appearance.id == Obj::NO_OBJ)
-	{
-		auto templates = VLC->objtypeh->getHandlerFor(obj->ID, obj->subID)->getTemplates(zone.getTerrainType());
-		if(templates.empty())
-			throw rmgException(boost::to_string(boost::format("Did not find graphics for object (%d,%d) at %s") % obj->ID % obj->subID % zone.getTerrainType()));
-		
-		obj->appearance = templates.front();
-	}
-}
-
 void ObjectManager::updateDistances(const int3 & pos)
 {
 	for (auto tile : zone.areaPossible().getTiles()) //don't need to mark distance for not possible tiles
@@ -68,79 +56,6 @@ void ObjectManager::updateDistances(const int3 & pos)
 		ui32 d = pos.dist2dSQ(tile); //optimization, only relative distance is interesting
 		map.setNearestObjectDistance(tile, std::min((float)d, map.getNearestObjectDistance(tile)));
 	}
-}
-
-
-bool ObjectManager::isAccessibleFromSomewhere(ObjectTemplate & appearance, const int3 & tile) const
-{
-	return getAccessibleOffset(appearance, tile).valid();
-}
-
-int3 ObjectManager::getAccessibleOffset(ObjectTemplate & appearance, const int3 & tile) const
-{
-	auto tilesBlockedByObject = appearance.getBlockedOffsets();
-	
-	int3 ret(-1, -1, -1);
-	for(int x = -1; x < 2; x++)
-	{
-		for(int y = -1; y <2; y++)
-		{
-			if(x && y) //check only if object is visitable from another tile
-			{
-				int3 offset = int3(x, y, 0) - appearance.getVisitableOffset();
-				if (!vstd::contains(tilesBlockedByObject, offset))
-				{
-					int3 nearbyPos = tile + offset;
-					if(map.isOnMap(nearbyPos))
-					{
-						if(appearance.isVisitableFrom(x, y) && !map.isBlocked(nearbyPos)/* && zone.getTileInfo().count(nearbyPos)*/)
-							ret = nearbyPos;
-					}
-				}
-			}
-		}
-	}
-	return ret;
-}
-
-std::vector<int3> ObjectManager::getAccessibleOffsets(const CGObjectInstance* object) const
-{
-	//get all tiles from which this object can be accessed
-	int3 visitable = object->visitablePos();
-	std::vector<int3> tiles;
-	
-	auto tilesBlockedByObject = object->getBlockedPos(); //absolue value, as object is already placed
-	
-	map.foreach_neighbour(visitable, [&](int3& pos)
-	{
-		if(map.isPossible(pos) || map.isFree(pos))
-		{
-			if(!vstd::contains(tilesBlockedByObject, pos))
-			{
-				if(object->appearance.isVisitableFrom(pos.x - visitable.x, pos.y - visitable.y) && !map.isBlocked(pos)) //TODO: refactor - info about visitability from absolute coordinates
-				{
-					tiles.push_back(pos);
-				}
-			}
-			
-		};
-	});
-	
-	return tiles;
-}
-
-bool ObjectManager::areAllTilesAvailable(CGObjectInstance* obj, int3& tile, const std::set<int3>& tilesBlockedByObject) const
-{
-	for(auto blockingTile : tilesBlockedByObject)
-	{
-		int3 t = tile + blockingTile;
-		if(!map.isOnMap(t) || !map.isPossible(t) || map.getZoneID(t) != zone.getId())
-		{
-			//if at least one tile is not possible, object can't be placed here
-			return false;
-		}
-	}
-	return true;
 }
 
 int3 ObjectManager::findPlaceForObject(const Rmg::Area & searchArea, Rmg::Object & obj, std::function<float(const int3)> weightFunction) const
@@ -188,31 +103,6 @@ int3 ObjectManager::findPlaceForObject(const Rmg::Area & searchArea, Rmg::Object
 	});
 }
 
-ObjectManager::EObjectPlacingResult ObjectManager::tryToPlaceObjectAndConnectToPath(CGObjectInstance * obj, const int3 & pos)
-{
-	//check if we can find a path around this object. Tiles will be set to "USED" after object is successfully placed.
-	obj->pos = pos;
-	map.setOccupied(obj->visitablePos(), ETileType::BLOCKED);
-	for(auto tile : obj->getBlockedPos())
-	{
-		if(map.isOnMap(tile))
-			map.setOccupied(tile, ETileType::BLOCKED);
-	}
-	int3 accessibleOffset = getAccessibleOffset(obj->appearance, pos);
-	if (!accessibleOffset.valid())
-	{
-		logGlobal->warn("Cannot access required object at position %s, retrying", pos.toString());
-		return EObjectPlacingResult::CANNOT_FIT;
-	}
-	if(!zone.connectPath(accessibleOffset, true))
-	{
-		logGlobal->trace("Failed to create path to required object at position %s, retrying", pos.toString());
-		return EObjectPlacingResult::SEALED_OFF;
-	}
-	else
-		return EObjectPlacingResult::SUCCESS;
-}
-
 bool ObjectManager::placeAndConnectObject(const Rmg::Area & searchArea, Rmg::Object & obj, si32 min_dist, bool isGuarded, bool onlyStraight) const
 {
 	return placeAndConnectObject(searchArea, obj, [this, min_dist](const int3 & tile)
@@ -242,7 +132,8 @@ bool ObjectManager::placeAndConnectObject(const Rmg::Area & searchArea, Rmg::Obj
 		possibleArea.erase(pos); //do not place again at this point
 		auto possibleAreaTemp = zone.areaPossible();
 		zone.areaPossible().subtract(obj.getArea());
-		if(zone.connectPath(obj.getAccessibleArea(isGuarded), onlyStraight))
+		auto accessibleArea = obj.getAccessibleArea(isGuarded) * zone.getArea();
+		if(zone.connectPath(accessibleArea, onlyStraight))
 		{
 			zone.areaPossible() = possibleAreaTemp;
 			return true;
@@ -255,7 +146,7 @@ bool ObjectManager::createRequiredObjects()
 {
 	logGlobal->trace("Creating required objects");
 	
-	for(const auto &object : requiredObjects)
+	for(const auto & object : requiredObjects)
 	{
 		auto * obj = object.first;
 		int3 pos;
@@ -270,9 +161,24 @@ bool ObjectManager::createRequiredObjects()
 		}
 		
 		placeObject(rmgObject, guarded, true);
+		
+		for(const auto & nearby : nearbyObjects)
+		{
+			if(nearby.second != object.first)
+				continue;
+			
+			Rmg::Area possibleArea(rmgObject.instances().front()->getBlockedArea().getBorderOutside());
+			possibleArea.intersect(zone.areaPossible());
+			if(possibleArea.empty())
+				continue;
+			
+			Rmg::Object rmgNearObject(*nearby.first);
+			rmgNearObject.setPosition(*RandomGeneratorUtil::nextItem(possibleArea.getTiles(), generator.rand));
+			placeObject(rmgNearObject, false, false);
+		}
 	}
 	
-	for(const auto &object : closeObjects)
+	for(const auto & object : closeObjects)
 	{
 		auto * obj = object.first;
 		int3 pos;
@@ -295,11 +201,27 @@ bool ObjectManager::createRequiredObjects()
 		}
 		
 		placeObject(rmgObject, guarded, true);
+		
+		for(const auto & nearby : nearbyObjects)
+		{
+			if(nearby.second != object.first)
+				continue;
+			
+			Rmg::Area possibleArea(rmgObject.instances().front()->getBlockedArea().getBorderOutside());
+			possibleArea.intersect(zone.areaPossible());
+			if(possibleArea.empty())
+				continue;
+			
+			Rmg::Object rmgNearObject(*nearby.first);
+			rmgNearObject.setPosition(*RandomGeneratorUtil::nextItem(possibleArea.getTiles(), generator.rand));
+			placeObject(rmgNearObject, false, false);
+		}
 	}
 	
 	//create nearby objects (e.g. extra resources close to mines)
 	for(const auto & object : nearbyObjects)
 	{
+		
 		/*auto * obj = object.first;
 		int3 pos;
 		auto possibleArea = obj.second;
@@ -368,7 +290,7 @@ bool ObjectManager::createRequiredObjects()
 	return true;
 }
 
-void ObjectManager::checkAndPlaceObject(CGObjectInstance* object, const int3 &pos)
+/*void ObjectManager::checkAndPlaceObject(CGObjectInstance* object, const int3 &pos)
 {
 	if (!map.isOnMap(pos))
 		throw rmgException(boost::to_string(boost::format("Position of object %d at %s is outside the map") % object->id % pos.toString()));
@@ -394,7 +316,7 @@ void ObjectManager::checkAndPlaceObject(CGObjectInstance* object, const int3 &po
 	}
 	
 	map.getEditManager()->insertObject(object);
-}
+}*/
 
 void ObjectManager::placeObject(Rmg::Object & object, bool guarded, bool updateDistance)
 {
@@ -417,9 +339,6 @@ void ObjectManager::placeObject(Rmg::Object & object, bool guarded, bool updateD
 	if(updateDistance)
 		updateDistances(object.getPosition());
 	
-	//zone.getModificator<RoadPlacer>()->addRoadNode(object.getVisitablePosition());
-	//return;
-	
 	switch(object.instances().front()->object().ID)
 	{
 		case Obj::TOWN:
@@ -441,33 +360,7 @@ void ObjectManager::placeObject(CGObjectInstance* object, const int3 &pos, bool 
 {
 	Rmg::Object rmgObject(*object);
 	rmgObject.setPosition(pos);
-	rmgObject.finalize(map);
-	zone.areaPossible().subtract(rmgObject.getArea());
-	zone.areaUsed().unite(rmgObject.getArea());
-	zone.areaUsed().erase(rmgObject.getVisitablePosition());
-	
-	if(updateDistance)
-		updateDistances(pos);
-	
-	//return;
-	
-	switch(object->ID)
-	{
-		case Obj::TOWN:
-		case Obj::RANDOM_TOWN:
-		case Obj::MONOLITH_TWO_WAY:
-		case Obj::MONOLITH_ONE_WAY_ENTRANCE:
-		case Obj::MONOLITH_ONE_WAY_EXIT:
-		case Obj::SUBTERRANEAN_GATE:
-		case Obj::SHIPYARD:
-		{
-			zone.getModificator<RoadPlacer>()->addRoadNode(object->visitablePos());
-		}
-			break;
-			
-		default:
-			break;
-	}
+	placeObject(rmgObject, false, true);
 }
 
 CGCreature * ObjectManager::chooseGuard(si32 strength, bool zoneGuard)
@@ -486,7 +379,7 @@ CGCreature * ObjectManager::chooseGuard(si32 strength, bool zoneGuard)
 	int strength2 = static_cast<int>(std::max(0.f, (strength - value2[monsterStrength]) * multiplier2[monsterStrength]));
 	
 	strength = strength1 + strength2;
-	if (strength < 100/*gen.getConfig().minGuardStrength*/) //TODO: use config
+	if (strength < generator.getConfig().minGuardStrength)
 		return nullptr; //no guard at all
 	
 	CreatureID creId = CreatureID::NONE;
@@ -507,10 +400,10 @@ CGCreature * ObjectManager::chooseGuard(si32 strength, bool zoneGuard)
 	}
 	if(possibleCreatures.size())
 	{
-		creId = *RandomGeneratorUtil::nextItem(possibleCreatures, generator);
+		creId = *RandomGeneratorUtil::nextItem(possibleCreatures, generator.rand);
 		amount = strength / VLC->creh->objects[creId]->AIValue;
 		if (amount >= 4)
-			amount = static_cast<int>(amount * generator.nextDouble(0.75, 1.25));
+			amount = static_cast<int>(amount * generator.rand.nextDouble(0.75, 1.25));
 	}
 	else //just pick any available creature
 	{
@@ -560,119 +453,5 @@ bool ObjectManager::addGuard(Rmg::Object & object, si32 str, bool zoneGuard)
 	auto & instance = object.addInstance(*guard);
 	instance.setPosition(guardPos - object.getPosition());
 		
-	return true;
-}
-
-bool ObjectManager::guardObject(CGObjectInstance* object, si32 str, bool zoneGuard, bool addToFreePaths)
-{
-	std::vector<int3> tiles = getAccessibleOffsets(object);
-	
-	int3 guardTile(-1, -1, -1);
-	
-	if(tiles.size())
-	{
-		//guardTile = tiles.front();
-		guardTile = getAccessibleOffset(object->appearance, object->pos);
-		logGlobal->trace("Guard object at %s", object->pos.toString());
-	}
-	else
-	{
-		logGlobal->error("Failed to guard object at %s", object->pos.toString());
-		return false;
-	}
-	
-	if(addMonster(guardTile, str, false, zoneGuard)) //do not place obstacles around unguarded object
-	{
-		for(auto pos : tiles)
-		{
-			if(map.isPossible(pos) && map.getZoneID(zone.getPos()) == zone.getId())
-				map.setOccupied(pos, ETileType::BLOCKED);
-		}
-		map.foreach_neighbour(guardTile, [&](int3& pos)
-		{
-			if(map.isPossible(pos) && map.getZoneID(zone.getPos()) == zone.getId())
-				map.setOccupied(pos, ETileType::FREE);
-		});
-		
-		map.setOccupied (guardTile, ETileType::USED);
-	}
-	else //allow no guard or other object in front of this object
-	{
-		for(auto tile : tiles)
-			if(map.isPossible(tile))
-				map.setOccupied(tile, ETileType::FREE);
-	}
-	
-	return true;
-}
-
-bool ObjectManager::addMonster(int3 &pos, si32 strength, bool clearSurroundingTiles, bool zoneGuard)
-{
-	//precalculate actual (randomized) monster strength based on this post
-	//http://forum.vcmi.eu/viewtopic.php?p=12426#12426
-	
-	int mapMonsterStrength = map.getMapGenOptions().getMonsterStrength();
-	int monsterStrength = (zoneGuard ? 0 : zone.zoneMonsterStrength) + mapMonsterStrength - 1; //array index from 0 to 4
-	static const int value1[] = {2500, 1500, 1000, 500, 0};
-	static const int value2[] = {7500, 7500, 7500, 5000, 5000};
-	static const float multiplier1[] = {0.5, 0.75, 1.0, 1.5, 1.5};
-	static const float multiplier2[] = {0.5, 0.75, 1.0, 1.0, 1.5};
-	
-	int strength1 = static_cast<int>(std::max(0.f, (strength - value1[monsterStrength]) * multiplier1[monsterStrength]));
-	int strength2 = static_cast<int>(std::max(0.f, (strength - value2[monsterStrength]) * multiplier2[monsterStrength]));
-	
-	strength = strength1 + strength2;
-	//if (strength < gen.getConfig().minGuardStrength)
-	//	return false; //no guard at all
-	
-	CreatureID creId = CreatureID::NONE;
-	int amount = 0;
-	std::vector<CreatureID> possibleCreatures;
-	for(auto cre : VLC->creh->objects)
-	{
-		if(cre->special)
-			continue;
-		if(!cre->AIValue) //bug #2681
-			continue;
-		if(!vstd::contains(zone.getMonsterTypes(), cre->faction))
-			continue;
-		if(((si32)(cre->AIValue * (cre->ammMin + cre->ammMax) / 2) < strength) && (strength < (si32)cre->AIValue * 100)) //at least one full monster. size between average size of given stack and 100
-		{
-			possibleCreatures.push_back(cre->idNumber);
-		}
-	}
-	if(possibleCreatures.size())
-	{
-		creId = *RandomGeneratorUtil::nextItem(possibleCreatures, generator);
-		amount = strength / VLC->creh->objects[creId]->AIValue;
-		if (amount >= 4)
-			amount = static_cast<int>(amount * generator.nextDouble(0.75, 1.25));
-	}
-	else //just pick any available creature
-	{
-		creId = CreatureID(132); //Azure Dragon
-		amount = strength / VLC->creh->objects[creId]->AIValue;
-	}
-	
-	auto guardFactory = VLC->objtypeh->getHandlerFor(Obj::MONSTER, creId);
-	
-	auto guard = (CGCreature *) guardFactory->create(ObjectTemplate());
-	guard->character = CGCreature::HOSTILE;
-	auto  hlp = new CStackInstance(creId, amount);
-	//will be set during initialization
-	guard->putStack(SlotID(0), hlp);
-	
-	placeObject(guard, pos, true);
-	
-	if(clearSurroundingTiles)
-	{
-		//do not spawn anything near monster
-		map.foreach_neighbour(pos, [this](int3 pos)
-		{
-			if(map.isPossible(pos))
-				map.setOccupied(pos, ETileType::FREE);
-		});
-	}
-	
 	return true;
 }

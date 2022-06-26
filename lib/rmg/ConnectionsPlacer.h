@@ -12,7 +12,7 @@
 class DLL_LINKAGE ConnectionsPlacer: public Modificator
 {
 public:
-	ConnectionsPlacer(Zone & zone, RmgMap & map, CRandomGenerator & generator);
+	ConnectionsPlacer(Zone & zone, RmgMap & map, CMapGenerator & generator);
 	
 	void process() override;
 	
@@ -26,7 +26,7 @@ protected:
 	
 protected:
 	RmgMap & map;
-	CRandomGenerator & generator;
+	CMapGenerator & generator;
 	Zone & zone;
 	
 	std::vector<rmg::ZoneConnection> dConnections, dCompleted;

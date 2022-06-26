@@ -13,7 +13,7 @@
 #include "../mapping/CMapEditManager.h"
 #include "CRmgPath.h"
 
-RoadPlacer::RoadPlacer(Zone & zone, RmgMap & map, CRandomGenerator & generator) : zone(zone), map(map), generator(generator)
+RoadPlacer::RoadPlacer(Zone & zone, RmgMap & map, CMapGenerator & generator) : zone(zone), map(map), generator(generator)
 {
 }
 
@@ -57,7 +57,7 @@ void RoadPlacer::drawRoads()
 	
 	map.getEditManager()->getTerrainSelection().setSelection(tiles);
 	//map.getEditManager()->drawRoad(gen.getConfig().defaultRoadType, &generator);
-	map.getEditManager()->drawRoad(ROAD_NAMES[1], &generator);
+	map.getEditManager()->drawRoad(ROAD_NAMES[1], &generator.rand);
 }
 
 void RoadPlacer::addRoadNode(const int3& node)

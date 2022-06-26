@@ -18,7 +18,7 @@
 #include "RoadPlacer.h"
 #include "TileInfo.h"
 
-ConnectionsPlacer::ConnectionsPlacer(Zone & zone, RmgMap & map, CRandomGenerator & generator) : zone(zone), map(map), generator(generator)
+ConnectionsPlacer::ConnectionsPlacer(Zone & zone, RmgMap & map, CMapGenerator & generator) : zone(zone), map(map), generator(generator)
 {
 }
 
@@ -64,7 +64,7 @@ void ConnectionsPlacer::selfSideConnection(const rmg::ZoneConnection & connectio
 		int3 borderPos;
 		while(!directConnectionIterator->second.empty())
 		{
-			borderPos = *RandomGeneratorUtil::nextItem(directConnectionIterator->second, generator);
+			borderPos = *RandomGeneratorUtil::nextItem(directConnectionIterator->second, generator.rand);
 			guardPos = zone.areaPossible().nearest(borderPos);
 			assert(borderPos != guardPos);
 			
@@ -155,7 +155,7 @@ void ConnectionsPlacer::selfSideConnection(const rmg::ZoneConnection & connectio
 					float d2 = tile.dist2dSQ(rmgGate1.getPosition());
 					if(d2 > maxDistSq)
 						return -1.f;
-					return 1000000.f - d2;
+					return 1000000.f - d2 - dist;
 				}
 				return -1.f;
 			}, guarded2, true))
@@ -169,6 +169,22 @@ void ConnectionsPlacer::selfSideConnection(const rmg::ZoneConnection & connectio
 				success = true;
 			}
 		}
+	}
+	
+	//3. place monoliths/portals
+	if(!success)
+	{
+		auto factory = VLC->objtypeh->getHandlerFor(Obj::MONOLITH_TWO_WAY, generator.getNextMonlithIndex());
+		auto teleport1 = factory->create(ObjectTemplate());
+		auto teleport2 = factory->create(ObjectTemplate());
+	
+		zone.getModificator<ObjectManager>()->addRequiredObject(teleport1, connection.getGuardStrength());
+		otherZone->getModificator<ObjectManager>()->addRequiredObject(teleport2, connection.getGuardStrength());
+		
+		assert(otherZone->getModificator<ConnectionsPlacer>());
+		otherZone->getModificator<ConnectionsPlacer>()->otherSideConnection(connection);
+		
+		success = true;
 	}
 }
 

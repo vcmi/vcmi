@@ -59,8 +59,6 @@ public:
 	
 	std::unique_ptr<CMap> generate();
 
-	void createDirectConnections();
-	void createConnections2();
 	void findZonesForQuestArts();
 
 	int getNextMonlithIndex();

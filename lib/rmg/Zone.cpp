@@ -10,10 +10,10 @@
 #include "Functions.h"
 #include "TileInfo.h"
 #include "../mapping/CMap.h"
-#include "../CRandomGenerator.h"
+#include "CMapGenerator.h"
 #include "CRmgPath.h"
 
-Zone::Zone(RmgMap & map, CRandomGenerator & generator)
+Zone::Zone(RmgMap & map, CMapGenerator & generator)
 					: ZoneOptions(),
 					townType(ETownType::NEUTRAL),
 					terrainType(Terrain("grass")),
@@ -244,6 +244,15 @@ bool Zone::crunchPath(const int3 &src, const int3 &dst, bool onlyStraight, std::
 bool Zone::connectPath(const Rmg::Area & src, bool onlyStraight)
 ///connect current tile to any other free tile within zone
 {
+	auto movementCost = [this](const int3 & s, const int3 & d)
+	{
+		if(map.isFree(d))
+			return 1;
+		else if (map.isPossible(d))
+			return 2;
+		return 3;
+	};
+	
 	auto area = dAreaPossible + dAreaFree;
 	Rmg::Path freePath(area);
 	freePath.connect(dAreaFree);
@@ -253,7 +262,7 @@ bool Zone::connectPath(const Rmg::Area & src, bool onlyStraight)
 	auto goals = connectedAreas(src);
 	for(auto & goal : goals)
 	{
-		auto path = freePath.search(goal, onlyStraight);
+		auto path = freePath.search(goal, onlyStraight, movementCost);
 		if(path.getPathArea().empty())
 			return false;
 		
@@ -272,33 +281,6 @@ bool Zone::connectPath(const int3 & src, bool onlyStraight)
 ///connect current tile to any other free tile within zone
 {
 	return connectPath(Rmg::Area({src}), onlyStraight);
-}
-
-void Zone::addToConnectLater(const int3 & src)
-{
-	dTilesToConnectLater.add(src);
-}
-
-void Zone::connectLater()
-{
-	auto movementCost = [this](const int3 & s, const int3 & d)
-	{
-		if(map.isFree(pos))
-			return 1;
-		else if (map.isPossible(pos))
-			return 2;
-		return 3;
-	};
-	auto area = dAreaPossible + dAreaFree;
-	Rmg::Path freePath(area, getPos());
-	auto path = freePath.search(dTilesToConnectLater, true, movementCost);
-	if(path.getPathArea().empty())
-		logGlobal->error("Failed to connect node with center of the zone");
-	
-	dAreaPossible.subtract(path.getPathArea());
-	dAreaFree.unite(path.getPathArea());
-	for(auto & t : path.getPathArea().getTiles())
-		map.setOccupied(t, ETileType::FREE);
 }
 
 void Zone::fractalize()
@@ -321,7 +303,7 @@ void Zone::fractalize()
 		{
 			//link tiles in random order
 			std::vector<int3> tilesToMakePath = possibleTiles.getTilesVector();
-			RandomGeneratorUtil::randomShuffle(tilesToMakePath, generator);
+			RandomGeneratorUtil::randomShuffle(tilesToMakePath, generator.rand);
 			
 			int3 nodeFound(-1, -1, -1);
 			

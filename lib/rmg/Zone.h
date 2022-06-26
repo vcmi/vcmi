@@ -15,6 +15,7 @@
 #include "CRmgObject.h"
 
 class RmgMap;
+class CMapGenerator;
 
 class Modificator
 {
@@ -25,7 +26,7 @@ public:
 class DLL_LINKAGE Zone : public rmg::ZoneOptions
 {
 public:
-	Zone(RmgMap & map, CRandomGenerator & generator);
+	Zone(RmgMap & map, CMapGenerator & generator);
 	
 	void setOptions(const rmg::ZoneOptions & options);
 	bool isUnderground() const;
@@ -53,8 +54,6 @@ public:
 	bool crunchPath(const int3 & src, const int3 & dst, bool onlyStraight, std::set<int3> * clearedTiles = nullptr);
 	bool connectPath(const int3 & src, bool onlyStraight);
 	bool connectPath(const Rmg::Area & src, bool onlyStraight);
-	void addToConnectLater(const int3& src);
-	void connectLater();
 	
 	template<class T>
 	T* getModificator()
@@ -66,13 +65,13 @@ public:
 	}
 	
 	template<class T>
-	void addModificator(CRandomGenerator & generator)
+	void addModificator()
 	{
 		modificators.push_back(std::make_unique<T>(*this, map, generator));
 	}
 	
 protected:
-	CRandomGenerator & generator;
+	CMapGenerator & generator;
 	RmgMap & map;
 	std::list<std::unique_ptr<Modificator>> modificators;
 	
@@ -82,7 +81,6 @@ protected:
 	Rmg::Area dArea; //irregular area assined to zone
 	Rmg::Area dAreaPossible;
 	Rmg::Area dAreaFree; //core paths of free tiles that all other objects will be linked to
-	Rmg::Area dTilesToConnectLater; //will be connected after paths are fractalized
 	Rmg::Area dAreaUsed;
 	
 	//template info

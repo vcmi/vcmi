@@ -92,21 +92,12 @@ void Object::Instance::clear()
 
 bool Object::Instance::isVisitableFrom(const int3 & position) const
 {
-	/*auto tilesBlockedByObject = dObject.getBlockedPos();
-	auto visitable = getVisitablePosition();
-	if(tilesBlockedByObject.count(visitable))
-		return false;
-	return dObject.appearance.isVisitableFrom(position.x - visitable.x, position.y - visitable.y);*/
 	return isVisitableFrom(position, getPosition(true));
 }
 
 bool Object::Instance::isVisitableFrom(const int3 & position, const int3 & potential) const
 {
-	//auto blockedTiles = getBlockedArea() - dPosition + potential;
 	auto visitable = getVisitablePosition() - getPosition(true) + potential;
-	//if(tilesBlockedByObject.count(visitable))
-	//	return false;
-	//auto visitable = getVisitablePosition();
 	return dObject.appearance.isVisitableFrom(position.x - visitable.x, position.y - visitable.y);
 }
 

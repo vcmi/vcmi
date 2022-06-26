@@ -14,6 +14,7 @@ class CMapEditManager;
 class CTileInfo;
 class CMapGenOptions;
 class Zone;
+class CMapGenerator;
 
 class RmgMap
 {
@@ -57,7 +58,7 @@ public:
 	void registerZone(TFaction faction);
 	ui32 getZoneCount(TFaction faction);
 	ui32 getTotalZoneCount() const;
-	void initTiles(CRandomGenerator & generator);
+	void initTiles(CMapGenerator & generator);
 	
 	bool isAllowedSpell(SpellID sid) const;
 	
