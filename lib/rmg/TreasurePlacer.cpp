@@ -500,7 +500,7 @@ bool TreasurePlacer::isGuardNeededForTreasure(int value)
 
 std::vector<ObjectInfo> TreasurePlacer::prepareTreasurePile(const CTreasureInfo& treasureInfo)
 {
-	std::vector<ObjectInfo> objectInfos;
+	std::vector<ObjectInfo> objectInfos, tempObjectInfos;
 	int maxValue = treasureInfo.max;
 	int minValue = treasureInfo.min;
 	
@@ -510,21 +510,35 @@ std::vector<ObjectInfo> TreasurePlacer::prepareTreasurePile(const CTreasureInfo&
 	bool hasLargeObject = false;
 	while(currentValue <= (int)desiredValue - 100) //no objects with value below 100 are available
 	{
-		auto oi = getRandomObject(desiredValue, currentValue);
+		auto oi = getRandomObject(desiredValue, currentValue, !hasLargeObject);
 		if(oi.value == 0) //fail
 			break;
-		/*if(!oi.templ.isVisitableFromTop())
+		
+		if(oi.templ.isVisitableFromTop())
+		{
+			tempObjectInfos.push_back(oi);
+		}
+		else
 		{
 			if(hasLargeObject)
-				continue; //only one large object per treasure pile
-			
-			hasLargeObject = true;
-			objectInfos.insert(objectInfos.begin(), oi); //large object shall at first place
+			{
+				//only one large object per treasure pile
+				continue;
+			}
+			else
+			{
+				tempObjectInfos.insert(tempObjectInfos.begin(), oi); //large object shall at first place
+				hasLargeObject = true;
+			}
 		}
-		else*/
+		
+		auto rmgTemp = constuctTreasurePile(tempObjectInfos);
+		if(rmgTemp.instances().empty()) //handle incorrect placement
 		{
-			objectInfos.push_back(oi);
+			tempObjectInfos = objectInfos;
+			continue;
 		}
+		rmgTemp.clear();
 		
 		//remove from possible objects
 		auto oiptr = std::find(possibleObjects.begin(), possibleObjects.end(), oi);
@@ -532,7 +546,7 @@ std::vector<ObjectInfo> TreasurePlacer::prepareTreasurePile(const CTreasureInfo&
 		
 		currentValue += oi.value;
 		
-		break;
+		objectInfos = tempObjectInfos;
 	}
 	
 	return objectInfos;
@@ -579,7 +593,7 @@ Rmg::Object TreasurePlacer::constuctTreasurePile(const std::vector<ObjectInfo> &
 	return rmgObject;
 }
 
-ObjectInfo TreasurePlacer::getRandomObject(ui32 desiredValue, ui32 currentValue)
+ObjectInfo TreasurePlacer::getRandomObject(ui32 desiredValue, ui32 currentValue, bool allowLargeObjects)
 {
 	std::vector<std::pair<ui32, ObjectInfo*>> thresholds; //handle complex object via pointer
 	ui32 total = 0;
@@ -591,7 +605,10 @@ ObjectInfo TreasurePlacer::getRandomObject(ui32 desiredValue, ui32 currentValue)
 	for(ObjectInfo & oi : possibleObjects) //copy constructor turned out to be costly
 	{
 		if(oi.value > maxVal)
-			continue; //this assumes values are sorted in ascending order TODO: do we need continue or break?
+			break; //this assumes values are sorted in ascending order TODO: do we need continue or break?
+		
+		if(!oi.templ.isVisitableFromTop() && !allowLargeObjects)
+			continue;
 		
 		if(oi.value >= minValue && oi.maxPerZone > 0)
 		{
@@ -698,7 +715,9 @@ void TreasurePlacer::createTreasures(ObjectManager & manager)
 				continue;
 			
 			//guard treasure pile
-			bool guarded = manager.addGuard(rmgObject, value);
+			bool guarded = isGuardNeededForTreasure(value);
+			if(guarded)
+				guarded = manager.addGuard(rmgObject, value);
 			
 			int3 pos;
 			auto possibleArea = zone.areaPossible();

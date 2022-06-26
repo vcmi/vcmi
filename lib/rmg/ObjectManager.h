@@ -34,6 +34,8 @@ public:
 	void addNearbyObject(CGObjectInstance * obj, CGObjectInstance * nearbyTarget);
 	void addObjectAtPosition(CGObjectInstance * obj, const int3 & position, si32 guardStrength=0);
 	
+	void addObjectInstantly(Rmg::Object & object, const Rmg::Area & searchArea, si32 guardStrength=0);
+	
 	bool createRequiredObjects();
 	
 	bool isAccessibleFromSomewhere(ObjectTemplate & appearance, const int3 & tile) const;
@@ -44,6 +46,9 @@ public:
 	int3 findPlaceForObject(const Rmg::Area & searchArea, Rmg::Object & obj, si32 min_dist) const;
 	int3 findPlaceForObject(const Rmg::Area & searchArea, Rmg::Object & obj, std::function<float(const int3)> weightFunction) const;
 	EObjectPlacingResult tryToPlaceObjectAndConnectToPath(CGObjectInstance * obj, const int3 & pos); //return true if the position can be connected
+	
+	bool placeAndConnectObject(const Rmg::Area & searchArea, Rmg::Object & obj, si32 min_dist, bool isGuarded, bool onlyStraight) const;
+	bool placeAndConnectObject(const Rmg::Area & searchArea, Rmg::Object & obj, std::function<float(const int3)> weightFunction, bool isGuarded, bool onlyStraight) const;
 	
 	CGCreature * chooseGuard(si32 str, bool zoneGuard = false);
 	bool addGuard(Rmg::Object & object, si32 str, bool zoneGuard = false);

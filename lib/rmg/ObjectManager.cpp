@@ -213,6 +213,44 @@ ObjectManager::EObjectPlacingResult ObjectManager::tryToPlaceObjectAndConnectToP
 		return EObjectPlacingResult::SUCCESS;
 }
 
+bool ObjectManager::placeAndConnectObject(const Rmg::Area & searchArea, Rmg::Object & obj, si32 min_dist, bool isGuarded, bool onlyStraight) const
+{
+	return placeAndConnectObject(searchArea, obj, [this, min_dist](const int3 & tile)
+	{
+		auto ti = map.getTile(tile);
+		auto dist = ti.getNearestObjectDistance();
+		//avoid borders
+		if(dist >= min_dist)
+		{
+			return dist;
+		}
+		return -1.f;
+	}, isGuarded, onlyStraight);
+}
+
+bool ObjectManager::placeAndConnectObject(const Rmg::Area & searchArea, Rmg::Object & obj, std::function<float(const int3)> weightFunction, bool isGuarded, bool onlyStraight) const
+{
+	int3 pos;
+	auto possibleArea = searchArea;
+	while(true)
+	{
+		pos = findPlaceForObject(possibleArea, obj, weightFunction);
+		if(!pos.valid())
+		{
+			return false;
+		}
+		possibleArea.erase(pos); //do not place again at this point
+		auto possibleAreaTemp = zone.areaPossible();
+		zone.areaPossible().subtract(obj.getArea());
+		if(zone.connectPath(obj.getAccessibleArea(isGuarded), onlyStraight))
+		{
+			zone.areaPossible() = possibleAreaTemp;
+			return true;
+		}
+		zone.areaPossible() = possibleAreaTemp;
+	}
+}
+
 bool ObjectManager::createRequiredObjects()
 {
 	logGlobal->trace("Creating required objects");
@@ -221,28 +259,17 @@ bool ObjectManager::createRequiredObjects()
 	{
 		auto * obj = object.first;
 		int3 pos;
-		auto possibleArea = zone.areaPossible();
-		while(true)
+		Rmg::Object rmgObject(*obj);
+		rmgObject.setTemplate(zone.getTerrainType());
+		bool guarded = addGuard(rmgObject, object.second, (obj->ID == Obj::MONOLITH_TWO_WAY));
+		
+		if(!placeAndConnectObject(zone.areaPossible(), rmgObject, 3, guarded, false))
 		{
-			Rmg::Object rmgObject(*obj);
-			rmgObject.setTemplate(zone.getTerrainType());
-			bool guarded = addGuard(rmgObject, object.second, (obj->ID == Obj::MONOLITH_TWO_WAY));
-			pos = findPlaceForObject(possibleArea, rmgObject, 3);
-			if(!pos.valid())
-			{
-				logGlobal->error("Failed to fill zone %d due to lack of space", zone.getId());
-				return false;
-			}
-			possibleArea.erase(pos); //do not place again at this point
-			auto possibleAreaTemp = zone.areaPossible();
-			zone.areaPossible().subtract(rmgObject.getArea());
-			if(zone.connectPath(rmgObject.getAccessibleArea(guarded), false))
-			{
-				placeObject(rmgObject, guarded, true);
-				break;
-			}
-			zone.areaPossible() = possibleAreaTemp;
+			logGlobal->error("Failed to fill zone %d due to lack of space", zone.getId());
+			return false;
 		}
+		
+		placeObject(rmgObject, guarded, true);
 	}
 	
 	for(const auto &object : closeObjects)
@@ -250,33 +277,24 @@ bool ObjectManager::createRequiredObjects()
 		auto * obj = object.first;
 		int3 pos;
 		auto possibleArea = zone.areaPossible();
-		while(true)
+		Rmg::Object rmgObject(*obj);
+		rmgObject.setTemplate(zone.getTerrainType());
+		bool guarded = addGuard(rmgObject, object.second, (obj->ID == Obj::MONOLITH_TWO_WAY));
+		
+		if(!placeAndConnectObject(zone.areaPossible(), rmgObject,
+								[this, &rmgObject](const int3 & tile)
+								{
+									float dist = rmgObject.getArea().distanceSqr(zone.getPos());
+									dist *= (dist > 12.f * 12.f) ? 10.f : 1.f; //tiles closer 12 are preferrable
+									dist = 1000000.f - dist; //some big number
+									return dist + map.getNearestObjectDistance(tile);
+								}, guarded, false))
 		{
-			Rmg::Object rmgObject(*obj);
-			rmgObject.setTemplate(zone.getTerrainType());
-			bool guarded = addGuard(rmgObject, object.second, (obj->ID == Obj::MONOLITH_TWO_WAY));
-			pos = findPlaceForObject(possibleArea, rmgObject, [this, &rmgObject](const int3 & tile)
-			{
-				float dist = rmgObject.getArea().distanceSqr(zone.getPos());
-				dist *= (dist > 12.f * 12.f) ? 10.f : 1.f; //tiles closer 12 are preferrable
-				dist = 1000000.f - dist; //some big number
-				return dist + map.getNearestObjectDistance(tile);
-			});
-			if(!pos.valid())
-			{
-				logGlobal->error("Failed to fill zone %d due to lack of space", zone.getId());
-				return false;
-			}
-			possibleArea.erase(pos); //do not place again at this point
-			auto possibleAreaTemp = zone.areaPossible();
-			zone.areaPossible().subtract(rmgObject.getArea());
-			if(zone.connectPath(rmgObject.getAccessibleArea(guarded), false))
-			{
-				placeObject(rmgObject, guarded, true);
-				break;
-			}
-			zone.areaPossible() = possibleAreaTemp;
+			logGlobal->error("Failed to fill zone %d due to lack of space", zone.getId());
+			return false;
 		}
+		
+		placeObject(rmgObject, guarded, true);
 	}
 	
 	//create nearby objects (e.g. extra resources close to mines)
@@ -468,8 +486,8 @@ CGCreature * ObjectManager::chooseGuard(si32 strength, bool zoneGuard)
 	int strength2 = static_cast<int>(std::max(0.f, (strength - value2[monsterStrength]) * multiplier2[monsterStrength]));
 	
 	strength = strength1 + strength2;
-	//if (strength < gen.getConfig().minGuardStrength)
-	//	return false; //no guard at all
+	if (strength < 100/*gen.getConfig().minGuardStrength*/) //TODO: use config
+		return nullptr; //no guard at all
 	
 	CreatureID creId = CreatureID::NONE;
 	int amount = 0;
