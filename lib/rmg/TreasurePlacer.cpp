@@ -9,6 +9,8 @@
 #include "CMapGenerator.h"
 #include "Functions.h"
 #include "ObjectManager.h"
+#include "RoadPlacer.h"
+#include "ConnectionsPlacer.h"
 #include "RmgMap.h"
 #include "../mapObjects/CommonConstructors.h"
 #include "../mapObjects/MapObjects.h" //needed to resolve templates for CommonConstructors.h
@@ -26,6 +28,15 @@ void TreasurePlacer::process()
 	auto * m = zone.getModificator<ObjectManager>();
 	if(m)
 		createTreasures(*m);
+}
+
+void TreasurePlacer::init()
+{
+	dependency(zone.getModificator<ObjectManager>());
+	dependency(zone.getModificator<ConnectionsPlacer>());
+	postfunction(zone.getModificator<RoadPlacer>());
+	
+	addAllPossibleObjects();
 }
 
 void TreasurePlacer::setQuestArtZone(Zone * otherZone)

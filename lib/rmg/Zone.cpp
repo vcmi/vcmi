@@ -10,9 +10,9 @@
 #include "Functions.h"
 #include "TileInfo.h"
 #include "../mapping/CMap.h"
+#include "../CStopWatch.h"
 #include "CMapGenerator.h"
 #include "CRmgPath.h"
-#include "../CStopWatch.h"
 
 Zone::Zone(RmgMap & map, CMapGenerator & generator)
 					: ZoneOptions(),
@@ -369,15 +369,22 @@ void Zone::fractalize()
 		map.setOccupied(t, ETileType::BLOCKED);
 }
 
+void Zone::initModificators()
+{
+	for(auto & modificator : modificators)
+	{
+		modificator->init();
+	}
+	logGlobal->info("Zone %d modificators initialized", getId());
+}
+
 void Zone::processModificators()
 {
-	CStopWatch processTime;
 	for(auto & modificator : modificators)
 	{
 		try
 		{
-			modificator->process();
-			logGlobal->info("Zone %d, modificator %s - success (%d ms)", getId(), modificator->getName(), processTime.getDiff());
+			modificator->run();
 		}
 		catch (const rmgException & e)
 		{
@@ -388,3 +395,47 @@ void Zone::processModificators()
 	}
 	logGlobal->info("Zone %d filled successfully", getId());
 }
+
+void Modificator::setName(const std::string & n)
+{
+	name = n;
+}
+
+const std::string & Modificator::getName() const
+{
+	return name;
+}
+
+void Modificator::run()
+{
+	started = true;
+	if(!finished)
+	{
+		for(auto * modificator : preceeders)
+		{
+			if(!modificator->started)
+				modificator->run();
+		}
+		CStopWatch processTime;
+		process();
+		finished = true;
+		logGlobal->info("Modificator %s - success (%d ms)", getName(), processTime.getDiff());
+	}
+}
+
+void Modificator::dependency(Modificator * modificator)
+{
+	if(modificator && modificator != this)
+	{
+		preceeders.insert(modificator);
+	}
+}
+
+void Modificator::postfunction(Modificator * modificator)
+{
+	if(modificator && modificator != this)
+	{
+		modificator->preceeders.insert(this);
+	}
+}
+

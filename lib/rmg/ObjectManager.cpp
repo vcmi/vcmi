@@ -10,6 +10,7 @@
 #include "TileInfo.h"
 #include "RmgMap.h"
 #include "RoadPlacer.h"
+#include "WaterAdopter.h"
 #include "../CCreatureHandler.h"
 #include "../mapObjects/CommonConstructors.h"
 #include "../mapObjects/MapObjects.h" //needed to resolve templates for CommonConstructors.h
@@ -27,6 +28,12 @@ void ObjectManager::process()
 {
 	zone.fractalize();
 	createRequiredObjects();
+}
+
+void ObjectManager::init()
+{
+	dependency(zone.getModificator<WaterAdopter>());
+	postfunction(zone.getModificator<RoadPlacer>());
 }
 
 void ObjectManager::addRequiredObject(CGObjectInstance * obj, si32 strength)
@@ -266,7 +273,8 @@ void ObjectManager::placeObject(Rmg::Object & object, bool guarded, bool updateD
 		case Obj::MONOLITH_ONE_WAY_EXIT:
 		case Obj::SUBTERRANEAN_GATE:
 		case Obj::SHIPYARD:
-			zone.getModificator<RoadPlacer>()->addRoadNode(object.getVisitablePosition());
+			if(auto * m = zone.getModificator<RoadPlacer>())
+				m->addRoadNode(object.getVisitablePosition());
 			break;
 			
 		default:

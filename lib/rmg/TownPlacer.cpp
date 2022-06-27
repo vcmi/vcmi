@@ -17,6 +17,7 @@
 #include "ObjectManager.h"
 #include "Functions.h"
 #include "RoadPlacer.h"
+#include "WaterAdopter.h"
 #include "TileInfo.h"
 
 TownPlacer::TownPlacer(Zone & zone, RmgMap & map, CMapGenerator & generator) : zone(zone), map(map), generator(generator), totalTowns(0)
@@ -25,10 +26,22 @@ TownPlacer::TownPlacer(Zone & zone, RmgMap & map, CMapGenerator & generator) : z
 
 void TownPlacer::process()
 {
-	auto & manager = *zone.getModificator<ObjectManager>();
+	auto * manager = zone.getModificator<ObjectManager>();
+	if(!manager)
+	{
+		logGlobal->error("ObjectManager doesn't exist for zone %d, skip modificator %s", zone.getId(), getName());
+		return;
+	}
 	
-	placeTowns(manager);
-	placeMines(manager);
+	
+	placeTowns(*manager);
+	placeMines(*manager);
+}
+
+void TownPlacer::init()
+{
+	postfunction(zone.getModificator<ObjectManager>());
+	postfunction(zone.getModificator<RoadPlacer>());
 }
 
 void TownPlacer::placeTowns(ObjectManager & manager)

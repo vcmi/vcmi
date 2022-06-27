@@ -14,6 +14,7 @@ public:
 	WaterAdopter(Zone & zone, RmgMap & map, CMapGenerator & generator);
 	
 	void process() override;
+	void init() override;
 	
 	void setWaterZone(TRmgTemplateZoneId water);
 	

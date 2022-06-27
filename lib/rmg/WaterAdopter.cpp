@@ -16,6 +16,9 @@
 #include "ObjectManager.h"
 #include "Functions.h"
 #include "RoadPlacer.h"
+#include "TreasurePlacer.h"
+#include "TownPlacer.h"
+#include "ConnectionsPlacer.h"
 #include "TileInfo.h"
 
 WaterAdopter::WaterAdopter(Zone & zone, RmgMap & map, CMapGenerator & generator) : zone(zone), map(map), generator(generator)
@@ -25,6 +28,18 @@ WaterAdopter::WaterAdopter(Zone & zone, RmgMap & map, CMapGenerator & generator)
 void WaterAdopter::process()
 {
 	createWater(map.getMapGenOptions().getWaterContent());
+}
+
+void WaterAdopter::init()
+{
+	//make dependencies
+	for(auto & z : map.getZones())
+	{
+		dependency(z.second->getModificator<WaterAdopter>());
+	}
+	dependency(zone.getModificator<TownPlacer>());
+	postfunction(zone.getModificator<ConnectionsPlacer>());
+	postfunction(zone.getModificator<TreasurePlacer>());
 }
 
 void WaterAdopter::createWater(EWaterContent::EWaterContent waterContent)
@@ -59,8 +74,8 @@ void WaterAdopter::createWater(EWaterContent::EWaterContent waterContent)
 			if(tilesChecked.find(tile) != tilesChecked.end())
 				continue;
 			
-			//if(gen->isUsed(tile) || gen->isFree(tile)) //prevent placing water nearby town
-			///	continue;
+			if(map.isUsed(tile) || map.isFree(tile)) //prevent placing water nearby town
+				continue;
 			
 			tilesQueue.push_back(tile);
 			tilesChecked.insert(tile);

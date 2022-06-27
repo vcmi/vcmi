@@ -307,9 +307,10 @@ void CMapGenerator::fillZones()
 	
 	for(auto it : map->getZones())
 	{
+		it.second->initModificators();
 		it.second->initFreeTiles();
-		
-		//it.second->initTownType();
+		initTerrainType(*it.second, *this);
+		paintZoneTerrain(*it.second, rand, *map, it.second->getTerrainType());
 	}
 	
 	//make sure there are some free tiles in the zone
@@ -338,8 +339,7 @@ void CMapGenerator::fillZones()
 	std::vector<std::shared_ptr<Zone>> treasureZones;
 	for(auto it : map->getZones())
 	{
-		//createBorder(*map, *it.second);
-		processZone(*it.second, *this, *map);
+		it.second->processModificators();
 		
 		if (it.second->getType() == ETemplateZoneType::TREASURE)
 			treasureZones.push_back(it.second);
@@ -393,11 +393,13 @@ void CMapGenerator::findZonesForQuestArts()
 
 		if (zoneA->getId() > zoneB->getId())
 		{
-			zoneB->getModificator<TreasurePlacer>()->setQuestArtZone(zoneA.get());
+			if(auto * m = zoneB->getModificator<TreasurePlacer>())
+				zoneB->getModificator<TreasurePlacer>()->setQuestArtZone(zoneA.get());
 		}
 		else if (zoneA->getId() < zoneB->getId())
 		{
-			zoneA->getModificator<TreasurePlacer>()->setQuestArtZone(zoneB.get());
+			if(auto * m = zoneA->getModificator<TreasurePlacer>())
+				zoneA->getModificator<TreasurePlacer>()->setQuestArtZone(zoneB.get());
 		}
 	}
 }

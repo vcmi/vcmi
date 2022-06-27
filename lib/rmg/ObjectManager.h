@@ -20,6 +20,7 @@ public:
 	ObjectManager(Zone & zone, RmgMap & map, CMapGenerator & generator);
 	
 	void process() override;
+	void init() override;
 	
 	void addRequiredObject(CGObjectInstance * obj, si32 guardStrength=0);
 	void addCloseObject(CGObjectInstance * obj, si32 guardStrength = 0);

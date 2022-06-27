@@ -36,6 +36,7 @@ public:
 	TreasurePlacer(Zone & zone, RmgMap & map, CMapGenerator & generator);
 	
 	void process() override;
+	void init() override;
 	
 	void createTreasures(ObjectManager & manager);
 	

@@ -15,6 +15,7 @@ public:
 	ConnectionsPlacer(Zone & zone, RmgMap & map, CMapGenerator & generator);
 	
 	void process() override;
+	void init() override;
 	
 	void addConnection(const rmg::ZoneConnection& connection);
 	

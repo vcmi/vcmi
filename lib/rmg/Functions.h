@@ -47,7 +47,5 @@ bool canObstacleBePlacedHere(const RmgMap & gen, ObjectTemplate &temp, int3 &pos
 
 int chooseRandomAppearance(CRandomGenerator & generator, si32 ObjID, const Terrain & terrain);
 
-bool processZone(Zone & zone, CMapGenerator & gen, RmgMap & map);
-
 void createObstaclesCommon1(RmgMap & map, CRandomGenerator & generator);
 void createObstaclesCommon2(RmgMap & map, CRandomGenerator & generator);

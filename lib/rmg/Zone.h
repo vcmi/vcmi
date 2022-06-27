@@ -21,21 +21,21 @@ class Modificator
 {
 public:
 	virtual void process() = 0;
-	
-	void setName(const std::string & n)
-	{
-		name = n;
-	}
-	
-	const std::string & getName() const
-	{
-		return name;
-	}
-	
+	virtual void init() {/*override to add dependencies*/}
 	virtual ~Modificator() {};
 	
+	void setName(const std::string & n);
+	const std::string & getName() const;
+	
+	void run();
+	void dependency(Modificator * modificator);
+	void postfunction(Modificator * modificator);
+
 private:
 	std::string name;
+	bool started = false;
+	bool finished = false;
+	std::set<Modificator*> preceeders;
 };
 
 class DLL_LINKAGE Zone : public rmg::ZoneOptions
@@ -86,6 +86,7 @@ public:
 		modificators.back()->setName(name);
 	}
 	
+	void initModificators();
 	void processModificators();
 	
 protected:

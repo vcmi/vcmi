@@ -40,6 +40,15 @@ void ConnectionsPlacer::process()
 	createBorder(map, zone);
 }
 
+void ConnectionsPlacer::init()
+{
+	dependency(zone.getModificator<ObjectManager>());
+	postfunction(zone.getModificator<RoadPlacer>());
+	
+	for(auto c : map.getMapGenOptions().getMapTemplate()->getConnections())
+		addConnection(c);
+}
+
 void ConnectionsPlacer::addConnection(const rmg::ZoneConnection& connection)
 {
 	dConnections.push_back(connection);

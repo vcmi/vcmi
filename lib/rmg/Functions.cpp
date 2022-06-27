@@ -232,31 +232,6 @@ void initTerrainType(Zone & zone, CMapGenerator & gen)
 	}
 }
 
-bool processZone(Zone & zone, CMapGenerator & gen, RmgMap & map)
-{
-	initTerrainType(zone, gen);
-	paintZoneTerrain(zone, gen.rand, map, zone.getTerrainType());
-	//zone center should be always clear to allow other tiles to connect
-	zone.initFreeTiles();
-	
-	auto * obMgr = zone.getModificator<ObjectManager>();
-	auto * trPlacer = zone.getModificator<TreasurePlacer>();
-	auto * cnPlacer = zone.getModificator<ConnectionsPlacer>();
-	auto * rdPlacer = zone.getModificator<RoadPlacer>();
-	auto * tnPlacer = zone.getModificator<TownPlacer>();
-	
-	//prepare
-	if(cnPlacer)
-		for(auto c : gen.getMapGenOptions().getMapTemplate()->getConnections())
-			cnPlacer->addConnection(c);
-	
-	if(trPlacer)
-		trPlacer->addAllPossibleObjects();
-	
-	zone.processModificators();
-	return true;
-}
-
 void createObstaclesCommon1(RmgMap & map, CRandomGenerator & generator)
 {
 	if(map.map().twoLevel) //underground

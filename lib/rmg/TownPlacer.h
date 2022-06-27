@@ -16,6 +16,7 @@ public:
 	TownPlacer(Zone & zone, RmgMap & map, CMapGenerator & generator);
 	
 	void process() override;
+	void init() override;
 	
 protected:
 	void cleanupBoundaries(const Rmg::Object & rmgObject);
