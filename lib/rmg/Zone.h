@@ -1,9 +1,12 @@
-//
-//  Zone.hpp
-//  vcmi
-//
-//  Created by nordsoft on 22.06.2022.
-//
+/*
+ * Zone.h, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 
 #pragma once
 
@@ -11,8 +14,8 @@
 #include "float3.h"
 #include "../int3.h"
 #include "CRmgTemplate.h"
-#include "CRmgArea.h"
-#include "CRmgObject.h"
+#include "RmgArea.h"
+#include "RmgObject.h"
 
 class RmgMap;
 class CMapGenerator;
@@ -51,11 +54,11 @@ public:
 	int3 getPos() const;
 	void setPos(const int3 &pos);
 	
-	const Rmg::Area & getArea() const;
-	Rmg::Area & area();
-	Rmg::Area & areaPossible();
-	Rmg::Area & freePaths();
-	Rmg::Area & areaUsed();
+	const rmg::Area & getArea() const;
+	rmg::Area & area();
+	rmg::Area & areaPossible();
+	rmg::Area & freePaths();
+	rmg::Area & areaUsed();
 	
 	void initFreeTiles();
 	void clearTiles();
@@ -68,7 +71,7 @@ public:
 	
 	bool crunchPath(const int3 & src, const int3 & dst, bool onlyStraight, std::set<int3> * clearedTiles = nullptr);
 	bool connectPath(const int3 & src, bool onlyStraight);
-	bool connectPath(const Rmg::Area & src, bool onlyStraight);
+	bool connectPath(const rmg::Area & src, bool onlyStraight);
 	
 	template<class T>
 	T* getModificator()
@@ -97,10 +100,10 @@ protected:
 	//placement info
 	int3 pos;
 	float3 center;
-	Rmg::Area dArea; //irregular area assined to zone
-	Rmg::Area dAreaPossible;
-	Rmg::Area dAreaFree; //core paths of free tiles that all other objects will be linked to
-	Rmg::Area dAreaUsed;
+	rmg::Area dArea; //irregular area assined to zone
+	rmg::Area dAreaPossible;
+	rmg::Area dAreaFree; //core paths of free tiles that all other objects will be linked to
+	rmg::Area dAreaUsed;
 	
 	//template info
 	si32 townType;

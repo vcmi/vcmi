@@ -1,9 +1,12 @@
-//
-//  TreasurePlacer.cpp
-//  vcmi
-//
-//  Created by nordsoft on 23.06.2022.
-//
+/*
+ * TreasurePlacer.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 
 #include "TreasurePlacer.h"
 #include "CMapGenerator.h"
@@ -563,9 +566,9 @@ std::vector<ObjectInfo> TreasurePlacer::prepareTreasurePile(const CTreasureInfo&
 	return objectInfos;
 }
 
-Rmg::Object TreasurePlacer::constuctTreasurePile(const std::vector<ObjectInfo> & treasureInfos)
+rmg::Object TreasurePlacer::constuctTreasurePile(const std::vector<ObjectInfo> & treasureInfos)
 {
-	Rmg::Object rmgObject;
+	rmg::Object rmgObject;
 	for(auto & oi : treasureInfos)
 	{
 		auto blockedArea = rmgObject.getArea();

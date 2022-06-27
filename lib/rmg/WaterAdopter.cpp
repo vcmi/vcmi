@@ -1,9 +1,12 @@
-//
-//  WaterAdopter.cpp
-//  vcmi
-//
-//  Created by nordsoft on 27.06.2022.
-//
+/*
+ * WaterAdopter.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 
 #include "WaterAdopter.h"
 #include "CMapGenerator.h"
@@ -11,8 +14,8 @@
 #include "../mapping/CMap.h"
 #include "../mapping/CMapEditManager.h"
 #include "../mapObjects/CObjectClassesHandler.h"
-#include "CRmgPath.h"
-#include "CRmgObject.h"
+#include "RmgPath.h"
+#include "RmgObject.h"
 #include "ObjectManager.h"
 #include "Functions.h"
 #include "RoadPlacer.h"
@@ -47,7 +50,7 @@ void WaterAdopter::createWater(EWaterContent::EWaterContent waterContent)
 	if(waterContent == EWaterContent::NONE || zone.isUnderground())
 		return; //do nothing
 	
-	Rmg::Area waterArea(collectDistantTiles(zone, (float)(zone.getSize() + 1)));
+	rmg::Area waterArea(collectDistantTiles(zone, (float)(zone.getSize() + 1)));
 	
 	//add border tiles as water for ISLANDS
 	if(waterContent == EWaterContent::ISLANDS)
@@ -63,7 +66,7 @@ void WaterAdopter::createWater(EWaterContent::EWaterContent waterContent)
 	int coastIdMax = fmin(sqrt(zone.area().getBorder().size()), 7.f); //size of coastTilesMap shows the most distant tile from water
 	assert(coastIdMax > 0);
 	std::list<int3> tilesQueue;
-	Rmg::Tileset tilesChecked;
+	rmg::Tileset tilesChecked;
 	for(int coastId = coastIdMax; coastId >= 1; --coastId)
 	{
 		//amount of iterations shall be proportion of coast perimeter
@@ -107,7 +110,7 @@ void WaterAdopter::createWater(EWaterContent::EWaterContent waterContent)
 	}
 	
 	//start filtering of narrow places and coast atrifacts
-	Rmg::Area waterAdd;
+	rmg::Area waterAdd;
 	for(int coastId = 1; coastId <= coastIdMax; ++coastId)
 	{
 		for(auto& tile : reverseDistanceMap[coastId])
@@ -213,10 +216,10 @@ void WaterAdopter::setWaterZone(TRmgTemplateZoneId water)
 	waterZoneId = water;
 }
 
-Rmg::Area WaterAdopter::getCoastTiles() const
+rmg::Area WaterAdopter::getCoastTiles() const
 {
 	if(reverseDistanceMap.empty())
-		return Rmg::Area();
+		return rmg::Area();
 	
-	return Rmg::Area(reverseDistanceMap.at(0));
+	return rmg::Area(reverseDistanceMap.at(0));
 }

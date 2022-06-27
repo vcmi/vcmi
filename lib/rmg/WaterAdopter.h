@@ -1,9 +1,12 @@
-//
-//  WaterAdopter.hpp
-//  vcmi
-//
-//  Created by nordsoft on 27.06.2022.
-//
+/*
+ * WaterAdopter.h, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 
 #pragma once
 #include "Zone.h"
@@ -18,7 +21,7 @@ public:
 	
 	void setWaterZone(TRmgTemplateZoneId water);
 	
-	Rmg::Area getCoastTiles() const;
+	rmg::Area getCoastTiles() const;
 	
 protected:
 	void createWater(EWaterContent::EWaterContent waterContent);
@@ -31,5 +34,5 @@ protected:
 	
 	TRmgTemplateZoneId waterZoneId;
 	std::map<int3, int> distanceMap;
-	std::map<int, Rmg::Tileset> reverseDistanceMap;
+	std::map<int, rmg::Tileset> reverseDistanceMap;
 };

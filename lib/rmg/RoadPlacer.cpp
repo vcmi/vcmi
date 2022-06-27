@@ -1,9 +1,12 @@
-//
-//  RoadPlacer.cpp
-//  vcmi
-//
-//  Created by nordsoft on 23.06.2022.
-//
+/*
+ * RoadPlacer.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 
 #include "RoadPlacer.h"
 #include "Functions.h"
@@ -11,7 +14,7 @@
 #include "RmgMap.h"
 #include "../mapping/CMap.h"
 #include "../mapping/CMapEditManager.h"
-#include "CRmgPath.h"
+#include "RmgPath.h"
 
 RoadPlacer::RoadPlacer(Zone & zone, RmgMap & map, CMapGenerator & generator) : zone(zone), map(map), generator(generator)
 {
@@ -22,9 +25,9 @@ void RoadPlacer::process()
 	connectRoads();
 }
 
-bool RoadPlacer::createRoad(const Rmg::Area & dst)
+bool RoadPlacer::createRoad(const rmg::Area & dst)
 {
-	Rmg::Path path(zone.freePaths() + zone.areaPossible());
+	rmg::Path path(zone.freePaths() + zone.areaPossible());
 	path.connect(roads);
 	auto res = path.search(dst, true);
 	if(res.getPathArea().empty())

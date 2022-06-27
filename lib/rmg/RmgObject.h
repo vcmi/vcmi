@@ -1,5 +1,5 @@
 /*
- * CRmgObject.h, part of VCMI engine
+ * RmgObject.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -12,13 +12,13 @@
 
 #include "../GameConstants.h"
 #include "../int3.h"
-#include "CRmgArea.h"
+#include "RmgArea.h"
 
 class CGObjectInstance;
 class RmgMap;
 class Terrain;
 
-namespace Rmg {
+namespace rmg {
 class Object
 {
 public:

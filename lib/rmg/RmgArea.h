@@ -1,5 +1,5 @@
 /*
- * CRmgArea.h, part of VCMI engine
+ * RmgArea.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -13,7 +13,7 @@
 #include "../GameConstants.h"
 #include "../int3.h"
 
-namespace Rmg
+namespace rmg
 {
 	using Tileset = std::set<int3>;
 	using DistanceMap = std::map<int3, int>;

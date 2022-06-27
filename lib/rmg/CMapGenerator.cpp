@@ -266,16 +266,6 @@ void CMapGenerator::genZones()
 	CZonePlacer placer(*map);
 	placer.placeZones(&rand);
 	placer.assignZones(&rand);
-	
-	//add special zone for water
-	/*zoneWater.first = map->getZones().size() + 1;
-	zoneWater.second = std::make_shared<Zone>(this);
-	{
-		rmg::ZoneOptions options;
-		options.setId(zoneWater.first);
-		options.setType(ETemplateZoneType::WATER);
-		zoneWater.second->setOptions(options);
-	}*/
 
 	logGlobal->info("Zones generated successfully");
 }
@@ -309,28 +299,6 @@ void CMapGenerator::fillZones()
 		it.second->initFreeTiles();
 		paintZoneTerrain(*it.second, rand, *map, it.second->getTerrainType());
 	}
-	
-	//make sure there are some free tiles in the zone
-	//for(auto it : zones)
-	//	it.second->initFreeTiles();
-	
-	//for(auto it : zones)
-	//	it.second->createBorder(); //once direct connections are done
-	
-	//for(auto it : zones)
-	//	it.second->createWater(getMapGenOptions().getWaterContent());
-	
-	//zoneWater.second->waterInitFreeTiles();
-
-	//createDirectConnections(); //direct
-	
-	//createConnections2(); //subterranean gates and monoliths
-	
-	//for(auto it : zones)
-	//	zoneWater.second->waterConnection(*it.second);
-	
-	//zoneWater.second->initFreeTiles();
-	//zoneWater.second->fill();
 
 	std::vector<std::shared_ptr<Zone>> treasureZones;
 	for(auto it : map->getZones())
@@ -348,22 +316,13 @@ void CMapGenerator::fillZones()
 		createObstacles1(*it.second, *map, rand);
 	}
 	
-	//set back original terrain for underground zones
-	//for(auto it : zones)
-//		it.second->createObstacles1();
-	
-	createObstaclesCommon2(*map, rand);
-	
 	//place actual obstacles matching zone terrain
-	//for(auto it : zones)
-	//	it.second->createObstacles2();
-	
+	createObstaclesCommon2(*map, rand);
 	for(auto it : map->getZones())
 	{
 		createObstacles2(*it.second, *map, rand, *it.second->getModificator<ObjectManager>());
 	}
 		
-	//zoneWater.second->createObstacles2();
 
 	//find place for Grail
 	if(treasureZones.empty())

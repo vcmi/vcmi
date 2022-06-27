@@ -1,13 +1,16 @@
-//
-//  ConnectionsPlacer.hpp
-//  vcmi
-//
-//  Created by nordsoft on 26.06.2022.
-//
+/*
+ * ConnectionsPlacer.h, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 
 #pragma once
 #include "Zone.h"
-#include "CRmgArea.h"
+#include "RmgArea.h"
 
 class DLL_LINKAGE ConnectionsPlacer: public Modificator
 {
@@ -31,5 +34,5 @@ protected:
 	Zone & zone;
 	
 	std::vector<rmg::ZoneConnection> dConnections, dCompleted;
-	std::map<TRmgTemplateZoneId, Rmg::Tileset> dNeighbourZones;
+	std::map<TRmgTemplateZoneId, rmg::Tileset> dNeighbourZones;
 };

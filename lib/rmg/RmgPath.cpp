@@ -1,5 +1,5 @@
 /*
- * CRmgPath.cpp, part of VCMI engine
+ * RmgPath.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -8,10 +8,10 @@
  *
  */
 
-#include "CRmgPath.h"
+#include "RmgPath.h"
 #include <boost/heap/priority_queue.hpp> //A*
 
-using namespace Rmg;
+using namespace rmg;
 
 const std::function<float(const int3 &, const int3 &)> Path::DEFAULT_MOVEMENT_FUNCTION =
 [](const int3 & src, const int3 & dst)
@@ -54,7 +54,7 @@ Path Path::search(const Tileset & dst, bool straight, std::function<float(const 
 	if(dst.empty())
 		return result;
 	
-	int3 src = Rmg::Area(dst).nearest(dPath);
+	int3 src = rmg::Area(dst).nearest(dPath);
 	
 	Tileset closed;    // The set of nodes already evaluated.
 	auto open = createPriorityQueue(); // The set of tentative nodes to be evaluated, initially containing the start node

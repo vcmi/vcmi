@@ -1,9 +1,12 @@
-//
-//  WaterProxy.hpp
-//  vcmi
-//
-//  Created by nordsoft on 27.06.2022.
-//
+/*
+ * WaterProxy.h, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 
 #pragma once
 #include "Zone.h"
@@ -14,10 +17,10 @@ public:
 	//subclass to store disconnected parts of water zone
 	struct Lake
 	{
-		Rmg::Area area; //water tiles
+		rmg::Area area; //water tiles
 		std::map<int3, int> distanceMap; //distance map for lake
-		std::map<int, Rmg::Tileset> reverseDistanceMap;
-		std::map<TRmgTemplateZoneId, Rmg::Area> neighbourZones; //zones boardered. Area - part of land
+		std::map<int, rmg::Tileset> reverseDistanceMap;
+		std::map<TRmgTemplateZoneId, rmg::Area> neighbourZones; //zones boardered. Area - part of land
 		std::set<TRmgTemplateZoneId> keepConnections;
 	};
 	

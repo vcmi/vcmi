@@ -1,10 +1,12 @@
-//
-//  TownPlacer.hpp
-//  vcmi
-//
-//  Created by nordsoft on 27.06.2022.
-//
-
+/*
+ * TownPlacer.h, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 #pragma once
 #include "Zone.h"
 
@@ -21,7 +23,7 @@ public:
 	int getTotalTowns() const;
 	
 protected:
-	void cleanupBoundaries(const Rmg::Object & rmgObject);
+	void cleanupBoundaries(const rmg::Object & rmgObject);
 	void addNewTowns(int count, bool hasFort, PlayerColor player, ObjectManager & manager);
 	si32 getRandomTownType(bool matchUndergroundType = false);
 	void placeTowns(ObjectManager & manager);

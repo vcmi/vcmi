@@ -1,9 +1,12 @@
-//
-//  ConnectionsPlacer.cpp
-//  vcmi
-//
-//  Created by nordsoft on 26.06.2022.
-//
+/*
+ * ConnectionsPlacer.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 
 #include "ConnectionsPlacer.h"
 #include "CMapGenerator.h"
@@ -11,8 +14,8 @@
 #include "../mapping/CMap.h"
 #include "../mapping/CMapEditManager.h"
 #include "../mapObjects/CObjectClassesHandler.h"
-#include "CRmgPath.h"
-#include "CRmgObject.h"
+#include "RmgPath.h"
+#include "RmgObject.h"
 #include "ObjectManager.h"
 #include "Functions.h"
 #include "RoadPlacer.h"
@@ -80,7 +83,7 @@ void ConnectionsPlacer::selfSideConnection(const rmg::ZoneConnection & connectio
 			guardPos = zone.areaPossible().nearest(borderPos);
 			assert(borderPos != guardPos);
 			
-			auto safetyGap = Rmg::Area({guardPos});
+			auto safetyGap = rmg::Area({guardPos});
 			safetyGap.unite(safetyGap.getBorderOutside());
 			safetyGap.intersect(zone.areaPossible());
 			if(!safetyGap.empty())
@@ -105,7 +108,7 @@ void ConnectionsPlacer::selfSideConnection(const rmg::ZoneConnection & connectio
 			{
 				if(monsterType)
 				{
-					Rmg::Object monster(*monsterType);
+					rmg::Object monster(*monsterType);
 					monster.setPosition(guardPos);
 					manager.placeObject(monster, false, true);
 				}
@@ -163,7 +166,7 @@ void ConnectionsPlacer::selfSideConnection(const rmg::ZoneConnection & connectio
 			auto factory = VLC->objtypeh->getHandlerFor(Obj::SUBTERRANEAN_GATE, 0);
 			auto gate1 = factory->create(ObjectTemplate());
 			auto gate2 = factory->create(ObjectTemplate());
-			Rmg::Object rmgGate1(*gate1), rmgGate2(*gate2);
+			rmg::Object rmgGate1(*gate1), rmgGate2(*gate2);
 			rmgGate1.setTemplate(zone.getTerrainType());
 			rmgGate2.setTemplate(otherZone->getTerrainType());
 			bool guarded1 = manager.addGuard(rmgGate1, connection.getGuardStrength(), true);

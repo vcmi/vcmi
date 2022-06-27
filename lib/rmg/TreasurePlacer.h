@@ -1,9 +1,12 @@
-//
-//  TreasurePlacer.hpp
-//  vcmi
-//
-//  Created by nordsoft on 23.06.2022.
-//
+/*
+ * TreasurePlacer.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 
 #pragma once
 #include "Zone.h"
@@ -48,7 +51,7 @@ protected:
 	
 	ObjectInfo getRandomObject(ui32 desiredValue, ui32 currentValue, bool allowLargeObjects);
 	std::vector<ObjectInfo> prepareTreasurePile(const CTreasureInfo & treasureInfo);
-	Rmg::Object constuctTreasurePile(const std::vector<ObjectInfo> & treasureInfos);
+	rmg::Object constuctTreasurePile(const std::vector<ObjectInfo> & treasureInfos);
 	
 	
 protected:

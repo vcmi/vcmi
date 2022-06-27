@@ -1,5 +1,5 @@
 /*
- * CRmgObject.cpp, part of VCMI engine
+ * RmgObject.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -8,7 +8,7 @@
  *
  */
 
-#include "CRmgObject.h"
+#include "RmgObject.h"
 #include "RmgMap.h"
 #include "../mapObjects/CObjectHandler.h"
 #include "../mapping/CMapEditManager.h"
@@ -18,7 +18,7 @@
 #include "../mapObjects/MapObjects.h" //needed to resolve templates for CommonConstructors.h
 #include "Functions.h"
 
-using namespace Rmg;
+using namespace rmg;
 
 Object::Instance::Instance(const Object& parent, CGObjectInstance & object): dParent(parent), dObject(object)
 {
@@ -48,11 +48,11 @@ int3 Object::Instance::getVisitablePosition() const
 	return dObject.visitablePos();
 }
 
-Rmg::Area Object::Instance::getAccessibleArea() const
+rmg::Area Object::Instance::getAccessibleArea() const
 {
-	auto neighbours = Rmg::Area({getVisitablePosition()}).getBorderOutside();
-	Rmg::Area visitable = Rmg::Area(neighbours) - dBlockedArea;
-	Rmg::Area accessibleArea;
+	auto neighbours = rmg::Area({getVisitablePosition()}).getBorderOutside();
+	rmg::Area visitable = rmg::Area(neighbours) - dBlockedArea;
+	rmg::Area accessibleArea;
 	for(auto & from : visitable.getTiles())
 	{
 		if(isVisitableFrom(from))
@@ -181,9 +181,9 @@ int3 Object::getVisitablePosition() const
 	return dInstances.back().getVisitablePosition(); //fallback - return position of last object
 }
 
-Rmg::Area Object::getAccessibleArea(bool exceptLast) const
+rmg::Area Object::getAccessibleArea(bool exceptLast) const
 {
-	Rmg::Area accessibleArea;
+	rmg::Area accessibleArea;
 	for(auto i = dInstances.begin(); i != (exceptLast ? std::prev(dInstances.end()) : dInstances.end()); ++i)
 		accessibleArea.unite(i->getAccessibleArea());
 	accessibleArea.subtract(getArea());

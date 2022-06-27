@@ -1,9 +1,12 @@
-//
-//  Functions.hpp
-//  vcmi
-//
-//  Created by nordsoft on 23.06.2022.
-//
+/*
+ * Functions.h, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 
 #pragma once
 
@@ -33,16 +36,16 @@ public:
 	}
 };
 
-std::set<int3> DLL_LINKAGE collectDistantTiles(const Zone & zone, float distance);
+std::set<int3> collectDistantTiles(const Zone & zone, float distance);
 
-void DLL_LINKAGE createBorder(RmgMap & gen, const Zone & zone);
+void createBorder(RmgMap & gen, const Zone & zone);
 
-void DLL_LINKAGE paintZoneTerrain(const Zone & zone, CRandomGenerator & generator, RmgMap & map, const Terrain & terrainType);
+void paintZoneTerrain(const Zone & zone, CRandomGenerator & generator, RmgMap & map, const Terrain & terrainType);
 
-void DLL_LINKAGE initTerrainType(Zone & zone, CMapGenerator & gen);
+void initTerrainType(Zone & zone, CMapGenerator & gen);
 
-void DLL_LINKAGE createObstacles1(const Zone & zone, RmgMap & map, CRandomGenerator & generator);
-void DLL_LINKAGE createObstacles2(const Zone & zone, RmgMap & map, CRandomGenerator & generator, ObjectManager & manager);
+void createObstacles1(const Zone & zone, RmgMap & map, CRandomGenerator & generator);
+void createObstacles2(const Zone & zone, RmgMap & map, CRandomGenerator & generator, ObjectManager & manager);
 bool canObstacleBePlacedHere(const RmgMap & gen, ObjectTemplate &temp, int3 &pos);
 
 int chooseRandomAppearance(CRandomGenerator & generator, si32 ObjID, const Terrain & terrain);

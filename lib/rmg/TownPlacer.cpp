@@ -1,9 +1,12 @@
-//
-//  TownPlacer.cpp
-//  vcmi
-//
-//  Created by nordsoft on 27.06.2022.
-//
+/*
+ * TownPlacer.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 
 #include "TownPlacer.h"
 #include "CMapGenerator.h"
@@ -12,8 +15,8 @@
 #include "../mapping/CMapEditManager.h"
 #include "../mapObjects/CObjectClassesHandler.h"
 #include "../spells/CSpellHandler.h" //for choosing random spells
-#include "CRmgPath.h"
-#include "CRmgObject.h"
+#include "RmgPath.h"
+#include "RmgObject.h"
 #include "ObjectManager.h"
 #include "Functions.h"
 #include "RoadPlacer.h"
@@ -80,7 +83,7 @@ void TownPlacer::placeTowns(ObjectManager & manager)
 				town->possibleSpells.push_back(spell->id);
 		}
 		//towns are big objects and should be centered around visitable position
-		Rmg::Object rmgObject(*town);
+		rmg::Object rmgObject(*town);
 		rmgObject.setPosition(zone.getPos() + town->getVisitableOffset());
 		manager.placeObject(rmgObject, false, true);
 		cleanupBoundaries(rmgObject);
@@ -179,7 +182,7 @@ bool TownPlacer::placeMines(ObjectManager & manager)
 }
 
 
-void TownPlacer::cleanupBoundaries(const Rmg::Object & rmgObject)
+void TownPlacer::cleanupBoundaries(const rmg::Object & rmgObject)
 {
 	for(auto & t : rmgObject.getArea().getBorderOutside())
 	{
@@ -230,7 +233,7 @@ void TownPlacer::addNewTowns(int count, bool hasFort, PlayerColor player, Object
 			//register MAIN town of zone
 			map.registerZone(town->subID);
 			//first town in zone goes in the middle
-			Rmg::Object rmgObject(*town);
+			rmg::Object rmgObject(*town);
 			rmgObject.setPosition(zone.getPos() + town->getVisitableOffset());
 			manager.placeObject(rmgObject, false, true);
 			cleanupBoundaries(rmgObject);

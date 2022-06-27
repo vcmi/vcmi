@@ -1,9 +1,12 @@
-//
-//  RmgMap.cpp
-//  vcmi
-//
-//  Created by nordsoft on 23.06.2022.
-//
+/*
+ * RmgMap.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 
 #include "RmgMap.h"
 #include "TileInfo.h"
@@ -72,13 +75,13 @@ void RmgMap::initTiles(CMapGenerator & generator)
 	int height = mapInstance->height;
 	
 	int level = mapInstance->twoLevel ? 2 : 1;
-	tiles = new CTileInfo**[width];
+	tiles = new TileInfo**[width];
 	for (int i = 0; i < width; ++i)
 	{
-		tiles[i] = new CTileInfo*[height];
+		tiles[i] = new TileInfo*[height];
 		for (int j = 0; j < height; ++j)
 		{
-			tiles[i][j] = new CTileInfo[level];
+			tiles[i][j] = new TileInfo[level];
 		}
 	}
 	
@@ -236,7 +239,7 @@ void RmgMap::setRoad(const int3& tile, const std::string & roadType)
 	tiles[tile.x][tile.y][tile.z].setRoadType(roadType);
 }
 
-CTileInfo RmgMap::getTile(const int3& tile) const
+TileInfo RmgMap::getTile(const int3& tile) const
 {
 	checkIsOnMap(tile);
 	

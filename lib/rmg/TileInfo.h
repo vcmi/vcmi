@@ -1,20 +1,23 @@
-//
-//  TileInfo.hpp
-//  vcmi
-//
-//  Created by nordsoft on 22.06.2022.
-//
+/*
+ * TileInfo.h, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 
 #pragma once
 
 #include "../GameConstants.h"
 #include "../Terrain.h"
 
-class DLL_LINKAGE CTileInfo
+class DLL_LINKAGE TileInfo
 {
 public:
 	
-	CTileInfo();
+	TileInfo();
 	
 	float getNearestObjectDistance() const;
 	void setNearestObjectDistance(float value);

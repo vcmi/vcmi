@@ -81,12 +81,26 @@ set(lib_SRCS
 		registerTypes/TypesLobbyPacks.cpp
 		registerTypes/TypesServerPacks.cpp
 
+		rmg/RmgArea.cpp
+		rmg/RmgObject.cpp
+		rmg/RmgPath.cpp
 		rmg/CMapGenerator.cpp
 		rmg/CMapGenOptions.cpp
 		rmg/CRmgTemplate.cpp
 		rmg/CRmgTemplateStorage.cpp
-		rmg/CRmgTemplateZone.cpp
 		rmg/CZonePlacer.cpp
+		rmg/TileInfo.cpp
+		rmg/Zone.cpp
+		rmg/Functions.cpp
+		rmg/ObjectManager.cpp
+		rmg/RoadPlacer.cpp
+		rmg/TreasurePlacer.cpp
+		rmg/RmgMap.cpp
+		rmg/ConnectionsPlacer.cpp
+		rmg/WaterAdopter.cpp
+		rmg/TownPlacer.cpp
+		rmg/WaterProxy.cpp
+		rmg/WaterRoutes.cpp
 
 		serializer/BinaryDeserializer.cpp
 		serializer/BinarySerializer.cpp
@@ -287,12 +301,26 @@ set(lib_HEADERS
 
 		registerTypes/RegisterTypes.h
 
+		rmg/RmgArea.h
+		rmg/RmgObject.h
+		rmg/RmgPath.h
 		rmg/CMapGenerator.h
 		rmg/CMapGenOptions.h
 		rmg/CRmgTemplate.h
 		rmg/CRmgTemplateStorage.h
-		rmg/CRmgTemplateZone.h
 		rmg/CZonePlacer.h
+		rmg/TileInfo.h
+		rmg/Zone.h
+		rmg/Functions.h
+		rmg/ObjectManager.h
+		rmg/RoadPlacer.h
+		rmg/TreasurePlacer.h
+		rmg/RmgMap.h
+		rmg/ConnectionsPlacer.h
+		rmg/WaterAdopter.h
+		rmg/TownPlacer.h
+		rmg/WaterProxy.h
+		rmg/WaterRoutes.h
 		rmg/float3.h
 
 		serializer/BinaryDeserializer.h

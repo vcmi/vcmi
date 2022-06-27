@@ -1,9 +1,12 @@
-//
-//  Functions.cpp
-//  vcmi
-//
-//  Created by nordsoft on 23.06.2022.
-//
+/*
+ * Functions.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 
 #include "Functions.h"
 #include "CMapGenerator.h"
@@ -14,7 +17,7 @@
 #include "TownPlacer.h"
 #include "RmgMap.h"
 #include "TileInfo.h"
-#include "CRmgPath.h"
+#include "RmgPath.h"
 #include "../CTownHandler.h"
 #include "../mapping/CMapEditManager.h"
 #include "../mapping/CMap.h"
@@ -124,7 +127,7 @@ void createObstacles2(const Zone & zone, RmgMap & map, CRandomGenerator & genera
 		if(canObstacleBePlacedHere(map, temp, obstaclePos)) //can be placed here
 		{
 			auto obj = VLC->objtypeh->getHandlerFor(temp.id, temp.subid)->create(temp);
-			Rmg::Object rmgObject(*obj);
+			rmg::Object rmgObject(*obj);
 			rmgObject.setPosition(obstaclePos);
 			manager.placeObject(rmgObject, false, false);
 			return true;

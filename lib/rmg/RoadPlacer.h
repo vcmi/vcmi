@@ -1,9 +1,12 @@
-//
-//  RoadPlacer.hpp
-//  vcmi
-//
-//  Created by nordsoft on 23.06.2022.
-//
+/*
+ * RoadPlacer.h, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 
 #pragma once
 #include "Zone.h"
@@ -19,7 +22,7 @@ public:
 	void connectRoads(); //fills "roads" according to "roadNodes"
 	
 protected:
-	bool createRoad(const Rmg::Area & dst);
+	bool createRoad(const rmg::Area & dst);
 	void drawRoads(); //actually updates tiles
 	
 protected:
@@ -27,6 +30,6 @@ protected:
 	CMapGenerator & generator;
 	Zone & zone;
 	
-	Rmg::Area roadNodes; //tiles to be connected with roads
-	Rmg::Area roads; //all tiles with roads
+	rmg::Area roadNodes; //tiles to be connected with roads
+	rmg::Area roads; //all tiles with roads
 };

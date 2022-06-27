@@ -1,5 +1,5 @@
 /*
- * CRmgArea.cpp, part of VCMI engine
+ * RmgArea.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -8,12 +8,12 @@
  *
  */
 
-#include "CRmgArea.h"
+#include "RmgArea.h"
 #include "CMapGenerator.h"
 
-using namespace Rmg;
+using namespace rmg;
 
-Tileset Rmg::toAbsolute(const Tileset & tiles, const int3 & position)
+Tileset rmg::toAbsolute(const Tileset & tiles, const int3 & position)
 {
 	Tileset result;
 	std::transform(tiles.cbegin(), tiles.cend(), std::inserter(result, result.begin()), [&position](const int3 & t)
@@ -23,9 +23,9 @@ Tileset Rmg::toAbsolute(const Tileset & tiles, const int3 & position)
 	return result;
 }
 
-Tileset Rmg::toRelative(const Tileset & tiles, const int3 & position)
+Tileset rmg::toRelative(const Tileset & tiles, const int3 & position)
 {
-	return Rmg::toAbsolute(tiles, -position);
+	return rmg::toAbsolute(tiles, -position);
 }
 
 Area::Area(const Area & area): dTiles(area.dTiles), dBorderCache(area.dBorderCache), dBorderOutsideCache(area.dBorderOutsideCache)
@@ -49,7 +49,7 @@ Area::Area(const Tileset & tiles): dTiles(tiles)
 {
 }
 
-Area::Area(const Tileset & relative, const int3 & position): Area(Rmg::toAbsolute(relative, position))
+Area::Area(const Tileset & relative, const int3 & position): Area(rmg::toAbsolute(relative, position))
 {
 }
 
@@ -75,7 +75,7 @@ bool Area::connected() const
 	return connected.empty();
 }
 
-std::list<Area> Rmg::connectedAreas(const Area & area)
+std::list<Area> rmg::connectedAreas(const Area & area)
 {
 	std::list<Area> result;
 	Tileset connected = area.dTiles;
@@ -171,7 +171,7 @@ DistanceMap Area::computeDistanceMap(std::map<int, Tileset> & reverseDistanceMap
 
 Tileset Area::relative(const int3 & position) const
 {
-	return Rmg::toRelative(dTiles, position);
+	return rmg::toRelative(dTiles, position);
 }
 
 bool Area::empty() const
@@ -325,49 +325,49 @@ void Area::subtract(const Area & area)
 
 void Area::translate(const int3 & shift)
 {
-	dTiles = Rmg::toAbsolute(dTiles, shift);
+	dTiles = rmg::toAbsolute(dTiles, shift);
 	
 	//trivial change - do not invalidate cache
-	dBorderCache = Rmg::toAbsolute(dBorderCache, shift);
-	dBorderOutsideCache = Rmg::toAbsolute(dBorderOutsideCache, shift);
+	dBorderCache = rmg::toAbsolute(dBorderCache, shift);
+	dBorderOutsideCache = rmg::toAbsolute(dBorderOutsideCache, shift);
 }
 
-Area Rmg::operator- (const Area & l, const int3 & r)
+Area rmg::operator- (const Area & l, const int3 & r)
 {
 	Area result(l.dTiles);
 	result.translate(-r);
 	return result;
 }
 
-Area Rmg::operator+ (const Area & l, const int3 & r)
+Area rmg::operator+ (const Area & l, const int3 & r)
 {
 	Area result(l.dTiles);
 	result.translate(r);
 	return result;
 }
 
-Area Rmg::operator+ (const Area & l, const Area & r)
+Area rmg::operator+ (const Area & l, const Area & r)
 {
 	Area result(l.dTiles);
 	result.unite(r);
 	return result;
 }
 
-Area Rmg::operator- (const Area & l, const Area & r)
+Area rmg::operator- (const Area & l, const Area & r)
 {
 	Area result(l.dTiles);
 	result.subtract(r);
 	return result;
 }
 
-Area Rmg::operator* (const Area & l, const Area & r)
+Area rmg::operator* (const Area & l, const Area & r)
 {
 	Area result(l.dTiles);
 	result.intersect(r);
 	return result;
 }
 
-bool Rmg::operator== (const Area & l, const Area & r)
+bool rmg::operator== (const Area & l, const Area & r)
 {
 	return l.dTiles == r.dTiles;
 }

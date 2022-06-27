@@ -1,9 +1,12 @@
-//
-//  WaterProxy.cpp
-//  vcmi
-//
-//  Created by nordsoft on 27.06.2022.
-//
+/*
+ * WaterProxy.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 
 #include "WaterProxy.h"
 #include "CMapGenerator.h"
@@ -11,8 +14,8 @@
 #include "../mapping/CMap.h"
 #include "../mapping/CMapEditManager.h"
 #include "../mapObjects/CObjectClassesHandler.h"
-#include "CRmgPath.h"
-#include "CRmgObject.h"
+#include "RmgPath.h"
+#include "RmgObject.h"
 #include "ObjectManager.h"
 #include "Functions.h"
 #include "RoadPlacer.h"
@@ -21,7 +24,7 @@
 #include "ConnectionsPlacer.h"
 #include "TileInfo.h"
 #include "WaterAdopter.h"
-#include "CRmgArea.h"
+#include "RmgArea.h"
 
 WaterProxy::WaterProxy(Zone & zone, RmgMap & map, CMapGenerator & generator) : zone(zone), map(map), generator(generator)
 {
@@ -176,15 +179,15 @@ bool WaterProxy::placeBoat(Zone & land, const Lake & lake)
 	auto subObjects = VLC->objtypeh->knownSubObjects(Obj::BOAT);
 	auto* boat = (CGBoat*)VLC->objtypeh->getHandlerFor(Obj::BOAT, *RandomGeneratorUtil::nextItem(subObjects, generator.rand))->create(ObjectTemplate());
 	
-	Rmg::Object rmgObject(*boat);
+	rmg::Object rmgObject(*boat);
 	rmgObject.setTemplate(zone.getTerrainType());
 	
 	auto waterAvailable = zone.areaPossible() + zone.freePaths();
-	Rmg::Area coast = lake.neighbourZones.at(land.getId()); //having land tiles
+	rmg::Area coast = lake.neighbourZones.at(land.getId()); //having land tiles
 	coast.intersect(land.areaPossible() + land.freePaths()); //having only available land tiles
 	auto boardingPositions = coast.getSubarea([&waterAvailable](const int3 & tile) //tiles where boarding is possible
 											  {
-		Rmg::Area a({tile});
+		rmg::Area a({tile});
 		a = a.getBorderOutside();
 		a.intersect(waterAvailable);
 		return !a.empty();
@@ -193,7 +196,7 @@ bool WaterProxy::placeBoat(Zone & land, const Lake & lake)
 	while(!boardingPositions.empty())
 	{
 		auto boardingPosition = *boardingPositions.getTiles().begin();
-		Rmg::Area shipPositions({boardingPositions});
+		rmg::Area shipPositions({boardingPositions});
 		shipPositions.assign(shipPositions.getBorderOutside());
 		shipPositions.intersect(waterAvailable);
 		if(shipPositions.empty())
@@ -234,16 +237,16 @@ bool WaterProxy::placeShipyard(Zone & land, const Lake & lake, si32 guard)
 	auto shipyard = (CGShipyard*) VLC->objtypeh->getHandlerFor(Obj::SHIPYARD, subtype)->create(ObjectTemplate());
 	shipyard->tempOwner = PlayerColor::NEUTRAL;
 	
-	Rmg::Object rmgObject(*shipyard);
+	rmg::Object rmgObject(*shipyard);
 	rmgObject.setTemplate(land.getTerrainType());
 	bool guarded = manager->addGuard(rmgObject, guard);
 	
 	auto waterAvailable = zone.areaPossible() + zone.freePaths();
-	Rmg::Area coast = lake.neighbourZones.at(land.getId()); //having land tiles
+	rmg::Area coast = lake.neighbourZones.at(land.getId()); //having land tiles
 	coast.intersect(land.areaPossible() + land.freePaths()); //having only available land tiles
 	auto boardingPositions = coast.getSubarea([&waterAvailable](const int3 & tile) //tiles where boarding is possible
 	{
-		Rmg::Area a({tile});
+		rmg::Area a({tile});
 		a = a.getBorderOutside();
 		a.intersect(waterAvailable);
 		return !a.empty();
@@ -252,7 +255,7 @@ bool WaterProxy::placeShipyard(Zone & land, const Lake & lake, si32 guard)
 	while(!boardingPositions.empty())
 	{
 		auto boardingPosition = *boardingPositions.getTiles().begin();
-		Rmg::Area shipPositions({boardingPositions});
+		rmg::Area shipPositions({boardingPositions});
 		shipPositions.assign(shipPositions.getBorderOutside());
 		shipPositions.intersect(waterAvailable);
 		if(shipPositions.empty())
@@ -264,7 +267,7 @@ bool WaterProxy::placeShipyard(Zone & land, const Lake & lake, si32 guard)
 		//try to place shipyard close to boarding position and appropriate water access
 		bool result = manager->placeAndConnectObject(land.areaPossible(), rmgObject, [&rmgObject, &shipPositions, &boardingPosition](const int3 & tile)
 		{
-			Rmg::Area shipyardOut(rmgObject.getArea().getBorderOutside());
+			rmg::Area shipyardOut(rmgObject.getArea().getBorderOutside());
 			if(!shipyardOut.contains(boardingPosition) || (shipyardOut * shipPositions).empty())
 				return -1.f;
 			

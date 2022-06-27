@@ -1,14 +1,17 @@
-//
-//  ObjectManager.hpp
-//  vcmi
-//
-//  Created by nordsoft on 23.06.2022.
-//
+/*
+ * ObjectManager.h, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 
 #pragma once
 
 #include "Zone.h"
-#include "CRmgObject.h"
+#include "RmgObject.h"
 
 class CGObjectInstance;
 class ObjectTemplate;
@@ -29,15 +32,15 @@ public:
 		
 	bool createRequiredObjects();
 	
-	int3 findPlaceForObject(const Rmg::Area & searchArea, Rmg::Object & obj, si32 min_dist) const;
-	int3 findPlaceForObject(const Rmg::Area & searchArea, Rmg::Object & obj, std::function<float(const int3)> weightFunction) const;
+	int3 findPlaceForObject(const rmg::Area & searchArea, rmg::Object & obj, si32 min_dist) const;
+	int3 findPlaceForObject(const rmg::Area & searchArea, rmg::Object & obj, std::function<float(const int3)> weightFunction) const;
 	
-	bool placeAndConnectObject(const Rmg::Area & searchArea, Rmg::Object & obj, si32 min_dist, bool isGuarded, bool onlyStraight) const;
-	bool placeAndConnectObject(const Rmg::Area & searchArea, Rmg::Object & obj, std::function<float(const int3)> weightFunction, bool isGuarded, bool onlyStraight) const;
+	bool placeAndConnectObject(const rmg::Area & searchArea, rmg::Object & obj, si32 min_dist, bool isGuarded, bool onlyStraight) const;
+	bool placeAndConnectObject(const rmg::Area & searchArea, rmg::Object & obj, std::function<float(const int3)> weightFunction, bool isGuarded, bool onlyStraight) const;
 	
 	CGCreature * chooseGuard(si32 str, bool zoneGuard = false);
-	bool addGuard(Rmg::Object & object, si32 str, bool zoneGuard = false);
-	void placeObject(Rmg::Object & object, bool guarded, bool updateDistance);
+	bool addGuard(rmg::Object & object, si32 str, bool zoneGuard = false);
+	void placeObject(rmg::Object & object, bool guarded, bool updateDistance);
 	void placeObject(CGObjectInstance* object, const int3 & pos, bool updateDistance);
 	
 	void updateDistances(const int3 & pos);

@@ -1,9 +1,12 @@
-//
-//  WaterRoutes.cpp
-//  vcmi
-//
-//  Created by nordsoft on 27.06.2022.
-//
+/*
+ * WaterRoutes.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 
 #include "WaterRoutes.h"
 #include "WaterProxy.h"
@@ -12,8 +15,8 @@
 #include "../mapping/CMap.h"
 #include "../mapping/CMapEditManager.h"
 #include "../mapObjects/CObjectClassesHandler.h"
-#include "CRmgPath.h"
-#include "CRmgObject.h"
+#include "RmgPath.h"
+#include "RmgObject.h"
 #include "ObjectManager.h"
 #include "Functions.h"
 #include "RoadPlacer.h"
@@ -22,7 +25,7 @@
 #include "ConnectionsPlacer.h"
 #include "TileInfo.h"
 #include "WaterAdopter.h"
-#include "CRmgArea.h"
+#include "RmgArea.h"
 
 WaterRoutes::WaterRoutes(Zone & zone, RmgMap & map, CMapGenerator & generator) : zone(zone), map(map), generator(generator)
 {

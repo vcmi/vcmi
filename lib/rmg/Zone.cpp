@@ -1,9 +1,12 @@
-//
-//  Zone.cpp
-//  vcmi
-//
-//  Created by nordsoft on 22.06.2022.
-//
+/*
+ * Zone.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 
 #include "Zone.h"
 #include "RmgMap.h"
@@ -12,7 +15,7 @@
 #include "../mapping/CMap.h"
 #include "../CStopWatch.h"
 #include "CMapGenerator.h"
-#include "CRmgPath.h"
+#include "RmgPath.h"
 
 Zone::Zone(RmgMap & map, CMapGenerator & generator)
 					: ZoneOptions(),
@@ -65,22 +68,22 @@ void Zone::setPos(const int3 &Pos)
 	pos = Pos;
 }
 
-const Rmg::Area & Zone::getArea() const
+const rmg::Area & Zone::getArea() const
 {
 	return dArea;
 }
 
-Rmg::Area & Zone::area()
+rmg::Area & Zone::area()
 {
 	return dArea;
 }
 
-Rmg::Area & Zone::areaPossible()
+rmg::Area & Zone::areaPossible()
 {
 	return dAreaPossible;
 }
 
-Rmg::Area & Zone::areaUsed()
+rmg::Area & Zone::areaUsed()
 {
 	return dAreaUsed;
 }
@@ -94,7 +97,7 @@ void Zone::clearTiles()
 
 void Zone::initFreeTiles()
 {
-	Rmg::Tileset possibleTiles;
+	rmg::Tileset possibleTiles;
 	vstd::copy_if(dArea.getTiles(), vstd::set_inserter(possibleTiles), [this](const int3 &tile) -> bool
 	{
 		return map.isPossible(tile);
@@ -108,7 +111,7 @@ void Zone::initFreeTiles()
 	}
 }
 
-Rmg::Area & Zone::freePaths()
+rmg::Area & Zone::freePaths()
 {
 	return dAreaFree;
 }
@@ -242,7 +245,7 @@ bool Zone::crunchPath(const int3 &src, const int3 &dst, bool onlyStraight, std::
 	return result;
 }
 
-bool Zone::connectPath(const Rmg::Area & src, bool onlyStraight)
+bool Zone::connectPath(const rmg::Area & src, bool onlyStraight)
 ///connect current tile to any other free tile within zone
 {
 	auto movementCost = [this](const int3 & s, const int3 & d)
@@ -255,11 +258,11 @@ bool Zone::connectPath(const Rmg::Area & src, bool onlyStraight)
 	};
 	
 	auto area = dAreaPossible + dAreaFree;
-	Rmg::Path freePath(area);
+	rmg::Path freePath(area);
 	freePath.connect(dAreaFree);
 	
 	//connect to all pieces
-	Rmg::Area potentialPath;
+	rmg::Area potentialPath;
 	auto goals = connectedAreas(src);
 	for(auto & goal : goals)
 	{
@@ -281,14 +284,14 @@ bool Zone::connectPath(const Rmg::Area & src, bool onlyStraight)
 bool Zone::connectPath(const int3 & src, bool onlyStraight)
 ///connect current tile to any other free tile within zone
 {
-	return connectPath(Rmg::Area({src}), onlyStraight);
+	return connectPath(rmg::Area({src}), onlyStraight);
 }
 
 void Zone::fractalize()
 {
-	Rmg::Area clearedTiles(dAreaFree);
-	Rmg::Area possibleTiles(dAreaPossible);
-	Rmg::Area tilesToIgnore; //will be erased in this iteration
+	rmg::Area clearedTiles(dAreaFree);
+	rmg::Area possibleTiles(dAreaPossible);
+	rmg::Area tilesToIgnore; //will be erased in this iteration
 	
 	//the more treasure density, the greater distance between paths. Scaling is experimental.
 	int totalDensity = 0;
@@ -337,7 +340,7 @@ void Zone::fractalize()
 		if(dAreaFree.overlap(area))
 			continue; //already found
 			
-		Rmg::Path path(dAreaPossible + dAreaFree);
+		rmg::Path path(dAreaPossible + dAreaFree);
 		path.connect(dAreaFree);
 		auto res = path.search(area, false);
 		if(res.getPathArea().empty())

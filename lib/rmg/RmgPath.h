@@ -1,5 +1,5 @@
 /*
- * CRmgPath.h, part of VCMI engine
+ * RmgPath.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -12,9 +12,9 @@
 
 #include "../GameConstants.h"
 #include "../int3.h"
-#include "CRmgArea.h"
+#include "RmgArea.h"
 
-namespace Rmg
+namespace rmg
 {
 class Path
 {

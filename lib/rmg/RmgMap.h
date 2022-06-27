@@ -1,9 +1,12 @@
-//
-//  RmgMap.hpp
-//  vcmi
-//
-//  Created by nordsoft on 23.06.2022.
-//
+/*
+ * RmgMap.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 
 #pragma once
 #include "../int3.h"
@@ -11,7 +14,7 @@
 #include "../mapping/CMap.h"
 
 class CMapEditManager;
-class CTileInfo;
+class TileInfo;
 class CMapGenOptions;
 class Zone;
 class CMapGenerator;
@@ -43,7 +46,7 @@ public:
 	void setOccupied(const int3 &tile, ETileType::ETileType state);
 	void setRoad(const int3 &tile, const std::string & roadType);
 	
-	CTileInfo getTile(const int3 & tile) const;
+	TileInfo getTile(const int3 & tile) const;
 		
 	float getNearestObjectDistance(const int3 &tile) const;
 	void setNearestObjectDistance(int3 &tile, float value);
@@ -72,6 +75,6 @@ private:
 	std::map<TFaction, ui32> zonesPerFaction;
 	ui32 zonesTotal; //zones that have their main town only
 	const CMapGenOptions& mapGenOptions;
-	CTileInfo*** tiles;
+	TileInfo*** tiles;
 	boost::multi_array<TRmgTemplateZoneId, 3> zoneColouring; //[z][x][y]
 };

@@ -1,9 +1,12 @@
-//
-//  ObjectManager.cpp
-//  vcmi
-//
-//  Created by nordsoft on 23.06.2022.
-//
+/*
+ * ObjectManager.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 
 #include "ObjectManager.h"
 #include "CMapGenerator.h"
@@ -17,7 +20,7 @@
 #include "../mapping/CMap.h"
 #include "../mapping/CMapEditManager.h"
 #include "Functions.h"
-#include "CRmgObject.h"
+#include "RmgObject.h"
 
 ObjectManager::ObjectManager(Zone & zone, RmgMap & map, CMapGenerator & generator) : zone(zone), map(map), generator(generator)
 {
@@ -66,7 +69,7 @@ void ObjectManager::updateDistances(const int3 & pos)
 	}
 }
 
-int3 ObjectManager::findPlaceForObject(const Rmg::Area & searchArea, Rmg::Object & obj, std::function<float(const int3)> weightFunction) const
+int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object & obj, std::function<float(const int3)> weightFunction) const
 {
 	float bestWeight = 0.f;
 	int3 result(-1, -1, -1);
@@ -96,7 +99,7 @@ int3 ObjectManager::findPlaceForObject(const Rmg::Area & searchArea, Rmg::Object
 	return result;
 }
 
-int3 ObjectManager::findPlaceForObject(const Rmg::Area & searchArea, Rmg::Object & obj, si32 min_dist) const
+int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object & obj, si32 min_dist) const
 {
 	return findPlaceForObject(searchArea, obj, [this, min_dist](const int3 & tile)
 	{
@@ -111,7 +114,7 @@ int3 ObjectManager::findPlaceForObject(const Rmg::Area & searchArea, Rmg::Object
 	});
 }
 
-bool ObjectManager::placeAndConnectObject(const Rmg::Area & searchArea, Rmg::Object & obj, si32 min_dist, bool isGuarded, bool onlyStraight) const
+bool ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg::Object & obj, si32 min_dist, bool isGuarded, bool onlyStraight) const
 {
 	return placeAndConnectObject(searchArea, obj, [this, min_dist](const int3 & tile)
 	{
@@ -126,7 +129,7 @@ bool ObjectManager::placeAndConnectObject(const Rmg::Area & searchArea, Rmg::Obj
 	}, isGuarded, onlyStraight);
 }
 
-bool ObjectManager::placeAndConnectObject(const Rmg::Area & searchArea, Rmg::Object & obj, std::function<float(const int3)> weightFunction, bool isGuarded, bool onlyStraight) const
+bool ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg::Object & obj, std::function<float(const int3)> weightFunction, bool isGuarded, bool onlyStraight) const
 {
 	int3 pos;
 	auto possibleArea = searchArea;
@@ -158,7 +161,7 @@ bool ObjectManager::createRequiredObjects()
 	{
 		auto * obj = object.first;
 		int3 pos;
-		Rmg::Object rmgObject(*obj);
+		rmg::Object rmgObject(*obj);
 		rmgObject.setTemplate(zone.getTerrainType());
 		bool guarded = addGuard(rmgObject, object.second, (obj->ID == Obj::MONOLITH_TWO_WAY));
 		
@@ -175,12 +178,12 @@ bool ObjectManager::createRequiredObjects()
 			if(nearby.second != object.first)
 				continue;
 			
-			Rmg::Area possibleArea(rmgObject.instances().front()->getBlockedArea().getBorderOutside());
+			rmg::Area possibleArea(rmgObject.instances().front()->getBlockedArea().getBorderOutside());
 			possibleArea.intersect(zone.areaPossible());
 			if(possibleArea.empty())
 				continue;
 			
-			Rmg::Object rmgNearObject(*nearby.first);
+			rmg::Object rmgNearObject(*nearby.first);
 			rmgNearObject.setPosition(*RandomGeneratorUtil::nextItem(possibleArea.getTiles(), generator.rand));
 			placeObject(rmgNearObject, false, false);
 		}
@@ -191,7 +194,7 @@ bool ObjectManager::createRequiredObjects()
 		auto * obj = object.first;
 		int3 pos;
 		auto possibleArea = zone.areaPossible();
-		Rmg::Object rmgObject(*obj);
+		rmg::Object rmgObject(*obj);
 		rmgObject.setTemplate(zone.getTerrainType());
 		bool guarded = addGuard(rmgObject, object.second, (obj->ID == Obj::MONOLITH_TWO_WAY));
 		
@@ -215,12 +218,12 @@ bool ObjectManager::createRequiredObjects()
 			if(nearby.second != object.first)
 				continue;
 			
-			Rmg::Area possibleArea(rmgObject.instances().front()->getBlockedArea().getBorderOutside());
+			rmg::Area possibleArea(rmgObject.instances().front()->getBlockedArea().getBorderOutside());
 			possibleArea.intersect(zone.areaPossible());
 			if(possibleArea.empty())
 				continue;
 			
-			Rmg::Object rmgNearObject(*nearby.first);
+			rmg::Object rmgNearObject(*nearby.first);
 			rmgNearObject.setPosition(*RandomGeneratorUtil::nextItem(possibleArea.getTiles(), generator.rand));
 			placeObject(rmgNearObject, false, false);
 		}
@@ -230,7 +233,7 @@ bool ObjectManager::createRequiredObjects()
 	//TODO: implement guards
 	for (const auto &obj : instantObjects)
 	{
-		Rmg::Object rmgObject(*obj.first);
+		rmg::Object rmgObject(*obj.first);
 		rmgObject.setPosition(obj.second);
 		placeObject(rmgObject, false, false);
 	}
@@ -243,7 +246,7 @@ bool ObjectManager::createRequiredObjects()
 	return true;
 }
 
-void ObjectManager::placeObject(Rmg::Object & object, bool guarded, bool updateDistance)
+void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateDistance)
 {
 	object.finalize(map);
 	zone.areaPossible().subtract(object.getArea());
@@ -284,7 +287,7 @@ void ObjectManager::placeObject(Rmg::Object & object, bool guarded, bool updateD
 
 void ObjectManager::placeObject(CGObjectInstance* object, const int3 &pos, bool updateDistance)
 {
-	Rmg::Object rmgObject(*object);
+	rmg::Object rmgObject(*object);
 	rmgObject.setPosition(pos);
 	placeObject(rmgObject, false, true);
 }
@@ -347,13 +350,13 @@ CGCreature * ObjectManager::chooseGuard(si32 strength, bool zoneGuard)
 	return guard;
 }
 
-bool ObjectManager::addGuard(Rmg::Object & object, si32 str, bool zoneGuard)
+bool ObjectManager::addGuard(rmg::Object & object, si32 str, bool zoneGuard)
 {
 	auto * guard = chooseGuard(str, zoneGuard);
 	if(!guard)
 		return false;
 	
-	Rmg::Area visitablePos({object.getVisitablePosition()});
+	rmg::Area visitablePos({object.getVisitablePosition()});
 	visitablePos.unite(visitablePos.getBorderOutside());
 	
 	auto accessibleArea = object.getAccessibleArea();
