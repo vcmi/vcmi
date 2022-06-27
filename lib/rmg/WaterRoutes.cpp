@@ -45,8 +45,8 @@ void WaterRoutes::init()
 	for(auto & z : map.getZones())
 	{
 		dependency(z.second->getModificator<ConnectionsPlacer>());
+		dependency(z.second->getModificator<ObjectManager>());
 		postfunction(z.second->getModificator<TreasurePlacer>());
-		postfunction(z.second->getModificator<ObjectManager>());
 	}
 	dependency(zone.getModificator<WaterProxy>());
 	postfunction(zone.getModificator<TreasurePlacer>());

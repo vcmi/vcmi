@@ -112,15 +112,33 @@ void WaterProxy::waterRoute(Zone & dst)
 			
 			if(dst.getType() == ETemplateZoneType::PLAYER_START || dst.getType() == ETemplateZoneType::CPU_START || zoneTowns)
 			{
-				//coastTile = dst.createShipyard(lake.tiles, gen->getConfig().shipyardGuard);
-				if(!coastTile.valid())
+				if(placeShipyard(dst, lake, generator.getConfig().shipyardGuard))
 				{
-					//coastTile = makeBoat(dst.getId(), lake.tiles);
+					logGlobal->warn("Shipyard successfully placed at zone %d", dst.getId());
+				}
+				else
+				{
+					logGlobal->warn("Shipyard placement failed, trying boat at zone %d", dst.getId());
+					if(placeBoat(dst, lake))
+					{
+						logGlobal->warn("Boat successfully placed at zone %d", dst.getId());
+					}
+					else
+					{
+						logGlobal->error("Boat palcement faile at zone %d", dst.getId());
+					}
 				}
 			}
 			else
 			{
-				//coastTile = makeBoat(dst.getId(), lake.tiles);
+				if(placeBoat(dst, lake))
+				{
+					logGlobal->warn("Boat successfully placed at zone %d", dst.getId());
+				}
+				else
+				{
+					logGlobal->error("Boat palcement faile at zone %d", dst.getId());
+				}
 			}
 			
 			if(coastTile.valid())
@@ -147,4 +165,136 @@ bool WaterProxy::waterKeepConnection(TRmgTemplateZoneId zoneA, TRmgTemplateZoneI
 		}
 	}
 	return false;
+}
+
+bool WaterProxy::placeBoat(Zone & land, const Lake & lake)
+{
+	auto * manager = zone.getModificator<ObjectManager>();
+	if(!manager)
+		return false;
+	
+	auto subObjects = VLC->objtypeh->knownSubObjects(Obj::BOAT);
+	auto* boat = (CGBoat*)VLC->objtypeh->getHandlerFor(Obj::BOAT, *RandomGeneratorUtil::nextItem(subObjects, generator.rand))->create(ObjectTemplate());
+	
+	Rmg::Object rmgObject(*boat);
+	rmgObject.setTemplate(zone.getTerrainType());
+	
+	auto waterAvailable = zone.areaPossible() + zone.freePaths();
+	Rmg::Area coast = lake.neighbourZones.at(land.getId()); //having land tiles
+	coast.intersect(land.areaPossible() + land.freePaths()); //having only available land tiles
+	auto boardingPositions = coast.getSubarea([&waterAvailable](const int3 & tile) //tiles where boarding is possible
+											  {
+		Rmg::Area a({tile});
+		a = a.getBorderOutside();
+		a.intersect(waterAvailable);
+		return !a.empty();
+	});
+	
+	while(!boardingPositions.empty())
+	{
+		auto boardingPosition = *boardingPositions.getTiles().begin();
+		Rmg::Area shipPositions({boardingPositions});
+		shipPositions.assign(shipPositions.getBorderOutside());
+		shipPositions.intersect(waterAvailable);
+		if(shipPositions.empty())
+		{
+			boardingPositions.erase(boardingPosition);
+			continue;
+		}
+		
+		//try to place boat at water and create path on water
+		bool result = manager->placeAndConnectObject(shipPositions, rmgObject, 2, false, true);
+		if(!result)
+		{
+			boardingPositions.erase(boardingPosition);
+			continue;
+		}
+		
+		//connect boat boarding position
+		if(!land.connectPath(boardingPosition, false))
+		{
+			boardingPositions.erase(boardingPosition);
+			continue;
+		}
+		
+		manager->placeObject(rmgObject, false, true);
+		break;
+	}
+	
+	return !boardingPositions.empty();
+}
+
+bool WaterProxy::placeShipyard(Zone & land, const Lake & lake, si32 guard)
+{
+	auto * manager = land.getModificator<ObjectManager>();
+	if(!manager)
+		return false;
+	
+	int subtype = chooseRandomAppearance(generator.rand, Obj::SHIPYARD, land.getTerrainType());
+	auto shipyard = (CGShipyard*) VLC->objtypeh->getHandlerFor(Obj::SHIPYARD, subtype)->create(ObjectTemplate());
+	shipyard->tempOwner = PlayerColor::NEUTRAL;
+	
+	Rmg::Object rmgObject(*shipyard);
+	rmgObject.setTemplate(land.getTerrainType());
+	bool guarded = manager->addGuard(rmgObject, guard);
+	
+	auto waterAvailable = zone.areaPossible() + zone.freePaths();
+	Rmg::Area coast = lake.neighbourZones.at(land.getId()); //having land tiles
+	coast.intersect(land.areaPossible() + land.freePaths()); //having only available land tiles
+	auto boardingPositions = coast.getSubarea([&waterAvailable](const int3 & tile) //tiles where boarding is possible
+	{
+		Rmg::Area a({tile});
+		a = a.getBorderOutside();
+		a.intersect(waterAvailable);
+		return !a.empty();
+	});
+	
+	while(!boardingPositions.empty())
+	{
+		auto boardingPosition = *boardingPositions.getTiles().begin();
+		Rmg::Area shipPositions({boardingPositions});
+		shipPositions.assign(shipPositions.getBorderOutside());
+		shipPositions.intersect(waterAvailable);
+		if(shipPositions.empty())
+		{
+			boardingPositions.erase(boardingPosition);
+			continue;
+		}
+		
+		//try to place shipyard close to boarding position and appropriate water access
+		bool result = manager->placeAndConnectObject(land.areaPossible(), rmgObject, [&rmgObject, &shipPositions, &boardingPosition](const int3 & tile)
+		{
+			Rmg::Area shipyardOut(rmgObject.getArea().getBorderOutside());
+			if(!shipyardOut.contains(boardingPosition) || (shipyardOut * shipPositions).empty())
+				return -1.f;
+			
+			return 1.0f;
+		}, guarded, true);
+		
+		
+		if(!result)
+		{
+			boardingPositions.erase(boardingPosition);
+			continue;
+		}
+		
+		//ensure access to boat boarding position
+		if(!land.connectPath(boardingPosition, false))
+		{
+			boardingPositions.erase(boardingPosition);
+			continue;
+		}
+		
+		//ensure access to boat on water
+		if(!zone.connectPath(shipPositions, false))
+		{
+			boardingPositions.erase(boardingPosition);
+			continue;
+		}
+		
+		manager->placeObject(rmgObject, guarded, true);
+		break;
+	}
+	
+	return !boardingPositions.empty();
 }

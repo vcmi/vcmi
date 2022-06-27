@@ -35,7 +35,7 @@ void createBorder(RmgMap & gen, const Zone & zone)
 {
 	for(auto & tile : zone.getArea().getBorderOutside())
 	{
-		if(gen.isOnMap(tile) && gen.getZoneID(tile) != zone.getId()) //optimization - better than set search
+		if(gen.isOnMap(tile) && gen.getZoneID(tile) != zone.getId() && gen.getZones()[gen.getZoneID(tile)]->getType() != ETemplateZoneType::WATER) //optimization - better than set search
 		{
 			if(gen.isPossible(tile))
 			{
@@ -47,7 +47,7 @@ void createBorder(RmgMap & gen, const Zone & zone)
 			{
 				if(gen.isPossible(nearbyPos))
 				{
-					gen.setOccupied(nearbyPos, ETileType::BLOCKED);
+					gen.setOccupied(nearbyPos, ETileType::BLOCKED);	
 					gen.getZones().at(gen.getZoneID(nearbyPos))->areaPossible().erase(nearbyPos);
 				}
 			});

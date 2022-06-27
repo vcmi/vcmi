@@ -304,9 +304,9 @@ void CMapGenerator::fillZones()
 	
 	for(auto it : map->getZones())
 	{
+		initTerrainType(*it.second, *this);
 		it.second->initModificators();
 		it.second->initFreeTiles();
-		initTerrainType(*it.second, *this);
 		paintZoneTerrain(*it.second, rand, *map, it.second->getTerrainType());
 	}
 	

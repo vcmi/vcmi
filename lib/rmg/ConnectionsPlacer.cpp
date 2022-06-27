@@ -137,7 +137,11 @@ void ConnectionsPlacer::selfSideConnection(const rmg::ZoneConnection & connectio
 		if(generator.getZoneWater() && generator.getZoneWater()->getModificator<WaterProxy>())
 		{
 			if(generator.getZoneWater()->getModificator<WaterProxy>()->waterKeepConnection(connection.getZoneA(), connection.getZoneB()))
+			{
+				assert(otherZone->getModificator<ConnectionsPlacer>());
+				otherZone->getModificator<ConnectionsPlacer>()->otherSideConnection(connection);
 				success = true;
+			}
 		}
 	}
 	

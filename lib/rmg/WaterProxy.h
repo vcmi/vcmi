@@ -17,7 +17,7 @@ public:
 		Rmg::Area area; //water tiles
 		std::map<int3, int> distanceMap; //distance map for lake
 		std::map<int, Rmg::Tileset> reverseDistanceMap;
-		std::map<TRmgTemplateZoneId, Rmg::Area> neighbourZones; //zones boardered. Area - internal part of area
+		std::map<TRmgTemplateZoneId, Rmg::Area> neighbourZones; //zones boardered. Area - part of land
 		std::set<TRmgTemplateZoneId> keepConnections;
 	};
 	
@@ -31,6 +31,9 @@ public:
 	
 protected:
 	void collectLakes();
+	
+	bool placeShipyard(Zone & land, const Lake & lake, si32 guard);
+	bool placeBoat(Zone & land, const Lake & lake);
 		
 protected:
 	RmgMap & map;
