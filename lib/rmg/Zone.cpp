@@ -385,6 +385,6 @@ void Zone::processModificators()
 			throw e;
 		}
 		map.dump(false);
-		logGlobal->info("Zone %d filled successfully", getId());
 	}
+	logGlobal->info("Zone %d filled successfully", getId());
 }
