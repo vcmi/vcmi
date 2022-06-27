@@ -26,10 +26,16 @@ cmake "$srcDir" -G Xcode \
   -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
   -DCMAKE_TOOLCHAIN_FILE="$srcDir/ios.toolchain.cmake" \
   -DPLATFORM=$platform \
-  -DDEPLOYMENT_TARGET=11.0 \
+  -DDEPLOYMENT_TARGET=12.0 \
   -DENABLE_BITCODE=OFF \
   -DCMAKE_BINARY_DIR=$(pwd) \
   -DCMAKE_PREFIX_PATH="$prefixPath" \
   -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY='Apple Development' \
   -DCMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM='4XHN44TEVG'
   # -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED=NO
+
+# workaround strange cmake bug that adds compile flag to resources
+sed -i '' \
+  -e 's|\.storyboard \*/; settings = {COMPILER_FLAGS = "-DCMAKE_SKIP_PRECOMPILE_HEADERS "; };|.storyboard */;|g' \
+  -e 's|\.xcassets \*/; settings = {COMPILER_FLAGS = "-DCMAKE_SKIP_PRECOMPILE_HEADERS "; };|.xcassets */;|g' \
+  VCMI.xcodeproj/project.pbxproj
