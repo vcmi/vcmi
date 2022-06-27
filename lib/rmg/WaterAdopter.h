@@ -15,8 +15,18 @@ public:
 	
 	void process() override;
 	
+	void setWaterZone(TRmgTemplateZoneId water);
+	
+protected:
+	void createWater(EWaterContent::EWaterContent waterContent);
+	void reinitWaterZone(Zone & zone);
+	
 protected:
 	RmgMap & map;
 	CMapGenerator & generator;
 	Zone & zone;
+	
+	TRmgTemplateZoneId waterZoneId;
+	std::map<int3, int> distanceMap;
+	std::map<int, Rmg::Tileset> reverseDistanceMap;
 };

@@ -16,6 +16,7 @@
 namespace Rmg
 {
 	using Tileset = std::set<int3>;
+	using DistanceMap = std::map<int3, int>;
 	Tileset toAbsolute(const Tileset & tiles, const int3 & position);
 	Tileset toRelative(const Tileset & tiles, const int3 & position);
 	
@@ -33,6 +34,8 @@ namespace Rmg
 		std::vector<int3> getTilesVector() const;
 		const Tileset & getBorder() const; //lazy cache invalidation
 		const Tileset & getBorderOutside() const; //lazy cache invalidation
+		
+		DistanceMap computeDistanceMap(std::map<int, Tileset> & reverseDistanceMap) const;
 		
 		Area getSubarea(std::function<bool(const int3 &)> filter) const;
 		

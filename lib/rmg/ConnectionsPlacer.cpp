@@ -108,7 +108,7 @@ void ConnectionsPlacer::selfSideConnection(const rmg::ZoneConnection & connectio
 				zone.getModificator<RoadPlacer>()->addRoadNode(guardPos);
 				
 				assert(otherZone->getModificator<RoadPlacer>());
-				otherZone->getModificator<RoadPlacer>()->addRoadNode(guardPos);
+				otherZone->getModificator<RoadPlacer>()->addRoadNode(borderPos);
 				
 				assert(otherZone->getModificator<ConnectionsPlacer>());
 				otherZone->getModificator<ConnectionsPlacer>()->otherSideConnection(connection);

@@ -148,6 +148,24 @@ const Tileset & Area::getBorderOutside() const
 	return getBorderOutside();
 }
 
+DistanceMap Area::computeDistanceMap(std::map<int, Tileset> & reverseDistanceMap) const
+{
+	reverseDistanceMap.clear();
+	DistanceMap result;
+	auto area = *this;
+	int distance = 0;
+	
+	while(!area.empty())
+	{
+		for(auto & tile : area.getBorder())
+			result[tile] = distance;
+		reverseDistanceMap[distance++] = area.getBorder();
+		area.subtract(area.getBorder());
+	}
+	return result;
+}
+
+
 Tileset Area::relative(const int3 & position) const
 {
 	return Rmg::toRelative(dTiles, position);

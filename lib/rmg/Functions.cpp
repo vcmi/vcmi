@@ -246,10 +246,12 @@ bool processZone(Zone & zone, CMapGenerator & gen, RmgMap & map)
 	auto * tnPlacer = zone.getModificator<TownPlacer>();
 	
 	//prepare
-	for(auto c : gen.getMapGenOptions().getMapTemplate()->getConnections())
-		cnPlacer->addConnection(c);
+	if(cnPlacer)
+		for(auto c : gen.getMapGenOptions().getMapTemplate()->getConnections())
+			cnPlacer->addConnection(c);
 	
-	trPlacer->addAllPossibleObjects();
+	if(trPlacer)
+		trPlacer->addAllPossibleObjects();
 	
 	zone.processModificators();
 	return true;

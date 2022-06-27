@@ -49,6 +49,10 @@ void CZonePlacer::placeZones(CRandomGenerator * rand)
 	height = map.getMapGenOptions().getHeight();
 
 	auto zones = map.getZones();
+	vstd::erase_if(zones, [](const std::pair<TRmgTemplateZoneId, std::shared_ptr<Zone>> & pr)
+	{
+		return pr.second->getType() == ETemplateZoneType::WATER;
+	});
 	bool underground = map.getMapGenOptions().getHasTwoLevels();
 
 	/*
@@ -464,6 +468,10 @@ void CZonePlacer::assignZones(CRandomGenerator * rand)
 	scaleY = 72.f / height;
 
 	auto zones = map.getZones();
+	vstd::erase_if(zones, [](const std::pair<TRmgTemplateZoneId, std::shared_ptr<Zone>> & pr)
+	{
+		return pr.second->getType() == ETemplateZoneType::WATER;
+	});
 
 	typedef std::pair<std::shared_ptr<Zone>, float> Dpair;
 	std::vector <Dpair> distances;

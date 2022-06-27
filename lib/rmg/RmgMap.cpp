@@ -16,6 +16,7 @@
 #include "TreasurePlacer.h"
 #include "ConnectionsPlacer.h"
 #include "TownPlacer.h"
+#include "WaterAdopter.h"
 #include "Functions.h"
 #include "CMapGenerator.h"
 
@@ -96,15 +97,6 @@ void RmgMap::initTiles(CMapGenerator & generator)
 		auto zone = std::make_shared<Zone>(*this, generator);
 		zone->setOptions(*option.second.get());
 		zones[zone->getId()] = zone;
-		
-		//adding zone modificators
-		//order is important, because modificators may depend on each other
-		//string names for debug purposes only
-		zone->addModificator<TownPlacer>("TownPlacer");
-		zone->addModificator<ObjectManager>("ObjectManager");
-		zone->addModificator<ConnectionsPlacer>("ConnectionsPlacer");
-		zone->addModificator<TreasurePlacer>("TreasurePlacer");
-		zone->addModificator<RoadPlacer>("RoadPlacer");
 	}
 	
 	switch(mapGenOptions.getWaterContent())
@@ -117,10 +109,35 @@ void RmgMap::initTiles(CMapGenerator & generator)
 			options.setType(ETemplateZoneType::WATER);
 			auto zone = std::make_shared<Zone>(*this, generator);
 			zone->setOptions(options);
+			for(auto & z : zones)
+			{
+				z.second->addModificator<WaterAdopter>("WaterAdopter");
+				z.second->getModificator<WaterAdopter>()->setWaterZone(zone->getId());
+			}
 			zones[zone->getId()] = zone;
-			zone->addModificator<ObjectManager>();
-			zone->addModificator<TreasurePlacer>();
+			
 			break;
+	}
+	
+	//adding zone modificators
+	//order is important, because modificators may depend on each other
+	//string names for debug purposes only
+	for(auto & z : zones)
+	{
+		switch (z.second->getType()) {
+			case ETemplateZoneType::WATER:
+				z.second->addModificator<ObjectManager>("ObjectManager");
+				z.second->addModificator<TreasurePlacer>("TreasurePlacer");
+				break;
+				
+			default:
+				z.second->addModificator<TownPlacer>("TownPlacer");
+				z.second->addModificator<ObjectManager>("ObjectManager");
+				z.second->addModificator<ConnectionsPlacer>("ConnectionsPlacer");
+				z.second->addModificator<TreasurePlacer>("TreasurePlacer");
+				z.second->addModificator<RoadPlacer>("RoadPlacer");
+				break;
+		}
 	}
 }
 
