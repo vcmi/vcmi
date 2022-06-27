@@ -15,6 +15,7 @@
 #include "RoadPlacer.h"
 #include "TreasurePlacer.h"
 #include "ConnectionsPlacer.h"
+#include "TownPlacer.h"
 #include "Functions.h"
 #include "CMapGenerator.h"
 
@@ -95,10 +96,31 @@ void RmgMap::initTiles(CMapGenerator & generator)
 		auto zone = std::make_shared<Zone>(*this, generator);
 		zone->setOptions(*option.second.get());
 		zones[zone->getId()] = zone;
-		zone->addModificator<ObjectManager>();
-		zone->addModificator<ConnectionsPlacer>();
-		zone->addModificator<TreasurePlacer>();
-		zone->addModificator<RoadPlacer>();
+		
+		//adding zone modificators
+		//order is important, because modificators may depend on each other
+		//string names for debug purposes only
+		zone->addModificator<TownPlacer>("TownPlacer");
+		zone->addModificator<ObjectManager>("ObjectManager");
+		zone->addModificator<ConnectionsPlacer>("ConnectionsPlacer");
+		zone->addModificator<TreasurePlacer>("TreasurePlacer");
+		zone->addModificator<RoadPlacer>("RoadPlacer");
+	}
+	
+	switch(mapGenOptions.getWaterContent())
+	{
+		case EWaterContent::NORMAL:
+		case EWaterContent::ISLANDS:
+			TRmgTemplateZoneId waterId = zones.size() + 1;
+			rmg::ZoneOptions options;
+			options.setId(waterId);
+			options.setType(ETemplateZoneType::WATER);
+			auto zone = std::make_shared<Zone>(*this, generator);
+			zone->setOptions(options);
+			zones[zone->getId()] = zone;
+			zone->addModificator<ObjectManager>();
+			zone->addModificator<TreasurePlacer>();
+			break;
 	}
 }
 

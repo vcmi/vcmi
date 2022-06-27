@@ -37,13 +37,8 @@ std::set<int3> DLL_LINKAGE collectDistantTiles(const Zone & zone, float distance
 
 void DLL_LINKAGE createBorder(RmgMap & gen, const Zone & zone);
 
-si32 DLL_LINKAGE getRandomTownType(const Zone & zone, CRandomGenerator & generator, bool matchUndergroundType = false);
-
 void DLL_LINKAGE paintZoneTerrain(const Zone & zone, CRandomGenerator & generator, RmgMap & map, const Terrain & terrainType);
 
-bool DLL_LINKAGE placeMines(const Zone & zone, CMapGenerator & gen, ObjectManager & manager);
-
-void DLL_LINKAGE initTownType(Zone & zone, CRandomGenerator & generator, RmgMap & map, ObjectManager & manager);
 void DLL_LINKAGE initTerrainType(Zone & zone, CMapGenerator & gen);
 
 void DLL_LINKAGE createObstacles1(const Zone & zone, RmgMap & map, CRandomGenerator & generator);

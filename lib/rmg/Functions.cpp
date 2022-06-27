@@ -11,6 +11,7 @@
 #include "RoadPlacer.h"
 #include "TreasurePlacer.h"
 #include "ConnectionsPlacer.h"
+#include "TownPlacer.h"
 #include "RmgMap.h"
 #include "TileInfo.h"
 #include "CRmgPath.h"
@@ -20,7 +21,6 @@
 #include "../mapObjects/CommonConstructors.h"
 #include "../mapObjects/MapObjects.h" //needed to resolve templates for CommonConstructors.h
 #include "../VCMI_Lib.h"
-#include "../spells/CSpellHandler.h" //for choosing random spells
 
 std::set<int3> collectDistantTiles(const Zone& zone, float distance)
 {
@@ -55,233 +55,11 @@ void createBorder(RmgMap & gen, const Zone & zone)
 	}
 }
 
-si32 getRandomTownType(const Zone & zone, CRandomGenerator & generator, bool matchUndergroundType)
-{
-	auto townTypesAllowed = (zone.getTownTypes().size() ? zone.getTownTypes() : zone.getDefaultTownTypes());
-	if(matchUndergroundType)
-	{
-		std::set<TFaction> townTypesVerify;
-		for(TFaction factionIdx : townTypesAllowed)
-		{
-			bool preferUnderground = (*VLC->townh)[factionIdx]->preferUndergroundPlacement;
-			if(zone.isUnderground() ? preferUnderground : !preferUnderground)
-			{
-				townTypesVerify.insert(factionIdx);
-			}
-		}
-		if(!townTypesVerify.empty())
-			townTypesAllowed = townTypesVerify;
-	}
-	
-	return *RandomGeneratorUtil::nextItem(townTypesAllowed, generator);
-}
-
 void paintZoneTerrain(const Zone & zone, CRandomGenerator & generator, RmgMap & map, const Terrain & terrainType)
 {
 	auto v = zone.getArea().getTilesVector();
 	map.getEditManager()->getTerrainSelection().setSelection(v);
 	map.getEditManager()->drawTerrain(terrainType, &generator);
-}
-
-bool placeMines(const Zone & zone, CMapGenerator & gen, ObjectManager & manager)
-{
-	using namespace Res;
-	std::vector<CGMine*> createdMines;
-	
-	for(const auto & mineInfo : zone.getMinesInfo())
-	{
-		ERes res = (ERes)mineInfo.first;
-		for(int i = 0; i < mineInfo.second; ++i)
-		{
-			auto mine = (CGMine*)VLC->objtypeh->getHandlerFor(Obj::MINE, res)->create(ObjectTemplate());
-			mine->producedResource = res;
-			mine->tempOwner = PlayerColor::NEUTRAL;
-			mine->producedQuantity = mine->defaultResProduction();
-			createdMines.push_back(mine);
-			
-			if(!i && (res == ERes::WOOD || res == ERes::ORE))
-				manager.addCloseObject(mine, gen.getConfig().mineValues.at(res)); //only first wood&ore mines are close
-			else
-				manager.addRequiredObject(mine, gen.getConfig().mineValues.at(res));
-		}
-	}
-	
-	//create extra resources
-	if(int extraRes = gen.getConfig().mineExtraResources)
-	{
-		for(auto * mine : createdMines)
-		{
-			for(int rc = gen.rand.nextInt(1, extraRes); rc > 0; --rc)
-			{
-				auto resourse = (CGResource*) VLC->objtypeh->getHandlerFor(Obj::RESOURCE, mine->producedResource)->create(ObjectTemplate());
-				resourse->amount = CGResource::RANDOM_AMOUNT;
-				manager.addNearbyObject(resourse, mine);
-			}
-		}
-	}
-	
-	return true;
-}
-
-void initTownType(Zone & zone, CRandomGenerator & generator, RmgMap & map, ObjectManager & manager)
-{
-	//FIXME: handle case that this player is not present -> towns should be set to neutral
-	int totalTowns = 0;
-	
-	auto freeBoundaries = [&map, &zone](const Rmg::Object & rmgObject)
-	{
-		for(auto & t : rmgObject.getArea().getBorderOutside())
-		{
-			if(map.isOnMap(t))
-			{
-				map.setOccupied(t, ETileType::FREE);
-				zone.areaPossible().erase(t);
-				zone.freePaths().add(t);
-			}
-		}
-	};
-	
-	auto addNewTowns = [&zone, &generator, &manager, &map, &totalTowns, &freeBoundaries](int count, bool hasFort, PlayerColor player)
-	{
-		for(int i = 0; i < count; i++)
-		{
-			si32 subType = zone.getTownType();
-			
-			if(totalTowns>0)
-			{
-				if(!zone.areTownsSameType())
-				{
-					if (zone.getTownTypes().size())
-						subType = *RandomGeneratorUtil::nextItem(zone.getTownTypes(), generator);
-					else
-						subType = *RandomGeneratorUtil::nextItem(zone.getDefaultTownTypes(), generator); //it is possible to have zone with no towns allowed
-				}
-			}
-			
-			auto townFactory = VLC->objtypeh->getHandlerFor(Obj::TOWN, subType);
-			auto town = (CGTownInstance *) townFactory->create(ObjectTemplate());
-			town->ID = Obj::TOWN;
-			
-			town->tempOwner = player;
-			if (hasFort)
-				town->builtBuildings.insert(BuildingID::FORT);
-			town->builtBuildings.insert(BuildingID::DEFAULT);
-			
-			for(auto spell : VLC->spellh->objects) //add all regular spells to town
-			{
-				if(!spell->isSpecial() && !spell->isCreatureAbility())
-					town->possibleSpells.push_back(spell->id);
-			}
-			
-			if(totalTowns <= 0)
-			{
-				//FIXME: discovered bug with small zones - getPos is close to map boarder and we have outOfMap exception
-				//register MAIN town of zone
-				map.registerZone(town->subID);
-				//first town in zone goes in the middle
-				Rmg::Object rmgObject(*town);
-				rmgObject.setPosition(zone.getPos() + town->getVisitableOffset());
-				manager.placeObject(rmgObject, false, true);
-				freeBoundaries(rmgObject);
-				zone.setPos(town->visitablePos()); //roads lead to main town
-			}
-			else
-				manager.addRequiredObject(town);
-			totalTowns++;
-		}
-	};
-	
-	
-	if((zone.getType() == ETemplateZoneType::CPU_START) || (zone.getType() == ETemplateZoneType::PLAYER_START))
-	{
-		//set zone types to player faction, generate main town
-		logGlobal->info("Preparing playing zone");
-		int player_id = *zone.getOwner() - 1;
-		auto & playerInfo = map.map().players[player_id];
-		PlayerColor player(player_id);
-		if(playerInfo.canAnyonePlay())
-		{
-			player = PlayerColor(player_id);
-			zone.setTownType(map.getMapGenOptions().getPlayersSettings().find(player)->second.getStartingTown());
-			
-			if(zone.getTownType() == CMapGenOptions::CPlayerSettings::RANDOM_TOWN)
-				zone.setTownType(getRandomTownType(zone, generator, true));
-		}
-		else //no player - randomize town
-		{
-			player = PlayerColor::NEUTRAL;
-			zone.setTownType(getRandomTownType(zone, generator));
-		}
-		
-		auto townFactory = VLC->objtypeh->getHandlerFor(Obj::TOWN, zone.getTownType());
-		
-		CGTownInstance * town = (CGTownInstance *) townFactory->create(ObjectTemplate());
-		town->tempOwner = player;
-		town->builtBuildings.insert(BuildingID::FORT);
-		town->builtBuildings.insert(BuildingID::DEFAULT);
-		
-		for(auto spell : VLC->spellh->objects) //add all regular spells to town
-		{
-			if(!spell->isSpecial() && !spell->isCreatureAbility())
-				town->possibleSpells.push_back(spell->id);
-		}
-		//towns are big objects and should be centered around visitable position
-		Rmg::Object rmgObject(*town);
-		rmgObject.setPosition(zone.getPos() + town->getVisitableOffset());
-		manager.placeObject(rmgObject, false, true);
-		freeBoundaries(rmgObject);
-		zone.setPos(town->visitablePos()); //roads lead to main town
-		
-		totalTowns++;
-		//register MAIN town of zone only
-		map.registerZone(town->subID);
-		
-		if(playerInfo.canAnyonePlay()) //configure info for owning player
-		{
-			logGlobal->trace("Fill player info %d", player_id);
-			
-			// Update player info
-			playerInfo.allowedFactions.clear();
-			playerInfo.allowedFactions.insert(zone.getTownType());
-			playerInfo.hasMainTown = true;
-			playerInfo.posOfMainTown = town->pos;
-			playerInfo.generateHeroAtMainTown = true;
-			
-			//now create actual towns
-			addNewTowns(zone.getPlayerTowns().getCastleCount() - 1, true, player);
-			addNewTowns(zone.getPlayerTowns().getTownCount(), false, player);
-		}
-		else
-		{
-			addNewTowns(zone.getPlayerTowns().getCastleCount() - 1, true, PlayerColor::NEUTRAL);
-			addNewTowns(zone.getPlayerTowns().getTownCount(), false, PlayerColor::NEUTRAL);
-		}
-	}
-	else //randomize town types for any other zones as well
-	{
-		zone.setTownType(getRandomTownType(zone, generator));
-	}
-	
-	addNewTowns(zone.getNeutralTowns().getCastleCount(), true, PlayerColor::NEUTRAL);
-	addNewTowns(zone.getNeutralTowns().getTownCount(), false, PlayerColor::NEUTRAL);
-	
-	if(!totalTowns) //if there's no town present, get random faction for dwellings and pandoras
-	{
-		//25% chance for neutral
-		if (generator.nextInt(1, 100) <= 25)
-		{
-			zone.setTownType(ETownType::NEUTRAL);
-		}
-		else
-		{
-			if(zone.getTownTypes().size())
-				zone.setTownType(*RandomGeneratorUtil::nextItem(zone.getTownTypes(), generator));
-			else if(zone.getMonsterTypes().size())
-				zone.setTownType(*RandomGeneratorUtil::nextItem(zone.getMonsterTypes(), generator)); //this happens in Clash of Dragons in treasure zones, where all towns are banned
-			else //just in any case
-				zone.setTownType(getRandomTownType(zone, generator));
-		}
-	}
 }
 
 void createObstacles1(const Zone & zone, RmgMap & map, CRandomGenerator & generator)
@@ -464,21 +242,16 @@ bool processZone(Zone & zone, CMapGenerator & gen, RmgMap & map)
 	auto * obMgr = zone.getModificator<ObjectManager>();
 	auto * trPlacer = zone.getModificator<TreasurePlacer>();
 	auto * cnPlacer = zone.getModificator<ConnectionsPlacer>();
+	auto * rdPlacer = zone.getModificator<RoadPlacer>();
+	auto * tnPlacer = zone.getModificator<TownPlacer>();
 	
+	//prepare
 	for(auto c : gen.getMapGenOptions().getMapTemplate()->getConnections())
 		cnPlacer->addConnection(c);
 	
 	trPlacer->addAllPossibleObjects();
 	
-	cnPlacer->process();
-	
-	zone.fractalize();
-	placeMines(zone, gen, *obMgr);
-	
-	obMgr->process();
-	trPlacer->process();
-	
-	logGlobal->info("Zone %d filled successfully", zone.getId());
+	zone.processModificators();
 	return true;
 }
 

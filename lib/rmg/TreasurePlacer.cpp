@@ -605,7 +605,7 @@ ObjectInfo TreasurePlacer::getRandomObject(ui32 desiredValue, ui32 currentValue,
 	for(ObjectInfo & oi : possibleObjects) //copy constructor turned out to be costly
 	{
 		if(oi.value > maxVal)
-			break; //this assumes values are sorted in ascending order TODO: do we need continue or break?
+			break; //this assumes values are sorted in ascending order
 		
 		if(!oi.templ.isVisitableFromTop() && !allowLargeObjects)
 			continue;
@@ -621,7 +621,7 @@ ObjectInfo TreasurePlacer::getRandomObject(ui32 desiredValue, ui32 currentValue,
 	{
 		ObjectInfo oi;
 		//Generate pandora Box with gold if the value is extremely high
-		if(minValue > 30000) //we don't have object valuable enough TODO: use gen.getConfig().treasureValueLimit
+		if(minValue > generator.getConfig().treasureValueLimit) //we don't have object valuable enough
 		{
 			oi.generateObject = [minValue]() -> CGObjectInstance *
 			{

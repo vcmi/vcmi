@@ -21,6 +21,21 @@ class Modificator
 {
 public:
 	virtual void process() = 0;
+	
+	void setName(const std::string & n)
+	{
+		name = n;
+	}
+	
+	const std::string & getName() const
+	{
+		return name;
+	}
+	
+	virtual ~Modificator() {};
+	
+private:
+	std::string name;
 };
 
 class DLL_LINKAGE Zone : public rmg::ZoneOptions
@@ -65,10 +80,13 @@ public:
 	}
 	
 	template<class T>
-	void addModificator()
+	void addModificator(const std::string & name = "") //name is used for debug purposes
 	{
 		modificators.push_back(std::make_unique<T>(*this, map, generator));
+		modificators.back()->setName(name);
 	}
+	
+	void processModificators();
 	
 protected:
 	CMapGenerator & generator;

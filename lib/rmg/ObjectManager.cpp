@@ -25,6 +25,7 @@ ObjectManager::ObjectManager(Zone & zone, RmgMap & map, CMapGenerator & generato
 
 void ObjectManager::process()
 {
+	zone.fractalize();
 	createRequiredObjects();
 }
 
@@ -218,61 +219,6 @@ bool ObjectManager::createRequiredObjects()
 		}
 	}
 	
-	//create nearby objects (e.g. extra resources close to mines)
-	for(const auto & object : nearbyObjects)
-	{
-		
-		/*auto * obj = object.first;
-		int3 pos;
-		auto possibleArea = obj.second;
-		Rmg::Object rmgObject(*obj);
-		rmgObject.setTemplate(zone.getTerrainType());
-		pos = findPlaceForObject(possibleArea, rmgObject, [this, &rmgObject](const int3 & tile)
-		{
-			float dist = rmgObject.getArea().distanceSqr(zone.getPos());
-			dist *= (dist > 12) ? 10 : 1;
-			return dist * 0.5f - std::sqrt(map.getNearestObjectDistance(tile));
-		});
-		if(!pos.valid())
-		{
-			logGlobal->error("Failed to fill zone %d due to lack of space", zone.getId());
-			return false;
-		}
-		possibleArea.erase(pos); //do not place again at this point
-		auto possibleAreaTemp = zone.areaPossible();
-		zone.areaPossible().subtract(rmgObject.getArea());
-		rmgObject.finalize(map);
-		updateDistances(pos);
-
-		auto obj = object.first;
-		std::set<int3> possiblePositions;
-		for (auto blockedTile : object.second->getBlockedPos())
-		{
-			map.foreachDirectNeighbour(blockedTile, [this, &possiblePositions](int3 pos)
-			{
-				if (!map.isBlocked(pos) && zone.getArea().contains(pos))
-				{
-					//some resources still could be unaccessible, at least one free cell shall be
-					map.foreach_neighbour(pos, [this, &possiblePositions, &pos](int3 p)
-					{
-						if(map.isFree(p))
-							possiblePositions.insert(pos);
-					});
-				}
-			});
-		}
-		
-		if(possiblePositions.empty())
-		{
-			delete obj; //is it correct way to prevent leak?
-		}
-		else
-		{
-			auto pos = *RandomGeneratorUtil::nextItem(possiblePositions, generator);
-			placeObject(obj, pos);
-		}*/
-	}
-	
 	//create object on specific positions
 	//TODO: implement guards
 	for (const auto &obj : instantObjects)
@@ -289,34 +235,6 @@ bool ObjectManager::createRequiredObjects()
 	
 	return true;
 }
-
-/*void ObjectManager::checkAndPlaceObject(CGObjectInstance* object, const int3 &pos)
-{
-	if (!map.isOnMap(pos))
-		throw rmgException(boost::to_string(boost::format("Position of object %d at %s is outside the map") % object->id % pos.toString()));
-	object->pos = pos;
-	
-	if (object->isVisitable() && !map.isOnMap(object->visitablePos()))
-		throw rmgException(boost::to_string(boost::format("Visitable tile %s of object %d at %s is outside the map") % object->visitablePos().toString() % object->id % object->pos.toString()));
-	for (auto tile : object->getBlockedPos())
-	{
-		if (!map.isOnMap(tile))
-			throw rmgException(boost::to_string(boost::format("Tile %s of object %d at %s is outside the map") % tile.toString() % object->id % object->pos.toString()));
-	}
-	
-	if (object->appearance.id == Obj::NO_OBJ)
-	{
-		auto terrainType = map.map().getTile(pos).terType;
-		auto h = VLC->objtypeh->getHandlerFor(object->ID, object->subID);
-		auto templates = h->getTemplates(terrainType);
-		if (templates.empty())
-			throw rmgException(boost::to_string(boost::format("Did not find graphics for object (%d,%d) at %s (terrain %d)") % object->ID % object->subID % pos.toString() % terrainType));
-		
-		object->appearance = templates.front();
-	}
-	
-	map.getEditManager()->insertObject(object);
-}*/
 
 void ObjectManager::placeObject(Rmg::Object & object, bool guarded, bool updateDistance)
 {

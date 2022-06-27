@@ -12,6 +12,7 @@
 #include "../mapping/CMap.h"
 #include "CMapGenerator.h"
 #include "CRmgPath.h"
+#include "../CStopWatch.h"
 
 Zone::Zone(RmgMap & map, CMapGenerator & generator)
 					: ZoneOptions(),
@@ -366,39 +367,24 @@ void Zone::fractalize()
 	dAreaFree.subtract(areaToBlock);
 	for(auto & t : areaToBlock.getTiles())
 		map.setOccupied(t, ETileType::BLOCKED);
-	
-#define PRINT_FRACTALIZED_MAP false
-	if (PRINT_FRACTALIZED_MAP) //enable to debug
+}
+
+void Zone::processModificators()
+{
+	CStopWatch processTime;
+	for(auto & modificator : modificators)
 	{
-		std::ofstream out(boost::to_string(boost::format("zone_%d.txt") % id));
-		int levels = map.map().twoLevel ? 2 : 1;
-		int width =  map.map().width;
-		int height = map.map().height;
-		for (int k = 0; k < levels; k++)
+		try
 		{
-			for(int j=0; j<height; j++)
-			{
-				for (int i=0; i<width; i++)
-				{
-					char t = '?';
-					switch (map.getTile(int3(i, j, k)).getTileType())
-					{
-						case ETileType::FREE:
-							t = ' '; break;
-						case ETileType::BLOCKED:
-							t = '#'; break;
-						case ETileType::POSSIBLE:
-							t = '-'; break;
-						case ETileType::USED:
-							t = 'O'; break;
-					}
-					
-					out << t;
-				}
-				out << std::endl;
-			}
-			out << std::endl;
+			modificator->process();
+			logGlobal->info("Zone %d, modificator %s - success (%d ms)", getId(), modificator->getName(), processTime.getDiff());
 		}
-		out << std::endl;
+		catch (const rmgException & e)
+		{
+			logGlobal->info("Zone %d, modificator %s - FAILED: %s", getId(), e.what());
+			throw e;
+		}
+		map.dump(false);
+		logGlobal->info("Zone %d filled successfully", getId());
 	}
 }

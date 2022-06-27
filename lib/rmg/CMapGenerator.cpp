@@ -307,7 +307,6 @@ void CMapGenerator::fillZones()
 	
 	for(auto it : map->getZones())
 	{
-		initTownType(*it.second, rand, *map, *it.second->getModificator<ObjectManager>());
 		it.second->initFreeTiles();
 		
 		//it.second->initTownType();
@@ -320,10 +319,6 @@ void CMapGenerator::fillZones()
 	//for(auto it : zones)
 	//	it.second->createBorder(); //once direct connections are done
 	
-#ifdef _BETA
-	map->dump(false);
-#endif
-	
 	//for(auto it : zones)
 	//	it.second->createWater(getMapGenOptions().getWaterContent());
 	
@@ -331,9 +326,6 @@ void CMapGenerator::fillZones()
 
 	//createDirectConnections(); //direct
 	
-#ifdef _BETA
-	map->dump(false);
-#endif
 	//createConnections2(); //subterranean gates and monoliths
 	
 	//for(auto it : zones)
@@ -352,9 +344,6 @@ void CMapGenerator::fillZones()
 		if (it.second->getType() == ETemplateZoneType::TREASURE)
 			treasureZones.push_back(it.second);
 	}
-#ifdef _BETA
-	map->dump(false);
-#endif
 		
 	//set apriopriate free/occupied tiles, including blocked underground rock
 	createObstaclesCommon1(*map, rand);
@@ -369,10 +358,6 @@ void CMapGenerator::fillZones()
 	
 	createObstaclesCommon2(*map, rand);
 	
-#ifdef _BETA
-	map->dump(false);
-#endif
-	
 	//place actual obstacles matching zone terrain
 	//for(auto it : zones)
 	//	it.second->createObstacles2();
@@ -383,51 +368,6 @@ void CMapGenerator::fillZones()
 	}
 		
 	//zoneWater.second->createObstacles2();
-	
-#ifdef _BETA
-	map->dump(false);
-#endif
-
-	#define PRINT_MAP_BEFORE_ROADS false
-	if (PRINT_MAP_BEFORE_ROADS) //enable to debug
-	{
-		std::ofstream out("road_debug.txt");
-		int levels = map->map().twoLevel ? 2 : 1;
-		int width = map->map().width;
-		int height = map->map().height;
-		for (int k = 0; k < levels; k++)
-		{
-			for (int j = 0; j<height; j++)
-			{
-				for (int i = 0; i<width; i++)
-				{
-					char t = '?';
-					switch (map->getTile(int3(i, j, k)).getTileType())
-					{
-					case ETileType::FREE:
-						t = ' '; break;
-					case ETileType::BLOCKED:
-						t = '#'; break;
-					case ETileType::POSSIBLE:
-						t = '-'; break;
-					case ETileType::USED:
-						t = 'O'; break;
-					}
-
-					out << t;
-				}
-				out << std::endl;
-			}
-			out << std::endl;
-		}
-		out << std::endl;
-	}
-
-	for(auto it : map->getZones())
-	{
-		it.second->getModificator<RoadPlacer>()->process();
-		//it.second->connectRoads(); //draw roads after everything else has been placed
-	}
 
 	//find place for Grail
 	if(treasureZones.empty())
