@@ -83,6 +83,7 @@ std::list<Area> Rmg::connectedAreas(const Area & area)
 	{
 		result.emplace_back();
 		std::list<int3> queue({*connected.begin()});
+		std::set<int3> queueSet({*connected.begin()});
 		while(!queue.empty())
 		{
 			auto t = queue.front();
@@ -92,9 +93,11 @@ std::list<Area> Rmg::connectedAreas(const Area & area)
 			
 			for(auto & i : int3::getDirs())
 			{
-				if(connected.count(t + i))
+				auto tile = t + i;
+				if(!queueSet.count(tile) && connected.count(tile) && !result.back().contains(tile))
 				{
-					queue.push_back(t + i);
+					queueSet.insert(tile);
+					queue.push_back(tile);
 				}
 			}
 		}

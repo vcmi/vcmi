@@ -24,7 +24,7 @@ public:
 	WaterProxy(Zone & zone, RmgMap & map, CMapGenerator & generator);
 	
 	bool waterKeepConnection(TRmgTemplateZoneId zoneA, TRmgTemplateZoneId zoneB);
-	void waterConnection(Zone & dst);
+	void waterRoute(Zone & dst);
 	
 	void process() override;
 	void init() override;

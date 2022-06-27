@@ -18,6 +18,7 @@
 #include "RoadPlacer.h"
 #include "TileInfo.h"
 #include "WaterAdopter.h"
+#include "WaterProxy.h"
 
 ConnectionsPlacer::ConnectionsPlacer(Zone & zone, RmgMap & map, CMapGenerator & generator) : zone(zone), map(map), generator(generator)
 {
@@ -129,7 +130,18 @@ void ConnectionsPlacer::selfSideConnection(const rmg::ZoneConnection & connectio
 		}
 	}
 	
-	//2. place subterrain gates
+	//2. connect via water
+	bool waterMode = map.getMapGenOptions().getWaterContent() != EWaterContent::NONE;
+	if(!success && waterMode && zone.isUnderground() == otherZone->isUnderground())
+	{
+		if(generator.getZoneWater() && generator.getZoneWater()->getModificator<WaterProxy>())
+		{
+			if(generator.getZoneWater()->getModificator<WaterProxy>()->waterKeepConnection(connection.getZoneA(), connection.getZoneB()))
+				success = true;
+		}
+	}
+	
+	//3. place subterrain gates
 	if(!success && zone.isUnderground() != otherZone->isUnderground())
 	{
 		int3 zShift(0, 0, zone.getPos().z - otherZone->getPos().z);
@@ -182,7 +194,7 @@ void ConnectionsPlacer::selfSideConnection(const rmg::ZoneConnection & connectio
 		}
 	}
 	
-	//3. place monoliths/portals
+	//4. place monoliths/portals
 	if(!success)
 	{
 		auto factory = VLC->objtypeh->getHandlerFor(Obj::MONOLITH_TWO_WAY, generator.getNextMonlithIndex());

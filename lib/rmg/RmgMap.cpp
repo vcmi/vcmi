@@ -17,6 +17,8 @@
 #include "ConnectionsPlacer.h"
 #include "TownPlacer.h"
 #include "WaterAdopter.h"
+#include "WaterProxy.h"
+#include "WaterRoutes.h"
 #include "Functions.h"
 #include "CMapGenerator.h"
 
@@ -122,7 +124,9 @@ void RmgMap::initTiles(CMapGenerator & generator)
 			}
 			zones[zone->getId()] = zone;
 			zone->addModificator<ObjectManager>("ObjectManager");
-			//zone->addModificator<TreasurePlacer>("TreasurePlacer");
+			zone->addModificator<TreasurePlacer>("TreasurePlacer");
+			zone->addModificator<WaterProxy>("WaterProxy");
+			zone->addModificator<WaterRoutes>("WaterRoutes");
 			break;
 	}
 }

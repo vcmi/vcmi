@@ -193,22 +193,19 @@ void WaterAdopter::createWater(EWaterContent::EWaterContent waterContent)
 	}
 	
 	map.getZones()[waterZoneId]->area().unite(waterArea);
+	zone.area().subtract(waterArea);
+	zone.areaPossible().subtract(waterArea);
 	reinitWaterZone(*map.getZones()[waterZoneId]);
 }
 
 void WaterAdopter::reinitWaterZone(Zone & wzone)
 {
 	wzone.areaPossible() = wzone.area();
-	zone.area().subtract(wzone.area());
-	zone.areaPossible().subtract(wzone.area());
-	
 	for(auto & t : wzone.area().getTiles())
 	{
 		map.setZoneID(t, waterZoneId);
 		map.setOccupied(t, ETileType::POSSIBLE);
 	}
-	
-	paintZoneTerrain(wzone, generator.rand, map, wzone.getTerrainType());
 }
 
 void WaterAdopter::setWaterZone(TRmgTemplateZoneId water)
@@ -218,5 +215,8 @@ void WaterAdopter::setWaterZone(TRmgTemplateZoneId water)
 
 Rmg::Area WaterAdopter::getCoastTiles() const
 {
-	return Rmg::Area(reverseDistanceMap[0]);
+	if(reverseDistanceMap.empty())
+		return Rmg::Area();
+	
+	return Rmg::Area(reverseDistanceMap.at(0));
 }

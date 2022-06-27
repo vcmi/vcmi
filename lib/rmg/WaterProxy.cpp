@@ -29,6 +29,24 @@ WaterProxy::WaterProxy(Zone & zone, RmgMap & map, CMapGenerator & generator) : z
 
 void WaterProxy::process()
 {
+	paintZoneTerrain(zone, generator.rand, map, zone.getTerrainType());
+	//check terrain type
+	for(auto & t : zone.area().getBorder())
+	{
+		if(map.isOnMap(t) && map.map().getTile(t).terType != zone.getTerrainType())
+		{
+			zone.areaPossible().erase(t);
+			map.setOccupied(t, ETileType::USED);
+		}
+	}
+	for(auto & t : zone.area().getBorderOutside())
+	{
+		if(map.isOnMap(t) && map.map().getTile(t).terType == zone.getTerrainType())
+		{
+			map.getZones()[map.getZoneID(t)]->areaPossible().erase(t);
+			map.setOccupied(t, ETileType::USED);
+		}
+	}
 	collectLakes();
 }
 
@@ -39,6 +57,7 @@ void WaterProxy::init()
 		dependency(z.second->getModificator<TownPlacer>());
 		dependency(z.second->getModificator<WaterAdopter>());
 		postfunction(z.second->getModificator<ConnectionsPlacer>());
+		postfunction(z.second->getModificator<ObjectManager>());
 	}
 	postfunction(zone.getModificator<TreasurePlacer>());
 }
@@ -60,7 +79,7 @@ void WaterProxy::collectLakes()
 	}
 }
 
-void WaterProxy::waterConnection(Zone & dst)
+void WaterProxy::waterRoute(Zone & dst)
 {
 	auto * adopter = dst.getModificator<WaterAdopter>();
 	if(!adopter)
@@ -106,7 +125,7 @@ void WaterProxy::waterConnection(Zone & dst)
 			
 			if(coastTile.valid())
 			{
-				if(!zone.connectPath(coastTile, true))
+				if(!dst.connectPath(coastTile, true))
 					logGlobal->error("Cannot build water route for zone %d", dst.getId());
 			}
 			else
