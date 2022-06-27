@@ -187,7 +187,23 @@ if(WIN32)
 	target_compile_definitions(vcmiclient PRIVATE WINDOWS_IGNORE_PACKING_MISMATCH)
 elseif(APPLE_IOS)
 	target_link_libraries(vcmiclient PRIVATE
-		"-framework Foundation -framework UIKit -framework QuartzCore -framework CoreGraphics -framework CoreServices -framework ImageIO -framework Metal -framework OpenGLES -framework AVFoundation -framework GameController -framework CoreMotion -weak_framework CoreHaptics"
+		"-lbz2"
+		"-framework AudioToolbox"
+		"-framework AVFoundation"
+		"-framework CoreGraphics"
+		"-framework CoreMedia"
+		"-framework CoreMotion"
+		"-framework CoreServices"
+		"-framework CoreVideo"
+		"-framework Foundation"
+		"-framework GameController"
+		"-framework ImageIO"
+		"-framework Metal"
+		"-framework OpenGLES"
+		"-framework QuartzCore"
+		"-framework UIKit"
+		"-framework VideoToolbox"
+		"-weak_framework CoreHaptics"
 	)
 
 	set(ENTITLEMENTS_OUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/VCMI.entitlements)
@@ -214,7 +230,7 @@ target_link_libraries(vcmiclient PRIVATE
 
 if(ffmpeg_LIBRARIES)
 	target_link_libraries(vcmiclient PRIVATE
-		ffmpeg::swscale ffmpeg::avutil ffmpeg::avcodec ffmpeg::avformat
+		${ffmpeg_LIBRARIES}
 	)
 else()
 	target_compile_definitions(vcmiclient PRIVATE DISABLE_VIDEO)

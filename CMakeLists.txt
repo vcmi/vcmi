@@ -279,7 +279,12 @@ endif()
 # 	set(ZLIB_LIBRARIES "-lz")
 # endif()
 
-find_package(ffmpeg COMPONENTS avutil swscale avformat avcodec)
+set(FFMPEG_COMPONENTS avutil swscale avformat avcodec)
+if(APPLE_IOS)
+	list(APPEND FFMPEG_COMPONENTS swresample)
+endif()
+find_package(ffmpeg COMPONENTS ${FFMPEG_COMPONENTS})
+
 option(FORCE_BUNDLED_MINIZIP "Force bundled Minizip library" OFF)
 if(NOT FORCE_BUNDLED_MINIZIP)
 	find_package(minizip)
