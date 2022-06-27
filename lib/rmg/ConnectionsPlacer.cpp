@@ -17,6 +17,7 @@
 #include "Functions.h"
 #include "RoadPlacer.h"
 #include "TileInfo.h"
+#include "WaterAdopter.h"
 
 ConnectionsPlacer::ConnectionsPlacer(Zone & zone, RmgMap & map, CMapGenerator & generator) : zone(zone), map(map), generator(generator)
 {
@@ -42,6 +43,7 @@ void ConnectionsPlacer::process()
 
 void ConnectionsPlacer::init()
 {
+	dependency(zone.getModificator<WaterAdopter>());
 	dependency(zone.getModificator<ObjectManager>());
 	postfunction(zone.getModificator<RoadPlacer>());
 	

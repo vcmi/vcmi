@@ -215,3 +215,8 @@ void WaterAdopter::setWaterZone(TRmgTemplateZoneId water)
 {
 	waterZoneId = water;
 }
+
+Rmg::Area WaterAdopter::getCoastTiles() const
+{
+	return Rmg::Area(reverseDistanceMap[0]);
+}

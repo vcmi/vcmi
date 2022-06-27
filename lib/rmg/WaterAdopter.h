@@ -18,6 +18,8 @@ public:
 	
 	void setWaterZone(TRmgTemplateZoneId water);
 	
+	Rmg::Area getCoastTiles() const;
+	
 protected:
 	void createWater(EWaterContent::EWaterContent waterContent);
 	void reinitWaterZone(Zone & zone);

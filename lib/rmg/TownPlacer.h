@@ -18,6 +18,8 @@ public:
 	void process() override;
 	void init() override;
 	
+	int getTotalTowns() const;
+	
 protected:
 	void cleanupBoundaries(const Rmg::Object & rmgObject);
 	void addNewTowns(int count, bool hasFort, PlayerColor player, ObjectManager & manager);

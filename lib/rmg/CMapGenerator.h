@@ -23,6 +23,7 @@ class CMapGenOptions;
 class JsonNode;
 class RmgMap;
 class CMap;
+class Zone;
 
 typedef std::vector<JsonNode> JsonVector;
 
@@ -67,9 +68,8 @@ public:
 	std::vector<ArtifactID> getQuestArtsRemaning() const;
 	void banQuestArt(ArtifactID id);
 	
-	/*Zones::value_type getZoneWater() const;
+	Zone * getZoneWater() const;
 	void createWaterTreasures();
-	void prepareWaterTiles();*/
 
 private:
 	int randomSeed;

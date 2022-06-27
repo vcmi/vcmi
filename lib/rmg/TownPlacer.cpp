@@ -262,3 +262,8 @@ si32 TownPlacer::getRandomTownType(bool matchUndergroundType)
 	
 	return *RandomGeneratorUtil::nextItem(townTypesAllowed, generator.rand);
 }
+
+int TownPlacer::getTotalTowns() const
+{
+	return totalTowns;
+}

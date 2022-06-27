@@ -280,25 +280,22 @@ void CMapGenerator::genZones()
 	logGlobal->info("Zones generated successfully");
 }
 
-/*void CMapGenerator::createWaterTreasures()
+void CMapGenerator::createWaterTreasures()
 {
+	if(!getZoneWater())
+		return;
+	
 	//add treasures on water
 	for(auto & treasureInfo : getConfig().waterTreasure)
 	{
-		getZoneWater().second->addTreasureInfo(treasureInfo);
+		getZoneWater()->addTreasureInfo(treasureInfo);
 	}
 }
-
-void CMapGenerator::prepareWaterTiles()
-{
-	for(auto & t : zoneWater.second->getTileInfo())
-		if(shouldBeBlocked(t))
-			setOccupied(t, ETileType::POSSIBLE);
-}*/
 
 void CMapGenerator::fillZones()
 {
 	findZonesForQuestArts();
+	createWaterTreasures();
 
 	logGlobal->info("Started filling zones");
 
@@ -332,7 +329,6 @@ void CMapGenerator::fillZones()
 	//for(auto it : zones)
 	//	zoneWater.second->waterConnection(*it.second);
 	
-	//createWaterTreasures();
 	//zoneWater.second->initFreeTiles();
 	//zoneWater.second->fill();
 
@@ -445,7 +441,10 @@ void CMapGenerator::banQuestArt(ArtifactID id)
 	vstd::erase_if_present(questArtifacts, id);
 }
 
-/*CMapGenerator::Zones::value_type CMapGenerator::getZoneWater() const
+Zone * CMapGenerator::getZoneWater() const
 {
-	return zoneWater;
-}*/
+	for(auto & z : map->getZones())
+		if(z.second->getType() == ETemplateZoneType::WATER)
+			return z.second.get();
+	return nullptr;
+}
