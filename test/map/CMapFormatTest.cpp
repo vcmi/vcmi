@@ -23,6 +23,7 @@
 
 #include "MapComparer.h"
 #include "../JsonComparer.h"
+#include "mock/ZoneOptionsFake.h"
 
 static const int TEST_RANDOM_SEED = 1337;
 
@@ -43,10 +44,12 @@ TEST(MapFormat, Random)
 
 	CMapGenOptions opt;
 	CRmgTemplate tmpl;
+	std::shared_ptr<ZoneOptionsFake> zoneOptions = std::make_shared<ZoneOptionsFake>();
 
 	const_cast<CRmgTemplate::CPlayerCountRange &>(tmpl.getCpuPlayers()).addRange(1, 4);
-	const_cast<CRmgTemplate::Zones &>(tmpl.getZones())[0] = std::make_shared<rmg::ZoneOptions>();
+	const_cast<CRmgTemplate::Zones &>(tmpl.getZones())[0] = zoneOptions;
 
+	zoneOptions->setOwner(1);
 	opt.setMapTemplate(&tmpl);
 
 	opt.setHeight(CMapHeader::MAP_SIZE_MIDDLE);

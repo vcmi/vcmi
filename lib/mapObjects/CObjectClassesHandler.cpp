@@ -515,10 +515,10 @@ void AObjectTypeHandler::init(const JsonNode & input, boost::optional<std::strin
 	else
 		aiValue = static_cast<boost::optional<si32>>(input["aiValue"].Integer());
 
-	if(input["battleground"].isNull())
-		battlefield = BattleField::NONE;
+	if(input["battleground"].getType() == JsonNode::JsonType::DATA_STRING)
+		battlefield = input["battleground"].String();
 	else
-		battlefield = BattleField(input["battleground"].String());
+		battlefield = boost::none;
 
 	initTypeData(input);
 }
@@ -577,7 +577,7 @@ std::vector<ObjectTemplate> AObjectTypeHandler::getTemplates() const
 
 BattleField AObjectTypeHandler::getBattlefield() const
 {
-	return battlefield;
+	return battlefield ? BattleField::fromString(battlefield.get()) : BattleField::NONE;
 }
 
 std::vector<ObjectTemplate> AObjectTypeHandler::getTemplates(const Terrain & terrainType) const
