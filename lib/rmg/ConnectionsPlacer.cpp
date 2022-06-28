@@ -22,10 +22,7 @@
 #include "TileInfo.h"
 #include "WaterAdopter.h"
 #include "WaterProxy.h"
-
-ConnectionsPlacer::ConnectionsPlacer(Zone & zone, RmgMap & map, CMapGenerator & generator) : zone(zone), map(map), generator(generator)
-{
-}
+#include "TownPlacer.h"
 
 void ConnectionsPlacer::process()
 {
@@ -48,8 +45,13 @@ void ConnectionsPlacer::process()
 void ConnectionsPlacer::init()
 {
 	dependency(zone.getModificator<WaterAdopter>());
-	dependency(zone.getModificator<ObjectManager>());
+	dependency(zone.getModificator<TownPlacer>());
 	postfunction(zone.getModificator<RoadPlacer>());
+	
+	for(auto & z : map.getZones())
+	{
+		postfunction(z.second->getModificator<ObjectManager>());
+	}
 	
 	for(auto c : map.getMapGenOptions().getMapTemplate()->getConnections())
 		addConnection(c);

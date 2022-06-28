@@ -241,7 +241,12 @@ void Object::Instance::finalize(RmgMap & map)
 	}
 	
 	for(auto & tile : dBlockedArea.getTiles())
-		map.setOccupied(tile, ETileType::ETileType::USED);
+	{
+		if(tile == getVisitablePosition())
+			map.setOccupied(tile, ETileType::ETileType::FREE);
+		else
+			map.setOccupied(tile, ETileType::ETileType::USED);
+	}
 	
 	map.getEditManager()->insertObject(&dObject);
 }

@@ -22,10 +22,6 @@
 #include "../mapping/CMap.h"
 #include "../mapping/CMapEditManager.h"
 
-TreasurePlacer::TreasurePlacer(Zone & zone, RmgMap & map, CMapGenerator & generator) : zone(zone), map(map), generator(generator), questArtZone(nullptr)
-{
-}
-
 void TreasurePlacer::process()
 {
 	auto * m = zone.getModificator<ObjectManager>();

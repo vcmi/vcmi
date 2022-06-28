@@ -17,14 +17,21 @@
 #include "RmgArea.h"
 #include "RmgObject.h"
 
+#define MODIFICATOR(x) x(Zone & z, RmgMap & m, CMapGenerator & g): Modificator(z, m, g) {setName(#x);}
+
 class RmgMap;
 class CMapGenerator;
+class Zone;
 
 class Modificator
 {
 public:
+	Modificator() = delete;
+	Modificator(Zone & zone, RmgMap & map, CMapGenerator & generator);
+	
 	virtual void process() = 0;
 	virtual void init() {/*override to add dependencies*/}
+	virtual char dump(const int3 &);
 	virtual ~Modificator() {};
 	
 	void setName(const std::string & n);
@@ -34,11 +41,17 @@ public:
 	void dependency(Modificator * modificator);
 	void postfunction(Modificator * modificator);
 
+protected:
+	RmgMap & map;
+	CMapGenerator & generator;
+	Zone & zone;
+	
 private:
 	std::string name;
 	bool started = false;
 	bool finished = false;
 	std::set<Modificator*> preceeders;
+	void dump();
 };
 
 class DLL_LINKAGE Zone : public rmg::ZoneOptions
@@ -83,10 +96,9 @@ public:
 	}
 	
 	template<class T>
-	void addModificator(const std::string & name = "") //name is used for debug purposes
+	void addModificator() //name is used for debug purposes
 	{
 		modificators.push_back(std::make_unique<T>(*this, map, generator));
-		modificators.back()->setName(name);
 	}
 	
 	void initModificators();

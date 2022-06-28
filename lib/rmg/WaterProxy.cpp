@@ -26,10 +26,6 @@
 #include "WaterAdopter.h"
 #include "RmgArea.h"
 
-WaterProxy::WaterProxy(Zone & zone, RmgMap & map, CMapGenerator & generator) : zone(zone), map(map), generator(generator)
-{
-}
-
 void WaterProxy::process()
 {
 	paintZoneTerrain(zone, generator.rand, map, zone.getTerrainType());

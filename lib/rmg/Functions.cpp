@@ -15,6 +15,8 @@
 #include "TreasurePlacer.h"
 #include "ConnectionsPlacer.h"
 #include "TownPlacer.h"
+#include "WaterProxy.h"
+#include "WaterRoutes.h"
 #include "RmgMap.h"
 #include "TileInfo.h"
 #include "RmgPath.h"
@@ -24,6 +26,32 @@
 #include "../mapObjects/CommonConstructors.h"
 #include "../mapObjects/MapObjects.h" //needed to resolve templates for CommonConstructors.h
 #include "../VCMI_Lib.h"
+
+void createModificators(RmgMap & map)
+{
+	for(auto & z : map.getZones())
+	{
+		auto & zone = *z.second;
+		switch(zone.getType())
+		{
+			case ETemplateZoneType::WATER:
+				zone.addModificator<ObjectManager>();
+				zone.addModificator<TreasurePlacer>();
+				zone.addModificator<WaterProxy>();
+				zone.addModificator<WaterRoutes>();
+				break;
+				
+			default:
+				zone.addModificator<TownPlacer>();
+				zone.addModificator<ObjectManager>();
+				zone.addModificator<ConnectionsPlacer>();
+				zone.addModificator<TreasurePlacer>();
+				zone.addModificator<RoadPlacer>();
+				break;
+		}
+		
+	}
+}
 
 std::set<int3> collectDistantTiles(const Zone& zone, float distance)
 {

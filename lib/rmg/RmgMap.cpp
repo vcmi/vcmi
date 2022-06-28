@@ -103,11 +103,11 @@ void RmgMap::initTiles(CMapGenerator & generator)
 		zone->setOptions(*option.second.get());
 		zones[zone->getId()] = zone;
 		
-		zone->addModificator<TownPlacer>("TownPlacer");
-		zone->addModificator<ObjectManager>("ObjectManager");
-		zone->addModificator<ConnectionsPlacer>("ConnectionsPlacer");
-		zone->addModificator<TreasurePlacer>("TreasurePlacer");
-		zone->addModificator<RoadPlacer>("RoadPlacer");
+		zone->addModificator<TownPlacer>();
+		zone->addModificator<ObjectManager>();
+		zone->addModificator<ConnectionsPlacer>();
+		zone->addModificator<TreasurePlacer>();
+		zone->addModificator<RoadPlacer>();
 	}
 	
 	switch(mapGenOptions.getWaterContent())
@@ -122,14 +122,14 @@ void RmgMap::initTiles(CMapGenerator & generator)
 			zone->setOptions(options);
 			for(auto & z : zones)
 			{
-				z.second->addModificator<WaterAdopter>("WaterAdopter");
+				z.second->addModificator<WaterAdopter>();
 				z.second->getModificator<WaterAdopter>()->setWaterZone(zone->getId());
 			}
 			zones[zone->getId()] = zone;
-			zone->addModificator<ObjectManager>("ObjectManager");
-			zone->addModificator<TreasurePlacer>("TreasurePlacer");
-			zone->addModificator<WaterProxy>("WaterProxy");
-			zone->addModificator<WaterRoutes>("WaterRoutes");
+			zone->addModificator<ObjectManager>();
+			zone->addModificator<TreasurePlacer>();
+			zone->addModificator<WaterProxy>();
+			zone->addModificator<WaterRoutes>();
 			break;
 	}
 }

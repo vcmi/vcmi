@@ -14,9 +14,10 @@
 class DLL_LINKAGE RoadPlacer: public Modificator
 {
 public:
-	RoadPlacer(Zone & zone, RmgMap & map, CMapGenerator & generator);
+	MODIFICATOR(RoadPlacer);
 	
 	void process() override;
+	char dump(const int3 &) override;
 	
 	void addRoadNode(const int3 & node);
 	void connectRoads(); //fills "roads" according to "roadNodes"
@@ -26,10 +27,6 @@ protected:
 	void drawRoads(); //actually updates tiles
 	
 protected:
-	RmgMap & map;
-	CMapGenerator & generator;
-	Zone & zone;
-	
 	rmg::Area roadNodes; //tiles to be connected with roads
 	rmg::Area roads; //all tiles with roads
 };

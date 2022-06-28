@@ -24,10 +24,6 @@
 #include "ConnectionsPlacer.h"
 #include "TileInfo.h"
 
-WaterAdopter::WaterAdopter(Zone & zone, RmgMap & map, CMapGenerator & generator) : zone(zone), map(map), generator(generator)
-{
-}
-
 void WaterAdopter::process()
 {
 	createWater(map.getMapGenOptions().getWaterContent());

@@ -55,6 +55,7 @@ Path Path::search(const Tileset & dst, bool straight, std::function<float(const 
 		return result;
 	
 	int3 src = rmg::Area(dst).nearest(dPath);
+	result.connect(src);
 	
 	Tileset closed;    // The set of nodes already evaluated.
 	auto open = createPriorityQueue(); // The set of tentative nodes to be evaluated, initially containing the start node

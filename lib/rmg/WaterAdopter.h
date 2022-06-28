@@ -14,7 +14,7 @@
 class DLL_LINKAGE WaterAdopter: public Modificator
 {
 public:
-	WaterAdopter(Zone & zone, RmgMap & map, CMapGenerator & generator);
+	MODIFICATOR(WaterAdopter);
 	
 	void process() override;
 	void init() override;
@@ -28,10 +28,6 @@ protected:
 	void reinitWaterZone(Zone & zone);
 	
 protected:
-	RmgMap & map;
-	CMapGenerator & generator;
-	Zone & zone;
-	
 	TRmgTemplateZoneId waterZoneId;
 	std::map<int3, int> distanceMap;
 	std::map<int, rmg::Tileset> reverseDistanceMap;

@@ -15,7 +15,7 @@
 class DLL_LINKAGE ConnectionsPlacer: public Modificator
 {
 public:
-	ConnectionsPlacer(Zone & zone, RmgMap & map, CMapGenerator & generator);
+	MODIFICATOR(ConnectionsPlacer);
 	
 	void process() override;
 	void init() override;
@@ -29,10 +29,6 @@ protected:
 	void collectNeighbourZones();
 	
 protected:
-	RmgMap & map;
-	CMapGenerator & generator;
-	Zone & zone;
-	
 	std::vector<rmg::ZoneConnection> dConnections, dCompleted;
 	std::map<TRmgTemplateZoneId, rmg::Tileset> dNeighbourZones;
 };

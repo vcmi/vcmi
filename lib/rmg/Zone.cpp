@@ -399,6 +399,10 @@ void Zone::processModificators()
 	logGlobal->info("Zone %d filled successfully", getId());
 }
 
+Modificator::Modificator(Zone & zone, RmgMap & map, CMapGenerator & generator) : zone(zone), map(map), generator(generator)
+{
+}
+
 void Modificator::setName(const std::string & n)
 {
 	name = n;
@@ -421,8 +425,9 @@ void Modificator::run()
 		}
 		CStopWatch processTime;
 		process();
+		dump();
 		finished = true;
-		logGlobal->info("Modificator %s - success (%d ms)", getName(), processTime.getDiff());
+		logGlobal->info("Modificator zone %d - %s - done (%d ms)", zone.getId(), getName(), processTime.getDiff());
 	}
 }
 
@@ -442,3 +447,43 @@ void Modificator::postfunction(Modificator * modificator)
 	}
 }
 
+void Modificator::dump()
+{
+	static int order = 1;
+	std::ofstream out(boost::to_string(boost::format("n%s_modzone_%d_%s.txt") % boost::io::group(std::setfill('0'), std::setw(3), order++) % zone.getId() % getName()));
+	auto & mapInstance = map.map();
+	int levels = mapInstance.twoLevel ? 2 : 1;
+	int width =  mapInstance.width;
+	int height = mapInstance.height;
+	for (int k = 0; k < levels; k++)
+	{
+		for(int j=0; j<height; j++)
+		{
+			for (int i=0; i<width; i++)
+			{
+				out << dump(int3(i, j, k));
+			}
+			out << std::endl;
+		}
+		out << std::endl;
+	}
+	out << std::endl;
+}
+
+char Modificator::dump(const int3 & t)
+{
+	if(zone.freePaths().contains(t))
+		return '.'; //free path
+	if(zone.areaPossible().contains(t))
+		return ' '; //possible
+	if(zone.areaUsed().contains(t))
+		return 'U'; //used
+	if(zone.area().contains(t))
+	{
+		if(map.shouldBeBlocked(t))
+			return '#'; //obstacle
+		else
+			return '^'; //visitable points?
+	}
+	return '?';
+}

@@ -14,13 +14,8 @@
 class DLL_LINKAGE WaterRoutes: public Modificator
 {
 public:
-	WaterRoutes(Zone & zone, RmgMap & map, CMapGenerator & generator);
+	MODIFICATOR(WaterRoutes);
 	
 	void process() override;
 	void init() override;
-	
-protected:
-	RmgMap & map;
-	CMapGenerator & generator;
-	Zone & zone;
 };

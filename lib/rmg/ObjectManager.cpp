@@ -22,11 +22,6 @@
 #include "Functions.h"
 #include "RmgObject.h"
 
-ObjectManager::ObjectManager(Zone & zone, RmgMap & map, CMapGenerator & generator) : zone(zone), map(map), generator(generator)
-{
-	
-}
-
 void ObjectManager::process()
 {
 	zone.fractalize();
@@ -250,6 +245,7 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 {
 	object.finalize(map);
 	zone.areaPossible().subtract(object.getArea());
+	zone.freePaths().subtract(object.getArea()); //just to avoid areas overlapping
 	zone.areaUsed().unite(object.getArea());
 	zone.areaUsed().erase(object.getVisitablePosition());
 	
@@ -276,6 +272,7 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 		case Obj::MONOLITH_ONE_WAY_EXIT:
 		case Obj::SUBTERRANEAN_GATE:
 		case Obj::SHIPYARD:
+		case Obj::MINE:
 			if(auto * m = zone.getModificator<RoadPlacer>())
 				m->addRoadNode(object.getVisitablePosition());
 			break;

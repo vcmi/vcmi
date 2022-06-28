@@ -20,7 +20,7 @@ class CGCreature;
 class DLL_LINKAGE ObjectManager: public Modificator
 {
 public:
-	ObjectManager(Zone & zone, RmgMap & map, CMapGenerator & generator);
+	MODIFICATOR(ObjectManager);
 	
 	void process() override;
 	void init() override;
@@ -46,10 +46,6 @@ public:
 	void updateDistances(const int3 & pos);
 	
 protected:
-	RmgMap & map;
-	CMapGenerator & generator;
-	Zone & zone;
-	
 	//content info
 	std::vector<std::pair<CGObjectInstance*, ui32>> requiredObjects;
 	std::vector<std::pair<CGObjectInstance*, ui32>> closeObjects;

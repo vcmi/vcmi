@@ -16,10 +16,6 @@
 #include "../mapping/CMapEditManager.h"
 #include "RmgPath.h"
 
-RoadPlacer::RoadPlacer(Zone & zone, RmgMap & map, CMapGenerator & generator) : zone(zone), map(map), generator(generator)
-{
-}
-
 void RoadPlacer::process()
 {
 	connectRoads();
@@ -70,7 +66,6 @@ void RoadPlacer::addRoadNode(const int3& node)
 
 void RoadPlacer::connectRoads()
 {
-	logGlobal->debug("Started building roads");
 	if(roadNodes.empty())
 		return;
 	
@@ -83,6 +78,13 @@ void RoadPlacer::connectRoads()
 	}
 	
 	drawRoads();
-	
-	logGlobal->debug("Finished building roads");
+}
+
+char RoadPlacer::dump(const int3 & t)
+{
+	if(roadNodes.contains(t))
+		return '@';
+	if(roads.contains(t))
+		return '+';
+	return Modificator::dump(t);
 }

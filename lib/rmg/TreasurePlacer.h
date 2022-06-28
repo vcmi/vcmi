@@ -36,7 +36,7 @@ struct DLL_LINKAGE ObjectInfo
 class DLL_LINKAGE TreasurePlacer: public Modificator
 {
 public:
-	TreasurePlacer(Zone & zone, RmgMap & map, CMapGenerator & generator);
+	MODIFICATOR(TreasurePlacer);
 	
 	void process() override;
 	void init() override;
@@ -54,11 +54,7 @@ protected:
 	rmg::Object constuctTreasurePile(const std::vector<ObjectInfo> & treasureInfos);
 	
 	
-protected:
-	RmgMap & map;
-	CMapGenerator & generator;
-	Zone & zone;
-	
+protected:	
 	std::vector<ObjectInfo> possibleObjects;
 	int minGuardedValue;
 	

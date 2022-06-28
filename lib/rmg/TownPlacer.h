@@ -15,7 +15,7 @@ class ObjectManager;
 class DLL_LINKAGE TownPlacer: public Modificator
 {
 public:
-	TownPlacer(Zone & zone, RmgMap & map, CMapGenerator & generator);
+	MODIFICATOR(TownPlacer);
 	
 	void process() override;
 	void init() override;
@@ -30,9 +30,6 @@ protected:
 	bool placeMines(ObjectManager & manager);
 	
 protected:
-	RmgMap & map;
-	CMapGenerator & generator;
-	Zone & zone;
 	
 	int totalTowns;
 };

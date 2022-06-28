@@ -14,6 +14,8 @@
 class DLL_LINKAGE WaterProxy: public Modificator
 {
 public:
+	MODIFICATOR(WaterProxy);
+	
 	//subclass to store disconnected parts of water zone
 	struct Lake
 	{
@@ -23,9 +25,7 @@ public:
 		std::map<TRmgTemplateZoneId, rmg::Area> neighbourZones; //zones boardered. Area - part of land
 		std::set<TRmgTemplateZoneId> keepConnections;
 	};
-	
-	WaterProxy(Zone & zone, RmgMap & map, CMapGenerator & generator);
-	
+		
 	bool waterKeepConnection(TRmgTemplateZoneId zoneA, TRmgTemplateZoneId zoneB);
 	void waterRoute(Zone & dst);
 	
@@ -38,11 +38,7 @@ protected:
 	bool placeShipyard(Zone & land, const Lake & lake, si32 guard);
 	bool placeBoat(Zone & land, const Lake & lake);
 		
-protected:
-	RmgMap & map;
-	CMapGenerator & generator;
-	Zone & zone;
-	
+protected:	
 	std::vector<Lake> lakes; //disconnected parts of zone. Used to work with water zones
 	std::map<int3, int> lakeMap; //map tile on lakeId which is position of lake in lakes array +1
 };

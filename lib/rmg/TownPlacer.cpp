@@ -23,10 +23,6 @@
 #include "WaterAdopter.h"
 #include "TileInfo.h"
 
-TownPlacer::TownPlacer(Zone & zone, RmgMap & map, CMapGenerator & generator) : zone(zone), map(map), generator(generator), totalTowns(0)
-{
-}
-
 void TownPlacer::process()
 {
 	auto * manager = zone.getModificator<ObjectManager>();
@@ -84,10 +80,10 @@ void TownPlacer::placeTowns(ObjectManager & manager)
 		}
 		//towns are big objects and should be centered around visitable position
 		rmg::Object rmgObject(*town);
-		rmgObject.setPosition(zone.getPos() + town->getVisitableOffset());
+		rmgObject.setPosition(zone.getPos());
+		zone.setPos(rmgObject.getVisitablePosition()); //roads lead to main town
 		manager.placeObject(rmgObject, false, true);
 		cleanupBoundaries(rmgObject);
-		zone.setPos(town->visitablePos()); //roads lead to main town
 		
 		totalTowns++;
 		//register MAIN town of zone only
@@ -234,10 +230,10 @@ void TownPlacer::addNewTowns(int count, bool hasFort, PlayerColor player, Object
 			map.registerZone(town->subID);
 			//first town in zone goes in the middle
 			rmg::Object rmgObject(*town);
-			rmgObject.setPosition(zone.getPos() + town->getVisitableOffset());
+			rmgObject.setPosition(zone.getPos());
+			zone.setPos(rmgObject.getVisitablePosition()); //roads lead to main town
 			manager.placeObject(rmgObject, false, true);
 			cleanupBoundaries(rmgObject);
-			zone.setPos(town->visitablePos()); //roads lead to main town
 		}
 		else
 			manager.addRequiredObject(town);

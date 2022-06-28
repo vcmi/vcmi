@@ -27,10 +27,6 @@
 #include "WaterAdopter.h"
 #include "RmgArea.h"
 
-WaterRoutes::WaterRoutes(Zone & zone, RmgMap & map, CMapGenerator & generator) : zone(zone), map(map), generator(generator)
-{
-}
-
 void WaterRoutes::process()
 {
 	auto * wproxy = zone.getModificator<WaterProxy>();
@@ -54,3 +50,4 @@ void WaterRoutes::init()
 	dependency(zone.getModificator<WaterProxy>());
 	postfunction(zone.getModificator<TreasurePlacer>());
 }
+
