@@ -113,6 +113,12 @@
 			"items": { "type":"string", "format" : "textFile" }
 
 		},
+		"battlefields":{
+			"type":"array",
+			"description": "List of configuration files for battlefields",
+			"items": { "type":"string", "format" : "textFile" }
+
+		},
 
 		"changelog" : {
 			"type":"object",

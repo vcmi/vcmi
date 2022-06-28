@@ -10,12 +10,14 @@
 #include "StdInc.h"
 
 #include "BattleCb.h"
+#include <vcmi/Entity.h>
 
 #include "../LuaStack.h"
 #include "../LuaCallWrapper.h"
 
 #include "../../../lib/GameConstants.h"
 #include "../../../lib/battle/Unit.h"
+#include "../../../lib/BattleFieldHandler.h"
 
 namespace scripting
 {
@@ -73,7 +75,7 @@ int BattleCbProxy::getBattlefieldType(lua_State * L)
 
 	auto ret = object->battleGetBattlefieldType();
 
-	return LuaStack::quickRetStr(L, ret);
+	return LuaStack::quickRetStr(L, ret.getInfo()->identifier);
 }
 
 int BattleCbProxy::getTerrainType(lua_State * L)

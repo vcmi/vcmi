@@ -1922,9 +1922,10 @@ BattleField CGameState::battleGetBattlefieldType(int3 tile, CRandomGenerator & r
 	}
 
 	if(map->isCoastalTile(tile)) //coastal tile is always ground
-		return BattleField("sand_shore");
+		return BattleField::fromString("sand_shore");
 	
-	return *RandomGeneratorUtil::nextItem(Terrain::Manager::getInfo(t.terType).battleFields, rand);
+	return BattleField::fromString(
+		*RandomGeneratorUtil::nextItem(Terrain::Manager::getInfo(t.terType).battleFields, rand));
 }
 
 UpgradeInfo CGameState::getUpgradeInfo(const CStackInstance &stack)

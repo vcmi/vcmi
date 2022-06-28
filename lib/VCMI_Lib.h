@@ -24,6 +24,7 @@ class CTownHandler;
 class CGeneralTextHandler;
 class CModHandler;
 class CContentHandler;
+class BattleFieldHandler;
 class IBonusTypeHandler;
 class CBonusTypeHandler;
 class CTerrainViewPatternConfig;
@@ -56,6 +57,7 @@ public:
 	const scripting::Service * scripts() const override;
 	const spells::Service * spells() const override;
 	const SkillService * skills() const override;
+	const BattleFieldService * battlefields() const override;
 
 	void updateEntity(Metatype metatype, int32_t index, const JsonNode & data) override;
 
@@ -76,6 +78,7 @@ public:
 	CModHandler * modh;
 	CTerrainViewPatternConfig * terviewh;
 	CRmgTemplateStorage * tplh;
+	BattleFieldHandler * battlefieldsHandler;
 	scripting::ScriptHandler * scriptHandler;
 
 	LibClasses(); //c-tor, loads .lods and NULLs handlers
@@ -104,6 +107,8 @@ public:
 		h & objtypeh;
 		h & spellh;
 		h & skillh;
+		h & battlefieldsHandler;
+
 		if(!h.saving)
 		{
 			//modh will be changed and modh->content will be empty after deserialization

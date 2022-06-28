@@ -10,6 +10,7 @@
 #include "StdInc.h"
 
 #include "../../lib/battle/CBattleInfoCallback.h"
+#include "../../lib/battle/CUnitState.h"
 
 #include <vstd/RNG.h>
 
@@ -25,7 +26,15 @@ using namespace testing;
 
 class UnitFake : public UnitMock
 {
+private:
+	std::shared_ptr<CUnitState> state;
+
 public:
+	UnitFake()
+	{
+		state.reset(new CUnitStateDetached(this, this));
+	}
+
 	void addNewBonus(const std::shared_ptr<Bonus> & b)
 	{
 		bonusFake.addNewBonus(b);
@@ -57,6 +66,13 @@ public:
 	{
 		EXPECT_CALL(*this, unitSlot()).WillRepeatedly(Return(SlotID(0)));
 		EXPECT_CALL(*this, creatureIndex()).WillRepeatedly(Return(0));
+	}
+
+	void setDefaultState()
+	{
+		EXPECT_CALL(*this, isClone()).WillRepeatedly(Return(false));
+		EXPECT_CALL(*this, isCaster()).WillRepeatedly(Return(false));
+		EXPECT_CALL(*this, acquireState()).WillRepeatedly(Return(state));
 	}
 private:
 	BonusBearerMock bonusFake;
@@ -207,6 +223,7 @@ TEST_F(BattleFinishedTest, LastAliveUnitWins)
 {
 	UnitFake & unit = unitsFake.add(1);
 	unit.makeAlive();
+	unit.setDefaultState();
 
 	setDefaultExpectations();
 	startBattle();
@@ -232,6 +249,7 @@ TEST_F(BattleFinishedTest, LastWarMachineNotWins)
 	UnitFake & unit = unitsFake.add(0);
 	unit.makeAlive();
 	unit.makeWarMachine();
+	unit.setDefaultState();
 
 	setDefaultExpectations();
 	startBattle();
@@ -241,17 +259,26 @@ TEST_F(BattleFinishedTest, LastWarMachineNotWins)
 
 TEST_F(BattleFinishedTest, LastWarMachineLoose)
 {
-	UnitFake & unit1 = unitsFake.add(0);
-	unit1.makeAlive();
+	try
+	{
+		UnitFake & unit1 = unitsFake.add(0);
+		unit1.makeAlive();
+		unit1.setDefaultState();
 
-	UnitFake & unit2 = unitsFake.add(1);
-	unit2.makeAlive();
-	unit2.makeWarMachine();
+		UnitFake & unit2 = unitsFake.add(1);
+		unit2.makeAlive();
+		unit2.makeWarMachine();
+		unit2.setDefaultState();
 
-	setDefaultExpectations();
-	startBattle();
+		setDefaultExpectations();
+		startBattle();
 
-	expectBattleWinner(0);
+		expectBattleWinner(0);
+	}
+	catch(std::exception e)
+	{
+		logGlobal->error(e.what());
+	}
 }
 
 class BattleMatchOwnerTest : public CBattleInfoCallbackTest

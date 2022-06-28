@@ -150,7 +150,7 @@ class DLL_LINKAGE AObjectTypeHandler : public boost::noncopyable
 
 	boost::optional<si32> aiValue;
 
-	BattleField battlefield;
+	boost::optional<std::string> battlefield;
 
 protected:
 	void preInitObject(CGObjectInstance * obj) const;
@@ -219,6 +219,7 @@ public:
 		h & subTypeName;
 		h & sounds;
 		h & aiValue;
+		h & battlefield;
 	}
 };
 
