@@ -34,6 +34,7 @@
 #include "StringConstants.h"
 #include "CGeneralTextHandler.h"
 #include "CModHandler.h"//todo: remove
+#include "BattleFieldHandler.h"
 
 const SlotID SlotID::COMMANDER_SLOT_PLACEHOLDER = SlotID(-2);
 const SlotID SlotID::SUMMONED_SLOT_PLACEHOLDER = SlotID(-3);
@@ -254,4 +255,41 @@ std::ostream & operator<<(std::ostream & os, const EPathfindingLayer pathfinding
 	auto it = pathfinderLayerToString.find(pathfindingLayer.num);
 	if (it == pathfinderLayerToString.end()) return os << "<Unknown type>";
 	else return os << it->second;
+}
+
+const BattleField BattleField::NONE;
+
+bool operator==(const BattleField & l, const BattleField & r)
+{
+	return l.num == r.num;
+}
+
+bool operator!=(const BattleField & l, const BattleField & r)
+{
+	return l.num != r.num;
+}
+
+bool operator<(const BattleField & l, const BattleField & r)
+{
+	return l.num < r.num;
+}
+
+BattleField::operator std::string() const
+{
+	return getInfo()->identifier;
+}
+
+const BattleFieldInfo * BattleField::getInfo() const
+{
+	return VLC->battlefields()->getById(*this);
+}
+
+BattleField BattleField::fromString(std::string identifier)
+{
+	auto rawId = VLC->modh->identifiers.getIdentifier("core", "battlefield", identifier);
+
+	if(rawId)
+		return BattleField(rawId.get());
+	else
+		return BattleField::NONE;
 }

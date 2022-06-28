@@ -129,7 +129,8 @@ set(lib_SRCS
 		spells/effects/Sacrifice.cpp
 
 		vstd/StringUtils.cpp
-
+		
+		BattleFieldHandler.cpp
 		CAndroidVMHelper.cpp
 		CArtHandler.cpp
 		CBonusTypeHandler.cpp
@@ -338,6 +339,7 @@ set(lib_HEADERS
 		spells/effects/Sacrifice.h
 
 		AI_Base.h
+		BattleFieldHandler.h
 		CAndroidVMHelper.h
 		CArtHandler.h
 		CBonusTypeHandler.h

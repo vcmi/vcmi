@@ -37,11 +37,17 @@ void CGameInfo::setFromLib()
 	spellh = VLC->spellh;
 	skillh = VLC->skillh;
 	objtypeh = VLC->objtypeh;
+	battleFieldHandler = VLC->battlefieldsHandler;
 }
 
 const ArtifactService * CGameInfo::artifacts() const
 {
 	return globalServices->artifacts();
+}
+
+const BattleFieldService * CGameInfo::battlefields() const
+{
+	return globalServices->battlefields();
 }
 
 const CreatureService * CGameInfo::creatures() const

@@ -132,7 +132,7 @@ TEST(MapManager, DrawTerrain_View)
 			const auto & id = patternParts[1];
 
 			// Get mapping range
-			const auto & pattern = VLC->terviewh->getTerrainViewPatternById(groupStr, id);
+			const auto & pattern = VLC->terviewh->getTerrainViewPatternById(groupStr, id); 
 			const auto & mapping = (*pattern).mapping;
 
 			const auto & positionsNode = node["pos"].Vector();

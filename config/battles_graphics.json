@@ -1,33 +1,4 @@
 {
-	// backgrounds of terrains battles can be fought on
-	"backgrounds": {
-		"sand_shore": "CMBKBCH.BMP",
-		"sand_mesas": "CMBKDES.BMP",
-		"dirt_birches": "CMBKDRTR.BMP",
-		"dirt_hills": "CMBKDRMT.BMP",
-		"dirt_pines": "CMBKDRDD.BMP",
-		"grass_hills": "CMBKGRMT.BMP",
-		"grass_pines": "CMBKGRTR.BMP",
-		"lava": "CMBKLAVA.BMP",
-		"magic_plains": "CMBKMAG.BMP",
-		"snow_mountains": "CMBKSNMT.BMP",
-		"snow_trees": "CMBKSNTR.BMP",
-		"subterranean": "CMBKSUB.BMP",
-		"swamp_trees": "CMBKSWMP.BMP",
-		"fiery_fields": "CMBKFF.BMP",
-		"rocklands": "CMBKRK.BMP",
-		"magic_clouds": "CMBKMC.BMP",
-		"lucid_pools": "CMBKLP.BMP",
-		"holy_ground": "CMBKHG.BMP",
-		"clover_field": "CMBKCF.BMP",
-		"evil_fog": "CMBKEF.BMP",
-		"favorable_winds": "CMBKFW.BMP",
-		"cursed_ground": "CMBKCUR.BMP",
-		"rough": "CMBKRGH.BMP",
-		"ship_to_ship": "CMBKBOAT.BMP",
-		"ship": "CMBKDECK.BMP"
-	},
-
 	// WoG_Ac_format_to_def_names_mapping
 	"ac_mapping": [
 		{ "id": 0, "defnames": [ "C10SPW.DEF" ] },//merged
