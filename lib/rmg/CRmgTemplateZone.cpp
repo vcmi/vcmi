@@ -2019,6 +2019,10 @@ int3 CRmgTemplateZone::makeBoat(TRmgTemplateZoneId land, const std::set<int3> & 
 {
 	std::set<int3> lakeCoast;
 	std::set_intersection(gen->getZones()[land]->getCoastTiles().begin(), gen->getZones()[land]->getCoastTiles().end(), lake.begin(), lake.end(), std::inserter(lakeCoast, lakeCoast.begin()));
+
+	if(lakeCoast.empty())
+		return int3(-1, -1, -1);
+
 	for(int randomAttempts = 0; randomAttempts<5; ++randomAttempts)
 	{
 		auto coastTile = *RandomGeneratorUtil::nextItem(lakeCoast, gen->rand);

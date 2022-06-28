@@ -16,6 +16,7 @@
 #include "NetPacks.h"
 #include "CBonusTypeHandler.h"
 #include "CModHandler.h"
+#include "BattleFieldHandler.h"
 
 #include "serializer/CSerializer.h" // for SAVEGAME_MAGIC
 #include "serializer/BinaryDeserializer.h"

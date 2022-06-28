@@ -12,6 +12,7 @@
 #include "ISpellMechanics.h"
 
 #include "../CRandomGenerator.h"
+#include "../VCMI_Lib.h"
 
 #include "../HeroBonus.h"
 #include "../battle/CBattleInfoCallback.h"
@@ -39,6 +40,7 @@
 
 #include "../CHeroHandler.h"//todo: remove
 #include "../IGameCallback.h"//todo: remove
+#include "../BattleFieldHandler.h"
 
 namespace spells
 {
@@ -520,7 +522,7 @@ bool BaseMechanics::adaptProblem(ESpellCastProblem::ESpellCastProblem source, Pr
 				caster->getCasterName(text);
 				target.add(std::move(text), spells::Problem::NORMAL);
 			}
-			else if(b && b->source == Bonus::TERRAIN_OVERLAY && b->sid == BattleField("cursed_ground").hash())
+			else if(b && b->source == Bonus::TERRAIN_OVERLAY && VLC->battlefields()->getByIndex(b->sid)->identifier == "cursed_ground")
 			{
 				text.addTxt(MetaString::GENERAL_TXT, 537);
 				target.add(std::move(text), spells::Problem::NORMAL);

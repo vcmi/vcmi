@@ -32,6 +32,7 @@
 #include "rmg/CRmgTemplateStorage.h"
 #include "mapping/CMapEditManager.h"
 #include "ScriptHandler.h"
+#include "BattleFieldHandler.h"
 
 LibClasses * VLC = nullptr;
 
@@ -108,6 +109,11 @@ const spells::effects::Registry * LibClasses::spellEffects() const
 spells::effects::Registry * LibClasses::spellEffects()
 {
 	return spells::effects::GlobalRegistry::get();
+}
+
+const BattleFieldService * LibClasses::battlefields() const
+{
+	return battlefieldsHandler;
 }
 
 void LibClasses::updateEntity(Metatype metatype, int32_t index, const JsonNode & data)
@@ -205,6 +211,8 @@ void LibClasses::init(bool onlyEssential)
 
 	createHandler(scriptHandler, "Script", pomtime);
 
+	createHandler(battlefieldsHandler, "Battlefields", pomtime);
+
 	logGlobal->info("\tInitializing handlers: %d ms", totalTime.getDiff());
 
 	modh->load();
@@ -231,6 +239,7 @@ void LibClasses::clear()
 	delete tplh;
 	delete terviewh;
 	delete scriptHandler;
+	delete battlefieldsHandler;
 	makeNull();
 }
 
@@ -250,6 +259,7 @@ void LibClasses::makeNull()
 	tplh = nullptr;
 	terviewh = nullptr;
 	scriptHandler = nullptr;
+	battlefieldsHandler = nullptr;
 }
 
 LibClasses::LibClasses()

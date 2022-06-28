@@ -17,6 +17,7 @@
 #include "../NetPacks.h"
 #include "../spells/CSpellHandler.h"
 #include "../mapObjects/CGTownInstance.h"
+#include "../BattleFieldHandler.h"
 
 namespace SiegeStuffThatShouldBeMovedToHandlers // <=== TODO
 {
@@ -1058,24 +1059,15 @@ AccessibilityInfo CBattleInfoCallback::getAccesibility() const
 	}
 
 	//special battlefields with logically unavailable tiles
-	std::vector<BattleHex> impassableHexes;
-	if(battleGetBattlefieldType() == BattleField("ship_to_ship"))
+	auto bFieldType = battleGetBattlefieldType();
+
+	if(bFieldType != BattleField::NONE)
 	{
-		impassableHexes =
-		{
-			6, 7, 8, 9,
-			24, 25, 26,
-			58, 59, 60,
-			75, 76, 77,
-			92, 93, 94,
-			109, 110, 111,
-			126, 127, 128,
-			159, 160, 161, 162, 163,
-			176, 177, 178, 179, 180
-		};
+		std::vector<BattleHex> impassableHexes = bFieldType.getInfo()->impassableHexes;
+
+		for(auto hex : impassableHexes)
+			ret[hex] = EAccessibility::UNAVAILABLE;
 	}
-	for(auto hex : impassableHexes)
-		ret[hex] = EAccessibility::UNAVAILABLE;
 
 	//gate -> should be before stacks
 	if(battleGetSiegeLevel() > 0)

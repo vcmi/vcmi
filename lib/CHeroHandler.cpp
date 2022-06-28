@@ -25,6 +25,7 @@
 #include <math.h>
 
 #include "mapObjects/CObjectClassesHandler.h"
+#include "BattleFieldHandler.h"
 
 CHero::CHero() = default;
 CHero::~CHero() = default;
@@ -179,8 +180,10 @@ std::vector<BattleHex> CObstacleInfo::getBlocked(BattleHex hex) const
 
 bool CObstacleInfo::isAppropriate(const Terrain & terrainType, const BattleField & battlefield) const
 {
-	if(battlefield.isSpecial())
-		return vstd::contains(allowedSpecialBfields, battlefield);
+	auto bgInfo = battlefield.getInfo();
+
+	if(bgInfo->isSpecial)
+		return vstd::contains(allowedSpecialBfields, bgInfo->identifier);
 
 	return vstd::contains(allowedTerrains, terrainType);
 }

@@ -31,6 +31,7 @@ class CCursorHandler;
 class CGameState;
 class IMainVideoPlayer;
 class CServerHandler;
+class BattleFieldHandler;
 
 class CMap;
 
@@ -60,6 +61,7 @@ public:
 	const scripting::Service * scripts() const override;
 	const spells::Service * spells() const override;
 	const SkillService * skills() const override;
+	const BattleFieldService * battlefields() const override;
 
 	void updateEntity(Metatype metatype, int32_t index, const JsonNode & data) override;
 
@@ -68,6 +70,7 @@ public:
 
 
 	ConstTransitivePtr<CModHandler> modh; //public?
+	ConstTransitivePtr<BattleFieldHandler> battleFieldHandler;
 	ConstTransitivePtr<CHeroHandler> heroh;
 	ConstTransitivePtr<CCreatureHandler> creh;
 	ConstTransitivePtr<CSpellHandler> spellh;

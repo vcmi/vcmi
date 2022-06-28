@@ -1109,6 +1109,23 @@ public:
 
 ID_LIKE_OPERATORS(SpellID, SpellID::ESpellID)
 
+class BattleFieldInfo;
+class BattleField : public BaseForID<BattleField, si32>
+{
+	INSTID_LIKE_CLASS_COMMON(BattleField, si32)
+
+	DLL_LINKAGE static const BattleField NONE;
+
+	DLL_LINKAGE friend bool operator==(const BattleField & l, const BattleField & r);
+	DLL_LINKAGE friend bool operator!=(const BattleField & l, const BattleField & r);
+	DLL_LINKAGE friend bool operator<(const BattleField & l, const BattleField & r);
+
+	DLL_LINKAGE operator std::string() const;
+	DLL_LINKAGE const BattleFieldInfo * getInfo() const;
+
+	DLL_LINKAGE static BattleField fromString(std::string identifier);
+};
+
 enum class ESpellSchool: ui8
 {
 	AIR 	= 0,
