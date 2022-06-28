@@ -41,6 +41,7 @@
 #include "../../lib/spells/ISpellMechanics.h"
 #include "../../lib/spells/Problem.h"
 #include "../../lib/CTownHandler.h"
+#include "../../lib/BattleFieldHandler.h"
 #include "../../lib/CGameState.h"
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/NetPacks.h"
@@ -201,13 +202,14 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 	else
 	{
 		auto bfieldType = curInt->cb->battleGetBattlefieldType();
-		if(!vstd::contains(graphics->battleBacks, bfieldType))
+
+		if(bfieldType == BattleField::NONE)
 		{
-			logGlobal->error("%s is not valid battlefield type!", static_cast<std::string>(bfieldType));
+			logGlobal->error("Invalid battlefield returned for current battle");
 		}
 		else
 		{
-			background = BitmapHandler::loadBitmap(graphics->battleBacks[bfieldType], false);
+			background = BitmapHandler::loadBitmap(bfieldType.getInfo()->graphics, false);
 		}
 	}
 

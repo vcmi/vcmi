@@ -109,12 +109,6 @@ void Graphics::initializeBattleGraphics()
 			
 		const JsonNode config(mod, ResourceID("config/battles_graphics.json"));
 
-		if(!config["backgrounds"].isNull())
-		for(auto & t : config["backgrounds"].Struct())
-		{
-			battleBacks[t.first] = t.second.String();
-		}
-
 		//initialization of AC->def name mapping
 		if(!config["ac_mapping"].isNull())
 		for(const JsonNode &ac : config["ac_mapping"].Vector())

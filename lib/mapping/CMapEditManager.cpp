@@ -461,12 +461,15 @@ const std::vector<CTerrainViewPatternConfig::TVPVector> & CTerrainViewPatternCon
 	return iter->second;
 }
 
-boost::optional<const TerrainViewPattern &> CTerrainViewPatternConfig::getTerrainViewPatternById(const Terrain & terrain, const std::string & id) const
+boost::optional<const TerrainViewPattern &> CTerrainViewPatternConfig::getTerrainViewPatternById(std::string patternId, const std::string & id) const
 {
-	const std::vector<TVPVector> & groupPatterns = getTerrainViewPatterns(terrain);
+	auto iter = terrainViewPatterns.find(patternId);
+	const std::vector<TVPVector> & groupPatterns = (iter == terrainViewPatterns.end()) ? terrainViewPatterns.at("normal") : iter->second;
+
 	for (const TVPVector & patternFlips : groupPatterns)
 	{
 		const TerrainViewPattern & pattern = patternFlips.front();
+
 		if(id == pattern.id)
 		{
 			return boost::optional<const TerrainViewPattern &>(pattern);

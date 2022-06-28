@@ -18,8 +18,6 @@
 
 const Terrain Terrain::ANY("ANY");
 
-const BattleField BattleField::NONE("");
-
 Terrain Terrain::createTerrainTypeH3M(int tId)
 {
 	static std::array<std::string, 10> terrainsH3M
@@ -226,28 +224,4 @@ bool Terrain::isNative() const
 bool Terrain::isTransitionRequired() const
 {
 	return Terrain::Manager::getInfo(*this).transitionRequired;
-}
-
-bool operator==(const BattleField & l, const BattleField & r)
-{
-	return l.name == r.name;
-}
-
-bool operator!=(const BattleField & l, const BattleField & r)
-{
-	return l.name != r.name;
-}
-
-bool operator<(const BattleField & l, const BattleField & r)
-{
-	return l.name < r.name;
-}
-BattleField::operator std::string() const
-{
-	return name;
-}
-
-int BattleField::hash() const
-{
-	return std::hash<std::string>{}(name);
 }
