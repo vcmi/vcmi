@@ -40,6 +40,7 @@ public:
 	
 	void process() override;
 	void init() override;
+	char dump(const int3 &) override;
 	
 	void createTreasures(ObjectManager & manager);
 	
@@ -52,11 +53,16 @@ protected:
 	ObjectInfo getRandomObject(ui32 desiredValue, ui32 currentValue, bool allowLargeObjects);
 	std::vector<ObjectInfo> prepareTreasurePile(const CTreasureInfo & treasureInfo);
 	rmg::Object constuctTreasurePile(const std::vector<ObjectInfo> & treasureInfos);
+	rmg::Object constuctTreasurePile(const CTreasureInfo & treasureInfo);
 	
 	
 protected:	
 	std::vector<ObjectInfo> possibleObjects;
-	int minGuardedValue;
+	int minGuardedValue = 0;
 	
-	Zone* questArtZone; //artifacts required for Seer Huts will be placed here - or not if null
+	rmg::Area treasureArea;
+	rmg::Area treasureBlockArea;
+	rmg::Area guards;
+	
+	Zone * questArtZone = nullptr; //artifacts required for Seer Huts will be placed here - or not if null
 };

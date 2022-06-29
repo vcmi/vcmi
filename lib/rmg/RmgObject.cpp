@@ -92,13 +92,8 @@ void Object::Instance::clear()
 
 bool Object::Instance::isVisitableFrom(const int3 & position) const
 {
-	return isVisitableFrom(position, getPosition(true));
-}
-
-bool Object::Instance::isVisitableFrom(const int3 & position, const int3 & potential) const
-{
-	auto visitable = getVisitablePosition() - getPosition(true) + potential;
-	return dObject.appearance.isVisitableFrom(position.x - visitable.x, position.y - visitable.y);
+	auto relPosition = position - getPosition(true);
+	return dObject.appearance.isVisitableFrom(relPosition.x, relPosition.y);
 }
 
 CGObjectInstance & Object::Instance::object()

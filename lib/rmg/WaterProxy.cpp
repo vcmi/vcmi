@@ -202,7 +202,7 @@ bool WaterProxy::placeBoat(Zone & land, const Lake & lake)
 		}
 		
 		//try to place boat at water and create path on water
-		bool result = manager->placeAndConnectObject(shipPositions, rmgObject, 2, false, true);
+		bool result = manager->placeAndConnectObject(shipPositions, rmgObject, 2, false, true, false);
 		if(!result)
 		{
 			boardingPositions.erase(boardingPosition);
@@ -268,7 +268,7 @@ bool WaterProxy::placeShipyard(Zone & land, const Lake & lake, si32 guard)
 				return -1.f;
 			
 			return 1.0f;
-		}, guarded, true);
+		}, guarded, true, false);
 		
 		
 		if(!result)

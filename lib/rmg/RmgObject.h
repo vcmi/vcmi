@@ -33,7 +33,6 @@ public:
 		
 		int3 getVisitablePosition() const;
 		bool isVisitableFrom(const int3 & tile) const;
-		bool isVisitableFrom(const int3 & tile, const int3 & potentialPosition) const;
 		Area getAccessibleArea() const;
 		void setTemplate(const Terrain & terrain);
 		

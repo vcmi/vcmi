@@ -15,6 +15,7 @@
 #include "RoadPlacer.h"
 #include "ConnectionsPlacer.h"
 #include "RmgMap.h"
+#include "TileInfo.h"
 #include "../mapObjects/CommonConstructors.h"
 #include "../mapObjects/MapObjects.h" //needed to resolve templates for CommonConstructors.h
 #include "../CCreatureHandler.h"
@@ -24,6 +25,7 @@
 
 void TreasurePlacer::process()
 {
+	addAllPossibleObjects();
 	auto * m = zone.getModificator<ObjectManager>();
 	if(m)
 		createTreasures(*m);
@@ -34,8 +36,6 @@ void TreasurePlacer::init()
 	dependency(zone.getModificator<ObjectManager>());
 	dependency(zone.getModificator<ConnectionsPlacer>());
 	postfunction(zone.getModificator<RoadPlacer>());
-	
-	addAllPossibleObjects();
 }
 
 void TreasurePlacer::setQuestArtZone(Zone * otherZone)
@@ -235,7 +235,7 @@ void TreasurePlacer::addAllPossibleObjects()
 	//pandora box with creatures
 	const std::vector<int> & tierValues = generator.getConfig().pandoraCreatureValues;
 	
-	auto creatureToCount = [&tierValues](CCreature * creature) -> int
+	auto creatureToCount = [tierValues](CCreature * creature) -> int
 	{
 		if(!creature->AIValue) //bug #2681
 			return 0; //this box won't be generated
@@ -510,7 +510,7 @@ bool TreasurePlacer::isGuardNeededForTreasure(int value)
 
 std::vector<ObjectInfo> TreasurePlacer::prepareTreasurePile(const CTreasureInfo& treasureInfo)
 {
-	std::vector<ObjectInfo> objectInfos, tempObjectInfos;
+	std::vector<ObjectInfo> objectInfos;
 	int maxValue = treasureInfo.max;
 	int minValue = treasureInfo.min;
 	
@@ -526,7 +526,7 @@ std::vector<ObjectInfo> TreasurePlacer::prepareTreasurePile(const CTreasureInfo&
 		
 		if(oi.templ.isVisitableFromTop())
 		{
-			tempObjectInfos.push_back(oi);
+			objectInfos.push_back(oi);
 		}
 		else
 		{
@@ -537,29 +537,42 @@ std::vector<ObjectInfo> TreasurePlacer::prepareTreasurePile(const CTreasureInfo&
 			}
 			else
 			{
-				tempObjectInfos.insert(tempObjectInfos.begin(), oi); //large object shall at first place
+				objectInfos.insert(objectInfos.begin(), oi); //large object shall at first place
 				hasLargeObject = true;
 			}
 		}
-		
-		auto rmgTemp = constuctTreasurePile(tempObjectInfos);
-		if(rmgTemp.instances().empty()) //handle incorrect placement
-		{
-			tempObjectInfos = objectInfos;
-			continue;
-		}
-		rmgTemp.clear();
 		
 		//remove from possible objects
 		auto oiptr = std::find(possibleObjects.begin(), possibleObjects.end(), oi);
 		oiptr->maxPerZone--;
 		
 		currentValue += oi.value;
-		
-		objectInfos = tempObjectInfos;
 	}
 	
 	return objectInfos;
+}
+
+rmg::Object TreasurePlacer::constuctTreasurePile(const CTreasureInfo& treasureInfo)
+{
+	std::vector<ObjectInfo> objectInfos, tempObjectInfos;
+	rmg::Object rmgTreasurePile;
+	int maxValue = treasureInfo.max;
+	int minValue = treasureInfo.min;
+	
+	const ui32 desiredValue = generator.rand.nextInt(minValue, maxValue);
+	
+	int currentValue = 0;
+	bool hasLargeObject = false;
+	while(currentValue <= (int)desiredValue - 100) //no objects with value below 100 are available
+	{
+		auto oi = getRandomObject(desiredValue, currentValue, !hasLargeObject);
+		if(oi.value == 0) //fail
+			break;
+		
+		
+	}
+	
+	return rmgTreasurePile;
 }
 
 rmg::Object TreasurePlacer::constuctTreasurePile(const std::vector<ObjectInfo> & treasureInfos)
@@ -569,7 +582,7 @@ rmg::Object TreasurePlacer::constuctTreasurePile(const std::vector<ObjectInfo> &
 	{
 		auto blockedArea = rmgObject.getArea();
 		auto accessibleArea = rmgObject.getAccessibleArea();
-		if(accessibleArea.empty())
+		if(blockedArea.empty())
 			accessibleArea.add(int3());
 		
 		auto * object = oi.generateObject();
@@ -711,8 +724,7 @@ void TreasurePlacer::createTreasures(ObjectManager & manager)
 		const float minDistance = std::max<float>((125.f / totalDensity), 2.0f);
 		//distance lower than 2 causes objects to overlap and crash
 		
-		bool stop = false;
-		do
+		while(true)
 		{
 			auto treasurePileInfos = prepareTreasurePile(t);
 			if(treasurePileInfos.empty())
@@ -731,28 +743,56 @@ void TreasurePlacer::createTreasures(ObjectManager & manager)
 			
 			int3 pos;
 			auto possibleArea = zone.areaPossible();
-			while(true)
+			
+			if((guarded && manager.placeAndConnectObject(possibleArea, rmgObject, [this, &rmgObject, &minDistance](const int3 & tile)
 			{
-				pos = manager.findPlaceForObject(possibleArea, rmgObject, minDistance);
-				if(!pos.valid())
+				auto ti = map.getTile(tile);
+				auto dist = ti.getNearestObjectDistance();
+				if(dist < minDistance)
+					return -1.f;
+				
+				auto guardedArea = rmgObject.instances().back()->getAccessibleArea();
+				auto areaToBlock = rmgObject.getAccessibleArea(true);
+				areaToBlock.subtract(guardedArea);
+				if(areaToBlock.overlap(zone.freePaths()))
+					return -1.f;
+				
+				return 1.f;
+			}, guarded, false, false))
+			   || (!guarded && manager.placeAndConnectObject(possibleArea, rmgObject, minDistance, guarded, false, false)))
+			{
+				//debug purposes
+				treasureArea.unite(rmgObject.getArea());
+				if(guarded)
 				{
-					stop = true;
-					break; //we placed all objects
+					guards.unite(rmgObject.instances().back()->getBlockedArea());
+					auto guardedArea = rmgObject.instances().back()->getAccessibleArea();
+					auto areaToBlock = rmgObject.getAccessibleArea(true);
+					areaToBlock.subtract(guardedArea);
+					treasureBlockArea.unite(areaToBlock);
 				}
-				possibleArea.erase(pos); //do not place again at this point
-				auto possibleAreaTemp = zone.areaPossible();
-				zone.areaPossible().subtract(rmgObject.getArea());
-				auto accessibleArea = rmgObject.getAccessibleArea() * zone.getArea();
-				if(zone.connectPath(accessibleArea, false))
-				{
-					manager.placeObject(rmgObject, guarded, true);
-					break;
-				}
-				zone.areaPossible() = possibleAreaTemp;
+				manager.placeObject(rmgObject, guarded, true);
 			}
-		} while(!stop);
+			else
+			{
+				break;
+			}
+		}
 	}
 }
+
+char TreasurePlacer::dump(const int3 & t)
+{
+	if(guards.contains(t))
+		return '!';
+	if(treasureArea.contains(t))
+		return '$';
+	if(treasureBlockArea.contains(t))
+		return '*';
+	
+	return Modificator::dump(t);
+}
+
 
 ObjectInfo::ObjectInfo()
 : templ(), value(0), probability(0), maxPerZone(1)

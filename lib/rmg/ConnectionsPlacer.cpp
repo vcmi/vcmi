@@ -176,7 +176,7 @@ void ConnectionsPlacer::selfSideConnection(const rmg::ZoneConnection & connectio
 			int minDist = 3;
 			int maxDistSq = 3 * 3;
 			
-			if(manager.placeAndConnectObject(commonArea, rmgGate1, minDist, guarded1, true) &&
+			if(manager.placeAndConnectObject(commonArea, rmgGate1, minDist, guarded1, true, true) &&
 			   managerOther.placeAndConnectObject(otherCommonArea, rmgGate2, [this, &rmgGate1, &minDist, &maxDistSq](const int3 & tile)
 			{
 				auto ti = map.getTile(tile);
@@ -190,7 +190,7 @@ void ConnectionsPlacer::selfSideConnection(const rmg::ZoneConnection & connectio
 					return 1000000.f - d2 - dist;
 				}
 				return -1.f;
-			}, guarded2, true))
+			}, guarded2, true, true))
 			{
 				manager.placeObject(rmgGate1, guarded1, true);
 				managerOther.placeObject(rmgGate2, guarded2, true);

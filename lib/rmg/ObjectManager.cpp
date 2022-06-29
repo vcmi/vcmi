@@ -58,7 +58,7 @@ void ObjectManager::updateDistances(const int3 & pos)
 	}
 }
 
-int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object & obj, std::function<float(const int3)> weightFunction) const
+int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object & obj, std::function<float(const int3)> weightFunction, bool optimizer) const
 {
 	float bestWeight = 0.f;
 	int3 result(-1, -1, -1);
@@ -81,6 +81,8 @@ int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object
 		{
 			bestWeight = weight;
 			result = tile;
+			if(!optimizer)
+				break;
 		}
 	}
 	if(result.valid())
@@ -88,7 +90,7 @@ int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object
 	return result;
 }
 
-int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object & obj, si32 min_dist) const
+int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object & obj, si32 min_dist, bool optimizer) const
 {
 	return findPlaceForObject(searchArea, obj, [this, min_dist](const int3 & tile)
 	{
@@ -100,10 +102,10 @@ int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object
 			return dist;
 		}
 		return -1.f;
-	});
+	}, optimizer);
 }
 
-bool ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg::Object & obj, si32 min_dist, bool isGuarded, bool onlyStraight) const
+bool ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg::Object & obj, si32 min_dist, bool isGuarded, bool onlyStraight, bool optimizer) const
 {
 	return placeAndConnectObject(searchArea, obj, [this, min_dist](const int3 & tile)
 	{
@@ -115,16 +117,16 @@ bool ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg::Obj
 			return dist;
 		}
 		return -1.f;
-	}, isGuarded, onlyStraight);
+	}, isGuarded, onlyStraight, optimizer);
 }
 
-bool ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg::Object & obj, std::function<float(const int3)> weightFunction, bool isGuarded, bool onlyStraight) const
+bool ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg::Object & obj, std::function<float(const int3)> weightFunction, bool isGuarded, bool onlyStraight, bool optimizer) const
 {
 	int3 pos;
 	auto possibleArea = searchArea;
 	while(true)
 	{
-		pos = findPlaceForObject(possibleArea, obj, weightFunction);
+		pos = findPlaceForObject(possibleArea, obj, weightFunction, optimizer);
 		if(!pos.valid())
 		{
 			return false;
@@ -133,6 +135,14 @@ bool ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg::Obj
 		auto possibleAreaTemp = zone.areaPossible();
 		zone.areaPossible().subtract(obj.getArea());
 		auto accessibleArea = obj.getAccessibleArea(isGuarded) * zone.getArea();
+		//we should exclude tiles which will be covered
+		if(isGuarded)
+		{
+			auto guardedArea = obj.instances().back()->getAccessibleArea();
+			zone.areaPossible().subtract(accessibleArea - guardedArea);
+			accessibleArea.intersect(guardedArea);
+		}
+		
 		if(zone.connectPath(accessibleArea, onlyStraight))
 		{
 			zone.areaPossible() = possibleAreaTemp;
@@ -154,7 +164,7 @@ bool ObjectManager::createRequiredObjects()
 		rmgObject.setTemplate(zone.getTerrainType());
 		bool guarded = addGuard(rmgObject, object.second, (obj->ID == Obj::MONOLITH_TWO_WAY));
 		
-		if(!placeAndConnectObject(zone.areaPossible(), rmgObject, 3, guarded, false))
+		if(!placeAndConnectObject(zone.areaPossible(), rmgObject, 3, guarded, false, true))
 		{
 			logGlobal->error("Failed to fill zone %d due to lack of space", zone.getId());
 			return false;
@@ -194,7 +204,7 @@ bool ObjectManager::createRequiredObjects()
 									dist *= (dist > 12.f * 12.f) ? 10.f : 1.f; //tiles closer 12 are preferrable
 									dist = 1000000.f - dist; //some big number
 									return dist + map.getNearestObjectDistance(tile);
-								}, guarded, false))
+								}, guarded, false, true))
 		{
 			logGlobal->error("Failed to fill zone %d due to lack of space", zone.getId());
 			return false;
