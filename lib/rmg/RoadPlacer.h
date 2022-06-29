@@ -23,10 +23,10 @@ public:
 	void connectRoads(); //fills "roads" according to "roadNodes"
 	
 protected:
-	bool createRoad(const rmg::Area & dst);
+	bool createRoad(const int3 & dst);
 	void drawRoads(); //actually updates tiles
 	
 protected:
-	rmg::Area roadNodes; //tiles to be connected with roads
+	rmg::Tileset roadNodes; //tiles to be connected with roads
 	rmg::Area roads; //all tiles with roads
 };

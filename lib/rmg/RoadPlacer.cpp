@@ -21,7 +21,7 @@ void RoadPlacer::process()
 	connectRoads();
 }
 
-bool RoadPlacer::createRoad(const rmg::Area & dst)
+bool RoadPlacer::createRoad(const int3 & dst)
 {
 	rmg::Path path(zone.freePaths() + zone.areaPossible());
 	path.connect(roads);
@@ -48,20 +48,14 @@ void RoadPlacer::drawRoads()
 		if(map.isOnMap(tile))
 			tiles.push_back (tile);
 	}
-	for (auto tile : roadNodes.getTiles())
-	{
-		if (map.getZoneID(tile) == zone.getId()) //mark roads for our nodes, but not for zone guards in other zones
-			tiles.push_back(tile);
-	}
 	
 	map.getEditManager()->getTerrainSelection().setSelection(tiles);
-	//map.getEditManager()->drawRoad(gen.getConfig().defaultRoadType, &generator);
-	map.getEditManager()->drawRoad(ROAD_NAMES[1], &generator.rand);
+	map.getEditManager()->drawRoad(generator.getConfig().defaultRoadType, &generator.rand);
 }
 
 void RoadPlacer::addRoadNode(const int3& node)
 {
-	roadNodes.add(node);
+	roadNodes.insert(node);
 }
 
 void RoadPlacer::connectRoads()
@@ -69,12 +63,13 @@ void RoadPlacer::connectRoads()
 	if(roadNodes.empty())
 		return;
 	
-	roads.add(*roadNodes.getTiles().begin());
+	//take any tile from road nodes as destination zone for all other road nodes
+	if(roads.empty())
+		roads.add(*roadNodes.begin());
 	
-	auto areas = connectedAreas(roadNodes);
-	for(auto & area : areas)
+	for(auto & node : roadNodes)
 	{
-		createRoad(area);
+		createRoad(node);
 	}
 	
 	drawRoads();
@@ -82,7 +77,7 @@ void RoadPlacer::connectRoads()
 
 char RoadPlacer::dump(const int3 & t)
 {
-	if(roadNodes.contains(t))
+	if(roadNodes.count(t))
 		return '@';
 	if(roads.contains(t))
 		return '+';

@@ -49,12 +49,6 @@ void ObjectManager::addNearbyObject(CGObjectInstance * obj, CGObjectInstance * n
 	nearbyObjects.push_back(std::make_pair(obj, nearbyTarget));
 }
 
-void ObjectManager::addObjectAtPosition(CGObjectInstance * obj, const int3 & position, si32 strength)
-{
-	//TODO: use strength
-	instantObjects.push_back(std::make_pair(obj, position));
-}
-
 void ObjectManager::updateDistances(const int3 & pos)
 {
 	for (auto tile : zone.areaPossible().getTiles()) //don't need to mark distance for not possible tiles

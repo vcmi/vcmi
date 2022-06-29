@@ -28,7 +28,6 @@ public:
 	void addRequiredObject(CGObjectInstance * obj, si32 guardStrength=0);
 	void addCloseObject(CGObjectInstance * obj, si32 guardStrength = 0);
 	void addNearbyObject(CGObjectInstance * obj, CGObjectInstance * nearbyTarget);
-	void addObjectAtPosition(CGObjectInstance * obj, const int3 & position, si32 guardStrength=0);
 		
 	bool createRequiredObjects();
 	
