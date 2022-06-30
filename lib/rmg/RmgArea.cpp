@@ -17,6 +17,7 @@ size_t HashInt3::operator() (const int3 & t) const
 {
 	static const int maxSize = 500;
 	static const int maxSizeSq = maxSize * maxSize;
+	
 	return (t.z + 1) * maxSizeSq + (t.y + 1) * maxSize + (t.x + 1);
 }
 
@@ -264,12 +265,12 @@ void Area::clear()
 	dBorderOutsideCache.clear();
 }
 
-/*void Area::assign(const std::set<int3> & tiles)
+void Area::assign(const std::set<int3> & tiles)
 {
 	dTiles = Tileset(tiles.begin(), tiles.end());
 	dBorderCache.clear();
 	dBorderOutsideCache.clear();
-}*/
+}
 
 void Area::assign(const Tileset & tiles)
 {
