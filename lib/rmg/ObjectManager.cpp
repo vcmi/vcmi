@@ -71,7 +71,7 @@ int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object
 		
 		obj.setPosition(tile);
 		
-		if(!searchArea.contains(obj.getArea()) || !searchArea.overlap(obj.getAccessibleArea()))
+		if(!searchArea.contains(obj.getArea().getTilesVector()) || !searchArea.overlap(obj.getAccessibleArea()))
 			continue;
 		
 		float weight = weightFunction(tile);

@@ -36,7 +36,7 @@ namespace rmg
 		Area & operator= (const Area &);
 		
 		const Tileset & getTiles() const;
-		std::vector<int3> getTilesVector() const;
+		const std::vector<int3> & getTilesVector() const;
 		const Tileset & getBorder() const; //lazy cache invalidation
 		const Tileset & getBorderOutside() const; //lazy cache invalidation
 		
@@ -47,6 +47,7 @@ namespace rmg
 		bool connected() const; //is connected
 		bool empty() const;
 		bool contains(const int3 & tile) const;
+		bool contains(const std::vector<int3> & tiles) const;
 		bool contains(const Area & area) const;
 		bool overlap(const Area & area) const;
 		int distanceSqr(const int3 & tile) const;
@@ -73,11 +74,15 @@ namespace rmg
 		friend std::list<Area> connectedAreas(const Area & area);
 		
 	private:
+		
+		void invalidate();
 		void computeBorderCache();
 		void computeBorderOutsideCache();
 		
-		Tileset dTiles;
+		mutable Tileset dTiles;
+		mutable std::vector<int3> dTilesVectorCache;
 		mutable Tileset dBorderCache;
 		mutable Tileset dBorderOutsideCache;
+		mutable int3 dTotalShiftCache;
 	};
 }
