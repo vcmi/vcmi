@@ -28,7 +28,7 @@
 #include "RoadPlacer.h"
 
 CMapGenerator::CMapGenerator(CMapGenOptions& mapGenOptions, int RandomSeed) :
-	mapGenOptions(mapGenOptions), randomSeed(1656362330),
+	mapGenOptions(mapGenOptions), randomSeed(RandomSeed),
 	prisonsRemaining(0), monolithIndex(0)
 {
 	loadConfig();
