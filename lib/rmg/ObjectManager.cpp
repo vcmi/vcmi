@@ -64,18 +64,16 @@ int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object
 	int3 result(-1, -1, -1);
 	auto usedTilesBorder = zone.areaUsed().getBorderOutside();
 	
-	auto appropriateArea = searchArea.getSubarea([&obj, &searchArea, &usedTilesBorder](const int3 & tile)
+	for (auto tile : searchArea.getTiles())
 	{
-		obj.setPosition(tile);
 		if(usedTilesBorder.count(tile))
-			return false;
+			continue;
 		
-		return searchArea.contains(obj.getArea()) && searchArea.overlap(obj.getAccessibleArea());
-	});
-	
-	for (auto tile : appropriateArea.getTiles())
-	{
 		obj.setPosition(tile);
+		
+		if(!searchArea.contains(obj.getArea()) || !searchArea.overlap(obj.getAccessibleArea()))
+			continue;
+		
 		float weight = weightFunction(tile);
 		if(weight > bestWeight)
 		{

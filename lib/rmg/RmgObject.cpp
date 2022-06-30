@@ -50,24 +50,31 @@ int3 Object::Instance::getVisitablePosition() const
 
 rmg::Area Object::Instance::getAccessibleArea() const
 {
-	auto neighbours = rmg::Area({getVisitablePosition()}).getBorderOutside();
-	rmg::Area visitable = rmg::Area(neighbours) - dBlockedArea;
-	rmg::Area accessibleArea;
-	for(auto & from : visitable.getTiles())
+	if(dAccessibleAreaCache.empty())
 	{
-		if(isVisitableFrom(from))
-			accessibleArea.add(from);
+		auto neighbours = rmg::Area({getVisitablePosition()}).getBorderOutside();
+		rmg::Area visitable = rmg::Area(neighbours) - dBlockedArea;
+		for(auto & from : visitable.getTiles())
+		{
+			if(isVisitableFrom(from))
+				dAccessibleAreaCache.add(from);
+		}
 	}
-	return accessibleArea;
+	return dAccessibleAreaCache;
 }
 
 void Object::Instance::setPosition(const int3 & position)
 {
+	//do not invalidate cache
+	dAccessibleAreaCache.translate(position - dPosition);
+	
 	dPosition = position;
 	dObject.pos = dPosition + dParent.getPosition();
 	dBlockedArea.assign(dObject.getBlockedPos());
 	if(dObject.isVisitable() || dBlockedArea.empty())
 		dBlockedArea.add(dObject.visitablePos());
+	
+	dParent.dAccessibleAreaCache.clear();
 	dParent.dFullAreaCache.clear();
 }
 
@@ -81,6 +88,7 @@ void Object::Instance::setTemplate(const Terrain & terrain)
 		
 		dObject.appearance = templates.front();
 	}
+	dAccessibleAreaCache.clear();
 	setPosition(getPosition(false));
 }
 
@@ -145,12 +153,14 @@ void Object::addInstance(Instance & object)
 	//assert(object.dParent == *this);
 	dInstances.push_back(object);
 	dFullAreaCache.clear();
+	dAccessibleAreaCache.clear();
 }
 
 Object::Instance & Object::addInstance(CGObjectInstance & object)
 {
 	dInstances.emplace_back(*this, object);
 	dFullAreaCache.clear();
+	dAccessibleAreaCache.clear();
 	return dInstances.back();
 }
 
@@ -158,6 +168,7 @@ Object::Instance & Object::addInstance(CGObjectInstance & object, const int3 & p
 {
 	dInstances.emplace_back(*this, object, position);
 	dFullAreaCache.clear();
+	dAccessibleAreaCache.clear();
 	return dInstances.back();
 }
 
@@ -178,11 +189,20 @@ int3 Object::getVisitablePosition() const
 
 rmg::Area Object::getAccessibleArea(bool exceptLast) const
 {
-	rmg::Area accessibleArea;
-	for(auto i = dInstances.begin(); i != (exceptLast ? std::prev(dInstances.end()) : dInstances.end()); ++i)
-		accessibleArea.unite(i->getAccessibleArea());
-	accessibleArea.subtract(getArea());
-	return accessibleArea;
+	if(dAccessibleAreaCache.empty())
+	{
+		for(auto i = dInstances.begin(); i != (exceptLast ? std::prev(dInstances.end()) : dInstances.end()); ++i)
+			dAccessibleAreaCache.unite(i->getAccessibleArea());
+	}
+	
+	auto result = dAccessibleAreaCache;
+	if(!exceptLast && dInstances.begin() != std::prev(dInstances.end()))
+	{
+		result.unite(dInstances.back().getAccessibleArea());
+	}
+	
+	result.subtract(getArea());
+	return result;
 }
 
 void Object::setPosition(const int3 & position)

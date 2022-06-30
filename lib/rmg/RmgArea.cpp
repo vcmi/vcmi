@@ -13,17 +13,24 @@
 
 using namespace rmg;
 
-Tileset rmg::toAbsolute(const Tileset & tiles, const int3 & position)
+size_t HashInt3::operator() (const int3 & t) const
 {
-	Tileset result;
-	std::transform(tiles.cbegin(), tiles.cend(), std::inserter(result, result.begin()), [&position](const int3 & t)
-	{
-		return t + position;
-	});
-	return result;
+	static const int maxSize = 500;
+	static const int maxSizeSq = maxSize * maxSize;
+	return (t.z + 1) * maxSizeSq + (t.y + 1) * maxSize + (t.x + 1);
 }
 
-Tileset rmg::toRelative(const Tileset & tiles, const int3 & position)
+void rmg::toAbsolute(Tileset & tiles, const int3 & position)
+{
+	std::vector<int3> temp(tiles.begin(), tiles.end());
+	for(auto & tile : temp)
+	{
+		tiles.erase(tile);
+		tiles.insert(tile + position);
+	}
+}
+
+void rmg::toRelative(Tileset & tiles, const int3 & position)
 {
 	return rmg::toAbsolute(tiles, -position);
 }
@@ -49,8 +56,9 @@ Area::Area(const Tileset & tiles): dTiles(tiles)
 {
 }
 
-Area::Area(const Tileset & relative, const int3 & position): Area(rmg::toAbsolute(relative, position))
+Area::Area(const Tileset & relative, const int3 & position): dTiles(relative)
 {
+	toAbsolute(dTiles, position);
 }
 
 bool Area::connected() const
@@ -168,12 +176,6 @@ DistanceMap Area::computeDistanceMap(std::map<int, Tileset> & reverseDistanceMap
 	return result;
 }
 
-
-Tileset Area::relative(const int3 & position) const
-{
-	return rmg::toRelative(dTiles, position);
-}
-
 bool Area::empty() const
 {
 	return dTiles.empty();
@@ -248,16 +250,23 @@ int3 Area::nearest(const Area & area) const
 
 Area Area::getSubarea(std::function<bool(const int3 &)> filter) const
 {
-	Tileset subset;
+	Area subset;
 	for(auto & t : dTiles)
 		if(filter(t))
-			subset.insert(t);
-	return Area(subset);
+			subset.add(t);
+	return subset;
 }
 
 void Area::clear()
 {
 	dTiles.clear();
+	dBorderCache.clear();
+	dBorderOutsideCache.clear();
+}
+
+void Area::assign(const std::set<int3> & tiles)
+{
+	dTiles = Tileset(tiles.begin(), tiles.end());
 	dBorderCache.clear();
 	dBorderOutsideCache.clear();
 }
@@ -325,24 +334,22 @@ void Area::subtract(const Area & area)
 
 void Area::translate(const int3 & shift)
 {
-	dTiles = rmg::toAbsolute(dTiles, shift);
+	toAbsolute(dTiles, shift);
 	
 	//trivial change - do not invalidate cache
-	dBorderCache = rmg::toAbsolute(dBorderCache, shift);
-	dBorderOutsideCache = rmg::toAbsolute(dBorderOutsideCache, shift);
+	toAbsolute(dBorderCache, shift);
+	toAbsolute(dBorderOutsideCache, shift);
 }
 
 Area rmg::operator- (const Area & l, const int3 & r)
 {
-	Area result(l.dTiles);
-	result.translate(-r);
+	Area result(l.dTiles, -r);
 	return result;
 }
 
 Area rmg::operator+ (const Area & l, const int3 & r)
 {
-	Area result(l.dTiles);
-	result.translate(r);
+	Area result(l.dTiles, r);
 	return result;
 }
 

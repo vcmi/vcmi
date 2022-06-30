@@ -34,19 +34,20 @@ public:
 		int3 getVisitablePosition() const;
 		bool isVisitableFrom(const int3 & tile) const;
 		Area getAccessibleArea() const;
-		void setTemplate(const Terrain & terrain);
+		void setTemplate(const Terrain & terrain); //cache invalidation
 		
 		int3 getPosition(bool isAbsolute = false) const;
-		void setPosition(const int3 & position);
+		void setPosition(const int3 & position); //cache invalidation
 		const CGObjectInstance & object() const;
 		CGObjectInstance & object();
 		
-		void finalize(RmgMap & map);
+		void finalize(RmgMap & map); //cache invalidation
 		void clear();
 		
 	private:
 		Area dBlockedArea;
 		int3 dPosition;
+		mutable Area dAccessibleAreaCache;
 		CGObjectInstance & dObject;
 		const Object & dParent;
 	};
@@ -78,6 +79,7 @@ public:
 private:
 	std::list<Instance> dInstances;
 	mutable Area dFullAreaCache;
+	mutable Area dAccessibleAreaCache;
 	int3 dPosition;
 	ui32 dStrenght;
 };

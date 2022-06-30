@@ -75,6 +75,11 @@ public:
 		std::vector<BattleField> battleFields;
 	};
 	
+	struct Hash
+	{
+		size_t operator() (const Terrain & t) const {return std::hash<std::string>{}(static_cast<std::string>(t));}
+	};
+	
 	class DLL_LINKAGE Manager
 	{
 	public:
@@ -85,7 +90,7 @@ public:
 		static Manager & get();
 		Manager();
 		
-		std::map<Terrain, Info> terrainInfo;
+		std::unordered_map<Terrain, Info, Terrain::Hash> terrainInfo;
 	};
 	
 	/*enum EETerrainType

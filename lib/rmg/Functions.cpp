@@ -53,7 +53,7 @@ void createModificators(RmgMap & map)
 	}
 }
 
-std::set<int3> collectDistantTiles(const Zone& zone, float distance)
+rmg::Tileset collectDistantTiles(const Zone& zone, float distance)
 {
 	auto subarea = zone.getArea().getSubarea([&zone, distance](const int3 & t)
 	{
@@ -164,7 +164,7 @@ void createObstacles2(const Zone & zone, RmgMap & map, CRandomGenerator & genera
 	};
 	
 	//reverse order, since obstacles begin in bottom-right corner, while the map coordinates begin in top-left
-	for(auto tile : boost::adaptors::reverse(zone.getArea().getTiles()))
+	for(auto tile : boost::adaptors::reverse(zone.getArea().getTilesVector()))
 	{
 		//fill tiles that should be blocked with obstacles
 		if(map.shouldBeBlocked(tile))

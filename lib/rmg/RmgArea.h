@@ -15,10 +15,15 @@
 
 namespace rmg
 {
-	using Tileset = std::set<int3>;
+	struct HashInt3
+	{
+		size_t operator() (const int3 &) const;
+	};
+
+	using Tileset = std::unordered_set<int3, HashInt3>;
 	using DistanceMap = std::map<int3, int>;
-	Tileset toAbsolute(const Tileset & tiles, const int3 & position);
-	Tileset toRelative(const Tileset & tiles, const int3 & position);
+	void toAbsolute(Tileset & tiles, const int3 & position);
+	void toRelative(Tileset & tiles, const int3 & position);
 	
 	class Area
 	{
@@ -39,8 +44,6 @@ namespace rmg
 		
 		Area getSubarea(std::function<bool(const int3 &)> filter) const;
 		
-		Tileset relative(const int3 & position) const;
-		
 		bool connected() const; //is connected
 		bool empty() const;
 		bool contains(const int3 & tile) const;
@@ -53,6 +56,7 @@ namespace rmg
 		
 		void clear();
 		void assign(const Tileset & tiles);
+		void assign(const std::set<int3> & tiles);
 		void add(const int3 & tile);
 		void erase(const int3 & tile);
 		void unite(const Area & area);
@@ -72,8 +76,8 @@ namespace rmg
 		void computeBorderCache();
 		void computeBorderOutsideCache();
 		
-		std::set<int3> dTiles;
-		mutable std::set<int3> dBorderCache;
-		mutable std::set<int3> dBorderOutsideCache;
+		Tileset dTiles;
+		mutable Tileset dBorderCache;
+		mutable Tileset dBorderOutsideCache;
 	};
 }
