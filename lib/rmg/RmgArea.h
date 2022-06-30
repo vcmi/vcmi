@@ -20,7 +20,7 @@ namespace rmg
 		size_t operator() (const int3 &) const;
 	};
 
-	using Tileset = std::unordered_set<int3, HashInt3>;
+	using Tileset = std::set<int3>;
 	using DistanceMap = std::map<int3, int>;
 	void toAbsolute(Tileset & tiles, const int3 & position);
 	void toRelative(Tileset & tiles, const int3 & position);
@@ -56,7 +56,7 @@ namespace rmg
 		
 		void clear();
 		void assign(const Tileset & tiles);
-		void assign(const std::set<int3> & tiles);
+		//void assign(const std::set<int3> & tiles);
 		void add(const int3 & tile);
 		void erase(const int3 & tile);
 		void unite(const Area & area);
