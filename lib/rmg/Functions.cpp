@@ -164,7 +164,7 @@ void createObstacles2(const Zone & zone, RmgMap & map, CRandomGenerator & genera
 	};
 	
 	//reverse order, since obstacles begin in bottom-right corner, while the map coordinates begin in top-left
-	for(auto tile : boost::adaptors::reverse(zone.getArea().getTilesVector()))
+	for(auto tile : boost::adaptors::reverse(zone.getArea().getTiles()))
 	{
 		//fill tiles that should be blocked with obstacles
 		if(map.shouldBeBlocked(tile))
