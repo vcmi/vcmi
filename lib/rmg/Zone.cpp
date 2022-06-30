@@ -423,6 +423,7 @@ void Modificator::run()
 			if(!modificator->started)
 				modificator->run();
 		}
+		logGlobal->info("Modificator zone %d - %s - started", zone.getId(), getName());
 		CStopWatch processTime;
 		process();
 		dump();

@@ -22,12 +22,12 @@ size_t HashInt3::operator() (const int3 & t) const
 
 void rmg::toAbsolute(Tileset & tiles, const int3 & position)
 {
-	std::vector<int3> temp(tiles.begin(), tiles.end());
-	for(auto & tile : temp)
+	Tileset temp;
+	for(auto & tile : tiles)
 	{
-		tiles.erase(tile);
-		tiles.insert(tile + position);
+		temp.insert(tile + position);
 	}
+	tiles = std::move(temp);
 }
 
 void rmg::toRelative(Tileset & tiles, const int3 & position)
@@ -264,12 +264,12 @@ void Area::clear()
 	dBorderOutsideCache.clear();
 }
 
-void Area::assign(const std::set<int3> & tiles)
+/*void Area::assign(const std::set<int3> & tiles)
 {
 	dTiles = Tileset(tiles.begin(), tiles.end());
 	dBorderCache.clear();
 	dBorderOutsideCache.clear();
-}
+}*/
 
 void Area::assign(const Tileset & tiles)
 {

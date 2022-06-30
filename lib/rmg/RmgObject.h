@@ -38,6 +38,7 @@ public:
 		
 		int3 getPosition(bool isAbsolute = false) const;
 		void setPosition(const int3 & position); //cache invalidation
+		void setPositionRaw(const int3 & position); //no cache invalidation
 		const CGObjectInstance & object() const;
 		CGObjectInstance & object();
 		
@@ -45,7 +46,7 @@ public:
 		void clear();
 		
 	private:
-		Area dBlockedArea;
+		mutable Area dBlockedAreaCache;
 		int3 dPosition;
 		mutable Area dAccessibleAreaCache;
 		CGObjectInstance & dObject;

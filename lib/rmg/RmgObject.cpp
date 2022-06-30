@@ -32,7 +32,13 @@ Object::Instance::Instance(const Object& parent, CGObjectInstance & object, cons
 
 const Area & Object::Instance::getBlockedArea() const
 {
-	return dBlockedArea;
+	if(dBlockedAreaCache.empty())
+	{
+		dBlockedAreaCache.assign(dObject.getBlockedPos());
+		if(dObject.isVisitable() || dBlockedAreaCache.empty())
+			dBlockedAreaCache.add(dObject.visitablePos());
+	}
+	return dBlockedAreaCache;
 }
 
 int3 Object::Instance::getPosition(bool isAbsolute) const
@@ -53,7 +59,7 @@ rmg::Area Object::Instance::getAccessibleArea() const
 	if(dAccessibleAreaCache.empty())
 	{
 		auto neighbours = rmg::Area({getVisitablePosition()}).getBorderOutside();
-		rmg::Area visitable = rmg::Area(neighbours) - dBlockedArea;
+		rmg::Area visitable = rmg::Area(neighbours) - getBlockedArea();
 		for(auto & from : visitable.getTiles())
 		{
 			if(isVisitableFrom(from))
@@ -65,17 +71,33 @@ rmg::Area Object::Instance::getAccessibleArea() const
 
 void Object::Instance::setPosition(const int3 & position)
 {
-	//do not invalidate cache
-	dAccessibleAreaCache.translate(position - dPosition);
+	dPosition = position;
+	dObject.pos = dPosition + dParent.getPosition();
+	
+	dBlockedAreaCache.clear();
+	dAccessibleAreaCache.clear();
+	dParent.dAccessibleAreaCache.clear();
+	dParent.dFullAreaCache.clear();
+}
+
+void Object::Instance::setPositionRaw(const int3 & position)
+{
+	if(!dObject.pos.valid())
+	{
+		dObject.pos = dPosition + dParent.getPosition();
+		dBlockedAreaCache.clear();
+		dAccessibleAreaCache.clear();
+		dParent.dAccessibleAreaCache.clear();
+		dParent.dFullAreaCache.clear();
+	}
+		
+	auto shift = position + dParent.getPosition() - dObject.pos;
+	
+	dAccessibleAreaCache.translate(shift);
+	dBlockedAreaCache.translate(shift);
 	
 	dPosition = position;
 	dObject.pos = dPosition + dParent.getPosition();
-	dBlockedArea.assign(dObject.getBlockedPos());
-	if(dObject.isVisitable() || dBlockedArea.empty())
-		dBlockedArea.add(dObject.visitablePos());
-	
-	dParent.dAccessibleAreaCache.clear();
-	dParent.dFullAreaCache.clear();
 }
 
 void Object::Instance::setTemplate(const Terrain & terrain)
@@ -95,6 +117,9 @@ void Object::Instance::setTemplate(const Terrain & terrain)
 void Object::Instance::clear()
 {
 	delete &dObject;
+	dBlockedAreaCache.clear();
+	dAccessibleAreaCache.clear();
+	dParent.dAccessibleAreaCache.clear();
 	dParent.dFullAreaCache.clear();
 }
 
@@ -207,9 +232,15 @@ rmg::Area Object::getAccessibleArea(bool exceptLast) const
 
 void Object::setPosition(const int3 & position)
 {
+	//if(position == dPosition)
+	//	return;
+		
+	dAccessibleAreaCache.translate(position - dPosition);
+	dFullAreaCache.translate(position - dPosition);
+	
 	dPosition = position;
 	for(auto& i : dInstances)
-		i.setPosition(i.getPosition());
+		i.setPositionRaw(i.getPosition());
 }
 
 void Object::setTemplate(const Terrain & terrain)
@@ -255,7 +286,7 @@ void Object::Instance::finalize(RmgMap & map)
 		setTemplate(terrainType);
 	}
 	
-	for(auto & tile : dBlockedArea.getTiles())
+	for(auto & tile : getBlockedArea().getTiles())
 	{
 		if(tile == getVisitablePosition())
 			map.setOccupied(tile, ETileType::ETileType::FREE);
@@ -289,5 +320,6 @@ void Object::clear()
 		instance.clear();
 	dInstances.clear();
 	dFullAreaCache.clear();
+	dAccessibleAreaCache.clear();
 }
  
