@@ -71,7 +71,7 @@ int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object
 		
 		obj.setPosition(tile);
 		
-		if(!searchArea.contains(obj.getArea().getTilesVector()) || !searchArea.overlap(obj.getAccessibleArea()))
+		if(!searchArea.contains(obj.getArea()) || !searchArea.overlap(obj.getAccessibleArea()))
 			continue;
 		
 		float weight = weightFunction(tile);
@@ -257,7 +257,7 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 		auto areaToBlock = object.getAccessibleArea(true);
 		areaToBlock.subtract(guardedArea);
 		zone.areaPossible().subtract(areaToBlock);
-		for(auto & i : areaToBlock.getTiles())
+		for(auto & i : areaToBlock.getTilesVector())
 			if(map.isOnMap(i) && map.isPossible(i))
 				map.setOccupied(i, ETileType::BLOCKED);
 	}

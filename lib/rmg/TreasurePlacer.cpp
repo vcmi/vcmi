@@ -602,8 +602,11 @@ rmg::Object TreasurePlacer::constuctTreasurePile(const std::vector<ObjectInfo> &
 			instance.setPosition(nextPos - rmgObject.getPosition());
 			
 			auto instanceAccessibleArea = instance.getAccessibleArea();
-			if(instance.getBlockedArea().getTiles().size() == 1)
-				instanceAccessibleArea.add(instance.getVisitablePosition());
+			if(instance.getBlockedArea().getTilesVector().size() == 1)
+			{
+				if(instance.object().appearance.isVisitableFromTop())
+					instanceAccessibleArea.add(instance.getVisitablePosition());
+			}
 			
 			//condition for good position
 			if(!blockedArea.overlap(instance.getBlockedArea()) && accessibleArea.overlap(instanceAccessibleArea))

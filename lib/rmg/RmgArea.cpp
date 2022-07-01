@@ -35,7 +35,7 @@ void rmg::toRelative(Tileset & tiles, const int3 & position)
 	rmg::toAbsolute(tiles, -position);
 }
 
-Area::Area(const Area & area): dTiles(area.getTiles())
+Area::Area(const Area & area): dTiles(area.dTiles), dTotalShiftCache(area.dTotalShiftCache)
 {
 }
 
@@ -46,8 +46,9 @@ Area::Area(const Area && area): dTiles(std::move(area.dTiles)), dTotalShiftCache
 
 Area & Area::operator=(const Area & area)
 {
-	invalidate();
-	dTiles = area.getTiles();
+	clear();
+	dTiles = area.dTiles;
+	dTotalShiftCache = area.dTotalShiftCache;
 	return *this;
 }
 
@@ -55,9 +56,8 @@ Area::Area(const Tileset & tiles): dTiles(tiles)
 {
 }
 
-Area::Area(const Tileset & relative, const int3 & position): dTiles(relative)
+Area::Area(const Tileset & relative, const int3 & position): dTiles(relative), dTotalShiftCache(position)
 {
-	toAbsolute(dTiles, position);
 }
 
 void Area::invalidate()
@@ -66,13 +66,12 @@ void Area::invalidate()
 	dTilesVectorCache.clear();
 	dBorderCache.clear();
 	dBorderOutsideCache.clear();
-	dTotalShiftCache = int3();
 }
 
 bool Area::connected() const
 {
-	std::list<int3> queue({*getTiles().begin()});
-	Tileset connected = getTiles();
+	std::list<int3> queue({*dTiles.begin()});
+	Tileset connected = dTiles; //use invalidated cache - ok
 	while(!queue.empty())
 	{
 		auto t = queue.front();
@@ -134,7 +133,10 @@ const Tileset & Area::getTiles() const
 const std::vector<int3> & Area::getTilesVector() const
 {
 	if(dTilesVectorCache.empty())
+	{
+		getTiles();
 		dTilesVectorCache.assign(dTiles.begin(), dTiles.end());
+	}
 	return dTilesVectorCache;
 }
 
@@ -144,12 +146,12 @@ const Tileset & Area::getBorder() const
 		return dBorderCache;
 	
 	//compute border cache
-	for(auto & t : getTiles())
+	for(auto & t : dTiles)
 	{
 		for(auto & i : int3::getDirs())
 		{
-			if(!getTiles().count(t + i))
-				dBorderCache.insert(t);
+			if(!dTiles.count(t + i))
+				dBorderCache.insert(t + dTotalShiftCache);
 		}
 	}
 	
@@ -162,12 +164,12 @@ const Tileset & Area::getBorderOutside() const
 		return dBorderOutsideCache;
 	
 	//compute outside border cache
-	for(auto & t : getTiles())
+	for(auto & t : dTiles)
 	{
 		for(auto & i : int3::getDirs())
 		{
-			if(!getTiles().count(t + i))
-				dBorderOutsideCache.insert(t + i);
+			if(!dTiles.count(t + i))
+				dBorderOutsideCache.insert(t + i + dTotalShiftCache);
 		}
 	}
 	
@@ -198,7 +200,7 @@ bool Area::empty() const
 
 bool Area::contains(const int3 & tile) const
 {
-	return getTiles().count(tile);
+	return dTiles.count(tile - dTotalShiftCache);
 }
 
 bool Area::contains(const std::vector<int3> & tiles) const
@@ -213,22 +215,22 @@ bool Area::contains(const std::vector<int3> & tiles) const
 
 bool Area::contains(const Area & area) const
 {
-	for(auto & t : area.getTiles())
-	{
-		if(!contains(t))
-			return false;
-	}
-	return true;
+	return contains(area.getTilesVector());
 }
 
-bool Area::overlap(const Area & area) const
+bool Area::overlap(const std::vector<int3> & tiles) const
 {
-	for(auto & t : area.getTiles())
+	for(auto & t : tiles)
 	{
 		if(contains(t))
 			return true;
 	}
 	return false;
+}
+
+bool Area::overlap(const Area & area) const
+{
+	return overlap(area.getTilesVector());
 }
 
 int Area::distanceSqr(const int3 & tile) const
@@ -239,7 +241,7 @@ int Area::distanceSqr(const int3 & tile) const
 int Area::distanceSqr(const Area & area) const
 {
 	int dist = std::numeric_limits<int>::max();
-	int3 nearTile = *getTiles().begin();
+	int3 nearTile = *getTilesVector().begin();
 	int3 otherNearTile = area.nearest(nearTile);
 	
 	while(dist != otherNearTile.dist2dSQ(nearTile))
@@ -254,13 +256,13 @@ int Area::distanceSqr(const Area & area) const
 
 int3 Area::nearest(const int3 & tile) const
 {
-	return findClosestTile(getTiles(), tile);
+	return findClosestTile(getTilesVector(), tile);
 }
 
 int3 Area::nearest(const Area & area) const
 {
 	int dist = std::numeric_limits<int>::max();
-	int3 nearTile = *getTiles().begin();
+	int3 nearTile = *getTilesVector().begin();
 	int3 otherNearTile = area.nearest(nearTile);
 	
 	while(dist != otherNearTile.dist2dSQ(nearTile))
@@ -276,7 +278,7 @@ int3 Area::nearest(const Area & area) const
 Area Area::getSubarea(std::function<bool(const int3 &)> filter) const
 {
 	Area subset;
-	for(auto & t : getTiles())
+	for(auto & t : getTilesVector())
 		if(filter(t))
 			subset.add(t);
 	return subset;
@@ -284,8 +286,9 @@ Area Area::getSubarea(std::function<bool(const int3 &)> filter) const
 
 void Area::clear()
 {
-	invalidate();
 	dTiles.clear();
+	dTotalShiftCache = int3();
+	invalidate();
 }
 
 /*void Area::assign(const std::set<int3> & tiles)
@@ -297,7 +300,7 @@ void Area::clear()
 
 void Area::assign(const Tileset & tiles)
 {
-	invalidate();
+	clear();
 	dTiles = tiles;
 }
 
@@ -315,7 +318,7 @@ void Area::erase(const int3 & tile)
 void Area::unite(const Area & area)
 {
 	invalidate();
-	for(auto & t : area.getTiles())
+	for(auto & t : area.getTilesVector())
 	{
 		dTiles.insert(t);
 	}
@@ -324,7 +327,7 @@ void Area::intersect(const Area & area)
 {
 	invalidate();
 	Tileset result;
-	for(auto & t : area.getTiles())
+	for(auto & t : area.getTilesVector())
 	{
 		if(dTiles.count(t))
 			result.insert(t);
@@ -335,11 +338,9 @@ void Area::intersect(const Area & area)
 void Area::subtract(const Area & area)
 {
 	invalidate();
-	for(auto & t : area.getTiles())
+	for(auto & t : area.getTilesVector())
 	{
-		auto iter = dTiles.find(t);
-		if(iter != dTiles.end())
-			dTiles.erase(iter);
+		dTiles.erase(t);
 	}
 }
 
@@ -366,33 +367,35 @@ void Area::translate(const int3 & shift)
 
 Area rmg::operator- (const Area & l, const int3 & r)
 {
-	Area result(l.getTiles(), -r);
+	Area result(l);
+	result.translate(-r);
 	return result;
 }
 
 Area rmg::operator+ (const Area & l, const int3 & r)
 {
-	Area result(l.getTiles(), r);
+	Area result(l);
+	result.translate(r);
 	return result;
 }
 
 Area rmg::operator+ (const Area & l, const Area & r)
 {
-	Area result(l.getTiles());
+	Area result(l);
 	result.unite(r);
 	return result;
 }
 
 Area rmg::operator- (const Area & l, const Area & r)
 {
-	Area result(l.getTiles());
+	Area result(l);
 	result.subtract(r);
 	return result;
 }
 
 Area rmg::operator* (const Area & l, const Area & r)
 {
-	Area result(l.getTiles());
+	Area result(l);
 	result.intersect(r);
 	return result;
 }
