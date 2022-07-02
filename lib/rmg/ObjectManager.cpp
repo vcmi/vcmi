@@ -255,9 +255,12 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 	
 	object.finalize(map);
 	zone.areaPossible().subtract(object.getArea());
+	bool keepVisitable = zone.freePaths().contains(object.getVisitablePosition());
 	zone.freePaths().subtract(object.getArea()); //just to avoid areas overlapping
+	if(keepVisitable)
+		zone.freePaths().add(object.getVisitablePosition());
 	zone.areaUsed().unite(object.getArea());
-	//zone.areaUsed().erase(object.getVisitablePosition());
+	zone.areaUsed().erase(object.getVisitablePosition());
 	
 	if(guarded)
 	{

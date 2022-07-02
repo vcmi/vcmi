@@ -146,7 +146,7 @@ int3 TownPlacer::placeMainTown(ObjectManager & manager, CGTownInstance & town)
 	manager.placeObject(rmgObject, false, true);
 	cleanupBoundaries(rmgObject);
 	zone.setPos(rmgObject.getVisitablePosition()); //roads lead to main town
-	return zone.getPos();
+	return position;
 }
 
 bool TownPlacer::placeMines(ObjectManager & manager)
