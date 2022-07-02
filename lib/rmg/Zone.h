@@ -50,7 +50,7 @@ private:
 	std::string name;
 	bool started = false;
 	bool finished = false;
-	std::set<Modificator*> preceeders;
+	std::list<Modificator*> preceeders; //must be ordered container
 	void dump();
 };
 
@@ -96,7 +96,7 @@ public:
 	}
 	
 	template<class T>
-	void addModificator() //name is used for debug purposes
+	void addModificator()
 	{
 		modificators.push_back(std::make_unique<T>(*this, map, generator));
 	}

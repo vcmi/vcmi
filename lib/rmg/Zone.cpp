@@ -436,7 +436,8 @@ void Modificator::dependency(Modificator * modificator)
 {
 	if(modificator && modificator != this)
 	{
-		preceeders.insert(modificator);
+		if(std::find(preceeders.begin(), preceeders.end(), modificator) == preceeders.end())
+			preceeders.push_back(modificator);
 	}
 }
 
@@ -444,7 +445,8 @@ void Modificator::postfunction(Modificator * modificator)
 {
 	if(modificator && modificator != this)
 	{
-		modificator->preceeders.insert(this);
+		if(std::find(modificator->preceeders.begin(), modificator->preceeders.end(), this) == modificator->preceeders.end())
+			modificator->preceeders.push_back(this);
 	}
 }
 
