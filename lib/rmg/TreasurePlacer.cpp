@@ -778,6 +778,7 @@ void TreasurePlacer::createTreasures(ObjectManager & manager)
 			}
 			else
 			{
+				rmgObject.clear();
 				break;
 			}
 		}

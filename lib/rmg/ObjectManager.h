@@ -40,7 +40,6 @@ public:
 	CGCreature * chooseGuard(si32 str, bool zoneGuard = false);
 	bool addGuard(rmg::Object & object, si32 str, bool zoneGuard = false);
 	void placeObject(rmg::Object & object, bool guarded, bool updateDistance);
-	void placeObject(CGObjectInstance* object, const int3 & pos, bool updateDistance);
 	
 	void updateDistances(const int3 & pos);
 	

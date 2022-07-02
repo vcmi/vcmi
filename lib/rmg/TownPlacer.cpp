@@ -79,7 +79,7 @@ void TownPlacer::placeTowns(ObjectManager & manager)
 				town->possibleSpells.push_back(spell->id);
 		}
 		
-		placeMainTown(manager, *town);
+		auto position = placeMainTown(manager, *town);
 		
 		totalTowns++;
 		//register MAIN town of zone only
@@ -93,7 +93,7 @@ void TownPlacer::placeTowns(ObjectManager & manager)
 			playerInfo.allowedFactions.clear();
 			playerInfo.allowedFactions.insert(zone.getTownType());
 			playerInfo.hasMainTown = true;
-			playerInfo.posOfMainTown = town->pos;
+			playerInfo.posOfMainTown = position;
 			playerInfo.generateHeroAtMainTown = true;
 			
 			//now create actual towns
@@ -133,7 +133,7 @@ void TownPlacer::placeTowns(ObjectManager & manager)
 	}
 }
 
-void TownPlacer::placeMainTown(ObjectManager & manager, CGTownInstance & town)
+int3 TownPlacer::placeMainTown(ObjectManager & manager, CGTownInstance & town)
 {
 	//towns are big objects and should be centered around visitable position
 	rmg::Object rmgObject(town);
@@ -146,6 +146,7 @@ void TownPlacer::placeMainTown(ObjectManager & manager, CGTownInstance & town)
 	manager.placeObject(rmgObject, false, true);
 	cleanupBoundaries(rmgObject);
 	zone.setPos(rmgObject.getVisitablePosition()); //roads lead to main town
+	return zone.getPos();
 }
 
 bool TownPlacer::placeMines(ObjectManager & manager)

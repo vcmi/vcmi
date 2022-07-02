@@ -29,7 +29,7 @@ protected:
 	si32 getRandomTownType(bool matchUndergroundType = false);
 	void placeTowns(ObjectManager & manager);
 	bool placeMines(ObjectManager & manager);
-	void placeMainTown(ObjectManager & manager, CGTownInstance & town);
+	int3 placeMainTown(ObjectManager & manager, CGTownInstance & town);
 	
 protected:
 	

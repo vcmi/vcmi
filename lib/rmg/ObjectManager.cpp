@@ -175,12 +175,15 @@ bool ObjectManager::createRequiredObjects()
 			if(nearby.second != object.first)
 				continue;
 			
+			rmg::Object rmgNearObject(*nearby.first);
 			rmg::Area possibleArea(rmgObject.instances().front()->getBlockedArea().getBorderOutside());
 			possibleArea.intersect(zone.areaPossible());
 			if(possibleArea.empty())
+			{
+				rmgNearObject.clear();
 				continue;
+			}
 			
-			rmg::Object rmgNearObject(*nearby.first);
 			rmgNearObject.setPosition(*RandomGeneratorUtil::nextItem(possibleArea.getTiles(), generator.rand));
 			placeObject(rmgNearObject, false, false);
 		}
@@ -215,12 +218,15 @@ bool ObjectManager::createRequiredObjects()
 			if(nearby.second != object.first)
 				continue;
 			
+			rmg::Object rmgNearObject(*nearby.first);
 			rmg::Area possibleArea(rmgObject.instances().front()->getBlockedArea().getBorderOutside());
 			possibleArea.intersect(zone.areaPossible());
 			if(possibleArea.empty())
+			{
+				rmgNearObject.clear();
 				continue;
+			}
 			
-			rmg::Object rmgNearObject(*nearby.first);
 			rmgNearObject.setPosition(*RandomGeneratorUtil::nextItem(possibleArea.getTiles(), generator.rand));
 			placeObject(rmgNearObject, false, false);
 		}
@@ -284,13 +290,6 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 		default:
 			break;
 	}
-}
-
-void ObjectManager::placeObject(CGObjectInstance* object, const int3 &pos, bool updateDistance)
-{
-	rmg::Object rmgObject(*object);
-	rmgObject.setPosition(pos);
-	placeObject(rmgObject, false, true);
 }
 
 CGCreature * ObjectManager::chooseGuard(si32 strength, bool zoneGuard)
