@@ -102,9 +102,7 @@ void WaterProxy::waterRoute(Zone & dst)
 				dst.areaPossible().subtract(lake.neighbourZones[dst.getId()]);
 				continue;
 			}
-			
-			int3 coastTile(-1, -1, -1);
-			
+						
 			int zoneTowns = 0;
 			if(auto * m = dst.getModificator<TownPlacer>())
 				zoneTowns = m->getTotalTowns();
@@ -124,7 +122,7 @@ void WaterProxy::waterRoute(Zone & dst)
 					}
 					else
 					{
-						logGlobal->error("Boat palcement faile at zone %d", dst.getId());
+						logGlobal->error("Boat placement failed at zone %d", dst.getId());
 					}
 				}
 			}
@@ -136,18 +134,9 @@ void WaterProxy::waterRoute(Zone & dst)
 				}
 				else
 				{
-					logGlobal->error("Boat palcement faile at zone %d", dst.getId());
+					logGlobal->error("Boat placement failed at zone %d", dst.getId());
 				}
 			}
-			
-			if(coastTile.valid())
-			{
-				if(!dst.connectPath(coastTile, true))
-					logGlobal->error("Cannot build water route for zone %d", dst.getId());
-			}
-			else
-				logGlobal->error("No entry from water to zone %d", dst.getId());
-			
 		}
 	}
 }
@@ -193,7 +182,8 @@ bool WaterProxy::placeBoat(Zone & land, const Lake & lake)
 	{
 		auto boardingPosition = *boardingPositions.getTiles().begin();
 		rmg::Area shipPositions({boardingPositions});
-		shipPositions.assign(shipPositions.getBorderOutside());
+		auto boutside = shipPositions.getBorderOutside();
+		shipPositions.assign(boutside);
 		shipPositions.intersect(waterAvailable);
 		if(shipPositions.empty())
 		{
@@ -251,8 +241,9 @@ bool WaterProxy::placeShipyard(Zone & land, const Lake & lake, si32 guard)
 	while(!boardingPositions.empty())
 	{
 		auto boardingPosition = *boardingPositions.getTiles().begin();
-		rmg::Area shipPositions({boardingPositions});
-		shipPositions.assign(shipPositions.getBorderOutside());
+		rmg::Area shipPositions({boardingPosition});
+		auto boutside = shipPositions.getBorderOutside();
+		shipPositions.assign(boutside);
 		shipPositions.intersect(waterAvailable);
 		if(shipPositions.empty())
 		{
@@ -296,4 +287,20 @@ bool WaterProxy::placeShipyard(Zone & land, const Lake & lake, si32 guard)
 	}
 	
 	return !boardingPositions.empty();
+}
+
+char WaterProxy::dump(const int3 & t)
+{
+	auto lakeIter = lakeMap.find(t);
+	if(lakeIter == lakeMap.end())
+		return '?';
+	
+	Lake & lake = lakes[lakeMap.at(t)];
+	for(auto i : lake.neighbourZones)
+	{
+		if(i.second.contains(t))
+			return lake.keepConnections.count(i.first) ? std::to_string(i.first)[0] : '=';
+	}
+	
+	return '~';
 }

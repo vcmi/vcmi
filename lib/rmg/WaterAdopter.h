@@ -18,6 +18,8 @@ public:
 	
 	void process() override;
 	void init() override;
+	char dump(const int3 &) override;
+	
 	
 	void setWaterZone(TRmgTemplateZoneId water);
 	

@@ -59,7 +59,7 @@ void WaterAdopter::createWater(EWaterContent::EWaterContent waterContent)
 	//generating some irregularity of coast
 	//coastTilesMap - reverseDistanceMap
 	//tilesDist - distanceMap
-	int coastIdMax = fmin(sqrt(zone.area().getBorder().size()), 7.f); //size of coastTilesMap shows the most distant tile from water
+	/*int coastIdMax = fmin(sqrt(zone.area().getBorder().size()), 7.f); //size of coastTilesMap shows the most distant tile from water
 	assert(coastIdMax > 0);
 	std::list<int3> tilesQueue;
 	rmg::Tileset tilesChecked;
@@ -189,7 +189,7 @@ void WaterAdopter::createWater(EWaterContent::EWaterContent waterContent)
 				}
 			}
 		}
-	}
+	}*/
 	
 	map.getZones()[waterZoneId]->area().unite(waterArea);
 	zone.area().subtract(waterArea);
@@ -218,4 +218,21 @@ rmg::Area WaterAdopter::getCoastTiles() const
 		return rmg::Area();
 	
 	return rmg::Area(reverseDistanceMap.at(0));
+}
+
+char WaterAdopter::dump(const int3 & t)
+{
+	auto distanceMapIter = distanceMap.find(t);
+	if(distanceMapIter != distanceMap.end())
+	{
+		auto distStr = std::to_string(distanceMapIter->second);
+		if(distStr.length() > 0)
+		{
+			if(distanceMapIter->second > 9)
+				return '%';
+			return distStr[0];
+		}
+	}
+	
+	return '.';
 }
