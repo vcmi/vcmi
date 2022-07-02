@@ -78,14 +78,16 @@ void WaterProxy::collectLakes()
 	}
 }
 
-void WaterProxy::waterRoute(Zone & dst)
+RouteInfo WaterProxy::waterRoute(Zone & dst)
 {
+	RouteInfo result;
+	
 	auto * adopter = dst.getModificator<WaterAdopter>();
 	if(!adopter)
-		return;
+		return result;
 	
 	if(adopter->getCoastTiles().empty())
-		return;
+		return result;
 	
 	//block zones are not connected by template
 	for(auto& lake : lakes)
@@ -109,14 +111,14 @@ void WaterProxy::waterRoute(Zone & dst)
 			
 			if(dst.getType() == ETemplateZoneType::PLAYER_START || dst.getType() == ETemplateZoneType::CPU_START || zoneTowns)
 			{
-				if(placeShipyard(dst, lake, generator.getConfig().shipyardGuard))
+				if(placeShipyard(dst, lake, generator.getConfig().shipyardGuard, result))
 				{
 					logGlobal->warn("Shipyard successfully placed at zone %d", dst.getId());
 				}
 				else
 				{
 					logGlobal->warn("Shipyard placement failed, trying boat at zone %d", dst.getId());
-					if(placeBoat(dst, lake))
+					if(placeBoat(dst, lake, result))
 					{
 						logGlobal->warn("Boat successfully placed at zone %d", dst.getId());
 					}
@@ -128,7 +130,7 @@ void WaterProxy::waterRoute(Zone & dst)
 			}
 			else
 			{
-				if(placeBoat(dst, lake))
+				if(placeBoat(dst, lake, result))
 				{
 					logGlobal->warn("Boat successfully placed at zone %d", dst.getId());
 				}
@@ -139,6 +141,8 @@ void WaterProxy::waterRoute(Zone & dst)
 			}
 		}
 	}
+	
+	return result;
 }
 
 bool WaterProxy::waterKeepConnection(TRmgTemplateZoneId zoneA, TRmgTemplateZoneId zoneB)
@@ -155,7 +159,7 @@ bool WaterProxy::waterKeepConnection(TRmgTemplateZoneId zoneA, TRmgTemplateZoneI
 	return false;
 }
 
-bool WaterProxy::placeBoat(Zone & land, const Lake & lake)
+bool WaterProxy::placeBoat(Zone & land, const Lake & lake, RouteInfo & info)
 {
 	auto * manager = zone.getModificator<ObjectManager>();
 	if(!manager)
@@ -206,6 +210,11 @@ bool WaterProxy::placeBoat(Zone & land, const Lake & lake)
 			continue;
 		}
 		
+		info.blocked = rmgObject.getArea();
+		info.visitable = rmgObject.getVisitablePosition();
+		info.boarding = boardingPosition;
+		info.water = shipPositions;
+		
 		manager->placeObject(rmgObject, false, true);
 		break;
 	}
@@ -213,7 +222,7 @@ bool WaterProxy::placeBoat(Zone & land, const Lake & lake)
 	return !boardingPositions.empty();
 }
 
-bool WaterProxy::placeShipyard(Zone & land, const Lake & lake, si32 guard)
+bool WaterProxy::placeShipyard(Zone & land, const Lake & lake, si32 guard, RouteInfo & info)
 {
 	auto * manager = land.getModificator<ObjectManager>();
 	if(!manager)
@@ -281,6 +290,11 @@ bool WaterProxy::placeShipyard(Zone & land, const Lake & lake, si32 guard)
 			boardingPositions.erase(boardingPosition);
 			continue;
 		}
+		
+		info.blocked = rmgObject.getArea();
+		info.visitable = rmgObject.getVisitablePosition();
+		info.boarding = boardingPosition;
+		info.water = shipPositions;
 		
 		manager->placeObject(rmgObject, guarded, true);
 		break;

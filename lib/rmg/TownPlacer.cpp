@@ -78,12 +78,8 @@ void TownPlacer::placeTowns(ObjectManager & manager)
 			if(!spell->isSpecial() && !spell->isCreatureAbility())
 				town->possibleSpells.push_back(spell->id);
 		}
-		//towns are big objects and should be centered around visitable position
-		rmg::Object rmgObject(*town);
-		rmgObject.setPosition(zone.getPos());
-		zone.setPos(rmgObject.getVisitablePosition()); //roads lead to main town
-		manager.placeObject(rmgObject, false, true);
-		cleanupBoundaries(rmgObject);
+		
+		placeMainTown(manager, *town);
 		
 		totalTowns++;
 		//register MAIN town of zone only
@@ -137,6 +133,21 @@ void TownPlacer::placeTowns(ObjectManager & manager)
 	}
 }
 
+void TownPlacer::placeMainTown(ObjectManager & manager, CGTownInstance & town)
+{
+	//towns are big objects and should be centered around visitable position
+	rmg::Object rmgObject(town);
+	auto position = manager.findPlaceForObject(zone.areaPossible(), rmgObject, [this](const int3 & t)
+	{
+		float distance = zone.getPos().dist2dSQ(t);
+		return 100000.f - distance; //some big number
+	}, true);
+	rmgObject.setPosition(position);
+	manager.placeObject(rmgObject, false, true);
+	cleanupBoundaries(rmgObject);
+	zone.setPos(rmgObject.getVisitablePosition()); //roads lead to main town
+}
+
 bool TownPlacer::placeMines(ObjectManager & manager)
 {
 	using namespace Res;
@@ -176,7 +187,6 @@ bool TownPlacer::placeMines(ObjectManager & manager)
 	
 	return true;
 }
-
 
 void TownPlacer::cleanupBoundaries(const rmg::Object & rmgObject)
 {
@@ -229,11 +239,7 @@ void TownPlacer::addNewTowns(int count, bool hasFort, PlayerColor player, Object
 			//register MAIN town of zone
 			map.registerZone(town->subID);
 			//first town in zone goes in the middle
-			rmg::Object rmgObject(*town);
-			rmgObject.setPosition(zone.getPos());
-			zone.setPos(rmgObject.getVisitablePosition()); //roads lead to main town
-			manager.placeObject(rmgObject, false, true);
-			cleanupBoundaries(rmgObject);
+			placeMainTown(manager, *town);
 		}
 		else
 			manager.addRequiredObject(town);

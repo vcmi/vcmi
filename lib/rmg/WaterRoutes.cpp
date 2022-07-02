@@ -35,7 +35,7 @@ void WaterRoutes::process()
 	
 	for(auto & z : map.getZones())
 	{
-		wproxy->waterRoute(*z.second);
+		result.push_back(wproxy->waterRoute(*z.second));
 	}
 }
 
@@ -49,5 +49,25 @@ void WaterRoutes::init()
 	}
 	dependency(zone.getModificator<WaterProxy>());
 	postfunction(zone.getModificator<TreasurePlacer>());
+}
+
+char WaterRoutes::dump(const int3 & t)
+{
+	for(auto & i : result)
+	{
+		if(t == i.boarding)
+			return 'B';
+		if(t == i.visitable)
+			return '@';
+		if(i.blocked.contains(t))
+			return '#';
+		if(i.water.contains(t))
+			return '+';
+	}
+	if(zone.area().contains(t))
+		return '~';
+	if(zone.freePaths().contains(t))
+		return '.';
+	return ' ';
 }
 

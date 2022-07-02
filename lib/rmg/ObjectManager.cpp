@@ -245,11 +245,13 @@ bool ObjectManager::createRequiredObjects()
 
 void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateDistance)
 {
+	assert(!zone.areaUsed().overlap(object.getArea()));
+	
 	object.finalize(map);
 	zone.areaPossible().subtract(object.getArea());
 	zone.freePaths().subtract(object.getArea()); //just to avoid areas overlapping
 	zone.areaUsed().unite(object.getArea());
-	zone.areaUsed().erase(object.getVisitablePosition());
+	//zone.areaUsed().erase(object.getVisitablePosition());
 	
 	if(guarded)
 	{

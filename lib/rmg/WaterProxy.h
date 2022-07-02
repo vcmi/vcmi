@@ -11,6 +11,14 @@
 #pragma once
 #include "Zone.h"
 
+struct RouteInfo
+{
+	rmg::Area blocked;
+	int3 visitable;
+	int3 boarding;
+	rmg::Area water;
+};
+
 class DLL_LINKAGE WaterProxy: public Modificator
 {
 public:
@@ -27,7 +35,7 @@ public:
 	};
 		
 	bool waterKeepConnection(TRmgTemplateZoneId zoneA, TRmgTemplateZoneId zoneB);
-	void waterRoute(Zone & dst);
+	RouteInfo waterRoute(Zone & dst);
 	
 	void process() override;
 	void init() override;
@@ -36,8 +44,8 @@ public:
 protected:
 	void collectLakes();
 	
-	bool placeShipyard(Zone & land, const Lake & lake, si32 guard);
-	bool placeBoat(Zone & land, const Lake & lake);
+	bool placeShipyard(Zone & land, const Lake & lake, si32 guard, RouteInfo & info);
+	bool placeBoat(Zone & land, const Lake & lake, RouteInfo & info);
 		
 protected:	
 	std::vector<Lake> lakes; //disconnected parts of zone. Used to work with water zones

@@ -11,6 +11,8 @@
 #pragma once
 #include "Zone.h"
 
+struct RouteInfo;
+
 class DLL_LINKAGE WaterRoutes: public Modificator
 {
 public:
@@ -18,4 +20,8 @@ public:
 	
 	void process() override;
 	void init() override;
+	char dump(const int3 &) override;
+	
+private:
+	std::vector<RouteInfo> result;
 };
