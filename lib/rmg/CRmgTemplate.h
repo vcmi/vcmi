@@ -17,7 +17,6 @@
 #include "CMapGenOptions.h"
 
 class JsonSerializeFormat;
-class Terrain;
 
 namespace ETemplateZoneType
 {

@@ -57,7 +57,7 @@ public:
 		static Manager & get();
 		Manager();
 		
-		std::unordered_map<Terrain, Info, Terrain::Hash> terrainInfo;
+		std::unordered_map<Terrain, Info, Hash> terrainInfo;
 	};
 	
 	/*enum EETerrainType
