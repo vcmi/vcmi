@@ -11,7 +11,7 @@
 
 #include "../lib/CConfigHandler.h"
 #include "../lib/CSoundBase.h"
-#include "Terran.h"
+#include "../lib/Terrain.h"
 
 struct _Mix_Music;
 struct SDL_RWops;
