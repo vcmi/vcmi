@@ -126,7 +126,7 @@ Terrain::Manager::Manager()
 				info.terrainViewPatterns = terr.second["terrainViewPatterns"].String();
 			}
 			
-			terrainInfo[Terrain(terr.first)] = info;
+			terrainInfo[terr.first] = info;
 		}
 	}
 }
@@ -141,13 +141,13 @@ std::vector<Terrain> Terrain::Manager::terrains()
 {
 	std::vector<Terrain> _terrains;
 	for(const auto & info : Terrain::Manager::get().terrainInfo)
-		_terrains.push_back(info.first);
+		_terrains.emplace_back(info.first);
 	return _terrains;
 }
 
 const Terrain::Info & Terrain::Manager::getInfo(const Terrain & terrain)
 {
-	return Terrain::Manager::get().terrainInfo.at(terrain);
+	return Terrain::Manager::get().terrainInfo.at(static_cast<std::string>(terrain));
 }
 
 std::ostream & operator<<(std::ostream & os, const Terrain terrainType)
