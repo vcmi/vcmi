@@ -33,5 +33,5 @@ protected:
 	
 protected:
 	
-	int totalTowns;
+	int totalTowns = 0;
 };

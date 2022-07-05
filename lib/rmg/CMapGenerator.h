@@ -65,7 +65,7 @@ public:
 	int getNextMonlithIndex();
 	int getPrisonsRemaning() const;
 	void decreasePrisonsRemaining();
-	std::vector<ArtifactID> getQuestArtsRemaning() const;
+	const std::vector<ArtifactID> & getQuestArtsRemaning() const;
 	void banQuestArt(ArtifactID id);
 	
 	Zone * getZoneWater() const;

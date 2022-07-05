@@ -64,7 +64,7 @@ int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object
 	int3 result(-1, -1, -1);
 	auto usedTilesBorder = zone.areaUsed().getBorderOutside();
 	
-	for (auto tile : searchArea.getTiles())
+	for(const auto & tile : searchArea.getTiles())
 	{
 		if(usedTilesBorder.count(tile))
 			continue;
@@ -172,7 +172,7 @@ bool ObjectManager::createRequiredObjects()
 		
 		for(const auto & nearby : nearbyObjects)
 		{
-			if(nearby.second != object.first)
+			if(nearby.second != obj)
 				continue;
 			
 			rmg::Object rmgNearObject(*nearby.first);
@@ -215,7 +215,7 @@ bool ObjectManager::createRequiredObjects()
 		
 		for(const auto & nearby : nearbyObjects)
 		{
-			if(nearby.second != object.first)
+			if(nearby.second != obj)
 				continue;
 			
 			rmg::Object rmgNearObject(*nearby.first);
@@ -302,13 +302,13 @@ CGCreature * ObjectManager::chooseGuard(si32 strength, bool zoneGuard)
 	
 	int mapMonsterStrength = map.getMapGenOptions().getMonsterStrength();
 	int monsterStrength = (zoneGuard ? 0 : zone.zoneMonsterStrength) + mapMonsterStrength - 1; //array index from 0 to 4
-	static const int value1[] = {2500, 1500, 1000, 500, 0};
-	static const int value2[] = {7500, 7500, 7500, 5000, 5000};
-	static const float multiplier1[] = {0.5, 0.75, 1.0, 1.5, 1.5};
-	static const float multiplier2[] = {0.5, 0.75, 1.0, 1.0, 1.5};
+	static const std::array<int, 5> value1{2500, 1500, 1000, 500, 0};
+	static const std::array<int, 5> value2{7500, 7500, 7500, 5000, 5000};
+	static const std::array<float, 5> multiplier1{0.5, 0.75, 1.0, 1.5, 1.5};
+	static const std::array<float, 5> multiplier2{0.5, 0.75, 1.0, 1.0, 1.5};
 	
-	int strength1 = static_cast<int>(std::max(0.f, (strength - value1[monsterStrength]) * multiplier1[monsterStrength]));
-	int strength2 = static_cast<int>(std::max(0.f, (strength - value2[monsterStrength]) * multiplier2[monsterStrength]));
+	int strength1 = static_cast<int>(std::max(0.f, (strength - value1.at(monsterStrength)) * multiplier1.at(monsterStrength)));
+	int strength2 = static_cast<int>(std::max(0.f, (strength - value2.at(monsterStrength)) * multiplier2.at(monsterStrength)));
 	
 	strength = strength1 + strength2;
 	if (strength < generator.getConfig().minGuardStrength)

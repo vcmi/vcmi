@@ -36,7 +36,7 @@ public:
 	}
 };
 
-rmg::Tileset collectDistantTiles(const Zone & zone, float distance);
+rmg::Tileset collectDistantTiles(const Zone & zone, int distance);
 
 void createBorder(RmgMap & gen, const Zone & zone);
 

@@ -142,7 +142,7 @@ const std::vector<int3> & Area::getTilesVector() const
 
 const Tileset & Area::getBorder() const
 {
-	if(!dBorderCache.empty() || dTiles.empty())
+	if(!dBorderCache.empty())
 		return dBorderCache;
 	
 	//compute border cache
@@ -155,12 +155,12 @@ const Tileset & Area::getBorder() const
 		}
 	}
 	
-	return getBorder();
+	return dBorderCache;
 }
 
 const Tileset & Area::getBorderOutside() const
 {
-	if(!dBorderOutsideCache.empty() || dTiles.empty())
+	if(!dBorderOutsideCache.empty())
 		return dBorderOutsideCache;
 	
 	//compute outside border cache
@@ -173,7 +173,7 @@ const Tileset & Area::getBorderOutside() const
 		}
 	}
 	
-	return getBorderOutside();
+	return dBorderOutsideCache;
 }
 
 DistanceMap Area::computeDistanceMap(std::map<int, Tileset> & reverseDistanceMap) const

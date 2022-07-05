@@ -389,7 +389,7 @@ void CMapGenerator::decreasePrisonsRemaining()
 	prisonsRemaining = std::max (0, prisonsRemaining - 1);
 }
 
-std::vector<ArtifactID> CMapGenerator::getQuestArtsRemaning() const
+const std::vector<ArtifactID> & CMapGenerator::getQuestArtsRemaning() const
 {
 	return questArtifacts;
 }

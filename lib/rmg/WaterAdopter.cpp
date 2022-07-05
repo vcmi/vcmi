@@ -46,7 +46,7 @@ void WaterAdopter::createWater(EWaterContent::EWaterContent waterContent)
 	if(waterContent == EWaterContent::NONE || zone.isUnderground())
 		return; //do nothing
 	
-	rmg::Area waterArea(collectDistantTiles(zone, (float)(zone.getSize() + 1)));
+	rmg::Area waterArea(collectDistantTiles(zone, zone.getSize() + 1));
 	
 	//add border tiles as water for ISLANDS
 	if(waterContent == EWaterContent::ISLANDS)
@@ -57,9 +57,7 @@ void WaterAdopter::createWater(EWaterContent::EWaterContent waterContent)
 	distanceMap = zone.area().computeDistanceMap(reverseDistanceMap);
 	
 	//generating some irregularity of coast
-	//coastTilesMap - reverseDistanceMap
-	//tilesDist - distanceMap
-	/*int coastIdMax = fmin(sqrt(zone.area().getBorder().size()), 7.f); //size of coastTilesMap shows the most distant tile from water
+	int coastIdMax = fmin(sqrt(reverseDistanceMap.size()), 7.f); //size of coastTilesMap shows the most distant tile from water
 	assert(coastIdMax > 0);
 	std::list<int3> tilesQueue;
 	rmg::Tileset tilesChecked;
@@ -189,7 +187,7 @@ void WaterAdopter::createWater(EWaterContent::EWaterContent waterContent)
 				}
 			}
 		}
-	}*/
+	}
 	
 	map.getZones()[waterZoneId]->area().unite(waterArea);
 	zone.area().subtract(waterArea);
