@@ -11,7 +11,8 @@
 #include "RmgArea.h"
 #include "CMapGenerator.h"
 
-using namespace rmg;
+namespace rmg
+{
 
 size_t HashInt3::operator() (const int3 & t) const
 {
@@ -20,7 +21,7 @@ size_t HashInt3::operator() (const int3 & t) const
 	return (t.z + 1) * maxSizeSq + (t.y + 1) * maxSize + (t.x + 1);
 }
 
-void rmg::toAbsolute(Tileset & tiles, const int3 & position)
+void toAbsolute(Tileset & tiles, const int3 & position)
 {
 	Tileset temp;
 	for(auto & tile : tiles)
@@ -30,9 +31,9 @@ void rmg::toAbsolute(Tileset & tiles, const int3 & position)
 	tiles = std::move(temp);
 }
 
-void rmg::toRelative(Tileset & tiles, const int3 & position)
+void toRelative(Tileset & tiles, const int3 & position)
 {
-	rmg::toAbsolute(tiles, -position);
+	toAbsolute(tiles, -position);
 }
 
 Area::Area(const Area & area): dTiles(area.dTiles), dTotalShiftCache(area.dTotalShiftCache)
@@ -90,7 +91,7 @@ bool Area::connected() const
 	return connected.empty();
 }
 
-std::list<Area> rmg::connectedAreas(const Area & area)
+std::list<Area> connectedAreas(const Area & area)
 {
 	std::list<Area> result;
 	Tileset connected = area.getTiles();
@@ -365,42 +366,44 @@ void Area::translate(const int3 & shift)
 	//toAbsolute(dTiles, shift);
 }
 
-Area rmg::operator- (const Area & l, const int3 & r)
+Area operator- (const Area & l, const int3 & r)
 {
 	Area result(l);
 	result.translate(-r);
 	return result;
 }
 
-Area rmg::operator+ (const Area & l, const int3 & r)
+Area operator+ (const Area & l, const int3 & r)
 {
 	Area result(l);
 	result.translate(r);
 	return result;
 }
 
-Area rmg::operator+ (const Area & l, const Area & r)
+Area operator+ (const Area & l, const Area & r)
 {
 	Area result(l);
 	result.unite(r);
 	return result;
 }
 
-Area rmg::operator- (const Area & l, const Area & r)
+Area operator- (const Area & l, const Area & r)
 {
 	Area result(l);
 	result.subtract(r);
 	return result;
 }
 
-Area rmg::operator* (const Area & l, const Area & r)
+Area operator* (const Area & l, const Area & r)
 {
 	Area result(l);
 	result.intersect(r);
 	return result;
 }
 
-bool rmg::operator== (const Area & l, const Area & r)
+bool operator== (const Area & l, const Area & r)
 {
 	return l.getTiles() == r.getTiles();
+}
+
 }
