@@ -246,8 +246,18 @@ void CMapGenOptions::finalize(CRandomGenerator & rand)
 
 	if(waterContent == EWaterContent::RANDOM)
 	{
-		waterContent = *RandomGeneratorUtil::nextItem(mapTemplate->getWaterContentAllowed(), rand);
+		auto allowedContent = mapTemplate->getWaterContentAllowed();
+
+		if(allowedContent.size())
+		{
+			waterContent = *RandomGeneratorUtil::nextItem(mapTemplate->getWaterContentAllowed(), rand);
+		}
+		else
+		{
+			waterContent = EWaterContent::NONE;
+		}
 	}
+
 	if(monsterStrength == EMonsterStrength::RANDOM)
 	{
 		monsterStrength = static_cast<EMonsterStrength::EMonsterStrength>(rand.nextInt(EMonsterStrength::GLOBAL_WEAK, EMonsterStrength::GLOBAL_STRONG));

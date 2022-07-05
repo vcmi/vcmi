@@ -1902,9 +1902,12 @@ BattleField CGameState::battleGetBattlefieldType(int3 tile, CRandomGenerator & r
 		return BattleField::NONE;
 
 	const TerrainTile &t = map->getTile(tile);
-	//fight in mine -> subterranean
-	if(dynamic_cast<const CGMine *>(t.visitableObjects.front()))
-		return BattleField("subterranean");
+
+	auto topObject = t.visitableObjects.front();
+	if(topObject && topObject->getBattlefield() != BattleField::NONE)
+	{
+		return topObject->getBattlefield();
+	}
 
 	for(auto &obj : map->objects)
 	{
@@ -1912,35 +1915,17 @@ BattleField CGameState::battleGetBattlefieldType(int3 tile, CRandomGenerator & r
 		if( !obj || obj->pos.z != tile.z || !obj->coveringAt(tile.x, tile.y))
 			continue;
 
-		switch(obj->ID)
-		{
-		case Obj::CLOVER_FIELD:
-			return BattleField("clover_field");
-		case Obj::CURSED_GROUND1: case Obj::CURSED_GROUND2:
-			return BattleField("cursed_ground");
-		case Obj::EVIL_FOG:
-			return BattleField("evil_fog");
-		case Obj::FAVORABLE_WINDS:
-			return BattleField("favorable_winds");
-		case Obj::FIERY_FIELDS:
-			return BattleField("fiery_fields");
-		case Obj::HOLY_GROUNDS:
-			return BattleField("holy_ground");
-		case Obj::LUCID_POOLS:
-			return BattleField("lucid_pools");
-		case Obj::MAGIC_CLOUDS:
-			return BattleField("magic_clouds");
-		case Obj::MAGIC_PLAINS1: case Obj::MAGIC_PLAINS2:
-			return BattleField("magic_plains");
-		case Obj::ROCKLANDS:
-			return BattleField("rocklands");
-		}
+		auto customBattlefield = obj->getBattlefield();
+
+		if(customBattlefield != BattleField::NONE)
+			return customBattlefield;
 	}
 
 	if(map->isCoastalTile(tile)) //coastal tile is always ground
-		return BattleField("sand_shore");
+		return BattleField::fromString("sand_shore");
 	
-	return *RandomGeneratorUtil::nextItem(Terrain::Manager::getInfo(t.terType).battleFields, rand);
+	return BattleField::fromString(
+		*RandomGeneratorUtil::nextItem(Terrain::Manager::getInfo(t.terType).battleFields, rand));
 }
 
 UpgradeInfo CGameState::getUpgradeInfo(const CStackInstance &stack)

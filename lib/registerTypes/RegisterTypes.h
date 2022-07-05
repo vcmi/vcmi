@@ -55,6 +55,7 @@ void registerTypesMapObjects1(Serializer &s)
 	s.template registerType<CGObjectInstance, CGShipyard>(); s.template registerType<IShipyard, CGShipyard>();
 	s.template registerType<CGObjectInstance, CGDenOfthieves>();
 	s.template registerType<CGObjectInstance, CGLighthouse>();
+	s.template registerType<CGObjectInstance, CGTerrainPatch>();
 	s.template registerType<CGObjectInstance, CGMarket>(); s.template registerType<IMarket, CGMarket>();
 		s.template registerType<CGMarket, CGBlackMarket>();
 		s.template registerType<CGMarket, CGUniversity>();
@@ -108,6 +109,7 @@ void registerTypesMapObjectTypes(Serializer &s)
 	REGISTER_GENERIC_HANDLER(CGHeroInstance);
 	REGISTER_GENERIC_HANDLER(CGKeymasterTent);
 	REGISTER_GENERIC_HANDLER(CGLighthouse);
+	REGISTER_GENERIC_HANDLER(CGTerrainPatch);
 	REGISTER_GENERIC_HANDLER(CGMagi);
 	REGISTER_GENERIC_HANDLER(CGMagicSpring);
 	REGISTER_GENERIC_HANDLER(CGMagicWell);

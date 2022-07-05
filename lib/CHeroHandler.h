@@ -227,7 +227,7 @@ struct DLL_LINKAGE CObstacleInfo
 {
 	std::string defName;
 	std::vector<Terrain> allowedTerrains;
-	std::vector<BattleField> allowedSpecialBfields;
+	std::vector<std::string> allowedSpecialBfields;
 
 	ui8 isAbsoluteObstacle; //there may only one such obstacle in battle and its position is always the same
 	si32 width, height; //how much space to the right and up is needed to place obstacle (affects only placement algorithm)
