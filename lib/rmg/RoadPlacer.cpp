@@ -42,14 +42,8 @@ bool RoadPlacer::createRoad(const int3 & dst)
 
 void RoadPlacer::drawRoads()
 {
-	std::vector<int3> tiles;
-	for (auto tile : roads.getTiles())
-	{
-		if(map.isOnMap(tile))
-			tiles.push_back (tile);
-	}
-	
-	map.getEditManager()->getTerrainSelection().setSelection(tiles);
+	zone.freePaths().unite(roads);
+	map.getEditManager()->getTerrainSelection().setSelection(roads.getTilesVector());
 	map.getEditManager()->drawRoad(generator.getConfig().defaultRoadType, &generator.rand);
 }
 

@@ -22,6 +22,8 @@
 #include "WaterAdopter.h"
 #include "WaterProxy.h"
 #include "WaterRoutes.h"
+#include "RockPlacer.h"
+#include "ObstaclePlacer.h"
 #include "Functions.h"
 #include "CMapGenerator.h"
 
@@ -102,12 +104,6 @@ void RmgMap::initTiles(CMapGenerator & generator)
 		auto zone = std::make_shared<Zone>(*this, generator);
 		zone->setOptions(*option.second.get());
 		zones[zone->getId()] = zone;
-		
-		zone->addModificator<TownPlacer>();
-		zone->addModificator<ObjectManager>();
-		zone->addModificator<ConnectionsPlacer>();
-		zone->addModificator<TreasurePlacer>();
-		zone->addModificator<RoadPlacer>();
 	}
 	
 	switch(mapGenOptions.getWaterContent())
@@ -120,17 +116,43 @@ void RmgMap::initTiles(CMapGenerator & generator)
 			options.setType(ETemplateZoneType::WATER);
 			auto zone = std::make_shared<Zone>(*this, generator);
 			zone->setOptions(options);
-			for(auto & z : zones)
-			{
-				z.second->addModificator<WaterAdopter>();
-				z.second->getModificator<WaterAdopter>()->setWaterZone(zone->getId());
-			}
 			zones[zone->getId()] = zone;
-			zone->addModificator<ObjectManager>();
-			zone->addModificator<TreasurePlacer>();
+			break;
+	}
+}
+
+void RmgMap::addModificators()
+{
+	for(auto & z : getZones())
+	{
+		auto zone = z.second;
+		
+		zone->addModificator<ObjectManager>();
+		zone->addModificator<TreasurePlacer>();
+		zone->addModificator<ObstaclePlacer>();
+		
+		if(zone->getType() == ETemplateZoneType::WATER)
+		{
+			for(auto & z1 : zones)
+			{
+				z1.second->addModificator<WaterAdopter>();
+				z1.second->getModificator<WaterAdopter>()->setWaterZone(zone->getId());
+			}
 			zone->addModificator<WaterProxy>();
 			zone->addModificator<WaterRoutes>();
-			break;
+		}
+		else
+		{
+			zone->addModificator<TownPlacer>();
+			zone->addModificator<ConnectionsPlacer>();
+			zone->addModificator<RoadPlacer>();
+		}
+		
+		if(zone->isUnderground())
+		{
+			zone->addModificator<RockPlacer>();
+		}
+		
 	}
 }
 

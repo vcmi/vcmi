@@ -44,11 +44,5 @@ void paintZoneTerrain(const Zone & zone, CRandomGenerator & generator, RmgMap & 
 
 void initTerrainType(Zone & zone, CMapGenerator & gen);
 
-void createObstacles1(const Zone & zone, RmgMap & map, CRandomGenerator & generator);
-void createObstacles2(const Zone & zone, RmgMap & map, CRandomGenerator & generator, ObjectManager & manager);
-bool canObstacleBePlacedHere(const RmgMap & gen, ObjectTemplate &temp, int3 &pos);
-
 int chooseRandomAppearance(CRandomGenerator & generator, si32 ObjID, const Terrain & terrain);
 
-void createObstaclesCommon1(RmgMap & map, CRandomGenerator & generator);
-void createObstaclesCommon2(RmgMap & map, CRandomGenerator & generator);

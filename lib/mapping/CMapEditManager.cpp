@@ -110,7 +110,7 @@ void CTerrainSelection::deselectRange(const MapRect & rect)
 	});
 }
 
-void CTerrainSelection::setSelection(std::vector<int3> & vec)
+void CTerrainSelection::setSelection(const std::vector<int3> & vec)
 {
 	for (auto pos : vec)
 		this->select(pos);

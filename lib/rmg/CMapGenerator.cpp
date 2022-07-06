@@ -137,6 +137,7 @@ std::unique_ptr<CMap> CMapGenerator::generate()
 		initQuestArtsRemaining();
 		genZones();
 		map->map().calculateGuardingGreaturePositions(); //clear map so that all tiles are unguarded
+		map->addModificators();
 		fillZones();
 		//updated guarded tiles will be calculated in CGameState::initMapObjects()
 		map->getZones().clear();
@@ -310,7 +311,7 @@ void CMapGenerator::fillZones()
 	}
 		
 	//set apriopriate free/occupied tiles, including blocked underground rock
-	createObstaclesCommon1(*map, rand);
+	/*createObstaclesCommon1(*map, rand);
 	for(auto it : map->getZones())
 	{
 		createObstacles1(*it.second, *map, rand);
@@ -321,7 +322,7 @@ void CMapGenerator::fillZones()
 	for(auto it : map->getZones())
 	{
 		createObstacles2(*it.second, *map, rand, *it.second->getModificator<ObjectManager>());
-	}
+	}*/
 		
 
 	//find place for Grail
