@@ -508,9 +508,9 @@ bool TreasurePlacer::isGuardNeededForTreasure(int value)
 	return zone.getType() != ETemplateZoneType::WATER && value > minGuardedValue;
 }
 
-std::vector<ObjectInfo> TreasurePlacer::prepareTreasurePile(const CTreasureInfo& treasureInfo)
+std::vector<ObjectInfo*> TreasurePlacer::prepareTreasurePile(const CTreasureInfo& treasureInfo)
 {
-	std::vector<ObjectInfo> objectInfos;
+	std::vector<ObjectInfo*> objectInfos;
 	int maxValue = treasureInfo.max;
 	int minValue = treasureInfo.min;
 	
@@ -526,7 +526,7 @@ std::vector<ObjectInfo> TreasurePlacer::prepareTreasurePile(const CTreasureInfo&
 		
 		if(oi->templ.isVisitableFromTop())
 		{
-			objectInfos.push_back(*oi);
+			objectInfos.push_back(oi);
 		}
 		else
 		{
@@ -537,7 +537,7 @@ std::vector<ObjectInfo> TreasurePlacer::prepareTreasurePile(const CTreasureInfo&
 			}
 			else
 			{
-				objectInfos.insert(objectInfos.begin(), *oi); //large object shall at first place
+				objectInfos.insert(objectInfos.begin(), oi); //large object shall at first place
 				hasLargeObject = true;
 			}
 		}
@@ -553,7 +553,7 @@ std::vector<ObjectInfo> TreasurePlacer::prepareTreasurePile(const CTreasureInfo&
 	return objectInfos;
 }
 
-rmg::Object TreasurePlacer::constuctTreasurePile(const std::vector<ObjectInfo> & treasureInfos)
+rmg::Object TreasurePlacer::constuctTreasurePile(const std::vector<ObjectInfo*> & treasureInfos)
 {
 	rmg::Object rmgObject;
 	for(auto & oi : treasureInfos)
@@ -563,8 +563,8 @@ rmg::Object TreasurePlacer::constuctTreasurePile(const std::vector<ObjectInfo> &
 		if(blockedArea.empty())
 			accessibleArea.add(int3());
 		
-		auto * object = oi.generateObject();
-		object->appearance = oi.templ;
+		auto * object = oi->generateObject();
+		object->appearance = oi->templ;
 		auto & instance = rmgObject.addInstance(*object);
 
 		do
@@ -652,12 +652,11 @@ void TreasurePlacer::createTreasures(ObjectManager & manager)
 		return lhs.max > rhs.max;
 	};
 	
-	auto restoreZoneLimits = [this](const std::vector<ObjectInfo> & treasurePile)
+	auto restoreZoneLimits = [](const std::vector<ObjectInfo*> & treasurePile)
 	{
-		for(auto & oi : treasurePile)
+		for(auto * oi : treasurePile)
 		{
-			auto oiptr = std::find(possibleObjects.begin(), possibleObjects.end(), oi);
-			oiptr->maxPerZone++;
+			oi->maxPerZone++;
 		}
 	};
 	
@@ -695,7 +694,7 @@ void TreasurePlacer::createTreasures(ObjectManager & manager)
 			if(treasurePileInfos.empty())
 				break;
 			
-			int value = std::accumulate(treasurePileInfos.begin(), treasurePileInfos.end(), 0, [](int v, const ObjectInfo & oi){return v + oi.value;});
+			int value = std::accumulate(treasurePileInfos.begin(), treasurePileInfos.end(), 0, [](int v, const ObjectInfo * oi){return v + oi->value;});
 			
 			auto rmgObject = constuctTreasurePile(treasurePileInfos);
 			if(rmgObject.instances().empty()) //handle incorrect placement
