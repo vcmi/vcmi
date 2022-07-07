@@ -101,6 +101,8 @@ set(lib_SRCS
 		rmg/TownPlacer.cpp
 		rmg/WaterProxy.cpp
 		rmg/WaterRoutes.cpp
+		rmg/RockPlacer.cpp
+		rmg/ObstaclePlacer.cpp
 
 		serializer/BinaryDeserializer.cpp
 		serializer/BinarySerializer.cpp
@@ -322,6 +324,8 @@ set(lib_HEADERS
 		rmg/TownPlacer.h
 		rmg/WaterProxy.h
 		rmg/WaterRoutes.h
+		rmg/RockPlacer.h
+		rmg/ObstaclePlacer.h
 		rmg/float3.h
 
 		serializer/BinaryDeserializer.h
