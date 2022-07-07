@@ -544,6 +544,7 @@ std::vector<ObjectInfo> TreasurePlacer::prepareTreasurePile(const CTreasureInfo&
 		
 		//remove from possible objects
 		auto oiptr = std::find(possibleObjects.begin(), possibleObjects.end(), oi);
+		assert(oiptr->maxPerZone > 0);
 		oiptr->maxPerZone--;
 		
 		currentValue += oi.value;
@@ -699,6 +700,15 @@ void TreasurePlacer::createTreasures(ObjectManager & manager)
 		return lhs.max > rhs.max;
 	};
 	
+	auto restoreZoneLimits = [this](const std::vector<ObjectInfo> & treasurePile)
+	{
+		for(auto & oi : treasurePile)
+		{
+			auto oiptr = std::find(possibleObjects.begin(), possibleObjects.end(), oi);
+			oiptr->maxPerZone++;
+		}
+	};
+	
 	//place biggest treasures first at large distance, place smaller ones inbetween
 	auto treasureInfo = zone.getTreasureInfo();
 	boost::sort(treasureInfo, valueComparator);
@@ -737,7 +747,10 @@ void TreasurePlacer::createTreasures(ObjectManager & manager)
 			
 			auto rmgObject = constuctTreasurePile(treasurePileInfos);
 			if(rmgObject.instances().empty()) //handle incorrect placement
+			{
+				restoreZoneLimits(treasurePileInfos);
 				continue;
+			}
 			
 			//guard treasure pile
 			bool guarded = isGuardNeededForTreasure(value);
@@ -749,10 +762,12 @@ void TreasurePlacer::createTreasures(ObjectManager & manager)
 			
 			if((guarded && manager.placeAndConnectObject(possibleArea, rmgObject, [this, &rmgObject, &minDistance](const int3 & tile)
 			{
-				auto ti = map.getTile(tile);
-				auto dist = ti.getNearestObjectDistance();
-				if(dist < minDistance)
-					return -1.f;
+				for(auto & tl : rmgObject.getArea().getTilesVector())
+				{
+					auto ti = map.getTile(tl);
+					if(ti.getNearestObjectDistance() < minDistance)
+						return -1.f;
+				}
 				
 				auto guardedArea = rmgObject.instances().back()->getAccessibleArea();
 				auto areaToBlock = rmgObject.getAccessibleArea(true);
@@ -778,6 +793,7 @@ void TreasurePlacer::createTreasures(ObjectManager & manager)
 			}
 			else
 			{
+				restoreZoneLimits(treasurePileInfos);
 				rmgObject.clear();
 				break;
 			}

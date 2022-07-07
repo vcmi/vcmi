@@ -309,27 +309,13 @@ void CMapGenerator::fillZones()
 		if (it.second->getType() == ETemplateZoneType::TREASURE)
 			treasureZones.push_back(it.second);
 	}
-		
-	//set apriopriate free/occupied tiles, including blocked underground rock
-	/*createObstaclesCommon1(*map, rand);
-	for(auto it : map->getZones())
-	{
-		createObstacles1(*it.second, *map, rand);
-	}
-	
-	//place actual obstacles matching zone terrain
-	createObstaclesCommon2(*map, rand);
-	for(auto it : map->getZones())
-	{
-		createObstacles2(*it.second, *map, rand, *it.second->getModificator<ObjectManager>());
-	}*/
-		
 
 	//find place for Grail
 	if(treasureZones.empty())
 	{
 		for(auto it : map->getZones())
-			treasureZones.push_back(it.second);
+			if(it.second->getType() != ETemplateZoneType::WATER)
+				treasureZones.push_back(it.second);
 	}
 	auto grailZone = *RandomGeneratorUtil::nextItem(treasureZones, rand);
 

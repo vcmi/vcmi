@@ -217,6 +217,8 @@ void CMapGenOptions::finalize(CRandomGenerator & rand)
 		mapTemplate = getPossibleTemplate(rand);
 	}
 	assert(mapTemplate);
+	
+	logGlobal->info("RMG template name: %s", mapTemplate->getName());
 
 	if (getPlayerCount() == RANDOM_SIZE)
 	{

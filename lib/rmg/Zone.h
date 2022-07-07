@@ -58,6 +58,7 @@ class DLL_LINKAGE Zone : public rmg::ZoneOptions
 {
 public:
 	Zone(RmgMap & map, CMapGenerator & generator);
+	Zone(const Zone &) = delete;
 	
 	void setOptions(const rmg::ZoneOptions & options);
 	bool isUnderground() const;
@@ -98,7 +99,7 @@ public:
 	template<class T>
 	void addModificator()
 	{
-		modificators.emplace_back(std::make_unique<T>(*this, map, generator));
+		modificators.emplace_back(new T(*this, map, generator));
 	}
 	
 	void initModificators();

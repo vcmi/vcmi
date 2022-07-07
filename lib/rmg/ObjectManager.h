@@ -41,7 +41,7 @@ public:
 	bool addGuard(rmg::Object & object, si32 str, bool zoneGuard = false);
 	void placeObject(rmg::Object & object, bool guarded, bool updateDistance);
 	
-	void updateDistances(const int3 & pos);
+	void updateDistances(const rmg::Object & obj);
 	
 protected:
 	//content info

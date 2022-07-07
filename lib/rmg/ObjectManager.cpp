@@ -49,11 +49,11 @@ void ObjectManager::addNearbyObject(CGObjectInstance * obj, CGObjectInstance * n
 	nearbyObjects.push_back(std::make_pair(obj, nearbyTarget));
 }
 
-void ObjectManager::updateDistances(const int3 & pos)
+void ObjectManager::updateDistances(const rmg::Object & obj)
 {
 	for (auto tile : zone.areaPossible().getTiles()) //don't need to mark distance for not possible tiles
 	{
-		ui32 d = pos.dist2dSQ(tile); //optimization, only relative distance is interesting
+		ui32 d = obj.getArea().distanceSqr(tile); //optimization, only relative distance is interesting
 		map.setNearestObjectDistance(tile, std::min((float)d, map.getNearestObjectDistance(tile)));
 	}
 }
@@ -86,31 +86,33 @@ int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object
 
 int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object & obj, si32 min_dist, bool optimizer) const
 {
-	return findPlaceForObject(searchArea, obj, [this, min_dist](const int3 & tile)
+	return findPlaceForObject(searchArea, obj, [this, min_dist, &obj](const int3 & tile)
 	{
-		auto ti = map.getTile(tile);
-		auto dist = ti.getNearestObjectDistance();
-		//avoid borders
-		if(dist >= min_dist)
+		float dist = std::numeric_limits<float>::max();
+		for(auto & tl : obj.getArea().getTilesVector())
 		{
-			return dist;
+			auto ti = map.getTile(tl);
+			dist = std::min(dist, ti.getNearestObjectDistance());
+			if(dist < min_dist)
+				return -1.f;
 		}
-		return -1.f;
+		return dist;
 	}, optimizer);
 }
 
 bool ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg::Object & obj, si32 min_dist, bool isGuarded, bool onlyStraight, bool optimizer) const
 {
-	return placeAndConnectObject(searchArea, obj, [this, min_dist](const int3 & tile)
+	return placeAndConnectObject(searchArea, obj, [this, min_dist, &obj](const int3 & tile)
 	{
-		auto ti = map.getTile(tile);
-		auto dist = ti.getNearestObjectDistance();
-		//avoid borders
-		if(dist >= min_dist)
+		float dist = std::numeric_limits<float>::max();
+		for(auto & tl : obj.getArea().getTilesVector())
 		{
-			return dist;
+			auto ti = map.getTile(tl);
+			dist = std::min(dist, ti.getNearestObjectDistance());
+			if(dist < min_dist)
+				return -1.f;
 		}
-		return -1.f;
+		return dist;
 	}, isGuarded, onlyStraight, optimizer);
 }
 
@@ -261,6 +263,7 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 	if(guarded)
 	{
 		auto guardedArea = object.instances().back()->getAccessibleArea();
+		guardedArea.add(object.instances().back()->getVisitablePosition());
 		auto areaToBlock = object.getAccessibleArea(true);
 		areaToBlock.subtract(guardedArea);
 		zone.areaPossible().subtract(areaToBlock);
@@ -270,7 +273,7 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 	}
 	
 	if(updateDistance)
-		updateDistances(object.getPosition());
+		updateDistances(object);
 	
 	switch(object.instances().front()->object().ID)
 	{

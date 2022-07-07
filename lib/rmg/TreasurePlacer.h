@@ -20,9 +20,9 @@ class CMapGenerator;
 struct DLL_LINKAGE ObjectInfo
 {
 	ObjectTemplate templ;
-	ui32 value;
-	ui16 probability;
-	ui32 maxPerZone;
+	ui32 value = 0;
+	ui16 probability = 0;
+	ui32 maxPerZone = -1;
 	//ui32 maxPerMap; //unused
 	std::function<CGObjectInstance *()> generateObject;
 	

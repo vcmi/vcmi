@@ -23,7 +23,11 @@ void RoadPlacer::process()
 
 bool RoadPlacer::createRoad(const int3 & dst)
 {
-	rmg::Path path(zone.freePaths() + zone.areaPossible());
+	auto areaForRoads = zone.area().getSubarea([this](const int3 & t)
+	{
+		return map.isFree(t);
+	});
+	rmg::Path path(zone.freePaths() + zone.areaPossible() + areaForRoads);
 	path.connect(roads);
 	auto res = path.search(dst, true);
 	if(res.getPathArea().empty())

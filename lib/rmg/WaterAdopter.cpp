@@ -43,7 +43,7 @@ void WaterAdopter::init()
 
 void WaterAdopter::createWater(EWaterContent::EWaterContent waterContent)
 {
-	if(waterContent == EWaterContent::NONE || zone.isUnderground())
+	if(waterContent == EWaterContent::NONE || zone.isUnderground() || zone.getType() == ETemplateZoneType::WATER)
 		return; //do nothing
 	
 	rmg::Area waterArea(collectDistantTiles(zone, zone.getSize() + 1));
