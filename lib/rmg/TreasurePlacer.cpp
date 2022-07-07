@@ -521,12 +521,12 @@ std::vector<ObjectInfo> TreasurePlacer::prepareTreasurePile(const CTreasureInfo&
 	while(currentValue <= (int)desiredValue - 100) //no objects with value below 100 are available
 	{
 		auto oi = getRandomObject(desiredValue, currentValue, !hasLargeObject);
-		if(oi.value == 0) //fail
+		if(!oi) //fail
 			break;
 		
-		if(oi.templ.isVisitableFromTop())
+		if(oi->templ.isVisitableFromTop())
 		{
-			objectInfos.push_back(oi);
+			objectInfos.push_back(*oi);
 		}
 		else
 		{
@@ -537,43 +537,20 @@ std::vector<ObjectInfo> TreasurePlacer::prepareTreasurePile(const CTreasureInfo&
 			}
 			else
 			{
-				objectInfos.insert(objectInfos.begin(), oi); //large object shall at first place
+				objectInfos.insert(objectInfos.begin(), *oi); //large object shall at first place
 				hasLargeObject = true;
 			}
 		}
 		
 		//remove from possible objects
-		auto oiptr = std::find(possibleObjects.begin(), possibleObjects.end(), oi);
-		assert(oiptr->maxPerZone > 0);
-		oiptr->maxPerZone--;
+		if(!oi->maxPerZone)
+			logGlobal->info("something wrong");
+		oi->maxPerZone--;
 		
-		currentValue += oi.value;
+		currentValue += oi->value;
 	}
 	
 	return objectInfos;
-}
-
-rmg::Object TreasurePlacer::constuctTreasurePile(const CTreasureInfo& treasureInfo)
-{
-	std::vector<ObjectInfo> objectInfos, tempObjectInfos;
-	rmg::Object rmgTreasurePile;
-	int maxValue = treasureInfo.max;
-	int minValue = treasureInfo.min;
-	
-	const ui32 desiredValue = generator.rand.nextInt(minValue, maxValue);
-	
-	int currentValue = 0;
-	bool hasLargeObject = false;
-	while(currentValue <= (int)desiredValue - 100) //no objects with value below 100 are available
-	{
-		auto oi = getRandomObject(desiredValue, currentValue, !hasLargeObject);
-		if(oi.value == 0) //fail
-			break;
-		
-		
-	}
-	
-	return rmgTreasurePile;
 }
 
 rmg::Object TreasurePlacer::constuctTreasurePile(const std::vector<ObjectInfo> & treasureInfos)
@@ -620,7 +597,7 @@ rmg::Object TreasurePlacer::constuctTreasurePile(const std::vector<ObjectInfo> &
 	return rmgObject;
 }
 
-ObjectInfo TreasurePlacer::getRandomObject(ui32 desiredValue, ui32 currentValue, bool allowLargeObjects)
+ObjectInfo * TreasurePlacer::getRandomObject(ui32 desiredValue, ui32 currentValue, bool allowLargeObjects)
 {
 	std::vector<std::pair<ui32, ObjectInfo*>> thresholds; //handle complex object via pointer
 	ui32 total = 0;
@@ -646,32 +623,7 @@ ObjectInfo TreasurePlacer::getRandomObject(ui32 desiredValue, ui32 currentValue,
 	
 	if(thresholds.empty())
 	{
-		ObjectInfo oi;
-		//Generate pandora Box with gold if the value is extremely high
-		if(minValue > generator.getConfig().treasureValueLimit) //we don't have object valuable enough
-		{
-			oi.generateObject = [minValue]() -> CGObjectInstance *
-			{
-				auto factory = VLC->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0);
-				auto obj = (CGPandoraBox *) factory->create(ObjectTemplate());
-				obj->resources[Res::GOLD] = minValue;
-				return obj;
-			};
-			oi.setTemplate(Obj::PANDORAS_BOX, 0, zone.getTerrainType());
-			oi.value = minValue;
-			oi.probability = 0;
-		}
-		else //generate empty object with 0 value if the value if we can't spawn anything*/
-		{
-			oi.generateObject = []() -> CGObjectInstance *
-			{
-				return nullptr;
-			};
-			oi.setTemplate(Obj::PANDORAS_BOX, 0, zone.getTerrainType()); //TODO: null template or something? should be never used, but hell knows
-			oi.value = 0; // this field is checked to determine no object
-			oi.probability = 0;
-		}
-		return oi;
+		return nullptr;
 	}
 	else
 	{
@@ -683,7 +635,7 @@ ObjectInfo TreasurePlacer::getRandomObject(ui32 desiredValue, ui32 currentValue,
 								   {
 			return (int)rhs.first < lhs;
 		});
-		return *(it->second);
+		return it->second;
 	}
 }
 

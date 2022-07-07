@@ -50,10 +50,9 @@ public:
 protected:
 	bool isGuardNeededForTreasure(int value);
 	
-	ObjectInfo getRandomObject(ui32 desiredValue, ui32 currentValue, bool allowLargeObjects);
+	ObjectInfo * getRandomObject(ui32 desiredValue, ui32 currentValue, bool allowLargeObjects);
 	std::vector<ObjectInfo> prepareTreasurePile(const CTreasureInfo & treasureInfo);
 	rmg::Object constuctTreasurePile(const std::vector<ObjectInfo> & treasureInfos);
-	rmg::Object constuctTreasurePile(const CTreasureInfo & treasureInfo);
 	
 	
 protected:	

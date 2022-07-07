@@ -32,7 +32,7 @@ public:
 	virtual void process() = 0;
 	virtual void init() {/*override to add dependencies*/}
 	virtual char dump(const int3 &);
-	virtual ~Modificator() {};
+	virtual ~Modificator();
 	
 	void setName(const std::string & n);
 	const std::string & getName() const;

@@ -490,3 +490,8 @@ char Modificator::dump(const int3 & t)
 	}
 	return '?';
 }
+
+Modificator::~Modificator()
+{
+	
+}
