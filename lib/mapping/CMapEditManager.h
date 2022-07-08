@@ -173,6 +173,9 @@ public:
 
 	/// Draws roads at the current terrain selection. The selection will be cleared automatically.
 	void drawRoad(const std::string & roadType, CRandomGenerator * gen = nullptr);
+	
+	/// Draws rivers at the current terrain selection. The selection will be cleared automatically.
+	void drawRiver(const std::string & riverType, CRandomGenerator * gen = nullptr);
 
 	void insertObject(CGObjectInstance * obj);
 

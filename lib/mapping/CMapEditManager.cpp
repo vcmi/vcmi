@@ -255,6 +255,13 @@ void CMapEditManager::drawRoad(const std::string & roadType, CRandomGenerator* g
 	terrainSel.clearSelection();
 }
 
+void CMapEditManager::drawRiver(const std::string & riverType, CRandomGenerator* gen)
+{
+	execute(make_unique<CDrawRiversOperation>(map, terrainSel, riverType, gen ? gen : &(this->gen)));
+	terrainSel.clearSelection();
+}
+
+
 
 void CMapEditManager::insertObject(CGObjectInstance * obj)
 {
