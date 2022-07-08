@@ -27,7 +27,6 @@ public:
 	
 protected:
 	void createWater(EWaterContent::EWaterContent waterContent);
-	void reinitWaterZone(Zone & zone);
 	
 protected:
 	TRmgTemplateZoneId waterZoneId;

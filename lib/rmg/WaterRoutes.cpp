@@ -35,7 +35,8 @@ void WaterRoutes::process()
 	
 	for(auto & z : map.getZones())
 	{
-		result.push_back(wproxy->waterRoute(*z.second));
+		if(z.first != zone.getId())
+			result.push_back(wproxy->waterRoute(*z.second));
 	}
 }
 
@@ -44,7 +45,7 @@ void WaterRoutes::init()
 	for(auto & z : map.getZones())
 	{
 		dependency(z.second->getModificator<ConnectionsPlacer>());
-		dependency(z.second->getModificator<ObjectManager>());
+		postfunction(z.second->getModificator<ObjectManager>());
 		postfunction(z.second->getModificator<TreasurePlacer>());
 	}
 	dependency(zone.getModificator<WaterProxy>());
@@ -62,12 +63,17 @@ char WaterRoutes::dump(const int3 & t)
 		if(i.blocked.contains(t))
 			return '#';
 		if(i.water.contains(t))
-			return '+';
+		{
+			if(zone.freePaths().contains(t))
+				return '+';
+			else
+				return '-';
+		}
 	}
-	if(zone.area().contains(t))
-		return '~';
 	if(zone.freePaths().contains(t))
 		return '.';
+	if(zone.area().contains(t))
+		return '~';
 	return ' ';
 }
 

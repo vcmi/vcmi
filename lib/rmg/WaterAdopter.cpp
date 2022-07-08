@@ -192,17 +192,6 @@ void WaterAdopter::createWater(EWaterContent::EWaterContent waterContent)
 	map.getZones()[waterZoneId]->area().unite(waterArea);
 	zone.area().subtract(waterArea);
 	zone.areaPossible().subtract(waterArea);
-	reinitWaterZone(*map.getZones()[waterZoneId]);
-}
-
-void WaterAdopter::reinitWaterZone(Zone & wzone)
-{
-	wzone.areaPossible() = wzone.area();
-	for(auto & t : wzone.area().getTiles())
-	{
-		map.setZoneID(t, waterZoneId);
-		map.setOccupied(t, ETileType::POSSIBLE);
-	}
 }
 
 void WaterAdopter::setWaterZone(TRmgTemplateZoneId water)

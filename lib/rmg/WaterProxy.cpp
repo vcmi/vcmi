@@ -28,13 +28,19 @@
 
 void WaterProxy::process()
 {
+	for(auto & t : zone.area().getTilesVector())
+	{
+		map.setZoneID(t, zone.getId());
+		map.setOccupied(t, ETileType::POSSIBLE);
+	}
+	
 	paintZoneTerrain(zone, generator.rand, map, zone.getTerrainType());
+	
 	//check terrain type
 	for(auto & t : zone.area().getBorder())
 	{
 		if(map.isOnMap(t) && map.map().getTile(t).terType != zone.getTerrainType())
 		{
-			zone.areaPossible().erase(t);
 			map.setOccupied(t, ETileType::USED);
 		}
 	}
@@ -46,6 +52,14 @@ void WaterProxy::process()
 			map.setOccupied(t, ETileType::USED);
 		}
 	}
+	
+	if(!zone.area().contains(zone.getPos()))
+	{
+		zone.setPos(zone.area().getTilesVector().front());
+	}
+	
+	zone.initFreeTiles();
+	
 	collectLakes();
 }
 
@@ -185,7 +199,7 @@ bool WaterProxy::placeBoat(Zone & land, const Lake & lake, RouteInfo & info)
 	while(!boardingPositions.empty())
 	{
 		auto boardingPosition = *boardingPositions.getTiles().begin();
-		rmg::Area shipPositions({boardingPositions});
+		rmg::Area shipPositions({boardingPosition});
 		auto boutside = shipPositions.getBorderOutside();
 		shipPositions.assign(boutside);
 		shipPositions.intersect(waterAvailable);
@@ -270,7 +284,6 @@ bool WaterProxy::placeShipyard(Zone & land, const Lake & lake, si32 guard, Route
 			return 1.0f;
 		}, guarded, true, false);
 		
-		
 		if(!result)
 		{
 			boardingPositions.erase(boardingPosition);
@@ -284,10 +297,20 @@ bool WaterProxy::placeShipyard(Zone & land, const Lake & lake, si32 guard, Route
 			continue;
 		}
 		
+		//make sure shipyard places ship at position we defined
+		rmg::Area shipyardOutToBlock(rmgObject.getArea().getBorderOutside());
+		shipyardOutToBlock.intersect(waterAvailable);
+		shipyardOutToBlock.subtract(shipPositions);
+		shipPositions.subtract(shipyardOutToBlock);
+		
+		zone.areaPossible().subtract(shipyardOutToBlock);
+		
 		//ensure access to boat on water
 		if(!zone.connectPath(shipPositions, false))
 		{
 			boardingPositions.erase(boardingPosition);
+			zone.areaPossible().unite(shipyardOutToBlock);
+			zone.areaPossible().subtract(zone.freePaths());
 			continue;
 		}
 		
@@ -297,6 +320,11 @@ bool WaterProxy::placeShipyard(Zone & land, const Lake & lake, si32 guard, Route
 		info.water = shipPositions;
 		
 		manager->placeObject(rmgObject, guarded, true);
+		
+		for(auto & i : shipyardOutToBlock.getTilesVector())
+			if(map.isOnMap(i) && map.isPossible(i))
+				map.setOccupied(i, ETileType::BLOCKED);
+		
 		break;
 	}
 	
