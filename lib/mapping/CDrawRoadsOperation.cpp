@@ -382,6 +382,6 @@ void CDrawRiversOperation::updateTile(TerrainTile & tile, const LinePattern & pa
 {
 	const std::pair<int, int> & mapping  = pattern.riverMapping;
 	
-	tile.roadDir = gen->nextInt(mapping.first, mapping.second);
+	tile.riverDir = gen->nextInt(mapping.first, mapping.second);
 	tile.extTileFlags = (tile.extTileFlags & 0xCF) | (flip << 4);
 }
