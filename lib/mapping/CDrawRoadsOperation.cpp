@@ -12,7 +12,7 @@
 #include "CDrawRoadsOperation.h"
 #include "CMap.h"
 
-const std::vector<CDrawRoadsOperation::RoadPattern> CDrawRoadsOperation::patterns =
+const std::vector<CDrawLinesOperation::LinePattern> CDrawLinesOperation::patterns =
 {
 	//single tile. fall-back pattern
 	{
@@ -147,21 +147,31 @@ static bool ruleIsAny(const std::string & rule)
 }
 #endif
 
-///CDrawRoadsOperation
-CDrawRoadsOperation::CDrawRoadsOperation(CMap * map, const CTerrainSelection & terrainSel, const std::string & roadType, CRandomGenerator * gen):
-	CMapOperation(map),terrainSel(terrainSel), roadType(roadType), gen(gen)
+///CDrawLinesOperation
+CDrawLinesOperation::CDrawLinesOperation(CMap * map, const CTerrainSelection & terrainSel, CRandomGenerator * gen):
+	CMapOperation(map), terrainSel(terrainSel), gen(gen)
 {
-
 }
 
-void CDrawRoadsOperation::execute()
+///CDrawRoadsOperation
+CDrawRoadsOperation::CDrawRoadsOperation(CMap * map, const CTerrainSelection & terrainSel, const std::string & roadType, CRandomGenerator * gen):
+	CDrawLinesOperation(map, terrainSel, gen), roadType(roadType)
+{
+}
+
+///CDrawRiversOperation
+CDrawRiversOperation::CDrawRiversOperation(CMap * map, const CTerrainSelection & terrainSel, const std::string & riverType, CRandomGenerator * gen):
+	CDrawLinesOperation(map, terrainSel, gen), riverType(riverType)
+{
+}
+
+void CDrawLinesOperation::execute()
 {
 	std::set<int3> invalidated;
 
 	for(const auto & pos : terrainSel.getSelectedItems())
 	{
-		auto & tile = map->getTile(pos);
-		tile.roadType = roadType;
+		executeTile(map->getTile(pos));
 
 		auto rect = extendTileAroundSafely(pos);
 		rect.forEach([&invalidated](const int3 & pos)
@@ -173,28 +183,17 @@ void CDrawRoadsOperation::execute()
 	updateTiles(invalidated);
 }
 
-void CDrawRoadsOperation::undo()
+void CDrawLinesOperation::undo()
 {
   //TODO
 }
 
-void CDrawRoadsOperation::redo()
+void CDrawLinesOperation::redo()
 {
   //TODO
 }
 
-std::string CDrawRoadsOperation::getLabel() const
-{
-	return "Draw Roads";
-}
-
-bool CDrawRoadsOperation::canApplyPattern(const RoadPattern & pattern) const
-{
-	//TODO: this method should be virtual for river support
-	return pattern.roadMapping.first >= 0;
-}
-
-void CDrawRoadsOperation::flipPattern(RoadPattern& pattern, int flip) const
+void CDrawLinesOperation::flipPattern(LinePattern& pattern, int flip) const
 {
 	//todo: use cashing here and also in terrain patterns
 
@@ -222,13 +221,7 @@ void CDrawRoadsOperation::flipPattern(RoadPattern& pattern, int flip) const
 	}
 }
 
-
-bool CDrawRoadsOperation::needUpdateTile(const TerrainTile & tile) const
-{
-	return tile.roadType != ROAD_NAMES[0]; //TODO: this method should be virtual for river support
-}
-
-void CDrawRoadsOperation::updateTiles(std::set<int3> & invalidated)
+void CDrawLinesOperation::updateTiles(std::set<int3> & invalidated)
 {
 	for(int3 coord : invalidated)
 	{
@@ -259,25 +252,7 @@ void CDrawRoadsOperation::updateTiles(std::set<int3> & invalidated)
 	}
 }
 
-bool CDrawRoadsOperation::tileHasSomething(const int3& pos) const
-{
-//TODO: this method should be virtual for river support
-
-   return map->getTile(pos).roadType != ROAD_NAMES[0];
-}
-
-
-void CDrawRoadsOperation::updateTile(TerrainTile & tile, const RoadPattern & pattern, const int flip)
-{
-  //TODO: this method should be virtual for river support
-
-	const std::pair<int, int> & mapping  = pattern.roadMapping;
-
-	tile.roadDir = gen->nextInt(mapping.first, mapping.second);
-	tile.extTileFlags = (tile.extTileFlags & 0xCF) | (flip << 4);
-}
-
-CDrawRoadsOperation::ValidationResult CDrawRoadsOperation::validateTile(const RoadPattern & pattern, const int3 & pos)
+CDrawLinesOperation::ValidationResult CDrawLinesOperation::validateTile(const LinePattern & pattern, const int3 & pos)
 {
 	ValidationResult result(false);
 
@@ -294,7 +269,7 @@ CDrawRoadsOperation::ValidationResult CDrawRoadsOperation::validateTile(const Ro
 		if((flip == FLIP_PATTERN_VERTICAL) && !(pattern.hasVFlip))
 			continue;
 
-		RoadPattern flipped = pattern;
+		LinePattern flipped = pattern;
 
 		flipPattern(flipped, flip);
 
@@ -343,4 +318,70 @@ CDrawRoadsOperation::ValidationResult CDrawRoadsOperation::validateTile(const Ro
 	}
 
 	return result;
+}
+
+std::string CDrawRoadsOperation::getLabel() const
+{
+	return "Draw Roads";
+}
+
+std::string CDrawRiversOperation::getLabel() const
+{
+	return "Draw Rivers";
+}
+
+void CDrawRoadsOperation::executeTile(TerrainTile & tile)
+{
+	tile.roadType = roadType;
+}
+
+void CDrawRiversOperation::executeTile(TerrainTile & tile)
+{
+	tile.riverType = riverType;
+}
+
+bool CDrawRoadsOperation::canApplyPattern(const LinePattern & pattern) const
+{
+	return pattern.roadMapping.first >= 0;
+}
+
+bool CDrawRiversOperation::canApplyPattern(const LinePattern & pattern) const
+{
+	return pattern.riverMapping.first >= 0;
+}
+
+bool CDrawRoadsOperation::needUpdateTile(const TerrainTile & tile) const
+{
+	return tile.roadType != ROAD_NAMES[0];
+}
+
+bool CDrawRiversOperation::needUpdateTile(const TerrainTile & tile) const
+{
+	return tile.riverType != RIVER_NAMES[0];
+}
+
+bool CDrawRoadsOperation::tileHasSomething(const int3& pos) const
+{
+	return map->getTile(pos).roadType != ROAD_NAMES[0];
+}
+
+bool CDrawRiversOperation::tileHasSomething(const int3& pos) const
+{
+	return map->getTile(pos).riverType != RIVER_NAMES[0];
+}
+
+void CDrawRoadsOperation::updateTile(TerrainTile & tile, const LinePattern & pattern, const int flip)
+{
+	const std::pair<int, int> & mapping  = pattern.roadMapping;
+
+	tile.roadDir = gen->nextInt(mapping.first, mapping.second);
+	tile.extTileFlags = (tile.extTileFlags & 0xCF) | (flip << 4);
+}
+
+void CDrawRiversOperation::updateTile(TerrainTile & tile, const LinePattern & pattern, const int flip)
+{
+	const std::pair<int, int> & mapping  = pattern.riverMapping;
+	
+	tile.roadDir = gen->nextInt(mapping.first, mapping.second);
+	tile.extTileFlags = (tile.extTileFlags & 0xCF) | (flip << 4);
 }
