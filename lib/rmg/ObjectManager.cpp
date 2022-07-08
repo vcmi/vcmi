@@ -13,6 +13,7 @@
 #include "TileInfo.h"
 #include "RmgMap.h"
 #include "RoadPlacer.h"
+#include "RiverPlacer.h"
 #include "WaterAdopter.h"
 #include "../CCreatureHandler.h"
 #include "../mapObjects/CommonConstructors.h"
@@ -281,6 +282,11 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 		case Obj::MINE:
 			if(auto * m = zone.getModificator<RoadPlacer>())
 				m->addRoadNode(object.getVisitablePosition());
+			break;
+			
+		case Obj::WATER_WHEEL:
+			if(auto * m = zone.getModificator<RiverPlacer>())
+				m->addRiverNode(object.instances().front()->getVisitablePosition());
 			break;
 			
 		default:

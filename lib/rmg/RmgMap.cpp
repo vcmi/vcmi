@@ -24,6 +24,7 @@
 #include "WaterRoutes.h"
 #include "RockPlacer.h"
 #include "ObstaclePlacer.h"
+#include "RiverPlacer.h"
 #include "Functions.h"
 #include "CMapGenerator.h"
 
@@ -146,6 +147,7 @@ void RmgMap::addModificators()
 			zone->addModificator<TownPlacer>();
 			zone->addModificator<ConnectionsPlacer>();
 			zone->addModificator<RoadPlacer>();
+			zone->addModificator<RiverPlacer>();
 		}
 		
 		if(zone->isUnderground())
