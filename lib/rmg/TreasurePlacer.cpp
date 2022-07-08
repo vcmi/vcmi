@@ -585,6 +585,10 @@ rmg::Object TreasurePlacer::constuctTreasurePile(const std::vector<ObjectInfo*> 
 					instanceAccessibleArea.add(instance.getVisitablePosition());
 			}
 			
+			//first object is good
+			if(rmgObject.instances().size() == 1)
+				break;
+			
 			//condition for good position
 			if(!blockedArea.overlap(instance.getBlockedArea()) && accessibleArea.overlap(instanceAccessibleArea))
 				break;
@@ -712,12 +716,9 @@ void TreasurePlacer::createTreasures(ObjectManager & manager)
 			
 			if((guarded && manager.placeAndConnectObject(possibleArea, rmgObject, [this, &rmgObject, &minDistance](const int3 & tile)
 			{
-				for(auto & tl : rmgObject.getArea().getTilesVector())
-				{
-					auto ti = map.getTile(tl);
-					if(ti.getNearestObjectDistance() < minDistance)
-						return -1.f;
-				}
+				auto ti = map.getTile(tile);
+				if(ti.getNearestObjectDistance() < minDistance)
+					return -1.f;
 				
 				auto guardedArea = rmgObject.instances().back()->getAccessibleArea();
 				auto areaToBlock = rmgObject.getAccessibleArea(true);
