@@ -86,32 +86,26 @@ int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object
 
 int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object & obj, si32 min_dist, bool optimizer) const
 {
-	return findPlaceForObject(searchArea, obj, [this, min_dist, &obj](const int3 & tile)
+	return findPlaceForObject(searchArea, obj, [this, min_dist](const int3 & tile)
 	{
-		float dist = std::numeric_limits<float>::max();
-		for(auto & tl : obj.getArea().getTilesVector())
-		{
-			auto ti = map.getTile(tl);
-			dist = std::min(dist, ti.getNearestObjectDistance());
-			if(dist < min_dist)
-				return -1.f;
-		}
+		auto ti = map.getTile(tile);
+		float dist = ti.getNearestObjectDistance();
+		if(dist < min_dist)
+			return -1.f;
+		
 		return dist;
 	}, optimizer);
 }
 
 bool ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg::Object & obj, si32 min_dist, bool isGuarded, bool onlyStraight, bool optimizer) const
 {
-	return placeAndConnectObject(searchArea, obj, [this, min_dist, &obj](const int3 & tile)
+	return placeAndConnectObject(searchArea, obj, [this, min_dist](const int3 & tile)
 	{
-		float dist = std::numeric_limits<float>::max();
-		for(auto & tl : obj.getArea().getTilesVector())
-		{
-			auto ti = map.getTile(tl);
-			dist = std::min(dist, ti.getNearestObjectDistance());
-			if(dist < min_dist)
-				return -1.f;
-		}
+		auto ti = map.getTile(tile);
+		float dist = ti.getNearestObjectDistance();
+		if(dist < min_dist)
+			return -1.f;
+		
 		return dist;
 	}, isGuarded, onlyStraight, optimizer);
 }
