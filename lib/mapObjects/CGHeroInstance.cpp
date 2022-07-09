@@ -151,6 +151,12 @@ int3 CGHeroInstance::convertPosition(int3 src, bool toh3m) //toh3m=true: manifes
 		return src;
 	}
 }
+
+BattleField CGHeroInstance::getBattlefield() const
+{
+	return BattleField::NONE;
+}
+
 int3 CGHeroInstance::getPosition(bool h3m) const //h3m=true - returns position of hero object; h3m=false - returns position of hero 'manifestation'
 {
 	if (h3m)

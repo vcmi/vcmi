@@ -1406,6 +1406,11 @@ void CGArtifact::pick(const CGHeroInstance * h) const
 	cb->removeObject(this);
 }
 
+BattleField CGArtifact::getBattlefield() const
+{
+	return BattleField::NONE;
+}
+
 void CGArtifact::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
 {
 	if(result.winner == 0) //attacker won
