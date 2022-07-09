@@ -270,6 +270,8 @@ public:
 	void afterAddToMap(CMap * map) override;
 
 	void updateFrom(const JsonNode & data) override;
+
+	BattleField getBattlefield() const override;
 protected:
 	void setPropertyDer(ui8 what, ui32 val) override;//synchr
 	///common part of hero instance and hero definition
