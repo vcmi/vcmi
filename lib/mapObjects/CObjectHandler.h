@@ -159,7 +159,7 @@ public:
 	std::set<int3> getBlockedOffsets() const; //returns set of relative positions blocked by this object
 	bool isVisitable() const; //returns true if object is visitable
 
-	BattleField getBattlefield() const;
+	virtual BattleField getBattlefield() const;
 
 	virtual bool isTile2Terrain() const { return false; }
 
