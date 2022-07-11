@@ -159,16 +159,19 @@ bool TownPlacer::placeMines(ObjectManager & manager)
 		ERes res = (ERes)mineInfo.first;
 		for(int i = 0; i < mineInfo.second; ++i)
 		{
-			auto mine = (CGMine*)VLC->objtypeh->getHandlerFor(Obj::MINE, res)->create(ObjectTemplate());
+			auto mineHandler = VLC->objtypeh->getHandlerFor(Obj::MINE, res);
+			auto & rmginfo = mineHandler->getRMGInfo();
+			auto mine = (CGMine*)mineHandler->create(ObjectTemplate());
 			mine->producedResource = res;
 			mine->tempOwner = PlayerColor::NEUTRAL;
 			mine->producedQuantity = mine->defaultResProduction();
 			createdMines.push_back(mine);
 			
+			
 			if(!i && (res == ERes::WOOD || res == ERes::ORE))
-				manager.addCloseObject(mine, generator.getConfig().mineValues.at(res)); //only first wood&ore mines are close
+				manager.addCloseObject(mine, rmginfo.value); //only first wood&ore mines are close
 			else
-				manager.addRequiredObject(mine, generator.getConfig().mineValues.at(res));
+				manager.addRequiredObject(mine, rmginfo.value);
 		}
 	}
 	

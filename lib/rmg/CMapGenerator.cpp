@@ -66,10 +66,6 @@ void CMapGenerator::loadConfig()
 	{
 		config.waterTreasure.emplace_back(treasure["min"].Integer(), treasure["max"].Integer(), treasure["density"].Integer());
 	}
-	for(auto& s : resMap)
-	{
-		config.mineValues[s.second] = randomMapJson["mines"]["value"][s.first].Integer();
-	}
 	config.mineExtraResources = randomMapJson["mines"]["extraResourcesLimit"].Integer();
 	config.minGuardStrength = randomMapJson["minGuardStrength"].Integer();
 	config.defaultRoadType = randomMapJson["defaultRoadType"].String();

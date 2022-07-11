@@ -38,7 +38,6 @@ public:
 		std::vector<CTreasureInfo> waterTreasure;
 		int shipyardGuard;
 		int mineExtraResources;
-		std::map<Res::ERes, int> mineValues;
 		int minGuardStrength;
 		std::string defaultRoadType;
 		int treasureValueLimit;
