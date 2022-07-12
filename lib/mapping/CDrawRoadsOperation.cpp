@@ -375,7 +375,7 @@ void CDrawRoadsOperation::updateTile(TerrainTile & tile, const LinePattern & pat
 	const std::pair<int, int> & mapping  = pattern.roadMapping;
 
 	tile.roadDir = gen->nextInt(mapping.first, mapping.second);
-	tile.extTileFlags = (tile.extTileFlags & 0xCF) | (flip << 4);
+	tile.extTileFlags = (tile.extTileFlags & 0b11001111) | (flip << 4);
 }
 
 void CDrawRiversOperation::updateTile(TerrainTile & tile, const LinePattern & pattern, const int flip)
@@ -383,5 +383,5 @@ void CDrawRiversOperation::updateTile(TerrainTile & tile, const LinePattern & pa
 	const std::pair<int, int> & mapping  = pattern.riverMapping;
 	
 	tile.riverDir = gen->nextInt(mapping.first, mapping.second);
-	tile.extTileFlags = (tile.extTileFlags & 0xCF) | (flip << 4);
+	tile.extTileFlags = (tile.extTileFlags & 0b00111111) | (flip << 2);
 }
