@@ -201,6 +201,7 @@ public:
 	void initObj(CRandomGenerator & rand) override;
 
 	void afterAddToMap(CMap * map) override;
+	BattleField getBattlefield() const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
