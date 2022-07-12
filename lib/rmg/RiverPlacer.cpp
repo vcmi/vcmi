@@ -76,6 +76,14 @@ rmg::Area & RiverPlacer::riverSink()
 	return sink;
 }
 
+void RiverPlacer::prepareHeightmap()
+{
+	for(auto & t : zone.area().getTilesVector())
+	{
+		heightMap[t] = generator.rand.nextInt(10);
+	}
+}
+
 void RiverPlacer::prepareBorderHeightmap()
 {
 	std::map<int3, int> heightMap;
@@ -121,11 +129,53 @@ void RiverPlacer::prepareBorderHeightmap(std::vector<int3>::iterator l, std::vec
 
 void RiverPlacer::preprocess()
 {
-	prepareBorderHeightmap();
+	//decorative river
+	if(!sink.empty() && !source.empty() && riverNodes.empty())
+	{
+		addRiverNode(*RandomGeneratorUtil::nextItem(zone.areaPossible().getTilesVector(), generator.rand));
+	}
+	
+	prepareHeightmap();
+	//prepareBorderHeightmap();
+	
+	rmg::Area outOfMapTiles;
+	std::map<TRmgTemplateZoneId, rmg::Area> neighbourZonesTiles;
+	rmg::Area borderArea(zone.getArea().getBorder());
+	for(auto & t : zone.getArea().getBorderOutside())
+	{
+		if(!map.isOnMap(t))
+		{
+			outOfMapTiles.add(t);
+		}
+		else if(map.getZoneID(t) != zone.getId())
+		{
+			neighbourZonesTiles[map.getZoneID(t)].add(t);
+		}
+	}
+	rmg::Area outOfMapInternal(outOfMapTiles.getBorderOutside());
+	outOfMapInternal.intersect(borderArea);
+	
+	//looking outside map
+	if(!outOfMapTiles.empty())
+	{
+		auto elem = *RandomGeneratorUtil::nextItem(outOfMapInternal.getTilesVector(), generator.rand);
+		source.add(elem);
+		outOfMapInternal.erase(elem);
+	}
+	if(!outOfMapTiles.empty())
+	{
+		auto elem = *RandomGeneratorUtil::nextItem(outOfMapInternal.getTilesVector(), generator.rand);
+		sink.add(elem);
+		outOfMapInternal.erase(elem);
+	}
+	
 	
 	if(source.empty())
 	{
-		logGlobal->error("River source is empty!");
+		logGlobal->info("River source is empty!");
+		
+		//looking outside map
+		
 		for(auto & i : heightMap)
 		{
 			if(i.second > 0)
@@ -149,18 +199,32 @@ void RiverPlacer::connectRiver(const int3 & tile)
 	assert(!source.contains(tile));
 	assert(!sink.contains(tile));
 	
-	rmg::Path path1(zone.area()), path2(zone.area());
-	path1.connect(source);
-	path2.connect(sink);
-	path1 = path1.search(tile, true);
-	path2 = path2.search(tile, true);
-	if(path1.getPathArea().empty() || path2.getPathArea().empty())
+	auto movementCost = [this](const int3 & s, const int3 & d)
+	{
+		float cost = 1.0f;
+
+		if(!zone.areaPossible().contains(d))
+			cost += 2.f;
+		
+		cost += heightMap[d];
+		return cost;
+	};
+	
+	rmg::Path pathToSource(zone.area() - rivers);
+	pathToSource.connect(source);
+	pathToSource = pathToSource.search(tile, true, movementCost);
+	
+	rmg::Path pathToSink(zone.area() - pathToSource.getPathArea());
+	pathToSink.connect(sink);
+	pathToSink = pathToSink.search(tile, true, movementCost);
+	
+	if(pathToSource.getPathArea().empty() || pathToSink.getPathArea().empty())
 	{
 		logGlobal->error("Cannot build river");
 		return;
 	}
 	
-	rivers.unite(path1.getPathArea());
-	rivers.unite(path2.getPathArea());
+	rivers.unite(pathToSource.getPathArea());
+	rivers.unite(pathToSink.getPathArea());
 	sink.unite(rivers);
 }

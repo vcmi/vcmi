@@ -16,10 +16,10 @@
 #include "WaterRoutes.h"
 #include "WaterProxy.h"
 #include "RoadPlacer.h"
+#include "RiverPlacer.h"
 #include "RmgMap.h"
 #include "CMapGenerator.h"
 #include "../CRandomGenerator.h"
-//#include "../mapping/CMapEditManager.h"
 #include "Functions.h"
 
 void ObstaclePlacer::process()
@@ -27,6 +27,8 @@ void ObstaclePlacer::process()
 	auto * manager = zone.getModificator<ObjectManager>();
 	if(!manager)
 		return;
+	
+	auto * riverManager = zone.getModificator<RiverPlacer>();
 	
 	typedef std::vector<ObjectTemplate> obstacleVector;
 	//obstacleVector possibleObstacles;
@@ -80,11 +82,21 @@ void ObstaclePlacer::process()
 				continue;
 			
 			auto temp = *RandomGeneratorUtil::nextItem(possibleObstacles[i].second, generator.rand);
-			auto obj = VLC->objtypeh->getHandlerFor(temp.id, temp.subid)->create(temp);
+			auto handler = VLC->objtypeh->getHandlerFor(temp.id, temp.subid);
+			auto obj = handler->create(temp);
 			rmg::Object rmgObject(*obj);
 			rmgObject.setPosition(tile);
 			if(blockedArea.contains(rmgObject.getArea()))
 			{
+				//river processing
+				if(riverManager)
+				{
+					if(handler->typeName == "mountain")
+						riverManager->riverSource().unite(rmgObject.getArea());
+					if(handler->typeName == "lake")
+						riverManager->riverSink().unite(rmgObject.getArea());
+				}
+				
 				manager->placeObject(rmgObject, false, false);
 				blockedArea.subtract(rmgObject.getArea());
 				break;

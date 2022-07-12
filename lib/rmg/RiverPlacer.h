@@ -33,6 +33,7 @@ protected:
 	
 	void prepareBorderHeightmap();
 	void prepareBorderHeightmap(std::vector<int3>::iterator l, std::vector<int3>::iterator r);
+	void prepareHeightmap();
 	
 private:
 	rmg::Area rivers;
