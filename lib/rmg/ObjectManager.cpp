@@ -59,6 +59,11 @@ void ObjectManager::updateDistances(const rmg::Object & obj)
 	}
 }
 
+const rmg::Area & ObjectManager::getVisitableArea() const
+{
+	return objectsVisitableArea;
+}
+
 int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object & obj, std::function<float(const int3)> weightFunction, bool optimizer) const
 {
 	float bestWeight = 0.f;
@@ -125,7 +130,7 @@ bool ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg::Obj
 		possibleArea.erase(pos); //do not place again at this point
 		auto possibleAreaTemp = zone.areaPossible();
 		zone.areaPossible().subtract(obj.getArea());
-		auto accessibleArea = obj.getAccessibleArea(isGuarded) * zone.getArea();
+		auto accessibleArea = obj.getAccessibleArea(isGuarded) * (possibleAreaTemp + zone.freePaths());
 		//we should exclude tiles which will be covered
 		if(isGuarded)
 		{
@@ -269,6 +274,12 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 	
 	if(updateDistance)
 		updateDistances(object);
+	
+	for(auto * instance : object.instances())
+	{
+		objectsVisitableArea.add(instance->getVisitablePosition());
+		objects.push_back(&instance->object());
+	}
 	
 	switch(object.instances().front()->object().ID)
 	{

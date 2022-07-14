@@ -43,6 +43,8 @@ public:
 	
 	void updateDistances(const rmg::Object & obj);
 	
+	const rmg::Area & getVisitableArea() const;
+	
 protected:
 	//content info
 	std::vector<std::pair<CGObjectInstance*, ui32>> requiredObjects;
@@ -50,4 +52,5 @@ protected:
 	std::vector<std::pair<CGObjectInstance*, int3>> instantObjects;
 	std::vector<std::pair<CGObjectInstance*, CGObjectInstance*>> nearbyObjects;
 	std::vector<CGObjectInstance*> objects;
+	rmg::Area objectsVisitableArea;
 };

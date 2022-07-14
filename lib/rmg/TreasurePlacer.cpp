@@ -714,7 +714,7 @@ void TreasurePlacer::createTreasures(ObjectManager & manager)
 			int3 pos;
 			auto possibleArea = zone.areaPossible();
 			
-			if((guarded && manager.placeAndConnectObject(possibleArea, rmgObject, [this, &rmgObject, &minDistance](const int3 & tile)
+			if((guarded && manager.placeAndConnectObject(possibleArea, rmgObject, [this, &rmgObject, &minDistance, &manager](const int3 & tile)
 			{
 				auto ti = map.getTile(tile);
 				if(ti.getNearestObjectDistance() < minDistance)
@@ -723,7 +723,7 @@ void TreasurePlacer::createTreasures(ObjectManager & manager)
 				auto guardedArea = rmgObject.instances().back()->getAccessibleArea();
 				auto areaToBlock = rmgObject.getAccessibleArea(true);
 				areaToBlock.subtract(guardedArea);
-				if(areaToBlock.overlap(zone.freePaths()))
+				if(areaToBlock.overlap(zone.freePaths()) || areaToBlock.overlap(manager.getVisitableArea()))
 					return -1.f;
 				
 				return 1.f;

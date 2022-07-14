@@ -286,12 +286,9 @@ void Object::Instance::finalize(RmgMap & map)
 		setTemplate(terrainType);
 	}
 	
-	for(auto & tile : getBlockedArea().getTiles())
+	for(auto & tile : getBlockedArea().getTilesVector())
 	{
-		if(tile == getVisitablePosition())
-			map.setOccupied(tile, ETileType::ETileType::FREE);
-		else
-			map.setOccupied(tile, ETileType::ETileType::USED);
+		map.setOccupied(tile, ETileType::ETileType::USED);
 	}
 	
 	map.getEditManager()->insertObject(&dObject);
