@@ -39,16 +39,6 @@ CMapGenerator::CMapGenerator(CMapGenOptions& mapGenOptions, int RandomSeed) :
 
 void CMapGenerator::loadConfig()
 {
-	static const std::map<std::string, Res::ERes> resMap
-	{
-		{"wood", Res::ERes::WOOD},
-		{"ore", Res::ERes::ORE},
-		{"gems", Res::ERes::GEMS},
-		{"crystal", Res::ERes::CRYSTAL},
-		{"mercury", Res::ERes::MERCURY},
-		{"sulfur", Res::ERes::SULFUR},
-		{"gold", Res::ERes::GOLD},
-	};
 	static const ResourceID path("config/randomMap.json");
 	JsonNode randomMapJson(path);
 	for(auto& s : randomMapJson["terrain"]["undergroundAllow"].Vector())
