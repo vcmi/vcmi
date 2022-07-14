@@ -80,10 +80,10 @@ void RiverPlacer::prepareHeightmap()
 {
 	for(auto & t : zone.area().getTilesVector())
 	{
-		heightMap[t] = generator.rand.nextInt(10);
+		heightMap[t] = generator.rand.nextInt(30);
 	}
 }
-
+ 
 void RiverPlacer::prepareBorderHeightmap()
 {
 	std::map<int3, int> heightMap;
@@ -196,8 +196,8 @@ void RiverPlacer::preprocess()
 
 void RiverPlacer::connectRiver(const int3 & tile)
 {
-	assert(!source.contains(tile));
-	assert(!sink.contains(tile));
+	if(source.contains(tile) || sink.contains(tile))
+		return;
 	
 	auto movementCost = [this](const int3 & s, const int3 & d)
 	{
