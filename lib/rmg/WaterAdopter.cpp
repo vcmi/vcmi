@@ -47,18 +47,49 @@ void WaterAdopter::createWater(EWaterContent::EWaterContent waterContent)
 	if(waterContent == EWaterContent::NONE || zone.isUnderground() || zone.getType() == ETemplateZoneType::WATER)
 		return; //do nothing
 	
-	rmg::Area waterArea(collectDistantTiles(zone, zone.getSize() + 1));
+	distanceMap = zone.area().computeDistanceMap(reverseDistanceMap);
 	
 	//add border tiles as water for ISLANDS
 	if(waterContent == EWaterContent::ISLANDS)
 	{
+		waterArea.unite(collectDistantTiles(zone, zone.getSize() + 1));
 		waterArea.unite(zone.area().getBorder());
 	}
 	
-	distanceMap = zone.area().computeDistanceMap(reverseDistanceMap);
+	//protect some parts from water for NORMAL
+	if(waterContent == EWaterContent::NORMAL)
+	{
+		waterArea.unite(collectDistantTiles(zone, zone.getSize() - 1));
+		auto sliceStart = RandomGeneratorUtil::nextItem(reverseDistanceMap[0], generator.rand);
+		auto sliceEnd = RandomGeneratorUtil::nextItem(reverseDistanceMap[0], generator.rand);
+		
+		//at least 25% without water
+		bool endPassed = false;
+		for(int counter = 0; counter < reverseDistanceMap[0].size() / 4 || !endPassed; ++sliceStart, ++counter)
+		{
+			if(sliceStart == reverseDistanceMap[0].end())
+				sliceStart = reverseDistanceMap[0].begin();
+			
+			if(sliceStart == sliceEnd)
+				endPassed = true;
+			
+			noWaterArea.add(*sliceStart);
+		}
+		
+		rmg::Area noWaterSlice;
+		for(int i = 1; i < reverseDistanceMap.size(); ++i)
+		{
+			for(auto & t : reverseDistanceMap[i])
+			{
+				if(noWaterArea.distanceSqr(t) < 3)
+					noWaterSlice.add(t);
+			}
+			noWaterArea.unite(noWaterSlice);
+		}
+	}
 	
 	//generating some irregularity of coast
-	int coastIdMax = fmin(sqrt(reverseDistanceMap.size()), 7.f); //size of coastTilesMap shows the most distant tile from water
+	int coastIdMax = sqrt(reverseDistanceMap.size()); //size of coastTilesMap shows the most distant tile from water
 	assert(coastIdMax > 0);
 	std::list<int3> tilesQueue;
 	rmg::Tileset tilesChecked;
@@ -104,14 +135,16 @@ void WaterAdopter::createWater(EWaterContent::EWaterContent waterContent)
 		});
 	}
 	
+	waterArea.subtract(noWaterArea);
+	
 	//start filtering of narrow places and coast atrifacts
-	/*rmg::Area waterAdd;
+	rmg::Area waterAdd;
 	for(int coastId = 1; coastId <= coastIdMax; ++coastId)
 	{
 		for(auto& tile : reverseDistanceMap[coastId])
 		{
 			//collect neighbout water tiles
-			auto collectionLambda = [&waterArea, this](const int3 & t, std::set<int3> & outCollection)
+			auto collectionLambda = [this](const int3 & t, std::set<int3> & outCollection)
 			{
 				if(waterArea.contains(t))
 				{
@@ -157,16 +190,16 @@ void WaterAdopter::createWater(EWaterContent::EWaterContent waterContent)
 		}
 	}
 	
-	waterArea.unite(waterAdd);*/
+	waterArea.unite(waterAdd);
 	
 	//filtering tiny "lakes"
-	/*for(auto& tile : reverseDistanceMap[0]) //now it's only coast-water tiles
+	for(auto& tile : reverseDistanceMap[0]) //now it's only coast-water tiles
 	{
 		if(!waterArea.contains(tile)) //for ground tiles
 			continue;
 		
 		std::vector<int3> groundCoast;
-		map.foreachDirectNeighbour(tile, [this, &waterArea, &groundCoast](const int3 & t)
+		map.foreachDirectNeighbour(tile, [this, &groundCoast](const int3 & t)
 		{
 			if(!waterArea.contains(t) && zone.area().contains(t)) //for ground tiles of same zone
 			{
@@ -188,7 +221,7 @@ void WaterAdopter::createWater(EWaterContent::EWaterContent waterContent)
 				}
 			}
 		}
-	}*/
+	}
 	
 	map.getZones()[waterZoneId]->area().unite(waterArea);
 	zone.area().subtract(waterArea);
@@ -216,16 +249,20 @@ rmg::Area WaterAdopter::getCoastTiles() const
 
 char WaterAdopter::dump(const int3 & t)
 {
+	if(noWaterArea.contains(t))
+		return 'X';
+	if(waterArea.contains(t))
+		return '~';
+	
 	auto distanceMapIter = distanceMap.find(t);
 	if(distanceMapIter != distanceMap.end())
 	{
+		if(distanceMapIter->second > 9)
+			return '%';
+		
 		auto distStr = std::to_string(distanceMapIter->second);
 		if(distStr.length() > 0)
-		{
-			if(distanceMapIter->second > 9)
-				return '%';
 			return distStr[0];
-		}
 	}
 	
 	return Modificator::dump(t);

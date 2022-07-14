@@ -29,6 +29,7 @@ protected:
 	void createWater(EWaterContent::EWaterContent waterContent);
 	
 protected:
+	rmg::Area noWaterArea, waterArea;
 	TRmgTemplateZoneId waterZoneId;
 	std::map<int3, int> distanceMap;
 	std::map<int, rmg::Tileset> reverseDistanceMap;

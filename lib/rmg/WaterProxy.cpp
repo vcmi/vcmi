@@ -84,6 +84,11 @@ void WaterProxy::init()
 	postfunction(zone.getModificator<TreasurePlacer>());
 }
 
+const std::vector<WaterProxy::Lake> & WaterProxy::getLakes() const
+{
+	return lakes;
+}
+
 void WaterProxy::collectLakes()
 {
 	int lakeId = 0;
@@ -97,6 +102,11 @@ void WaterProxy::collectLakes()
 				lakes.back().neighbourZones[map.getZoneID(t)].add(t);
 		for(auto & t : lake.getTiles())
 			lakeMap[t] = lakeId;
+		
+		//each lake must have at least one free tile
+		if(!lake.overlap(zone.freePaths()))
+			zone.freePaths().add(*lakes.back().reverseDistanceMap[lakes.back().reverseDistanceMap.size() - 1].begin());
+		
 		++lakeId;
 	}
 }
@@ -198,7 +208,7 @@ bool WaterProxy::placeBoat(Zone & land, const Lake & lake, RouteInfo & info)
 	rmg::Area coast = lake.neighbourZones.at(land.getId()); //having land tiles
 	coast.intersect(land.areaPossible() + land.freePaths()); //having only available land tiles
 	auto boardingPositions = coast.getSubarea([&waterAvailable](const int3 & tile) //tiles where boarding is possible
-											  {
+	{
 		rmg::Area a({tile});
 		a = a.getBorderOutside();
 		a.intersect(waterAvailable);
@@ -233,7 +243,7 @@ bool WaterProxy::placeBoat(Zone & land, const Lake & lake, RouteInfo & info)
 		info.water = shipPositions;
 		
 		zone.connectPath(path);
-		land.connectPath(path);
+		land.connectPath(landPath);
 		manager->placeObject(rmgObject, false, true);
 		break;
 	}

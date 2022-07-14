@@ -40,6 +40,7 @@ public:
 	void process() override;
 	void init() override;
 	char dump(const int3 &) override;
+	const std::vector<Lake> & getLakes() const;
 	
 protected:
 	void collectLakes();

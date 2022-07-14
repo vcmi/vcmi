@@ -38,6 +38,16 @@ void WaterRoutes::process()
 		if(z.first != zone.getId())
 			result.push_back(wproxy->waterRoute(*z.second));
 	}
+	
+	//prohibit to place objects on sealed off lakes
+	for(auto & lake : wproxy->getLakes())
+	{
+		if((lake.area * zone.freePaths()).getTilesVector().size() == 1)
+		{
+			zone.freePaths().subtract(lake.area);
+			zone.areaPossible().subtract(lake.area);
+		}
+	}
 }
 
 void WaterRoutes::init()
