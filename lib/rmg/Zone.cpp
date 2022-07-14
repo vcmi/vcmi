@@ -288,7 +288,6 @@ void Zone::processModificators()
 			logGlobal->info("Zone %d, modificator %s - FAILED: %s", getId(), e.what());
 			throw e;
 		}
-		map.dump(false);
 	}
 	logGlobal->info("Zone %d filled successfully", getId());
 }
@@ -353,8 +352,7 @@ void Modificator::postfunction(Modificator * modificator)
 
 void Modificator::dump()
 {
-	static int order = 1;
-	std::ofstream out(boost::to_string(boost::format("modzone_%d_n%s_%s.txt") % zone.getId() % boost::io::group(std::setfill('0'), std::setw(3), order++) % getName()));
+	std::ofstream out(boost::to_string(boost::format("seed_%d_modzone_%d_%s.txt") % generator.getRandomSeed() % zone.getId() % getName()));
 	auto & mapInstance = map.map();
 	int levels = mapInstance.twoLevel ? 2 : 1;
 	int width =  mapInstance.width;

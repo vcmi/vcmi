@@ -37,19 +37,28 @@ void WaterProxy::process()
 	paintZoneTerrain(zone, generator.rand, map, zone.getTerrainType());
 	
 	//check terrain type
-	for(auto & t : zone.area().getBorder())
+	for(auto & t : zone.area().getTilesVector())
 	{
-		if(map.isOnMap(t) && map.map().getTile(t).terType != zone.getTerrainType())
-		{
-			map.setOccupied(t, ETileType::USED);
-		}
+		assert(map.isOnMap(t));
+		assert(map.map().getTile(t).terType == zone.getTerrainType());
 	}
-	for(auto & t : zone.area().getBorderOutside())
+	
+	for(auto z : map.getZones())
 	{
-		if(map.isOnMap(t) && map.map().getTile(t).terType == zone.getTerrainType())
+		if(z.second->getId() == zone.getId())
+			continue;
+		
+		for(auto & t : z.second->area().getTilesVector())
 		{
-			map.getZones()[map.getZoneID(t)]->areaPossible().erase(t);
-			map.setOccupied(t, ETileType::USED);
+			if(map.map().getTile(t).terType == zone.getTerrainType())
+			{
+				z.second->areaPossible().erase(t);
+				z.second->area().erase(t);
+				zone.area().add(t);
+				zone.areaPossible().add(t);
+				map.setZoneID(t, zone.getId());
+				map.setOccupied(t, ETileType::POSSIBLE);
+			}
 		}
 	}
 	

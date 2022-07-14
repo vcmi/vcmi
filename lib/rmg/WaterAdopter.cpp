@@ -22,6 +22,7 @@
 #include "TreasurePlacer.h"
 #include "TownPlacer.h"
 #include "ConnectionsPlacer.h"
+#include "RiverPlacer.h"
 #include "TileInfo.h"
 
 void WaterAdopter::process()
@@ -61,7 +62,7 @@ void WaterAdopter::createWater(EWaterContent::EWaterContent waterContent)
 	assert(coastIdMax > 0);
 	std::list<int3> tilesQueue;
 	rmg::Tileset tilesChecked;
-	for(int coastId = coastIdMax; coastId >= 1; --coastId)
+	for(int coastId = coastIdMax; coastId >= 0; --coastId)
 	{
 		//amount of iterations shall be proportion of coast perimeter
 		const int coastLength = reverseDistanceMap[coastId].size() / (coastId + 3);
@@ -95,7 +96,7 @@ void WaterAdopter::createWater(EWaterContent::EWaterContent waterContent)
 			if(tilesChecked.count(dst))
 				return;
 			
-			if(distanceMap[dst] > 0 && distanceMap[src] - distanceMap[dst] == 1)
+			if(distanceMap[dst] >= 0 && distanceMap[src] - distanceMap[dst] == 1)
 			{
 				tilesQueue.push_back(dst);
 				tilesChecked.insert(dst);
@@ -104,7 +105,7 @@ void WaterAdopter::createWater(EWaterContent::EWaterContent waterContent)
 	}
 	
 	//start filtering of narrow places and coast atrifacts
-	rmg::Area waterAdd;
+	/*rmg::Area waterAdd;
 	for(int coastId = 1; coastId <= coastIdMax; ++coastId)
 	{
 		for(auto& tile : reverseDistanceMap[coastId])
@@ -156,10 +157,10 @@ void WaterAdopter::createWater(EWaterContent::EWaterContent waterContent)
 		}
 	}
 	
-	waterArea.unite(waterAdd);
+	waterArea.unite(waterAdd);*/
 	
 	//filtering tiny "lakes"
-	for(auto& tile : reverseDistanceMap[0]) //now it's only coast-water tiles
+	/*for(auto& tile : reverseDistanceMap[0]) //now it's only coast-water tiles
 	{
 		if(!waterArea.contains(tile)) //for ground tiles
 			continue;
@@ -187,11 +188,17 @@ void WaterAdopter::createWater(EWaterContent::EWaterContent waterContent)
 				}
 			}
 		}
-	}
+	}*/
 	
 	map.getZones()[waterZoneId]->area().unite(waterArea);
 	zone.area().subtract(waterArea);
 	zone.areaPossible().subtract(waterArea);
+	if(auto * m = zone.getModificator<RiverPlacer>())
+	{
+		m->riverSink().unite(waterArea);
+	}
+	
+	distanceMap = zone.area().computeDistanceMap(reverseDistanceMap);
 }
 
 void WaterAdopter::setWaterZone(TRmgTemplateZoneId water)
@@ -221,5 +228,5 @@ char WaterAdopter::dump(const int3 & t)
 		}
 	}
 	
-	return '.';
+	return Modificator::dump(t);
 }

@@ -202,19 +202,16 @@ void RiverPlacer::connectRiver(const int3 & tile)
 	auto movementCost = [this](const int3 & s, const int3 & d)
 	{
 		float cost = 1.0f;
-
-		if(!zone.areaPossible().contains(d))
-			cost += 2.f;
 		
 		cost += heightMap[d];
 		return cost;
 	};
 	
-	rmg::Path pathToSource(zone.area() - rivers);
+	rmg::Path pathToSource(zone.areaPossible() + zone.freePaths() - rivers);
 	pathToSource.connect(source);
 	pathToSource = pathToSource.search(tile, true, movementCost);
 	
-	rmg::Path pathToSink(zone.area() - pathToSource.getPathArea());
+	rmg::Path pathToSink(zone.areaPossible() + zone.freePaths() - pathToSource.getPathArea());
 	pathToSink.connect(sink);
 	pathToSink = pathToSink.search(tile, true, movementCost);
 	

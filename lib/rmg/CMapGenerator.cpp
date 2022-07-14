@@ -37,6 +37,11 @@ CMapGenerator::CMapGenerator(CMapGenOptions& mapGenOptions, int RandomSeed) :
 	map = std::make_unique<RmgMap>(mapGenOptions);
 }
 
+int CMapGenerator::getRandomSeed() const
+{
+	return randomSeed;
+}
+
 void CMapGenerator::loadConfig()
 {
 	static const ResourceID path("config/randomMap.json");

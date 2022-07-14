@@ -70,6 +70,8 @@ public:
 	Zone * getZoneWater() const;
 	void createWaterTreasures();
 
+	int getRandomSeed() const;
+	
 private:
 	int randomSeed;
 	CMapGenOptions& mapGenOptions;
