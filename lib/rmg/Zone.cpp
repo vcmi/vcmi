@@ -425,7 +425,14 @@ void Modificator::run()
 		}
 		logGlobal->info("Modificator zone %d - %s - started", zone.getId(), getName());
 		CStopWatch processTime;
-		process();
+		try
+		{
+			process();
+		}
+		catch(rmgException &e)
+		{
+			logGlobal->error("Modificator %s, exception: %s", getName(), e.what());
+		}
 		dump();
 		finished = true;
 		logGlobal->info("Modificator zone %d - %s - done (%d ms)", zone.getId(), getName(), processTime.getDiff());
@@ -453,7 +460,7 @@ void Modificator::postfunction(Modificator * modificator)
 void Modificator::dump()
 {
 	static int order = 1;
-	std::ofstream out(boost::to_string(boost::format("n%s_modzone_%d_%s.txt") % boost::io::group(std::setfill('0'), std::setw(3), order++) % zone.getId() % getName()));
+	std::ofstream out(boost::to_string(boost::format("modzone_%d_n%s_%s.txt") % zone.getId() % boost::io::group(std::setfill('0'), std::setw(3), order++) % getName()));
 	auto & mapInstance = map.map();
 	int levels = mapInstance.twoLevel ? 2 : 1;
 	int width =  mapInstance.width;
