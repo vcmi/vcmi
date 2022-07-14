@@ -18,6 +18,7 @@
 #include "ObjectManager.h"
 #include "ObstaclePlacer.h"
 #include "WaterProxy.h"
+#include "RoadPlacer.h"
 
 void RiverPlacer::process()
 {
@@ -199,11 +200,22 @@ void RiverPlacer::connectRiver(const int3 & tile)
 	if(source.contains(tile) || sink.contains(tile))
 		return;
 	
-	auto movementCost = [this](const int3 & s, const int3 & d)
+	rmg::Area roads;
+	if(auto * m = zone.getModificator<RoadPlacer>())
+	{
+		roads.unite(m->getRoads());
+	}
+	
+	auto movementCost = [this, &roads](const int3 & s, const int3 & d)
 	{
 		float cost = 1.0f;
 		
 		cost += heightMap[d];
+		
+		//avoid roads
+		if(roads.contains(d))
+			cost += 10.f;
+		
 		return cost;
 	};
 	

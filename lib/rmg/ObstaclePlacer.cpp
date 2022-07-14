@@ -81,12 +81,13 @@ void ObstaclePlacer::process()
 			if(!possibleObstacles[i].first)
 				continue;
 			
+			auto overallArea = blockedArea + zone.areaPossible();
 			auto temp = *RandomGeneratorUtil::nextItem(possibleObstacles[i].second, generator.rand);
 			auto handler = VLC->objtypeh->getHandlerFor(temp.id, temp.subid);
 			auto obj = handler->create(temp);
 			rmg::Object rmgObject(*obj);
 			rmgObject.setPosition(tile);
-			if(blockedArea.contains(rmgObject.getArea()))
+			if(overallArea.contains(rmgObject.getArea()))
 			{
 				//river processing
 				if(riverManager)

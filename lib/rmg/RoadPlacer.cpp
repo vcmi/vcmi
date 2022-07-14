@@ -31,6 +31,11 @@ rmg::Area & RoadPlacer::areaIsolated()
 	return isolated;
 }
 
+const rmg::Area & RoadPlacer::getRoads() const
+{
+	return roads;
+}
+
 bool RoadPlacer::createRoad(const int3 & dst)
 {
 	auto searchArea = zone.areaPossible() - isolated + zone.freePaths() + areaRoads;
@@ -59,6 +64,7 @@ bool RoadPlacer::createRoad(const int3 & dst)
 
 void RoadPlacer::drawRoads()
 {
+	zone.areaPossible().subtract(roads);
 	zone.freePaths().unite(roads);
 	map.getEditManager()->getTerrainSelection().setSelection(roads.getTilesVector());
 	map.getEditManager()->drawRoad(generator.getConfig().defaultRoadType, &generator.rand);

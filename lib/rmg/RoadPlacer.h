@@ -24,6 +24,7 @@ public:
 	
 	rmg::Area & areaForRoads();
 	rmg::Area & areaIsolated();
+	const rmg::Area & getRoads() const;
 	
 protected:
 	bool createRoad(const int3 & dst);
