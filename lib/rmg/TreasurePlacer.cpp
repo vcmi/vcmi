@@ -714,21 +714,30 @@ void TreasurePlacer::createTreasures(ObjectManager & manager)
 			int3 pos;
 			auto possibleArea = zone.areaPossible();
 			
-			if((guarded && manager.placeAndConnectObject(possibleArea, rmgObject, [this, &rmgObject, &minDistance, &manager](const int3 & tile)
+			auto path = rmg::Path::invalid();
+			if(guarded)
 			{
-				auto ti = map.getTile(tile);
-				if(ti.getNearestObjectDistance() < minDistance)
-					return -1.f;
-				
-				auto guardedArea = rmgObject.instances().back()->getAccessibleArea();
-				auto areaToBlock = rmgObject.getAccessibleArea(true);
-				areaToBlock.subtract(guardedArea);
-				if(areaToBlock.overlap(zone.freePaths()) || areaToBlock.overlap(manager.getVisitableArea()))
-					return -1.f;
-				
-				return 1.f;
-			}, guarded, false, false))
-			   || (!guarded && manager.placeAndConnectObject(possibleArea, rmgObject, minDistance, guarded, false, false)))
+				path = manager.placeAndConnectObject(possibleArea, rmgObject, [this, &rmgObject, &minDistance, &manager](const int3 & tile)
+				{
+					auto ti = map.getTile(tile);
+					if(ti.getNearestObjectDistance() < minDistance)
+						return -1.f;
+					
+					auto guardedArea = rmgObject.instances().back()->getAccessibleArea();
+					auto areaToBlock = rmgObject.getAccessibleArea(true);
+					areaToBlock.subtract(guardedArea);
+					if(areaToBlock.overlap(zone.freePaths()) || areaToBlock.overlap(manager.getVisitableArea()))
+						return -1.f;
+					
+					return 1.f;
+				}, guarded, false, false);
+			}
+			else
+			{
+				path = manager.placeAndConnectObject(possibleArea, rmgObject, minDistance, guarded, false, false);
+			}
+			
+			if(path.valid())
 			{
 				//debug purposes
 				treasureArea.unite(rmgObject.getArea());
@@ -740,6 +749,7 @@ void TreasurePlacer::createTreasures(ObjectManager & manager)
 					areaToBlock.subtract(guardedArea);
 					treasureBlockArea.unite(areaToBlock);
 				}
+				zone.connectPath(path);
 				manager.placeObject(rmgObject, guarded, true);
 			}
 			else

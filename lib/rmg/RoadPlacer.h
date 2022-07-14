@@ -22,6 +22,9 @@ public:
 	void addRoadNode(const int3 & node);
 	void connectRoads(); //fills "roads" according to "roadNodes"
 	
+	rmg::Area & areaForRoads();
+	rmg::Area & areaIsolated();
+	
 protected:
 	bool createRoad(const int3 & dst);
 	void drawRoads(); //actually updates tiles
@@ -29,4 +32,5 @@ protected:
 protected:
 	rmg::Tileset roadNodes; //tiles to be connected with roads
 	rmg::Area roads; //all tiles with roads
+	rmg::Area areaRoads, isolated;
 };

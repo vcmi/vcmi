@@ -52,9 +52,9 @@ char RiverPlacer::dump(const int3 & t)
 	if(rivers.contains(t))
 		return '~';
 	if(sink.contains(t))
-		return '*';
+		return '2';
 	if(source.contains(t))
-		return '^';
+		return '1';
 	if(zone.area().contains(t))
 		return ' ';
 	return '?';
@@ -130,7 +130,7 @@ void RiverPlacer::prepareBorderHeightmap(std::vector<int3>::iterator l, std::vec
 void RiverPlacer::preprocess()
 {
 	//decorative river
-	if(!sink.empty() && !source.empty() && riverNodes.empty())
+	if(!sink.empty() && !source.empty() && riverNodes.empty() && !zone.areaPossible().empty())
 	{
 		addRiverNode(*RandomGeneratorUtil::nextItem(zone.areaPossible().getTilesVector(), generator.rand));
 	}

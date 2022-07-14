@@ -15,11 +15,6 @@
 
 namespace rmg
 {
-	struct HashInt3
-	{
-		size_t operator() (const int3 &) const;
-	};
-
 	using Tileset = std::set<int3>;
 	using DistanceMap = std::map<int3, int>;
 	void toAbsolute(Tileset & tiles, const int3 & position);
@@ -57,8 +52,7 @@ namespace rmg
 		int3 nearest(const Area & area) const;
 		
 		void clear();
-		void assign(const Tileset & tiles);
-		//void assign(const std::set<int3> & tiles);
+		void assign(const Tileset tiles); //do not use reference to allow assigment of cached data
 		void add(const int3 & tile);
 		void erase(const int3 & tile);
 		void unite(const Area & area);

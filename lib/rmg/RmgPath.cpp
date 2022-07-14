@@ -47,6 +47,11 @@ bool Path::valid() const
 	return !dPath.empty();
 }
 
+Path Path::invalid()
+{
+	return Path({});
+}
+
 Path Path::search(const Tileset & dst, bool straight, std::function<float(const int3 &, const int3 &)> moveCostFunction) const
 {
 	//A* algorithm taken from Wiki http://en.wikipedia.org/wiki/A*_search_algorithm

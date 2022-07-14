@@ -21,19 +21,32 @@ void RoadPlacer::process()
 	connectRoads();
 }
 
+rmg::Area & RoadPlacer::areaForRoads()
+{
+	return areaRoads;
+}
+
+rmg::Area & RoadPlacer::areaIsolated()
+{
+	return isolated;
+}
+
 bool RoadPlacer::createRoad(const int3 & dst)
 {
-	auto areaForRoads = zone.area().getSubarea([this](const int3 & t)
-	{
-		return map.isFree(t);
-	});
-	rmg::Path path(zone.freePaths() + zone.areaPossible() + areaForRoads);
+	auto searchArea = zone.areaPossible() - isolated + zone.freePaths() + areaRoads;
+	
+	rmg::Path path(searchArea);
 	path.connect(roads);
+	
 	auto res = path.search(dst, true);
-	if(res.getPathArea().empty())
+	if(!res.valid())
 	{
-		auto res = path.search(dst, false);
-		if(res.getPathArea().empty())
+		res = path.search(dst, false, [](const int3 & src, const int3 & dst)
+		{
+			float weight = dst.dist2dSQ(src);
+			return weight * weight;
+		});
+		if(!res.valid())
 		{
 			logGlobal->warn("Failed to create road");
 			return false;

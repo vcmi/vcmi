@@ -209,16 +209,10 @@ bool WaterProxy::placeBoat(Zone & land, const Lake & lake, RouteInfo & info)
 			continue;
 		}
 		
-		//try to place boat at water and create path on water
-		bool result = manager->placeAndConnectObject(shipPositions, rmgObject, 2, false, true, false);
-		if(!result)
-		{
-			boardingPositions.erase(boardingPosition);
-			continue;
-		}
-		
-		//connect boat boarding position
-		if(!land.connectPath(boardingPosition, false))
+		//try to place boat at water, create paths on water and land
+		auto path = manager->placeAndConnectObject(shipPositions, rmgObject, 2, false, true, false);
+		auto landPath = land.searchPath(boardingPosition, false);
+		if(!path.valid() || !landPath.valid())
 		{
 			boardingPositions.erase(boardingPosition);
 			continue;
@@ -229,6 +223,8 @@ bool WaterProxy::placeBoat(Zone & land, const Lake & lake, RouteInfo & info)
 		info.boarding = boardingPosition;
 		info.water = shipPositions;
 		
+		zone.connectPath(path);
+		land.connectPath(path);
 		manager->placeObject(rmgObject, false, true);
 		break;
 	}
@@ -275,7 +271,7 @@ bool WaterProxy::placeShipyard(Zone & land, const Lake & lake, si32 guard, Route
 		}
 		
 		//try to place shipyard close to boarding position and appropriate water access
-		bool result = manager->placeAndConnectObject(land.areaPossible(), rmgObject, [&rmgObject, &shipPositions, &boardingPosition](const int3 & tile)
+		auto path = manager->placeAndConnectObject(land.areaPossible(), rmgObject, [&rmgObject, &shipPositions, &boardingPosition](const int3 & tile)
 		{
 			rmg::Area shipyardOut(rmgObject.getArea().getBorderOutside());
 			if(!shipyardOut.contains(boardingPosition) || (shipyardOut * shipPositions).empty())
@@ -284,35 +280,28 @@ bool WaterProxy::placeShipyard(Zone & land, const Lake & lake, si32 guard, Route
 			return 1.0f;
 		}, guarded, true, false);
 		
-		if(!result)
-		{
-			boardingPositions.erase(boardingPosition);
-			continue;
-		}
-		
-		//ensure access to boat boarding position
-		if(!land.connectPath(boardingPosition, false))
-		{
-			boardingPositions.erase(boardingPosition);
-			continue;
-		}
+		//search path to boarding position
+		rmg::Path pathToBoarding(land.areaPossible() - rmgObject.getArea());
+		pathToBoarding.connect(land.freePaths());
+		pathToBoarding.connect(path);
+		pathToBoarding = pathToBoarding.search(boardingPosition, false);
 		
 		//make sure shipyard places ship at position we defined
 		rmg::Area shipyardOutToBlock(rmgObject.getArea().getBorderOutside());
 		shipyardOutToBlock.intersect(waterAvailable);
 		shipyardOutToBlock.subtract(shipPositions);
 		shipPositions.subtract(shipyardOutToBlock);
+		auto pathToBoat = zone.searchPath(shipPositions, false);
 		
-		zone.areaPossible().subtract(shipyardOutToBlock);
-		
-		//ensure access to boat on water
-		if(!zone.connectPath(shipPositions, false))
+		if(!path.valid() || !pathToBoarding.valid() || !pathToBoat.valid())
 		{
 			boardingPositions.erase(boardingPosition);
-			zone.areaPossible().unite(shipyardOutToBlock);
-			zone.areaPossible().subtract(zone.freePaths());
 			continue;
 		}
+		
+		land.connectPath(path);
+		land.connectPath(pathToBoarding);
+		zone.connectPath(pathToBoat);
 		
 		info.blocked = rmgObject.getArea();
 		info.visitable = rmgObject.getVisitablePosition();
@@ -321,6 +310,7 @@ bool WaterProxy::placeShipyard(Zone & land, const Lake & lake, si32 guard, Route
 		
 		manager->placeObject(rmgObject, guarded, true);
 		
+		zone.areaPossible().subtract(shipyardOutToBlock);
 		for(auto & i : shipyardOutToBlock.getTilesVector())
 			if(map.isOnMap(i) && map.isPossible(i))
 				map.setOccupied(i, ETileType::BLOCKED);

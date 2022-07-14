@@ -103,7 +103,7 @@ int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object
 	}, optimizer);
 }
 
-bool ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg::Object & obj, si32 min_dist, bool isGuarded, bool onlyStraight, bool optimizer) const
+rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg::Object & obj, si32 min_dist, bool isGuarded, bool onlyStraight, bool optimizer) const
 {
 	return placeAndConnectObject(searchArea, obj, [this, min_dist](const int3 & tile)
 	{
@@ -116,7 +116,7 @@ bool ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg::Obj
 	}, isGuarded, onlyStraight, optimizer);
 }
 
-bool ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg::Object & obj, std::function<float(const int3)> weightFunction, bool isGuarded, bool onlyStraight, bool optimizer) const
+rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg::Object & obj, std::function<float(const int3)> weightFunction, bool isGuarded, bool onlyStraight, bool optimizer) const
 {
 	int3 pos;
 	auto possibleArea = searchArea;
@@ -125,12 +125,11 @@ bool ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg::Obj
 		pos = findPlaceForObject(possibleArea, obj, weightFunction, optimizer);
 		if(!pos.valid())
 		{
-			return false;
+			return rmg::Path::invalid();
 		}
 		possibleArea.erase(pos); //do not place again at this point
-		auto possibleAreaTemp = zone.areaPossible();
 		zone.areaPossible().subtract(obj.getArea());
-		auto accessibleArea = obj.getAccessibleArea(isGuarded) * (possibleAreaTemp + zone.freePaths());
+		auto accessibleArea = obj.getAccessibleArea(isGuarded) * (zone.areaPossible() + zone.freePaths());
 		//we should exclude tiles which will be covered
 		if(isGuarded)
 		{
@@ -139,12 +138,11 @@ bool ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg::Obj
 			accessibleArea.intersect(guardedArea);
 		}
 		
-		if(zone.connectPath(accessibleArea, onlyStraight))
+		auto path = zone.searchPath(accessibleArea, onlyStraight);
+		if(path.valid())
 		{
-			zone.areaPossible() = possibleAreaTemp;
-			return true;
+			return path;
 		}
-		zone.areaPossible() = possibleAreaTemp;
 	}
 }
 
@@ -159,13 +157,15 @@ bool ObjectManager::createRequiredObjects()
 		rmg::Object rmgObject(*obj);
 		rmgObject.setTemplate(zone.getTerrainType());
 		bool guarded = addGuard(rmgObject, object.second, (obj->ID == Obj::MONOLITH_TWO_WAY));
+		auto path = placeAndConnectObject(zone.areaPossible(), rmgObject, 3, guarded, false, true);
 		
-		if(!placeAndConnectObject(zone.areaPossible(), rmgObject, 3, guarded, false, true))
+		if(!path.valid())
 		{
 			logGlobal->error("Failed to fill zone %d due to lack of space", zone.getId());
 			return false;
 		}
 		
+		zone.connectPath(path);
 		placeObject(rmgObject, guarded, true);
 		
 		for(const auto & nearby : nearbyObjects)
@@ -195,20 +195,22 @@ bool ObjectManager::createRequiredObjects()
 		rmg::Object rmgObject(*obj);
 		rmgObject.setTemplate(zone.getTerrainType());
 		bool guarded = addGuard(rmgObject, object.second, (obj->ID == Obj::MONOLITH_TWO_WAY));
+		auto path = placeAndConnectObject(zone.areaPossible(), rmgObject,
+										  [this, &rmgObject](const int3 & tile)
+		{
+			float dist = rmgObject.getArea().distanceSqr(zone.getPos());
+			dist *= (dist > 12.f * 12.f) ? 10.f : 1.f; //tiles closer 12 are preferrable
+			dist = 1000000.f - dist; //some big number
+			return dist + map.getNearestObjectDistance(tile);
+		}, guarded, false, true);
 		
-		if(!placeAndConnectObject(zone.areaPossible(), rmgObject,
-								[this, &rmgObject](const int3 & tile)
-								{
-									float dist = rmgObject.getArea().distanceSqr(zone.getPos());
-									dist *= (dist > 12.f * 12.f) ? 10.f : 1.f; //tiles closer 12 are preferrable
-									dist = 1000000.f - dist; //some big number
-									return dist + map.getNearestObjectDistance(tile);
-								}, guarded, false, true))
+		if(!path.valid())
 		{
 			logGlobal->error("Failed to fill zone %d due to lack of space", zone.getId());
 			return false;
 		}
 		
+		zone.connectPath(path);
 		placeObject(rmgObject, guarded, true);
 		
 		for(const auto & nearby : nearbyObjects)
@@ -279,6 +281,18 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 	{
 		objectsVisitableArea.add(instance->getVisitablePosition());
 		objects.push_back(&instance->object());
+		if(auto * m = zone.getModificator<RoadPlacer>())
+		{
+			if(instance->object().appearance.isVisitableFromTop())
+				m->areaForRoads().add(instance->getVisitablePosition());
+			else
+			{
+				rmg::Area isolated({instance->getVisitablePosition()});
+				isolated.assign(isolated.getBorderOutside());
+				isolated.subtract(instance->getAccessibleArea());
+				m->areaIsolated().unite(isolated);
+			}
+		}
 	}
 	
 	switch(object.instances().front()->object().ID)
@@ -290,9 +304,8 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 		case Obj::MONOLITH_ONE_WAY_EXIT:
 		case Obj::SUBTERRANEAN_GATE:
 		case Obj::SHIPYARD:
-		case Obj::MINE:
 			if(auto * m = zone.getModificator<RoadPlacer>())
-				m->addRoadNode(object.getVisitablePosition());
+				m->addRoadNode(object.instances().front()->getVisitablePosition());
 			break;
 			
 		case Obj::WATER_WHEEL:

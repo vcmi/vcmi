@@ -15,6 +15,7 @@
 #include "../int3.h"
 #include "CRmgTemplate.h"
 #include "RmgArea.h"
+#include "RmgPath.h"
 #include "RmgObject.h"
 
 #define MODIFICATOR(x) x(Zone & z, RmgMap & m, CMapGenerator & g): Modificator(z, m, g) {setName(#x);}
@@ -82,10 +83,10 @@ public:
 	void setTownType(si32 town);
 	const Terrain & getTerrainType() const;
 	void setTerrainType(const Terrain & terrain);
-	
-	bool crunchPath(const int3 & src, const int3 & dst, bool onlyStraight, std::set<int3> * clearedTiles = nullptr);
-	bool connectPath(const int3 & src, bool onlyStraight);
-	bool connectPath(const rmg::Area & src, bool onlyStraight);
+		
+	void connectPath(const rmg::Path & path);
+	rmg::Path searchPath(const rmg::Area & src, bool onlyStraight) const;
+	rmg::Path searchPath(const int3 & src, bool onlyStraight) const;
 	
 	template<class T>
 	T* getModificator()

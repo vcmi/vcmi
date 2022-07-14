@@ -106,8 +106,12 @@ void ConnectionsPlacer::selfSideConnection(const rmg::ZoneConnection & connectio
 			auto & manager = *zone.getModificator<ObjectManager>();
 			auto * monsterType = manager.chooseGuard(connection.getGuardStrength(), true);
 			
-			if(zone.connectPath(guardPos, true) && otherZone->connectPath(guardPos, true))
+			auto ourPath = zone.searchPath(guardPos, true), theirPath = otherZone->searchPath(guardPos, true);
+			if(ourPath.valid() && theirPath.valid())
 			{
+				zone.connectPath(ourPath);
+				otherZone->connectPath(theirPath);
+				
 				if(monsterType)
 				{
 					rmg::Object monster(*monsterType);
@@ -117,7 +121,7 @@ void ConnectionsPlacer::selfSideConnection(const rmg::ZoneConnection & connectio
 				else
 				{
 					zone.areaPossible().erase(guardPos);
-					zone.areaUsed().add(guardPos);
+					zone.freePaths().add(guardPos);
 					map.setOccupied(guardPos, ETileType::FREE);
 				}
 				
@@ -176,8 +180,8 @@ void ConnectionsPlacer::selfSideConnection(const rmg::ZoneConnection & connectio
 			int minDist = 3;
 			int maxDistSq = 3 * 3;
 			
-			if(manager.placeAndConnectObject(commonArea, rmgGate1, minDist, guarded1, true, true) &&
-			   managerOther.placeAndConnectObject(otherCommonArea, rmgGate2, [this, &rmgGate1, &minDist, &maxDistSq](const int3 & tile)
+			auto path1 = manager.placeAndConnectObject(commonArea, rmgGate1, minDist, guarded1, true, true);
+			auto path2 = managerOther.placeAndConnectObject(otherCommonArea, rmgGate2, [this, &rmgGate1, &minDist, &maxDistSq](const int3 & tile)
 			{
 				auto ti = map.getTile(tile);
 				auto dist = ti.getNearestObjectDistance();
@@ -190,8 +194,13 @@ void ConnectionsPlacer::selfSideConnection(const rmg::ZoneConnection & connectio
 					return 1000000.f - d2 - dist;
 				}
 				return -1.f;
-			}, guarded2, true, true))
+			}, guarded2, true, true);
+			
+			if(path1.valid() && path2.valid())
 			{
+				zone.connectPath(path1);
+				otherZone->connectPath(path2);
+				
 				manager.placeObject(rmgGate1, guarded1, true);
 				managerOther.placeObject(rmgGate2, guarded2, true);
 				

@@ -37,6 +37,8 @@ public:
 	
 	const Area & getPathArea() const;
 	
+	static Path invalid();
+	
 private:
 	
 	Area dArea;

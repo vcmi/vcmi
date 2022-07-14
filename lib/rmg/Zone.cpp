@@ -136,116 +136,7 @@ void Zone::setTerrainType(const Terrain & terrain)
 	terrainType = terrain;
 }
 
-bool Zone::crunchPath(const int3 &src, const int3 &dst, bool onlyStraight, std::set<int3>* clearedTiles)
-{
-	/*
-	 make shortest path with free tiles, reachning dst or closest already free tile. Avoid blocks.
-	 do not leave zone border
-	 */
-	bool result = false;
-	bool end = false;
-	
-	int3 currentPos = src;
-	float distance = static_cast<float>(currentPos.dist2dSQ (dst));
-	
-	while (!end)
-	{
-		if (currentPos == dst)
-		{
-			result = true;
-			break;
-		}
-		
-		auto lastDistance = distance;
-		
-		auto processNeighbours = [this, &currentPos, dst, &distance, &result, &end, clearedTiles](int3 &pos)
-		{
-			if (!result) //not sure if lambda is worth it...
-			{
-				if (pos == dst)
-				{
-					result = true;
-					end = true;
-				}
-				if (pos.dist2dSQ (dst) < distance)
-				{
-					if (!map.isBlocked(pos))
-					{
-						if (map.getZoneID(pos) == id)
-						{
-							if (map.isPossible(pos))
-							{
-								map.setOccupied (pos, ETileType::FREE);
-								if(clearedTiles)
-									clearedTiles->insert(pos);
-								currentPos = pos;
-								distance = static_cast<float>(currentPos.dist2dSQ (dst));
-							}
-							else if(map.isFree(pos))
-							{
-								end = true;
-								result = true;
-							}
-						}
-					}
-				}
-			}
-		};
-		
-		if (onlyStraight)
-			map.foreachDirectNeighbour (currentPos, processNeighbours);
-		else
-			map.foreach_neighbour (currentPos,processNeighbours);
-		
-		int3 anotherPos(-1, -1, -1);
-		
-		if (!(result || distance < lastDistance)) //we do not advance, use more advanced pathfinding algorithm?
-		{
-			//try any nearby tiles, even if its not closer than current
-			float lastDistance = 2 * distance; //start with significantly larger value
-			
-			auto processNeighbours2 = [this, &currentPos, dst, &lastDistance, &anotherPos, clearedTiles](int3 &pos)
-			{
-				if (currentPos.dist2dSQ(dst) < lastDistance) //try closest tiles from all surrounding unused tiles
-				{
-					if (map.getZoneID(pos) == id)
-					{
-						if (map.isPossible(pos))
-						{
-							if (clearedTiles)
-								clearedTiles->insert(pos);
-							anotherPos = pos;
-							lastDistance = static_cast<float>(currentPos.dist2dSQ(dst));
-						}
-					}
-				}
-			};
-			if (onlyStraight)
-				map.foreachDirectNeighbour(currentPos, processNeighbours2);
-			else
-				map.foreach_neighbour(currentPos, processNeighbours2);
-			
-			
-			if (anotherPos.valid())
-			{
-				if (clearedTiles)
-					clearedTiles->insert(anotherPos);
-				//map.setOccupied(anotherPos, ETileType::FREE);
-				currentPos = anotherPos;
-			}
-		}
-		if (!(result || distance < lastDistance || anotherPos.valid()))
-		{
-			//FIXME: seemingly this condition is messed up, tells nothing
-			//logGlobal->warn("No tile closer than %s found on path from %s to %s", currentPos, src , dst);
-			break;
-		}
-	}
-	
-	return result;
-}
-
-bool Zone::connectPath(const rmg::Area & src, bool onlyStraight)
+rmg::Path Zone::searchPath(const rmg::Area & src, bool onlyStraight) const
 ///connect current tile to any other free tile within zone
 {
 	auto movementCost = [this](const int3 & s, const int3 & d)
@@ -262,29 +153,32 @@ bool Zone::connectPath(const rmg::Area & src, bool onlyStraight)
 	freePath.connect(dAreaFree);
 	
 	//connect to all pieces
-	rmg::Area potentialPath;
 	auto goals = connectedAreas(src);
 	for(auto & goal : goals)
 	{
 		auto path = freePath.search(goal, onlyStraight, movementCost);
 		if(path.getPathArea().empty())
-			return false;
+			return path;
 		
-		potentialPath.unite(path.getPathArea());
 		freePath.connect(path.getPathArea());
 	}
 	
-	dAreaPossible.subtract(potentialPath);
-	dAreaFree.unite(potentialPath);
-	for(auto & t : potentialPath.getTiles())
-		map.setOccupied(t, ETileType::FREE);
-	return true;
+	return freePath;
 }
 
-bool Zone::connectPath(const int3 & src, bool onlyStraight)
+rmg::Path Zone::searchPath(const int3 & src, bool onlyStraight) const
 ///connect current tile to any other free tile within zone
 {
-	return connectPath(rmg::Area({src}), onlyStraight);
+	return searchPath(rmg::Area({src}), onlyStraight);
+}
+
+void Zone::connectPath(const rmg::Path & path)
+///connect current tile to any other free tile within zone
+{
+	dAreaPossible.subtract(path.getPathArea());
+	dAreaFree.unite(path.getPathArea());
+	for(auto & t : path.getPathArea().getTilesVector())
+		map.setOccupied(t, ETileType::FREE);
 }
 
 void Zone::fractalize()
