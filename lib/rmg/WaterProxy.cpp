@@ -146,7 +146,7 @@ RouteInfo WaterProxy::waterRoute(Zone & dst)
 			{
 				if(placeShipyard(dst, lake, generator.getConfig().shipyardGuard, result))
 				{
-					logGlobal->warn("Shipyard successfully placed at zone %d", dst.getId());
+					logGlobal->info("Shipyard successfully placed at zone %d", dst.getId());
 				}
 				else
 				{
@@ -165,7 +165,7 @@ RouteInfo WaterProxy::waterRoute(Zone & dst)
 			{
 				if(placeBoat(dst, lake, result))
 				{
-					logGlobal->warn("Boat successfully placed at zone %d", dst.getId());
+					logGlobal->info("Boat successfully placed at zone %d", dst.getId());
 				}
 				else
 				{

@@ -158,7 +158,7 @@ rmg::Path Zone::searchPath(const rmg::Area & src, bool onlyStraight) const
 	{
 		auto path = freePath.search(goal, onlyStraight, movementCost);
 		if(path.getPathArea().empty())
-			return path;
+			return rmg::Path::invalid();
 		
 		freePath.connect(path.getPathArea());
 	}
