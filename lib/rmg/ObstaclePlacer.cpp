@@ -72,7 +72,7 @@ void ObstaclePlacer::process()
 	auto blockedTiles = blockedArea.getTilesVector();
 	for(auto tile : boost::adaptors::reverse(blockedTiles))
 	{
-		if(!blockedArea.contains(tile ))
+		if(!blockedArea.contains(tile))
 			continue;
 		
 		//start from biggets obstacles
