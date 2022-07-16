@@ -33,8 +33,8 @@ void ObstaclePlacer::process()
 	typedef std::vector<ObjectTemplate> obstacleVector;
 	//obstacleVector possibleObstacles;
 	
-	std::map<ui8, obstacleVector> obstaclesBySize;
-	typedef std::pair<ui8, obstacleVector> obstaclePair;
+	std::map<int, obstacleVector> obstaclesBySize;
+	typedef std::pair<int, obstacleVector> obstaclePair;
 	std::vector<obstaclePair> possibleObstacles;
 	
 	//get all possible obstacles for this terrain
@@ -48,14 +48,14 @@ void ObstaclePlacer::process()
 				for(auto temp : handler->getTemplates())
 				{
 					if(temp.canBePlacedAt(zone.getTerrainType()) && temp.getBlockMapOffset().valid())
-						obstaclesBySize[(ui8)temp.getBlockedOffsets().size()].push_back(temp);
+						obstaclesBySize[temp.getBlockedOffsets().size()].push_back(temp);
 				}
 			}
 		}
 	}
 	for(auto o : obstaclesBySize)
 	{
-		possibleObstacles.push_back(std::make_pair(o.first, o.second));
+		possibleObstacles.push_back(o);
 	}
 	boost::sort(possibleObstacles, [](const obstaclePair &p1, const obstaclePair &p2) -> bool
 	{
@@ -67,45 +67,103 @@ void ObstaclePlacer::process()
 		return map.shouldBeBlocked(t);
 	});
 	blockedArea.subtract(zone.areaUsed());
+	zone.areaPossible().subtract(blockedArea);
+	
+	
+	auto prohibitedArea = zone.freePaths() + zone.areaUsed() + manager->getVisitableArea();
 	
 	//reverse order, since obstacles begin in bottom-right corner, while the map coordinates begin in top-left
 	auto blockedTiles = blockedArea.getTilesVector();
-	for(auto tile : boost::adaptors::reverse(blockedTiles))
+	int tilePos = 0;
+	while(!blockedArea.empty())
 	{
-		if(!blockedArea.contains(tile))
-			continue;
+		assert(tilePos < blockedArea.getTilesVector().size());
+		auto tile = blockedArea.getTilesVector()[tilePos];
 		
-		//start from biggets obstacles
-		for(int i = 0; i < possibleObstacles.size(); i++)
+		std::list<rmg::Object> allObjects;
+		std::vector<std::pair<rmg::Object*, int3>> weightedObjects; //obj + position
+		int maxWeight = std::numeric_limits<int>::min();
+		for(int i = 0; i < possibleObstacles.size(); ++i)
 		{
 			if(!possibleObstacles[i].first)
 				continue;
 			
-			auto overallArea = blockedArea + zone.areaPossible();
-			auto temp = *RandomGeneratorUtil::nextItem(possibleObstacles[i].second, generator.rand);
-			auto handler = VLC->objtypeh->getHandlerFor(temp.id, temp.subid);
-			auto obj = handler->create(temp);
-			rmg::Object rmgObject(*obj);
-			rmgObject.setPosition(tile);
-			if(overallArea.contains(rmgObject.getArea()))
+			for(auto & temp : possibleObstacles[i].second)
 			{
-				//river processing
-				if(riverManager)
+				auto handler = VLC->objtypeh->getHandlerFor(temp.id, temp.subid);
+				auto obj = handler->create(temp);
+				allObjects.emplace_back(*obj);
+				rmg::Object * rmgObject = &allObjects.back();
+				for(auto & offset : obj->getBlockedOffsets())
 				{
-					if(handler->typeName == "mountain")
-						riverManager->riverSource().unite(rmgObject.getArea());
-					if(handler->typeName == "lake")
-						riverManager->riverSink().unite(rmgObject.getArea());
+					rmgObject->setPosition(tile - offset);
+					if(!map.isOnMap(rmgObject->getPosition()))
+						continue;
+					
+					if(!rmgObject->getArea().getSubarea([this](const int3 & t)
+					{
+						return !map.isOnMap(t);
+					}).empty())
+						continue;
+					
+					if(prohibitedArea.overlap(rmgObject->getArea()))
+						continue;
+					
+					if(!zone.area().contains(rmgObject->getArea()))
+						continue;
+					
+					int coverageBlocked = (blockedArea * rmgObject->getArea()).getTilesVector().size();
+					int coveragePossible = (zone.areaPossible() * rmgObject->getArea()).getTilesVector().size();
+					int coverageOverlap = possibleObstacles[i].first - coverageBlocked - coveragePossible;
+					int weight = possibleObstacles[i].first + coverageBlocked - coverageOverlap * possibleObstacles[i].first;
+					assert(coverageOverlap >= 0);
+					
+					if(weight > maxWeight)
+					{
+						weightedObjects.clear();
+						maxWeight = weight;
+						weightedObjects.emplace_back(rmgObject, rmgObject->getPosition());
+						if(weight > 0)
+							break;
+					}
+					else if(weight == maxWeight)
+						weightedObjects.emplace_back(rmgObject, rmgObject->getPosition());
+					
 				}
-				
-				manager->placeObject(rmgObject, false, false);
-				blockedArea.subtract(rmgObject.getArea());
+			}
+			
+			if(maxWeight > 0)
 				break;
-			}
-			else
-			{
-				rmgObject.clear();
-			}
+		}
+		
+		if(weightedObjects.empty())
+		{
+			tilePos += 1;
+			continue;
+		}
+		
+		auto objIter = RandomGeneratorUtil::nextItem(weightedObjects, generator.rand);
+		objIter->first->setPosition(objIter->second);
+		manager->placeObject(*objIter->first, false, false);
+		blockedArea.subtract(objIter->first->getArea());
+		tilePos = 0;
+		
+		//river processing
+		if(riverManager)
+		{
+			if(objIter->first->instances().front()->object().typeName == "mountain")
+				riverManager->riverSource().unite(objIter->first->getArea());
+			if(objIter->first->instances().front()->object().typeName == "lake")
+				riverManager->riverSink().unite(objIter->first->getArea());
+		}
+		
+		if(maxWeight < 0)
+			logGlobal->warn("Placed obstacle with negative weight at %s", objIter->second.toString());
+		
+		for(auto & o : allObjects)
+		{
+			if(&o != objIter->first)
+				o.clear();
 		}
 	}
 }
