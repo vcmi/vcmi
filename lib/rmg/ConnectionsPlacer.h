@@ -12,7 +12,7 @@
 #include "Zone.h"
 #include "RmgArea.h"
 
-class DLL_LINKAGE ConnectionsPlacer: public Modificator
+class ConnectionsPlacer: public Modificator
 {
 public:
 	MODIFICATOR(ConnectionsPlacer);

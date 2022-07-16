@@ -13,7 +13,7 @@
 
 struct RouteInfo;
 
-class DLL_LINKAGE WaterRoutes: public Modificator
+class WaterRoutes: public Modificator
 {
 public:
 	MODIFICATOR(WaterRoutes);

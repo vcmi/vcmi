@@ -13,7 +13,7 @@
 #include "../GameConstants.h"
 #include "../Terrain.h"
 
-class DLL_LINKAGE TileInfo
+class TileInfo
 {
 public:
 	

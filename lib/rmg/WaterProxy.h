@@ -19,7 +19,7 @@ struct RouteInfo
 	rmg::Area water;
 };
 
-class DLL_LINKAGE WaterProxy: public Modificator
+class WaterProxy: public Modificator
 {
 public:
 	MODIFICATOR(WaterProxy);

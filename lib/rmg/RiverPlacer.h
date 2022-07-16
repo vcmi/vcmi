@@ -11,7 +11,7 @@
 #pragma once
 #include "Zone.h"
 
-class DLL_LINKAGE RiverPlacer: public Modificator
+class RiverPlacer: public Modificator
 {
 public:
 	MODIFICATOR(RiverPlacer);

@@ -13,7 +13,7 @@
 class ObjectManager;
 class CGTownInstance;
 
-class DLL_LINKAGE TownPlacer: public Modificator
+class TownPlacer: public Modificator
 {
 public:
 	MODIFICATOR(TownPlacer);

@@ -17,7 +17,7 @@ class CGObjectInstance;
 class ObjectTemplate;
 class CGCreature;
 
-class DLL_LINKAGE ObjectManager: public Modificator
+class ObjectManager: public Modificator
 {
 public:
 	MODIFICATOR(ObjectManager);

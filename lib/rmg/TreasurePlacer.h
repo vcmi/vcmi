@@ -17,7 +17,7 @@ class ObjectManager;
 class RmgMap;
 class CMapGenerator;
 
-struct DLL_LINKAGE ObjectInfo
+struct ObjectInfo
 {
 	ObjectTemplate templ;
 	ui32 value = 0;
@@ -33,7 +33,7 @@ struct DLL_LINKAGE ObjectInfo
 	bool operator==(const ObjectInfo& oi) const { return (templ == oi.templ); }
 };
 
-class DLL_LINKAGE TreasurePlacer: public Modificator
+class TreasurePlacer: public Modificator
 {
 public:
 	MODIFICATOR(TreasurePlacer);
