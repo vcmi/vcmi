@@ -38,7 +38,7 @@ const rmg::Area & RoadPlacer::getRoads() const
 
 bool RoadPlacer::createRoad(const int3 & dst)
 {
-	auto searchArea = zone.areaPossible() - isolated + zone.freePaths() + areaRoads;
+	auto searchArea = zone.areaPossible() - isolated + zone.freePaths() + areaRoads + roads;
 	
 	rmg::Path path(searchArea);
 	path.connect(roads);
@@ -98,5 +98,7 @@ char RoadPlacer::dump(const int3 & t)
 		return '@';
 	if(roads.contains(t))
 		return '+';
+	if(isolated.contains(t))
+		return 'i';
 	return Modificator::dump(t);
 }
