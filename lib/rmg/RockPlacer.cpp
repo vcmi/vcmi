@@ -10,6 +10,7 @@
 
 #include "RockPlacer.h"
 #include "TreasurePlacer.h"
+#include "ObjectManager.h"
 #include "RoadPlacer.h"
 #include "RmgMap.h"
 #include "CMapGenerator.h"
@@ -26,6 +27,8 @@ void RockPlacer::process()
 	auto rockTerrain = *RandomGeneratorUtil::nextItem(rockTerrains, generator.rand);
 	
 	auto accessibleArea = zone.freePaths() + zone.areaUsed();
+	if(auto * m = zone.getModificator<ObjectManager>())
+		accessibleArea.unite(m->getVisitableArea());
 	
 	//negative approach - create rock tiles first, then make sure all accessible tiles have no rock
 	auto rockArea = zone.area().getSubarea([this](const int3 & t)
@@ -41,7 +44,7 @@ void RockPlacer::process()
 	map.getEditManager()->drawTerrain(zone.getTerrainType(), &generator.rand);
 	
 	//finally mark rock tiles as occupied, spawn no obstacles there
-	zone.areaUsed().unite(rockArea.getSubarea([this](const int3 & t)
+	zone.areaUsed().unite(zone.area().getSubarea([this](const int3 & t)
 	{
 		return !map.map().getTile(t).terType.isPassable();
 	}));
