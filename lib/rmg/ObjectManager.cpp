@@ -136,12 +136,13 @@ rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg
 			accessibleArea.intersect(guardedArea);
 		}
 		
-		auto path = zone.searchPath(accessibleArea, onlyStraight, [&obj, isGuarded, &accessibleArea](const int3 & t)
+		auto path = zone.searchPath(accessibleArea, onlyStraight, [&obj, isGuarded](const int3 & t)
 		{
 			if(isGuarded)
 			{
 				auto & guardedArea =  obj.instances().back()->getAccessibleArea();
-				if(guardedArea.contains(t) && !accessibleArea.contains(t))
+				auto & unguardedArea = obj.getAccessibleArea(isGuarded);
+				if(unguardedArea.contains(t) && !guardedArea.contains(t))
 					return false;
 			}
 			return !obj.getArea().contains(t);
