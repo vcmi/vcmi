@@ -77,6 +77,7 @@ void Object::Instance::setPosition(const int3 & position)
 	dBlockedAreaCache.clear();
 	dAccessibleAreaCache.clear();
 	dParent.dAccessibleAreaCache.clear();
+	dParent.dAccessibleAreaFullCache.clear();
 	dParent.dFullAreaCache.clear();
 }
 
@@ -88,6 +89,7 @@ void Object::Instance::setPositionRaw(const int3 & position)
 		dBlockedAreaCache.clear();
 		dAccessibleAreaCache.clear();
 		dParent.dAccessibleAreaCache.clear();
+		dParent.dAccessibleAreaFullCache.clear();
 		dParent.dFullAreaCache.clear();
 	}
 		
@@ -120,6 +122,7 @@ void Object::Instance::clear()
 	dBlockedAreaCache.clear();
 	dAccessibleAreaCache.clear();
 	dParent.dAccessibleAreaCache.clear();
+	dParent.dAccessibleAreaFullCache.clear();
 	dParent.dFullAreaCache.clear();
 }
 
@@ -179,6 +182,7 @@ void Object::addInstance(Instance & object)
 	dInstances.push_back(object);
 	dFullAreaCache.clear();
 	dAccessibleAreaCache.clear();
+	dAccessibleAreaFullCache.clear();
 }
 
 Object::Instance & Object::addInstance(CGObjectInstance & object)
@@ -186,6 +190,7 @@ Object::Instance & Object::addInstance(CGObjectInstance & object)
 	dInstances.emplace_back(*this, object);
 	dFullAreaCache.clear();
 	dAccessibleAreaCache.clear();
+	dAccessibleAreaFullCache.clear();
 	return dInstances.back();
 }
 
@@ -194,6 +199,7 @@ Object::Instance & Object::addInstance(CGObjectInstance & object, const int3 & p
 	dInstances.emplace_back(*this, object, position);
 	dFullAreaCache.clear();
 	dAccessibleAreaCache.clear();
+	dAccessibleAreaFullCache.clear();
 	return dInstances.back();
 }
 
@@ -214,25 +220,28 @@ int3 Object::getVisitablePosition() const
 
 rmg::Area Object::getAccessibleArea(bool exceptLast) const
 {
-	if(dAccessibleAreaCache.empty())
-	{
-		for(auto i = dInstances.begin(); i != (exceptLast ? std::prev(dInstances.end()) : dInstances.end()); ++i)
-			dAccessibleAreaCache.unite(i->getAccessibleArea());
-	}
+	if(dInstances.empty())
+		return dAccessibleAreaFullCache;
+	if(exceptLast && !dAccessibleAreaCache.empty())
+		return dAccessibleAreaCache;
+	if(!exceptLast && !dAccessibleAreaFullCache.empty())
+		return dAccessibleAreaFullCache;
 	
-	auto result = dAccessibleAreaCache;
-	if(!exceptLast && dInstances.begin() != std::prev(dInstances.end()))
-	{
-		result.unite(dInstances.back().getAccessibleArea());
-	}
+	for(auto i = dInstances.begin(); i != std::prev(dInstances.end()); ++i)
+		dAccessibleAreaCache.unite(i->getAccessibleArea());
 	
-	result.subtract(getArea());
-	return result;
+	dAccessibleAreaFullCache = dAccessibleAreaCache;
+	dAccessibleAreaFullCache.unite(dInstances.back().getAccessibleArea());
+	dAccessibleAreaCache.subtract(getArea());
+	dAccessibleAreaFullCache.subtract(getArea());
+	
+	return getAccessibleArea(exceptLast);
 }
 
 void Object::setPosition(const int3 & position)
 {
 	dAccessibleAreaCache.translate(position - dPosition);
+	dAccessibleAreaFullCache.translate(position - dPosition);
 	dFullAreaCache.translate(position - dPosition);
 	
 	dPosition = position;
@@ -315,5 +324,6 @@ void Object::clear()
 	dInstances.clear();
 	dFullAreaCache.clear();
 	dAccessibleAreaCache.clear();
+	dAccessibleAreaFullCache.clear();
 }
  

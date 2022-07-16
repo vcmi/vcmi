@@ -75,9 +75,8 @@ void ObstaclePlacer::process()
 	//reverse order, since obstacles begin in bottom-right corner, while the map coordinates begin in top-left
 	auto blockedTiles = blockedArea.getTilesVector();
 	int tilePos = 0;
-	while(!blockedArea.empty())
+	while(!blockedArea.empty() && tilePos < blockedArea.getTilesVector().size())
 	{
-		assert(tilePos < blockedArea.getTilesVector().size());
 		auto tile = blockedArea.getTilesVector()[tilePos];
 		
 		std::list<rmg::Object> allObjects;
@@ -112,8 +111,17 @@ void ObstaclePlacer::process()
 					if(!zone.area().contains(rmgObject->getArea()))
 						continue;
 					
-					int coverageBlocked = (blockedArea * rmgObject->getArea()).getTilesVector().size();
-					int coveragePossible = (zone.areaPossible() * rmgObject->getArea()).getTilesVector().size();
+					int coverageBlocked = 0;
+					int coveragePossible = 0;
+					//do not use area intersection in optimization purposes
+					for(auto & t : rmgObject->getArea().getTilesVector())
+					{
+						if(map.shouldBeBlocked(t))
+							++coverageBlocked;
+						if(zone.areaPossible().contains(t))
+							++coveragePossible;
+					}
+					
 					int coverageOverlap = possibleObstacles[i].first - coverageBlocked - coveragePossible;
 					int weight = possibleObstacles[i].first + coverageBlocked - coverageOverlap * possibleObstacles[i].first;
 					assert(coverageOverlap >= 0);

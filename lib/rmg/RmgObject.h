@@ -80,7 +80,7 @@ public:
 private:
 	std::list<Instance> dInstances;
 	mutable Area dFullAreaCache;
-	mutable Area dAccessibleAreaCache;
+	mutable Area dAccessibleAreaCache, dAccessibleAreaFullCache;
 	int3 dPosition;
 	ui32 dStrenght;
 };
