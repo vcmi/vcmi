@@ -154,7 +154,7 @@ Object::Object(const Object & object)
 	dStrenght = object.dStrenght;
 	for(auto & i : object.dInstances)
 		addInstance(const_cast<CGObjectInstance &>(i.object()));
-	setPosition(object.dPosition);
+	setPosition(object.getPosition());
 }
 
 std::list<Object::Instance*> Object::instances()
@@ -232,9 +232,6 @@ rmg::Area Object::getAccessibleArea(bool exceptLast) const
 
 void Object::setPosition(const int3 & position)
 {
-	//if(position == dPosition)
-	//	return;
-		
 	dAccessibleAreaCache.translate(position - dPosition);
 	dFullAreaCache.translate(position - dPosition);
 	
