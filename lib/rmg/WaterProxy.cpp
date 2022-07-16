@@ -300,7 +300,8 @@ bool WaterProxy::placeShipyard(Zone & land, const Lake & lake, si32 guard, Route
 		}, guarded, true, false);
 		
 		//search path to boarding position
-		rmg::Path pathToBoarding(land.areaPossible() - rmgObject.getArea());
+		auto searchArea = land.areaPossible() - rmgObject.getArea();
+		rmg::Path pathToBoarding(searchArea);
 		pathToBoarding.connect(land.freePaths());
 		pathToBoarding.connect(path);
 		pathToBoarding = pathToBoarding.search(boardingPosition, false);

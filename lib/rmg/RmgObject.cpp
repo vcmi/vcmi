@@ -54,7 +54,7 @@ int3 Object::Instance::getVisitablePosition() const
 	return dObject.visitablePos();
 }
 
-rmg::Area Object::Instance::getAccessibleArea() const
+const rmg::Area & Object::Instance::getAccessibleArea() const
 {
 	if(dAccessibleAreaCache.empty())
 	{
@@ -218,7 +218,7 @@ int3 Object::getVisitablePosition() const
 	return dInstances.back().getVisitablePosition(); //fallback - return position of last object
 }
 
-rmg::Area Object::getAccessibleArea(bool exceptLast) const
+const rmg::Area & Object::getAccessibleArea(bool exceptLast) const
 {
 	if(dInstances.empty())
 		return dAccessibleAreaFullCache;

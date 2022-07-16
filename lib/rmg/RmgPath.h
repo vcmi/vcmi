@@ -23,6 +23,8 @@ public:
 	
 	Path(const Area & area);
 	Path(const Area & area, const int3 & src);
+	Path(const Path & path);
+	Path & operator= (const Path & path);
 	bool valid() const;
 	
 	Path search(const Tileset & dst, bool straight, std::function<float(const int3 &, const int3 &)> moveCostFunction = DEFAULT_MOVEMENT_FUNCTION) const;
@@ -41,7 +43,7 @@ public:
 	
 private:
 	
-	Area dArea;
+	const Area & dArea;
 	Area dPath;
 };
 }

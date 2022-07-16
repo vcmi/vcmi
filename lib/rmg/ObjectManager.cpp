@@ -128,8 +128,6 @@ rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg
 			return rmg::Path::invalid();
 		}
 		possibleArea.erase(pos); //do not place again at this point
-		auto areaPossibleTemp = zone.areaPossible();
-		zone.areaPossible().subtract(obj.getArea());
 		auto accessibleArea = obj.getAccessibleArea(isGuarded) * (zone.areaPossible() + zone.freePaths());
 		//we should exclude tiles which will be covered
 		if(isGuarded)
@@ -139,8 +137,11 @@ rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg
 			accessibleArea.intersect(guardedArea);
 		}
 		
-		auto path = zone.searchPath(accessibleArea, onlyStraight);
-		zone.areaPossible() = areaPossibleTemp;
+		auto path = zone.searchPath(accessibleArea, onlyStraight, [&obj](const int3 & t)
+		{
+			return !obj.getArea().contains(t);
+		});
+		
 		if(path.valid())
 		{
 			return path;

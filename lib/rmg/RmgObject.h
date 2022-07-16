@@ -33,7 +33,7 @@ public:
 		
 		int3 getVisitablePosition() const;
 		bool isVisitableFrom(const int3 & tile) const;
-		Area getAccessibleArea() const;
+		const Area & getAccessibleArea() const;
 		void setTemplate(const Terrain & terrain); //cache invalidation
 		
 		int3 getPosition(bool isAbsolute = false) const;
@@ -66,7 +66,7 @@ public:
 	std::list<const Instance*> instances() const;
 	
 	int3 getVisitablePosition() const;
-	Area getAccessibleArea(bool exceptLast = false) const;
+	const Area & getAccessibleArea(bool exceptLast = false) const;
 	
 	const int3 & getPosition() const;
 	void setPosition(const int3 & position);

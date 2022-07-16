@@ -42,6 +42,18 @@ Path::Path(const Area & area, const int3 & src): dArea(area)
 	dPath.add(src);
 }
 
+Path::Path(const Path & path): dArea(path.dArea), dPath(path.dPath)
+{
+	
+}
+
+Path & Path::operator= (const Path & path)
+{
+	//do not modify area
+	dPath = path.dPath;
+	return *this;
+}
+
 bool Path::valid() const
 {
 	return !dPath.empty();
@@ -55,7 +67,8 @@ Path Path::invalid()
 Path Path::search(const Tileset & dst, bool straight, std::function<float(const int3 &, const int3 &)> moveCostFunction) const
 {
 	//A* algorithm taken from Wiki http://en.wikipedia.org/wiki/A*_search_algorithm
-	Path result(dArea + dst);
+	auto resultArea = dArea + dst;
+	Path result(resultArea);
 	if(dst.empty())
 		return result;
 	
@@ -151,7 +164,7 @@ Path Path::search(const Path & dst, bool straight, std::function<float(const int
 
 void Path::connect(const int3 & path)
 {
-	dArea.add(path);
+	//dArea.add(path);
 	dPath.add(path);
 }
 
@@ -159,19 +172,19 @@ void Path::connect(const Tileset & path)
 {
 	Area a(path);
 	dPath.unite(a);
-	dArea.unite(a);
+	//dArea.unite(a);
 }
 
 void Path::connect(const Area & path)
 {
 	dPath.unite(path);
-	dArea.unite(path);
+	//dArea.unite(path);
 }
 
 void Path::connect(const Path & path)
 {
 	dPath.unite(path.dPath);
-	dArea.unite(path.dPath);
+	//dArea.unite(path.dPath);
 }
 
 const Area & Path::getPathArea() const

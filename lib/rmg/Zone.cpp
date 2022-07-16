@@ -17,6 +17,11 @@
 #include "CMapGenerator.h"
 #include "RmgPath.h"
 
+std::function<bool(const int3 &)> AREA_NO_FILTER = [](const int3 & t)
+{
+	return true;
+};
+
 Zone::Zone(RmgMap & map, CMapGenerator & generator)
 					: ZoneOptions(),
 					townType(ETownType::NEUTRAL),
@@ -136,7 +141,7 @@ void Zone::setTerrainType(const Terrain & terrain)
 	terrainType = terrain;
 }
 
-rmg::Path Zone::searchPath(const rmg::Area & src, bool onlyStraight) const
+rmg::Path Zone::searchPath(const rmg::Area & src, bool onlyStraight, std::function<bool(const int3 &)> areafilter) const
 ///connect current tile to any other free tile within zone
 {
 	auto movementCost = [this](const int3 & s, const int3 & d)
@@ -148,7 +153,7 @@ rmg::Path Zone::searchPath(const rmg::Area & src, bool onlyStraight) const
 		return 3;
 	};
 	
-	auto area = dAreaPossible + dAreaFree;
+	auto area = (dAreaPossible + dAreaFree).getSubarea(areafilter);
 	rmg::Path freePath(area);
 	freePath.connect(dAreaFree);
 	
@@ -166,10 +171,10 @@ rmg::Path Zone::searchPath(const rmg::Area & src, bool onlyStraight) const
 	return freePath;
 }
 
-rmg::Path Zone::searchPath(const int3 & src, bool onlyStraight) const
+rmg::Path Zone::searchPath(const int3 & src, bool onlyStraight, std::function<bool(const int3 &)> areafilter) const
 ///connect current tile to any other free tile within zone
 {
-	return searchPath(rmg::Area({src}), onlyStraight);
+	return searchPath(rmg::Area({src}), onlyStraight, areafilter);
 }
 
 void Zone::connectPath(const rmg::Path & path)
@@ -234,7 +239,8 @@ void Zone::fractalize()
 		if(dAreaFree.overlap(area))
 			continue; //already found
 			
-		rmg::Path path(dAreaPossible + dAreaFree);
+		auto availableArea = dAreaPossible + dAreaFree;
+		rmg::Path path(availableArea);
 		path.connect(dAreaFree);
 		auto res = path.search(area, false);
 		if(res.getPathArea().empty())

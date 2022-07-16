@@ -219,11 +219,16 @@ void RiverPlacer::connectRiver(const int3 & tile)
 		return cost;
 	};
 	
-	rmg::Path pathToSource(zone.areaPossible() + zone.freePaths() - rivers);
+	auto availableArea = zone.areaPossible() + zone.freePaths();
+	auto searchAreaTosource = availableArea - rivers;
+	
+	rmg::Path pathToSource(searchAreaTosource);
 	pathToSource.connect(source);
 	pathToSource = pathToSource.search(tile, true, movementCost);
 	
-	rmg::Path pathToSink(zone.areaPossible() + zone.freePaths() - pathToSource.getPathArea());
+	auto searchAreaToSink = availableArea - pathToSource.getPathArea();
+	
+	rmg::Path pathToSink(searchAreaToSink);
 	pathToSink.connect(sink);
 	pathToSink = pathToSink.search(tile, true, movementCost);
 	

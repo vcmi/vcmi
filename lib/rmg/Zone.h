@@ -55,7 +55,9 @@ private:
 	void dump();
 };
 
-class DLL_LINKAGE Zone : public rmg::ZoneOptions
+extern std::function<bool(const int3 &)> AREA_NO_FILTER;
+
+class Zone : public rmg::ZoneOptions
 {
 public:
 	Zone(RmgMap & map, CMapGenerator & generator);
@@ -85,8 +87,8 @@ public:
 	void setTerrainType(const Terrain & terrain);
 		
 	void connectPath(const rmg::Path & path);
-	rmg::Path searchPath(const rmg::Area & src, bool onlyStraight) const;
-	rmg::Path searchPath(const int3 & src, bool onlyStraight) const;
+	rmg::Path searchPath(const rmg::Area & src, bool onlyStraight, std::function<bool(const int3 &)> areafilter = AREA_NO_FILTER) const;
+	rmg::Path searchPath(const int3 & src, bool onlyStraight, std::function<bool(const int3 &)> areafilter = AREA_NO_FILTER) const;
 	
 	template<class T>
 	T* getModificator()
