@@ -157,7 +157,7 @@
 	"rough": { "graphics" : "CMBKRGH.BMP" },
 	"ship_to_ship": 
 	{
-		"graphics" : "CMBKBOAT.BMP"
+		"graphics" : "CMBKBOAT.BMP",
 		"impassableHexes" : [
 			6, 7, 8, 9,
 			24, 25, 26,
