@@ -332,7 +332,9 @@ void Modificator::run()
 		{
 			logGlobal->error("Modificator %s, exception: %s", getName(), e.what());
 		}
+#ifdef RMG_DUMP
 		dump();
+#endif
 		finished = true;
 		logGlobal->info("Modificator zone %d - %s - done (%d ms)", zone.getId(), getName(), processTime.getDiff());
 	}

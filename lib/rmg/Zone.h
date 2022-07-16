@@ -18,6 +18,8 @@
 #include "RmgPath.h"
 #include "RmgObject.h"
 
+//#define RMG_DUMP
+
 #define MODIFICATOR(x) x(Zone & z, RmgMap & m, CMapGenerator & g): Modificator(z, m, g) {setName(#x);}
 
 class RmgMap;
