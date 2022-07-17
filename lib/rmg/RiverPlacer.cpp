@@ -14,11 +14,51 @@
 #include "RmgMap.h"
 #include "../mapping/CMap.h"
 #include "../mapping/CMapEditManager.h"
+#include "../mapObjects/CObjectClassesHandler.h"
 #include "RmgPath.h"
 #include "ObjectManager.h"
 #include "ObstaclePlacer.h"
 #include "WaterProxy.h"
 #include "RoadPlacer.h"
+
+std::array<std::array<int, 25>, 4> deltaTemplates
+{
+	//0 - must be on ground
+	//1 - delta entry
+	//2 - must be on water
+	//3 - anything
+	//4 - prohibit river placement
+	//5 - must be on ground + position
+	//6 - must be on water + position
+	std::array<int, 25>{
+		3, 4, 3, 4, 3,
+		3, 4, 1, 4, 3,
+		3, 0, 0, 0, 3,
+		3, 0, 0, 0, 3,
+		3, 2, 2, 6, 3
+	},
+	std::array<int, 25>{
+		3, 2, 2, 2, 3,
+		3, 0, 0, 0, 3,
+		3, 0, 0, 5, 3,
+		3, 4, 1, 4, 3,
+		3, 4, 3, 4, 3
+	},
+	std::array<int, 25>{
+		3, 3, 3, 3, 3,
+		4, 4, 0, 0, 2,
+		3, 1, 0, 0, 2,
+		4, 4, 0, 0, 6,
+		3, 3, 3, 3, 3
+	},
+	std::array<int, 25>	{
+		3, 3, 3, 3, 3,
+		2, 0, 0, 4, 4,
+		2, 0, 0, 1, 3,
+		2, 0, 5, 4, 4,
+		3, 3, 3, 3, 3
+	}
+};
 
 void RiverPlacer::process()
 {
@@ -79,9 +119,32 @@ rmg::Area & RiverPlacer::riverSink()
 
 void RiverPlacer::prepareHeightmap()
 {
+	rmg::Area roads;
+	if(auto * m = zone.getModificator<RoadPlacer>())
+	{
+		roads.unite(m->getRoads());
+	}
+	
 	for(auto & t : zone.area().getTilesVector())
 	{
-		heightMap[t] = generator.rand.nextInt(30);
+		heightMap[t] = generator.rand.nextInt(5);
+		
+		if(roads.contains(t))
+			heightMap[t] += 30.f;
+		
+		if(zone.areaUsed().contains(t))
+			heightMap[t] += 1000.f;
+	}
+	
+	//make grid
+	for(int j = 0; j < map.map().height; j += 2)
+	{
+		for(int i = 0; i < map.map().width; i += 2)
+		{
+			int3 t{i, j, zone.getPos().z};
+			if(zone.area().contains(t))
+				heightMap[t] += 10.f;
+		}
 	}
 }
  
@@ -130,18 +193,10 @@ void RiverPlacer::prepareBorderHeightmap(std::vector<int3>::iterator l, std::vec
 
 void RiverPlacer::preprocess()
 {
-	//decorative river
-	if(!sink.empty() && !source.empty() && riverNodes.empty() && !zone.areaPossible().empty())
-	{
-		addRiverNode(*RandomGeneratorUtil::nextItem(zone.areaPossible().getTilesVector(), generator.rand));
-	}
-	
-	prepareHeightmap();
-	//prepareBorderHeightmap();
-	
 	rmg::Area outOfMapTiles;
 	std::map<TRmgTemplateZoneId, rmg::Area> neighbourZonesTiles;
 	rmg::Area borderArea(zone.getArea().getBorder());
+	TRmgTemplateZoneId connectedToWaterZoneId = -1;
 	for(auto & t : zone.getArea().getBorderOutside())
 	{
 		if(!map.isOnMap(t))
@@ -150,6 +205,8 @@ void RiverPlacer::preprocess()
 		}
 		else if(map.getZoneID(t) != zone.getId())
 		{
+			if(map.getZones()[map.getZoneID(t)]->getType() == ETemplateZoneType::WATER)
+				connectedToWaterZoneId = map.getZoneID(t);
 			neighbourZonesTiles[map.getZoneID(t)].add(t);
 		}
 	}
@@ -170,6 +227,68 @@ void RiverPlacer::preprocess()
 		outOfMapInternal.erase(elem);
 	}
 	
+	//calculate delta positions
+	if(connectedToWaterZoneId > -1)
+	{
+		auto & a = neighbourZonesTiles[connectedToWaterZoneId];
+		auto availableArea = zone.areaPossible() + zone.freePaths();
+		for(auto & tileToProcess : availableArea.getTilesVector())
+		{
+			int templateId = -1;
+			for(int tId = 0; tId < 4; ++tId)
+			{
+				templateId = tId;
+				for(int i = 0; i < 25; ++i)
+				{
+					if((deltaTemplates[tId][i] == 2 || deltaTemplates[tId][i] == 6) && !a.contains(tileToProcess + int3(i % 5 - 2, i / 5 - 2, 0)))
+					{
+						templateId = -1;
+						break;
+					}
+					if((deltaTemplates[tId][i] < 2 || deltaTemplates[tId][i] == 5) && !availableArea.contains(tileToProcess + int3(i % 5 - 2, i / 5 - 2, 0)))
+					{
+						templateId = -1;
+						break;
+					}
+				}
+				if(templateId > -1)
+					break;
+			}
+			
+			if(templateId > -1)
+			{
+				for(int i = 0; i < 25; ++i)
+				{
+					auto p = tileToProcess + int3(i % 5 - 2, i / 5 - 2, 0);
+					if(deltaTemplates[templateId][i] == 1)
+					{
+						sink.add(p);
+						deltaSink.add(p);
+						deltaOrientations[p] = templateId;
+						for(auto j = 0; j < 25; ++j)
+						{
+							if(deltaTemplates[templateId][j] >= 5)
+							{
+								deltaPositions[p] = tileToProcess + int3(j % 5 - 2, j / 5 - 2, 0);
+							}
+						}
+					}
+					if(deltaTemplates[templateId][i] == 0 || deltaTemplates[templateId][i] == 4 || deltaTemplates[templateId][i] == 5)
+					{
+						prohibit.add(p);
+					}
+				}
+			}
+		}
+	}
+	
+	prepareHeightmap();
+	
+	//decorative river
+	if(!sink.empty() && !source.empty() && riverNodes.empty() && !zone.areaPossible().empty())
+	{
+		addRiverNode(*RandomGeneratorUtil::nextItem(source.getTilesVector(), generator.rand));
+	}
 	
 	if(source.empty())
 	{
@@ -197,40 +316,30 @@ void RiverPlacer::preprocess()
 
 void RiverPlacer::connectRiver(const int3 & tile)
 {
-	if(source.contains(tile) || sink.contains(tile))
-		return;
+	//if(source.contains(tile) || sink.contains(tile))
+	//	return;
 	
-	rmg::Area roads;
-	if(auto * m = zone.getModificator<RoadPlacer>())
+	auto movementCost = [this](const int3 & s, const int3 & d, const rmg::Area & avoid)
 	{
-		roads.unite(m->getRoads());
-	}
-	
-	auto movementCost = [this, &roads](const int3 & s, const int3 & d)
-	{
-		float cost = 1.0f;
+		float cost = heightMap[d];
 		
-		cost += heightMap[d];
-		
-		//avoid roads
-		if(roads.contains(d))
-			cost += 10.f;
+		//cost -= sqrt(avoid.distanceSqr(d));
 		
 		return cost;
 	};
 	
-	auto availableArea = zone.areaPossible() + zone.freePaths();
-	auto searchAreaTosource = availableArea - rivers;
+	auto availableArea = zone.area() - prohibit;
+	auto searchAreaTosource = availableArea;
 	
 	rmg::Path pathToSource(searchAreaTosource);
 	pathToSource.connect(source);
-	pathToSource = pathToSource.search(tile, true, movementCost);
+	pathToSource = pathToSource.search(tile, true, std::bind(movementCost, std::placeholders::_1, std::placeholders::_2, sink));
 	
 	auto searchAreaToSink = availableArea - pathToSource.getPathArea();
 	
 	rmg::Path pathToSink(searchAreaToSink);
 	pathToSink.connect(sink);
-	pathToSink = pathToSink.search(tile, true, movementCost);
+	pathToSink = pathToSink.search(tile, true, std::bind(movementCost, std::placeholders::_1, std::placeholders::_2, pathToSource.getPathArea()));
 	
 	if(pathToSource.getPathArea().empty() || pathToSink.getPathArea().empty())
 	{
@@ -238,7 +347,38 @@ void RiverPlacer::connectRiver(const int3 & tile)
 		return;
 	}
 	
+	//delta placement
+	auto deltaPos = pathToSink.getPathArea() * deltaSink;
+	if(!deltaPos.empty())
+	{
+		const int RIVER_DELTA_ID = 143;
+		const int RIVER_DELTA_SUBTYPE = 0;
+		assert(deltaPos.getTilesVector().size() == 1);
+		
+		auto pos = deltaPos.getTilesVector().front();
+		
+		auto handler = VLC->objtypeh->getHandlerFor(RIVER_DELTA_ID, RIVER_DELTA_SUBTYPE);
+		assert(handler->isStaticObject());
+		
+		std::vector<ObjectTemplate> tmplates;
+		for(auto & temp : handler->getTemplates())
+		{
+			if(temp.canBePlacedAt(zone.getTerrainType()))
+			   tmplates.push_back(temp);
+		}
+		
+		if(tmplates.size() > 3)
+		{
+			if(tmplates.size() % 4 != 0)
+				throw rmgException(boost::to_string(boost::format("River templates for (%d,%d) at terrain %s are incorrect") % RIVER_DELTA_ID % RIVER_DELTA_SUBTYPE % zone.getTerrainType()));
+			
+			auto obj = handler->create(tmplates[deltaOrientations[pos]]);
+			rmg::Object deltaObj(*obj, deltaPositions[pos]);
+			deltaObj.finalize(map);
+		}
+	}
+	
 	rivers.unite(pathToSource.getPathArea());
 	rivers.unite(pathToSink.getPathArea());
-	sink.unite(rivers);
+	sink.add(tile);
 }

@@ -22,7 +22,6 @@
 #include "TreasurePlacer.h"
 #include "TownPlacer.h"
 #include "ConnectionsPlacer.h"
-#include "RiverPlacer.h"
 #include "TileInfo.h"
 
 void WaterAdopter::process()
@@ -226,11 +225,6 @@ void WaterAdopter::createWater(EWaterContent::EWaterContent waterContent)
 	map.getZones()[waterZoneId]->area().unite(waterArea);
 	zone.area().subtract(waterArea);
 	zone.areaPossible().subtract(waterArea);
-	if(auto * m = zone.getModificator<RiverPlacer>())
-	{
-		m->riverSink().unite(waterArea);
-	}
-	
 	distanceMap = zone.area().computeDistanceMap(reverseDistanceMap);
 }
 

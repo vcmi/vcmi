@@ -39,7 +39,11 @@ private:
 	rmg::Area rivers;
 	rmg::Area source;
 	rmg::Area sink;
+	rmg::Area prohibit;
 	rmg::Tileset riverNodes;
+	rmg::Area deltaSink;
+	std::map<int3, int3> deltaPositions;
+	std::map<int3, int> deltaOrientations;
 	
 	std::map<int3, int> heightMap;
 };
