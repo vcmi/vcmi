@@ -12,6 +12,7 @@
 #include "TreasurePlacer.h"
 #include "ObjectManager.h"
 #include "RoadPlacer.h"
+#include "RiverPlacer.h"
 #include "RmgMap.h"
 #include "CMapGenerator.h"
 #include "../CRandomGenerator.h"
@@ -44,10 +45,13 @@ void RockPlacer::process()
 	map.getEditManager()->drawTerrain(zone.getTerrainType(), &generator.rand);
 	
 	//finally mark rock tiles as occupied, spawn no obstacles there
-	zone.areaUsed().unite(zone.area().getSubarea([this](const int3 & t)
+	rockArea = zone.area().getSubarea([this](const int3 & t)
 	{
 		return !map.map().getTile(t).terType.isPassable();
-	}));
+	});
+	zone.areaUsed().unite(rockArea);
+	if(auto * m = zone.getModificator<RiverPlacer>())
+		m->riverProhibit().unite(rockArea);
 }
 
 void RockPlacer::init()

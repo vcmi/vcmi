@@ -117,6 +117,11 @@ rmg::Area & RiverPlacer::riverSink()
 	return sink;
 }
 
+rmg::Area & RiverPlacer::riverProhibit()
+{
+	return prohibit;
+}
+
 void RiverPlacer::prepareHeightmap()
 {
 	rmg::Area roads;
@@ -273,9 +278,17 @@ void RiverPlacer::preprocess()
 
 void RiverPlacer::connectRiver(const int3 & tile)
 {
-	auto movementCost = [this](const int3 & s, const int3 & d)
+	rmg::Area roads;
+	if(auto * m = zone.getModificator<RoadPlacer>())
+	{
+		roads.unite(m->getRoads());
+	}
+	
+	auto movementCost = [this, &roads](const int3 & s, const int3 & d)
 	{
 		float cost = heightMap[d];
+		if(roads.contains(s))
+			cost += 1000.f; //allow road intersection, but avoid long overlaps
 		return cost;
 	};
 	

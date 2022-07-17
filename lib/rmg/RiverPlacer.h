@@ -24,6 +24,7 @@ public:
 	
 	rmg::Area & riverSource();
 	rmg::Area & riverSink();
+	rmg::Area & riverProhibit();
 	
 protected:
 	void drawRivers();
