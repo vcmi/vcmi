@@ -235,7 +235,7 @@ const rmg::Area & Object::getAccessibleArea(bool exceptLast) const
 	dAccessibleAreaCache.subtract(getArea());
 	dAccessibleAreaFullCache.subtract(getArea());
 	
-	return getAccessibleArea(exceptLast);
+	return exceptLast ? dAccessibleAreaCache : dAccessibleAreaFullCache ;
 }
 
 void Object::setPosition(const int3 & position)
@@ -311,7 +311,7 @@ void Object::finalize(RmgMap & map)
 	for(auto iter = std::next(dInstances.begin()); iter != dInstances.end(); ++iter)
 	{
 		if(a.overlap(iter->getBlockedArea()))
-			throw rmgException("Cannot finalize object: overlapped instance");
+			logGlobal->info("Overlapped instances during object finalization");
 		a.unite(iter->getBlockedArea());
 		iter->finalize(map);
 	}

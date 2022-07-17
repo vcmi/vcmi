@@ -237,7 +237,7 @@ void TreasurePlacer::addAllPossibleObjects()
 	
 	auto creatureToCount = [tierValues](CCreature * creature) -> int
 	{
-		if(!creature->AIValue) //bug #2681
+		if(!creature->AIValue || tierValues.empty()) //bug #2681
 			return 0; //this box won't be generated
 		
 		int actualTier = creature->level > tierValues.size() ?
@@ -559,7 +559,7 @@ rmg::Object TreasurePlacer::constuctTreasurePile(const std::vector<ObjectInfo*> 
 	{
 		auto blockedArea = rmgObject.getArea();
 		auto accessibleArea = rmgObject.getAccessibleArea();
-		if(blockedArea.empty())
+		if(rmgObject.instances().empty())
 			accessibleArea.add(int3());
 		
 		auto * object = oi->generateObject();

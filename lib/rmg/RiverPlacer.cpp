@@ -176,13 +176,13 @@ void RiverPlacer::preprocess()
 	outOfMapInternal.intersect(borderArea);
 	
 	//looking outside map
-	if(!outOfMapTiles.empty())
+	if(!outOfMapInternal.empty())
 	{
 		auto elem = *RandomGeneratorUtil::nextItem(outOfMapInternal.getTilesVector(), generator.rand);
 		source.add(elem);
 		outOfMapInternal.erase(elem);
 	}
-	if(!outOfMapTiles.empty())
+	if(!outOfMapInternal.empty())
 	{
 		auto elem = *RandomGeneratorUtil::nextItem(outOfMapInternal.getTilesVector(), generator.rand);
 		sink.add(elem);
