@@ -294,10 +294,7 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 				m->areaForRoads().add(instance->getVisitablePosition());
 			else
 			{
-				rmg::Area isolated({instance->getVisitablePosition()});
-				isolated.assign(isolated.getBorderOutside());
-				isolated.subtract(instance->getAccessibleArea());
-				m->areaIsolated().unite(isolated);
+				m->areaIsolated().add(instance->getVisitablePosition() + int3(0, -1, 0));
 			}
 		}
 	}

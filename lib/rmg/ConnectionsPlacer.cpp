@@ -59,11 +59,7 @@ void ConnectionsPlacer::init()
 	dependency(zone.getModificator<WaterAdopter>());
 	dependency(zone.getModificator<TownPlacer>());
 	postfunction(zone.getModificator<RoadPlacer>());
-	
-	for(auto & z : map.getZones())
-	{
-		postfunction(z.second->getModificator<ObjectManager>());
-	}
+	postfunction(zone.getModificator<ObjectManager>());
 	
 	for(auto c : map.getMapGenOptions().getMapTemplate()->getConnections())
 		addConnection(c);
@@ -118,7 +114,23 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 			auto & manager = *zone.getModificator<ObjectManager>();
 			auto * monsterType = manager.chooseGuard(connection.getGuardStrength(), true);
 			
-			auto ourPath = zone.searchPath(guardPos, true), theirPath = otherZone->searchPath(guardPos, true);
+			rmg::Area border(zone.getArea().getBorder());
+			border.unite(otherZone->getArea().getBorder());
+			
+			auto costFunction = [&border](const int3 & s, const int3 & d)
+			{
+				return 1.f / (1.f + border.distanceSqr(d));
+			};
+			
+			auto ourArea = zone.areaPossible() + zone.freePaths();
+			auto theirArea = otherZone->areaPossible() + otherZone->freePaths();
+			theirArea.add(guardPos);
+			rmg::Path ourPath(ourArea), theirPath(theirArea);
+			ourPath.connect(zone.freePaths());
+			ourPath = ourPath.search(guardPos, true, costFunction);
+			theirPath.connect(otherZone->freePaths());
+			theirPath = theirPath.search(guardPos, true, costFunction);
+			
 			if(ourPath.valid() && theirPath.valid())
 			{
 				zone.connectPath(ourPath);

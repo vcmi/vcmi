@@ -31,7 +31,7 @@ void RockPlacer::process()
 	//negative approach - create rock tiles first, then make sure all accessible tiles have no rock
 	auto rockArea = zone.area().getSubarea([this](const int3 & t)
 	{
-		return map.shouldBeBlocked(t) && map.map().getTile(t).terType.isPassable();
+		return map.shouldBeBlocked(t);
 	});
 	
 	map.getEditManager()->getTerrainSelection().setSelection(rockArea.getTilesVector());

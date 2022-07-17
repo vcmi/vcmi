@@ -38,7 +38,7 @@ const rmg::Area & RoadPlacer::getRoads() const
 
 bool RoadPlacer::createRoad(const int3 & dst)
 {
-	auto searchArea = zone.areaPossible() - isolated + zone.freePaths() + areaRoads + roads;
+	auto searchArea = zone.areaPossible() + areaRoads + zone.freePaths() - isolated + roads;
 	
 	rmg::Path path(searchArea);
 	path.connect(roads);
