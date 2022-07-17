@@ -21,7 +21,7 @@
 #include "WaterProxy.h"
 #include "RoadPlacer.h"
 
-std::array<std::array<int, 25>, 4> deltaTemplates
+const std::array<std::array<int, 25>, 4> deltaTemplates
 {
 	//0 - must be on ground
 	//1 - delta entry
@@ -146,49 +146,6 @@ void RiverPlacer::prepareHeightmap()
 				heightMap[t] += 10.f;
 		}
 	}
-}
- 
-void RiverPlacer::prepareBorderHeightmap()
-{
-	std::map<int3, int> heightMap;
-	std::vector<int3> border{zone.getArea().getBorder().begin(), zone.getArea().getBorder().end()};
-	
-	heightMap[*border.begin()] = generator.rand.nextInt(-100, 100);
-	heightMap[*std::prev(border.end())] = heightMap[*border.begin()];
-	
-	auto midpoint = std::next(border.begin(), border.size() / 2);
-	heightMap[*midpoint] = generator.rand.nextInt(-100, 100);
-		
-	prepareBorderHeightmap(border.begin(), midpoint);
-	prepareBorderHeightmap(midpoint, std::prev(border.end()));
-	
-	auto minel = std::min_element(heightMap.begin(), heightMap.end())->second;
-	auto maxel = std::max_element(heightMap.begin(), heightMap.end())->second;
-	
-	if(minel > 0)
-	{
-		for(auto & i : heightMap)
-			i.second -= minel;
-	}
-	
-	if(maxel <= 0)
-	{
-		for(auto & i : heightMap)
-			i.second += maxel + 1;
-	}
-}
-
-void RiverPlacer::prepareBorderHeightmap(std::vector<int3>::iterator l, std::vector<int3>::iterator r)
-{
-	if((r - l) < 2)
-		return;
-	
-	auto midpoint = std::next(l, (r - l) / 2);
-	heightMap[*midpoint] = (heightMap[*l] + heightMap[*r]) / 2;
-	heightMap[*midpoint] += generator.rand.nextInt(-100, 100);
-	
-	prepareBorderHeightmap(l, midpoint);
-	prepareBorderHeightmap(midpoint, r);
 }
 
 void RiverPlacer::preprocess()
@@ -315,7 +272,7 @@ void RiverPlacer::preprocess()
 }
 
 void RiverPlacer::connectRiver(const int3 & tile)
-{	
+{
 	auto movementCost = [this](const int3 & s, const int3 & d)
 	{
 		float cost = heightMap[d];

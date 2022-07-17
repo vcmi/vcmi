@@ -31,8 +31,6 @@ protected:
 	void preprocess();
 	void connectRiver(const int3 & tile);
 	
-	void prepareBorderHeightmap();
-	void prepareBorderHeightmap(std::vector<int3>::iterator l, std::vector<int3>::iterator r);
 	void prepareHeightmap();
 	
 private:
