@@ -144,13 +144,15 @@ void Zone::setTerrainType(const Terrain & terrain)
 rmg::Path Zone::searchPath(const rmg::Area & src, bool onlyStraight, std::function<bool(const int3 &)> areafilter) const
 ///connect current tile to any other free tile within zone
 {
-	auto movementCost = [this](const int3 & s, const int3 & d)
+	rmg::Area border(dArea.getBorder());
+	auto movementCost = [this, &border](const int3 & s, const int3 & d)
 	{
+		float cost = 1.f / (1.f + border.distanceSqr(d));
 		if(map.isFree(d))
-			return 1;
+			return 1.f + cost;
 		else if (map.isPossible(d))
-			return 2;
-		return 3;
+			return 2.f + cost;
+		return 3.f + cost;
 	};
 	
 	auto area = (dAreaPossible + dAreaFree).getSubarea(areafilter);
