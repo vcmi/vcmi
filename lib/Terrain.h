@@ -37,6 +37,7 @@ public:
 		std::string terrainText;
 		std::string typeCode;
 		std::string terrainViewPatterns;
+		std::string rockTerrain;
 		int horseSoundId;
 		Type type;
 		std::vector<std::string> battleFields;

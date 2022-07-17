@@ -825,7 +825,7 @@ CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainVi
 		else
 		{
 			terType = map->getTile(currentPos).terType;
-			if(terType != centerTerType)
+			if(terType != centerTerType && (terType.isPassable() || centerTerType.isPassable()))
 			{
 				isAlien = true;
 			}

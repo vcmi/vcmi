@@ -15,17 +15,14 @@
 #include "RiverPlacer.h"
 #include "RmgMap.h"
 #include "CMapGenerator.h"
+#include "Functions.h"
 #include "../CRandomGenerator.h"
 #include "../mapping/CMapEditManager.h"
 
 void RockPlacer::process()
 {
-	//collect all rock terrain types
-	std::vector<Terrain> rockTerrains;
-	for(auto & terrain : Terrain::Manager::terrains())
-		if(!terrain.isPassable())
-			rockTerrains.push_back(terrain);
-	auto rockTerrain = *RandomGeneratorUtil::nextItem(rockTerrains, generator.rand);
+	Terrain rockTerrain(Terrain::Manager::getInfo(zone.getTerrainType()).rockTerrain);
+	assert(!rockTerrain.isPassable());
 	
 	auto accessibleArea = zone.freePaths() + zone.areaUsed();
 	if(auto * m = zone.getModificator<ObjectManager>())
@@ -34,7 +31,7 @@ void RockPlacer::process()
 	//negative approach - create rock tiles first, then make sure all accessible tiles have no rock
 	auto rockArea = zone.area().getSubarea([this](const int3 & t)
 	{
-		return map.shouldBeBlocked(t);
+		return map.shouldBeBlocked(t) && map.map().getTile(t).terType.isPassable();
 	});
 	
 	map.getEditManager()->getTerrainSelection().setSelection(rockArea.getTilesVector());

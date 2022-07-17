@@ -78,8 +78,17 @@ Terrain::Manager::Manager()
 				auto s = terr.second["type"].String();
 				if(s == "LAND") info.type = Terrain::Info::Type::Land;
 				if(s == "WATER") info.type = Terrain::Info::Type::Water;
-				if(s == "SUB") info.type = Terrain::Info::Type::Subterranean;
 				if(s == "ROCK") info.type = Terrain::Info::Type::Rock;
+				if(s == "SUB") info.type = Terrain::Info::Type::Subterranean;
+			}
+			
+			if(terr.second["rockTerrain"].isNull())
+			{
+				info.rockTerrain = "rock";
+			}
+			else
+			{
+				info.rockTerrain = terr.second["rockTerrain"].String();
 			}
 			
 			if(terr.second["horseSoundId"].isNull())
