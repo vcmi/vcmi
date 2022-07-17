@@ -315,31 +315,26 @@ void RiverPlacer::preprocess()
 }
 
 void RiverPlacer::connectRiver(const int3 & tile)
-{
-	//if(source.contains(tile) || sink.contains(tile))
-	//	return;
-	
-	auto movementCost = [this](const int3 & s, const int3 & d, const rmg::Area & avoid)
+{	
+	auto movementCost = [this](const int3 & s, const int3 & d)
 	{
 		float cost = heightMap[d];
-		
-		//cost -= sqrt(avoid.distanceSqr(d));
-		
 		return cost;
 	};
 	
 	auto availableArea = zone.area() - prohibit;
-	auto searchAreaTosource = availableArea;
 	
-	rmg::Path pathToSource(searchAreaTosource);
+	rmg::Path pathToSource(availableArea);
 	pathToSource.connect(source);
-	pathToSource = pathToSource.search(tile, true, std::bind(movementCost, std::placeholders::_1, std::placeholders::_2, sink));
+	pathToSource.connect(rivers);
+	pathToSource = pathToSource.search(tile, true, movementCost);
 	
-	auto searchAreaToSink = availableArea - pathToSource.getPathArea();
+	availableArea.subtract(pathToSource.getPathArea());
 	
-	rmg::Path pathToSink(searchAreaToSink);
+	rmg::Path pathToSink(availableArea);
 	pathToSink.connect(sink);
-	pathToSink = pathToSink.search(tile, true, std::bind(movementCost, std::placeholders::_1, std::placeholders::_2, pathToSource.getPathArea()));
+	pathToSource.connect(rivers);
+	pathToSink = pathToSink.search(tile, true, movementCost);
 	
 	if(pathToSource.getPathArea().empty() || pathToSink.getPathArea().empty())
 	{
@@ -380,5 +375,4 @@ void RiverPlacer::connectRiver(const int3 & tile)
 	
 	rivers.unite(pathToSource.getPathArea());
 	rivers.unite(pathToSink.getPathArea());
-	sink.add(tile);
 }
