@@ -235,7 +235,10 @@ const rmg::Area & Object::getAccessibleArea(bool exceptLast) const
 	dAccessibleAreaCache.subtract(getArea());
 	dAccessibleAreaFullCache.subtract(getArea());
 	
-	return exceptLast ? dAccessibleAreaCache : dAccessibleAreaFullCache ;
+	if(exceptLast)
+		return dAccessibleAreaCache;
+	else
+		return dAccessibleAreaFullCache;
 }
 
 void Object::setPosition(const int3 & position)
@@ -304,15 +307,9 @@ void Object::finalize(RmgMap & map)
 {
 	if(dInstances.empty())
 		throw rmgException("Cannot finalize object without instances");
-		
-	Area a = dInstances.front().getBlockedArea();
-	dInstances.front().finalize(map);
 	
-	for(auto iter = std::next(dInstances.begin()); iter != dInstances.end(); ++iter)
+	for(auto iter = dInstances.begin(); iter != dInstances.end(); ++iter)
 	{
-		if(a.overlap(iter->getBlockedArea()))
-			logGlobal->info("Overlapped instances during object finalization");
-		a.unite(iter->getBlockedArea());
 		iter->finalize(map);
 	}
 }
