@@ -165,7 +165,7 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 	
 	//2. connect via water
 	bool waterMode = map.getMapGenOptions().getWaterContent() != EWaterContent::NONE;
-	if(!success && waterMode && zone.isUnderground() == otherZone->isUnderground())
+	if(waterMode && zone.isUnderground() == otherZone->isUnderground())
 	{
 		if(generator.getZoneWater() && generator.getZoneWater()->getModificator<WaterProxy>())
 		{

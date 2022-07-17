@@ -49,6 +49,8 @@ void RockPlacer::process()
 	zone.areaUsed().unite(rockArea);
 	if(auto * m = zone.getModificator<RiverPlacer>())
 		m->riverProhibit().unite(rockArea);
+	if(auto * m = zone.getModificator<RoadPlacer>())
+		m->areaIsolated().unite(rockArea);
 }
 
 void RockPlacer::init()
