@@ -156,7 +156,7 @@ Object::Object(const Object & object)
 {
 	dStrenght = object.dStrenght;
 	for(auto & i : object.dInstances)
-		addInstance(const_cast<CGObjectInstance &>(i.object()));
+		addInstance(const_cast<CGObjectInstance &>(i.object()), i.getPosition());
 	setPosition(object.getPosition());
 }
 
