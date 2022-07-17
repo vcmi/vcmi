@@ -36,10 +36,22 @@ void ConnectionsPlacer::process()
 		if(iter != dCompleted.end())
 			continue;
 		
-		selfSideConnection(c);
+		selfSideDirectConnection(c);
 	}
 	
 	createBorder(map, zone);
+	
+	for(auto & c : dConnections)
+	{
+		if(c.getZoneA() != zone.getId() && c.getZoneB() != zone.getId())
+			continue;
+		
+		auto iter = std::find(dCompleted.begin(), dCompleted.end(), c);
+		if(iter != dCompleted.end())
+			continue;
+		
+		selfSideIndirectConnection(c);
+	}
 }
 
 void ConnectionsPlacer::init()
@@ -67,7 +79,7 @@ void ConnectionsPlacer::otherSideConnection(const rmg::ZoneConnection & connecti
 	dCompleted.push_back(connection);
 }
 
-void ConnectionsPlacer::selfSideConnection(const rmg::ZoneConnection & connection)
+void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & connection)
 {
 	bool success = false;
 	auto otherZoneId = (connection.getZoneA() == zone.getId() ? connection.getZoneB() : connection.getZoneA());
@@ -153,6 +165,13 @@ void ConnectionsPlacer::selfSideConnection(const rmg::ZoneConnection & connectio
 			}
 		}
 	}
+}
+
+void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & connection)
+{
+	bool success = false;
+	auto otherZoneId = (connection.getZoneA() == zone.getId() ? connection.getZoneB() : connection.getZoneA());
+	auto & otherZone = map.getZones().at(otherZoneId);
 	
 	//3. place subterrain gates
 	if(!success && zone.isUnderground() != otherZone->isUnderground())
@@ -182,7 +201,7 @@ void ConnectionsPlacer::selfSideConnection(const rmg::ZoneConnection & connectio
 			
 			auto path1 = manager.placeAndConnectObject(commonArea, rmgGate1, minDist, guarded1, true, true);
 			auto path2 = managerOther.placeAndConnectObject(otherCommonArea, rmgGate2, [this, &rmgGate1, &minDist, &maxDistSq](const int3 & tile)
-			{
+															{
 				auto ti = map.getTile(tile);
 				auto dist = ti.getNearestObjectDistance();
 				//avoid borders
@@ -218,7 +237,7 @@ void ConnectionsPlacer::selfSideConnection(const rmg::ZoneConnection & connectio
 		auto factory = VLC->objtypeh->getHandlerFor(Obj::MONOLITH_TWO_WAY, generator.getNextMonlithIndex());
 		auto teleport1 = factory->create(ObjectTemplate());
 		auto teleport2 = factory->create(ObjectTemplate());
-	
+		
 		zone.getModificator<ObjectManager>()->addRequiredObject(teleport1, connection.getGuardStrength());
 		otherZone->getModificator<ObjectManager>()->addRequiredObject(teleport2, connection.getGuardStrength());
 		

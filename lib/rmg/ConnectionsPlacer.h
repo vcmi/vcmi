@@ -22,7 +22,8 @@ public:
 	
 	void addConnection(const rmg::ZoneConnection& connection);
 	
-	void selfSideConnection(const rmg::ZoneConnection & connection);
+	void selfSideDirectConnection(const rmg::ZoneConnection & connection);
+	void selfSideIndirectConnection(const rmg::ZoneConnection & connection);
 	void otherSideConnection(const rmg::ZoneConnection & connection);
 	
 protected:

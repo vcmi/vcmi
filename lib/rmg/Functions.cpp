@@ -63,27 +63,32 @@ rmg::Tileset collectDistantTiles(const Zone& zone, int distance)
 	return subarea.getTiles();
 }
 
-void createBorder(RmgMap & gen, const Zone & zone)
+void createBorder(RmgMap & gen, Zone & zone)
 {
-	for(auto & tile : zone.getArea().getBorderOutside())
+	rmg::Area borderArea(zone.getArea().getBorder());
+	rmg::Area borderOutsideArea(zone.getArea().getBorderOutside());
+	auto blockBorder = borderArea.getSubarea([&gen, &borderOutsideArea](const int3 & t)
 	{
-		if(gen.isOnMap(tile) && gen.getZoneID(tile) != zone.getId() && gen.getZones()[gen.getZoneID(tile)]->getType() != ETemplateZoneType::WATER) //optimization - better than set search
+		auto tile = borderOutsideArea.nearest(t);
+		return gen.isOnMap(tile) && gen.getZones()[gen.getZoneID(tile)]->getType() != ETemplateZoneType::WATER;
+	});
+	
+	for(auto & tile : blockBorder.getTilesVector())
+	{
+		if(gen.isPossible(tile))
 		{
-			if(gen.isPossible(tile))
-			{
-				gen.setOccupied(tile, ETileType::BLOCKED);
-				gen.getZones().at(gen.getZoneID(tile))->areaPossible().erase(tile);
-			}
-			
-			gen.foreach_neighbour(tile, [&gen](int3 &nearbyPos)
-			{
-				if(gen.isPossible(nearbyPos))
-				{
-					gen.setOccupied(nearbyPos, ETileType::BLOCKED);	
-					gen.getZones().at(gen.getZoneID(nearbyPos))->areaPossible().erase(nearbyPos);
-				}
-			});
+			gen.setOccupied(tile, ETileType::BLOCKED);
+			zone.areaPossible().erase(tile);
 		}
+		
+		gen.foreach_neighbour(tile, [&gen, &zone](int3 &nearbyPos)
+		{
+			if(gen.isPossible(nearbyPos) && gen.getZoneID(nearbyPos) == zone.getId())
+			{
+				gen.setOccupied(nearbyPos, ETileType::BLOCKED);
+				zone.areaPossible().erase(nearbyPos);
+			}
+		});
 	}
 }
 
