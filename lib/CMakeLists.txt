@@ -104,6 +104,7 @@ set(lib_SRCS
 		rmg/RockPlacer.cpp
 		rmg/ObstaclePlacer.cpp
 		rmg/RiverPlacer.cpp
+		rmg/TerrainPainter.cpp
 
 		serializer/BinaryDeserializer.cpp
 		serializer/BinarySerializer.cpp
@@ -328,6 +329,7 @@ set(lib_HEADERS
 		rmg/RockPlacer.h
 		rmg/ObstaclePlacer.h
 		rmg/RiverPlacer.h
+		rmg/TerrainPainter.h
 		rmg/float3.h
 
 		serializer/BinaryDeserializer.h

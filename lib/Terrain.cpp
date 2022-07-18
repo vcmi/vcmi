@@ -91,6 +91,15 @@ Terrain::Manager::Manager()
 				info.rockTerrain = terr.second["rockTerrain"].String();
 			}
 			
+			if(terr.second["river"].isNull())
+			{
+				info.river = RIVER_NAMES[0];
+			}
+			else
+			{
+				info.river = terr.second["river"].String();
+			}
+			
 			if(terr.second["horseSoundId"].isNull())
 			{
 				info.horseSoundId = 9; //rock sound as default

@@ -286,10 +286,8 @@ void CMapGenerator::fillZones()
 	
 	for(auto it : map->getZones())
 	{
-		initTerrainType(*it.second, *this);
 		it.second->initModificators();
 		it.second->initFreeTiles();
-		paintZoneTerrain(*it.second, rand, *map, it.second->getTerrainType());
 	}
 
 	std::vector<std::shared_ptr<Zone>> treasureZones;

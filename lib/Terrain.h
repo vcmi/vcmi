@@ -38,6 +38,7 @@ public:
 		std::string typeCode;
 		std::string terrainViewPatterns;
 		std::string rockTerrain;
+		std::string river;
 		int horseSoundId;
 		Type type;
 		std::vector<std::string> battleFields;

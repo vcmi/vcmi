@@ -25,6 +25,7 @@
 #include "RockPlacer.h"
 #include "ObstaclePlacer.h"
 #include "RiverPlacer.h"
+#include "TerrainPainter.h"
 #include "Functions.h"
 #include "CMapGenerator.h"
 
@@ -131,6 +132,7 @@ void RmgMap::addModificators()
 		zone->addModificator<ObjectManager>();
 		zone->addModificator<TreasurePlacer>();
 		zone->addModificator<ObstaclePlacer>();
+		zone->addModificator<TerrainPainter>();
 		
 		if(zone->getType() == ETemplateZoneType::WATER)
 		{
