@@ -311,7 +311,7 @@ bool WaterProxy::placeShipyard(Zone & land, const Lake & lake, si32 guard, Route
 		shipyardOutToBlock.intersect(waterAvailable);
 		shipyardOutToBlock.subtract(shipPositions);
 		shipPositions.subtract(shipyardOutToBlock);
-		auto pathToBoat = zone.searchPath(shipPositions, false);
+		auto pathToBoat = zone.searchPath(shipPositions, true);
 		
 		if(!path.valid() || !pathToBoarding.valid() || !pathToBoat.valid())
 		{

@@ -32,8 +32,7 @@ void ConnectionsPlacer::process()
 		if(c.getZoneA() != zone.getId() && c.getZoneB() != zone.getId())
 			continue;
 		
-		auto iter = std::find(dCompleted.begin(), dCompleted.end(), c);
-		if(iter != dCompleted.end())
+		if(vstd::contains(dCompleted, c))
 			continue;
 		
 		selfSideDirectConnection(c);
@@ -46,8 +45,7 @@ void ConnectionsPlacer::process()
 		if(c.getZoneA() != zone.getId() && c.getZoneB() != zone.getId())
 			continue;
 		
-		auto iter = std::find(dCompleted.begin(), dCompleted.end(), c);
-		if(iter != dCompleted.end())
+		if(vstd::contains(dCompleted, c))
 			continue;
 		
 		selfSideIndirectConnection(c);
@@ -82,8 +80,11 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 	auto & otherZone = map.getZones().at(otherZoneId);
 	
 	//1. Try to make direct connection
+	//Do if it's not prohibited by terrain settings
+	bool directProhibited = vstd::contains(Terrain::Manager::getInfo(zone.getTerrainType()).prohibitTransitions, otherZone->getTerrainType())
+						 || vstd::contains(Terrain::Manager::getInfo(otherZone->getTerrainType()).prohibitTransitions, zone.getTerrainType());
 	auto directConnectionIterator = dNeighbourZones.find(otherZoneId);
-	if(directConnectionIterator != dNeighbourZones.end())
+	if(!directProhibited && directConnectionIterator != dNeighbourZones.end())
 	{
 		int3 guardPos(-1, -1, -1);
 		int3 borderPos;
@@ -177,6 +178,9 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 			}
 		}
 	}
+	
+	if(success)
+		dCompleted.push_back(connection);
 }
 
 void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & connection)
@@ -192,8 +196,6 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 		auto commonArea = zone.areaPossible() * (otherZone->areaPossible() + zShift);
 		if(!commonArea.empty())
 		{
-			auto otherCommonArea = commonArea - zShift;
-			
 			assert(zone.getModificator<ObjectManager>());
 			auto & manager = *zone.getModificator<ObjectManager>();
 			
@@ -209,23 +211,22 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 			bool guarded1 = manager.addGuard(rmgGate1, connection.getGuardStrength(), true);
 			bool guarded2 = managerOther.addGuard(rmgGate2, connection.getGuardStrength(), true);
 			int minDist = 3;
-			int maxDistSq = 3 * 3;
 			
-			auto path1 = manager.placeAndConnectObject(commonArea, rmgGate1, minDist, guarded1, true, true);
-			auto path2 = managerOther.placeAndConnectObject(otherCommonArea, rmgGate2, [this, &rmgGate1, &minDist, &maxDistSq](const int3 & tile)
-															{
+			rmg::Path path2(otherZone->area());
+			rmg::Path path1 = manager.placeAndConnectObject(commonArea, rmgGate1, [this, minDist, &path2, &rmgGate1, &zShift, guarded2, &managerOther, &rmgGate2	](const int3 & tile)
+			{
 				auto ti = map.getTile(tile);
-				auto dist = ti.getNearestObjectDistance();
-				//avoid borders
-				if(dist >= minDist)
-				{
-					float d2 = tile.dist2dSQ(rmgGate1.getPosition());
-					if(d2 > maxDistSq)
-						return -1.f;
-					return 1000000.f - d2 - dist;
-				}
-				return -1.f;
-			}, guarded2, true, true);
+				float dist = ti.getNearestObjectDistance();
+				if(dist < minDist)
+					return -1.f;
+				
+				rmg::Area toPlace(rmgGate1.getArea() + rmgGate1.getAccessibleArea());
+				toPlace.translate(-zShift);
+				
+				path2 = managerOther.placeAndConnectObject(toPlace, rmgGate2, minDist, guarded2, true, false);
+				
+				return path2.valid() ? 1.f : -1.f;
+			}, guarded1, true, false);
 			
 			if(path1.valid() && path2.valid())
 			{
@@ -258,6 +259,9 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 		
 		success = true;
 	}
+	
+	if(success)
+		dCompleted.push_back(connection);
 }
 
 void ConnectionsPlacer::collectNeighbourZones()

@@ -41,6 +41,7 @@ public:
 		int horseSoundId;
 		Type type;
 		std::vector<std::string> battleFields;
+		std::vector<Terrain> prohibitTransitions;
 	};
 	
 	class DLL_LINKAGE Manager

@@ -48,6 +48,32 @@ void WaterRoutes::process()
 			zone.areaPossible().subtract(lake.area);
 		}
 	}
+	
+	//prohibit to place objects on the borders
+	for(auto & t : zone.area().getBorder())
+	{
+		if(zone.areaPossible().contains(t))
+		{
+			std::vector<int3> landTiles;
+			map.foreachDirectNeighbour(t, [this, &landTiles, &t](const int3 & c)
+			{
+				if(map.isOnMap(c) && map.getZoneID(c) != zone.getId())
+				{
+					landTiles.push_back(c - t);
+				}
+			});
+			
+			if(landTiles.size() == 2)
+			{
+				int3 o = landTiles[0] + landTiles[1];
+				if(o.x * o.x * o.y * o.y == 1) 
+				{
+					zone.areaPossible().erase(t);
+					zone.areaUsed().add(t);
+				}
+			}
+		}
+	}
 }
 
 void WaterRoutes::init()

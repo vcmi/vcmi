@@ -123,6 +123,14 @@ Terrain::Manager::Manager()
 				}
 			}
 			
+			if(!terr.second["prohibitTransitions"].isNull())
+			{
+				for(auto & t : terr.second["prohibitTransitions"].Vector())
+				{
+					info.prohibitTransitions.emplace_back(t.String());
+				}
+			}
+			
 			info.transitionRequired = false;
 			if(!terr.second["transitionRequired"].isNull())
 			{
