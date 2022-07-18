@@ -81,7 +81,7 @@ void WaterProxy::init()
 		postfunction(z.second->getModificator<ConnectionsPlacer>());
 		postfunction(z.second->getModificator<ObjectManager>());
 	}
-	postfunction(zone.getModificator<TreasurePlacer>());
+	POSTFUNCTION(TreasurePlacer);
 }
 
 const std::vector<WaterProxy::Lake> & WaterProxy::getLakes() const

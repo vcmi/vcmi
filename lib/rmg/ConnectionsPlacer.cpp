@@ -56,10 +56,10 @@ void ConnectionsPlacer::process()
 
 void ConnectionsPlacer::init()
 {
-	dependency(zone.getModificator<WaterAdopter>());
-	dependency(zone.getModificator<TownPlacer>());
-	postfunction(zone.getModificator<RoadPlacer>());
-	postfunction(zone.getModificator<ObjectManager>());
+	DEPENDENCY(WaterAdopter);
+	DEPENDENCY(TownPlacer);
+	POSTFUNCTION(RoadPlacer);
+	POSTFUNCTION(ObjectManager);
 	
 	for(auto c : map.getMapGenOptions().getMapTemplate()->getConnections())
 		addConnection(c);

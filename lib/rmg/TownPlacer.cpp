@@ -39,8 +39,8 @@ void TownPlacer::process()
 
 void TownPlacer::init()
 {
-	postfunction(zone.getModificator<ObjectManager>());
-	postfunction(zone.getModificator<RoadPlacer>());
+	POSTFUNCTION(ObjectManager);
+	POSTFUNCTION(RoadPlacer);
 } 
 
 void TownPlacer::placeTowns(ObjectManager & manager)

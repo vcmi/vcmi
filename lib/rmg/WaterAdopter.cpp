@@ -32,13 +32,10 @@ void WaterAdopter::process()
 void WaterAdopter::init()
 {
 	//make dependencies
-	for(auto & z : map.getZones())
-	{
-		dependency(z.second->getModificator<WaterAdopter>());
-	}
-	dependency(zone.getModificator<TownPlacer>());
-	postfunction(zone.getModificator<ConnectionsPlacer>());
-	postfunction(zone.getModificator<TreasurePlacer>());
+	DEPENDENCY_ALL(WaterAdopter);
+	DEPENDENCY(TownPlacer);
+	POSTFUNCTION(ConnectionsPlacer);
+	POSTFUNCTION(TreasurePlacer);
 }
 
 void WaterAdopter::createWater(EWaterContent::EWaterContent waterContent)

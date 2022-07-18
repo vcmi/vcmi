@@ -31,8 +31,8 @@ void ObjectManager::process()
 
 void ObjectManager::init()
 {
-	dependency(zone.getModificator<WaterAdopter>());
-	postfunction(zone.getModificator<RoadPlacer>());
+	DEPENDENCY(WaterAdopter);
+	POSTFUNCTION(RoadPlacer);
 }
 
 void ObjectManager::addRequiredObject(CGObjectInstance * obj, si32 strength)

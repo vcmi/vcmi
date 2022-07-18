@@ -18,9 +18,19 @@
 #include "RmgPath.h"
 #include "RmgObject.h"
 
-//#define RMG_DUMP
+#define RMG_DUMP
 
 #define MODIFICATOR(x) x(Zone & z, RmgMap & m, CMapGenerator & g): Modificator(z, m, g) {setName(#x);}
+#define DEPENDENCY(x) 		dependency(zone.getModificator<x>());
+#define POSTFUNCTION(x)		postfunction(zone.getModificator<x>());
+#define DEPENDENCY_ALL(x) 	for(auto & z : map.getZones()) \
+							{ \
+								dependency(z.second->getModificator<x>()); \
+							}
+#define POSTFUNCTION_ALL(x) for(auto & z : map.getZones()) \
+							{ \
+								postfunction(z.second->getModificator<x>()); \
+							}
 
 class RmgMap;
 class CMapGenerator;
@@ -48,6 +58,8 @@ protected:
 	RmgMap & map;
 	CMapGenerator & generator;
 	Zone & zone;
+	
+	bool isFinished() const;
 	
 private:
 	std::string name;

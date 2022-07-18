@@ -21,32 +21,65 @@
 
 void RockPlacer::process()
 {
-	Terrain rockTerrain(Terrain::Manager::getInfo(zone.getTerrainType()).rockTerrain);
+	rockTerrain = Terrain::Manager::getInfo(zone.getTerrainType()).rockTerrain;
 	assert(!rockTerrain.isPassable());
 	
-	auto accessibleArea = zone.freePaths() + zone.areaUsed();
+	accessibleArea = zone.freePaths() + zone.areaUsed();
 	if(auto * m = zone.getModificator<ObjectManager>())
 		accessibleArea.unite(m->getVisitableArea());
 	
 	//negative approach - create rock tiles first, then make sure all accessible tiles have no rock
-	auto rockArea = zone.area().getSubarea([this](const int3 & t)
+	rockArea = zone.area().getSubarea([this](const int3 & t)
 	{
 		return map.shouldBeBlocked(t);
 	});
 	
-	map.getEditManager()->getTerrainSelection().setSelection(rockArea.getTilesVector());
-	map.getEditManager()->drawTerrain(rockTerrain, &generator.rand);
+	for(auto & z : map.getZones())
+	{
+		if(auto * m = z.second->getModificator<RockPlacer>())
+		{
+			if(m != this && !m->isFinished())
+				return;
+		}
+	}
 	
-	//now make sure all accessible tiles have no additional rock on them
-	map.getEditManager()->getTerrainSelection().setSelection(accessibleArea.getTilesVector());
-	map.getEditManager()->drawTerrain(zone.getTerrainType(), &generator.rand);
+	processMap();
+}
+
+void RockPlacer::processMap()
+{
+	//merge all areas
+	for(auto & z : map.getZones())
+	{
+		if(auto * m = z.second->getModificator<RockPlacer>())
+		{
+			map.getEditManager()->getTerrainSelection().setSelection(m->rockArea.getTilesVector());
+			map.getEditManager()->drawTerrain(m->rockTerrain, &generator.rand);
+		}
+	}
 	
+	for(auto & z : map.getZones())
+	{
+		if(auto * m = z.second->getModificator<RockPlacer>())
+		{
+			//now make sure all accessible tiles have no additional rock on them
+			map.getEditManager()->getTerrainSelection().setSelection(m->accessibleArea.getTilesVector());
+			map.getEditManager()->drawTerrain(z.second->getTerrainType(), &generator.rand);
+			m->postProcess();
+		}
+	}
+}
+
+void RockPlacer::postProcess()
+{
 	//finally mark rock tiles as occupied, spawn no obstacles there
 	rockArea = zone.area().getSubarea([this](const int3 & t)
 	{
 		return !map.map().getTile(t).terType.isPassable();
 	});
+	
 	zone.areaUsed().unite(rockArea);
+	zone.areaPossible().subtract(rockArea);
 	if(auto * m = zone.getModificator<RiverPlacer>())
 		m->riverProhibit().unite(rockArea);
 	if(auto * m = zone.getModificator<RoadPlacer>())
@@ -55,6 +88,15 @@ void RockPlacer::process()
 
 void RockPlacer::init()
 {
-	postfunction(zone.getModificator<RoadPlacer>());
-	dependency(zone.getModificator<TreasurePlacer>());
+	POSTFUNCTION_ALL(RoadPlacer);
+	DEPENDENCY(TreasurePlacer);
+}
+
+char RockPlacer::dump(const int3 & t)
+{
+	if(!map.map().getTile(t).terType.isPassable())
+	{
+		return zone.area().contains(t) ? 'R' : 'E';
+	}
+	return Modificator::dump(t);
 }

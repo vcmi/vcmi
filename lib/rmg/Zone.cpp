@@ -196,7 +196,7 @@ void Zone::fractalize()
 	int totalDensity = 0;
 	for(auto ti : treasureInfo)
 		totalDensity += ti.density;
-	const float minDistance = 10 * 10; //squared
+	const float minDistance = fmax(3 * 3, fmin(totalDensity * totalDensity, 10 * 10)); //squared
 	
 	if(type != ETemplateZoneType::JUNCTION)
 	{
@@ -310,6 +310,11 @@ void Modificator::setName(const std::string & n)
 const std::string & Modificator::getName() const
 {
 	return name;
+}
+
+bool Modificator::isFinished() const
+{
+	return finished;
 }
 
 void Modificator::run()

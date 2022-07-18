@@ -33,9 +33,9 @@ void TreasurePlacer::process()
 
 void TreasurePlacer::init()
 {
-	dependency(zone.getModificator<ObjectManager>());
-	dependency(zone.getModificator<ConnectionsPlacer>());
-	postfunction(zone.getModificator<RoadPlacer>());
+	DEPENDENCY(ObjectManager);
+	DEPENDENCY(ConnectionsPlacer);
+	POSTFUNCTION(RoadPlacer);
 }
 
 void TreasurePlacer::setQuestArtZone(Zone * otherZone)

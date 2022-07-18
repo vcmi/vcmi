@@ -72,12 +72,9 @@ void RiverPlacer::process()
 
 void RiverPlacer::init()
 {
-	for(auto & z : map.getZones())
-	{
-		dependency(z.second->getModificator<WaterProxy>());
-	}
-	dependency(zone.getModificator<ObjectManager>());
-	dependency(zone.getModificator<ObstaclePlacer>());
+	DEPENDENCY_ALL(WaterProxy);
+	DEPENDENCY(ObjectManager);
+	DEPENDENCY(ObstaclePlacer);
 }
 
 void RiverPlacer::drawRivers()

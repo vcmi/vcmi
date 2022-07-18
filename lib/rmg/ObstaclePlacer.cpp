@@ -178,10 +178,10 @@ void ObstaclePlacer::process()
 
 void ObstaclePlacer::init()
 {
-	dependency(zone.getModificator<ObjectManager>());
-	dependency(zone.getModificator<TreasurePlacer>());
-	dependency(zone.getModificator<RockPlacer>());
-	dependency(zone.getModificator<WaterRoutes>());
-	dependency(zone.getModificator<WaterProxy>());
-	dependency(zone.getModificator<RoadPlacer>());
+	DEPENDENCY(ObjectManager);
+	DEPENDENCY(TreasurePlacer);
+	DEPENDENCY(WaterRoutes);
+	DEPENDENCY(WaterProxy);
+	DEPENDENCY(RoadPlacer);
+	DEPENDENCY_ALL(RockPlacer);
 }

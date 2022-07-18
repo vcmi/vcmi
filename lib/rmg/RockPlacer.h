@@ -18,4 +18,13 @@ public:
 	
 	void process() override;
 	void init() override;
+	char dump(const int3 &) override;
+	
+	void processMap();
+	void postProcess();
+	
+protected:
+	
+	rmg::Area rockArea, accessibleArea;
+	Terrain rockTerrain;
 };
