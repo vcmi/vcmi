@@ -36,8 +36,7 @@ target_include_directories(BattleML PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(BattleML PRIVATE vcmi)
 
 vcmi_set_output_dir(BattleML "AI")
+enable_pch(BattleML)
 
-set_target_properties(BattleML PROPERTIES ${PCH_PROPERTIES})
-cotire(BattleML)
 
 install(TARGETS BattleML RUNTIME DESTINATION ${AI_LIB_DIR} LIBRARY DESTINATION ${AI_LIB_DIR})
