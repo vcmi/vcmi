@@ -257,13 +257,14 @@ void CSoundHandler::soundFinishedCallback(int channel)
 {
 	std::map<int, std::function<void()> >::iterator iter;
 	iter = callbacks.find(channel);
+	if (iter == callbacks.end())
+		return;
 
-	assert(iter != callbacks.end());
-
-	if (iter->second)
-		iter->second();
-
+	auto callback = std::move(iter->second);
 	callbacks.erase(iter);
+
+	if (callback)
+		callback();
 }
 
 int CSoundHandler::ambientGetRange() const
