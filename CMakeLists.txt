@@ -90,6 +90,7 @@ define_property(
 # Generate Version.cpp
 if(ENABLE_GITVERSION)
 	add_custom_target(update_version ALL
+		BYPRODUCTS "Version.cpp"
 		COMMAND ${CMAKE_COMMAND} -DGIT_SHA1="${GIT_SHA1}" -P "${PROJECT_SOURCE_DIR}/cmake_modules/Version.cmake"
 	)
 else()
