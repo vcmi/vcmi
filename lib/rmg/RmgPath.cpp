@@ -33,11 +33,11 @@ boost::heap::priority_queue<TDistance, boost::heap::compare<NodeComparer>> creat
 	return boost::heap::priority_queue<TDistance, boost::heap::compare<NodeComparer>>();
 }
 
-Path::Path(const Area & area): dArea(area)
+Path::Path(const Area & area): dArea(&area)
 {
 }
 
-Path::Path(const Area & area, const int3 & src): dArea(area)
+Path::Path(const Area & area, const int3 & src): dArea(&area)
 {
 	dPath.add(src);
 }
@@ -67,7 +67,10 @@ Path Path::invalid()
 Path Path::search(const Tileset & dst, bool straight, std::function<float(const int3 &, const int3 &)> moveCostFunction) const
 {
 	//A* algorithm taken from Wiki http://en.wikipedia.org/wiki/A*_search_algorithm
-	auto resultArea = dArea + dst;
+	if(!dArea)
+		return Path::invalid();
+	
+	auto resultArea = *dArea + dst;
 	Path result(resultArea);
 	if(dst.empty())
 		return result;
@@ -106,12 +109,12 @@ Path Path::search(const Tileset & dst, bool straight, std::function<float(const 
 		}
 		else
 		{
-			auto foo = [this, &open, &closed, &cameFrom, &currentNode, &distances, &moveCostFunction, &result](const int3& pos) -> void
+			auto foo = [&open, &closed, &cameFrom, &currentNode, &distances, &moveCostFunction, &result](const int3& pos) -> void
 			{
 				if(closed.count(pos))
 					return;
 				
-				if(!result.dArea.contains(pos))
+				if(!result.dArea->contains(pos))
 					return;
 				
 				float movementCost = moveCostFunction(currentNode, pos) + currentNode.dist2d(pos);

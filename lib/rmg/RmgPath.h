@@ -43,7 +43,7 @@ public:
 	
 private:
 	
-	const Area & dArea;
+	const Area * dArea = nullptr;
 	Area dPath;
 };
 }

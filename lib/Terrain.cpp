@@ -165,7 +165,7 @@ Terrain::Manager & Terrain::Manager::get()
 
 std::vector<Terrain> Terrain::Manager::terrains()
 {
-	std::set<Terrain> _terrains; //have to use std::set to have ordered container. Othervise de-sycn is possible
+	std::set<Terrain> _terrains; //have to use std::set to have ordered container. Othervise de-sync is possible
 	for(const auto & info : Terrain::Manager::get().terrainInfo)
 		_terrains.insert(info.first);
 	return std::vector<Terrain>(_terrains.begin(), _terrains.end());
