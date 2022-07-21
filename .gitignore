@@ -26,8 +26,6 @@ CMakeFiles
 Makefile
 cmake_install.cmake
 install_manifest.txt
-*_cotire.cmake
-cotire
 moc_*.cpp
 qrc_*.cpp
 ui_*.h

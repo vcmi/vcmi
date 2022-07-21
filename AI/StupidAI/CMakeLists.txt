@@ -18,8 +18,6 @@ target_link_libraries(StupidAI PRIVATE vcmi)
 target_include_directories(StupidAI PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 vcmi_set_output_dir(StupidAI "AI")
-
-set_target_properties(StupidAI PROPERTIES ${PCH_PROPERTIES})
-cotire(StupidAI)
+enable_pch(StupidAI)
 
 install(TARGETS StupidAI RUNTIME DESTINATION ${AI_LIB_DIR} LIBRARY DESTINATION ${AI_LIB_DIR})
