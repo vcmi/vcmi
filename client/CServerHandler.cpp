@@ -195,7 +195,7 @@ void CServerHandler::startLocalServerAndConnect()
         threadRunLocalServer.reset();
         CSH->campaignServerRestartLock.setn(false);
     });
-//    threadRunLocalServer->detach();
+    threadRunLocalServer->detach();
     logNetwork->info("[ios] detach server thread");
 #else
 	threadRunLocalServer = std::make_shared<boost::thread>(&CServerHandler::threadRunServer, this); //runs server executable;

@@ -855,6 +855,7 @@ void handleLinuxSignal(int sig)
 
 static void handleCommandOptions(int argc, char * argv[], boost::program_options::variables_map & options)
 {
+#ifndef VCMI_IOS
 	namespace po = boost::program_options;
 	po::options_description opts("Allowed options");
 	opts.add_options()
@@ -897,6 +898,7 @@ static void handleCommandOptions(int argc, char * argv[], boost::program_options
 		std::cout << VCMIDirs::get().genHelpString();
 		exit(0);
 	}
+#endif
 }
 
 #ifdef VCMI_IOS
@@ -921,11 +923,6 @@ int main(int argc, char * argv[])
 	logGlobal->info(SERVER_NAME);
 
     boost::program_options::variables_map opts;
-#ifdef VCMI_IOS
-    argc = 1;
-    boost::condition_variable * cond = reinterpret_cast<boost::condition_variable *>(argv[1]);
-    cond->notify_one();
-#else
 	handleCommandOptions(argc, argv, opts);
 	preinitDLL(console);
 	settings.init();
@@ -933,7 +930,13 @@ int main(int argc, char * argv[])
 
 	loadDLLClasses();
 	srand((ui32)time(nullptr));
+
+#ifdef VCMI_IOS
+	argc = 1;
+	boost::condition_variable * cond = reinterpret_cast<boost::condition_variable *>(argv[1]);
+	cond->notify_one();
 #endif
+
 	try
 	{
 		boost::asio::io_service io_service;
