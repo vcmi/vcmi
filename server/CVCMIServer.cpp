@@ -112,8 +112,8 @@ public:
 	}
 };
 
-std::string NAME_AFFIX = "server";
-std::string NAME = GameConstants::VCMI_VERSION + std::string(" (") + NAME_AFFIX + ')';
+std::string SERVER_NAME_AFFIX = "server";
+std::string SERVER_NAME = GameConstants::VCMI_VERSION + std::string(" (") + SERVER_NAME_AFFIX + ')';
 
 CVCMIServer::CVCMIServer(boost::program_options::variables_map & opts)
 	: port(3030), io(std::make_shared<boost::asio::io_service>()), state(EServerState::LOBBY), cmdLineOptions(opts), currentClientId(1), currentPlayerId(1), restartGameplay(false)
@@ -291,7 +291,7 @@ void CVCMIServer::connectionAccepted(const boost::system::error_code & ec)
 	try
 	{
 		logNetwork->info("We got a new connection! :)");
-		auto c = std::make_shared<CConnection>(upcomingConnection, NAME, uuid);
+		auto c = std::make_shared<CConnection>(upcomingConnection, SERVER_NAME, uuid);
 		upcomingConnection.reset();
 		connections.insert(c);
 		c->handler = std::make_shared<boost::thread>(&CVCMIServer::threadHandleClient, this, c);
@@ -918,9 +918,14 @@ int main(int argc, char * argv[])
 	console = new CConsoleHandler();
 	CBasicLogConfigurator logConfig(VCMIDirs::get().userLogsPath() / "VCMI_Server_log.txt", console);
 	logConfig.configureDefault();
-	logGlobal->info(NAME);
+	logGlobal->info(SERVER_NAME);
 
-	boost::program_options::variables_map opts;
+    boost::program_options::variables_map opts;
+#ifdef VCMI_IOS
+    argc = 1;
+    boost::condition_variable * cond = reinterpret_cast<boost::condition_variable *>(argv[1]);
+    cond->notify_one();
+#else
 	handleCommandOptions(argc, argv, opts);
 	preinitDLL(console);
 	settings.init();
@@ -928,6 +933,7 @@ int main(int argc, char * argv[])
 
 	loadDLLClasses();
 	srand((ui32)time(nullptr));
+#endif
 	try
 	{
 		boost::asio::io_service io_service;
@@ -967,10 +973,17 @@ int main(int argc, char * argv[])
 	return 0;
 }
 
-#if defined(VCMI_ANDROID) || defined(VCMI_IOS)
+#ifdef VCMI_ANDROID
 void CVCMIServer::create()
 {
 	const char * foo[1] = {"android-server"};
 	main(1, const_cast<char **>(foo));
+}
+#elif defined(VCMI_IOS)
+void CVCMIServer::create(boost::condition_variable * cond)
+{
+    const auto executablePath = VCMIDirs::get().serverPath();
+    void *argv[] = {const_cast<char *>(executablePath.c_str()), cond};
+    main(2, reinterpret_cast<char **>(argv));
 }
 #endif
