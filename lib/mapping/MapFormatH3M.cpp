@@ -26,6 +26,8 @@
 #include "../VCMI_Lib.h"
 #include "../NetPacksBase.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 
 const bool CMapLoaderH3M::IS_PROFILING_ENABLED = false;
 
@@ -2266,3 +2268,5 @@ void CMapLoaderH3M::afterRead()
 		}
 	}
 }
+
+VCMI_LIB_NAMESPACE_END

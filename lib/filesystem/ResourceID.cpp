@@ -11,6 +11,8 @@
 #include "ResourceID.h"
 #include "FileInfo.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 // trivial to_upper that completely ignores localization and only work with ASCII
 // Technically not a problem since
 // 1) Right now VCMI does not supports unicode in filenames on Win
@@ -205,3 +207,5 @@ std::string EResTypeHelper::getEResTypeAsString(EResType::Type type)
 
 	return iter->second;
 }
+
+VCMI_LIB_NAMESPACE_END

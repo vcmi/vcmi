@@ -12,6 +12,8 @@
 #include "Zone.h"
 #include "../mapObjects/ObjectTemplate.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CGObjectInstance;
 class ObjectManager;
 class RmgMap;
@@ -65,3 +67,5 @@ protected:
 	
 	Zone * questArtZone = nullptr; //artifacts required for Seer Huts will be placed here - or not if null
 };
+
+VCMI_LIB_NAMESPACE_END

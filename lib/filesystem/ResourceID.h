@@ -9,6 +9,8 @@
  */
 #pragma once
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 
 /**
  * Specifies the resource type.
@@ -114,19 +116,6 @@ private:
 	std::string name;
 };
 
-namespace std
-{
-	template <> struct hash<ResourceID>
-	{
-		size_t operator()(const ResourceID & resourceIdent) const
-		{
-			std::hash<int> intHasher;
-			std::hash<std::string> stringHasher;
-			return stringHasher(resourceIdent.getName()) ^ intHasher(static_cast<int>(resourceIdent.getType()));
-		}
-	};
-}
-
 /**
  * A helper class which provides a functionality to convert extension strings to EResTypes.
  */
@@ -148,4 +137,17 @@ public:
 	 * @return the type as a string representation
 	 */
 	static std::string getEResTypeAsString(EResType::Type type);
+};
+
+VCMI_LIB_NAMESPACE_END
+
+
+template <> struct std::hash<VCMI_LIB_WRAP_NAMESPACE(ResourceID)>
+{
+	size_t operator()(const VCMI_LIB_WRAP_NAMESPACE(ResourceID) & resourceIdent) const
+	{
+		std::hash<int> intHasher;
+		std::hash<std::string> stringHasher;
+		return stringHasher(resourceIdent.getName()) ^ intHasher(static_cast<int>(resourceIdent.getType()));
+	}
 };

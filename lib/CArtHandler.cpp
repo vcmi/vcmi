@@ -48,6 +48,8 @@
 	ART_POS(SHOULDERS)  \
 	ART_POS(HEAD)
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 int32_t CArtifact::getIndex() const
 {
 	return id.toEnum();
@@ -1434,3 +1436,5 @@ void CArtifactSet::serializeJsonSlot(JsonSerializeFormat & handler, const Artifa
 		}
 	}
 }
+
+VCMI_LIB_NAMESPACE_END

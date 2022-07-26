@@ -164,6 +164,7 @@ ExchangeResult ChainActor::tryExchangeNoLock(const ChainActor * specialActor, co
 	return baseActor->tryExchangeNoLock(specialActor, other);
 }
 
+VCMI_LIB_NAMESPACE_BEGIN
 namespace vstd
 {
 	template <class M, class Key, class F>
@@ -180,6 +181,7 @@ namespace vstd
 		return v;
 	}
 }
+VCMI_LIB_NAMESPACE_END
 
 ExchangeResult HeroActor::tryExchangeNoLock(const ChainActor * specialActor, const ChainActor * other) const
 {

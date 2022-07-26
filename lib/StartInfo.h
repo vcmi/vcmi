@@ -11,6 +11,8 @@
 
 #include "GameConstants.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CMapGenOptions;
 class CCampaignState;
 class CMapInfo;
@@ -175,3 +177,8 @@ struct DLL_LINKAGE LobbyInfo : public LobbyState
 	TeamID getPlayerTeamId(PlayerColor color);
 };
 
+class ExceptionMapMissing : public std::exception {};
+class ExceptionNoHuman : public std::exception {};
+class ExceptionNoTemplate : public std::exception {};
+
+VCMI_LIB_NAMESPACE_END

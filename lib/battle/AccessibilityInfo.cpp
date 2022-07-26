@@ -12,6 +12,8 @@
 #include "Unit.h"
 #include "../GameConstants.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 bool AccessibilityInfo::accessible(BattleHex tile, const battle::Unit * stack) const
 {
 	return accessible(tile, stack->doubleWide(), stack->unitSide());
@@ -37,3 +39,5 @@ bool AccessibilityInfo::accessible(BattleHex tile, bool doubleWide, ui8 side) co
 
 	return true;
 }
+
+VCMI_LIB_NAMESPACE_END

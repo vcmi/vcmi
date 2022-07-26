@@ -12,23 +12,28 @@
 #include "../widgets/CGarrisonInt.h"
 #include "../widgets/Images.h"
 
-class CButton;
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CBuilding;
+class CGTownInstance;
+class CSpell;
+struct CStructure;
+class CGHeroInstance;
+class CCreature;
+
+VCMI_LIB_NAMESPACE_END
+
+class CButton;
 class CCastleBuildings;
 class CCreaturePic;
 class CGStatusBar;
-class CGTownInstance;
 class CLabel;
 class CMinorResDataBar;
 class CPicture;
 class CResDataBar;
-class CSpell;
 class CTextBox;
 class CTownList;
-struct CStructure;
-class CGHeroInstance;
 class CGarrisonInt;
-class CCreature;
 class CComponent;
 class CComponentBox;
 

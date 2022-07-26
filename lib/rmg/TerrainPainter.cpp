@@ -19,6 +19,8 @@
 #include "CMapGenerator.h"
 #include "RmgMap.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 void TerrainPainter::process()
 {
 	initTerrainType(zone, generator);
@@ -33,3 +35,5 @@ void TerrainPainter::init()
 	POSTFUNCTION_ALL(ConnectionsPlacer);
 	POSTFUNCTION(ObjectManager);
 }
+
+VCMI_LIB_NAMESPACE_END

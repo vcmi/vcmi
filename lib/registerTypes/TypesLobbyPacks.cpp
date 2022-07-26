@@ -31,7 +31,11 @@
 #include "../serializer/BinarySerializer.h"
 #include "../serializer/CTypeList.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 template void registerTypesLobbyPacks<BinaryDeserializer>(BinaryDeserializer & s);
 template void registerTypesLobbyPacks<BinarySerializer>(BinarySerializer & s);
 template void registerTypesLobbyPacks<CTypeList>(CTypeList & s);
 
+
+VCMI_LIB_NAMESPACE_END

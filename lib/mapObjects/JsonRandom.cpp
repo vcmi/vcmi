@@ -21,6 +21,8 @@
 #include "../CCreatureSet.h"
 #include "../spells/CSpellHandler.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace JsonRandom
 {
 	si32 loadValue(const JsonNode & value, CRandomGenerator & rng, si32 defaultValue)
@@ -225,3 +227,5 @@ namespace JsonRandom
 	}
 
 }
+
+VCMI_LIB_NAMESPACE_END

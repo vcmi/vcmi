@@ -18,3 +18,4 @@
 #include <boost/random/variate_generator.hpp>
 #include <boost/system/system_error.hpp>
 
+VCMI_LIB_USING_NAMESPACE

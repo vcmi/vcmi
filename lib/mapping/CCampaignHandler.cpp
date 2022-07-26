@@ -30,6 +30,8 @@
 #include "serializer/JsonDeserializer.h"
 #include "serializer/JsonSerializer.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 CCampaignHeader::CCampaignHeader()
 	: version(0), mapVersion(0), difficultyChoosenByPlayer(0), music(0), filename(), loadFromLod(0)
 {
@@ -562,3 +564,5 @@ std::string CCampaignHandler::prologVoiceName(ui8 index)
 
 
 
+
+VCMI_LIB_NAMESPACE_END

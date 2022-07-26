@@ -12,6 +12,8 @@
 #include "../ConstTransitivePtr.h"
 #include "../GameConstants.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 const ui32 SERIALIZATION_VERSION = 805;
 const ui32 MINIMAL_SERIALIZATION_VERSION = 805;
 const std::string SAVEGAME_MAGIC = "VCMISVG";
@@ -199,3 +201,5 @@ class DLL_LINKAGE IBinaryWriter : public virtual CSerializer
 public:
 	virtual int write(const void * data, unsigned size) = 0;
 };
+
+VCMI_LIB_NAMESPACE_END

@@ -11,6 +11,8 @@
 
 #include  "JsonTreeSerializer.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class DLL_LINKAGE JsonDeserializer: public JsonTreeSerializer<const JsonNode *>
 {
 public:
@@ -38,3 +40,5 @@ private:
 	void readLICPart(const JsonNode & part, const TDecoder & decoder, const bool val, std::vector<bool> & value);
 	void readLICPart(const JsonNode & part, const TDecoder & decoder, std::set<si32> & value);
 };
+
+VCMI_LIB_NAMESPACE_END

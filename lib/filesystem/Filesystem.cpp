@@ -21,6 +21,8 @@
 #include "../VCMIDirs.h"
 #include "../CStopWatch.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 std::map<std::string, ISimpleResourceLoader*> CResourceHandler::knownLoaders = std::map<std::string, ISimpleResourceLoader*>();
 CResourceHandler CResourceHandler::globalResourceHandler;
 
@@ -247,3 +249,5 @@ ISimpleResourceLoader * CResourceHandler::createFileSystem(const std::string & p
 	generator.loadConfig(fsConfig);
 	return generator.getFilesystem();
 }
+
+VCMI_LIB_NAMESPACE_END

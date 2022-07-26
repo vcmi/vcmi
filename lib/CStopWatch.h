@@ -19,6 +19,8 @@
 	#define TO_MS_DIVISOR (CLOCKS_PER_SEC / 1000)
 #endif
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CStopWatch
 {
 	si64 start, last, mem;
@@ -62,3 +64,5 @@ private:
 	#endif
 	}
 };
+
+VCMI_LIB_NAMESPACE_END

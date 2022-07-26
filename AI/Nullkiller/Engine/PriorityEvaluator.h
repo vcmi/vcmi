@@ -12,9 +12,14 @@
 #include "../Goals/CGoal.h"
 #include "../Pathfinding/AIPathfinder.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
+class CGWitchHut;
+
+VCMI_LIB_NAMESPACE_END
+
 class BuildingInfo;
 class Nullkiller;
-class CGWitchHut;
 
 class RewardEvaluator
 {

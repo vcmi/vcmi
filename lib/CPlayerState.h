@@ -15,6 +15,8 @@
 #include "HeroBonus.h"
 #include "ResourceSet.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CGHeroInstance;
 class CGTownInstance;
 class CGDwelling;
@@ -95,3 +97,5 @@ public:
 	}
 
 };
+
+VCMI_LIB_NAMESPACE_END

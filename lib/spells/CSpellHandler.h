@@ -21,6 +21,8 @@
 #include "../battle/BattleHex.h"
 #include "../HeroBonus.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CSpell;
 class IAdventureSpellMechanics;
 class CBattleInfoCallback;
@@ -391,3 +393,5 @@ protected:
 	const std::vector<std::string> & getTypeNames() const override;
 	CSpell * loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index) override;
 };
+
+VCMI_LIB_NAMESPACE_END

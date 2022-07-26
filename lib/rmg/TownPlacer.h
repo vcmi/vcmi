@@ -10,6 +10,8 @@
 #pragma once
 #include "Zone.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class ObjectManager;
 class CGTownInstance;
 
@@ -35,3 +37,5 @@ protected:
 	
 	int totalTowns = 0;
 };
+
+VCMI_LIB_NAMESPACE_END

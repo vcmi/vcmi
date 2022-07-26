@@ -9,6 +9,8 @@
  */
 #pragma once
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 /// Class which consists of three integer values. Represents position on adventure map.
 class int3
 {
@@ -216,3 +218,5 @@ int3 findClosestTile (Container & container, int3 dest)
 	}
 	return result;
 }
+
+VCMI_LIB_NAMESPACE_END

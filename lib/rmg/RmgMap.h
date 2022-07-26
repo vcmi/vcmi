@@ -13,6 +13,8 @@
 #include "../GameConstants.h"
 #include "../mapping/CMap.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CMapEditManager;
 class TileInfo;
 class CMapGenOptions;
@@ -79,3 +81,5 @@ private:
 	boost::multi_array<TileInfo, 3> tiles; //[x][y][z]
 	boost::multi_array<TRmgTemplateZoneId, 3> zoneColouring; //[x][y][z]
 };
+
+VCMI_LIB_NAMESPACE_END

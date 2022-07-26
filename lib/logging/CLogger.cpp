@@ -37,6 +37,8 @@ extern "C" {
 }
 #endif
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace vstd
 {
 
@@ -447,3 +449,5 @@ CLogFileTarget::~CLogFileTarget()
 {
 	file.close();
 }
+
+VCMI_LIB_NAMESPACE_END

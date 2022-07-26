@@ -20,6 +20,8 @@
 #include "../serializer/JsonSerializeFormat.h"
 #include "../StringConstants.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace
 {
 	si32 decodeZoneId(const std::string & json)
@@ -799,3 +801,5 @@ void CRmgTemplate::serializePlayers(JsonSerializeFormat & handler, CPlayerCountR
 		value.fromString(encodedValue);
 }
 
+
+VCMI_LIB_NAMESPACE_END

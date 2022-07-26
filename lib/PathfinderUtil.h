@@ -12,6 +12,8 @@
 #include "mapping/CMapDefines.h"
 #include "CGameState.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace PathfinderUtil
 {
 	using FoW = std::shared_ptr<const boost::multi_array<ui8, 3>>;
@@ -74,3 +76,5 @@ namespace PathfinderUtil
 		return CGPathNode::ACCESSIBLE;
 	}
 }
+
+VCMI_LIB_NAMESPACE_END

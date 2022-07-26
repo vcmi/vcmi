@@ -13,6 +13,8 @@
 #include "Effect.h"
 #include "../../GameConstants.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace spells
 {
 namespace effects
@@ -46,3 +48,5 @@ public:
 
 }
 }
+
+VCMI_LIB_NAMESPACE_END

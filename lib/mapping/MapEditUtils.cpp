@@ -16,6 +16,8 @@
 #include "CMap.h"
 #include "CMapOperation.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 MapRect::MapRect() : x(0), y(0), z(0), width(0), height(0)
 {
 
@@ -369,3 +371,5 @@ void CTerrainViewPatternUtils::printDebuggingInfoAboutTile(const CMap * map, int
 		logGlobal->debug(line);
 	}
 }
+
+VCMI_LIB_NAMESPACE_END

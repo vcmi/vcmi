@@ -12,6 +12,8 @@
 #include "Zone.h"
 #include "RmgArea.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class ConnectionsPlacer: public Modificator
 {
 public:
@@ -33,3 +35,5 @@ protected:
 	std::vector<rmg::ZoneConnection> dConnections, dCompleted;
 	std::map<TRmgTemplateZoneId, rmg::Tileset> dNeighbourZones;
 };
+
+VCMI_LIB_NAMESPACE_END

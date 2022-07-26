@@ -14,10 +14,11 @@
 
 #include <boost/program_options.hpp>
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CMapInfo;
 
 struct CPackForLobby;
-class CGameHandler;
 struct SharedMemory;
 
 struct StartInfo;
@@ -26,6 +27,10 @@ struct PlayerSettings;
 class PlayerColor;
 
 template<typename T> class CApplier;
+
+VCMI_LIB_NAMESPACE_END
+
+class CGameHandler;
 class CBaseForServerApply;
 class CBaseForGHApply;
 

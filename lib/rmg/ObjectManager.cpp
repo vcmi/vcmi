@@ -24,6 +24,8 @@
 #include "Functions.h"
 #include "RmgObject.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 void ObjectManager::process()
 {
 	zone.fractalize();
@@ -491,3 +493,5 @@ bool ObjectManager::addGuard(rmg::Object & object, si32 strength, bool zoneGuard
 		
 	return true;
 }
+
+VCMI_LIB_NAMESPACE_END

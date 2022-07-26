@@ -21,8 +21,13 @@
 #undef OUT
 #endif
 
-struct SDL_Surface;
+VCMI_LIB_NAMESPACE_BEGIN
+
 class JsonNode;
+
+VCMI_LIB_NAMESPACE_END
+
+struct SDL_Surface;
 class CDefFile;
 class ColorShifter;
 

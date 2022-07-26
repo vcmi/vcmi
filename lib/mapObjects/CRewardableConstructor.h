@@ -14,6 +14,8 @@
 
 #include "../JsonNode.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class DLL_LINKAGE CRandomRewardObjectInfo : public IObjectInfo
 {
 	JsonNode parameters;
@@ -55,3 +57,5 @@ public:
 
 	std::unique_ptr<IObjectInfo> getObjectInfo(std::shared_ptr<const ObjectTemplate> tmpl) const override;
 };
+
+VCMI_LIB_NAMESPACE_END

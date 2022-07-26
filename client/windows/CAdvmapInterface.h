@@ -17,14 +17,19 @@
 
 #include "../../lib/spells/ViewSpellInt.h"
 
-class CCallback;
+VCMI_LIB_NAMESPACE_BEGIN
+
 struct CGPath;
-class CAdvMapInt;
 class CGHeroInstance;
 class CGTownInstance;
-class CHeroWindow;
 class CSpell;
 class IShipyard;
+
+VCMI_LIB_NAMESPACE_END
+
+class CCallback;
+class CAdvMapInt;
+class CHeroWindow;
 enum class EMapAnimRedrawStatus;
 class CFadeAnimation;
 

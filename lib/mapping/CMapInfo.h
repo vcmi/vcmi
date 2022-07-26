@@ -20,6 +20,8 @@
 #include "CMap.h"
 #include "CCampaignHandler.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 struct StartInfo;
 
 /**
@@ -69,3 +71,5 @@ public:
 		h & isRandomMap;
 	}
 };
+
+VCMI_LIB_NAMESPACE_END

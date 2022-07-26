@@ -17,6 +17,8 @@
 
 #include "../../serializer/JsonSerializeFormat.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 
 namespace spells
 {
@@ -156,3 +158,5 @@ void Effects::serializeJson(const Registry * registry, JsonSerializeFormat & han
 
 }
 }
+
+VCMI_LIB_NAMESPACE_END

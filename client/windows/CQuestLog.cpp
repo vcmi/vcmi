@@ -29,7 +29,12 @@
 #include "../../lib/NetPacksBase.h"
 #include "../../lib/mapObjects/CQuest.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 struct QuestInfo;
+
+VCMI_LIB_NAMESPACE_END
+
 class CAdvmapInterface;
 
 void CQuestLabel::clickLeft(tribool down, bool previousState)

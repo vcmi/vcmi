@@ -9,7 +9,11 @@
  */
 #include "Version.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace GameConstants
 {
 const char GIT_SHA1[] = "@GIT_SHA1@";
 }
+
+VCMI_LIB_NAMESPACE_END

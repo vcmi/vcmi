@@ -12,6 +12,8 @@
 #include "../CConsoleHandler.h"
 #include "../filesystem/FileStream.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CLogger;
 struct LogRecord;
 class ILogTarget;
@@ -225,3 +227,5 @@ private:
 	CLogFormatter formatter;
 	mutable boost::mutex mx;
 };
+
+VCMI_LIB_NAMESPACE_END

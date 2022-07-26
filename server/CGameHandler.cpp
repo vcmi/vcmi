@@ -91,6 +91,7 @@ private:
 	CGameHandler * gh;
 };
 
+VCMI_LIB_NAMESPACE_BEGIN
 namespace spells
 {
 
@@ -185,6 +186,7 @@ private:
 };
 
 }//
+VCMI_LIB_NAMESPACE_END
 
 CondSh<bool> battleMadeAction(false);
 CondSh<BattleResult *> battleResult(nullptr);

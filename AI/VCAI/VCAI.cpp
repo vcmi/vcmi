@@ -29,7 +29,11 @@
 
 extern FuzzyHelper * fh;
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CGVisitableOPW;
+
+VCMI_LIB_NAMESPACE_END
 
 const double SAFE_ATTACK_CONSTANT = 1.5;
 

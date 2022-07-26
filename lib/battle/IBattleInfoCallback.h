@@ -12,6 +12,8 @@
 
 #include "BattleHex.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 struct CObstacleInstance;
 class BattleField;
 class Terrain;
@@ -62,3 +64,5 @@ public:
 };
 
 
+
+VCMI_LIB_NAMESPACE_END

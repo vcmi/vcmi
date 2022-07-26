@@ -16,6 +16,8 @@
 #include "JsonRandom.h"
 #include "../IGameCallback.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace {
 	MetaString loadMessage(const JsonNode & value)
 	{
@@ -220,3 +222,5 @@ std::unique_ptr<IObjectInfo> CRewardableConstructor::getObjectInfo(std::shared_p
 {
 	return std::unique_ptr<IObjectInfo>(new CRandomRewardObjectInfo(objectInfo));
 }
+
+VCMI_LIB_NAMESPACE_END

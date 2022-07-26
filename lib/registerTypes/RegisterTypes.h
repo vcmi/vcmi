@@ -24,6 +24,8 @@
 #include "../battle/CObstacleInstance.h"
 #include "../CStack.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class BinarySerializer;
 class BinaryDeserializer;
 class CTypeList;
@@ -408,3 +410,5 @@ extern template DLL_LINKAGE void registerTypes<CTypeList>(CTypeList & s);
 
 #endif
 
+
+VCMI_LIB_NAMESPACE_END

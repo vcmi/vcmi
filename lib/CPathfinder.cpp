@@ -20,6 +20,8 @@
 #include "CPlayerState.h"
 #include "PathfinderUtil.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 bool canSeeObj(const CGObjectInstance * obj)
 {
 	/// Pathfinder should ignore placed events
@@ -1424,3 +1426,5 @@ bool PathNodeInfo::isNodeObjectVisitable() const
 	return (node->layer == EPathfindingLayer::LAND || node->layer == EPathfindingLayer::SAIL)
 		&& (canSeeObj(nodeObject) || canSeeObj(nodeHero));
 }
+
+VCMI_LIB_NAMESPACE_END

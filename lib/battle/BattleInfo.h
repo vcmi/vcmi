@@ -15,6 +15,8 @@
 #include "SiegeInfo.h"
 #include "SideInBattle.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CStack;
 class CStackInstance;
 class CStackBasicDescriptor;
@@ -160,3 +162,5 @@ public:
 	bool operator ()(const battle::Unit * a, const battle::Unit * b);
 	CMP_stack(int Phase = 1, int Turn = 0, uint8_t Side = BattleSide::ATTACKER);
 };
+
+VCMI_LIB_NAMESPACE_END

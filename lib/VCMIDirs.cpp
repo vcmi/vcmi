@@ -11,6 +11,8 @@
 #include "StdInc.h"
 #include "VCMIDirs.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace bfs = boost::filesystem;
 
 bfs::path IVCMIDirs::userLogsPath() const { return userCachePath(); }
@@ -699,3 +701,5 @@ namespace VCMIDirs
 	}
 }
 
+
+VCMI_LIB_NAMESPACE_END

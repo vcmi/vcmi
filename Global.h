@@ -264,10 +264,25 @@ template<typename T, size_t N> char (&_ArrayCountObj(const T (&)[N]))[N];
 // should be used for variables that becomes unused in release builds (e.g. only used for assert checks)
 #define UNUSED(VAR) ((void)VAR)
 
+// single-process build makes 2 copies of the main lib by wrapping it in a namespace
+#ifdef VCMI_LIB_NAMESPACE
+#define VCMI_LIB_NAMESPACE_BEGIN namespace VCMI_LIB_NAMESPACE {
+#define VCMI_LIB_NAMESPACE_END }
+#define VCMI_LIB_USING_NAMESPACE using namespace VCMI_LIB_NAMESPACE;
+#define VCMI_LIB_WRAP_NAMESPACE(x) VCMI_LIB_NAMESPACE::x
+#else
+#define VCMI_LIB_NAMESPACE_BEGIN
+#define VCMI_LIB_NAMESPACE_END
+#define VCMI_LIB_USING_NAMESPACE
+#define VCMI_LIB_WRAP_NAMESPACE(x) x
+#endif
+
 /* ---------------------------------------------------------------------------- */
 /* VCMI standard library */
 /* ---------------------------------------------------------------------------- */
 #include <vstd/CLoggerBase.h>
+
+VCMI_LIB_NAMESPACE_BEGIN
 
 void inline handleException()
 {
@@ -739,3 +754,5 @@ namespace std
 	}
 }
 #endif // NO_STD_TOSTRING
+
+VCMI_LIB_NAMESPACE_END

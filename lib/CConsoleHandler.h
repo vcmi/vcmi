@@ -9,6 +9,8 @@
  */
 #pragma once
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace EConsoleTextColor
 {
 /** The color enum is used for colored text console output. */
@@ -92,3 +94,5 @@ private:
 };
 
 extern DLL_LINKAGE CConsoleHandler * console;
+
+VCMI_LIB_NAMESPACE_END

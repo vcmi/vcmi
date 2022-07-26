@@ -12,6 +12,8 @@
 
 #include "BattleHex.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace battle
 {
 
@@ -37,3 +39,5 @@ public:
 using Target = std::vector<Destination>;
 
 }
+
+VCMI_LIB_NAMESPACE_END

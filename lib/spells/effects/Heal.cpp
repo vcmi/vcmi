@@ -19,6 +19,8 @@
 #include "../../battle/Unit.h"
 #include "../../serializer/JsonSerializeFormat.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 
 static const std::string EFFECT_NAME = "core:heal";
 
@@ -137,3 +139,5 @@ void Heal::prepareHealEffect(int64_t value, BattleUnitsChanged & pack, RNG & rng
 
 }
 }
+
+VCMI_LIB_NAMESPACE_END

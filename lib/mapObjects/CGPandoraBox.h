@@ -1,4 +1,4 @@
-﻿/*
+/*
  * CGPandoraBox.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
@@ -12,6 +12,8 @@
 #include "CObjectHandler.h"
 #include "CArmedInstance.h"
 #include "../ResourceSet.h"
+
+VCMI_LIB_NAMESPACE_BEGIN
 
 struct InfoWindow;
 
@@ -93,3 +95,5 @@ private:
 	void activated(const CGHeroInstance * h) const;
 	void afterSuccessfulVisit() const override;
 };
+
+VCMI_LIB_NAMESPACE_END

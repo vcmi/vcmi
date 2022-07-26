@@ -10,6 +10,8 @@
 #include "StdInc.h"
 #include "BattleHex.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 BattleHex::BattleHex() : hex(INVALID) {}
 
 BattleHex::BattleHex(si16 _hex) : hex(_hex) {}
@@ -224,3 +226,5 @@ static BattleHex::NeighbouringTilesCache calculateNeighbouringTiles()
 }
 
 const BattleHex::NeighbouringTilesCache BattleHex::neighbouringTilesCache = calculateNeighbouringTiles();
+
+VCMI_LIB_NAMESPACE_END

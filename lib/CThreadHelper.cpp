@@ -16,6 +16,8 @@
 	#include <sys/prctl.h>
 #endif
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 CThreadHelper::CThreadHelper(std::vector<std::function<void()> > *Tasks, int Threads)
 {
 	currentTask = 0; amount = (int)Tasks->size();
@@ -88,3 +90,5 @@ void setThreadName(const std::string &name)
     pthread_setname_np(name.c_str());
 #endif
 }
+
+VCMI_LIB_NAMESPACE_END

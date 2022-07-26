@@ -12,6 +12,8 @@
 
 #include "../registerTypes/RegisterTypes.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 extern template void registerTypes<CTypeList>(CTypeList & s);
 
 CTypeList typeList;
@@ -135,3 +137,5 @@ CTypeList::TypeInfoPtr CTypeList::getTypeDescriptor(const std::type_info *type, 
 
 	THROW_FORMAT("Cannot find type descriptor for type %s. Was it registered?", type->name());
 }
+
+VCMI_LIB_NAMESPACE_END

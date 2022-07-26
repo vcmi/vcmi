@@ -35,6 +35,8 @@
 
 #include "serializer/Connection.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 void CPrivilegedInfoCallback::getFreeTiles(std::vector<int3> & tiles) const
 {
 	std::vector<int> floors;
@@ -248,3 +250,5 @@ bool IGameCallback::isVisitCoveredByAnotherQuery(const CGObjectInstance *obj, co
 	logGlobal->error("isVisitCoveredByAnotherQuery call on client side");
 	return false;
 }
+
+VCMI_LIB_NAMESPACE_END

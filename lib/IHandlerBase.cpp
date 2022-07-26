@@ -12,6 +12,8 @@
 #include "IHandlerBase.h"
 #include "CModHandler.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 
 void IHandlerBase::registerObject(std::string scope, std::string type_name, std::string name, si32 index)
 {
@@ -22,3 +24,5 @@ std::string IHandlerBase::normalizeIdentifier(const std::string& scope, const st
 {
 	return VLC->modh->normalizeIdentifier(scope, remoteScope, identifier);
 }
+
+VCMI_LIB_NAMESPACE_END

@@ -12,6 +12,8 @@
 
 #include "Entity.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class SecondarySkill;
 
 class DLL_LINKAGE Skill : public EntityT<SecondarySkill>
@@ -20,3 +22,5 @@ public:
 
 };
 
+
+VCMI_LIB_NAMESPACE_END

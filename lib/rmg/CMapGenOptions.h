@@ -12,6 +12,8 @@
 
 #include "../GameConstants.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CRmgTemplate;
 class CRandomGenerator;
 
@@ -188,3 +190,5 @@ public:
 		//TODO add name of template to class, enables selection of a template by a user
 	}
 };
+
+VCMI_LIB_NAMESPACE_END

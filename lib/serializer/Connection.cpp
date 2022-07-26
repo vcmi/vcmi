@@ -16,6 +16,8 @@
 
 #include <boost/asio.hpp>
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 using namespace boost;
 using namespace boost::asio::ip;
 
@@ -282,3 +284,5 @@ std::string CConnection::toString() const
 	fmt % name % connectionID % uuid;
 	return fmt.str();
 }
+
+VCMI_LIB_NAMESPACE_END

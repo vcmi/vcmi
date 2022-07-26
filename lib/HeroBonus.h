@@ -13,6 +13,8 @@
 #include "JsonNode.h"
 #include "Terrain.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CCreature;
 struct Bonus;
 class IBonusBearer;
@@ -1290,3 +1292,5 @@ public:
 	virtual std::string toString() const override;
 	virtual JsonNode toJsonNode() const override;
 };
+
+VCMI_LIB_NAMESPACE_END

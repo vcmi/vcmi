@@ -42,6 +42,8 @@
 #include "../IGameCallback.h"//todo: remove
 #include "../BattleFieldHandler.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace spells
 {
 
@@ -776,3 +778,5 @@ std::unique_ptr<IAdventureSpellMechanics> IAdventureSpellMechanics::createMechan
 		return std::unique_ptr<IAdventureSpellMechanics>();
 	}
 }
+
+VCMI_LIB_NAMESPACE_END
