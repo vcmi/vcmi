@@ -107,7 +107,7 @@ add_library(VCAI SHARED ${VCAI_SRCS} ${VCAI_HEADERS})
 
 target_include_directories(VCAI PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(VCAI PRIVATE vcmi fuzzylite::fuzzylite)
+target_link_libraries(VCAI PRIVATE ${VCMI_LIB_TARGET} fuzzylite::fuzzylite)
 
 vcmi_set_output_dir(VCAI "AI")
 enable_pch(VCAI)

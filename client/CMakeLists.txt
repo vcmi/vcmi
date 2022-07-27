@@ -224,8 +224,14 @@ elseif(APPLE_IOS)
 	set_source_files_properties(ios/Images.xcassets PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
 endif()
 
+if(BUILD_SINGLE_APP)
+	target_link_libraries(vcmiclient PRIVATE vcmiserver)
+	set(VCMI_LIB_TARGET vcmi_lib_client)
+else()
+	set(VCMI_LIB_TARGET vcmi)
+endif()
 target_link_libraries(vcmiclient PRIVATE
-		vcmi SDL2::SDL2 SDL2::Image SDL2::Mixer SDL2::TTF
+		${VCMI_LIB_TARGET} SDL2::SDL2 SDL2::Image SDL2::Mixer SDL2::TTF
 )
 
 if(ffmpeg_LIBRARIES)

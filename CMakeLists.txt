@@ -34,6 +34,10 @@ if(APPLE)
 	endif()
 endif(APPLE)
 
+if(APPLE_IOS)
+	set(BUILD_SINGLE_APP 1)
+endif()
+
 ############################################
 #        User-provided options             #
 ############################################
@@ -412,7 +416,15 @@ if(NOT TARGET minizip::minizip)
 	add_subdirectory_with_folder("3rdparty" lib/minizip)
 	add_library(minizip::minizip ALIAS minizip)
 endif()
-add_subdirectory(lib)
+
+include(VCMI_lib)
+if(BUILD_SINGLE_APP)
+	add_subdirectory(lib_client)
+	add_subdirectory(lib_server)
+else()
+	add_subdirectory(lib)
+endif()
+
 add_subdirectory(client)
 add_subdirectory(server)
 add_subdirectory_with_folder("AI" AI)

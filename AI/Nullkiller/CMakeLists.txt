@@ -130,7 +130,7 @@ add_library(Nullkiller SHARED ${Nullkiller_SRCS} ${Nullkiller_HEADERS})
 
 target_include_directories(Nullkiller PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(Nullkiller PRIVATE vcmi fuzzylite::fuzzylite)
+target_link_libraries(Nullkiller PRIVATE ${VCMI_LIB_TARGET} fuzzylite::fuzzylite)
 
 target_link_libraries(Nullkiller PRIVATE TBB::tbb)
 

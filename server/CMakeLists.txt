@@ -26,9 +26,14 @@ if(ANDROID) # android needs client/server to be libraries, not executables, so w
 	return()
 endif()
 
-add_executable(vcmiserver ${server_SRCS} ${server_HEADERS})
+if(BUILD_SINGLE_APP)
+	add_library(vcmiserver STATIC ${server_SRCS} ${server_HEADERS})
+	set(server_LIBS vcmi_lib_server)
+else()
+	add_executable(vcmiserver ${server_SRCS} ${server_HEADERS})
+	set(server_LIBS vcmi)
+endif()
 
-set(server_LIBS vcmi)
 if(CMAKE_SYSTEM_NAME MATCHES FreeBSD)
 	set(server_LIBS execinfo ${server_LIBS})
 elseif(APPLE_IOS)
