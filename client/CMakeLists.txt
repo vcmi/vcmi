@@ -179,7 +179,7 @@ endif()
 
 target_link_libraries(vcmiclient PRIVATE
 		vcmi SDL2::SDL2 SDL2::Image SDL2::Mixer SDL2::TTF
-		ffmpeg::swscale ffmpeg::avutil ffmpeg::avcodec ffmpeg::avformat TBB::tbb
+		ffmpeg::swscale ffmpeg::avutil ffmpeg::avcodec ffmpeg::avformat
 )
 
 target_include_directories(vcmiclient
