@@ -360,8 +360,10 @@ void CBonusSelection::updateAfterStateChange()
 		buttonStart->disable();
 		buttonRestart->enable();
 		buttonBack->block(false);
-		buttonDifficultyLeft->disable();
-		buttonDifficultyRight->disable();
+		if(buttonDifficultyLeft)
+			buttonDifficultyLeft->disable();
+		if(buttonDifficultyRight)
+			buttonDifficultyRight->disable();
 	}
 	if(CSH->campaignBonus == -1)
 	{
