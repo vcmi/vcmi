@@ -231,10 +231,11 @@ void CServerHandler::startLocalServerAndConnect()
 	th->update(); //put breakpoint here to attach to server before it does something stupid
 
 #if !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
-	justConnectToServer(settings["server"]["server"].String(), shm ? shm->sr->port : 0);
+	const ui16 port = shm ? shm->sr->port : 0;
 #else
-	justConnectToServer(settings["server"]["server"].String());
+	const ui16 port = 0;
 #endif
+	justConnectToServer(settings["server"]["server"].String(), port);
 
 	logNetwork->trace("\tConnecting to the server: %d ms", th->getDiff());
 }
