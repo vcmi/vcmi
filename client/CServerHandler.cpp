@@ -79,7 +79,7 @@ public:
 	bool applyOnLobbyHandler(CServerHandler * handler, void * pack) const override
 	{
 		T * ptr = static_cast<T *>(pack);
-		logNetwork->trace("\tImmidiately apply on lobby: %s", typeList.getTypeInfo(ptr)->name());
+		logNetwork->trace("\tImmediately apply on lobby: %s", typeList.getTypeInfo(ptr)->name());
 		return ptr->applyOnLobbyHandler(handler);
 	}
 

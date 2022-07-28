@@ -370,7 +370,7 @@ void CVCMIServer::announcePack(std::unique_ptr<CPackForLobby> pack)
 {
 	for(auto c : connections)
 	{
-		// FIXME: we need to avoid senting something to client that not yet get answer for LobbyClientConnected
+		// FIXME: we need to avoid sending something to client that not yet get answer for LobbyClientConnected
 		// Until UUID set we only pass LobbyClientConnected to this client
 		if(c->uuid == uuid && !dynamic_cast<LobbyClientConnected *>(pack.get()))
 			continue;
