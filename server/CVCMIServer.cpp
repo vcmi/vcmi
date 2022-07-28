@@ -855,8 +855,11 @@ void handleLinuxSignal(int sig)
 
 static void handleCommandOptions(int argc, char * argv[], boost::program_options::variables_map & options)
 {
-#ifndef VCMI_IOS
 	namespace po = boost::program_options;
+#ifdef VCMI_IOS
+	options.emplace("run-by-client", po::variable_value{true, true});
+	options.emplace("uuid", po::variable_value{std::string{argv[1]}, true});
+#else
 	po::options_description opts("Allowed options");
 	opts.add_options()
 	("help,h", "display help and exit")
@@ -878,8 +881,11 @@ static void handleCommandOptions(int argc, char * argv[], boost::program_options
 			std::cerr << "Failure during parsing command-line options:\n" << e.what() << std::endl;
 		}
 	}
+#endif
 
 	po::notify(options);
+
+#ifndef VCMI_IOS
 	if(options.count("help"))
 	{
 		auto time = std::time(0);
@@ -916,7 +922,6 @@ int main(int argc, char * argv[])
 	signal(SIGSEGV, handleLinuxSignal);
 #endif
 
-    // todo ios: double console log in single-process mode. Why removing the lines below breaks connecting to local server?!
 	console = new CConsoleHandler();
 	CBasicLogConfigurator logConfig(VCMIDirs::get().userLogsPath() / "VCMI_Server_log.txt", console);
 	logConfig.configureDefault();
@@ -932,8 +937,7 @@ int main(int argc, char * argv[])
 	srand((ui32)time(nullptr));
 
 #ifdef VCMI_IOS
-	argc = 1;
-	boost::condition_variable * cond = reinterpret_cast<boost::condition_variable *>(argv[1]);
+	boost::condition_variable * cond = reinterpret_cast<boost::condition_variable *>(argv[0]);
 	cond->notify_one();
 #endif
 
@@ -983,10 +987,12 @@ void CVCMIServer::create()
 	main(1, const_cast<char **>(foo));
 }
 #elif defined(VCMI_IOS)
-void CVCMIServer::create(boost::condition_variable * cond)
+void CVCMIServer::create(boost::condition_variable * cond, const std::string & uuid)
 {
-    const auto executablePath = VCMIDirs::get().serverPath();
-    void *argv[] = {const_cast<char *>(executablePath.c_str()), cond};
-    main(2, reinterpret_cast<char **>(argv));
+	const std::initializer_list<const void *> argv = {
+		cond,
+		uuid.c_str(),
+	};
+	main(argv.size(), reinterpret_cast<char **>(const_cast<void **>(argv.begin())));
 }
 #endif

@@ -190,7 +190,7 @@ void CServerHandler::startLocalServerAndConnect()
     boost::condition_variable cond;
     threadRunLocalServer = std::make_shared<boost::thread>([&cond, this] {
         setThreadName("CVCMIServer");
-        CVCMIServer::create(&cond);
+        CVCMIServer::create(&cond, uuid);
         // todo ios copypaste
         threadRunLocalServer.reset();
         CSH->campaignServerRestartLock.setn(false);
