@@ -123,7 +123,12 @@ if(APPLE_IOS)
 	set_source_files_properties(ios/Images.xcassets PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
 endif()
 
-target_link_libraries(vcmilauncher vcmi Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network)
+if(BUILD_SINGLE_APP)
+	set(VCMI_LIB_TARGET vcmi_lib_client)
+else()
+	set(VCMI_LIB_TARGET vcmi)
+endif()
+target_link_libraries(vcmilauncher ${VCMI_LIB_TARGET} Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network)
 target_include_directories(vcmilauncher
 	PUBLIC	${CMAKE_CURRENT_SOURCE_DIR}
 )

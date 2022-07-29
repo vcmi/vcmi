@@ -2,7 +2,7 @@
 
 platform=OS64
 globalPrefix=~/dev/vcmi/vcmi-ios-depends/build/iphoneos
-qtDir=~/dev/Qt-libs/5.15.2/ios
+qtDir=~/dev/Qt-libs/5.15.5/ios10-widgets
 if [[ "$1" ]]; then
 	platform=SIMULATOR64
 	globalPrefix=~/dev/vcmi/vcmi-ios-depends/build/iphonesimulator
@@ -24,7 +24,7 @@ cmake "$srcDir" -G Xcode \
   -DBUNDLE_IDENTIFIER_PREFIX=com.kambala \
   -Wno-dev \
   -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
-  -DCMAKE_TOOLCHAIN_FILE="$srcDir/ios.toolchain.cmake" \
+  --toolchain "$srcDir/ios.toolchain.cmake" \
   -DPLATFORM=$platform \
   -DDEPLOYMENT_TARGET=12.0 \
   -DENABLE_BITCODE=OFF \

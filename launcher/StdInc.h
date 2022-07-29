@@ -10,6 +10,8 @@
 #include <QString>
 #include <QFile>
 
+VCMI_LIB_USING_NAMESPACE
+
 inline QString pathToQString(const boost::filesystem::path & path)
 {
 #ifdef VCMI_WINDOWS

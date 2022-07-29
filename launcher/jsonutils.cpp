@@ -51,6 +51,8 @@ static JsonMap VariantToMap(QVariantMap variant)
 	return map;
 }
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace JsonUtils
 {
 
@@ -123,3 +125,5 @@ void JsonToFile(QString filename, QVariant object)
 }
 
 }
+
+VCMI_LIB_NAMESPACE_END
