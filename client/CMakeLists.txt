@@ -226,6 +226,9 @@ endif()
 
 if(BUILD_SINGLE_APP)
 	target_link_libraries(vcmiclient PRIVATE vcmiserver)
+	if(ENABLE_LAUNCHER)
+		target_link_libraries(vcmiclient PRIVATE vcmilauncher)
+	endif()
 	set(VCMI_LIB_TARGET vcmi_lib_client)
 else()
 	set(VCMI_LIB_TARGET vcmi)
@@ -250,8 +253,7 @@ enable_pch(vcmiclient)
 
 if(APPLE_IOS)
 	add_custom_command(TARGET vcmiclient POST_BUILD
-		COMMAND ${CMAKE_COMMAND} --install "${CMAKE_BINARY_DIR}" --config "$<CONFIG>" --component core --prefix "$<TARGET_BUNDLE_CONTENT_DIR:vcmiclient>"
-		COMMAND ${CMAKE_COMMAND} --install "${CMAKE_BINARY_DIR}" --config "$<CONFIG>" --component AI --prefix "$<TARGET_BUNDLE_CONTENT_DIR:vcmiclient>"
+		COMMAND ${CMAKE_COMMAND} --install "${CMAKE_BINARY_DIR}" --config "$<CONFIG>" --prefix "$<TARGET_BUNDLE_CONTENT_DIR:vcmiclient>"
 		COMMAND ${CMAKE_SOURCE_DIR}/apple_codesign.sh
 	)
 else()
