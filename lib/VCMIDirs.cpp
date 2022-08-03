@@ -392,7 +392,7 @@ class VCMIDirsIOS final : public VCMIDirsApple
 		bfs::path binaryPath() const override;
 };
 
-bfs::path VCMIDirsIOS::userDataPath() const { return {ios_sharedDataPath() ?: ios_documentsPath()}; }
+bfs::path VCMIDirsIOS::userDataPath() const { return {ios_documentsPath()}; }
 bfs::path VCMIDirsIOS::userCachePath() const { return {ios_cachesPath()}; }
 bfs::path VCMIDirsIOS::userLogsPath() const { return {ios_documentsPath()}; }
 

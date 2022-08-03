@@ -21,21 +21,6 @@ static const char *standardPath(NSSearchPathDirectory directory) { return standa
 const char *ios_documentsPath() { return standardPath(NSDocumentDirectory); }
 const char *ios_cachesPath() { return standardPath(NSCachesDirectory); }
 
-NSURL *sharedContainerURL()
-{
-    static NSURL *sharedPathURL;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        __auto_type bundleID = NSBundle.mainBundle.bundleIdentifier;
-        __auto_type lastDotPos = [bundleID rangeOfString:@"." options:NSBackwardsSearch].location;
-        __auto_type groupID = [NSString stringWithFormat:@"group.%@.vcmi", [bundleID substringToIndex:lastDotPos]];
-        sharedPathURL = [NSFileManager.defaultManager containerURLForSecurityApplicationGroupIdentifier:groupID];
-    });
-    return sharedPathURL;
-}
-NSURL *sharedGameDataURL() { return [sharedContainerURL() URLByAppendingPathComponent:@"GameData"]; }
-const char *ios_sharedDataPath() { return sharedGameDataURL().fileSystemRepresentation; }
-
 #if TARGET_OS_SIMULATOR
 const char *ios_hostApplicationSupportPath()
 {

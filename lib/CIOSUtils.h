@@ -22,12 +22,6 @@ extern "C" {
 extern const char *ios_documentsPath();
 extern const char *ios_cachesPath();
 
-#ifdef __OBJC__
-NSURL *sharedContainerURL();
-NSURL *sharedGameDataURL();
-#endif
-extern const char *ios_sharedDataPath();
-
 #if TARGET_OS_SIMULATOR
 extern const char *ios_hostApplicationSupportPath();
 #endif

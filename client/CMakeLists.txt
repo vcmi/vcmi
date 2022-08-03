@@ -206,15 +206,11 @@ elseif(APPLE_IOS)
 		"-weak_framework CoreHaptics"
 	)
 
-	set(ENTITLEMENTS_OUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/VCMI.entitlements)
-	configure_file(ios/Entitlements.in ${ENTITLEMENTS_OUT_PATH} @ONLY)
-
 	set_target_properties(vcmiclient PROPERTIES
 		MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_LIST_DIR}/ios/Info.plist"
 		XCODE_ATTRIBUTE_LD_RUNPATH_SEARCH_PATHS "@executable_path/Frameworks"
 		XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED "$(CODE_SIGNING_ALLOWED_FOR_APPS)"
 		XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME AppIcon
-		XCODE_ATTRIBUTE_CODE_SIGN_ENTITLEMENTS ${ENTITLEMENTS_OUT_PATH}
 	)
 
 	target_sources(vcmiclient PRIVATE ${CMAKE_SOURCE_DIR}/client/LaunchScreen.storyboard)
