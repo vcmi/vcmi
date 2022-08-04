@@ -213,8 +213,8 @@ elseif(APPLE_IOS)
 		XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME AppIcon
 	)
 
-	target_sources(vcmiclient PRIVATE ${CMAKE_SOURCE_DIR}/client/LaunchScreen.storyboard)
-	set_source_files_properties(${CMAKE_SOURCE_DIR}/client/LaunchScreen.storyboard PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
+	target_sources(vcmiclient PRIVATE ios/LaunchScreen.storyboard)
+	set_source_files_properties(ios/LaunchScreen.storyboard PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
 
 	target_sources(vcmiclient PRIVATE ios/Images.xcassets)
 	set_source_files_properties(ios/Images.xcassets PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
