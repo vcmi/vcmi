@@ -215,6 +215,10 @@ elseif(APPLE_IOS)
 
 	target_sources(vcmiclient PRIVATE ios/LaunchScreen.storyboard)
 	set_source_files_properties(ios/LaunchScreen.storyboard PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
+	# workaround to prevent CMAKE_SKIP_PRECOMPILE_HEADERS being added as compile flag
+	if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.22.0")
+		set_source_files_properties(ios/LaunchScreen.storyboard PROPERTIES LANGUAGE CXX)
+	endif()
 
 	target_sources(vcmiclient PRIVATE ios/Images.xcassets)
 	set_source_files_properties(ios/Images.xcassets PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")

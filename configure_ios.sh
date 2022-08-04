@@ -33,9 +33,3 @@ cmake "$srcDir" -G Xcode \
   -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY='Apple Development' \
   -DCMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM='4XHN44TEVG'
   # -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED=NO
-
-# workaround strange cmake bug that adds compile flag to resources
-sed -i '' \
-  -e 's|\.storyboard \*/; settings = {COMPILER_FLAGS = "-DCMAKE_SKIP_PRECOMPILE_HEADERS "; };|.storyboard */;|g' \
-  -e 's|\.xcassets \*/; settings = {COMPILER_FLAGS = "-DCMAKE_SKIP_PRECOMPILE_HEADERS "; };|.xcassets */;|g' \
-  VCMI.xcodeproj/project.pbxproj
