@@ -43,6 +43,7 @@ set(launcher_HEADERS
 		launcherdirs.h
 		jsonutils.h
 		updatedialog_moc.h
+		main.h
 )
 
 set(launcher_FORMS
@@ -54,7 +55,9 @@ set(launcher_FORMS
 )
 
 if(APPLE_IOS)
-	set(launcher_SRCS ${launcher_SRCS} ios/mainwindow_moc.mm)
+	list(APPEND launcher_SRCS
+		ios/mainwindow_moc.mm
+	)
 endif()
 
 assign_source_group(${launcher_SRCS} ${launcher_HEADERS} VCMI_launcher.rc)

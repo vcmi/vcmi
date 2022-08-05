@@ -10,16 +10,29 @@
 
 #include "../mainwindow_moc.h"
 
+#include <QGuiApplication>
+#include <QWindow>
+
 #import <UIKit/UIKit.h>
 
 void MainWindow::startExecutable(QString /*name*/)
 {
-    NSString * vcmiScheme = NSBundle.mainBundle.infoDictionary[@"LSApplicationQueriesSchemes"][0];
-    [UIApplication.sharedApplication openURL:[NSURL URLWithString:[vcmiScheme stringByAppendingString:@":"]] options:@{} completionHandler:^(BOOL success) {
-        if (success)
-            return;
-        auto alert = [UIAlertController alertControllerWithTitle:@"Can't open VCMI client" message:nil preferredStyle:UIAlertControllerStyleAlert];
-        [alert addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]];
-        [UIApplication.sharedApplication.keyWindow.rootViewController presentViewController:alert animated:YES completion:nil];
-    }];
+	qApp->quit();
+	[NSNotificationCenter.defaultCenter postNotificationName:@"StartGame" object:nil];
+}
+
+void showQtWindow()
+{
+	auto app = UIApplication.sharedApplication;
+	auto qtNativeWindowIndex = [app.windows indexOfObjectPassingTest:^BOOL(__kindof UIWindow * _Nonnull window, NSUInteger idx, BOOL * _Nonnull stop) {
+		return [NSStringFromClass([window class]) isEqualToString:@"QUIWindow"];
+	}];
+	Q_ASSERT(qtNativeWindowIndex != NSNotFound);
+
+	auto qtWindow = qApp->topLevelWindows()[0];
+	auto qtWindowNativeView = (__bridge UIView*)reinterpret_cast<void*>(qtWindow->winId());
+
+	auto qtNativeWindow = app.windows[qtNativeWindowIndex];
+	[qtNativeWindow.rootViewController.view addSubview:qtWindowNativeView];
+	[qtNativeWindow makeKeyAndVisible];
 }

@@ -10,11 +10,15 @@
 #include <QApplication>
 #include "StdInc.h"
 #include "mainwindow_moc.h"
+#include "main.h"
 
 int main(int argc, char * argv[])
 {
 	QApplication vcmilauncher(argc, argv);
 	MainWindow mainWindow;
 	mainWindow.show();
+#ifdef Q_OS_IOS
+	showQtWindow();
+#endif
 	return vcmilauncher.exec();
 }

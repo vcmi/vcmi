@@ -159,7 +159,7 @@ static void SDLLogCallback(void*           userdata,
 
 #if defined(VCMI_WINDOWS) && !defined(__GNUC__) && defined(VCMI_WITH_DEBUG_CONSOLE)
 int wmain(int argc, wchar_t* argv[])
-#elif defined(VCMI_ANDROID)
+#elif defined(VCMI_IOS) || defined(VCMI_ANDROID)
 int SDL_main(int argc, char *argv[])
 #else
 int main(int argc, char * argv[])
@@ -217,12 +217,20 @@ int main(int argc, char * argv[])
 	if(vm.count("help"))
 	{
 		prog_help(opts);
+#ifdef VCMI_IOS
+		exit(0);
+#else
 		return 0;
+#endif
 	}
 	if(vm.count("version"))
 	{
 		prog_version();
+#ifdef VCMI_IOS
+		exit(0);
+#else
 		return 0;
+#endif
 	}
 
 	// Init old logging system and new (temporary) logging system

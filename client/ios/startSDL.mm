@@ -1,12 +1,17 @@
 /*
-    SDL_uikit_main.c, placed in the public domain by Sam Lantinga  3/18/2019
-*/
-
-/* Include the SDL main definition header */
+ * startSDL.mm, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 #include <SDL_main.h>
 
 #include <SDL_events.h>
 #include <SDL_render.h>
+#include <SDL_system.h>
 
 #include "../Global.h"
 #include "CMT.h"
@@ -17,8 +22,8 @@
 
 #import <UIKit/UIKit.h>
 
-double ios_screenScale() { return UIScreen.mainScreen.nativeScale; }
 
+double ios_screenScale() { return UIScreen.mainScreen.nativeScale; }
 
 @interface SDLViewObserver : NSObject <UIGestureRecognizerDelegate>
 @property (nonatomic, strong) GameChatKeyboardHanlder * gameChatHandler;
@@ -117,23 +122,24 @@ double ios_screenScale() { return UIScreen.mainScreen.nativeScale; }
 @end
 
 
-#ifdef main
-#undef main
-#endif
-
-int
-main(int argc, char *argv[])
+int startSDL(int argc, char * argv[])
 {
-    @autoreleasepool
-    {
-        auto observer = [SDLViewObserver new];
+	@autoreleasepool {
+		auto observer = [SDLViewObserver new];
 		observer.gameChatHandler = [GameChatKeyboardHanlder new];
-        [NSNotificationCenter.defaultCenter addObserverForName:UIWindowDidBecomeKeyNotification object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
-            [UIApplication.sharedApplication.keyWindow.rootViewController addObserver:observer forKeyPath:NSStringFromSelector(@selector(view)) options:NSKeyValueObservingOptionNew context:NULL];
-        }];
-        [NSNotificationCenter.defaultCenter addObserverForName:UITextFieldTextDidEndEditingNotification object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
-            removeFocusFromActiveInput();
-        }];
-        return SDL_UIKitRunApp(argc, argv, SDL_main);
-    }
+		[NSNotificationCenter.defaultCenter addObserverForName:UIWindowDidBecomeKeyNotification object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
+			[UIApplication.sharedApplication.keyWindow.rootViewController addObserver:observer forKeyPath:NSStringFromSelector(@selector(view)) options:NSKeyValueObservingOptionNew context:NULL];
+		}];
+		[NSNotificationCenter.defaultCenter addObserverForName:UITextFieldTextDidEndEditingNotification object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
+			removeFocusFromActiveInput();
+		}];
+
+		// copied from -[SDLUIKitDelegate postFinishLaunch]
+		SDL_SetMainReady();
+		SDL_iOSSetEventPump(SDL_TRUE);
+		auto result = SDL_main(argc, argv);
+		SDL_iOSSetEventPump(SDL_FALSE);
+
+		return result;
+	}
 }
