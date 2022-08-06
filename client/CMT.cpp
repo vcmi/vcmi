@@ -1411,7 +1411,9 @@ static void handleEvent(SDL_Event & ev)
 	{
 		switch (ev.window.event) {
 		case SDL_WINDOWEVENT_RESTORED:
+#ifndef VCMI_IOS
 			fullScreenChanged();
+#endif
 			break;
 		}
 		return;
