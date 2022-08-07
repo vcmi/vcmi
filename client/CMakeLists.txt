@@ -148,14 +148,12 @@ set(client_HEADERS
 if(APPLE_IOS)
 	set(client_SRCS ${client_SRCS}
 		CFocusableHelper.cpp
-		ios/AppDelegate.mm
 		ios/GameChatKeyboardHanlder.m
 		ios/main.m
 		ios/startSDL.mm
 	)
 	set(client_HEADERS ${client_HEADERS}
 		CFocusableHelper.h
-		ios/AppDelegate.h
 		ios/GameChatKeyboardHanlder.h
 		ios/startSDL.h
 	)
@@ -217,15 +215,19 @@ elseif(APPLE_IOS)
 		XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME AppIcon
 	)
 
-	target_sources(vcmiclient PRIVATE ios/LaunchScreen.storyboard)
-	set_source_files_properties(ios/LaunchScreen.storyboard PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
-	# workaround to prevent CMAKE_SKIP_PRECOMPILE_HEADERS being added as compile flag
-	if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.22.0")
-		set_source_files_properties(ios/LaunchScreen.storyboard PROPERTIES LANGUAGE CXX)
-	endif()
+	foreach(XCODE_RESOURCE LaunchScreen.storyboard Images.xcassets Settings.bundle)
+		set(XCODE_RESOURCE_PATH ios/${XCODE_RESOURCE})
+		target_sources(vcmiclient PRIVATE ${XCODE_RESOURCE_PATH})
+		set_source_files_properties(${XCODE_RESOURCE_PATH} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
 
-	target_sources(vcmiclient PRIVATE ios/Images.xcassets)
-	set_source_files_properties(ios/Images.xcassets PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
+		# workaround to prevent CMAKE_SKIP_PRECOMPILE_HEADERS being added as compile flag
+		# add max version condition when https://gitlab.kitware.com/cmake/cmake/-/issues/23821 is fixed
+		if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.22.0")
+			set_source_files_properties(${XCODE_RESOURCE_PATH} PROPERTIES LANGUAGE CXX)
+		endif()
+	endforeach()
+
+	set(CMAKE_EXE_LINKER_FLAGS "-Wl,-e,_client_main")
 endif()
 
 if(BUILD_SINGLE_APP)

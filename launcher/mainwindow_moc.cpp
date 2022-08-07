@@ -103,7 +103,11 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_startGameButton_clicked()
 {
+#ifdef Q_OS_IOS
+	qApp->quit();
+#else
 	startExecutable(pathToQString(VCMIDirs::get().clientPath()));
+#endif
 }
 
 #ifndef Q_OS_IOS

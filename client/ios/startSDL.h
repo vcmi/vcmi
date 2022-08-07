@@ -9,4 +9,11 @@
  */
 #pragma once
 
-int startSDL(int argc, char * argv[]);
+#ifdef __OBJC__
+#include <objc/objc.h>
+#endif
+
+#ifdef __cplusplus
+extern "C"
+#endif
+int startSDL(int argc, char * argv[], BOOL startManually);

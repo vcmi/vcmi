@@ -9,11 +9,6 @@
  */
 #pragma once
 
-#include <QtGlobal>
-
-#ifdef Q_OS_IOS
-void showQtWindow();
-
-#define main qt_main
+#ifdef VCMI_IOS
+extern "C" void launchGame(int argc, char * argv[]);
 #endif
-int main(int argc, char * argv[]);

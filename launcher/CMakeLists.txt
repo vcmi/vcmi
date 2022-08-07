@@ -56,7 +56,7 @@ set(launcher_FORMS
 
 if(APPLE_IOS)
 	list(APPEND launcher_SRCS
-		ios/mainwindow_moc.mm
+		ios/main.m
 	)
 endif()
 

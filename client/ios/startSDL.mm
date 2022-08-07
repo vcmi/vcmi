@@ -7,18 +7,18 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-#include <SDL_main.h>
-
-#include <SDL_events.h>
-#include <SDL_render.h>
-#include <SDL_system.h>
+#import "startSDL.h"
+#import "GameChatKeyboardHanlder.h"
 
 #include "../Global.h"
 #include "CMT.h"
 #include "CServerHandler.h"
 #include "CFocusableHelper.h"
 
-#import "GameChatKeyboardHanlder.h"
+#include <SDL_main.h>
+#include <SDL_events.h>
+#include <SDL_render.h>
+#include <SDL_system.h>
 
 #import <UIKit/UIKit.h>
 
@@ -122,7 +122,7 @@ double ios_screenScale() { return UIScreen.mainScreen.nativeScale; }
 @end
 
 
-int startSDL(int argc, char * argv[])
+int startSDL(int argc, char * argv[], BOOL startManually)
 {
 	@autoreleasepool {
 		auto observer = [SDLViewObserver new];
@@ -133,6 +133,9 @@ int startSDL(int argc, char * argv[])
 		[NSNotificationCenter.defaultCenter addObserverForName:UITextFieldTextDidEndEditingNotification object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
 			removeFocusFromActiveInput();
 		}];
+
+		if (!startManually)
+			return SDL_UIKitRunApp(argc, argv, SDL_main);
 
 		// copied from -[SDLUIKitDelegate postFinishLaunch]
 		SDL_SetMainReady();
