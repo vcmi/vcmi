@@ -69,13 +69,13 @@ public:
 	void dump(bool zoneId) const;
 	
 private:
-	void checkIsOnMap(const int3 &tile) const; //throws
+	void assertOnMap(const int3 &tile) const; //throws
 	
 private:
 	Zones zones;
 	std::map<TFaction, ui32> zonesPerFaction;
 	ui32 zonesTotal; //zones that have their main town only
 	const CMapGenOptions& mapGenOptions;
-	TileInfo*** tiles;
-	boost::multi_array<TRmgTemplateZoneId, 3> zoneColouring; //[z][x][y]
+	boost::multi_array<TileInfo, 3> tiles; //[x][y][z]
+	boost::multi_array<TRmgTemplateZoneId, 3> zoneColouring; //[x][y][z]
 };

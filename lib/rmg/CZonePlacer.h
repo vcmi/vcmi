@@ -28,7 +28,7 @@ typedef std::map<std::shared_ptr<Zone>, float> TDistanceVector;
 class CZonePlacer
 {
 public:
-	explicit CZonePlacer(RmgMap & gen);
+	explicit CZonePlacer(RmgMap & map);
 	int3 cords (const float3 f) const;
 	float metric (const int3 &a, const int3 &b) const;
 	float getDistance(float distance) const; //additional scaling without 0 divison

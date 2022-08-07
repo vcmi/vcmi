@@ -520,7 +520,7 @@ std::vector<ObjectInfo*> TreasurePlacer::prepareTreasurePile(const CTreasureInfo
 	bool hasLargeObject = false;
 	while(currentValue <= (int)desiredValue - 100) //no objects with value below 100 are available
 	{
-		auto oi = getRandomObject(desiredValue, currentValue, maxValue, !hasLargeObject);
+		auto * oi = getRandomObject(desiredValue, currentValue, maxValue, !hasLargeObject);
 		if(!oi) //fail
 			break;
 		
@@ -530,16 +530,8 @@ std::vector<ObjectInfo*> TreasurePlacer::prepareTreasurePile(const CTreasureInfo
 		}
 		else
 		{
-			if(hasLargeObject)
-			{
-				//only one large object per treasure pile
-				continue;
-			}
-			else
-			{
-				objectInfos.insert(objectInfos.begin(), oi); //large object shall at first place
-				hasLargeObject = true;
-			}
+			objectInfos.insert(objectInfos.begin(), oi); //large object shall at first place
+			hasLargeObject = true;
 		}
 		
 		//remove from possible objects
@@ -581,7 +573,7 @@ rmg::Object TreasurePlacer::constuctTreasurePile(const std::vector<ObjectInfo*> 
 			auto instanceAccessibleArea = instance.getAccessibleArea();
 			if(instance.getBlockedArea().getTilesVector().size() == 1)
 			{
-				if(instance.object().appearance.isVisitableFromTop())
+				if(instance.object().appearance.isVisitableFromTop() && instance.object().ID != Obj::CORPSE)
 					instanceAccessibleArea.add(instance.getVisitablePosition());
 			}
 			

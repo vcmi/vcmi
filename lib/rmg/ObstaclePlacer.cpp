@@ -30,12 +30,12 @@ void ObstaclePlacer::process()
 	
 	auto * riverManager = zone.getModificator<RiverPlacer>();
 	
-	typedef std::vector<ObjectTemplate> obstacleVector;
+	typedef std::vector<ObjectTemplate> ObstacleVector;
 	//obstacleVector possibleObstacles;
 	
-	std::map<int, obstacleVector> obstaclesBySize;
-	typedef std::pair<int, obstacleVector> obstaclePair;
-	std::vector<obstaclePair> possibleObstacles;
+	std::map<int, ObstacleVector> obstaclesBySize;
+	typedef std::pair<int, ObstacleVector> ObstaclePair;
+	std::vector<ObstaclePair> possibleObstacles;
 	
 	//get all possible obstacles for this terrain
 	for(auto primaryID : VLC->objtypeh->knownObjects())
@@ -57,7 +57,7 @@ void ObstaclePlacer::process()
 	{
 		possibleObstacles.push_back(o);
 	}
-	boost::sort(possibleObstacles, [](const obstaclePair &p1, const obstaclePair &p2) -> bool
+	boost::sort(possibleObstacles, [](const ObstaclePair &p1, const ObstaclePair &p2) -> bool
 	{
 		return p1.first > p2.first; //bigger obstacles first
 	});

@@ -145,7 +145,10 @@ const Tileset & Area::getBorder() const
 		for(auto & i : int3::getDirs())
 		{
 			if(!dTiles.count(t + i))
+			{
 				dBorderCache.insert(t + dTotalShiftCache);
+				break;
+			}
 		}
 	}
 	

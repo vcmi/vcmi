@@ -109,7 +109,7 @@ Path Path::search(const Tileset & dst, bool straight, std::function<float(const 
 		}
 		else
 		{
-			auto foo = [&open, &closed, &cameFrom, &currentNode, &distances, &moveCostFunction, &result](const int3& pos) -> void
+			auto computeTileScore = [&open, &closed, &cameFrom, &currentNode, &distances, &moveCostFunction, &result](const int3& pos) -> void
 			{
 				if(closed.count(pos))
 					return;
@@ -120,7 +120,7 @@ Path Path::search(const Tileset & dst, bool straight, std::function<float(const 
 				float movementCost = moveCostFunction(currentNode, pos) + currentNode.dist2d(pos);
 				
 				float distance = distances[currentNode] + movementCost; //we prefer to use already free paths
-				int bestDistanceSoFar = std::numeric_limits<int>::max(); //FIXME: boost::limits
+				int bestDistanceSoFar = std::numeric_limits<int>::max();
 				auto it = distances.find(pos);
 				if(it != distances.end())
 					bestDistanceSoFar = static_cast<int>(it->second);
@@ -139,7 +139,7 @@ Path Path::search(const Tileset & dst, bool straight, std::function<float(const 
 				neighbors = { { int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0) } };
 			for(auto & i : neighbors)
 			{
-				foo(currentNode + i);
+				computeTileScore(currentNode + i);
 			}
 		}
 		
@@ -167,7 +167,6 @@ Path Path::search(const Path & dst, bool straight, std::function<float(const int
 
 void Path::connect(const int3 & path)
 {
-	//dArea.add(path);
 	dPath.add(path);
 }
 
@@ -175,19 +174,16 @@ void Path::connect(const Tileset & path)
 {
 	Area a(path);
 	dPath.unite(a);
-	//dArea.unite(a);
 }
 
 void Path::connect(const Area & path)
 {
 	dPath.unite(path);
-	//dArea.unite(path);
 }
 
 void Path::connect(const Path & path)
 {
 	dPath.unite(path.dPath);
-	//dArea.unite(path.dPath);
 }
 
 const Area & Path::getPathArea() const

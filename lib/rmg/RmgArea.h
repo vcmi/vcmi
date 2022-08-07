@@ -64,7 +64,7 @@ namespace rmg
 		friend Area operator- (const Area & l, const int3 & r); //translation
 		friend Area operator+ (const Area & l, const Area & r); //union
 		friend Area operator* (const Area & l, const Area & r); //intersection
-		friend Area operator- (const Area & l, const Area & r); //AreaL reduced by tiles from AreaB
+		friend Area operator- (const Area & l, const Area & r); //AreaL reduced by tiles from AreaR
 		friend bool operator== (const Area & l, const Area & r);
 		friend std::list<Area> connectedAreas(const Area & area);
 		

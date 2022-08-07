@@ -33,7 +33,7 @@ static const int3 dirs4[] = {int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0)}
 static const int3 dirsDiagonal[] = { int3(1,1,0),int3(1,-1,0),int3(-1,1,0),int3(-1,-1,0) };
 
 RmgMap::RmgMap(const CMapGenOptions& mapGenOptions) :
-	mapGenOptions(mapGenOptions), zonesTotal(0), tiles(nullptr)
+	mapGenOptions(mapGenOptions), zonesTotal(0)
 {
 	mapInstance = std::make_unique<CMap>();
 	getEditManager()->getUndoManager().setUndoRedoLimit(0);
@@ -75,21 +75,8 @@ void RmgMap::initTiles(CMapGenerator & generator)
 {
 	mapInstance->initTerrain();
 	
-	int width = mapInstance->width;
-	int height = mapInstance->height;
-	
-	int level = mapInstance->twoLevel ? 2 : 1;
-	tiles = new TileInfo**[width];
-	for (int i = 0; i < width; ++i)
-	{
-		tiles[i] = new TileInfo*[height];
-		for (int j = 0; j < height; ++j)
-		{
-			tiles[i][j] = new TileInfo[level];
-		}
-	}
-	
-	zoneColouring.resize(boost::extents[mapInstance->twoLevel ? 2 : 1][mapInstance->width][mapInstance->height]);
+	tiles.resize(boost::extents[mapInstance->width][mapInstance->height][mapInstance->twoLevel ? 2 : 1]);
+	zoneColouring.resize(boost::extents[mapInstance->width][mapInstance->height][mapInstance->twoLevel ? 2 : 1]);
 	
 	//init native town count with 0
 	for (auto faction : VLC->townh->getAllowedFactions())
@@ -136,7 +123,7 @@ void RmgMap::addModificators()
 		
 		if(zone->getType() == ETemplateZoneType::WATER)
 		{
-			for(auto & z1 : zones)
+			for(auto & z1 : getZones())
 			{
 				z1.second->addModificator<WaterAdopter>();
 				z1.second->getModificator<WaterAdopter>()->setWaterZone(zone->getId());
@@ -162,20 +149,6 @@ void RmgMap::addModificators()
 
 RmgMap::~RmgMap()
 {
-	if (tiles)
-	{
-		int width = mapGenOptions.getWidth();
-		int height = mapGenOptions.getHeight();
-		for (int i=0; i < width; i++)
-		{
-			for(int j=0; j < height; j++)
-			{
-				delete [] tiles[i][j];
-			}
-			delete [] tiles[i];
-		}
-		delete [] tiles;
-	}
 }
 
 CMap & RmgMap::map() const
@@ -198,7 +171,7 @@ const CMapGenOptions& RmgMap::getMapGenOptions() const
 	return mapGenOptions;
 }
 
-void RmgMap::checkIsOnMap(const int3& tile) const
+void RmgMap::assertOnMap(const int3& tile) const
 {
 	if (!mapInstance->isInTheMap(tile))
 		throw rmgException(boost::to_string(boost::format("Tile %s is outside the map") % tile.toString()));
@@ -211,91 +184,91 @@ RmgMap::Zones & RmgMap::getZones()
 
 bool RmgMap::isBlocked(const int3 &tile) const
 {
-	checkIsOnMap(tile);
+	assertOnMap(tile);
 	
 	return tiles[tile.x][tile.y][tile.z].isBlocked();
 }
 
 bool RmgMap::shouldBeBlocked(const int3 &tile) const
 {
-	checkIsOnMap(tile);
+	assertOnMap(tile);
 	
 	return tiles[tile.x][tile.y][tile.z].shouldBeBlocked();
 }
 
 bool RmgMap::isPossible(const int3 &tile) const
 {
-	checkIsOnMap(tile);
+	assertOnMap(tile);
 	
 	return tiles[tile.x][tile.y][tile.z].isPossible();
 }
 
 bool RmgMap::isFree(const int3 &tile) const
 {
-	checkIsOnMap(tile);
+	assertOnMap(tile);
 	
 	return tiles[tile.x][tile.y][tile.z].isFree();
 }
 
 bool RmgMap::isUsed(const int3 &tile) const
 {
-	checkIsOnMap(tile);
+	assertOnMap(tile);
 	
 	return tiles[tile.x][tile.y][tile.z].isUsed();
 }
 
 bool RmgMap::isRoad(const int3& tile) const
 {
-	checkIsOnMap(tile);
+	assertOnMap(tile);
 	
 	return tiles[tile.x][tile.y][tile.z].isRoad();
 }
 
 void RmgMap::setOccupied(const int3 &tile, ETileType::ETileType state)
 {
-	checkIsOnMap(tile);
+	assertOnMap(tile);
 	
 	tiles[tile.x][tile.y][tile.z].setOccupied(state);
 }
 
 void RmgMap::setRoad(const int3& tile, const std::string & roadType)
 {
-	checkIsOnMap(tile);
+	assertOnMap(tile);
 	
 	tiles[tile.x][tile.y][tile.z].setRoadType(roadType);
 }
 
 TileInfo RmgMap::getTile(const int3& tile) const
 {
-	checkIsOnMap(tile);
+	assertOnMap(tile);
 	
 	return tiles[tile.x][tile.y][tile.z];
 }
 
 TRmgTemplateZoneId RmgMap::getZoneID(const int3& tile) const
 {
-	checkIsOnMap(tile);
+	assertOnMap(tile);
 	
-	return zoneColouring[tile.z][tile.x][tile.y];
+	return zoneColouring[tile.x][tile.y][tile.z];
 }
 
 void RmgMap::setZoneID(const int3& tile, TRmgTemplateZoneId zid)
 {
-	checkIsOnMap(tile);
+	assertOnMap(tile);
 	
-	zoneColouring[tile.z][tile.x][tile.y] = zid;
+	zoneColouring[tile.x][tile.y][tile.z] = zid;
 }
 
 void RmgMap::setNearestObjectDistance(int3 &tile, float value)
 {
-	checkIsOnMap(tile);
+	assertOnMap(tile);
 	
 	tiles[tile.x][tile.y][tile.z].setNearestObjectDistance(value);
 }
 
 float RmgMap::getNearestObjectDistance(const int3 &tile) const
 {
-	checkIsOnMap(tile);
+	assertOnMap(tile);
 	
 	return tiles[tile.x][tile.y][tile.z].getNearestObjectDistance();
 }
@@ -336,9 +309,9 @@ void RmgMap::dump(bool zoneId) const
 	int height = mapInstance->height;
 	for (int k = 0; k < levels; k++)
 	{
-		for(int j=0; j<height; j++)
+		for(int j = 0; j < height; j++)
 		{
-			for (int i=0; i<width; i++)
+			for (int i = 0; i < width; i++)
 			{
 				if(zoneId)
 				{

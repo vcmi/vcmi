@@ -380,9 +380,9 @@ CGCreature * ObjectManager::chooseGuard(si32 strength, bool zoneGuard)
 	return guard;
 }
 
-bool ObjectManager::addGuard(rmg::Object & object, si32 str, bool zoneGuard)
+bool ObjectManager::addGuard(rmg::Object & object, si32 strength, bool zoneGuard)
 {
-	auto * guard = chooseGuard(str, zoneGuard);
+	auto * guard = chooseGuard(strength, zoneGuard);
 	if(!guard)
 		return false;
 	

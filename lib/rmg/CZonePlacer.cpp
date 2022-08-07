@@ -19,9 +19,9 @@
 
 class CRandomGenerator;
 
-CZonePlacer::CZonePlacer(RmgMap & Gen)
+CZonePlacer::CZonePlacer(RmgMap & map)
 	: width(0), height(0), scaleX(0), scaleY(0), mapSize(0), gravityConstant(0), stiffnessConstant(0),
-	map(Gen)
+	map(map)
 {
 
 }

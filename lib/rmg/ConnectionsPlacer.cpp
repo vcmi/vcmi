@@ -190,7 +190,7 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 	auto & otherZone = map.getZones().at(otherZoneId);
 	
 	//3. place subterrain gates
-	if(!success && zone.isUnderground() != otherZone->isUnderground())
+	if(zone.isUnderground() != otherZone->isUnderground())
 	{
 		int3 zShift(0, 0, zone.getPos().z - otherZone->getPos().z);
 		auto commonArea = zone.areaPossible() * (otherZone->areaPossible() + zShift);

@@ -18,7 +18,8 @@
 #include "RmgPath.h"
 #include "RmgObject.h"
 
-#define RMG_DUMP
+//uncomment to generate dumps afger every step of map generation
+//#define RMG_DUMP
 
 #define MODIFICATOR(x) x(Zone & z, RmgMap & m, CMapGenerator & g): Modificator(z, m, g) {setName(#x);}
 #define DEPENDENCY(x) 		dependency(zone.getModificator<x>());

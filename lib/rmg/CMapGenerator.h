@@ -16,8 +16,6 @@
 #include "../int3.h"
 #include "CRmgTemplate.h"
 
-#define _BETA
-
 class CRmgTemplate;
 class CMapGenOptions;
 class JsonNode;
