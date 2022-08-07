@@ -32,6 +32,8 @@ double ios_screenScale() { return UIScreen.mainScreen.nativeScale; }
 @implementation SDLViewObserver
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context {
+	[object removeObserver:self forKeyPath:keyPath];
+
     UIView * view = [object valueForKeyPath:keyPath];
 
     UITextField * textField;
@@ -127,22 +129,31 @@ int startSDL(int argc, char * argv[], BOOL startManually)
 	@autoreleasepool {
 		auto observer = [SDLViewObserver new];
 		observer.gameChatHandler = [GameChatKeyboardHanlder new];
-		[NSNotificationCenter.defaultCenter addObserverForName:UIWindowDidBecomeKeyNotification object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
-			[UIApplication.sharedApplication.keyWindow.rootViewController addObserver:observer forKeyPath:NSStringFromSelector(@selector(view)) options:NSKeyValueObservingOptionNew context:NULL];
+
+		id __block sdlWindowCreationObserver = [NSNotificationCenter.defaultCenter addObserverForName:UIWindowDidBecomeKeyNotification object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
+			[NSNotificationCenter.defaultCenter removeObserver:sdlWindowCreationObserver];
+			sdlWindowCreationObserver = nil;
+
+			UIWindow * sdlWindow = note.object;
+			[sdlWindow.rootViewController addObserver:observer forKeyPath:NSStringFromSelector(@selector(view)) options:NSKeyValueObservingOptionNew context:NULL];
 		}];
-		[NSNotificationCenter.defaultCenter addObserverForName:UITextFieldTextDidEndEditingNotification object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
+		id textFieldObserver = [NSNotificationCenter.defaultCenter addObserverForName:UITextFieldTextDidEndEditingNotification object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
 			removeFocusFromActiveInput();
 		}];
 
-		if (!startManually)
-			return SDL_UIKitRunApp(argc, argv, SDL_main);
+		int result;
+		if (startManually)
+		{
+			// copied from -[SDLUIKitDelegate postFinishLaunch]
+			SDL_SetMainReady();
+			SDL_iOSSetEventPump(SDL_TRUE);
+			result = SDL_main(argc, argv);
+			SDL_iOSSetEventPump(SDL_FALSE);
+		}
+		else
+			result = SDL_UIKitRunApp(argc, argv, SDL_main);
 
-		// copied from -[SDLUIKitDelegate postFinishLaunch]
-		SDL_SetMainReady();
-		SDL_iOSSetEventPump(SDL_TRUE);
-		auto result = SDL_main(argc, argv);
-		SDL_iOSSetEventPump(SDL_FALSE);
-
+		[NSNotificationCenter.defaultCenter removeObserver:textFieldObserver];
 		return result;
 	}
 }
