@@ -13,6 +13,8 @@
 
 #import <objc/runtime.h>
 
+#include <stdlib.h>
+
 static void startSDLManually(int argc, char * argv[])
 {
 	id<UIApplicationDelegate> appDelegate;
@@ -33,8 +35,13 @@ int qt_main_wrapper(int argc, char * argv[]);
 int client_main(int argc, char * argv[])
 {
 	NSInteger launchType;
-	@autoreleasepool {
-		launchType = [NSUserDefaults.standardUserDefaults integerForKey:@"LaunchType"];
+	__auto_type envVar = getenv("VCMI_LAUNCH_TYPE");
+	if (envVar)
+		launchType = envVar[0] == '0' ? 0 : 1;
+	else {
+		@autoreleasepool {
+			launchType = [NSUserDefaults.standardUserDefaults integerForKey:@"LaunchType"];
+		}
 	}
 	if (launchType == 1)
 		return startSDL(argc, argv, NO);
