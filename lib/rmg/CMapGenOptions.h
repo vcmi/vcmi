@@ -10,7 +10,6 @@
 
 #pragma once
 
-#include "../StdInc.h"
 #include "../GameConstants.h"
 
 class CRmgTemplate;
