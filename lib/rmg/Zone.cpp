@@ -197,7 +197,7 @@ void Zone::fractalize()
 	int totalDensity = 0;
 	for(auto ti : treasureInfo)
 		totalDensity += ti.density;
-	const float minDistance = fmax(3 * 3, fmin(totalDensity * totalDensity, 10 * 10)); //squared
+	const float minDistance = 10 * 10; //squared
 	
 	if(type != ETemplateZoneType::JUNCTION)
 	{
