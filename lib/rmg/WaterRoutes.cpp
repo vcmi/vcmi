@@ -8,6 +8,7 @@
  *
  */
 
+#include "StdInc.h"
 #include "WaterRoutes.h"
 #include "WaterProxy.h"
 #include "CMapGenerator.h"

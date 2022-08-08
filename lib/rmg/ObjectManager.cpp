@@ -8,6 +8,7 @@
  *
  */
 
+#include "StdInc.h"
 #include "ObjectManager.h"
 #include "CMapGenerator.h"
 #include "TileInfo.h"

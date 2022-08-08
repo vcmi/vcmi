@@ -8,6 +8,7 @@
  *
  */
 
+#include "StdInc.h"
 #include "TileInfo.h"
 
 TileInfo::TileInfo():nearestObjectDistance(float(INT_MAX)), terrain()

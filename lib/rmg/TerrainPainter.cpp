@@ -8,6 +8,7 @@
  *
  */
 
+#include "StdInc.h"
 #include "TerrainPainter.h"
 #include "TownPlacer.h"
 #include "WaterAdopter.h"

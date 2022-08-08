@@ -8,6 +8,7 @@
  *
  */
 
+#include "StdInc.h"
 #include "RmgArea.h"
 #include "CMapGenerator.h"
 

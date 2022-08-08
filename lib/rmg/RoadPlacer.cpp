@@ -8,6 +8,7 @@
  *
  */
 
+#include "StdInc.h"
 #include "RoadPlacer.h"
 #include "Functions.h"
 #include "CMapGenerator.h"

@@ -8,6 +8,7 @@
  *
  */
 
+#include "StdInc.h"
 #include "RockPlacer.h"
 #include "TreasurePlacer.h"
 #include "ObjectManager.h"

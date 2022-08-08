@@ -8,6 +8,7 @@
  *
  */
 
+#include "StdInc.h"
 #include "RmgMap.h"
 #include "TileInfo.h"
 #include "CMapGenOptions.h"

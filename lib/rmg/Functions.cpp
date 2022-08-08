@@ -8,6 +8,7 @@
  *
  */
 
+#include "StdInc.h"
 #include "Functions.h"
 #include "CMapGenerator.h"
 #include "ObjectManager.h"

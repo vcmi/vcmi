@@ -8,6 +8,7 @@
  *
  */
 
+#include "StdInc.h"
 #include "RmgObject.h"
 #include "RmgMap.h"
 #include "../mapObjects/CObjectHandler.h"

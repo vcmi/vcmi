@@ -8,6 +8,7 @@
  *
  */
 
+#include "StdInc.h"
 #include "ConnectionsPlacer.h"
 #include "CMapGenerator.h"
 #include "RmgMap.h"

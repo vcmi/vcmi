@@ -8,6 +8,7 @@
  *
  */
 
+#include "StdInc.h"
 #include "WaterAdopter.h"
 #include "CMapGenerator.h"
 #include "RmgMap.h"

@@ -8,6 +8,7 @@
  *
  */
 
+#include "StdInc.h"
 #include "TreasurePlacer.h"
 #include "CMapGenerator.h"
 #include "Functions.h"

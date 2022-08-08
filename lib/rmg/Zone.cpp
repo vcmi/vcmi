@@ -8,6 +8,7 @@
  *
  */
 
+#include "StdInc.h"
 #include "Zone.h"
 #include "RmgMap.h"
 #include "Functions.h"

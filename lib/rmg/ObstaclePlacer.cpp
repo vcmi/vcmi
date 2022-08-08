@@ -8,6 +8,7 @@
  *
  */
 
+#include "StdInc.h"
 #include "../mapObjects/CObjectClassesHandler.h"
 #include "ObstaclePlacer.h"
 #include "ObjectManager.h"
