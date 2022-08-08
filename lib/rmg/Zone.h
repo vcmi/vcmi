@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include "../StdInc.h"
 #include "../GameConstants.h"
 #include "float3.h"
 #include "../int3.h"
