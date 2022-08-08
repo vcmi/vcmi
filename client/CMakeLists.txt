@@ -247,6 +247,11 @@ if(ffmpeg_LIBRARIES)
 	target_link_libraries(vcmiclient PRIVATE
 		${ffmpeg_LIBRARIES}
 	)
+	if(APPLE_IOS)
+		target_link_libraries(vcmiclient PRIVATE
+			iconv
+		)
+	endif()
 else()
 	target_compile_definitions(vcmiclient PRIVATE DISABLE_VIDEO)
 endif()
