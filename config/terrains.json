@@ -78,7 +78,8 @@
 		"type" : "SUB",
 		"code" : "sb",
 		"river" : "rw",
-		"battleFields" : ["subterranean"]
+		"battleFields" : ["subterranean"],
+		"rockTerrain" : "rock"
 	},
 	"lava" :
 	{
@@ -89,7 +90,8 @@
 		"tiles" : "LAVATL",
 		"code" : "lv",
 		"river" : "rl",
-		"battleFields" : ["lava"]
+		"battleFields" : ["lava"],
+		"rockTerrain" : "rock"
 	},
 	"water" :
 	{
