@@ -8,6 +8,7 @@
  *
  */
 
+#include "StdInc.h"
 #include "Terrain.h"
 #include "VCMI_Lib.h"
 #include "CModHandler.h"
