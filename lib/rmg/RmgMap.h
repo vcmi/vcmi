@@ -9,6 +9,7 @@
  */
 
 #pragma once
+#include "../StdInc.h"
 #include "../int3.h"
 #include "../GameConstants.h"
 #include "../mapping/CMap.h"
