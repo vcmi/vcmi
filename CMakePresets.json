@@ -2,17 +2,29 @@
     "version": 2,
     "configurePresets": [
         {
-            "name": "default-release",
+            "name": "release-binary-dir",
             "hidden": true,
-            "binaryDir": "${sourceDir}/out/build/${presetName}",
-            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/out/build/${presetName}"
+        },
+        {
+            "name": "base-release",
+            "inherits": "release-binary-dir",
+            "hidden": true,
             "cacheVariables": {
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
                 "PACKAGE_FILE_NAME" : "$env{VCMI_PACKAGE_FILE_NAME}",
                 "PACKAGE_NAME_SUFFIX" : "$env{VCMI_PACKAGE_NAME_SUFFIX}",
                 "CMAKE_BUILD_TYPE": "RelWithDebInfo",
-                "FORCE_BUNDLED_FL": "OFF",
                 "ENABLE_TEST": "OFF"
+            }
+        },
+        {
+            "name": "default-release",
+            "inherits": "base-release",
+            "hidden": true,
+            "generator": "Ninja",
+            "cacheVariables": {
+                "FORCE_BUNDLED_FL": "OFF"
             }
         },
         {
@@ -87,6 +99,41 @@
             "description": "VCMI MacOS Xcode",
             "inherits": "default-release",
             "generator": "Xcode"
+        },
+        {
+            "name": "ios-device",
+            "displayName": "Base iOS device",
+            "description": "Base VCMI preset for iOS device",
+            "generator": "Xcode",
+            "binaryDir": "../build-${presetName}",
+            "cacheVariables": {
+                "CMAKE_SYSTEM_NAME": "iOS",
+                "FORCE_BUNDLED_FL": "ON",
+                "FORCE_BUNDLED_MINIZIP": "ON"
+            }
+        },
+        {
+            "name": "ios-simulator",
+            "displayName": "Base iOS simulator",
+            "description": "Base VCMI preset for iOS simulator",
+            "inherits": "ios-device",
+            "cacheVariables": {
+                "CMAKE_OSX_SYSROOT": "iphonesimulator"
+            }
+        },
+        {
+            "name": "ios-release",
+            "displayName": "iOS release",
+            "description": "VCMI iOS release",
+            "inherits": [
+                "base-release",
+                "ios-device",
+                "release-binary-dir"
+            ],
+            "cacheVariables": {
+                "BUNDLE_IDENTIFIER_PREFIX": "eu.vcmi",
+                "CMAKE_PREFIX_PATH": "TODO"
+            }
         }
     ],
     "buildPresets": [
@@ -135,6 +182,17 @@
             "name": "windows-msvc-relwithdebinfo",
             "configurePreset": "windows-msvc-release",
             "inherits": "default-release"
+        },
+        {
+            "name": "ios-release",
+            "configurePreset": "ios-release",
+            "inherits": "default-release",
+            "targets": ["vcmiclient"],
+            "nativeToolOptions": [
+                "-quiet",
+                "CODE_SIGNING_ALLOWED_FOR_APPS=NO",
+                "GCC_OPTIMIZATION_LEVEL=3"
+            ]
         }
     ],
     "testPresets": [
