@@ -11,12 +11,12 @@
 
 #include "../lib/CConfigHandler.h"
 #include "../lib/CSoundBase.h"
+#include "../lib/Terrain.h"
 
 struct _Mix_Music;
 struct SDL_RWops;
 typedef struct _Mix_Music Mix_Music;
 struct Mix_Chunk;
-class Terrain;
 
 class CAudioBase {
 protected:

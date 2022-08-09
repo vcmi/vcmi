@@ -252,6 +252,11 @@ void ZoneOptions::setMonsterTypes(const std::set<TFaction> & value)
 	monsterTypes = value;
 }
 
+const std::set<TFaction> & ZoneOptions::getMonsterTypes() const
+{
+	return monsterTypes;
+}
+
 void ZoneOptions::setMinesInfo(const std::map<TResource, ui16> & value)
 {
 	mines = value;
@@ -300,6 +305,26 @@ void ZoneOptions::addConnection(TRmgTemplateZoneId otherZone)
 std::vector<TRmgTemplateZoneId> ZoneOptions::getConnections() const
 {
 	return connections;
+}
+
+bool ZoneOptions::areTownsSameType() const
+{
+	return townsAreSameType;
+}
+
+bool ZoneOptions::isMatchTerrainToTown() const
+{
+	return matchTerrainToTown;
+}
+
+const ZoneOptions::CTownInfo & ZoneOptions::getPlayerTowns() const
+{
+	return playerTowns;
+}
+
+const ZoneOptions::CTownInfo & ZoneOptions::getNeutralTowns() const
+{
+	return neutralTowns;
 }
 
 void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
@@ -420,6 +445,11 @@ TRmgTemplateZoneId ZoneConnection::getZoneB() const
 int ZoneConnection::getGuardStrength() const
 {
 	return guardStrength;
+}
+	
+bool operator==(const ZoneConnection & l, const ZoneConnection & r)
+{
+	return l.zoneA == r.zoneA && l.zoneB == r.zoneB && l.guardStrength == r.guardStrength;
 }
 
 void ZoneConnection::serializeJson(JsonSerializeFormat & handler)
