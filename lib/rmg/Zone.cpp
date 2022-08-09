@@ -155,7 +155,7 @@ rmg::Path Zone::searchPath(const rmg::Area & src, bool onlyStraight, std::functi
 	};
 	
 	auto area = (dAreaPossible + dAreaFree).getSubarea(areafilter);
-	rmg::Path freePath(area);
+	rmg::Path freePath(area), resultPath(area);
 	freePath.connect(dAreaFree);
 	
 	//connect to all pieces
@@ -167,9 +167,10 @@ rmg::Path Zone::searchPath(const rmg::Area & src, bool onlyStraight, std::functi
 			return rmg::Path::invalid();
 		
 		freePath.connect(path.getPathArea());
+		resultPath.connect(path.getPathArea());
 	}
 	
-	return freePath;
+	return resultPath;
 }
 
 rmg::Path Zone::searchPath(const int3 & src, bool onlyStraight, std::function<bool(const int3 &)> areafilter) const
