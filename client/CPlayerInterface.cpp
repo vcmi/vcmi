@@ -443,14 +443,15 @@ void CPlayerInterface::heroKilled(const CGHeroInstance* hero)
 	}
 
 	wanderingHeroes -= hero;
-	if (vstd::contains(paths, hero))
-		paths.erase(hero);
 
 	adventureInt->heroList.update(hero);
 	if (makingTurn && newSelection)
 		adventureInt->select(newSelection, true);
 	else if (adventureInt->selection == hero)
 		adventureInt->selection = nullptr;
+	
+	if (vstd::contains(paths, hero))
+		paths.erase(hero);
 }
 
 void CPlayerInterface::heroVisit(const CGHeroInstance * visitor, const CGObjectInstance * visitedObj, bool start)
@@ -2765,7 +2766,8 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 				destinationTeleport = destTeleportObj->id;
 				destinationTeleportPos = nextCoord;
 				doMovement(h->pos, false);
-				if (path.nodes[i-1].action == CGPathNode::TELEPORT_BLOCKING_VISIT)
+				if (path.nodes[i-1].action == CGPathNode::TELEPORT_BLOCKING_VISIT
+					|| path.nodes[i-1].action == CGPathNode::TELEPORT_BATTLE)
 				{
 					destinationTeleport = ObjectInstanceID();
 					destinationTeleportPos = int3(-1);

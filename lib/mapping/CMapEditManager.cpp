@@ -110,7 +110,7 @@ void CTerrainSelection::deselectRange(const MapRect & rect)
 	});
 }
 
-void CTerrainSelection::setSelection(std::vector<int3> & vec)
+void CTerrainSelection::setSelection(const std::vector<int3> & vec)
 {
 	for (auto pos : vec)
 		this->select(pos);
@@ -254,6 +254,13 @@ void CMapEditManager::drawRoad(const std::string & roadType, CRandomGenerator* g
 	execute(make_unique<CDrawRoadsOperation>(map, terrainSel, roadType, gen ? gen : &(this->gen)));
 	terrainSel.clearSelection();
 }
+
+void CMapEditManager::drawRiver(const std::string & riverType, CRandomGenerator* gen)
+{
+	execute(make_unique<CDrawRiversOperation>(map, terrainSel, riverType, gen ? gen : &(this->gen)));
+	terrainSel.clearSelection();
+}
+
 
 
 void CMapEditManager::insertObject(CGObjectInstance * obj)
@@ -818,7 +825,7 @@ CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainVi
 		else
 		{
 			terType = map->getTile(currentPos).terType;
-			if(terType != centerTerType)
+			if(terType != centerTerType && (terType.isPassable() || centerTerType.isPassable()))
 			{
 				isAlien = true;
 			}

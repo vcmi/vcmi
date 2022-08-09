@@ -148,6 +148,8 @@ public:
 		return getTypeID(getTypeInfo(t), throws);
 	}
 
+	TypeInfoPtr getTypeDescriptor(ui16 typeID) const;
+
 	template<typename TInput>
 	void * castToMostDerived(const TInput * inputPtr) const
 	{

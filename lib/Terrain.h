@@ -37,9 +37,12 @@ public:
 		std::string terrainText;
 		std::string typeCode;
 		std::string terrainViewPatterns;
+		std::string rockTerrain;
+		std::string river;
 		int horseSoundId;
 		Type type;
 		std::vector<std::string> battleFields;
+		std::vector<Terrain> prohibitTransitions;
 	};
 	
 	class DLL_LINKAGE Manager
@@ -52,7 +55,7 @@ public:
 		static Manager & get();
 		Manager();
 		
-		std::map<Terrain, Info> terrainInfo;
+		std::unordered_map<std::string, Info> terrainInfo;
 	};
 	
 	/*enum EETerrainType
