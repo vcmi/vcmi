@@ -8,6 +8,7 @@
  *
  */
 
+#include "StdInc.h"
 #include "Terrain.h"
 #include "VCMI_Lib.h"
 #include "CModHandler.h"
@@ -78,8 +79,26 @@ Terrain::Manager::Manager()
 				auto s = terr.second["type"].String();
 				if(s == "LAND") info.type = Terrain::Info::Type::Land;
 				if(s == "WATER") info.type = Terrain::Info::Type::Water;
-				if(s == "SUB") info.type = Terrain::Info::Type::Subterranean;
 				if(s == "ROCK") info.type = Terrain::Info::Type::Rock;
+				if(s == "SUB") info.type = Terrain::Info::Type::Subterranean;
+			}
+			
+			if(terr.second["rockTerrain"].isNull())
+			{
+				info.rockTerrain = "rock";
+			}
+			else
+			{
+				info.rockTerrain = terr.second["rockTerrain"].String();
+			}
+			
+			if(terr.second["river"].isNull())
+			{
+				info.river = RIVER_NAMES[0];
+			}
+			else
+			{
+				info.river = terr.second["river"].String();
 			}
 			
 			if(terr.second["horseSoundId"].isNull())
@@ -114,6 +133,14 @@ Terrain::Manager::Manager()
 				}
 			}
 			
+			if(!terr.second["prohibitTransitions"].isNull())
+			{
+				for(auto & t : terr.second["prohibitTransitions"].Vector())
+				{
+					info.prohibitTransitions.emplace_back(t.String());
+				}
+			}
+			
 			info.transitionRequired = false;
 			if(!terr.second["transitionRequired"].isNull())
 			{
@@ -126,7 +153,7 @@ Terrain::Manager::Manager()
 				info.terrainViewPatterns = terr.second["terrainViewPatterns"].String();
 			}
 			
-			terrainInfo[Terrain(terr.first)] = info;
+			terrainInfo[terr.first] = info;
 		}
 	}
 }
@@ -139,15 +166,15 @@ Terrain::Manager & Terrain::Manager::get()
 
 std::vector<Terrain> Terrain::Manager::terrains()
 {
-	std::vector<Terrain> _terrains;
+	std::set<Terrain> _terrains; //have to use std::set to have ordered container. Othervise de-sync is possible
 	for(const auto & info : Terrain::Manager::get().terrainInfo)
-		_terrains.push_back(info.first);
-	return _terrains;
+		_terrains.insert(info.first);
+	return std::vector<Terrain>(_terrains.begin(), _terrains.end());
 }
 
 const Terrain::Info & Terrain::Manager::getInfo(const Terrain & terrain)
 {
-	return Terrain::Manager::get().terrainInfo.at(terrain);
+	return Terrain::Manager::get().terrainInfo.at(static_cast<std::string>(terrain));
 }
 
 std::ostream & operator<<(std::ostream & os, const Terrain terrainType)

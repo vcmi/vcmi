@@ -93,7 +93,7 @@ public:
 	void deselectRange(const MapRect & rect) override;
 	void selectAll() override;
 	void clearSelection() override;
-	void setSelection(std::vector<int3> & vec);
+	void setSelection(const std::vector<int3> & vec);
 };
 
 /// Selection class to select objects.
@@ -173,6 +173,9 @@ public:
 
 	/// Draws roads at the current terrain selection. The selection will be cleared automatically.
 	void drawRoad(const std::string & roadType, CRandomGenerator * gen = nullptr);
+	
+	/// Draws rivers at the current terrain selection. The selection will be cleared automatically.
+	void drawRiver(const std::string & riverType, CRandomGenerator * gen = nullptr);
 
 	void insertObject(CGObjectInstance * obj);
 

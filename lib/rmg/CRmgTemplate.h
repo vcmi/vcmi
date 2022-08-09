@@ -17,7 +17,6 @@
 #include "CMapGenOptions.h"
 
 class JsonSerializeFormat;
-class Terrain;
 
 namespace ETemplateZoneType
 {
@@ -58,6 +57,8 @@ public:
 	int getGuardStrength() const;
 
 	void serializeJson(JsonSerializeFormat & handler);
+	
+	friend bool operator==(const ZoneConnection &, const ZoneConnection &);
 private:
 	TRmgTemplateZoneId zoneA;
 	TRmgTemplateZoneId zoneB;
@@ -105,8 +106,11 @@ public:
 	const std::set<Terrain> & getTerrainTypes() const;
 	void setTerrainTypes(const std::set<Terrain> & value);
 
+	const CTownInfo & getPlayerTowns() const;
+	const CTownInfo & getNeutralTowns() const;
 	std::set<TFaction> getDefaultTownTypes() const;
 	const std::set<TFaction> & getTownTypes() const;
+	const std::set<TFaction> & getMonsterTypes() const;
 
 	void setTownTypes(const std::set<TFaction> & value);
 	void setMonsterTypes(const std::set<TFaction> & value);
@@ -126,6 +130,11 @@ public:
 	std::vector<TRmgTemplateZoneId> getConnections() const;
 
 	void serializeJson(JsonSerializeFormat & handler);
+	
+	EMonsterStrength::EMonsterStrength zoneMonsterStrength;
+	
+	bool areTownsSameType() const;
+	bool isMatchTerrainToTown() const;
 
 protected:
 	TRmgTemplateZoneId id;
@@ -140,8 +149,6 @@ protected:
 
 	std::set<TFaction> townTypes;
 	std::set<TFaction> monsterTypes;
-
-	EMonsterStrength::EMonsterStrength zoneMonsterStrength;
 
 	std::map<TResource, ui16> mines; //obligatory mines to spawn in this zone
 
