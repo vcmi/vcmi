@@ -88,7 +88,10 @@ void ObstaclePlacer::process()
 			if(!possibleObstacles[i].first)
 				continue;
 			
-			for(auto & temp : possibleObstacles[i].second)
+			auto shuffledObstacles = possibleObstacles[i].second;
+			RandomGeneratorUtil::randomShuffle(shuffledObstacles, generator.rand);
+			
+			for(auto & temp : shuffledObstacles)
 			{
 				auto handler = VLC->objtypeh->getHandlerFor(temp.id, temp.subid);
 				auto obj = handler->create(temp);
