@@ -722,7 +722,7 @@ void TreasurePlacer::createTreasures(ObjectManager & manager)
 					if(areaToBlock.overlap(zone.freePaths()) || areaToBlock.overlap(manager.getVisitableArea()))
 						return -1.f;
 					
-					return 1.f;
+					return ti.getNearestObjectDistance();
 				}, guarded, false, false);
 			}
 			else
