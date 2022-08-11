@@ -132,7 +132,7 @@
             ],
             "cacheVariables": {
                 "BUNDLE_IDENTIFIER_PREFIX": "eu.vcmi",
-                "CMAKE_PREFIX_PATH": "TODO"
+                "CMAKE_PREFIX_PATH": "${sourceDir}/build/iphoneos"
             }
         }
     ],
@@ -187,11 +187,11 @@
             "name": "ios-release",
             "configurePreset": "ios-release",
             "inherits": "default-release",
+            "configuration": "Release",
             "targets": ["vcmiclient"],
             "nativeToolOptions": [
                 "-quiet",
-                "CODE_SIGNING_ALLOWED_FOR_APPS=NO",
-                "GCC_OPTIMIZATION_LEVEL=3"
+                "CODE_SIGNING_ALLOWED_FOR_APPS=NO"
             ]
         }
     ],
