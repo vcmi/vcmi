@@ -264,9 +264,10 @@ enable_pch(vcmiclient)
 
 if(APPLE_IOS)
 	add_custom_command(TARGET vcmiclient POST_BUILD
-		COMMAND ${CMAKE_COMMAND} --install "${CMAKE_BINARY_DIR}" --config "$<CONFIG>" --prefix "$<TARGET_BUNDLE_CONTENT_DIR:vcmiclient>"
-		COMMAND ${CMAKE_SOURCE_DIR}/apple_codesign.sh
+		COMMAND ${CMAKE_COMMAND} --install "${CMAKE_BINARY_DIR}" --component "${CMAKE_INSTALL_DEFAULT_COMPONENT_NAME}" --config "$<CONFIG>" --prefix "$<TARGET_BUNDLE_CONTENT_DIR:vcmiclient>"
+		COMMAND ${CMAKE_SOURCE_DIR}/ios/codesign.sh
 	)
+	install(TARGETS vcmiclient DESTINATION Payload COMPONENT app) # for ipa generation with cpack
 else()
 	install(TARGETS vcmiclient DESTINATION ${BIN_DIR})
 endif()

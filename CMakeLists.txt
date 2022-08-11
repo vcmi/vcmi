@@ -439,9 +439,9 @@ endif()
 #        Installation section         #
 #######################################
 
-install(DIRECTORY config DESTINATION ${DATA_DIR} COMPONENT core)
-install(DIRECTORY scripts DESTINATION ${DATA_DIR} COMPONENT core)
-install(DIRECTORY Mods DESTINATION ${DATA_DIR} COMPONENT core)
+install(DIRECTORY config DESTINATION ${DATA_DIR})
+install(DIRECTORY scripts DESTINATION ${DATA_DIR})
+install(DIRECTORY Mods DESTINATION ${DATA_DIR})
 
 # that script is useless for Windows
 if(NOT WIN32 AND NOT APPLE_IOS)
@@ -584,6 +584,10 @@ elseif(APPLE_MACOS AND NOT ENABLE_MONOLITHIC_INSTALL)
 
 	# Bundle fixing code must be in separate directory to be executed after all other install code
 	add_subdirectory(osx)
+elseif(APPLE_IOS)
+	set(CPACK_GENERATOR ZIP)
+	set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY OFF)
+	set(CPACK_INSTALL_CMAKE_PROJECTS "${CMAKE_CURRENT_BINARY_DIR};${CMAKE_PROJECT_NAME};app;/")
 else()
 	set(CPACK_GENERATOR TGZ)
 endif()
