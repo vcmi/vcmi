@@ -127,12 +127,6 @@ if(ANDROID) # android compiles ai libs into main lib directly, so we skip this l
 endif()
 
 add_library(Nullkiller SHARED ${Nullkiller_SRCS} ${Nullkiller_HEADERS})
-if(APPLE_IOS)
-	# Nullkiller dependencies - TBB and LuaJIT - can only be built for 64-bit
-	set_target_properties(Nullkiller PROPERTIES
-		XCODE_ATTRIBUTE_EXCLUDED_ARCHS "$(ARCHS_STANDARD_32_BIT)"
-	)
-endif()
 
 target_include_directories(Nullkiller PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
