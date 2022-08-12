@@ -118,8 +118,6 @@ public:
 class CMovementAnimation : public CBattleStackAnimation
 {
 private:
-	bool shouldRotate();
-
 	std::vector<BattleHex> destTiles; //full path, includes already passed hexes
 	ui32 curentMoveIndex; // index of nextHex in destTiles
 
