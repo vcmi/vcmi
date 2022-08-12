@@ -545,7 +545,7 @@ std::vector<ObjectInfo*> TreasurePlacer::prepareTreasurePile(const CTreasureInfo
 	return objectInfos;
 }
 
-rmg::Object TreasurePlacer::constuctTreasurePile(const std::vector<ObjectInfo*> & treasureInfos)
+rmg::Object TreasurePlacer::constuctTreasurePile(const std::vector<ObjectInfo*> & treasureInfos, bool densePlacement)
 {
 	rmg::Object rmgObject;
 	for(auto & oi : treasureInfos)
@@ -568,7 +568,32 @@ rmg::Object TreasurePlacer::constuctTreasurePile(const std::vector<ObjectInfo*> 
 				return rmgObject;
 			}
 			
-			int3 nextPos = *RandomGeneratorUtil::nextItem(accessibleArea.getTiles(), generator.rand);
+			std::vector<int3> bestPositions;
+			if(densePlacement)
+			{
+				int bestPositionsWeight = std::numeric_limits<int>::max();
+				for(auto & t : accessibleArea.getTilesVector())
+				{
+					instance.setPosition(t);
+					int w = rmgObject.getAccessibleArea().getTilesVector().size();
+					if(w < bestPositionsWeight)
+					{
+						bestPositions.clear();
+						bestPositions.push_back(t);
+						bestPositionsWeight = w;
+					}
+					else if(w == bestPositionsWeight)
+					{
+						bestPositions.push_back(t);
+					}
+				}
+			}
+			else
+			{
+				bestPositions = accessibleArea.getTilesVector();
+			}
+			
+			int3 nextPos = *RandomGeneratorUtil::nextItem(bestPositions, generator.rand);
 			instance.setPosition(nextPos - rmgObject.getPosition());
 			
 			auto instanceAccessibleArea = instance.getAccessibleArea();
@@ -637,6 +662,8 @@ ObjectInfo * TreasurePlacer::getRandomObject(ui32 desiredValue, ui32 currentValu
 
 void TreasurePlacer::createTreasures(ObjectManager & manager)
 {
+	const int maxAttempts = 1;
+	
 	int mapMonsterStrength = map.getMapGenOptions().getMonsterStrength();
 	int monsterStrength = zone.zoneMonsterStrength + mapMonsterStrength - 1; //array index from 0 to 4
 	
@@ -684,7 +711,7 @@ void TreasurePlacer::createTreasures(ObjectManager & manager)
 		const float minDistance = std::max<float>((125.f / totalDensity), 2.0f);
 		//distance lower than 2 causes objects to overlap and crash
 		
-		while(true)
+		for(int attempt = 0; attempt <= maxAttempts;)
 		{
 			auto treasurePileInfos = prepareTreasurePile(t);
 			if(treasurePileInfos.empty())
@@ -692,7 +719,7 @@ void TreasurePlacer::createTreasures(ObjectManager & manager)
 			
 			int value = std::accumulate(treasurePileInfos.begin(), treasurePileInfos.end(), 0, [](int v, const ObjectInfo * oi){return v + oi->value;});
 			
-			auto rmgObject = constuctTreasurePile(treasurePileInfos);
+			auto rmgObject = constuctTreasurePile(treasurePileInfos, attempt == maxAttempts);
 			if(rmgObject.instances().empty()) //handle incorrect placement
 			{
 				restoreZoneLimits(treasurePileInfos);
@@ -744,12 +771,13 @@ void TreasurePlacer::createTreasures(ObjectManager & manager)
 				}
 				zone.connectPath(path);
 				manager.placeObject(rmgObject, guarded, true);
+				attempt = 0;
 			}
 			else
 			{
 				restoreZoneLimits(treasurePileInfos);
 				rmgObject.clear();
-				break;
+				++attempt;
 			}
 		}
 	}
