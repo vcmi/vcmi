@@ -662,7 +662,7 @@ ObjectInfo * TreasurePlacer::getRandomObject(ui32 desiredValue, ui32 currentValu
 
 void TreasurePlacer::createTreasures(ObjectManager & manager)
 {
-	const int maxAttempts = 1;
+	const int maxAttempts = 0;
 	
 	int mapMonsterStrength = map.getMapGenOptions().getMonsterStrength();
 	int monsterStrength = zone.zoneMonsterStrength + mapMonsterStrength - 1; //array index from 0 to 4
@@ -719,7 +719,7 @@ void TreasurePlacer::createTreasures(ObjectManager & manager)
 			
 			int value = std::accumulate(treasurePileInfos.begin(), treasurePileInfos.end(), 0, [](int v, const ObjectInfo * oi){return v + oi->value;});
 			
-			auto rmgObject = constuctTreasurePile(treasurePileInfos, attempt == maxAttempts);
+			auto rmgObject = constuctTreasurePile(treasurePileInfos, false);
 			if(rmgObject.instances().empty()) //handle incorrect placement
 			{
 				restoreZoneLimits(treasurePileInfos);
@@ -750,11 +750,11 @@ void TreasurePlacer::createTreasures(ObjectManager & manager)
 						return -1.f;
 					
 					return ti.getNearestObjectDistance();
-				}, guarded, false, false);
+				}, guarded, false, ObjectManager::OptimizeType::DISTANCE);
 			}
 			else
 			{
-				path = manager.placeAndConnectObject(possibleArea, rmgObject, minDistance, guarded, false, false);
+				path = manager.placeAndConnectObject(possibleArea, rmgObject, minDistance, guarded, false, ObjectManager::OptimizeType::DISTANCE);
 			}
 			
 			if(path.valid())
