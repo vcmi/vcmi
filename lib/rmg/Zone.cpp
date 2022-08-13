@@ -234,40 +234,42 @@ void Zone::fractalize()
 		}
 	}
 	
-	auto noBlock = dAreaFree;
-	
-	//cut straight paths towards the center
+	//cut straight paths towards the center. A* is too slow for that.
 	auto areas = connectedAreas(clearedTiles);
 	for(auto & area : areas)
 	{
 		if(dAreaFree.overlap(area))
 			continue; //already found
 			
-		auto availableArea = dAreaPossible + noBlock;
+		auto availableArea = dAreaPossible + dAreaFree;
 		rmg::Path path(availableArea);
-		path.connect(noBlock);
+		path.connect(dAreaFree);
 		auto res = path.search(area, false);
 		if(res.getPathArea().empty())
 		{
 			dAreaPossible.subtract(area);
-			noBlock.subtract(area);
+			dAreaFree.subtract(area);
 			for(auto & t : area.getTiles())
 				map.setOccupied(t, ETileType::BLOCKED);
 		}
 		else
 		{
-			noBlock.unite(res.getPathArea());
+			dAreaPossible.subtract(res.getPathArea());
+			dAreaFree.unite(res.getPathArea());
+			for(auto & t : res.getPathArea().getTiles())
+				map.setOccupied(t, ETileType::FREE);
 		}
 	}
 	
 	//now block most distant tiles away from passages
 	float blockDistance = minDistance * 0.25f;
-	auto areaToBlock = dArea.getSubarea([&noBlock, blockDistance](const int3 & t)
+	auto areaToBlock = dArea.getSubarea([this, blockDistance](const int3 & t)
 	{
-		float distance = static_cast<float>(noBlock.distanceSqr(t));
+		float distance = static_cast<float>(dAreaFree.distanceSqr(t));
 		return distance > blockDistance;
 	});
 	dAreaPossible.subtract(areaToBlock);
+	dAreaFree.subtract(areaToBlock);
 	for(auto & t : areaToBlock.getTiles())
 		map.setOccupied(t, ETileType::BLOCKED);
 }
