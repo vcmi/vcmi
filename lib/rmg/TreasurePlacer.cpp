@@ -545,7 +545,7 @@ std::vector<ObjectInfo*> TreasurePlacer::prepareTreasurePile(const CTreasureInfo
 	return objectInfos;
 }
 
-rmg::Object TreasurePlacer::constuctTreasurePile(const std::vector<ObjectInfo*> & treasureInfos, bool densePlacement)
+rmg::Object TreasurePlacer::constructTreasurePile(const std::vector<ObjectInfo*> & treasureInfos, bool densePlacement)
 {
 	rmg::Object rmgObject;
 	for(auto & oi : treasureInfos)
@@ -719,7 +719,7 @@ void TreasurePlacer::createTreasures(ObjectManager & manager)
 			
 			int value = std::accumulate(treasurePileInfos.begin(), treasurePileInfos.end(), 0, [](int v, const ObjectInfo * oi){return v + oi->value;});
 			
-			auto rmgObject = constuctTreasurePile(treasurePileInfos, attempt == maxAttempts);
+			auto rmgObject = constructTreasurePile(treasurePileInfos, attempt == maxAttempts);
 			if(rmgObject.instances().empty()) //handle incorrect placement
 			{
 				restoreZoneLimits(treasurePileInfos);
