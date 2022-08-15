@@ -345,6 +345,24 @@ if(SDL2_FOUND)
       if (APPLE_MACOS)
         set_property(TARGET SDL2::SDL2 APPEND PROPERTY
                      INTERFACE_LINK_OPTIONS -framework Cocoa)
+      elseif (APPLE_IOS)
+        target_link_libraries(SDL2::SDL2 INTERFACE
+          "-framework AudioToolbox"
+          "-framework AVFoundation"
+          "-framework CoreAudio"
+          "-framework CoreBluetooth"
+          "-framework CoreFoundation"
+          "-framework CoreGraphics"
+          "-framework CoreMotion"
+          "-framework CoreVideo"
+          "-framework GameController"
+          "-framework IOKit"
+          "-framework Metal"
+          "-framework OpenGLES"
+          "-framework QuartzCore"
+          "-framework UIKit"
+          "-weak_framework CoreHaptics"
+        )
       endif()
     else()
       # For threads, as mentioned Apple doesn't need this.
