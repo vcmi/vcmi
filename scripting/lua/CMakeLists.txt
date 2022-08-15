@@ -83,12 +83,16 @@ set(lib_HDRS
 )
 
 add_library(vcmiLua SHARED ${lib_SRCS} ${lib_HDRS})
-target_link_libraries(vcmiLua Boost::boost luajit::luajit vcmi)
+target_link_libraries(vcmiLua Boost::boost luajit::luajit ${VCMI_LIB_TARGET})
 
 vcmi_set_output_dir(vcmiLua "scripting")
 enable_pch(vcmiLua)
 
-install(TARGETS vcmiLua LIBRARY DESTINATION ${SCRIPTING_LIB_DIR} OPTIONAL)
+if(APPLE_IOS)
+	install(TARGETS vcmiLua LIBRARY DESTINATION ${SCRIPTING_LIB_DIR})
+else()
+	install(TARGETS vcmiLua DESTINATION ${SCRIPTING_LIB_DIR})
+endif()
 
 #manually copy lua dll from vcpkg folder to build directory on windows since vcpkg deps copy feature has flaws, using hardcoded paths based on vcmi windows deps package 1.1 from github
 if(MSVC)

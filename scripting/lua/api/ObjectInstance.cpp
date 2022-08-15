@@ -34,3 +34,5 @@ const std::vector<ObjectInstanceProxy::CustomRegType> ObjectInstanceProxy::REGIS
 }
 }
 
+
+VCMI_LIB_NAMESPACE_END

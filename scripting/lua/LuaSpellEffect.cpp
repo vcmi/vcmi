@@ -24,6 +24,8 @@ static const std::string APPLICABLE_GENERAL = "applicable";
 static const std::string APPLICABLE_TARGET = "applicableTarget";
 static const std::string APPLY = "apply";
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace spells
 {
 namespace effects
@@ -184,3 +186,5 @@ void LuaSpellEffect::setContextVariables(const Mechanics * m, std::shared_ptr<Co
 }
 }
 }
+
+VCMI_LIB_NAMESPACE_END

@@ -17,6 +17,8 @@
 #include "../../../../lib/battle/Unit.h"
 #include "SubscriptionRegistryProxy.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace scripting
 {
 namespace api
@@ -66,3 +68,5 @@ const std::vector<ApplyDamageProxy::CustomRegType> ApplyDamageProxy::REGISTER_CU
 }
 }
 
+
+VCMI_LIB_NAMESPACE_END
