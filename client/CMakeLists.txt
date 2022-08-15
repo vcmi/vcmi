@@ -198,6 +198,8 @@ if(WIN32)
 	target_compile_definitions(vcmiclient PRIVATE WINDOWS_IGNORE_PACKING_MISMATCH)
 elseif(APPLE_IOS)
 	target_link_libraries(vcmiclient PRIVATE
+		iOS_utils
+
 		# FFmpeg
 		bz2
 		iconv

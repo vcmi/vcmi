@@ -18,8 +18,10 @@
 
 #ifdef VCMI_APPLE
 #include <dispatch/dispatch.h>
+#endif
 
-extern double ios_screenScale(); // TODO ios: move to appropriate file
+#ifdef VCMI_IOS
+#include "iOS_utils.h"
 #endif
 
 const SDL_Color Colors::YELLOW = { 229, 215, 123, 0 };
@@ -813,7 +815,7 @@ void CSDL_Ext::startTextInput(SDL_Rect * where)
 	SDL_RenderGetScale(renderer, &scaleX, &scaleY);
 	SDL_RenderGetViewport(renderer, &viewport);
 
-	auto nativeScale = ios_screenScale();
+	const auto nativeScale = iOS_utils::screenScale();
 	auto rectInScreenCoordinates = *where;
 	rectInScreenCoordinates.x = (viewport.x + rectInScreenCoordinates.x) * scaleX / nativeScale;
 	rectInScreenCoordinates.y = (viewport.y + rectInScreenCoordinates.y) * scaleY / nativeScale;

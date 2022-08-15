@@ -404,6 +404,10 @@ set(SCRIPTING_LIB_DIR "${LIB_DIR}/scripting")
 #        Add subdirectories           #
 #######################################
 
+if(APPLE_IOS)
+	add_subdirectory(ios)
+endif()
+
 include(VCMI_lib)
 if(BUILD_SINGLE_APP)
 	add_subdirectory(lib_client)

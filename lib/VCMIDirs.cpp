@@ -11,6 +11,10 @@
 #include "StdInc.h"
 #include "VCMIDirs.h"
 
+#ifdef VCMI_IOS
+#include "iOS_utils.h"
+#endif
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 namespace bfs = boost::filesystem;
@@ -377,8 +381,6 @@ bfs::path VCMIDirsApple::userConfigPath() const { return userDataPath() / "confi
 std::string VCMIDirsApple::libraryName(const std::string& basename) const { return "lib" + basename + ".dylib"; }
 
 #ifdef VCMI_IOS
-#import "CIOSUtils.h"
-
 class VCMIDirsIOS final : public VCMIDirsApple
 {
 	public:
@@ -392,25 +394,25 @@ class VCMIDirsIOS final : public VCMIDirsApple
 		bfs::path binaryPath() const override;
 };
 
-bfs::path VCMIDirsIOS::userDataPath() const { return {ios_documentsPath()}; }
-bfs::path VCMIDirsIOS::userCachePath() const { return {ios_cachesPath()}; }
-bfs::path VCMIDirsIOS::userLogsPath() const { return {ios_documentsPath()}; }
+bfs::path VCMIDirsIOS::userDataPath() const { return {iOS_utils::documentsPath()}; }
+bfs::path VCMIDirsIOS::userCachePath() const { return {iOS_utils::cachesPath()}; }
+bfs::path VCMIDirsIOS::userLogsPath() const { return {iOS_utils::documentsPath()}; }
 
 std::vector<bfs::path> VCMIDirsIOS::dataPaths() const
 {
     std::vector<bfs::path> paths;
     paths.reserve(4);
 #ifdef VCMI_IOS_SIM
-    paths.emplace_back(ios_hostApplicationSupportPath());
+    paths.emplace_back(iOS_utils::hostApplicationSupportPath());
 #endif
     paths.emplace_back(userDataPath());
-    paths.emplace_back(ios_documentsPath());
+    paths.emplace_back(iOS_utils::documentsPath());
     paths.emplace_back(binaryPath());
     return paths;
 }
 
-bfs::path VCMIDirsIOS::libraryPath() const { return {ios_frameworksPath()}; }
-bfs::path VCMIDirsIOS::binaryPath() const { return {ios_bundlePath()}; }
+bfs::path VCMIDirsIOS::libraryPath() const { return {iOS_utils::frameworksPath()}; }
+bfs::path VCMIDirsIOS::binaryPath() const { return {iOS_utils::bundlePath()}; }
 #elif defined(VCMI_MAC)
 class VCMIDirsOSX final : public VCMIDirsApple
 {

@@ -22,9 +22,6 @@
 
 #import <UIKit/UIKit.h>
 
-
-double ios_screenScale() { return UIScreen.mainScreen.nativeScale; }
-
 @interface SDLViewObserver : NSObject <UIGestureRecognizerDelegate>
 @property (nonatomic, strong) GameChatKeyboardHanlder * gameChatHandler;
 @end

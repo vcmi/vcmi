@@ -31,7 +31,7 @@ namespace ELogLevel
 	}
 }
 #elif defined(VCMI_IOS)
-#import "../CIOSUtils.h"
+#import "iOS_utils.h"
 extern "C" {
 #include <os/log.h>
 }
@@ -391,7 +391,7 @@ void CLogConsoleTarget::write(const LogRecord & record)
         currentLog = logIt->second;
     else
     {
-        currentLog = os_log_create(ios_bundleIdentifier(), domainName.c_str());
+		currentLog = os_log_create(iOS_utils::bundleIdentifier(), domainName.c_str());
         logs.insert({domainName, currentLog});
     }
     os_log_with_type(currentLog, type, "%{public}s", message.c_str());

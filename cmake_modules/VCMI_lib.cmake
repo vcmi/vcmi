@@ -441,11 +441,6 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/VCMI_Lib.h
 	)
 
-	if(APPLE_IOS)
-		set(lib_SRCS ${lib_SRCS} ${MAIN_LIB_DIR}/CIOSUtils.m)
-		set(lib_HEADERS ${lib_HEADERS} ${MAIN_LIB_DIR}/CIOSUtils.h)
-	endif(APPLE_IOS)
-
 	assign_source_group(${lib_SRCS} ${lib_HEADERS})
 
 	add_library(${TARGET_NAME} ${LIBRARY_TYPE} ${lib_SRCS} ${lib_HEADERS})
@@ -454,6 +449,9 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		minizip::minizip ZLIB::ZLIB
 		${SYSTEM_LIBS} Boost::boost Boost::thread Boost::filesystem Boost::program_options Boost::locale Boost::date_time
 	)
+	if(APPLE_IOS)
+		target_link_libraries(${TARGET_NAME} PUBLIC iOS_utils)
+	endif()
 
 	target_include_directories(${TARGET_NAME}
 		PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
