@@ -172,8 +172,11 @@ void CResourceHandler::initialize()
 	//    |-saves
 	//    |-config
 
+	// when built as single process, server can be started multiple times
+	if (globalResourceHandler.rootLoader)
+		return;
+
 	globalResourceHandler.rootLoader = vstd::make_unique<CFilesystemList>();
-    knownLoaders.clear();
 	knownLoaders["root"] = globalResourceHandler.rootLoader.get();
 	knownLoaders["saves"] = new CFilesystemLoader("SAVES/", VCMIDirs::get().userSavePath());
 	knownLoaders["config"] = new CFilesystemLoader("CONFIG/", VCMIDirs::get().userConfigPath());
