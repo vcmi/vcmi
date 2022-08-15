@@ -39,7 +39,50 @@ set(lib_SRCS
 		api/StackInstance.cpp
 )
 
-add_library(vcmiLua SHARED ${lib_SRCS})
+set(lib_HDRS
+		StdInc.h
+		LuaCallWrapper.h
+		LuaFunctor.h
+		LuaReference.h
+		LuaScriptModule.h
+		LuaScriptingContext.h
+		LuaSpellEffect.h
+		LuaStack.h
+		LuaWrapper.h
+
+		api/battle/UnitProxy.h
+
+		api/events/BattleEvents.h
+		api/events/EventBusProxy.h
+		api/events/GenericEvents.h
+		api/events/SubscriptionRegistryProxy.h
+
+		api/netpacks/BattleLogMessage.h
+		api/netpacks/BattleStackMoved.h
+		api/netpacks/BattleUnitsChanged.h
+		api/netpacks/EntitiesChanged.h
+		api/netpacks/InfoWindow.h
+		api/netpacks/PackForClient.h
+		api/netpacks/SetResources.h
+
+		api/Artifact.h
+		api/BattleCb.h
+		api/BonusSystem.h
+		api/Creature.h
+		api/Faction.h
+		api/GameCb.h
+		api/HeroClass.h
+		api/HeroInstance.h
+		api/HeroType.h
+		api/Registry.h
+		api/ServerCb.h
+		api/Services.h
+		api/Skill.h
+		api/Spell.h
+		api/StackInstance.h
+)
+
+add_library(vcmiLua SHARED ${lib_SRCS} ${lib_HDRS})
 target_link_libraries(vcmiLua Boost::boost luajit::luajit vcmi)
 
 vcmi_set_output_dir(vcmiLua "scripting")
