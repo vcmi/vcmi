@@ -1101,40 +1101,38 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 
 	if(nullptr == mainWindow)
 	{
-	#if defined(VCMI_ANDROID) || defined(VCMI_IOS)
-        auto createWindow = [displayIndex](Uint32 extraFlags) -> bool {
-            mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex), 0, 0, SDL_WINDOW_FULLSCREEN | extraFlags);
-            return mainWindow != nullptr;
-        };
+#if defined(VCMI_ANDROID) || defined(VCMI_IOS)
+		auto createWindow = [displayIndex](Uint32 extraFlags) -> bool {
+			mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex), 0, 0, SDL_WINDOW_FULLSCREEN | extraFlags);
+			return mainWindow != nullptr;
+		};
 
-#ifdef VCMI_IOS
-        SDL_SetHint(SDL_HINT_IOS_HIDE_HOME_INDICATOR, "1");
-        SDL_SetHint(SDL_HINT_RETURN_KEY_HIDES_IME, "1");
+# ifdef VCMI_IOS
+		SDL_SetHint(SDL_HINT_IOS_HIDE_HOME_INDICATOR, "1");
+		SDL_SetHint(SDL_HINT_RETURN_KEY_HIDES_IME, "1");
 		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "best");
 
-        Uint32 windowFlags = SDL_WINDOW_BORDERLESS | SDL_WINDOW_ALLOW_HIGHDPI;
-        if(!createWindow(windowFlags | SDL_WINDOW_METAL))
-        {
-            logGlobal->warn("Metal unavailable, using OpenGLES");
-            createWindow(windowFlags);
-        }
+		Uint32 windowFlags = SDL_WINDOW_BORDERLESS | SDL_WINDOW_ALLOW_HIGHDPI;
+		if(!createWindow(windowFlags | SDL_WINDOW_METAL))
+		{
+			logGlobal->warn("Metal unavailable, using OpenGLES");
+			createWindow(windowFlags);
+		}
+# else
+		createWindow(0);
+# endif // VCMI_IOS
 
-        // TODO: can android use this too?
-        auto shouldFixAspectRatio = true;
-        int screenWidth, screenHeight;
-        SDL_GetWindowSize(mainWindow, &screenWidth, &screenHeight);
-#else
-        createWindow(0);
-
-        SDL_Rect screenRect;
-        auto shouldFixAspectRatio = SDL_GetDisplayBounds(0, &screenRect) == 0;
-        int screenWidth = screenRect.w, screenHeight = screenRect.h;
-#endif
 		// SDL on mobile doesn't do proper letterboxing, and will show an annoying flickering in the blank space in case you're not using the full screen estate
 		// That's why we need to make sure our width and height we'll use below have the same aspect ratio as the screen itself to ensure we fill the full screen estate
-		if(shouldFixAspectRatio)
+
+		SDL_Rect screenRect;
+
+		if(SDL_GetDisplayBounds(0, &screenRect) == 0)
 		{
-			auto aspect = static_cast<double>(screenWidth) / screenHeight;
+			const auto screenWidth = screenRect.w;
+			const auto screenHeight = screenRect.h;
+
+			const auto aspect = static_cast<double>(screenWidth) / screenHeight;
 
 			logGlobal->info("Screen size and aspect ratio: %dx%d (%lf)", screenWidth, screenHeight, aspect);
 
@@ -1153,8 +1151,7 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 		{
 			logGlobal->error("Can't fix aspect ratio for screen");
 		}
-	#else
-
+#else
 		if(fullscreen)
 		{
 			if(realFullscreen)
@@ -1167,7 +1164,7 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 		{
 			mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex),SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex), w, h, 0);
 		}
-	#endif
+#endif // defined(VCMI_ANDROID) || defined(VCMI_IOS)
 
 		if(nullptr == mainWindow)
 		{
