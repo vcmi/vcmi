@@ -215,7 +215,7 @@ elseif(APPLE_IOS)
 		XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME AppIcon
 	)
 
-	foreach(XCODE_RESOURCE LaunchScreen.storyboard Images.xcassets Settings.bundle)
+	foreach(XCODE_RESOURCE LaunchScreen.storyboard Images.xcassets Settings.bundle vcmi_logo.png)
 		set(XCODE_RESOURCE_PATH ios/${XCODE_RESOURCE})
 		target_sources(vcmiclient PRIVATE ${XCODE_RESOURCE_PATH})
 		set_source_files_properties(${XCODE_RESOURCE_PATH} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
