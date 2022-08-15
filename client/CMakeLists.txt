@@ -174,7 +174,16 @@ if(ENABLE_DEBUG_CONSOLE)
 else()
 	add_executable(vcmiclient WIN32 ${client_SRCS} ${client_HEADERS} ${client_ICON})
 endif(ENABLE_DEBUG_CONSOLE)
+
 add_dependencies(vcmiclient vcmiserver BattleAI StupidAI VCAI Nullkiller)
+if(APPLE_IOS)
+	if(ENABLE_ERM)
+		add_dependencies(vcmiclient vcmiERM)
+	endif()
+	if(ENABLE_LUA)
+		add_dependencies(vcmiclient vcmiLua)
+	endif()
+endif()
 
 if(WIN32)
 	set_target_properties(vcmiclient
@@ -226,9 +235,6 @@ if(BUILD_SINGLE_APP)
 	if(ENABLE_LAUNCHER)
 		target_link_libraries(vcmiclient PRIVATE vcmilauncher)
 	endif()
-	set(VCMI_LIB_TARGET vcmi_lib_client)
-else()
-	set(VCMI_LIB_TARGET vcmi)
 endif()
 target_link_libraries(vcmiclient PRIVATE
 		${VCMI_LIB_TARGET} SDL2::SDL2 SDL2::Image SDL2::Mixer SDL2::TTF

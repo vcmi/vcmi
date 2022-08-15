@@ -15,9 +15,13 @@ set(lib_HDRS
 )
 
 add_library(vcmiERM SHARED ${lib_SRCS} ${lib_HDRS})
-target_link_libraries(vcmiERM Boost::boost vcmi)
+target_link_libraries(vcmiERM Boost::boost ${VCMI_LIB_TARGET})
 
 vcmi_set_output_dir(vcmiERM "scripting")
 enable_pch(vcmiERM)
 
-install(TARGETS vcmiERM LIBRARY DESTINATION ${SCRIPTING_LIB_DIR} OPTIONAL)
+if(APPLE_IOS)
+	install(TARGETS vcmiERM LIBRARY DESTINATION ${SCRIPTING_LIB_DIR})
+else()
+	install(TARGETS vcmiERM DESTINATION ${SCRIPTING_LIB_DIR})
+endif()

@@ -404,6 +404,16 @@ set(SCRIPTING_LIB_DIR "${LIB_DIR}/scripting")
 #        Add subdirectories           #
 #######################################
 
+include(VCMI_lib)
+if(BUILD_SINGLE_APP)
+	add_subdirectory(lib_client)
+	add_subdirectory(lib_server)
+	set(VCMI_LIB_TARGET vcmi_lib_client)
+else()
+	add_subdirectory(lib)
+	set(VCMI_LIB_TARGET vcmi)
+endif()
+
 if(ENABLE_ERM)
 	add_subdirectory(scripting/erm)
 endif()
@@ -413,14 +423,6 @@ endif()
 if(NOT TARGET minizip::minizip)
 	add_subdirectory_with_folder("3rdparty" lib/minizip)
 	add_library(minizip::minizip ALIAS minizip)
-endif()
-
-include(VCMI_lib)
-if(BUILD_SINGLE_APP)
-	add_subdirectory(lib_client)
-	add_subdirectory(lib_server)
-else()
-	add_subdirectory(lib)
 endif()
 
 if(ENABLE_LAUNCHER)
