@@ -32,7 +32,7 @@ if(APPLE)
 	else()
 		set(APPLE_IOS 1)
 	endif()
-endif(APPLE)
+endif()
 
 if(APPLE_IOS)
 	set(BUILD_SINGLE_APP 1)
@@ -52,11 +52,10 @@ endif()
 set(VCMI_VERSION_MAJOR 1)
 set(VCMI_VERSION_MINOR 0)
 set(VCMI_VERSION_PATCH 0)
-if(APPLE_IOS)
-	set(APP_SHORT_VERSION "${VCMI_VERSION_MAJOR}.${VCMI_VERSION_MINOR}")
-	if(NOT VCMI_VERSION_PATCH EQUAL 0)
-		string(APPEND APP_SHORT_VERSION ".${VCMI_VERSION_PATCH}")
-	endif()
+
+set(APP_SHORT_VERSION "${VCMI_VERSION_MAJOR}.${VCMI_VERSION_MINOR}")
+if(NOT VCMI_VERSION_PATCH EQUAL 0)
+	string(APPEND APP_SHORT_VERSION ".${VCMI_VERSION_PATCH}")
 endif()
 
 option(ENABLE_ERM "Enable compilation of ERM scripting module" OFF)
@@ -177,7 +176,7 @@ if(APPLE_IOS)
 	set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED_FOR_APPS YES)
 	set(CMAKE_XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "${BUNDLE_IDENTIFIER_PREFIX}.$(PRODUCT_NAME)")
 	set(CMAKE_XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2")
-endif(APPLE_IOS)
+endif()
 
 if(MINGW OR MSVC)
 	# Windows Vista or newer for FuzzyLite 6 to compile
@@ -369,7 +368,7 @@ elseif(APPLE)
 		else()
 			set(LIB_DIR "Frameworks")
 			set(DATA_DIR ".")
-		endif(APPLE_MACOS)
+		endif()
 	endif()
 else()
 	# includes lib path which determines where to install shared libraries (either /lib or /lib64)
@@ -443,7 +442,7 @@ install(DIRECTORY config DESTINATION ${DATA_DIR})
 install(DIRECTORY scripts DESTINATION ${DATA_DIR})
 install(DIRECTORY Mods DESTINATION ${DATA_DIR})
 
-# that script is useless for Windows
+# that script is useless for Windows and iOS
 if(NOT WIN32 AND NOT APPLE_IOS)
 	install(FILES vcmibuilder DESTINATION ${BIN_DIR} PERMISSIONS
 		OWNER_WRITE OWNER_READ OWNER_EXECUTE
