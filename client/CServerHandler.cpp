@@ -185,18 +185,18 @@ void CServerHandler::startLocalServerAndConnect()
 		envHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "startServer", true);
 	}
 #elif defined(VCMI_IOS)
-    // todo ios: hide keyboard
-    logNetwork->info("[ios] create server thread");
-    boost::condition_variable cond;
-    threadRunLocalServer = std::make_shared<boost::thread>([&cond, this] {
-        setThreadName("CVCMIServer");
-        CVCMIServer::create(&cond, uuid);
-        // todo ios copypaste
-        threadRunLocalServer.reset();
-        CSH->campaignServerRestartLock.setn(false);
-    });
-    threadRunLocalServer->detach();
-    logNetwork->info("[ios] detach server thread");
+	// todo ios: hide keyboard
+	logNetwork->info("[ios] create server thread");
+	boost::condition_variable cond;
+	threadRunLocalServer = std::make_shared<boost::thread>([&cond, this] {
+		setThreadName("CVCMIServer");
+		CVCMIServer::create(&cond, uuid);
+		// todo ios copypaste
+		threadRunLocalServer.reset();
+		CSH->campaignServerRestartLock.setn(false);
+	});
+	threadRunLocalServer->detach();
+	logNetwork->info("[ios] detach server thread");
 #else
 	threadRunLocalServer = std::make_shared<boost::thread>(&CServerHandler::threadRunServer, this); //runs server executable;
 #endif
@@ -215,13 +215,13 @@ void CServerHandler::startLocalServerAndConnect()
 	androidTestServerReadyFlag = false;
 #elif defined(VCMI_IOS)
     // todo ios
-    {
-        boost::mutex m;
-        boost::unique_lock<boost::mutex> lock{m};
-        logNetwork->info("[ios] wait for server");
-        cond.wait(lock);
-        logNetwork->info("[ios] server ready");
-    }
+	{
+		boost::mutex m;
+		boost::unique_lock<boost::mutex> lock{m};
+		logNetwork->info("waiting for server");
+		cond.wait(lock);
+		logNetwork->info("server is ready");
+	}
 #else
 	if(shm)
 		shm->sr->waitTillReady();
