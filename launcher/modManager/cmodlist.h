@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "StdInc.h"
+
 #include <QVariantMap>
 #include <QVariant>
 #include <QVector>
