@@ -25,7 +25,5 @@ const char *bundlePath();
 const char *frameworksPath();
 
 const char *bundleIdentifier();
-
-double screenScale();
 }
 #pragma GCC visibility pop

@@ -151,11 +151,13 @@ if(APPLE_IOS)
 		ios/GameChatKeyboardHanlder.m
 		ios/main.m
 		ios/startSDL.mm
+		ios/utils.mm
 	)
 	set(client_HEADERS ${client_HEADERS}
 		CFocusableHelper.h
 		ios/GameChatKeyboardHanlder.h
 		ios/startSDL.h
+		ios/utils.h
 	)
 endif()
 

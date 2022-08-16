@@ -364,7 +364,6 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 	for(int i = 1; i < 32; i += 2 * speed)
 	{
 		movementPxStep(details, i, hp, hero);
-        // todo ios
 #ifndef VCMI_ANDROID
 		// currently android doesn't seem to be able to handle all these full redraws here, so let's disable it so at least it looks less choppy;
 		// most likely this is connected with the way that this manual animation+framerate handling is solved

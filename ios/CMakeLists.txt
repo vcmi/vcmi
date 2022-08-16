@@ -4,7 +4,6 @@ add_library(iOS_utils SHARED
 )
 target_link_libraries(iOS_utils PRIVATE
 	"-framework Foundation"
-	"-framework UIKit"
 )
 target_include_directories(iOS_utils PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 

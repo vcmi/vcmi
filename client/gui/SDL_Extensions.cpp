@@ -21,7 +21,7 @@
 #endif
 
 #ifdef VCMI_IOS
-#include "iOS_utils.h"
+#include "ios/utils.h"
 #endif
 
 const SDL_Color Colors::YELLOW = { 229, 215, 123, 0 };

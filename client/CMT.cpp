@@ -441,7 +441,6 @@ int main(int argc, char * argv[])
 
 
 #ifndef VCMI_NO_THREADED_LOAD
-    // todo ios
 	#ifdef VCMI_ANDROID // android loads the data quite slowly so we display native progressbar to prevent having only black screen for few seconds
 	{
 		CAndroidVMHelper vmHelper;
@@ -1322,7 +1321,6 @@ static void handleEvent(SDL_Event & ev)
 {
 	if((ev.type==SDL_QUIT) ||(ev.type == SDL_KEYDOWN && ev.key.keysym.sym==SDLK_F4 && (ev.key.keysym.mod & KMOD_ALT)))
 	{
-        // todo ios
 #ifdef VCMI_ANDROID
 		handleQuit(false);
 #else

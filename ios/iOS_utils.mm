@@ -11,7 +11,6 @@
 #include "iOS_utils.h"
 
 #import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
 
 namespace
 {
@@ -47,6 +46,4 @@ const char *bundlePath() { return NSBundle.mainBundle.bundlePath.fileSystemRepre
 const char *frameworksPath() { return NSBundle.mainBundle.privateFrameworksPath.fileSystemRepresentation; }
 
 const char *bundleIdentifier() { return NSBundle.mainBundle.bundleIdentifier.UTF8String; }
-
-double screenScale() { return UIScreen.mainScreen.nativeScale; }
 }
