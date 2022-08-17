@@ -190,7 +190,6 @@
             "configuration": "Release",
             "targets": ["vcmiclient"],
             "nativeToolOptions": [
-                "-quiet",
                 "CODE_SIGNING_ALLOWED_FOR_APPS=NO"
             ]
         }
