@@ -142,7 +142,9 @@ public:
 VCMI_LIB_NAMESPACE_END
 
 
-template <> struct std::hash<VCMI_LIB_WRAP_NAMESPACE(ResourceID)>
+namespace std
+{
+template <> struct hash<VCMI_LIB_WRAP_NAMESPACE(ResourceID)>
 {
 	size_t operator()(const VCMI_LIB_WRAP_NAMESPACE(ResourceID) & resourceIdent) const
 	{
@@ -151,3 +153,4 @@ template <> struct std::hash<VCMI_LIB_WRAP_NAMESPACE(ResourceID)>
 		return stringHasher(resourceIdent.getName()) ^ intHasher(static_cast<int>(resourceIdent.getType()));
 	}
 };
+}
