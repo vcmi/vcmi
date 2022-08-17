@@ -33,7 +33,7 @@ Node & resolvePointer(Node & in, const std::string & pointer)
 
 	size_t splitPos = pointer.find('/', 1);
 
-	std::string entry = pointer.substr(1, splitPos -1);
+	std::string entry = pointer.substr(1, splitPos - 1);
 	std::string remainer = splitPos == std::string::npos ? "" : pointer.substr(splitPos);
 
 	if (in.getType() == VCMI_LIB_WRAP_NAMESPACE(JsonNode)::JsonType::DATA_VECTOR)
