@@ -743,6 +743,12 @@ void TreasurePlacer::createTreasures(ObjectManager & manager)
 					if(ti.getNearestObjectDistance() < minDistance)
 						return -1.f;
 					
+					for(auto & t : rmgObject.getArea().getTilesVector())
+					{
+						if(map.getTile(t).getNearestObjectDistance() < minDistance)
+							return -1.f;
+					}
+					
 					auto guardedArea = rmgObject.instances().back()->getAccessibleArea();
 					auto areaToBlock = rmgObject.getAccessibleArea(true);
 					areaToBlock.subtract(guardedArea);
