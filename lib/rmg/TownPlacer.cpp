@@ -142,7 +142,7 @@ int3 TownPlacer::placeMainTown(ObjectManager & manager, CGTownInstance & town)
 	{
 		float distance = zone.getPos().dist2dSQ(t);
 		return 100000.f - distance; //some big number
-	}, true);
+	}, ObjectManager::OptimizeType::WEIGHT);
 	rmgObject.setPosition(position);
 	manager.placeObject(rmgObject, false, true);
 	cleanupBoundaries(rmgObject);

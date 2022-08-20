@@ -34,6 +34,16 @@ void ObjectManager::init()
 {
 	DEPENDENCY(WaterAdopter);
 	POSTFUNCTION(RoadPlacer);
+	createDistancesPriorityQueue();
+}
+
+void ObjectManager::createDistancesPriorityQueue()
+{
+	tilesByDistance.clear();
+	for (auto & tile : zone.areaPossible().getTilesVector())
+	{
+		tilesByDistance.push(std::make_pair(tile, map.getNearestObjectDistance(tile)));
+	}
 }
 
 void ObjectManager::addRequiredObject(CGObjectInstance * obj, si32 strength)
@@ -53,10 +63,12 @@ void ObjectManager::addNearbyObject(CGObjectInstance * obj, CGObjectInstance * n
 
 void ObjectManager::updateDistances(const rmg::Object & obj)
 {
+	tilesByDistance.clear();
 	for (auto tile : zone.areaPossible().getTiles()) //don't need to mark distance for not possible tiles
 	{
 		ui32 d = obj.getArea().distanceSqr(tile); //optimization, only relative distance is interesting
 		map.setNearestObjectDistance(tile, std::min((float)d, map.getNearestObjectDistance(tile)));
+		tilesByDistance.push(std::make_pair(tile, map.getNearestObjectDistance(tile)));
 	}
 }
 
@@ -65,59 +77,102 @@ const rmg::Area & ObjectManager::getVisitableArea() const
 	return objectsVisitableArea;
 }
 
-int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object & obj, std::function<float(const int3)> weightFunction, bool optimizer) const
+int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object & obj, std::function<float(const int3)> weightFunction, OptimizeType optimizer) const
 {
 	float bestWeight = 0.f;
 	int3 result(-1, -1, -1);
 	
-	for(const auto & tile : searchArea.getTiles())
+	if(optimizer & OptimizeType::DISTANCE)
 	{
-		obj.setPosition(tile);
-		
-		if(!searchArea.contains(obj.getArea()) || !searchArea.overlap(obj.getAccessibleArea()))
-			continue;
-		
-		float weight = weightFunction(tile);
-		if(weight > bestWeight)
+		auto open = tilesByDistance;
+		while(!open.empty())
 		{
-			bestWeight = weight;
-			result = tile;
-			if(!optimizer)
-				break;
+			auto node = open.top();
+			open.pop();
+			int3 tile = node.first;
+			
+			if(!searchArea.contains(tile))
+				continue;
+			
+			obj.setPosition(tile);
+			
+			if(!searchArea.contains(obj.getArea()) || !searchArea.overlap(obj.getAccessibleArea()))
+				continue;
+			
+			float weight = weightFunction(tile);
+			if(weight > bestWeight)
+			{
+				bestWeight = weight;
+				result = tile;
+				if(!(optimizer & OptimizeType::WEIGHT))
+					break;
+			}
 		}
 	}
+	else
+	{
+		for(const auto & tile : searchArea.getTiles())
+		{
+			obj.setPosition(tile);
+			
+			if(!searchArea.contains(obj.getArea()) || !searchArea.overlap(obj.getAccessibleArea()))
+				continue;
+			
+			float weight = weightFunction(tile);
+			if(weight > bestWeight)
+			{
+				bestWeight = weight;
+				result = tile;
+				if(!(optimizer & OptimizeType::WEIGHT))
+					break;
+			}
+		}
+	}
+	
 	if(result.valid())
 		obj.setPosition(result);
 	return result;
 }
 
-int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object & obj, si32 min_dist, bool optimizer) const
+int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object & obj, si32 min_dist, OptimizeType optimizer) const
 {
-	return findPlaceForObject(searchArea, obj, [this, min_dist](const int3 & tile)
+	return findPlaceForObject(searchArea, obj, [this, min_dist, &obj](const int3 & tile)
 	{
 		auto ti = map.getTile(tile);
 		float dist = ti.getNearestObjectDistance();
 		if(dist < min_dist)
 			return -1.f;
+		
+		for(auto & t : obj.getArea().getTilesVector())
+		{
+			if(map.getTile(t).getNearestObjectDistance() < min_dist)
+				return -1.f;
+		}
 		
 		return dist;
 	}, optimizer);
 }
 
-rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg::Object & obj, si32 min_dist, bool isGuarded, bool onlyStraight, bool optimizer) const
+rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg::Object & obj, si32 min_dist, bool isGuarded, bool onlyStraight, OptimizeType optimizer) const
 {
-	return placeAndConnectObject(searchArea, obj, [this, min_dist](const int3 & tile)
+	return placeAndConnectObject(searchArea, obj, [this, min_dist, &obj](const int3 & tile)
 	{
 		auto ti = map.getTile(tile);
 		float dist = ti.getNearestObjectDistance();
 		if(dist < min_dist)
 			return -1.f;
 		
+		for(auto & t : obj.getArea().getTilesVector())
+		{
+			if(map.getTile(t).getNearestObjectDistance() < min_dist)
+				return -1.f;
+		}
+		
 		return dist;
 	}, isGuarded, onlyStraight, optimizer);
 }
 
-rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg::Object & obj, std::function<float(const int3)> weightFunction, bool isGuarded, bool onlyStraight, bool optimizer) const
+rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg::Object & obj, std::function<float(const int3)> weightFunction, bool isGuarded, bool onlyStraight, OptimizeType optimizer) const
 {
 	int3 pos;
 	auto possibleArea = searchArea;
@@ -172,7 +227,7 @@ bool ObjectManager::createRequiredObjects()
 		rmg::Object rmgObject(*obj);
 		rmgObject.setTemplate(zone.getTerrainType());
 		bool guarded = addGuard(rmgObject, object.second, (obj->ID == Obj::MONOLITH_TWO_WAY));
-		auto path = placeAndConnectObject(zone.areaPossible(), rmgObject, 3, guarded, false, true);
+		auto path = placeAndConnectObject(zone.areaPossible(), rmgObject, 3, guarded, false, OptimizeType::DISTANCE);
 		
 		if(!path.valid())
 		{
@@ -217,7 +272,7 @@ bool ObjectManager::createRequiredObjects()
 			dist *= (dist > 12.f * 12.f) ? 10.f : 1.f; //tiles closer 12 are preferrable
 			dist = 1000000.f - dist; //some big number
 			return dist + map.getNearestObjectDistance(tile);
-		}, guarded, false, true);
+		}, guarded, false, OptimizeType::WEIGHT);
 		
 		if(!path.valid())
 		{

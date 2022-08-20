@@ -230,7 +230,7 @@ bool WaterProxy::placeBoat(Zone & land, const Lake & lake, RouteInfo & info)
 		}
 		
 		//try to place boat at water, create paths on water and land
-		auto path = manager->placeAndConnectObject(shipPositions, rmgObject, 2, false, true, false);
+		auto path = manager->placeAndConnectObject(shipPositions, rmgObject, 2, false, true, ObjectManager::OptimizeType::NONE);
 		auto landPath = land.searchPath(boardingPosition, false);
 		if(!path.valid() || !landPath.valid())
 		{
@@ -298,7 +298,7 @@ bool WaterProxy::placeShipyard(Zone & land, const Lake & lake, si32 guard, Route
 				return -1.f;
 			
 			return 1.0f;
-		}, guarded, true, false);
+		}, guarded, true, ObjectManager::OptimizeType::NONE);
 		
 		//search path to boarding position
 		auto searchArea = land.areaPossible() - rmgObject.getArea();
