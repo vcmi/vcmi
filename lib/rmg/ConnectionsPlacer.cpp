@@ -224,10 +224,10 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 				rmg::Area toPlace(rmgGate1.getArea() + rmgGate1.getAccessibleArea());
 				toPlace.translate(-zShift);
 				
-				path2 = managerOther.placeAndConnectObject(toPlace, rmgGate2, minDist, guarded2, true, false);
+				path2 = managerOther.placeAndConnectObject(toPlace, rmgGate2, minDist, guarded2, true, ObjectManager::OptimizeType::NONE);
 				
 				return path2.valid() ? 1.f : -1.f;
-			}, guarded1, true, false);
+			}, guarded1, true, ObjectManager::OptimizeType::NONE);
 			
 			if(path1.valid() && path2.valid())
 			{

@@ -286,8 +286,8 @@ void CMapGenerator::fillZones()
 	
 	for(auto it : map->getZones())
 	{
-		it.second->initModificators();
 		it.second->initFreeTiles();
+		it.second->initModificators();
 	}
 
 	std::vector<std::shared_ptr<Zone>> treasureZones;

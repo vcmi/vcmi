@@ -52,7 +52,7 @@ protected:
 	
 	ObjectInfo * getRandomObject(ui32 desiredValue, ui32 currentValue, ui32 maxValue, bool allowLargeObjects);
 	std::vector<ObjectInfo*> prepareTreasurePile(const CTreasureInfo & treasureInfo);
-	rmg::Object constuctTreasurePile(const std::vector<ObjectInfo*> & treasureInfos);
+	rmg::Object constructTreasurePile(const std::vector<ObjectInfo*> & treasureInfos, bool densePlacement = false);
 	
 	
 protected:	
