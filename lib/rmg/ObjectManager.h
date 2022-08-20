@@ -12,13 +12,31 @@
 
 #include "Zone.h"
 #include "RmgObject.h"
+#include <boost/heap/priority_queue.hpp> //A*
 
 class CGObjectInstance;
 class ObjectTemplate;
 class CGCreature;
 
+typedef std::pair<int3, float> TDistance;
+struct DistanceMaximizeFunctor
+{
+	bool operator()(const TDistance & lhs, const TDistance & rhs) const
+	{
+		return (rhs.second > lhs.second);
+	}
+};
+
 class ObjectManager: public Modificator
 {
+public:
+	enum OptimizeType
+	{
+		NONE = 0x00000000,
+		WEIGHT = 0x00000001,
+		DISTANCE = 0x00000010
+	};
+	
 public:
 	MODIFICATOR(ObjectManager);
 	
@@ -31,17 +49,18 @@ public:
 		
 	bool createRequiredObjects();
 	
-	int3 findPlaceForObject(const rmg::Area & searchArea, rmg::Object & obj, si32 min_dist, bool optimizer) const;
-	int3 findPlaceForObject(const rmg::Area & searchArea, rmg::Object & obj, std::function<float(const int3)> weightFunction, bool optimizer) const;
+	int3 findPlaceForObject(const rmg::Area & searchArea, rmg::Object & obj, si32 min_dist, OptimizeType optimizer) const;
+	int3 findPlaceForObject(const rmg::Area & searchArea, rmg::Object & obj, std::function<float(const int3)> weightFunction, OptimizeType optimizer) const;
 	
-	rmg::Path placeAndConnectObject(const rmg::Area & searchArea, rmg::Object & obj, si32 min_dist, bool isGuarded, bool onlyStraight, bool optimizer) const;
-	rmg::Path placeAndConnectObject(const rmg::Area & searchArea, rmg::Object & obj, std::function<float(const int3)> weightFunction, bool isGuarded, bool onlyStraight, bool optimizer) const;
+	rmg::Path placeAndConnectObject(const rmg::Area & searchArea, rmg::Object & obj, si32 min_dist, bool isGuarded, bool onlyStraight, OptimizeType optimizer) const;
+	rmg::Path placeAndConnectObject(const rmg::Area & searchArea, rmg::Object & obj, std::function<float(const int3)> weightFunction, bool isGuarded, bool onlyStraight, OptimizeType optimizer) const;
 	
 	CGCreature * chooseGuard(si32 strength, bool zoneGuard = false);
 	bool addGuard(rmg::Object & object, si32 strength, bool zoneGuard = false);
 	void placeObject(rmg::Object & object, bool guarded, bool updateDistance);
 	
 	void updateDistances(const rmg::Object & obj);
+	void createDistancesPriorityQueue();
 	
 	const rmg::Area & getVisitableArea() const;
 	
@@ -53,4 +72,7 @@ protected:
 	std::vector<std::pair<CGObjectInstance*, CGObjectInstance*>> nearbyObjects;
 	std::vector<CGObjectInstance*> objects;
 	rmg::Area objectsVisitableArea;
+	
+	boost::heap::priority_queue<TDistance, boost::heap::compare<DistanceMaximizeFunctor>> tilesByDistance;
+	
 };
