@@ -948,7 +948,7 @@ void CBonusSystemNode::getAllBonusesRec(BonusList &out) const
 	getAllParents(lparents);
 
 	for(auto parent : lparents)
-		parent->bonuses.getAllBonuses(beforeUpdate);
+		parent->getAllBonusesRec(beforeUpdate);
 
 	bonuses.getAllBonuses(beforeUpdate);
 
