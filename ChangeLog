@@ -1,4 +1,4 @@
-0.99 -> 1.00
+0.99 -> 0.100
 
 GENERAL:
 * Spectator mode was implemented through command-line options
@@ -51,6 +51,15 @@ RANDOM MAP GENERATOR:
 * Rivers are generated on the random maps
 * RMG works more stable, various crashes have been fixed
 * Treasures requiring guards are guaranted to be protected
+
+VCAI:
+* Reworked goal decomposition engine, fixing many loopholes. AI will now pick correct goals faster.
+* AI will now use universal pathfinding globally
+* AI can use Summon  Boat and Town Portal
+* AI can gather and save resources on purpose
+* AI will only buy army on demand instead of every turn
+* AI can distinguish the value of all map objects
+* General speed optimizations
 
 0.98 -> 0.99
 
