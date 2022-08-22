@@ -138,6 +138,7 @@ int3 TownPlacer::placeMainTown(ObjectManager & manager, CGTownInstance & town)
 {
 	//towns are big objects and should be centered around visitable position
 	rmg::Object rmgObject(town);
+	rmgObject.setTemplate(zone.getTerrainType());
 	auto position = manager.findPlaceForObject(zone.areaPossible(), rmgObject, [this](const int3 & t)
 	{
 		float distance = zone.getPos().dist2dSQ(t);
