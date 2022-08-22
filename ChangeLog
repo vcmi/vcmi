@@ -35,6 +35,7 @@ MODS:
 * Added bonus updaters for hero specialties
 * Added allOf, anyOf and noneOf qualifiers for bonus limiters
 * Added bonus limiters: alignment, faction and terrain
+* Supported new terrains, new battlefields, custom water and rock terrains
 
 SOUND:
 * Fixed many mising or wrong pickup and visit sounds for map objects
@@ -46,6 +47,10 @@ RANDOM MAP GENERATOR:
 * Added parameter for template allowedWaterContent
 * Extra resource packs appear nearby mines
 * Underground can be player starting place for factions allowed to be placed underground
+* Improved obstacles placement aestetics
+* Rivers are generated on the random maps
+* RMG works more stable, various crashes have been fixed
+* Treasures requiring guards are guaranted to be protected
 
 0.98 -> 0.99
 
