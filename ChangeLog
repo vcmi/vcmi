@@ -47,10 +47,10 @@ RANDOM MAP GENERATOR:
 * Added parameter for template allowedWaterContent
 * Extra resource packs appear nearby mines
 * Underground can be player starting place for factions allowed to be placed underground
-* Improved obstacles placement aestetics
+* Improved obstacles placement aesthetics
 * Rivers are generated on the random maps
 * RMG works more stable, various crashes have been fixed
-* Treasures requiring guards are guaranted to be protected
+* Treasures requiring guards are guaranteed to be protected
 
 VCAI:
 * Reworked goal decomposition engine, fixing many loopholes. AI will now pick correct goals faster.
