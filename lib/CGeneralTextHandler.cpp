@@ -493,6 +493,28 @@ CGeneralTextHandler::CGeneralTextHandler()
 			logGlobal->warn("WoG file ZNPC00.TXT containing commander texts was not found");
 		}
 	}
+	
+	//sanity check: in most places we get strings using operator[] so it may lead to crash if data is not valid
+	//use highest hardcoded index to check
+	if(allTexts.size() < 741 ||
+	   arraytxt.size() < 232 ||
+	   primarySkillNames.size() < 4 ||
+	   jktexts.size() < 44 ||
+	   heroscrn.size() < 33 ||
+	   overview.size() < 16 ||
+	   colors.size() < 8 ||
+	   capColors.size() < 8 ||
+	   tcommands.size() < 33 ||
+	   hcommands.size() < 9 ||
+	   fcommands.size() < 7 ||
+	   tavernInfo.size() < 8 ||
+	   zelp.size() < 614 ||
+	   advobtxt.size() < 91 ||
+	   restypes.size() < 7 ||
+	   mines.size() < 7)
+	{
+		logGlobal->error("YOUR ORIGINAL HOMM3 DATA IS CORRUPTED, GAME MAY CRASH");
+	}
 }
 
 int32_t CGeneralTextHandler::pluralText(const int32_t textIndex, const int32_t count) const
