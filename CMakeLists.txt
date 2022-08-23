@@ -9,9 +9,6 @@ project(VCMI)
 # - There is problem with running fixup_bundle in main project after subdirectories.
 # Cmake put them after all install code of main CMakelists in cmake_install.cmake
 # Currently I just added extra add_subdirectory and CMakeLists.txt in osx directory to bypass that.
-# - Try to fix build with RPATH.
-# Currently if CMAKE_MACOSX_RPATH=1 then AI libs unable to find @rpath/libvcmi.dylib
-# I tried to set few different INSTALL_RPATH for all targets in AI directory, but nothing worked.
 #
 # MXE:
 # - Try to implement MXE support into BundleUtilities so we can deploy deps automatically
@@ -130,10 +127,6 @@ set(CMAKE_MAP_IMPORTED_CONFIG_RELWITHDEBINFO RelWithDebInfo Release MinSizeRel "
 set(CMAKE_MAP_IMPORTED_CONFIG_MINSIZEREL MinSizeRel Release RelWithDebInfo "")
 # Release falls back to RelWithDebInfo, then MinSizeRel
 set(CMAKE_MAP_IMPORTED_CONFIG_RELEASE Release RelWithDebInfo MinSizeRel "")
-
-if(APPLE)
-	set(CMAKE_MACOSX_RPATH 0)
-endif(APPLE)
 
 if(MINGW OR MSVC)
 	# Windows Vista or newer for FuzzyLite 6 to compile
@@ -291,6 +284,7 @@ elseif(APPLE)
 	# includes lib path which determines where to install shared libraries (either /lib or /lib64)
 	include(GNUInstallDirs)
 
+	set(CMAKE_INSTALL_RPATH "@executable_path/../Frameworks")
 	if(ENABLE_MONOLITHIC_INSTALL)
 		set(BIN_DIR "." CACHE STRING "Where to install binaries")
 		set(LIB_DIR "." CACHE STRING "Where to install main library")
@@ -302,7 +296,7 @@ elseif(APPLE)
 		set(APP_BUNDLE_RESOURCES_DIR "${APP_BUNDLE_CONTENTS_DIR}/Resources")
 
 		set(BIN_DIR "${APP_BUNDLE_BINARY_DIR}" CACHE STRING "Where to install binaries")
-		set(LIB_DIR "${APP_BUNDLE_BINARY_DIR}" CACHE STRING "Where to install main library")
+		set(LIB_DIR "${APP_BUNDLE_CONTENTS_DIR}/Frameworks" CACHE STRING "Where to install main library")
 		set(DATA_DIR "${APP_BUNDLE_RESOURCES_DIR}/Data" CACHE STRING "Where to install data files")
 	endif()
 else()

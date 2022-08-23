@@ -10,29 +10,6 @@ if(APPLE)
 			execute_process(COMMAND ${TOOL_MACDEPLOYQT} \"\${CMAKE_INSTALL_PREFIX}/${APP_BUNDLE_DIR}\" -verbose=2)
 		")
 	endif()
-
-	# Manually fix VCMI library links in AI libraries with install_name_tool
-	install(CODE "
-		set(BU_CHMOD_BUNDLE_ITEMS ON)
-		include(BundleUtilities)
-		fixup_bundle(\"\${CMAKE_INSTALL_PREFIX}/${APP_BUNDLE_DIR}\" \"\" \"\")
-		execute_process(COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change \"libvcmi.dylib\" \"@executable_path/../Frameworks/libvcmi.dylib\" \"\${CMAKE_INSTALL_PREFIX}/${APP_BUNDLE_BINARY_DIR}/AI/libBattleAI.dylib\")
-		execute_process(COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change \"libvcmi.dylib\" \"@executable_path/../Frameworks/libvcmi.dylib\" \"\${CMAKE_INSTALL_PREFIX}/${APP_BUNDLE_BINARY_DIR}/AI/libEmptyAI.dylib\")
-		execute_process(COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change \"libvcmi.dylib\" \"@executable_path/../Frameworks/libvcmi.dylib\" \"\${CMAKE_INSTALL_PREFIX}/${APP_BUNDLE_BINARY_DIR}/AI/libNullkiller.dylib\")
-		execute_process(COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change \"libvcmi.dylib\" \"@executable_path/../Frameworks/libvcmi.dylib\" \"\${CMAKE_INSTALL_PREFIX}/${APP_BUNDLE_BINARY_DIR}/AI/libStupidAI.dylib\")
-		execute_process(COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change \"libvcmi.dylib\" \"@executable_path/../Frameworks/libvcmi.dylib\" \"\${CMAKE_INSTALL_PREFIX}/${APP_BUNDLE_BINARY_DIR}/AI/libVCAI.dylib\")
-
-		set(ENABLE_ERM ${ENABLE_ERM})
-		if(ENABLE_ERM)
-			execute_process(COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change \"libvcmi.dylib\" \"@executable_path/../Frameworks/libvcmi.dylib\" \"\${CMAKE_INSTALL_PREFIX}/${APP_BUNDLE_BINARY_DIR}/scripting/libvcmiERM.dylib\")
-		endif()
-		set(ENABLE_LUA ${ENABLE_LUA})
-		if(ENABLE_LUA)
-			execute_process(COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change \"libvcmi.dylib\" \"@executable_path/../Frameworks/libvcmi.dylib\" \"\${CMAKE_INSTALL_PREFIX}/${APP_BUNDLE_BINARY_DIR}/scripting/libvcmiLua.dylib\")
-		endif()
-
-		execute_process(COMMAND rm \"\${CMAKE_INSTALL_PREFIX}/${APP_BUNDLE_BINARY_DIR}/libvcmi.dylib\")
-	" COMPONENT Runtime)
 endif(APPLE)
 
 # This will likely only work for Vcpkg
