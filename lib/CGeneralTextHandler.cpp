@@ -513,7 +513,7 @@ CGeneralTextHandler::CGeneralTextHandler()
 	   restypes.size() < 7 ||
 	   mines.size() < 7)
 	{
-		logGlobal->error("YOUR ORIGINAL HOMM3 DATA IS CORRUPTED, GAME MAY CRASH");
+		logGlobal->error("GeneralTextHandler: GAME DATA IS CORRUPTED, GAME MAY CRASH!");
 	}
 }
 
