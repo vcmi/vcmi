@@ -11,8 +11,8 @@
                 "PACKAGE_FILE_NAME" : "$env{VCMI_PACKAGE_FILE_NAME}",
                 "PACKAGE_NAME_SUFFIX" : "$env{VCMI_PACKAGE_NAME_SUFFIX}",
                 "CMAKE_BUILD_TYPE": "RelWithDebInfo",
-                "FORCE_BUNDLED_FL" : "0",
-                "ENABLE_TEST": "0"
+                "FORCE_BUNDLED_FL": "OFF",
+                "ENABLE_TEST": "OFF"
             }
         },
         {
