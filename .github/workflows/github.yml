@@ -24,11 +24,12 @@ jobs:
             test: 0
             preset: linux-gcc-release
           - platform: mac
-            os: macos-10.15
+            os: macos-12
             test: 0
             pack: 1
             extension: dmg
-            preset: macos-ninja-release
+            preset: macos-conan-ninja-release
+            conan_profile: macos-intel
           - platform: mxe
             os: ubuntu-20.04
             mxe: i686-w64-mingw32.shared
@@ -58,6 +59,18 @@ jobs:
       env:
         MXE_TARGET: ${{ matrix.mxe }}
         VCMI_BUILD_PLATFORM: x64
+
+    - name: Conan setup
+      if: "${{ matrix.conan_profile != '' }}"
+      run: |
+        pip3 install conan
+        conan profile new default --detect
+        conan install . \
+          --install-folder=conan-generated \
+          --no-imports \
+          --build=never \
+          --profile:build=default \
+          --profile:host=CI/conan/${{ matrix.conan_profile }}
 
     - name: Git branch name
       id: git-branch-name

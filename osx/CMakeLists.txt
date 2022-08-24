@@ -1,15 +1,29 @@
 # We need to keep this code into separate directory so CMake will execute it after all other subdirectories install code
 # Otherwise we can't fix Mac bundle dependencies since binaries wouldn't be there when this code executed
 if(APPLE)
+	set(bundleDir "\${CMAKE_INSTALL_PREFIX}/${APP_BUNDLE_DIR}")
+	set(bundleContentsDir "${bundleDir}/Contents")
+
+	# deploy Qt dylibs with macdeployqt
 	if(ENABLE_LAUNCHER)
 		find_program(TOOL_MACDEPLOYQT NAMES macdeployqt PATHS ${qt_base_dir}/bin)
 		if(NOT TOOL_MACDEPLOYQT)
 			message(FATAL_ERROR "Could not find macdeployqt")
 		endif()
 		install(CODE "
-			execute_process(COMMAND ${TOOL_MACDEPLOYQT} \"\${CMAKE_INSTALL_PREFIX}/${APP_BUNDLE_DIR}\" -verbose=2)
+			execute_process(COMMAND
+				\"${TOOL_MACDEPLOYQT}\" \"${bundleDir}\" -verbose=2
+			)
 		")
 	endif()
+
+	# deploy other dylibs with conan
+	install(CODE "
+		execute_process(COMMAND
+			conan imports \"${CMAKE_SOURCE_DIR}\" --install-folder \"${CMAKE_SOURCE_DIR}/conan-generated\" --import-folder \"${bundleContentsDir}\"
+		)
+		file(REMOVE \"${bundleContentsDir}/conan_imports_manifest.txt\")
+	")
 endif(APPLE)
 
 # This will likely only work for Vcpkg

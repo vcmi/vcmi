@@ -66,6 +66,16 @@
             "inherits": "default-release"
         },
         {
+            "name": "macos-conan-ninja-release",
+            "displayName": "Ninja+Conan release",
+            "description": "VCMI MacOS Ninja using Conan",
+            "inherits": "default-release",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/conan-generated/conan_toolchain.cmake",
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
             "name": "macos-xcode-release",
             "displayName": "XCode release",
             "description": "VCMI MacOS Xcode",
@@ -97,6 +107,11 @@
         {
             "name": "macos-ninja-release",
             "configurePreset": "macos-ninja-release",
+            "inherits": "default-release"
+        },
+        {
+            "name": "macos-conan-ninja-release",
+            "configurePreset": "macos-conan-ninja-release",
             "inherits": "default-release"
         },
         {

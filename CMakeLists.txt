@@ -219,7 +219,13 @@ endif()
 ############################################
 
 find_package(Boost 1.48.0 REQUIRED COMPONENTS date_time filesystem locale program_options system thread)
+
 find_package(ZLIB REQUIRED)
+# Conan compatibility
+if(TARGET zlib::zlib)
+	add_library(ZLIB::ZLIB ALIAS zlib::zlib)
+endif()
+
 find_package(ffmpeg REQUIRED COMPONENTS avutil swscale avformat avcodec)
 option(FORCE_BUNDLED_MINIZIP "Force bundled Minizip library" OFF)
 if(NOT FORCE_BUNDLED_MINIZIP)

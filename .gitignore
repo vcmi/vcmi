@@ -2,6 +2,7 @@
 /server/vcmiserver
 /launcher/vcmilauncher
 /launcher/vcmilauncher_automoc.cpp
+/conan-generated
 
 build/
 .cache/*
