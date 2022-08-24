@@ -19,6 +19,8 @@
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/logging/CBasicLogConfigurator.h"
 
+#include "updatedialog_moc.h"
+
 void MainWindow::load()
 {
 	// Set current working dir to executable folder.
@@ -80,6 +82,9 @@ MainWindow::MainWindow(QWidget * parent)
 
 	connect(ui->tabSelectList, SIGNAL(currentRowChanged(int)),
 		ui->tabListWidget, SLOT(setCurrentIndex(int)));
+
+	if(settings["general"]["updateOnStartup"].Bool() == true)
+		UpdateDialog::showUpdateDialog();
 }
 
 MainWindow::~MainWindow()
