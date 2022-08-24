@@ -363,7 +363,7 @@
 			"type" : "object",
 			"default": {},
 			"additionalProperties" : false,
-			"required" : [ "repositoryURL", "enableInstalledMods", "autoCheckRepositories" ],
+			"required" : [ "repositoryURL", "enableInstalledMods", "autoCheckRepositories", "updateOnStartup" ],
 			"properties" : {
 				"repositoryURL" : {
 					"type" : "array",
@@ -379,6 +379,10 @@
 					"default" : true
 				},
 				"autoCheckRepositories" : {
+					"type" : "boolean",
+					"default" : true
+				},
+				"updateOnStartup" : {
 					"type" : "boolean",
 					"default" : true
 				}

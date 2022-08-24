@@ -17,6 +17,9 @@ public:
 	
 	static void showUpdateDialog();
 
+private slots:
+    void on_checkOnStartup_stateChanged(int state);
+
 private:
 	Ui::UpdateDialog *ui;
 };
