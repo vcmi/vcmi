@@ -22,7 +22,7 @@ class UpdateDialog : public QDialog
 	Q_OBJECT
 
 public:
-	explicit UpdateDialog(QWidget *parent = nullptr, bool calledManually = false);
+	explicit UpdateDialog(bool calledManually, QWidget *parent = nullptr);
 	~UpdateDialog();
 	
 	static void showUpdateDialog(bool isManually);

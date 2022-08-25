@@ -17,7 +17,7 @@
 #include <QNetworkReply>
 #include <QNetworkRequest>
 
-UpdateDialog::UpdateDialog(QWidget *parent, bool calledManually) :
+UpdateDialog::UpdateDialog(bool calledManually, QWidget *parent):
 	QDialog(parent),
 	ui(new Ui::UpdateDialog),
 	calledManually(calledManually)
@@ -79,7 +79,7 @@ UpdateDialog::~UpdateDialog()
 
 void UpdateDialog::showUpdateDialog(bool isManually)
 {
-	UpdateDialog * dialog = new UpdateDialog(nullptr, isManually);
+	UpdateDialog * dialog = new UpdateDialog(isManually);
 	
 	dialog->setAttribute(Qt::WA_DeleteOnClose);
 }
