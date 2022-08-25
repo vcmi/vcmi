@@ -1,3 +1,13 @@
+/*
+ * updatedialog_moc.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+#include "StdInc.h"
 #include "updatedialog_moc.h"
 #include "ui_updatedialog_moc.h"
 
@@ -38,7 +48,7 @@ UpdateDialog::UpdateDialog(QWidget *parent, bool calledManually) :
 	platformParameter = "ios";
 #elif defined(VCMI_ANDROID)
 	platformParameter = "android";
-#elif define(VCMI_UNIX)
+#elif defined(VCMI_UNIX)
 	platformParameter = "linux";
 #endif
 	

@@ -1,6 +1,13 @@
-#ifndef UPDATEDIALOG_MOC_H
-#define UPDATEDIALOG_MOC_H
-
+/*
+ * updatedialog_moc.h, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+#pragma once
 #include <QDialog>
 
 class JsonNode;
@@ -32,5 +39,3 @@ private:
 	
 	void loadFromJson(const JsonNode & node);
 };
-
-#endif // UPDATEDIALOG_MOC_H
