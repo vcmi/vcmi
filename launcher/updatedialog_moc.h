@@ -25,7 +25,7 @@ private slots:
 private:
 	Ui::UpdateDialog *ui;
 	
-	QString currentVersion;
+	std::string currentVersion;
 	std::string platformParameter = "other";
 	
 	void loadFromJson(const JsonNode & node);

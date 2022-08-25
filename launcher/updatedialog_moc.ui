@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string/>
   </property>
   <widget class="QCheckBox" name="checkOnStartup">
    <property name="geometry">
@@ -30,7 +30,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>20</y>
+     <y>10</y>
      <width>371</width>
      <height>41</height>
     </rect>
@@ -42,29 +42,16 @@
     </font>
    </property>
    <property name="autoFillBackground">
-    <bool>true</bool>
+    <bool>false</bool>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QLabel {background-color: green; color : black} </string>
    </property>
    <property name="frameShadow">
     <enum>QFrame::Raised</enum>
    </property>
    <property name="text">
     <string>You have latest version</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="currentVersion">
-   <property name="geometry">
-    <rect>
-     <x>240</x>
-     <y>0</y>
-     <width>161</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>TextLabel</string>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
    </property>
   </widget>
   <widget class="QPlainTextEdit" name="plainTextEdit">
@@ -80,7 +67,8 @@
     <bool>true</bool>
    </property>
    <property name="plainText">
-    <string>Change log</string>
+    <string>
+</string>
    </property>
   </widget>
   <widget class="QLabel" name="downloadLabel">
@@ -106,7 +94,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>TextLabel</string>
+    <string>not available</string>
    </property>
    <property name="openExternalLinks">
     <bool>true</bool>

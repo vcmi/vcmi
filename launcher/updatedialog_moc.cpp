@@ -19,9 +19,8 @@ UpdateDialog::UpdateDialog(QWidget *parent) :
 	if(settings["launcher"]["updateOnStartup"].Bool() == true)
 		ui->checkOnStartup->setCheckState(Qt::CheckState::Checked);
 	
-	currentVersion = QString::fromStdString(GameConstants::VCMI_VERSION);
-	ui->currentVersion->setText(currentVersion);
-	
+	currentVersion = GameConstants::VCMI_VERSION;
+	setWindowTitle(QString::fromStdString(currentVersion));
 	
 #ifdef VCMI_WINDOWS
 	platformParameter = "windows";
@@ -95,6 +94,11 @@ void UpdateDialog::loadFromJson(const JsonNode & node)
 		return;
 	}
 	
+	//check whether update is needed
+	std::string newVersion = node["version"].String();
+	if(currentVersion == newVersion)
+		return;
+	
 	if(node["updateType"].String() == "minor")
 		ui->versionLabel->setStyleSheet("QLabel { background-color : gray; color : black; }");
 	if(node["updateType"].String() == "major")
@@ -102,7 +106,7 @@ void UpdateDialog::loadFromJson(const JsonNode & node)
 	if(node["updateType"].String() == "critical")
 		ui->versionLabel->setStyleSheet("QLabel { background-color : red; color : black; }");
 	
-	ui->versionLabel->setText(QString::fromStdString(node["version"].String()));
+	ui->versionLabel->setText(QString::fromStdString(newVersion));
 	ui->plainTextEdit->setPlainText(QString::fromStdString(node["changeLog"].String()));
 	
 	QString downloadLink = QString::fromStdString(node["downloadLinks"]["other"].String());
