@@ -4,17 +4,37 @@ if(APPLE)
 	set(bundleDir "\${CMAKE_INSTALL_PREFIX}/${APP_BUNDLE_DIR}")
 	set(bundleContentsDir "${bundleDir}/Contents")
 
-	# deploy Qt dylibs with macdeployqt
 	if(ENABLE_LAUNCHER)
-		find_program(TOOL_MACDEPLOYQT NAMES macdeployqt PATHS ${qt_base_dir}/bin)
-		if(NOT TOOL_MACDEPLOYQT)
-			message(FATAL_ERROR "Could not find macdeployqt")
-		endif()
-		install(CODE "
+		# cross-compiled Qt 5 builds macdeployqt for target platform instead of host
+		if(CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL CMAKE_SYSTEM_PROCESSOR)
+			# deploy Qt dylibs with macdeployqt
+			find_program(TOOL_MACDEPLOYQT NAMES macdeployqt PATHS ${qt_base_dir}/bin)
+			if(NOT TOOL_MACDEPLOYQT)
+				message(FATAL_ERROR "Could not find macdeployqt")
+			endif()
+			install(CODE "
+				execute_process(COMMAND
+					\"${TOOL_MACDEPLOYQT}\" \"${bundleDir}\" -verbose=2
+				)
+			")
+		else()
+			# simulate macdeployqt behavior, main Qt libs are copied by conan
+			get_target_property(qmakePath Qt5::qmake IMPORTED_LOCATION)
 			execute_process(COMMAND
-				\"${TOOL_MACDEPLOYQT}\" \"${bundleDir}\" -verbose=2
+				"${qmakePath}" -query QT_INSTALL_PLUGINS
+				OUTPUT_VARIABLE qtPluginsDir
+				OUTPUT_STRIP_TRAILING_WHITESPACE
 			)
-		")
+			install(DIRECTORY
+				${qtPluginsDir}/
+				DESTINATION ${APP_BUNDLE_DIR}/Contents/PlugIns
+			)
+			install(CODE "
+				file(WRITE ${bundleContentsDir}/Resources/qt.conf
+					\"[Paths]\nPlugins = PlugIns\"
+				)
+			")
+		endif()
 	endif()
 
 	# deploy other dylibs with conan

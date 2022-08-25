@@ -23,13 +23,20 @@ jobs:
             os: ubuntu-20.04
             test: 0
             preset: linux-gcc-release
-          - platform: mac
+          - platform: mac-intel
             os: macos-12
             test: 0
             pack: 1
             extension: dmg
             preset: macos-conan-ninja-release
             conan_profile: macos-intel
+          - platform: mac-arm
+            os: macos-12
+            test: 0
+            pack: 1
+            extension: dmg
+            preset: macos-arm-conan-ninja-release
+            conan_profile: macos-arm
           - platform: mxe
             os: ubuntu-20.04
             mxe: i686-w64-mingw32.shared
