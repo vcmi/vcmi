@@ -84,7 +84,7 @@ MainWindow::MainWindow(QWidget * parent)
 		ui->tabListWidget, SLOT(setCurrentIndex(int)));
 
 	if(settings["launcher"]["updateOnStartup"].Bool() == true)
-		UpdateDialog::showUpdateDialog();
+		UpdateDialog::showUpdateDialog(false);
 }
 
 MainWindow::~MainWindow()

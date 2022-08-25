@@ -237,6 +237,6 @@ void CSettingsView::on_comboBoxAutoSave_currentIndexChanged(int index)
 
 void CSettingsView::on_updatesButton_clicked()
 {
-	UpdateDialog::showUpdateDialog();
+	UpdateDialog::showUpdateDialog(true);
 }
 

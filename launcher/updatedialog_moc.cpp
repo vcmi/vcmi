@@ -8,11 +8,18 @@
 #include <QNetworkReply>
 #include <QNetworkRequest>
 
-UpdateDialog::UpdateDialog(QWidget *parent) :
+UpdateDialog::UpdateDialog(QWidget *parent, bool calledManually) :
 	QDialog(parent),
-	ui(new Ui::UpdateDialog)
+	ui(new Ui::UpdateDialog),
+	calledManually(calledManually)
 {
 	ui->setupUi(this);
+	
+	if(calledManually)
+	{
+		setWindowModality(Qt::ApplicationModal);
+		show();
+	}
 	
 	connect(ui->closeButton, SIGNAL(clicked()), this, SLOT(close()));
 	
@@ -20,6 +27,7 @@ UpdateDialog::UpdateDialog(QWidget *parent) :
 		ui->checkOnStartup->setCheckState(Qt::CheckState::Checked);
 	
 	currentVersion = GameConstants::VCMI_VERSION;
+	
 	setWindowTitle(QString::fromStdString(currentVersion));
 	
 #ifdef VCMI_WINDOWS
@@ -67,13 +75,11 @@ UpdateDialog::~UpdateDialog()
 	delete ui;
 }
 
-void UpdateDialog::showUpdateDialog()
+void UpdateDialog::showUpdateDialog(bool isManually)
 {
-	UpdateDialog * dialog = new UpdateDialog;
+	UpdateDialog * dialog = new UpdateDialog(nullptr, isManually);
 	
-	dialog->setWindowModality(Qt::ApplicationModal);
 	dialog->setAttribute(Qt::WA_DeleteOnClose);
-	dialog->show();
 }
 
 void UpdateDialog::on_checkOnStartup_stateChanged(int state)
@@ -97,7 +103,18 @@ void UpdateDialog::loadFromJson(const JsonNode & node)
 	//check whether update is needed
 	std::string newVersion = node["version"].String();
 	if(currentVersion == newVersion)
+	{
+		if(!calledManually)
+			close();
+		
 		return;
+	}
+	
+	if(!calledManually)
+	{
+		setWindowModality(Qt::ApplicationModal);
+		show();
+	}
 	
 	if(node["updateType"].String() == "minor")
 		ui->versionLabel->setStyleSheet("QLabel { background-color : gray; color : black; }");
