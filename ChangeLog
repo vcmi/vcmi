@@ -78,7 +78,7 @@ BATTLES:
 * Towers do not attack war machines automatically
 * Draw is possible now as battle outcome in case the battle ends with only summoned creatures (both sides loose)
 
-ADVENTURE AI:
+ADVENTURE MAP:
 * Added buttons and keyboard shortcuts to quickly exchange army and artifacts between heroes
 * Fix: Captured town should not be duplicated on the UI
 
