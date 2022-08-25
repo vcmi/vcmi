@@ -53,6 +53,8 @@ UpdateDialog::UpdateDialog(QWidget *parent, bool calledManually) :
 		response->manager()->deleteLater();
 		if(response->error() != QNetworkReply::NoError)
 		{
+			ui->versionLabel->setStyleSheet("QLabel { background-color : red; color : black; }");
+			ui->versionLabel->setText("Network error");
 			ui->plainTextEdit->setPlainText(response->errorString());
 			return;
 		}
@@ -113,7 +115,7 @@ void UpdateDialog::loadFromJson(const JsonNode & node)
 	if(node["updateType"].String() == "minor")
 		ui->versionLabel->setStyleSheet("QLabel { background-color : gray; color : black; }");
 	if(node["updateType"].String() == "major")
-		ui->versionLabel->setStyleSheet("QLabel { background-color : yellow; color : black; }");
+		ui->versionLabel->setStyleSheet("QLabel { background-color : orange; color : black; }");
 	if(node["updateType"].String() == "critical")
 		ui->versionLabel->setStyleSheet("QLabel { background-color : red; color : black; }");
 	
