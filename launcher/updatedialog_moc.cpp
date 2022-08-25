@@ -57,15 +57,9 @@ UpdateDialog::UpdateDialog(QWidget *parent, bool calledManually) :
 			return;
 		}
 		
-		//auto const contentType = response->header(QNetworkRequest::ContentTypeHeader).toString();
-		//htmlContent = contentType;
 		auto byteArray = response->readAll();
 		JsonNode node(byteArray.constData(), byteArray.size());
 		loadFromJson(node);
-		//QString html;
-		//for(int i = 0; i < 200 && response->isReadable(); ++i) //just limit somehow to avoid long queries
-			//html += QString::fromUtf8(response->readLine(256));
-		
 		
 	}) && manager.take();
 }
