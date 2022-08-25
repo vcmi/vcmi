@@ -103,7 +103,7 @@ void CSettingsView::loadSettings()
 }
 
 CSettingsView::CSettingsView(QWidget * parent)
-    : QWidget(parent), ui(new Ui::CSettingsView)
+	: QWidget(parent), ui(new Ui::CSettingsView)
 {
 	ui->setupUi(this);
 

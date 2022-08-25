@@ -32,7 +32,7 @@ set(launcher_SRCS
 		mainwindow_moc.cpp
 		launcherdirs.cpp
 		jsonutils.cpp
-                updatedialog_moc.cpp
+		updatedialog_moc.cpp
 )
 
 set(launcher_HEADERS
@@ -42,7 +42,7 @@ set(launcher_HEADERS
 		mainwindow_moc.h
 		launcherdirs.h
 		jsonutils.h
-                updatedialog_moc.h
+		updatedialog_moc.h
 )
 
 set(launcher_FORMS
@@ -50,7 +50,7 @@ set(launcher_FORMS
 		modManager/imageviewer_moc.ui
 		settingsView/csettingsview_moc.ui
 		mainwindow_moc.ui
-                updatedialog_moc.ui
+		updatedialog_moc.ui
 )
 
 assign_source_group(${launcher_SRCS} ${launcher_HEADERS} VCMI_launcher.rc)

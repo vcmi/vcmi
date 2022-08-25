@@ -14,7 +14,6 @@
 #include "../lib/CConfigHandler.h"
 #include "../lib/GameConstants.h"
 
-#include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
 
@@ -33,7 +32,7 @@ UpdateDialog::UpdateDialog(QWidget *parent, bool calledManually) :
 	
 	connect(ui->closeButton, SIGNAL(clicked()), this, SLOT(close()));
 	
-	if(settings["launcher"]["updateOnStartup"].Bool() == true)
+	if(settings["launcher"]["updateOnStartup"].Bool())
 		ui->checkOnStartup->setCheckState(Qt::CheckState::Checked);
 	
 	currentVersion = GameConstants::VCMI_VERSION;
@@ -53,14 +52,12 @@ UpdateDialog::UpdateDialog(QWidget *parent, bool calledManually) :
 #endif
 	
 	QString url = QString::fromStdString(settings["launcher"]["updateConfigUrl"].String());
-	
-	QScopedPointer<QNetworkAccessManager> manager(new QNetworkAccessManager);
-	
-	QNetworkReply *response = manager->get(QNetworkRequest(QUrl(url)));
+		
+	QNetworkReply *response = networkManager.get(QNetworkRequest(QUrl(url)));
 	
 	QObject::connect(response, &QNetworkReply::finished, [&, response]{
 		response->deleteLater();
-		response->manager()->deleteLater();
+		
 		if(response->error() != QNetworkReply::NoError)
 		{
 			ui->versionLabel->setStyleSheet("QLabel { background-color : red; color : black; }");
@@ -72,8 +69,7 @@ UpdateDialog::UpdateDialog(QWidget *parent, bool calledManually) :
 		auto byteArray = response->readAll();
 		JsonNode node(byteArray.constData(), byteArray.size());
 		loadFromJson(node);
-		
-	}) && manager.take();
+	});
 }
 
 UpdateDialog::~UpdateDialog()
@@ -122,13 +118,17 @@ void UpdateDialog::loadFromJson(const JsonNode & node)
 		show();
 	}
 	
-	if(node["updateType"].String() == "minor")
-		ui->versionLabel->setStyleSheet("QLabel { background-color : gray; color : black; }");
-	if(node["updateType"].String() == "major")
-		ui->versionLabel->setStyleSheet("QLabel { background-color : orange; color : black; }");
-	if(node["updateType"].String() == "critical")
-		ui->versionLabel->setStyleSheet("QLabel { background-color : red; color : black; }");
+	const auto updateType = node["updateType"].String();
 	
+	QString bgColor;
+	if(updateType == "minor")
+		bgColor = "gray";
+	else if(updateType == "major")
+		bgColor = "orange";
+	else if(updateType == "critical")
+		bgColor = "red";
+	
+	ui->versionLabel->setStyleSheet(QLatin1String("QLabel { background-color : %1; color : black; }").arg(bgColor));
 	ui->versionLabel->setText(QString::fromStdString(newVersion));
 	ui->plainTextEdit->setPlainText(QString::fromStdString(node["changeLog"].String()));
 	
@@ -136,8 +136,5 @@ void UpdateDialog::loadFromJson(const JsonNode & node)
 	if(node["downloadLinks"][platformParameter].getType() == JsonNode::JsonType::DATA_STRING)
 		downloadLink = QString::fromStdString(node["downloadLinks"][platformParameter].String());
 	
-	QString downloadHtml("<a href=\"");
-	downloadHtml += downloadLink + "\">link</a>";
-	
-	ui->downloadLink->setText(downloadHtml);
+	ui->downloadLink->setText(QString{"<a href=\"%1\">link</a>"}.arg(downloadLink));
 }

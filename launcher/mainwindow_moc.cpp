@@ -83,7 +83,7 @@ MainWindow::MainWindow(QWidget * parent)
 	connect(ui->tabSelectList, SIGNAL(currentRowChanged(int)),
 		ui->tabListWidget, SLOT(setCurrentIndex(int)));
 
-	if(settings["launcher"]["updateOnStartup"].Bool() == true)
+	if(settings["launcher"]["updateOnStartup"].Bool())
 		UpdateDialog::showUpdateDialog(false);
 }
 

@@ -9,6 +9,7 @@
  */
 #pragma once
 #include <QDialog>
+#include <QNetworkAccessManager>
 
 class JsonNode;
 
@@ -34,6 +35,8 @@ private:
 	
 	std::string currentVersion;
 	std::string platformParameter = "other";
+	
+	QNetworkAccessManager networkManager;
 	
 	bool calledManually;
 	
