@@ -22,24 +22,6 @@ GENERAL:
 - SHOOTS_ALL_ADJACENT - makes creature shots affect all neighbouring hexes
 - BLOCK_MAGIC_BELOW - allows blocking spells below particular spell level. HotA cape artifact can be implemented with this
 - DESTRUCTION - creature ability for killing extra units after hit, configurable
-* Following special buildings becomes available in the fan towns:
-- attackVisitingBonus
-- defenceVisitingBonus
-- spellPowerVisitingBonus
-- knowledgeVisitingBonus
-- experienceVisitingBonus
-- lighthouse
-- treasury
-
-BATTLES:
-* Towers should block ranged retaliation
-* AI can bypass broken wall with moat instead of standing and waiting until gate is destroyed
-* Towers do not attack war machines automatically
-* Draw is possible now as battle outcome in case the battle ends with only summoned creatures (both sides loose)
-
-ADVENTURE AI:
-* Added buttons and keyboard shortcuts to quickly exchange army and artifacts between heroes
-* Fix: Captured town should not be duplicated on the UI
 
 MULTIPLAYER:
 * Loading support. Save from single client could be used to load all clients.
@@ -57,6 +39,14 @@ MODS:
 * Added allOf, anyOf and noneOf qualifiers for bonus limiters
 * Added bonus limiters: alignment, faction and terrain
 * Supported new terrains, new battlefields, custom water and rock terrains
+* Following special buildings becomes available in the fan towns:
+- attackVisitingBonus
+- defenceVisitingBonus
+- spellPowerVisitingBonus
+- knowledgeVisitingBonus
+- experienceVisitingBonus
+- lighthouse
+- treasury
 
 SOUND:
 * Fixed many mising or wrong pickup and visit sounds for map objects
@@ -81,6 +71,16 @@ VCAI:
 * AI will only buy army on demand instead of every turn
 * AI can distinguish the value of all map objects
 * General speed optimizations
+
+BATTLES:
+* Towers should block ranged retaliation
+* AI can bypass broken wall with moat instead of standing and waiting until gate is destroyed
+* Towers do not attack war machines automatically
+* Draw is possible now as battle outcome in case the battle ends with only summoned creatures (both sides loose)
+
+ADVENTURE AI:
+* Added buttons and keyboard shortcuts to quickly exchange army and artifacts between heroes
+* Fix: Captured town should not be duplicated on the UI
 
 0.98 -> 0.99
 
