@@ -363,7 +363,7 @@
 			"type" : "object",
 			"default": {},
 			"additionalProperties" : false,
-			"required" : [ "repositoryURL", "enableInstalledMods", "autoCheckRepositories", "updateOnStartup" ],
+			"required" : [ "repositoryURL", "enableInstalledMods", "autoCheckRepositories", "updateOnStartup", "updateConfigUrl" ],
 			"properties" : {
 				"repositoryURL" : {
 					"type" : "array",
@@ -385,6 +385,10 @@
 				"updateOnStartup" : {
 					"type" : "boolean",
 					"default" : true
+				},
+				"updateConfigUrl" : {
+					"type" : "string",
+					"default" : "https://raw.githubusercontent.com/Nordsoft91/vcmi-autoupdate/main/autoUpdate.json"
 				}
 			}
 		}

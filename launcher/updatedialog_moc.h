@@ -3,6 +3,8 @@
 
 #include <QDialog>
 
+class JsonNode;
+
 namespace Ui {
 class UpdateDialog;
 }
@@ -22,6 +24,11 @@ private slots:
 
 private:
 	Ui::UpdateDialog *ui;
+	
+	QString currentVersion;
+	std::string platformParameter = "other";
+	
+	void loadFromJson(const JsonNode & node);
 };
 
 #endif // UPDATEDIALOG_MOC_H
