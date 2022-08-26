@@ -1,10 +1,13 @@
 from conan import ConanFile
 from conan.tools.apple import is_apple_os
+from conan.tools.cmake import CMakeDeps
 from conans import tools
+
+import os
 
 class VCMI(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
-    generators = "CMakeDeps", "CMakeToolchain"
+    generators = "CMakeToolchain"
     requires = [
         "boost/1.79.0",
         "ffmpeg/4.4",
@@ -170,6 +173,25 @@ class VCMI(ConanFile):
         # TODO: the latest official release of LuaJIT (which is quite old) can't be built for arm Mac
         if self.settings.os != "Macos" or self.settings.arch != "armv8":
             self.requires("luajit/2.0.5")
+
+    def generate(self):
+        deps = CMakeDeps(self)
+        if os.getenv("USE_CONAN_WITH_ALL_CONFIGS", "0") == "0":
+            deps.generate()
+            return
+
+        # allow using prebuilt deps with all configs
+        # credits to https://github.com/conan-io/conan/issues/11607#issuecomment-1188500937 for the workaround
+        configs = [
+            "Debug",
+            "MinSizeRel",
+            "Release",
+            "RelWithDebInfo",
+        ]
+        for config in configs:
+            print(f"generating CMakeDeps for {config}")
+            deps.configuration = config
+            deps.generate()
 
     def imports(self):
        self.copy("*.dylib", "Frameworks", "lib")
