@@ -128,7 +128,7 @@ void UpdateDialog::loadFromJson(const JsonNode & node)
 	else if(updateType == "critical")
 		bgColor = "red";
 	
-	ui->versionLabel->setStyleSheet(QLatin1String("QLabel { background-color : %1; color : black; }").arg(bgColor));
+	ui->versionLabel->setStyleSheet(QString("QLabel { background-color : %1; color : black; }").arg(bgColor));
 	ui->versionLabel->setText(QString::fromStdString(newVersion));
 	ui->plainTextEdit->setPlainText(QString::fromStdString(node["changeLog"].String()));
 	
