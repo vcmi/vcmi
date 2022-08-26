@@ -55,7 +55,7 @@ UpdateDialog::UpdateDialog(bool calledManually, QWidget *parent):
 		
 	QNetworkReply *response = networkManager.get(QNetworkRequest(QUrl(url)));
 	
-	QObject::connect(response, &QNetworkReply::finished, [&, response]{
+	connect(response, &QNetworkReply::finished, [&, response]{
 		response->deleteLater();
 		
 		if(response->error() != QNetworkReply::NoError)
@@ -87,7 +87,7 @@ void UpdateDialog::showUpdateDialog(bool isManually)
 void UpdateDialog::on_checkOnStartup_stateChanged(int state)
 {
 	Settings node = settings.write["launcher"]["updateOnStartup"];
-	node->Bool() = (state == 2 ? true : false);
+	node->Bool() = ui->checkOnStartup->isChecked();
 }
 
 void UpdateDialog::loadFromJson(const JsonNode & node)
@@ -136,5 +136,5 @@ void UpdateDialog::loadFromJson(const JsonNode & node)
 	if(node["downloadLinks"][platformParameter].getType() == JsonNode::JsonType::DATA_STRING)
 		downloadLink = QString::fromStdString(node["downloadLinks"][platformParameter].String());
 	
-	ui->downloadLink->setText(QString{"<a href=\"%1\">link</a>"}.arg(downloadLink));
+	ui->downloadLink->setText(QString{"<a href=\"%1\">Download page</a>"}.arg(downloadLink));
 }
