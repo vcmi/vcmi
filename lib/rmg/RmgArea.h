@@ -66,7 +66,7 @@ namespace rmg
 		friend Area operator* (const Area & l, const Area & r); //intersection
 		friend Area operator- (const Area & l, const Area & r); //AreaL reduced by tiles from AreaR
 		friend bool operator== (const Area & l, const Area & r);
-		friend std::list<Area> connectedAreas(const Area & area);
+		friend std::list<Area> connectedAreas(const Area & area, bool disableDiagonalConnections);
 		
 	private:
 		
