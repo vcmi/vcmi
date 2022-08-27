@@ -291,8 +291,9 @@ bool CModManager::doUninstallMod(QString modname)
 	if(!localMods.contains(modname))
 		return addError(modname, "Data with this mod was not found");
 
+	QDir modFullDir(modDir);
 	if(!removeModDir(modDir))
-		return addError(modname, "Failed to delete mod data");
+		return addError(modname, "Mod is located in protected directory, plase remove it manually:\n" + modFullDir.absolutePath());
 
 	localMods.remove(modname);
 	modList->setLocalModList(localMods);
