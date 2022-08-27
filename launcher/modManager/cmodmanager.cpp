@@ -24,21 +24,21 @@ static QString detectModArchive(QString path, QString modName)
 
 	QString modDirName;
 
-	for(auto file : files)
+	for(int folderLevel : {0, 1}) //search in subfolder if there is no mod.json in the root
 	{
-		QString filename = QString::fromUtf8(file.c_str());
-		if(filename.toLower().startsWith(modName))
+		for(auto file : files)
 		{
-			// archive must contain mod.json file
-			if(filename.toLower() == modName + "/mod.json")
-				modDirName = filename.section('/', 0, 0);
-		}
-		else // all files must be in <modname> directory
-		{
-			return "";
+			QString filename = QString::fromUtf8(file.c_str());
+			modDirName = filename.section('/', 0, folderLevel);
+			
+			if(filename == modDirName + "/mod.json")
+			{
+				return modDirName;
+			}
 		}
 	}
-	return modDirName;
+	
+	return "";
 }
 
 CModManager::CModManager(CModList * modList)
@@ -259,7 +259,18 @@ bool CModManager::doInstallMod(QString modname, QString archivePath)
 		return addError(modname, "Failed to extract mod data");
 	}
 
-	QVariantMap json = JsonUtils::JsonFromFile(destDir + modDirName + "/mod.json").toMap();
+	//rename folder and fix the path
+	QDir extractedDir(destDir + modDirName);
+	auto rc = QFile::rename(destDir + modDirName, destDir + modname);
+	if (rc)
+		extractedDir.setPath(destDir + modname);
+	
+	//there are possible excessive files - remove them
+	QString upperLevel = modDirName.section('/', 0, 0);
+	if(upperLevel != modDirName)
+		removeModDir(destDir + upperLevel);
+
+	QVariantMap json = JsonUtils::JsonFromFile(destDir + modname + "/mod.json").toMap();
 
 	localMods.insert(modname, json);
 	modList->setLocalModList(localMods);
