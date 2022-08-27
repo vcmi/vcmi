@@ -88,11 +88,9 @@ bool Area::connected() const
 std::list<Area> connectedAreas(const Area & area, bool disableDiagonalConnections)
 {
 	auto allDirs = int3::getDirs();
-	std::vector<int3> dirs;
+	std::vector<int3> dirs(allDirs.begin(), allDirs.end());
 	if(disableDiagonalConnections)
-		dirs.insert(dirs.begin(), allDirs.begin(), allDirs.begin() + 4);
-	else
-		dirs.insert(dirs.begin(), allDirs.begin(), allDirs.end());
+		dirs.assign(rmg::dirs4.begin(), rmg::dirs4.end());
 	
 	std::list<Area> result;
 	Tileset connected = area.getTiles();
