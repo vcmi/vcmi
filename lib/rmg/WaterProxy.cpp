@@ -93,7 +93,7 @@ const std::vector<WaterProxy::Lake> & WaterProxy::getLakes() const
 void WaterProxy::collectLakes()
 {
 	int lakeId = 0;
-	for(auto lake : connectedAreas(zone.getArea()))
+	for(auto lake : connectedAreas(zone.getArea(), true))
 	{
 		lakes.push_back(Lake{});
 		lakes.back().area = lake;
@@ -267,6 +267,7 @@ bool WaterProxy::placeShipyard(Zone & land, const Lake & lake, si32 guard, Route
 	bool guarded = manager->addGuard(rmgObject, guard);
 	
 	auto waterAvailable = zone.areaPossible() + zone.freePaths();
+	waterAvailable.intersect(lake.area);
 	rmg::Area coast = lake.neighbourZones.at(land.getId()); //having land tiles
 	coast.intersect(land.areaPossible() + land.freePaths()); //having only available land tiles
 	auto boardingPositions = coast.getSubarea([&waterAvailable](const int3 & tile) //tiles where boarding is possible
