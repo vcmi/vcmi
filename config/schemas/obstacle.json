@@ -40,7 +40,7 @@
 		},
 		"absolute": {
 			"type": "boolean",
-			"description": "Should be used absulute or relative coordinates for obstacle. There is possible only one absolute obstacle"
+			"description": "Should be used absolute or relative coordinates for obstacle. There is possible only one absolute obstacle"
 		}
 	}
 }
