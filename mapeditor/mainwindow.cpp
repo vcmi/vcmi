@@ -1,0 +1,95 @@
+#include "mainwindow.h"
+#include "ui_mainwindow.h"
+
+#include <QApplication.h>
+#include <QFileDialog>
+
+#include "../lib/VCMIDirs.h"
+#include "../lib/VCMI_Lib.h"
+#include "../lib/logging/CBasicLogConfigurator.h"
+#include "../lib/CConfigHandler.h"
+#include "../lib/filesystem/Filesystem.h"
+#include "../lib/GameConstants.h"
+
+
+#include "CGameInfo.h"
+
+static CBasicLogConfigurator * logConfig;
+
+void init()
+{
+	loadDLLClasses();
+	const_cast<CGameInfo*>(CGI)->setFromLib();
+	logGlobal->info("Initializing VCMI_Lib");
+}
+
+MainWindow::MainWindow(QWidget *parent) :
+    QMainWindow(parent),
+    ui(new Ui::MainWindow)
+{
+    ui->setupUi(this);
+
+	//configure logging
+	const boost::filesystem::path logPath = VCMIDirs::get().userCachePath() / "VCMI_Editor_log.txt";
+	console = new CConsoleHandler();
+	logConfig = new CBasicLogConfigurator(logPath, console);
+	logConfig->configureDefault();
+	logGlobal->info("The log file will be saved to %s", logPath);
+	
+	//init
+	preinitDLL(::console);
+	settings.init();
+	
+	// Initialize logging based on settings
+	logConfig->configure();
+	logGlobal->debug("settings = %s", settings.toJsonNode().toJson());
+	
+	// Some basic data validation to produce better error messages in cases of incorrect install
+	auto testFile = [](std::string filename, std::string message) -> bool
+	{
+		if (CResourceHandler::get()->existsResource(ResourceID(filename)))
+			return true;
+		
+		logGlobal->error("Error: %s was not found!", message);
+		return false;
+	};
+	
+	if(!testFile("DATA/HELP.TXT", "Heroes III data") ||
+	   !testFile("MODS/VCMI/MOD.JSON", "VCMI data"))
+	{
+		QApplication::quit();
+	}
+	
+	conf.init();
+	logGlobal->info("Loading settings");
+	
+	CGI = new CGameInfo(); //contains all global informations about game (texts, lodHandlers, map handler etc.)
+	init();
+	
+	
+	if(!testFile("DATA/new-menu/Background.png", "Cannot find file"))
+	{
+		QApplication::quit();
+	}
+	
+	//now let's try to draw
+	auto resPath = *CResourceHandler::get()->getResourceName(ResourceID("DATA/new-menu/Background.png"));
+	
+	scene = new QGraphicsScene(this);
+	ui->graphicsView->setScene(scene);
+	scene->addPixmap(QPixmap(QString::fromStdString(resPath.native())));
+	
+	
+}
+
+MainWindow::~MainWindow()
+{
+    delete ui;
+}
+
+void MainWindow::on_actionOpen_triggered()
+{
+    auto fileName = QFileDialog::getOpenFileName(this, tr("Open Image"), QString::fromStdString(VCMIDirs::get().userCachePath().native()), tr("Homm3 Files (*.vmap *.h3m)"));
+
+}
+
