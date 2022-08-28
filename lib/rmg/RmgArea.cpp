@@ -85,8 +85,13 @@ bool Area::connected() const
 	return connected.empty();
 }
 
-std::list<Area> connectedAreas(const Area & area)
+std::list<Area> connectedAreas(const Area & area, bool disableDiagonalConnections)
 {
+	auto allDirs = int3::getDirs();
+	std::vector<int3> dirs(allDirs.begin(), allDirs.end());
+	if(disableDiagonalConnections)
+		dirs.assign(rmg::dirs4.begin(), rmg::dirs4.end());
+	
 	std::list<Area> result;
 	Tileset connected = area.getTiles();
 	while(!connected.empty())
@@ -101,7 +106,7 @@ std::list<Area> connectedAreas(const Area & area)
 			result.back().add(t);
 			queue.pop_front();
 			
-			for(auto & i : int3::getDirs())
+			for(auto & i : dirs)
 			{
 				auto tile = t + i;
 				if(!queueSet.count(tile) && connected.count(tile) && !result.back().contains(tile))

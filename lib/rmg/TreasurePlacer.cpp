@@ -715,7 +715,10 @@ void TreasurePlacer::createTreasures(ObjectManager & manager)
 		{
 			auto treasurePileInfos = prepareTreasurePile(t);
 			if(treasurePileInfos.empty())
-				break;
+			{
+				++attempt;
+				continue;
+			}
 			
 			int value = std::accumulate(treasurePileInfos.begin(), treasurePileInfos.end(), 0, [](int v, const ObjectInfo * oi){return v + oi->value;});
 			

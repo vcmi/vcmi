@@ -137,7 +137,7 @@ Path Path::search(const Tileset & dst, bool straight, std::function<float(const 
 			auto dirs = int3::getDirs();
 			std::vector<int3> neighbors(dirs.begin(), dirs.end());
 			if(straight)
-				neighbors = { { int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0) } };
+				neighbors.assign(rmg::dirs4.begin(), rmg::dirs4.end());
 			for(auto & i : neighbors)
 			{
 				computeTileScore(currentNode + i);
