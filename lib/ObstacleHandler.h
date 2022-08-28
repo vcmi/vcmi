@@ -16,8 +16,9 @@
 #include "Terrain.h"
 #include "battle/BattleHex.h"
 
-struct DLL_LINKAGE ObstacleInfo : public EntityT<Obstacle>
+class DLL_LINKAGE ObstacleInfo : public EntityT<Obstacle>
 {
+public:
 	ObstacleInfo(): obstacle(-1), width(0), height(0), isAbsoluteObstacle(false), iconIndex(0)
 	{}
 	
@@ -29,9 +30,12 @@ struct DLL_LINKAGE ObstacleInfo : public EntityT<Obstacle>
 	Obstacle obstacle;
 	si32 iconIndex;
 	std::string identifier;
-	std::string defName;
+	std::string appearAnimation, animation, dissapearAnimation;
 	std::vector<Terrain> allowedTerrains;
 	std::vector<std::string> allowedSpecialBfields;
+	
+	//TODO: here is extra field to implement it's logic in the future but save backward compatibility
+	int obstacleType = -1;
 	
 	ui8 isAbsoluteObstacle; //there may only one such obstacle in battle and its position is always the same
 	si32 width, height; //how much space to the right and up is needed to place obstacle (affects only placement algorithm)
@@ -51,9 +55,12 @@ struct DLL_LINKAGE ObstacleInfo : public EntityT<Obstacle>
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & obstacle;
+		h & obstacleType;
 		h & iconIndex;
 		h & identifier;
-		h & defName;
+		h & animation;
+		h & appearAnimation;
+		h & dissapearAnimation;
 		h & allowedTerrains;
 		h & allowedSpecialBfields;
 		h & isAbsoluteObstacle;

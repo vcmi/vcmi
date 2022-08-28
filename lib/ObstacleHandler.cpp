@@ -80,9 +80,9 @@ ObstacleInfo * ObstacleHandler::loadFromJson(const std::string & scope, const Js
 {
 	auto * info = new ObstacleInfo(Obstacle(index), identifier);
 	
-	info->defName = json["defname"].String();
-	info->width =  static_cast<si32>(json["width"].Float());
-	info->height = static_cast<si32>(json["height"].Float());
+	info->animation = json["animation"].String();
+	info->width = json["width"].Integer();
+	info->height = json["height"].Integer();
 	for(auto & t : json["allowedTerrain"].Vector())
 		info->allowedTerrains.emplace_back(t.String());
 	for(auto & t : json["specialBattlefields"].Vector())
