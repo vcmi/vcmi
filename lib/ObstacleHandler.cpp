@@ -23,7 +23,7 @@ int32_t ObstacleInfo::getIconIndex() const
 
 const std::string & ObstacleInfo::getName() const
 {
-	return name;
+	return identifier;
 }
 
 const std::string & ObstacleInfo::getJsonKey() const
