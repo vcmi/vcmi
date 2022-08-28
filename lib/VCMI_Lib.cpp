@@ -218,6 +218,8 @@ void LibClasses::init(bool onlyEssential)
 	createHandler(scriptHandler, "Script", pomtime);
 
 	createHandler(battlefieldsHandler, "Battlefields", pomtime);
+	
+	createHandler(obstacleHandler, "Obstacles", pomtime);
 
 	logGlobal->info("\tInitializing handlers: %d ms", totalTime.getDiff());
 

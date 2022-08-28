@@ -76,35 +76,40 @@ bool ObstacleInfo::isAppropriate(const Terrain & terrainType, const BattleField 
 	return vstd::contains(allowedTerrains, terrainType);
 }
 
-void ObstacleHandler::loadObstacles()
+ObstacleInfo * ObstacleHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
 {
-	auto loadObstacles = [](const JsonNode & node, bool absolute, std::vector<ObstacleInfo> & out)
-	{
-		for(const JsonNode &obs : node.Vector())
-		{
-			out.emplace_back();
-			ObstacleInfo & obi = out.back();
-			obi.defName = obs["defname"].String();
-			obi.width =  static_cast<si32>(obs["width"].Float());
-			obi.height = static_cast<si32>(obs["height"].Float());
-			for(auto & t : obs["allowedTerrain"].Vector())
-				obi.allowedTerrains.emplace_back(t.String());
-			for(auto & t : obs["specialBattlefields"].Vector())
-				obi.allowedSpecialBfields.emplace_back(t.String());
-			obi.blockedTiles = obs["blockedTiles"].convertTo<std::vector<si16> >();
-			obi.isAbsoluteObstacle = absolute;
-		}
-	};
+	auto * info = new ObstacleInfo(Obstacle(index), identifier);
 	
-	//auto allConfigs = VLC->modh->getActiveMods();
-	//allConfigs.insert(allConfigs.begin(), "core");
-	/*for(auto & mod : allConfigs)
-	{
-		if(!CResourceHandler::get(mod)->existsResource(ResourceID("config/obstacles.json")))
-			continue;
-		
-		const JsonNode config(mod, ResourceID("config/obstacles.json"));
-		loadObstacles(config["obstacles"], false, obstacles);
-		loadObstacles(config["absoluteObstacles"], true, absoluteObstacles);
-	}*/
+	info->defName = json["defname"].String();
+	info->width =  static_cast<si32>(json["width"].Float());
+	info->height = static_cast<si32>(json["height"].Float());
+	for(auto & t : json["allowedTerrain"].Vector())
+		info->allowedTerrains.emplace_back(t.String());
+	for(auto & t : json["specialBattlefields"].Vector())
+		info->allowedSpecialBfields.emplace_back(t.String());
+	info->blockedTiles = json["blockedTiles"].convertTo<std::vector<si16>>();
+	info->isAbsoluteObstacle = json["absolute"].Bool();
+	if(info->isAbsoluteObstacle)
+		absoluteObstacles.push_back(info->getId());
+	else
+		obstacles.push_back(info->getId());
+	
+	return info;
+}
+
+std::vector<JsonNode> ObstacleHandler::loadLegacyData(size_t dataSize)
+{
+	return std::vector<JsonNode>();
+}
+
+std::vector<bool> ObstacleHandler::getDefaultAllowed() const
+{
+	return std::vector<bool>();
+}
+
+const std::vector<std::string> & ObstacleHandler::getTypeNames() const
+{
+	static const  std::vector<std::string> types = std::vector<std::string> { "obstacle" };
+	
+	return types;
 }
