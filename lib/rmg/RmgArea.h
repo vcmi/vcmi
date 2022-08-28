@@ -15,6 +15,9 @@
 
 namespace rmg
 {
+	static const std::array<int3, 4> dirs4 = { int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0) };
+	static const std::array<int3, 4> dirsDiagonal= { int3(1,1,0),int3(1,-1,0),int3(-1,1,0),int3(-1,-1,0) };
+
 	using Tileset = std::set<int3>;
 	using DistanceMap = std::map<int3, int>;
 	void toAbsolute(Tileset & tiles, const int3 & position);
@@ -66,7 +69,7 @@ namespace rmg
 		friend Area operator* (const Area & l, const Area & r); //intersection
 		friend Area operator- (const Area & l, const Area & r); //AreaL reduced by tiles from AreaR
 		friend bool operator== (const Area & l, const Area & r);
-		friend std::list<Area> connectedAreas(const Area & area);
+		friend std::list<Area> connectedAreas(const Area & area, bool disableDiagonalConnections);
 		
 	private:
 		

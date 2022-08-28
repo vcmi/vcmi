@@ -159,7 +159,7 @@ rmg::Path Zone::searchPath(const rmg::Area & src, bool onlyStraight, std::functi
 	freePath.connect(dAreaFree);
 	
 	//connect to all pieces
-	auto goals = connectedAreas(src);
+	auto goals = connectedAreas(src, onlyStraight);
 	for(auto & goal : goals)
 	{
 		auto path = freePath.search(goal, onlyStraight, movementCost);
@@ -235,7 +235,7 @@ void Zone::fractalize()
 	}
 	
 	//cut straight paths towards the center. A* is too slow for that.
-	auto areas = connectedAreas(clearedTiles);
+	auto areas = connectedAreas(clearedTiles, false);
 	for(auto & area : areas)
 	{
 		if(dAreaFree.overlap(area))
