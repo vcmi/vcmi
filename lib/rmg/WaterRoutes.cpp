@@ -34,6 +34,9 @@ void WaterRoutes::process()
 	if(!wproxy)
 		return;
 	
+	if(auto * manager = zone.getModificator<ObjectManager>())
+		manager->createDistancesPriorityQueue();
+	
 	for(auto & z : map.getZones())
 	{
 		if(z.first != zone.getId())

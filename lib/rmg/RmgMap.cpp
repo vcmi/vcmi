@@ -30,9 +30,6 @@
 #include "Functions.h"
 #include "CMapGenerator.h"
 
-static const int3 dirs4[] = {int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0)};
-static const int3 dirsDiagonal[] = { int3(1,1,0),int3(1,-1,0),int3(-1,1,0),int3(-1,-1,0) };
-
 RmgMap::RmgMap(const CMapGenOptions& mapGenOptions) :
 	mapGenOptions(mapGenOptions), zonesTotal(0)
 {
@@ -54,7 +51,7 @@ void RmgMap::foreach_neighbour(const int3 &pos, std::function<void(int3& pos)> f
 
 void RmgMap::foreachDirectNeighbour(const int3& pos, std::function<void(int3& pos)> foo)
 {
-	for(const int3 &dir : dirs4)
+	for(const int3 &dir : rmg::dirs4)
 	{
 		int3 n = pos + dir;
 		if(mapInstance->isInTheMap(n))
@@ -64,7 +61,7 @@ void RmgMap::foreachDirectNeighbour(const int3& pos, std::function<void(int3& po
 
 void RmgMap::foreachDiagonalNeighbour(const int3& pos, std::function<void(int3& pos)> foo)
 {
-	for (const int3 &dir : dirsDiagonal)
+	for (const int3 &dir : rmg::dirsDiagonal)
 	{
 		int3 n = pos + dir;
 		if (mapInstance->isInTheMap(n))
