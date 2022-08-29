@@ -3,6 +3,9 @@
 
 #include <QApplication.h>
 #include <QFileDialog>
+#include <QFile>
+#include <QMessageBox>
+#include <QFileInfo>
 
 #include "../lib/VCMIDirs.h"
 #include "../lib/VCMI_Lib.h"
@@ -10,6 +13,8 @@
 #include "../lib/CConfigHandler.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/GameConstants.h"
+#include "../lib/mapping/CMapService.h"
+#include "../lib/mapping/CMap.h"
 
 
 #include "CGameInfo.h"
@@ -89,7 +94,30 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_actionOpen_triggered()
 {
-    auto fileName = QFileDialog::getOpenFileName(this, tr("Open Image"), QString::fromStdString(VCMIDirs::get().userCachePath().native()), tr("Homm3 Files (*.vmap *.h3m)"));
-
+    auto filename = QFileDialog::getOpenFileName(this, tr("Open Image"), QString::fromStdString(VCMIDirs::get().userCachePath().native()), tr("Homm3 Files (*.vmap *.h3m)"));
+	
+	if(filename.isNull())
+		return;
+	
+	QFileInfo fi(filename);
+	std::string fname = fi.fileName().toStdString();
+	std::string fdir = fi.dir().path().toStdString();
+	ResourceID resId("MAPS/" + fname, EResType::MAP);
+	
+	if(!CResourceHandler::get()->existsResource(resId))
+	{
+		QMessageBox::information(this, "Failed to open map", "Only map folder is supported");
+		return;
+	}
+	
+	CMapService mapService;
+	try
+	{
+		auto cmap = mapService.loadMap(resId);
+	}
+	catch(const std::exception & e)
+	{
+		QMessageBox::critical(this, "Failed to open map", e.what());
+	}
 }
 
