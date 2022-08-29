@@ -18,6 +18,7 @@
 
 
 #include "CGameInfo.h"
+#include "maphandler.h"
 
 static CBasicLogConfigurator * logConfig;
 
@@ -113,11 +114,35 @@ void MainWindow::on_actionOpen_triggered()
 	CMapService mapService;
 	try
 	{
-		auto cmap = mapService.loadMap(resId);
+		map = mapService.loadMap(resId);
 	}
 	catch(const std::exception & e)
 	{
 		QMessageBox::critical(this, "Failed to open map", e.what());
 	}
+
+	const int tileSize = 32;
+	mapHandler.map = map.get();
+	mapHandler.init();
+
+	
+	QPixmap pixmap(32 * map->width, 32 * map->height);
+	QPainter painter(&pixmap);
+
+	for(int j = 0; j < map->height; ++j)
+	{
+		for(int i = 0; i < map->width; ++i)
+		{
+			auto img = mapHandler.drawTileTerrain(map->getTile(int3(1, 1, 0)));
+			if(!img)
+				continue;
+			
+			painter.drawImage(i * 32, j * 32, *img);
+		}
+	}
+	
+	scene->clear();
+	scene->addPixmap(pixmap);
+	
 }
 

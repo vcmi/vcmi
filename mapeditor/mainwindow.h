@@ -4,6 +4,10 @@
 #include <QMainWindow>
 #include <QGraphicsScene>
 
+#include "maphandler.h"
+
+class CMap;
+
 namespace Ui {
 class MainWindow;
 }
@@ -23,6 +27,10 @@ private:
     Ui::MainWindow *ui;
 	
 	QGraphicsScene * scene;
+	
+	std::unique_ptr<CMap> map;
+
+	MapHandler mapHandler;
 };
 
 #endif // MAINWINDOW_H

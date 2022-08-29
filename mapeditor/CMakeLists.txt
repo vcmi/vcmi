@@ -5,6 +5,9 @@ set(editor_SRCS
 		jsonutils.cpp
 		mainwindow.cpp
 		CGameInfo.cpp
+		BitmapHandler.cpp
+		maphandler.cpp
+		Animation.cpp
 )
 
 set(editor_HEADERS
@@ -13,6 +16,9 @@ set(editor_HEADERS
 		jsonutils.h
 		mainwindow.h
 		CGameInfo.h
+		BitmapHandler.h
+		maphandler.h
+		Animation.h
 )
 
 set(editor_FORMS
