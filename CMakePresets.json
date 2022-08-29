@@ -24,6 +24,14 @@
             }
         },
         {
+            "name": "conan",
+            "hidden": true,
+            "inherits": "default-release",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/conan-install/conan_toolchain.cmake"
+            }
+        },
+        {
             "name": "linux-clang-release",
             "displayName": "Clang x86_64-pc-linux-gnu",
             "description": "VCMI Linux Clang",
@@ -60,6 +68,21 @@
             }
         },
         {
+            "name": "windows-msvc-conan",
+            "displayName": "Windows x64 RelWithDebInfo",
+            "description": "VCMI RelWithDebInfo build",
+            "inherits": "conan",
+            "generator": "Visual Studio 16 2019",
+            "architecture": {
+                "value": "x64",
+                "strategy": "set"
+            },
+            "cacheVariables": {
+                "CMAKE_POLICY_DEFAULT_CMP0091": "NEW",
+                "FORCE_BUNDLED_MINIZIP": "ON"
+            }
+        },
+        {
             "name": "macos-ninja-release",
             "displayName": "Ninja release",
             "description": "VCMI MacOS Ninja",
@@ -71,6 +94,12 @@
             "description": "VCMI MacOS Xcode",
             "inherits": "default-release",
             "generator": "Xcode"
+        },
+        {
+            "name": "macos-xcode-conan",
+            "displayName": "XCode Conan",
+            "description": "VCMI MacOS Xcode",
+            "inherits": "conan"
         }
     ],
     "buildPresets": [
@@ -100,14 +129,18 @@
             "inherits": "default-release"
         },
         {
-            "name": "windows-msvc-release",
-            "configurePreset": "windows-msvc-release",
-            "inherits": "default-release",
-            "configuration": "Release"
+            "name": "macos-xcode-conan",
+            "configurePreset": "macos-xcode-conan",
+            "inherits": "default-release"
         },
         {
-            "name": "windows-msvc-relwithdebinfo",
+            "name": "windows-msvc-release",
             "configurePreset": "windows-msvc-release",
+            "inherits": "default-release"
+        },
+        {
+            "name": "windows-msvc-conan",
+            "configurePreset": "windows-msvc-conan",
             "inherits": "default-release"
         }
     ],
@@ -141,8 +174,18 @@
             "inherits": "default-release"
         },
         {
+            "name": "macos-xcode-conan",
+            "configurePreset": "macos-xcode-conan",
+            "inherits": "default-release"
+        },
+        {
             "name": "windows-msvc-release",
             "configurePreset": "windows-msvc-release",
+            "inherits": "default-release"
+        },
+        {
+            "name": "windows-msvc-conan",
+            "configurePreset": "windows-msvc-conan",
             "inherits": "default-release"
         }
     ]

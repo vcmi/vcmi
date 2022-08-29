@@ -36,7 +36,7 @@ if(APPLE)
 endif(APPLE)
 
 # This will likely only work for Vcpkg
-if(WIN32)
+if(VCPKG_TOOLCHAIN)
 	if(ENABLE_LAUNCHER)
 		# Temporary ugly fix for Qt deployment since windeployqt broken in Vcpkg
 
@@ -71,22 +71,32 @@ if(WIN32)
 		endif()
 	endif()
 
-	
 	#TODO: check if some equivalent of block below can be used for above block (easy qt dependencies copy)
 	if(ENABLE_LUA)
-		install_vcpkg_imported_tgt(luajit::luajit)
+			install_vcpkg_imported_tgt(luajit::luajit)
 	endif()
 
 	#LuaJIT will not be copied automatically by not meeting criteria for this block of code
 	install(CODE "
-		if(\"\${BUILD_TYPE}\" STREQUAL \"Debug\")
-			set(dirs \"${CMAKE_PREFIX_PATH}/debug/bin/\")
-		else()
-			set(dirs \"${CMAKE_PREFIX_PATH}/bin/\")
-		endif()
-		set(BU_CHMOD_BUNDLE_ITEMS ON)
-		include(BundleUtilities)
-		fixup_bundle(\"\${CMAKE_INSTALL_PREFIX}/VCMI_Client.exe\" \"\" \"\${dirs}\")
+			if(\"\${BUILD_TYPE}\" STREQUAL \"Debug\")
+					set(dirs \"${CMAKE_PREFIX_PATH}/debug/bin/\")
+			else()
+					set(dirs \"${CMAKE_PREFIX_PATH}/bin/\")
+			endif()
+			set(BU_CHMOD_BUNDLE_ITEMS ON)
+			include(BundleUtilities)
+			fixup_bundle(\"\${CMAKE_INSTALL_PREFIX}/VCMI_Client.exe\" \"\" \"\${dirs}\")
 
 	" COMPONENT Runtime)
-endif(WIN32)
+endif(VCPKG_TOOLCHAIN)
+
+if(CONAN_C_FLAGS AND MSVC)
+	install(CODE "
+			set(dirs \"${CMAKE_LIBRARY_PATH}/../bin/\")
+			set(BU_CHMOD_BUNDLE_ITEMS ON)
+			include(BundleUtilities)
+			fixup_bundle(\"\${CMAKE_INSTALL_PREFIX}/VCMI_Client.exe\" \"\" \"\${dirs}\")
+			fixup_bundle(\"\${CMAKE_INSTALL_PREFIX}/VCMI_launcher.exe\" \"\" \"\${dirs}\")
+
+	" COMPONENT Runtime)
+endif()

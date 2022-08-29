@@ -75,6 +75,10 @@ endif()
 
 add_executable(vcmilauncher WIN32 ${launcher_SRCS} ${launcher_HEADERS} ${launcher_UI_HEADERS} ${launcher_ICON})
 
+if(TARGET Qt6::Core)
+	set_property(TARGET vcmilauncher PROPERTY CXX_STANDARD 17)
+endif()
+
 if(WIN32)
 	set_target_properties(vcmilauncher
 		PROPERTIES
@@ -88,7 +92,9 @@ if(WIN32)
 	# - cmake_policy in all possible places
 	# - used NO_POLICY_SCOPE to make sure no other parts reset policies
 	# Still nothing worked, warning kept appearing and WinMain didn't link automatically
-	target_link_libraries(vcmilauncher Qt${QT_VERSION_MAJOR}::WinMain)
+	if(VCPKG_TOOLCHAIN AND ${QT_VERSION_MAJOR} VERSION_LESS "6")
+		target_link_libraries(vcmilauncher Qt${QT_VERSION_MAJOR}::WinMain)
+	endif()
 endif()
 
 if(APPLE)

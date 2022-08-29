@@ -8,8 +8,8 @@ else()
 	option(FORCE_BUNDLED_FL "Force to use FuzzyLite included into VCMI's source tree" OFF)
 endif()
 
-if(TBB_FOUND AND MSVC)
-	   install_vcpkg_imported_tgt(TBB::tbb)
+if(TBB_FOUND AND VCPKG_TOOLCHAIN)
+    install_vcpkg_imported_tgt(TBB::tbb)
 endif()
 
 
@@ -19,8 +19,8 @@ else()
 	set(fuzzylite_FOUND FALSE)
 endif()
 
-if(TARGET fuzzylite::fuzzylite AND MSVC)
-	install_vcpkg_imported_tgt(fuzzylite::fuzzylite)
+if(TARGET fuzzylite::fuzzylite AND VCPKG_TOOLCHAIN)
+    install_vcpkg_imported_tgt(fuzzylite::fuzzylite)
 endif()
 
 if(NOT fuzzylite_FOUND)
