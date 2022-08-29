@@ -5,7 +5,7 @@ on:
       branches:
         - features/*
         - develop
-    pull_request_target:
+    pull_request:
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
