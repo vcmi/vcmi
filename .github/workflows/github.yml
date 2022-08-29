@@ -5,45 +5,14 @@ on:
       branches:
         - features/*
         - develop
-    pull_request:
+    pull_request_target:
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
 
 jobs:
   build:
-    strategy:
-      matrix:
-        include:
-          - platform: linux
-            os: ubuntu-20.04
-            test: 0
-            preset: linux-clang-release
-          - platform: linux
-            os: ubuntu-20.04
-            test: 0
-            preset: linux-gcc-release
-          - platform: mac
-            os: macos-10.15
-            test: 0
-            pack: 1
-            extension: dmg
-            preset: macos-ninja-release
-          - platform: mxe
-            os: ubuntu-20.04
-            mxe: i686-w64-mingw32.shared
-            test: 0
-            pack: 1
-            cpack_args: -D CPACK_NSIS_EXECUTABLE=`which makensis`
-            extension: exe
-            cmake_args: -G Ninja
-          - platform: msvc
-            os: windows-latest
-            test: 0
-            pack: 1
-            extension: exe
-            preset: windows-msvc-release
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-20.04
     defaults:
       run:
         shell: bash
@@ -51,13 +20,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
       with:
-        submodules: recursive
-
-    - name: Dependencies
-      run: source '${{github.workspace}}/CI/${{matrix.platform}}/before_install.sh'
-      env:
-        MXE_TARGET: ${{ matrix.mxe }}
-        VCMI_BUILD_PLATFORM: x64
+        ref: ${{ github.event.pull_request.head.sha }}
 
     - name: Git branch name
       id: git-branch-name
@@ -71,85 +34,11 @@ jobs:
       env:
         PULL_REQUEST: ${{ github.event.pull_request.number }}
 
-    - name: Configure CMake
-      if: "${{ matrix.preset == '' }}"
-      run: |
-        mkdir -p '${{github.workspace}}/out/build/${{matrix.preset}}'
-        cd '${{github.workspace}}/out/build/${{matrix.preset}}'
-        cmake \
-            ../.. -GNinja \
-            ${{matrix.cmake_args}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
-            -DENABLE_TEST=${{matrix.test}} \
-            -DPACKAGE_NAME_SUFFIX:STRING="$VCMI_PACKAGE_NAME_SUFFIX" \
-            -DPACKAGE_FILE_NAME:STRING="$VCMI_PACKAGE_FILE_NAME"
-      env:
-        CC: ${{ matrix.cc }}
-        CXX: ${{ matrix.cxx }}
-
-    - name: CMake Preset
-      if: "${{ matrix.preset != '' }}"
-      run: |
-        cmake --preset ${{ matrix.preset }}
-
-    - name: Build
-      if: "${{ matrix.preset == '' }}"
-      run: |
-        cmake --build '${{github.workspace}}/out/build/${{matrix.preset}}'
-
-    - name: Build Preset
-      if: "${{ matrix.preset != '' }}"
-      run: |
-        cmake --build --preset ${{matrix.preset}}
-
-    - name: Test
-      if: ${{ matrix.test == 1 &&  matrix.preset != ''}}
-      run: |
-        ctest --preset ${{matrix.preset}}
-
-    - name: Pack
-      id: cpack
-      if: ${{ matrix.pack == 1 }}
-      run: |
-        cd '${{github.workspace}}/out/build/${{matrix.preset}}'
-        CPACK_PATH=`which -a cpack | grep -m1 -v -i chocolatey`
-        "$CPACK_PATH" -C ${{env.BUILD_TYPE}} ${{ matrix.cpack_args }}
-        rm -rf _CPack_Packages
-
-    - name: Additional logs
-      if: ${{ failure() && steps.cpack.outcome == 'failure' && matrix.platform == 'mxe' }}
-      run: |
-        cat '${{github.workspace}}/out/build/${{matrix.preset}}/_CPack_Packages/win32/NSIS/project.nsi'
-        cat '${{github.workspace}}/out/build/${{matrix.preset}}/_CPack_Packages/win32/NSIS/NSISOutput.log'
-
-    - name: Artifacts
-      if: ${{ matrix.pack == 1 }}
-      uses: actions/upload-artifact@v3
-      with:
-        name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }}
-        path: |
-          ${{github.workspace}}/**/${{ env.VCMI_PACKAGE_FILE_NAME }}.${{ matrix.extension }}
-
     - name: Upload build
-      if: ${{ matrix.pack == 1 && (github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/features/')) && matrix.platform != 'msvc' }}
       run: |
-        cd '${{github.workspace}}/out/build/${{matrix.preset}}'
+        VCMI_PACKAGE_FILE_NAME+='-fake-intel'
+        echo asd > "$VCMI_PACKAGE_FILE_NAME.$PACKAGE_EXTENSION"
         source '${{github.workspace}}/CI/upload_package.sh'
       env:
         DEPLOY_RSA: ${{ secrets.DEPLOY_RSA }}
-        PACKAGE_EXTENSION: ${{ matrix.extension }}
-
-    - uses: act10ns/slack@v1
-      with:
-        status: ${{ job.status }}
-        channel: '#notifications'
-      env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-      if: always()
-
-    - name: Trigger Android
-      uses: peter-evans/repository-dispatch@v1
-      if: ${{ github.ref == 'refs/heads/develop' && matrix.platform == 'mxe' }}
-      with:
-        token: ${{ secrets.VCMI_ANDROID_ACCESS_TOKEN }}
-        repository: vcmi/vcmi-android
-        event-type: vcmi
+        PACKAGE_EXTENSION: dmg
