@@ -175,11 +175,12 @@ if(WIN32)
 	if(NOT ENABLE_DEBUG_CONSOLE)
 		target_link_libraries(vcmiclient SDL2::SDL2main)
 	endif()
+	target_compile_definitions(vcmiclient PRIVATE WINDOWS_IGNORE_PACKING_MISMATCH)
 endif()
 
 target_link_libraries(vcmiclient PRIVATE
 		vcmi SDL2::SDL2 SDL2::Image SDL2::Mixer SDL2::TTF
-		ffmpeg::swscale ffmpeg::avutil ffmpeg::avcodec ffmpeg::avformat TBB::tbb
+		ffmpeg::swscale ffmpeg::avutil ffmpeg::avcodec ffmpeg::avformat
 )
 
 target_include_directories(vcmiclient
