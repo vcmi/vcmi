@@ -11,8 +11,8 @@
                 "PACKAGE_FILE_NAME" : "$env{VCMI_PACKAGE_FILE_NAME}",
                 "PACKAGE_NAME_SUFFIX" : "$env{VCMI_PACKAGE_NAME_SUFFIX}",
                 "CMAKE_BUILD_TYPE": "RelWithDebInfo",
-                "FORCE_BUNDLED_FL" : "0",
-                "ENABLE_TEST": "0"
+                "FORCE_BUNDLED_FL": "OFF",
+                "ENABLE_TEST": "OFF"
             }
         },
         {
@@ -66,6 +66,26 @@
             "inherits": "default-release"
         },
         {
+            "name": "macos-conan-ninja-release",
+            "displayName": "Ninja+Conan release",
+            "description": "VCMI MacOS Ninja using Conan",
+            "inherits": "default-release",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/conan-generated/conan_toolchain.cmake",
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "macos-arm-conan-ninja-release",
+            "displayName": "Ninja+Conan arm64 release",
+            "description": "VCMI MacOS-arm64 Ninja using Conan",
+            "inherits": "macos-conan-ninja-release",
+            "cacheVariables": {
+                "ENABLE_ERM": "OFF",
+                "ENABLE_LUA": "OFF"
+            }
+        },
+        {
             "name": "macos-xcode-release",
             "displayName": "XCode release",
             "description": "VCMI MacOS Xcode",
@@ -97,6 +117,16 @@
         {
             "name": "macos-ninja-release",
             "configurePreset": "macos-ninja-release",
+            "inherits": "default-release"
+        },
+        {
+            "name": "macos-conan-ninja-release",
+            "configurePreset": "macos-conan-ninja-release",
+            "inherits": "default-release"
+        },
+        {
+            "name": "macos-arm-conan-ninja-release",
+            "configurePreset": "macos-arm-conan-ninja-release",
             "inherits": "default-release"
         },
         {

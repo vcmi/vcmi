@@ -1,38 +1,49 @@
 # We need to keep this code into separate directory so CMake will execute it after all other subdirectories install code
 # Otherwise we can't fix Mac bundle dependencies since binaries wouldn't be there when this code executed
 if(APPLE)
+	set(bundleDir "\${CMAKE_INSTALL_PREFIX}/${APP_BUNDLE_DIR}")
+	set(bundleContentsDir "${bundleDir}/Contents")
+
 	if(ENABLE_LAUNCHER)
-		find_program(TOOL_MACDEPLOYQT NAMES macdeployqt PATHS ${qt_base_dir}/bin)
-		if(NOT TOOL_MACDEPLOYQT)
-			message(FATAL_ERROR "Could not find macdeployqt")
+		# cross-compiled Qt 5 builds macdeployqt for target platform instead of host
+		if(CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL CMAKE_SYSTEM_PROCESSOR)
+			# deploy Qt dylibs with macdeployqt
+			find_program(TOOL_MACDEPLOYQT NAMES macdeployqt PATHS ${qt_base_dir}/bin)
+			if(NOT TOOL_MACDEPLOYQT)
+				message(FATAL_ERROR "Could not find macdeployqt")
+			endif()
+			install(CODE "
+				execute_process(COMMAND
+					\"${TOOL_MACDEPLOYQT}\" \"${bundleDir}\" -verbose=2
+				)
+			")
+		else()
+			# simulate macdeployqt behavior, main Qt libs are copied by conan
+			get_target_property(qmakePath Qt5::qmake IMPORTED_LOCATION)
+			execute_process(COMMAND
+				"${qmakePath}" -query QT_INSTALL_PLUGINS
+				OUTPUT_VARIABLE qtPluginsDir
+				OUTPUT_STRIP_TRAILING_WHITESPACE
+			)
+			install(DIRECTORY
+				${qtPluginsDir}/
+				DESTINATION ${APP_BUNDLE_DIR}/Contents/PlugIns
+			)
+			install(CODE "
+				file(WRITE ${bundleContentsDir}/Resources/qt.conf
+					\"[Paths]\nPlugins = PlugIns\"
+				)
+			")
 		endif()
-		install(CODE "
-			execute_process(COMMAND ${TOOL_MACDEPLOYQT} \"\${CMAKE_INSTALL_PREFIX}/${APP_BUNDLE_DIR}\" -verbose=2)
-		")
 	endif()
 
-	# Manually fix VCMI library links in AI libraries with install_name_tool
+	# deploy other dylibs with conan
 	install(CODE "
-		set(BU_CHMOD_BUNDLE_ITEMS ON)
-		include(BundleUtilities)
-		fixup_bundle(\"\${CMAKE_INSTALL_PREFIX}/${APP_BUNDLE_DIR}\" \"\" \"\")
-		execute_process(COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change \"libvcmi.dylib\" \"@executable_path/../Frameworks/libvcmi.dylib\" \"\${CMAKE_INSTALL_PREFIX}/${APP_BUNDLE_BINARY_DIR}/AI/libBattleAI.dylib\")
-		execute_process(COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change \"libvcmi.dylib\" \"@executable_path/../Frameworks/libvcmi.dylib\" \"\${CMAKE_INSTALL_PREFIX}/${APP_BUNDLE_BINARY_DIR}/AI/libEmptyAI.dylib\")
-		execute_process(COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change \"libvcmi.dylib\" \"@executable_path/../Frameworks/libvcmi.dylib\" \"\${CMAKE_INSTALL_PREFIX}/${APP_BUNDLE_BINARY_DIR}/AI/libNullkiller.dylib\")
-		execute_process(COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change \"libvcmi.dylib\" \"@executable_path/../Frameworks/libvcmi.dylib\" \"\${CMAKE_INSTALL_PREFIX}/${APP_BUNDLE_BINARY_DIR}/AI/libStupidAI.dylib\")
-		execute_process(COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change \"libvcmi.dylib\" \"@executable_path/../Frameworks/libvcmi.dylib\" \"\${CMAKE_INSTALL_PREFIX}/${APP_BUNDLE_BINARY_DIR}/AI/libVCAI.dylib\")
-
-		set(ENABLE_ERM ${ENABLE_ERM})
-		if(ENABLE_ERM)
-			execute_process(COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change \"libvcmi.dylib\" \"@executable_path/../Frameworks/libvcmi.dylib\" \"\${CMAKE_INSTALL_PREFIX}/${APP_BUNDLE_BINARY_DIR}/scripting/libvcmiERM.dylib\")
-		endif()
-		set(ENABLE_LUA ${ENABLE_LUA})
-		if(ENABLE_LUA)
-			execute_process(COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change \"libvcmi.dylib\" \"@executable_path/../Frameworks/libvcmi.dylib\" \"\${CMAKE_INSTALL_PREFIX}/${APP_BUNDLE_BINARY_DIR}/scripting/libvcmiLua.dylib\")
-		endif()
-
-		execute_process(COMMAND rm \"\${CMAKE_INSTALL_PREFIX}/${APP_BUNDLE_BINARY_DIR}/libvcmi.dylib\")
-	" COMPONENT Runtime)
+		execute_process(COMMAND
+			conan imports \"${CMAKE_SOURCE_DIR}\" --install-folder \"${CMAKE_SOURCE_DIR}/conan-generated\" --import-folder \"${bundleContentsDir}\"
+		)
+		file(REMOVE \"${bundleContentsDir}/conan_imports_manifest.txt\")
+	")
 endif(APPLE)
 
 # This will likely only work for Vcpkg
