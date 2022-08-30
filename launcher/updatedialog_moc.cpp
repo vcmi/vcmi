@@ -103,8 +103,15 @@ void UpdateDialog::loadFromJson(const JsonNode & node)
 	}
 	
 	//check whether update is needed
+	bool isFutureVersion = true;
 	std::string newVersion = node["version"].String();
-	if(currentVersion == newVersion)
+	for(auto & prevVersion : node["history"].Vector())
+	{
+		if(prevVersion.String() == currentVersion)
+			isFutureVersion = false;
+	}
+		
+	if(isFutureVersion || currentVersion == newVersion)
 	{
 		if(!calledManually)
 			close();
