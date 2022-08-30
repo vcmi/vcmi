@@ -133,13 +133,6 @@ void MainWindow::on_actionOpen_triggered()
 		for(int i = 0; i < map->width; ++i)
 		{
 			mapHandler.drawTerrainTile(i, j, 0);
-		}
-	}
-	
-	for(int j = 0; j < map->height; ++j)
-	{
-		for(int i = 0; i < map->width; ++i)
-		{
 			mapHandler.drawObjects(i, j, 0);
 		}
 	}

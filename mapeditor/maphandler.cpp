@@ -336,8 +336,6 @@ void MapHandler::drawObjects(int x, int y, int z)
 	auto & objects = ttiles[z * (sizes.x * sizes.y) + y * sizes.x + x].objects;
 	for(auto & object : objects)
 	{
-		if(!object.real)
-			continue;
 		
 		//if(object.visi)
 		const CGObjectInstance * obj = object.obj;
@@ -352,9 +350,9 @@ void MapHandler::drawObjects(int x, int y, int z)
 		auto objData = findObjectBitmap(obj, animationFrame);
 		if (objData.objBitmap)
 		{
-			QRect srcRect(object.rect.x(), object.rect.y(), tileSize, tileSize);
+			QRect srcRect(object.rect.x() + x * 32, object.rect.y() + y * 32, tileSize, tileSize);
 			
-			painter.drawImage(x * tileSize, y * tileSize, *objData.objBitmap);
+			painter.drawImage(x * 32 - object.rect.x(), y * 32 - object.rect.y(), *objData.objBitmap);
 			//drawObject(targetSurf, objData.objBitmap, &srcRect, objData.isMoving);
 			if (objData.flagBitmap)
 			{
