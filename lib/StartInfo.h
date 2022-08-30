@@ -187,6 +187,3 @@ struct DLL_LINKAGE LobbyInfo : public LobbyState
 	TeamID getPlayerTeamId(PlayerColor color);
 };
 
-class ExceptionMapMissing : public std::exception {};
-class ExceptionNoHuman : public std::exception {};
-class ExceptionNoTemplate : public std::exception {};
