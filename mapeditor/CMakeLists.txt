@@ -9,6 +9,8 @@ set(editor_SRCS
 		maphandler.cpp
 		Animation.cpp
 		graphics.cpp
+		spoiler.cpp
+		windownewmap.cpp
 )
 
 set(editor_HEADERS
@@ -21,10 +23,13 @@ set(editor_HEADERS
 		maphandler.h
 		Animation.h
 		graphics.h
+		spoiler.h
+		windownewmap.h
 )
 
 set(editor_FORMS
 		mainwindow.ui
+		windownewmap.ui
 )
 
 assign_source_group(${editor_SRCS} ${editor_HEADERS} VCMI_launcher.rc)

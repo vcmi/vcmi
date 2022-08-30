@@ -11,7 +11,7 @@
 
 class CGObjectInstance;
 class CGBoat;
-struct PlayerColor;
+class PlayerColor;
 
 struct TerrainTileObject
 {

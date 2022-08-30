@@ -203,7 +203,7 @@ void CMapGenOptions::setMapTemplate(const CRmgTemplate * value)
 {
 	mapTemplate = value;
 	//TODO validate & adapt options according to template
-	assert(0);
+	//assert(0);
 }
 
 void CMapGenOptions::finalize(CRandomGenerator & rand)
@@ -401,21 +401,21 @@ bool CMapGenOptions::checkOptions() const
 	}
 }
 
-const CRmgTemplate * CMapGenOptions::getPossibleTemplate(CRandomGenerator & rand) const
+std::vector<const CRmgTemplate *> CMapGenOptions::getPossibleTemplates() const
 {
 	int3 tplSize(width, height, (hasTwoLevels ? 2 : 1));
 	auto humanPlayers = countHumanPlayers();
-	
+
 	auto templates = VLC->tplh->getTemplates();
-	
+
 	vstd::erase_if(templates, [this, &tplSize, humanPlayers](const CRmgTemplate * tmpl)
 	{
 		if(!tmpl->matchesSize(tplSize))
 			return true;
-		
+
 		if(!tmpl->isWaterContentAllowed(getWaterContent()))
 			return true;
-		
+
 		if(getPlayerCount() != -1)
 		{
 			if (!tmpl->getPlayers().isInRange(getPlayerCount()))
@@ -427,17 +427,23 @@ const CRmgTemplate * CMapGenOptions::getPossibleTemplate(CRandomGenerator & rand
 			if(humanPlayers > *boost::min_element(tmpl->getPlayers().getNumbers()))
 				return true;
 		}
-		
+
 		if(compOnlyPlayerCount != -1)
 		{
 			if (!tmpl->getCpuPlayers().isInRange(compOnlyPlayerCount))
 				return true;
 		}
-		
+
 		return false;
 	});
-	
-	// Select tpl
+
+	return templates;
+}
+
+const CRmgTemplate * CMapGenOptions::getPossibleTemplate(CRandomGenerator & rand) const
+{
+	auto templates = getPossibleTemplates();
+
 	if(templates.empty())
 		return nullptr;
 	

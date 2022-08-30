@@ -118,12 +118,15 @@ void CMapGenerator::initQuestArtsRemaining()
 	}
 }
 
-std::unique_ptr<CMap> CMapGenerator::generate()
+std::unique_ptr<CMap> CMapGenerator::generate(bool empty)
 {
 	try
 	{
 		addHeaderInfo();
 		map->initTiles(*this);
+		if(empty)
+			return std::move(map->mapInstance);
+
 		initPrisonsRemaining();
 		initQuestArtsRemaining();
 		genZones();
