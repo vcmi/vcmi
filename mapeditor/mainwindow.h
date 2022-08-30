@@ -29,8 +29,6 @@ private:
 	QGraphicsScene * scene;
 	
 	std::unique_ptr<CMap> map;
-
-	MapHandler mapHandler;
 };
 
 #endif // MAINWINDOW_H

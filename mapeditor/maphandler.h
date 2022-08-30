@@ -6,6 +6,7 @@
 #include "Animation.h"
 
 #include <QImage>
+#include <QPixmap>
 
 class MapHandler
 {
@@ -20,6 +21,8 @@ public:
 
 	int3 sizes; //map size (x = width, y = height, z = number of levels)
 	const CMap * map;
+	QPixmap surface;
+	QPainter painter;
 
 	//terrain graphics
 
@@ -36,18 +39,19 @@ public:
 	TFlippedAnimations riverAnimations;//[river type, rotation]
 	TFlippedCache riverImages;//[river type, view type, rotation]
 	
-	std::shared_ptr<QImage> drawTileTerrain(const TerrainTile & tinfo) const;
+	void drawTerrainTile(int x, int y, const TerrainTile & tinfo);
 
 	mutable std::map<const CGObjectInstance*, ui8> animationPhase;
 
-	MapHandler();
+	MapHandler(const CMap * Map);
 	~MapHandler() = default;
+	
+	void init();
 
 	//void getTerrainDescr(const int3 & pos, std::string & out, bool isRMB) const; // isRMB = whether Right Mouse Button is clicked
 	//bool printObject(const CGObjectInstance * obj, bool fadein = false); //puts appropriate things to tiles, so obj will be visible on map
 	//bool hideObject(const CGObjectInstance * obj, bool fadeout = false); //removes appropriate things from ttiles, so obj will be no longer visible on map (but still will exist)
 	//bool hasObjectHole(const int3 & pos) const; // Checks if TerrainTile2 tile has a pit remained after digging.
-	void init();
 
 	//EMapAnimRedrawStatus drawTerrainRectNew(SDL_Surface * targetSurface, const MapDrawingInfo * info, bool redrawOnlyAnim = false);
 	void updateWater();

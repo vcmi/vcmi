@@ -2,9 +2,12 @@
 #include "maphandler.h"
 #include "../lib/mapping/CMap.h"
 
-MapHandler::MapHandler()
-{
+const int tileSize = 32;
 
+MapHandler::MapHandler(const CMap * Map):
+	map(Map), surface(Map->width * tileSize, Map->height * tileSize), painter(&surface)
+{
+	init();
 }
 
 void MapHandler::init()
@@ -86,16 +89,16 @@ void MapHandler::initTerrainGraphics()
 	loadFlipped(riverAnimations, riverImages, RIVER_FILES);
 }
 
-std::shared_ptr<QImage> MapHandler::drawTileTerrain(const TerrainTile & tinfo) const
+void MapHandler::drawTerrainTile(int x, int y, const TerrainTile & tinfo)
 {
 	//Rect destRect(realTileRect);
 	
 	ui8 rotation = tinfo.extTileFlags % 4;
 	
 	if(terrainImages.at(tinfo.terType).size() <= tinfo.terView)
-		return nullptr;
+		return;
 	
-	return terrainImages.at(tinfo.terType)[tinfo.terView][rotation];
+	painter.drawImage(x * tileSize, y * tileSize, *terrainImages.at(tinfo.terType)[tinfo.terView][rotation]);
 }
 
 void MapHandler::initObjectRects()

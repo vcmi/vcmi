@@ -95,7 +95,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_actionOpen_triggered()
 {
-    auto filename = QFileDialog::getOpenFileName(this, tr("Open Image"), QString::fromStdString(VCMIDirs::get().userCachePath().native()), tr("Homm3 Files (*.vmap *.h3m)"));
+    /*auto filename = QFileDialog::getOpenFileName(this, tr("Open Image"), QString::fromStdString(VCMIDirs::get().userCachePath().native()), tr("Homm3 Files (*.vmap *.h3m)"));
 	
 	if(filename.isNull())
 		return;
@@ -103,7 +103,8 @@ void MainWindow::on_actionOpen_triggered()
 	QFileInfo fi(filename);
 	std::string fname = fi.fileName().toStdString();
 	std::string fdir = fi.dir().path().toStdString();
-	ResourceID resId("MAPS/" + fname, EResType::MAP);
+	ResourceID resId("MAPS/" + fname, EResType::MAP);*/
+	ResourceID resId("MAPS/SomeMap.vmap", EResType::MAP);
 	
 	if(!CResourceHandler::get()->existsResource(resId))
 	{
@@ -121,28 +122,18 @@ void MainWindow::on_actionOpen_triggered()
 		QMessageBox::critical(this, "Failed to open map", e.what());
 	}
 
-	const int tileSize = 32;
-	mapHandler.map = map.get();
-	mapHandler.init();
-
-	
-	QPixmap pixmap(32 * map->width, 32 * map->height);
-	QPainter painter(&pixmap);
+	MapHandler mapHandler(map.get());
 
 	for(int j = 0; j < map->height; ++j)
 	{
 		for(int i = 0; i < map->width; ++i)
 		{
-			auto img = mapHandler.drawTileTerrain(map->getTile(int3(1, 1, 0)));
-			if(!img)
-				continue;
-			
-			painter.drawImage(i * 32, j * 32, *img);
+			mapHandler.drawTerrainTile(i, j, map->getTile((int3(i, j, 0))));
 		}
 	}
 	
 	scene->clear();
-	scene->addPixmap(pixmap);
+	scene->addPixmap(mapHandler.surface);
 	
 }
 

@@ -43,13 +43,13 @@ private:
 	std::map<size_t, std::vector <size_t> > offset;
 
 	std::unique_ptr<ui8[]> data;
-	std::unique_ptr<QRgb[]> palette;
+	std::unique_ptr<QVector<QRgb>> palette;
 
 public:
 	DefFile(std::string Name);
 	~DefFile();
 
-	QImage loadFrame(size_t frame, size_t group) const;
+	std::shared_ptr<QImage> loadFrame(size_t frame, size_t group) const;
 
 	const std::map<size_t, size_t> getEntries() const;
 };
@@ -137,8 +137,7 @@ static FileCache animationCache;
  *************************************************************************/
 
 DefFile::DefFile(std::string Name):
-	data(nullptr),
-	palette(nullptr)
+	data(nullptr)
 {
 
 	#if 0
@@ -169,7 +168,7 @@ DefFile::DefFile(std::string Name):
 	};
 	data = animationCache.getCachedFile(ResourceID(std::string("SPRITES/") + Name, EResType::ANIMATION));
 
-	palette = std::unique_ptr<QRgb[]>(new QRgb[256]);
+	palette = std::make_unique<QVector<QRgb>>(256);
 	int it = 0;
 
 	ui32 type = read_le_u32(data.get() + it);
@@ -186,55 +185,55 @@ DefFile::DefFile(std::string Name):
 		c[0] = data[it++];
 		c[1] = data[it++];
 		c[2] = data[it++];
-		palette[i] = qRgba(c[0], c[1], c[2], 255);
+		(*palette)[i] = qRgba(c[0], c[1], c[2], 255);
 	}
 
 	switch(static_cast<DefType>(type))
 	{
 	case DefType::SPELL:
-		palette[0] = H3Palette[0];
+		(*palette)[0] = H3Palette[0];
 		break;
 	case DefType::SPRITE:
 	case DefType::SPRITE_FRAME:
 		for(ui32 i= 0; i<8; i++)
-			palette[i] = H3Palette[i];
+			(*palette)[i] = H3Palette[i];
 		break;
 	case DefType::CREATURE:
-		palette[0] = H3Palette[0];
-		palette[1] = H3Palette[1];
-		palette[4] = H3Palette[4];
-		palette[5] = H3Palette[5];
-		palette[6] = H3Palette[6];
-		palette[7] = H3Palette[7];
+		(*palette)[0] = H3Palette[0];
+		(*palette)[1] = H3Palette[1];
+		(*palette)[4] = H3Palette[4];
+		(*palette)[5] = H3Palette[5];
+		(*palette)[6] = H3Palette[6];
+		(*palette)[7] = H3Palette[7];
 		break;
 	case DefType::MAP:
 	case DefType::MAP_HERO:
-		palette[0] = H3Palette[0];
-		palette[1] = H3Palette[1];
-		palette[4] = H3Palette[4];
+		(*palette)[0] = H3Palette[0];
+		(*palette)[1] = H3Palette[1];
+		(*palette)[4] = H3Palette[4];
 		//5 = owner flag, handled separately
 		break;
 	case DefType::TERRAIN:
-		palette[0] = H3Palette[0];
-		palette[1] = H3Palette[1];
-		palette[2] = H3Palette[2];
-		palette[3] = H3Palette[3];
-		palette[4] = H3Palette[4];
+		(*palette)[0] = H3Palette[0];
+		(*palette)[1] = H3Palette[1];
+		(*palette)[2] = H3Palette[2];
+		(*palette)[3] = H3Palette[3];
+		(*palette)[4] = H3Palette[4];
 		break;
 	case DefType::CURSOR:
-		palette[0] = H3Palette[0];
+		(*palette)[0] = H3Palette[0];
 		break;
 	case DefType::INTERFACE:
-		palette[0] = H3Palette[0];
-		palette[1] = H3Palette[1];
-		palette[4] = H3Palette[4];
+		(*palette)[0] = H3Palette[0];
+		(*palette)[1] = H3Palette[1];
+		(*palette)[4] = H3Palette[4];
 		//player colors handled separately
 		//TODO: disallow colorizing other def types
 		break;
 	case DefType::BATTLE_HERO:
-		palette[0] = H3Palette[0];
-		palette[1] = H3Palette[1];
-		palette[4] = H3Palette[4];
+		(*palette)[0] = H3Palette[0];
+		(*palette)[1] = H3Palette[1];
+		(*palette)[4] = H3Palette[4];
 		break;
 	default:
 		logAnim->error("Unknown def type %d in %s", type, Name);
@@ -262,7 +261,7 @@ DefFile::DefFile(std::string Name):
 	}
 }
 
-QImage DefFile::loadFrame(size_t frame, size_t group) const
+std::shared_ptr<QImage> DefFile::loadFrame(size_t frame, size_t group) const
 {
 	std::map<size_t, std::vector <size_t> >::const_iterator it;
 	it = offset.find(group);
@@ -298,8 +297,11 @@ QImage DefFile::loadFrame(size_t frame, size_t group) const
 	const ui32 BaseOffset = currentOffset;
 
 	
-	QImage img(sprite.fullWidth, sprite.height, QImage::Format_MonoLSB);
-	ImageLoader loader(&img);
+	std::shared_ptr<QImage> img = std::make_shared<QImage>(sprite.width, sprite.height, QImage::Format_Indexed8);
+	if(!img)
+		throw std::runtime_error("Image memory cannot be allocated");
+	
+	ImageLoader loader(img.get());
 	//loader.init(QPoint(sprite.width, sprite.height),
 		//		QPoint(sprite.leftMargin, sprite.topMargin),
 			//	QPoint(sprite.fullWidth, sprite.fullHeight), palette.get());
@@ -413,7 +415,7 @@ QImage DefFile::loadFrame(size_t frame, size_t group) const
 	}
 	
 	
-	//TODO: SET PALETTE
+	img->setColorTable(*palette);
 	return img;
 }
 
@@ -437,6 +439,7 @@ ImageLoader::ImageLoader(QImage * Img):
 	lineStart(Img->bits()),
 	position(Img->bits())
 {
+	
 }
 
 void ImageLoader::init(QPoint SpriteSize, QPoint Margins, QPoint FullSize, QRgb * pal)
@@ -477,8 +480,8 @@ inline void ImageLoader::Load(size_t size, ui8 color)
 
 inline void ImageLoader::EndLine()
 {
-	lineStart += 0;//image->surf->pitch;
-	position = lineStart;
+	//lineStart += 0;//image->surf->pitch;
+	//position = lineStart;
 }
 
 ImageLoader::~ImageLoader()
@@ -537,10 +540,11 @@ bool Animation::loadFrame(size_t frame, size_t group)
 
 			if(vstd::contains(frameList, group) && frameList.at(group) > frame) // frame is present
 			{
-				images[group][frame] = std::make_shared<QImage>(defFile->loadFrame(frame, group));
+				images[group][frame] = defFile->loadFrame(frame, group);
 				return true;
 			}
 		}
+		return false;
 		// still here? image is missing
 
 		printError(frame, group, "LoadFrame");
