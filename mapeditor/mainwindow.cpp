@@ -139,6 +139,6 @@ void MainWindow::on_actionOpen_triggered()
 	
 	scene->clear();
 	scene->addPixmap(mapHandler.surface);
-	
+	ui->graphicsView->setSceneRect(mapHandler.surface.rect());
 }
 
