@@ -8,6 +8,7 @@ set(editor_SRCS
 		BitmapHandler.cpp
 		maphandler.cpp
 		Animation.cpp
+		graphics.cpp
 )
 
 set(editor_HEADERS
@@ -19,6 +20,7 @@ set(editor_HEADERS
 		BitmapHandler.h
 		maphandler.h
 		Animation.h
+		graphics.h
 )
 
 set(editor_FORMS

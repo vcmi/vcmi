@@ -62,7 +62,7 @@ QImage BitmapHandler::loadH3PCX(ui8 * pcx, size_t size)
 	{
 		it = 0xC;
 		//auto bitmap = QBitmap::fromData(qsize, pcx + it);
-		QImage image(pcx + it, width, height, QImage::Format_MonoLSB);
+		QImage image(pcx + it, width, height, QImage::Format_Indexed8);
 		
 		//palette - last 256*3 bytes
 		QVector<QRgb> colorTable;

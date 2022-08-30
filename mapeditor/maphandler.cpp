@@ -1,8 +1,22 @@
 #include "StdInc.h"
 #include "maphandler.h"
+#include "graphics.h"
 #include "../lib/mapping/CMap.h"
+#include "../lib/mapObjects/CGHeroInstance.h"
+#include "../lib/mapObjects/CObjectClassesHandler.h"
+#include "../lib/CHeroHandler.h"
+#include "../lib/CTownHandler.h"
+#include "../lib/CModHandler.h"
+#include "../lib/mapping/CMap.h"
+#include "../lib/GameConstants.h"
+#include "../lib/JsonDetail.h"
 
 const int tileSize = 32;
+
+static bool objectBlitOrderSorter(const TerrainTileObject & a, const TerrainTileObject & b)
+{
+	return MapHandler::compareObjectBlitOrder(a.obj, b.obj);
+}
 
 MapHandler::MapHandler(const CMap * Map):
 	map(Map), surface(Map->width * tileSize, Map->height * tileSize), painter(&surface)
@@ -64,10 +78,13 @@ void MapHandler::initTerrainGraphics()
 	loadFlipped(terrainAnimations, terrainImages, terrainFiles);
 	loadFlipped(roadAnimations, roadImages, ROAD_FILES);
 	loadFlipped(riverAnimations, riverImages, RIVER_FILES);
+	
+	ttiles.resize(sizes.x * sizes.y * sizes.z);
 }
 
-void MapHandler::drawTerrainTile(int x, int y, const TerrainTile & tinfo)
+void MapHandler::drawTerrainTile(int x, int y, int z)
 {
+	auto & tinfo = map->getTile(int3(x, y, z));
 	//Rect destRect(realTileRect);
 	
 	ui8 rotation = tinfo.extTileFlags % 4;
@@ -83,7 +100,7 @@ void MapHandler::drawTerrainTile(int x, int y, const TerrainTile & tinfo)
 void MapHandler::initObjectRects()
 {
 	//initializing objects / rects
-	/*for(auto & elem : map->objects)
+	for(auto & elem : map->objects)
 	{
 		const CGObjectInstance *obj = elem;
 		if(	!obj
@@ -104,40 +121,255 @@ void MapHandler::initObjectRects()
 			continue;
 		
 		auto image = animation->getImage(0,0);
-		
+		bool real = true;
 		for(int fx=0; fx < obj->getWidth(); ++fx)
 		{
 			for(int fy=0; fy < obj->getHeight(); ++fy)
 			{
 				int3 currTile(obj->pos.x - fx, obj->pos.y - fy, obj->pos.z);
-				SDL_Rect cr;
-				cr.w = 32;
-				cr.h = 32;
-				cr.x = image->width() - fx * 32 - 32;
-				cr.y = image->height() - fy * 32 - 32;
-				TerrainTileObject toAdd(obj, cr, obj->visitableAt(currTile.x, currTile.y));
+				QRect cr(image->width() - fx * 32 - 32, image->height() - fy * 32 - 32, image->width(), image->height());
+				TerrainTileObject toAdd(obj, cr, real/*obj->visitableAt(currTile.x, currTile.y)*/);
+				real = false;
 				
 				
 				if( map->isInTheMap(currTile) && // within map
-				   cr.x + cr.w > 0 &&           // image has data on this tile
-				   cr.y + cr.h > 0 &&
+				   cr.x() + cr.width() > 0 &&           // image has data on this tile
+				   cr.y() + cr.height() > 0 &&
 				   obj->coveringAt(currTile.x, currTile.y) // object is visible here
 				   )
 				{
-					ttiles[currTile.x][currTile.y][currTile.z].objects.push_back(toAdd);
+					ttiles[currTile.z * (sizes.x * sizes.y) + currTile.y * sizes.x + currTile.x].objects.push_back(toAdd);
 				}
 			}
 		}
 	}
 	
-	for(int ix=0; ix<ttiles.size()-frameW; ++ix)
+	for(auto & tt : ttiles)
 	{
-		for(int iy=0; iy<ttiles[0].size()-frameH; ++iy)
+		stable_sort(tt.objects.begin(), tt.objects.end(), objectBlitOrderSorter);
+	}
+}
+
+bool MapHandler::compareObjectBlitOrder(const CGObjectInstance * a, const CGObjectInstance * b)
+{
+	if (!a)
+		return true;
+	if (!b)
+		return false;
+	if (a->appearance.printPriority != b->appearance.printPriority)
+		return a->appearance.printPriority > b->appearance.printPriority;
+	
+	if(a->pos.y != b->pos.y)
+		return a->pos.y < b->pos.y;
+	
+	if(b->ID==Obj::HERO && a->ID!=Obj::HERO)
+		return true;
+	if(b->ID!=Obj::HERO && a->ID==Obj::HERO)
+		return false;
+	
+	if(!a->isVisitable() && b->isVisitable())
+		return true;
+	if(!b->isVisitable() && a->isVisitable())
+		return false;
+	if(a->pos.x < b->pos.x)
+		return true;
+	return false;
+}
+
+TerrainTileObject::TerrainTileObject(const CGObjectInstance * obj_, QRect rect_, bool real_)
+: obj(obj_),
+rect(rect_),
+real(real_)
+{
+}
+
+TerrainTileObject::~TerrainTileObject()
+{
+}
+
+ui8 MapHandler::getHeroFrameGroup(ui8 dir, bool isMoving) const
+{
+	if(isMoving)
+	{
+		static const ui8 frame [] = {0xff, 10, 5, 6, 7, 8, 9, 12, 11};
+		return frame[dir];
+	}
+	else //if(isMoving)
+	{
+		static const ui8 frame [] = {0xff, 13, 0, 1, 2, 3, 4, 15, 14};
+		return frame[dir];
+	}
+}
+
+ui8 MapHandler::getPhaseShift(const CGObjectInstance *object) const
+{
+	auto i = animationPhase.find(object);
+	if(i == animationPhase.end())
+	{
+		ui8 ret = CRandomGenerator::getDefault().nextInt(254);
+		animationPhase[object] = ret;
+		return ret;
+	}
+	
+	return i->second;
+}
+
+MapHandler::AnimBitmapHolder MapHandler::findHeroBitmap(const CGHeroInstance * hero, int anim) const
+{
+	if(hero && hero->moveDir && hero->type) //it's hero or boat
+	{
+		if(hero->tempOwner >= PlayerColor::PLAYER_LIMIT) //Neutral hero?
 		{
-			for(int iz=0; iz<ttiles[0][0].size(); ++iz)
+			logGlobal->error("A neutral hero (%s) at %s. Should not happen!", hero->name, hero->pos.toString());
+			return MapHandler::AnimBitmapHolder();
+		}
+		
+		//pick graphics of hero (or boat if hero is sailing)
+		std::shared_ptr<Animation> animation;
+		if (hero->boat)
+			animation = graphics->boatAnimations[hero->boat->subID];
+		else
+			animation = graphics->heroAnimations[hero->appearance.animationFile];
+		
+		bool moving = !hero->isStanding;
+		int group = getHeroFrameGroup(hero->moveDir, moving);
+		
+		if(animation->size(group) > 0)
+		{
+			int frame = anim % animation->size(group);
+			auto heroImage = animation->getImage(frame, group);
+			
+			//get flag overlay only if we have main image
+			auto flagImage = findFlagBitmap(hero, anim, &hero->tempOwner, group);
+			
+			return MapHandler::AnimBitmapHolder(heroImage, flagImage);
+		}
+	}
+	return MapHandler::AnimBitmapHolder();
+}
+
+MapHandler::AnimBitmapHolder MapHandler::findBoatBitmap(const CGBoat * boat, int anim) const
+{
+	auto animation = graphics->boatAnimations.at(boat->subID);
+	int group = getHeroFrameGroup(boat->direction, false);
+	if(animation->size(group) > 0)
+		return MapHandler::AnimBitmapHolder(animation->getImage(anim % animation->size(group), group));
+	else
+		return MapHandler::AnimBitmapHolder();
+}
+
+std::shared_ptr<QImage> MapHandler::findFlagBitmap(const CGHeroInstance * hero, int anim, const PlayerColor * color, int group) const
+{
+	if(!hero)
+		return std::shared_ptr<QImage>();
+	
+	if(hero->boat)
+		return findBoatFlagBitmap(hero->boat, anim, color, group, hero->moveDir);
+	return findHeroFlagBitmap(hero, anim, color, group);
+}
+
+std::shared_ptr<QImage> MapHandler::findHeroFlagBitmap(const CGHeroInstance * hero, int anim, const PlayerColor * color, int group) const
+{
+	return findFlagBitmapInternal(graphics->heroFlagAnimations.at(color->getNum()), anim, group, hero->moveDir, !hero->isStanding);
+}
+
+std::shared_ptr<QImage> MapHandler::findBoatFlagBitmap(const CGBoat * boat, int anim, const PlayerColor * color, int group, ui8 dir) const
+{
+	int boatType = boat->subID;
+	if(boatType < 0 || boatType >= graphics->boatFlagAnimations.size())
+	{
+		logGlobal->error("Not supported boat subtype: %d", boat->subID);
+		return nullptr;
+	}
+	
+	const auto & subtypeFlags = graphics->boatFlagAnimations.at(boatType);
+	
+	int colorIndex = color->getNum();
+	
+	if(colorIndex < 0 || colorIndex >= subtypeFlags.size())
+	{
+		logGlobal->error("Invalid player color %d", colorIndex);
+		return nullptr;
+	}
+	
+	return findFlagBitmapInternal(subtypeFlags.at(colorIndex), anim, group, dir, false);
+}
+
+std::shared_ptr<QImage> MapHandler::findFlagBitmapInternal(std::shared_ptr<Animation> animation, int anim, int group, ui8 dir, bool moving) const
+{
+	size_t groupSize = animation->size(group);
+	if(groupSize == 0)
+		return nullptr;
+	
+	if(moving)
+		return animation->getImage(anim % groupSize, group);
+	else
+		return animation->getImage((anim / 4) % groupSize, group);
+}
+
+
+MapHandler::AnimBitmapHolder MapHandler::findObjectBitmap(const CGObjectInstance * obj, int anim) const
+{
+	if (!obj)
+		return MapHandler::AnimBitmapHolder();
+	if (obj->ID == Obj::HERO)
+		return findHeroBitmap(static_cast<const CGHeroInstance*>(obj), anim);
+	if (obj->ID == Obj::BOAT)
+		return findBoatBitmap(static_cast<const CGBoat*>(obj), anim);
+	
+	// normal object
+	std::shared_ptr<Animation> animation = graphics->getAnimation(obj);
+	size_t groupSize = animation->size();
+	if(groupSize == 0)
+		return MapHandler::AnimBitmapHolder();
+	
+	animation->playerColored(obj->tempOwner);
+	auto bitmap = animation->getImage((anim + getPhaseShift(obj)) % groupSize);
+	if(!bitmap)
+		return MapHandler::AnimBitmapHolder();
+	
+	return MapHandler::AnimBitmapHolder(bitmap);
+}
+
+void MapHandler::drawObjects(int x, int y, int z)
+{
+	auto & objects = ttiles[z * (sizes.x * sizes.y) + y * sizes.x + x].objects;
+	for(auto & object : objects)
+	{
+		if(!object.real)
+			continue;
+		
+		//if(object.visi)
+		const CGObjectInstance * obj = object.obj;
+		if (!obj)
+		{
+			logGlobal->error("Stray map object that isn't fading");
+			continue;
+		}
+		
+		uint8_t animationFrame = 0;
+		
+		auto objData = findObjectBitmap(obj, animationFrame);
+		if (objData.objBitmap)
+		{
+			QRect srcRect(object.rect.x(), object.rect.y(), tileSize, tileSize);
+			
+			painter.drawImage(x * tileSize, y * tileSize, *objData.objBitmap);
+			//drawObject(targetSurf, objData.objBitmap, &srcRect, objData.isMoving);
+			if (objData.flagBitmap)
 			{
-				stable_sort(ttiles[ix][iy][iz].objects.begin(), ttiles[ix][iy][iz].objects.end(), objectBlitOrderSorter);
+				/*if (objData.isMoving)
+				{
+					srcRect.y += FRAMES_PER_MOVE_ANIM_GROUP * 2 - tileSize;
+					Rect dstRect(realPos.x, realPos.y - tileSize / 2, tileSize, tileSize);
+					drawHeroFlag(targetSurf, objData.flagBitmap, &srcRect, &dstRect, true);
+				}
+				else if (obj->pos.x == pos.x && obj->pos.y == pos.y)
+				{
+					Rect dstRect(realPos.x - 2 * tileSize, realPos.y - tileSize, 3 * tileSize, 2 * tileSize);
+					drawHeroFlag(targetSurf, objData.flagBitmap, nullptr, &dstRect, false);
+				}*/
 			}
 		}
-	}*/
+	}
 }

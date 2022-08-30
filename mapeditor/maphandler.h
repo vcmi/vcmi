@@ -7,10 +7,58 @@
 
 #include <QImage>
 #include <QPixmap>
+#include <QRect>
+
+class CGObjectInstance;
+class CGBoat;
+struct PlayerColor;
+
+struct TerrainTileObject
+{
+	const CGObjectInstance *obj;
+	QRect rect;
+	bool real;
+	
+	TerrainTileObject(const CGObjectInstance *obj_, QRect rect_, bool visitablePos = false);
+	~TerrainTileObject();
+};
+
+struct TerrainTile2
+{
+	std::vector<TerrainTileObject> objects; //pointers to objects being on this tile with rects to be easier to blit this tile on screen
+};
 
 class MapHandler
 {
 public:
+	struct AnimBitmapHolder
+	{
+		std::shared_ptr<QImage> objBitmap; // main object bitmap
+		std::shared_ptr<QImage> flagBitmap; // flag bitmap for the object (probably only for heroes and boats with heroes)
+		
+		AnimBitmapHolder(std::shared_ptr<QImage> objBitmap_ = nullptr, std::shared_ptr<QImage> flagBitmap_ = nullptr)
+		: objBitmap(objBitmap_),
+		flagBitmap(flagBitmap_)
+		{}
+	};
+	
+private:
+	
+	ui8 getHeroFrameGroup(ui8 dir, bool isMoving) const;
+	ui8 getPhaseShift(const CGObjectInstance *object) const;
+	
+	// internal helper methods to choose correct bitmap(s) for object; called internally by findObjectBitmap
+	AnimBitmapHolder findHeroBitmap(const CGHeroInstance * hero, int anim) const;
+	AnimBitmapHolder findBoatBitmap(const CGBoat * hero, int anim) const;
+	std::shared_ptr<QImage> findFlagBitmap(const CGHeroInstance * obj, int anim, const PlayerColor * color, int group) const;
+	std::shared_ptr<QImage> findHeroFlagBitmap(const CGHeroInstance * obj, int anim, const PlayerColor * color, int group) const;
+	std::shared_ptr<QImage> findBoatFlagBitmap(const CGBoat * obj, int anim, const PlayerColor * color, int group, ui8 dir) const;
+	std::shared_ptr<QImage> findFlagBitmapInternal(std::shared_ptr<Animation> animation, int anim, int group, ui8 dir, bool moving) const;
+	
+public:
+	
+	AnimBitmapHolder findObjectBitmap(const CGObjectInstance * obj, int anim) const;
+	
 	enum class EMapCacheType : char
 	{
 		TERRAIN, OBJECTS, ROADS, RIVERS, FOW, HEROES, HERO_FLAGS, FRAME, AFTER_LAST
@@ -19,6 +67,7 @@ public:
 	void initObjectRects();
 	void initTerrainGraphics();
 
+	std::vector<TerrainTile2> ttiles; //informations about map tiles
 	int3 sizes; //map size (x = width, y = height, z = number of levels)
 	const CMap * map;
 	QPixmap surface;
@@ -39,7 +88,15 @@ public:
 	TFlippedAnimations riverAnimations;//[river type, rotation]
 	TFlippedCache riverImages;//[river type, view type, rotation]
 	
-	void drawTerrainTile(int x, int y, const TerrainTile & tinfo);
+	void drawTerrainTile(int x, int y, int z);
+	/// draws a river segment on current tile
+	//void drawRiver(const TerrainTile & tinfo) const;
+	/// draws a road segment on current tile
+	//void drawRoad(const TerrainTile & tinfo, const TerrainTile * tinfoUpper) const;
+	/// draws all objects on current tile (higher-level logic, unlike other draw*** methods)
+	void drawObjects(int x, int y, int z);
+	//void drawObject(SDL_Surface * targetSurf, std::shared_ptr<IImage> source, SDL_Rect * sourceRect, bool moving) const;
+	//void drawHeroFlag(SDL_Surface * targetSurf, std::shared_ptr<IImage> source, SDL_Rect * sourceRect, SDL_Rect * destRect, bool moving) const;
 
 	mutable std::map<const CGObjectInstance*, ui8> animationPhase;
 

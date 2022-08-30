@@ -19,6 +19,7 @@
 
 #include "CGameInfo.h"
 #include "maphandler.h"
+#include "graphics.h"
 
 static CBasicLogConfigurator * logConfig;
 
@@ -71,6 +72,9 @@ MainWindow::MainWindow(QWidget *parent) :
 	
 	CGI = new CGameInfo(); //contains all global informations about game (texts, lodHandlers, map handler etc.)
 	init();
+	
+	graphics = new Graphics(); // should be before curh->init()
+	graphics->load();//must be after Content loading but should be in main thread
 	
 	
 	if(!testFile("DATA/new-menu/Background.png", "Cannot find file"))
@@ -128,7 +132,15 @@ void MainWindow::on_actionOpen_triggered()
 	{
 		for(int i = 0; i < map->width; ++i)
 		{
-			mapHandler.drawTerrainTile(i, j, map->getTile((int3(i, j, 0))));
+			mapHandler.drawTerrainTile(i, j, 0);
+		}
+	}
+	
+	for(int j = 0; j < map->height; ++j)
+	{
+		for(int i = 0; i < map->width; ++i)
+		{
+			mapHandler.drawObjects(i, j, 0);
 		}
 	}
 	
