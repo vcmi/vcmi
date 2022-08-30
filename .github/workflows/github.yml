@@ -30,6 +30,7 @@ jobs:
             extension: dmg
             preset: macos-conan-ninja-release
             conan_profile: macos-intel
+            artifact_platform: intel
           - platform: mac-arm
             os: macos-12
             test: 0
@@ -37,6 +38,7 @@ jobs:
             extension: dmg
             preset: macos-arm-conan-ninja-release
             conan_profile: macos-arm
+            artifact_platform: arm
           - platform: mxe
             os: ubuntu-20.04
             mxe: i686-w64-mingw32.shared
@@ -86,6 +88,9 @@ jobs:
     - name: Build Number
       run: |
         source '${{github.workspace}}/CI/get_package_name.sh'
+        if [ '${{ matrix.artifact_platform }}' ]; then
+          VCMI_PACKAGE_FILE_NAME+="-${{ matrix.artifact_platform }}"
+        fi
         echo VCMI_PACKAGE_FILE_NAME="$VCMI_PACKAGE_FILE_NAME" >> $GITHUB_ENV
         echo VCMI_PACKAGE_NAME_SUFFIX="$VCMI_PACKAGE_NAME_SUFFIX" >> $GITHUB_ENV
       env:
