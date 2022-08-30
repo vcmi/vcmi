@@ -43,38 +43,15 @@ void MapHandler::initTerrainGraphics()
 	
 	auto loadFlipped = [](TFlippedAnimations & animation, TFlippedCache & cache, const std::map<std::string, std::string> & files)
 	{
-		//no rotation and basic setup
 		for(auto & type : files)
 		{
-			animation[type.first][0] = make_unique<Animation>(type.second);
-			animation[type.first][0]->preload();
-			const size_t views = animation[type.first][0]->size(0);
+			animation[type.first] = make_unique<Animation>(type.second);
+			animation[type.first]->preload();
+			const size_t views = animation[type.first]->size(0);
 			cache[type.first].resize(views);
 			
 			for(int j = 0; j < views; j++)
-				cache[type.first][j][0] = animation[type.first][0]->getImage(j);
-		}
-		
-		for(int rotation = 1; rotation < 4; rotation++)
-		{
-			for(auto & type : files)
-			{
-				animation[type.first][rotation] = make_unique<Animation>(type.second);
-				animation[type.first][rotation]->preload();
-				const size_t views = animation[type.first][rotation]->size(0);
-				
-				for(int j = 0; j < views; j++)
-				{
-					auto image = animation[type.first][rotation]->getImage(j);
-					
-					//if(rotation == 2 || rotation == 3)
-						//image->horizontalFlip();
-					//if(rotation == 1 || rotation == 3)
-						//image->verticalFlip();
-					
-					cache[type.first][j][rotation] = image;
-				}
-			}
+				cache[type.first][j] = animation[type.first]->getImage(j);
 		}
 	};
 	
@@ -98,7 +75,9 @@ void MapHandler::drawTerrainTile(int x, int y, const TerrainTile & tinfo)
 	if(terrainImages.at(tinfo.terType).size() <= tinfo.terView)
 		return;
 	
-	painter.drawImage(x * tileSize, y * tileSize, *terrainImages.at(tinfo.terType)[tinfo.terView][rotation]);
+	bool hflip = (rotation == 1 || rotation == 3), vflip = (rotation == 2 || rotation == 3);
+	
+	painter.drawImage(x * tileSize, y * tileSize, terrainImages.at(tinfo.terType)[tinfo.terView]->mirrored(hflip, vflip));
 }
 
 void MapHandler::initObjectRects()

@@ -27,8 +27,8 @@ public:
 	//terrain graphics
 
 	//FIXME: unique_ptr should be enough, but fails to compile in MSVS 2013
-	typedef std::map<std::string, std::array<std::shared_ptr<Animation>, 4>> TFlippedAnimations; //[type, rotation]
-	typedef std::map<std::string, std::vector<std::array<std::shared_ptr<QImage>, 4>>> TFlippedCache;//[type, view type, rotation]
+	typedef std::map<std::string, std::shared_ptr<Animation>> TFlippedAnimations; //[type, rotation]
+	typedef std::map<std::string, std::vector<std::shared_ptr<QImage>>> TFlippedCache;//[type, view type, rotation]
 
 	TFlippedAnimations terrainAnimations;//[terrain type, rotation]
 	TFlippedCache terrainImages;//[terrain type, view type, rotation]

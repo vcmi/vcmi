@@ -95,7 +95,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_actionOpen_triggered()
 {
-    /*auto filename = QFileDialog::getOpenFileName(this, tr("Open Image"), QString::fromStdString(VCMIDirs::get().userCachePath().native()), tr("Homm3 Files (*.vmap *.h3m)"));
+    auto filename = QFileDialog::getOpenFileName(this, tr("Open Image"), QString::fromStdString(VCMIDirs::get().userCachePath().native()), tr("Homm3 Files (*.vmap *.h3m)"));
 	
 	if(filename.isNull())
 		return;
@@ -103,8 +103,8 @@ void MainWindow::on_actionOpen_triggered()
 	QFileInfo fi(filename);
 	std::string fname = fi.fileName().toStdString();
 	std::string fdir = fi.dir().path().toStdString();
-	ResourceID resId("MAPS/" + fname, EResType::MAP);*/
-	ResourceID resId("MAPS/SomeMap.vmap", EResType::MAP);
+	ResourceID resId("MAPS/" + fname, EResType::MAP);
+	//ResourceID resId("MAPS/SomeMap.vmap", EResType::MAP);
 	
 	if(!CResourceHandler::get()->existsResource(resId))
 	{
