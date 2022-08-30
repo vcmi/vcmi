@@ -27,7 +27,7 @@
 void ObjectManager::process()
 {
 	zone.fractalize();
-		createRequiredObjects();
+	createRequiredObjects();
 }
 
 void ObjectManager::init()
@@ -220,6 +220,7 @@ bool ObjectManager::createRequiredObjects()
 {
 	logGlobal->trace("Creating required objects");
 	
+	RandomGeneratorUtil::randomShuffle(requiredObjects, generator.rand);	
 	for(const auto & object : requiredObjects)
 	{
 		auto * obj = object.first;
