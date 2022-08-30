@@ -368,7 +368,7 @@
 				"repositoryURL" : {
 					"type" : "array",
 					"default" : [
-						"https://raw.githubusercontent.com/Nordsoft91/vcmi-mods-repository/mods-from-github/repository.json"
+						"https://raw.githubusercontent.com/vcmi/vcmi-mods-repository/develop/github.json"
 					],
 					"items" : {
 						"type" : "string"
