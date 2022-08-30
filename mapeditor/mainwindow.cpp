@@ -102,7 +102,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::reloadMap()
+void MainWindow::reloadMap(int level)
 {
 	MapHandler mapHandler(map.get());
 
@@ -110,8 +110,8 @@ void MainWindow::reloadMap()
 	{
 		for(int i = 0; i < map->width; ++i)
 		{
-			mapHandler.drawTerrainTile(i, j, 0);
-			mapHandler.drawObjects(i, j, 0);
+			mapHandler.drawTerrainTile(i, j, level);
+			mapHandler.drawObjects(i, j, level);
 		}
 	}
 
@@ -128,13 +128,16 @@ void MainWindow::reloadMap()
 	sceneMini->addPixmap(minimap);
 }
 
-void MainWindow::setMap(std::unique_ptr<CMap> cmap)
+void MainWindow::setMapRaw(std::unique_ptr<CMap> cmap)
 {
 	map = std::move(cmap);
+}
+
+void MainWindow::setMap()
+{
 	unsaved = true;
 	filename.clear();
-	setWindowTitle(filename + " - VCMI Map Editor");
-
+	setWindowTitle("* - VCMI Map Editor");
 	reloadMap();
 }
 
@@ -174,6 +177,27 @@ void MainWindow::on_actionOpen_triggered()
 	reloadMap();
 }
 
+void MainWindow::saveMap()
+{
+	if(!map)
+		return;
+
+	if(!unsaved)
+		return;
+
+	CMapService mapService;
+	try
+	{
+		mapService.saveMap(map, filename.toStdString());
+	}
+	catch(const std::exception & e)
+	{
+		QMessageBox::critical(this, "Failed to save map", e.what());
+	}
+
+	unsaved = false;
+	setWindowTitle(filename + " - VCMI Map Editor");
+}
 
 void MainWindow::on_actionSave_as_triggered()
 {
@@ -185,27 +209,46 @@ void MainWindow::on_actionSave_as_triggered()
 	if(filenameSelect.isNull())
 		return;
 
-	if(!unsaved && filenameSelect == filename)
+	if(filenameSelect == filename)
 		return;
 
-	CMapService mapService;
-	try
-	{
-		mapService.saveMap(map, filenameSelect.toStdString());
-	}
-	catch(const std::exception & e)
-	{
-		QMessageBox::critical(this, "Failed to save map", e.what());
-	}
-
 	filename = filenameSelect;
-	unsaved = false;
-	setWindowTitle(filename + " - VCMI Map Editor");
+
+	saveMap();
 }
 
 
 void MainWindow::on_actionNew_triggered()
 {
 	auto newMapDialog = new WindowNewMap(this);
+}
+
+
+void MainWindow::on_actionLevel_triggered()
+{
+	if(map && map->twoLevel)
+	{
+		mapLevel = mapLevel ? 0 : 1;
+		reloadMap(mapLevel);
+	}
+}
+
+
+void MainWindow::on_actionSave_triggered()
+{
+	if(!map)
+		return;
+
+	if(filename.isNull())
+	{
+		auto filenameSelect = QFileDialog::getSaveFileName(this, tr("Save map"), "", tr("VCMI maps (*.vmap)"));
+
+		if(filenameSelect.isNull())
+			return;
+
+		filename = filenameSelect;
+	}
+
+	saveMap();
 }
 

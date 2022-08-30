@@ -7,6 +7,7 @@
 #include "windownewmap.h"
 #include "ui_windownewmap.h"
 #include "mainwindow.h"
+#include "generatorprogress.h"
 
 WindowNewMap::WindowNewMap(QWidget *parent) :
 	QDialog(parent),
@@ -29,6 +30,11 @@ WindowNewMap::~WindowNewMap()
 void WindowNewMap::on_cancelButton_clicked()
 {
 	close();
+}
+
+void generateRandomMap(CMapGenerator & gen, MainWindow * window, bool empty)
+{
+	window->setMapRaw(gen.generate(empty));
 }
 
 void WindowNewMap::on_okButtong_clicked()
@@ -54,10 +60,18 @@ void WindowNewMap::on_okButtong_clicked()
 
 	mapGenOptions.setWaterContent(water);
 	mapGenOptions.setMonsterStrength(monster);
-
 	CMapGenerator generator(mapGenOptions);
-	static_cast<MainWindow*>(parent())->setMap(generator.generate(!ui->randomMapCheck->isChecked()));
 
+	auto progressBarWnd = new GeneratorProgress(generator, this);
+	progressBarWnd->show();
+
+	{
+		std::thread generate(&::generateRandomMap, std::ref(generator), static_cast<MainWindow*>(parent()), !ui->randomMapCheck->isChecked());
+		progressBarWnd->update();
+		generate.join();
+	}
+
+	static_cast<MainWindow*>(parent())->setMap();
 	close();
 }
 

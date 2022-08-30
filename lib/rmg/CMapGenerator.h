@@ -15,6 +15,7 @@
 #include "CMapGenOptions.h"
 #include "../int3.h"
 #include "CRmgTemplate.h"
+#include "../LoadProgress.h"
 
 class CRmgTemplate;
 class CMapGenOptions;
@@ -26,7 +27,7 @@ class Zone;
 typedef std::vector<JsonNode> JsonVector;
 
 /// The map generator creates a map randomly.
-class DLL_LINKAGE CMapGenerator
+class DLL_LINKAGE CMapGenerator: public Load::Progress
 {
 public:
 	struct Config

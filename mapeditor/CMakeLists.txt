@@ -11,6 +11,7 @@ set(editor_SRCS
 		graphics.cpp
 		spoiler.cpp
 		windownewmap.cpp
+		generatorprogress.cpp
 )
 
 set(editor_HEADERS
@@ -25,11 +26,13 @@ set(editor_HEADERS
 		graphics.h
 		spoiler.h
 		windownewmap.h
+		generatorprogress.h
 )
 
 set(editor_FORMS
 		mainwindow.ui
 		windownewmap.ui
+		generatorprogress.ui
 )
 
 assign_source_group(${editor_SRCS} ${editor_HEADERS} VCMI_launcher.rc)

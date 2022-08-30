@@ -80,6 +80,8 @@
    <addaction name="actionNew"/>
    <addaction name="actionOpen"/>
    <addaction name="actionSave"/>
+   <addaction name="separator"/>
+   <addaction name="actionLevel"/>
   </widget>
   <action name="actionOpen">
    <property name="text">
@@ -99,6 +101,11 @@
   <action name="actionSave_as">
    <property name="text">
     <string>Save as</string>
+   </property>
+  </action>
+  <action name="actionLevel">
+   <property name="text">
+    <string>U/G</string>
    </property>
   </action>
  </widget>

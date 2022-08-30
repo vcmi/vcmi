@@ -177,6 +177,7 @@ set(lib_SRCS
 		IHandlerBase.cpp
 		JsonDetail.cpp
 		JsonNode.cpp
+		LoadProgress.cpp
 		LogicalExpression.cpp
 		NetPacksLib.cpp
 		ObstacleHandler.cpp
@@ -415,6 +416,7 @@ set(lib_HEADERS
 		Interprocess.h
 		JsonDetail.h
 		JsonNode.h
+		LoadProgress.h
 		LogicalExpression.h
 		NetPacksBase.h
 		NetPacks.h
