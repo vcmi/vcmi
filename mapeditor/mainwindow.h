@@ -3,9 +3,11 @@
 
 #include <QMainWindow>
 #include <QGraphicsScene>
+#include <QStandardItemModel>
 
 #include "maphandler.h"
 
+#include "mapview.h"
 class CMap;
 
 namespace Ui {
@@ -21,9 +23,15 @@ public:
     ~MainWindow();
 
 	void setMapRaw(std::unique_ptr<CMap> cmap);
-	void setMap();
+	void setMap(bool isNew);
 	void reloadMap(int level = 0);
 	void saveMap();
+
+	CMap * getMap();
+
+	void loadObjectsTree();
+
+	void setStatusMessage(const QString & status);
 
 private slots:
     void on_actionOpen_triggered();
@@ -36,16 +44,22 @@ private slots:
 
 	void on_actionSave_triggered();
 
+	void on_actionPass_triggered(bool checked);
+
+	void on_actionGrid_triggered(bool checked);
+
 private:
     Ui::MainWindow *ui;
 	
-	QGraphicsScene * scene;
+	std::array<MapScene *, 2> scenes;
 	QGraphicsScene * sceneMini;
 	QPixmap minimap;
 	
 	std::unique_ptr<CMap> map;
 	QString filename;
 	bool unsaved = false;
+
+	QStandardItemModel objectsModel;
 
 	int mapLevel = 0;
 };

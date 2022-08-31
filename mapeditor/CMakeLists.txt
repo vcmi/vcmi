@@ -12,6 +12,7 @@ set(editor_SRCS
 		spoiler.cpp
 		windownewmap.cpp
 		generatorprogress.cpp
+		mapview.cpp
 )
 
 set(editor_HEADERS
@@ -27,6 +28,7 @@ set(editor_HEADERS
 		spoiler.h
 		windownewmap.h
 		generatorprogress.h
+		mapview.h
 )
 
 set(editor_FORMS

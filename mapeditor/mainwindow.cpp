@@ -15,6 +15,8 @@
 #include "../lib/GameConstants.h"
 #include "../lib/mapping/CMapService.h"
 #include "../lib/mapping/CMap.h"
+#include "../lib/Terrain.h"
+#include "../lib/mapObjects/CObjectClassesHandler.h"
 
 
 #include "CGameInfo.h"
@@ -36,6 +38,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+	ui->mapView->setMain(this);
 
 	//configure logging
 	const boost::filesystem::path logPath = VCMIDirs::get().userCachePath() / "VCMI_Editor_log.txt";
@@ -86,20 +90,31 @@ MainWindow::MainWindow(QWidget *parent) :
 	//now let's try to draw
 	auto resPath = *CResourceHandler::get()->getResourceName(ResourceID("DATA/new-menu/Background.png"));
 	
-	scene = new QGraphicsScene(this);
-	ui->graphicsView->setScene(scene);
+	scenes[0] = new MapScene(this, 0);
+	scenes[1] = new MapScene(this, 1);
+	ui->mapView->setScene(scenes[0]);
 	
 	sceneMini = new QGraphicsScene(this);
 	ui->minimapView->setScene(sceneMini);
 
-	scene->addPixmap(QPixmap(QString::fromStdString(resPath.native())));
+	scenes[0]->addPixmap(QPixmap(QString::fromStdString(resPath.native())));
+
+	//loading objects
+	loadObjectsTree();
 
 	show();
+
+	setStatusMessage("privet");
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::setStatusMessage(const QString & status)
+{
+	statusBar()->showMessage(status);
 }
 
 void MainWindow::reloadMap(int level)
@@ -116,16 +131,19 @@ void MainWindow::reloadMap(int level)
 	}
 
 	auto mapSizePx = mapHandler.surface.rect();
-	float ratio = std::fmin(mapSizePx.width() / 256., mapSizePx.height() / 256.);
+	float ratio = std::fmin(mapSizePx.width() / 192., mapSizePx.height() / 192.);
 	minimap = mapHandler.surface;
 	minimap.setDevicePixelRatio(ratio);
 
-	scene->clear();
-	scene->addPixmap(mapHandler.surface);
-	//ui->graphicsView->setSceneRect(mapHandler.surface.rect());
+	scenes[level]->updateViews(mapHandler.surface);
 
-	sceneMini->clear();
-	sceneMini->addPixmap(minimap);
+	//sceneMini->clear();
+	//sceneMini->addPixmap(minimap);
+}
+
+CMap * MainWindow::getMap()
+{
+	return map.get();
 }
 
 void MainWindow::setMapRaw(std::unique_ptr<CMap> cmap)
@@ -133,12 +151,19 @@ void MainWindow::setMapRaw(std::unique_ptr<CMap> cmap)
 	map = std::move(cmap);
 }
 
-void MainWindow::setMap()
+void MainWindow::setMap(bool isNew)
 {
-	unsaved = true;
-	filename.clear();
-	setWindowTitle("* - VCMI Map Editor");
+	unsaved = isNew;
+	if(isNew)
+		filename.clear();
+
+	setWindowTitle(filename + "* - VCMI Map Editor");
 	reloadMap();
+	if(map->twoLevel)
+		reloadMap(1);
+
+	mapLevel = 0;
+	ui->mapView->setScene(scenes[mapLevel]);
 }
 
 void MainWindow::on_actionOpen_triggered()
@@ -170,11 +195,7 @@ void MainWindow::on_actionOpen_triggered()
 		QMessageBox::critical(this, "Failed to open map", e.what());
 	}
 
-	unsaved = false;
-	filename = filenameSelect;
-	setWindowTitle(filename + " - VCMI Map Editor");
-
-	reloadMap();
+	setMap(false);
 }
 
 void MainWindow::saveMap()
@@ -223,17 +244,6 @@ void MainWindow::on_actionNew_triggered()
 	auto newMapDialog = new WindowNewMap(this);
 }
 
-
-void MainWindow::on_actionLevel_triggered()
-{
-	if(map && map->twoLevel)
-	{
-		mapLevel = mapLevel ? 0 : 1;
-		reloadMap(mapLevel);
-	}
-}
-
-
 void MainWindow::on_actionSave_triggered()
 {
 	if(!map)
@@ -250,5 +260,93 @@ void MainWindow::on_actionSave_triggered()
 	}
 
 	saveMap();
+}
+
+void MainWindow::loadObjectsTree()
+{
+	for(auto & terrain : Terrain::Manager::terrains())
+	{
+		ui->listTerrains->addItem(QString::fromStdString(terrain));
+	}
+	/*
+	createHandler(bth, "Bonus type", pomtime);
+	createHandler(generaltexth, "General text", pomtime);
+	createHandler(heroh, "Hero", pomtime);
+	createHandler(arth, "Artifact", pomtime);
+	createHandler(creh, "Creature", pomtime);
+	createHandler(townh, "Town", pomtime);
+	createHandler(objh, "Object", pomtime);
+	createHandler(objtypeh, "Object types information", pomtime);
+	createHandler(spellh, "Spell", pomtime);
+	createHandler(skillh, "Skill", pomtime);
+	createHandler(terviewh, "Terrain view pattern", pomtime);
+	createHandler(tplh, "Template", pomtime); //templates need already resolved identifiers (refactor?)
+	createHandler(scriptHandler, "Script", pomtime);
+	createHandler(battlefieldsHandler, "Battlefields", pomtime);
+	createHandler(obstacleHandler, "Obstacles", pomtime);*/
+
+	std::map<std::string, std::vector<std::string>> identifiers;
+
+	for(auto primaryID : VLC->objtypeh->knownObjects())
+	{
+		//QList<QStandardItem*> objTypes;
+
+		for(auto secondaryID : VLC->objtypeh->knownSubObjects(primaryID))
+		{
+			//QList<QStandardItem*> objSubTypes;
+			auto handler = VLC->objtypeh->getHandlerFor(primaryID, secondaryID);
+
+			/*if(handler->isStaticObject())
+			{
+				for(auto temp : handler->getTemplates())
+				{
+
+				}
+			}*/
+
+			identifiers[handler->typeName].push_back(handler->subTypeName);
+		}
+	}
+
+	objectsModel.setHorizontalHeaderLabels(QStringList() << QStringLiteral("Type"));
+	QList<QStandardItem*> objTypes;
+	for(auto & el1 : identifiers)
+	{
+		auto * objTypei = new QStandardItem(QString::fromStdString(el1.first));
+		for(auto & el2 : el1.second)
+		{
+			objTypei->appendRow(new QStandardItem(QString::fromStdString(el2)));
+		}
+		objectsModel.appendRow(objTypei);
+	}
+	ui->treeView->setModel(&objectsModel);
+}
+
+void MainWindow::on_actionLevel_triggered()
+{
+	if(map && map->twoLevel)
+	{
+		mapLevel = mapLevel ? 0 : 1;
+		ui->mapView->setScene(scenes[mapLevel]);
+	}
+}
+
+void MainWindow::on_actionPass_triggered(bool checked)
+{
+	if(map)
+	{
+		scenes[0]->passabilityView.show(checked);
+		scenes[1]->passabilityView.show(checked);
+	}
+}
+
+
+void MainWindow::on_actionGrid_triggered(bool checked)
+{
+	if(map)
+	{
+		scenes[0]->gridView.show(checked);
+		scenes[1]->gridView.show(checked);
+	}
 }
 

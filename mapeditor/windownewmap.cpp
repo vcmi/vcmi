@@ -71,7 +71,7 @@ void WindowNewMap::on_okButtong_clicked()
 		generate.join();
 	}
 
-	static_cast<MainWindow*>(parent())->setMap();
+	static_cast<MainWindow*>(parent())->setMap(true);
 	close();
 }
 
