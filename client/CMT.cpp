@@ -10,7 +10,6 @@
 // CMT.cpp : Defines the entry point for the console application.
 //
 #include "StdInc.h"
-#include <SDL_mixer.h>
 
 #include <boost/program_options.hpp>
 
@@ -160,7 +159,7 @@ static void SDLLogCallback(void*           userdata,
 
 #if defined(VCMI_WINDOWS) && !defined(__GNUC__) && defined(VCMI_WITH_DEBUG_CONSOLE)
 int wmain(int argc, wchar_t* argv[])
-#elif defined(VCMI_APPLE) || defined(VCMI_ANDROID)
+#elif defined(VCMI_ANDROID)
 int SDL_main(int argc, char *argv[])
 #else
 int main(int argc, char * argv[])

@@ -1,6 +1,4 @@
-if(NOT ${CMAKE_VERSION} VERSION_LESS "3.10.0")
-	include(GoogleTest)
-endif()
+include(GoogleTest)
 
 set(googleTest_Dir ${CMAKE_CURRENT_SOURCE_DIR}/googletest)
 if(EXISTS ${googleTest_Dir})

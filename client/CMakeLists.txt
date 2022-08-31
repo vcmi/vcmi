@@ -142,7 +142,6 @@ set(client_HEADERS
 		Graphics.h
 		mapHandler.h
 		resource.h
-		SDLMain.h
 		SDLRWwrapper.h
 )
 
@@ -152,9 +151,7 @@ if(ANDROID) # android needs client/server to be libraries, not executables, so w
 	return()
 endif()
 
-if(APPLE)
-	set(client_SRCS ${client_SRCS} SDLMain.m)
-elseif(WIN32)
+if(WIN32)
 	set(client_ICON "VCMI_client.rc")
 endif()
 
