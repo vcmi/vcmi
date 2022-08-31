@@ -40,8 +40,8 @@ if(NOT CMAKE_BUILD_TYPE)
 	set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS Debug Release RelWithDebInfo)
 endif()
 
-set(VCMI_VERSION_MAJOR 0)
-set(VCMI_VERSION_MINOR 100)
+set(VCMI_VERSION_MAJOR 1)
+set(VCMI_VERSION_MINOR 0)
 set(VCMI_VERSION_PATCH 0)
 
 option(ENABLE_ERM "Enable compilation of ERM scripting module" ON)

@@ -1,4 +1,4 @@
-0.99 -> 0.100
+0.99 -> 1.0
 
 GENERAL:
 * Spectator mode was implemented through command-line options
@@ -81,6 +81,10 @@ BATTLES:
 ADVENTURE MAP:
 * Added buttons and keyboard shortcuts to quickly exchange army and artifacts between heroes
 * Fix: Captured town should not be duplicated on the UI
+
+LAUNCHER:
+* Implemented notifications about updates
+* Supported redirection links for downloading mods
 
 0.98 -> 0.99
 
