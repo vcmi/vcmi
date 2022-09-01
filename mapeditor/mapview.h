@@ -136,7 +136,10 @@ public:
 
 	CGObjectInstance * selectObjectAt(int x, int y);
 	std::set<CGObjectInstance *> selectObjects(int x1, int y1, int x2, int y2);
+	void moveSelection(int x, int y);
 	void clear();
+
+	QPoint shift;
 
 private:
 	std::set<CGObjectInstance *> selectedObjects;

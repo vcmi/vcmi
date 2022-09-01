@@ -53,6 +53,12 @@ void MapView::mouseMoveEvent(QMouseEvent *mouseEvent)
 		}
 		sc->selectionTerrainView.draw();
 		break;
+
+	case MapView::SelectionTool::None:
+		auto sh = tile - tileStart;
+		sc->selectionObjectsView.shift = QPoint(sh.x, sh.y);
+		sc->selectionObjectsView.draw();
+		break;
 	}
 }
 
@@ -106,6 +112,18 @@ void MapView::mousePressEvent(QMouseEvent *event)
 void MapView::mouseReleaseEvent(QMouseEvent *event)
 {
 	this->update();
+
+	auto * sc = static_cast<MapScene*>(scene());
+	if(!sc)
+		return;
+
+	switch(selectionTool)
+	{
+	case MapView::SelectionTool::None:
+		sc->selectionObjectsView.shift = QPoint(0, 0);
+		sc->selectionObjectsView.draw();
+		break;
+	}
 }
 
 MapScene::MapScene(MainWindow *parent, int l):
@@ -500,7 +518,16 @@ void SelectionObjectsView::draw()
 			bbox.setBottomRight(bottomRight);
 		}
 
+		painter.setOpacity(1.0);
 		painter.drawRect(bbox.x() * 32, bbox.y() * 32, bbox.width() * 32, bbox.height() * 32);
+
+		//show translation
+		if(shift.x() || shift.y())
+		{
+			painter.setOpacity(0.5);
+			auto newPos = QPoint(obj->getPosition().x, obj->getPosition().y) + shift;
+			main->getMapHandler()->drawObjectAt(painter, obj, newPos.x(), newPos.y());
+		}
 	}
 
 	redraw();
@@ -565,4 +592,6 @@ std::set<CGObjectInstance *> SelectionObjectsView::selectObjects(int x1, int y1,
 void SelectionObjectsView::clear()
 {
 	selectedObjects.clear();
+	shift.setX(0);
+	shift.setY(0);
 }

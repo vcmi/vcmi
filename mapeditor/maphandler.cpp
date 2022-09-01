@@ -412,3 +412,37 @@ void MapHandler::drawObject(QPainter & painter, const TerrainTileObject & object
 		}
 	}
 }
+
+
+void MapHandler::drawObjectAt(QPainter & painter, const CGObjectInstance * obj, int x, int y)
+{
+	if (!obj)
+	{
+		logGlobal->error("Stray map object that isn't fading");
+		return;
+	}
+
+	uint8_t animationFrame = 0;
+
+	auto objData = findObjectBitmap(obj, animationFrame);
+	if (objData.objBitmap)
+	{
+		painter.drawImage(QPoint((x - obj->getWidth()) * 32, (y - obj->getHeight()) * 32), *objData.objBitmap);
+
+		//drawObject(targetSurf, objData.objBitmap, &srcRect, objData.isMoving);
+		if (objData.flagBitmap)
+		{
+			/*if (objData.isMoving)
+			{
+				srcRect.y += FRAMES_PER_MOVE_ANIM_GROUP * 2 - tileSize;
+				Rect dstRect(realPos.x, realPos.y - tileSize / 2, tileSize, tileSize);
+				drawHeroFlag(targetSurf, objData.flagBitmap, &srcRect, &dstRect, true);
+			}
+			else if (obj->pos.x == pos.x && obj->pos.y == pos.y)
+			{
+				Rect dstRect(realPos.x - 2 * tileSize, realPos.y - tileSize, 3 * tileSize, 2 * tileSize);
+				drawHeroFlag(targetSurf, objData.flagBitmap, nullptr, &dstRect, false);
+			}*/
+		}
+	}
+}

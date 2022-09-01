@@ -94,6 +94,7 @@ public:
 	/// draws all objects on current tile (higher-level logic, unlike other draw*** methods)
 	void drawObjects(QPainter & painter, int x, int y, int z);
 	void drawObject(QPainter & painter, const TerrainTileObject & object);
+	void drawObjectAt(QPainter & painter, const CGObjectInstance * object, int x, int y);
 	std::vector<TerrainTileObject> & getObjects(int x, int y, int z);
 	//void drawObject(SDL_Surface * targetSurf, std::shared_ptr<IImage> source, SDL_Rect * sourceRect, bool moving) const;
 	//void drawHeroFlag(SDL_Surface * targetSurf, std::shared_ptr<IImage> source, SDL_Rect * sourceRect, SDL_Rect * destRect, bool moving) const;
