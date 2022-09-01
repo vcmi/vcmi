@@ -5,7 +5,7 @@
 
 MapView::MapView(QWidget *parent):
 	QGraphicsView(parent),
-	selectionTool(MapView::SelectionTool::Brush)
+	selectionTool(MapView::SelectionTool::None)
 {
 }
 
@@ -75,6 +75,8 @@ void MapView::mousePressEvent(QMouseEvent *event)
 	switch(selectionTool)
 	{
 	case MapView::SelectionTool::Brush:
+		sc->selectionObjectsView.clear();
+		sc->selectionObjectsView.draw();
 		if(pressedOnSelected)
 			sc->selectionTerrainView.erase(tileStart);
 		else
@@ -85,6 +87,16 @@ void MapView::mousePressEvent(QMouseEvent *event)
 	case MapView::SelectionTool::Area:
 		sc->selectionTerrainView.clear();
 		sc->selectionTerrainView.draw();
+		sc->selectionObjectsView.clear();
+		sc->selectionObjectsView.draw();
+		break;
+
+	case MapView::SelectionTool::None:
+		sc->selectionTerrainView.clear();
+		sc->selectionTerrainView.draw();
+		sc->selectionObjectsView.clear();
+		sc->selectionObjectsView.selectObjectAt(tileStart.x, tileStart.y);
+		sc->selectionObjectsView.draw();
 		break;
 	}
 
@@ -103,6 +115,7 @@ MapScene::MapScene(MainWindow *parent, int l):
 	selectionTerrainView(parent, this),
 	terrainView(parent, this),
 	objectsView(parent, this),
+	selectionObjectsView(parent, this),
 	main(parent),
 	level(l)
 {
@@ -116,10 +129,12 @@ void MapScene::updateViews()
 	gridView.update();
 	passabilityView.update();
 	selectionTerrainView.update();
+	selectionObjectsView.update();
 
 	terrainView.show(true);
 	objectsView.show(true);
 	selectionTerrainView.show(true);
+	selectionObjectsView.show(true);
 }
 
 BasicView::BasicView(MainWindow * m, MapScene * s): main(m), scene(s)
@@ -443,4 +458,111 @@ void ObjectsView::setDirty(int x, int y)
 void ObjectsView::setDirty(const CGObjectInstance * object)
 {
 	dirty.insert(object);
+}
+
+SelectionObjectsView::SelectionObjectsView(MainWindow * m, MapScene * s): BasicView(m, s)
+{
+}
+
+void SelectionObjectsView::update()
+{
+	auto map = main->getMap();
+	if(!map)
+		return;
+
+	selectedObjects.clear();
+
+	pixmap.reset(new QPixmap(map->width * 32, map->height * 32));
+	//pixmap->fill(QColor(0, 0, 0, 0));
+
+	draw();
+}
+
+void SelectionObjectsView::draw()
+{
+	if(!pixmap)
+		return;
+
+	pixmap->fill(QColor(0, 0, 0, 0));
+
+	QPainter painter(pixmap.get());
+	painter.setCompositionMode(QPainter::CompositionMode_Source);
+	painter.setPen(QColor(255, 255, 255));
+
+	for(auto * obj : selectedObjects)
+	{
+		QRect bbox(obj->getPosition().x, obj->getPosition().y, 1, 1);
+		for(auto & t : obj->getBlockedPos())
+		{
+			QPoint topLeft(std::min(t.x, bbox.topLeft().x()), std::min(t.y, bbox.topLeft().y()));
+			bbox.setTopLeft(topLeft);
+			QPoint bottomRight(std::max(t.x, bbox.bottomRight().x()), std::max(t.y, bbox.bottomRight().y()));
+			bbox.setBottomRight(bottomRight);
+		}
+
+		painter.drawRect(bbox.x() * 32, bbox.y() * 32, bbox.width() * 32, bbox.height() * 32);
+	}
+
+	redraw();
+}
+
+CGObjectInstance * SelectionObjectsView::selectObjectAt(int x, int y)
+{
+	if(!main->getMap() || !main->getMapHandler())
+		return nullptr;
+
+	auto & objects = main->getMapHandler()->getObjects(x, y, scene->level);
+
+	//visitable is most important
+	for(auto & object : objects)
+	{
+		if(!object.obj || selectedObjects.count(object.obj))
+			continue;
+
+		if(object.obj->visitableAt(x, y))
+		{
+			selectedObjects.insert(objects.back().obj);
+			return object.obj;
+		}
+	}
+
+	//if not visitable tile - try to get blocked
+	for(auto & object : objects)
+	{
+		if(!object.obj || selectedObjects.count(object.obj))
+			continue;
+
+		if(object.obj->blockingAt(x, y))
+		{
+			selectedObjects.insert(objects.back().obj);
+			return object.obj;
+		}
+	}
+
+	//finally, we can take any object
+	for(auto & object : objects)
+	{
+		if(!object.obj || selectedObjects.count(object.obj))
+			continue;
+
+		if(object.obj->coveringAt(x, y))
+		{
+			selectedObjects.insert(objects.back().obj);
+			return object.obj;
+		}
+	}
+
+	return nullptr;
+}
+
+std::set<CGObjectInstance *> SelectionObjectsView::selectObjects(int x1, int y1, int x2, int y2)
+{
+	std::set<CGObjectInstance *> result;
+	//TBD
+	return result;
+}
+
+void SelectionObjectsView::clear()
+{
+	selectedObjects.clear();
 }

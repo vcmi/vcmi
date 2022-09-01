@@ -15,11 +15,11 @@ class PlayerColor;
 
 struct TerrainTileObject
 {
-	const CGObjectInstance *obj;
+	CGObjectInstance *obj;
 	QRect rect;
 	bool real;
 	
-	TerrainTileObject(const CGObjectInstance *obj_, QRect rect_, bool visitablePos = false);
+	TerrainTileObject(CGObjectInstance *obj_, QRect rect_, bool visitablePos = false);
 	~TerrainTileObject();
 };
 
@@ -94,7 +94,7 @@ public:
 	/// draws all objects on current tile (higher-level logic, unlike other draw*** methods)
 	void drawObjects(QPainter & painter, int x, int y, int z);
 	void drawObject(QPainter & painter, const TerrainTileObject & object);
-	const std::vector<TerrainTileObject> & getObjects(int x, int y, int z);
+	std::vector<TerrainTileObject> & getObjects(int x, int y, int z);
 	//void drawObject(SDL_Surface * targetSurf, std::shared_ptr<IImage> source, SDL_Rect * sourceRect, bool moving) const;
 	//void drawHeroFlag(SDL_Surface * targetSurf, std::shared_ptr<IImage> source, SDL_Rect * sourceRect, SDL_Rect * destRect, bool moving) const;
 

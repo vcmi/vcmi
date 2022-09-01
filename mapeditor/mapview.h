@@ -116,13 +116,30 @@ public:
 
 	void update() override;
 
-	void draw(bool onlyDirty = true);
+	void draw(bool onlyDirty = true); //TODO: implement dirty
 
 	void setDirty(int x, int y);
 	void setDirty(const CGObjectInstance * object);
 
 private:
 	std::set<const CGObjectInstance *> dirty;
+};
+
+class SelectionObjectsView: public BasicView
+{
+public:
+	SelectionObjectsView(MainWindow * m, MapScene * s);
+
+	void update() override;
+
+	void draw();
+
+	CGObjectInstance * selectObjectAt(int x, int y);
+	std::set<CGObjectInstance *> selectObjects(int x1, int y1, int x2, int y2);
+	void clear();
+
+private:
+	std::set<CGObjectInstance *> selectedObjects;
 };
 
 class MapScene : public QGraphicsScene
@@ -137,6 +154,7 @@ public:
 	SelectionTerrainView selectionTerrainView;
 	TerrainView terrainView;
 	ObjectsView objectsView;
+	SelectionObjectsView selectionObjectsView;
 
 	const int level;
 

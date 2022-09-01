@@ -100,9 +100,9 @@ void MapHandler::drawTerrainTile(QPainter & painter, int x, int y, int z)
 void MapHandler::initObjectRects()
 {
 	//initializing objects / rects
-	for(auto & elem : map->objects)
+	for(const CGObjectInstance * elem : map->objects)
 	{
-		const CGObjectInstance *obj = elem;
+		CGObjectInstance *obj = const_cast<CGObjectInstance *>(elem);
 		if(	!obj
 		   || (obj->ID==Obj::HERO && static_cast<const CGHeroInstance*>(obj)->inTownGarrison) //garrisoned hero
 		   || (obj->ID==Obj::BOAT && static_cast<const CGBoat*>(obj)->hero)) //boat with hero (hero graphics is used)
@@ -176,7 +176,7 @@ bool MapHandler::compareObjectBlitOrder(const CGObjectInstance * a, const CGObje
 	return false;
 }
 
-TerrainTileObject::TerrainTileObject(const CGObjectInstance * obj_, QRect rect_, bool real_)
+TerrainTileObject::TerrainTileObject(CGObjectInstance * obj_, QRect rect_, bool real_)
 : obj(obj_),
 rect(rect_),
 real(real_)
@@ -331,7 +331,7 @@ MapHandler::AnimBitmapHolder MapHandler::findObjectBitmap(const CGObjectInstance
 	return MapHandler::AnimBitmapHolder(bitmap);
 }
 
-const std::vector<TerrainTileObject> & MapHandler::getObjects(int x, int y, int z)
+std::vector<TerrainTileObject> & MapHandler::getObjects(int x, int y, int z)
 {
 	return ttiles[z * (sizes.x * sizes.y) + y * sizes.x + x].objects;
 }
