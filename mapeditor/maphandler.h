@@ -70,8 +70,6 @@ public:
 	std::vector<TerrainTile2> ttiles; //informations about map tiles
 	int3 sizes; //map size (x = width, y = height, z = number of levels)
 	const CMap * map;
-	QPixmap surface;
-	QPainter painter;
 
 	//terrain graphics
 
@@ -88,13 +86,13 @@ public:
 	TFlippedAnimations riverAnimations;//[river type, rotation]
 	TFlippedCache riverImages;//[river type, view type, rotation]
 	
-	void drawTerrainTile(int x, int y, int z);
+	void drawTerrainTile(QPainter & painter, int x, int y, int z);
 	/// draws a river segment on current tile
 	//void drawRiver(const TerrainTile & tinfo) const;
 	/// draws a road segment on current tile
 	//void drawRoad(const TerrainTile & tinfo, const TerrainTile * tinfoUpper) const;
 	/// draws all objects on current tile (higher-level logic, unlike other draw*** methods)
-	void drawObjects(int x, int y, int z);
+	void drawObjects(QPainter & painter, int x, int y, int z);
 	//void drawObject(SDL_Surface * targetSurf, std::shared_ptr<IImage> source, SDL_Rect * sourceRect, bool moving) const;
 	//void drawHeroFlag(SDL_Surface * targetSurf, std::shared_ptr<IImage> source, SDL_Rect * sourceRect, SDL_Rect * destRect, bool moving) const;
 

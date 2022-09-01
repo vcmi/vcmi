@@ -19,7 +19,7 @@ static bool objectBlitOrderSorter(const TerrainTileObject & a, const TerrainTile
 }
 
 MapHandler::MapHandler(const CMap * Map):
-	map(Map), surface(Map->width * tileSize, Map->height * tileSize), painter(&surface)
+	map(Map)
 {
 	init();
 }
@@ -82,7 +82,7 @@ void MapHandler::initTerrainGraphics()
 	ttiles.resize(sizes.x * sizes.y * sizes.z);
 }
 
-void MapHandler::drawTerrainTile(int x, int y, int z)
+void MapHandler::drawTerrainTile(QPainter & painter, int x, int y, int z)
 {
 	auto & tinfo = map->getTile(int3(x, y, z));
 	//Rect destRect(realTileRect);
@@ -331,7 +331,7 @@ MapHandler::AnimBitmapHolder MapHandler::findObjectBitmap(const CGObjectInstance
 	return MapHandler::AnimBitmapHolder(bitmap);
 }
 
-void MapHandler::drawObjects(int x, int y, int z)
+void MapHandler::drawObjects(QPainter & painter, int x, int y, int z)
 {
 	auto & objects = ttiles[z * (sizes.x * sizes.y) + y * sizes.x + x].objects;
 	for(auto & object : objects)

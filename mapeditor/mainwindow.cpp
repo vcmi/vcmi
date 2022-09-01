@@ -1,3 +1,4 @@
+#include "StdInc.h"
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
@@ -15,6 +16,7 @@
 #include "../lib/GameConstants.h"
 #include "../lib/mapping/CMapService.h"
 #include "../lib/mapping/CMap.h"
+#include "../lib/mapping/CMapEditManager.h"
 #include "../lib/Terrain.h"
 #include "../lib/mapObjects/CObjectClassesHandler.h"
 
@@ -112,6 +114,11 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+MapView * MainWindow::getMapView()
+{
+	return ui->mapView;
+}
+
 void MainWindow::setStatusMessage(const QString & status)
 {
 	statusBar()->showMessage(status);
@@ -119,23 +126,12 @@ void MainWindow::setStatusMessage(const QString & status)
 
 void MainWindow::reloadMap(int level)
 {
-	MapHandler mapHandler(map.get());
+	//auto mapSizePx = mapHandler->surface.rect();
+	//float ratio = std::fmin(mapSizePx.width() / 192., mapSizePx.height() / 192.);*/
+	//minimap = mapHandler->surface;
+	//minimap.setDevicePixelRatio(ratio);
 
-	for(int j = 0; j < map->height; ++j)
-	{
-		for(int i = 0; i < map->width; ++i)
-		{
-			mapHandler.drawTerrainTile(i, j, level);
-			mapHandler.drawObjects(i, j, level);
-		}
-	}
-
-	auto mapSizePx = mapHandler.surface.rect();
-	float ratio = std::fmin(mapSizePx.width() / 192., mapSizePx.height() / 192.);
-	minimap = mapHandler.surface;
-	minimap.setDevicePixelRatio(ratio);
-
-	scenes[level]->updateViews(mapHandler.surface);
+	scenes[level]->updateViews();
 
 	//sceneMini->clear();
 	//sceneMini->addPixmap(minimap);
@@ -144,6 +140,11 @@ void MainWindow::reloadMap(int level)
 CMap * MainWindow::getMap()
 {
 	return map.get();
+}
+
+MapHandler * MainWindow::getMapHandler()
+{
+	return mapHandler.get();
 }
 
 void MainWindow::setMapRaw(std::unique_ptr<CMap> cmap)
@@ -158,6 +159,9 @@ void MainWindow::setMap(bool isNew)
 		filename.clear();
 
 	setWindowTitle(filename + "* - VCMI Map Editor");
+
+	mapHandler.reset(new MapHandler(map.get()));
+
 	reloadMap();
 	if(map->twoLevel)
 		reloadMap(1);
@@ -262,12 +266,32 @@ void MainWindow::on_actionSave_triggered()
 	saveMap();
 }
 
+void MainWindow::terrainButtonClicked(Terrain terrain)
+{
+	std::vector<int3> v(scenes[mapLevel]->selectionTerrainView.selection().begin(), scenes[mapLevel]->selectionTerrainView.selection().end());
+	if(v.empty())
+		return;
+
+	scenes[mapLevel]->selectionTerrainView.clear();
+	scenes[mapLevel]->selectionTerrainView.draw();
+
+	map->getEditManager()->getTerrainSelection().setSelection(v);
+	map->getEditManager()->drawTerrain(terrain, &CRandomGenerator::getDefault());
+
+	for(auto & t : v)
+		scenes[mapLevel]->terrainView.setDirty(t);
+	scenes[mapLevel]->terrainView.draw();
+}
+
 void MainWindow::loadObjectsTree()
 {
 	for(auto & terrain : Terrain::Manager::terrains())
 	{
-		ui->listTerrains->addItem(QString::fromStdString(terrain));
+		QPushButton *b = new QPushButton(QString::fromStdString(terrain));
+		ui->terrainLayout->addWidget(b);
+		connect(b, &QPushButton::clicked, this, [this, terrain]{ terrainButtonClicked(terrain); });
 	}
+	ui->terrainLayout->addItem(new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Expanding));
 	/*
 	createHandler(bth, "Bonus type", pomtime);
 	createHandler(generaltexth, "General text", pomtime);
@@ -347,6 +371,44 @@ void MainWindow::on_actionGrid_triggered(bool checked)
 	{
 		scenes[0]->gridView.show(checked);
 		scenes[1]->gridView.show(checked);
+	}
+}
+
+
+void MainWindow::on_toolBrush_clicked(bool checked)
+{
+	//ui->toolBrush->setChecked(false);
+	ui->toolBrush2->setChecked(false);
+	ui->toolBrush4->setChecked(false);
+	ui->toolArea->setChecked(false);
+	ui->toolLasso->setChecked(false);
+
+	if(checked)
+	{
+		ui->mapView->selectionTool = MapView::SelectionTool::Brush;
+	}
+	else
+	{
+		ui->mapView->selectionTool = MapView::SelectionTool::None;
+	}
+}
+
+
+void MainWindow::on_toolArea_clicked(bool checked)
+{
+	ui->toolBrush->setChecked(false);
+	ui->toolBrush2->setChecked(false);
+	ui->toolBrush4->setChecked(false);
+	//ui->toolArea->setChecked(false);
+	ui->toolLasso->setChecked(false);
+
+	if(checked)
+	{
+		ui->mapView->selectionTool = MapView::SelectionTool::Area;
+	}
+	else
+	{
+		ui->mapView->selectionTool = MapView::SelectionTool::None;
 	}
 }
 

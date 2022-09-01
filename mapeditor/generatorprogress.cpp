@@ -1,3 +1,4 @@
+#include "StdInc.h"
 #include "generatorprogress.h"
 #include "ui_generatorprogress.h"
 #include <thread>

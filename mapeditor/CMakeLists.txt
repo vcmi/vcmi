@@ -13,6 +13,7 @@ set(editor_SRCS
 		windownewmap.cpp
 		generatorprogress.cpp
 		mapview.cpp
+		radiopushbutton.cpp
 )
 
 set(editor_HEADERS
@@ -29,6 +30,7 @@ set(editor_HEADERS
 		windownewmap.h
 		generatorprogress.h
 		mapview.h
+		radiopushbutton.h
 )
 
 set(editor_FORMS

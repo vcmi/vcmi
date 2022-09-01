@@ -4,10 +4,11 @@
 #include <QMainWindow>
 #include <QGraphicsScene>
 #include <QStandardItemModel>
+#include "../lib/Terrain.h"
 
 #include "maphandler.h"
-
 #include "mapview.h"
+
 class CMap;
 
 namespace Ui {
@@ -28,10 +29,13 @@ public:
 	void saveMap();
 
 	CMap * getMap();
+	MapHandler * getMapHandler();
 
 	void loadObjectsTree();
 
 	void setStatusMessage(const QString & status);
+
+	MapView * getMapView();
 
 private slots:
     void on_actionOpen_triggered();
@@ -48,9 +52,16 @@ private slots:
 
 	void on_actionGrid_triggered(bool checked);
 
+	void on_toolBrush_clicked(bool checked);
+
+	void on_toolArea_clicked(bool checked);
+
+	void terrainButtonClicked(Terrain terrain);
+
 private:
     Ui::MainWindow *ui;
 	
+	std::unique_ptr<MapHandler> mapHandler;
 	std::array<MapScene *, 2> scenes;
 	QGraphicsScene * sceneMini;
 	QPixmap minimap;

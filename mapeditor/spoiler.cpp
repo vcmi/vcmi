@@ -1,3 +1,4 @@
+#include "StdInc.h"
 #include <QPropertyAnimation>
 
 #include "Spoiler.h"

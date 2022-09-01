@@ -1,3 +1,4 @@
+#include "StdInc.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/rmg/CRmgTemplateStorage.h"
 #include "../lib/rmg/CRmgTemplate.h"
