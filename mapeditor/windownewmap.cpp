@@ -21,6 +21,13 @@ WindowNewMap::WindowNewMap(QWidget *parent) :
 	setWindowModality(Qt::ApplicationModal);
 
 	show();
+
+	//setup initial parameters
+	mapGenOptions.setWidth(ui->widthTxt->text().toInt());
+	mapGenOptions.setHeight(ui->heightTxt->text().toInt());
+	bool twoLevel = ui->twoLevelCheck->isChecked();
+	mapGenOptions.setHasTwoLevels(twoLevel);
+	updateTemplateList();
 }
 
 WindowNewMap::~WindowNewMap()

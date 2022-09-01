@@ -25,6 +25,7 @@ protected:
 	bool isShown = false;
 
 	std::unique_ptr<QPixmap> pixmap;
+	QPixmap emptyPixmap;
 
 private:
 	std::unique_ptr<QGraphicsPixmapItem> item;

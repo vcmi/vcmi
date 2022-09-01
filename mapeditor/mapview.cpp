@@ -105,7 +105,6 @@ MapScene::MapScene(MainWindow *parent, int l):
 	main(parent),
 	level(l)
 {
-
 }
 
 void MapScene::updateViews()
@@ -114,6 +113,9 @@ void MapScene::updateViews()
 	gridView.update();
 	passabilityView.update();
 	selectionTerrainView.update();
+
+	terrainView.show(true);
+	selectionTerrainView.show(true);
 }
 
 BasicView::BasicView(MainWindow * m, MapScene * s): main(m), scene(s)
@@ -129,14 +131,24 @@ void BasicView::show(bool show)
 
 	if(show)
 	{
-		if(item)
-			scene->addItem(item.get());
+		if(pixmap)
+		{
+			if(item)
+				item->setPixmap(*pixmap);
+			else
+				item.reset(scene->addPixmap(*pixmap));
+		}
 		else
-			item.reset(scene->addPixmap(*pixmap));
+		{
+			if(item)
+				item->setPixmap(emptyPixmap);
+			else
+				item.reset(scene->addPixmap(emptyPixmap));
+		}
 	}
 	else
 	{
-		scene->removeItem(item.get());
+		item->setPixmap(emptyPixmap);
 	}
 
 	isShown = show;
@@ -145,11 +157,18 @@ void BasicView::show(bool show)
 void BasicView::redraw()
 {
 	if(item)
-		scene->removeItem(item.get());
-
-	if(isShown)
 	{
-		item.reset(scene->addPixmap(*pixmap));
+		if(pixmap && isShown)
+			item->setPixmap(*pixmap);
+		else
+			item->setPixmap(emptyPixmap);
+	}
+	else
+	{
+		if(pixmap && isShown)
+			item.reset(scene->addPixmap(*pixmap));
+		else
+			item.reset(scene->addPixmap(emptyPixmap));
 	}
 }
 
@@ -162,8 +181,6 @@ void GridView::update()
 	auto map = main->getMap();
 	if(!map)
 		return;
-
-	show(false);
 
 	pixmap.reset(new QPixmap(map->width * 32, map->height * 32));
 	pixmap->fill(QColor(0, 0, 0, 0));
@@ -179,7 +196,7 @@ void GridView::update()
 		painter.drawLine(i * 32, 0, i * 32, map->height * 32 - 1);
 	}
 
-	show(isShown);
+	redraw();
 }
 
 PassabilityView::PassabilityView(MainWindow * m, MapScene * s): BasicView(m, s)
@@ -191,8 +208,6 @@ void PassabilityView::update()
 	auto map = main->getMap();
 	if(!map)
 		return;
-
-	show(false);
 
 	pixmap.reset(new QPixmap(map->width * 32, map->height * 32));
 	pixmap->fill(QColor(0, 0, 0, 0));
@@ -213,7 +228,7 @@ void PassabilityView::update()
 		}
 	}
 
-	show(isShown);
+	redraw();
 }
 
 SelectionTerrainView::SelectionTerrainView(MainWindow * m, MapScene * s): BasicView(m, s)
@@ -226,8 +241,6 @@ void SelectionTerrainView::update()
 	if(!map)
 		return;
 
-	show(false);
-
 	area.clear();
 	areaAdd.clear();
 	areaErase.clear();
@@ -235,7 +248,7 @@ void SelectionTerrainView::update()
 	pixmap.reset(new QPixmap(map->width * 32, map->height * 32));
 	pixmap->fill(QColor(0, 0, 0, 0));
 
-	show(true); //always visible
+	redraw();
 }
 
 void SelectionTerrainView::draw()
@@ -302,12 +315,8 @@ void TerrainView::update()
 	if(!map)
 		return;
 
-	show(false);
-
 	pixmap.reset(new QPixmap(map->width * 32, map->height * 32));
 	draw(false);
-
-	show(true); //always visible
 }
 
 void TerrainView::setDirty(const int3 & tile)
