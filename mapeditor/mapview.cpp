@@ -102,6 +102,7 @@ MapScene::MapScene(MainWindow *parent, int l):
 	passabilityView(parent, this),
 	selectionTerrainView(parent, this),
 	terrainView(parent, this),
+	objectsView(parent, this),
 	main(parent),
 	level(l)
 {
@@ -109,12 +110,15 @@ MapScene::MapScene(MainWindow *parent, int l):
 
 void MapScene::updateViews()
 {
+	//sequence is important because it defines rendering order
 	terrainView.update();
+	objectsView.update();
 	gridView.update();
 	passabilityView.update();
 	selectionTerrainView.update();
 
 	terrainView.show(true);
+	objectsView.show(true);
 	selectionTerrainView.show(true);
 }
 
@@ -330,6 +334,8 @@ void TerrainView::draw(bool onlyDirty)
 		return;
 
 	auto map = main->getMap();
+	if(!map)
+		return;
 
 	QPainter painter(pixmap.get());
 	painter.setCompositionMode(QPainter::CompositionMode_Source);
@@ -366,5 +372,75 @@ void TerrainView::draw(bool onlyDirty)
 				main->getMapHandler()->drawTerrainTile(painter, i, j, scene->level);
 	}
 
+	dirty.clear();
 	redraw();
+}
+
+ObjectsView::ObjectsView(MainWindow * m, MapScene * s): BasicView(m, s)
+{
+}
+
+void ObjectsView::update()
+{
+	auto map = main->getMap();
+	if(!map)
+		return;
+
+	pixmap.reset(new QPixmap(map->width * 32, map->height * 32));
+	pixmap->fill(QColor(0, 0, 0, 0));
+	draw(false);
+}
+
+void ObjectsView::draw(bool onlyDirty)
+{
+	if(!pixmap)
+		return;
+
+	auto map = main->getMap();
+	if(!map)
+		return;
+
+	pixmap->fill(QColor(0, 0, 0, 0));
+	QPainter painter(pixmap.get());
+	//painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+	std::set<const CGObjectInstance *> drawen;
+
+
+	for(int j = 0; j < map->height; ++j)
+	{
+		for(int i = 0; i < map->width; ++i)
+		{
+			main->getMapHandler()->drawObjects(painter, i, j, scene->level);
+			/*auto & objects = main->getMapHandler()->getObjects(i, j, scene->level);
+			for(auto & object : objects)
+			{
+				if(!object.obj || drawen.count(object.obj))
+					continue;
+
+				if(!onlyDirty || dirty.count(object.obj))
+				{
+					main->getMapHandler()->drawObject(painter, object);
+					drawen.insert(object.obj);
+				}
+			}*/
+		}
+	}
+
+	dirty.clear();
+	redraw();
+}
+
+void ObjectsView::setDirty(int x, int y)
+{
+	auto & objects = main->getMapHandler()->getObjects(x, y, scene->level);
+	for(auto & object : objects)
+	{
+		if(object.obj)
+			dirty.insert(object.obj);
+	}
+}
+
+void ObjectsView::setDirty(const CGObjectInstance * object)
+{
+	dirty.insert(object);
 }

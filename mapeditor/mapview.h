@@ -6,6 +6,7 @@
 #include "../lib/int3.h"
 
 class int3;
+class CGObjectInstance;
 class MainWindow;
 class MapScene;
 
@@ -108,6 +109,22 @@ private:
 	std::set<int3> dirty;
 };
 
+class ObjectsView: public BasicView
+{
+public:
+	ObjectsView(MainWindow * m, MapScene * s);
+
+	void update() override;
+
+	void draw(bool onlyDirty = true);
+
+	void setDirty(int x, int y);
+	void setDirty(const CGObjectInstance * object);
+
+private:
+	std::set<const CGObjectInstance *> dirty;
+};
+
 class MapScene : public QGraphicsScene
 {
 public:
@@ -119,6 +136,7 @@ public:
 	PassabilityView passabilityView;
 	SelectionTerrainView selectionTerrainView;
 	TerrainView terrainView;
+	ObjectsView objectsView;
 
 	const int level;
 

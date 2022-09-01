@@ -331,28 +331,32 @@ MapHandler::AnimBitmapHolder MapHandler::findObjectBitmap(const CGObjectInstance
 	return MapHandler::AnimBitmapHolder(bitmap);
 }
 
+const std::vector<TerrainTileObject> & MapHandler::getObjects(int x, int y, int z)
+{
+	return ttiles[z * (sizes.x * sizes.y) + y * sizes.x + x].objects;
+}
+
 void MapHandler::drawObjects(QPainter & painter, int x, int y, int z)
 {
-	auto & objects = ttiles[z * (sizes.x * sizes.y) + y * sizes.x + x].objects;
-	for(auto & object : objects)
+	for(auto & object : getObjects(x, y, z))
 	{
-		
-		//if(object.visi)
 		const CGObjectInstance * obj = object.obj;
 		if (!obj)
 		{
 			logGlobal->error("Stray map object that isn't fading");
-			continue;
+			return;
 		}
-		
+
 		uint8_t animationFrame = 0;
-		
+
 		auto objData = findObjectBitmap(obj, animationFrame);
 		if (objData.objBitmap)
 		{
-			QRect srcRect(object.rect.x() + x * 32, object.rect.y() + y * 32, tileSize, tileSize);
-			
-			painter.drawImage(x * 32 - object.rect.x(), y * 32 - object.rect.y(), *objData.objBitmap);
+			auto pos = obj->getPosition();
+			QRect srcRect(object.rect.x() + pos.x * 32, object.rect.y() + pos.y * 32, tileSize, tileSize);
+
+			painter.drawImage(QPoint(x * 32, y * 32), *objData.objBitmap, object.rect);
+			//painter.drawImage(pos.x * 32 - object.rect.x(), pos.y * 32 - object.rect.y(), *objData.objBitmap);
 			//drawObject(targetSurf, objData.objBitmap, &srcRect, objData.isMoving);
 			if (objData.flagBitmap)
 			{
@@ -368,6 +372,43 @@ void MapHandler::drawObjects(QPainter & painter, int x, int y, int z)
 					drawHeroFlag(targetSurf, objData.flagBitmap, nullptr, &dstRect, false);
 				}*/
 			}
+		}
+	}
+}
+
+void MapHandler::drawObject(QPainter & painter, const TerrainTileObject & object)
+{
+	//if(object.visi)
+	const CGObjectInstance * obj = object.obj;
+	if (!obj)
+	{
+		logGlobal->error("Stray map object that isn't fading");
+		return;
+	}
+
+	uint8_t animationFrame = 0;
+
+	auto objData = findObjectBitmap(obj, animationFrame);
+	if (objData.objBitmap)
+	{
+		auto pos = obj->getPosition();
+		QRect srcRect(object.rect.x() + pos.x * 32, object.rect.y() + pos.y * 32, tileSize, tileSize);
+
+		painter.drawImage(pos.x * 32 - object.rect.x(), pos.y * 32 - object.rect.y(), *objData.objBitmap);
+		//drawObject(targetSurf, objData.objBitmap, &srcRect, objData.isMoving);
+		if (objData.flagBitmap)
+		{
+			/*if (objData.isMoving)
+			{
+				srcRect.y += FRAMES_PER_MOVE_ANIM_GROUP * 2 - tileSize;
+				Rect dstRect(realPos.x, realPos.y - tileSize / 2, tileSize, tileSize);
+				drawHeroFlag(targetSurf, objData.flagBitmap, &srcRect, &dstRect, true);
+			}
+			else if (obj->pos.x == pos.x && obj->pos.y == pos.y)
+			{
+				Rect dstRect(realPos.x - 2 * tileSize, realPos.y - tileSize, 3 * tileSize, 2 * tileSize);
+				drawHeroFlag(targetSurf, objData.flagBitmap, nullptr, &dstRect, false);
+			}*/
 		}
 	}
 }
