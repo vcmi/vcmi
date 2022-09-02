@@ -622,6 +622,27 @@ void CMap::addNewObject(CGObjectInstance * obj)
 	obj->afterAddToMap(this);
 }
 
+void CMap::moveObject(CGObjectInstance * obj, const int3 & pos)
+{
+	removeBlockVisTiles(obj);
+	obj->pos = pos;
+	addBlockVisTiles(obj);
+}
+
+void CMap::removeObject(CGObjectInstance * obj)
+{
+	removeBlockVisTiles(obj);
+	instanceNames.erase(obj->instanceName);
+
+	//update indeces
+	auto iter = std::next(objects.begin(), obj->id.getNum());
+	iter = objects.erase(iter);
+	for(int i = obj->id.getNum(); iter != objects.end(); ++i, ++iter)
+	{
+		(*iter)->id = ObjectInstanceID(i);
+	}
+}
+
 void CMap::initTerrain()
 {
 	int level = twoLevel ? 2 : 1;

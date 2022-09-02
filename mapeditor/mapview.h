@@ -139,6 +139,9 @@ public:
 	void moveSelection(int x, int y);
 	void clear();
 
+	bool applyShift();
+	void deleteSelection();
+
 	QPoint shift;
 
 private:

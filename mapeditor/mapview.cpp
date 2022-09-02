@@ -3,6 +3,8 @@
 #include "mainwindow.h"
 #include <QGraphicsSceneMouseEvent>
 
+#include "../lib/mapping/CMapEditManager.h"
+
 MapView::MapView(QWidget *parent):
 	QGraphicsView(parent),
 	selectionTool(MapView::SelectionTool::None)
@@ -120,8 +122,17 @@ void MapView::mouseReleaseEvent(QMouseEvent *event)
 	switch(selectionTool)
 	{
 	case MapView::SelectionTool::None:
-		sc->selectionObjectsView.shift = QPoint(0, 0);
-		sc->selectionObjectsView.draw();
+		//switch position
+		if(sc->selectionObjectsView.applyShift())
+		{
+			main->resetMapHandler();
+			sc->updateViews();
+		}
+		else
+		{
+			sc->selectionObjectsView.shift = QPoint(0, 0);
+			sc->selectionObjectsView.draw();
+		}
 		break;
 	}
 }
@@ -489,6 +500,7 @@ void SelectionObjectsView::update()
 		return;
 
 	selectedObjects.clear();
+	shift = QPoint();
 
 	pixmap.reset(new QPixmap(map->width * 32, map->height * 32));
 	//pixmap->fill(QColor(0, 0, 0, 0));
@@ -548,7 +560,7 @@ CGObjectInstance * SelectionObjectsView::selectObjectAt(int x, int y)
 
 		if(object.obj->visitableAt(x, y))
 		{
-			selectedObjects.insert(objects.back().obj);
+			selectedObjects.insert(object.obj);
 			return object.obj;
 		}
 	}
@@ -561,7 +573,7 @@ CGObjectInstance * SelectionObjectsView::selectObjectAt(int x, int y)
 
 		if(object.obj->blockingAt(x, y))
 		{
-			selectedObjects.insert(objects.back().obj);
+			selectedObjects.insert(object.obj);
 			return object.obj;
 		}
 	}
@@ -574,12 +586,36 @@ CGObjectInstance * SelectionObjectsView::selectObjectAt(int x, int y)
 
 		if(object.obj->coveringAt(x, y))
 		{
-			selectedObjects.insert(objects.back().obj);
+			selectedObjects.insert(object.obj);
 			return object.obj;
 		}
 	}
 
 	return nullptr;
+}
+
+bool SelectionObjectsView::applyShift()
+{
+	if(shift.x() || shift.y())
+	{
+		for(auto * obj : selectedObjects)
+		{
+			int3 pos = obj->pos;
+			pos.x += shift.x(); pos.y += shift.y();
+			main->getMap()->getEditManager()->moveObject(obj, pos);
+		}
+		return true;
+	}
+	return false;
+}
+
+void SelectionObjectsView::deleteSelection()
+{
+	for(auto * obj : selectedObjects)
+	{
+		main->getMap()->getEditManager()->removeObject(obj);
+	}
+	clear();
 }
 
 std::set<CGObjectInstance *> SelectionObjectsView::selectObjects(int x1, int y1, int x2, int y2)

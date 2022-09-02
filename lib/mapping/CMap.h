@@ -364,6 +364,9 @@ public:
 
 	///Use only this method when creating new map object instances
 	void addNewObject(CGObjectInstance * obj);
+	void moveObject(CGObjectInstance * obj, const int3 & dst);
+	void removeObject(CGObjectInstance * obj);
+
 
 	/// Gets object of specified type on requested position
 	const CGObjectInstance * getObjectiveObjectFrom(int3 pos, Obj::EObj type);

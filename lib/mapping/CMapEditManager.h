@@ -178,6 +178,8 @@ public:
 	void drawRiver(const std::string & riverType, CRandomGenerator * gen = nullptr);
 
 	void insertObject(CGObjectInstance * obj);
+	void moveObject(CGObjectInstance * obj, const int3 & pos);
+	void removeObject(CGObjectInstance * obj);
 
 	CTerrainSelection & getTerrainSelection();
 	CObjectSelection & getObjectSelection();
@@ -409,6 +411,37 @@ class CInsertObjectOperation : public CMapOperation
 {
 public:
 	CInsertObjectOperation(CMap * map, CGObjectInstance * obj);
+
+	void execute() override;
+	void undo() override;
+	void redo() override;
+	std::string getLabel() const override;
+
+private:
+	CGObjectInstance * obj;
+};
+
+/// The CMoveObjectOperation class moves object to another position
+class CMoveObjectOperation : public CMapOperation
+{
+public:
+	CMoveObjectOperation(CMap * map, CGObjectInstance * obj, const int3 & position);
+
+	void execute() override;
+	void undo() override;
+	void redo() override;
+	std::string getLabel() const override;
+
+private:
+	CGObjectInstance * obj;
+	int3 pos;
+};
+
+/// The CRemoveObjectOperation class removes object from the map
+class CRemoveObjectOperation : public CMapOperation
+{
+public:
+	CRemoveObjectOperation(CMap * map, CGObjectInstance * obj);
 
 	void execute() override;
 	void undo() override;

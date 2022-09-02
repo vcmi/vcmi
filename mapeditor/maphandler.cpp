@@ -427,7 +427,7 @@ void MapHandler::drawObjectAt(QPainter & painter, const CGObjectInstance * obj, 
 	auto objData = findObjectBitmap(obj, animationFrame);
 	if (objData.objBitmap)
 	{
-		painter.drawImage(QPoint((x - obj->getWidth()) * 32, (y - obj->getHeight()) * 32), *objData.objBitmap);
+		painter.drawImage(QPoint((x + 1) * 32 - objData.objBitmap->width(), (y + 1) * 32 - objData.objBitmap->height()), *objData.objBitmap);
 
 		//drawObject(targetSurf, objData.objBitmap, &srcRect, objData.isMoving);
 		if (objData.flagBitmap)

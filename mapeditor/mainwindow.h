@@ -30,6 +30,7 @@ public:
 
 	CMap * getMap();
 	MapHandler * getMapHandler();
+	void resetMapHandler();
 
 	void loadObjectsTree();
 
@@ -58,13 +59,21 @@ private slots:
 
 	void terrainButtonClicked(Terrain terrain);
 
+	void on_toolErase_clicked();
+
+public slots:
+
+	void treeViewSelected(const QModelIndex &selected, const QModelIndex &deselected);
+
 private:
     Ui::MainWindow *ui;
 	
 	std::unique_ptr<MapHandler> mapHandler;
 	std::array<MapScene *, 2> scenes;
 	QGraphicsScene * sceneMini;
+	QGraphicsScene * scenePreview;
 	QPixmap minimap;
+	QPixmap objPreview;
 	
 	std::unique_ptr<CMap> map;
 	QString filename;

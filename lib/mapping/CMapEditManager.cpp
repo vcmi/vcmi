@@ -268,6 +268,16 @@ void CMapEditManager::insertObject(CGObjectInstance * obj)
 	execute(make_unique<CInsertObjectOperation>(map, obj));
 }
 
+void CMapEditManager::moveObject(CGObjectInstance * obj, const int3 & pos)
+{
+	execute(make_unique<CMoveObjectOperation>(map, obj, pos));
+}
+
+void CMapEditManager::removeObject(CGObjectInstance * obj)
+{
+	execute(make_unique<CRemoveObjectOperation>(map, obj));
+}
+
 void CMapEditManager::execute(std::unique_ptr<CMapOperation> && operation)
 {
 	operation->execute();
@@ -1071,4 +1081,56 @@ void CInsertObjectOperation::redo()
 std::string CInsertObjectOperation::getLabel() const
 {
 	return "Insert Object";
+}
+
+CMoveObjectOperation::CMoveObjectOperation(CMap * map, CGObjectInstance * obj, const int3 & position)
+	: CMapOperation(map), obj(obj), pos(position)
+{
+
+}
+
+void CMoveObjectOperation::execute()
+{
+	map->moveObject(obj, pos);
+}
+
+void CMoveObjectOperation::undo()
+{
+	//TODO
+}
+
+void CMoveObjectOperation::redo()
+{
+	execute();
+}
+
+std::string CMoveObjectOperation::getLabel() const
+{
+	return "Move Object";
+}
+
+CRemoveObjectOperation::CRemoveObjectOperation(CMap * map, CGObjectInstance * obj)
+	: CMapOperation(map), obj(obj)
+{
+
+}
+
+void CRemoveObjectOperation::execute()
+{
+	map->removeObject(obj);
+}
+
+void CRemoveObjectOperation::undo()
+{
+	//TODO
+}
+
+void CRemoveObjectOperation::redo()
+{
+	execute();
+}
+
+std::string CRemoveObjectOperation::getLabel() const
+{
+	return "Remove Object";
 }

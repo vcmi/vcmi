@@ -37,7 +37,8 @@ void init()
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+	ui(new Ui::MainWindow),
+	objPreview(128, 128)
 {
     ui->setupUi(this);
 
@@ -99,6 +100,9 @@ MainWindow::MainWindow(QWidget *parent) :
 	sceneMini = new QGraphicsScene(this);
 	ui->minimapView->setScene(sceneMini);
 
+	scenePreview = new QGraphicsScene(this);
+	ui->objectPreview->setScene(scenePreview);
+
 	scenes[0]->addPixmap(QPixmap(QString::fromStdString(resPath.native())));
 
 	//loading objects
@@ -145,6 +149,11 @@ CMap * MainWindow::getMap()
 MapHandler * MainWindow::getMapHandler()
 {
 	return mapHandler.get();
+}
+
+void MainWindow::resetMapHandler()
+{
+	mapHandler.reset(new MapHandler(map.get()));
 }
 
 void MainWindow::setMapRaw(std::unique_ptr<CMap> cmap)
@@ -285,13 +294,42 @@ void MainWindow::terrainButtonClicked(Terrain terrain)
 
 void MainWindow::loadObjectsTree()
 {
+	//adding terrains
 	for(auto & terrain : Terrain::Manager::terrains())
 	{
 		QPushButton *b = new QPushButton(QString::fromStdString(terrain));
 		ui->terrainLayout->addWidget(b);
 		connect(b, &QPushButton::clicked, this, [this, terrain]{ terrainButtonClicked(terrain); });
 	}
+
+	//add spacer to keep terrain button on the top
 	ui->terrainLayout->addItem(new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Expanding));
+
+	//model
+	objectsModel.setHorizontalHeaderLabels(QStringList() << QStringLiteral("Type"));
+
+	//adding towns
+	auto * itemGroup = new QStandardItem("TOWNS");
+	for(auto secondaryID : VLC->objtypeh->knownSubObjects(Obj::TOWN))
+	{
+		auto factory = VLC->objtypeh->getHandlerFor(Obj::TOWN, secondaryID);
+		auto * itemType = new QStandardItem(QString::fromStdString(factory->subTypeName));
+		for(int templateId = 0; templateId < factory->getTemplates().size(); ++templateId)
+		{
+			auto templ = factory->getTemplates()[templateId];
+			auto * item = new QStandardItem(QString::fromStdString(templ.stringID));
+			QJsonObject data{{"id", QJsonValue(Obj::TOWN)},
+							 {"subid", QJsonValue(secondaryID)},
+							 {"animationEditor", QString::fromStdString(templ.editorAnimationFile)},
+							 {"animation", QString::fromStdString(templ.animationFile)}};
+			item->setData(data);
+			itemType->appendRow(item);
+		}
+		itemGroup->appendRow(itemType);
+	}
+	objectsModel.appendRow(itemGroup);
+
+
 	/*
 	createHandler(bth, "Bonus type", pomtime);
 	createHandler(generaltexth, "General text", pomtime);
@@ -309,16 +347,14 @@ void MainWindow::loadObjectsTree()
 	createHandler(battlefieldsHandler, "Battlefields", pomtime);
 	createHandler(obstacleHandler, "Obstacles", pomtime);*/
 
-	std::map<std::string, std::vector<std::string>> identifiers;
-
-	for(auto primaryID : VLC->objtypeh->knownObjects())
+	//for(auto primaryID : VLC->objtypeh->knownObjects())
 	{
 		//QList<QStandardItem*> objTypes;
 
-		for(auto secondaryID : VLC->objtypeh->knownSubObjects(primaryID))
+		//for(auto secondaryID : VLC->objtypeh->knownSubObjects(primaryID))
 		{
 			//QList<QStandardItem*> objSubTypes;
-			auto handler = VLC->objtypeh->getHandlerFor(primaryID, secondaryID);
+			//auto handler = VLC->objtypeh->getHandlerFor(primaryID, secondaryID);
 
 			/*if(handler->isStaticObject())
 			{
@@ -328,22 +364,14 @@ void MainWindow::loadObjectsTree()
 				}
 			}*/
 
-			identifiers[handler->typeName].push_back(handler->subTypeName);
+			//identifiers[handler->typeName].push_back(handler->subTypeName);
 		}
 	}
 
-	objectsModel.setHorizontalHeaderLabels(QStringList() << QStringLiteral("Type"));
-	QList<QStandardItem*> objTypes;
-	for(auto & el1 : identifiers)
-	{
-		auto * objTypei = new QStandardItem(QString::fromStdString(el1.first));
-		for(auto & el2 : el1.second)
-		{
-			objTypei->appendRow(new QStandardItem(QString::fromStdString(el2)));
-		}
-		objectsModel.appendRow(objTypei);
-	}
 	ui->treeView->setModel(&objectsModel);
+	ui->treeView->setSelectionBehavior(QAbstractItemView::SelectItems);
+	ui->treeView->setSelectionMode(QAbstractItemView::SingleSelection);
+	connect(ui->treeView->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(treeViewSelected(const QModelIndex &, const QModelIndex &)));
 }
 
 void MainWindow::on_actionLevel_triggered()
@@ -372,6 +400,8 @@ void MainWindow::on_actionGrid_triggered(bool checked)
 		scenes[0]->gridView.show(checked);
 		scenes[1]->gridView.show(checked);
 	}
+
+	auto idx = ui->treeView->selectionModel()->currentIndex();
 }
 
 
@@ -410,5 +440,52 @@ void MainWindow::on_toolArea_clicked(bool checked)
 	{
 		ui->mapView->selectionTool = MapView::SelectionTool::None;
 	}
+}
+
+
+void MainWindow::on_toolErase_clicked()
+{
+	if(map && scenes[mapLevel])
+	{
+		scenes[mapLevel]->selectionObjectsView.deleteSelection();
+		resetMapHandler();
+		scenes[mapLevel]->updateViews();
+	}
+}
+
+
+void MainWindow::treeViewSelected(const QModelIndex & index, const QModelIndex & deselected)
+{
+	objPreview.fill(QColor(255, 255, 255));
+	auto * item = objectsModel.itemFromIndex(index);
+	if(item)
+	{
+		auto data = item->data().toJsonObject();
+
+		if(!data.empty())
+		{
+			auto animfile = data["animationEditor"];
+			if(animfile != QJsonValue::Undefined)
+			{
+				if(animfile.toString().isEmpty())
+					animfile = data["animation"];
+
+				QPainter painter(&objPreview);
+				Animation animation(animfile.toString().toStdString());
+				animation.preload();
+				auto picture = animation.getImage(0);
+				if(picture && picture->width() && picture->height())
+				{
+					qreal xscale = qreal(128) / qreal(picture->width()), yscale = qreal(128) / qreal(picture->height());
+					qreal scale = std::min(xscale, yscale);
+					painter.scale(scale, scale);
+					painter.drawImage(QPoint(0, 0), *picture);
+				}
+			}
+		}
+	}
+
+	scenePreview->clear();
+	scenePreview->addPixmap(objPreview);
 }
 

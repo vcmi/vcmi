@@ -15,6 +15,18 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
+    <property name="leftMargin">
+     <number>2</number>
+    </property>
+    <property name="topMargin">
+     <number>2</number>
+    </property>
+    <property name="rightMargin">
+     <number>2</number>
+    </property>
+    <property name="bottomMargin">
+     <number>2</number>
+    </property>
     <item row="0" column="0">
      <widget class="MapView" name="mapView">
       <property name="sizePolicy">
@@ -83,14 +95,14 @@
    </property>
    <property name="minimumSize">
     <size>
-     <width>0</width>
-     <height>0</height>
+     <width>192</width>
+     <height>214</height>
     </size>
    </property>
    <property name="maximumSize">
     <size>
-     <width>524287</width>
-     <height>524287</height>
+     <width>192</width>
+     <height>214</height>
     </size>
    </property>
    <attribute name="dockWidgetArea">
@@ -104,6 +116,18 @@
      </size>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout_6">
+     <property name="leftMargin">
+      <number>0</number>
+     </property>
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
+     <property name="bottomMargin">
+      <number>0</number>
+     </property>
      <item>
       <widget class="QGraphicsView" name="minimapView">
        <property name="sizePolicy">
@@ -137,20 +161,20 @@
   </widget>
   <widget class="QDockWidget" name="dockWidget_3">
    <property name="sizePolicy">
-    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
    <property name="minimumSize">
     <size>
-     <width>292</width>
+     <width>192</width>
      <height>183</height>
     </size>
    </property>
    <property name="maximumSize">
     <size>
-     <width>524287</width>
+     <width>192</width>
      <height>524287</height>
     </size>
    </property>
@@ -165,6 +189,18 @@
      </sizepolicy>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout_7">
+     <property name="leftMargin">
+      <number>0</number>
+     </property>
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
+     <property name="bottomMargin">
+      <number>0</number>
+     </property>
      <item>
       <widget class="QTabWidget" name="tabWidget">
        <property name="sizePolicy">
@@ -200,7 +236,14 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="QComboBox" name="terrainFilterCombo"/>
+          <widget class="QComboBox" name="terrainFilterCombo">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+          </widget>
          </item>
          <item>
           <widget class="QTreeView" name="treeView">
@@ -209,6 +252,15 @@
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
+           </property>
+           <property name="editTriggers">
+            <set>QAbstractItemView::NoEditTriggers</set>
+           </property>
+           <property name="selectionBehavior">
+            <enum>QAbstractItemView::SelectItems</enum>
+           </property>
+           <property name="headerHidden">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -222,15 +274,15 @@
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QDockWidget" name="dockWidget">
    <property name="sizePolicy">
-    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
    <property name="minimumSize">
     <size>
-     <width>118</width>
-     <height>372</height>
+     <width>128</width>
+     <height>496</height>
     </size>
    </property>
    <attribute name="dockWidgetArea">
@@ -251,7 +303,7 @@
     </property>
     <property name="maximumSize">
      <size>
-      <width>118</width>
+      <width>16777215</width>
       <height>16777215</height>
      </size>
     </property>
@@ -271,10 +323,16 @@
      <item>
       <widget class="QGroupBox" name="groupBox">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>16777215</height>
+        </size>
        </property>
        <property name="title">
         <string>Brush</string>
@@ -313,6 +371,9 @@
         </item>
         <item row="0" column="1">
          <widget class="QPushButton" name="toolBrush2">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -344,6 +405,9 @@
         </item>
         <item row="1" column="0">
          <widget class="QPushButton" name="toolBrush4">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -406,6 +470,9 @@
         </item>
         <item row="2" column="0">
          <widget class="QPushButton" name="toolLasso">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -472,21 +539,27 @@
      <item>
       <widget class="QToolBox" name="toolBox">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>16777215</height>
+        </size>
+       </property>
        <property name="currentIndex">
-        <number>1</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="page3">
         <property name="geometry">
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>118</width>
-          <height>395</height>
+          <width>128</width>
+          <height>271</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -521,8 +594,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>118</width>
-          <height>395</height>
+          <width>128</width>
+          <height>271</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -536,6 +609,14 @@
         </attribute>
        </widget>
        <widget class="QWidget" name="riverPage">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>128</width>
+          <height>271</height>
+         </rect>
+        </property>
         <property name="sizePolicy">
          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -546,6 +627,22 @@
          <string>Rivers</string>
         </attribute>
        </widget>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGraphicsView" name="objectPreview">
+       <property name="minimumSize">
+        <size>
+         <width>128</width>
+         <height>128</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>128</width>
+         <height>128</height>
+        </size>
+       </property>
       </widget>
      </item>
     </layout>
