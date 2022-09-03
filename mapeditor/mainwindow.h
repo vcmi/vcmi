@@ -70,6 +70,8 @@ private slots:
 
 	void on_filter_textChanged(const QString &arg1);
 
+	void on_actionFill_triggered();
+
 public slots:
 
 	void treeViewSelected(const QModelIndex &selected, const QModelIndex &deselected);

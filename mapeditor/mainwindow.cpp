@@ -19,6 +19,7 @@
 #include "../lib/mapping/CMapEditManager.h"
 #include "../lib/Terrain.h"
 #include "../lib/mapObjects/CObjectClassesHandler.h"
+#include "../lib/rmg/ObstaclePlacer.h"
 
 
 #include "CGameInfo.h"
@@ -721,5 +722,37 @@ void MainWindow::on_filter_textChanged(const QString &arg1)
 	objectBrowser->filter = arg1;
 	objectBrowser->invalidate();
 	objectBrowser->sort(0);
+}
+
+
+void MainWindow::on_actionFill_triggered()
+{
+	if(!map || !scenes[mapLevel])
+		return;
+
+	auto selection = scenes[mapLevel]->selectionTerrainView.selection();
+	if(selection.empty())
+		return;
+
+	//split by zones
+	std::map<Terrain, ObstacleProxy> terrainSelected;
+	for(auto & t : selection)
+	{
+		auto tl = map->getTile(t);
+		if(tl.blocked || tl.visitable)
+			continue;
+
+		terrainSelected[tl.terType].blockedArea.add(t);
+	}
+
+	for(auto & sel : terrainSelected)
+	{
+		sel.second.collectPossibleObstacles(sel.first);
+		sel.second.placeObstacles(map.get(), CRandomGenerator::getDefault());
+	}
+
+	scenes[mapLevel]->selectionObjectsView.deleteSelection();
+	resetMapHandler();
+	scenes[mapLevel]->updateViews();
 }
 

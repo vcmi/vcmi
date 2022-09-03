@@ -724,9 +724,6 @@
    </property>
   </action>
   <action name="actionFill">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="text">
     <string>Fill</string>
    </property>
