@@ -70,7 +70,6 @@ void RoadPlacer::drawRoads(bool secondary)
 	zone.freePaths().unite(roads);
 	map.getEditManager()->getTerrainSelection().setSelection(roads.getTilesVector());
 	std::string roadType = (secondary ? generator.getConfig().secondaryRoadType : generator.getConfig().defaultRoadType);
-	logGlobal->warn("Drawing %s roads", roadType);
 	map.getEditManager()->drawRoad(roadType, &generator.rand);
 }
 
@@ -85,7 +84,6 @@ void RoadPlacer::connectRoads()
 	//Assumes objects are already placed
 	if (roadNodes.size() < 2)
 	{
-		logGlobal->warn("No road nodes in this zone, adding dirt roads");
 		//If there are no nodes, draw roads to mines
 		noRoadNodes = true;
 		if (auto* m = zone.getModificator<ObjectManager>())
@@ -95,7 +93,6 @@ void RoadPlacer::connectRoads()
 				addRoadNode(object->visitablePos());
 			}
 		}
-		logGlobal->warn("Total number of road nodes: %d", roadNodes.size());
 	}
 
 	if(roadNodes.size() < 2)
@@ -107,7 +104,6 @@ void RoadPlacer::connectRoads()
 	
 	for(auto & node : roadNodes)
 	{
-		logGlobal->warn("Creating road");
 		createRoad(node);
 	}
 	
