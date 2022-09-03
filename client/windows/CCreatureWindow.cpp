@@ -324,6 +324,11 @@ CStackWindow::ButtonsSection::ButtonsSection(CStackWindow * owner, int yOffset)
 
 			upgradeBtn->addOverlay(std::make_shared<CAnimImage>("CPRSMALL", VLC->creh->objects[upgradeInfo.info.newID[buttonIndex]]->iconIndex));
 
+			if(buttonsToCreate == 1) // single upgrade avaialbe
+			{
+				upgradeBtn->assignedKeys.insert(SDLK_u);
+			}
+
 			upgrade[buttonIndex] = upgradeBtn;
 		}
 	}
