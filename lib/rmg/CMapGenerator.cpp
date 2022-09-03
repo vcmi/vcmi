@@ -42,6 +42,11 @@ int CMapGenerator::getRandomSeed() const
 	return randomSeed;
 }
 
+void CMapGenerator::disableModificator(const std::string & modificator)
+{
+	disabledModificators.insert(modificator);
+}
+
 void CMapGenerator::loadConfig()
 {
 	static const ResourceID path("config/randomMap.json");
@@ -137,7 +142,7 @@ std::unique_ptr<CMap> CMapGenerator::generate(bool empty)
 		genZones();
 		Load::Progress::step();
 		map->map().calculateGuardingGreaturePositions(); //clear map so that all tiles are unguarded
-		map->addModificators();
+		map->addModificators(disabledModificators);
 		Load::Progress::step(3);
 		fillZones();
 		//updated guarded tiles will be calculated in CGameState::initMapObjects()

@@ -37,14 +37,17 @@ void MapView::mouseMoveEvent(QMouseEvent *mouseEvent)
 	switch(selectionTool)
 	{
 	case MapView::SelectionTool::Brush:
-		if(pressedOnSelected)
+		if(mouseEvent->buttons() & Qt::RightButton)
 			sc->selectionTerrainView.erase(tile);
-		else
+		else if(mouseEvent->buttons() == Qt::LeftButton)
 			sc->selectionTerrainView.select(tile);
 		sc->selectionTerrainView.draw();
 		break;
 
 	case MapView::SelectionTool::Area:
+		if(mouseEvent->buttons() & Qt::RightButton)
+			break;
+
 		sc->selectionTerrainView.clear();
 		for(int j = std::min(tile.y, tileStart.y); j < std::max(tile.y, tileStart.y); ++j)
 		{
@@ -57,8 +60,18 @@ void MapView::mouseMoveEvent(QMouseEvent *mouseEvent)
 		break;
 
 	case MapView::SelectionTool::None:
+		if(mouseEvent->buttons() & Qt::RightButton)
+			break;
+
 		auto sh = tile - tileStart;
 		sc->selectionObjectsView.shift = QPoint(sh.x, sh.y);
+
+		if((sh.x || sh.y) && sc->selectionObjectsView.newObject)
+		{
+			sc->selectionObjectsView.shift = QPoint(tile.x, tile.y);
+			sc->selectionObjectsView.selectObject(sc->selectionObjectsView.newObject);
+		}
+
 		sc->selectionObjectsView.draw();
 		break;
 	}
@@ -85,14 +98,18 @@ void MapView::mousePressEvent(QMouseEvent *event)
 	case MapView::SelectionTool::Brush:
 		sc->selectionObjectsView.clear();
 		sc->selectionObjectsView.draw();
-		if(pressedOnSelected)
+
+		if(event->button() == Qt::RightButton)
 			sc->selectionTerrainView.erase(tileStart);
-		else
+		else if(event->button() == Qt::LeftButton)
 			sc->selectionTerrainView.select(tileStart);
 		sc->selectionTerrainView.draw();
 		break;
 
 	case MapView::SelectionTool::Area:
+		if(event->button() == Qt::RightButton)
+			break;
+
 		sc->selectionTerrainView.clear();
 		sc->selectionTerrainView.draw();
 		sc->selectionObjectsView.clear();
@@ -102,9 +119,18 @@ void MapView::mousePressEvent(QMouseEvent *event)
 	case MapView::SelectionTool::None:
 		sc->selectionTerrainView.clear();
 		sc->selectionTerrainView.draw();
-		sc->selectionObjectsView.clear();
-		sc->selectionObjectsView.selectObjectAt(tileStart.x, tileStart.y);
-		sc->selectionObjectsView.draw();
+
+		if(sc->selectionObjectsView.newObject && sc->selectionObjectsView.isSelected(sc->selectionObjectsView.newObject))
+		{
+
+		}
+		else
+		{
+			sc->selectionObjectsView.clear();
+			if(event->button() == Qt::LeftButton)
+				sc->selectionObjectsView.selectObjectAt(tileStart.x, tileStart.y);
+			sc->selectionObjectsView.draw();
+		}
 		break;
 	}
 
@@ -119,12 +145,24 @@ void MapView::mouseReleaseEvent(QMouseEvent *event)
 	if(!sc)
 		return;
 
+	if(sc->selectionObjectsView.newObject)
+	{
+		if(!sc->selectionObjectsView.isSelected(sc->selectionObjectsView.newObject) || event->button() == Qt::RightButton)
+		{
+			delete sc->selectionObjectsView.newObject;
+			sc->selectionObjectsView.newObject = nullptr;
+		}
+	}
+
 	switch(selectionTool)
 	{
 	case MapView::SelectionTool::None:
+		if(event->button() == Qt::RightButton)
+			break;
 		//switch position
 		if(sc->selectionObjectsView.applyShift())
 		{
+			sc->selectionObjectsView.newObject = nullptr;
 			main->resetMapHandler();
 			sc->updateViews();
 		}
@@ -406,14 +444,24 @@ void TerrainView::draw(bool onlyDirty)
 		}
 		for(auto & t : forRedrawing)
 		{
+			//TODO: fix water and roads
 			main->getMapHandler()->drawTerrainTile(painter, t.x, t.y, scene->level);
+			//main->getMapHandler()->drawRiver(painter, t.x, t.y, scene->level);
+			//main->getMapHandler()->drawRoad(painter, t.x, t.y, scene->level);
 		}
 	}
 	else
 	{
 		for(int j = 0; j < map->height; ++j)
+		{
 			for(int i = 0; i < map->width; ++i)
+			{
+				//TODO: fix water and roads
 				main->getMapHandler()->drawTerrainTile(painter, i, j, scene->level);
+				//main->getMapHandler()->drawRiver(painter, i, j, scene->level);
+				//main->getMapHandler()->drawRoad(painter, i, j, scene->level);
+			}
+		}
 	}
 
 	dirty.clear();
@@ -489,7 +537,7 @@ void ObjectsView::setDirty(const CGObjectInstance * object)
 	dirty.insert(object);
 }
 
-SelectionObjectsView::SelectionObjectsView(MainWindow * m, MapScene * s): BasicView(m, s)
+SelectionObjectsView::SelectionObjectsView(MainWindow * m, MapScene * s): BasicView(m, s), newObject(nullptr)
 {
 }
 
@@ -501,6 +549,9 @@ void SelectionObjectsView::update()
 
 	selectedObjects.clear();
 	shift = QPoint();
+	if(newObject)
+		delete newObject;
+	newObject = nullptr;
 
 	pixmap.reset(new QPixmap(map->width * 32, map->height * 32));
 	//pixmap->fill(QColor(0, 0, 0, 0));
@@ -521,17 +572,20 @@ void SelectionObjectsView::draw()
 
 	for(auto * obj : selectedObjects)
 	{
-		QRect bbox(obj->getPosition().x, obj->getPosition().y, 1, 1);
-		for(auto & t : obj->getBlockedPos())
+		if(obj != newObject)
 		{
-			QPoint topLeft(std::min(t.x, bbox.topLeft().x()), std::min(t.y, bbox.topLeft().y()));
-			bbox.setTopLeft(topLeft);
-			QPoint bottomRight(std::max(t.x, bbox.bottomRight().x()), std::max(t.y, bbox.bottomRight().y()));
-			bbox.setBottomRight(bottomRight);
-		}
+			QRect bbox(obj->getPosition().x, obj->getPosition().y, 1, 1);
+			for(auto & t : obj->getBlockedPos())
+			{
+				QPoint topLeft(std::min(t.x, bbox.topLeft().x()), std::min(t.y, bbox.topLeft().y()));
+				bbox.setTopLeft(topLeft);
+				QPoint bottomRight(std::max(t.x, bbox.bottomRight().x()), std::max(t.y, bbox.bottomRight().y()));
+				bbox.setBottomRight(bottomRight);
+			}
 
-		painter.setOpacity(1.0);
-		painter.drawRect(bbox.x() * 32, bbox.y() * 32, bbox.width() * 32, bbox.height() * 32);
+			painter.setOpacity(1.0);
+			painter.drawRect(bbox.x() * 32, bbox.y() * 32, bbox.width() * 32, bbox.height() * 32);
+		}
 
 		//show translation
 		if(shift.x() || shift.y())
@@ -601,8 +655,18 @@ bool SelectionObjectsView::applyShift()
 		for(auto * obj : selectedObjects)
 		{
 			int3 pos = obj->pos;
+			pos.z = main->getMapLevel();
 			pos.x += shift.x(); pos.y += shift.y();
-			main->getMap()->getEditManager()->moveObject(obj, pos);
+
+			if(obj == newObject)
+			{
+				newObject->pos = pos;
+				main->getMap()->getEditManager()->insertObject(newObject);
+			}
+			else
+			{
+				main->getMap()->getEditManager()->moveObject(obj, pos);
+			}
 		}
 		return true;
 	}
@@ -614,6 +678,7 @@ void SelectionObjectsView::deleteSelection()
 	for(auto * obj : selectedObjects)
 	{
 		main->getMap()->getEditManager()->removeObject(obj);
+		delete obj;
 	}
 	clear();
 }
@@ -623,6 +688,16 @@ std::set<CGObjectInstance *> SelectionObjectsView::selectObjects(int x1, int y1,
 	std::set<CGObjectInstance *> result;
 	//TBD
 	return result;
+}
+
+void SelectionObjectsView::selectObject(CGObjectInstance * obj)
+{
+	selectedObjects.insert(obj);
+}
+
+bool SelectionObjectsView::isSelected(const CGObjectInstance * obj) const
+{
+	return selectedObjects.count(const_cast<CGObjectInstance*>(obj));
 }
 
 void SelectionObjectsView::clear()

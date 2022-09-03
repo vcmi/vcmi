@@ -62,7 +62,7 @@ public:
 	ui32 getZoneCount(TFaction faction);
 	ui32 getTotalZoneCount() const;
 	void initTiles(CMapGenerator & generator);
-	void addModificators();
+	void addModificators(const std::set<std::string> & disableModificators);
 	
 	bool isAllowedSpell(SpellID sid) const;
 	

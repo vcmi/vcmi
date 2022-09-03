@@ -35,6 +35,9 @@
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
+      <property name="mouseTracking">
+       <bool>true</bool>
+      </property>
       <property name="sizeAdjustPolicy">
        <enum>QAbstractScrollArea::AdjustToContents</enum>
       </property>
@@ -88,7 +91,7 @@
   </widget>
   <widget class="QDockWidget" name="dockWidget_2">
    <property name="sizePolicy">
-    <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+    <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
@@ -161,7 +164,7 @@
   </widget>
   <widget class="QDockWidget" name="dockWidget_3">
    <property name="sizePolicy">
-    <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+    <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
@@ -169,7 +172,7 @@
    <property name="minimumSize">
     <size>
      <width>192</width>
-     <height>183</height>
+     <height>196</height>
     </size>
    </property>
    <property name="maximumSize">
@@ -223,6 +226,9 @@
          <string>Objects</string>
         </attribute>
         <layout class="QVBoxLayout" name="verticalLayout_2">
+         <property name="spacing">
+          <number>0</number>
+         </property>
          <property name="leftMargin">
           <number>0</number>
          </property>
@@ -246,6 +252,9 @@
           </widget>
          </item>
          <item>
+          <widget class="QLineEdit" name="filter"/>
+         </item>
+         <item>
           <widget class="QTreeView" name="treeView">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
@@ -253,11 +262,20 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="mouseTracking">
+            <bool>false</bool>
+           </property>
            <property name="editTriggers">
             <set>QAbstractItemView::NoEditTriggers</set>
            </property>
+           <property name="dragDropMode">
+            <enum>QAbstractItemView::NoDragDrop</enum>
+           </property>
            <property name="selectionBehavior">
             <enum>QAbstractItemView::SelectItems</enum>
+           </property>
+           <property name="sortingEnabled">
+            <bool>true</bool>
            </property>
            <property name="headerHidden">
             <bool>true</bool>

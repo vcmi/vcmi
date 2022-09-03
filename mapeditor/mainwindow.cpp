@@ -25,6 +25,7 @@
 #include "maphandler.h"
 #include "graphics.h"
 #include "windownewmap.h"
+#include "objectbrowser.h"
 
 static CBasicLogConfigurator * logConfig;
 
@@ -91,7 +92,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	}
 	
 	//now let's try to draw
-	auto resPath = *CResourceHandler::get()->getResourceName(ResourceID("DATA/new-menu/Background.png"));
+	//auto resPath = *CResourceHandler::get()->getResourceName(ResourceID("DATA/new-menu/Background.png"));
 	
 	scenes[0] = new MapScene(this, 0);
 	scenes[1] = new MapScene(this, 1);
@@ -103,7 +104,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	scenePreview = new QGraphicsScene(this);
 	ui->objectPreview->setScene(scenePreview);
 
-	scenes[0]->addPixmap(QPixmap(QString::fromStdString(resPath.native())));
+	//scenes[0]->addPixmap(QPixmap(QString::fromStdString(resPath.native())));
 
 	//loading objects
 	loadObjectsTree();
@@ -292,86 +293,241 @@ void MainWindow::terrainButtonClicked(Terrain terrain)
 	scenes[mapLevel]->terrainView.draw();
 }
 
+void MainWindow::addGroupIntoCatalog(const std::string & groupName, bool staticOnly)
+{
+	auto knownObjects = VLC->objtypeh->knownObjects();
+	for(auto ID : knownObjects)
+	{
+		if(catalog.count(ID))
+			continue;
+
+		addGroupIntoCatalog(groupName, staticOnly, ID);
+	}
+}
+
+void MainWindow::addGroupIntoCatalog(const std::string & groupName, bool staticOnly, int ID)
+{
+	QStandardItem * itemGroup = nullptr;
+	auto itms = objectsModel.findItems(QString::fromStdString(groupName));
+	if(itms.empty())
+	{
+		itemGroup = new QStandardItem(QString::fromStdString(groupName));
+		objectsModel.appendRow(itemGroup);
+	}
+	else
+	{
+		itemGroup = itms.front();
+	}
+
+	auto knownSubObjects = VLC->objtypeh->knownSubObjects(ID);
+	bool singleSubObject = knownSubObjects.size() == 1;
+	for(auto secondaryID : knownSubObjects)
+	{
+		auto factory = VLC->objtypeh->getHandlerFor(ID, secondaryID);
+		auto templates = factory->getTemplates();
+		bool singleTemplate = templates.size() == 1;
+		if(staticOnly && !factory->isStaticObject())
+			continue;
+
+		auto * itemType = new QStandardItem(QString::fromStdString(factory->subTypeName));
+		for(int templateId = 0; templateId < templates.size(); ++templateId)
+		{
+			auto templ = templates[templateId];
+			QJsonObject data{{"id", QJsonValue(ID)},
+							 {"subid", QJsonValue(secondaryID)},
+							 {"template", QJsonValue(templateId)},
+							 {"animationEditor", QString::fromStdString(templ.editorAnimationFile)},
+							 {"animation", QString::fromStdString(templ.animationFile)}};
+
+			if(singleTemplate)
+			{
+				itemType->setData(data);
+			}
+			else
+			{
+				auto * item = new QStandardItem(QString::fromStdString(templ.stringID));
+				item->setData(data);
+				itemType->appendRow(item);
+			}
+		}
+		itemGroup->appendRow(itemType);
+		catalog.insert(ID);
+	}
+}
+
 void MainWindow::loadObjectsTree()
 {
+	ui->terrainFilterCombo->addItem("");
 	//adding terrains
 	for(auto & terrain : Terrain::Manager::terrains())
 	{
 		QPushButton *b = new QPushButton(QString::fromStdString(terrain));
 		ui->terrainLayout->addWidget(b);
 		connect(b, &QPushButton::clicked, this, [this, terrain]{ terrainButtonClicked(terrain); });
+
+		//filter
+		ui->terrainFilterCombo->addItem(QString::fromStdString(terrain));
 	}
 
 	//add spacer to keep terrain button on the top
 	ui->terrainLayout->addItem(new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Expanding));
 
+	if(objectBrowser)
+		throw std::runtime_error("object browser exists");
+
 	//model
 	objectsModel.setHorizontalHeaderLabels(QStringList() << QStringLiteral("Type"));
-
-	//adding towns
-	auto * itemGroup = new QStandardItem("TOWNS");
-	for(auto secondaryID : VLC->objtypeh->knownSubObjects(Obj::TOWN))
-	{
-		auto factory = VLC->objtypeh->getHandlerFor(Obj::TOWN, secondaryID);
-		auto * itemType = new QStandardItem(QString::fromStdString(factory->subTypeName));
-		for(int templateId = 0; templateId < factory->getTemplates().size(); ++templateId)
-		{
-			auto templ = factory->getTemplates()[templateId];
-			auto * item = new QStandardItem(QString::fromStdString(templ.stringID));
-			QJsonObject data{{"id", QJsonValue(Obj::TOWN)},
-							 {"subid", QJsonValue(secondaryID)},
-							 {"animationEditor", QString::fromStdString(templ.editorAnimationFile)},
-							 {"animation", QString::fromStdString(templ.animationFile)}};
-			item->setData(data);
-			itemType->appendRow(item);
-		}
-		itemGroup->appendRow(itemType);
-	}
-	objectsModel.appendRow(itemGroup);
-
-
-	/*
-	createHandler(bth, "Bonus type", pomtime);
-	createHandler(generaltexth, "General text", pomtime);
-	createHandler(heroh, "Hero", pomtime);
-	createHandler(arth, "Artifact", pomtime);
-	createHandler(creh, "Creature", pomtime);
-	createHandler(townh, "Town", pomtime);
-	createHandler(objh, "Object", pomtime);
-	createHandler(objtypeh, "Object types information", pomtime);
-	createHandler(spellh, "Spell", pomtime);
-	createHandler(skillh, "Skill", pomtime);
-	createHandler(terviewh, "Terrain view pattern", pomtime);
-	createHandler(tplh, "Template", pomtime); //templates need already resolved identifiers (refactor?)
-	createHandler(scriptHandler, "Script", pomtime);
-	createHandler(battlefieldsHandler, "Battlefields", pomtime);
-	createHandler(obstacleHandler, "Obstacles", pomtime);*/
-
-	//for(auto primaryID : VLC->objtypeh->knownObjects())
-	{
-		//QList<QStandardItem*> objTypes;
-
-		//for(auto secondaryID : VLC->objtypeh->knownSubObjects(primaryID))
-		{
-			//QList<QStandardItem*> objSubTypes;
-			//auto handler = VLC->objtypeh->getHandlerFor(primaryID, secondaryID);
-
-			/*if(handler->isStaticObject())
-			{
-				for(auto temp : handler->getTemplates())
-				{
-
-				}
-			}*/
-
-			//identifiers[handler->typeName].push_back(handler->subTypeName);
-		}
-	}
-
-	ui->treeView->setModel(&objectsModel);
+	objectBrowser = new ObjectBrowser(this);
+	objectBrowser->setSourceModel(&objectsModel);
+	objectBrowser->setDynamicSortFilter(false);
+	objectBrowser->setRecursiveFilteringEnabled(true);
+	ui->treeView->setModel(objectBrowser);
 	ui->treeView->setSelectionBehavior(QAbstractItemView::SelectItems);
 	ui->treeView->setSelectionMode(QAbstractItemView::SingleSelection);
 	connect(ui->treeView->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(treeViewSelected(const QModelIndex &, const QModelIndex &)));
+
+
+	//adding objects
+	addGroupIntoCatalog("TOWNS", false, Obj::TOWN);
+	addGroupIntoCatalog("TOWNS", false, Obj::RANDOM_TOWN);
+	addGroupIntoCatalog("TOWNS", false, Obj::SHIPYARD);
+	addGroupIntoCatalog("TOWNS", false, Obj::GARRISON);
+	addGroupIntoCatalog("TOWNS", false, Obj::GARRISON2);
+	addGroupIntoCatalog("MISC", false, Obj::ALTAR_OF_SACRIFICE);
+	addGroupIntoCatalog("MISC", false, Obj::ARENA);
+	addGroupIntoCatalog("MISC", false, Obj::BLACK_MARKET);
+	addGroupIntoCatalog("MISC", false, Obj::BORDERGUARD);
+	addGroupIntoCatalog("MISC", false, Obj::KEYMASTER);
+	addGroupIntoCatalog("MISC", false, Obj::BUOY);
+	addGroupIntoCatalog("MISC", false, Obj::CAMPFIRE);
+	addGroupIntoCatalog("MISC", false, Obj::CARTOGRAPHER);
+	addGroupIntoCatalog("MISC", false, Obj::SWAN_POND);
+	addGroupIntoCatalog("MISC", false, Obj::COVER_OF_DARKNESS);
+	addGroupIntoCatalog("MISC", false, Obj::CORPSE);
+	addGroupIntoCatalog("MISC", false, Obj::MARLETTO_TOWER);
+	addGroupIntoCatalog("MISC", false, Obj::DERELICT_SHIP);
+	addGroupIntoCatalog("MISC", false, Obj::DRAGON_UTOPIA);
+	addGroupIntoCatalog("MISC", false, Obj::FAERIE_RING);
+	addGroupIntoCatalog("MISC", false, Obj::FLOTSAM);
+	addGroupIntoCatalog("MISC", false, Obj::FOUNTAIN_OF_FORTUNE);
+	addGroupIntoCatalog("MISC", false, Obj::FOUNTAIN_OF_YOUTH);
+	addGroupIntoCatalog("MISC", false, Obj::GARDEN_OF_REVELATION);
+	addGroupIntoCatalog("MISC", false, Obj::HILL_FORT);
+	addGroupIntoCatalog("MISC", false, Obj::IDOL_OF_FORTUNE);
+	addGroupIntoCatalog("MISC", false, Obj::LIBRARY_OF_ENLIGHTENMENT);
+	addGroupIntoCatalog("MISC", false, Obj::LIGHTHOUSE);
+	addGroupIntoCatalog("MISC", false, Obj::SCHOOL_OF_MAGIC);
+	addGroupIntoCatalog("MISC", false, Obj::MAGIC_SPRING);
+	addGroupIntoCatalog("MISC", false, Obj::MAGIC_WELL);
+	addGroupIntoCatalog("MISC", false, Obj::MERCENARY_CAMP);
+	addGroupIntoCatalog("MISC", false, Obj::MERMAID);
+	addGroupIntoCatalog("MISC", false, Obj::MYSTICAL_GARDEN);
+	addGroupIntoCatalog("MISC", false, Obj::OASIS);
+	addGroupIntoCatalog("MISC", false, Obj::OBELISK);
+	addGroupIntoCatalog("MISC", false, Obj::REDWOOD_OBSERVATORY);
+	addGroupIntoCatalog("MISC", false, Obj::OCEAN_BOTTLE);
+	addGroupIntoCatalog("MISC", false, Obj::PILLAR_OF_FIRE);
+	addGroupIntoCatalog("MISC", false, Obj::STAR_AXIS);
+	addGroupIntoCatalog("MISC", false, Obj::RALLY_FLAG);
+	addGroupIntoCatalog("MISC", false, Obj::LEAN_TO);
+	addGroupIntoCatalog("MISC", false, Obj::WATERING_HOLE);
+	addGroupIntoCatalog("PRISON", false, Obj::PRISON);
+	addGroupIntoCatalog("ARTIFACTS", false, Obj::ARTIFACT);
+	addGroupIntoCatalog("ARTIFACTS", false, Obj::RANDOM_ART);
+	addGroupIntoCatalog("ARTIFACTS", false, Obj::RANDOM_TREASURE_ART);
+	addGroupIntoCatalog("ARTIFACTS", false, Obj::RANDOM_MINOR_ART);
+	addGroupIntoCatalog("ARTIFACTS", false, Obj::RANDOM_MAJOR_ART);
+	addGroupIntoCatalog("ARTIFACTS", false, Obj::RANDOM_RELIC_ART);
+	addGroupIntoCatalog("RESOURCES", false, Obj::PANDORAS_BOX);
+	addGroupIntoCatalog("RESOURCES", false, Obj::RANDOM_RESOURCE);
+	addGroupIntoCatalog("RESOURCES", false, Obj::RESOURCE);
+	addGroupIntoCatalog("RESOURCES", false, Obj::SEA_CHEST);
+	addGroupIntoCatalog("RESOURCES", false, Obj::TREASURE_CHEST);
+	addGroupIntoCatalog("RESOURCES", false, Obj::SPELL_SCROLL);
+	addGroupIntoCatalog("BANKS", false, Obj::CREATURE_BANK);
+	addGroupIntoCatalog("DWELLINGS", false, Obj::CREATURE_GENERATOR1);
+	addGroupIntoCatalog("DWELLINGS", false, Obj::CREATURE_GENERATOR2);
+	addGroupIntoCatalog("DWELLINGS", false, Obj::CREATURE_GENERATOR3);
+	addGroupIntoCatalog("DWELLINGS", false, Obj::CREATURE_GENERATOR4);
+	addGroupIntoCatalog("DWELLINGS", false, Obj::RANDOM_DWELLING);
+	addGroupIntoCatalog("DWELLINGS", false, Obj::RANDOM_DWELLING_LVL);
+	addGroupIntoCatalog("DWELLINGS", false, Obj::RANDOM_DWELLING_FACTION);
+	addGroupIntoCatalog("GROUNDS", false, Obj::CURSED_GROUND1);
+	addGroupIntoCatalog("GROUNDS", false, Obj::MAGIC_PLAINS1);
+	addGroupIntoCatalog("GROUNDS", false, Obj::CLOVER_FIELD);
+	addGroupIntoCatalog("GROUNDS", false, Obj::CURSED_GROUND2);
+	addGroupIntoCatalog("GROUNDS", false, Obj::EVIL_FOG);
+	addGroupIntoCatalog("GROUNDS", false, Obj::FAVORABLE_WINDS);
+	addGroupIntoCatalog("GROUNDS", false, Obj::FIERY_FIELDS);
+	addGroupIntoCatalog("GROUNDS", false, Obj::HOLY_GROUNDS);
+	addGroupIntoCatalog("GROUNDS", false, Obj::LUCID_POOLS);
+	addGroupIntoCatalog("GROUNDS", false, Obj::MAGIC_CLOUDS);
+	addGroupIntoCatalog("GROUNDS", false, Obj::MAGIC_PLAINS2);
+	addGroupIntoCatalog("GROUNDS", false, Obj::ROCKLANDS);
+	addGroupIntoCatalog("TELEPORTS", false, Obj::MONOLITH_ONE_WAY_ENTRANCE);
+	addGroupIntoCatalog("TELEPORTS", false, Obj::MONOLITH_ONE_WAY_EXIT);
+	addGroupIntoCatalog("TELEPORTS", false, Obj::MONOLITH_TWO_WAY);
+	addGroupIntoCatalog("TELEPORTS", false, Obj::SUBTERRANEAN_GATE);
+	addGroupIntoCatalog("TELEPORTS", false, Obj::WHIRLPOOL);
+	addGroupIntoCatalog("MINES", false, Obj::MINE);
+	addGroupIntoCatalog("MINES", false, Obj::ABANDONED_MINE);
+	addGroupIntoCatalog("MINES", false, Obj::WINDMILL);
+	addGroupIntoCatalog("MINES", false, Obj::WATER_WHEEL);
+	addGroupIntoCatalog("TRIGGERS", false, Obj::EVENT);
+	addGroupIntoCatalog("TRIGGERS", false, Obj::GRAIL);
+	addGroupIntoCatalog("TRIGGERS", false, Obj::SIGN);
+	addGroupIntoCatalog("MONSTERS", false, Obj::MONSTER);
+	addGroupIntoCatalog("MONSTERS", false, Obj::RANDOM_MONSTER);
+	addGroupIntoCatalog("MONSTERS", false, Obj::RANDOM_MONSTER_L1);
+	addGroupIntoCatalog("MONSTERS", false, Obj::RANDOM_MONSTER_L2);
+	addGroupIntoCatalog("MONSTERS", false, Obj::RANDOM_MONSTER_L3);
+	addGroupIntoCatalog("MONSTERS", false, Obj::RANDOM_MONSTER_L4);
+	addGroupIntoCatalog("MONSTERS", false, Obj::RANDOM_MONSTER_L5);
+	addGroupIntoCatalog("MONSTERS", false, Obj::RANDOM_MONSTER_L6);
+	addGroupIntoCatalog("MONSTERS", false, Obj::RANDOM_MONSTER_L7);
+	addGroupIntoCatalog("QUESTS", false, Obj::SEER_HUT);
+	addGroupIntoCatalog("QUESTS", false, Obj::BORDER_GATE);
+	addGroupIntoCatalog("QUESTS", false, Obj::QUEST_GUARD);
+	addGroupIntoCatalog("QUESTS", false, Obj::HUT_OF_MAGI);
+	addGroupIntoCatalog("QUESTS", false, Obj::EYE_OF_MAGI);
+	addGroupIntoCatalog("OBSTACLES", true);
+	addGroupIntoCatalog("OTHER", false);
+
+
+	/*
+		HERO = 34,
+		LEAN_TO = 39,
+		PYRAMID = 63,//subtype 0
+		WOG_OBJECT = 63,//subtype > 0
+		RANDOM_HERO = 70,
+		REFUGEE_CAMP = 78,
+		SANCTUARY = 80,
+		SCHOLAR = 81,
+		CRYPT = 84,
+		SHIPWRECK = 85,
+		SHIPWRECK_SURVIVOR = 86,
+		SHRINE_OF_MAGIC_INCANTATION = 88,
+		SHRINE_OF_MAGIC_GESTURE = 89,
+		SHRINE_OF_MAGIC_THOUGHT = 90,
+		SIRENS = 92,
+		STABLES = 94,
+		TAVERN = 95,
+		TEMPLE = 96,
+		DEN_OF_THIEVES = 97,
+		TRADING_POST = 99,
+		LEARNING_STONE = 100,
+		TREE_OF_KNOWLEDGE = 102,
+		UNIVERSITY = 104,
+		WAGON = 105,
+		WAR_MACHINE_FACTORY = 106,
+		SCHOOL_OF_WAR = 107,
+		WARRIORS_TOMB = 108,
+		WITCH_HUT = 113,
+		HOLE = 124,
+		FREELANCERS_GUILD = 213,
+		HERO_PLACEHOLDER = 214,
+		TRADING_POST_SNOW = 221,
+*/
 }
 
 void MainWindow::on_actionLevel_triggered()
@@ -400,8 +556,6 @@ void MainWindow::on_actionGrid_triggered(bool checked)
 		scenes[0]->gridView.show(checked);
 		scenes[1]->gridView.show(checked);
 	}
-
-	auto idx = ui->treeView->selectionModel()->currentIndex();
 }
 
 
@@ -453,39 +607,94 @@ void MainWindow::on_toolErase_clicked()
 	}
 }
 
-
-void MainWindow::treeViewSelected(const QModelIndex & index, const QModelIndex & deselected)
+void MainWindow::preparePreview(const QModelIndex &index, bool createNew)
 {
 	objPreview.fill(QColor(255, 255, 255));
-	auto * item = objectsModel.itemFromIndex(index);
-	if(item)
+	auto data = objectsModel.itemFromIndex(objectBrowser->mapToSource(index))->data().toJsonObject();
+
+	if(!data.empty())
 	{
-		auto data = item->data().toJsonObject();
-
-		if(!data.empty())
+		auto animfile = data["animationEditor"];
+		if(animfile != QJsonValue::Undefined)
 		{
-			auto animfile = data["animationEditor"];
-			if(animfile != QJsonValue::Undefined)
-			{
-				if(animfile.toString().isEmpty())
-					animfile = data["animation"];
+			if(animfile.toString().isEmpty())
+				animfile = data["animation"];
 
-				QPainter painter(&objPreview);
-				Animation animation(animfile.toString().toStdString());
-				animation.preload();
-				auto picture = animation.getImage(0);
-				if(picture && picture->width() && picture->height())
-				{
-					qreal xscale = qreal(128) / qreal(picture->width()), yscale = qreal(128) / qreal(picture->height());
-					qreal scale = std::min(xscale, yscale);
-					painter.scale(scale, scale);
-					painter.drawImage(QPoint(0, 0), *picture);
-				}
+			QPainter painter(&objPreview);
+			Animation animation(animfile.toString().toStdString());
+			animation.preload();
+			auto picture = animation.getImage(0);
+			if(picture && picture->width() && picture->height())
+			{
+				qreal xscale = qreal(128) / qreal(picture->width()), yscale = qreal(128) / qreal(picture->height());
+				qreal scale = std::min(xscale, yscale);
+				painter.scale(scale, scale);
+				painter.drawImage(QPoint(0, 0), *picture);
+			}
+
+			auto objId = data["id"].toInt();
+			auto objSubId = data["subid"].toInt();
+			auto templateId = data["template"].toInt();
+
+			scenes[mapLevel]->selectionObjectsView.clear();
+			if(scenes[mapLevel]->selectionObjectsView.newObject)
+			{
+				createNew = true;
+				delete scenes[mapLevel]->selectionObjectsView.newObject;
+			}
+
+			if(createNew)
+			{
+				auto factory = VLC->objtypeh->getHandlerFor(objId, objSubId);
+				auto templ = factory->getTemplates()[templateId];
+				scenes[mapLevel]->selectionObjectsView.newObject = factory->create(templ);
+				scenes[mapLevel]->selectionObjectsView.draw();
 			}
 		}
 	}
 
 	scenePreview->clear();
 	scenePreview->addPixmap(objPreview);
+}
+
+
+void MainWindow::treeViewSelected(const QModelIndex & index, const QModelIndex & deselected)
+{
+	preparePreview(index, false);
+}
+
+
+void MainWindow::on_treeView_activated(const QModelIndex &index)
+{
+	ui->toolBrush->setChecked(false);
+	ui->toolBrush2->setChecked(false);
+	ui->toolBrush4->setChecked(false);
+	ui->toolArea->setChecked(false);
+	ui->toolLasso->setChecked(false);
+	ui->mapView->selectionTool = MapView::SelectionTool::None;
+
+	preparePreview(index, true);
+}
+
+
+void MainWindow::on_terrainFilterCombo_currentTextChanged(const QString &arg1)
+{
+	if(!objectBrowser)
+		return;
+
+	objectBrowser->terrain = arg1.isEmpty() ? Terrain::ANY : Terrain(arg1.toStdString());
+	objectBrowser->invalidate();
+	objectBrowser->sort(0);
+}
+
+
+void MainWindow::on_filter_textChanged(const QString &arg1)
+{
+	if(!objectBrowser)
+		return;
+
+	objectBrowser->filter = arg1;
+	objectBrowser->invalidate();
+	objectBrowser->sort(0);
 }
 

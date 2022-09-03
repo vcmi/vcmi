@@ -10,6 +10,7 @@
 #include "mapview.h"
 
 class CMap;
+class ObjectBrowser;
 
 namespace Ui {
 class MainWindow;
@@ -38,6 +39,8 @@ public:
 
 	MapView * getMapView();
 
+	int getMapLevel() const {return mapLevel;}
+
 private slots:
     void on_actionOpen_triggered();
 
@@ -61,13 +64,24 @@ private slots:
 
 	void on_toolErase_clicked();
 
+	void on_treeView_activated(const QModelIndex &index);
+
+	void on_terrainFilterCombo_currentTextChanged(const QString &arg1);
+
+	void on_filter_textChanged(const QString &arg1);
+
 public slots:
 
 	void treeViewSelected(const QModelIndex &selected, const QModelIndex &deselected);
 
 private:
+	void preparePreview(const QModelIndex &index, bool createNew);
+	void addGroupIntoCatalog(const std::string & groupName, bool staticOnly);
+	void addGroupIntoCatalog(const std::string & groupName, bool staticOnly, int ID);
+
+private:
     Ui::MainWindow *ui;
-	
+	ObjectBrowser * objectBrowser = nullptr;
 	std::unique_ptr<MapHandler> mapHandler;
 	std::array<MapScene *, 2> scenes;
 	QGraphicsScene * sceneMini;
@@ -82,6 +96,8 @@ private:
 	QStandardItemModel objectsModel;
 
 	int mapLevel = 0;
+
+	std::set<int> catalog;
 };
 
 #endif // MAINWINDOW_H

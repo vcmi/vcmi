@@ -108,38 +108,38 @@ void RmgMap::initTiles(CMapGenerator & generator)
 	}
 }
 
-void RmgMap::addModificators()
+void RmgMap::addModificators(const std::set<std::string> & disableModificators)
 {
 	for(auto & z : getZones())
 	{
 		auto zone = z.second;
 		
 		zone->addModificator<ObjectManager>();
-		zone->addModificator<TreasurePlacer>();
-		zone->addModificator<ObstaclePlacer>();
-		zone->addModificator<TerrainPainter>();
+		zone->addModificator<TreasurePlacer>(!disableModificators.count("TreasurePlacer"));
+		zone->addModificator<ObstaclePlacer>(!disableModificators.count("ObstaclePlacer"));
+		zone->addModificator<TerrainPainter>(!disableModificators.count("TerrainPainter"));
 		
 		if(zone->getType() == ETemplateZoneType::WATER)
 		{
 			for(auto & z1 : getZones())
 			{
-				z1.second->addModificator<WaterAdopter>();
+				z1.second->addModificator<WaterAdopter>(!disableModificators.count("Water"));
 				z1.second->getModificator<WaterAdopter>()->setWaterZone(zone->getId());
 			}
-			zone->addModificator<WaterProxy>();
-			zone->addModificator<WaterRoutes>();
+			zone->addModificator<WaterProxy>(!disableModificators.count("Water"));
+			zone->addModificator<WaterRoutes>(!disableModificators.count("WaterRoutes") && !disableModificators.count("Water"));
 		}
 		else
 		{
 			zone->addModificator<TownPlacer>();
-			zone->addModificator<ConnectionsPlacer>();
-			zone->addModificator<RoadPlacer>();
-			zone->addModificator<RiverPlacer>();
+			zone->addModificator<ConnectionsPlacer>(!disableModificators.count("ConnectionsPlacer"));
+			zone->addModificator<RoadPlacer>(!disableModificators.count("RoadPlacer"));
+			zone->addModificator<RiverPlacer>(!disableModificators.count("RiverPlacer"));
 		}
 		
 		if(zone->isUnderground())
 		{
-			zone->addModificator<RockPlacer>();
+			zone->addModificator<RockPlacer>(!disableModificators.count("RockPlacer"));
 		}
 		
 	}

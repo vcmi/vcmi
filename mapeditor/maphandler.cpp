@@ -97,6 +97,53 @@ void MapHandler::drawTerrainTile(QPainter & painter, int x, int y, int z)
 	painter.drawImage(x * tileSize, y * tileSize, terrainImages.at(tinfo.terType)[tinfo.terView]->mirrored(hflip, vflip));
 }
 
+void MapHandler::drawRoad(QPainter & painter, int x, int y, int z)
+{
+	auto & tinfo = map->getTile(int3(x, y, z));
+	auto * tinfoUpper = map->isInTheMap(int3(x, y - 1, z)) ? &map->getTile(int3(x, y - 1, z)) : nullptr;
+
+	/*if(tinfoUpper && tinfoUpper->roadType != ROAD_NAMES[0])
+	{
+		ui8 rotation = (tinfoUpper->extTileFlags >> 4) % 4;
+
+		bool hflip = (rotation == 1 || rotation == 3), vflip = (rotation == 2 || rotation == 3);
+
+		if(roadImages.at(tinfoUpper->roadType).size() > tinfoUpper->roadDir)
+		{
+			painter.drawImage(x * tileSize, y * tileSize, roadImages.at(tinfoUpper->roadType)[tinfoUpper->roadDir]->mirrored(hflip, vflip));
+		}
+	}*/
+
+	if(tinfo.roadType != ROAD_NAMES[0]) //print road from this tile
+	{
+		ui8 rotation = (tinfo.extTileFlags >> 4) % 4;
+
+		bool hflip = (rotation == 1 || rotation == 3), vflip = (rotation == 2 || rotation == 3);
+
+		if(roadImages.at(tinfo.roadType).size() > tinfo.roadDir)
+		{
+			painter.drawImage(x * tileSize, y * tileSize, roadImages.at(tinfo.roadType)[tinfo.roadDir]->mirrored(hflip, vflip));
+		}
+	}
+}
+
+void MapHandler::drawRiver(QPainter & painter, int x, int y, int z)
+{
+	auto & tinfo = map->getTile(int3(x, y, z));
+
+	if(tinfo.riverType == RIVER_NAMES[0])
+		return;
+
+	if(riverImages.at(tinfo.riverType).size() <= tinfo.riverDir)
+		return;
+
+	ui8 rotation = (tinfo.extTileFlags >> 2) % 4;
+
+	bool hflip = (rotation == 1 || rotation == 3), vflip = (rotation == 2 || rotation == 3);
+
+	painter.drawImage(x * tileSize, y * tileSize, riverImages.at(tinfo.riverType)[tinfo.riverDir]->mirrored(hflip, vflip));
+}
+
 void MapHandler::initObjectRects()
 {
 	//initializing objects / rects

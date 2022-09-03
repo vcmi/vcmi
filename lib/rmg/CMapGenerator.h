@@ -57,6 +57,7 @@ public:
 	const CMapGenOptions& getMapGenOptions() const;
 	
 	std::unique_ptr<CMap> generate(bool emptyMap = false);
+	void disableModificator(const std::string & modificator);
 
 	void findZonesForQuestArts();
 
@@ -76,6 +77,7 @@ private:
 	CMapGenOptions& mapGenOptions;
 	Config config;
 	std::unique_ptr<RmgMap> map;
+	std::set<std::string> disabledModificators;
 	
 	std::vector<rmg::ZoneConnection> connectionsLeft;
 	

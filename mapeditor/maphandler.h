@@ -88,9 +88,9 @@ public:
 	
 	void drawTerrainTile(QPainter & painter, int x, int y, int z);
 	/// draws a river segment on current tile
-	//void drawRiver(const TerrainTile & tinfo) const;
+	void drawRiver(QPainter & painter, int x, int y, int z);
 	/// draws a road segment on current tile
-	//void drawRoad(const TerrainTile & tinfo, const TerrainTile * tinfoUpper) const;
+	void drawRoad(QPainter & painter, int x, int y, int z);
 	/// draws all objects on current tile (higher-level logic, unlike other draw*** methods)
 	void drawObjects(QPainter & painter, int x, int y, int z);
 	void drawObject(QPainter & painter, const TerrainTileObject & object);
