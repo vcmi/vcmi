@@ -598,6 +598,10 @@ void MainWindow::on_actionGrid_triggered(bool checked)
 	}
 }
 
+void MainWindow::changeBrushState(int idx)
+{
+
+}
 
 void MainWindow::on_toolBrush_clicked(bool checked)
 {
@@ -608,15 +612,39 @@ void MainWindow::on_toolBrush_clicked(bool checked)
 	ui->toolLasso->setChecked(false);
 
 	if(checked)
-	{
 		ui->mapView->selectionTool = MapView::SelectionTool::Brush;
-	}
 	else
-	{
 		ui->mapView->selectionTool = MapView::SelectionTool::None;
-	}
 }
 
+void MainWindow::on_toolBrush2_clicked(bool checked)
+{
+	ui->toolBrush->setChecked(false);
+	//ui->toolBrush2->setChecked(false);
+	ui->toolBrush4->setChecked(false);
+	ui->toolArea->setChecked(false);
+	ui->toolLasso->setChecked(false);
+
+	if(checked)
+		ui->mapView->selectionTool = MapView::SelectionTool::Brush2;
+	else
+		ui->mapView->selectionTool = MapView::SelectionTool::None;
+}
+
+
+void MainWindow::on_toolBrush4_clicked(bool checked)
+{
+	ui->toolBrush->setChecked(false);
+	ui->toolBrush2->setChecked(false);
+	//ui->toolBrush4->setChecked(false);
+	ui->toolArea->setChecked(false);
+	ui->toolLasso->setChecked(false);
+
+	if(checked)
+		ui->mapView->selectionTool = MapView::SelectionTool::Brush4;
+	else
+		ui->mapView->selectionTool = MapView::SelectionTool::None;
+}
 
 void MainWindow::on_toolArea_clicked(bool checked)
 {
@@ -627,13 +655,9 @@ void MainWindow::on_toolArea_clicked(bool checked)
 	ui->toolLasso->setChecked(false);
 
 	if(checked)
-	{
 		ui->mapView->selectionTool = MapView::SelectionTool::Area;
-	}
 	else
-	{
 		ui->mapView->selectionTool = MapView::SelectionTool::None;
-	}
 }
 
 

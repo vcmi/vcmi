@@ -399,7 +399,7 @@
         <item row="0" column="1">
          <widget class="QPushButton" name="toolBrush2">
           <property name="enabled">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -433,7 +433,7 @@
         <item row="1" column="0">
          <widget class="QPushButton" name="toolBrush4">
           <property name="enabled">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">

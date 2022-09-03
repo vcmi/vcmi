@@ -72,6 +72,10 @@ private slots:
 
 	void on_actionFill_triggered();
 
+	void on_toolBrush2_clicked(bool checked);
+
+	void on_toolBrush4_clicked(bool checked);
+
 public slots:
 
 	void treeViewSelected(const QModelIndex &selected, const QModelIndex &deselected);
@@ -80,6 +84,8 @@ private:
 	void preparePreview(const QModelIndex &index, bool createNew);
 	void addGroupIntoCatalog(const std::string & groupName, bool staticOnly);
 	void addGroupIntoCatalog(const std::string & groupName, bool staticOnly, int ID);
+
+	void changeBrushState(int idx);
 
 private:
     Ui::MainWindow *ui;
