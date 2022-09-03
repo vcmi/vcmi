@@ -10,6 +10,7 @@
 
 #include "StdInc.h"
 #include "RoadPlacer.h"
+#include "ObjectManager.h"
 #include "Functions.h"
 #include "CMapGenerator.h"
 #include "RmgMap.h"
@@ -63,12 +64,14 @@ bool RoadPlacer::createRoad(const int3 & dst)
 	
 }
 
-void RoadPlacer::drawRoads()
+void RoadPlacer::drawRoads(bool secondary)
 {
 	zone.areaPossible().subtract(roads);
 	zone.freePaths().unite(roads);
 	map.getEditManager()->getTerrainSelection().setSelection(roads.getTilesVector());
-	map.getEditManager()->drawRoad(generator.getConfig().defaultRoadType, &generator.rand);
+	std::string roadType = (secondary ? generator.getConfig().secondaryRoadType : generator.getConfig().defaultRoadType);
+	logGlobal->warn("Drawing %s roads", roadType);
+	map.getEditManager()->drawRoad(roadType, &generator.rand);
 }
 
 void RoadPlacer::addRoadNode(const int3& node)
@@ -78,7 +81,24 @@ void RoadPlacer::addRoadNode(const int3& node)
 
 void RoadPlacer::connectRoads()
 {
-	if(roadNodes.empty())
+	bool noRoadNodes = false;
+	//Assumes objects are already placed
+	if (roadNodes.size() < 2)
+	{
+		logGlobal->warn("No road nodes in this zone, adding dirt roads");
+		//If there are no nodes, draw roads to mines
+		noRoadNodes = true;
+		if (auto* m = zone.getModificator<ObjectManager>())
+		{
+			for (auto object : m->getMines())
+			{
+				addRoadNode(object->visitablePos());
+			}
+		}
+		logGlobal->warn("Total number of road nodes: %d", roadNodes.size());
+	}
+
+	if(roadNodes.size() < 2)
 		return;
 	
 	//take any tile from road nodes as destination zone for all other road nodes
@@ -87,10 +107,12 @@ void RoadPlacer::connectRoads()
 	
 	for(auto & node : roadNodes)
 	{
+		logGlobal->warn("Creating road");
 		createRoad(node);
 	}
 	
-	drawRoads();
+	//Draw dirt roads if there are only mines
+	drawRoads(noRoadNodes);
 }
 
 char RoadPlacer::dump(const int3 & t)
