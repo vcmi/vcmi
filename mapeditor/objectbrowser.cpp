@@ -66,22 +66,3 @@ bool ObjectBrowser::filterAcceptsRowText(int source_row, const QModelIndex &sour
 	return (filter.isNull() || filter.isEmpty() || item->text().contains(filter, Qt::CaseInsensitive));
 }
 
-/*bool ObjectBrowser::filterAcceptsRowItself(int source_row, const QModelIndex & source_parent) const
-{
-	//accept if any of the parents is accepted on it's own merits
-	QModelIndex parent = source_parent;
-	while(parent.isValid())
-	{
-		if (filterAcceptsRowItself(parent.row(), parent.parent()))
-			return true;
-		parent = parent.parent();
-	}
-
-	//accept if any of the children is accepted on it's own merits
-	if (hasAcceptedChildren(source_row, source_parent))
-	{
-		return true;
-	}
-
-	return false;
-}*/

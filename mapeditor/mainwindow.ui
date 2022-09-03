@@ -274,6 +274,15 @@
            <property name="selectionBehavior">
             <enum>QAbstractItemView::SelectItems</enum>
            </property>
+           <property name="iconSize">
+            <size>
+             <width>32</width>
+             <height>32</height>
+            </size>
+           </property>
+           <property name="indentation">
+            <number>12</number>
+           </property>
            <property name="sortingEnabled">
             <bool>true</bool>
            </property>

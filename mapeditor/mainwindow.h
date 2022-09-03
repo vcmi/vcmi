@@ -87,7 +87,6 @@ private:
 	QGraphicsScene * sceneMini;
 	QGraphicsScene * scenePreview;
 	QPixmap minimap;
-	QPixmap objPreview;
 	
 	std::unique_ptr<CMap> map;
 	QString filename;

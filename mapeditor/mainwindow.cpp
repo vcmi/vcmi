@@ -29,6 +29,23 @@
 
 static CBasicLogConfigurator * logConfig;
 
+QJsonValue jsonFromPixmap(const QPixmap &p)
+{
+  QBuffer buffer;
+  buffer.open(QIODevice::WriteOnly);
+  p.save(&buffer, "PNG");
+  auto const encoded = buffer.data().toBase64();
+  return {QLatin1String(encoded)};
+}
+
+QPixmap pixmapFromJson(const QJsonValue &val)
+{
+  auto const encoded = val.toString().toLatin1();
+  QPixmap p;
+  p.loadFromData(QByteArray::fromBase64(encoded), "PNG");
+  return p;
+}
+
 void init()
 {
 	loadDLLClasses();
@@ -38,8 +55,7 @@ void init()
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-	ui(new Ui::MainWindow),
-	objPreview(128, 128)
+	ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
@@ -333,19 +349,42 @@ void MainWindow::addGroupIntoCatalog(const std::string & groupName, bool staticO
 		for(int templateId = 0; templateId < templates.size(); ++templateId)
 		{
 			auto templ = templates[templateId];
+
+			//selecting file
+			const std::string & afile = templ.editorAnimationFile.empty() ? templ.animationFile : templ.editorAnimationFile;
+
+			//creating picture
+			QPixmap preview(128, 128);
+			preview.fill(QColor(255, 255, 255));
+			QPainter painter(&preview);
+			Animation animation(afile);
+			animation.preload();
+			auto picture = animation.getImage(0);
+			if(picture && picture->width() && picture->height())
+			{
+				qreal xscale = qreal(128) / qreal(picture->width()), yscale = qreal(128) / qreal(picture->height());
+				qreal scale = std::min(xscale, yscale);
+				painter.scale(scale, scale);
+				painter.drawImage(QPoint(0, 0), *picture);
+			}
+
+			//add parameters
 			QJsonObject data{{"id", QJsonValue(ID)},
 							 {"subid", QJsonValue(secondaryID)},
 							 {"template", QJsonValue(templateId)},
 							 {"animationEditor", QString::fromStdString(templ.editorAnimationFile)},
-							 {"animation", QString::fromStdString(templ.animationFile)}};
+							 {"animation", QString::fromStdString(templ.animationFile)},
+							 {"preview", jsonFromPixmap(preview)}};
 
+			//do not have extra level
 			if(singleTemplate)
 			{
+				itemType->setIcon(QIcon(preview));
 				itemType->setData(data);
 			}
 			else
 			{
-				auto * item = new QStandardItem(QString::fromStdString(templ.stringID));
+				auto * item = new QStandardItem(QIcon(preview), QString::fromStdString(templ.stringID));
 				item->setData(data);
 				itemType->appendRow(item);
 			}
@@ -406,7 +445,6 @@ void MainWindow::loadObjectsTree()
 	addGroupIntoCatalog("MISC", false, Obj::CORPSE);
 	addGroupIntoCatalog("MISC", false, Obj::MARLETTO_TOWER);
 	addGroupIntoCatalog("MISC", false, Obj::DERELICT_SHIP);
-	addGroupIntoCatalog("MISC", false, Obj::DRAGON_UTOPIA);
 	addGroupIntoCatalog("MISC", false, Obj::FAERIE_RING);
 	addGroupIntoCatalog("MISC", false, Obj::FLOTSAM);
 	addGroupIntoCatalog("MISC", false, Obj::FOUNTAIN_OF_FORTUNE);
@@ -445,6 +483,7 @@ void MainWindow::loadObjectsTree()
 	addGroupIntoCatalog("RESOURCES", false, Obj::TREASURE_CHEST);
 	addGroupIntoCatalog("RESOURCES", false, Obj::SPELL_SCROLL);
 	addGroupIntoCatalog("BANKS", false, Obj::CREATURE_BANK);
+	addGroupIntoCatalog("BANKS", false, Obj::DRAGON_UTOPIA);
 	addGroupIntoCatalog("DWELLINGS", false, Obj::CREATURE_GENERATOR1);
 	addGroupIntoCatalog("DWELLINGS", false, Obj::CREATURE_GENERATOR2);
 	addGroupIntoCatalog("DWELLINGS", false, Obj::CREATURE_GENERATOR3);
@@ -609,28 +648,17 @@ void MainWindow::on_toolErase_clicked()
 
 void MainWindow::preparePreview(const QModelIndex &index, bool createNew)
 {
-	objPreview.fill(QColor(255, 255, 255));
+	scenePreview->clear();
+
 	auto data = objectsModel.itemFromIndex(objectBrowser->mapToSource(index))->data().toJsonObject();
 
 	if(!data.empty())
 	{
-		auto animfile = data["animationEditor"];
-		if(animfile != QJsonValue::Undefined)
+		auto preview = data["preview"];
+		if(preview != QJsonValue::Undefined)
 		{
-			if(animfile.toString().isEmpty())
-				animfile = data["animation"];
-
-			QPainter painter(&objPreview);
-			Animation animation(animfile.toString().toStdString());
-			animation.preload();
-			auto picture = animation.getImage(0);
-			if(picture && picture->width() && picture->height())
-			{
-				qreal xscale = qreal(128) / qreal(picture->width()), yscale = qreal(128) / qreal(picture->height());
-				qreal scale = std::min(xscale, yscale);
-				painter.scale(scale, scale);
-				painter.drawImage(QPoint(0, 0), *picture);
-			}
+			QPixmap objPreview = pixmapFromJson(preview);
+			scenePreview->addPixmap(objPreview);
 
 			auto objId = data["id"].toInt();
 			auto objSubId = data["subid"].toInt();
@@ -652,9 +680,6 @@ void MainWindow::preparePreview(const QModelIndex &index, bool createNew)
 			}
 		}
 	}
-
-	scenePreview->clear();
-	scenePreview->addPixmap(objPreview);
 }
 
 
