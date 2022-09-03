@@ -51,9 +51,9 @@ const TeamID TeamID::NO_TEAM = TeamID(255);
 namespace GameConstants
 {
 #ifdef VCMI_NO_EXTRA_VERSION
-	const std::string VCMI_VERSION = std::string("VCMI 0.99");
+	const std::string VCMI_VERSION = std::string("VCMI 1.0.0");
 #else
-	const std::string VCMI_VERSION = std::string("VCMI 0.99 ") + GIT_SHA1;
+	const std::string VCMI_VERSION = std::string("VCMI 1.0.0.") + GIT_SHA1;
 #endif
 }
 
