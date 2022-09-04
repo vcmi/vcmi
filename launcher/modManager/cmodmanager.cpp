@@ -232,9 +232,11 @@ bool CModManager::doEnableMod(QString mod, bool on)
 
 	modSettings = writeValue(path, modSettings, QVariant(on)).toMap();
 	modList->setModSettings(modSettings["activeMods"]);
-	modList->modChanged(mod);
 
 	JsonUtils::JsonToFile(settingsPath(), modSettings);
+
+	//model is read from filesystem once it is saved
+	modList->modChanged(mod);
 
 	return true;
 }

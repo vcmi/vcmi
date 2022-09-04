@@ -67,8 +67,6 @@ bool CModEntry::isEnabled() const
 
 bool CModEntry::isDisabled() const
 {
-	if(!isInstalled())
-		return false;
 	return !isEnabled();
 }
 
