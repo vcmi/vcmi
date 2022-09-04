@@ -68,5 +68,7 @@ void PlayerSettings::on_pushButton_clicked()
 	{
 		header.players[w->playerColor] = w->playerInfo;
 	}
+
+	close();
 }
 

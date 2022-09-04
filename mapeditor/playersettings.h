@@ -21,6 +21,8 @@ private slots:
 
 	void on_playersCount_currentIndexChanged(int index);
 
+	void on_pushButton_clicked();
+
 private:
 	Ui::PlayerSettings *ui;
 

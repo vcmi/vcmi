@@ -144,6 +144,22 @@ void MapHandler::drawRiver(QPainter & painter, int x, int y, int z)
 	painter.drawImage(x * tileSize, y * tileSize, riverImages.at(tinfo.riverType)[tinfo.riverDir]->mirrored(hflip, vflip));
 }
 
+void setPlayerColor(QImage * sur, PlayerColor player)
+{
+	if(player == PlayerColor::UNFLAGGABLE)
+		return;
+	if(sur->format() == QImage::Format_Indexed8)
+	{
+		QRgb color = graphics->neutralColor;
+		if(player != PlayerColor::NEUTRAL)
+			color = graphics->playerColors[player.getNum()];
+
+		sur->setColor(5, color);
+	}
+	else
+		logGlobal->warn("Warning, setPlayerColor called on not 8bpp surface!");
+}
+
 void MapHandler::initObjectRects()
 {
 	//initializing objects / rects
@@ -374,6 +390,8 @@ MapHandler::AnimBitmapHolder MapHandler::findObjectBitmap(const CGObjectInstance
 	auto bitmap = animation->getImage((anim + getPhaseShift(obj)) % groupSize);
 	if(!bitmap)
 		return MapHandler::AnimBitmapHolder();
+
+	setPlayerColor(bitmap.get(), obj->tempOwner);
 	
 	return MapHandler::AnimBitmapHolder(bitmap);
 }
@@ -405,19 +423,20 @@ void MapHandler::drawObjects(QPainter & painter, int x, int y, int z)
 			painter.drawImage(QPoint(x * 32, y * 32), *objData.objBitmap, object.rect);
 			//painter.drawImage(pos.x * 32 - object.rect.x(), pos.y * 32 - object.rect.y(), *objData.objBitmap);
 			//drawObject(targetSurf, objData.objBitmap, &srcRect, objData.isMoving);
-			if (objData.flagBitmap)
+			if(objData.flagBitmap)
 			{
 				/*if (objData.isMoving)
 				{
 					srcRect.y += FRAMES_PER_MOVE_ANIM_GROUP * 2 - tileSize;
 					Rect dstRect(realPos.x, realPos.y - tileSize / 2, tileSize, tileSize);
 					drawHeroFlag(targetSurf, objData.flagBitmap, &srcRect, &dstRect, true);
-				}
-				else if (obj->pos.x == pos.x && obj->pos.y == pos.y)
-				{
-					Rect dstRect(realPos.x - 2 * tileSize, realPos.y - tileSize, 3 * tileSize, 2 * tileSize);
-					drawHeroFlag(targetSurf, objData.flagBitmap, nullptr, &dstRect, false);
 				}*/
+				if (obj->pos.x == pos.x && obj->pos.y == pos.y)
+				{
+					//Rect dstRect(realPos.x - 2 * tileSize, realPos.y - tileSize, 3 * tileSize, 2 * tileSize);
+					painter.drawImage(QPoint(x * 32, y * 32), *objData.flagBitmap, object.rect);
+					//drawHeroFlag(targetSurf, objData.flagBitmap, nullptr, &dstRect, false);
+				}
 			}
 		}
 	}
@@ -451,11 +470,13 @@ void MapHandler::drawObject(QPainter & painter, const TerrainTileObject & object
 				Rect dstRect(realPos.x, realPos.y - tileSize / 2, tileSize, tileSize);
 				drawHeroFlag(targetSurf, objData.flagBitmap, &srcRect, &dstRect, true);
 			}
-			else if (obj->pos.x == pos.x && obj->pos.y == pos.y)
+			else */
+			if (obj->pos.x == pos.x && obj->pos.y == pos.y)
 			{
-				Rect dstRect(realPos.x - 2 * tileSize, realPos.y - tileSize, 3 * tileSize, 2 * tileSize);
-				drawHeroFlag(targetSurf, objData.flagBitmap, nullptr, &dstRect, false);
-			}*/
+				//Rect dstRect(realPos.x - 2 * tileSize, realPos.y - tileSize, 3 * tileSize, 2 * tileSize);
+				//drawHeroFlag(targetSurf, objData.flagBitmap, nullptr, &dstRect, false);
+				painter.drawImage(pos.x * 32 - object.rect.x(), pos.y * 32 - object.rect.y(), *objData.flagBitmap);
+			}
 		}
 	}
 }
@@ -475,21 +496,9 @@ void MapHandler::drawObjectAt(QPainter & painter, const CGObjectInstance * obj, 
 	if (objData.objBitmap)
 	{
 		painter.drawImage(QPoint((x + 1) * 32 - objData.objBitmap->width(), (y + 1) * 32 - objData.objBitmap->height()), *objData.objBitmap);
-
-		//drawObject(targetSurf, objData.objBitmap, &srcRect, objData.isMoving);
 		if (objData.flagBitmap)
 		{
-			/*if (objData.isMoving)
-			{
-				srcRect.y += FRAMES_PER_MOVE_ANIM_GROUP * 2 - tileSize;
-				Rect dstRect(realPos.x, realPos.y - tileSize / 2, tileSize, tileSize);
-				drawHeroFlag(targetSurf, objData.flagBitmap, &srcRect, &dstRect, true);
-			}
-			else if (obj->pos.x == pos.x && obj->pos.y == pos.y)
-			{
-				Rect dstRect(realPos.x - 2 * tileSize, realPos.y - tileSize, 3 * tileSize, 2 * tileSize);
-				drawHeroFlag(targetSurf, objData.flagBitmap, nullptr, &dstRect, false);
-			}*/
+			painter.drawImage(QPoint((x + 1) * 32 - objData.objBitmap->width(), (y + 1) * 32 - objData.objBitmap->height()), *objData.flagBitmap);
 		}
 	}
 }
