@@ -180,7 +180,6 @@ set(lib_SRCS
 		LoadProgress.cpp
 		LogicalExpression.cpp
 		NetPacksLib.cpp
-		ObstacleHandler.cpp
 		StartInfo.cpp
 		ResourceSet.cpp
 		ScriptHandler.cpp
@@ -421,7 +420,6 @@ set(lib_HEADERS
 		NetPacksBase.h
 		NetPacks.h
 		NetPacksLobby.h
-		ObstacleHandler.h
 		PathfinderUtil.h
 		ResourceSet.h
 		ScriptHandler.h
