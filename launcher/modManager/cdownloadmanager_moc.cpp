@@ -20,6 +20,7 @@ CDownloadManager::CDownloadManager()
 
 void CDownloadManager::downloadFile(const QUrl & url, const QString & file)
 {
+	filename = file;
 	QNetworkRequest request(url);
 	FileEntry entry;
 	entry.file.reset(new QFile(CLauncherDirs::get().downloadsPath() + '/' + file));
@@ -61,6 +62,23 @@ CDownloadManager::FileEntry & CDownloadManager::getEntry(QNetworkReply * reply)
 void CDownloadManager::downloadFinished(QNetworkReply * reply)
 {
 	FileEntry & file = getEntry(reply);
+	
+	QVariant possibleRedirectUrl = reply->attribute(QNetworkRequest::RedirectionTargetAttribute);
+	QUrl qurl = possibleRedirectUrl.toUrl();
+	
+	if(possibleRedirectUrl.isValid())
+	{
+		for(int i = 0; i< currentDownloads.size(); ++i)
+		{
+			if(currentDownloads[i].file == file.file)
+			{
+				currentDownloads.removeAt(i);
+				break;
+			}
+		}
+		downloadFile(qurl, filename);
+		return;
+	}
 
 	if(file.reply->error())
 	{
