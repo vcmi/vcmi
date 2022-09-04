@@ -362,7 +362,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 	{
 		if(elem->obstacleType == CObstacleInstance::USUAL)
 		{
-			std::string animationName = elem->getInfo().animation;
+			std::string animationName = elem->getInfo().defName;
 
 			auto cached = animationsCache.find(animationName);
 
@@ -380,7 +380,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 		}
 		else if (elem->obstacleType == CObstacleInstance::ABSOLUTE_OBSTACLE)
 		{
-			std::string animationName = elem->getInfo().animation;
+			std::string animationName = elem->getInfo().defName;
 
 			auto cached = animationsCache.find(animationName);
 

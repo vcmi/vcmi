@@ -3,7 +3,7 @@
 	"$schema": "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI obstacle format",
 	"description" : "Format used to define new obstacles in VCMI",
-	"required" : [ "animation" ],
+	"required" : [ "defname" ],
 
 	"additionalProperties" : false,
 	"properties":{
@@ -30,7 +30,7 @@
 			"description": "Blocked hexes - absolute or relative hex id",
 			"items": { "type" : "number" }
 		},
-		"animation": {
+		"defname": {
 			"type": "string",
 			"description": "Image resource"
 		},

@@ -8,7 +8,7 @@
 // * "blockedTiles": for absolute obstacles contains absolute coordinates. For usual obstacles contains offsets relative to the obstacle position (that is bottom left corner). If obstacle is placed in an odd row (counting from 0) and the blocked tile is in an even row, position will be shifted one tile to the left. Thanks to that ie. -16 is always top-right hex, no matter where the obstale will get placed.
 // * "width" for usual obstacles it's count of tiles that must be free to the right for obstacle to be placed. For absolute obstacles, it's x offset for the graphics.
 // * "height" for usual obstacles it's count of tiles that must be free to the top for obstacle to be placed. For absolute obstacles, it's y offset for the graphics.
-// * "animation" is name of the graphics. It's def file for usual obstacles and bitmap for the absolute ones.
+// * "defname" is name of the graphics. It's def file for usual obstacles and bitmap for the absolute ones.
 
 {
 	"0":
@@ -18,7 +18,7 @@
 		"width" : 2,
 		"height" : 1,
 		"blockedTiles" :  [0, 1],
-		"animation" : "ObDino1.def",
+		"defname" : "ObDino1.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -29,7 +29,7 @@
 		"width" : 3,
 		"height" : 2,
 		"blockedTiles" :  [0, 1, 2],
-		"animation" : "ObDino2.def",
+		"defname" : "ObDino2.def",
 		"unknown" : 0,
 		"absolute" : false
 	},
@@ -40,7 +40,7 @@
 		"width" : 4,
 		"height" : 2,
 		"blockedTiles" :  [0, 1, -14, -15, -16],
-		"animation" : "ObDino3.def",
+		"defname" : "ObDino3.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -51,7 +51,7 @@
 		"width" : 2,
 		"height" : 1,
 		"blockedTiles" :  [0, 1],
-		"animation" : "ObSkel1.def",
+		"defname" : "ObSkel1.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -62,7 +62,7 @@
 		"width" : 2,
 		"height" : 1,
 		"blockedTiles" :  [0, 1],
-		"animation" : "ObSkel2.def",
+		"defname" : "ObSkel2.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -73,7 +73,7 @@
 		"width" : 4,
 		"height" : 2,
 		"blockedTiles" :  [1, 2, 3],
-		"animation" : "ObBDT01.def",
+		"defname" : "ObBDT01.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -84,7 +84,7 @@
 		"width" : 3,
 		"height" : 2,
 		"blockedTiles" :  [-15, -16],
-		"animation" : "ObDRk01.def",
+		"defname" : "ObDRk01.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -95,7 +95,7 @@
 		"width" : 2,
 		"height" : 2,
 		"blockedTiles" :  [0, 1],
-		"animation" : "ObDRk02.def",
+		"defname" : "ObDRk02.def",
 		"unknown" : 0,
 		"absolute" : false
 	},
@@ -106,7 +106,7 @@
 		"width" : 2,
 		"height" : 2,
 		"blockedTiles" :  [-16],
-		"animation" : "ObDRk03.def",
+		"defname" : "ObDRk03.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -117,7 +117,7 @@
 		"width" : 2,
 		"height" : 2,
 		"blockedTiles" :  [0, 1],
-		"animation" : "ObDRk04.def",
+		"defname" : "ObDRk04.def",
 		"unknown" : 0,
 		"absolute" : false
 	},
@@ -128,7 +128,7 @@
 		"width" : 2,
 		"height" : 2,
 		"blockedTiles" :  [0, 1],
-		"animation" : "ObDSh01.def",
+		"defname" : "ObDSh01.def",
 		"unknown" : 0,
 		"absolute" : false
 	},
@@ -139,7 +139,7 @@
 		"width" : 2,
 		"height" : 1,
 		"blockedTiles" :  [0, 1],
-		"animation" : "ObDTF03.def",
+		"defname" : "ObDTF03.def",
 		"unknown" : 0,
 		"absolute" : false
 	},
@@ -150,7 +150,7 @@
 		"width" : 3,
 		"height" : 3,
 		"blockedTiles" :  [0, 1, 2, 3],
-		"animation" : "ObDtS03.def",
+		"defname" : "ObDtS03.def",
 		"unknown" : 0,
 		"absolute" : false
 	},
@@ -161,7 +161,7 @@
 		"width" : 3,
 		"height" : 2,
 		"blockedTiles" :  [1, 2, -15],
-		"animation" : "ObDtS04.def",
+		"defname" : "ObDtS04.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -172,7 +172,7 @@
 		"width" : 3,
 		"height" : 2,
 		"blockedTiles" :  [2, -15, -16],
-		"animation" : "ObDtS14.def",
+		"defname" : "ObDtS14.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -183,7 +183,7 @@
 		"width" : 3,
 		"height" : 3,
 		"blockedTiles" :  [1, -16, -33],
-		"animation" : "ObDtS15.def",
+		"defname" : "ObDtS15.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -194,7 +194,7 @@
 		"width" : 4,
 		"height" : 4,
 		"blockedTiles" :  [-15, -16, -32, -33, -48, -49],
-		"animation" : "ObDsM01.def",
+		"defname" : "ObDsM01.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -205,7 +205,7 @@
 		"width" : 3,
 		"height" : 2,
 		"blockedTiles" :  [1, -15, -16],
-		"animation" : "ObDsS02.def",
+		"defname" : "ObDsS02.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -216,7 +216,7 @@
 		"width" : 4,
 		"height" : 2,
 		"blockedTiles" :  [1, 2, 3, -15, -16],
-		"animation" : "ObDsS17.def",
+		"defname" : "ObDsS17.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -227,7 +227,7 @@
 		"width" : 2,
 		"height" : 1,
 		"blockedTiles" :  [0, 1],
-		"animation" : "ObGLg01.def",
+		"defname" : "ObGLg01.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -238,7 +238,7 @@
 		"width" : 2,
 		"height" : 2,
 		"blockedTiles" :  [0, 1],
-		"animation" : "ObGRk01.def",
+		"defname" : "ObGRk01.def",
 		"unknown" : 0,
 		"absolute" : false
 	},
@@ -249,7 +249,7 @@
 		"width" : 1,
 		"height" : 1,
 		"blockedTiles" :  [0],
-		"animation" : "ObGSt01.def",
+		"defname" : "ObGSt01.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -260,7 +260,7 @@
 		"width" : 6,
 		"height" : 2,
 		"blockedTiles" :  [1, 2, 3, 4, -13, -14, -15, -16],
-		"animation" : "ObGrS01.def",
+		"defname" : "ObGrS01.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -271,7 +271,7 @@
 		"width" : 7,
 		"height" : 1,
 		"blockedTiles" :  [1, 2],
-		"animation" : "OBGrS02.def",
+		"defname" : "OBGrS02.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -282,7 +282,7 @@
 		"width" : 3,
 		"height" : 1,
 		"blockedTiles" :  [0, 1, 2],
-		"animation" : "ObSnS01.def",
+		"defname" : "ObSnS01.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -293,7 +293,7 @@
 		"width" : 5,
 		"height" : 1,
 		"blockedTiles" :  [1, 2, 3, 4],
-		"animation" : "ObSnS02.def",
+		"defname" : "ObSnS02.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -304,7 +304,7 @@
 		"width" : 3,
 		"height" : 3,
 		"blockedTiles" :  [0, -16, -33],
-		"animation" : "ObSnS03.def",
+		"defname" : "ObSnS03.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -315,7 +315,7 @@
 		"width" : 3,
 		"height" : 1,
 		"blockedTiles" :  [0, 1, 2],
-		"animation" : "ObSnS04.def",
+		"defname" : "ObSnS04.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -326,7 +326,7 @@
 		"width" : 3,
 		"height" : 1,
 		"blockedTiles" :  [1],
-		"animation" : "ObSnS05.def",
+		"defname" : "ObSnS05.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -337,7 +337,7 @@
 		"width" : 3,
 		"height" : 2,
 		"blockedTiles" :  [1, 2],
-		"animation" : "ObSnS06.def",
+		"defname" : "ObSnS06.def",
 		"unknown" : 0,
 		"absolute" : false
 	},
@@ -348,7 +348,7 @@
 		"width" : 2,
 		"height" : 1,
 		"blockedTiles" :  [0, 1],
-		"animation" : "ObSnS07.def",
+		"defname" : "ObSnS07.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -359,7 +359,7 @@
 		"width" : 3,
 		"height" : 2,
 		"blockedTiles" :  [0, 1, 2],
-		"animation" : "ObSnS08.def",
+		"defname" : "ObSnS08.def",
 		"unknown" : 0,
 		"absolute" : false
 	},
@@ -370,7 +370,7 @@
 		"width" : 7,
 		"height" : 2,
 		"blockedTiles" :  [2, 3, 4, 5, -13, -14, -15, -16],
-		"animation" : "ObSnS09.def",
+		"defname" : "ObSnS09.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -381,7 +381,7 @@
 		"width" : 5,
 		"height" : 5,
 		"blockedTiles" :  [3, -13, -14, -15, -33, -49, -66],
-		"animation" : "ObSnS10.def",
+		"defname" : "ObSnS10.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -392,7 +392,7 @@
 		"width" : 2,
 		"height" : 2,
 		"blockedTiles" :  [0],
-		"animation" : "ObSwS01.def",
+		"defname" : "ObSwS01.def",
 		"unknown" : 0,
 		"absolute" : false
 	},
@@ -403,7 +403,7 @@
 		"width" : 8,
 		"height" : 3,
 		"blockedTiles" :  [-10, -11, -12, -13, -14, -15, -16],
-		"animation" : "ObSwS02.def",
+		"defname" : "ObSwS02.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -414,7 +414,7 @@
 		"width" : 2,
 		"height" : 1,
 		"blockedTiles" :  [0, 1],
-		"animation" : "ObSwS03.def",
+		"defname" : "ObSwS03.def",
 		"unknown" : 0,
 		"absolute" : false
 	},
@@ -425,7 +425,7 @@
 		"width" : 3,
 		"height" : 1,
 		"blockedTiles" :  [0, 1, 2],
-		"animation" : "ObSwS04.def",
+		"defname" : "ObSwS04.def",
 		"unknown" : 0,
 		"absolute" : false
 	},
@@ -436,7 +436,7 @@
 		"width" : 5,
 		"height" : 4,
 		"blockedTiles" :  [-13, -14, -15, -16, -30, -31, -32, -33],
-		"animation" : "ObSwS11b.def",
+		"defname" : "ObSwS11b.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -447,7 +447,7 @@
 		"width" : 4,
 		"height" : 3,
 		"blockedTiles" :  [-16, -17, -31, -32, -33, -34],
-		"animation" : "ObSwS13a.def",
+		"defname" : "ObSwS13a.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -458,7 +458,7 @@
 		"width" : 2,
 		"height" : 2,
 		"blockedTiles" :  [0, 1, -16],
-		"animation" : "ObRgS01.def",
+		"defname" : "ObRgS01.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -469,7 +469,7 @@
 		"width" : 4,
 		"height" : 3,
 		"blockedTiles" :  [-14, -15, -16, -32, -33],
-		"animation" : "ObRgS02.def",
+		"defname" : "ObRgS02.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -480,7 +480,7 @@
 		"width" : 3,
 		"height" : 2,
 		"blockedTiles" :  [1, 2, -15, -16],
-		"animation" : "ObRgS03.def",
+		"defname" : "ObRgS03.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -491,7 +491,7 @@
 		"width" : 3,
 		"height" : 3,
 		"blockedTiles" :  [-16, -32, -33],
-		"animation" : "ObRgS04.def",
+		"defname" : "ObRgS04.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -502,7 +502,7 @@
 		"width" : 3,
 		"height" : 3,
 		"blockedTiles" :  [-15, -16, -32],
-		"animation" : "ObRgS05.def",
+		"defname" : "ObRgS05.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -513,7 +513,7 @@
 		"width" : 3,
 		"height" : 3,
 		"blockedTiles" :  [0, 1, 2, -15, -16],
-		"animation" : "ObSuS01.def",
+		"defname" : "ObSuS01.def",
 		"unknown" : 0,
 		"absolute" : false
 	},
@@ -524,7 +524,7 @@
 		"width" : 3,
 		"height" : 2,
 		"blockedTiles" :  [0, 1, 2],
-		"animation" : "ObSuS02.def",
+		"defname" : "ObSuS02.def",
 		"unknown" : 0,
 		"absolute" : false
 	},
@@ -535,7 +535,7 @@
 		"width" : 4,
 		"height" : 3,
 		"blockedTiles" :  [0, 1, 2, 3, -14, -15, -16],
-		"animation" : "ObSuS11b.def",
+		"defname" : "ObSuS11b.def",
 		"unknown" : 0,
 		"absolute" : false
 	},
@@ -546,7 +546,7 @@
 		"width" : 4,
 		"height" : 3,
 		"blockedTiles" :  [-14, -32, -33],
-		"animation" : "ObLvS01.def",
+		"defname" : "ObLvS01.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -557,7 +557,7 @@
 		"width" : 4,
 		"height" : 2,
 		"blockedTiles" :  [0, 1, 2, -14, -15, -16],
-		"animation" : "ObLvS02.def",
+		"defname" : "ObLvS02.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -568,7 +568,7 @@
 		"width" : 5,
 		"height" : 3,
 		"blockedTiles" :  [-13, -14, -15, -30, -31, -32, -33],
-		"animation" : "ObLvS03.def",
+		"defname" : "ObLvS03.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -579,7 +579,7 @@
 		"width" : 3,
 		"height" : 2,
 		"blockedTiles" :  [0, 1, 2],
-		"animation" : "ObLvS04.def",
+		"defname" : "ObLvS04.def",
 		"unknown" : 0,
 		"absolute" : false
 	},
@@ -590,7 +590,7 @@
 		"width" : 4,
 		"height" : 4,
 		"blockedTiles" :  [-14, -15, -32, -33, -49, -50],
-		"animation" : "ObLvS09.def",
+		"defname" : "ObLvS09.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -601,7 +601,7 @@
 		"width" : 5,
 		"height" : 3,
 		"blockedTiles" :  [-13, -14, -15, -16, -30, -31],
-		"animation" : "ObLvS17.def",
+		"defname" : "ObLvS17.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -612,7 +612,7 @@
 		"width" : 5,
 		"height" : 3,
 		"blockedTiles" :  [-13, -14, -15, -16, -31, -32, -33],
-		"animation" : "ObLvS22.def",
+		"defname" : "ObLvS22.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -623,7 +623,7 @@
 		"width" : 3,
 		"height" : 3,
 		"blockedTiles" :  [-15, -16, -33],
-		"animation" : "ObBtS04.def",
+		"defname" : "ObBtS04.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -634,7 +634,7 @@
 		"width" : 3,
 		"height" : 2,
 		"blockedTiles" :  [1, -15, -16],
-		"animation" : "ObBhS02.def",
+		"defname" : "ObBhS02.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -645,7 +645,7 @@
 		"width" : 3,
 		"height" : 2,
 		"blockedTiles" :  [0, 1, 2],
-		"animation" : "ObBhS03.def",
+		"defname" : "ObBhS03.def",
 		"unknown" : 0,
 		"absolute" : false
 	},
@@ -656,7 +656,7 @@
 		"width" : 5,
 		"height" : 2,
 		"blockedTiles" :  [1, 2, 3, -14, -15, -16],
-		"animation" : "ObBhS11a.def",
+		"defname" : "ObBhS11a.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -667,7 +667,7 @@
 		"width" : 4,
 		"height" : 2,
 		"blockedTiles" :  [1, 2, -14, -15],
-		"animation" : "ObBhS12b.def",
+		"defname" : "ObBhS12b.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -678,7 +678,7 @@
 		"width" : 2,
 		"height" : 2,
 		"blockedTiles" :  [0, 1, -16],
-		"animation" : "ObBhS14b.def",
+		"defname" : "ObBhS14b.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -689,7 +689,7 @@
 		"width" : 1,
 		"height" : 1,
 		"blockedTiles" :  [0],
-		"animation" : "ObHGs00.def",
+		"defname" : "ObHGs00.def",
 		"unknown" : 0,
 		"absolute" : false
 	},
@@ -700,7 +700,7 @@
 		"width" : 2,
 		"height" : 1,
 		"blockedTiles" :  [0, 1],
-		"animation" : "ObHGs01.def",
+		"defname" : "ObHGs01.def",
 		"unknown" : 0,
 		"absolute" : false
 	},
@@ -711,7 +711,7 @@
 		"width" : 3,
 		"height" : 3,
 		"blockedTiles" :  [1],
-		"animation" : "ObHGs02.def",
+		"defname" : "ObHGs02.def",
 		"unknown" : 0,
 		"absolute" : false
 	},
@@ -722,7 +722,7 @@
 		"width" : 3,
 		"height" : 2,
 		"blockedTiles" :  [0, 1, 2],
-		"animation" : "ObHGs03.def",
+		"defname" : "ObHGs03.def",
 		"unknown" : 0,
 		"absolute" : false
 	},
@@ -733,7 +733,7 @@
 		"width" : 4,
 		"height" : 3,
 		"blockedTiles" :  [0, 1, 2, 3],
-		"animation" : "ObHGs04.def",
+		"defname" : "ObHGs04.def",
 		"unknown" : 0,
 		"absolute" : false
 	},
@@ -744,7 +744,7 @@
 		"width" : 1,
 		"height" : 1,
 		"blockedTiles" :  [0],
-		"animation" : "ObEFs00.def",
+		"defname" : "ObEFs00.def",
 		"unknown" : 0,
 		"absolute" : false
 	},
@@ -755,7 +755,7 @@
 		"width" : 2,
 		"height" : 1,
 		"blockedTiles" :  [0, 1],
-		"animation" : "ObEFs01.def",
+		"defname" : "ObEFs01.def",
 		"unknown" : 0,
 		"absolute" : false
 	},
@@ -766,7 +766,7 @@
 		"width" : 3,
 		"height" : 2,
 		"blockedTiles" :  [0, 1, 2],
-		"animation" : "ObEFs02.def",
+		"defname" : "ObEFs02.def",
 		"unknown" : 0,
 		"absolute" : false
 	},
@@ -777,7 +777,7 @@
 		"width" : 4,
 		"height" : 2,
 		"blockedTiles" :  [1, 2],
-		"animation" : "ObEFs03.def",
+		"defname" : "ObEFs03.def",
 		"unknown" : 0,
 		"absolute" : false
 	},
@@ -788,7 +788,7 @@
 		"width" : 6,
 		"height" : 2,
 		"blockedTiles" :  [1, 2, 3, -12, -13],
-		"animation" : "ObEFs04.def",
+		"defname" : "ObEFs04.def",
 		"unknown" : 0,
 		"absolute" : false
 	},
@@ -799,7 +799,7 @@
 		"width" : 1,
 		"height" : 1,
 		"blockedTiles" :  [0],
-		"animation" : "ObCFs00.def",
+		"defname" : "ObCFs00.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -810,7 +810,7 @@
 		"width" : 3,
 		"height" : 1,
 		"blockedTiles" :  [0, 1, 2],
-		"animation" : "ObCFs01.def",
+		"defname" : "ObCFs01.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -821,7 +821,7 @@
 		"width" : 3,
 		"height" : 2,
 		"blockedTiles" :  [1, 2, -15, -16],
-		"animation" : "ObCFs02.def",
+		"defname" : "ObCFs02.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -832,7 +832,7 @@
 		"width" : 4,
 		"height" : 2,
 		"blockedTiles" :  [0, 1, 2, -14, -15, -16],
-		"animation" : "ObCFs03.def",
+		"defname" : "ObCFs03.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -843,7 +843,7 @@
 		"width" : 1,
 		"height" : 1,
 		"blockedTiles" :  [0],
-		"animation" : "ObLPs00.def",
+		"defname" : "ObLPs00.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -854,7 +854,7 @@
 		"width" : 2,
 		"height" : 1,
 		"blockedTiles" :  [0, 1],
-		"animation" : "ObLPs01.def",
+		"defname" : "ObLPs01.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -865,7 +865,7 @@
 		"width" : 3,
 		"height" : 2,
 		"blockedTiles" :  [0, -15, -16],
-		"animation" : "ObLPs02.def",
+		"defname" : "ObLPs02.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -876,7 +876,7 @@
 		"width" : 5,
 		"height" : 2,
 		"blockedTiles" :  [1, 2, 3, -13, -14, -15, -16],
-		"animation" : "ObLPs03.def",
+		"defname" : "ObLPs03.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -887,7 +887,7 @@
 		"width" : 1,
 		"height" : 1,
 		"blockedTiles" :  [0],
-		"animation" : "ObFFs00.def",
+		"defname" : "ObFFs00.def",
 		"unknown" : 0,
 		"absolute" : false
 	},
@@ -898,7 +898,7 @@
 		"width" : 2,
 		"height" : 1,
 		"blockedTiles" :  [0, 1],
-		"animation" : "ObFFs01.def",
+		"defname" : "ObFFs01.def",
 		"unknown" : 0,
 		"absolute" : false
 	},
@@ -909,7 +909,7 @@
 		"width" : 3,
 		"height" : 2,
 		"blockedTiles" :  [0, 1, 2, -15],
-		"animation" : "ObFFs02.def",
+		"defname" : "ObFFs02.def",
 		"unknown" : 0,
 		"absolute" : false
 	},
@@ -920,7 +920,7 @@
 		"width" : 4,
 		"height" : 2,
 		"blockedTiles" :  [1, 2, 3, -15, -16],
-		"animation" : "ObFFs03.def",
+		"defname" : "ObFFs03.def",
 		"unknown" : 0,
 		"absolute" : false
 	},
@@ -931,7 +931,7 @@
 		"width" : 3,
 		"height" : 3,
 		"blockedTiles" :  [0, 1, 2, 3, -14, -15, -16],
-		"animation" : "ObFFs04.def",
+		"defname" : "ObFFs04.def",
 		"unknown" : 0,
 		"absolute" : false
 	},
@@ -942,7 +942,7 @@
 		"width" : 1,
 		"height" : 1,
 		"blockedTiles" :  [0],
-		"animation" : "ObRLs00.def",
+		"defname" : "ObRLs00.def",
 		"unknown" : 0,
 		"absolute" : false
 	},
@@ -953,7 +953,7 @@
 		"width" : 2,
 		"height" : 1,
 		"blockedTiles" :  [0, 1],
-		"animation" : "ObRLs01.def",
+		"defname" : "ObRLs01.def",
 		"unknown" : 0,
 		"absolute" : false
 	},
@@ -964,7 +964,7 @@
 		"width" : 3,
 		"height" : 1,
 		"blockedTiles" :  [0, 1, 2],
-		"animation" : "ObRLs02.def",
+		"defname" : "ObRLs02.def",
 		"unknown" : 0,
 		"absolute" : false
 	},
@@ -975,7 +975,7 @@
 		"width" : 4,
 		"height" : 2,
 		"blockedTiles" :  [1, 2, 3, -15, -16],
-		"animation" : "ObRLs03.def",
+		"defname" : "ObRLs03.def",
 		"unknown" : 0,
 		"absolute" : false
 	},
@@ -986,7 +986,7 @@
 		"width" : 1,
 		"height" : 1,
 		"blockedTiles" :  [0],
-		"animation" : "ObMCs00.def",
+		"defname" : "ObMCs00.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -997,7 +997,7 @@
 		"width" : 2,
 		"height" : 2,
 		"blockedTiles" :  [1, -16],
-		"animation" : "ObMCs01.def",
+		"defname" : "ObMCs01.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -1008,7 +1008,7 @@
 		"width" : 4,
 		"height" : 2,
 		"blockedTiles" :  [0, 1, -14, -15],
-		"animation" : "ObMCs02.def",
+		"defname" : "ObMCs02.def",
 		"unknown" : 1,
 		"absolute" : false
 	},
@@ -1020,7 +1020,7 @@
 		"width" : 124,
 		"height" : 254,
 		"blockedTiles" :  [80, 94, 95, 96, 97, 105, 106, 107, 108, 109, 110],
-		"animation" : "ObDtL04.pcx",
+		"defname" : "ObDtL04.pcx",
 		"absolute" : true
 	},
 	"101":
@@ -1030,7 +1030,7 @@
 		"width" : 256,
 		"height" : 254,
 		"blockedTiles" :  [73, 91, 108, 109, 110, 111, 112, 113],
-		"animation" : "ObDtL06.pcx",
+		"defname" : "ObDtL06.pcx",
 		"absolute" : true
 	},
 	"102":
@@ -1040,7 +1040,7 @@
 		"width" : 168,
 		"height" : 212,
 		"blockedTiles" :  [60, 61, 62, 63, 64, 72, 73, 74, 75, 76, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149],
-		"animation" : "ObDtL10.pcx",
+		"defname" : "ObDtL10.pcx",
 		"absolute" : true
 	},
 	"103":
@@ -1050,7 +1050,7 @@
 		"width" : 124,
 		"height" : 254,
 		"blockedTiles" :  [88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98],
-		"animation" : "ObDtL02.pcx",
+		"defname" : "ObDtL02.pcx",
 		"absolute" : true
 	},
 	"104":
@@ -1060,7 +1060,7 @@
 		"width" : 146,
 		"height" : 254,
 		"blockedTiles" :  [76, 77, 78, 79, 80, 89, 90, 91, 92, 93],
-		"animation" : "ObDtL03.pcx",
+		"defname" : "ObDtL03.pcx",
 		"absolute" : true
 	},
 	"105":
@@ -1070,7 +1070,7 @@
 		"width" : 173,
 		"height" : 221,
 		"blockedTiles" :  [55, 56, 57, 58, 75, 76, 77, 95, 112, 113, 131],
-		"animation" : "ObGrL01.pcx",
+		"defname" : "ObGrL01.pcx",
 		"absolute" : true
 	},
 	"106":
@@ -1080,7 +1080,7 @@
 		"width" : 180,
 		"height" : 264,
 		"blockedTiles" :  [81, 91, 92, 93, 94, 95, 96, 97, 98, 106, 107, 123],
-		"animation" : "ObGrL02.pcx",
+		"defname" : "ObGrL02.pcx",
 		"absolute" : true
 	},
 	"107":
@@ -1090,7 +1090,7 @@
 		"width" : 166,
 		"height" : 255,
 		"blockedTiles" :  [76, 77, 78, 79, 91, 92, 93, 97, 98, 106, 107, 108],
-		"animation" : "ObSnL01.pcx",
+		"defname" : "ObSnL01.pcx",
 		"absolute" : true
 	},
 	"108":
@@ -1100,7 +1100,7 @@
 		"width" : 302,
 		"height" : 172,
 		"blockedTiles" :  [41, 42, 43, 58, 75, 92, 108, 126, 143],
-		"animation" : "ObSnL14.pcx",
+		"defname" : "ObSnL14.pcx",
 		"absolute" : true
 	},
 	"109":
@@ -1110,7 +1110,7 @@
 		"width" : 300,
 		"height" : 170,
 		"blockedTiles" :  [40, 41, 58, 59, 74, 75, 92, 93, 109, 110, 111, 127, 128, 129, 130],
-		"animation" : "ObSwL15.pcx",
+		"defname" : "ObSwL15.pcx",
 		"absolute" : true
 	},
 	"110":
@@ -1120,7 +1120,7 @@
 		"width" : 278,
 		"height" : 171,
 		"blockedTiles" :  [43, 60, 61, 77, 93, 94, 95, 109, 110, 126, 127],
-		"animation" : "ObSwL14.pcx",
+		"defname" : "ObSwL14.pcx",
 		"absolute" : true
 	},
 	"111":
@@ -1130,7 +1130,7 @@
 		"width" : 256,
 		"height" : 254,
 		"blockedTiles" :  [74, 75, 76, 77, 91, 92, 93, 94, 95, 109, 110, 111, 112],
-		"animation" : "ObSwL22.pcx",
+		"defname" : "ObSwL22.pcx",
 		"absolute" : true
 	},
 	"112":
@@ -1140,7 +1140,7 @@
 		"width" : 124,
 		"height" : 254,
 		"blockedTiles" :  [77, 78, 79, 80, 81, 91, 92, 93, 94, 105, 106, 107],
-		"animation" : "ObLvL01.pcx",
+		"defname" : "ObLvL01.pcx",
 		"absolute" : true
 	},
 	"113":
@@ -1150,7 +1150,7 @@
 		"width" : 256,
 		"height" : 128,
 		"blockedTiles" :  [43, 60, 61, 76, 77, 93, 109, 126, 127, 142, 143],
-		"animation" : "OBLvL02.pcx",
+		"defname" : "OBLvL02.pcx",
 		"absolute" : true
 	},
 	"114":
@@ -1160,7 +1160,7 @@
 		"width" : 186,
 		"height" : 212,
 		"blockedTiles" :  [55, 72, 90, 107, 125, 126, 127, 128, 129, 130, 131, 132],
-		"animation" : "ObRgL01.pcx",
+		"defname" : "ObRgL01.pcx",
 		"absolute" : true
 	},
 	"115":
@@ -1170,7 +1170,7 @@
 		"width" : 347,
 		"height" : 174,
 		"blockedTiles" :  [41, 59, 76, 94, 111, 129, 143, 144, 145],
-		"animation" : "ObRgL02.pcx",
+		"defname" : "ObRgL02.pcx",
 		"absolute" : true
 	},
 	"116":
@@ -1180,7 +1180,7 @@
 		"width" : 294,
 		"height" : 169,
 		"blockedTiles" :  [40, 41, 42, 43, 58, 75, 93, 110, 128, 145],
-		"animation" : "ObRgL03.pcx",
+		"defname" : "ObRgL03.pcx",
 		"absolute" : true
 	},
 	"117":
@@ -1190,7 +1190,7 @@
 		"width" : 165,
 		"height" : 257,
 		"blockedTiles" :  [72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 89, 105],
-		"animation" : "ObRgL04.pcx",
+		"defname" : "ObRgL04.pcx",
 		"absolute" : true
 	},
 	"118":
@@ -1200,7 +1200,7 @@
 		"width" : 208,
 		"height" : 268,
 		"blockedTiles" :  [72, 73, 74, 75, 76, 77, 78, 79, 80, 90, 91, 92, 93, 94, 95, 96, 97],
-		"animation" : "ObRgL05.pcx",
+		"defname" : "ObRgL05.pcx",
 		"absolute" : true
 	},
 	"119":
@@ -1210,7 +1210,7 @@
 		"width" : 252,
 		"height" : 254,
 		"blockedTiles" :  [73, 74, 75, 76, 77, 78, 91, 92, 93, 94],
-		"animation" : "ObRgL06.pcx",
+		"defname" : "ObRgL06.pcx",
 		"absolute" : true
 	},
 	"120":
@@ -1220,7 +1220,7 @@
 		"width" : 278,
 		"height" : 128,
 		"blockedTiles" :  [23, 40, 58, 75, 93, 110, 128, 145, 163],
-		"animation" : "ObRgL15.pcx",
+		"defname" : "ObRgL15.pcx",
 		"absolute" : true
 	},
 	"121":
@@ -1230,7 +1230,7 @@
 		"width" : 208,
 		"height" : 268,
 		"blockedTiles" :  [72, 73, 74, 75, 76, 77, 78, 79, 80, 90, 91, 92, 93, 94, 95, 96, 97],
-		"animation" : "ObRgL05.pcx",
+		"defname" : "ObRgL05.pcx",
 		"absolute" : true
 	},
 	"122":
@@ -1240,7 +1240,7 @@
 		"width" : 168,
 		"height" : 212,
 		"blockedTiles" :  [73, 74, 75, 76, 77, 78, 79, 90, 91, 92, 93, 94, 95, 96, 97, 106, 107, 108, 109, 110, 111, 112],
-		"animation" : "ObRgL22.pcx",
+		"defname" : "ObRgL22.pcx",
 		"absolute" : true
 	},
 	"123":
@@ -1250,7 +1250,7 @@
 		"width" : 147,
 		"height" : 264,
 		"blockedTiles" :  [72, 73, 74, 75, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98],
-		"animation" : "ObBhL02.pcx",
+		"defname" : "ObBhL02.pcx",
 		"absolute" : true
 	},
 	"124":
@@ -1260,7 +1260,7 @@
 		"width" : 178,
 		"height" : 262,
 		"blockedTiles" :  [71, 72, 73, 74, 75, 76, 77, 78, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98],
-		"animation" : "ObBhL03.pcx",
+		"defname" : "ObBhL03.pcx",
 		"absolute" : true
 	},
 	"125":
@@ -1270,7 +1270,7 @@
 		"width" : 173,
 		"height" : 257,
 		"blockedTiles" :  [72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 89, 90, 105, 106],
-		"animation" : "ObBhL05.pcx",
+		"defname" : "ObBhL05.pcx",
 		"absolute" : true
 	},
 	"126":
@@ -1280,7 +1280,7 @@
 		"width" : 241,
 		"height" : 272,
 		"blockedTiles" :  [73, 91, 108, 109, 110, 111, 112, 113],
-		"animation" : "ObBhL06.pcx",
+		"defname" : "ObBhL06.pcx",
 		"absolute" : true
 	},
 	"127":
@@ -1290,7 +1290,7 @@
 		"width" : 261,
 		"height" : 129,
 		"blockedTiles" :  [27, 28, 43, 44, 60, 61, 76, 77, 93, 94, 109, 110, 126, 127, 142, 143, 159],
-		"animation" : "ObBhL14.pcx",
+		"defname" : "ObBhL14.pcx",
 		"absolute" : true
 	},
 	"128":
@@ -1300,7 +1300,7 @@
 		"width" : 180,
 		"height" : 154,
 		"blockedTiles" :  [22, 38, 39, 40, 44, 45, 46, 55, 56, 57, 62, 63, 123, 124, 125, 130, 131, 140, 141, 146, 147, 148],
-		"animation" : "ObBhL16.pcx",
+		"defname" : "ObBhL16.pcx",
 		"absolute" : true
 	},
 	"129":
@@ -1310,7 +1310,7 @@
 		"width" : 304,
 		"height" : 264,
 		"blockedTiles" :  [76, 77, 92, 93, 94, 95, 109, 110, 111],
-		"animation" : "ObCFL00.pcx",
+		"defname" : "ObCFL00.pcx",
 		"absolute" : true
 	},
 	"130":
@@ -1320,7 +1320,7 @@
 		"width" : 256,
 		"height" : 257,
 		"blockedTiles" :  [76, 77, 78, 92, 93, 94, 107, 108, 109],
-		"animation" : "ObLPL00.pcx",
+		"defname" : "ObLPL00.pcx",
 		"absolute" : true
 	},
 	"131":
@@ -1330,7 +1330,7 @@
 		"width" : 257,
 		"height" : 255,
 		"blockedTiles" :  [76, 77, 91, 92, 93, 94, 95, 108, 109, 110, 111],
-		"animation" : "ObFFL00.pcx",
+		"defname" : "ObFFL00.pcx",
 		"absolute" : true
 	},
 	"132":
@@ -1340,7 +1340,7 @@
 		"width" : 277,
 		"height" : 218,
 		"blockedTiles" :  [60, 61, 75, 76, 77, 91, 92, 93, 94, 95],
-		"animation" : "ObRLL00.pcx",
+		"defname" : "ObRLL00.pcx",
 		"absolute" : true
 	},
 	"133":
@@ -1350,7 +1350,7 @@
 		"width" : 300,
 		"height" : 214,
 		"blockedTiles" :  [59, 60, 74, 75, 76, 93, 94, 95, 111, 112],
-		"animation" : "ObMCL00.pcx",
+		"defname" : "ObMCL00.pcx",
 		"absolute" : true
 	}
 }
