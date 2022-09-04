@@ -294,15 +294,10 @@ BattleField BattleField::fromString(std::string identifier)
 	else
 		return BattleField::NONE;
 }
-		
-const ObstacleInfo * Obstacle::getInfo() const
-{
-	return VLC->obstacles()->getById(*this);
-}
 
 Obstacle::operator std::string() const
 {
-	return getInfo()->identifier;
+	return VLC->obstacles()->getById(*this)->identifier;
 }
 
 Obstacle Obstacle::fromString(std::string identifier)

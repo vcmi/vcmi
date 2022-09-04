@@ -18,14 +18,6 @@
 
 struct DLL_LINKAGE ObstacleInfo : public EntityT<Obstacle>
 {
-	ObstacleInfo(): obstacle(-1), width(0), height(0), isAbsoluteObstacle(false), iconIndex(0)
-	{}
-	
-	ObstacleInfo(Obstacle obstacle, std::string identifier)
-	: obstacle(obstacle), identifier(identifier), iconIndex(obstacle.getNum()), name(identifier), width(0), height(0), isAbsoluteObstacle(false)
-	{
-	}
-	
 	Obstacle obstacle;
 	si32 iconIndex;
 	std::string name;
@@ -51,10 +43,6 @@ struct DLL_LINKAGE ObstacleInfo : public EntityT<Obstacle>
 	
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & obstacle;
-		h & iconIndex;
-		h & name;
-		h & identifier;
 		h & defName;
 		h & allowedTerrains;
 		h & allowedSpecialBfields;
@@ -73,17 +61,10 @@ public:
 class ObstacleHandler: public CHandlerBase<Obstacle, ObstacleInfo, ObstacleInfo, ObstacleService>
 {
 public:
-	std::vector<Obstacle> absoluteObstacles;
-	std::vector<Obstacle> obstacles;
+	void loadObstacles();
 	
-	ObstacleInfo * loadFromJson(const std::string & scope,
-										const JsonNode & json,
-										const std::string & identifier,
-										size_t index) override;
-	
-	const std::vector<std::string> & getTypeNames() const override;
-	std::vector<JsonNode> loadLegacyData(size_t dataSize) override;
-	std::vector<bool> getDefaultAllowed() const override;
+	std::vector<ObstacleInfo> obstacles; //info about obstacles that may be placed on battlefield
+	std::vector<ObstacleInfo> absoluteObstacles; //info about obstacles that may be placed on battlefield
 	
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{

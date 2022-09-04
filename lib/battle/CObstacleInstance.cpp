@@ -35,9 +35,9 @@ const ObstacleInfo & CObstacleInstance::getInfo() const
 	switch(obstacleType)
 	{
 	case ABSOLUTE_OBSTACLE:
-		return *VLC->obstacleHandler->absoluteObstacles[ID].getInfo();
+		return VLC->obstacleHandler->absoluteObstacles[ID];
 	case USUAL:
-		return *VLC->obstacleHandler->obstacles[ID].getInfo();
+		return VLC->obstacleHandler->obstacles[ID];
 	default:
 		throw std::runtime_error("Unknown obstacle type in CObstacleInstance::getInfo()");
 	}

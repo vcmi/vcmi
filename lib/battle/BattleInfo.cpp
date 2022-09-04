@@ -254,11 +254,11 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, const Terrain & terrain,
 
 		auto appropriateAbsoluteObstacle = [&](int id)
 		{
-			return VLC->obstacleHandler->absoluteObstacles[id].getInfo()->isAppropriate(curB->terrainType, battlefieldType);
+			return VLC->obstacleHandler->absoluteObstacles[id].isAppropriate(curB->terrainType, battlefieldType);
 		};
 		auto appropriateUsualObstacle = [&](int id) -> bool
 		{
-			return VLC->obstacleHandler->obstacles[id].getInfo()->isAppropriate(curB->terrainType, battlefieldType);
+			return VLC->obstacleHandler->obstacles[id].isAppropriate(curB->terrainType, battlefieldType);
 		};
 
 		if(r.rand(1,100) <= 40) //put cliff-like obstacle
@@ -275,7 +275,7 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, const Terrain & terrain,
 
 				for(BattleHex blocked : obstPtr->getBlockedTiles())
 					blockedTiles.push_back(blocked);
-				tilesToBlock -= (int)VLC->obstacleHandler->absoluteObstacles[obstPtr->ID].getInfo()->blockedTiles.size() / 2;
+				tilesToBlock -= (int)VLC->obstacleHandler->absoluteObstacles[obstPtr->ID].blockedTiles.size() / 2;
 			}
 			catch(RangeGenerator::ExhaustedPossibilities &)
 			{
@@ -291,7 +291,7 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, const Terrain & terrain,
 			{
 				auto tileAccessibility = curB->getAccesibility();
 				const int obid = obidgen.getSuchNumber(appropriateUsualObstacle);
-				const ObstacleInfo &obi = *VLC->obstacleHandler->obstacles[obid].getInfo();
+				const ObstacleInfo &obi = VLC->obstacleHandler->obstacles[obid];
 
 				auto validPosition = [&](BattleHex pos) -> bool
 				{
