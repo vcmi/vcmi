@@ -69,14 +69,15 @@ void CModListView::setupModsView()
 
 	ui->allModsView->setUniformRowHeights(true);
 
-	connect(ui->allModsView->selectionModel(), SIGNAL(currentRowChanged(const QModelIndex&,const QModelIndex&)),
-		this, SLOT(modSelected(const QModelIndex&,const QModelIndex&)));
+	connect(ui->allModsView->selectionModel(), &QItemSelectionModel::currentRowChanged,
+			this, &CModListView::modSelected);
 
-	connect(filterModel, SIGNAL(modelReset()),
-		this, SLOT(modelReset()));
+	connect(filterModel, &CModFilterModel::modelReset, this, &CModListView::modelReset);
 
-	connect(modModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-		this, SLOT(dataChanged(QModelIndex,QModelIndex)));
+	connect(modModel, &CModListModel::dataChanged, this, &CModListView::dataChanged);
+
+	//Suprisingly model is not automagically connected to filter model
+	connect(modModel, &CModListModel::dataChanged, filterModel, &QAbstractItemModel::dataChanged);
 }
 
 CModListView::CModListView(QWidget * parent)
