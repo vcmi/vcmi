@@ -182,10 +182,10 @@ void CModListModel::addRepository(QVariantMap data)
 
 void CModListModel::modChanged(QString modID)
 {
-	int index = modNameToID.indexOf(modID);
-	QModelIndex parent = this->parent(createIndex(0, 0, index));
+	int internalIndex = modNameToID.indexOf(modID);
+	QModelIndex parent = this->parent(createIndex(0, 0, internalIndex));
 	int row = modIndex[modIndexToName(parent)].indexOf(modID);
-	emit dataChanged(createIndex(row, 0, index), createIndex(row, 4, index));
+	emit dataChanged(createIndex(row, 0, internalIndex), createIndex(row, 4, internalIndex));
 }
 
 void CModListModel::endResetModel()

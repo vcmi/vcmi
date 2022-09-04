@@ -255,12 +255,14 @@ bool CModManager::doEnableMod(QString mod, bool on)
 
 	modSettings = writeValue(path, modSettings, QVariant(on)).toMap();
 	modList->setModSettings(modSettings["activeMods"]);
-	modList->modChanged(mod);
 
 	if(mod == extraResolutionsMod)
 		sendExtraResolutionsEnabledChanged(on);
 
 	JsonUtils::JsonToFile(settingsPath(), modSettings);
+
+	//model is read from filesystem once it is saved
+	modList->modChanged(mod);
 
 	return true;
 }
