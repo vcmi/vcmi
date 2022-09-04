@@ -648,7 +648,7 @@
    <item row="17" column="7">
     <widget class="QPushButton" name="updatesButton">
      <property name="text">
-      <string>Updates</string>
+      <string>Check for updates</string>
      </property>
     </widget>
    </item>
