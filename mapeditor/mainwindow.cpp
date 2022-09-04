@@ -29,6 +29,7 @@
 #include "objectbrowser.h"
 #include "inspector.h"
 #include "mapsettings.h"
+#include "playersettings.h"
 
 static CBasicLogConfigurator * logConfig;
 
@@ -829,5 +830,11 @@ void MainWindow::on_inspectorWidget_itemChanged(QTableWidgetItem *item)
 void MainWindow::on_actionMapSettings_triggered()
 {
 	auto mapSettingsDialog = new MapSettings(this);
+}
+
+
+void MainWindow::on_actionPlayers_settings_triggered()
+{
+	auto mapSettingsDialog = new PlayerSettings(*map, this);
 }
 

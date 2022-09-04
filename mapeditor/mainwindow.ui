@@ -68,6 +68,7 @@
      <string>Map</string>
     </property>
     <addaction name="actionMapSettings"/>
+    <addaction name="actionPlayers_settings"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuMap"/>
@@ -815,6 +816,11 @@
    </property>
    <property name="toolTip">
     <string>Map title and description</string>
+   </property>
+  </action>
+  <action name="actionPlayers_settings">
+   <property name="text">
+    <string>Players settings</string>
    </property>
   </action>
  </widget>
