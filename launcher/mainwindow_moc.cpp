@@ -76,13 +76,8 @@ MainWindow::MainWindow(QWidget * parent)
 		ui->startGameButton->setIconSize(QSize(width, width));
 	}
 	auto tab_icon_size = ui->tabSelectList->iconSize();
-	if(tab_icon_size.width() < width)
-	{
-		ui->tabSelectList->setIconSize(QSize(width, width + tab_icon_size.height() - tab_icon_size.width()));
-		ui->tabSelectList->setGridSize(QSize(width, width));
-		// 4 is a dirty hack to make it look right
-		ui->tabSelectList->setMaximumWidth(width + 4);
-	}
+	ui->tabSelectList->setMaximumWidth(tab_icon_size.width() + ui->tabSelectList->spacing());
+
 	ui->tabListWidget->setCurrentIndex(0);
 
 	ui->settingsView->isExtraResolutionsModEnabled = ui->stackedWidgetPage2->isExtraResolutionsModEnabled();
