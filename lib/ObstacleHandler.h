@@ -22,12 +22,13 @@ struct DLL_LINKAGE ObstacleInfo : public EntityT<Obstacle>
 	{}
 	
 	ObstacleInfo(Obstacle obstacle, std::string identifier)
-	: obstacle(obstacle), identifier(identifier), iconIndex(obstacle.getNum()), width(0), height(0), isAbsoluteObstacle(false)
+	: obstacle(obstacle), identifier(identifier), iconIndex(obstacle.getNum()), name(identifier), width(0), height(0), isAbsoluteObstacle(false)
 	{
 	}
 	
 	Obstacle obstacle;
 	si32 iconIndex;
+	std::string name;
 	std::string identifier;
 	std::string defName;
 	std::vector<Terrain> allowedTerrains;
@@ -52,6 +53,7 @@ struct DLL_LINKAGE ObstacleInfo : public EntityT<Obstacle>
 	{
 		h & obstacle;
 		h & iconIndex;
+		h & name;
 		h & identifier;
 		h & defName;
 		h & allowedTerrains;

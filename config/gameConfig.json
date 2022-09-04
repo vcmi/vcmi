@@ -88,9 +88,5 @@
 	"battlefields":
 	[
 		"config/battlefields.json"
-	],
-	"obstacles":
-	[
-		"config/obstacles.json"
 	]
 }
