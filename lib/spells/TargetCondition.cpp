@@ -298,7 +298,7 @@ protected:
 		//this stack is from other player
 		else if(battleWideNegation)
 		{
-			if(!m->ownerMatches(target, false))
+			if(m->ownerMatches(target, false))
 				return true;
 		}
 		return false;

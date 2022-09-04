@@ -1561,6 +1561,19 @@ CPlayerInterface *CBattleInterface::getCurrentPlayerInterface() const
 	return curInt.get();
 }
 
+bool CBattleInterface::shouldRotate(const CStack * stack, const BattleHex & oldPos, const BattleHex & nextHex)
+{
+	Point begPosition = CClickableHex::getXYUnitAnim(oldPos,stack, this);
+	Point endPosition = CClickableHex::getXYUnitAnim(nextHex, stack, this);
+
+	if((begPosition.x > endPosition.x) && creDir[stack->ID])
+		return true;
+	else if((begPosition.x < endPosition.x) && !creDir[stack->ID])
+		return true;
+
+	return false;
+}
+
 void CBattleInterface::setActiveStack(const CStack *stack)
 {
 	if (activeStack) // update UI
@@ -1928,6 +1941,9 @@ void CBattleInterface::startAction(const BattleAction* action)
 		{
 			pendingAnims.push_back(std::make_pair(new CMovementStartAnimation(this, stack), false));
 		}
+
+		if(shouldRotate(stack, stack->getPosition(), actionTarget.at(0).hexValue))
+			pendingAnims.push_back(std::make_pair(new CReverseAnimation(this, stack, stack->getPosition(), true), false));
 	}
 
 	redraw(); // redraw after deactivation, including proper handling of hovered hexes

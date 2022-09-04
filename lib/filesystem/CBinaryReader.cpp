@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "CBinaryReader.h"
 
+//FIXME:library file depends on SDL - make cause troubles
 #include <SDL_endian.h>
 #include "CInputStream.h"
 #include "../CGeneralTextHandler.h"

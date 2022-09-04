@@ -63,6 +63,8 @@ private slots:
 
 	void on_comboBoxAutoSave_currentIndexChanged(int index);
 
+	void on_updatesButton_clicked();
+
 private:
 	Ui::CSettingsView * ui;
 };
