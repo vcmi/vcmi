@@ -68,6 +68,7 @@ void WindowNewMap::on_okButtong_clicked()
 
 	mapGenOptions.setWaterContent(water);
 	mapGenOptions.setMonsterStrength(monster);
+		
 	CMapGenerator generator(mapGenOptions);
 
 	//TODO: fix water and roads

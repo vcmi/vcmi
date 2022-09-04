@@ -11,6 +11,7 @@
 
 class CMap;
 class ObjectBrowser;
+class CGObjectInstance;
 
 namespace Ui {
 class MainWindow;
@@ -36,6 +37,8 @@ public:
 	void loadObjectsTree();
 
 	void setStatusMessage(const QString & status);
+
+	void loadInspector(CGObjectInstance * obj);
 
 	MapView * getMapView();
 
@@ -75,6 +78,8 @@ private slots:
 	void on_toolBrush2_clicked(bool checked);
 
 	void on_toolBrush4_clicked(bool checked);
+
+	void on_inspectorWidget_itemChanged(QTableWidgetItem *item);
 
 public slots:
 

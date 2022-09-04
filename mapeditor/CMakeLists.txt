@@ -15,6 +15,8 @@ set(editor_SRCS
 		mapview.cpp
 		radiopushbutton.cpp
 		objectbrowser.cpp
+		inspector.cpp
+		mapsettings.cpp
 )
 
 set(editor_HEADERS
@@ -33,12 +35,15 @@ set(editor_HEADERS
 		mapview.h
 		radiopushbutton.h
 		objectbrowser.h
+		inspector.h
+		mapsettings.h
 )
 
 set(editor_FORMS
 		mainwindow.ui
 		windownewmap.ui
 		generatorprogress.ui
+		mapsettings.ui
 )
 
 assign_source_group(${editor_SRCS} ${editor_HEADERS} VCMI_launcher.rc)

@@ -134,10 +134,11 @@ public:
 
 	void draw();
 
-	CGObjectInstance * selectObjectAt(int x, int y);
-	std::set<CGObjectInstance *> selectObjects(int x1, int y1, int x2, int y2);
+	CGObjectInstance * selectObjectAt(int x, int y) const;
+	void selectObjects(int x1, int y1, int x2, int y2);
 	void selectObject(CGObjectInstance *);
 	bool isSelected(const CGObjectInstance *) const;
+	std::set<CGObjectInstance*> getSelection() const;
 	void moveSelection(int x, int y);
 	void clear();
 
@@ -146,6 +147,7 @@ public:
 
 	QPoint shift;
 	CGObjectInstance * newObject;
+	int selectionMode = 0; //0 - nothing, 1 - selection, 2 - movement
 
 private:
 	std::set<CGObjectInstance *> selectedObjects;

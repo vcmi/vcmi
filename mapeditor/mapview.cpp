@@ -1,6 +1,7 @@
 #include "StdInc.h"
 #include "mapview.h"
 #include "mainwindow.h"
+#include "inspector.h"
 #include <QGraphicsSceneMouseEvent>
 
 #include "../lib/mapping/CMapEditManager.h"
@@ -99,10 +100,22 @@ void MapView::mouseMoveEvent(QMouseEvent *mouseEvent)
 		auto sh = tile - tileStart;
 		sc->selectionObjectsView.shift = QPoint(sh.x, sh.y);
 
-		if((sh.x || sh.y) && sc->selectionObjectsView.newObject)
+		if(sh.x || sh.y)
 		{
-			sc->selectionObjectsView.shift = QPoint(tile.x, tile.y);
-			sc->selectionObjectsView.selectObject(sc->selectionObjectsView.newObject);
+			if(sc->selectionObjectsView.newObject)
+			{
+				sc->selectionObjectsView.shift = QPoint(tile.x, tile.y);
+				sc->selectionObjectsView.selectObject(sc->selectionObjectsView.newObject);
+				sc->selectionObjectsView.selectionMode = 2;
+			}
+			else if(mouseEvent->buttons() & Qt::LeftButton)
+			{
+				if(sc->selectionObjectsView.selectionMode == 1)
+				{
+					sc->selectionObjectsView.clear();
+					sc->selectionObjectsView.selectObjects(tileStart.x, tileStart.y, tile.x, tile.y);
+				}
+			}
 		}
 
 		sc->selectionObjectsView.draw();
@@ -196,9 +209,29 @@ void MapView::mousePressEvent(QMouseEvent *event)
 		}
 		else
 		{
-			sc->selectionObjectsView.clear();
 			if(event->button() == Qt::LeftButton)
-				sc->selectionObjectsView.selectObjectAt(tileStart.x, tileStart.y);
+			{
+				auto * obj = sc->selectionObjectsView.selectObjectAt(tileStart.x, tileStart.y);
+				if(obj)
+				{
+					if(sc->selectionObjectsView.isSelected(obj))
+					{
+						sc->selectionObjectsView.selectionMode = 2;
+					}
+					else
+					{
+						sc->selectionObjectsView.clear();
+						sc->selectionObjectsView.selectionMode = 2;
+						sc->selectionObjectsView.selectObject(obj);
+					}
+				}
+				else
+				{
+					sc->selectionObjectsView.clear();
+					sc->selectionObjectsView.selectionMode = 1;
+				}
+			}
+			sc->selectionObjectsView.shift = QPoint(0, 0);
 			sc->selectionObjectsView.draw();
 		}
 		break;
@@ -230,16 +263,23 @@ void MapView::mouseReleaseEvent(QMouseEvent *event)
 		if(event->button() == Qt::RightButton)
 			break;
 		//switch position
-		if(sc->selectionObjectsView.applyShift())
+		if(sc->selectionObjectsView.selectionMode == 2 && sc->selectionObjectsView.applyShift())
 		{
 			sc->selectionObjectsView.newObject = nullptr;
+			sc->selectionObjectsView.selectionMode = 0;
+			sc->selectionObjectsView.shift = QPoint(0, 0);
 			main->resetMapHandler();
 			sc->updateViews();
 		}
 		else
 		{
+			sc->selectionObjectsView.selectionMode = 0;
 			sc->selectionObjectsView.shift = QPoint(0, 0);
 			sc->selectionObjectsView.draw();
+			//check if we have only one object
+			auto selection = sc->selectionObjectsView.getSelection();
+			if(selection.size() == 1)
+				main->loadInspector(*selection.begin());
 		}
 		break;
 	}
@@ -664,7 +704,7 @@ void SelectionObjectsView::draw()
 		}
 
 		//show translation
-		if(shift.x() || shift.y())
+		if(selectionMode == 2 && (shift.x() || shift.y()))
 		{
 			painter.setOpacity(0.5);
 			auto newPos = QPoint(obj->getPosition().x, obj->getPosition().y) + shift;
@@ -675,7 +715,7 @@ void SelectionObjectsView::draw()
 	redraw();
 }
 
-CGObjectInstance * SelectionObjectsView::selectObjectAt(int x, int y)
+CGObjectInstance * SelectionObjectsView::selectObjectAt(int x, int y) const
 {
 	if(!main->getMap() || !main->getMapHandler() || !main->getMap()->isInTheMap(int3(x, y, scene->level)))
 		return nullptr;
@@ -685,12 +725,11 @@ CGObjectInstance * SelectionObjectsView::selectObjectAt(int x, int y)
 	//visitable is most important
 	for(auto & object : objects)
 	{
-		if(!object.obj || selectedObjects.count(object.obj))
+		if(!object.obj)
 			continue;
 
 		if(object.obj->visitableAt(x, y))
 		{
-			selectedObjects.insert(object.obj);
 			return object.obj;
 		}
 	}
@@ -698,12 +737,11 @@ CGObjectInstance * SelectionObjectsView::selectObjectAt(int x, int y)
 	//if not visitable tile - try to get blocked
 	for(auto & object : objects)
 	{
-		if(!object.obj || selectedObjects.count(object.obj))
+		if(!object.obj)
 			continue;
 
 		if(object.obj->blockingAt(x, y))
 		{
-			selectedObjects.insert(object.obj);
 			return object.obj;
 		}
 	}
@@ -711,12 +749,11 @@ CGObjectInstance * SelectionObjectsView::selectObjectAt(int x, int y)
 	//finally, we can take any object
 	for(auto & object : objects)
 	{
-		if(!object.obj || selectedObjects.count(object.obj))
+		if(!object.obj)
 			continue;
 
 		if(object.obj->coveringAt(x, y))
 		{
-			selectedObjects.insert(object.obj);
 			return object.obj;
 		}
 	}
@@ -738,6 +775,7 @@ bool SelectionObjectsView::applyShift()
 			{
 				newObject->pos = pos;
 				main->getMap()->getEditManager()->insertObject(newObject);
+				Initializer init(newObject);
 			}
 			else
 			{
@@ -759,11 +797,25 @@ void SelectionObjectsView::deleteSelection()
 	clear();
 }
 
-std::set<CGObjectInstance *> SelectionObjectsView::selectObjects(int x1, int y1, int x2, int y2)
+void SelectionObjectsView::selectObjects(int x1, int y1, int x2, int y2)
 {
-	std::set<CGObjectInstance *> result;
-	//TBD
-	return result;
+	if(!main->getMap() || !main->getMapHandler())
+		return;
+
+	if(x1 > x2)
+		std::swap(x1, x2);
+
+	if(y1 > y2)
+		std::swap(y1, y2);
+
+	for(int j = y1; j < y2; ++j)
+	{
+		for(int i = x1; i < x2; ++i)
+		{
+			for(auto & o : main->getMapHandler()->getObjects(i, j, scene->level))
+				selectObject(o.obj);
+		}
+	}
 }
 
 void SelectionObjectsView::selectObject(CGObjectInstance * obj)
@@ -774,6 +826,11 @@ void SelectionObjectsView::selectObject(CGObjectInstance * obj)
 bool SelectionObjectsView::isSelected(const CGObjectInstance * obj) const
 {
 	return selectedObjects.count(const_cast<CGObjectInstance*>(obj));
+}
+
+std::set<CGObjectInstance*> SelectionObjectsView::getSelection() const
+{
+	return selectedObjects;
 }
 
 void SelectionObjectsView::clear()

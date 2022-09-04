@@ -27,6 +27,7 @@
 #include "graphics.h"
 #include "windownewmap.h"
 #include "objectbrowser.h"
+#include "inspector.h"
 
 static CBasicLogConfigurator * logConfig;
 
@@ -61,6 +62,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
 	ui->mapView->setMain(this);
+	
+	// Set current working dir to executable folder.
+	// This is important on Mac for relative paths to work inside DMG.
+	QDir::setCurrent(QApplication::applicationDirPath());
 
 	//configure logging
 	const boost::filesystem::path logPath = VCMIDirs::get().userCachePath() / "VCMI_Editor_log.txt";
@@ -172,6 +177,9 @@ MapHandler * MainWindow::getMapHandler()
 void MainWindow::resetMapHandler()
 {
 	mapHandler.reset(new MapHandler(map.get()));
+
+	unsaved = true;
+	setWindowTitle(filename + "* - VCMI Map Editor");
 }
 
 void MainWindow::setMapRaw(std::unique_ptr<CMap> cmap)
@@ -701,6 +709,7 @@ void MainWindow::preparePreview(const QModelIndex &index, bool createNew)
 				auto factory = VLC->objtypeh->getHandlerFor(objId, objSubId);
 				auto templ = factory->getTemplates()[templateId];
 				scenes[mapLevel]->selectionObjectsView.newObject = factory->create(templ);
+				scenes[mapLevel]->selectionObjectsView.selectionMode = 2;
 				scenes[mapLevel]->selectionObjectsView.draw();
 			}
 		}
@@ -778,5 +787,38 @@ void MainWindow::on_actionFill_triggered()
 	scenes[mapLevel]->selectionObjectsView.deleteSelection();
 	resetMapHandler();
 	scenes[mapLevel]->updateViews();
+}
+
+void MainWindow::loadInspector(CGObjectInstance * obj)
+{
+	Inspector inspector(obj, ui->inspectorWidget);
+	inspector.updateProperties();
+}
+
+void MainWindow::on_inspectorWidget_itemChanged(QTableWidgetItem *item)
+{
+	if(!item->isSelected())
+		return;
+
+	int r = item->row();
+	int c = item->column();
+	if(c < 1)
+		return;
+
+	auto * tableWidget = item->tableWidget();
+
+	//get identifier
+	auto identifier = tableWidget->item(0, 1)->text();
+	static_assert(sizeof(CGObjectInstance *) == sizeof(decltype(identifier.toLongLong())),
+			"Compilied for 64 bit arcitecture. Use .toInt() method");
+
+	CGObjectInstance * obj = reinterpret_cast<CGObjectInstance *>(identifier.toLongLong());
+
+	//get parameter name
+	auto param = tableWidget->item(r, c - 1)->text();
+
+	//set parameter
+	Inspector inspector(obj, tableWidget);
+	inspector.setProperty(param, item->text());
 }
 
