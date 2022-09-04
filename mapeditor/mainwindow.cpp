@@ -28,6 +28,7 @@
 #include "windownewmap.h"
 #include "objectbrowser.h"
 #include "inspector.h"
+#include "mapsettings.h"
 
 static CBasicLogConfigurator * logConfig;
 
@@ -203,6 +204,9 @@ void MainWindow::setMap(bool isNew)
 
 	mapLevel = 0;
 	ui->mapView->setScene(scenes[mapLevel]);
+
+	//enable settings
+	ui->actionMapSettings->setEnabled(true);
 }
 
 void MainWindow::on_actionOpen_triggered()
@@ -820,5 +824,10 @@ void MainWindow::on_inspectorWidget_itemChanged(QTableWidgetItem *item)
 	//set parameter
 	Inspector inspector(obj, tableWidget);
 	inspector.setProperty(param, item->text());
+}
+
+void MainWindow::on_actionMapSettings_triggered()
+{
+	auto mapSettingsDialog = new MapSettings(this);
 }
 

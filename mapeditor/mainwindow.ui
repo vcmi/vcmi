@@ -63,7 +63,14 @@
     <addaction name="actionSave"/>
     <addaction name="actionSave_as"/>
    </widget>
+   <widget class="QMenu" name="menuMap">
+    <property name="title">
+     <string>Map</string>
+    </property>
+    <addaction name="actionMapSettings"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuMap"/>
   </widget>
   <widget class="QToolBar" name="toolBar">
    <property name="windowTitle">
@@ -652,6 +659,9 @@
          <string>Terrains</string>
         </attribute>
         <layout class="QVBoxLayout" name="verticalLayout">
+         <property name="spacing">
+          <number>1</number>
+         </property>
          <property name="leftMargin">
           <number>0</number>
          </property>
@@ -665,7 +675,11 @@
           <number>0</number>
          </property>
          <item>
-          <layout class="QVBoxLayout" name="terrainLayout"/>
+          <layout class="QVBoxLayout" name="terrainLayout">
+           <property name="spacing">
+            <number>1</number>
+           </property>
+          </layout>
          </item>
         </layout>
        </widget>
@@ -790,6 +804,17 @@
    </property>
    <property name="text">
     <string>Grid</string>
+   </property>
+  </action>
+  <action name="actionMapSettings">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>General</string>
+   </property>
+   <property name="toolTip">
+    <string>Map title and description</string>
    </property>
   </action>
  </widget>

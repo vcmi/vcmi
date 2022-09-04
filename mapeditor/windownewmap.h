@@ -39,9 +39,6 @@ private slots:
 
 private:
 
-	void generateEmptyMap();
-	void generateRandomMap();
-
 	void updateTemplateList();
 
 private:

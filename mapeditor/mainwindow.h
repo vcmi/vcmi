@@ -81,6 +81,8 @@ private slots:
 
 	void on_inspectorWidget_itemChanged(QTableWidgetItem *item);
 
+	void on_actionMapSettings_triggered();
+
 public slots:
 
 	void treeViewSelected(const QModelIndex &selected, const QModelIndex &deselected);

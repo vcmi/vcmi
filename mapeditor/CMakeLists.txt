@@ -17,6 +17,7 @@ set(editor_SRCS
 		objectbrowser.cpp
 		inspector.cpp
 		mapsettings.cpp
+		playersettings.cpp
 )
 
 set(editor_HEADERS
@@ -37,6 +38,7 @@ set(editor_HEADERS
 		objectbrowser.h
 		inspector.h
 		mapsettings.h
+		playersettings.h
 )
 
 set(editor_FORMS
@@ -44,6 +46,7 @@ set(editor_FORMS
 		windownewmap.ui
 		generatorprogress.ui
 		mapsettings.ui
+		playersettings.ui
 )
 
 assign_source_group(${editor_SRCS} ${editor_HEADERS} VCMI_launcher.rc)

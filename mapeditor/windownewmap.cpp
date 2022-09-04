@@ -4,6 +4,8 @@
 #include "../lib/rmg/CRmgTemplate.h"
 #include "../lib/rmg/CMapGenerator.h"
 #include "../lib/VCMI_Lib.h"
+#include "../lib/mapping/CMapEditManager.h"
+#include "../lib/CGeneralTextHandler.h"
 
 #include "windownewmap.h"
 #include "ui_windownewmap.h"
@@ -40,9 +42,25 @@ void WindowNewMap::on_cancelButton_clicked()
 	close();
 }
 
-void generateRandomMap(CMapGenerator & gen, MainWindow * window, bool empty)
+void generateRandomMap(CMapGenerator & gen, MainWindow * window)
 {
-	window->setMapRaw(gen.generate(empty));
+	window->setMapRaw(gen.generate());
+}
+
+void generateEmptyMap(CMapGenOptions & options, MainWindow * window)
+{
+	std::unique_ptr<CMap> map(new CMap);
+	map->version = EMapFormat::VCMI;
+	map->width = options.getWidth();
+	map->height = options.getHeight();
+	map->twoLevel = options.getHasTwoLevels();
+
+	map->initTerrain();
+	map->getEditManager()->clearTerrain(&CRandomGenerator::getDefault());
+	map->getEditManager()->getTerrainSelection().selectRange(MapRect(int3(0, 0, 0), options.getWidth(), options.getHeight()));
+	map->getEditManager()->drawTerrain(Terrain("grass"), &CRandomGenerator::getDefault());
+
+	window->setMapRaw(std::move(map));
 }
 
 void WindowNewMap::on_okButtong_clicked()
@@ -69,33 +87,28 @@ void WindowNewMap::on_okButtong_clicked()
 	mapGenOptions.setWaterContent(water);
 	mapGenOptions.setMonsterStrength(monster);
 		
-	CMapGenerator generator(mapGenOptions);
-
-	//TODO: fix water and roads
-	generator.disableModificator("RoadPlacer");
-	generator.disableModificator("RiverPlacer");
-
-	auto progressBarWnd = new GeneratorProgress(generator, this);
-	progressBarWnd->show();
-
+	if(ui->randomMapCheck->isChecked())
 	{
-		std::thread generate(&::generateRandomMap, std::ref(generator), static_cast<MainWindow*>(parent()), !ui->randomMapCheck->isChecked());
-		progressBarWnd->update();
-		generate.join();
+		CMapGenerator generator(mapGenOptions);
+		//TODO: fix water and roads
+		generator.disableModificator("RoadPlacer");
+		generator.disableModificator("RiverPlacer");
+
+		auto progressBarWnd = new GeneratorProgress(generator, this);
+		progressBarWnd->show();
+		{
+			std::thread generate(&::generateRandomMap, std::ref(generator), static_cast<MainWindow*>(parent()));
+			progressBarWnd->update();
+			generate.join();
+		}
+	}
+	else
+	{
+		generateEmptyMap(mapGenOptions, static_cast<MainWindow*>(parent()));
 	}
 
 	static_cast<MainWindow*>(parent())->setMap(true);
 	close();
-}
-
-void WindowNewMap::generateEmptyMap()
-{
-
-}
-
-void WindowNewMap::generateRandomMap()
-{
-
 }
 
 void WindowNewMap::on_sizeCombo_activated(int index)
