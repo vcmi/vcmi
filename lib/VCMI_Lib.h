@@ -27,7 +27,6 @@ class CContentHandler;
 class BattleFieldHandler;
 class IBonusTypeHandler;
 class CBonusTypeHandler;
-class ObstacleHandler;
 class CTerrainViewPatternConfig;
 class CRmgTemplateStorage;
 class IHandlerBase;
@@ -59,7 +58,6 @@ public:
 	const spells::Service * spells() const override;
 	const SkillService * skills() const override;
 	const BattleFieldService * battlefields() const override;
-	const ObstacleService * obstacles() const override;
 
 	void updateEntity(Metatype metatype, int32_t index, const JsonNode & data) override;
 
@@ -81,7 +79,6 @@ public:
 	CTerrainViewPatternConfig * terviewh;
 	CRmgTemplateStorage * tplh;
 	BattleFieldHandler * battlefieldsHandler;
-	ObstacleHandler * obstacleHandler;
 	scripting::ScriptHandler * scriptHandler;
 
 	LibClasses(); //c-tor, loads .lods and NULLs handlers
@@ -111,7 +108,6 @@ public:
 		h & spellh;
 		h & skillh;
 		h & battlefieldsHandler;
-		h & obstacleHandler;
 
 		if(!h.saving)
 		{

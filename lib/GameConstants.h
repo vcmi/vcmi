@@ -1125,16 +1125,6 @@ class BattleField : public BaseForID<BattleField, si32>
 
 	DLL_LINKAGE static BattleField fromString(std::string identifier);
 };
-	
-class Obstacle : public BaseForID<Obstacle, si32>
-{
-	INSTID_LIKE_CLASS_COMMON(Obstacle, si32)
-	
-	///json serialization helpers
-	DLL_LINKAGE operator std::string() const;
-	
-	DLL_LINKAGE static Obstacle fromString(std::string identifier);
-};
 
 enum class ESpellSchool: ui8
 {

@@ -11,7 +11,6 @@
 #include "CObstacleInstance.h"
 #include "../CHeroHandler.h"
 #include "../CTownHandler.h"
-#include "../ObstacleHandler.h"
 #include "../VCMI_Lib.h"
 #include "../NetPacksBase.h"
 
@@ -30,14 +29,14 @@ CObstacleInstance::~CObstacleInstance()
 
 }
 
-const ObstacleInfo & CObstacleInstance::getInfo() const
+const CObstacleInfo & CObstacleInstance::getInfo() const
 {
 	switch(obstacleType)
 	{
 	case ABSOLUTE_OBSTACLE:
-		return VLC->obstacleHandler->absoluteObstacles[ID];
+		return VLC->heroh->absoluteObstacles[ID];
 	case USUAL:
-		return VLC->obstacleHandler->obstacles[ID];
+		return VLC->heroh->obstacles[ID];
 	default:
 		throw std::runtime_error("Unknown obstacle type in CObstacleInstance::getInfo()");
 	}

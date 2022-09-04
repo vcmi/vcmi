@@ -42,7 +42,6 @@
 #include "../../lib/spells/Problem.h"
 #include "../../lib/CTownHandler.h"
 #include "../../lib/BattleFieldHandler.h"
-#include "../../lib/ObstacleHandler.h"
 #include "../../lib/CGameState.h"
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/NetPacks.h"

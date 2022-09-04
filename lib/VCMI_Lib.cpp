@@ -33,7 +33,6 @@
 #include "mapping/CMapEditManager.h"
 #include "ScriptHandler.h"
 #include "BattleFieldHandler.h"
-#include "ObstacleHandler.h"
 
 LibClasses * VLC = nullptr;
 
@@ -115,11 +114,6 @@ spells::effects::Registry * LibClasses::spellEffects()
 const BattleFieldService * LibClasses::battlefields() const
 {
 	return battlefieldsHandler;
-}
-
-const ObstacleService * LibClasses::obstacles() const
-{
-	return obstacleHandler;
 }
 
 void LibClasses::updateEntity(Metatype metatype, int32_t index, const JsonNode & data)
