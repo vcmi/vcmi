@@ -10,7 +10,7 @@
 #pragma once
 #include "BattleHex.h"
 
-class ObstacleInfo;
+struct ObstacleInfo;
 class ObstacleChanges;
 class JsonSerializeFormat;
 
