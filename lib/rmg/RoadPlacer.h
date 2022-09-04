@@ -28,7 +28,7 @@ public:
 	
 protected:
 	bool createRoad(const int3 & dst);
-	void drawRoads(); //actually updates tiles
+	void drawRoads(bool secondary = false); //actually updates tiles
 	
 protected:
 	rmg::Tileset roadNodes; //tiles to be connected with roads

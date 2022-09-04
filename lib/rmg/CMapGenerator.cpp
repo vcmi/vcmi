@@ -69,6 +69,7 @@ void CMapGenerator::loadConfig()
 	config.mineExtraResources = randomMapJson["mines"]["extraResourcesLimit"].Integer();
 	config.minGuardStrength = randomMapJson["minGuardStrength"].Integer();
 	config.defaultRoadType = randomMapJson["defaultRoadType"].String();
+	config.secondaryRoadType = randomMapJson["secondaryRoadType"].String();
 	config.treasureValueLimit = randomMapJson["treasureValueLimit"].Integer();
 	for(auto & i : randomMapJson["prisons"]["experience"].Vector())
 		config.prisonExperience.push_back(i.Integer());

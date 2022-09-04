@@ -27,7 +27,7 @@
 void ObjectManager::process()
 {
 	zone.fractalize();
-		createRequiredObjects();
+	createRequiredObjects();
 }
 
 void ObjectManager::init()
@@ -75,6 +75,21 @@ void ObjectManager::updateDistances(const rmg::Object & obj)
 const rmg::Area & ObjectManager::getVisitableArea() const
 {
 	return objectsVisitableArea;
+}
+
+std::vector<CGObjectInstance*> ObjectManager::getMines() const
+{
+	std::vector<CGObjectInstance*> mines;
+	
+	for (auto object : objects)
+	{
+		if (object->ID == Obj::MINE)
+		{
+			mines.push_back(object);
+		}
+	}
+
+	return mines;
 }
 
 int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object & obj, std::function<float(const int3)> weightFunction, OptimizeType optimizer) const
@@ -220,6 +235,7 @@ bool ObjectManager::createRequiredObjects()
 {
 	logGlobal->trace("Creating required objects");
 	
+	RandomGeneratorUtil::randomShuffle(requiredObjects, generator.rand);	
 	for(const auto & object : requiredObjects)
 	{
 		auto * obj = object.first;

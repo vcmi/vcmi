@@ -39,6 +39,7 @@ public:
 		int mineExtraResources;
 		int minGuardStrength;
 		std::string defaultRoadType;
+		std::string secondaryRoadType;
 		int treasureValueLimit;
 		std::vector<int> prisonExperience, prisonValues;
 		std::vector<int> scrollValues;
