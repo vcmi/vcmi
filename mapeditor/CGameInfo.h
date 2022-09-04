@@ -63,7 +63,6 @@ public:
 	const spells::Service * spells() const override;
 	const SkillService * skills() const override;
 	const BattleFieldService * battlefields() const override;
-	const ObstacleService * obstacles() const override;
 
 	void updateEntity(Metatype metatype, int32_t index, const JsonNode & data) override;
 

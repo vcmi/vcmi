@@ -29,7 +29,6 @@
 #include "BitmapHandler.h"
 #include "../lib/CGameState.h"
 #include "../lib/JsonNode.h"
-#include "../lib/vcmi_endian.h"
 #include "../lib/CStopWatch.h"
 #include "../lib/mapObjects/CObjectClassesHandler.h"
 #include "../lib/mapObjects/CObjectHandler.h"

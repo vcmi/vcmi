@@ -1,7 +1,6 @@
 #ifndef ANIMATION_H
 #define ANIMATION_H
 
-#include "../lib/vcmi_endian.h"
 #include "../lib/JsonNode.h"
 #include "../lib/GameConstants.h"
 #include <QRgb>
