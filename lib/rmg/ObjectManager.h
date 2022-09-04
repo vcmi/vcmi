@@ -63,6 +63,8 @@ public:
 	void createDistancesPriorityQueue();
 	
 	const rmg::Area & getVisitableArea() const;
+
+	std::vector<CGObjectInstance*> getMines() const;
 	
 protected:
 	//content info
