@@ -2,18 +2,17 @@
 #include "ui_mapsettings.h"
 #include "mainwindow.h"
 
-MapSettings::MapSettings(MainWindow *parent) :
-	QDialog(static_cast<QWidget*>(parent)),
+MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
+	QDialog(parent),
 	ui(new Ui::MapSettings),
-	main(parent)
+	controller(ctrl)
 {
 	ui->setupUi(this);
 
-	assert(main);
-	assert(main->getMap());
+	assert(controller.map());
 
-	ui->mapNameEdit->setText(QString::fromStdString(main->getMap()->name));
-	ui->mapDescriptionEdit->setPlainText(QString::fromStdString(main->getMap()->description));
+	ui->mapNameEdit->setText(QString::fromStdString(controller.map()->name));
+	ui->mapDescriptionEdit->setPlainText(QString::fromStdString(controller.map()->description));
 
 	show();
 
@@ -35,7 +34,8 @@ MapSettings::~MapSettings()
 
 void MapSettings::on_pushButton_clicked()
 {
-	main->getMap()->name = ui->mapNameEdit->text().toStdString();
-	main->getMap()->description = ui->mapDescriptionEdit->toPlainText().toStdString();
+	controller.map()->name = ui->mapNameEdit->text().toStdString();
+	controller.map()->description = ui->mapDescriptionEdit->toPlainText().toStdString();
+	controller.commitChangeWithoutRedraw();
 	close();
 }

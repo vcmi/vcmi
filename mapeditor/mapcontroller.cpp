@@ -1,0 +1,199 @@
+#include "mapcontroller.h"
+
+#include "../lib/GameConstants.h"
+#include "../lib/mapping/CMapService.h"
+#include "../lib/mapping/CMap.h"
+#include "../lib/mapping/CMapEditManager.h"
+#include "../lib/Terrain.h"
+#include "../lib/mapObjects/CObjectClassesHandler.h"
+#include "../lib/rmg/ObstaclePlacer.h"
+#include "mapview.h"
+#include "scenelayer.h"
+#include "maphandler.h"
+#include "mainwindow.h"
+#include "inspector.h"
+
+
+MapController::MapController(MainWindow * m) : _main(m)
+{
+	_scenes[0] = new MapScene(0);
+	_scenes[1] = new MapScene(1);
+}
+
+MapController::~MapController()
+{
+	delete _scenes[0];
+	delete _scenes[1];
+}
+
+CMap * MapController::map()
+{
+	return _map.get();
+}
+
+MapHandler * MapController::mapHandler()
+{
+	return _mapHandler.get();
+}
+
+MapScene * MapController::scene(int level)
+{
+	return _scenes[level];
+}
+
+void MapController::setMap(std::unique_ptr<CMap> cmap)
+{
+	_map = std::move(cmap);
+	resetMapHandler();
+	sceneForceUpdate();
+}
+
+void MapController::sceneForceUpdate()
+{
+	_scenes[0]->updateViews();
+	if(_map->twoLevel)
+		_scenes[1]->updateViews();
+}
+
+void MapController::sceneForceUpdate(int level)
+{
+	_scenes[level]->updateViews();
+}
+
+void MapController::resetMapHandler()
+{
+	_mapHandler.reset(new MapHandler(_map.get()));
+	_scenes[0]->initialize(*this);
+	_scenes[1]->initialize(*this);
+}
+
+void MapController::commitTerrainChange(int level, const Terrain & terrain)
+{
+	std::vector<int3> v(_scenes[level]->selectionTerrainView.selection().begin(),
+						_scenes[level]->selectionTerrainView.selection().end());
+	if(v.empty())
+		return;
+	
+	_scenes[level]->selectionTerrainView.clear();
+	_scenes[level]->selectionTerrainView.draw();
+	
+	_map->getEditManager()->getTerrainSelection().setSelection(v);
+	_map->getEditManager()->drawTerrain(terrain, &CRandomGenerator::getDefault());
+	
+	for(auto & t : v)
+		_scenes[level]->terrainView.setDirty(t);
+	_scenes[level]->terrainView.draw();
+}
+
+void MapController::commitObjectErase(int level)
+{
+	for(auto * obj : _scenes[level]->selectionObjectsView.getSelection())
+	{
+		_map->getEditManager()->removeObject(obj);
+		delete obj;
+	}
+	_scenes[level]->selectionObjectsView.clear();
+	resetMapHandler();
+	_scenes[level]->updateViews();
+}
+
+bool MapController::discardObject(int level) const
+{
+	_scenes[level]->selectionObjectsView.clear();
+	if(_scenes[level]->selectionObjectsView.newObject)
+	{
+		delete _scenes[level]->selectionObjectsView.newObject;
+		_scenes[level]->selectionObjectsView.newObject = nullptr;
+		_scenes[level]->selectionObjectsView.shift = QPoint(0, 0);
+		_scenes[level]->selectionObjectsView.selectionMode = 0;
+		_scenes[level]->selectionObjectsView.draw();
+		return true;
+	}
+	return false;
+}
+
+void MapController::createObject(int level, CGObjectInstance * obj) const
+{
+	_scenes[level]->selectionObjectsView.newObject = obj;
+	_scenes[level]->selectionObjectsView.selectionMode = 2;
+	_scenes[level]->selectionObjectsView.draw();
+}
+
+void MapController::commitObstacleFill(int level)
+{
+	auto selection = _scenes[level]->selectionTerrainView.selection();
+	if(selection.empty())
+		return;
+	
+	//split by zones
+	std::map<Terrain, ObstacleProxy> terrainSelected;
+	for(auto & t : selection)
+	{
+		auto tl = _map->getTile(t);
+		if(tl.blocked || tl.visitable)
+			continue;
+		
+		terrainSelected[tl.terType].blockedArea.add(t);
+	}
+	
+	for(auto & sel : terrainSelected)
+	{
+		sel.second.collectPossibleObstacles(sel.first);
+		sel.second.placeObstacles(_map.get(), CRandomGenerator::getDefault());
+	}
+
+	resetMapHandler();
+	_scenes[level]->updateViews();
+}
+
+void MapController::commitObjectChange(int level)
+{
+	resetMapHandler();
+	_scenes[level]->updateViews();
+}
+
+
+void MapController::commitChangeWithoutRedraw()
+{
+	//DO NOT REDRAW
+}
+
+void MapController::commitObjectShiftOrCreate(int level)
+{
+	auto shift = _scenes[level]->selectionObjectsView.shift;
+	if(shift.isNull())
+		return;
+	
+	for(auto * obj : _scenes[level]->selectionObjectsView.getSelection())
+	{
+		int3 pos = obj->pos;
+		pos.z = level;
+		pos.x += shift.x(); pos.y += shift.y();
+		
+		if(obj == _scenes[level]->selectionObjectsView.newObject)
+		{
+			_scenes[level]->selectionObjectsView.newObject->pos = pos;
+			commitObjectCreate(level);
+		}
+		else
+		{
+			_map->getEditManager()->moveObject(obj, pos);
+		}
+	}
+		
+	_scenes[level]->selectionObjectsView.newObject = nullptr;
+	_scenes[level]->selectionObjectsView.shift = QPoint(0, 0);
+	_scenes[level]->selectionObjectsView.selectionMode = 0;
+	
+	resetMapHandler();
+	_scenes[level]->updateViews();
+}
+
+void MapController::commitObjectCreate(int level)
+{
+	auto * newObj = _scenes[level]->selectionObjectsView.newObject;
+	if(!newObj)
+		return;
+	_map->getEditManager()->insertObject(newObj);
+	Initializer init(newObj);
+}

@@ -19,7 +19,6 @@
 #include "../lib/mapping/CMapEditManager.h"
 #include "../lib/Terrain.h"
 #include "../lib/mapObjects/CObjectClassesHandler.h"
-#include "../lib/rmg/ObstaclePlacer.h"
 
 
 #include "CGameInfo.h"
@@ -58,12 +57,11 @@ void init()
 }
 
 MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-	ui(new Ui::MainWindow)
+	QMainWindow(parent),
+	ui(new Ui::MainWindow),
+	controller(this)
 {
-    ui->setupUi(this);
-
-	ui->mapView->setMain(this);
+	ui->setupUi(this);
 	
 	// Set current working dir to executable folder.
 	// This is important on Mac for relative paths to work inside DMG.
@@ -118,9 +116,9 @@ MainWindow::MainWindow(QWidget *parent) :
 	//now let's try to draw
 	//auto resPath = *CResourceHandler::get()->getResourceName(ResourceID("DATA/new-menu/Background.png"));
 	
-	scenes[0] = new MapScene(this, 0);
-	scenes[1] = new MapScene(this, 1);
-	ui->mapView->setScene(scenes[0]);
+	ui->mapView->setScene(controller.scene(0));
+	ui->mapView->setController(&controller);
+	connect(ui->mapView, &MapView::openObjectProperties, this, &MainWindow::loadInspector);
 	
 	sceneMini = new QGraphicsScene(this);
 	ui->minimapView->setScene(sceneMini);
@@ -143,11 +141,6 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-MapView * MainWindow::getMapView()
-{
-	return ui->mapView;
-}
-
 void MainWindow::setStatusMessage(const QString & status)
 {
 	statusBar()->showMessage(status);
@@ -159,52 +152,28 @@ void MainWindow::reloadMap(int level)
 	//float ratio = std::fmin(mapSizePx.width() / 192., mapSizePx.height() / 192.);*/
 	//minimap = mapHandler->surface;
 	//minimap.setDevicePixelRatio(ratio);
-
-	scenes[level]->updateViews();
+	
+	controller.sceneForceUpdate(level);
 
 	//sceneMini->clear();
 	//sceneMini->addPixmap(minimap);
 }
 
-CMap * MainWindow::getMap()
-{
-	return map.get();
-}
-
-MapHandler * MainWindow::getMapHandler()
-{
-	return mapHandler.get();
-}
-
-void MainWindow::resetMapHandler()
-{
-	mapHandler.reset(new MapHandler(map.get()));
-
-	unsaved = true;
-	setWindowTitle(filename + "* - VCMI Map Editor");
-}
-
-void MainWindow::setMapRaw(std::unique_ptr<CMap> cmap)
-{
-	map = std::move(cmap);
-}
-
-void MainWindow::setMap(bool isNew)
+void MainWindow::initializeMap(bool isNew)
 {
 	unsaved = isNew;
 	if(isNew)
 		filename.clear();
 
 	setWindowTitle(filename + "* - VCMI Map Editor");
+	
 
-	mapHandler.reset(new MapHandler(map.get()));
-
-	reloadMap();
-	if(map->twoLevel)
-		reloadMap(1);
+//	reloadMap();
+	//if(map->twoLevel)
+		//reloadMap(1);
 
 	mapLevel = 0;
-	ui->mapView->setScene(scenes[mapLevel]);
+	ui->mapView->setScene(controller.scene(mapLevel));
 
 	//enable settings
 	ui->actionMapSettings->setEnabled(true);
@@ -232,19 +201,19 @@ void MainWindow::on_actionOpen_triggered()
 	CMapService mapService;
 	try
 	{
-		map = mapService.loadMap(resId);
+		controller.setMap(mapService.loadMap(resId));
 	}
 	catch(const std::exception & e)
 	{
 		QMessageBox::critical(this, "Failed to open map", e.what());
 	}
 
-	setMap(false);
+	initializeMap(false);
 }
 
 void MainWindow::saveMap()
 {
-	if(!map)
+	if(!controller.map())
 		return;
 
 	if(!unsaved)
@@ -253,7 +222,7 @@ void MainWindow::saveMap()
 	CMapService mapService;
 	try
 	{
-		mapService.saveMap(map, filename.toStdString());
+		mapService.saveMap(std::unique_ptr<CMap>(controller.map()), filename.toStdString());
 	}
 	catch(const std::exception & e)
 	{
@@ -266,7 +235,7 @@ void MainWindow::saveMap()
 
 void MainWindow::on_actionSave_as_triggered()
 {
-	if(!map)
+	if(!controller.map())
 		return;
 
 	auto filenameSelect = QFileDialog::getSaveFileName(this, tr("Save map"), "", tr("VCMI maps (*.vmap)"));
@@ -285,12 +254,12 @@ void MainWindow::on_actionSave_as_triggered()
 
 void MainWindow::on_actionNew_triggered()
 {
-	auto newMapDialog = new WindowNewMap(this);
+	new WindowNewMap(this);
 }
 
 void MainWindow::on_actionSave_triggered()
 {
-	if(!map)
+	if(!controller.map())
 		return;
 
 	if(filename.isNull())
@@ -308,19 +277,7 @@ void MainWindow::on_actionSave_triggered()
 
 void MainWindow::terrainButtonClicked(Terrain terrain)
 {
-	std::vector<int3> v(scenes[mapLevel]->selectionTerrainView.selection().begin(), scenes[mapLevel]->selectionTerrainView.selection().end());
-	if(v.empty())
-		return;
-
-	scenes[mapLevel]->selectionTerrainView.clear();
-	scenes[mapLevel]->selectionTerrainView.draw();
-
-	map->getEditManager()->getTerrainSelection().setSelection(v);
-	map->getEditManager()->drawTerrain(terrain, &CRandomGenerator::getDefault());
-
-	for(auto & t : v)
-		scenes[mapLevel]->terrainView.setDirty(t);
-	scenes[mapLevel]->terrainView.draw();
+	controller.commitTerrainChange(mapLevel, terrain);
 }
 
 void MainWindow::addGroupIntoCatalog(const std::string & groupName, bool staticOnly)
@@ -585,29 +542,29 @@ void MainWindow::loadObjectsTree()
 
 void MainWindow::on_actionLevel_triggered()
 {
-	if(map && map->twoLevel)
+	if(controller.map() && controller.map()->twoLevel)
 	{
 		mapLevel = mapLevel ? 0 : 1;
-		ui->mapView->setScene(scenes[mapLevel]);
+		ui->mapView->setScene(controller.scene(mapLevel));
 	}
 }
 
 void MainWindow::on_actionPass_triggered(bool checked)
 {
-	if(map)
+	if(controller.map())
 	{
-		scenes[0]->passabilityView.show(checked);
-		scenes[1]->passabilityView.show(checked);
+		controller.scene(0)->passabilityView.show(checked);
+		controller.scene(1)->passabilityView.show(checked);
 	}
 }
 
 
 void MainWindow::on_actionGrid_triggered(bool checked)
 {
-	if(map)
+	if(controller.map())
 	{
-		scenes[0]->gridView.show(checked);
-		scenes[1]->gridView.show(checked);
+		controller.scene(0)->gridView.show(checked);
+		controller.scene(0)->gridView.show(checked);
 	}
 }
 
@@ -676,11 +633,9 @@ void MainWindow::on_toolArea_clicked(bool checked)
 
 void MainWindow::on_toolErase_clicked()
 {
-	if(map && scenes[mapLevel])
+	if(controller.map())
 	{
-		scenes[mapLevel]->selectionObjectsView.deleteSelection();
-		resetMapHandler();
-		scenes[mapLevel]->updateViews();
+		controller.commitObjectErase(mapLevel);
 	}
 }
 
@@ -702,20 +657,11 @@ void MainWindow::preparePreview(const QModelIndex &index, bool createNew)
 			auto objSubId = data["subid"].toInt();
 			auto templateId = data["template"].toInt();
 
-			scenes[mapLevel]->selectionObjectsView.clear();
-			if(scenes[mapLevel]->selectionObjectsView.newObject)
-			{
-				createNew = true;
-				delete scenes[mapLevel]->selectionObjectsView.newObject;
-			}
-
-			if(createNew)
+			if(controller.discardObject(mapLevel) || createNew)
 			{
 				auto factory = VLC->objtypeh->getHandlerFor(objId, objSubId);
 				auto templ = factory->getTemplates()[templateId];
-				scenes[mapLevel]->selectionObjectsView.newObject = factory->create(templ);
-				scenes[mapLevel]->selectionObjectsView.selectionMode = 2;
-				scenes[mapLevel]->selectionObjectsView.draw();
+				controller.createObject(mapLevel, factory->create(templ));
 			}
 		}
 	}
@@ -765,33 +711,10 @@ void MainWindow::on_filter_textChanged(const QString &arg1)
 
 void MainWindow::on_actionFill_triggered()
 {
-	if(!map || !scenes[mapLevel])
+	if(!controller.map())
 		return;
 
-	auto selection = scenes[mapLevel]->selectionTerrainView.selection();
-	if(selection.empty())
-		return;
-
-	//split by zones
-	std::map<Terrain, ObstacleProxy> terrainSelected;
-	for(auto & t : selection)
-	{
-		auto tl = map->getTile(t);
-		if(tl.blocked || tl.visitable)
-			continue;
-
-		terrainSelected[tl.terType].blockedArea.add(t);
-	}
-
-	for(auto & sel : terrainSelected)
-	{
-		sel.second.collectPossibleObstacles(sel.first);
-		sel.second.placeObstacles(map.get(), CRandomGenerator::getDefault());
-	}
-
-	scenes[mapLevel]->selectionObjectsView.deleteSelection();
-	resetMapHandler();
-	scenes[mapLevel]->updateViews();
+	controller.commitObstacleFill(mapLevel);
 }
 
 void MainWindow::loadInspector(CGObjectInstance * obj)
@@ -825,16 +748,17 @@ void MainWindow::on_inspectorWidget_itemChanged(QTableWidgetItem *item)
 	//set parameter
 	Inspector inspector(obj, tableWidget);
 	inspector.setProperty(param, item->text());
+	controller.commitObjectChange(mapLevel);
 }
 
 void MainWindow::on_actionMapSettings_triggered()
 {
-	auto mapSettingsDialog = new MapSettings(this);
+	auto mapSettingsDialog = new MapSettings(controller, this);
 }
 
 
 void MainWindow::on_actionPlayers_settings_triggered()
 {
-	auto mapSettingsDialog = new PlayerSettings(*map, this);
+	auto mapSettingsDialog = new PlayerSettings(*controller.map(), this);
 }
 

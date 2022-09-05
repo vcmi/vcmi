@@ -4,10 +4,9 @@
 #include <QMainWindow>
 #include <QGraphicsScene>
 #include <QStandardItemModel>
+#include "mapcontroller.h"
 #include "../lib/Terrain.h"
 
-#include "maphandler.h"
-#include "mapview.h"
 
 class CMap;
 class ObjectBrowser;
@@ -25,24 +24,19 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-	void setMapRaw(std::unique_ptr<CMap> cmap);
-	void setMap(bool isNew);
+	void initializeMap(bool isNew);
 	void reloadMap(int level = 0);
 	void saveMap();
-
-	CMap * getMap();
-	MapHandler * getMapHandler();
-	void resetMapHandler();
+	
+	MapView * mapView();
 
 	void loadObjectsTree();
 
 	void setStatusMessage(const QString & status);
 
-	void loadInspector(CGObjectInstance * obj);
-
-	MapView * getMapView();
-
 	int getMapLevel() const {return mapLevel;}
+	
+	MapController controller;
 
 private slots:
     void on_actionOpen_triggered();
@@ -88,6 +82,7 @@ private slots:
 public slots:
 
 	void treeViewSelected(const QModelIndex &selected, const QModelIndex &deselected);
+	void loadInspector(CGObjectInstance * obj);
 
 private:
 	void preparePreview(const QModelIndex &index, bool createNew);
@@ -99,13 +94,10 @@ private:
 private:
     Ui::MainWindow *ui;
 	ObjectBrowser * objectBrowser = nullptr;
-	std::unique_ptr<MapHandler> mapHandler;
-	std::array<MapScene *, 2> scenes;
 	QGraphicsScene * sceneMini;
 	QGraphicsScene * scenePreview;
 	QPixmap minimap;
 	
-	std::unique_ptr<CMap> map;
 	QString filename;
 	bool unsaved = false;
 

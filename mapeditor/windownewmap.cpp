@@ -44,7 +44,8 @@ void WindowNewMap::on_cancelButton_clicked()
 
 void generateRandomMap(CMapGenerator & gen, MainWindow * window)
 {
-	window->setMapRaw(gen.generate());
+	window->controller.setMap(gen.generate());
+	//window->setMapRaw();
 }
 
 void generateEmptyMap(CMapGenOptions & options, MainWindow * window)
@@ -60,7 +61,7 @@ void generateEmptyMap(CMapGenOptions & options, MainWindow * window)
 	map->getEditManager()->getTerrainSelection().selectRange(MapRect(int3(0, 0, 0), options.getWidth(), options.getHeight()));
 	map->getEditManager()->drawTerrain(Terrain("grass"), &CRandomGenerator::getDefault());
 
-	window->setMapRaw(std::move(map));
+	window->controller.setMap(std::move(map));
 }
 
 void WindowNewMap::on_okButtong_clicked()
@@ -107,7 +108,7 @@ void WindowNewMap::on_okButtong_clicked()
 		generateEmptyMap(mapGenOptions, static_cast<MainWindow*>(parent()));
 	}
 
-	static_cast<MainWindow*>(parent())->setMap(true);
+	static_cast<MainWindow*>(parent())->initializeMap(true);
 	close();
 }
 

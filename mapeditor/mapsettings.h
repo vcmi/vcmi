@@ -2,18 +2,18 @@
 #define MAPSETTINGS_H
 
 #include <QDialog>
+#include "mapcontroller.h"
 
 namespace Ui {
 class MapSettings;
 }
 
-class MainWindow;
 class MapSettings : public QDialog
 {
 	Q_OBJECT
 
 public:
-	explicit MapSettings(MainWindow *parent = nullptr);
+	explicit MapSettings(MapController & controller, QWidget *parent = nullptr);
 	~MapSettings();
 
 private slots:
@@ -21,7 +21,7 @@ private slots:
 
 private:
 	Ui::MapSettings *ui;
-	MainWindow * main;
+	MapController & controller;
 };
 
 #endif // MAPSETTINGS_H

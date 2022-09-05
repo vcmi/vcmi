@@ -19,6 +19,8 @@ set(editor_SRCS
 		mapsettings.cpp
 		playersettings.cpp
 		playerparams.cpp
+		scenelayer.cpp
+		mapcontroller.cpp
 )
 
 set(editor_HEADERS
@@ -41,6 +43,8 @@ set(editor_HEADERS
 		mapsettings.h
 		playersettings.h
 		playerparams.h
+		scenelayer.h
+		mapcontroller.h
 )
 
 set(editor_FORMS
