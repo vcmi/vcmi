@@ -135,4 +135,24 @@ public:
 	void update() override;
 };
 
+class MinimapViewLayer: public AbstractLayer
+{
+public:
+	MinimapViewLayer(MapSceneBase * s);
+	
+	void setViewport(int x, int y, int w, int h);
+	
+	void draw();
+	void update() override;
+	
+	int viewportX() const {return x;}
+	int viewportY() const {return y;}
+	int viewportWidth() const {return w;}
+	int viewportHeight() const {return h;}
+	
+private:
+	int x = 0, y = 0, w = 1, h = 1;
+	
+};
+
 #endif // SCENELAYER_H

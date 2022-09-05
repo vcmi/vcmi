@@ -33,6 +33,7 @@ public:
 	void updateViews() override;
 	
 	MinimapLayer minimapView;
+	MinimapViewLayer viewport;
 	
 protected:
 	virtual std::list<AbstractLayer *> getAbstractLayers();
@@ -76,9 +77,15 @@ public slots:
 	void mousePressEvent(QMouseEvent *event) override;
 	void mouseReleaseEvent(QMouseEvent *event) override;
 	
+	void cameraChanged(const QPointF & pos);
+	
 signals:
 	void openObjectProperties(CGObjectInstance *);
+	//void viewportChanged(const QRectF & rect);
 
+protected:
+	bool viewportEvent(QEvent *event) override;
+	
 private:
 	MapController * controller = nullptr;
 	QPointF mouseStart;
@@ -97,11 +104,11 @@ public:
 	void dimensions();
 	
 public slots:
-	void mousePressEvent(QMouseEvent *event) override;
-	void cameraPositionChange(const QPoint & newPosition);
+	void mouseMoveEvent(QMouseEvent * mouseEvent) override;
+	void mousePressEvent(QMouseEvent* event) override;
 	
 signals:
-	void cameraPositionChanged(const QPoint & newPosition);
+	void cameraPositionChanged(const QPointF & newPosition);
 	
 private:
 	MapController * controller = nullptr;

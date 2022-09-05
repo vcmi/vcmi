@@ -22,17 +22,28 @@ void MinimapView::setController(MapController * ctrl)
 	controller = ctrl;
 }
 
-void MinimapView::mousePressEvent(QMouseEvent *event)
+void MinimapView::mouseMoveEvent(QMouseEvent *mouseEvent)
 {
 	this->update();
 	
-	auto * sc = static_cast<MapScene*>(scene());
+	auto * sc = static_cast<MinimapScene*>(scene());
 	if(!sc)
 		return;
+	
+	int w = sc->viewport.viewportWidth();
+	int h = sc->viewport.viewportHeight();
+	auto pos = mapToScene(mouseEvent->pos());
+	pos.setX(pos.x() - w / 2);
+	pos.setY(pos.y() - h / 2);
+	
+	QPointF point = pos * 32;
+			
+	emit cameraPositionChanged(point);
 }
 
-void MinimapView::cameraPositionChange(const QPoint & newPosition)
+void MinimapView::mousePressEvent(QMouseEvent* event)
 {
+	mouseMoveEvent(event);
 }
 
 MapView::MapView(QWidget * parent):
@@ -40,6 +51,14 @@ MapView::MapView(QWidget * parent):
 	selectionTool(MapView::SelectionTool::None)
 {
 }
+
+void MapView::cameraChanged(const QPointF & pos)
+{
+	//ui->mapView->translate(pos.x(), pos.y());
+	horizontalScrollBar()->setValue(pos.x());
+	verticalScrollBar()->setValue(pos.y());
+}
+
 
 void MapView::setController(MapController * ctrl)
 {
@@ -304,6 +323,17 @@ void MapView::mouseReleaseEvent(QMouseEvent *event)
 	}
 }
 
+bool MapView::viewportEvent(QEvent *event)
+{
+	if(auto * sc = static_cast<MapScene*>(scene()))
+	{
+		//auto rect = sceneRect();
+		auto rect = mapToScene(viewport()->geometry()).boundingRect();
+		controller->miniScene(sc->level)->viewport.setViewport(rect.x() / 32, rect.y() / 32, rect.width() / 32, rect.height() / 32);
+	}
+	return QGraphicsView::viewportEvent(event);
+}
+
 MapSceneBase::MapSceneBase(int lvl):
 	QGraphicsScene(nullptr),
 	level(lvl)
@@ -358,7 +388,8 @@ void MapScene::updateViews()
 
 MinimapScene::MinimapScene(int lvl):
 	MapSceneBase(lvl),
-	minimapView(this)
+	minimapView(this),
+	viewport(this)
 {
 }
 
@@ -366,7 +397,8 @@ std::list<AbstractLayer *> MinimapScene::getAbstractLayers()
 {
 	//sequence is important because it defines rendering order
 	return {
-		&minimapView
+		&minimapView,
+		&viewport
 	};
 }
 
@@ -375,4 +407,5 @@ void MinimapScene::updateViews()
 	MapSceneBase::updateViews();
 	
 	minimapView.show(true);
+	viewport.show(true);
 }

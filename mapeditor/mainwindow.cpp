@@ -122,6 +122,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	
 	ui->minimapView->setScene(controller.miniScene(0));
 	ui->minimapView->setController(&controller);
+	connect(ui->minimapView, &MinimapView::cameraPositionChanged, ui->mapView, &MapView::cameraChanged);
 
 	scenePreview = new QGraphicsScene(this);
 	ui->objectPreview->setScene(scenePreview);
@@ -771,4 +772,3 @@ void MainWindow::on_actionPlayers_settings_triggered()
 	auto mapSettingsDialog = new PlayerSettings(*controller.map(), this);
 	mapSettingsDialog->setModal(true);
 }
-

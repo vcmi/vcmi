@@ -496,3 +496,46 @@ void MinimapLayer::update()
 	
 	redraw();
 }
+
+MinimapViewLayer::MinimapViewLayer(MapSceneBase * s): AbstractLayer(s)
+{
+}
+
+void MinimapViewLayer::update()
+{
+	if(!map)
+		return;
+	
+	pixmap.reset(new QPixmap(map->width, map->height));
+	pixmap->fill(QColor(0, 0, 0, 0));
+	
+	QPainter painter(pixmap.get());
+	painter.setPen(QColor(255, 255, 255));
+	painter.drawRect(x, y, w, h);
+	
+	redraw();
+}
+
+void MinimapViewLayer::draw()
+{
+	if(!map)
+		return;
+	
+	pixmap->fill(QColor(0, 0, 0, 0));
+	
+	//maybe not optimal but ok
+	QPainter painter(pixmap.get());
+	painter.setPen(QColor(255, 255, 255));
+	painter.drawRect(x, y, w, h);
+	
+	redraw();
+}
+
+void MinimapViewLayer::setViewport(int _x, int _y, int _w, int _h)
+{
+	x = _x;
+	y = _y;
+	w = _w;
+	h = _h;
+	draw();
+}
