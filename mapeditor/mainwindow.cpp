@@ -58,8 +58,7 @@ void init()
 
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
-	ui(new Ui::MainWindow),
-	controller(this)
+	ui(new Ui::MainWindow)
 {
 	ui->setupUi(this);
 	
@@ -132,8 +131,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	loadObjectsTree();
 
 	show();
-
-	setStatusMessage("privet");
 }
 
 MainWindow::~MainWindow()
@@ -166,14 +163,11 @@ void MainWindow::initializeMap(bool isNew)
 		filename.clear();
 
 	setWindowTitle(filename + "* - VCMI Map Editor");
-	
-
-//	reloadMap();
-	//if(map->twoLevel)
-		//reloadMap(1);
 
 	mapLevel = 0;
 	ui->mapView->setScene(controller.scene(mapLevel));
+	
+	setStatusMessage(QString("Scene objects: %1").arg(ui->mapView->scene()->items().size()));
 
 	//enable settings
 	ui->actionMapSettings->setEnabled(true);
@@ -754,11 +748,13 @@ void MainWindow::on_inspectorWidget_itemChanged(QTableWidgetItem *item)
 void MainWindow::on_actionMapSettings_triggered()
 {
 	auto mapSettingsDialog = new MapSettings(controller, this);
+	mapSettingsDialog->setModal(true);
 }
 
 
 void MainWindow::on_actionPlayers_settings_triggered()
 {
 	auto mapSettingsDialog = new PlayerSettings(*controller.map(), this);
+	mapSettingsDialog->setModal(true);
 }
 

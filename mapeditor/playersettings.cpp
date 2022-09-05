@@ -35,7 +35,7 @@ PlayerSettings::~PlayerSettings()
 
 void PlayerSettings::on_playersCount_currentIndexChanged(int index)
 {
-	assert(index + 2 != paramWidgets.size());
+	assert(index + 2 == paramWidgets.size());
 	assert(index + 2 < header.players.size());
 
 	for(int i = 0; i < index + 2; ++i)

@@ -124,7 +124,7 @@ void CMapGenerator::initQuestArtsRemaining()
 	}
 }
 
-std::unique_ptr<CMap> CMapGenerator::generate(bool empty)
+std::unique_ptr<CMap> CMapGenerator::generate()
 {
 	Load::Progress::reset();
 	Load::Progress::stepsTill(5, 30);
@@ -132,11 +132,6 @@ std::unique_ptr<CMap> CMapGenerator::generate(bool empty)
 	{
 		addHeaderInfo();
 		map->initTiles(*this);
-		if(empty)
-		{
-			Progress::Progress::finish();
-			return std::move(map->mapInstance);
-		}
 		Load::Progress::step();
 		initPrisonsRemaining();
 		initQuestArtsRemaining();		

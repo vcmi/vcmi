@@ -45,10 +45,9 @@ void WindowNewMap::on_cancelButton_clicked()
 void generateRandomMap(CMapGenerator & gen, MainWindow * window)
 {
 	window->controller.setMap(gen.generate());
-	//window->setMapRaw();
 }
 
-void generateEmptyMap(CMapGenOptions & options, MainWindow * window)
+std::unique_ptr<CMap> generateEmptyMap(CMapGenOptions & options)
 {
 	std::unique_ptr<CMap> map(new CMap);
 	map->version = EMapFormat::VCMI;
@@ -61,7 +60,8 @@ void generateEmptyMap(CMapGenOptions & options, MainWindow * window)
 	map->getEditManager()->getTerrainSelection().selectRange(MapRect(int3(0, 0, 0), options.getWidth(), options.getHeight()));
 	map->getEditManager()->drawTerrain(Terrain("grass"), &CRandomGenerator::getDefault());
 
-	window->controller.setMap(std::move(map));
+	//window->controller.setMap(std::move(map));
+	return std::move(map);
 }
 
 void WindowNewMap::on_okButtong_clicked()
@@ -87,7 +87,8 @@ void WindowNewMap::on_okButtong_clicked()
 
 	mapGenOptions.setWaterContent(water);
 	mapGenOptions.setMonsterStrength(monster);
-		
+	
+	std::unique_ptr<CMap> nmap;
 	if(ui->randomMapCheck->isChecked())
 	{
 		CMapGenerator generator(mapGenOptions);
@@ -97,17 +98,26 @@ void WindowNewMap::on_okButtong_clicked()
 
 		auto progressBarWnd = new GeneratorProgress(generator, this);
 		progressBarWnd->show();
-		{
-			std::thread generate(&::generateRandomMap, std::ref(generator), static_cast<MainWindow*>(parent()));
-			progressBarWnd->update();
-			generate.join();
-		}
+		
+		
+		//std::thread generate(&::generateRandomMap, std::ref(generator), static_cast<MainWindow*>(parent()));
+		//progressBarWnd->update();
+		//generate.join();
+		
+		//generateRandomMap(generator, static_cast<MainWindow*>(parent()));
+		auto f = std::async(std::launch::async, &CMapGenerator::generate, &generator);
+		progressBarWnd->update();
+		nmap = f.get();
 	}
 	else
 	{
-		generateEmptyMap(mapGenOptions, static_cast<MainWindow*>(parent()));
+		auto f = std::async(std::launch::async, &::generateEmptyMap, std::ref(mapGenOptions));
+		nmap = f.get();
+		//nmap = generateEmptyMap(mapGenOptions, static_cast<MainWindow*>(parent()));
 	}
+	
 
+	static_cast<MainWindow*>(parent())->controller.setMap(std::move(nmap));
 	static_cast<MainWindow*>(parent())->initializeMap(true);
 	close();
 }

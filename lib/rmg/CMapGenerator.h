@@ -57,7 +57,7 @@ public:
 	
 	const CMapGenOptions& getMapGenOptions() const;
 	
-	std::unique_ptr<CMap> generate(bool emptyMap = false);
+	std::unique_ptr<CMap> generate();
 	void disableModificator(const std::string & modificator);
 
 	void findZonesForQuestArts();

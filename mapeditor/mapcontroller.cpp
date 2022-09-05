@@ -14,16 +14,14 @@
 #include "inspector.h"
 
 
-MapController::MapController(MainWindow * m) : _main(m)
+MapController::MapController()
 {
-	_scenes[0] = new MapScene(0);
-	_scenes[1] = new MapScene(1);
+	_scenes[0].reset(new MapScene(0));
+	_scenes[1].reset(new MapScene(1));
 }
 
 MapController::~MapController()
 {
-	delete _scenes[0];
-	delete _scenes[1];
 }
 
 CMap * MapController::map()
@@ -38,12 +36,14 @@ MapHandler * MapController::mapHandler()
 
 MapScene * MapController::scene(int level)
 {
-	return _scenes[level];
+	return _scenes[level].get();
 }
 
 void MapController::setMap(std::unique_ptr<CMap> cmap)
 {
 	_map = std::move(cmap);
+	//_scenes[0].reset(new MapScene(0));
+	//_scenes[1].reset(new MapScene(1));
 	resetMapHandler();
 	sceneForceUpdate();
 }
@@ -149,7 +149,8 @@ void MapController::commitObstacleFill(int level)
 void MapController::commitObjectChange(int level)
 {
 	resetMapHandler();
-	_scenes[level]->updateViews();
+	_scenes[level]->objectsView.draw();
+	_scenes[level]->selectionObjectsView.draw();
 }
 
 

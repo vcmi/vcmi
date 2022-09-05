@@ -10,7 +10,7 @@ class MainWindow;
 class MapController
 {
 public:
-	MapController(MainWindow *);
+	MapController();
 	MapController(const MapController &) = delete;
 	MapController(const MapController &&) = delete;
 	~MapController();
@@ -38,10 +38,9 @@ public:
 	void createObject(int level, CGObjectInstance * obj) const;
 	
 private:
-	MainWindow * _main;
 	std::unique_ptr<CMap> _map;
 	std::unique_ptr<MapHandler> _mapHandler;
-	mutable std::array<MapScene *, 2> _scenes;
+	mutable std::array<std::unique_ptr<MapScene>, 2> _scenes;
 };
 
 #endif // MAPCONTROLLER_H
