@@ -46,6 +46,7 @@ CGTownInstance * initialize(CGTownInstance * o)
 		if(!spell->isSpecial() && !spell->isCreatureAbility())
 			o->possibleSpells.push_back(spell->id);
 	}
+	return o;
 }
 
 Initializer::Initializer(CGObjectInstance * o)
@@ -162,8 +163,8 @@ void PlayerColorDelegate::setEditorData(QWidget *editor, const QModelIndex &inde
 	if (index.data().canConvert<int>())
 	{
 		PlayerColor player(qvariant_cast<int>(index.data()));
-		QComboBox *editor = qobject_cast<QComboBox *>(editor);
-		editor->addItem(QString::number(player.getNum()));
+		QComboBox *ed = qobject_cast<QComboBox *>(editor);
+		ed->addItem(QString::number(player.getNum()));
 	}
 	else
 	{
@@ -175,8 +176,8 @@ void PlayerColorDelegate::setModelData(QWidget *editor, QAbstractItemModel *mode
 {
 	if (index.data().canConvert<int>())
 	{
-		QComboBox *editor = qobject_cast<QComboBox *>(editor);
-		model->setData(index, QVariant::fromValue(editor->currentText()));
+		QComboBox *ed = qobject_cast<QComboBox *>(editor);
+		model->setData(index, QVariant::fromValue(ed->currentText()));
 	}
 	else
 	{
