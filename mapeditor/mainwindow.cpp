@@ -216,6 +216,7 @@ void MainWindow::on_actionOpen_triggered()
 		QMessageBox::critical(this, "Failed to open map", e.what());
 	}
 
+	filename = filenameSelect;
 	initializeMap(false);
 }
 
