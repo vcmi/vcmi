@@ -113,7 +113,10 @@
 		"battleFields" : ["ship"],
 		"transitionRequired" : true,
 		"terrainViewPatterns" : "water",
-		"horseSoundId" : 8
+		"horseSoundId" : 8,
+		"sounds": {
+			"ambient": ["LOOPOCEA"]
+		}
 	},
 	"rock" :
 	{
