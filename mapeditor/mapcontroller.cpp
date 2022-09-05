@@ -239,9 +239,9 @@ void MapController::commitObjectCreate(int level)
 	auto * newObj = _scenes[level]->selectionObjectsView.newObject;
 	if(!newObj)
 		return;
-	_map->getEditManager()->insertObject(newObj);
 	Initializer init(newObj);
 	
+	_map->getEditManager()->insertObject(newObj);
 	main->mapChanged();
 }
 

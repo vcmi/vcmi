@@ -3,7 +3,10 @@
 #include "../lib/mapObjects/CObjectHandler.h"
 #include "../lib/mapObjects/CObjectClassesHandler.h"
 #include "../lib/mapObjects/CGTownInstance.h"
+#include "../lib/mapObjects/MiscObjects.h"
+#include "../lib/CArtHandler.h"
 #include "../lib/spells/CSpellHandler.h"
+#include "../lib/CRandomGenerator.h"
 
 void Inspector::setProperty(const QString & key, const QVariant & value)
 {
@@ -11,7 +14,6 @@ void Inspector::setProperty(const QString & key, const QVariant & value)
 		return;
 
 	setProperty(dynamic_cast<CGTownInstance*>(obj), key, value);
-
 	//updateProperties();
 }
 
@@ -49,9 +51,32 @@ CGTownInstance * initialize(CGTownInstance * o)
 	return o;
 }
 
+CGArtifact * initialize(CGArtifact * o)
+{
+	if(!o)
+		return nullptr;
+	
+	if(o->ID == Obj::SPELL_SCROLL)
+	{
+		std::vector<SpellID> out;
+		for(auto spell : VLC->spellh->objects) //spellh size appears to be greater (?)
+		{
+			if(/*map.isAllowedSpell(spell->id) && spell->level == i + 1*/ true)
+			{
+				out.push_back(spell->id);
+			}
+		}
+		auto a = CArtifactInstance::createScroll(*RandomGeneratorUtil::nextItem(out, CRandomGenerator::getDefault()));
+		o->storedArtifact = a;
+	}
+	
+	return o;
+}
+
 Initializer::Initializer(CGObjectInstance * o)
 {
 	initialize(dynamic_cast<CGTownInstance*>(o));
+	initialize(dynamic_cast<CGArtifact*>(o));
 }
 
 Inspector::Inspector(CGObjectInstance * o, QTableWidget * t): obj(o), table(t)
