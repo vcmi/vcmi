@@ -10,7 +10,7 @@ class MainWindow;
 class MapController
 {
 public:
-	MapController();
+	MapController(MainWindow *);
 	MapController(const MapController &) = delete;
 	MapController(const MapController &&) = delete;
 	~MapController();
@@ -40,6 +40,7 @@ public:
 private:
 	std::unique_ptr<CMap> _map;
 	std::unique_ptr<MapHandler> _mapHandler;
+	MainWindow * main;
 	mutable std::array<std::unique_ptr<MapScene>, 2> _scenes;
 };
 

@@ -83,6 +83,7 @@ public slots:
 
 	void treeViewSelected(const QModelIndex &selected, const QModelIndex &deselected);
 	void loadInspector(CGObjectInstance * obj);
+	void mapChanged();
 
 private:
 	void preparePreview(const QModelIndex &index, bool createNew);

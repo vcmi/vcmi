@@ -58,7 +58,8 @@ void init()
 
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
-	ui(new Ui::MainWindow)
+	ui(new Ui::MainWindow),
+	controller(this)
 {
 	ui->setupUi(this);
 	
@@ -156,13 +157,22 @@ void MainWindow::reloadMap(int level)
 	//sceneMini->addPixmap(minimap);
 }
 
+void MainWindow::mapChanged()
+{
+	unsaved = true;
+	setWindowTitle(filename + "* - VCMI Map Editor");
+}
+
 void MainWindow::initializeMap(bool isNew)
 {
 	unsaved = isNew;
 	if(isNew)
+	{
 		filename.clear();
-
-	setWindowTitle(filename + "* - VCMI Map Editor");
+		setWindowTitle("* - VCMI Map Editor");
+	}
+	else
+		setWindowTitle(filename + " - VCMI Map Editor");
 
 	mapLevel = 0;
 	ui->mapView->setScene(controller.scene(mapLevel));
@@ -171,6 +181,7 @@ void MainWindow::initializeMap(bool isNew)
 
 	//enable settings
 	ui->actionMapSettings->setEnabled(true);
+	ui->actionPlayers_settings->setEnabled(true);
 }
 
 void MainWindow::on_actionOpen_triggered()

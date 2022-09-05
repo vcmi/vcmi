@@ -2,6 +2,7 @@
 #include "playersettings.h"
 #include "ui_playersettings.h"
 #include "playerparams.h"
+#include "mainwindow.h"
 
 PlayerSettings::PlayerSettings(CMapHeader & mapHeader, QWidget *parent) :
 	QDialog(parent),
@@ -35,8 +36,7 @@ PlayerSettings::~PlayerSettings()
 
 void PlayerSettings::on_playersCount_currentIndexChanged(int index)
 {
-	assert(index + 2 == paramWidgets.size());
-	assert(index + 2 < header.players.size());
+	assert(index + 2 <= header.players.size());
 
 	for(int i = 0; i < index + 2; ++i)
 	{
@@ -69,6 +69,7 @@ void PlayerSettings::on_pushButton_clicked()
 		header.players[w->playerColor] = w->playerInfo;
 	}
 
+	static_cast<MainWindow*>(parent())->controller.commitChangeWithoutRedraw();
 	close();
 }
 

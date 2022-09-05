@@ -14,7 +14,7 @@
 #include "inspector.h"
 
 
-MapController::MapController()
+MapController::MapController(MainWindow * m): main(m)
 {
 	_scenes[0].reset(new MapScene(0));
 	_scenes[1].reset(new MapScene(1));
@@ -42,8 +42,8 @@ MapScene * MapController::scene(int level)
 void MapController::setMap(std::unique_ptr<CMap> cmap)
 {
 	_map = std::move(cmap);
-	//_scenes[0].reset(new MapScene(0));
-	//_scenes[1].reset(new MapScene(1));
+	_scenes[0].reset(new MapScene(0));
+	_scenes[1].reset(new MapScene(1));
 	resetMapHandler();
 	sceneForceUpdate();
 }
@@ -83,6 +83,8 @@ void MapController::commitTerrainChange(int level, const Terrain & terrain)
 	for(auto & t : v)
 		_scenes[level]->terrainView.setDirty(t);
 	_scenes[level]->terrainView.draw();
+	
+	main->mapChanged();
 }
 
 void MapController::commitObjectErase(int level)
@@ -95,6 +97,8 @@ void MapController::commitObjectErase(int level)
 	_scenes[level]->selectionObjectsView.clear();
 	resetMapHandler();
 	_scenes[level]->updateViews();
+	
+	main->mapChanged();
 }
 
 bool MapController::discardObject(int level) const
@@ -144,6 +148,8 @@ void MapController::commitObstacleFill(int level)
 
 	resetMapHandler();
 	_scenes[level]->updateViews();
+	
+	main->mapChanged();
 }
 
 void MapController::commitObjectChange(int level)
@@ -151,12 +157,15 @@ void MapController::commitObjectChange(int level)
 	resetMapHandler();
 	_scenes[level]->objectsView.draw();
 	_scenes[level]->selectionObjectsView.draw();
+	
+	main->mapChanged();
 }
 
 
 void MapController::commitChangeWithoutRedraw()
 {
 	//DO NOT REDRAW
+	main->mapChanged();
 }
 
 void MapController::commitObjectShiftOrCreate(int level)
@@ -188,6 +197,8 @@ void MapController::commitObjectShiftOrCreate(int level)
 	
 	resetMapHandler();
 	_scenes[level]->updateViews();
+	
+	main->mapChanged();
 }
 
 void MapController::commitObjectCreate(int level)
@@ -197,4 +208,6 @@ void MapController::commitObjectCreate(int level)
 		return;
 	_map->getEditManager()->insertObject(newObj);
 	Initializer init(newObj);
+	
+	main->mapChanged();
 }
