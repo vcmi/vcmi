@@ -189,7 +189,7 @@ void MainWindow::initializeMap(bool isNew)
 
 void MainWindow::on_actionOpen_triggered()
 {
-	auto filenameSelect = QFileDialog::getOpenFileName(this, tr("Open Image"), QString::fromStdString(VCMIDirs::get().userCachePath().native()), tr("Homm3 Files (*.vmap *.h3m)"));
+	auto filenameSelect = QFileDialog::getOpenFileName(this, tr("Open Image"), QString::fromStdString(VCMIDirs::get().userCachePath().make_preferred().string()), tr("Homm3 Files (*.vmap *.h3m)"));
 	
 	if(filenameSelect.isNull())
 		return;
@@ -558,6 +558,28 @@ void MainWindow::on_actionLevel_triggered()
 	}
 }
 
+void MainWindow::on_actionUndo_triggered()
+{
+	QString str("Undo clicked");
+	statusBar()->showMessage(str, 1000);
+
+	if (controller.map())
+	{
+		controller.undo();
+	}
+}
+
+void MainWindow::on_actionRedo_triggered()
+{
+	QString str("Redo clicked");
+	statusBar()->showMessage(str, 1000);
+
+	if (controller.map())
+	{
+		controller.redo();
+	}
+}
+
 void MainWindow::on_actionPass_triggered(bool checked)
 {
 	if(controller.map())
@@ -774,3 +796,14 @@ void MainWindow::on_actionPlayers_settings_triggered()
 	settingsDialog->setWindowModality(Qt::WindowModal);
 	settingsDialog->setModal(true);
 }
+
+void MainWindow::enableUndo(bool enable)
+{
+	ui->actionUndo->setEnabled(enable);
+}
+
+void MainWindow::enableRedo(bool enable)
+{
+	ui->actionRedo->setEnabled(enable);
+}
+

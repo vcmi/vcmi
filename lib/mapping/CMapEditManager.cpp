@@ -155,14 +155,17 @@ MapRect CMapOperation::extendTileAroundSafely(const int3 & centerPos) const
 }
 
 
-CMapUndoManager::CMapUndoManager() : undoRedoLimit(10)
+CMapUndoManager::CMapUndoManager() :
+	undoRedoLimit(10),
+	undoCallback([](bool, bool) {})
 {
-
+	//TODO: unlimited undo
 }
 
 void CMapUndoManager::undo()
 {
 	doOperation(undoStack, redoStack, true);
+
 }
 
 void CMapUndoManager::redo()
@@ -174,6 +177,7 @@ void CMapUndoManager::clearAll()
 {
 	undoStack.clear();
 	redoStack.clear();
+	onUndoRedo();
 }
 
 int CMapUndoManager::getUndoRedoLimit() const
@@ -219,12 +223,25 @@ void CMapUndoManager::doOperation(TStack & fromStack, TStack & toStack, bool doU
 	}
 	toStack.push_front(std::move(operation));
 	fromStack.pop_front();
+	onUndoRedo();
 }
 
 const CMapOperation * CMapUndoManager::peek(const TStack & stack) const
 {
 	if(stack.empty()) return nullptr;
 	return stack.front().get();
+}
+
+void CMapUndoManager::onUndoRedo()
+{
+	//true if there's anything on the stack
+	undoCallback((bool)peekUndo(), (bool)peekRedo());
+}
+
+void CMapUndoManager::setUndoCallback(std::function<void(bool, bool)> functor)
+{
+	undoCallback = functor;
+	onUndoRedo(); //inform immediately
 }
 
 CMapEditManager::CMapEditManager(CMap * map)
@@ -322,6 +339,7 @@ void CComposedOperation::undo()
 
 void CComposedOperation::redo()
 {
+	//TODO: double-chekcif the order is correct
 	for(auto & operation : operations)
 	{
 		operation->redo();
@@ -1070,7 +1088,7 @@ void CInsertObjectOperation::execute()
 
 void CInsertObjectOperation::undo()
 {
-	//TODO
+	map->removeObject(obj);
 }
 
 void CInsertObjectOperation::redo()
@@ -1083,20 +1101,24 @@ std::string CInsertObjectOperation::getLabel() const
 	return "Insert Object";
 }
 
-CMoveObjectOperation::CMoveObjectOperation(CMap * map, CGObjectInstance * obj, const int3 & position)
-	: CMapOperation(map), obj(obj), pos(position)
+CMoveObjectOperation::CMoveObjectOperation(CMap * map, CGObjectInstance * obj, const int3 & targetPosition)
+	: CMapOperation(map),
+	obj(obj),
+	initialPos(obj->pos),
+	targetPos(targetPosition)
 {
-
 }
 
 void CMoveObjectOperation::execute()
 {
-	map->moveObject(obj, pos);
+	map->moveObject(obj, targetPos);
+	logGlobal->debug("Moved object %s to position %s", obj->instanceName, targetPos.toString());
 }
 
 void CMoveObjectOperation::undo()
 {
-	//TODO
+	map->moveObject(obj, initialPos);
+	logGlobal->debug("Moved object %s back to position %s", obj->instanceName, initialPos.toString());
 }
 
 void CMoveObjectOperation::redo()

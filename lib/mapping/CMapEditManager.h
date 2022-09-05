@@ -138,6 +138,8 @@ public:
 
 	/// The undo redo limit is a number which says how many undo/redo items can be saved. The default
 	/// value is 10. If the value is 0, no undo/redo history will be maintained.
+	
+	/// FIXME: unlimited undo please
 	int getUndoRedoLimit() const;
 	void setUndoRedoLimit(int value);
 
@@ -145,6 +147,9 @@ public:
 	const CMapOperation * peekUndo() const;
 
 	void addOperation(std::unique_ptr<CMapOperation> && operation); /// Client code does not need to call this method.
+
+	//poor man's signal
+	void setUndoCallback(std::function<void(bool, bool)> functor);
 
 private:
 	typedef std::list<std::unique_ptr<CMapOperation> > TStack;
@@ -155,6 +160,9 @@ private:
 	TStack undoStack;
 	TStack redoStack;
 	int undoRedoLimit;
+
+	void onUndoRedo();
+	std::function<void(bool allowUndo, bool allowRedo)> undoCallback;
 };
 
 /// The map edit manager provides functionality for drawing terrain and placing
@@ -425,7 +433,7 @@ private:
 class CMoveObjectOperation : public CMapOperation
 {
 public:
-	CMoveObjectOperation(CMap * map, CGObjectInstance * obj, const int3 & position);
+	CMoveObjectOperation(CMap * map, CGObjectInstance * obj, const int3 & targetPosition);
 
 	void execute() override;
 	void undo() override;
@@ -434,7 +442,8 @@ public:
 
 private:
 	CGObjectInstance * obj;
-	int3 pos;
+	int3 initialPos;
+	int3 targetPos;
 };
 
 /// The CRemoveObjectOperation class removes object from the map

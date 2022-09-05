@@ -48,6 +48,10 @@ private slots:
 	void on_actionLevel_triggered();
 
 	void on_actionSave_triggered();
+	
+	void on_actionUndo_triggered();
+
+	void on_actionRedo_triggered();
 
 	void on_actionPass_triggered(bool checked);
 
@@ -84,6 +88,8 @@ public slots:
 	void treeViewSelected(const QModelIndex &selected, const QModelIndex &deselected);
 	void loadInspector(CGObjectInstance * obj);
 	void mapChanged();
+	void enableUndo(bool enable);
+	void enableRedo(bool enable);
 
 private:
 	void preparePreview(const QModelIndex &index, bool createNew);

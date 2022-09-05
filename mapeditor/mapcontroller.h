@@ -29,6 +29,7 @@ public:
 	void sceneForceUpdate(int level);
 	
 	void commitTerrainChange(int level, const Terrain & terrain);
+	void commitObjectErase(const CGObjectInstance* obj);
 	void commitObjectErase(int level);
 	void commitObstacleFill(int level);
 	void commitChangeWithoutRedraw();
@@ -38,6 +39,9 @@ public:
 	
 	bool discardObject(int level) const;
 	void createObject(int level, CGObjectInstance * obj) const;
+
+	void undo();
+	void redo();
 	
 private:
 	std::unique_ptr<CMap> _map;
