@@ -119,7 +119,7 @@ QImage BitmapHandler::loadBitmapFromDir(std::string path, std::string fname, boo
 	}
 	else
 	{ //loading via SDL_Image
-		QImage image(QString::fromStdString(fullpath->native()));
+		QImage image(QString::fromStdString(fullpath->make_preferred().string()));
 		if(!image.isNull())
 		{
 			if(image.bitPlaneCount() == 1)

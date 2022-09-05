@@ -186,7 +186,7 @@ void MainWindow::initializeMap(bool isNew)
 
 void MainWindow::on_actionOpen_triggered()
 {
-	auto filenameSelect = QFileDialog::getOpenFileName(this, tr("Open Image"), QString::fromStdString(VCMIDirs::get().userCachePath().native()), tr("Homm3 Files (*.vmap *.h3m)"));
+	auto filenameSelect = QFileDialog::getOpenFileName(this, tr("Open Image"), QString::fromStdString(VCMIDirs::get().userCachePath().make_preferred().string()), tr("Homm3 Files (*.vmap *.h3m)"));
 	
 	if(filenameSelect.isNull())
 		return;
