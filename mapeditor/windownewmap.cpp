@@ -250,15 +250,23 @@ void WindowNewMap::on_templateCombo_activated(int index)
 
 void WindowNewMap::on_widthTxt_textChanged(const QString &arg1)
 {
-	mapGenOptions.setWidth(arg1.toInt());
-	updateTemplateList();
+	int sz = arg1.toInt();
+	if(sz > 1)
+	{
+		mapGenOptions.setWidth(arg1.toInt());
+		updateTemplateList();
+	}
 }
 
 
 void WindowNewMap::on_heightTxt_textChanged(const QString &arg1)
 {
-	mapGenOptions.setHeight(arg1.toInt());
-	updateTemplateList();
+	int sz = arg1.toInt();
+	if(sz > 1)
+	{
+		mapGenOptions.setHeight(arg1.toInt());
+		updateTemplateList();
+	}
 }
 
 void WindowNewMap::updateTemplateList()

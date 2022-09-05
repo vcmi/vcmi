@@ -101,9 +101,7 @@ private:
 private:
     Ui::MainWindow *ui;
 	ObjectBrowser * objectBrowser = nullptr;
-	QGraphicsScene * sceneMini;
 	QGraphicsScene * scenePreview;
-	QPixmap minimap;
 	
 	QString filename;
 	bool unsaved = false;

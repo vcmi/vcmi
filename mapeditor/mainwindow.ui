@@ -77,9 +77,16 @@
     <addaction name="actionUndo"/>
     <addaction name="actionRedo"/>
    </widget>
+   <widget class="QMenu" name="menuPlayer">
+    <property name="title">
+     <string>Player</string>
+    </property>
+    <addaction name="actionNeutral"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuMap"/>
+   <addaction name="menuPlayer"/>
   </widget>
   <widget class="QToolBar" name="toolBar">
    <property name="windowTitle">
@@ -148,7 +155,7 @@
       <number>0</number>
      </property>
      <item>
-      <widget class="QGraphicsView" name="minimapView">
+      <widget class="MinimapView" name="minimapView">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -862,10 +869,23 @@
     <bool>true</bool>
    </property>
   </action>
+  <action name="actionNeutral">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Neutral</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
    <class>MapView</class>
+   <extends>QGraphicsView</extends>
+   <header>mapview.h</header>
+  </customwidget>
+  <customwidget>
+   <class>MinimapView</class>
    <extends>QGraphicsView</extends>
    <header>mapview.h</header>
   </customwidget>

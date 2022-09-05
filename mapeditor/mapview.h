@@ -11,13 +11,40 @@ class CGObjectInstance;
 class MainWindow;
 class MapController;
 
-class MapScene : public QGraphicsScene
+class MapSceneBase : public QGraphicsScene
 {
 public:
-	MapScene(int lev);
+	MapSceneBase(int lvl);
 	
-	void updateViews();
-	void initialize(MapController &);
+	const int level;
+	
+	virtual void updateViews();
+	virtual void initialize(MapController &);
+	
+protected:
+	virtual std::list<AbstractLayer *> getAbstractLayers() = 0;
+};
+
+class MinimapScene : public MapSceneBase
+{
+public:
+	MinimapScene(int lvl);
+	
+	void updateViews() override;
+	
+	MinimapLayer minimapView;
+	MinimapViewLayer viewport;
+	
+protected:
+	virtual std::list<AbstractLayer *> getAbstractLayers();
+};
+
+class MapScene : public MapSceneBase
+{
+public:
+	MapScene(int lvl);
+	
+	void updateViews() override;
 	
 	GridLayer gridView;
 	PassabilityLayer passabilityView;
@@ -26,10 +53,8 @@ public:
 	ObjectsLayer objectsView;
 	SelectionObjectsLayer selectionObjectsView;
 	
-	const int level;
-	
-private:
-	std::list<AbstractLayer *> getAbstractLayers();
+protected:
+	std::list<AbstractLayer *> getAbstractLayers() override;
 };
 
 class MapView : public QGraphicsView
@@ -52,15 +77,44 @@ public slots:
 	void mousePressEvent(QMouseEvent *event) override;
 	void mouseReleaseEvent(QMouseEvent *event) override;
 	
+	void cameraChanged(const QPointF & pos);
+	
 signals:
 	void openObjectProperties(CGObjectInstance *);
+	//void viewportChanged(const QRectF & rect);
 
+protected:
+	bool viewportEvent(QEvent *event) override;
+	
 private:
 	MapController * controller = nullptr;
 	QPointF mouseStart;
 	int3 tileStart;
 	int3 tilePrev;
 	bool pressedOnSelected;
+};
+
+class MinimapView : public QGraphicsView
+{
+	Q_OBJECT
+public:
+	MinimapView(QWidget * parent);
+	void setController(MapController *);
+	
+	void dimensions();
+	
+public slots:
+	void mouseMoveEvent(QMouseEvent * mouseEvent) override;
+	void mousePressEvent(QMouseEvent* event) override;
+	
+signals:
+	void cameraPositionChanged(const QPointF & newPosition);
+	
+private:
+	MapController * controller = nullptr;
+	
+	int displayWidth = 192;
+	int displayHeight = 192;
 };
 
 #endif // MAPVIEW_H

@@ -98,7 +98,9 @@ public:
 	std::vector<TerrainTileObject> & getObjects(int x, int y, int z);
 	//void drawObject(SDL_Surface * targetSurf, std::shared_ptr<IImage> source, SDL_Rect * sourceRect, bool moving) const;
 	//void drawHeroFlag(SDL_Surface * targetSurf, std::shared_ptr<IImage> source, SDL_Rect * sourceRect, SDL_Rect * destRect, bool moving) const;
-
+	QRgb getTileColor(int x, int y, int z);
+	void drawMinimapTile(QPainter & painter, int x, int y, int z);
+	
 	mutable std::map<const CGObjectInstance*, ui8> animationPhase;
 
 	MapHandler(const CMap * Map);

@@ -3,7 +3,7 @@
 
 #include "../lib/int3.h"
 
-class MapScene;
+class MapSceneBase;
 class CGObjectInstance;
 class MapController;
 class CMap;
@@ -12,7 +12,7 @@ class MapHandler;
 class AbstractLayer
 {
 public:
-	AbstractLayer(MapScene * s);
+	AbstractLayer(MapSceneBase * s);
 	
 	virtual void update() = 0;
 	
@@ -21,7 +21,7 @@ public:
 	void initialize(MapController & controller);
 	
 protected:
-	MapScene * scene;
+	MapSceneBase * scene;
 	CMap * map = nullptr;
 	MapHandler * handler = nullptr;
 	bool isShown = false;
@@ -37,7 +37,7 @@ private:
 class GridLayer: public AbstractLayer
 {
 public:
-	GridLayer(MapScene * s);
+	GridLayer(MapSceneBase * s);
 	
 	void update() override;
 };
@@ -45,7 +45,7 @@ public:
 class PassabilityLayer: public AbstractLayer
 {
 public:
-	PassabilityLayer(MapScene * s);
+	PassabilityLayer(MapSceneBase * s);
 	
 	void update() override;
 };
@@ -54,7 +54,7 @@ public:
 class SelectionTerrainLayer: public AbstractLayer
 {
 public:
-	SelectionTerrainLayer(MapScene * s);
+	SelectionTerrainLayer(MapSceneBase * s);
 	
 	void update() override;
 	
@@ -73,7 +73,7 @@ private:
 class TerrainLayer: public AbstractLayer
 {
 public:
-	TerrainLayer(MapScene * s);
+	TerrainLayer(MapSceneBase * s);
 	
 	void update() override;
 	
@@ -88,7 +88,7 @@ private:
 class ObjectsLayer: public AbstractLayer
 {
 public:
-	ObjectsLayer(MapScene * s);
+	ObjectsLayer(MapSceneBase * s);
 	
 	void update() override;
 	
@@ -105,7 +105,7 @@ private:
 class SelectionObjectsLayer: public AbstractLayer
 {
 public:
-	SelectionObjectsLayer(MapScene * s);
+	SelectionObjectsLayer(MapSceneBase * s);
 	
 	void update() override;
 	
@@ -125,6 +125,34 @@ public:
 	
 private:
 	std::set<CGObjectInstance *> selectedObjects;
+};
+
+class MinimapLayer: public AbstractLayer
+{
+public:
+	MinimapLayer(MapSceneBase * s);
+	
+	void update() override;
+};
+
+class MinimapViewLayer: public AbstractLayer
+{
+public:
+	MinimapViewLayer(MapSceneBase * s);
+	
+	void setViewport(int x, int y, int w, int h);
+	
+	void draw();
+	void update() override;
+	
+	int viewportX() const {return x;}
+	int viewportY() const {return y;}
+	int viewportWidth() const {return w;}
+	int viewportHeight() const {return h;}
+	
+private:
+	int x = 0, y = 0, w = 1, h = 1;
+	
 };
 
 #endif // SCENELAYER_H

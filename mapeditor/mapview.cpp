@@ -4,11 +4,61 @@
 #include <QGraphicsSceneMouseEvent>
 #include "mapcontroller.h"
 
+MinimapView::MinimapView(QWidget * parent):
+	QGraphicsView(parent)
+{
+	// Disable scrollbars
+	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+}
+
+void MinimapView::dimensions()
+{
+	fitInView(0, 0, controller->map()->width, controller->map()->height, Qt::KeepAspectRatio);
+}
+
+void MinimapView::setController(MapController * ctrl)
+{
+	controller = ctrl;
+}
+
+void MinimapView::mouseMoveEvent(QMouseEvent *mouseEvent)
+{
+	this->update();
+	
+	auto * sc = static_cast<MinimapScene*>(scene());
+	if(!sc)
+		return;
+	
+	int w = sc->viewport.viewportWidth();
+	int h = sc->viewport.viewportHeight();
+	auto pos = mapToScene(mouseEvent->pos());
+	pos.setX(pos.x() - w / 2);
+	pos.setY(pos.y() - h / 2);
+	
+	QPointF point = pos * 32;
+			
+	emit cameraPositionChanged(point);
+}
+
+void MinimapView::mousePressEvent(QMouseEvent* event)
+{
+	mouseMoveEvent(event);
+}
+
 MapView::MapView(QWidget * parent):
 	QGraphicsView(parent),
 	selectionTool(MapView::SelectionTool::None)
 {
 }
+
+void MapView::cameraChanged(const QPointF & pos)
+{
+	//ui->mapView->translate(pos.x(), pos.y());
+	horizontalScrollBar()->setValue(pos.x());
+	verticalScrollBar()->setValue(pos.y());
+}
+
 
 void MapView::setController(MapController * ctrl)
 {
@@ -273,15 +323,43 @@ void MapView::mouseReleaseEvent(QMouseEvent *event)
 	}
 }
 
-MapScene::MapScene(int lev):
+bool MapView::viewportEvent(QEvent *event)
+{
+	if(auto * sc = static_cast<MapScene*>(scene()))
+	{
+		//auto rect = sceneRect();
+		auto rect = mapToScene(viewport()->geometry()).boundingRect();
+		controller->miniScene(sc->level)->viewport.setViewport(rect.x() / 32, rect.y() / 32, rect.width() / 32, rect.height() / 32);
+	}
+	return QGraphicsView::viewportEvent(event);
+}
+
+MapSceneBase::MapSceneBase(int lvl):
 	QGraphicsScene(nullptr),
+	level(lvl)
+{
+}
+
+void MapSceneBase::initialize(MapController & controller)
+{
+	for(auto * layer : getAbstractLayers())
+		layer->initialize(controller);
+}
+
+void MapSceneBase::updateViews()
+{
+	for(auto * layer : getAbstractLayers())
+		layer->update();
+}
+
+MapScene::MapScene(int lvl):
+	MapSceneBase(lvl),
 	gridView(this),
 	passabilityView(this),
 	selectionTerrainView(this),
 	terrainView(this),
 	objectsView(this),
-	selectionObjectsView(this),
-	level(lev)
+	selectionObjectsView(this)
 {
 }
 
@@ -298,19 +376,36 @@ std::list<AbstractLayer *> MapScene::getAbstractLayers()
 	};
 }
 
-void MapScene::initialize(MapController & controller)
-{
-	for(auto * layer : getAbstractLayers())
-		layer->initialize(controller);
-}
-
 void MapScene::updateViews()
 {
-	for(auto * layer : getAbstractLayers())
-		layer->update();
+	MapSceneBase::updateViews();
 
 	terrainView.show(true);
 	objectsView.show(true);
 	selectionTerrainView.show(true);
 	selectionObjectsView.show(true);
+}
+
+MinimapScene::MinimapScene(int lvl):
+	MapSceneBase(lvl),
+	minimapView(this),
+	viewport(this)
+{
+}
+
+std::list<AbstractLayer *> MinimapScene::getAbstractLayers()
+{
+	//sequence is important because it defines rendering order
+	return {
+		&minimapView,
+		&viewport
+	};
+}
+
+void MinimapScene::updateViews()
+{
+	MapSceneBase::updateViews();
+	
+	minimapView.show(true);
+	viewport.show(true);
 }
