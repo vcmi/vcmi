@@ -957,7 +957,10 @@ void CBonusSystemNode::getAllBonusesRec(BonusList &out) const
 		auto updated = b->updater 
 			? getUpdatedBonus(b, b->updater) 
 			: b;
-		out.push_back(updated);
+		
+		//do not add bonus with same pointer
+		if(!vstd::contains(out, updated))
+			out.push_back(updated);
 	}
 }
 
