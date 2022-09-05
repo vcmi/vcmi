@@ -140,7 +140,7 @@
       <number>0</number>
      </property>
      <item>
-      <widget class="QGraphicsView" name="minimapView">
+      <widget class="MinimapView" name="minimapView">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -827,6 +827,11 @@
  <customwidgets>
   <customwidget>
    <class>MapView</class>
+   <extends>QGraphicsView</extends>
+   <header>mapview.h</header>
+  </customwidget>
+  <customwidget>
+   <class>MinimapView</class>
    <extends>QGraphicsView</extends>
    <header>mapview.h</header>
   </customwidget>

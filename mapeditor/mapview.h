@@ -11,13 +11,39 @@ class CGObjectInstance;
 class MainWindow;
 class MapController;
 
-class MapScene : public QGraphicsScene
+class MapSceneBase : public QGraphicsScene
 {
 public:
-	MapScene(int lev);
+	MapSceneBase(int lvl);
 	
-	void updateViews();
-	void initialize(MapController &);
+	const int level;
+	
+	virtual void updateViews();
+	virtual void initialize(MapController &);
+	
+protected:
+	virtual std::list<AbstractLayer *> getAbstractLayers() = 0;
+};
+
+class MinimapScene : public MapSceneBase
+{
+public:
+	MinimapScene(int lvl);
+	
+	void updateViews() override;
+	
+	MinimapLayer minimapView;
+	
+protected:
+	virtual std::list<AbstractLayer *> getAbstractLayers();
+};
+
+class MapScene : public MapSceneBase
+{
+public:
+	MapScene(int lvl);
+	
+	void updateViews() override;
 	
 	GridLayer gridView;
 	PassabilityLayer passabilityView;
@@ -26,10 +52,8 @@ public:
 	ObjectsLayer objectsView;
 	SelectionObjectsLayer selectionObjectsView;
 	
-	const int level;
-	
-private:
-	std::list<AbstractLayer *> getAbstractLayers();
+protected:
+	std::list<AbstractLayer *> getAbstractLayers() override;
 };
 
 class MapView : public QGraphicsView
@@ -61,6 +85,29 @@ private:
 	int3 tileStart;
 	int3 tilePrev;
 	bool pressedOnSelected;
+};
+
+class MinimapView : public QGraphicsView
+{
+	Q_OBJECT
+public:
+	MinimapView(QWidget * parent);
+	void setController(MapController *);
+	
+	void dimensions();
+	
+public slots:
+	void mousePressEvent(QMouseEvent *event) override;
+	void cameraPositionChange(const QPoint & newPosition);
+	
+signals:
+	void cameraPositionChanged(const QPoint & newPosition);
+	
+private:
+	MapController * controller = nullptr;
+	
+	int displayWidth = 192;
+	int displayHeight = 192;
 };
 
 #endif // MAPVIEW_H

@@ -6,7 +6,7 @@
 #include "mapview.h"
 #include "mapcontroller.h"
 
-AbstractLayer::AbstractLayer(MapScene * s): scene(s)
+AbstractLayer::AbstractLayer(MapSceneBase * s): scene(s)
 {
 }
 
@@ -21,29 +21,9 @@ void AbstractLayer::show(bool show)
 	if(isShown == show)
 		return;
 	
-	if(show)
-	{
-		if(pixmap)
-		{
-			if(item)
-				item->setPixmap(*pixmap);
-			else
-				item.reset(scene->addPixmap(*pixmap));
-		}
-		else
-		{
-			if(item)
-				item->setPixmap(emptyPixmap);
-			else
-				item.reset(scene->addPixmap(emptyPixmap));
-		}
-	}
-	else
-	{
-		item->setPixmap(emptyPixmap);
-	}
-	
 	isShown = show;
+	
+	redraw();
 }
 
 void AbstractLayer::redraw()
@@ -64,7 +44,7 @@ void AbstractLayer::redraw()
 	}
 }
 
-GridLayer::GridLayer(MapScene * s): AbstractLayer(s)
+GridLayer::GridLayer(MapSceneBase * s): AbstractLayer(s)
 {
 }
 
@@ -90,7 +70,7 @@ void GridLayer::update()
 	redraw();
 }
 
-PassabilityLayer::PassabilityLayer(MapScene * s): AbstractLayer(s)
+PassabilityLayer::PassabilityLayer(MapSceneBase * s): AbstractLayer(s)
 {
 }
 
@@ -121,7 +101,7 @@ void PassabilityLayer::update()
 	redraw();
 }
 
-SelectionTerrainLayer::SelectionTerrainLayer(MapScene * s): AbstractLayer(s)
+SelectionTerrainLayer::SelectionTerrainLayer(MapSceneBase * s): AbstractLayer(s)
 {
 }
 
@@ -200,7 +180,7 @@ const std::set<int3> & SelectionTerrainLayer::selection() const
 	return area;
 }
 
-TerrainLayer::TerrainLayer(MapScene * s): AbstractLayer(s)
+TerrainLayer::TerrainLayer(MapSceneBase * s): AbstractLayer(s)
 {
 }
 
@@ -275,7 +255,7 @@ void TerrainLayer::draw(bool onlyDirty)
 	redraw();
 }
 
-ObjectsLayer::ObjectsLayer(MapScene * s): AbstractLayer(s)
+ObjectsLayer::ObjectsLayer(MapSceneBase * s): AbstractLayer(s)
 {
 }
 
@@ -342,7 +322,7 @@ void ObjectsLayer::setDirty(const CGObjectInstance * object)
 	dirty.insert(object);
 }
 
-SelectionObjectsLayer::SelectionObjectsLayer(MapScene * s): AbstractLayer(s), newObject(nullptr)
+SelectionObjectsLayer::SelectionObjectsLayer(MapSceneBase * s): AbstractLayer(s), newObject(nullptr)
 {
 }
 
@@ -490,4 +470,29 @@ void SelectionObjectsLayer::clear()
 	selectedObjects.clear();
 	shift.setX(0);
 	shift.setY(0);
+}
+
+MinimapLayer::MinimapLayer(MapSceneBase * s): AbstractLayer(s)
+{
+	
+}
+
+void MinimapLayer::update()
+{
+	if(!map)
+		return;
+	
+	pixmap.reset(new QPixmap(map->width, map->height));
+	
+	QPainter painter(pixmap.get());
+	//coordinate transfomation
+	for(int j = 0; j < map->height; ++j)
+	{
+		for(int i = 0; i < map->width; ++i)
+		{
+			handler->drawMinimapTile(painter, i, j, scene->level);
+		}
+	}
+	
+	redraw();
 }

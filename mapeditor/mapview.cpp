@@ -4,6 +4,37 @@
 #include <QGraphicsSceneMouseEvent>
 #include "mapcontroller.h"
 
+MinimapView::MinimapView(QWidget * parent):
+	QGraphicsView(parent)
+{
+	// Disable scrollbars
+	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+}
+
+void MinimapView::dimensions()
+{
+	fitInView(0, 0, controller->map()->width, controller->map()->height, Qt::KeepAspectRatio);
+}
+
+void MinimapView::setController(MapController * ctrl)
+{
+	controller = ctrl;
+}
+
+void MinimapView::mousePressEvent(QMouseEvent *event)
+{
+	this->update();
+	
+	auto * sc = static_cast<MapScene*>(scene());
+	if(!sc)
+		return;
+}
+
+void MinimapView::cameraPositionChange(const QPoint & newPosition)
+{
+}
+
 MapView::MapView(QWidget * parent):
 	QGraphicsView(parent),
 	selectionTool(MapView::SelectionTool::None)
@@ -273,15 +304,32 @@ void MapView::mouseReleaseEvent(QMouseEvent *event)
 	}
 }
 
-MapScene::MapScene(int lev):
+MapSceneBase::MapSceneBase(int lvl):
 	QGraphicsScene(nullptr),
+	level(lvl)
+{
+}
+
+void MapSceneBase::initialize(MapController & controller)
+{
+	for(auto * layer : getAbstractLayers())
+		layer->initialize(controller);
+}
+
+void MapSceneBase::updateViews()
+{
+	for(auto * layer : getAbstractLayers())
+		layer->update();
+}
+
+MapScene::MapScene(int lvl):
+	MapSceneBase(lvl),
 	gridView(this),
 	passabilityView(this),
 	selectionTerrainView(this),
 	terrainView(this),
 	objectsView(this),
-	selectionObjectsView(this),
-	level(lev)
+	selectionObjectsView(this)
 {
 }
 
@@ -298,19 +346,33 @@ std::list<AbstractLayer *> MapScene::getAbstractLayers()
 	};
 }
 
-void MapScene::initialize(MapController & controller)
-{
-	for(auto * layer : getAbstractLayers())
-		layer->initialize(controller);
-}
-
 void MapScene::updateViews()
 {
-	for(auto * layer : getAbstractLayers())
-		layer->update();
+	MapSceneBase::updateViews();
 
 	terrainView.show(true);
 	objectsView.show(true);
 	selectionTerrainView.show(true);
 	selectionObjectsView.show(true);
+}
+
+MinimapScene::MinimapScene(int lvl):
+	MapSceneBase(lvl),
+	minimapView(this)
+{
+}
+
+std::list<AbstractLayer *> MinimapScene::getAbstractLayers()
+{
+	//sequence is important because it defines rendering order
+	return {
+		&minimapView
+	};
+}
+
+void MinimapScene::updateViews()
+{
+	MapSceneBase::updateViews();
+	
+	minimapView.show(true);
 }

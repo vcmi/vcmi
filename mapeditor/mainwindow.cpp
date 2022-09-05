@@ -120,8 +120,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	ui->mapView->setController(&controller);
 	connect(ui->mapView, &MapView::openObjectProperties, this, &MainWindow::loadInspector);
 	
-	sceneMini = new QGraphicsScene(this);
-	ui->minimapView->setScene(sceneMini);
+	ui->minimapView->setScene(controller.miniScene(0));
+	ui->minimapView->setController(&controller);
 
 	scenePreview = new QGraphicsScene(this);
 	ui->objectPreview->setScene(scenePreview);
@@ -176,6 +176,8 @@ void MainWindow::initializeMap(bool isNew)
 
 	mapLevel = 0;
 	ui->mapView->setScene(controller.scene(mapLevel));
+	ui->minimapView->setScene(controller.miniScene(mapLevel));
+	ui->minimapView->dimensions();
 	
 	setStatusMessage(QString("Scene objects: %1").arg(ui->mapView->scene()->items().size()));
 
@@ -551,6 +553,7 @@ void MainWindow::on_actionLevel_triggered()
 	{
 		mapLevel = mapLevel ? 0 : 1;
 		ui->mapView->setScene(controller.scene(mapLevel));
+		ui->minimapView->setScene(controller.miniScene(mapLevel));
 	}
 }
 

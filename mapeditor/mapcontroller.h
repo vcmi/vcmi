@@ -20,6 +20,7 @@ public:
 	CMap * map();
 	MapHandler * mapHandler();
 	MapScene * scene(int level);
+	MinimapScene * miniScene(int level);
 	
 	void resetMapHandler();
 	
@@ -42,6 +43,7 @@ private:
 	std::unique_ptr<MapHandler> _mapHandler;
 	MainWindow * main;
 	mutable std::array<std::unique_ptr<MapScene>, 2> _scenes;
+	mutable std::array<std::unique_ptr<MinimapScene>, 2> _miniscenes;
 };
 
 #endif // MAPCONTROLLER_H

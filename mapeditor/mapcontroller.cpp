@@ -18,6 +18,8 @@ MapController::MapController(MainWindow * m): main(m)
 {
 	_scenes[0].reset(new MapScene(0));
 	_scenes[1].reset(new MapScene(1));
+	_miniscenes[0].reset(new MinimapScene(0));
+	_miniscenes[1].reset(new MinimapScene(1));
 }
 
 MapController::~MapController()
@@ -39,11 +41,18 @@ MapScene * MapController::scene(int level)
 	return _scenes[level].get();
 }
 
+MinimapScene * MapController::miniScene(int level)
+{
+	return _miniscenes[level].get();
+}
+
 void MapController::setMap(std::unique_ptr<CMap> cmap)
 {
 	_map = std::move(cmap);
 	_scenes[0].reset(new MapScene(0));
 	_scenes[1].reset(new MapScene(1));
+	_miniscenes[0].reset(new MinimapScene(0));
+	_miniscenes[1].reset(new MinimapScene(1));
 	resetMapHandler();
 	sceneForceUpdate();
 }
@@ -51,13 +60,18 @@ void MapController::setMap(std::unique_ptr<CMap> cmap)
 void MapController::sceneForceUpdate()
 {
 	_scenes[0]->updateViews();
+	_miniscenes[0]->updateViews();
 	if(_map->twoLevel)
+	{
 		_scenes[1]->updateViews();
+		_miniscenes[1]->updateViews();
+	}
 }
 
 void MapController::sceneForceUpdate(int level)
 {
 	_scenes[level]->updateViews();
+	_miniscenes[level]->updateViews();
 }
 
 void MapController::resetMapHandler()
@@ -65,6 +79,8 @@ void MapController::resetMapHandler()
 	_mapHandler.reset(new MapHandler(_map.get()));
 	_scenes[0]->initialize(*this);
 	_scenes[1]->initialize(*this);
+	_miniscenes[0]->initialize(*this);
+	_miniscenes[1]->initialize(*this);
 }
 
 void MapController::commitTerrainChange(int level, const Terrain & terrain)
@@ -84,6 +100,7 @@ void MapController::commitTerrainChange(int level, const Terrain & terrain)
 		_scenes[level]->terrainView.setDirty(t);
 	_scenes[level]->terrainView.draw();
 	
+	_miniscenes[level]->updateViews();
 	main->mapChanged();
 }
 
@@ -98,6 +115,7 @@ void MapController::commitObjectErase(int level)
 	resetMapHandler();
 	_scenes[level]->updateViews();
 	
+	_miniscenes[level]->updateViews();
 	main->mapChanged();
 }
 
@@ -149,6 +167,7 @@ void MapController::commitObstacleFill(int level)
 	resetMapHandler();
 	_scenes[level]->updateViews();
 	
+	_miniscenes[level]->updateViews();
 	main->mapChanged();
 }
 
@@ -158,6 +177,7 @@ void MapController::commitObjectChange(int level)
 	_scenes[level]->objectsView.draw();
 	_scenes[level]->selectionObjectsView.draw();
 	
+	_miniscenes[level]->updateViews();
 	main->mapChanged();
 }
 
@@ -198,6 +218,7 @@ void MapController::commitObjectShiftOrCreate(int level)
 	resetMapHandler();
 	_scenes[level]->updateViews();
 	
+	_miniscenes[level]->updateViews();
 	main->mapChanged();
 }
 

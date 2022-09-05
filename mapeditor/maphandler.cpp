@@ -502,3 +502,39 @@ void MapHandler::drawObjectAt(QPainter & painter, const CGObjectInstance * obj, 
 		}
 	}
 }
+
+QRgb MapHandler::getTileColor(int x, int y, int z)
+{
+	// if object at tile is owned - it will be colored as its owner
+	for(auto & object : getObjects(x, y, z))
+	{
+		//heroes will be blitted later
+		switch (object.obj->ID)
+		{
+			case Obj::HERO:
+			case Obj::PRISON:
+				continue;
+		}
+		
+		PlayerColor player = object.obj->getOwner();
+		if(player == PlayerColor::NEUTRAL)
+			return graphics->neutralColor;
+		else
+			if (player < PlayerColor::PLAYER_LIMIT)
+				return graphics->playerColors[player.getNum()];
+	}
+	
+	// else - use terrain color (blocked version or normal)
+	auto & tile = map->getTile(int3(x, y, z));
+	auto color = Terrain::Manager::getInfo(tile.terType).minimapUnblocked;
+	if (tile.blocked && (!tile.visitable))
+		color = Terrain::Manager::getInfo(tile.terType).minimapBlocked;
+	
+	return qRgb(color[0], color[1], color[2]);
+}
+
+void MapHandler::drawMinimapTile(QPainter & painter, int x, int y, int z)
+{
+	painter.setPen(getTileColor(x, y, z));
+	painter.drawPoint(x, y);
+}
