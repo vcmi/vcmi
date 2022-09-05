@@ -46,7 +46,7 @@ void TownPlacer::init()
 
 void TownPlacer::placeTowns(ObjectManager & manager)
 {
-	if((zone.getType() == ETemplateZoneType::CPU_START) || (zone.getType() == ETemplateZoneType::PLAYER_START))
+	if(zone.getOwner() && ((zone.getType() == ETemplateZoneType::CPU_START) || (zone.getType() == ETemplateZoneType::PLAYER_START)))
 	{
 		//set zone types to player faction, generate main town
 		logGlobal->info("Preparing playing zone");
