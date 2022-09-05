@@ -230,7 +230,7 @@ void MainWindow::saveMap()
 	CMapService mapService;
 	try
 	{
-		mapService.saveMap(std::unique_ptr<CMap>(controller.map()), filename.toStdString());
+		mapService.saveMap(controller.getMapUniquePtr(), filename.toStdString());
 	}
 	catch(const std::exception & e)
 	{
@@ -762,13 +762,15 @@ void MainWindow::on_inspectorWidget_itemChanged(QTableWidgetItem *item)
 
 void MainWindow::on_actionMapSettings_triggered()
 {
-	auto mapSettingsDialog = new MapSettings(controller, this);
-	mapSettingsDialog->setModal(true);
+	auto settingsDialog = new MapSettings(controller, this);
+	settingsDialog->setWindowModality(Qt::WindowModal);
+	settingsDialog->setModal(true);
 }
 
 
 void MainWindow::on_actionPlayers_settings_triggered()
 {
-	auto mapSettingsDialog = new PlayerSettings(*controller.map(), this);
-	mapSettingsDialog->setModal(true);
+	auto settingsDialog = new PlayerSettings(*controller.map(), this);
+	settingsDialog->setWindowModality(Qt::WindowModal);
+	settingsDialog->setModal(true);
 }

@@ -26,6 +26,11 @@ MapController::~MapController()
 {
 }
 
+const std::unique_ptr<CMap> & MapController::getMapUniquePtr() const
+{
+	return _map;
+}
+
 CMap * MapController::map()
 {
 	return _map.get();

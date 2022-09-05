@@ -70,8 +70,15 @@
     <addaction name="actionMapSettings"/>
     <addaction name="actionPlayers_settings"/>
    </widget>
+   <widget class="QMenu" name="menuPlayer">
+    <property name="title">
+     <string>Player</string>
+    </property>
+    <addaction name="actionNeutral"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuMap"/>
+   <addaction name="menuPlayer"/>
   </widget>
   <widget class="QToolBar" name="toolBar">
    <property name="windowTitle">
@@ -821,6 +828,14 @@
   <action name="actionPlayers_settings">
    <property name="text">
     <string>Players settings</string>
+   </property>
+  </action>
+  <action name="actionNeutral">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Neutral</string>
    </property>
   </action>
  </widget>
