@@ -51,7 +51,7 @@
      <x>0</x>
      <y>0</y>
      <width>1024</width>
-     <height>22</height>
+     <height>18</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -70,7 +70,15 @@
     <addaction name="actionMapSettings"/>
     <addaction name="actionPlayers_settings"/>
    </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Edit</string>
+    </property>
+    <addaction name="actionUndo"/>
+    <addaction name="actionRedo"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuEdit"/>
    <addaction name="menuMap"/>
   </widget>
   <widget class="QToolBar" name="toolBar">
@@ -647,7 +655,7 @@
           <x>0</x>
           <y>0</y>
           <width>128</width>
-          <height>271</height>
+          <height>356</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -690,7 +698,7 @@
           <x>0</x>
           <y>0</y>
           <width>128</width>
-          <height>271</height>
+          <height>356</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -709,7 +717,7 @@
           <x>0</x>
           <y>0</y>
           <width>128</width>
-          <height>271</height>
+          <height>356</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -823,6 +831,37 @@
     <string>Players settings</string>
    </property>
   </action>
+  <action name="actionUndo">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Undo</string>
+   </property>
+   <property name="iconText">
+    <string>Undo</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Z</string>
+   </property>
+   <property name="shortcutVisibleInContextMenu">
+    <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionRedo">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Redo</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Y</string>
+   </property>
+   <property name="shortcutVisibleInContextMenu">
+    <bool>true</bool>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -833,4 +872,8 @@
  </customwidgets>
  <resources/>
  <connections/>
+ <slots>
+  <signal>enableUndo(bool)</signal>
+  <signal>enableRedo(bool)</signal>
+ </slots>
 </ui>

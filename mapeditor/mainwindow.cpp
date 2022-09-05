@@ -554,6 +554,28 @@ void MainWindow::on_actionLevel_triggered()
 	}
 }
 
+void MainWindow::on_actionUndo_triggered()
+{
+	QString str("Undo clicked");
+	statusBar()->showMessage(str, 1000);
+
+	if (controller.map())
+	{
+		controller.undo();
+	}
+}
+
+void MainWindow::on_actionRedo_triggered()
+{
+	QString str("Redo clicked");
+	statusBar()->showMessage(str, 1000);
+
+	if (controller.map())
+	{
+		controller.redo();
+	}
+}
+
 void MainWindow::on_actionPass_triggered(bool checked)
 {
 	if(controller.map())
@@ -769,3 +791,12 @@ void MainWindow::on_actionPlayers_settings_triggered()
 	mapSettingsDialog->setModal(true);
 }
 
+void MainWindow::enableUndo(bool enable)
+{
+	ui->actionUndo->setEnabled(enable);
+}
+
+void MainWindow::enableRedo(bool enable)
+{
+	ui->actionRedo->setEnabled(enable);
+}

@@ -46,6 +46,13 @@ void MapController::setMap(std::unique_ptr<CMap> cmap)
 	_scenes[1].reset(new MapScene(1));
 	resetMapHandler();
 	sceneForceUpdate();
+
+	_map->getEditManager()->getUndoManager().setUndoCallback([this](bool allowUndo, bool allowRedo)
+		{
+			main->enableUndo(allowUndo);
+			main->enableRedo(allowRedo);
+		}
+	);
 }
 
 void MapController::sceneForceUpdate()
@@ -209,5 +216,21 @@ void MapController::commitObjectCreate(int level)
 	_map->getEditManager()->insertObject(newObj);
 	Initializer init(newObj);
 	
+	main->mapChanged();
+}
+
+void MapController::undo()
+{
+	_map->getEditManager()->getUndoManager().undo();
+	resetMapHandler();
+	sceneForceUpdate();
+	main->mapChanged();
+}
+
+void MapController::redo()
+{
+	_map->getEditManager()->getUndoManager().redo();
+	resetMapHandler();
+	sceneForceUpdate();
 	main->mapChanged();
 }
