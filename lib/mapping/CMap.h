@@ -412,7 +412,7 @@ public:
 private:
 	/// a 3-dimensional array of terrain tiles, access is as follows: x, y, level. where level=1 is underground
 	TerrainTile*** terrain;
-	si32 uid_counter; //TODO: initialize when loading an old map
+	si32 uidCounter; //TODO: initialize when loading an old map
 
 public:
 	template <typename Handler>
@@ -490,6 +490,14 @@ public:
 		h & CGTownInstance::universitySkills;
 
 		h & instanceNames;
-		h & uid_counter;
+
+		if (!h.saving && formatVersion < 804)
+		{
+			uidCounter = objects.size();
+		}
+		else
+		{
+			h & uidCounter;
+		}
 	}
 };

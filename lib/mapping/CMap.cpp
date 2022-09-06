@@ -234,7 +234,7 @@ CMapHeader::~CMapHeader()
 CMap::CMap()
 	: checksum(0), grailPos(-1, -1, -1), grailRadius(0), terrain(nullptr),
 	guardingCreaturePositions(nullptr),
-	uid_counter(0)
+	uidCounter(0)
 {
 	allHeroes.resize(allowedHeroes.size());
 	allowedAbilities = VLC->skillh->getDefaultAllowed();
@@ -608,7 +608,7 @@ void CMap::setUniqueInstanceName(CGObjectInstance* obj)
 {
 	//this gives object unique name even if objects are removed later
 
-	auto uid = uid_counter++;
+	auto uid = uidCounter++;
 
 	boost::format fmt("%s_%d");
 	fmt % obj->typeName % uid;
