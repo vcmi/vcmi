@@ -61,10 +61,16 @@ std::list<Validator::Issue> Validator::validate(const CMap * map)
 
 		for(auto o : map->objects)
 		{
-			if(auto * ins = dynamic_cast<CArmedInstance*>(o.get()))
+			if(o->getOwner() == PlayerColor::UNFLAGGABLE)
 			{
-				if(ins->getOwner() == PlayerColor::UNFLAGGABLE)
-					issues.emplace_back(QString("Armored instance %1 is UNFLAGGABLE but must have NEUTRAL or player owner").arg(ins->instanceName.c_str()), true);
+				if(dynamic_cast<CGMine*>(o.get()) ||
+				   dynamic_cast<CGDwelling*>(o.get()) ||
+				   dynamic_cast<CGTownInstance*>(o.get()) ||
+				   dynamic_cast<CGGarrison*>(o.get()) ||
+				   dynamic_cast<CGHeroInstance*>(o.get()))
+				{
+					issues.emplace_back(QString("Armored instance %1 is UNFLAGGABLE but must have NEUTRAL or player owner").arg(o->instanceName.c_str()), true);
+				}
 			}
 			if(auto * ins = dynamic_cast<CGTownInstance*>(o.get()))
 			{
@@ -76,11 +82,19 @@ std::list<Validator::Issue> Validator::validate(const CMap * map)
 			}
 			if(auto * ins = dynamic_cast<CGHeroInstance*>(o.get()))
 			{
-				bool has = amountOfCastles.count(ins->getOwner().getNum());
-				if(!has)
-					issues.emplace_back(QString("Hero %1 must have an owner").arg(ins->instanceName.c_str()), true);
+				if(ins->ID == Obj::PRISON)
+				{
+					if(ins->getOwner() != PlayerColor::NEUTRAL)
+						issues.emplace_back(QString("Prison %1 must be a NEUTRAL").arg(ins->instanceName.c_str()), true);
+				}
 				else
-					issues.emplace_back(QString("Hero %1: heroes on map are not supported in current version").arg(ins->instanceName.c_str()), false);
+				{
+					bool has = amountOfCastles.count(ins->getOwner().getNum());
+					if(!has)
+						issues.emplace_back(QString("Hero %1 must have an owner").arg(ins->instanceName.c_str()), true);
+					else
+						issues.emplace_back(QString("Hero %1: heroes on map are not supported in current version").arg(ins->instanceName.c_str()), false);
+				}
 			}
 		}
 

@@ -67,6 +67,17 @@ MinimapScene * MapController::miniScene(int level)
 void MapController::setMap(std::unique_ptr<CMap> cmap)
 {
 	_map = std::move(cmap);
+	
+	//fix map
+	for(auto obj : _map->objects)
+		if(obj->getOwner() == PlayerColor::UNFLAGGABLE)
+			if(dynamic_cast<CGMine*>(obj.get()) ||
+			   dynamic_cast<CGDwelling*>(obj.get()) ||
+			   dynamic_cast<CGTownInstance*>(obj.get()) ||
+			   dynamic_cast<CGGarrison*>(obj.get()) ||
+			   dynamic_cast<CGHeroInstance*>(obj.get()))
+			obj->tempOwner = PlayerColor::NEUTRAL;
+	
 	_scenes[0].reset(new MapScene(0));
 	_scenes[1].reset(new MapScene(1));
 	_miniscenes[0].reset(new MinimapScene(0));
