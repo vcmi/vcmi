@@ -361,6 +361,7 @@ public:
 	void eraseArtifactInstance(CArtifactInstance * art);
 
 	void addNewQuestInstance(CQuest * quest);
+	void removeQuestInstance(CQuest* quest);
 
 	void setUniqueInstanceName(CGObjectInstance* obj);
 	///Use only this method when creating new map object instances

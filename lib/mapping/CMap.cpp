@@ -594,6 +594,7 @@ void CMap::addNewArtifactInstance(CArtifactInstance * art)
 
 void CMap::eraseArtifactInstance(CArtifactInstance * art)
 {
+	//TODO: handle for artifacts removed in map editor
 	assert(artInstances[art->id.getNum()] == art);
 	artInstances[art->id.getNum()].dellNull();
 }
@@ -602,6 +603,20 @@ void CMap::addNewQuestInstance(CQuest* quest)
 {
 	quest->qid = static_cast<si32>(quests.size());
 	quests.push_back(quest);
+}
+
+void CMap::removeQuestInstance(CQuest* quest)
+{
+	//TODO: should be called only by map editor.
+	//During game, completed quests or quests from removed objects stay forever
+
+	//Shift indexes
+	auto iter = std::next(quests.begin(), quest->qid);
+	iter = quests.erase(iter);
+	for (int i = quest->qid; iter != quests.end(); ++i, ++iter)
+	{
+		(*iter)->qid = i;
+	}
 }
 
 void CMap::setUniqueInstanceName(CGObjectInstance* obj)
@@ -632,7 +647,6 @@ void CMap::addNewObject(CGObjectInstance * obj)
 	addBlockVisTiles(obj);
 
 	//TODO: how about deafeated heroes recruited again?
-	//TODO: How about objects restored with map editor?
 
 	obj->afterAddToMap(this);
 }
@@ -657,15 +671,7 @@ void CMap::removeObject(CGObjectInstance * obj)
 		(*iter)->id = ObjectInstanceID(i);
 	}
 	
-	auto iterTown = std::find(towns.begin(), towns.end(), obj);
-	if(iterTown != towns.end())
-		towns.erase(iterTown);
-	auto iterHero = std::find(allHeroes.begin(), allHeroes.end(), obj);
-	if(iterHero != allHeroes.end())
-		allHeroes.erase(iterHero);
-	iterHero = std::find(heroesOnMap.begin(), heroesOnMap.end(), obj);
-	if(iterHero != heroesOnMap.end())
-		heroesOnMap.erase(iterHero);
+	obj->afterRemoveFromMap(this);
 
 	//TOOD: Clean artifact instances (mostly worn by hero?) and quests related to this object
 }
