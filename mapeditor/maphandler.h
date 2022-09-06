@@ -90,6 +90,7 @@ public:
 	void invalidate(int x, int y, int z); //invalidates all objects in particular tile
 	void invalidate(CGObjectInstance *); //invalidates object rects
 	void invalidate(const std::vector<int3> &); //invalidates all tiles
+	void invalidateObjects(); //invalidates all objects on the map
 	std::vector<int3> geTilesUnderObject(CGObjectInstance *) const;
 	
 	/// draws all objects on current tile (higher-level logic, unlike other draw*** methods)

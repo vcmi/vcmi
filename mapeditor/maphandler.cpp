@@ -425,7 +425,6 @@ void MapHandler::invalidate(int x, int y, int z)
 		}
 		
 		++obj;
-		//invalidate(obj->obj);
 	}
 	
 	stable_sort(objects.begin(), objects.end(), objectBlitOrderSorter);
@@ -492,6 +491,14 @@ std::vector<int3> MapHandler::geTilesUnderObject(CGObjectInstance * obj) const
 		}
 	}
 	return result;
+}
+
+void MapHandler::invalidateObjects()
+{
+	for(auto obj : map->objects)
+	{
+		invalidate(obj);
+	}
 }
 
 void MapHandler::invalidate(const std::vector<int3> & tiles)

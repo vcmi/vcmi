@@ -245,14 +245,12 @@ void MapController::commitObstacleFill(int level)
 		sel.second.placeObstacles(_map.get(), CRandomGenerator::getDefault());
 	}
 
-	for(auto & t : selection)
-	{
-		_mapHandler->invalidate(t.x, t.y, t.z);
-	}
+	_mapHandler->invalidateObjects();
 	
 	_scenes[level]->selectionTerrainView.clear();
 	_scenes[level]->selectionTerrainView.draw();
 	_scenes[level]->objectsView.draw();
+	_scenes[level]->passabilityView.update();
 	
 	_miniscenes[level]->updateViews();
 	main->mapChanged();
@@ -264,6 +262,7 @@ void MapController::commitObjectChange(int level)
 		//_mapHandler->invalidate(o);
 	_scenes[level]->objectsView.draw();
 	_scenes[level]->selectionObjectsView.draw();
+	_scenes[level]->passabilityView.update();
 	
 	_miniscenes[level]->updateViews();
 	main->mapChanged();
@@ -307,6 +306,7 @@ void MapController::commitObjectShiftOrCreate(int level)
 	_scenes[level]->selectionObjectsView.selectionMode = 0;
 	_scenes[level]->objectsView.draw();
 	_scenes[level]->selectionObjectsView.draw();
+	_scenes[level]->passabilityView.update();
 	
 	_miniscenes[level]->updateViews();
 	main->mapChanged();
