@@ -2,7 +2,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include <QApplication.h>
 #include <QFileDialog>
 #include <QFile>
 #include <QMessageBox>
