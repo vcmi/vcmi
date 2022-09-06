@@ -18,6 +18,19 @@ MapController::MapController(MainWindow * m): main(m)
 {
 	_scenes[0].reset(new MapScene(0));
 	_scenes[1].reset(new MapScene(1));
+	connectScenes();
+}
+
+void MapController::connectScenes()
+{
+	for (int level = 0; level <= 1; level++)
+	{
+		//selections for both layers will be handled separately
+		QObject::connect(_scenes[level].get(), &MapScene::selected, [this, level](bool anythingSelected)
+		{
+			main->onSelectionMade(level, anythingSelected);
+		});
+	}
 }
 
 MapController::~MapController()
@@ -46,6 +59,8 @@ void MapController::setMap(std::unique_ptr<CMap> cmap)
 	_scenes[1].reset(new MapScene(1));
 	resetMapHandler();
 	sceneForceUpdate();
+
+	connectScenes();
 
 	_map->getEditManager()->getUndoManager().setUndoCallback([this](bool allowUndo, bool allowRedo)
 		{
@@ -99,7 +114,7 @@ void MapController::commitObjectErase(int level)
 	for(auto * obj : _scenes[level]->selectionObjectsView.getSelection())
 	{
 		_map->getEditManager()->removeObject(obj);
-		delete obj;
+		//object ownership goes to EditManager, which can handle undo operation
 	}
 	_scenes[level]->selectionObjectsView.clear();
 	resetMapHandler();

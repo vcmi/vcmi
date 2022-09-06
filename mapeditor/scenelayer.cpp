@@ -133,6 +133,7 @@ void SelectionTerrainLayer::update()
 	area.clear();
 	areaAdd.clear();
 	areaErase.clear();
+	selectionMade();
 	
 	pixmap.reset(new QPixmap(map->width * 32, map->height * 32));
 	pixmap->fill(QColor(0, 0, 0, 0));
@@ -173,6 +174,7 @@ void SelectionTerrainLayer::select(const int3 & tile)
 		areaAdd.insert(tile);
 		areaErase.erase(tile);
 	}
+	selectionMade();
 }
 
 void SelectionTerrainLayer::erase(const int3 & tile)
@@ -186,6 +188,7 @@ void SelectionTerrainLayer::erase(const int3 & tile)
 		areaErase.insert(tile);
 		areaAdd.erase(tile);
 	}
+	selectionMade();
 }
 
 void SelectionTerrainLayer::clear()
@@ -193,11 +196,17 @@ void SelectionTerrainLayer::clear()
 	areaErase = area;
 	areaAdd.clear();
 	area.clear();
+	selectionMade();
 }
 
 const std::set<int3> & SelectionTerrainLayer::selection() const
 {
 	return area;
+}
+
+void SelectionTerrainLayer::selectionMade()
+{
+	scene->objectSelected(!area.empty());
 }
 
 TerrainLayer::TerrainLayer(MapScene * s): AbstractLayer(s)
@@ -352,6 +361,7 @@ void SelectionObjectsLayer::update()
 		return;
 	
 	selectedObjects.clear();
+	selectionMade();
 	shift = QPoint();
 	if(newObject)
 		delete newObject;
@@ -465,14 +475,19 @@ void SelectionObjectsLayer::selectObjects(int x1, int y1, int x2, int y2)
 		for(int i = x1; i < x2; ++i)
 		{
 			for(auto & o : handler->getObjects(i, j, scene->level))
-				selectObject(o.obj);
+				selectObject(o.obj, false); //do not inform about each object added
 		}
 	}
+	selectionMade();
 }
 
-void SelectionObjectsLayer::selectObject(CGObjectInstance * obj)
+void SelectionObjectsLayer::selectObject(CGObjectInstance * obj, bool inform /* = true */)
 {
 	selectedObjects.insert(obj);
+	if (inform)
+	{
+		selectionMade();
+	}
 }
 
 bool SelectionObjectsLayer::isSelected(const CGObjectInstance * obj) const
@@ -488,6 +503,12 @@ std::set<CGObjectInstance*> SelectionObjectsLayer::getSelection() const
 void SelectionObjectsLayer::clear()
 {
 	selectedObjects.clear();
+	selectionMade();
 	shift.setX(0);
 	shift.setY(0);
+}
+
+void SelectionObjectsLayer::selectionMade()
+{
+	scene->objectSelected(!selectedObjects.empty());
 }

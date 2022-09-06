@@ -46,6 +46,8 @@ private:
 	std::unique_ptr<MapHandler> _mapHandler;
 	MainWindow * main;
 	mutable std::array<std::unique_ptr<MapScene>, 2> _scenes;
+
+	void connectScenes();
 };
 
 #endif // MAPCONTROLLER_H

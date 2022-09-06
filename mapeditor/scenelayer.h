@@ -67,6 +67,8 @@ public:
 	
 private:
 	std::set<int3> area, areaAdd, areaErase;
+
+	void selectionMade();  //TODO: consider making it a signal
 };
 
 
@@ -113,7 +115,7 @@ public:
 	
 	CGObjectInstance * selectObjectAt(int x, int y) const;
 	void selectObjects(int x1, int y1, int x2, int y2);
-	void selectObject(CGObjectInstance *);
+	void selectObject(CGObjectInstance *, bool inform = true);
 	bool isSelected(const CGObjectInstance *) const;
 	std::set<CGObjectInstance*> getSelection() const;
 	void moveSelection(int x, int y);
@@ -125,6 +127,8 @@ public:
 	
 private:
 	std::set<CGObjectInstance *> selectedObjects;
+
+	void selectionMade(); //TODO: consider making it a signal
 };
 
 #endif // SCENELAYER_H

@@ -190,6 +190,7 @@ void CMapUndoManager::setUndoRedoLimit(int value)
 	assert(value >= 0);
 	undoStack.resize(std::min(undoStack.size(), static_cast<TStack::size_type>(value)));
 	redoStack.resize(std::min(redoStack.size(), static_cast<TStack::size_type>(value)));
+	onUndoRedo();
 }
 
 const CMapOperation * CMapUndoManager::peekRedo() const
@@ -207,6 +208,7 @@ void CMapUndoManager::addOperation(std::unique_ptr<CMapOperation> && operation)
 	undoStack.push_front(std::move(operation));
 	if(undoStack.size() > undoRedoLimit) undoStack.pop_back();
 	redoStack.clear();
+	onUndoRedo();
 }
 
 void CMapUndoManager::doOperation(TStack & fromStack, TStack & toStack, bool doUndo)
@@ -1077,11 +1079,9 @@ CInsertObjectOperation::CInsertObjectOperation(CMap * map, CGObjectInstance * ob
 
 void CInsertObjectOperation::execute()
 {
-	obj->id = ObjectInstanceID((si32)map->objects.size());
+	obj->id = ObjectInstanceID(map->objects.size());
 
-	boost::format fmt("%s_%d");
-	fmt % obj->typeName % obj->id.getNum();
-	obj->instanceName = fmt.str();
+	map->setUniqueInstanceName(obj);
 
 	map->addNewObject(obj);
 }
@@ -1112,13 +1112,11 @@ CMoveObjectOperation::CMoveObjectOperation(CMap * map, CGObjectInstance * obj, c
 void CMoveObjectOperation::execute()
 {
 	map->moveObject(obj, targetPos);
-	logGlobal->debug("Moved object %s to position %s", obj->instanceName, targetPos.toString());
 }
 
 void CMoveObjectOperation::undo()
 {
 	map->moveObject(obj, initialPos);
-	logGlobal->debug("Moved object %s back to position %s", obj->instanceName, initialPos.toString());
 }
 
 void CMoveObjectOperation::redo()
@@ -1137,6 +1135,23 @@ CRemoveObjectOperation::CRemoveObjectOperation(CMap * map, CGObjectInstance * ob
 
 }
 
+CRemoveObjectOperation::~CRemoveObjectOperation()
+{
+	//when operation is destroyed and wasn't undone, the object is lost forever
+
+	if (!obj)
+	{
+		return;
+	}
+
+	//do not destroy an object that belongs to map
+	if (!vstd::contains(map->instanceNames, obj->instanceName))
+	{
+		delete obj;
+		obj = nullptr;
+	}
+}
+
 void CRemoveObjectOperation::execute()
 {
 	map->removeObject(obj);
@@ -1144,7 +1159,16 @@ void CRemoveObjectOperation::execute()
 
 void CRemoveObjectOperation::undo()
 {
-	//TODO
+	try
+	{
+		//set new id, but do not rename object
+		obj->id = ObjectInstanceID((si32)map->objects.size());
+		map->addNewObject(obj);
+	}
+	catch (const std::exception& e)
+	{
+		logGlobal->error(e.what());
+	}
 }
 
 void CRemoveObjectOperation::redo()

@@ -48,6 +48,8 @@ private slots:
 	void on_actionLevel_triggered();
 
 	void on_actionSave_triggered();
+
+	void on_actionErase_triggered();
 	
 	void on_actionUndo_triggered();
 
@@ -90,6 +92,7 @@ public slots:
 	void mapChanged();
 	void enableUndo(bool enable);
 	void enableRedo(bool enable);
+	void onSelectionMade(int level, bool anythingSelected);
 
 private:
 	void preparePreview(const QModelIndex &index, bool createNew);

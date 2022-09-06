@@ -281,7 +281,9 @@ MapScene::MapScene(int lev):
 	terrainView(this),
 	objectsView(this),
 	selectionObjectsView(this),
-	level(lev)
+	level(lev),
+	isTerrainSelected(false),
+	isObjectSelected(false)
 {
 }
 
@@ -313,4 +315,16 @@ void MapScene::updateViews()
 	objectsView.show(true);
 	selectionTerrainView.show(true);
 	selectionObjectsView.show(true);
+}
+
+void MapScene::terrainSelected(bool anythingSelected)
+{
+	isTerrainSelected = anythingSelected;
+	emit selected(isTerrainSelected || isObjectSelected);
+}
+
+void MapScene::objectSelected(bool anythingSelected)
+{
+	isObjectSelected = anythingSelected;
+	emit selected(isTerrainSelected || isObjectSelected);
 }

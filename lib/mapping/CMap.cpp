@@ -233,7 +233,8 @@ CMapHeader::~CMapHeader()
 
 CMap::CMap()
 	: checksum(0), grailPos(-1, -1, -1), grailRadius(0), terrain(nullptr),
-	guardingCreaturePositions(nullptr)
+	guardingCreaturePositions(nullptr),
+	uid_counter(0)
 {
 	allHeroes.resize(allowedHeroes.size());
 	allowedAbilities = VLC->skillh->getDefaultAllowed();
@@ -603,21 +604,35 @@ void CMap::addNewQuestInstance(CQuest* quest)
 	quests.push_back(quest);
 }
 
+void CMap::setUniqueInstanceName(CGObjectInstance* obj)
+{
+	//this gives object unique name even if objects are removed later
+
+	auto uid = uid_counter++;
+
+	boost::format fmt("%s_%d");
+	fmt % obj->typeName % uid;
+	obj->instanceName = fmt.str();
+}
+
 void CMap::addNewObject(CGObjectInstance * obj)
 {
+	
 	if(obj->id != ObjectInstanceID((si32)objects.size()))
 		throw std::runtime_error("Invalid object instance id");
 
 	if(obj->instanceName == "")
 		throw std::runtime_error("Object instance name missing");
 
-	auto it = instanceNames.find(obj->instanceName);
-	if(it != instanceNames.end())
+	if (vstd::contains(instanceNames, obj->instanceName))
 		throw std::runtime_error("Object instance name duplicated: "+obj->instanceName);
 
 	objects.push_back(obj);
 	instanceNames[obj->instanceName] = obj;
 	addBlockVisTiles(obj);
+
+	//TODO: how about deafeated heroes recruited again?
+	//TODO: How about objects restored with map editor?
 
 	obj->afterAddToMap(this);
 }

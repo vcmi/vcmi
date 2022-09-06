@@ -451,6 +451,7 @@ class CRemoveObjectOperation : public CMapOperation
 {
 public:
 	CRemoveObjectOperation(CMap * map, CGObjectInstance * obj);
+	~CRemoveObjectOperation();
 
 	void execute() override;
 	void undo() override;

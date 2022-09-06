@@ -13,6 +13,7 @@ class MapController;
 
 class MapScene : public QGraphicsScene
 {
+	Q_OBJECT;
 public:
 	MapScene(int lev);
 	
@@ -27,9 +28,19 @@ public:
 	SelectionObjectsLayer selectionObjectsView;
 	
 	const int level;
+
+signals:
+	void selected(bool anything);
+
+public slots:
+	void terrainSelected(bool anything);
+	void objectSelected(bool anything);
 	
 private:
 	std::list<AbstractLayer *> getAbstractLayers();
+
+	bool isTerrainSelected;
+	bool isObjectSelected;
 };
 
 class MapView : public QGraphicsView
