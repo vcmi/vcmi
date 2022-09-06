@@ -62,6 +62,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	controller(this)
 {
 	ui->setupUi(this);
+	setTitle();
 	
 	// Set current working dir to executable folder.
 	// This is important on Mac for relative paths to work inside DMG.
@@ -158,22 +159,24 @@ void MainWindow::reloadMap(int level)
 	//sceneMini->addPixmap(minimap);
 }
 
+void MainWindow::setTitle()
+{
+	QString title = QString("%1%2 - %3 (v%4)").arg(filename, unsaved ? "*" : "", VCMI_EDITOR_NAME, VCMI_EDITOR_VERSION);
+	setWindowTitle(title);
+}
+
 void MainWindow::mapChanged()
 {
 	unsaved = true;
-	setWindowTitle(filename + "* - VCMI Map Editor");
+	setTitle();
 }
 
 void MainWindow::initializeMap(bool isNew)
 {
 	unsaved = isNew;
 	if(isNew)
-	{
 		filename.clear();
-		setWindowTitle("* - VCMI Map Editor");
-	}
-	else
-		setWindowTitle(filename + " - VCMI Map Editor");
+	setTitle();
 
 	mapLevel = 0;
 	ui->mapView->setScene(controller.scene(mapLevel));
@@ -239,7 +242,7 @@ void MainWindow::saveMap()
 	}
 
 	unsaved = false;
-	setWindowTitle(filename + " - VCMI Map Editor");
+	setTitle();
 }
 
 void MainWindow::on_actionSave_as_triggered()
@@ -793,7 +796,7 @@ void MainWindow::on_actionMapSettings_triggered()
 
 void MainWindow::on_actionPlayers_settings_triggered()
 {
-	auto settingsDialog = new PlayerSettings(*controller.map(), this);
+	auto settingsDialog = new PlayerSettings(controller, this);
 	settingsDialog->setWindowModality(Qt::WindowModal);
 	settingsDialog->setModal(true);
 }

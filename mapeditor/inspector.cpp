@@ -1,45 +1,32 @@
 #include "StdInc.h"
 #include "inspector.h"
-#include "../lib/mapObjects/CObjectHandler.h"
-#include "../lib/mapObjects/CObjectClassesHandler.h"
-#include "../lib/mapObjects/CGTownInstance.h"
-#include "../lib/mapObjects/MiscObjects.h"
 #include "../lib/CArtHandler.h"
 #include "../lib/spells/CSpellHandler.h"
 #include "../lib/CRandomGenerator.h"
+#include "../lib/mapObjects/CObjectClassesHandler.h"
 
-void Inspector::setProperty(const QString & key, const QVariant & value)
+//===============IMPLEMENT OBJECT INITIALIZATION FUNCTIONS================
+Initializer::Initializer(CGObjectInstance * o)
 {
-	if(!obj)
-		return;
-
-	setProperty(dynamic_cast<CGTownInstance*>(obj), key, value);
-	//updateProperties();
+///IMPORTANT! initialize order should be from base objects to derived objects
+	INIT_OBJ_TYPE(CGResource);
+	INIT_OBJ_TYPE(CGArtifact);
+	INIT_OBJ_TYPE(CArmedInstance);
+	INIT_OBJ_TYPE(CGMine);
+	INIT_OBJ_TYPE(CGTownInstance);
 }
 
-void Inspector::setProperty(CGTownInstance * object, const QString & key, const QVariant & value)
+void initialize(CArmedInstance * o)
 {
-	if(!object)
-		return;
-
-	if(key == "Owner")
-	{
-		PlayerColor owner(value.toString().toInt());
-		if(value == "NEUTRAL")
-			owner = PlayerColor::NEUTRAL;
-		if(value == "UNFLAGGABLE")
-			owner = PlayerColor::UNFLAGGABLE;
-		object->tempOwner = owner;
-		return;
-	}
-}
-
-CGTownInstance * initialize(CGTownInstance * o)
-{
-	if(!o)
-		return nullptr;
-
+	if(!o) return;
+	
 	o->tempOwner = PlayerColor::NEUTRAL;
+}
+
+void initialize(CGTownInstance * o)
+{
+	if(!o) return;
+
 	o->builtBuildings.insert(BuildingID::FORT);
 	o->builtBuildings.insert(BuildingID::DEFAULT);
 
@@ -48,13 +35,11 @@ CGTownInstance * initialize(CGTownInstance * o)
 		if(!spell->isSpecial() && !spell->isCreatureAbility())
 			o->possibleSpells.push_back(spell->id);
 	}
-	return o;
 }
 
-CGArtifact * initialize(CGArtifact * o)
+void initialize(CGArtifact * o)
 {
-	if(!o)
-		return nullptr;
+	if(!o) return;
 	
 	if(o->ID == Obj::SPELL_SCROLL)
 	{
@@ -69,64 +54,159 @@ CGArtifact * initialize(CGArtifact * o)
 		auto a = CArtifactInstance::createScroll(*RandomGeneratorUtil::nextItem(out, CRandomGenerator::getDefault()));
 		o->storedArtifact = a;
 	}
+}
+
+void initialize(CGMine * o)
+{
+	if(!o) return;
 	
-	return o;
+	o->producedResource = Res::ERes(o->subID);
+	o->producedQuantity = o->defaultResProduction();
 }
 
-Initializer::Initializer(CGObjectInstance * o)
+void initialize(CGResource * o)
 {
-	initialize(dynamic_cast<CGTownInstance*>(o));
-	initialize(dynamic_cast<CGArtifact*>(o));
+	if(!o) return;
+	
+	o->amount = CGResource::RANDOM_AMOUNT;
 }
 
-Inspector::Inspector(CGObjectInstance * o, QTableWidget * t): obj(o), table(t)
+//===============IMPLEMENT PROPERTIES SETUP===============================
+void Inspector::updateProperties(CArmedInstance * o)
 {
-	/*
-	/// Position of bottom-right corner of object on map
-	int3 pos;
-	/// Type of object, e.g. town, hero, creature.
-	Obj ID;
-	/// Subtype of object, depends on type
-	si32 subID;
-	/// Current owner of an object (when below PLAYER_LIMIT)
-	PlayerColor tempOwner;
-	/// Index of object in map's list of objects
-	ObjectInstanceID id;
-	/// Defines appearance of object on map (animation, blocked tiles, blit order, etc)
-	ObjectTemplate appearance;
-	/// If true hero can visit this object only from neighbouring tiles and can't stand on this object
-	bool blockVisit;
+	if(!o) return;
+	
+	addProperty("Owner", o->tempOwner);
+}
 
-	std::string instanceName;
-	std::string typeName;
-	std::string subTypeName;*/
+void Inspector::updateProperties(CGTownInstance * o)
+{
+	if(!o) return;
+	
+	addProperty("Owner", o->tempOwner, false);
+	addProperty("Town name", o->name, false);
+}
+
+void Inspector::updateProperties(CGArtifact * o)
+{
+	if(!o) return;
+}
+
+void Inspector::updateProperties(CGMine * o)
+{
+	if(!o) return;
+	
+	addProperty("Owner", o->tempOwner, false);
+	addProperty("Resource", o->producedResource);
+	addProperty("Productivity", o->producedQuantity, false);
+}
+
+void Inspector::updateProperties(CGResource * o)
+{
+	if(!o) return;
+	
+	addProperty("Amount", o->amount, false);
 }
 
 void Inspector::updateProperties()
 {
 	if(!obj)
 		return;
-
+	table->setRowCount(0); //cleanup table
+	
 	addProperty("Indentifier", obj);
 	addProperty("ID", obj->ID.getNum());
 	addProperty("SubID", obj->subID);
 	addProperty("InstanceName", obj->instanceName);
 	addProperty("TypeName", obj->typeName);
 	addProperty("SubTypeName", obj->subTypeName);
-	addProperty("Owner", obj->tempOwner, false);
-
 	auto factory = VLC->objtypeh->getHandlerFor(obj->ID, obj->subID);
 	addProperty("IsStatic", factory->isStaticObject());
-
+	
+	UPDATE_OBJ_PROPERTIES(CArmedInstance);
+	UPDATE_OBJ_PROPERTIES(CGTownInstance);
+	UPDATE_OBJ_PROPERTIES(CGArtifact);
+	UPDATE_OBJ_PROPERTIES(CGMine);
+	UPDATE_OBJ_PROPERTIES(CGResource);
+	
 	table->show();
 }
 
+//===============IMPLEMENT PROPERTY UPDATE================================
+void Inspector::setProperty(const QString & key, const QVariant & value)
+{
+	if(!obj)
+		return;
+	
+	SET_PROPERTIES(CArmedInstance);
+	SET_PROPERTIES(CGTownInstance);
+	SET_PROPERTIES(CGArtifact);
+	SET_PROPERTIES(CGMine);
+	SET_PROPERTIES(CGResource);
+}
+
+void Inspector::setProperty(CArmedInstance * object, const QString & key, const QVariant & value)
+{
+	if(!object)
+		return;
+	
+	if(key == "Owner")
+	{
+		PlayerColor owner(value.toString().toInt());
+		if(value == "NEUTRAL")
+			owner = PlayerColor::NEUTRAL;
+		if(value == "UNFLAGGABLE")
+			owner = PlayerColor::UNFLAGGABLE;
+		object->tempOwner = owner;
+		return;
+	}
+}
+
+void Inspector::setProperty(CGTownInstance * object, const QString & key, const QVariant & value)
+{
+	if(!object)
+		return;
+	
+	if(key == "Town name")
+		object->name = value.toString().toStdString();
+}
+
+void Inspector::setProperty(CGMine * object, const QString & key, const QVariant & value)
+{
+	if(!object)
+		return;
+	
+	if(key == "Productivity")
+		object->producedQuantity = value.toString().toInt();
+}
+
+void Inspector::setProperty(CGArtifact * object, const QString & key, const QVariant & value)
+{
+	if(!object)
+		return;
+}
+
+void Inspector::setProperty(CGResource * object, const QString & key, const QVariant & value)
+{
+	if(!object)
+		return;
+	
+	if(key == "Amount")
+		object->amount = value.toString().toInt();
+}
+
+//===============IMPLEMENT PROPERTY VALUE TYPE============================
 QTableWidgetItem * Inspector::addProperty(CGObjectInstance * value)
 {
 	using NumericPointer = unsigned long long;
 	static_assert(sizeof(CGObjectInstance *) == sizeof(NumericPointer),
-			"Compilied for 64 bit arcitecture. Use NumericPointer = unsigned int");
+				  "Compilied for 64 bit arcitecture. Use NumericPointer = unsigned int");
 	return new QTableWidgetItem(QString::number(reinterpret_cast<NumericPointer>(value)));
+}
+
+QTableWidgetItem * Inspector::addProperty(unsigned int value)
+{
+	return new QTableWidgetItem(QString::number(value));
 }
 
 QTableWidgetItem * Inspector::addProperty(int value)
@@ -164,6 +244,47 @@ QTableWidgetItem * Inspector::addProperty(const PlayerColor & value)
 		str = "UNFLAGGABLE";
 	return new QTableWidgetItem(str);
 }
+
+QTableWidgetItem * Inspector::addProperty(const Res::ERes & value)
+{
+	QString str;
+	switch (value) {
+		case Res::ERes::WOOD:
+			str = "WOOD";
+			break;
+		case Res::ERes::ORE:
+			str = "ORE";
+			break;
+		case Res::ERes::SULFUR:
+			str = "SULFUR";
+			break;
+		case Res::ERes::GEMS:
+			str = "GEMS";
+			break;
+		case Res::ERes::MERCURY:
+			str = "MERCURY";
+			break;
+		case Res::ERes::CRYSTAL:
+			str = "CRYSTAL";
+			break;
+		case Res::ERes::GOLD:
+			str = "GOLD";
+			break;
+		default:
+			break;
+	}
+	return new QTableWidgetItem(str);
+}
+
+//========================================================================
+
+Inspector::Inspector(CGObjectInstance * o, QTableWidget * t): obj(o), table(t)
+{
+}
+
+/*
+ * Delegates
+ */
 
 QWidget * PlayerColorDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {

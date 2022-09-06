@@ -97,6 +97,7 @@ private:
 	void addGroupIntoCatalog(const std::string & groupName, bool staticOnly, int ID);
 
 	void changeBrushState(int idx);
+	void setTitle();
 
 private:
     Ui::MainWindow *ui;
