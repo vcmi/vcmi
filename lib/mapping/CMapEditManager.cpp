@@ -19,10 +19,9 @@
 #include "CMapOperation.h"
 
 CMapUndoManager::CMapUndoManager() :
-	undoRedoLimit(10),
+	undoRedoLimit(100000), //not sure if we ever need to bother about undo limit
 	undoCallback([](bool, bool) {})
 {
-	//TODO: unlimited undo
 }
 
 void CMapUndoManager::undo()
