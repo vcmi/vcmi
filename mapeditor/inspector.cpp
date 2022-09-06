@@ -4,9 +4,10 @@
 #include "../lib/spells/CSpellHandler.h"
 #include "../lib/CRandomGenerator.h"
 #include "../lib/mapObjects/CObjectClassesHandler.h"
+#include "../lib/mapping/CMap.h"
 
 //===============IMPLEMENT OBJECT INITIALIZATION FUNCTIONS================
-Initializer::Initializer(CGObjectInstance * o)
+Initializer::Initializer(CMap * m, CGObjectInstance * o) : map(m)
 {
 ///IMPORTANT! initialize order should be from base objects to derived objects
 	INIT_OBJ_TYPE(CGResource);
@@ -16,14 +17,14 @@ Initializer::Initializer(CGObjectInstance * o)
 	INIT_OBJ_TYPE(CGTownInstance);
 }
 
-void initialize(CArmedInstance * o)
+void Initializer::initialize(CArmedInstance * o)
 {
 	if(!o) return;
 	
 	o->tempOwner = PlayerColor::NEUTRAL;
 }
 
-void initialize(CGTownInstance * o)
+void Initializer::initialize(CGTownInstance * o)
 {
 	if(!o) return;
 
@@ -37,7 +38,7 @@ void initialize(CGTownInstance * o)
 	}
 }
 
-void initialize(CGArtifact * o)
+void Initializer::initialize(CGArtifact * o)
 {
 	if(!o) return;
 	
@@ -46,7 +47,7 @@ void initialize(CGArtifact * o)
 		std::vector<SpellID> out;
 		for(auto spell : VLC->spellh->objects) //spellh size appears to be greater (?)
 		{
-			if(/*map.isAllowedSpell(spell->id) && spell->level == i + 1*/ true)
+			//if(map->isAllowedSpell(spell->id))
 			{
 				out.push_back(spell->id);
 			}
@@ -56,7 +57,7 @@ void initialize(CGArtifact * o)
 	}
 }
 
-void initialize(CGMine * o)
+void Initializer::initialize(CGMine * o)
 {
 	if(!o) return;
 	
@@ -64,7 +65,7 @@ void initialize(CGMine * o)
 	o->producedQuantity = o->defaultResProduction();
 }
 
-void initialize(CGResource * o)
+void Initializer::initialize(CGResource * o)
 {
 	if(!o) return;
 	

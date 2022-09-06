@@ -109,7 +109,8 @@ public:
 	void setDirty(const CGObjectInstance * object);
 	
 private:
-	std::set<const CGObjectInstance *> dirty;
+	std::set<const CGObjectInstance *> objDirty;
+	std::set<int3> dirty;
 };
 
 

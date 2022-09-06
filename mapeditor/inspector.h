@@ -18,12 +18,23 @@ void setProperty(x*, const QString &, const QVariant &);
 #define UPDATE_OBJ_PROPERTIES(x) updateProperties(dynamic_cast<x*>(obj))
 #define SET_PROPERTIES(x) setProperty(dynamic_cast<x*>(obj), key, value)
 
-//===============DECLARE MAP OBJECTS======================================
-DECLARE_OBJ_TYPE(CArmedInstance);
-DECLARE_OBJ_TYPE(CGTownInstance);
-DECLARE_OBJ_TYPE(CGArtifact);
-DECLARE_OBJ_TYPE(CGMine);
-DECLARE_OBJ_TYPE(CGResource);
+
+class Initializer
+{
+public:
+	//===============DECLARE MAP OBJECTS======================================
+	DECLARE_OBJ_TYPE(CArmedInstance);
+	DECLARE_OBJ_TYPE(CGTownInstance);
+	DECLARE_OBJ_TYPE(CGArtifact);
+	DECLARE_OBJ_TYPE(CGMine);
+	DECLARE_OBJ_TYPE(CGResource);
+	
+	
+	Initializer(CMap *, CGObjectInstance *);
+
+private:
+	CMap * map;
+};
 
 class Inspector
 {
@@ -90,11 +101,7 @@ protected:
 };
 
 
-class Initializer
-{
-public:
-	Initializer(CGObjectInstance *);
-};
+
 
 class PlayerColorDelegate : public QStyledItemDelegate
 {
