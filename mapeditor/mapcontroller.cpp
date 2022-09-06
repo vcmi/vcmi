@@ -143,13 +143,17 @@ void MapController::commitObjectErase(int level)
 	}
 	else if (selectedObjects.size() == 1)
 	{
-		_map->getEditManager()->removeObject(selectedObjects.front());
-		//invalidate tiles under object
-		_mapHandler->invalidate(_mapHandler->geTilesUnderObject(selectedObjects.front()));
+		_map->getEditManager()->removeObject(*selectedObjects.begin());
 	}
 	else //nothing to erase - shouldn't be here
 	{
 		return;
+	}
+
+	for (auto obj : selectedObjects)
+	{
+		//invalidate tiles under objects
+		_mapHandler->invalidate(_mapHandler->geTilesUnderObject(obj));
 	}
 
 	_scenes[level]->selectionObjectsView.clear();
