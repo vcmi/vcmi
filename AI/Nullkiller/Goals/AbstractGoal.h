@@ -162,6 +162,7 @@ namespace Goals
 		virtual std::string toString() const = 0;
 		virtual HeroPtr getHero() const = 0;
 		virtual ~ITask() {}
+		virtual int getHeroExchangeCount() const = 0;
 	};
 }
 

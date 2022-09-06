@@ -766,10 +766,10 @@ void AIGateway::makeTurn()
 		logAi->debug("Making turn thread has been interrupted. We'll end without calling endTurn.");
 		return;
 	}
-	/*catch (std::exception & e)
+	catch (std::exception & e)
 	{
 		logAi->debug("Making turn thread has caught an exception: %s", e.what());
-	}*/
+	}
 
 	endTurn();
 }

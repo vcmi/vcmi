@@ -25,10 +25,16 @@
 
 namespace AIPathfinding
 {
-	const int BUCKET_COUNT = 11;
-	const int BUCKET_SIZE = GameConstants::MAX_HEROES_PER_PLAYER;
+#ifdef ENVIRONMENT64
+	const int BUCKET_COUNT = 7;
+#else
+	const int BUCKET_COUNT = 5;
+#endif // ENVIRONMENT64
+
+	const int BUCKET_SIZE = 5;
 	const int NUM_CHAINS = BUCKET_COUNT * BUCKET_SIZE;
 	const int THREAD_COUNT = 8;
+	const int CHAIN_MAX_DEPTH = 4;
 }
 
 struct AIPathNode : public CGPathNode
@@ -239,7 +245,14 @@ public:
 		return ((uintptr_t)actor * 395) % AIPathfinding::BUCKET_COUNT;
 	}
 
-
 	void calculateTownPortalTeleportations(std::vector<CGPathNode *> & neighbours);
 	void fillChainInfo(const AIPathNode * node, AIPath & path, int parentIndex) const;
+
+private:
+	template<class TVector>
+	void calculateTownPortal(
+		const ChainActor * actor,
+		const std::map<const CGHeroInstance *, int> & maskMap,
+		const std::vector<CGPathNode *> & initialNodes,
+		TVector & output);
 };

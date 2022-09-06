@@ -315,11 +315,28 @@ void CVCMIServer::threadHandleClient(std::shared_ptr<CConnection> c)
 	setThreadName("CVCMIServer::handleConnection");
 	c->enterLobbyConnectionMode();
 
+#ifndef _MSC_VER
 	try
 	{
+#endif
 		while(c->connected)
 		{
-			CPack * pack = c->retrievePack();
+			CPack * pack;
+			
+			try
+			{
+				pack = c->retrievePack();
+			}
+			catch(boost::system::system_error & e)
+			{
+				logNetwork->error("Network error receiving a pack. Connection %s dies. What happened: %s", c->toString(), e.what());
+
+				if(state != EServerState::LOBBY)
+					gh->handleClientDisconnection(c);
+
+				break;
+			}
+			
 			if(auto lobbyPack = dynamic_ptr_cast<CPackForLobby>(pack))
 			{
 				handleReceivedPack(std::unique_ptr<CPackForLobby>(lobbyPack));
@@ -329,14 +346,8 @@ void CVCMIServer::threadHandleClient(std::shared_ptr<CConnection> c)
 				gh->handleReceivedPack(serverPack);
 			}
 		}
-	}
-	catch(boost::system::system_error & e)
-	{
-        (void)e;
-		if(state != EServerState::LOBBY)
-			gh->handleClientDisconnection(c);
-	}
-	/*
+#ifndef _MSC_VER
+	 }
 	catch(const std::exception & e)
 	{
         (void)e;
@@ -348,7 +359,8 @@ void CVCMIServer::threadHandleClient(std::shared_ptr<CConnection> c)
 		state = EServerState::SHUTDOWN;
 		handleException();
 		throw;
-	}*/
+	}
+#endif
 
 	boost::unique_lock<boost::recursive_mutex> queueLock(mx);
 //	if(state != ENDING_AND_STARTING_GAME)

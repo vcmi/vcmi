@@ -90,6 +90,8 @@ namespace Goals
 		virtual bool isElementar() const override { return true; }
 
 		virtual HeroPtr getHero() const override { return AbstractGoal::hero; }
+
+		virtual int getHeroExchangeCount() const override { return 0; }
 	};
 
 	class DLL_EXPORT Invalid : public ElementarGoal<Invalid>
