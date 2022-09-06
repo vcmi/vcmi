@@ -52,7 +52,7 @@ void CComposedOperation::execute()
 void CComposedOperation::undo()
 {
 	//reverse order
-	for (auto& operation = operations.rbegin(); operation != operations.rend(); operation++)
+	for (auto operation = operations.rbegin(); operation != operations.rend(); operation++)
 	{
 		operation->get()->undo();
 	}
