@@ -46,7 +46,7 @@ PlayerParams::PlayerParams(MapController & ctrl, int playerId, QWidget *parent) 
 	for(int i = 0; i < controller.map()->towns.size(); ++i)
 	{
 		auto town = controller.map()->towns[i];
-		if(town->getOwner().getNum() == playerColor)
+		if(town && town->town && town->town->faction && town->getOwner().getNum() == playerColor)
 		{
 			if(playerInfo.hasMainTown && playerInfo.posOfMainTown == town->pos)
 				foundMainTown = i;
