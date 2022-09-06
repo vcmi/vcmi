@@ -49,6 +49,8 @@ private:
 	MainWindow * main;
 	mutable std::array<std::unique_ptr<MapScene>, 2> _scenes;
 	mutable std::array<std::unique_ptr<MinimapScene>, 2> _miniscenes;
+
+	void connectScenes();
 };
 
 #endif // MAPCONTROLLER_H

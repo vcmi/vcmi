@@ -68,7 +68,9 @@ set(lib_SRCS
 		mapping/CMap.cpp
 		mapping/CMapEditManager.cpp
 		mapping/CMapInfo.cpp
+		mapping/CMapOperation.cpp
 		mapping/CMapService.cpp
+		mapping/MapEditUtils.cpp
 		mapping/MapFormatH3M.cpp
 		mapping/MapFormatJson.cpp
 
@@ -301,7 +303,9 @@ set(lib_HEADERS
 		mapping/CMapEditManager.h
 		mapping/CMap.h
 		mapping/CMapInfo.h
+		mapping/CMapOperation.h
 		mapping/CMapService.h
+		mapping/MapEditUtils.h
 		mapping/MapFormatH3M.h
 		mapping/MapFormatJson.h
 

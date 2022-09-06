@@ -359,8 +359,12 @@ MapScene::MapScene(int lvl):
 	selectionTerrainView(this),
 	terrainView(this),
 	objectsView(this),
-	selectionObjectsView(this)
+	selectionObjectsView(this),
+	isTerrainSelected(false),
+	isObjectSelected(false)
 {
+	connect(&selectionTerrainView, &SelectionTerrainLayer::selectionMade, this, &MapScene::terrainSelected);
+	connect(&selectionObjectsView, &SelectionObjectsLayer::selectionMade, this, &MapScene::objectSelected);
 }
 
 std::list<AbstractLayer *> MapScene::getAbstractLayers()
@@ -384,6 +388,18 @@ void MapScene::updateViews()
 	objectsView.show(true);
 	selectionTerrainView.show(true);
 	selectionObjectsView.show(true);
+}
+
+void MapScene::terrainSelected(bool anythingSelected)
+{
+	isTerrainSelected = anythingSelected;
+	emit selected(isTerrainSelected || isObjectSelected);
+}
+
+void MapScene::objectSelected(bool anythingSelected)
+{
+	isObjectSelected = anythingSelected;
+	emit selected(isTerrainSelected || isObjectSelected);
 }
 
 MinimapScene::MinimapScene(int lvl):

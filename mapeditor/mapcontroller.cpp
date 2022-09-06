@@ -20,6 +20,19 @@ MapController::MapController(MainWindow * m): main(m)
 	_scenes[1].reset(new MapScene(1));
 	_miniscenes[0].reset(new MinimapScene(0));
 	_miniscenes[1].reset(new MinimapScene(1));
+	connectScenes();
+}
+
+void MapController::connectScenes()
+{
+	for (int level = 0; level <= 1; level++)
+	{
+		//selections for both layers will be handled separately
+		QObject::connect(_scenes[level].get(), &MapScene::selected, [this, level](bool anythingSelected)
+		{
+			main->onSelectionMade(level, anythingSelected);
+		});
+	}
 }
 
 MapController::~MapController()
@@ -60,6 +73,8 @@ void MapController::setMap(std::unique_ptr<CMap> cmap)
 	_miniscenes[1].reset(new MinimapScene(1));
 	resetMapHandler();
 	sceneForceUpdate();
+
+	connectScenes();
 
 	_map->getEditManager()->getUndoManager().setUndoCallback([this](bool allowUndo, bool allowRedo)
 		{
@@ -120,13 +135,27 @@ void MapController::commitTerrainChange(int level, const Terrain & terrain)
 
 void MapController::commitObjectErase(int level)
 {
-	for(auto * obj : _scenes[level]->selectionObjectsView.getSelection())
+	auto selectedObjects = _scenes[level]->selectionObjectsView.getSelection();
+	if (selectedObjects.size() > 1)
 	{
-		_map->getEditManager()->removeObject(obj);
-		//invalidate tiles under object
-		_mapHandler->invalidate(_mapHandler->geTilesUnderObject(obj));
-		delete obj;
+		//mass erase => undo in one operation
+		_map->getEditManager()->removeObjects(selectedObjects);
 	}
+	else if (selectedObjects.size() == 1)
+	{
+		_map->getEditManager()->removeObject(*selectedObjects.begin());
+	}
+	else //nothing to erase - shouldn't be here
+	{
+		return;
+	}
+
+	for (auto obj : selectedObjects)
+	{
+		//invalidate tiles under objects
+		_mapHandler->invalidate(_mapHandler->geTilesUnderObject(obj));
+	}
+
 	_scenes[level]->selectionObjectsView.clear();
 	_scenes[level]->objectsView.draw();
 	_scenes[level]->selectionObjectsView.draw();

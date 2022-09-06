@@ -233,7 +233,8 @@ CMapHeader::~CMapHeader()
 
 CMap::CMap()
 	: checksum(0), grailPos(-1, -1, -1), grailRadius(0), terrain(nullptr),
-	guardingCreaturePositions(nullptr)
+	guardingCreaturePositions(nullptr),
+	uidCounter(0)
 {
 	allHeroes.resize(allowedHeroes.size());
 	allowedAbilities = VLC->skillh->getDefaultAllowed();
@@ -593,6 +594,7 @@ void CMap::addNewArtifactInstance(CArtifactInstance * art)
 
 void CMap::eraseArtifactInstance(CArtifactInstance * art)
 {
+	//TODO: handle for artifacts removed in map editor
 	assert(artInstances[art->id.getNum()] == art);
 	artInstances[art->id.getNum()].dellNull();
 }
@@ -603,21 +605,48 @@ void CMap::addNewQuestInstance(CQuest* quest)
 	quests.push_back(quest);
 }
 
+void CMap::removeQuestInstance(CQuest* quest)
+{
+	//TODO: should be called only by map editor.
+	//During game, completed quests or quests from removed objects stay forever
+
+	//Shift indexes
+	auto iter = std::next(quests.begin(), quest->qid);
+	iter = quests.erase(iter);
+	for (int i = quest->qid; iter != quests.end(); ++i, ++iter)
+	{
+		(*iter)->qid = i;
+	}
+}
+
+void CMap::setUniqueInstanceName(CGObjectInstance* obj)
+{
+	//this gives object unique name even if objects are removed later
+
+	auto uid = uidCounter++;
+
+	boost::format fmt("%s_%d");
+	fmt % obj->typeName % uid;
+	obj->instanceName = fmt.str();
+}
+
 void CMap::addNewObject(CGObjectInstance * obj)
 {
+	
 	if(obj->id != ObjectInstanceID((si32)objects.size()))
 		throw std::runtime_error("Invalid object instance id");
 
 	if(obj->instanceName == "")
 		throw std::runtime_error("Object instance name missing");
 
-	auto it = instanceNames.find(obj->instanceName);
-	if(it != instanceNames.end())
+	if (vstd::contains(instanceNames, obj->instanceName))
 		throw std::runtime_error("Object instance name duplicated: "+obj->instanceName);
 
 	objects.push_back(obj);
 	instanceNames[obj->instanceName] = obj;
 	addBlockVisTiles(obj);
+
+	//TODO: how about deafeated heroes recruited again?
 
 	obj->afterAddToMap(this);
 }
@@ -642,15 +671,9 @@ void CMap::removeObject(CGObjectInstance * obj)
 		(*iter)->id = ObjectInstanceID(i);
 	}
 	
-	auto iterTown = std::find(towns.begin(), towns.end(), obj);
-	if(iterTown != towns.end())
-		towns.erase(iterTown);
-	auto iterHero = std::find(allHeroes.begin(), allHeroes.end(), obj);
-	if(iterHero != allHeroes.end())
-		allHeroes.erase(iterHero);
-	iterHero = std::find(heroesOnMap.begin(), heroesOnMap.end(), obj);
-	if(iterHero != heroesOnMap.end())
-		heroesOnMap.erase(iterHero);
+	obj->afterRemoveFromMap(this);
+
+	//TOOD: Clean artifact instances (mostly worn by hero?) and quests related to this object
 }
 
 void CMap::initTerrain()

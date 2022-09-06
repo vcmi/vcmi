@@ -361,7 +361,9 @@ public:
 	void eraseArtifactInstance(CArtifactInstance * art);
 
 	void addNewQuestInstance(CQuest * quest);
+	void removeQuestInstance(CQuest* quest);
 
+	void setUniqueInstanceName(CGObjectInstance* obj);
 	///Use only this method when creating new map object instances
 	void addNewObject(CGObjectInstance * obj);
 	void moveObject(CGObjectInstance * obj, const int3 & dst);
@@ -411,6 +413,7 @@ public:
 private:
 	/// a 3-dimensional array of terrain tiles, access is as follows: x, y, level. where level=1 is underground
 	TerrainTile*** terrain;
+	si32 uidCounter; //TODO: initialize when loading an old map
 
 public:
 	template <typename Handler>
@@ -488,5 +491,14 @@ public:
 		h & CGTownInstance::universitySkills;
 
 		h & instanceNames;
+
+		if (!h.saving && formatVersion < 804)
+		{
+			uidCounter = objects.size();
+		}
+		else
+		{
+			h & uidCounter;
+		}
 	}
 };

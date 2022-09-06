@@ -4,13 +4,15 @@
 #include "../lib/int3.h"
 
 class MapSceneBase;
+class MapScene;
 class CGObjectInstance;
 class MapController;
 class CMap;
 class MapHandler;
 
-class AbstractLayer
+class AbstractLayer : public QObject
 {
+	Q_OBJECT
 public:
 	AbstractLayer(MapSceneBase * s);
 	
@@ -36,6 +38,7 @@ private:
 
 class GridLayer: public AbstractLayer
 {
+	Q_OBJECT
 public:
 	GridLayer(MapSceneBase * s);
 	
@@ -44,17 +47,18 @@ public:
 
 class PassabilityLayer: public AbstractLayer
 {
+	Q_OBJECT
 public:
 	PassabilityLayer(MapSceneBase * s);
 	
 	void update() override;
 };
 
-
 class SelectionTerrainLayer: public AbstractLayer
 {
+	Q_OBJECT
 public:
-	SelectionTerrainLayer(MapSceneBase * s);
+	SelectionTerrainLayer(MapSceneBase* s);
 	
 	void update() override;
 	
@@ -64,14 +68,20 @@ public:
 	void clear();
 	
 	const std::set<int3> & selection() const;
-	
+
+signals:
+	void selectionMade(bool anythingSlected);
+
 private:
 	std::set<int3> area, areaAdd, areaErase;
+
+	void onSelection();
 };
 
 
 class TerrainLayer: public AbstractLayer
 {
+	Q_OBJECT
 public:
 	TerrainLayer(MapSceneBase * s);
 	
@@ -87,6 +97,7 @@ private:
 
 class ObjectsLayer: public AbstractLayer
 {
+	Q_OBJECT
 public:
 	ObjectsLayer(MapSceneBase * s);
 	
@@ -105,8 +116,9 @@ private:
 
 class SelectionObjectsLayer: public AbstractLayer
 {
+	Q_OBJECT
 public:
-	SelectionObjectsLayer(MapSceneBase * s);
+	SelectionObjectsLayer(MapSceneBase* s);
 	
 	void update() override;
 	
@@ -114,7 +126,7 @@ public:
 	
 	CGObjectInstance * selectObjectAt(int x, int y) const;
 	void selectObjects(int x1, int y1, int x2, int y2);
-	void selectObject(CGObjectInstance *);
+	void selectObject(CGObjectInstance *, bool inform = true);
 	bool isSelected(const CGObjectInstance *) const;
 	std::set<CGObjectInstance*> getSelection() const;
 	void moveSelection(int x, int y);
@@ -122,10 +134,16 @@ public:
 		
 	QPoint shift;
 	CGObjectInstance * newObject;
+	//FIXME: magic number
 	int selectionMode = 0; //0 - nothing, 1 - selection, 2 - movement
+
+signals:
+	void selectionMade(bool anythingSlected);
 	
 private:
 	std::set<CGObjectInstance *> selectedObjects;
+
+	void onSelection();
 };
 
 class MinimapLayer: public AbstractLayer

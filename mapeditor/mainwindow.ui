@@ -77,6 +77,7 @@
     </property>
     <addaction name="actionUndo"/>
     <addaction name="actionRedo"/>
+    <addaction name="actionErase"/>
    </widget>
    <widget class="QMenu" name="menuPlayer">
     <property name="title">
@@ -107,6 +108,7 @@
    <addaction name="actionGrid"/>
    <addaction name="actionPass"/>
    <addaction name="separator"/>
+   <addaction name="actionErase"/>
    <addaction name="actionCut"/>
    <addaction name="actionCopy"/>
    <addaction name="actionPaste"/>
@@ -608,6 +610,9 @@
         </item>
         <item row="2" column="1">
          <widget class="QPushButton" name="toolErase">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -663,7 +668,7 @@
           <x>0</x>
           <y>0</y>
           <width>128</width>
-          <height>271</height>
+          <height>344</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -706,7 +711,7 @@
           <x>0</x>
           <y>0</y>
           <width>128</width>
-          <height>271</height>
+          <height>344</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -725,7 +730,7 @@
           <x>0</x>
           <y>0</y>
           <width>128</width>
-          <height>271</height>
+          <height>344</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -868,6 +873,17 @@
    </property>
    <property name="shortcutVisibleInContextMenu">
     <bool>true</bool>
+   </property>
+  </action>
+  <action name="actionErase">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Erase</string>
+   </property>
+   <property name="shortcut">
+    <string>Del</string>
    </property>
   </action>
   <action name="actionNeutral">

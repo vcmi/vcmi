@@ -679,6 +679,10 @@ void MainWindow::on_toolArea_clicked(bool checked)
 		ui->mapView->selectionTool = MapView::SelectionTool::None;
 }
 
+void MainWindow::on_actionErase_triggered()
+{
+	on_toolErase_clicked();
+}
 
 void MainWindow::on_toolErase_clicked()
 {
@@ -823,6 +827,18 @@ void MainWindow::enableUndo(bool enable)
 void MainWindow::enableRedo(bool enable)
 {
 	ui->actionRedo->setEnabled(enable);
+}
+
+void MainWindow::onSelectionMade(int level, bool anythingSelected)
+{
+	if (level == mapLevel)
+	{
+		auto info = QString::asprintf("Selection on layer %s: %s", level, anythingSelected ? "true" : "false");
+		setStatusMessage(info);
+
+		ui->actionErase->setEnabled(anythingSelected);
+		ui->toolErase->setEnabled(anythingSelected);
+	}
 }
 
 void MainWindow::on_actionValidate_triggered()
