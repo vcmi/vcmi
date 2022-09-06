@@ -83,6 +83,8 @@ private slots:
 
 	void on_actionPlayers_settings_triggered();
 
+	void on_actionValidate_triggered();
+
 public slots:
 
 	void treeViewSelected(const QModelIndex &selected, const QModelIndex &deselected);

@@ -51,7 +51,7 @@
      <x>0</x>
      <y>0</y>
      <width>1024</width>
-     <height>18</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -69,6 +69,7 @@
     </property>
     <addaction name="actionMapSettings"/>
     <addaction name="actionPlayers_settings"/>
+    <addaction name="actionValidate"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -662,7 +663,7 @@
           <x>0</x>
           <y>0</y>
           <width>128</width>
-          <height>356</height>
+          <height>271</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -705,7 +706,7 @@
           <x>0</x>
           <y>0</y>
           <width>128</width>
-          <height>356</height>
+          <height>271</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -724,7 +725,7 @@
           <x>0</x>
           <y>0</y>
           <width>128</width>
-          <height>356</height>
+          <height>271</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -875,6 +876,11 @@
    </property>
    <property name="text">
     <string>Neutral</string>
+   </property>
+  </action>
+  <action name="actionValidate">
+   <property name="text">
+    <string>Validate</string>
    </property>
   </action>
  </widget>

@@ -21,6 +21,7 @@ set(editor_SRCS
 		playerparams.cpp
 		scenelayer.cpp
 		mapcontroller.cpp
+		validator.cpp
 )
 
 set(editor_HEADERS
@@ -45,6 +46,7 @@ set(editor_HEADERS
 		playerparams.h
 		scenelayer.h
 		mapcontroller.h
+		validator.h
 )
 
 set(editor_FORMS
@@ -54,6 +56,7 @@ set(editor_FORMS
 		mapsettings.ui
 		playersettings.ui
 		playerparams.ui
+		validator.ui
 )
 
 assign_source_group(${editor_SRCS} ${editor_HEADERS} VCMI_launcher.rc)

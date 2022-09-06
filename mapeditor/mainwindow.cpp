@@ -28,6 +28,7 @@
 #include "inspector.h"
 #include "mapsettings.h"
 #include "playersettings.h"
+#include "validator.h"
 
 static CBasicLogConfigurator * logConfig;
 
@@ -229,6 +230,20 @@ void MainWindow::saveMap()
 
 	if(!unsaved)
 		return;
+	
+	//validate map
+	auto issues = Validator::validate(controller.map());
+	bool critical = false;
+	for(auto & issue : issues)
+		critical |= issue.critical;
+	
+	if(!issues.empty())
+	{
+		if(critical)
+			QMessageBox::warning(this, "Map validation", "Map has critical problems and most probably will not be playable. Open Validator from the Map menu to see issues found");
+		else
+			QMessageBox::information(this, "Map validation", "Map has some errors. Open Validator from the Map menu to see issues found");
+	}
 
 	CMapService mapService;
 	try
@@ -808,5 +823,10 @@ void MainWindow::enableUndo(bool enable)
 void MainWindow::enableRedo(bool enable)
 {
 	ui->actionRedo->setEnabled(enable);
+}
+
+void MainWindow::on_actionValidate_triggered()
+{
+	new Validator(controller.map(), this);
 }
 
