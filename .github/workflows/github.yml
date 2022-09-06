@@ -5,6 +5,7 @@ on:
       branches:
         - features/*
         - develop
+        - cpp-map-editor
     pull_request:
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
@@ -46,7 +47,7 @@ jobs:
             pack: 1
             cpack_args: -D CPACK_NSIS_EXECUTABLE=`which makensis`
             extension: exe
-            cmake_args: -G Ninja
+            cmake_args: -G Ninja -DENABLE_EDITOR=0
           - platform: msvc
             os: windows-latest
             test: 0
