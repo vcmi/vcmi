@@ -14,7 +14,7 @@ class PlayerSettings : public QDialog
 	Q_OBJECT
 
 public:
-	explicit PlayerSettings(CMapHeader & mapHeader, QWidget *parent = nullptr);
+	explicit PlayerSettings(MapController & controller, QWidget *parent = nullptr);
 	~PlayerSettings();
 
 private slots:
@@ -27,8 +27,8 @@ private:
 	Ui::PlayerSettings *ui;
 
 	std::vector<PlayerParams*> paramWidgets;
-
-	CMapHeader & header;
+	
+	MapController & controller;
 };
 
 #endif // PLAYERSETTINGS_H

@@ -4,20 +4,20 @@
 #include "playerparams.h"
 #include "mainwindow.h"
 
-PlayerSettings::PlayerSettings(CMapHeader & mapHeader, QWidget *parent) :
+PlayerSettings::PlayerSettings(MapController & ctrl, QWidget *parent) :
 	QDialog(parent),
 	ui(new Ui::PlayerSettings),
-	header(mapHeader)
+	controller(ctrl)
 {
 	ui->setupUi(this);
 	show();
 
 	int players = 0;
-	for(auto & p : header.players)
+	for(auto & p : controller.map()->players)
 	{
 		if(p.canAnyonePlay())
 		{
-			paramWidgets.push_back(new PlayerParams(header, players));
+			paramWidgets.push_back(new PlayerParams(controller, players));
 			ui->playersLayout->addWidget(paramWidgets.back());
 			++players;
 		}
@@ -36,23 +36,23 @@ PlayerSettings::~PlayerSettings()
 
 void PlayerSettings::on_playersCount_currentIndexChanged(int index)
 {
-	assert(index + 2 <= header.players.size());
+	assert(index + 2 <= controller.map()->players.size());
 
 	for(int i = 0; i < index + 2; ++i)
 	{
 		if(i < paramWidgets.size())
 			continue;
 
-		auto & p = header.players[i];
+		auto & p = controller.map()->players[i];
 		p.canComputerPlay = true;
-		paramWidgets.push_back(new PlayerParams(header, i));
+		paramWidgets.push_back(new PlayerParams(controller, i));
 		ui->playersLayout->addWidget(paramWidgets.back());
 	}
 
 	assert(!paramWidgets.empty());
 	for(int i = paramWidgets.size() - 1; i >= index + 2; --i)
 	{
-		auto & p = header.players[i];
+		auto & p = controller.map()->players[i];
 		p.canComputerPlay = false;
 		p.canHumanPlay = false;
 		ui->playersLayout->removeWidget(paramWidgets[i]);
@@ -66,10 +66,10 @@ void PlayerSettings::on_pushButton_clicked()
 {
 	for(auto * w : paramWidgets)
 	{
-		header.players[w->playerColor] = w->playerInfo;
+		controller.map()->players[w->playerColor] = w->playerInfo;
 	}
 
-	static_cast<MainWindow*>(parent())->controller.commitChangeWithoutRedraw();
+	controller.commitChangeWithoutRedraw();
 	close();
 }
 

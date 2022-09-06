@@ -54,13 +54,10 @@ std::unique_ptr<CMap> generateEmptyMap(CMapGenOptions & options)
 	map->width = options.getWidth();
 	map->height = options.getHeight();
 	map->twoLevel = options.getHasTwoLevels();
-
+	
 	map->initTerrain();
 	map->getEditManager()->clearTerrain(&CRandomGenerator::getDefault());
-	map->getEditManager()->getTerrainSelection().selectRange(MapRect(int3(0, 0, 0), options.getWidth(), options.getHeight()));
-	map->getEditManager()->drawTerrain(Terrain("grass"), &CRandomGenerator::getDefault());
 
-	//window->controller.setMap(std::move(map));
 	return std::move(map);
 }
 
@@ -98,22 +95,15 @@ void WindowNewMap::on_okButtong_clicked()
 
 		auto progressBarWnd = new GeneratorProgress(generator, this);
 		progressBarWnd->show();
-		
-		
-		//std::thread generate(&::generateRandomMap, std::ref(generator), static_cast<MainWindow*>(parent()));
-		//progressBarWnd->update();
-		//generate.join();
-		
-		//generateRandomMap(generator, static_cast<MainWindow*>(parent()));
+	
 		auto f = std::async(std::launch::async, &CMapGenerator::generate, &generator);
 		progressBarWnd->update();
 		nmap = f.get();
 	}
 	else
-	{
+	{		
 		auto f = std::async(std::launch::async, &::generateEmptyMap, std::ref(mapGenOptions));
 		nmap = f.get();
-		//nmap = generateEmptyMap(mapGenOptions, static_cast<MainWindow*>(parent()));
 	}
 	
 
@@ -250,15 +240,23 @@ void WindowNewMap::on_templateCombo_activated(int index)
 
 void WindowNewMap::on_widthTxt_textChanged(const QString &arg1)
 {
-	mapGenOptions.setWidth(arg1.toInt());
-	updateTemplateList();
+	int sz = arg1.toInt();
+	if(sz > 1)
+	{
+		mapGenOptions.setWidth(arg1.toInt());
+		updateTemplateList();
+	}
 }
 
 
 void WindowNewMap::on_heightTxt_textChanged(const QString &arg1)
 {
-	mapGenOptions.setHeight(arg1.toInt());
-	updateTemplateList();
+	int sz = arg1.toInt();
+	if(sz > 1)
+	{
+		mapGenOptions.setHeight(arg1.toInt());
+		updateTemplateList();
+	}
 }
 
 void WindowNewMap::updateTemplateList()

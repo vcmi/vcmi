@@ -6,7 +6,7 @@
 #include "mapview.h"
 #include "mapcontroller.h"
 
-AbstractLayer::AbstractLayer(MapScene * s): scene(s)
+AbstractLayer::AbstractLayer(MapSceneBase * s): scene(s)
 {
 }
 
@@ -21,29 +21,9 @@ void AbstractLayer::show(bool show)
 	if(isShown == show)
 		return;
 	
-	if(show)
-	{
-		if(pixmap)
-		{
-			if(item)
-				item->setPixmap(*pixmap);
-			else
-				item.reset(scene->addPixmap(*pixmap));
-		}
-		else
-		{
-			if(item)
-				item->setPixmap(emptyPixmap);
-			else
-				item.reset(scene->addPixmap(emptyPixmap));
-		}
-	}
-	else
-	{
-		item->setPixmap(emptyPixmap);
-	}
-	
 	isShown = show;
+	
+	redraw();
 }
 
 void AbstractLayer::redraw()
@@ -64,7 +44,7 @@ void AbstractLayer::redraw()
 	}
 }
 
-GridLayer::GridLayer(MapScene * s): AbstractLayer(s)
+GridLayer::GridLayer(MapSceneBase * s): AbstractLayer(s)
 {
 }
 
@@ -90,7 +70,7 @@ void GridLayer::update()
 	redraw();
 }
 
-PassabilityLayer::PassabilityLayer(MapScene * s): AbstractLayer(s)
+PassabilityLayer::PassabilityLayer(MapSceneBase * s): AbstractLayer(s)
 {
 }
 
@@ -206,10 +186,11 @@ const std::set<int3> & SelectionTerrainLayer::selection() const
 
 void SelectionTerrainLayer::selectionMade()
 {
-	scene->objectSelected(!area.empty());
+	dynamic_cast<MapScene*>(scene)->objectSelected(!area.empty());
 }
 
-TerrainLayer::TerrainLayer(MapScene * s): AbstractLayer(s)
+
+TerrainLayer::TerrainLayer(MapSceneBase * s): AbstractLayer(s)
 {
 }
 
@@ -284,7 +265,7 @@ void TerrainLayer::draw(bool onlyDirty)
 	redraw();
 }
 
-ObjectsLayer::ObjectsLayer(MapScene * s): AbstractLayer(s)
+ObjectsLayer::ObjectsLayer(MapSceneBase * s): AbstractLayer(s)
 {
 }
 
@@ -508,7 +489,76 @@ void SelectionObjectsLayer::clear()
 	shift.setY(0);
 }
 
+
 void SelectionObjectsLayer::selectionMade()
 {
-	scene->objectSelected(!selectedObjects.empty());
+	dynamic_cast<MapScene*>(scene)->objectSelected(!selectedObjects.empty());
+}
+
+MinimapLayer::MinimapLayer(MapSceneBase * s): AbstractLayer(s)
+{
+	
+}
+
+void MinimapLayer::update()
+{
+	if(!map)
+		return;
+	
+	pixmap.reset(new QPixmap(map->width, map->height));
+	
+	QPainter painter(pixmap.get());
+	//coordinate transfomation
+	for(int j = 0; j < map->height; ++j)
+	{
+		for(int i = 0; i < map->width; ++i)
+		{
+			handler->drawMinimapTile(painter, i, j, scene->level);
+		}
+	}
+	
+	redraw();
+}
+
+MinimapViewLayer::MinimapViewLayer(MapSceneBase * s): AbstractLayer(s)
+{
+}
+
+void MinimapViewLayer::update()
+{
+	if(!map)
+		return;
+	
+	pixmap.reset(new QPixmap(map->width, map->height));
+	pixmap->fill(QColor(0, 0, 0, 0));
+	
+	QPainter painter(pixmap.get());
+	painter.setPen(QColor(255, 255, 255));
+	painter.drawRect(x, y, w, h);
+	
+	redraw();
+}
+
+void MinimapViewLayer::draw()
+{
+	if(!map)
+		return;
+	
+	pixmap->fill(QColor(0, 0, 0, 0));
+	
+	//maybe not optimal but ok
+	QPainter painter(pixmap.get());
+	painter.setPen(QColor(255, 255, 255));
+	painter.drawRect(x, y, w, h);
+	
+	redraw();
+}
+
+void MinimapViewLayer::setViewport(int _x, int _y, int _w, int _h)
+{
+	x = _x;
+	y = _y;
+	w = _w;
+	h = _h;
+	draw();
 }

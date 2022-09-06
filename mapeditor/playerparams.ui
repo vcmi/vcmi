@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>505</width>
-    <height>146</height>
+    <height>160</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -101,23 +101,34 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="2" rowspan="2">
+      <item row="1" column="1">
+       <widget class="QComboBox" name="mainTown">
+        <item>
+         <property name="text">
+          <string>(default)</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="0" column="2" rowspan="3">
        <widget class="QListWidget" name="allowedFactions">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QComboBox" name="mainTown"/>
-      </item>
-      <item row="0" column="2">
-       <widget class="QCheckBox" name="checkBox">
-        <property name="text">
-         <string>All factions allowed</string>
+        <property name="focusPolicy">
+         <enum>Qt::ClickFocus</enum>
+        </property>
+        <property name="editTriggers">
+         <set>QAbstractItemView::NoEditTriggers</set>
+        </property>
+        <property name="selectionMode">
+         <enum>QAbstractItemView::NoSelection</enum>
         </property>
        </widget>
       </item>

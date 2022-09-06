@@ -656,6 +656,18 @@ void CMap::removeObject(CGObjectInstance * obj)
 	{
 		(*iter)->id = ObjectInstanceID(i);
 	}
+	
+	auto iterTown = std::find(towns.begin(), towns.end(), obj);
+	if(iterTown != towns.end())
+		towns.erase(iterTown);
+	auto iterHero = std::find(allHeroes.begin(), allHeroes.end(), obj);
+	if(iterHero != allHeroes.end())
+		allHeroes.erase(iterHero);
+	iterHero = std::find(heroesOnMap.begin(), heroesOnMap.end(), obj);
+	if(iterHero != heroesOnMap.end())
+		heroesOnMap.erase(iterHero);
+
+	//TOOD: Clean artifact instances (mostly worn by hero?) and quests related to this object
 }
 
 void CMap::initTerrain()

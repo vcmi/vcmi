@@ -62,6 +62,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	controller(this)
 {
 	ui->setupUi(this);
+	setTitle();
 	
 	// Set current working dir to executable folder.
 	// This is important on Mac for relative paths to work inside DMG.
@@ -120,8 +121,9 @@ MainWindow::MainWindow(QWidget *parent) :
 	ui->mapView->setController(&controller);
 	connect(ui->mapView, &MapView::openObjectProperties, this, &MainWindow::loadInspector);
 	
-	sceneMini = new QGraphicsScene(this);
-	ui->minimapView->setScene(sceneMini);
+	ui->minimapView->setScene(controller.miniScene(0));
+	ui->minimapView->setController(&controller);
+	connect(ui->minimapView, &MinimapView::cameraPositionChanged, ui->mapView, &MapView::cameraChanged);
 
 	scenePreview = new QGraphicsScene(this);
 	ui->objectPreview->setScene(scenePreview);
@@ -157,25 +159,29 @@ void MainWindow::reloadMap(int level)
 	//sceneMini->addPixmap(minimap);
 }
 
+void MainWindow::setTitle()
+{
+	QString title = QString("%1%2 - %3 (v%4)").arg(filename, unsaved ? "*" : "", VCMI_EDITOR_NAME, VCMI_EDITOR_VERSION);
+	setWindowTitle(title);
+}
+
 void MainWindow::mapChanged()
 {
 	unsaved = true;
-	setWindowTitle(filename + "* - VCMI Map Editor");
+	setTitle();
 }
 
 void MainWindow::initializeMap(bool isNew)
 {
 	unsaved = isNew;
 	if(isNew)
-	{
 		filename.clear();
-		setWindowTitle("* - VCMI Map Editor");
-	}
-	else
-		setWindowTitle(filename + " - VCMI Map Editor");
+	setTitle();
 
 	mapLevel = 0;
 	ui->mapView->setScene(controller.scene(mapLevel));
+	ui->minimapView->setScene(controller.miniScene(mapLevel));
+	ui->minimapView->dimensions();
 	
 	setStatusMessage(QString("Scene objects: %1").arg(ui->mapView->scene()->items().size()));
 
@@ -213,6 +219,7 @@ void MainWindow::on_actionOpen_triggered()
 		QMessageBox::critical(this, "Failed to open map", e.what());
 	}
 
+	filename = filenameSelect;
 	initializeMap(false);
 }
 
@@ -227,7 +234,7 @@ void MainWindow::saveMap()
 	CMapService mapService;
 	try
 	{
-		mapService.saveMap(std::unique_ptr<CMap>(controller.map()), filename.toStdString());
+		mapService.saveMap(controller.getMapUniquePtr(), filename.toStdString());
 	}
 	catch(const std::exception & e)
 	{
@@ -235,7 +242,7 @@ void MainWindow::saveMap()
 	}
 
 	unsaved = false;
-	setWindowTitle(filename + " - VCMI Map Editor");
+	setTitle();
 }
 
 void MainWindow::on_actionSave_as_triggered()
@@ -551,6 +558,7 @@ void MainWindow::on_actionLevel_triggered()
 	{
 		mapLevel = mapLevel ? 0 : 1;
 		ui->mapView->setScene(controller.scene(mapLevel));
+		ui->minimapView->setScene(controller.miniScene(mapLevel));
 	}
 }
 
@@ -784,15 +792,17 @@ void MainWindow::on_inspectorWidget_itemChanged(QTableWidgetItem *item)
 
 void MainWindow::on_actionMapSettings_triggered()
 {
-	auto mapSettingsDialog = new MapSettings(controller, this);
-	mapSettingsDialog->setModal(true);
+	auto settingsDialog = new MapSettings(controller, this);
+	settingsDialog->setWindowModality(Qt::WindowModal);
+	settingsDialog->setModal(true);
 }
 
 
 void MainWindow::on_actionPlayers_settings_triggered()
 {
-	auto mapSettingsDialog = new PlayerSettings(*controller.map(), this);
-	mapSettingsDialog->setModal(true);
+	auto settingsDialog = new PlayerSettings(controller, this);
+	settingsDialog->setWindowModality(Qt::WindowModal);
+	settingsDialog->setModal(true);
 }
 
 void MainWindow::enableUndo(bool enable)

@@ -100,13 +100,12 @@ private:
 	void addGroupIntoCatalog(const std::string & groupName, bool staticOnly, int ID);
 
 	void changeBrushState(int idx);
+	void setTitle();
 
 private:
     Ui::MainWindow *ui;
 	ObjectBrowser * objectBrowser = nullptr;
-	QGraphicsScene * sceneMini;
 	QGraphicsScene * scenePreview;
-	QPixmap minimap;
 	
 	QString filename;
 	bool unsaved = false;
