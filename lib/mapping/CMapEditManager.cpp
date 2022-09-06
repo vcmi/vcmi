@@ -149,6 +149,16 @@ void CMapEditManager::insertObject(CGObjectInstance * obj)
 	execute(make_unique<CInsertObjectOperation>(map, obj));
 }
 
+void CMapEditManager::insertObjects(std::set<CGObjectInstance*>& objects)
+{
+	auto composedOperation = make_unique<CComposedOperation>(map);
+	for (auto obj : objects)
+	{
+		composedOperation->addOperation(make_unique<CInsertObjectOperation>(map, obj));
+	}
+	execute(std::move(composedOperation));
+}
+
 void CMapEditManager::moveObject(CGObjectInstance * obj, const int3 & pos)
 {
 	execute(make_unique<CMoveObjectOperation>(map, obj, pos));

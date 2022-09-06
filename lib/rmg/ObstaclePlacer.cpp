@@ -143,6 +143,8 @@ void ObstacleProxy::placeObstacles(CMap * map, CRandomGenerator & rand)
 	//reverse order, since obstacles begin in bottom-right corner, while the map coordinates begin in top-left
 	auto blockedTiles = blockedArea.getTilesVector();
 	int tilePos = 0;
+	std::set<CGObjectInstance*> objs;
+
 	while(!blockedArea.empty() && tilePos < blockedArea.getTilesVector().size())
 	{
 		auto tile = blockedArea.getTilesVector()[tilePos];
@@ -159,7 +161,11 @@ void ObstacleProxy::placeObstacles(CMap * map, CRandomGenerator & rand)
 
 		auto objIter = RandomGeneratorUtil::nextItem(weightedObjects, rand);
 		objIter->first->setPosition(objIter->second);
-		placeObject(map->getEditManager(), *objIter->first);
+		for (auto* instance : objIter->first->instances())
+		{
+			objs.insert(&instance->object());
+		}
+
 		blockedArea.subtract(objIter->first->getArea());
 		tilePos = 0;
 
@@ -174,6 +180,8 @@ void ObstacleProxy::placeObstacles(CMap * map, CRandomGenerator & rand)
 				o.clear();
 		}
 	}
+
+	map->getEditManager()->insertObjects(objs); //insert as one operation - for undo purposes
 }
 
 void ObstacleProxy::postProcess(const rmg::Object & object)
