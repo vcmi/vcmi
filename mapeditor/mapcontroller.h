@@ -17,6 +17,8 @@ public:
 	
 	void setMap(std::unique_ptr<CMap>);
 	
+	void repairMap();
+	
 	const std::unique_ptr<CMap> & getMapUniquePtr() const; //to be used for map saving
 	CMap * map();
 	MapHandler * mapHandler();

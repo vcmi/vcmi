@@ -7,6 +7,8 @@
 #include "../lib/Terrain.h"
 #include "../lib/mapObjects/CObjectClassesHandler.h"
 #include "../lib/rmg/ObstaclePlacer.h"
+#include "../lib/CSkillHandler.h"
+#include "../lib/spells/CSpellHandler.h"
 #include "mapview.h"
 #include "scenelayer.h"
 #include "maphandler.h"
@@ -64,11 +66,9 @@ MinimapScene * MapController::miniScene(int level)
 	return _miniscenes[level].get();
 }
 
-void MapController::setMap(std::unique_ptr<CMap> cmap)
+void MapController::repairMap()
 {
-	_map = std::move(cmap);
-	
-	//fix map
+	//fix owners for objects
 	for(auto obj : _map->objects)
 		if(obj->getOwner() == PlayerColor::UNFLAGGABLE)
 			if(dynamic_cast<CGMine*>(obj.get()) ||
@@ -77,7 +77,31 @@ void MapController::setMap(std::unique_ptr<CMap> cmap)
 			   dynamic_cast<CGGarrison*>(obj.get()) ||
 			   dynamic_cast<CGShipyard*>(obj.get()) ||
 			   dynamic_cast<CGHeroInstance*>(obj.get()))
-			obj->tempOwner = PlayerColor::NEUTRAL;
+				obj->tempOwner = PlayerColor::NEUTRAL;
+	
+	//there might be extra skills, arts and spells not imported from map
+	if(VLC->skillh->getDefaultAllowed().size() > map()->allowedAbilities.size())
+	{
+		for(int i = map()->allowedAbilities.size(); i < VLC->skillh->getDefaultAllowed().size(); ++i)
+			map()->allowedAbilities.push_back(false);
+	}
+	if(VLC->arth->getDefaultAllowed().size() > map()->allowedArtifact.size())
+	{
+		for(int i = map()->allowedArtifact.size(); i < VLC->arth->getDefaultAllowed().size(); ++i)
+			map()->allowedArtifact.push_back(false);
+	}
+	if(VLC->spellh->getDefaultAllowed().size() > map()->allowedSpell.size())
+	{
+		for(int i = map()->allowedSpell.size(); i < VLC->spellh->getDefaultAllowed().size(); ++i)
+			map()->allowedSpell.push_back(false);
+	}
+}
+
+void MapController::setMap(std::unique_ptr<CMap> cmap)
+{
+	_map = std::move(cmap);
+	
+	repairMap();
 	
 	_scenes[0].reset(new MapScene(0));
 	_scenes[1].reset(new MapScene(1));
