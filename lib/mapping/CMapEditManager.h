@@ -188,6 +188,7 @@ public:
 	void insertObject(CGObjectInstance * obj);
 	void moveObject(CGObjectInstance * obj, const int3 & pos);
 	void removeObject(CGObjectInstance * obj);
+	void removeObjects(std::set<CGObjectInstance*>& objects);
 
 	CTerrainSelection & getTerrainSelection();
 	CObjectSelection & getObjectSelection();
@@ -209,7 +210,7 @@ private:
 /* ---------------------------------------------------------------------------- */
 
 /// The CComposedOperation is an operation which consists of several operations.
-class CComposedOperation : public CMapOperation
+class DLL_LINKAGE CComposedOperation : public CMapOperation
 {
 public:
 	CComposedOperation(CMap * map);
@@ -217,6 +218,7 @@ public:
 	void execute() override;
 	void undo() override;
 	void redo() override;
+	std::string getLabel() const override;
 
 	void addOperation(std::unique_ptr<CMapOperation> && operation);
 

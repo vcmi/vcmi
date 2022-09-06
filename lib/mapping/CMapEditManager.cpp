@@ -297,6 +297,16 @@ void CMapEditManager::removeObject(CGObjectInstance * obj)
 	execute(make_unique<CRemoveObjectOperation>(map, obj));
 }
 
+void CMapEditManager::removeObjects(std::set<CGObjectInstance*> & objects)
+{
+	auto composedOperation = make_unique<CComposedOperation>(map);
+	for (auto obj : objects)
+	{
+		composedOperation->addOperation(make_unique<CRemoveObjectOperation>(map, obj));
+	}
+	execute(std::move(composedOperation));
+}
+
 void CMapEditManager::execute(std::unique_ptr<CMapOperation> && operation)
 {
 	operation->execute();
@@ -333,19 +343,29 @@ void CComposedOperation::execute()
 
 void CComposedOperation::undo()
 {
-	for(auto & operation : operations)
+	//reverse order
+	for(auto & operation = operations.rbegin(); operation != operations.rend(); operation++)
 	{
-		operation->undo();
+		operation->get()->undo();
 	}
 }
 
 void CComposedOperation::redo()
 {
-	//TODO: double-chekcif the order is correct
 	for(auto & operation : operations)
 	{
 		operation->redo();
 	}
+}
+
+std::string CComposedOperation::getLabel() const
+{
+	std::string ret = "Composed operation: ";
+	for (auto& operation : operations)
+	{
+		ret.append(operation->getLabel() + ";");
+	}
+	return ret;
 }
 
 void CComposedOperation::addOperation(std::unique_ptr<CMapOperation> && operation)

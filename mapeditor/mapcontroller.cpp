@@ -133,11 +133,21 @@ void MapController::commitTerrainChange(int level, const Terrain & terrain)
 
 void MapController::commitObjectErase(int level)
 {
-	for(auto * obj : _scenes[level]->selectionObjectsView.getSelection())
+	auto selectedObjects = _scenes[level]->selectionObjectsView.getSelection();
+	if (selectedObjects.size() > 1)
 	{
-		_map->getEditManager()->removeObject(obj);
-		//object ownership goes to EditManager, which can handle undo operation
+		//mass erase => undo in one operation
+		_map->getEditManager()->removeObjects(selectedObjects);
 	}
+	else if (selectedObjects.size() == 1)
+	{
+		_map->getEditManager()->removeObject(*selectedObjects.begin());
+	}
+	else //nothing to erase - shouldn't be here
+	{
+		return;
+	}
+
 	_scenes[level]->selectionObjectsView.clear();
 	resetMapHandler();
 	_scenes[level]->updateViews();
