@@ -5,6 +5,7 @@ on:
       branches:
         - features/*
         - develop
+        - cpp-map-editor
     pull_request:
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
