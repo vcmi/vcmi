@@ -13,11 +13,41 @@ Initializer::Initializer(CMap * m, CGObjectInstance * o) : map(m)
 	INIT_OBJ_TYPE(CGResource);
 	INIT_OBJ_TYPE(CGArtifact);
 	INIT_OBJ_TYPE(CArmedInstance);
+	INIT_OBJ_TYPE(CGShipyard);
+	INIT_OBJ_TYPE(CGGarrison);
 	INIT_OBJ_TYPE(CGMine);
+	INIT_OBJ_TYPE(CGDwelling);
 	INIT_OBJ_TYPE(CGTownInstance);
+	INIT_OBJ_TYPE(CGHeroInstance);
 }
 
 void Initializer::initialize(CArmedInstance * o)
+{
+	if(!o) return;
+}
+
+void Initializer::initialize(CGDwelling * o)
+{
+	if(!o) return;
+	
+	o->tempOwner = PlayerColor::NEUTRAL;
+}
+
+void Initializer::initialize(CGGarrison * o)
+{
+	if(!o) return;
+	
+	o->tempOwner = PlayerColor::NEUTRAL;
+}
+
+void Initializer::initialize(CGShipyard * o)
+{
+	if(!o) return;
+	
+	o->tempOwner = PlayerColor::NEUTRAL;
+}
+
+void Initializer::initialize(CGHeroInstance * o)
 {
 	if(!o) return;
 	
@@ -80,11 +110,38 @@ void Inspector::updateProperties(CArmedInstance * o)
 	addProperty("Owner", o->tempOwner);
 }
 
-void Inspector::updateProperties(CGTownInstance * o)
+void Inspector::updateProperties(CGDwelling * o)
 {
 	if(!o) return;
 	
 	addProperty("Owner", o->tempOwner, false);
+}
+
+void Inspector::updateProperties(CGGarrison * o)
+{
+	if(!o) return;
+	
+	addProperty("Owner", o->tempOwner, false);
+}
+
+void Inspector::updateProperties(CGShipyard * o)
+{
+	if(!o) return;
+	
+	addProperty("Owner", o->tempOwner, false);
+}
+
+void Inspector::updateProperties(CGHeroInstance * o)
+{
+	if(!o) return;
+	
+	addProperty("Owner", o->tempOwner, o->ID == Obj::PRISON); //field is not editable for prison
+}
+
+void Inspector::updateProperties(CGTownInstance * o)
+{
+	if(!o) return;
+	
 	addProperty("Town name", o->name, false);
 }
 
@@ -109,6 +166,8 @@ void Inspector::updateProperties(CGResource * o)
 	addProperty("Amount", o->amount, false);
 }
 
+
+
 void Inspector::updateProperties()
 {
 	if(!obj)
@@ -125,10 +184,14 @@ void Inspector::updateProperties()
 	addProperty("IsStatic", factory->isStaticObject());
 	
 	UPDATE_OBJ_PROPERTIES(CArmedInstance);
-	UPDATE_OBJ_PROPERTIES(CGTownInstance);
+	UPDATE_OBJ_PROPERTIES(CGResource);
 	UPDATE_OBJ_PROPERTIES(CGArtifact);
 	UPDATE_OBJ_PROPERTIES(CGMine);
-	UPDATE_OBJ_PROPERTIES(CGResource);
+	UPDATE_OBJ_PROPERTIES(CGGarrison);
+	UPDATE_OBJ_PROPERTIES(CGShipyard);
+	UPDATE_OBJ_PROPERTIES(CGDwelling);
+	UPDATE_OBJ_PROPERTIES(CGTownInstance);
+	UPDATE_OBJ_PROPERTIES(CGHeroInstance);
 	
 	table->show();
 }
@@ -139,18 +202,6 @@ void Inspector::setProperty(const QString & key, const QVariant & value)
 	if(!obj)
 		return;
 	
-	SET_PROPERTIES(CArmedInstance);
-	SET_PROPERTIES(CGTownInstance);
-	SET_PROPERTIES(CGArtifact);
-	SET_PROPERTIES(CGMine);
-	SET_PROPERTIES(CGResource);
-}
-
-void Inspector::setProperty(CArmedInstance * object, const QString & key, const QVariant & value)
-{
-	if(!object)
-		return;
-	
 	if(key == "Owner")
 	{
 		PlayerColor owner(value.toString().toInt());
@@ -158,9 +209,24 @@ void Inspector::setProperty(CArmedInstance * object, const QString & key, const 
 			owner = PlayerColor::NEUTRAL;
 		if(value == "UNFLAGGABLE")
 			owner = PlayerColor::UNFLAGGABLE;
-		object->tempOwner = owner;
-		return;
+		obj->tempOwner = owner;
 	}
+	
+	SET_PROPERTIES(CArmedInstance);
+	SET_PROPERTIES(CGTownInstance);
+	SET_PROPERTIES(CGArtifact);
+	SET_PROPERTIES(CGMine);
+	SET_PROPERTIES(CGResource);
+	SET_PROPERTIES(CGDwelling);
+	SET_PROPERTIES(CGGarrison);
+	SET_PROPERTIES(CGHeroInstance);
+	SET_PROPERTIES(CGShipyard);
+}
+
+void Inspector::setProperty(CArmedInstance * object, const QString & key, const QVariant & value)
+{
+	if(!object)
+		return;
 }
 
 void Inspector::setProperty(CGTownInstance * object, const QString & key, const QVariant & value)
@@ -182,6 +248,30 @@ void Inspector::setProperty(CGMine * object, const QString & key, const QVariant
 }
 
 void Inspector::setProperty(CGArtifact * object, const QString & key, const QVariant & value)
+{
+	if(!object)
+		return;
+}
+
+void Inspector::setProperty(CGDwelling * object, const QString & key, const QVariant & value)
+{
+	if(!object)
+		return;
+}
+
+void Inspector::setProperty(CGGarrison * object, const QString & key, const QVariant & value)
+{
+	if(!object)
+		return;
+}
+
+void Inspector::setProperty(CGHeroInstance * object, const QString & key, const QVariant & value)
+{
+	if(!object)
+		return;
+}
+
+void Inspector::setProperty(CGShipyard * object, const QString & key, const QVariant & value)
 {
 	if(!object)
 		return;

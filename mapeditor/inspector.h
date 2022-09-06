@@ -24,10 +24,14 @@ class Initializer
 public:
 	//===============DECLARE MAP OBJECTS======================================
 	DECLARE_OBJ_TYPE(CArmedInstance);
+	DECLARE_OBJ_TYPE(CGShipyard);
 	DECLARE_OBJ_TYPE(CGTownInstance);
 	DECLARE_OBJ_TYPE(CGArtifact);
 	DECLARE_OBJ_TYPE(CGMine);
 	DECLARE_OBJ_TYPE(CGResource);
+	DECLARE_OBJ_TYPE(CGDwelling);
+	DECLARE_OBJ_TYPE(CGGarrison);
+	DECLARE_OBJ_TYPE(CGHeroInstance);
 	
 	
 	Initializer(CMap *, CGObjectInstance *);
@@ -42,9 +46,13 @@ protected:
 //===============DECLARE PROPERTIES SETUP=================================
 	DECLARE_OBJ_PROPERTY_METHODS(CArmedInstance);
 	DECLARE_OBJ_PROPERTY_METHODS(CGTownInstance);
+	DECLARE_OBJ_PROPERTY_METHODS(CGShipyard);
 	DECLARE_OBJ_PROPERTY_METHODS(CGArtifact);
 	DECLARE_OBJ_PROPERTY_METHODS(CGMine);
 	DECLARE_OBJ_PROPERTY_METHODS(CGResource);
+	DECLARE_OBJ_PROPERTY_METHODS(CGDwelling);
+	DECLARE_OBJ_PROPERTY_METHODS(CGGarrison);
+	DECLARE_OBJ_PROPERTY_METHODS(CGHeroInstance);
 
 //===============DECLARE PROPERTY VALUE TYPE==============================
 	QTableWidgetItem * addProperty(unsigned int value);

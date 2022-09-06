@@ -143,8 +143,8 @@ void setPlayerColor(QImage * sur, PlayerColor player)
 	if(sur->format() == QImage::Format_Indexed8)
 	{
 		QRgb color = graphics->neutralColor;
-		if(player != PlayerColor::NEUTRAL)
-			color = graphics->playerColors[player.getNum()];
+		if(player != PlayerColor::NEUTRAL && player < PlayerColor::PLAYER_LIMIT)
+			color = graphics->playerColors.at(player.getNum());
 
 		sur->setColor(5, color);
 	}

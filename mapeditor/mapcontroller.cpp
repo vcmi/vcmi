@@ -75,6 +75,7 @@ void MapController::setMap(std::unique_ptr<CMap> cmap)
 			   dynamic_cast<CGDwelling*>(obj.get()) ||
 			   dynamic_cast<CGTownInstance*>(obj.get()) ||
 			   dynamic_cast<CGGarrison*>(obj.get()) ||
+			   dynamic_cast<CGShipyard*>(obj.get()) ||
 			   dynamic_cast<CGHeroInstance*>(obj.get()))
 			obj->tempOwner = PlayerColor::NEUTRAL;
 	
