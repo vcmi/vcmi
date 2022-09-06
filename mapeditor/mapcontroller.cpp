@@ -88,7 +88,9 @@ void MapController::sceneForceUpdate(int level)
 
 void MapController::resetMapHandler()
 {
-	_mapHandler.reset(new MapHandler(_map.get()));
+	if(!_mapHandler)
+		_mapHandler.reset(new MapHandler());
+	_mapHandler->reset(map());
 	_scenes[0]->initialize(*this);
 	_scenes[1]->initialize(*this);
 	_miniscenes[0]->initialize(*this);
@@ -121,11 +123,13 @@ void MapController::commitObjectErase(int level)
 	for(auto * obj : _scenes[level]->selectionObjectsView.getSelection())
 	{
 		_map->getEditManager()->removeObject(obj);
+		//invalidate tiles under object
+		_mapHandler->invalidate(_mapHandler->geTilesUnderObject(obj));
 		delete obj;
 	}
 	_scenes[level]->selectionObjectsView.clear();
-	resetMapHandler();
-	_scenes[level]->updateViews();
+	_scenes[level]->objectsView.draw();
+	_scenes[level]->selectionObjectsView.draw();
 	
 	_miniscenes[level]->updateViews();
 	main->mapChanged();
@@ -176,8 +180,14 @@ void MapController::commitObstacleFill(int level)
 		sel.second.placeObstacles(_map.get(), CRandomGenerator::getDefault());
 	}
 
-	resetMapHandler();
-	_scenes[level]->updateViews();
+	for(auto & t : selection)
+	{
+		_mapHandler->invalidate(t.x, t.y, t.z);
+	}
+	
+	_scenes[level]->selectionTerrainView.clear();
+	_scenes[level]->selectionTerrainView.draw();
+	_scenes[level]->objectsView.draw();
 	
 	_miniscenes[level]->updateViews();
 	main->mapChanged();
@@ -185,7 +195,8 @@ void MapController::commitObstacleFill(int level)
 
 void MapController::commitObjectChange(int level)
 {
-	resetMapHandler();
+	//for(auto * o : _scenes[level]->selectionObjectsView.getSelection())
+		//_mapHandler->invalidate(o);
 	_scenes[level]->objectsView.draw();
 	_scenes[level]->selectionObjectsView.draw();
 	
@@ -219,16 +230,18 @@ void MapController::commitObjectShiftOrCreate(int level)
 		}
 		else
 		{
+			auto prevPositions = _mapHandler->geTilesUnderObject(obj);
 			_map->getEditManager()->moveObject(obj, pos);
+			_mapHandler->invalidate(prevPositions);
+			_mapHandler->invalidate(obj);
 		}
 	}
 		
 	_scenes[level]->selectionObjectsView.newObject = nullptr;
 	_scenes[level]->selectionObjectsView.shift = QPoint(0, 0);
 	_scenes[level]->selectionObjectsView.selectionMode = 0;
-	
-	resetMapHandler();
-	_scenes[level]->updateViews();
+	_scenes[level]->objectsView.draw();
+	_scenes[level]->selectionObjectsView.draw();
 	
 	_miniscenes[level]->updateViews();
 	main->mapChanged();
@@ -239,9 +252,10 @@ void MapController::commitObjectCreate(int level)
 	auto * newObj = _scenes[level]->selectionObjectsView.newObject;
 	if(!newObj)
 		return;
-	Initializer init(newObj);
+	Initializer init(map(), newObj);
 	
 	_map->getEditManager()->insertObject(newObj);
+	_mapHandler->invalidate(newObj);
 	main->mapChanged();
 }
 

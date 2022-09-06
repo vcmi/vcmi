@@ -88,6 +88,13 @@ void WindowNewMap::on_okButtong_clicked()
 	std::unique_ptr<CMap> nmap;
 	if(ui->randomMapCheck->isChecked())
 	{
+		//verify map template
+		if(mapGenOptions.getPossibleTemplates().empty())
+		{
+			QMessageBox::warning(this, "No template", "No template for parameters scecified. Random map cannot be generated.");
+			return;
+		}
+		
 		CMapGenerator generator(mapGenOptions);
 		//TODO: fix water and roads
 		generator.disableModificator("RoadPlacer");
@@ -96,9 +103,16 @@ void WindowNewMap::on_okButtong_clicked()
 		auto progressBarWnd = new GeneratorProgress(generator, this);
 		progressBarWnd->show();
 	
-		auto f = std::async(std::launch::async, &CMapGenerator::generate, &generator);
-		progressBarWnd->update();
-		nmap = f.get();
+		try
+		{
+			auto f = std::async(std::launch::async, &CMapGenerator::generate, &generator);
+			progressBarWnd->update();
+			nmap = f.get();
+		}
+		catch(const std::exception & e)
+		{
+			QMessageBox::critical(this, "RMG failure", e.what());
+		}
 	}
 	else
 	{		

@@ -319,7 +319,6 @@ void ObjectsLayer::setDirty(int x, int y)
 
 void ObjectsLayer::setDirty(const CGObjectInstance * object)
 {
-	dirty.insert(object);
 }
 
 SelectionObjectsLayer::SelectionObjectsLayer(MapSceneBase * s): AbstractLayer(s), newObject(nullptr)
