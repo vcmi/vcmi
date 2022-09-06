@@ -101,7 +101,7 @@ void PassabilityLayer::update()
 	redraw();
 }
 
-SelectionTerrainLayer::SelectionTerrainLayer(MapScene * s): AbstractLayer(s)
+SelectionTerrainLayer::SelectionTerrainLayer(MapSceneBase * s): AbstractLayer(s)
 {
 }
 
@@ -113,7 +113,7 @@ void SelectionTerrainLayer::update()
 	area.clear();
 	areaAdd.clear();
 	areaErase.clear();
-	selectionMade();
+	onSelection();
 	
 	pixmap.reset(new QPixmap(map->width * 32, map->height * 32));
 	pixmap->fill(QColor(0, 0, 0, 0));
@@ -154,7 +154,7 @@ void SelectionTerrainLayer::select(const int3 & tile)
 		areaAdd.insert(tile);
 		areaErase.erase(tile);
 	}
-	selectionMade();
+	onSelection();
 }
 
 void SelectionTerrainLayer::erase(const int3 & tile)
@@ -168,7 +168,7 @@ void SelectionTerrainLayer::erase(const int3 & tile)
 		areaErase.insert(tile);
 		areaAdd.erase(tile);
 	}
-	selectionMade();
+	onSelection();
 }
 
 void SelectionTerrainLayer::clear()
@@ -176,7 +176,7 @@ void SelectionTerrainLayer::clear()
 	areaErase = area;
 	areaAdd.clear();
 	area.clear();
-	selectionMade();
+	onSelection();
 }
 
 const std::set<int3> & SelectionTerrainLayer::selection() const
@@ -184,9 +184,9 @@ const std::set<int3> & SelectionTerrainLayer::selection() const
 	return area;
 }
 
-void SelectionTerrainLayer::selectionMade()
+void SelectionTerrainLayer::onSelection()
 {
-	dynamic_cast<MapScene*>(scene)->objectSelected(!area.empty());
+	emit selectionMade(!area.empty());
 }
 
 
@@ -332,7 +332,7 @@ void ObjectsLayer::setDirty(const CGObjectInstance * object)
 	dirty.insert(object);
 }
 
-SelectionObjectsLayer::SelectionObjectsLayer(MapScene * s): AbstractLayer(s), newObject(nullptr)
+SelectionObjectsLayer::SelectionObjectsLayer(MapSceneBase * s): AbstractLayer(s), newObject(nullptr)
 {
 }
 
@@ -342,7 +342,7 @@ void SelectionObjectsLayer::update()
 		return;
 	
 	selectedObjects.clear();
-	selectionMade();
+	onSelection();
 	shift = QPoint();
 	if(newObject)
 		delete newObject;
@@ -459,7 +459,7 @@ void SelectionObjectsLayer::selectObjects(int x1, int y1, int x2, int y2)
 				selectObject(o.obj, false); //do not inform about each object added
 		}
 	}
-	selectionMade();
+	onSelection();
 }
 
 void SelectionObjectsLayer::selectObject(CGObjectInstance * obj, bool inform /* = true */)
@@ -467,7 +467,7 @@ void SelectionObjectsLayer::selectObject(CGObjectInstance * obj, bool inform /* 
 	selectedObjects.insert(obj);
 	if (inform)
 	{
-		selectionMade();
+		onSelection();
 	}
 }
 
@@ -484,15 +484,14 @@ std::set<CGObjectInstance*> SelectionObjectsLayer::getSelection() const
 void SelectionObjectsLayer::clear()
 {
 	selectedObjects.clear();
-	selectionMade();
+	onSelection();
 	shift.setX(0);
 	shift.setY(0);
 }
 
-
-void SelectionObjectsLayer::selectionMade()
+void SelectionObjectsLayer::onSelection()
 {
-	dynamic_cast<MapScene*>(scene)->objectSelected(!selectedObjects.empty());
+	emit selectionMade(!selectedObjects.empty());
 }
 
 MinimapLayer::MinimapLayer(MapSceneBase * s): AbstractLayer(s)

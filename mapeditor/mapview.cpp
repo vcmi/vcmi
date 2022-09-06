@@ -363,6 +363,8 @@ MapScene::MapScene(int lvl):
 	isTerrainSelected(false),
 	isObjectSelected(false)
 {
+	connect(&selectionTerrainView, &SelectionTerrainLayer::selectionMade, this, &MapScene::terrainSelected);
+	connect(&selectionObjectsView, &SelectionObjectsLayer::selectionMade, this, &MapScene::objectSelected);
 }
 
 std::list<AbstractLayer *> MapScene::getAbstractLayers()

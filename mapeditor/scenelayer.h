@@ -10,8 +10,9 @@ class MapController;
 class CMap;
 class MapHandler;
 
-class AbstractLayer
+class AbstractLayer : public QObject
 {
+	Q_OBJECT
 public:
 	AbstractLayer(MapSceneBase * s);
 	
@@ -37,6 +38,7 @@ private:
 
 class GridLayer: public AbstractLayer
 {
+	Q_OBJECT
 public:
 	GridLayer(MapSceneBase * s);
 	
@@ -45,18 +47,18 @@ public:
 
 class PassabilityLayer: public AbstractLayer
 {
+	Q_OBJECT
 public:
 	PassabilityLayer(MapSceneBase * s);
 	
 	void update() override;
 };
 
-
 class SelectionTerrainLayer: public AbstractLayer
 {
+	Q_OBJECT
 public:
-	//FIXME: now it depends on MapScene::selected, this is getting messy
-	SelectionTerrainLayer(MapScene * s);
+	SelectionTerrainLayer(MapSceneBase* s);
 	
 	void update() override;
 	
@@ -66,16 +68,20 @@ public:
 	void clear();
 	
 	const std::set<int3> & selection() const;
-	
+
+signals:
+	void selectionMade(bool anythingSlected);
+
 private:
 	std::set<int3> area, areaAdd, areaErase;
 
-	void selectionMade();  //TODO: consider making it a signal
+	void onSelection();
 };
 
 
 class TerrainLayer: public AbstractLayer
 {
+	Q_OBJECT
 public:
 	TerrainLayer(MapSceneBase * s);
 	
@@ -91,6 +97,7 @@ private:
 
 class ObjectsLayer: public AbstractLayer
 {
+	Q_OBJECT
 public:
 	ObjectsLayer(MapSceneBase * s);
 	
@@ -108,9 +115,9 @@ private:
 
 class SelectionObjectsLayer: public AbstractLayer
 {
+	Q_OBJECT
 public:
-	//FIXME: now it depends on MapScene::selected, this is getting messy 
-	SelectionObjectsLayer(MapScene * s);
+	SelectionObjectsLayer(MapSceneBase* s);
 	
 	void update() override;
 	
@@ -126,12 +133,16 @@ public:
 		
 	QPoint shift;
 	CGObjectInstance * newObject;
+	//FIXME: magic number
 	int selectionMode = 0; //0 - nothing, 1 - selection, 2 - movement
+
+signals:
+	void selectionMade(bool anythingSlected);
 	
 private:
 	std::set<CGObjectInstance *> selectedObjects;
 
-	void selectionMade(); //TODO: consider making it a signal
+	void onSelection();
 };
 
 class MinimapLayer: public AbstractLayer
