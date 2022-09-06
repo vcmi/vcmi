@@ -10,6 +10,8 @@
 #define read_le_u16(p) (* reinterpret_cast<const ui16 *>(p))
 #define read_le_u32(p) (* reinterpret_cast<const ui32 *>(p))
 
+#include <QImage>
+
 namespace BitmapHandler
 {
 	//Load file from /DATA or /SPRITES
