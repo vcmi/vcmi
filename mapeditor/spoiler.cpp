@@ -1,7 +1,7 @@
 #include "StdInc.h"
 #include <QPropertyAnimation>
 
-#include "Spoiler.h"
+#include "spoiler.h"
 
 Spoiler::Spoiler(const QString & title, const int animationDuration, QWidget *parent) : QWidget(parent), animationDuration(animationDuration)
 {
