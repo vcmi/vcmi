@@ -70,7 +70,7 @@ protected:
 	
 //===============END OF DECLARATION=======================================
 public:
-	Inspector(CGObjectInstance *, QTableWidget *);
+	Inspector(CMap *, CGObjectInstance *, QTableWidget *);
 
 	void setProperty(const QString & key, const QVariant & value);
 
@@ -79,7 +79,7 @@ public:
 protected:
 
 	template<class T>
-	void addProperty(const QString & key, const T & value, bool restricted = true)
+	void addProperty(const QString & key, const T & value, QAbstractItemDelegate * delegate, bool restricted)
 	{
 		auto * itemValue = addProperty(value);
 		if(restricted)
@@ -90,6 +90,8 @@ protected:
 		{
 			itemKey = keyItems[key];
 			table->setItem(table->row(itemKey), 1, itemValue);
+			if(delegate)
+				table->setItemDelegateForRow(table->row(itemKey), delegate);
 		}
 		else
 		{
@@ -100,8 +102,16 @@ protected:
 			table->setRowCount(row + 1);
 			table->setItem(row, 0, itemKey);
 			table->setItem(row, 1, itemValue);
+			if(delegate)
+				table->setItemDelegateForRow(row, delegate);
 			++row;
 		}
+	}
+	
+	template<class T>
+	void addProperty(const QString & key, const T & value, bool restricted = true)
+	{
+		addProperty<T>(key, value, nullptr, restricted);
 	}
 
 protected:
@@ -109,25 +119,29 @@ protected:
 	QTableWidget * table;
 	CGObjectInstance * obj;
 	QMap<QString, QTableWidgetItem*> keyItems;
+	CMap * map;
 };
 
 
 
 
-class PlayerColorDelegate : public QStyledItemDelegate
+class InspectorDelegate : public QStyledItemDelegate
 {
 	Q_OBJECT
 public:
+	InspectorDelegate(const QStringList &);
+	
 	using QStyledItemDelegate::QStyledItemDelegate;
 
-	//void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
-	//QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 	QWidget * createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 	void setEditorData(QWidget *editor, const QModelIndex &index) const override;
 	void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const override;
+	
+	QStringList options;
 
 private slots:
 	void commitAndCloseEditor(int);
+	
 };
 
 #endif // INSPECTOR_H

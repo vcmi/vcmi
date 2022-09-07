@@ -119,6 +119,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	
 	ui->mapView->setScene(controller.scene(0));
 	ui->mapView->setController(&controller);
+	ui->mapView->setOptimizationFlags(QGraphicsView::DontSavePainterState | QGraphicsView::DontAdjustForAntialiasing);
 	connect(ui->mapView, &MapView::openObjectProperties, this, &MainWindow::loadInspector);
 	
 	ui->minimapView->setScene(controller.miniScene(0));
@@ -144,19 +145,6 @@ MainWindow::~MainWindow()
 void MainWindow::setStatusMessage(const QString & status)
 {
 	statusBar()->showMessage(status);
-}
-
-void MainWindow::reloadMap(int level)
-{
-	//auto mapSizePx = mapHandler->surface.rect();
-	//float ratio = std::fmin(mapSizePx.width() / 192., mapSizePx.height() / 192.);*/
-	//minimap = mapHandler->surface;
-	//minimap.setDevicePixelRatio(ratio);
-	
-	controller.sceneForceUpdate(level);
-
-	//sceneMini->clear();
-	//sceneMini->addPixmap(minimap);
 }
 
 void MainWindow::setTitle()
@@ -217,6 +205,7 @@ void MainWindow::on_actionOpen_triggered()
 	catch(const std::exception & e)
 	{
 		QMessageBox::critical(this, "Failed to open map", e.what());
+		return;
 	}
 
 
@@ -773,7 +762,7 @@ void MainWindow::on_actionFill_triggered()
 
 void MainWindow::loadInspector(CGObjectInstance * obj)
 {
-	Inspector inspector(obj, ui->inspectorWidget);
+	Inspector inspector(controller.map(), obj, ui->inspectorWidget);
 	inspector.updateProperties();
 }
 
@@ -800,7 +789,7 @@ void MainWindow::on_inspectorWidget_itemChanged(QTableWidgetItem *item)
 	auto param = tableWidget->item(r, c - 1)->text();
 
 	//set parameter
-	Inspector inspector(obj, tableWidget);
+	Inspector inspector(controller.map(), obj, tableWidget);
 	inspector.setProperty(param, item->text());
 	controller.commitObjectChange(mapLevel);
 }

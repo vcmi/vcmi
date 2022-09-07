@@ -25,7 +25,7 @@ public:
     ~MainWindow();
 
 	void initializeMap(bool isNew);
-	void reloadMap(int level = 0);
+
 	void saveMap();
 	
 	MapView * mapView();

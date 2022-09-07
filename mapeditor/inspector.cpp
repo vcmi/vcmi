@@ -123,7 +123,13 @@ void Inspector::updateProperties(CArmedInstance * o)
 {
 	if(!o) return;
 	
-	addProperty("Owner", o->tempOwner);
+	auto * delegate = new InspectorDelegate;
+	delegate->options << "NEUTRAL";
+	for(int p = 0; p < map->players.size(); ++p)
+		if(map->players[p].canAnyonePlay())
+			delegate->options << QString("PLAYER %1").arg(p);
+	
+	addProperty("Owner", o->tempOwner, delegate, true);
 }
 
 void Inspector::updateProperties(CGDwelling * o)
@@ -232,7 +238,7 @@ void Inspector::setProperty(const QString & key, const QVariant & value)
 	
 	if(key == "Owner")
 	{
-		PlayerColor owner(value.toString().toInt());
+		PlayerColor owner(value.toString().mid(6).toInt()); //receiving PLAYER N, N has index 6
 		if(value == "NEUTRAL")
 			owner = PlayerColor::NEUTRAL;
 		if(value == "UNFLAGGABLE")
@@ -374,8 +380,7 @@ QTableWidgetItem * Inspector::addProperty(const int3 & value)
 
 QTableWidgetItem * Inspector::addProperty(const PlayerColor & value)
 {
-	//auto str = QString("PLAYER %1").arg(value.getNum());
-	auto str = QString::number(value.getNum());
+	auto str = QString("PLAYER %1").arg(value.getNum());
 	if(value == PlayerColor::NEUTRAL)
 		str = "NEUTRAL";
 	if(value == PlayerColor::UNFLAGGABLE)
@@ -441,7 +446,7 @@ QTableWidgetItem * Inspector::addProperty(CGCreature::Character value)
 
 //========================================================================
 
-Inspector::Inspector(CGObjectInstance * o, QTableWidget * t): obj(o), table(t)
+Inspector::Inspector(CMap * m, CGObjectInstance * o, QTableWidget * t): obj(o), table(t), map(m)
 {
 }
 
@@ -449,31 +454,26 @@ Inspector::Inspector(CGObjectInstance * o, QTableWidget * t): obj(o), table(t)
  * Delegates
  */
 
-QWidget * PlayerColorDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
+QWidget * InspectorDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-	if (index.data().canConvert<int>())
-	{
-		auto *editor = new QComboBox(parent);
-		connect(editor, SIGNAL(activated(int)), this, SLOT(commitAndCloseEditor(int)));
-		return editor;
-	}
-	return QStyledItemDelegate::createEditor(parent, option, index);
+	return new QComboBox(parent);
+	
+	//return QStyledItemDelegate::createEditor(parent, option, index);
+	//connect(editor, SIGNAL(activated(int)), this, SLOT(commitAndCloseEditor(int)));
 }
 
-void PlayerColorDelegate::commitAndCloseEditor(int id)
+void InspectorDelegate::commitAndCloseEditor(int id)
 {
-	QComboBox *editor = qobject_cast<QComboBox *>(sender());
-	emit commitData(editor);
-	emit closeEditor(editor);
+	//QComboBox *editor = qobject_cast<QComboBox *>(sender());
+	//emit commitData(editor);
+	//emit closeEditor(editor);
 }
 
-void PlayerColorDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
+void InspectorDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
 {
-	if (index.data().canConvert<int>())
+	if(QComboBox *ed = qobject_cast<QComboBox *>(editor))
 	{
-		PlayerColor player(qvariant_cast<int>(index.data()));
-		QComboBox *ed = qobject_cast<QComboBox *>(editor);
-		ed->addItem(QString::number(player.getNum()));
+		ed->addItems(options);
 	}
 	else
 	{
@@ -481,12 +481,13 @@ void PlayerColorDelegate::setEditorData(QWidget *editor, const QModelIndex &inde
 	}
 }
 
-void PlayerColorDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
+void InspectorDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
 {
-	if (index.data().canConvert<int>())
+	if(QComboBox *ed = qobject_cast<QComboBox *>(editor))
 	{
-		QComboBox *ed = qobject_cast<QComboBox *>(editor);
-		model->setData(index, QVariant::fromValue(ed->currentText()));
+		QMap<int, QVariant> data;
+		data[0] = options[ed->currentIndex()];
+		model->setItemData(index, data);
 	}
 	else
 	{
