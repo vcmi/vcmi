@@ -129,6 +129,8 @@ class InspectorDelegate : public QStyledItemDelegate
 {
 	Q_OBJECT
 public:
+	static InspectorDelegate * boolDelegate();
+	
 	InspectorDelegate(const QStringList &);
 	
 	using QStyledItemDelegate::QStyledItemDelegate;

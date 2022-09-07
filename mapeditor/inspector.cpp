@@ -193,9 +193,13 @@ void Inspector::updateProperties(CGCreature * o)
 	if(!o) return;
 	
 	addProperty("Message", o->message, false);
-	addProperty<CGCreature::Character>("Character", (CGCreature::Character)o->character, false);
-	addProperty("Never flees", o->neverFlees, false);
-	addProperty("Not growing", o->notGrowingTeam, false);
+	{
+		auto * delegate = new InspectorDelegate;
+		delegate->options << "COMPLIANT" << "FRIENDLY" << "AGRESSIVE" << "HOSTILE" << "SAVAGE";
+		addProperty<CGCreature::Character>("Character", (CGCreature::Character)o->character, delegate, false);
+	}
+	addProperty("Never flees", o->neverFlees, InspectorDelegate::boolDelegate(), false);
+	addProperty("Not growing", o->notGrowingTeam, InspectorDelegate::boolDelegate(), false);
 	addProperty("Artifact reward", o->gainedArtifact); //TODO: implement in setProperty
 	//addProperty("Resources reward", o->resources); //TODO: implement in setProperty
 }
@@ -453,6 +457,13 @@ Inspector::Inspector(CMap * m, CGObjectInstance * o, QTableWidget * t): obj(o), 
 /*
  * Delegates
  */
+
+InspectorDelegate * InspectorDelegate::boolDelegate()
+{
+	auto * d = new InspectorDelegate;
+	d->options << "TRUE" << "FALSE";
+	return d;
+}
 
 QWidget * InspectorDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
