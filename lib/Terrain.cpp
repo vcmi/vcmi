@@ -154,6 +154,11 @@ Terrain::Manager::Manager()
 			}
 			
 			terrainInfo[terr.first] = info;
+			if(!terrainId.count(terr.first))
+			{
+				terrainId[terr.first] = terrainVault.size();
+				terrainVault.push_back(terr.first);
+			}
 		}
 	}
 }
@@ -164,12 +169,18 @@ Terrain::Manager & Terrain::Manager::get()
 	return manager;
 }
 
-std::vector<Terrain> Terrain::Manager::terrains()
+const std::vector<Terrain> & Terrain::Manager::terrains()
 {
-	std::set<Terrain> _terrains; //have to use std::set to have ordered container. Othervise de-sync is possible
-	for(const auto & info : Terrain::Manager::get().terrainInfo)
-		_terrains.insert(info.first);
-	return std::vector<Terrain>(_terrains.begin(), _terrains.end());
+	return Terrain::Manager::get().terrainVault;
+}
+
+int Terrain::Manager::id(const Terrain & terrain)
+{
+	if(terrain.name == "ANY") return -3;
+	if(terrain.name == "WRONG") return -2;
+	if(terrain.name == "BORDER") return -1;
+	
+	return Terrain::Manager::get().terrainId.at(terrain);
 }
 
 const Terrain::Info & Terrain::Manager::getInfo(const Terrain & terrain)
@@ -219,13 +230,7 @@ bool operator<(const Terrain & l, const Terrain & r)
 	
 int Terrain::id() const
 {
-	if(name == "ANY") return -3;
-	if(name == "WRONG") return -2;
-	if(name == "BORDER") return -1;
-	
-	auto _terrains = Terrain::Manager::terrains();
-	auto iter = std::find(_terrains.begin(), _terrains.end(), *this);
-	return iter - _terrains.begin();
+	return Terrain::Manager::id(*this);
 }
 	
 bool Terrain::isLand() const
