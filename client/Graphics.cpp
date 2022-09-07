@@ -171,8 +171,8 @@ void Graphics::loadHeroAnimations()
 	{
 		for (auto & templ : VLC->objtypeh->getHandlerFor(Obj::HERO, elem->getIndex())->getTemplates())
 		{
-			if (!heroAnimations.count(templ.animationFile))
-				heroAnimations[templ.animationFile] = loadHeroAnimation(templ.animationFile);
+			if (!heroAnimations.count(templ->animationFile))
+				heroAnimations[templ->animationFile] = loadHeroAnimation(templ->animationFile);
 		}
 	}
 
@@ -379,21 +379,21 @@ std::shared_ptr<CAnimation> Graphics::getAnimation(const CGObjectInstance* obj)
 	return getAnimation(obj->appearance);
 }
 
-std::shared_ptr<CAnimation> Graphics::getAnimation(const ObjectTemplate & info)
+std::shared_ptr<CAnimation> Graphics::getAnimation(const ObjectTemplate * info)
 {
 	//the only(?) invisible object
-	if(info.id == Obj::EVENT)
+	if(info->id == Obj::EVENT)
 	{
 		return std::shared_ptr<CAnimation>();
 	}
 
-	if(info.animationFile.empty())
+	if(info->animationFile.empty())
 	{
-		logGlobal->warn("Def name for obj (%d,%d) is empty!", info.id, info.subid);
+		logGlobal->warn("Def name for obj (%d,%d) is empty!", info->id, info->subid);
 		return std::shared_ptr<CAnimation>();
 	}
 
-	std::shared_ptr<CAnimation> ret = mapObjectAnimations[info.animationFile];
+	std::shared_ptr<CAnimation> ret = mapObjectAnimations[info->animationFile];
 
 	//already loaded
 	if(ret)
@@ -402,8 +402,8 @@ std::shared_ptr<CAnimation> Graphics::getAnimation(const ObjectTemplate & info)
 		return ret;
 	}
 
-	ret = std::make_shared<CAnimation>(info.animationFile);
-	mapObjectAnimations[info.animationFile] = ret;
+	ret = std::make_shared<CAnimation>(info->animationFile);
+	mapObjectAnimations[info->animationFile] = ret;
 
 	ret->preload();
 	return ret;

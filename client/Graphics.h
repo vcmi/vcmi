@@ -99,7 +99,7 @@ public:
 	void blueToPlayersAdv(SDL_Surface * sur, PlayerColor player); //replaces blue interface colour with a color of player
 
 	std::shared_ptr<CAnimation> getAnimation(const CGObjectInstance * obj);
-	std::shared_ptr<CAnimation> getAnimation(const ObjectTemplate & info);
+	std::shared_ptr<CAnimation> getAnimation(const ObjectTemplate * info);
 };
 
 extern Graphics * graphics;

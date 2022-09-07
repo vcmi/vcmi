@@ -62,7 +62,7 @@ private:
 
 struct DLL_LINKAGE ObjectInfo
 {
-	ObjectTemplate templ;
+	ObjectTemplate * templ;
 	ui32 value;
 	ui16 probability;
 	ui32 maxPerZone;
@@ -98,8 +98,8 @@ public:
 	void setCenter(const float3 &f);
 	int3 getPos() const;
 	void setPos(const int3 &pos);
-	bool isAccessibleFromSomewhere(ObjectTemplate & appearance, const int3 & tile) const;
-	int3 getAccessibleOffset(ObjectTemplate & appearance, const int3 & tile) const;
+	bool isAccessibleFromSomewhere(const ObjectTemplate * appearance, const int3 & tile) const;
+	int3 getAccessibleOffset(const ObjectTemplate * appearance, const int3 & tile) const;
 
 	void addTile (const int3 & pos);
 	void removeTile(const int3 & pos);
@@ -227,7 +227,7 @@ private:
 	void addAllPossibleObjects (); //add objects, including zone-specific, to possibleObjects
 	bool findPlaceForObject(CGObjectInstance* obj, si32 min_dist, int3 &pos);
 	bool findPlaceForTreasurePile(float min_dist, int3 &pos, int value);
-	bool canObstacleBePlacedHere(ObjectTemplate &temp, int3 &pos);
+	bool canObstacleBePlacedHere(const ObjectTemplate* temp, int3 &pos);
 	void setTemplateForObject(CGObjectInstance* obj);
 	void checkAndPlaceObject(CGObjectInstance* object, const int3 &pos);
 	

@@ -26,17 +26,31 @@ template<class ObjectType>
 class CDefaultObjectTypeHandler : public AObjectTypeHandler
 {
 protected:
-	ObjectType * createTyped(const ObjectTemplate & tmpl) const
+	ObjectType * createTyped(const ObjectTemplate * tmpl /* = nullptr */) const
 	{
 		auto obj = new ObjectType();
 		preInitObject(obj);
-		obj->appearance = tmpl;
+
+		if (tmpl)
+		{
+			obj->appearance = const_cast<ObjectTemplate*>(tmpl);
+		}
+		else
+		{
+			auto templates = getTemplates();
+			if (templates.empty())
+			{
+				throw std::runtime_error("No handler for created object");
+			}
+			obj->appearance = templates.front(); //just any template for now, will be initialized later
+		}
+
 		return obj;
 	}
 public:
 	CDefaultObjectTypeHandler() {}
 
-	CGObjectInstance * create(const ObjectTemplate & tmpl) const override
+	CGObjectInstance * create(const ObjectTemplate * tmpl = nullptr) const override
 	{
 		return createTyped(tmpl);
 	}
@@ -45,7 +59,7 @@ public:
 	{
 	}
 
-	virtual std::unique_ptr<IObjectInfo> getObjectInfo(const ObjectTemplate & tmpl) const override
+	virtual std::unique_ptr<IObjectInfo> getObjectInfo(const ObjectTemplate * tmpl) const override
 	{
 		return nullptr;
 	}
@@ -62,7 +76,7 @@ class CTownInstanceConstructor : public CDefaultObjectTypeHandler<CGTownInstance
 {
 	JsonNode filtersJson;
 protected:
-	bool objectFilter(const CGObjectInstance *, const ObjectTemplate &) const override;
+	bool objectFilter(const CGObjectInstance *, const ObjectTemplate *) const override;
 	void initTypeData(const JsonNode & input) override;
 
 public:
@@ -70,7 +84,7 @@ public:
 	std::map<std::string, LogicalExpression<BuildingID>> filters;
 
 	CTownInstanceConstructor();
-	CGObjectInstance * create(const ObjectTemplate & tmpl) const override;
+	CGObjectInstance * create(const ObjectTemplate * tmpl = nullptr) const override;
 	void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const override;
 	void afterLoadFinalization() override;
 
@@ -87,7 +101,7 @@ class CHeroInstanceConstructor : public CDefaultObjectTypeHandler<CGHeroInstance
 {
 	JsonNode filtersJson;
 protected:
-	bool objectFilter(const CGObjectInstance *, const ObjectTemplate &) const override;
+	bool objectFilter(const CGObjectInstance *, const ObjectTemplate *) const override;
 	void initTypeData(const JsonNode & input) override;
 
 public:
@@ -95,7 +109,7 @@ public:
 	std::map<std::string, LogicalExpression<HeroTypeID>> filters;
 
 	CHeroInstanceConstructor();
-	CGObjectInstance * create(const ObjectTemplate & tmpl) const override;
+	CGObjectInstance * create(const ObjectTemplate * tmpl = nullptr) const override;
 	void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const override;
 	void afterLoadFinalization() override;
 
@@ -115,13 +129,13 @@ class CDwellingInstanceConstructor : public CDefaultObjectTypeHandler<CGDwelling
 	JsonNode guards;
 
 protected:
-	bool objectFilter(const CGObjectInstance *, const ObjectTemplate &) const override;
+	bool objectFilter(const CGObjectInstance *, const ObjectTemplate * tmpl) const override;
 	void initTypeData(const JsonNode & input) override;
 
 public:
 
 	CDwellingInstanceConstructor();
-	CGObjectInstance * create(const ObjectTemplate & tmpl) const override;
+	CGObjectInstance * create(const ObjectTemplate * tmpl = nullptr) const override;
 	void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const override;
 
 	bool producesCreature(const CCreature * crea) const;
@@ -207,10 +221,10 @@ public:
 
 	CBankInstanceConstructor();
 
-	CGObjectInstance * create(const ObjectTemplate & tmpl) const override;
+	CGObjectInstance * create(const ObjectTemplate * tmpl = nullptr) const override;
 	void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const override;
 
-	std::unique_ptr<IObjectInfo> getObjectInfo(const ObjectTemplate & tmpl) const override;
+	std::unique_ptr<IObjectInfo> getObjectInfo(const ObjectTemplate * tmpl) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

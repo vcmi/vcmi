@@ -124,6 +124,7 @@ CGObjectInstance::CGObjectInstance():
 	ID(Obj::NO_OBJ),
 	subID(-1),
 	tempOwner(PlayerColor::UNFLAGGABLE),
+	appearance(nullptr),
 	blockVisit(false)
 {
 }
@@ -152,24 +153,24 @@ void CGObjectInstance::setOwner(PlayerColor ow)
 }
 int CGObjectInstance::getWidth() const//returns width of object graphic in tiles
 {
-	return appearance.getWidth();
+	return appearance->getWidth();
 }
 int CGObjectInstance::getHeight() const //returns height of object graphic in tiles
 {
-	return appearance.getHeight();
+	return appearance->getHeight();
 }
 bool CGObjectInstance::visitableAt(int x, int y) const //returns true if object is visitable at location (x, y) form left top tile of image (x, y in tiles)
 {
-	return appearance.isVisitableAt(pos.x - x, pos.y - y);
+	return appearance->isVisitableAt(pos.x - x, pos.y - y);
 }
 bool CGObjectInstance::blockingAt(int x, int y) const
 {
-	return appearance.isBlockedAt(pos.x - x, pos.y - y);
+	return appearance->isBlockedAt(pos.x - x, pos.y - y);
 }
 
 bool CGObjectInstance::coveringAt(int x, int y) const
 {
-	return appearance.isVisibleAt(pos.x - x, pos.y - y);
+	return appearance->isVisibleAt(pos.x - x, pos.y - y);
 }
 
 std::set<int3> CGObjectInstance::getBlockedPos() const
@@ -179,7 +180,7 @@ std::set<int3> CGObjectInstance::getBlockedPos() const
 	{
 		for(int h=0; h<getHeight(); ++h)
 		{
-			if(appearance.isBlockedAt(w, h))
+			if(appearance->isBlockedAt(w, h))
 				ret.insert(int3(pos.x - w, pos.y - h, pos.z));
 		}
 	}
@@ -188,7 +189,7 @@ std::set<int3> CGObjectInstance::getBlockedPos() const
 
 std::set<int3> CGObjectInstance::getBlockedOffsets() const
 {
-	return appearance.getBlockedOffsets();
+	return appearance->getBlockedOffsets();
 }
 
 void CGObjectInstance::setType(si32 ID, si32 subID)
@@ -259,7 +260,7 @@ int CGObjectInstance::getSightRadius() const
 
 int3 CGObjectInstance::getVisitableOffset() const
 {
-	return appearance.getVisitableOffset();
+	return appearance->getVisitableOffset();
 }
 
 void CGObjectInstance::giveDummyBonus(ObjectInstanceID heroID, ui8 duration) const
@@ -345,7 +346,7 @@ int3 CGObjectInstance::visitablePos() const
 
 bool CGObjectInstance::isVisitable() const
 {
-	return appearance.isVisitable();
+	return appearance->isVisitable();
 }
 
 bool CGObjectInstance::passableFor(PlayerColor color) const
@@ -370,7 +371,7 @@ void CGObjectInstance::serializeJson(JsonSerializeFormat & handler)
 		handler.serializeInt("y", pos.y);
 		handler.serializeInt("l", pos.z);
 		JsonNode app;
-		appearance.writeJson(app, false);
+		appearance->writeJson(app, false);
 		handler.serializeRaw("template",app, boost::none);
 	}
 

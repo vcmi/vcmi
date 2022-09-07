@@ -731,11 +731,11 @@ void CMapGenerator::createConnections2()
 		if (posA.z != posB.z) //try to place subterranean gates
 		{
 			auto sgt = VLC->objtypeh->getHandlerFor(Obj::SUBTERRANEAN_GATE, 0)->getTemplates().front();
-			auto tilesBlockedByObject = sgt.getBlockedOffsets();
+			auto tilesBlockedByObject = sgt->getBlockedOffsets();
 
 			auto factory = VLC->objtypeh->getHandlerFor(Obj::SUBTERRANEAN_GATE, 0);
-			auto gate1 = factory->create(ObjectTemplate());
-			auto gate2 = factory->create(ObjectTemplate());
+			auto gate1 = factory->create();
+			auto gate2 = factory->create();
 
 			while (!guardPos.valid())
 			{
@@ -826,8 +826,8 @@ void CMapGenerator::createConnections2()
 		if (!guardPos.valid())
 		{
 			auto factory = VLC->objtypeh->getHandlerFor(Obj::MONOLITH_TWO_WAY, getNextMonlithIndex());
-			auto teleport1 = factory->create(ObjectTemplate());
-			auto teleport2 = factory->create(ObjectTemplate());
+			auto teleport1 = factory->create();
+			auto teleport2 = factory->create();
 
 			zoneA->addRequiredObject(teleport1, strength);
 			zoneB->addRequiredObject(teleport2, strength);

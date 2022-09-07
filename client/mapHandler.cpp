@@ -983,7 +983,7 @@ CMapHandler::AnimBitmapHolder CMapHandler::CMapBlitter::findHeroBitmap(const CGH
 		if (hero->boat)
 			animation = graphics->boatAnimations[hero->boat->subID];
 		else
-			animation = graphics->heroAnimations[hero->appearance.animationFile];
+			animation = graphics->heroAnimations[hero->appearance->animationFile];
 
 		bool moving = !hero->isStanding;
 		int group = getHeroFrameGroup(hero->moveDir, moving);
@@ -1490,8 +1490,8 @@ bool CMapHandler::compareObjectBlitOrder(const CGObjectInstance * a, const CGObj
 		return true;
 	if (!b)
 		return false;
-	if (a->appearance.printPriority != b->appearance.printPriority)
-		return a->appearance.printPriority > b->appearance.printPriority;
+	if (a->appearance->printPriority != b->appearance->printPriority)
+		return a->appearance->printPriority > b->appearance->printPriority;
 
 	if(a->pos.y != b->pos.y)
 		return a->pos.y < b->pos.y;

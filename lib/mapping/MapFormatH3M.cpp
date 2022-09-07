@@ -958,8 +958,8 @@ void CMapLoaderH3M::readDefInfo()
 	// Read custom defs
 	for(int idd = 0; idd < defAmount; ++idd)
 	{
-		ObjectTemplate tmpl;
-		tmpl.readMap(reader);
+		auto tmpl = new ObjectTemplate;
+		tmpl->readMap(reader);
 		templates.push_back(tmpl);
 	}
 }
@@ -977,10 +977,10 @@ void CMapLoaderH3M::readObjects()
 		int defnum = reader.readUInt32();
 		ObjectInstanceID idToBeGiven = ObjectInstanceID((si32)map->objects.size());
 
-		ObjectTemplate & objTempl = templates.at(defnum);
+		const ObjectTemplate * objTempl = templates.at(defnum);
 		reader.skip(5);
 
-		switch(objTempl.id)
+		switch(objTempl->id)
 		{
 		case Obj::EVENT:
 			{
@@ -1212,15 +1212,15 @@ void CMapLoaderH3M::readObjects()
 
 				readMessageAndGuards(art->message, art);
 
-				if(objTempl.id == Obj::SPELL_SCROLL)
+				if(objTempl->id == Obj::SPELL_SCROLL)
 				{
 					spellID = reader.readUInt32();
 					artID = ArtifactID::SPELL_SCROLL;
 				}
-				else if(objTempl.id == Obj::ARTIFACT)
+				else if(objTempl->id == Obj::ARTIFACT)
 				{
 					//specific artifact
-					artID = objTempl.subid;
+					artID = objTempl->subid;
 				}
 
 				art->storedArtifact = CArtifactInstance::createArtifact(map, artID, spellID);
@@ -1235,7 +1235,7 @@ void CMapLoaderH3M::readObjects()
 				readMessageAndGuards(res->message, res);
 
 				res->amount = reader.readUInt32();
-				if(objTempl.subid == Res::GOLD)
+				if(objTempl->subid == Res::GOLD)
 				{
 					// Gold is multiplied by 100.
 					res->amount *= 100;
@@ -1246,7 +1246,7 @@ void CMapLoaderH3M::readObjects()
 		case Obj::RANDOM_TOWN:
 		case Obj::TOWN:
 			{
-				nobj = readTown(objTempl.subid);
+				nobj = readTown(objTempl->subid);
 				break;
 			}
 		case Obj::MINE:
@@ -1347,7 +1347,7 @@ void CMapLoaderH3M::readObjects()
 				auto dwelling = new CGDwelling();
 				nobj = dwelling;
 				CSpecObjInfo * spec = nullptr;
-				switch(objTempl.id)
+				switch(objTempl->id)
 				{
 				case Obj::RANDOM_DWELLING:
 					spec = new CCreGenLeveledCastleInfo();
@@ -1450,7 +1450,7 @@ void CMapLoaderH3M::readObjects()
 			}
 		case Obj::PYRAMID: //Pyramid of WoG object
 			{
-				if(objTempl.subid == 0)
+				if(objTempl->subid == 0)
 				{
 					nobj = new CBank();
 				}
@@ -1470,13 +1470,13 @@ void CMapLoaderH3M::readObjects()
 			}
 		default: //any other object
 			{
-				if (VLC->objtypeh->knownSubObjects(objTempl.id).count(objTempl.subid))
+				if (VLC->objtypeh->knownSubObjects(objTempl->id).count(objTempl->subid))
 				{
-					nobj = VLC->objtypeh->getHandlerFor(objTempl.id, objTempl.subid)->create(objTempl);
+					nobj = VLC->objtypeh->getHandlerFor(objTempl->id, objTempl->subid)->create(objTempl);
 				}
 				else
 				{
-					logGlobal->warn("Unrecognized object: %d:%d at %s on map %s", objTempl.id.toEnum(), objTempl.subid, objPos.toString(), map->name);
+					logGlobal->warn("Unrecognized object: %d:%d at %s on map %s", objTempl->id.toEnum(), objTempl->subid, objPos.toString(), map->name);
 					nobj = new CGObjectInstance();
 				}
 				break;
@@ -1484,13 +1484,13 @@ void CMapLoaderH3M::readObjects()
 		}
 
 		nobj->pos = objPos;
-		nobj->ID = objTempl.id;
+		nobj->ID = objTempl->id;
 		nobj->id = idToBeGiven;
 		if(nobj->ID != Obj::HERO && nobj->ID != Obj::HERO_PLACEHOLDER && nobj->ID != Obj::PRISON)
 		{
-			nobj->subID = objTempl.subid;
+			nobj->subID = objTempl->subid;
 		}
-		nobj->appearance = objTempl;
+		nobj->appearance = const_cast<ObjectTemplate*>(objTempl);
 		assert(idToBeGiven == ObjectInstanceID((si32)map->objects.size()));
 
 		{

@@ -1122,7 +1122,7 @@ std::vector<int3> CGMagicSpring::getVisitableOffsets() const
 
 	for(int y = 0; y < 6; y++)
 		for (int x = 0; x < 8; x++) //starting from left
-			if (appearance.isVisitableAt(x, y))
+			if (appearance->isVisitableAt(x, y))
 				visitableTiles.push_back (int3(x, y , 0));
 
 	return visitableTiles;

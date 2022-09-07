@@ -1300,7 +1300,7 @@ bool CRmgTemplateZone::addMonster(int3 &pos, si32 strength, bool clearSurroundin
 
 	auto guardFactory = VLC->objtypeh->getHandlerFor(Obj::MONSTER, creId);
 
-	auto guard = (CGCreature *) guardFactory->create(ObjectTemplate());
+	auto guard = (CGCreature *) guardFactory->create();
 	guard->character = CGCreature::HOSTILE;
 	auto  hlp = new CStackInstance(creId, amount);
 	//will be set during initialization
@@ -1382,18 +1382,18 @@ bool CRmgTemplateZone::createTreasurePile(int3 &pos, float minDistance, const CT
 			//update treasure pile area
 			int3 visitablePos = info.nextTreasurePos;
 
-			if (oi.templ.isVisitableFromTop())
+			if (oi.templ->isVisitableFromTop())
 				info.visitableFromTopPositions.insert(visitablePos); //can be accessed from any direction
 			else
 				info.visitableFromBottomPositions.insert(visitablePos); //can be accessed only from bottom or side
 
-			for (auto blockedOffset : oi.templ.getBlockedOffsets())
+			for (auto blockedOffset : oi.templ->getBlockedOffsets())
 			{
-				int3 blockPos = info.nextTreasurePos + blockedOffset + oi.templ.getVisitableOffset(); //object will be moved to align vistable pos to treasure pos
+				int3 blockPos = info.nextTreasurePos + blockedOffset + oi.templ->getVisitableOffset(); //object will be moved to align vistable pos to treasure pos
 				info.occupiedPositions.insert(blockPos);
 				info.blockedPositions.insert(blockPos);
 			}
-			info.occupiedPositions.insert(visitablePos + oi.templ.getVisitableOffset());
+			info.occupiedPositions.insert(visitablePos + oi.templ->getVisitableOffset());
 
 			currentValue += oi.value;
 
@@ -1585,7 +1585,7 @@ void CRmgTemplateZone::initTownType ()
 			}
 
 			auto townFactory = VLC->objtypeh->getHandlerFor(Obj::TOWN, subType);
-			auto town = (CGTownInstance *) townFactory->create(ObjectTemplate());
+			auto town = (CGTownInstance *) townFactory->create();
 			town->ID = Obj::TOWN;
 
 			town->tempOwner = player;
@@ -1639,7 +1639,7 @@ void CRmgTemplateZone::initTownType ()
 
 		auto townFactory = VLC->objtypeh->getHandlerFor(Obj::TOWN, townType);
 
-		CGTownInstance * town = (CGTownInstance *) townFactory->create(ObjectTemplate());
+		CGTownInstance * town = (CGTownInstance *) townFactory->create();
 		town->tempOwner = player;
 		town->builtBuildings.insert(BuildingID::FORT);
 		town->builtBuildings.insert(BuildingID::DEFAULT);
@@ -1774,7 +1774,7 @@ bool CRmgTemplateZone::placeMines ()
 		ERes res = (ERes)mineInfo.first;
 		for(int i = 0; i < mineInfo.second; ++i)
 		{
-			auto mine = (CGMine*) VLC->objtypeh->getHandlerFor(Obj::MINE, res)->create(ObjectTemplate());
+			auto mine = (CGMine*) VLC->objtypeh->getHandlerFor(Obj::MINE, res)->create();
 			mine->producedResource = res;
 			mine->tempOwner = PlayerColor::NEUTRAL;
 			mine->producedQuantity = mine->defaultResProduction();
@@ -1794,7 +1794,7 @@ bool CRmgTemplateZone::placeMines ()
 		{
 			for(int rc = gen->rand.nextInt(1, extraRes); rc > 0; --rc)
 			{
-				auto resourse = (CGResource*) VLC->objtypeh->getHandlerFor(Obj::RESOURCE, mine->producedResource)->create(ObjectTemplate());
+				auto resourse = (CGResource*) VLC->objtypeh->getHandlerFor(Obj::RESOURCE, mine->producedResource)->create();
 				resourse->amount = CGResource::RANDOM_AMOUNT;
 				addNearbyObject(resourse, mine);
 			}
@@ -2034,7 +2034,7 @@ bool CRmgTemplateZone::makeBoat(TRmgTemplateZoneId land, const int3 & coast)
 		return false;
 	
 	auto subObjects = VLC->objtypeh->knownSubObjects(Obj::BOAT);
-	auto* boat = (CGBoat*)VLC->objtypeh->getHandlerFor(Obj::BOAT, *RandomGeneratorUtil::nextItem(subObjects, gen->rand))->create(ObjectTemplate());
+	auto* boat = (CGBoat*)VLC->objtypeh->getHandlerFor(Obj::BOAT, *RandomGeneratorUtil::nextItem(subObjects, gen->rand))->create();
 	
 	auto targetPos = boat->getVisitableOffset() + coast + int3{1, 0, 0}; //+1 offset for boat - bug?
 	if (gen->map->isInTheMap(targetPos) && gen->isPossible(targetPos) && gen->getZoneID(targetPos) == getId())
@@ -2070,7 +2070,7 @@ int3 CRmgTemplateZone::createShipyard(const std::set<int3> & lake, si32 guardStr
 bool CRmgTemplateZone::createShipyard(const int3 & position, si32 guardStrength)
 {
 	auto subObjects = VLC->objtypeh->knownSubObjects(Obj::SHIPYARD);
-	auto shipyard = (CGShipyard*) VLC->objtypeh->getHandlerFor(Obj::SHIPYARD, *RandomGeneratorUtil::nextItem(subObjects, gen->rand))->create(ObjectTemplate());
+	auto shipyard = (CGShipyard*) VLC->objtypeh->getHandlerFor(Obj::SHIPYARD, *RandomGeneratorUtil::nextItem(subObjects, gen->rand))->create();
 	shipyard->tempOwner = PlayerColor::NEUTRAL;
 	
 	setTemplateForObject(shipyard);
@@ -2253,7 +2253,7 @@ void CRmgTemplateZone::createObstacles1()
 void CRmgTemplateZone::createObstacles2()
 {
 
-	typedef std::vector<ObjectTemplate> obstacleVector;
+	typedef std::vector<ObjectTemplate*> obstacleVector;
 	//obstacleVector possibleObstacles;
 
 	std::map <ui8, obstacleVector> obstaclesBySize;
@@ -2270,8 +2270,8 @@ void CRmgTemplateZone::createObstacles2()
 			{
 				for (auto temp : handler->getTemplates())
 				{
-					if (temp.canBePlacedAt(terrainType) && temp.getBlockMapOffset().valid())
-						obstaclesBySize[(ui8)temp.getBlockedOffsets().size()].push_back(temp);
+					if (temp->canBePlacedAt(terrainType) && temp->getBlockMapOffset().valid())
+						obstaclesBySize[(ui8)temp->getBlockedOffsets().size()].push_back(temp);
 				}
 			}
 		}
@@ -2291,10 +2291,10 @@ void CRmgTemplateZone::createObstacles2()
 	auto tryToPlaceObstacleHere = [this, &possibleObstacles](int3& tile, int index)-> bool
 	{
 		auto temp = *RandomGeneratorUtil::nextItem(possibleObstacles[index].second, gen->rand);
-		int3 obstaclePos = tile + temp.getBlockMapOffset();
+		int3 obstaclePos = tile + temp->getBlockMapOffset();
 		if (canObstacleBePlacedHere(temp, obstaclePos)) //can be placed here
 		{
-			auto obj = VLC->objtypeh->getHandlerFor(temp.id, temp.subid)->create(temp);
+			auto obj = VLC->objtypeh->getHandlerFor(temp->id, temp->subid)->create(temp);
 			placeObject(obj, obstaclePos, false);
 			return true;
 		}
@@ -2440,17 +2440,17 @@ bool CRmgTemplateZone::findPlaceForTreasurePile(float min_dist, int3 &pos, int v
 	return result;
 }
 
-bool CRmgTemplateZone::canObstacleBePlacedHere(ObjectTemplate &temp, int3 &pos)
+bool CRmgTemplateZone::canObstacleBePlacedHere(const ObjectTemplate * temp, int3 &pos)
 {
 	if (!gen->map->isInTheMap(pos)) //blockmap may fit in the map, but botom-right corner does not
 		return false;
 
-	auto tilesBlockedByObject = temp.getBlockedOffsets();
+	auto tilesBlockedByObject = temp->getBlockedOffsets();
 
 	for (auto blockingTile : tilesBlockedByObject)
 	{
 		int3 t = pos + blockingTile;
-		if (!gen->map->isInTheMap(t) || !(gen->isPossible(t) || gen->shouldBeBlocked(t)) || !temp.canBePlacedAt(gen->map->getTile(t).terType))
+		if (!gen->map->isInTheMap(t) || !(gen->isPossible(t) || gen->shouldBeBlocked(t)) || !temp->canBePlacedAt(gen->map->getTile(t).terType))
 		{
 			return false; //if at least one tile is not possible, object can't be placed here
 		}
@@ -2458,14 +2458,14 @@ bool CRmgTemplateZone::canObstacleBePlacedHere(ObjectTemplate &temp, int3 &pos)
 	return true;
 }
 
-bool CRmgTemplateZone::isAccessibleFromSomewhere(ObjectTemplate & appearance, const int3 & tile) const
+bool CRmgTemplateZone::isAccessibleFromSomewhere(const ObjectTemplate * appearance, const int3 & tile) const
 {
 	return getAccessibleOffset(appearance, tile).valid();
 }
 
-int3 CRmgTemplateZone::getAccessibleOffset(ObjectTemplate & appearance, const int3 & tile) const
+int3 CRmgTemplateZone::getAccessibleOffset(const ObjectTemplate * appearance, const int3 & tile) const
 {
-	auto tilesBlockedByObject = appearance.getBlockedOffsets();
+	auto tilesBlockedByObject = appearance->getBlockedOffsets();
 
 	int3 ret(-1, -1, -1);
 	for (int x = -1; x < 2; x++)
@@ -2474,13 +2474,13 @@ int3 CRmgTemplateZone::getAccessibleOffset(ObjectTemplate & appearance, const in
 		{
 			if (x && y) //check only if object is visitable from another tile
 			{
-				int3 offset = int3(x, y, 0) - appearance.getVisitableOffset();
+				int3 offset = int3(x, y, 0) - appearance->getVisitableOffset();
 				if (!vstd::contains(tilesBlockedByObject, offset))
 				{
 					int3 nearbyPos = tile + offset;
 					if (gen->map->isInTheMap(nearbyPos))
 					{
-						if (appearance.isVisitableFrom(x, y) && !gen->isBlocked(nearbyPos) && tileinfo.find(nearbyPos) != tileinfo.end())
+						if (appearance->isVisitableFrom(x, y) && !gen->isBlocked(nearbyPos) && tileinfo.find(nearbyPos) != tileinfo.end())
 							ret = nearbyPos;
 					}
 				}
@@ -2492,7 +2492,7 @@ int3 CRmgTemplateZone::getAccessibleOffset(ObjectTemplate & appearance, const in
 
 void CRmgTemplateZone::setTemplateForObject(CGObjectInstance* obj)
 {
-	if (obj->appearance.id == Obj::NO_OBJ)
+	if (!obj->appearance || obj->appearance->id == Obj::NO_OBJ)
 	{
 		auto templates = VLC->objtypeh->getHandlerFor(obj->ID, obj->subID)->getTemplates(gen->map->getTile(getPos()).terType);
 		if (templates.empty())
@@ -2566,7 +2566,7 @@ void CRmgTemplateZone::checkAndPlaceObject(CGObjectInstance* object, const int3 
 			throw rmgException(boost::to_string(boost::format("Tile %s of object %d at %s is outside the map") % tile.toString() % object->id % object->pos.toString()));
 	}
 
-	if (object->appearance.id == Obj::NO_OBJ)
+	if (!object->appearance || object->appearance->id == Obj::NO_OBJ)
 	{
 		auto terrainType = gen->map->getTile(pos).terType;
 		auto templates = VLC->objtypeh->getHandlerFor(object->ID, object->subID)->getTemplates(terrainType);
@@ -2634,7 +2634,7 @@ void CRmgTemplateZone::placeAndGuardObject(CGObjectInstance* object, const int3 
 void CRmgTemplateZone::placeSubterraneanGate(int3 pos, si32 guardStrength)
 {
 	auto factory = VLC->objtypeh->getHandlerFor(Obj::SUBTERRANEAN_GATE, 0);
-	auto gate = factory->create(ObjectTemplate());
+	auto gate = factory->create();
 	placeObject (gate, pos, true);
 	addToConnectLater (getAccessibleOffset (gate->appearance, pos)); //guard will be placed on accessibleOffset
 	guardObject (gate, guardStrength, true);
@@ -2654,7 +2654,7 @@ std::vector<int3> CRmgTemplateZone::getAccessibleOffsets (const CGObjectInstance
 		{
 			if (!vstd::contains(tilesBlockedByObject, pos))
 			{
-				if (object->appearance.isVisitableFrom(pos.x - visitable.x, pos.y - visitable.y) && !gen->isBlocked(pos)) //TODO: refactor - info about visitability from absolute coordinates
+				if (object->appearance->isVisitableFrom(pos.x - visitable.x, pos.y - visitable.y) && !gen->isBlocked(pos)) //TODO: refactor - info about visitability from absolute coordinates
 				{
 					tiles.push_back(pos);
 				}
@@ -2732,14 +2732,14 @@ ObjectInfo CRmgTemplateZone::getRandomObject(CTreasurePileInfo &info, ui32 desir
 			break; //this assumes values are sorted in ascending order
 		if (oi.value >= minValue && oi.maxPerZone > 0)
 		{
-			int3 newVisitableOffset = oi.templ.getVisitableOffset(); //visitablePos assumes object will be shifter by visitableOffset
+			int3 newVisitableOffset = oi.templ->getVisitableOffset(); //visitablePos assumes object will be shifter by visitableOffset
 			int3 newVisitablePos = info.nextTreasurePos;
 
-			if (!oi.templ.isVisitableFromTop())
+			if (!oi.templ->isVisitableFromTop())
 			{
 				//objectsVisitableFromBottom++;
 				//there must be free tiles under object
-				auto blockedOffsets = oi.templ.getBlockedOffsets();
+				auto blockedOffsets = oi.templ->getBlockedOffsets();
 				if (!isAccessibleFromSomewhere(oi.templ, newVisitablePos))
 					continue;
 			}
@@ -2749,7 +2749,7 @@ ObjectInfo CRmgTemplateZone::getRandomObject(CTreasurePileInfo &info, ui32 desir
 			{
 				bool fitsHere = false;
 
-				if (oi.templ.isVisitableFromTop()) //new can be accessed from any direction
+				if (oi.templ->isVisitableFromTop()) //new can be accessed from any direction
 				{
 					for (auto tile : info.visitableFromTopPositions)
 					{
@@ -2799,7 +2799,7 @@ ObjectInfo CRmgTemplateZone::getRandomObject(CTreasurePileInfo &info, ui32 desir
 
 			bool fitsBlockmap = true;
 
-			std::set<int3> blockedOffsets = oi.templ.getBlockedOffsets();
+			std::set<int3> blockedOffsets = oi.templ->getBlockedOffsets();
 			blockedOffsets.insert (newVisitableOffset);
 			for (auto blockingTile : blockedOffsets)
 			{
@@ -2833,7 +2833,7 @@ ObjectInfo CRmgTemplateZone::getRandomObject(CTreasurePileInfo &info, ui32 desir
 			oi.generateObject = [minValue]() -> CGObjectInstance *
 			{
 				auto factory = VLC->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0);
-				auto obj = (CGPandoraBox *) factory->create(ObjectTemplate());
+				auto obj = (CGPandoraBox *) factory->create();
 				obj->resources[Res::GOLD] = minValue;
 				return obj;
 			};
@@ -2882,11 +2882,11 @@ void CRmgTemplateZone::addAllPossibleObjects()
 			{
 				for (auto temp : handler->getTemplates())
 				{
-					if (temp.canBePlacedAt(terrainType))
+					if (temp->canBePlacedAt(terrainType))
 					{
 						oi.generateObject = [temp]() -> CGObjectInstance *
 						{
-							return VLC->objtypeh->getHandlerFor(temp.id, temp.subid)->create(temp);
+							return VLC->objtypeh->getHandlerFor(temp->id, temp->subid)->create(temp);
 						};
 						auto rmgInfo = handler->getRMGInfo();
 						oi.value = rmgInfo.value;
@@ -2920,7 +2920,7 @@ void CRmgTemplateZone::addAllPossibleObjects()
 
 			auto hid = *RandomGeneratorUtil::nextItem(possibleHeroes, gen->rand);
 			auto factory = VLC->objtypeh->getHandlerFor(Obj::PRISON, 0);
-			auto obj = (CGHeroInstance *) factory->create(ObjectTemplate());
+			auto obj = (CGHeroInstance *) factory->create();
 
 
 			obj->subID = hid; //will be initialized later
@@ -2982,7 +2982,7 @@ void CRmgTemplateZone::addAllPossibleObjects()
 
 				for(auto tmplate : dwellingHandler->getTemplates())
 				{
-					if(tmplate.canBePlacedAt(terrainType))
+					if(tmplate->canBePlacedAt(terrainType))
 					{
 						oi.generateObject = [tmplate, secondaryID, dwellingType]() -> CGObjectInstance *
 						{
@@ -3004,7 +3004,7 @@ void CRmgTemplateZone::addAllPossibleObjects()
 		oi.generateObject = [i, this]() -> CGObjectInstance *
 		{
 			auto factory = VLC->objtypeh->getHandlerFor(Obj::SPELL_SCROLL, 0);
-			auto obj = (CGArtifact *) factory->create(ObjectTemplate());
+			auto obj = (CGArtifact *) factory->create();
 			std::vector<SpellID> out;
 
 			for (auto spell : VLC->spellh->objects) //spellh size appears to be greater (?)
@@ -3030,7 +3030,7 @@ void CRmgTemplateZone::addAllPossibleObjects()
 		oi.generateObject = [i]() -> CGObjectInstance *
 		{
 			auto factory = VLC->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0);
-			auto obj = (CGPandoraBox *) factory->create(ObjectTemplate());
+			auto obj = (CGPandoraBox *) factory->create();
 			obj->resources[Res::GOLD] = i * 5000;
 			return obj;
 		};
@@ -3046,7 +3046,7 @@ void CRmgTemplateZone::addAllPossibleObjects()
 		oi.generateObject = [i]() -> CGObjectInstance *
 		{
 			auto factory = VLC->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0);
-			auto obj = (CGPandoraBox *) factory->create(ObjectTemplate());
+			auto obj = (CGPandoraBox *) factory->create();
 			obj->gainedExp = i * 5000;
 			return obj;
 		};
@@ -3098,7 +3098,7 @@ void CRmgTemplateZone::addAllPossibleObjects()
 		oi.generateObject = [creature, creaturesAmount]() -> CGObjectInstance *
 		{
 			auto factory = VLC->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0);
-			auto obj = (CGPandoraBox *) factory->create(ObjectTemplate());
+			auto obj = (CGPandoraBox *) factory->create();
 			auto stack = new CStackInstance(creature, creaturesAmount);
 			obj->creatures.putStack(SlotID(0), stack);
 			return obj;
@@ -3115,7 +3115,7 @@ void CRmgTemplateZone::addAllPossibleObjects()
 		oi.generateObject = [i, this]() -> CGObjectInstance *
 		{
 			auto factory = VLC->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0);
-			auto obj = (CGPandoraBox *) factory->create(ObjectTemplate());
+			auto obj = (CGPandoraBox *) factory->create();
 
 			std::vector <CSpell *> spells;
 			for (auto spell : VLC->spellh->objects)
@@ -3144,7 +3144,7 @@ void CRmgTemplateZone::addAllPossibleObjects()
 		oi.generateObject = [i, this]() -> CGObjectInstance *
 		{
 			auto factory = VLC->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0);
-			auto obj = (CGPandoraBox *) factory->create(ObjectTemplate());
+			auto obj = (CGPandoraBox *) factory->create();
 
 			std::vector <CSpell *> spells;
 			for (auto spell : VLC->spellh->objects)
@@ -3172,7 +3172,7 @@ void CRmgTemplateZone::addAllPossibleObjects()
 	oi.generateObject = [this]() -> CGObjectInstance *
 	{
 		auto factory = VLC->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0);
-		auto obj = (CGPandoraBox *) factory->create(ObjectTemplate());
+		auto obj = (CGPandoraBox *) factory->create();
 
 		std::vector <CSpell *> spells;
 		for (auto spell : VLC->spellh->objects)
@@ -3244,7 +3244,7 @@ void CRmgTemplateZone::addAllPossibleObjects()
 			oi.generateObject = [creature, creaturesAmount, randomAppearance, this, generateArtInfo]() -> CGObjectInstance *
 			{
 				auto factory = VLC->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
-				auto obj = (CGSeerHut *) factory->create(ObjectTemplate());
+				auto obj = (CGSeerHut *) factory->create();
 				obj->rewardType = CGSeerHut::CREATURE;
 				obj->rID = creature->idNumber;
 				obj->rVal = creaturesAmount;
@@ -3279,7 +3279,7 @@ void CRmgTemplateZone::addAllPossibleObjects()
 			oi.generateObject = [i, randomAppearance, this, generateArtInfo]() -> CGObjectInstance *
 			{
 				auto factory = VLC->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
-				auto obj = (CGSeerHut *) factory->create(ObjectTemplate());
+				auto obj = (CGSeerHut *) factory->create();
 
 				obj->rewardType = CGSeerHut::EXPERIENCE;
 				obj->rID = 0; //unitialized?
@@ -3303,7 +3303,7 @@ void CRmgTemplateZone::addAllPossibleObjects()
 			oi.generateObject = [i, randomAppearance, this, generateArtInfo]() -> CGObjectInstance *
 			{
 				auto factory = VLC->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
-				auto obj = (CGSeerHut *) factory->create(ObjectTemplate());
+				auto obj = (CGSeerHut *) factory->create();
 				obj->rewardType = CGSeerHut::RESOURCES;
 				obj->rID = Res::GOLD;
 				obj->rVal = gen->getConfig().questRewardValues[i];
@@ -3327,7 +3327,10 @@ void CRmgTemplateZone::addAllPossibleObjects()
 }
 
 ObjectInfo::ObjectInfo()
-	: templ(), value(0), probability(0), maxPerZone(1)
+	: templ(nullptr),
+	value(0),
+	probability(0),
+	maxPerZone(1)
 {
 
 }

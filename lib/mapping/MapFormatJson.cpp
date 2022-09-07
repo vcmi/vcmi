@@ -1133,11 +1133,11 @@ void CMapLoaderJson::MapObjectLoader::construct()
 
 	auto handler = VLC->objtypeh->getHandlerFor(typeName, subtypeName);
 
-	ObjectTemplate appearance;
+	auto appearance = new ObjectTemplate;
 
-	appearance.id = Obj(handler->type);
-	appearance.subid = handler->subtype;
-	appearance.readJson(configuration["template"], false);
+	appearance->id = Obj(handler->type);
+	appearance->subid = handler->subtype;
+	appearance->readJson(configuration["template"], false);
 
 	instance = handler->create(appearance);
 
