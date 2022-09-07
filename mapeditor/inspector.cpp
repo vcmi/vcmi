@@ -18,12 +18,28 @@ Initializer::Initializer(CMap * m, CGObjectInstance * o) : map(m)
 	INIT_OBJ_TYPE(CGMine);
 	INIT_OBJ_TYPE(CGDwelling);
 	INIT_OBJ_TYPE(CGTownInstance);
+	INIT_OBJ_TYPE(CGCreature);
 	INIT_OBJ_TYPE(CGHeroInstance);
+}
+
+bool stringToBool(const QString & s)
+{
+	if(s == "TRUE")
+		return true;
+	//if(s == "FALSE")
+	return false;
 }
 
 void Initializer::initialize(CArmedInstance * o)
 {
 	if(!o) return;
+}
+
+void Initializer::initialize(CGCreature * o)
+{
+	if(!o) return;
+	
+	o->character = CGCreature::Character::HOSTILE;
 }
 
 void Initializer::initialize(CGDwelling * o)
@@ -166,6 +182,17 @@ void Inspector::updateProperties(CGResource * o)
 	addProperty("Amount", o->amount, false);
 }
 
+void Inspector::updateProperties(CGCreature * o)
+{
+	if(!o) return;
+	
+	addProperty("Message", o->message, false);
+	addProperty<CGCreature::Character>("Character", (CGCreature::Character)o->character, false);
+	addProperty("Never flees", o->neverFlees, false);
+	addProperty("Not growing", o->notGrowingTeam, false);
+	addProperty("Artifact reward", o->gainedArtifact); //TODO: implement in setProperty
+	//addProperty("Resources reward", o->resources); //TODO: implement in setProperty
+}
 
 
 void Inspector::updateProperties()
@@ -191,6 +218,7 @@ void Inspector::updateProperties()
 	UPDATE_OBJ_PROPERTIES(CGShipyard);
 	UPDATE_OBJ_PROPERTIES(CGDwelling);
 	UPDATE_OBJ_PROPERTIES(CGTownInstance);
+	UPDATE_OBJ_PROPERTIES(CGCreature);
 	UPDATE_OBJ_PROPERTIES(CGHeroInstance);
 	
 	table->show();
@@ -219,20 +247,19 @@ void Inspector::setProperty(const QString & key, const QVariant & value)
 	SET_PROPERTIES(CGResource);
 	SET_PROPERTIES(CGDwelling);
 	SET_PROPERTIES(CGGarrison);
+	SET_PROPERTIES(CGCreature);
 	SET_PROPERTIES(CGHeroInstance);
 	SET_PROPERTIES(CGShipyard);
 }
 
 void Inspector::setProperty(CArmedInstance * object, const QString & key, const QVariant & value)
 {
-	if(!object)
-		return;
+	if(!object) return;
 }
 
 void Inspector::setProperty(CGTownInstance * object, const QString & key, const QVariant & value)
 {
-	if(!object)
-		return;
+	if(!object) return;
 	
 	if(key == "Town name")
 		object->name = value.toString().toStdString();
@@ -240,8 +267,7 @@ void Inspector::setProperty(CGTownInstance * object, const QString & key, const 
 
 void Inspector::setProperty(CGMine * object, const QString & key, const QVariant & value)
 {
-	if(!object)
-		return;
+	if(!object) return;
 	
 	if(key == "Productivity")
 		object->producedQuantity = value.toString().toInt();
@@ -249,42 +275,63 @@ void Inspector::setProperty(CGMine * object, const QString & key, const QVariant
 
 void Inspector::setProperty(CGArtifact * object, const QString & key, const QVariant & value)
 {
-	if(!object)
-		return;
+	if(!object) return;
 }
 
 void Inspector::setProperty(CGDwelling * object, const QString & key, const QVariant & value)
 {
-	if(!object)
-		return;
+	if(!object) return;
 }
 
 void Inspector::setProperty(CGGarrison * object, const QString & key, const QVariant & value)
 {
-	if(!object)
-		return;
+	if(!object) return;
 }
 
 void Inspector::setProperty(CGHeroInstance * object, const QString & key, const QVariant & value)
 {
-	if(!object)
-		return;
+	if(!object) return;
 }
 
 void Inspector::setProperty(CGShipyard * object, const QString & key, const QVariant & value)
 {
-	if(!object)
-		return;
+	if(!object) return;
 }
 
 void Inspector::setProperty(CGResource * object, const QString & key, const QVariant & value)
 {
-	if(!object)
-		return;
+	if(!object) return;
 	
 	if(key == "Amount")
 		object->amount = value.toString().toInt();
 }
+
+void Inspector::setProperty(CGCreature * object, const QString & key, const QVariant & value)
+{
+	if(!object) return;
+	
+	if(key == "Message")
+		object->message = value.toString().toStdString();
+	if(key == "Character")
+	{
+		//COMPLIANT = 0, FRIENDLY = 1, AGRESSIVE = 2, HOSTILE = 3, SAVAGE = 4
+		if(value == "COMPLIANT")
+			object->character = CGCreature::Character::COMPLIANT;
+		if(value == "FRIENDLY")
+			object->character = CGCreature::Character::FRIENDLY;
+		if(value == "AGRESSIVE")
+			object->character = CGCreature::Character::AGRESSIVE;
+		if(value == "HOSTILE")
+			object->character = CGCreature::Character::HOSTILE;
+		if(value == "SAVAGE")
+			object->character = CGCreature::Character::SAVAGE;
+	}
+	if(key == "Never flees")
+		object->neverFlees = stringToBool(value.toString());
+	if(key == "Not growing")
+		object->notGrowingTeam = stringToBool(value.toString());
+}
+
 
 //===============IMPLEMENT PROPERTY VALUE TYPE============================
 QTableWidgetItem * Inspector::addProperty(CGObjectInstance * value)
@@ -360,6 +407,31 @@ QTableWidgetItem * Inspector::addProperty(const Res::ERes & value)
 			break;
 		case Res::ERes::GOLD:
 			str = "GOLD";
+			break;
+		default:
+			break;
+	}
+	return new QTableWidgetItem(str);
+}
+
+QTableWidgetItem * Inspector::addProperty(CGCreature::Character value)
+{
+	QString str;
+	switch (value) {
+		case CGCreature::Character::COMPLIANT:
+			str = "COMPLIANT";
+			break;
+		case CGCreature::Character::FRIENDLY:
+			str = "FRIENDLY";
+			break;
+		case CGCreature::Character::AGRESSIVE:
+			str = "AGRESSIVE";
+			break;
+		case CGCreature::Character::HOSTILE:
+			str = "HOSTILE";
+			break;
+		case CGCreature::Character::SAVAGE:
+			str = "SAVAGE";
 			break;
 		default:
 			break;

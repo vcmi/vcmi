@@ -32,6 +32,7 @@ public:
 	DECLARE_OBJ_TYPE(CGDwelling);
 	DECLARE_OBJ_TYPE(CGGarrison);
 	DECLARE_OBJ_TYPE(CGHeroInstance);
+	DECLARE_OBJ_TYPE(CGCreature);
 	
 	
 	Initializer(CMap *, CGObjectInstance *);
@@ -53,6 +54,7 @@ protected:
 	DECLARE_OBJ_PROPERTY_METHODS(CGDwelling);
 	DECLARE_OBJ_PROPERTY_METHODS(CGGarrison);
 	DECLARE_OBJ_PROPERTY_METHODS(CGHeroInstance);
+	DECLARE_OBJ_PROPERTY_METHODS(CGCreature);
 
 //===============DECLARE PROPERTY VALUE TYPE==============================
 	QTableWidgetItem * addProperty(unsigned int value);
@@ -64,6 +66,7 @@ protected:
 	QTableWidgetItem * addProperty(const Res::ERes & value);
 	QTableWidgetItem * addProperty(bool value);
 	QTableWidgetItem * addProperty(CGObjectInstance * value);
+	QTableWidgetItem * addProperty(CGCreature::Character value);
 	
 //===============END OF DECLARATION=======================================
 public:

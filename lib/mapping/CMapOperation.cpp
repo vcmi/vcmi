@@ -570,7 +570,10 @@ void CInsertObjectOperation::execute()
 {
 	obj->id = ObjectInstanceID(map->objects.size());
 
-	map->setUniqueInstanceName(obj);
+	do
+	{
+		map->setUniqueInstanceName(obj);
+	} while(vstd::contains(map->instanceNames, obj->instanceName));
 
 	map->addNewObject(obj);
 }
