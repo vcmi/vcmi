@@ -176,7 +176,7 @@ void CModList::modChanged(QString modID)
 {
 }
 
-static QVariant getValue(QVariantMap input, QString path)
+static QVariant getValue(QVariant input, QString path)
 {
 	if(path.size() > 1)
 	{
@@ -184,7 +184,7 @@ static QVariant getValue(QVariantMap input, QString path)
 		QString remainder = "/" + path.section('/', 2, -1);
 
 		entryName.remove(0, 1);
-		return getValue(input.value(entryName).toMap(), remainder);
+		return getValue(input.toMap().value(entryName), remainder);
 	}
 	else
 	{
@@ -201,14 +201,14 @@ CModEntry CModList::getMod(QString modname) const
 	QString path = modname;
 	path = "/" + path.replace(".", "/mods/");
 	QVariant conf = getValue(modSettings, path);
-
+	
 	if(conf.isNull())
 	{
 		settings["active"] = true; // default
 	}
 	else
 	{
-		if(conf.canConvert<QVariantMap>())
+		if(!conf.toMap().isEmpty())
 			settings = conf.toMap();
 		else
 			settings.insert("active", conf);

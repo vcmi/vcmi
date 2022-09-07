@@ -225,11 +225,29 @@ static QVariant writeValue(QString path, QVariantMap input, QVariant value)
 	}
 }
 
+bool CModManager::doEnableChildrenMods(QString mod, bool on, bool root)
+{
+	QString path = mod;
+	path = "/activeMods/" + path.replace(".", "/mods/") + "/active";
+	
+	if(root || !modSettings["activeMods"].toMap().contains(mod))
+	{
+		modSettings = writeValue(path, modSettings, QVariant(on)).toMap();
+		modList->setModSettings(modSettings["activeMods"]);
+		modList->modChanged(mod);
+	}
+	
+	for(auto & child : modList->getChildren(mod))
+		doEnableChildrenMods(child, on);
+	
+	return true;
+}
+
 bool CModManager::doEnableMod(QString mod, bool on)
 {
 	QString path = mod;
 	path = "/activeMods/" + path.replace(".", "/mods/") + "/active";
-
+	
 	modSettings = writeValue(path, modSettings, QVariant(on)).toMap();
 	modList->setModSettings(modSettings["activeMods"]);
 	modList->modChanged(mod);
@@ -279,6 +297,24 @@ bool CModManager::doInstallMod(QString modname, QString archivePath)
 	return true;
 }
 
+bool CModManager::doUninstallChildrenMods(QString parentMod)
+{
+	for(auto & child : modList->getChildren(parentMod))
+	{
+		if(!doUninstallChildrenMods(child))
+			return false;
+	}
+	
+	if(!localMods.contains(parentMod))
+		return addError(parentMod, "Data with this mod was not found");
+	
+	localMods.remove(parentMod);
+	modList->setLocalModList(localMods);
+	modList->modChanged(parentMod);
+	
+	return true;
+}
+
 bool CModManager::doUninstallMod(QString modname)
 {
 	ResourceID resID(std::string("Mods/") + modname.toUtf8().data(), EResType::DIRECTORY);
@@ -288,18 +324,11 @@ bool CModManager::doUninstallMod(QString modname)
 	if(!QDir(modDir).exists())
 		return addError(modname, "Data with this mod was not found");
 
-	if(!localMods.contains(modname))
-		return addError(modname, "Data with this mod was not found");
-
 	QDir modFullDir(modDir);
 	if(!removeModDir(modDir))
 		return addError(modname, "Mod is located in protected directory, plase remove it manually:\n" + modFullDir.absolutePath());
 
-	localMods.remove(modname);
-	modList->setLocalModList(localMods);
-	modList->modChanged(modname);
-
-	return true;
+	return doUninstallChildrenMods(modname);
 }
 
 bool CModManager::removeModDir(QString path)

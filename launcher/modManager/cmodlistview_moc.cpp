@@ -522,6 +522,9 @@ void CModListView::downloadFile(QString file, QString url, QString description)
 
 		connect(dlManager, SIGNAL(finished(QStringList,QStringList,QStringList)),
 			this, SLOT(downloadFinished(QStringList,QStringList,QStringList)));
+		
+		
+		connect(modModel, &CModListModel::dataChanged, filterModel, &QAbstractItemModel::dataChanged);
 
 
 		QString progressBarFormat = "Downloading %s%. %p% (%v KB out of %m KB) finished";
