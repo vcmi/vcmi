@@ -48,14 +48,17 @@ public:
 	class DLL_LINKAGE Manager
 	{
 	public:
-		static std::vector<Terrain> terrains();
+		static const std::vector<Terrain> & terrains();
 		static const Info & getInfo(const Terrain &);
+		static int id(const Terrain &);
 		
 	private:
 		static Manager & get();
 		Manager();
 		
 		std::unordered_map<std::string, Info> terrainInfo;
+		std::vector<Terrain> terrainVault;
+		std::map<Terrain, int> terrainId;
 	};
 	
 	/*enum EETerrainType
