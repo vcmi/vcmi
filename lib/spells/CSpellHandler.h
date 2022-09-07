@@ -442,10 +442,6 @@ public:
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & objects;
-		if(!h.saving && version < 780)
-		{
-			update780();
-		}
 
 		if(!h.saving)
 		{
@@ -456,6 +452,4 @@ public:
 protected:
 	const std::vector<std::string> & getTypeNames() const override;
 	CSpell * loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index) override;
-private:
-	void update780();
 };

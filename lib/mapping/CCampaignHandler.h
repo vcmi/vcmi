@@ -146,7 +146,6 @@ public:
 	// FIXME: due to usage of JsonNode I can't make these methods const
 	const CGHeroInstance * strongestHero(PlayerColor owner);
 	std::vector<CGHeroInstance *> getLostCrossoverHeroes(); /// returns a list of crossover heroes which started the scenario, but didn't complete it
-	std::vector<JsonNode> update787(std::vector<CGHeroInstance *> & heroes);
 
 	CCampaignScenario();
 
@@ -168,8 +167,6 @@ public:
 			std::vector<CGHeroInstance *> crossoverHeroesOld, placedCrossoverHeroesOld;
 			h & crossoverHeroesOld;
 			h & placedCrossoverHeroesOld;
-			crossoverHeroes = update787(crossoverHeroesOld);
-			placedCrossoverHeroes = update787(placedCrossoverHeroesOld);
 		}
 		else
 		{
