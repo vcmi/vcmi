@@ -213,6 +213,19 @@ CModEntry CModList::getMod(QString modname) const
 		else
 			settings.insert("active", conf);
 	}
+	
+	if(settings["active"].toBool())
+	{
+		QString rootPath = path.section('/', 0, 1);
+		if(path != rootPath)
+		{
+			conf = getValue(modSettings, rootPath);
+			if(!conf.isNull() && !conf.toMap()["active"].toBool())
+			{
+				settings = conf.toMap();
+			}
+		}
+	}
 
 	for(auto entry : repositories)
 	{
