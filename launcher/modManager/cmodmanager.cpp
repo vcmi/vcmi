@@ -9,6 +9,7 @@
  */
 #include "StdInc.h"
 #include "cmodmanager.h"
+#include "cmodlistmodel_moc.h"
 
 #include "../../lib/VCMIDirs.h"
 #include "../../lib/filesystem/Filesystem.h"
@@ -74,6 +75,7 @@ void CModManager::loadMods()
 	CModHandler handler;
 	handler.loadMods();
 	auto installedMods = handler.getAllMods();
+	localMods.clear();
 
 	for(auto modname : installedMods)
 	{
@@ -225,20 +227,17 @@ static QVariant writeValue(QString path, QVariantMap input, QVariant value)
 	}
 }
 
-bool CModManager::doEnableChildrenMods(QString mod, bool on, bool root)
+bool CModManager::removeRecord(QString mod)
 {
 	QString path = mod;
 	path = "/activeMods/" + path.replace(".", "/mods/") + "/active";
 	
-	if(root || !modSettings["activeMods"].toMap().contains(mod))
-	{
-		modSettings = writeValue(path, modSettings, QVariant(on)).toMap();
-		modList->setModSettings(modSettings["activeMods"]);
-		modList->modChanged(mod);
-	}
+	modSettings = writeValue(path, modSettings, QVariant()).toMap();
+	modList->setModSettings(modSettings["activeMods"]);
+	modList->modChanged(mod);
 	
 	for(auto & child : modList->getChildren(mod))
-		doEnableChildrenMods(child, on);
+		removeRecord(child);
 	
 	return true;
 }
@@ -288,11 +287,26 @@ bool CModManager::doInstallMod(QString modname, QString archivePath)
 	if(upperLevel != modDirName)
 		removeModDir(destDir + upperLevel);
 
-	QVariantMap json = JsonUtils::JsonFromFile(destDir + modname + "/mod.json").toMap();
+	//QVariantMap json = JsonUtils::JsonFromFile(destDir + modname + "/mod.json").toMap();
 
-	localMods.insert(modname, json);
-	modList->setLocalModList(localMods);
-	modList->modChanged(modname);
+	//localMods.insert(modname, json);
+	//modList->setLocalModList(localMods);
+	
+	JsonNode defaultFS;
+	defaultFS[""].Vector().resize(5);
+	defaultFS[""].Vector()[0]["type"].String() = "zip";
+	defaultFS[""].Vector()[0]["path"].String() = "/Content.zip";
+	defaultFS[""].Vector()[1]["type"].String() = "dir";
+	defaultFS[""].Vector()[1]["path"].String() = "/Content";
+	defaultFS[""].Vector()[2]["type"].String() = "dir";
+	defaultFS[""].Vector()[2]["path"].String() = "/Mods";
+	defaultFS[""].Vector()[3]["type"].String() = "dir";
+	defaultFS[""].Vector()[3]["path"].String() = "/";
+	defaultFS[""].Vector()[4]["type"].String() = "dir";
+	defaultFS[""].Vector()[4]["path"].String() = "";
+	
+	CResourceHandler::get("initial")->updateFilteredFiles([](const std::string &) { return true; });
+	loadMods();
 
 	return true;
 }
@@ -328,7 +342,17 @@ bool CModManager::doUninstallMod(QString modname)
 	if(!removeModDir(modDir))
 		return addError(modname, "Mod is located in protected directory, plase remove it manually:\n" + modFullDir.absolutePath());
 
-	return doUninstallChildrenMods(modname);
+	CResourceHandler::get("initial")->updateFilteredFiles(
+														  [](const std::string &)
+														  {
+		return true;
+	});
+	loadMods();
+	
+	for(auto & mod : localMods.keys())
+		modList->modChanged(mod);
+	
+	return true;
 }
 
 bool CModManager::removeModDir(QString path)

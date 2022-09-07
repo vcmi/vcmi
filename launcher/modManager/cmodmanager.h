@@ -19,12 +19,12 @@ class CModManager
 
 	// check-free version of public method
 	bool doEnableMod(QString mod, bool on);
-	bool doEnableChildrenMods(QString mod, bool on, bool root = false);
 	
 	bool doInstallMod(QString mod, QString archivePath);
 	
 	bool doUninstallMod(QString mod);
 	bool doUninstallChildrenMods(QString parentMod);
+	bool removeRecord(QString mod);
 
 	QVariantMap modSettings;
 	QVariantMap localMods;

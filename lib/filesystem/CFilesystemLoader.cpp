@@ -52,7 +52,7 @@ void CFilesystemLoader::updateFilteredFiles(std::function<bool(const std::string
 {
 	if (filter(mountPoint))
 	{
-		fileList = listFiles(mountPoint, 1, false);
+		fileList = listFiles(mountPoint, 99, false);
 	}
 }
 

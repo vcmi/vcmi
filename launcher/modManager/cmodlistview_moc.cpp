@@ -653,6 +653,9 @@ void CModListView::installMods(QStringList archives)
 
 	for(int i = 0; i < modNames.size(); i++)
 		manager->installMod(modNames[i], archives[i]);
+	
+	//refresh
+	loadRepositories();
 
 	std::function<void(QString)> enableMod;
 
@@ -661,7 +664,7 @@ void CModListView::installMods(QStringList archives)
 		auto mod = modModel->getMod(modName);
 		if(mod.isInstalled() && !mod.getValue("keepDisabled").toBool())
 		{
-			if(manager->enableMod(modName))
+			if(mod.isDisabled() && manager->enableMod(modName))
 			{
 				for(QString child : modModel->getChildren(modName))
 					enableMod(child);
