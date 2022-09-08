@@ -22,6 +22,8 @@ WindowNewMap::WindowNewMap(QWidget *parent) :
 
 	setWindowModality(Qt::ApplicationModal);
 
+	loadUserSettings();
+
 	show();
 
 	//setup initial parameters
@@ -34,7 +36,137 @@ WindowNewMap::WindowNewMap(QWidget *parent) :
 
 WindowNewMap::~WindowNewMap()
 {
+	saveUserSettings();
 	delete ui;
+}
+
+void WindowNewMap::loadUserSettings()
+{
+	//load window settings
+	QSettings s(Ui::teamName, Ui::appName);
+
+	auto width = s.value(newMapWidth);
+	if (width.isValid())
+	{
+		ui->widthTxt->setText(width.toString());
+	}
+	auto height = s.value(newMapHeight);
+	if (height.isValid())
+	{
+		ui->heightTxt->setText(height.toString());
+	}
+	auto twoLevel = s.value(newMapTwoLevel);
+	if (twoLevel.isValid())
+	{
+		ui->twoLevelCheck->setChecked(twoLevel.toBool());
+	}
+	auto generateRandom = s.value(newMapGenerateRandom);
+	if (generateRandom.isValid())
+	{
+		ui->randomMapCheck->setChecked(generateRandom.toBool());
+	}
+	auto players = s.value(newMapPlayers);
+	if (players.isValid())
+	{
+		ui->humanCombo->setCurrentIndex(players.toInt());
+	}
+	auto cpuPlayers = s.value(newMapCpuPlayers);
+	if (cpuPlayers.isValid())
+	{
+		ui->cpuCombo->setCurrentIndex(cpuPlayers.toInt());
+	}
+	//TODO: teams when implemented
+
+	auto waterContent = s.value(newMapWaterContent);
+	if (waterContent.isValid())
+	{
+		switch (waterContent.toInt())
+		{
+			case EWaterContent::RANDOM:
+				ui->waterOpt1->setChecked(true); break;
+			case EWaterContent::NORMAL:
+				ui->waterOpt2->setChecked(true); break;
+			case EWaterContent::ISLANDS:
+				ui->waterOpt3->setChecked(true); break;
+			case EWaterContent::NONE:
+				ui->waterOpt4->setChecked(true); break;
+		}
+
+	}
+	auto monsterStrength = s.value(newMapWaterContent);
+	if (monsterStrength.isValid())
+	{
+		switch (monsterStrength.toInt())
+		{
+			case EMonsterStrength::RANDOM:
+				ui->monsterOpt1->setChecked(true); break;
+			case EMonsterStrength::GLOBAL_WEAK:
+				ui->monsterOpt2->setChecked(true); break;
+			case EMonsterStrength::GLOBAL_NORMAL:
+				ui->monsterOpt3->setChecked(true); break;
+			case EMonsterStrength::GLOBAL_STRONG:
+				ui->monsterOpt4->setChecked(true); break;
+		}
+	}
+
+	auto templateName = s.value(newMapTemplate);
+	if (templateName.isValid())
+	{
+		updateTemplateList();
+		
+		auto* templ = VLC->tplh->getTemplate(templateName.toString().toStdString());
+		if (templ)
+		{
+			ui->templateCombo->setCurrentText(templateName.toString());
+			//TODO: validate inside this method
+			mapGenOptions.setMapTemplate(templ);
+		}
+		else
+		{
+			//Display problem on status bar
+		}
+	}
+}
+
+void WindowNewMap::saveUserSettings()
+{
+	QSettings s(Ui::teamName, Ui::appName);
+	s.setValue(newMapWidth, ui->widthTxt->text().toInt());
+	s.setValue(newMapHeight, ui->heightTxt->text().toInt());
+	s.setValue(newMapTwoLevel, ui->twoLevelCheck->isChecked());
+	s.setValue(newMapGenerateRandom, ui->randomMapCheck->isChecked());
+
+	s.setValue(newMapPlayers,ui->humanCombo->currentIndex());
+	s.setValue(newMapCpuPlayers,ui->cpuCombo->currentIndex());
+	//TODO: teams when implemented
+
+	EWaterContent::EWaterContent water = EWaterContent::RANDOM;
+	if(ui->waterOpt1->isChecked())
+		water = EWaterContent::RANDOM;
+	else if(ui->waterOpt2->isChecked())
+		water = EWaterContent::NONE;
+	else if(ui->waterOpt3->isChecked())
+		water = EWaterContent::NORMAL;
+	else if(ui->waterOpt4->isChecked())
+		water = EWaterContent::ISLANDS;
+	s.setValue(newMapWaterContent, static_cast<int>(water));
+
+	EMonsterStrength::EMonsterStrength monster = EMonsterStrength::RANDOM;
+	if(ui->monsterOpt1->isChecked())
+		monster = EMonsterStrength::RANDOM;
+	else if(ui->monsterOpt2->isChecked())
+		monster = EMonsterStrength::GLOBAL_WEAK;
+	else if(ui->monsterOpt3->isChecked())
+		monster = EMonsterStrength::GLOBAL_NORMAL;
+	else if(ui->monsterOpt4->isChecked())
+		monster = EMonsterStrength::GLOBAL_STRONG;
+	s.setValue(newMapMonsterStrength, static_cast<int>(water));
+
+	auto templateName = ui->templateCombo->currentText();
+	if (templateName.size())
+	{
+		s.setValue(newMapTemplate, templateName);
+	}
 }
 
 void WindowNewMap::on_cancelButton_clicked()
@@ -151,21 +283,7 @@ void WindowNewMap::on_twoLevelCheck_stateChanged(int arg1)
 
 void WindowNewMap::on_humanCombo_activated(int index)
 {
-	const int playerLimit = 8;
-	std::map<int, int> players
-	{
-		{0, CMapGenOptions::RANDOM_SIZE},
-		{1, 1},
-		{2, 2},
-		{3, 3},
-		{4, 4},
-		{5, 5},
-		{6, 6},
-		{7, 7},
-		{8, 8}
-	};
-
-	int humans = players[index];
+	int humans = players.at(index);
 	if(humans > playerLimit)
 	{
 		humans = playerLimit;
@@ -203,22 +321,8 @@ void WindowNewMap::on_humanCombo_activated(int index)
 
 void WindowNewMap::on_cpuCombo_activated(int index)
 {
-	const int playerLimit = 8;
-	std::map<int, int> players
-	{
-		{0, CMapGenOptions::RANDOM_SIZE},
-		{1, 0},
-		{2, 1},
-		{3, 2},
-		{4, 3},
-		{5, 4},
-		{6, 5},
-		{7, 6},
-		{8, 7}
-	};
-
 	int humans = mapGenOptions.getPlayerCount();
-	int cpu = players[index];
+	int cpu = cpuPlayers.at(index);
 	if(cpu > playerLimit - humans)
 	{
 		cpu = playerLimit - humans;

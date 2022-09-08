@@ -72,8 +72,6 @@ void MainWindow::loadUserSettings()
 	{
 		move(position);
 	}
-
-	//TODO: New map / random template settings
 }
 
 void MainWindow::saveUserSettings()
