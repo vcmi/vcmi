@@ -265,11 +265,18 @@ void MapView::mousePressEvent(QMouseEvent *event)
 				{
 					if(sc->selectionObjectsView.isSelected(obj))
 					{
-						sc->selectionObjectsView.selectionMode = 2;
+						if(qApp->keyboardModifiers() & Qt::ControlModifier)
+						{
+							sc->selectionObjectsView.deselectObject(obj);
+							sc->selectionObjectsView.selectionMode = 1;
+						}
+						else
+							sc->selectionObjectsView.selectionMode = 2;
 					}
 					else
 					{
-						sc->selectionObjectsView.clear();
+						if(!(qApp->keyboardModifiers() & Qt::ControlModifier))
+							sc->selectionObjectsView.clear();
 						sc->selectionObjectsView.selectionMode = 2;
 						sc->selectionObjectsView.selectObject(obj);
 					}
