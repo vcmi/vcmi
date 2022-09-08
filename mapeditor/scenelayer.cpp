@@ -470,6 +470,11 @@ void SelectionObjectsLayer::selectObject(CGObjectInstance * obj, bool inform /* 
 	}
 }
 
+void SelectionObjectsLayer::deselectObject(CGObjectInstance * obj)
+{
+	selectedObjects.erase(obj);
+}
+
 bool SelectionObjectsLayer::isSelected(const CGObjectInstance * obj) const
 {
 	return selectedObjects.count(const_cast<CGObjectInstance*>(obj));

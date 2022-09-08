@@ -864,7 +864,10 @@ void MainWindow::on_actionUpdate_appearance_triggered()
 	if(QMessageBox::Yes != QMessageBox::question(this, "Update appearance", "This operation is irreversible. Do you want to continue?"))
 		return;
 	
+	controller.scene(mapLevel)->selectionTerrainView.clear();
+	
 	int errors = 0;
+	std::set<CGObjectInstance*> staticObjects;
 	for(auto * obj : controller.scene(mapLevel)->selectionObjectsView.getSelection())
 	{
 		auto handler = VLC->objtypeh->getHandlerFor(obj->ID, obj->subID);
@@ -875,26 +878,46 @@ void MainWindow::on_actionUpdate_appearance_triggered()
 		}
 		
 		auto terrain = controller.map()->getTile(obj->visitablePos()).terType;
-		auto app = handler->getOverride(terrain, obj);
-		if(!app)
+		
+		if(handler->isStaticObject())
 		{
+			staticObjects.insert(obj);
 			if(obj->appearance.canBePlacedAt(terrain))
-				continue;
-			
-			auto templates = handler->getTemplates(terrain);
-			if(templates.empty())
 			{
-				++errors;
+				controller.scene(mapLevel)->selectionObjectsView.deselectObject(obj);
 				continue;
 			}
-			app = templates.front();
+			
+			for(auto & offset : obj->appearance.getBlockedOffsets())
+				controller.scene(mapLevel)->selectionTerrainView.select(obj->pos + offset);
 		}
-		auto tiles = controller.mapHandler()->getTilesUnderObject(obj);
-		obj->appearance = app.get();
-		controller.mapHandler()->invalidate(tiles);
-		controller.mapHandler()->invalidate(obj);
+		else
+		{
+			auto app = handler->getOverride(terrain, obj);
+			if(!app)
+			{
+				if(obj->appearance.canBePlacedAt(terrain))
+					continue;
+				
+				auto templates = handler->getTemplates(terrain);
+				if(templates.empty())
+				{
+					++errors;
+					continue;
+				}
+				app = templates.front();
+			}
+			auto tiles = controller.mapHandler()->getTilesUnderObject(obj);
+			obj->appearance = app.get();
+			controller.mapHandler()->invalidate(tiles);
+			controller.mapHandler()->invalidate(obj);
+			controller.scene(mapLevel)->selectionObjectsView.deselectObject(obj);
+		}
 	}
 	controller.commitObjectChange(mapLevel);
+	controller.commitObjectErase(mapLevel);
+	controller.commitObstacleFill(mapLevel);
+	
 	
 	if(errors)
 		QMessageBox::warning(this, "Update appearance", QString("Errors occured. %1 objects were not updated").arg(errors));

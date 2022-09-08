@@ -127,6 +127,7 @@ public:
 	CGObjectInstance * selectObjectAt(int x, int y) const;
 	void selectObjects(int x1, int y1, int x2, int y2);
 	void selectObject(CGObjectInstance *, bool inform = true);
+	void deselectObject(CGObjectInstance *);
 	bool isSelected(const CGObjectInstance *) const;
 	std::set<CGObjectInstance*> getSelection() const;
 	void moveSelection(int x, int y);

@@ -81,16 +81,9 @@
     <addaction name="actionRedo"/>
     <addaction name="actionErase"/>
    </widget>
-   <widget class="QMenu" name="menuPlayer">
-    <property name="title">
-     <string>Player</string>
-    </property>
-    <addaction name="actionNeutral"/>
-   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuMap"/>
-   <addaction name="menuPlayer"/>
   </widget>
   <widget class="QToolBar" name="toolBar">
    <property name="windowTitle">
@@ -902,11 +895,17 @@
    </property>
   </action>
   <action name="actionUpdate_appearance">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Update appearance</string>
    </property>
   </action>
   <action name="actionRecreate_obstacles">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Recreate obstacles</string>
    </property>
