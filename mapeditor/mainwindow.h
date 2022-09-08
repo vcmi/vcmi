@@ -12,13 +12,19 @@ class CMap;
 class ObjectBrowser;
 class CGObjectInstance;
 
-namespace Ui {
-class MainWindow;
+namespace Ui
+{
+	class MainWindow;
+	const QString teamName = "VCMI Team";
+	const QString appName = "VCMI Map Editor";
 }
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
+
+	const QString mainWindowSizeSetting = "MainWindow/Size";
+	const QString mainWindowPositionSetting = "MainWindow/Position";
 
 public:
     explicit MainWindow(QWidget *parent = nullptr);
@@ -107,6 +113,9 @@ private:
 
 	void changeBrushState(int idx);
 	void setTitle();
+
+	void loadUserSettings();
+	void saveUserSettings();
 
 private:
     Ui::MainWindow *ui;

@@ -51,9 +51,36 @@ QPixmap pixmapFromJson(const QJsonValue &val)
 
 void init()
 {
+
 	loadDLLClasses();
 	const_cast<CGameInfo*>(CGI)->setFromLib();
 	logGlobal->info("Initializing VCMI_Lib");
+}
+
+void MainWindow::loadUserSettings()
+{
+	//load window settings
+	QSettings s(Ui::teamName, Ui::appName);
+
+	auto size = s.value(mainWindowSizeSetting).toSize();
+	if (size.isValid())
+	{
+		resize(size);
+	}
+	auto position = s.value(mainWindowPositionSetting).toPoint();
+	if (!position.isNull())
+	{
+		move(position);
+	}
+
+	//TODO: New map / random template settings
+}
+
+void MainWindow::saveUserSettings()
+{
+	QSettings s(Ui::teamName, Ui::appName);
+	s.setValue(mainWindowSizeSetting, size());
+	s.setValue(mainWindowPositionSetting, pos());
 }
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -62,6 +89,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	controller(this)
 {
 	ui->setupUi(this);
+	loadUserSettings(); //For example window size
 	setTitle();
 	
 	// Set current working dir to executable folder.
@@ -141,6 +169,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+	saveUserSettings(); //save window size etc.
     delete ui;
 }
 
