@@ -84,16 +84,16 @@ void WindowNewMap::loadUserSettings()
 		{
 			case EWaterContent::RANDOM:
 				ui->waterOpt1->setChecked(true); break;
-			case EWaterContent::NORMAL:
-				ui->waterOpt2->setChecked(true); break;
-			case EWaterContent::ISLANDS:
-				ui->waterOpt3->setChecked(true); break;
 			case EWaterContent::NONE:
+				ui->waterOpt2->setChecked(true); break;
+			case EWaterContent::NORMAL:
+				ui->waterOpt3->setChecked(true); break;
+			case EWaterContent::ISLANDS:
 				ui->waterOpt4->setChecked(true); break;
 		}
 
 	}
-	auto monsterStrength = s.value(newMapWaterContent);
+	auto monsterStrength = s.value(newMapMonsterStrength);
 	if (monsterStrength.isValid())
 	{
 		switch (monsterStrength.toInt())
@@ -160,7 +160,7 @@ void WindowNewMap::saveUserSettings()
 		monster = EMonsterStrength::GLOBAL_NORMAL;
 	else if(ui->monsterOpt4->isChecked())
 		monster = EMonsterStrength::GLOBAL_STRONG;
-	s.setValue(newMapMonsterStrength, static_cast<int>(water));
+	s.setValue(newMapMonsterStrength, static_cast<int>(monster));
 
 	auto templateName = ui->templateCombo->currentText();
 	if (templateName.size())
