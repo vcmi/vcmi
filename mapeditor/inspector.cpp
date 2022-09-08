@@ -49,6 +49,14 @@ void Initializer::initialize(CGDwelling * o)
 	if(!o) return;
 	
 	o->tempOwner = PlayerColor::NEUTRAL;
+	
+	switch(o->ID)
+	{
+		case Obj::RANDOM_DWELLING:
+		case Obj::RANDOM_DWELLING_LVL:
+		case Obj::RANDOM_DWELLING_FACTION:
+			o->initRandomObjectInfo();
+	}
 }
 
 void Initializer::initialize(CGGarrison * o)
