@@ -91,7 +91,7 @@ public:
 	void invalidate(CGObjectInstance *); //invalidates object rects
 	void invalidate(const std::vector<int3> &); //invalidates all tiles
 	void invalidateObjects(); //invalidates all objects on the map
-	std::vector<int3> geTilesUnderObject(CGObjectInstance *) const;
+	std::vector<int3> getTilesUnderObject(CGObjectInstance *) const;
 	
 	/// draws all objects on current tile (higher-level logic, unlike other draw*** methods)
 	void drawObjects(QPainter & painter, int x, int y, int z);

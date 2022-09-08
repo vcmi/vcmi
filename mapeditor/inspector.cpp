@@ -113,6 +113,7 @@ void Initializer::initialize(CGMine * o)
 {
 	if(!o) return;
 	
+	o->tempOwner = PlayerColor::NEUTRAL;
 	o->producedResource = Res::ERes(o->subID);
 	o->producedQuantity = o->defaultResProduction();
 }

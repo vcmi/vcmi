@@ -473,7 +473,7 @@ void MapHandler::invalidate(CGObjectInstance * obj)
 	}
 }
 
-std::vector<int3> MapHandler::geTilesUnderObject(CGObjectInstance * obj) const
+std::vector<int3> MapHandler::getTilesUnderObject(CGObjectInstance * obj) const
 {
 	std::vector<int3> result;
 	for(int fx=0; fx < obj->getWidth(); ++fx)

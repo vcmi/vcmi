@@ -87,6 +87,10 @@ private slots:
 
 	void on_actionValidate_triggered();
 
+	void on_actionUpdate_appearance_triggered();
+
+	void on_actionRecreate_obstacles_triggered();
+
 public slots:
 
 	void treeViewSelected(const QModelIndex &selected, const QModelIndex &deselected);

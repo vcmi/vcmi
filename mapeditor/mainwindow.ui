@@ -70,6 +70,8 @@
     <addaction name="actionMapSettings"/>
     <addaction name="actionPlayers_settings"/>
     <addaction name="actionValidate"/>
+    <addaction name="actionUpdate_appearance"/>
+    <addaction name="actionRecreate_obstacles"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -239,7 +241,7 @@
         </sizepolicy>
        </property>
        <property name="currentIndex">
-        <number>1</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="tab_2">
         <property name="sizePolicy">
@@ -897,6 +899,16 @@
   <action name="actionValidate">
    <property name="text">
     <string>Validate</string>
+   </property>
+  </action>
+  <action name="actionUpdate_appearance">
+   <property name="text">
+    <string>Update appearance</string>
+   </property>
+  </action>
+  <action name="actionRecreate_obstacles">
+   <property name="text">
+    <string>Recreate obstacles</string>
    </property>
   </action>
  </widget>

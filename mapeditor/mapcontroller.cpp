@@ -189,7 +189,7 @@ void MapController::commitObjectErase(int level)
 	for (auto obj : selectedObjects)
 	{
 		//invalidate tiles under objects
-		_mapHandler->invalidate(_mapHandler->geTilesUnderObject(obj));
+		_mapHandler->invalidate(_mapHandler->getTilesUnderObject(obj));
 	}
 
 	_scenes[level]->selectionObjectsView.clear();
@@ -257,14 +257,10 @@ void MapController::commitObstacleFill(int level)
 }
 
 void MapController::commitObjectChange(int level)
-{
-	if(_scenes[level]->selectionObjectsView.getSelection().size() == 1)
-	{
-		auto * obj = *_scenes[level]->selectionObjectsView.getSelection().begin();
-		if(auto * town = dynamic_cast<CGTownInstance*>(obj))
-			town->updateAppearance();
-	}
+{	
+	//for( auto * o : _scenes[level]->selectionObjectsView.getSelection())
 		//_mapHandler->invalidate(o);
+	
 	_scenes[level]->objectsView.draw();
 	_scenes[level]->selectionObjectsView.draw();
 	_scenes[level]->passabilityView.update();
@@ -299,7 +295,7 @@ void MapController::commitObjectShiftOrCreate(int level)
 		}
 		else
 		{
-			auto prevPositions = _mapHandler->geTilesUnderObject(obj);
+			auto prevPositions = _mapHandler->getTilesUnderObject(obj);
 			_map->getEditManager()->moveObject(obj, pos);
 			_mapHandler->invalidate(prevPositions);
 			_mapHandler->invalidate(obj);

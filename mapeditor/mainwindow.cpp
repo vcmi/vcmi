@@ -849,3 +849,60 @@ void MainWindow::on_actionValidate_triggered()
 	new Validator(controller.map(), this);
 }
 
+
+void MainWindow::on_actionUpdate_appearance_triggered()
+{
+	if(!controller.map())
+		return;
+	
+	if(controller.scene(mapLevel)->selectionObjectsView.getSelection().empty())
+	{
+		QMessageBox::information(this, "Update appearance", "No objects selected");
+		return;
+	}
+	
+	if(QMessageBox::Yes != QMessageBox::question(this, "Update appearance", "This operation is irreversible. Do you want to continue?"))
+		return;
+	
+	int errors = 0;
+	for(auto * obj : controller.scene(mapLevel)->selectionObjectsView.getSelection())
+	{
+		auto handler = VLC->objtypeh->getHandlerFor(obj->ID, obj->subID);
+		if(!controller.map()->isInTheMap(obj->visitablePos()))
+		{
+			++errors;
+			continue;
+		}
+		
+		auto terrain = controller.map()->getTile(obj->visitablePos()).terType;
+		auto app = handler->getOverride(terrain, obj);
+		if(!app)
+		{
+			if(obj->appearance.canBePlacedAt(terrain))
+				continue;
+			
+			auto templates = handler->getTemplates(terrain);
+			if(templates.empty())
+			{
+				++errors;
+				continue;
+			}
+			app = templates.front();
+		}
+		auto tiles = controller.mapHandler()->getTilesUnderObject(obj);
+		obj->appearance = app.get();
+		controller.mapHandler()->invalidate(tiles);
+		controller.mapHandler()->invalidate(obj);
+	}
+	controller.commitObjectChange(mapLevel);
+	
+	if(errors)
+		QMessageBox::warning(this, "Update appearance", QString("Errors occured. %1 objects were not updated").arg(errors));
+}
+
+
+void MainWindow::on_actionRecreate_obstacles_triggered()
+{
+
+}
+
