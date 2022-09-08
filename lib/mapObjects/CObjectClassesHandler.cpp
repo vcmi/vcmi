@@ -120,7 +120,7 @@ std::vector<JsonNode> CObjectClassesHandler::loadLegacyData(size_t dataSize)
 		templ->readTxt(parser);
 		parser.endLine();
 		std::pair<si32, si32> key(templ->id.num, templ->subid);
-		legacyTemplates.insert(std::make_pair(key, templ));
+		legacyTemplates.insert(std::make_pair(key, std::shared_ptr<const ObjectTemplate>(templ)));
 	}
 
 	std::vector<JsonNode> ret(dataSize);// create storage for 256 objects
