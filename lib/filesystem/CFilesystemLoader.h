@@ -45,6 +45,8 @@ private:
 	boost::filesystem::path baseDirectory;
 
 	std::string mountPoint;
+	
+	size_t recursiveDepth;
 
 	/** A list of files in the directory
 	 * key = ResourceID for resource loader

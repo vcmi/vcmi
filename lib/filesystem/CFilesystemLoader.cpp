@@ -16,9 +16,10 @@
 namespace bfs = boost::filesystem;
 
 CFilesystemLoader::CFilesystemLoader(std::string _mountPoint, bfs::path baseDirectory, size_t depth, bool initial):
-    baseDirectory(std::move(baseDirectory)),
-    mountPoint(std::move(_mountPoint)),
-    fileList(listFiles(mountPoint, depth, initial))
+	baseDirectory(std::move(baseDirectory)),
+	mountPoint(std::move(_mountPoint)),
+	fileList(listFiles(mountPoint, depth, initial)),
+	recursiveDepth(depth)
 {
 	logGlobal->trace("File system loaded, %d files found", fileList.size());
 }
@@ -52,7 +53,7 @@ void CFilesystemLoader::updateFilteredFiles(std::function<bool(const std::string
 {
 	if (filter(mountPoint))
 	{
-		fileList = listFiles(mountPoint, 64, false);
+		fileList = listFiles(mountPoint, recursiveDepth, false);
 	}
 }
 
