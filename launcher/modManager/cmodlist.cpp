@@ -152,6 +152,10 @@ QVariantMap CModList::copyField(QVariantMap data, QString from, QString to)
 	return renamed;
 }
 
+void CModList::reloadRepositories()
+{
+}
+
 void CModList::resetRepositories()
 {
 	repositories.clear();

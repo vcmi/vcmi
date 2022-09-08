@@ -74,6 +74,7 @@ class CModList
 
 public:
 	virtual void resetRepositories();
+	virtual void reloadRepositories();
 	virtual void addRepository(QVariantMap data);
 	virtual void setLocalModList(QVariantMap data);
 	virtual void setModSettings(QVariant data);

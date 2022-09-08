@@ -653,9 +653,6 @@ void CModListView::installMods(QStringList archives)
 
 	for(int i = 0; i < modNames.size(); i++)
 		manager->installMod(modNames[i], archives[i]);
-	
-	//refresh
-	loadRepositories();
 
 	std::function<void(QString)> enableMod;
 

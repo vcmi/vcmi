@@ -23,8 +23,6 @@ class CModManager
 	bool doInstallMod(QString mod, QString archivePath);
 	
 	bool doUninstallMod(QString mod);
-	bool doUninstallChildrenMods(QString parentMod);
-	bool removeRecord(QString mod);
 
 	QVariantMap modSettings;
 	QVariantMap localMods;
