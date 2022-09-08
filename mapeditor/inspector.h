@@ -131,8 +131,6 @@ class InspectorDelegate : public QStyledItemDelegate
 public:
 	static InspectorDelegate * boolDelegate();
 	
-	InspectorDelegate(const QStringList &);
-	
 	using QStyledItemDelegate::QStyledItemDelegate;
 
 	QWidget * createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const override;

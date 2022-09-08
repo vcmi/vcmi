@@ -197,13 +197,13 @@
    </property>
    <property name="minimumSize">
     <size>
-     <width>192</width>
+     <width>268</width>
      <height>196</height>
     </size>
    </property>
    <property name="maximumSize">
     <size>
-     <width>192</width>
+     <width>524287</width>
      <height>524287</height>
     </size>
    </property>
@@ -344,7 +344,7 @@
             </font>
            </property>
            <property name="editTriggers">
-            <set>QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
+            <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
            </property>
            <property name="selectionMode">
             <enum>QAbstractItemView::SingleSelection</enum>
@@ -668,7 +668,7 @@
           <x>0</x>
           <y>0</y>
           <width>128</width>
-          <height>344</height>
+          <height>271</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -711,7 +711,7 @@
           <x>0</x>
           <y>0</y>
           <width>128</width>
-          <height>344</height>
+          <height>271</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -730,7 +730,7 @@
           <x>0</x>
           <y>0</y>
           <width>128</width>
-          <height>344</height>
+          <height>271</height>
          </rect>
         </property>
         <property name="sizePolicy">

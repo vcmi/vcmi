@@ -123,7 +123,7 @@ void Inspector::updateProperties(CArmedInstance * o)
 {
 	if(!o) return;
 	
-	auto * delegate = new InspectorDelegate;
+	auto * delegate = new InspectorDelegate();
 	delegate->options << "NEUTRAL";
 	for(int p = 0; p < map->players.size(); ++p)
 		if(map->players[p].canAnyonePlay())
@@ -170,6 +170,24 @@ void Inspector::updateProperties(CGTownInstance * o)
 void Inspector::updateProperties(CGArtifact * o)
 {
 	if(!o) return;
+	
+	addProperty("Message", o->message, false);
+	
+	CArtifactInstance * instance = o->storedArtifact;
+	if(instance)
+	{
+		SpellID spellId = instance->getGivenSpellID();
+		if(spellId != -1)
+		{
+			auto * delegate = new InspectorDelegate;
+			for(auto spell : VLC->spellh->objects)
+			{
+				//if(map->isAllowedSpell(spell->id))
+				delegate->options << QString::fromStdString(spell->name);
+			}
+			addProperty("Spell", VLC->spellh->objects[spellId]->name, delegate, false);
+		}
+	}
 }
 
 void Inspector::updateProperties(CGMine * o)
@@ -186,6 +204,7 @@ void Inspector::updateProperties(CGResource * o)
 	if(!o) return;
 	
 	addProperty("Amount", o->amount, false);
+	addProperty("Message", o->message, false);
 }
 
 void Inspector::updateProperties(CGCreature * o)
@@ -286,6 +305,21 @@ void Inspector::setProperty(CGMine * object, const QString & key, const QVariant
 void Inspector::setProperty(CGArtifact * object, const QString & key, const QVariant & value)
 {
 	if(!object) return;
+	
+	if(key == "Message")
+		object->message = value.toString().toStdString();
+	
+	if(object->storedArtifact && key == "Spell")
+	{
+		for(auto spell : VLC->spellh->objects)
+		{
+			if(spell->name == value.toString().toStdString())
+			{
+				object->storedArtifact = CArtifactInstance::createScroll(spell->getId());
+				break;
+			}
+		}
+	}
 }
 
 void Inspector::setProperty(CGDwelling * object, const QString & key, const QVariant & value)
