@@ -960,7 +960,7 @@ void CMapLoaderH3M::readDefInfo()
 	{
 		auto tmpl = new ObjectTemplate;
 		tmpl->readMap(reader);
-		templates.push_back(tmpl);
+		templates.push_back(std::shared_ptr<const ObjectTemplate>(tmpl));
 	}
 }
 
@@ -977,7 +977,7 @@ void CMapLoaderH3M::readObjects()
 		int defnum = reader.readUInt32();
 		ObjectInstanceID idToBeGiven = ObjectInstanceID((si32)map->objects.size());
 
-		const ObjectTemplate * objTempl = templates.at(defnum);
+		std::shared_ptr<const ObjectTemplate> objTempl = templates.at(defnum);
 		reader.skip(5);
 
 		switch(objTempl->id)
@@ -1490,7 +1490,7 @@ void CMapLoaderH3M::readObjects()
 		{
 			nobj->subID = objTempl->subid;
 		}
-		nobj->appearance = const_cast<ObjectTemplate*>(objTempl);
+		nobj->appearance = objTempl;
 		assert(idToBeGiven == ObjectInstanceID((si32)map->objects.size()));
 
 		{

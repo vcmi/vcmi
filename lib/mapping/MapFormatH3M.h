@@ -245,7 +245,7 @@ private:
 
 	/** List of templates loaded from the map, used on later stage to create
 	 *  objects but not needed for fully functional CMap */
-	std::vector<const ObjectTemplate*> templates;
+	std::vector<std::shared_ptr<const ObjectTemplate>> templates;
 
 	/** ptr to the map object which gets filled by data from the buffer */
 	CMap * map;

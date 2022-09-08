@@ -379,7 +379,7 @@ std::shared_ptr<CAnimation> Graphics::getAnimation(const CGObjectInstance* obj)
 	return getAnimation(obj->appearance);
 }
 
-std::shared_ptr<CAnimation> Graphics::getAnimation(const ObjectTemplate * info)
+std::shared_ptr<CAnimation> Graphics::getAnimation(std::shared_ptr<const ObjectTemplate> info)
 {
 	//the only(?) invisible object
 	if(info->id == Obj::EVENT)

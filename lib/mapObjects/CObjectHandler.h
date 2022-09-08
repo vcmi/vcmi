@@ -123,7 +123,7 @@ public:
 	/// Index of object in map's list of objects
 	ObjectInstanceID id;
 	/// Defines appearance of object on map (animation, blocked tiles, blit order, etc)
-	ObjectTemplate * appearance;
+	std::shared_ptr<const ObjectTemplate> appearance;
 	/// If true hero can visit this object only from neighbouring tiles and can't stand on this object
 	bool blockVisit;
 

@@ -200,7 +200,7 @@ void CObjectClassesHandler::loadObjectEntry(const std::string & identifier, cons
 		auto range = legacyTemplates.equal_range(std::make_pair(obj->id, id));
 		for (auto & templ : boost::make_iterator_range(range.first, range.second))
 		{
-			handler->addTemplate(const_cast<ObjectTemplate*>(templ.second));
+			handler->addTemplate(templ.second);
 		}
 		legacyTemplates.erase(range.first, range.second);
 	}
@@ -447,10 +447,6 @@ AObjectTypeHandler::AObjectTypeHandler():
 
 AObjectTypeHandler::~AObjectTypeHandler()
 {
-	for (auto tmpl : templates)
-	{
-		delete tmpl;
-	}
 }
 
 void AObjectTypeHandler::setType(si32 type, si32 subtype)
@@ -495,7 +491,7 @@ void AObjectTypeHandler::init(const JsonNode & input, boost::optional<std::strin
 		tmpl->subid = subtype;
 		tmpl->stringID = entry.first; // FIXME: create "fullID" - type.object.template?
 		tmpl->readJson(entry.second);
-		templates.push_back(tmpl);
+		templates.push_back(std::shared_ptr<const ObjectTemplate>(tmpl));
 	}
 
 	if (input["name"].isNull())
@@ -520,7 +516,7 @@ void AObjectTypeHandler::init(const JsonNode & input, boost::optional<std::strin
 	initTypeData(input);
 }
 
-bool AObjectTypeHandler::objectFilter(const CGObjectInstance *, const ObjectTemplate *) const
+bool AObjectTypeHandler::objectFilter(const CGObjectInstance *, std::shared_ptr<const ObjectTemplate>) const
 {
 	return false; // by default there are no overrides
 }
@@ -548,12 +544,13 @@ SObjectSounds AObjectTypeHandler::getSounds() const
 	return sounds;
 }
 
-void AObjectTypeHandler::addTemplate(ObjectTemplate * templ)
+void AObjectTypeHandler::addTemplate(std::shared_ptr<const ObjectTemplate> templ)
 {
-	templ->id = Obj(type);
-	templ->subid = subtype;
+	//Otherwise the template remains constant
+	auto ptr = const_cast<ObjectTemplate*>(templ.get());
+	ptr->id = Obj(type);
+	ptr->subid = subtype;
 	templates.push_back(templ);
-
 }
 
 void AObjectTypeHandler::addTemplate(JsonNode config)
@@ -565,20 +562,20 @@ void AObjectTypeHandler::addTemplate(JsonNode config)
 	tmpl->subid = subtype;
 	tmpl->stringID = ""; // TODO?
 	tmpl->readJson(config);
-	templates.push_back(tmpl);
+	templates.push_back(std::shared_ptr<const ObjectTemplate>(tmpl));
 }
 
-std::vector<ObjectTemplate*> AObjectTypeHandler::getTemplates() const
+std::vector<std::shared_ptr<const ObjectTemplate>> AObjectTypeHandler::getTemplates() const
 {
 	return templates;
 }
 
-std::vector<ObjectTemplate*> AObjectTypeHandler::getTemplates(si32 terrainType) const// FIXME: replace with ETerrainType
+std::vector<std::shared_ptr<const ObjectTemplate>> AObjectTypeHandler::getTemplates(si32 terrainType) const// FIXME: replace with ETerrainType
 {
-	std::vector<ObjectTemplate*> templates = getTemplates();
-	std::vector<ObjectTemplate*> filtered;
+	std::vector<std::shared_ptr<const ObjectTemplate>> templates = getTemplates();
+	std::vector<std::shared_ptr<const ObjectTemplate>> filtered;
 
-	std::copy_if(templates.begin(), templates.end(), std::back_inserter(filtered), [&](const ObjectTemplate * obj)
+	std::copy_if(templates.begin(), templates.end(), std::back_inserter(filtered), [&](std::shared_ptr<const ObjectTemplate> obj)
 	{
 		return obj->canBePlacedAt(ETerrainType(terrainType));
 	});
@@ -590,15 +587,15 @@ std::vector<ObjectTemplate*> AObjectTypeHandler::getTemplates(si32 terrainType) 
 		return filtered;
 }
 
-boost::optional<const ObjectTemplate*> AObjectTypeHandler::getOverride(si32 terrainType, const CGObjectInstance * object) const
+std::shared_ptr<const ObjectTemplate> AObjectTypeHandler::getOverride(si32 terrainType, const CGObjectInstance * object) const
 {
-	std::vector<ObjectTemplate*> ret = getTemplates(terrainType);
-	for (const auto * tmpl: ret)
+	std::vector<std::shared_ptr<const ObjectTemplate>> ret = getTemplates(terrainType);
+	for (const auto & tmpl: ret)
 	{
 		if (objectFilter(object, tmpl))
-			return boost::optional<const ObjectTemplate*>(tmpl);
+			return tmpl;
 	}
-	return boost::optional<const ObjectTemplate*>(); //FIXME: nullptr
+	return nullptr;
 }
 
 const RandomMapInfo & AObjectTypeHandler::getRMGInfo()

@@ -138,9 +138,9 @@ void ObjectTemplate::readTxt(CLegacyConfigParser & parser)
 	assert(visitStr.size() == 6*8);
 
 	setSize(8, 6);
-	for (size_t i=0; i<6; i++) // 6 rows
+	for(size_t i=0; i<6; i++) // 6 rows
 	{
-		for (size_t j=0; j<8; j++) // 8 columns
+		for(size_t j=0; j<8; j++) // 8 columns
 		{
 			auto & tile = usedTiles[i][j];
 			tile |= VISIBLE; // assume that all tiles are visible
@@ -158,7 +158,7 @@ void ObjectTemplate::readTxt(CLegacyConfigParser & parser)
 	std::string & terrStr = strings[4]; // allowed terrains, 1 = object can be placed on this terrain
 
 	assert(terrStr.size() == 9); // all terrains but rock
-	for (size_t i=0; i<9; i++)
+	for(size_t i=0; i<9; i++)
 	{
 		if (terrStr[8-i] == '1')
 			allowedTerrains.insert(ETerrainType((si32)i));
@@ -205,9 +205,9 @@ void ObjectTemplate::readMap(CBinaryReader & reader)
 	for(auto & byte : visitMask)
 		byte = reader.readUInt8();
 
-	for (size_t i=0; i<6; i++) // 6 rows
+	for(size_t i=0; i<6; i++) // 6 rows
 	{
-		for (size_t j=0; j<8; j++) // 8 columns
+		for(size_t j=0; j<8; j++) // 8 columns
 		{
 			auto & tile = usedTiles[5 - i][7 - j];
 			tile |= VISIBLE; // assume that all tiles are visible
@@ -221,7 +221,7 @@ void ObjectTemplate::readMap(CBinaryReader & reader)
 
 	reader.readUInt16();
 	ui16 terrMask = reader.readUInt16();
-	for (size_t i=0; i<9; i++)
+	for(size_t i=0; i<9; i++)
 	{
 		if (((terrMask >> i) & 1 ) != 0)
 			allowedTerrains.insert(ETerrainType((si32)i));
@@ -266,12 +266,12 @@ void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
 
 	if(withTerrain && !node["allowedTerrains"].isNull())
 	{
-		for (auto & entry : node["allowedTerrains"].Vector())
+		for(auto & entry : node["allowedTerrains"].Vector())
 			allowedTerrains.insert(ETerrainType(vstd::find_pos(GameConstants::TERRAIN_NAMES, entry.String())));
 	}
 	else
 	{
-		for (size_t i=0; i< GameConstants::TERRAIN_TYPES; i++)
+		for(size_t i=0; i< GameConstants::TERRAIN_TYPES; i++)
 			allowedTerrains.insert(ETerrainType((si32)i));
 
 		allowedTerrains.erase(ETerrainType::ROCK);
@@ -303,15 +303,15 @@ void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
 
 	size_t height = mask.size();
 	size_t width  = 0;
-	for (auto & line : mask)
+	for(auto & line : mask)
 		vstd::amax(width, line.String().size());
 
 	setSize((ui32)width, (ui32)height);
 
-	for (size_t i=0; i<mask.size(); i++)
+	for(size_t i=0; i<mask.size(); i++)
 	{
 		const std::string & line = mask[i].String();
-		for (size_t j=0; j < line.size(); j++)
+		for(size_t j=0; j < line.size(); j++)
 			usedTiles[mask.size() - 1 - i][line.size() - 1 - j] = charToTile(line[j]);
 	}
 
@@ -415,7 +415,7 @@ void ObjectTemplate::writeJson(JsonNode & node, const bool withTerrain) const
 void ObjectTemplate::calculateWidth()
 {
 	//TODO: Use 2D array
-	for (const auto& row : usedTiles) //copy is expensive
+	for(const auto& row : usedTiles) //copy is expensive
 	{
 		width = std::max<ui32>(width, (ui32)row.size());
 	}
@@ -430,15 +430,15 @@ void ObjectTemplate::calculateHeight()
 void ObjectTemplate::setSize(ui32 width, ui32 height)
 {
 	usedTiles.resize(height);
-	for (auto & line : usedTiles)
+	for(auto & line : usedTiles)
 		line.resize(width, 0);
 }
 
 void ObjectTemplate::calculateVsitable()
 {
-	for (auto& line : usedTiles)
+	for(auto& line : usedTiles)
 	{
-		for (auto& tile : line)
+		for(auto& tile : line)
 		{
 			if (tile & VISITABLE)
 			{
@@ -475,9 +475,9 @@ bool ObjectTemplate::isBlockedAt(si32 X, si32 Y) const
 void ObjectTemplate::calculateBlockedOffsets()
 {
 	blockedOffsets.clear();
-	for (int w = 0; w < (int)getWidth(); ++w)
+	for(int w = 0; w < (int)getWidth(); ++w)
 	{
-		for (int h = 0; h < (int)getHeight(); ++h)
+		for(int h = 0; h < (int)getHeight(); ++h)
 		{
 			if (isBlockedAt(w, h))
 				blockedOffsets.insert(int3(-w, -h, 0));
@@ -487,9 +487,9 @@ void ObjectTemplate::calculateBlockedOffsets()
 
 void ObjectTemplate::calculateBlockMapOffset()
 {
-	for (int w = 0; w < (int)getWidth(); ++w)
+	for(int w = 0; w < (int)getWidth(); ++w)
 	{
-		for (int h = 0; h < (int)getHeight(); ++h)
+		for(int h = 0; h < (int)getHeight(); ++h)
 		{
 			if (isBlockedAt(w, h))
 			{
@@ -523,9 +523,9 @@ bool ObjectTemplate::isVisitableFrom(si8 X, si8 Y) const
 
 void ObjectTemplate::calculateVisitableOffset()
 {
-	for (int y = 0; y < (int)getHeight(); y++)
+	for(int y = 0; y < (int)getHeight(); y++)
 	{
-		for (int x = 0; x < (int)getWidth(); x++)
+		for(int x = 0; x < (int)getWidth(); x++)
 		{
 			if (isVisitableAt(x, y))
 			{

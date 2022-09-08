@@ -2253,7 +2253,7 @@ void CRmgTemplateZone::createObstacles1()
 void CRmgTemplateZone::createObstacles2()
 {
 
-	typedef std::vector<ObjectTemplate*> obstacleVector;
+	typedef std::vector<std::shared_ptr<const ObjectTemplate>> obstacleVector;
 	//obstacleVector possibleObstacles;
 
 	std::map <ui8, obstacleVector> obstaclesBySize;
@@ -2440,7 +2440,7 @@ bool CRmgTemplateZone::findPlaceForTreasurePile(float min_dist, int3 &pos, int v
 	return result;
 }
 
-bool CRmgTemplateZone::canObstacleBePlacedHere(const ObjectTemplate * temp, int3 &pos)
+bool CRmgTemplateZone::canObstacleBePlacedHere(std::shared_ptr<const ObjectTemplate> temp, int3 &pos)
 {
 	if (!gen->map->isInTheMap(pos)) //blockmap may fit in the map, but botom-right corner does not
 		return false;
@@ -2458,12 +2458,12 @@ bool CRmgTemplateZone::canObstacleBePlacedHere(const ObjectTemplate * temp, int3
 	return true;
 }
 
-bool CRmgTemplateZone::isAccessibleFromSomewhere(const ObjectTemplate * appearance, const int3 & tile) const
+bool CRmgTemplateZone::isAccessibleFromSomewhere(std::shared_ptr<const ObjectTemplate> appearance, const int3 & tile) const
 {
 	return getAccessibleOffset(appearance, tile).valid();
 }
 
-int3 CRmgTemplateZone::getAccessibleOffset(const ObjectTemplate * appearance, const int3 & tile) const
+int3 CRmgTemplateZone::getAccessibleOffset(std::shared_ptr<const ObjectTemplate> appearance, const int3 & tile) const
 {
 	auto tilesBlockedByObject = appearance->getBlockedOffsets();
 

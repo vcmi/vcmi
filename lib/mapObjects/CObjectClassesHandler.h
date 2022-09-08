@@ -143,14 +143,14 @@ class DLL_LINKAGE AObjectTypeHandler : public boost::noncopyable
 
 	JsonNode base; /// describes base template
 
-	std::vector<ObjectTemplate*> templates;
+	std::vector<std::shared_ptr<const ObjectTemplate>> templates;
 
 	SObjectSounds sounds;
 
 	boost::optional<si32> aiValue;
 protected:
 	void preInitObject(CGObjectInstance * obj) const;
-	virtual bool objectFilter(const CGObjectInstance *, const ObjectTemplate *) const;
+	virtual bool objectFilter(const CGObjectInstance *, std::shared_ptr<const ObjectTemplate>) const;
 
 	/// initialization for classes that inherit this one
 	virtual void initTypeData(const JsonNode & input);
@@ -173,16 +173,16 @@ public:
 	boost::optional<std::string> getCustomName() const;
 	SObjectSounds getSounds() const;
 
-	void addTemplate(ObjectTemplate * templ);
+	void addTemplate(std::shared_ptr<const ObjectTemplate> templ);
 	void addTemplate(JsonNode config);
 
 	/// returns all templates matching parameters
-	std::vector<ObjectTemplate*> getTemplates() const;
-	std::vector<ObjectTemplate*> getTemplates(si32 terrainType) const;
+	std::vector<std::shared_ptr<const ObjectTemplate>> getTemplates() const;
+	std::vector<std::shared_ptr<const ObjectTemplate>> getTemplates(si32 terrainType) const;
 
 	/// returns preferred template for this object, if present (e.g. one of 3 possible templates for town - village, fort and castle)
 	/// note that appearance will not be changed - this must be done separately (either by assignment or via pack from server)
-	boost::optional<const ObjectTemplate*> getOverride(si32 terrainType, const CGObjectInstance * object) const;
+	std::shared_ptr<const ObjectTemplate> getOverride(si32 terrainType, const CGObjectInstance * object) const;
 
 	const RandomMapInfo & getRMGInfo();
 
@@ -194,14 +194,14 @@ public:
 
 	/// Creates object and set up core properties (like ID/subID). Object is NOT initialized
 	/// to allow creating objects before game start (e.g. map loading)
-	virtual CGObjectInstance * create(const ObjectTemplate * tmpl = nullptr) const = 0;
+	virtual CGObjectInstance * create(std::shared_ptr<const ObjectTemplate> tmpl = nullptr) const = 0;
 
 	/// Configures object properties. Should be re-entrable, resetting state of the object if necessarily
 	/// This should set remaining properties, including randomized or depending on map
 	virtual void configureObject(CGObjectInstance * object, CRandomGenerator & rng) const = 0;
 
 	/// Returns object configuration, if available. Otherwise returns NULL
-	virtual std::unique_ptr<IObjectInfo> getObjectInfo(const ObjectTemplate * tmpl) const = 0;
+	virtual std::unique_ptr<IObjectInfo> getObjectInfo(std::shared_ptr<const ObjectTemplate> tmpl) const = 0;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -276,7 +276,7 @@ class DLL_LINKAGE CObjectClassesHandler : public IHandlerBase
 	std::map<std::string, std::function<TObjectTypeHandler()> > handlerConstructors;
 
 	/// container with H3 templates, used only during loading, no need to serialize it
-	typedef std::multimap<std::pair<si32, si32>, const ObjectTemplate*> TTemplatesContainer;
+	typedef std::multimap<std::pair<si32, si32>, std::shared_ptr<const ObjectTemplate>> TTemplatesContainer;
 	TTemplatesContainer legacyTemplates;
 
 	/// contains list of custom names for H3 objects (e.g. Dwellings), used to load H3 data

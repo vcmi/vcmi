@@ -1139,7 +1139,8 @@ void CMapLoaderJson::MapObjectLoader::construct()
 	appearance->subid = handler->subtype;
 	appearance->readJson(configuration["template"], false);
 
-	instance = handler->create(appearance);
+	// Will be destroyed soon and replaced with shared template
+	instance = handler->create(std::shared_ptr<const ObjectTemplate>(appearance));
 
 	instance->id = ObjectInstanceID((si32)owner->map->objects.size());
 	instance->instanceName = jsonKey;
