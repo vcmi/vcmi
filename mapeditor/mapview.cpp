@@ -303,6 +303,7 @@ void MapView::mouseReleaseEvent(QMouseEvent *event)
 		if(event->button() == Qt::RightButton)
 			break;
 		//switch position
+		bool tab = false;
 		if(sc->selectionObjectsView.selectionMode == 2 && !sc->selectionObjectsView.shift.isNull())
 		{
 			controller->commitObjectShiftOrCreate(sc->level);
@@ -312,12 +313,13 @@ void MapView::mouseReleaseEvent(QMouseEvent *event)
 			sc->selectionObjectsView.selectionMode = 0;
 			sc->selectionObjectsView.shift = QPoint(0, 0);
 			sc->selectionObjectsView.draw();
+			tab = true;
 			//check if we have only one object
-			auto selection = sc->selectionObjectsView.getSelection();
-			if(selection.size() == 1)
-			{
-				emit openObjectProperties(*selection.begin());
-			}
+		}
+		auto selection = sc->selectionObjectsView.getSelection();
+		if(selection.size() == 1)
+		{
+			emit openObjectProperties(*selection.begin(), tab);
 		}
 		break;
 	}

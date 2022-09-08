@@ -90,7 +90,7 @@ private slots:
 public slots:
 
 	void treeViewSelected(const QModelIndex &selected, const QModelIndex &deselected);
-	void loadInspector(CGObjectInstance * obj);
+	void loadInspector(CGObjectInstance * obj, bool switchTab);
 	void mapChanged();
 	void enableUndo(bool enable);
 	void enableRedo(bool enable);

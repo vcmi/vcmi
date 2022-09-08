@@ -258,7 +258,12 @@ void MapController::commitObstacleFill(int level)
 
 void MapController::commitObjectChange(int level)
 {
-	//for(auto * o : _scenes[level]->selectionObjectsView.getSelection())
+	if(_scenes[level]->selectionObjectsView.getSelection().size() == 1)
+	{
+		auto * obj = *_scenes[level]->selectionObjectsView.getSelection().begin();
+		if(auto * town = dynamic_cast<CGTownInstance*>(obj))
+			town->updateAppearance();
+	}
 		//_mapHandler->invalidate(o);
 	_scenes[level]->objectsView.draw();
 	_scenes[level]->selectionObjectsView.draw();

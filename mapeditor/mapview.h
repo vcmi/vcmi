@@ -93,7 +93,7 @@ public slots:
 	void cameraChanged(const QPointF & pos);
 	
 signals:
-	void openObjectProperties(CGObjectInstance *);
+	void openObjectProperties(CGObjectInstance *, bool switchTab);
 	//void viewportChanged(const QRectF & rect);
 
 protected:

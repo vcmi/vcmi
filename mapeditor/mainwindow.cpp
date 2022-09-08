@@ -133,6 +133,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	//loading objects
 	loadObjectsTree();
+	
+	ui->tabWidget->setCurrentIndex(0);
 
 	show();
 }
@@ -624,6 +626,8 @@ void MainWindow::on_toolBrush_clicked(bool checked)
 		ui->mapView->selectionTool = MapView::SelectionTool::Brush;
 	else
 		ui->mapView->selectionTool = MapView::SelectionTool::None;
+	
+	ui->tabWidget->setCurrentIndex(0);
 }
 
 void MainWindow::on_toolBrush2_clicked(bool checked)
@@ -638,6 +642,8 @@ void MainWindow::on_toolBrush2_clicked(bool checked)
 		ui->mapView->selectionTool = MapView::SelectionTool::Brush2;
 	else
 		ui->mapView->selectionTool = MapView::SelectionTool::None;
+	
+	ui->tabWidget->setCurrentIndex(0);
 }
 
 
@@ -653,6 +659,8 @@ void MainWindow::on_toolBrush4_clicked(bool checked)
 		ui->mapView->selectionTool = MapView::SelectionTool::Brush4;
 	else
 		ui->mapView->selectionTool = MapView::SelectionTool::None;
+	
+	ui->tabWidget->setCurrentIndex(0);
 }
 
 void MainWindow::on_toolArea_clicked(bool checked)
@@ -667,6 +675,8 @@ void MainWindow::on_toolArea_clicked(bool checked)
 		ui->mapView->selectionTool = MapView::SelectionTool::Area;
 	else
 		ui->mapView->selectionTool = MapView::SelectionTool::None;
+	
+	ui->tabWidget->setCurrentIndex(0);
 }
 
 void MainWindow::on_actionErase_triggered()
@@ -680,6 +690,7 @@ void MainWindow::on_toolErase_clicked()
 	{
 		controller.commitObjectErase(mapLevel);
 	}
+	ui->tabWidget->setCurrentIndex(0);
 }
 
 void MainWindow::preparePreview(const QModelIndex &index, bool createNew)
@@ -760,8 +771,10 @@ void MainWindow::on_actionFill_triggered()
 	controller.commitObstacleFill(mapLevel);
 }
 
-void MainWindow::loadInspector(CGObjectInstance * obj)
+void MainWindow::loadInspector(CGObjectInstance * obj, bool switchTab)
 {
+	if(switchTab)
+		ui->tabWidget->setCurrentIndex(1);
 	Inspector inspector(controller.map(), obj, ui->inspectorWidget);
 	inspector.updateProperties();
 }
