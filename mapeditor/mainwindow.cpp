@@ -594,6 +594,14 @@ void MainWindow::on_actionLevel_triggered()
 		mapLevel = mapLevel ? 0 : 1;
 		ui->mapView->setScene(controller.scene(mapLevel));
 		ui->minimapView->setScene(controller.miniScene(mapLevel));
+		if (mapLevel == 0)
+		{
+			ui->actionLevel->setToolTip(tr("View underground"));
+		}
+		else
+		{
+			ui->actionLevel->setToolTip(tr("View surface"));
+		}
 	}
 }
 
@@ -621,6 +629,9 @@ void MainWindow::on_actionRedo_triggered()
 
 void MainWindow::on_actionPass_triggered(bool checked)
 {
+	QString str("Passability clicked");
+	statusBar()->showMessage(str, 1000);
+
 	if(controller.map())
 	{
 		controller.scene(0)->passabilityView.show(checked);
@@ -631,6 +642,9 @@ void MainWindow::on_actionPass_triggered(bool checked)
 
 void MainWindow::on_actionGrid_triggered(bool checked)
 {
+	QString str("Grid clicked");
+	statusBar()->showMessage(str, 1000);
+
 	if(controller.map())
 	{
 		controller.scene(0)->gridView.show(checked);
@@ -794,6 +808,9 @@ void MainWindow::on_filter_textChanged(const QString &arg1)
 
 void MainWindow::on_actionFill_triggered()
 {
+	QString str("Fill clicked");
+	statusBar()->showMessage(str, 1000);
+
 	if(!controller.map())
 		return;
 

@@ -51,7 +51,7 @@
      <x>0</x>
      <y>0</y>
      <width>1024</width>
-     <height>22</height>
+     <height>18</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -81,8 +81,17 @@
     <addaction name="actionRedo"/>
     <addaction name="actionErase"/>
    </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>View</string>
+    </property>
+    <addaction name="actionLevel"/>
+    <addaction name="actionGrid"/>
+    <addaction name="actionPass"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
+   <addaction name="menuView"/>
    <addaction name="menuMap"/>
   </widget>
   <widget class="QToolBar" name="toolBar">
@@ -663,7 +672,7 @@
           <x>0</x>
           <y>0</y>
           <width>128</width>
-          <height>271</height>
+          <height>344</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -706,7 +715,7 @@
           <x>0</x>
           <y>0</y>
           <width>128</width>
-          <height>271</height>
+          <height>344</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -725,7 +734,7 @@
           <x>0</x>
           <y>0</y>
           <width>128</width>
-          <height>271</height>
+          <height>344</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -763,15 +772,24 @@
    <property name="text">
     <string>Open</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
   </action>
   <action name="actionSave">
    <property name="text">
     <string>Save</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
   </action>
   <action name="actionNew">
    <property name="text">
     <string>New</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
    </property>
   </action>
   <action name="actionSave_as">
@@ -783,6 +801,12 @@
    <property name="text">
     <string>U/G</string>
    </property>
+   <property name="toolTip">
+    <string>View underground</string>
+   </property>
+   <property name="shortcut">
+    <string>U</string>
+   </property>
   </action>
   <action name="actionPass">
    <property name="checkable">
@@ -791,20 +815,32 @@
    <property name="text">
     <string>Pass</string>
    </property>
+   <property name="shortcut">
+    <string>P</string>
+   </property>
   </action>
   <action name="actionCut">
    <property name="text">
     <string>Cut</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+X</string>
    </property>
   </action>
   <action name="actionCopy">
    <property name="text">
     <string>Copy</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+C</string>
+   </property>
   </action>
   <action name="actionPaste">
    <property name="text">
     <string>Paste</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+V</string>
    </property>
   </action>
   <action name="actionFill">
@@ -814,6 +850,9 @@
    <property name="toolTip">
     <string>Fills the selection with obstacles</string>
    </property>
+   <property name="shortcut">
+    <string>F</string>
+   </property>
   </action>
   <action name="actionGrid">
    <property name="checkable">
@@ -821,6 +860,9 @@
    </property>
    <property name="text">
     <string>Grid</string>
+   </property>
+   <property name="shortcut">
+    <string>G</string>
    </property>
   </action>
   <action name="actionMapSettings">
