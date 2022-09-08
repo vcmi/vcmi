@@ -44,6 +44,8 @@ private:
 class Inspector
 {
 protected:
+	struct PropertyEditorPlaceholder {};
+	
 //===============DECLARE PROPERTIES SETUP=================================
 	DECLARE_OBJ_PROPERTY_METHODS(CArmedInstance);
 	DECLARE_OBJ_PROPERTY_METHODS(CGTownInstance);
@@ -67,8 +69,10 @@ protected:
 	QTableWidgetItem * addProperty(bool value);
 	QTableWidgetItem * addProperty(CGObjectInstance * value);
 	QTableWidgetItem * addProperty(CGCreature::Character value);
+	QTableWidgetItem * addProperty(PropertyEditorPlaceholder value);
 	
 //===============END OF DECLARATION=======================================
+	
 public:
 	Inspector(CMap *, CGObjectInstance *, QTableWidget *);
 
@@ -141,7 +145,6 @@ public:
 
 private slots:
 	void commitAndCloseEditor(int);
-	
 };
 
 #endif // INSPECTOR_H

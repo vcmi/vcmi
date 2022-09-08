@@ -11,8 +11,8 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 
 	assert(controller.map());
 
-	ui->mapNameEdit->setText(QString::fromStdString(controller.map()->name));
-	ui->mapDescriptionEdit->setPlainText(QString::fromStdString(controller.map()->description));
+	ui->mapNameEdit->setText(tr(controller.map()->name.c_str()));
+	ui->mapDescriptionEdit->setPlainText(tr(controller.map()->description.c_str()));
 
 	show();
 

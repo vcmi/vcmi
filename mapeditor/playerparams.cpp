@@ -45,12 +45,17 @@ PlayerParams::PlayerParams(MapController & ctrl, int playerId, QWidget *parent) 
 	int foundMainTown = -1;
 	for(int i = 0; i < controller.map()->towns.size(); ++i)
 	{
-		auto town = controller.map()->towns[i];
-		if(town && town->town && town->town->faction && town->getOwner().getNum() == playerColor)
+		if(auto town = controller.map()->towns[i])
 		{
-			if(playerInfo.hasMainTown && playerInfo.posOfMainTown == town->pos)
-				foundMainTown = i;
-			ui->mainTown->addItem(QString::fromStdString(town->getObjectName()), QVariant::fromValue(i));
+			auto * ctown = town->town;
+			if(!ctown)
+				ctown = VLC->townh->randomTown;
+			if(ctown && ctown->faction && town->getOwner().getNum() == playerColor)
+			{
+				if(playerInfo.hasMainTown && playerInfo.posOfMainTown == town->pos)
+					foundMainTown = i;
+				ui->mainTown->addItem(QString::fromStdString(town->getObjectName()), QVariant::fromValue(i));
+			}
 		}
 	}
 	

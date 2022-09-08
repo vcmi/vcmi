@@ -27,6 +27,8 @@ PlayerSettings::PlayerSettings(MapController & ctrl, QWidget *parent) :
 		ui->playersCount->setCurrentText("");
 	else
 		ui->playersCount->setCurrentIndex(players - 2);
+	
+	setAttribute(Qt::WA_DeleteOnClose);
 }
 
 PlayerSettings::~PlayerSettings()

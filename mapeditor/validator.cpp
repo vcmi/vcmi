@@ -10,6 +10,8 @@ Validator::Validator(const CMap * map, QWidget *parent) :
 	ui->setupUi(this);
 
 	show();
+	
+	setAttribute(Qt::WA_DeleteOnClose);
 
 	std::array<QString, 2> icons{"mapeditor/icons/mod-update.png", "mapeditor/icons/mod-delete.png"};
 

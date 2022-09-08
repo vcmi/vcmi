@@ -6,6 +6,8 @@
 #include "../lib/mapObjects/CObjectClassesHandler.h"
 #include "../lib/mapping/CMap.h"
 
+#include "townbulidingswidget.h"
+
 //===============IMPLEMENT OBJECT INITIALIZATION FUNCTIONS================
 Initializer::Initializer(CMap * m, CGObjectInstance * o) : map(m)
 {
@@ -172,6 +174,9 @@ void Inspector::updateProperties(CGTownInstance * o)
 	if(!o) return;
 	
 	addProperty("Town name", o->name, false);
+	
+	auto * delegate = new TownBuildingsDelegate(*o);
+	addProperty("Buildings", PropertyEditorPlaceholder(), delegate, false);
 }
 
 void Inspector::updateProperties(CGArtifact * o)
@@ -391,6 +396,13 @@ QTableWidgetItem * Inspector::addProperty(CGObjectInstance * value)
 	static_assert(sizeof(CGObjectInstance *) == sizeof(NumericPointer),
 				  "Compilied for 64 bit arcitecture. Use NumericPointer = unsigned int");
 	return new QTableWidgetItem(QString::number(reinterpret_cast<NumericPointer>(value)));
+}
+
+QTableWidgetItem * Inspector::addProperty(Inspector::PropertyEditorPlaceholder value)
+{
+	auto item = new QTableWidgetItem("");
+	item->setData(Qt::UserRole, QString("PropertyEditor"));
+	return item;
 }
 
 QTableWidgetItem * Inspector::addProperty(unsigned int value)
