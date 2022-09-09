@@ -297,7 +297,8 @@ float RewardEvaluator::getEnemyHeroStrategicalValue(const CGHeroInstance * enemy
 		vstd::amax(objectValue, getStrategicalValue(obj));
 	}
 
-	return objectValue / 2.0f + enemy->level / 15.0f;
+	//AI should absolutely prioritize killing enemy heroes, even scouts
+	return std::min(1.0f, objectValue * 0.9f + (1.0f - (1.0f / (1 + enemy->level))));
 }
 
 float RewardEvaluator::getResourceRequirementStrength(int resType) const
