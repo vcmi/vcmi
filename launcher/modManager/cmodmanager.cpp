@@ -230,7 +230,7 @@ bool CModManager::doEnableMod(QString mod, bool on)
 {
 	QString path = mod;
 	path = "/activeMods/" + path.replace(".", "/mods/") + "/active";
-	
+
 	modSettings = writeValue(path, modSettings, QVariant(on)).toMap();
 	modList->setModSettings(modSettings["activeMods"]);
 	modList->modChanged(mod);
@@ -294,7 +294,7 @@ bool CModManager::doUninstallMod(QString modname)
 	CResourceHandler::get("initial")->updateFilteredFiles([](const std::string &){ return true; });
 	loadMods();
 	modList->reloadRepositories();
-	
+
 	return true;
 }
 
