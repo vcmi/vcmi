@@ -218,7 +218,11 @@ CModEntry CModList::getMod(QString modname) const
 	else
 	{
 		if(!conf.toMap().isEmpty())
+		{
 			settings = conf.toMap();
+			if(settings.value("active").isNull())
+				settings["active"] = true; // default
+		}
 		else
 			settings.insert("active", conf);
 	}
@@ -230,7 +234,7 @@ CModEntry CModList::getMod(QString modname) const
 		{
 			conf = getValue(modSettings, rootPath);
 			const auto confMap = conf.toMap();
-			if(!conf.isNull() && !confMap["active"].toBool())
+			if(!conf.isNull() && !confMap["active"].isNull() && !confMap["active"].toBool())
 			{
 				settings = confMap;
 			}
