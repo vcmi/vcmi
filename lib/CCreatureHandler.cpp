@@ -257,7 +257,7 @@ void CCreature::addBonus(int val, Bonus::BonusType type, int subtype)
 
 	if(existing.empty())
 	{
-		auto added = std::make_shared<Bonus>(Bonus::PERMANENT, type, Bonus::CREATURE_ABILITY, val, getIndex(), subtype, Bonus::BASE_NUMBER);
+		auto added = std::make_shared<Bonus>(Bonus::PERMANENT, type, Bonus::CREATURE_ABILITY, val, getIndex(), subtype, Bonus::ADDITIVE_VALUE);
 		addNewBonus(added);
 	}
 	else
@@ -610,9 +610,6 @@ CCreature * CCreatureHandler::loadFromJson(const std::string & scope, const Json
 
 	if(!node["shots"].isNull())
 		cre->addBonus(node["shots"].Integer(), Bonus::SHOTS);
-
-	if(!node["spellPoints"].isNull())
-		cre->addBonus(node["spellPoints"].Integer(), Bonus::CASTS);
 
 	loadStackExperience(cre, node["stackExperience"]);
 	loadJsonAnimation(cre, node["graphics"]);
