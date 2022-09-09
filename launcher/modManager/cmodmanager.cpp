@@ -83,6 +83,13 @@ void CModManager::loadMods()
 		{
 			boost::filesystem::path name = *CResourceHandler::get()->getResourceName(resID);
 			auto mod = JsonUtils::JsonFromFile(pathToQString(name));
+			if(!name.is_absolute())
+			{
+				auto json = JsonUtils::toJson(mod);
+				json["storedLocaly"].Bool() = true;
+				mod = JsonUtils::toVariant(json);
+			}
+			
 			localMods.insert(QString::fromUtf8(modname.c_str()).toLower(), mod);
 		}
 	}

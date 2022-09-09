@@ -92,6 +92,11 @@ bool CModEntry::isUpdateable() const
 	return false;
 }
 
+bool CModEntry::isEssential() const
+{
+	return getValue("storedLocaly").toBool();
+}
+
 bool CModEntry::isInstalled() const
 {
 	return !localData.isEmpty();

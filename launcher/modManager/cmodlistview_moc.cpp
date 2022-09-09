@@ -310,10 +310,10 @@ void CModListView::selectMod(const QModelIndex & index)
 		// Block buttons if action is not allowed at this time
 		// TODO: automate handling of some of these cases instead of forcing player
 		// to resolve all conflicts manually.
-		ui->disableButton->setEnabled(!hasDependentMods);
+		ui->disableButton->setEnabled(!hasDependentMods && !mod.isEssential());
 		ui->enableButton->setEnabled(!hasBlockingMods && !hasInvalidDeps);
 		ui->installButton->setEnabled(!hasInvalidDeps);
-		ui->uninstallButton->setEnabled(!hasDependentMods);
+		ui->uninstallButton->setEnabled(!hasDependentMods && !mod.isEssential());
 		ui->updateButton->setEnabled(!hasInvalidDeps && !hasDependentMods);
 
 		loadScreenshots();

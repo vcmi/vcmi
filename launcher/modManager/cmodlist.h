@@ -49,6 +49,8 @@ public:
 	bool isUpdateable() const;
 	// installed
 	bool isInstalled() const;
+	// vcmi essential filea
+	bool isEssential() const;
 
 	// see ModStatus enum
 	int getModStatus() const;
