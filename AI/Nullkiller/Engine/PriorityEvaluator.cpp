@@ -507,6 +507,9 @@ int32_t RewardEvaluator::getGoldReward(const CGObjectInstance * target, const CG
 		return 1500;
 	case Obj::PANDORAS_BOX:
 		return 5000;
+	case Obj::PRISON:
+		//Objectively saves us 2500 to hire hero
+		return GameConstants::HERO_GOLD_COST;
 	case Obj::HERO:
 		return ai->cb->getPlayerRelations(target->tempOwner, ai->playerID) == PlayerRelations::ENEMIES
 			? heroEliminationBonus + enemyArmyEliminationGoldRewardRatio * getArmyCost(dynamic_cast<const CGHeroInstance *>(target))
