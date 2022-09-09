@@ -114,10 +114,32 @@ uint64_t getCreatureBankArmyReward(const CGObjectInstance * target, const CGHero
 	auto creatures = bankInfo->getPossibleCreaturesReward();
 	uint64_t result = 0;
 
-	for(auto c : creatures)
+	const auto& slots = hero->Slots();
+	ui64 weakestStackPower = 0;
+	if (slots.size() >= GameConstants::ARMY_SIZE)
 	{
-		result += c.data.type->AIValue * c.data.count * c.chance / 100;
+		//No free slot, we might discard our weakest stack
+		weakestStackPower = std::numeric_limits<ui64>().max();
+		for (const auto stack : slots)
+		{
+			vstd::amin(weakestStackPower, stack.second->getPower());
+		}
 	}
+
+	for (auto c : creatures)
+	{
+		//Only if hero has slot for this creature in the army
+		if (hero->getSlotFor(c.data.type).validSlot())
+		{
+			result += (c.data.type->AIValue * c.data.count) * c.chance;
+		}
+		else
+		{
+			//we will need to discard the weakest stack
+			result += (c.data.type->AIValue * c.data.count - weakestStackPower) * c.chance;
+		}
+	}
+	result /= 100; //divide by total chance
 
 	return result;
 }
@@ -321,6 +343,21 @@ float RewardEvaluator::getStrategicalValue(const CGObjectInstance * target) cons
 
 	case Obj::RESOURCE:
 		return target->subID == Res::GOLD ? 0 : 0.1f * getResourceRequirementStrength(target->subID);
+
+	case Obj::CREATURE_BANK:
+	{
+		auto resourceReward = getCreatureBankResources(target, nullptr);
+		float sum = 0.0f;
+		for (TResources::nziterator it (resourceReward); it.valid(); it++)
+		{
+			//Evaluate resources used for construction. Gold is evaluated separately.
+			if (it->resType != Res::GOLD)
+			{
+				sum += 0.1f * getResourceRequirementStrength(it->resType);
+			}
+		}
+		return sum;
+	}
 
 	case Obj::TOWN:
 		if(ai->buildAnalyzer->getDevelopmentInfo().empty())
