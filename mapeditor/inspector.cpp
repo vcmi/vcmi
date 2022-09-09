@@ -240,7 +240,7 @@ void Inspector::updateProperties(CGCreature * o)
 	addProperty("Never flees", o->neverFlees, InspectorDelegate::boolDelegate(), false);
 	addProperty("Not growing", o->notGrowingTeam, InspectorDelegate::boolDelegate(), false);
 	addProperty("Artifact reward", o->gainedArtifact); //TODO: implement in setProperty
-	addProperty("Amount", o->stacks[SlotID(0)]->count, false);
+	//addProperty("Amount", o->stacks[SlotID(0)]->count, false);
 	//addProperty("Resources reward", o->resources); //TODO: implement in setProperty
 }
 
