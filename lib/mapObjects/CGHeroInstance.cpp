@@ -1412,7 +1412,9 @@ void CGHeroInstance::setHeroTypeName(const std::string & identifier)
 		if(rawId)
 			subID = rawId.get();
 		else
-			subID = 0; //fallback to Orrin, throw error instead?
+		{
+			throw std::runtime_error("Couldn't resolve hero identifier " + identifier);
+		}
 	}
 }
 
