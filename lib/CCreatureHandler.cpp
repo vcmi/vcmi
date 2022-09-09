@@ -257,7 +257,7 @@ void CCreature::addBonus(int val, Bonus::BonusType type, int subtype)
 
 	if(existing.empty())
 	{
-		auto added = std::make_shared<Bonus>(Bonus::PERMANENT, type, Bonus::CREATURE_ABILITY, val, getIndex(), subtype, Bonus::ADDITIVE_VALUE);
+		auto added = std::make_shared<Bonus>(Bonus::PERMANENT, type, Bonus::CREATURE_ABILITY, val, getIndex(), subtype, Bonus::BASE_NUMBER);
 		addNewBonus(added);
 	}
 	else
