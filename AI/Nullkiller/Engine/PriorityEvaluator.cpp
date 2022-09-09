@@ -196,7 +196,6 @@ uint64_t evaluateArtifactArmyValue(CArtifactInstance * art)
 		+ 700 * art->getDefense(false)
 		+ 700 * art->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::KNOWLEDGE)
 		+ 700 * art->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::SPELL_POWER)
-		+ 700 * art->getDefense(false)
 		+ 500 * art->valOfBonuses(Bonus::LUCK);
 
 	auto classValue = 0;
