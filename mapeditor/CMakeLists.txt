@@ -23,6 +23,7 @@ set(editor_SRCS
 		mapcontroller.cpp
 		validator.cpp
 		townbulidingswidget.cpp
+		armywidget.cpp
 )
 
 set(editor_HEADERS
@@ -49,6 +50,7 @@ set(editor_HEADERS
 		mapcontroller.h
 		validator.h
 		townbulidingswidget.h
+		armywidget.h
 )
 
 set(editor_FORMS
@@ -60,6 +62,7 @@ set(editor_FORMS
 		playerparams.ui
 		validator.ui
 		townbulidingswidget.ui
+		armywidget.ui
 )
 
 assign_source_group(${editor_SRCS} ${editor_HEADERS} VCMI_launcher.rc)

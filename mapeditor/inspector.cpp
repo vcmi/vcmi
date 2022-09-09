@@ -7,6 +7,7 @@
 #include "../lib/mapping/CMap.h"
 
 #include "townbulidingswidget.h"
+#include "armywidget.h"
 
 //===============IMPLEMENT OBJECT INITIALIZATION FUNCTIONS================
 Initializer::Initializer(CMap * m, CGObjectInstance * o) : map(m)
@@ -141,13 +142,20 @@ void Inspector::updateProperties(CArmedInstance * o)
 {
 	if(!o) return;
 	
-	auto * delegate = new InspectorDelegate();
-	delegate->options << "NEUTRAL";
-	for(int p = 0; p < map->players.size(); ++p)
-		if(map->players[p].canAnyonePlay())
-			delegate->options << QString("PLAYER %1").arg(p);
+	{
+		auto * delegate = new InspectorDelegate();
+		delegate->options << "NEUTRAL";
+		for(int p = 0; p < map->players.size(); ++p)
+			if(map->players[p].canAnyonePlay())
+				delegate->options << QString("PLAYER %1").arg(p);
+		addProperty("Owner", o->tempOwner, delegate, true);
+	}
+	{
+		auto * delegate = new ArmyDelegate(*o);
+		addProperty("Army", PropertyEditorPlaceholder(), delegate, false);
+	}
 	
-	addProperty("Owner", o->tempOwner, delegate, true);
+	
 }
 
 void Inspector::updateProperties(CGDwelling * o)
@@ -241,6 +249,7 @@ void Inspector::updateProperties(CGCreature * o)
 	addProperty("Never flees", o->neverFlees, InspectorDelegate::boolDelegate(), false);
 	addProperty("Not growing", o->notGrowingTeam, InspectorDelegate::boolDelegate(), false);
 	addProperty("Artifact reward", o->gainedArtifact); //TODO: implement in setProperty
+	addProperty("Army", PropertyEditorPlaceholder(), true);
 	addProperty("Amount", o->stacks[SlotID(0)]->count, false);
 	//addProperty("Resources reward", o->resources); //TODO: implement in setProperty
 }

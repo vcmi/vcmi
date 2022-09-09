@@ -24,6 +24,8 @@ WindowNewMap::WindowNewMap(QWidget *parent) :
 
 	show();
 
+	ui->widthTxt->setInputMask("d00");
+	ui->heightTxt->setInputMask("d00");
 	//setup initial parameters
 	mapGenOptions.setWidth(ui->widthTxt->text().toInt());
 	mapGenOptions.setHeight(ui->heightTxt->text().toInt());
