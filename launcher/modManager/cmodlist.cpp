@@ -205,7 +205,7 @@ CModEntry CModList::getMod(QString modname) const
 	QString path = modname;
 	path = "/" + path.replace(".", "/mods/");
 	QVariant conf = getValue(modSettings, path);
-	
+
 	if(conf.isNull())
 	{
 		settings["active"] = true; // default
@@ -224,9 +224,10 @@ CModEntry CModList::getMod(QString modname) const
 		if(path != rootPath)
 		{
 			conf = getValue(modSettings, rootPath);
-			if(!conf.isNull() && !conf.toMap()["active"].toBool())
+			auto confMap = conf.toMap();
+			if(!conf.isNull() && !confMap["active"].toBool())
 			{
-				settings = conf.toMap();
+				settings = confMap;
 			}
 		}
 	}
