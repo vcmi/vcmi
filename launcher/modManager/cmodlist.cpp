@@ -229,7 +229,7 @@ CModEntry CModList::getMod(QString modname) const
 		if(path != rootPath)
 		{
 			conf = getValue(modSettings, rootPath);
-			auto confMap = conf.toMap();
+			const auto confMap = conf.toMap();
 			if(!conf.isNull() && !confMap["active"].toBool())
 			{
 				settings = confMap;
