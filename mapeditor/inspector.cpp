@@ -203,7 +203,7 @@ void Inspector::updateProperties(CGArtifact * o)
 			for(auto spell : VLC->spellh->objects)
 			{
 				//if(map->isAllowedSpell(spell->id))
-				delegate->options << QString::fromStdString(spell->name);
+				delegate->options << QObject::tr(spell->name.c_str());
 			}
 			addProperty("Spell", VLC->spellh->objects[spellId]->name, delegate, false);
 		}
@@ -240,6 +240,7 @@ void Inspector::updateProperties(CGCreature * o)
 	addProperty("Never flees", o->neverFlees, InspectorDelegate::boolDelegate(), false);
 	addProperty("Not growing", o->notGrowingTeam, InspectorDelegate::boolDelegate(), false);
 	addProperty("Artifact reward", o->gainedArtifact); //TODO: implement in setProperty
+	addProperty("Amount", o->stacks[SlotID(0)]->count, false);
 	//addProperty("Resources reward", o->resources); //TODO: implement in setProperty
 }
 
@@ -394,6 +395,8 @@ void Inspector::setProperty(CGCreature * object, const QString & key, const QVar
 		object->neverFlees = stringToBool(value.toString());
 	if(key == "Not growing")
 		object->notGrowingTeam = stringToBool(value.toString());
+	if(key == "Amount")
+		object->stacks[SlotID(0)]->count = value.toString().toInt();
 }
 
 
