@@ -620,10 +620,11 @@ void LayerTransitionRule::process(
 				destination.blocked = true;
 			}
 		}
-		else if(source.node->accessible != CGPathNode::ACCESSIBLE &&	destination.node->accessible != CGPathNode::ACCESSIBLE)
+		else if(destination.node->accessible != CGPathNode::ACCESSIBLE)
 		{
 			/// Hero that fly can only land on accessible tiles
-			destination.blocked = true;
+			if(!destination.isGuardianTile && destination.nodeObject)
+				destination.blocked = true;
 		}
 
 		break;
