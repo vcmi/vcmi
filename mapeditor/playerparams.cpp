@@ -69,7 +69,9 @@ PlayerParams::PlayerParams(MapController & ctrl, int playerId, QWidget *parent) 
 	}
 	else
 	{
+		ui->generateHero->setEnabled(false);
 		playerInfo.hasMainTown = false;
+		playerInfo.generateHeroAtMainTown = false;
 		playerInfo.posOfMainTown = int3(-1, -1, -1);
 	}
 
@@ -121,11 +123,14 @@ void PlayerParams::on_mainTown_activated(int index)
 {
 	if(index == 0) //default
 	{
+		ui->generateHero->setEnabled(false);
+		ui->generateHero->setChecked(false);
 		playerInfo.hasMainTown = false;
 		playerInfo.posOfMainTown = int3(-1, -1, -1);
 	}
 	else
 	{
+		ui->generateHero->setEnabled(true);
 		auto town = controller.map()->objects.at(ui->mainTown->currentData().toInt());
 		playerInfo.hasMainTown = true;
 		playerInfo.posOfMainTown = town->pos;
