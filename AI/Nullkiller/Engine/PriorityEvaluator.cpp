@@ -255,6 +255,8 @@ uint64_t RewardEvaluator::getArmyReward(
 		return ai->cb->getPlayerRelations(target->tempOwner, ai->playerID) == PlayerRelations::ENEMIES
 			? enemyArmyEliminationRewardRatio * dynamic_cast<const CGHeroInstance *>(target)->getArmyStrength()
 			: 0;
+	case Obj::PANDORAS_BOX:
+		return 5000;
 	default:
 		return 0;
 	}
@@ -421,6 +423,9 @@ float RewardEvaluator::getSkillReward(const CGObjectInstance * target, const CGH
 		return 8;
 	case Obj::WITCH_HUT:
 		return evaluateWitchHutSkillScore(dynamic_cast<const CGWitchHut *>(target), hero, role);
+	case Obj::PANDORAS_BOX:
+		//Can contains experience, spells, or skills (only on custom maps)
+		return 2.5f;
 	case Obj::HERO:
 		return ai->cb->getPlayerRelations(target->tempOwner, ai->playerID) == PlayerRelations::ENEMIES
 			? enemyHeroEliminationSkillRewardRatio * dynamic_cast<const CGHeroInstance *>(target)->level
@@ -500,6 +505,8 @@ int32_t RewardEvaluator::getGoldReward(const CGObjectInstance * target, const CG
 		return 10000;
 	case Obj::SEA_CHEST:
 		return 1500;
+	case Obj::PANDORAS_BOX:
+		return 5000;
 	case Obj::HERO:
 		return ai->cb->getPlayerRelations(target->tempOwner, ai->playerID) == PlayerRelations::ENEMIES
 			? heroEliminationBonus + enemyArmyEliminationGoldRewardRatio * getArmyCost(dynamic_cast<const CGHeroInstance *>(target))
