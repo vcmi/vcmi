@@ -92,6 +92,8 @@ int32_t estimateTownIncome(CCallback * cb, const CGObjectInstance * target, cons
 
 TResources getCreatureBankResources(const CGObjectInstance * target, const CGHeroInstance * hero)
 {
+	//Fixme: unused variable hero
+
 	auto objectInfo = VLC->objtypeh->getHandlerFor(target->ID, target->subID)->getObjectInfo(target->appearance);
 	CBankInfo * bankInfo = dynamic_cast<CBankInfo *>(objectInfo.get());
 	auto resources = bankInfo->getPossibleResourcesReward();
