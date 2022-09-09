@@ -5572,13 +5572,21 @@ bool CGameHandler::isAllowedExchange(ObjectInstanceID id1, ObjectInstanceID id2)
 				return true;
 		}
 
-		//Ongoing garrison exchange
-		if (auto dialog = std::dynamic_pointer_cast<CGarrisonDialogQuery>(queries.topQuery(o1->tempOwner)))
+		//Ongoing garrison exchange - usually picking from top garison (from o1 to o2), but who knows
+		auto dialog = std::dynamic_pointer_cast<CGarrisonDialogQuery>(queries.topQuery(o1->tempOwner));
+		if (!dialog)
 		{
-			if (dialog->exchangingArmies.at(0) == o1 && dialog->exchangingArmies.at(1) == o2)
+			dialog = std::dynamic_pointer_cast<CGarrisonDialogQuery>(queries.topQuery(o2->tempOwner));
+		}
+		if (dialog)
+		{
+			auto topArmy = dialog->exchangingArmies.at(0);
+			auto bottomArmy = dialog->exchangingArmies.at(1);
+
+			if (topArmy == o1 && bottomArmy == o2)
 				return true;
 
-			if (dialog->exchangingArmies.at(1) == o1 && dialog->exchangingArmies.at(0) == o2)
+			if (bottomArmy == o1 && topArmy == o2)
 				return true;
 		}
 	}
