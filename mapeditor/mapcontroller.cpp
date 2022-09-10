@@ -319,6 +319,29 @@ void MapController::commitObjectCreate(int level)
 	auto * newObj = _scenes[level]->selectionObjectsView.newObject;
 	if(!newObj)
 		return;
+	
+	//need this because of possible limits
+	auto rmgInfo = VLC->objtypeh->getHandlerFor(newObj->ID, newObj->subID)->getRMGInfo();
+	
+	//find all objects of such type
+	int objCounter = 0;
+	for(auto o : _map->objects)
+	{
+		if(o->ID == newObj->ID && o->subID == newObj->subID)
+		{
+			++objCounter;
+		}
+	}
+	
+	if((rmgInfo.mapLimit && objCounter >= rmgInfo.mapLimit)
+	   || (newObj->ID == Obj::GRAIL && objCounter >= 1)) //special case for grail
+	{
+		auto typeName = QString::fromStdString(newObj->typeName);
+		auto subTypeName = QString::fromStdString(newObj->subTypeName);
+		main->setStatusMessage(QString("Reached map limit for object %1 - %2").arg(typeName, subTypeName));
+		return; //maplimit reached
+	}
+	
 	Initializer init(map(), newObj);
 	
 	_map->getEditManager()->insertObject(newObj);

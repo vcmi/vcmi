@@ -109,6 +109,8 @@ private:
 	void setTitle();
 	
 	void closeEvent(QCloseEvent *event) override;
+	
+	bool getAnswerAboutUnsavedChanges();
 
 private:
     Ui::MainWindow *ui;

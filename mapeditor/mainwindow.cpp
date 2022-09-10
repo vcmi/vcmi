@@ -144,18 +144,25 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::closeEvent(QCloseEvent *event)
+bool MainWindow::getAnswerAboutUnsavedChanges()
 {
 	if(unsaved)
 	{
-		auto sure = QMessageBox::question(this, "Confirmation", "You have unsaved changes, are you sure that you want to quit?");
+		auto sure = QMessageBox::question(this, "Confirmation", "Unsaved changes will be lost, are you sure?");
 		if(sure == QMessageBox::No)
 		{
-			event->ignore();
-			return;
+			return false;
 		}
 	}
-	QMainWindow::closeEvent(event);
+	return true;
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+	if(getAnswerAboutUnsavedChanges())
+		QMainWindow::closeEvent(event);
+	else
+		event->ignore();
 }
 
 void MainWindow::setStatusMessage(const QString & status)
@@ -196,6 +203,9 @@ void MainWindow::initializeMap(bool isNew)
 
 void MainWindow::on_actionOpen_triggered()
 {
+	if(!getAnswerAboutUnsavedChanges())
+		return;
+	
 	auto filenameSelect = QFileDialog::getOpenFileName(this, tr("Open Image"), QString::fromStdString(VCMIDirs::get().userCachePath().make_preferred().string()), tr("Homm3 Files (*.vmap *.h3m)"));
 	
 	if(filenameSelect.isNull())
@@ -286,7 +296,8 @@ void MainWindow::on_actionSave_as_triggered()
 
 void MainWindow::on_actionNew_triggered()
 {
-	new WindowNewMap(this);
+	if(getAnswerAboutUnsavedChanges())
+		new WindowNewMap(this);
 }
 
 void MainWindow::on_actionSave_triggered()
