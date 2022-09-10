@@ -15,6 +15,7 @@
 #include "../ConstTransitivePtr.h"
 #include "../IHandlerBase.h"
 #include "../JsonNode.h"
+#include "Terrain.h"
 
 class JsonNode;
 class CRandomGenerator;
@@ -148,6 +149,9 @@ class DLL_LINKAGE AObjectTypeHandler : public boost::noncopyable
 	SObjectSounds sounds;
 
 	boost::optional<si32> aiValue;
+
+	boost::optional<std::string> battlefield;
+
 protected:
 	void preInitObject(CGObjectInstance * obj) const;
 	virtual bool objectFilter(const CGObjectInstance *, std::shared_ptr<const ObjectTemplate>) const;
@@ -178,11 +182,16 @@ public:
 
 	/// returns all templates matching parameters
 	std::vector<std::shared_ptr<const ObjectTemplate>> getTemplates() const;
-	std::vector<std::shared_ptr<const ObjectTemplate>> getTemplates(si32 terrainType) const;
+	std::vector<std::shared_ptr<const ObjectTemplate>> getTemplates(const Terrain & terrainType) const;
 
 	/// returns preferred template for this object, if present (e.g. one of 3 possible templates for town - village, fort and castle)
 	/// note that appearance will not be changed - this must be done separately (either by assignment or via pack from server)
-	std::shared_ptr<const ObjectTemplate> getOverride(si32 terrainType, const CGObjectInstance * object) const;
+	std::shared_ptr<const ObjectTemplate> getOverride(const Terrain & terrainType, const CGObjectInstance * object) const;
+
+	BattleField getBattlefield() const;
+
+	/// returns preferred template for this object, if present (e.g. one of 3 possible templates for town - village, fort and castle)
+	/// note that appearance will not be changed - this must be done separately (either by assignment or via pack from server)
 
 	const RandomMapInfo & getRMGInfo();
 
@@ -210,19 +219,11 @@ public:
 		h & templates;
 		h & rmgInfo;
 		h & objectName;
-		if(version >= 759)
-		{
-			h & typeName;
-			h & subTypeName;
-		}
-		if(version >= 778)
-		{
-			h & sounds;
-		}
-		if(version >= 789)
-		{
-			h & aiValue;
-		}
+		h & typeName;
+		h & subTypeName;
+		h & sounds;
+		h & aiValue;
+		h & battlefield;
 	}
 };
 
@@ -253,19 +254,10 @@ class DLL_LINKAGE CObjectClassesHandler : public IHandlerBase
 			h & handlerName;
 			h & base;
 			h & subObjects;
-			if(version >= 759)
-			{
-				h & identifier;
-				h & subIds;
-			}
-			if(version >= 778)
-			{
-				h & sounds;
-			}
-			if(version >= 789)
-			{
-				h & groupDefaultAiValue;
-			}
+			h & identifier;
+			h & subIds;
+			h & sounds;
+			h & groupDefaultAiValue;
 		}
 	};
 

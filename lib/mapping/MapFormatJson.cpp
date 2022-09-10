@@ -323,20 +323,6 @@ namespace TriggeredEventsDetail
 
 namespace TerrainDetail
 {
-	static const std::array<std::string, 10> terrainCodes =
-	{
-		"dt", "sa", "gr", "sn", "sw", "rg", "sb", "lv", "wt", "rc"
-	};
-	static const std::array<std::string, 4> roadCodes =
-	{
-		"", "pd", "pg", "pc"
-	};
-
-	static const std::array<std::string, 5> riverCodes =
-	{
-		"", "rw", "ri", "rm", "rl"
-	};
-
 	static const std::array<char, 4> flipCodes =
 	{
 		'_', '-', '|', '+'
@@ -959,13 +945,7 @@ void CMapLoaderJson::readTerrainTile(const std::string & src, TerrainTile & tile
 	using namespace TerrainDetail;
 	{//terrain type
 		const std::string typeCode = src.substr(0, 2);
-
-		int rawType = vstd::find_pos(terrainCodes, typeCode);
-
-		if(rawType < 0)
-			throw std::runtime_error("Invalid terrain type code in "+src);
-
-		tile.terType = ETerrainType(rawType);
+		tile.terType = Terrain::createTerrainByCode(typeCode);
 	}
 	int startPos = 2; //0+typeCode fixed length
 	{//terrain view
@@ -992,20 +972,18 @@ void CMapLoaderJson::readTerrainTile(const std::string & src, TerrainTile & tile
 	{//road type
 		const std::string typeCode = src.substr(startPos, 2);
 		startPos+=2;
-		int rawType = vstd::find_pos(roadCodes, typeCode);
-		if(rawType < 0)
+		if(vstd::find_pos(ROAD_NAMES, typeCode) < 0)
 		{
-			rawType = vstd::find_pos(riverCodes, typeCode);
-			if(rawType < 0)
+			if(vstd::find_pos(RIVER_NAMES, typeCode) < 0)
 				throw std::runtime_error("Invalid river type in "+src);
 			else
 			{
-				tile.riverType = ERiverType::ERiverType(rawType);
+				tile.riverType = typeCode;
 				hasRoad = false;
 			}
 		}
 		else
-			tile.roadType = ERoadType::ERoadType(rawType);
+			tile.roadType = typeCode;
 	}
 	if(hasRoad)
 	{//road dir
@@ -1033,10 +1011,9 @@ void CMapLoaderJson::readTerrainTile(const std::string & src, TerrainTile & tile
 	{//river type
 		const std::string typeCode = src.substr(startPos, 2);
 		startPos+=2;
-		int rawType = vstd::find_pos(riverCodes, typeCode);
-		if(rawType < 0)
+		if(vstd::find_pos(RIVER_NAMES, typeCode) < 0)
 			throw std::runtime_error("Invalid river type in "+src);
-		tile.riverType = ERiverType::ERiverType(rawType);
+		tile.riverType = typeCode;
 	}
 	{//river dir
 		int pos = startPos;
@@ -1299,13 +1276,13 @@ std::string CMapSaverJson::writeTerrainTile(const TerrainTile & tile)
 	out.setf(std::ios::dec, std::ios::basefield);
 	out.unsetf(std::ios::showbase);
 
-	out << terrainCodes.at(int(tile.terType)) << (int)tile.terView << flipCodes[tile.extTileFlags % 4];
+	out << Terrain::Manager::getInfo(tile.terType).typeCode << (int)tile.terView << flipCodes[tile.extTileFlags % 4];
 
-	if(tile.roadType != ERoadType::NO_ROAD)
-		out << roadCodes.at(int(tile.roadType)) << (int)tile.roadDir << flipCodes[(tile.extTileFlags >> 4) % 4];
+	if(tile.roadType != ROAD_NAMES[0])
+		out << tile.roadType << (int)tile.roadDir << flipCodes[(tile.extTileFlags >> 4) % 4];
 
-	if(tile.riverType != ERiverType::NO_RIVER)
-		out << riverCodes.at(int(tile.riverType)) << (int)tile.riverDir << flipCodes[(tile.extTileFlags >> 2) % 4];
+	if(tile.riverType != RIVER_NAMES[0])
+		out << tile.riverType << (int)tile.riverDir << flipCodes[(tile.extTileFlags >> 2) % 4];
 
 	return out.str();
 }

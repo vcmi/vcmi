@@ -162,17 +162,8 @@ public:
 		h & prolog;
 		h & epilog;
 		h & travelOptions;
-		if(formatVersion < 787)
-		{
-			std::vector<CGHeroInstance *> crossoverHeroesOld, placedCrossoverHeroesOld;
-			h & crossoverHeroesOld;
-			h & placedCrossoverHeroesOld;
-		}
-		else
-		{
-			h & crossoverHeroes;
-			h & placedCrossoverHeroes;
-		}
+		h & crossoverHeroes;
+		h & placedCrossoverHeroes;
 		h & keepHeroes;
 	}
 };

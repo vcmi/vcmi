@@ -110,7 +110,7 @@ void CTerrainSelection::deselectRange(const MapRect & rect)
 	});
 }
 
-void CTerrainSelection::setSelection(std::vector<int3> & vec)
+void CTerrainSelection::setSelection(const std::vector<int3> & vec)
 {
 	for (auto pos : vec)
 		this->select(pos);
@@ -243,17 +243,24 @@ void CMapEditManager::clearTerrain(CRandomGenerator * gen)
 	execute(make_unique<CClearTerrainOperation>(map, gen ? gen : &(this->gen)));
 }
 
-void CMapEditManager::drawTerrain(ETerrainType terType, CRandomGenerator * gen)
+void CMapEditManager::drawTerrain(Terrain terType, CRandomGenerator * gen)
 {
 	execute(make_unique<CDrawTerrainOperation>(map, terrainSel, terType, gen ? gen : &(this->gen)));
 	terrainSel.clearSelection();
 }
 
-void CMapEditManager::drawRoad(ERoadType::ERoadType roadType, CRandomGenerator* gen)
+void CMapEditManager::drawRoad(const std::string & roadType, CRandomGenerator* gen)
 {
 	execute(make_unique<CDrawRoadsOperation>(map, terrainSel, roadType, gen ? gen : &(this->gen)));
 	terrainSel.clearSelection();
 }
+
+void CMapEditManager::drawRiver(const std::string & riverType, CRandomGenerator* gen)
+{
+	execute(make_unique<CDrawRiversOperation>(map, terrainSel, riverType, gen ? gen : &(this->gen)));
+	terrainSel.clearSelection();
+}
+
 
 
 void CMapEditManager::insertObject(CGObjectInstance * obj)
@@ -421,7 +428,6 @@ CTerrainViewPatternConfig::CTerrainViewPatternConfig()
 					}
 
 					// Add pattern to the patterns map
-					const auto & terGroup = getTerrainGroup(mappingPair.first);
 					std::vector<TerrainViewPattern> terrainViewPatternFlips;
 					terrainViewPatternFlips.push_back(terGroupPattern);
 
@@ -431,7 +437,8 @@ CTerrainViewPatternConfig::CTerrainViewPatternConfig()
 						flipPattern(terGroupPattern, i); //FIXME: we flip in place - doesn't make much sense now, but used to work
 						terrainViewPatternFlips.push_back(terGroupPattern);
 					}
-					terrainViewPatterns[terGroup].push_back(terrainViewPatternFlips);
+					
+					terrainViewPatterns[mappingPair.first].push_back(terrainViewPatternFlips);
 				}
 			}
 			else if(i == 1)
@@ -453,32 +460,23 @@ CTerrainViewPatternConfig::~CTerrainViewPatternConfig()
 
 }
 
-ETerrainGroup::ETerrainGroup CTerrainViewPatternConfig::getTerrainGroup(const std::string & terGroup) const
+const std::vector<CTerrainViewPatternConfig::TVPVector> & CTerrainViewPatternConfig::getTerrainViewPatterns(const Terrain & terrain) const
 {
-	static const std::map<std::string, ETerrainGroup::ETerrainGroup> terGroups =
-	{
-		{"normal", ETerrainGroup::NORMAL},
-		{"dirt", ETerrainGroup::DIRT},
-		{"sand", ETerrainGroup::SAND},
-		{"water", ETerrainGroup::WATER},
-		{"rock", ETerrainGroup::ROCK},
-	};
-	auto it = terGroups.find(terGroup);
-	if(it == terGroups.end()) throw std::runtime_error(boost::str(boost::format("Terrain group '%s' does not exist.") % terGroup));
-	return it->second;
+	auto iter = terrainViewPatterns.find(Terrain::Manager::getInfo(terrain).terrainViewPatterns);
+	if(iter == terrainViewPatterns.end())
+		return terrainViewPatterns.at("normal");
+	return iter->second;
 }
 
-const std::vector<CTerrainViewPatternConfig::TVPVector> & CTerrainViewPatternConfig::getTerrainViewPatternsForGroup(ETerrainGroup::ETerrainGroup terGroup) const
+boost::optional<const TerrainViewPattern &> CTerrainViewPatternConfig::getTerrainViewPatternById(std::string patternId, const std::string & id) const
 {
-	return terrainViewPatterns.find(terGroup)->second;
-}
+	auto iter = terrainViewPatterns.find(patternId);
+	const std::vector<TVPVector> & groupPatterns = (iter == terrainViewPatterns.end()) ? terrainViewPatterns.at("normal") : iter->second;
 
-boost::optional<const TerrainViewPattern &> CTerrainViewPatternConfig::getTerrainViewPatternById(ETerrainGroup::ETerrainGroup terGroup, const std::string & id) const
-{
-	const std::vector<TVPVector> & groupPatterns = getTerrainViewPatternsForGroup(terGroup);
 	for (const TVPVector & patternFlips : groupPatterns)
 	{
 		const TerrainViewPattern & pattern = patternFlips.front();
+
 		if(id == pattern.id)
 		{
 			return boost::optional<const TerrainViewPattern &>(pattern);
@@ -486,9 +484,10 @@ boost::optional<const TerrainViewPattern &> CTerrainViewPatternConfig::getTerrai
 	}
 	return boost::optional<const TerrainViewPattern &>();
 }
-boost::optional<const CTerrainViewPatternConfig::TVPVector &> CTerrainViewPatternConfig::getTerrainViewPatternsById(ETerrainGroup::ETerrainGroup terGroup, const std::string & id) const
+
+boost::optional<const CTerrainViewPatternConfig::TVPVector &> CTerrainViewPatternConfig::getTerrainViewPatternsById(const Terrain & terrain, const std::string & id) const
 {
-	const std::vector<TVPVector> & groupPatterns = getTerrainViewPatternsForGroup(terGroup);
+	const std::vector<TVPVector> & groupPatterns = getTerrainViewPatterns(terrain);
 	for (const TVPVector & patternFlips : groupPatterns)
 	{
 		const TerrainViewPattern & pattern = patternFlips.front();
@@ -534,7 +533,7 @@ void CTerrainViewPatternConfig::flipPattern(TerrainViewPattern & pattern, int fl
 }
 
 
-CDrawTerrainOperation::CDrawTerrainOperation(CMap * map, const CTerrainSelection & terrainSel, ETerrainType terType, CRandomGenerator * gen)
+CDrawTerrainOperation::CDrawTerrainOperation(CMap * map, const CTerrainSelection & terrainSel, Terrain terType, CRandomGenerator * gen)
 	: CMapOperation(map), terrainSel(terrainSel), terType(terType), gen(gen)
 {
 
@@ -705,7 +704,7 @@ void CDrawTerrainOperation::updateTerrainViews()
 {
 	for(const auto & pos : invalidatedTerViews)
 	{
-		const auto & patterns = VLC->terviewh->getTerrainViewPatternsForGroup(getTerrainGroup(map->getTile(pos).terType));
+		const auto & patterns = VLC->terviewh->getTerrainViewPatterns(map->getTile(pos).terType);
 
 		// Detect a pattern which fits best
 		int bestPattern = -1;
@@ -760,23 +759,6 @@ void CDrawTerrainOperation::updateTerrainViews()
 	}
 }
 
-ETerrainGroup::ETerrainGroup CDrawTerrainOperation::getTerrainGroup(ETerrainType terType) const
-{
-	switch(terType)
-	{
-	case ETerrainType::DIRT:
-		return ETerrainGroup::DIRT;
-	case ETerrainType::SAND:
-		return ETerrainGroup::SAND;
-	case ETerrainType::WATER:
-		return ETerrainGroup::WATER;
-	case ETerrainType::ROCK:
-		return ETerrainGroup::ROCK;
-	default:
-		return ETerrainGroup::NORMAL;
-	}
-}
-
 CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainView(const int3 & pos, const std::vector<TerrainViewPattern> * pattern, int recDepth) const
 {
 	for(int flip = 0; flip < 4; ++flip)
@@ -794,7 +776,6 @@ CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainVi
 CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainViewInner(const int3 & pos, const TerrainViewPattern & pattern, int recDepth) const
 {
 	auto centerTerType = map->getTile(pos).terType;
-	auto centerTerGroup = getTerrainGroup(centerTerType);
 	int totalPoints = 0;
 	std::string transitionReplacement;
 
@@ -811,7 +792,7 @@ CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainVi
 		int cy = pos.y + (i / 3) - 1;
 		int3 currentPos(cx, cy, pos.z);
 		bool isAlien = false;
-		ETerrainType terType;
+		Terrain terType;
 		if(!map->isInTheMap(currentPos))
 		{
 			// position is not in the map, so take the ter type from the neighbor tile
@@ -844,7 +825,7 @@ CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainVi
 		else
 		{
 			terType = map->getTile(currentPos).terType;
-			if(terType != centerTerType)
+			if(terType != centerTerType && (terType.isPassable() || centerTerType.isPassable()))
 			{
 				isAlien = true;
 			}
@@ -861,8 +842,7 @@ CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainVi
 				{
 					if(terType == centerTerType)
 					{
-						const auto & group = getTerrainGroup(centerTerType);
-						const auto & patternForRule = VLC->terviewh->getTerrainViewPatternsById(group, rule.name);
+						const auto & patternForRule = VLC->terviewh->getTerrainViewPatternsById(centerTerType, rule.name);
 						if(auto p = patternForRule)
 						{
 							auto rslt = validateTerrainView(currentPos, &(*p), 1);
@@ -888,12 +868,30 @@ CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainVi
 			// Validate cell with the ruleset of the pattern
 			bool nativeTestOk, nativeTestStrongOk;
 			nativeTestOk = nativeTestStrongOk = (rule.isNativeStrong() || rule.isNativeRule()) && !isAlien;
-			if(centerTerGroup == ETerrainGroup::NORMAL)
+			
+			if(centerTerType == Terrain("dirt"))
+			{
+				nativeTestOk = rule.isNativeRule() && !terType.isTransitionRequired();
+				bool sandTestOk = (rule.isSandRule() || rule.isTransition())
+				&& terType.isTransitionRequired();
+				applyValidationRslt(rule.isAnyRule() || sandTestOk || nativeTestOk || nativeTestStrongOk);
+			}
+			else if(centerTerType == Terrain("sand"))
+			{
+				applyValidationRslt(true);
+			}
+			else if(centerTerType.isTransitionRequired()) //water, rock and some special terrains require sand transition
+			{
+				bool sandTestOk = (rule.isSandRule() || rule.isTransition())
+				&& isAlien;
+				applyValidationRslt(rule.isAnyRule() || sandTestOk || nativeTestOk);
+			}
+			else
 			{
 				bool dirtTestOk = (rule.isDirtRule() || rule.isTransition())
-						&& isAlien && !isSandType(terType);
+						&& isAlien && !terType.isTransitionRequired();
 				bool sandTestOk = (rule.isSandRule() || rule.isTransition())
-						&& isSandType(terType);
+						&& terType.isTransitionRequired();
 
 				if (transitionReplacement.empty() && rule.isTransition()
 						&& (dirtTestOk || sandTestOk))
@@ -909,23 +907,6 @@ CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainVi
 				{
 					applyValidationRslt(rule.isAnyRule() || dirtTestOk || sandTestOk || nativeTestOk);
 				}
-			}
-			else if(centerTerGroup == ETerrainGroup::DIRT)
-			{
-				nativeTestOk = rule.isNativeRule() && !isSandType(terType);
-				bool sandTestOk = (rule.isSandRule() || rule.isTransition())
-						&& isSandType(terType);
-				applyValidationRslt(rule.isAnyRule() || sandTestOk || nativeTestOk || nativeTestStrongOk);
-			}
-			else if(centerTerGroup == ETerrainGroup::SAND)
-			{
-				applyValidationRslt(true);
-			}
-			else if(centerTerGroup == ETerrainGroup::WATER || centerTerGroup == ETerrainGroup::ROCK)
-			{
-				bool sandTestOk = (rule.isSandRule() || rule.isTransition())
-						&& isAlien;
-				applyValidationRslt(rule.isAnyRule() || sandTestOk || nativeTestOk);
 			}
 		}
 
@@ -946,19 +927,6 @@ CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainVi
 	else
 	{
 		return ValidationResult(false);
-	}
-}
-
-bool CDrawTerrainOperation::isSandType(ETerrainType terType) const
-{
-	switch(terType)
-	{
-	case ETerrainType::WATER:
-	case ETerrainType::SAND:
-	case ETerrainType::ROCK:
-		return true;
-	default:
-		return false;
 	}
 }
 
@@ -986,7 +954,7 @@ CDrawTerrainOperation::InvalidTiles CDrawTerrainOperation::getInvalidTiles(const
 			auto valid = validateTerrainView(pos, ptrConfig->getTerrainTypePatternById("n1")).result;
 
 			// Special validity check for rock & water
-			if(valid && (terType == ETerrainType::WATER || terType == ETerrainType::ROCK))
+			if(valid && (terType.isWater() || !terType.isPassable()))
 			{
 				static const std::string patternIds[] = { "s1", "s2" };
 				for(auto & patternId : patternIds)
@@ -996,7 +964,7 @@ CDrawTerrainOperation::InvalidTiles CDrawTerrainOperation::getInvalidTiles(const
 				}
 			}
 			// Additional validity check for non rock OR water
-			else if(!valid && (terType != ETerrainType::WATER && terType != ETerrainType::ROCK))
+			else if(!valid && (terType.isLand() && terType.isPassable()))
 			{
 				static const std::string patternIds[] = { "n2", "n3" };
 				for(auto & patternId : patternIds)
@@ -1040,7 +1008,7 @@ void CTerrainViewPatternUtils::printDebuggingInfoAboutTile(const CMap * map, int
 			{
 				auto debugTile = map->getTile(debugPos);
 
-				std::string terType = debugTile.terType.toString().substr(0, 6);
+				std::string terType = static_cast<std::string>(debugTile.terType).substr(0, 6);
 				line += terType;
 				line.insert(line.end(), PADDED_LENGTH - terType.size(), ' ');
 			}
@@ -1059,12 +1027,12 @@ CClearTerrainOperation::CClearTerrainOperation(CMap * map, CRandomGenerator * ge
 {
 	CTerrainSelection terrainSel(map);
 	terrainSel.selectRange(MapRect(int3(0, 0, 0), map->width, map->height));
-	addOperation(make_unique<CDrawTerrainOperation>(map, terrainSel, ETerrainType::WATER, gen));
+	addOperation(make_unique<CDrawTerrainOperation>(map, terrainSel, Terrain("water"), gen));
 	if(map->twoLevel)
 	{
 		terrainSel.clearSelection();
 		terrainSel.selectRange(MapRect(int3(0, 0, 1), map->width, map->height));
-		addOperation(make_unique<CDrawTerrainOperation>(map, terrainSel, ETerrainType::ROCK, gen));
+		addOperation(make_unique<CDrawTerrainOperation>(map, terrainSel, Terrain("rock"), gen));
 	}
 }
 

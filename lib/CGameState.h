@@ -179,7 +179,7 @@ public:
 	void giveHeroArtifact(CGHeroInstance *h, ArtifactID aid);
 
 	void apply(CPack *pack);
-	BFieldType battleGetBattlefieldType(int3 tile, CRandomGenerator & rand);
+	BattleField battleGetBattlefieldType(int3 tile, CRandomGenerator & rand);
 	UpgradeInfo getUpgradeInfo(const CStackInstance &stack);
 	PlayerRelations::PlayerRelations getPlayerRelations(PlayerColor color1, PlayerColor color2);
 	bool checkForVisitableDir(const int3 & src, const int3 & dst) const; //check if src tile is visitable from dst tile
@@ -227,14 +227,7 @@ public:
 		h & hpool;
 		h & globalEffects;
 		h & rand;
-		if(version >= 755) //save format backward compatibility
-		{
-			h & rumor;
-		}
-		else if(!h.saving)
-		{
-			rumor = RumorState();
-		}
+		h & rumor;
 
 		BONUS_TREE_DESERIALIZATION_FIX
 	}

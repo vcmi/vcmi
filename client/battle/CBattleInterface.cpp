@@ -41,6 +41,7 @@
 #include "../../lib/spells/ISpellMechanics.h"
 #include "../../lib/spells/Problem.h"
 #include "../../lib/CTownHandler.h"
+#include "../../lib/BattleFieldHandler.h"
 #include "../../lib/CGameState.h"
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/NetPacks.h"
@@ -200,15 +201,15 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 	}
 	else
 	{
-		auto bfieldType = (int)curInt->cb->battleGetBattlefieldType();
-		if (graphics->battleBacks.size() <= bfieldType || bfieldType < 0)
-			logGlobal->error("%d is not valid battlefield type index!", bfieldType);
-		else if (graphics->battleBacks[bfieldType].empty())
-			logGlobal->error("%d battlefield type does not have any backgrounds!", bfieldType);
+		auto bfieldType = curInt->cb->battleGetBattlefieldType();
+
+		if(bfieldType == BattleField::NONE)
+		{
+			logGlobal->error("Invalid battlefield returned for current battle");
+		}
 		else
 		{
-			const std::string bgName = *RandomGeneratorUtil::nextItem(graphics->battleBacks[bfieldType], CRandomGenerator::getDefault());
-			background = BitmapHandler::loadBitmap(bgName, false);
+			background = BitmapHandler::loadBitmap(bfieldType.getInfo()->graphics, false);
 		}
 	}
 
@@ -454,7 +455,7 @@ CBattleInterface::~CBattleInterface()
 
 	if (adventureInt && adventureInt->selection)
 	{
-		int terrain = LOCPLINT->cb->getTile(adventureInt->selection->visitablePos())->terType;
+		auto & terrain = LOCPLINT->cb->getTile(adventureInt->selection->visitablePos())->terType;
 		CCS->musich->playMusicFromSet("terrain", terrain, true);
 	}
 	animsAreDisplayed.setn(false);

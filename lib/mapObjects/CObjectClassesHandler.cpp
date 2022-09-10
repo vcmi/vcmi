@@ -1,4 +1,4 @@
-﻿/*
+/*
  * CObjectClassesHandler.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
@@ -97,6 +97,7 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER("oncePerHero", CGVisitableOPH);
 	SET_HANDLER("oncePerWeek", CGVisitableOPW);
 	SET_HANDLER("witch", CGWitchHut);
+	SET_HANDLER("terrain", CGTerrainPatch);
 
 #undef SET_HANDLER_CLASS
 #undef SET_HANDLER
@@ -195,7 +196,7 @@ void CObjectClassesHandler::loadObjectEntry(const std::string & identifier, cons
 	else
 		handler->init(entry);
 
-	if (handler->getTemplates().empty())
+	//if (handler->getTemplates().empty())
 	{
 		auto range = legacyTemplates.equal_range(std::make_pair(obj->id, id));
 		for (auto & templ : boost::make_iterator_range(range.first, range.second))
@@ -513,6 +514,11 @@ void AObjectTypeHandler::init(const JsonNode & input, boost::optional<std::strin
 	else
 		aiValue = static_cast<boost::optional<si32>>(input["aiValue"].Integer());
 
+	if(input["battleground"].getType() == JsonNode::JsonType::DATA_STRING)
+		battlefield = input["battleground"].String();
+	else
+		battlefield = boost::none;
+
 	initTypeData(input);
 }
 
@@ -570,14 +576,19 @@ std::vector<std::shared_ptr<const ObjectTemplate>> AObjectTypeHandler::getTempla
 	return templates;
 }
 
-std::vector<std::shared_ptr<const ObjectTemplate>> AObjectTypeHandler::getTemplates(si32 terrainType) const// FIXME: replace with ETerrainType
+BattleField AObjectTypeHandler::getBattlefield() const
+{
+	return battlefield ? BattleField::fromString(battlefield.get()) : BattleField::NONE;
+}
+
+std::vector<std::shared_ptr<const ObjectTemplate>>AObjectTypeHandler::getTemplates(const Terrain & terrainType) const
 {
 	std::vector<std::shared_ptr<const ObjectTemplate>> templates = getTemplates();
 	std::vector<std::shared_ptr<const ObjectTemplate>> filtered;
 
 	std::copy_if(templates.begin(), templates.end(), std::back_inserter(filtered), [&](std::shared_ptr<const ObjectTemplate> obj)
 	{
-		return obj->canBePlacedAt(ETerrainType(terrainType));
+		return obj->canBePlacedAt(terrainType);
 	});
 	// H3 defines allowed terrains in a weird way - artifacts, monsters and resources have faulty masks here
 	// Perhaps we should re-define faulty templates and remove this workaround (already done for resources)
@@ -587,7 +598,7 @@ std::vector<std::shared_ptr<const ObjectTemplate>> AObjectTypeHandler::getTempla
 		return filtered;
 }
 
-std::shared_ptr<const ObjectTemplate> AObjectTypeHandler::getOverride(si32 terrainType, const CGObjectInstance * object) const
+std::shared_ptr<const ObjectTemplate> AObjectTypeHandler::getOverride(const Terrain & terrainType, const CGObjectInstance * object) const
 {
 	std::vector<std::shared_ptr<const ObjectTemplate>> ret = getTemplates(terrainType);
 	for (const auto & tmpl: ret)
@@ -595,7 +606,7 @@ std::shared_ptr<const ObjectTemplate> AObjectTypeHandler::getOverride(si32 terra
 		if (objectFilter(object, tmpl))
 			return tmpl;
 	}
-	return nullptr;
+	return std::shared_ptr<const ObjectTemplate>(); //empty
 }
 
 const RandomMapInfo & AObjectTypeHandler::getRMGInfo()

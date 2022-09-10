@@ -1,33 +1,4 @@
 {
-	// backgrounds of terrains battles can be fought on
-	"backgrounds": [
-		"CMBKBCH.BMP",
-		"CMBKDES.BMP",
-		"CMBKDRTR.BMP",
-		"CMBKDRMT.BMP",
-		"CMBKDRDD.BMP",
-		"CMBKGRMT.BMP",
-		"CMBKGRTR.BMP",
-		"CMBKLAVA.BMP",
-		"CMBKMAG.BMP",
-		"CMBKSNMT.BMP",
-		"CMBKSNTR.BMP",
-		"CMBKSUB.BMP",
-		"CMBKSWMP.BMP",
-		"CMBKFF.BMP",
-		"CMBKRK.BMP",
-		"CMBKMC.BMP",
-		"CMBKLP.BMP",
-		"CMBKHG.BMP",
-		"CMBKCF.BMP",
-		"CMBKEF.BMP",
-		"CMBKFW.BMP",
-		"CMBKCUR.BMP",
-		"CMBKRGH.BMP",
-		"CMBKBOAT.BMP",
-		"CMBKDECK.BMP"
-	],
-
 	// WoG_Ac_format_to_def_names_mapping
 	"ac_mapping": [
 		{ "id": 0, "defnames": [ "C10SPW.DEF" ] },//merged

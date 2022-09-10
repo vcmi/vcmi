@@ -272,21 +272,14 @@ public:
 		h & QID;
 		h & states;
 		h & finishingBattle;
+		h & getRandomGenerator();
 
-		if(version >= 761)
-		{
-			h & getRandomGenerator();
-		}
-
-		if(version >= 800)
-		{
-			JsonNode scriptsState;
-			if(h.saving)
-				serverScripts->serializeState(h.saving, scriptsState);
-			h & scriptsState;
-			if(!h.saving)
-				serverScripts->serializeState(h.saving, scriptsState);
-		}
+		JsonNode scriptsState;
+		if(h.saving)
+			serverScripts->serializeState(h.saving, scriptsState);
+		h & scriptsState;
+		if(!h.saving)
+			serverScripts->serializeState(h.saving, scriptsState);
 	}
 
 	void sendMessageToAll(const std::string &message);
@@ -314,11 +307,6 @@ public:
 			h & loserHero;
 			h & victor;
 			h & loser;
-			if(version < 774 && !h.saving)
-			{
-				bool duel;
-				h & duel;
-			}
 			h & remainingBattleQueriesCount;
 		}
 	};

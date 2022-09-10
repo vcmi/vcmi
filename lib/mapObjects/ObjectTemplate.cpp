@@ -19,6 +19,7 @@
 #include "CObjectHandler.h"
 #include "../CModHandler.h"
 #include "../JsonNode.h"
+#include "../Terrain.h"
 
 #include "CRewardableConstructor.h"
 
@@ -161,7 +162,17 @@ void ObjectTemplate::readTxt(CLegacyConfigParser & parser)
 	for(size_t i=0; i<9; i++)
 	{
 		if (terrStr[8-i] == '1')
-			allowedTerrains.insert(ETerrainType((si32)i));
+			allowedTerrains.insert(Terrain::createTerrainTypeH3M(i));
+	}
+	
+	//assuming that object can be placed on other land terrains
+	if(allowedTerrains.size() >= 8 && !allowedTerrains.count(Terrain("water")))
+	{
+		for(auto & terrain : Terrain::Manager::terrains())
+		{
+			if(terrain.isLand() && terrain.isPassable())
+				allowedTerrains.insert(terrain);
+		}
 	}
 
 	id    = Obj(boost::lexical_cast<int>(strings[5]));
@@ -224,7 +235,17 @@ void ObjectTemplate::readMap(CBinaryReader & reader)
 	for(size_t i=0; i<9; i++)
 	{
 		if (((terrMask >> i) & 1 ) != 0)
-			allowedTerrains.insert(ETerrainType((si32)i));
+			allowedTerrains.insert(Terrain::createTerrainTypeH3M(i));
+	}
+	
+	//assuming that object can be placed on other land terrains
+	if(allowedTerrains.size() >= 8 && !allowedTerrains.count(Terrain("water")))
+	{
+		for(auto & terrain : Terrain::Manager::terrains())
+		{
+			if(terrain.isLand() && terrain.isPassable())
+				allowedTerrains.insert(terrain);
+		}
 	}
 
 	id = Obj(reader.readUInt32());
@@ -266,16 +287,17 @@ void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
 
 	if(withTerrain && !node["allowedTerrains"].isNull())
 	{
-		for(auto & entry : node["allowedTerrains"].Vector())
-			allowedTerrains.insert(ETerrainType(vstd::find_pos(GameConstants::TERRAIN_NAMES, entry.String())));
+		for (auto & entry : node["allowedTerrains"].Vector())
+			allowedTerrains.insert(entry.String());
 	}
 	else
 	{
-		for(size_t i=0; i< GameConstants::TERRAIN_TYPES; i++)
-			allowedTerrains.insert(ETerrainType((si32)i));
-
-		allowedTerrains.erase(ETerrainType::ROCK);
-		allowedTerrains.erase(ETerrainType::WATER);
+		for(auto & i : Terrain::Manager::terrains())
+		{
+			if(!i.isPassable() || i.isWater())
+				continue;
+			allowedTerrains.insert(i);
+		}
 	}
 
 	if(withTerrain && allowedTerrains.empty())
@@ -286,16 +308,16 @@ void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
 	{
 		switch (ch)
 		{
-			case ' ' : return 0;
-			case '0' : return 0;
-			case 'V' : return VISIBLE;
-			case 'B' : return VISIBLE | BLOCKED;
-			case 'H' : return BLOCKED;
-			case 'A' : return VISIBLE | BLOCKED | VISITABLE;
-			case 'T' : return BLOCKED | VISITABLE;
-			default:
-				logGlobal->error("Unrecognized char %s in template mask", ch);
-				return 0;
+		case ' ' : return 0;
+		case '0' : return 0;
+		case 'V' : return VISIBLE;
+		case 'B' : return VISIBLE | BLOCKED;
+		case 'H' : return BLOCKED;
+		case 'A' : return VISIBLE | BLOCKED | VISITABLE;
+		case 'T' : return BLOCKED | VISITABLE;
+		default:
+			logGlobal->error("Unrecognized char %s in template mask", ch);
+			return 0;
 		}
 	};
 
@@ -303,15 +325,15 @@ void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
 
 	size_t height = mask.size();
 	size_t width  = 0;
-	for(auto & line : mask)
+	for (auto & line : mask)
 		vstd::amax(width, line.String().size());
 
 	setSize((ui32)width, (ui32)height);
 
-	for(size_t i=0; i<mask.size(); i++)
+	for (size_t i=0; i<mask.size(); i++)
 	{
 		const std::string & line = mask[i].String();
-		for(size_t j=0; j < line.size(); j++)
+		for (size_t j=0; j < line.size(); j++)
 			usedTiles[mask.size() - 1 - i][line.size() - 1 - j] = charToTile(line[j]);
 	}
 
@@ -350,14 +372,14 @@ void ObjectTemplate::writeJson(JsonNode & node, const bool withTerrain) const
 	if(withTerrain)
 	{
 		//assumed that ROCK and WATER terrains are not included
-		if(allowedTerrains.size() < (GameConstants::TERRAIN_TYPES - 2))
+		if(allowedTerrains.size() < (Terrain::Manager::terrains().size() - 2))
 		{
 			JsonVector & data = node["allowedTerrains"].Vector();
 
 			for(auto type : allowedTerrains)
 			{
 				JsonNode value(JsonNode::JsonType::DATA_STRING);
-				value.String() = GameConstants::TERRAIN_NAMES[type.num];
+				value.String() = type;
 				data.push_back(value);
 			}
 		}
@@ -537,7 +559,7 @@ void ObjectTemplate::calculateVisitableOffset()
 	visitableOffset = int3(0, 0, 0);
 }
 
-bool ObjectTemplate::canBePlacedAt(ETerrainType terrain) const
+bool ObjectTemplate::canBePlacedAt(Terrain terrain) const
 {
 	return allowedTerrains.count(terrain) != 0;
 }

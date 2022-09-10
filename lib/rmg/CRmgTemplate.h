@@ -13,6 +13,7 @@
 #include "../int3.h"
 #include "../GameConstants.h"
 #include "../ResourceSet.h"
+#include "../Terrain.h"
 #include "CMapGenOptions.h"
 
 class JsonSerializeFormat;
@@ -56,6 +57,8 @@ public:
 	int getGuardStrength() const;
 
 	void serializeJson(JsonSerializeFormat & handler);
+	
+	friend bool operator==(const ZoneConnection &, const ZoneConnection &);
 private:
 	TRmgTemplateZoneId zoneA;
 	TRmgTemplateZoneId zoneB;
@@ -65,7 +68,6 @@ private:
 class DLL_LINKAGE ZoneOptions
 {
 public:
-	static const std::set<ETerrainType> DEFAULT_TERRAIN_TYPES;
 	static const TRmgTemplateZoneId NO_ZONE;
 
 	class DLL_LINKAGE CTownInfo
@@ -101,11 +103,14 @@ public:
 	void setSize(int value);
 	boost::optional<int> getOwner() const;
 
-	const std::set<ETerrainType> & getTerrainTypes() const;
-	void setTerrainTypes(const std::set<ETerrainType> & value);
+	const std::set<Terrain> & getTerrainTypes() const;
+	void setTerrainTypes(const std::set<Terrain> & value);
 
+	const CTownInfo & getPlayerTowns() const;
+	const CTownInfo & getNeutralTowns() const;
 	std::set<TFaction> getDefaultTownTypes() const;
 	const std::set<TFaction> & getTownTypes() const;
+	const std::set<TFaction> & getMonsterTypes() const;
 
 	void setTownTypes(const std::set<TFaction> & value);
 	void setMonsterTypes(const std::set<TFaction> & value);
@@ -125,6 +130,11 @@ public:
 	std::vector<TRmgTemplateZoneId> getConnections() const;
 
 	void serializeJson(JsonSerializeFormat & handler);
+	
+	EMonsterStrength::EMonsterStrength zoneMonsterStrength;
+	
+	bool areTownsSameType() const;
+	bool isMatchTerrainToTown() const;
 
 protected:
 	TRmgTemplateZoneId id;
@@ -134,13 +144,11 @@ protected:
 	CTownInfo playerTowns;
 	CTownInfo neutralTowns;
 	bool matchTerrainToTown;
-	std::set<ETerrainType> terrainTypes;
+	std::set<Terrain> terrainTypes;
 	bool townsAreSameType;
 
 	std::set<TFaction> townTypes;
 	std::set<TFaction> monsterTypes;
-
-	EMonsterStrength::EMonsterStrength zoneMonsterStrength;
 
 	std::map<TResource, ui16> mines; //obligatory mines to spawn in this zone
 

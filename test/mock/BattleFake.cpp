@@ -92,7 +92,7 @@ void BattleFake::setupEmptyBattlefield()
 {
 	EXPECT_CALL(*this, getDefendedTown()).WillRepeatedly(Return(nullptr));
 	EXPECT_CALL(*this, getAllObstacles()).WillRepeatedly(Return(IBattleInfo::ObstacleCList()));
-	EXPECT_CALL(*this, getBattlefieldType()).WillRepeatedly(Return(BFieldType::NONE2));
+	EXPECT_CALL(*this, getBattlefieldType()).WillRepeatedly(Return(BattleField::fromString("grass_hills")));
 }
 
 

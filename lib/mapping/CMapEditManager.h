@@ -13,6 +13,7 @@
 #include "../CRandomGenerator.h"
 #include "../int3.h"
 #include "../GameConstants.h"
+#include "Terrain.h"
 
 class CGObjectInstance;
 class CTerrainViewPatternConfig;
@@ -92,7 +93,7 @@ public:
 	void deselectRange(const MapRect & rect) override;
 	void selectAll() override;
 	void clearSelection() override;
-	void setSelection(std::vector<int3> & vec);
+	void setSelection(const std::vector<int3> & vec);
 };
 
 /// Selection class to select objects.
@@ -168,10 +169,13 @@ public:
 	void clearTerrain(CRandomGenerator * gen = nullptr);
 
 	/// Draws terrain at the current terrain selection. The selection will be cleared automatically.
-	void drawTerrain(ETerrainType terType, CRandomGenerator * gen = nullptr);
+	void drawTerrain(Terrain terType, CRandomGenerator * gen = nullptr);
 
 	/// Draws roads at the current terrain selection. The selection will be cleared automatically.
-	void drawRoad(ERoadType::ERoadType roadType, CRandomGenerator * gen = nullptr);
+	void drawRoad(const std::string & roadType, CRandomGenerator * gen = nullptr);
+	
+	/// Draws rivers at the current terrain selection. The selection will be cleared automatically.
+	void drawRiver(const std::string & riverType, CRandomGenerator * gen = nullptr);
 
 	void insertObject(CGObjectInstance * obj);
 
@@ -209,18 +213,6 @@ public:
 private:
 	std::list<std::unique_ptr<CMapOperation> > operations;
 };
-
-namespace ETerrainGroup
-{
-	enum ETerrainGroup
-	{
-		NORMAL,
-		DIRT,
-		SAND,
-		WATER,
-		ROCK
-	};
-}
 
 /// The terrain view pattern describes a specific composition of terrain tiles
 /// in a 3x3 matrix and notes which terrain view frame numbers can be used.
@@ -337,15 +329,14 @@ public:
 	CTerrainViewPatternConfig();
 	~CTerrainViewPatternConfig();
 
-	const std::vector<TVPVector> & getTerrainViewPatternsForGroup(ETerrainGroup::ETerrainGroup terGroup) const;
-	boost::optional<const TerrainViewPattern &> getTerrainViewPatternById(ETerrainGroup::ETerrainGroup terGroup, const std::string & id) const;
-	boost::optional<const TVPVector &> getTerrainViewPatternsById(ETerrainGroup::ETerrainGroup terGroup, const std::string & id) const;
+	const std::vector<TVPVector> & getTerrainViewPatterns(const Terrain & terrain) const;
+	boost::optional<const TerrainViewPattern &> getTerrainViewPatternById(std::string patternId, const std::string & id) const;
+	boost::optional<const TVPVector &> getTerrainViewPatternsById(const Terrain & terrain, const std::string & id) const;
 	const TVPVector * getTerrainTypePatternById(const std::string & id) const;
-	ETerrainGroup::ETerrainGroup getTerrainGroup(const std::string & terGroup) const;
 	void flipPattern(TerrainViewPattern & pattern, int flip) const;
 
 private:
-	std::map<ETerrainGroup::ETerrainGroup, std::vector<TVPVector> > terrainViewPatterns;
+	std::map<std::string, std::vector<TVPVector> > terrainViewPatterns;
 	std::map<std::string, TVPVector> terrainTypePatterns;
 };
 
@@ -353,7 +344,7 @@ private:
 class CDrawTerrainOperation : public CMapOperation
 {
 public:
-	CDrawTerrainOperation(CMap * map, const CTerrainSelection & terrainSel, ETerrainType terType, CRandomGenerator * gen);
+	CDrawTerrainOperation(CMap * map, const CTerrainSelection & terrainSel, Terrain terType, CRandomGenerator * gen);
 
 	void execute() override;
 	void undo() override;
@@ -384,16 +375,13 @@ private:
 	InvalidTiles getInvalidTiles(const int3 & centerPos) const;
 
 	void updateTerrainViews();
-	ETerrainGroup::ETerrainGroup getTerrainGroup(ETerrainType terType) const;
 	/// Validates the terrain view of the given position and with the given pattern. The first method wraps the
 	/// second method to validate the terrain view with the given pattern in all four flip directions(horizontal, vertical).
 	ValidationResult validateTerrainView(const int3 & pos, const std::vector<TerrainViewPattern> * pattern, int recDepth = 0) const;
 	ValidationResult validateTerrainViewInner(const int3 & pos, const TerrainViewPattern & pattern, int recDepth = 0) const;
-	/// Tests whether the given terrain type is a sand type. Sand types are: Water, Sand and Rock
-	bool isSandType(ETerrainType terType) const;
 
 	CTerrainSelection terrainSel;
-	ETerrainType terType;
+	Terrain terType;
 	CRandomGenerator * gen;
 	std::set<int3> invalidatedTerViews;
 };

@@ -11,6 +11,7 @@
 
 #include "ObjectLists.h"
 #include "../../lib/FunctionList.h"
+#include "Terrain.h"
 
 class CArmedInstance;
 class CAnimation;
@@ -216,7 +217,7 @@ protected:
 	int level;
 
 	//to initialize colors
-	std::map<int, std::pair<SDL_Color, SDL_Color> > loadColors(std::string from);
+	std::map<Terrain, std::pair<SDL_Color, SDL_Color> > loadColors();
 
 	void clickLeft(tribool down, bool previousState) override;
 	void clickRight(tribool down, bool previousState) override;
@@ -227,7 +228,7 @@ protected:
 
 public:
 	// terrainID -> (normal color, blocked color)
-	const std::map<int, std::pair<SDL_Color, SDL_Color> > colors;
+	const std::map<Terrain, std::pair<SDL_Color, SDL_Color> > colors;
 
 	CMinimap(const Rect & position);
 

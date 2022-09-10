@@ -16,6 +16,7 @@
 #include "../mapping/CMap.h"
 #include "../VCMI_Lib.h"
 #include "../CTownHandler.h"
+#include "../Terrain.h"
 #include "../serializer/JsonSerializeFormat.h"
 #include "../StringConstants.h"
 
@@ -66,12 +67,12 @@ class TerrainEncoder
 public:
 	static si32 decode(const std::string & identifier)
 	{
-		return vstd::find_pos(GameConstants::TERRAIN_NAMES, identifier);
+		return vstd::find_pos(Terrain::Manager::terrains(), identifier);
 	}
 
 	static std::string encode(const si32 index)
 	{
-		return (index >=0 && index < GameConstants::TERRAIN_TYPES) ? GameConstants::TERRAIN_NAMES[index] : "<INVALID TERRAIN>";
+		return (index >=0 && index < Terrain::Manager::terrains().size()) ? static_cast<std::string>(Terrain::Manager::terrains()[index]) : "<INVALID TERRAIN>";
 	}
 };
 
@@ -87,18 +88,6 @@ public:
 	{
 		return boost::lexical_cast<std::string>(id);
 	}
-};
-
-const std::set<ETerrainType> ZoneOptions::DEFAULT_TERRAIN_TYPES =
-{
-	ETerrainType::DIRT,
-	ETerrainType::SAND,
-	ETerrainType::GRASS,
-	ETerrainType::SNOW,
-	ETerrainType::SWAMP,
-	ETerrainType::ROUGH,
-	ETerrainType::SUBTERRANEAN,
-	ETerrainType::LAVA
 };
 
 const TRmgTemplateZoneId ZoneOptions::NO_ZONE = -1;
@@ -149,7 +138,6 @@ ZoneOptions::ZoneOptions()
 	playerTowns(),
 	neutralTowns(),
 	matchTerrainToTown(true),
-	terrainTypes(DEFAULT_TERRAIN_TYPES),
 	townsAreSameType(false),
 	townTypes(),
 	monsterTypes(),
@@ -161,7 +149,9 @@ ZoneOptions::ZoneOptions()
 	terrainTypeLikeZone(NO_ZONE),
 	treasureLikeZone(NO_ZONE)
 {
-
+	for(auto & terr : Terrain::Manager::terrains())
+		if(terr.isLand() && terr.isPassable())
+			terrainTypes.insert(terr);
 }
 
 ZoneOptions & ZoneOptions::operator=(const ZoneOptions & other)
@@ -224,15 +214,15 @@ boost::optional<int> ZoneOptions::getOwner() const
 	return owner;
 }
 
-const std::set<ETerrainType> & ZoneOptions::getTerrainTypes() const
+const std::set<Terrain> & ZoneOptions::getTerrainTypes() const
 {
 	return terrainTypes;
 }
 
-void ZoneOptions::setTerrainTypes(const std::set<ETerrainType> & value)
+void ZoneOptions::setTerrainTypes(const std::set<Terrain> & value)
 {
-	assert(value.find(ETerrainType::WRONG) == value.end() && value.find(ETerrainType::BORDER) == value.end() &&
-		   value.find(ETerrainType::WATER) == value.end() && value.find(ETerrainType::ROCK) == value.end());
+	//assert(value.find(ETerrainType::WRONG) == value.end() && value.find(ETerrainType::BORDER) == value.end() &&
+	//	   value.find(ETerrainType::WATER) == value.end() && value.find(ETerrainType::ROCK) == value.end());
 	terrainTypes = value;
 }
 
@@ -260,6 +250,11 @@ void ZoneOptions::setTownTypes(const std::set<TFaction> & value)
 void ZoneOptions::setMonsterTypes(const std::set<TFaction> & value)
 {
 	monsterTypes = value;
+}
+
+const std::set<TFaction> & ZoneOptions::getMonsterTypes() const
+{
+	return monsterTypes;
 }
 
 void ZoneOptions::setMinesInfo(const std::map<TResource, ui16> & value)
@@ -312,6 +307,26 @@ std::vector<TRmgTemplateZoneId> ZoneOptions::getConnections() const
 	return connections;
 }
 
+bool ZoneOptions::areTownsSameType() const
+{
+	return townsAreSameType;
+}
+
+bool ZoneOptions::isMatchTerrainToTown() const
+{
+	return matchTerrainToTown;
+}
+
+const ZoneOptions::CTownInfo & ZoneOptions::getPlayerTowns() const
+{
+	return playerTowns;
+}
+
+const ZoneOptions::CTownInfo & ZoneOptions::getNeutralTowns() const
+{
+	return neutralTowns;
+}
+
 void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 {
 	static const std::vector<std::string> zoneTypes =
@@ -339,7 +354,31 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 	#undef SERIALIZE_ZONE_LINK
 
 	if(terrainTypeLikeZone == NO_ZONE)
-		handler.serializeIdArray<ETerrainType, TerrainEncoder>("terrainTypes", terrainTypes, DEFAULT_TERRAIN_TYPES);
+	{
+		JsonNode node;
+		if(handler.saving)
+		{
+			node.setType(JsonNode::JsonType::DATA_VECTOR);
+			for(auto & ttype : terrainTypes)
+			{
+				JsonNode n;
+				n.String() = ttype;
+				node.Vector().push_back(n);
+			}
+		}
+		handler.serializeRaw("terrainTypes", node, boost::none);
+		if(!handler.saving)
+		{
+			if(!node.Vector().empty())
+			{
+				terrainTypes.clear();
+				for(auto ttype : node.Vector())
+				{
+					terrainTypes.emplace(ttype.String());
+				}
+			}
+		}
+	}
 
 	handler.serializeBool("townsAreSameType", townsAreSameType, false);
 	handler.serializeIdArray<TFaction, FactionID>("allowedMonsters", monsterTypes, VLC->townh->getAllowedFactions(false));
@@ -406,6 +445,11 @@ TRmgTemplateZoneId ZoneConnection::getZoneB() const
 int ZoneConnection::getGuardStrength() const
 {
 	return guardStrength;
+}
+	
+bool operator==(const ZoneConnection & l, const ZoneConnection & r)
+{
+	return l.zoneA == r.zoneA && l.zoneB == r.zoneB && l.guardStrength == r.guardStrength;
 }
 
 void ZoneConnection::serializeJson(JsonSerializeFormat & handler)

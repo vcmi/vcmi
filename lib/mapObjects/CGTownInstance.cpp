@@ -796,28 +796,6 @@ void CGTownInstance::addTownBonuses()
 	}
 }
 
-void CGTownInstance::fixBonusingDuplicates() //For versions 794-800
-{
-	std::map<BuildingID::EBuildingID, int> bids;
-
-	for(auto i = 0; i != bonusingBuildings.size(); i++)
-	{
-		auto bid = bonusingBuildings[i]->getBuildingType();
-		if(!bids.count(bid))
-			bids.insert({ bid, 0 });
-		else
-			bids[bid]++;
-	}
-	for(auto & pair : bids)
-	{
-		if(!pair.second)
-			continue;
-
-		for(auto i = 0; i < pair.second; i++)
-			deleteTownBonus(pair.first);
-	}
-}
-
 void CGTownInstance::deleteTownBonus(BuildingID::EBuildingID bid)
 {
 	size_t i = 0;
@@ -873,90 +851,6 @@ void CGTownInstance::initObj(CRandomGenerator & rand) ///initialize town structu
 	addTownBonuses(); //add special bonuses from buildings to the bonusingBuildings vector.
 	recreateBuildingsBonuses();
 	updateAppearance();
-}
-
-void CGTownInstance::updateBonusingBuildings() //update to version 792
-{
-	if(this->town->faction != nullptr)
-	{
-		//firstly, update subtype for the Bonusing objects, which are already stored in the bonusing list
-		for(auto building : bonusingBuildings) //no garrison bonuses here, only week and visiting bonuses
-		{
-			switch(this->town->faction->index)
-			{
-			case ETownType::CASTLE:
-					building->setBuildingSubtype(BuildingSubID::STABLES);
-			break;
-
-			case ETownType::DUNGEON:
-				if(building->getBuildingType() == BuildingID::SPECIAL_2)
-					building->setBuildingSubtype(BuildingSubID::MANA_VORTEX);
-				else if(building->getBuildingType() == BuildingID::SPECIAL_4)
-					building->setBuildingSubtype(BuildingSubID::EXPERIENCE_VISITING_BONUS);
-				break;
-
-			case ETownType::TOWER:
-				building->setBuildingSubtype(BuildingSubID::KNOWLEDGE_VISITING_BONUS);
-				break;
-
-			case ETownType::STRONGHOLD:
-				building->setBuildingSubtype(BuildingSubID::ATTACK_VISITING_BONUS);
-				break;
-
-			case ETownType::INFERNO:
-				building->setBuildingSubtype(BuildingSubID::SPELL_POWER_VISITING_BONUS);
-				break;
-
-			case ETownType::FORTRESS:
-				building->setBuildingSubtype(BuildingSubID::DEFENSE_VISITING_BONUS);
-				break;
-			}
-		}
-	}
-	//secondly, supplement bonusing buildings list and active bonuses; subtypes for these objects are already set in update792
-	for(auto & kvp : town->buildings)
-	{
-		auto & building = kvp.second;
-
-		if(building->subId == BuildingSubID::PORTAL_OF_SUMMONING)
-		{
-			if(!hasBuiltInOldWay(ETownType::DUNGEON, BuildingID::PORTAL_OF_SUMMON))
-				creatures.resize(GameConstants::CREATURES_PER_TOWN + 1);
-			continue;
-		}
-		if(!building->IsVisitingBonus() && !building->IsWeekBonus()) //it's not bonusing => nothing to handle
-			continue;
-
-		if(getBonusingBuilding(building->subId) != nullptr) //it's already added => already handled
-			continue;
-
-		///'hasBuilt' checking for bonuses is in the onHeroVisit handler
-		if(building->IsWeekBonus())
-			tryAddOnePerWeekBonus(building->subId);
-
-		if(building->IsVisitingBonus())
-			tryAddVisitingBonus(building->subId);
-	}
-	recreateBuildingsBonuses(); ///Clear all bonuses and recreate
-}
-
-void CGTownInstance::updateTown794()
-{
-	for(auto builtBuilding : builtBuildings)
-	{
-		auto building = town->buildings.at(builtBuilding);
-
-		for(auto overriddenBid : building->overrideBids)
-			overriddenBuildings.insert(overriddenBid);
-	}
-	for(auto & kvp : town->buildings)
-	{
-		auto & building = kvp.second;
-		//The building acts as a visiting bonus and it has not been overridden.
-		if(building->IsVisitingBonus() && overriddenBuildings.find(kvp.first) == overriddenBuildings.end())
-			tryAddVisitingBonus(building->subId);
-	}
-	recreateBuildingsBonuses();
 }
 
 bool CGTownInstance::hasBuiltInOldWay(ETownType::ETownType type, BuildingID bid) const

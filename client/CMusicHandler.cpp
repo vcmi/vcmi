@@ -19,6 +19,7 @@
 #include "../lib/StringConstants.h"
 #include "../lib/CRandomGenerator.h"
 #include "../lib/VCMIDirs.h"
+#include "../lib/Terrain.h"
 
 #define VCMI_SOUND_NAME(x)
 #define VCMI_SOUND_FILE(y) #y,
@@ -92,20 +93,34 @@ CSoundHandler::CSoundHandler():
 		soundBase::pickup04, soundBase::pickup05, soundBase::pickup06, soundBase::pickup07
 	};
 
-	horseSounds =  // must be the same order as terrains (see ETerrainType);
-	{
-		soundBase::horseDirt, soundBase::horseSand, soundBase::horseGrass,
-		soundBase::horseSnow, soundBase::horseSwamp, soundBase::horseRough,
-		soundBase::horseSubterranean, soundBase::horseLava,
-		soundBase::horseWater, soundBase::horseRock
-	};
-
 	battleIntroSounds =
 	{
 		soundBase::battle00, soundBase::battle01,
 		soundBase::battle02, soundBase::battle03, soundBase::battle04,
 		soundBase::battle05, soundBase::battle06, soundBase::battle07
 	};
+	
+	//predefine terrain set
+	//TODO: need refactoring - support custom sounds for new terrains and load from json
+	int h3mTerrId = 0;
+	for(auto snd :
+	{
+		soundBase::horseDirt, soundBase::horseSand, soundBase::horseGrass,
+		soundBase::horseSnow, soundBase::horseSwamp, soundBase::horseRough,
+		soundBase::horseSubterranean, soundBase::horseLava,
+		soundBase::horseWater, soundBase::horseRock
+	})
+	{
+		horseSounds[Terrain::createTerrainTypeH3M(h3mTerrId++)] = snd;
+	}
+	for(auto & terrain : Terrain::Manager::terrains())
+	{
+		//since all sounds are hardcoded, let's keep it
+		if(vstd::contains(horseSounds, terrain))
+			continue;
+		
+		horseSounds[terrain] = horseSounds.at(Terrain::createTerrainTypeH3M(Terrain::Manager::getInfo(terrain).horseSoundId));
+	}
 };
 
 void CSoundHandler::init()
@@ -341,26 +356,22 @@ CMusicHandler::CMusicHandler():
 		return true;
 	});
 
-	int battleMusicID = 0;
-	int AIThemeID = 0;
-
 	for(const ResourceID & file : mp3files)
 	{
 		if(boost::algorithm::istarts_with(file.getName(), "MUSIC/Combat"))
-			addEntryToSet("battle", battleMusicID++, file.getName());
+			addEntryToSet("battle", file.getName(), file.getName());
 		else if(boost::algorithm::istarts_with(file.getName(), "MUSIC/AITheme"))
-			addEntryToSet("enemy-turn", AIThemeID++, file.getName());
+			addEntryToSet("enemy-turn", file.getName(), file.getName());
 	}
 
-	JsonNode terrains(ResourceID("config/terrains.json"));
-	for (auto entry : terrains.Struct())
+	for(auto & terrain : Terrain::Manager::terrains())
 	{
-		int terrIndex = vstd::find_pos(GameConstants::TERRAIN_NAMES, entry.first);
-		addEntryToSet("terrain", terrIndex, "Music/" + entry.second["music"].String());
+		auto & entry = Terrain::Manager::getInfo(terrain);
+		addEntryToSet("terrain", terrain, "Music/" + entry.musicFilename);
 	}
 }
 
-void CMusicHandler::addEntryToSet(std::string set, int musicID, std::string musicURI)
+void CMusicHandler::addEntryToSet(const std::string & set, const std::string & musicID, const std::string & musicURI)
 {
 	musicsSet[set][musicID] = musicURI;
 }
@@ -388,7 +399,7 @@ void CMusicHandler::release()
 	CAudioBase::release();
 }
 
-void CMusicHandler::playMusic(std::string musicURI, bool loop)
+void CMusicHandler::playMusic(const std::string & musicURI, bool loop)
 {
 	if (current && current->isTrack(musicURI))
 		return;
@@ -396,7 +407,7 @@ void CMusicHandler::playMusic(std::string musicURI, bool loop)
 	queueNext(this, "", musicURI, loop);
 }
 
-void CMusicHandler::playMusicFromSet(std::string whichSet, bool loop)
+void CMusicHandler::playMusicFromSet(const std::string & whichSet, bool loop)
 {
 	auto selectedSet = musicsSet.find(whichSet);
 	if (selectedSet == musicsSet.end())
@@ -412,8 +423,7 @@ void CMusicHandler::playMusicFromSet(std::string whichSet, bool loop)
 	queueNext(this, whichSet, "", loop);
 }
 
-
-void CMusicHandler::playMusicFromSet(std::string whichSet, int entryID, bool loop)
+void CMusicHandler::playMusicFromSet(const std::string & whichSet, const std::string & entryID, bool loop)
 {
 	auto selectedSet = musicsSet.find(whichSet);
 	if (selectedSet == musicsSet.end())
@@ -425,7 +435,7 @@ void CMusicHandler::playMusicFromSet(std::string whichSet, int entryID, bool loo
 	auto selectedEntry = selectedSet->second.find(entryID);
 	if (selectedEntry == selectedSet->second.end())
 	{
-		logGlobal->error("Error: playing non-existing entry %d from set: %s", entryID, whichSet);
+		logGlobal->error("Error: playing non-existing entry %s from set: %s", entryID, whichSet);
 		return;
 	}
 
@@ -452,7 +462,7 @@ void CMusicHandler::queueNext(std::unique_ptr<MusicEntry> queued)
 	}
 }
 
-void CMusicHandler::queueNext(CMusicHandler *owner, std::string setName, std::string musicURI, bool looped)
+void CMusicHandler::queueNext(CMusicHandler *owner, const std::string & setName, const std::string & musicURI, bool looped)
 {
 	try
 	{
@@ -552,7 +562,7 @@ bool MusicEntry::play()
 
 	if (!setName.empty())
 	{
-		auto set = owner->musicsSet[setName];
+		const auto & set = owner->musicsSet[setName];
 		load(RandomGeneratorUtil::nextItem(set, CRandomGenerator::getDefault())->second);
 	}
 

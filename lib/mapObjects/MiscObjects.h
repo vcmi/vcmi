@@ -201,6 +201,7 @@ public:
 	void initObj(CRandomGenerator & rand) override;
 
 	void afterAddToMap(CMap * map) override;
+	BattleField getBattlefield() const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -528,4 +529,15 @@ public:
 	void giveBonusTo(PlayerColor player, bool onInit = false) const;
 protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
+};
+
+class DLL_LINKAGE CGTerrainPatch : public CGObjectInstance
+{
+public:
+	CGTerrainPatch() = default;
+
+	virtual bool isTile2Terrain() const override
+	{
+		return true;
+	}
 };

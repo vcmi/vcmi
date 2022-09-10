@@ -2,7 +2,7 @@
   "terrain" :
   {
     "undergroundAllow" : ["lava"], //others to be replaced by subterranena
-    "groundProhibit" : ["subterranean"] //to be replaced by dirt
+    "groundProhibit" : ["subterra"] //to be replaced by dirt
   },
   "waterZone" :
   {
@@ -18,20 +18,11 @@
   },
   "mines" :
   {
-    "value" :
-    {
-      "wood" : 1500,
-      "ore" : 1500,
-      "gems" : 3500,
-      "crystal" : 3500,
-      "mercury" : 3500,
-      "sulfur" : 3500,
-      "gold" : 7000
-    },
     "extraResourcesLimit" : 3
   },
   "minGuardStrength" : 2000,
-  "defaultRoadType" : "cobblestone_road",
+  "defaultRoadType" : "pc", //pd - dirt, pg - gravel, pc - cobblestone
+  "secondaryRoadType": "pd",
   "treasureValueLimit" : 20000, //generate pandora with gold for treasure above this limit
   "prisons" :
   {

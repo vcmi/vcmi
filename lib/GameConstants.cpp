@@ -34,6 +34,7 @@
 #include "StringConstants.h"
 #include "CGeneralTextHandler.h"
 #include "CModHandler.h"//todo: remove
+#include "BattleFieldHandler.h"
 
 const SlotID SlotID::COMMANDER_SLOT_PLACEHOLDER = SlotID(-2);
 const SlotID SlotID::SUMMONED_SLOT_PLACEHOLDER = SlotID(-3);
@@ -50,9 +51,9 @@ const TeamID TeamID::NO_TEAM = TeamID(255);
 namespace GameConstants
 {
 #ifdef VCMI_NO_EXTRA_VERSION
-	const std::string VCMI_VERSION = std::string("VCMI 0.99");
+	const std::string VCMI_VERSION = std::string("VCMI 1.0.0");
 #else
-	const std::string VCMI_VERSION = std::string("VCMI 0.99 ") + GIT_SHA1;
+	const std::string VCMI_VERSION = std::string("VCMI 1.0.0.") + GIT_SHA1;
 #endif
 }
 
@@ -236,38 +237,6 @@ std::ostream & operator<<(std::ostream & os, const EActionType actionType)
 	else return os << it->second;
 }
 
-std::ostream & operator<<(std::ostream & os, const ETerrainType terrainType)
-{
-	static const std::map<ETerrainType::EETerrainType, std::string> terrainTypeToString =
-	{
-	#define DEFINE_ELEMENT(element) {ETerrainType::element, #element}
-		DEFINE_ELEMENT(WRONG),
-		DEFINE_ELEMENT(BORDER),
-		DEFINE_ELEMENT(DIRT),
-		DEFINE_ELEMENT(SAND),
-		DEFINE_ELEMENT(GRASS),
-		DEFINE_ELEMENT(SNOW),
-		DEFINE_ELEMENT(SWAMP),
-		DEFINE_ELEMENT(ROUGH),
-		DEFINE_ELEMENT(SUBTERRANEAN),
-		DEFINE_ELEMENT(LAVA),
-		DEFINE_ELEMENT(WATER),
-		DEFINE_ELEMENT(ROCK)
-	#undef DEFINE_ELEMENT
-	};
-
-	auto it = terrainTypeToString.find(terrainType.num);
-	if (it == terrainTypeToString.end()) return os << "<Unknown type>";
-	else return os << it->second;
-}
-
-std::string ETerrainType::toString() const
-{
-	std::stringstream ss;
-	ss << *this;
-	return ss.str();
-}
-
 std::ostream & operator<<(std::ostream & os, const EPathfindingLayer pathfindingLayer)
 {
 	static const std::map<EPathfindingLayer::EEPathfindingLayer, std::string> pathfinderLayerToString
@@ -286,4 +255,41 @@ std::ostream & operator<<(std::ostream & os, const EPathfindingLayer pathfinding
 	auto it = pathfinderLayerToString.find(pathfindingLayer.num);
 	if (it == pathfinderLayerToString.end()) return os << "<Unknown type>";
 	else return os << it->second;
+}
+
+const BattleField BattleField::NONE;
+
+bool operator==(const BattleField & l, const BattleField & r)
+{
+	return l.num == r.num;
+}
+
+bool operator!=(const BattleField & l, const BattleField & r)
+{
+	return l.num != r.num;
+}
+
+bool operator<(const BattleField & l, const BattleField & r)
+{
+	return l.num < r.num;
+}
+
+BattleField::operator std::string() const
+{
+	return getInfo()->identifier;
+}
+
+const BattleFieldInfo * BattleField::getInfo() const
+{
+	return VLC->battlefields()->getById(*this);
+}
+
+BattleField BattleField::fromString(std::string identifier)
+{
+	auto rawId = VLC->modh->identifiers.getIdentifier("core", "battlefield", identifier);
+
+	if(rawId)
+		return BattleField(rawId.get());
+	else
+		return BattleField::NONE;
 }

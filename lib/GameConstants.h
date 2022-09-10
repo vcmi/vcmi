@@ -61,7 +61,6 @@ namespace GameConstants
 
 	const int SKILL_QUANTITY=28;
 	const int PRIMARY_SKILLS=4;
-	const int TERRAIN_TYPES=10;
 	const int RESOURCE_QUANTITY=8;
 	const int HEROES_PER_TYPE=8; //amount of heroes of each type
 
@@ -678,21 +677,8 @@ enum class ETeleportChannelType
 };
 
 
-namespace ERiverType
-{
-	enum ERiverType
-	{
-		NO_RIVER, CLEAR_RIVER, ICY_RIVER, MUDDY_RIVER, LAVA_RIVER
-	};
-}
-
-namespace ERoadType
-{
-	enum ERoadType
-	{
-		NO_ROAD, DIRT_ROAD, GRAVEL_ROAD, COBBLESTONE_ROAD
-	};
-}
+static std::vector<std::string> RIVER_NAMES {"", "rw", "ri", "rm", "rl"};
+static std::vector<std::string> ROAD_NAMES {"", "pd", "pg", "pc"};
 
 class Obj
 {
@@ -858,26 +844,6 @@ namespace SecSkillLevel
 	};
 }
 
-
-//follows ERM BI (battle image) format
-namespace BattlefieldBI
-{
-	enum BattlefieldBI
-	{
-		NONE = -1,
-		COASTAL,
-		CURSED_GROUND,
-		MAGIC_PLAINS,
-		HOLY_GROUND,
-		EVIL_FOG,
-		CLOVER_FIELD,
-		LUCID_POOLS,
-		FIERY_FIELDS,
-		ROCKLANDS,
-		MAGIC_CLOUDS
-	};
-}
-
 namespace Date
 {
 	enum EDateType
@@ -911,36 +877,6 @@ enum class EActionType : int32_t
 };
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const EActionType actionType);
-
-class DLL_LINKAGE ETerrainType
-{
-public:
-	enum EETerrainType
-	{
-		ANY_TERRAIN = -3,
-		WRONG = -2, BORDER = -1, DIRT, SAND, GRASS, SNOW, SWAMP,
-		ROUGH, SUBTERRANEAN, LAVA, WATER, ROCK // ROCK is also intended to be max value.
-	};
-
-	ETerrainType(EETerrainType _num = WRONG) : num(_num)
-	{}
-
-	ETerrainType& operator=(EETerrainType _num)
-	{
-		num = _num;
-		return *this;
-	}
-
-	ID_LIKE_CLASS_COMMON(ETerrainType, EETerrainType)
-
-	EETerrainType num;
-
-	std::string toString() const;
-};
-
-DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const ETerrainType terrainType);
-
-ID_LIKE_OPERATORS(ETerrainType, ETerrainType::EETerrainType)
 
 class DLL_LINKAGE EDiggingStatus
 {
@@ -983,29 +919,6 @@ public:
 DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const EPathfindingLayer pathfindingLayer);
 
 ID_LIKE_OPERATORS(EPathfindingLayer, EPathfindingLayer::EEPathfindingLayer)
-
-class BFieldType
-{
-public:
-	//   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines
-	//8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields
-	//15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog
-	//21. "favorable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship
-	enum EBFieldType {NONE = -1, NONE2, SAND_SHORE, SAND_MESAS, DIRT_BIRCHES, DIRT_HILLS, DIRT_PINES, GRASS_HILLS,
-		GRASS_PINES, LAVA, MAGIC_PLAINS, SNOW_MOUNTAINS, SNOW_TREES, SUBTERRANEAN, SWAMP_TREES, FIERY_FIELDS,
-		ROCKLANDS, MAGIC_CLOUDS, LUCID_POOLS, HOLY_GROUND, CLOVER_FIELD, EVIL_FOG, FAVORABLE_WINDS, CURSED_GROUND,
-		ROUGH, SHIP_TO_SHIP, SHIP
-	};
-
-	BFieldType(EBFieldType _num = NONE) : num(_num)
-	{}
-
-	ID_LIKE_CLASS_COMMON(BFieldType, EBFieldType)
-
-	EBFieldType num;
-};
-
-ID_LIKE_OPERATORS(BFieldType, BFieldType::EBFieldType)
 
 namespace EPlayerStatus
 {
@@ -1195,6 +1108,23 @@ public:
 };
 
 ID_LIKE_OPERATORS(SpellID, SpellID::ESpellID)
+
+class BattleFieldInfo;
+class BattleField : public BaseForID<BattleField, si32>
+{
+	INSTID_LIKE_CLASS_COMMON(BattleField, si32)
+
+	DLL_LINKAGE static const BattleField NONE;
+
+	DLL_LINKAGE friend bool operator==(const BattleField & l, const BattleField & r);
+	DLL_LINKAGE friend bool operator!=(const BattleField & l, const BattleField & r);
+	DLL_LINKAGE friend bool operator<(const BattleField & l, const BattleField & r);
+
+	DLL_LINKAGE operator std::string() const;
+	DLL_LINKAGE const BattleFieldInfo * getInfo() const;
+
+	DLL_LINKAGE static BattleField fromString(std::string identifier);
+};
 
 enum class ESpellSchool: ui8
 {

@@ -46,8 +46,8 @@ public:
 	BattlePerspective::BattlePerspective battleGetMySide() const;
 	const IBonusBearer * getBattleNode() const;
 
-	ETerrainType battleTerrainType() const override;
-	BFieldType battleGetBattlefieldType() const override;
+	Terrain battleTerrainType() const override;
+	BattleField battleGetBattlefieldType() const override;
 	int32_t battleGetEnchanterCounter(ui8 side) const;
 
 	std::vector<std::shared_ptr<const CObstacleInstance> > battleGetAllObstacles(boost::optional<BattlePerspective::BattlePerspective> perspective = boost::none) const; //returns all obstacles on the battlefield

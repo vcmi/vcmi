@@ -14,7 +14,7 @@
 "obstacles" : [
 	{
 		"id" : 0,
-		"allowedTerrain" : [0],
+		"allowedTerrain" : ["dirt"],
 		"specialBattlefields" : [],
 		"width" : 2,
 		"height" : 1,
@@ -24,8 +24,8 @@
 	},
 	{
 		"id" : 1,
-		"allowedTerrain" : [0, 1, 5, 6],
-		"specialBattlefields" : [0],
+		"allowedTerrain" : ["dirt", "sand", "rough", "subterra"],
+		"specialBattlefields" : ["sand_shore"],
 		"width" : 3,
 		"height" : 2,
 		"blockedTiles" :  [0, 1, 2],
@@ -34,7 +34,7 @@
 	},
 	{
 		"id" : 2,
-		"allowedTerrain" : [0],
+		"allowedTerrain" : ["dirt"],
 		"specialBattlefields" : [],
 		"width" : 4,
 		"height" : 2,
@@ -44,8 +44,8 @@
 	},
 	{
 		"id" : 3,
-		"allowedTerrain" : [0, 5],
-		"specialBattlefields" : [1],
+		"allowedTerrain" : ["dirt", "rough"],
+		"specialBattlefields" : ["cursed_ground"],
 		"width" : 2,
 		"height" : 1,
 		"blockedTiles" :  [0, 1],
@@ -54,8 +54,8 @@
 	},
 	{
 		"id" : 4,
-		"allowedTerrain" : [0, 5, 6],
-		"specialBattlefields" : [0, 1],
+		"allowedTerrain" : ["dirt", "rough", "subterra"],
+		"specialBattlefields" : ["sand_shore", "cursed_ground"],
 		"width" : 2,
 		"height" : 1,
 		"blockedTiles" :  [0, 1],
@@ -64,7 +64,7 @@
 	},
 	{
 		"id" : 5,
-		"allowedTerrain" : [0],
+		"allowedTerrain" : ["dirt"],
 		"specialBattlefields" : [],
 		"width" : 4,
 		"height" : 2,
@@ -74,7 +74,7 @@
 	},
 	{
 		"id" : 6,
-		"allowedTerrain" : [0],
+		"allowedTerrain" : ["dirt"],
 		"specialBattlefields" : [],
 		"width" : 3,
 		"height" : 2,
@@ -84,7 +84,7 @@
 	},
 	{
 		"id" : 7,
-		"allowedTerrain" : [0],
+		"allowedTerrain" : ["dirt"],
 		"specialBattlefields" : [],
 		"width" : 2,
 		"height" : 2,
@@ -94,7 +94,7 @@
 	},
 	{
 		"id" : 8,
-		"allowedTerrain" : [0],
+		"allowedTerrain" : ["dirt"],
 		"specialBattlefields" : [],
 		"width" : 2,
 		"height" : 2,
@@ -104,7 +104,7 @@
 	},
 	{
 		"id" : 9,
-		"allowedTerrain" : [0],
+		"allowedTerrain" : ["dirt"],
 		"specialBattlefields" : [],
 		"width" : 2,
 		"height" : 2,
@@ -114,7 +114,7 @@
 	},
 	{
 		"id" : 10,
-		"allowedTerrain" : [0],
+		"allowedTerrain" : ["dirt"],
 		"specialBattlefields" : [],
 		"width" : 2,
 		"height" : 2,
@@ -124,7 +124,7 @@
 	},
 	{
 		"id" : 11,
-		"allowedTerrain" : [0],
+		"allowedTerrain" : ["dirt"],
 		"specialBattlefields" : [],
 		"width" : 2,
 		"height" : 1,
@@ -134,8 +134,8 @@
 	},
 	{
 		"id" : 12,
-		"allowedTerrain" : [0, 5],
-		"specialBattlefields" : [1],
+		"allowedTerrain" : ["dirt", "rough"],
+		"specialBattlefields" : ["cursed_ground"],
 		"width" : 3,
 		"height" : 3,
 		"blockedTiles" :  [0, 1, 2, 3],
@@ -144,8 +144,8 @@
 	},
 	{
 		"id" : 13,
-		"allowedTerrain" : [0, 5],
-		"specialBattlefields" : [1],
+		"allowedTerrain" : ["dirt", "rough"],
+		"specialBattlefields" : ["cursed_ground"],
 		"width" : 3,
 		"height" : 2,
 		"blockedTiles" :  [1, 2, -15],
@@ -154,8 +154,8 @@
 	},
 	{
 		"id" : 14,
-		"allowedTerrain" : [0, 5],
-		"specialBattlefields" : [1],
+		"allowedTerrain" : ["dirt", "rough"],
+		"specialBattlefields" : ["cursed_ground"],
 		"width" : 3,
 		"height" : 2,
 		"blockedTiles" :  [2, -15, -16],
@@ -164,8 +164,8 @@
 	},
 	{
 		"id" : 15,
-		"allowedTerrain" : [0, 5],
-		"specialBattlefields" : [1],
+		"allowedTerrain" : ["dirt", "rough"],
+		"specialBattlefields" : ["cursed_ground"],
 		"width" : 3,
 		"height" : 3,
 		"blockedTiles" :  [1, -16, -33],
@@ -174,7 +174,7 @@
 	},
 	{
 		"id" : 16,
-		"allowedTerrain" : [1],
+		"allowedTerrain" : ["sand"],
 		"specialBattlefields" : [],
 		"width" : 4,
 		"height" : 4,
@@ -184,7 +184,7 @@
 	},
 	{
 		"id" : 17,
-		"allowedTerrain" : [1],
+		"allowedTerrain" : ["sand"],
 		"specialBattlefields" : [],
 		"width" : 3,
 		"height" : 2,
@@ -194,7 +194,7 @@
 	},
 	{
 		"id" : 18,
-		"allowedTerrain" : [1],
+		"allowedTerrain" : ["sand"],
 		"specialBattlefields" : [],
 		"width" : 4,
 		"height" : 2,
@@ -204,7 +204,7 @@
 	},
 	{
 		"id" : 19,
-		"allowedTerrain" : [2, 4],
+		"allowedTerrain" : ["grass", "swamp"],
 		"specialBattlefields" : [],
 		"width" : 2,
 		"height" : 1,
@@ -214,8 +214,8 @@
 	},
 	{
 		"id" : 20,
-		"allowedTerrain" : [2, 4],
-		"specialBattlefields" : [2],
+		"allowedTerrain" : ["grass", "swamp"],
+		"specialBattlefields" : ["magic_plains"],
 		"width" : 2,
 		"height" : 2,
 		"blockedTiles" :  [0, 1],
@@ -224,7 +224,7 @@
 	},
 	{
 		"id" : 21,
-		"allowedTerrain" : [2, 4],
+		"allowedTerrain" : ["grass", "swamp"],
 		"specialBattlefields" : [],
 		"width" : 1,
 		"height" : 1,
@@ -234,8 +234,8 @@
 	},
 	{
 		"id" : 22,
-		"allowedTerrain" : [2],
-		"specialBattlefields" : [2],
+		"allowedTerrain" : ["grass"],
+		"specialBattlefields" : ["magic_plains"],
 		"width" : 6,
 		"height" : 2,
 		"blockedTiles" :  [1, 2, 3, 4, -13, -14, -15, -16],
@@ -244,7 +244,7 @@
 	},
 	{
 		"id" : 23,
-		"allowedTerrain" : [2],
+		"allowedTerrain" : ["grass"],
 		"specialBattlefields" : [],
 		"width" : 7,
 		"height" : 1,
@@ -254,7 +254,7 @@
 	},
 	{
 		"id" : 24,
-		"allowedTerrain" : [3],
+		"allowedTerrain" : ["snow"],
 		"specialBattlefields" : [],
 		"width" : 3,
 		"height" : 1,
@@ -264,7 +264,7 @@
 	},
 	{
 		"id" : 25,
-		"allowedTerrain" : [3],
+		"allowedTerrain" : ["snow"],
 		"specialBattlefields" : [],
 		"width" : 5,
 		"height" : 1,
@@ -274,7 +274,7 @@
 	},
 	{
 		"id" : 26,
-		"allowedTerrain" : [3],
+		"allowedTerrain" : ["snow"],
 		"specialBattlefields" : [],
 		"width" : 3,
 		"height" : 3,
@@ -284,7 +284,7 @@
 	},
 	{
 		"id" : 27,
-		"allowedTerrain" : [3],
+		"allowedTerrain" : ["snow"],
 		"specialBattlefields" : [],
 		"width" : 3,
 		"height" : 1,
@@ -294,7 +294,7 @@
 	},
 	{
 		"id" : 28,
-		"allowedTerrain" : [3],
+		"allowedTerrain" : ["snow"],
 		"specialBattlefields" : [],
 		"width" : 3,
 		"height" : 1,
@@ -304,7 +304,7 @@
 	},
 	{
 		"id" : 29,
-		"allowedTerrain" : [3],
+		"allowedTerrain" : ["snow"],
 		"specialBattlefields" : [],
 		"width" : 3,
 		"height" : 2,
@@ -314,7 +314,7 @@
 	},
 	{
 		"id" : 30,
-		"allowedTerrain" : [3],
+		"allowedTerrain" : ["snow"],
 		"specialBattlefields" : [],
 		"width" : 2,
 		"height" : 1,
@@ -324,7 +324,7 @@
 	},
 	{
 		"id" : 31,
-		"allowedTerrain" : [3],
+		"allowedTerrain" : ["snow"],
 		"specialBattlefields" : [],
 		"width" : 3,
 		"height" : 2,
@@ -334,7 +334,7 @@
 	},
 	{
 		"id" : 32,
-		"allowedTerrain" : [3],
+		"allowedTerrain" : ["snow"],
 		"specialBattlefields" : [],
 		"width" : 7,
 		"height" : 2,
@@ -344,7 +344,7 @@
 	},
 	{
 		"id" : 33,
-		"allowedTerrain" : [3],
+		"allowedTerrain" : ["snow"],
 		"specialBattlefields" : [],
 		"width" : 5,
 		"height" : 5,
@@ -354,7 +354,7 @@
 	},
 	{
 		"id" : 34,
-		"allowedTerrain" : [4],
+		"allowedTerrain" : ["swamp"],
 		"specialBattlefields" : [],
 		"width" : 2,
 		"height" : 2,
@@ -364,7 +364,7 @@
 	},
 	{
 		"id" : 35,
-		"allowedTerrain" : [4],
+		"allowedTerrain" : ["swamp"],
 		"specialBattlefields" : [],
 		"width" : 8,
 		"height" : 3,
@@ -374,7 +374,7 @@
 	},
 	{
 		"id" : 36,
-		"allowedTerrain" : [4],
+		"allowedTerrain" : ["swamp"],
 		"specialBattlefields" : [],
 		"width" : 2,
 		"height" : 1,
@@ -384,7 +384,7 @@
 	},
 	{
 		"id" : 37,
-		"allowedTerrain" : [4],
+		"allowedTerrain" : ["swamp"],
 		"specialBattlefields" : [],
 		"width" : 3,
 		"height" : 1,
@@ -394,7 +394,7 @@
 	},
 	{
 		"id" : 38,
-		"allowedTerrain" : [4],
+		"allowedTerrain" : ["swamp"],
 		"specialBattlefields" : [],
 		"width" : 5,
 		"height" : 4,
@@ -404,7 +404,7 @@
 	},
 	{
 		"id" : 39,
-		"allowedTerrain" : [4],
+		"allowedTerrain" : ["swamp"],
 		"specialBattlefields" : [],
 		"width" : 4,
 		"height" : 3,
@@ -414,8 +414,8 @@
 	},
 	{
 		"id" : 40,
-		"allowedTerrain" : [5],
-		"specialBattlefields" : [1],
+		"allowedTerrain" : ["rough"],
+		"specialBattlefields" : ["cursed_ground"],
 		"width" : 2,
 		"height" : 2,
 		"blockedTiles" :  [0, 1, -16],
@@ -424,8 +424,8 @@
 	},
 	{
 		"id" : 41,
-		"allowedTerrain" : [5],
-		"specialBattlefields" : [1],
+		"allowedTerrain" : ["rough"],
+		"specialBattlefields" : ["cursed_ground"],
 		"width" : 4,
 		"height" : 3,
 		"blockedTiles" :  [-14, -15, -16, -32, -33],
@@ -434,8 +434,8 @@
 	},
 	{
 		"id" : 42,
-		"allowedTerrain" : [5],
-		"specialBattlefields" : [1],
+		"allowedTerrain" : ["rough"],
+		"specialBattlefields" : ["cursed_ground"],
 		"width" : 3,
 		"height" : 2,
 		"blockedTiles" :  [1, 2, -15, -16],
@@ -444,8 +444,8 @@
 	},
 	{
 		"id" : 43,
-		"allowedTerrain" : [5],
-		"specialBattlefields" : [1],
+		"allowedTerrain" : ["rough"],
+		"specialBattlefields" : ["cursed_ground"],
 		"width" : 3,
 		"height" : 3,
 		"blockedTiles" :  [-16, -32, -33],
@@ -454,8 +454,8 @@
 	},
 	{
 		"id" : 44,
-		"allowedTerrain" : [5],
-		"specialBattlefields" : [1],
+		"allowedTerrain" : ["rough"],
+		"specialBattlefields" : ["cursed_ground"],
 		"width" : 3,
 		"height" : 3,
 		"blockedTiles" :  [-15, -16, -32],
@@ -464,7 +464,7 @@
 	},
 	{
 		"id" : 45,
-		"allowedTerrain" : [6],
+		"allowedTerrain" : ["subterra"],
 		"specialBattlefields" : [],
 		"width" : 3,
 		"height" : 3,
@@ -474,7 +474,7 @@
 	},
 	{
 		"id" : 46,
-		"allowedTerrain" : [6],
+		"allowedTerrain" : ["subterra"],
 		"specialBattlefields" : [],
 		"width" : 3,
 		"height" : 2,
@@ -484,7 +484,7 @@
 	},
 	{
 		"id" : 47,
-		"allowedTerrain" : [6],
+		"allowedTerrain" : ["subterra"],
 		"specialBattlefields" : [],
 		"width" : 4,
 		"height" : 3,
@@ -494,7 +494,7 @@
 	},
 	{
 		"id" : 48,
-		"allowedTerrain" : [7],
+		"allowedTerrain" : ["lava"],
 		"specialBattlefields" : [],
 		"width" : 4,
 		"height" : 3,
@@ -504,7 +504,7 @@
 	},
 	{
 		"id" : 49,
-		"allowedTerrain" : [7],
+		"allowedTerrain" : ["lava"],
 		"specialBattlefields" : [],
 		"width" : 4,
 		"height" : 2,
@@ -514,7 +514,7 @@
 	},
 	{
 		"id" : 50,
-		"allowedTerrain" : [7],
+		"allowedTerrain" : ["lava"],
 		"specialBattlefields" : [],
 		"width" : 5,
 		"height" : 3,
@@ -524,7 +524,7 @@
 	},
 	{
 		"id" : 51,
-		"allowedTerrain" : [7],
+		"allowedTerrain" : ["lava"],
 		"specialBattlefields" : [],
 		"width" : 3,
 		"height" : 2,
@@ -534,7 +534,7 @@
 	},
 	{
 		"id" : 52,
-		"allowedTerrain" : [7],
+		"allowedTerrain" : ["lava"],
 		"specialBattlefields" : [],
 		"width" : 4,
 		"height" : 4,
@@ -544,7 +544,7 @@
 	},
 	{
 		"id" : 53,
-		"allowedTerrain" : [7],
+		"allowedTerrain" : ["lava"],
 		"specialBattlefields" : [],
 		"width" : 5,
 		"height" : 3,
@@ -554,7 +554,7 @@
 	},
 	{
 		"id" : 54,
-		"allowedTerrain" : [7],
+		"allowedTerrain" : ["lava"],
 		"specialBattlefields" : [],
 		"width" : 5,
 		"height" : 3,
@@ -564,7 +564,7 @@
 	},
 	{
 		"id" : 55,
-		"allowedTerrain" : [8],
+		"allowedTerrain" : ["water"],
 		"specialBattlefields" : [],
 		"width" : 3,
 		"height" : 3,
@@ -575,7 +575,7 @@
 	{
 		"id" : 56,
 		"allowedTerrain" : [],
-		"specialBattlefields" : [0],
+		"specialBattlefields" : ["sand_shore"],
 		"width" : 3,
 		"height" : 2,
 		"blockedTiles" :  [1, -15, -16],
@@ -585,7 +585,7 @@
 	{
 		"id" : 57,
 		"allowedTerrain" : [],
-		"specialBattlefields" : [0],
+		"specialBattlefields" : ["sand_shore"],
 		"width" : 3,
 		"height" : 2,
 		"blockedTiles" :  [0, 1, 2],
@@ -595,7 +595,7 @@
 	{
 		"id" : 58,
 		"allowedTerrain" : [],
-		"specialBattlefields" : [0],
+		"specialBattlefields" : ["sand_shore"],
 		"width" : 5,
 		"height" : 2,
 		"blockedTiles" :  [1, 2, 3, -14, -15, -16],
@@ -605,7 +605,7 @@
 	{
 		"id" : 59,
 		"allowedTerrain" : [],
-		"specialBattlefields" : [0],
+		"specialBattlefields" : ["sand_shore"],
 		"width" : 4,
 		"height" : 2,
 		"blockedTiles" :  [1, 2, -14, -15],
@@ -615,7 +615,7 @@
 	{
 		"id" : 60,
 		"allowedTerrain" : [],
-		"specialBattlefields" : [0],
+		"specialBattlefields" : ["sand_shore"],
 		"width" : 2,
 		"height" : 2,
 		"blockedTiles" :  [0, 1, -16],
@@ -625,7 +625,7 @@
 	{
 		"id" : 61,
 		"allowedTerrain" : [],
-		"specialBattlefields" : [3],
+		"specialBattlefields" : ["holy_ground"],
 		"width" : 1,
 		"height" : 1,
 		"blockedTiles" :  [0],
@@ -635,7 +635,7 @@
 	{
 		"id" : 62,
 		"allowedTerrain" : [],
-		"specialBattlefields" : [3],
+		"specialBattlefields" : ["holy_ground"],
 		"width" : 2,
 		"height" : 1,
 		"blockedTiles" :  [0, 1],
@@ -645,7 +645,7 @@
 	{
 		"id" : 63,
 		"allowedTerrain" : [],
-		"specialBattlefields" : [3],
+		"specialBattlefields" : ["holy_ground"],
 		"width" : 3,
 		"height" : 3,
 		"blockedTiles" :  [1],
@@ -655,7 +655,7 @@
 	{
 		"id" : 64,
 		"allowedTerrain" : [],
-		"specialBattlefields" : [3],
+		"specialBattlefields" : ["holy_ground"],
 		"width" : 3,
 		"height" : 2,
 		"blockedTiles" :  [0, 1, 2],
@@ -665,7 +665,7 @@
 	{
 		"id" : 65,
 		"allowedTerrain" : [],
-		"specialBattlefields" : [3],
+		"specialBattlefields" : ["holy_ground"],
 		"width" : 4,
 		"height" : 3,
 		"blockedTiles" :  [0, 1, 2, 3],
@@ -675,7 +675,7 @@
 	{
 		"id" : 66,
 		"allowedTerrain" : [],
-		"specialBattlefields" : [4],
+		"specialBattlefields" : ["evil_fog"],
 		"width" : 1,
 		"height" : 1,
 		"blockedTiles" :  [0],
@@ -685,7 +685,7 @@
 	{
 		"id" : 67,
 		"allowedTerrain" : [],
-		"specialBattlefields" : [4],
+		"specialBattlefields" : ["evil_fog"],
 		"width" : 2,
 		"height" : 1,
 		"blockedTiles" :  [0, 1],
@@ -695,7 +695,7 @@
 	{
 		"id" : 68,
 		"allowedTerrain" : [],
-		"specialBattlefields" : [4],
+		"specialBattlefields" : ["evil_fog"],
 		"width" : 3,
 		"height" : 2,
 		"blockedTiles" :  [0, 1, 2],
@@ -705,7 +705,7 @@
 	{
 		"id" : 69,
 		"allowedTerrain" : [],
-		"specialBattlefields" : [4],
+		"specialBattlefields" : ["evil_fog"],
 		"width" : 4,
 		"height" : 2,
 		"blockedTiles" :  [1, 2],
@@ -715,7 +715,7 @@
 	{
 		"id" : 70,
 		"allowedTerrain" : [],
-		"specialBattlefields" : [4],
+		"specialBattlefields" : ["evil_fog"],
 		"width" : 6,
 		"height" : 2,
 		"blockedTiles" :  [1, 2, 3, -12, -13],
@@ -725,7 +725,7 @@
 	{
 		"id" : 71,
 		"allowedTerrain" : [],
-		"specialBattlefields" : [5],
+		"specialBattlefields" : ["clover_field"],
 		"width" : 1,
 		"height" : 1,
 		"blockedTiles" :  [0],
@@ -735,7 +735,7 @@
 	{
 		"id" : 72,
 		"allowedTerrain" : [],
-		"specialBattlefields" : [5],
+		"specialBattlefields" : ["clover_field"],
 		"width" : 3,
 		"height" : 1,
 		"blockedTiles" :  [0, 1, 2],
@@ -745,7 +745,7 @@
 	{
 		"id" : 73,
 		"allowedTerrain" : [],
-		"specialBattlefields" : [5],
+		"specialBattlefields" : ["clover_field"],
 		"width" : 3,
 		"height" : 2,
 		"blockedTiles" :  [1, 2, -15, -16],
@@ -755,7 +755,7 @@
 	{
 		"id" : 74,
 		"allowedTerrain" : [],
-		"specialBattlefields" : [5],
+		"specialBattlefields" : ["clover_field"],
 		"width" : 4,
 		"height" : 2,
 		"blockedTiles" :  [0, 1, 2, -14, -15, -16],
@@ -765,7 +765,7 @@
 	{
 		"id" : 75,
 		"allowedTerrain" : [],
-		"specialBattlefields" : [6],
+		"specialBattlefields" : ["lucid_pools"],
 		"width" : 1,
 		"height" : 1,
 		"blockedTiles" :  [0],
@@ -775,7 +775,7 @@
 	{
 		"id" : 76,
 		"allowedTerrain" : [],
-		"specialBattlefields" : [6],
+		"specialBattlefields" : ["lucid_pools"],
 		"width" : 2,
 		"height" : 1,
 		"blockedTiles" :  [0, 1],
@@ -785,7 +785,7 @@
 	{
 		"id" : 77,
 		"allowedTerrain" : [],
-		"specialBattlefields" : [6],
+		"specialBattlefields" : ["lucid_pools"],
 		"width" : 3,
 		"height" : 2,
 		"blockedTiles" :  [0, -15, -16],
@@ -795,7 +795,7 @@
 	{
 		"id" : 78,
 		"allowedTerrain" : [],
-		"specialBattlefields" : [6],
+		"specialBattlefields" : ["lucid_pools"],
 		"width" : 5,
 		"height" : 2,
 		"blockedTiles" :  [1, 2, 3, -13, -14, -15, -16],
@@ -805,7 +805,7 @@
 	{
 		"id" : 79,
 		"allowedTerrain" : [],
-		"specialBattlefields" : [7],
+		"specialBattlefields" : ["fiery_fields"],
 		"width" : 1,
 		"height" : 1,
 		"blockedTiles" :  [0],
@@ -815,7 +815,7 @@
 	{
 		"id" : 80,
 		"allowedTerrain" : [],
-		"specialBattlefields" : [7],
+		"specialBattlefields" : ["fiery_fields"],
 		"width" : 2,
 		"height" : 1,
 		"blockedTiles" :  [0, 1],
@@ -825,7 +825,7 @@
 	{
 		"id" : 81,
 		"allowedTerrain" : [],
-		"specialBattlefields" : [7],
+		"specialBattlefields" : ["fiery_fields"],
 		"width" : 3,
 		"height" : 2,
 		"blockedTiles" :  [0, 1, 2, -15],
@@ -835,7 +835,7 @@
 	{
 		"id" : 82,
 		"allowedTerrain" : [],
-		"specialBattlefields" : [7],
+		"specialBattlefields" : ["fiery_fields"],
 		"width" : 4,
 		"height" : 2,
 		"blockedTiles" :  [1, 2, 3, -15, -16],
@@ -845,7 +845,7 @@
 	{
 		"id" : 83,
 		"allowedTerrain" : [],
-		"specialBattlefields" : [7],
+		"specialBattlefields" : ["fiery_fields"],
 		"width" : 3,
 		"height" : 3,
 		"blockedTiles" :  [0, 1, 2, 3, -14, -15, -16],
@@ -855,7 +855,7 @@
 	{
 		"id" : 84,
 		"allowedTerrain" : [],
-		"specialBattlefields" : [8],
+		"specialBattlefields" : ["rocklands"],
 		"width" : 1,
 		"height" : 1,
 		"blockedTiles" :  [0],
@@ -865,7 +865,7 @@
 	{
 		"id" : 85,
 		"allowedTerrain" : [],
-		"specialBattlefields" : [8],
+		"specialBattlefields" : ["rocklands"],
 		"width" : 2,
 		"height" : 1,
 		"blockedTiles" :  [0, 1],
@@ -875,7 +875,7 @@
 	{
 		"id" : 86,
 		"allowedTerrain" : [],
-		"specialBattlefields" : [8],
+		"specialBattlefields" : ["rocklands"],
 		"width" : 3,
 		"height" : 1,
 		"blockedTiles" :  [0, 1, 2],
@@ -885,7 +885,7 @@
 	{
 		"id" : 87,
 		"allowedTerrain" : [],
-		"specialBattlefields" : [8],
+		"specialBattlefields" : ["rocklands"],
 		"width" : 4,
 		"height" : 2,
 		"blockedTiles" :  [1, 2, 3, -15, -16],
@@ -895,7 +895,7 @@
 	{
 		"id" : 88,
 		"allowedTerrain" : [],
-		"specialBattlefields" : [9],
+		"specialBattlefields" : ["magic_clouds"],
 		"width" : 1,
 		"height" : 1,
 		"blockedTiles" :  [0],
@@ -905,7 +905,7 @@
 	{
 		"id" : 89,
 		"allowedTerrain" : [],
-		"specialBattlefields" : [9],
+		"specialBattlefields" : ["magic_clouds"],
 		"width" : 2,
 		"height" : 2,
 		"blockedTiles" :  [1, -16],
@@ -915,7 +915,7 @@
 	{
 		"id" : 90,
 		"allowedTerrain" : [],
-		"specialBattlefields" : [9],
+		"specialBattlefields" : ["magic_clouds"],
 		"width" : 4,
 		"height" : 2,
 		"blockedTiles" :  [0, 1, -14, -15],
@@ -926,7 +926,7 @@
 "absoluteObstacles" : [
 	{
 		"id" : 0,
-		"allowedTerrain" : [0],
+		"allowedTerrain" : ["dirt"],
 		"specialBattlefields" : [],
 		"width" : 124,
 		"height" : 254,
@@ -935,7 +935,7 @@
 	},
 	{
 		"id" : 1,
-		"allowedTerrain" : [0],
+		"allowedTerrain" : ["dirt"],
 		"specialBattlefields" : [],
 		"width" : 256,
 		"height" : 254,
@@ -944,7 +944,7 @@
 	},
 	{
 		"id" : 2,
-		"allowedTerrain" : [0],
+		"allowedTerrain" : ["dirt"],
 		"specialBattlefields" : [],
 		"width" : 168,
 		"height" : 212,
@@ -953,7 +953,7 @@
 	},
 	{
 		"id" : 3,
-		"allowedTerrain" : [0],
+		"allowedTerrain" : ["dirt"],
 		"specialBattlefields" : [],
 		"width" : 124,
 		"height" : 254,
@@ -962,7 +962,7 @@
 	},
 	{
 		"id" : 4,
-		"allowedTerrain" : [0],
+		"allowedTerrain" : ["dirt"],
 		"specialBattlefields" : [],
 		"width" : 146,
 		"height" : 254,
@@ -971,7 +971,7 @@
 	},
 	{
 		"id" : 5,
-		"allowedTerrain" : [2],
+		"allowedTerrain" : ["grass"],
 		"specialBattlefields" : [],
 		"width" : 173,
 		"height" : 221,
@@ -980,7 +980,7 @@
 	},
 	{
 		"id" : 6,
-		"allowedTerrain" : [2],
+		"allowedTerrain" : ["grass"],
 		"specialBattlefields" : [],
 		"width" : 180,
 		"height" : 264,
@@ -989,7 +989,7 @@
 	},
 	{
 		"id" : 7,
-		"allowedTerrain" : [3],
+		"allowedTerrain" : ["snow"],
 		"specialBattlefields" : [],
 		"width" : 166,
 		"height" : 255,
@@ -998,7 +998,7 @@
 	},
 	{
 		"id" : 8,
-		"allowedTerrain" : [3],
+		"allowedTerrain" : ["snow"],
 		"specialBattlefields" : [],
 		"width" : 302,
 		"height" : 172,
@@ -1007,7 +1007,7 @@
 	},
 	{
 		"id" : 9,
-		"allowedTerrain" : [4],
+		"allowedTerrain" : ["swamp"],
 		"specialBattlefields" : [],
 		"width" : 300,
 		"height" : 170,
@@ -1016,7 +1016,7 @@
 	},
 	{
 		"id" : 10,
-		"allowedTerrain" : [4],
+		"allowedTerrain" : ["swamp"],
 		"specialBattlefields" : [],
 		"width" : 278,
 		"height" : 171,
@@ -1025,7 +1025,7 @@
 	},
 	{
 		"id" : 11,
-		"allowedTerrain" : [4],
+		"allowedTerrain" : ["swamp"],
 		"specialBattlefields" : [],
 		"width" : 256,
 		"height" : 254,
@@ -1034,7 +1034,7 @@
 	},
 	{
 		"id" : 12,
-		"allowedTerrain" : [7],
+		"allowedTerrain" : ["lava"],
 		"specialBattlefields" : [],
 		"width" : 124,
 		"height" : 254,
@@ -1043,7 +1043,7 @@
 	},
 	{
 		"id" : 13,
-		"allowedTerrain" : [7],
+		"allowedTerrain" : ["lava"],
 		"specialBattlefields" : [],
 		"width" : 256,
 		"height" : 128,
@@ -1052,8 +1052,8 @@
 	},
 	{
 		"id" : 14,
-		"allowedTerrain" : [5],
-		"specialBattlefields" : [1],
+		"allowedTerrain" : ["rough"],
+		"specialBattlefields" : ["cursed_ground"],
 		"width" : 186,
 		"height" : 212,
 		"blockedTiles" :  [55, 72, 90, 107, 125, 126, 127, 128, 129, 130, 131, 132],
@@ -1061,8 +1061,8 @@
 	},
 	{
 		"id" : 15,
-		"allowedTerrain" : [5],
-		"specialBattlefields" : [1],
+		"allowedTerrain" : ["rough"],
+		"specialBattlefields" : ["cursed_ground"],
 		"width" : 347,
 		"height" : 174,
 		"blockedTiles" :  [41, 59, 76, 94, 111, 129, 143, 144, 145],
@@ -1070,8 +1070,8 @@
 	},
 	{
 		"id" : 16,
-		"allowedTerrain" : [5],
-		"specialBattlefields" : [1],
+		"allowedTerrain" : ["rough"],
+		"specialBattlefields" : ["cursed_ground"],
 		"width" : 294,
 		"height" : 169,
 		"blockedTiles" :  [40, 41, 42, 43, 58, 75, 93, 110, 128, 145],
@@ -1079,8 +1079,8 @@
 	},
 	{
 		"id" : 17,
-		"allowedTerrain" : [5],
-		"specialBattlefields" : [1],
+		"allowedTerrain" : ["rough"],
+		"specialBattlefields" : ["cursed_ground"],
 		"width" : 165,
 		"height" : 257,
 		"blockedTiles" :  [72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 89, 105],
@@ -1088,8 +1088,8 @@
 	},
 	{
 		"id" : 18,
-		"allowedTerrain" : [5],
-		"specialBattlefields" : [1],
+		"allowedTerrain" : ["rough"],
+		"specialBattlefields" : ["cursed_ground"],
 		"width" : 208,
 		"height" : 268,
 		"blockedTiles" :  [72, 73, 74, 75, 76, 77, 78, 79, 80, 90, 91, 92, 93, 94, 95, 96, 97],
@@ -1097,8 +1097,8 @@
 	},
 	{
 		"id" : 19,
-		"allowedTerrain" : [5],
-		"specialBattlefields" : [1],
+		"allowedTerrain" : ["rough"],
+		"specialBattlefields" : ["cursed_ground"],
 		"width" : 252,
 		"height" : 254,
 		"blockedTiles" :  [73, 74, 75, 76, 77, 78, 91, 92, 93, 94],
@@ -1106,8 +1106,8 @@
 	},
 	{
 		"id" : 20,
-		"allowedTerrain" : [5],
-		"specialBattlefields" : [1],
+		"allowedTerrain" : ["rough"],
+		"specialBattlefields" : ["cursed_ground"],
 		"width" : 278,
 		"height" : 128,
 		"blockedTiles" :  [23, 40, 58, 75, 93, 110, 128, 145, 163],
@@ -1115,8 +1115,8 @@
 	},
 	{
 		"id" : 21,
-		"allowedTerrain" : [5],
-		"specialBattlefields" : [1],
+		"allowedTerrain" : ["rough"],
+		"specialBattlefields" : ["cursed_ground"],
 		"width" : 208,
 		"height" : 268,
 		"blockedTiles" :  [72, 73, 74, 75, 76, 77, 78, 79, 80, 90, 91, 92, 93, 94, 95, 96, 97],
@@ -1124,8 +1124,8 @@
 	},
 	{
 		"id" : 22,
-		"allowedTerrain" : [5],
-		"specialBattlefields" : [1],
+		"allowedTerrain" : ["rough"],
+		"specialBattlefields" : ["cursed_ground"],
 		"width" : 168,
 		"height" : 212,
 		"blockedTiles" :  [73, 74, 75, 76, 77, 78, 79, 90, 91, 92, 93, 94, 95, 96, 97, 106, 107, 108, 109, 110, 111, 112],
@@ -1134,7 +1134,7 @@
 	{
 		"id" : 23,
 		"allowedTerrain" : [],
-		"specialBattlefields" : [0],
+		"specialBattlefields" : ["sand_shore"],
 		"width" : 147,
 		"height" : 264,
 		"blockedTiles" :  [72, 73, 74, 75, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98],
@@ -1143,7 +1143,7 @@
 	{
 		"id" : 24,
 		"allowedTerrain" : [],
-		"specialBattlefields" : [0],
+		"specialBattlefields" : ["sand_shore"],
 		"width" : 178,
 		"height" : 262,
 		"blockedTiles" :  [71, 72, 73, 74, 75, 76, 77, 78, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98],
@@ -1152,7 +1152,7 @@
 	{
 		"id" : 25,
 		"allowedTerrain" : [],
-		"specialBattlefields" : [0],
+		"specialBattlefields" : ["sand_shore"],
 		"width" : 173,
 		"height" : 257,
 		"blockedTiles" :  [72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 89, 90, 105, 106],
@@ -1161,7 +1161,7 @@
 	{
 		"id" : 26,
 		"allowedTerrain" : [],
-		"specialBattlefields" : [0],
+		"specialBattlefields" : ["sand_shore"],
 		"width" : 241,
 		"height" : 272,
 		"blockedTiles" :  [73, 91, 108, 109, 110, 111, 112, 113],
@@ -1170,7 +1170,7 @@
 	{
 		"id" : 27,
 		"allowedTerrain" : [],
-		"specialBattlefields" : [0],
+		"specialBattlefields" : ["sand_shore"],
 		"width" : 261,
 		"height" : 129,
 		"blockedTiles" :  [27, 28, 43, 44, 60, 61, 76, 77, 93, 94, 109, 110, 126, 127, 142, 143, 159],
@@ -1179,7 +1179,7 @@
 	{
 		"id" : 28,
 		"allowedTerrain" : [],
-		"specialBattlefields" : [0],
+		"specialBattlefields" : ["sand_shore"],
 		"width" : 180,
 		"height" : 154,
 		"blockedTiles" :  [22, 38, 39, 40, 44, 45, 46, 55, 56, 57, 62, 63, 123, 124, 125, 130, 131, 140, 141, 146, 147, 148],
@@ -1188,7 +1188,7 @@
 	{
 		"id" : 29,
 		"allowedTerrain" : [],
-		"specialBattlefields" : [5],
+		"specialBattlefields" : ["clover_field"],
 		"width" : 304,
 		"height" : 264,
 		"blockedTiles" :  [76, 77, 92, 93, 94, 95, 109, 110, 111],
@@ -1197,7 +1197,7 @@
 	{
 		"id" : 30,
 		"allowedTerrain" : [],
-		"specialBattlefields" : [6],
+		"specialBattlefields" : ["lucid_pools"],
 		"width" : 256,
 		"height" : 257,
 		"blockedTiles" :  [76, 77, 78, 92, 93, 94, 107, 108, 109],
@@ -1206,7 +1206,7 @@
 	{
 		"id" : 31,
 		"allowedTerrain" : [],
-		"specialBattlefields" : [7],
+		"specialBattlefields" : ["fiery_fields"],
 		"width" : 257,
 		"height" : 255,
 		"blockedTiles" :  [76, 77, 91, 92, 93, 94, 95, 108, 109, 110, 111],
@@ -1215,7 +1215,7 @@
 	{
 		"id" : 32,
 		"allowedTerrain" : [],
-		"specialBattlefields" : [8],
+		"specialBattlefields" : ["rocklands"],
 		"width" : 277,
 		"height" : 218,
 		"blockedTiles" :  [60, 61, 75, 76, 77, 91, 92, 93, 94, 95],
@@ -1224,7 +1224,7 @@
 	{
 		"id" : 33,
 		"allowedTerrain" : [],
-		"specialBattlefields" : [9],
+		"specialBattlefields" : ["magic_clouds"],
 		"width" : 300,
 		"height" : 214,
 		"blockedTiles" :  [59, 60, 74, 75, 76, 93, 94, 95, 111, 112],

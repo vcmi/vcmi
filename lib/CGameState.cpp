@@ -963,8 +963,8 @@ void CGameState::initGrailPosition()
 					const TerrainTile &t = map->getTile(int3(i, j, k));
 					if(!t.blocked
 						&& !t.visitable
-						&& t.terType != ETerrainType::WATER
-						&& t.terType != ETerrainType::ROCK
+						&& t.terType.isLand()
+						&& t.terType.isPassable()
 						&& (int)map->grailPos.dist2dSQ(int3(i, j, k)) <= (map->grailRadius * map->grailRadius))
 						allowedPos.push_back(int3(i,j,k));
 				}
@@ -1894,17 +1894,20 @@ void CGameState::initVisitingAndGarrisonedHeroes()
 	}
 }
 
-BFieldType CGameState::battleGetBattlefieldType(int3 tile, CRandomGenerator & rand)
+BattleField CGameState::battleGetBattlefieldType(int3 tile, CRandomGenerator & rand)
 {
 	if(!tile.valid() && curB)
 		tile = curB->tile;
 	else if(!tile.valid() && !curB)
-		return BFieldType::NONE;
+		return BattleField::NONE;
 
 	const TerrainTile &t = map->getTile(tile);
-	//fight in mine -> subterranean
-	if(dynamic_cast<const CGMine *>(t.visitableObjects.front()))
-		return BFieldType::SUBTERRANEAN;
+
+	auto topObject = t.visitableObjects.front();
+	if(topObject && topObject->getBattlefield() != BattleField::NONE)
+	{
+		return topObject->getBattlefield();
+	}
 
 	for(auto &obj : map->objects)
 	{
@@ -1912,59 +1915,17 @@ BFieldType CGameState::battleGetBattlefieldType(int3 tile, CRandomGenerator & ra
 		if( !obj || obj->pos.z != tile.z || !obj->coveringAt(tile.x, tile.y))
 			continue;
 
-		switch(obj->ID)
-		{
-		case Obj::CLOVER_FIELD:
-			return BFieldType::CLOVER_FIELD;
-		case Obj::CURSED_GROUND1: case Obj::CURSED_GROUND2:
-			return BFieldType::CURSED_GROUND;
-		case Obj::EVIL_FOG:
-			return BFieldType::EVIL_FOG;
-		case Obj::FAVORABLE_WINDS:
-			return BFieldType::FAVORABLE_WINDS;
-		case Obj::FIERY_FIELDS:
-			return BFieldType::FIERY_FIELDS;
-		case Obj::HOLY_GROUNDS:
-			return BFieldType::HOLY_GROUND;
-		case Obj::LUCID_POOLS:
-			return BFieldType::LUCID_POOLS;
-		case Obj::MAGIC_CLOUDS:
-			return BFieldType::MAGIC_CLOUDS;
-		case Obj::MAGIC_PLAINS1: case Obj::MAGIC_PLAINS2:
-			return BFieldType::MAGIC_PLAINS;
-		case Obj::ROCKLANDS:
-			return BFieldType::ROCKLANDS;
-		}
+		auto customBattlefield = obj->getBattlefield();
+
+		if(customBattlefield != BattleField::NONE)
+			return customBattlefield;
 	}
 
 	if(map->isCoastalTile(tile)) //coastal tile is always ground
-		return BFieldType::SAND_SHORE;
-
-	switch(t.terType)
-	{
-	case ETerrainType::DIRT:
-		return BFieldType(rand.nextInt(3, 5));
-	case ETerrainType::SAND:
-		return BFieldType::SAND_MESAS; //TODO: coast support
-	case ETerrainType::GRASS:
-		return BFieldType(rand.nextInt(6, 7));
-	case ETerrainType::SNOW:
-		return BFieldType(rand.nextInt(10, 11));
-	case ETerrainType::SWAMP:
-		return BFieldType::SWAMP_TREES;
-	case ETerrainType::ROUGH:
-		return BFieldType::ROUGH;
-	case ETerrainType::SUBTERRANEAN:
-		return BFieldType::SUBTERRANEAN;
-	case ETerrainType::LAVA:
-		return BFieldType::LAVA;
-	case ETerrainType::WATER:
-		return BFieldType::SHIP;
-	case ETerrainType::ROCK:
-		return BFieldType::ROCKLANDS;
-	default:
-		return BFieldType::NONE;
-	}
+		return BattleField::fromString("sand_shore");
+	
+	return BattleField::fromString(
+		*RandomGeneratorUtil::nextItem(Terrain::Manager::getInfo(t.terType).battleFields, rand));
 }
 
 UpgradeInfo CGameState::getUpgradeInfo(const CStackInstance &stack)
@@ -2145,7 +2106,7 @@ void CGameState::updateRumor()
 			rumorId = *RandomGeneratorUtil::nextItem(sRumorTypes, rand);
 			if(rumorId == RumorState::RUMOR_GRAIL)
 			{
-				rumorExtra = getTile(map->grailPos)->terType;
+				rumorExtra = getTile(map->grailPos)->terType.id();
 				break;
 			}
 

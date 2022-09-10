@@ -15,6 +15,8 @@
 #include "../filesystem/Filesystem.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../CGeneralTextHandler.h"
+#include "../Terrain.h"
+#include "../BattleFieldHandler.h"
 
 //TODO: remove
 #include "../IGameCallback.h"
@@ -186,7 +188,7 @@ struct RangeGenerator
 	std::function<int()> myRand;
 };
 
-BattleInfo * BattleInfo::setupBattle(int3 tile, ETerrainType terrain, BFieldType battlefieldType, const CArmedInstance * armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance * town)
+BattleInfo * BattleInfo::setupBattle(const int3 & tile, const Terrain & terrain, const BattleField & battlefieldType, const CArmedInstance * armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance * town)
 {
 	CMP_stack cmpst;
 	auto curB = new BattleInfo();
@@ -238,24 +240,24 @@ BattleInfo * BattleInfo::setupBattle(int3 tile, ETerrainType terrain, BFieldType
 	//randomize obstacles
  	if (town == nullptr && !creatureBank) //do it only when it's not siege and not creature bank
  	{
-		const int ABSOLUTE_OBSTACLES_COUNT = 34, USUAL_OBSTACLES_COUNT = 91; //shouldn't be changes if we want H3-like obstacle placement
+		const int ABSOLUTE_OBSTACLES_COUNT = VLC->heroh->absoluteObstacles.size();
+		const int USUAL_OBSTACLES_COUNT = VLC->heroh->obstacles.size(); //shouldn't be changes if we want H3-like obstacle placement
 
 		RandGen r;
 		auto ourRand = [&](){ return r.rand(); };
 		r.srand(tile);
 		r.rand(1,8); //battle sound ID to play... can't do anything with it here
 		int tilesToBlock = r.rand(5,12);
-		const int specialBattlefield = battlefieldTypeToBI(battlefieldType);
 
 		std::vector<BattleHex> blockedTiles;
 
 		auto appropriateAbsoluteObstacle = [&](int id)
 		{
-			return VLC->heroh->absoluteObstacles[id].isAppropriate(curB->terrainType, specialBattlefield);
+			return VLC->heroh->absoluteObstacles[id].isAppropriate(curB->terrainType, battlefieldType);
 		};
 		auto appropriateUsualObstacle = [&](int id) -> bool
 		{
-			return VLC->heroh->obstacles[id].isAppropriate(curB->terrainType, specialBattlefield);
+			return VLC->heroh->obstacles[id].isAppropriate(curB->terrainType, battlefieldType);
 		};
 
 		if(r.rand(1,100) <= 40) //put cliff-like obstacle
@@ -457,75 +459,12 @@ BattleInfo * BattleInfo::setupBattle(int3 tile, ETerrainType terrain, BFieldType
 	auto good = std::make_shared<CreatureAlignmentLimiter>(EAlignment::GOOD);
 	auto evil = std::make_shared<CreatureAlignmentLimiter>(EAlignment::EVIL);
 
-	//giving terrain overlay premies
-	int bonusSubtype = -1;
-	switch(battlefieldType)
-	{
-	case BFieldType::MAGIC_PLAINS:
-		{
-			bonusSubtype = 0;
-		}
-		FALLTHROUGH
-	case BFieldType::FIERY_FIELDS:
-		{
-			if(bonusSubtype == -1) bonusSubtype = 1;
-		}
-		FALLTHROUGH
-	case BFieldType::ROCKLANDS:
-		{
-			if(bonusSubtype == -1) bonusSubtype = 8;
-		}
-		FALLTHROUGH
-	case BFieldType::MAGIC_CLOUDS:
-		{
-			if(bonusSubtype == -1) bonusSubtype = 2;
-		}
-		FALLTHROUGH
-	case BFieldType::LUCID_POOLS:
-		{
-			if(bonusSubtype == -1) bonusSubtype = 4;
-		}
+	auto bgInfo = VLC->battlefields()->getById(battlefieldType);
 
-		{ //common part for cases 9, 14, 15, 16, 17
-			curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::MAGIC_SCHOOL_SKILL, Bonus::TERRAIN_OVERLAY, 3, battlefieldType, bonusSubtype));
-			break;
-		}
-	case BFieldType::HOLY_GROUND:
-		{
-			std::string goodArmyDesc = VLC->generaltexth->arraytxt[123];
-			goodArmyDesc.erase(goodArmyDesc.size() - 2, 2); //omitting hardcoded +1 in description
-			std::string evilArmyDesc = VLC->generaltexth->arraytxt[124];
-			evilArmyDesc.erase(evilArmyDesc.size() - 2, 2);
-			curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::MORALE, Bonus::TERRAIN_OVERLAY, +1, battlefieldType, goodArmyDesc, 0)->addLimiter(good));
-			curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::MORALE, Bonus::TERRAIN_OVERLAY, -1, battlefieldType, evilArmyDesc, 0)->addLimiter(evil));
-			break;
-		}
-	case BFieldType::CLOVER_FIELD:
-		{ //+2 luck bonus for neutral creatures
-			std::string desc = VLC->generaltexth->arraytxt[83];
-			desc.erase(desc.size() - 2, 2);
-			curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::LUCK, Bonus::TERRAIN_OVERLAY, +2, battlefieldType, desc, 0)->addLimiter(neutral));
-			break;
-		}
-	case BFieldType::EVIL_FOG:
-		{
-			std::string goodArmyDesc = VLC->generaltexth->arraytxt[126];
-			goodArmyDesc.erase(goodArmyDesc.size() - 2, 2);
-			std::string evilArmyDesc = VLC->generaltexth->arraytxt[125];
-			evilArmyDesc.erase(evilArmyDesc.size() - 2, 2);
-			curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::MORALE, Bonus::TERRAIN_OVERLAY, -1, battlefieldType, goodArmyDesc, 0)->addLimiter(good));
-			curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::MORALE, Bonus::TERRAIN_OVERLAY, +1, battlefieldType, evilArmyDesc, 0)->addLimiter(evil));
-			break;
-		}
-	case BFieldType::CURSED_GROUND:
-		{
-			curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::NO_MORALE, Bonus::TERRAIN_OVERLAY, 0, battlefieldType, VLC->generaltexth->arraytxt[112], 0));
-			curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::NO_LUCK, Bonus::TERRAIN_OVERLAY, 0, battlefieldType, VLC->generaltexth->arraytxt[81], 0));
-			curB->addNewBonus(std::make_shared<Bonus>(Bonus::ONE_BATTLE, Bonus::BLOCK_MAGIC_ABOVE, Bonus::TERRAIN_OVERLAY, 1, battlefieldType, 0, Bonus::INDEPENDENT_MIN));
-			break;
-		}
+	for(const std::shared_ptr<Bonus> & bonus : bgInfo->bonuses)
+	{
+		curB->addNewBonus(bonus);
 	}
-	//overlay premies given
 
 	//native terrain bonuses
 	static auto nativeTerrain = std::make_shared<CreatureTerrainLimiter>();
@@ -579,30 +518,6 @@ ui8 BattleInfo::whatSide(PlayerColor player) const
 	return -1;
 }
 
-BattlefieldBI::BattlefieldBI BattleInfo::battlefieldTypeToBI(BFieldType bfieldType)
-{
-	static const std::map<BFieldType, BattlefieldBI::BattlefieldBI> theMap =
-	{
-		{BFieldType::CLOVER_FIELD, BattlefieldBI::CLOVER_FIELD},
-		{BFieldType::CURSED_GROUND, BattlefieldBI::CURSED_GROUND},
-		{BFieldType::EVIL_FOG, BattlefieldBI::EVIL_FOG},
-		{BFieldType::FAVORABLE_WINDS, BattlefieldBI::NONE},
-		{BFieldType::FIERY_FIELDS, BattlefieldBI::FIERY_FIELDS},
-		{BFieldType::HOLY_GROUND, BattlefieldBI::HOLY_GROUND},
-		{BFieldType::LUCID_POOLS, BattlefieldBI::LUCID_POOLS},
-		{BFieldType::MAGIC_CLOUDS, BattlefieldBI::MAGIC_CLOUDS},
-		{BFieldType::MAGIC_PLAINS, BattlefieldBI::MAGIC_PLAINS},
-		{BFieldType::ROCKLANDS, BattlefieldBI::ROCKLANDS},
-		{BFieldType::SAND_SHORE, BattlefieldBI::COASTAL}
-	};
-
-	auto itr = theMap.find(bfieldType);
-	if(itr != theMap.end())
-		return itr->second;
-
-	return BattlefieldBI::NONE;
-}
-
 CStack * BattleInfo::getStack(int stackID, bool onlyAlive)
 {
 	return const_cast<CStack *>(battleGetStackByID(stackID, onlyAlive));
@@ -610,7 +525,7 @@ CStack * BattleInfo::getStack(int stackID, bool onlyAlive)
 
 BattleInfo::BattleInfo()
 	: round(-1), activeStack(-1), town(nullptr), tile(-1,-1,-1),
-	battlefieldType(BFieldType::NONE), terrainType(ETerrainType::WRONG),
+	battlefieldType(BattleField::NONE), terrainType(),
 	tacticsSide(0), tacticDistance(0)
 {
 	setBattle(this);
@@ -639,12 +554,12 @@ battle::Units BattleInfo::getUnitsIf(battle::UnitFilter predicate) const
 }
 
 
-BFieldType BattleInfo::getBattlefieldType() const
+BattleField BattleInfo::getBattlefieldType() const
 {
 	return battlefieldType;
 }
 
-ETerrainType BattleInfo::getTerrainType() const
+Terrain BattleInfo::getTerrainType() const
 {
 	return terrainType;
 }

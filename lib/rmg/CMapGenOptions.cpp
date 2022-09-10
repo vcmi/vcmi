@@ -208,6 +208,7 @@ void CMapGenOptions::setMapTemplate(const CRmgTemplate * value)
 
 void CMapGenOptions::finalize(CRandomGenerator & rand)
 {
+	logGlobal->info("RMG map: %dx%d, %s underground", getWidth(), getHeight(), getHasTwoLevels() ? "WITH" : "NO");
 	logGlobal->info("RMG settings: players %d, teams %d, computer players %d, computer teams %d, water %d, monsters %d",
 		static_cast<int>(getPlayerCount()), static_cast<int>(getTeamCount()), static_cast<int>(getCompOnlyPlayerCount()),
 		static_cast<int>(getCompOnlyTeamCount()), static_cast<int>(getWaterContent()), static_cast<int>(getMonsterStrength()));
@@ -217,6 +218,8 @@ void CMapGenOptions::finalize(CRandomGenerator & rand)
 		mapTemplate = getPossibleTemplate(rand);
 	}
 	assert(mapTemplate);
+	
+	logGlobal->info("RMG template name: %s", mapTemplate->getName());
 
 	if (getPlayerCount() == RANDOM_SIZE)
 	{
@@ -246,8 +249,18 @@ void CMapGenOptions::finalize(CRandomGenerator & rand)
 
 	if(waterContent == EWaterContent::RANDOM)
 	{
-		waterContent = *RandomGeneratorUtil::nextItem(mapTemplate->getWaterContentAllowed(), rand);
+		auto allowedContent = mapTemplate->getWaterContentAllowed();
+
+		if(allowedContent.size())
+		{
+			waterContent = *RandomGeneratorUtil::nextItem(mapTemplate->getWaterContentAllowed(), rand);
+		}
+		else
+		{
+			waterContent = EWaterContent::NONE;
+		}
 	}
+
 	if(monsterStrength == EMonsterStrength::RANDOM)
 	{
 		monsterStrength = static_cast<EMonsterStrength::EMonsterStrength>(rand.nextInt(EMonsterStrength::GLOBAL_WEAK, EMonsterStrength::GLOBAL_STRONG));

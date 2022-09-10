@@ -10,32 +10,32 @@
 
 #pragma once
 
-#include "CMapGenerator.h"
 #include "float3.h"
 #include "../int3.h"
+#include "../GameConstants.h"
 
 class CZoneGraph;
 class CMap;
 class CRandomGenerator;
-class CRmgTemplateZone;
-class CMapGenerator;
+class RmgMap;
+class Zone;
 
-typedef std::vector<std::pair<TRmgTemplateZoneId, std::shared_ptr<CRmgTemplateZone>>> TZoneVector;
-typedef std::map <TRmgTemplateZoneId, std::shared_ptr<CRmgTemplateZone>> TZoneMap;
-typedef std::map <std::shared_ptr<CRmgTemplateZone>, float3> TForceVector;
-typedef std::map <std::shared_ptr<CRmgTemplateZone>, float> TDistanceVector;
+typedef std::vector<std::pair<TRmgTemplateZoneId, std::shared_ptr<Zone>>> TZoneVector;
+typedef std::map<TRmgTemplateZoneId, std::shared_ptr<Zone>> TZoneMap;
+typedef std::map<std::shared_ptr<Zone>, float3> TForceVector;
+typedef std::map<std::shared_ptr<Zone>, float> TDistanceVector;
 
 class CZonePlacer
 {
 public:
-	explicit CZonePlacer(CMapGenerator * gen);
+	explicit CZonePlacer(RmgMap & map);
 	int3 cords (const float3 f) const;
 	float metric (const int3 &a, const int3 &b) const;
 	float getDistance(float distance) const; //additional scaling without 0 divison
 	~CZonePlacer();
 
 	void placeZones(CRandomGenerator * rand);
-	void assignZones();
+	void assignZones(CRandomGenerator * rand);
 	
 private:
 	void prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const bool underground, CRandomGenerator * rand);
@@ -56,5 +56,5 @@ private:
     //float a1, b1, c1, a2, b2, c2;
 	//CMap * map;
 	//std::unique_ptr<CZoneGraph> graph;
-	CMapGenerator * gen;
+	RmgMap & map;
 };

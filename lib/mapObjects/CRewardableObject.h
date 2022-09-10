@@ -269,11 +269,6 @@ public:
 		h & onVisited;
 		h & onEmpty;
 		h & visitMode;
-		if(version < 778)
-		{
-			ui16 soundID = 0;
-			h & soundID;
-		}
 		h & selectMode;
 		h & selectedReward;
 	}

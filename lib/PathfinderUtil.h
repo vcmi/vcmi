@@ -59,13 +59,13 @@ namespace PathfinderUtil
 			break;
 
 		case ELayer::WATER:
-			if(tinfo->blocked || tinfo->terType != ETerrainType::WATER)
+			if(tinfo->blocked || tinfo->terType.isLand())
 				return CGPathNode::BLOCKED;
 
 			break;
 
 		case ELayer::AIR:
-			if(tinfo->blocked || tinfo->terType == ETerrainType::WATER)
+			if(tinfo->blocked || tinfo->terType.isLand())
 				return CGPathNode::FLYABLE;
 
 			break;

@@ -81,12 +81,30 @@ set(lib_SRCS
 		registerTypes/TypesLobbyPacks.cpp
 		registerTypes/TypesServerPacks.cpp
 
+		rmg/RmgArea.cpp
+		rmg/RmgObject.cpp
+		rmg/RmgPath.cpp
 		rmg/CMapGenerator.cpp
 		rmg/CMapGenOptions.cpp
 		rmg/CRmgTemplate.cpp
 		rmg/CRmgTemplateStorage.cpp
-		rmg/CRmgTemplateZone.cpp
 		rmg/CZonePlacer.cpp
+		rmg/TileInfo.cpp
+		rmg/Zone.cpp
+		rmg/Functions.cpp
+		rmg/ObjectManager.cpp
+		rmg/RoadPlacer.cpp
+		rmg/TreasurePlacer.cpp
+		rmg/RmgMap.cpp
+		rmg/ConnectionsPlacer.cpp
+		rmg/WaterAdopter.cpp
+		rmg/TownPlacer.cpp
+		rmg/WaterProxy.cpp
+		rmg/WaterRoutes.cpp
+		rmg/RockPlacer.cpp
+		rmg/ObstaclePlacer.cpp
+		rmg/RiverPlacer.cpp
+		rmg/TerrainPainter.cpp
 
 		serializer/BinaryDeserializer.cpp
 		serializer/BinarySerializer.cpp
@@ -129,7 +147,8 @@ set(lib_SRCS
 		spells/effects/Sacrifice.cpp
 
 		vstd/StringUtils.cpp
-
+		
+		BattleFieldHandler.cpp
 		CAndroidVMHelper.cpp
 		CArtHandler.cpp
 		CBonusTypeHandler.cpp
@@ -163,6 +182,7 @@ set(lib_SRCS
 		StartInfo.cpp
 		ResourceSet.cpp
 		ScriptHandler.cpp
+		Terrain.cpp
 		VCMIDirs.cpp
 		VCMI_Lib.cpp
 
@@ -286,12 +306,30 @@ set(lib_HEADERS
 
 		registerTypes/RegisterTypes.h
 
+		rmg/RmgArea.h
+		rmg/RmgObject.h
+		rmg/RmgPath.h
 		rmg/CMapGenerator.h
 		rmg/CMapGenOptions.h
 		rmg/CRmgTemplate.h
 		rmg/CRmgTemplateStorage.h
-		rmg/CRmgTemplateZone.h
 		rmg/CZonePlacer.h
+		rmg/TileInfo.h
+		rmg/Zone.h
+		rmg/Functions.h
+		rmg/ObjectManager.h
+		rmg/RoadPlacer.h
+		rmg/TreasurePlacer.h
+		rmg/RmgMap.h
+		rmg/ConnectionsPlacer.h
+		rmg/WaterAdopter.h
+		rmg/TownPlacer.h
+		rmg/WaterProxy.h
+		rmg/WaterRoutes.h
+		rmg/RockPlacer.h
+		rmg/ObstaclePlacer.h
+		rmg/RiverPlacer.h
+		rmg/TerrainPainter.h
 		rmg/float3.h
 
 		serializer/BinaryDeserializer.h
@@ -337,6 +375,7 @@ set(lib_HEADERS
 		spells/effects/Sacrifice.h
 
 		AI_Base.h
+		BattleFieldHandler.h
 		CAndroidVMHelper.h
 		CArtHandler.h
 		CBonusTypeHandler.h
@@ -385,6 +424,7 @@ set(lib_HEADERS
 		ScopeGuard.h
 		StartInfo.h
 		StringConstants.h
+		Terrain.h
 		UnlockGuard.h
 		VCMIDirs.h
 		vcmi_endian.h
