@@ -49,6 +49,8 @@ public:
 	bool isUpdateable() const;
 	// installed
 	bool isInstalled() const;
+	// vcmi essential files
+	bool isEssential() const;
 
 	// see ModStatus enum
 	int getModStatus() const;
@@ -74,6 +76,7 @@ class CModList
 
 public:
 	virtual void resetRepositories();
+	virtual void reloadRepositories();
 	virtual void addRepository(QVariantMap data);
 	virtual void setLocalModList(QVariantMap data);
 	virtual void setModSettings(QVariant data);

@@ -310,10 +310,10 @@ void CModListView::selectMod(const QModelIndex & index)
 		// Block buttons if action is not allowed at this time
 		// TODO: automate handling of some of these cases instead of forcing player
 		// to resolve all conflicts manually.
-		ui->disableButton->setEnabled(!hasDependentMods);
+		ui->disableButton->setEnabled(!hasDependentMods && !mod.isEssential());
 		ui->enableButton->setEnabled(!hasBlockingMods && !hasInvalidDeps);
 		ui->installButton->setEnabled(!hasInvalidDeps);
-		ui->uninstallButton->setEnabled(!hasDependentMods);
+		ui->uninstallButton->setEnabled(!hasDependentMods && !mod.isEssential());
 		ui->updateButton->setEnabled(!hasInvalidDeps && !hasDependentMods);
 
 		loadScreenshots();
@@ -522,6 +522,9 @@ void CModListView::downloadFile(QString file, QString url, QString description)
 
 		connect(dlManager, SIGNAL(finished(QStringList,QStringList,QStringList)),
 			this, SLOT(downloadFinished(QStringList,QStringList,QStringList)));
+		
+		
+		connect(modModel, &CModListModel::dataChanged, filterModel, &QAbstractItemModel::dataChanged);
 
 
 		QString progressBarFormat = "Downloading %s%. %p% (%v KB out of %m KB) finished";
@@ -658,7 +661,7 @@ void CModListView::installMods(QStringList archives)
 		auto mod = modModel->getMod(modName);
 		if(mod.isInstalled() && !mod.getValue("keepDisabled").toBool())
 		{
-			if(manager->enableMod(modName))
+			if(mod.isDisabled() && manager->enableMod(modName))
 			{
 				for(QString child : modModel->getChildren(modName))
 					enableMod(child);
