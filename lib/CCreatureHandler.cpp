@@ -611,9 +611,6 @@ CCreature * CCreatureHandler::loadFromJson(const std::string & scope, const Json
 	if(!node["shots"].isNull())
 		cre->addBonus(node["shots"].Integer(), Bonus::SHOTS);
 
-	if(!node["spellPoints"].isNull())
-		cre->addBonus(node["spellPoints"].Integer(), Bonus::CASTS);
-
 	loadStackExperience(cre, node["stackExperience"]);
 	loadJsonAnimation(cre, node["graphics"]);
 	loadCreatureJson(cre, node);
