@@ -53,12 +53,9 @@ ObjectTemplate::ObjectTemplate():
 	id(Obj::NO_OBJ),
 	subid(0),
 	printPriority(0),
-	stringID(""),
 	width(0),
 	height(0),
-	visitable(false),
-	blockMapOffset(0, 0, 0),
-	visitableOffset(0, 0, 0)
+	visitable(false)
 {
 }
 
@@ -139,9 +136,9 @@ void ObjectTemplate::readTxt(CLegacyConfigParser & parser)
 	assert(visitStr.size() == 6*8);
 
 	setSize(8, 6);
-	for(size_t i=0; i<6; i++) // 6 rows
+	for(size_t i = 0; i < 6; i++) // 6 rows
 	{
-		for(size_t j=0; j<8; j++) // 8 columns
+		for(size_t j = 0; j < 8; j++) // 8 columns
 		{
 			auto & tile = usedTiles[i][j];
 			tile |= VISIBLE; // assume that all tiles are visible
@@ -159,7 +156,7 @@ void ObjectTemplate::readTxt(CLegacyConfigParser & parser)
 	std::string & terrStr = strings[4]; // allowed terrains, 1 = object can be placed on this terrain
 
 	assert(terrStr.size() == 9); // all terrains but rock
-	for(size_t i=0; i<9; i++)
+	for(size_t i = 0; i < 9; i++)
 	{
 		if (terrStr[8-i] == '1')
 			allowedTerrains.insert(Terrain::createTerrainTypeH3M(i));
@@ -232,7 +229,7 @@ void ObjectTemplate::readMap(CBinaryReader & reader)
 
 	reader.readUInt16();
 	ui16 terrMask = reader.readUInt16();
-	for(size_t i=0; i<9; i++)
+	for(size_t i = 0; i < 9; i++)
 	{
 		if (((terrMask >> i) & 1 ) != 0)
 			allowedTerrains.insert(Terrain::createTerrainTypeH3M(i));

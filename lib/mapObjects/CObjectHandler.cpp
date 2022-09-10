@@ -124,7 +124,6 @@ CGObjectInstance::CGObjectInstance():
 	ID(Obj::NO_OBJ),
 	subID(-1),
 	tempOwner(PlayerColor::UNFLAGGABLE),
-	appearance(nullptr),
 	blockVisit(false)
 {
 }

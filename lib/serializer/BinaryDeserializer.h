@@ -403,7 +403,7 @@ public:
 			auto itr = loadedSharedPointers.find(internalPtrDerived);
 			if(itr != loadedSharedPointers.end())
 			{
-				// This pointers is already loaded. The "data" needs to be pointed to it,
+				// This pointer is already loaded. The "data" needs to be pointed to it,
 				// so their shared state is actually shared.
 				try
 				{
