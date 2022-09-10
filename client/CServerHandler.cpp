@@ -47,6 +47,10 @@
 
 #include <vcmi/events/EventBus.h>
 
+#ifdef VCMI_WINDOWS
+#include <windows.h>
+#endif
+
 template<typename T> class CApplyOnLobby;
 
 #ifdef VCMI_ANDROID
@@ -694,7 +698,23 @@ void CServerHandler::threadRunServer()
 	}
 	comm += " > \"" + logName + '\"';
 
+#ifdef VCMI_WINDOWS
+	int result = -1;
+	const auto bufSize = ::MultiByteToWideChar(CP_UTF8, 0, comm.c_str(), comm.size(), nullptr, 0);
+	if(bufSize > 0)
+	{
+		std::wstring wComm(bufSize, {});
+		const auto convertResult = ::MultiByteToWideChar(CP_UTF8, 0, comm.c_str(), comm.size(), &wComm[0], bufSize);
+		if(convertResult > 0)
+			result = ::_wsystem(wComm.c_str());
+		else
+			logNetwork->error("Error " + std::to_string(GetLastError()) + ": failed to convert server launch command to wide string: " + comm);
+	}
+	else
+		logNetwork->error("Error " + std::to_string(GetLastError()) + ": failed to obtain buffer length to convert server launch command to wide string : " + comm);
+#else
 	int result = std::system(comm.c_str());
+#endif
 	if (result == 0)
 	{
 		logNetwork->info("Server closed correctly");
