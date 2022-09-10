@@ -18,6 +18,7 @@
 #include "../lib/mapping/CMapEditManager.h"
 #include "../lib/Terrain.h"
 #include "../lib/mapObjects/CObjectClassesHandler.h"
+#include "../lib/filesystem/CFilesystemLoader.h"
 
 
 #include "CGameInfo.h"
@@ -214,14 +215,16 @@ void MainWindow::on_actionOpen_triggered()
 	QFileInfo fi(filenameSelect);
 	std::string fname = fi.fileName().toStdString();
 	std::string fdir = fi.dir().path().toStdString();
-	ResourceID resId("MAPS/" + fname, EResType::MAP);
-	//ResourceID resId("MAPS/SomeMap.vmap", EResType::MAP);
 	
-	if(!CResourceHandler::get()->existsResource(resId))
-	{
-		QMessageBox::information(this, "Failed to open map", "Only map folder is supported");
-		return;
-	}
+	ResourceID resId("MAPEDITOR/" + fname, EResType::MAP);
+	
+	//addFilesystem takes care about memory deallocation if case of failure, no memory leak here
+	auto * mapEditorFilesystem = new CFilesystemLoader("MAPEDITOR/", fdir, 0);
+	CResourceHandler::removeFilesystem("local", "mapEditor");
+	CResourceHandler::addFilesystem("local", "mapEditor", mapEditorFilesystem);
+	
+	if(!CResourceHandler::get("mapEditor")->existsResource(resId))
+		QMessageBox::warning(this, "Failed to open map", "Cannot open map from this folder");
 	
 	CMapService mapService;
 	try
