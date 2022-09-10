@@ -195,6 +195,7 @@ void MapController::commitObjectErase(int level)
 	_scenes[level]->selectionObjectsView.clear();
 	_scenes[level]->objectsView.draw();
 	_scenes[level]->selectionObjectsView.draw();
+	_scenes[level]->passabilityView.update();
 	
 	_miniscenes[level]->updateViews();
 	main->mapChanged();
