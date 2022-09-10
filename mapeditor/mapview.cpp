@@ -70,7 +70,7 @@ void MapView::mouseMoveEvent(QMouseEvent *mouseEvent)
 	this->update();
 
 	auto * sc = static_cast<MapScene*>(scene());
-	if(!sc)
+	if(!sc || !controller->map())
 		return;
 
 	auto pos = mapToScene(mouseEvent->pos()); //TODO: do we need to check size?
@@ -176,7 +176,7 @@ void MapView::mousePressEvent(QMouseEvent *event)
 	this->update();
 
 	auto * sc = static_cast<MapScene*>(scene());
-	if(!sc)
+	if(!sc || !controller->map())
 		return;
 
 	mouseStart = mapToScene(event->pos());
@@ -301,7 +301,7 @@ void MapView::mouseReleaseEvent(QMouseEvent *event)
 	this->update();
 
 	auto * sc = static_cast<MapScene*>(scene());
-	if(!sc || !controller)
+	if(!sc || !controller->map())
 		return;
 
 	switch(selectionTool)
