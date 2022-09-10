@@ -8,6 +8,7 @@
 
 #include "townbulidingswidget.h"
 #include "armywidget.h"
+#include "messagewidget.h"
 
 //===============IMPLEMENT OBJECT INITIALIZATION FUNCTIONS================
 Initializer::Initializer(CMap * m, CGObjectInstance * o) : map(m)
@@ -251,7 +252,7 @@ void Inspector::updateProperties(CGSignBottle * o)
 {
 	if(!o) return;
 	
-	addProperty("Message", o->message, false);
+	addProperty("Message", o->message, new MessageDelegate, false);
 }
 
 void Inspector::updateProperties(CGCreature * o)
@@ -587,16 +588,6 @@ InspectorDelegate * InspectorDelegate::boolDelegate()
 QWidget * InspectorDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
 	return new QComboBox(parent);
-	
-	//return QStyledItemDelegate::createEditor(parent, option, index);
-	//connect(editor, SIGNAL(activated(int)), this, SLOT(commitAndCloseEditor(int)));
-}
-
-void InspectorDelegate::commitAndCloseEditor(int id)
-{
-	//QComboBox *editor = qobject_cast<QComboBox *>(sender());
-	//emit commitData(editor);
-	//emit closeEditor(editor);
 }
 
 void InspectorDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
@@ -624,3 +615,4 @@ void InspectorDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
 		QStyledItemDelegate::setModelData(editor, model, index);
 	}
 }
+

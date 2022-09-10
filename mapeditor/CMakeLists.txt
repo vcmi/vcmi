@@ -24,6 +24,7 @@ set(editor_SRCS
 		validator.cpp
 		townbulidingswidget.cpp
 		armywidget.cpp
+		messagewidget.cpp
 )
 
 set(editor_HEADERS
@@ -51,6 +52,7 @@ set(editor_HEADERS
 		validator.h
 		townbulidingswidget.h
 		armywidget.h
+		messagewidget.h
 )
 
 set(editor_FORMS
@@ -63,6 +65,7 @@ set(editor_FORMS
 		validator.ui
 		townbulidingswidget.ui
 		armywidget.ui
+		messagewidget.ui
 )
 
 assign_source_group(${editor_SRCS} ${editor_HEADERS} VCMI_launcher.rc)

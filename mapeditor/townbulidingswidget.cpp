@@ -229,6 +229,10 @@ void TownBuildingsDelegate::setModelData(QWidget *editor, QAbstractItemModel *mo
 	{
 		town.forbiddenBuildings = ed->getForbiddenBuildings();
 		town.builtBuildings = ed->getBuiltBuildings();
+		
+		auto data = model->itemData(index);
+		model->setData(index, "dummy");
+		model->setItemData(index, data); //dummy change to trigger signal
 	}
 	else
 	{

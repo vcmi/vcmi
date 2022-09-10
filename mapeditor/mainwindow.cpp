@@ -509,7 +509,7 @@ void MainWindow::loadObjectsTree()
 	addGroupIntoCatalog("ARTIFACTS", false, false, Obj::RANDOM_MAJOR_ART);
 	addGroupIntoCatalog("ARTIFACTS", false, false, Obj::RANDOM_RELIC_ART);
 	addGroupIntoCatalog("ARTIFACTS", true, false, Obj::SPELL_SCROLL);
-	addGroupIntoCatalog("RESOURCES", true, false, Obj::PANDORAS_BOX);
+	//addGroupIntoCatalog("RESOURCES", true, false, Obj::PANDORAS_BOX);
 	addGroupIntoCatalog("RESOURCES", true, false, Obj::RANDOM_RESOURCE);
 	addGroupIntoCatalog("RESOURCES", false, false, Obj::RESOURCE);
 	addGroupIntoCatalog("RESOURCES", true, false, Obj::SEA_CHEST);
@@ -553,7 +553,7 @@ void MainWindow::loadObjectsTree()
 	addGroupIntoCatalog("MINES", false, false, Obj::ABANDONED_MINE);
 	addGroupIntoCatalog("MINES", true, false, Obj::WINDMILL);
 	addGroupIntoCatalog("MINES", true, false, Obj::WATER_WHEEL);
-	addGroupIntoCatalog("TRIGGERS", true, false, Obj::EVENT);
+	//addGroupIntoCatalog("TRIGGERS", true, false, Obj::EVENT);
 	addGroupIntoCatalog("TRIGGERS", true, false, Obj::GRAIL);
 	addGroupIntoCatalog("TRIGGERS", true, false, Obj::SIGN);
 	addGroupIntoCatalog("TRIGGERS", true, false, Obj::OCEAN_BOTTLE);
@@ -566,9 +566,9 @@ void MainWindow::loadObjectsTree()
 	addGroupIntoCatalog("MONSTERS", true, false, Obj::RANDOM_MONSTER_L5);
 	addGroupIntoCatalog("MONSTERS", true, false, Obj::RANDOM_MONSTER_L6);
 	addGroupIntoCatalog("MONSTERS", true, false, Obj::RANDOM_MONSTER_L7);
-	addGroupIntoCatalog("QUESTS", true, false, Obj::SEER_HUT);
+	//addGroupIntoCatalog("QUESTS", true, false, Obj::SEER_HUT);
 	addGroupIntoCatalog("QUESTS", true, false, Obj::BORDER_GATE);
-	addGroupIntoCatalog("QUESTS", true, false, Obj::QUEST_GUARD);
+	//addGroupIntoCatalog("QUESTS", true, false, Obj::QUEST_GUARD);
 	addGroupIntoCatalog("QUESTS", true, false, Obj::HUT_OF_MAGI);
 	addGroupIntoCatalog("QUESTS", true, false, Obj::EYE_OF_MAGI);
 	addGroupIntoCatalog("QUESTS", true, false, Obj::BORDERGUARD);

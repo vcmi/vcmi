@@ -146,9 +146,6 @@ public:
 	void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const override;
 	
 	QStringList options;
-
-private slots:
-	void commitAndCloseEditor(int);
 };
 
 #endif // INSPECTOR_H
