@@ -103,10 +103,12 @@ public slots:
 private:
 	void preparePreview(const QModelIndex &index, bool createNew);
 	void addGroupIntoCatalog(const std::string & groupName, bool staticOnly);
-	void addGroupIntoCatalog(const std::string & groupName, bool staticOnly, int ID);
+	void addGroupIntoCatalog(const std::string & groupName, bool useCustomName, bool staticOnly, int ID);
 
 	void changeBrushState(int idx);
 	void setTitle();
+	
+	void closeEvent(QCloseEvent *event) override;
 
 private:
     Ui::MainWindow *ui;
