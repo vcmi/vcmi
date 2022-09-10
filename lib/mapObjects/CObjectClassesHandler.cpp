@@ -568,7 +568,7 @@ void AObjectTypeHandler::addTemplate(JsonNode config)
 	tmpl->subid = subtype;
 	tmpl->stringID = ""; // TODO?
 	tmpl->readJson(config);
-	templates.push_back(std::shared_ptr<const ObjectTemplate>(tmpl));
+	templates.emplace_back(tmpl);
 }
 
 std::vector<std::shared_ptr<const ObjectTemplate>> AObjectTypeHandler::getTemplates() const

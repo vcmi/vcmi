@@ -216,9 +216,9 @@ void ObjectTemplate::readMap(CBinaryReader & reader)
 	for(auto & byte : visitMask)
 		byte = reader.readUInt8();
 
-	for(size_t i=0; i<6; i++) // 6 rows
+	for(size_t i = 0; i < 6; i++) // 6 rows
 	{
-		for(size_t j=0; j<8; j++) // 8 columns
+		for(size_t j = 0; j < 8; j++) // 8 columns
 		{
 			auto & tile = usedTiles[5 - i][7 - j];
 			tile |= VISIBLE; // assume that all tiles are visible
