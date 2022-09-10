@@ -464,7 +464,7 @@ void MainWindow::loadObjectsTree()
 	addGroupIntoCatalog("MISC", true, false, Obj::HILL_FORT);
 	addGroupIntoCatalog("MISC", true, false, Obj::IDOL_OF_FORTUNE);
 	addGroupIntoCatalog("MISC", true, false, Obj::LIBRARY_OF_ENLIGHTENMENT);
-	//addGroupIntoCatalog("MISC", true, false, Obj::LIGHTHOUSE); //TODO: allow to edit owner
+	addGroupIntoCatalog("MISC", true, false, Obj::LIGHTHOUSE);
 	addGroupIntoCatalog("MISC", true, false, Obj::SCHOOL_OF_MAGIC);
 	addGroupIntoCatalog("MISC", true, false, Obj::MAGIC_SPRING);
 	addGroupIntoCatalog("MISC", true, false, Obj::MAGIC_WELL);

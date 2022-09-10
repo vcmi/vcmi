@@ -23,6 +23,8 @@ Initializer::Initializer(CMap * m, CGObjectInstance * o) : map(m)
 	INIT_OBJ_TYPE(CGTownInstance);
 	INIT_OBJ_TYPE(CGCreature);
 	INIT_OBJ_TYPE(CGHeroInstance);
+	INIT_OBJ_TYPE(CGSignBottle);
+	INIT_OBJ_TYPE(CGLighthouse);
 }
 
 bool stringToBool(const QString & s)
@@ -34,6 +36,11 @@ bool stringToBool(const QString & s)
 }
 
 void Initializer::initialize(CArmedInstance * o)
+{
+	if(!o) return;
+}
+
+void Initializer::initialize(CGSignBottle * o)
 {
 	if(!o) return;
 }
@@ -66,9 +73,17 @@ void Initializer::initialize(CGGarrison * o)
 	if(!o) return;
 	
 	o->tempOwner = PlayerColor::NEUTRAL;
+	o->removableUnits = true;
 }
 
 void Initializer::initialize(CGShipyard * o)
+{
+	if(!o) return;
+	
+	o->tempOwner = PlayerColor::NEUTRAL;
+}
+
+void Initializer::initialize(CGLighthouse * o)
 {
 	if(!o) return;
 	
@@ -142,23 +157,18 @@ void Inspector::updateProperties(CArmedInstance * o)
 {
 	if(!o) return;
 	
-	{
-		auto * delegate = new InspectorDelegate();
-		delegate->options << "NEUTRAL";
-		for(int p = 0; p < map->players.size(); ++p)
-			if(map->players[p].canAnyonePlay())
-				delegate->options << QString("PLAYER %1").arg(p);
-		addProperty("Owner", o->tempOwner, delegate, true);
-	}
-	{
-		auto * delegate = new ArmyDelegate(*o);
-		addProperty("Army", PropertyEditorPlaceholder(), delegate, false);
-	}
-	
-	
+	auto * delegate = new ArmyDelegate(*o);
+	addProperty("Army", PropertyEditorPlaceholder(), delegate, false);
 }
 
 void Inspector::updateProperties(CGDwelling * o)
+{
+	if(!o) return;
+	
+	addProperty("Owner", o->tempOwner, false);
+}
+
+void Inspector::updateProperties(CGLighthouse * o)
 {
 	if(!o) return;
 	
@@ -170,6 +180,7 @@ void Inspector::updateProperties(CGGarrison * o)
 	if(!o) return;
 	
 	addProperty("Owner", o->tempOwner, false);
+	addProperty("Removable units", o->removableUnits, InspectorDelegate::boolDelegate(), false);
 }
 
 void Inspector::updateProperties(CGShipyard * o)
@@ -236,6 +247,13 @@ void Inspector::updateProperties(CGResource * o)
 	addProperty("Message", o->message, false);
 }
 
+void Inspector::updateProperties(CGSignBottle * o)
+{
+	if(!o) return;
+	
+	addProperty("Message", o->message, false);
+}
+
 void Inspector::updateProperties(CGCreature * o)
 {
 	if(!o) return;
@@ -270,6 +288,13 @@ void Inspector::updateProperties()
 	auto factory = VLC->objtypeh->getHandlerFor(obj->ID, obj->subID);
 	addProperty("IsStatic", factory->isStaticObject());
 	
+	auto * delegate = new InspectorDelegate();
+	delegate->options << "NEUTRAL";
+	for(int p = 0; p < map->players.size(); ++p)
+		if(map->players[p].canAnyonePlay())
+			delegate->options << QString("PLAYER %1").arg(p);
+	addProperty("Owner", obj->tempOwner, delegate, true);
+	
 	UPDATE_OBJ_PROPERTIES(CArmedInstance);
 	UPDATE_OBJ_PROPERTIES(CGResource);
 	UPDATE_OBJ_PROPERTIES(CGArtifact);
@@ -280,6 +305,8 @@ void Inspector::updateProperties()
 	UPDATE_OBJ_PROPERTIES(CGTownInstance);
 	UPDATE_OBJ_PROPERTIES(CGCreature);
 	UPDATE_OBJ_PROPERTIES(CGHeroInstance);
+	UPDATE_OBJ_PROPERTIES(CGSignBottle);
+	UPDATE_OBJ_PROPERTIES(CGLighthouse);
 	
 	table->show();
 }
@@ -310,9 +337,16 @@ void Inspector::setProperty(const QString & key, const QVariant & value)
 	SET_PROPERTIES(CGCreature);
 	SET_PROPERTIES(CGHeroInstance);
 	SET_PROPERTIES(CGShipyard);
+	SET_PROPERTIES(CGSignBottle);
+	SET_PROPERTIES(CGLighthouse);
 }
 
 void Inspector::setProperty(CArmedInstance * object, const QString & key, const QVariant & value)
+{
+	if(!object) return;
+}
+
+void Inspector::setProperty(CGLighthouse * object, const QString & key, const QVariant & value)
 {
 	if(!object) return;
 }
@@ -323,6 +357,14 @@ void Inspector::setProperty(CGTownInstance * object, const QString & key, const 
 	
 	if(key == "Town name")
 		object->name = value.toString().toStdString();
+}
+
+void Inspector::setProperty(CGSignBottle * object, const QString & key, const QVariant & value)
+{
+	if(!object) return;
+	
+	if(key == "Message")
+		object->message = value.toString().toStdString();
 }
 
 void Inspector::setProperty(CGMine * object, const QString & key, const QVariant & value)
@@ -361,6 +403,9 @@ void Inspector::setProperty(CGDwelling * object, const QString & key, const QVar
 void Inspector::setProperty(CGGarrison * object, const QString & key, const QVariant & value)
 {
 	if(!object) return;
+	
+	if(key == "Removable units")
+		object->removableUnits = stringToBool(value.toString());
 }
 
 void Inspector::setProperty(CGHeroInstance * object, const QString & key, const QVariant & value)

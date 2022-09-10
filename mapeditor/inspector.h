@@ -33,6 +33,8 @@ public:
 	DECLARE_OBJ_TYPE(CGGarrison);
 	DECLARE_OBJ_TYPE(CGHeroInstance);
 	DECLARE_OBJ_TYPE(CGCreature);
+	DECLARE_OBJ_TYPE(CGSignBottle);
+	DECLARE_OBJ_TYPE(CGLighthouse);
 	
 	
 	Initializer(CMap *, CGObjectInstance *);
@@ -57,6 +59,8 @@ protected:
 	DECLARE_OBJ_PROPERTY_METHODS(CGGarrison);
 	DECLARE_OBJ_PROPERTY_METHODS(CGHeroInstance);
 	DECLARE_OBJ_PROPERTY_METHODS(CGCreature);
+	DECLARE_OBJ_PROPERTY_METHODS(CGSignBottle);
+	DECLARE_OBJ_PROPERTY_METHODS(CGLighthouse);
 
 //===============DECLARE PROPERTY VALUE TYPE==============================
 	QTableWidgetItem * addProperty(unsigned int value);

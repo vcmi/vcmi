@@ -372,13 +372,8 @@ QRgb MapHandler::getTileColor(int x, int y, int z)
 	// if object at tile is owned - it will be colored as its owner
 	for(auto & object : getObjects(x, y, z))
 	{
-		//heroes will be blitted later
-		switch (object.obj->ID)
-		{
-			case Obj::HERO:
-			case Obj::PRISON:
-				continue;
-		}
+		if(!object.obj->getBlockedPos().count(int3(x, y, z)))
+			continue;
 		
 		PlayerColor player = object.obj->getOwner();
 		if(player == PlayerColor::NEUTRAL)
