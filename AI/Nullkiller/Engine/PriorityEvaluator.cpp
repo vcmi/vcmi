@@ -299,7 +299,13 @@ float RewardEvaluator::getEnemyHeroStrategicalValue(const CGHeroInstance * enemy
 		vstd::amax(objectValue, getStrategicalValue(obj));
 	}
 
-	//AI should absolutely prioritize killing enemy heroes, even scouts
+	/*
+	  1. If an enemy hero can attack nearby object, it's not useful to capture the object on our own.
+	  Killing the hero is almost as important (0.9) as capturing the object itself.
+
+	  2. The formula quickly approaches 1.0 as hero level increases,
+	  but higher level always means higher value and the minimal value for level 1 hero is 0.5
+	*/
 	return std::min(1.0f, objectValue * 0.9f + (1.0f - (1.0f / (1 + enemy->level))));
 }
 

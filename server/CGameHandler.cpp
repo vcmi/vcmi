@@ -5583,10 +5583,7 @@ bool CGameHandler::isAllowedExchange(ObjectInstanceID id1, ObjectInstanceID id2)
 			auto topArmy = dialog->exchangingArmies.at(0);
 			auto bottomArmy = dialog->exchangingArmies.at(1);
 
-			if (topArmy == o1 && bottomArmy == o2)
-				return true;
-
-			if (bottomArmy == o1 && topArmy == o2)
+			if (topArmy == o1 && bottomArmy == o2 || bottomArmy == o1 && topArmy == o2)
 				return true;
 		}
 	}
