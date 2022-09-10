@@ -210,6 +210,11 @@ void CGObjectInstance::setType(si32 ID, si32 subID)
 		appearance = handler->getTemplates(tile.terType)[0];
 	else
 		appearance = handler->getTemplates()[0]; // get at least some appearance since alternative is crash
+	if (ID == Obj::HERO)
+	{
+		//adjust for the prison offset
+		pos = visitablePos();
+	}
 	cb->gameState()->map->addBlockVisTiles(this);
 }
 
