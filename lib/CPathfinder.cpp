@@ -39,11 +39,11 @@ void NodeStorage::initialize(const PathfinderOptions & options, const CGameState
 	const bool useFlying = options.useFlying;
 	const bool useWaterWalking = options.useWaterWalking;
 
-	for(pos.x=0; pos.x < sizes.x; ++pos.x)
+	for(pos.z=0; pos.z < sizes.z; ++pos.z)
 	{
-		for(pos.y=0; pos.y < sizes.y; ++pos.y)
+		for(pos.x=0; pos.x < sizes.x; ++pos.x)
 		{
-			for(pos.z=0; pos.z < sizes.z; ++pos.z)
+			for(pos.y=0; pos.y < sizes.y; ++pos.y)
 			{
 				const TerrainTile * tile = &gs->map->getTile(pos);
 				if(tile->terType.isWater())
@@ -1304,7 +1304,7 @@ void CGPath::convert(ui8 mode)
 CPathsInfo::CPathsInfo(const int3 & Sizes, const CGHeroInstance * hero_)
 	: sizes(Sizes), hero(hero_)
 {
-	nodes.resize(boost::extents[sizes.x][sizes.y][sizes.z][ELayer::NUM_LAYERS]);
+	nodes.resize(boost::extents[ELayer::NUM_LAYERS][sizes.z][sizes.x][sizes.y]);
 }
 
 CPathsInfo::~CPathsInfo() = default;
@@ -1336,11 +1336,11 @@ bool CPathsInfo::getPath(CGPath & out, const int3 & dst) const
 
 const CGPathNode * CPathsInfo::getNode(const int3 & coord) const
 {
-	auto landNode = &nodes[coord.x][coord.y][coord.z][ELayer::LAND];
+	auto landNode = &nodes[ELayer::LAND][coord.z][coord.x][coord.y];
 	if(landNode->reachable())
 		return landNode;
 	else
-		return &nodes[coord.x][coord.y][coord.z][ELayer::SAIL];
+		return &nodes[ELayer::SAIL][coord.z][coord.x][coord.y];
 }
 
 PathNodeInfo::PathNodeInfo()

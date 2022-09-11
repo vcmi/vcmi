@@ -20,7 +20,7 @@ namespace PathfinderUtil
 	template<EPathfindingLayer::EEPathfindingLayer layer>
 	CGPathNode::EAccessibility evaluateAccessibility(const int3 & pos, const TerrainTile * tinfo, const FoW & fow, const PlayerColor player, const CGameState * gs)
 	{
-		if(!fow[pos.x][pos.y][pos.z])
+		if(!fow[pos.z][pos.x][pos.y])
 			return CGPathNode::BLOCKED;
 
 		switch(layer)

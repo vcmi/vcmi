@@ -1595,18 +1595,15 @@ void CGameState::initFogOfWar()
 	logGlobal->debug("\tFog of war"); //FIXME: should be initialized after all bonuses are set
 	for(auto & elem : teams)
 	{
-		elem.second.fogOfWarMap.resize(map->width);
-		for(int g=0; g<map->width; ++g)
-			elem.second.fogOfWarMap[g].resize(map->height);
+		elem.second.fogOfWarMap.resize(map->twoLevel ? 2 : 1);
 
-		for(int g=-0; g<map->width; ++g)
-			for(int h=0; h<map->height; ++h)
-				elem.second.fogOfWarMap[g][h].resize(map->twoLevel ? 2 : 1, 0);
+		for (int z = 0; z < (map->twoLevel ? 2 : 1); ++z)
+		{
+			elem.second.fogOfWarMap[z].resize(map->width);
 
-		for(int g=0; g<map->width; ++g)
-			for(int h=0; h<map->height; ++h)
-				for(int v = 0; v < (map->twoLevel ? 2 : 1); ++v)
-					elem.second.fogOfWarMap[g][h][v] = 0;
+			for (int x = 0; x < map->height; ++x)
+				elem.second.fogOfWarMap[z][x].resize(map->height, 0); //init with zeros
+		}
 
 		for(CGObjectInstance *obj : map->objects)
 		{
@@ -1616,7 +1613,7 @@ void CGameState::initFogOfWar()
 			getTilesInRange(tiles, obj->getSightCenter(), obj->getSightRadius(), obj->tempOwner, 1);
 			for(int3 tile : tiles)
 			{
-				elem.second.fogOfWarMap[tile.x][tile.y][tile.z] = 1;
+				elem.second.fogOfWarMap[tile.z][tile.x][tile.y] = 1;
 			}
 		}
 	}
@@ -2080,7 +2077,7 @@ std::vector<CGObjectInstance*> CGameState::guardingCreatures (int3 pos) const
 
 int3 CGameState::guardingCreaturePosition (int3 pos) const
 {
-	return gs->map->guardingCreaturePositions[pos.x][pos.y][pos.z];
+	return gs->map->guardingCreaturePositions[pos.z][pos.x][pos.y];
 }
 
 void CGameState::updateRumor()
@@ -2164,7 +2161,7 @@ bool CGameState::isVisible(int3 pos, PlayerColor player)
 	if(player.isSpectator())
 		return true;
 
-	return getPlayerTeam(player)->fogOfWarMap[pos.x][pos.y][pos.z];
+	return getPlayerTeam(player)->fogOfWarMap[pos.z][pos.x][pos.y];
 }
 
 bool CGameState::isVisible( const CGObjectInstance *obj, boost::optional<PlayerColor> player )
