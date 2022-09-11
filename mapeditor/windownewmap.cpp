@@ -24,14 +24,18 @@ WindowNewMap::WindowNewMap(QWidget *parent) :
 
 	loadUserSettings();
 
-	show();
-
-	//setup initial parameters
+	//setup initial parameters - can depend on loaded settings
 	mapGenOptions.setWidth(ui->widthTxt->text().toInt());
 	mapGenOptions.setHeight(ui->heightTxt->text().toInt());
 	bool twoLevel = ui->twoLevelCheck->isChecked();
 	mapGenOptions.setHasTwoLevels(twoLevel);
+	mapGenOptions.setPlayerCount(ui->humanCombo->currentText().toInt());
+	mapGenOptions.setCompOnlyPlayerCount(ui->cpuCombo->currentText().toInt());
 	updateTemplateList();
+
+	loadLastTemplate();
+
+	show();
 }
 
 WindowNewMap::~WindowNewMap()
@@ -42,7 +46,7 @@ WindowNewMap::~WindowNewMap()
 
 void WindowNewMap::loadUserSettings()
 {
-	//load window settings
+	//load last saved settings
 	QSettings s(Ui::teamName, Ui::appName);
 
 	auto width = s.value(newMapWidth);
@@ -108,23 +112,26 @@ void WindowNewMap::loadUserSettings()
 				ui->monsterOpt4->setChecked(true); break;
 		}
 	}
+}
 
+void WindowNewMap::loadLastTemplate()
+{
+	//this requires already loaded template list
+
+	QSettings s(Ui::teamName, Ui::appName);
 	auto templateName = s.value(newMapTemplate);
 	if (templateName.isValid())
 	{
-		updateTemplateList();
+		auto qstr = templateName.toString();
 		
-		auto* templ = VLC->tplh->getTemplate(templateName.toString().toStdString());
-		if (templ)
-		{
-			ui->templateCombo->setCurrentText(templateName.toString());
-			//TODO: validate inside this method
-			mapGenOptions.setMapTemplate(templ);
-		}
-		else
-		{
-			//Display problem on status bar
-		}
+		//Template might have been removed, then silently comboBox will be set to empty string
+		auto index = ui->templateCombo->findText(qstr);
+		ui->templateCombo->setCurrentIndex(index);
+		on_templateCombo_activated(index);
+	}
+	else
+	{
+		QMessageBox::critical(this, "", "Failed to load template name");
 	}
 }
 
@@ -163,9 +170,13 @@ void WindowNewMap::saveUserSettings()
 	s.setValue(newMapMonsterStrength, static_cast<int>(monster));
 
 	auto templateName = ui->templateCombo->currentText();
-	if (templateName.size())
+	if (templateName.size() && templateName != defaultTemplate)
 	{
 		s.setValue(newMapTemplate, templateName);
+	}
+	else
+	{
+		s.setValue(newMapTemplate, "");
 	}
 }
 
@@ -351,7 +362,7 @@ void WindowNewMap::on_templateCombo_activated(int index)
 		return;
 	}
 
-	auto * templ = VLC->tplh->getTemplate(ui->templateCombo->currentText().toStdString());
+	auto * templ = VLC->tplh->getTemplateByName(ui->templateCombo->currentText().toStdString());
 	mapGenOptions.setMapTemplate(templ);
 }
 
@@ -390,7 +401,7 @@ void WindowNewMap::updateTemplateList()
 	if(templates.empty())
 		return;
 
-	ui->templateCombo->addItem("[default]");
+	ui->templateCombo->addItem(defaultTemplate);
 
 	for(auto * templ : templates)
 	{
