@@ -39,7 +39,7 @@ AISharedStorage::AISharedStorage(int3 sizes)
 {
 	if(!shared){
 		shared.reset(new boost::multi_array<AIPathNode, 5>(
-			boost::extents[sizes.x][sizes.y][sizes.z][EPathfindingLayer::NUM_LAYERS][NUM_CHAINS]));
+			boost::extents[EPathfindingLayer::NUM_LAYERS][sizes.z][sizes.x][sizes.y][NUM_CHAINS]));
 	}
 
 	nodes = shared;
@@ -72,20 +72,22 @@ void AINodeStorage::initialize(const PathfinderOptions & options, const CGameSta
 	const auto & fow = static_cast<const CGameInfoCallback *>(gs)->getPlayerTeam(fowPlayer)->fogOfWarMap;
 	const int3 sizes = gs->getMapSize();
 
-	parallel_for(blocked_range<size_t>(0, sizes.x), [&](const blocked_range<size_t>& r)
+	for(int z = 0; z < sizes.z; ++z) //Can't parallelize only 2 layers
 	{
-		//make 200% sure that these are loop invariants (also a bit shorter code), let compiler do the rest(loop unswitching)
-		const bool useFlying = options.useFlying;
-		const bool useWaterWalking = options.useWaterWalking;
-		const PlayerColor player = playerID;
+		//Each thread gets different x, but an array of y located next to each other in memory
 
-		int3 pos;
-
-		for(pos.x = r.begin(); pos.x != r.end(); ++pos.x)
+		parallel_for(blocked_range<size_t>(0, sizes.x), [&](const blocked_range<size_t>& r)
 		{
-			for(pos.y = 0; pos.y < sizes.y; ++pos.y)
+			//make 200% sure that these are loop invariants (also a bit shorter code), let compiler do the rest(loop unswitching)
+			const bool useFlying = options.useFlying;
+			const bool useWaterWalking = options.useWaterWalking;
+			const PlayerColor player = playerID;
+
+			int3 pos(0,0,z);
+
+			for(pos.x = r.begin(); pos.x != r.end(); ++pos.x)
 			{
-				for(pos.z = 0; pos.z < sizes.z; ++pos.z)
+				for(pos.y = 0; pos.y < sizes.y; ++pos.y)
 				{
 					const TerrainTile * tile = &gs->map->getTile(pos);
 					if(!tile->terType.isPassable())
@@ -107,8 +109,8 @@ void AINodeStorage::initialize(const PathfinderOptions & options, const CGameSta
 					}
 				}
 			}
-		}
-	});
+		});
+	}
 }
 
 void AINodeStorage::clear()
@@ -140,7 +142,7 @@ boost::optional<AIPathNode *> AINodeStorage::getOrCreateNode(
 {
 	int bucketIndex = ((uintptr_t)actor) % BUCKET_COUNT;
 	int bucketOffset = bucketIndex * BUCKET_SIZE;
-	auto chains = nodes.get(pos, layer);
+	auto chains = nodes.get(pos, layer); //FIXME: chain was the innermost layer
 
 	if(chains[0].blocked())
 	{
