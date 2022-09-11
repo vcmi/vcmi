@@ -32,8 +32,6 @@ WindowNewMap::WindowNewMap(QWidget *parent) :
 	mapGenOptions.setHeight(ui->heightTxt->text().toInt());
 	bool twoLevel = ui->twoLevelCheck->isChecked();
 	mapGenOptions.setHasTwoLevels(twoLevel);
-	mapGenOptions.setPlayerCount(ui->humanCombo->currentText().toInt());
-	mapGenOptions.setCompOnlyPlayerCount(ui->cpuCombo->currentText().toInt());
 	updateTemplateList();
 
 	loadLastTemplate();
@@ -131,10 +129,6 @@ void WindowNewMap::loadLastTemplate()
 		auto index = ui->templateCombo->findText(qstr);
 		ui->templateCombo->setCurrentIndex(index);
 		on_templateCombo_activated(index);
-	}
-	else
-	{
-		QMessageBox::critical(this, "", "Failed to load template name");
 	}
 }
 
