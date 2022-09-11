@@ -59,13 +59,15 @@ struct NeighborTilesInfo
 			if ( dx + pos.x < 0 || dx + pos.x >= sizes.x
 			  || dy + pos.y < 0 || dy + pos.y >= sizes.y)
 				return false;
-			return settings["session"]["spectate"].Bool() ? true : visibilityMap[dx+pos.x][dy+pos.y][pos.z];
+
+			//FIXME: please do not read settings for every tile...
+			return settings["session"]["spectate"].Bool() ? true : visibilityMap[pos.z][dx+pos.x][dy+pos.y];
 		};
 		d7 = getTile(-1, -1); //789
 		d8 = getTile( 0, -1); //456
 		d9 = getTile(+1, -1); //123
 		d4 = getTile(-1, 0);
-		d5 = visibilityMap[pos.x][pos.y][pos.z];
+		d5 = visibilityMap[pos.z][pos.x][pos.y];
 		d6 = getTile(+1, 0);
 		d1 = getTile(-1, +1);
 		d2 = getTile( 0, +1);
@@ -557,7 +559,7 @@ void CMapHandler::CMapWorldViewBlitter::drawTileOverlay(SDL_Surface * targetSurf
 		const CGObjectInstance * obj = object.obj;
 
 		const bool sameLevel = obj->pos.z == pos.z;
-		const bool isVisible = settings["session"]["spectate"].Bool() ? true : (*info->visibilityMap)[pos.x][pos.y][pos.z];
+		const bool isVisible = settings["session"]["spectate"].Bool() ? true : (*info->visibilityMap)[pos.z][pos.x][pos.y];
 		const bool isVisitable = obj->visitableAt(pos.x, pos.y);
 
 		if(sameLevel && isVisible && isVisitable)
@@ -898,7 +900,7 @@ void CMapHandler::CMapBlitter::blit(SDL_Surface * targetSurf, const MapDrawingIn
 			{
 				const TerrainTile2 & tile = parent->ttiles[pos.x][pos.y][pos.z];
 
-				if(!settings["session"]["spectate"].Bool() && !(*info->visibilityMap)[pos.x][pos.y][topTile.z] && !info->showAllTerrain)
+				if(!settings["session"]["spectate"].Bool() && !(*info->visibilityMap)[topTile.z][pos.x][pos.y] && !info->showAllTerrain)
 					drawFow(targetSurf);
 
 				// overlay needs to be drawn over fow, because of artifacts-aura-like spells

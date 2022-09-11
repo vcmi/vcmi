@@ -923,18 +923,20 @@ void CMapLoaderH3M::readTerrain()
 	map->initTerrain();
 
 	// Read terrain
-	for(int a = 0; a < 2; ++a)
+	int3 pos;
+	for(pos.z = 0; pos.z < 2; ++pos.z)
 	{
-		if(a == 1 && !map->twoLevel)
+		if(pos.z == 1 && !map->twoLevel)
 		{
 			break;
 		}
 
-		for(int c = 0; c < map->width; c++)
+		//OH3 format is [z][y][x]
+		for(pos.y = 0; pos.y < map->height; pos.y++)
 		{
-			for(int z = 0; z < map->height; z++)
+			for(pos.x = 0; pos.x < map->width; pos.x++)
 			{
-				auto & tile = map->getTile(int3(z, c, a));
+				auto & tile = map->getTile(pos);
 				tile.terType = Terrain::createTerrainTypeH3M(reader.readUInt8());
 				tile.terView = reader.readUInt8();
 				tile.riverType = RIVER_NAMES[reader.readUInt8()];
