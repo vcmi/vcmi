@@ -324,7 +324,7 @@ int3 CCallback::getGuardingCreaturePosition(int3 tile)
 	if (!gs->map->isInTheMap(tile))
 		return int3(-1,-1,-1);
 
-	return gs->map->guardingCreaturePositions[tile.x][tile.y][tile.z];
+	return gs->map->guardingCreaturePositions[tile.z][tile.x][tile.y];
 }
 
 void CCallback::calculatePaths( const CGHeroInstance *hero, CPathsInfo &out)
