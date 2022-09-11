@@ -6,8 +6,12 @@
 #include "../lib/mapObjects/CObjectClassesHandler.h"
 #include "../lib/mapping/CMap.h"
 
+#include "townbulidingswidget.h"
+#include "armywidget.h"
+#include "messagewidget.h"
+
 //===============IMPLEMENT OBJECT INITIALIZATION FUNCTIONS================
-Initializer::Initializer(CMap * m, CGObjectInstance * o) : map(m)
+Initializer::Initializer(CMap * m, CGObjectInstance * o, const PlayerColor & pl) : map(m), defaultPlayer(pl)
 {
 ///IMPORTANT! initialize order should be from base objects to derived objects
 	INIT_OBJ_TYPE(CGResource);
@@ -20,6 +24,8 @@ Initializer::Initializer(CMap * m, CGObjectInstance * o) : map(m)
 	INIT_OBJ_TYPE(CGTownInstance);
 	INIT_OBJ_TYPE(CGCreature);
 	INIT_OBJ_TYPE(CGHeroInstance);
+	INIT_OBJ_TYPE(CGSignBottle);
+	INIT_OBJ_TYPE(CGLighthouse);
 }
 
 bool stringToBool(const QString & s)
@@ -35,39 +41,61 @@ void Initializer::initialize(CArmedInstance * o)
 	if(!o) return;
 }
 
+void Initializer::initialize(CGSignBottle * o)
+{
+	if(!o) return;
+}
+
 void Initializer::initialize(CGCreature * o)
 {
 	if(!o) return;
 	
 	o->character = CGCreature::Character::HOSTILE;
+	o->putStack(SlotID(0), new CStackInstance(CreatureID(o->subID), 0, false));
 }
 
 void Initializer::initialize(CGDwelling * o)
 {
 	if(!o) return;
 	
-	o->tempOwner = PlayerColor::NEUTRAL;
+	o->tempOwner = defaultPlayer;
+	
+	switch(o->ID)
+	{
+		case Obj::RANDOM_DWELLING:
+		case Obj::RANDOM_DWELLING_LVL:
+		case Obj::RANDOM_DWELLING_FACTION:
+			o->initRandomObjectInfo();
+	}
 }
 
 void Initializer::initialize(CGGarrison * o)
 {
 	if(!o) return;
 	
-	o->tempOwner = PlayerColor::NEUTRAL;
+	o->tempOwner = defaultPlayer;
+	o->removableUnits = true;
 }
 
 void Initializer::initialize(CGShipyard * o)
 {
 	if(!o) return;
 	
-	o->tempOwner = PlayerColor::NEUTRAL;
+	o->tempOwner = defaultPlayer;
+}
+
+void Initializer::initialize(CGLighthouse * o)
+{
+	if(!o) return;
+	
+	o->tempOwner = defaultPlayer;
 }
 
 void Initializer::initialize(CGHeroInstance * o)
 {
 	if(!o) return;
 	
-	o->tempOwner = PlayerColor::NEUTRAL;
+	o->tempOwner = defaultPlayer;
 }
 
 void Initializer::initialize(CGTownInstance * o)
@@ -113,7 +141,7 @@ void Initializer::initialize(CGMine * o)
 {
 	if(!o) return;
 	
-	o->tempOwner = PlayerColor::NEUTRAL;
+	o->tempOwner = defaultPlayer;
 	o->producedResource = Res::ERes(o->subID);
 	o->producedQuantity = o->defaultResProduction();
 }
@@ -130,16 +158,18 @@ void Inspector::updateProperties(CArmedInstance * o)
 {
 	if(!o) return;
 	
-	auto * delegate = new InspectorDelegate();
-	delegate->options << "NEUTRAL";
-	for(int p = 0; p < map->players.size(); ++p)
-		if(map->players[p].canAnyonePlay())
-			delegate->options << QString("PLAYER %1").arg(p);
-	
-	addProperty("Owner", o->tempOwner, delegate, true);
+	auto * delegate = new ArmyDelegate(*o);
+	addProperty("Army", PropertyEditorPlaceholder(), delegate, false);
 }
 
 void Inspector::updateProperties(CGDwelling * o)
+{
+	if(!o) return;
+	
+	addProperty("Owner", o->tempOwner, false);
+}
+
+void Inspector::updateProperties(CGLighthouse * o)
 {
 	if(!o) return;
 	
@@ -151,6 +181,7 @@ void Inspector::updateProperties(CGGarrison * o)
 	if(!o) return;
 	
 	addProperty("Owner", o->tempOwner, false);
+	addProperty("Removable units", o->removableUnits, InspectorDelegate::boolDelegate(), false);
 }
 
 void Inspector::updateProperties(CGShipyard * o)
@@ -172,6 +203,9 @@ void Inspector::updateProperties(CGTownInstance * o)
 	if(!o) return;
 	
 	addProperty("Town name", o->name, false);
+	
+	auto * delegate = new TownBuildingsDelegate(*o);
+	addProperty("Buildings", PropertyEditorPlaceholder(), delegate, false);
 }
 
 void Inspector::updateProperties(CGArtifact * o)
@@ -190,7 +224,7 @@ void Inspector::updateProperties(CGArtifact * o)
 			for(auto spell : VLC->spellh->objects)
 			{
 				//if(map->isAllowedSpell(spell->id))
-				delegate->options << QString::fromStdString(spell->name);
+				delegate->options << QObject::tr(spell->name.c_str());
 			}
 			addProperty("Spell", VLC->spellh->objects[spellId]->name, delegate, false);
 		}
@@ -214,6 +248,13 @@ void Inspector::updateProperties(CGResource * o)
 	addProperty("Message", o->message, false);
 }
 
+void Inspector::updateProperties(CGSignBottle * o)
+{
+	if(!o) return;
+	
+	addProperty("Message", o->message, new MessageDelegate, false);
+}
+
 void Inspector::updateProperties(CGCreature * o)
 {
 	if(!o) return;
@@ -227,6 +268,8 @@ void Inspector::updateProperties(CGCreature * o)
 	addProperty("Never flees", o->neverFlees, InspectorDelegate::boolDelegate(), false);
 	addProperty("Not growing", o->notGrowingTeam, InspectorDelegate::boolDelegate(), false);
 	addProperty("Artifact reward", o->gainedArtifact); //TODO: implement in setProperty
+	addProperty("Army", PropertyEditorPlaceholder(), true);
+	addProperty("Amount", o->stacks[SlotID(0)]->count, false);
 	//addProperty("Resources reward", o->resources); //TODO: implement in setProperty
 }
 
@@ -246,6 +289,13 @@ void Inspector::updateProperties()
 	auto factory = VLC->objtypeh->getHandlerFor(obj->ID, obj->subID);
 	addProperty("IsStatic", factory->isStaticObject());
 	
+	auto * delegate = new InspectorDelegate();
+	delegate->options << "NEUTRAL";
+	for(int p = 0; p < map->players.size(); ++p)
+		if(map->players[p].canAnyonePlay())
+			delegate->options << QString("PLAYER %1").arg(p);
+	addProperty("Owner", obj->tempOwner, delegate, true);
+	
 	UPDATE_OBJ_PROPERTIES(CArmedInstance);
 	UPDATE_OBJ_PROPERTIES(CGResource);
 	UPDATE_OBJ_PROPERTIES(CGArtifact);
@@ -256,6 +306,8 @@ void Inspector::updateProperties()
 	UPDATE_OBJ_PROPERTIES(CGTownInstance);
 	UPDATE_OBJ_PROPERTIES(CGCreature);
 	UPDATE_OBJ_PROPERTIES(CGHeroInstance);
+	UPDATE_OBJ_PROPERTIES(CGSignBottle);
+	UPDATE_OBJ_PROPERTIES(CGLighthouse);
 	
 	table->show();
 }
@@ -286,9 +338,16 @@ void Inspector::setProperty(const QString & key, const QVariant & value)
 	SET_PROPERTIES(CGCreature);
 	SET_PROPERTIES(CGHeroInstance);
 	SET_PROPERTIES(CGShipyard);
+	SET_PROPERTIES(CGSignBottle);
+	SET_PROPERTIES(CGLighthouse);
 }
 
 void Inspector::setProperty(CArmedInstance * object, const QString & key, const QVariant & value)
+{
+	if(!object) return;
+}
+
+void Inspector::setProperty(CGLighthouse * object, const QString & key, const QVariant & value)
 {
 	if(!object) return;
 }
@@ -299,6 +358,14 @@ void Inspector::setProperty(CGTownInstance * object, const QString & key, const 
 	
 	if(key == "Town name")
 		object->name = value.toString().toStdString();
+}
+
+void Inspector::setProperty(CGSignBottle * object, const QString & key, const QVariant & value)
+{
+	if(!object) return;
+	
+	if(key == "Message")
+		object->message = value.toString().toStdString();
 }
 
 void Inspector::setProperty(CGMine * object, const QString & key, const QVariant & value)
@@ -337,6 +404,9 @@ void Inspector::setProperty(CGDwelling * object, const QString & key, const QVar
 void Inspector::setProperty(CGGarrison * object, const QString & key, const QVariant & value)
 {
 	if(!object) return;
+	
+	if(key == "Removable units")
+		object->removableUnits = stringToBool(value.toString());
 }
 
 void Inspector::setProperty(CGHeroInstance * object, const QString & key, const QVariant & value)
@@ -381,6 +451,8 @@ void Inspector::setProperty(CGCreature * object, const QString & key, const QVar
 		object->neverFlees = stringToBool(value.toString());
 	if(key == "Not growing")
 		object->notGrowingTeam = stringToBool(value.toString());
+	if(key == "Amount")
+		object->stacks[SlotID(0)]->count = value.toString().toInt();
 }
 
 
@@ -391,6 +463,13 @@ QTableWidgetItem * Inspector::addProperty(CGObjectInstance * value)
 	static_assert(sizeof(CGObjectInstance *) == sizeof(NumericPointer),
 				  "Compilied for 64 bit arcitecture. Use NumericPointer = unsigned int");
 	return new QTableWidgetItem(QString::number(reinterpret_cast<NumericPointer>(value)));
+}
+
+QTableWidgetItem * Inspector::addProperty(Inspector::PropertyEditorPlaceholder value)
+{
+	auto item = new QTableWidgetItem("");
+	item->setData(Qt::UserRole, QString("PropertyEditor"));
+	return item;
 }
 
 QTableWidgetItem * Inspector::addProperty(unsigned int value)
@@ -509,16 +588,6 @@ InspectorDelegate * InspectorDelegate::boolDelegate()
 QWidget * InspectorDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
 	return new QComboBox(parent);
-	
-	//return QStyledItemDelegate::createEditor(parent, option, index);
-	//connect(editor, SIGNAL(activated(int)), this, SLOT(commitAndCloseEditor(int)));
-}
-
-void InspectorDelegate::commitAndCloseEditor(int id)
-{
-	//QComboBox *editor = qobject_cast<QComboBox *>(sender());
-	//emit commitData(editor);
-	//emit closeEditor(editor);
 }
 
 void InspectorDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
@@ -546,3 +615,4 @@ void InspectorDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
 		QStyledItemDelegate::setModelData(editor, model, index);
 	}
 }
+

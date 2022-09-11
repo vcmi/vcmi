@@ -43,14 +43,23 @@ PlayerParams::PlayerParams(MapController & ctrl, int playerId, QWidget *parent) 
 
 	//load towns
 	int foundMainTown = -1;
-	for(int i = 0; i < controller.map()->towns.size(); ++i)
+	for(int i = 0, townIndex = 0; i < controller.map()->objects.size(); ++i)
 	{
-		auto town = controller.map()->towns[i];
-		if(town && town->town && town->town->faction && town->getOwner().getNum() == playerColor)
+		if(auto town = dynamic_cast<CGTownInstance*>(controller.map()->objects[i].get()))
 		{
-			if(playerInfo.hasMainTown && playerInfo.posOfMainTown == town->pos)
-				foundMainTown = i;
-			ui->mainTown->addItem(QString::fromStdString(town->getObjectName()), QVariant::fromValue(i));
+			auto * ctown = town->town;
+			if(!ctown)
+				ctown = VLC->townh->randomTown;
+			if(ctown && town->getOwner().getNum() == playerColor)
+			{
+				if(playerInfo.hasMainTown && playerInfo.posOfMainTown == town->pos)
+					foundMainTown = townIndex;
+				auto name = town->name + ", (random)";
+				if(ctown->faction)
+					name = town->getObjectName();
+				ui->mainTown->addItem(tr(name.c_str()), QVariant::fromValue(i));
+				++townIndex;
+			}
 		}
 	}
 	
@@ -60,7 +69,9 @@ PlayerParams::PlayerParams(MapController & ctrl, int playerId, QWidget *parent) 
 	}
 	else
 	{
+		ui->generateHero->setEnabled(false);
 		playerInfo.hasMainTown = false;
+		playerInfo.generateHeroAtMainTown = false;
 		playerInfo.posOfMainTown = int3(-1, -1, -1);
 	}
 
@@ -112,12 +123,15 @@ void PlayerParams::on_mainTown_activated(int index)
 {
 	if(index == 0) //default
 	{
+		ui->generateHero->setEnabled(false);
+		ui->generateHero->setChecked(false);
 		playerInfo.hasMainTown = false;
 		playerInfo.posOfMainTown = int3(-1, -1, -1);
 	}
 	else
 	{
-		auto town = controller.map()->towns.at(ui->mainTown->currentData().toInt());
+		ui->generateHero->setEnabled(true);
+		auto town = controller.map()->objects.at(ui->mainTown->currentData().toInt());
 		playerInfo.hasMainTown = true;
 		playerInfo.posOfMainTown = town->pos;
 	}

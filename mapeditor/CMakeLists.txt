@@ -15,13 +15,17 @@ set(editor_SRCS
 		mapview.cpp
 		radiopushbutton.cpp
 		objectbrowser.cpp
-		inspector.cpp
 		mapsettings.cpp
 		playersettings.cpp
 		playerparams.cpp
 		scenelayer.cpp
 		mapcontroller.cpp
 		validator.cpp
+		inspector/inspector.cpp
+		inspector/townbulidingswidget.cpp
+		inspector/armywidget.cpp
+		inspector/messagewidget.cpp
+		inspector/rewardswidget.cpp
 )
 
 set(editor_HEADERS
@@ -40,13 +44,17 @@ set(editor_HEADERS
 		mapview.h
 		radiopushbutton.h
 		objectbrowser.h
-		inspector.h
 		mapsettings.h
 		playersettings.h
 		playerparams.h
 		scenelayer.h
 		mapcontroller.h
 		validator.h
+		inspector/inspector.h
+		inspector/townbulidingswidget.h
+		inspector/armywidget.h
+		inspector/messagewidget.h
+		inspector/rewardswidget.h
 )
 
 set(editor_FORMS
@@ -57,9 +65,13 @@ set(editor_FORMS
 		playersettings.ui
 		playerparams.ui
 		validator.ui
+		inspector/townbulidingswidget.ui
+		inspector/armywidget.ui
+		inspector/messagewidget.ui
+		inspector/rewardswidget.ui
 )
 
-assign_source_group(${editor_SRCS} ${editor_HEADERS} VCMI_launcher.rc)
+assign_source_group(${editor_SRCS} ${editor_HEADERS} mapeditor.rc)
 
 # Tell CMake to run moc when necessary:
 set(CMAKE_AUTOMOC ON)
@@ -79,7 +91,7 @@ else()
 endif()
 
 if(WIN32)
-	set(editor_ICON VCMI_launcher.rc)
+	set(editor_ICON mapeditor.rc)
 endif()
 
 add_executable(vcmieditor WIN32 ${editor_SRCS} ${editor_HEADERS} ${editor_UI_HEADERS} ${editor_ICON})

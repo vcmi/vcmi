@@ -45,6 +45,8 @@ public:
 	void undo();
 	void redo();
 	
+	PlayerColor defaultPlayer;
+	
 private:
 	std::unique_ptr<CMap> _map;
 	std::unique_ptr<MapHandler> _mapHandler;

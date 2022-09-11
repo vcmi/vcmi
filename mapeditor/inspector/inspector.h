@@ -33,17 +33,22 @@ public:
 	DECLARE_OBJ_TYPE(CGGarrison);
 	DECLARE_OBJ_TYPE(CGHeroInstance);
 	DECLARE_OBJ_TYPE(CGCreature);
+	DECLARE_OBJ_TYPE(CGSignBottle);
+	DECLARE_OBJ_TYPE(CGLighthouse);
 	
 	
-	Initializer(CMap *, CGObjectInstance *);
+	Initializer(CMap *, CGObjectInstance *, const PlayerColor &);
 
 private:
 	CMap * map;
+	PlayerColor defaultPlayer;
 };
 
 class Inspector
 {
 protected:
+	struct PropertyEditorPlaceholder {};
+	
 //===============DECLARE PROPERTIES SETUP=================================
 	DECLARE_OBJ_PROPERTY_METHODS(CArmedInstance);
 	DECLARE_OBJ_PROPERTY_METHODS(CGTownInstance);
@@ -55,6 +60,8 @@ protected:
 	DECLARE_OBJ_PROPERTY_METHODS(CGGarrison);
 	DECLARE_OBJ_PROPERTY_METHODS(CGHeroInstance);
 	DECLARE_OBJ_PROPERTY_METHODS(CGCreature);
+	DECLARE_OBJ_PROPERTY_METHODS(CGSignBottle);
+	DECLARE_OBJ_PROPERTY_METHODS(CGLighthouse);
 
 //===============DECLARE PROPERTY VALUE TYPE==============================
 	QTableWidgetItem * addProperty(unsigned int value);
@@ -67,8 +74,10 @@ protected:
 	QTableWidgetItem * addProperty(bool value);
 	QTableWidgetItem * addProperty(CGObjectInstance * value);
 	QTableWidgetItem * addProperty(CGCreature::Character value);
+	QTableWidgetItem * addProperty(PropertyEditorPlaceholder value);
 	
 //===============END OF DECLARATION=======================================
+	
 public:
 	Inspector(CMap *, CGObjectInstance *, QTableWidget *);
 
@@ -138,10 +147,6 @@ public:
 	void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const override;
 	
 	QStringList options;
-
-private slots:
-	void commitAndCloseEditor(int);
-	
 };
 
 #endif // INSPECTOR_H
