@@ -617,7 +617,7 @@ void MainWindow::on_actionUndo_triggered()
 void MainWindow::on_actionRedo_triggered()
 {
 	QString str("Redo clicked");
-	statusBar()->showMessage(str, 1000);
+	displayStatus(str);
 
 	if (controller.map())
 	{
@@ -628,7 +628,7 @@ void MainWindow::on_actionRedo_triggered()
 void MainWindow::on_actionPass_triggered(bool checked)
 {
 	QString str("Passability clicked");
-	statusBar()->showMessage(str, 1000);
+	displayStatus(str);
 
 	if(controller.map())
 	{
@@ -641,7 +641,7 @@ void MainWindow::on_actionPass_triggered(bool checked)
 void MainWindow::on_actionGrid_triggered(bool checked)
 {
 	QString str("Grid clicked");
-	statusBar()->showMessage(str, 1000);
+	displayStatus(str);
 
 	if(controller.map())
 	{
@@ -807,7 +807,7 @@ void MainWindow::on_filter_textChanged(const QString &arg1)
 void MainWindow::on_actionFill_triggered()
 {
 	QString str("Fill clicked");
-	statusBar()->showMessage(str, 1000);
+	displayStatus(str);
 
 	if(!controller.map())
 		return;
@@ -886,6 +886,10 @@ void MainWindow::onSelectionMade(int level, bool anythingSelected)
 		ui->actionErase->setEnabled(anythingSelected);
 		ui->toolErase->setEnabled(anythingSelected);
 	}
+}
+void MainWindow::displayStatus(const QString& message, int timeout /* = 2000 */)
+{
+	statusBar()->showMessage(message, timeout);
 }
 
 void MainWindow::on_actionValidate_triggered()

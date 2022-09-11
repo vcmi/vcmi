@@ -105,6 +105,7 @@ public slots:
 	void enableUndo(bool enable);
 	void enableRedo(bool enable);
 	void onSelectionMade(int level, bool anythingSelected);
+	void displayStatus(const QString& message, int timeout = 2000);
 
 private:
 	void preparePreview(const QModelIndex &index, bool createNew);
