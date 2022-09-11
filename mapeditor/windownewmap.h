@@ -4,13 +4,54 @@
 #include <QDialog>
 #include "../lib/rmg/CMapGenOptions.h"
 
-namespace Ui {
-class WindowNewMap;
+namespace Ui
+{
+	class WindowNewMap;
 }
 
 class WindowNewMap : public QDialog
 {
 	Q_OBJECT
+
+	const QString newMapWidth = "NewMapWindow/Width";
+	const QString newMapHeight = "NewMapWindow/Height";
+	const QString newMapTwoLevel = "NewMapWindow/TwoLevel";
+	const QString newMapGenerateRandom = "NewMapWindow/GenerateRandom";
+	const QString newMapPlayers = "NewMapWindow/Players";		//map index
+	const QString newMapCpuPlayers = "NewMapWindow/CpuPlayers"; //map index
+	const QString newMapWaterContent = "NewMapWindow/WaterContent";
+	const QString newMapMonsterStrength = "NewMapWindow/MonsterStrength";
+	const QString newMapTemplate = "NewMapWindow/Template";
+
+	const QString defaultTemplate = "[default]";
+
+	const int playerLimit = 8;
+
+	const std::map<int, int> players
+	{
+		{0, CMapGenOptions::RANDOM_SIZE},
+		{1, 1},
+		{2, 2},
+		{3, 3},
+		{4, 4},
+		{5, 5},
+		{6, 6},
+		{7, 7},
+		{8, 8}
+	};
+
+	const std::map<int, int> cpuPlayers
+	{
+		{0, CMapGenOptions::RANDOM_SIZE},
+		{1, 0},
+		{2, 1},
+		{3, 2},
+		{4, 3},
+		{5, 4},
+		{6, 5},
+		{7, 6},
+		{8, 7}
+	};
 
 public:
 	explicit WindowNewMap(QWidget *parent = nullptr);
@@ -40,6 +81,10 @@ private slots:
 private:
 
 	void updateTemplateList();
+
+	void loadUserSettings();
+	void loadLastTemplate();
+	void saveUserSettings();
 
 private:
 	Ui::WindowNewMap *ui;

@@ -51,7 +51,7 @@
      <x>0</x>
      <y>0</y>
      <width>1024</width>
-     <height>22</height>
+     <height>17</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -81,10 +81,14 @@
     <addaction name="actionRedo"/>
     <addaction name="actionErase"/>
    </widget>
-   <widget class="QMenu" name="menuPlayer">
+   <widget class="QMenu" name="menuView">
     <property name="title">
-     <string>Player</string>
+     <string>View</string>
     </property>
+    <addaction name="actionLevel"/>
+    <addaction name="actionGrid"/>
+    <addaction name="actionPass"/>
+    <addaction name="separator"/>
     <addaction name="actionNeutral"/>
     <addaction name="actionPlayer_1"/>
     <addaction name="actionPlayer_2"/>
@@ -97,8 +101,8 @@
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
+   <addaction name="menuView"/>
    <addaction name="menuMap"/>
-   <addaction name="menuPlayer"/>
   </widget>
   <widget class="QToolBar" name="toolBar">
    <property name="windowTitle">
@@ -681,7 +685,7 @@
           <x>0</x>
           <y>0</y>
           <width>128</width>
-          <height>271</height>
+          <height>320</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -724,7 +728,7 @@
           <x>0</x>
           <y>0</y>
           <width>128</width>
-          <height>271</height>
+          <height>320</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -743,7 +747,7 @@
           <x>0</x>
           <y>0</y>
           <width>128</width>
-          <height>271</height>
+          <height>320</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -813,6 +817,12 @@
    <property name="text">
     <string>U/G</string>
    </property>
+   <property name="toolTip">
+    <string>View underground</string>
+   </property>
+   <property name="shortcut">
+    <string>U</string>
+   </property>
   </action>
   <action name="actionPass">
    <property name="checkable">
@@ -820,6 +830,9 @@
    </property>
    <property name="text">
     <string>Pass</string>
+   </property>
+   <property name="shortcut">
+    <string>P</string>
    </property>
   </action>
   <action name="actionCut">
@@ -853,6 +866,9 @@
    <property name="toolTip">
     <string>Fills the selection with obstacles</string>
    </property>
+   <property name="shortcut">
+    <string>F</string>
+   </property>
   </action>
   <action name="actionGrid">
    <property name="checkable">
@@ -860,6 +876,9 @@
    </property>
    <property name="text">
     <string>Grid</string>
+   </property>
+   <property name="shortcut">
+    <string>G</string>
    </property>
   </action>
   <action name="actionMapSettings">

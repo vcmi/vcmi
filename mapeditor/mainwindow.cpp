@@ -52,9 +52,34 @@ QPixmap pixmapFromJson(const QJsonValue &val)
 
 void init()
 {
+
 	loadDLLClasses();
 	const_cast<CGameInfo*>(CGI)->setFromLib();
 	logGlobal->info("Initializing VCMI_Lib");
+}
+
+void MainWindow::loadUserSettings()
+{
+	//load window settings
+	QSettings s(Ui::teamName, Ui::appName);
+
+	auto size = s.value(mainWindowSizeSetting).toSize();
+	if (size.isValid())
+	{
+		resize(size);
+	}
+	auto position = s.value(mainWindowPositionSetting).toPoint();
+	if (!position.isNull())
+	{
+		move(position);
+	}
+}
+
+void MainWindow::saveUserSettings()
+{
+	QSettings s(Ui::teamName, Ui::appName);
+	s.setValue(mainWindowSizeSetting, size());
+	s.setValue(mainWindowPositionSetting, pos());
 }
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -63,6 +88,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	controller(this)
 {
 	ui->setupUi(this);
+	loadUserSettings(); //For example window size
 	setTitle();
 	
 	// Set current working dir to executable folder.
@@ -149,6 +175,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+	saveUserSettings(); //save window size etc.
     delete ui;
 }
 
@@ -625,6 +652,14 @@ void MainWindow::on_actionLevel_triggered()
 		mapLevel = mapLevel ? 0 : 1;
 		ui->mapView->setScene(controller.scene(mapLevel));
 		ui->minimapView->setScene(controller.miniScene(mapLevel));
+		if (mapLevel == 0)
+		{
+			ui->actionLevel->setToolTip(tr("View underground"));
+		}
+		else
+		{
+			ui->actionLevel->setToolTip(tr("View surface"));
+		}
 	}
 }
 
@@ -642,7 +677,7 @@ void MainWindow::on_actionUndo_triggered()
 void MainWindow::on_actionRedo_triggered()
 {
 	QString str("Redo clicked");
-	statusBar()->showMessage(str, 1000);
+	displayStatus(str);
 
 	if (controller.map())
 	{
@@ -652,6 +687,9 @@ void MainWindow::on_actionRedo_triggered()
 
 void MainWindow::on_actionPass_triggered(bool checked)
 {
+	QString str("Passability clicked");
+	displayStatus(str);
+
 	if(controller.map())
 	{
 		controller.scene(0)->passabilityView.show(checked);
@@ -662,6 +700,9 @@ void MainWindow::on_actionPass_triggered(bool checked)
 
 void MainWindow::on_actionGrid_triggered(bool checked)
 {
+	QString str("Grid clicked");
+	displayStatus(str);
+
 	if(controller.map())
 	{
 		controller.scene(0)->gridView.show(checked);
@@ -825,6 +866,9 @@ void MainWindow::on_filter_textChanged(const QString &arg1)
 
 void MainWindow::on_actionFill_triggered()
 {
+	QString str("Fill clicked");
+	displayStatus(str);
+
 	if(!controller.map())
 		return;
 
@@ -954,6 +998,10 @@ void MainWindow::onSelectionMade(int level, bool anythingSelected)
 		ui->actionErase->setEnabled(anythingSelected);
 		ui->toolErase->setEnabled(anythingSelected);
 	}
+}
+void MainWindow::displayStatus(const QString& message, int timeout /* = 2000 */)
+{
+	statusBar()->showMessage(message, timeout);
 }
 
 void MainWindow::on_actionValidate_triggered()
