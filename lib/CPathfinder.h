@@ -178,7 +178,7 @@ struct DLL_LINKAGE CPathsInfo
 	const CGHeroInstance * hero;
 	int3 hpos;
 	int3 sizes;
-	boost::multi_array<CGPathNode, 4> nodes; //[w][h][level][layer]
+	boost::multi_array<CGPathNode, 4> nodes; //[layer][level][w][h]
 
 	CPathsInfo(const int3 & Sizes, const CGHeroInstance * hero_);
 	~CPathsInfo();
@@ -189,7 +189,7 @@ struct DLL_LINKAGE CPathsInfo
 	STRONG_INLINE
 	CGPathNode * getNode(const int3 & coord, const ELayer layer)
 	{
-		return &nodes[coord.x][coord.y][coord.z][layer];
+		return &nodes[layer][coord.z][coord.x][coord.y];
 	}
 };
 

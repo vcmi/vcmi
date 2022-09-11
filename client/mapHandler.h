@@ -113,6 +113,7 @@ struct MapDrawingInfo
 	MapDrawingInfo(int3 &topTile_, const std::vector< std::vector< std::vector<ui8> > > * visibilityMap_, SDL_Rect * drawBounds_, std::shared_ptr<CAnimation> icons_ = nullptr)
 		: scaled(false),
 		  topTile(topTile_),
+
 		  visibilityMap(visibilityMap_),
 		  drawBounds(drawBounds_),
 		  icons(icons_),

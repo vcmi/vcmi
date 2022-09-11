@@ -178,7 +178,7 @@ DLL_LINKAGE void FoWChange::applyGs(CGameState *gs)
 {
 	TeamState * team = gs->getPlayerTeam(player);
 	for(int3 t : tiles)
-		team->fogOfWarMap[t.x][t.y][t.z] = mode;
+		team->fogOfWarMap[t.z][t.x][t.y] = mode;
 	if (mode == 0) //do not hide too much
 	{
 		std::unordered_set<int3, ShashInt3> tilesRevealed;
@@ -200,7 +200,7 @@ DLL_LINKAGE void FoWChange::applyGs(CGameState *gs)
 			}
 		}
 		for(int3 t : tilesRevealed) //probably not the most optimal solution ever
-			team->fogOfWarMap[t.x][t.y][t.z] = 1;
+			team->fogOfWarMap[t.z][t.x][t.y] = 1;
 	}
 }
 
@@ -562,7 +562,7 @@ void TryMoveHero::applyGs(CGameState *gs)
 	}
 
 	for(int3 t : fowRevealed)
-		gs->getPlayerTeam(h->getOwner())->fogOfWarMap[t.x][t.y][t.z] = 1;
+		gs->getPlayerTeam(h->getOwner())->fogOfWarMap[t.z][t.x][t.y] = 1;
 }
 
 DLL_LINKAGE void NewStructures::applyGs(CGameState *gs)

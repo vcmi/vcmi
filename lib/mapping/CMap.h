@@ -430,14 +430,14 @@ public:
 		if(h.saving)
 		{
 			// Save terrain
-			for(int i = 0; i < width ; ++i)
+			for (int z = 0; z < level; ++z)
 			{
-				for(int j = 0; j < height ; ++j)
+				for (int x = 0; x < width; ++x)
 				{
-					for(int k = 0; k < level; ++k)
+					for (int y = 0; y < height; ++y)
 					{
-						h & terrain[i][j][k];
-						h & guardingCreaturePositions[i][j][k];
+						h & terrain[z][x][y];
+						h & guardingCreaturePositions[z][x][y];
 					}
 				}
 			}
@@ -445,26 +445,27 @@ public:
 		else
 		{
 			// Load terrain
-			terrain = new TerrainTile**[width];
-			guardingCreaturePositions = new int3**[width];
-			for(int i = 0; i < width; ++i)
+			terrain = new TerrainTile**[level];
+			guardingCreaturePositions = new int3**[level];
+			for(int z = 0; z < level; ++z)
 			{
-				terrain[i] = new TerrainTile*[height];
-				guardingCreaturePositions[i] = new int3*[height];
-				for(int j = 0; j < height; ++j)
+				terrain[z] = new TerrainTile*[width];
+				guardingCreaturePositions[z] = new int3*[width];
+				for(int x = 0; x < width; ++x)
 				{
-					terrain[i][j] = new TerrainTile[level];
-					guardingCreaturePositions[i][j] = new int3[level];
+					terrain[z][x] = new TerrainTile[height];
+					guardingCreaturePositions[z][x] = new int3[height];
 				}
 			}
-			for(int i = 0; i < width ; ++i)
+			for (int z = 0; z < level; ++z)
 			{
-				for(int j = 0; j < height ; ++j)
+				for (int x = 0; x < width; ++x)
 				{
-					for(int k = 0; k < level; ++k)
+					for (int y = 0; y < height; ++y)
 					{
-						h & terrain[i][j][k];
-						h & guardingCreaturePositions[i][j][k];
+
+						h & terrain[z][x][y];
+						h & guardingCreaturePositions[z][x][y];
 					}
 				}
 			}
