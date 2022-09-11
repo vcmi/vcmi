@@ -533,7 +533,7 @@ void CGHeroInstance::initObj(CRandomGenerator & rand)
 	{
 		auto customApp = VLC->objtypeh->getHandlerFor(ID, type->heroClass->getIndex())->getOverride(cb->gameState()->getTile(visitablePos())->terType, this);
 		if (customApp)
-			appearance = customApp.get();
+			appearance = customApp;
 	}
 
 	//copy active (probably growing) bonuses from hero prototype to hero object

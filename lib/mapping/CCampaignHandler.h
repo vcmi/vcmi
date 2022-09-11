@@ -146,7 +146,7 @@ public:
 	// FIXME: due to usage of JsonNode I can't make these methods const
 	const CGHeroInstance * strongestHero(PlayerColor owner);
 	std::vector<CGHeroInstance *> getLostCrossoverHeroes(); /// returns a list of crossover heroes which started the scenario, but didn't complete it
-	
+
 	CCampaignScenario();
 
 	template <typename Handler> void serialize(Handler &h, const int formatVersion)
