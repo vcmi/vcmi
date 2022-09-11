@@ -59,11 +59,11 @@ void TreasurePlacer::addAllPossibleObjects()
 			{
 				for(auto temp : handler->getTemplates())
 				{
-					if(temp.canBePlacedAt(zone.getTerrainType()))
+					if(temp->canBePlacedAt(zone.getTerrainType()))
 					{
 						oi.generateObject = [temp]() -> CGObjectInstance *
 						{
-							return VLC->objtypeh->getHandlerFor(temp.id, temp.subid)->create(temp);
+							return VLC->objtypeh->getHandlerFor(temp->id, temp->subid)->create(temp);
 						};
 						auto rmgInfo = handler->getRMGInfo();
 						oi.value = rmgInfo.value;
@@ -97,7 +97,7 @@ void TreasurePlacer::addAllPossibleObjects()
 			
 			auto hid = *RandomGeneratorUtil::nextItem(possibleHeroes, generator.rand);
 			auto factory = VLC->objtypeh->getHandlerFor(Obj::PRISON, 0);
-			auto obj = (CGHeroInstance *) factory->create(ObjectTemplate());
+			auto obj = (CGHeroInstance *) factory->create();
 			
 			
 			obj->subID = hid; //will be initialized later
@@ -159,7 +159,7 @@ void TreasurePlacer::addAllPossibleObjects()
 				
 				for(auto tmplate : dwellingHandler->getTemplates())
 				{
-					if(tmplate.canBePlacedAt(zone.getTerrainType()))
+					if(tmplate->canBePlacedAt(zone.getTerrainType()))
 					{
 						oi.generateObject = [tmplate, secondaryID, dwellingType]() -> CGObjectInstance *
 						{
@@ -181,7 +181,7 @@ void TreasurePlacer::addAllPossibleObjects()
 		oi.generateObject = [i, this]() -> CGObjectInstance *
 		{
 			auto factory = VLC->objtypeh->getHandlerFor(Obj::SPELL_SCROLL, 0);
-			auto obj = (CGArtifact *) factory->create(ObjectTemplate());
+			auto obj = (CGArtifact *) factory->create();
 			std::vector<SpellID> out;
 			
 			for(auto spell : VLC->spellh->objects) //spellh size appears to be greater (?)
@@ -207,7 +207,7 @@ void TreasurePlacer::addAllPossibleObjects()
 		oi.generateObject = [i]() -> CGObjectInstance *
 		{
 			auto factory = VLC->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0);
-			auto obj = (CGPandoraBox *) factory->create(ObjectTemplate());
+			auto obj = (CGPandoraBox *) factory->create();
 			obj->resources[Res::GOLD] = i * 5000;
 			return obj;
 		};
@@ -223,7 +223,7 @@ void TreasurePlacer::addAllPossibleObjects()
 		oi.generateObject = [i]() -> CGObjectInstance *
 		{
 			auto factory = VLC->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0);
-			auto obj = (CGPandoraBox *) factory->create(ObjectTemplate());
+			auto obj = (CGPandoraBox *) factory->create();
 			obj->gainedExp = i * 5000;
 			return obj;
 		};
@@ -275,7 +275,7 @@ void TreasurePlacer::addAllPossibleObjects()
 		oi.generateObject = [creature, creaturesAmount]() -> CGObjectInstance *
 		{
 			auto factory = VLC->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0);
-			auto obj = (CGPandoraBox *) factory->create(ObjectTemplate());
+			auto obj = (CGPandoraBox *) factory->create();
 			auto stack = new CStackInstance(creature, creaturesAmount);
 			obj->creatures.putStack(SlotID(0), stack);
 			return obj;
@@ -292,7 +292,7 @@ void TreasurePlacer::addAllPossibleObjects()
 		oi.generateObject = [i, this]() -> CGObjectInstance *
 		{
 			auto factory = VLC->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0);
-			auto obj = (CGPandoraBox *) factory->create(ObjectTemplate());
+			auto obj = (CGPandoraBox *) factory->create();
 			
 			std::vector <CSpell *> spells;
 			for(auto spell : VLC->spellh->objects)
@@ -321,7 +321,7 @@ void TreasurePlacer::addAllPossibleObjects()
 		oi.generateObject = [i, this]() -> CGObjectInstance *
 		{
 			auto factory = VLC->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0);
-			auto obj = (CGPandoraBox *) factory->create(ObjectTemplate());
+			auto obj = (CGPandoraBox *) factory->create();
 			
 			std::vector <CSpell *> spells;
 			for(auto spell : VLC->spellh->objects)
@@ -349,7 +349,7 @@ void TreasurePlacer::addAllPossibleObjects()
 	oi.generateObject = [this]() -> CGObjectInstance *
 	{
 		auto factory = VLC->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0);
-		auto obj = (CGPandoraBox *) factory->create(ObjectTemplate());
+		auto obj = (CGPandoraBox *) factory->create();
 		
 		std::vector <CSpell *> spells;
 		for(auto spell : VLC->spellh->objects)
@@ -421,7 +421,7 @@ void TreasurePlacer::addAllPossibleObjects()
 			oi.generateObject = [creature, creaturesAmount, randomAppearance, this, generateArtInfo]() -> CGObjectInstance *
 			{
 				auto factory = VLC->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
-				auto obj = (CGSeerHut *) factory->create(ObjectTemplate());
+				auto obj = (CGSeerHut *) factory->create();
 				obj->rewardType = CGSeerHut::CREATURE;
 				obj->rID = creature->idNumber;
 				obj->rVal = creaturesAmount;
@@ -457,7 +457,7 @@ void TreasurePlacer::addAllPossibleObjects()
 			oi.generateObject = [i, randomAppearance, this, generateArtInfo]() -> CGObjectInstance *
 			{
 				auto factory = VLC->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
-				auto obj = (CGSeerHut *) factory->create(ObjectTemplate());
+				auto obj = (CGSeerHut *) factory->create();
 				
 				obj->rewardType = CGSeerHut::EXPERIENCE;
 				obj->rID = 0; //unitialized?
@@ -481,7 +481,7 @@ void TreasurePlacer::addAllPossibleObjects()
 			oi.generateObject = [i, randomAppearance, this, generateArtInfo]() -> CGObjectInstance *
 			{
 				auto factory = VLC->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
-				auto obj = (CGSeerHut *) factory->create(ObjectTemplate());
+				auto obj = (CGSeerHut *) factory->create();
 				obj->rewardType = CGSeerHut::RESOURCES;
 				obj->rID = Res::GOLD;
 				obj->rVal = generator.getConfig().questRewardValues[i];
@@ -525,7 +525,7 @@ std::vector<ObjectInfo*> TreasurePlacer::prepareTreasurePile(const CTreasureInfo
 		if(!oi) //fail
 			break;
 		
-		if(oi->templ.isVisitableFromTop())
+		if(oi->templ->isVisitableFromTop())
 		{
 			objectInfos.push_back(oi);
 		}
@@ -599,7 +599,7 @@ rmg::Object TreasurePlacer::constructTreasurePile(const std::vector<ObjectInfo*>
 			auto instanceAccessibleArea = instance.getAccessibleArea();
 			if(instance.getBlockedArea().getTilesVector().size() == 1)
 			{
-				if(instance.object().appearance.isVisitableFromTop() && instance.object().ID != Obj::CORPSE)
+				if(instance.object().appearance->isVisitableFromTop() && instance.object().ID != Obj::CORPSE)
 					instanceAccessibleArea.add(instance.getVisitablePosition());
 			}
 			
@@ -632,7 +632,7 @@ ObjectInfo * TreasurePlacer::getRandomObject(ui32 desiredValue, ui32 currentValu
 		if(oi.value > maxVal)
 			break; //this assumes values are sorted in ascending order
 		
-		if(!oi.templ.isVisitableFromTop() && !allowLargeObjects)
+		if(!oi.templ->isVisitableFromTop() && !allowLargeObjects)
 			continue;
 		
 		if(oi.value >= minValue && oi.maxPerZone > 0)

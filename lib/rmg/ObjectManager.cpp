@@ -367,7 +367,7 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 		objects.push_back(&instance->object());
 		if(auto * m = zone.getModificator<RoadPlacer>())
 		{
-			if(instance->object().appearance.isVisitableFromTop())
+			if(instance->object().appearance->isVisitableFromTop())
 				m->areaForRoads().add(instance->getVisitablePosition());
 			else
 			{
@@ -449,7 +449,7 @@ CGCreature * ObjectManager::chooseGuard(si32 strength, bool zoneGuard)
 	
 	auto guardFactory = VLC->objtypeh->getHandlerFor(Obj::MONSTER, creId);
 	
-	auto guard = (CGCreature *) guardFactory->create(ObjectTemplate());
+	auto guard = (CGCreature *) guardFactory->create();
 	guard->character = CGCreature::HOSTILE;
 	auto  hlp = new CStackInstance(creId, amount);
 	//will be set during initialization
