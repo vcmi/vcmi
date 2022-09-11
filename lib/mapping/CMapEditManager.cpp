@@ -198,3 +198,4 @@ CObjectSelection & CMapEditManager::getObjectSelection()
 CMapUndoManager & CMapEditManager::getUndoManager()
 {
 	return undoManager;
+}

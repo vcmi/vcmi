@@ -214,8 +214,8 @@ bool MapHandler::compareObjectBlitOrder(const CGObjectInstance * a, const CGObje
 		return true;
 	if (!b)
 		return false;
-	if (a->appearance.printPriority != b->appearance.printPriority)
-		return a->appearance.printPriority > b->appearance.printPriority;
+	if (a->appearance->printPriority != b->appearance->printPriority)
+		return a->appearance->printPriority > b->appearance->printPriority;
 	
 	if(a->pos.y != b->pos.y)
 		return a->pos.y < b->pos.y;

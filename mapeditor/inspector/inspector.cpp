@@ -103,7 +103,7 @@ void Initializer::initialize(CGTownInstance * o)
 	if(!o) return;
 
 	const std::vector<std::string> castleLevels{"village", "fort", "citadel", "castle", "capitol"};
-	int lvl = vstd::find_pos(castleLevels, o->appearance.stringID);
+	int lvl = vstd::find_pos(castleLevels, o->appearance->stringID);
 	o->builtBuildings.insert(BuildingID::DEFAULT);
 	if(lvl > -1) o->builtBuildings.insert(BuildingID::TAVERN);
 	if(lvl > 0) o->builtBuildings.insert(BuildingID::FORT);

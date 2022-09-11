@@ -40,7 +40,7 @@ bool ObjectBrowser::filterAcceptsRow(int source_row, const QModelIndex & source_
 	auto factory = VLC->objtypeh->getHandlerFor(objId, objSubId);
 	auto templ = factory->getTemplates()[templateId];
 
-	result = result & templ.canBePlacedAt(terrain);
+	result = result & templ->canBePlacedAt(terrain);
 
 	//text filter
 

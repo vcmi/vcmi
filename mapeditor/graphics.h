@@ -77,7 +77,7 @@ public:
 	void blueToPlayersAdv(QImage * sur, PlayerColor player); //replaces blue interface colour with a color of player
 	
 	std::shared_ptr<Animation> getAnimation(const CGObjectInstance * obj);
-	std::shared_ptr<Animation> getAnimation(const ObjectTemplate & info);
+	std::shared_ptr<Animation> getAnimation(const std::shared_ptr<const ObjectTemplate> info);
 };
 
 extern Graphics * graphics;

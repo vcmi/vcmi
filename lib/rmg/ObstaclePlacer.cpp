@@ -36,8 +36,8 @@ void ObstacleProxy::collectPossibleObstacles(const Terrain & terrain)
 			{
 				for(auto temp : handler->getTemplates())
 				{
-					if(temp.canBePlacedAt(terrain) && temp.getBlockMapOffset().valid())
-						obstaclesBySize[temp.getBlockedOffsets().size()].push_back(temp);
+					if(temp->canBePlacedAt(terrain) && temp->getBlockMapOffset().valid())
+						obstaclesBySize[temp->getBlockedOffsets().size()].push_back(temp);
 				}
 			}
 		}
@@ -66,7 +66,6 @@ void ObstacleProxy::placeObject(CMapEditManager * manager, rmg::Object & object)
 	{
 		manager->insertObject(&instance->object());
 	}
-	//manager->placeObject(*objIter->first, false, false);
 }
 
 int ObstacleProxy::getWeightedObjects(const int3 & tile, const CMap * map, CRandomGenerator & rand, std::list<rmg::Object> & allObjects, std::vector<std::pair<rmg::Object*, int3>> & weightedObjects)
@@ -80,9 +79,9 @@ int ObstacleProxy::getWeightedObjects(const int3 & tile, const CMap * map, CRand
 		auto shuffledObstacles = possibleObstacles[i].second;
 		RandomGeneratorUtil::randomShuffle(shuffledObstacles, rand);
 
-		for(auto & temp : shuffledObstacles)
+		for(auto temp : shuffledObstacles)
 		{
-			auto handler = VLC->objtypeh->getHandlerFor(temp.id, temp.subid);
+			auto handler = VLC->objtypeh->getHandlerFor(temp->id, temp->subid);
 			auto obj = handler->create(temp);
 			allObjects.emplace_back(*obj);
 			rmg::Object * rmgObject = &allObjects.back();

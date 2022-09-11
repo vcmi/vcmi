@@ -36,7 +36,7 @@ public:
 protected:
 	int getWeightedObjects(const int3 & tile, const CMap * map, CRandomGenerator & rand, std::list<rmg::Object> & allObjects, std::vector<std::pair<rmg::Object*, int3>> & weightedObjects);
 
-	typedef std::vector<ObjectTemplate> ObstacleVector;
+	typedef std::vector<std::shared_ptr<const ObjectTemplate>> ObstacleVector;
 	std::map<int, ObstacleVector> obstaclesBySize;
 	typedef std::pair<int, ObstacleVector> ObstaclePair;
 	std::vector<ObstaclePair> possibleObstacles;

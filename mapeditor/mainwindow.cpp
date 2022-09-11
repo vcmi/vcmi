@@ -381,7 +381,7 @@ void MainWindow::addGroupIntoCatalog(const std::string & groupName, bool useCust
 			auto templ = templates[templateId];
 
 			//selecting file
-			const std::string & afile = templ.editorAnimationFile.empty() ? templ.animationFile : templ.editorAnimationFile;
+			const std::string & afile = templ->editorAnimationFile.empty() ? templ->animationFile : templ->editorAnimationFile;
 
 			//creating picture
 			QPixmap preview(128, 128);
@@ -402,8 +402,8 @@ void MainWindow::addGroupIntoCatalog(const std::string & groupName, bool useCust
 			QJsonObject data{{"id", QJsonValue(ID)},
 							 {"subid", QJsonValue(secondaryID)},
 							 {"template", QJsonValue(templateId)},
-							 {"animationEditor", QString::fromStdString(templ.editorAnimationFile)},
-							 {"animation", QString::fromStdString(templ.animationFile)},
+							 {"animationEditor", QString::fromStdString(templ->editorAnimationFile)},
+							 {"animation", QString::fromStdString(templ->animationFile)},
 							 {"preview", jsonFromPixmap(preview)}};
 			
 			//create object to extract name
@@ -422,7 +422,7 @@ void MainWindow::addGroupIntoCatalog(const std::string & groupName, bool useCust
 			{
 				if(useCustomName)
 					itemType->setText(translated);
-				auto * item = new QStandardItem(QIcon(preview), QString::fromStdString(templ.stringID));
+				auto * item = new QStandardItem(QIcon(preview), QString::fromStdString(templ->stringID));
 				item->setData(data);
 				itemType->appendRow(item);
 			}
@@ -992,13 +992,13 @@ void MainWindow::on_actionUpdate_appearance_triggered()
 		if(handler->isStaticObject())
 		{
 			staticObjects.insert(obj);
-			if(obj->appearance.canBePlacedAt(terrain))
+			if(obj->appearance->canBePlacedAt(terrain))
 			{
 				controller.scene(mapLevel)->selectionObjectsView.deselectObject(obj);
 				continue;
 			}
 			
-			for(auto & offset : obj->appearance.getBlockedOffsets())
+			for(auto & offset : obj->appearance->getBlockedOffsets())
 				controller.scene(mapLevel)->selectionTerrainView.select(obj->pos + offset);
 		}
 		else
@@ -1006,7 +1006,7 @@ void MainWindow::on_actionUpdate_appearance_triggered()
 			auto app = handler->getOverride(terrain, obj);
 			if(!app)
 			{
-				if(obj->appearance.canBePlacedAt(terrain))
+				if(obj->appearance->canBePlacedAt(terrain))
 					continue;
 				
 				auto templates = handler->getTemplates(terrain);
@@ -1018,7 +1018,7 @@ void MainWindow::on_actionUpdate_appearance_triggered()
 				app = templates.front();
 			}
 			auto tiles = controller.mapHandler()->getTilesUnderObject(obj);
-			obj->appearance = app.get();
+			obj->appearance = app;
 			controller.mapHandler()->invalidate(tiles);
 			controller.mapHandler()->invalidate(obj);
 			controller.scene(mapLevel)->selectionObjectsView.deselectObject(obj);
