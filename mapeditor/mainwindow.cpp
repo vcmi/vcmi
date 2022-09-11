@@ -524,7 +524,9 @@ void MainWindow::loadObjectsTree()
 	addGroupIntoCatalog("MISC", true, false, Obj::FREELANCERS_GUILD);
 	addGroupIntoCatalog("MISC", true, false, Obj::SANCTUARY);
 	addGroupIntoCatalog("MISC", true, false, Obj::MARLETTO_TOWER);
-	//addGroupIntoCatalog("PRISON", true, false, Obj::PRISON);
+	addGroupIntoCatalog("HERO", true, false, Obj::PRISON);
+	addGroupIntoCatalog("HERO", false, false, Obj::HERO);
+	addGroupIntoCatalog("HERO", false, false, Obj::RANDOM_HERO);
 	addGroupIntoCatalog("ARTIFACTS", true, false, Obj::ARTIFACT);
 	addGroupIntoCatalog("ARTIFACTS", false, false, Obj::RANDOM_ART);
 	addGroupIntoCatalog("ARTIFACTS", false, false, Obj::RANDOM_TREASURE_ART);

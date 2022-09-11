@@ -177,7 +177,7 @@ void MapHandler::initObjectRects()
 		if(animation->size(0) == 0)
 			continue;
 		
-		auto image = animation->getImage(0,0);
+		auto image = animation->getImage(0, obj->ID == Obj::HERO ? 2 : 0);
 		for(int fx=0; fx < obj->getWidth(); ++fx)
 		{
 			for(int fy=0; fy < obj->getHeight(); ++fy)
@@ -244,12 +244,12 @@ TileObject::~TileObject()
 {
 }
 
-std::shared_ptr<QImage> MapHandler::findFlagBitmap(const CGHeroInstance * hero, int anim, const PlayerColor * color, int group) const
+std::shared_ptr<QImage> MapHandler::findFlagBitmap(const CGHeroInstance * hero, int anim, const PlayerColor color, int group) const
 {
 	if(!hero || hero->boat)
 		return std::shared_ptr<QImage>();
 	
-	return findFlagBitmapInternal(graphics->heroFlagAnimations.at(color->getNum()), anim, group, hero->moveDir, !hero->isStanding);
+	return findFlagBitmapInternal(graphics->heroFlagAnimations.at(color.getNum()), anim, group, hero->moveDir, !hero->isStanding);
 }
 
 std::shared_ptr<QImage> MapHandler::findFlagBitmapInternal(std::shared_ptr<Animation> animation, int anim, int group, ui8 dir, bool moving) const
@@ -264,19 +264,20 @@ std::shared_ptr<QImage> MapHandler::findFlagBitmapInternal(std::shared_ptr<Anima
 		return animation->getImage((anim / 4) % groupSize, group);
 }
 
-MapHandler::AnimBitmapHolder MapHandler::findObjectBitmap(const CGObjectInstance * obj, int anim) const
+MapHandler::AnimBitmapHolder MapHandler::findObjectBitmap(const CGObjectInstance * obj, int anim, int group) const
 {
-	if(!obj || obj->ID == Obj::HERO || obj->ID == Obj::BOAT)
+	if(!obj)
 		return MapHandler::AnimBitmapHolder();
 
 	// normal object
 	std::shared_ptr<Animation> animation = graphics->getAnimation(obj);
-	size_t groupSize = animation->size();
+	size_t groupSize = animation->size(group);
 	if(groupSize == 0)
 		return MapHandler::AnimBitmapHolder();
 	
 	animation->playerColored(obj->tempOwner);
-	auto bitmap = animation->getImage(anim % groupSize);
+	auto bitmap = animation->getImage(anim % groupSize, group);
+	
 	if(!bitmap)
 		return MapHandler::AnimBitmapHolder();
 
@@ -303,16 +304,20 @@ void MapHandler::drawObjects(QPainter & painter, int x, int y, int z)
 
 		uint8_t animationFrame = 0;
 
-		auto objData = findObjectBitmap(obj, animationFrame);
+		auto objData = findObjectBitmap(obj, animationFrame, obj->ID == Obj::HERO ? 2 : 0);
+		if(obj->ID == Obj::HERO && obj->tempOwner.isValidPlayer())
+			objData.flagBitmap = findFlagBitmap(dynamic_cast<const CGHeroInstance*>(obj), 0, obj->tempOwner, 4);
+		
 		if (objData.objBitmap)
 		{
 			auto pos = obj->getPosition();
 
 			painter.drawImage(QPoint(x * tileSize, y * tileSize), *objData.objBitmap, object.rect);
+			
 			if(objData.flagBitmap)
 			{
-				if (obj->pos.x == pos.x && obj->pos.y == pos.y)
-					painter.drawImage(QPoint(x * tileSize, y * tileSize), *objData.flagBitmap, object.rect);
+				if (x == pos.x - 1 && y == pos.y - 1)
+					painter.drawImage(QPoint(x * tileSize, y * tileSize), *objData.flagBitmap);
 			}
 		}
 	}
@@ -329,18 +334,20 @@ void MapHandler::drawObject(QPainter & painter, const TileObject & object)
 
 	uint8_t animationFrame = 0;
 
-	auto objData = findObjectBitmap(obj, animationFrame);
+	auto objData = findObjectBitmap(obj, animationFrame, obj->ID == Obj::HERO ? 2 : 0);
+	if(obj->ID == Obj::HERO && obj->tempOwner.isValidPlayer())
+		objData.flagBitmap = findFlagBitmap(dynamic_cast<const CGHeroInstance*>(obj), 0, obj->tempOwner, 4);
+	
 	if (objData.objBitmap)
 	{
 		auto pos = obj->getPosition();
 
 		painter.drawImage(pos.x * tileSize - object.rect.x(), pos.y * tileSize - object.rect.y(), *objData.objBitmap);
+		
 		if (objData.flagBitmap)
 		{
-			if (obj->pos.x == pos.x && obj->pos.y == pos.y)
-			{
-				painter.drawImage(pos.x * tileSize - object.rect.x(), pos.y * tileSize - object.rect.y(), *objData.flagBitmap);
-			}
+			if(object.rect.x() == pos.x && object.rect.y() == pos.y)
+				painter.drawImage(pos.x * tileSize, pos.y * tileSize, *objData.flagBitmap);
 		}
 	}
 }
@@ -356,14 +363,19 @@ void MapHandler::drawObjectAt(QPainter & painter, const CGObjectInstance * obj, 
 
 	uint8_t animationFrame = 0;
 
-	auto objData = findObjectBitmap(obj, animationFrame);
+	auto objData = findObjectBitmap(obj, animationFrame, obj->ID == Obj::HERO ? 2 : 0);
+	std::vector<std::shared_ptr<QImage>> debugFlagImages;
+	if(obj->ID == Obj::HERO && obj->tempOwner.isValidPlayer())
+	{
+		objData.flagBitmap = findFlagBitmap(dynamic_cast<const CGHeroInstance*>(obj), 0, obj->tempOwner, 4);
+	}
+	
 	if (objData.objBitmap)
 	{
 		painter.drawImage(QPoint((x + 1) * 32 - objData.objBitmap->width(), (y + 1) * 32 - objData.objBitmap->height()), *objData.objBitmap);
+		
 		if (objData.flagBitmap)
-		{
-			painter.drawImage(QPoint((x + 1) * 32 - objData.objBitmap->width(), (y + 1) * 32 - objData.objBitmap->height()), *objData.flagBitmap);
-		}
+			painter.drawImage(QPoint((x - 1) * 32, (y - 1) * 32), *objData.flagBitmap);
 	}
 }
 
@@ -433,7 +445,7 @@ void MapHandler::invalidate(CGObjectInstance * obj)
 	if(!animation || animation->size(0) == 0)
 		return;
 		
-	auto image = animation->getImage(0,0);
+	auto image = animation->getImage(0, obj->ID == Obj::HERO ? 2 : 0);
 	for(int fx=0; fx < obj->getWidth(); ++fx)
 	{
 		for(int fy=0; fy < obj->getHeight(); ++fy)

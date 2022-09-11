@@ -44,8 +44,8 @@ private:
 	int index(const int3 &) const;
 		
 	std::shared_ptr<QImage> findFlagBitmapInternal(std::shared_ptr<Animation> animation, int anim, int group, ui8 dir, bool moving) const;
-	std::shared_ptr<QImage> findFlagBitmap(const CGHeroInstance * obj, int anim, const PlayerColor * color, int group) const;
-	AnimBitmapHolder findObjectBitmap(const CGObjectInstance * obj, int anim) const;
+	std::shared_ptr<QImage> findFlagBitmap(const CGHeroInstance * obj, int anim, const PlayerColor color, int group) const;
+	AnimBitmapHolder findObjectBitmap(const CGObjectInstance * obj, int anim, int group = 0) const;
 	
 	//FIXME: unique_ptr should be enough, but fails to compile in MSVS 2013
 	typedef std::map<std::string, std::shared_ptr<Animation>> TFlippedAnimations; //[type, rotation]

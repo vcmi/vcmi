@@ -341,6 +341,16 @@ void MapController::commitObjectCreate(int level)
 		main->setStatusMessage(QString("Reached map limit for object %1 - %2").arg(typeName, subTypeName));
 		return; //maplimit reached
 	}
+	if(defaultPlayer == PlayerColor::NEUTRAL && (newObj->ID == Obj::HERO || newObj->ID == Obj::RANDOM_HERO))
+	{
+		main->setStatusMessage("Hero cannot be created as NEUTRAL");
+		return;
+	}
+	if(defaultPlayer != PlayerColor::NEUTRAL && newObj->ID == Obj::PRISON)
+	{
+		main->setStatusMessage("Prison must be a NEUTRAL");
+		return;
+	}
 	
 	Initializer init(map(), newObj, defaultPlayer);
 	

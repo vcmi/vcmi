@@ -290,7 +290,33 @@ void Graphics::blueToPlayersAdv(QImage * sur, PlayerColor player)
 
 std::shared_ptr<Animation> Graphics::getAnimation(const CGObjectInstance* obj)
 {
+	if(obj->ID == Obj::HERO)
+		return getHeroAnimation(obj->appearance);
 	return getAnimation(obj->appearance);
+}
+
+std::shared_ptr<Animation> Graphics::getHeroAnimation(const std::shared_ptr<const ObjectTemplate> info)
+{
+	if(info->animationFile.empty())
+	{
+		logGlobal->warn("Def name for hero (%d,%d) is empty!", info->id, info->subid);
+		return std::shared_ptr<Animation>();
+	}
+	
+	std::shared_ptr<Animation> ret = loadHeroAnimation(info->animationFile);
+	
+	//already loaded
+	if(ret)
+	{
+		ret->preload();
+		return ret;
+	}
+	
+	ret = std::make_shared<Animation>(info->animationFile);
+	heroAnimations[info->animationFile] = ret;
+	
+	ret->preload();
+	return ret;
 }
 
 std::shared_ptr<Animation> Graphics::getAnimation(const std::shared_ptr<const ObjectTemplate> info)
