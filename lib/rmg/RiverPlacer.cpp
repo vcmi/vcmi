@@ -374,10 +374,10 @@ void RiverPlacer::connectRiver(const int3 & tile)
 		auto handler = VLC->objtypeh->getHandlerFor(RIVER_DELTA_ID, RIVER_DELTA_SUBTYPE);
 		assert(handler->isStaticObject());
 		
-		std::vector<ObjectTemplate> tmplates;
+		std::vector<std::shared_ptr<const ObjectTemplate>> tmplates;
 		for(auto & temp : handler->getTemplates())
 		{
-			if(temp.canBePlacedAt(zone.getTerrainType()))
+			if(temp->canBePlacedAt(zone.getTerrainType()))
 			   tmplates.push_back(temp);
 		}
 		
@@ -389,7 +389,7 @@ void RiverPlacer::connectRiver(const int3 & tile)
 			std::string targetTemplateName = RIVER_DELTA_TEMPLATE_NAME.at(river) + std::to_string(deltaOrientations[pos]) + ".def";
 			for(auto & templ : tmplates)
 			{
-				if(templ.animationFile == targetTemplateName)
+				if(templ->animationFile == targetTemplateName)
 				{
 					auto obj = handler->create(templ);
 					rmg::Object deltaObj(*obj, deltaPositions[pos]);

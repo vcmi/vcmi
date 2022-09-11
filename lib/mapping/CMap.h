@@ -491,14 +491,5 @@ public:
 		h & CGTownInstance::universitySkills;
 
 		h & instanceNames;
-
-		if (!h.saving && formatVersion < 804)
-		{
-			uidCounter = objects.size();
-		}
-		else
-		{
-			h & uidCounter;
-		}
 	}
 };

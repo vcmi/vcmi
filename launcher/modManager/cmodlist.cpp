@@ -92,6 +92,11 @@ bool CModEntry::isUpdateable() const
 	return false;
 }
 
+bool CModEntry::isEssential() const
+{
+	return getValue("storedLocaly").toBool();
+}
+
 bool CModEntry::isInstalled() const
 {
 	return !localData.isEmpty();
@@ -152,6 +157,10 @@ QVariantMap CModList::copyField(QVariantMap data, QString from, QString to)
 	return renamed;
 }
 
+void CModList::reloadRepositories()
+{
+}
+
 void CModList::resetRepositories()
 {
 	repositories.clear();
@@ -176,7 +185,7 @@ void CModList::modChanged(QString modID)
 {
 }
 
-static QVariant getValue(QVariantMap input, QString path)
+static QVariant getValue(QVariant input, QString path)
 {
 	if(path.size() > 1)
 	{
@@ -184,7 +193,7 @@ static QVariant getValue(QVariantMap input, QString path)
 		QString remainder = "/" + path.section('/', 2, -1);
 
 		entryName.remove(0, 1);
-		return getValue(input.value(entryName).toMap(), remainder);
+		return getValue(input.toMap().value(entryName), remainder);
 	}
 	else
 	{
@@ -208,10 +217,28 @@ CModEntry CModList::getMod(QString modname) const
 	}
 	else
 	{
-		if(conf.canConvert<QVariantMap>())
+		if(!conf.toMap().isEmpty())
+		{
 			settings = conf.toMap();
+			if(settings.value("active").isNull())
+				settings["active"] = true; // default
+		}
 		else
 			settings.insert("active", conf);
+	}
+	
+	if(settings["active"].toBool())
+	{
+		QString rootPath = path.section('/', 0, 1);
+		if(path != rootPath)
+		{
+			conf = getValue(modSettings, rootPath);
+			const auto confMap = conf.toMap();
+			if(!conf.isNull() && !confMap["active"].isNull() && !confMap["active"].toBool())
+			{
+				settings = confMap;
+			}
+		}
 	}
 
 	for(auto entry : repositories)

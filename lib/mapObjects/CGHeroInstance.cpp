@@ -450,9 +450,8 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 	{
 		int txt_id;
 
-		if (cb->getHeroCount(h->tempOwner, false) < VLC->modh->settings.MAX_HEROES_ON_MAP_PER_PLAYER)//GameConstants::MAX_HEROES_PER_PLAYER) //free hero slot
+		if (cb->getHeroCount(h->tempOwner, false) < VLC->modh->settings.MAX_HEROES_ON_MAP_PER_PLAYER)//free hero slot
 		{
-			cb->changeObjPos(id,pos+int3(1,0,0),0);
 			//update hero parameters
 			SetMovePoints smp;
 			smp.hid = id;
@@ -534,7 +533,7 @@ void CGHeroInstance::initObj(CRandomGenerator & rand)
 	{
 		auto customApp = VLC->objtypeh->getHandlerFor(ID, type->heroClass->getIndex())->getOverride(cb->gameState()->getTile(visitablePos())->terType, this);
 		if (customApp)
-			appearance = customApp.get();
+			appearance = customApp;
 	}
 
 	//copy active (probably growing) bonuses from hero prototype to hero object
@@ -1418,7 +1417,9 @@ void CGHeroInstance::setHeroTypeName(const std::string & identifier)
 		if(rawId)
 			subID = rawId.get();
 		else
-			subID = 0; //fallback to Orrin, throw error instead?
+		{
+			throw std::runtime_error("Couldn't resolve hero identifier " + identifier);
+		}
 	}
 }
 

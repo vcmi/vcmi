@@ -117,11 +117,11 @@ std::vector<JsonNode> CObjectClassesHandler::loadLegacyData(size_t dataSize)
 
 	for (size_t i=0; i<totalNumber; i++)
 	{
-		ObjectTemplate templ;
-		templ.readTxt(parser);
+		auto templ = new ObjectTemplate;
+		templ->readTxt(parser);
 		parser.endLine();
-		std::pair<si32, si32> key(templ.id.num, templ.subid);
-		legacyTemplates.insert(std::make_pair(key, templ));
+		std::pair<si32, si32> key(templ->id.num, templ->subid);
+		legacyTemplates.insert(std::make_pair(key, std::shared_ptr<const ObjectTemplate>(templ)));
 	}
 
 	std::vector<JsonNode> ret(dataSize);// create storage for 256 objects
@@ -448,7 +448,6 @@ AObjectTypeHandler::AObjectTypeHandler():
 
 AObjectTypeHandler::~AObjectTypeHandler()
 {
-
 }
 
 void AObjectTypeHandler::setType(si32 type, si32 subtype)
@@ -488,12 +487,12 @@ void AObjectTypeHandler::init(const JsonNode & input, boost::optional<std::strin
 		entry.second.setType(JsonNode::JsonType::DATA_STRUCT);
 		JsonUtils::inherit(entry.second, base);
 
-		ObjectTemplate tmpl;
-		tmpl.id = Obj(type);
-		tmpl.subid = subtype;
-		tmpl.stringID = entry.first; // FIXME: create "fullID" - type.object.template?
-		tmpl.readJson(entry.second);
-		templates.push_back(tmpl);
+		auto tmpl = new ObjectTemplate;
+		tmpl->id = Obj(type);
+		tmpl->subid = subtype;
+		tmpl->stringID = entry.first; // FIXME: create "fullID" - type.object.template?
+		tmpl->readJson(entry.second);
+		templates.push_back(std::shared_ptr<const ObjectTemplate>(tmpl));
 	}
 
 	if (input["name"].isNull())
@@ -523,7 +522,7 @@ void AObjectTypeHandler::init(const JsonNode & input, boost::optional<std::strin
 	initTypeData(input);
 }
 
-bool AObjectTypeHandler::objectFilter(const CGObjectInstance *, const ObjectTemplate &) const
+bool AObjectTypeHandler::objectFilter(const CGObjectInstance *, std::shared_ptr<const ObjectTemplate>) const
 {
 	return false; // by default there are no overrides
 }
@@ -551,26 +550,28 @@ SObjectSounds AObjectTypeHandler::getSounds() const
 	return sounds;
 }
 
-void AObjectTypeHandler::addTemplate(const ObjectTemplate & templ)
+void AObjectTypeHandler::addTemplate(std::shared_ptr<const ObjectTemplate> templ)
 {
+	//Otherwise the template remains constant
+	auto ptr = const_cast<ObjectTemplate*>(templ.get());
+	ptr->id = Obj(type);
+	ptr->subid = subtype;
 	templates.push_back(templ);
-	templates.back().id = Obj(type);
-	templates.back().subid = subtype;
 }
 
 void AObjectTypeHandler::addTemplate(JsonNode config)
 {
 	config.setType(JsonNode::JsonType::DATA_STRUCT); // ensure that input is not null
 	JsonUtils::inherit(config, base);
-	ObjectTemplate tmpl;
-	tmpl.id = Obj(type);
-	tmpl.subid = subtype;
-	tmpl.stringID = ""; // TODO?
-	tmpl.readJson(config);
-	templates.push_back(tmpl);
+	auto tmpl = new ObjectTemplate;
+	tmpl->id = Obj(type);
+	tmpl->subid = subtype;
+	tmpl->stringID = ""; // TODO?
+	tmpl->readJson(config);
+	templates.emplace_back(tmpl);
 }
 
-std::vector<ObjectTemplate> AObjectTypeHandler::getTemplates() const
+std::vector<std::shared_ptr<const ObjectTemplate>> AObjectTypeHandler::getTemplates() const
 {
 	return templates;
 }
@@ -580,14 +581,14 @@ BattleField AObjectTypeHandler::getBattlefield() const
 	return battlefield ? BattleField::fromString(battlefield.get()) : BattleField::NONE;
 }
 
-std::vector<ObjectTemplate> AObjectTypeHandler::getTemplates(const Terrain & terrainType) const
+std::vector<std::shared_ptr<const ObjectTemplate>>AObjectTypeHandler::getTemplates(const Terrain & terrainType) const
 {
-	std::vector<ObjectTemplate> templates = getTemplates();
-	std::vector<ObjectTemplate> filtered;
+	std::vector<std::shared_ptr<const ObjectTemplate>> templates = getTemplates();
+	std::vector<std::shared_ptr<const ObjectTemplate>> filtered;
 
-	std::copy_if(templates.begin(), templates.end(), std::back_inserter(filtered), [&](const ObjectTemplate & obj)
+	std::copy_if(templates.begin(), templates.end(), std::back_inserter(filtered), [&](std::shared_ptr<const ObjectTemplate> obj)
 	{
-		return obj.canBePlacedAt(terrainType);
+		return obj->canBePlacedAt(terrainType);
 	});
 	// H3 defines allowed terrains in a weird way - artifacts, monsters and resources have faulty masks here
 	// Perhaps we should re-define faulty templates and remove this workaround (already done for resources)
@@ -597,15 +598,15 @@ std::vector<ObjectTemplate> AObjectTypeHandler::getTemplates(const Terrain & ter
 		return filtered;
 }
 
-boost::optional<ObjectTemplate> AObjectTypeHandler::getOverride(const Terrain & terrainType, const CGObjectInstance * object) const
+std::shared_ptr<const ObjectTemplate> AObjectTypeHandler::getOverride(const Terrain & terrainType, const CGObjectInstance * object) const
 {
-	std::vector<ObjectTemplate> ret = getTemplates(terrainType);
-	for (auto & tmpl : ret)
+	std::vector<std::shared_ptr<const ObjectTemplate>> ret = getTemplates(terrainType);
+	for (const auto & tmpl: ret)
 	{
 		if (objectFilter(object, tmpl))
 			return tmpl;
 	}
-	return boost::optional<ObjectTemplate>();
+	return std::shared_ptr<const ObjectTemplate>(); //empty
 }
 
 const RandomMapInfo & AObjectTypeHandler::getRMGInfo()

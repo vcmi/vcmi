@@ -19,7 +19,7 @@ class CMapGenerator;
 
 struct ObjectInfo
 {
-	ObjectTemplate templ;
+	std::shared_ptr<const ObjectTemplate> templ;
 	ui32 value = 0;
 	ui16 probability = 0;
 	ui32 maxPerZone = -1;

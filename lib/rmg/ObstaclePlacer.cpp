@@ -216,7 +216,7 @@ void ObstaclePlacer::process()
 	
 	auto * riverManager = zone.getModificator<RiverPlacer>();
 	
-	typedef std::vector<ObjectTemplate> ObstacleVector;
+	typedef std::vector<std::shared_ptr<const ObjectTemplate>> ObstacleVector;
 	//obstacleVector possibleObstacles;
 	
 	std::map<int, ObstacleVector> obstaclesBySize;
@@ -233,8 +233,8 @@ void ObstaclePlacer::process()
 			{
 				for(auto temp : handler->getTemplates())
 				{
-					if(temp.canBePlacedAt(zone.getTerrainType()) && temp.getBlockMapOffset().valid())
-						obstaclesBySize[temp.getBlockedOffsets().size()].push_back(temp);
+					if(temp->canBePlacedAt(zone.getTerrainType()) && temp->getBlockMapOffset().valid())
+						obstaclesBySize[temp->getBlockedOffsets().size()].push_back(temp);
 				}
 			}
 		}
@@ -278,7 +278,7 @@ void ObstaclePlacer::process()
 			
 			for(auto & temp : shuffledObstacles)
 			{
-				auto handler = VLC->objtypeh->getHandlerFor(temp.id, temp.subid);
+				auto handler = VLC->objtypeh->getHandlerFor(temp->id, temp->subid);
 				auto obj = handler->create(temp);
 				allObjects.emplace_back(*obj);
 				rmg::Object * rmgObject = &allObjects.back();

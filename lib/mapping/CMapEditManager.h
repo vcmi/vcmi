@@ -12,6 +12,7 @@
 
 #include "../GameConstants.h"
 #include "CMapOperation.h"
+#include "Terrain.h"
 
 class CGObjectInstance;
 class CTerrainViewPatternConfig;

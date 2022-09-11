@@ -1133,7 +1133,7 @@ void CGTownInstance::updateAppearance()
 	//FIXME: not the best way to do this
 	auto app = VLC->objtypeh->getHandlerFor(ID, subID)->getOverride(cb->gameState()->getTile(visitablePos())->terType, this);
 	if (app)
-		appearance = app.get();
+		appearance = app;
 }
 
 std::string CGTownInstance::nodeName() const
