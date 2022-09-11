@@ -120,7 +120,9 @@ enum EHeroChainPass
 
 class AISharedStorage
 {
-	/// 1-3 - position on map, 4 - layer (air, water, land), 5 - chain (normal, battle, spellcast and combinations)
+	// 1 - layer (air, water, land)
+	// 2-4 - position on map[z][x][y]
+	// 5 - chain (normal, battle, spellcast and combinations)
 	static std::shared_ptr<boost::multi_array<AIPathNode, 5>> shared;
 	std::shared_ptr<boost::multi_array<AIPathNode, 5>> nodes;
 public:
@@ -136,7 +138,7 @@ public:
 	STRONG_INLINE
 	boost::detail::multi_array::sub_array<AIPathNode, 1> get(int3 tile, EPathfindingLayer layer) const
 	{
-		return (*nodes)[tile.x][tile.y][tile.z][layer];
+		return (*nodes)[layer][tile.z][tile.x][tile.y];
 	}
 };
 
