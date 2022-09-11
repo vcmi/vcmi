@@ -26,7 +26,7 @@
 #include "graphics.h"
 #include "windownewmap.h"
 #include "objectbrowser.h"
-#include "inspector.h"
+#include "inspector/inspector.h"
 #include "mapsettings.h"
 #include "playersettings.h"
 #include "validator.h"
@@ -136,7 +136,14 @@ MainWindow::MainWindow(QWidget *parent) :
 	loadObjectsTree();
 	
 	ui->tabWidget->setCurrentIndex(0);
-
+	
+	for(int i = 0; i < 8; ++i)
+	{
+		connect(getActionPlayer(PlayerColor(i)), &QAction::toggled, this, [&, i](){switchDefaultPlayer(PlayerColor(i));});
+	}
+	connect(getActionPlayer(PlayerColor::NEUTRAL), &QAction::toggled, this, [&](){switchDefaultPlayer(PlayerColor::NEUTRAL);});
+	onPlayersChanged();
+	
 	show();
 }
 
@@ -200,6 +207,8 @@ void MainWindow::initializeMap(bool isNew)
 	//enable settings
 	ui->actionMapSettings->setEnabled(true);
 	ui->actionPlayers_settings->setEnabled(true);
+	
+	onPlayersChanged();
 }
 
 void MainWindow::on_actionOpen_triggered()
@@ -869,7 +878,59 @@ void MainWindow::on_actionPlayers_settings_triggered()
 	auto settingsDialog = new PlayerSettings(controller, this);
 	settingsDialog->setWindowModality(Qt::WindowModal);
 	settingsDialog->setModal(true);
+	connect(settingsDialog, &QDialog::finished, this, &MainWindow::onPlayersChanged);
 }
+
+QAction * MainWindow::getActionPlayer(const PlayerColor & player)
+{
+	if(player.getNum() == 0) return ui->actionPlayer_1;
+	if(player.getNum() == 1) return ui->actionPlayer_2;
+	if(player.getNum() == 2) return ui->actionPlayer_3;
+	if(player.getNum() == 3) return ui->actionPlayer_4;
+	if(player.getNum() == 4) return ui->actionPlayer_5;
+	if(player.getNum() == 5) return ui->actionPlayer_6;
+	if(player.getNum() == 6) return ui->actionPlayer_7;
+	if(player.getNum() == 7) return ui->actionPlayer_8;
+	return ui->actionNeutral;
+}
+
+void MainWindow::switchDefaultPlayer(const PlayerColor & player)
+{
+	if(controller.defaultPlayer == player)
+		return;
+	
+	ui->actionNeutral->blockSignals(true);
+	ui->actionNeutral->setChecked(PlayerColor::NEUTRAL == player);
+	ui->actionNeutral->blockSignals(false);
+	for(int i = 0; i < 8; ++i)
+	{
+		getActionPlayer(PlayerColor(i))->blockSignals(true);
+		getActionPlayer(PlayerColor(i))->setChecked(PlayerColor(i) == player);
+		getActionPlayer(PlayerColor(i))->blockSignals(false);
+	}
+	controller.defaultPlayer = player;
+}
+
+void MainWindow::onPlayersChanged()
+{
+	if(controller.map())
+	{
+		getActionPlayer(PlayerColor::NEUTRAL)->setEnabled(true);
+		for(int i = 0; i < controller.map()->players.size(); ++i)
+			getActionPlayer(PlayerColor(i))->setEnabled(controller.map()->players.at(i).canAnyonePlay());
+		if(!getActionPlayer(controller.defaultPlayer)->isEnabled() || controller.defaultPlayer == PlayerColor::NEUTRAL)
+			switchDefaultPlayer(PlayerColor::NEUTRAL);
+	}
+	else
+	{
+		for(int i = 0; i < PlayerColor::PLAYER_LIMIT.getNum(); ++i)
+			getActionPlayer(PlayerColor(i))->setEnabled(false);
+		getActionPlayer(PlayerColor::NEUTRAL)->setEnabled(false);
+	}
+	
+}
+
+
 
 void MainWindow::enableUndo(bool enable)
 {

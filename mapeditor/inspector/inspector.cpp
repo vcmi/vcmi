@@ -11,7 +11,7 @@
 #include "messagewidget.h"
 
 //===============IMPLEMENT OBJECT INITIALIZATION FUNCTIONS================
-Initializer::Initializer(CMap * m, CGObjectInstance * o) : map(m)
+Initializer::Initializer(CMap * m, CGObjectInstance * o, const PlayerColor & pl) : map(m), defaultPlayer(pl)
 {
 ///IMPORTANT! initialize order should be from base objects to derived objects
 	INIT_OBJ_TYPE(CGResource);
@@ -58,7 +58,7 @@ void Initializer::initialize(CGDwelling * o)
 {
 	if(!o) return;
 	
-	o->tempOwner = PlayerColor::NEUTRAL;
+	o->tempOwner = defaultPlayer;
 	
 	switch(o->ID)
 	{
@@ -73,7 +73,7 @@ void Initializer::initialize(CGGarrison * o)
 {
 	if(!o) return;
 	
-	o->tempOwner = PlayerColor::NEUTRAL;
+	o->tempOwner = defaultPlayer;
 	o->removableUnits = true;
 }
 
@@ -81,21 +81,21 @@ void Initializer::initialize(CGShipyard * o)
 {
 	if(!o) return;
 	
-	o->tempOwner = PlayerColor::NEUTRAL;
+	o->tempOwner = defaultPlayer;
 }
 
 void Initializer::initialize(CGLighthouse * o)
 {
 	if(!o) return;
 	
-	o->tempOwner = PlayerColor::NEUTRAL;
+	o->tempOwner = defaultPlayer;
 }
 
 void Initializer::initialize(CGHeroInstance * o)
 {
 	if(!o) return;
 	
-	o->tempOwner = PlayerColor::NEUTRAL;
+	o->tempOwner = defaultPlayer;
 }
 
 void Initializer::initialize(CGTownInstance * o)
@@ -141,7 +141,7 @@ void Initializer::initialize(CGMine * o)
 {
 	if(!o) return;
 	
-	o->tempOwner = PlayerColor::NEUTRAL;
+	o->tempOwner = defaultPlayer;
 	o->producedResource = Res::ERes(o->subID);
 	o->producedQuantity = o->defaultResProduction();
 }

@@ -90,6 +90,8 @@ private slots:
 	void on_actionUpdate_appearance_triggered();
 
 	void on_actionRecreate_obstacles_triggered();
+	
+	void switchDefaultPlayer(const PlayerColor &);
 
 public slots:
 
@@ -99,11 +101,14 @@ public slots:
 	void enableUndo(bool enable);
 	void enableRedo(bool enable);
 	void onSelectionMade(int level, bool anythingSelected);
+	void onPlayersChanged();
 
 private:
 	void preparePreview(const QModelIndex &index, bool createNew);
 	void addGroupIntoCatalog(const std::string & groupName, bool staticOnly);
 	void addGroupIntoCatalog(const std::string & groupName, bool useCustomName, bool staticOnly, int ID);
+	
+	QAction * getActionPlayer(const PlayerColor &);
 
 	void changeBrushState(int idx);
 	void setTitle();

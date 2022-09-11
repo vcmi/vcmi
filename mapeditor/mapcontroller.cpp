@@ -13,7 +13,7 @@
 #include "scenelayer.h"
 #include "maphandler.h"
 #include "mainwindow.h"
-#include "inspector.h"
+#include "inspector/inspector.h"
 
 
 MapController::MapController(MainWindow * m): main(m)
@@ -342,7 +342,7 @@ void MapController::commitObjectCreate(int level)
 		return; //maplimit reached
 	}
 	
-	Initializer init(map(), newObj);
+	Initializer init(map(), newObj, defaultPlayer);
 	
 	_map->getEditManager()->insertObject(newObj);
 	_mapHandler->invalidate(newObj);

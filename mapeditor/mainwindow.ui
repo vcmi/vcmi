@@ -81,9 +81,24 @@
     <addaction name="actionRedo"/>
     <addaction name="actionErase"/>
    </widget>
+   <widget class="QMenu" name="menuPlayer">
+    <property name="title">
+     <string>Player</string>
+    </property>
+    <addaction name="actionNeutral"/>
+    <addaction name="actionPlayer_1"/>
+    <addaction name="actionPlayer_2"/>
+    <addaction name="actionPlayer_3"/>
+    <addaction name="actionPlayer_4"/>
+    <addaction name="actionPlayer_5"/>
+    <addaction name="actionPlayer_6"/>
+    <addaction name="actionPlayer_7"/>
+    <addaction name="actionPlayer_8"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuMap"/>
+   <addaction name="menuPlayer"/>
   </widget>
   <widget class="QToolBar" name="toolBar">
    <property name="windowTitle">
@@ -902,7 +917,7 @@
     <string>Erase</string>
    </property>
    <property name="shortcut">
-    <string>Del</string>
+    <string>Backspace, Del</string>
    </property>
   </action>
   <action name="actionNeutral">
@@ -911,6 +926,9 @@
    </property>
    <property name="text">
     <string>Neutral</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+0</string>
    </property>
   </action>
   <action name="actionValidate">
@@ -932,6 +950,94 @@
    </property>
    <property name="text">
     <string>Recreate obstacles</string>
+   </property>
+  </action>
+  <action name="actionPlayer_1">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Player 1</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+1</string>
+   </property>
+  </action>
+  <action name="actionPlayer_2">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Player 2</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+2</string>
+   </property>
+  </action>
+  <action name="actionPlayer_3">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Player 3</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+3</string>
+   </property>
+  </action>
+  <action name="actionPlayer_4">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Player 4</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+4</string>
+   </property>
+  </action>
+  <action name="actionPlayer_5">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Player 5</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+5</string>
+   </property>
+  </action>
+  <action name="actionPlayer_6">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Player 6</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+6</string>
+   </property>
+  </action>
+  <action name="actionPlayer_7">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Player 7</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+7</string>
+   </property>
+  </action>
+  <action name="actionPlayer_8">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Player 8</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+8</string>
    </property>
   </action>
  </widget>

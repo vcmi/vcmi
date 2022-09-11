@@ -37,10 +37,11 @@ public:
 	DECLARE_OBJ_TYPE(CGLighthouse);
 	
 	
-	Initializer(CMap *, CGObjectInstance *);
+	Initializer(CMap *, CGObjectInstance *, const PlayerColor &);
 
 private:
 	CMap * map;
+	PlayerColor defaultPlayer;
 };
 
 class Inspector
