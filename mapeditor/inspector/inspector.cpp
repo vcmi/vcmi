@@ -9,6 +9,7 @@
 #include "townbulidingswidget.h"
 #include "armywidget.h"
 #include "messagewidget.h"
+#include "rewardswidget.h"
 
 //===============IMPLEMENT OBJECT INITIALIZATION FUNCTIONS================
 Initializer::Initializer(CMap * m, CGObjectInstance * o, const PlayerColor & pl) : map(m), defaultPlayer(pl)
@@ -26,6 +27,7 @@ Initializer::Initializer(CMap * m, CGObjectInstance * o, const PlayerColor & pl)
 	INIT_OBJ_TYPE(CGHeroInstance);
 	INIT_OBJ_TYPE(CGSignBottle);
 	INIT_OBJ_TYPE(CGLighthouse);
+	//INIT_OBJ_TYPE(CGPandoraBox);
 }
 
 bool stringToBool(const QString & s)
@@ -273,6 +275,14 @@ void Inspector::updateProperties(CGCreature * o)
 	//addProperty("Resources reward", o->resources); //TODO: implement in setProperty
 }
 
+void Inspector::updateProperties(CGPandoraBox * o)
+{
+	if(!o) return;
+	
+	auto * delegate = new RewardsPandoraDelegate(*o);
+	addProperty("Reward", PropertyEditorPlaceholder(), delegate, false);
+}
+
 
 void Inspector::updateProperties()
 {
@@ -308,6 +318,7 @@ void Inspector::updateProperties()
 	UPDATE_OBJ_PROPERTIES(CGHeroInstance);
 	UPDATE_OBJ_PROPERTIES(CGSignBottle);
 	UPDATE_OBJ_PROPERTIES(CGLighthouse);
+	UPDATE_OBJ_PROPERTIES(CGPandoraBox);
 	
 	table->show();
 }
@@ -340,6 +351,7 @@ void Inspector::setProperty(const QString & key, const QVariant & value)
 	SET_PROPERTIES(CGShipyard);
 	SET_PROPERTIES(CGSignBottle);
 	SET_PROPERTIES(CGLighthouse);
+	SET_PROPERTIES(CGPandoraBox);
 }
 
 void Inspector::setProperty(CArmedInstance * object, const QString & key, const QVariant & value)
@@ -348,6 +360,11 @@ void Inspector::setProperty(CArmedInstance * object, const QString & key, const 
 }
 
 void Inspector::setProperty(CGLighthouse * object, const QString & key, const QVariant & value)
+{
+	if(!object) return;
+}
+
+void Inspector::setProperty(CGPandoraBox * object, const QString & key, const QVariant & value)
 {
 	if(!object) return;
 }

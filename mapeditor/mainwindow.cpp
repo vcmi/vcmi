@@ -561,7 +561,7 @@ void MainWindow::loadObjectsTree()
 	addGroupIntoCatalog("ARTIFACTS", false, false, Obj::RANDOM_MAJOR_ART);
 	addGroupIntoCatalog("ARTIFACTS", false, false, Obj::RANDOM_RELIC_ART);
 	addGroupIntoCatalog("ARTIFACTS", true, false, Obj::SPELL_SCROLL);
-	//addGroupIntoCatalog("RESOURCES", true, false, Obj::PANDORAS_BOX);
+	addGroupIntoCatalog("ARTIFACTS", true, false, Obj::PANDORAS_BOX);
 	addGroupIntoCatalog("RESOURCES", true, false, Obj::RANDOM_RESOURCE);
 	addGroupIntoCatalog("RESOURCES", false, false, Obj::RESOURCE);
 	addGroupIntoCatalog("RESOURCES", true, false, Obj::SEA_CHEST);
