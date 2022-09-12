@@ -1514,7 +1514,7 @@ void CPuzzleWindow::showAll(SDL_Surface * to)
 	Rect mapRect = genRect(544, 591, pos.x + 8, pos.y + 7);
 	int3 topTile = grailPos - moveInt;
 
-	MapDrawingInfo info(topTile, &LOCPLINT->cb->getVisibilityMap(), &mapRect);
+	MapDrawingInfo info(topTile, LOCPLINT->cb->getVisibilityMap(), &mapRect);
 	info.puzzleMode = true;
 	info.grailPos = grailPos;
 	CGI->mh->drawTerrainRectNew(to, &info);

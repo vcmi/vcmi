@@ -33,7 +33,7 @@ void NodeStorage::initialize(const PathfinderOptions & options, const CGameState
 	int3 pos;
 	const PlayerColor player = out.hero->tempOwner;
 	const int3 sizes = gs->getMapSize();
-	const auto & fow = static_cast<const CGameInfoCallback *>(gs)->getPlayerTeam(player)->fogOfWarMap;
+	const auto fow = static_cast<const CGameInfoCallback *>(gs)->getPlayerTeam(player)->fogOfWarMap;
 
 	//make 200% sure that these are loop invariants (also a bit shorter code), let compiler do the rest(loop unswitching)
 	const bool useFlying = options.useFlying;
