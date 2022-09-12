@@ -68,7 +68,9 @@ set(lib_SRCS
 		mapping/CMap.cpp
 		mapping/CMapEditManager.cpp
 		mapping/CMapInfo.cpp
+		mapping/CMapOperation.cpp
 		mapping/CMapService.cpp
+		mapping/MapEditUtils.cpp
 		mapping/MapFormatH3M.cpp
 		mapping/MapFormatJson.cpp
 
@@ -177,6 +179,7 @@ set(lib_SRCS
 		IHandlerBase.cpp
 		JsonDetail.cpp
 		JsonNode.cpp
+		LoadProgress.cpp
 		LogicalExpression.cpp
 		NetPacksLib.cpp
 		ObstacleHandler.cpp
@@ -301,7 +304,9 @@ set(lib_HEADERS
 		mapping/CMapEditManager.h
 		mapping/CMap.h
 		mapping/CMapInfo.h
+		mapping/CMapOperation.h
 		mapping/CMapService.h
+		mapping/MapEditUtils.h
 		mapping/MapFormatH3M.h
 		mapping/MapFormatJson.h
 
@@ -415,6 +420,7 @@ set(lib_HEADERS
 		Interprocess.h
 		JsonDetail.h
 		JsonNode.h
+		LoadProgress.h
 		LogicalExpression.h
 		NetPacksBase.h
 		NetPacks.h

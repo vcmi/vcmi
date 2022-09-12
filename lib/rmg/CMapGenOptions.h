@@ -142,6 +142,8 @@ public:
 	const CRmgTemplate * getMapTemplate() const;
 	void setMapTemplate(const CRmgTemplate * value);
 
+	std::vector<const CRmgTemplate *> getPossibleTemplates() const;
+
 	/// Finalizes the options. All random sizes for various properties will be overwritten by numbers from
 	/// a random number generator by keeping the options in a valid state. Check options should return true, otherwise
 	/// this function fails.

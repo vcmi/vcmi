@@ -42,6 +42,11 @@ int CMapGenerator::getRandomSeed() const
 	return randomSeed;
 }
 
+void CMapGenerator::disableModificator(const std::string & modificator)
+{
+	disabledModificators.insert(modificator);
+}
+
 void CMapGenerator::loadConfig()
 {
 	static const ResourceID path("config/randomMap.json");
@@ -121,15 +126,20 @@ void CMapGenerator::initQuestArtsRemaining()
 
 std::unique_ptr<CMap> CMapGenerator::generate()
 {
+	Load::Progress::reset();
+	Load::Progress::stepsTill(5, 30);
 	try
 	{
 		addHeaderInfo();
 		map->initTiles(*this);
+		Load::Progress::step();
 		initPrisonsRemaining();
-		initQuestArtsRemaining();
+		initQuestArtsRemaining();		
 		genZones();
+		Load::Progress::step();
 		map->map().calculateGuardingGreaturePositions(); //clear map so that all tiles are unguarded
-		map->addModificators();
+		map->addModificators(disabledModificators);
+		Load::Progress::step(3);
 		fillZones();
 		//updated guarded tiles will be calculated in CGameState::initMapObjects()
 		map->getZones().clear();
@@ -138,6 +148,7 @@ std::unique_ptr<CMap> CMapGenerator::generate()
 	{
 		logGlobal->error("Random map generation received exception: %s", e.what());
 	}
+	Load::Progress::finish();
 	return std::move(map->mapInstance);
 }
 
@@ -284,13 +295,15 @@ void CMapGenerator::fillZones()
 
 	//we need info about all town types to evaluate dwellings and pandoras with creatures properly
 	//place main town in the middle
-	
+	Load::Progress::stepsTill(map->getZones().size(), 50);
 	for(auto it : map->getZones())
 	{
 		it.second->initFreeTiles();
 		it.second->initModificators();
+		Progress::Progress::step();
 	}
 
+	Load::Progress::stepsTill(map->getZones().size(), 240);
 	std::vector<std::shared_ptr<Zone>> treasureZones;
 	for(auto it : map->getZones())
 	{
@@ -298,6 +311,8 @@ void CMapGenerator::fillZones()
 		
 		if (it.second->getType() == ETemplateZoneType::TREASURE)
 			treasureZones.push_back(it.second);
+
+		Progress::Progress::step();
 	}
 
 	//find place for Grail
@@ -312,6 +327,8 @@ void CMapGenerator::fillZones()
 	map->map().grailPos = *RandomGeneratorUtil::nextItem(grailZone->freePaths().getTiles(), rand);
 
 	logGlobal->info("Zones filled successfully");
+
+	Load::Progress::set(250);
 }
 
 void CMapGenerator::findZonesForQuestArts()

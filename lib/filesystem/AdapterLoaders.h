@@ -84,4 +84,14 @@ public:
 	 * @param writeable - resource shall be treated as writeable
 	 */
 	void addLoader(ISimpleResourceLoader * loader, bool writeable);
+	
+	/**
+	 * Removes loader from the loader list
+	 * Take care about memory deallocation
+	 *
+	 * @param loader The simple resource loader object to remove
+	 *
+	 * @return if loader was successfully removed
+	 */
+	bool removeLoader(ISimpleResourceLoader * loader);
 };
