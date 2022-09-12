@@ -204,8 +204,8 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 			auto & managerOther = *otherZone->getModificator<ObjectManager>();
 			
 			auto factory = VLC->objtypeh->getHandlerFor(Obj::SUBTERRANEAN_GATE, 0);
-			auto gate1 = factory->create(ObjectTemplate());
-			auto gate2 = factory->create(ObjectTemplate());
+			auto gate1 = factory->create();
+			auto gate2 = factory->create();
 			rmg::Object rmgGate1(*gate1), rmgGate2(*gate2);
 			rmgGate1.setTemplate(zone.getTerrainType());
 			rmgGate2.setTemplate(otherZone->getTerrainType());
@@ -249,8 +249,8 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 	if(!success)
 	{
 		auto factory = VLC->objtypeh->getHandlerFor(Obj::MONOLITH_TWO_WAY, generator.getNextMonlithIndex());
-		auto teleport1 = factory->create(ObjectTemplate());
-		auto teleport2 = factory->create(ObjectTemplate());
+		auto teleport1 = factory->create();
+		auto teleport2 = factory->create();
 		
 		zone.getModificator<ObjectManager>()->addRequiredObject(teleport1, connection.getGuardStrength());
 		otherZone->getModificator<ObjectManager>()->addRequiredObject(teleport2, connection.getGuardStrength());

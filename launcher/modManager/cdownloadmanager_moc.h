@@ -35,6 +35,8 @@ class CDownloadManager : public QObject
 	};
 
 	QStringList encounteredErrors;
+	
+	QString filename;
 
 	QNetworkAccessManager manager;
 

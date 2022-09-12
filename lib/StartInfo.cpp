@@ -64,7 +64,7 @@ std::string StartInfo::getCampaignName() const
 void LobbyInfo::verifyStateBeforeStart(bool ignoreNoHuman) const
 {
 	if(!mi)
-		throw ExceptionMapMissing();
+		throw std::domain_error("ExceptionMapMissing");
 
 	//there must be at least one human player before game can be started
 	std::map<PlayerColor, PlayerSettings>::const_iterator i;
@@ -73,12 +73,12 @@ void LobbyInfo::verifyStateBeforeStart(bool ignoreNoHuman) const
 			break;
 
 	if(i == si->playerInfos.cend() && !ignoreNoHuman)
-		throw ExceptionNoHuman();
+		throw std::domain_error("ExceptionNoHuman");
 
 	if(si->mapGenOptions && si->mode == StartInfo::NEW_GAME)
 	{
 		if(!si->mapGenOptions->checkOptions())
-			throw ExceptionNoTemplate();
+			throw std::domain_error("ExceptionNoTemplate");
 	}
 }
 

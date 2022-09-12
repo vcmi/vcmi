@@ -315,7 +315,7 @@
 			"fireShield" :
 			{
 				"type" : "FIRE_SHIELD",
-				"val" : 30
+				"val" : 20
 			}
 		},
 		"graphics" :

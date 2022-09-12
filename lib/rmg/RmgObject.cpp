@@ -105,7 +105,7 @@ void Object::Instance::setPositionRaw(const int3 & position)
 
 void Object::Instance::setTemplate(const Terrain & terrain)
 {
-	if(dObject.appearance.id == Obj::NO_OBJ)
+	if(dObject.appearance->id == Obj::NO_OBJ)
 	{
 		auto templates = VLC->objtypeh->getHandlerFor(dObject.ID, dObject.subID)->getTemplates(terrain);
 		if(templates.empty())
@@ -130,7 +130,7 @@ void Object::Instance::clear()
 bool Object::Instance::isVisitableFrom(const int3 & position) const
 {
 	auto relPosition = position - getPosition(true);
-	return dObject.appearance.isVisitableFrom(relPosition.x, relPosition.y);
+	return dObject.appearance->isVisitableFrom(relPosition.x, relPosition.y);
 }
 
 CGObjectInstance & Object::Instance::object()
@@ -286,7 +286,7 @@ void Object::Instance::finalize(RmgMap & map)
 			throw rmgException(boost::to_string(boost::format("Tile %s of object %d at %s is outside the map") % tile.toString() % dObject.id % dObject.pos.toString()));
 	}
 	
-	if (dObject.appearance.id == Obj::NO_OBJ)
+	if (dObject.appearance->id == Obj::NO_OBJ)
 	{
 		auto terrainType = map.map().getTile(getPosition(true)).terType;
 		auto templates = VLC->objtypeh->getHandlerFor(dObject.ID, dObject.subID)->getTemplates(terrainType);

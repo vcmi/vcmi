@@ -363,12 +363,12 @@
 			"type" : "object",
 			"default": {},
 			"additionalProperties" : false,
-			"required" : [ "repositoryURL", "enableInstalledMods", "autoCheckRepositories" ],
+			"required" : [ "repositoryURL", "enableInstalledMods", "autoCheckRepositories", "updateOnStartup", "updateConfigUrl" ],
 			"properties" : {
 				"repositoryURL" : {
 					"type" : "array",
 					"default" : [
-						"http://download.vcmi.eu/mods/repository/repository.json"
+						"https://raw.githubusercontent.com/vcmi/vcmi-mods-repository/develop/github.json"
 					],
 					"items" : {
 						"type" : "string"
@@ -381,6 +381,14 @@
 				"autoCheckRepositories" : {
 					"type" : "boolean",
 					"default" : true
+				},
+				"updateOnStartup" : {
+					"type" : "boolean",
+					"default" : true
+				},
+				"updateConfigUrl" : {
+					"type" : "string",
+					"default" : "https://raw.githubusercontent.com/vcmi/vcmi-updates/master/vcmi-updates.json"
 				}
 			}
 		}

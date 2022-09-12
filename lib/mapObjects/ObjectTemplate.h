@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../GameConstants.h"
+#include "../int3.h"
 
 class CBinaryReader;
 class CLegacyConfigParser;
@@ -50,11 +51,22 @@ public:
 	/// string ID, equals to def base name for h3m files (lower case, no extension) or specified in mod data
 	std::string stringID;
 
-	ui32 getWidth() const;
-	ui32 getHeight() const;
+	inline ui32 getWidth() const
+	{
+		return width;
+	};
+
+	inline ui32 getHeight() const
+	{ 
+		return height;
+	};
+
 	void setSize(ui32 width, ui32 height);
 
-	bool isVisitable() const;
+	inline bool isVisitable() const
+	{
+		return visitable;
+	};
 
 	// Checks object used tiles
 	// Position is relative to bottom-right corner of the object, can not be negative
@@ -62,13 +74,29 @@ public:
 	bool isVisitableAt(si32 X, si32 Y) const;
 	bool isVisibleAt(si32 X, si32 Y) const;
 	bool isBlockedAt(si32 X, si32 Y) const;
-	std::set<int3> getBlockedOffsets() const;
-	int3 getBlockMapOffset() const; //bottom-right corner when firts blocked tile is
+
+	inline std::set<int3> getBlockedOffsets() const
+	{
+		return blockedOffsets;
+	};
+
+	inline int3 getBlockMapOffset() const
+	{
+		return blockMapOffset; 
+	}; 
 
 	// Checks if object is visitable from certain direction. X and Y must be between -1..+1
 	bool isVisitableFrom(si8 X, si8 Y) const;
-	int3 getVisitableOffset() const;
-	bool isVisitableFromTop() const;
+	inline int3 getVisitableOffset() const
+	{
+		//logGlobal->warn("Warning: getVisitableOffset called on non-visitable obj!");
+		return visitableOffset;
+	};
+
+	inline bool isVisitableFromTop() const
+	{
+		return visitDir & 2;
+	};
 
 	// Checks if object can be placed on specific terrain
 	bool canBePlacedAt(Terrain terrain) const;
@@ -87,6 +115,25 @@ public:
 
 	bool operator==(const ObjectTemplate& ot) const { return (id == ot.id && subid == ot.subid); }
 
+private:
+	ui32 width;
+	ui32 height;
+	bool visitable;
+
+	std::set<int3> blockedOffsets;
+	int3 blockMapOffset;
+	int3 visitableOffset;
+
+	void recalculate();
+
+	void calculateWidth();
+	void calculateHeight();
+	void calculateVsitable();
+	void calculateBlockedOffsets();
+	void calculateBlockMapOffset();
+	void calculateVisitableOffset();
+
+public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & usedTiles;
@@ -98,6 +145,11 @@ public:
 		h & printPriority;
 		h & visitDir;
 		h & editorAnimationFile;
+
+		if (!h.saving)
+		{
+			recalculate();
+		}
 	}
 };
 

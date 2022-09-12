@@ -11,6 +11,8 @@
 #include "csettingsview_moc.h"
 #include "ui_csettingsview_moc.h"
 
+#include "../updatedialog_moc.h"
+
 #include <QFileInfo>
 #include <QGuiApplication>
 
@@ -232,3 +234,9 @@ void CSettingsView::on_comboBoxAutoSave_currentIndexChanged(int index)
 	Settings node = settings.write["general"]["saveFrequency"];
 	node->Integer() = index;
 }
+
+void CSettingsView::on_updatesButton_clicked()
+{
+	UpdateDialog::showUpdateDialog(true);
+}
+

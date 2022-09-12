@@ -9,7 +9,8 @@
 		"code" : "dt",
 		"river" : "rm",
 		"battleFields" : ["dirt_birches", "dirt_hills", "dirt_pines"],
-		"terrainViewPatterns" : "dirt"
+		"terrainViewPatterns" : "dirt",
+		"horseSoundId" : 0
 	},
 	"sand" :
 	{
@@ -22,7 +23,8 @@
 		"river" : "rm",
 		"battleFields" : ["sand_mesas"],
 		"transitionRequired" : true,
-		"terrainViewPatterns" : "sand"
+		"terrainViewPatterns" : "sand",
+		"horseSoundId" : 1
 	},
 	"grass" :
 	{
@@ -33,7 +35,8 @@
 		"tiles" : "GRASTL",
 		"code" : "gr",
 		"river" : "rw",
-		"battleFields" : ["grass_hills", "grass_pines"]
+		"battleFields" : ["grass_hills", "grass_pines"],
+		"horseSoundId" : 2
 	},
 	"snow" :
 	{
@@ -44,7 +47,8 @@
 		"tiles" : "SNOWTL",
 		"code" : "sn",
 		"river" : "ri",
-		"battleFields" : ["snow_mountains", "snow_trees"]
+		"battleFields" : ["snow_mountains", "snow_trees"],
+		"horseSoundId" : 3
 	},
 	"swamp" :
 	{
@@ -55,7 +59,8 @@
 		"tiles" : "SWMPTL",
 		"code" : "sw",
 		"river" : "rw",
-		"battleFields" : ["swamp_trees"]
+		"battleFields" : ["swamp_trees"],
+		"horseSoundId" : 4
 	},
 	"rough" :
 	{
@@ -66,7 +71,8 @@
 		"tiles" : "ROUGTL",
 		"code" : "rg",
 		"river" : "rm",
-		"battleFields" : ["rough"]
+		"battleFields" : ["rough"],
+		"horseSoundId" : 5
 	},
 	"subterra" :
 	{
@@ -79,7 +85,8 @@
 		"code" : "sb",
 		"river" : "rw",
 		"battleFields" : ["subterranean"],
-		"rockTerrain" : "rock"
+		"rockTerrain" : "rock",
+		"horseSoundId" : 6
 	},
 	"lava" :
 	{
@@ -91,7 +98,8 @@
 		"code" : "lv",
 		"river" : "rl",
 		"battleFields" : ["lava"],
-		"rockTerrain" : "rock"
+		"rockTerrain" : "rock",
+		"horseSoundId" : 7
 	},
 	"water" :
 	{
@@ -104,7 +112,11 @@
 		"code" : "wt",
 		"battleFields" : ["ship"],
 		"transitionRequired" : true,
-		"terrainViewPatterns" : "water"
+		"terrainViewPatterns" : "water",
+		"horseSoundId" : 8,
+		"sounds": {
+			"ambient": ["LOOPOCEA"]
+		}
 	},
 	"rock" :
 	{
@@ -117,6 +129,7 @@
 		"code" : "rc",
 		"battleFields" : ["rocklands"],
 		"transitionRequired" : true,
-		"terrainViewPatterns" : "rock"
+		"terrainViewPatterns" : "rock",
+		"horseSoundId" : 9
 	}
 }

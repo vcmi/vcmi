@@ -183,7 +183,7 @@ void CRewardableConstructor::initTypeData(const JsonNode & config)
 	objectInfo.init(config);
 }
 
-CGObjectInstance * CRewardableConstructor::create(const ObjectTemplate & tmpl) const
+CGObjectInstance * CRewardableConstructor::create(std::shared_ptr<const ObjectTemplate> tmpl) const
 {
 	auto ret = new CRewardableObject();
 	preInitObject(ret);
@@ -196,7 +196,7 @@ void CRewardableConstructor::configureObject(CGObjectInstance * object, CRandomG
 	objectInfo.configureObject(dynamic_cast<CRewardableObject*>(object), rng);
 }
 
-std::unique_ptr<IObjectInfo> CRewardableConstructor::getObjectInfo(const ObjectTemplate & tmpl) const
+std::unique_ptr<IObjectInfo> CRewardableConstructor::getObjectInfo(std::shared_ptr<const ObjectTemplate> tmpl) const
 {
 	return std::unique_ptr<IObjectInfo>(new CRandomRewardObjectInfo(objectInfo));
 }

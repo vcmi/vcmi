@@ -294,6 +294,7 @@ public:
 	void setAnimSpeed(int set); //speed of animation; range 1..100
 	int getAnimSpeed() const; //speed of animation; range 1..100
 	CPlayerInterface *getCurrentPlayerInterface() const;
+	bool shouldRotate(const CStack * stack, const BattleHex & oldPos, const BattleHex & nextHex);
 
 	std::vector<std::shared_ptr<CClickableHex>> bfield; //11 lines, 17 hexes on each
 	SDL_Surface *cellBorder, *cellShade;

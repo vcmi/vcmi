@@ -10,8 +10,6 @@
 #include "StdInc.h"
 #include "CAnimation.h"
 
-#include <SDL_image.h>
-
 #include "../CBitmapHandler.h"
 #include "../Graphics.h"
 #include "../gui/SDL_Extensions.h"
