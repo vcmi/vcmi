@@ -502,7 +502,7 @@ const TerrainTile * CGameInfoCallback::getTile( int3 tile, bool verbose) const
 }
 
 //TODO: typedef?
-std::shared_ptr<boost::multi_array<TerrainTile*, 3>> CGameInfoCallback::getAllVisibleTiles() const
+std::shared_ptr<const boost::multi_array<TerrainTile*, 3>> CGameInfoCallback::getAllVisibleTiles() const
 {
 	assert(player.is_initialized());
 	auto team = getPlayerTeam(player.get());
@@ -511,20 +511,20 @@ std::shared_ptr<boost::multi_array<TerrainTile*, 3>> CGameInfoCallback::getAllVi
 	size_t height = gs->map->height;
 	size_t levels = (gs->map->twoLevel ? 2 : 1);
 
-
-	boost::multi_array<TerrainTile*, 3> tileArray(boost::extents[levels][width][height]);
+	auto ptr = new boost::multi_array<TerrainTile*, 3>(boost::extents[levels][width][height]);
 
 	int3 tile;
 	for (tile.z = 0; tile.z < levels; tile.z++)
 		for (tile.x = 0; tile.x < width; tile.x++)
 			for (tile.y = 0; tile.y < height; tile.y++)
 			{
-				if (team->fogOfWarMap[tile.z][tile.x][tile.y])
-					tileArray[tile.z][tile.x][tile.y] = &gs->map->getTile(tile);
+				if ((*team->fogOfWarMap)[tile.z][tile.x][tile.y])
+					(*ptr)[tile.z][tile.x][tile.y] = &gs->map->getTile(tile);
 				else
-					tileArray[tile.z][tile.x][tile.y] = nullptr;
+					(*ptr)[tile.z][tile.x][tile.y] = nullptr;
 			}
-	return std::make_shared<boost::multi_array<TerrainTile*, 3>>(tileArray);
+
+	return std::shared_ptr<const boost::multi_array<TerrainTile*, 3>>(ptr);
 }
 
 EBuildingState::EBuildingState CGameInfoCallback::canBuildStructure( const CGTownInstance *t, BuildingID ID )
@@ -695,7 +695,7 @@ CGameInfoCallback::CGameInfoCallback(CGameState *GS, boost::optional<PlayerColor
 	player = Player;
 }
 
-const std::vector< std::vector< std::vector<ui8> > > & CPlayerSpecificInfoCallback::getVisibilityMap() const
+std::shared_ptr<const boost::multi_array<ui8, 3>> CPlayerSpecificInfoCallback::getVisibilityMap() const
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	return gs->getPlayerTeam(*player)->fogOfWarMap;

@@ -1593,17 +1593,13 @@ void CGameState::giveCampaignBonusToHero(CGHeroInstance * hero)
 void CGameState::initFogOfWar()
 {
 	logGlobal->debug("\tFog of war"); //FIXME: should be initialized after all bonuses are set
+
+	int layers = map->twoLevel ? 2 : 1;
 	for(auto & elem : teams)
 	{
-		elem.second.fogOfWarMap.resize(map->twoLevel ? 2 : 1);
-
-		for (int z = 0; z < (map->twoLevel ? 2 : 1); ++z)
-		{
-			elem.second.fogOfWarMap[z].resize(map->width);
-
-			for (int x = 0; x < map->height; ++x)
-				elem.second.fogOfWarMap[z][x].resize(map->height, 0); //init with zeros
-		}
+		auto fow = elem.second.fogOfWarMap;
+		fow->resize(boost::extents[layers][map->width][map->height]);
+		std::fill(fow->data(), fow->data() + fow->num_elements(), 0);
 
 		for(CGObjectInstance *obj : map->objects)
 		{
@@ -1613,7 +1609,7 @@ void CGameState::initFogOfWar()
 			getTilesInRange(tiles, obj->getSightCenter(), obj->getSightRadius(), obj->tempOwner, 1);
 			for(int3 tile : tiles)
 			{
-				elem.second.fogOfWarMap[tile.z][tile.x][tile.y] = 1;
+				(*elem.second.fogOfWarMap)[tile.z][tile.x][tile.y] = 1;
 			}
 		}
 	}
@@ -2161,7 +2157,7 @@ bool CGameState::isVisible(int3 pos, PlayerColor player)
 	if(player.isSpectator())
 		return true;
 
-	return getPlayerTeam(player)->fogOfWarMap[pos.z][pos.x][pos.y];
+	return (*getPlayerTeam(player)->fogOfWarMap)[pos.z][pos.x][pos.y];
 }
 
 bool CGameState::isVisible( const CGObjectInstance *obj, boost::optional<PlayerColor> player )
@@ -3093,6 +3089,7 @@ int ArmyDescriptor::getStrength() const
 TeamState::TeamState()
 {
 	setNodeType(TEAM);
+	fogOfWarMap = std::make_shared<boost::multi_array<ui8, 3>>();
 }
 
 TeamState::TeamState(TeamState && other):
