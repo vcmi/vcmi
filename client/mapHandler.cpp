@@ -52,7 +52,7 @@ struct NeighborTilesInfo
 		 d1,
 		 d2,
 		 d3;
-	NeighborTilesInfo(const int3 & pos, const int3 & sizes, const std::vector< std::vector< std::vector<ui8> > > & visibilityMap)
+	NeighborTilesInfo(const int3 & pos, const int3 & sizes, const boost::multi_array<ui8, 3> & visibilityMap)
 	{
 		auto getTile = [&](int dx, int dy)->bool
 		{

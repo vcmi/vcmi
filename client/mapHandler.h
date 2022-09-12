@@ -92,7 +92,7 @@ struct MapDrawingInfo
 {
 	bool scaled;
 	int3 &topTile; // top-left tile in viewport [in tiles]
-	const std::vector< std::vector< std::vector<ui8> > > * visibilityMap;
+	std::shared_ptr<const boost::multi_array<ui8, 3>> visibilityMap;
 	SDL_Rect * drawBounds; // map rect drawing bounds on screen
 	std::shared_ptr<CAnimation> icons; // holds overlay icons for world view mode
 	float scale; // map scale for world view mode (only if scaled == true)
@@ -110,7 +110,7 @@ struct MapDrawingInfo
 
 	bool showAllTerrain; //for expert viewEarth
 
-	MapDrawingInfo(int3 &topTile_, const std::vector< std::vector< std::vector<ui8> > > * visibilityMap_, SDL_Rect * drawBounds_, std::shared_ptr<CAnimation> icons_ = nullptr)
+	MapDrawingInfo(int3 &topTile_, std::shared_ptr<const boost::multi_array<ui8, 3>> visibilityMap_, SDL_Rect * drawBounds_, std::shared_ptr<CAnimation> icons_ = nullptr)
 		: scaled(false),
 		  topTile(topTile_),
 
