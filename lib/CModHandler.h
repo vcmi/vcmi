@@ -177,6 +177,30 @@ public:
 		FAILED,
 		PASSED
 	};
+	
+	struct Version
+	{
+		int major = 0;
+		int minor = 0;
+		int patch = 0;
+		
+		Version() = default;
+		Version(int mj, int mi, int p): major(mj), minor(mi), patch(p) {}
+		
+		static Version GameVersion();
+		static Version fromString(std::string from);
+		std::string toString() const;
+		
+		bool compatible(const Version & other, bool checkMinor = false, bool checkPatch = false) const;
+		bool isNull() const;
+		
+		template <typename Handler> void serialize(Handler &h, const int version)
+		{
+			h & major;
+			h & minor;
+			h & patch;
+		}
+	};
 
 	/// identifier, identical to name of folder with mod
 	std::string identifier;
@@ -184,6 +208,12 @@ public:
 	/// human-readable strings
 	std::string name;
 	std::string description;
+	
+	/// version of the mod
+	Version version;
+	
+	///The  vcmi versions compatible with the mod
+	Version vcmiCompatibleMin, vcmiCompatibleMax;
 
 	/// list of mods that should be loaded before this one
 	std::set <TModID> dependencies;
@@ -210,7 +240,8 @@ public:
 	static std::string getModDir(std::string name);
 	static std::string getModFile(std::string name);
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	//TODO: remove as soon as backward compatilibity for versions earlier 806 is not preserved.
+	template <typename Handler> void serialize(Handler &h, const int ver)
 	{
 		h & identifier;
 		h & description;
@@ -256,6 +287,13 @@ class DLL_LINKAGE CModHandler
 	void loadMods(std::string path, std::string parent, const JsonNode & modSettings, bool enableMods);
 	void loadOneMod(std::string modName, std::string parent, const JsonNode & modSettings, bool enableMods);
 public:
+	
+	class Incompatibility: public std::logic_error
+	{
+	public:
+		Incompatibility(const std::string & w): std::logic_error(w)
+		{}
+	};
 
 	CIdentifierStorage identifiers;
 
@@ -336,8 +374,43 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & allMods;
-		h & activeMods;
+		if(version < 806)
+		{
+			h & allMods; //don't serialize mods
+			h & activeMods;
+		}
+		else
+		{
+			if(h.saving)
+			{
+				h & activeMods;
+				for(auto & m : activeMods)
+					h & allMods[m].version;
+			}
+			else
+			{
+				std::vector<TModID> newActiveMods;
+				h & newActiveMods;
+				for(auto & m : newActiveMods)
+				{
+					if(!allMods.count(m))
+						throw Incompatibility(m + " unkown mod");
+					
+					CModInfo::Version mver;
+					h & mver;
+					if(!allMods[m].version.isNull() && !mver.isNull() && !allMods[m].version.compatible(mver))
+					{
+						std::string err = allMods[m].name +
+						": version needed " + mver.toString() +
+						"but you have installed " + allMods[m].version.toString();
+						throw Incompatibility(err);
+					}
+					allMods[m].enabled = true;
+				}
+				std::swap(activeMods, newActiveMods);
+			}
+		}
+				
 		h & settings;
 		h & modules;
 		h & identifiers;

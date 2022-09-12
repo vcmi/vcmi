@@ -532,6 +532,47 @@ JsonNode addMeta(JsonNode config, std::string meta)
 	return config;
 }
 
+CModInfo::Version CModInfo::Version::GameVersion()
+{
+	return Version(GameConstants::VCMI_VERSION_MAJOR, GameConstants::VCMI_VERSION_MINOR, GameConstants::VCMI_VERSION_PATCH);
+}
+
+CModInfo::Version CModInfo::Version::fromString(std::string from)
+{
+	int major = 0, minor = 0, patch = 0;
+	try
+	{
+		auto pointPos = from.find('.');
+		major = std::stoi(from.substr(0, pointPos));
+		from = from.substr(pointPos);
+		pointPos = from.find('.');
+		minor = std::stoi(from.substr(0, pointPos));
+		patch = std::stoi(from.substr(pointPos));
+	}
+	catch(const std::invalid_argument & e)
+	{
+		return Version();
+	}
+	return Version(major, minor, patch);
+}
+
+std::string CModInfo::Version::toString() const
+{
+	return std::to_string(major) + '.' + std::to_string(minor) + '.' + std::to_string(patch);
+}
+
+bool CModInfo::Version::compatible(const Version & other, bool checkMinor, bool checkPatch) const
+{
+	return  (major == other.major &&
+			(!checkMinor || minor >= other.minor) &&
+			(!checkPatch || minor > other.minor || (minor == other.minor && patch >= other.patch)));
+}
+
+bool CModInfo::Version::isNull() const
+{
+	return major == 0 && minor == 0 && patch == 0;
+}
+
 CModInfo::CModInfo():
 	checksum(0),
 	enabled(false),
@@ -551,6 +592,12 @@ CModInfo::CModInfo(std::string identifier,const JsonNode & local, const JsonNode
 	validation(PENDING),
 	config(addMeta(config, identifier))
 {
+	version = Version::fromString(config["version"].String());
+	if(!config["compatibility"].isNull())
+	{
+		vcmiCompatibleMin = Version::fromString(config["compatibility"]["min"].String());
+		vcmiCompatibleMax = Version::fromString(config["compatibility"]["max"].String());
+	}
 	loadLocalData(local);
 }
 
@@ -601,6 +648,10 @@ void CModInfo::loadLocalData(const JsonNode & data)
 		validated = data["validated"].Bool();
 		checksum  = strtol(data["checksum"].String().c_str(), nullptr, 16);
 	}
+	
+	//check compatibility
+	enabled &= vcmiCompatibleMin.isNull() || Version::GameVersion().compatible(vcmiCompatibleMin);
+	enabled &= vcmiCompatibleMax.isNull() || vcmiCompatibleMax.compatible(Version::GameVersion());
 
 	if (enabled)
 		validation = validated ? PASSED : PENDING;
