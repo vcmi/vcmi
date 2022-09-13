@@ -44,6 +44,20 @@ if(APPLE)
 		)
 		file(REMOVE \"${bundleContentsDir}/conan_imports_manifest.txt\")
 	")
+
+	# perform ad-hoc codesigning
+	set(codesignCommand "codesign --verbose=4 --force --options=runtime --timestamp=none --sign -")
+	set(codesignCommandWithEntitlements "${codesignCommand} --entitlements \"${CMAKE_SOURCE_DIR}/osx/entitlements.plist\"")
+	install(CODE "
+		execute_process(COMMAND
+			${codesignCommand} \"${bundleContentsDir}/MacOS/vcmibuilder\"
+		)
+		foreach(executable vcmiclient vcmiserver vcmilauncher)
+			execute_process(COMMAND
+				${codesignCommandWithEntitlements} \"${bundleContentsDir}/MacOS/\${executable}\"
+			)
+		endforeach()
+	")
 endif(APPLE)
 
 # This will likely only work for Vcpkg
