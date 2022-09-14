@@ -109,7 +109,6 @@ std::vector<bool> ObstacleHandler::getDefaultAllowed() const
 
 const std::vector<std::string> & ObstacleHandler::getTypeNames() const
 {
-	static const  std::vector<std::string> types = std::vector<std::string> { "obstacle" };
-	
+	static const std::vector<std::string> types = { "obstacle" };
 	return types;
 }
