@@ -111,16 +111,35 @@ void CRandomRewardObjectInfo::configureObject(CRewardableObject * object, CRando
 
 		info.message = loadMessage(reward["message"]);
 		info.selectChance = JsonRandom::loadValue(reward["selectChance"], rng);
+		
+		object->info.push_back(info);
 	}
 
 	object->onSelect  = loadMessage(parameters["onSelectMessage"]);
 	object->onVisited = loadMessage(parameters["onVisitedMessage"]);
 	object->onEmpty   = loadMessage(parameters["onEmptyMessage"]);
-
-	//TODO: visitMode and selectMode
-
 	object->resetDuration = static_cast<ui16>(parameters["resetDuration"].Float());
 	object->canRefuse = parameters["canRefuse"].Bool();
+	
+	auto visitMode = parameters["visitMode"].String();
+	for(int i = 0; Rewardable::VisitModeString.size(); ++i)
+	{
+		if(Rewardable::VisitModeString[i] == visitMode)
+		{
+			object->visitMode = i;
+			break;
+		}
+	}
+	
+	auto selectMode = parameters["selectMode"].String();
+	for(int i = 0; Rewardable::SelectModeString.size(); ++i)
+	{
+		if(Rewardable::SelectModeString[i] == selectMode)
+		{
+			object->selectMode = i;
+			break;
+		}
+	}	
 }
 
 bool CRandomRewardObjectInfo::givesResources() const
@@ -179,7 +198,6 @@ CRewardableConstructor::CRewardableConstructor()
 
 void CRewardableConstructor::initTypeData(const JsonNode & config)
 {
-	AObjectTypeHandler::init(config);
 	objectInfo.init(config);
 }
 
