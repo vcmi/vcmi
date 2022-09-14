@@ -7014,10 +7014,10 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 		fc.mode = (cheat == "vcmieagles" ? 1 : 0);
 		fc.player = player;
 		const auto & fowMap = gs->getPlayerTeam(player)->fogOfWarMap;
-		auto hlp_tab = new int3[gs->map->width * gs->map->height * (gs->map->twoLevel ? 2 : 1)];
+		auto hlp_tab = new int3[gs->map->width * gs->map->height * (gs->map->levels())];
 		int lastUnc = 0;
 
-		for(int z = 0; z < (gs->map->twoLevel ? 2 : 1); z++)
+		for(int z = 0; z < gs->map->levels(); z++)
 			for(int x = 0; x < gs->map->width; x++)
 				for(int y = 0; y < gs->map->height; y++)
 					if(!(*fowMap)[z][x][y] || !fc.mode)
