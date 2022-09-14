@@ -374,9 +374,9 @@ void Modificator::dump()
 	int height = mapInstance.height;
 	for (int z = 0; z < levels; z++)
 	{
-		for(int j=0; j<height; j++)
+		for(int j = 0; j < height; j++)
 		{
-			for (int i=0; i<width; i++)
+			for (int i = 0; i < width; i++)
 			{
 				out << dump(int3(i, j, z));
 			}

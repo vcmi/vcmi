@@ -160,6 +160,12 @@ QVariant CModListModel::headerData(int section, Qt::Orientation orientation, int
 	return QVariant();
 }
 
+void CModListModel::reloadRepositories()
+{
+	beginResetModel();
+	endResetModel();
+}
+
 void CModListModel::resetRepositories()
 {
 	beginResetModel();

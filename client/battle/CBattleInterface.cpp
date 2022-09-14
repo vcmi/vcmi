@@ -502,13 +502,14 @@ void CBattleInterface::activate()
 	bWait->activate();
 	bDefence->activate();
 
-	for (auto hex : bfield)
-		hex->activate();
-
 	if (attackingHero)
 		attackingHero->activate();
 	if (defendingHero)
 		defendingHero->activate();
+
+	for (auto hex : bfield)
+		hex->activate();
+
 	if (settings["battle"]["showQueue"].Bool())
 		queue->activate();
 

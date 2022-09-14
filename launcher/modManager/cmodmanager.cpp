@@ -74,6 +74,7 @@ void CModManager::loadMods()
 	CModHandler handler;
 	handler.loadMods();
 	auto installedMods = handler.getAllMods();
+	localMods.clear();
 
 	for(auto modname : installedMods)
 	{
@@ -82,6 +83,13 @@ void CModManager::loadMods()
 		{
 			boost::filesystem::path name = *CResourceHandler::get()->getResourceName(resID);
 			auto mod = JsonUtils::JsonFromFile(pathToQString(name));
+			if(!name.is_absolute())
+			{
+				auto json = JsonUtils::toJson(mod);
+				json["storedLocaly"].Bool() = true;
+				mod = JsonUtils::toVariant(json);
+			}
+			
 			localMods.insert(QString::fromUtf8(modname.c_str()).toLower(), mod);
 		}
 	}
@@ -269,12 +277,10 @@ bool CModManager::doInstallMod(QString modname, QString archivePath)
 	QString upperLevel = modDirName.section('/', 0, 0);
 	if(upperLevel != modDirName)
 		removeModDir(destDir + upperLevel);
-
-	QVariantMap json = JsonUtils::JsonFromFile(destDir + modname + "/mod.json").toMap();
-
-	localMods.insert(modname, json);
-	modList->setLocalModList(localMods);
-	modList->modChanged(modname);
+	
+	CResourceHandler::get("initial")->updateFilteredFiles([](const std::string &) { return true; });
+	loadMods();
+	modList->reloadRepositories();
 
 	return true;
 }
@@ -288,16 +294,13 @@ bool CModManager::doUninstallMod(QString modname)
 	if(!QDir(modDir).exists())
 		return addError(modname, "Data with this mod was not found");
 
-	if(!localMods.contains(modname))
-		return addError(modname, "Data with this mod was not found");
-
 	QDir modFullDir(modDir);
 	if(!removeModDir(modDir))
 		return addError(modname, "Mod is located in protected directory, plase remove it manually:\n" + modFullDir.absolutePath());
 
-	localMods.remove(modname);
-	modList->setLocalModList(localMods);
-	modList->modChanged(modname);
+	CResourceHandler::get("initial")->updateFilteredFiles([](const std::string &){ return true; });
+	loadMods();
+	modList->reloadRepositories();
 
 	return true;
 }

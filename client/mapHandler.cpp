@@ -150,7 +150,6 @@ void CMapHandler::initTerrainGraphics()
 		{RIVER_NAMES[4], "lavrvr"}
 	};
 	
-
 	auto loadFlipped = [](TFlippedAnimations & animation, TFlippedCache & cache, const std::map<std::string, std::string> & files)
 	{
 		//no rotation and basic setup

@@ -842,10 +842,22 @@ void CHeroHandler::loadObstacles()
 	allConfigs.insert(allConfigs.begin(), "core");
 	for(auto & mod : allConfigs)
 	{
-		if(!CResourceHandler::get(mod)->existsResource(ResourceID("config/obstacles.json")))
+		ISimpleResourceLoader * modResourceLoader;
+		try
+		{
+			modResourceLoader = CResourceHandler::get(mod);
+		}
+		catch(const std::out_of_range &)
+		{
+			logMod->warn("Mod '%1%' doesn't exist! Its obstacles won't be loaded!", mod);
+			continue;
+		}
+
+		const ResourceID obstaclesResource{"config/obstacles.json"};
+		if(!modResourceLoader->existsResource(obstaclesResource))
 			continue;
 		
-		const JsonNode config(mod, ResourceID("config/obstacles.json"));
+		const JsonNode config(mod, obstaclesResource);
 		loadObstacles(config["obstacles"], false, obstacles);
 		loadObstacles(config["absoluteObstacles"], true, absoluteObstacles);
 	}

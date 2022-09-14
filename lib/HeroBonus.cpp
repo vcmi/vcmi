@@ -555,6 +555,7 @@ void BonusList::getBonuses(BonusList & out, const CSelector &selector) const
 
 void BonusList::getBonuses(BonusList & out, const CSelector &selector, const CSelector &limit) const
 {
+	out.reserve(bonuses.size());
 	for (auto & b : bonuses)
 	{
 		//add matching bonuses that matches limit predicate or have NO_LIMIT if no given predicate
@@ -620,6 +621,11 @@ void BonusList::resize(BonusList::TInternalContainer::size_type sz, std::shared_
 	changed();
 }
 
+void BonusList::reserve(TInternalContainer::size_type sz)
+{
+	bonuses.reserve(sz);
+}
+
 void BonusList::insert(BonusList::TInternalContainer::iterator position, BonusList::TInternalContainer::size_type n, std::shared_ptr<Bonus> const &x)
 {
 	bonuses.insert(position, n, x);
@@ -654,14 +660,16 @@ int IBonusBearer::valOfBonuses(Bonus::BonusType type, const CSelector &selector)
 
 int IBonusBearer::valOfBonuses(Bonus::BonusType type, int subtype) const
 {
-	boost::format fmt("type_%ds_%d");
-	fmt % (int)type % subtype;
+	//This part is performance-critical
+
+	char cachingStr[20] = {};
+	std::sprintf(cachingStr, "type_%ds_%d", (int)type, subtype);
 
 	CSelector s = Selector::type()(type);
 	if(subtype != -1)
 		s = s.And(Selector::subtype()(subtype));
 
-	return valOfBonuses(s, fmt.str());
+	return valOfBonuses(s, cachingStr);
 }
 
 int IBonusBearer::valOfBonuses(const CSelector &selector, const std::string &cachingStr) const
@@ -672,6 +680,7 @@ int IBonusBearer::valOfBonuses(const CSelector &selector, const std::string &cac
 }
 bool IBonusBearer::hasBonus(const CSelector &selector, const std::string &cachingStr) const
 {
+	//TODO: We don't need to count all bonuses and could break on first matching
 	return getBonuses(selector, cachingStr)->size() > 0;
 }
 
@@ -682,14 +691,15 @@ bool IBonusBearer::hasBonus(const CSelector &selector, const CSelector &limit, c
 
 bool IBonusBearer::hasBonusOfType(Bonus::BonusType type, int subtype) const
 {
-	boost::format fmt("type_%ds_%d");
-	fmt % (int)type % subtype;
+	//This part is performance-ciritcal
+	char cachingStr[20] = {};
+	std::sprintf(cachingStr, "type_%ds_%d", (int)type, subtype);
 
 	CSelector s = Selector::type()(type);
 	if(subtype != -1)
 		s = s.And(Selector::subtype()(subtype));
 
-	return hasBonus(s, fmt.str());
+	return hasBonus(s, cachingStr);
 }
 
 TConstBonusListPtr IBonusBearer::getBonuses(const CSelector &selector, const std::string &cachingStr) const
@@ -943,21 +953,34 @@ void CBonusSystemNode::getAllParents(TCNodes & out) const //retrieves list of pa
 
 void CBonusSystemNode::getAllBonusesRec(BonusList &out) const
 {
+	//out has been reserved sufficient capacity at getAllBonuses() call
+
 	BonusList beforeUpdate;
 	TCNodes lparents;
 	getAllParents(lparents);
 
-	for(auto parent : lparents)
-		parent->getAllBonusesRec(beforeUpdate);
+	if (lparents.size())
+	{
+		//estimate on how many bonuses are missing yet - must be positive
+		beforeUpdate.reserve(std::max(out.capacity() - out.size(), bonuses.size()));
+	}
+	else
+	{
+		beforeUpdate.reserve(bonuses.size()); //at most all local bonuses
+	}
 
+	for (auto parent : lparents)
+	{
+		parent->getAllBonusesRec(beforeUpdate);
+	}
 	bonuses.getAllBonuses(beforeUpdate);
 
-	for(auto b : beforeUpdate)
+	for(const auto & b : beforeUpdate)
 	{
 		auto updated = b->updater 
 			? getUpdatedBonus(b, b->updater) 
 			: b;
-		
+
 		//do not add bonus with same pointer
 		if(!vstd::contains(out, updated))
 			out.push_back(updated);
@@ -976,10 +999,12 @@ TConstBonusListPtr CBonusSystemNode::getAllBonuses(const CSelector &selector, co
 		// cache all bonus objects. Selector objects doesn't matter.
 		if (cachedLast != treeChanged)
 		{
+			BonusList allBonuses;
+			allBonuses.reserve(cachedBonuses.capacity()); //we assume we'll get about the same number of bonuses
+
 			cachedBonuses.clear();
 			cachedRequests.clear();
 
-			BonusList allBonuses;
 			getAllBonusesRec(allBonuses);
 			limitBonuses(allBonuses, cachedBonuses);
 			cachedBonuses.stackBonuses();
@@ -1409,7 +1434,7 @@ void CBonusSystemNode::getRedAncestors(TNodes &out)
 
 	TNodes redParents; 
 	getRedParents(redParents);
-	
+
 	for(CBonusSystemNode * parent : redParents)
 		parent->getRedAncestors(out);
 }
