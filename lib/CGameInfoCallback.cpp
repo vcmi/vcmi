@@ -509,7 +509,7 @@ std::shared_ptr<const boost::multi_array<TerrainTile*, 3>> CGameInfoCallback::ge
 
 	size_t width = gs->map->width;
 	size_t height = gs->map->height;
-	size_t levels = (gs->map->twoLevel ? 2 : 1);
+	size_t levels = gs->map->levels();
 
 	auto ptr = new boost::multi_array<TerrainTile*, 3>(boost::extents[levels][width][height]);
 

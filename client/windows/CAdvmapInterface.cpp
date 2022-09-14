@@ -757,7 +757,7 @@ void CAdvMapInt::fworldViewScale4x()
 void CAdvMapInt::fswitchLevel()
 {
 	// with support for future multi-level maps :)
-	int maxLevels = CGI->mh->map->twoLevel ? 2 : 1;
+	int maxLevels = CGI->mh->map->levels();
 	if (maxLevels < 2)
 		return;
 

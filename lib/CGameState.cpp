@@ -954,11 +954,12 @@ void CGameState::initGrailPosition()
 		static const int BORDER_WIDTH = 9; // grail must be at least 9 tiles away from border
 
 		// add all not blocked tiles in range
+		//TODO: rotate this too
 		for (int i = BORDER_WIDTH; i < map->width - BORDER_WIDTH ; i++)
 		{
 			for (int j = BORDER_WIDTH; j < map->height - BORDER_WIDTH; j++)
 			{
-				for (int k = 0; k < (map->twoLevel ? 2 : 1); k++)
+				for (int k = 0; k < map->levels(); k++)
 				{
 					const TerrainTile &t = map->getTile(int3(i, j, k));
 					if(!t.blocked
@@ -1594,7 +1595,7 @@ void CGameState::initFogOfWar()
 {
 	logGlobal->debug("\tFog of war"); //FIXME: should be initialized after all bonuses are set
 
-	int layers = map->twoLevel ? 2 : 1;
+	int layers = map->levels();
 	for(auto & elem : teams)
 	{
 		auto fow = elem.second.fogOfWarMap;
