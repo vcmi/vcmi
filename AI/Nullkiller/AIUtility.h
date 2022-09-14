@@ -205,12 +205,14 @@ void foreach_tile_pos(const Func & foo)
 	// some micro-optimizations since this function gets called a LOT
 	// callback pointer is thread-specific and slow to retrieve -> read map size only once
 	int3 mapSize = cb->getMapSize();
-	for(int i = 0; i < mapSize.x; i++)
+	for (int z = 0; z < mapSize.z; z++)
 	{
-		for(int j = 0; j < mapSize.y; j++)
+		for (int x = 0; x < mapSize.x; x++)
 		{
-			for(int k = 0; k < mapSize.z; k++)
-				foo(int3(i, j, k));
+			for (int y = 0; y < mapSize.y; y++)
+			{
+				foo(int3(x, y, z));
+			}
 		}
 	}
 }
@@ -219,12 +221,14 @@ template<class Func>
 void foreach_tile_pos(CCallback * cbp, const Func & foo) // avoid costly retrieval of thread-specific pointer
 {
 	int3 mapSize = cbp->getMapSize();
-	for(int i = 0; i < mapSize.x; i++)
+	for (int z = 0; z < mapSize.z; z++)
 	{
-		for(int j = 0; j < mapSize.y; j++)
+		for (int x = 0; x < mapSize.x; x++)
 		{
-			for(int k = 0; k < mapSize.z; k++)
-				foo(cbp, int3(i, j, k));
+			for (int y = 0; y < mapSize.y; y++)
+			{
+				foo(cbp, int3(x, y, z));
+			}
 		}
 	}
 }
@@ -276,21 +280,21 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 template<typename TFunc>
 void pforeachTilePos(crint3 mapSize, TFunc fn)
 {
-	parallel_for(blocked_range<size_t>(0, mapSize.x), [&](const blocked_range<size_t>& r)
+	for (int z = 0; z < mapSize.z; ++z)
 	{
-		int3 pos;
-
-		for(pos.x = r.begin(); pos.x != r.end(); ++pos.x)
+		parallel_for(blocked_range<size_t>(0, mapSize.x), [&](const blocked_range<size_t>& r)
 		{
-			for(pos.y = 0; pos.y < mapSize.y; ++pos.y)
+			int3 pos(0, 0, z);
+
+			for (pos.x = r.begin(); pos.x != r.end(); ++pos.x)
 			{
-				for(pos.z = 0; pos.z < mapSize.z; ++pos.z)
+				for (pos.y = 0; pos.y < mapSize.y; ++pos.y)
 				{
 					fn(pos);
 				}
 			}
-		}
-	});
+		});
+	}
 }
 
 class CDistanceSorter
