@@ -663,7 +663,7 @@ int IBonusBearer::valOfBonuses(Bonus::BonusType type, int subtype) const
 	//This part is performance-critical
 
 	char cachingStr[20] = {};
-	sprintf(cachingStr, "type_%ds_%d", (int)type, subtype);
+	std::sprintf(cachingStr, "type_%ds_%d", (int)type, subtype);
 
 	CSelector s = Selector::type()(type);
 	if(subtype != -1)
@@ -693,7 +693,7 @@ bool IBonusBearer::hasBonusOfType(Bonus::BonusType type, int subtype) const
 {
 	//This part is performance-ciritcal
 	char cachingStr[20] = {};
-	sprintf(cachingStr, "type_%ds_%d", (int)type, subtype);
+	std::sprintf(cachingStr, "type_%ds_%d", (int)type, subtype);
 
 	CSelector s = Selector::type()(type);
 	if(subtype != -1)
@@ -975,7 +975,7 @@ void CBonusSystemNode::getAllBonusesRec(BonusList &out) const
 	}
 	bonuses.getAllBonuses(beforeUpdate);
 
-	for(auto & b : beforeUpdate)
+	for(const auto & b : beforeUpdate)
 	{
 		auto updated = b->updater 
 			? getUpdatedBonus(b, b->updater) 

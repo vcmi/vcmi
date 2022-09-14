@@ -160,7 +160,7 @@ public:
 	{
 		//Performance is important here
 		char str[16] = {};
-		sprintf(str, "(%d %d %d)", x, y, z);
+		std::sprintf(str, "(%d %d %d)", x, y, z);
 
 		return std::string(str);
 	}
