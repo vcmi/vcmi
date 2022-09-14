@@ -255,7 +255,11 @@ static QVariant getValue(QVariant input, QString path)
 		QString remainder = "/" + path.section('/', 2, -1);
 
 		entryName.remove(0, 1);
-		return getValue(input.toMap().value(entryName), remainder);
+		QMap<QString, QString> keyNormalize;
+		for(auto & key : input.toMap().keys())
+			keyNormalize[key.toLower()] = key;
+
+		return getValue(input.toMap().value(keyNormalize[entryName]), remainder);
 	}
 	else
 	{
@@ -265,6 +269,7 @@ static QVariant getValue(QVariant input, QString path)
 
 CModEntry CModList::getMod(QString modname) const
 {
+	modname = modname.toLower();
 	QVariantMap repo;
 	QVariantMap local = localModList[modname].toMap();
 	QVariantMap settings;
