@@ -99,7 +99,7 @@ ObstacleInfo * ObstacleHandler::loadFromJson(const std::string & scope, const Js
 
 std::vector<JsonNode> ObstacleHandler::loadLegacyData(size_t dataSize)
 {
-	return std::vector<JsonNode>();
+	return {};
 }
 
 std::vector<bool> ObstacleHandler::getDefaultAllowed() const
