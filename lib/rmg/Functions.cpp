@@ -175,46 +175,4 @@ void createObstaclesCommon2(RmgMap & map, CRandomGenerator & generator)
 			}
 		}
 	}
-	
-	//tighten obstacles to improve visuals
-	
-	/*for (int i = 0; i < 3; ++i)
-	{
-		int blockedTiles = 0;
-		int freeTiles = 0;
-		
-		for (int z = 0; z < (map.map().twoLevel ? 2 : 1); z++)
-		{
-			for (int x = 0; x < map.map().width; x++)
-			{
-				for (int y = 0; y < map.map().height; y++)
-				{
-					int3 tile(x, y, z);
-					if (!map.isPossible(tile)) //only possible tiles can change
-						continue;
-					
-					int blockedNeighbours = 0;
-					int freeNeighbours = 0;
-					map.foreach_neighbour(tile, [&map, &blockedNeighbours, &freeNeighbours](int3 &pos)
-					{
-						if (map.isBlocked(pos))
-							blockedNeighbours++;
-						if (map.isFree(pos))
-							freeNeighbours++;
-					});
-					if (blockedNeighbours > 4)
-					{
-						map.setOccupied(tile, ETileType::BLOCKED);
-						blockedTiles++;
-					}
-					else if (freeNeighbours > 4)
-					{
-						map.setOccupied(tile, ETileType::FREE);
-						freeTiles++;
-					}
-				}
-			}
-		}
-		logGlobal->trace("Set %d tiles to BLOCKED and %d tiles to FREE", blockedTiles, freeTiles);
-	}*/
 }
