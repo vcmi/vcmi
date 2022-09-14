@@ -71,34 +71,27 @@ void SectorMap::update()
 
 SectorMap::TSectorID & SectorMap::retrieveTileN(SectorMap::TSectorArray & a, const int3 & pos)
 {
-	return a[pos.x][pos.y][pos.z];
+	return a[pos.z][pos.x][pos.y];
 }
 
 const SectorMap::TSectorID & SectorMap::retrieveTileN(const SectorMap::TSectorArray & a, const int3 & pos)
 {
-	return a[pos.x][pos.y][pos.z];
+	return a[pos.z][pos.x][pos.y];
 }
 
 void SectorMap::clear()
 {
 	//TODO: rotate to [z][x][y]
 	auto fow = cb->getVisibilityMap();
-	//TODO: any magic to automate this? will need array->array conversion
-	//std::transform(fow.begin(), fow.end(), sector.begin(), [](const ui8 &f) -> unsigned short
-	//{
-	//	return f; //type conversion
-	//});
-	auto width = fow.size();
-	auto height = fow.front().size();
-	auto depth = fow.front().front().size();
-	for (size_t x = 0; x < width; x++)
+
+	//TODO: Template function to automate copying arrays?
+
+	auto it = sector.origin();
+	for (auto tile = fow->origin(); tile < fow->origin() + fow->num_elements(); tile++, it++)
 	{
-		for (size_t y = 0; y < height; y++)
-		{
-			for (size_t z = 0; z < depth; z++)
-				sector[x][y][z] = fow[x][y][z];
-		}
+		*it = *tile;
 	}
+
 	valid = false;
 }
 
@@ -155,13 +148,13 @@ void SectorMap::exploreNewSector(crint3 pos, int num, CCallback * cbp)
 void SectorMap::write(crstring fname)
 {
 	std::ofstream out(fname);
-	for (int k = 0; k < cb->getMapSize().z; k++)
+	for (int z = 0; z < cb->getMapSize().z; z++)
 	{
-		for (int j = 0; j < cb->getMapSize().y; j++)
+		for (int y = 0; y < cb->getMapSize().y; y++)
 		{
-			for (int i = 0; i < cb->getMapSize().x; i++)
+			for (int x = 0; x < cb->getMapSize().x; x++) // z from 0 to n in one line
 			{
-				out << (int)sector[i][j][k] << '\t';
+				out << (int)sector[z][x][y] << '\t';
 			}
 			out << std::endl;
 		}
