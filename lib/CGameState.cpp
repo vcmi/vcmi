@@ -2012,6 +2012,7 @@ void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out)
 
 void CGameState::calculatePaths(std::shared_ptr<PathfinderConfig> config)
 {
+	//FIXME: creating pathfinder is costly, maybe reset / clear is enough?
 	CPathfinder pathfinder(this, config);
 	pathfinder.calculatePaths();
 }

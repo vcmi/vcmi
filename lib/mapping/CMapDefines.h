@@ -84,7 +84,7 @@ struct DLL_LINKAGE TerrainTile
 	ui8 terView;
 	std::string riverType;
 	ui8 riverDir;
-	std::string roadType;
+	std::string roadType; //TODO: switch to ui8
 	ui8 roadDir;
 	/// first two bits - how to rotate terrain graphic (next two - river graphic, next two - road);
 	///	7th bit - whether tile is coastal (allows disembarking if land or block movement if water); 8th bit - Favorable Winds effect
