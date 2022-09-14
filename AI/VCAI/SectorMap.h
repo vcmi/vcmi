@@ -38,7 +38,7 @@ struct SectorMap
 	};
 
 	typedef unsigned short TSectorID; //smaller than int to allow -1 value. Max number of sectors 65K should be enough for any proper map.
-	typedef boost::multi_array<TSectorID, 3> TSectorArray;
+	typedef boost::multi_array<TSectorID, 3> TSectorArray; //[z][x][y]
 
 	bool valid; //some kind of lazy eval
 	std::map<int3, int3> parent;
@@ -46,7 +46,7 @@ struct SectorMap
 	//std::vector<std::vector<std::vector<unsigned char>>> pathfinderSector;
 
 	std::map<int, Sector> infoOnSectors;
-	std::shared_ptr<boost::multi_array<TerrainTile *, 3>> visibleTiles;
+	std::shared_ptr<const boost::multi_array<TerrainTile *, 3>> visibleTiles;
 
 	SectorMap();
 	SectorMap(HeroPtr h);
