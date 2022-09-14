@@ -12,11 +12,59 @@
 
 #include "../../lib/JsonNode.h"
 #include "../../lib/filesystem/CFileInputStream.h"
+#include "../../lib/GameConstants.h"
+
+const int maxSections = 3; // versions consist from up to 3 sections, major.minor.patch
+
+bool isCompatible(const QString & verMin, const QString & verMax)
+{
+	QList<int> vcmiVersionList = {GameConstants::VCMI_VERSION_MAJOR,
+								  GameConstants::VCMI_VERSION_MINOR,
+								  GameConstants::VCMI_VERSION_PATCH};
+
+	if(!verMin.isEmpty())
+	{
+		QStringList verMinList = verMin.split(".");
+		assert(verMinList.size() == maxSections);
+		bool compatibleMin = true;
+		for(int i = 0; i < maxSections; i++)
+		{
+			if(verMinList[i].toInt() < vcmiVersionList[i])
+			{
+				break;
+			}
+			if(verMinList[i].toInt() > vcmiVersionList[i])
+			{
+				compatibleMin = false;
+				break;
+			}
+		}
+
+		if(!compatibleMin)
+			return false;
+	}
+
+	if(!verMax.isEmpty())
+	{
+		QStringList verMaxList = verMax.split(".");
+		assert(verMaxList.size() == maxSections);
+		for(int i = 0; i < maxSections; i++)
+		{
+			if(verMaxList[i].toInt() > vcmiVersionList[i])
+			{
+				return true;
+			}
+			if(verMaxList[i].toInt() < vcmiVersionList[i])
+			{
+				return false;
+			}
+		}
+	}
+	return true;
+}
 
 bool CModEntry::compareVersions(QString lesser, QString greater)
 {
-	static const int maxSections = 3; // versions consist from up to 3 sections, major.minor.patch
-
 	QStringList lesserList = lesser.split(".");
 	QStringList greaterList = greater.split(".");
 
@@ -92,6 +140,15 @@ bool CModEntry::isUpdateable() const
 	return false;
 }
 
+bool CModEntry::isCompatible() const
+{
+	if(!isInstalled())
+		return false;
+
+	auto compatibility = localData["compatibility"].toMap();
+	return ::isCompatible(compatibility["min"].toString(), compatibility["max"].toString());
+}
+
 bool CModEntry::isEssential() const
 {
 	return getValue("storedLocaly").toBool();
@@ -100,6 +157,11 @@ bool CModEntry::isEssential() const
 bool CModEntry::isInstalled() const
 {
 	return !localData.isEmpty();
+}
+
+bool CModEntry::isValid() const
+{
+	return !localData.isEmpty() || !repository.isEmpty();
 }
 
 int CModEntry::getModStatus() const
@@ -246,14 +308,14 @@ CModEntry CModList::getMod(QString modname) const
 		QVariant repoVal = getValue(entry, path);
 		if(repoVal.isValid())
 		{
-			if(repo.empty())
+			auto repoValMap = repoVal.toMap();
+			auto compatibility = repoValMap["compatibility"].toMap();
+			if(isCompatible(compatibility["min"].toString(), compatibility["max"].toString()))
 			{
-				repo = repoVal.toMap();
-			}
-			else
-			{
-				if(CModEntry::compareVersions(repo["version"].toString(), repoVal.toMap()["version"].toString()))
-					repo = repoVal.toMap();
+				if(repo.empty() || CModEntry::compareVersions(repo["version"].toString(), repoValMap["version"].toString()))
+				{
+					repo = repoValMap;
+				}
 			}
 		}
 	}
@@ -297,12 +359,12 @@ QVector<QString> CModList::getModList() const
 	{
 		for(auto it = repo.begin(); it != repo.end(); it++)
 		{
-			knownMods.insert(it.key());
+			knownMods.insert(it.key().toLower());
 		}
 	}
 	for(auto it = localModList.begin(); it != localModList.end(); it++)
 	{
-		knownMods.insert(it.key());
+		knownMods.insert(it.key().toLower());
 	}
 
 	for(auto entry : knownMods)
