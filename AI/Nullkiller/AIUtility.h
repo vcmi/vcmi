@@ -69,6 +69,8 @@ const int ALLOWED_ROAMING_HEROES = 8;
 extern const float SAFE_ATTACK_CONSTANT;
 extern const int GOLD_RESERVE;
 
+extern boost::thread_specific_ptr<CCallback> cb;
+
 enum HeroRole
 {
 	SCOUT = 0,
@@ -197,10 +199,58 @@ struct creInfo
 };
 creInfo infoFromDC(const dwellingContent & dc);
 
-void foreach_tile_pos(std::function<void(const int3 & pos)> foo);
-void foreach_tile_pos(CCallback * cbp, std::function<void(CCallback * cbp, const int3 & pos)> foo); // avoid costly retrieval of thread-specific pointer
-void foreach_neighbour(const int3 & pos, std::function<void(const int3 & pos)> foo);
-void foreach_neighbour(CCallback * cbp, const int3 & pos, std::function<void(CCallback * cbp, const int3 & pos)> foo); // avoid costly retrieval of thread-specific pointer
+template<class Func>
+void foreach_tile_pos(const Func & foo)
+{
+	// some micro-optimizations since this function gets called a LOT
+	// callback pointer is thread-specific and slow to retrieve -> read map size only once
+	int3 mapSize = cb->getMapSize();
+	for(int i = 0; i < mapSize.x; i++)
+	{
+		for(int j = 0; j < mapSize.y; j++)
+		{
+			for(int k = 0; k < mapSize.z; k++)
+				foo(int3(i, j, k));
+		}
+	}
+}
+
+template<class Func>
+void foreach_tile_pos(CCallback * cbp, const Func & foo) // avoid costly retrieval of thread-specific pointer
+{
+	int3 mapSize = cbp->getMapSize();
+	for(int i = 0; i < mapSize.x; i++)
+	{
+		for(int j = 0; j < mapSize.y; j++)
+		{
+			for(int k = 0; k < mapSize.z; k++)
+				foo(cbp, int3(i, j, k));
+		}
+	}
+}
+
+template<class Func>
+void foreach_neighbour(const int3 & pos, const Func & foo)
+{
+	CCallback * cbp = cb.get(); // avoid costly retrieval of thread-specific pointer
+	for(const int3 & dir : int3::getDirs())
+	{
+		const int3 n = pos + dir;
+		if(cbp->isInTheMap(n))
+			foo(pos + dir);
+	}
+}
+
+template<class Func>
+void foreach_neighbour(CCallback * cbp, const int3 & pos, const Func & foo) // avoid costly retrieval of thread-specific pointer
+{
+	for(const int3 & dir : int3::getDirs())
+	{
+		const int3 n = pos + dir;
+		if(cbp->isInTheMap(n))
+			foo(cbp, pos + dir);
+	}
+}
 
 bool canBeEmbarkmentPoint(const TerrainTile * t, bool fromWater);
 bool isObjectPassable(const CGObjectInstance * obj);
