@@ -498,7 +498,7 @@ void CZonePlacer::assignZones(CRandomGenerator * rand)
 		zone->setPos(int3(total.x / size, total.y / size, total.z / size));
 	};
 
-	int levels = map.map().twoLevel ? 2 : 1;
+	int levels = map.map().levels();
 
 	/*
 	1. Create Voronoi diagram

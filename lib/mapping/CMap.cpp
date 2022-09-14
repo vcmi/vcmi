@@ -228,7 +228,11 @@ CMapHeader::CMapHeader() : version(EMapFormat::SOD), height(72), width(72),
 
 CMapHeader::~CMapHeader()
 {
+}
 
+ui8 CMapHeader::levels() const
+{
+	return (twoLevel ? 2 : 1);
 }
 
 CMap::CMap()
@@ -245,7 +249,7 @@ CMap::~CMap()
 {
 	if(terrain)
 	{
-		for (int z = 0; z < (twoLevel ? 1 : 2); z++)
+		for (int z = 0; z < levels(); z++)
 		{
 			for (int x = 0; x < width; x++)
 			{
@@ -626,7 +630,7 @@ void CMap::addNewObject(CGObjectInstance * obj)
 
 void CMap::initTerrain()
 {
-	int level = twoLevel ? 2 : 1;
+	int level = levels();
 	terrain = new TerrainTile**[level];
 	guardingCreaturePositions = new int3**[level];
 	for(int z = 0; z < level; ++z)

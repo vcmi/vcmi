@@ -337,7 +337,7 @@ void CMapHandler::init()
 	//sizes of terrain
 	sizes.x = map->width;
 	sizes.y = map->height;
-	sizes.z = map->twoLevel ? 2 : 1;
+	sizes.z = map->levels();
 
 	// Total number of visible tiles. Subtract the center tile, then
 	// compute the number of tiles on each side, and reassemble.
@@ -1246,7 +1246,7 @@ bool CMapHandler::printObject(const CGObjectInstance * obj, bool fadein)
 
 bool CMapHandler::hideObject(const CGObjectInstance * obj, bool fadeout)
 {
-	for (size_t z = 0; z < (map->twoLevel ? 2 : 1); z++)
+	for (size_t z = 0; z < map->levels(); z++)
 	{
 		for (size_t x = 0; x < map->width; x++)
 		{

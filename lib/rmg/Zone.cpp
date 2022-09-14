@@ -369,7 +369,7 @@ void Modificator::dump()
 {
 	std::ofstream out(boost::to_string(boost::format("seed_%d_modzone_%d_%s.txt") % generator.getRandomSeed() % zone.getId() % getName()));
 	auto & mapInstance = map.map();
-	int levels = mapInstance.twoLevel ? 2 : 1;
+	int levels = mapInstance.levels();
 	int width =  mapInstance.width;
 	int height = mapInstance.height;
 	for (int z = 0; z < levels; z++)

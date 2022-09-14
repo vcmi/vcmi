@@ -286,6 +286,8 @@ public:
 	CMapHeader();
 	virtual ~CMapHeader();
 
+	ui8 levels() const;
+
 	EMapFormat::EMapFormat version; /// The default value is EMapFormat::SOD.
 	si32 height; /// The default value is 72.
 	si32 width; /// The default value is 72.
@@ -426,7 +428,7 @@ public:
 		h & questIdentifierToId;
 
 		//TODO: viccondetails
-		int level = twoLevel ? 2 : 1;
+		const int level = levels();
 		if(h.saving)
 		{
 			// Save terrain
