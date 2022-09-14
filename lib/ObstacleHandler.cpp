@@ -104,7 +104,7 @@ std::vector<JsonNode> ObstacleHandler::loadLegacyData(size_t dataSize)
 
 std::vector<bool> ObstacleHandler::getDefaultAllowed() const
 {
-	return std::vector<bool>();
+	return {};
 }
 
 const std::vector<std::string> & ObstacleHandler::getTypeNames() const
