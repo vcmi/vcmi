@@ -10,6 +10,7 @@
 #pragma once
 
 #include <vcmi/EntityService.h>
+#include <vcmi/Entity.h>
 #include "HeroBonus.h"
 #include "GameConstants.h"
 #include "IHandlerBase.h"

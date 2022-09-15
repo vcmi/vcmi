@@ -42,6 +42,7 @@
 #include "../../lib/spells/Problem.h"
 #include "../../lib/CTownHandler.h"
 #include "../../lib/BattleFieldHandler.h"
+#include "../../lib/ObstacleHandler.h"
 #include "../../lib/CGameState.h"
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/NetPacks.h"
@@ -361,7 +362,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 	{
 		if(elem->obstacleType == CObstacleInstance::USUAL)
 		{
-			std::string animationName = elem->getInfo().defName;
+			std::string animationName = elem->getInfo().animation;
 
 			auto cached = animationsCache.find(animationName);
 
@@ -379,7 +380,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 		}
 		else if (elem->obstacleType == CObstacleInstance::ABSOLUTE_OBSTACLE)
 		{
-			std::string animationName = elem->getInfo().defName;
+			std::string animationName = elem->getInfo().animation;
 
 			auto cached = animationsCache.find(animationName);
 

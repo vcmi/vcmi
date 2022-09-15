@@ -26,6 +26,7 @@
 #include "CSkillHandler.h"
 #include "ScriptHandler.h"
 #include "BattleFieldHandler.h"
+#include "ObstacleHandler.h"
 
 #include <vstd/StringUtils.h>
 
@@ -435,6 +436,7 @@ void CContentHandler::init()
 	handlers.insert(std::make_pair("templates", ContentTypeHandler((IHandlerBase *)VLC->tplh, "template")));
 	handlers.insert(std::make_pair("scripts", ContentTypeHandler(VLC->scriptHandler, "script")));
 	handlers.insert(std::make_pair("battlefields", ContentTypeHandler(VLC->battlefieldsHandler, "battlefield")));
+	handlers.insert(std::make_pair("obstacles", ContentTypeHandler(VLC->obstacleHandler, "obstacle")));
 	//TODO: any other types of moddables?
 }
 

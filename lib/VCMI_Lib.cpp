@@ -33,6 +33,7 @@
 #include "mapping/CMapEditManager.h"
 #include "ScriptHandler.h"
 #include "BattleFieldHandler.h"
+#include "ObstacleHandler.h"
 
 LibClasses * VLC = nullptr;
 
@@ -114,6 +115,11 @@ spells::effects::Registry * LibClasses::spellEffects()
 const BattleFieldService * LibClasses::battlefields() const
 {
 	return battlefieldsHandler;
+}
+
+const ObstacleService * LibClasses::obstacles() const
+{
+	return obstacleHandler;
 }
 
 void LibClasses::updateEntity(Metatype metatype, int32_t index, const JsonNode & data)
@@ -212,6 +218,8 @@ void LibClasses::init(bool onlyEssential)
 	createHandler(scriptHandler, "Script", pomtime);
 
 	createHandler(battlefieldsHandler, "Battlefields", pomtime);
+	
+	createHandler(obstacleHandler, "Obstacles", pomtime);
 
 	logGlobal->info("\tInitializing handlers: %d ms", totalTime.getDiff());
 

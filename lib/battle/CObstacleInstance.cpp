@@ -11,6 +11,7 @@
 #include "CObstacleInstance.h"
 #include "../CHeroHandler.h"
 #include "../CTownHandler.h"
+#include "../ObstacleHandler.h"
 #include "../VCMI_Lib.h"
 #include "../NetPacksBase.h"
 
@@ -29,17 +30,9 @@ CObstacleInstance::~CObstacleInstance()
 
 }
 
-const CObstacleInfo & CObstacleInstance::getInfo() const
+const ObstacleInfo & CObstacleInstance::getInfo() const
 {
-	switch(obstacleType)
-	{
-	case ABSOLUTE_OBSTACLE:
-		return VLC->heroh->absoluteObstacles[ID];
-	case USUAL:
-		return VLC->heroh->obstacles[ID];
-	default:
-		throw std::runtime_error("Unknown obstacle type in CObstacleInstance::getInfo()");
-	}
+	return *Obstacle(ID).getInfo();
 }
 
 std::vector<BattleHex> CObstacleInstance::getBlockedTiles() const

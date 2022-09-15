@@ -153,41 +153,6 @@ CHeroClass::CHeroClass()
 {
 }
 
-std::vector<BattleHex> CObstacleInfo::getBlocked(BattleHex hex) const
-{
-	std::vector<BattleHex> ret;
-	if(isAbsoluteObstacle)
-	{
-		assert(!hex.isValid());
-		range::copy(blockedTiles, std::back_inserter(ret));
-		return ret;
-	}
-
-	for(int offset : blockedTiles)
-	{
-		BattleHex toBlock = hex + offset;
-		if((hex.getY() & 1) && !(toBlock.getY() & 1))
-			toBlock += BattleHex::LEFT;
-
-		if(!toBlock.isValid())
-			logGlobal->error("Misplaced obstacle!");
-		else
-			ret.push_back(toBlock);
-	}
-
-	return ret;
-}
-
-bool CObstacleInfo::isAppropriate(const Terrain & terrainType, const BattleField & battlefield) const
-{
-	auto bgInfo = battlefield.getInfo();
-
-	if(bgInfo->isSpecial)
-		return vstd::contains(allowedSpecialBfields, bgInfo->identifier);
-
-	return vstd::contains(allowedTerrains, terrainType);
-}
-
 void CHeroClassHandler::fillPrimarySkillData(const JsonNode & node, CHeroClass * heroClass, PrimarySkill::PrimarySkill pSkill)
 {
 	const auto & skillName = PrimarySkill::names[pSkill];
@@ -378,7 +343,6 @@ CHeroHandler::~CHeroHandler() = default;
 
 CHeroHandler::CHeroHandler()
 {
-	loadObstacles();
 	loadTerrains();
 	for(int i = 0; i < Terrain::Manager::terrains().size(); ++i)
 	{
@@ -816,51 +780,6 @@ void CHeroHandler::loadExperience()
 		expPerLevel.push_back (expPerLevel[i] + diff);
 	}
 	expPerLevel.pop_back();//last value is broken
-}
-
-void CHeroHandler::loadObstacles()
-{
-	auto loadObstacles = [](const JsonNode & node, bool absolute, std::vector<CObstacleInfo> & out)
-	{
-		for(const JsonNode &obs : node.Vector())
-		{
-			out.emplace_back();
-			CObstacleInfo & obi = out.back();
-			obi.defName = obs["defname"].String();
-			obi.width =  static_cast<si32>(obs["width"].Float());
-			obi.height = static_cast<si32>(obs["height"].Float());
-			for(auto & t : obs["allowedTerrain"].Vector())
-				obi.allowedTerrains.emplace_back(t.String());
-			for(auto & t : obs["specialBattlefields"].Vector())
-				obi.allowedSpecialBfields.emplace_back(t.String());
-			obi.blockedTiles = obs["blockedTiles"].convertTo<std::vector<si16> >();
-			obi.isAbsoluteObstacle = absolute;
-		}
-	};
-	
-	auto allConfigs = VLC->modh->getActiveMods();
-	allConfigs.insert(allConfigs.begin(), "core");
-	for(auto & mod : allConfigs)
-	{
-		ISimpleResourceLoader * modResourceLoader;
-		try
-		{
-			modResourceLoader = CResourceHandler::get(mod);
-		}
-		catch(const std::out_of_range &)
-		{
-			logMod->warn("Mod '%1%' doesn't exist! Its obstacles won't be loaded!", mod);
-			continue;
-		}
-
-		const ResourceID obstaclesResource{"config/obstacles.json"};
-		if(!modResourceLoader->existsResource(obstaclesResource))
-			continue;
-		
-		const JsonNode config(mod, obstaclesResource);
-		loadObstacles(config["obstacles"], false, obstacles);
-		loadObstacles(config["absoluteObstacles"], true, absoluteObstacles);
-	}
 }
 
 /// convert h3-style ID (e.g. Gobin Wolf Rider) to vcmi (e.g. goblinWolfRider)

@@ -38,6 +38,7 @@ void CGameInfo::setFromLib()
 	skillh = VLC->skillh;
 	objtypeh = VLC->objtypeh;
 	battleFieldHandler = VLC->battlefieldsHandler;
+	obstacleHandler = VLC->obstacleHandler;
 }
 
 const ArtifactService * CGameInfo::artifacts() const
@@ -83,6 +84,11 @@ const spells::Service * CGameInfo::spells()  const
 const SkillService * CGameInfo::skills() const
 {
 	return globalServices->skills();
+}
+
+const ObstacleService * CGameInfo::obstacles() const
+{
+	return globalServices->obstacles();
 }
 
 void CGameInfo::updateEntity(Metatype metatype, int32_t index, const JsonNode & data)
