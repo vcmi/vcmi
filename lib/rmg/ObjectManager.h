@@ -40,6 +40,7 @@ public:
 public:
 	MODIFICATOR(ObjectManager);
 
+
 	void process() override;
 	void init() override;
 

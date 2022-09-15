@@ -72,45 +72,44 @@ void AINodeStorage::initialize(const PathfinderOptions & options, const CGameSta
 	const auto fow = static_cast<const CGameInfoCallback *>(gs)->getPlayerTeam(fowPlayer)->fogOfWarMap;
 	const int3 sizes = gs->getMapSize();
 
-	for(int z = 0; z < sizes.z; ++z) //Can't parallelize only 2 layers
-	{
-		//Each thread gets different x, but an array of y located next to each other in memory
+	//Each thread gets different x, but an array of y located next to each other in memory
 
-		parallel_for(blocked_range<size_t>(0, sizes.x), [&](const blocked_range<size_t>& r)
+	parallel_for(blocked_range<size_t>(0, sizes.x), [&](const blocked_range<size_t>& r)
+	{
+		int3 pos;
+
+		for (pos.z = 0; pos.z < sizes.z; ++pos.z)
 		{
-			//make 200% sure that these are loop invariants (also a bit shorter code), let compiler do the rest(loop unswitching)
 			const bool useFlying = options.useFlying;
 			const bool useWaterWalking = options.useWaterWalking;
 			const PlayerColor player = playerID;
 
-			int3 pos(0,0,z);
-
-			for(pos.x = r.begin(); pos.x != r.end(); ++pos.x)
+			for (pos.x = r.begin(); pos.x != r.end(); ++pos.x)
 			{
-				for(pos.y = 0; pos.y < sizes.y; ++pos.y)
+				for (pos.y = 0; pos.y < sizes.y; ++pos.y)
 				{
-					const TerrainTile * tile = &gs->map->getTile(pos);
-					if(!tile->terType.isPassable())
+					const TerrainTile* tile = &gs->map->getTile(pos);
+					if (!tile->terType.isPassable())
 						continue;
-					
-					if(tile->terType.isWater())
+
+					if (tile->terType.isWater())
 					{
 						resetTile(pos, ELayer::SAIL, PathfinderUtil::evaluateAccessibility<ELayer::SAIL>(pos, tile, fow, player, gs));
-						if(useFlying)
+						if (useFlying)
 							resetTile(pos, ELayer::AIR, PathfinderUtil::evaluateAccessibility<ELayer::AIR>(pos, tile, fow, player, gs));
-						if(useWaterWalking)
+						if (useWaterWalking)
 							resetTile(pos, ELayer::WATER, PathfinderUtil::evaluateAccessibility<ELayer::WATER>(pos, tile, fow, player, gs));
 					}
 					else
 					{
 						resetTile(pos, ELayer::LAND, PathfinderUtil::evaluateAccessibility<ELayer::LAND>(pos, tile, fow, player, gs));
-						if(useFlying)
+						if (useFlying)
 							resetTile(pos, ELayer::AIR, PathfinderUtil::evaluateAccessibility<ELayer::AIR>(pos, tile, fow, player, gs));
 					}
 				}
 			}
-		});
-	}
+		}
+	});
 }
 
 void AINodeStorage::clear()

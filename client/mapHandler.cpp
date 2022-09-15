@@ -1200,7 +1200,7 @@ bool CMapHandler::printObject(const CGObjectInstance * obj, bool fadein)
 	const int tilesH = bitmap->height()/32;
 
 	auto ttilesWidth = ttiles.shape()[1];
-	auto ttilesHeight = ttiles.shape()[1];
+	auto ttilesHeight = ttiles.shape()[2];
 
 	for(int fx=0; fx<tilesW; ++fx)
 	{
