@@ -17,6 +17,7 @@
 #include "../CGeneralTextHandler.h"
 #include "../Terrain.h"
 #include "../BattleFieldHandler.h"
+#include "../ObstacleHandler.h"
 
 //TODO: remove
 #include "../IGameCallback.h"
@@ -240,9 +241,6 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, const Terrain & terrain,
 	//randomize obstacles
  	if (town == nullptr && !creatureBank) //do it only when it's not siege and not creature bank
  	{
-		const int ABSOLUTE_OBSTACLES_COUNT = VLC->heroh->absoluteObstacles.size();
-		const int USUAL_OBSTACLES_COUNT = VLC->heroh->obstacles.size(); //shouldn't be changes if we want H3-like obstacle placement
-
 		RandGen r;
 		auto ourRand = [&](){ return r.rand(); };
 		r.srand(tile);
@@ -253,17 +251,19 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, const Terrain & terrain,
 
 		auto appropriateAbsoluteObstacle = [&](int id)
 		{
-			return VLC->heroh->absoluteObstacles[id].isAppropriate(curB->terrainType, battlefieldType);
+			auto * info = Obstacle(id).getInfo();
+			return info && info->isAbsoluteObstacle && info->isAppropriate(curB->terrainType, battlefieldType);
 		};
-		auto appropriateUsualObstacle = [&](int id) -> bool
+		auto appropriateUsualObstacle = [&](int id)
 		{
-			return VLC->heroh->obstacles[id].isAppropriate(curB->terrainType, battlefieldType);
+			auto * info = Obstacle(id).getInfo();
+			return info && !info->isAbsoluteObstacle && info->isAppropriate(curB->terrainType, battlefieldType);
 		};
 
+		RangeGenerator obidgen(0, VLC->obstacleHandler->objects.size() - 1, ourRand);
+		
 		if(r.rand(1,100) <= 40) //put cliff-like obstacle
 		{
-			RangeGenerator obidgen(0, ABSOLUTE_OBSTACLES_COUNT-1, ourRand);
-
 			try
 			{
 				auto obstPtr = std::make_shared<CObstacleInstance>();
@@ -274,7 +274,7 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, const Terrain & terrain,
 
 				for(BattleHex blocked : obstPtr->getBlockedTiles())
 					blockedTiles.push_back(blocked);
-				tilesToBlock -= (int)VLC->heroh->absoluteObstacles[obstPtr->ID].blockedTiles.size() / 2;
+				tilesToBlock -= Obstacle(obstPtr->ID).getInfo()->blockedTiles.size() / 2;
 			}
 			catch(RangeGenerator::ExhaustedPossibilities &)
 			{
@@ -283,14 +283,13 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, const Terrain & terrain,
 			}
 		}
 
-		RangeGenerator obidgen(0, USUAL_OBSTACLES_COUNT-1, ourRand);
 		try
 		{
 			while(tilesToBlock > 0)
 			{
 				auto tileAccessibility = curB->getAccesibility();
 				const int obid = obidgen.getSuchNumber(appropriateUsualObstacle);
-				const CObstacleInfo &obi = VLC->heroh->obstacles[obid];
+				const ObstacleInfo &obi = *Obstacle(obid).getInfo();
 
 				auto validPosition = [&](BattleHex pos) -> bool
 				{

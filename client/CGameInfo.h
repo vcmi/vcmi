@@ -32,6 +32,7 @@ class CGameState;
 class IMainVideoPlayer;
 class CServerHandler;
 class BattleFieldHandler;
+class ObstacleHandler;
 
 class CMap;
 
@@ -62,6 +63,7 @@ public:
 	const spells::Service * spells() const override;
 	const SkillService * skills() const override;
 	const BattleFieldService * battlefields() const override;
+	const ObstacleService * obstacles() const override;
 
 	void updateEntity(Metatype metatype, int32_t index, const JsonNode & data) override;
 
@@ -77,6 +79,7 @@ public:
 	ConstTransitivePtr<CSkillHandler> skillh;
 	ConstTransitivePtr<CObjectHandler> objh;
 	ConstTransitivePtr<CObjectClassesHandler> objtypeh;
+	ConstTransitivePtr<ObstacleHandler> obstacleHandler;
 	CGeneralTextHandler * generaltexth;
 	CMapHandler * mh;
 	CTownHandler * townh;

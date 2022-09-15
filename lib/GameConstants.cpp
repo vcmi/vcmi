@@ -35,6 +35,7 @@
 #include "CGeneralTextHandler.h"
 #include "CModHandler.h"//todo: remove
 #include "BattleFieldHandler.h"
+#include "ObstacleHandler.h"
 
 const SlotID SlotID::COMMANDER_SLOT_PLACEHOLDER = SlotID(-2);
 const SlotID SlotID::SUMMONED_SLOT_PLACEHOLDER = SlotID(-3);
@@ -292,4 +293,24 @@ BattleField BattleField::fromString(std::string identifier)
 		return BattleField(rawId.get());
 	else
 		return BattleField::NONE;
+}
+		
+const ObstacleInfo * Obstacle::getInfo() const
+{
+	return VLC->obstacles()->getById(*this);
+}
+
+Obstacle::operator std::string() const
+{
+	return getInfo()->identifier;
+}
+
+Obstacle Obstacle::fromString(std::string identifier)
+{
+	auto rawId = VLC->modh->identifiers.getIdentifier("core", "obstacle", identifier);
+
+	if(rawId)
+		return Obstacle(rawId.get());
+	else
+		return Obstacle(-1);
 }
