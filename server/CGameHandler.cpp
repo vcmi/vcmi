@@ -63,7 +63,7 @@
 #define COMPLAIN_RET_FALSE_IF(cond, txt) do {if (cond){complain(txt); return false;}} while(0)
 #define COMPLAIN_RET(txt) {complain(txt); return false;}
 #define COMPLAIN_RETF(txt, FORMAT) {complain(boost::str(boost::format(txt) % FORMAT)); return false;}
-#define COMPLAIN_RET_OPT_NONE(txt) { complain(txt); return {}; }
+#define COMPLAIN_RET_OPT_NONE(txt) { complain(txt); return boost::none; }
 
 class ServerSpellCastEnvironment : public SpellCastEnvironment
 {
@@ -3881,7 +3881,7 @@ boost::optional<MoveArtifact> CGameHandler::calcArtifactDst(const ArtifactLocati
 
 // With the amount of changes done to the function, it's more like transferArtifacts.
 // Function moves artifact from src to dst. If dst is not a backpack and is already occupied, old dst art goes to backpack and is replaced.
-bool CGameHandler::moveArtifactImpl(const ArtifactLocation & al1, const ArtifactLocation & al2, std::vector<MoveArtifact> * artifactsToMove)
+bool CGameHandler::moveArtifactInternal(const ArtifactLocation & al1, const ArtifactLocation & al2, std::vector<MoveArtifact> * artifactsToMove)
 {
 	auto ma = calcArtifactDst(al1, al2);
 
@@ -3915,7 +3915,7 @@ bool CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocat
 	ArtifactLocation src = al1, dst = al2;
 
 	std::vector<MoveArtifact> artifacts;
-	if (!moveArtifactImpl(src, dst, &artifacts))
+	if (!moveArtifactInternal(src, dst, &artifacts))
 		COMPLAIN_RET("Unable to move artifact");
 
 	BulkMoveArtifact bma;
@@ -3951,7 +3951,7 @@ bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID 
 			std::tie(srcLocation, dstLocation) = getArtSrcDst(psrcHero, pdstHero, it->first);
 			dstOccupiedSlots.insert(dstLocation.slot.num);
 
-			moveArtifactImpl(srcLocation, dstLocation, &artifacts);
+			moveArtifactInternal(srcLocation, dstLocation, &artifacts);
 		}
 	}
 
@@ -3962,7 +3962,7 @@ bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID 
 		std::tie(srcLocation, dstLocation) = getArtSrcDst(psrcHero, pdstHero, psrcHero->getArtPos(it->artifact));
 		dstOccupiedSlots.insert(dstLocation.slot.num);
 
-		moveArtifactImpl(srcLocation, dstLocation, &artifacts);
+		moveArtifactInternal(srcLocation, dstLocation, &artifacts);
 	}
 
 	BulkMoveArtifact bma;

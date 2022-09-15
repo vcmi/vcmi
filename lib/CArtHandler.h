@@ -230,20 +230,6 @@ public:
 	}
 };
 
-struct DLL_LINKAGE ArtSlotInfo
-{
-	ConstTransitivePtr<CArtifactInstance> artifact;
-	ui8 locked; //if locked, then artifact points to the combined artifact
-
-	ArtSlotInfo() : locked(false) {}
-
-	template <typename Handler> void serialize(Handler& h, const int version)
-	{
-		h& artifact;
-		h& locked;
-	}
-};
-
 class DLL_LINKAGE CArtHandler : public CHandlerBase<ArtifactID, Artifact, CArtifact, ArtifactService>
 {
 public:
@@ -307,6 +293,20 @@ private:
 	void loadGrowingArt(CGrowingArtifact * art, const JsonNode & node);
 
 	void erasePickedArt(ArtifactID id);
+};
+
+struct DLL_LINKAGE ArtSlotInfo
+{
+	ConstTransitivePtr<CArtifactInstance> artifact;
+	ui8 locked; //if locked, then artifact points to the combined artifact
+
+	ArtSlotInfo() : locked(false) {}
+
+	template <typename Handler> void serialize(Handler & h, const int version)
+	{
+		h & artifact;
+		h & locked;
+	}
 };
 
 class DLL_LINKAGE CArtifactSet

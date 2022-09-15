@@ -346,7 +346,7 @@ private:
 	void checkVictoryLossConditions(const std::set<PlayerColor> & playerColors);
 	void checkVictoryLossConditionsForAll();
 
-	bool moveArtifactImpl(const ArtifactLocation & al1, const ArtifactLocation & al2, std::vector<MoveArtifact> * artifactsToMove);
+	bool moveArtifactInternal(const ArtifactLocation & al1, const ArtifactLocation & al2, std::vector<MoveArtifact> * artifactsToMove);
 	boost::optional<MoveArtifact> calcArtifactDst(const ArtifactLocation & al1, const ArtifactLocation & al2);
 
 	const std::string complainNoCreatures;
