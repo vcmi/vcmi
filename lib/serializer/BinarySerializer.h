@@ -359,7 +359,7 @@ public:
 		auto shape = data.shape();
 		ui32 x = shape[0], y = shape[1], z = shape[2];
 		*this & x & y & z;
-		for (ui32 i = 0; i<length; i++)
+		for (ui32 i = 0; i < length; i++)
 			save(data.data()[i]);
 	}
 };
