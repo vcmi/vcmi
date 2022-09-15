@@ -41,9 +41,9 @@ struct DLL_LINKAGE MapRect
 	template<typename Func>
 	void forEach(Func f) const
 	{
-		for (int j = y; j < bottom(); ++j)
+		for(int j = y; j < bottom(); ++j)
 		{
-			for (int i = x; i < right(); ++i)
+			for(int i = x; i < right(); ++i)
 			{
 				f(int3(i, j, z));
 			}
@@ -215,18 +215,16 @@ public:
 	CTerrainViewPatternConfig();
 	~CTerrainViewPatternConfig();
 
-	const std::vector<TVPVector>& getTerrainViewPatterns(const Terrain& terrain) const;
-	boost::optional<const TerrainViewPattern&> getTerrainViewPatternById(std::string patternId, const std::string& id) const;
-	boost::optional<const TVPVector&> getTerrainViewPatternsById(const Terrain& terrain, const std::string& id) const;
-	const TVPVector* getTerrainTypePatternById(const std::string& id) const;
-	void flipPattern(TerrainViewPattern& pattern, int flip) const;
+	const std::vector<TVPVector> & getTerrainViewPatterns(const Terrain & terrain) const;
+	boost::optional<const TerrainViewPattern &> getTerrainViewPatternById(std::string patternId, const std::string & id) const;
+	boost::optional<const TVPVector &> getTerrainViewPatternsById(const Terrain & terrain, const std::string & id) const;
+	const TVPVector * getTerrainTypePatternById(const std::string & id) const;
+	void flipPattern(TerrainViewPattern & pattern, int flip) const;
 
 private:
 	std::map<std::string, std::vector<TVPVector> > terrainViewPatterns;
 	std::map<std::string, TVPVector> terrainTypePatterns;
 };
-
-
 
 class DLL_LINKAGE CTerrainViewPatternUtils
 {
