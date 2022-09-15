@@ -107,7 +107,7 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 						|| targetNode->turns != 0)
 					{
 						logAi->error(
-							"Enable to complete chain. Expected hero %s to arive to %s in 0 turns but he can not do this",
+							"Unable to complete chain. Expected hero %s to arrive to %s in 0 turns but he cannot do this",
 							hero->name,
 							node.coord.toString());
 

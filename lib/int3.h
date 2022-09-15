@@ -158,11 +158,11 @@ public:
 	//returns "(x y z)" string
 	std::string toString() const
 	{
-		std::string result("(");
-		result += boost::lexical_cast<std::string>(x); result += ' ';
-		result += boost::lexical_cast<std::string>(y); result += ' ';
-		result += boost::lexical_cast<std::string>(z); result += ')';
-		return result;
+		//Performance is important here
+		char str[16] = {};
+		std::sprintf(str, "(%d %d %d)", x, y, z);
+
+		return std::string(str);
 	}
 
 	bool valid() const //Should be named "isValid"?

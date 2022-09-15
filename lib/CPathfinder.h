@@ -513,6 +513,7 @@ struct DLL_LINKAGE TurnInfo
 		int flyingMovementVal;
 		bool waterWalking;
 		int waterWalkingVal;
+		int pathfindingVal;
 
 		BonusCache(TConstBonusListPtr bonusList);
 	};

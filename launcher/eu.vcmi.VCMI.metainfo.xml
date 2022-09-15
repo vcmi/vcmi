@@ -38,6 +38,7 @@
 	<url type="bugtracker">https://bugs.vcmi.eu/</url>
 	<url type="faq">https://vcmi.eu/faq/</url>
 	<releases>
+		<release version="1.0.0" date="2022-09-11" />
 		<release version="0.99" date="2016-11-01" />
 	</releases>
 	<developer_name>VCMI Team</developer_name>

@@ -89,27 +89,24 @@ ObstacleInfo * ObstacleHandler::loadFromJson(const std::string & scope, const Js
 		info->allowedSpecialBfields.emplace_back(t.String());
 	info->blockedTiles = json["blockedTiles"].convertTo<std::vector<si16>>();
 	info->isAbsoluteObstacle = json["absolute"].Bool();
-	if(info->isAbsoluteObstacle)
-		absoluteObstacles.push_back(info->getId());
-	else
-		obstacles.push_back(info->getId());
+	
+	objects.push_back(info);
 	
 	return info;
 }
 
 std::vector<JsonNode> ObstacleHandler::loadLegacyData(size_t dataSize)
 {
-	return std::vector<JsonNode>();
+	return {};
 }
 
 std::vector<bool> ObstacleHandler::getDefaultAllowed() const
 {
-	return std::vector<bool>();
+	return {};
 }
 
 const std::vector<std::string> & ObstacleHandler::getTypeNames() const
 {
-	static const  std::vector<std::string> types = std::vector<std::string> { "obstacle" };
-	
+	static const std::vector<std::string> types = { "obstacle" };
 	return types;
 }

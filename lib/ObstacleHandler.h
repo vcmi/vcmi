@@ -77,10 +77,7 @@ public:
 
 class ObstacleHandler: public CHandlerBase<Obstacle, ObstacleInfo, ObstacleInfo, ObstacleService>
 {
-public:
-	std::vector<Obstacle> absoluteObstacles;
-	std::vector<Obstacle> obstacles;
-	
+public:	
 	ObstacleInfo * loadFromJson(const std::string & scope,
 										const JsonNode & json,
 										const std::string & identifier,

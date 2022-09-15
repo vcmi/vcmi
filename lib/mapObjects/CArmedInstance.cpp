@@ -76,7 +76,11 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 
 		factions.insert(creature->faction);
 		// Check for undead flag instead of faction (undead mummies are neutral)
-		hasUndead |= inst->hasBonus(undeadSelector, undeadCacheKey);
+		if (!hasUndead)
+		{
+			//this is costly check, let's skip it at first undead
+			hasUndead |= inst->hasBonus(undeadSelector, undeadCacheKey);
+		}
 	}
 
 	size_t factionsInArmy = factions.size(); //town garrison seems to take both sets into account
