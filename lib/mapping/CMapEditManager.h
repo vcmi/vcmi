@@ -177,9 +177,6 @@ public:
 	/// Draws rivers at the current terrain selection. The selection will be cleared automatically.
 	void drawRiver(const std::string & riverType, CRandomGenerator * gen = nullptr);
 
-	/// Draws rivers at the current terrain selection. The selection will be cleared automatically.
-	void drawRiver(const std::string & riverType, CRandomGenerator * gen = nullptr);
-
 	void insertObject(CGObjectInstance * obj);
 
 	CTerrainSelection & getTerrainSelection();
