@@ -94,6 +94,8 @@ void CRandomRewardObjectInfo::configureObject(CRewardableObject * object, CRando
 
 		info.reward.movePoints = JsonRandom::loadValue(reward["movePoints"], rng);
 		info.reward.movePercentage = JsonRandom::loadValue(reward["movePercentage"], rng, -1);
+		
+		info.reward.removeObject = reward["removeObject"].Bool();
 
 		//FIXME: compile this line on Visual
 		//info.reward.bonuses = JsonRandom::loadBonuses(reward["bonuses"]);
