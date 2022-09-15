@@ -46,7 +46,7 @@ Terrain::Manager::Manager()
 	{
 		if(!CResourceHandler::get(mod)->existsResource(ResourceID("config/terrains.json")))
 			continue;
-
+		
 		JsonNode terrs(mod, ResourceID("config/terrains.json"));
 		for(auto & terr : terrs.Struct())
 		{
@@ -59,7 +59,7 @@ Terrain::Manager::Manager()
 				ui8(unblockedVec[1].Float()),
 				ui8(unblockedVec[2].Float())
 			};
-
+			
 			const JsonVector &blockedVec = terr.second["minimapBlocked"].Vector();
 			info.minimapBlocked =
 			{
@@ -69,7 +69,7 @@ Terrain::Manager::Manager()
 			};
 			info.musicFilename = terr.second["music"].String();
 			info.tilesFilename = terr.second["tiles"].String();
-
+			
 			if(terr.second["type"].isNull())
 			{
 				info.type = Terrain::Info::Type::Land;
@@ -82,7 +82,7 @@ Terrain::Manager::Manager()
 				if(s == "ROCK") info.type = Terrain::Info::Type::Rock;
 				if(s == "SUB") info.type = Terrain::Info::Type::Subterranean;
 			}
-
+			
 			if(terr.second["rockTerrain"].isNull())
 			{
 				info.rockTerrain = "rock";
@@ -91,7 +91,7 @@ Terrain::Manager::Manager()
 			{
 				info.rockTerrain = terr.second["rockTerrain"].String();
 			}
-
+			
 			if(terr.second["river"].isNull())
 			{
 				info.river = RIVER_NAMES[0];
@@ -100,7 +100,7 @@ Terrain::Manager::Manager()
 			{
 				info.river = terr.second["river"].String();
 			}
-
+			
 			if(terr.second["horseSoundId"].isNull())
 			{
 				info.horseSoundId = 9; //rock sound as default
@@ -109,12 +109,12 @@ Terrain::Manager::Manager()
 			{
 				info.horseSoundId = terr.second["horseSoundId"].Integer();
 			}
-
+			
 			if(!terr.second["text"].isNull())
 			{
 				info.terrainText = terr.second["text"].String();
 			}
-
+			
 			if(terr.second["code"].isNull())
 			{
 				info.typeCode = terr.first.substr(0, 2);
@@ -124,7 +124,7 @@ Terrain::Manager::Manager()
 				info.typeCode = terr.second["code"].String();
 				assert(info.typeCode.length() == 2);
 			}
-
+			
 			if(!terr.second["battleFields"].isNull())
 			{
 				for(auto & t : terr.second["battleFields"].Vector())
@@ -132,7 +132,7 @@ Terrain::Manager::Manager()
 					info.battleFields.emplace_back(t.String());
 				}
 			}
-
+			
 			if(!terr.second["prohibitTransitions"].isNull())
 			{
 				for(auto & t : terr.second["prohibitTransitions"].Vector())
@@ -140,19 +140,19 @@ Terrain::Manager::Manager()
 					info.prohibitTransitions.emplace_back(t.String());
 				}
 			}
-
+			
 			info.transitionRequired = false;
 			if(!terr.second["transitionRequired"].isNull())
 			{
 				info.transitionRequired = terr.second["transitionRequired"].Bool();
 			}
-
+			
 			info.terrainViewPatterns = "normal";
 			if(!terr.second["terrainViewPatterns"].isNull())
 			{
 				info.terrainViewPatterns = terr.second["terrainViewPatterns"].String();
 			}
-
+			
 			terrainInfo[terr.first] = info;
 			if(!terrainId.count(terr.first))
 			{
@@ -179,7 +179,7 @@ int Terrain::Manager::id(const Terrain & terrain)
 	if(terrain.name == "ANY") return -3;
 	if(terrain.name == "WRONG") return -2;
 	if(terrain.name == "BORDER") return -1;
-
+	
 	return Terrain::Manager::get().terrainId.at(terrain);
 }
 
@@ -192,7 +192,7 @@ std::ostream & operator<<(std::ostream & os, const Terrain terrainType)
 {
 	return os << static_cast<const std::string &>(terrainType);
 }
-
+	
 Terrain::operator std::string() const
 {
 	return name;
@@ -200,13 +200,13 @@ Terrain::operator std::string() const
 
 Terrain::Terrain(const std::string & _name) : name(_name)
 {}
-
+	
 Terrain& Terrain::operator=(const Terrain & _name)
 {
 	name = _name.name;
 	return *this;
 }
-
+	
 Terrain& Terrain::operator=(const std::string & _name)
 {
 	name = _name;
@@ -222,17 +222,17 @@ bool operator!=(const Terrain & l, const Terrain & r)
 {
 	return l.name != r.name;
 }
-
+	
 bool operator<(const Terrain & l, const Terrain & r)
 {
 	return l.name < r.name;
 }
-
+	
 int Terrain::id() const
 {
 	return Terrain::Manager::id(*this);
 }
-
+	
 bool Terrain::isLand() const
 {
 	return !isWater();

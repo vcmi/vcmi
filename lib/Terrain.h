@@ -18,16 +18,16 @@
 class DLL_LINKAGE Terrain
 {
 public:
-
+	
 	friend class Manager;
-
+	
 	struct Info
 	{
 		enum class Type
 		{
 			Land, Water, Subterranean, Rock
 		};
-
+		
 		int moveCost;
 		bool transitionRequired;
 		std::array<int, 3> minimapBlocked;
@@ -44,62 +44,62 @@ public:
 		std::vector<std::string> battleFields;
 		std::vector<Terrain> prohibitTransitions;
 	};
-
+	
 	class DLL_LINKAGE Manager
 	{
 	public:
 		static const std::vector<Terrain> & terrains();
 		static const Info & getInfo(const Terrain &);
 		static int id(const Terrain &);
-
+		
 	private:
 		static Manager & get();
 		Manager();
-
+		
 		std::unordered_map<std::string, Info> terrainInfo;
 		std::vector<Terrain> terrainVault;
 		std::map<Terrain, int> terrainId;
 	};
-
+	
 	/*enum EETerrainType
-	{
-	ANY_TERRAIN = -3,
-	WRONG = -2, BORDER = -1, DIRT, SAND, GRASS, SNOW, SWAMP,
-	ROUGH, SUBTERRANEAN, LAVA, WATER, ROCK // ROCK is also intended to be max value.
-	};*/
-
+	 {
+	 ANY_TERRAIN = -3,
+	 WRONG = -2, BORDER = -1, DIRT, SAND, GRASS, SNOW, SWAMP,
+	 ROUGH, SUBTERRANEAN, LAVA, WATER, ROCK // ROCK is also intended to be max value.
+	 };*/
+	
 	Terrain(const std::string & _type = "");
 	static Terrain createTerrainTypeH3M(int tId);
 	static Terrain createTerrainByCode(const std::string & typeCode);
-
+	
 	int id() const; //TODO: has to be completely removed
-
+	
 	Terrain& operator=(const Terrain & _type);
 	Terrain& operator=(const std::string & _type);
-
+	
 	DLL_LINKAGE friend bool operator==(const Terrain & l, const Terrain & r);
 	DLL_LINKAGE friend bool operator!=(const Terrain & l, const Terrain & r);
 	DLL_LINKAGE friend bool operator<(const Terrain & l, const Terrain & r);
-
+	
 	static const Terrain ANY;
-
+	
 	bool isLand() const;
 	bool isWater() const;
 	bool isPassable() const; //ROCK
 	bool isUnderground() const;
 	bool isNative() const;
 	bool isTransitionRequired() const;
-
-
+	
+		
 	operator std::string() const;
-
+	
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & name;
 	}
-
+	
 protected:
-
+	
 	std::string name;
 };
 
