@@ -3876,7 +3876,7 @@ boost::optional<MoveArtifact> CGameHandler::calcArtifactDst(const ArtifactLocati
 	ma.src = src;
 	ma.dst = dst;
 
-	return { ma };
+	return boost::make_optional(ma);
 }
 
 // With the amount of changes done to the function, it's more like transferArtifacts.
@@ -3936,7 +3936,6 @@ bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID 
 
 	// Gets the source location and dest location of an artifact
 	auto getArtSrcDst = [&dstOccupiedSlots](const CGHeroInstance * psrcHero, const CGHeroInstance * pdstHero, ArtifactPosition artSrcPos) -> auto {
-		auto artifact = psrcHero->getArt(artSrcPos);
 		auto srcLocation = ArtifactLocation(psrcHero, artSrcPos);
 		auto dstLocation = ArtifactUtils::getArtifactDstLocation(psrcHero, pdstHero, artSrcPos, dstOccupiedSlots);
 

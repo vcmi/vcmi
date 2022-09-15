@@ -1429,7 +1429,7 @@ void CArtifactSet::serializeJsonSlot(JsonSerializeFormat & handler, const Artifa
 	}
 }
 
-ArtifactLocation ArtifactUtils::getArtifactDstLocation(const CGHeroInstance * source, const CGHeroInstance * target, ArtifactPosition srcPosition, std::set<ArtifactPosition::EArtifactPosition> dstOccupiedSlots)
+ArtifactLocation ArtifactUtils::getArtifactDstLocation(const CGHeroInstance * source, const CGHeroInstance * target, ArtifactPosition srcPosition, const std::set<ArtifactPosition::EArtifactPosition> & dstOccupiedSlots)
 {
 	auto artifact = source->getArt(srcPosition);
 	auto srcLocation = ArtifactLocation(source, srcPosition);
