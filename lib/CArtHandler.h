@@ -324,14 +324,14 @@ public:
 	CArtifactInstance* getArt(ArtifactPosition pos, bool excludeLocked = true); //nullptr - no artifact
 	/// Looks for equipped artifact with given ID and returns its slot ID or -1 if none
 	/// (if more than one such artifact lower ID is returned)
-	ArtifactPosition getArtPos(int aid, bool onlyWorn = true) const;
+	ArtifactPosition getArtPos(int aid, bool onlyWorn = true, bool allowLocked = true) const;
 	ArtifactPosition getArtPos(const CArtifactInstance *art) const;
 	const CArtifactInstance *getArtByInstanceId(ArtifactInstanceID artInstId) const;
 	/// Search for constituents of assemblies in backpack which do not have an ArtifactPosition
 	const CArtifactInstance *getHiddenArt(int aid) const;
 	const CCombinedArtifactInstance *getAssemblyByConstituent(int aid) const;
 	/// Checks if hero possess artifact of given id (either in backack or worn)
-	bool hasArt(ui32 aid, bool onlyWorn = false, bool searchBackpackAssemblies = false) const;
+	bool hasArt(ui32 aid, bool onlyWorn = false, bool searchBackpackAssemblies = false, bool allowLocked = true) const;
 	bool isPositionFree(ArtifactPosition pos, bool onlyLockCheck = false) const;
 
 	virtual ArtBearer::ArtBearer bearerType() const = 0;

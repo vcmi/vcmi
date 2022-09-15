@@ -881,7 +881,10 @@ std::vector<const CArtifact *> CArtifactInstance::assemblyPossibilities(const CA
 
 		for(const CArtifact * constituent : *artifact->constituents) //check if all constituents are available
 		{
-			if(!h->hasArt(constituent->id, true)) //constituent must be equipped
+			const bool noBackpack = false;
+			const bool notAlreadyAssembled = false;
+
+			if(!h->hasArt(constituent->id, true, noBackpack, notAlreadyAssembled)) //constituent must be equipped
 			{
 				possible = false;
 				break;
@@ -1184,10 +1187,10 @@ CArtifactInstance* CArtifactSet::getArt(ArtifactPosition pos, bool excludeLocked
 	return const_cast<CArtifactInstance*>((const_cast<const CArtifactSet*>(this))->getArt(pos, excludeLocked));
 }
 
-ArtifactPosition CArtifactSet::getArtPos(int aid, bool onlyWorn) const
+ArtifactPosition CArtifactSet::getArtPos(int aid, bool onlyWorn, bool allowLocked) const
 {
 	for(auto i = artifactsWorn.cbegin(); i != artifactsWorn.cend(); i++)
-		if(i->second.artifact->artType->id == aid)
+		if(i->second.artifact->artType->id == aid && (allowLocked || !i->second.locked))
 			return i->first;
 
 	if(onlyWorn)
@@ -1226,10 +1229,13 @@ const CArtifactInstance * CArtifactSet::getArtByInstanceId( ArtifactInstanceID a
 	return nullptr;
 }
 
-bool CArtifactSet::hasArt(ui32 aid, bool onlyWorn,
-                          bool searchBackpackAssemblies) const
+bool CArtifactSet::hasArt(
+	ui32 aid,
+	bool onlyWorn,
+    bool searchBackpackAssemblies,
+	bool allowLocked) const
 {
-	return getArtPos(aid, onlyWorn) != ArtifactPosition::PRE_FIRST ||
+	return getArtPos(aid, onlyWorn, allowLocked) != ArtifactPosition::PRE_FIRST ||
 	       (searchBackpackAssemblies && getHiddenArt(aid));
 }
 
