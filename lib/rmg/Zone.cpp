@@ -304,11 +304,6 @@ Modificator::Modificator(Zone & zone, RmgMap & map, CMapGenerator & generator) :
 {
 }
 
-void Modificator::disable()
-{
-	enabled = false;
-}
-
 void Modificator::setName(const std::string & n)
 {
 	name = n;
@@ -338,8 +333,7 @@ void Modificator::run()
 		CStopWatch processTime;
 		try
 		{
-			if(enabled)
-				process();
+			process();
 		}
 		catch(rmgException &e)
 		{

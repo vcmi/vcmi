@@ -42,11 +42,6 @@ int CMapGenerator::getRandomSeed() const
 	return randomSeed;
 }
 
-void CMapGenerator::disableModificator(const std::string & modificator)
-{
-	disabledModificators.insert(modificator);
-}
-
 void CMapGenerator::loadConfig()
 {
 	static const ResourceID path("config/randomMap.json");
@@ -134,11 +129,11 @@ std::unique_ptr<CMap> CMapGenerator::generate()
 		map->initTiles(*this);
 		Load::Progress::step();
 		initPrisonsRemaining();
-		initQuestArtsRemaining();		
+		initQuestArtsRemaining();
 		genZones();
 		Load::Progress::step();
 		map->map().calculateGuardingGreaturePositions(); //clear map so that all tiles are unguarded
-		map->addModificators(disabledModificators);
+		map->addModificators();
 		Load::Progress::step(3);
 		fillZones();
 		//updated guarded tiles will be calculated in CGameState::initMapObjects()

@@ -50,8 +50,6 @@ public:
 	
 	void setName(const std::string & n);
 	const std::string & getName() const;
-
-	void disable();
 	
 	void run();
 	void dependency(Modificator * modificator);
@@ -68,7 +66,6 @@ private:
 	std::string name;
 	bool started = false;
 	bool finished = false;
-	bool enabled = true;
 	std::list<Modificator*> preceeders; //must be ordered container
 	void dump();
 };
@@ -118,11 +115,9 @@ public:
 	}
 	
 	template<class T>
-	void addModificator(bool enabled = true)
+	void addModificator()
 	{
 		modificators.emplace_back(new T(*this, map, generator));
-		if(!enabled)
-			modificators.back()->disable();
 	}
 	
 	void initModificators();
