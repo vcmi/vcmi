@@ -281,10 +281,10 @@ void MoveArtifact::applyCl(CClient *cl)
 
 void BulkMoveArtifact::applyCl(CClient * cl)
 {
-	if (!artifacts.empty())
+	for (unsigned i = 0; i < artifacts.size(); ++i)
 	{
-		auto src = artifacts[0].src;
-		auto dst = artifacts[0].dst;
+		auto src = artifacts[i].src;
+		auto dst = artifacts[i].dst;
 		callInterfaceIfPresent(cl, src.owningPlayer(), &IGameEventsReceiver::artifactMoved, src, dst);
 
 		if (src.owningPlayer() != dst.owningPlayer())

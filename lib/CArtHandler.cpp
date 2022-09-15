@@ -1429,7 +1429,7 @@ void CArtifactSet::serializeJsonSlot(JsonSerializeFormat & handler, const Artifa
 	}
 }
 
-ArtifactLocation ArtifactUtils::getArtifactDstLocation(const CGHeroInstance * source, const CGHeroInstance * target, ArtifactPosition srcPosition)
+ArtifactLocation ArtifactUtils::getArtifactDstLocation(const CGHeroInstance * source, const CGHeroInstance * target, ArtifactPosition srcPosition, std::set<ArtifactPosition::EArtifactPosition> dstOccupiedSlots)
 {
 	auto artifact = source->getArt(srcPosition);
 	auto srcLocation = ArtifactLocation(source, srcPosition);
@@ -1442,9 +1442,36 @@ ArtifactLocation ArtifactUtils::getArtifactDstLocation(const CGHeroInstance * so
 
 		if (!existingArtifact
 			&& (!existingArtInfo || !existingArtInfo->locked)
+			&& dstOccupiedSlots.find(destLocation.slot.num) == dstOccupiedSlots.end()
 			&& artifact->canBePutAt(destLocation))
 		{
 			return ArtifactLocation(target, slot);
+		}
+	}
+
+	return ArtifactLocation(target, ArtifactPosition(GameConstants::BACKPACK_START));
+}
+
+template<typename ArtifactSlots>
+ArtifactLocation getArtifactDstLocation(const CGHeroInstance * source, const CGHeroInstance * target, ArtifactSlots dstArtifactSlots, ArtifactPosition srcPosition)
+{
+	auto artifact = source->getArt(srcPosition);
+	auto srcLocation = ArtifactLocation(source, srcPosition);
+
+	for (auto slot : artifact->artType->possibleSlots.at(target->bearerType()))
+	{
+		auto existingArtifact = target->getArt(slot);
+		auto existingArtInfo = target->getSlot(slot);
+
+		// Check if there's an existing artifact there
+		if (dstArtifactSlots.find(slot) != dstArtifactSlots.end())
+		{
+			ArtifactLocation destLocation(target, slot);
+
+			if (artifact->canBePutAt(destLocation))
+			{
+				return destLocation;
+			}
 		}
 	}
 

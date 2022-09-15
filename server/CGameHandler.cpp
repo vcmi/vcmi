@@ -3930,12 +3930,14 @@ bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID 
 	const CGHeroInstance * pdstHero = getHero(dstHero);
 
 	std::vector<MoveArtifact> artifacts;
+	std::set<ArtifactPosition::EArtifactPosition> dstOccupiedSlots;
 
 	// Gets the source location and dest location of an artifact
-	auto getArtSrcDst = [](const CGHeroInstance * psrcHero, const CGHeroInstance * pdstHero, ArtifactPosition artSrcPos) -> auto{
+	auto getArtSrcDst = [&dstOccupiedSlots](const CGHeroInstance * psrcHero, const CGHeroInstance * pdstHero, ArtifactPosition artSrcPos) -> auto{
 		auto artifact = psrcHero->getArt(artSrcPos);
 		auto srcLocation = ArtifactLocation(psrcHero, artSrcPos);
-		auto dstLocation = ArtifactUtils::getArtifactDstLocation(psrcHero, pdstHero, artSrcPos);
+		// TODO: add map of slots that are filled, otherwise we get repeats
+		auto dstLocation = ArtifactUtils::getArtifactDstLocation(psrcHero, pdstHero, artSrcPos, dstOccupiedSlots);
 
 		return std::make_pair(srcLocation, dstLocation);
 	};
@@ -3948,6 +3950,7 @@ bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID 
 			// TODO-C++17: replace with structured bindings
 			ArtifactLocation srcLocation, dstLocation;
 			std::tie(srcLocation, dstLocation) = getArtSrcDst(psrcHero, pdstHero, it->first);
+			dstOccupiedSlots.insert(dstLocation.slot.num);
 
 			moveArtifactImpl(srcLocation, dstLocation, &artifacts);
 		}

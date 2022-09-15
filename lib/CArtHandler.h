@@ -362,7 +362,7 @@ private:
 namespace ArtifactUtils
 {
 	// Calculates where an artifact gets placed when it gets transferred from one hero to another.
-	DLL_LINKAGE ArtifactLocation getArtifactDstLocation(const CGHeroInstance * source, const CGHeroInstance * target, ArtifactPosition srcPosition);
+	DLL_LINKAGE ArtifactLocation getArtifactDstLocation(const CGHeroInstance * source, const CGHeroInstance * target, ArtifactPosition srcPosition, std::set<ArtifactPosition::EArtifactPosition> dstOccupiedSlots);
 	DLL_LINKAGE std::vector<ArtifactPosition> unmovablePositions();
 	DLL_LINKAGE bool isArtRemovable(const std::pair<ArtifactPosition, ArtSlotInfo> & slot);
 }

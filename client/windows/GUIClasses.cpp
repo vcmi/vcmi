@@ -1143,7 +1143,7 @@ void CExchangeController::moveArtifact(
 {
 	auto artifact = source->getArt(srcPosition);
 	auto srcLocation = ArtifactLocation(source, srcPosition);
-	auto dstLocation = ArtifactUtils::getArtifactDstLocation(source, target, srcPosition);
+	auto dstLocation = ArtifactUtils::getArtifactDstLocation(source, target, srcPosition, {});
 
 	cb->swapArtifacts(srcLocation, dstLocation);
 }
