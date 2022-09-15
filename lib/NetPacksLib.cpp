@@ -1101,8 +1101,24 @@ DLL_LINKAGE void MoveArtifact::applyGs(CGameState *gs)
 
 DLL_LINKAGE void BulkMoveArtifact::applyGs(CGameState * gs)
 {
+	int numBackpackArtifactsMoved = 0;
 	for (auto & artifact : artifacts)
+	{
+		// When an object gets removed from the backpack, the backpack shrinks
+		// so all the following indices will be affected. Thus, we need to update
+		// the subsequent artifact slots to account for that
+		if (artifact.src.slot >= GameConstants::BACKPACK_START)
+		{
+			artifact.src.slot = ArtifactPosition(artifact.src.slot.num - numBackpackArtifactsMoved);
+		}
+
 		artifact.applyGs(gs);
+
+		if (artifact.src.slot >= GameConstants::BACKPACK_START)
+		{
+			numBackpackArtifactsMoved++;
+		}
+	}
 }
 
 DLL_LINKAGE void AssembledArtifact::applyGs(CGameState *gs)
