@@ -256,7 +256,8 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, const Terrain & terrain,
 		};
 		auto appropriateUsualObstacle = [&](int id)
 		{
-			return VLC->obstacleHandler->obstacles[id].getInfo()->isAppropriate(curB->terrainType, battlefieldType);
+			auto * info = Obstacle(id).getInfo();
+			return info && !info->isAbsoluteObstacle && info->isAppropriate(curB->terrainType, battlefieldType);
 		};
 
 		RangeGenerator obidgen(0, VLC->obstacleHandler->objects.size() - 1, ourRand);
