@@ -17,7 +17,6 @@ struct _Mix_Music;
 struct SDL_RWops;
 typedef struct _Mix_Music Mix_Music;
 struct Mix_Chunk;
-class Terrain;
 
 class CAudioBase {
 protected:

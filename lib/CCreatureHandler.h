@@ -25,7 +25,6 @@ class CLegacyConfigParser;
 class CCreatureHandler;
 class CCreature;
 class JsonSerializeFormat;
-class Terrain;
 
 class DLL_LINKAGE CCreature : public Creature, public CBonusSystemNode
 {
