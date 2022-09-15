@@ -544,10 +544,14 @@ CModInfo::Version CModInfo::Version::fromString(std::string from)
 	{
 		auto pointPos = from.find('.');
 		major = std::stoi(from.substr(0, pointPos));
-		from = from.substr(pointPos);
-		pointPos = from.find('.');
-		minor = std::stoi(from.substr(0, pointPos));
-		patch = std::stoi(from.substr(pointPos));
+		if(pointPos != std::string::npos)
+		{
+			from = from.substr(pointPos + 1);
+			pointPos = from.find('.');
+			minor = std::stoi(from.substr(0, pointPos));
+			if(pointPos != std::string::npos)
+				patch = std::stoi(from.substr(pointPos + 1));
+		}
 	}
 	catch(const std::invalid_argument & e)
 	{
@@ -650,8 +654,11 @@ void CModInfo::loadLocalData(const JsonNode & data)
 	}
 	
 	//check compatibility
+	bool wasEnabled = enabled;
 	enabled &= vcmiCompatibleMin.isNull() || Version::GameVersion().compatible(vcmiCompatibleMin);
 	enabled &= vcmiCompatibleMax.isNull() || vcmiCompatibleMax.compatible(Version::GameVersion());
+	if(wasEnabled && !enabled)
+		logGlobal->warn("Mod %s is incompatible with current version of VCMI and cannot be enabled", name);
 
 	if (enabled)
 		validation = validated ? PASSED : PENDING;
