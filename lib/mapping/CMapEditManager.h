@@ -173,7 +173,7 @@ public:
 
 	/// Draws roads at the current terrain selection. The selection will be cleared automatically.
 	void drawRoad(const std::string & roadType, CRandomGenerator * gen = nullptr);
-	
+
 	/// Draws rivers at the current terrain selection. The selection will be cleared automatically.
 	void drawRiver(const std::string & riverType, CRandomGenerator * gen = nullptr);
 
@@ -375,6 +375,7 @@ private:
 	InvalidTiles getInvalidTiles(const int3 & centerPos) const;
 
 	void updateTerrainViews();
+
 	/// Validates the terrain view of the given position and with the given pattern. The first method wraps the
 	/// second method to validate the terrain view with the given pattern in all four flip directions(horizontal, vertical).
 	ValidationResult validateTerrainView(const int3 & pos, const std::vector<TerrainViewPattern> * pattern, int recDepth = 0) const;
