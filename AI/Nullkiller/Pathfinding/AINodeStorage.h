@@ -130,12 +130,7 @@ public:
 	~AISharedStorage();
 
 	STRONG_INLINE
-	const boost::detail::multi_array::sub_array<AIPathNode, 1> & get(int3 tile, EPathfindingLayer layer) const
-	{
-		return (*nodes)[layer][tile.z][tile.x][tile.y];
-	}
-	STRONG_INLINE
-	boost::detail::multi_array::sub_array<AIPathNode, 1> & get(int3 tile, EPathfindingLayer layer)
+	boost::detail::multi_array::sub_array<AIPathNode, 1> get(int3 tile, EPathfindingLayer layer) const
 	{
 		return (*nodes)[layer][tile.z][tile.x][tile.y];
 	}
