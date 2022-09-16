@@ -85,7 +85,7 @@ bool AINodeStorage::isBattleNode(const CGPathNode * node) const
 
 boost::optional<AIPathNode *> AINodeStorage::getOrCreateNode(const int3 & pos, const EPathfindingLayer layer, int chainNumber)
 {
-	auto & chains = nodes[layer][pos.z][pos.x][pos.y];
+	auto chains = nodes[layer][pos.z][pos.x][pos.y];
 
 	for(AIPathNode & node : chains)
 	{
