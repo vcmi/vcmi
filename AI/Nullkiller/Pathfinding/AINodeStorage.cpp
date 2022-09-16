@@ -141,7 +141,7 @@ boost::optional<AIPathNode *> AINodeStorage::getOrCreateNode(
 {
 	int bucketIndex = ((uintptr_t)actor) % BUCKET_COUNT;
 	int bucketOffset = bucketIndex * BUCKET_SIZE;
-	auto chains = nodes.get(pos, layer); //FIXME: chain was the innermost layer
+	auto & chains = nodes.get(pos, layer);
 
 	if(chains[0].blocked())
 	{
@@ -324,11 +324,11 @@ bool AINodeStorage::increaseHeroChainTurnLimit()
 	{
 		foreach_tile_pos([&](const int3 & pos)
 		{
-			auto chains = nodes.get(pos, layer);
+			const auto & chains = nodes.get(pos, layer);
 
 			if(!chains[0].blocked())
 			{
-				for(AIPathNode & node : chains)
+				for(const AIPathNode & node : chains)
 				{
 					if(node.turns <= heroChainTurn && node.action != CGPathNode::ENodeAction::UNKNOWN)
 					{
@@ -352,7 +352,7 @@ bool AINodeStorage::calculateHeroChainFinal()
 	{
 		foreach_tile_pos([&](const int3 & pos)
 		{
-			auto chains = nodes.get(pos, layer);
+			auto & chains = nodes.get(pos, layer);
 
 			if(!chains[0].blocked())
 			{
@@ -418,7 +418,7 @@ public:
 
 			for(auto layer : phisycalLayers)
 			{
-				auto chains = nodes.get(pos, layer);
+				auto & chains = nodes.get(pos, layer);
 
 				// fast cut inactive nodes
 				if(chains[0].blocked())
@@ -589,7 +589,7 @@ void HeroChainCalculationTask::cleanupInefectiveChains(std::vector<ExchangeCandi
 	vstd::erase_if(result, [&](const ExchangeCandidate & chainInfo) -> bool
 	{
 		auto pos = chainInfo.coord;
-		auto chains = nodes.get(pos, EPathfindingLayer::LAND);
+		const auto & chains = nodes.get(pos, EPathfindingLayer::LAND);
 		auto isNotEffective = storage.hasBetterChain(chainInfo.carrierParent, &chainInfo, chains)
 			|| storage.hasBetterChain(chainInfo.carrierParent, &chainInfo, result);
 
@@ -1130,7 +1130,7 @@ void AINodeStorage::calculateTownPortalTeleportations(std::vector<CGPathNode *> 
 bool AINodeStorage::hasBetterChain(const PathNodeInfo & source, CDestinationNodeInfo & destination) const
 {
 	auto pos = destination.coord;
-	auto chains = nodes.get(pos, EPathfindingLayer::LAND);
+	const auto & chains = nodes.get(pos, EPathfindingLayer::LAND);
 
 	return hasBetterChain(source.node, getAINode(destination.node), chains);
 }
@@ -1226,7 +1226,7 @@ bool AINodeStorage::hasBetterChain(
 
 bool AINodeStorage::isTileAccessible(const HeroPtr & hero, const int3 & pos, const EPathfindingLayer layer) const
 {
-	auto chains = nodes.get(pos, layer);
+	const auto & chains = nodes.get(pos, layer);
 
 	for(const AIPathNode & node : chains)
 	{
@@ -1246,7 +1246,7 @@ std::vector<AIPath> AINodeStorage::getChainInfo(const int3 & pos, bool isOnLand)
 
 	paths.reserve(NUM_CHAINS / 4);
 
-	auto chains = nodes.get(pos, isOnLand ? EPathfindingLayer::LAND : EPathfindingLayer::SAIL);
+	auto & chains = nodes.get(pos, isOnLand ? EPathfindingLayer::LAND : EPathfindingLayer::SAIL);
 
 	for(const AIPathNode & node : chains)
 	{
