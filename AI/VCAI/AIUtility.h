@@ -35,6 +35,8 @@ const int ALLOWED_ROAMING_HEROES = 8;
 extern const double SAFE_ATTACK_CONSTANT;
 extern const int GOLD_RESERVE;
 
+extern boost::thread_specific_ptr<CCallback> cb;
+
 //provisional class for AI to store a reference to an owned hero object
 //checks if it's valid on access, should be used in place of const CGHeroInstance*
 
