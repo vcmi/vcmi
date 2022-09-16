@@ -18,6 +18,7 @@
 #include "../../lib/mapObjects/CObjectHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/CPathfinder.h"
+#include "../../CCallback.h"
 
 class CCallback;
 struct creInfo;
@@ -33,8 +34,6 @@ const int ALLOWED_ROAMING_HEROES = 8;
 //implementation-dependent
 extern const double SAFE_ATTACK_CONSTANT;
 extern const int GOLD_RESERVE;
-
-extern boost::thread_specific_ptr<CCallback> cb; //for templates
 
 //provisional class for AI to store a reference to an owned hero object
 //checks if it's valid on access, should be used in place of const CGHeroInstance*
