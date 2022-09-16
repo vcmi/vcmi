@@ -162,11 +162,11 @@ void foreach_tile_pos(const Func & foo)
 	// some micro-optimizations since this function gets called a LOT
 	// callback pointer is thread-specific and slow to retrieve -> read map size only once
 	int3 mapSize = cb->getMapSize();
-	for (int z = 0; z < mapSize.z; z++)
+	for(int z = 0; z < mapSize.z; z++)
 	{
-		for (int x = 0; x < mapSize.x; x++)
+		for(int x = 0; x < mapSize.x; x++)
 		{
-			for (int y = 0; y < mapSize.y; y++)
+			for(int y = 0; y < mapSize.y; y++)
 			{
 				foo(int3(x, y, z));
 			}
@@ -178,11 +178,11 @@ template<class Func>
 void foreach_tile_pos(CCallback * cbp, const Func & foo) // avoid costly retrieval of thread-specific pointer
 {
 	int3 mapSize = cbp->getMapSize();
-	for (int z = 0; z < mapSize.z; z++)
+	for(int z = 0; z < mapSize.z; z++)
 	{
-		for (int x = 0; x < mapSize.x; x++)
+		for(int x = 0; x < mapSize.x; x++)
 		{
-			for (int y = 0; y < mapSize.y; y++)
+			for(int y = 0; y < mapSize.y; y++)
 			{
 				foo(cbp, int3(x, y, z));
 			}
