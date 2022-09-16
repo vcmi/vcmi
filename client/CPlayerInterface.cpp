@@ -2583,6 +2583,8 @@ void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const Artifact
 			artWin->artifactMoved(src, dst);
 	}
 
+	// This needs to be called otherwise the artifacts don't get displayed until
+	// the window is closed and reopened
 	GH.totalRedraw();
 
 	askToAssembleArtifact(dst);
