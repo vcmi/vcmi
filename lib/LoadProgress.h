@@ -54,17 +54,18 @@ public:
 	
 	//Sets amount of steps needed to reach final state
 	//doesn't modify current state
-	void steps(int steps);
+	void setupSteps(int steps);
 	
 	//Sets amount of steps needed to reach state specified
 	//doesn't modify current state
-	void stepsTill(int steps, Type state);
+	void setupStepsTill(int steps, Type state);
 	
 	//Increases current state by steps count
 	//if current state reaches final state, returns immediately
 	void step(int count = 1);
 
 private:
-	std::atomic<Type> _progress, _step;
+	std::atomic<Type> _progress, _target;
+	std::atomic<int> _step, _maxSteps;
 };
 }

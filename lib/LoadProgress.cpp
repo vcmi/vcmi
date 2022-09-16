@@ -15,12 +15,15 @@ using namespace Load;
 
 Progress::Progress(): _progress(std::numeric_limits<Type>::min())
 {
-	steps(100);
+	setupSteps(100);
 }
 
 Type Progress::get() const
 {
-	return _progress;
+	if(_step >= _maxSteps)
+		return _target;
+	
+	return static_cast<int>(_progress) + _step * static_cast<int>(_target - _progress) / _maxSteps;
 }
 
 void Progress::set(Type p)
@@ -30,42 +33,49 @@ void Progress::set(Type p)
 
 bool Progress::finished() const
 {
-	return _progress == std::numeric_limits<Type>::max();
+	return get() == std::numeric_limits<Type>::max();
 }
 
 void Progress::reset(int s)
 {
 	_progress = std::numeric_limits<Type>::min();
-	steps(s);
+	setupSteps(s);
 }
 
 void Progress::finish()
 {
-	_progress = std::numeric_limits<Type>::max();
+	_progress = _target = std::numeric_limits<Type>::max();
+	_step = std::numeric_limits<Type>::min();
+	_maxSteps = std::numeric_limits<Type>::min();
 }
 
-void Progress::steps(int s)
+void Progress::setupSteps(int s)
 {
-	stepsTill(s, std::numeric_limits<Type>::max());
+	setupStepsTill(s, std::numeric_limits<Type>::max());
 }
 
-void Progress::stepsTill(int s, Type p)
+void Progress::setupStepsTill(int s, Type p)
 {
-	if(p < _progress)
-		_step = 0;
-	else
-		_step = (p - _progress) / s;
+	if(finished())
+		return;
+	
+	if(_step > std::numeric_limits<Type>::min())
+		_progress = get();
+	
+	_step = std::numeric_limits<Type>::min();
+	_maxSteps = s;
+	
+	_target = p;
 }
 
 void Progress::step(int count)
 {
-	for(int i = 0; i < count; ++i)
+	if(_step + count > _maxSteps)
 	{
-		if(static_cast<Type>(_progress + _step) < _progress)
-		{
-			finish();
-			return;
-		}
-		_progress += _step;
+		_step = _maxSteps.load();
+	}
+	else
+	{
+		_step += count;
 	}
 }

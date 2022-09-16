@@ -122,7 +122,7 @@ void CMapGenerator::initQuestArtsRemaining()
 std::unique_ptr<CMap> CMapGenerator::generate()
 {
 	Load::Progress::reset();
-	Load::Progress::stepsTill(5, 30);
+	Load::Progress::setupStepsTill(5, 30);
 	try
 	{
 		addHeaderInfo();
@@ -290,7 +290,7 @@ void CMapGenerator::fillZones()
 
 	//we need info about all town types to evaluate dwellings and pandoras with creatures properly
 	//place main town in the middle
-	Load::Progress::stepsTill(map->getZones().size(), 50);
+	Load::Progress::setupStepsTill(map->getZones().size(), 50);
 	for(auto it : map->getZones())
 	{
 		it.second->initFreeTiles();
@@ -298,7 +298,7 @@ void CMapGenerator::fillZones()
 		Progress::Progress::step();
 	}
 
-	Load::Progress::stepsTill(map->getZones().size(), 240);
+	Load::Progress::setupStepsTill(map->getZones().size(), 240);
 	std::vector<std::shared_ptr<Zone>> treasureZones;
 	for(auto it : map->getZones())
 	{
