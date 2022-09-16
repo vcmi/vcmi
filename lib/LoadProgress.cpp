@@ -61,7 +61,7 @@ void Progress::step(int count)
 {
 	for(int i = 0; i < count; ++i)
 	{
-		if(_progress + _step < _progress)
+		if(static_cast<Type>(_progress + _step) < _progress)
 		{
 			finish();
 			return;
