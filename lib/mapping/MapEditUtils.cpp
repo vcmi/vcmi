@@ -287,10 +287,10 @@ boost::optional<const TerrainViewPattern &> CTerrainViewPatternConfig::getTerrai
 
 		if (id == pattern.id)
 		{
-			return {pattern};
+			return boost::optional<const TerrainViewPattern&>(pattern);
 		}
 	}
-	return boost::none;
+	return boost::optional<const TerrainViewPattern&>();
 }
 
 boost::optional<const CTerrainViewPatternConfig::TVPVector &> CTerrainViewPatternConfig::getTerrainViewPatternsById(const Terrain & terrain, const std::string & id) const
@@ -301,14 +301,14 @@ boost::optional<const CTerrainViewPatternConfig::TVPVector &> CTerrainViewPatter
 		const TerrainViewPattern & pattern = patternFlips.front();
 		if (id == pattern.id)
 		{
-			return {patternFlips};
+			return boost::optional<const TVPVector&>(patternFlips);
 		}
 	}
-	return boost::none;
+	return boost::optional<const TVPVector&>();
 }
 
 
-const TVPVector * CTerrainViewPatternConfig::getTerrainTypePatternById(const std::string & id) const
+const CTerrainViewPatternConfig::TVPVector* CTerrainViewPatternConfig::getTerrainTypePatternById(const std::string& id) const
 {
 	auto it = terrainTypePatterns.find(id);
 	assert(it != terrainTypePatterns.end());
