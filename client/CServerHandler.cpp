@@ -186,14 +186,12 @@ void CServerHandler::startLocalServerAndConnect()
 		CAndroidVMHelper envHelper;
 		envHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "startServer", true);
 	}
-#elif defined(VCMI_IOS)
+#elif defined(SINGLE_PROCESS_APP)
 	boost::condition_variable cond;
 	threadRunLocalServer = std::make_shared<boost::thread>([&cond, this] {
 		setThreadName("CVCMIServer");
 		CVCMIServer::create(&cond, uuid);
-		// todo ios copypaste
-		threadRunLocalServer.reset();
-		CSH->campaignServerRestartLock.setn(false);
+		onServerFinished();
 	});
 	threadRunLocalServer->detach();
 #else
@@ -212,11 +210,13 @@ void CServerHandler::startLocalServerAndConnect()
 	}
 	logNetwork->info("waiting for server finished...");
 	androidTestServerReadyFlag = false;
-#elif defined(VCMI_IOS)
+#elif defined(SINGLE_PROCESS_APP)
 	{
+#ifdef VCMI_IOS
 		dispatch_sync(dispatch_get_main_queue(), ^{
 			iOS_utils::showLoadingIndicator();
 		});
+#endif
 
 		boost::mutex m;
 		boost::unique_lock<boost::mutex> lock{m};
@@ -224,9 +224,11 @@ void CServerHandler::startLocalServerAndConnect()
 		cond.wait(lock);
 		logNetwork->info("server is ready");
 
+#ifdef VCMI_IOS
 		dispatch_sync(dispatch_get_main_queue(), ^{
 			iOS_utils::hideLoadingIndicator();
 		});
+#endif
 	}
 #else
 	if(shm)
@@ -771,9 +773,14 @@ void CServerHandler::threadRunServer()
 		logNetwork->error("Error: server failed to close correctly or crashed!");
 		logNetwork->error("Check %s for more info", logName);
 	}
+	onServerFinished();
+#endif
+}
+
+void CServerHandler::onServerFinished()
+{
 	threadRunLocalServer.reset();
 	CSH->campaignServerRestartLock.setn(false);
-#endif
 }
 
 void CServerHandler::sendLobbyPack(const CPackForLobby & pack) const

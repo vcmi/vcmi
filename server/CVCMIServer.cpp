@@ -856,7 +856,7 @@ void handleLinuxSignal(int sig)
 static void handleCommandOptions(int argc, char * argv[], boost::program_options::variables_map & options)
 {
 	namespace po = boost::program_options;
-#ifdef VCMI_IOS
+#ifdef SINGLE_PROCESS_APP
 	options.emplace("run-by-client", po::variable_value{true, true});
 	options.emplace("uuid", po::variable_value{std::string{argv[1]}, true});
 #else
@@ -885,7 +885,7 @@ static void handleCommandOptions(int argc, char * argv[], boost::program_options
 
 	po::notify(options);
 
-#ifndef VCMI_IOS
+#ifndef SINGLE_PROCESS_APP
 	if(options.count("help"))
 	{
 		auto time = std::time(0);
@@ -907,7 +907,7 @@ static void handleCommandOptions(int argc, char * argv[], boost::program_options
 #endif
 }
 
-#ifdef VCMI_IOS
+#ifdef SINGLE_PROCESS_APP
 #define main server_main
 #endif
 int main(int argc, char * argv[])
@@ -936,7 +936,7 @@ int main(int argc, char * argv[])
 	loadDLLClasses();
 	srand((ui32)time(nullptr));
 
-#ifdef VCMI_IOS
+#ifdef SINGLE_PROCESS_APP
 	boost::condition_variable * cond = reinterpret_cast<boost::condition_variable *>(argv[0]);
 	cond->notify_one();
 #endif
@@ -986,7 +986,7 @@ void CVCMIServer::create()
 	const char * foo[1] = {"android-server"};
 	main(1, const_cast<char **>(foo));
 }
-#elif defined(VCMI_IOS)
+#elif defined(SINGLE_PROCESS_APP)
 void CVCMIServer::create(boost::condition_variable * cond, const std::string & uuid)
 {
 	const std::initializer_list<const void *> argv = {

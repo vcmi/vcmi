@@ -108,7 +108,7 @@ public:
 
 #ifdef VCMI_ANDROID
 	static void create();
-#elif defined(VCMI_IOS)
+#elif defined(SINGLE_PROCESS_APP)
     static void create(boost::condition_variable * cond, const std::string & uuid);
 #endif
 };

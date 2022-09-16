@@ -83,6 +83,7 @@ class CServerHandler : public IServerAPI, public LobbyInfo
 
 	void threadHandleConnection();
 	void threadRunServer();
+	void onServerFinished();
 	void sendLobbyPack(const CPackForLobby & pack) const override;
 
 public:
