@@ -632,7 +632,6 @@ void CMap::setUniqueInstanceName(CGObjectInstance * obj)
 
 void CMap::addNewObject(CGObjectInstance * obj)
 {
-	
 	if(obj->id != ObjectInstanceID((si32)objects.size()))
 		throw std::runtime_error("Invalid object instance id");
 
