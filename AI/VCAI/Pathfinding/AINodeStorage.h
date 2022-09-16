@@ -17,6 +17,10 @@
 #include "../Goals/AbstractGoal.h"
 #include "Actions/ISpecialAction.h"
 
+class CCallback;
+
+extern boost::thread_specific_ptr<CCallback> cb; //for templates
+
 struct AIPathNode : public CGPathNode
 {
 	uint32_t chainMask;
