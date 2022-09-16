@@ -18,6 +18,9 @@
 struct HeroPtr;
 class VCAI;
 class FuzzyHelper;
+class CCallback;
+
+extern boost::thread_specific_ptr<CCallback> cb;
 
 namespace Goals
 {
