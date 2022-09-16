@@ -145,7 +145,7 @@ TerrainViewPattern::TerrainViewPattern() : diffImages(false), rotationTypesCount
 	maxPoints = std::numeric_limits<int>::max();
 }
 
-TerrainViewPattern::WeightedRule::WeightedRule(const std::string & Name) : points(0), name(Name)
+TerrainViewPattern::WeightedRule::WeightedRule(std::string& Name) : points(0), name(Name)
 {
 	standardRule = (TerrainViewPattern::RULE_ANY == Name || TerrainViewPattern::RULE_DIRT == Name
 		|| TerrainViewPattern::RULE_NATIVE == Name || TerrainViewPattern::RULE_SAND == Name
