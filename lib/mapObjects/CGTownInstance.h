@@ -342,7 +342,7 @@ public:
 	std::string getObjectName() const override;
 
 	void afterAddToMap(CMap * map) override;
-	void afterRemoveFromMap(CMap* map) override;
+	void afterRemoveFromMap(CMap * map) override;
 	static void reset();
 
 	inline bool isBattleOutsideTown(const CGHeroInstance * defendingHero) const

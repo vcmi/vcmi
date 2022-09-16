@@ -268,7 +268,7 @@ public:
 	std::string getObjectName() const override;
 
 	void afterAddToMap(CMap * map) override;
-	void afterRemoveFromMap(CMap* map) override;
+	void afterRemoveFromMap(CMap * map) override;
 
 	void updateFrom(const JsonNode & data) override;
 

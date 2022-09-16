@@ -79,10 +79,10 @@ public:
 	void drawRiver(const std::string & riverType, CRandomGenerator * gen = nullptr);
 
 	void insertObject(CGObjectInstance * obj);
-	void insertObjects(std::set<CGObjectInstance*>& objects);
+	void insertObjects(std::set<CGObjectInstance *> & objects);
 	void moveObject(CGObjectInstance * obj, const int3 & pos);
 	void removeObject(CGObjectInstance * obj);
-	void removeObjects(std::set<CGObjectInstance*>& objects);
+	void removeObjects(std::set<CGObjectInstance *> & objects);
 
 	CTerrainSelection & getTerrainSelection();
 	CObjectSelection & getObjectSelection();

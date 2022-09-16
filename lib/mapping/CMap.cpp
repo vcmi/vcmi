@@ -605,7 +605,8 @@ void CMap::addNewQuestInstance(CQuest* quest)
 	quests.push_back(quest);
 }
 
-void CMap::removeQuestInstance(CQuest* quest)
+void CMap::removeQuestInstance(CQuest * quest)
+
 {
 	//TODO: should be called only by map editor.
 	//During game, completed quests or quests from removed objects stay forever
@@ -619,15 +620,14 @@ void CMap::removeQuestInstance(CQuest* quest)
 	}
 }
 
-void CMap::setUniqueInstanceName(CGObjectInstance* obj)
+void CMap::setUniqueInstanceName(CGObjectInstance * obj)
+
 {
 	//this gives object unique name even if objects are removed later
 
 	auto uid = uidCounter++;
 
-	boost::format fmt("%s_%d");
-	fmt % obj->typeName % uid;
-	obj->instanceName = fmt.str();
+	obj->instanceName = boost::format{"%s_%d"} % obj->typeName % uid;
 }
 
 void CMap::addNewObject(CGObjectInstance * obj)
@@ -646,7 +646,7 @@ void CMap::addNewObject(CGObjectInstance * obj)
 	instanceNames[obj->instanceName] = obj;
 	addBlockVisTiles(obj);
 
-	//TODO: how about deafeated heroes recruited again?
+	//TODO: how about defeated heroes recruited again?
 
 	obj->afterAddToMap(this);
 }

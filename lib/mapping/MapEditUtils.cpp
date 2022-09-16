@@ -28,9 +28,9 @@ MapRect::MapRect(int3 pos, si32 width, si32 height) : x(pos.x), y(pos.y), z(pos.
 
 MapRect MapRect::operator&(const MapRect& rect) const
 {
-	bool intersect = right() > rect.left() && rect.right() > left() &&
-		bottom() > rect.top() && rect.bottom() > top() &&
-		z == rect.z;
+	bool intersect = right() > rect.left() && rect.right() > left()
+		&& bottom() > rect.top() && rect.bottom() > top()
+		&& z == rect.z;
 	if (intersect)
 	{
 		MapRect ret;
@@ -87,7 +87,7 @@ int3 MapRect::bottomRight() const
 	return int3(right(), bottom(), z);
 }
 
-CTerrainSelection::CTerrainSelection(CMap* map) : CMapSelection(map)
+CTerrainSelection::CTerrainSelection(CMap * map) : CMapSelection(map)
 {
 
 }
@@ -95,22 +95,22 @@ CTerrainSelection::CTerrainSelection(CMap* map) : CMapSelection(map)
 void CTerrainSelection::selectRange(const MapRect& rect)
 {
 	rect.forEach([this](const int3 pos)
-		{
-			this->select(pos);
-		});
+	{
+		this->select(pos);
+	});
 }
 
 void CTerrainSelection::deselectRange(const MapRect& rect)
 {
 	rect.forEach([this](const int3 pos)
-		{
-			this->deselect(pos);
-		});
+	{
+		this->deselect(pos);
+	});
 }
 
-void CTerrainSelection::setSelection(const std::vector<int3>& vec)
+void CTerrainSelection::setSelection(const std::vector<int3> & vec)
 {
-	for (auto pos : vec)
+	for (const auto & pos : vec)
 		this->select(pos);
 }
 
@@ -126,7 +126,7 @@ void CTerrainSelection::clearSelection()
 	deselectRange(MapRect(int3(0, 0, 1), getMap()->width, getMap()->height));
 }
 
-CObjectSelection::CObjectSelection(CMap* map) : CMapSelection(map)
+CObjectSelection::CObjectSelection(CMap * map) : CMapSelection(map)
 {
 
 }
@@ -145,7 +145,7 @@ TerrainViewPattern::TerrainViewPattern() : diffImages(false), rotationTypesCount
 	maxPoints = std::numeric_limits<int>::max();
 }
 
-TerrainViewPattern::WeightedRule::WeightedRule(std::string& Name) : points(0), name(Name)
+TerrainViewPattern::WeightedRule::WeightedRule(const std::string & Name) : points(0), name(Name)
 {
 	standardRule = (TerrainViewPattern::RULE_ANY == Name || TerrainViewPattern::RULE_DIRT == Name
 		|| TerrainViewPattern::RULE_NATIVE == Name || TerrainViewPattern::RULE_SAND == Name
@@ -186,7 +186,7 @@ CTerrainViewPatternConfig::CTerrainViewPatternConfig()
 				boost::algorithm::erase_all(cell, " ");
 				std::vector<std::string> rules;
 				boost::split(rules, cell, boost::is_any_of(","));
-				for (std::string ruleStr : rules)
+				for (const std::string & ruleStr : rules)
 				{
 					std::vector<std::string> ruleParts;
 					boost::split(ruleParts, ruleStr, boost::is_any_of("-"));
@@ -205,19 +205,20 @@ CTerrainViewPatternConfig::CTerrainViewPatternConfig()
 			assert(!pattern.id.empty());
 			pattern.minPoints = static_cast<int>(ptrnNode["minPoints"].Float());
 			pattern.maxPoints = static_cast<int>(ptrnNode["maxPoints"].Float());
-			if (pattern.maxPoints == 0) pattern.maxPoints = std::numeric_limits<int>::max();
+			if (pattern.maxPoints == 0)
+				pattern.maxPoints = std::numeric_limits<int>::max();
 
 			// Read mapping
 			if (i == 0)
 			{
-				const auto& mappingStruct = ptrnNode["mapping"].Struct();
-				for (const auto& mappingPair : mappingStruct)
+				const auto & mappingStruct = ptrnNode["mapping"].Struct();
+				for (const auto & mappingPair : mappingStruct)
 				{
 					TerrainViewPattern terGroupPattern = pattern;
 					auto mappingStr = mappingPair.second.String();
 					boost::algorithm::erase_all(mappingStr, " ");
 					auto colonIndex = mappingStr.find_first_of(":");
-					const auto& flipMode = mappingStr.substr(0, colonIndex);
+					const auto & flipMode = mappingStr.substr(0, colonIndex);
 					terGroupPattern.diffImages = TerrainViewPattern::FLIP_MODE_DIFF_IMAGES == &(flipMode[flipMode.length() - 1]);
 					if (terGroupPattern.diffImages)
 					{
@@ -227,7 +228,7 @@ CTerrainViewPatternConfig::CTerrainViewPatternConfig()
 					mappingStr = mappingStr.substr(colonIndex + 1);
 					std::vector<std::string> mappings;
 					boost::split(mappings, mappingStr, boost::is_any_of(","));
-					for (std::string mapping : mappings)
+					for (const std::string & mapping : mappings)
 					{
 						std::vector<std::string> range;
 						boost::split(range, mapping, boost::is_any_of("-"));
@@ -236,8 +237,7 @@ CTerrainViewPatternConfig::CTerrainViewPatternConfig()
 					}
 
 					// Add pattern to the patterns map
-					std::vector<TerrainViewPattern> terrainViewPatternFlips;
-					terrainViewPatternFlips.push_back(terGroupPattern);
+					std::vector<TerrainViewPattern> terrainViewPatternFlips{terGroupPattern};
 
 					for (int i = 1; i < 4; ++i)
 					{
@@ -268,7 +268,7 @@ CTerrainViewPatternConfig::~CTerrainViewPatternConfig()
 
 }
 
-const std::vector<CTerrainViewPatternConfig::TVPVector>& CTerrainViewPatternConfig::getTerrainViewPatterns(const Terrain& terrain) const
+const std::vector<CTerrainViewPatternConfig::TVPVector> & CTerrainViewPatternConfig::getTerrainViewPatterns(const Terrain & terrain) const
 {
 	auto iter = terrainViewPatterns.find(Terrain::Manager::getInfo(terrain).terrainViewPatterns);
 	if (iter == terrainViewPatterns.end())
@@ -276,14 +276,14 @@ const std::vector<CTerrainViewPatternConfig::TVPVector>& CTerrainViewPatternConf
 	return iter->second;
 }
 
-boost::optional<const TerrainViewPattern&> CTerrainViewPatternConfig::getTerrainViewPatternById(std::string patternId, const std::string& id) const
+boost::optional<const TerrainViewPattern &> CTerrainViewPatternConfig::getTerrainViewPatternById(std::string patternId, const std::string & id) const
 {
 	auto iter = terrainViewPatterns.find(patternId);
-	const std::vector<TVPVector>& groupPatterns = (iter == terrainViewPatterns.end()) ? terrainViewPatterns.at("normal") : iter->second;
+	const std::vector<TVPVector> & groupPatterns = (iter == terrainViewPatterns.end()) ? terrainViewPatterns.at("normal") : iter->second;
 
-	for (const TVPVector& patternFlips : groupPatterns)
+	for (const TVPVector & patternFlips : groupPatterns)
 	{
-		const TerrainViewPattern& pattern = patternFlips.front();
+		const TerrainViewPattern & pattern = patternFlips.front();
 
 		if (id == pattern.id)
 		{
@@ -293,12 +293,12 @@ boost::optional<const TerrainViewPattern&> CTerrainViewPatternConfig::getTerrain
 	return boost::optional<const TerrainViewPattern&>();
 }
 
-boost::optional<const CTerrainViewPatternConfig::TVPVector&> CTerrainViewPatternConfig::getTerrainViewPatternsById(const Terrain& terrain, const std::string& id) const
+boost::optional<const CTerrainViewPatternConfig::TVPVector &> CTerrainViewPatternConfig::getTerrainViewPatternsById(const Terrain & terrain, const std::string & id) const
 {
-	const std::vector<TVPVector>& groupPatterns = getTerrainViewPatterns(terrain);
-	for (const TVPVector& patternFlips : groupPatterns)
+	const std::vector<TVPVector> & groupPatterns = getTerrainViewPatterns(terrain);
+	for (const TVPVector & patternFlips : groupPatterns)
 	{
-		const TerrainViewPattern& pattern = patternFlips.front();
+		const TerrainViewPattern & pattern = patternFlips.front();
 		if (id == pattern.id)
 		{
 			return boost::optional<const TVPVector&>(patternFlips);
@@ -315,7 +315,7 @@ const CTerrainViewPatternConfig::TVPVector* CTerrainViewPatternConfig::getTerrai
 	return &(it->second);
 }
 
-void CTerrainViewPatternConfig::flipPattern(TerrainViewPattern& pattern, int flip) const
+void CTerrainViewPatternConfig::flipPattern(TerrainViewPattern & pattern, int flip) const
 {
 	//flip in place to avoid expensive constructor. Seriously.
 
@@ -341,7 +341,7 @@ void CTerrainViewPatternConfig::flipPattern(TerrainViewPattern& pattern, int fli
 }
 
 
-void CTerrainViewPatternUtils::printDebuggingInfoAboutTile(const CMap* map, int3 pos)
+void CTerrainViewPatternUtils::printDebuggingInfoAboutTile(const CMap * map, int3 pos)
 {
 	logGlobal->debug("Printing detailed info about nearby map tiles of pos '%s'", pos.toString());
 	for (int y = pos.y - 2; y <= pos.y + 2; ++y)

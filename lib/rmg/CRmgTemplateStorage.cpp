@@ -64,7 +64,7 @@ const CRmgTemplate * CRmgTemplateStorage::getTemplate(const std::string & templa
 const CRmgTemplate * CRmgTemplateStorage::getTemplateByName(const std::string & templateName) const
 {
 	auto iter = templatesByName.find(templateName);
-	if(iter==templatesByName.end())
+	if(iter == templatesByName.end())
 		return nullptr;
 	return &iter->second;
 }

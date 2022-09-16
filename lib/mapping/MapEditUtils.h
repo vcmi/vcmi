@@ -57,12 +57,12 @@ class DLL_LINKAGE CMapSelection
 {
 public:
 	explicit CMapSelection(CMap* map) : map(map) { }
-	virtual ~CMapSelection() { };
-	void select(const T& item)
+	virtual ~CMapSelection() = default;
+	void select(const T & item)
 	{
 		selectedItems.insert(item);
 	}
-	void deselect(const T& item)
+	void deselect(const T & item)
 	{
 		selectedItems.erase(item);
 	}
@@ -71,8 +71,8 @@ public:
 		return selectedItems;
 	}
 	CMap* getMap() { return map; }
-	virtual void selectRange(const MapRect& rect) { }
-	virtual void deselectRange(const MapRect& rect) { }
+	virtual void selectRange(const MapRect & rect) { }
+	virtual void deselectRange(const MapRect & rect) { }
 	virtual void selectAll() { }
 	virtual void clearSelection() { }
 
@@ -85,19 +85,19 @@ private:
 class DLL_LINKAGE CTerrainSelection : public CMapSelection<int3>
 {
 public:
-	explicit CTerrainSelection(CMap* map);
-	void selectRange(const MapRect& rect) override;
-	void deselectRange(const MapRect& rect) override;
+	explicit CTerrainSelection(CMap * map);
+	void selectRange(const MapRect & rect) override;
+	void deselectRange(const MapRect & rect) override;
 	void selectAll() override;
 	void clearSelection() override;
-	void setSelection(const std::vector<int3>& vec);
+	void setSelection(const std::vector<int3> & vec);
 };
 
 /// Selection class to select objects.
-class DLL_LINKAGE CObjectSelection : public CMapSelection<CGObjectInstance*>
+class DLL_LINKAGE CObjectSelection : public CMapSelection<CGObjectInstance *>
 {
 public:
-	explicit CObjectSelection(CMap* map);
+	explicit CObjectSelection(CMap * map);
 };
 
 /// The terrain view pattern describes a specific composition of terrain tiles
@@ -229,5 +229,5 @@ private:
 class DLL_LINKAGE CTerrainViewPatternUtils
 {
 public:
-	static void printDebuggingInfoAboutTile(const CMap* map, int3 pos);
+	static void printDebuggingInfoAboutTile(const CMap * map, int3 pos);
 };

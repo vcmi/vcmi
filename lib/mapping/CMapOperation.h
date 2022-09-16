@@ -21,37 +21,37 @@ class CRandomGenerator;
 class DLL_LINKAGE CMapOperation : public boost::noncopyable
 {
 public:
-	explicit CMapOperation(CMap* map);
-	virtual ~CMapOperation() { };
+	explicit CMapOperation(CMap * map);
+	virtual ~CMapOperation() = default;
 
 	virtual void execute() = 0;
 	virtual void undo() = 0;
 	virtual void redo() = 0;
-	virtual std::string getLabel() const = 0; /// Returns a display-able name of the operation.
+	virtual std::string getLabel() const = 0; /// Returns a operation display name.
 
 	static const int FLIP_PATTERN_HORIZONTAL = 1;
 	static const int FLIP_PATTERN_VERTICAL = 2;
 	static const int FLIP_PATTERN_BOTH = 3;
 
 protected:
-	MapRect extendTileAround(const int3& centerPos) const;
-	MapRect extendTileAroundSafely(const int3& centerPos) const; /// doesn't exceed map size
+	MapRect extendTileAround(const int3 & centerPos) const;
+	MapRect extendTileAroundSafely(const int3 & centerPos) const; /// doesn't exceed map size
 
-	CMap* map;
+	CMap * map;
 };
 
 /// The CComposedOperation is an operation which consists of several operations.
 class DLL_LINKAGE CComposedOperation : public CMapOperation
 {
 public:
-	CComposedOperation(CMap* map);
+	CComposedOperation(CMap * map);
 
 	void execute() override;
 	void undo() override;
 	void redo() override;
 	std::string getLabel() const override;
 
-	void addOperation(std::unique_ptr<CMapOperation>&& operation);
+	void addOperation(std::unique_ptr<CMapOperation> && operation);
 
 private:
 	std::list<std::unique_ptr<CMapOperation> > operations;
@@ -61,7 +61,7 @@ private:
 class CDrawTerrainOperation : public CMapOperation
 {
 public:
-	CDrawTerrainOperation(CMap* map, const CTerrainSelection& terrainSel, Terrain terType, CRandomGenerator* gen);
+	CDrawTerrainOperation(CMap * map, const CTerrainSelection & terrainSel, Terrain terType, CRandomGenerator * gen);
 
 	void execute() override;
 	void undo() override;
@@ -71,7 +71,7 @@ public:
 private:
 	struct ValidationResult
 	{
-		ValidationResult(bool result, const std::string& transitionReplacement = "");
+		ValidationResult(bool result, const std::string & transitionReplacement = "");
 
 		bool result;
 		/// The replacement of a T rule, either D or S.
@@ -88,14 +88,14 @@ private:
 	};
 
 	void updateTerrainTypes();
-	void invalidateTerrainViews(const int3& centerPos);
-	InvalidTiles getInvalidTiles(const int3& centerPos) const;
+	void invalidateTerrainViews(const int3 & centerPos);
+	InvalidTiles getInvalidTiles(const int3 & centerPos) const;
 
 	void updateTerrainViews();
 	/// Validates the terrain view of the given position and with the given pattern. The first method wraps the
 	/// second method to validate the terrain view with the given pattern in all four flip directions(horizontal, vertical).
-	ValidationResult validateTerrainView(const int3& pos, const std::vector<TerrainViewPattern>* pattern, int recDepth = 0) const;
-	ValidationResult validateTerrainViewInner(const int3& pos, const TerrainViewPattern& pattern, int recDepth = 0) const;
+	ValidationResult validateTerrainView(const int3 & pos, const std::vector<TerrainViewPattern> * pattern, int recDepth = 0) const;
+	ValidationResult validateTerrainViewInner(const int3 & pos, const TerrainViewPattern & pattern, int recDepth = 0) const;
 
 	CTerrainSelection terrainSel;
 	Terrain terType;
@@ -107,19 +107,16 @@ private:
 class CClearTerrainOperation : public CComposedOperation
 {
 public:
-	CClearTerrainOperation(CMap* map, CRandomGenerator* gen);
+	CClearTerrainOperation(CMap * map, CRandomGenerator * gen);
 
 	std::string getLabel() const override;
-
-private:
-
 };
 
 /// The CInsertObjectOperation class inserts an object to the map.
 class CInsertObjectOperation : public CMapOperation
 {
 public:
-	CInsertObjectOperation(CMap* map, CGObjectInstance* obj);
+	CInsertObjectOperation(CMap * map, CGObjectInstance * obj);
 
 	void execute() override;
 	void undo() override;
@@ -127,14 +124,14 @@ public:
 	std::string getLabel() const override;
 
 private:
-	CGObjectInstance* obj;
+	CGObjectInstance * obj;
 };
 
 /// The CMoveObjectOperation class moves object to another position
 class CMoveObjectOperation : public CMapOperation
 {
 public:
-	CMoveObjectOperation(CMap* map, CGObjectInstance* obj, const int3& targetPosition);
+	CMoveObjectOperation(CMap * map, CGObjectInstance * obj, const int3 & targetPosition);
 
 	void execute() override;
 	void undo() override;
@@ -142,7 +139,7 @@ public:
 	std::string getLabel() const override;
 
 private:
-	CGObjectInstance* obj;
+	CGObjectInstance * obj;
 	int3 initialPos;
 	int3 targetPos;
 };
@@ -151,7 +148,7 @@ private:
 class CRemoveObjectOperation : public CMapOperation
 {
 public:
-	CRemoveObjectOperation(CMap* map, CGObjectInstance* obj);
+	CRemoveObjectOperation(CMap* map, CGObjectInstance * obj);
 	~CRemoveObjectOperation();
 
 	void execute() override;

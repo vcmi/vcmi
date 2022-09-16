@@ -1441,7 +1441,7 @@ void CGTownInstance::afterAddToMap(CMap * map)
 		map->towns.push_back(this);
 }
 
-void CGTownInstance::afterRemoveFromMap(CMap* map)
+void CGTownInstance::afterRemoveFromMap(CMap * map)
 {
 	if (ID == Obj::TOWN)
 		vstd::erase_if_present(map->towns, this);
