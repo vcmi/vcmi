@@ -2158,7 +2158,7 @@ void CPlayerInterface::finishMovement( const TryMoveHero &details, const int3 &h
 
 	//restoring good order of objects
 
-	boost::detail::multi_array::sub_array<TerrainTile2, 2> & subArr = (CGI->mh->ttiles)[details.end.z];
+	boost::detail::multi_array::sub_array<TerrainTile2, 2> subArr = (CGI->mh->ttiles)[details.end.z];
 
 	std::stable_sort(subArr[details.end.x-2][details.end.y-1].objects.begin(), subArr[details.end.x-2][details.end.y-1].objects.end(), objectBlitOrderSorter);
 	std::stable_sort(subArr[details.end.x-1][details.end.y-1].objects.begin(), subArr[details.end.x-1][details.end.y-1].objects.end(), objectBlitOrderSorter);
