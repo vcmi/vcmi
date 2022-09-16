@@ -1739,7 +1739,7 @@ int CPlayerInterface::getLastIndex( std::string namePrefix)
 
 void CPlayerInterface::initMovement( const TryMoveHero &details, const CGHeroInstance * ho, const int3 &hp )
 {
-	auto & subArr = (CGI->mh->ttiles)[hp.z];
+	auto subArr = (CGI->mh->ttiles)[hp.z];
 
 	if (details.end.x+1 == details.start.x && details.end.y+1 == details.start.y) //tl
 	{
