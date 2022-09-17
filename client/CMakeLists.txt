@@ -177,8 +177,15 @@ endif()
 
 target_link_libraries(vcmiclient PRIVATE
 		vcmi SDL2::SDL2 SDL2::Image SDL2::Mixer SDL2::TTF
-		ffmpeg::swscale ffmpeg::avutil ffmpeg::avcodec ffmpeg::avformat
 )
+
+if(ffmpeg_LIBRARIES)
+	target_link_libraries(vcmiclient PRIVATE
+		ffmpeg::swscale ffmpeg::avutil ffmpeg::avcodec ffmpeg::avformat
+	)
+else()
+	target_compile_definitions(vcmiclient PRIVATE DISABLE_VIDEO)
+endif()
 
 target_include_directories(vcmiclient
 	PUBLIC	${CMAKE_CURRENT_SOURCE_DIR})
