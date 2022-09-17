@@ -954,20 +954,20 @@ void CGameState::initGrailPosition()
 		static const int BORDER_WIDTH = 9; // grail must be at least 9 tiles away from border
 
 		// add all not blocked tiles in range
-		//TODO: rotate this too
-		for (int i = BORDER_WIDTH; i < map->width - BORDER_WIDTH ; i++)
+
+		for (int z = 0; z < map->levels(); z++)
 		{
-			for (int j = BORDER_WIDTH; j < map->height - BORDER_WIDTH; j++)
+			for(int x = BORDER_WIDTH; x < map->width - BORDER_WIDTH ; x++)
 			{
-				for (int k = 0; k < map->levels(); k++)
+				for(int y = BORDER_WIDTH; y < map->height - BORDER_WIDTH; y++)
 				{
-					const TerrainTile &t = map->getTile(int3(i, j, k));
+					const TerrainTile &t = map->getTile(int3(x, y, z));
 					if(!t.blocked
 						&& !t.visitable
 						&& t.terType.isLand()
 						&& t.terType.isPassable()
-						&& (int)map->grailPos.dist2dSQ(int3(i, j, k)) <= (map->grailRadius * map->grailRadius))
-						allowedPos.push_back(int3(i,j,k));
+						&& (int)map->grailPos.dist2dSQ(int3(x, y, z)) <= (map->grailRadius * map->grailRadius))
+						allowedPos.push_back(int3(x,y,z));
 				}
 			}
 		}

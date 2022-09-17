@@ -514,9 +514,9 @@ std::shared_ptr<const boost::multi_array<TerrainTile*, 3>> CGameInfoCallback::ge
 	auto ptr = new boost::multi_array<TerrainTile*, 3>(boost::extents[levels][width][height]);
 
 	int3 tile;
-	for (tile.z = 0; tile.z < levels; tile.z++)
-		for (tile.x = 0; tile.x < width; tile.x++)
-			for (tile.y = 0; tile.y < height; tile.y++)
+	for(tile.z = 0; tile.z < levels; tile.z++)
+		for(tile.x = 0; tile.x < width; tile.x++)
+			for(tile.y = 0; tile.y < height; tile.y++)
 			{
 				if ((*team->fogOfWarMap)[tile.z][tile.x][tile.y])
 					(*ptr)[tile.z][tile.x][tile.y] = &gs->map->getTile(tile);

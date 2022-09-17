@@ -506,14 +506,14 @@ void CZonePlacer::assignZones(CRandomGenerator * rand)
 	*/
 
 	int3 pos;
-	for (pos.z = 0; pos.z < levels; pos.z++)
+	for(pos.z = 0; pos.z < levels; pos.z++)
 	{
-		for (pos.x = 0; pos.x < width; pos.x++)
+		for(pos.x = 0; pos.x < width; pos.x++)
 		{
-			for (pos.y = 0; pos.y < height; pos.y++)
+			for(pos.y = 0; pos.y < height; pos.y++)
 			{
 				distances.clear();
-				for (auto zone : zones)
+				for(auto zone : zones)
 				{
 					if (zone.second->getPos().z == pos.z)
 						distances.push_back(std::make_pair(zone.second, (float)pos.dist2dSQ(zone.second->getPos())));

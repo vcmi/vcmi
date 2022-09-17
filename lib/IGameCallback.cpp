@@ -38,7 +38,7 @@
 void CPrivilegedInfoCallback::getFreeTiles(std::vector<int3> & tiles) const
 {
 	std::vector<int> floors;
-	for (int b = 0; b < gs->map->levels(); ++b)
+	for(int b = 0; b < gs->map->levels(); ++b)
 	{
 		floors.push_back(b);
 	}

@@ -249,9 +249,9 @@ CMap::~CMap()
 {
 	if(terrain)
 	{
-		for (int z = 0; z < levels(); z++)
+		for(int z = 0; z < levels(); z++)
 		{
-			for (int x = 0; x < width; x++)
+			for(int x = 0; x < width; x++)
 			{
 				delete[] terrain[z][x];
 				delete[] guardingCreaturePositions[z][x];
@@ -329,11 +329,11 @@ void CMap::addBlockVisTiles(CGObjectInstance * obj)
 void CMap::calculateGuardingGreaturePositions()
 {
 	int levels = twoLevel ? 2 : 1;
-	for (int z = 0; z < levels; z++)
+	for(int z = 0; z < levels; z++)
 	{
-		for (int x = 0; x < width; x++)
+		for(int x = 0; x < width; x++)
 		{
-			for (int y = 0; y < height; y++)
+			for(int y = 0; y < height; y++)
 			{
 				guardingCreaturePositions[z][x][y] = guardingCreaturePosition(int3(x, y, z));
 			}

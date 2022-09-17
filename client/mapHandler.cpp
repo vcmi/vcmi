@@ -313,7 +313,7 @@ void CMapHandler::initObjectRects()
 	}
 
 	auto shape = ttiles.shape();
-	for (size_t z = 0; z < shape[0]; z++)
+	for(size_t z = 0; z < shape[0]; z++)
 	{
 		for(size_t x = 0; x < shape[1] - frameW; x++)
 		{
@@ -1247,14 +1247,14 @@ bool CMapHandler::printObject(const CGObjectInstance * obj, bool fadein)
 
 bool CMapHandler::hideObject(const CGObjectInstance * obj, bool fadeout)
 {
-	for (size_t z = 0; z < map->levels(); z++)
+	for(size_t z = 0; z < map->levels(); z++)
 	{
-		for (size_t x = 0; x < map->width; x++)
+		for(size_t x = 0; x < map->width; x++)
 		{
-			for (size_t y = 0; y < map->height; y++)
+			for(size_t y = 0; y < map->height; y++)
 			{
 				auto &objs = ttiles[(int)z][(int)x][(int)y].objects;
-				for (size_t i = 0; i < objs.size(); i++)
+				for(size_t i = 0; i < objs.size(); i++)
 				{
 					if (objs[i].obj && objs[i].obj->id == obj->id)
 					{

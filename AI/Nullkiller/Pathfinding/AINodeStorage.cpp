@@ -78,15 +78,15 @@ void AINodeStorage::initialize(const PathfinderOptions & options, const CGameSta
 	{
 		int3 pos;
 
-		for (pos.z = 0; pos.z < sizes.z; ++pos.z)
+		for(pos.z = 0; pos.z < sizes.z; ++pos.z)
 		{
 			const bool useFlying = options.useFlying;
 			const bool useWaterWalking = options.useWaterWalking;
 			const PlayerColor player = playerID;
 
-			for (pos.x = r.begin(); pos.x != r.end(); ++pos.x)
+			for(pos.x = r.begin(); pos.x != r.end(); ++pos.x)
 			{
-				for (pos.y = 0; pos.y < sizes.y; ++pos.y)
+				for(pos.y = 0; pos.y < sizes.y; ++pos.y)
 				{
 					const TerrainTile* tile = &gs->map->getTile(pos);
 					if (!tile->terType.isPassable())

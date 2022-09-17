@@ -432,11 +432,11 @@ public:
 		if(h.saving)
 		{
 			// Save terrain
-			for (int z = 0; z < level; ++z)
+			for(int z = 0; z < level; ++z)
 			{
-				for (int x = 0; x < width; ++x)
+				for(int x = 0; x < width; ++x)
 				{
-					for (int y = 0; y < height; ++y)
+					for(int y = 0; y < height; ++y)
 					{
 						h & terrain[z][x][y];
 						h & guardingCreaturePositions[z][x][y];
@@ -459,11 +459,11 @@ public:
 					guardingCreaturePositions[z][x] = new int3[height];
 				}
 			}
-			for (int z = 0; z < level; ++z)
+			for(int z = 0; z < level; ++z)
 			{
-				for (int x = 0; x < width; ++x)
+				for(int x = 0; x < width; ++x)
 				{
-					for (int y = 0; y < height; ++y)
+					for(int y = 0; y < height; ++y)
 					{
 
 						h & terrain[z][x][y];

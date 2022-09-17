@@ -571,7 +571,7 @@ public:
 		load(z);
 		data.resize(boost::extents[x][y][z]);
 		assert(length == data.num_elements()); //x*y*z should be equal to number of elements
-		for (ui32 i = 0; i < length; i++)
+		for(ui32 i = 0; i < length; i++)
 			load(data.data()[i]);
 	}
 };
