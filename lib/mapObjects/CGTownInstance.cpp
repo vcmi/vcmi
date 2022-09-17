@@ -1441,6 +1441,12 @@ void CGTownInstance::afterAddToMap(CMap * map)
 		map->towns.push_back(this);
 }
 
+void CGTownInstance::afterRemoveFromMap(CMap * map)
+{
+	if (ID == Obj::TOWN)
+		vstd::erase_if_present(map->towns, this);
+}
+
 void CGTownInstance::reset()
 {
 	CGTownInstance::merchantArtifacts.clear();

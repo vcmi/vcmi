@@ -23,7 +23,7 @@ namespace rmg
 	void toAbsolute(Tileset & tiles, const int3 & position);
 	void toRelative(Tileset & tiles, const int3 & position);
 	
-	class Area
+	class DLL_LINKAGE Area
 	{
 	public:
 		Area() = default;

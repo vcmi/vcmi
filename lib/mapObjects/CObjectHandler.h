@@ -197,6 +197,7 @@ public:
 	void setProperty(ui8 what, ui32 val) override final;
 
 	virtual void afterAddToMap(CMap * map);
+	virtual void afterRemoveFromMap(CMap * map);
 
 	///Entry point of binary (de-)serialization
 	template <typename Handler> void serialize(Handler &h, const int version)

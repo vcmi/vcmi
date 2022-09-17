@@ -165,3 +165,17 @@ void CFilesystemList::addLoader(ISimpleResourceLoader * loader, bool writeable)
 	if (writeable)
 		writeableLoaders.insert(loader);
 }
+
+bool CFilesystemList::removeLoader(ISimpleResourceLoader * loader)
+{
+	for(auto loaderIterator = loaders.begin(); loaderIterator != loaders.end(); ++loaderIterator)
+	{
+		if(loaderIterator->get() == loader)
+		{
+			loaders.erase(loaderIterator);
+			writeableLoaders.erase(loader);
+			return true;
+		}
+	}
+	return false;
+}

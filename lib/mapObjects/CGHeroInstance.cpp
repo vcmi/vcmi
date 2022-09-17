@@ -1400,6 +1400,11 @@ void CGHeroInstance::afterAddToMap(CMap * map)
 	if(ID == Obj::HERO)
 		map->heroesOnMap.push_back(this);
 }
+void CGHeroInstance::afterRemoveFromMap(CMap* map)
+{
+	if (ID == Obj::HERO)
+		vstd::erase_if_present(map->heroesOnMap, this);
+}
 
 void CGHeroInstance::setHeroTypeName(const std::string & identifier)
 {
