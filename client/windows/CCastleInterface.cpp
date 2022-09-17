@@ -842,7 +842,12 @@ void CCastleBuildings::enterDwelling(int level)
 
 void CCastleBuildings::enterToTheQuickRecruitmentWindow()
 {
-	GH.pushIntT<QuickRecruitmentWindow>(town, pos);
+	const auto hasSomeoneToRecruit = std::any_of(town->creatures.cbegin(), town->creatures.cend(),
+		[](const auto & creatureInfo) { return creatureInfo.first > 0; });
+	if(hasSomeoneToRecruit)
+		GH.pushIntT<QuickRecruitmentWindow>(town, pos);
+	else
+		CInfoWindow::showInfoDialog("There are no creatures to recruit", {});
 }
 
 void CCastleBuildings::enterFountain(const BuildingID & building, BuildingSubID::EBuildingSubID subID, BuildingID::EBuildingID upgrades)
