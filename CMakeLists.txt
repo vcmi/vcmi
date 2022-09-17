@@ -226,7 +226,7 @@ if(TARGET zlib::zlib)
 	add_library(ZLIB::ZLIB ALIAS zlib::zlib)
 endif()
 
-find_package(ffmpeg REQUIRED COMPONENTS avutil swscale avformat avcodec)
+find_package(ffmpeg COMPONENTS avutil swscale avformat avcodec)
 option(FORCE_BUNDLED_MINIZIP "Force bundled Minizip library" OFF)
 if(NOT FORCE_BUNDLED_MINIZIP)
 	find_package(minizip)
