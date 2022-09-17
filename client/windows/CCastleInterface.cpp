@@ -1244,9 +1244,9 @@ void CCastleInterface::recreateIcons()
 	hall = std::make_shared<CTownInfo>(80, 413, town, true);
 	fort = std::make_shared<CTownInfo>(122, 413, town, false);
 
-	fastArmyPurhase = std::make_shared<CButton>(Point(122, 413), "itmcl.def", CButton::tooltip(), [&](){builds->enterToTheQuickRecruitmentWindow();});
-	fastArmyPurhase->setImageOrder(town->fortLevel()-1, town->fortLevel()-1, town->fortLevel()-1, town->fortLevel()-1);
-	fastArmyPurhase->setAnimateLonelyFrame(true);
+	fastArmyPurchase = std::make_shared<CButton>(Point(122, 413), "itmcl.def", CButton::tooltip(), [&](){builds->enterToTheQuickRecruitmentWindow();});
+	fastArmyPurchase->setImageOrder(town->fortLevel()-1, town->fortLevel()-1, town->fortLevel()-1, town->fortLevel()-1);
+	fastArmyPurchase->setAnimateLonelyFrame(true);
 
 	creainfo.clear();
 

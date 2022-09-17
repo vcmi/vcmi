@@ -43,7 +43,7 @@ private:
 	void initCostBox();
 
 	std::shared_ptr<CButton> maxButton, minButton, creatureSwitcher;
-	std::shared_ptr<CLabel> availableAmount,  purhaseAmount;
+	std::shared_ptr<CLabel> availableAmount, purchaseAmount;
 	std::shared_ptr<CCreaturePic> picture;
 	std::shared_ptr<CreatureCostBox> cost;
 	std::vector<CreatureID> upgradesID;

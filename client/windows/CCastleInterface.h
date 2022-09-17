@@ -209,7 +209,7 @@ class CCastleInterface : public CStatusbarWindow, public CGarrisonHolder
 
 	std::shared_ptr<CButton> exit;
 	std::shared_ptr<CButton> split;
-	std::shared_ptr<CButton> fastArmyPurhase;
+	std::shared_ptr<CButton> fastArmyPurchase;
 
 	std::vector<std::shared_ptr<CCreaInfo>> creainfo;//small icons of creatures (bottom-left corner);
 

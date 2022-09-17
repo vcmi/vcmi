@@ -54,14 +54,14 @@ void CreaturePurchaseCard::switchCreatureLevel()
 void CreaturePurchaseCard::initAmountInfo()
 {
 	availableAmount = std::make_shared<CLabel>(pos.x + 25, pos.y + 146, FONT_SMALL, CENTER, Colors::YELLOW);
-	purhaseAmount = std::make_shared<CLabel>(pos.x + 76, pos.y + 146, FONT_SMALL, CENTER, Colors::WHITE);
+	purchaseAmount = std::make_shared<CLabel>(pos.x + 76, pos.y + 146, FONT_SMALL, CENTER, Colors::WHITE);
 	updateAmountInfo(0);
 }
 
 void CreaturePurchaseCard::updateAmountInfo(int value)
 {
 	availableAmount->setText(boost::lexical_cast<std::string>(maxAmount-value));
-	purhaseAmount->setText(boost::lexical_cast<std::string>(value));
+	purchaseAmount->setText(boost::lexical_cast<std::string>(value));
 }
 
 void CreaturePurchaseCard::initSlider()
