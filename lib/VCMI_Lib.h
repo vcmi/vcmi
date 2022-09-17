@@ -131,9 +131,6 @@ public:
 			callWhenDeserializing();
 		}
 	}
-
-private:
-	void update800();
 };
 
 extern DLL_LINKAGE LibClasses * VLC;

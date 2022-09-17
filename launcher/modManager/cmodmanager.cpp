@@ -169,6 +169,10 @@ bool CModManager::canEnableMod(QString modname)
 	if(!mod.isInstalled())
 		return addError(modname, "Mod must be installed first");
 
+	//check for compatibility
+	if(!mod.isCompatible())
+		return addError(modname, "Mod is not compatible, please update VCMI and checkout latest mod revisions");
+
 	for(auto modEntry : mod.getValue("depends").toStringList())
 	{
 		if(!modList->hasMod(modEntry)) // required mod is not available
