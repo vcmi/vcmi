@@ -49,7 +49,7 @@ public:
 	// virtual std::string libraryName(const char* basename) const = 0; ?
 	// virtual std::string libraryName(std::string&& basename) const = 0;?
 
-	virtual std::string genHelpString() const = 0;
+	virtual std::string genHelpString() const;
 
 	// Creates not existed, but required directories.
 	// Updates directories what change name/path between versions.
