@@ -28,7 +28,7 @@ void MainWindow::load()
 	QDir::setCurrent(QApplication::applicationDirPath());
 
 	console = new CConsoleHandler();
-	CBasicLogConfigurator logConfig(VCMIDirs::get().userCachePath() / "VCMI_Launcher_log.txt", console);
+	CBasicLogConfigurator logConfig(VCMIDirs::get().userLogsPath() / "VCMI_Launcher_log.txt", console);
 	logConfig.configureDefault();
 
 	CResourceHandler::initialize();
