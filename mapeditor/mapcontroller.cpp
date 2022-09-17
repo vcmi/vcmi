@@ -86,6 +86,11 @@ void MapController::repairMap()
 		if(auto * nih = dynamic_cast<CGHeroInstance*>(obj.get()))
 		{
 			auto type = VLC->heroh->objects[nih->subID];
+			nih->type = type;
+			if(nih->name.empty())
+				nih->name = nih->type->name;
+			if(nih->biography.empty())
+				nih->biography = nih->type->biography;
 			
 			if(nih->ID == Obj::HERO)
 				nih->appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, type->heroClass->getIndex())->getTemplates().front();
