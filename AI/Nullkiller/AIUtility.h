@@ -205,11 +205,11 @@ void foreach_tile_pos(const Func & foo)
 	// some micro-optimizations since this function gets called a LOT
 	// callback pointer is thread-specific and slow to retrieve -> read map size only once
 	int3 mapSize = cb->getMapSize();
-	for (int z = 0; z < mapSize.z; z++)
+	for(int z = 0; z < mapSize.z; z++)
 	{
-		for (int x = 0; x < mapSize.x; x++)
+		for(int x = 0; x < mapSize.x; x++)
 		{
-			for (int y = 0; y < mapSize.y; y++)
+			for(int y = 0; y < mapSize.y; y++)
 			{
 				foo(int3(x, y, z));
 			}
@@ -221,11 +221,11 @@ template<class Func>
 void foreach_tile_pos(CCallback * cbp, const Func & foo) // avoid costly retrieval of thread-specific pointer
 {
 	int3 mapSize = cbp->getMapSize();
-	for (int z = 0; z < mapSize.z; z++)
+	for(int z = 0; z < mapSize.z; z++)
 	{
-		for (int x = 0; x < mapSize.x; x++)
+		for(int x = 0; x < mapSize.x; x++)
 		{
-			for (int y = 0; y < mapSize.y; y++)
+			for(int y = 0; y < mapSize.y; y++)
 			{
 				foo(cbp, int3(x, y, z));
 			}
@@ -280,15 +280,15 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 template<typename TFunc>
 void pforeachTilePos(crint3 mapSize, TFunc fn)
 {
-	for (int z = 0; z < mapSize.z; ++z)
+	for(int z = 0; z < mapSize.z; ++z)
 	{
 		parallel_for(blocked_range<size_t>(0, mapSize.x), [&](const blocked_range<size_t>& r)
 		{
 			int3 pos(0, 0, z);
 
-			for (pos.x = r.begin(); pos.x != r.end(); ++pos.x)
+			for(pos.x = r.begin(); pos.x != r.end(); ++pos.x)
 			{
-				for (pos.y = 0; pos.y < mapSize.y; ++pos.y)
+				for(pos.y = 0; pos.y < mapSize.y; ++pos.y)
 				{
 					fn(pos);
 				}
