@@ -368,6 +368,7 @@ class VCMIDirsOSX final : public IVCMIDirsUNIX
 		boost::filesystem::path userDataPath() const override;
 		boost::filesystem::path userCachePath() const override;
 		boost::filesystem::path userConfigPath() const override;
+		boost::filesystem::path userLogsPath() const override;
 
 		std::vector<boost::filesystem::path> dataPaths() const override;
 
@@ -436,6 +437,14 @@ bfs::path VCMIDirsOSX::userDataPath() const
 }
 bfs::path VCMIDirsOSX::userCachePath() const { return userDataPath(); }
 bfs::path VCMIDirsOSX::userConfigPath() const { return userDataPath() / "config"; }
+
+bfs::path VCMIDirsOSX::userLogsPath() const
+{
+	// TODO: use proper objc code from Foundation framework
+	if(const auto homeDir = std::getenv("HOME"))
+		return bfs::path{homeDir} / "Library" / "Logs" / "vcmi";
+	return IVCMIDirsUNIX::userLogsPath();
+}
 
 std::vector<bfs::path> VCMIDirsOSX::dataPaths() const
 {
