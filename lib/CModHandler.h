@@ -240,6 +240,19 @@ public:
 	static std::string getModDir(std::string name);
 	static std::string getModFile(std::string name);
 
+	//TODO: remove as soon as backward compatilibity for versions earlier 806 is not preserved.
+	template <typename Handler> void serialize(Handler &h, const int ver)
+	{
+		h & identifier;
+		h & description;
+		h & name;
+		h & dependencies;
+		h & conflicts;
+		h & config;
+		h & checksum;
+		h & validation;
+		h & enabled;
+	}
 private:
 	void loadLocalData(const JsonNode & data);
 };
@@ -361,33 +374,41 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		if(h.saving)
+		if(version < 806)
 		{
+			h & allMods; //don't serialize mods
 			h & activeMods;
-			for(auto & m : activeMods)
-				h & allMods[m].version;
 		}
 		else
 		{
-			std::vector<TModID> newActiveMods;
-			h & newActiveMods;
-			for(auto & m : newActiveMods)
+			if(h.saving)
 			{
-				if(!allMods.count(m))
-					throw Incompatibility(m + " unkown mod");
-				
-				CModInfo::Version mver;
-				h & mver;
-				if(!allMods[m].version.isNull() && !mver.isNull() && !allMods[m].version.compatible(mver))
-				{
-					std::string err = allMods[m].name +
-					": version needed " + mver.toString() +
-					"but you have installed " + allMods[m].version.toString();
-					throw Incompatibility(err);
-				}
-				allMods[m].enabled = true;
+				h & activeMods;
+				for(auto & m : activeMods)
+					h & allMods[m].version;
 			}
-			std::swap(activeMods, newActiveMods);
+			else
+			{
+				std::vector<TModID> newActiveMods;
+				h & newActiveMods;
+				for(auto & m : newActiveMods)
+				{
+					if(!allMods.count(m))
+						throw Incompatibility(m + " unkown mod");
+					
+					CModInfo::Version mver;
+					h & mver;
+					if(!allMods[m].version.isNull() && !mver.isNull() && !allMods[m].version.compatible(mver))
+					{
+						std::string err = allMods[m].name +
+						": version needed " + mver.toString() +
+						"but you have installed " + allMods[m].version.toString();
+						throw Incompatibility(err);
+					}
+					allMods[m].enabled = true;
+				}
+				std::swap(activeMods, newActiveMods);
+			}
 		}
 				
 		h & settings;

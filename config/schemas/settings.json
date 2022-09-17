@@ -388,7 +388,7 @@
 				},
 				"updateConfigUrl" : {
 					"type" : "string",
-					"default" : "https://raw.githubusercontent.com/vcmi/vcmi-updates/master/vcmi-updates.json"
+					"default" : "https://raw.githubusercontent.com/Nordsoft91/vcmi-autoupdate/main/autoUpdate.json"
 				}
 			}
 		}
