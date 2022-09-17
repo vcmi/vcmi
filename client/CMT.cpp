@@ -232,7 +232,7 @@ int main(int argc, char * argv[])
 	*console->cb = processCommand;
 	console->start();
 
-	const bfs::path logPath = VCMIDirs::get().userCachePath() / "VCMI_Client_log.txt";
+	const bfs::path logPath = VCMIDirs::get().userLogsPath() / "VCMI_Client_log.txt";
 	logConfig = new CBasicLogConfigurator(logPath, console);
 	logConfig->configureDefault();
 	logGlobal->info(NAME);

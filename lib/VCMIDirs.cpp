@@ -13,6 +13,8 @@
 
 namespace bfs = boost::filesystem;
 
+bfs::path IVCMIDirs::userLogsPath() const { return userCachePath(); }
+
 bfs::path IVCMIDirs::userSavePath() const { return userDataPath() / "Saves"; }
 
 bfs::path IVCMIDirs::fullLibraryPath(const std::string &desiredFolder, const std::string &baseLibName) const
@@ -35,6 +37,7 @@ std::string IVCMIDirs::genHelpString() const
 		"  user data:   " + userDataPath().string() + "\n"
 		"  user cache:  " + userCachePath().string() + "\n"
 		"  user config: " + userConfigPath().string() + "\n"
+		"  user logs:   " + userLogsPath().string() + "\n"
 		"  user saves:  " + userSavePath().string() + "\n"; // Should end without new-line?
 }
 
@@ -44,6 +47,7 @@ void IVCMIDirs::init()
 	bfs::create_directories(userDataPath());
 	bfs::create_directories(userCachePath());
 	bfs::create_directories(userConfigPath());
+	bfs::create_directories(userLogsPath());
 	bfs::create_directories(userSavePath());
 }
 
