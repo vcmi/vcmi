@@ -17,6 +17,7 @@
 #include "QuickRecruitmentWindow.h"
 #include "../gui/CGuiHandler.h"
 #include "../../lib/CCreatureHandler.h"
+#include "CCreatureWindow.h"
 
 void CreaturePurchaseCard::initButtons()
 {
@@ -82,14 +83,26 @@ void CreaturePurchaseCard::sliderMoved(int to)
 	parent->updateAllSliders();
 }
 
+void CreaturePurchaseCard::clickRight(tribool down, bool previousState)
+{
+	if (down)
+		GH.pushIntT<CStackWindow>(creatureOnTheCard, true);
+}
+
 CreaturePurchaseCard::CreaturePurchaseCard(const std::vector<CreatureID> & creaturesID, Point position, int creaturesMaxAmount, QuickRecruitmentWindow * parents)
-	: upgradesID(creaturesID),
+	: CIntObject(RCLICK),
+	upgradesID(creaturesID),
 	parent(parents),
 	maxAmount(creaturesMaxAmount)
 {
 	creatureOnTheCard = upgradesID.back().toCreature();
 	moveTo(Point(position.x, position.y));
 	initView();
+
+	// Card's position needs to be set to the animation's width/height
+	// otherwise the clicks won't register
+	pos.w = picture->pos.w;
+	pos.h = picture->pos.h;
 }
 
 void CreaturePurchaseCard::initView()

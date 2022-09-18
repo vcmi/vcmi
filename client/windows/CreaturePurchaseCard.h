@@ -25,6 +25,8 @@ public:
 	QuickRecruitmentWindow * parent;
 	int maxAmount;
 	void sliderMoved(int to);
+	void clickRight(tribool down, bool previousState) override;
+
 	CreaturePurchaseCard(const std::vector<CreatureID> & creaturesID, Point position, int creaturesMaxAmount, QuickRecruitmentWindow * parents);
 private:
 	void initView();
