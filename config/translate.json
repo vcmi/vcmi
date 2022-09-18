@@ -21,6 +21,10 @@
 				"Impossible"
 			]
 		},
+		"confirmRestartGame" : "Are you sure you want to restart game?",
+		"noTownWithMarket": "No available marketplace!",
+		"noTownWithTavern": "No available town with tavern!",
+		"spellUnknownProblem": "Unknown problem with this spell, no more information available.",
 		"playerAttacked" : "Player has been attacked: %s"
 	},
 	"systemOptions" :
@@ -44,6 +48,7 @@
 	"townHall" :
 	{
 		"missingBase" : "Base building %s must be built first",
+		"noCreaturesToRecruit" : "There are no creatures to recruit!",
 		"greetingManaVortex" : "As you near the %s your body is filled with new energy. You have doubled your normal spell points.",
 		"greetingKnowledge" : "You study the glyphs on the %s and gain insight into the workings of various magics (+1 Knowledge).",
 		"greetingSpellPower" : "The %s teaches you new ways to focus your magical powers (+1 Power).",

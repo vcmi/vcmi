@@ -851,7 +851,7 @@ void CCastleBuildings::enterToTheQuickRecruitmentWindow()
 	if(hasSomeoneToRecruit)
 		GH.pushIntT<QuickRecruitmentWindow>(town, pos);
 	else
-		CInfoWindow::showInfoDialog("There are no creatures to recruit", {});
+		CInfoWindow::showInfoDialog(CGI->generaltexth->localizedTexts["townHall"]["noCreaturesToRecruit"].String(), {});
 }
 
 void CCastleBuildings::enterFountain(const BuildingID & building, BuildingSubID::EBuildingSubID subID, BuildingID::EBuildingID upgrades)
