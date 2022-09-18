@@ -842,7 +842,11 @@ void CCastleBuildings::enterDwelling(int level)
 
 void CCastleBuildings::enterToTheQuickRecruitmentWindow()
 {
-	const auto hasSomeoneToRecruit = std::any_of(town->creatures.cbegin(), town->creatures.cend(),
+	const auto beginIt = town->creatures.cbegin();
+	const auto afterLastIt = town->creatures.size() > GameConstants::CREATURES_PER_TOWN
+		? std::next(beginIt, GameConstants::CREATURES_PER_TOWN)
+		: town->creatures.cend();
+	const auto hasSomeoneToRecruit = std::any_of(beginIt, afterLastIt,
 		[](const auto & creatureInfo) { return creatureInfo.first > 0; });
 	if(hasSomeoneToRecruit)
 		GH.pushIntT<QuickRecruitmentWindow>(town, pos);
