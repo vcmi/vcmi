@@ -350,8 +350,8 @@ void WindowNewMap::on_templateCombo_activated(int index)
 		mapGenOptions.setMapTemplate(nullptr);
 		return;
 	}
-
-	auto * templ = VLC->tplh->getTemplate(ui->templateCombo->currentText().toStdString());
+	
+	auto * templ = data_cast<const CRmgTemplate>(ui->templateCombo->currentData().toLongLong());
 	mapGenOptions.setMapTemplate(templ);
 }
 
@@ -390,11 +390,11 @@ void WindowNewMap::updateTemplateList()
 	if(templates.empty())
 		return;
 
-	ui->templateCombo->addItem("[default]");
+	ui->templateCombo->addItem("[default]", 0);
 
 	for(auto * templ : templates)
 	{
-		ui->templateCombo->addItem(QString::fromStdString(templ->getName()));
+		ui->templateCombo->addItem(QString::fromStdString(templ->getName()), data_cast(templ));
 	}
 
 	ui->templateCombo->setCurrentIndex(0);

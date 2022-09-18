@@ -573,10 +573,7 @@ void Inspector::setProperty(CGCreature * o, const QString & key, const QVariant 
 //===============IMPLEMENT PROPERTY VALUE TYPE============================
 QTableWidgetItem * Inspector::addProperty(CGObjectInstance * value)
 {
-	using NumericPointer = unsigned long long;
-	static_assert(sizeof(CGObjectInstance *) == sizeof(NumericPointer),
-				  "Compilied for 64 bit arcitecture. Use NumericPointer = unsigned int");
-	return new QTableWidgetItem(QString::number(reinterpret_cast<NumericPointer>(value)));
+	return new QTableWidgetItem(QString::number(data_cast<CGObjectInstance>(value)));
 }
 
 QTableWidgetItem * Inspector::addProperty(Inspector::PropertyEditorPlaceholder value)

@@ -924,10 +924,7 @@ void MainWindow::on_inspectorWidget_itemChanged(QTableWidgetItem *item)
 
 	//get identifier
 	auto identifier = tableWidget->item(0, 1)->text();
-	static_assert(sizeof(CGObjectInstance *) == sizeof(decltype(identifier.toLongLong())),
-			"Compilied for 64 bit arcitecture. Use .toInt() method");
-
-	CGObjectInstance * obj = reinterpret_cast<CGObjectInstance *>(identifier.toLongLong());
+	CGObjectInstance * obj = data_cast<CGObjectInstance>(identifier.toLongLong());
 
 	//get parameter name
 	auto param = tableWidget->item(r, c - 1)->text();

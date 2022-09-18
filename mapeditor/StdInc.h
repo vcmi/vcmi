@@ -13,6 +13,24 @@
 #include <QString>
 #include <QFile>
 
+using NumericPointer = unsigned long long;
+
+template<class Type>
+NumericPointer data_cast(Type * _pointer)
+{
+	static_assert(sizeof(Type *) == sizeof(NumericPointer),
+				  "Compilied for 64 bit arcitecture. Use NumericPointer = unsigned int");
+	return reinterpret_cast<NumericPointer>(_pointer);
+}
+
+template<class Type>
+Type * data_cast(NumericPointer _numeric)
+{
+	static_assert(sizeof(Type *) == sizeof(NumericPointer),
+				  "Compilied for 64 bit arcitecture. Use NumericPointer = unsigned int");
+	return reinterpret_cast<Type *>(_numeric);
+}
+
 inline QString pathToQString(const boost::filesystem::path & path)
 {
 #ifdef VCMI_WINDOWS
