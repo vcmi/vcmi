@@ -78,6 +78,8 @@ private slots:
 
 	void on_heightTxt_textChanged(const QString &arg1);
 
+	void on_checkSeed_toggled(bool checked);
+
 private:
 
 	void updateTemplateList();

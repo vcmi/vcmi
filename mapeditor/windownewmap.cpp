@@ -235,7 +235,11 @@ void WindowNewMap::on_okButtong_clicked()
 			return;
 		}
 		
-		CMapGenerator generator(mapGenOptions);
+		int seed = std::time(nullptr);
+		if(ui->checkSeed->isChecked() && !ui->lineSeed->text().isEmpty())
+			seed = ui->lineSeed->text().toInt();
+			
+		CMapGenerator generator(mapGenOptions, seed);
 		auto progressBarWnd = new GeneratorProgress(generator, this);
 		progressBarWnd->show();
 	
@@ -403,3 +407,9 @@ void WindowNewMap::updateTemplateList()
 
 	ui->templateCombo->setCurrentIndex(0);
 }
+
+void WindowNewMap::on_checkSeed_toggled(bool checked)
+{
+	ui->lineSeed->setEnabled(checked);
+}
+

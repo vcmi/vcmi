@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>448</width>
-    <height>379</height>
+    <width>444</width>
+    <height>445</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -24,8 +24,8 @@
   </property>
   <property name="maximumSize">
    <size>
-    <width>448</width>
-    <height>379</height>
+    <width>999</width>
+    <height>999</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -40,7 +40,7 @@
      <x>10</x>
      <y>20</y>
      <width>291</width>
-     <height>81</height>
+     <height>91</height>
     </rect>
    </property>
    <property name="title">
@@ -178,9 +178,9 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>120</y>
+     <y>140</y>
      <width>431</width>
-     <height>251</height>
+     <height>301</height>
     </rect>
    </property>
    <property name="sizePolicy">
@@ -415,7 +415,7 @@
       <x>10</x>
       <y>170</y>
       <width>411</width>
-      <height>41</height>
+      <height>51</height>
      </rect>
     </property>
     <property name="title">
@@ -544,7 +544,7 @@
       <x>10</x>
       <y>120</y>
       <width>411</width>
-      <height>41</height>
+      <height>51</height>
      </rect>
     </property>
     <property name="sizePolicy">
@@ -671,7 +671,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>220</y>
+      <y>230</y>
       <width>411</width>
       <height>32</height>
      </rect>
@@ -708,12 +708,44 @@
      </item>
     </layout>
    </widget>
+   <widget class="QLineEdit" name="lineSeed">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>280</x>
+      <y>270</y>
+      <width>131</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="inputMethodHints">
+     <set>Qt::ImhDigitsOnly</set>
+    </property>
+    <property name="text">
+     <string>0</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="checkSeed">
+    <property name="geometry">
+     <rect>
+      <x>110</x>
+      <y>270</y>
+      <width>161</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Custom seed</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QCheckBox" name="randomMapCheck">
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>100</y>
+     <y>120</y>
      <width>291</width>
      <height>20</height>
     </rect>
