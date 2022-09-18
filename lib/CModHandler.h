@@ -212,7 +212,8 @@ public:
 	/// version of the mod
 	Version version;
 	
-	///The  vcmi versions compatible with the mod
+	/// vcmi versions compatible with the mod
+
 	Version vcmiCompatibleMin, vcmiCompatibleMax;
 
 	/// list of mods that should be loaded before this one
@@ -364,7 +365,8 @@ public:
 		if(h.saving)
 		{
 			h & activeMods;
-			for(auto & m : activeMods)
+			for(const auto & m : activeMods)
+
 				h & allMods[m].version;
 		}
 		else
