@@ -322,15 +322,15 @@ void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
 
 	size_t height = mask.size();
 	size_t width  = 0;
-	for (auto & line : mask)
+	for(auto & line : mask)
 		vstd::amax(width, line.String().size());
 
 	setSize((ui32)width, (ui32)height);
 
-	for (size_t i=0; i<mask.size(); i++)
+	for(size_t i = 0; i < mask.size(); i++)
 	{
 		const std::string & line = mask[i].String();
-		for (size_t j=0; j < line.size(); j++)
+		for(size_t j = 0; j < line.size(); j++)
 			usedTiles[mask.size() - 1 - i][line.size() - 1 - j] = charToTile(line[j]);
 	}
 

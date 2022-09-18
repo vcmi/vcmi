@@ -73,8 +73,8 @@ void RmgMap::initTiles(CMapGenerator & generator)
 {
 	mapInstance->initTerrain();
 	
-	tiles.resize(boost::extents[mapInstance->width][mapInstance->height][mapInstance->twoLevel ? 2 : 1]);
-	zoneColouring.resize(boost::extents[mapInstance->width][mapInstance->height][mapInstance->twoLevel ? 2 : 1]);
+	tiles.resize(boost::extents[mapInstance->width][mapInstance->height][mapInstance->levels()]);
+	zoneColouring.resize(boost::extents[mapInstance->width][mapInstance->height][mapInstance->levels()]);
 	
 	//init native town count with 0
 	for (auto faction : VLC->townh->getAllowedFactions())
@@ -302,7 +302,7 @@ void RmgMap::dump(bool zoneId) const
 {
 	static int id = 0;
 	std::ofstream out(boost::to_string(boost::format("zone_%d.txt") % id++));
-	int levels = mapInstance->twoLevel ? 2 : 1;
+	int levels = mapInstance->levels();
 	int width =  mapInstance->width;
 	int height = mapInstance->height;
 	for (int k = 0; k < levels; k++)

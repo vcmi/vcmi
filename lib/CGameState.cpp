@@ -954,19 +954,20 @@ void CGameState::initGrailPosition()
 		static const int BORDER_WIDTH = 9; // grail must be at least 9 tiles away from border
 
 		// add all not blocked tiles in range
-		for (int i = BORDER_WIDTH; i < map->width - BORDER_WIDTH ; i++)
+
+		for (int z = 0; z < map->levels(); z++)
 		{
-			for (int j = BORDER_WIDTH; j < map->height - BORDER_WIDTH; j++)
+			for(int x = BORDER_WIDTH; x < map->width - BORDER_WIDTH ; x++)
 			{
-				for (int k = 0; k < (map->twoLevel ? 2 : 1); k++)
+				for(int y = BORDER_WIDTH; y < map->height - BORDER_WIDTH; y++)
 				{
-					const TerrainTile &t = map->getTile(int3(i, j, k));
+					const TerrainTile &t = map->getTile(int3(x, y, z));
 					if(!t.blocked
 						&& !t.visitable
 						&& t.terType.isLand()
 						&& t.terType.isPassable()
-						&& (int)map->grailPos.dist2dSQ(int3(i, j, k)) <= (map->grailRadius * map->grailRadius))
-						allowedPos.push_back(int3(i,j,k));
+						&& (int)map->grailPos.dist2dSQ(int3(x, y, z)) <= (map->grailRadius * map->grailRadius))
+						allowedPos.push_back(int3(x,y,z));
 				}
 			}
 		}
@@ -1593,20 +1594,13 @@ void CGameState::giveCampaignBonusToHero(CGHeroInstance * hero)
 void CGameState::initFogOfWar()
 {
 	logGlobal->debug("\tFog of war"); //FIXME: should be initialized after all bonuses are set
+
+	int layers = map->levels();
 	for(auto & elem : teams)
 	{
-		elem.second.fogOfWarMap.resize(map->width);
-		for(int g=0; g<map->width; ++g)
-			elem.second.fogOfWarMap[g].resize(map->height);
-
-		for(int g=-0; g<map->width; ++g)
-			for(int h=0; h<map->height; ++h)
-				elem.second.fogOfWarMap[g][h].resize(map->twoLevel ? 2 : 1, 0);
-
-		for(int g=0; g<map->width; ++g)
-			for(int h=0; h<map->height; ++h)
-				for(int v = 0; v < (map->twoLevel ? 2 : 1); ++v)
-					elem.second.fogOfWarMap[g][h][v] = 0;
+		auto fow = elem.second.fogOfWarMap;
+		fow->resize(boost::extents[layers][map->width][map->height]);
+		std::fill(fow->data(), fow->data() + fow->num_elements(), 0);
 
 		for(CGObjectInstance *obj : map->objects)
 		{
@@ -1616,7 +1610,7 @@ void CGameState::initFogOfWar()
 			getTilesInRange(tiles, obj->getSightCenter(), obj->getSightRadius(), obj->tempOwner, 1);
 			for(int3 tile : tiles)
 			{
-				elem.second.fogOfWarMap[tile.x][tile.y][tile.z] = 1;
+				(*elem.second.fogOfWarMap)[tile.z][tile.x][tile.y] = 1;
 			}
 		}
 	}
@@ -2019,6 +2013,7 @@ void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out)
 
 void CGameState::calculatePaths(std::shared_ptr<PathfinderConfig> config)
 {
+	//FIXME: creating pathfinder is costly, maybe reset / clear is enough?
 	CPathfinder pathfinder(this, config);
 	pathfinder.calculatePaths();
 }
@@ -2080,7 +2075,7 @@ std::vector<CGObjectInstance*> CGameState::guardingCreatures (int3 pos) const
 
 int3 CGameState::guardingCreaturePosition (int3 pos) const
 {
-	return gs->map->guardingCreaturePositions[pos.x][pos.y][pos.z];
+	return gs->map->guardingCreaturePositions[pos.z][pos.x][pos.y];
 }
 
 void CGameState::updateRumor()
@@ -2164,7 +2159,7 @@ bool CGameState::isVisible(int3 pos, PlayerColor player)
 	if(player.isSpectator())
 		return true;
 
-	return getPlayerTeam(player)->fogOfWarMap[pos.x][pos.y][pos.z];
+	return (*getPlayerTeam(player)->fogOfWarMap)[pos.z][pos.x][pos.y];
 }
 
 bool CGameState::isVisible( const CGObjectInstance *obj, boost::optional<PlayerColor> player )
@@ -3096,6 +3091,7 @@ int ArmyDescriptor::getStrength() const
 TeamState::TeamState()
 {
 	setNodeType(TEAM);
+	fogOfWarMap = std::make_shared<boost::multi_array<ui8, 3>>();
 }
 
 TeamState::TeamState(TeamState && other):

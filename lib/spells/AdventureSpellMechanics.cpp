@@ -571,7 +571,7 @@ ESpellCastResult ViewMechanics::applyAdventureEffects(SpellCastEnvironment * env
 
 	const auto spellLevel = parameters.caster->getSpellSchoolLevel(owner);
 
-	const auto & fowMap = env->getCb()->getPlayerTeam(parameters.caster->getOwner())->fogOfWarMap;
+	const auto fowMap = env->getCb()->getPlayerTeam(parameters.caster->getOwner())->fogOfWarMap;
 
 	for(const CGObjectInstance * obj : env->getMap()->objects)
 	{
@@ -580,7 +580,7 @@ ESpellCastResult ViewMechanics::applyAdventureEffects(SpellCastEnvironment * env
 		{
 			ObjectPosInfo posInfo(obj);
 
-			if(fowMap[posInfo.pos.x][posInfo.pos.y][posInfo.pos.z] == 0)
+			if((*fowMap)[posInfo.pos.x][posInfo.pos.y][posInfo.pos.z] == 0)
 				pack.objectPositions.push_back(posInfo);
 		}
 	}

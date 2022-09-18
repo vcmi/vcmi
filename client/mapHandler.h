@@ -92,7 +92,7 @@ struct MapDrawingInfo
 {
 	bool scaled;
 	int3 &topTile; // top-left tile in viewport [in tiles]
-	const std::vector< std::vector< std::vector<ui8> > > * visibilityMap;
+	std::shared_ptr<const boost::multi_array<ui8, 3>> visibilityMap;
 	SDL_Rect * drawBounds; // map rect drawing bounds on screen
 	std::shared_ptr<CAnimation> icons; // holds overlay icons for world view mode
 	float scale; // map scale for world view mode (only if scaled == true)
@@ -110,9 +110,10 @@ struct MapDrawingInfo
 
 	bool showAllTerrain; //for expert viewEarth
 
-	MapDrawingInfo(int3 &topTile_, const std::vector< std::vector< std::vector<ui8> > > * visibilityMap_, SDL_Rect * drawBounds_, std::shared_ptr<CAnimation> icons_ = nullptr)
+	MapDrawingInfo(int3 &topTile_, std::shared_ptr<const boost::multi_array<ui8, 3>> visibilityMap_, SDL_Rect * drawBounds_, std::shared_ptr<CAnimation> icons_ = nullptr)
 		: scaled(false),
 		  topTile(topTile_),
+
 		  visibilityMap(visibilityMap_),
 		  drawBounds(drawBounds_),
 		  icons(icons_),
@@ -332,7 +333,7 @@ class CMapHandler
 	void initTerrainGraphics();
 	void prepareFOWDefs();
 public:
-	PseudoV< PseudoV< PseudoV<TerrainTile2> > > ttiles; //informations about map tiles
+	boost::multi_array<TerrainTile2, 3> ttiles; //informations about map tiles [z][x][y]
 	int3 sizes; //map size (x = width, y = height, z = number of levels)
 	const CMap * map;
 
@@ -368,7 +369,7 @@ public:
 
 	//Fog of War cache (not owned)
 	std::vector<std::shared_ptr<IImage>> FoWfullHide;
-	std::vector<std::vector<std::vector<ui8> > > hideBitmap; //frame indexes (in FoWfullHide) of graphic that should be used to fully hide a tile
+	boost::multi_array<ui8, 3> hideBitmap; //frame indexes (in FoWfullHide) of graphic that should be used to fully hide a tile
 
 	std::vector<std::shared_ptr<IImage>> FoWpartialHide;
 

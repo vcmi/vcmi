@@ -162,8 +162,8 @@ std::string CMapGenerator::getMapDescription() const
 
     std::stringstream ss;
     ss << boost::str(boost::format(std::string("Map created by the Random Map Generator.\nTemplate was %s, Random seed was %d, size %dx%d") +
-        ", levels %s, players %d, computers %d, water %s, monster %s, VCMI map") % mapTemplate->getName() %
-		randomSeed % map->map().width % map->map().height % (map->map().twoLevel ? "2" : "1") % static_cast<int>(mapGenOptions.getPlayerCount()) %
+        ", levels %d, players %d, computers %d, water %s, monster %s, VCMI map") % mapTemplate->getName() %
+		randomSeed % map->map().width % map->map().height % map->map().levels() % static_cast<int>(mapGenOptions.getPlayerCount()) %
 		static_cast<int>(mapGenOptions.getCompOnlyPlayerCount()) % waterContentStr[mapGenOptions.getWaterContent()] %
 		monsterStrengthStr[monsterStrengthIndex]);
 

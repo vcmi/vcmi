@@ -39,7 +39,7 @@ AISharedStorage::AISharedStorage(int3 sizes)
 {
 	if(!shared){
 		shared.reset(new boost::multi_array<AIPathNode, 5>(
-			boost::extents[sizes.x][sizes.y][sizes.z][EPathfindingLayer::NUM_LAYERS][NUM_CHAINS]));
+			boost::extents[EPathfindingLayer::NUM_LAYERS][sizes.z][sizes.x][sizes.y][NUM_CHAINS]));
 	}
 
 	nodes = shared;
@@ -69,40 +69,41 @@ void AINodeStorage::initialize(const PathfinderOptions & options, const CGameSta
 
 	//TODO: fix this code duplication with NodeStorage::initialize, problem is to keep `resetTile` inline
 	const PlayerColor fowPlayer = ai->playerID;
-	const auto & fow = static_cast<const CGameInfoCallback *>(gs)->getPlayerTeam(fowPlayer)->fogOfWarMap;
+	const auto fow = static_cast<const CGameInfoCallback *>(gs)->getPlayerTeam(fowPlayer)->fogOfWarMap;
 	const int3 sizes = gs->getMapSize();
+
+	//Each thread gets different x, but an array of y located next to each other in memory
 
 	parallel_for(blocked_range<size_t>(0, sizes.x), [&](const blocked_range<size_t>& r)
 	{
-		//make 200% sure that these are loop invariants (also a bit shorter code), let compiler do the rest(loop unswitching)
-		const bool useFlying = options.useFlying;
-		const bool useWaterWalking = options.useWaterWalking;
-		const PlayerColor player = playerID;
-
 		int3 pos;
 
-		for(pos.x = r.begin(); pos.x != r.end(); ++pos.x)
+		for(pos.z = 0; pos.z < sizes.z; ++pos.z)
 		{
-			for(pos.y = 0; pos.y < sizes.y; ++pos.y)
+			const bool useFlying = options.useFlying;
+			const bool useWaterWalking = options.useWaterWalking;
+			const PlayerColor player = playerID;
+
+			for(pos.x = r.begin(); pos.x != r.end(); ++pos.x)
 			{
-				for(pos.z = 0; pos.z < sizes.z; ++pos.z)
+				for(pos.y = 0; pos.y < sizes.y; ++pos.y)
 				{
-					const TerrainTile * tile = &gs->map->getTile(pos);
-					if(!tile->terType.isPassable())
+					const TerrainTile* tile = &gs->map->getTile(pos);
+					if (!tile->terType.isPassable())
 						continue;
-					
-					if(tile->terType.isWater())
+
+					if (tile->terType.isWater())
 					{
 						resetTile(pos, ELayer::SAIL, PathfinderUtil::evaluateAccessibility<ELayer::SAIL>(pos, tile, fow, player, gs));
-						if(useFlying)
+						if (useFlying)
 							resetTile(pos, ELayer::AIR, PathfinderUtil::evaluateAccessibility<ELayer::AIR>(pos, tile, fow, player, gs));
-						if(useWaterWalking)
+						if (useWaterWalking)
 							resetTile(pos, ELayer::WATER, PathfinderUtil::evaluateAccessibility<ELayer::WATER>(pos, tile, fow, player, gs));
 					}
 					else
 					{
 						resetTile(pos, ELayer::LAND, PathfinderUtil::evaluateAccessibility<ELayer::LAND>(pos, tile, fow, player, gs));
-						if(useFlying)
+						if (useFlying)
 							resetTile(pos, ELayer::AIR, PathfinderUtil::evaluateAccessibility<ELayer::AIR>(pos, tile, fow, player, gs));
 					}
 				}
@@ -140,7 +141,7 @@ boost::optional<AIPathNode *> AINodeStorage::getOrCreateNode(
 {
 	int bucketIndex = ((uintptr_t)actor) % BUCKET_COUNT;
 	int bucketOffset = bucketIndex * BUCKET_SIZE;
-	auto chains = nodes.get(pos, layer);
+	auto chains = nodes.get(pos, layer); //FIXME: chain was the innermost layer
 
 	if(chains[0].blocked())
 	{

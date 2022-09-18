@@ -14,13 +14,13 @@
 
 namespace PathfinderUtil
 {
-	using FoW = std::vector<std::vector<std::vector<ui8> > >;
+	using FoW = std::shared_ptr<const boost::multi_array<ui8, 3>>;
 	using ELayer = EPathfindingLayer;
 
 	template<EPathfindingLayer::EEPathfindingLayer layer>
-	CGPathNode::EAccessibility evaluateAccessibility(const int3 & pos, const TerrainTile * tinfo, const FoW & fow, const PlayerColor player, const CGameState * gs)
+	CGPathNode::EAccessibility evaluateAccessibility(const int3 & pos, const TerrainTile * tinfo, FoW fow, const PlayerColor player, const CGameState * gs)
 	{
-		if(!fow[pos.x][pos.y][pos.z])
+		if(!(*fow)[pos.z][pos.x][pos.y])
 			return CGPathNode::BLOCKED;
 
 		switch(layer)
