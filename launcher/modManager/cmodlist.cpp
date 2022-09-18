@@ -14,75 +14,51 @@
 #include "../../lib/filesystem/CFileInputStream.h"
 #include "../../lib/GameConstants.h"
 
-const int maxSections = 3; // versions consist from up to 3 sections, major.minor.patch
-
+namespace
+{
 bool isCompatible(const QString & verMin, const QString & verMax)
 {
-	QList<int> vcmiVersionList = {GameConstants::VCMI_VERSION_MAJOR,
-								  GameConstants::VCMI_VERSION_MINOR,
-								  GameConstants::VCMI_VERSION_PATCH};
-
-	if(!verMin.isEmpty())
+	const int maxSections = 3; // versions consist from up to 3 sections, major.minor.patch
+	QVersionNumber vcmiVersion(GameConstants::VCMI_VERSION_MAJOR,
+							   GameConstants::VCMI_VERSION_MINOR,
+							   GameConstants::VCMI_VERSION_PATCH);
+	
+	auto versionMin = QVersionNumber::fromString(verMin);
+	auto versionMax = QVersionNumber::fromString(verMax);
+	
+	auto buildVersion = [](QVersionNumber & ver)
 	{
-		QStringList verMinList = verMin.split(".");
-		assert(verMinList.size() == maxSections);
-		bool compatibleMin = true;
-		for(int i = 0; i < maxSections; i++)
+		if(ver.segmentCount() < maxSections)
 		{
-			if(verMinList[i].toInt() < vcmiVersionList[i])
-			{
-				break;
-			}
-			if(verMinList[i].toInt() > vcmiVersionList[i])
-			{
-				compatibleMin = false;
-				break;
-			}
+			auto segments = ver.segments();
+			for(int i = segments.size() - 1; i < maxSections; ++i)
+				segments.append(0);
+			ver = QVersionNumber(segments);
 		}
+	};
 
-		if(!compatibleMin)
+	if(!versionMin.isNull())
+	{
+		buildVersion(versionMin);
+		if(vcmiVersion < versionMin)
 			return false;
 	}
-
-	if(!verMax.isEmpty())
+	
+	if(!versionMax.isNull())
 	{
-		QStringList verMaxList = verMax.split(".");
-		assert(verMaxList.size() == maxSections);
-		for(int i = 0; i < maxSections; i++)
-		{
-			if(verMaxList[i].toInt() > vcmiVersionList[i])
-			{
-				return true;
-			}
-			if(verMaxList[i].toInt() < vcmiVersionList[i])
-			{
-				return false;
-			}
-		}
+		buildVersion(versionMax);
+		if(vcmiVersion > versionMax)
+			return false;
 	}
 	return true;
+}
 }
 
 bool CModEntry::compareVersions(QString lesser, QString greater)
 {
-	QStringList lesserList = lesser.split(".");
-	QStringList greaterList = greater.split(".");
-
-	assert(lesserList.size() <= maxSections);
-	assert(greaterList.size() <= maxSections);
-
-	for(int i = 0; i < maxSections; i++)
-	{
-		if(greaterList.size() <= i) // 1.1.1 > 1.1
-			return false;
-
-		if(lesserList.size() <= i) // 1.1 < 1.1.1
-			return true;
-
-		if(lesserList[i].toInt() != greaterList[i].toInt())
-			return lesserList[i].toInt() < greaterList[i].toInt(); // 1.1 < 1.2
-	}
-	return false;
+	auto versionLesser = QVersionNumber::fromString(lesser);
+	auto versionGreater = QVersionNumber::fromString(greater);
+	return versionLesser < versionGreater;
 }
 
 QString CModEntry::sizeToString(double size)
