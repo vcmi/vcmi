@@ -23,8 +23,6 @@ class WindowNewMap : public QDialog
 	const QString newMapMonsterStrength = "NewMapWindow/MonsterStrength";
 	const QString newMapTemplate = "NewMapWindow/Template";
 
-	const QString defaultTemplate = "[default]";
-
 	const int playerLimit = 8;
 
 	const std::map<int, int> players
@@ -85,7 +83,6 @@ private:
 	void updateTemplateList();
 
 	void loadUserSettings();
-	void loadLastTemplate();
 	void saveUserSettings();
 
 private:
