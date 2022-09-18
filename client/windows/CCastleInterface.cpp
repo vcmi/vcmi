@@ -13,6 +13,7 @@
 #include "CAdvmapInterface.h"
 #include "CHeroWindow.h"
 #include "CTradeWindow.h"
+#include "InfoWindows.h"
 #include "GUIClasses.h"
 #include "QuickRecruitmentWindow.h"
 
@@ -24,7 +25,6 @@
 #include "../Graphics.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/SDL_Extensions.h"
-#include "../windows/InfoWindows.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/CComponent.h"
 

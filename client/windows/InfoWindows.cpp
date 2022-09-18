@@ -10,6 +10,8 @@
 #include "StdInc.h"
 #include "InfoWindows.h"
 
+#include "CAdvmapInterface.h"
+
 #include "../CBitmapHandler.h"
 #include "../Graphics.h"
 #include "../CGameInfo.h"
@@ -17,7 +19,6 @@
 #include "../CMessage.h"
 #include "../CMusicHandler.h"
 
-#include "../windows/CAdvmapInterface.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/MiscWidgets.h"
 

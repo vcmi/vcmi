@@ -10,6 +10,9 @@
 #include "StdInc.h"
 #include "CComponent.h"
 
+#include "CArtifactHolder.h"
+#include "Images.h"
+
 #include <vcmi/spells/Service.h>
 #include <vcmi/spells/Spell.h>
 
@@ -18,8 +21,6 @@
 
 #include "../CMessage.h"
 #include "../CGameInfo.h"
-#include "../widgets/Images.h"
-#include "../widgets/CArtifactHolder.h"
 #include "../windows/CAdvmapInterface.h"
 
 #include "../../lib/CArtHandler.h"

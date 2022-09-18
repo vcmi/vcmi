@@ -14,8 +14,9 @@
 #include "CHeroWindow.h"
 #include "CKingdomInterface.h"
 #include "CSpellWindow.h"
-#include "GUIClasses.h"
 #include "CTradeWindow.h"
+#include "GUIClasses.h"
+#include "InfoWindows.h"
 
 #include "../CBitmapHandler.h"
 #include "../CGameInfo.h"
@@ -35,7 +36,6 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/SDL_Extensions.h"
 #include "../widgets/MiscWidgets.h"
-#include "../windows/InfoWindows.h"
 
 #include "../../CCallback.h"
 
