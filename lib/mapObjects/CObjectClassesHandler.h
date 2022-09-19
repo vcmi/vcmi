@@ -177,7 +177,7 @@ public:
 	boost::optional<std::string> getCustomName() const;
 	SObjectSounds getSounds() const;
 
-	void addTemplate(std::shared_ptr<ObjectTemplate> templ);
+	void addTemplate(std::shared_ptr<const ObjectTemplate> templ);
 	void addTemplate(JsonNode config);
 
 	/// returns all templates matching parameters
@@ -268,7 +268,7 @@ class DLL_LINKAGE CObjectClassesHandler : public IHandlerBase
 	std::map<std::string, std::function<TObjectTypeHandler()> > handlerConstructors;
 
 	/// container with H3 templates, used only during loading, no need to serialize it
-	typedef std::multimap<std::pair<si32, si32>, std::shared_ptr<ObjectTemplate>> TTemplatesContainer;
+	typedef std::multimap<std::pair<si32, si32>, std::shared_ptr<const ObjectTemplate>> TTemplatesContainer;
 	TTemplatesContainer legacyTemplates;
 
 	/// contains list of custom names for H3 objects (e.g. Dwellings), used to load H3 data
