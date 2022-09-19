@@ -117,11 +117,11 @@ std::vector<JsonNode> CObjectClassesHandler::loadLegacyData(size_t dataSize)
 
 	for (size_t i=0; i<totalNumber; i++)
 	{
-		auto templ = new ObjectTemplate;
+		std::shared_ptr<ObjectTemplate> templ(new ObjectTemplate);
 		templ->readTxt(parser);
 		parser.endLine();
 		std::pair<si32, si32> key(templ->id.num, templ->subid);
-		legacyTemplates.insert(std::make_pair(key, std::shared_ptr<const ObjectTemplate>(templ)));
+		legacyTemplates.insert(std::make_pair(key, templ));
 	}
 
 	std::vector<JsonNode> ret(dataSize);// create storage for 256 objects
@@ -550,12 +550,8 @@ SObjectSounds AObjectTypeHandler::getSounds() const
 	return sounds;
 }
 
-void AObjectTypeHandler::addTemplate(std::shared_ptr<const ObjectTemplate> templ)
+void AObjectTypeHandler::addTemplate(std::shared_ptr<ObjectTemplate> templ)
 {
-	//Otherwise the template remains constant
-	auto ptr = const_cast<ObjectTemplate*>(templ.get());
-	ptr->id = Obj(type);
-	ptr->subid = subtype;
 	templates.push_back(templ);
 }
 

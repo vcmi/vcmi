@@ -105,14 +105,11 @@ void Object::Instance::setPositionRaw(const int3 & position)
 
 void Object::Instance::setTemplate(const Terrain & terrain)
 {
-	if(dObject.appearance->id == Obj::NO_OBJ)
-	{
-		auto templates = VLC->objtypeh->getHandlerFor(dObject.ID, dObject.subID)->getTemplates(terrain);
-		if(templates.empty())
-			throw rmgException(boost::to_string(boost::format("Did not find graphics for object (%d,%d) at %s") % dObject.ID % dObject.subID % static_cast<std::string>(terrain)));
+	auto templates = VLC->objtypeh->getHandlerFor(dObject.ID, dObject.subID)->getTemplates(terrain);
+	if(templates.empty())
+		throw rmgException(boost::to_string(boost::format("Did not find graphics for object (%d,%d) at %s") % dObject.ID % dObject.subID % static_cast<std::string>(terrain)));
 		
-		dObject.appearance = templates.front();
-	}
+	dObject.appearance = templates.front();
 	dAccessibleAreaCache.clear();
 	setPosition(getPosition(false));
 }
