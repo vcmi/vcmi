@@ -159,11 +159,9 @@ void MapController::repairMap()
 	}
 }
 
-EMapFormat::EMapFormat MapController::setMap(std::unique_ptr<CMap> cmap)
+void MapController::setMap(std::unique_ptr<CMap> cmap)
 {
 	_map = std::move(cmap);
-	auto version = _map->version;
-	_map->version = EMapFormat::VCMI;
 	
 	repairMap();
 	
@@ -182,8 +180,6 @@ EMapFormat::EMapFormat MapController::setMap(std::unique_ptr<CMap> cmap)
 			main->enableRedo(allowRedo);
 		}
 	);
-	
-	return version;
 }
 
 void MapController::sceneForceUpdate()
