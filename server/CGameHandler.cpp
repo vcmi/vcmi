@@ -1048,17 +1048,19 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 			bat.flags |= BattleAttack::BALLISTA_DOUBLE_DMG;
 		}
 	}
+
+	int64_t drainedLife = 0;
+
 	// only primary target
 	if(defender->alive())
-		applyBattleEffects(bat, blm, attackerState, fireShield, defender, distance, false);
+		drainedLife += applyBattleEffects(bat, attackerState, fireShield, defender, distance, false);
 
 	//multiple-hex normal attack
 	std::set<const CStack*> attackedCreatures = gs->curB->getAttackedCreatures(attacker, targetHex, bat.shot()); //creatures other than primary target
-
 	for(const CStack * stack : attackedCreatures)
 	{
 		if(stack != defender && stack->alive()) //do not hit same stack twice
-			applyBattleEffects(bat, blm, attackerState, fireShield, stack, distance, true);
+			drainedLife += applyBattleEffects(bat, attackerState, fireShield, stack, distance, true);
 	}
 
 	std::shared_ptr<const Bonus> bonus = attacker->getBonusLocalFirst(Selector::type()(Bonus::SPELL_LIKE_ATTACK));
@@ -1086,7 +1088,7 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 		{
 			if(stack != defender && stack->alive()) //do not hit same stack twice
 			{
-				applyBattleEffects(bat, blm, attackerState, fireShield, stack, distance, true);
+				drainedLife += applyBattleEffects(bat, attackerState, fireShield, stack, distance, true);
 			}
 		}
 
@@ -1134,6 +1136,29 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 
 		addGenericKilledLog(blm, defender, totalKills, multipleTargets);
 	}
+
+	// drain life effect (as well as log entry) must be applied after the attack
+	if(drainedLife > 0)
+	{
+		BattleAttack bat;
+		bat.stackAttacking = attacker->unitId();
+		{
+			CustomEffectInfo customEffect;
+			customEffect.sound = soundBase::DRAINLIF;
+			customEffect.effect = 52;
+			customEffect.stack = attackerState->unitId();
+			bat.customEffects.push_back(std::move(customEffect));
+		}
+		sendAndApply(&bat);
+
+		MetaString text;
+		attackerState->addText(text, MetaString::GENERAL_TXT, 361);
+		attackerState->addNameReplacement(text, false);
+		text.addReplacement(drainedLife);
+		defender->addNameReplacement(text, true);
+		blm.lines.push_back(std::move(text));
+	}
+
 	sendAndApply(&blm);
 
 	if(!fireShield.empty())
@@ -1179,7 +1204,8 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 
 	handleAfterAttackCasting(ranged, attacker, defender);
 }
-void CGameHandler::applyBattleEffects(BattleAttack & bat, BattleLogMessage & blm, std::shared_ptr<battle::CUnitState> attackerState, FireShieldInfo & fireShield, const CStack * def, int distance, bool secondary)
+
+int64_t CGameHandler::applyBattleEffects(BattleAttack & bat, std::shared_ptr<battle::CUnitState> attackerState, FireShieldInfo & fireShield, const CStack * def, int distance, bool secondary)
 {
 	BattleStackAttacked bsa;
 	if(secondary)
@@ -1208,34 +1234,14 @@ void CGameHandler::applyBattleEffects(BattleAttack & bat, BattleLogMessage & blm
 		CStack::prepareAttacked(bsa, getRandomGenerator(), bai.defender->acquireState()); //calculate casualties
 	}
 
-	auto addLifeDrain = [&](int64_t & toHeal, EHealLevel level, EHealPower power)
-	{
-		attackerState->heal(toHeal, level, power);
-
-		if(toHeal > 0)
-		{
-			CustomEffectInfo customEffect;
-			customEffect.sound = soundBase::DRAINLIF;
-			customEffect.effect = 52;
-			customEffect.stack = attackerState->unitId();
-			bat.customEffects.push_back(customEffect);
-
-			MetaString text;
-			attackerState->addText(text, MetaString::GENERAL_TXT, 361);
-			attackerState->addNameReplacement(text, false);
-			text.addReplacement((int)toHeal);
-			def->addNameReplacement(text, true);
-			blm.lines.push_back(text);
-		}
-	};
+	int64_t drainedLife = 0;
 
 	//life drain handling
 	if(attackerState->hasBonusOfType(Bonus::LIFE_DRAIN) && def->isLiving())
 	{
 		int64_t toHeal = bsa.damageAmount * attackerState->valOfBonuses(Bonus::LIFE_DRAIN) / 100;
-
-		if(toHeal > 0)
-			addLifeDrain(toHeal, EHealLevel::RESURRECT, EHealPower::PERMANENT);
+		attackerState->heal(toHeal, EHealLevel::RESURRECT, EHealPower::PERMANENT);
+		drainedLife += toHeal;
 	}
 
 	//soul steal handling
@@ -1248,7 +1254,8 @@ void CGameHandler::applyBattleEffects(BattleAttack & bat, BattleLogMessage & blm
 			if(attackerState->hasBonusOfType(Bonus::SOUL_STEAL, subtype))
 			{
 				int64_t toHeal = bsa.killedAmount * attackerState->valOfBonuses(Bonus::SOUL_STEAL, subtype) * attackerState->MaxHealth();
-				addLifeDrain(toHeal, EHealLevel::OVERHEAL, ((subtype == 0) ? EHealPower::ONE_BATTLE : EHealPower::PERMANENT));
+				attackerState->heal(toHeal, EHealLevel::OVERHEAL, ((subtype == 0) ? EHealPower::ONE_BATTLE : EHealPower::PERMANENT));
+				drainedLife += toHeal;
 				break;
 			}
 		}
@@ -1263,6 +1270,8 @@ void CGameHandler::applyBattleEffects(BattleAttack & bat, BattleLogMessage & blm
 		auto fireShieldDamage = (std::min<int64_t>(def->getAvailableHealth(), bsa.damageAmount) * def->valOfBonuses(Bonus::FIRE_SHIELD)) / 100;
 		fireShield.push_back(std::make_pair(def, fireShieldDamage));
 	}
+
+	return drainedLife;
 }
 
 void CGameHandler::sendGenericKilledLog(const CStack * defender, int32_t killed, bool multiple)
