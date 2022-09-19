@@ -245,12 +245,6 @@ public:
 		save(internalPtr);
 	}
 	template <typename T>
-	void save(const std::shared_ptr<const T> &data)
-	{
-		const T *internalPtr = data.get();
-		save(internalPtr);
-	}
-	template <typename T>
 	void save(const std::unique_ptr<T> &data)
 	{
 		T *internalPtr = data.get();
