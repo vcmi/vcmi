@@ -212,9 +212,7 @@ void MapHandler::initObjectRects()
 				
 				if( map->isInTheMap(currTile) && // within map
 				   cr.x() + cr.width() > 0 &&           // image has data on this tile
-				   cr.y() + cr.height() > 0 &&
-				   obj->coveringAt(currTile.x, currTile.y) // object is visible here
-				   )
+				   cr.y() + cr.height() > 0)
 				{
 					ttiles[index(currTile)].push_back(toAdd);
 				}
@@ -477,9 +475,7 @@ void MapHandler::invalidate(CGObjectInstance * obj)
 			
 			if( map->isInTheMap(currTile) && // within map
 			   cr.x() + cr.width() > 0 &&           // image has data on this tile
-			   cr.y() + cr.height() > 0 &&
-			   obj->coveringAt(currTile.x, currTile.y) // object is visible here
-			   )
+			   cr.y() + cr.height() > 0)
 			{
 				auto & objects = ttiles[index(currTile)];
 				bool found = false;
@@ -510,9 +506,7 @@ std::vector<int3> MapHandler::getTilesUnderObject(CGObjectInstance * obj) const
 		{
 			//object presented on the tile
 			int3 currTile(obj->pos.x - fx, obj->pos.y - fy, obj->pos.z);
-			if(map->isInTheMap(currTile) && // within map
-			   obj->coveringAt(currTile.x, currTile.y) // object is visible here
-			   )
+			if(map->isInTheMap(currTile)) // within map
 			{
 				result.push_back(currTile);
 			}
