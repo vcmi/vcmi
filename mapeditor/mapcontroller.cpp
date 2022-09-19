@@ -69,11 +69,33 @@ MinimapScene * MapController::miniScene(int level)
 
 void MapController::repairMap()
 {
+	//there might be extra skills, arts and spells not imported from map
+	if(VLC->skillh->getDefaultAllowed().size() > map()->allowedAbilities.size())
+	{
+		for(int i = map()->allowedAbilities.size(); i < VLC->skillh->getDefaultAllowed().size(); ++i)
+			map()->allowedAbilities.push_back(false);
+	}
+	if(VLC->arth->getDefaultAllowed().size() > map()->allowedArtifact.size())
+	{
+		for(int i = map()->allowedArtifact.size(); i < VLC->arth->getDefaultAllowed().size(); ++i)
+			map()->allowedArtifact.push_back(false);
+	}
+	if(VLC->spellh->getDefaultAllowed().size() > map()->allowedSpell.size())
+	{
+		for(int i = map()->allowedSpell.size(); i < VLC->spellh->getDefaultAllowed().size(); ++i)
+			map()->allowedSpell.push_back(false);
+	}
+	if(VLC->heroh->getDefaultAllowed().size() > map()->allowedHeroes.size())
+	{
+		for(int i = map()->allowedHeroes.size(); i < VLC->heroh->getDefaultAllowed().size(); ++i)
+			map()->allowedHeroes.push_back(false);
+	}
+	
 	//fix owners for objects
 	for(auto obj : _map->objects)
 	{
 		//setup proper names (hero name will be fixed later
-		if(obj->ID != Obj::HERO && (obj->typeName.empty() || obj->subTypeName.empty()))
+		if(obj->ID != Obj::HERO && obj->ID != Obj::PRISON && (obj->typeName.empty() || obj->subTypeName.empty()))
 		{
 			auto handler = VLC->objtypeh->getHandlerFor(obj->ID, obj->subID);
 			obj->typeName = handler->typeName;
@@ -93,6 +115,7 @@ void MapController::repairMap()
 		//fix hero instance
 		if(auto * nih = dynamic_cast<CGHeroInstance*>(obj.get()))
 		{
+			map()->allowedHeroes.at(nih->subID) = true;
 			auto type = VLC->heroh->objects[nih->subID];
 			assert(type->heroClass);
 			//TODO: find a way to get proper type name
@@ -139,23 +162,25 @@ void MapController::repairMap()
 				});
 			}
 		}
-	}
-	
-	//there might be extra skills, arts and spells not imported from map
-	if(VLC->skillh->getDefaultAllowed().size() > map()->allowedAbilities.size())
-	{
-		for(int i = map()->allowedAbilities.size(); i < VLC->skillh->getDefaultAllowed().size(); ++i)
-			map()->allowedAbilities.push_back(false);
-	}
-	if(VLC->arth->getDefaultAllowed().size() > map()->allowedArtifact.size())
-	{
-		for(int i = map()->allowedArtifact.size(); i < VLC->arth->getDefaultAllowed().size(); ++i)
-			map()->allowedArtifact.push_back(false);
-	}
-	if(VLC->spellh->getDefaultAllowed().size() > map()->allowedSpell.size())
-	{
-		for(int i = map()->allowedSpell.size(); i < VLC->spellh->getDefaultAllowed().size(); ++i)
-			map()->allowedSpell.push_back(false);
+		//fix spell scrolls
+		if(auto * art = dynamic_cast<CGArtifact*>(obj.get()))
+		{
+			if(art->ID == Obj::SPELL_SCROLL && !art->storedArtifact)
+			{
+				std::vector<SpellID> out;
+				for(auto spell : VLC->spellh->objects) //spellh size appears to be greater (?)
+				{
+					//if(map->isAllowedSpell(spell->id))
+					{
+						out.push_back(spell->id);
+					}
+				}
+				auto a = CArtifactInstance::createScroll(*RandomGeneratorUtil::nextItem(out, CRandomGenerator::getDefault()));
+				art->storedArtifact = a;
+			}
+			else
+				map()->allowedArtifact.at(art->subID) = true;
+		}
 	}
 }
 

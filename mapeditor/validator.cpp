@@ -109,7 +109,7 @@ std::list<Validator::Issue> Validator::validate(const CMap * map)
 				if(ins->type)
 				{
 					if(!map->allowedHeroes[ins->type->getId().getNum()])
-						issues.emplace_back(QString("Hero %1 is prohibited by map settings").arg(ins->instanceName.c_str()), false);
+						issues.emplace_back(QString("Hero %1 is prohibited by map settings").arg(ins->type->getName().c_str()), false);
 				}
 				else
 					issues.emplace_back(QString("Hero %1 has an empty type and must be removed").arg(ins->instanceName.c_str()), true);
@@ -123,7 +123,7 @@ std::list<Validator::Issue> Validator::validate(const CMap * map)
 					if(ins->storedArtifact)
 					{
 						if(!map->allowedSpell[ins->storedArtifact->id.getNum()])
-							issues.emplace_back(QString("Spell scroll %1 is prohibited by map settings").arg(ins->instanceName.c_str()), false);
+							issues.emplace_back(QString("Spell scroll %1 is prohibited by map settings").arg(ins->getObjectName().c_str()), false);
 					}
 					else
 						issues.emplace_back(QString("Spell scroll %1 doesn't have instance assigned and must be removed").arg(ins->instanceName.c_str()), true);
@@ -132,7 +132,7 @@ std::list<Validator::Issue> Validator::validate(const CMap * map)
 				{
 					if(ins->ID == Obj::ARTIFACT && !map->allowedArtifact[ins->subID])
 					{
-						issues.emplace_back(QString("Artifact %1 is prohibited by map settings").arg(ins->instanceName.c_str()), false);
+						issues.emplace_back(QString("Artifact %1 is prohibited by map settings").arg(ins->getObjectName().c_str()), false);
 					}
 				}
 			}
