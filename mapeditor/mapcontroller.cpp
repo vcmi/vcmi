@@ -72,6 +72,14 @@ void MapController::repairMap()
 	//fix owners for objects
 	for(auto obj : _map->objects)
 	{
+		//setup proper names (hero name will be fixed later
+		if(obj->ID != Obj::HERO && (obj->typeName.empty() || obj->subTypeName.empty()))
+		{
+			auto handler = VLC->objtypeh->getHandlerFor(obj->ID, obj->subID);
+			obj->typeName = handler->typeName;
+			obj->subTypeName = handler->subTypeName;
+		}
+		//fix flags
 		if(obj->getOwner() == PlayerColor::UNFLAGGABLE)
 		{
 			if(dynamic_cast<CGMine*>(obj.get()) ||
@@ -86,13 +94,21 @@ void MapController::repairMap()
 		if(auto * nih = dynamic_cast<CGHeroInstance*>(obj.get()))
 		{
 			auto type = VLC->heroh->objects[nih->subID];
+			assert(type->heroClass);
+			//TODO: find a way to get proper type name
+			if(obj->ID == Obj::HERO)
+				nih->typeName = "hero";
+			if(obj->ID == Obj::PRISON)
+				nih->typeName = "prison";
+			nih->subTypeName = type->heroClass->identifier;
+			
 			nih->type = type;
 			if(nih->name.empty())
 				nih->name = nih->type->name;
 			if(nih->biography.empty())
 				nih->biography = nih->type->biography;
 			
-			if(nih->ID == Obj::HERO)
+			if(nih->ID == Obj::HERO) //not prison
 				nih->appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, type->heroClass->getIndex())->getTemplates().front();
 			//fix spells
 			if(nih->spellbookContainsSpell(SpellID::PRESET))
@@ -123,7 +139,6 @@ void MapController::repairMap()
 				});
 			}
 		}
-		
 	}
 	
 	//there might be extra skills, arts and spells not imported from map
@@ -144,9 +159,11 @@ void MapController::repairMap()
 	}
 }
 
-void MapController::setMap(std::unique_ptr<CMap> cmap)
+EMapFormat::EMapFormat MapController::setMap(std::unique_ptr<CMap> cmap)
 {
 	_map = std::move(cmap);
+	auto version = _map->version;
+	_map->version = EMapFormat::VCMI;
 	
 	repairMap();
 	
@@ -165,6 +182,8 @@ void MapController::setMap(std::unique_ptr<CMap> cmap)
 			main->enableRedo(allowRedo);
 		}
 	);
+	
+	return version;
 }
 
 void MapController::sceneForceUpdate()

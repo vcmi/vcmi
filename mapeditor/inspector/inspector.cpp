@@ -325,6 +325,8 @@ void Inspector::updateProperties(CGPandoraBox * o)
 {
 	if(!o) return;
 	
+	addProperty("Message", o->message, new MessageDelegate, false);
+	
 	auto * delegate = new RewardsPandoraDelegate(*map, *o);
 	addProperty("Reward", PropertyEditorPlaceholder(), delegate, false);
 }

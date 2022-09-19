@@ -78,6 +78,11 @@ std::list<Validator::Issue> Validator::validate(const CMap * map)
 					issues.emplace_back(QString("Armored instance %1 is UNFLAGGABLE but must have NEUTRAL or player owner").arg(o->instanceName.c_str()), true);
 				}
 			}
+			if(o->getOwner() != PlayerColor::NEUTRAL && o->getOwner().getNum() < map->players.size())
+			{
+				if(!map->players[o->getOwner().getNum()].canAnyonePlay())
+					issues.emplace_back(QString("Object %1 is assinged to non-playable player %2").arg(o->instanceName.c_str(), o->getOwner().getStr().c_str()), true);
+			}
 			//checking towns
 			if(auto * ins = dynamic_cast<CGTownInstance*>(o.get()))
 			{
@@ -100,8 +105,6 @@ std::list<Validator::Issue> Validator::validate(const CMap * map)
 					bool has = amountOfCastles.count(ins->getOwner().getNum());
 					if(!has)
 						issues.emplace_back(QString("Hero %1 must have an owner").arg(ins->instanceName.c_str()), true);
-					else
-						issues.emplace_back(QString("Hero %1: heroes on map are not supported in current version").arg(ins->instanceName.c_str()), false);
 				}
 				if(ins->type)
 				{
