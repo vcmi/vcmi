@@ -499,7 +499,7 @@ std::map<Terrain, std::pair<SDL_Color, SDL_Color> > CMinimap::loadColors()
 {
 	std::map<Terrain, std::pair<SDL_Color, SDL_Color> > ret;
 
-	for(auto & terrain : Terrain::Manager::terrains())
+	for(auto & terrain : VLC->terrainTypeHandler::terrains())
 	{
 		auto & m = Terrain::Manager::getInfo(terrain);
 		SDL_Color normal =

@@ -165,7 +165,7 @@ void ObjectTemplate::readTxt(CLegacyConfigParser & parser)
 	//assuming that object can be placed on other land terrains
 	if(allowedTerrains.size() >= 8 && !allowedTerrains.count(Terrain("water")))
 	{
-		for(auto & terrain : Terrain::Manager::terrains())
+		for(auto & terrain : VLC->terrainTypeHandler::terrains())
 		{
 			if(terrain.isLand() && terrain.isPassable())
 				allowedTerrains.insert(terrain);
@@ -238,7 +238,7 @@ void ObjectTemplate::readMap(CBinaryReader & reader)
 	//assuming that object can be placed on other land terrains
 	if(allowedTerrains.size() >= 8 && !allowedTerrains.count(Terrain("water")))
 	{
-		for(auto & terrain : Terrain::Manager::terrains())
+		for(auto & terrain : VLC->terrainTypeHandler::terrains())
 		{
 			if(terrain.isLand() && terrain.isPassable())
 				allowedTerrains.insert(terrain);
@@ -289,7 +289,7 @@ void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
 	}
 	else
 	{
-		for(auto & i : Terrain::Manager::terrains())
+		for(auto & i : VLC->terrainTypeHandler::terrains())
 		{
 			if(!i.isPassable() || i.isWater())
 				continue;
@@ -369,7 +369,7 @@ void ObjectTemplate::writeJson(JsonNode & node, const bool withTerrain) const
 	if(withTerrain)
 	{
 		//assumed that ROCK and WATER terrains are not included
-		if(allowedTerrains.size() < (Terrain::Manager::terrains().size() - 2))
+		if(allowedTerrains.size() < (VLC->terrainTypeHandler::terrains().size() - 2))
 		{
 			JsonVector & data = node["allowedTerrains"].Vector();
 

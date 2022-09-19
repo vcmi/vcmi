@@ -344,9 +344,9 @@ CHeroHandler::~CHeroHandler() = default;
 CHeroHandler::CHeroHandler()
 {
 	loadTerrains();
-	for(int i = 0; i < Terrain::Manager::terrains().size(); ++i)
+	for(int i = 0; i < VLC->terrainTypeHandler::terrains().size(); ++i)
 	{
-		VLC->modh->identifiers.registerObject("core", "terrain", Terrain::Manager::terrains()[i], i);
+		VLC->modh->identifiers.registerObject("core", "terrain", VLC->terrainTypeHandler::terrains()[i], i);
 	}
 	loadBallistics();
 	loadExperience();
@@ -972,7 +972,7 @@ ui64 CHeroHandler::reqExp (ui32 level) const
 
 void CHeroHandler::loadTerrains()
 {
-	for(auto & terrain : Terrain::Manager::terrains())
+	for(auto & terrain : VLC->terrainTypeHandler::terrains())
 	{
 		terrCosts[terrain] = Terrain::Manager::getInfo(terrain).moveCost;
 	}

@@ -15,92 +15,111 @@
 #include "JsonNode.h"
 
 
-class DLL_LINKAGE Terrain
+class DLL_LINKAGE TerrainType
 {
 public:
 	
-	friend class Manager;
-	
-	struct Info
+	enum class PassabilityType
 	{
-		enum class Type
-		{
-			Land, Water, Subterranean, Rock
-		};
-		
-		int moveCost;
-		bool transitionRequired;
-		std::array<int, 3> minimapBlocked;
-		std::array<int, 3> minimapUnblocked;
-		std::string musicFilename;
-		std::string tilesFilename;
-		std::string terrainText;
-		std::string typeCode;
-		std::string terrainViewPatterns;
-		std::string rockTerrain;
-		std::string river;
-		int horseSoundId;
-		Type type;
-		std::vector<std::string> battleFields;
-		std::vector<Terrain> prohibitTransitions;
+		LAND,
+		WATER,
+		SUBTERRANEAN,
+		ROCK
 	};
 	
-	class DLL_LINKAGE Manager
-	{
-	public:
-		static const std::vector<Terrain> & terrains();
-		static const Info & getInfo(const Terrain &);
-		static int id(const Terrain &);
-		
-	private:
-		static Manager & get();
-		Manager();
-		
-		std::unordered_map<std::string, Info> terrainInfo;
-		std::vector<Terrain> terrainVault;
-		std::map<Terrain, int> terrainId;
-	};
+	std::vector<std::string> battleFields;
+	std::vector<TTerrain> prohibitTransitions;
+	std::array<int, 3> minimapBlocked;
+	std::array<int, 3> minimapUnblocked;
+	std::string name;
+	std::string musicFilename;
+	std::string tilesFilename;
+	std::string terrainText;
+	std::string typeCode;
+	std::string terrainViewPatterns;
+	std::string rockTerrain;
+	std::string river;
+
+	TTerrain id;
+	int moveCost;
+	int horseSoundId;
+	PassabilityType passabilityType;
+	bool transitionRequired;
 	
-	/*enum EETerrainType
-	 {
-	 ANY_TERRAIN = -3,
-	 WRONG = -2, BORDER = -1, DIRT, SAND, GRASS, SNOW, SWAMP,
-	 ROUGH, SUBTERRANEAN, LAVA, WATER, ROCK // ROCK is also intended to be max value.
-	 };*/
+	TerrainType(const std::string & _type = "");
 	
-	Terrain(const std::string & _type = "");
-	static Terrain createTerrainTypeH3M(int tId);
-	static Terrain createTerrainByCode(const std::string & typeCode);
+	TerrainType& operator=(const TerrainType & _type);
 	
-	int id() const; //TODO: has to be completely removed
-	
-	Terrain& operator=(const Terrain & _type);
-	Terrain& operator=(const std::string & _type);
-	
-	DLL_LINKAGE friend bool operator==(const Terrain & l, const Terrain & r);
-	DLL_LINKAGE friend bool operator!=(const Terrain & l, const Terrain & r);
-	DLL_LINKAGE friend bool operator<(const Terrain & l, const Terrain & r);
-	
-	static const Terrain ANY;
+	bool operator==(const TerrainType & other);
+	bool operator!=(const TerrainType & other);
+	bool operator<(const TerrainType & other);
 	
 	bool isLand() const;
 	bool isWater() const;
 	bool isPassable() const; //ROCK
 	bool isUnderground() const;
-	bool isNative() const;
 	bool isTransitionRequired() const;
-	
 		
 	operator std::string() const;
 	
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & battleFields;
+		h & prohibitTransitions;
+		h & minimapBlocked;
+		h & minimapUnblocked;
 		h & name;
+		h & musicFilename;
+		h & tilesFilename;
+		h & terrainText;
+		h & typeCode;
+		h & terrainViewPatterns;
+		h & rockTerrain;
+		h & river;
+
+		h & id;
+		h & moveCost;
+		h & horseSoundId;
+		h & passabilityType;
+		h & transitionRequired;
 	}
-	
-protected:
-	
-	std::string name;
 };
 
-DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const Terrain terrainType);
+DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const TerrainType & terrainType);
+
+class DLL_LINKAGE TerrainTypeHandler //TODO: handlerBase
+{
+public:
+
+	TerrainTypeHandler();
+
+	const std::vector<TerrainType *> & terrains();
+	const TerrainType * getInfoByName(const std::string & terrainName) const;
+	const TerrainType * getInfoByCode(const std::string & terrainName) const;
+	const TerrainType * getInfoById(TTerrain id) const;
+
+	//TODO: road, river types?
+
+private:
+
+	std::vector<TerrainType *> objects;
+
+	std::unordered_map<std::string, const TerrainType*> terrainInfoByName;
+	std::unordered_map<std::string, const TerrainType*> terrainInfoByCode;
+	std::unordered_map<TTerrain, const TerrainType*> terrainInfoById;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & name;
+
+		if (!saving)
+		{
+			//TODO: recreate at load
+		}
+		/*
+		h & terrainInfoByName;
+		h & terrainInfoByCode;
+		h & terrainInfoById;
+		*/
+	}
+};

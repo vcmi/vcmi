@@ -117,7 +117,7 @@ void initTerrainType(Zone & zone, CMapGenerator & gen)
 	{
 		//collect all water terrain types
 		std::vector<Terrain> waterTerrains;
-		for(auto & terrain : Terrain::Manager::terrains())
+		for(auto & terrain : VLC->terrainTypeHandler::terrains())
 			if(terrain.isWater())
 				waterTerrains.push_back(terrain);
 		
@@ -142,7 +142,7 @@ void initTerrainType(Zone & zone, CMapGenerator & gen)
 				{
 					//collect all underground terrain types
 					std::vector<Terrain> undegroundTerrains;
-					for(auto & terrain : Terrain::Manager::terrains())
+					for(auto & terrain : VLC->terrainTypeHandler::terrains())
 						if(terrain.isUnderground())
 							undegroundTerrains.push_back(terrain);
 					

@@ -338,7 +338,7 @@ CGeneralTextHandler::CGeneralTextHandler()
 	{
 		terrainNames[Terrain::createTerrainTypeH3M(i)] = h3mTerrainNames[i];
 	}
-	for(auto & terrain : Terrain::Manager::terrains())
+	for(auto & terrain : VLC->terrainTypeHandler::terrains())
 	{
 		if(!Terrain::Manager::getInfo(terrain).terrainText.empty())
 			terrainNames[terrain] = Terrain::Manager::getInfo(terrain).terrainText;

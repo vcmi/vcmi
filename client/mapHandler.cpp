@@ -189,7 +189,7 @@ void CMapHandler::initTerrainGraphics()
 	};
 	
 	std::map<std::string, std::string> terrainFiles;
-	for(auto & terrain : Terrain::Manager::terrains())
+	for(auto & terrain : VLC->terrainTypeHandler::terrains())
 	{
 		terrainFiles[terrain] = Terrain::Manager::getInfo(terrain).tilesFilename;
 	}

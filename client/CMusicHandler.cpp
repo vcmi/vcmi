@@ -113,7 +113,7 @@ CSoundHandler::CSoundHandler():
 	{
 		horseSounds[Terrain::createTerrainTypeH3M(h3mTerrId++)] = snd;
 	}
-	for(auto & terrain : Terrain::Manager::terrains())
+	for(auto & terrain : VLC->terrainTypeHandler::terrains())
 	{
 		//since all sounds are hardcoded, let's keep it
 		if(vstd::contains(horseSounds, terrain))
@@ -364,7 +364,7 @@ CMusicHandler::CMusicHandler():
 			addEntryToSet("enemy-turn", file.getName(), file.getName());
 	}
 
-	for(auto & terrain : Terrain::Manager::terrains())
+	for(auto & terrain : VLC->terrainTypeHandler::terrains())
 	{
 		auto & entry = Terrain::Manager::getInfo(terrain);
 		addEntryToSet("terrain", terrain, "Music/" + entry.musicFilename);

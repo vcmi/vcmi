@@ -67,12 +67,12 @@ class TerrainEncoder
 public:
 	static si32 decode(const std::string & identifier)
 	{
-		return vstd::find_pos(Terrain::Manager::terrains(), identifier);
+		return vstd::find_pos(VLC->terrainTypeHandler::terrains(), identifier);
 	}
 
 	static std::string encode(const si32 index)
 	{
-		return (index >=0 && index < Terrain::Manager::terrains().size()) ? static_cast<std::string>(Terrain::Manager::terrains()[index]) : "<INVALID TERRAIN>";
+		return (index >=0 && index < VLC->terrainTypeHandler::terrains().size()) ? static_cast<std::string>(VLC->terrainTypeHandler::terrains()[index]) : "<INVALID TERRAIN>";
 	}
 };
 
@@ -149,7 +149,7 @@ ZoneOptions::ZoneOptions()
 	terrainTypeLikeZone(NO_ZONE),
 	treasureLikeZone(NO_ZONE)
 {
-	for(auto & terr : Terrain::Manager::terrains())
+	for(auto & terr : VLC->terrainTypeHandler::terrains())
 		if(terr.isLand() && terr.isPassable())
 			terrainTypes.insert(terr);
 }

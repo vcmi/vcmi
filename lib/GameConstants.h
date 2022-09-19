@@ -832,6 +832,28 @@ public:
 
 ID_LIKE_OPERATORS(Obj, Obj::EObj)
 
+namespace Terrain
+{
+	enum ETerrain : TTerrain
+	{
+		ANY_TERRAIN = -3,
+		WRONG = -2,
+		BORDER = -1,
+		FIRST_REGULAR_TERRAIN = 0,
+		DIRT = 0,
+		SAND,
+		GRASS,
+		SNOW,
+		SWAMP,
+		ROUGH,
+		SUBTERRANEAN,
+		LAVA,
+		WATER,
+		ROCK,
+		ORIGINAL_TERRAIN_COUNT
+	};
+}
+
 namespace SecSkillLevel
 {
 	enum SecSkillLevel
@@ -1183,6 +1205,7 @@ typedef si64 TExpType;
 typedef std::pair<si64, si64> TDmgRange;
 typedef si32 TBonusSubtype;
 typedef si32 TQuantity;
+typedef ui8 TTerrain;
 
 typedef int TRmgTemplateZoneId;
 
