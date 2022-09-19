@@ -47,6 +47,7 @@ void CreaturePurchaseCard::switchCreatureLevel()
 	auto index = vstd::find_pos(upgradesID, creatureOnTheCard->idNumber);
 	auto nextCreatureId = vstd::circularAt(upgradesID, ++index);
 	creatureOnTheCard = nextCreatureId.toCreature();
+	creatureClickArea = std::make_shared<CCreatureClickArea>(Point(pos.x + CCreatureClickArea::CREATURE_X_POS, pos.y + CCreatureClickArea::CREATURE_Y_POS), picture, creatureOnTheCard);
 	picture = std::make_shared<CCreaturePic>(parent->pos.x, parent->pos.y, creatureOnTheCard);
 	parent->updateAllSliders();
 	cost->set(creatureOnTheCard->cost * slider->getValue());
@@ -83,34 +84,41 @@ void CreaturePurchaseCard::sliderMoved(int to)
 	parent->updateAllSliders();
 }
 
-void CreaturePurchaseCard::clickRight(tribool down, bool previousState)
-{
-	if (down)
-		GH.pushIntT<CStackWindow>(creatureOnTheCard, true);
-}
-
 CreaturePurchaseCard::CreaturePurchaseCard(const std::vector<CreatureID> & creaturesID, Point position, int creaturesMaxAmount, QuickRecruitmentWindow * parents)
-	: CIntObject(RCLICK),
-	upgradesID(creaturesID),
+	: upgradesID(creaturesID),
 	parent(parents),
 	maxAmount(creaturesMaxAmount)
 {
 	creatureOnTheCard = upgradesID.back().toCreature();
 	moveTo(Point(position.x, position.y));
 	initView();
-
-	// Card's position needs to be set to the animation's width/height
-	// otherwise the clicks won't register
-	pos.w = picture->pos.w;
-	pos.h = picture->pos.h;
 }
 
 void CreaturePurchaseCard::initView()
 {
 	picture = std::make_shared<CCreaturePic>(pos.x, pos.y, creatureOnTheCard);
 	background = std::make_shared<CPicture>("QuickRecruitmentWindow/CreaturePurchaseCard.png", pos.x-4, pos.y-50);
+	initButtons();
+
+	creatureClickArea = std::make_shared<CCreatureClickArea>(Point(pos.x + CCreatureClickArea::CREATURE_X_POS, pos.y + CCreatureClickArea::CREATURE_Y_POS), picture, creatureOnTheCard);
+
 	initAmountInfo();
 	initSlider();
-	initButtons();
 	initCostBox();
+}
+
+CreaturePurchaseCard::CCreatureClickArea::CCreatureClickArea(const Point & position, const std::shared_ptr<CCreaturePic> creaturePic, const CCreature * creatureOnTheCard)
+	: CIntObject(RCLICK),
+	creatureOnTheCard(creatureOnTheCard)
+{
+	pos.x = position.x;
+	pos.y = position.y;
+	pos.w = CREATURE_WIDTH;
+	pos.h = CREATURE_HEIGHT;
+}
+
+void CreaturePurchaseCard::CCreatureClickArea::clickRight(tribool down, bool previousState)
+{
+	if (down)
+		GH.pushIntT<CStackWindow>(creatureOnTheCard, true);
 }
