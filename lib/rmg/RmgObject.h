@@ -35,6 +35,7 @@ public:
 		bool isVisitableFrom(const int3 & tile) const;
 		const Area & getAccessibleArea() const;
 		void setTemplate(const Terrain & terrain); //cache invalidation
+		void setAnyTemplate(); //cache invalidation
 		
 		int3 getPosition(bool isAbsolute = false) const;
 		void setPosition(const int3 & position); //cache invalidation
