@@ -26,7 +26,7 @@ bool isCompatible(const QString & verMin, const QString & verMax)
 	auto versionMin = QVersionNumber::fromString(verMin);
 	auto versionMax = QVersionNumber::fromString(verMax);
 	
-	auto buildVersion = [](QVersionNumber & ver)
+	auto buildVersion = [maxSections](QVersionNumber & ver)
 	{
 		if(ver.segmentCount() < maxSections)
 		{
