@@ -488,6 +488,7 @@ if(WIN32)
 	# Use BundleUtilities to fix build when Vcpkg is used and disable it for MXE
 	if(NOT (${CMAKE_CROSSCOMPILING}))
 		add_subdirectory(osx)
+		add_subdirectory(win)
 	endif()
 elseif(APPLE AND NOT ENABLE_MONOLITHIC_INSTALL)
 	set(CPACK_MONOLITHIC_INSTALL 1)
