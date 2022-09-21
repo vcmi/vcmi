@@ -59,6 +59,11 @@ option(ENABLE_MONOLITHIC_INSTALL "Install everything in single directory on Linu
 set(PACKAGE_NAME_SUFFIX "" CACHE STRING "Suffix for CPack package name")
 set(PACKAGE_FILE_NAME "" CACHE STRING "Override for CPack package filename")
 
+# ERM depends on LUA implicitly
+if(ENABLE_ERM AND NOT ENABLE_LUA)
+	set(ENABLE_LUA ON)
+endif()
+
 ############################################
 #        Miscellaneous options             #
 ############################################
