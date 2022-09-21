@@ -282,24 +282,23 @@ void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
 	else
 		visitDir = 0x00;
 
-	if(withTerrain && !node["allowedTerrains"].isNull())
+	if (withTerrain && !node["allowedTerrains"].isNull())
 	{
-		for (auto & entry : node["allowedTerrains"].Vector())
+		for (auto& entry : node["allowedTerrains"].Vector())
 			allowedTerrains.insert(VLC->terrainTypeHandler->getInfoByName(entry.String())->id);
 	}
 	else
 	{
-		for(const auto * terrain : VLC->terrainTypeHandler->terrains())
+		for (const auto* terrain : VLC->terrainTypeHandler->terrains())
 		{
-			if(!terrain->isPassable() || terrain->isWater())
+			if (!terrain->isPassable() || terrain->isWater())
 				continue;
 			allowedTerrains.insert(terrain->id);
 		}
 	}
 
-	if(withTerrain && allowedTerrains.empty())
+	if (withTerrain && allowedTerrains.empty())
 		logGlobal->warn("Loaded template without allowed terrains!");
-
 
 	auto charToTile = [&](const char & ch) -> ui8
 	{

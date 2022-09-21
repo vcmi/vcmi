@@ -74,10 +74,10 @@ TerrainTypeHandler::TerrainTypeHandler()
 			}
 			else
 			{
-				auto rockTerrainType = terr.second["rockTerrain"].String();
-				resolveLater.push_back([this, rockTerrainType, info]()
+				auto rockTerrainName = terr.second["rockTerrain"].String();
+				resolveLater.push_back([this, rockTerrainName, info]()
 				{
-						info->rockTerrain = getInfoByName(rockTerrainType)->id;
+						info->rockTerrain = getInfoByName(rockTerrainName)->id;
 				});
 			}
 			
@@ -159,6 +159,7 @@ TerrainTypeHandler::TerrainTypeHandler()
 				id = objects.size();
 				objects.push_back(info);
 			}
+			info->id = id;
 		}
 	}
 
@@ -168,7 +169,8 @@ TerrainTypeHandler::TerrainTypeHandler()
 		assert(objects(i));
 	}
 
-	//TODO: add ids to resolve
+	recreateTerrainMaps();
+
 	for (auto& functor : resolveLater)
 	{
 		functor();
@@ -216,7 +218,7 @@ TerrainType::operator std::string() const
 }
 	
 TerrainType::TerrainType(const std::string& _name):
-	name(name),
+	name(_name),
 	id(Terrain::WRONG),
 	rockTerrain(Terrain::ROCK),
 	moveCost(100),
