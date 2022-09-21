@@ -79,11 +79,7 @@
             "name": "macos-arm-conan-ninja-release",
             "displayName": "Ninja+Conan arm64 release",
             "description": "VCMI MacOS-arm64 Ninja using Conan",
-            "inherits": "macos-conan-ninja-release",
-            "cacheVariables": {
-                "ENABLE_ERM": "OFF",
-                "ENABLE_LUA": "OFF"
-            }
+            "inherits": "macos-conan-ninja-release"
         },
         {
             "name": "macos-xcode-release",
