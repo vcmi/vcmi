@@ -267,7 +267,7 @@ bool TerrainType::isPassable() const
 
 bool TerrainType::isUnderground() const
 {
-	return passabilityType != PassabilityType::SUBTERRANEAN;
+	return passabilityType == PassabilityType::SUBTERRANEAN;
 }
 
 bool TerrainType::isTransitionRequired() const

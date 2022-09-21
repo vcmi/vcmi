@@ -103,6 +103,7 @@
 		"minimapBlocked"   : [ 41, 40, 41 ],
 		"music" : "Lava.mp3",
 		"tiles" : "LAVATL",
+		"type" : "SUB",
 		"code" : "lv",
 		"river" : "rl",
 		"battleFields" : ["lava"],
