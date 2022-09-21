@@ -152,6 +152,10 @@ void CPlayerInterface::init(std::shared_ptr<Environment> ENV, std::shared_ptr<CC
 {
 	cb = CB;
 	env = ENV;
+
+	CCS->soundh->loadHorseSounds();
+	CCS->musich->loadTerrainSounds();
+
 	initializeHeroTownList();
 
 	// always recreate advmap interface to avoid possible memory-corruption bugs

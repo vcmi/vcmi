@@ -115,17 +115,21 @@ CSoundHandler::CSoundHandler():
 		{Terrain::WATER, soundBase::horseWater},
 		{Terrain::ROCK, soundBase::horseRock}
 	};
+}
+
+void CSoundHandler::loadHorseSounds()
+{
 	auto terrains = CGI->terrainTypeHandler->terrains();
 	for(const auto * terrain : terrains)
 	{
 		//since all sounds are hardcoded, let's keep it
 		if(vstd::contains(horseSounds, terrain->id))
 			continue;
-		
+
 		//Use already existing horse sound
 		horseSounds[terrain->id] = horseSounds.at(terrains[terrain->id]->horseSoundId);
 	}
-};
+}
 
 void CSoundHandler::init()
 {
@@ -368,7 +372,11 @@ CMusicHandler::CMusicHandler():
 			addEntryToSet("enemy-turn", file.getName(), file.getName());
 	}
 
-	for(const auto * terrain : CGI->terrainTypeHandler->terrains())
+}
+
+void CMusicHandler::loadTerrainSounds()
+{
+	for (const auto* terrain : CGI->terrainTypeHandler->terrains())
 	{
 		addEntryToSet("terrain", terrain->name, "Music/" + terrain->musicFilename);
 	}

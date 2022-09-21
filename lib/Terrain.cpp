@@ -96,7 +96,7 @@ TerrainTypeHandler::TerrainTypeHandler()
 			}
 			else
 			{
-				info->horseSoundId = terr.second["horseSoundId"].Integer();
+				info->horseSoundId = terr.second["horseSoundId"].Float();
 			}
 			
 			if(!terr.second["text"].isNull())
