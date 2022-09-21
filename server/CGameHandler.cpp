@@ -1306,8 +1306,8 @@ void CGameHandler::addGenericKilledLog(BattleLogMessage & blm, const CStack * de
 			txt % (multiple ? VLC->generaltexth->allTexts[42] : defender->getCreature()->nameSing); // creature perishes
 		}
 		MetaString line;
-		line.addReplacement(txt.str());
-		blm.lines.push_back(line);
+		line << txt.str();
+		blm.lines.push_back(std::move(line));
 	}
 }
 
