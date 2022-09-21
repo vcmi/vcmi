@@ -191,14 +191,14 @@ void CZonePlacer::prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const 
 				else
 				{
 					auto & tt = (*VLC->townh)[faction]->nativeTerrain;
-					if(tt == Terrain("dirt"))
+					if(tt == Terrain::DIRT)
 					{
 						//any / random
 						zonesToPlace.push_back(zone);
 					}
 					else
 					{
-						if(tt.isUnderground())
+						if(VLC->terrainTypeHandler->terrains()[tt]->isUnderground())
 						{
 							//underground
 							zonesOnLevel[1]++;
@@ -571,7 +571,7 @@ void CZonePlacer::assignZones(CRandomGenerator * rand)
 
 			//make sure that terrain inside zone is not a rock
 			//FIXME: reorder actions?
-			paintZoneTerrain(*zone.second, *rand, map, Terrain("subterra"));
+			paintZoneTerrain(*zone.second, *rand, map, Terrain::SUBTERRANEAN);
 		}
 	}
 	logGlobal->info("Finished zone colouring");

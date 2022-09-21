@@ -945,7 +945,7 @@ void CMapLoaderJson::readTerrainTile(const std::string & src, TerrainTile & tile
 	using namespace TerrainDetail;
 	{//terrain type
 		const std::string typeCode = src.substr(0, 2);
-		tile.terType = Terrain::createTerrainByCode(typeCode);
+		tile.terType = const_cast<TerrainType *>(VLC->terrainTypeHandler->getInfoByCode(typeCode));
 	}
 	int startPos = 2; //0+typeCode fixed length
 	{//terrain view
@@ -1276,7 +1276,7 @@ std::string CMapSaverJson::writeTerrainTile(const TerrainTile & tile)
 	out.setf(std::ios::dec, std::ios::basefield);
 	out.unsetf(std::ios::showbase);
 
-	out << Terrain::Manager::getInfo(tile.terType).typeCode << (int)tile.terView << flipCodes[tile.extTileFlags % 4];
+	out << tile.terType->typeCode << (int)tile.terView << flipCodes[tile.extTileFlags % 4];
 
 	if(tile.roadType != ROAD_NAMES[0])
 		out << tile.roadType << (int)tile.roadDir << flipCodes[(tile.extTileFlags >> 4) % 4];

@@ -26,7 +26,7 @@ std::function<bool(const int3 &)> AREA_NO_FILTER = [](const int3 & t)
 Zone::Zone(RmgMap & map, CMapGenerator & generator)
 					: ZoneOptions(),
 					townType(ETownType::NEUTRAL),
-					terrainType(Terrain("grass")),
+					terrainType(Terrain::GRASS),
 					map(map),
 					generator(generator)
 {
@@ -132,12 +132,12 @@ void Zone::setTownType(si32 town)
 	townType = town;
 }
 
-const Terrain & Zone::getTerrainType() const
+TTerrain Zone::getTerrainType() const
 {
 	return terrainType;
 }
 
-void Zone::setTerrainType(const Terrain & terrain)
+void Zone::setTerrainType(TTerrain terrain)
 {
 	terrainType = terrain;
 }

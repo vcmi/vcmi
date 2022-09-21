@@ -37,17 +37,17 @@ public:
 	std::string terrainText;
 	std::string typeCode;
 	std::string terrainViewPatterns;
-	std::string rockTerrain;
 	std::string river;
 
 	TTerrain id;
+	TTerrain rockTerrain;
 	int moveCost;
 	int horseSoundId;
 	PassabilityType passabilityType;
 	bool transitionRequired;
 	
-	TerrainType(const std::string & _type = "");
-	
+	TerrainType(const std::string & name = "");
+
 	TerrainType& operator=(const TerrainType & _type);
 	
 	bool operator==(const TerrainType & other);
@@ -87,18 +87,28 @@ public:
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const TerrainType & terrainType);
 
-class DLL_LINKAGE TerrainTypeHandler //TODO: handlerBase
+class DLL_LINKAGE TerrainTypeHandler //TODO: public IHandlerBase ?
 {
 public:
 
 	TerrainTypeHandler();
 
-	const std::vector<TerrainType *> & terrains();
+	const std::vector<TerrainType *> & terrains() const;
 	const TerrainType * getInfoByName(const std::string & terrainName) const;
-	const TerrainType * getInfoByCode(const std::string & terrainName) const;
+	const TerrainType * getInfoByCode(const std::string & terrainCode) const;
 	const TerrainType * getInfoById(TTerrain id) const;
 
 	//TODO: road, river types?
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & objects;
+
+		if (!h.saving)
+		{
+			recreateTerrainMaps();
+		}
+	}
 
 private:
 
@@ -108,18 +118,6 @@ private:
 	std::unordered_map<std::string, const TerrainType*> terrainInfoByCode;
 	std::unordered_map<TTerrain, const TerrainType*> terrainInfoById;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & name;
+	void recreateTerrainMaps();
 
-		if (!saving)
-		{
-			//TODO: recreate at load
-		}
-		/*
-		h & terrainInfoByName;
-		h & terrainInfoByCode;
-		h & terrainInfoById;
-		*/
-	}
 };

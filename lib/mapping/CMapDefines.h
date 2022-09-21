@@ -80,7 +80,7 @@ struct DLL_LINKAGE TerrainTile
 	EDiggingStatus getDiggingStatus(const bool excludeTop = true) const;
 	bool hasFavorableWinds() const;
 
-	Terrain terType;
+	TerrainType * terType;
 	ui8 terView;
 	std::string riverType;
 	ui8 riverDir;

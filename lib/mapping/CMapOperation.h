@@ -61,7 +61,7 @@ private:
 class CDrawTerrainOperation : public CMapOperation
 {
 public:
-	CDrawTerrainOperation(CMap * map, const CTerrainSelection & terrainSel, Terrain terType, CRandomGenerator * gen);
+	CDrawTerrainOperation(CMap * map, const CTerrainSelection & terrainSel, TTerrain terType, CRandomGenerator * gen);
 
 	void execute() override;
 	void undo() override;
@@ -98,7 +98,7 @@ private:
 	ValidationResult validateTerrainViewInner(const int3 & pos, const TerrainViewPattern & pattern, int recDepth = 0) const;
 
 	CTerrainSelection terrainSel;
-	Terrain terType;
+	TTerrain terType;
 	CRandomGenerator* gen;
 	std::set<int3> invalidatedTerViews;
 };

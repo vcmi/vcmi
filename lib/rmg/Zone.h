@@ -98,8 +98,8 @@ public:
 	
 	si32 getTownType() const;
 	void setTownType(si32 town);
-	const Terrain & getTerrainType() const;
-	void setTerrainType(const Terrain & terrain);
+	TTerrain getTerrainType() const;
+	void setTerrainType(TTerrain terrain);
 		
 	void connectPath(const rmg::Path & path);
 	rmg::Path searchPath(const rmg::Area & src, bool onlyStraight, std::function<bool(const int3 &)> areafilter = AREA_NO_FILTER) const;
@@ -138,6 +138,6 @@ protected:
 	
 	//template info
 	si32 townType;
-	Terrain terrainType;
+	TTerrain terrainType;
 	
 };

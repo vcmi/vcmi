@@ -93,14 +93,14 @@ void createBorder(RmgMap & gen, Zone & zone)
 	}
 }
 
-void paintZoneTerrain(const Zone & zone, CRandomGenerator & generator, RmgMap & map, const Terrain & terrainType)
+void paintZoneTerrain(const Zone & zone, CRandomGenerator & generator, RmgMap & map, TTerrain terrain)
 {
 	auto v = zone.getArea().getTilesVector();
 	map.getEditManager()->getTerrainSelection().setSelection(v);
-	map.getEditManager()->drawTerrain(terrainType, &generator);
+	map.getEditManager()->drawTerrain(terrain, &generator);
 }
 
-int chooseRandomAppearance(CRandomGenerator & generator, si32 ObjID, const Terrain & terrain)
+int chooseRandomAppearance(CRandomGenerator & generator, si32 ObjID, TTerrain terrain)
 {
 	auto factories = VLC->objtypeh->knownSubObjects(ObjID);
 	vstd::erase_if(factories, [ObjID, &terrain](si32 f)
@@ -116,10 +116,10 @@ void initTerrainType(Zone & zone, CMapGenerator & gen)
 	if(zone.getType()==ETemplateZoneType::WATER)
 	{
 		//collect all water terrain types
-		std::vector<Terrain> waterTerrains;
-		for(auto & terrain : VLC->terrainTypeHandler::terrains())
-			if(terrain.isWater())
-				waterTerrains.push_back(terrain);
+		std::vector<TTerrain> waterTerrains;
+		for(auto & terrain : VLC->terrainTypeHandler->terrains())
+			if(terrain->isWater())
+				waterTerrains.push_back(terrain->id);
 		
 		zone.setTerrainType(*RandomGeneratorUtil::nextItem(waterTerrains, gen.rand));
 	}
@@ -141,18 +141,19 @@ void initTerrainType(Zone & zone, CMapGenerator & gen)
 				if(!vstd::contains(gen.getConfig().terrainUndergroundAllowed, zone.getTerrainType()))
 				{
 					//collect all underground terrain types
-					std::vector<Terrain> undegroundTerrains;
-					for(auto & terrain : VLC->terrainTypeHandler::terrains())
-						if(terrain.isUnderground())
-							undegroundTerrains.push_back(terrain);
+					std::vector<TTerrain> undegroundTerrains;
+					for(const auto * terrain : VLC->terrainTypeHandler->terrains())
+						if(terrain->isUnderground())
+							undegroundTerrains.push_back(terrain->id);
 					
 					zone.setTerrainType(*RandomGeneratorUtil::nextItem(undegroundTerrains, gen.rand));
 				}
 			}
 			else
 			{
-				if(vstd::contains(gen.getConfig().terrainGroundProhibit, zone.getTerrainType()) || zone.getTerrainType().isUnderground())
-					zone.setTerrainType(Terrain("dirt"));
+				const auto* terrainType = VLC->terrainTypeHandler->terrains()[zone.getTerrainType()];
+				if(vstd::contains(gen.getConfig().terrainGroundProhibit, zone.getTerrainType()) || terrainType->isUnderground())
+					zone.setTerrainType(Terrain::DIRT);
 			}
 		}
 	}
@@ -168,7 +169,7 @@ void createObstaclesCommon2(RmgMap & map, CRandomGenerator & generator)
 			for(int y = 0; y < map.map().height; y++)
 			{
 				int3 tile(x, y, 1);
-				if(!map.map().getTile(tile).terType.isPassable())
+				if(!map.map().getTile(tile).terType->isPassable())
 				{
 					map.setOccupied(tile, ETileType::USED);
 				}

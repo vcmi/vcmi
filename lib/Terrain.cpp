@@ -34,7 +34,7 @@ TerrainTypeHandler::TerrainTypeHandler()
 		JsonNode terrs(mod, ResourceID("config/terrains.json"));
 		for(auto & terr : terrs.Struct())
 		{
-			auto * info = new TerrainType(terr.first);
+			auto * info = new TerrainType(terr.first); //set name
 
 			info->moveCost = terr.second["moveCost"].Integer();
 			const JsonVector &unblockedVec = terr.second["minimapUnblocked"].Vector();
@@ -70,11 +70,15 @@ TerrainTypeHandler::TerrainTypeHandler()
 			
 			if(terr.second["rockTerrain"].isNull())
 			{
-				info->rockTerrain = "rock";
+				info->rockTerrain = Terrain::ROCK;
 			}
 			else
 			{
-				info->rockTerrain = terr.second["rockTerrain"].String();
+				auto rockTerrainType = terr.second["rockTerrain"].String();
+				resolveLater.push_back([this, rockTerrainType, info]()
+				{
+						info->rockTerrain = getInfoByName(rockTerrainType)->id;
+				});
 			}
 			
 			if(terr.second["river"].isNull())
@@ -122,7 +126,11 @@ TerrainTypeHandler::TerrainTypeHandler()
 			{
 				for(auto & t : terr.second["prohibitTransitions"].Vector())
 				{
-					info->prohibitTransitions.emplace_back(t.String());
+					std::string prohibitedTerrainName = t.String();
+					resolveLater.push_back([this, prohibitedTerrainName, info]()
+					{
+						info->prohibitTransitions.emplace_back(getInfoByName(prohibitedTerrainName)->id);
+					});
 				}
 			}
 			
@@ -138,13 +146,7 @@ TerrainTypeHandler::TerrainTypeHandler()
 				info->terrainViewPatterns = terr.second["terrainViewPatterns"].String();
 			}
 
-			//TODO: handle 10 origina terrains
-			
-			terrainInfoByName[terr.first] = info;
-			terrainInfoByCode[info->typeCode] = info;
-			terrainInfoById[info->id] = info;
-
-			TTerrain id;
+			TTerrain id = Terrain::WRONG;
 			if(!terr.second["originalTerrainId"].isNull())
 			{
 				//place in reserved slot
@@ -173,24 +175,34 @@ TerrainTypeHandler::TerrainTypeHandler()
 	}
 }
 
-const std::vector<TerrainType *> & TerrainTypeHandler::terrains()
+void TerrainTypeHandler::recreateTerrainMaps()
+{
+	for (const TerrainType * terrainInfo : objects)
+	{
+		terrainInfoByName[terrainInfo->name] = terrainInfo;
+		terrainInfoByCode[terrainInfo->typeCode] = terrainInfo;
+		terrainInfoById[terrainInfo->id] = terrainInfo;
+	}
+}
+
+const std::vector<TerrainType *> & TerrainTypeHandler::terrains() const
 {
 	return objects;
 }
 
 const TerrainType* TerrainTypeHandler::getInfoByName(const std::string& terrainName) const
 {
-
+	return terrainInfoByName.at(terrainName);
 }
 
-const TerrainType* TerrainTypeHandler::getInfoByCode(const std::string& terrainName) const
+const TerrainType* TerrainTypeHandler::getInfoByCode(const std::string& terrainCode) const
 {
-
+	return terrainInfoByCode.at(terrainCode);
 }
 
 const TerrainType* TerrainTypeHandler::getInfoById(TTerrain id) const
 {
-
+	return terrainInfoById.at(id);
 }
 
 std::ostream & operator<<(std::ostream & os, const TerrainType & terrainType)
@@ -202,10 +214,18 @@ TerrainType::operator std::string() const
 {
 	return name;
 }
-
-TerrainType::TerrainType(const std::string & _name) : name(_name)
-{}
 	
+TerrainType::TerrainType(const std::string& _name):
+	name(name),
+	id(Terrain::WRONG),
+	rockTerrain(Terrain::ROCK),
+	moveCost(100),
+	horseSoundId(0),
+	passabilityType(PassabilityType::LAND),
+	transitionRequired(false)
+{
+}
+
 TerrainType& TerrainType::operator=(const TerrainType & other)
 {
 	//TODO

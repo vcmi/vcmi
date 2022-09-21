@@ -83,7 +83,7 @@ public:
 	// Sets
 	std::vector<soundBase::soundID> pickupSounds;
 	std::vector<soundBase::soundID> battleIntroSounds;
-	std::map<Terrain, soundBase::soundID> horseSounds;
+	std::map<TTerrain, soundBase::soundID> horseSounds;
 };
 
 // Helper //now it looks somewhat useless

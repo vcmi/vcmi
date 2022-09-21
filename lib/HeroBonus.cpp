@@ -2107,9 +2107,13 @@ bool CPropagatorNodeType::shouldBeAttached(CBonusSystemNode *dest)
 }
 
 CreatureTerrainLimiter::CreatureTerrainLimiter()
-	: terrainType()
+	: terrainType(Terrain::NATIVE_TERRAIN)
 {
+}
 
+CreatureTerrainLimiter::CreatureTerrainLimiter(TTerrain terrain):
+	terrainType(terrain)
+{
 }
 
 int CreatureTerrainLimiter::limit(const BonusLimitationContext &context) const
@@ -2117,9 +2121,14 @@ int CreatureTerrainLimiter::limit(const BonusLimitationContext &context) const
 	const CStack *stack = retrieveStackBattle(&context.node);
 	if(stack)
 	{
-		if(terrainType.isNative())//terrainType not specified = native
+		if (terrainType == Terrain::NATIVE_TERRAIN)//terrainType not specified = native
+		{
 			return !stack->isOnNativeTerrain();
-		return !stack->isOnTerrain(terrainType);
+		}
+		else
+		{
+			return !stack->isOnTerrain(terrainType);
+		}
 	}
 	return true;
 	//TODO neutral creatues
@@ -2128,7 +2137,8 @@ int CreatureTerrainLimiter::limit(const BonusLimitationContext &context) const
 std::string CreatureTerrainLimiter::toString() const
 {
 	boost::format fmt("CreatureTerrainLimiter(terrainType=%s)");
-	fmt % (terrainType.isNative() ? "native" : static_cast<std::string>(terrainType));
+	auto terrainName = VLC->terrainTypeHandler->terrains()[terrainType]->name;
+	fmt % (terrainType == Terrain::NATIVE_TERRAIN ? "native" : terrainName);
 	return fmt.str();
 }
 
@@ -2137,8 +2147,8 @@ JsonNode CreatureTerrainLimiter::toJsonNode() const
 	JsonNode root(JsonNode::JsonType::DATA_STRUCT);
 
 	root["type"].String() = "CREATURE_TERRAIN_LIMITER";
-	if(!terrainType.isNative())
-		root["parameters"].Vector().push_back(JsonUtils::stringNode(terrainType));
+	auto terrainName = VLC->terrainTypeHandler->terrains()[terrainType]->name;
+	root["parameters"].Vector().push_back(JsonUtils::stringNode(terrainName));
 
 	return root;
 }

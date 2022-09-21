@@ -37,6 +37,7 @@ void CGameInfo::setFromLib()
 	spellh = VLC->spellh;
 	skillh = VLC->skillh;
 	objtypeh = VLC->objtypeh;
+	terrainTypeHandler = VLC->terrainTypeHandler;
 	battleFieldHandler = VLC->battlefieldsHandler;
 	obstacleHandler = VLC->obstacleHandler;
 }

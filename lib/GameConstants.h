@@ -834,8 +834,9 @@ ID_LIKE_OPERATORS(Obj, Obj::EObj)
 
 namespace Terrain
 {
-	enum ETerrain : TTerrain
+	enum ETerrain : si8
 	{
+		NATIVE_TERRAIN = -4,
 		ANY_TERRAIN = -3,
 		WRONG = -2,
 		BORDER = -1,
@@ -1205,7 +1206,7 @@ typedef si64 TExpType;
 typedef std::pair<si64, si64> TDmgRange;
 typedef si32 TBonusSubtype;
 typedef si32 TQuantity;
-typedef ui8 TTerrain;
+typedef si8 TTerrain;
 
 typedef int TRmgTemplateZoneId;
 

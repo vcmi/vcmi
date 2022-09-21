@@ -581,7 +581,7 @@ BattleField AObjectTypeHandler::getBattlefield() const
 	return battlefield ? BattleField::fromString(battlefield.get()) : BattleField::NONE;
 }
 
-std::vector<std::shared_ptr<const ObjectTemplate>>AObjectTypeHandler::getTemplates(const Terrain & terrainType) const
+std::vector<std::shared_ptr<const ObjectTemplate>>AObjectTypeHandler::getTemplates(TTerrain terrainType) const
 {
 	std::vector<std::shared_ptr<const ObjectTemplate>> templates = getTemplates();
 	std::vector<std::shared_ptr<const ObjectTemplate>> filtered;
@@ -598,7 +598,7 @@ std::vector<std::shared_ptr<const ObjectTemplate>>AObjectTypeHandler::getTemplat
 		return filtered;
 }
 
-std::shared_ptr<const ObjectTemplate> AObjectTypeHandler::getOverride(const Terrain & terrainType, const CGObjectInstance * object) const
+std::shared_ptr<const ObjectTemplate> AObjectTypeHandler::getOverride(TTerrain terrainType, const CGObjectInstance * object) const
 {
 	std::vector<std::shared_ptr<const ObjectTemplate>> ret = getTemplates(terrainType);
 	for (const auto & tmpl: ret)

@@ -124,7 +124,7 @@ void CMapEditManager::clearTerrain(CRandomGenerator * gen)
 	execute(make_unique<CClearTerrainOperation>(map, gen ? gen : &(this->gen)));
 }
 
-void CMapEditManager::drawTerrain(Terrain terType, CRandomGenerator * gen)
+void CMapEditManager::drawTerrain(TTerrain terType, CRandomGenerator * gen)
 {
 	execute(make_unique<CDrawTerrainOperation>(map, terrainSel, terType, gen ? gen : &(this->gen)));
 	terrainSel.clearSelection();

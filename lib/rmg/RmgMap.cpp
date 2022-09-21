@@ -82,7 +82,7 @@ void RmgMap::initTiles(CMapGenerator & generator)
 	
 	getEditManager()->clearTerrain(&generator.rand);
 	getEditManager()->getTerrainSelection().selectRange(MapRect(int3(0, 0, 0), mapGenOptions.getWidth(), mapGenOptions.getHeight()));
-	getEditManager()->drawTerrain(Terrain("grass"), &generator.rand);
+	getEditManager()->drawTerrain(Terrain::GRASS, &generator.rand);
 	
 	auto tmpl = mapGenOptions.getMapTemplate();
 	zones.clear();

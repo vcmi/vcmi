@@ -811,7 +811,7 @@ ObjectInfo::ObjectInfo()
 	
 }
 
-void ObjectInfo::setTemplate(si32 type, si32 subtype, Terrain terrainType)
+void ObjectInfo::setTemplate(si32 type, si32 subtype, TTerrain terrainType)
 {
 	auto templHandler = VLC->objtypeh->getHandlerFor(type, subtype);
 	if(!templHandler)

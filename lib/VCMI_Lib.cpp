@@ -195,6 +195,8 @@ void LibClasses::init(bool onlyEssential)
 
 	createHandler(generaltexth, "General text", pomtime);
 
+	createHandler(terrainTypeHandler, "Terrain", pomtime);
+
 	createHandler(heroh, "Hero", pomtime);
 
 	createHandler(arth, "Artifact", pomtime);

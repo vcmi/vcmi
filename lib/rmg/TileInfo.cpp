@@ -61,14 +61,14 @@ ETileType::ETileType TileInfo::getTileType() const
 	return occupied;
 }
 
-Terrain TileInfo::getTerrainType() const
+TTerrain TileInfo::getTerrainType() const
 {
 	return terrain;
 }
 
-void TileInfo::setTerrainType(Terrain value)
+void TileInfo::setTerrainType(TTerrain type)
 {
-	terrain = value;
+	terrain = type;
 }
 
 void TileInfo::setRoadType(const std::string & value)

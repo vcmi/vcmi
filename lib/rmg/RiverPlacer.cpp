@@ -91,7 +91,7 @@ void RiverPlacer::init()
 void RiverPlacer::drawRivers()
 {
 	map.getEditManager()->getTerrainSelection().setSelection(rivers.getTilesVector());
-	map.getEditManager()->drawRiver(Terrain::Manager::getInfo(zone.getTerrainType()).river, &generator.rand);
+	map.getEditManager()->drawRiver(VLC->terrainTypeHandler->terrains()[zone.getTerrainType()]->river, &generator.rand);
 }
 
 char RiverPlacer::dump(const int3 & t)
@@ -200,7 +200,7 @@ void RiverPlacer::preprocess()
 	//calculate delta positions
 	if(connectedToWaterZoneId > -1)
 	{
-		auto river = Terrain::Manager::getInfo(zone.getTerrainType()).river;
+		auto river = VLC->terrainTypeHandler->terrains()[zone.getTerrainType()]->river;
 		auto & a = neighbourZonesTiles[connectedToWaterZoneId];
 		auto availableArea = zone.areaPossible() + zone.freePaths();
 		for(auto & tileToProcess : availableArea.getTilesVector())
@@ -326,7 +326,7 @@ void RiverPlacer::preprocess()
 
 void RiverPlacer::connectRiver(const int3 & tile)
 {
-	auto river = Terrain::Manager::getInfo(zone.getTerrainType()).river;
+	auto river = VLC->terrainTypeHandler->terrains()[zone.getTerrainType()]->river;
 	if(river.empty() || river == RIVER_NAMES[0])
 		return;
 	

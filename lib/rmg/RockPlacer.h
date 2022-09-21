@@ -26,5 +26,5 @@ public:
 protected:
 	
 	rmg::Area rockArea, accessibleArea;
-	Terrain rockTerrain;
+	TTerrain rockTerrain;
 };

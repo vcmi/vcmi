@@ -70,7 +70,7 @@ public:
 	void clearTerrain(CRandomGenerator * gen = nullptr);
 
 	/// Draws terrain at the current terrain selection. The selection will be cleared automatically.
-	void drawTerrain(Terrain terType, CRandomGenerator * gen = nullptr);
+	void drawTerrain(TTerrain terType, CRandomGenerator * gen = nullptr);
 
 	/// Draws roads at the current terrain selection. The selection will be cleared automatically.
 	void drawRoad(const std::string & roadType, CRandomGenerator * gen = nullptr);

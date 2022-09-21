@@ -188,10 +188,11 @@ void CMapHandler::initTerrainGraphics()
 		}
 	};
 	
+	//TODO: use if as a key
 	std::map<std::string, std::string> terrainFiles;
-	for(auto & terrain : VLC->terrainTypeHandler::terrains())
+	for(const auto * terrain : VLC->terrainTypeHandler->terrains())
 	{
-		terrainFiles[terrain] = Terrain::Manager::getInfo(terrain).tilesFilename;
+		terrainFiles[terrain->name] = terrain->tilesFilename;
 	}
 	
 	loadFlipped(terrainAnimations, terrainImages, terrainFiles);
@@ -609,10 +610,13 @@ void CMapHandler::CMapBlitter::drawTileTerrain(SDL_Surface * targetSurf, const T
 
 	ui8 rotation = tinfo.extTileFlags % 4;
 	
-	if(parent->terrainImages[tinfo.terType].size()<=tinfo.terView)
+	//TODO: use ui8 instead of string key
+	auto terrainName = tinfo.terType->name;
+
+	if(parent->terrainImages[terrainName].size()<=tinfo.terView)
 		return;
 
-	drawElement(EMapCacheType::TERRAIN, parent->terrainImages[tinfo.terType][tinfo.terView][rotation], nullptr, targetSurf, &destRect);
+	drawElement(EMapCacheType::TERRAIN, parent->terrainImages[terrainName][tinfo.terView][rotation], nullptr, targetSurf, &destRect);
 }
 
 void CMapHandler::CMapWorldViewBlitter::init(const MapDrawingInfo * drawingInfo)
@@ -1390,7 +1394,7 @@ void CMapHandler::getTerrainDescr(const int3 & pos, std::string & out, bool isRM
 		}
 	}
 	if(!isTile2Terrain || out.empty())
-		out = CGI->generaltexth->terrainNames[t.terType];
+		out = CGI->generaltexth->terrainNames[t.terType->id];
 
 	if(t.getDiggingStatus(false) == EDiggingStatus::CAN_DIG)
 	{
