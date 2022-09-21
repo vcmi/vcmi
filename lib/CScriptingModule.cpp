@@ -11,6 +11,7 @@
 
 #include "CScriptingModule.h"
 
+#if SCRIPTING_ENABLED
 namespace scripting
 {
 
@@ -30,3 +31,4 @@ Module::Module()
 Module::~Module() = default;
 
 }
+#endif

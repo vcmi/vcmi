@@ -35,10 +35,12 @@ namespace vstd
 	class RNG;
 }
 
+#if SCRIPTING_ENABLED
 namespace scripting
 {
 	class Service;
 }
+#endif
 
 
 ///callback to be provided by server
@@ -238,7 +240,9 @@ public:
 
 	//Global environment facade
 	virtual const CreatureService * creatures() const = 0;
+#if SCRIPTING_ENABLED
 	virtual const scripting::Service * scripts() const = 0;
+#endif
 	virtual const Service * spells() const = 0;
 
 	virtual const IGameInfoCallback * game() const = 0;
@@ -296,7 +300,9 @@ public:
 	std::vector<AimType> getTargetTypes() const override;
 
 	const CreatureService * creatures() const override;
+#if SCRIPTING_ENABLED
 	const scripting::Service * scripts() const override;
+#endif
 	const Service * spells() const override;
 
 	const IGameInfoCallback * game() const override;

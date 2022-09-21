@@ -366,10 +366,12 @@ void CCallback::unregisterBattleInterface(std::shared_ptr<IBattleEventsReceiver>
 	cl->additionalBattleInts[*player] -= battleEvents;
 }
 
+#if SCRIPTING_ENABLED
 scripting::Pool * CBattleCallback::getContextPool() const
 {
 	return cl->getGlobalContextPool();
 }
+#endif
 
 CBattleCallback::CBattleCallback(boost::optional<PlayerColor> Player, CClient *C )
 {

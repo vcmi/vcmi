@@ -434,7 +434,9 @@ void CContentHandler::init()
 	handlers.insert(std::make_pair("spells", ContentTypeHandler(VLC->spellh, "spell")));
 	handlers.insert(std::make_pair("skills", ContentTypeHandler(VLC->skillh, "skill")));
 	handlers.insert(std::make_pair("templates", ContentTypeHandler((IHandlerBase *)VLC->tplh, "template")));
+#if SCRIPTING_ENABLED
 	handlers.insert(std::make_pair("scripts", ContentTypeHandler(VLC->scriptHandler, "script")));
+#endif
 	handlers.insert(std::make_pair("battlefields", ContentTypeHandler(VLC->battlefieldsHandler, "battlefield")));
 	handlers.insert(std::make_pair("obstacles", ContentTypeHandler(VLC->obstacleHandler, "obstacle")));
 	//TODO: any other types of moddables?
@@ -986,7 +988,9 @@ void CModHandler::load()
 	for(const TModID & modName : activeMods)
 		content->load(allMods[modName]);
 
+#if SCRIPTING_ENABLED
 	VLC->scriptHandler->performRegistration(VLC);//todo: this should be done before any other handlers load
+#endif
 
 	content->loadCustom();
 

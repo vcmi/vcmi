@@ -219,6 +219,10 @@ if(NOT WIN32)
 	endif()
 endif()
 
+if(ENABLE_LUA)
+	add_compile_definitions(SCRIPTING_ENABLED=1)
+endif()
+
 ############################################
 #        Finding packages                  #
 ############################################

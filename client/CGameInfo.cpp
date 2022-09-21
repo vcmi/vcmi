@@ -71,10 +71,12 @@ const HeroTypeService * CGameInfo::heroTypes() const
 	return globalServices->heroTypes();
 }
 
+#if SCRIPTING_ENABLED
 const scripting::Service * CGameInfo::scripts()  const
 {
 	return globalServices->scripts();
 }
+#endif
 
 const spells::Service * CGameInfo::spells()  const
 {
