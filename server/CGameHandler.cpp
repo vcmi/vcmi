@@ -1159,8 +1159,6 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 		blm.lines.push_back(std::move(text));
 	}
 
-	sendAndApply(&blm);
-
 	if(!fireShield.empty())
 	{
 		//todo: this should be "virtual" spell instead, we only need fire spell school bonus here
@@ -1199,8 +1197,19 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 		StacksInjured pack;
 		pack.stacks.push_back(bsa);
 		sendAndApply(&pack);
-		sendGenericKilledLog(attacker, bsa.killedAmount, false);
+
+		// TODO: this is already implemented in Damage::describeEffect()
+		{
+			MetaString text;
+			text.addTxt(MetaString::GENERAL_TXT, 376);
+			text.addReplacement(MetaString::SPELL_NAME, SpellID::FIRE_SHIELD);
+			text.addReplacement(totalDamage);
+			blm.lines.push_back(std::move(text));
+		}
+		addGenericKilledLog(blm, attacker, bsa.killedAmount, false);
 	}
+
+	sendAndApply(&blm);
 
 	handleAfterAttackCasting(ranged, attacker, defender);
 }
