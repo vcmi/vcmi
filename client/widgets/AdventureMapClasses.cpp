@@ -391,7 +391,7 @@ const SDL_Color & CMinimapInstance::getTileColor(const int3 & pos)
 	}
 
 	// else - use terrain color (blocked version or normal)
-	auto colorPair = parent->colors.find(tile->terType->id)->second;
+	const auto & colorPair = parent->colors.find(tile->terType->id)->second;
 	if (tile->blocked && (!tile->visitable))
 		return colorPair.second;
 	else
@@ -500,7 +500,7 @@ std::map<TTerrain, std::pair<SDL_Color, SDL_Color> > CMinimap::loadColors()
 {
 	std::map<TTerrain, std::pair<SDL_Color, SDL_Color> > ret;
 
-	for(const auto * terrain : VLC->terrainTypeHandler->terrains())
+	for(const auto * terrain : CGI->terrainTypeHandler->terrains())
 	{
 		SDL_Color normal =
 		{
