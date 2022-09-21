@@ -98,10 +98,9 @@ ui32 CGHeroInstance::getTileCost(const TerrainTile & dest, const TerrainTile & f
 			break;
 		}
 	}
-	else if(ti->nativeTerrain->id != from.terType->id //the terrain is not native
-		&& ti->nativeTerrain != nullptr //no special creature bonus
-		&& !ti->hasBonusOfType(Bonus::NO_TERRAIN_PENALTY, from.terType->id) //no special movement bonus
-		)
+	else if(ti->nativeTerrain != from.terType->id &&//the terrain is not native
+			ti->nativeTerrain != Terrain::ANY_TERRAIN && //no special creature bonus
+			!ti->hasBonusOfType(Bonus::NO_TERRAIN_PENALTY, from.terType->id)) //no special movement bonus
 	{
 
 		ret = VLC->heroh->terrCosts[from.terType->id];
@@ -128,7 +127,7 @@ TTerrain CGHeroInstance::getNativeTerrain() const
 
 		if(stackNativeTerrain == Terrain::BORDER) //where does this value come from?
 			continue;
-		if(nativeTerrain == Terrain::BORDER) //FIXME: this statement is always true
+		if(nativeTerrain == Terrain::BORDER)
 			nativeTerrain = stackNativeTerrain;
 		else if(nativeTerrain != stackNativeTerrain)
 			return Terrain::BORDER;

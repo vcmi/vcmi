@@ -1027,7 +1027,7 @@ TurnInfo::TurnInfo(const CGHeroInstance * Hero, const int turn)
 {
 	bonuses = hero->getAllBonuses(Selector::days(turn), Selector::all, nullptr, "");
 	bonusCache = make_unique<BonusCache>(bonuses);
-	nativeTerrain = VLC->terrainTypeHandler->terrains()[hero->getNativeTerrain()];
+	nativeTerrain = hero->getNativeTerrain();
 }
 
 bool TurnInfo::isLayerAvailable(const EPathfindingLayer layer) const

@@ -523,7 +523,7 @@ struct DLL_LINKAGE TurnInfo
 	TConstBonusListPtr bonuses;
 	mutable int maxMovePointsLand;
 	mutable int maxMovePointsWater;
-	const TerrainType * nativeTerrain;
+	TTerrain nativeTerrain;
 
 	TurnInfo(const CGHeroInstance * Hero, const int Turn = 0);
 	bool isLayerAvailable(const EPathfindingLayer layer) const;
