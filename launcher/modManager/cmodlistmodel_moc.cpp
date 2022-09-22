@@ -245,6 +245,7 @@ bool CModFilterModel::filterMatchesThis(const QModelIndex & source) const
 {
 	CModEntry mod = base->getMod(source.data(ModRoles::ModNameRole).toString());
 	return (mod.getModStatus() & filterMask) == filteredType &&
+			mod.isValid() &&
 	       QSortFilterProxyModel::filterAcceptsRow(source.row(), source.parent());
 }
 
