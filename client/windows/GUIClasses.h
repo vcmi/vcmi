@@ -9,13 +9,13 @@
  */
 #pragma once
 
+#include "CWindowObject.h"
 #include "../lib/GameConstants.h"
 #include "../lib/ResourceSet.h"
 #include "../lib/CConfigHandler.h"
 #include "../widgets/CArtifactHolder.h"
 #include "../widgets/CGarrisonInt.h"
 #include "../widgets/Images.h"
-#include "../windows/CWindowObject.h"
 
 class CGDwelling;
 class CreatureCostBox;

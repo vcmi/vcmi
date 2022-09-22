@@ -10,10 +10,11 @@
 #include "StdInc.h"
 #include "CAnimation.h"
 
+#include "SDL_Extensions.h"
+#include "SDL_Pixels.h"
+
 #include "../CBitmapHandler.h"
 #include "../Graphics.h"
-#include "../gui/SDL_Extensions.h"
-#include "../gui/SDL_Pixels.h"
 
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/filesystem/ISimpleResourceLoader.h"

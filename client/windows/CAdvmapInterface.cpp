@@ -14,8 +14,9 @@
 #include "CHeroWindow.h"
 #include "CKingdomInterface.h"
 #include "CSpellWindow.h"
-#include "GUIClasses.h"
 #include "CTradeWindow.h"
+#include "GUIClasses.h"
+#include "InfoWindows.h"
 
 #include "../CBitmapHandler.h"
 #include "../CGameInfo.h"
@@ -35,7 +36,6 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/SDL_Extensions.h"
 #include "../widgets/MiscWidgets.h"
-#include "../windows/InfoWindows.h"
 
 #include "../../CCallback.h"
 
@@ -1217,7 +1217,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 			if(itr != LOCPLINT->towns.end())
 				LOCPLINT->showThievesGuildWindow(*itr);
 			else
-				LOCPLINT->showInfoDialog("No available town with tavern!");
+				LOCPLINT->showInfoDialog(CGI->generaltexth->localizedTexts["adventureMap"]["noTownWithTavern"].String());
 		}
 		return;
 	case SDLK_i:
@@ -1249,7 +1249,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 	case SDLK_r:
 		if(isActive() && LOCPLINT->ctrlPressed())
 		{
-			LOCPLINT->showYesNoDialog("Are you sure you want to restart game?",
+			LOCPLINT->showYesNoDialog(CGI->generaltexth->localizedTexts["adventureMap"]["confirmRestartGame"].String(),
 				[](){ LOCPLINT->sendCustomEvent(EUserEvent::RESTART_GAME); }, nullptr);
 		}
 		return;
@@ -1308,7 +1308,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 				if(townWithMarket) //if any town has marketplace, open window
 					GH.pushIntT<CMarketplaceWindow>(townWithMarket);
 				else //if not - complain
-					LOCPLINT->showInfoDialog("No available marketplace!");
+					LOCPLINT->showInfoDialog(CGI->generaltexth->localizedTexts["adventureMap"]["noTownWithMarket"].String());
 			}
 			else if(isActive()) //no ctrl, advmapint is on the top => switch to town
 			{

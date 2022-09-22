@@ -15,6 +15,7 @@
 #include "CCreatureWindow.h"
 #include "CHeroWindow.h"
 #include "CreatureCostBox.h"
+#include "InfoWindows.h"
 
 #include "../CBitmapHandler.h"
 #include "../CGameInfo.h"
@@ -36,7 +37,6 @@
 
 #include "../widgets/CComponent.h"
 #include "../widgets/MiscWidgets.h"
-#include "../windows/InfoWindows.h"
 
 #include "../lobby/CSavingScreen.h"
 

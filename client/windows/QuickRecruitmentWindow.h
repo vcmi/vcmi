@@ -31,11 +31,11 @@ private:
 	void setBuyButton();
 	void setMaxButton();
 
-	void setCreaturePurhaseCards();
+	void setCreaturePurchaseCards();
 
 	void maxAllCards(std::vector<std::shared_ptr<CreaturePurchaseCard>> cards);
 	void maxAllSlidersAmount(std::vector<std::shared_ptr<CreaturePurchaseCard>> cards);
-	void purhaseUnits();
+	void purchaseUnits();
 
 	const CGTownInstance * town;
 	std::shared_ptr<CButton> maxButton, buyButton, cancelButton;
