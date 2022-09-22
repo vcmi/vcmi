@@ -11,6 +11,7 @@
 
 #include "ScriptHandler.h"
 
+#if SCRIPTING_ENABLED
 #include <vcmi/Services.h>
 #include <vcmi/Environment.h>
 
@@ -311,3 +312,4 @@ void ScriptHandler::saveState(JsonNode & state)
 
 
 }
+#endif

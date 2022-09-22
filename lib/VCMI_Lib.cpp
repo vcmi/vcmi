@@ -82,10 +82,12 @@ const HeroTypeService * LibClasses::heroTypes() const
 	return heroh;
 }
 
+#if SCRIPTING_ENABLED
 const scripting::Service * LibClasses::scripts() const
 {
 	return scriptHandler;
 }
+#endif
 
 const spells::Service * LibClasses::spells() const
 {
@@ -215,7 +217,9 @@ void LibClasses::init(bool onlyEssential)
 
 	createHandler(tplh, "Template", pomtime); //templates need already resolved identifiers (refactor?)
 
+#if SCRIPTING_ENABLED
 	createHandler(scriptHandler, "Script", pomtime);
+#endif
 
 	createHandler(battlefieldsHandler, "Battlefields", pomtime);
 	
@@ -246,7 +250,9 @@ void LibClasses::clear()
 	delete bth;
 	delete tplh;
 	delete terviewh;
+#if SCRIPTING_ENABLED
 	delete scriptHandler;
+#endif
 	delete battlefieldsHandler;
 	makeNull();
 }
@@ -266,7 +272,9 @@ void LibClasses::makeNull()
 	bth = nullptr;
 	tplh = nullptr;
 	terviewh = nullptr;
+#if SCRIPTING_ENABLED
 	scriptHandler = nullptr;
+#endif
 	battlefieldsHandler = nullptr;
 }
 
@@ -287,10 +295,12 @@ void LibClasses::callWhenDeserializing()
 	//modh->loadConfigFromFile ("defaultMods"); //TODO: remember last saved config
 }
 
+#if SCRIPTING_ENABLED
 void LibClasses::scriptsLoaded()
 {
 	scriptHandler->performRegistration(this);
 }
+#endif
 
 LibClasses::~LibClasses()
 {

@@ -16,7 +16,9 @@
 #include "../../lib/CStack.h"
 #include "../../lib/ScriptHandler.h"
 
+#if SCRIPTING_ENABLED
 using scripting::Pool;
+#endif
 
 void actualizeEffect(TBonusListPtr target, const Bonus & ef)
 {
@@ -217,7 +219,9 @@ HypotheticBattle::HypotheticBattle(const Environment * ENV, Subject realBattle)
 	localEnvironment.reset(new HypotheticEnvironment(this, env));
 	serverCallback.reset(new HypotheticServerCallback(this));
 
+#if SCRIPTING_ENABLED
 	pool.reset(new scripting::PoolImpl(localEnvironment.get(), serverCallback.get()));
+#endif
 }
 
 bool HypotheticBattle::unitHasAmmoCart(const battle::Unit * unit) const
@@ -420,10 +424,12 @@ int64_t HypotheticBattle::getTreeVersion() const
 	return getBattleNode()->getTreeVersion() + bonusTreeVersion;
 }
 
+#if SCRIPTING_ENABLED
 Pool * HypotheticBattle::getContextPool() const
 {
 	return pool.get();
 }
+#endif
 
 ServerCallback * HypotheticBattle::getServerCallback()
 {

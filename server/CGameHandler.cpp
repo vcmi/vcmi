@@ -1652,7 +1652,9 @@ CGameHandler::~CGameHandler()
 void CGameHandler::reinitScripting()
 {
 	serverEventBus = make_unique<events::EventBus>();
+#if SCRIPTING_ENABLED
 	serverScripts.reset(new scripting::PoolImpl(this, spellEnv));
+#endif
 }
 
 void CGameHandler::init(StartInfo *si)
@@ -2112,7 +2114,9 @@ void CGameHandler::run(bool resume)
 		logGlobal->info(sbuffer.str());
 	}
 
+#if SCRIPTING_ENABLED
 	services()->scripts()->run(serverScripts);
+#endif
 
 	if(resume)
 		events::GameResumed::defaultExecute(serverEventBus.get());
@@ -7319,15 +7323,17 @@ CRandomGenerator & CGameHandler::getRandomGenerator()
 	return CRandomGenerator::getDefault();
 }
 
+#if SCRIPTING_ENABLED
 scripting::Pool * CGameHandler::getGlobalContextPool() const
 {
 	return serverScripts.get();
 }
 
-scripting::Pool *  CGameHandler::getContextPool() const
+scripting::Pool * CGameHandler::getContextPool() const
 {
 	return serverScripts.get();
 }
+#endif
 
 const ObjectInstanceID CGameHandler::putNewObject(Obj ID, int subID, int3 pos)
 {

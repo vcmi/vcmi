@@ -144,7 +144,9 @@ public:
 	ui8 whatSide(PlayerColor player) const;
 
 protected:
+#if SCRIPTING_ENABLED
 	scripting::Pool * getContextPool() const override;
+#endif
 };
 
 

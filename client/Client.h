@@ -39,10 +39,12 @@ namespace boost { class thread; }
 template<typename T> class CApplier;
 class CBaseForCLApply;
 
+#if SCRIPTING_ENABLED
 namespace scripting
 {
 	class PoolImpl;
 }
+#endif
 
 namespace events
 {
@@ -233,13 +235,18 @@ public:
 	void showInfoDialog(InfoWindow * iw) override {};
 	void showInfoDialog(const std::string & msg, PlayerColor player) override {};
 
+#if SCRIPTING_ENABLED
 	scripting::Pool * getGlobalContextPool() const override;
 	scripting::Pool * getContextPool() const override;
+#endif
+
 private:
 	std::map<PlayerColor, std::shared_ptr<CBattleCallback>> battleCallbacks; //callbacks given to player interfaces
 	std::map<PlayerColor, std::shared_ptr<CPlayerEnvironment>> playerEnvironments;
 
+#if SCRIPTING_ENABLED
 	std::shared_ptr<scripting::PoolImpl> clientScripts;
+#endif
 	std::unique_ptr<events::EventBus> clientEventBus;
 
 	std::shared_ptr<CApplier<CBaseForCLApply>> applier;

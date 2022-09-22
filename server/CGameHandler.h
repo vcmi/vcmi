@@ -34,10 +34,12 @@ class IMarket;
 
 class SpellCastEnvironment;
 
+#if SCRIPTING_ENABLED
 namespace scripting
 {
 	class PoolImpl;
 }
+#endif
 
 
 template<typename T> class CApplier;
@@ -274,12 +276,14 @@ public:
 		h & finishingBattle;
 		h & getRandomGenerator();
 
+#if SCRIPTING_ENABLED
 		JsonNode scriptsState;
 		if(h.saving)
 			serverScripts->serializeState(h.saving, scriptsState);
 		h & scriptsState;
 		if(!h.saving)
 			serverScripts->serializeState(h.saving, scriptsState);
+#endif
 	}
 
 	void sendMessageToAll(const std::string &message);
@@ -326,13 +330,17 @@ public:
 
 	CRandomGenerator & getRandomGenerator();
 
+#if SCRIPTING_ENABLED
 	scripting::Pool * getGlobalContextPool() const override;
 	scripting::Pool * getContextPool() const override;
+#endif
 
 	friend class CVCMIServer;
 private:
 	std::unique_ptr<events::EventBus> serverEventBus;
+#if SCRIPTING_ENABLED
 	std::shared_ptr<scripting::PoolImpl> serverScripts;
+#endif
 
 	void reinitScripting();
 

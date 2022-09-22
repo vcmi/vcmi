@@ -9,6 +9,7 @@
  */
 #pragma once
 
+#if SCRIPTING_ENABLED
 #include <vcmi/scripting/Service.h>
 
 namespace spells
@@ -45,3 +46,4 @@ public:
 };
 
 }
+#endif

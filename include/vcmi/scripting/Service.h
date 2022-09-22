@@ -10,6 +10,7 @@
 
 #pragma once
 
+#if SCRIPTING_ENABLED
 #include <vcmi/Environment.h>
 
 class Services;
@@ -78,3 +79,4 @@ public:
 
 
 }
+#endif

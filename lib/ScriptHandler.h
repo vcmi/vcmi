@@ -10,6 +10,7 @@
 
 #pragma once
 
+#if SCRIPTING_ENABLED
 #include <vcmi/scripting/Service.h>
 #include "IHandlerBase.h"
 #include "JsonNode.h"
@@ -131,3 +132,4 @@ private:
 };
 
 }
+#endif

@@ -23,13 +23,6 @@ struct CObstacleInstance;
 class IBonusBearer;
 class CRandomGenerator;
 
-namespace scripting
-{
-	class Context;
-	class Pool;
-	class Script;
-}
-
 namespace spells
 {
 	class Caster;
