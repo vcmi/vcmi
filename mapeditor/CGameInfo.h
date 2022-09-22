@@ -59,7 +59,9 @@ public:
 	const FactionService * factions() const override;
 	const HeroClassService * heroClasses() const override;
 	const HeroTypeService * heroTypes() const override;
+#if SCRIPTING_ENABLED
 	const scripting::Service * scripts() const override;
+#endif
 	const spells::Service * spells() const override;
 	const SkillService * skills() const override;
 	const ObstacleService * obstacles() const override;
