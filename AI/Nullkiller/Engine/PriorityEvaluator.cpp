@@ -122,7 +122,7 @@ uint64_t getCreatureBankArmyReward(const CGObjectInstance * target, const CGHero
 	{
 		//No free slot, we might discard our weakest stack
 		weakestStackPower = std::numeric_limits<ui64>().max();
-		for (const auto stack : slots)
+		for (const auto & stack : slots)
 		{
 			vstd::amin(weakestStackPower, stack.second->getPower());
 		}

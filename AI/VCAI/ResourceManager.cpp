@@ -121,7 +121,7 @@ Goals::TSubgoal ResourceManager::collectResourcesForOurGoal(ResourceObjective &o
 	}
 
 	float goalPriority = 10; //arbitrary, will be divided
-	for (const resPair & p : missingResources)
+	for (const resPair p : missingResources)
 	{
 		if (!income[p.first]) //prioritize resources with 0 income
 		{
