@@ -126,10 +126,12 @@ std::shared_ptr<CBattleGameInterface> CDynLibHandler::getNewBattleAI(std::string
 	return createAnyAI<CBattleGameInterface>(dllname, "GetNewBattleAI");
 }
 
+#if SCRIPTING_ENABLED
 std::shared_ptr<scripting::Module> CDynLibHandler::getNewScriptingModule(const boost::filesystem::path & dllname)
 {
 	return createAny<scripting::Module>(dllname, "GetNewModule");
 }
+#endif
 
 BattleAction CGlobalAI::activeStack(const CStack * stack)
 {

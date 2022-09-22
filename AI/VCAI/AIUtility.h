@@ -18,6 +18,7 @@
 #include "../../lib/mapObjects/CObjectHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/CPathfinder.h"
+#include "../../CCallback.h"
 
 class CCallback;
 struct creInfo;
@@ -33,6 +34,8 @@ const int ALLOWED_ROAMING_HEROES = 8;
 //implementation-dependent
 extern const double SAFE_ATTACK_CONSTANT;
 extern const int GOLD_RESERVE;
+
+extern boost::thread_specific_ptr<CCallback> cb;
 
 //provisional class for AI to store a reference to an owned hero object
 //checks if it's valid on access, should be used in place of const CGHeroInstance*
@@ -154,10 +157,62 @@ struct creInfo
 };
 creInfo infoFromDC(const dwellingContent & dc);
 
-void foreach_tile_pos(std::function<void(const int3 & pos)> foo);
-void foreach_tile_pos(CCallback * cbp, std::function<void(CCallback * cbp, const int3 & pos)> foo); // avoid costly retrieval of thread-specific pointer
-void foreach_neighbour(const int3 & pos, std::function<void(const int3 & pos)> foo);
-void foreach_neighbour(CCallback * cbp, const int3 & pos, std::function<void(CCallback * cbp, const int3 & pos)> foo); // avoid costly retrieval of thread-specific pointer
+template<class Func>
+void foreach_tile_pos(const Func & foo)
+{
+	// some micro-optimizations since this function gets called a LOT
+	// callback pointer is thread-specific and slow to retrieve -> read map size only once
+	int3 mapSize = cb->getMapSize();
+	for(int z = 0; z < mapSize.z; z++)
+	{
+		for(int x = 0; x < mapSize.x; x++)
+		{
+			for(int y = 0; y < mapSize.y; y++)
+			{
+				foo(int3(x, y, z));
+			}
+		}
+	}
+}
+
+template<class Func>
+void foreach_tile_pos(CCallback * cbp, const Func & foo) // avoid costly retrieval of thread-specific pointer
+{
+	int3 mapSize = cbp->getMapSize();
+	for(int z = 0; z < mapSize.z; z++)
+	{
+		for(int x = 0; x < mapSize.x; x++)
+		{
+			for(int y = 0; y < mapSize.y; y++)
+			{
+				foo(cbp, int3(x, y, z));
+			}
+		}
+	}
+}
+
+template<class Func>
+void foreach_neighbour(const int3 & pos, const Func & foo)
+{
+	CCallback * cbp = cb.get(); // avoid costly retrieval of thread-specific pointer
+	for(const int3 & dir : int3::getDirs())
+	{
+		const int3 n = pos + dir;
+		if(cbp->isInTheMap(n))
+			foo(pos + dir);
+	}
+}
+
+template<class Func>
+void foreach_neighbour(CCallback * cbp, const int3 & pos, const Func & foo) // avoid costly retrieval of thread-specific pointer
+{
+	for(const int3 & dir : int3::getDirs())
+	{
+		const int3 n = pos + dir;
+		if(cbp->isInTheMap(n))
+			foo(cbp, pos + dir);
+	}
+}
 
 bool canBeEmbarkmentPoint(const TerrainTile * t, bool fromWater);
 bool isBlockedBorderGate(int3 tileToHit);

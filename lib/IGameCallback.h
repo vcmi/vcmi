@@ -27,12 +27,13 @@ class CStackBasicDescriptor;
 class CGCreature;
 struct ShashInt3;
 
+#if SCRIPTING_ENABLED
 namespace scripting
 {
-	class Context;
 	class Pool;
-	class Script;
 }
+#endif
+
 
 class DLL_LINKAGE CPrivilegedInfoCallback : public CGameInfoCallback
 {
@@ -132,7 +133,9 @@ class DLL_LINKAGE IGameCallback : public CPrivilegedInfoCallback, public IGameEv
 public:
 	virtual ~IGameCallback(){};
 
+#if SCRIPTING_ENABLED
 	virtual scripting::Pool * getGlobalContextPool() const = 0;
+#endif
 
 	//get info
 	virtual bool isVisitCoveredByAnotherQuery(const CGObjectInstance *obj, const CGHeroInstance *hero);

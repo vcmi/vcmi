@@ -21,6 +21,9 @@ public:
 	// Path to writeable directory with user configs
 	virtual boost::filesystem::path userConfigPath() const = 0;
 
+	// Path to writeable directory to store log files
+	virtual boost::filesystem::path userLogsPath() const;
+
 	// Path to saved games
 	virtual boost::filesystem::path userSavePath() const;
 
@@ -49,7 +52,7 @@ public:
 	// virtual std::string libraryName(const char* basename) const = 0; ?
 	// virtual std::string libraryName(std::string&& basename) const = 0;?
 
-	virtual std::string genHelpString() const = 0;
+	virtual std::string genHelpString() const;
 
 	// Creates not existed, but required directories.
 	// Updates directories what change name/path between versions.

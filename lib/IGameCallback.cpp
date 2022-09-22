@@ -38,14 +38,13 @@
 void CPrivilegedInfoCallback::getFreeTiles(std::vector<int3> & tiles) const
 {
 	std::vector<int> floors;
-	for (int b = 0; b < (gs->map->twoLevel ? 2 : 1); ++b)
+	for(int b = 0; b < gs->map->levels(); ++b)
 	{
 		floors.push_back(b);
 	}
 	const TerrainTile *tinfo;
 	for (auto zd : floors)
 	{
-
 		for (int xd = 0; xd < gs->map->width; xd++)
 		{
 			for (int yd = 0; yd < gs->map->height; yd++)
@@ -80,8 +79,8 @@ void CPrivilegedInfoCallback::getTilesInRange(std::unordered_set<int3, ShashInt3
 				if(distance <= radious)
 				{
 					if(!player
-						|| (mode == 1  && team->fogOfWarMap[xd][yd][pos.z]==0)
-						|| (mode == -1 && team->fogOfWarMap[xd][yd][pos.z]==1)
+						|| (mode == 1  && (*team->fogOfWarMap)[pos.z][xd][yd] == 0)
+						|| (mode == -1 && (*team->fogOfWarMap)[pos.z][xd][yd] == 1)
 					)
 						tiles.insert(int3(xd,yd,pos.z));
 				}
@@ -103,7 +102,7 @@ void CPrivilegedInfoCallback::getAllTiles(std::unordered_set<int3, ShashInt3> & 
 	std::vector<int> floors;
 	if(level == -1)
 	{
-		for(int b = 0; b < (gs->map->twoLevel ? 2 : 1); ++b)
+		for(int b = 0; b < gs->map->levels(); ++b)
 		{
 			floors.push_back(b);
 		}

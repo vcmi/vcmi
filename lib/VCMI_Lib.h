@@ -32,10 +32,13 @@ class CTerrainViewPatternConfig;
 class CRmgTemplateStorage;
 class IHandlerBase;
 
+#if SCRIPTING_ENABLED
 namespace scripting
 {
 	class ScriptHandler;
 }
+#endif
+
 
 /// Loads and constructs several handlers
 class DLL_LINKAGE LibClasses : public Services
@@ -55,7 +58,9 @@ public:
 	const FactionService * factions() const override;
 	const HeroClassService * heroClasses() const override;
 	const HeroTypeService * heroTypes() const override;
+#if SCRIPTING_ENABLED
 	const scripting::Service * scripts() const override;
+#endif
 	const spells::Service * spells() const override;
 	const SkillService * skills() const override;
 	const BattleFieldService * battlefields() const override;
@@ -82,7 +87,9 @@ public:
 	CRmgTemplateStorage * tplh;
 	BattleFieldHandler * battlefieldsHandler;
 	ObstacleHandler * obstacleHandler;
+#if SCRIPTING_ENABLED
 	scripting::ScriptHandler * scriptHandler;
+#endif
 
 	LibClasses(); //c-tor, loads .lods and NULLs handlers
 	~LibClasses();
@@ -92,15 +99,19 @@ public:
 
 	void loadFilesystem(bool onlyEssential);// basic initialization. should be called before init()
 
+#if SCRIPTING_ENABLED
 	void scriptsLoaded();
+#endif
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+#if SCRIPTING_ENABLED
 		h & scriptHandler;//must be first (or second after modh), it can modify factories other handlers depends on
 		if(!h.saving)
 		{
 			scriptsLoaded();
 		}
+#endif
 
 		h & heroh;
 		h & arth;

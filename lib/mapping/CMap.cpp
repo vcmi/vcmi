@@ -228,7 +228,11 @@ CMapHeader::CMapHeader() : version(EMapFormat::SOD), height(72), width(72),
 
 CMapHeader::~CMapHeader()
 {
+}
 
+ui8 CMapHeader::levels() const
+{
+	return (twoLevel ? 2 : 1);
 }
 
 CMap::CMap()
@@ -246,15 +250,15 @@ CMap::~CMap()
 {
 	if(terrain)
 	{
-		for (int i=0; i<width; i++)
+		for(int z = 0; z < levels(); z++)
 		{
-			for(int j=0; j<height; j++)
+			for(int x = 0; x < width; x++)
 			{
-				delete [] terrain[i][j];
-				delete [] guardingCreaturePositions[i][j];
+				delete[] terrain[z][x];
+				delete[] guardingCreaturePositions[z][x];
 			}
-			delete [] terrain[i];
-			delete [] guardingCreaturePositions[i];
+			delete[] terrain[z];
+			delete[] guardingCreaturePositions[z];
 		}
 		delete [] terrain;
 		delete [] guardingCreaturePositions;
@@ -271,16 +275,16 @@ CMap::~CMap()
 
 void CMap::removeBlockVisTiles(CGObjectInstance * obj, bool total)
 {
-	for(int fx=0; fx<obj->getWidth(); ++fx)
+	const int zVal = obj->pos.z;
+	for(int fx = 0; fx < obj->getWidth(); ++fx)
 	{
-		for(int fy=0; fy<obj->getHeight(); ++fy)
+		int xVal = obj->pos.x - fx;
+		for(int fy = 0; fy < obj->getHeight(); ++fy)
 		{
-			int xVal = obj->pos.x - fx;
 			int yVal = obj->pos.y - fy;
-			int zVal = obj->pos.z;
-			if(xVal>=0 && xVal<width && yVal>=0 && yVal<height)
+			if(xVal>=0 && xVal < width && yVal>=0 && yVal < height)
 			{
-				TerrainTile & curt = terrain[xVal][yVal][zVal];
+				TerrainTile & curt = terrain[zVal][xVal][yVal];
 				if(total || obj->visitableAt(xVal, yVal))
 				{
 					curt.visitableObjects -= obj;
@@ -298,22 +302,22 @@ void CMap::removeBlockVisTiles(CGObjectInstance * obj, bool total)
 
 void CMap::addBlockVisTiles(CGObjectInstance * obj)
 {
-	for(int fx=0; fx<obj->getWidth(); ++fx)
+	const int zVal = obj->pos.z;
+	for(int fx = 0; fx < obj->getWidth(); ++fx)
 	{
-		for(int fy=0; fy<obj->getHeight(); ++fy)
+		int xVal = obj->pos.x - fx;
+		for(int fy = 0; fy < obj->getHeight(); ++fy)
 		{
-			int xVal = obj->pos.x - fx;
 			int yVal = obj->pos.y - fy;
-			int zVal = obj->pos.z;
-			if(xVal>=0 && xVal<width && yVal>=0 && yVal<height)
+			if(xVal>=0 && xVal < width && yVal >= 0 && yVal < height)
 			{
-				TerrainTile & curt = terrain[xVal][yVal][zVal];
-				if( obj->visitableAt(xVal, yVal))
+				TerrainTile & curt = terrain[zVal][xVal][yVal];
+				if(obj->visitableAt(xVal, yVal))
 				{
 					curt.visitableObjects.push_back(obj);
 					curt.visitable = true;
 				}
-				if( obj->blockingAt(xVal, yVal))
+				if(obj->blockingAt(xVal, yVal))
 				{
 					curt.blockingObjects.push_back(obj);
 					curt.blocked = true;
@@ -326,12 +330,14 @@ void CMap::addBlockVisTiles(CGObjectInstance * obj)
 void CMap::calculateGuardingGreaturePositions()
 {
 	int levels = twoLevel ? 2 : 1;
-	for (int i=0; i<width; i++)
+	for(int z = 0; z < levels; z++)
 	{
-		for(int j=0; j<height; j++)
+		for(int x = 0; x < width; x++)
 		{
-			for (int k = 0; k < levels; k++)
-				guardingCreaturePositions[i][j][k] = guardingCreaturePosition(int3(i,j,k));
+			for(int y = 0; y < height; y++)
+			{
+				guardingCreaturePositions[z][x][y] = guardingCreaturePosition(int3(x, y, z));
+			}
 		}
 	}
 }
@@ -389,13 +395,13 @@ bool CMap::isInTheMap(const int3 & pos) const
 TerrainTile & CMap::getTile(const int3 & tile)
 {
 	assert(isInTheMap(tile));
-	return terrain[tile.x][tile.y][tile.z];
+	return terrain[tile.z][tile.x][tile.y];
 }
 
 const TerrainTile & CMap::getTile(const int3 & tile) const
 {
 	assert(isInTheMap(tile));
-	return terrain[tile.x][tile.y][tile.z];
+	return terrain[tile.z][tile.x][tile.y];
 }
 
 bool CMap::isWaterTile(const int3 &pos) const
@@ -679,17 +685,17 @@ void CMap::removeObject(CGObjectInstance * obj)
 
 void CMap::initTerrain()
 {
-	int level = twoLevel ? 2 : 1;
-	terrain = new TerrainTile**[width];
-	guardingCreaturePositions = new int3**[width];
-	for (int i = 0; i < width; ++i)
+	int level = levels();
+	terrain = new TerrainTile**[level];
+	guardingCreaturePositions = new int3**[level];
+	for(int z = 0; z < level; ++z)
 	{
-		terrain[i] = new TerrainTile*[height];
-		guardingCreaturePositions[i] = new int3*[height];
-		for (int j = 0; j < height; ++j)
+		terrain[z] = new TerrainTile*[width];
+		guardingCreaturePositions[z] = new int3*[width];
+		for(int x = 0; x < width; ++x)
 		{
-			terrain[i][j] = new TerrainTile[level];
-			guardingCreaturePositions[i][j] = new int3[level];
+			terrain[z][x] = new TerrainTile[height];
+			guardingCreaturePositions[z][x] = new int3[height];
 		}
 	}
 }

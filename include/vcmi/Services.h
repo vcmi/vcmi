@@ -32,10 +32,12 @@ namespace spells
 	}
 }
 
+#if SCRIPTING_ENABLED
 namespace scripting
 {
 	class Service;
 }
+#endif
 
 class DLL_LINKAGE Services
 {
@@ -47,7 +49,9 @@ public:
 	virtual const FactionService * factions() const = 0;
 	virtual const HeroClassService * heroClasses() const = 0;
 	virtual const HeroTypeService * heroTypes() const = 0;
+#if SCRIPTING_ENABLED
 	virtual const scripting::Service * scripts() const = 0;
+#endif
 	virtual const spells::Service * spells() const = 0;
 	virtual const SkillService * skills() const = 0;
 	virtual const BattleFieldService * battlefields() const = 0;

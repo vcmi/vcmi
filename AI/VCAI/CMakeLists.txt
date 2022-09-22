@@ -17,8 +17,6 @@ set(VCAI_SRCS
 		ArmyManager.cpp
 		ResourceManager.cpp
 		BuildingManager.cpp
-		SectorMap.cpp
-		BuildingManager.cpp
 		MapObjectsEvaluator.cpp
 		FuzzyEngines.cpp
 		FuzzyHelper.cpp
@@ -67,8 +65,6 @@ set(VCAI_HEADERS
 		AIhelper.h
 		ArmyManager.h
 		ResourceManager.h
-		BuildingManager.h
-		SectorMap.h
 		BuildingManager.h
 		MapObjectsEvaluator.h
 		FuzzyEngines.h

@@ -522,10 +522,15 @@ CStack * BattleInfo::getStack(int stackID, bool onlyAlive)
 	return const_cast<CStack *>(battleGetStackByID(stackID, onlyAlive));
 }
 
-BattleInfo::BattleInfo()
-	: round(-1), activeStack(-1), town(nullptr), tile(-1,-1,-1),
-	battlefieldType(BattleField::NONE), terrainType(),
-	tacticsSide(0), tacticDistance(0)
+BattleInfo::BattleInfo():
+	round(-1),
+	activeStack(-1),
+	town(nullptr),
+	tile(-1,-1,-1),
+	battlefieldType(BattleField::NONE),
+	terrainType(),
+	tacticsSide(0),
+	tacticDistance(0)
 {
 	setBattle(this);
 	setNodeType(BATTLE);
@@ -960,12 +965,14 @@ CGHeroInstance * BattleInfo::battleGetFightingHero(ui8 side) const
 	return const_cast<CGHeroInstance*>(CBattleInfoEssentials::battleGetFightingHero(side));
 }
 
+#if SCRIPTING_ENABLED
 scripting::Pool * BattleInfo::getContextPool() const
 {
 	//this is real battle, use global scripting context pool
 	//TODO: make this line not ugly
 	return IObjectInterface::cb->getGlobalContextPool();
 }
+#endif
 
 bool CMP_stack::operator()(const battle::Unit * a, const battle::Unit * b)
 {

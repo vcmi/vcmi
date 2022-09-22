@@ -136,7 +136,9 @@ public:
 
 	int64_t getTreeVersion() const;
 
+#if SCRIPTING_ENABLED
 	scripting::Pool * getContextPool() const override;
+#endif
 
 	ServerCallback * getServerCallback();
 
@@ -189,6 +191,8 @@ private:
 	std::unique_ptr<HypotheticServerCallback> serverCallback;
 	std::unique_ptr<HypotheticEnvironment> localEnvironment;
 
+#if SCRIPTING_ENABLED
 	mutable std::shared_ptr<scripting::Pool> pool;
+#endif
 	mutable std::shared_ptr<events::EventBus> eventBus;
 };

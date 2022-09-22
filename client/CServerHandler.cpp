@@ -685,7 +685,7 @@ void CServerHandler::threadRunServer()
 {
 #ifndef VCMI_ANDROID
 	setThreadName("CServerHandler::threadRunServer");
-	const std::string logName = (VCMIDirs::get().userCachePath() / "server_log.txt").string();
+	const std::string logName = (VCMIDirs::get().userLogsPath() / "server_log.txt").string();
 	std::string comm = VCMIDirs::get().serverPath().string()
 		+ " --port=" + getDefaultPortStr()
 		+ " --run-by-client"

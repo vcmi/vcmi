@@ -498,24 +498,24 @@ void CZonePlacer::assignZones(CRandomGenerator * rand)
 		zone->setPos(int3(total.x / size, total.y / size, total.z / size));
 	};
 
-	int levels = map.map().twoLevel ? 2 : 1;
+	int levels = map.map().levels();
 
 	/*
 	1. Create Voronoi diagram
 	2. find current center of mass for each zone. Move zone to that center to balance zones sizes
 	*/
 
-	for (int i = 0; i<width; i++)
+	int3 pos;
+	for(pos.z = 0; pos.z < levels; pos.z++)
 	{
-		for (int j = 0; j<height; j++)
+		for(pos.x = 0; pos.x < width; pos.x++)
 		{
-			for (int k = 0; k < levels; k++)
+			for(pos.y = 0; pos.y < height; pos.y++)
 			{
 				distances.clear();
-				int3 pos(i, j, k);
-				for (auto zone : zones)
+				for(auto zone : zones)
 				{
-					if (zone.second->getPos().z == k)
+					if (zone.second->getPos().z == pos.z)
 						distances.push_back(std::make_pair(zone.second, (float)pos.dist2dSQ(zone.second->getPos())));
 					else
 						distances.push_back(std::make_pair(zone.second, std::numeric_limits<float>::max()));
@@ -533,17 +533,16 @@ void CZonePlacer::assignZones(CRandomGenerator * rand)
 	for (auto zone : zones)
 		zone.second->clearTiles(); //now populate them again
 
-	for (int i=0; i<width; i++)
+	for (pos.z = 0; pos.z < levels; pos.z++)
 	{
-		for(int j=0; j<height; j++)
+		for (pos.x = 0; pos.x < width; pos.x++)
 		{
-			for (int k = 0; k < levels; k++)
+			for (pos.y = 0; pos.y < height; pos.y++)
 			{
 				distances.clear();
-				int3 pos(i, j, k);
 				for (auto zone : zones)
 				{
-					if (zone.second->getPos().z == k)
+					if (zone.second->getPos().z == pos.z)
 						distances.push_back (std::make_pair(zone.second, metric(pos, zone.second->getPos())));
 					else
 						distances.push_back (std::make_pair(zone.second, std::numeric_limits<float>::max()));

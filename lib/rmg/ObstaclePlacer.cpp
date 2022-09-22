@@ -171,10 +171,7 @@ void ObstacleProxy::finalInsertion(CMapEditManager * manager, std::set<CGObjectI
 
 std::pair<bool, bool> ObstacleProxy::verifyCoverage(const int3 & t) const
 {
-	std::pair<bool, bool> result(false, false);
-	if(blockedArea.contains(t))
-		result.first = true;
-	return result;
+	return {blockedArea.contains(t), false};
 }
 
 void ObstacleProxy::placeObject(rmg::Object & object, std::set<CGObjectInstance*> & instances)
@@ -230,12 +227,7 @@ void ObstaclePlacer::init()
 
 std::pair<bool, bool> ObstaclePlacer::verifyCoverage(const int3 & t) const
 {
-	std::pair<bool, bool> result(false, false);
-	if(map.shouldBeBlocked(t))
-		result.first = true;
-	if(zone.areaPossible().contains(t))
-		result.second = true;
-	return result;
+	return {map.shouldBeBlocked(t), zone.areaPossible().contains(t)};
 }
 
 void ObstaclePlacer::placeObject(rmg::Object & object, std::set<CGObjectInstance*> &)
@@ -248,9 +240,10 @@ void ObstaclePlacer::postProcess(const rmg::Object & object)
 	//river processing
 	if(riverManager)
 	{
-		if(object.instances().front()->object().typeName == "mountain")
+		const auto objTypeName = object.instances().front()->object().typeName;
+		if(objTypeName == "mountain")
 			riverManager->riverSource().unite(object.getArea());
-		if(object.instances().front()->object().typeName == "lake")
+		else if(objTypeName == "lake")
 			riverManager->riverSink().unite(object.getArea());
 	}
 }

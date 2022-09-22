@@ -149,19 +149,23 @@ static bool ruleIsAny(const std::string & rule)
 
 ///CDrawLinesOperation
 CDrawLinesOperation::CDrawLinesOperation(CMap * map, const CTerrainSelection & terrainSel, CRandomGenerator * gen):
-	CMapOperation(map), terrainSel(terrainSel), gen(gen)
+	CMapOperation(map),
+	terrainSel(terrainSel),
+	gen(gen)
 {
 }
 
 ///CDrawRoadsOperation
 CDrawRoadsOperation::CDrawRoadsOperation(CMap * map, const CTerrainSelection & terrainSel, const std::string & roadType, CRandomGenerator * gen):
-	CDrawLinesOperation(map, terrainSel, gen), roadType(roadType)
+	CDrawLinesOperation(map, terrainSel,gen),
+	roadType(roadType)
 {
 }
 
 ///CDrawRiversOperation
 CDrawRiversOperation::CDrawRiversOperation(CMap * map, const CTerrainSelection & terrainSel, const std::string & riverType, CRandomGenerator * gen):
-	CDrawLinesOperation(map, terrainSel, gen), riverType(riverType)
+	CDrawLinesOperation(map, terrainSel, gen),
+	riverType(riverType)
 {
 }
 

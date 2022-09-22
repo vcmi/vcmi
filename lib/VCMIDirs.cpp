@@ -13,11 +13,32 @@
 
 namespace bfs = boost::filesystem;
 
+bfs::path IVCMIDirs::userLogsPath() const { return userCachePath(); }
+
 bfs::path IVCMIDirs::userSavePath() const { return userDataPath() / "Saves"; }
 
 bfs::path IVCMIDirs::fullLibraryPath(const std::string &desiredFolder, const std::string &baseLibName) const
 {
 	return libraryPath() / desiredFolder / libraryName(baseLibName);
+}
+
+std::string IVCMIDirs::genHelpString() const
+{
+	std::vector<std::string> tempVec;
+	for (const bfs::path & path : dataPaths())
+		tempVec.push_back(path.string());
+	const auto gdStringA = boost::algorithm::join(tempVec, ":");
+
+	return
+		"  game data:   " + gdStringA + "\n"
+		"  libraries:   " + libraryPath().string() + "\n"
+		"  server:      " + serverPath().string() + "\n"
+		"\n"
+		"  user data:   " + userDataPath().string() + "\n"
+		"  user cache:  " + userCachePath().string() + "\n"
+		"  user config: " + userConfigPath().string() + "\n"
+		"  user logs:   " + userLogsPath().string() + "\n"
+		"  user saves:  " + userSavePath().string() + "\n"; // Should end without new-line?
 }
 
 void IVCMIDirs::init()
@@ -26,6 +47,7 @@ void IVCMIDirs::init()
 	bfs::create_directories(userDataPath());
 	bfs::create_directories(userCachePath());
 	bfs::create_directories(userConfigPath());
+	bfs::create_directories(userLogsPath());
 	bfs::create_directories(userSavePath());
 }
 
@@ -133,8 +155,6 @@ class VCMIDirsWIN32 final : public IVCMIDirs
 		boost::filesystem::path binaryPath() const override;
 
 		std::string libraryName(const std::string& basename) const override;
-
-		std::string genHelpString() const override;
 
 		void init() override;
 	protected:
@@ -321,26 +341,6 @@ bfs::path VCMIDirsWIN32::serverPath() const { return binaryPath() / "VCMI_server
 bfs::path VCMIDirsWIN32::libraryPath() const { return "."; }
 bfs::path VCMIDirsWIN32::binaryPath() const { return ".";  }
 
-std::string VCMIDirsWIN32::genHelpString() const
-{
-
-	std::vector<std::string> tempVec;
-	for (const bfs::path& path : dataPaths())
-		tempVec.push_back(path.string());
-	std::string gdStringA = boost::algorithm::join(tempVec, ";");
-
-
-	return
-		"  game data:   " + gdStringA + "\n"
-		"  libraries:   " + libraryPath().string() + "\n"
-		"  server:      " + serverPath().string() + "\n"
-		"\n"
-		"  user data:   " + userDataPath().string() + "\n"
-		"  user cache:  " + userCachePath().string() + "\n"
-		"  user config: " + userConfigPath().string() + "\n"
-		"  user saves:  " + userSavePath().string() + "\n"; // Should end without new-line?
-}
-
 std::string VCMIDirsWIN32::libraryName(const std::string& basename) const { return basename + ".dll"; }
 #elif defined(VCMI_UNIX)
 class IVCMIDirsUNIX : public IVCMIDirs
@@ -348,8 +348,6 @@ class IVCMIDirsUNIX : public IVCMIDirs
 	public:
 		boost::filesystem::path clientPath() const override;
 		boost::filesystem::path serverPath() const override;
-
-		std::string genHelpString() const override;
 
 		bool developmentMode() const;
 };
@@ -363,25 +361,6 @@ bool IVCMIDirsUNIX::developmentMode() const
 bfs::path IVCMIDirsUNIX::clientPath() const { return binaryPath() / "vcmiclient"; }
 bfs::path IVCMIDirsUNIX::serverPath() const { return binaryPath() / "vcmiserver"; }
 
-std::string IVCMIDirsUNIX::genHelpString() const
-{
-	std::vector<std::string> tempVec;
-	for (const bfs::path& path : dataPaths())
-		tempVec.push_back(path.string());
-	std::string gdStringA = boost::algorithm::join(tempVec, ":");
-
-
-	return
-		"  game data:   " + gdStringA + "\n"
-		"  libraries:   " + libraryPath().string() + "\n"
-		"  server:      " + serverPath().string() + "\n"
-		"\n"
-		"  user data:   " + userDataPath().string() + "\n"
-		"  user cache:  " + userCachePath().string() + "\n"
-		"  user config: " + userConfigPath().string() + "\n"
-		"  user saves:  " + userSavePath().string() + "\n"; // Should end without new-line?
-}
-
 #ifdef VCMI_APPLE
 class VCMIDirsOSX final : public IVCMIDirsUNIX
 {
@@ -389,6 +368,7 @@ class VCMIDirsOSX final : public IVCMIDirsUNIX
 		boost::filesystem::path userDataPath() const override;
 		boost::filesystem::path userCachePath() const override;
 		boost::filesystem::path userConfigPath() const override;
+		boost::filesystem::path userLogsPath() const override;
 
 		std::vector<boost::filesystem::path> dataPaths() const override;
 
@@ -457,6 +437,14 @@ bfs::path VCMIDirsOSX::userDataPath() const
 }
 bfs::path VCMIDirsOSX::userCachePath() const { return userDataPath(); }
 bfs::path VCMIDirsOSX::userConfigPath() const { return userDataPath() / "config"; }
+
+bfs::path VCMIDirsOSX::userLogsPath() const
+{
+	// TODO: use proper objc code from Foundation framework
+	if(const auto homeDir = std::getenv("HOME"))
+		return bfs::path{homeDir} / "Library" / "Logs" / "vcmi";
+	return IVCMIDirsUNIX::userLogsPath();
+}
 
 std::vector<bfs::path> VCMIDirsOSX::dataPaths() const
 {

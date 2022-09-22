@@ -232,7 +232,7 @@ int main(int argc, char * argv[])
 	*console->cb = processCommand;
 	console->start();
 
-	const bfs::path logPath = VCMIDirs::get().userCachePath() / "VCMI_Client_log.txt";
+	const bfs::path logPath = VCMIDirs::get().userLogsPath() / "VCMI_Client_log.txt";
 	logConfig = new CBasicLogConfigurator(logPath, console);
 	logConfig->configureDefault();
 	logGlobal->info(NAME);
@@ -686,6 +686,7 @@ void processCommand(const std::string &message)
 		std::cout << "\rExtracting done :)\n";
 		std::cout << " Extracted files can be found in " << outPath << " directory\n";
 	}
+#if SCRIPTING_ENABLED
 	else if(message=="get scripts")
 	{
 		std::cout << "Command accepted.\t";
@@ -708,6 +709,7 @@ void processCommand(const std::string &message)
 		std::cout << "\rExtracting done :)\n";
 		std::cout << " Extracted files can be found in " << outPath << " directory\n";
 	}
+#endif
 	else if(message=="get txt")
 	{
 		std::cout << "Command accepted.\t";
