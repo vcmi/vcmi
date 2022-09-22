@@ -51,6 +51,10 @@ public:
 	bool isInstalled() const;
 	// vcmi essential files
 	bool isEssential() const;
+	// checks if verison is compatible with vcmi
+	bool isCompatible() const;
+	// returns if has any data
+	bool isValid() const;
 
 	// see ModStatus enum
 	int getModStatus() const;
