@@ -17,6 +17,7 @@
 
 #include "lobby/CSelectionBase.h"
 #include "lobby/CLobbyScreen.h"
+#include "windows/InfoWindows.h"
 
 #include "mainmenu/CMainMenu.h"
 
@@ -166,6 +167,7 @@ void CServerHandler::startLocalServerAndConnect()
 	{
 		CConnection testConnection(settings["server"]["server"].String(), getDefaultPort(), NAME, uuid);
 		logNetwork->error("Port is busy, kill other vcmiserver processes");
+		CInfoWindow::showInfoDialog("Port is busy, kill other vcmiserver processes", CInfoWindow::TCompsInfo(), PlayerColor(1));
 		return;
 	}
 	catch(...)
