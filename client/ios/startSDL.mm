@@ -44,8 +44,12 @@
 	auto r = textField.frame;
 	r.size.height = 40;
 	textField.frame = r;
-    textField.backgroundColor = UIColor.whiteColor;
     self.gameChatHandler.textFieldSDL = textField;
+
+	if(@available(iOS 13.0, *))
+		textField.backgroundColor = UIColor.systemBackgroundColor;
+	else
+		textField.backgroundColor = UIColor.whiteColor;
 
     auto longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPress:)];
     longPress.minimumPressDuration = 0.2;
