@@ -161,6 +161,18 @@ void CServerHandler::startLocalServerAndConnect()
 		threadRunLocalServer->join();
 
 	th->update();
+	
+	try
+	{
+		CConnection testConnection(settings["server"]["server"].String(), getDefaultPort(), NAME, uuid);
+		logNetwork->error("Port is busy, kill other vcmiserver processes");
+		return;
+	}
+	catch(...)
+	{
+		//no connection means that port is not busy and we can start local server
+	}
+	
 #ifdef VCMI_ANDROID
 	{
 		CAndroidVMHelper envHelper;
