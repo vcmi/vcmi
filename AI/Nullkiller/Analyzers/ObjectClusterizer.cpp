@@ -149,7 +149,7 @@ bool ObjectClusterizer::shouldVisitObject(const CGObjectInstance * obj) const
 
 	const int3 pos = obj->visitablePos();
 
-	if(obj->ID != Obj::CREATURE_GENERATOR1 && vstd::contains(ai->memory->alreadyVisited, obj)
+	if((obj->ID != Obj::CREATURE_GENERATOR1 && vstd::contains(ai->memory->alreadyVisited, obj))
 		|| obj->wasVisited(ai->playerID))
 	{
 		return false;

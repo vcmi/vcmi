@@ -558,7 +558,7 @@ bool AINodeStorage::selectNextActor()
 	for(auto actor = actors.begin(); actor != actors.end(); actor++)
 	{
 		if(actor->get()->armyValue > currentActor->get()->armyValue
-			|| actor->get()->armyValue == currentActor->get()->armyValue && actor <= currentActor)
+			|| (actor->get()->armyValue == currentActor->get()->armyValue && actor <= currentActor))
 		{
 			continue;
 		}
