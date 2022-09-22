@@ -46,16 +46,7 @@ void CMapGenerator::loadConfig()
 {
 	static const ResourceID path("config/randomMap.json");
 	JsonNode randomMapJson(path);
-	for(auto& s : randomMapJson["terrain"]["undergroundAllow"].Vector())
-	{
-		if(!s.isNull())
-			config.terrainUndergroundAllowed.emplace_back(VLC->terrainTypeHandler->getInfoByName(s.String())->id);
-	}
-	for(auto& s : randomMapJson["terrain"]["groundProhibit"].Vector())
-	{
-		if(!s.isNull())
-			config.terrainGroundProhibit.emplace_back(VLC->terrainTypeHandler->getInfoByName(s.String())->id);
-	}
+
 	config.shipyardGuard = randomMapJson["waterZone"]["shipyard"]["value"].Integer();
 	for(auto & treasure : randomMapJson["waterZone"]["treasure"].Vector())
 	{

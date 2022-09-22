@@ -134,26 +134,22 @@ void initTerrainType(Zone & zone, CMapGenerator & gen)
 			zone.setTerrainType(*RandomGeneratorUtil::nextItem(zone.getTerrainTypes(), gen.rand));
 		}
 		
+		//Now, replace disallowed terrains on surface and in the underground
 		//TODO: allow new types of terrain?
+		const auto* terrainType = VLC->terrainTypeHandler->terrains()[zone.getTerrainType()];
+
+		if(zone.isUnderground())
 		{
-			if(zone.isUnderground())
+			if(!terrainType->isUnderground())
 			{
-				if(!vstd::contains(gen.getConfig().terrainUndergroundAllowed, zone.getTerrainType()))
-				{
-					//collect all underground terrain types
-					std::vector<TTerrain> undegroundTerrains;
-					for(const auto * terrain : VLC->terrainTypeHandler->terrains())
-						if(terrain->isUnderground())
-							undegroundTerrains.push_back(terrain->id);
-					
-					zone.setTerrainType(*RandomGeneratorUtil::nextItem(undegroundTerrains, gen.rand));
-				}
+				zone.setTerrainType(Terrain::SUBTERRANEAN);
 			}
-			else
+		}
+		else
+		{
+			if (!terrainType->isSurface())
 			{
-				const auto* terrainType = VLC->terrainTypeHandler->terrains()[zone.getTerrainType()];
-				if(vstd::contains(gen.getConfig().terrainGroundProhibit, zone.getTerrainType()) || terrainType->isUnderground())
-					zone.setTerrainType(Terrain::DIRT);
+				zone.setTerrainType(Terrain::DIRT);
 			}
 		}
 	}

@@ -19,12 +19,13 @@ class DLL_LINKAGE TerrainType
 {
 public:
 	
-	enum class PassabilityType
+	enum PassabilityType : ui8
 	{
-		LAND,
-		WATER,
-		SUBTERRANEAN,
-		ROCK
+		LAND = 1,
+		WATER = 2,
+		SURFACE = 4,
+		SUBTERRANEAN = 8,
+		ROCK = 16
 	};
 	
 	std::vector<std::string> battleFields;
@@ -43,7 +44,7 @@ public:
 	TTerrain rockTerrain;
 	int moveCost;
 	int horseSoundId;
-	PassabilityType passabilityType;
+	ui8 passabilityType;
 	bool transitionRequired;
 	
 	TerrainType(const std::string & name = "");
@@ -56,7 +57,8 @@ public:
 	
 	bool isLand() const;
 	bool isWater() const;
-	bool isPassable() const; //ROCK
+	bool isPassable() const;
+	bool isSurface() const;
 	bool isUnderground() const;
 	bool isTransitionRequired() const;
 		

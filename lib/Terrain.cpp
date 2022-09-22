@@ -57,15 +57,29 @@ TerrainTypeHandler::TerrainTypeHandler()
 			
 			if(terr.second["type"].isNull())
 			{
-				info->passabilityType = TerrainType::PassabilityType::LAND;
+				info->passabilityType = TerrainType::PassabilityType::LAND | TerrainType::PassabilityType::SURFACE;
 			}
-			else
+			else if (terr.second["type"].getType() == JsonNode::JsonType::DATA_VECTOR)
+			{
+				for (const auto& node : terr.second["type"].Vector())
+				{
+					//Set bits
+					auto s = node.String();
+					if (s == "LAND") info->passabilityType |= TerrainType::PassabilityType::LAND;
+					if (s == "WATER") info->passabilityType |= TerrainType::PassabilityType::WATER;
+					if (s == "ROCK") info->passabilityType |= TerrainType::PassabilityType::ROCK;
+					if (s == "SURFACE") info->passabilityType |= TerrainType::PassabilityType::SURFACE;
+					if (s == "SUB") info->passabilityType |= TerrainType::PassabilityType::SUBTERRANEAN;
+				}
+			}
+			else  //should be string - one option only
 			{
 				auto s = terr.second["type"].String();
-				if(s == "LAND") info->passabilityType = TerrainType::PassabilityType::LAND;
-				if(s == "WATER") info->passabilityType = TerrainType::PassabilityType::WATER;
-				if(s == "ROCK") info->passabilityType = TerrainType::PassabilityType::ROCK;
-				if(s == "SUB") info->passabilityType = TerrainType::PassabilityType::SUBTERRANEAN;
+				if (s == "LAND") info->passabilityType = TerrainType::PassabilityType::LAND;
+				if (s == "WATER") info->passabilityType = TerrainType::PassabilityType::WATER;
+				if (s == "ROCK") info->passabilityType = TerrainType::PassabilityType::ROCK;
+				if (s == "SURFACE") info->passabilityType = TerrainType::PassabilityType::SURFACE;
+				if (s == "SUB") info->passabilityType = TerrainType::PassabilityType::SUBTERRANEAN;
 			}
 			
 			if(terr.second["rockTerrain"].isNull())
@@ -223,7 +237,7 @@ TerrainType::TerrainType(const std::string& _name):
 	rockTerrain(Terrain::ROCK),
 	moveCost(100),
 	horseSoundId(0),
-	passabilityType(PassabilityType::LAND),
+	passabilityType(0),
 	transitionRequired(false)
 {
 }
@@ -257,17 +271,22 @@ bool TerrainType::isLand() const
 
 bool TerrainType::isWater() const
 {
-	return passabilityType == PassabilityType::WATER;
+	return passabilityType & PassabilityType::WATER;
 }
 
 bool TerrainType::isPassable() const
 {
-	return passabilityType != PassabilityType::ROCK;
+	return !(passabilityType & PassabilityType::ROCK);
+}
+
+bool TerrainType::isSurface() const
+{
+	return passabilityType & PassabilityType::SURFACE;
 }
 
 bool TerrainType::isUnderground() const
 {
-	return passabilityType == PassabilityType::SUBTERRANEAN;
+	return passabilityType & PassabilityType::SUBTERRANEAN;
 }
 
 bool TerrainType::isTransitionRequired() const

@@ -198,9 +198,10 @@ void CZonePlacer::prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const 
 					}
 					else
 					{
-						if(VLC->terrainTypeHandler->terrains()[tt]->isUnderground())
+						const auto * terrainType = VLC->terrainTypeHandler->terrains()[tt];
+						if(terrainType->isUnderground() && !terrainType->isSurface())
 						{
-							//underground
+							//underground only
 							zonesOnLevel[1]++;
 							levels[zone.first] = 1;
 						}
