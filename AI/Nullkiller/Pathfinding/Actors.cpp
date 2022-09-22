@@ -269,8 +269,6 @@ ExchangeResult HeroExchangeMap::tryExchangeNoLock(const ChainActor * other)
 			return result; // already inserted
 		}
 
-		auto position = inserted.first;
-
 		auto differentMasks = (actor->chainMask & other->chainMask) == 0;
 
 		if(!differentMasks) return result;
@@ -461,15 +459,6 @@ CCreatureSet * DwellingActor::getDwellingCreatures(const CGDwelling * dwelling, 
 			continue;
 
 		auto creature = creatureInfo.second.back().toCreature();
-		auto count = creatureInfo.first;
-
-		if(waitForGrowth)
-		{
-			const CGTownInstance * town = dynamic_cast<const CGTownInstance *>(dwelling);
-
-			count += town ? town->creatureGrowth(creature->level) : creature->growth;
-		}
-
 		dwellingCreatures->addToSlot(
 			dwellingCreatures->getSlotFor(creature),
 			creature->idNumber,

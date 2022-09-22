@@ -193,11 +193,7 @@ void Zone::fractalize()
 	rmg::Area clearedTiles(dAreaFree);
 	rmg::Area possibleTiles(dAreaPossible);
 	rmg::Area tilesToIgnore; //will be erased in this iteration
-	
-	//the more treasure density, the greater distance between paths. Scaling is experimental.
-	int totalDensity = 0;
-	for(auto ti : treasureInfo)
-		totalDensity += ti.density;
+
 	const float minDistance = 10 * 10; //squared
 	
 	if(type != ETemplateZoneType::JUNCTION)
