@@ -74,7 +74,6 @@ public:
 	
 	int id() const; //TODO: has to be completely removed
 	
-	Terrain& operator=(const Terrain & _type);
 	Terrain& operator=(const std::string & _type);
 	
 	DLL_LINKAGE friend bool operator==(const Terrain & l, const Terrain & r);

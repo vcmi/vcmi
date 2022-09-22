@@ -24,9 +24,6 @@ namespace AIPathfinding
 	
 	class SummonBoatAction : public VirtualBoatAction
 	{
-	private:
-		const CGHeroInstance * hero;
-
 	public:
 		virtual void execute(const CGHeroInstance * hero) const override;
 

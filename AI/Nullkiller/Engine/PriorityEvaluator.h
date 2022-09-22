@@ -61,6 +61,7 @@ struct DLL_EXPORT EvaluationContext
 class IEvaluationContextBuilder
 {
 public:
+	virtual ~IEvaluationContextBuilder() = default;
 	virtual void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal goal) const = 0;
 };
 

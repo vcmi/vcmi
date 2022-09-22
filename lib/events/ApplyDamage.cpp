@@ -25,10 +25,8 @@ SubscriptionRegistry<ApplyDamage> * ApplyDamage::getRegistry()
 }
 
 CApplyDamage::CApplyDamage(const Environment * env_, BattleStackAttacked * pack_, std::shared_ptr<battle::Unit> target_)
-	: env(env_),
-	pack(pack_),
+	: pack(pack_),
 	target(target_)
-
 {
 	initalDamage = pack->damageAmount;
 }

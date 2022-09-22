@@ -41,6 +41,7 @@ struct ArmyUpgradeInfo
 class DLL_EXPORT IArmyManager //: public: IAbstractManager
 {
 public:
+	virtual ~IArmyManager() = default;
 	virtual void update() = 0;
 	virtual ui64 howManyReinforcementsCanBuy(const CCreatureSet * target, const CGDwelling * source) const = 0;
 	virtual	ui64 howManyReinforcementsCanBuy(

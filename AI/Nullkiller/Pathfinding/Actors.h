@@ -75,7 +75,8 @@ public:
 	TResources armyCost;
 	std::shared_ptr<TurnInfo> tiCache;
 
-	ChainActor(){}
+	ChainActor() = default;
+	virtual ~ChainActor() = default;
 
 	virtual std::string toString() const;
 	ExchangeResult tryExchangeNoLock(const ChainActor * other) const { return tryExchangeNoLock(this, other); }
