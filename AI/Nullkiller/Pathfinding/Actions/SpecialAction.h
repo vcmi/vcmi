@@ -18,6 +18,8 @@ struct AIPathNode;
 class SpecialAction
 {
 public:
+	virtual ~SpecialAction() = default;
+
 	virtual bool canAct(const AIPathNode * source) const
 	{
 		return true;
