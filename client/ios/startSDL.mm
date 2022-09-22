@@ -46,9 +46,11 @@
 	textField.frame = r;
     self.gameChatHandler.textFieldSDL = textField;
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_13_0
 	if(@available(iOS 13.0, *))
 		textField.backgroundColor = UIColor.systemBackgroundColor;
 	else
+#endif
 		textField.backgroundColor = UIColor.whiteColor;
 
     auto longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPress:)];

@@ -21,8 +21,10 @@ void launchGame(int argc, char * argv[]) {
 		qtNativeWindow.hidden = YES;
 		[qtNativeWindow.rootViewController.view removeFromSuperview];
 		qtNativeWindow.rootViewController = nil;
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_13_0
 		if (@available(iOS 13.0, *))
 			qtNativeWindow.windowScene = nil;
+#endif
 	}
 	[NSNotificationCenter.defaultCenter postNotificationName:@"StartGame" object:nil];
 }

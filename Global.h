@@ -264,6 +264,15 @@ template<typename T, size_t N> char (&_ArrayCountObj(const T (&)[N]))[N];
 // should be used for variables that becomes unused in release builds (e.g. only used for assert checks)
 #define UNUSED(VAR) ((void)VAR)
 
+// old iOS SDKs compatibility
+#ifdef VCMI_IOS
+#include <AvailabilityVersions.h>
+
+#ifndef __IPHONE_13_0
+#define __IPHONE_13_0 130000
+#endif
+#endif // VCMI_IOS
+
 // single-process build makes 2 copies of the main lib by wrapping it in a namespace
 #ifdef VCMI_LIB_NAMESPACE
 #define VCMI_LIB_NAMESPACE_BEGIN namespace VCMI_LIB_NAMESPACE {
