@@ -82,7 +82,7 @@ bool needToRecruitHero(const CGTownInstance * startupTown)
 			|| obj->ID == Obj::WATER_WHEEL)
 		{
 			auto path = paths->getPathInfo(obj->visitablePos());
-			if((path->accessible == CGPathNode::BLOCKVIS || path->accessible == CGPathNode::VISIT) 
+			if((path->accessible == CGPathNode::BLOCKVIS || path->accessible == CGPathNode::VISITABLE) 
 				&& path->reachable())
 			{
 				treasureSourcesCount++;
