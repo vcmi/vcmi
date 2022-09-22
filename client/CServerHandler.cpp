@@ -163,11 +163,12 @@ void CServerHandler::startLocalServerAndConnect()
 
 	th->update();
 	
+	auto errorMsg = CGI->generaltexth->localizedTexts["server"]["errors"]["existingProcess"].String();
 	try
 	{
 		CConnection testConnection(settings["server"]["server"].String(), getDefaultPort(), NAME, uuid);
-		logNetwork->error("Port is busy, kill other vcmiserver processes");
-		CInfoWindow::showInfoDialog("Port is busy, kill other vcmiserver processes", CInfoWindow::TCompsInfo(), PlayerColor(1));
+		logNetwork->error("Port is busy, check if another instance of vcmiserver is working");
+		CInfoWindow::showInfoDialog(errorMsg, {});
 		return;
 	}
 	catch(...)

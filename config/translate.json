@@ -23,6 +23,13 @@
 		},
 		"playerAttacked" : "Player has been attacked: %s"
 	},
+	"server" :
+	{
+		"errors" :
+		{
+			"existingProcess" : "Another vcmiserver process is running, please terminate it first"
+		}
+	},
 	"systemOptions" :
 	{
 		"fullscreenButton" :
@@ -62,18 +69,18 @@
 		"allOf"  :  "All of the following:",
 		"noneOf" : "None of the following:"
 	},
-  "heroWindow": 
-  {
-    "openCommander": 
-    {
-      "label": "Open commander window",
-      "help": "Displays information about commander of this hero"
-    }
-  },
-  "commanderWindow": 
-  {
-    "artifactMessage": "Do you want to give this artifact back to hero?"
-  },
+	"heroWindow" :
+	{
+		"openCommander" :
+		{
+			"label" : "Open commander window",
+			"help" : "Displays information about commander of this hero"
+		}
+	},
+	"commanderWindow":
+	{
+		"artifactMessage": "Do you want to give this artifact back to hero?"
+	},
 	"creatureWindow" :
 	{
 		"showBonuses" :
