@@ -451,8 +451,10 @@ endif()
 #######################################
 
 install(DIRECTORY config DESTINATION ${DATA_DIR})
-install(DIRECTORY scripts DESTINATION ${DATA_DIR})
 install(DIRECTORY Mods DESTINATION ${DATA_DIR})
+if(ENABLE_LUA)
+	install(DIRECTORY scripts DESTINATION ${DATA_DIR})
+endif()
 
 # that script is useless for Windows and iOS
 if(NOT WIN32 AND NOT APPLE_IOS)
