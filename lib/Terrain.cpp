@@ -201,12 +201,6 @@ Terrain::operator std::string() const
 Terrain::Terrain(const std::string & _name) : name(_name)
 {}
 	
-Terrain& Terrain::operator=(const Terrain & _name)
-{
-	name = _name.name;
-	return *this;
-}
-	
 Terrain& Terrain::operator=(const std::string & _name)
 {
 	name = _name;
