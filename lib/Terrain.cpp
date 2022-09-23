@@ -196,30 +196,38 @@ TerrainTypeHandler::TerrainTypeHandler()
 
 void TerrainTypeHandler::initRivers()
 {
-	//TODO: load from file?
+	auto allConfigs = VLC->modh->getActiveMods();
+	allConfigs.insert(allConfigs.begin(), "core");
 
-	const std::vector<std::string> RIVER_DELTA_TEMPLATE_NAME
-	{
-		{""},
-		{"clrdelt"},
-		{"icedelt"},
-		{"muddelt"},
-		{"lavdelt"}
-	};
+	riverTypes.resize(River::ORIGINAL_RIVER_COUNT, nullptr); //make space for original rivers
+	riverTypes[River::NO_RIVER] = new RiverType(); //default
 
-	const std::vector<std::pair<std::string, std::string>> RIVER_CONSTANTS =
+	for (auto & mod : allConfigs)
 	{
-		{"", ""},
-		{"clrrvr", "rw"},
-		{"icyrvr", "ri"},
-		{"mudrvr", "rm"},
-		{"lavrvr", "rl"}
-	};
+		if (!CResourceHandler::get(mod)->existsResource(ResourceID("config/rivers.json")))
+			continue;
 
-	for (size_t i = 0; i < std::size(RIVER_CONSTANTS); i++)
-	{
-		riverTypes.emplace_back(new RiverType(RIVER_CONSTANTS[i].first, RIVER_CONSTANTS[i].second, i));
-		riverTypes[i]->deltaName = RIVER_DELTA_TEMPLATE_NAME[i];
+		JsonNode rivs(mod, ResourceID("config/rivers.json"));
+		for (auto & river : rivs.Struct())
+		{
+			auto * info = new RiverType();
+
+			info->fileName = river.second["animation"].String();
+			info->code = river.second["code"].String();
+			info->deltaName = river.second["delta"].String();
+			//info->movementCost = river.second["moveCost"].Integer();
+
+			if (!river.second["originalRiverId"].isNull())
+			{
+				info->id = static_cast<TRiver>(river.second["originalRiverId"].Float());
+				riverTypes[info->id] = info;
+			}
+			else
+			{
+				info->id = riverTypes.size();
+				riverTypes.push_back(info);
+			}
+		}
 	}
 
 	recreateRiverMaps();
@@ -227,24 +235,38 @@ void TerrainTypeHandler::initRivers()
 
 void TerrainTypeHandler::initRoads()
 {
-	//TODO: read from config
+	auto allConfigs = VLC->modh->getActiveMods();
+	allConfigs.insert(allConfigs.begin(), "core");
 
-	const std::vector<std::pair<std::string, std::string>> ROAD_CONSTANTS =
-	{
-		{"", ""},
-		{"dirtrd", "pd"},
-		{"gravrd", "pg"},
-		{"cobbrd", "pc"}
-	};
+	roadTypes.resize(Road::ORIGINAL_ROAD_COUNT, nullptr); //make space for original rivers
+	roadTypes[Road::NO_ROAD] = new RoadType(); //default
 
-	for (size_t i = 0; i < std::size(ROAD_CONSTANTS); i++)
+	for (auto & mod : allConfigs)
 	{
-		roadTypes.emplace_back(new RoadType(ROAD_CONSTANTS[i].first, ROAD_CONSTANTS[i].second, i));
+		if (!CResourceHandler::get(mod)->existsResource(ResourceID("config/roads.json")))
+			continue;
+
+		JsonNode rds(mod, ResourceID("config/roads.json"));
+		for (auto & road : rds.Struct())
+		{
+			auto * info = new RoadType();
+
+			info->fileName = road.second["animation"].String();
+			info->code = road.second["code"].String();
+			info->movementCost = static_cast<ui8>(road.second["moveCost"].Float());
+
+			if (!road.second["originalRoadId"].isNull())
+			{
+				info->id = static_cast<TRoad>(road.second["originalRoadId"].Float());
+				roadTypes[info->id] = info;
+			}
+			else
+			{
+				info->id = roadTypes.size();
+				roadTypes.push_back(info);
+			}
+		}
 	}
-	
-	roadTypes[1]->movementCost = 75;
-	roadTypes[2]->movementCost = 65;
-	roadTypes[3]->movementCost = 50;
 
 	recreateRoadMaps();
 }
@@ -263,6 +285,9 @@ void TerrainTypeHandler::recreateRiverMaps()
 {
 	for (const RiverType * riverInfo : riverTypes)
 	{
+		if (riverInfo->id == River::NO_RIVER)
+			continue;
+
 		riverInfoByName[riverInfo->fileName] = riverInfo;
 		riverInfoByCode[riverInfo->code] = riverInfo;
 		riverInfoById[riverInfo->id] = riverInfo;
@@ -273,6 +298,9 @@ void TerrainTypeHandler::recreateRoadMaps()
 {
 	for (const RoadType * roadInfo : roadTypes)
 	{
+		if (roadInfo->id == Road::NO_ROAD)
+			continue;
+
 		roadInfoByName[roadInfo->fileName] = roadInfo;
 		roadInfoByCode[roadInfo->code] = roadInfo;
 		roadInfoById[roadInfo->id] = roadInfo;

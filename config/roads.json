@@ -1,0 +1,23 @@
+{
+    "dirtRoad":
+    {
+        "originalRoadId": 1,
+        "code": "pd", //must be 2 characters
+        "animation": "dirtrd",
+        "moveCost": 75
+    },
+    "gravelRoad":
+    {
+        "originalRoadId": 2,
+        "code": "pg",
+        "animation": "gravrd",
+        "moveCost": 65
+    },
+    "cobblestoneRoad":
+    {
+        "originalRoadId": 3,
+        "code": "pc",
+        "animation": "cobbrd",
+        "moveCost": 50
+    }
+}

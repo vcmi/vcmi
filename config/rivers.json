@@ -1,0 +1,30 @@
+{
+    "waterRiver":
+    {
+        "originalRiverId": 1,
+        "code": "rw", //must be 2 characters
+        "animation": "clrrvr",
+        "delta": "clrdelt"
+    },
+    "iceRiver":
+    {
+        "originalRiverId": 2,
+        "code": "ri",
+        "animation": "icyrvr",
+        "delta": "icedelt"
+    },
+    "mudRiver":
+    {
+        "originalRiverId": 3,
+        "code": "rm",
+        "animation": "mudrvr",
+        "delta": "muddelt"
+    },
+    "lavaRiver":
+    {
+        "originalRiverId": 4,
+        "code": "rl",
+        "animation": "lavrvr",
+        "delta": "lavdelt"
+    }
+}
