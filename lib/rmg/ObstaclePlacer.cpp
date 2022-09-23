@@ -24,7 +24,7 @@
 #include "Functions.h"
 #include "../mapping/CMapEditManager.h"
 
-void ObstacleProxy::collectPossibleObstacles(const Terrain & terrain)
+void ObstacleProxy::collectPossibleObstacles(TTerrain terrain)
 {
 	//get all possible obstacles for this terrain
 	for(auto primaryID : VLC->objtypeh->knownObjects())
