@@ -36,7 +36,6 @@ class DLL_EXPORT AIhelper : public IResourceManager, public IBuildingManager, pu
 	//TODO: vector<IAbstractManager>
 public:
 	AIhelper();
-	~AIhelper();
 
 	bool canAfford(const TResources & cost) const;
 	TResources reservedResources() const override;

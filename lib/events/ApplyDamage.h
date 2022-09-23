@@ -28,12 +28,8 @@ public:
 private:
 	int64_t initalDamage;
 
-	const Environment * env;
 	BattleStackAttacked * pack;
 	std::shared_ptr<battle::Unit> target;
 };
 
 }
-
-
-

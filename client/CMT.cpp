@@ -686,6 +686,7 @@ void processCommand(const std::string &message)
 		std::cout << "\rExtracting done :)\n";
 		std::cout << " Extracted files can be found in " << outPath << " directory\n";
 	}
+#if SCRIPTING_ENABLED
 	else if(message=="get scripts")
 	{
 		std::cout << "Command accepted.\t";
@@ -708,6 +709,7 @@ void processCommand(const std::string &message)
 		std::cout << "\rExtracting done :)\n";
 		std::cout << " Extracted files can be found in " << outPath << " directory\n";
 	}
+#endif
 	else if(message=="get txt")
 	{
 		std::cout << "Command accepted.\t";

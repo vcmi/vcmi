@@ -27,6 +27,8 @@ struct CatapultAttack;
 class DLL_LINKAGE ServerCallback
 {
 public:
+	virtual ~ServerCallback() = default;
+
 	virtual void complain(const std::string & problem) = 0;
 	virtual bool describeChanges() const = 0;
 

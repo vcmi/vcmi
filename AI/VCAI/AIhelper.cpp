@@ -19,10 +19,6 @@ AIhelper::AIhelper()
 	armyManager.reset(new ArmyManager());
 }
 
-AIhelper::~AIhelper()
-{
-}
-
 bool AIhelper::notifyGoalCompleted(Goals::TSubgoal goal)
 {
 	return resourceManager->notifyGoalCompleted(goal);

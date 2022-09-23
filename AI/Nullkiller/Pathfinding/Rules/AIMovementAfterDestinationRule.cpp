@@ -126,7 +126,6 @@ namespace AIPathfinding
 		const AIPathNode * destinationNode = nodeStorage->getAINode(destination.node);
 		auto questObj = dynamic_cast<const IQuestObject *>(destination.nodeObject);
 		auto questInfo = QuestInfo(questObj->quest, destination.nodeObject, destination.coord);
-		auto nodeHero = pathfinderHelper->hero;
 		QuestAction questAction(questInfo);
 
 		if(destination.nodeObject->ID == Obj::QUEST_GUARD && questObj->quest->missionType == CQuest::MISSION_NONE)
@@ -157,8 +156,6 @@ namespace AIPathfinding
 
 			nodeStorage->updateAINode(destination.node, [&](AIPathNode * node)
 			{
-				auto questInfo = QuestInfo(questObj->quest, destination.nodeObject, destination.coord);
-
 				node->specialAction.reset(new QuestAction(questAction));
 			});
 		}

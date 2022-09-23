@@ -9,8 +9,9 @@
  */
 
 #include "StdInc.h"
-#include "../mainmenu/CMainMenu.h"
 #include "CCampaignScreen.h"
+
+#include "CMainMenu.h"
 
 #include "../CGameInfo.h"
 #include "../CMessage.h"

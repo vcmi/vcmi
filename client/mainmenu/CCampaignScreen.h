@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "../windows/CWindowObject.h"
+
 class CLabel;
 class CPicture;
 class CButton;

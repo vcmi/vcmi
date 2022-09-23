@@ -156,7 +156,7 @@ ISimpleResourceLoader * CResourceHandler::createInitial()
 
 void CResourceHandler::initialize()
 {
-	// Create tree-loke structure that looks like this:
+	// Create tree-like structure that looks like this:
 	// root
 	// |
 	// |- initial

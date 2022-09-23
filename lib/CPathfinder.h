@@ -386,6 +386,9 @@ class DLL_LINKAGE INodeStorage
 {
 public:
 	using ELayer = EPathfindingLayer;
+
+	virtual ~INodeStorage() = default;
+
 	virtual std::vector<CGPathNode *> getInitialNodes() = 0;
 
 	virtual std::vector<CGPathNode *> calculateNeighbours(
@@ -448,6 +451,7 @@ public:
 	PathfinderConfig(
 		std::shared_ptr<INodeStorage> nodeStorage,
 		std::vector<std::shared_ptr<IPathfindingRule>> rules);
+	virtual ~PathfinderConfig() = default;
 
 	virtual CPathfinderHelper * getOrCreatePathfinderHelper(const PathNodeInfo & source, CGameState * gs) = 0;
 };

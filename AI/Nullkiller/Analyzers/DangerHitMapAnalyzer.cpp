@@ -63,7 +63,7 @@ void DangerHitMapAnalyzer::updateHitMap()
 				auto & node = hitMap[pos.x][pos.y][pos.z];
 
 				if(tileDanger > node.maximumDanger.danger
-					|| tileDanger == node.maximumDanger.danger && node.maximumDanger.turn > turn)
+					|| (tileDanger == node.maximumDanger.danger && node.maximumDanger.turn > turn))
 				{
 					node.maximumDanger.danger = tileDanger;
 					node.maximumDanger.turn = turn;
@@ -71,7 +71,7 @@ void DangerHitMapAnalyzer::updateHitMap()
 				}
 
 				if(turn < node.fastestDanger.turn
-					|| turn == node.fastestDanger.turn && node.fastestDanger.danger < tileDanger)
+					|| (turn == node.fastestDanger.turn && node.fastestDanger.danger < tileDanger))
 				{
 					node.fastestDanger.danger = tileDanger;
 					node.fastestDanger.turn = turn;
@@ -101,8 +101,8 @@ uint64_t DangerHitMapAnalyzer::enemyCanKillOurHeroesAlongThePath(const AIPath & 
 	int turn = path.turn();
 	const HitMapNode & info = hitMap[tile.x][tile.y][tile.z];
 
-	return info.fastestDanger.turn <= turn && !isSafeToVisit(path.targetHero, path.heroArmy, info.fastestDanger.danger)
-		|| info.maximumDanger.turn <= turn && !isSafeToVisit(path.targetHero, path.heroArmy, info.maximumDanger.danger);
+	return (info.fastestDanger.turn <= turn && !isSafeToVisit(path.targetHero, path.heroArmy, info.fastestDanger.danger))
+		|| (info.maximumDanger.turn <= turn && !isSafeToVisit(path.targetHero, path.heroArmy, info.maximumDanger.danger));
 }
 
 const HitMapNode & DangerHitMapAnalyzer::getObjectTreat(const CGObjectInstance * obj) const

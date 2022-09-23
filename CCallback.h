@@ -35,6 +35,8 @@ struct ArtifactLocation;
 class IBattleCallback
 {
 public:
+	virtual ~IBattleCallback() = default;
+
 	bool waitTillRealize; //if true, request functions will return after they are realized by server
 	bool unlockGsWhenWaiting;//if true after sending each request, gs mutex will be unlocked so the changes can be applied; NOTICE caller must have gs mx locked prior to any call to actiob callback!
 	//battle
@@ -99,7 +101,9 @@ public:
 	int battleMakeAction(const BattleAction * action) override;//for casting spells by hero - DO NOT use it for moving active stack
 	bool battleMakeTacticAction(BattleAction * action) override; // performs tactic phase actions
 
+#if SCRIPTING_ENABLED
 	scripting::Pool * getContextPool() const override;
+#endif
 
 	friend class CCallback;
 	friend class CClient;

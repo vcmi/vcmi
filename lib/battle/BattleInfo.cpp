@@ -965,12 +965,14 @@ CGHeroInstance * BattleInfo::battleGetFightingHero(ui8 side) const
 	return const_cast<CGHeroInstance*>(CBattleInfoEssentials::battleGetFightingHero(side));
 }
 
+#if SCRIPTING_ENABLED
 scripting::Pool * BattleInfo::getContextPool() const
 {
 	//this is real battle, use global scripting context pool
 	//TODO: make this line not ugly
 	return IObjectInterface::cb->getGlobalContextPool();
 }
+#endif
 
 bool CMP_stack::operator()(const battle::Unit * a, const battle::Unit * b)
 {

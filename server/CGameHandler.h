@@ -34,10 +34,12 @@ class IMarket;
 
 class SpellCastEnvironment;
 
+#if SCRIPTING_ENABLED
 namespace scripting
 {
 	class PoolImpl;
 }
+#endif
 
 
 template<typename T> class CApplier;
@@ -126,7 +128,8 @@ public:
 
 	void makeAttack(const CStack * attacker, const CStack * defender, int distance, BattleHex targetHex, bool first, bool ranged, bool counter);
 
-	void applyBattleEffects(BattleAttack & bat, BattleLogMessage & blm, std::shared_ptr<battle::CUnitState> attackerState, FireShieldInfo & fireShield, const CStack * def, int distance, bool secondary); //damage, drain life & fire shield
+	// damage, drain life & fire shield; returns amount of drained life
+	int64_t applyBattleEffects(BattleAttack & bat, std::shared_ptr<battle::CUnitState> attackerState, FireShieldInfo & fireShield, const CStack * def, int distance, bool secondary);
 
 	void sendGenericKilledLog(const CStack * defender, int32_t killed, bool multiple);
 	void addGenericKilledLog(BattleLogMessage & blm, const CStack * defender, int32_t killed, bool multiple);
@@ -274,12 +277,14 @@ public:
 		h & finishingBattle;
 		h & getRandomGenerator();
 
+#if SCRIPTING_ENABLED
 		JsonNode scriptsState;
 		if(h.saving)
 			serverScripts->serializeState(h.saving, scriptsState);
 		h & scriptsState;
 		if(!h.saving)
 			serverScripts->serializeState(h.saving, scriptsState);
+#endif
 	}
 
 	void sendMessageToAll(const std::string &message);
@@ -326,13 +331,17 @@ public:
 
 	CRandomGenerator & getRandomGenerator();
 
+#if SCRIPTING_ENABLED
 	scripting::Pool * getGlobalContextPool() const override;
 	scripting::Pool * getContextPool() const override;
+#endif
 
 	friend class CVCMIServer;
 private:
 	std::unique_ptr<events::EventBus> serverEventBus;
+#if SCRIPTING_ENABLED
 	std::shared_ptr<scripting::PoolImpl> serverScripts;
+#endif
 
 	void reinitScripting();
 

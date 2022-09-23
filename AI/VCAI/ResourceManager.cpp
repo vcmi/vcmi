@@ -120,14 +120,12 @@ Goals::TSubgoal ResourceManager::collectResourcesForOurGoal(ResourceObjective &o
 		return o.goal;
 	}
 
-	float goalPriority = 10; //arbitrary, will be divided
-	for (const resPair & p : missingResources)
+	for (const resPair p : missingResources)
 	{
 		if (!income[p.first]) //prioritize resources with 0 income
 		{
 			resourceType = p.first;
 			amountToCollect = p.second;
-			goalPriority /= amountToCollect; //need more resources -> lower priority
 			break;
 		}
 	}
@@ -138,7 +136,7 @@ Goals::TSubgoal ResourceManager::collectResourcesForOurGoal(ResourceObjective &o
 		std::map<Res::ERes, float> daysToEarn;
 		for (auto it : missingResources)
 			daysToEarn[it.first] = (float)missingResources[it.first] / income[it.first];
-		auto incomeComparer = [&income](const timePair & lhs, const timePair & rhs) -> bool
+		auto incomeComparer = [](const timePair & lhs, const timePair & rhs) -> bool
 		{
 			//theoretically income can be negative, but that falls into this comparison
 			return lhs.second < rhs.second;
@@ -146,12 +144,9 @@ Goals::TSubgoal ResourceManager::collectResourcesForOurGoal(ResourceObjective &o
 
 		resourceType = boost::max_element(daysToEarn, incomeComparer)->first;
 		amountToCollect = missingResources[resourceType];
-		goalPriority /= daysToEarn[resourceType]; //more days - lower priority
 	}
-	if (resourceType == Res::GOLD)
-		goalPriority *= 1000;
 
-	//this is abstract goal and might take soem time to complete
+	//this is abstract goal and might take some time to complete
 	return Goals::sptr(Goals::CollectRes(resourceType, amountToCollect).setisAbstract(true));
 }
 

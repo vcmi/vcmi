@@ -720,10 +720,12 @@ const CreatureService * BaseMechanics::creatures() const
 	return VLC->creatures(); //todo: redirect
 }
 
+#if SCRIPTING_ENABLED
 const scripting::Service * BaseMechanics::scripts() const
 {
 	return VLC->scripts(); //todo: redirect
 }
+#endif
 
 const Service * BaseMechanics::spells() const
 {

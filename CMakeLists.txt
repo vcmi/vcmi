@@ -41,8 +41,8 @@ set(VCMI_VERSION_MAJOR 1)
 set(VCMI_VERSION_MINOR 0)
 set(VCMI_VERSION_PATCH 0)
 
-option(ENABLE_ERM "Enable compilation of ERM scripting module" ON)
-option(ENABLE_LUA "Enable compilation of LUA scripting module" ON)
+option(ENABLE_ERM "Enable compilation of ERM scripting module" OFF)
+option(ENABLE_LUA "Enable compilation of LUA scripting module" OFF)
 option(ENABLE_LAUNCHER "Enable compilation of launcher" ON)
 option(ENABLE_TEST "Enable compilation of unit tests" ON)
 if(NOT ${CMAKE_VERSION} VERSION_LESS "3.16.0")
@@ -58,6 +58,11 @@ option(ENABLE_MONOLITHIC_INSTALL "Install everything in single directory on Linu
 # Allow to pass package name from Travis CI
 set(PACKAGE_NAME_SUFFIX "" CACHE STRING "Suffix for CPack package name")
 set(PACKAGE_FILE_NAME "" CACHE STRING "Override for CPack package filename")
+
+# ERM depends on LUA implicitly
+if(ENABLE_ERM AND NOT ENABLE_LUA)
+	set(ENABLE_LUA ON)
+endif()
 
 ############################################
 #        Miscellaneous options             #
@@ -192,6 +197,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR NOT WIN32) #so far all *nix compilers support suc
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-strict-aliasing -Wno-switch -Wno-sign-compare -Wno-unused-local-typedefs")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-parameter -Wno-overloaded-virtual -Wno-type-limits -Wno-unknown-pragmas")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-reorder")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-varargs") # fuzzylite - Operation.h
 
 	if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-mismatched-tags -Wno-unknown-warning-option -Wno-missing-braces")
@@ -212,6 +218,10 @@ if(NOT WIN32)
 	if(HAVE_RT_LIB)
 		set(SYSTEM_LIBS ${SYSTEM_LIBS} rt)
 	endif()
+endif()
+
+if(ENABLE_LUA)
+	add_compile_definitions(SCRIPTING_ENABLED=1)
 endif()
 
 ############################################

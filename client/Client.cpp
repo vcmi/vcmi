@@ -263,12 +263,14 @@ void CClient::serialize(BinarySerializer & h, const int version)
 		i->second->saveGame(h, version);
 	}
 
+#if SCRIPTING_ENABLED
 	if(version >= 800)
 	{
 		JsonNode scriptsState;
 		clientScripts->serializeState(h.saving, scriptsState);
 		h & scriptsState;
 	}
+#endif
 }
 
 void CClient::serialize(BinaryDeserializer & h, const int version)
@@ -329,11 +331,13 @@ void CClient::serialize(BinaryDeserializer & h, const int version)
 		LOCPLINT = prevInt;
 	}
 
+#if SCRIPTING_ENABLED
 	{
 		JsonNode scriptsState;
 		h & scriptsState;
 		clientScripts->serializeState(h.saving, scriptsState);
 	}
+#endif
 
 	logNetwork->trace("Loaded client part of save %d ms", CSH->th->getDiff());
 }
@@ -352,7 +356,9 @@ void CClient::save(const std::string & fname)
 
 void CClient::endGame()
 {
+#if SCRIPTING_ENABLED
 	clientScripts.reset();
+#endif
 
 	//suggest interfaces to finish their stuff (AI should interrupt any bg working threads)
 	for(auto & i : playerint)
@@ -732,6 +738,7 @@ PlayerColor CClient::getLocalPlayer() const
 	return getCurrentPlayer();
 }
 
+#if SCRIPTING_ENABLED
 scripting::Pool * CClient::getGlobalContextPool() const
 {
 	return clientScripts.get();
@@ -741,11 +748,14 @@ scripting::Pool * CClient::getContextPool() const
 {
 	return clientScripts.get();
 }
+#endif
 
 void CClient::reinitScripting()
 {
 	clientEventBus = make_unique<events::EventBus>();
+#if SCRIPTING_ENABLED
 	clientScripts.reset(new scripting::PoolImpl(this));
+#endif
 }
 
 

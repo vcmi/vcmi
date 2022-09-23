@@ -1,17 +1,68 @@
 name: VCMI
 
 on:
-    push:
-      branches:
-        - features/*
-        - develop
-    pull_request:
+  push:
+    branches:
+      - features/*
+  pull_request:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
 
 jobs:
+  check_last_build:
+    if: github.event.schedule != ''
+    runs-on: ubuntu-latest
+    outputs:
+      skip_build: ${{ steps.check_if_built.outputs.skip_build }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Get repo name
+        id: get_repo_name
+        run: echo "::set-output name=value::${GITHUB_REPOSITORY#*/}"
+      - name: Get last successful build for ${{ github.sha }}
+        uses: octokit/request-action@v2.1.0
+        id: get_last_scheduled_run
+        with:
+          route: GET /repos/{owner}/{repo}/actions/runs
+          owner: ${{ github.repository_owner }}
+          repo: ${{ steps.get_repo_name.outputs.value }}
+          status: success
+          per_page: 1
+          head_sha: ${{ github.sha }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Check if successful build of the current commit exists
+        id: check_if_built
+        run: |
+          if [ ${{ fromJson(steps.get_last_scheduled_run.outputs.data).total_count }} -gt 0 ]; then
+            echo '::set-output name=skip_build::1'
+          else
+            echo '::set-output name=skip_build::0'
+          fi
+      - name: Cancel current run
+        if: steps.check_if_built.outputs.skip_build == 1
+        uses: octokit/request-action@v2.1.0
+        with:
+          route: POST /repos/{owner}/{repo}/actions/runs/{run_id}/cancel
+          owner: ${{ github.repository_owner }}
+          repo: ${{ steps.get_repo_name.outputs.value }}
+          run_id: ${{ github.run_id }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Wait for the run to be cancelled
+        if: steps.check_if_built.outputs.skip_build == 1
+        run: sleep 60
+
   build:
+    needs: check_last_build
+    if: always() && needs.check_last_build.skip_build != 1
     strategy:
       matrix:
         include:
