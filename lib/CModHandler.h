@@ -371,6 +371,7 @@ public:
 		}
 		else
 		{
+			loadMods();
 			std::vector<TModID> newActiveMods;
 			h & newActiveMods;
 			for(auto & m : newActiveMods)
