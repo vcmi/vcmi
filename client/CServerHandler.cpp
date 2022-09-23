@@ -17,6 +17,7 @@
 
 #include "lobby/CSelectionBase.h"
 #include "lobby/CLobbyScreen.h"
+#include "windows/InfoWindows.h"
 
 #include "mainmenu/CMainMenu.h"
 
@@ -161,6 +162,20 @@ void CServerHandler::startLocalServerAndConnect()
 		threadRunLocalServer->join();
 
 	th->update();
+	
+	auto errorMsg = CGI->generaltexth->localizedTexts["server"]["errors"]["existingProcess"].String();
+	try
+	{
+		CConnection testConnection(settings["server"]["server"].String(), getDefaultPort(), NAME, uuid);
+		logNetwork->error("Port is busy, check if another instance of vcmiserver is working");
+		CInfoWindow::showInfoDialog(errorMsg, {});
+		return;
+	}
+	catch(...)
+	{
+		//no connection means that port is not busy and we can start local server
+	}
+	
 #ifdef VCMI_ANDROID
 	{
 		CAndroidVMHelper envHelper;
