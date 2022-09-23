@@ -19,6 +19,9 @@
 
 TerrainTypeHandler::TerrainTypeHandler()
 {
+	initRivers();
+	initRoads();
+
 	auto allConfigs = VLC->modh->getActiveMods();
 	allConfigs.insert(allConfigs.begin(), "core");
 
@@ -97,16 +100,16 @@ TerrainTypeHandler::TerrainTypeHandler()
 			
 			if(terr.second["river"].isNull())
 			{
-				info->river = RIVER_NAMES[0];
+				info->river = River::NO_RIVER;
 			}
 			else
 			{
-				info->river = terr.second["river"].String();
+				info->river = getRiverByCode(terr.second["river"].String())->id;
 			}
 			
 			if(terr.second["horseSoundId"].isNull())
 			{
-				info->horseSoundId = 9; //rock sound as default
+				info->horseSoundId = Terrain::ROCK; //rock sound as default
 			}
 			else
 			{
@@ -191,6 +194,61 @@ TerrainTypeHandler::TerrainTypeHandler()
 	}
 }
 
+void TerrainTypeHandler::initRivers()
+{
+	//TODO: load from file?
+
+	const std::vector<std::string> RIVER_DELTA_TEMPLATE_NAME
+	{
+		{""},
+		{"clrdelt"},
+		{"icedelt"},
+		{"muddelt"},
+		{"lavdelt"}
+	};
+
+	const std::vector<std::pair<std::string, std::string>> RIVER_CONSTANTS =
+	{
+		{"", ""},
+		{"clrrvr", "rw"},
+		{"icyrvr", "ri"},
+		{"mudrvr", "rm"},
+		{"lavrvr", "rl"}
+	};
+
+	for (size_t i = 0; i < std::size(RIVER_CONSTANTS); i++)
+	{
+		riverTypes.emplace_back(new RiverType(RIVER_CONSTANTS[i].first, RIVER_CONSTANTS[i].second, i));
+		riverTypes[i]->deltaName = RIVER_DELTA_TEMPLATE_NAME[i];
+	}
+
+	recreateRiverMaps();
+}
+
+void TerrainTypeHandler::initRoads()
+{
+	//TODO: read from config
+
+	const std::vector<std::pair<std::string, std::string>> ROAD_CONSTANTS =
+	{
+		{"", ""},
+		{"dirtrd", "pd"},
+		{"gravrd", "pg"},
+		{"cobbrd", "pc"}
+	};
+
+	for (size_t i = 0; i < std::size(ROAD_CONSTANTS); i++)
+	{
+		roadTypes.emplace_back(new RoadType(ROAD_CONSTANTS[i].first, ROAD_CONSTANTS[i].second, i));
+	}
+	
+	roadTypes[1]->movementCost = 75;
+	roadTypes[2]->movementCost = 65;
+	roadTypes[3]->movementCost = 50;
+
+	recreateRoadMaps();
+}
+
 void TerrainTypeHandler::recreateTerrainMaps()
 {
 	for (const TerrainType * terrainInfo : objects)
@@ -201,9 +259,39 @@ void TerrainTypeHandler::recreateTerrainMaps()
 	}
 }
 
+void TerrainTypeHandler::recreateRiverMaps()
+{
+	for (const RiverType * riverInfo : riverTypes)
+	{
+		riverInfoByName[riverInfo->fileName] = riverInfo;
+		riverInfoByCode[riverInfo->code] = riverInfo;
+		riverInfoById[riverInfo->id] = riverInfo;
+	}
+}
+
+void TerrainTypeHandler::recreateRoadMaps()
+{
+	for (const RoadType * roadInfo : roadTypes)
+	{
+		roadInfoByName[roadInfo->fileName] = roadInfo;
+		roadInfoByCode[roadInfo->code] = roadInfo;
+		roadInfoById[roadInfo->id] = roadInfo;
+	}
+}
+
 const std::vector<TerrainType *> & TerrainTypeHandler::terrains() const
 {
 	return objects;
+}
+
+const std::vector<RiverType*>& TerrainTypeHandler::rivers() const
+{
+	return riverTypes;
+}
+
+const std::vector<RoadType*>& TerrainTypeHandler::roads() const
+{
+	return roadTypes;
 }
 
 const TerrainType* TerrainTypeHandler::getInfoByName(const std::string& terrainName) const
@@ -219,6 +307,36 @@ const TerrainType* TerrainTypeHandler::getInfoByCode(const std::string& terrainC
 const TerrainType* TerrainTypeHandler::getInfoById(TTerrain id) const
 {
 	return terrainInfoById.at(id);
+}
+
+const RiverType* TerrainTypeHandler::getRiverByName(const std::string& riverName) const
+{
+	return riverInfoByName.at(riverName);
+}
+
+const RiverType* TerrainTypeHandler::getRiverByCode(const std::string& riverCode) const
+{
+	return riverInfoByCode.at(riverCode);
+}
+
+const RiverType* TerrainTypeHandler::getRiverById(TRiver id) const
+{
+	return riverInfoById.at(id);
+}
+
+const RoadType* TerrainTypeHandler::getRoadByName(const std::string& roadName) const
+{
+	return roadInfoByName.at(roadName);
+}
+
+const RoadType* TerrainTypeHandler::getRoadByCode(const std::string& roadCode) const
+{
+	return roadInfoByCode.at(roadCode);
+}
+
+const RoadType* TerrainTypeHandler::getRoadById(TRoad id) const
+{
+	return roadInfoById.at(id);
 }
 
 std::ostream & operator<<(std::ostream & os, const TerrainType & terrainType)
@@ -292,4 +410,19 @@ bool TerrainType::isUnderground() const
 bool TerrainType::isTransitionRequired() const
 {
 	return transitionRequired;
+}
+
+RiverType::RiverType(const std::string & fileName, const std::string & code, TRiver id):
+	fileName(fileName),
+	code(code),
+	id(id)
+{
+}
+
+RoadType::RoadType(const std::string& fileName, const std::string& code, TRoad id):
+	fileName(fileName),
+	code(code),
+	id(id),
+	movementCost(GameConstants::BASE_MOVEMENT_COST)
+{
 }

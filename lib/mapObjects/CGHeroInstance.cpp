@@ -79,24 +79,9 @@ ui32 CGHeroInstance::getTileCost(const TerrainTile & dest, const TerrainTile & f
 	int64_t ret = GameConstants::BASE_MOVEMENT_COST;
 
 	//if there is road both on dest and src tiles - use road movement cost
-	if(dest.roadType != ROAD_NAMES[0] && from.roadType != ROAD_NAMES[0])
+	if(dest.roadType->id && from.roadType->id)
 	{
-		int roadPos = std::min(vstd::find_pos(ROAD_NAMES, dest.roadType), vstd::find_pos(ROAD_NAMES, from.roadType)); //used road ID
-		switch(roadPos)
-		{
-		case 1:
-			ret = 75;
-			break;
-		case 2:
-			ret = 65;
-			break;
-		case 3:
-			ret = 50;
-			break;
-		default:
-			logGlobal->error("Unknown road type: %d", roadPos);
-			break;
-		}
+		ret = std::max(dest.roadType->movementCost, from.roadType->movementCost);
 	}
 	else if(ti->nativeTerrain != from.terType->id &&//the terrain is not native
 			ti->nativeTerrain != Terrain::ANY_TERRAIN && //no special creature bonus

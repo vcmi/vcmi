@@ -32,10 +32,10 @@ public:
 	ETileType::ETileType getTileType() const;
 	void setTerrainType(TTerrain value);
 	
-	void setRoadType(const std::string & value);
+	void setRoadType(TRoad type);
 private:
 	float nearestObjectDistance;
 	ETileType::ETileType occupied;
 	TTerrain terrain;
-	std::string roadType;
+	TRoad roadType;
 };

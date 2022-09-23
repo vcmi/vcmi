@@ -135,7 +135,6 @@ void initTerrainType(Zone & zone, CMapGenerator & gen)
 		}
 		
 		//Now, replace disallowed terrains on surface and in the underground
-		//TODO: allow new types of terrain?
 		const auto* terrainType = VLC->terrainTypeHandler->terrains()[zone.getTerrainType()];
 
 		if(zone.isUnderground())

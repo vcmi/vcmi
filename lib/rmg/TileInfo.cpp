@@ -44,7 +44,7 @@ bool TileInfo::isFree() const
 
 bool TileInfo::isRoad() const
 {
-	return roadType != ROAD_NAMES[0];
+	return roadType != Road::NO_ROAD;
 }
 
 bool TileInfo::isUsed() const
@@ -71,8 +71,8 @@ void TileInfo::setTerrainType(TTerrain type)
 	terrain = type;
 }
 
-void TileInfo::setRoadType(const std::string & value)
+void TileInfo::setRoadType(TRoad type)
 {
-	roadType = value;
+	roadType = type;
 	//	setOccupied(ETileType::FREE);
 }

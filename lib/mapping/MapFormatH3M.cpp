@@ -922,16 +922,13 @@ void CMapLoaderH3M::readTerrain()
 {
 	map->initTerrain();
 	const auto terrains = VLC->terrainTypeHandler->terrains();
+	const auto rivers = VLC->terrainTypeHandler->rivers();
+	const auto roads = VLC->terrainTypeHandler->roads();
 
 	// Read terrain
 	int3 pos;
-	for(pos.z = 0; pos.z < 2; ++pos.z)
+	for(pos.z = 0; pos.z < map->levels(); ++pos.z)
 	{
-		if(pos.z == 1 && !map->twoLevel)
-		{
-			break;
-		}
-
 		//OH3 format is [z][y][x]
 		for(pos.y = 0; pos.y < map->height; pos.y++)
 		{
@@ -940,9 +937,9 @@ void CMapLoaderH3M::readTerrain()
 				auto & tile = map->getTile(pos);
 				tile.terType = terrains[reader.readUInt8()];
 				tile.terView = reader.readUInt8();
-				tile.riverType = RIVER_NAMES[reader.readUInt8()];
+				tile.riverType = rivers[reader.readUInt8()];
 				tile.riverDir = reader.readUInt8();
-				tile.roadType = ROAD_NAMES[reader.readUInt8()];
+				tile.roadType = roads[reader.readUInt8()];
 				tile.roadDir = reader.readUInt8();
 				tile.extTileFlags = reader.readUInt8();
 				tile.blocked = ((!tile.terType->isPassable() || tile.terType->id == Terrain::BORDER ) ? true : false); //underground tiles are always blocked

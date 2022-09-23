@@ -126,15 +126,14 @@ CCastleEvent::CCastleEvent() : town(nullptr)
 TerrainTile::TerrainTile():
 	terType(nullptr),
 	terView(0),
-	riverType(RIVER_NAMES[0]),
 	riverDir(0),
-	roadType(ROAD_NAMES[0]),
 	roadDir(0),
 	extTileFlags(0),
 	visitable(false),
 	blocked(false)
 {
-
+	riverType = VLC->terrainTypeHandler->rivers()[0];
+	roadType = VLC->terrainTypeHandler->roads()[0];
 }
 
 bool TerrainTile::entrableTerrain(const TerrainTile * from) const

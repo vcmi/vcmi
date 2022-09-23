@@ -229,7 +229,7 @@ void RmgMap::setOccupied(const int3 &tile, ETileType::ETileType state)
 	tiles[tile.x][tile.y][tile.z].setOccupied(state);
 }
 
-void RmgMap::setRoad(const int3& tile, const std::string & roadType)
+void RmgMap::setRoad(const int3& tile, TRoad roadType)
 {
 	assertOnMap(tile);
 	

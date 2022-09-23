@@ -44,7 +44,7 @@ public:
 	bool isOnMap(const int3 & tile) const;
 	
 	void setOccupied(const int3 &tile, ETileType::ETileType state);
-	void setRoad(const int3 &tile, const std::string & roadType);
+	void setRoad(const int3 &tile, TRoad roadType);
 	
 	TileInfo getTile(const int3 & tile) const;
 		

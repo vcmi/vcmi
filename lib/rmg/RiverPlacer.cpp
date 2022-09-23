@@ -22,15 +22,9 @@
 #include "WaterProxy.h"
 #include "RoadPlacer.h"
 
+//TODO: move to Obj:: ?
 const int RIVER_DELTA_ID = 143;
 const int RIVER_DELTA_SUBTYPE = 0;
-const std::map<std::string, std::string> RIVER_DELTA_TEMPLATE_NAME
-{
-	{RIVER_NAMES[1], "clrdelt"},
-	{RIVER_NAMES[2], "icedelt"},
-	{RIVER_NAMES[3], "muddelt"},
-	{RIVER_NAMES[4], "lavdelt"}
-};
 
 const std::array<std::array<int, 25>, 4> deltaTemplates
 {
@@ -238,7 +232,7 @@ void RiverPlacer::preprocess()
 						deltaOrientations[p] = templateId + 1;
 						
 						//specific case: deltas for ice rivers amd mud rivers are messed :(
-						if(river == RIVER_NAMES[2])
+						if(river == River::ICY_RIVER)
 						{
 							switch(deltaOrientations[p])
 							{
@@ -256,7 +250,7 @@ void RiverPlacer::preprocess()
 									break;
 							}
 						}
-						if(river == RIVER_NAMES[3])
+						if(river == River::MUD_RIVER)
 						{
 							switch(deltaOrientations[p])
 							{
@@ -326,8 +320,9 @@ void RiverPlacer::preprocess()
 
 void RiverPlacer::connectRiver(const int3 & tile)
 {
-	auto river = VLC->terrainTypeHandler->terrains()[zone.getTerrainType()]->river;
-	if(river.empty() || river == RIVER_NAMES[0])
+	auto riverType = VLC->terrainTypeHandler->terrains()[zone.getTerrainType()]->river;
+	auto river = VLC->terrainTypeHandler->rivers()[riverType];
+	if(river->id == River::NO_RIVER)
 		return;
 	
 	rmg::Area roads;
@@ -386,7 +381,7 @@ void RiverPlacer::connectRiver(const int3 & tile)
 			if(tmplates.size() % 4 != 0)
 				throw rmgException(boost::to_string(boost::format("River templates for (%d,%d) at terrain %s, river %s are incorrect") % RIVER_DELTA_ID % RIVER_DELTA_SUBTYPE % zone.getTerrainType() % river));
 			
-			std::string targetTemplateName = RIVER_DELTA_TEMPLATE_NAME.at(river) + std::to_string(deltaOrientations[pos]) + ".def";
+			std::string targetTemplateName = river->deltaName + std::to_string(deltaOrientations[pos]) + ".def";
 			for(auto & templ : tmplates)
 			{
 				if(templ->animationFile == targetTemplateName)
