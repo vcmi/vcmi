@@ -90,7 +90,7 @@ private:
 	std::shared_ptr<CLabel> labelTabTitle;
 	std::shared_ptr<CLabel> labelMapSizes;
 	ESelectionScreen tabType;
-    Rect inputNameRect;
+	Rect inputNameRect;
 
 	void parseMaps(const std::unordered_set<ResourceID> & files);
 	void parseSaves(const std::unordered_set<ResourceID> & files);

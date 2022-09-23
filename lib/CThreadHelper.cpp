@@ -87,7 +87,7 @@ void setThreadName(const std::string &name)
 #elif defined(__linux__)
 	prctl(PR_SET_NAME, name.c_str(), 0, 0, 0);
 #elif defined(VCMI_APPLE)
-    pthread_setname_np(name.c_str());
+	pthread_setname_np(name.c_str());
 #endif
 }
 

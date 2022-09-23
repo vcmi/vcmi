@@ -27,7 +27,7 @@ namespace
 template<typename Node>
 Node & resolvePointer(Node & in, const std::string & pointer)
 {
-	if (pointer.empty())
+	if(pointer.empty())
 		return in;
 	assert(pointer[0] == '/');
 
@@ -36,12 +36,12 @@ Node & resolvePointer(Node & in, const std::string & pointer)
 	std::string entry = pointer.substr(1, splitPos - 1);
 	std::string remainer = splitPos == std::string::npos ? "" : pointer.substr(splitPos);
 
-	if (in.getType() == VCMI_LIB_WRAP_NAMESPACE(JsonNode)::JsonType::DATA_VECTOR)
+	if(in.getType() == VCMI_LIB_WRAP_NAMESPACE(JsonNode)::JsonType::DATA_VECTOR)
 	{
-		if (entry.find_first_not_of("0123456789") != std::string::npos) // non-numbers in string
+		if(entry.find_first_not_of("0123456789") != std::string::npos) // non-numbers in string
 			throw std::runtime_error("Invalid Json pointer");
 
-		if (entry.size() > 1 && entry[0] == '0') // leading zeros are not allowed
+		if(entry.size() > 1 && entry[0] == '0') // leading zeros are not allowed
 			throw std::runtime_error("Invalid Json pointer");
 
 		size_t index = boost::lexical_cast<size_t>(entry);

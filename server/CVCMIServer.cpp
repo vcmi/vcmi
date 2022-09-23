@@ -927,7 +927,7 @@ int main(int argc, char * argv[])
 	logConfig.configureDefault();
 	logGlobal->info(SERVER_NAME);
 
-    boost::program_options::variables_map opts;
+	boost::program_options::variables_map opts;
 	handleCommandOptions(argc, argv, opts);
 	preinitDLL(console);
 	settings.init();
