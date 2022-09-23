@@ -133,8 +133,9 @@ class DLL_LINKAGE TerrainTypeHandler //TODO: public IHandlerBase ?
 public:
 
 	TerrainTypeHandler();
-	void initRivers();
-	void initRoads();
+	void initTerrains(const std::vector<std::string> & allConfigs);
+	void initRivers(const std::vector<std::string> & allConfigs);
+	void initRoads(const std::vector<std::string> & allConfigs);
 
 	const std::vector<TerrainType *> & terrains() const;
 	const TerrainType * getInfoByName(const std::string & terrainName) const;

@@ -19,12 +19,18 @@
 
 TerrainTypeHandler::TerrainTypeHandler()
 {
-	initRivers();
-	initRoads();
-
 	auto allConfigs = VLC->modh->getActiveMods();
 	allConfigs.insert(allConfigs.begin(), "core");
 
+	initRivers(allConfigs);
+	recreateRiverMaps();
+	initRoads(allConfigs);
+	recreateRoadMaps();
+	initTerrains(allConfigs); //maps will be populated inside
+}
+
+void TerrainTypeHandler::initTerrains(const std::vector<std::string> & allConfigs)
+{
 	std::vector<std::function<void()>> resolveLater;
 
 	objects.resize(Terrain::ORIGINAL_TERRAIN_COUNT, nullptr); //make space for original terrains
@@ -194,11 +200,8 @@ TerrainTypeHandler::TerrainTypeHandler()
 	}
 }
 
-void TerrainTypeHandler::initRivers()
+void TerrainTypeHandler::initRivers(const std::vector<std::string> & allConfigs)
 {
-	auto allConfigs = VLC->modh->getActiveMods();
-	allConfigs.insert(allConfigs.begin(), "core");
-
 	riverTypes.resize(River::ORIGINAL_RIVER_COUNT, nullptr); //make space for original rivers
 	riverTypes[River::NO_RIVER] = new RiverType(); //default
 
@@ -233,11 +236,8 @@ void TerrainTypeHandler::initRivers()
 	recreateRiverMaps();
 }
 
-void TerrainTypeHandler::initRoads()
+void TerrainTypeHandler::initRoads(const std::vector<std::string> & allConfigs)
 {
-	auto allConfigs = VLC->modh->getActiveMods();
-	allConfigs.insert(allConfigs.begin(), "core");
-
 	roadTypes.resize(Road::ORIGINAL_ROAD_COUNT, nullptr); //make space for original rivers
 	roadTypes[Road::NO_ROAD] = new RoadType(); //default
 
