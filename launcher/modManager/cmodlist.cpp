@@ -284,6 +284,15 @@ CModEntry CModList::getMod(QString modname) const
 		}
 	}
 
+	if(settings.value("active").toBool())
+	{
+		auto compatibility = local.value("compatibility").toMap();
+		if(compatibility["min"].isValid() || compatibility["max"].isValid())
+			if(!isCompatible(compatibility["min"].toString(), compatibility["max"].toString()))
+				settings["active"] = false;
+	}
+
+
 	for(auto entry : repositories)
 	{
 		QVariant repoVal = getValue(entry, path);
