@@ -309,3 +309,15 @@ struct LobbyForceSetPlayer : public CLobbyPackToServer
 		h & targetPlayerColor;
 	}
 };
+
+struct LobbyShowMessage : public CLobbyPackToPropagate
+{
+	std::string message;
+	
+	void applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler);
+	
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & message;
+	}
+};

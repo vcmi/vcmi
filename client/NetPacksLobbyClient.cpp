@@ -137,3 +137,9 @@ void LobbyUpdateState::applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler *
 	if(hostChanged)
 		lobby->toggleMode(handler->isHost());
 }
+
+void LobbyShowMessage::applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler)
+{
+	lobby->buttonStart->block(false);
+	handler->showServerError(message);
+}
