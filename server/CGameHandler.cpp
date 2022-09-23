@@ -2987,7 +2987,9 @@ bool CGameHandler::load(const std::string & filename)
 	catch(const CModHandler::Incompatibility & e)
 	{
 		logGlobal->error("Failed to load game: %s", e.what());
-		lobby->announceMessage(e.what());
+		auto errorMsg = VLC->generaltexth->localizedTexts["server"]["errors"]["modsIncompatibility"].String() + '\n';
+		errorMsg += e.what();
+		lobby->announceMessage(errorMsg);
 		return false;
 	}
 	catch(const std::exception & e)

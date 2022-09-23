@@ -276,18 +276,16 @@ class DLL_LINKAGE CModHandler
 	void loadOneMod(std::string modName, std::string parent, const JsonNode & modSettings, bool enableMods);
 public:
 	
-	class DLL_LINKAGE Incompatibility: public std::logic_error
+	class DLL_LINKAGE Incompatibility: public std::exception
 	{
 	public:
 		using StringPair = std::pair<const std::string, const std::string>;
 		using ModList = std::list<StringPair>;
 		
 		Incompatibility(ModList && _missingMods):
-			std::logic_error("Mods are required to load game"),
 			missingMods(std::move(_missingMods))
 		{
 			std::ostringstream _ss;
-			_ss << std::logic_error::what() << std::endl;
 			for(auto & m : missingMods)
 				_ss << m.first << ' ' << m.second << std::endl;
 			message = _ss.str();
