@@ -916,10 +916,8 @@ DLL_LINKAGE void SwapStacks::applyGs(CGameState * gs)
 
 DLL_LINKAGE void InsertNewStack::applyGs(CGameState *gs)
 {
-	auto s = new CStackInstance(type, count);
-	auto obj = gs->getArmyInstance(army);
-	if(obj)
-		obj->putStack(slot, s);
+	if(auto obj = gs->getArmyInstance(army))
+		obj->putStack(slot, new CStackInstance(type, count));
 	else
 		logNetwork->error("[CRITICAL] InsertNewStack: invalid army object %d, possible game state corruption.", army.getNum());
 }
