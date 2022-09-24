@@ -205,8 +205,6 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 	logAi->trace("checking %s", info.name);
 	logAi->trace("buildInfo %s", info.toString());
 
-	buildPtr = nullptr;
-
 	if(!town->hasBuilt(building))
 	{
 		auto canBuild = ai->cb->canBuildStructure(town, building);
@@ -239,8 +237,6 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 			}
 			else
 			{
-				buildPtr = townInfo->buildings.at(building);
-
 				logAi->trace("cant build. Need %d", missingBuildings[0].num);
 
 				BuildingInfo prerequisite = getBuildingOrPrerequisite(town, missingBuildings[0], excludeDwellingDependencies);

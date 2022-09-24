@@ -1230,7 +1230,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 	{
 		if (b.type != Bonus::REBIRTH)
 			b.val = 0; //on-off ability, no value specified
-		curVal = static_cast<si32>(parser.readNumber());// 0 level is never active
+		parser.readNumber(); // 0 level is never active
 		for (int i = 1; i < 11; ++i)
 		{
 			curVal = static_cast<si32>(parser.readNumber());
