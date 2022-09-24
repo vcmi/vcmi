@@ -1327,7 +1327,7 @@ void CPlayerInterface::availableCreaturesChanged( const CGDwelling *town )
 				ki->townChanged(townObj);
 		}
 	}
-	else if (GH.listInt.size() && (town->ID == Obj::CREATURE_GENERATOR1
+	else if(town && GH.listInt.size() && (town->ID == Obj::CREATURE_GENERATOR1
 		||  town->ID == Obj::CREATURE_GENERATOR4  ||  town->ID == Obj::WAR_MACHINE_FACTORY))
 	{
 		CRecruitmentWindow *crw = dynamic_cast<CRecruitmentWindow*>(GH.topInt().get());
