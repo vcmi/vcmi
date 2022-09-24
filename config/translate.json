@@ -32,7 +32,7 @@
 		"errors" :
 		{
 			"existingProcess" : "Another vcmiserver process is running, please terminate it first",
-			"modsIncompatibility" : "Mods are required to load game:"
+			"modsIncompatibility" : "Required mods to load game:"
 		}
 	},
 	"systemOptions" :

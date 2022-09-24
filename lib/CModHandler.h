@@ -396,7 +396,8 @@ public:
 			h & newActiveMods;
 			
 			Incompatibility::ModList missingMods;
-			for(auto & m : newActiveMods)
+			for(const auto & m : newActiveMods)
+
 			{
 				CModInfo::Version mver;
 				h & mver;

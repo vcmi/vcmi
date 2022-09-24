@@ -316,7 +316,7 @@ struct LobbyShowMessage : public CLobbyPackToPropagate
 	
 	void applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler);
 	
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & message;
 	}
