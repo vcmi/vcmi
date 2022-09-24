@@ -970,7 +970,7 @@
 	"favorableWinds" : {
 		"index" :225,
 		"handler": "terrain",
-		"types" : { "object" : { "index" : 0, "battleground": "favorable_winds" } }
+		"types" : { "object" : { "index" : 0, "battleground": "ship" } }
 	},
 	"fieryFields": {
 		"index" :226,
