@@ -12,6 +12,8 @@
 
 #include "Entity.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CreatureID;
 
 class DLL_LINKAGE Creature : public EntityWithBonuses<CreatureID>
@@ -43,3 +45,5 @@ public:
 
 	virtual bool isDoubleWide() const = 0;
 };
+
+VCMI_LIB_NAMESPACE_END

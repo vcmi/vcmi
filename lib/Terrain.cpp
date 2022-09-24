@@ -13,6 +13,8 @@
 #include "VCMI_Lib.h"
 #include "CModHandler.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 //regular expression to change id for string at config
 //("allowedTerrain"\s*:\s*\[.*)9(.*\],\n)
 //\1"rock"\2
@@ -201,12 +203,6 @@ Terrain::operator std::string() const
 Terrain::Terrain(const std::string & _name) : name(_name)
 {}
 	
-Terrain& Terrain::operator=(const Terrain & _name)
-{
-	name = _name.name;
-	return *this;
-}
-	
 Terrain& Terrain::operator=(const std::string & _name)
 {
 	name = _name;
@@ -257,3 +253,5 @@ bool Terrain::isTransitionRequired() const
 {
 	return Terrain::Manager::getInfo(*this).transitionRequired;
 }
+
+VCMI_LIB_NAMESPACE_END

@@ -106,10 +106,10 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 		{
 			if(path.getHeroStrength() > treat.danger)
 			{
-				if(path.turn() <= treat.turn && dayOfWeek + treat.turn < 6 && isSafeToVisit(path.targetHero, path.heroArmy, treat.danger)
-					|| path.exchangeCount == 1 && path.turn() < treat.turn
+				if((path.turn() <= treat.turn && dayOfWeek + treat.turn < 6 && isSafeToVisit(path.targetHero, path.heroArmy, treat.danger))
+					|| (path.exchangeCount == 1 && path.turn() < treat.turn)
 					|| path.turn() < treat.turn - 1
-					|| path.turn() < treat.turn && treat.turn >= 2)
+					|| (path.turn() < treat.turn && treat.turn >= 2))
 				{
 					logAi->debug(
 						"Hero %s can eliminate danger for town %s using path %s.",
@@ -217,7 +217,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 				// dismiss creatures we are not able to pick to be able to hide in garrison
 				if(town->garrisonHero
 					|| town->getUpperArmy()->stacksCount() == 0
-					|| town->getUpperArmy()->getArmyStrength() < 500 && town->fortLevel() >= CGTownInstance::CITADEL)
+					|| (town->getUpperArmy()->getArmyStrength() < 500 && town->fortLevel() >= CGTownInstance::CITADEL))
 				{
 					tasks.push_back(
 						Goals::sptr(Composition()
@@ -228,7 +228,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 				continue;
 			}
 				
-			if(treat.turn == 0 || path.turn() <= treat.turn && path.getHeroStrength() * SAFE_ATTACK_CONSTANT >= treat.danger)
+			if(treat.turn == 0 || (path.turn() <= treat.turn && path.getHeroStrength() * SAFE_ATTACK_CONSTANT >= treat.danger))
 			{
 				if(ai->nullkiller->arePathHeroesLocked(path))
 				{

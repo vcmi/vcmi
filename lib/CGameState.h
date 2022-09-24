@@ -22,8 +22,14 @@
 #include "CGameStateFwd.h"
 #include "CPathfinder.h"
 
+namespace boost
+{
+class shared_mutex;
+}
+
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CTown;
-class CCallback;
 class IGameCallback;
 class CCreatureSet;
 class CQuest;
@@ -36,7 +42,6 @@ class CGObjectInstance;
 class CCreature;
 class CMap;
 struct StartInfo;
-class CMapHandler;
 struct SetObjectProperty;
 struct MetaString;
 struct CPack;
@@ -47,19 +52,12 @@ class CCampaign;
 class CCampaignState;
 class IModableArt;
 class CGGarrison;
-class CGameInfo;
 struct QuestInfo;
 class CQuest;
 class CCampaignScenario;
 struct EventCondition;
 class CScenarioTravel;
 class IMapService;
-
-namespace boost
-{
-	class shared_mutex;
-}
-
 
 
 template<typename T> class CApplier;
@@ -305,3 +303,5 @@ private:
 	friend class CMapHandler;
 	friend class CGameHandler;
 };
+
+VCMI_LIB_NAMESPACE_END

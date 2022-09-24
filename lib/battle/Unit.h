@@ -17,6 +17,8 @@
 #include "IUnitInfo.h"
 #include "BattleHex.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 struct MetaString;
 class JsonNode;
 class JsonSerializeFormat;
@@ -129,3 +131,5 @@ public:
 };
 
 }
+
+VCMI_LIB_NAMESPACE_END

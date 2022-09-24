@@ -14,10 +14,11 @@
 
 #include <boost/program_options.hpp>
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CMapInfo;
 
 struct CPackForLobby;
-class CGameHandler;
 struct SharedMemory;
 
 struct StartInfo;
@@ -26,6 +27,10 @@ struct PlayerSettings;
 class PlayerColor;
 
 template<typename T> class CApplier;
+
+VCMI_LIB_NAMESPACE_END
+
+class CGameHandler;
 class CBaseForServerApply;
 class CBaseForGHApply;
 
@@ -103,5 +108,7 @@ public:
 
 #ifdef VCMI_ANDROID
 	static void create();
+#elif defined(SINGLE_PROCESS_APP)
+    static void create(boost::condition_variable * cond, const std::string & uuid);
 #endif
 };

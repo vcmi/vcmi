@@ -11,6 +11,8 @@
 #pragma once
 #include "Zone.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 struct RouteInfo
 {
 	rmg::Area blocked;
@@ -53,3 +55,5 @@ protected:
 	std::map<int3, int> lakeMap; //map tile on lakeId which is position of lake in lakes array +1
 };
 
+
+VCMI_LIB_NAMESPACE_END

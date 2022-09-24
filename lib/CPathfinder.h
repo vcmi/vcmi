@@ -17,6 +17,8 @@
 
 #include <boost/heap/fibonacci_heap.hpp>
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 
 class CGHeroInstance;
 class CGObjectInstance;
@@ -386,6 +388,9 @@ class DLL_LINKAGE INodeStorage
 {
 public:
 	using ELayer = EPathfindingLayer;
+
+	virtual ~INodeStorage() = default;
+
 	virtual std::vector<CGPathNode *> getInitialNodes() = 0;
 
 	virtual std::vector<CGPathNode *> calculateNeighbours(
@@ -448,6 +453,7 @@ public:
 	PathfinderConfig(
 		std::shared_ptr<INodeStorage> nodeStorage,
 		std::vector<std::shared_ptr<IPathfindingRule>> rules);
+	virtual ~PathfinderConfig() = default;
 
 	virtual CPathfinderHelper * getOrCreatePathfinderHelper(const PathNodeInfo & source, CGameState * gs) = 0;
 };
@@ -606,3 +612,5 @@ public:
 	int movementPointsAfterEmbark(int movement, int basicCost, bool disembark) const;
 	bool passOneTurnLimitCheck(const PathNodeInfo & source) const;
 };
+
+VCMI_LIB_NAMESPACE_END

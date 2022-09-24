@@ -19,6 +19,8 @@
 #include "../mapObjects/CGTownInstance.h"
 #include "../BattleFieldHandler.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace SiegeStuffThatShouldBeMovedToHandlers // <=== TODO
 {
 /*
@@ -1991,3 +1993,5 @@ boost::optional<int> CBattleInfoCallback::battleIsFinished() const
 	else
 		return 1;
 }
+
+VCMI_LIB_NAMESPACE_END

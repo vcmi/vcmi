@@ -12,6 +12,8 @@
 
 #include <vcmi/events/ApplyDamage.h>
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace events
 {
 
@@ -28,12 +30,10 @@ public:
 private:
 	int64_t initalDamage;
 
-	const Environment * env;
 	BattleStackAttacked * pack;
 	std::shared_ptr<battle::Unit> target;
 };
 
 }
 
-
-
+VCMI_LIB_NAMESPACE_END

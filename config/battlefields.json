@@ -124,10 +124,6 @@
 			}
 		]
 	},
-	"favorable_winds": {
-		"graphics": "CMBKFW.BMP",
-		"isSpecial" : true
-	},
 	"cursed_ground": {
 		"graphics": "CMBKCUR.BMP",
 		"isSpecial" : true,

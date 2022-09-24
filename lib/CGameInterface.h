@@ -17,12 +17,15 @@
 
 #include "mapObjects/CObjectHandler.h"
 
+class CBattleCallback;
+class CCallback;
+
+VCMI_LIB_NAMESPACE_BEGIN
+
 using boost::logic::tribool;
 
 class Environment;
 
-class CCallback;
-class CBattleCallback;
 class ICallback;
 class CGlobalAI;
 struct Component;
@@ -159,3 +162,5 @@ public:
 	virtual void saveGame(BinarySerializer & h, const int version) override;
 	virtual void loadGame(BinaryDeserializer & h, const int version) override;
 };
+
+VCMI_LIB_NAMESPACE_END

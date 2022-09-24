@@ -10,6 +10,8 @@
 
 #pragma once
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 enum class Metatype : uint32_t
 {
 	UNKNOWN = 0,
@@ -28,3 +30,5 @@ enum class Metatype : uint32_t
 	SPELL
 };
 
+
+VCMI_LIB_NAMESPACE_END

@@ -21,6 +21,8 @@
 #include "CRandomGenerator.h"
 #include "Terrain.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CLegacyConfigParser;
 class CCreatureHandler;
 class CCreature;
@@ -303,3 +305,5 @@ public:
 		BONUS_TREE_DESERIALIZATION_FIX
 	}
 };
+
+VCMI_LIB_NAMESPACE_END

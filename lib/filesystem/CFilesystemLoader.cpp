@@ -13,6 +13,8 @@
 #include "CFileInputStream.h"
 #include "FileStream.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace bfs = boost::filesystem;
 
 CFilesystemLoader::CFilesystemLoader(std::string _mountPoint, bfs::path baseDirectory, size_t depth, bool initial):
@@ -164,3 +166,5 @@ std::unordered_map<ResourceID, bfs::path> CFilesystemLoader::listFiles(const std
 
 	return fileList;
 }
+
+VCMI_LIB_NAMESPACE_END

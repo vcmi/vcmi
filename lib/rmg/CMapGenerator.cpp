@@ -27,6 +27,8 @@
 #include "TreasurePlacer.h"
 #include "RoadPlacer.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 CMapGenerator::CMapGenerator(CMapGenOptions& mapGenOptions, int RandomSeed) :
 	mapGenOptions(mapGenOptions), randomSeed(RandomSeed),
 	prisonsRemaining(0), monolithIndex(0)
@@ -396,3 +398,5 @@ Zone * CMapGenerator::getZoneWater() const
 			return z.second.get();
 	return nullptr;
 }
+
+VCMI_LIB_NAMESPACE_END

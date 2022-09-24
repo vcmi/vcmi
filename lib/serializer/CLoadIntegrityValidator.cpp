@@ -13,6 +13,8 @@
 
 #include "../registerTypes/RegisterTypes.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 CLoadIntegrityValidator::CLoadIntegrityValidator(const boost::filesystem::path &primaryFileName, const boost::filesystem::path &controlFileName, int minimalVersion)
 	: serializer(this), foundDesync(false)
 {
@@ -63,3 +65,5 @@ void CLoadIntegrityValidator::checkMagicBytes( const std::string &text )
 	primaryFile->checkMagicBytes(text);
 	controlFile->checkMagicBytes(text);
 }
+
+VCMI_LIB_NAMESPACE_END

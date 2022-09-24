@@ -11,6 +11,8 @@
 #include "CCallbackBase.h"
 #include "IBattleInfoCallback.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CGTownInstance;
 class CGHeroInstance;
 class CStack;
@@ -113,3 +115,5 @@ public:
 	bool battleMatchOwner(const battle::Unit * attacker, const battle::Unit * defender, const boost::logic::tribool positivness = false) const;
 	bool battleMatchOwner(const PlayerColor & attacker, const battle::Unit * defender, const boost::logic::tribool positivness = false) const;
 };
+
+VCMI_LIB_NAMESPACE_END

@@ -155,6 +155,7 @@ typedef void (*BlitterWithRotationVal)(SDL_Surface *src,SDL_Rect srcRect, SDL_Su
 class ColorShifter
 {
 public:
+	virtual ~ColorShifter() = default;
 	virtual SDL_Color shiftColor(SDL_Color clr) const = 0;
 };
 

@@ -14,6 +14,8 @@
 #include "../int3.h"
 #include "CRmgTemplate.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class JsonNode;
 
 /// The CJsonRmgTemplateLoader loads templates from a JSON file.
@@ -36,3 +38,5 @@ private:
 	std::map<std::string, CRmgTemplate> templates;
 };
 
+
+VCMI_LIB_NAMESPACE_END

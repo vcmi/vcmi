@@ -1,4 +1,22 @@
-0.99 -> 1.0
+1.0.0 -> 1.1.0
+
+GENERAL:
+* Mods and their versions and serialized into save files. Game checks mod compatibility before loading
+* Logs are stored in system default logs directory
+* LUA/ERM libs are not compiled by default
+* FFMpeg dependency is optional now
+
+MODS:
+* Supported rewardable objects customization
+* Battleground obstacles are extendable now with VLC mechanism
+* Introduced "compatibility" section into mods settings
+
+LAUNCHER:
+* Fixed problem with duplicated mods in the list
+* Launcher shows compatible mods only
+* Uninstall button was moved to the left of layout
+
+0.99 -> 1.0.0
 
 GENERAL:
 * Spectator mode was implemented through command-line options

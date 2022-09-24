@@ -25,6 +25,7 @@ public:
 	QuickRecruitmentWindow * parent;
 	int maxAmount;
 	void sliderMoved(int to);
+
 	CreaturePurchaseCard(const std::vector<CreatureID> & creaturesID, Point position, int creaturesMaxAmount, QuickRecruitmentWindow * parents);
 private:
 	void initView();
@@ -42,10 +43,28 @@ private:
 
 	void initCostBox();
 
+	// This just wraps a clickeable area. There's a weird layout scheme in the file and
+	// it's easier to just add a separate invisble box on top
+	class CCreatureClickArea : public CIntObject
+	{
+	public:
+		CCreatureClickArea(const Point & pos, const std::shared_ptr<CCreaturePic> creaturePic, const CCreature * creatureOnTheCard);
+		void clickRight(tribool down, bool previousState) override;
+		const CCreature * creatureOnTheCard;
+
+		// These are obtained by guessing and checking. I'm not sure how the other numbers
+		// used to set positions were obtained; commit messages don't document it
+		static constexpr int CREATURE_WIDTH = 110;
+		static constexpr int CREATURE_HEIGHT = 132;
+		static constexpr int CREATURE_X_POS = 15;
+		static constexpr int CREATURE_Y_POS = 44;
+	};
+
 	std::shared_ptr<CButton> maxButton, minButton, creatureSwitcher;
-	std::shared_ptr<CLabel> availableAmount,  purhaseAmount;
+	std::shared_ptr<CLabel> availableAmount, purchaseAmount;
 	std::shared_ptr<CCreaturePic> picture;
 	std::shared_ptr<CreatureCostBox> cost;
 	std::vector<CreatureID> upgradesID;
 	std::shared_ptr<CPicture> background;
+	std::shared_ptr<CCreatureClickArea> creatureClickArea;
 };

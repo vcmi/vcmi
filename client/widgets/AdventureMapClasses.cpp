@@ -14,6 +14,7 @@
 
 #include "MiscWidgets.h"
 #include "CComponent.h"
+#include "Images.h"
 
 #include "../CGameInfo.h"
 #include "../CMusicHandler.h"
@@ -25,8 +26,6 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/SDL_Pixels.h"
 #include "../gui/SDL_Compat.h"
-
-#include "../widgets/Images.h"
 
 #include "../windows/InfoWindows.h"
 #include "../windows/CAdvmapInterface.h"

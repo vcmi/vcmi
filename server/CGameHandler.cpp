@@ -91,6 +91,7 @@ private:
 	CGameHandler * gh;
 };
 
+VCMI_LIB_NAMESPACE_BEGIN
 namespace spells
 {
 
@@ -185,6 +186,7 @@ private:
 };
 
 }//
+VCMI_LIB_NAMESPACE_END
 
 CondSh<bool> battleMadeAction(false);
 CondSh<BattleResult *> battleResult(nullptr);
@@ -1048,17 +1050,19 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 			bat.flags |= BattleAttack::BALLISTA_DOUBLE_DMG;
 		}
 	}
+
+	int64_t drainedLife = 0;
+
 	// only primary target
 	if(defender->alive())
-		applyBattleEffects(bat, blm, attackerState, fireShield, defender, distance, false);
+		drainedLife += applyBattleEffects(bat, attackerState, fireShield, defender, distance, false);
 
 	//multiple-hex normal attack
 	std::set<const CStack*> attackedCreatures = gs->curB->getAttackedCreatures(attacker, targetHex, bat.shot()); //creatures other than primary target
-
 	for(const CStack * stack : attackedCreatures)
 	{
 		if(stack != defender && stack->alive()) //do not hit same stack twice
-			applyBattleEffects(bat, blm, attackerState, fireShield, stack, distance, true);
+			drainedLife += applyBattleEffects(bat, attackerState, fireShield, stack, distance, true);
 	}
 
 	std::shared_ptr<const Bonus> bonus = attacker->getBonusLocalFirst(Selector::type()(Bonus::SPELL_LIKE_ATTACK));
@@ -1086,7 +1090,7 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 		{
 			if(stack != defender && stack->alive()) //do not hit same stack twice
 			{
-				applyBattleEffects(bat, blm, attackerState, fireShield, stack, distance, true);
+				drainedLife += applyBattleEffects(bat, attackerState, fireShield, stack, distance, true);
 			}
 		}
 
@@ -1134,7 +1138,28 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 
 		addGenericKilledLog(blm, defender, totalKills, multipleTargets);
 	}
-	sendAndApply(&blm);
+
+	// drain life effect (as well as log entry) must be applied after the attack
+	if(drainedLife > 0)
+	{
+		BattleAttack bat;
+		bat.stackAttacking = attacker->unitId();
+		{
+			CustomEffectInfo customEffect;
+			customEffect.sound = soundBase::DRAINLIF;
+			customEffect.effect = 52;
+			customEffect.stack = attackerState->unitId();
+			bat.customEffects.push_back(std::move(customEffect));
+		}
+		sendAndApply(&bat);
+
+		MetaString text;
+		attackerState->addText(text, MetaString::GENERAL_TXT, 361);
+		attackerState->addNameReplacement(text, false);
+		text.addReplacement(drainedLife);
+		defender->addNameReplacement(text, true);
+		blm.lines.push_back(std::move(text));
+	}
 
 	if(!fireShield.empty())
 	{
@@ -1174,12 +1199,24 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 		StacksInjured pack;
 		pack.stacks.push_back(bsa);
 		sendAndApply(&pack);
-		sendGenericKilledLog(attacker, bsa.killedAmount, false);
+
+		// TODO: this is already implemented in Damage::describeEffect()
+		{
+			MetaString text;
+			text.addTxt(MetaString::GENERAL_TXT, 376);
+			text.addReplacement(MetaString::SPELL_NAME, SpellID::FIRE_SHIELD);
+			text.addReplacement(totalDamage);
+			blm.lines.push_back(std::move(text));
+		}
+		addGenericKilledLog(blm, attacker, bsa.killedAmount, false);
 	}
+
+	sendAndApply(&blm);
 
 	handleAfterAttackCasting(ranged, attacker, defender);
 }
-void CGameHandler::applyBattleEffects(BattleAttack & bat, BattleLogMessage & blm, std::shared_ptr<battle::CUnitState> attackerState, FireShieldInfo & fireShield, const CStack * def, int distance, bool secondary)
+
+int64_t CGameHandler::applyBattleEffects(BattleAttack & bat, std::shared_ptr<battle::CUnitState> attackerState, FireShieldInfo & fireShield, const CStack * def, int distance, bool secondary)
 {
 	BattleStackAttacked bsa;
 	if(secondary)
@@ -1208,34 +1245,14 @@ void CGameHandler::applyBattleEffects(BattleAttack & bat, BattleLogMessage & blm
 		CStack::prepareAttacked(bsa, getRandomGenerator(), bai.defender->acquireState()); //calculate casualties
 	}
 
-	auto addLifeDrain = [&](int64_t & toHeal, EHealLevel level, EHealPower power)
-	{
-		attackerState->heal(toHeal, level, power);
-
-		if(toHeal > 0)
-		{
-			CustomEffectInfo customEffect;
-			customEffect.sound = soundBase::DRAINLIF;
-			customEffect.effect = 52;
-			customEffect.stack = attackerState->unitId();
-			bat.customEffects.push_back(customEffect);
-
-			MetaString text;
-			attackerState->addText(text, MetaString::GENERAL_TXT, 361);
-			attackerState->addNameReplacement(text, false);
-			text.addReplacement((int)toHeal);
-			def->addNameReplacement(text, true);
-			blm.lines.push_back(text);
-		}
-	};
+	int64_t drainedLife = 0;
 
 	//life drain handling
 	if(attackerState->hasBonusOfType(Bonus::LIFE_DRAIN) && def->isLiving())
 	{
 		int64_t toHeal = bsa.damageAmount * attackerState->valOfBonuses(Bonus::LIFE_DRAIN) / 100;
-
-		if(toHeal > 0)
-			addLifeDrain(toHeal, EHealLevel::RESURRECT, EHealPower::PERMANENT);
+		attackerState->heal(toHeal, EHealLevel::RESURRECT, EHealPower::PERMANENT);
+		drainedLife += toHeal;
 	}
 
 	//soul steal handling
@@ -1248,7 +1265,8 @@ void CGameHandler::applyBattleEffects(BattleAttack & bat, BattleLogMessage & blm
 			if(attackerState->hasBonusOfType(Bonus::SOUL_STEAL, subtype))
 			{
 				int64_t toHeal = bsa.killedAmount * attackerState->valOfBonuses(Bonus::SOUL_STEAL, subtype) * attackerState->MaxHealth();
-				addLifeDrain(toHeal, EHealLevel::OVERHEAL, ((subtype == 0) ? EHealPower::ONE_BATTLE : EHealPower::PERMANENT));
+				attackerState->heal(toHeal, EHealLevel::OVERHEAL, ((subtype == 0) ? EHealPower::ONE_BATTLE : EHealPower::PERMANENT));
+				drainedLife += toHeal;
 				break;
 			}
 		}
@@ -1263,6 +1281,8 @@ void CGameHandler::applyBattleEffects(BattleAttack & bat, BattleLogMessage & blm
 		auto fireShieldDamage = (std::min<int64_t>(def->getAvailableHealth(), bsa.damageAmount) * def->valOfBonuses(Bonus::FIRE_SHIELD)) / 100;
 		fireShield.push_back(std::make_pair(def, fireShieldDamage));
 	}
+
+	return drainedLife;
 }
 
 void CGameHandler::sendGenericKilledLog(const CStack * defender, int32_t killed, bool multiple)
@@ -1297,8 +1317,8 @@ void CGameHandler::addGenericKilledLog(BattleLogMessage & blm, const CStack * de
 			txt % (multiple ? VLC->generaltexth->allTexts[42] : defender->getCreature()->nameSing); // creature perishes
 		}
 		MetaString line;
-		line.addReplacement(txt.str());
-		blm.lines.push_back(line);
+		line << txt.str();
+		blm.lines.push_back(std::move(line));
 	}
 }
 
@@ -5589,7 +5609,7 @@ bool CGameHandler::isAllowedExchange(ObjectInstanceID id1, ObjectInstanceID id2)
 			auto topArmy = dialog->exchangingArmies.at(0);
 			auto bottomArmy = dialog->exchangingArmies.at(1);
 
-			if (topArmy == o1 && bottomArmy == o2 || bottomArmy == o1 && topArmy == o2)
+			if ((topArmy == o1 && bottomArmy == o2) || (bottomArmy == o1 && topArmy == o2))
 				return true;
 		}
 	}

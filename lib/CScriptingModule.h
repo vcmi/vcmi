@@ -12,6 +12,8 @@
 #if SCRIPTING_ENABLED
 #include <vcmi/scripting/Service.h>
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace spells
 {
 	namespace effects
@@ -46,4 +48,6 @@ public:
 };
 
 }
+
+VCMI_LIB_NAMESPACE_END
 #endif

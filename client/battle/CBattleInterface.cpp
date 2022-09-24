@@ -1083,11 +1083,10 @@ void CBattleInterface::stacksAreAttacked(std::vector<StackAttackedInfo> attacked
 
 	std::array<int, 2> killedBySide = {0, 0};
 
-	int targets = 0, damage = 0;
+	int targets = 0;
 	for(const StackAttackedInfo & attackedInfo : attackedInfos)
 	{
 		++targets;
-		damage += (int)attackedInfo.dmg;
 
 		ui8 side = attackedInfo.defender->side;
 		killedBySide.at(side) += attackedInfo.amountKilled;

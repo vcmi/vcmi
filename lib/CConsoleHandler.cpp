@@ -13,6 +13,8 @@
 
 #include "CThreadHelper.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 boost::mutex CConsoleHandler::smx;
 
 DLL_LINKAGE CConsoleHandler * console = nullptr;
@@ -285,3 +287,5 @@ void CConsoleHandler::start()
 {
 	thread = new boost::thread(std::bind(&CConsoleHandler::run,console));
 }
+
+VCMI_LIB_NAMESPACE_END

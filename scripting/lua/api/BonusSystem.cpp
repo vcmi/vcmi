@@ -18,6 +18,8 @@
 #include "../LuaStack.h"
 #include "../LuaCallWrapper.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace scripting
 {
 namespace api
@@ -253,3 +255,5 @@ int BonusBearerProxy::getBonuses(lua_State * L)
 }
 }
 
+
+VCMI_LIB_NAMESPACE_END

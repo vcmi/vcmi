@@ -14,8 +14,9 @@
 #include "CHeroWindow.h"
 #include "CKingdomInterface.h"
 #include "CSpellWindow.h"
-#include "GUIClasses.h"
 #include "CTradeWindow.h"
+#include "GUIClasses.h"
+#include "InfoWindows.h"
 
 #include "../CBitmapHandler.h"
 #include "../CGameInfo.h"
@@ -35,7 +36,6 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/SDL_Extensions.h"
 #include "../widgets/MiscWidgets.h"
-#include "../windows/InfoWindows.h"
 
 #include "../../CCallback.h"
 
@@ -125,7 +125,7 @@ void CTerrainRect::clickLeft(tribool down, bool previousState)
 	if(indeterminate(down))
 		return;
 
-#ifdef VCMI_ANDROID
+#if defined(VCMI_ANDROID) || defined(VCMI_IOS)
 	if(adventureInt->swipeEnabled)
 	{
 		if(handleSwipeStateChange((bool)down == true))
@@ -138,7 +138,7 @@ void CTerrainRect::clickLeft(tribool down, bool previousState)
 #endif
 		if(down == false)
 			return;
-#ifdef VCMI_ANDROID
+#if defined(VCMI_ANDROID) || defined(VCMI_IOS)
 	}
 #endif
 	int3 mp = whichTileIsIt();
@@ -150,7 +150,7 @@ void CTerrainRect::clickLeft(tribool down, bool previousState)
 
 void CTerrainRect::clickRight(tribool down, bool previousState)
 {
-#ifdef VCMI_ANDROID
+#if defined(VCMI_ANDROID) || defined(VCMI_IOS)
 	if(adventureInt->swipeEnabled && isSwiping)
 		return;
 #endif
@@ -179,11 +179,11 @@ void CTerrainRect::mouseMoved(const SDL_MouseMotionEvent & sEvent)
 
 void CTerrainRect::handleSwipeMove(const SDL_MouseMotionEvent & sEvent)
 {
-#ifdef VCMI_ANDROID
-	if(sEvent.state == 0) // any "button" is enough on android
-#else //!VCMI_ANDROID
+#if defined(VCMI_ANDROID) || defined(VCMI_IOS)
+	if(sEvent.state == 0) // any "button" is enough on mobile
+#else
 	if((sEvent.state & SDL_BUTTON_MMASK) == 0) // swipe only works with middle mouse on other platforms
-#endif //!VCMI_ANDROID
+#endif
 	{
 		return;
 	}
@@ -1049,9 +1049,9 @@ void CAdvMapInt::show(SDL_Surface * to)
 	{
 		handleSwipeUpdate();
 	}
-#ifdef VCMI_ANDROID // on android, map-moving mode is exclusive (TODO technically it might work with both enabled; to be checked)
+#if defined(VCMI_ANDROID) || defined(VCMI_IOS) // on mobile, map-moving mode is exclusive (TODO technically it might work with both enabled; to be checked)
 	else
-#endif // VCMI_ANDROID
+#endif
 	{
 		handleMapScrollingUpdate();
 	}
@@ -1217,7 +1217,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 			if(itr != LOCPLINT->towns.end())
 				LOCPLINT->showThievesGuildWindow(*itr);
 			else
-				LOCPLINT->showInfoDialog("No available town with tavern!");
+				LOCPLINT->showInfoDialog(CGI->generaltexth->localizedTexts["adventureMap"]["noTownWithTavern"].String());
 		}
 		return;
 	case SDLK_i:
@@ -1249,7 +1249,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 	case SDLK_r:
 		if(isActive() && LOCPLINT->ctrlPressed())
 		{
-			LOCPLINT->showYesNoDialog("Are you sure you want to restart game?",
+			LOCPLINT->showYesNoDialog(CGI->generaltexth->localizedTexts["adventureMap"]["confirmRestartGame"].String(),
 				[](){ LOCPLINT->sendCustomEvent(EUserEvent::RESTART_GAME); }, nullptr);
 		}
 		return;
@@ -1308,7 +1308,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 				if(townWithMarket) //if any town has marketplace, open window
 					GH.pushIntT<CMarketplaceWindow>(townWithMarket);
 				else //if not - complain
-					LOCPLINT->showInfoDialog("No available marketplace!");
+					LOCPLINT->showInfoDialog(CGI->generaltexth->localizedTexts["adventureMap"]["noTownWithMarket"].String());
 			}
 			else if(isActive()) //no ctrl, advmapint is on the top => switch to town
 			{
@@ -1451,7 +1451,7 @@ void CAdvMapInt::select(const CArmedInstance *sel, bool centerView)
 
 void CAdvMapInt::mouseMoved( const SDL_MouseMotionEvent & sEvent )
 {
-#ifdef VCMI_ANDROID
+#if defined(VCMI_ANDROID) || defined(VCMI_IOS)
 	if(swipeEnabled)
 		return;
 #endif

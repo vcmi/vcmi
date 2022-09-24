@@ -216,5 +216,11 @@ if(SDL2_MIXER_FOUND)
                           IMPORTED_LOCATION "${SDL2_MIXER_LIBRARY}"
                           INTERFACE_INCLUDE_DIRECTORIES "${SDL2_MIXER_INCLUDE_DIR}"
                           INTERFACE_LINK_LIBRARIES SDL2::SDL2)
+    if (APPLE_IOS)
+      target_link_libraries(SDL2::Mixer INTERFACE
+        "-framework AudioToolbox"
+        "-framework CoreServices"
+      )
+    endif()
   endif()
 endif()

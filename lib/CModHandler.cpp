@@ -30,6 +30,8 @@
 
 #include <vstd/StringUtils.h>
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 CIdentifierStorage::CIdentifierStorage():
 	state(LOADING)
 {
@@ -1144,3 +1146,5 @@ std::string CModHandler::makeFullIdentifier(const std::string & scope, const std
 		return actualName == "" ? actualScope+ ":" + type : actualScope + ":" + type + "." + actualName;
 	}
 }
+
+VCMI_LIB_NAMESPACE_END

@@ -12,6 +12,8 @@
 #include "CPlayerState.h"
 #include "CGameStateFwd.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 PlayerState::PlayerState()
  : color(-1), human(false), enteredWinningCheatCode(false),
    enteredLosingCheatCode(false), status(EPlayerStatus::INGAME)
@@ -67,3 +69,5 @@ int PlayerState::getResourceAmount(int type) const
 {
 	return vstd::atOrDefault(resources, static_cast<size_t>(type), 0);
 }
+
+VCMI_LIB_NAMESPACE_END

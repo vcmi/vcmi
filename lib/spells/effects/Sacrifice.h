@@ -12,6 +12,8 @@
 
 #include "Heal.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace spells
 {
 namespace effects
@@ -41,3 +43,5 @@ private:
 
 }
 }
+
+VCMI_LIB_NAMESPACE_END

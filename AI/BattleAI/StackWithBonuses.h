@@ -18,8 +18,13 @@
 #include "../../lib/battle/BattleProxy.h"
 #include "../../lib/battle/CUnitState.h"
 
-class HypotheticBattle;
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CStack;
+
+VCMI_LIB_NAMESPACE_END
+
+class HypotheticBattle;
 
 ///Fake random generator, used by AI to evaluate random server behavior
 class RNGStub : public vstd::RNG

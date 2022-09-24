@@ -13,6 +13,8 @@
 #include "../CTownHandler.h" // for building ID-based filters
 #include "MapObjects.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CGObjectInstance;
 class CGTownInstance;
 class CGHeroInstance;
@@ -233,3 +235,5 @@ public:
 		h & static_cast<CDefaultObjectTypeHandler<CBank>&>(*this);
 	}
 };
+
+VCMI_LIB_NAMESPACE_END

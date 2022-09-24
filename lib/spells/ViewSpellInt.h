@@ -13,6 +13,8 @@
  #include "../int3.h"
  #include "../GameConstants.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
  class CGObjectInstance;
 
  struct DLL_LINKAGE ObjectPosInfo
@@ -33,3 +35,5 @@
 	}
  };
 
+
+VCMI_LIB_NAMESPACE_END

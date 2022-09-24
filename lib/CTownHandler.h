@@ -22,6 +22,8 @@
 #include "HeroBonus.h"
 #include "Terrain.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CLegacyConfigParser;
 class JsonNode;
 class CTown;
@@ -430,3 +432,5 @@ protected:
 	const std::vector<std::string> & getTypeNames() const override;
 	CFaction * loadFromJson(const std::string & scope, const JsonNode & data, const std::string & identifier, size_t index) override;
 };
+
+VCMI_LIB_NAMESPACE_END

@@ -15,6 +15,8 @@
 
 #include "../../lib/NetPacks.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace events
 {
 
@@ -25,10 +27,8 @@ SubscriptionRegistry<ApplyDamage> * ApplyDamage::getRegistry()
 }
 
 CApplyDamage::CApplyDamage(const Environment * env_, BattleStackAttacked * pack_, std::shared_ptr<battle::Unit> target_)
-	: env(env_),
-	pack(pack_),
+	: pack(pack_),
 	target(target_)
-
 {
 	initalDamage = pack->damageAmount;
 }
@@ -60,3 +60,5 @@ const battle::Unit * CApplyDamage::getTarget() const
 
 
 };
+
+VCMI_LIB_NAMESPACE_END

@@ -11,6 +11,8 @@
 #pragma once
 #include "Zone.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 struct RouteInfo;
 
 class WaterRoutes: public Modificator
@@ -25,3 +27,5 @@ public:
 private:
 	std::vector<RouteInfo> result;
 };
+
+VCMI_LIB_NAMESPACE_END

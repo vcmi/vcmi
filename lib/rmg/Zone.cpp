@@ -18,6 +18,8 @@
 #include "CMapGenerator.h"
 #include "RmgPath.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 std::function<bool(const int3 &)> AREA_NO_FILTER = [](const int3 & t)
 {
 	return true;
@@ -193,11 +195,7 @@ void Zone::fractalize()
 	rmg::Area clearedTiles(dAreaFree);
 	rmg::Area possibleTiles(dAreaPossible);
 	rmg::Area tilesToIgnore; //will be erased in this iteration
-	
-	//the more treasure density, the greater distance between paths. Scaling is experimental.
-	int totalDensity = 0;
-	for(auto ti : treasureInfo)
-		totalDensity += ti.density;
+
 	const float minDistance = 10 * 10; //squared
 	
 	if(type != ETemplateZoneType::JUNCTION)
@@ -409,3 +407,5 @@ Modificator::~Modificator()
 {
 	
 }
+
+VCMI_LIB_NAMESPACE_END

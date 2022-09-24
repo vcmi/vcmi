@@ -164,6 +164,7 @@ ExchangeResult ChainActor::tryExchangeNoLock(const ChainActor * specialActor, co
 	return baseActor->tryExchangeNoLock(specialActor, other);
 }
 
+VCMI_LIB_NAMESPACE_BEGIN
 namespace vstd
 {
 	template <class M, class Key, class F>
@@ -180,6 +181,7 @@ namespace vstd
 		return v;
 	}
 }
+VCMI_LIB_NAMESPACE_END
 
 ExchangeResult HeroActor::tryExchangeNoLock(const ChainActor * specialActor, const ChainActor * other) const
 {
@@ -268,8 +270,6 @@ ExchangeResult HeroExchangeMap::tryExchangeNoLock(const ChainActor * other)
 
 			return result; // already inserted
 		}
-
-		auto position = inserted.first;
 
 		auto differentMasks = (actor->chainMask & other->chainMask) == 0;
 
@@ -461,15 +461,6 @@ CCreatureSet * DwellingActor::getDwellingCreatures(const CGDwelling * dwelling, 
 			continue;
 
 		auto creature = creatureInfo.second.back().toCreature();
-		auto count = creatureInfo.first;
-
-		if(waitForGrowth)
-		{
-			const CGTownInstance * town = dynamic_cast<const CGTownInstance *>(dwelling);
-
-			count += town ? town->creatureGrowth(creature->level) : creature->growth;
-		}
-
 		dwellingCreatures->addToSlot(
 			dwellingCreatures->getSlotFor(creature),
 			creature->idNumber,

@@ -18,6 +18,8 @@
 #include "../../battle/Unit.h"
 #include "../../serializer/JsonSerializeFormat.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 static const std::string EFFECT_NAME = "core:timed";
 
 namespace spells
@@ -276,3 +278,5 @@ void Timed::serializeJsonUnitEffect(JsonSerializeFormat & handler)
 
 }
 }
+
+VCMI_LIB_NAMESPACE_END

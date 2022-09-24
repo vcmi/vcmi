@@ -140,6 +140,7 @@ public:
 	//double click
 	virtual void onDoubleClick(){}
 
+	// These are the arguments that can be used to determine what kind of input the CIntObject will receive
 	enum {LCLICK=1, RCLICK=2, HOVER=4, MOVE=8, KEYBOARD=16, TIME=32, GENERAL=64, WHEEL=128, DOUBLECLICK=256, TEXTINPUT=512, MCLICK=1024, ALL=0xffff};
 	const ui16 & active;
 	void addUsedEvents(ui16 newActions);

@@ -16,6 +16,8 @@
 
 #include "MinizipExtensions.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class DLL_LINKAGE CZipStream : public CBufferedStream
 {
 	unzFile file;
@@ -70,3 +72,5 @@ namespace ZipArchive
 	///same as above, but extracts only files mentioned in "what" list
 	bool DLL_LINKAGE extract(boost::filesystem::path from, boost::filesystem::path where, std::vector<std::string> what);
 }
+
+VCMI_LIB_NAMESPACE_END

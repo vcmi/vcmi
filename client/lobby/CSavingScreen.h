@@ -11,9 +11,14 @@
 
 #include "CSelectionBase.h"
 
-class CSelectionBase;
+VCMI_LIB_NAMESPACE_BEGIN
+
 struct StartInfo;
 class CMapInfo;
+
+VCMI_LIB_NAMESPACE_END
+
+class CSelectionBase;
 
 class CSavingScreen : public CSelectionBase
 {

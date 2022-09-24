@@ -13,6 +13,8 @@
 #define RETURN_IF_NOT_BATTLE(...) if(!duringBattle()) {logGlobal->error("%s called when no battle!", __FUNCTION__); return __VA_ARGS__; }
 #define ASSERT_IF_CALLED_WITH_PLAYER if(!player) {logGlobal->error(BOOST_CURRENT_FUNCTION); assert(0);}
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class IBattleInfo;
 class BattleInfo;
 class CBattleInfoEssentials;
@@ -40,3 +42,5 @@ public:
 	friend class CBattleInfoEssentials;
 };
 
+
+VCMI_LIB_NAMESPACE_END

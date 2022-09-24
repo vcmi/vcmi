@@ -53,8 +53,6 @@ Goals::TGoalVec BuildingBehavior::decompose() const
 
 	for(auto & developmentInfo : developmentInfos)
 	{
-		auto town = developmentInfo.town;
-
 		for(auto & buildingInfo : developmentInfo.toBuild)
 		{
 			if(goldPreasure < MAX_GOLD_PEASURE || buildingInfo.dailyIncome[Res::GOLD] > 0)

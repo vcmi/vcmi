@@ -23,6 +23,8 @@
 #include "serializer/JsonSerializeFormat.h"
 #include "NetPacksBase.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 
 bool CreatureSlotComparer::operator()(const TPairCreatureSlot & lhs, const TPairCreatureSlot & rhs)
 {
@@ -1074,3 +1076,5 @@ bool CSimpleArmy::setCreature(SlotID slot, CreatureID cre, TQuantity count)
 	army[slot] = std::make_pair(cre, count);
 	return true;
 }
+
+VCMI_LIB_NAMESPACE_END

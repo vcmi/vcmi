@@ -15,6 +15,8 @@
 
 #include "../CTownHandler.h" // For CTown
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CCastleEvent;
 class CGTownInstance;
 class CGDwelling;
@@ -365,3 +367,5 @@ private:
 	void initOverriddenBids();
 	void addTownBonuses();
 };
+
+VCMI_LIB_NAMESPACE_END

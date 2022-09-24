@@ -19,6 +19,8 @@
 	#define TO_MS_DIVISOR (CLOCKS_PER_SEC / 1000)
 #endif
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CStopWatch
 {
 	si64 start, last, mem;
@@ -53,7 +55,7 @@ public:
 private:
 	si64 clock() 
 	{
-	#ifdef __FreeBSD__
+	#ifdef __FreeBSD__ // TODO: enable also for Apple?
 		struct rusage usage;
 		getrusage(RUSAGE_SELF, &usage);
 		return static_cast<si64>(usage.ru_utime.tv_sec + usage.ru_stime.tv_sec) * 1000000 + usage.ru_utime.tv_usec + usage.ru_stime.tv_usec;
@@ -62,3 +64,5 @@ private:
 	#endif
 	}
 };
+
+VCMI_LIB_NAMESPACE_END

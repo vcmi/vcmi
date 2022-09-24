@@ -17,6 +17,8 @@
 #include "../LuaCallWrapper.h"
 #include <vcmi/Creature.h>
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace scripting
 {
 namespace api
@@ -33,3 +35,4 @@ const std::vector<StackInstanceProxy::CustomRegType> StackInstanceProxy::REGISTE
 }
 }
 
+VCMI_LIB_NAMESPACE_END

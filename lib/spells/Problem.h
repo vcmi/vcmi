@@ -14,6 +14,8 @@
 
 #include "../NetPacksBase.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace spells
 {
 namespace detail
@@ -36,3 +38,5 @@ private:
 
 }
 }
+
+VCMI_LIB_NAMESPACE_END

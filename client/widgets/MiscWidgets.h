@@ -11,13 +11,18 @@
 
 #include "../gui/CIntObject.h"
 
-class CLabel;
-class CCreatureAnim;
-class CComponent;
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CGGarrison;
 struct InfoAboutArmy;
 class CArmedInstance;
 class IBonusBearer;
+
+VCMI_LIB_NAMESPACE_END
+
+class CLabel;
+class CCreatureAnim;
+class CComponent;
 class CAnimImage;
 
 /// Shows a text by moving the mouse cursor over the object

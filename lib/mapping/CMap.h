@@ -20,6 +20,8 @@
 #include "../LogicalExpression.h"
 #include "CMapDefines.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CArtifactInstance;
 class CGObjectInstance;
 class CGHeroInstance;
@@ -496,3 +498,5 @@ public:
 		h & instanceNames;
 	}
 };
+
+VCMI_LIB_NAMESPACE_END

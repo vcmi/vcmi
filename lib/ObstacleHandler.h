@@ -16,6 +16,8 @@
 #include "Terrain.h"
 #include "battle/BattleHex.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class DLL_LINKAGE ObstacleInfo : public EntityT<Obstacle>
 {
 public:
@@ -92,3 +94,5 @@ public:
 		h & objects;
 	}
 };
+
+VCMI_LIB_NAMESPACE_END

@@ -12,6 +12,8 @@
 #include "RmgPath.h"
 #include <boost/heap/priority_queue.hpp> //A*
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 using namespace rmg;
 
 const std::function<float(const int3 &, const int3 &)> Path::DEFAULT_MOVEMENT_FUNCTION =
@@ -191,3 +193,5 @@ const Area & Path::getPathArea() const
 {
 	return dPath;
 }
+
+VCMI_LIB_NAMESPACE_END

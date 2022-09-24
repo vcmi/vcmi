@@ -10,6 +10,8 @@
 
 #pragma once
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace vstd
 {
 	class RNG;
@@ -27,6 +29,8 @@ struct CatapultAttack;
 class DLL_LINKAGE ServerCallback
 {
 public:
+	virtual ~ServerCallback() = default;
+
 	virtual void complain(const std::string & problem) = 0;
 	virtual bool describeChanges() const = 0;
 
@@ -42,3 +46,5 @@ public:
 	virtual void apply(BattleObstaclesChanged * pack) = 0;
 	virtual void apply(CatapultAttack * pack) = 0;
 };
+
+VCMI_LIB_NAMESPACE_END

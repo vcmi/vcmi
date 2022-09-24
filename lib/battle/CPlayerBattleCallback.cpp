@@ -12,6 +12,8 @@
 #include "../CStack.h"
 #include "../CGameState.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 bool CPlayerBattleCallback::battleCanFlee() const
 {
 	RETURN_IF_NOT_BATTLE(false);
@@ -52,3 +54,5 @@ InfoAboutHero CPlayerBattleCallback::battleGetEnemyHero() const
 	return battleGetHeroInfo(!battleGetMySide());
 }
 
+
+VCMI_LIB_NAMESPACE_END

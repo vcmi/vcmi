@@ -23,8 +23,11 @@
 #include "spells/ViewSpellInt.h"
 
 class CClient;
-class CGameState;
 class CGameHandler;
+
+VCMI_LIB_NAMESPACE_BEGIN
+
+class CGameState;
 class CArtifact;
 class CGObjectInstance;
 class CArtifactInstance;
@@ -2451,3 +2454,5 @@ struct CenterView : public CPackForClient
 		h & focusTime;
 	}
 };
+
+VCMI_LIB_NAMESPACE_END

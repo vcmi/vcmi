@@ -37,6 +37,8 @@
 #include "BattleFieldHandler.h"
 #include "ObstacleHandler.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 const SlotID SlotID::COMMANDER_SLOT_PLACEHOLDER = SlotID(-2);
 const SlotID SlotID::SUMMONED_SLOT_PLACEHOLDER = SlotID(-3);
 const SlotID SlotID::WAR_MACHINES_SLOT = SlotID(-4);
@@ -52,7 +54,7 @@ const TeamID TeamID::NO_TEAM = TeamID(255);
 namespace GameConstants
 {
 	const int VCMI_VERSION_MAJOR = 1;
-	const int VCMI_VERSION_MINOR = 0;
+	const int VCMI_VERSION_MINOR = 1;
 	const int VCMI_VERSION_PATCH = 0;
 
 	const std::string VCMI_VERSION_STRING = std::to_string(VCMI_VERSION_MAJOR) + "." +
@@ -322,3 +324,5 @@ Obstacle Obstacle::fromString(std::string identifier)
 	else
 		return Obstacle(-1);
 }
+
+VCMI_LIB_NAMESPACE_END

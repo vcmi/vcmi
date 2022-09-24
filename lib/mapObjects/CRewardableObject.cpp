@@ -20,6 +20,8 @@
 
 #include "CObjectClassesHandler.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 bool CRewardLimiter::heroAllowed(const CGHeroInstance * hero) const
 {
 	if(dayOfWeek != 0)
@@ -850,17 +852,16 @@ void CGOnceVisitable::initObj(CRandomGenerator & rand)
 	case Obj::WARRIORS_TOMB:
 		{
 			onSelect.addTxt(MetaString::ADVOB_TXT, 161);
+			onVisited.addTxt(MetaString::ADVOB_TXT, 163);
 
-			info.resize(2);
+			info.resize(1);
 			loadRandomArtifact(rand, info[0], 30, 50, 25, 5);
 
 			Bonus bonus(Bonus::ONE_BATTLE, Bonus::MORALE, Bonus::OBJECT, -3, ID);
 			info[0].reward.bonuses.push_back(bonus);
-			info[1].reward.bonuses.push_back(bonus);
 			info[0].limiter.numOfGrants = 1;
 			info[0].message.addTxt(MetaString::ADVOB_TXT, 162);
 			info[0].message.addReplacement(VLC->arth->objects[info[0].reward.artifacts.back()]->getName());
-			info[1].message.addTxt(MetaString::ADVOB_TXT, 163);
 		}
 		break;
 	case Obj::WAGON:
@@ -1164,3 +1165,5 @@ std::vector<ui32> CGMagicSpring::getAvailableRewards(const CGHeroInstance * hero
 	// hero is either not on visitable tile (should not happen) or tile is already used
 	return std::vector<ui32>();
 }
+
+VCMI_LIB_NAMESPACE_END

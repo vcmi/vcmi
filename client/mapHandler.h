@@ -23,17 +23,22 @@
 #undef OUT
 #endif
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CGObjectInstance;
 class CGHeroInstance;
 class CGBoat;
 class CMap;
 struct TerrainTile;
+class PlayerColor;
+
+VCMI_LIB_NAMESPACE_END
+
 struct SDL_Surface;
 struct SDL_Rect;
 class CAnimation;
 class IImage;
 class CFadeAnimation;
-class PlayerColor;
 
 enum class EWorldViewIcon
 {

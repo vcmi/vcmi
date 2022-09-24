@@ -17,13 +17,19 @@
 
 #include "lobby/CSelectionBase.h"
 #include "lobby/CLobbyScreen.h"
+#include "windows/InfoWindows.h"
 
 #include "mainmenu/CMainMenu.h"
 
-#ifndef VCMI_ANDROID
-#include "../lib/Interprocess.h"
-#else
+#ifdef VCMI_ANDROID
 #include "../lib/CAndroidVMHelper.h"
+#elif defined(VCMI_IOS)
+#include "ios/utils.h"
+#include "../server/CVCMIServer.h"
+
+#include <dispatch/dispatch.h>
+#else
+#include "../lib/Interprocess.h"
 #endif
 #include "../lib/CConfigHandler.h"
 #include "../lib/CGeneralTextHandler.h"
@@ -75,7 +81,7 @@ public:
 	bool applyOnLobbyHandler(CServerHandler * handler, void * pack) const override
 	{
 		T * ptr = static_cast<T *>(pack);
-		logNetwork->trace("\tImmidiately apply on lobby: %s", typeList.getTypeInfo(ptr)->name());
+		logNetwork->trace("\tImmediately apply on lobby: %s", typeList.getTypeInfo(ptr)->name());
 		return ptr->applyOnLobbyHandler(handler);
 	}
 
@@ -131,7 +137,7 @@ void CServerHandler::resetStateForLobby(const StartInfo::EMode mode, const std::
 	else
 		myNames.push_back(settings["general"]["playerName"].String());
 
-#ifndef VCMI_ANDROID
+#if !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
 	shm.reset();
 
 	if(!settings["session"]["disable-shm"].Bool())
@@ -161,11 +167,33 @@ void CServerHandler::startLocalServerAndConnect()
 		threadRunLocalServer->join();
 
 	th->update();
+	
+	auto errorMsg = CGI->generaltexth->localizedTexts["server"]["errors"]["existingProcess"].String();
+	try
+	{
+		CConnection testConnection(settings["server"]["server"].String(), getDefaultPort(), NAME, uuid);
+		logNetwork->error("Port is busy, check if another instance of vcmiserver is working");
+		CInfoWindow::showInfoDialog(errorMsg, {});
+		return;
+	}
+	catch(...)
+	{
+		//no connection means that port is not busy and we can start local server
+	}
+	
 #ifdef VCMI_ANDROID
 	{
 		CAndroidVMHelper envHelper;
 		envHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "startServer", true);
 	}
+#elif defined(SINGLE_PROCESS_APP)
+	boost::condition_variable cond;
+	threadRunLocalServer = std::make_shared<boost::thread>([&cond, this] {
+		setThreadName("CVCMIServer");
+		CVCMIServer::create(&cond, uuid);
+		onServerFinished();
+	});
+	threadRunLocalServer->detach();
 #else
 	threadRunLocalServer = std::make_shared<boost::thread>(&CServerHandler::threadRunServer, this); //runs server executable;
 #endif
@@ -173,10 +201,7 @@ void CServerHandler::startLocalServerAndConnect()
 
 	th->update();
 
-#ifndef VCMI_ANDROID
-	if(shm)
-		shm->sr->waitTillReady();
-#else
+#ifdef VCMI_ANDROID
 	logNetwork->info("waiting for server");
 	while(!androidTestServerReadyFlag.load())
 	{
@@ -185,16 +210,40 @@ void CServerHandler::startLocalServerAndConnect()
 	}
 	logNetwork->info("waiting for server finished...");
 	androidTestServerReadyFlag = false;
+#elif defined(SINGLE_PROCESS_APP)
+	{
+#ifdef VCMI_IOS
+		dispatch_sync(dispatch_get_main_queue(), ^{
+			iOS_utils::showLoadingIndicator();
+		});
+#endif
+
+		boost::mutex m;
+		boost::unique_lock<boost::mutex> lock{m};
+		logNetwork->info("waiting for server");
+		cond.wait(lock);
+		logNetwork->info("server is ready");
+
+#ifdef VCMI_IOS
+		dispatch_sync(dispatch_get_main_queue(), ^{
+			iOS_utils::hideLoadingIndicator();
+		});
+#endif
+	}
+#else
+	if(shm)
+		shm->sr->waitTillReady();
 #endif
 	logNetwork->trace("Waiting for server: %d ms", th->getDiff());
 
 	th->update(); //put breakpoint here to attach to server before it does something stupid
 
-#ifndef VCMI_ANDROID
-	justConnectToServer(settings["server"]["server"].String(), shm ? shm->sr->port : 0);
+#if !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
+	const ui16 port = shm ? shm->sr->port : 0;
 #else
-	justConnectToServer(settings["server"]["server"].String());
+	const ui16 port = 0;
 #endif
+	justConnectToServer(settings["server"]["server"].String(), port);
 
 	logNetwork->trace("\tConnecting to the server: %d ms", th->getDiff());
 }
@@ -683,7 +732,7 @@ void CServerHandler::threadHandleConnection()
 
 void CServerHandler::threadRunServer()
 {
-#ifndef VCMI_ANDROID
+#if !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
 	setThreadName("CServerHandler::threadRunServer");
 	const std::string logName = (VCMIDirs::get().userLogsPath() / "server_log.txt").string();
 	std::string comm = VCMIDirs::get().serverPath().string()
@@ -724,9 +773,14 @@ void CServerHandler::threadRunServer()
 		logNetwork->error("Error: server failed to close correctly or crashed!");
 		logNetwork->error("Check %s for more info", logName);
 	}
+	onServerFinished();
+#endif
+}
+
+void CServerHandler::onServerFinished()
+{
 	threadRunLocalServer.reset();
 	CSH->campaignServerRestartLock.setn(false);
-#endif
 }
 
 void CServerHandler::sendLobbyPack(const CPackForLobby & pack) const

@@ -12,7 +12,12 @@
 #include "../windows/CWindowObject.h"
 #include "../../lib/JsonNode.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CCampaignState;
+
+VCMI_LIB_NAMESPACE_END
+
 class CTextInput;
 class CGStatusBar;
 class CTextBox;

@@ -10,7 +10,11 @@
 #pragma once
 #include "FuzzyEngines.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CBank;
+
+VCMI_LIB_NAMESPACE_END
 
 class DLL_EXPORT FuzzyHelper
 {

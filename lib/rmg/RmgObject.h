@@ -14,6 +14,8 @@
 #include "../int3.h"
 #include "RmgArea.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CGObjectInstance;
 class RmgMap;
 class Terrain;
@@ -85,3 +87,5 @@ private:
 	ui32 dStrenght;
 };
 }
+
+VCMI_LIB_NAMESPACE_END

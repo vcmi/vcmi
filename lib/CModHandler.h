@@ -14,6 +14,8 @@
 #include "VCMI_Lib.h"
 #include "JsonNode.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CModHandler;
 class CModIndentifier;
 class CModInfo;
@@ -371,6 +373,7 @@ public:
 		}
 		else
 		{
+			loadMods();
 			std::vector<TModID> newActiveMods;
 			h & newActiveMods;
 			for(auto & m : newActiveMods)
@@ -397,3 +400,5 @@ public:
 		h & identifiers;
 	}
 };
+
+VCMI_LIB_NAMESPACE_END

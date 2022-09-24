@@ -11,6 +11,8 @@
 #include "CCallbackBase.h"
 #include "IBattleState.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 bool CCallbackBase::duringBattle() const
 {
 	return getBattle() != nullptr;
@@ -39,3 +41,5 @@ boost::optional<PlayerColor> CCallbackBase::getPlayerID() const
 	return player;
 }
 
+
+VCMI_LIB_NAMESPACE_END

@@ -18,8 +18,8 @@
 #include "../lib/ScriptHandler.h"
 #include "CQuery.h"
 
-class CGameHandler;
-class CVCMIServer;
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CGameState;
 struct StartInfo;
 struct BattleResult;
@@ -43,6 +43,11 @@ namespace scripting
 
 
 template<typename T> class CApplier;
+
+VCMI_LIB_NAMESPACE_END
+
+class CGameHandler;
+class CVCMIServer;
 class CBaseForGHApply;
 
 struct PlayerStatus
@@ -128,7 +133,8 @@ public:
 
 	void makeAttack(const CStack * attacker, const CStack * defender, int distance, BattleHex targetHex, bool first, bool ranged, bool counter);
 
-	void applyBattleEffects(BattleAttack & bat, BattleLogMessage & blm, std::shared_ptr<battle::CUnitState> attackerState, FireShieldInfo & fireShield, const CStack * def, int distance, bool secondary); //damage, drain life & fire shield
+	// damage, drain life & fire shield; returns amount of drained life
+	int64_t applyBattleEffects(BattleAttack & bat, std::shared_ptr<battle::CUnitState> attackerState, FireShieldInfo & fireShield, const CStack * def, int distance, bool secondary);
 
 	void sendGenericKilledLog(const CStack * defender, int32_t killed, bool multiple);
 	void addGenericKilledLog(BattleLogMessage & blm, const CStack * defender, int32_t killed, bool multiple);

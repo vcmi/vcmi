@@ -25,7 +25,11 @@
 #include "Pathfinding/AIPathfinder.h"
 #include "Engine/Nullkiller.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 struct QuestInfo;
+
+VCMI_LIB_NAMESPACE_END
 
 class AIStatus
 {

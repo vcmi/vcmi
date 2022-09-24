@@ -13,6 +13,8 @@
 #include "Zone.h"
 #include <boost/heap/priority_queue.hpp> //A*
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class RmgMap;
 class ObjectManager;
 class ObjectTemplate;
@@ -46,3 +48,5 @@ void initTerrainType(Zone & zone, CMapGenerator & gen);
 
 int chooseRandomAppearance(CRandomGenerator & generator, si32 ObjID, const Terrain & terrain);
 
+
+VCMI_LIB_NAMESPACE_END

@@ -11,6 +11,8 @@
 
 class CGameHandler;
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 template <typename T>
 class ConstTransitivePtr
 {
@@ -75,5 +77,7 @@ public:
 		h & ptr;
 	}
 
-	friend class CGameHandler;
+	friend class ::CGameHandler;
 };
+
+VCMI_LIB_NAMESPACE_END

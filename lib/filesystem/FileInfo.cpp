@@ -11,6 +11,8 @@
 
 #include "FileInfo.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace FileInfo
 {
 
@@ -63,3 +65,5 @@ boost::string_ref GetPathStem(boost::string_ref path)
 }
 
 }
+
+VCMI_LIB_NAMESPACE_END

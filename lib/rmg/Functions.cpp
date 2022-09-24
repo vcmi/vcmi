@@ -28,6 +28,8 @@
 #include "../mapObjects/MapObjects.h" //needed to resolve templates for CommonConstructors.h
 #include "../VCMI_Lib.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 void createModificators(RmgMap & map)
 {
 	for(auto & z : map.getZones())
@@ -176,3 +178,5 @@ void createObstaclesCommon2(RmgMap & map, CRandomGenerator & generator)
 		}
 	}
 }
+
+VCMI_LIB_NAMESPACE_END

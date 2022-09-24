@@ -12,6 +12,8 @@
 //FIXME: move some of code into .cpp to avoid this include?
 #include "JsonNode.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace LogicalExpressionDetail
 {
 	/// class that defines required types for logical expressions
@@ -625,3 +627,5 @@ public:
 		h & data;
 	}
 };
+
+VCMI_LIB_NAMESPACE_END

@@ -17,6 +17,8 @@
 #include "CRmgTemplate.h"
 #include "../LoadProgress.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CRmgTemplate;
 class CMapGenOptions;
 class JsonNode;
@@ -100,3 +102,5 @@ private:
 	void fillZones();
 
 };
+
+VCMI_LIB_NAMESPACE_END

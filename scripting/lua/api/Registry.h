@@ -27,6 +27,8 @@ RegisterCoreAPI<Type> _register ## Type (Name);\
 }\
 \
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace scripting
 {
 namespace api
@@ -108,3 +110,5 @@ private:
 
 }
 }
+
+VCMI_LIB_NAMESPACE_END

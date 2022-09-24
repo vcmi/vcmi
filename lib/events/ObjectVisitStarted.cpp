@@ -13,6 +13,8 @@
 
 #include <vcmi/events/EventBus.h>
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 
 namespace events
 {
@@ -65,3 +67,5 @@ void CObjectVisitStarted::setEnabled(bool enable)
 
 
 }
+
+VCMI_LIB_NAMESPACE_END

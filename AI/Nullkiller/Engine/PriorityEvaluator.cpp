@@ -122,7 +122,7 @@ uint64_t getCreatureBankArmyReward(const CGObjectInstance * target, const CGHero
 	{
 		//No free slot, we might discard our weakest stack
 		weakestStackPower = std::numeric_limits<ui64>().max();
-		for (const auto stack : slots)
+		for (const auto & stack : slots)
 		{
 			vstd::amin(weakestStackPower, stack.second->getPower());
 		}
@@ -645,7 +645,6 @@ public:
 		}
 
 		auto heroPtr = task->hero;
-		auto day = ai->cb->getDate(Date::DAY);
 		auto hero = heroPtr.get(ai->cb.get());
 		bool checkGold = evaluationContext.danger == 0;
 		auto army = path.heroArmy;
@@ -670,11 +669,8 @@ public:
 
 class ClusterEvaluationContextBuilder : public IEvaluationContextBuilder
 {
-private:
-	const Nullkiller * ai;
-
 public:
-	ClusterEvaluationContextBuilder(const Nullkiller * ai) : ai(ai) {}
+	ClusterEvaluationContextBuilder(const Nullkiller * ai) {}
 
 	virtual void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
 	{
@@ -699,7 +695,6 @@ public:
 		for(auto objInfo : objects)
 		{
 			auto target = objInfo.first;
-			auto day = ai->cb->getDate(Date::DAY);
 			bool checkGold = objInfo.second.danger == 0;
 			auto army = hero;
 
@@ -718,9 +713,6 @@ public:
 			if(boost > 8)
 				break;
 		}
-
-		const AIPath & pathToCenter = clusterGoal.getPathToCenter();
-
 	}
 };
 

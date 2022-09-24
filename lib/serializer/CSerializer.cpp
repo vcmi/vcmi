@@ -15,6 +15,8 @@
 #include "../CHeroHandler.h"
 #include "../mapObjects/CGHeroInstance.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 CSerializer::~CSerializer()
 {
 
@@ -46,3 +48,5 @@ void CSerializer::addStdVecItems(CGameState *gs, LibClasses *lib)
 
 	smartVectorMembersSerialization = true;
 }
+
+VCMI_LIB_NAMESPACE_END

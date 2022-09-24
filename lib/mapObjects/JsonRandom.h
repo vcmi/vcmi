@@ -12,6 +12,8 @@
 #include "../GameConstants.h"
 #include "../ResourceSet.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class JsonNode;
 typedef std::vector<JsonNode> JsonVector;
 class CRandomGenerator;
@@ -47,3 +49,5 @@ namespace JsonRandom
 	DLL_LINKAGE std::vector<Bonus> loadBonuses(const JsonNode & value);
 	//DLL_LINKAGE std::vector<Component> loadComponents(const JsonNode & value);
 }
+
+VCMI_LIB_NAMESPACE_END

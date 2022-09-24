@@ -9,17 +9,22 @@
  */
 #pragma once
 
+#include "CWindowObject.h"
 #include "../lib/GameConstants.h"
 #include "../lib/ResourceSet.h"
 #include "../lib/CConfigHandler.h"
 #include "../widgets/CArtifactHolder.h"
 #include "../widgets/CGarrisonInt.h"
 #include "../widgets/Images.h"
-#include "../windows/CWindowObject.h"
+
+VCMI_LIB_NAMESPACE_BEGIN
 
 class CGDwelling;
-class CreatureCostBox;
 class IMarket;
+
+VCMI_LIB_NAMESPACE_END
+
+class CreatureCostBox;
 class CCreaturePic;
 class MoraleLuckBox;
 class CHeroArea;

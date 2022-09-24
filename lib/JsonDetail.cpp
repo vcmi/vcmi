@@ -18,6 +18,8 @@
 #include "filesystem/Filesystem.h"
 #include "ScopeGuard.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 static const JsonNode nullNode;
 
 template<typename Iterator>
@@ -1242,3 +1244,5 @@ namespace Validation
 	}
 
 } // Validation namespace
+
+VCMI_LIB_NAMESPACE_END
