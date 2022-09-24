@@ -96,7 +96,6 @@ jobs:
             pack: 1
             extension: ipa
             preset: ios-release
-            cmake_args: -DENABLE_EDITOR="OFF"
           - platform: mxe
             os: ubuntu-20.04
             mxe: i686-w64-mingw32.shared
@@ -104,7 +103,7 @@ jobs:
             pack: 1
             cpack_args: -D CPACK_NSIS_EXECUTABLE=`which makensis`
             extension: exe
-            cmake_args: -G Ninja -DENABLE_EDITOR="OFF"
+            cmake_args: -G Ninja -DENABLE_EDITOR=0
           - platform: msvc
             os: windows-latest
             test: 0
