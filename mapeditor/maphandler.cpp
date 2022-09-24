@@ -382,7 +382,6 @@ void MapHandler::drawObjectAt(QPainter & painter, const CGObjectInstance * obj, 
 	uint8_t animationFrame = 0;
 
 	auto objData = findObjectBitmap(obj, animationFrame, obj->ID == Obj::HERO ? 2 : 0);
-	std::vector<std::shared_ptr<QImage>> debugFlagImages;
 	if(obj->ID == Obj::HERO && obj->tempOwner.isValidPlayer())
 		objData.flagBitmap = findFlagBitmap(dynamic_cast<const CGHeroInstance*>(obj), 0, obj->tempOwner, 4);
 	

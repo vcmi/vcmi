@@ -100,6 +100,9 @@ void Initializer::initialize(CGHeroInstance * o)
 	if(!o) return;
 	
 	o->tempOwner = defaultPlayer;
+	if(o->ID == Obj::PRISON)
+		o->tempOwner = PlayerColor::NEUTRAL;
+	
 	if(o->ID == Obj::HERO)
 	{
 		for(auto t : VLC->heroh->objects)
@@ -437,13 +440,13 @@ void Inspector::setProperty(CGEvent * o, const QString & key, const QVariant & v
 {
 	if(!o) return;
 	
-	if("Remove after")
+	if(key == "Remove after")
 		o->removeAfterVisit = stringToBool(value.toString());
 	
-	if("Human trigger")
+	if(key == "Human trigger")
 		o->humanActivate = stringToBool(value.toString());
 	
-	if("Cpu trigger")
+	if(key == "Cpu trigger")
 		o->computerActivate = stringToBool(value.toString());
 }
 

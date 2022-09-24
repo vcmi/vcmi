@@ -4,16 +4,13 @@ set(editor_SRCS
 		launcherdirs.cpp
 		jsonutils.cpp
 		mainwindow.cpp
-		CGameInfo.cpp
 		BitmapHandler.cpp
 		maphandler.cpp
 		Animation.cpp
 		graphics.cpp
-		spoiler.cpp
 		windownewmap.cpp
 		generatorprogress.cpp
 		mapview.cpp
-		radiopushbutton.cpp
 		objectbrowser.cpp
 		mapsettings.cpp
 		playersettings.cpp
@@ -33,16 +30,13 @@ set(editor_HEADERS
 		launcherdirs.h
 		jsonutils.h
 		mainwindow.h
-		CGameInfo.h
 		BitmapHandler.h
 		maphandler.h
 		Animation.h
 		graphics.h
-		spoiler.h
 		windownewmap.h
 		generatorprogress.h
 		mapview.h
-		radiopushbutton.h
 		objectbrowser.h
 		mapsettings.h
 		playersettings.h

@@ -1,5 +1,4 @@
-#ifndef MAPHANDLER_H
-#define MAPHANDLER_H
+#pragma once
 
 #include "StdInc.h"
 #include "../lib/mapping/CMap.h"
@@ -103,5 +102,3 @@ public:
 
 	static bool compareObjectBlitOrder(const CGObjectInstance * a, const CGObjectInstance * b);
 };
-
-#endif // MAPHANDLER_H

@@ -1,5 +1,4 @@
-#ifndef PLAYERSETTINGS_H
-#define PLAYERSETTINGS_H
+#pragma once
 
 #include "StdInc.h"
 #include <QDialog>
@@ -30,5 +29,3 @@ private:
 	
 	MapController & controller;
 };
-
-#endif // PLAYERSETTINGS_H

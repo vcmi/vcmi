@@ -1,5 +1,5 @@
 /*
- * CAnimation.cpp, part of VCMI engine
+ * Animation.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -19,8 +19,6 @@
 
 
 typedef std::map<size_t, std::vector<JsonNode>> source_map;
-//typedef std::map<size_t, IImage*> image_map;
-//typedef std::map<size_t, image_map > group_map;
 
 /// Class for def loading
 /// After loading will store general info (palette and frame offsets) and pointer to file itself
@@ -102,11 +100,11 @@ public:
 	{
 		for(auto & file : cache)
 		{
-			if (file.name == rid)
+			if(file.name == rid)
 				return file.getCopy();
 		}
 		// Still here? Cache miss
-		if (cache.size() > cacheSize)
+		if(cache.size() > cacheSize)
 			cache.pop_front();
 
 		auto data =  CResourceHandler::get()->load(rid)->readAll();
@@ -173,12 +171,12 @@ DefFile::DefFile(std::string Name):
 	int it = 0;
 
 	ui32 type = read_le_u32(data.get() + it);
-	it+=4;
+	it += 4;
 	//int width  = read_le_u32(data + it); it+=4;//not used
 	//int height = read_le_u32(data + it); it+=4;
-	it+=8;
+	it += 8;
 	ui32 totalBlocks = read_le_u32(data.get() + it);
-	it+=4;
+	it += 4;
 
 	for (ui32 i= 0; i<256; i++)
 	{
@@ -467,7 +465,7 @@ inline void ImageLoader::Load(size_t size, const ui8 * data)
 
 inline void ImageLoader::Load(size_t size, ui8 color)
 {
-	if (size)
+	if(size)
 	{
 		memset((void *)position, color, size);
 		position += size;
@@ -482,9 +480,6 @@ inline void ImageLoader::EndLine()
 
 ImageLoader::~ImageLoader()
 {
-	//SDL_UnlockSurface(image->surf);
-	//SDL_SetColorKey(image->surf, SDL_TRUE, 0);
-	//TODO: RLE if compressed and bpp>1
 }
 
 /*************************************************************************
@@ -494,14 +489,14 @@ ImageLoader::~ImageLoader()
 std::shared_ptr<QImage> Animation::getFromExtraDef(std::string filename)
 {
 	size_t pos = filename.find(':');
-	if (pos == -1)
+	if(pos == -1)
 		return nullptr;
 	Animation anim(filename.substr(0, pos));
 	pos++;
 	size_t frame = atoi(filename.c_str()+pos);
 	size_t group = 0;
 	pos = filename.find(':', pos);
-	if (pos != -1)
+	if(pos != -1)
 	{
 		pos++;
 		group = frame;
@@ -548,12 +543,7 @@ bool Animation::loadFrame(size_t frame, size_t group)
 	}
 	else //load from separate file
 	{
-		auto img = getFromExtraDef(source[group][frame]["file"].String());
-		//if(!img)
-			
-			//img = std::make_shared<QImage>(source[group][frame]);
-
-		images[group][frame] = img;
+		images[group][frame] = getFromExtraDef(source[group][frame]["file"].String());;
 		return true;
 	}
 	return false;
@@ -583,6 +573,7 @@ void Animation::init()
 			source[defEntry.first].resize(defEntry.second);
 	}
 
+#if 0 //this code is not used but maybe requred if there will be configurable sprites
 	ResourceID resID(std::string("SPRITES/") + name, EResType::TEXT);
 
 	//if(vstd::contains(graphics->imageLists, resID.getName()))
@@ -600,6 +591,7 @@ void Animation::init()
 
 		//initFromJson(config);
 	}
+#endif
 }
 
 void Animation::printError(size_t frame, size_t group, std::string type) const
@@ -613,7 +605,7 @@ Animation::Animation(std::string Name):
 	defFile()
 {
 	size_t dotPos = name.find_last_of('.');
-	if ( dotPos!=-1 )
+	if( dotPos!=-1 )
 		name.erase(dotPos);
 	std::transform(name.begin(), name.end(), name.begin(), toupper);
 
@@ -671,7 +663,7 @@ void Animation::duplicateImage(const size_t sourceGroup, const size_t sourceFram
 
 void Animation::setCustom(std::string filename, size_t frame, size_t group)
 {
-	if (source[group].size() <= frame)
+	if(source[group].size() <= frame)
 		source[group].resize(frame+1);
 	source[group][frame]["file"].String() = filename;
 	//FIXME: update image if already loaded
@@ -680,13 +672,13 @@ void Animation::setCustom(std::string filename, size_t frame, size_t group)
 std::shared_ptr<QImage> Animation::getImage(size_t frame, size_t group, bool verbose) const
 {
 	auto groupIter = images.find(group);
-	if (groupIter != images.end())
+	if(groupIter != images.end())
 	{
 		auto imageIter = groupIter->second.find(frame);
-		if (imageIter != groupIter->second.end())
+		if(imageIter != groupIter->second.end())
 			return imageIter->second;
 	}
-	if (verbose)
+	if(verbose)
 		printError(frame, group, "GetImage");
 	return nullptr;
 }
@@ -717,14 +709,14 @@ void Animation::preload()
 
 void Animation::loadGroup(size_t group)
 {
-	if (vstd::contains(source, group))
+	if(vstd::contains(source, group))
 		for (size_t image=0; image < source[group].size(); image++)
 			loadFrame(image, group);
 }
 
 void Animation::unloadGroup(size_t group)
 {
-	if (vstd::contains(source, group))
+	if(vstd::contains(source, group))
 		for (size_t image=0; image < source[group].size(); image++)
 			unloadFrame(image, group);
 }
@@ -742,7 +734,7 @@ void Animation::unload(size_t frame, size_t group)
 size_t Animation::size(size_t group) const
 {
 	auto iter = source.find(group);
-	if (iter != source.end())
+	if(iter != source.end())
 		return iter->second.size();
 	return 0;
 }
@@ -763,9 +755,11 @@ void Animation::verticalFlip()
 
 void Animation::playerColored(PlayerColor player)
 {
-	//for(auto & group : images)
-		//for(auto & image : group.second)
-			//image.second->playerColored(player);
+#if 0 //can be required in image preview?
+	for(auto & group : images)
+		for(auto & image : group.second)
+			image.second->playerColored(player);
+#endif
 }
 
 void Animation::createFlippedGroup(const size_t sourceGroup, const size_t targetGroup)

@@ -33,7 +33,6 @@
 #include "../lib/mapObjects/CObjectClassesHandler.h"
 #include "../lib/mapObjects/CObjectHandler.h"
 #include "../lib/CHeroHandler.h"
-#include "CGameInfo.h"
 
 Graphics * graphics = nullptr;
 
@@ -45,7 +44,7 @@ void Graphics::loadPaletteAndColors()
 	playerColorPalette.resize(256);
 	playerColors.resize(PlayerColor::PLAYER_LIMIT_I);
 	int startPoint = 24; //beginning byte; used to read
-	for(int i=0; i<256; ++i)
+	for(int i = 0; i < 256; ++i)
 	{
 		QColor col;
 		col.setRed(pals[startPoint++]);
@@ -61,7 +60,7 @@ void Graphics::loadPaletteAndColors()
 	auto stream = CResourceHandler::get()->load(ResourceID("config/NEUTRAL.PAL"));
 	CBinaryReader reader(stream.get());
 	
-	for(int i=0; i<32; ++i)
+	for(int i = 0; i < 32; ++i)
 	{
 		QColor col;
 		col.setRed(reader.readUInt8());
@@ -95,7 +94,6 @@ void Graphics::loadPaletteAndColors()
 Graphics::Graphics()
 {
 #if 0
-	
 	std::vector<Task> tasks; //preparing list of graphics to load
 	tasks += std::bind(&Graphics::loadFonts,this);
 	tasks += std::bind(&Graphics::loadPaletteAndColors,this);
@@ -125,11 +123,11 @@ void Graphics::load()
 
 void Graphics::loadHeroAnimations()
 {
-	for(auto & elem : CGI->heroh->classes.objects)
+	for(auto & elem : VLC->heroh->classes.objects)
 	{
-		for (auto templ : VLC->objtypeh->getHandlerFor(Obj::HERO, elem->getIndex())->getTemplates())
+		for(auto templ : VLC->objtypeh->getHandlerFor(Obj::HERO, elem->getIndex())->getTemplates())
 		{
-			if (!heroAnimations.count(templ->animationFile))
+			if(!heroAnimations.count(templ->animationFile))
 				heroAnimations[templ->animationFile] = loadHeroAnimation(templ->animationFile);
 		}
 	}
@@ -244,39 +242,6 @@ void Graphics::blueToPlayersAdv(QImage * sur, PlayerColor player)
 		//FIXME: not all player colored images have player palette at last 32 indexes
 		//NOTE: following code is much more correct but still not perfect (bugged with status bar)
 		sur->setColorTable(palette);
-		
-#if 0
-		
-		SDL_Color * bluePalette = playerColorPalette + 32;
-		
-		SDL_Palette * oldPalette = sur->format->palette;
-		
-		SDL_Palette * newPalette = SDL_AllocPalette(256);
-		
-		for(size_t destIndex = 0; destIndex < 256; destIndex++)
-		{
-			SDL_Color old = oldPalette->colors[destIndex];
-			
-			bool found = false;
-			
-			for(size_t srcIndex = 0; srcIndex < 32; srcIndex++)
-			{
-				if(old.b == bluePalette[srcIndex].b && old.g == bluePalette[srcIndex].g && old.r == bluePalette[srcIndex].r)
-				{
-					found = true;
-					newPalette->colors[destIndex] = palette[srcIndex];
-					break;
-				}
-			}
-			if(!found)
-				newPalette->colors[destIndex] = old;
-		}
-		
-		SDL_SetSurfacePalette(sur, newPalette);
-		
-		SDL_FreePalette(newPalette);
-		
-#endif // 0
 	}
 	else
 	{
@@ -369,10 +334,10 @@ void Graphics::addImageListEntries(const EntityService * service)
 
 void Graphics::initializeImageLists()
 {
-	addImageListEntries(CGI->creatures());
-	addImageListEntries(CGI->heroTypes());
-	addImageListEntries(CGI->artifacts());
-	addImageListEntries(CGI->factions());
-	addImageListEntries(CGI->spells());
-	addImageListEntries(CGI->skills());
+	addImageListEntries(VLC->creatures());
+	addImageListEntries(VLC->heroTypes());
+	addImageListEntries(VLC->artifacts());
+	addImageListEntries(VLC->factions());
+	addImageListEntries(VLC->spells());
+	addImageListEntries(VLC->skills());
 }

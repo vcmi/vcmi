@@ -1,5 +1,4 @@
-#ifndef MAPCONTROLLER_H
-#define MAPCONTROLLER_H
+#pragma once
 
 #include "maphandler.h"
 #include "mapview.h"
@@ -58,5 +57,3 @@ private:
 
 	void connectScenes();
 };
-
-#endif // MAPCONTROLLER_H

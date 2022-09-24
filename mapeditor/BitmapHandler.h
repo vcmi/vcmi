@@ -1,10 +1,12 @@
-//
-//  BitmapHandler.hpp
-//  vcmieditor
-//
-//  Created by nordsoft on 29.08.2022.
-//
-
+/*
+ * BitmapHandler.h, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 #pragma once
 
 #define read_le_u16(p) (* reinterpret_cast<const ui16 *>(p))
@@ -15,6 +17,6 @@
 namespace BitmapHandler
 {
 	//Load file from /DATA or /SPRITES
-	QImage loadBitmap(std::string fname, bool setKey=true);
+	QImage loadBitmap(const std::string & fname, bool setKey = true);
 }
 

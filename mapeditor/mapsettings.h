@@ -1,5 +1,4 @@
-#ifndef MAPSETTINGS_H
-#define MAPSETTINGS_H
+#pragma once
 
 #include <QDialog>
 #include "mapcontroller.h"
@@ -23,5 +22,3 @@ private:
 	Ui::MapSettings *ui;
 	MapController & controller;
 };
-
-#endif // MAPSETTINGS_H

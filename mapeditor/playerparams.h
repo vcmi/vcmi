@@ -1,5 +1,4 @@
-#ifndef PLAYERPARAMS_H
-#define PLAYERPARAMS_H
+#pragma once
 
 #include <QWidget>
 #include "../lib/mapping/CMap.h"
@@ -38,5 +37,3 @@ private:
 	
 	MapController & controller;
 };
-
-#endif // PLAYERPARAMS_H

@@ -109,6 +109,7 @@ void MapController::repairMap()
 			   dynamic_cast<CGTownInstance*>(obj.get()) ||
 			   dynamic_cast<CGGarrison*>(obj.get()) ||
 			   dynamic_cast<CGShipyard*>(obj.get()) ||
+			   dynamic_cast<CGLighthouse*>(obj.get()) ||
 			   dynamic_cast<CGHeroInstance*>(obj.get()))
 				obj->tempOwner = PlayerColor::NEUTRAL;
 		}
@@ -454,9 +455,6 @@ void MapController::commitObjectCreate(int level)
 
 bool MapController::canPlaceObject(int level, CGObjectInstance * newObj, QString & error) const
 {
-	//need this because of possible limits
-	auto rmgInfo = VLC->objtypeh->getHandlerFor(newObj->ID, newObj->subID)->getRMGInfo();
-	
 	//find all objects of such type
 	int objCounter = 0;
 	for(auto o : _map->objects)
@@ -467,30 +465,20 @@ bool MapController::canPlaceObject(int level, CGObjectInstance * newObj, QString
 		}
 	}
 	
-	if((rmgInfo.mapLimit && objCounter >= rmgInfo.mapLimit)
-	   || (newObj->ID == Obj::GRAIL && objCounter >= 1)) //special case for grail
+	if(newObj->ID == Obj::GRAIL && objCounter >= 1) //special case for grail
 	{
 		auto typeName = QString::fromStdString(newObj->typeName);
 		auto subTypeName = QString::fromStdString(newObj->subTypeName);
-		error = QString("Reached map limit for object %1 - %2").arg(typeName, subTypeName);
+		error = QString("There can be only one grail object on the map");
 		return false; //maplimit reached
 	}
+	
 	if(defaultPlayer == PlayerColor::NEUTRAL && (newObj->ID == Obj::HERO || newObj->ID == Obj::RANDOM_HERO))
 	{
 		error = "Hero cannot be created as NEUTRAL";
 		return false;
 	}
-	if(defaultPlayer != PlayerColor::NEUTRAL && newObj->ID == Obj::PRISON)
-	{
-		error = "Prison must be a NEUTRAL";
-		return false;
-	}
 	
-	if(newObj->ID == Obj::ARTIFACT && !_map->allowedArtifact.at(newObj->subID))
-	{
-		error = "Artifact is not allowed. Check map settings.";
-		return false;
-	}
 	return true;
 }
 

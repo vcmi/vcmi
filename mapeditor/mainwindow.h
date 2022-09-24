@@ -1,5 +1,4 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#pragma once
 
 #include <QMainWindow>
 #include <QGraphicsScene>
@@ -131,7 +130,7 @@ private:
 	void saveUserSettings();
 
 private:
-    Ui::MainWindow *ui;
+    Ui::MainWindow * ui;
 	ObjectBrowser * objectBrowser = nullptr;
 	QGraphicsScene * scenePreview;
 	
@@ -144,5 +143,3 @@ private:
 
 	std::set<int> catalog;
 };
-
-#endif // MAINWINDOW_H

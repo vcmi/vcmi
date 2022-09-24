@@ -1,9 +1,12 @@
-//
-//  BitmapHandler.cpp
-//  vcmieditor
-//
-//  Created by nordsoft on 29.08.2022.
-//
+/*
+ * BitmapHandler.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 #include "StdInc.h"
 #include "BitmapHandler.h"
 
@@ -17,14 +20,14 @@ namespace BitmapHandler
 {
 	QImage loadH3PCX(ui8 * data, size_t size);
 	
-	QImage loadBitmapFromDir(std::string path, std::string fname, bool setKey=true);
+	QImage loadBitmapFromDir(const std::string & path, const std::string & fname, bool setKey=true);
 
-	bool isPCX(const ui8 *header)//check whether file can be PCX according to header
+	bool isPCX(const ui8 * header)//check whether file can be PCX according to header
 	{
 		ui32 fSize  = read_le_u32(header + 0);
 		ui32 width  = read_le_u32(header + 4);
 		ui32 height = read_le_u32(header + 8);
-		return fSize == width*height || fSize == width*height*3;
+		return fSize == width * height || fSize == width * height * 3;
 	}
 
 	enum Epcxformat
@@ -38,22 +41,22 @@ namespace BitmapHandler
 		//SDL_Surface * ret;
 		
 		Epcxformat format;
-		int it=0;
+		int it = 0;
 		
-		ui32 fSize = read_le_u32(pcx + it); it+=4;
-		ui32 width = read_le_u32(pcx + it); it+=4;
-		ui32 height = read_le_u32(pcx + it); it+=4;
+		ui32 fSize = read_le_u32(pcx + it); it += 4;
+		ui32 width = read_le_u32(pcx + it); it += 4;
+		ui32 height = read_le_u32(pcx + it); it += 4;
 		
-		if (fSize==width*height*3)
+		if(fSize==width*height*3)
 			format=PCX24B;
-		else if (fSize==width*height)
+		else if(fSize==width*height)
 			format=PCX8B;
 		else
 			return QImage();
 		
 		QSize qsize(width, height);
 		
-		if (format==PCX8B)
+		if(format==PCX8B)
 		{
 			it = 0xC;
 			//auto bitmap = QBitmap::fromData(qsize, pcx + it);
@@ -61,8 +64,8 @@ namespace BitmapHandler
 			
 			//palette - last 256*3 bytes
 			QVector<QRgb> colorTable;
-			it = (int)size-256*3;
-			for (int i=0;i<256;i++)
+			it = (int)size - 256 * 3;
+			for(int i = 0; i < 256; i++)
 			{
 				char bytes[3];
 				bytes[0] = pcx[it++];
@@ -80,14 +83,14 @@ namespace BitmapHandler
 		}
 	}
 
-	QImage loadBitmapFromDir(std::string path, std::string fname, bool setKey)
+	QImage loadBitmapFromDir(const std::string & path, const std::string & fname, bool setKey)
 	{
 		if(!fname.size())
 		{
 			logGlobal->warn("Call to loadBitmap with void fname!");
 			return QImage();
 		}
-		if (!CResourceHandler::get()->existsResource(ResourceID(path + fname, EResType::IMAGE)))
+		if(!CResourceHandler::get()->existsResource(ResourceID(path + fname, EResType::IMAGE)))
 		{
 			return QImage();
 		}
@@ -95,7 +98,7 @@ namespace BitmapHandler
 		auto fullpath = CResourceHandler::get()->getResourceName(ResourceID(path + fname, EResType::IMAGE));
 		auto readFile = CResourceHandler::get()->load(ResourceID(path + fname, EResType::IMAGE))->readAll();
 		
-		if (isPCX(readFile.first.get()))
+		if(isPCX(readFile.first.get()))
 		{//H3-style PCX
 			auto image = BitmapHandler::loadH3PCX(readFile.first.get(), readFile.second);
 			if(!image.isNull())
@@ -134,26 +137,13 @@ namespace BitmapHandler
 			}
 		}
 		return QImage();
-		// When modifying anything here please check two use cases:
+		// When modifying anything here please check use cases:
 		// 1) Vampire mansion in Necropolis (not 1st color is transparent)
 		// 2) Battle background when fighting on grass/dirt, topmost sky part (NO transparent color)
 		// 3) New objects that may use 24-bit images for icons (e.g. witchking arts)
-		/*if (ret->format->palette)
-		{
-			CSDL_Ext::setDefaultColorKeyPresize(ret);
-		}
-		else if (ret->format->Amask)
-		{
-			SDL_SetSurfaceBlendMode(ret, SDL_BLENDMODE_BLEND);
-		}
-		else // always set
-		{
-			CSDL_Ext::setDefaultColorKey(ret);
-		}
-		return ret;*/
 	}
 
-	QImage loadBitmap(std::string fname, bool setKey)
+	QImage loadBitmap(const std::string & fname, bool setKey)
 	{
 		QImage image = loadBitmapFromDir("DATA/", fname, setKey);
 		if(image.isNull())

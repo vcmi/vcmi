@@ -1,5 +1,4 @@
-#ifndef MAPVIEW_H
-#define MAPVIEW_H
+#pragma once
 
 #include <QGraphicsScene>
 #include <QGraphicsView>
@@ -129,5 +128,3 @@ private:
 	int displayWidth = 192;
 	int displayHeight = 192;
 };
-
-#endif // MAPVIEW_H

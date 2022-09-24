@@ -20,7 +20,6 @@ ArmyWidget::ArmyWidget(CArmedInstance & a, QWidget *parent) :
 	
 	for(int i = 0; i < TOTAL_SLOTS; ++i)
 	{
-		uiCounts[i]->setInputMask("d0000");
 		uiCounts[i]->setText("1");
 		uiSlots[i]->addItem("");
 		uiSlots[i]->setItemData(0, -1);

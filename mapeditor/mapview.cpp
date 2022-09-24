@@ -81,7 +81,8 @@ void MapView::mouseMoveEvent(QMouseEvent *mouseEvent)
 
 	tilePrev = tile;
 
-	//main->setStatusMessage(QString("x: %1 y: %2").arg(QString::number(pos.x()), QString::number(pos.y())));
+	//TODO: cast parent->parent to MainWindow in order to show coordinates or another way to do it?
+	//main->setStatusMessage(QString("x: %1 y: %2").arg(tile.x, tile.y));
 
 	switch(selectionTool)
 	{

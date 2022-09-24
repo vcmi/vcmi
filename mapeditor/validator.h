@@ -1,5 +1,4 @@
-#ifndef VALIDATOR_H
-#define VALIDATOR_H
+#pragma once
 
 #include <QDialog>
 #include "../lib/mapping/CMap.h"
@@ -29,5 +28,3 @@ public:
 private:
 	Ui::Validator *ui;
 };
-
-#endif // VALIDATOR_H

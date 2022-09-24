@@ -1,3 +1,13 @@
+/*
+ * mainwindow.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+
 #include "StdInc.h"
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
@@ -20,8 +30,6 @@
 #include "../lib/mapObjects/CObjectClassesHandler.h"
 #include "../lib/filesystem/CFilesystemLoader.h"
 
-
-#include "CGameInfo.h"
 #include "maphandler.h"
 #include "graphics.h"
 #include "windownewmap.h"
@@ -52,9 +60,7 @@ QPixmap pixmapFromJson(const QJsonValue &val)
 
 void init()
 {
-
 	loadDLLClasses();
-	const_cast<CGameInfo*>(CGI)->setFromLib();
 	logGlobal->info("Initializing VCMI_Lib");
 }
 
@@ -129,7 +135,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	conf.init();
 	logGlobal->info("Loading settings");
 	
-	CGI = new CGameInfo(); //contains all global informations about game (texts, lodHandlers, map handler etc.)
 	init();
 	
 	graphics = new Graphics(); // should be before curh->init()
@@ -140,9 +145,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	{
 		QApplication::quit();
 	}
-	
-	//now let's try to draw
-	//auto resPath = *CResourceHandler::get()->getResourceName(ResourceID("DATA/new-menu/Background.png"));
 	
 	ui->mapView->setScene(controller.scene(0));
 	ui->mapView->setController(&controller);
@@ -156,14 +158,12 @@ MainWindow::MainWindow(QWidget *parent) :
 	scenePreview = new QGraphicsScene(this);
 	ui->objectPreview->setScene(scenePreview);
 
-	//scenes[0]->addPixmap(QPixmap(QString::fromStdString(resPath.native())));
-
 	//loading objects
 	loadObjectsTree();
 	
 	ui->tabWidget->setCurrentIndex(0);
 	
-	for(int i = 0; i < 8; ++i)
+	for(int i = 0; i < PlayerColor::PLAYER_LIMIT.getNum(); ++i)
 	{
 		connect(getActionPlayer(PlayerColor(i)), &QAction::toggled, this, [&, i](){switchDefaultPlayer(PlayerColor(i));});
 	}
@@ -733,7 +733,7 @@ void MainWindow::on_actionGrid_triggered(bool checked)
 	if(controller.map())
 	{
 		controller.scene(0)->gridView.show(checked);
-		controller.scene(0)->gridView.show(checked);
+		controller.scene(1)->gridView.show(checked);
 	}
 }
 

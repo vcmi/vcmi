@@ -1,5 +1,4 @@
-#ifndef WINDOWNEWMAP_H
-#define WINDOWNEWMAP_H
+#pragma once
 
 #include <QDialog>
 #include "../lib/rmg/CMapGenOptions.h"
@@ -91,5 +90,3 @@ private:
 	CMapGenOptions mapGenOptions;
 	bool randomMap = false;
 };
-
-#endif // WINDOWNEWMAP_H

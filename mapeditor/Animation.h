@@ -1,5 +1,13 @@
-#ifndef ANIMATION_H
-#define ANIMATION_H
+/*
+ * Animation.h, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+#pragma once
 
 #include "../lib/JsonNode.h"
 #include "../lib/GameConstants.h"
@@ -57,12 +65,12 @@ public:
 	// adjust the color of the animation, used in battle spell effects, e.g. Cloned objects
 
 	//add custom surface to the selected position.
-	void setCustom(std::string filename, size_t frame, size_t group=0);
+	void setCustom(std::string filename, size_t frame, size_t group = 0);
 
-	std::shared_ptr<QImage> getImage(size_t frame, size_t group=0, bool verbose=true) const;
+	std::shared_ptr<QImage> getImage(size_t frame, size_t group = 0, bool verbose = true) const;
 
 	//all available frames
-	void load  ();
+	void load();
 	void unload();
 	void preload();
 
@@ -71,11 +79,11 @@ public:
 	void unloadGroup(size_t group);
 
 	//single image
-	void load  (size_t frame, size_t group=0);
-	void unload(size_t frame, size_t group=0);
+	void load  (size_t frame, size_t group = 0);
+	void unload(size_t frame, size_t group = 0);
 
 	//total count of frames in group (including not loaded)
-	size_t size(size_t group=0) const;
+	size_t size(size_t group = 0) const;
 
 	void horizontalFlip();
 	void verticalFlip();
@@ -83,5 +91,3 @@ public:
 
 	void createFlippedGroup(const size_t sourceGroup, const size_t targetGroup);
 };
-
-#endif // ANIMATION_H

@@ -1,5 +1,4 @@
-#ifndef OBJECTBROWSER_H
-#define OBJECTBROWSER_H
+#pragma once
 
 #include <QSortFilterProxyModel>
 #include "../lib/Terrain.h"
@@ -16,5 +15,3 @@ protected:
 	bool filterAcceptsRow(int source_row, const QModelIndex & source_parent) const override;
 	bool filterAcceptsRowText(int source_row, const QModelIndex &source_parent) const;
 };
-
-#endif // OBJECTBROWSER_H

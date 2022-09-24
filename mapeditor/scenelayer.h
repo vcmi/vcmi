@@ -1,5 +1,4 @@
-#ifndef SCENELAYER_H
-#define SCENELAYER_H
+#pragma once
 
 #include "../lib/int3.h"
 
@@ -174,5 +173,3 @@ private:
 	int x = 0, y = 0, w = 1, h = 1;
 	
 };
-
-#endif // SCENELAYER_H
