@@ -35,6 +35,8 @@
 #include "BattleFieldHandler.h"
 #include "ObstacleHandler.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 LibClasses * VLC = nullptr;
 
 DLL_LINKAGE void preinitDLL(CConsoleHandler * Console, bool onlyEssential)
@@ -316,3 +318,5 @@ void LibClasses::setContent(std::shared_ptr<CContentHandler> content)
 {
 	modh->content = content;
 }
+
+VCMI_LIB_NAMESPACE_END

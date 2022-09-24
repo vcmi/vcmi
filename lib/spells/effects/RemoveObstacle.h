@@ -14,6 +14,8 @@
 
 #include "../../GameConstants.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 struct CObstacleInstance;
 struct BattleObstaclesChanged;
 
@@ -50,3 +52,5 @@ private:
 
 }
 }
+
+VCMI_LIB_NAMESPACE_END

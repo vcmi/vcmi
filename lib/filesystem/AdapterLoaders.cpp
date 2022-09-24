@@ -13,6 +13,8 @@
 #include "../JsonNode.h"
 #include "Filesystem.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 CMappedFileLoader::CMappedFileLoader(const std::string & mountPoint, const JsonNode &config)
 {
 	for(auto entry : config.Struct())
@@ -179,3 +181,5 @@ bool CFilesystemList::removeLoader(ISimpleResourceLoader * loader)
 	}
 	return false;
 }
+
+VCMI_LIB_NAMESPACE_END

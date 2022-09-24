@@ -11,6 +11,8 @@
 #pragma once
 #include "Zone.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class TerrainPainter: public Modificator
 {
 public:
@@ -19,3 +21,5 @@ public:
 	void process() override;
 	void init() override;
 };
+
+VCMI_LIB_NAMESPACE_END

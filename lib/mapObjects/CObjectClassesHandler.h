@@ -17,6 +17,8 @@
 #include "../JsonNode.h"
 #include "Terrain.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class JsonNode;
 class CRandomGenerator;
 
@@ -320,3 +322,5 @@ public:
 		h & objects;
 	}
 };
+
+VCMI_LIB_NAMESPACE_END

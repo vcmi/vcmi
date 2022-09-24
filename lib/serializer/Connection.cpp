@@ -16,6 +16,8 @@
 
 #include <boost/asio.hpp>
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 using namespace boost;
 using namespace boost::asio::ip;
 
@@ -33,8 +35,15 @@ using namespace boost::asio::ip;
 void CConnection::init()
 {
 	socket->set_option(boost::asio::ip::tcp::no_delay(true));
-	socket->set_option(boost::asio::socket_base::send_buffer_size(4194304));
-	socket->set_option(boost::asio::socket_base::receive_buffer_size(4194304));
+    try
+    {
+        socket->set_option(boost::asio::socket_base::send_buffer_size(4194304));
+        socket->set_option(boost::asio::socket_base::receive_buffer_size(4194304));
+    }
+    catch (const boost::system::system_error & e)
+    {
+        logNetwork->error("error setting socket option: %s", e.what());
+    }
 
 	enableSmartPointerSerialization();
 	disableStackSendingByID();
@@ -274,3 +283,5 @@ std::string CConnection::toString() const
 	fmt % name % connectionID % uuid;
 	return fmt.str();
 }
+
+VCMI_LIB_NAMESPACE_END

@@ -10,6 +10,8 @@
 
 #pragma once
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace scripting
 {
 
@@ -21,3 +23,5 @@ public:
 };
 
 }
+
+VCMI_LIB_NAMESPACE_END

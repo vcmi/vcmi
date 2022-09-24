@@ -9,6 +9,8 @@
  */
 #pragma once
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 /// Used for multithreading, wraps boost functions
 template <typename T> struct CondSh
 {
@@ -63,3 +65,5 @@ template <typename T> struct CondSh
 			cond.wait(un);
 	}
 };
+
+VCMI_LIB_NAMESPACE_END

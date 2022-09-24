@@ -10,6 +10,8 @@
 
 #pragma once
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace ELogLevel
 {
 	enum ELogLevel
@@ -191,3 +193,5 @@ extern DLL_LINKAGE vstd::CLoggerBase * logNetwork;
 extern DLL_LINKAGE vstd::CLoggerBase * logAi;
 extern DLL_LINKAGE vstd::CLoggerBase * logAnim;
 extern DLL_LINKAGE vstd::CLoggerBase * logMod;
+
+VCMI_LIB_NAMESPACE_END

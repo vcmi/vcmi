@@ -18,6 +18,8 @@
 #include "../serializer/JsonDeserializer.h"
 #include "../serializer/JsonSerializer.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 CObstacleInstance::CObstacleInstance()
 {
 	obstacleType = USUAL;
@@ -213,3 +215,5 @@ std::vector<BattleHex> MoatObstacle::getAffectedTiles() const
 {
 	return (*VLC->townh)[ID]->town->moatHexes;
 }
+
+VCMI_LIB_NAMESPACE_END

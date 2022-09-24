@@ -28,6 +28,8 @@
 #include "../CSkillHandler.h"
 #include "../mapping/CMap.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 
 std::map <PlayerColor, std::set <ui8> > CGKeys::playerKeyMap;
 
@@ -1172,3 +1174,5 @@ bool CGBorderGate::passableFor(PlayerColor color) const
 {
 	return wasMyColorVisited(color);
 }
+
+VCMI_LIB_NAMESPACE_END

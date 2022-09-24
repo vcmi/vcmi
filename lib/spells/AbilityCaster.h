@@ -12,6 +12,8 @@
 
 #include "ProxyCaster.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace spells
 {
 
@@ -32,3 +34,5 @@ private:
 };
 
 } // namespace spells
+
+VCMI_LIB_NAMESPACE_END

@@ -37,6 +37,8 @@
 #include "serializer/CMemorySerializer.h"
 #include "VCMIDirs.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 boost::shared_mutex CGameState::mutex;
 
 template <typename T> class CApplyOnGS;
@@ -3106,3 +3108,5 @@ CRandomGenerator & CGameState::getRandomGenerator()
 {
 	return rand;
 }
+
+VCMI_LIB_NAMESPACE_END

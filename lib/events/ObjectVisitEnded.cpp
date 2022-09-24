@@ -13,6 +13,8 @@
 
 #include <vcmi/events/EventBus.h>
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 
 namespace events
 {
@@ -53,3 +55,5 @@ ObjectInstanceID CObjectVisitEnded::getHero() const
 }
 
 }
+
+VCMI_LIB_NAMESPACE_END

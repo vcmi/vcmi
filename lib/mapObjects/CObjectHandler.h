@@ -15,6 +15,8 @@
 #include "../int3.h"
 #include "../HeroBonus.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CGHeroInstance;
 class IGameCallback;
 class CGObjectInstance;
@@ -255,3 +257,5 @@ public:
 		h & resVals;
 	}
 };
+
+VCMI_LIB_NAMESPACE_END

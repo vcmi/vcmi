@@ -15,6 +15,8 @@
 #include "../CCreatureSet.h"
 #include "../NetPacksBase.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CGCreature;
 
 class DLL_LINKAGE CQuest
@@ -239,3 +241,5 @@ public:
 		h & static_cast<CGBorderGuard&>(*this); //need to serialize or object will be empty
 	}
 };
+
+VCMI_LIB_NAMESPACE_END

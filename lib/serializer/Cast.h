@@ -13,6 +13,8 @@
 #include <string>
 #include "CTypeList.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 template<class T, class F>
 inline const T * dynamic_ptr_cast(const F * ptr)
 {
@@ -60,3 +62,5 @@ inline T * dynamic_ptr_cast(F * ptr)
 	return static_cast<T *>(ptr);
 #endif
 }
+
+VCMI_LIB_NAMESPACE_END

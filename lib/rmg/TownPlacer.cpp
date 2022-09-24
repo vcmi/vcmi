@@ -24,6 +24,8 @@
 #include "WaterAdopter.h"
 #include "TileInfo.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 void TownPlacer::process()
 {
 	auto * manager = zone.getModificator<ObjectManager>();
@@ -278,3 +280,5 @@ int TownPlacer::getTotalTowns() const
 {
 	return totalTowns;
 }
+
+VCMI_LIB_NAMESPACE_END

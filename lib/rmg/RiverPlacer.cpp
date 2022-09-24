@@ -22,6 +22,8 @@
 #include "WaterProxy.h"
 #include "RoadPlacer.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 const int RIVER_DELTA_ID = 143;
 const int RIVER_DELTA_SUBTYPE = 0;
 const std::map<std::string, std::string> RIVER_DELTA_TEMPLATE_NAME
@@ -402,3 +404,5 @@ void RiverPlacer::connectRiver(const int3 & tile)
 	rivers.unite(pathToSource.getPathArea());
 	rivers.unite(pathToSink.getPathArea());
 }
+
+VCMI_LIB_NAMESPACE_END

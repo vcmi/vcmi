@@ -34,9 +34,13 @@ void MainWindow::load()
 	CResourceHandler::initialize();
 	CResourceHandler::load("config/filesystem.json");
 
+#ifdef Q_OS_IOS
+	QDir::addSearchPath("icons", pathToQString(VCMIDirs::get().binaryPath() / "icons"));
+#else
 	for(auto & string : VCMIDirs::get().dataPaths())
 		QDir::addSearchPath("icons", pathToQString(string / "launcher" / "icons"));
 	QDir::addSearchPath("icons", pathToQString(VCMIDirs::get().userDataPath() / "launcher" / "icons"));
+#endif
 
 	settings.init();
 }
@@ -99,9 +103,14 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_startGameButton_clicked()
 {
+#ifdef Q_OS_IOS
+	qApp->quit();
+#else
 	startExecutable(pathToQString(VCMIDirs::get().clientPath()));
+#endif
 }
 
+#ifndef Q_OS_IOS
 void MainWindow::startExecutable(QString name)
 {
 	QProcess process;
@@ -119,6 +128,6 @@ void MainWindow::startExecutable(QString name)
 		                      "Reason: " + process.errorString(),
 		                      QMessageBox::Ok,
 		                      QMessageBox::Ok);
-		return;
 	}
 }
+#endif

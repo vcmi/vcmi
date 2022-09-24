@@ -11,6 +11,8 @@
 #include "StdInc.h"
 #include "CRandomGenerator.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 boost::thread_specific_ptr<CRandomGenerator> CRandomGenerator::defaultRand;
 
 CRandomGenerator::CRandomGenerator()
@@ -88,3 +90,5 @@ TGenerator & CRandomGenerator::getStdGenerator()
 {
 	return rand;
 }
+
+VCMI_LIB_NAMESPACE_END

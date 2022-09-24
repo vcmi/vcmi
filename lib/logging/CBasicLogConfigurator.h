@@ -12,6 +12,8 @@
 
 #include "../CConsoleHandler.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CConsoleHandler;
 class JsonNode;
 
@@ -45,3 +47,5 @@ private:
 	CConsoleHandler * console;
 	bool appendToLogFile;
 };
+
+VCMI_LIB_NAMESPACE_END

@@ -12,6 +12,12 @@
 #include "CWindowObject.h"
 #include "../../lib/FunctionList.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
+class CGGarrison;
+
+VCMI_LIB_NAMESPACE_END
+
 struct SDL_Surface;
 struct Rect;
 class CAnimImage;
@@ -19,7 +25,6 @@ class CLabel;
 class CAnimation;
 class CComponent;
 class CSelectableComponent;
-class CGGarrison;
 class CTextBox;
 class CButton;
 class CSlider;

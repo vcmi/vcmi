@@ -11,6 +11,8 @@
 
 #include <boost/utility/string_ref.hpp>
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace FileInfo
 {
 
@@ -50,3 +52,5 @@ boost::string_ref DLL_LINKAGE GetParentPath(boost::string_ref path);
 boost::string_ref DLL_LINKAGE GetPathStem(boost::string_ref path);
 
 }
+
+VCMI_LIB_NAMESPACE_END

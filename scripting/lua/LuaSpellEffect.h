@@ -13,6 +13,8 @@
 #include "../../lib/spells/effects/Effect.h"
 #include "../../lib/spells/effects/Registry.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace scripting
 {
 	class Script;
@@ -24,8 +26,8 @@ namespace spells
 namespace effects
 {
 
-using ::scripting::Script;
-using ::scripting::Context;
+using scripting::Script;
+using scripting::Context;
 
 class LuaSpellEffectFactory : public IEffectFactory
 {
@@ -71,3 +73,5 @@ private:
 
 }
 }
+
+VCMI_LIB_NAMESPACE_END

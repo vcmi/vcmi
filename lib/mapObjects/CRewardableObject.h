@@ -15,6 +15,8 @@
 #include "../NetPacksBase.h"
 #include "../ResourceSet.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CRandomRewardObjectInfo;
 
 /// Limiters of rewards. Rewards will be granted to hero only if he satisfies requirements
@@ -403,3 +405,5 @@ public:
 // class DLL_LINKAGE CGSignBottle : public CGObjectInstance //signs and ocean bottles
 // class DLL_LINKAGE CGWitchHut : public CPlayersVisited
 // class DLL_LINKAGE CGScholar : public CGObjectInstance
+
+VCMI_LIB_NAMESPACE_END

@@ -24,6 +24,8 @@
 #include "../serializer/BinarySerializer.h"
 #include "../serializer/CTypeList.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 // For reference: peak memory usage by gcc during compilation of register type templates
 // registerTypesMapObjects:  1.9 Gb
 // registerTypes2:  2.2 Gb
@@ -49,3 +51,5 @@ DEFINE_EXTERNAL_METHOD(registerTypesLobbyPacks)
 template void registerTypes<BinaryDeserializer>(BinaryDeserializer & s);
 template void registerTypes<BinarySerializer>(BinarySerializer & s);
 template void registerTypes<CTypeList>(CTypeList & s);
+
+VCMI_LIB_NAMESPACE_END

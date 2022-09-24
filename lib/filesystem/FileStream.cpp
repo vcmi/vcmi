@@ -218,6 +218,10 @@ void fill_fopen64_filefunc(zlib_filefunc64_def*  pzlib_filefunc_def)
 }
 
 
+template struct boost::iostreams::stream<VCMI_LIB_WRAP_NAMESPACE(FileBuf)>;
+
+VCMI_LIB_NAMESPACE_BEGIN
+
 zlib_filefunc64_def* FileStream::GetMinizipFilefunc()
 {
 	static zlib_filefunc64_def MinizipFilefunc;
@@ -230,8 +234,6 @@ zlib_filefunc64_def* FileStream::GetMinizipFilefunc()
 	}
 	return &MinizipFilefunc;
 }
-
-template struct boost::iostreams::stream<FileBuf>;
 
 /*static*/
 bool FileStream::CreateFile(const boost::filesystem::path& filename)
@@ -322,3 +324,5 @@ std::streamoff FileBuf::seek(std::streamoff off, std::ios_base::seekdir way)
 
 	return static_cast<std::streamsize>(std::ftell(GETFILE));
 }
+
+VCMI_LIB_NAMESPACE_END

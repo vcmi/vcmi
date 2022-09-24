@@ -159,7 +159,7 @@ static void SDLLogCallback(void*           userdata,
 
 #if defined(VCMI_WINDOWS) && !defined(__GNUC__) && defined(VCMI_WITH_DEBUG_CONSOLE)
 int wmain(int argc, wchar_t* argv[])
-#elif defined(VCMI_ANDROID)
+#elif defined(VCMI_IOS) || defined(VCMI_ANDROID)
 int SDL_main(int argc, char *argv[])
 #else
 int main(int argc, char * argv[])
@@ -170,7 +170,7 @@ int main(int argc, char * argv[])
 	setenv("LANG", "C", 1);
 #endif
 
-#ifndef VCMI_ANDROID
+#if !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
 	// Correct working dir executable folder (not bundle folder) so we can use executable relative paths
 	boost::filesystem::current_path(boost::filesystem::system_complete(argv[0]).parent_path());
 #endif
@@ -217,12 +217,20 @@ int main(int argc, char * argv[])
 	if(vm.count("help"))
 	{
 		prog_help(opts);
+#ifdef VCMI_IOS
+		exit(0);
+#else
 		return 0;
+#endif
 	}
 	if(vm.count("version"))
 	{
 		prog_version();
+#ifdef VCMI_IOS
+		exit(0);
+#else
 		return 0;
+#endif
 	}
 
 	// Init old logging system and new (temporary) logging system
@@ -410,7 +418,7 @@ int main(int argc, char * argv[])
 		CCS->musich->setVolume((ui32)settings["general"]["music"].Float());
 		logGlobal->info("Initializing screen and sound handling: %d ms", pomtime.getDiff());
 	}
-#ifdef __APPLE__
+#ifdef VCMI_MAC
 	// Ctrl+click should be treated as a right click on Mac OS X
 	SDL_SetHint(SDL_HINT_MAC_CTRL_CLICK_EMULATE_RIGHT_CLICK, "1");
 #endif
@@ -1027,11 +1035,15 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 		if (displayIndex < 0)
 			displayIndex = 0;
 	}
+#ifdef VCMI_IOS
+	SDL_GetWindowSize(mainWindow, &w, &h);
+#else
 	if(!checkVideoMode(displayIndex, w, h))
 	{
 		logGlobal->error("Error: SDL says that %dx%d resolution is not available!", w, h);
 		return false;
 	}
+#endif
 
 	bool bufOnScreen = (screenBuf == screen);
 	bool realFullscreen = settings["video"]["realFullscreen"].Bool();
@@ -1088,26 +1100,40 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 
 	if(nullptr == mainWindow)
 	{
+#if defined(VCMI_ANDROID) || defined(VCMI_IOS)
+		auto createWindow = [displayIndex](Uint32 extraFlags) -> bool {
+			mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex), 0, 0, SDL_WINDOW_FULLSCREEN | extraFlags);
+			return mainWindow != nullptr;
+		};
 
-	#ifdef VCMI_ANDROID
-		mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex),SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex), 0, 0, SDL_WINDOW_FULLSCREEN);
+# ifdef VCMI_IOS
+		SDL_SetHint(SDL_HINT_IOS_HIDE_HOME_INDICATOR, "1");
+		SDL_SetHint(SDL_HINT_RETURN_KEY_HIDES_IME, "1");
+		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "best");
 
-		// SDL on Android doesn't do proper letterboxing, and will show an annoying flickering in the blank space in case you're not using the full screen estate
+		Uint32 windowFlags = SDL_WINDOW_BORDERLESS | SDL_WINDOW_ALLOW_HIGHDPI;
+		if(!createWindow(windowFlags | SDL_WINDOW_METAL))
+		{
+			logGlobal->warn("Metal unavailable, using OpenGLES");
+			createWindow(windowFlags);
+		}
+# else
+		createWindow(0);
+# endif // VCMI_IOS
+
+		// SDL on mobile doesn't do proper letterboxing, and will show an annoying flickering in the blank space in case you're not using the full screen estate
 		// That's why we need to make sure our width and height we'll use below have the same aspect ratio as the screen itself to ensure we fill the full screen estate
 
 		SDL_Rect screenRect;
 
 		if(SDL_GetDisplayBounds(0, &screenRect) == 0)
 		{
-			int screenWidth, screenHeight;
-			double aspect;
+			const auto screenWidth = screenRect.w;
+			const auto screenHeight = screenRect.h;
 
-			screenWidth = screenRect.w;
-			screenHeight = screenRect.h;
+			const auto aspect = static_cast<double>(screenWidth) / screenHeight;
 
-			aspect = (double)screenWidth / (double)screenHeight;
-
-			logGlobal->info("Screen size and aspect ration: %dx%d (%lf)", screenWidth, screenHeight, aspect);
+			logGlobal->info("Screen size and aspect ratio: %dx%d (%lf)", screenWidth, screenHeight, aspect);
 
 			if((double)w / aspect > (double)h)
 			{
@@ -1124,8 +1150,7 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 		{
 			logGlobal->error("Can't fix aspect ratio for screen");
 		}
-	#else
-
+#else
 		if(fullscreen)
 		{
 			if(realFullscreen)
@@ -1138,7 +1163,7 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 		{
 			mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex),SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex), w, h, 0);
 		}
-	#endif
+#endif // defined(VCMI_ANDROID) || defined(VCMI_IOS)
 
 		if(nullptr == mainWindow)
 		{
@@ -1161,7 +1186,7 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 	}
 	else
 	{
-#ifndef VCMI_ANDROID
+#if !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
 
 		if(fullscreen)
 		{
@@ -1384,7 +1409,9 @@ static void handleEvent(SDL_Event & ev)
 	{
 		switch (ev.window.event) {
 		case SDL_WINDOWEVENT_RESTORED:
+#ifndef VCMI_IOS
 			fullScreenChanged();
+#endif
 			break;
 		}
 		return;

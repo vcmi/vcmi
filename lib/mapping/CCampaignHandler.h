@@ -11,6 +11,8 @@
 
 #include "../../lib/GameConstants.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 struct StartInfo;
 class CGHeroInstance;
 class CBinaryReader;
@@ -242,3 +244,5 @@ public:
 
 	static std::unique_ptr<CCampaign> getCampaign(const std::string & name); //name - name of appropriate file
 };
+
+VCMI_LIB_NAMESPACE_END

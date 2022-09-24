@@ -14,16 +14,20 @@
 
 #include "../../lib/FunctionList.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
+namespace config
+{
+struct ButtonInfo;
+}
+
+VCMI_LIB_NAMESPACE_END
+
 struct SDL_Surface;
 struct Rect;
 class CAnimImage;
 class CLabel;
 class CAnimation;
-
-namespace config
-{
-	struct ButtonInfo;
-}
 
 /// Typical Heroes 3 button which can be inactive or active and can
 /// hold further information if you right-click it

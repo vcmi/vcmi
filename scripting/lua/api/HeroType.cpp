@@ -16,6 +16,8 @@
 #include "../LuaStack.h"
 #include "../LuaCallWrapper.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace scripting
 {
 namespace api
@@ -34,3 +36,5 @@ const std::vector<HeroTypeProxy::CustomRegType> HeroTypeProxy::REGISTER_CUSTOM =
 
 }
 }
+
+VCMI_LIB_NAMESPACE_END

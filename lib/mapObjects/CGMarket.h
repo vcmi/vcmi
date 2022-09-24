@@ -1,4 +1,4 @@
-﻿/*
+/*
  * CGMarket.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
@@ -10,6 +10,8 @@
 #pragma once
 
 #include "CObjectHandler.h"
+
+VCMI_LIB_NAMESPACE_BEGIN
 
 class DLL_LINKAGE IMarket
 {
@@ -85,3 +87,5 @@ public:
 		h & skills;
 	}
 };
+
+VCMI_LIB_NAMESPACE_END

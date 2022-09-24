@@ -19,6 +19,8 @@
 
 const char *g_cszAiName = "Lua interpreter";
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 extern "C" DLL_EXPORT void GetAiName(char * name)
 {
 	strcpy_s(name, strlen(g_cszAiName) + 1, g_cszAiName);
@@ -54,3 +56,5 @@ void LuaScriptModule::registerSpellEffect(spells::effects::Registry * registry, 
 
 
 }
+
+VCMI_LIB_NAMESPACE_END

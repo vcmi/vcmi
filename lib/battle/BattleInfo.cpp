@@ -22,6 +22,8 @@
 //TODO: remove
 #include "../IGameCallback.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 ///BattleInfo
 std::pair< std::vector<BattleHex>, int > BattleInfo::getPath(BattleHex start, BattleHex dest, const CStack * stack)
 {
@@ -1011,3 +1013,5 @@ CMP_stack::CMP_stack(int Phase, int Turn, uint8_t Side)
 	turn = Turn;
 	side = Side;
 }
+
+VCMI_LIB_NAMESPACE_END

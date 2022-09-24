@@ -20,6 +20,7 @@ To use VCMI you need to own original data files.
  * [Linux](https://wiki.vcmi.eu/Installation_on_Linux)
  * [macOS](https://wiki.vcmi.eu/Installation_on_macOS)
  * [Windows](https://wiki.vcmi.eu/Installation_on_Windows)
+ * [iOS](https://wiki.vcmi.eu/Installation_on_iOS)
 
 ## Building from source
 
@@ -29,6 +30,7 @@ Platform support is constantly tested by continuous integration and CMake config
  * [On Linux for Windows with MXE](https://wiki.vcmi.eu/How_to_build_VCMI_(Linux/Cmake/MXE))
  * [On macOS](https://wiki.vcmi.eu/How_to_build_VCMI_(macOS))
  * [On Windows using MSVC and Vcpkg](https://wiki.vcmi.eu/How_to_build_VCMI_(Windows/Vcpkg))
+ * [iOS on macOS](https://wiki.vcmi.eu/How_to_build_VCMI_(iOS))
 
 ## Copyright and license
 

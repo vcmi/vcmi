@@ -12,6 +12,8 @@
 
 #include "JsonSerializeFormat.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 template <typename T>
 class JsonTreeSerializer : public JsonSerializeFormat
 {
@@ -71,3 +73,5 @@ private:
 		currentObject = newCurrentObject;
 	}
 };
+
+VCMI_LIB_NAMESPACE_END

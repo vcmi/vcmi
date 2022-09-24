@@ -11,6 +11,8 @@
 
 #include "Registry.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace spells
 {
 namespace effects
@@ -56,3 +58,5 @@ Registry * GlobalRegistry::get()
 
 }
 }
+
+VCMI_LIB_NAMESPACE_END

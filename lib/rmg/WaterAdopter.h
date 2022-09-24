@@ -11,6 +11,8 @@
 #pragma once
 #include "Zone.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class WaterAdopter: public Modificator
 {
 public:
@@ -34,3 +36,5 @@ protected:
 	std::map<int3, int> distanceMap;
 	std::map<int, rmg::Tileset> reverseDistanceMap;
 };
+
+VCMI_LIB_NAMESPACE_END

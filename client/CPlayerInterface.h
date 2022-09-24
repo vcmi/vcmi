@@ -19,30 +19,33 @@
 #define sprintf_s snprintf
 #endif
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class Artifact;
+
+struct TryMoveHero;
+class CGHeroInstance;
+class CStack;
+class CCreature;
+struct CGPath;
+class CCreatureSet;
+class CGObjectInstance;
+struct UpgradeInfo;
+template <typename T> struct CondSh;
+struct CPathsInfo;
+
+VCMI_LIB_NAMESPACE_END
 
 class CButton;
 class CToggleGroup;
-struct TryMoveHero;
-class CGHeroInstance;
 class CAdvMapInt;
 class CCastleInterface;
 class CBattleInterface;
-class CStack;
 class CComponent;
-class CCreature;
-struct SDL_Surface;
-struct CGPath;
 class CCreatureAnimation;
 class CSelectableComponent;
-class CCreatureSet;
-class CGObjectInstance;
 class CSlider;
-struct UpgradeInfo;
-template <typename T> struct CondSh;
 class CInGameConsole;
-class CInGameConsole;
-union SDL_Event;
 class CInfoWindow;
 class IShowActivatable;
 class ClickableL;
@@ -52,7 +55,9 @@ class KeyInterested;
 class MotionInterested;
 class TimeInterested;
 class IShowable;
-struct CPathsInfo;
+
+struct SDL_Surface;
+union SDL_Event;
 
 namespace boost
 {

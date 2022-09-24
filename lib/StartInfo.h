@@ -11,6 +11,8 @@
 
 #include "GameConstants.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CMapGenOptions;
 class CCampaignState;
 class CMapInfo;
@@ -175,3 +177,5 @@ struct DLL_LINKAGE LobbyInfo : public LobbyState
 	TeamID getPlayerTeamId(PlayerColor color);
 };
 
+
+VCMI_LIB_NAMESPACE_END

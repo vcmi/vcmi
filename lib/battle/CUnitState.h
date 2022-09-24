@@ -12,6 +12,8 @@
 
 #include "Unit.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class JsonSerializeFormat;
 class UnitChanges;
 
@@ -294,3 +296,5 @@ private:
 };
 
 }
+
+VCMI_LIB_NAMESPACE_END

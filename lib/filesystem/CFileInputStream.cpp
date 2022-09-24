@@ -10,6 +10,8 @@
 #include "StdInc.h"
 #include "CFileInputStream.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 CFileInputStream::CFileInputStream(const boost::filesystem::path & file, si64 start, si64 size)
   : dataStart{start},
 	dataSize{size},
@@ -61,3 +63,5 @@ si64 CFileInputStream::getSize()
 {
 	return dataSize;
 }
+
+VCMI_LIB_NAMESPACE_END

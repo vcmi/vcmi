@@ -12,6 +12,8 @@
 #include "CCreatureSet.h"
 #include "int3.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CQuest;
 class CGObjectInstance;
 class CHeroClass;
@@ -206,3 +208,5 @@ struct DLL_LINKAGE QuestInfo //universal interface for human and AI
 		h & tile;
 	}
 };
+
+VCMI_LIB_NAMESPACE_END

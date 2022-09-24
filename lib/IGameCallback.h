@@ -14,6 +14,8 @@
 #include "CGameInfoCallback.h" // for CGameInfoCallback
 #include "CRandomGenerator.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 struct SetMovePoints;
 struct GiveBonus;
 struct BlockingDialog;
@@ -145,3 +147,5 @@ public:
 	friend struct CPackForServer;
 };
 
+
+VCMI_LIB_NAMESPACE_END

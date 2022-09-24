@@ -17,6 +17,8 @@
 #include "Zone.h"
 #include "Functions.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CRandomGenerator;
 
 CZonePlacer::CZonePlacer(RmgMap & map)
@@ -576,3 +578,5 @@ void CZonePlacer::assignZones(CRandomGenerator * rand)
 	}
 	logGlobal->info("Finished zone colouring");
 }
+
+VCMI_LIB_NAMESPACE_END

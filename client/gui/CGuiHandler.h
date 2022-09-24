@@ -13,6 +13,12 @@
 #include "Geometries.h"
 #include "SDL_Extensions.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
+template <typename T> struct CondSh;
+
+VCMI_LIB_NAMESPACE_END
+
 class CFramerateManager;
 class CGStatusBar;
 class CIntObject;
@@ -20,7 +26,6 @@ class IUpdateable;
 class IShowActivatable;
 class IShowable;
 enum class EIntObjMouseBtnType;
-template <typename T> struct CondSh;
 
 // TODO: event handling need refactoring
 enum EUserEvent

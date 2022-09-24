@@ -20,6 +20,8 @@
 #include "../CModHandler.h"
 #include "../IGameCallback.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 CObstacleConstructor::CObstacleConstructor()
 {
 }
@@ -498,3 +500,5 @@ std::unique_ptr<IObjectInfo> CBankInstanceConstructor::getObjectInfo(std::shared
 {
 	return std::unique_ptr<IObjectInfo>(new CBankInfo(levels));
 }
+
+VCMI_LIB_NAMESPACE_END

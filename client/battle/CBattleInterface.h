@@ -19,14 +19,11 @@
 #include "../../lib/spells/CSpellHandler.h" //CSpell::TAnimation
 #include "../../lib/battle/CBattleInfoCallback.h"
 
-class CLabel;
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CCreatureSet;
 class CGHeroInstance;
 class CStack;
-class CCallback;
-class CButton;
-class CToggleButton;
-class CToggleGroup;
 struct BattleResult;
 struct BattleSpellCast;
 struct CObstacleInstance;
@@ -35,8 +32,21 @@ struct SetStackEffect;
 class BattleAction;
 class CGTownInstance;
 struct CatapultAttack;
-struct CatapultProjectileInfo;
 struct BattleTriggerEffect;
+struct BattleHex;
+struct InfoAboutHero;
+class CBattleGameInterface;
+struct CustomEffectInfo;
+class CSpell;
+
+VCMI_LIB_NAMESPACE_END
+
+class CLabel;
+class CCallback;
+class CButton;
+class CToggleButton;
+class CToggleGroup;
+struct CatapultProjectileInfo;
 class CBattleAnimation;
 class CBattleHero;
 class CBattleConsole;
@@ -46,13 +56,8 @@ class CPlayerInterface;
 class CCreatureAnimation;
 struct ProjectileInfo;
 class CClickableHex;
-struct BattleHex;
-struct InfoAboutHero;
-class CBattleGameInterface;
-struct CustomEffectInfo;
 class CAnimation;
 class IImage;
-class CSpell;
 
 /// Small struct which contains information about the id of the attacked stack, the damage dealt,...
 struct StackAttackedInfo

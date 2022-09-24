@@ -16,6 +16,8 @@
 #include "VCMI_Lib.h"
 #include "mapObjects/CObjectHandler.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 Res::ResourceSet::ResourceSet()
 {
 	resize(GameConstants::RESOURCE_QUANTITY, 0);
@@ -68,19 +70,19 @@ bool Res::ResourceSet::nonZero() const
 void Res::ResourceSet::amax(const TResourceCap &val)
 {
 	for(auto & elem : *this)
-		::vstd::amax(elem, val);
+		vstd::amax(elem, val);
 }
 
 void Res::ResourceSet::amin(const TResourceCap &val)
 {
 	for(auto & elem : *this)
-		::vstd::amin(elem, val);
+		vstd::amin(elem, val);
 }
 
 void Res::ResourceSet::positive()
 {
 	for(auto & elem : *this)
-		::vstd::amax(elem, 0);
+		vstd::amax(elem, 0);
 }
 
 bool Res::ResourceSet::canBeAfforded(const ResourceSet &res) const
@@ -172,3 +174,5 @@ Res::ResourceSet::nziterator::nziterator(const ResourceSet &RS)
 	if(!valid())
 		advance();
 }
+
+VCMI_LIB_NAMESPACE_END

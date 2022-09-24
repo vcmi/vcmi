@@ -12,6 +12,8 @@
 
 #include "../registerTypes/RegisterTypes.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 int CMemorySerializer::read(void * data, unsigned size)
 {
 	if(buffer.size() < readPos + size)
@@ -38,3 +40,5 @@ CMemorySerializer::CMemorySerializer(): iser(this), oser(this)
 	iser.fileVersion = SERIALIZATION_VERSION;
 }
 
+
+VCMI_LIB_NAMESPACE_END

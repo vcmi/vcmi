@@ -13,6 +13,8 @@
 #include "../CRandomGenerator.h"
 #include "CMapEditManager.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 struct TerrainTile;
 
 class CDrawLinesOperation : public CMapOperation
@@ -91,3 +93,5 @@ protected:
 private:
 	std::string riverType;
 };
+
+VCMI_LIB_NAMESPACE_END

@@ -28,6 +28,8 @@
 #include "StartInfo.h"
 #include "CPlayerState.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 
 DLL_LINKAGE void SetResources::applyGs(CGameState *gs)
 {
@@ -1698,3 +1700,5 @@ DLL_LINKAGE void EntitiesChanged::applyGs(CGameState * gs)
 	for(const auto & change : changes)
 		gs->updateEntity(change.metatype, change.entityIndex, change.data);
 }
+
+VCMI_LIB_NAMESPACE_END

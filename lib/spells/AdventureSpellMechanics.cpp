@@ -21,6 +21,8 @@
 #include "../mapping/CMap.h"
 #include "../CPlayerState.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 ///AdventureSpellMechanics
 AdventureSpellMechanics::AdventureSpellMechanics(const CSpell * s):
 	IAdventureSpellMechanics(s)
@@ -612,3 +614,5 @@ bool ViewEarthMechanics::filterObject(const CGObjectInstance * obj, const int32_
 	return (obj->ID == Obj::RESOURCE) || (spellLevel > 1 && obj->ID == Obj::MINE);
 }
 
+
+VCMI_LIB_NAMESPACE_END

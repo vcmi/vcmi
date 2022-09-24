@@ -18,6 +18,8 @@
 #include "../../battle/Unit.h"
 #include "../../serializer/JsonSerializeFormat.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace spells
 {
 namespace effects
@@ -291,3 +293,5 @@ void UnitEffect::serializeJsonEffect(JsonSerializeFormat & handler)
 
 }
 }
+
+VCMI_LIB_NAMESPACE_END

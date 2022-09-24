@@ -12,6 +12,8 @@
 
 #include "ISpellMechanics.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CGTownInstance;
 
 enum class ESpellCastResult
@@ -99,3 +101,5 @@ protected:
 };
 
 
+
+VCMI_LIB_NAMESPACE_END
