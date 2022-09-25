@@ -45,8 +45,8 @@ void NodeStorage::initialize(const PathfinderOptions & options, const CGameState
 		{
 			for(pos.y=0; pos.y < sizes.y; ++pos.y)
 			{
-				const TerrainTile * tile = &gs->map->getTile(pos);
-				if(tile->terType->isWater())
+				const TerrainTile tile = gs->map->getTile(pos);
+				if(tile.terType->isWater())
 				{
 					resetTile(pos, ELayer::SAIL, PathfinderUtil::evaluateAccessibility<ELayer::SAIL>(pos, tile, fow, player, gs));
 					if(useFlying)
@@ -54,7 +54,7 @@ void NodeStorage::initialize(const PathfinderOptions & options, const CGameState
 					if(useWaterWalking)
 						resetTile(pos, ELayer::WATER, PathfinderUtil::evaluateAccessibility<ELayer::WATER>(pos, tile, fow, player, gs));
 				}
-				if(tile->terType->isLand())
+				if(tile.terType->isLand())
 				{
 					resetTile(pos, ELayer::LAND, PathfinderUtil::evaluateAccessibility<ELayer::LAND>(pos, tile, fow, player, gs));
 					if(useFlying)
