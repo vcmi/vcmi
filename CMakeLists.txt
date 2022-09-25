@@ -15,7 +15,6 @@ project(VCMI)
 #
 # Vckpg:
 # - Improve install code once there is better way to deploy DLLs and Qt plugins
-# - Move Vcpkg install BundleUtilities code from osx/CMakeLists.txt
 #
 # Other:
 # - Cleanup remove_directory copy_directory if performance will be a problem.
@@ -564,7 +563,6 @@ if(WIN32)
 	set(CPACK_NSIS_EXECUTABLES_DIRECTORY ".")
 	# Use BundleUtilities to fix build when Vcpkg is used and disable it for MXE
 	if(NOT (${CMAKE_CROSSCOMPILING}))
-		add_subdirectory(osx)
 		add_subdirectory(win)
 	endif()
 elseif(APPLE_MACOS AND NOT ENABLE_MONOLITHIC_INSTALL)
