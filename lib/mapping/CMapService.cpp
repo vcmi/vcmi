@@ -21,6 +21,8 @@
 #include "MapFormatH3M.h"
 #include "MapFormatJson.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 
 std::unique_ptr<CMap> CMapService::loadMap(const ResourceID & name) const
 {
@@ -138,3 +140,5 @@ std::unique_ptr<IMapPatcher> CMapService::getMapPatcher(std::string scenarioName
 	logGlobal->debug("Request to patch map %s", scenarioName);
 	return std::unique_ptr<IMapPatcher>(new CMapPatcher(node[scenarioName]));
 }
+
+VCMI_LIB_NAMESPACE_END

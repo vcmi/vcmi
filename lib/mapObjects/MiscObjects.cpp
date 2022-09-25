@@ -26,6 +26,8 @@
 #include "../CPlayerState.h"
 #include "../serializer/JsonSerializeFormat.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 std::map <si32, std::vector<ObjectInstanceID> > CGMagi::eyelist;
 ui8 CGObelisk::obeliskCount = 0; //how many obelisks are on map
 std::map<TeamID, ui8> CGObelisk::visited; //map: team_id => how many obelisks has been visited
@@ -2208,3 +2210,5 @@ void CGLighthouse::serializeJsonOptions(JsonSerializeFormat& handler)
 {
 	serializeJsonOwner(handler);
 }
+
+VCMI_LIB_NAMESPACE_END

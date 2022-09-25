@@ -29,7 +29,7 @@
 #include "../lib/rmg/CMapGenOptions.h"
 #ifdef VCMI_ANDROID
 #include "lib/CAndroidVMHelper.h"
-#else
+#elif !defined(VCMI_IOS)
 #include "../lib/Interprocess.h"
 #endif
 #include "../lib/VCMI_Lib.h"
@@ -55,7 +55,7 @@
 
 #include "../lib/CGameState.h"
 
-#if defined(__GNUC__) && !defined(__MINGW32__) && !defined(VCMI_ANDROID)
+#if defined(__GNUC__) && !defined(__MINGW32__) && !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
 #include <execinfo.h>
 #endif
 
@@ -112,8 +112,8 @@ public:
 	}
 };
 
-std::string NAME_AFFIX = "server";
-std::string NAME = GameConstants::VCMI_VERSION + std::string(" (") + NAME_AFFIX + ')';
+std::string SERVER_NAME_AFFIX = "server";
+std::string SERVER_NAME = GameConstants::VCMI_VERSION + std::string(" (") + SERVER_NAME_AFFIX + ')';
 
 CVCMIServer::CVCMIServer(boost::program_options::variables_map & opts)
 	: port(3030), io(std::make_shared<boost::asio::io_service>()), state(EServerState::LOBBY), cmdLineOptions(opts), currentClientId(1), currentPlayerId(1), restartGameplay(false)
@@ -157,7 +157,7 @@ void CVCMIServer::run()
 	if(!restartGameplay)
 	{
 		this->announceLobbyThread = vstd::make_unique<boost::thread>(&CVCMIServer::threadAnnounceLobby, this);
-#ifndef VCMI_ANDROID
+#if !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
 		if(cmdLineOptions.count("enable-shm"))
 		{
 			std::string sharedMemoryName = "vcmi_memory";
@@ -171,14 +171,11 @@ void CVCMIServer::run()
 
 		startAsyncAccept();
 
-#ifndef VCMI_ANDROID
+#if !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
 		if(shm)
 		{
 			shm->sr->setToReadyAndNotify(port);
 		}
-#else
-		CAndroidVMHelper vmHelper;
-		vmHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "onServerReady");
 #endif
 	}
 
@@ -299,7 +296,7 @@ void CVCMIServer::connectionAccepted(const boost::system::error_code & ec)
 	try
 	{
 		logNetwork->info("We got a new connection! :)");
-		auto c = std::make_shared<CConnection>(upcomingConnection, NAME, uuid);
+		auto c = std::make_shared<CConnection>(upcomingConnection, SERVER_NAME, uuid);
 		upcomingConnection.reset();
 		connections.insert(c);
 		c->handler = std::make_shared<boost::thread>(&CVCMIServer::threadHandleClient, this, c);
@@ -378,7 +375,7 @@ void CVCMIServer::announcePack(std::unique_ptr<CPackForLobby> pack)
 {
 	for(auto c : connections)
 	{
-		// FIXME: we need to avoid senting something to client that not yet get answer for LobbyClientConnected
+		// FIXME: we need to avoid sending something to client that not yet get answer for LobbyClientConnected
 		// Until UUID set we only pass LobbyClientConnected to this client
 		if(c->uuid == uuid && !dynamic_cast<LobbyClientConnected *>(pack.get()))
 			continue;
@@ -842,7 +839,7 @@ ui8 CVCMIServer::getIdOfFirstUnallocatedPlayer() const
 	return 0;
 }
 
-#if defined(__GNUC__) && !defined(__MINGW32__) && !defined(VCMI_ANDROID)
+#if defined(__GNUC__) && !defined(__MINGW32__) && !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
 void handleLinuxSignal(int sig)
 {
 	const int STACKTRACE_SIZE = 100;
@@ -872,6 +869,10 @@ void handleLinuxSignal(int sig)
 static void handleCommandOptions(int argc, char * argv[], boost::program_options::variables_map & options)
 {
 	namespace po = boost::program_options;
+#ifdef SINGLE_PROCESS_APP
+	options.emplace("run-by-client", po::variable_value{true, true});
+	options.emplace("uuid", po::variable_value{std::string{argv[1]}, true});
+#else
 	po::options_description opts("Allowed options");
 	opts.add_options()
 	("help,h", "display help and exit")
@@ -893,8 +894,11 @@ static void handleCommandOptions(int argc, char * argv[], boost::program_options
 			std::cerr << "Failure during parsing command-line options:\n" << e.what() << std::endl;
 		}
 	}
+#endif
 
 	po::notify(options);
+
+#ifndef SINGLE_PROCESS_APP
 	if(options.count("help"))
 	{
 		auto time = std::time(0);
@@ -913,24 +917,28 @@ static void handleCommandOptions(int argc, char * argv[], boost::program_options
 		std::cout << VCMIDirs::get().genHelpString();
 		exit(0);
 	}
+#endif
 }
 
+#ifdef SINGLE_PROCESS_APP
+#define main server_main
+#endif
 int main(int argc, char * argv[])
 {
-#ifndef VCMI_ANDROID
+#if !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
 	// Correct working dir executable folder (not bundle folder) so we can use executable relative paths
 	boost::filesystem::current_path(boost::filesystem::system_complete(argv[0]).parent_path());
 #endif
 	// Installs a sig sev segmentation violation handler
 	// to log stacktrace
-#if defined(__GNUC__) && !defined(__MINGW32__) && !defined(VCMI_ANDROID)
+#if defined(__GNUC__) && !defined(__MINGW32__) && !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
 	signal(SIGSEGV, handleLinuxSignal);
 #endif
 
 	console = new CConsoleHandler();
 	CBasicLogConfigurator logConfig(VCMIDirs::get().userLogsPath() / "VCMI_Server_log.txt", console);
 	logConfig.configureDefault();
-	logGlobal->info(NAME);
+	logGlobal->info(SERVER_NAME);
 
 	boost::program_options::variables_map opts;
 	handleCommandOptions(argc, argv, opts);
@@ -940,6 +948,12 @@ int main(int argc, char * argv[])
 
 	loadDLLClasses();
 	srand((ui32)time(nullptr));
+
+#ifdef SINGLE_PROCESS_APP
+	boost::condition_variable * cond = reinterpret_cast<boost::condition_variable *>(argv[0]);
+	cond->notify_one();
+#endif
+
 	try
 	{
 		boost::asio::io_service io_service;
@@ -984,5 +998,14 @@ void CVCMIServer::create()
 {
 	const char * foo[1] = {"android-server"};
 	main(1, const_cast<char **>(foo));
+}
+#elif defined(SINGLE_PROCESS_APP)
+void CVCMIServer::create(boost::condition_variable * cond, const std::string & uuid)
+{
+	const std::initializer_list<const void *> argv = {
+		cond,
+		uuid.c_str(),
+	};
+	main(argv.size(), reinterpret_cast<char **>(const_cast<void **>(argv.begin())));
 }
 #endif

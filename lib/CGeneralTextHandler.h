@@ -11,6 +11,8 @@
 
 #include "JsonNode.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 /// Namespace that provides utilites for unicode support (UTF-8)
 namespace Unicode
 {
@@ -149,3 +151,5 @@ public:
 	CGeneralTextHandler(const CGeneralTextHandler&) = delete;
 	CGeneralTextHandler operator=(const CGeneralTextHandler&) = delete;
 };
+
+VCMI_LIB_NAMESPACE_END

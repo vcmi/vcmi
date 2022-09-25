@@ -33,7 +33,7 @@ endif()
 
 add_library(BattleAI SHARED ${battleAI_SRCS} ${battleAI_HEADERS})
 target_include_directories(BattleAI PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(BattleAI PRIVATE vcmi)
+target_link_libraries(BattleAI PRIVATE ${VCMI_LIB_TARGET})
 
 vcmi_set_output_dir(BattleAI "AI")
 enable_pch(BattleAI)

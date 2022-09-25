@@ -9,6 +9,8 @@
  */
 #pragma once
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 // Use some magic to keep the list of files and their code name in sync.
 
 #define VCMI_SOUND_LIST \
@@ -1060,3 +1062,5 @@ public:
 #undef VCMI_SOUND_FILE
 #undef VCMI_SOUND_NAME
 };
+
+VCMI_LIB_NAMESPACE_END

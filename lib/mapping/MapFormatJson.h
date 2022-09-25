@@ -19,6 +19,8 @@
 
 #include "../serializer/JsonSerializeFormat.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 struct TriggeredEvent;
 struct TerrainTile;
 struct PlayerInfo;
@@ -265,3 +267,5 @@ private:
 	std::shared_ptr<CIOApi> ioApi;
 	CZipSaver saver;///< object to handle zip archive operations
 };
+
+VCMI_LIB_NAMESPACE_END

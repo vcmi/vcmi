@@ -23,6 +23,8 @@
 
 #include "CRewardableConstructor.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 static bool isOnVisitableFromTopList(int identifier, int type)
 {
 	if(type == 2 || type == 3 || type == 4 || type == 5) //creature, hero, artifact, resource
@@ -572,3 +574,4 @@ void ObjectTemplate::recalculate()
 	calculateVisitableOffset();
 }
 
+VCMI_LIB_NAMESPACE_END

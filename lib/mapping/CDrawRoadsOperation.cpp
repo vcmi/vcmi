@@ -12,6 +12,8 @@
 #include "CDrawRoadsOperation.h"
 #include "CMap.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 const std::vector<CDrawLinesOperation::LinePattern> CDrawLinesOperation::patterns =
 {
 	//single tile. fall-back pattern
@@ -389,3 +391,5 @@ void CDrawRiversOperation::updateTile(TerrainTile & tile, const LinePattern & pa
 	tile.riverDir = gen->nextInt(mapping.first, mapping.second);
 	tile.extTileFlags = (tile.extTileFlags & 0b00111111) | (flip << 2);
 }
+
+VCMI_LIB_NAMESPACE_END

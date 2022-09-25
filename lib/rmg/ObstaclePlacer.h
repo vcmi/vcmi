@@ -11,10 +11,13 @@
 #pragma once
 #include "Zone.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CMap;
 class CMapEditManager;
 class RiverPlacer;
 class ObjectManager;
+
 class DLL_LINKAGE ObstacleProxy
 {
 public:
@@ -69,3 +72,5 @@ private:
 	RiverPlacer * riverManager;
 	ObjectManager * manager;
 };
+
+VCMI_LIB_NAMESPACE_END

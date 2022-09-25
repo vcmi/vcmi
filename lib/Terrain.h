@@ -14,6 +14,7 @@
 #include "GameConstants.h"
 #include "JsonNode.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
 
 class DLL_LINKAGE Terrain
 {
@@ -103,3 +104,5 @@ protected:
 };
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const Terrain terrainType);
+
+VCMI_LIB_NAMESPACE_END

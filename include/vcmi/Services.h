@@ -12,6 +12,8 @@
 
 #include "Metatype.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class ArtifactService;
 class CreatureService;
 class FactionService;
@@ -63,3 +65,5 @@ public:
 	virtual spells::effects::Registry * spellEffects() = 0;
 	//TODO: put map object types registry access here
 };
+
+VCMI_LIB_NAMESPACE_END

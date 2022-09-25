@@ -11,6 +11,8 @@
 
 #include "BinaryDeserializer.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 /// Simple byte-to-byte saves comparator
 class DLL_LINKAGE CLoadIntegrityValidator
 	: public IBinaryReader
@@ -27,3 +29,5 @@ public:
 
 	std::unique_ptr<CLoadFile> decay(); //returns primary file. CLoadIntegrityValidator stops being usable anymore
 };
+
+VCMI_LIB_NAMESPACE_END

@@ -14,6 +14,8 @@
 #include "../int3.h"
 #include "../GameConstants.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CZoneGraph;
 class CMap;
 class CRandomGenerator;
@@ -58,3 +60,5 @@ private:
 	//std::unique_ptr<CZoneGraph> graph;
 	RmgMap & map;
 };
+
+VCMI_LIB_NAMESPACE_END

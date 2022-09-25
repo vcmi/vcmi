@@ -19,6 +19,8 @@
 
 #include "../filesystem/CBinaryReader.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CGHeroInstance;
 class CArtifactInstance;
 class CGObjectInstance;
@@ -260,3 +262,5 @@ private:
 	CInputStream * inputStream;
 
 };
+
+VCMI_LIB_NAMESPACE_END

@@ -17,6 +17,8 @@
 #include "../CGameState.h"
 #include "../CPlayerState.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 void CArmedInstance::randomizeArmy(int type)
 {
 	for (auto & elem : stacks)
@@ -152,3 +154,5 @@ CBonusSystemNode * CArmedInstance::whatShouldBeAttached()
 {
 	return this;
 }
+
+VCMI_LIB_NAMESPACE_END

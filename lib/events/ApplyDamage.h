@@ -12,6 +12,8 @@
 
 #include <vcmi/events/ApplyDamage.h>
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace events
 {
 
@@ -33,3 +35,5 @@ private:
 };
 
 }
+
+VCMI_LIB_NAMESPACE_END

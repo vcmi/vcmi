@@ -36,3 +36,5 @@ const std::vector<PlayerProxy::CustomRegType> PlayerProxy::REGISTER_CUSTOM =
 
 }
 }
+
+VCMI_LIB_NAMESPACE_END

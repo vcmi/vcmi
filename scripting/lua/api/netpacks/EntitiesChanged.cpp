@@ -15,6 +15,8 @@
 
 #include "../Registry.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace scripting
 {
 namespace api
@@ -61,3 +63,5 @@ int EntitiesChangedProxy::update(lua_State * L)
 }
 }
 }
+
+VCMI_LIB_NAMESPACE_END

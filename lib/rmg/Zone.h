@@ -33,6 +33,8 @@
 								postfunction(z.second->getModificator<x>()); \
 							}
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class RmgMap;
 class CMapGenerator;
 class Zone;
@@ -141,3 +143,5 @@ protected:
 	Terrain terrainType;
 	
 };
+
+VCMI_LIB_NAMESPACE_END

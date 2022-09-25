@@ -18,6 +18,8 @@
 #include "../VCMI_Lib.h"
 #include "../CTownHandler.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 CMapGenOptions::CMapGenOptions()
 	: width(CMapHeader::MAP_SIZE_MIDDLE), height(CMapHeader::MAP_SIZE_MIDDLE), hasTwoLevels(true),
 	playerCount(RANDOM_SIZE), teamCount(RANDOM_SIZE), compOnlyPlayerCount(RANDOM_SIZE), compOnlyTeamCount(RANDOM_SIZE),
@@ -491,3 +493,5 @@ void CMapGenOptions::CPlayerSettings::setPlayerType(EPlayerType::EPlayerType val
 {
 	playerType = value;
 }
+
+VCMI_LIB_NAMESPACE_END

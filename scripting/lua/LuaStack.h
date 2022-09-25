@@ -13,6 +13,8 @@
 #include "api/Registry.h"
 #include "../../lib/GameConstants.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class JsonNode;
 class int3;
 
@@ -362,3 +364,5 @@ private:
 };
 
 }
+
+VCMI_LIB_NAMESPACE_END

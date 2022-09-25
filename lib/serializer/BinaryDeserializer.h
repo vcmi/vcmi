@@ -15,6 +15,8 @@
 #include "../mapObjects/CGHeroInstance.h"
 #include "../../Global.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CStackInstance;
 class FileStream;
 
@@ -601,3 +603,5 @@ public:
 		return * this;
 	}
 };
+
+VCMI_LIB_NAMESPACE_END

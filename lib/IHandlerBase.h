@@ -12,6 +12,8 @@
 #include "../lib/ConstTransitivePtr.h"
 #include "VCMI_Lib.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class JsonNode;
 class Entity;
 
@@ -163,3 +165,5 @@ protected:
 public: //todo: make private
 	std::vector<ConstTransitivePtr<_Object>> objects;
 };
+
+VCMI_LIB_NAMESPACE_END

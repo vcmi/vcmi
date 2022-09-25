@@ -14,6 +14,8 @@
 #include "rmg/CMapGenOptions.h"
 #include "mapping/CMapInfo.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 PlayerSettings::PlayerSettings()
 	: bonus(RANDOM), castle(NONE), hero(RANDOM), heroPortrait(RANDOM), color(0), handicap(NO_HANDICAP), team(0), compOnly(false)
 {
@@ -193,3 +195,5 @@ TeamID LobbyInfo::getPlayerTeamId(PlayerColor color)
 	else
 		return TeamID::NO_TEAM;
 }
+
+VCMI_LIB_NAMESPACE_END

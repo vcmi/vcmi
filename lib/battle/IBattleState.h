@@ -11,6 +11,8 @@
 #pragma once
 #include "CBattleInfoEssentials.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class ObstacleChanges;
 class UnitChanges;
 struct Bonus;
@@ -91,3 +93,5 @@ public:
 	virtual void updateObstacle(const ObstacleChanges & changes) = 0;
 	virtual void removeObstacle(uint32_t id) = 0;
 };
+
+VCMI_LIB_NAMESPACE_END

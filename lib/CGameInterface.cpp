@@ -29,6 +29,8 @@
 
 #endif
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 template<typename rett>
 std::shared_ptr<rett> createAny(const boost::filesystem::path & libpath, const std::string & methodName)
 {
@@ -257,3 +259,5 @@ void CAdventureAI::loadGame(BinaryDeserializer & h, const int version) /*loading
 		battleAI->init(env, cbc);
 	}
 }
+
+VCMI_LIB_NAMESPACE_END

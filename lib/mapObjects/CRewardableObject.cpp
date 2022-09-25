@@ -20,6 +20,8 @@
 
 #include "CObjectClassesHandler.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 bool CRewardLimiter::heroAllowed(const CGHeroInstance * hero) const
 {
 	if(dayOfWeek != 0)
@@ -1163,3 +1165,5 @@ std::vector<ui32> CGMagicSpring::getAvailableRewards(const CGHeroInstance * hero
 	// hero is either not on visitable tile (should not happen) or tile is already used
 	return std::vector<ui32>();
 }
+
+VCMI_LIB_NAMESPACE_END

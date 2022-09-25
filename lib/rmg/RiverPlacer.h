@@ -11,6 +11,8 @@
 #pragma once
 #include "Zone.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class RiverPlacer: public Modificator
 {
 public:
@@ -46,3 +48,5 @@ private:
 	
 	std::map<int3, int> heightMap;
 };
+
+VCMI_LIB_NAMESPACE_END

@@ -23,6 +23,8 @@
 #include "serializer/JsonSerializer.h"
 #include "filesystem/Filesystem.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 static const std::vector<std::string> IMPLEMENTS_MAP =
 {
 	"ANYTHING",
@@ -69,7 +71,7 @@ const std::string & ScriptImpl::getSource() const
 	return sourceText;
 }
 
-void ScriptImpl::performRegistration(::Services * services) const
+void ScriptImpl::performRegistration(Services * services) const
 {
 	switch(implements)
 	{
@@ -312,4 +314,6 @@ void ScriptHandler::saveState(JsonNode & state)
 
 
 }
+
+VCMI_LIB_NAMESPACE_END
 #endif

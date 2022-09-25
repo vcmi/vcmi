@@ -14,6 +14,8 @@
 
 #include "../../../../lib/NetPacks.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace scripting
 {
 namespace api
@@ -43,3 +45,5 @@ public:
 }
 }
 
+
+VCMI_LIB_NAMESPACE_END

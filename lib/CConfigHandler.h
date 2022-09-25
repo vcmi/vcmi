@@ -11,6 +11,8 @@
 
 #include "../lib/JsonNode.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class Settings;
 class SettingsListener;
 
@@ -188,3 +190,5 @@ namespace config
 
 extern DLL_LINKAGE SettingsStorage settings;
 extern DLL_LINKAGE config::CConfigHandler conf;
+
+VCMI_LIB_NAMESPACE_END

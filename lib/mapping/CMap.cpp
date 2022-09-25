@@ -23,6 +23,8 @@
 #include "CMapEditManager.h"
 #include "../serializer/JsonSerializeFormat.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 SHeroName::SHeroName() : heroId(-1)
 {
 
@@ -713,3 +715,5 @@ void CMap::resetStaticData()
 	CGObelisk::reset();
 	CGTownInstance::reset();
 }
+
+VCMI_LIB_NAMESPACE_END

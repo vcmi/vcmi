@@ -12,6 +12,8 @@
 
 #include "Entity.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class ArtifactID;
 class CreatureID;
 
@@ -25,3 +27,5 @@ public:
 	virtual uint32_t getPrice() const = 0;
 	virtual CreatureID getWarMachine() const = 0;
 };
+
+VCMI_LIB_NAMESPACE_END

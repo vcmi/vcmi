@@ -16,6 +16,8 @@
 #include "GameConstants.h"
 #include "IHandlerBase.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CArtHandler;
 class CArtifact;
 class CGHeroInstance;
@@ -358,3 +360,5 @@ private:
 
 	void serializeJsonSlot(JsonSerializeFormat & handler, const ArtifactPosition & slot, CMap * map);//normal slots
 };
+
+VCMI_LIB_NAMESPACE_END

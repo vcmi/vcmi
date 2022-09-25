@@ -15,6 +15,8 @@
 
 #include "../serializer/JsonDeserializer.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 using namespace rmg;
 
 void CRmgTemplateStorage::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
@@ -78,3 +80,5 @@ std::vector<const CRmgTemplate *> CRmgTemplateStorage::getTemplates() const
 	}
 	return result;
 }
+
+VCMI_LIB_NAMESPACE_END

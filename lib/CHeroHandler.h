@@ -20,8 +20,9 @@
 #include "IHandlerBase.h"
 #include "Terrain.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CHeroClass;
-class CGameInfo;
 class CGHeroInstance;
 struct BattleHex;
 class JsonNode;
@@ -316,3 +317,5 @@ protected:
 	const std::vector<std::string> & getTypeNames() const override;
 	CHero * loadFromJson(const std::string & scope, const JsonNode & node, const std::string & identifier, size_t index) override;
 };
+
+VCMI_LIB_NAMESPACE_END

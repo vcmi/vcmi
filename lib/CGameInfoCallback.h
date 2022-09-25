@@ -12,6 +12,9 @@
 #include "int3.h"
 #include "ResourceSet.h" // for Res::ERes
 #include "battle/CCallbackBase.h"
+
+VCMI_LIB_NAMESPACE_BEGIN
+
 class Player;
 class Team;
 
@@ -239,3 +242,5 @@ public:
 	//virtual const PlayerSettings * getPlayerSettings(PlayerColor color) const;
 };
 
+
+VCMI_LIB_NAMESPACE_END

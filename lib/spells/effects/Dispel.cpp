@@ -21,6 +21,8 @@
 #include "../../battle/Unit.h"
 #include "../../serializer/JsonSerializeFormat.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 static const std::string EFFECT_NAME = "core:dispel";
 
 namespace spells
@@ -142,3 +144,5 @@ std::shared_ptr<const BonusList> Dispel::getBonuses(const Mechanics * m, const b
 
 }
 }
+
+VCMI_LIB_NAMESPACE_END

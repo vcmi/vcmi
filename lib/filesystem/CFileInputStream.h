@@ -12,6 +12,8 @@
 #include "CInputStream.h"
 #include "FileStream.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 /**
  * A class which provides method definitions for reading a file from the filesystem.
  */
@@ -75,3 +77,5 @@ private:
 	/** Native c++ input file stream object. */
 	FileStream fileStream;
 };
+
+VCMI_LIB_NAMESPACE_END

@@ -10,6 +10,8 @@
 #pragma once
 #include "GameConstants.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class JsonNode;
 typedef std::map <std::string, JsonNode> JsonMap;
 typedef std::vector <JsonNode> JsonVector;
@@ -360,3 +362,5 @@ Type JsonNode::convertTo() const
 {
 	return JsonDetail::JsonConverter<Type>::convert(*this);
 }
+
+VCMI_LIB_NAMESPACE_END

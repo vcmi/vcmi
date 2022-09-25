@@ -16,6 +16,8 @@
 #include "../Registry.h"
 #include "SubscriptionRegistryProxy.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace scripting
 {
 namespace api
@@ -86,3 +88,5 @@ const std::vector<TurnStartedProxy::CustomRegType> TurnStartedProxy::REGISTER_CU
 }
 }
 
+
+VCMI_LIB_NAMESPACE_END

@@ -22,6 +22,8 @@
 #include "serializer/JsonUpdater.h"
 #include "mapObjects/CObjectClassesHandler.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 int32_t CCreature::getIndex() const
 {
 	return idNumber.toEnum();
@@ -1360,3 +1362,5 @@ void CCreatureHandler::deserializationFix()
 {
 	buildBonusTreeForTiers();
 }
+
+VCMI_LIB_NAMESPACE_END

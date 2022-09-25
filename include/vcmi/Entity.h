@@ -10,6 +10,8 @@
 
 #pragma once
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class IBonusBearer;
 
 class DLL_LINKAGE Entity
@@ -40,3 +42,5 @@ class DLL_LINKAGE EntityWithBonuses : public EntityT<IdType>
 public:
 	virtual const IBonusBearer * accessBonuses() const = 0;
 };
+
+VCMI_LIB_NAMESPACE_END

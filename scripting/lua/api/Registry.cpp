@@ -11,6 +11,8 @@
 
 #include "api/Registry.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace scripting
 {
 namespace api
@@ -86,3 +88,5 @@ const char * TypeRegistry::getKeyForType(const std::type_info & type)
 
 }
 }
+
+VCMI_LIB_NAMESPACE_END

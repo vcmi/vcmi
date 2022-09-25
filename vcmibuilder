@@ -116,10 +116,10 @@ if [[ -n "$gog_file" ]]
 then
 	currentver="$(innoextract --version | head -n1 | cut -d ' ' -f2)"
 	requiredver="1.6"
-        if verlt $currentver $requiredver;
-           then
-                fail "innoextract version is $currentver, update it to version $requiredver or higher"
-        fi
+	if verlt $currentver $requiredver;
+	then
+		fail "innoextract version is $currentver, update it to version $requiredver or higher"
+	fi
 fi
 
 if [[ -n "$useffmpeg" ]]
@@ -182,7 +182,7 @@ then
 
 	# innoextract always reports error (iconv 84 error). Just test file for presence
 	test -f "$gog_file" || fail "Error: gog.com executable was not found!"
-        gog_file="$(cd "$(dirname "$gog_file")"; pwd)/$(basename "$gog_file")"
+	gog_file="$(cd "$(dirname "$gog_file")"; pwd)/$(basename "$gog_file")"
 	cd "$data_dir" && innoextract "$gog_file"
 fi
 
@@ -190,7 +190,7 @@ if [[ -n "$cd1_dir" ]]
 then
 	data_dir="$temp_dir"/cddir
 	mkdir -p "$data_dir"
-	unshield -d "$data_dir" x "$cd1_dir"/_setup/data1.cab || fail "Error: failed to extract from Install Shield installer!" "rm -rf $data_dir" 
+	unshield -d "$data_dir" x "$cd1_dir"/_setup/data1.cab || fail "Error: failed to extract from Install Shield installer!" "rm -rf $data_dir"
 
 	# a bit tricky - different releases have different root directory. Move extracted files to data_dir
 	if [ -d "$data_dir"/Heroes3 ]

@@ -13,6 +13,8 @@
 
 #include "../GameConstants.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace spells
 {
 
@@ -85,3 +87,5 @@ void ProxyCaster::spendMana(ServerCallback * server, const int32_t spellCost) co
 }
 
 }
+
+VCMI_LIB_NAMESPACE_END

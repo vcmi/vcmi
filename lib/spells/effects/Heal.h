@@ -13,6 +13,8 @@
 #include "UnitEffect.h"
 #include "../../GameConstants.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 struct BattleUnitsChanged;
 
 namespace spells
@@ -45,3 +47,5 @@ private:
 
 }
 }
+
+VCMI_LIB_NAMESPACE_END

@@ -9,6 +9,8 @@
  */
 #pragma once
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 /// List of functions that share the same signature - can be used to call all of them easily
 template<typename Signature>
 class CFunctionList
@@ -61,3 +63,5 @@ public:
 		}
 	}
 };
+
+VCMI_LIB_NAMESPACE_END

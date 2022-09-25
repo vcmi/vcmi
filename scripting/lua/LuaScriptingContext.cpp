@@ -26,6 +26,8 @@
 #include "../../lib/CGameInfoCallback.h"
 
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace scripting
 {
 
@@ -605,3 +607,5 @@ int LuaContext::logErrorImpl()
 
 
 }
+
+VCMI_LIB_NAMESPACE_END

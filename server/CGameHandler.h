@@ -18,8 +18,8 @@
 #include "../lib/ScriptHandler.h"
 #include "CQuery.h"
 
-class CGameHandler;
-class CVCMIServer;
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CGameState;
 struct StartInfo;
 struct BattleResult;
@@ -43,6 +43,11 @@ namespace scripting
 
 
 template<typename T> class CApplier;
+
+VCMI_LIB_NAMESPACE_END
+
+class CGameHandler;
+class CVCMIServer;
 class CBaseForGHApply;
 
 struct PlayerStatus

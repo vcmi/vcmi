@@ -7,14 +7,25 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-#include <QApplication>
-#include "StdInc.h"
+#include "main.h"
 #include "mainwindow_moc.h"
+
+#include <QApplication>
 
 int main(int argc, char * argv[])
 {
+	int result;
+#ifdef VCMI_IOS
+	{
+#endif
 	QApplication vcmilauncher(argc, argv);
 	MainWindow mainWindow;
 	mainWindow.show();
-	return vcmilauncher.exec();
+	result = vcmilauncher.exec();
+#ifdef VCMI_IOS
+	}
+	if (result == 0)
+		launchGame(argc, argv);
+#endif
+	return result;
 }

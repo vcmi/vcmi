@@ -11,6 +11,8 @@
 
 #include "Problem.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace spells
 {
 namespace detail
@@ -52,3 +54,5 @@ void ProblemImpl::getAll(std::vector<std::string> & target) const
 
 }
 }
+
+VCMI_LIB_NAMESPACE_END

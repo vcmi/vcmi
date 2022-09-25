@@ -17,6 +17,8 @@
 #include "Terrain.h"
 #include "battle/BattleHex.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class BattleFieldInfo : public EntityT<BattleField>
 {
 public:
@@ -84,3 +86,5 @@ public:
 		h & objects;
 	}
 };
+
+VCMI_LIB_NAMESPACE_END

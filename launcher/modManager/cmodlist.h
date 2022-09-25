@@ -9,11 +9,17 @@
  */
 #pragma once
 
+#include "StdInc.h"
+
 #include <QVariantMap>
 #include <QVariant>
 #include <QVector>
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class JsonNode;
+
+VCMI_LIB_NAMESPACE_END
 
 namespace ModStatus
 {

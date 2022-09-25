@@ -24,6 +24,8 @@
 #include "mapObjects/CObjectHandler.h"
 #include "HeroBonus.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 const int NAMES_PER_TOWN=16; // number of town names per faction in H3 files. Json can define any number
 
 const Terrain CTownHandler::defaultGoodTerrain{"grass"};
@@ -1179,3 +1181,5 @@ const std::vector<std::string> & CTownHandler::getTypeNames() const
 	return typeNames;
 }
 
+
+VCMI_LIB_NAMESPACE_END

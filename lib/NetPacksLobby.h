@@ -13,14 +13,17 @@
 
 #include "StartInfo.h"
 
-class CCampaignState;
 class CLobbyScreen;
 class CServerHandler;
+class CVCMIServer;
+
+VCMI_LIB_NAMESPACE_BEGIN
+
+class CCampaignState;
 class CMapInfo;
 struct StartInfo;
 class CMapGenOptions;
 struct ClientPlayer;
-class CVCMIServer;
 
 struct CPackForLobby : public CPack
 {
@@ -321,3 +324,5 @@ struct LobbyShowMessage : public CLobbyPackToPropagate
 		h & message;
 	}
 };
+
+VCMI_LIB_NAMESPACE_END

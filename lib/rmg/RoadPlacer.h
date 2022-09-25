@@ -11,6 +11,8 @@
 #pragma once
 #include "Zone.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class RoadPlacer: public Modificator
 {
 public:
@@ -35,3 +37,5 @@ protected:
 	rmg::Area roads; //all tiles with roads
 	rmg::Area areaRoads, isolated;
 };
+
+VCMI_LIB_NAMESPACE_END

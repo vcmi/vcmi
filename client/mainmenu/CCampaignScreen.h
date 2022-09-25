@@ -11,11 +11,16 @@
 
 #include "../windows/CWindowObject.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
+class JsonNode;
+
+VCMI_LIB_NAMESPACE_END
+
 class CLabel;
 class CPicture;
 class CButton;
 struct SDL_Surface;
-class JsonNode;
 
 class CCampaignScreen : public CWindowObject
 {

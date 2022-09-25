@@ -19,25 +19,22 @@
 #include "../lib/CondSh.h"
 #include "../lib/CPathfinder.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 struct CPack;
 struct CPackForServer;
 class CCampaignState;
-class CBattleCallback;
 class IGameEventsReceiver;
 class IBattleEventsReceiver;
 class CBattleGameInterface;
 class CGameState;
 class CGameInterface;
-class CCallback;
 class BattleAction;
-class CClient;
 struct CPathsInfo;
 class BinaryDeserializer;
 class BinarySerializer;
-namespace boost { class thread; }
 
 template<typename T> class CApplier;
-class CBaseForCLApply;
 
 #if SCRIPTING_ENABLED
 namespace scripting
@@ -50,6 +47,15 @@ namespace events
 {
 	class EventBus;
 }
+
+VCMI_LIB_NAMESPACE_END
+
+class CBattleCallback;
+class CCallback;
+class CClient;
+class CBaseForCLApply;
+
+namespace boost { class thread; }
 
 template<typename T>
 class ThreadSafeVector

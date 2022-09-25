@@ -12,6 +12,8 @@
 #include "CTypeList.h"
 #include "../mapObjects/CArmedInstance.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class FileStream;
 
 class DLL_LINKAGE CSaverBase
@@ -389,3 +391,5 @@ public:
 		return * this;
 	}
 };
+
+VCMI_LIB_NAMESPACE_END
