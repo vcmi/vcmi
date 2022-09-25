@@ -901,7 +901,7 @@ CGPathNode::ENodeAction CPathfinder::getTeleportDestAction() const
 
 bool CPathfinder::isDestinationGuardian() const
 {
-	return gs->guardingCreaturePosition(source.node->coord) == destination.node->coord;
+	return gs->guardingCreaturePosition(destination.node->coord) == destination.node->coord;
 }
 
 void CPathfinderHelper::initializePatrol()
