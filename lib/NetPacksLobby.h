@@ -313,4 +313,16 @@ struct LobbyForceSetPlayer : public CLobbyPackToServer
 	}
 };
 
+struct LobbyShowMessage : public CLobbyPackToPropagate
+{
+	std::string message;
+	
+	void applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler);
+	
+	template <typename Handler> void serialize(Handler & h, const int version)
+	{
+		h & message;
+	}
+};
+
 VCMI_LIB_NAMESPACE_END

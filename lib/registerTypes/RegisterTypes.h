@@ -376,6 +376,7 @@ void registerTypesLobbyPacks(Serializer &s)
 	s.template registerType<CLobbyPackToPropagate, LobbyChangeHost>();
 	// Only server send
 	s.template registerType<CLobbyPackToPropagate, LobbyUpdateState>();
+	s.template registerType<CLobbyPackToPropagate, LobbyShowMessage>();
 
 	// For client with permissions
 	s.template registerType<CLobbyPackToServer, LobbyChangePlayerOption>();

@@ -580,6 +580,11 @@ void CServerHandler::startCampaignScenario(std::shared_ptr<CCampaignState> cs)
 	SDL_PushEvent(&event);
 }
 
+void CServerHandler::showServerError(std::string txt)
+{
+	CInfoWindow::showInfoDialog(txt, {});
+}
+
 int CServerHandler::howManyPlayerInterfaces()
 {
 	int playerInts = 0;

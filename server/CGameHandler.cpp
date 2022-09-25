@@ -2969,7 +2969,7 @@ void CGameHandler::save(const std::string & filename)
 	}
 }
 
-void CGameHandler::load(const std::string & filename)
+bool CGameHandler::load(const std::string & filename)
 {
 	logGlobal->info("Loading from %s", filename);
 	const auto stem	= FileInfo::GetPathStem(filename);
@@ -2986,12 +2986,22 @@ void CGameHandler::load(const std::string & filename)
 		}
 		logGlobal->info("Game has been successfully loaded!");
 	}
-	catch(std::exception &e)
+	catch(const CModHandler::Incompatibility & e)
 	{
 		logGlobal->error("Failed to load game: %s", e.what());
+		auto errorMsg = VLC->generaltexth->localizedTexts["server"]["errors"]["modsIncompatibility"].String() + '\n';
+		errorMsg += e.what();
+		lobby->announceMessage(errorMsg);
+		return false;
+	}
+	catch(const std::exception & e)
+	{
+		logGlobal->error("Failed to load game: %s", e.what());
+		return false;
 	}
 	gs->preInit(VLC);
 	gs->updateOnLoad(lobby->si.get());
+	return true;
 }
 
 bool CGameHandler::bulkSplitStack(SlotID slotSrc, ObjectInstanceID srcOwner, si32 howMany)

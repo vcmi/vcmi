@@ -145,6 +145,7 @@ public:
 	void startGameplay();
 	void endGameplay(bool closeConnection = true, bool restart = false);
 	void startCampaignScenario(std::shared_ptr<CCampaignState> cs = {});
+	void showServerError(std::string txt);
 
 	// TODO: LobbyState must be updated within game so we should always know how many player interfaces our client handle
 	int howManyPlayerInterfaces();

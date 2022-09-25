@@ -262,7 +262,7 @@ public:
 	bool bulkMergeStacks(SlotID slotSrc, ObjectInstanceID srcOwner);
 	bool bulkSmartSplitStack(SlotID slotSrc, ObjectInstanceID srcOwner);
 	void save(const std::string &fname);
-	void load(const std::string &fname);
+	bool load(const std::string &fname);
 
 	void handleTimeEvents();
 	void handleTownEvents(CGTownInstance *town, NewTurn &n);

@@ -220,7 +220,7 @@ void CVCMIServer::threadAnnounceLobby()
 	}
 }
 
-void CVCMIServer::prepareToStartGame()
+bool CVCMIServer::prepareToStartGame()
 {
 	if(state == EServerState::GAMEPLAY)
 	{
@@ -231,8 +231,9 @@ void CVCMIServer::prepareToStartGame()
 		// FIXME: dirry hack to make sure old CGameHandler::run is finished
 		boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
 	}
-	state = EServerState::GAMEPLAY_STARTING;
-	gh = std::make_shared<CGameHandler>(this);
+
+	if(!gh)
+		gh = std::make_shared<CGameHandler>(this);
 	switch(si->mode)
 	{
 	case StartInfo::CAMPAIGN:
@@ -249,13 +250,17 @@ void CVCMIServer::prepareToStartGame()
 
 	case StartInfo::LOAD_GAME:
 		logNetwork->info("Preparing to start loaded game");
-		gh->load(si->mapname);
+		if(!gh->load(si->mapname))
+			return false;
 		break;
 	default:
 		logNetwork->error("Wrong mode in StartInfo!");
 		assert(0);
 		break;
 	}
+	
+	state = EServerState::GAMEPLAY_STARTING;
+	return true;
 }
 
 void CVCMIServer::startGameImmidiately()
@@ -379,6 +384,14 @@ void CVCMIServer::announcePack(std::unique_ptr<CPackForLobby> pack)
 	}
 
 	applier->getApplier(typeList.getTypeID(pack.get()))->applyOnServerAfter(this, pack.get());
+}
+
+void CVCMIServer::announceMessage(const std::string & txt)
+{
+	logNetwork->info("Show message: %s", txt);
+	auto cm = vstd::make_unique<LobbyShowMessage>();
+	cm->message = txt;
+	addToAnnounceQueue(std::move(cm));
 }
 
 void CVCMIServer::announceTxt(const std::string & txt, const std::string & playerName)
