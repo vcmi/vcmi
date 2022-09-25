@@ -313,14 +313,17 @@ bool CModManager::removeModDir(QString path)
 {
 	// issues 2673 and 2680 its why you do not recursively remove without sanity check
 	QDir checkDir(path);
+	QDir dir(path);
+	
 	if(!checkDir.cdUp() || QString::compare("Mods", checkDir.dirName(), Qt::CaseInsensitive))
 		return false;
+#ifndef VCMI_IOS //ios applications are stored in the isolated container
 	if(!checkDir.cdUp() || QString::compare("vcmi", checkDir.dirName(), Qt::CaseInsensitive))
 		return false;
 
-	QDir dir(path);
 	if(!dir.absolutePath().contains("vcmi", Qt::CaseInsensitive))
 		return false;
+#endif
 	if(!dir.absolutePath().contains("Mods", Qt::CaseInsensitive))
 		return false;
 
