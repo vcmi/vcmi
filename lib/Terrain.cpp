@@ -29,6 +29,22 @@ TerrainTypeHandler::TerrainTypeHandler()
 	initTerrains(allConfigs); //maps will be populated inside
 }
 
+TerrainTypeHandler::~TerrainTypeHandler()
+{
+	for (const auto * terrain : objects)
+	{
+		delete terrain;
+	}
+	for (const auto * river : riverTypes)
+	{
+		delete river;
+	}
+	for (const auto * road : roadTypes)
+	{
+		delete road;
+	}
+}
+
 void TerrainTypeHandler::initTerrains(const std::vector<std::string> & allConfigs)
 {
 	std::vector<std::function<void()>> resolveLater;

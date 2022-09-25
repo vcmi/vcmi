@@ -133,6 +133,7 @@ class DLL_LINKAGE TerrainTypeHandler //TODO: public IHandlerBase ?
 public:
 
 	TerrainTypeHandler();
+	~TerrainTypeHandler();
 
 	const std::vector<TerrainType *> & terrains() const;
 	const TerrainType * getInfoByName(const std::string & terrainName) const;
