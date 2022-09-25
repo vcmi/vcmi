@@ -1711,8 +1711,7 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 	}
 	else if(const CGHeroInstance * h = curHero())
 	{
-		int3 mapPosCopy = mapPos;
-		const CGPathNode * pnode = LOCPLINT->cb->getPathsInfo(h)->getPathInfo(mapPosCopy);
+		const CGPathNode * pnode = LOCPLINT->cb->getPathsInfo(h)->getPathInfo(mapPos);
 		assert(pnode);
 
 		int turns = pnode->turns;
