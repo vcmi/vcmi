@@ -198,6 +198,15 @@ if(WIN32)
 		target_link_libraries(vcmiclient SDL2::SDL2main)
 	endif()
 	target_compile_definitions(vcmiclient PRIVATE WINDOWS_IGNORE_PACKING_MISMATCH)
+
+	# TODO: very hacky, find proper solution to copy AI dlls into bin dir
+	if(MSVC)
+		add_custom_command(TARGET vcmiclient POST_BUILD
+			WORKING_DIRECTORY "$<TARGET_FILE_DIR:vcmiclient>"
+			COMMAND ${CMAKE_COMMAND} -E rename AI/fuzzylite.dll fuzzylite.dll
+			COMMAND ${CMAKE_COMMAND} -E rename AI/tbb.dll tbb.dll
+		)
+	endif()
 elseif(APPLE_IOS)
 	target_link_libraries(vcmiclient PRIVATE
 		iOS_utils
