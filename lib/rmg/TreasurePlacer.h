@@ -26,7 +26,7 @@ struct ObjectInfo
 	//ui32 maxPerMap; //unused
 	std::function<CGObjectInstance *()> generateObject;
 	
-	void setTemplate(si32 type, si32 subtype, TTerrain terrain);
+	void setTemplate(si32 type, si32 subtype, TTerrainId terrain);
 	
 	ObjectInfo();
 	

@@ -185,7 +185,7 @@ public:
 
 	TFaction index;
 
-	TTerrain nativeTerrain;
+	TTerrainId nativeTerrain;
 	EAlignment::EAlignment alignment;
 	bool preferUndergroundPlacement;
 
@@ -358,9 +358,9 @@ class DLL_LINKAGE CTownHandler : public CHandlerBase<FactionID, Faction, CFactio
 	std::vector<BuildingRequirementsHelper> requirementsToLoad;
 	std::vector<BuildingRequirementsHelper> overriddenBidsToLoad; //list of buildings, which bonuses should be overridden.
 
-	const static TTerrain defaultGoodTerrain;
-	const static TTerrain defaultEvilTerrain;
-	const static TTerrain defaultNeutralTerrain;
+	const static TTerrainId defaultGoodTerrain;
+	const static TTerrainId defaultEvilTerrain;
+	const static TTerrainId defaultNeutralTerrain;
 
 	static TPropagatorPtr & emptyPropagator();
 
@@ -391,7 +391,7 @@ class DLL_LINKAGE CTownHandler : public CHandlerBase<FactionID, Faction, CFactio
 
 	void loadPuzzle(CFaction & faction, const JsonNode & source);
 
-	TTerrain getDefaultTerrainForAlignment(EAlignment::EAlignment aligment) const;
+	TTerrainId getDefaultTerrainForAlignment(EAlignment::EAlignment aligment) const;
 	void loadRandomFaction();
 
 

@@ -169,11 +169,11 @@ void TerrainTypeHandler::initTerrains(const std::vector<std::string> & allConfig
 				info->terrainViewPatterns = terr.second["terrainViewPatterns"].String();
 			}
 
-			TTerrain id = Terrain::WRONG;
+			TTerrainId id = Terrain::WRONG;
 			if(!terr.second["originalTerrainId"].isNull())
 			{
 				//place in reserved slot
-				id = (TTerrain)(terr.second["originalTerrainId"].Float());
+				id = (TTerrainId)(terr.second["originalTerrainId"].Float());
 				objects[id] = info;
 			}
 			else
@@ -222,7 +222,7 @@ void TerrainTypeHandler::initRivers(const std::vector<std::string> & allConfigs)
 
 			if (!river.second["originalRiverId"].isNull())
 			{
-				info->id = static_cast<TRiver>(river.second["originalRiverId"].Float());
+				info->id = static_cast<TRiverId>(river.second["originalRiverId"].Float());
 				riverTypes[info->id] = info;
 			}
 			else
@@ -257,7 +257,7 @@ void TerrainTypeHandler::initRoads(const std::vector<std::string> & allConfigs)
 
 			if (!road.second["originalRoadId"].isNull())
 			{
-				info->id = static_cast<TRoad>(road.second["originalRoadId"].Float());
+				info->id = static_cast<TRoadId>(road.second["originalRoadId"].Float());
 				roadTypes[info->id] = info;
 			}
 			else
@@ -332,7 +332,7 @@ const TerrainType* TerrainTypeHandler::getInfoByCode(const std::string& terrainC
 	return terrainInfoByCode.at(terrainCode);
 }
 
-const TerrainType* TerrainTypeHandler::getInfoById(TTerrain id) const
+const TerrainType* TerrainTypeHandler::getInfoById(TTerrainId id) const
 {
 	return terrainInfoById.at(id);
 }
@@ -347,7 +347,7 @@ const RiverType* TerrainTypeHandler::getRiverByCode(const std::string& riverCode
 	return riverInfoByCode.at(riverCode);
 }
 
-const RiverType* TerrainTypeHandler::getRiverById(TRiver id) const
+const RiverType* TerrainTypeHandler::getRiverById(TRiverId id) const
 {
 	return riverInfoById.at(id);
 }
@@ -362,7 +362,7 @@ const RoadType* TerrainTypeHandler::getRoadByCode(const std::string& roadCode) c
 	return roadInfoByCode.at(roadCode);
 }
 
-const RoadType* TerrainTypeHandler::getRoadById(TRoad id) const
+const RoadType* TerrainTypeHandler::getRoadById(TRoadId id) const
 {
 	return roadInfoById.at(id);
 }
@@ -440,17 +440,16 @@ bool TerrainType::isTransitionRequired() const
 	return transitionRequired;
 }
 
-RiverType::RiverType(const std::string & fileName, const std::string & code, TRiver id):
+RiverType::RiverType(const std::string & fileName, const std::string & code, TRiverId id):
 	fileName(fileName),
 	code(code),
 	id(id)
 {
 }
 
-RoadType::RoadType(const std::string& fileName, const std::string& code, TRoad id):
+RoadType::RoadType(const std::string& fileName, const std::string& code, TRoadId id):
 	fileName(fileName),
 	code(code),
-	id(id),
-	movementCost(GameConstants::BASE_MOVEMENT_COST)
+	id(id)
 {
 }

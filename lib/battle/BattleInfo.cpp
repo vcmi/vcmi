@@ -189,7 +189,7 @@ struct RangeGenerator
 	std::function<int()> myRand;
 };
 
-BattleInfo * BattleInfo::setupBattle(const int3 & tile, TTerrain terrain, const BattleField & battlefieldType, const CArmedInstance * armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance * town)
+BattleInfo * BattleInfo::setupBattle(const int3 & tile, TTerrainId terrain, const BattleField & battlefieldType, const CArmedInstance * armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance * town)
 {
 	CMP_stack cmpst;
 	auto curB = new BattleInfo();
@@ -563,7 +563,7 @@ BattleField BattleInfo::getBattlefieldType() const
 	return battlefieldType;
 }
 
-TTerrain BattleInfo::getTerrainType() const
+TTerrainId BattleInfo::getTerrainType() const
 {
 	return terrainType;
 }

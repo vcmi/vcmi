@@ -119,7 +119,7 @@ CSoundHandler::CSoundHandler():
 
 void CSoundHandler::loadHorseSounds()
 {
-	auto terrains = CGI->terrainTypeHandler->terrains();
+	const auto & terrains = CGI->terrainTypeHandler->terrains();
 	for(const auto * terrain : terrains)
 	{
 		//since all sounds are hardcoded, let's keep it
@@ -376,7 +376,7 @@ CMusicHandler::CMusicHandler():
 
 void CMusicHandler::loadTerrainSounds()
 {
-	for (const auto* terrain : CGI->terrainTypeHandler->terrains())
+	for (const auto * terrain : CGI->terrainTypeHandler->terrains())
 	{
 		addEntryToSet("terrain", terrain->name, "Music/" + terrain->musicFilename);
 	}

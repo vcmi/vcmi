@@ -217,7 +217,7 @@ protected:
 	int level;
 
 	//to initialize colors
-	std::map<TTerrain, std::pair<SDL_Color, SDL_Color> > loadColors();
+	std::map<TTerrainId, std::pair<SDL_Color, SDL_Color> > loadColors();
 
 	void clickLeft(tribool down, bool previousState) override;
 	void clickRight(tribool down, bool previousState) override;
@@ -228,7 +228,7 @@ protected:
 
 public:
 	// terrainID -> (normal color, blocked color)
-	const std::map<TTerrain, std::pair<SDL_Color, SDL_Color> > colors;
+	const std::map<TTerrainId, std::pair<SDL_Color, SDL_Color> > colors;
 
 	CMinimap(const Rect & position);
 

@@ -29,7 +29,7 @@ public:
 	};
 	
 	std::vector<std::string> battleFields;
-	std::vector<TTerrain> prohibitTransitions;
+	std::vector<TTerrainId> prohibitTransitions;
 	std::array<int, 3> minimapBlocked;
 	std::array<int, 3> minimapUnblocked;
 	std::string name;
@@ -38,10 +38,10 @@ public:
 	std::string terrainText;
 	std::string typeCode;
 	std::string terrainViewPatterns;
-	TRiver river;
+	TRiverId river;
 
-	TTerrain id;
-	TTerrain rockTerrain;
+	TTerrainId id;
+	TTerrainId rockTerrain;
 	int moveCost;
 	int horseSoundId;
 	ui8 passabilityType;
@@ -94,9 +94,9 @@ public:
 	std::string fileName;
 	std::string code;
 	std::string deltaName;
-	TRiver id;
+	TRiverId id;
 
-	RiverType(const std::string & fileName = "", const std::string& code = "", TRiver id = River::NO_RIVER);
+	RiverType(const std::string & fileName = "", const std::string & code = "", TRiverId id = River::NO_RIVER);
 
 	template <typename Handler> void serialize(Handler& h, const int version)
 	{
@@ -112,10 +112,10 @@ class DLL_LINKAGE RoadType
 public:
 	std::string fileName;
 	std::string code;
-	TRoad id;
+	TRoadId id;
 	ui8 movementCost;
 
-	RoadType(const std::string & fileName = "", const std::string& code = "", TRoad id = Road::NO_ROAD);
+	RoadType(const std::string & fileName = "", const std::string& code = "", TRoadId id = Road::NO_ROAD);
 
 	template <typename Handler> void serialize(Handler& h, const int version)
 	{
@@ -133,24 +133,21 @@ class DLL_LINKAGE TerrainTypeHandler //TODO: public IHandlerBase ?
 public:
 
 	TerrainTypeHandler();
-	void initTerrains(const std::vector<std::string> & allConfigs);
-	void initRivers(const std::vector<std::string> & allConfigs);
-	void initRoads(const std::vector<std::string> & allConfigs);
 
 	const std::vector<TerrainType *> & terrains() const;
 	const TerrainType * getInfoByName(const std::string & terrainName) const;
 	const TerrainType * getInfoByCode(const std::string & terrainCode) const;
-	const TerrainType * getInfoById(TTerrain id) const;
+	const TerrainType * getInfoById(TTerrainId id) const;
 
 	const std::vector<RiverType *> & rivers() const;
 	const RiverType * getRiverByName(const std::string & riverName) const;
 	const RiverType * getRiverByCode(const std::string & riverCode) const;
-	const RiverType * getRiverById(TRiver id) const;
+	const RiverType * getRiverById(TRiverId id) const;
 
 	const std::vector<RoadType *> & roads() const;
 	const RoadType * getRoadByName(const std::string & roadName) const;
 	const RoadType * getRoadByCode(const std::string & roadCode) const;
-	const RoadType * getRoadById(TRoad id) const;
+	const RoadType * getRoadById(TRoadId id) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -174,16 +171,19 @@ private:
 
 	std::unordered_map<std::string, const TerrainType*> terrainInfoByName;
 	std::unordered_map<std::string, const TerrainType*> terrainInfoByCode;
-	std::unordered_map<TTerrain, const TerrainType*> terrainInfoById;
+	std::unordered_map<TTerrainId, const TerrainType*> terrainInfoById;
 
 	std::unordered_map<std::string, const RiverType*> riverInfoByName;
 	std::unordered_map<std::string, const RiverType*> riverInfoByCode;
-	std::unordered_map<TRiver, const RiverType*> riverInfoById;
+	std::unordered_map<TRiverId, const RiverType*> riverInfoById;
 
 	std::unordered_map<std::string, const RoadType*> roadInfoByName;
 	std::unordered_map<std::string, const RoadType*> roadInfoByCode;
-	std::unordered_map<TRoad, const RoadType*> roadInfoById;
+	std::unordered_map<TRoadId, const RoadType*> roadInfoById;
 
+	void initTerrains(const std::vector<std::string> & allConfigs);
+	void initRivers(const std::vector<std::string> & allConfigs);
+	void initRoads(const std::vector<std::string> & allConfigs);
 	void recreateTerrainMaps();
 	void recreateRiverMaps();
 	void recreateRoadMaps();

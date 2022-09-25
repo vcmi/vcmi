@@ -124,19 +124,19 @@ void CMapEditManager::clearTerrain(CRandomGenerator * gen)
 	execute(make_unique<CClearTerrainOperation>(map, gen ? gen : &(this->gen)));
 }
 
-void CMapEditManager::drawTerrain(TTerrain terType, CRandomGenerator * gen)
+void CMapEditManager::drawTerrain(TTerrainId terType, CRandomGenerator * gen)
 {
 	execute(make_unique<CDrawTerrainOperation>(map, terrainSel, terType, gen ? gen : &(this->gen)));
 	terrainSel.clearSelection();
 }
 
-void CMapEditManager::drawRoad(TRoad roadType, CRandomGenerator* gen)
+void CMapEditManager::drawRoad(TRoadId roadType, CRandomGenerator* gen)
 {
 	execute(make_unique<CDrawRoadsOperation>(map, terrainSel, roadType, gen ? gen : &(this->gen)));
 	terrainSel.clearSelection();
 }
 
-void CMapEditManager::drawRiver(TRiver riverType, CRandomGenerator* gen)
+void CMapEditManager::drawRiver(TRiverId riverType, CRandomGenerator* gen)
 {
 	execute(make_unique<CDrawRiversOperation>(map, terrainSel, riverType, gen ? gen : &(this->gen)));
 	terrainSel.clearSelection();

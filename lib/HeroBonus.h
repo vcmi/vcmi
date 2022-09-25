@@ -1060,9 +1060,9 @@ public:
 class DLL_LINKAGE CreatureTerrainLimiter : public ILimiter //applies only to creatures that are on specified terrain, default native terrain
 {
 public:
-	TTerrain terrainType;
+	TTerrainId terrainType;
 	CreatureTerrainLimiter();
-	CreatureTerrainLimiter(TTerrain terrain);
+	CreatureTerrainLimiter(TTerrainId terrain);
 
 	int limit(const BonusLimitationContext &context) const override;
 	virtual std::string toString() const override;

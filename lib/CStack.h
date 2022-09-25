@@ -29,7 +29,7 @@ public:
 
 	ui32 ID; //unique ID of stack
 	const CCreature * type;
-	TTerrain nativeTerrain; //tmp variable to save native terrain value on battle init
+	TTerrainId nativeTerrain; //tmp variable to save native terrain value on battle init
 	ui32 baseAmount;
 
 	PlayerColor owner; //owner - player color (255 for neutrals)
@@ -51,7 +51,7 @@ public:
 
 	bool canBeHealed() const; //for first aid tent - only harmed stacks that are not war machines
 	bool isOnNativeTerrain() const;
-	bool isOnTerrain(TTerrain terrain) const;
+	bool isOnTerrain(TTerrainId terrain) const;
 
 	ui32 level() const;
 	si32 magicResistance() const override; //include aura of resistance

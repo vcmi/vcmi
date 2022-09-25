@@ -38,7 +38,7 @@ public:
 	virtual scripting::Pool * getContextPool() const = 0;
 #endif
 
-	virtual TTerrain battleTerrainType() const = 0;
+	virtual TTerrainId battleTerrainType() const = 0;
 	virtual BattleField battleGetBattlefieldType() const = 0;
 
 	///return none if battle is ongoing; otherwise the victorious side (0/1) or 2 if it is a draw

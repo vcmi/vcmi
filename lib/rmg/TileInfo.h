@@ -28,14 +28,14 @@ public:
 	bool isUsed() const;
 	bool isRoad() const;
 	void setOccupied(ETileType::ETileType value);
-	TTerrain getTerrainType() const;
+	TTerrainId getTerrainType() const;
 	ETileType::ETileType getTileType() const;
-	void setTerrainType(TTerrain value);
+	void setTerrainType(TTerrainId value);
 	
-	void setRoadType(TRoad type);
+	void setRoadType(TRoadId type);
 private:
 	float nearestObjectDistance;
 	ETileType::ETileType occupied;
-	TTerrain terrain;
-	TRoad roadType;
+	TTerrainId terrain;
+	TRoadId roadType;
 };

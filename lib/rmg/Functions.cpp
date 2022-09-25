@@ -93,14 +93,14 @@ void createBorder(RmgMap & gen, Zone & zone)
 	}
 }
 
-void paintZoneTerrain(const Zone & zone, CRandomGenerator & generator, RmgMap & map, TTerrain terrain)
+void paintZoneTerrain(const Zone & zone, CRandomGenerator & generator, RmgMap & map, TTerrainId terrain)
 {
 	auto v = zone.getArea().getTilesVector();
 	map.getEditManager()->getTerrainSelection().setSelection(v);
 	map.getEditManager()->drawTerrain(terrain, &generator);
 }
 
-int chooseRandomAppearance(CRandomGenerator & generator, si32 ObjID, TTerrain terrain)
+int chooseRandomAppearance(CRandomGenerator & generator, si32 ObjID, TTerrainId terrain)
 {
 	auto factories = VLC->objtypeh->knownSubObjects(ObjID);
 	vstd::erase_if(factories, [ObjID, &terrain](si32 f)
@@ -116,7 +116,7 @@ void initTerrainType(Zone & zone, CMapGenerator & gen)
 	if(zone.getType()==ETemplateZoneType::WATER)
 	{
 		//collect all water terrain types
-		std::vector<TTerrain> waterTerrains;
+		std::vector<TTerrainId> waterTerrains;
 		for(auto & terrain : VLC->terrainTypeHandler->terrains())
 			if(terrain->isWater())
 				waterTerrains.push_back(terrain->id);

@@ -215,12 +215,12 @@ boost::optional<int> ZoneOptions::getOwner() const
 	return owner;
 }
 
-const std::set<TTerrain> & ZoneOptions::getTerrainTypes() const
+const std::set<TTerrainId> & ZoneOptions::getTerrainTypes() const
 {
 	return terrainTypes;
 }
 
-void ZoneOptions::setTerrainTypes(const std::set<TTerrain> & value)
+void ZoneOptions::setTerrainTypes(const std::set<TTerrainId> & value)
 {
 	//assert(value.find(ETerrainType::WRONG) == value.end() && value.find(ETerrainType::BORDER) == value.end() &&
 	//	   value.find(ETerrainType::WATER) == value.end() && value.find(ETerrainType::ROCK) == value.end());

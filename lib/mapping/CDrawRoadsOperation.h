@@ -61,7 +61,7 @@ protected:
 class CDrawRoadsOperation : public CDrawLinesOperation
 {
 public:
-	CDrawRoadsOperation(CMap * map, const CTerrainSelection & terrainSel, TRoad roadType, CRandomGenerator * gen);
+	CDrawRoadsOperation(CMap * map, const CTerrainSelection & terrainSel, TRoadId roadType, CRandomGenerator * gen);
 	std::string getLabel() const override;
 	
 protected:
@@ -72,13 +72,13 @@ protected:
 	void updateTile(TerrainTile & tile, const CDrawLinesOperation::LinePattern & pattern, const int flip) override;
 	
 private:
-	TRoad roadType;
+	TRoadId roadType;
 };
 
 class CDrawRiversOperation : public CDrawLinesOperation
 {
 public:
-	CDrawRiversOperation(CMap * map, const CTerrainSelection & terrainSel, TRoad roadType, CRandomGenerator * gen);
+	CDrawRiversOperation(CMap * map, const CTerrainSelection & terrainSel, TRoadId roadType, CRandomGenerator * gen);
 	std::string getLabel() const override;
 	
 protected:
@@ -89,5 +89,5 @@ protected:
 	void updateTile(TerrainTile & tile, const CDrawLinesOperation::LinePattern & pattern, const int flip) override;
 	
 private:
-	TRiver riverType;
+	TRiverId riverType;
 };

@@ -2111,7 +2111,7 @@ CreatureTerrainLimiter::CreatureTerrainLimiter()
 {
 }
 
-CreatureTerrainLimiter::CreatureTerrainLimiter(TTerrain terrain):
+CreatureTerrainLimiter::CreatureTerrainLimiter(TTerrainId terrain):
 	terrainType(terrain)
 {
 }

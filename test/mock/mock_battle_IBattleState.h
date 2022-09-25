@@ -19,7 +19,7 @@ public:
 	MOCK_CONST_METHOD1(getStacksIf, TStacks(TStackFilter));
 	MOCK_CONST_METHOD1(getUnitsIf, battle::Units(battle::UnitFilter));
 	MOCK_CONST_METHOD0(getBattlefieldType, BattleField());
-	MOCK_CONST_METHOD0(getTerrainType, TTerrain());
+	MOCK_CONST_METHOD0(getTerrainType, TTerrainId());
 	MOCK_CONST_METHOD0(getAllObstacles, IBattleInfo::ObstacleCList());
 	MOCK_CONST_METHOD0(getDefendedTown, const CGTownInstance *());
 	MOCK_CONST_METHOD1(getWallState, si8(int));

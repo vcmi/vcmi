@@ -37,7 +37,7 @@ public:
 	SiegeInfo si;
 
 	BattleField battlefieldType; //like !!BA:B
-	TTerrain terrainType; //used for some stack nativity checks (not the bonus limiters though that have their own copy)
+	TTerrainId terrainType; //used for some stack nativity checks (not the bonus limiters though that have their own copy)
 
 	ui8 tacticsSide; //which side is requested to play tactics phase
 	ui8 tacticDistance; //how many hexes we can go forward (1 = only hexes adjacent to margin line)
@@ -73,7 +73,7 @@ public:
 	battle::Units getUnitsIf(battle::UnitFilter predicate) const override;
 
 	BattleField getBattlefieldType() const override;
-	TTerrain getTerrainType() const override;
+	TTerrainId getTerrainType() const override;
 
 	ObstacleCList getAllObstacles() const override;
 
@@ -138,7 +138,7 @@ public:
 	const CGHeroInstance * getHero(PlayerColor player) const; //returns fighting hero that belongs to given player
 
 	void localInit();
-	static BattleInfo * setupBattle(const int3 & tile, TTerrain, const BattleField & battlefieldType, const CArmedInstance * armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance * town);
+	static BattleInfo * setupBattle(const int3 & tile, TTerrainId, const BattleField & battlefieldType, const CArmedInstance * armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance * town);
 
 	ui8 whatSide(PlayerColor player) const;
 

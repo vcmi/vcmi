@@ -81,7 +81,7 @@ void CComposedOperation::addOperation(std::unique_ptr<CMapOperation>&& operation
 	operations.push_back(std::move(operation));
 }
 
-CDrawTerrainOperation::CDrawTerrainOperation(CMap* map, const CTerrainSelection& terrainSel, TTerrain terType, CRandomGenerator* gen):
+CDrawTerrainOperation::CDrawTerrainOperation(CMap* map, const CTerrainSelection& terrainSel, TTerrainId terType, CRandomGenerator* gen):
 	CMapOperation(map),
 	terrainSel(terrainSel),
 	terType(terType),

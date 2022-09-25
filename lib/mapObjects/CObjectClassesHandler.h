@@ -182,11 +182,11 @@ public:
 
 	/// returns all templates matching parameters
 	std::vector<std::shared_ptr<const ObjectTemplate>> getTemplates() const;
-	std::vector<std::shared_ptr<const ObjectTemplate>> getTemplates(const TTerrain terrainType) const;
+	std::vector<std::shared_ptr<const ObjectTemplate>> getTemplates(const TTerrainId terrainType) const;
 
 	/// returns preferred template for this object, if present (e.g. one of 3 possible templates for town - village, fort and castle)
 	/// note that appearance will not be changed - this must be done separately (either by assignment or via pack from server)
-	std::shared_ptr<const ObjectTemplate> getOverride(TTerrain terrainType, const CGObjectInstance * object) const;
+	std::shared_ptr<const ObjectTemplate> getOverride(TTerrainId terrainType, const CGObjectInstance * object) const;
 
 	BattleField getBattlefield() const;
 

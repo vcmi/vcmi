@@ -66,7 +66,7 @@ std::vector<BattleHex> ObstacleInfo::getBlocked(BattleHex hex) const
 	return ret;
 }
 
-bool ObstacleInfo::isAppropriate(const TTerrain terrainType, const BattleField & battlefield) const
+bool ObstacleInfo::isAppropriate(const TTerrainId terrainType, const BattleField & battlefield) const
 {
 	auto bgInfo = battlefield.getInfo();
 	

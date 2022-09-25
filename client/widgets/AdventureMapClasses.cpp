@@ -495,9 +495,9 @@ void CMinimapInstance::showAll(SDL_Surface * to)
 	}
 }
 
-std::map<TTerrain, std::pair<SDL_Color, SDL_Color> > CMinimap::loadColors()
+std::map<TTerrainId, std::pair<SDL_Color, SDL_Color> > CMinimap::loadColors()
 {
-	std::map<TTerrain, std::pair<SDL_Color, SDL_Color> > ret;
+	std::map<TTerrainId, std::pair<SDL_Color, SDL_Color> > ret;
 
 	for(const auto * terrain : CGI->terrainTypeHandler->terrains())
 	{
