@@ -11,6 +11,8 @@
 
 #include "CGoal.h"
 
+namespace NKAI
+{
 namespace Goals
 {
 	class DLL_EXPORT SaveResources : public ElementarGoal<SaveResources>
@@ -28,4 +30,6 @@ namespace Goals
 		std::string toString() const override;
 		virtual bool operator==(const SaveResources & other) const override;
 	};
+}
+
 }

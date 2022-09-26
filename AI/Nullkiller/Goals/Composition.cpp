@@ -16,6 +16,9 @@
 #include "../../../lib/StringConstants.h"
 
 
+namespace NKAI
+{
+
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<AIGateway> ai;
 
@@ -77,4 +80,6 @@ bool Composition::isElementar() const
 int Composition::getHeroExchangeCount() const
 {
 	return isElementar() ? taskptr(*subtasks.back())->getHeroExchangeCount() : 0;
+}
+
 }

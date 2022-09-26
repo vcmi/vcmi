@@ -10,10 +10,8 @@
 
 #pragma once
 
-#define PATHFINDER_TRACE_LEVEL 0
-#define AI_TRACE_LEVEL 0
-#define SCOUT_TURN_DISTANCE_LIMIT 3
-#define MAIN_TURN_DISTANCE_LIMIT 5
+#define NKAI_PATHFINDER_TRACE_LEVEL 0
+#define NKAI_TRACE_LEVEL 0
 
 #include "../../../lib/CPathfinder.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
@@ -22,6 +20,11 @@
 #include "../Goals/AbstractGoal.h"
 #include "Actions/SpecialAction.h"
 #include "Actors.h"
+
+namespace NKAI
+{
+	const int SCOUT_TURN_DISTANCE_LIMIT = 3;
+	const int MAIN_TURN_DISTANCE_LIMIT = 5;
 
 namespace AIPathfinding
 {
@@ -256,3 +259,5 @@ private:
 		const std::vector<CGPathNode *> & initialNodes,
 		TVector & output);
 };
+
+}

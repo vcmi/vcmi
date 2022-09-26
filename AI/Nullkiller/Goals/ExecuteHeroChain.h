@@ -12,6 +12,8 @@
 #include "CGoal.h"
 #include "../Pathfinding/AIPathfinder.h"
 
+namespace NKAI
+{
 namespace Goals
 {
 	class DLL_EXPORT ExecuteHeroChain : public ElementarGoal<ExecuteHeroChain>
@@ -36,4 +38,6 @@ namespace Goals
 	private:
 		bool moveHeroToTile(const CGHeroInstance * hero, const int3 & tile);
 	};
+}
+
 }

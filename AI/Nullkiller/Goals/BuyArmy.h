@@ -11,6 +11,9 @@
 
 #include "CGoal.h"
 
+namespace NKAI
+{
+
 struct HeroPtr;
 class AIGateway;
 class FuzzyHelper;
@@ -39,4 +42,6 @@ namespace Goals
 
 		virtual void accept(AIGateway * ai) override;
 	};
+}
+
 }

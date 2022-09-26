@@ -15,6 +15,9 @@
 #include "../Behaviors/CaptureObjectsBehavior.h"
 
 
+namespace NKAI
+{
+
 extern boost::thread_specific_ptr<CCallback> cb;
 
 using namespace Goals;
@@ -37,4 +40,6 @@ std::string CaptureObject::toString() const
 TGoalVec CaptureObject::decompose() const
 {
 	return CaptureObjectsBehavior(cb->getObj(ObjectInstanceID(objid))).decompose();
+}
+
 }

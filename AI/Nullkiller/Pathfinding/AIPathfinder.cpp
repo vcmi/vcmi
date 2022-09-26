@@ -14,6 +14,9 @@
 #include "../../../lib/mapping/CMap.h"
 #include "../Engine/Nullkiller.h"
 
+namespace NKAI
+{
+
 AIPathfinder::AIPathfinder(CPlayerSpecificInfoCallback * cb, Nullkiller * ai)
 	:cb(cb), ai(ai)
 {
@@ -98,4 +101,6 @@ void AIPathfinder::updatePaths(std::map<const CGHeroInstance *, HeroRole> heroes
 	} while(storage->increaseHeroChainTurnLimit());
 
 	logAi->trace("Recalculated paths in %ld", timeElapsed(start));
+}
+
 }

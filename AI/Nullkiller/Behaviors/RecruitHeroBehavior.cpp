@@ -16,6 +16,9 @@
 #include "lib/mapping/CMap.h" //for victory conditions
 #include "lib/CPathfinder.h"
 
+namespace NKAI
+{
+
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<AIGateway> ai;
 
@@ -45,4 +48,6 @@ Goals::TGoalVec RecruitHeroBehavior::decompose() const
 	}
 
 	return tasks;
+}
+
 }

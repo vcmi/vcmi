@@ -13,6 +13,9 @@
 #include "../../../lib/mapObjects/MapObjects.h"
 #include "../../../lib/CHeroHandler.h"
 
+namespace NKAI
+{
+
 SecondarySkillEvaluator HeroManager::wariorSkillsScores = SecondarySkillEvaluator(
 	{
 		std::make_shared<SecondarySkillScoreMap>(
@@ -304,4 +307,6 @@ float SecondarySkillEvaluator::evaluateSecSkill(const CGHeroInstance * hero, Sec
 		rule->evaluateScore(hero, skill, score);
 
 	return score;
+}
+
 }

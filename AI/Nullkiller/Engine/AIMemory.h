@@ -12,6 +12,9 @@
 #include "../AIUtility.h"
 #include "../../../lib/mapObjects/MapObjects.h"
 
+namespace NKAI
+{
+
 class AIMemory
 {
 public:
@@ -29,3 +32,5 @@ public:
 	bool wasVisited(const CGObjectInstance * obj) const;
 	void removeInvisibleObjects(CCallback * cb);
 };
+
+}

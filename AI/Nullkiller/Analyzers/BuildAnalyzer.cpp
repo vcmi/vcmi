@@ -12,6 +12,9 @@
 #include "../../../lib/mapping/CMap.h" //for victory conditions
 #include "../Engine/Nullkiller.h"
 
+namespace NKAI
+{
+
 void BuildAnalyzer::updateTownDwellings(TownDevelopmentInfo & developmentInfo)
 {
 	auto townInfo = developmentInfo.town->town;
@@ -393,4 +396,6 @@ std::string BuildingInfo::toString() const
 		+ ", creature: " + std::to_string(creatureGrows) + " x " + std::to_string(creatureLevel)
 		+ " x " + creatureCost.toString()
 		+ ", daily: " + dailyIncome.toString();
+}
+
 }

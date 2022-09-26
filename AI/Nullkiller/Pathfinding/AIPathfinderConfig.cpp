@@ -15,6 +15,8 @@
 #include "Rules/AIPreviousNodeRule.h"
 #include "../Engine//Nullkiller.h"
 
+namespace NKAI
+{
 namespace AIPathfinding
 {
 	std::vector<std::shared_ptr<IPathfindingRule>> makeRuleset(
@@ -54,4 +56,6 @@ namespace AIPathfinding
 
 		return helper.get();
 	}
+}
+
 }

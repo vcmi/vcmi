@@ -746,6 +746,20 @@ namespace vstd
 		return false;
 	}
 
+	template <class M, class Key, class F>
+	typename M::mapped_type & getOrCompute(M & m, Key const & k, F f)
+	{
+		typedef typename M::mapped_type V;
+
+		std::pair<typename M::iterator, bool> r = m.insert(typename M::value_type(k, V()));
+		V & v = r.first->second;
+
+		if(r.second)
+			f(v);
+
+		return v;
+	}
+
 	using boost::math::round;
 }
 using vstd::operator-=;

@@ -19,6 +19,9 @@
 #include "../Analyzers/HeroManager.h"
 #include "../Analyzers/ObjectClusterizer.h"
 
+namespace NKAI
+{
+
 const float MAX_GOLD_PEASURE = 0.3f;
 const float MIN_PRIORITY = 0.01f;
 const float NEXT_SCAN_MIN_PRIORITY = 0.4f;
@@ -92,3 +95,5 @@ private:
 	Goals::TTask choseBestTask(Goals::TTaskVec & tasks) const;
 	void executeTask(Goals::TTask task);
 };
+
+}

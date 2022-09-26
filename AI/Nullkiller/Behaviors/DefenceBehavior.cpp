@@ -23,6 +23,9 @@
 #include "lib/mapping/CMap.h" //for victory conditions
 #include "lib/CPathfinder.h"
 
+namespace NKAI
+{
+
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<AIGateway> ai;
 
@@ -117,7 +120,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 					|| path.turn() < treat.turn - 1
 					|| (path.turn() < treat.turn && treat.turn >= 2))
 				{
-#if AI_TRACE_LEVEL >= 1
+#if NKAI_TRACE_LEVEL >= 1
 					logAi->trace(
 						"Hero %s can eliminate danger for town %s using path %s.",
 						path.targetHero->name,
@@ -148,7 +151,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 
 					if(cb->getHeroesInfo().size() < ALLOWED_ROAMING_HEROES)
 					{
-#if AI_TRACE_LEVEL >= 1
+#if NKAI_TRACE_LEVEL >= 1
 						logAi->trace("Hero %s can be recruited to defend %s", hero->name, town->name);
 #endif
 						tasks.push_back(Goals::sptr(Goals::RecruitHero(town, hero).setpriority(1)));
@@ -196,7 +199,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 		{
 			auto & path = paths[i];
 
-#if AI_TRACE_LEVEL >= 1
+#if NKAI_TRACE_LEVEL >= 1
 			logAi->trace(
 				"Hero %s can defend town with force %lld in %s turns, cost: %f, path: %s",
 				path.targetHero->name,
@@ -207,7 +210,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 #endif
 			if(path.turn() <= treat.turn - 2)
 			{
-#if AI_TRACE_LEVEL >= 1
+#if NKAI_TRACE_LEVEL >= 1
 				logAi->trace("Deffer defence of %s by %s because he has enough time to rich the town next trun",
 					town->name,
 					path.targetHero->name);
@@ -220,7 +223,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 
 			if(path.targetHero == town->visitingHero && path.exchangeCount == 1)
 			{
-#if AI_TRACE_LEVEL >= 1
+#if NKAI_TRACE_LEVEL >= 1
 				logAi->trace("Put %s to garrison of town %s",
 					path.targetHero->name,
 					town->name);
@@ -244,7 +247,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 			{
 				if(ai->nullkiller->arePathHeroesLocked(path))
 				{
-#if AI_TRACE_LEVEL >= 1
+#if NKAI_TRACE_LEVEL >= 1
 					logAi->trace("Can not move %s to defend town %s. Path is locked.",
 						path.targetHero->name,
 						town->name);
@@ -272,7 +275,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 				}
 			}
 
-#if AI_TRACE_LEVEL >= 1
+#if NKAI_TRACE_LEVEL >= 1
 			logAi->trace("Move %s to defend town %s",
 				path.targetHero->name,
 				town->name);
@@ -286,13 +289,13 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 			{
 				auto subGoal = firstBlockedAction->decompose(path.targetHero);
 
-#if AI_TRACE_LEVEL >= 2
+#if NKAI_TRACE_LEVEL >= 2
 				logAi->trace("Decomposing special action %s returns %s", firstBlockedAction->toString(), subGoal->toString());
 #endif
 
 				if(subGoal->invalid())
 				{
-#if AI_TRACE_LEVEL >= 1
+#if NKAI_TRACE_LEVEL >= 1
 					logAi->trace("Path is invalid. Skipping");
 #endif
 					continue;
@@ -306,4 +309,6 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 	}
 
 	logAi->debug("Found %d tasks", tasks.size());
+}
+
 }

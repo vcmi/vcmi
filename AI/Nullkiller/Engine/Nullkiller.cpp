@@ -21,12 +21,15 @@
 #include "../Goals/Invalid.h"
 #include "../Goals/Composition.h"
 
+namespace NKAI
+{
+
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<AIGateway> ai;
 
 using namespace Goals;
 
-#if AI_TRACE_LEVEL >= 1
+#if NKAI_TRACE_LEVEL >= 1
 #define MAXPASS 1000000
 #else
 #define MAXPASS 30
@@ -178,7 +181,7 @@ bool Nullkiller::arePathHeroesLocked(const AIPath & path) const
 {
 	if(getHeroLockedReason(path.targetHero) == HeroLockedReason::STARTUP)
 	{
-#if AI_TRACE_LEVEL >= 1
+#if NKAI_TRACE_LEVEL >= 1
 		logAi->trace("Hero %s is locked by STARTUP. Discarding %s", path.targetHero->name, path.toString());
 #endif
 		return true;
@@ -190,7 +193,7 @@ bool Nullkiller::arePathHeroesLocked(const AIPath & path) const
 
 		if(lockReason != HeroLockedReason::NOT_LOCKED)
 		{
-#if AI_TRACE_LEVEL >= 1
+#if NKAI_TRACE_LEVEL >= 1
 			logAi->trace("Hero %s is locked by STARTUP. Discarding %s", path.targetHero->name, path.toString());
 #endif
 			return true;
@@ -325,4 +328,6 @@ TResources Nullkiller::getFreeResources() const
 void Nullkiller::lockResources(const TResources & res)
 {
 	lockedResources += res;
+}
+
 }

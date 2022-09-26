@@ -16,6 +16,9 @@
 #include "../../../lib/StringConstants.h"
 
 
+namespace NKAI
+{
+
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<AIGateway> ai;
 
@@ -42,4 +45,6 @@ void RecruitHero::accept(AIGateway * ai)
 	{
 		throw cannotFulfillGoalException("No town to recruit hero!");
 	}
+}
+
 }

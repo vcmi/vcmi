@@ -16,6 +16,8 @@
 #include "../../../../lib/mapping/CMap.h"
 #include "../../../../lib/mapObjects/MapObjects.h"
 
+namespace NKAI
+{
 namespace AIPathfinding
 {
 	class AIMovementAfterDestinationRule : public MovementAfterDestinationRule
@@ -65,4 +67,6 @@ namespace AIPathfinding
 			const PathfinderConfig * pathfinderConfig,
 			CPathfinderHelper * pathfinderHelper) const;
 	};
+}
+
 }

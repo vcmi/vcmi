@@ -20,6 +20,9 @@
 #include "lib/CPathfinder.h"
 #include "../Engine/Nullkiller.h"
 
+namespace NKAI
+{
+
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<AIGateway> ai;
 
@@ -220,4 +223,6 @@ Goals::TGoalVec StartupBehavior::decompose() const
 	}
 
 	return tasks;
+}
+
 }

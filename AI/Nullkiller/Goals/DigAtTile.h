@@ -11,6 +11,9 @@
 
 #include "CGoal.h"
 
+namespace NKAI
+{
+
 struct HeroPtr;
 class AIGateway;
 class FuzzyHelper;
@@ -35,4 +38,6 @@ namespace Goals
 	private:
 		//TSubgoal decomposeSingle() const override;
 	};
+}
+
 }

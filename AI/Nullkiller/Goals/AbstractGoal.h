@@ -15,6 +15,9 @@
 #include "../../../lib/CTownHandler.h"
 #include "../AIUtility.h"
 
+namespace NKAI
+{
+
 struct HeroPtr;
 class AIGateway;
 class FuzzyHelper;
@@ -171,8 +174,8 @@ class cannotFulfillGoalException : public std::exception
 	std::string msg;
 
 public:
-	explicit cannotFulfillGoalException(crstring _Message)
-		: msg(_Message)
+	explicit cannotFulfillGoalException(const std::string  & message)
+		: msg(message)
 	{
 	}
 
@@ -208,3 +211,5 @@ public:
 		return msg.c_str();
 	}
 };
+
+}
