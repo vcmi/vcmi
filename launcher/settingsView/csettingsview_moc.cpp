@@ -57,7 +57,6 @@ void CSettingsView::setDisplayList()
 	else
 	{
 		int displayIndex = settings["video"]["displayIndex"].Integer();
-		ui->comboBoxDisplayIndex->clear();
 		ui->comboBoxDisplayIndex->addItems(list);
 		ui->comboBoxDisplayIndex->setCurrentIndex(displayIndex);
 	}
