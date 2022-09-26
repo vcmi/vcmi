@@ -101,7 +101,7 @@ CSoundHandler::CSoundHandler():
 	};
 	
 	//predefine terrain set
-	//TODO: need refactoring - support custom sounds for new terrains and load from json
+	//TODO: support custom sounds for new terrains and load from json
 	horseSounds =
 	{
 		{Terrain::DIRT, soundBase::horseDirt},
