@@ -206,6 +206,8 @@ void CModList::resetRepositories()
 
 void CModList::addRepository(QVariantMap data)
 {
+	for(auto & key : data.keys())
+		data[key.toLower()] = data.take(key);
 	repositories.push_back(copyField(data, "version", "latestVersion"));
 }
 
@@ -231,11 +233,7 @@ static QVariant getValue(QVariant input, QString path)
 		QString remainder = "/" + path.section('/', 2, -1);
 
 		entryName.remove(0, 1);
-		QMap<QString, QString> keyNormalize;
-		for(auto & key : input.toMap().keys())
-			keyNormalize[key.toLower()] = key;
-
-		return getValue(input.toMap().value(keyNormalize[entryName]), remainder);
+		return getValue(input.toMap().value(entryName), remainder);
 	}
 	else
 	{
