@@ -562,9 +562,15 @@ void CSystemOptionsWindow::selectGameRes()
 	std::vector<std::string> items;
 	const JsonNode & texts = CGI->generaltexth->localizedTexts["systemOptions"]["resolutionMenu"];
 
+	SDL_Rect displayBounds;
+	SDL_GetDisplayBounds(std::max(0, SDL_GetWindowDisplayIndex(mainWindow)), &displayBounds);
+
 	for(const auto & it : conf.guiOptions)
 	{
 		const auto & resolution = it.first;
+		if(displayBounds.w < resolution.first || displayBounds.h < resolution.second)
+			continue;
+
 		std::string resX = boost::lexical_cast<std::string>(resolution.first);
 		std::string resY = boost::lexical_cast<std::string>(resolution.second);
 		items.push_back(resX + 'x' + resY);
