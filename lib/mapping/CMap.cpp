@@ -128,7 +128,7 @@ TerrainTile::TerrainTile():
 	terView(0),
 	riverType(const_cast<RiverType*>(&VLC->terrainTypeHandler->rivers()[0])),
 	riverDir(0),
-	roadType(VLC->terrainTypeHandler->roads()[0]),
+	roadType(const_cast<RoadType*>(&VLC->terrainTypeHandler->roads()[0])),
 	roadDir(0),
 	extTileFlags(0),
 	visitable(false),

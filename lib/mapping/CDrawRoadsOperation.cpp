@@ -336,7 +336,7 @@ std::string CDrawRiversOperation::getLabel() const
 
 void CDrawRoadsOperation::executeTile(TerrainTile & tile)
 {
-	tile.roadType = VLC->terrainTypeHandler->roads()[roadType];
+	tile.roadType = const_cast<RoadType*>(&VLC->terrainTypeHandler->roads()[roadType]);
 }
 
 void CDrawRiversOperation::executeTile(TerrainTile & tile)

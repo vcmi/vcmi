@@ -119,6 +119,8 @@ public:
 
 	RoadType(const std::string & fileName = "", const std::string& code = "", TRoadId id = Road::NO_ROAD);
 
+	RoadType& operator=(const RoadType & other);
+
 	template <typename Handler> void serialize(Handler& h, const int version)
 	{
 		h & fileName;
@@ -135,7 +137,7 @@ class DLL_LINKAGE TerrainTypeHandler //TODO: public IHandlerBase ?
 public:
 
 	TerrainTypeHandler();
-	~TerrainTypeHandler();
+	~TerrainTypeHandler() {};
 
 	const std::vector<TerrainType> & terrains() const;
 	const TerrainType * getInfoByName(const std::string & terrainName) const;
@@ -147,7 +149,7 @@ public:
 	const RiverType * getRiverByCode(const std::string & riverCode) const;
 	const RiverType * getRiverById(TRiverId id) const;
 
-	const std::vector<RoadType *> & roads() const;
+	const std::vector<RoadType> & roads() const;
 	const RoadType * getRoadByName(const std::string & roadName) const;
 	const RoadType * getRoadByCode(const std::string & roadCode) const;
 	const RoadType * getRoadById(TRoadId id) const;
@@ -170,7 +172,7 @@ private:
 
 	std::vector<TerrainType> objects;
 	std::vector<RiverType> riverTypes;
-	std::vector<RoadType *> roadTypes;
+	std::vector<RoadType> roadTypes;
 
 	std::unordered_map<std::string, const TerrainType*> terrainInfoByName;
 	std::unordered_map<std::string, const TerrainType*> terrainInfoByCode;

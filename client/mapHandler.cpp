@@ -172,7 +172,7 @@ void CMapHandler::initTerrainGraphics()
 		}
 	};
 	
-	//TODO: use if as a key
+	//TODO: use id as a key
 	std::map<std::string, std::string> terrainFiles;
 	std::map<std::string, std::string> riverFiles;
 	std::map<std::string, std::string> roadFiles;
@@ -184,9 +184,9 @@ void CMapHandler::initTerrainGraphics()
 	{
 		riverFiles[river.fileName] = river.fileName;
 	}
-	for(const auto * road : VLC->terrainTypeHandler->roads())
+	for(const auto & road : VLC->terrainTypeHandler->roads())
 	{
-		roadFiles[road->fileName] = road->fileName;
+		roadFiles[road.fileName] = road.fileName;
 	}
 	
 	loadFlipped(terrainAnimations, terrainImages, terrainFiles);

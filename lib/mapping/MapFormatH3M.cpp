@@ -939,7 +939,7 @@ void CMapLoaderH3M::readTerrain()
 				tile.terView = reader.readUInt8();
 				tile.riverType = const_cast<RiverType*>(&rivers[reader.readUInt8()]);
 				tile.riverDir = reader.readUInt8();
-				tile.roadType = roads[reader.readUInt8()];
+				tile.roadType = const_cast<RoadType*>(&roads[reader.readUInt8()]);
 				tile.roadDir = reader.readUInt8();
 				tile.extTileFlags = reader.readUInt8();
 				tile.blocked = ((!tile.terType->isPassable() || tile.terType->id == Terrain::BORDER ) ? true : false); //underground tiles are always blocked

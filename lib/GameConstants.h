@@ -859,6 +859,7 @@ namespace Road
 	enum ERoad : ui8
 	{
 		NO_ROAD = 0,
+		FIRST_REGULAR_ROAD = 1,
 		DIRT_ROAD = 1,
 		GRAVEL_ROAD = 2,
 		COBBLESTONE_ROAD = 3,
