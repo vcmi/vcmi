@@ -859,9 +859,6 @@ PlayerColor CStackInstance::getOwner() const
 
 void CStackInstance::deserializationFix()
 {
-	const CCreature *backup = type;
-	type = nullptr;
-		setType(backup);
 	const CArmedInstance *armyBackup = _armyObj;
 	_armyObj = nullptr;
 	setArmyObj(armyBackup);
