@@ -122,7 +122,7 @@ CSettingsView::~CSettingsView()
 }
 
 
-void CSettingsView::on_comboBoxResolution_currentIndexChanged(const QString & arg1)
+void CSettingsView::on_comboBoxResolution_currentTextChanged(const QString & arg1)
 {
 	QStringList list = arg1.split("x");
 
