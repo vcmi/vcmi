@@ -11,6 +11,8 @@
 #include "csettingsview_moc.h"
 #include "ui_csettingsview_moc.h"
 
+#include "../jsonutils.h"
+#include "../launcherdirs.h"
 #include "../updatedialog_moc.h"
 
 #include <QFileInfo>
@@ -53,22 +55,19 @@ void CSettingsView::setDisplayList()
 	{
 		ui->comboBoxDisplayIndex->hide();
 		ui->labelDisplayIndex->hide();
+		fillValidResolutionsForScreen(0);
 	}
 	else
 	{
 		int displayIndex = settings["video"]["displayIndex"].Integer();
 		ui->comboBoxDisplayIndex->addItems(list);
+		// calls fillValidResolutions() in slot
 		ui->comboBoxDisplayIndex->setCurrentIndex(displayIndex);
 	}
 }
 
 void CSettingsView::loadSettings()
 {
-	int resX = settings["video"]["screenRes"]["width"].Float();
-	int resY = settings["video"]["screenRes"]["height"].Float();
-	int resIndex = ui->comboBoxResolution->findText(QString("%1x%2").arg(resX).arg(resY));
-
-	ui->comboBoxResolution->setCurrentIndex(resIndex);
 	ui->comboBoxShowIntro->setCurrentIndex(settings["video"]["showIntro"].Bool());
 
 #ifdef Q_OS_IOS
@@ -105,6 +104,54 @@ void CSettingsView::loadSettings()
 	if(encodingIndex < ui->comboBoxEncoding->count())
 		ui->comboBoxEncoding->setCurrentIndex((int)encodingIndex);
 	ui->comboBoxAutoSave->setCurrentIndex(settings["general"]["saveFrequency"].Integer() > 0 ? 1 : 0);
+}
+
+void CSettingsView::fillValidResolutionsForScreen(int screenIndex)
+{
+	ui->comboBoxResolution->blockSignals(true); // avoid saving wrong resolution after adding first item from the list
+	ui->comboBoxResolution->clear();
+
+	// TODO: read available resolutions from all mods
+	const QLatin1String extrasResolutionsPath{"/vcmi-extras/Mods/extraResolutions/Content/config/resolutions.json"};
+	const auto extrasResolutionsJson = JsonUtils::JsonFromFile(CLauncherDirs::get().modsPath() + extrasResolutionsPath);
+	const auto resolutions = extrasResolutionsJson.toMap().value(QLatin1String{"GUISettings"}).toList();
+	if(resolutions.isEmpty())
+	{
+		ui->comboBoxResolution->blockSignals(false);
+		ui->comboBoxResolution->addItem(resolutionToString({800, 600}));
+		return;
+	}
+
+	const auto screens = qGuiApp->screens();
+	const auto currentScreen = screenIndex < screens.size() ? screens[screenIndex] : qGuiApp->primaryScreen();
+	const auto screenSize = currentScreen->size();
+	for(const auto & entry : resolutions)
+	{
+		const auto resolutionMap = entry.toMap().value(QLatin1String{"resolution"}).toMap();
+		if(resolutionMap.isEmpty())
+			continue;
+
+		const auto widthValue = resolutionMap[QLatin1String{"x"}];
+		const auto heightValue = resolutionMap[QLatin1String{"y"}];
+		if(!widthValue.isValid() || !heightValue.isValid())
+			continue;
+
+		const QSize resolution{widthValue.toInt(), heightValue.toInt()};
+		if(screenSize.width() < resolution.width() || screenSize.height() < resolution.height())
+			continue;
+		ui->comboBoxResolution->addItem(resolutionToString(resolution));
+	}
+
+	int resX = settings["video"]["screenRes"]["width"].Integer();
+	int resY = settings["video"]["screenRes"]["height"].Integer();
+	int resIndex = ui->comboBoxResolution->findText(resolutionToString({resX, resY}));
+	ui->comboBoxResolution->setCurrentIndex(resIndex);
+
+	ui->comboBoxResolution->blockSignals(false);
+
+	// if selected resolution no longer exists, force update value to the first resolution
+	if(resIndex == -1)
+		ui->comboBoxResolution->setCurrentIndex(0);
 }
 
 CSettingsView::CSettingsView(QWidget * parent)
@@ -152,6 +199,8 @@ void CSettingsView::on_comboBoxDisplayIndex_currentIndexChanged(int index)
 {
 	Settings node = settings.write["video"];
 	node["displayIndex"].Float() = index;
+
+	fillValidResolutionsForScreen(index);
 }
 
 void CSettingsView::on_comboBoxPlayerAI_currentIndexChanged(const QString & arg1)

@@ -67,4 +67,6 @@ private slots:
 
 private:
 	Ui::CSettingsView * ui;
+
+	void fillValidResolutionsForScreen(int screenIndex);
 };
