@@ -95,7 +95,7 @@ void CDrawTerrainOperation::execute()
 	for(const auto & pos : terrainSel.getSelectedItems())
 	{
 		auto & tile = map->getTile(pos);
-		tile.terType = VLC->terrainTypeHandler->terrains()[terType];
+		tile.terType = const_cast<TerrainType*>(&VLC->terrainTypeHandler->terrains()[terType]);
 		invalidateTerrainViews(pos);
 	}
 

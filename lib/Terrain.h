@@ -135,7 +135,7 @@ public:
 	TerrainTypeHandler();
 	~TerrainTypeHandler();
 
-	const std::vector<TerrainType *> & terrains() const;
+	const std::vector<TerrainType> & terrains() const;
 	const TerrainType * getInfoByName(const std::string & terrainName) const;
 	const TerrainType * getInfoByCode(const std::string & terrainCode) const;
 	const TerrainType * getInfoById(TTerrainId id) const;
@@ -166,7 +166,7 @@ public:
 
 private:
 
-	std::vector<TerrainType *> objects;
+	std::vector<TerrainType> objects;
 	std::vector<RiverType *> riverTypes;
 	std::vector<RoadType *> roadTypes;
 

@@ -176,9 +176,9 @@ void CMapHandler::initTerrainGraphics()
 	std::map<std::string, std::string> terrainFiles;
 	std::map<std::string, std::string> riverFiles;
 	std::map<std::string, std::string> roadFiles;
-	for(const auto * terrain : VLC->terrainTypeHandler->terrains())
+	for(const auto & terrain : VLC->terrainTypeHandler->terrains())
 	{
-		terrainFiles[terrain->name] = terrain->tilesFilename;
+		terrainFiles[terrain.name] = terrain.tilesFilename;
 	}
 	for(const auto * river : VLC->terrainTypeHandler->rivers())
 	{

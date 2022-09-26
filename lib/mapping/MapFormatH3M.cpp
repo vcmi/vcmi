@@ -921,9 +921,9 @@ bool CMapLoaderH3M::loadArtifactToSlot(CGHeroInstance * hero, int slot)
 void CMapLoaderH3M::readTerrain()
 {
 	map->initTerrain();
-	const auto terrains = VLC->terrainTypeHandler->terrains();
-	const auto rivers = VLC->terrainTypeHandler->rivers();
-	const auto roads = VLC->terrainTypeHandler->roads();
+	const auto & terrains = VLC->terrainTypeHandler->terrains();
+	const auto & rivers = VLC->terrainTypeHandler->rivers();
+	const auto & roads = VLC->terrainTypeHandler->roads();
 
 	// Read terrain
 	int3 pos;
@@ -935,7 +935,7 @@ void CMapLoaderH3M::readTerrain()
 			for(pos.x = 0; pos.x < map->width; pos.x++)
 			{
 				auto & tile = map->getTile(pos);
-				tile.terType = terrains[reader.readUInt8()];
+				tile.terType = const_cast<TerrainType*>(&terrains[reader.readUInt8()]);
 				tile.terView = reader.readUInt8();
 				tile.riverType = rivers[reader.readUInt8()];
 				tile.riverDir = reader.readUInt8();

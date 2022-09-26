@@ -120,14 +120,14 @@ CSoundHandler::CSoundHandler():
 void CSoundHandler::loadHorseSounds()
 {
 	const auto & terrains = CGI->terrainTypeHandler->terrains();
-	for(const auto * terrain : terrains)
+	for(const auto & terrain : terrains)
 	{
 		//since all sounds are hardcoded, let's keep it
-		if(vstd::contains(horseSounds, terrain->id))
+		if(vstd::contains(horseSounds, terrain.id))
 			continue;
 
 		//Use already existing horse sound
-		horseSounds[terrain->id] = horseSounds.at(terrains[terrain->id]->horseSoundId);
+		horseSounds[terrain.id] = horseSounds.at(terrains[terrain.id].horseSoundId);
 	}
 }
 
@@ -376,9 +376,9 @@ CMusicHandler::CMusicHandler():
 
 void CMusicHandler::loadTerrainSounds()
 {
-	for (const auto * terrain : CGI->terrainTypeHandler->terrains())
+	for (const auto & terrain : CGI->terrainTypeHandler->terrains())
 	{
-		addEntryToSet("terrain", terrain->name, "Music/" + terrain->musicFilename);
+		addEntryToSet("terrain", terrain.name, "Music/" + terrain.musicFilename);
 	}
 }
 

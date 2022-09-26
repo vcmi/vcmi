@@ -117,9 +117,9 @@ void initTerrainType(Zone & zone, CMapGenerator & gen)
 	{
 		//collect all water terrain types
 		std::vector<TTerrainId> waterTerrains;
-		for(auto & terrain : VLC->terrainTypeHandler->terrains())
-			if(terrain->isWater())
-				waterTerrains.push_back(terrain->id);
+		for(const auto & terrain : VLC->terrainTypeHandler->terrains())
+			if(terrain.isWater())
+				waterTerrains.push_back(terrain.id);
 		
 		zone.setTerrainType(*RandomGeneratorUtil::nextItem(waterTerrains, gen.rand));
 	}
@@ -135,18 +135,18 @@ void initTerrainType(Zone & zone, CMapGenerator & gen)
 		}
 		
 		//Now, replace disallowed terrains on surface and in the underground
-		const auto* terrainType = VLC->terrainTypeHandler->terrains()[zone.getTerrainType()];
+		const auto & terrainType = VLC->terrainTypeHandler->terrains()[zone.getTerrainType()];
 
 		if(zone.isUnderground())
 		{
-			if(!terrainType->isUnderground())
+			if(!terrainType.isUnderground())
 			{
 				zone.setTerrainType(Terrain::SUBTERRANEAN);
 			}
 		}
 		else
 		{
-			if (!terrainType->isSurface())
+			if (!terrainType.isSurface())
 			{
 				zone.setTerrainType(Terrain::DIRT);
 			}

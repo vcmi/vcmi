@@ -2137,7 +2137,7 @@ int CreatureTerrainLimiter::limit(const BonusLimitationContext &context) const
 std::string CreatureTerrainLimiter::toString() const
 {
 	boost::format fmt("CreatureTerrainLimiter(terrainType=%s)");
-	auto terrainName = VLC->terrainTypeHandler->terrains()[terrainType]->name;
+	auto terrainName = VLC->terrainTypeHandler->terrains()[terrainType].name;
 	fmt % (terrainType == Terrain::NATIVE_TERRAIN ? "native" : terrainName);
 	return fmt.str();
 }
@@ -2147,7 +2147,7 @@ JsonNode CreatureTerrainLimiter::toJsonNode() const
 	JsonNode root(JsonNode::JsonType::DATA_STRUCT);
 
 	root["type"].String() = "CREATURE_TERRAIN_LIMITER";
-	auto terrainName = VLC->terrainTypeHandler->terrains()[terrainType]->name;
+	auto terrainName = VLC->terrainTypeHandler->terrains()[terrainType].name;
 	root["parameters"].Vector().push_back(JsonUtils::stringNode(terrainName));
 
 	return root;

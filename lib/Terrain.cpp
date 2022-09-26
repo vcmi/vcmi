@@ -31,10 +31,6 @@ TerrainTypeHandler::TerrainTypeHandler()
 
 TerrainTypeHandler::~TerrainTypeHandler()
 {
-	for (const auto * terrain : objects)
-	{
-		delete terrain;
-	}
 	for (const auto * river : riverTypes)
 	{
 		delete river;
@@ -49,7 +45,7 @@ void TerrainTypeHandler::initTerrains(const std::vector<std::string> & allConfig
 {
 	std::vector<std::function<void()>> resolveLater;
 
-	objects.resize(Terrain::ORIGINAL_TERRAIN_COUNT, nullptr); //make space for original terrains
+	objects.resize(Terrain::ORIGINAL_TERRAIN_COUNT); //make space for original terrains
 
 	for(auto & mod : allConfigs)
 	{
@@ -59,11 +55,11 @@ void TerrainTypeHandler::initTerrains(const std::vector<std::string> & allConfig
 		JsonNode terrs(mod, ResourceID("config/terrains.json"));
 		for(auto & terr : terrs.Struct())
 		{
-			auto * info = new TerrainType(terr.first); //set name
+			TerrainType info(terr.first); //set name
 
-			info->moveCost = terr.second["moveCost"].Integer();
+			info.moveCost = static_cast<int>(terr.second["moveCost"].Integer());
 			const JsonVector &unblockedVec = terr.second["minimapUnblocked"].Vector();
-			info->minimapUnblocked =
+			info.minimapUnblocked =
 			{
 				ui8(unblockedVec[0].Float()),
 				ui8(unblockedVec[1].Float()),
@@ -71,18 +67,18 @@ void TerrainTypeHandler::initTerrains(const std::vector<std::string> & allConfig
 			};
 			
 			const JsonVector &blockedVec = terr.second["minimapBlocked"].Vector();
-			info->minimapBlocked =
+			info.minimapBlocked =
 			{
 				ui8(blockedVec[0].Float()),
 				ui8(blockedVec[1].Float()),
 				ui8(blockedVec[2].Float())
 			};
-			info->musicFilename = terr.second["music"].String();
-			info->tilesFilename = terr.second["tiles"].String();
+			info.musicFilename = terr.second["music"].String();
+			info.tilesFilename = terr.second["tiles"].String();
 			
 			if(terr.second["type"].isNull())
 			{
-				info->passabilityType = TerrainType::PassabilityType::LAND | TerrainType::PassabilityType::SURFACE;
+				info.passabilityType = TerrainType::PassabilityType::LAND | TerrainType::PassabilityType::SURFACE;
 			}
 			else if (terr.second["type"].getType() == JsonNode::JsonType::DATA_VECTOR)
 			{
@@ -90,122 +86,125 @@ void TerrainTypeHandler::initTerrains(const std::vector<std::string> & allConfig
 				{
 					//Set bits
 					auto s = node.String();
-					if (s == "LAND") info->passabilityType |= TerrainType::PassabilityType::LAND;
-					if (s == "WATER") info->passabilityType |= TerrainType::PassabilityType::WATER;
-					if (s == "ROCK") info->passabilityType |= TerrainType::PassabilityType::ROCK;
-					if (s == "SURFACE") info->passabilityType |= TerrainType::PassabilityType::SURFACE;
-					if (s == "SUB") info->passabilityType |= TerrainType::PassabilityType::SUBTERRANEAN;
+					if (s == "LAND") info.passabilityType |= TerrainType::PassabilityType::LAND;
+					if (s == "WATER") info.passabilityType |= TerrainType::PassabilityType::WATER;
+					if (s == "ROCK") info.passabilityType |= TerrainType::PassabilityType::ROCK;
+					if (s == "SURFACE") info.passabilityType |= TerrainType::PassabilityType::SURFACE;
+					if (s == "SUB") info.passabilityType |= TerrainType::PassabilityType::SUBTERRANEAN;
 				}
 			}
 			else  //should be string - one option only
 			{
 				auto s = terr.second["type"].String();
-				if (s == "LAND") info->passabilityType = TerrainType::PassabilityType::LAND;
-				if (s == "WATER") info->passabilityType = TerrainType::PassabilityType::WATER;
-				if (s == "ROCK") info->passabilityType = TerrainType::PassabilityType::ROCK;
-				if (s == "SURFACE") info->passabilityType = TerrainType::PassabilityType::SURFACE;
-				if (s == "SUB") info->passabilityType = TerrainType::PassabilityType::SUBTERRANEAN;
-			}
-			
-			if(terr.second["rockTerrain"].isNull())
-			{
-				info->rockTerrain = Terrain::ROCK;
-			}
-			else
-			{
-				auto rockTerrainName = terr.second["rockTerrain"].String();
-				resolveLater.push_back([this, rockTerrainName, info]()
-				{
-						info->rockTerrain = getInfoByName(rockTerrainName)->id;
-				});
+				if (s == "LAND") info.passabilityType = TerrainType::PassabilityType::LAND;
+				if (s == "WATER") info.passabilityType = TerrainType::PassabilityType::WATER;
+				if (s == "ROCK") info.passabilityType = TerrainType::PassabilityType::ROCK;
+				if (s == "SURFACE") info.passabilityType = TerrainType::PassabilityType::SURFACE;
+				if (s == "SUB") info.passabilityType = TerrainType::PassabilityType::SUBTERRANEAN;
 			}
 			
 			if(terr.second["river"].isNull())
 			{
-				info->river = River::NO_RIVER;
+				info.river = River::NO_RIVER;
 			}
 			else
 			{
-				info->river = getRiverByCode(terr.second["river"].String())->id;
+				info.river = getRiverByCode(terr.second["river"].String())->id;
 			}
 			
 			if(terr.second["horseSoundId"].isNull())
 			{
-				info->horseSoundId = Terrain::ROCK; //rock sound as default
+				info.horseSoundId = Terrain::ROCK; //rock sound as default
 			}
 			else
 			{
-				info->horseSoundId = terr.second["horseSoundId"].Float();
+				info.horseSoundId = static_cast<int>(terr.second["horseSoundId"].Float());
 			}
 			
 			if(!terr.second["text"].isNull())
 			{
-				info->terrainText = terr.second["text"].String();
+				info.terrainText = terr.second["text"].String();
 			}
 			
 			if(terr.second["code"].isNull())
 			{
-				info->typeCode = terr.first.substr(0, 2);
+				info.typeCode = terr.first.substr(0, 2);
 			}
 			else
 			{
-				info->typeCode = terr.second["code"].String();
-				assert(info->typeCode.length() == 2);
+				info.typeCode = terr.second["code"].String();
+				assert(info.typeCode.length() == 2);
 			}
 			
 			if(!terr.second["battleFields"].isNull())
 			{
 				for(auto & t : terr.second["battleFields"].Vector())
 				{
-					info->battleFields.emplace_back(t.String());
+					info.battleFields.emplace_back(t.String());
 				}
 			}
 			
+			info.transitionRequired = false;
+			if(!terr.second["transitionRequired"].isNull())
+			{
+				info.transitionRequired = terr.second["transitionRequired"].Bool();
+			}
+			
+			info.terrainViewPatterns = "normal";
+			if(!terr.second["terrainViewPatterns"].isNull())
+			{
+				info.terrainViewPatterns = terr.second["terrainViewPatterns"].String();
+			}
+
+			if(!terr.second["originalTerrainId"].isNull())
+			{
+				//place in reserved slot
+				info.id = (TTerrainId)(terr.second["originalTerrainId"].Float());
+				objects[info.id] = info;
+			}
+			else
+			{
+				//append at the end
+				info.id = static_cast<TTerrainId>(objects.size());
+				objects.push_back(info);
+			}
+			TTerrainId id = info.id;
+
+			//Update terrain with this id in the future, after all terrain types are populated
+
 			if(!terr.second["prohibitTransitions"].isNull())
 			{
 				for(auto & t : terr.second["prohibitTransitions"].Vector())
 				{
 					std::string prohibitedTerrainName = t.String();
-					resolveLater.push_back([this, prohibitedTerrainName, info]()
+					resolveLater.push_back([this, prohibitedTerrainName, id]()
 					{
-						info->prohibitTransitions.emplace_back(getInfoByName(prohibitedTerrainName)->id);
+						//FIXME: is that reference to the element in vector?
+						objects[id].prohibitTransitions.emplace_back(getInfoByName(prohibitedTerrainName)->id);
 					});
 				}
 			}
-			
-			info->transitionRequired = false;
-			if(!terr.second["transitionRequired"].isNull())
-			{
-				info->transitionRequired = terr.second["transitionRequired"].Bool();
-			}
-			
-			info->terrainViewPatterns = "normal";
-			if(!terr.second["terrainViewPatterns"].isNull())
-			{
-				info->terrainViewPatterns = terr.second["terrainViewPatterns"].String();
-			}
 
-			TTerrainId id = Terrain::WRONG;
-			if(!terr.second["originalTerrainId"].isNull())
+			if(terr.second["rockTerrain"].isNull())
 			{
-				//place in reserved slot
-				id = (TTerrainId)(terr.second["originalTerrainId"].Float());
-				objects[id] = info;
+				objects[id].rockTerrain = Terrain::ROCK;
 			}
 			else
 			{
-				//append at the end
-				id = objects.size();
-				objects.push_back(info);
+				auto rockTerrainName = terr.second["rockTerrain"].String();
+				resolveLater.push_back([this, rockTerrainName, id]()
+				{
+					//FIXME: is that reference to the element in vector?
+						objects[id].rockTerrain = getInfoByName(rockTerrainName)->id;
+				});
 			}
-			info->id = id;
 		}
 	}
 
 	for (size_t i = Terrain::FIRST_REGULAR_TERRAIN; i < Terrain::ORIGINAL_TERRAIN_COUNT; i++)
 	{
 		//Make sure that original terrains are loaded
-		assert(objects(i));
+		assert(objects(i).id != Terrain::WRONG);
 	}
 
 	recreateTerrainMaps();
@@ -243,7 +242,7 @@ void TerrainTypeHandler::initRivers(const std::vector<std::string> & allConfigs)
 			}
 			else
 			{
-				info->id = riverTypes.size();
+				info->id = static_cast<TRiverId>(riverTypes.size());
 				riverTypes.push_back(info);
 			}
 		}
@@ -278,7 +277,7 @@ void TerrainTypeHandler::initRoads(const std::vector<std::string> & allConfigs)
 			}
 			else
 			{
-				info->id = roadTypes.size();
+				info->id = static_cast<TRoadId>(roadTypes.size());
 				roadTypes.push_back(info);
 			}
 		}
@@ -289,8 +288,12 @@ void TerrainTypeHandler::initRoads(const std::vector<std::string> & allConfigs)
 
 void TerrainTypeHandler::recreateTerrainMaps()
 {
-	for (const TerrainType * terrainInfo : objects)
+	//This assumes the vector will never be updated or reallocated in the future
+
+	for (size_t i = 0; i < objects.size(); i++)
 	{
+		const auto * terrainInfo = &objects[i];
+
 		terrainInfoByName[terrainInfo->name] = terrainInfo;
 		terrainInfoByCode[terrainInfo->typeCode] = terrainInfo;
 		terrainInfoById[terrainInfo->id] = terrainInfo;
@@ -323,8 +326,9 @@ void TerrainTypeHandler::recreateRoadMaps()
 	}
 }
 
-const std::vector<TerrainType *> & TerrainTypeHandler::terrains() const
+const std::vector<TerrainType> & TerrainTypeHandler::terrains() const
 {
+	//FIXME: somehow make it non-copyable? Pointers must point t original data and not its copy
 	return objects;
 }
 
@@ -394,10 +398,13 @@ TerrainType::operator std::string() const
 }
 	
 TerrainType::TerrainType(const std::string& _name):
+	minimapBlocked({0,0,0}), //black
+	minimapUnblocked({ 128,128,128 }), //grey
 	name(_name),
+	river(River::NO_RIVER),
 	id(Terrain::WRONG),
 	rockTerrain(Terrain::ROCK),
-	moveCost(100),
+	moveCost(GameConstants::BASE_MOVEMENT_COST),
 	horseSoundId(0),
 	passabilityType(0),
 	transitionRequired(false)
@@ -406,8 +413,25 @@ TerrainType::TerrainType(const std::string& _name):
 
 TerrainType& TerrainType::operator=(const TerrainType & other)
 {
-	//TODO
+	battleFields = other.battleFields;
+	prohibitTransitions = other.prohibitTransitions;
+	minimapBlocked = other.minimapBlocked;
+	minimapUnblocked = other.minimapUnblocked;
 	name = other.name;
+	musicFilename = other.musicFilename;
+	tilesFilename = other.tilesFilename;
+	terrainText = other.terrainText;
+	typeCode = other.typeCode;
+	terrainViewPatterns = other.terrainViewPatterns;
+	rockTerrain = other.rockTerrain;
+	river = other.river;
+
+	id = other.id;
+	moveCost = other.moveCost;
+	horseSoundId = other.horseSoundId;
+	passabilityType = other.passabilityType;
+	transitionRequired = other.transitionRequired;
+
 	return *this;
 }
 	
@@ -466,6 +490,7 @@ RiverType::RiverType(const std::string & fileName, const std::string & code, TRi
 RoadType::RoadType(const std::string& fileName, const std::string& code, TRoadId id):
 	fileName(fileName),
 	code(code),
-	id(id)
+	id(id),
+	movementCost(GameConstants::BASE_MOVEMENT_COST)
 {
 }

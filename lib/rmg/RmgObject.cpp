@@ -108,7 +108,7 @@ void Object::Instance::setTemplate(const TTerrainId & terrain)
 	if(dObject.appearance->id == Obj::NO_OBJ)
 	{
 		auto templates = VLC->objtypeh->getHandlerFor(dObject.ID, dObject.subID)->getTemplates(terrain);
-		auto terrainName = VLC->terrainTypeHandler->terrains()[terrain]->name;
+		auto terrainName = VLC->terrainTypeHandler->terrains()[terrain].name;
 		if (templates.empty())
 		{
 			throw rmgException(boost::to_string(boost::format("Did not find graphics for object (%d,%d) at %s") %

@@ -73,7 +73,7 @@ public:
 	static std::string encode(const si32 index)
 	{
 		const auto& terrains = VLC->terrainTypeHandler->terrains();
-		return (index >=0 && index < terrains.size()) ? terrains[index]->name : "<INVALID TERRAIN>";
+		return (index >=0 && index < terrains.size()) ? terrains[index].name : "<INVALID TERRAIN>";
 	}
 };
 
@@ -150,9 +150,9 @@ ZoneOptions::ZoneOptions()
 	terrainTypeLikeZone(NO_ZONE),
 	treasureLikeZone(NO_ZONE)
 {
-	for(const auto * terr : VLC->terrainTypeHandler->terrains())
-		if(terr->isLand() && terr->isPassable())
-			terrainTypes.insert(terr->id);
+	for(const auto & terr : VLC->terrainTypeHandler->terrains())
+		if(terr.isLand() && terr.isPassable())
+			terrainTypes.insert(terr.id);
 }
 
 ZoneOptions & ZoneOptions::operator=(const ZoneOptions & other)

@@ -165,10 +165,10 @@ void ObjectTemplate::readTxt(CLegacyConfigParser & parser)
 	//assuming that object can be placed on other land terrains
 	if(allowedTerrains.size() >= 8 && !allowedTerrains.count(Terrain::WATER))
 	{
-		for(const auto * terrain : VLC->terrainTypeHandler->terrains())
+		for(const auto & terrain : VLC->terrainTypeHandler->terrains())
 		{
-			if(terrain->isLand() && terrain->isPassable())
-				allowedTerrains.insert(terrain->id);
+			if(terrain.isLand() && terrain.isPassable())
+				allowedTerrains.insert(terrain.id);
 		}
 	}
 
@@ -238,10 +238,10 @@ void ObjectTemplate::readMap(CBinaryReader & reader)
 	//assuming that object can be placed on other land terrains
 	if(allowedTerrains.size() >= 8 && !allowedTerrains.count(Terrain::WATER))
 	{
-		for(const auto * terrain : VLC->terrainTypeHandler->terrains())
+		for(const auto & terrain : VLC->terrainTypeHandler->terrains())
 		{
-			if(terrain->isLand() && terrain->isPassable())
-				allowedTerrains.insert(terrain->id);
+			if(terrain.isLand() && terrain.isPassable())
+				allowedTerrains.insert(terrain.id);
 		}
 	}
 
@@ -289,11 +289,11 @@ void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
 	}
 	else
 	{
-		for(const auto* terrain : VLC->terrainTypeHandler->terrains())
+		for(const auto & terrain : VLC->terrainTypeHandler->terrains())
 		{
-			if(!terrain->isPassable() || terrain->isWater())
+			if(!terrain.isPassable() || terrain.isWater())
 				continue;
-			allowedTerrains.insert(terrain->id);
+			allowedTerrains.insert(terrain.id);
 		}
 	}
 

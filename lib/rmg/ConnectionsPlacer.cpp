@@ -83,8 +83,8 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 	//1. Try to make direct connection
 	//Do if it's not prohibited by terrain settings
 	const auto& terrains = VLC->terrainTypeHandler->terrains();
-	bool directProhibited = vstd::contains(terrains[zone.getTerrainType()]->prohibitTransitions, otherZone->getTerrainType())
-						 || vstd::contains(terrains[otherZone->getTerrainType()]->prohibitTransitions, zone.getTerrainType());
+	bool directProhibited = vstd::contains(terrains[zone.getTerrainType()].prohibitTransitions, otherZone->getTerrainType())
+						 || vstd::contains(terrains[otherZone->getTerrainType()].prohibitTransitions, zone.getTerrainType());
 	auto directConnectionIterator = dNeighbourZones.find(otherZoneId);
 	if(!directProhibited && directConnectionIterator != dNeighbourZones.end())
 	{
