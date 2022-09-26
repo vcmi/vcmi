@@ -19,6 +19,14 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/VCMIDirs.h"
 
+namespace
+{
+QString resolutionToString(const QSize & resolution)
+{
+	return QString{"%1x%2"}.arg(resolution.width()).arg(resolution.height());
+}
+}
+
 /// List of encoding which can be selected from Launcher.
 /// Note that it is possible to specify enconding manually in settings.json
 static const std::string knownEncodingsList[] = //TODO: remove hardcode
@@ -39,12 +47,7 @@ void CSettingsView::setDisplayList()
 	QStringList list;
 
 	for (const auto screen : QGuiApplication::screens())
-	{
-		QString string;
-		const auto & rect = screen->geometry();
-		QTextStream(&string) << screen->name() << " - " << rect.width() << "x" << rect.height();
-		list << string;
-	}
+		list << QString{"%1 - %2"}.arg(screen->name(), resolutionToString(screen->size()));
 
 	if(list.count() < 2)
 	{
@@ -79,15 +82,10 @@ void CSettingsView::loadSettings()
 	ui->checkBoxFullScreen->setChecked(settings["video"]["realFullscreen"].Bool());
 #endif
 
-	int friendlyAIIndex = ui->comboBoxFriendlyAI->findText(QString::fromUtf8(settings["server"]["friendlyAI"].String().c_str()));
-	int neutralAIIndex = ui->comboBoxNeutralAI->findText(QString::fromUtf8(settings["server"]["neutralAI"].String().c_str()));
-	int enemyAIIndex = ui->comboBoxEnemyAI->findText(QString::fromUtf8(settings["server"]["enemyAI"].String().c_str()));
-	int playerAIIndex = ui->comboBoxPlayerAI->findText(QString::fromUtf8(settings["server"]["playerAI"].String().c_str()));
-
-	ui->comboBoxFriendlyAI->setCurrentIndex(friendlyAIIndex);
-	ui->comboBoxNeutralAI->setCurrentIndex(neutralAIIndex);
-	ui->comboBoxEnemyAI->setCurrentIndex(enemyAIIndex);
-	ui->comboBoxPlayerAI->setCurrentIndex(playerAIIndex);
+	ui->comboBoxFriendlyAI->setCurrentText(QString::fromStdString(settings["server"]["friendlyAI"].String()));
+	ui->comboBoxNeutralAI->setCurrentText(QString::fromStdString(settings["server"]["neutralAI"].String()));
+	ui->comboBoxEnemyAI->setCurrentText(QString::fromStdString(settings["server"]["enemyAI"].String()));
+	ui->comboBoxPlayerAI->setCurrentText(QString::fromStdString(settings["server"]["playerAI"].String()));
 
 	ui->spinBoxNetworkPort->setValue(settings["server"]["port"].Integer());
 

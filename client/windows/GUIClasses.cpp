@@ -562,10 +562,11 @@ void CSystemOptionsWindow::selectGameRes()
 	std::vector<std::string> items;
 	const JsonNode & texts = CGI->generaltexth->localizedTexts["systemOptions"]["resolutionMenu"];
 
-	for( config::CConfigHandler::GuiOptionsMap::value_type& value : conf.guiOptions)
+	for(const auto & it : conf.guiOptions)
 	{
-		std::string resX = boost::lexical_cast<std::string>(value.first.first);
-		std::string resY = boost::lexical_cast<std::string>(value.first.second);
+		const auto & resolution = it.first;
+		std::string resX = boost::lexical_cast<std::string>(resolution.first);
+		std::string resY = boost::lexical_cast<std::string>(resolution.second);
 		items.push_back(resX + 'x' + resY);
 	}
 

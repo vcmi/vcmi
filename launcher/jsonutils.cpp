@@ -16,7 +16,7 @@ static QVariantMap JsonToMap(const JsonMap & json)
 	QVariantMap map;
 	for(auto & entry : json)
 	{
-		map.insert(QString::fromUtf8(entry.first.c_str()), JsonUtils::toVariant(entry.second));
+		map.insert(QString::fromStdString(entry.first), JsonUtils::toVariant(entry.second));
 	}
 	return map;
 }
@@ -60,22 +60,16 @@ QVariant toVariant(const JsonNode & node)
 {
 	switch(node.getType())
 	{
-		break;
 	case JsonNode::JsonType::DATA_NULL:
 		return QVariant();
-		break;
 	case JsonNode::JsonType::DATA_BOOL:
 		return QVariant(node.Bool());
-		break;
 	case JsonNode::JsonType::DATA_FLOAT:
 		return QVariant(node.Float());
-		break;
 	case JsonNode::JsonType::DATA_STRING:
-		return QVariant(QString::fromUtf8(node.String().c_str()));
-		break;
+		return QVariant(QString::fromStdString(node.String()));
 	case JsonNode::JsonType::DATA_VECTOR:
 		return JsonToList(node.Vector());
-		break;
 	case JsonNode::JsonType::DATA_STRUCT:
 		return JsonToMap(node.Struct());
 	}
@@ -85,19 +79,15 @@ QVariant toVariant(const JsonNode & node)
 QVariant JsonFromFile(QString filename)
 {
 	QFile file(filename);
-	file.open(QFile::ReadOnly);
-	auto data = file.readAll();
+	if(!file.open(QFile::ReadOnly))
+	{
+		logGlobal->error("Failed to open file %s. Reason: %s", qUtf8Printable(filename), qUtf8Printable(file.errorString()));
+		return {};
+	}
 
-	if(data.size() == 0)
-	{
-		logGlobal->error("Failed to open file %s", filename.toUtf8().data());
-		return QVariant();
-	}
-	else
-	{
-		JsonNode node(data.data(), data.size());
-		return toVariant(node);
-	}
+	const auto data = file.readAll();
+	JsonNode node(data.data(), data.size());
+	return toVariant(node);
 }
 
 JsonNode toJson(QVariant object)

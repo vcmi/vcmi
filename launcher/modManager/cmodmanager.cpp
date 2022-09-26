@@ -291,7 +291,7 @@ bool CModManager::doInstallMod(QString modname, QString archivePath)
 
 bool CModManager::doUninstallMod(QString modname)
 {
-	ResourceID resID(std::string("Mods/") + modname.toUtf8().data(), EResType::DIRECTORY);
+	ResourceID resID(std::string("Mods/") + modname.toStdString(), EResType::DIRECTORY);
 	// Get location of the mod, in case-insensitive way
 	QString modDir = pathToQString(*CResourceHandler::get()->getResourceName(resID));
 
@@ -300,7 +300,7 @@ bool CModManager::doUninstallMod(QString modname)
 
 	QDir modFullDir(modDir);
 	if(!removeModDir(modDir))
-		return addError(modname, "Mod is located in protected directory, plase remove it manually:\n" + modFullDir.absolutePath());
+		return addError(modname, "Mod is located in protected directory, please remove it manually:\n" + modFullDir.absolutePath());
 
 	CResourceHandler::get("initial")->updateFilteredFiles([](const std::string &){ return true; });
 	loadMods();

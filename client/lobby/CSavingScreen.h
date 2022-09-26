@@ -27,7 +27,6 @@ public:
 	std::shared_ptr<CMapInfo> localMi;
 
 	CSavingScreen();
-	~CSavingScreen();
 
 	void changeSelection(std::shared_ptr<CMapInfo> to);
 	void saveGame();
