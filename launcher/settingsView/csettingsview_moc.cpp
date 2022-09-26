@@ -137,8 +137,10 @@ void CSettingsView::fillValidResolutionsForScreen(int screenIndex)
 			continue;
 
 		const QSize resolution{widthValue.toInt(), heightValue.toInt()};
+#ifndef VCMI_IOS
 		if(screenSize.width() < resolution.width() || screenSize.height() < resolution.height())
 			continue;
+#endif
 		ui->comboBoxResolution->addItem(resolutionToString(resolution));
 	}
 
