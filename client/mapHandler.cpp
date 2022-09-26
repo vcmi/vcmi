@@ -180,9 +180,9 @@ void CMapHandler::initTerrainGraphics()
 	{
 		terrainFiles[terrain.name] = terrain.tilesFilename;
 	}
-	for(const auto * river : VLC->terrainTypeHandler->rivers())
+	for(const auto & river : VLC->terrainTypeHandler->rivers())
 	{
-		riverFiles[river->fileName] = river->fileName;
+		riverFiles[river.fileName] = river.fileName;
 	}
 	for(const auto * road : VLC->terrainTypeHandler->roads())
 	{

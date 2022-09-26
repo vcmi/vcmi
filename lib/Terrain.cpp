@@ -31,10 +31,6 @@ TerrainTypeHandler::TerrainTypeHandler()
 
 TerrainTypeHandler::~TerrainTypeHandler()
 {
-	for (const auto * river : riverTypes)
-	{
-		delete river;
-	}
 	for (const auto * road : roadTypes)
 	{
 		delete road;
@@ -217,8 +213,8 @@ void TerrainTypeHandler::initTerrains(const std::vector<std::string> & allConfig
 
 void TerrainTypeHandler::initRivers(const std::vector<std::string> & allConfigs)
 {
-	riverTypes.resize(River::ORIGINAL_RIVER_COUNT, nullptr); //make space for original rivers
-	riverTypes[River::NO_RIVER] = new RiverType(); //default
+	riverTypes.resize(River::ORIGINAL_RIVER_COUNT); //make space for original rivers
+	//First object will be default
 
 	for (auto & mod : allConfigs)
 	{
@@ -228,21 +224,21 @@ void TerrainTypeHandler::initRivers(const std::vector<std::string> & allConfigs)
 		JsonNode rivs(mod, ResourceID("config/rivers.json"));
 		for (auto & river : rivs.Struct())
 		{
-			auto * info = new RiverType();
+			RiverType info;
 
-			info->fileName = river.second["animation"].String();
-			info->code = river.second["code"].String();
-			info->deltaName = river.second["delta"].String();
+			info.fileName = river.second["animation"].String();
+			info.code = river.second["code"].String();
+			info.deltaName = river.second["delta"].String();
 			//info->movementCost = river.second["moveCost"].Integer();
 
 			if (!river.second["originalRiverId"].isNull())
 			{
-				info->id = static_cast<TRiverId>(river.second["originalRiverId"].Float());
-				riverTypes[info->id] = info;
+				info.id = static_cast<TRiverId>(river.second["originalRiverId"].Float());
+				riverTypes[info.id] = info;
 			}
 			else
 			{
-				info->id = static_cast<TRiverId>(riverTypes.size());
+				info.id = static_cast<TRiverId>(riverTypes.size());
 				riverTypes.push_back(info);
 			}
 		}
@@ -302,10 +298,9 @@ void TerrainTypeHandler::recreateTerrainMaps()
 
 void TerrainTypeHandler::recreateRiverMaps()
 {
-	for (const RiverType * riverInfo : riverTypes)
+	for (size_t i = River::FIRST_REGULAR_RIVER ; i < riverTypes.size(); i++)
 	{
-		if (riverInfo->id == River::NO_RIVER)
-			continue;
+		const auto* riverInfo = &riverTypes[i];
 
 		riverInfoByName[riverInfo->fileName] = riverInfo;
 		riverInfoByCode[riverInfo->code] = riverInfo;
@@ -328,11 +323,11 @@ void TerrainTypeHandler::recreateRoadMaps()
 
 const std::vector<TerrainType> & TerrainTypeHandler::terrains() const
 {
-	//FIXME: somehow make it non-copyable? Pointers must point t original data and not its copy
+	//FIXME: somehow make it non-copyable? Pointers must point to original data and not its copy
 	return objects;
 }
 
-const std::vector<RiverType*>& TerrainTypeHandler::rivers() const
+const std::vector<RiverType>& TerrainTypeHandler::rivers() const
 {
 	return riverTypes;
 }
@@ -485,6 +480,16 @@ RiverType::RiverType(const std::string & fileName, const std::string & code, TRi
 	code(code),
 	id(id)
 {
+}
+
+RiverType& RiverType::operator=(const RiverType& other)
+{
+	fileName = other.fileName;
+	code = other.code;
+	deltaName = other.deltaName;
+	id = other.id;
+
+	return *this;
 }
 
 RoadType::RoadType(const std::string& fileName, const std::string& code, TRoadId id):

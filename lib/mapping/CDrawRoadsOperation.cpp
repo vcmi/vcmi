@@ -341,7 +341,7 @@ void CDrawRoadsOperation::executeTile(TerrainTile & tile)
 
 void CDrawRiversOperation::executeTile(TerrainTile & tile)
 {
-	tile.riverType = VLC->terrainTypeHandler->rivers()[riverType];
+	tile.riverType = const_cast<RiverType*>(&VLC->terrainTypeHandler->rivers()[riverType]);
 }
 
 bool CDrawRoadsOperation::canApplyPattern(const LinePattern & pattern) const

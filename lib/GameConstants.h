@@ -871,6 +871,7 @@ namespace River
 	enum ERiver : ui8
 	{
 		NO_RIVER = 0,
+		FIRST_REGULAR_RIVER = 1,
 		WATER_RIVER = 1,
 		ICY_RIVER = 2,
 		MUD_RIVER = 3,

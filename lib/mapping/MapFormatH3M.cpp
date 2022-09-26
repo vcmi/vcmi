@@ -937,7 +937,7 @@ void CMapLoaderH3M::readTerrain()
 				auto & tile = map->getTile(pos);
 				tile.terType = const_cast<TerrainType*>(&terrains[reader.readUInt8()]);
 				tile.terView = reader.readUInt8();
-				tile.riverType = rivers[reader.readUInt8()];
+				tile.riverType = const_cast<RiverType*>(&rivers[reader.readUInt8()]);
 				tile.riverDir = reader.readUInt8();
 				tile.roadType = roads[reader.readUInt8()];
 				tile.roadDir = reader.readUInt8();

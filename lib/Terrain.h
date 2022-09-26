@@ -49,7 +49,7 @@ public:
 	
 	TerrainType(const std::string & name = "");
 
-	TerrainType& operator=(const TerrainType & _type);
+	TerrainType& operator=(const TerrainType & other);
 	
 	bool operator==(const TerrainType & other);
 	bool operator!=(const TerrainType & other);
@@ -98,6 +98,8 @@ public:
 
 	RiverType(const std::string & fileName = "", const std::string & code = "", TRiverId id = River::NO_RIVER);
 
+	RiverType& operator=(const RiverType & other);
+
 	template <typename Handler> void serialize(Handler& h, const int version)
 	{
 		h & fileName;
@@ -140,7 +142,7 @@ public:
 	const TerrainType * getInfoByCode(const std::string & terrainCode) const;
 	const TerrainType * getInfoById(TTerrainId id) const;
 
-	const std::vector<RiverType *> & rivers() const;
+	const std::vector<RiverType> & rivers() const;
 	const RiverType * getRiverByName(const std::string & riverName) const;
 	const RiverType * getRiverByCode(const std::string & riverCode) const;
 	const RiverType * getRiverById(TRiverId id) const;
@@ -167,7 +169,7 @@ public:
 private:
 
 	std::vector<TerrainType> objects;
-	std::vector<RiverType *> riverTypes;
+	std::vector<RiverType> riverTypes;
 	std::vector<RoadType *> roadTypes;
 
 	std::unordered_map<std::string, const TerrainType*> terrainInfoByName;
