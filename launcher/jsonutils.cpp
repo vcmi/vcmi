@@ -66,6 +66,8 @@ QVariant toVariant(const JsonNode & node)
 		return QVariant(node.Bool());
 	case JsonNode::JsonType::DATA_FLOAT:
 		return QVariant(node.Float());
+	case JsonNode::JsonType::DATA_INTEGER:
+		return QVariant{static_cast<qlonglong>(node.Integer())};
 	case JsonNode::JsonType::DATA_STRING:
 		return QVariant(QString::fromStdString(node.String()));
 	case JsonNode::JsonType::DATA_VECTOR:
@@ -102,6 +104,8 @@ JsonNode toJson(QVariant object)
 		ret.String() = object.toString().toUtf8().data();
 	else if(object.userType() == QMetaType::Bool)
 		ret.Bool() = object.toBool();
+	else if(object.canConvert<int>())
+		ret.Integer() = object.toInt();
 	else if(object.canConvert<double>())
 		ret.Float() = object.toFloat();
 
