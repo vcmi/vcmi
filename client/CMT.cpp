@@ -975,6 +975,7 @@ void playIntro()
 	}
 }
 
+#ifndef VCMI_IOS
 static bool checkVideoMode(int monitorIndex, int w, int h)
 {
 	//we only check that our desired window size fits on screen
@@ -996,6 +997,7 @@ static bool checkVideoMode(int monitorIndex, int w, int h)
 
 	return false;
 }
+#endif
 
 static void cleanupRenderer()
 {
