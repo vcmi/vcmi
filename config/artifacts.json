@@ -1940,7 +1940,7 @@
 			{
 				"type" : "HP_REGENERATION",
 				"val" : 50,
-				"valueType" : "PERCENT_TO_BASE",
+				"valueType" : "BASE_NUMBER",
 				"limiters" : [
 					"noneOf",
 					"IS_UNDEAD",
