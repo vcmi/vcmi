@@ -935,7 +935,9 @@ int main(int argc, char * argv[])
 	signal(SIGSEGV, handleLinuxSignal);
 #endif
 
+#ifndef VCMI_IOS
 	console = new CConsoleHandler();
+#endif
 	CBasicLogConfigurator logConfig(VCMIDirs::get().userLogsPath() / "VCMI_Server_log.txt", console);
 	logConfig.configureDefault();
 	logGlobal->info(SERVER_NAME);
