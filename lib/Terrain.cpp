@@ -501,3 +501,5 @@ RoadType& RoadType::operator=(const RoadType& other)
 
 	return *this;
 }
+
+VCMI_LIB_NAMESPACE_END
