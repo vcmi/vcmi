@@ -27,6 +27,8 @@
 #include "WaterAdopter.h"
 #include "RmgArea.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 void WaterProxy::process()
 {
 	for(auto & t : zone.area().getTilesVector())
@@ -358,3 +360,5 @@ char WaterProxy::dump(const int3 & t)
 	
 	return '~';
 }
+
+VCMI_LIB_NAMESPACE_END

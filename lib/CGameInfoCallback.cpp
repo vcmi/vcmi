@@ -21,6 +21,8 @@
 #include "mapping/CMap.h"
 #include "CPlayerState.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 //TODO make clean
 #define ERROR_VERBOSE_OR_NOT_RET_VAL_IF(cond, verbose, txt, retVal) do {if(cond){if(verbose)logGlobal->error("%s: %s",BOOST_CURRENT_FUNCTION, txt); return retVal;}} while(0)
 #define ERROR_RET_IF(cond, txt) do {if(cond){logGlobal->error("%s: %s", BOOST_CURRENT_FUNCTION, txt); return;}} while(0)
@@ -999,3 +1001,5 @@ bool CGameInfoCallback::isTeleportEntrancePassable(const CGTeleport * obj, Playe
 {
 	return obj && obj->isEntrance() && !isTeleportChannelImpassable(obj->channel, player);
 }
+
+VCMI_LIB_NAMESPACE_END

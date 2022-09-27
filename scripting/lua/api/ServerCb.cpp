@@ -15,6 +15,9 @@
 
 #include "../LuaStack.h"
 #include "../../../lib/NetPacks.h"
+
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace scripting
 {
 namespace api
@@ -100,3 +103,5 @@ int ServerCbProxy::apply(lua_State * L)
 
 }
 }
+
+VCMI_LIB_NAMESPACE_END

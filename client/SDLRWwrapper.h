@@ -9,7 +9,12 @@
  */
 #pragma once
 
-struct SDL_RWops;
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CInputStream;
+
+VCMI_LIB_NAMESPACE_END
+
+struct SDL_RWops;
 
 SDL_RWops* MakeSDLRWops(std::unique_ptr<CInputStream> in);

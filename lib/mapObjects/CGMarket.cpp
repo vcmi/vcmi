@@ -20,6 +20,8 @@
 #include "../CModHandler.h"
 #include "../CSkillHandler.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 ///helpers
 static void openWindow(const OpenWindow::EWindow type, const int id1, const int id2 = -1)
 {
@@ -339,3 +341,5 @@ void CGUniversity::onHeroVisit(const CGHeroInstance * h) const
 {
 	openWindow(OpenWindow::UNIVERSITY_WINDOW,id.getNum(),h->id.getNum());
 }
+
+VCMI_LIB_NAMESPACE_END

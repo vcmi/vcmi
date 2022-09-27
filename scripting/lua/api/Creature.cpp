@@ -17,6 +17,8 @@
 #include "../LuaCallWrapper.h"
 #include "../../../lib/HeroBonus.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace scripting
 {
 namespace api
@@ -60,3 +62,5 @@ const std::vector<CreatureProxy::CustomRegType> CreatureProxy::REGISTER_CUSTOM =
 
 }
 }
+
+VCMI_LIB_NAMESPACE_END

@@ -428,7 +428,9 @@ CMultiPlayers::CMultiPlayers(const std::string & firstPlayer, ESelectionScreen S
 	statusBar = CGStatusBar::create(std::make_shared<CPicture>(Rect(7, 381, 348, 18), 0)); //226, 472
 
 	inputNames[0]->setText(firstPlayer, true);
+#ifndef VCMI_IOS
 	inputNames[0]->giveFocus();
+#endif
 }
 
 void CMultiPlayers::onChange(std::string newText)
@@ -490,6 +492,7 @@ void CSimpleJoinScreen::connectToServer()
 {
 	textTitle->setText("Connecting...");
 	buttonOk->block(true);
+	CSDL_Ext::stopTextInput();
 
 	boost::thread(&CSimpleJoinScreen::connectThread, this, inputAddress->text, boost::lexical_cast<ui16>(inputPort->text));
 }

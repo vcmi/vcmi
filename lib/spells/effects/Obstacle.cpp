@@ -19,6 +19,8 @@
 #include "../../battle/CBattleInfoCallback.h"
 #include "../../serializer/JsonSerializeFormat.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 static const std::string EFFECT_NAME = "core:obstacle";
 
 namespace spells
@@ -340,3 +342,5 @@ void Obstacle::placeObstacles(ServerCallback * server, const Mechanics * m, cons
 
 }
 }
+
+VCMI_LIB_NAMESPACE_END

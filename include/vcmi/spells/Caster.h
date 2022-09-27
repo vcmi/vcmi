@@ -10,6 +10,8 @@
 
 #pragma once
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class PlayerColor;
 struct MetaString;
 class ServerCallback;
@@ -66,3 +68,5 @@ public:
 };
 
 }
+
+VCMI_LIB_NAMESPACE_END

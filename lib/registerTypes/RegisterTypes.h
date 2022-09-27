@@ -24,6 +24,8 @@
 #include "../battle/CObstacleInstance.h"
 #include "../CStack.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class BinarySerializer;
 class BinaryDeserializer;
 class CTypeList;
@@ -374,6 +376,7 @@ void registerTypesLobbyPacks(Serializer &s)
 	s.template registerType<CLobbyPackToPropagate, LobbyChangeHost>();
 	// Only server send
 	s.template registerType<CLobbyPackToPropagate, LobbyUpdateState>();
+	s.template registerType<CLobbyPackToPropagate, LobbyShowMessage>();
 
 	// For client with permissions
 	s.template registerType<CLobbyPackToServer, LobbyChangePlayerOption>();
@@ -408,3 +411,5 @@ extern template DLL_LINKAGE void registerTypes<CTypeList>(CTypeList & s);
 
 #endif
 
+
+VCMI_LIB_NAMESPACE_END

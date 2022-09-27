@@ -13,6 +13,8 @@
 
 #include "../registerTypes/RegisterTypes.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 extern template void registerTypes<BinaryDeserializer>(BinaryDeserializer & s);
 
 CLoadFile::CLoadFile(const boost::filesystem::path & fname, int minimalVersion)
@@ -101,3 +103,5 @@ void CLoadFile::checkMagicBytes(const std::string &text)
 	if(loaded != text)
 		throw std::runtime_error("Magic bytes doesn't match!");
 }
+
+VCMI_LIB_NAMESPACE_END

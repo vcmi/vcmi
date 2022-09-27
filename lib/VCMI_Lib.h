@@ -11,6 +11,8 @@
 
 #include <vcmi/Services.h>
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CConsoleHandler;
 class CArtHandler;
 class CHeroHandler;
@@ -152,3 +154,5 @@ extern DLL_LINKAGE LibClasses * VLC;
 DLL_LINKAGE void preinitDLL(CConsoleHandler * Console, bool onlyEssential = false);
 DLL_LINKAGE void loadDLLClasses(bool onlyEssential = false);
 
+
+VCMI_LIB_NAMESPACE_END

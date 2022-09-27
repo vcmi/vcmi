@@ -10,6 +10,8 @@
 
 #pragma once
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 struct MetaString;
 
 namespace battle
@@ -24,7 +26,7 @@ class Caster;
 class Spell;
 class Mechanics;
 class BattleCast;
-using Destination = ::battle::Destination;
+using Destination = battle::Destination;
 
 using Target = std::vector<Destination>;
 
@@ -67,3 +69,5 @@ public:
 };
 
 }
+
+VCMI_LIB_NAMESPACE_END

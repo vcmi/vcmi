@@ -14,6 +14,8 @@
 #include "CMapOperation.h"
 #include "Terrain.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CGObjectInstance;
 class CTerrainViewPatternConfig;
 struct TerrainViewPattern;
@@ -98,3 +100,5 @@ private:
 	CTerrainSelection terrainSel;
 	CObjectSelection objectSel;
 };
+
+VCMI_LIB_NAMESPACE_END

@@ -38,3 +38,5 @@ public:
 }
 
 
+
+VCMI_LIB_NAMESPACE_END

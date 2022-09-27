@@ -14,6 +14,7 @@
 #include "GameConstants.h"
 #include "JsonNode.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
 
 class DLL_LINKAGE TerrainType
 {
@@ -194,3 +195,5 @@ private:
 	void recreateRoadMaps();
 
 };
+
+VCMI_LIB_NAMESPACE_END

@@ -25,6 +25,8 @@
 #include "StringConstants.h"
 #include "battle/BattleInfo.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 #define FOREACH_PARENT(pname) 	TNodes lparents; getParents(lparents); for(CBonusSystemNode *pname : lparents)
 #define FOREACH_RED_CHILD(pname) 	TNodes lchildren; getRedChildren(lchildren); for(CBonusSystemNode *pname : lchildren)
 
@@ -2569,3 +2571,5 @@ std::shared_ptr<Bonus> OwnerUpdater::createUpdatedBonus(const std::shared_ptr<Bo
 	updated->limiter = std::make_shared<OppositeSideLimiter>(owner);
 	return updated;
 }
+
+VCMI_LIB_NAMESPACE_END

@@ -26,6 +26,8 @@
 
 #include "../serializer/JsonSerializeFormat.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 IGameCallback * IObjectInterface::cb = nullptr;
 
 ///helpers
@@ -524,3 +526,5 @@ const IShipyard * IShipyard::castFrom( const CGObjectInstance *obj )
 {
 	return castFrom(const_cast<CGObjectInstance*>(obj));
 }
+
+VCMI_LIB_NAMESPACE_END

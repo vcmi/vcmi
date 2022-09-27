@@ -19,6 +19,8 @@
 #include "../mapObjects/MapObjects.h" //needed to resolve templates for CommonConstructors.h
 #include "Functions.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 using namespace rmg;
 
 Object::Instance::Instance(const Object& parent, CGObjectInstance & object): dParent(parent), dObject(object)
@@ -330,3 +332,5 @@ void Object::clear()
 	dAccessibleAreaFullCache.clear();
 }
  
+
+VCMI_LIB_NAMESPACE_END

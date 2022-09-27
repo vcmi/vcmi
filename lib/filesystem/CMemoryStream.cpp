@@ -10,6 +10,8 @@
 #include "StdInc.h"
 #include "CMemoryStream.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 CMemoryStream::CMemoryStream(const ui8 * data, si64 size) :
 	data(data), size(size), position(0)
 {
@@ -47,3 +49,5 @@ si64 CMemoryStream::getSize()
 {
 	return size;
 }
+
+VCMI_LIB_NAMESPACE_END

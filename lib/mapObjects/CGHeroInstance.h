@@ -17,6 +17,8 @@
 #include "../CArtHandler.h" // For CArtifactSet
 #include "../CRandomGenerator.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CHero;
 class CGBoat;
 class CGTownInstance;
@@ -315,3 +317,5 @@ public:
 		BONUS_TREE_DESERIALIZATION_FIX
 	}
 };
+
+VCMI_LIB_NAMESPACE_END

@@ -11,6 +11,8 @@
 #pragma once
 #include "Zone.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class RockPlacer: public Modificator
 {
 public:
@@ -28,3 +30,5 @@ protected:
 	rmg::Area rockArea, accessibleArea;
 	TTerrainId rockTerrain;
 };
+
+VCMI_LIB_NAMESPACE_END

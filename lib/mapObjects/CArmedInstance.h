@@ -1,4 +1,4 @@
-﻿/*
+/*
  * CArmedInstance.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
@@ -11,6 +11,8 @@
 
 #include "CObjectHandler.h"
 #include "../CCreatureSet.h"
+
+VCMI_LIB_NAMESPACE_BEGIN
 
 class BattleInfo;
 class CGameState;
@@ -50,3 +52,5 @@ public:
 		h & static_cast<CCreatureSet&>(*this);
 	}
 };
+
+VCMI_LIB_NAMESPACE_END

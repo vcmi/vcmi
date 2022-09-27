@@ -14,10 +14,11 @@
 
 #include <boost/program_options.hpp>
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CMapInfo;
 
 struct CPackForLobby;
-class CGameHandler;
 struct SharedMemory;
 
 struct StartInfo;
@@ -26,6 +27,10 @@ struct PlayerSettings;
 class PlayerColor;
 
 template<typename T> class CApplier;
+
+VCMI_LIB_NAMESPACE_END
+
+class CGameHandler;
 class CBaseForServerApply;
 class CBaseForGHApply;
 
@@ -63,7 +68,7 @@ public:
 	CVCMIServer(boost::program_options::variables_map & opts);
 	~CVCMIServer();
 	void run();
-	void prepareToStartGame();
+	bool prepareToStartGame();
 	void startGameImmidiately();
 
 	void startAsyncAccept();
@@ -76,6 +81,7 @@ public:
 	bool passHost(int toConnectionId);
 
 	void announceTxt(const std::string & txt, const std::string & playerName = "system");
+	void announceMessage(const std::string & txt);
 	void addToAnnounceQueue(std::unique_ptr<CPackForLobby> pack);
 
 	void setPlayerConnectedId(PlayerSettings & pset, ui8 player) const;
@@ -103,5 +109,7 @@ public:
 
 #ifdef VCMI_ANDROID
 	static void create();
+#elif defined(SINGLE_PROCESS_APP)
+    static void create(boost::condition_variable * cond, const std::string & uuid);
 #endif
 };

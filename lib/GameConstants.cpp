@@ -37,6 +37,8 @@
 #include "BattleFieldHandler.h"
 #include "ObstacleHandler.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 const SlotID SlotID::COMMANDER_SLOT_PLACEHOLDER = SlotID(-2);
 const SlotID SlotID::SUMMONED_SLOT_PLACEHOLDER = SlotID(-3);
 const SlotID SlotID::WAR_MACHINES_SLOT = SlotID(-4);
@@ -322,3 +324,5 @@ Obstacle Obstacle::fromString(std::string identifier)
 	else
 		return Obstacle(-1);
 }
+
+VCMI_LIB_NAMESPACE_END

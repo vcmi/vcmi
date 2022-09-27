@@ -10,6 +10,8 @@
 
 #pragma once
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 
 namespace vstd
 {
@@ -45,3 +47,5 @@ namespace vstd
 		return ScopeGuard<Func>(std::forward<Func>(exitScope));
 	}
 }
+
+VCMI_LIB_NAMESPACE_END

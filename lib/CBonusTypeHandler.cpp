@@ -20,7 +20,9 @@
 #include "CCreatureHandler.h"
 #include "spells/CSpellHandler.h"
 
-template class std::vector<CBonusType>;
+template class std::vector<VCMI_LIB_WRAP_NAMESPACE(CBonusType)>;
+
+VCMI_LIB_NAMESPACE_BEGIN
 
 ///MacroString
 
@@ -326,3 +328,5 @@ void CBonusTypeHandler::loadItem(const JsonNode & source, CBonusType & dest)
 	}
 	dest.buildMacros();
 }
+
+VCMI_LIB_NAMESPACE_END

@@ -15,6 +15,8 @@
 
 #include "../../lib/NetPacks.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace events
 {
 
@@ -58,3 +60,5 @@ const battle::Unit * CApplyDamage::getTarget() const
 
 
 };
+
+VCMI_LIB_NAMESPACE_END

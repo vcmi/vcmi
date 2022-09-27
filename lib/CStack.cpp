@@ -19,6 +19,8 @@
 #include "spells/CSpellHandler.h"
 #include "NetPacks.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 
 ///CStack
 CStack::CStack(const CStackInstance * Base, PlayerColor O, int I, ui8 Side, SlotID S)
@@ -410,3 +412,5 @@ void CStack::spendMana(ServerCallback * server, const int spellCost) const
 	ssp.absolute = false;
 	server->apply(&ssp);
 }
+
+VCMI_LIB_NAMESPACE_END

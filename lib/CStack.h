@@ -18,6 +18,8 @@
 
 #include "battle/CUnitState.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 struct BattleStackAttacked;
 class BattleInfo;
 
@@ -139,3 +141,5 @@ public:
 private:
 	const BattleInfo * battle; //do not serialize
 };
+
+VCMI_LIB_NAMESPACE_END

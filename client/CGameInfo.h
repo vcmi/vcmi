@@ -13,30 +13,34 @@
 
 #include "../lib/ConstTransitivePtr.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CModHandler;
-class CMapHandler;
 class CHeroHandler;
 class CCreatureHandler;
 class CSpellHandler;
 class CSkillHandler;
 class CBuildingHandler;
 class CObjectHandler;
-class CSoundHandler;
-class CMusicHandler;
 class CObjectClassesHandler;
 class CTownHandler;
 class CGeneralTextHandler;
 class CConsoleHandler;
-class CCursorHandler;
 class CGameState;
-class IMainVideoPlayer;
-class CServerHandler;
 class BattleFieldHandler;
 class ObstacleHandler;
 class TerrainTypeHandler;
 
 class CMap;
 
+VCMI_LIB_NAMESPACE_END
+
+class CMapHandler;
+class CSoundHandler;
+class CMusicHandler;
+class CCursorHandler;
+class IMainVideoPlayer;
+class CServerHandler;
 
 //a class for non-mechanical client GUI classes
 class CClientState

@@ -11,13 +11,18 @@
 
 #include "../windows/CWindowObject.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
+class CArmedInstance;
+class CCreatureSet;
+class CStackInstance;
+
+VCMI_LIB_NAMESPACE_END
+
 class CGarrisonInt;
 class CButton;
-class CArmedInstance;
 class CAnimImage;
-class CCreatureSet;
 class CGarrisonSlot;
-class CStackInstance;
 class CLabel;
 
 /// A single garrison slot which holds one creature of a specific amount

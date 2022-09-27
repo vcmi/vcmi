@@ -130,7 +130,7 @@ add_library(Nullkiller SHARED ${Nullkiller_SRCS} ${Nullkiller_HEADERS})
 
 target_include_directories(Nullkiller PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(Nullkiller PRIVATE vcmi fuzzylite::fuzzylite)
+target_link_libraries(Nullkiller PRIVATE ${VCMI_LIB_TARGET} fuzzylite::fuzzylite)
 
 target_link_libraries(Nullkiller PRIVATE TBB::tbb)
 
@@ -138,3 +138,6 @@ vcmi_set_output_dir(Nullkiller "AI")
 enable_pch(Nullkiller)
 
 install(TARGETS Nullkiller RUNTIME DESTINATION ${AI_LIB_DIR} LIBRARY DESTINATION ${AI_LIB_DIR})
+if(APPLE_IOS)
+	install(IMPORTED_RUNTIME_ARTIFACTS TBB::tbb LIBRARY DESTINATION ${LIB_DIR}) # CMake 3.21+
+endif()

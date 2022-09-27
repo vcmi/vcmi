@@ -12,6 +12,8 @@
 
 #include "../JsonNode.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 //JsonSerializeHelper
 JsonSerializeHelper::JsonSerializeHelper(JsonSerializeHelper && other):
 	owner(other.owner),
@@ -151,3 +153,5 @@ void JsonSerializeFormat::serializeBool(const std::string & fieldName, bool & va
 {
 	serializeBool<bool>(fieldName, value, true, false, defaultValue);
 }
+
+VCMI_LIB_NAMESPACE_END

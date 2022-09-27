@@ -16,6 +16,8 @@
 #include "../LuaStack.h"
 #include "../LuaCallWrapper.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace scripting
 {
 namespace api
@@ -51,3 +53,5 @@ const std::vector<SpellProxy::CustomRegType> SpellProxy::REGISTER_CUSTOM =
 
 }
 }
+
+VCMI_LIB_NAMESPACE_END

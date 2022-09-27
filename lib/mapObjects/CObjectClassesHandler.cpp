@@ -24,6 +24,8 @@
 #include "CommonConstructors.h"
 #include "MapObjects.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 // FIXME: move into inheritNode?
 static void inheritNodeWithMeta(JsonNode & descendant, const JsonNode & base)
 {
@@ -634,3 +636,5 @@ bool AObjectTypeHandler::isStaticObject()
 void AObjectTypeHandler::afterLoadFinalization()
 {
 }
+
+VCMI_LIB_NAMESPACE_END

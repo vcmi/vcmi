@@ -12,6 +12,8 @@
 #include "ISimpleResourceLoader.h"
 #include "ResourceID.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CInputStream;
 class JsonNode;
 
@@ -95,3 +97,5 @@ public:
 	 */
 	bool removeLoader(ISimpleResourceLoader * loader);
 };
+
+VCMI_LIB_NAMESPACE_END

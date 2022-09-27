@@ -16,6 +16,8 @@
 #include "../Terrain.h"
 #include "CMapGenOptions.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class JsonSerializeFormat;
 
 namespace ETemplateZoneType
@@ -216,3 +218,5 @@ private:
 	void serializeSize(JsonSerializeFormat & handler, int3 & value, const std::string & fieldName);
 	void serializePlayers(JsonSerializeFormat & handler, CPlayerCountRange & value, const std::string & fieldName);
 };
+
+VCMI_LIB_NAMESPACE_END

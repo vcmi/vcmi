@@ -13,6 +13,8 @@
 #include "../JsonNode.h"
 #include "../HeroBonus.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 JsonUpdater::JsonUpdater(const IInstanceResolver * instanceResolver_, const JsonNode & root_)
 	: JsonTreeSerializer(instanceResolver_, &root_, false, true)
 {
@@ -307,3 +309,5 @@ void JsonUpdater::readLICPart(const JsonNode & part, const TDecoder & decoder, s
 	}
 }
 
+
+VCMI_LIB_NAMESPACE_END

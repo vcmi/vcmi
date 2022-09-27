@@ -12,6 +12,8 @@
 #include "ReachabilityInfo.h"
 #include "Unit.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 
 ReachabilityInfo::Parameters::Parameters()
 {
@@ -72,3 +74,5 @@ int ReachabilityInfo::distToNearestNeighbour(
 
 	return distToNearestNeighbour(attackableHexes, chosenHex);
 }
+
+VCMI_LIB_NAMESPACE_END

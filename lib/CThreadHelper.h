@@ -9,6 +9,8 @@
  */
 #pragma once
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 
 ///DEPRECATED
 /// Can assign CPU work to other threads/cores
@@ -81,3 +83,5 @@ private:
 
 
 void DLL_LINKAGE setThreadName(const std::string &name);
+
+VCMI_LIB_NAMESPACE_END

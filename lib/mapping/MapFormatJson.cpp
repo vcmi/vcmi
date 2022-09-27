@@ -30,6 +30,8 @@
 #include "../serializer/JsonDeserializer.h"
 #include "../serializer/JsonSerializer.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class MapObjectResolver: public IInstanceResolver
 {
 public:
@@ -1375,3 +1377,5 @@ void CMapSaverJson::writeObjects()
 	addToArchive(data, OBJECTS_FILE_NAME);
 }
 
+
+VCMI_LIB_NAMESPACE_END

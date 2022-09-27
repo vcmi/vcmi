@@ -12,6 +12,8 @@
 #include "ISimpleResourceLoader.h"
 #include "ResourceID.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CFileInputStream;
 
 /**
@@ -93,3 +95,5 @@ private:
 	/** Holds all entries of the archive file. An entry can be accessed via the entry name. **/
 	std::unordered_map<ResourceID, ArchiveEntry> entries;
 };
+
+VCMI_LIB_NAMESPACE_END

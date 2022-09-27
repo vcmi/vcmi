@@ -11,7 +11,11 @@
 #include <fl/Headers.h>
 #include "../Goals/AbstractGoal.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CArmedInstance;
+
+VCMI_LIB_NAMESPACE_END
 
 class engineBase //subclasses create fuzzylite variables with "new" that are not freed - this is desired as fl::Engine wants to destroy these...
 {

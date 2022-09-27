@@ -13,6 +13,8 @@
 #if SCRIPTING_ENABLED
 #include <vcmi/Environment.h>
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class Services;
 class JsonNode;
 class ServerCallback;
@@ -20,8 +22,8 @@ class ServerCallback;
 namespace scripting
 {
 
-using BattleCb = ::Environment::BattleCb;
-using GameCb = ::Environment::GameCb;
+using BattleCb = Environment::BattleCb;
+using GameCb = Environment::GameCb;
 
 class DLL_LINKAGE Context
 {
@@ -79,4 +81,6 @@ public:
 
 
 }
+
+VCMI_LIB_NAMESPACE_END
 #endif

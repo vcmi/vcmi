@@ -17,9 +17,14 @@
 #include "../widgets/CGarrisonInt.h"
 #include "../widgets/Images.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CGDwelling;
-class CreatureCostBox;
 class IMarket;
+
+VCMI_LIB_NAMESPACE_END
+
+class CreatureCostBox;
 class CCreaturePic;
 class MoraleLuckBox;
 class CHeroArea;

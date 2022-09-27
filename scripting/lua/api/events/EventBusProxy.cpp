@@ -16,6 +16,8 @@
 
 #include "../Registry.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace scripting
 {
 namespace api
@@ -30,3 +32,4 @@ const std::vector<EventBusProxy::CustomRegType> EventBusProxy::REGISTER_CUSTOM =
 }
 }
 
+VCMI_LIB_NAMESPACE_END

@@ -22,6 +22,8 @@
 #include "../../CHeroHandler.h"
 #include "../../mapObjects/CGHeroInstance.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 
 static const std::string EFFECT_NAME = "core:summon";
 
@@ -197,3 +199,5 @@ EffectTarget Summon::transformTarget(const Mechanics * m, const Target & aimPoin
 
 }
 }
+
+VCMI_LIB_NAMESPACE_END

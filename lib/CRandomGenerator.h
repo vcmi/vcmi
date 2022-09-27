@@ -12,6 +12,8 @@
 
 #include <vstd/RNG.h>
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 typedef std::mt19937 TGenerator;
 typedef std::uniform_int_distribution<int> TIntDist;
 typedef std::uniform_int_distribution<int64_t> TInt64Dist;
@@ -98,3 +100,5 @@ public:
 	}
 };
 
+
+VCMI_LIB_NAMESPACE_END

@@ -25,6 +25,8 @@
 #include "WaterProxy.h"
 #include "TownPlacer.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 void ConnectionsPlacer::process()
 {
 	collectNeighbourZones();
@@ -279,3 +281,5 @@ void ConnectionsPlacer::collectNeighbourZones()
 		dNeighbourZones[zid].insert(i);
 	}
 }
+
+VCMI_LIB_NAMESPACE_END

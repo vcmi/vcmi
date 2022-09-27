@@ -10,6 +10,8 @@
 #include "StdInc.h"
 #include "CBuildingHandler.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 BuildingID CBuildingHandler::campToERMU( int camp, int townType, std::set<BuildingID> builtBuildings )
 {
 	static const std::vector<BuildingID> campToERMU = 
@@ -75,3 +77,5 @@ BuildingID CBuildingHandler::campToERMU( int camp, int townType, std::set<Buildi
 	return BuildingID::NONE; //not found
 }
 
+
+VCMI_LIB_NAMESPACE_END

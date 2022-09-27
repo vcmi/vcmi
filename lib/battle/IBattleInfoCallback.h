@@ -13,6 +13,8 @@
 #include "GameConstants.h"
 #include "BattleHex.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 struct CObstacleInstance;
 class BattleField;
 
@@ -62,3 +64,5 @@ public:
 };
 
 
+
+VCMI_LIB_NAMESPACE_END

@@ -14,7 +14,8 @@
 #include "../lib/StartInfo.h"
 #include "../lib/CondSh.h"
 
-struct SharedMemory;
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CConnection;
 class PlayerColor;
 struct StartInfo;
@@ -23,9 +24,15 @@ class CMapInfo;
 struct ClientPlayer;
 struct CPack;
 struct CPackForLobby;
-class CClient;
 
 template<typename T> class CApplier;
+
+VCMI_LIB_NAMESPACE_END
+
+struct SharedMemory;
+
+class CClient;
+
 class CBaseForLobbyApply;
 
 // TODO: Add mutex so we can't set CONNECTION_CANCELLED if client already connected, but thread not setup yet
@@ -76,6 +83,7 @@ class CServerHandler : public IServerAPI, public LobbyInfo
 
 	void threadHandleConnection();
 	void threadRunServer();
+	void onServerFinished();
 	void sendLobbyPack(const CPackForLobby & pack) const override;
 
 public:
@@ -137,6 +145,7 @@ public:
 	void startGameplay();
 	void endGameplay(bool closeConnection = true, bool restart = false);
 	void startCampaignScenario(std::shared_ptr<CCampaignState> cs = {});
+	void showServerError(std::string txt);
 
 	// TODO: LobbyState must be updated within game so we should always know how many player interfaces our client handle
 	int howManyPlayerInterfaces();

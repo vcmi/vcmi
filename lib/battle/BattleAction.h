@@ -11,6 +11,8 @@
 #include "Destination.h"
 #include "../GameConstants.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CBattleInfoCallback;
 
 namespace battle
@@ -73,3 +75,5 @@ private:
 };
 
 DLL_EXPORT std::ostream & operator<<(std::ostream & os, const BattleAction & ba); //todo: remove
+
+VCMI_LIB_NAMESPACE_END

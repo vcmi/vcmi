@@ -12,6 +12,8 @@
 #include "LocationEffect.h"
 #include "../ISpellMechanics.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace spells
 {
 namespace effects
@@ -53,3 +55,5 @@ EffectTarget LocationEffect::transformTarget(const Mechanics * m, const Target &
 
 }
 }
+
+VCMI_LIB_NAMESPACE_END

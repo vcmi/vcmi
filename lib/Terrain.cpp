@@ -13,6 +13,8 @@
 #include "VCMI_Lib.h"
 #include "CModHandler.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 //regular expression to change id for string at config
 //("allowedTerrain"\s*:\s*\[.*)9(.*\],\n)
 //\1"rock"\2

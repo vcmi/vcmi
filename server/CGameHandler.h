@@ -18,8 +18,8 @@
 #include "../lib/ScriptHandler.h"
 #include "CQuery.h"
 
-class CGameHandler;
-class CVCMIServer;
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CGameState;
 struct StartInfo;
 struct BattleResult;
@@ -43,6 +43,11 @@ namespace scripting
 
 
 template<typename T> class CApplier;
+
+VCMI_LIB_NAMESPACE_END
+
+class CGameHandler;
+class CVCMIServer;
 class CBaseForGHApply;
 
 struct PlayerStatus
@@ -257,7 +262,7 @@ public:
 	bool bulkMergeStacks(SlotID slotSrc, ObjectInstanceID srcOwner);
 	bool bulkSmartSplitStack(SlotID slotSrc, ObjectInstanceID srcOwner);
 	void save(const std::string &fname);
-	void load(const std::string &fname);
+	bool load(const std::string &fname);
 
 	void handleTimeEvents();
 	void handleTownEvents(CGTownInstance *town, NewTurn &n);

@@ -14,6 +14,8 @@
 #include "../../lib/JsonNode.h"
 #include "../../lib/int3.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace scripting
 {
 
@@ -251,3 +253,5 @@ int LuaStack::retVoid()
 
 
 }
+
+VCMI_LIB_NAMESPACE_END

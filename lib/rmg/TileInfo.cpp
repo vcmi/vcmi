@@ -11,6 +11,8 @@
 #include "StdInc.h"
 #include "TileInfo.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 TileInfo::TileInfo():nearestObjectDistance(float(INT_MAX)), terrain()
 {
 	occupied = ETileType::POSSIBLE; //all tiles are initially possible to place objects or passages
@@ -76,3 +78,5 @@ void TileInfo::setRoadType(TRoadId type)
 	roadType = type;
 	//	setOccupied(ETileType::FREE);
 }
+
+VCMI_LIB_NAMESPACE_END

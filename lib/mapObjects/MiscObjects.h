@@ -13,6 +13,8 @@
 #include "CArmedInstance.h"
 #include "../ResourceSet.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CMap;
 
 /// Legacy class, use CRewardableObject instead
@@ -541,3 +543,5 @@ public:
 		return true;
 	}
 };
+
+VCMI_LIB_NAMESPACE_END

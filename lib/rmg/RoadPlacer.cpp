@@ -18,6 +18,8 @@
 #include "../mapping/CMapEditManager.h"
 #include "RmgPath.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 void RoadPlacer::process()
 {
 	connectRoads();
@@ -122,3 +124,5 @@ char RoadPlacer::dump(const int3 & t)
 		return 'i';
 	return Modificator::dump(t);
 }
+
+VCMI_LIB_NAMESPACE_END

@@ -23,6 +23,8 @@
 #include "../CHeroHandler.h"
 #include "../CModHandler.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 CMapInfo::CMapInfo()
 	: scenarioOptionsOfSave(nullptr), amountOfPlayersOnMap(0), amountOfHumanControllablePlayers(0),	amountOfHumanPlayersInSave(0), isRandomMap(false)
 {
@@ -182,3 +184,5 @@ std::string CMapInfo::getMapSizeName() const
 		return "C";
 	}
 }
+
+VCMI_LIB_NAMESPACE_END

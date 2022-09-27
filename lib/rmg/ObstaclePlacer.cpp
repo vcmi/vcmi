@@ -24,6 +24,8 @@
 #include "Functions.h"
 #include "../mapping/CMapEditManager.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 void ObstacleProxy::collectPossibleObstacles(TTerrainId terrain)
 {
 	//get all possible obstacles for this terrain
@@ -262,3 +264,5 @@ bool ObstaclePlacer::isProhibited(const rmg::Area & objArea) const
 void ObstaclePlacer::finalInsertion(CMapEditManager *, std::set<CGObjectInstance*> &)
 {
 }
+
+VCMI_LIB_NAMESPACE_END

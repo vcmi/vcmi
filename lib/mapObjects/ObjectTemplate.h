@@ -12,6 +12,8 @@
 #include "../GameConstants.h"
 #include "../int3.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CBinaryReader;
 class CLegacyConfigParser;
 class JsonNode;
@@ -152,3 +154,5 @@ public:
 	}
 };
 
+
+VCMI_LIB_NAMESPACE_END

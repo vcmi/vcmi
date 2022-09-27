@@ -11,6 +11,8 @@
 
 #include "ConstTransitivePtr.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class Artifact;
 class ArtifactService;
 class Creature;
@@ -1243,3 +1245,5 @@ typedef int TRmgTemplateZoneId;
 #undef ID_LIKE_OPERATORS_INTERNAL
 #undef INSTID_LIKE_CLASS_COMMON
 #undef OP_DECL_INT
+
+VCMI_LIB_NAMESPACE_END

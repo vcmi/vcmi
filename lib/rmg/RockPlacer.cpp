@@ -20,6 +20,8 @@
 #include "../CRandomGenerator.h"
 #include "../mapping/CMapEditManager.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 void RockPlacer::process()
 {
 	rockTerrain = VLC->terrainTypeHandler->terrains()[zone.getTerrainType()].rockTerrain;
@@ -101,3 +103,5 @@ char RockPlacer::dump(const int3 & t)
 	}
 	return Modificator::dump(t);
 }
+
+VCMI_LIB_NAMESPACE_END

@@ -175,7 +175,7 @@ foreach (_ffmpeg_component IN LISTS ffmpeg_FIND_COMPONENTS)
       "${ffmpeg_${_ffmpeg_component}_INCLUDE_DIRS}")
     list(APPEND ffmpeg_LIBRARIES
       "${ffmpeg_${_ffmpeg_component}_LIBRARIES}")
-    if (FFMEG_FIND_REQUIRED_${_ffmpeg_component})
+    if (FFMPEG_FIND_REQUIRED_${_ffmpeg_component})
       list(APPEND _ffmpeg_required_vars
         "ffmpeg_${_ffmpeg_required_vars}_INCLUDE_DIRS"
         "ffmpeg_${_ffmpeg_required_vars}_LIBRARIES")

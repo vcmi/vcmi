@@ -14,6 +14,8 @@
 #include "../CRandomGenerator.h"
 #include "Terrain.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CGObjectInstance;
 class CMap;
 
@@ -231,3 +233,5 @@ class DLL_LINKAGE CTerrainViewPatternUtils
 public:
 	static void printDebuggingInfoAboutTile(const CMap * map, int3 pos);
 };
+
+VCMI_LIB_NAMESPACE_END

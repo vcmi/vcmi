@@ -11,6 +11,8 @@
 #include "SideInBattle.h"
 #include "../mapObjects/CArmedInstance.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 SideInBattle::SideInBattle()
 {
 	color = PlayerColor::CANNOT_DETERMINE;
@@ -29,3 +31,5 @@ void SideInBattle::init(const CGHeroInstance * Hero, const CArmedInstance * Army
 	if(color == PlayerColor::UNFLAGGABLE)
 		color = PlayerColor::NEUTRAL;
 }
+
+VCMI_LIB_NAMESPACE_END

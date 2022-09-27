@@ -18,6 +18,8 @@
 #include "../GameConstants.h"
 #include "../HeroBonus.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 struct Query;
 class IBattleState;
 class CRandomGenerator;
@@ -362,3 +364,5 @@ public:
 protected:
 	const CSpell * owner;
 };
+
+VCMI_LIB_NAMESPACE_END

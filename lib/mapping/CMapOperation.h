@@ -13,6 +13,8 @@
 #include "../int3.h"
 #include "MapEditUtils.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CGObjectInstance;
 class CMap;
 class CRandomGenerator;
@@ -159,3 +161,5 @@ public:
 private:
 	CGObjectInstance* obj;
 };
+
+VCMI_LIB_NAMESPACE_END

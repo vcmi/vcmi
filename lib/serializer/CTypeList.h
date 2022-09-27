@@ -11,6 +11,8 @@
 
 #include "CSerializer.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 struct IPointerCaster
 {
 	virtual boost::any castRawPtr(const boost::any &ptr) const = 0; // takes From*, returns To*
@@ -231,3 +233,5 @@ public:
 		addApplier<Derived>(typeList.getTypeID(d));
 	}
 };
+
+VCMI_LIB_NAMESPACE_END

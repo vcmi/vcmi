@@ -10,6 +10,8 @@
 
 #pragma once
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 /// The map event is an event which e.g. gives or takes resources of a specific
 /// amount to/from players and can appear regularly or once a time.
 class DLL_LINKAGE CMapEvent
@@ -111,3 +113,5 @@ struct DLL_LINKAGE TerrainTile
 		h & blockingObjects;
 	}
 };
+
+VCMI_LIB_NAMESPACE_END

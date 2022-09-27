@@ -9,6 +9,8 @@
  */
 #pragma once
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 //TODO: change to enum class
 
 namespace BattleSide
@@ -82,3 +84,5 @@ struct DLL_LINKAGE BattleHex //TODO: decide if this should be changed to class f
 };
 
 DLL_EXPORT std::ostream & operator<<(std::ostream & os, const BattleHex & hex);
+
+VCMI_LIB_NAMESPACE_END

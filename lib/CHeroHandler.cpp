@@ -27,6 +27,8 @@
 #include "mapObjects/CObjectClassesHandler.h"
 #include "BattleFieldHandler.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 CHero::CHero() = default;
 CHero::~CHero() = default;
 
@@ -991,3 +993,5 @@ std::vector<bool> CHeroHandler::getDefaultAllowed() const
 
 	return allowedHeroes;
 }
+
+VCMI_LIB_NAMESPACE_END

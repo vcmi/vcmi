@@ -1,4 +1,4 @@
-﻿/*
+/*
  * CBank.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
@@ -20,6 +20,8 @@
 #include "CommonConstructors.h"
 #include "../IGameCallback.h"
 #include "../CGameState.h"
+
+VCMI_LIB_NAMESPACE_BEGIN
 
 ///helpers
 static std::string & visitedTxt(const bool visited)
@@ -351,3 +353,5 @@ void CBank::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) cons
 			doVisit(hero);
 	}
 }
+
+VCMI_LIB_NAMESPACE_END

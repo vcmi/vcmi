@@ -32,6 +32,8 @@
 #include "../StringConstants.h"
 #include "../battle/Unit.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 
 ///helpers
 static void showInfoDialog(const PlayerColor playerID, const ui32 txtID, const ui16 soundID = 0)
@@ -1627,3 +1629,5 @@ bool CGHeroInstance::isMissionCritical() const
 	}
 	return false;
 }
+
+VCMI_LIB_NAMESPACE_END

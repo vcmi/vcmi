@@ -1,4 +1,4 @@
-﻿/*
+/*
  * CGPandoraBox.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
@@ -22,6 +22,8 @@
 #include "../IGameCallback.h"
 #include "../StringConstants.h"
 #include "../serializer/JsonSerializeFormat.h"
+
+VCMI_LIB_NAMESPACE_BEGIN
 
 ///helpers
 static void showInfoDialog(const PlayerColor playerID, const ui32 txtID, const ui16 soundID)
@@ -530,3 +532,5 @@ void CGEvent::serializeJsonOptions(JsonSerializeFormat & handler)
 		handler.serializeIdArray<ui8, PlayerColor::PLAYER_LIMIT_I>("availableFor", availableFor, GameConstants::ALL_PLAYERS, decodePlayer, encodePlayer);
     }
 }
+
+VCMI_LIB_NAMESPACE_END

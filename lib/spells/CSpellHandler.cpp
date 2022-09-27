@@ -32,6 +32,8 @@
 
 #include "ISpellMechanics.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace SpellConfig
 {
 static const std::string LEVEL_NAMES[] = {"none", "basic", "advanced", "expert"};
@@ -1018,3 +1020,5 @@ std::vector<bool> CSpellHandler::getDefaultAllowed() const
 
 	return allowedSpells;
 }
+
+VCMI_LIB_NAMESPACE_END

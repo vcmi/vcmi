@@ -24,6 +24,8 @@
 #include "../mapping/CMap.h"
 #include "../mapping/CMapEditManager.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 void TreasurePlacer::process()
 {
 	addAllPossibleObjects();
@@ -823,3 +825,5 @@ void ObjectInfo::setTemplate(si32 type, si32 subtype, TTerrainId terrainType)
 	
 	templ = templates.front();
 }
+
+VCMI_LIB_NAMESPACE_END

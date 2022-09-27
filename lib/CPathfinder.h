@@ -17,6 +17,8 @@
 
 #include <boost/heap/fibonacci_heap.hpp>
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 
 class CGHeroInstance;
 class CGObjectInstance;
@@ -610,3 +612,5 @@ public:
 	int movementPointsAfterEmbark(int movement, int basicCost, bool disembark) const;
 	bool passOneTurnLimitCheck(const PathNodeInfo & source) const;
 };
+
+VCMI_LIB_NAMESPACE_END

@@ -90,6 +90,12 @@ jobs:
             preset: macos-arm-conan-ninja-release
             conan_profile: macos-arm
             artifact_platform: arm
+          - platform: ios
+            os: macos-12
+            test: 0
+            pack: 1
+            extension: ipa
+            preset: ios-release
           - platform: mxe
             os: ubuntu-20.04
             mxe: i686-w64-mingw32.shared
@@ -189,6 +195,8 @@ jobs:
         cd '${{github.workspace}}/out/build/${{matrix.preset}}'
         CPACK_PATH=`which -a cpack | grep -m1 -v -i chocolatey`
         "$CPACK_PATH" -C ${{env.BUILD_TYPE}} ${{ matrix.cpack_args }}
+        test -f '${{github.workspace}}/CI/${{matrix.platform}}/post_pack.sh' \
+          && '${{github.workspace}}/CI/${{matrix.platform}}/post_pack.sh' '${{github.workspace}}' "$(ls '${{ env.VCMI_PACKAGE_FILE_NAME }}'.*)"
         rm -rf _CPack_Packages
 
     - name: Additional logs

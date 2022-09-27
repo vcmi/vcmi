@@ -11,6 +11,8 @@
 #include "BattleHex.h"
 #include "../GameConstants.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace battle
 {
 	class Unit;
@@ -36,3 +38,5 @@ struct DLL_LINKAGE AccessibilityInfo : TAccessibilityArray
 	bool accessible(BattleHex tile, const battle::Unit * stack) const; //checks for both tiles if stack is double wide
 	bool accessible(BattleHex tile, bool doubleWide, ui8 side) const; //checks for both tiles if stack is double wide
 };
+
+VCMI_LIB_NAMESPACE_END

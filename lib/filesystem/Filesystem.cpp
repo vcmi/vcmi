@@ -21,6 +21,8 @@
 #include "../VCMIDirs.h"
 #include "../CStopWatch.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 std::map<std::string, ISimpleResourceLoader*> CResourceHandler::knownLoaders = std::map<std::string, ISimpleResourceLoader*>();
 CResourceHandler CResourceHandler::globalResourceHandler;
 
@@ -170,6 +172,10 @@ void CResourceHandler::initialize()
 	//    |-saves
 	//    |-config
 
+	// when built as single process, server can be started multiple times
+	if (globalResourceHandler.rootLoader)
+		return;
+
 	globalResourceHandler.rootLoader = vstd::make_unique<CFilesystemList>();
 	knownLoaders["root"] = globalResourceHandler.rootLoader.get();
 	knownLoaders["saves"] = new CFilesystemLoader("SAVES/", VCMIDirs::get().userSavePath());
@@ -246,3 +252,5 @@ ISimpleResourceLoader * CResourceHandler::createFileSystem(const std::string & p
 	generator.loadConfig(fsConfig);
 	return generator.getFilesystem();
 }
+
+VCMI_LIB_NAMESPACE_END

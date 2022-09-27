@@ -18,6 +18,9 @@
 #include "../minizip/zip.h"
 #include "../minizip/ioapi.h"
 #endif
+
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CInputStream;
 class CInputOutputStream;
 class CMemoryBuffer;
@@ -85,3 +88,5 @@ private:
 	static int ZCALLBACK errorFileProxy(voidpf opaque, voidpf stream);
 };
 
+
+VCMI_LIB_NAMESPACE_END

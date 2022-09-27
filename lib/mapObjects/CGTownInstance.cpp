@@ -23,6 +23,8 @@
 #include "../serializer/JsonSerializeFormat.h"
 #include "../HeroBonus.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 std::vector<const CArtifact *> CGTownInstance::merchantArtifacts;
 std::vector<int> CGTownInstance::universitySkills;
 
@@ -1868,3 +1870,5 @@ const std::string CGTownBuilding::getCustomBonusGreeting(const Bonus & bonus) co
 	std::string greeting = fmt.str();
 	return greeting;
 }
+
+VCMI_LIB_NAMESPACE_END

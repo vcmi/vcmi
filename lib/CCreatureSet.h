@@ -13,6 +13,8 @@
 #include "GameConstants.h"
 #include "CArtHandler.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class JsonNode;
 class CCreature;
 class CGHeroInstance;
@@ -262,3 +264,5 @@ public:
 	}
 	void sweep();
 };
+
+VCMI_LIB_NAMESPACE_END
