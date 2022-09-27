@@ -300,6 +300,9 @@ bool CModManager::doInstallMod(QString modname, QString archivePath)
 	loadMods();
 	modList->reloadRepositories();
 
+	if(modname == extraResolutionsMod)
+		sendExtraResolutionsEnabledChanged(true);
+
 	return true;
 }
 
@@ -319,6 +322,9 @@ bool CModManager::doUninstallMod(QString modname)
 	CResourceHandler::get("initial")->updateFilteredFiles([](const std::string &){ return true; });
 	loadMods();
 	modList->reloadRepositories();
+
+	if(modname == extraResolutionsMod)
+		sendExtraResolutionsEnabledChanged(false);
 
 	return true;
 }
