@@ -18,7 +18,11 @@
 #include "../jsonutils.h"
 #include "../launcherdirs.h"
 
-static QString detectModArchive(QString path, QString modName)
+namespace
+{
+const QLatin1String extraResolutionsMod{"vcmi-extras.extraresolutions"};
+
+QString detectModArchive(QString path, QString modName)
 {
 	auto files = ZipArchive::listFiles(qstringToPath(path));
 
@@ -40,6 +44,8 @@ static QString detectModArchive(QString path, QString modName)
 	
 	return "";
 }
+}
+
 
 CModManager::CModManager(CModList * modList)
 	: modList(modList)
@@ -219,6 +225,11 @@ bool CModManager::canDisableMod(QString modname)
 	return true;
 }
 
+bool CModManager::isExtraResolutionsModEnabled() const
+{
+	return modList->hasMod(extraResolutionsMod) && modList->getMod(extraResolutionsMod).isEnabled();
+}
+
 static QVariant writeValue(QString path, QVariantMap input, QVariant value)
 {
 	if(path.size() > 1)
@@ -246,6 +257,9 @@ bool CModManager::doEnableMod(QString mod, bool on)
 	modList->setModSettings(modSettings["activeMods"]);
 	modList->modChanged(mod);
 
+	if(mod == extraResolutionsMod)
+		sendExtraResolutionsEnabledChanged(on);
+
 	JsonUtils::JsonToFile(settingsPath(), modSettings);
 
 	return true;
@@ -261,7 +275,7 @@ bool CModManager::doInstallMod(QString modname, QString archivePath)
 	if(localMods.contains(modname))
 		return addError(modname, "Mod with such name is already installed");
 
-	QString modDirName = detectModArchive(archivePath, modname);
+	QString modDirName = ::detectModArchive(archivePath, modname);
 	if(!modDirName.size())
 		return addError(modname, "Mod archive is invalid or corrupted");
 
@@ -325,4 +339,9 @@ bool CModManager::removeModDir(QString path)
 		return false;
 
 	return dir.removeRecursively();
+}
+
+void CModManager::sendExtraResolutionsEnabledChanged(bool enabled)
+{
+	emit extraResolutionsEnabledChanged(enabled);
 }

@@ -26,6 +26,11 @@ public:
 	void loadSettings();
 	void setDisplayList();
 
+	bool isExtraResolutionsModEnabled{};
+
+public slots:
+	void fillValidResolutions(bool isExtraResolutionsModEnabled);
+
 private slots:
 	void on_checkBoxFullScreen_stateChanged(int state);
 

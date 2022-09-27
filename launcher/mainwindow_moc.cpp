@@ -82,7 +82,11 @@ MainWindow::MainWindow(QWidget * parent)
 		ui->tabSelectList->setMaximumWidth(width + 4);
 	}
 	ui->tabListWidget->setCurrentIndex(0);
+
+	ui->settingsView->isExtraResolutionsModEnabled = ui->stackedWidgetPage2->isExtraResolutionsModEnabled();
 	ui->settingsView->setDisplayList();
+	connect(ui->stackedWidgetPage2, &CModListView::extraResolutionsEnabledChanged,
+		ui->settingsView, &CSettingsView::fillValidResolutions);
 
 	connect(ui->tabSelectList, SIGNAL(currentRowChanged(int)),
 		ui->tabListWidget, SLOT(setCurrentIndex(int)));

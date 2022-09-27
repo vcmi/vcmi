@@ -106,15 +106,25 @@ void CSettingsView::loadSettings()
 	ui->comboBoxAutoSave->setCurrentIndex(settings["general"]["saveFrequency"].Integer() > 0 ? 1 : 0);
 }
 
+void CSettingsView::fillValidResolutions(bool isExtraResolutionsModEnabled)
+{
+	this->isExtraResolutionsModEnabled = isExtraResolutionsModEnabled;
+	fillValidResolutionsForScreen(ui->comboBoxDisplayIndex->isVisible() ? ui->comboBoxDisplayIndex->currentIndex() : 0);
+}
+
 void CSettingsView::fillValidResolutionsForScreen(int screenIndex)
 {
 	ui->comboBoxResolution->blockSignals(true); // avoid saving wrong resolution after adding first item from the list
 	ui->comboBoxResolution->clear();
 
 	// TODO: read available resolutions from all mods
-	const QLatin1String extrasResolutionsPath{"/vcmi-extras/Mods/extraResolutions/Content/config/resolutions.json"};
-	const auto extrasResolutionsJson = JsonUtils::JsonFromFile(CLauncherDirs::get().modsPath() + extrasResolutionsPath);
-	const auto resolutions = extrasResolutionsJson.toMap().value(QLatin1String{"GUISettings"}).toList();
+	QVariantList resolutions;
+	if(isExtraResolutionsModEnabled)
+	{
+		const QLatin1String extrasResolutionsPath{"/vcmi-extras/Mods/extraResolutions/Content/config/resolutions.json"};
+		const auto extrasResolutionsJson = JsonUtils::JsonFromFile(CLauncherDirs::get().modsPath() + extrasResolutionsPath);
+		resolutions = extrasResolutionsJson.toMap().value(QLatin1String{"GUISettings"}).toList();
+	}
 	if(resolutions.isEmpty())
 	{
 		ui->comboBoxResolution->blockSignals(false);
