@@ -121,7 +121,7 @@ void CSettingsView::fillValidResolutionsForScreen(int screenIndex)
 	QVariantList resolutions;
 	if(isExtraResolutionsModEnabled)
 	{
-		const QLatin1String extrasResolutionsPath{"/vcmi-extras/Mods/extraResolutions/Content/config/resolutions.json"};
+		const auto extrasResolutionsPath = settings["launcher"]["extraResolutionsModPath"].String().c_str();
 		const auto extrasResolutionsJson = JsonUtils::JsonFromFile(CLauncherDirs::get().modsPath() + extrasResolutionsPath);
 		resolutions = extrasResolutionsJson.toMap().value(QLatin1String{"GUISettings"}).toList();
 	}
