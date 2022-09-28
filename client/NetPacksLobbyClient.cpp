@@ -105,13 +105,13 @@ bool LobbyStartGame::applyOnLobbyHandler(CServerHandler * handler)
 		handler->si = initializedStartInfo;
 	}
 	if(settings["session"]["headless"].Bool())
-		handler->startGameplay();
+		handler->startGameplay(initializedGameState);
 	return true;
 }
 
 void LobbyStartGame::applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler)
 {
-	GH.pushIntT<CLoadingScreen>(std::bind(&CServerHandler::startGameplay, handler, nullptr));
+	GH.pushIntT<CLoadingScreen>(std::bind(&CServerHandler::startGameplay, handler, initializedGameState));
 }
 
 bool LobbyUpdateState::applyOnLobbyHandler(CServerHandler * handler)
