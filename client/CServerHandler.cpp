@@ -516,7 +516,7 @@ void CServerHandler::sendStartGame(bool allowOnlyAI) const
 	sendLobbyPack(lsg);
 }
 
-void CServerHandler::startGameplay()
+void CServerHandler::startGameplay(CGameState * gameState)
 {
 	if(CMM)
 		CMM->disable();
@@ -525,10 +525,10 @@ void CServerHandler::startGameplay()
 	switch(si->mode)
 	{
 	case StartInfo::NEW_GAME:
-		client->newGame();
+		client->newGame(gameState);
 		break;
 	case StartInfo::CAMPAIGN:
-		client->newGame();
+		client->newGame(gameState);
 		break;
 	case StartInfo::LOAD_GAME:
 		client->loadGame();

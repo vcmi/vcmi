@@ -181,6 +181,8 @@ bool LobbyStartGame::applyOnServer(CVCMIServer * srv)
 		return false;
 	
 	initializedStartInfo = std::make_shared<StartInfo>(*srv->gh->getStartInfo(true));
+	initializedGameState = srv->gh->gameState();
+
 	return true;
 }
 

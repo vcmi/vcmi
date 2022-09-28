@@ -111,7 +111,7 @@ bool LobbyStartGame::applyOnLobbyHandler(CServerHandler * handler)
 
 void LobbyStartGame::applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler)
 {
-	GH.pushIntT<CLoadingScreen>(std::bind(&CServerHandler::startGameplay, handler));
+	GH.pushIntT<CLoadingScreen>(std::bind(&CServerHandler::startGameplay, handler, nullptr));
 }
 
 bool LobbyUpdateState::applyOnLobbyHandler(CServerHandler * handler)

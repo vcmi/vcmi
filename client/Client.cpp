@@ -180,14 +180,15 @@ events::EventBus * CClient::eventBus() const
 	return clientEventBus.get();
 }
 
-void CClient::newGame()
+void CClient::newGame(CGameState * gameState)
 {
 	CSH->th->update();
 	CMapService mapService;
-	gs = new CGameState();
+	gs = gameState ? gameState : new CGameState();
 	gs->preInit(VLC);
 	logNetwork->trace("\tCreating gamestate: %i", CSH->th->getDiff());
-	gs->init(&mapService, CSH->si.get(), settings["general"]["saveRandomMaps"].Bool());
+	if(!gameState)
+		gs->init(&mapService, CSH->si.get(), settings["general"]["saveRandomMaps"].Bool());
 	logNetwork->trace("Initializing GameState (together): %d ms", CSH->th->getDiff());
 
 	initMapHandler();

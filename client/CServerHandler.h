@@ -21,6 +21,7 @@ class PlayerColor;
 struct StartInfo;
 
 class CMapInfo;
+class CGameState;
 struct ClientPlayer;
 struct CPack;
 struct CPackForLobby;
@@ -142,7 +143,7 @@ public:
 	void sendGuiAction(ui8 action) const override;
 	void sendStartGame(bool allowOnlyAI = false) const override;
 
-	void startGameplay();
+	void startGameplay(CGameState * gameState = nullptr);
 	void endGameplay(bool closeConnection = true, bool restart = false);
 	void startCampaignScenario(std::shared_ptr<CCampaignState> cs = {});
 	void showServerError(std::string txt);
