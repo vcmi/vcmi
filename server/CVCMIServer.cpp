@@ -230,10 +230,16 @@ bool CVCMIServer::prepareToStartGame()
 		state = EServerState::LOBBY;
 		// FIXME: dirry hack to make sure old CGameHandler::run is finished
 		boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
+		
+		for(auto c : connections)
+		{
+			c->enterLobbyConnectionMode();
+			c->disableStackSendingByID();
+		}
 	}
 
-	if(!gh)
-		gh = std::make_shared<CGameHandler>(this);
+	//if(!gh)
+	gh = std::make_shared<CGameHandler>(this);
 	switch(si->mode)
 	{
 	case StartInfo::CAMPAIGN:

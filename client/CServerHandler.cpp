@@ -514,6 +514,8 @@ void CServerHandler::sendStartGame(bool allowOnlyAI) const
 		* si = * lsg.initializedStartInfo;
 	}
 	sendLobbyPack(lsg);
+	c->enterLobbyConnectionMode();
+	c->disableStackSendingByID();
 }
 
 void CServerHandler::startGameplay(CGameState * gameState)
