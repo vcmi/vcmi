@@ -230,12 +230,12 @@ bool CVCMIServer::prepareToStartGame()
 		state = EServerState::LOBBY;
 		// FIXME: dirry hack to make sure old CGameHandler::run is finished
 		boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
-		
-		for(auto c : connections)
-		{
-			c->enterLobbyConnectionMode();
-			c->disableStackSendingByID();
-		}
+	}
+	
+	for(auto c : connections)
+	{
+		c->enterLobbyConnectionMode();
+		c->disableStackSendingByID();
 	}
 
 	//if(!gh)
