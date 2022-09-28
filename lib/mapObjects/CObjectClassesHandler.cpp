@@ -486,15 +486,15 @@ void AObjectTypeHandler::init(const JsonNode & input, boost::optional<std::strin
 
 	for (auto entry : input["templates"].Struct())
 	{
+		entry.second.setType(JsonNode::JsonType::DATA_STRUCT);
+		JsonUtils::inherit(entry.second, base);
+
+		auto tmpl = new ObjectTemplate;
+		tmpl->id = Obj(type);
+		tmpl->subid = subtype;
+		tmpl->stringID = entry.first; // FIXME: create "fullID" - type.object.template?
 		try
 		{
-			entry.second.setType(JsonNode::JsonType::DATA_STRUCT);
-			JsonUtils::inherit(entry.second, base);
-
-			auto tmpl = new ObjectTemplate;
-			tmpl->id = Obj(type);
-			tmpl->subid = subtype;
-			tmpl->stringID = entry.first; // FIXME: create "fullID" - type.object.template?
 			tmpl->readJson(entry.second);
 			templates.push_back(std::shared_ptr<const ObjectTemplate>(tmpl));
 		}

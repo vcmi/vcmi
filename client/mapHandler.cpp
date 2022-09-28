@@ -172,7 +172,6 @@ void CMapHandler::initTerrainGraphics()
 		}
 	};
 	
-	//TODO: use id as a key
 	std::map<std::string, std::string> terrainFiles;
 	std::map<std::string, std::string> riverFiles;
 	std::map<std::string, std::string> roadFiles;
