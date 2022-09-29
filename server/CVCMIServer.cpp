@@ -238,7 +238,6 @@ bool CVCMIServer::prepareToStartGame()
 		c->disableStackSendingByID();
 	}
 
-	//if(!gh)
 	gh = std::make_shared<CGameHandler>(this);
 	switch(si->mode)
 	{
