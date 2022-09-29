@@ -391,56 +391,17 @@ public:
 		else
 			data.reset();
 	}
+
 	template <typename T>
-	void load(std::shared_ptr<const T> &data) //version of the above for const ptr
+	void load(std::shared_ptr<const T> & data)
 	{
-		typedef typename std::remove_const<T>::type NonConstT;
-		NonConstT *internalPtr;
-		load(internalPtr);
+		std::shared_ptr<T> nonConstData;
 
-		void *internalPtrDerived = typeList.castToMostDerived(internalPtr);
+		load(nonConstData);
 
-		if(internalPtr)
-		{
-			auto itr = loadedSharedPointers.find(internalPtrDerived);
-			if(itr != loadedSharedPointers.end())
-			{
-				// This pointer is already loaded. The "data" needs to be pointed to it,
-				// so their shared state is actually shared.
-				try
-				{
-					auto actualType = typeList.getTypeInfo(internalPtr);
-					auto typeWeNeedToReturn = typeList.getTypeInfo<T>();
-					if(*actualType == *typeWeNeedToReturn)
-					{
-						// No casting needed, just unpack already stored shared_ptr and return it
-						data = boost::any_cast<std::shared_ptr<const T>>(itr->second);
-					}
-					else
-					{
-						// We need to perform series of casts
-						auto ret = typeList.castShared(itr->second, actualType, typeWeNeedToReturn);
-						data = boost::any_cast<std::shared_ptr<const T>>(ret);
-					}
-				}
-				catch(std::exception &e)
-				{
-					logGlobal->error(e.what());
-					logGlobal->error("Failed to cast stored shared ptr. Real type: %s. Needed type %s. FIXME FIXME FIXME", itr->second.type().name(), typeid(std::shared_ptr<T>).name());
-					//TODO scenario with inheritance -> we can have stored ptr to base and load ptr to derived (or vice versa)
-					throw;
-				}
-			}
-			else
-			{
-				auto hlp = std::shared_ptr<const T>(internalPtr);
-				data = hlp; //possibly adds const
-				loadedSharedPointers[internalPtrDerived] = typeList.castSharedToMostDerived(hlp);
-			}
-		}
-		else
-			data.reset();
+		data = nonConstData;
 	}
+
 	template <typename T>
 	void load(std::unique_ptr<T> &data)
 	{
