@@ -27,7 +27,9 @@ void MainWindow::load()
 	// This is important on Mac for relative paths to work inside DMG.
 	QDir::setCurrent(QApplication::applicationDirPath());
 
+#ifndef VCMI_IOS
 	console = new CConsoleHandler();
+#endif
 	CBasicLogConfigurator logConfig(VCMIDirs::get().userLogsPath() / "VCMI_Launcher_log.txt", console);
 	logConfig.configureDefault();
 

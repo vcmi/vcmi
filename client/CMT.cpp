@@ -104,7 +104,9 @@ static po::variables_map vm;
 
 //static bool setResolution = false; //set by event handling thread after resolution is adjusted
 
+#ifndef VCMI_IOS
 void processCommand(const std::string &message);
+#endif
 static void setScreenRes(int w, int h, int bpp, bool fullscreen, int displayIndex, bool resetVideo=true);
 void playIntro();
 static void mainLoop();
@@ -236,9 +238,11 @@ int main(int argc, char * argv[])
 	// Init old logging system and new (temporary) logging system
 	CStopWatch total, pomtime;
 	std::cout.flags(std::ios::unitbuf);
+#ifndef VCMI_IOS
 	console = new CConsoleHandler();
 	*console->cb = processCommand;
 	console->start();
+#endif
 
 	const bfs::path logPath = VCMIDirs::get().userLogsPath() / "VCMI_Client_log.txt";
 	logConfig = new CBasicLogConfigurator(logPath, console);
@@ -553,6 +557,7 @@ void removeGUI()
 	LOCPLINT = nullptr;
 }
 
+#ifndef VCMI_IOS
 void processCommand(const std::string &message)
 {
 	std::istringstream readed;
@@ -965,6 +970,7 @@ void processCommand(const std::string &message)
 		LOCPLINT->cb->sendMessage(message);
 	}*/
 }
+#endif
 
 //plays intro, ends when intro is over or button has been pressed (handles events)
 void playIntro()
@@ -975,6 +981,7 @@ void playIntro()
 	}
 }
 
+#ifndef VCMI_IOS
 static bool checkVideoMode(int monitorIndex, int w, int h)
 {
 	//we only check that our desired window size fits on screen
@@ -996,6 +1003,7 @@ static bool checkVideoMode(int monitorIndex, int w, int h)
 
 	return false;
 }
+#endif
 
 static void cleanupRenderer()
 {

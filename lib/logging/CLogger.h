@@ -198,7 +198,9 @@ public:
 	void write(const LogRecord & record) override;
 
 private:
+#ifndef VCMI_IOS
 	CConsoleHandler * console;
+#endif
 	ELogLevel::ELogLevel threshold;
 	bool coloredOutputEnabled;
 	CLogFormatter formatter;

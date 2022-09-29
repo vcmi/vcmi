@@ -84,8 +84,6 @@
 
 using namespace CSDL_Ext;
 
-void processCommand(const std::string &message, CClient *&client);
-
 extern std::queue<SDL_Event> SDLEventsQueue;
 extern boost::mutex eventsM;
 boost::recursive_mutex * CPlayerInterface::pim = new boost::recursive_mutex;
