@@ -93,12 +93,21 @@ void LobbyGuiAction::applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * h
 	}
 }
 
-bool LobbyStartGame::applyOnLobbyHandler(CServerHandler * handler)
+bool LobbyEndGame::applyOnLobbyHandler(CServerHandler * handler)
 {
 	if(handler->state == EClientState::GAMEPLAY)
 	{
-		handler->endGameplay(false, true);
+		handler->endGameplay(closeConnection, restart);
 	}
+	
+	if(restart)
+		handler->sendStartGame();
+	
+	return true;
+}
+
+bool LobbyStartGame::applyOnLobbyHandler(CServerHandler * handler)
+{
 	handler->state = EClientState::STARTING;
 	if(handler->si->mode != StartInfo::LOAD_GAME)
 	{

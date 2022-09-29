@@ -220,7 +220,7 @@ void CVCMIServer::threadAnnounceLobby()
 	}
 }
 
-bool CVCMIServer::prepareToStartGame()
+void CVCMIServer::prepareToRestart()
 {
 	if(state == EServerState::GAMEPLAY)
 	{
@@ -237,7 +237,12 @@ bool CVCMIServer::prepareToStartGame()
 		c->enterLobbyConnectionMode();
 		c->disableStackSendingByID();
 	}
+	boost::unique_lock<boost::recursive_mutex> queueLock(mx);
+	gh = nullptr;
+}
 
+bool CVCMIServer::prepareToStartGame()
+{
 	gh = std::make_shared<CGameHandler>(this);
 	switch(si->mode)
 	{

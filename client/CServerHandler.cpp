@@ -502,6 +502,14 @@ void CServerHandler::sendGuiAction(ui8 action) const
 	sendLobbyPack(lga);
 }
 
+void CServerHandler::sendRestartGame() const
+{
+	LobbyEndGame endGame;
+	endGame.closeConnection = false;
+	endGame.restart = true;
+	sendLobbyPack(endGame);
+}
+
 void CServerHandler::sendStartGame(bool allowOnlyAI) const
 {
 	verifyStateBeforeStart(allowOnlyAI ? true : settings["session"]["onlyai"].Bool());
@@ -568,6 +576,9 @@ void CServerHandler::endGameplay(bool closeConnection, bool restart)
 			GH.curInt = CMainMenu::create().get();
 		}
 	}
+	
+	serverConnection->enterLobbyConnectionMode();
+	serverConnection->disableStackSendingByID();
 }
 
 void CServerHandler::startCampaignScenario(std::shared_ptr<CCampaignState> cs)

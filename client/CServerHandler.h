@@ -70,6 +70,7 @@ public:
 	virtual void sendMessage(const std::string & txt) const = 0;
 	virtual void sendGuiAction(ui8 action) const = 0; // TODO: possibly get rid of it?
 	virtual void sendStartGame(bool allowOnlyAI = false) const = 0;
+	virtual void sendRestartGame() const = 0;
 };
 
 /// structure to handle running server and connecting to it
@@ -141,6 +142,7 @@ public:
 	void setTurnLength(int npos) const override;
 	void sendMessage(const std::string & txt) const override;
 	void sendGuiAction(ui8 action) const override;
+	void sendRestartGame() const override;
 	void sendStartGame(bool allowOnlyAI = false) const override;
 
 	void startGameplay(CGameState * gameState = nullptr);
