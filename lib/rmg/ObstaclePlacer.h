@@ -26,7 +26,7 @@ public:
 
 	rmg::Area blockedArea;
 
-	void collectPossibleObstacles(TTerrainId terrain);
+	void collectPossibleObstacles(TerrainId terrain);
 
 	void placeObstacles(CMap * map, CRandomGenerator & rand);
 

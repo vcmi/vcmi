@@ -1234,9 +1234,9 @@ typedef si64 TExpType;
 typedef std::pair<si64, si64> TDmgRange;
 typedef si32 TBonusSubtype;
 typedef si32 TQuantity;
-typedef si8 TTerrainId;
-typedef si8 TRoadId;
-typedef si8 TRiverId;
+typedef si8 TerrainId;
+typedef si8 RoadId;
+typedef si8 RiverId;
 
 typedef int TRmgTemplateZoneId;
 

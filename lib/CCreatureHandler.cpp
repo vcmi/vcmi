@@ -285,13 +285,13 @@ std::string CCreature::nodeName() const
 	return "\"" + namePl + "\"";
 }
 
-bool CCreature::isItNativeTerrain(TTerrainId terrain) const
+bool CCreature::isItNativeTerrain(TerrainId terrain) const
 {
 	auto native = getNativeTerrain();
 	return native == terrain || native == Terrain::ANY_TERRAIN;
 }
 
-TTerrainId CCreature::getNativeTerrain() const
+TerrainId CCreature::getNativeTerrain() const
 {
 	const std::string cachingStringNoTerrainPenalty = "type_NO_TERRAIN_PENALTY";
 	static const auto selectorNoTerrainPenalty = Selector::type()(Bonus::NO_TERRAIN_PENALTY);

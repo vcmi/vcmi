@@ -158,14 +158,14 @@ CDrawLinesOperation::CDrawLinesOperation(CMap * map, const CTerrainSelection & t
 }
 
 ///CDrawRoadsOperation
-CDrawRoadsOperation::CDrawRoadsOperation(CMap * map, const CTerrainSelection & terrainSel, TRoadId roadType, CRandomGenerator * gen):
+CDrawRoadsOperation::CDrawRoadsOperation(CMap * map, const CTerrainSelection & terrainSel, RoadId roadType, CRandomGenerator * gen):
 	CDrawLinesOperation(map, terrainSel,gen),
 	roadType(roadType)
 {
 }
 
 ///CDrawRiversOperation
-CDrawRiversOperation::CDrawRiversOperation(CMap * map, const CTerrainSelection & terrainSel, TRiverId riverType, CRandomGenerator * gen):
+CDrawRiversOperation::CDrawRiversOperation(CMap * map, const CTerrainSelection & terrainSel, RiverId riverType, CRandomGenerator * gen):
 	CDrawLinesOperation(map, terrainSel, gen),
 	riverType(riverType)
 {

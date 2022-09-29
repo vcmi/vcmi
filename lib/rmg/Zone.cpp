@@ -134,12 +134,12 @@ void Zone::setTownType(si32 town)
 	townType = town;
 }
 
-TTerrainId Zone::getTerrainType() const
+TerrainId Zone::getTerrainType() const
 {
 	return terrainType;
 }
 
-void Zone::setTerrainType(TTerrainId terrain)
+void Zone::setTerrainType(TerrainId terrain)
 {
 	terrainType = terrain;
 }

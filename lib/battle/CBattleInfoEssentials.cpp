@@ -16,9 +16,9 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-TTerrainId CBattleInfoEssentials::battleTerrainType() const
+TerrainId CBattleInfoEssentials::battleTerrainType() const
 {
-	RETURN_IF_NOT_BATTLE(TTerrainId());
+	RETURN_IF_NOT_BATTLE(TerrainId());
 	return getBattle()->getTerrainType();
 }
 

@@ -17,7 +17,7 @@ class IBattleInfoCallbackMock : public IBattleInfoCallback
 {
 public:
 	MOCK_CONST_METHOD0(getContextPool, scripting::Pool *());
-	MOCK_CONST_METHOD0(battleTerrainType, TTerrainId());
+	MOCK_CONST_METHOD0(battleTerrainType, TerrainId());
 	MOCK_CONST_METHOD0(battleGetBattlefieldType, BattleField());
 
 	MOCK_CONST_METHOD0(battleIsFinished, boost::optional<int>());

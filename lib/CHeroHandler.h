@@ -266,7 +266,7 @@ public:
 	CHeroClassHandler classes;
 
 	//default costs of going through terrains. -1 means terrain is impassable
-	std::map<TTerrainId, int> terrCosts;
+	std::map<TerrainId, int> terrCosts;
 
 	struct SBallisticsLevelInfo
 	{

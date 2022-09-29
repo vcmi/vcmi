@@ -33,7 +33,7 @@ public:
 	si32 iconIndex;
 	std::string identifier;
 	std::string appearAnimation, animation, dissapearAnimation;
-	std::vector<TTerrainId> allowedTerrains;
+	std::vector<TerrainId> allowedTerrains;
 	std::vector<std::string> allowedSpecialBfields;
 	
 	//TODO: here is extra field to implement it's logic in the future but save backward compatibility
@@ -52,7 +52,7 @@ public:
 	
 	std::vector<BattleHex> getBlocked(BattleHex hex) const; //returns vector of hexes blocked by obstacle when it's placed on hex 'hex'
 	
-	bool isAppropriate(const TTerrainId terrainType, const BattleField & specialBattlefield) const;
+	bool isAppropriate(const TerrainId terrainType, const BattleField & specialBattlefield) const;
 	
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

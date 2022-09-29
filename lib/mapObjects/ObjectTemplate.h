@@ -33,7 +33,7 @@ class DLL_LINKAGE ObjectTemplate
 	/// directions from which object can be entered, format same as for moveDir in CGHeroInstance(but 0 - 7)
 	ui8 visitDir;
 	/// list of terrains on which this object can be placed
-	std::set<TTerrainId> allowedTerrains;
+	std::set<TerrainId> allowedTerrains;
 
 	void afterLoadFixup();
 
@@ -100,7 +100,7 @@ public:
 	};
 
 	// Checks if object can be placed on specific terrain
-	bool canBePlacedAt(TTerrainId terrain) const;
+	bool canBePlacedAt(TerrainId terrain) const;
 
 	ObjectTemplate();
 	//custom copy constructor is required

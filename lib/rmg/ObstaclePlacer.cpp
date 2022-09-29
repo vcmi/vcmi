@@ -26,7 +26,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-void ObstacleProxy::collectPossibleObstacles(TTerrainId terrain)
+void ObstacleProxy::collectPossibleObstacles(TerrainId terrain)
 {
 	//get all possible obstacles for this terrain
 	for(auto primaryID : VLC->objtypeh->knownObjects())

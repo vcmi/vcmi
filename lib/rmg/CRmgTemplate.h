@@ -105,8 +105,8 @@ public:
 	void setSize(int value);
 	boost::optional<int> getOwner() const;
 
-	const std::set<TTerrainId> & getTerrainTypes() const;
-	void setTerrainTypes(const std::set<TTerrainId> & value);
+	const std::set<TerrainId> & getTerrainTypes() const;
+	void setTerrainTypes(const std::set<TerrainId> & value);
 
 	const CTownInfo & getPlayerTowns() const;
 	const CTownInfo & getNeutralTowns() const;
@@ -146,7 +146,7 @@ protected:
 	CTownInfo playerTowns;
 	CTownInfo neutralTowns;
 	bool matchTerrainToTown;
-	std::set<TTerrainId> terrainTypes;
+	std::set<TerrainId> terrainTypes;
 	bool townsAreSameType;
 
 	std::set<TFaction> townTypes;

@@ -158,7 +158,7 @@ void ObjectTemplate::readTxt(CLegacyConfigParser & parser)
 	std::string & terrStr = strings[4]; // allowed terrains, 1 = object can be placed on this terrain
 
 	assert(terrStr.size() == Terrain::ROCK - 1); // all terrains but rock
-	for(TTerrainId i = Terrain::FIRST_REGULAR_TERRAIN; i < Terrain::ROCK; i++)
+	for(TerrainId i = Terrain::FIRST_REGULAR_TERRAIN; i < Terrain::ROCK; i++)
 	{
 		if (terrStr[8-i] == '1')
 			allowedTerrains.insert(i);
@@ -557,7 +557,7 @@ void ObjectTemplate::calculateVisitableOffset()
 	visitableOffset = int3(0, 0, 0);
 }
 
-bool ObjectTemplate::canBePlacedAt(TTerrainId terrain) const
+bool ObjectTemplate::canBePlacedAt(TerrainId terrain) const
 {
 	return vstd::contains(allowedTerrains, terrain);
 }

@@ -63,17 +63,17 @@ ETileType::ETileType TileInfo::getTileType() const
 	return occupied;
 }
 
-TTerrainId TileInfo::getTerrainType() const
+TerrainId TileInfo::getTerrainType() const
 {
 	return terrain;
 }
 
-void TileInfo::setTerrainType(TTerrainId type)
+void TileInfo::setTerrainType(TerrainId type)
 {
 	terrain = type;
 }
 
-void TileInfo::setRoadType(TRoadId type)
+void TileInfo::setRoadType(RoadId type)
 {
 	roadType = type;
 	//	setOccupied(ETileType::FREE);

@@ -270,7 +270,7 @@ CTerrainViewPatternConfig::~CTerrainViewPatternConfig()
 
 }
 
-const std::vector<CTerrainViewPatternConfig::TVPVector> & CTerrainViewPatternConfig::getTerrainViewPatterns(TTerrainId terrain) const
+const std::vector<CTerrainViewPatternConfig::TVPVector> & CTerrainViewPatternConfig::getTerrainViewPatterns(TerrainId terrain) const
 {
 	auto iter = terrainViewPatterns.find(VLC->terrainTypeHandler->terrains()[terrain].terrainViewPatterns);
 	if (iter == terrainViewPatterns.end())
@@ -295,7 +295,7 @@ boost::optional<const TerrainViewPattern &> CTerrainViewPatternConfig::getTerrai
 	return boost::optional<const TerrainViewPattern&>();
 }
 
-boost::optional<const CTerrainViewPatternConfig::TVPVector &> CTerrainViewPatternConfig::getTerrainViewPatternsById(TTerrainId terrain, const std::string & id) const
+boost::optional<const CTerrainViewPatternConfig::TVPVector &> CTerrainViewPatternConfig::getTerrainViewPatternsById(TerrainId terrain, const std::string & id) const
 {
 	const std::vector<TVPVector> & groupPatterns = getTerrainViewPatterns(terrain);
 	for (const TVPVector & patternFlips : groupPatterns)

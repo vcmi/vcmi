@@ -105,7 +105,7 @@ void Object::Instance::setPositionRaw(const int3 & position)
 	dObject.pos = dPosition + dParent.getPosition();
 }
 
-void Object::Instance::setTemplate(const TTerrainId & terrain)
+void Object::Instance::setTemplate(const TerrainId & terrain)
 {
 	if(dObject.appearance->id == Obj::NO_OBJ)
 	{
@@ -259,7 +259,7 @@ void Object::setPosition(const int3 & position)
 		i.setPositionRaw(i.getPosition());
 }
 
-void Object::setTemplate(const TTerrainId & terrain)
+void Object::setTemplate(const TerrainId & terrain)
 {
 	for(auto& i : dInstances)
 		i.setTemplate(terrain);

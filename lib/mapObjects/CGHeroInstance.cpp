@@ -98,7 +98,7 @@ ui32 CGHeroInstance::getTileCost(const TerrainTile & dest, const TerrainTile & f
 	return (ui32)ret;
 }
 
-TTerrainId CGHeroInstance::getNativeTerrain() const
+TerrainId CGHeroInstance::getNativeTerrain() const
 {
 	// NOTE: in H3 neutral stacks will ignore terrain penalty only if placed as topmost stack(s) in hero army.
 	// This is clearly bug in H3 however intended behaviour is not clear.
@@ -106,11 +106,11 @@ TTerrainId CGHeroInstance::getNativeTerrain() const
 	// will always have best penalty without any influence from player-defined stacks order
 
 	// TODO: What should we do if all hero stacks are neutral creatures?
-	TTerrainId nativeTerrain = Terrain::BORDER;
+	TerrainId nativeTerrain = Terrain::BORDER;
 
 	for(auto stack : stacks)
 	{
-		TTerrainId stackNativeTerrain = stack.second->type->getNativeTerrain(); //consider terrain bonuses e.g. Lodestar.
+		TerrainId stackNativeTerrain = stack.second->type->getNativeTerrain(); //consider terrain bonuses e.g. Lodestar.
 
 		if(stackNativeTerrain == Terrain::BORDER) //where does this value come from?
 			continue;

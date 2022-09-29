@@ -28,9 +28,9 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 const int NAMES_PER_TOWN=16; // number of town names per faction in H3 files. Json can define any number
 
-const TTerrainId CTownHandler::defaultGoodTerrain(Terrain::GRASS);
-const TTerrainId CTownHandler::defaultEvilTerrain(Terrain::LAVA);
-const TTerrainId CTownHandler::defaultNeutralTerrain(Terrain::ROUGH);
+const TerrainId CTownHandler::defaultGoodTerrain(Terrain::GRASS);
+const TerrainId CTownHandler::defaultEvilTerrain(Terrain::LAVA);
+const TerrainId CTownHandler::defaultNeutralTerrain(Terrain::ROUGH);
 
 const std::map<std::string, CBuilding::EBuildMode> CBuilding::MODES =
 {
@@ -944,9 +944,9 @@ void CTownHandler::loadPuzzle(CFaction &faction, const JsonNode &source)
 	assert(faction.puzzleMap.size() == GameConstants::PUZZLE_MAP_PIECES);
 }
 
-TTerrainId CTownHandler::getDefaultTerrainForAlignment(EAlignment::EAlignment alignment) const
+TerrainId CTownHandler::getDefaultTerrainForAlignment(EAlignment::EAlignment alignment) const
 {
-	TTerrainId terrain = defaultGoodTerrain;
+	TerrainId terrain = defaultGoodTerrain;
 
 	switch(alignment)
 	{

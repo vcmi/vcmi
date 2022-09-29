@@ -149,16 +149,16 @@ void TerrainTypeHandler::initTerrains(const std::vector<std::string> & allConfig
 			if(!terr.second["originalTerrainId"].isNull())
 			{
 				//place in reserved slot
-				info.id = (TTerrainId)(terr.second["originalTerrainId"].Float());
+				info.id = (TerrainId)(terr.second["originalTerrainId"].Float());
 				objects[info.id] = info;
 			}
 			else
 			{
 				//append at the end
-				info.id = static_cast<TTerrainId>(objects.size());
+				info.id = static_cast<TerrainId>(objects.size());
 				objects.push_back(info);
 			}
-			TTerrainId id = info.id;
+			TerrainId id = info.id;
 
 			//Update terrain with this id in the future, after all terrain types are populated
 
@@ -226,12 +226,12 @@ void TerrainTypeHandler::initRivers(const std::vector<std::string> & allConfigs)
 
 			if (!river.second["originalRiverId"].isNull())
 			{
-				info.id = static_cast<TRiverId>(river.second["originalRiverId"].Float());
+				info.id = static_cast<RiverId>(river.second["originalRiverId"].Float());
 				riverTypes[info.id] = info;
 			}
 			else
 			{
-				info.id = static_cast<TRiverId>(riverTypes.size());
+				info.id = static_cast<RiverId>(riverTypes.size());
 				riverTypes.push_back(info);
 			}
 		}
@@ -261,12 +261,12 @@ void TerrainTypeHandler::initRoads(const std::vector<std::string> & allConfigs)
 
 			if (!road.second["originalRoadId"].isNull())
 			{
-				info.id = static_cast<TRoadId>(road.second["originalRoadId"].Float());
+				info.id = static_cast<RoadId>(road.second["originalRoadId"].Float());
 				roadTypes[info.id] = info;
 			}
 			else
 			{
-				info.id = static_cast<TRoadId>(roadTypes.size());
+				info.id = static_cast<RoadId>(roadTypes.size());
 				roadTypes.push_back(info);
 			}
 		}
@@ -339,7 +339,7 @@ const TerrainType* TerrainTypeHandler::getInfoByCode(const std::string& terrainC
 	return terrainInfoByCode.at(terrainCode);
 }
 
-const TerrainType* TerrainTypeHandler::getInfoById(TTerrainId id) const
+const TerrainType* TerrainTypeHandler::getInfoById(TerrainId id) const
 {
 	return terrainInfoById.at(id);
 }
@@ -354,7 +354,7 @@ const RiverType* TerrainTypeHandler::getRiverByCode(const std::string& riverCode
 	return riverInfoByCode.at(riverCode);
 }
 
-const RiverType* TerrainTypeHandler::getRiverById(TRiverId id) const
+const RiverType* TerrainTypeHandler::getRiverById(RiverId id) const
 {
 	return riverInfoById.at(id);
 }
@@ -369,7 +369,7 @@ const RoadType* TerrainTypeHandler::getRoadByCode(const std::string& roadCode) c
 	return roadInfoByCode.at(roadCode);
 }
 
-const RoadType* TerrainTypeHandler::getRoadById(TRoadId id) const
+const RoadType* TerrainTypeHandler::getRoadById(RoadId id) const
 {
 	return roadInfoById.at(id);
 }
@@ -467,7 +467,7 @@ bool TerrainType::isTransitionRequired() const
 	return transitionRequired;
 }
 
-RiverType::RiverType(const std::string & fileName, const std::string & code, TRiverId id):
+RiverType::RiverType(const std::string & fileName, const std::string & code, RiverId id):
 	fileName(fileName),
 	code(code),
 	id(id)
@@ -484,7 +484,7 @@ RiverType& RiverType::operator=(const RiverType& other)
 	return *this;
 }
 
-RoadType::RoadType(const std::string& fileName, const std::string& code, TRoadId id):
+RoadType::RoadType(const std::string& fileName, const std::string& code, RoadId id):
 	fileName(fileName),
 	code(code),
 	id(id),

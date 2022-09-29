@@ -72,13 +72,13 @@ public:
 	void clearTerrain(CRandomGenerator * gen = nullptr);
 
 	/// Draws terrain at the current terrain selection. The selection will be cleared automatically.
-	void drawTerrain(TTerrainId terType, CRandomGenerator * gen = nullptr);
+	void drawTerrain(TerrainId terType, CRandomGenerator * gen = nullptr);
 
 	/// Draws roads at the current terrain selection. The selection will be cleared automatically.
-	void drawRoad(TRoadId roadType, CRandomGenerator * gen = nullptr);
+	void drawRoad(RoadId roadType, CRandomGenerator * gen = nullptr);
 	
 	/// Draws rivers at the current terrain selection. The selection will be cleared automatically.
-	void drawRiver(TRiverId riverType, CRandomGenerator * gen = nullptr);
+	void drawRiver(RiverId riverType, CRandomGenerator * gen = nullptr);
 
 	void insertObject(CGObjectInstance * obj);
 	void insertObjects(std::set<CGObjectInstance *> & objects);
