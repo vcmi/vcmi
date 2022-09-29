@@ -8,7 +8,7 @@
  *
  */
 #import "startSDL.h"
-#import "GameChatKeyboardHanlder.h"
+#import "GameChatKeyboardHandler.h"
 
 #include "../Global.h"
 #include "CMT.h"
@@ -23,7 +23,7 @@
 #import <UIKit/UIKit.h>
 
 @interface SDLViewObserver : NSObject <UIGestureRecognizerDelegate>
-@property (nonatomic, strong) GameChatKeyboardHanlder * gameChatHandler;
+@property (nonatomic, strong) GameChatKeyboardHandler * gameChatHandler;
 @end
 
 @implementation SDLViewObserver
@@ -131,7 +131,7 @@ int startSDL(int argc, char * argv[], BOOL startManually)
 {
 	@autoreleasepool {
 		auto observer = [SDLViewObserver new];
-		observer.gameChatHandler = [GameChatKeyboardHanlder new];
+		observer.gameChatHandler = [GameChatKeyboardHandler new];
 
 		id __block sdlWindowCreationObserver = [NSNotificationCenter.defaultCenter addObserverForName:UIWindowDidBecomeKeyNotification object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
 			[NSNotificationCenter.defaultCenter removeObserver:sdlWindowCreationObserver];

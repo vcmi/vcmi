@@ -1,5 +1,5 @@
 /*
- * GameChatKeyboardHanlder.h, part of VCMI engine
+ * GameChatKeyboardHandler.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -12,7 +12,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface GameChatKeyboardHanlder : NSObject
+@interface GameChatKeyboardHandler : NSObject
 
 @property (nonatomic, weak) UITextField * textFieldSDL;
 

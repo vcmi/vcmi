@@ -1,5 +1,5 @@
 /*
- * GameChatKeyboardHanlder.m, part of VCMI engine
+ * GameChatKeyboardHandler.m, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -8,7 +8,7 @@
  *
  */
 
-#import "GameChatKeyboardHanlder.h"
+#import "GameChatKeyboardHandler.h"
 
 #include <SDL_events.h>
 
@@ -32,11 +32,11 @@ static CGRect keyboardFrameBegin(NSNotification * n) { return keyboardFrame(n, U
 static CGRect keyboardFrameEnd  (NSNotification * n) { return keyboardFrame(n, UIKeyboardFrameEndUserInfoKey); }
 
 
-@interface GameChatKeyboardHanlder ()
+@interface GameChatKeyboardHandler ()
 @property (nonatomic) BOOL wasChatMessageSent;
 @end
 
-@implementation GameChatKeyboardHanlder
+@implementation GameChatKeyboardHandler
 
 - (void)triggerInput {
 	__auto_type notificationCenter = NSNotificationCenter.defaultCenter;
@@ -99,7 +99,7 @@ static int watchReturnKey(void * userdata, SDL_Event * event)
 {
 	if(event->type == SDL_KEYDOWN && event->key.keysym.scancode == SDL_SCANCODE_RETURN)
 	{
-		__auto_type self = (__bridge GameChatKeyboardHanlder *)userdata;
+		__auto_type self = (__bridge GameChatKeyboardHandler *)userdata;
 		self.wasChatMessageSent = YES;
 		SDL_DelEventWatch(watchReturnKey, userdata);
 	}

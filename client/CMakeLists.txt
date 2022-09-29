@@ -148,14 +148,14 @@ set(client_HEADERS
 if(APPLE_IOS)
 	set(client_SRCS ${client_SRCS}
 		CFocusableHelper.cpp
-		ios/GameChatKeyboardHanlder.m
+		ios/GameChatKeyboardHandler.m
 		ios/main.m
 		ios/startSDL.mm
 		ios/utils.mm
 	)
 	set(client_HEADERS ${client_HEADERS}
 		CFocusableHelper.h
-		ios/GameChatKeyboardHanlder.h
+		ios/GameChatKeyboardHandler.h
 		ios/startSDL.h
 		ios/utils.h
 	)
