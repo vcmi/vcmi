@@ -14,8 +14,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface GameChatKeyboardHandler : NSObject
 
-@property (nonatomic, weak) UITextField * textFieldSDL;
-
 - (void)triggerInput;
 
 @end

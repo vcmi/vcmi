@@ -33,26 +33,6 @@
 
     UIView * view = [object valueForKeyPath:keyPath];
 
-    UITextField * textField;
-    for (UIView * v in view.subviews) {
-        if ([v isKindOfClass:[UITextField class]]) {
-            textField = (UITextField *)v;
-            break;
-        }
-    }
-
-	auto r = textField.frame;
-	r.size.height = 40;
-	textField.frame = r;
-    self.gameChatHandler.textFieldSDL = textField;
-
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_13_0
-	if(@available(iOS 13.0, *))
-		textField.backgroundColor = UIColor.systemBackgroundColor;
-	else
-#endif
-		textField.backgroundColor = UIColor.whiteColor;
-
     auto longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPress:)];
     longPress.minimumPressDuration = 0.2;
     [view addGestureRecognizer:longPress];

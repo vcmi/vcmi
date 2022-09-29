@@ -24,13 +24,6 @@ static void sendKeyEvent(SDL_KeyCode keyCode)
 	SDL_PushEvent(&keyEvent);
 }
 
-static CGRect keyboardFrame(NSNotification * n, NSString * userInfoKey)
-{
-	return [n.userInfo[userInfoKey] CGRectValue];
-}
-static CGRect keyboardFrameBegin(NSNotification * n) { return keyboardFrame(n, UIKeyboardFrameBeginUserInfoKey); }
-static CGRect keyboardFrameEnd  (NSNotification * n) { return keyboardFrame(n, UIKeyboardFrameEndUserInfoKey); }
-
 
 @interface GameChatKeyboardHandler ()
 @property (nonatomic) BOOL wasChatMessageSent;
@@ -42,54 +35,24 @@ static CGRect keyboardFrameEnd  (NSNotification * n) { return keyboardFrame(n, U
 	__auto_type notificationCenter = NSNotificationCenter.defaultCenter;
 	[notificationCenter addObserver:self selector:@selector(textDidBeginEditing:) name:UITextFieldTextDidBeginEditingNotification object:nil];
 	[notificationCenter addObserver:self selector:@selector(textDidEndEditing:) name:UITextFieldTextDidEndEditingNotification object:nil];
-	[notificationCenter addObserver:self selector:@selector(keyboardWillChangeFrame:) name:UIKeyboardWillChangeFrameNotification object:nil];
-	[notificationCenter addObserver:self selector:@selector(keyboardDidChangeFrame:) name:UIKeyboardDidChangeFrameNotification object:nil];
 
 	self.wasChatMessageSent = NO;
 	sendKeyEvent(SDLK_TAB);
 }
 
-- (void)positionTextFieldAboveKeyboardRect:(CGRect)kbFrame {
-	__auto_type r = kbFrame;
-	r.size.height = CGRectGetHeight(self.textFieldSDL.frame);
-	r.origin.y -= r.size.height;
-	self.textFieldSDL.frame = r;
-}
-
 #pragma mark - Notifications
 
 - (void)textDidBeginEditing:(NSNotification *)n {
-	self.textFieldSDL.hidden = NO;
-	self.textFieldSDL.text = nil;
-
 	// watch for pressing Return to ignore sending Escape key after keyboard is closed
 	SDL_AddEventWatch(watchReturnKey, (__bridge void *)self);
 }
 
 - (void)textDidEndEditing:(NSNotification *)n {
 	[NSNotificationCenter.defaultCenter removeObserver:self];
-	self.textFieldSDL.hidden = YES;
 
 	// discard chat message
 	if(!self.wasChatMessageSent)
 		sendKeyEvent(SDLK_ESCAPE);
-}
-
-- (void)keyboardWillChangeFrame:(NSNotification *)n {
-	// animate textfield together with keyboard
-	[UIView performWithoutAnimation:^{
-		[self positionTextFieldAboveKeyboardRect:keyboardFrameBegin(n)];
-	}];
-
-	NSTimeInterval kbAnimationDuration = [n.userInfo[UIKeyboardAnimationDurationUserInfoKey] doubleValue];
-	NSUInteger kbAnimationCurve = [n.userInfo[UIKeyboardAnimationCurveUserInfoKey] unsignedIntegerValue];
-	[UIView animateWithDuration:kbAnimationDuration delay:0 options:(kbAnimationCurve << 16) animations:^{
-		[self positionTextFieldAboveKeyboardRect:keyboardFrameEnd(n)];
-	} completion:nil];
-}
-
-- (void)keyboardDidChangeFrame:(NSNotification *)n {
-	[self positionTextFieldAboveKeyboardRect:keyboardFrameEnd(n)];
 }
 
 @end
