@@ -84,8 +84,12 @@ MainWindow::MainWindow(QWidget * parent)
 	ui->tabListWidget->setCurrentIndex(0);
 	ui->settingsView->setDisplayList();
 
-	connect(ui->tabSelectList, SIGNAL(currentRowChanged(int)),
-		ui->tabListWidget, SLOT(setCurrentIndex(int)));
+	connect(ui->tabSelectList, &QListWidget::currentRowChanged, [this](int i) {
+#ifdef Q_OS_IOS
+		qApp->focusWidget()->clearFocus();
+#endif
+		ui->tabListWidget->setCurrentIndex(i);
+	});
 
 	if(settings["launcher"]["updateOnStartup"].Bool())
 		UpdateDialog::showUpdateDialog(false);
