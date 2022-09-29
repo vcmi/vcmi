@@ -1129,7 +1129,7 @@ void CInGameConsole::textEdited(const SDL_TextEditingEvent & event)
 
 void CInGameConsole::startEnteringText()
 {
-	CSDL_Ext::startTextInput(&pos);
+	CSDL_Ext::startTextInput(&GH.statusbar->pos);
 
 	enteredText = "_";
 	if(GH.topInt() == adventureInt)
