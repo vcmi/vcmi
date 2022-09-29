@@ -465,7 +465,7 @@ std::vector<int3> CPathfinderHelper::getAllowedTeleportChannelExits(TeleportChan
 					allowedExits.push_back(p);
 			}
 		}
-		else if(CGTeleport::isExitPassable(gs, hero, obj))
+		else if(obj && CGTeleport::isExitPassable(gs, hero, obj))
 			allowedExits.push_back(obj->visitablePos());
 	}
 

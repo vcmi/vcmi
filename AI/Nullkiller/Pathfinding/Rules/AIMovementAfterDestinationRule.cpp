@@ -147,7 +147,6 @@ namespace AIPathfinding
 					return false;
 				}
 
-				destinationNode = questNode.get();
 				destination.node = questNode.get();
 
 				nodeStorage->commit(destination, source);

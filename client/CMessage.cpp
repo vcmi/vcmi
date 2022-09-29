@@ -208,6 +208,7 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, PlayerColor play
 
 	const int sizes[][2] = {{400, 125}, {500, 150}, {600, 200}, {480, 400}};
 
+	assert(ret && ret->text);
 	for(int i = 0;
 		i < ARRAY_COUNT(sizes)
 			&& sizes[i][0] < screen->w - 150

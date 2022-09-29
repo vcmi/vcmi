@@ -315,6 +315,9 @@ int InfoBoxHeroData::getSubID()
 
 si64 InfoBoxHeroData::getValue()
 {
+	if(!hero)
+		return 0;
+
 	switch(type)
 	{
 	case HERO_PRIMARY_SKILL:

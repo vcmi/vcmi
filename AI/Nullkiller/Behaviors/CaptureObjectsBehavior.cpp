@@ -133,6 +133,7 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(const std::vector<AIPath> 
 		}
 	}
 
+	assert(closestWay || waysToVisitObj.empty());
 	for(auto way : waysToVisitObj)
 	{
 		way->closestWayRatio
