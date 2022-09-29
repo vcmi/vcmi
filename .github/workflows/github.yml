@@ -73,6 +73,8 @@ jobs:
           - platform: linux
             os: ubuntu-20.04
             test: 0
+            pack: 1
+            extension: tar.gz
             preset: linux-gcc-release
           - platform: mac-intel
             os: macos-12
@@ -214,7 +216,7 @@ jobs:
           ${{github.workspace}}/**/${{ env.VCMI_PACKAGE_FILE_NAME }}.${{ matrix.extension }}
 
     - name: Upload build
-      if: ${{ matrix.pack == 1 && (github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/features/')) && matrix.platform != 'msvc' }}
+      if: ${{ matrix.pack == 1 && (github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/features/')) && matrix.platform != 'msvc' && matrix.platform != 'linux'}}
       run: |
         cd '${{github.workspace}}/out/build/${{matrix.preset}}'
         source '${{github.workspace}}/CI/upload_package.sh'
