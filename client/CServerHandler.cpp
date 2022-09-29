@@ -541,7 +541,7 @@ void CServerHandler::startGameplay(CGameState * gameState)
 		client->newGame(gameState);
 		break;
 	case StartInfo::LOAD_GAME:
-		client->loadGame();
+		client->loadGame(gameState);
 		break;
 	default:
 		throw std::runtime_error("Invalid mode");

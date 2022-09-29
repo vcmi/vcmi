@@ -151,7 +151,7 @@ public:
 	events::EventBus * eventBus() const override;
 
 	void newGame(CGameState * gameState);
-	void loadGame();
+	void loadGame(CGameState * gameState);
 	void serialize(BinarySerializer & h, const int version);
 	void serialize(BinaryDeserializer & h, const int version);
 

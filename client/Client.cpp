@@ -197,53 +197,62 @@ void CClient::newGame(CGameState * gameState)
 	initPlayerInterfaces();
 }
 
-void CClient::loadGame()
+void CClient::loadGame(CGameState * gameState)
 {
 	logNetwork->info("Loading procedure started!");
 
-	std::unique_ptr<CLoadFile> loader;
-	try
+	if(gameState)
 	{
-		boost::filesystem::path clientSaveName = *CResourceHandler::get("local")->getResourceName(ResourceID(CSH->si->mapname, EResType::CLIENT_SAVEGAME));
-		boost::filesystem::path controlServerSaveName;
-
-		if(CResourceHandler::get("local")->existsResource(ResourceID(CSH->si->mapname, EResType::SERVER_SAVEGAME)))
-		{
-			controlServerSaveName = *CResourceHandler::get("local")->getResourceName(ResourceID(CSH->si->mapname, EResType::SERVER_SAVEGAME));
-		}
-		else // create entry for server savegame. Triggered if save was made after launch and not yet present in res handler
-		{
-			controlServerSaveName = boost::filesystem::path(clientSaveName).replace_extension(".vsgm1");
-			CResourceHandler::get("local")->createResource(controlServerSaveName.string(), true);
-		}
-
-		if(clientSaveName.empty())
-			throw std::runtime_error("Cannot open client part of " + CSH->si->mapname);
-		if(controlServerSaveName.empty() || !boost::filesystem::exists(controlServerSaveName))
-			throw std::runtime_error("Cannot open server part of " + CSH->si->mapname);
-
-		{
-			CLoadIntegrityValidator checkingLoader(clientSaveName, controlServerSaveName, MINIMAL_SERIALIZATION_VERSION);
-			loadCommonState(checkingLoader);
-			loader = checkingLoader.decay();
-		}
-
+		logNetwork->info("Game state was transferred over network, loading.");
+		gs = gameState;
 	}
-	catch(std::exception & e)
+	else
 	{
-		logGlobal->error("Cannot load game %s. Error: %s", CSH->si->mapname, e.what());
-		throw; //obviously we cannot continue here
+		std::unique_ptr<CLoadFile> loader;
+		try
+		{
+			boost::filesystem::path clientSaveName = *CResourceHandler::get("local")->getResourceName(ResourceID(CSH->si->mapname, EResType::CLIENT_SAVEGAME));
+			boost::filesystem::path controlServerSaveName;
+
+			if(CResourceHandler::get("local")->existsResource(ResourceID(CSH->si->mapname, EResType::SERVER_SAVEGAME)))
+			{
+				controlServerSaveName = *CResourceHandler::get("local")->getResourceName(ResourceID(CSH->si->mapname, EResType::SERVER_SAVEGAME));
+			}
+			else // create entry for server savegame. Triggered if save was made after launch and not yet present in res handler
+			{
+				controlServerSaveName = boost::filesystem::path(clientSaveName).replace_extension(".vsgm1");
+				CResourceHandler::get("local")->createResource(controlServerSaveName.string(), true);
+			}
+
+			if(clientSaveName.empty())
+				throw std::runtime_error("Cannot open client part of " + CSH->si->mapname);
+			if(controlServerSaveName.empty() || !boost::filesystem::exists(controlServerSaveName))
+				throw std::runtime_error("Cannot open server part of " + CSH->si->mapname);
+
+			{
+				CLoadIntegrityValidator checkingLoader(clientSaveName, controlServerSaveName, MINIMAL_SERIALIZATION_VERSION);
+				loadCommonState(checkingLoader);
+				loader = checkingLoader.decay();
+			}
+			
+			serialize(loader->serializer, loader->serializer.fileVersion);
+		}
+		catch(std::exception & e)
+		{
+			logGlobal->error("Cannot load game %s. Error: %s", CSH->si->mapname, e.what());
+			throw; //obviously we cannot continue here
+		}
+		logNetwork->trace("Loaded common part of save %d ms", CSH->th->getDiff());
 	}
-	logNetwork->trace("Loaded common part of save %d ms", CSH->th->getDiff());
 	gs->preInit(VLC);
 	gs->updateOnLoad(CSH->si.get());
+	logNetwork->info("Game loaded, initialize interfaces.");
+	
 	initMapHandler();
 
 	reinitScripting();
 
 	initPlayerEnvironments();
-
-	serialize(loader->serializer, loader->serializer.fileVersion);
 
 	initPlayerInterfaces();
 }
