@@ -577,8 +577,8 @@ void CServerHandler::endGameplay(bool closeConnection, bool restart)
 		}
 	}
 	
-	serverConnection->enterLobbyConnectionMode();
-	serverConnection->disableStackSendingByID();
+	c->enterLobbyConnectionMode();
+	c->disableStackSendingByID();
 }
 
 void CServerHandler::startCampaignScenario(std::shared_ptr<CCampaignState> cs)
