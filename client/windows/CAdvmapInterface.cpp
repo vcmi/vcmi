@@ -1234,7 +1234,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 		return;
 	case SDLK_d:
 		{
-			if(h && isActive() && key.state == SDL_PRESSED)
+			if(h && isActive() && LOCPLINT->makingTurn && key.state == SDL_PRESSED)
 				LOCPLINT->tryDiggging(h);
 			return;
 		}
