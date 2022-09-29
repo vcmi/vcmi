@@ -825,11 +825,10 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 				}
 				else
 				{
-					auto quality = [getCreatureID](std::shared_ptr<Bonus> pick) -> std::vector<int>
+					auto quality = [getCreatureID](std::shared_ptr<Bonus> pick) -> std::tuple<int, int, int>
 					{
 						const CCreature * c = VLC->creh->objects[getCreatureID(pick)];
-						std::vector<int> v = {c->level, static_cast<int>(c->cost.marketValue()), -pick->additionalInfo[1]};
-						return v;
+						return std::tuple<int, int, int> {c->level, static_cast<int>(c->cost.marketValue()), -pick->additionalInfo[1]};
 					};
 					if(quality(topPick) < quality(newPick))
 						topPick = newPick;
