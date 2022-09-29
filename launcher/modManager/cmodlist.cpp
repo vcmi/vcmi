@@ -118,9 +118,6 @@ bool CModEntry::isUpdateable() const
 
 bool CModEntry::isCompatible() const
 {
-	if(!isInstalled())
-		return false;
-
 	auto compatibility = localData["compatibility"].toMap();
 	return ::isCompatible(compatibility["min"].toString(), compatibility["max"].toString());
 }

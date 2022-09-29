@@ -207,11 +207,15 @@ QString CModListView::genChangelogText(CModEntry & mod)
 QString CModListView::genModInfoText(CModEntry & mod)
 {
 	QString prefix = "<p><span style=\" font-weight:600;\">%1: </span>"; // shared prefix
+	QString redPrefix = "<p><span style=\" font-weight:600; color:red\">%1: </span>"; // shared prefix
 	QString lineTemplate = prefix + "%2</p>";
 	QString urlTemplate = prefix + "<a href=\"%2\">%3</a></p>";
 	QString textTemplate = prefix + "</p><p align=\"justify\">%2</p>";
 	QString listTemplate = "<p align=\"justify\">%1: %2</p>";
 	QString noteTemplate = "<p align=\"justify\">%1</p>";
+	QString compatibleString = prefix + "Mod is compatible</p>";
+	QString incompatibleString = redPrefix + "Mod is incompatible</p>";
+	QString supportedVersions = redPrefix + "%2 %3 %4</p>";
 
 	QString result;
 
@@ -228,6 +232,32 @@ QString CModListView::genModInfoText(CModEntry & mod)
 
 	if(mod.getValue("contact").isValid())
 		result += urlTemplate.arg(tr("Home")).arg(mod.getValue("contact").toString()).arg(mod.getValue("contact").toString());
+
+	//compatibility info
+	if(mod.isCompatible())
+		result += compatibleString.arg(tr("Compatibility"));
+	else
+	{
+		auto compatibilityInfo = mod.getValue("compatibility").toMap();
+		auto minStr = compatibilityInfo.value("min").toString();
+		auto maxStr = compatibilityInfo.value("max").toString();
+
+		result += incompatibleString.arg(tr("Compatibility"));
+		if(minStr == maxStr)
+			result += supportedVersions.arg(tr("Required VCMI version"), minStr, "", "");
+		else
+		{
+			if(minStr.isEmpty() || maxStr.isEmpty())
+			{
+				if(minStr.isEmpty())
+					result += supportedVersions.arg(tr("Supported VCMI version"), maxStr, ", ", "please upgrade mod");
+				else
+					result += supportedVersions.arg(tr("Required VCMI version"), minStr, " ", "or above");
+			}
+			else
+				result += supportedVersions.arg(tr("Supported VCMI versions"), minStr, " - ", maxStr);
+		}
+	}
 
 	result += replaceIfNotEmpty(mod.getValue("depends"), lineTemplate.arg(tr("Required mods")));
 	result += replaceIfNotEmpty(mod.getValue("conflicts"), lineTemplate.arg(tr("Conflicting mods")));
