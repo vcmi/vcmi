@@ -33,7 +33,7 @@ public:
 	CModManager(CModList * modList);
 
 	void resetRepositories();
-	void loadRepository(QString filename);
+	void loadRepository(QVariantMap repomap);
 	void loadModSettings();
 	void loadMods();
 

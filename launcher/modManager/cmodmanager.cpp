@@ -64,9 +64,9 @@ void CModManager::resetRepositories()
 	modList->resetRepositories();
 }
 
-void CModManager::loadRepository(QString file)
+void CModManager::loadRepository(QVariantMap repomap)
 {
-	modList->addRepository(JsonUtils::JsonFromFile(file).toMap());
+	modList->addRepository(repomap);
 }
 
 void CModManager::loadMods()

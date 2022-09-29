@@ -21,6 +21,7 @@
 #include "cmodmanager.h"
 #include "cdownloadmanager_moc.h"
 #include "../launcherdirs.h"
+#include "../jsonutils.h"
 
 #include "../../lib/CConfigHandler.h"
 
@@ -548,6 +549,7 @@ void CModListView::downloadFinished(QStringList savedFiles, QStringList failedFi
 	QString title = "Download failed";
 	QString firstLine = "Unable to download all files.\n\nEncountered errors:\n\n";
 	QString lastLine = "\n\nInstall successfully downloaded?";
+	bool doInstallFiles = false;
 
 	// if all files were d/loaded there should be no errors. And on failure there must be an error
 	assert(failedFiles.empty() == errors.empty());
@@ -564,12 +566,12 @@ void CModListView::downloadFinished(QStringList savedFiles, QStringList failedFi
 		                                   QMessageBox::Yes | QMessageBox::No, QMessageBox::No );
 
 		if(result == QMessageBox::Yes)
-			installFiles(savedFiles);
+			doInstallFiles = true;
 	}
 	else
 	{
 		// everything OK
-		installFiles(savedFiles);
+		doInstallFiles = true;
 	}
 
 	// remove progress bar after some delay so user can see that download was complete and not interrupted.
@@ -577,6 +579,9 @@ void CModListView::downloadFinished(QStringList savedFiles, QStringList failedFi
 
 	dlManager->deleteLater();
 	dlManager = nullptr;
+
+	if(doInstallFiles)
+		installFiles(savedFiles);
 }
 
 void CModListView::hideProgressBar()
@@ -600,7 +605,29 @@ void CModListView::installFiles(QStringList files)
 		if(filename.endsWith(".zip"))
 			mods.push_back(filename);
 		if(filename.endsWith(".json"))
-			manager->loadRepository(filename);
+		{
+			//download and merge additional files
+			auto repodata = JsonUtils::JsonFromFile(filename).toMap();
+			if(repodata.value("name").isNull())
+			{
+				for(const auto & key : repodata.keys())
+				{
+					auto modjson = repodata[key].toMap().value("mod");
+					if(!modjson.isNull())
+					{
+						downloadFile(key + ".json", modjson.toString(), "mod json");
+					}
+				}
+			}
+			else
+			{
+				auto modn = QFileInfo(filename).baseName();
+				QVariantMap temp;
+				temp[modn] = repodata;
+				repodata = temp;
+			}
+			manager->loadRepository(repodata);
+		}
 		if(filename.endsWith(".png"))
 			images.push_back(filename);
 	}
