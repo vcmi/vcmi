@@ -29,6 +29,7 @@ class CContentHandler;
 class BattleFieldHandler;
 class IBonusTypeHandler;
 class CBonusTypeHandler;
+class TerrainTypeHandler;
 class ObstacleHandler;
 class CTerrainViewPatternConfig;
 class CRmgTemplateStorage;
@@ -85,6 +86,7 @@ public:
 	CTownHandler * townh;
 	CGeneralTextHandler * generaltexth;
 	CModHandler * modh;
+	TerrainTypeHandler * terrainTypeHandler;
 	CTerrainViewPatternConfig * terviewh;
 	CRmgTemplateStorage * tplh;
 	BattleFieldHandler * battlefieldsHandler;
@@ -125,6 +127,7 @@ public:
 		h & skillh;
 		h & battlefieldsHandler;
 		h & obstacleHandler;
+		h & terrainTypeHandler;
 
 		if(!h.saving)
 		{

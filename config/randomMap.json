@@ -1,9 +1,4 @@
 {
-  "terrain" :
-  {
-    "undergroundAllow" : ["lava"], //others to be replaced by subterranena
-    "groundProhibit" : ["subterra"] //to be replaced by dirt
-  },
   "waterZone" :
   {
     "treasure" :

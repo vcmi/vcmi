@@ -47,8 +47,8 @@ void NodeStorage::initialize(const PathfinderOptions & options, const CGameState
 		{
 			for(pos.y=0; pos.y < sizes.y; ++pos.y)
 			{
-				const TerrainTile * tile = &gs->map->getTile(pos);
-				if(tile->terType.isWater())
+				const TerrainTile tile = gs->map->getTile(pos);
+				if(tile.terType->isWater())
 				{
 					resetTile(pos, ELayer::SAIL, PathfinderUtil::evaluateAccessibility<ELayer::SAIL>(pos, tile, fow, player, gs));
 					if(useFlying)
@@ -56,7 +56,7 @@ void NodeStorage::initialize(const PathfinderOptions & options, const CGameState
 					if(useWaterWalking)
 						resetTile(pos, ELayer::WATER, PathfinderUtil::evaluateAccessibility<ELayer::WATER>(pos, tile, fow, player, gs));
 				}
-				if(tile->terType.isLand())
+				if(tile.terType->isLand())
 				{
 					resetTile(pos, ELayer::LAND, PathfinderUtil::evaluateAccessibility<ELayer::LAND>(pos, tile, fow, player, gs));
 					if(useFlying)
@@ -1010,10 +1010,10 @@ bool CPathfinderHelper::passOneTurnLimitCheck(const PathNodeInfo & source) const
 
 TurnInfo::BonusCache::BonusCache(TConstBonusListPtr bl)
 {
-	for(int i = 0; i < Terrain::Manager::terrains().size(); ++i)
+	for(const auto & terrain : VLC->terrainTypeHandler->terrains())
 	{
 		noTerrainPenalty.push_back(static_cast<bool>(
-				bl->getFirst(Selector::type()(Bonus::NO_TERRAIN_PENALTY).And(Selector::subtype()(i)))));
+				bl->getFirst(Selector::type()(Bonus::NO_TERRAIN_PENALTY).And(Selector::subtype()(terrain.id)))));
 	}
 
 	freeShipBoarding = static_cast<bool>(bl->getFirst(Selector::type()(Bonus::FREE_SHIP_BOARDING)));
@@ -1180,7 +1180,7 @@ void CPathfinderHelper::getNeighbours(
 			continue;
 
 		const TerrainTile & hlpt = map->getTile(hlp);
-		if(!hlpt.terType.isPassable())
+		if(!hlpt.terType->isPassable())
 			continue;
 
 // 		//we cannot visit things from blocked tiles
@@ -1190,18 +1190,18 @@ void CPathfinderHelper::getNeighbours(
 // 		}
 
 		/// Following condition let us avoid diagonal movement over coast when sailing
-		if(srct.terType.isWater() && limitCoastSailing && hlpt.terType.isWater() && dir.x && dir.y) //diagonal move through water
+		if(srct.terType->isWater() && limitCoastSailing && hlpt.terType->isWater() && dir.x && dir.y) //diagonal move through water
 		{
 			int3 hlp1 = tile,
 				hlp2 = tile;
 			hlp1.x += dir.x;
 			hlp2.y += dir.y;
 
-			if(map->getTile(hlp1).terType.isLand() || map->getTile(hlp2).terType.isLand())
+			if(map->getTile(hlp1).terType->isLand() || map->getTile(hlp2).terType->isLand())
 				continue;
 		}
 
-		if(indeterminate(onLand) || onLand == hlpt.terType.isLand())
+		if(indeterminate(onLand) || onLand == hlpt.terType->isLand())
 		{
 			vec.push_back(hlp);
 		}
@@ -1239,7 +1239,7 @@ int CPathfinderHelper::getMovementCost(
 	{
 		ret = static_cast<int>(ret * (100.0 + ti->valOfBonuses(Bonus::FLYING_MOVEMENT)) / 100.0);
 	}
-	else if(dt->terType.isWater())
+	else if(dt->terType->isWater())
 	{
 		if(hero->boat && ct->hasFavorableWinds() && dt->hasFavorableWinds())
 			ret = static_cast<int>(ret * 0.666);
@@ -1267,7 +1267,7 @@ int CPathfinderHelper::getMovementCost(
 	{
 		std::vector<int3> vec;
 		vec.reserve(8); //optimization
-		getNeighbours(*dt, dst, vec, ct->terType.isLand(), true);
+		getNeighbours(*dt, dst, vec, ct->terType->isLand(), true);
 		for(auto & elem : vec)
 		{
 			int fcost = getMovementCost(dst, elem, nullptr, nullptr, left, false);

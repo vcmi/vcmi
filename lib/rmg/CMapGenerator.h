@@ -34,8 +34,6 @@ class DLL_LINKAGE CMapGenerator: public Load::Progress
 public:
 	struct Config
 	{
-		std::vector<Terrain> terrainUndergroundAllowed;
-		std::vector<Terrain> terrainGroundProhibit;
 		std::vector<CTreasureInfo> waterTreasure;
 		int shipyardGuard;
 		int mineExtraResources;

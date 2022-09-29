@@ -217,9 +217,9 @@ public:
 	CTerrainViewPatternConfig();
 	~CTerrainViewPatternConfig();
 
-	const std::vector<TVPVector> & getTerrainViewPatterns(const Terrain & terrain) const;
+	const std::vector<TVPVector> & getTerrainViewPatterns(TerrainId terrain) const;
 	boost::optional<const TerrainViewPattern &> getTerrainViewPatternById(std::string patternId, const std::string & id) const;
-	boost::optional<const TVPVector &> getTerrainViewPatternsById(const Terrain & terrain, const std::string & id) const;
+	boost::optional<const TVPVector &> getTerrainViewPatternsById(TerrainId terrain, const std::string & id) const;
 	const TVPVector * getTerrainTypePatternById(const std::string & id) const;
 	void flipPattern(TerrainViewPattern & pattern, int flip) const;
 

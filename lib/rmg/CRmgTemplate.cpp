@@ -69,12 +69,13 @@ class TerrainEncoder
 public:
 	static si32 decode(const std::string & identifier)
 	{
-		return vstd::find_pos(Terrain::Manager::terrains(), identifier);
+		return VLC->terrainTypeHandler->getInfoByCode(identifier)->id;
 	}
 
 	static std::string encode(const si32 index)
 	{
-		return (index >=0 && index < Terrain::Manager::terrains().size()) ? static_cast<std::string>(Terrain::Manager::terrains()[index]) : "<INVALID TERRAIN>";
+		const auto& terrains = VLC->terrainTypeHandler->terrains();
+		return (index >=0 && index < terrains.size()) ? terrains[index].name : "<INVALID TERRAIN>";
 	}
 };
 
@@ -151,9 +152,9 @@ ZoneOptions::ZoneOptions()
 	terrainTypeLikeZone(NO_ZONE),
 	treasureLikeZone(NO_ZONE)
 {
-	for(auto & terr : Terrain::Manager::terrains())
+	for(const auto & terr : VLC->terrainTypeHandler->terrains())
 		if(terr.isLand() && terr.isPassable())
-			terrainTypes.insert(terr);
+			terrainTypes.insert(terr.id);
 }
 
 ZoneOptions & ZoneOptions::operator=(const ZoneOptions & other)
@@ -216,12 +217,12 @@ boost::optional<int> ZoneOptions::getOwner() const
 	return owner;
 }
 
-const std::set<Terrain> & ZoneOptions::getTerrainTypes() const
+const std::set<TerrainId> & ZoneOptions::getTerrainTypes() const
 {
 	return terrainTypes;
 }
 
-void ZoneOptions::setTerrainTypes(const std::set<Terrain> & value)
+void ZoneOptions::setTerrainTypes(const std::set<TerrainId> & value)
 {
 	//assert(value.find(ETerrainType::WRONG) == value.end() && value.find(ETerrainType::BORDER) == value.end() &&
 	//	   value.find(ETerrainType::WATER) == value.end() && value.find(ETerrainType::ROCK) == value.end());
@@ -376,7 +377,7 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 				terrainTypes.clear();
 				for(auto ttype : node.Vector())
 				{
-					terrainTypes.emplace(ttype.String());
+					terrainTypes.emplace(VLC->terrainTypeHandler->getInfoByName(ttype.String())->id);
 				}
 			}
 		}

@@ -26,13 +26,6 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 const int RIVER_DELTA_ID = 143;
 const int RIVER_DELTA_SUBTYPE = 0;
-const std::map<std::string, std::string> RIVER_DELTA_TEMPLATE_NAME
-{
-	{RIVER_NAMES[1], "clrdelt"},
-	{RIVER_NAMES[2], "icedelt"},
-	{RIVER_NAMES[3], "muddelt"},
-	{RIVER_NAMES[4], "lavdelt"}
-};
 
 const std::array<std::array<int, 25>, 4> deltaTemplates
 {
@@ -93,7 +86,7 @@ void RiverPlacer::init()
 void RiverPlacer::drawRivers()
 {
 	map.getEditManager()->getTerrainSelection().setSelection(rivers.getTilesVector());
-	map.getEditManager()->drawRiver(Terrain::Manager::getInfo(zone.getTerrainType()).river, &generator.rand);
+	map.getEditManager()->drawRiver(VLC->terrainTypeHandler->terrains()[zone.getTerrainType()].river, &generator.rand);
 }
 
 char RiverPlacer::dump(const int3 & t)
@@ -202,7 +195,7 @@ void RiverPlacer::preprocess()
 	//calculate delta positions
 	if(connectedToWaterZoneId > -1)
 	{
-		auto river = Terrain::Manager::getInfo(zone.getTerrainType()).river;
+		auto river = VLC->terrainTypeHandler->terrains()[zone.getTerrainType()].river;
 		auto & a = neighbourZonesTiles[connectedToWaterZoneId];
 		auto availableArea = zone.areaPossible() + zone.freePaths();
 		for(auto & tileToProcess : availableArea.getTilesVector())
@@ -240,7 +233,7 @@ void RiverPlacer::preprocess()
 						deltaOrientations[p] = templateId + 1;
 						
 						//specific case: deltas for ice rivers amd mud rivers are messed :(
-						if(river == RIVER_NAMES[2])
+						if(river == River::ICY_RIVER)
 						{
 							switch(deltaOrientations[p])
 							{
@@ -258,7 +251,7 @@ void RiverPlacer::preprocess()
 									break;
 							}
 						}
-						if(river == RIVER_NAMES[3])
+						if(river == River::MUD_RIVER)
 						{
 							switch(deltaOrientations[p])
 							{
@@ -328,8 +321,9 @@ void RiverPlacer::preprocess()
 
 void RiverPlacer::connectRiver(const int3 & tile)
 {
-	auto river = Terrain::Manager::getInfo(zone.getTerrainType()).river;
-	if(river.empty() || river == RIVER_NAMES[0])
+	auto riverType = VLC->terrainTypeHandler->terrains()[zone.getTerrainType()].river;
+	const auto & river = VLC->terrainTypeHandler->rivers()[riverType];
+	if(river.id == River::NO_RIVER)
 		return;
 	
 	rmg::Area roads;
@@ -386,9 +380,10 @@ void RiverPlacer::connectRiver(const int3 & tile)
 		if(tmplates.size() > 3)
 		{
 			if(tmplates.size() % 4 != 0)
-				throw rmgException(boost::to_string(boost::format("River templates for (%d,%d) at terrain %s, river %s are incorrect") % RIVER_DELTA_ID % RIVER_DELTA_SUBTYPE % zone.getTerrainType() % river));
+				throw rmgException(boost::to_string(boost::format("River templates for (%d,%d) at terrain %s, river %s are incorrect") %
+					RIVER_DELTA_ID % RIVER_DELTA_SUBTYPE % zone.getTerrainType() % river.code));
 			
-			std::string targetTemplateName = RIVER_DELTA_TEMPLATE_NAME.at(river) + std::to_string(deltaOrientations[pos]) + ".def";
+			std::string targetTemplateName = river.deltaName + std::to_string(deltaOrientations[pos]) + ".def";
 			for(auto & templ : tmplates)
 			{
 				if(templ->animationFile == targetTemplateName)

@@ -208,8 +208,8 @@ void CGObjectInstance::setType(si32 ID, si32 subID)
 		logGlobal->error("Unknown object type %d:%d at %s", ID, subID, visitablePos().toString());
 		return;
 	}
-	if(!handler->getTemplates(tile.terType).empty())
-		appearance = handler->getTemplates(tile.terType)[0];
+	if(!handler->getTemplates(tile.terType->id).empty())
+		appearance = handler->getTemplates(tile.terType->id)[0];
 	else
 		appearance = handler->getTemplates()[0]; // get at least some appearance since alternative is crash
 	if (ID == Obj::HERO)
@@ -436,7 +436,7 @@ int3 IBoatGenerator::bestLocation() const
 	{
 		if(const TerrainTile *tile = IObjectInterface::cb->getTile(o->pos + offset, false)) //tile is in the map
 		{
-			if(tile->terType.isWater()  &&  (!tile->blocked || tile->blockingObjects.front()->ID == Obj::BOAT)) //and is water and is not blocked or is blocked by boat
+			if(tile->terType->isWater()  &&  (!tile->blocked || tile->blockingObjects.front()->ID == Obj::BOAT)) //and is water and is not blocked or is blocked by boat
 				return o->pos + offset;
 		}
 	}

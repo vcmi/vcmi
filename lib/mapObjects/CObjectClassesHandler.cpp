@@ -493,8 +493,15 @@ void AObjectTypeHandler::init(const JsonNode & input, boost::optional<std::strin
 		tmpl->id = Obj(type);
 		tmpl->subid = subtype;
 		tmpl->stringID = entry.first; // FIXME: create "fullID" - type.object.template?
-		tmpl->readJson(entry.second);
-		templates.push_back(std::shared_ptr<const ObjectTemplate>(tmpl));
+		try
+		{
+			tmpl->readJson(entry.second);
+			templates.push_back(std::shared_ptr<const ObjectTemplate>(tmpl));
+		}
+		catch (const std::exception & e)
+		{
+			logGlobal->warn("Failed to load terrains for object %s: %s", entry.first, e.what());
+		}
 	}
 
 	if (input["name"].isNull())
@@ -583,7 +590,7 @@ BattleField AObjectTypeHandler::getBattlefield() const
 	return battlefield ? BattleField::fromString(battlefield.get()) : BattleField::NONE;
 }
 
-std::vector<std::shared_ptr<const ObjectTemplate>>AObjectTypeHandler::getTemplates(const Terrain & terrainType) const
+std::vector<std::shared_ptr<const ObjectTemplate>>AObjectTypeHandler::getTemplates(TerrainId terrainType) const
 {
 	std::vector<std::shared_ptr<const ObjectTemplate>> templates = getTemplates();
 	std::vector<std::shared_ptr<const ObjectTemplate>> filtered;
@@ -600,7 +607,7 @@ std::vector<std::shared_ptr<const ObjectTemplate>>AObjectTypeHandler::getTemplat
 		return filtered;
 }
 
-std::shared_ptr<const ObjectTemplate> AObjectTypeHandler::getOverride(const Terrain & terrainType, const CGObjectInstance * object) const
+std::shared_ptr<const ObjectTemplate> AObjectTypeHandler::getOverride(TerrainId terrainType, const CGObjectInstance * object) const
 {
 	std::vector<std::shared_ptr<const ObjectTemplate>> ret = getTemplates(terrainType);
 	for (const auto & tmpl: ret)

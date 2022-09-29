@@ -28,7 +28,7 @@ public:
 protected:
 	
 	rmg::Area rockArea, accessibleArea;
-	Terrain rockTerrain;
+	TerrainId rockTerrain;
 };
 
 VCMI_LIB_NAMESPACE_END

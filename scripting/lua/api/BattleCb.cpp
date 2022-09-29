@@ -88,7 +88,7 @@ int BattleCbProxy::getTerrainType(lua_State * L)
 	if(!S.tryGet(1, object))
 		return S.retVoid();
 
-	return LuaStack::quickRetStr(L, object->battleTerrainType());
+	return LuaStack::quickRetInt(L, object->battleTerrainType());
 }
 
 int BattleCbProxy::getUnitByPos(lua_State * L)

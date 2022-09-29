@@ -53,7 +53,7 @@ void WaterProxy::process()
 		
 		for(auto & t : z.second->area().getTilesVector())
 		{
-			if(map.map().getTile(t).terType == zone.getTerrainType())
+			if(map.map().getTile(t).terType->id == zone.getTerrainType())
 			{
 				z.second->areaPossible().erase(t);
 				z.second->area().erase(t);

@@ -338,12 +338,12 @@ CGeneralTextHandler::CGeneralTextHandler()
 	
 	for(int i = 0; i < h3mTerrainNames.size(); ++i)
 	{
-		terrainNames[Terrain::createTerrainTypeH3M(i)] = h3mTerrainNames[i];
+		terrainNames[i] = h3mTerrainNames[i];
 	}
-	for(auto & terrain : Terrain::Manager::terrains())
+	for(const auto & terrain : VLC->terrainTypeHandler->terrains())
 	{
-		if(!Terrain::Manager::getInfo(terrain).terrainText.empty())
-			terrainNames[terrain] = Terrain::Manager::getInfo(terrain).terrainText;
+		if(!terrain.terrainText.empty())
+			terrainNames[terrain.id] = terrain.terrainText;
 	}
 	
 

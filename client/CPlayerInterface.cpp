@@ -152,6 +152,10 @@ void CPlayerInterface::init(std::shared_ptr<Environment> ENV, std::shared_ptr<CC
 {
 	cb = CB;
 	env = ENV;
+
+	CCS->soundh->loadHorseSounds();
+	CCS->musich->loadTerrainSounds();
+
 	initializeHeroTownList();
 
 	// always recreate advmap interface to avoid possible memory-corruption bugs
@@ -274,7 +278,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 	{
 		updateAmbientSounds();
 		//We may need to change music - select new track, music handler will change it if needed
-		CCS->musich->playMusicFromSet("terrain", LOCPLINT->cb->getTile(hero->visitablePos())->terType, true);
+		CCS->musich->playMusicFromSet("terrain", LOCPLINT->cb->getTile(hero->visitablePos())->terType->name, true);
 
 		if(details.result == TryMoveHero::TELEPORTATION)
 		{
@@ -2742,8 +2746,8 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 
 	{
 		path.convert(0);
-		Terrain currentTerrain = Terrain("BORDER"); // not init yet
-		Terrain newTerrain;
+		TerrainId currentTerrain = Terrain::BORDER; // not init yet
+		TerrainId newTerrain;
 		int sh = -1;
 
 		auto canStop = [&](CGPathNode * node) -> bool
@@ -2798,7 +2802,7 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 				sh = CCS->soundh->playSound(soundBase::horseFlying, -1);
 #endif
 			{
-				newTerrain = cb->getTile(CGHeroInstance::convertPosition(currentCoord, false))->terType;
+				newTerrain = cb->getTile(CGHeroInstance::convertPosition(currentCoord, false))->terType->id;
 				if(newTerrain != currentTerrain)
 				{
 					CCS->soundh->stopSound(sh);

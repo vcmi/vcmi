@@ -63,7 +63,7 @@ protected:
 class CDrawRoadsOperation : public CDrawLinesOperation
 {
 public:
-	CDrawRoadsOperation(CMap * map, const CTerrainSelection & terrainSel, const std::string & roadType, CRandomGenerator * gen);
+	CDrawRoadsOperation(CMap * map, const CTerrainSelection & terrainSel, RoadId roadType, CRandomGenerator * gen);
 	std::string getLabel() const override;
 	
 protected:
@@ -74,13 +74,13 @@ protected:
 	void updateTile(TerrainTile & tile, const CDrawLinesOperation::LinePattern & pattern, const int flip) override;
 	
 private:
-	std::string roadType;
+	RoadId roadType;
 };
 
 class CDrawRiversOperation : public CDrawLinesOperation
 {
 public:
-	CDrawRiversOperation(CMap * map, const CTerrainSelection & terrainSel, const std::string & roadType, CRandomGenerator * gen);
+	CDrawRiversOperation(CMap * map, const CTerrainSelection & terrainSel, RoadId roadType, CRandomGenerator * gen);
 	std::string getLabel() const override;
 	
 protected:
@@ -91,7 +91,7 @@ protected:
 	void updateTile(TerrainTile & tile, const CDrawLinesOperation::LinePattern & pattern, const int flip) override;
 	
 private:
-	std::string riverType;
+	RiverId riverType;
 };
 
 VCMI_LIB_NAMESPACE_END

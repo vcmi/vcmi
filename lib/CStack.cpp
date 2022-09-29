@@ -331,11 +331,11 @@ bool CStack::canBeHealed() const
 bool CStack::isOnNativeTerrain() const
 {
 	//this code is called from CreatureTerrainLimiter::limit on battle start
-	auto res = nativeTerrain == Terrain::ANY || nativeTerrain == battle->getTerrainType();
+	auto res = nativeTerrain == Terrain::ANY_TERRAIN || nativeTerrain == battle->getTerrainType();
 	return res;
 }
 
-bool CStack::isOnTerrain(const Terrain & terrain) const
+bool CStack::isOnTerrain(TerrainId terrain) const
 {
 	return battle->getTerrainType() == terrain;
 }
