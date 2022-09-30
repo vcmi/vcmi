@@ -115,6 +115,7 @@ CSettingsView::CSettingsView(QWidget * parent)
 {
 	ui->setupUi(this);
 
+	ui->labelBuildVersion->setText(QString::fromStdString(GameConstants::VCMI_VERSION));
 	loadSettings();
 }
 
