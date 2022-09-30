@@ -157,7 +157,7 @@ void ObjectTemplate::readTxt(CLegacyConfigParser & parser)
 	// so these two fields can be interpreted as "strong affinity" and "weak affinity" towards terrains
 	std::string & terrStr = strings[4]; // allowed terrains, 1 = object can be placed on this terrain
 
-	assert(terrStr.size() == Terrain::ROCK - 1); // all terrains but rock
+	assert(terrStr.size() == Terrain::ROCK); // all terrains but rock - counting from 0
 	for(TerrainId i = Terrain::FIRST_REGULAR_TERRAIN; i < Terrain::ROCK; i++)
 	{
 		if (terrStr[8-i] == '1')

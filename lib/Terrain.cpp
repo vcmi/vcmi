@@ -194,7 +194,7 @@ void TerrainTypeHandler::initTerrains(const std::vector<std::string> & allConfig
 	for(size_t i = Terrain::FIRST_REGULAR_TERRAIN; i < Terrain::ORIGINAL_TERRAIN_COUNT; i++)
 	{
 		//Make sure that original terrains are loaded
-		assert(objects(i).id != Terrain::WRONG);
+		assert(objects[i].id != Terrain::WRONG);
 	}
 
 	recreateTerrainMaps();
