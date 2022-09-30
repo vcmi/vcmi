@@ -180,14 +180,14 @@ events::EventBus * CClient::eventBus() const
 	return clientEventBus.get();
 }
 
-void CClient::newGame(CGameState * gameState)
+void CClient::newGame(CGameState * initializedGameState)
 {
 	CSH->th->update();
 	CMapService mapService;
-	gs = gameState ? gameState : new CGameState();
+	gs = initializedGameState ? initializedGameState : new CGameState();
 	gs->preInit(VLC);
 	logNetwork->trace("\tCreating gamestate: %i", CSH->th->getDiff());
-	if(!gameState)
+	if(!initializedGameState)
 		gs->init(&mapService, CSH->si.get(), settings["general"]["saveRandomMaps"].Bool());
 	logNetwork->trace("Initializing GameState (together): %d ms", CSH->th->getDiff());
 
@@ -197,14 +197,14 @@ void CClient::newGame(CGameState * gameState)
 	initPlayerInterfaces();
 }
 
-void CClient::loadGame(CGameState * gameState)
+void CClient::loadGame(CGameState * initializedGameState)
 {
 	logNetwork->info("Loading procedure started!");
 
-	if(gameState)
+	if(initializedGameState)
 	{
 		logNetwork->info("Game state was transferred over network, loading.");
-		gs = gameState;
+		gs = initializedGameState;
 	}
 	else
 	{
