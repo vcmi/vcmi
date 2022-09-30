@@ -74,7 +74,7 @@ void LobbyChatMessage::applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler *
 
 void LobbyGuiAction::applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler)
 {
-	if(!handler->isGuest())
+	if(!lobby || !handler->isGuest())
 		return;
 
 	switch(action)
@@ -133,6 +133,9 @@ bool LobbyUpdateState::applyOnLobbyHandler(CServerHandler * handler)
 
 void LobbyUpdateState::applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler)
 {
+	if(!lobby) //stub: ignore message for game mode
+		return;
+		
 	if(!lobby->bonusSel && handler->si->campState && handler->state == EClientState::LOBBY_CAMPAIGN)
 	{
 		lobby->bonusSel = std::make_shared<CBonusSelection>();
@@ -150,6 +153,9 @@ void LobbyUpdateState::applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler *
 
 void LobbyShowMessage::applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler)
 {
+	if(!lobby) //stub: ignore message for game mode
+		return;
+	
 	lobby->buttonStart->block(false);
 	handler->showServerError(message);
 }
