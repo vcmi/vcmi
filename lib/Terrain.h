@@ -49,8 +49,6 @@ public:
 	bool transitionRequired;
 	
 	TerrainType(const std::string & name = "");
-
-	TerrainType& operator=(const TerrainType & other);
 	
 	bool operator==(const TerrainType & other);
 	bool operator!=(const TerrainType & other);
@@ -99,8 +97,6 @@ public:
 
 	RiverType(const std::string & fileName = "", const std::string & code = "", RiverId id = River::NO_RIVER);
 
-	RiverType& operator=(const RiverType & other);
-
 	template <typename Handler> void serialize(Handler& h, const int version)
 	{
 		h & fileName;
@@ -119,8 +115,6 @@ public:
 	ui8 movementCost;
 
 	RoadType(const std::string & fileName = "", const std::string& code = "", RoadId id = Road::NO_ROAD);
-
-	RoadType& operator=(const RoadType & other);
 
 	template <typename Handler> void serialize(Handler& h, const int version)
 	{

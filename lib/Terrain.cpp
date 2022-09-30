@@ -397,30 +397,6 @@ TerrainType::TerrainType(const std::string& _name):
 	transitionRequired(false)
 {
 }
-
-TerrainType& TerrainType::operator=(const TerrainType & other)
-{
-	battleFields = other.battleFields;
-	prohibitTransitions = other.prohibitTransitions;
-	minimapBlocked = other.minimapBlocked;
-	minimapUnblocked = other.minimapUnblocked;
-	name = other.name;
-	musicFilename = other.musicFilename;
-	tilesFilename = other.tilesFilename;
-	terrainText = other.terrainText;
-	typeCode = other.typeCode;
-	terrainViewPatterns = other.terrainViewPatterns;
-	rockTerrain = other.rockTerrain;
-	river = other.river;
-
-	id = other.id;
-	moveCost = other.moveCost;
-	horseSoundId = other.horseSoundId;
-	passabilityType = other.passabilityType;
-	transitionRequired = other.transitionRequired;
-
-	return *this;
-}
 	
 bool TerrainType::operator==(const TerrainType& other)
 {
@@ -474,32 +450,12 @@ RiverType::RiverType(const std::string & fileName, const std::string & code, Riv
 {
 }
 
-RiverType& RiverType::operator=(const RiverType& other)
-{
-	fileName = other.fileName;
-	code = other.code;
-	deltaName = other.deltaName;
-	id = other.id;
-
-	return *this;
-}
-
 RoadType::RoadType(const std::string& fileName, const std::string& code, RoadId id):
 	fileName(fileName),
 	code(code),
 	id(id),
 	movementCost(GameConstants::BASE_MOVEMENT_COST)
 {
-}
-
-RoadType& RoadType::operator=(const RoadType& other)
-{
-	fileName = other.fileName;
-	code = other.code;
-	id = other.id;
-	movementCost = other.movementCost;
-
-	return *this;
 }
 
 VCMI_LIB_NAMESPACE_END
