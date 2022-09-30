@@ -345,6 +345,15 @@ void PlayerEndsGame::applyCl(CClient *cl)
 		handleQuit(settings["session"]["spectate"].Bool()); // if spectator is active ask to close client or not
 }
 
+void PlayerReinitInterface::applyCl(CClient * cl)
+{
+	CSH->si->getIthPlayersSettings(player).connectedPlayerIDs.clear();
+	cl->initPlayerEnvironments();
+	cl->initPlayerInterfaces();
+	if(cl->gameState()->currentPlayer == player)
+		callOnlyThatInterface(cl, player, &CGameInterface::yourTurn);
+}
+
 void RemoveBonus::applyCl(CClient *cl)
 {
 	cl->invalidatePaths();

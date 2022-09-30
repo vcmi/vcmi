@@ -1324,7 +1324,7 @@ void CGameHandler::addGenericKilledLog(BattleLogMessage & blm, const CStack * de
 
 void CGameHandler::handleClientDisconnection(std::shared_ptr<CConnection> c)
 {
-	for(auto playerConns : connections)
+	/*for(auto playerConns : connections)
 	{
 		for(auto i = playerConns.second.begin(); i != playerConns.second.end(); )
 		{
@@ -1342,7 +1342,7 @@ void CGameHandler::handleClientDisconnection(std::shared_ptr<CConnection> c)
 			else
 				++i;
 		}
-	}
+	}*/
 }
 
 void CGameHandler::handleReceivedPack(CPackForServer * pack)
@@ -5003,7 +5003,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 
 void CGameHandler::playerMessage(PlayerColor player, const std::string &message, ObjectInstanceID currObj)
 {
-	bool cheated = true;
+	bool cheated = false;
 	PlayerMessageClient temp_message(player, message);
 	sendAndApply(&temp_message);
 
@@ -6924,6 +6924,7 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 {
 	if (cheat == "vcmiistari")
 	{
+		cheated = true;
 		if (!hero) return;
 		///Give hero spellbook
 		if (!hero->hasSpellbook())
@@ -6949,6 +6950,7 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 	}
 	else if (cheat == "vcmiarmenelos")
 	{
+		cheated = true;
 		if (!town) return;
 		///Build all buildings in selected town
 		for (auto & build : town->town->buildings)
@@ -6963,6 +6965,7 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 	}
 	else if (cheat == "vcmiainur" || cheat == "vcmiangband" || cheat == "vcmiglaurung")
 	{
+		cheated = true;
 		if (!hero) return;
 		///Gives N creatures into each slot
 		std::map<std::string, std::pair<int, int>> creatures;
@@ -6977,6 +6980,7 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 	}
 	else if (cheat == "vcminoldor")
 	{
+		cheated = true;
 		if (!hero) return;
 		///Give all war machines to hero
 		if (!hero->getArt(ArtifactPosition::MACH1))
@@ -6988,6 +6992,7 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 	}
 	else if (cheat == "vcmiforgeofnoldorking")
 	{
+		cheated = true;
 		if (!hero) return;
 		///Give hero all artifacts except war machines, spell scrolls and spell book
 		for (int g = 7; g < VLC->arth->objects.size(); ++g) //including artifacts from mods
@@ -6995,12 +7000,14 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 	}
 	else if (cheat == "vcmiglorfindel")
 	{
+		cheated = true;
 		if (!hero) return;
 		///selected hero gains a new level
 		changePrimSkill(hero, PrimarySkill::EXPERIENCE, VLC->heroh->reqExp(hero->level + 1) - VLC->heroh->reqExp(hero->level));
 	}
 	else if (cheat == "vcminahar")
 	{
+		cheated = true;
 		if (!hero) return;
 		///Give 1000000 movement points to hero
 		SetMovePoints smp;
@@ -7017,6 +7024,7 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 	}
 	else if (cheat == "vcmiformenos")
 	{
+		cheated = true;
 		///Give resources to player
 		TResources resources;
 		resources[Res::GOLD] = 100000;
@@ -7027,6 +7035,7 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 	}
 	else if (cheat == "vcmisilmaril")
 	{
+		cheated = true;
 		///Player wins
 		PlayerCheated pc;
 		pc.player = player;
@@ -7035,6 +7044,7 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 	}
 	else if (cheat == "vcmimelkor")
 	{
+		cheated = true;
 		///Player looses
 		PlayerCheated pc;
 		pc.player = player;
@@ -7043,6 +7053,7 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 	}
 	else if (cheat == "vcmieagles" || cheat == "vcmiungoliant")
 	{
+		cheated = true;
 		///Reveal or conceal FoW
 		FoWChange fc;
 		fc.mode = (cheat == "vcmieagles" ? 1 : 0);
@@ -7061,8 +7072,6 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 		delete [] hlp_tab;
 		sendAndApply(&fc);
 	}
-	else
-		cheated = false;
 }
 
 void CGameHandler::removeObstacle(const CObstacleInstance & obstacle)

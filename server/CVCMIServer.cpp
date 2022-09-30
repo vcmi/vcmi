@@ -474,22 +474,45 @@ void CVCMIServer::clientConnected(std::shared_ptr<CConnection> c, std::vector<st
 void CVCMIServer::clientDisconnected(std::shared_ptr<CConnection> c)
 {
 	connections -= c;
+	if(connections.empty())
+		throw std::runtime_error("No more connections. Closing server.");
+	
+	if(hostClient == c)
+	{
+		//TODO: support host transfer role
+		state = EServerState::SHUTDOWN;
+		return;
+	}
+	
 	for(auto it = playerNames.begin(); it != playerNames.end();)
 	{
 		if(it->second.connection != c->connectionID)
 		{
-			it++;
+			++it;
 			continue;
 		}
 
 		int id = it->first;
-		announceTxt(boost::str(boost::format("%s (pid %d cid %d) left the game") % id % playerNames[id].name % c->connectionID));
-		playerNames.erase(it++);
-
-		// Reset in-game players client used back to AI
-		if(PlayerSettings * s = si->getPlayersSettings(id))
+		std::string playerLeftMsgText = boost::str(boost::format("%s (pid %d cid %d) left the game") % id % playerNames[id].name % c->connectionID);
+		announceTxt(playerLeftMsgText); //send lobby text, it will be ignored for non-lobby clients
+		auto * playerSettings = si->getPlayersSettings(id);
+		if(!playerSettings)
 		{
-			setPlayerConnectedId(*s, PlayerSettings::PLAYER_AI);
+			++it;
+			continue;
+		}
+		
+		it = playerNames.erase(it);
+		setPlayerConnectedId(*playerSettings, PlayerSettings::PLAYER_AI);
+		
+		if(gh && si && state == EServerState::GAMEPLAY)
+		{
+			gh->playerMessage(playerSettings->color, playerLeftMsgText, ObjectInstanceID{});
+			gh->connections[playerSettings->color].insert(hostClient);
+			PlayerReinitInterface startAiPack;
+			startAiPack.player = playerSettings->color;
+			startAiPack.playerConnectionId = PlayerSettings::PLAYER_AI;
+			gh->sendAndApply(&startAiPack);
 		}
 	}
 }
