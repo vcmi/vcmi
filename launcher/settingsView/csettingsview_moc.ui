@@ -333,81 +333,7 @@
     </widget>
    </item>
    <item row="1" column="4">
-    <widget class="QComboBox" name="comboBoxResolution">
-     <property name="maxVisibleItems">
-      <number>11</number>
-     </property>
-     <item>
-      <property name="text">
-       <string>800x600</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>1024x600</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>1024x768</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>1181x664</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>1280x720</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>1280x768</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>1280x800</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>1280x960</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>1280x1024</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>1366x768</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>1440x900</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>1600x1200</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>1680x1050</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>1920x1080</string>
-      </property>
-     </item>
-    </widget>
+    <widget class="QComboBox" name="comboBoxResolution"/>
    </item>
    <item row="11" column="1">
     <widget class="QLabel" name="labelNeutralAI">
@@ -417,13 +343,7 @@
     </widget>
    </item>
    <item row="4" column="4">
-    <widget class="QComboBox" name="comboBoxDisplayIndex">
-     <item>
-      <property name="text">
-       <string>0</string>
-      </property>
-     </item>
-    </widget>
+    <widget class="QComboBox" name="comboBoxDisplayIndex"/>
    </item>
    <item row="7" column="1" colspan="4">
     <spacer name="spacerSections">
