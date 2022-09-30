@@ -930,7 +930,6 @@ void CPlayerInterface::battleEnd(const BattleResult *br)
 		isAutoFightOn = false;
 		cb->unregisterBattleInterface(autofightingAI);
 		autofightingAI.reset();
-		adventureInt->quickCombatUnlock();
 
 		if (!battleInt)
 		{
@@ -938,6 +937,7 @@ void CPlayerInterface::battleEnd(const BattleResult *br)
 			// #1490 - during AI turn when quick combat is on, we need to display the message and wait for user to close it.
 			// Otherwise NewTurn causes freeze.
 			waitWhileDialog();
+			adventureInt->quickCombatUnlock();
 			return;
 		}
 	}
@@ -945,6 +945,7 @@ void CPlayerInterface::battleEnd(const BattleResult *br)
 	BATTLE_EVENT_POSSIBLE_RETURN;
 
 	battleInt->battleFinished(*br);
+	adventureInt->quickCombatUnlock();
 }
 
 void CPlayerInterface::battleLogMessage(const std::vector<MetaString> & lines)
