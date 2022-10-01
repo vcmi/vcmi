@@ -92,7 +92,8 @@ MainWindow::MainWindow(QWidget * parent)
 
 	connect(ui->tabSelectList, &QListWidget::currentRowChanged, [this](int i) {
 #ifdef Q_OS_IOS
-		qApp->focusWidget()->clearFocus();
+		if(auto widget = qApp->focusWidget())
+			widget->clearFocus();
 #endif
 		ui->tabListWidget->setCurrentIndex(i);
 	});
