@@ -106,6 +106,8 @@ public:
 
 	CondSh<bool> campaignServerRestartLock;
 
+	static const std::string localhostAddress;
+
 	CServerHandler();
 
 	void resetStateForLobby(const StartInfo::EMode mode, const std::vector<std::string> * names = nullptr);
