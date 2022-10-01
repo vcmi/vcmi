@@ -19,7 +19,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class CGCreature;
 
-class DLL_LINKAGE CQuest
+class DLL_LINKAGE CQuest final
 {
 public:
 	enum Emission {MISSION_NONE = 0, MISSION_LEVEL = 1, MISSION_PRIMARY_STAT = 2, MISSION_KILL_HERO = 3, MISSION_KILL_CREATURE = 4,
@@ -52,7 +52,6 @@ public:
 	bool isCustomFirst, isCustomNext, isCustomComplete;
 
 	CQuest();
-	virtual ~CQuest(){};
 
 	static bool checkMissionArmy(const CQuest * q, const CCreatureSet * army);
 	virtual bool checkQuest (const CGHeroInstance * h) const; //determines whether the quest is complete or not
@@ -161,7 +160,7 @@ protected:
 class DLL_LINKAGE CGQuestGuard : public CGSeerHut
 {
 public:
-	CGQuestGuard() : CGSeerHut(){};
+	CGQuestGuard() = default;
 	void init(CRandomGenerator & rand) override;
 	void completeQuest (const CGHeroInstance * h) const override;
 
@@ -209,7 +208,7 @@ public:
 class DLL_LINKAGE CGBorderGuard : public CGKeys, public IQuestObject
 {
 public:
-	CGBorderGuard() : IQuestObject(){};
+	CGBorderGuard() = default;
 	void initObj(CRandomGenerator & rand) override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const override;
@@ -231,7 +230,7 @@ public:
 class DLL_LINKAGE CGBorderGate : public CGBorderGuard
 {
 public:
-	CGBorderGate() : CGBorderGuard(){};
+	CGBorderGate() = default;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 
 	bool passableFor(PlayerColor color) const override;
