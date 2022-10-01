@@ -1758,7 +1758,7 @@ CGSeerHut * CMapLoaderH3M::readSeerHut()
 		if (artID != 255)
 		{
 			//not none quest
-			hut->quest->m5arts.push_back (artID);
+			hut->quest->addArtifactID(artID);
 			hut->quest->missionType = CQuest::MISSION_ART;
 		}
 		else
@@ -1887,7 +1887,7 @@ void CMapLoaderH3M::readQuest(IQuestObject * guard)
 			for(int yy = 0; yy < artNumber; ++yy)
 			{
 				int artid = reader.readUInt16();
-				guard->quest->m5arts.push_back(artid);
+				guard->quest->addArtifactID(artid);
 				map->allowedArtifact[artid] = false; //these are unavailable for random generation
 			}
 			break;
