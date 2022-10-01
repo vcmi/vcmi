@@ -90,8 +90,12 @@ MainWindow::MainWindow(QWidget * parent)
 	connect(ui->stackedWidgetPage2, &CModListView::extraResolutionsEnabledChanged,
 		ui->settingsView, &CSettingsView::fillValidResolutions);
 
-	connect(ui->tabSelectList, SIGNAL(currentRowChanged(int)),
-		ui->tabListWidget, SLOT(setCurrentIndex(int)));
+	connect(ui->tabSelectList, &QListWidget::currentRowChanged, [this](int i) {
+#ifdef Q_OS_IOS
+		qApp->focusWidget()->clearFocus();
+#endif
+		ui->tabListWidget->setCurrentIndex(i);
+	});
 
 	if(settings["launcher"]["updateOnStartup"].Bool())
 		UpdateDialog::showUpdateDialog(false);
