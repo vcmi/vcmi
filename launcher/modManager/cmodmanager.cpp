@@ -261,7 +261,7 @@ bool CModManager::doEnableMod(QString mod, bool on)
 
 	JsonUtils::JsonToFile(settingsPath(), modSettings);
 
-	//model is read from filesystem once it is saved
+	//Update the model once it is saved
 	modList->modChanged(mod);
 
 	return true;
