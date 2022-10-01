@@ -73,3 +73,8 @@ bool Composition::isElementar() const
 {
 	return subtasks.back()->isElementar();
 }
+
+int Composition::getHeroExchangeCount() const
+{
+	return isElementar() ? taskptr(*subtasks.back())->getHeroExchangeCount() : 0;
+}

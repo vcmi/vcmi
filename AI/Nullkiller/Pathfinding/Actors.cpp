@@ -275,6 +275,9 @@ ExchangeResult HeroExchangeMap::tryExchangeNoLock(const ChainActor * other)
 
 		if(!differentMasks) return result;
 
+		if(actor->allowSpellCast || other->allowSpellCast)
+			return result;
+
 		TResources resources = ai->cb->getResourceAmount();
 
 		if(!resources.canAfford(actor->armyCost + other->armyCost))

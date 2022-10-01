@@ -47,14 +47,14 @@ Goals::TGoalVec DefenceBehavior::decompose() const
 
 void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInstance * town) const
 {
-	logAi->debug("Evaluating defence for %s", town->name);
+	logAi->trace("Evaluating defence for %s", town->name);
 
 	auto treatNode = ai->nullkiller->dangerHitMap->getObjectTreat(town);
 	auto treats = { treatNode.fastestDanger, treatNode.maximumDanger };
 
 	if(!treatNode.fastestDanger.hero)
 	{
-		logAi->debug("No treat found for town %s", town->name);
+		logAi->trace("No treat found for town %s", town->name);
 
 		return;
 	}
@@ -73,7 +73,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 			return;
 		}
 
-		logAi->debug(
+		logAi->trace(
 			"Hero %s in garrison of town %s is suposed to defend the town",
 			town->garrisonHero->name,
 			town->name);
@@ -85,7 +85,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 
 	if(reinforcement)
 	{
-		logAi->debug("Town %s can buy defence army %lld", town->name, reinforcement);
+		logAi->trace("Town %s can buy defence army %lld", town->name, reinforcement);
 		tasks.push_back(Goals::sptr(Goals::BuyArmy(town, reinforcement).setpriority(0.5f)));
 	}
 
@@ -93,7 +93,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 
 	for(auto & treat : treats)
 	{
-		logAi->debug(
+		logAi->trace(
 			"Town %s has treat %lld in %s turns, hero: %s",
 			town->name,
 			treat.danger,
@@ -104,6 +104,12 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 
 		for(AIPath & path : paths)
 		{
+			if(town->visitingHero && path.targetHero != town->visitingHero.get())
+				continue;
+
+			if(town->visitingHero && path.getHeroStrength() < town->visitingHero->getHeroStrength())
+				continue;
+
 			if(path.getHeroStrength() > treat.danger)
 			{
 				if((path.turn() <= treat.turn && dayOfWeek + treat.turn < 6 && isSafeToVisit(path.targetHero, path.heroArmy, treat.danger))
@@ -111,11 +117,13 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 					|| path.turn() < treat.turn - 1
 					|| (path.turn() < treat.turn && treat.turn >= 2))
 				{
-					logAi->debug(
+#if AI_TRACE_LEVEL >= 1
+					logAi->trace(
 						"Hero %s can eliminate danger for town %s using path %s.",
 						path.targetHero->name,
 						town->name,
 						path.toString());
+#endif
 
 					treatIsUnderControl = true;
 					break;
@@ -140,7 +148,9 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 
 					if(cb->getHeroesInfo().size() < ALLOWED_ROAMING_HEROES)
 					{
-						logAi->debug("Hero %s can be recruited to defend %s", hero->name, town->name);
+#if AI_TRACE_LEVEL >= 1
+						logAi->trace("Hero %s can be recruited to defend %s", hero->name, town->name);
+#endif
 						tasks.push_back(Goals::sptr(Goals::RecruitHero(town, hero).setpriority(1)));
 						continue;
 					}
@@ -174,7 +184,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 
 		if(paths.empty())
 		{
-			logAi->debug("No ways to defend town %s", town->name);
+			logAi->trace("No ways to defend town %s", town->name);
 
 			continue;
 		}
@@ -197,9 +207,11 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 #endif
 			if(path.turn() <= treat.turn - 2)
 			{
+#if AI_TRACE_LEVEL >= 1
 				logAi->trace("Deffer defence of %s by %s because he has enough time to rich the town next trun",
 					town->name,
 					path.targetHero->name);
+#endif
 
 				defferedPaths[path.targetHero].push_back(i);
 

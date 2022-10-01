@@ -120,18 +120,23 @@ const CGObjectInstance * ObjectClusterizer::getBlocker(const AIPath & path) cons
 
 		auto blocker = blockers.front();
 
+		if(isObjectPassable(ai, blocker))
+			continue;
+
 		if(blocker->ID == Obj::GARRISON
-			|| blocker->ID == Obj::MONSTER
-			|| blocker->ID == Obj::GARRISON2
-			|| blocker->ID == Obj::BORDERGUARD
-			|| blocker->ID == Obj::BORDER_GATE
-			|| blocker->ID == Obj::SHIPYARD)
+			|| blocker->ID == Obj::GARRISON2)
 		{
-			if(!isObjectPassable(ai, blocker))
+			if(dynamic_cast<const CArmedInstance *>(blocker)->getArmyStrength() == 0)
+				continue;
+			else
 				return blocker;
 		}
 
-		if(blocker->ID == Obj::QUEST_GUARD && node->actionIsBlocked)
+		if(blocker->ID == Obj::MONSTER
+			|| blocker->ID == Obj::BORDERGUARD
+			|| blocker->ID == Obj::BORDER_GATE
+			|| blocker->ID == Obj::SHIPYARD
+			|| (blocker->ID == Obj::QUEST_GUARD && node->actionIsBlocked))
 		{
 			return blocker;
 		}

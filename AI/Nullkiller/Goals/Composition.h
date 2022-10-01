@@ -36,5 +36,6 @@ namespace Goals
 		Composition & addNext(TSubgoal goal);
 		virtual TGoalVec decompose() const override;
 		virtual bool isElementar() const override;
+		virtual int getHeroExchangeCount() const override;
 	};
 }

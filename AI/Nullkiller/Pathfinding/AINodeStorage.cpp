@@ -23,23 +23,17 @@ std::shared_ptr<boost::multi_array<AIPathNode, 5>> AISharedStorage::shared;
 std::set<int3> commitedTiles;
 std::set<int3> commitedTilesInitial;
 
-#ifdef ENVIRONMENT64
-const int BUCKET_COUNT = 11;
-#else
-const int BUCKET_COUNT = 7;
-#endif // ENVIRONMENT64
 
 const uint64_t FirstActorMask = 1;
-const int BUCKET_SIZE = GameConstants::MAX_HEROES_PER_PLAYER;
-const int NUM_CHAINS = BUCKET_COUNT * BUCKET_SIZE;
 const uint64_t MIN_ARMY_STRENGTH_FOR_CHAIN = 5000;
 const uint64_t MIN_ARMY_STRENGTH_FOR_NEXT_ACTOR = 1000;
+const uint64_t CHAIN_MAX_DEPTH = 4;
 
 AISharedStorage::AISharedStorage(int3 sizes)
 {
 	if(!shared){
 		shared.reset(new boost::multi_array<AIPathNode, 5>(
-			boost::extents[EPathfindingLayer::NUM_LAYERS][sizes.z][sizes.x][sizes.y][NUM_CHAINS]));
+			boost::extents[EPathfindingLayer::NUM_LAYERS][sizes.z][sizes.x][sizes.y][AIPathfinding::NUM_CHAINS]));
 	}
 
 	nodes = shared;
@@ -139,16 +133,16 @@ boost::optional<AIPathNode *> AINodeStorage::getOrCreateNode(
 	const EPathfindingLayer layer, 
 	const ChainActor * actor)
 {
-	int bucketIndex = ((uintptr_t)actor) % BUCKET_COUNT;
-	int bucketOffset = bucketIndex * BUCKET_SIZE;
-	auto chains = nodes.get(pos, layer); //FIXME: chain was the innermost layer
+	int bucketIndex = ((uintptr_t)actor) % AIPathfinding::BUCKET_COUNT;
+	int bucketOffset = bucketIndex * AIPathfinding::BUCKET_SIZE;
+	auto chains = nodes.get(pos, layer);
 
 	if(chains[0].blocked())
 	{
 		return boost::none;
 	}
 
-	for(auto i = BUCKET_SIZE - 1; i >= 0; i--)
+	for(auto i = AIPathfinding::BUCKET_SIZE - 1; i >= 0; i--)
 	{
 		AIPathNode & node = chains[i + bucketOffset];
 
@@ -171,8 +165,9 @@ boost::optional<AIPathNode *> AINodeStorage::getOrCreateNode(
 std::vector<CGPathNode *> AINodeStorage::getInitialNodes()
 {
 	if(heroChainPass)
-{
-		calculateTownPortalTeleportations(heroChain);
+	{
+		if(heroChainTurn == 0)
+			calculateTownPortalTeleportations(heroChain);
 
 		return heroChain;
 	}
@@ -207,7 +202,8 @@ std::vector<CGPathNode *> AINodeStorage::getInitialNodes()
 		}
 	}
 
-	calculateTownPortalTeleportations(initialNodes);
+	if(heroChainTurn == 0)
+		calculateTownPortalTeleportations(initialNodes);
 
 	return initialNodes;
 }
@@ -406,8 +402,8 @@ public:
 		AINodeStorage & storage, AISharedStorage & nodes, const std::vector<int3> & tiles, uint64_t chainMask, int heroChainTurn)
 		:existingChains(), newChains(), delayedWork(), nodes(nodes), storage(storage), chainMask(chainMask), heroChainTurn(heroChainTurn), heroChain(), tiles(tiles)
 	{
-		existingChains.reserve(NUM_CHAINS);
-		newChains.reserve(NUM_CHAINS);
+		existingChains.reserve(AIPathfinding::NUM_CHAINS);
+		newChains.reserve(AIPathfinding::NUM_CHAINS);
 	}
 
 	void execute(const blocked_range<size_t>& r)
@@ -621,6 +617,9 @@ void HeroChainCalculationTask::calculateHeroChain(
 			continue;
 
 		if((node->actor->chainMask & chainMask) == 0 && (srcNode->actor->chainMask & chainMask) == 0)
+			continue;
+
+		if(node->actor->actorExchangeCount + srcNode->actor->actorExchangeCount > CHAIN_MAX_DEPTH)
 			continue;
 
 		if(node->action == CGPathNode::ENodeAction::BATTLE
@@ -994,8 +993,6 @@ struct TowmPortalFinder
 
 	CGPathNode * getBestInitialNodeForTownPortal(const CGTownInstance * targetTown)
 	{
-		CGPathNode * bestNode = nullptr;
-
 		for(CGPathNode * node : initialNodes)
 		{
 			auto aiNode = nodeStorage->getAINode(node);
@@ -1018,11 +1015,10 @@ struct TowmPortalFinder
 					continue;
 			}
 
-			if(!bestNode || bestNode->getCost() > node->getCost())
-				bestNode = node;
+			return node;
 		}
 
-		return bestNode;
+		return nullptr;
 	}
 
 	boost::optional<AIPathNode *> createTownPortalNode(const CGTownInstance * targetTown)
@@ -1060,6 +1056,55 @@ struct TowmPortalFinder
 	}
 };
 
+template<class TVector>
+void AINodeStorage::calculateTownPortal(
+	const ChainActor * actor,
+	const std::map<const CGHeroInstance *, int> & maskMap,
+	const std::vector<CGPathNode *> & initialNodes,
+	TVector & output)
+{
+	auto towns = cb->getTownsInfo(false);
+
+	vstd::erase_if(towns, [&](const CGTownInstance * t) -> bool
+		{
+			return cb->getPlayerRelations(actor->hero->tempOwner, t->tempOwner) == PlayerRelations::ENEMIES;
+		});
+
+	if(!towns.size())
+	{
+		return; // no towns no need to run loop further
+	}
+
+	TowmPortalFinder townPortalFinder(actor, initialNodes, towns, this);
+
+	if(townPortalFinder.actorCanCastTownPortal())
+	{
+		for(const CGTownInstance * targetTown : towns)
+		{
+			// TODO: allow to hide visiting hero in garrison
+			if(targetTown->visitingHero)
+			{
+				auto basicMask = maskMap.at(targetTown->visitingHero.get());
+				bool heroIsInChain = (actor->chainMask & basicMask) != 0;
+				bool sameActorInTown = actor->chainMask == basicMask;
+
+				if(sameActorInTown || !heroIsInChain)
+					continue;
+			}
+
+			auto nodeOptional = townPortalFinder.createTownPortalNode(targetTown);
+
+			if(nodeOptional)
+			{
+#if PATHFINDER_TRACE_LEVEL >= 1
+				logAi->trace("Adding town portal node at %s", targetTown->name);
+#endif
+				output.push_back(nodeOptional.get());
+			}
+		}
+	}
+}
+
 void AINodeStorage::calculateTownPortalTeleportations(std::vector<CGPathNode *> & initialNodes)
 {
 	std::set<const ChainActor *> actorsOfInitial;
@@ -1068,7 +1113,8 @@ void AINodeStorage::calculateTownPortalTeleportations(std::vector<CGPathNode *> 
 	{
 		auto aiNode = getAINode(node);
 
-		actorsOfInitial.insert(aiNode->actor->baseActor);
+		if(aiNode->actor->hero)
+			actorsOfInitial.insert(aiNode->actor->baseActor);
 	}
 
 	std::map<const CGHeroInstance *, int> maskMap;
@@ -1079,50 +1125,28 @@ void AINodeStorage::calculateTownPortalTeleportations(std::vector<CGPathNode *> 
 			maskMap[basicActor->hero] = basicActor->chainMask;
 	}
 
-	for(const ChainActor * actor : actorsOfInitial)
+	boost::sort(initialNodes, NodeComparer<CGPathNode>());
+
+	std::vector<const ChainActor *> actorsVector(actorsOfInitial.begin(), actorsOfInitial.end());
+	tbb::concurrent_vector<CGPathNode *> output;
+
+	if(actorsVector.size() * initialNodes.size() > 1000)
 	{
-		if(!actor->hero)
-			continue;
-
-		auto towns = cb->getTownsInfo(false);
-
-		vstd::erase_if(towns, [&](const CGTownInstance * t) -> bool
-		{
-			return cb->getPlayerRelations(actor->hero->tempOwner, t->tempOwner) == PlayerRelations::ENEMIES;
-		});
-
-		if(!towns.size())
-		{
-			return; // no towns no need to run loop further
-		}
-
-		TowmPortalFinder townPortalFinder(actor, initialNodes, towns, this);
-
-		if(townPortalFinder.actorCanCastTownPortal())
-		{
-			for(const CGTownInstance * targetTown : towns)
+		parallel_for(blocked_range<size_t>(0, actorsVector.size()), [&](const blocked_range<size_t> & r)
 			{
-				// TODO: allow to hide visiting hero in garrison
-				if(targetTown->visitingHero)
+				for(int i = r.begin(); i != r.end(); i++)
 				{
-					auto basicMask = maskMap[targetTown->visitingHero.get()];
-					bool heroIsInChain = (actor->chainMask & basicMask) != 0;
-					bool sameActorInTown = actor->chainMask == basicMask;
-
-					if(sameActorInTown || !heroIsInChain)
-						continue;
+					calculateTownPortal(actorsVector[i], maskMap, initialNodes, output);
 				}
+			});
 
-				auto nodeOptional = townPortalFinder.createTownPortalNode(targetTown);
-
-				if(nodeOptional)
-				{
-#if PATHFINDER_TRACE_LEVEL >= 1
-					logAi->trace("Adding town portal node at %s", targetTown->name);
-#endif
-					initialNodes.push_back(nodeOptional.get());
-				}
-			}
+		std::copy(output.begin(), output.end(), std::back_inserter(initialNodes));
+	}
+	else
+	{
+		for(auto actor : actorsVector)
+		{
+			calculateTownPortal(actor, maskMap, initialNodes, initialNodes);
 		}
 	}
 }
@@ -1206,7 +1230,7 @@ bool AINodeStorage::hasBetterChain(
 					continue;
 				}
 
-#if AI_TRACE_LEVEL >= 2
+#if PATHFINDER_TRACE_LEVEL >= 2
 				logAi->trace(
 					"Block ineficient move because of stronger hero %s->%s, hero: %s[%X], army %lld, mp diff: %i",
 					source->coord.toString(),
@@ -1244,7 +1268,7 @@ std::vector<AIPath> AINodeStorage::getChainInfo(const int3 & pos, bool isOnLand)
 {
 	std::vector<AIPath> paths;
 
-	paths.reserve(NUM_CHAINS / 4);
+	paths.reserve(AIPathfinding::NUM_CHAINS / 4);
 
 	auto chains = nodes.get(pos, isOnLand ? EPathfindingLayer::LAND : EPathfindingLayer::SAIL);
 
