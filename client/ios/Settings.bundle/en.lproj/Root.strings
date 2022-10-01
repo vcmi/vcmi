@@ -1,3 +1,6 @@
 "LaunchType" = "App start type";
 "Launcher" = "Launcher";
 "Game" = "Game";
+
+"AppVersion" = "Application version";
+"BuildVersion" = "Build version";

@@ -572,6 +572,20 @@
      </property>
     </widget>
    </item>
+   <item row="13" column="6">
+    <widget class="QLabel" name="labelBuildVersionDesc">
+     <property name="text">
+      <string>Build version</string>
+     </property>
+    </widget>
+   </item>
+   <item row="13" column="7" colspan="3">
+    <widget class="QLabel" name="labelBuildVersion">
+     <property name="text">
+      <string notr="true"/>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <resources/>
