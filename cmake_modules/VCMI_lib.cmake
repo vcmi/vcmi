@@ -2,7 +2,6 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 	set(MAIN_LIB_DIR "${CMAKE_SOURCE_DIR}/lib")
 	set(lib_SRCS
 		${MAIN_LIB_DIR}/StdInc.cpp
-		${CMAKE_BINARY_DIR}/Version.cpp
 
 		${MAIN_LIB_DIR}/battle/AccessibilityInfo.cpp
 		${MAIN_LIB_DIR}/battle/BattleAction.cpp
@@ -196,9 +195,12 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 	)
 
 	# Version.cpp is a generated file
-	set_source_files_properties(${CMAKE_BINARY_DIR}/Version.cpp
-		PROPERTIES GENERATED TRUE
-	)
+	if(ENABLE_GITVERSION)
+		list(APPEND lib_SRCS ${CMAKE_BINARY_DIR}/Version.cpp)
+		set_source_files_properties(${CMAKE_BINARY_DIR}/Version.cpp
+			PROPERTIES GENERATED TRUE
+		)
+	endif()
 
 	set(lib_HEADERS
 		${CMAKE_SOURCE_DIR}/include/vstd/CLoggerBase.h
