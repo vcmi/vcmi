@@ -402,8 +402,14 @@ else()
 	add_definitions(-DM_LIB_DIR="${CMAKE_INSTALL_PREFIX}/${LIB_DIR}")
 endif()
 
-set(AI_LIB_DIR "${LIB_DIR}/AI")
-set(SCRIPTING_LIB_DIR "${LIB_DIR}/scripting")
+# iOS has flat libs directory structure
+if(APPLE_IOS)
+	set(AI_LIB_DIR "${LIB_DIR}")
+	set(SCRIPTING_LIB_DIR "${LIB_DIR}")
+else()
+	set(AI_LIB_DIR "${LIB_DIR}/AI")
+	set(SCRIPTING_LIB_DIR "${LIB_DIR}/scripting")
+endif()
 
 #######################################
 #        Add subdirectories           #
