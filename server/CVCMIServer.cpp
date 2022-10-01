@@ -205,8 +205,8 @@ void CVCMIServer::threadAnnounceLobby()
 			}
 			if(state != EServerState::LOBBY)
 			{
-				if(acceptor)
-					acceptor->close();
+				//if(acceptor)
+					//acceptor->close();
 			}
 
 			if(acceptor)
@@ -305,11 +305,35 @@ void CVCMIServer::connectionAccepted(const boost::system::error_code & ec)
 
 	try
 	{
-		logNetwork->info("We got a new connection! :)");
-		auto c = std::make_shared<CConnection>(upcomingConnection, SERVER_NAME, uuid);
-		upcomingConnection.reset();
-		connections.insert(c);
-		c->handler = std::make_shared<boost::thread>(&CVCMIServer::threadHandleClient, this, c);
+		/*if(state == EServerState::GAMEPLAY && !hangingConnections.empty())
+		{
+			logNetwork->info("Reconnection player");
+			(*hangingConnections.begin())->socket = upcomingConnection;
+			upcomingConnection.reset();
+			//immediately start game
+			//std::unique_ptr<LobbyStartGame> startGameForReconnectedPlayer(new LobbyStartGame);
+			//startGameForReconnectedPlayer->initializedStartInfo = si;
+			//startGameForReconnectedPlayer->initializedGameState = gh->gs;
+			//startGameForReconnectedPlayer->clientId = (*hangingConnections.begin())->connectionID;
+			//announcePack(std::move(startGameForReconnectedPlayer));
+			
+			(*hangingConnections.begin())->handler = std::make_shared<boost::thread>(&CVCMIServer::threadHandleClient, this, *hangingConnections.begin());
+		}*/
+		if(state == EServerState::LOBBY || !hangingConnections.empty())
+		{
+			logNetwork->info("We got a new connection! :)");
+			auto c = std::make_shared<CConnection>(upcomingConnection, SERVER_NAME, uuid);
+			upcomingConnection.reset();
+			connections.insert(c);
+			c->handler = std::make_shared<boost::thread>(&CVCMIServer::threadHandleClient, this, c);
+			
+			if(!hangingConnections.empty())
+			{
+				logNetwork->info("Reconnection player");
+				c->connectionID = (*hangingConnections.begin())->connectionID;
+				//hangingConnections.clear();
+			}
+		}
 	}
 	catch(std::exception & e)
 	{
@@ -344,7 +368,11 @@ void CVCMIServer::threadHandleClient(std::shared_ptr<CConnection> c)
 	{
         (void)e;
 		if(state != EServerState::LOBBY)
-			gh->handleClientDisconnection(c);
+		{
+			hangingConnections.insert(c);
+			connections.erase(c);
+			//gh->handleClientDisconnection(c);
+		}
 	}
 	/*
 	catch(const std::exception & e)
@@ -514,6 +542,31 @@ void CVCMIServer::clientDisconnected(std::shared_ptr<CConnection> c)
 			startAiPack.playerConnectionId = PlayerSettings::PLAYER_AI;
 			gh->sendAndApply(&startAiPack);
 		}
+	}
+}
+
+void CVCMIServer::reconnectPlayer(int connId)
+{
+	if(gh && si && state == EServerState::GAMEPLAY)
+	{
+		for(auto it = playerNames.begin(); it != playerNames.end(); ++it)
+		{
+			if(it->second.connection != connId)
+				continue;
+			
+			int id = it->first;
+			auto * playerSettings = si->getPlayersSettings(id);
+			if(!playerSettings)
+				continue;
+			
+			PlayerReinitInterface startAiPack;
+			startAiPack.player = playerSettings->color;
+			startAiPack.playerConnectionId = connId;
+			gh->sendAndApply(&startAiPack);
+		}
+		//gh->playerMessage(playerSettings->color, playerLeftMsgText, ObjectInstanceID{});
+		//gh->connections[playerSettings->color].insert(hostClient);
+		
 	}
 }
 

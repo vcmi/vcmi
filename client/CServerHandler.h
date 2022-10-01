@@ -155,6 +155,7 @@ public:
 	ui8 getLoadMode();
 
 	void debugStartTest(std::string filename, bool save = false);
+	void restoreLastSession();
 };
 
 extern CServerHandler * CSH;

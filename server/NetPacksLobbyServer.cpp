@@ -52,7 +52,19 @@ void LobbyClientConnected::applyOnServerAfterAnnounce(CVCMIServer * srv)
 	// FIXME: we need to avoid senting something to client that not yet get answer for LobbyClientConnected
 	// Until UUID set we only pass LobbyClientConnected to this client
 	c->uuid = uuid;
-	srv->updateAndPropagateLobbyState();
+	if(srv->state == EServerState::GAMEPLAY)
+	{
+		//immediately start game
+		std::unique_ptr<LobbyStartGame> startGameForReconnectedPlayer(new LobbyStartGame);
+		startGameForReconnectedPlayer->initializedStartInfo = srv->si;
+		startGameForReconnectedPlayer->initializedGameState = srv->gh->gameState();
+		startGameForReconnectedPlayer->clientId = c->connectionID;
+		srv->addToAnnounceQueue(std::move(startGameForReconnectedPlayer));
+	}
+	else
+	{
+		srv->updateAndPropagateLobbyState();
+	}
 }
 
 bool LobbyClientDisconnected::checkClientPermissions(CVCMIServer * srv) const
@@ -209,7 +221,19 @@ bool LobbyStartGame::applyOnServer(CVCMIServer * srv)
 
 void LobbyStartGame::applyOnServerAfterAnnounce(CVCMIServer * srv)
 {
-	srv->startGameImmidiately();
+	if(clientId == -1) //do not restart game for single client only
+		srv->startGameImmidiately();
+	else
+	{
+		for(auto & c : srv->connections)
+		{
+			if(c->connectionID == clientId)
+			{
+				c->enterGameplayConnectionMode(srv->gh->gameState());
+				srv->reconnectPlayer(clientId);
+			}
+		}
+	}
 }
 
 bool LobbyChangeHost::checkClientPermissions(CVCMIServer * srv) const

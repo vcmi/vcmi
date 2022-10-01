@@ -347,11 +347,21 @@ void PlayerEndsGame::applyCl(CClient *cl)
 
 void PlayerReinitInterface::applyCl(CClient * cl)
 {
-	CSH->si->getIthPlayersSettings(player).connectedPlayerIDs.clear();
-	cl->initPlayerEnvironments();
-	cl->initPlayerInterfaces();
-	if(cl->gameState()->currentPlayer == player)
+	auto & plSettings = CSH->si->getIthPlayersSettings(player);
+	if(!playerConnectionId)
+	{
+		plSettings.connectedPlayerIDs.clear();
+		cl->initPlayerEnvironments();
+		cl->initPlayerInterfaces();
+		if(cl->gameState()->currentPlayer == player)
+			callOnlyThatInterface(cl, player, &CGameInterface::yourTurn);
+	}
+	else
+	{
+		plSettings.connectedPlayerIDs.insert(playerConnectionId);
+		callAllInterfaces(cl, &IGameEventsReceiver::playerStartsTurn, player);
 		callOnlyThatInterface(cl, player, &CGameInterface::yourTurn);
+	}
 }
 
 void RemoveBonus::applyCl(CClient *cl)

@@ -159,8 +159,9 @@ struct LobbyStartGame : public CLobbyPackToPropagate
 	// Set by server
 	std::shared_ptr<StartInfo> initializedStartInfo;
 	CGameState * initializedGameState;
+	int clientId; //-1 means to all clients
 
-	LobbyStartGame() : initializedStartInfo(nullptr), initializedGameState(nullptr) {}
+	LobbyStartGame() : initializedStartInfo(nullptr), initializedGameState(nullptr), clientId(-1) {}
 	bool checkClientPermissions(CVCMIServer * srv) const;
 	bool applyOnServer(CVCMIServer * srv);
 	void applyOnServerAfterAnnounce(CVCMIServer * srv);
@@ -169,6 +170,7 @@ struct LobbyStartGame : public CLobbyPackToPropagate
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & clientId;
 		h & initializedStartInfo;
 		bool sps = h.smartPointerSerialization;
 		h.smartPointerSerialization = true;

@@ -109,6 +109,9 @@ bool LobbyEndGame::applyOnLobbyHandler(CServerHandler * handler)
 
 bool LobbyStartGame::applyOnLobbyHandler(CServerHandler * handler)
 {
+	if(clientId != -1 && clientId != handler->c->connectionID)
+		return false;
+	
 	handler->state = EClientState::STARTING;
 	if(handler->si->mode != StartInfo::LOAD_GAME)
 	{
@@ -121,6 +124,9 @@ bool LobbyStartGame::applyOnLobbyHandler(CServerHandler * handler)
 
 void LobbyStartGame::applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler)
 {
+	if(clientId != -1 && clientId != handler->c->connectionID)
+		return;
+	
 	GH.pushIntT<CLoadingScreen>(std::bind(&CServerHandler::startGameplay, handler, initializedGameState));
 }
 

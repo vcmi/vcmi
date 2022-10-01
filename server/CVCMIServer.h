@@ -61,6 +61,8 @@ public:
 
 	boost::program_options::variables_map cmdLineOptions;
 	std::set<std::shared_ptr<CConnection>> connections;
+	std::set<std::shared_ptr<CConnection>> hangingConnections; //keep connections of players disconnected during the game
+	
 	std::atomic<int> currentClientId;
 	std::atomic<ui8> currentPlayerId;
 	std::shared_ptr<CConnection> hostClient;
@@ -90,6 +92,7 @@ public:
 
 	void clientConnected(std::shared_ptr<CConnection> c, std::vector<std::string> & names, std::string uuid, StartInfo::EMode mode);
 	void clientDisconnected(std::shared_ptr<CConnection> c);
+	void reconnectPlayer(int connId);
 
 	void updateAndPropagateLobbyState();
 

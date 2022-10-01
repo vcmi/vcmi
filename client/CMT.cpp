@@ -395,6 +395,7 @@ int main(int argc, char * argv[])
 	CCS = new CClientState();
 	CGI = new CGameInfo(); //contains all global informations about game (texts, lodHandlers, map handler etc.)
 	CSH = new CServerHandler();
+	
 	// Initialize video
 #ifdef DISABLE_VIDEO
 	CCS->videoh = new CEmptyVideoPlayer();
@@ -494,6 +495,12 @@ int main(int argc, char * argv[])
 	else
 	{
 		GH.curInt = CMainMenu::create().get();
+	}
+	
+	// Restore remote session - start game immediately
+	if(settings["server"]["reconnect"].Bool())
+	{
+		CSH->restoreLastSession();
 	}
 
 	if(!settings["session"]["headless"].Bool())

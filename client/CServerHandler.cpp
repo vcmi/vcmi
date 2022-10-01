@@ -118,6 +118,11 @@ CServerHandler::CServerHandler()
 	uuid = boost::uuids::to_string(boost::uuids::random_generator()());
 	applier = std::make_shared<CApplier<CBaseForLobbyApply>>();
 	registerTypesLobbyPacks(*applier);
+	
+	if(settings["remoteSession"].Bool())
+	{
+		uuid = settings["uuid"].String();
+	}
 }
 
 void CServerHandler::resetStateForLobby(const StartInfo::EMode mode, const std::vector<std::string> * names)
@@ -549,6 +554,15 @@ void CServerHandler::startGameplay(CGameState * gameState)
 	// After everything initialized we can accept CPackToClient netpacks
 	c->enterGameplayConnectionMode(client->gameState());
 	state = EClientState::GAMEPLAY;
+	
+	//store settings to continue game
+	if(!isServerLocal() && isGuest())
+	{
+		Settings saveSession = settings.write["server"]["reconnect"];
+		saveSession->Bool() = true;
+		Settings saveUuid = settings.write["server"]["uuid"];
+		saveUuid->String() = uuid;
+	}
 }
 
 void CServerHandler::endGameplay(bool closeConnection, bool restart)
@@ -579,6 +593,10 @@ void CServerHandler::endGameplay(bool closeConnection, bool restart)
 	
 	c->enterLobbyConnectionMode();
 	c->disableStackSendingByID();
+	
+	//reset settings
+	Settings saveSession = settings.write["server"]["reconnect"];
+	saveSession->Bool() = false;
 }
 
 void CServerHandler::startCampaignScenario(std::shared_ptr<CCampaignState> cs)
@@ -627,6 +645,17 @@ ui8 CServerHandler::getLoadMode()
 		return ELoadMode::SINGLE;
 	}
 	return loadMode;
+}
+
+void CServerHandler::restoreLastSession()
+{
+	std::vector<std::string> nm{"stub"};
+	resetStateForLobby(StartInfo::LOAD_GAME, &nm);
+	screenType = ESelectionScreen::loadGame;
+	justConnectToServer("127.0.0.1", 3030);
+	//c->disableSmartVectorMemberSerialization();
+	//c->disableSmartPointerSerialization();
+	//c->disableStackSendingByID();
 }
 
 void CServerHandler::debugStartTest(std::string filename, bool save)
