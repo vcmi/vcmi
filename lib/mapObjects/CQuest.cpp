@@ -112,11 +112,16 @@ bool CQuest::checkQuest(const CGHeroInstance * h) const
 				return true;
 			return false;
 		case MISSION_ART:
-			for(auto & elem : m5arts)
+			// if the object was deserialized
+			if(artifactsRequirements.empty())
+				for(auto id : m5arts)
+					++artifactsRequirements[id];
+
+			for(const auto & elem : artifactsRequirements)
 			{
-				if(h->hasArt(elem, false, true))
-					continue;
-				return false; //if the artifact was not found
+				// check required amount of artifacts
+				if(h->getArtPosCount(elem.first, false, true, true) < elem.second)
+					return false;
 			}
 			return true;
 		case MISSION_ARMY:
@@ -415,6 +420,12 @@ void CQuest::getCompletionText(MetaString &iwText, std::vector<Component> &compo
 				iwText.addReplacement(VLC->generaltexth->colors[m13489val]);
 			break;
 	}
+}
+
+void CQuest::addArtifactID(ui16 id)
+{
+	m5arts.push_back(id);
+	++artifactsRequirements[id];
 }
 
 void CQuest::serializeJson(JsonSerializeFormat & handler, const std::string & fieldName)
