@@ -1452,8 +1452,10 @@ void CGWitchHut::initObj(CRandomGenerator & rand)
 {
 	if (allowedAbilities.empty()) //this can happen for RMG. regular maps load abilities from map file
 	{
+		// Necromancy can't be learned on random maps
 		for(int i = 0; i < VLC->skillh->size(); i++)
-			allowedAbilities.push_back(i);
+			if(VLC->skillh->getByIndex(i)->getId() != SecondarySkill::NECROMANCY)
+				allowedAbilities.push_back(i);
 	}
 	ability = *RandomGeneratorUtil::nextItem(allowedAbilities, rand);
 }
