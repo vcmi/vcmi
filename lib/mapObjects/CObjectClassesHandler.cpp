@@ -58,7 +58,6 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER("randomDwelling", CGDwelling);
 
 	SET_HANDLER("generic", CGObjectInstance);
-	SET_HANDLER("market", CGMarket);
 	SET_HANDLER("cartographer", CCartographer);
 	SET_HANDLER("artifact", CGArtifact);
 	SET_HANDLER("blackMarket", CGBlackMarket);
