@@ -438,6 +438,11 @@ static void setBoolSetting(std::string group, std::string field, bool value)
 	fullscreen->Bool() = value;
 }
 
+static std::string resolutionToString(int w, int h)
+{
+	return std::to_string(w) + 'x' + std::to_string(h);
+}
+
 CSystemOptionsWindow::CSystemOptionsWindow()
 	: CWindowObject(PLAYER_COLORED, "SysOpBck"),
 	onFullscreenChanged(settings.listen["video"]["fullscreen"])
@@ -550,11 +555,8 @@ CSystemOptionsWindow::CSystemOptionsWindow()
 
 	gameResButton = std::make_shared<CButton>(Point(28, 275),"buttons/resolution", CButton::tooltip(texts["resolutionButton"]), std::bind(&CSystemOptionsWindow::selectGameRes, this), SDLK_g);
 
-	std::string resText;
-	resText += boost::lexical_cast<std::string>(settings["video"]["screenRes"]["width"].Float());
-	resText += "x";
-	resText += boost::lexical_cast<std::string>(settings["video"]["screenRes"]["height"].Float());
-	gameResLabel = std::make_shared<CLabel>(170, 292, FONT_MEDIUM, CENTER, Colors::YELLOW, resText);
+	const auto & screenRes = settings["video"]["screenRes"];
+	gameResLabel = std::make_shared<CLabel>(170, 292, FONT_MEDIUM, CENTER, Colors::YELLOW, resolutionToString(screenRes["width"].Integer(), screenRes["height"].Integer()));
 }
 
 void CSystemOptionsWindow::selectGameRes()
@@ -567,6 +569,8 @@ void CSystemOptionsWindow::selectGameRes()
 	SDL_GetDisplayBounds(std::max(0, SDL_GetWindowDisplayIndex(mainWindow)), &displayBounds);
 #endif
 
+	size_t currentResolutionIndex = 0;
+	size_t i = 0;
 	for(const auto & it : conf.guiOptions)
 	{
 		const auto & resolution = it.first;
@@ -575,12 +579,14 @@ void CSystemOptionsWindow::selectGameRes()
 			continue;
 #endif
 
-		std::string resX = boost::lexical_cast<std::string>(resolution.first);
-		std::string resY = boost::lexical_cast<std::string>(resolution.second);
-		items.push_back(resX + 'x' + resY);
+		auto resolutionStr = resolutionToString(resolution.first, resolution.second);
+		if(gameResLabel->text == resolutionStr)
+			currentResolutionIndex = i;
+		items.push_back(std::move(resolutionStr));
+		++i;
 	}
 
-	GH.pushIntT<CObjectListWindow>(items, nullptr, texts["label"].String(), texts["help"].String(), std::bind(&CSystemOptionsWindow::setGameRes, this, _1));
+	GH.pushIntT<CObjectListWindow>(items, nullptr, texts["label"].String(), texts["help"].String(), std::bind(&CSystemOptionsWindow::setGameRes, this, _1), currentResolutionIndex);
 }
 
 void CSystemOptionsWindow::setGameRes(int index)
@@ -2213,10 +2219,10 @@ void CObjectListWindow::CItem::clickLeft(tribool down, bool previousState)
 		parent->changeSelection(index);
 }
 
-CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback)
+CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection)
 	: CWindowObject(PLAYER_COLORED, "TPGATE"),
 	onSelect(Callback),
-	selected(0)
+	selected(initialSelection)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	items.reserve(_items.size());
@@ -2228,10 +2234,10 @@ CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::share
 	init(titleWidget_, _title, _descr);
 }
 
-CObjectListWindow::CObjectListWindow(const std::vector<std::string> & _items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback)
+CObjectListWindow::CObjectListWindow(const std::vector<std::string> & _items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection)
 	: CWindowObject(PLAYER_COLORED, "TPGATE"),
 	onSelect(Callback),
-	selected(0)
+	selected(initialSelection)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	items.reserve(_items.size());
