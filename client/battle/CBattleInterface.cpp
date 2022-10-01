@@ -1884,7 +1884,7 @@ void CBattleInterface::blockUI(bool on)
 	bSurrender->block(on || curInt->cb->battleGetSurrenderCost() < 0);
 
 	// block only if during enemy turn and auto-fight is off
-	// othervice - crash on accessing non-exisiting active stack
+	// otherwise - crash on accessing non-exisiting active stack
 	bAutofight->block(!curInt->isAutoFightOn && !activeStack);
 
 	if (tacticsMode && btactEnd && btactNext)
