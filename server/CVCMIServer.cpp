@@ -171,7 +171,10 @@ void CVCMIServer::run()
 
 		startAsyncAccept();
 
-#if !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
+#if defined(VCMI_ANDROID)
+		CAndroidVMHelper vmHelper;
+		vmHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "onServerReady");
+#elif !defined(VCMI_IOS)
 		if(shm)
 		{
 			shm->sr->setToReadyAndNotify(port);
@@ -1011,6 +1014,7 @@ int main(int argc, char * argv[])
 void CVCMIServer::create()
 {
 	const char * foo[1] = {"android-server"};
+
 	main(1, const_cast<char **>(foo));
 }
 #elif defined(SINGLE_PROCESS_APP)
