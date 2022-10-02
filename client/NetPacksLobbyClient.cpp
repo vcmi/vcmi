@@ -57,7 +57,8 @@ bool LobbyClientDisconnected::applyOnLobbyHandler(CServerHandler * handler)
 
 void LobbyClientDisconnected::applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler)
 {
-	GH.popInts(1);
+	if(GH.listInt.size())
+		GH.popInts(1);
 }
 
 void LobbyChatMessage::applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler)

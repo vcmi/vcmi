@@ -200,6 +200,8 @@ void CClient::newGame(CGameState * initializedGameState)
 void CClient::loadGame(CGameState * initializedGameState)
 {
 	logNetwork->info("Loading procedure started!");
+	
+	std::unique_ptr<CLoadFile> loader;
 
 	if(initializedGameState)
 	{
@@ -208,7 +210,6 @@ void CClient::loadGame(CGameState * initializedGameState)
 	}
 	else
 	{
-		std::unique_ptr<CLoadFile> loader;
 		try
 		{
 			boost::filesystem::path clientSaveName = *CResourceHandler::get("local")->getResourceName(ResourceID(CSH->si->mapname, EResType::CLIENT_SAVEGAME));
@@ -234,8 +235,6 @@ void CClient::loadGame(CGameState * initializedGameState)
 				loadCommonState(checkingLoader);
 				loader = checkingLoader.decay();
 			}
-			
-			serialize(loader->serializer, loader->serializer.fileVersion);
 		}
 		catch(std::exception & e)
 		{
@@ -253,6 +252,9 @@ void CClient::loadGame(CGameState * initializedGameState)
 	reinitScripting();
 
 	initPlayerEnvironments();
+	
+	if(loader)
+		serialize(loader->serializer, loader->serializer.fileVersion);
 
 	initPlayerInterfaces();
 }
