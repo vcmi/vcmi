@@ -29,7 +29,6 @@ do
 		--data) data_dir=$2         ; shift 2 ;;
 		--dest) dest_dir=$2         ; shift 2 ;;
 		--convertMP3) useffmpeg=true; shift 1 ;;
-#		--download) download=true   ; shift 1 ;;
 		--validate) validate=true   ; shift 1 ;;
 		*) print_help=true          ; shift 1 ;;
 	esac
@@ -53,9 +52,6 @@ then
 	echo " --convertMP3     " "Convert all mp3 files into ogg/vorbis"
 	echo "                  " "Requires ffmpeg or avconv"
 	echo
-#	echo " --download       " "Automatically download optional package using wget"
-#	echo "                  " "Requires wget and Internet connection"
-#	echo
 	echo " --dest DIRECTORY " "Path where resulting data will be placed. Default is ~/.local/share/vcmi"
 	echo
 	echo " --validate       " "Run basic validness checks"
@@ -135,11 +131,6 @@ fi
 if [[ -n "$cd1_dir" ]]
 then
 	test_utility "unshield" "-V"
-fi
-
-if [[ -n "$download" ]]
-then
-	test_utility "unzip"
 fi
 
 if [[ -z "$gog_file" ]] && [[ -z "$data_dir" ]] && ( [[ -z "$cd1_dir" ]] || [[ -z "$cd2_dir" ]] )
@@ -234,18 +225,6 @@ then
 	cp -r "$data_dir"/[Dd][Aa][Tt][Aa] "$dest_dir"
 	cp -r "$data_dir"/[Mm][Aa][Pp][Ss] "$dest_dir"
 	cp -r "$data_dir"/[Mm][Pp]3 "$dest_dir"
-fi
-
-if [[ -n "$download" ]]
-then
-	wget "http://download.vcmi.eu/core.zip" -O "$temp_dir"/core.zip || fail "Error: failed to download VCMI archive!" "rm -f core.zip"
-	vcmi_archive="$temp_dir"/core.zip
-fi
-
-if [[ -n "$vcmi_archive" ]]
-then
-	echo "decompressing $vcmi_archive"
-	unzip -qo "$vcmi_archive" -d "$dest_dir" || fail "Error: failed to extract VCMI archive!"
 fi
 
 if [[ -n "$useffmpeg" ]]
