@@ -5200,19 +5200,6 @@ void CGameHandler::stackTurnTrigger(const CStack *st)
 				sendAndApply(&ssp);
 			}
 		}
-		//regeneration
-		if (st->hasBonusOfType(Bonus::HP_REGENERATION))
-		{
-			bte.effect = Bonus::HP_REGENERATION;
-			bte.val = std::min((int)(st->MaxHealth() - st->getFirstHPleft()), st->valOfBonuses(Bonus::HP_REGENERATION));
-		}
-		if (st->hasBonusOfType(Bonus::FULL_HP_REGENERATION))
-		{
-			bte.effect = Bonus::HP_REGENERATION;
-			bte.val = st->MaxHealth() - st->getFirstHPleft();
-		}
-		if (bte.val) //anything to heal
-			sendAndApply(&bte);
 
 		if (st->hasBonusOfType(Bonus::POISON))
 		{
@@ -6549,8 +6536,28 @@ void CGameHandler::runBattle()
 				if(!q.front().empty())
 				{
 					auto next = q.front().front();
+					const auto stack = dynamic_cast<const CStack *>(next);
+
+					// regeneration takes place before everything else but only during first turn attempt in each round
+					// also works under blind and similar effects
+					if(stack && stack->alive() && !stack->waiting)
+					{
+						BattleTriggerEffect bte;
+						bte.stackID = stack->ID;
+						bte.effect = Bonus::HP_REGENERATION;
+
+						const int32_t lostHealth = stack->MaxHealth() - stack->getFirstHPleft();
+						if(stack->hasBonusOfType(Bonus::FULL_HP_REGENERATION))
+							bte.val = lostHealth;
+						else if(stack->hasBonusOfType(Bonus::HP_REGENERATION))
+							bte.val = std::min(lostHealth, stack->valOfBonuses(Bonus::HP_REGENERATION));
+
+						if(bte.val) // anything to heal
+							sendAndApply(&bte);
+					}
+
 					if(next->willMove())
-						return dynamic_cast<const CStack *>(next);
+						return stack;
 				}
 			}
 
