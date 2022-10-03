@@ -52,18 +52,16 @@ void LobbyClientConnected::applyOnServerAfterAnnounce(CVCMIServer * srv)
 	// FIXME: we need to avoid senting something to client that not yet get answer for LobbyClientConnected
 	// Until UUID set we only pass LobbyClientConnected to this client
 	c->uuid = uuid;
+	srv->updateAndPropagateLobbyState();
 	if(srv->state == EServerState::GAMEPLAY)
 	{
+		
 		//immediately start game
 		std::unique_ptr<LobbyStartGame> startGameForReconnectedPlayer(new LobbyStartGame);
 		startGameForReconnectedPlayer->initializedStartInfo = srv->si;
 		startGameForReconnectedPlayer->initializedGameState = srv->gh->gameState();
 		startGameForReconnectedPlayer->clientId = c->connectionID;
 		srv->addToAnnounceQueue(std::move(startGameForReconnectedPlayer));
-	}
-	else
-	{
-		srv->updateAndPropagateLobbyState();
 	}
 }
 

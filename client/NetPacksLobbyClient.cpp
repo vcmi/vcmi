@@ -113,9 +113,11 @@ bool LobbyStartGame::applyOnLobbyHandler(CServerHandler * handler)
 		return false;
 	
 	handler->state = EClientState::STARTING;
-	if(handler->si->mode != StartInfo::LOAD_GAME)
+	if(handler->si->mode != StartInfo::LOAD_GAME || clientId == handler->c->connectionID)
 	{
+		auto modeBackup = handler->si->mode;
 		handler->si = initializedStartInfo;
+		handler->si->mode = modeBackup;
 	}
 	if(settings["session"]["headless"].Bool())
 		handler->startGameplay(initializedGameState);

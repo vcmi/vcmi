@@ -370,6 +370,11 @@ DLL_LINKAGE void PlayerReinitInterface::applyGs(CGameState *gs)
 	if(!gs || !gs->scenarioOps)
 		return;
 	
+	gs->currentPlayer = player;
+	
+	//auto & playerState = gs->players[player];
+	//playerState.daysWithoutCastle = daysWithoutCastle;
+	
 	//TODO: what does mean if more that one player connected?
 	//gs->scenarioOps->getIthPlayersSettings(player).connectedPlayerIDs.clear();
 }

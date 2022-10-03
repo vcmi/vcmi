@@ -359,7 +359,9 @@ void PlayerReinitInterface::applyCl(CClient * cl)
 	else
 	{
 		plSettings.connectedPlayerIDs.insert(playerConnectionId);
+		cl->initPlayerInterfaces();
 		callAllInterfaces(cl, &IGameEventsReceiver::playerStartsTurn, player);
+		//if(cl->gameState()->currentPlayer == player)
 		callOnlyThatInterface(cl, player, &CGameInterface::yourTurn);
 	}
 }
