@@ -1,5 +1,8 @@
 macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
-	set(MAIN_LIB_DIR "${CMAKE_SOURCE_DIR}/lib")
+	if(NOT DEFINED MAIN_LIB_DIR)
+		set(MAIN_LIB_DIR "${CMAKE_SOURCE_DIR}/lib")
+	endif()
+	
 	set(lib_SRCS
 		${MAIN_LIB_DIR}/StdInc.cpp
 
@@ -203,33 +206,33 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 	endif()
 
 	set(lib_HEADERS
-		${CMAKE_SOURCE_DIR}/include/vstd/CLoggerBase.h
-		${CMAKE_SOURCE_DIR}/Global.h
+		${MAIN_LIB_DIR}/../include/vstd/CLoggerBase.h
+		${MAIN_LIB_DIR}/../Global.h
 		${MAIN_LIB_DIR}/StdInc.h
 
-		${CMAKE_SOURCE_DIR}/include/vstd/ContainerUtils.h
-		${CMAKE_SOURCE_DIR}/include/vstd/RNG.h
-		${CMAKE_SOURCE_DIR}/include/vstd/StringUtils.h
+		${MAIN_LIB_DIR}/../include/vstd/ContainerUtils.h
+		${MAIN_LIB_DIR}/../include/vstd/RNG.h
+		${MAIN_LIB_DIR}/../include/vstd/StringUtils.h
 
-		${CMAKE_SOURCE_DIR}/include/vcmi/events/ApplyDamage.h
-		${CMAKE_SOURCE_DIR}/include/vcmi/events/Event.h
-		${CMAKE_SOURCE_DIR}/include/vcmi/events/EventBus.h
-		${CMAKE_SOURCE_DIR}/include/vcmi/events/SubscriptionRegistry.h
+		${MAIN_LIB_DIR}/../include/vcmi/events/ApplyDamage.h
+		${MAIN_LIB_DIR}/../include/vcmi/events/Event.h
+		${MAIN_LIB_DIR}/../include/vcmi/events/EventBus.h
+		${MAIN_LIB_DIR}/../include/vcmi/events/SubscriptionRegistry.h
 
-		${CMAKE_SOURCE_DIR}/include/vcmi/scripting/Service.h
+		${MAIN_LIB_DIR}/../include/vcmi/scripting/Service.h
 
-		${CMAKE_SOURCE_DIR}/include/vcmi/spells/Caster.h
-		${CMAKE_SOURCE_DIR}/include/vcmi/spells/Magic.h
-		${CMAKE_SOURCE_DIR}/include/vcmi/spells/Service.h
-		${CMAKE_SOURCE_DIR}/include/vcmi/spells/Spell.h
+		${MAIN_LIB_DIR}/../include/vcmi/spells/Caster.h
+		${MAIN_LIB_DIR}/../include/vcmi/spells/Magic.h
+		${MAIN_LIB_DIR}/../include/vcmi/spells/Service.h
+		${MAIN_LIB_DIR}/../include/vcmi/spells/Spell.h
 
-		${CMAKE_SOURCE_DIR}/include/vcmi/Artifact.h
-		${CMAKE_SOURCE_DIR}/include/vcmi/ArtifactService.h
-		${CMAKE_SOURCE_DIR}/include/vcmi/Creature.h
-		${CMAKE_SOURCE_DIR}/include/vcmi/CreatureService.h
-		${CMAKE_SOURCE_DIR}/include/vcmi/Entity.h
-		${CMAKE_SOURCE_DIR}/include/vcmi/Environment.h
-		${CMAKE_SOURCE_DIR}/include/vcmi/Services.h
+		${MAIN_LIB_DIR}/../include/vcmi/Artifact.h
+		${MAIN_LIB_DIR}/../include/vcmi/ArtifactService.h
+		${MAIN_LIB_DIR}/../include/vcmi/Creature.h
+		${MAIN_LIB_DIR}/../include/vcmi/CreatureService.h
+		${MAIN_LIB_DIR}/../include/vcmi/Entity.h
+		${MAIN_LIB_DIR}/../include/vcmi/Environment.h
+		${MAIN_LIB_DIR}/../include/vcmi/Services.h
 
 		${MAIN_LIB_DIR}/abilities/Ability.h
 
@@ -457,8 +460,8 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 
 	target_include_directories(${TARGET_NAME}
 		PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
-		PUBLIC ${CMAKE_SOURCE_DIR}
-		PUBLIC ${CMAKE_SOURCE_DIR}/include
+		PUBLIC ${MAIN_LIB_DIR}/..
+		PUBLIC ${MAIN_LIB_DIR}/../include
 		PUBLIC ${MAIN_LIB_DIR}
 		PRIVATE ${SDL2_INCLUDE_DIR}
 	)
@@ -484,8 +487,8 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
 			COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/config
 			COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/Mods
-			COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/config ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/config
-			COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/Mods ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/Mods
+			COMMAND ${CMAKE_COMMAND} -E copy_directory ${MAIN_LIB_DIR}/../config ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/config
+			COMMAND ${CMAKE_COMMAND} -E copy_directory ${MAIN_LIB_DIR}/../Mods ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/Mods
 		)
 	endif()
 
