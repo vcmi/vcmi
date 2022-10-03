@@ -512,6 +512,14 @@ void CServerHandler::sendGuiAction(ui8 action) const
 	sendLobbyPack(lga);
 }
 
+void CServerHandler::sendRestartGame() const
+{
+	LobbyEndGame endGame;
+	endGame.closeConnection = false;
+	endGame.restart = true;
+	sendLobbyPack(endGame);
+}
+
 void CServerHandler::sendStartGame(bool allowOnlyAI) const
 {
 	verifyStateBeforeStart(allowOnlyAI ? true : settings["session"]["onlyai"].Bool());
@@ -524,9 +532,11 @@ void CServerHandler::sendStartGame(bool allowOnlyAI) const
 		* si = * lsg.initializedStartInfo;
 	}
 	sendLobbyPack(lsg);
+	c->enterLobbyConnectionMode();
+	c->disableStackSendingByID();
 }
 
-void CServerHandler::startGameplay()
+void CServerHandler::startGameplay(CGameState * gameState)
 {
 	if(CMM)
 		CMM->disable();
@@ -535,13 +545,13 @@ void CServerHandler::startGameplay()
 	switch(si->mode)
 	{
 	case StartInfo::NEW_GAME:
-		client->newGame();
+		client->newGame(gameState);
 		break;
 	case StartInfo::CAMPAIGN:
-		client->newGame();
+		client->newGame(gameState);
 		break;
 	case StartInfo::LOAD_GAME:
-		client->loadGame();
+		client->loadGame(gameState);
 		break;
 	default:
 		throw std::runtime_error("Invalid mode");
@@ -576,6 +586,9 @@ void CServerHandler::endGameplay(bool closeConnection, bool restart)
 			GH.curInt = CMainMenu::create().get();
 		}
 	}
+	
+	c->enterLobbyConnectionMode();
+	c->disableStackSendingByID();
 }
 
 void CServerHandler::startCampaignScenario(std::shared_ptr<CCampaignState> cs)

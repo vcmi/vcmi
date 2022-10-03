@@ -330,7 +330,7 @@ public:
 		h & players;
 		h & howManyTeams;
 		h & allowedHeroes;
-		h & triggeredEvents;
+		//Do not serialize triggeredEvents in header as they can contain information about heroes and armies
 		h & victoryMessage;
 		h & victoryIconIndex;
 		h & defeatMessage;
@@ -424,6 +424,7 @@ public:
 	void serialize(Handler &h, const int formatVersion)
 	{
 		h & static_cast<CMapHeader&>(*this);
+		h & triggeredEvents; //from CMapHeader
 		h & rumors;
 		h & allowedSpell;
 		h & allowedAbilities;

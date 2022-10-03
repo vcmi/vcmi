@@ -69,6 +69,7 @@ public:
 	~CVCMIServer();
 	void run();
 	bool prepareToStartGame();
+	void prepareToRestart();
 	void startGameImmidiately();
 
 	void startAsyncAccept();

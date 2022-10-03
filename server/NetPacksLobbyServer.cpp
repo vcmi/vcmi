@@ -161,6 +161,27 @@ bool LobbyGuiAction::checkClientPermissions(CVCMIServer * srv) const
 	return srv->isClientHost(c->connectionID);
 }
 
+bool LobbyEndGame::checkClientPermissions(CVCMIServer * srv) const
+{
+	return srv->isClientHost(c->connectionID);
+}
+
+bool LobbyEndGame::applyOnServer(CVCMIServer * srv)
+{
+	srv->prepareToRestart();
+	return true;
+}
+
+void LobbyEndGame::applyOnServerAfterAnnounce(CVCMIServer * srv)
+{
+	boost::unique_lock<boost::mutex> stateLock(srv->stateMutex);
+	for(auto & c : srv->connections)
+	{
+		c->enterLobbyConnectionMode();
+		c->disableStackSendingByID();
+	}
+}
+
 bool LobbyStartGame::checkClientPermissions(CVCMIServer * srv) const
 {
 	return srv->isClientHost(c->connectionID);
@@ -181,6 +202,8 @@ bool LobbyStartGame::applyOnServer(CVCMIServer * srv)
 		return false;
 	
 	initializedStartInfo = std::make_shared<StartInfo>(*srv->gh->getStartInfo(true));
+	initializedGameState = srv->gh->gameState();
+
 	return true;
 }
 

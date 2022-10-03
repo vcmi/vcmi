@@ -1367,7 +1367,7 @@ static void handleEvent(SDL_Event & ev)
 			break;
 		case EUserEvent::RESTART_GAME:
 			{
-				CSH->sendStartGame();
+				CSH->sendRestartGame();
 			}
 			break;
 		case EUserEvent::CAMPAIGN_START_SCENARIO:

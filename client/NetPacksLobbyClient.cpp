@@ -57,7 +57,8 @@ bool LobbyClientDisconnected::applyOnLobbyHandler(CServerHandler * handler)
 
 void LobbyClientDisconnected::applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler)
 {
-	GH.popInts(1);
+	if(GH.listInt.size())
+		GH.popInts(1);
 }
 
 void LobbyChatMessage::applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler)
@@ -93,25 +94,34 @@ void LobbyGuiAction::applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * h
 	}
 }
 
-bool LobbyStartGame::applyOnLobbyHandler(CServerHandler * handler)
+bool LobbyEndGame::applyOnLobbyHandler(CServerHandler * handler)
 {
 	if(handler->state == EClientState::GAMEPLAY)
 	{
-		handler->endGameplay(false, true);
+		handler->endGameplay(closeConnection, restart);
 	}
+	
+	if(restart)
+		handler->sendStartGame();
+	
+	return true;
+}
+
+bool LobbyStartGame::applyOnLobbyHandler(CServerHandler * handler)
+{
 	handler->state = EClientState::STARTING;
 	if(handler->si->mode != StartInfo::LOAD_GAME)
 	{
 		handler->si = initializedStartInfo;
 	}
 	if(settings["session"]["headless"].Bool())
-		handler->startGameplay();
+		handler->startGameplay(initializedGameState);
 	return true;
 }
 
 void LobbyStartGame::applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler)
 {
-	GH.pushIntT<CLoadingScreen>(std::bind(&CServerHandler::startGameplay, handler));
+	GH.pushIntT<CLoadingScreen>(std::bind(&CServerHandler::startGameplay, handler, initializedGameState));
 }
 
 bool LobbyUpdateState::applyOnLobbyHandler(CServerHandler * handler)
