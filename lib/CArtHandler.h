@@ -328,6 +328,7 @@ public:
 	/// (if more than one such artifact lower ID is returned)
 	ArtifactPosition getArtPos(int aid, bool onlyWorn = true, bool allowLocked = true) const;
 	ArtifactPosition getArtPos(const CArtifactInstance *art) const;
+	std::vector<ArtifactPosition> getAllArtPositions(int aid, bool onlyWorn, bool allowLocked, bool getAll) const;
 	const CArtifactInstance *getArtByInstanceId(ArtifactInstanceID artInstId) const;
 	/// Search for constituents of assemblies in backpack which do not have an ArtifactPosition
 	const CArtifactInstance *getHiddenArt(int aid) const;
@@ -335,6 +336,7 @@ public:
 	/// Checks if hero possess artifact of given id (either in backack or worn)
 	bool hasArt(ui32 aid, bool onlyWorn = false, bool searchBackpackAssemblies = false, bool allowLocked = true) const;
 	bool isPositionFree(ArtifactPosition pos, bool onlyLockCheck = false) const;
+	unsigned getArtPosCount(int aid, bool onlyWorn = true, bool searchBackpackAssemblies = true, bool allowLocked = true) const;
 
 	virtual ArtBearer::ArtBearer bearerType() const = 0;
 	virtual void putArtifact(ArtifactPosition pos, CArtifactInstance * art) = 0;

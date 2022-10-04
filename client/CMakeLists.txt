@@ -148,14 +148,14 @@ set(client_HEADERS
 if(APPLE_IOS)
 	set(client_SRCS ${client_SRCS}
 		CFocusableHelper.cpp
-		ios/GameChatKeyboardHanlder.m
+		ios/GameChatKeyboardHandler.m
 		ios/main.m
 		ios/startSDL.mm
 		ios/utils.mm
 	)
 	set(client_HEADERS ${client_HEADERS}
 		CFocusableHelper.h
-		ios/GameChatKeyboardHanlder.h
+		ios/GameChatKeyboardHandler.h
 		ios/startSDL.h
 		ios/utils.h
 	)
@@ -269,8 +269,10 @@ enable_pch(vcmiclient)
 
 if(APPLE_IOS)
 	add_custom_command(TARGET vcmiclient POST_BUILD
+		COMMAND ios/set_build_version.sh "$<TARGET_BUNDLE_CONTENT_DIR:vcmiclient>"
 		COMMAND ${CMAKE_COMMAND} --install "${CMAKE_BINARY_DIR}" --component "${CMAKE_INSTALL_DEFAULT_COMPONENT_NAME}" --config "$<CONFIG>" --prefix "$<TARGET_BUNDLE_CONTENT_DIR:vcmiclient>"
-		COMMAND ${CMAKE_SOURCE_DIR}/ios/codesign.sh
+		COMMAND ios/codesign.sh
+		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 	)
 	install(TARGETS vcmiclient DESTINATION Payload COMPONENT app) # for ipa generation with cpack
 else()

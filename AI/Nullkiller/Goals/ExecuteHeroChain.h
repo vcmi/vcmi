@@ -12,6 +12,8 @@
 #include "CGoal.h"
 #include "../Pathfinding/AIPathfinder.h"
 
+namespace NKAI
+{
 namespace Goals
 {
 	class DLL_EXPORT ExecuteHeroChain : public ElementarGoal<ExecuteHeroChain>
@@ -31,7 +33,11 @@ namespace Goals
 		virtual bool operator==(const ExecuteHeroChain & other) const override;
 		const AIPath & getPath() const { return chainPath; }
 
+		virtual int getHeroExchangeCount() const override { return chainPath.exchangeCount; }
+
 	private:
 		bool moveHeroToTile(const CGHeroInstance * hero, const int3 & tile);
 	};
+}
+
 }

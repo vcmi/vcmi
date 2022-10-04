@@ -11,6 +11,9 @@
 
 #include "../Goals/AbstractGoal.h"
 
+namespace NKAI
+{
+
 struct GoalHash
 {
 	uint64_t operator()(const Goals::TSubgoal & goal) const
@@ -39,3 +42,5 @@ private:
 	Goals::TGoalVec decomposeCached(Goals::TSubgoal goal, bool & fromCache);
 	void addToCache(Goals::TSubgoal goal);
 };
+
+}

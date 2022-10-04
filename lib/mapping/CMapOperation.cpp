@@ -83,8 +83,11 @@ void CComposedOperation::addOperation(std::unique_ptr<CMapOperation>&& operation
 	operations.push_back(std::move(operation));
 }
 
-CDrawTerrainOperation::CDrawTerrainOperation(CMap* map, const CTerrainSelection& terrainSel, Terrain terType, CRandomGenerator* gen)
-	: CMapOperation(map), terrainSel(terrainSel), terType(terType), gen(gen)
+CDrawTerrainOperation::CDrawTerrainOperation(CMap* map, const CTerrainSelection& terrainSel, TerrainId terType, CRandomGenerator* gen):
+	CMapOperation(map),
+	terrainSel(terrainSel),
+	terType(terType),
+	gen(gen)
 {
 
 }
@@ -94,7 +97,7 @@ void CDrawTerrainOperation::execute()
 	for(const auto & pos : terrainSel.getSelectedItems())
 	{
 		auto & tile = map->getTile(pos);
-		tile.terType = terType;
+		tile.terType = const_cast<TerrainType*>(&VLC->terrainTypeHandler->terrains()[terType]);
 		invalidateTerrainViews(pos);
 	}
 
@@ -151,7 +154,7 @@ void CDrawTerrainOperation::updateTerrainTypes()
 			rect.forEach([&](const int3& posToTest)
 				{
 					auto & terrainTile = map->getTile(posToTest);
-					if(centerTile.terType != terrainTile.terType)
+					if(centerTile.terType->id != terrainTile.terType->id)
 					{
 						auto formerTerType = terrainTile.terType;
 						terrainTile.terType = centerTile.terType;
@@ -254,7 +257,7 @@ void CDrawTerrainOperation::updateTerrainViews()
 {
 	for(const auto & pos : invalidatedTerViews)
 	{
-		const auto & patterns = VLC->terviewh->getTerrainViewPatterns(map->getTile(pos).terType);
+		const auto & patterns = VLC->terviewh->getTerrainViewPatterns(map->getTile(pos).terType->id);
 
 		// Detect a pattern which fits best
 		int bestPattern = -1;
@@ -342,7 +345,7 @@ CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainVi
 		int cy = pos.y + (i / 3) - 1;
 		int3 currentPos(cx, cy, pos.z);
 		bool isAlien = false;
-		Terrain terType;
+		TerrainType * terType = nullptr;
 		if(!map->isInTheMap(currentPos))
 		{
 			// position is not in the map, so take the ter type from the neighbor tile
@@ -375,7 +378,7 @@ CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainVi
 		else
 		{
 			terType = map->getTile(currentPos).terType;
-			if(terType != centerTerType && (terType.isPassable() || centerTerType.isPassable()))
+			if(terType != centerTerType && (terType->isPassable() || centerTerType->isPassable()))
 			{
 				isAlien = true;
 			}
@@ -390,9 +393,9 @@ CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainVi
 			{
 				if(recDepth == 0 && map->isInTheMap(currentPos))
 				{
-					if(terType == centerTerType)
+					if(terType->id == centerTerType->id)
 					{
-						const auto & patternForRule = VLC->terviewh->getTerrainViewPatternsById(centerTerType, rule.name);
+						const auto & patternForRule = VLC->terviewh->getTerrainViewPatternsById(centerTerType->id, rule.name);
 						if(auto p = patternForRule)
 						{
 							auto rslt = validateTerrainView(currentPos, &(*p), 1);
@@ -419,18 +422,18 @@ CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainVi
 			bool nativeTestOk, nativeTestStrongOk;
 			nativeTestOk = nativeTestStrongOk = (rule.isNativeStrong() || rule.isNativeRule()) && !isAlien;
 
-			if(centerTerType == Terrain("dirt"))
+			if(centerTerType->id == Terrain::DIRT)
 			{
-				nativeTestOk = rule.isNativeRule() && !terType.isTransitionRequired();
+				nativeTestOk = rule.isNativeRule() && !terType->isTransitionRequired();
 				bool sandTestOk = (rule.isSandRule() || rule.isTransition())
-					&& terType.isTransitionRequired();
+					&& terType->isTransitionRequired();
 				applyValidationRslt(rule.isAnyRule() || sandTestOk || nativeTestOk || nativeTestStrongOk);
 			}
-			else if(centerTerType == Terrain("sand"))
+			else if(centerTerType->id == Terrain::SAND)
 			{
 				applyValidationRslt(true);
 			}
-			else if(centerTerType.isTransitionRequired()) //water, rock and some special terrains require sand transition
+			else if(centerTerType->isTransitionRequired()) //water, rock and some special terrains require sand transition
 			{
 				bool sandTestOk = (rule.isSandRule() || rule.isTransition())
 					&& isAlien;
@@ -439,9 +442,9 @@ CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainVi
 			else
 			{
 				bool dirtTestOk = (rule.isDirtRule() || rule.isTransition())
-					&& isAlien && !terType.isTransitionRequired();
+					&& isAlien && !terType->isTransitionRequired();
 				bool sandTestOk = (rule.isSandRule() || rule.isTransition())
-					&& terType.isTransitionRequired();
+					&& terType->isTransitionRequired();
 
 				if(transitionReplacement.empty() && rule.isTransition()
 					&& (dirtTestOk || sandTestOk))
@@ -504,7 +507,7 @@ CDrawTerrainOperation::InvalidTiles CDrawTerrainOperation::getInvalidTiles(const
 				auto valid = validateTerrainView(pos, ptrConfig->getTerrainTypePatternById("n1")).result;
 
 				// Special validity check for rock & water
-				if(valid && (terType.isWater() || !terType.isPassable()))
+				if(valid && (terType->isWater() || !terType->isPassable()))
 				{
 					static const std::string patternIds[] = { "s1", "s2" };
 					for(auto & patternId : patternIds)
@@ -514,7 +517,7 @@ CDrawTerrainOperation::InvalidTiles CDrawTerrainOperation::getInvalidTiles(const
 					}
 				}
 				// Additional validity check for non rock OR water
-				else if(!valid && (terType.isLand() && terType.isPassable()))
+				else if(!valid && (terType->isLand() && terType->isPassable()))
 				{
 					static const std::string patternIds[] = { "n2", "n3" };
 					for (auto & patternId : patternIds)
@@ -548,12 +551,12 @@ CClearTerrainOperation::CClearTerrainOperation(CMap* map, CRandomGenerator* gen)
 {
 	CTerrainSelection terrainSel(map);
 	terrainSel.selectRange(MapRect(int3(0, 0, 0), map->width, map->height));
-	addOperation(make_unique<CDrawTerrainOperation>(map, terrainSel, Terrain("water"), gen));
+	addOperation(make_unique<CDrawTerrainOperation>(map, terrainSel, Terrain::WATER, gen));
 	if(map->twoLevel)
 	{
 		terrainSel.clearSelection();
 		terrainSel.selectRange(MapRect(int3(0, 0, 1), map->width, map->height));
-		addOperation(make_unique<CDrawTerrainOperation>(map, terrainSel, Terrain("rock"), gen));
+		addOperation(make_unique<CDrawTerrainOperation>(map, terrainSel, Terrain::ROCK, gen));
 	}
 }
 

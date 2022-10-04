@@ -346,7 +346,11 @@ EConsoleTextColor::EConsoleTextColor CColorMapping::getColorFor(const CLoggerDom
 	throw std::runtime_error("failed to find color for requested domain/level pair");
 }
 
-CLogConsoleTarget::CLogConsoleTarget(CConsoleHandler * console) : console(console), threshold(ELogLevel::INFO), coloredOutputEnabled(true)
+CLogConsoleTarget::CLogConsoleTarget(CConsoleHandler * console) :
+#ifndef VCMI_IOS
+    console(console),
+#endif
+    threshold(ELogLevel::INFO), coloredOutputEnabled(true)
 {
 	formatter.setPattern("%m");
 }

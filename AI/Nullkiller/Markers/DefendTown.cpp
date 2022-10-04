@@ -13,6 +13,9 @@
 #include "../Engine/Nullkiller.h"
 #include "../AIUtility.h"
 
+namespace NKAI
+{
+
 using namespace Goals;
 
 DefendTown::DefendTown(const CGTownInstance * town, const HitMapInfo & treat, const AIPath & defencePath)
@@ -37,4 +40,6 @@ bool DefendTown::operator==(const DefendTown & other) const
 std::string DefendTown::toString() const
 {
 	return "Defend town " + town->getObjectName();
+}
+
 }

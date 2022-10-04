@@ -714,13 +714,13 @@ DLL_LINKAGE void GiveHero::applyGs(CGameState *gs)
 
 DLL_LINKAGE void NewObject::applyGs(CGameState *gs)
 {
-	Terrain terrainType;
+	TerrainId terrainType = Terrain::BORDER;
 
 	if(ID == Obj::BOAT && !gs->isInTheMap(pos)) //special handling for bug #3060 - pos outside map but visitablePos is not
 	{
 		CGObjectInstance testObject = CGObjectInstance();
 		testObject.pos = pos;
-		testObject.appearance = VLC->objtypeh->getHandlerFor(ID, subID)->getTemplates(Terrain("water")).front();
+		testObject.appearance = VLC->objtypeh->getHandlerFor(ID, subID)->getTemplates(Terrain::WATER).front();
 
 		const int3 previousXAxisTile = int3(pos.x - 1, pos.y, pos.z);
 		assert(gs->isInTheMap(previousXAxisTile) && (testObject.visitablePos() == previousXAxisTile));
@@ -729,7 +729,7 @@ DLL_LINKAGE void NewObject::applyGs(CGameState *gs)
 	else
 	{
 		const TerrainTile & t = gs->map->getTile(pos);
-		terrainType = t.terType;
+		terrainType = t.terType->id;
 	}
 
 	CGObjectInstance *o = nullptr;
@@ -737,7 +737,7 @@ DLL_LINKAGE void NewObject::applyGs(CGameState *gs)
 	{
 	case Obj::BOAT:
 		o = new CGBoat();
-		terrainType = Terrain("water"); //TODO: either boat should only spawn on water, or all water objects should be handled this way
+		terrainType = Terrain::WATER; //TODO: either boat should only spawn on water, or all water objects should be handled this way
 		break;
 	case Obj::MONSTER: //probably more options will be needed
 		o = new CGCreature();
@@ -929,10 +929,8 @@ DLL_LINKAGE void SwapStacks::applyGs(CGameState * gs)
 
 DLL_LINKAGE void InsertNewStack::applyGs(CGameState *gs)
 {
-	auto s = new CStackInstance(type, count);
-	auto obj = gs->getArmyInstance(army);
-	if(obj)
-		obj->putStack(slot, s);
+	if(auto obj = gs->getArmyInstance(army))
+		obj->putStack(slot, new CStackInstance(type, count));
 	else
 		logNetwork->error("[CRITICAL] InsertNewStack: invalid army object %d, possible game state corruption.", army.getNum());
 }

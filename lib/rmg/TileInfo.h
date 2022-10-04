@@ -30,16 +30,16 @@ public:
 	bool isUsed() const;
 	bool isRoad() const;
 	void setOccupied(ETileType::ETileType value);
-	Terrain getTerrainType() const;
+	TerrainId getTerrainType() const;
 	ETileType::ETileType getTileType() const;
-	void setTerrainType(Terrain value);
+	void setTerrainType(TerrainId value);
 	
-	void setRoadType(const std::string & value);
+	void setRoadType(RoadId type);
 private:
 	float nearestObjectDistance;
 	ETileType::ETileType occupied;
-	Terrain terrain;
-	std::string roadType;
+	TerrainId terrain;
+	RoadId roadType;
 };
 
 VCMI_LIB_NAMESPACE_END

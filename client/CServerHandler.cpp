@@ -59,6 +59,8 @@
 
 template<typename T> class CApplyOnLobby;
 
+const std::string CServerHandler::localhostAddress{"127.0.0.1"};
+
 #ifdef VCMI_ANDROID
 extern std::atomic_bool androidTestServerReadyFlag;
 #endif
@@ -176,7 +178,7 @@ void CServerHandler::startLocalServerAndConnect()
 	auto errorMsg = CGI->generaltexth->localizedTexts["server"]["errors"]["existingProcess"].String();
 	try
 	{
-		CConnection testConnection(settings["server"]["server"].String(), getDefaultPort(), NAME, uuid);
+		CConnection testConnection(localhostAddress, getDefaultPort(), NAME, uuid);
 		logNetwork->error("Port is busy, check if another instance of vcmiserver is working");
 		CInfoWindow::showInfoDialog(errorMsg, {});
 		return;
@@ -248,7 +250,7 @@ void CServerHandler::startLocalServerAndConnect()
 #else
 	const ui16 port = 0;
 #endif
-	justConnectToServer(settings["server"]["server"].String(), port);
+	justConnectToServer(localhostAddress, port);
 
 	logNetwork->trace("\tConnecting to the server: %d ms", th->getDiff());
 }
@@ -274,9 +276,17 @@ void CServerHandler::justConnectToServer(const std::string & addr, const ui16 po
 	}
 
 	if(state == EClientState::CONNECTION_CANCELLED)
+	{
 		logNetwork->info("Connection aborted by player!");
-	else
-		c->handler = std::make_shared<boost::thread>(&CServerHandler::threadHandleConnection, this);
+		return;
+	}
+
+	c->handler = std::make_shared<boost::thread>(&CServerHandler::threadHandleConnection, this);
+
+	if(addr.empty() || addr == localhostAddress)
+		return;
+	Settings serverAddress = settings.write["server"]["server"];
+	serverAddress->String() = addr;
 }
 
 void CServerHandler::applyPacksOnLobbyScreen()
@@ -693,7 +703,7 @@ void CServerHandler::debugStartTest(std::string filename, bool save)
 		screenType = ESelectionScreen::newGame;
 	}
 	if(settings["session"]["donotstartserver"].Bool())
-		justConnectToServer("127.0.0.1", 3030);
+		justConnectToServer(localhostAddress, 3030);
 	else
 		startLocalServerAndConnect();
 

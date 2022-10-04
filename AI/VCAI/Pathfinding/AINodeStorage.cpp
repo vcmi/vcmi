@@ -43,11 +43,11 @@ void AINodeStorage::initialize(const PathfinderOptions & options, const CGameSta
 		{
 			for(pos.y=0; pos.y < sizes.y; ++pos.y)
 			{
-				const TerrainTile * tile = &gs->map->getTile(pos);
-				if(!tile->terType.isPassable())
+				const TerrainTile & tile = gs->map->getTile(pos);
+				if(!tile.terType->isPassable())
 					continue;
 				
-				if(tile->terType.isWater())
+				if(tile.terType->isWater())
 				{
 					resetTile(pos, ELayer::SAIL, PathfinderUtil::evaluateAccessibility<ELayer::SAIL>(pos, tile, fow, player, gs));
 					if(useFlying)

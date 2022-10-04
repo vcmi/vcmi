@@ -124,7 +124,7 @@ public:
 	std::vector<std::string> advobtxt;
 	std::vector<std::string> xtrainfo;
 	std::vector<std::string> restypes; //names of resources
-	std::map<std::string, std::string> terrainNames;
+	std::map<TerrainId, std::string> terrainNames;
 	std::vector<std::string> randsign;
 	std::vector<std::pair<std::string,std::string>> mines; //first - name; second - event description
 	std::vector<std::string> seerEmpty;

@@ -20,6 +20,9 @@
 
 #include "../../lib/CModHandler.h"
 
+namespace NKAI
+{
+
 extern boost::thread_specific_ptr<AIGateway> ai;
 
 //extern static const int3 dirs[8];
@@ -307,6 +310,9 @@ bool compareArtifacts(const CArtifactInstance * a1, const CArtifactInstance * a2
 
 bool isWeeklyRevisitable(const CGObjectInstance * obj)
 {
+	if(!obj)
+		return false;
+
 	//TODO: allow polling of remaining creatures in dwelling
 	if(dynamic_cast<const CGVisitableOPW *>(obj)) // ensures future compatibility, unlike IDs
 		return true;
@@ -442,4 +448,6 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 		return false;
 
 	return true;
+}
+
 }

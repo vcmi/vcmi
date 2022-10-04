@@ -430,7 +430,7 @@ void TreasurePlacer::addAllPossibleObjects()
 				
 				obj->quest->missionType = CQuest::MISSION_ART;
 				ArtifactID artid = *RandomGeneratorUtil::nextItem(generator.getQuestArtsRemaning(), generator.rand);
-				obj->quest->m5arts.push_back(artid);
+				obj->quest->addArtifactID(artid);
 				obj->quest->lastDay = -1;
 				obj->quest->isCustomFirst = obj->quest->isCustomNext = obj->quest->isCustomComplete = false;
 				
@@ -467,7 +467,7 @@ void TreasurePlacer::addAllPossibleObjects()
 				
 				obj->quest->missionType = CQuest::MISSION_ART;
 				ArtifactID artid = *RandomGeneratorUtil::nextItem(generator.getQuestArtsRemaning(), generator.rand);
-				obj->quest->m5arts.push_back(artid);
+				obj->quest->addArtifactID(artid);
 				obj->quest->lastDay = -1;
 				obj->quest->isCustomFirst = obj->quest->isCustomNext = obj->quest->isCustomComplete = false;
 				
@@ -490,7 +490,7 @@ void TreasurePlacer::addAllPossibleObjects()
 				
 				obj->quest->missionType = CQuest::MISSION_ART;
 				ArtifactID artid = *RandomGeneratorUtil::nextItem(generator.getQuestArtsRemaning(), generator.rand);
-				obj->quest->m5arts.push_back(artid);
+				obj->quest->addArtifactID(artid);
 				obj->quest->lastDay = -1;
 				obj->quest->isCustomFirst = obj->quest->isCustomNext = obj->quest->isCustomComplete = false;
 				
@@ -813,7 +813,7 @@ ObjectInfo::ObjectInfo()
 	
 }
 
-void ObjectInfo::setTemplate(si32 type, si32 subtype, Terrain terrainType)
+void ObjectInfo::setTemplate(si32 type, si32 subtype, TerrainId terrainType)
 {
 	auto templHandler = VLC->objtypeh->getHandlerFor(type, subtype);
 	if(!templHandler)

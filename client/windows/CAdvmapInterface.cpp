@@ -1234,7 +1234,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 		return;
 	case SDLK_d:
 		{
-			if(h && isActive() && key.state == SDL_PRESSED)
+			if(h && isActive() && LOCPLINT->makingTurn && key.state == SDL_PRESSED)
 				LOCPLINT->tryDiggging(h);
 			return;
 		}
@@ -1413,7 +1413,7 @@ void CAdvMapInt::select(const CArmedInstance *sel, bool centerView)
 		auto pos = sel->visitablePos();
 		auto tile = LOCPLINT->cb->getTile(pos);
 		if(tile)
-			CCS->musich->playMusicFromSet("terrain", tile->terType, true);
+			CCS->musich->playMusicFromSet("terrain", tile->terType->name, true);
 	}
 	if(centerView)
 		centerOn(sel);

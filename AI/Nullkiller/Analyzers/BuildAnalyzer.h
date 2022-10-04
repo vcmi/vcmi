@@ -12,6 +12,9 @@
 #include "../AIUtility.h"
 #include "../../../lib/ResourceSet.h"
 
+namespace NKAI
+{
+
 class Nullkiller;
 
 class DLL_EXPORT BuildingInfo
@@ -104,3 +107,5 @@ private:
 	void updateDailyIncome();
 	void reset();
 };
+
+}

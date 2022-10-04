@@ -27,7 +27,9 @@ void MainWindow::load()
 	// This is important on Mac for relative paths to work inside DMG.
 	QDir::setCurrent(QApplication::applicationDirPath());
 
+#ifndef VCMI_IOS
 	console = new CConsoleHandler();
+#endif
 	CBasicLogConfigurator logConfig(VCMIDirs::get().userLogsPath() / "VCMI_Launcher_log.txt", console);
 	logConfig.configureDefault();
 
@@ -82,10 +84,19 @@ MainWindow::MainWindow(QWidget * parent)
 		ui->tabSelectList->setMaximumWidth(width + 4);
 	}
 	ui->tabListWidget->setCurrentIndex(0);
-	ui->settingsView->setDisplayList();
 
-	connect(ui->tabSelectList, SIGNAL(currentRowChanged(int)),
-		ui->tabListWidget, SLOT(setCurrentIndex(int)));
+	ui->settingsView->isExtraResolutionsModEnabled = ui->stackedWidgetPage2->isExtraResolutionsModEnabled();
+	ui->settingsView->setDisplayList();
+	connect(ui->stackedWidgetPage2, &CModListView::extraResolutionsEnabledChanged,
+		ui->settingsView, &CSettingsView::fillValidResolutions);
+
+	connect(ui->tabSelectList, &QListWidget::currentRowChanged, [this](int i) {
+#ifdef Q_OS_IOS
+		if(auto widget = qApp->focusWidget())
+			widget->clearFocus();
+#endif
+		ui->tabListWidget->setCurrentIndex(i);
+	});
 
 	if(settings["launcher"]["updateOnStartup"].Bool())
 		UpdateDialog::showUpdateDialog(false);

@@ -61,6 +61,7 @@ public:
 	CSoundHandler();
 
 	void init() override;
+	void loadHorseSounds();
 	void release() override;
 
 	void setVolume(ui32 percent) override;
@@ -83,7 +84,7 @@ public:
 	// Sets
 	std::vector<soundBase::soundID> pickupSounds;
 	std::vector<soundBase::soundID> battleIntroSounds;
-	std::map<Terrain, soundBase::soundID> horseSounds;
+	std::map<TerrainId, soundBase::soundID> horseSounds;
 };
 
 // Helper //now it looks somewhat useless
@@ -139,6 +140,7 @@ public:
 	void addEntryToSet(const std::string & set, const std::string & entryID, const std::string & musicURI);
 
 	void init() override;
+	void loadTerrainSounds();
 	void release() override;
 	void setVolume(ui32 percent) override;
 

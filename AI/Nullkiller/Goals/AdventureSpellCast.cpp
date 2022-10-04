@@ -13,6 +13,9 @@
 #include "../../../lib/mapping/CMap.h" //for victory conditions
 #include "../../../lib/CPathfinder.h"
 
+namespace NKAI
+{
+
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<AIGateway> ai;
 
@@ -68,4 +71,6 @@ void AdventureSpellCast::accept(AIGateway * ai)
 std::string AdventureSpellCast::toString() const
 {
 	return "AdventureSpellCast " + spellID.toSpell()->name;
+}
+
 }

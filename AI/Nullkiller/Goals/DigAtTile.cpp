@@ -13,6 +13,9 @@
 #include "../AIUtility.h"
 
 
+namespace NKAI
+{
+
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<AIGateway> ai;
 
@@ -35,3 +38,5 @@ bool DigAtTile::operator==(const DigAtTile & other) const
 //
 //	return sptr(VisitTile(tile));
 //}
+
+}

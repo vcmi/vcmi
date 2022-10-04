@@ -84,7 +84,7 @@ void RmgMap::initTiles(CMapGenerator & generator)
 	
 	getEditManager()->clearTerrain(&generator.rand);
 	getEditManager()->getTerrainSelection().selectRange(MapRect(int3(0, 0, 0), mapGenOptions.getWidth(), mapGenOptions.getHeight()));
-	getEditManager()->drawTerrain(Terrain("grass"), &generator.rand);
+	getEditManager()->drawTerrain(Terrain::GRASS, &generator.rand);
 	
 	auto tmpl = mapGenOptions.getMapTemplate();
 	zones.clear();
@@ -231,7 +231,7 @@ void RmgMap::setOccupied(const int3 &tile, ETileType::ETileType state)
 	tiles[tile.x][tile.y][tile.z].setOccupied(state);
 }
 
-void RmgMap::setRoad(const int3& tile, const std::string & roadType)
+void RmgMap::setRoad(const int3& tile, RoadId roadType)
 {
 	assertOnMap(tile);
 	

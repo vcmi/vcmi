@@ -28,6 +28,9 @@ void CModListView::setupModModel()
 {
 	modModel = new CModListModel(this);
 	manager = vstd::make_unique<CModManager>(modModel);
+
+	connect(manager.get(), &CModManager::extraResolutionsEnabledChanged,
+		this, &CModListView::extraResolutionsEnabledChanged);
 }
 
 void CModListView::setupFilterModel()
@@ -318,6 +321,11 @@ void CModListView::selectMod(const QModelIndex & index)
 
 		loadScreenshots();
 	}
+}
+
+bool CModListView::isExtraResolutionsModEnabled() const
+{
+	return manager->isExtraResolutionsModEnabled();
 }
 
 void CModListView::keyPressEvent(QKeyEvent * event)

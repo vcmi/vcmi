@@ -62,6 +62,7 @@ option(ENABLE_LUA "Enable compilation of LUA scripting module" OFF)
 option(ENABLE_LAUNCHER "Enable compilation of launcher" ON)
 if(APPLE_IOS)
 	set(BUNDLE_IDENTIFIER_PREFIX "" CACHE STRING "Bundle identifier prefix")
+	set(APP_DISPLAY_NAME "VCMI" CACHE STRING "App name on the home screen")
 else()
 	option(ENABLE_TEST "Enable compilation of unit tests" ON)
 endif()
@@ -155,6 +156,7 @@ set(CMAKE_MAP_IMPORTED_CONFIG_MINSIZEREL MinSizeRel Release RelWithDebInfo "")
 # Release falls back to RelWithDebInfo, then MinSizeRel
 set(CMAKE_MAP_IMPORTED_CONFIG_RELEASE Release RelWithDebInfo MinSizeRel "")
 
+set(CMAKE_XCODE_ATTRIBUTE_APP_DISPLAY_NAME ${APP_DISPLAY_NAME})
 set(CMAKE_XCODE_ATTRIBUTE_CLANG_ENABLE_OBJC_ARC YES)
 set(CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT[variant=Debug] dwarf)
 set(CMAKE_XCODE_ATTRIBUTE_ENABLE_BITCODE NO)
@@ -171,7 +173,7 @@ endif()
 
 if(APPLE_IOS)
 	set(CMAKE_MACOSX_RPATH 1)
-	set(CMAKE_OSX_DEPLOYMENT_TARGET 10.0)
+	set(CMAKE_OSX_DEPLOYMENT_TARGET 12.0)
 
 	list(APPEND CMAKE_FIND_ROOT_PATH "${CMAKE_PREFIX_PATH}") # required for Boost
 	set(CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH FALSE)
@@ -402,8 +404,14 @@ else()
 	add_definitions(-DM_LIB_DIR="${CMAKE_INSTALL_PREFIX}/${LIB_DIR}")
 endif()
 
-set(AI_LIB_DIR "${LIB_DIR}/AI")
-set(SCRIPTING_LIB_DIR "${LIB_DIR}/scripting")
+# iOS has flat libs directory structure
+if(APPLE_IOS)
+	set(AI_LIB_DIR "${LIB_DIR}")
+	set(SCRIPTING_LIB_DIR "${LIB_DIR}")
+else()
+	set(AI_LIB_DIR "${LIB_DIR}/AI")
+	set(SCRIPTING_LIB_DIR "${LIB_DIR}/scripting")
+endif()
 
 #######################################
 #        Add subdirectories           #
@@ -579,8 +587,13 @@ elseif(APPLE_MACOS AND NOT ENABLE_MONOLITHIC_INSTALL)
 	# Pre-generated DS_Store use absolute path to background image
 	set(CPACK_DMG_VOLUME_NAME "${CMAKE_PROJECT_NAME}")
 
+	include(GetGitRevisionDescription)
+	get_git_head_revision(GIT_REFSPEC GIT_SHA1)
+
 	set(MACOSX_BUNDLE_NAME "${CMAKE_PROJECT_NAME}")
 	set(MACOSX_BUNDLE_BUNDLE_NAME "${CMAKE_PROJECT_NAME}")
+	set(MACOSX_BUNDLE_BUNDLE_VERSION ${GIT_SHA1})
+	set(MACOSX_BUNDLE_SHORT_VERSION_STRING ${APP_SHORT_VERSION})
 	if(ENABLE_LAUNCHER)
 		set(MACOSX_BUNDLE_EXECUTABLE_NAME "vcmilauncher")
 	else()

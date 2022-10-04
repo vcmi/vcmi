@@ -49,7 +49,7 @@ BattleField BattleProxy::getBattlefieldType() const
 	return subject->battleGetBattlefieldType();
 }
 
-Terrain BattleProxy::getTerrainType() const
+TerrainId BattleProxy::getTerrainType() const
 {
 	return subject->battleTerrainType();
 }

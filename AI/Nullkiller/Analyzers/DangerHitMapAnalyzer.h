@@ -11,6 +11,9 @@
 
 #include "../AIUtility.h"
 
+namespace NKAI
+{
+
 struct HitMapInfo
 {
 	uint64_t danger;
@@ -55,3 +58,5 @@ public:
 	const std::set<const CGObjectInstance *> & getOneTurnAccessibleObjects(const CGHeroInstance * enemy) const;
 	void reset();
 };
+
+}

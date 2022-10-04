@@ -191,9 +191,9 @@ public:
 
 		int3 tile(4,4,0);
 
-		const auto t = gameCallback->getTile(tile);
+		const auto & t = *gameCallback->getTile(tile);
 
-		Terrain terrain = t->terType;
+		TerrainId terrain = t.terType->id;
 		BattleField terType = BattleField::fromString("grass_hills");
 
 		//send info about battles

@@ -16,6 +16,9 @@
 #include "../../../lib/VCMI_Lib.h"
 #include "../../../lib/CGeneralTextHandler.h"
 
+namespace NKAI
+{
+
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<AIGateway> ai;
 
@@ -245,4 +248,6 @@ TGoalVec CompleteQuest::missionDestroyObj() const
 	}
 
 	return TGoalVec();
+}
+
 }

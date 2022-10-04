@@ -100,7 +100,7 @@ CHeroSwitcher::CHeroSwitcher(CHeroWindow * owner_, Point pos_, const CGHeroInsta
 }
 
 CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
-	: CWindowObject(PLAYER_COLORED, "HeroScr4"),
+	: CStatusbarWindow(PLAYER_COLORED, "HeroScr4"),
 	heroWArt(this, hero)
 {
 	auto & heroscrn = CGI->generaltexth->heroscrn;
@@ -112,7 +112,7 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 	name = std::make_shared<CLabel>(190, 38, EFonts::FONT_BIG, EAlignment::CENTER, Colors::YELLOW);
 	title = std::make_shared<CLabel>(190, 65, EFonts::FONT_MEDIUM, EAlignment::CENTER, Colors::WHITE);
 
-	statusBar = CGStatusBar::create(7, 559, "ADROLLVR.bmp", 660);
+	statusbar = CGStatusBar::create(7, 559, "ADROLLVR.bmp", 660);
 
 	quitButton = std::make_shared<CButton>(Point(609, 516), "hsbtns.def", CButton::tooltip(heroscrn[17]), [=](){ close(); }, SDLK_RETURN);
 	quitButton->assignedKeys.insert(SDLK_ESCAPE);

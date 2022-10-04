@@ -391,6 +391,7 @@ public:
 	std::vector<bfs::path> dataPaths() const override;
 
 	bfs::path libraryPath() const override;
+	bfs::path fullLibraryPath(const std::string & desiredFolder, const std::string & baseLibName) const override;
 	bfs::path binaryPath() const override;
 };
 
@@ -409,6 +410,12 @@ std::vector<bfs::path> VCMIDirsIOS::dataPaths() const
 	paths.emplace_back(iOS_utils::documentsPath());
 	paths.emplace_back(binaryPath());
 	return paths;
+}
+
+bfs::path VCMIDirsIOS::fullLibraryPath(const std::string & desiredFolder, const std::string & baseLibName) const
+{
+	// iOS has flat libs directory structure
+	return libraryPath() / libraryName(baseLibName);
 }
 
 bfs::path VCMIDirsIOS::libraryPath() const { return {iOS_utils::frameworksPath()}; }

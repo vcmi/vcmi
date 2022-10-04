@@ -18,6 +18,9 @@ class CGWitchHut;
 
 VCMI_LIB_NAMESPACE_END
 
+namespace NKAI
+{
+
 class BuildingInfo;
 class Nullkiller;
 
@@ -105,3 +108,5 @@ private:
 
 	EvaluationContext buildEvaluationContext(Goals::TSubgoal goal) const;
 };
+
+}

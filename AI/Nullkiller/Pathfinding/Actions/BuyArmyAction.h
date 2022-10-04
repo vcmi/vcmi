@@ -13,6 +13,8 @@
 #include "SpecialAction.h"
 #include "../../../../lib/CGameState.h"
 
+namespace NKAI
+{
 namespace AIPathfinding
 {
 	class BuyArmyAction : public SpecialAction
@@ -28,4 +30,6 @@ namespace AIPathfinding
 		void execute(const CGHeroInstance * hero) const override;
 		std::string toString() const override;
 	};
+}
+
 }

@@ -380,7 +380,7 @@
 			"type" : "object",
 			"default": {},
 			"additionalProperties" : false,
-			"required" : [ "repositoryURL", "enableInstalledMods", "autoCheckRepositories", "updateOnStartup", "updateConfigUrl" ],
+			"required" : [ "repositoryURL", "enableInstalledMods", "extraResolutionsModPath", "autoCheckRepositories", "updateOnStartup", "updateConfigUrl" ],
 			"properties" : {
 				"repositoryURL" : {
 					"type" : "array",
@@ -394,6 +394,10 @@
 				"enableInstalledMods" : {
 					"type" : "boolean",
 					"default" : true
+				},
+				"extraResolutionsModPath" : {
+					"type" : "string",
+					"default" : "/vcmi-extras/Mods/extraResolutions/Content/config/resolutions.json"
 				},
 				"autoCheckRepositories" : {
 					"type" : "boolean",

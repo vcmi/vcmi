@@ -35,7 +35,7 @@
 		</screenshot>
 	</screenshots>
 	<url type="homepage">https://vcmi.eu/</url>
-	<url type="bugtracker">https://bugs.vcmi.eu/</url>
+	<url type="bugtracker">https://github.com/vcmi/vcmi/issues</url>
 	<url type="faq">https://vcmi.eu/faq/</url>
 	<releases>
 		<release version="1.0.0" date="2022-09-11" />

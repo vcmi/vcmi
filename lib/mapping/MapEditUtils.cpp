@@ -270,9 +270,9 @@ CTerrainViewPatternConfig::~CTerrainViewPatternConfig()
 
 }
 
-const std::vector<CTerrainViewPatternConfig::TVPVector> & CTerrainViewPatternConfig::getTerrainViewPatterns(const Terrain & terrain) const
+const std::vector<CTerrainViewPatternConfig::TVPVector> & CTerrainViewPatternConfig::getTerrainViewPatterns(TerrainId terrain) const
 {
-	auto iter = terrainViewPatterns.find(Terrain::Manager::getInfo(terrain).terrainViewPatterns);
+	auto iter = terrainViewPatterns.find(VLC->terrainTypeHandler->terrains()[terrain].terrainViewPatterns);
 	if (iter == terrainViewPatterns.end())
 		return terrainViewPatterns.at("normal");
 	return iter->second;
@@ -295,7 +295,7 @@ boost::optional<const TerrainViewPattern &> CTerrainViewPatternConfig::getTerrai
 	return boost::optional<const TerrainViewPattern&>();
 }
 
-boost::optional<const CTerrainViewPatternConfig::TVPVector &> CTerrainViewPatternConfig::getTerrainViewPatternsById(const Terrain & terrain, const std::string & id) const
+boost::optional<const CTerrainViewPatternConfig::TVPVector &> CTerrainViewPatternConfig::getTerrainViewPatternsById(TerrainId terrain, const std::string & id) const
 {
 	const std::vector<TVPVector> & groupPatterns = getTerrainViewPatterns(terrain);
 	for (const TVPVector & patternFlips : groupPatterns)
@@ -357,7 +357,7 @@ void CTerrainViewPatternUtils::printDebuggingInfoAboutTile(const CMap * map, int
 			{
 				auto debugTile = map->getTile(debugPos);
 
-				std::string terType = static_cast<std::string>(debugTile.terType).substr(0, 6);
+				std::string terType = debugTile.terType->name.substr(0, 6);
 				line += terType;
 				line.insert(line.end(), PADDED_LENGTH - terType.size(), ' ');
 			}

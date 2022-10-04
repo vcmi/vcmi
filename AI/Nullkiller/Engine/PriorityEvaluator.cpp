@@ -26,6 +26,9 @@
 #include "../Markers/ArmyUpgrade.h"
 #include "../Markers/DefendTown.h"
 
+namespace NKAI
+{
+
 #define MIN_AI_STRENGHT (0.5f) //lower when combat AI gets smarter
 #define UNGUARDED_OBJECT (100.0f) //we consider unguarded objects 100 times weaker than us
 
@@ -847,7 +850,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task)
 		logAi->error("evaluate VisitTile: %s", fe.getWhat());
 	}
 
-#if AI_TRACE_LEVEL >= 2
+#if NKAI_TRACE_LEVEL >= 2
 	logAi->trace("Evaluated %s, loss: %f, turn: %d, turns main: %f, scout: %f, gold: %d, cost: %d, army gain: %d, danger: %d, role: %s, strategical value: %f, cwr: %f, fear: %f, result %f",
 		task->toString(),
 		evaluationContext.armyLossPersentage,
@@ -866,4 +869,6 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task)
 #endif
 
 	return result;
+}
+
 }

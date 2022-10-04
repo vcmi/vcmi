@@ -44,7 +44,7 @@ public:
 	virtual battle::Units getUnitsIf(battle::UnitFilter predicate) const = 0;
 
 	virtual BattleField getBattlefieldType() const = 0;
-	virtual Terrain getTerrainType() const = 0;
+	virtual TerrainId getTerrainType() const = 0;
 
 	virtual ObstacleCList getAllObstacles() const = 0;
 

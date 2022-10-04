@@ -1,3 +1,6 @@
+namespace Nullkiller
+{
+
 /*
 * Build.h, part of VCMI engine
 *
@@ -34,4 +37,6 @@ namespace Goals
 			return true;
 		}
 	};
+}
+
 }

@@ -81,32 +81,16 @@ ui32 CGHeroInstance::getTileCost(const TerrainTile & dest, const TerrainTile & f
 	int64_t ret = GameConstants::BASE_MOVEMENT_COST;
 
 	//if there is road both on dest and src tiles - use road movement cost
-	if(dest.roadType != ROAD_NAMES[0] && from.roadType != ROAD_NAMES[0])
+	if(dest.roadType->id && from.roadType->id)
 	{
-		int roadPos = std::min(vstd::find_pos(ROAD_NAMES, dest.roadType), vstd::find_pos(ROAD_NAMES, from.roadType)); //used road ID
-		switch(roadPos)
-		{
-		case 1:
-			ret = 75;
-			break;
-		case 2:
-			ret = 65;
-			break;
-		case 3:
-			ret = 50;
-			break;
-		default:
-			logGlobal->error("Unknown road type: %d", roadPos);
-			break;
-		}
+		ret = std::max(dest.roadType->movementCost, from.roadType->movementCost);
 	}
-	else if(ti->nativeTerrain != from.terType //the terrain is not native
-		&& ti->nativeTerrain != Terrain::ANY //no special creature bonus
-		&& !ti->hasBonusOfType(Bonus::NO_TERRAIN_PENALTY, from.terType.id()) //no special movement bonus
-		)
+	else if(ti->nativeTerrain != from.terType->id &&//the terrain is not native
+			ti->nativeTerrain != Terrain::ANY_TERRAIN && //no special creature bonus
+			!ti->hasBonusOfType(Bonus::NO_TERRAIN_PENALTY, from.terType->id)) //no special movement bonus
 	{
 
-		ret = VLC->heroh->terrCosts[from.terType];
+		ret = VLC->heroh->terrCosts[from.terType->id];
 		ret -= ti->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::PATHFINDING);
 		if(ret < GameConstants::BASE_MOVEMENT_COST)
 			ret = GameConstants::BASE_MOVEMENT_COST;
@@ -114,7 +98,7 @@ ui32 CGHeroInstance::getTileCost(const TerrainTile & dest, const TerrainTile & f
 	return (ui32)ret;
 }
 
-Terrain CGHeroInstance::getNativeTerrain() const
+TerrainId CGHeroInstance::getNativeTerrain() const
 {
 	// NOTE: in H3 neutral stacks will ignore terrain penalty only if placed as topmost stack(s) in hero army.
 	// This is clearly bug in H3 however intended behaviour is not clear.
@@ -122,18 +106,18 @@ Terrain CGHeroInstance::getNativeTerrain() const
 	// will always have best penalty without any influence from player-defined stacks order
 
 	// TODO: What should we do if all hero stacks are neutral creatures?
-	Terrain nativeTerrain("BORDER");
+	TerrainId nativeTerrain = Terrain::BORDER;
 
 	for(auto stack : stacks)
 	{
-		Terrain stackNativeTerrain = stack.second->type->getNativeTerrain(); //consider terrain bonuses e.g. Lodestar.
+		TerrainId stackNativeTerrain = stack.second->type->getNativeTerrain(); //consider terrain bonuses e.g. Lodestar.
 
-		if(stackNativeTerrain == Terrain("BORDER"))
+		if(stackNativeTerrain == Terrain::BORDER) //where does this value come from?
 			continue;
-		if(nativeTerrain == Terrain("BORDER"))
+		if(nativeTerrain == Terrain::BORDER)
 			nativeTerrain = stackNativeTerrain;
 		else if(nativeTerrain != stackNativeTerrain)
-			return Terrain("BORDER");
+			return Terrain::BORDER;
 	}
 	return nativeTerrain;
 }
@@ -531,7 +515,8 @@ void CGHeroInstance::initObj(CRandomGenerator & rand)
 
 	if (ID != Obj::PRISON)
 	{
-		auto customApp = VLC->objtypeh->getHandlerFor(ID, type->heroClass->getIndex())->getOverride(cb->gameState()->getTile(visitablePos())->terType, this);
+		auto terrain = cb->gameState()->getTile(visitablePos())->terType->id;
+		auto customApp = VLC->objtypeh->getHandlerFor(ID, type->heroClass->getIndex())->getOverride(terrain, this);
 		if (customApp)
 			appearance = customApp;
 	}
@@ -840,11 +825,10 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 				}
 				else
 				{
-					auto quality = [getCreatureID](std::shared_ptr<Bonus> pick) -> std::vector<int>
+					auto quality = [getCreatureID](std::shared_ptr<Bonus> pick) -> std::tuple<int, int, int>
 					{
 						const CCreature * c = VLC->creh->objects[getCreatureID(pick)];
-						std::vector<int> v = {c->level, static_cast<int>(c->cost.marketValue()), -pick->additionalInfo[1]};
-						return v;
+						return std::tuple<int, int, int> {c->level, static_cast<int>(c->cost.marketValue()), -pick->additionalInfo[1]};
 					};
 					if(quality(topPick) < quality(newPick))
 						topPick = newPick;
