@@ -19,9 +19,9 @@ namespace
 bool isCompatible(const QString & verMin, const QString & verMax)
 {
 	const int maxSections = 3; // versions consist from up to 3 sections, major.minor.patch
-	QVersionNumber vcmiVersion(GameConstants::VCMI_VERSION_MAJOR,
-							   GameConstants::VCMI_VERSION_MINOR,
-							   GameConstants::VCMI_VERSION_PATCH);
+	QVersionNumber vcmiVersion(VCMI_VERSION_MAJOR,
+							   VCMI_VERSION_MINOR,
+							   VCMI_VERSION_PATCH);
 	
 	auto versionMin = QVersionNumber::fromString(verMin);
 	auto versionMax = QVersionNumber::fromString(verMax);
