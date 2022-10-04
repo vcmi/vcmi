@@ -203,8 +203,8 @@ if(WIN32)
 	if(MSVC)
 		add_custom_command(TARGET vcmiclient POST_BUILD
 			WORKING_DIRECTORY "$<TARGET_FILE_DIR:vcmiclient>"
-			COMMAND ${CMAKE_COMMAND} -E rename AI/fuzzylite.dll fuzzylite.dll
-			COMMAND ${CMAKE_COMMAND} -E rename AI/tbb.dll tbb.dll
+			COMMAND ${CMAKE_COMMAND} -E copy AI/fuzzylite.dll fuzzylite.dll
+			COMMAND ${CMAKE_COMMAND} -E copy AI/tbb.dll tbb.dll
 		)
 	endif()
 elseif(APPLE_IOS)

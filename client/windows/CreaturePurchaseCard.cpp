@@ -47,8 +47,8 @@ void CreaturePurchaseCard::switchCreatureLevel()
 	auto index = vstd::find_pos(upgradesID, creatureOnTheCard->idNumber);
 	auto nextCreatureId = vstd::circularAt(upgradesID, ++index);
 	creatureOnTheCard = nextCreatureId.toCreature();
-	creatureClickArea = std::make_shared<CCreatureClickArea>(Point(pos.x + CCreatureClickArea::CREATURE_X_POS, pos.y + CCreatureClickArea::CREATURE_Y_POS), picture, creatureOnTheCard);
 	picture = std::make_shared<CCreaturePic>(parent->pos.x, parent->pos.y, creatureOnTheCard);
+	creatureClickArea = std::make_shared<CCreatureClickArea>(Point(parent->pos.x, parent->pos.y), picture, creatureOnTheCard);
 	parent->updateAllSliders();
 	cost->set(creatureOnTheCard->cost * slider->getValue());
 }
@@ -98,12 +98,11 @@ void CreaturePurchaseCard::initView()
 {
 	picture = std::make_shared<CCreaturePic>(pos.x, pos.y, creatureOnTheCard);
 	background = std::make_shared<CPicture>("QuickRecruitmentWindow/CreaturePurchaseCard.png", pos.x-4, pos.y-50);
-	initButtons();
-
-	creatureClickArea = std::make_shared<CCreatureClickArea>(Point(pos.x + CCreatureClickArea::CREATURE_X_POS, pos.y + CCreatureClickArea::CREATURE_Y_POS), picture, creatureOnTheCard);
+	creatureClickArea = std::make_shared<CCreatureClickArea>(Point(pos.x, pos.y), picture, creatureOnTheCard);
 
 	initAmountInfo();
 	initSlider();
+	initButtons(); // order important! buttons need slider!
 	initCostBox();
 }
 
@@ -111,8 +110,8 @@ CreaturePurchaseCard::CCreatureClickArea::CCreatureClickArea(const Point & posit
 	: CIntObject(RCLICK),
 	creatureOnTheCard(creatureOnTheCard)
 {
-	pos.x = position.x;
-	pos.y = position.y;
+	pos.x += position.x;
+	pos.y += position.y;
 	pos.w = CREATURE_WIDTH;
 	pos.h = CREATURE_HEIGHT;
 }

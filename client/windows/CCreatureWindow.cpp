@@ -737,7 +737,7 @@ void CStackWindow::init()
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
 	if(!info->stackNode)
-		info->stackNode = new CStackInstance(info->creature, 1);// FIXME: free data
+		info->stackNode = new CStackInstance(info->creature, 1, true);// FIXME: free data
 
 	selectedIcon = nullptr;
 	selectedSkill = -1;
