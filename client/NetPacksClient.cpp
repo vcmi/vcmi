@@ -348,7 +348,7 @@ void PlayerEndsGame::applyCl(CClient *cl)
 void PlayerReinitInterface::applyCl(CClient * cl)
 {
 	auto & plSettings = CSH->si->getIthPlayersSettings(player);
-	if(!playerConnectionId)
+	if(playerConnectionId == PlayerSettings::PLAYER_AI)
 	{
 		plSettings.connectedPlayerIDs.clear();
 		cl->initPlayerEnvironments();

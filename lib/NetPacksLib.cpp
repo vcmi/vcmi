@@ -369,11 +369,10 @@ DLL_LINKAGE void PlayerReinitInterface::applyGs(CGameState *gs)
 {
 	if(!gs || !gs->scenarioOps)
 		return;
-	//auto & playerState = gs->players[player];
-	//playerState.daysWithoutCastle = daysWithoutCastle;
 	
 	//TODO: what does mean if more that one player connected?
-	//gs->scenarioOps->getIthPlayersSettings(player).connectedPlayerIDs.clear();
+	if(playerConnectionId == PlayerSettings::PLAYER_AI)
+		gs->scenarioOps->getIthPlayersSettings(player).connectedPlayerIDs.clear();
 }
 
 DLL_LINKAGE void RemoveBonus::applyGs(CGameState *gs)
