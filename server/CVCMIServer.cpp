@@ -308,20 +308,6 @@ void CVCMIServer::connectionAccepted(const boost::system::error_code & ec)
 
 	try
 	{
-		/*if(state == EServerState::GAMEPLAY && !hangingConnections.empty())
-		{
-			logNetwork->info("Reconnection player");
-			(*hangingConnections.begin())->socket = upcomingConnection;
-			upcomingConnection.reset();
-			//immediately start game
-			//std::unique_ptr<LobbyStartGame> startGameForReconnectedPlayer(new LobbyStartGame);
-			//startGameForReconnectedPlayer->initializedStartInfo = si;
-			//startGameForReconnectedPlayer->initializedGameState = gh->gs;
-			//startGameForReconnectedPlayer->clientId = (*hangingConnections.begin())->connectionID;
-			//announcePack(std::move(startGameForReconnectedPlayer));
-			
-			(*hangingConnections.begin())->handler = std::make_shared<boost::thread>(&CVCMIServer::threadHandleClient, this, *hangingConnections.begin());
-		}*/
 		if(state == EServerState::LOBBY || !hangingConnections.empty())
 		{
 			logNetwork->info("We got a new connection! :)");
@@ -329,26 +315,6 @@ void CVCMIServer::connectionAccepted(const boost::system::error_code & ec)
 			upcomingConnection.reset();
 			connections.insert(c);
 			c->handler = std::make_shared<boost::thread>(&CVCMIServer::threadHandleClient, this, c);
-			
-			if(!hangingConnections.empty() && gh)
-			{
-				//TODO: check client uuid
-				logNetwork->info("Reconnection player");
-				c->connectionID = (*hangingConnections.begin())->connectionID;
-				for(auto & playerConnection : gh->connections)
-				{
-					for(auto & existingConnection : playerConnection.second)
-					{
-						if(existingConnection == *hangingConnections.begin())
-						{
-							playerConnection.second.erase(existingConnection);
-							playerConnection.second.insert(c);
-							break;
-						}
-					}
-				}
-				//hangingConnections.clear();
-			}
 		}
 	}
 	catch(std::exception & e)

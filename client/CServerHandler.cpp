@@ -120,11 +120,6 @@ CServerHandler::CServerHandler()
 	uuid = boost::uuids::to_string(boost::uuids::random_generator()());
 	applier = std::make_shared<CApplier<CBaseForLobbyApply>>();
 	registerTypesLobbyPacks(*applier);
-	
-	if(settings["remoteSession"].Bool())
-	{
-		uuid = settings["uuid"].String();
-	}
 }
 
 void CServerHandler::resetStateForLobby(const StartInfo::EMode mode, const std::vector<std::string> * names)
@@ -669,6 +664,7 @@ void CServerHandler::restoreLastSession()
 {
 	auto loadSession = [this]()
 	{
+		uuid = settings["server"]["uuid"].String();
 		for(auto & name : settings["server"]["names"].Vector())
 			myNames.push_back(name.String());
 		resetStateForLobby(StartInfo::LOAD_GAME, &myNames);
