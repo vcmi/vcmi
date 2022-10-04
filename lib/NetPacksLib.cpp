@@ -369,9 +369,6 @@ DLL_LINKAGE void PlayerReinitInterface::applyGs(CGameState *gs)
 {
 	if(!gs || !gs->scenarioOps)
 		return;
-	
-	gs->currentPlayer = player;
-	
 	//auto & playerState = gs->players[player];
 	//playerState.daysWithoutCastle = daysWithoutCastle;
 	

@@ -562,6 +562,13 @@ void CServerHandler::startGameplay(CGameState * gameState)
 		saveSession->Bool() = true;
 		Settings saveUuid = settings.write["server"]["uuid"];
 		saveUuid->String() = uuid;
+		Settings saveNames = settings.write["server"]["names"];
+		for(auto & name : myNames)
+		{
+			JsonNode jsonName;
+			jsonName.String() = name;
+			saveNames->Vector().push_back(jsonName);
+		}
 	}
 }
 
@@ -649,13 +656,23 @@ ui8 CServerHandler::getLoadMode()
 
 void CServerHandler::restoreLastSession()
 {
-	std::vector<std::string> nm{"stub"};
-	resetStateForLobby(StartInfo::LOAD_GAME, &nm);
-	screenType = ESelectionScreen::loadGame;
-	justConnectToServer("127.0.0.1", 3030);
-	//c->disableSmartVectorMemberSerialization();
-	//c->disableSmartPointerSerialization();
-	//c->disableStackSendingByID();
+	auto loadSession = [this]()
+	{
+		for(auto & name : settings["server"]["names"].Vector())
+			myNames.push_back(name.String());
+		resetStateForLobby(StartInfo::LOAD_GAME, &myNames);
+		screenType = ESelectionScreen::loadGame;
+		justConnectToServer("127.0.0.1", 3030);
+	};
+	
+	auto cleanUpSession = []()
+	{
+		//reset settings
+		Settings saveSession = settings.write["server"]["reconnect"];
+		saveSession->Bool() = false;
+	};
+	
+	CInfoWindow::showYesNoDialog("Connect to the last session?", {}, loadSession, cleanUpSession);
 }
 
 void CServerHandler::debugStartTest(std::string filename, bool save)

@@ -466,7 +466,8 @@ bool CVCMIServer::passHost(int toConnectionId)
 
 void CVCMIServer::clientConnected(std::shared_ptr<CConnection> c, std::vector<std::string> & names, std::string uuid, StartInfo::EMode mode)
 {
-	c->connectionID = currentClientId++;
+	if(state == EServerState::LOBBY)
+		c->connectionID = currentClientId++;
 
 	if(!hostClient)
 	{
@@ -476,6 +477,8 @@ void CVCMIServer::clientConnected(std::shared_ptr<CConnection> c, std::vector<st
 	}
 
 	logNetwork->info("Connection with client %d established. UUID: %s", c->connectionID, c->uuid);
+	
+	if(state == EServerState::LOBBY)
 	for(auto & name : names)
 	{
 		logNetwork->info("Client %d player: %s", c->connectionID, name);
