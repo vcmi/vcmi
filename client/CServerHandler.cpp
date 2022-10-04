@@ -673,7 +673,7 @@ void CServerHandler::restoreLastSession()
 			myNames.push_back(name.String());
 		resetStateForLobby(StartInfo::LOAD_GAME, &myNames);
 		screenType = ESelectionScreen::loadGame;
-		justConnectToServer("127.0.0.1", 3030);
+		justConnectToServer(settings["server"]["server"].String(), settings["server"]["port"].Integer());
 	};
 	
 	auto cleanUpSession = []()
