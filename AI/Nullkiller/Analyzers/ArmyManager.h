@@ -17,6 +17,9 @@
 #include "../../../lib/CTownHandler.h"
 #include "../../../lib/CBuildingHandler.h"
 
+namespace NKAI
+{
+
 class Nullkiller;
 
 struct SlotInfo
@@ -102,3 +105,5 @@ private:
 	std::vector<StackUpgradeInfo> getHillFortUpgrades(const CCreatureSet * army) const;
 	std::vector<StackUpgradeInfo> getDwellingUpgrades(const CCreatureSet * army, const CGDwelling * dwelling) const;
 };
+
+}

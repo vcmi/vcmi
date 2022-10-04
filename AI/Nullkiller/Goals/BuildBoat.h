@@ -11,6 +11,9 @@
 
 #include "CGoal.h"
 
+namespace NKAI
+{
+
 namespace Goals
 {
 	class DLL_EXPORT BuildBoat : public ElementarGoal<BuildBoat>
@@ -28,4 +31,6 @@ namespace Goals
 		std::string toString() const override;
 		virtual bool operator==(const BuildBoat & other) const override;
 	};
+}
+
 }

@@ -14,6 +14,8 @@
 #include "../../../CCallback.h"
 #include "../../../lib/mapObjects/MapObjects.h"
 
+namespace NKAI
+{
 class StackUpgradeInfo
 {
 public:
@@ -496,4 +498,6 @@ ArmyUpgradeInfo ArmyManager::calculateCreaturesUpgrade(
 	}
 
 	return result;
+}
+
 }

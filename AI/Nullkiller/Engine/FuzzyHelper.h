@@ -16,6 +16,9 @@ class CBank;
 
 VCMI_LIB_NAMESPACE_END
 
+namespace NKAI
+{
+
 class Nullkiller;
 
 class DLL_EXPORT FuzzyHelper
@@ -30,5 +33,7 @@ public:
 	ui64 estimateBankDanger(const CBank * bank); //TODO: move to another class?
 
 	ui64 evaluateDanger(const CGObjectInstance * obj);
-	ui64 evaluateDanger(crint3 tile, const CGHeroInstance * visitor, bool checkGuards = true);
+	ui64 evaluateDanger(const int3 & tile, const CGHeroInstance * visitor, bool checkGuards = true);
 };
+
+}

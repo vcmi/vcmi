@@ -1,3 +1,6 @@
+namespace Nullkiller
+{
+
 /*
 * Build.cpp, part of VCMI engine
 *
@@ -90,4 +93,6 @@ bool Build::fulfillsMe(TSubgoal goal)
 		return (!town || town == goal->town); //building anything will do, in this town if set
 	else
 		return false;
+}
+
 }

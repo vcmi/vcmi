@@ -13,6 +13,9 @@
 #include "../../AIUtility.h"
 #include "../../Goals/AbstractGoal.h"
 
+namespace NKAI
+{
+
 struct AIPathNode;
 
 class SpecialAction
@@ -42,3 +45,5 @@ public:
 
 	virtual const CGObjectInstance * targetObject() const { return nullptr; }
 };
+
+}

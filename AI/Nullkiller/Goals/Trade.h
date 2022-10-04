@@ -11,6 +11,9 @@
 
 #include "CGoal.h"
 
+namespace NKAI
+{
+
 struct HeroPtr;
 class AIGateway;
 class FuzzyHelper;
@@ -33,4 +36,6 @@ namespace Goals
 		}
 		virtual bool operator==(const Trade & other) const override;
 	};
+}
+
 }

@@ -20,6 +20,9 @@
 
 #include "../../lib/CModHandler.h"
 
+namespace NKAI
+{
+
 extern boost::thread_specific_ptr<AIGateway> ai;
 
 //extern static const int3 dirs[8];
@@ -445,4 +448,6 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 		return false;
 
 	return true;
+}
+
 }

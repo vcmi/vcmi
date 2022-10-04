@@ -14,6 +14,9 @@
 #include "../../../lib/CPathfinder.h"
 #include "../../../lib/StringConstants.h"
 
+namespace NKAI
+{
+
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<AIGateway> ai;
 
@@ -84,4 +87,6 @@ bool TSubgoal::operator==(const TSubgoal & rhs) const
 bool AbstractGoal::invalid() const
 {
 	return goalType == EGoals::INVALID;
+}
+
 }

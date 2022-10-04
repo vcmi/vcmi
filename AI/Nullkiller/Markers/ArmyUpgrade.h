@@ -13,6 +13,8 @@
 #include "../Pathfinding/AINodeStorage.h"
 #include "../Analyzers/ArmyManager.h"
 
+namespace NKAI
+{
 namespace Goals
 {
 	class DLL_EXPORT ArmyUpgrade : public CGoal<ArmyUpgrade>
@@ -32,4 +34,6 @@ namespace Goals
 		uint64_t getUpgradeValue() const { return upgradeValue; }
 		uint64_t getInitialArmyValue() const { return initialValue; }
 	};
+}
+
 }

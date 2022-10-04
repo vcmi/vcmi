@@ -15,6 +15,9 @@
 #include "../../../lib/CPathfinder.h"
 #include "../Engine/Nullkiller.h"
 
+namespace NKAI
+{
+
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<AIGateway> ai;
 
@@ -89,4 +92,6 @@ void ExchangeSwapTownHeroes::accept(AIGateway * ai)
 	}
 
 	logAi->debug("Put hero %s to garrison of %s", garrisonHero->name, town->name);
+}
+
 }

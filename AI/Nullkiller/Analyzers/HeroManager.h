@@ -17,6 +17,9 @@
 #include "../../../lib/CTownHandler.h"
 #include "../../../lib/CBuildingHandler.h"
 
+namespace NKAI
+{
+
 class DLL_EXPORT IHeroManager //: public: IAbstractManager
 {
 public:
@@ -104,3 +107,5 @@ private:
 public:
 	void evaluateScore(const CGHeroInstance * hero, SecondarySkill skill, float & score) const override;
 };
+
+}

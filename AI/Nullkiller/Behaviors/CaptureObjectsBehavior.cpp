@@ -12,8 +12,12 @@
 #include "../Engine/Nullkiller.h"
 #include "../Goals/Composition.h"
 #include "../Goals/ExecuteHeroChain.h"
+#include "../Goals/Invalid.h"
 #include "CaptureObjectsBehavior.h"
 #include "../AIUtility.h"
+
+namespace NKAI
+{
 
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<AIGateway> ai;
@@ -59,13 +63,13 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(const std::vector<AIPath> 
 	{
 		tasks.push_back(sptr(Goals::Invalid()));
 
-#if AI_TRACE_LEVEL >= 2
+#if NKAI_TRACE_LEVEL >= 2
 		logAi->trace("Path found %s", path.toString());
 #endif
 
 		if(ai->nullkiller->dangerHitMap->enemyCanKillOurHeroesAlongThePath(path))
 		{
-#if AI_TRACE_LEVEL >= 2
+#if NKAI_TRACE_LEVEL >= 2
 			logAi->trace("Ignore path. Target hero can be killed by enemy. Our power %lld", path.heroArmy->getArmyStrength());
 #endif
 			continue;
@@ -85,7 +89,7 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(const std::vector<AIPath> 
 		{
 			auto subGoal = firstBlockedAction->decompose(path.targetHero);
 
-#if AI_TRACE_LEVEL >= 2
+#if NKAI_TRACE_LEVEL >= 2
 			logAi->trace("Decomposing special action %s returns %s", firstBlockedAction->toString(), subGoal->toString());
 #endif
 
@@ -104,7 +108,7 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(const std::vector<AIPath> 
 
 		auto isSafe = isSafeToVisit(hero, path.heroArmy, danger);
 
-#if AI_TRACE_LEVEL >= 2
+#if NKAI_TRACE_LEVEL >= 2
 		logAi->trace(
 			"It is %s to visit %s by %s with army %lld, danger %lld and army loss %lld",
 			isSafe ? "safe" : "not safe",
@@ -161,7 +165,7 @@ Goals::TGoalVec CaptureObjectsBehavior::decompose() const
 			if(!objectMatchesFilter(objToVisit))
 				continue;
 	
-#if AI_TRACE_LEVEL >= 1
+#if NKAI_TRACE_LEVEL >= 1
 			logAi->trace("Checking object %s, %s", objToVisit->getObjectName(), objToVisit->visitablePos().toString());
 #endif
 
@@ -171,7 +175,7 @@ Goals::TGoalVec CaptureObjectsBehavior::decompose() const
 			std::vector<std::shared_ptr<ExecuteHeroChain>> waysToVisitObj;
 			std::shared_ptr<ExecuteHeroChain> closestWay;
 					
-#if AI_TRACE_LEVEL >= 1
+#if NKAI_TRACE_LEVEL >= 1
 			logAi->trace("Found %d paths", paths.size());
 #endif
 			vstd::concatenate(tasks, getVisitGoals(paths, objToVisit));
@@ -218,4 +222,6 @@ bool CaptureObjectsBehavior::objectMatchesFilter(const CGObjectInstance * obj) c
 	}
 
 	return true;
+}
+
 }

@@ -11,6 +11,9 @@
 #include "lib/mapping/CMap.h" //for victory conditions
 #include "../Engine/Nullkiller.h"
 
+namespace NKAI
+{
+
 void DangerHitMapAnalyzer::updateHitMap()
 {
 	if(upToDate)
@@ -136,4 +139,6 @@ const std::set<const CGObjectInstance *> & DangerHitMapAnalyzer::getOneTurnAcces
 void DangerHitMapAnalyzer::reset()
 {
 	upToDate = false;
+}
+
 }

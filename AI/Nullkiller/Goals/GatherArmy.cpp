@@ -1,3 +1,6 @@
+namespace Nullkiller
+{
+
 /*
 * GatherArmy.cpp, part of VCMI engine
 *
@@ -207,4 +210,6 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 	}
 
 	return ret;
+}
+
 }

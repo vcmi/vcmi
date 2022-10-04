@@ -23,7 +23,8 @@
 #include "AIGateway.h"
 #include "Goals/Goals.h"
 
-class CGVisitableOPW;
+namespace NKAI
+{
 
 const float SAFE_ATTACK_CONSTANT = 1.2;
 
@@ -1667,4 +1668,6 @@ void AIStatus::setChannelProbing(bool ongoing)
 bool AIStatus::channelProbing()
 {
 	return ongoingChannelProbing;
+}
+
 }

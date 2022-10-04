@@ -14,6 +14,9 @@
 #include "../../../lib/CPathfinder.h"
 #include "../Engine/Nullkiller.h"
 
+namespace NKAI
+{
+
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<AIGateway> ai;
 
@@ -197,4 +200,6 @@ bool ExecuteHeroChain::moveHeroToTile(const CGHeroInstance * hero, const int3 & 
 	}
 
 	return ai->moveHeroToTile(tile, hero);
+}
+
 }

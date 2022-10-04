@@ -13,6 +13,9 @@
 #include "../Goals/CGoal.h"
 #include "../AIUtility.h"
 
+namespace NKAI
+{
+
 struct ObjectCluster;
 
 namespace Goals
@@ -36,4 +39,6 @@ namespace Goals
 	private:
 		Goals::TGoalVec decomposeCluster(std::shared_ptr<ObjectCluster> cluster) const;
 	};
+}
+
 }

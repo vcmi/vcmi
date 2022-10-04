@@ -11,6 +11,8 @@
 
 #include "CGoal.h"
 
+namespace NKAI
+{
 namespace Goals
 {
 	class DLL_EXPORT Composition : public ElementarGoal<Composition>
@@ -38,4 +40,6 @@ namespace Goals
 		virtual bool isElementar() const override;
 		virtual int getHeroExchangeCount() const override;
 	};
+}
+
 }

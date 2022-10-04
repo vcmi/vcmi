@@ -13,6 +13,9 @@
 #include "../Analyzers/ObjectClusterizer.h"
 
 
+namespace NKAI
+{
+
 struct HeroPtr;
 class AIGateway;
 class FuzzyHelper;
@@ -38,4 +41,6 @@ namespace Goals
 		std::shared_ptr<ObjectCluster> getCluster() const { return cluster; }
 		const AIPath & getPathToCenter() { return pathToCenter; }
 	};
+}
+
 }

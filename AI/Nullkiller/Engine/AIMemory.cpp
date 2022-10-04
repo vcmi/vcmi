@@ -11,6 +11,9 @@
 #include "AIMemory.h"
 #include "../../../CCallback.h"
 
+namespace NKAI
+{
+
 void AIMemory::removeFromMemory(const CGObjectInstance * obj)
 {
 	vstd::erase_if_present(visitableObjs, obj);
@@ -101,4 +104,6 @@ void AIMemory::removeInvisibleObjects(CCallback * cb)
 
 	vstd::erase_if(visitableObjs, shouldBeErased);
 	vstd::erase_if(alreadyVisited, shouldBeErased);
+}
+
 }
