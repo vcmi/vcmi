@@ -426,12 +426,12 @@ struct PlayerReinitInterface : public CPackForClient
 	void applyCl(CClient * cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 	
-	PlayerColor player;
+	std::vector<PlayerColor> players;
 	ui8 playerConnectionId; //PLAYER_AI fro AI player
 	
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & player;
+		h & players;
 		h & playerConnectionId;
 	}
 };

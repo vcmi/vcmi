@@ -372,7 +372,10 @@ DLL_LINKAGE void PlayerReinitInterface::applyGs(CGameState *gs)
 	
 	//TODO: what does mean if more that one player connected?
 	if(playerConnectionId == PlayerSettings::PLAYER_AI)
-		gs->scenarioOps->getIthPlayersSettings(player).connectedPlayerIDs.clear();
+	{
+		for(auto player : players)
+			gs->scenarioOps->getIthPlayersSettings(player).connectedPlayerIDs.clear();
+	}
 }
 
 DLL_LINKAGE void RemoveBonus::applyGs(CGameState *gs)

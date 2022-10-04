@@ -507,6 +507,9 @@ void CVCMIServer::clientDisconnected(std::shared_ptr<CConnection> c)
 		return;
 	}
 	
+	PlayerReinitInterface startAiPack;
+	startAiPack.playerConnectionId = PlayerSettings::PLAYER_AI;
+	
 	for(auto it = playerNames.begin(); it != playerNames.end();)
 	{
 		if(it->second.connection != c->connectionID)
@@ -532,16 +535,19 @@ void CVCMIServer::clientDisconnected(std::shared_ptr<CConnection> c)
 		{
 			gh->playerMessage(playerSettings->color, playerLeftMsgText, ObjectInstanceID{});
 			gh->connections[playerSettings->color].insert(hostClient);
-			PlayerReinitInterface startAiPack;
-			startAiPack.player = playerSettings->color;
-			startAiPack.playerConnectionId = PlayerSettings::PLAYER_AI;
-			gh->sendAndApply(&startAiPack);
+			startAiPack.players.push_back(playerSettings->color);
 		}
 	}
+	
+	if(!startAiPack.players.empty())
+		gh->sendAndApply(&startAiPack);
 }
 
 void CVCMIServer::reconnectPlayer(int connId)
 {
+	PlayerReinitInterface startAiPack;
+	startAiPack.playerConnectionId = connId;
+	
 	if(gh && si && state == EServerState::GAMEPLAY)
 	{
 		for(auto it = playerNames.begin(); it != playerNames.end(); ++it)
@@ -557,13 +563,11 @@ void CVCMIServer::reconnectPlayer(int connId)
 			std::string messageText = boost::str(boost::format("%s (cid %d) is connected") % playerSettings->name % connId);
 			gh->playerMessage(playerSettings->color, messageText, ObjectInstanceID{});
 			
-			PlayerReinitInterface startAiPack;
-			startAiPack.player = playerSettings->color;
-			startAiPack.playerConnectionId = connId;
-			gh->sendAndApply(&startAiPack);
+			startAiPack.players.push_back(playerSettings->color);
 		}
-		//gh->playerMessage(playerSettings->color, playerLeftMsgText, ObjectInstanceID{});
-		//gh->connections[playerSettings->color].insert(hostClient);
+
+		if(!startAiPack.players.empty())
+			gh->sendAndApply(&startAiPack);
 	}
 }
 
