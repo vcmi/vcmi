@@ -1324,25 +1324,22 @@ void CGameHandler::addGenericKilledLog(BattleLogMessage & blm, const CStack * de
 
 void CGameHandler::handleClientDisconnection(std::shared_ptr<CConnection> c)
 {
-	/*for(auto playerConns : connections)
+	if(lobby->state == EServerState::SHUTDOWN || !gs || !gs->scenarioOps)
+		return;
+	
+	for(auto & playerConnections : connections)
 	{
-		for(auto i = playerConns.second.begin(); i != playerConns.second.end(); )
+		PlayerColor playerId = playerConnections.first;
+		auto & playerSettings = gs->scenarioOps->getIthPlayersSettings(playerId);
+		for(auto & playerConnection : playerConnections.second)
 		{
-			if(lobby->state != EServerState::SHUTDOWN && *i == c)
+			if(playerConnection == c)
 			{
-				i = playerConns.second.erase(i);
-				if(playerConns.second.size())
-					continue;
-				PlayerCheated pc;
-				pc.player = playerConns.first;
-				pc.losingCheatCode = true;
-				sendAndApply(&pc);
-				checkVictoryLossConditionsForPlayer(playerConns.first);
+				std::string messageText = boost::str(boost::format("%s (cid %d) was disconnected") % playerSettings.name % c->connectionID);
+				playerMessage(playerId, messageText, ObjectInstanceID{});
 			}
-			else
-				++i;
 		}
-	}*/
+	}
 }
 
 void CGameHandler::handleReceivedPack(CPackForServer * pack)

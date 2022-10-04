@@ -346,14 +346,12 @@ void CVCMIServer::threadHandleClient(std::shared_ptr<CConnection> c)
 			catch(boost::system::system_error & e)
 			{
 				logNetwork->error("Network error receiving a pack. Connection %s dies. What happened: %s", c->toString(), e.what());
-
 				if(state != EServerState::LOBBY)
 				{
 					hangingConnections.insert(c);
 					connections.erase(c);
-					//gh->handleClientDisconnection(c);
+					gh->handleClientDisconnection(c);
 				}
-
 				break;
 			}
 			
@@ -556,6 +554,9 @@ void CVCMIServer::reconnectPlayer(int connId)
 			if(!playerSettings)
 				continue;
 			
+			std::string messageText = boost::str(boost::format("%s (cid %d) is connected") % playerSettings->name % connId);
+			gh->playerMessage(playerSettings->color, messageText, ObjectInstanceID{});
+			
 			PlayerReinitInterface startAiPack;
 			startAiPack.player = playerSettings->color;
 			startAiPack.playerConnectionId = connId;
@@ -563,7 +564,6 @@ void CVCMIServer::reconnectPlayer(int connId)
 		}
 		//gh->playerMessage(playerSettings->color, playerLeftMsgText, ObjectInstanceID{});
 		//gh->connections[playerSettings->color].insert(hostClient);
-		
 	}
 }
 
