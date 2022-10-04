@@ -563,6 +563,7 @@ void CServerHandler::startGameplay(CGameState * gameState)
 		Settings saveUuid = settings.write["server"]["uuid"];
 		saveUuid->String() = uuid;
 		Settings saveNames = settings.write["server"]["names"];
+		saveNames->Vector().clear();
 		for(auto & name : myNames)
 		{
 			JsonNode jsonName;

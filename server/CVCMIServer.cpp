@@ -327,10 +327,23 @@ void CVCMIServer::connectionAccepted(const boost::system::error_code & ec)
 			connections.insert(c);
 			c->handler = std::make_shared<boost::thread>(&CVCMIServer::threadHandleClient, this, c);
 			
-			if(!hangingConnections.empty())
+			if(!hangingConnections.empty() && gh)
 			{
+				//TODO: check client uuid
 				logNetwork->info("Reconnection player");
 				c->connectionID = (*hangingConnections.begin())->connectionID;
+				for(auto & playerConnection : gh->connections)
+				{
+					for(auto & existingConnection : playerConnection.second)
+					{
+						if(existingConnection == *hangingConnections.begin())
+						{
+							playerConnection.second.erase(existingConnection);
+							playerConnection.second.insert(c);
+							break;
+						}
+					}
+				}
 				//hangingConnections.clear();
 			}
 		}
