@@ -284,6 +284,8 @@ void CCallback::sendMessage(const std::string &mess, const CGObjectInstance * cu
 {
 	ASSERT_IF_CALLED_WITH_PLAYER
 	PlayerMessage pm(mess, currentObject? currentObject->id : ObjectInstanceID(-1));
+	if(player)
+		pm.player = *player;
 	sendRequest(&pm);
 }
 

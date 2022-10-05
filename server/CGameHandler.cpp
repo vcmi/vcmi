@@ -1330,12 +1330,15 @@ void CGameHandler::handleClientDisconnection(std::shared_ptr<CConnection> c)
 	for(auto & playerConnections : connections)
 	{
 		PlayerColor playerId = playerConnections.first;
-		auto & playerSettings = gs->scenarioOps->getIthPlayersSettings(playerId);
+		auto * playerSettings = gs->scenarioOps->getPlayersSettings(playerId.getNum());
+		if(!playerSettings)
+			continue;
+		
 		for(auto & playerConnection : playerConnections.second)
 		{
 			if(playerConnection == c)
 			{
-				std::string messageText = boost::str(boost::format("%s (cid %d) was disconnected") % playerSettings.name % c->connectionID);
+				std::string messageText = boost::str(boost::format("%s (cid %d) was disconnected") % playerSettings->name % c->connectionID);
 				playerMessage(playerId, messageText, ObjectInstanceID{});
 			}
 		}
@@ -3391,6 +3394,11 @@ bool CGameHandler::arrangeStacks(ObjectInstanceID id1, ObjectInstanceID id2, ui8
 
 	}
 	return true;
+}
+
+bool CGameHandler::hasPlayerAt(PlayerColor player, std::shared_ptr<CConnection> c) const
+{
+	return connections.at(player).count(c);
 }
 
 PlayerColor CGameHandler::getPlayerAt(std::shared_ptr<CConnection> c) const

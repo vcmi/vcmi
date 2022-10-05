@@ -223,6 +223,7 @@ public:
 	void handleClientDisconnection(std::shared_ptr<CConnection> c);
 	void handleReceivedPack(CPackForServer * pack);
 	PlayerColor getPlayerAt(std::shared_ptr<CConnection> c) const;
+	bool hasPlayerAt(PlayerColor player, std::shared_ptr<CConnection> c) const;
 
 	void playerMessage(PlayerColor player, const std::string &message, ObjectInstanceID currObj);
 	void updateGateState();

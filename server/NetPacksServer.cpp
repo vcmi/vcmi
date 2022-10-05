@@ -61,7 +61,7 @@ void CPackForServer::throwOnWrongOwner(CGameHandler * gh, ObjectInstanceID id)
 
 void CPackForServer::throwOnWrongPlayer(CGameHandler * gh, PlayerColor player)
 {
-	if(player != gh->getPlayerAt(c))
+	if(!gh->hasPlayerAt(player, c) && player != gh->getPlayerAt(c))
 	{
 		wrongPlayerMessage(gh, player);
 		throwNotAllowedAction();
@@ -381,11 +381,8 @@ bool CastAdvSpell::applyGh(CGameHandler * gh)
 bool PlayerMessage::applyGh(CGameHandler * gh)
 {
 	if(!player.isSpectator()) // TODO: clearly not a great way to verify permissions
-	{
 		throwOnWrongPlayer(gh, player);
-		if(gh->getPlayerAt(this->c) != player)
-			throwNotAllowedAction();
-	}
+	
 	gh->playerMessage(player, text, currObj);
 	return true;
 }
