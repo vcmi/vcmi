@@ -5014,6 +5014,55 @@ void CGameHandler::playerMessage(PlayerColor player, const std::string &message,
 
 	std::vector<std::string> cheat;
 	boost::split(cheat, message, boost::is_any_of(" "));
+	
+	bool isHost = false;
+	for(auto & c : connections[player])
+		if(lobby->isClientHost(c->connectionID))
+			isHost = true;
+	
+	if(isHost && cheat.size() >= 2 && cheat[0] == "game")
+	{
+		if(cheat[1] == "exit" || cheat[1] == "quit" || cheat[1] == "end")
+		{
+			SystemMessage temp_message("game was terminated");
+			sendAndApply(&temp_message);
+			lobby->state = EServerState::SHUTDOWN;
+			return;
+		}
+		if(cheat.size() == 3 && cheat[1] == "save")
+		{
+			save("Saves/" + cheat[2]);
+			SystemMessage temp_message("game saved as " + cheat[2]);
+			sendAndApply(&temp_message);
+			return;
+		}
+		if(cheat.size() == 3 && cheat[1] == "kick")
+		{
+			auto playername = cheat[2];
+			PlayerColor playerToKick(PlayerColor::CANNOT_DETERMINE);
+			if(std::all_of(playername.begin(), playername.end(), ::isdigit))
+				playerToKick = PlayerColor(std::stoi(playername));
+			else
+			{
+				for(auto & c : connections)
+				{
+					if(c.first.getStr(false) == playername)
+						playerToKick = c.first;
+				}
+			}
+			
+			if(playerToKick != PlayerColor::CANNOT_DETERMINE)
+			{
+				PlayerCheated pc;
+				pc.player = playerToKick;
+				pc.losingCheatCode = true;
+				sendAndApply(&pc);
+				checkVictoryLossConditionsForPlayer(playerToKick);
+			}
+			return;
+		}
+	}
+	
 	int obj = 0;
 	if (cheat.size() == 2)
 	{

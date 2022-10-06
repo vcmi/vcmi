@@ -818,7 +818,11 @@ void YourTurn::applyCl(CClient *cl)
 void SaveGameClient::applyCl(CClient *cl)
 {
 	const auto stem = FileInfo::GetPathStem(fname);
-	CResourceHandler::get("local")->createResource(stem.to_string() + ".vcgm1");
+	if(!CResourceHandler::get("local")->createResource(stem.to_string() + ".vcgm1"))
+	{
+		logNetwork->error("Failed to create resource %s", stem.to_string() + ".vcgm1");
+		return;
+	}
 
 	try
 	{
