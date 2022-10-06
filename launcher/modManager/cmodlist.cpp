@@ -118,9 +118,6 @@ bool CModEntry::isUpdateable() const
 
 bool CModEntry::isCompatible() const
 {
-	if(!isInstalled())
-		return false;
-
 	auto compatibility = localData["compatibility"].toMap();
 	return ::isCompatible(compatibility["min"].toString(), compatibility["max"].toString());
 }
@@ -302,7 +299,11 @@ CModEntry CModList::getMod(QString modname) const
 			{
 				if(repo.empty() || CModEntry::compareVersions(repo["version"].toString(), repoValMap["version"].toString()))
 				{
+					//take valid download link before assignment
+					auto download = repo.value("download");
 					repo = repoValMap;
+					if(repo.value("download").isNull())
+						repo["download"] = download;
 				}
 			}
 		}

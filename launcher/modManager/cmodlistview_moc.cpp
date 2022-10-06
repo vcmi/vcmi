@@ -21,6 +21,7 @@
 #include "cmodmanager.h"
 #include "cdownloadmanager_moc.h"
 #include "../launcherdirs.h"
+#include "../jsonutils.h"
 
 #include "../../lib/CConfigHandler.h"
 
@@ -209,11 +210,15 @@ QString CModListView::genChangelogText(CModEntry & mod)
 QString CModListView::genModInfoText(CModEntry & mod)
 {
 	QString prefix = "<p><span style=\" font-weight:600;\">%1: </span>"; // shared prefix
+	QString redPrefix = "<p><span style=\" font-weight:600; color:red\">%1: </span>"; // shared prefix
 	QString lineTemplate = prefix + "%2</p>";
 	QString urlTemplate = prefix + "<a href=\"%2\">%3</a></p>";
 	QString textTemplate = prefix + "</p><p align=\"justify\">%2</p>";
 	QString listTemplate = "<p align=\"justify\">%1: %2</p>";
 	QString noteTemplate = "<p align=\"justify\">%1</p>";
+	QString compatibleString = prefix + "Mod is compatible</p>";
+	QString incompatibleString = redPrefix + "Mod is incompatible</p>";
+	QString supportedVersions = redPrefix + "%2 %3 %4</p>";
 
 	QString result;
 
@@ -230,6 +235,32 @@ QString CModListView::genModInfoText(CModEntry & mod)
 
 	if(mod.getValue("contact").isValid())
 		result += urlTemplate.arg(tr("Home")).arg(mod.getValue("contact").toString()).arg(mod.getValue("contact").toString());
+
+	//compatibility info
+	if(mod.isCompatible())
+		result += compatibleString.arg(tr("Compatibility"));
+	else
+	{
+		auto compatibilityInfo = mod.getValue("compatibility").toMap();
+		auto minStr = compatibilityInfo.value("min").toString();
+		auto maxStr = compatibilityInfo.value("max").toString();
+
+		result += incompatibleString.arg(tr("Compatibility"));
+		if(minStr == maxStr)
+			result += supportedVersions.arg(tr("Required VCMI version"), minStr, "", "");
+		else
+		{
+			if(minStr.isEmpty() || maxStr.isEmpty())
+			{
+				if(minStr.isEmpty())
+					result += supportedVersions.arg(tr("Supported VCMI version"), maxStr, ", ", "please upgrade mod");
+				else
+					result += supportedVersions.arg(tr("Required VCMI version"), minStr, " ", "or above");
+			}
+			else
+				result += supportedVersions.arg(tr("Supported VCMI versions"), minStr, " - ", maxStr);
+		}
+	}
 
 	result += replaceIfNotEmpty(mod.getValue("depends"), lineTemplate.arg(tr("Required mods")));
 	result += replaceIfNotEmpty(mod.getValue("conflicts"), lineTemplate.arg(tr("Conflicting mods")));
@@ -556,6 +587,7 @@ void CModListView::downloadFinished(QStringList savedFiles, QStringList failedFi
 	QString title = "Download failed";
 	QString firstLine = "Unable to download all files.\n\nEncountered errors:\n\n";
 	QString lastLine = "\n\nInstall successfully downloaded?";
+	bool doInstallFiles = false;
 
 	// if all files were d/loaded there should be no errors. And on failure there must be an error
 	assert(failedFiles.empty() == errors.empty());
@@ -572,12 +604,12 @@ void CModListView::downloadFinished(QStringList savedFiles, QStringList failedFi
 		                                   QMessageBox::Yes | QMessageBox::No, QMessageBox::No );
 
 		if(result == QMessageBox::Yes)
-			installFiles(savedFiles);
+			doInstallFiles = true;
 	}
 	else
 	{
 		// everything OK
-		installFiles(savedFiles);
+		doInstallFiles = true;
 	}
 
 	// remove progress bar after some delay so user can see that download was complete and not interrupted.
@@ -585,6 +617,9 @@ void CModListView::downloadFinished(QStringList savedFiles, QStringList failedFi
 
 	dlManager->deleteLater();
 	dlManager = nullptr;
+
+	if(doInstallFiles)
+		installFiles(savedFiles);
 }
 
 void CModListView::hideProgressBar()
@@ -608,7 +643,29 @@ void CModListView::installFiles(QStringList files)
 		if(filename.endsWith(".zip"))
 			mods.push_back(filename);
 		if(filename.endsWith(".json"))
-			manager->loadRepository(filename);
+		{
+			//download and merge additional files
+			auto repodata = JsonUtils::JsonFromFile(filename).toMap();
+			if(repodata.value("name").isNull())
+			{
+				for(const auto & key : repodata.keys())
+				{
+					auto modjson = repodata[key].toMap().value("mod");
+					if(!modjson.isNull())
+					{
+						downloadFile(key + ".json", modjson.toString(), "mod json");
+					}
+				}
+			}
+			else
+			{
+				auto modn = QFileInfo(filename).baseName();
+				QVariantMap temp;
+				temp[modn] = repodata;
+				repodata = temp;
+			}
+			manager->loadRepository(repodata);
+		}
 		if(filename.endsWith(".png"))
 			images.push_back(filename);
 	}
