@@ -811,8 +811,6 @@ void YourTurn::applyCl(CClient *cl)
 
 	callAllInterfaces(cl, &IGameEventsReceiver::playerStartsTurn, player);
 	callOnlyThatInterface(cl, player, &CGameInterface::yourTurn);
-	
-	cl->processDisconnectedPlayers();
 }
 
 void SaveGameClient::applyCl(CClient *cl)

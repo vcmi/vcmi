@@ -404,15 +404,6 @@ void CClient::endGame()
 	logNetwork->info("Client stopped.");
 }
 
-void CClient::processDisconnectedPlayers()
-{
-	if(!gs || !disconnectedPlayers.count(gs->currentPlayer))
-		return;
-	
-	LOCPLINT->showYesNoDialog("Waiting for player. Press Ok to save & end, cancel to kick that player",
-							  [](){}, [](){});
-}
-
 void CClient::initMapHandler()
 {
 	// TODO: CMapHandler initialization can probably go somewhere else

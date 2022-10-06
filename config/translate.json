@@ -33,7 +33,8 @@
 		{
 			"existingProcess" : "Another vcmiserver process is running, please terminate it first",
 			"modsIncompatibility" : "Required mods to load game:"
-		}
+		},
+		"confirmReconnect" : "Connect to the last session?"
 	},
 	"systemOptions" :
 	{

@@ -679,7 +679,7 @@ void CServerHandler::restoreLastSession()
 		saveSession->Bool() = false;
 	};
 	
-	CInfoWindow::showYesNoDialog("Connect to the last session?", {}, loadSession, cleanUpSession);
+	CInfoWindow::showYesNoDialog(VLC->generaltexth->localizedTexts["server"]["confirmReconnect"].String(), {}, loadSession, cleanUpSession);
 }
 
 void CServerHandler::debugStartTest(std::string filename, bool save)

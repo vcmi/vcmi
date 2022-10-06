@@ -139,8 +139,6 @@ public:
 
 	std::map<PlayerColor, std::vector<std::shared_ptr<IBattleEventsReceiver>>> additionalBattleInts;
 	
-	std::set<PlayerColor> disconnectedPlayers;
-
 	boost::optional<BattleAction> curbaction;
 
 	CClient();
@@ -159,8 +157,6 @@ public:
 
 	void save(const std::string & fname);
 	void endGame();
-	
-	void processDisconnectedPlayers();
 
 	void initMapHandler();
 	void initPlayerEnvironments();
