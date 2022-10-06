@@ -206,11 +206,6 @@ void CVCMIServer::threadAnnounceLobby()
 				announcePack(std::move(announceQueue.front()));
 				announceQueue.pop_front();
 			}
-			if(state != EServerState::LOBBY && hangingConnections.empty())
-			{
-				if(acceptor)
-					acceptor->close();
-			}
 
 			if(acceptor)
 			{
