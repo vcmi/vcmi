@@ -9,12 +9,12 @@ class VCMI(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     generators = "CMakeToolchain"
     requires = [
-        "boost/1.79.0",
-        "ffmpeg/4.4",
+        "boost/1.80.0",
+        "ffmpeg/4.4.3",
         "minizip/1.2.12",
         "onetbb/2021.3.0", # Nullkiller AI
-        "qt/5.15.5", # launcher
-        "sdl/2.0.20",
+        "qt/5.15.6", # launcher
+        "sdl/2.24.1",
         "sdl_image/2.0.5",
         "sdl_mixer/2.0.4",
         "sdl_ttf/2.0.18",
@@ -159,6 +159,8 @@ class VCMI(ConanFile):
                 self.options["boost"].extra_b2_flags = f"linkflags={deploymentTargetFlag}"
 
     def requirements(self):
+        self.requires("libpng/1.6.38", override=True) # freetype / Qt
+
         # use Apple system libraries instead of external ones
         if is_apple_os(self):
             systemLibsOverrides = [
