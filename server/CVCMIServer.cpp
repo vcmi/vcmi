@@ -466,24 +466,26 @@ void CVCMIServer::clientConnected(std::shared_ptr<CConnection> c, std::vector<st
 	logNetwork->info("Connection with client %d established. UUID: %s", c->connectionID, c->uuid);
 	
 	if(state == EServerState::LOBBY)
-	for(auto & name : names)
 	{
-		logNetwork->info("Client %d player: %s", c->connectionID, name);
-		ui8 id = currentPlayerId++;
-
-		ClientPlayer cp;
-		cp.connection = c->connectionID;
-		cp.name = name;
-		playerNames.insert(std::make_pair(id, cp));
-		announceTxt(boost::str(boost::format("%s (pid %d cid %d) joins the game") % name % id % c->connectionID));
-
-		//put new player in first slot with AI
-		for(auto & elem : si->playerInfos)
+		for(auto & name : names)
 		{
-			if(elem.second.isControlledByAI() && !elem.second.compOnly)
+			logNetwork->info("Client %d player: %s", c->connectionID, name);
+			ui8 id = currentPlayerId++;
+
+			ClientPlayer cp;
+			cp.connection = c->connectionID;
+			cp.name = name;
+			playerNames.insert(std::make_pair(id, cp));
+			announceTxt(boost::str(boost::format("%s (pid %d cid %d) joins the game") % name % id % c->connectionID));
+
+			//put new player in first slot with AI
+			for(auto & elem : si->playerInfos)
 			{
-				setPlayerConnectedId(elem.second, id);
-				break;
+				if(elem.second.isControlledByAI() && !elem.second.compOnly)
+				{
+					setPlayerConnectedId(elem.second, id);
+					break;
+				}
 			}
 		}
 	}

@@ -1334,13 +1334,11 @@ void CGameHandler::handleClientDisconnection(std::shared_ptr<CConnection> c)
 		if(!playerSettings)
 			continue;
 		
-		for(auto & playerConnection : playerConnections.second)
+		auto playerConnection = vstd::find(playerConnections.second, c);
+		if(playerConnection != playerConnections.second.end())
 		{
-			if(playerConnection == c)
-			{
-				std::string messageText = boost::str(boost::format("%s (cid %d) was disconnected") % playerSettings->name % c->connectionID);
-				playerMessage(playerId, messageText, ObjectInstanceID{});
-			}
+			std::string messageText = boost::str(boost::format("%s (cid %d) was disconnected") % playerSettings->name % c->connectionID);
+			playerMessage(playerId, messageText, ObjectInstanceID{});
 		}
 	}
 }
@@ -5012,33 +5010,33 @@ void CGameHandler::playerMessage(PlayerColor player, const std::string &message,
 	PlayerMessageClient temp_message(player, message);
 	sendAndApply(&temp_message);
 
-	std::vector<std::string> cheat;
-	boost::split(cheat, message, boost::is_any_of(" "));
+	std::vector<std::string> words;
+	boost::split(words, message, boost::is_any_of(" "));
 	
 	bool isHost = false;
 	for(auto & c : connections[player])
 		if(lobby->isClientHost(c->connectionID))
 			isHost = true;
 	
-	if(isHost && cheat.size() >= 2 && cheat[0] == "game")
+	if(isHost && words.size() >= 2 && words[0] == "game")
 	{
-		if(cheat[1] == "exit" || cheat[1] == "quit" || cheat[1] == "end")
+		if(words[1] == "exit" || words[1] == "quit" || words[1] == "end")
 		{
 			SystemMessage temp_message("game was terminated");
 			sendAndApply(&temp_message);
 			lobby->state = EServerState::SHUTDOWN;
 			return;
 		}
-		if(cheat.size() == 3 && cheat[1] == "save")
+		if(words.size() == 3 && words[1] == "save")
 		{
-			save("Saves/" + cheat[2]);
-			SystemMessage temp_message("game saved as " + cheat[2]);
+			save("Saves/" + words[2]);
+			SystemMessage temp_message("game saved as " + words[2]);
 			sendAndApply(&temp_message);
 			return;
 		}
-		if(cheat.size() == 3 && cheat[1] == "kick")
+		if(words.size() == 3 && words[1] == "kick")
 		{
-			auto playername = cheat[2];
+			auto playername = words[2];
 			PlayerColor playerToKick(PlayerColor::CANNOT_DETERMINE);
 			if(std::all_of(playername.begin(), playername.end(), ::isdigit))
 				playerToKick = PlayerColor(std::stoi(playername));
@@ -5064,9 +5062,9 @@ void CGameHandler::playerMessage(PlayerColor player, const std::string &message,
 	}
 	
 	int obj = 0;
-	if (cheat.size() == 2)
+	if (words.size() == 2)
 	{
-		obj = std::atoi(cheat[1].c_str());
+		obj = std::atoi(words[1].c_str());
 		if (obj)
 			currObj = ObjectInstanceID(obj);
 	}
@@ -5076,38 +5074,38 @@ void CGameHandler::playerMessage(PlayerColor player, const std::string &message,
 	if (!town && hero)
 		town = hero->visitedTown;
 
-	if (cheat.size() == 1 || obj)
-		handleCheatCode(cheat[0], player, hero, town, cheated);
+	if (words.size() == 1 || obj)
+		handleCheatCode(words[0], player, hero, town, cheated);
 	else
 	{
 		for (const auto & i : gs->players)
 		{
 			if (i.first == PlayerColor::NEUTRAL)
 				continue;
-			if (cheat[1] == "ai")
+			if (words[1] == "ai")
 			{
 				if (i.second.human)
 					continue;
 			}
-			else if (cheat[1] != "all" && cheat[1] != i.first.getStr())
+			else if (words[1] != "all" && words[1] != i.first.getStr())
 				continue;
 
-			if (cheat[0] == "vcmiformenos" || cheat[0] == "vcmieagles" || cheat[0] == "vcmiungoliant")
+			if (words[0] == "vcmiformenos" || words[0] == "vcmieagles" || words[0] == "vcmiungoliant")
 			{
-				handleCheatCode(cheat[0], i.first, nullptr, nullptr, cheated);
+				handleCheatCode(words[0], i.first, nullptr, nullptr, cheated);
 			}
-			else if (cheat[0] == "vcmiarmenelos")
+			else if (words[0] == "vcmiarmenelos")
 			{
 				for (const auto & t : i.second.towns)
 				{
-					handleCheatCode(cheat[0], i.first, nullptr, t, cheated);
+					handleCheatCode(words[0], i.first, nullptr, t, cheated);
 				}
 			}
 			else
 			{
 				for (const auto & h : i.second.heroes)
 				{
-					handleCheatCode(cheat[0], i.first, h, nullptr, cheated);
+					handleCheatCode(words[0], i.first, h, nullptr, cheated);
 				}
 			}
 		}
