@@ -1,3 +1,12 @@
+/*
+ * townbuildingswidget.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 #include "townbulidingswidget.h"
 #include "ui_townbulidingswidget.h"
 #include "../lib/CModHandler.h"
@@ -159,30 +168,27 @@ void TownBulidingsWidget::addBuildings(const CTown & ctown)
 	ui->treeView->resizeColumnToContents(2);
 }
 
-std::set<BuildingID> TownBulidingsWidget::getForbiddenBuildings()
+std::set<BuildingID> TownBulidingsWidget::getBuildingsFromModel(int modelColumn, Qt::CheckState checkState)
 {
 	std::set<BuildingID> result;
 	for(int i = 0; i < model.rowCount(); ++i)
 	{
-		if(auto * item = model.item(i, 1))
-			if(item->checkState() == Qt::Unchecked)
+		if(auto * item = model.item(i, modelColumn))
+			if(item->checkState() == checkState)
 				result.emplace(item->data(Qt::UserRole).toInt());
 	}
 	
 	return result;
 }
 
+std::set<BuildingID> TownBulidingsWidget::getForbiddenBuildings()
+{
+	return getBuildingsFromModel(1, Qt::Unchecked);
+}
+
 std::set<BuildingID> TownBulidingsWidget::getBuiltBuildings()
 {
-	std::set<BuildingID> result;
-	for(int i = 0; i < model.rowCount(); ++i)
-	{
-		if(auto * item = model.item(i, 2))
-			if(item->checkState() == Qt::Checked)
-				result.emplace(item->data(Qt::UserRole).toInt());
-	}
-
-	return result;
+	return getBuildingsFromModel(2, Qt::Checked);
 }
 
 void TownBulidingsWidget::on_treeView_expanded(const QModelIndex &index)

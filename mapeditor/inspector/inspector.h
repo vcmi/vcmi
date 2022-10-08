@@ -1,5 +1,13 @@
-#ifndef INSPECTOR_H
-#define INSPECTOR_H
+/*
+ * inspector.h, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+#pragma once
 
 #include <QTableWidget>
 #include <QTableWidgetItem>
@@ -151,4 +159,3 @@ public:
 	QStringList options;
 };
 
-#endif // INSPECTOR_H

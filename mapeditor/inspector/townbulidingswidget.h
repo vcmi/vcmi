@@ -1,5 +1,13 @@
-#ifndef TOWNBULIDINGSWIDGET_H
-#define TOWNBULIDINGSWIDGET_H
+/*
+ * townbuildingswidget.h, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+#pragma once
 
 #include <QDialog>
 #include "../lib/mapObjects/CGTownInstance.h"
@@ -28,6 +36,8 @@ private slots:
 	void on_treeView_collapsed(const QModelIndex &index);
 
 private:
+	std::set<BuildingID> getBuildingsFromModel(int modelColumn, Qt::CheckState checkState);
+	
 	Ui::TownBulidingsWidget *ui;
 	CGTownInstance & town;
 	mutable QStandardItemModel model;
@@ -50,4 +60,3 @@ private:
 	//std::set<BuildingID>
 };
 
-#endif // TOWNBULIDINGSWIDGET_H
