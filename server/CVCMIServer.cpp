@@ -341,10 +341,13 @@ void CVCMIServer::threadHandleClient(std::shared_ptr<CConnection> c)
 			catch(boost::system::system_error & e)
 			{
 				logNetwork->error("Network error receiving a pack. Connection %s dies. What happened: %s", c->toString(), e.what());
-				if(state != EServerState::LOBBY)
+				hangingConnections.insert(c);
+				connections.erase(c);
+				if(connections.empty() || hostClient == c)
+					state = EServerState::SHUTDOWN;
+				
+				if(gh && state == EServerState::GAMEPLAY)
 				{
-					hangingConnections.insert(c);
-					connections.erase(c);
 					gh->handleClientDisconnection(c);
 				}
 				break;
@@ -494,12 +497,8 @@ void CVCMIServer::clientConnected(std::shared_ptr<CConnection> c, std::vector<st
 void CVCMIServer::clientDisconnected(std::shared_ptr<CConnection> c)
 {
 	connections -= c;
-	if(connections.empty())
-		throw std::runtime_error("No more connections. Closing server.");
-	
-	if(hostClient == c)
+	if(connections.empty() || hostClient == c)
 	{
-		//TODO: support host transfer role
 		state = EServerState::SHUTDOWN;
 		return;
 	}
