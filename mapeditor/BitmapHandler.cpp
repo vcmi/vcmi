@@ -117,7 +117,7 @@ namespace BitmapHandler
 			return image;
 		}
 		else
-		{ //loading via SDL_Image
+		{ //loading via QImage
 			QImage image(QString::fromStdString(fullpath->make_preferred().string()));
 			if(!image.isNull())
 			{
@@ -145,15 +145,13 @@ namespace BitmapHandler
 
 	QImage loadBitmap(const std::string & fname, bool setKey)
 	{
-		QImage image = loadBitmapFromDir("DATA/", fname, setKey);
-		if(image.isNull())
+		for(const auto dir : {"DATA/", "SPRITES/"})
 		{
-			image = loadBitmapFromDir("SPRITES/", fname, setKey);
-			if(image.isNull())
-			{
-				logGlobal->error("Error: Failed to find file %s", fname);
-			}
+			auto image = loadBitmapFromDir(dir, fname, setKey);
+			if(!image.isNull())
+				return image;
 		}
-		return image;
+		logGlobal->error("Error: Failed to find file %s", fname);
+		return {};
 	}
 }

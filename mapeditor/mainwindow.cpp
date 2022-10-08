@@ -102,7 +102,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	QDir::setCurrent(QApplication::applicationDirPath());
 
 	//configure logging
-	const boost::filesystem::path logPath = VCMIDirs::get().userCachePath() / "VCMI_Editor_log.txt";
+	const boost::filesystem::path logPath = VCMIDirs::get().userLogsPath() / "VCMI_Editor_log.txt";
 	console = new CConsoleHandler();
 	logConfig = new CBasicLogConfigurator(logPath, console);
 	logConfig->configureDefault();
@@ -180,7 +180,7 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
 	saveUserSettings(); //save window size etc.
-    delete ui;
+	delete ui;
 }
 
 bool MainWindow::getAnswerAboutUnsavedChanges()
@@ -282,9 +282,10 @@ void MainWindow::on_actionOpen_triggered()
 	if(!getAnswerAboutUnsavedChanges())
 		return;
 	
-	auto filenameSelect = QFileDialog::getOpenFileName(this, tr("Open Image"), QString::fromStdString(VCMIDirs::get().userCachePath().make_preferred().string()), tr("Homm3 Files (*.vmap *.h3m)"));
-	
-	if(filenameSelect.isNull())
+	auto filenameSelect = QFileDialog::getOpenFileName(this, tr("Open map"),
+		QString::fromStdString(VCMIDirs::get().userCachePath().make_preferred().string()),
+		tr("All supported maps (*.vmap *.h3m);;VCMI maps(*.vmap);;HoMM3 maps(*.h3m)"));
+	if(filenameSelect.isEmpty())
 		return;
 	
 	openMap(filenameSelect);
@@ -517,7 +518,7 @@ void MainWindow::loadObjectsTree()
 		throw std::runtime_error("object browser exists");
 
 	//model
-	objectsModel.setHorizontalHeaderLabels(QStringList() << QStringLiteral("Type"));
+	objectsModel.setHorizontalHeaderLabels(QStringList() << tr("Type"));
 	objectBrowser = new ObjectBrowser(this);
 	objectBrowser->setSourceModel(&objectsModel);
 	objectBrowser->setDynamicSortFilter(false);

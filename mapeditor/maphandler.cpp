@@ -191,7 +191,7 @@ void MapHandler::initObjectRects()
 		auto image = animation->getImage(0, obj->ID == Obj::HERO ? 2 : 0);
 		if(!image)
 		{
-			//workaound for prisons
+			//workaround for prisons
 			image = animation->getImage(0, 0);
 			if(!image)
 				continue;
@@ -238,9 +238,9 @@ bool MapHandler::compareObjectBlitOrder(const CGObjectInstance * a, const CGObje
 	if(a->pos.y != b->pos.y)
 		return a->pos.y < b->pos.y;
 	
-	if(b->ID==Obj::HERO && a->ID!=Obj::HERO)
+	if(b->ID == Obj::HERO && a->ID != Obj::HERO)
 		return true;
-	if(b->ID!=Obj::HERO && a->ID==Obj::HERO)
+	if(b->ID != Obj::HERO && a->ID == Obj::HERO)
 		return false;
 	
 	if(!a->isVisitable() && b->isVisitable())

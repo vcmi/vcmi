@@ -60,7 +60,7 @@ public:
 
 	//duplicates frame at [sourceGroup, sourceFrame] as last frame in targetGroup
 	//and loads it if animation is preloaded
-	void duplicateImage(const size_t sourceGroup, const size_t sourceFrame, const size_t targetGroup);
+	void duplicateImage(size_t sourceGroup, size_t sourceFrame, size_t targetGroup);
 
 	// adjust the color of the animation, used in battle spell effects, e.g. Cloned objects
 

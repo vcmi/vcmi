@@ -54,9 +54,7 @@ PlayerParams::PlayerParams(MapController & ctrl, int playerId, QWidget *parent) 
 			{
 				if(playerInfo.hasMainTown && playerInfo.posOfMainTown == town->pos)
 					foundMainTown = townIndex;
-				auto name = town->name + ", (random)";
-				if(ctown->faction)
-					name = town->getObjectName();
+				const auto name = ctown->faction ? town->getObjectName() : town->name + ", (random)";
 				ui->mainTown->addItem(tr(name.c_str()), QVariant::fromValue(i));
 				++townIndex;
 			}
@@ -75,7 +73,7 @@ PlayerParams::PlayerParams(MapController & ctrl, int playerId, QWidget *parent) 
 		playerInfo.posOfMainTown = int3(-1, -1, -1);
 	}
 
-	ui->playerColor->setTitle(QString("PlayerID: %1").arg(playerId));
+	ui->playerColor->setTitle(tr("Player ID: %1").arg(playerId));
 	show();
 }
 

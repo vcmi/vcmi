@@ -212,7 +212,7 @@ bool RewardsWidget::commitChanges()
 
 void RewardsWidget::on_rewardList_activated(int index)
 {
-	ui->rewardAmount->setText(QString::number(1));
+	ui->rewardAmount->setText(QStringLiteral("1"));
 }
 
 void RewardsWidget::addReward(int typeId, int listId, int amount)

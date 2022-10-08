@@ -13,7 +13,7 @@
 
 int main(int argc, char * argv[])
 {
-    QApplication vcmieditor(argc, argv);
+	QApplication vcmieditor(argc, argv);
 	MainWindow mainWindow;
-    return vcmieditor.exec();
+	return vcmieditor.exec();
 }

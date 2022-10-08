@@ -19,7 +19,8 @@ template<class Type>
 NumericPointer data_cast(Type * _pointer)
 {
 	static_assert(sizeof(Type *) == sizeof(NumericPointer),
-				  "Compilied for 64 bit arcitecture. Use NumericPointer = unsigned int");
+				  "Compiled for 64 bit arcitecture. Use NumericPointer = unsigned int");
+
 	return reinterpret_cast<NumericPointer>(_pointer);
 }
 
@@ -27,7 +28,8 @@ template<class Type>
 Type * data_cast(NumericPointer _numeric)
 {
 	static_assert(sizeof(Type *) == sizeof(NumericPointer),
-				  "Compilied for 64 bit arcitecture. Use NumericPointer = unsigned int");
+				  "Compiled for 64 bit arcitecture. Use NumericPointer = unsigned int");
+
 	return reinterpret_cast<Type *>(_numeric);
 }
 

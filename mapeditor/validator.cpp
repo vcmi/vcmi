@@ -88,7 +88,7 @@ std::list<Validator::Issue> Validator::validate(const CMap * map)
 			{
 				bool has = amountOfCastles.count(ins->getOwner().getNum());
 				if(!has && ins->getOwner() != PlayerColor::NEUTRAL)
-					issues.emplace_back(QString("Town %1 has undefined owner %s").arg(ins->instanceName.c_str(), ins->getOwner().getStr().c_str()), true);
+					issues.emplace_back(tr("Town %1 has undefined owner %2").arg(ins->instanceName.c_str(), ins->getOwner().getStr().c_str()), true);
 				if(has)
 					++amountOfCastles[ins->getOwner().getNum()];
 			}

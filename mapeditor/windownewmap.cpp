@@ -193,7 +193,7 @@ std::unique_ptr<CMap> generateEmptyMap(CMapGenOptions & options)
 	return std::move(map);
 }
 
-void WindowNewMap::on_okButtong_clicked()
+void WindowNewMap::on_okButton_clicked()
 {
 	EWaterContent::EWaterContent water = EWaterContent::RANDOM;
 	EMonsterStrength::EMonsterStrength monster = EMonsterStrength::RANDOM;

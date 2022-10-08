@@ -110,7 +110,7 @@
                 "CMAKE_SYSTEM_NAME": "iOS",
                 "FORCE_BUNDLED_FL": "ON",
                 "FORCE_BUNDLED_MINIZIP": "ON",
-				"ENABLE_EDITOR" : "OFF"
+                "ENABLE_EDITOR" : "OFF"
             }
         },
         {

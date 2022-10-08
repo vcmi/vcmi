@@ -128,7 +128,7 @@ void MapView::mouseMoveEvent(QMouseEvent *mouseEvent)
 		break;
 
 	case MapView::SelectionTool::Area:
-		if(mouseEvent->buttons() & Qt::RightButton || !mouseEvent->buttons() & Qt::LeftButton)
+		if(mouseEvent->buttons() & Qt::RightButton || !(mouseEvent->buttons() & Qt::LeftButton))
 			break;
 
 		sc->selectionTerrainView.clear();
