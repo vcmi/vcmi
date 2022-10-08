@@ -427,7 +427,7 @@ struct PlayerReinitInterface : public CPackForClient
 	DLL_LINKAGE void applyGs(CGameState *gs);
 	
 	std::vector<PlayerColor> players;
-	ui8 playerConnectionId; //PLAYER_AI fro AI player
+	ui8 playerConnectionId; //PLAYER_AI for AI player
 	
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
