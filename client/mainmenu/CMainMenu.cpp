@@ -481,7 +481,7 @@ CSimpleJoinScreen::CSimpleJoinScreen(bool host)
 
 		inputAddress->giveFocus();
 	}
-	inputAddress->setText(settings["server"]["server"].String(), true);
+	inputAddress->setText(host ? CServerHandler::localhostAddress : settings["server"]["server"].String(), true);
 	inputPort->setText(CServerHandler::getDefaultPortStr(), true);
 
 	buttonCancel = std::make_shared<CButton>(Point(142, 142), "MUBCANC.DEF", CGI->generaltexth->zelp[561], std::bind(&CSimpleJoinScreen::leaveScreen, this), SDLK_ESCAPE);

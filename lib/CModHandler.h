@@ -278,11 +278,32 @@ class DLL_LINKAGE CModHandler
 	void loadOneMod(std::string modName, std::string parent, const JsonNode & modSettings, bool enableMods);
 public:
 	
-	class Incompatibility: public std::logic_error
+	class DLL_LINKAGE Incompatibility: public std::exception
 	{
 	public:
-		Incompatibility(const std::string & w): std::logic_error(w)
-		{}
+		using StringPair = std::pair<const std::string, const std::string>;
+		using ModList = std::list<StringPair>;
+		
+		Incompatibility(ModList && _missingMods):
+			missingMods(std::move(_missingMods))
+		{
+			std::ostringstream _ss;
+			for(auto & m : missingMods)
+				_ss << m.first << ' ' << m.second << std::endl;
+			message = _ss.str();
+		}
+		
+		const char * what() const noexcept override
+		{
+			return message.c_str();
+		}
+		
+	private:
+		//list of mods required to load the game
+		// first: mod name
+		// second: mod version
+		const ModList missingMods;
+		std::string message;
 	};
 
 	CIdentifierStorage identifiers;
@@ -368,7 +389,6 @@ public:
 		{
 			h & activeMods;
 			for(const auto & m : activeMods)
-
 				h & allMods[m].version;
 		}
 		else
@@ -376,22 +396,23 @@ public:
 			loadMods();
 			std::vector<TModID> newActiveMods;
 			h & newActiveMods;
-			for(auto & m : newActiveMods)
+			
+			Incompatibility::ModList missingMods;
+			for(const auto & m : newActiveMods)
+
 			{
-				if(!allMods.count(m))
-					throw Incompatibility(m + " unkown mod");
-				
 				CModInfo::Version mver;
 				h & mver;
-				if(!allMods[m].version.isNull() && !mver.isNull() && !allMods[m].version.compatible(mver))
-				{
-					std::string err = allMods[m].name +
-					": version needed " + mver.toString() +
-					"but you have installed " + allMods[m].version.toString();
-					throw Incompatibility(err);
-				}
-				allMods[m].enabled = true;
+				
+				if(allMods.count(m) && (allMods[m].version.isNull() || mver.isNull() || allMods[m].version.compatible(mver)))
+					allMods[m].enabled = true;
+				else
+					missingMods.emplace_back(m, mver.toString());
 			}
+			
+			if(!missingMods.empty())
+				throw Incompatibility(std::move(missingMods));
+			
 			std::swap(activeMods, newActiveMods);
 		}
 				

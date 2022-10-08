@@ -492,6 +492,7 @@ bool BaseMechanics::adaptGenericProblem(Problem & target) const
 	MetaString text;
 	// %s recites the incantations but they seem to have no effect.
 	text.addTxt(MetaString::GENERAL_TXT, 541);
+	assert(caster);
 	caster->getCasterName(text);
 
 	target.add(std::move(text), spells::Problem::NORMAL);

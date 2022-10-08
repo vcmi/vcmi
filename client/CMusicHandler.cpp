@@ -101,27 +101,35 @@ CSoundHandler::CSoundHandler():
 	};
 	
 	//predefine terrain set
-	//TODO: need refactoring - support custom sounds for new terrains and load from json
-	int h3mTerrId = 0;
-	for(auto snd :
+	//TODO: support custom sounds for new terrains and load from json
+	horseSounds =
 	{
-		soundBase::horseDirt, soundBase::horseSand, soundBase::horseGrass,
-		soundBase::horseSnow, soundBase::horseSwamp, soundBase::horseRough,
-		soundBase::horseSubterranean, soundBase::horseLava,
-		soundBase::horseWater, soundBase::horseRock
-	})
-	{
-		horseSounds[Terrain::createTerrainTypeH3M(h3mTerrId++)] = snd;
-	}
-	for(auto & terrain : Terrain::Manager::terrains())
+		{Terrain::DIRT, soundBase::horseDirt},
+		{Terrain::SAND, soundBase::horseSand},
+		{Terrain::GRASS, soundBase::horseGrass},
+		{Terrain::SNOW, soundBase::horseSnow},
+		{Terrain::SWAMP, soundBase::horseSwamp},
+		{Terrain::ROUGH, soundBase::horseRough},
+		{Terrain::SUBTERRANEAN, soundBase::horseSubterranean},
+		{Terrain::LAVA, soundBase::horseLava},
+		{Terrain::WATER, soundBase::horseWater},
+		{Terrain::ROCK, soundBase::horseRock}
+	};
+}
+
+void CSoundHandler::loadHorseSounds()
+{
+	const auto & terrains = CGI->terrainTypeHandler->terrains();
+	for(const auto & terrain : terrains)
 	{
 		//since all sounds are hardcoded, let's keep it
-		if(vstd::contains(horseSounds, terrain))
+		if(vstd::contains(horseSounds, terrain.id))
 			continue;
-		
-		horseSounds[terrain] = horseSounds.at(Terrain::createTerrainTypeH3M(Terrain::Manager::getInfo(terrain).horseSoundId));
+
+		//Use already existing horse sound
+		horseSounds[terrain.id] = horseSounds.at(terrains[terrain.id].horseSoundId);
 	}
-};
+}
 
 void CSoundHandler::init()
 {
@@ -364,10 +372,13 @@ CMusicHandler::CMusicHandler():
 			addEntryToSet("enemy-turn", file.getName(), file.getName());
 	}
 
-	for(auto & terrain : Terrain::Manager::terrains())
+}
+
+void CMusicHandler::loadTerrainSounds()
+{
+	for (const auto & terrain : CGI->terrainTypeHandler->terrains())
 	{
-		auto & entry = Terrain::Manager::getInfo(terrain);
-		addEntryToSet("terrain", terrain, "Music/" + entry.musicFilename);
+		addEntryToSet("terrain", terrain.name, "Music/" + terrain.musicFilename);
 	}
 }
 

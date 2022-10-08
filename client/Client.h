@@ -150,8 +150,8 @@ public:
 	vstd::CLoggerBase * logger() const override;
 	events::EventBus * eventBus() const override;
 
-	void newGame();
-	void loadGame();
+	void newGame(CGameState * gameState);
+	void loadGame(CGameState * gameState);
 	void serialize(BinarySerializer & h, const int version);
 	void serialize(BinaryDeserializer & h, const int version);
 

@@ -1933,7 +1933,7 @@ void CGameHandler::newTurn()
 			hth.id = h->id;
 			auto ti = make_unique<TurnInfo>(h, 1);
 			// TODO: this code executed when bonuses of previous day not yet updated (this happen in NewTurn::applyGs). See issue 2356
-			hth.move = h->maxMovePointsCached(gs->map->getTile(h->getPosition(false)).terType.isLand(), ti.get());
+			hth.move = h->maxMovePointsCached(gs->map->getTile(h->getPosition(false)).terType->isLand(), ti.get());
 			hth.mana = h->getManaNewTurn();
 
 			n.heroes.insert(hth);
@@ -2240,10 +2240,10 @@ void CGameHandler::setupBattle(int3 tile, const CArmedInstance *armies[2], const
 {
 	battleResult.set(nullptr);
 
-	const auto t = getTile(tile);
-	Terrain terrain = t->terType;
+	const auto & t = *getTile(tile);
+	TerrainId terrain = t.terType->id;
 	if (gs->map->isCoastalTile(tile)) //coastal tile is always ground
-		terrain = Terrain("sand");
+		terrain = Terrain::SAND;
 
 	BattleField terType = gs->battleGetBattlefieldType(tile, getRandomGenerator());
 	if (heroes[0] && heroes[0]->boat && heroes[1] && heroes[1]->boat)
@@ -2340,7 +2340,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 	const int3 guardPos = gs->guardingCreaturePosition(hmpos);
 
 	const bool embarking = !h->boat && !t.visitableObjects.empty() && t.visitableObjects.back()->ID == Obj::BOAT;
-	const bool disembarking = h->boat && t.terType.isLand() && !t.blocked;
+	const bool disembarking = h->boat && t.terType->isLand() && !t.blocked;
 
 	//result structure for start - movement failed, no move points used
 	TryMoveHero tmh;
@@ -2362,11 +2362,11 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 
 	//it's a rock or blocked and not visitable tile
 	//OR hero is on land and dest is water and (there is not present only one object - boat)
-	if (((!t.terType.isPassable()  ||  (t.blocked && !t.visitable && !canFly))
+	if (((!t.terType->isPassable()  ||  (t.blocked && !t.visitable && !canFly))
 			&& complain("Cannot move hero, destination tile is blocked!"))
-		|| ((!h->boat && !canWalkOnSea && !canFly && t.terType.isWater() && (t.visitableObjects.size() < 1 ||  (t.visitableObjects.back()->ID != Obj::BOAT && t.visitableObjects.back()->ID != Obj::HERO)))  //hero is not on boat/water walking and dst water tile doesn't contain boat/hero (objs visitable from land) -> we test back cause boat may be on top of another object (#276)
+		|| ((!h->boat && !canWalkOnSea && !canFly && t.terType->isWater() && (t.visitableObjects.size() < 1 ||  (t.visitableObjects.back()->ID != Obj::BOAT && t.visitableObjects.back()->ID != Obj::HERO)))  //hero is not on boat/water walking and dst water tile doesn't contain boat/hero (objs visitable from land) -> we test back cause boat may be on top of another object (#276)
 			&& complain("Cannot move hero, destination tile is on water!"))
-		|| ((h->boat && t.terType.isLand() && t.blocked)
+		|| ((h->boat && t.terType->isLand() && t.blocked)
 			&& complain("Cannot disembark hero, tile is blocked!"))
 		|| ((distance(h->pos, dst) >= 1.5 && !teleporting)
 			&& complain("Tiles are not neighboring!"))
@@ -2969,7 +2969,7 @@ void CGameHandler::save(const std::string & filename)
 	}
 }
 
-void CGameHandler::load(const std::string & filename)
+bool CGameHandler::load(const std::string & filename)
 {
 	logGlobal->info("Loading from %s", filename);
 	const auto stem	= FileInfo::GetPathStem(filename);
@@ -2986,12 +2986,22 @@ void CGameHandler::load(const std::string & filename)
 		}
 		logGlobal->info("Game has been successfully loaded!");
 	}
-	catch(std::exception &e)
+	catch(const CModHandler::Incompatibility & e)
 	{
 		logGlobal->error("Failed to load game: %s", e.what());
+		auto errorMsg = VLC->generaltexth->localizedTexts["server"]["errors"]["modsIncompatibility"].String() + '\n';
+		errorMsg += e.what();
+		lobby->announceMessage(errorMsg);
+		return false;
+	}
+	catch(const std::exception & e)
+	{
+		logGlobal->error("Failed to load game: %s", e.what());
+		return false;
 	}
 	gs->preInit(VLC);
 	gs->updateOnLoad(lobby->si.get());
+	return true;
 }
 
 bool CGameHandler::bulkSplitStack(SlotID slotSrc, ObjectInstanceID srcOwner, si32 howMany)
@@ -5190,19 +5200,6 @@ void CGameHandler::stackTurnTrigger(const CStack *st)
 				sendAndApply(&ssp);
 			}
 		}
-		//regeneration
-		if (st->hasBonusOfType(Bonus::HP_REGENERATION))
-		{
-			bte.effect = Bonus::HP_REGENERATION;
-			bte.val = std::min((int)(st->MaxHealth() - st->getFirstHPleft()), st->valOfBonuses(Bonus::HP_REGENERATION));
-		}
-		if (st->hasBonusOfType(Bonus::FULL_HP_REGENERATION))
-		{
-			bte.effect = Bonus::HP_REGENERATION;
-			bte.val = st->MaxHealth() - st->getFirstHPleft();
-		}
-		if (bte.val) //anything to heal
-			sendAndApply(&bte);
 
 		if (st->hasBonusOfType(Bonus::POISON))
 		{
@@ -6539,8 +6536,28 @@ void CGameHandler::runBattle()
 				if(!q.front().empty())
 				{
 					auto next = q.front().front();
+					const auto stack = dynamic_cast<const CStack *>(next);
+
+					// regeneration takes place before everything else but only during first turn attempt in each round
+					// also works under blind and similar effects
+					if(stack && stack->alive() && !stack->waiting)
+					{
+						BattleTriggerEffect bte;
+						bte.stackID = stack->ID;
+						bte.effect = Bonus::HP_REGENERATION;
+
+						const int32_t lostHealth = stack->MaxHealth() - stack->getFirstHPleft();
+						if(stack->hasBonusOfType(Bonus::FULL_HP_REGENERATION))
+							bte.val = lostHealth;
+						else if(stack->hasBonusOfType(Bonus::HP_REGENERATION))
+							bte.val = std::min(lostHealth, stack->valOfBonuses(Bonus::HP_REGENERATION));
+
+						if(bte.val) // anything to heal
+							sendAndApply(&bte);
+					}
+
 					if(next->willMove())
-						return dynamic_cast<const CStack *>(next);
+						return stack;
 				}
 			}
 

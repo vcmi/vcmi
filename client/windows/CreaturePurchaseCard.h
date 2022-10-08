@@ -56,8 +56,6 @@ private:
 		// used to set positions were obtained; commit messages don't document it
 		static constexpr int CREATURE_WIDTH = 110;
 		static constexpr int CREATURE_HEIGHT = 132;
-		static constexpr int CREATURE_X_POS = 15;
-		static constexpr int CREATURE_Y_POS = 44;
 	};
 
 	std::shared_ptr<CButton> maxButton, minButton, creatureSwitcher;

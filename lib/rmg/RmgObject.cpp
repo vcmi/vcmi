@@ -105,13 +105,17 @@ void Object::Instance::setPositionRaw(const int3 & position)
 	dObject.pos = dPosition + dParent.getPosition();
 }
 
-void Object::Instance::setTemplate(const Terrain & terrain)
+void Object::Instance::setTemplate(const TerrainId & terrain)
 {
 	if(dObject.appearance->id == Obj::NO_OBJ)
 	{
 		auto templates = VLC->objtypeh->getHandlerFor(dObject.ID, dObject.subID)->getTemplates(terrain);
-		if(templates.empty())
-			throw rmgException(boost::to_string(boost::format("Did not find graphics for object (%d,%d) at %s") % dObject.ID % dObject.subID % static_cast<std::string>(terrain)));
+		auto terrainName = VLC->terrainTypeHandler->terrains()[terrain].name;
+		if (templates.empty())
+		{
+			throw rmgException(boost::to_string(boost::format("Did not find graphics for object (%d,%d) at %s") %
+				dObject.ID % dObject.subID % terrainName));
+		}
 		
 		dObject.appearance = templates.front();
 	}
@@ -255,7 +259,7 @@ void Object::setPosition(const int3 & position)
 		i.setPositionRaw(i.getPosition());
 }
 
-void Object::setTemplate(const Terrain & terrain)
+void Object::setTemplate(const TerrainId & terrain)
 {
 	for(auto& i : dInstances)
 		i.setTemplate(terrain);
@@ -291,11 +295,12 @@ void Object::Instance::finalize(RmgMap & map)
 	if (dObject.appearance->id == Obj::NO_OBJ)
 	{
 		auto terrainType = map.map().getTile(getPosition(true)).terType;
-		auto templates = VLC->objtypeh->getHandlerFor(dObject.ID, dObject.subID)->getTemplates(terrainType);
+		auto templates = VLC->objtypeh->getHandlerFor(dObject.ID, dObject.subID)->getTemplates(terrainType->id);
 		if (templates.empty())
-			throw rmgException(boost::to_string(boost::format("Did not find graphics for object (%d,%d) at %s (terrain %d)") % dObject.ID % dObject.subID % getPosition(true).toString() % terrainType));
+			throw rmgException(boost::to_string(boost::format("Did not find graphics for object (%d,%d) at %s (terrain %d)") %
+				dObject.ID % dObject.subID % getPosition(true).toString() % terrainType->name));
 		
-		setTemplate(terrainType);
+		setTemplate(terrainType->id);
 	}
 	
 	for(auto & tile : getBlockedArea().getTilesVector())

@@ -68,7 +68,8 @@ public:
 	CVCMIServer(boost::program_options::variables_map & opts);
 	~CVCMIServer();
 	void run();
-	void prepareToStartGame();
+	bool prepareToStartGame();
+	void prepareToRestart();
 	void startGameImmidiately();
 
 	void startAsyncAccept();
@@ -81,6 +82,7 @@ public:
 	bool passHost(int toConnectionId);
 
 	void announceTxt(const std::string & txt, const std::string & playerName = "system");
+	void announceMessage(const std::string & txt);
 	void addToAnnounceQueue(std::unique_ptr<CPackForLobby> pack);
 
 	void setPlayerConnectedId(PlayerSettings & pset, ui8 player) const;

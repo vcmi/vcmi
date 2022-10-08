@@ -23,7 +23,8 @@
 #include "AIGateway.h"
 #include "Goals/Goals.h"
 
-class CGVisitableOPW;
+namespace NKAI
+{
 
 const float SAFE_ATTACK_CONSTANT = 1.2;
 
@@ -766,10 +767,10 @@ void AIGateway::makeTurn()
 		logAi->debug("Making turn thread has been interrupted. We'll end without calling endTurn.");
 		return;
 	}
-	/*catch (std::exception & e)
+	catch (std::exception & e)
 	{
 		logAi->debug("Making turn thread has caught an exception: %s", e.what());
-	}*/
+	}
 
 	endTurn();
 }
@@ -1667,4 +1668,6 @@ void AIStatus::setChannelProbing(bool ongoing)
 bool AIStatus::channelProbing()
 {
 	return ongoingChannelProbing;
+}
+
 }

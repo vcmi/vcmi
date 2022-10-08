@@ -10,10 +10,8 @@
 
 #pragma once
 
-#define PATHFINDER_TRACE_LEVEL 0
-#define AI_TRACE_LEVEL 0
-#define SCOUT_TURN_DISTANCE_LIMIT 3
-#define MAIN_TURN_DISTANCE_LIMIT 5
+#define NKAI_PATHFINDER_TRACE_LEVEL 0
+#define NKAI_TRACE_LEVEL 0
 
 #include "../../../lib/CPathfinder.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
@@ -23,12 +21,23 @@
 #include "Actions/SpecialAction.h"
 #include "Actors.h"
 
+namespace NKAI
+{
+	const int SCOUT_TURN_DISTANCE_LIMIT = 3;
+	const int MAIN_TURN_DISTANCE_LIMIT = 5;
+
 namespace AIPathfinding
 {
-	const int BUCKET_COUNT = 11;
-	const int BUCKET_SIZE = GameConstants::MAX_HEROES_PER_PLAYER;
+#ifdef ENVIRONMENT64
+	const int BUCKET_COUNT = 7;
+#else
+	const int BUCKET_COUNT = 5;
+#endif // ENVIRONMENT64
+
+	const int BUCKET_SIZE = 5;
 	const int NUM_CHAINS = BUCKET_COUNT * BUCKET_SIZE;
 	const int THREAD_COUNT = 8;
+	const int CHAIN_MAX_DEPTH = 4;
 }
 
 struct AIPathNode : public CGPathNode
@@ -239,7 +248,16 @@ public:
 		return ((uintptr_t)actor * 395) % AIPathfinding::BUCKET_COUNT;
 	}
 
-
 	void calculateTownPortalTeleportations(std::vector<CGPathNode *> & neighbours);
 	void fillChainInfo(const AIPathNode * node, AIPath & path, int parentIndex) const;
+
+private:
+	template<class TVector>
+	void calculateTownPortal(
+		const ChainActor * actor,
+		const std::map<const CGHeroInstance *, int> & maskMap,
+		const std::vector<CGPathNode *> & initialNodes,
+		TVector & output);
 };
+
+}

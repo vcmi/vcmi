@@ -157,20 +157,20 @@ void ObjectTemplate::readTxt(CLegacyConfigParser & parser)
 	// so these two fields can be interpreted as "strong affinity" and "weak affinity" towards terrains
 	std::string & terrStr = strings[4]; // allowed terrains, 1 = object can be placed on this terrain
 
-	assert(terrStr.size() == 9); // all terrains but rock
-	for(size_t i = 0; i < 9; i++)
+	assert(terrStr.size() == Terrain::ROCK); // all terrains but rock - counting from 0
+	for(TerrainId i = Terrain::FIRST_REGULAR_TERRAIN; i < Terrain::ROCK; i++)
 	{
 		if (terrStr[8-i] == '1')
-			allowedTerrains.insert(Terrain::createTerrainTypeH3M(i));
+			allowedTerrains.insert(i);
 	}
 	
 	//assuming that object can be placed on other land terrains
-	if(allowedTerrains.size() >= 8 && !allowedTerrains.count(Terrain("water")))
+	if(allowedTerrains.size() >= 8 && !allowedTerrains.count(Terrain::WATER))
 	{
-		for(auto & terrain : Terrain::Manager::terrains())
+		for(const auto & terrain : VLC->terrainTypeHandler->terrains())
 		{
 			if(terrain.isLand() && terrain.isPassable())
-				allowedTerrains.insert(terrain);
+				allowedTerrains.insert(terrain.id);
 		}
 	}
 
@@ -231,19 +231,19 @@ void ObjectTemplate::readMap(CBinaryReader & reader)
 
 	reader.readUInt16();
 	ui16 terrMask = reader.readUInt16();
-	for(size_t i = 0; i < 9; i++)
+	for(size_t i = Terrain::FIRST_REGULAR_TERRAIN; i < Terrain::ROCK; i++)
 	{
 		if (((terrMask >> i) & 1 ) != 0)
-			allowedTerrains.insert(Terrain::createTerrainTypeH3M(i));
+			allowedTerrains.insert(i);
 	}
 	
 	//assuming that object can be placed on other land terrains
-	if(allowedTerrains.size() >= 8 && !allowedTerrains.count(Terrain("water")))
+	if(allowedTerrains.size() >= 8 && !allowedTerrains.count(Terrain::WATER))
 	{
-		for(auto & terrain : Terrain::Manager::terrains())
+		for(const auto & terrain : VLC->terrainTypeHandler->terrains())
 		{
 			if(terrain.isLand() && terrain.isPassable())
-				allowedTerrains.insert(terrain);
+				allowedTerrains.insert(terrain.id);
 		}
 	}
 
@@ -286,22 +286,21 @@ void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
 
 	if(withTerrain && !node["allowedTerrains"].isNull())
 	{
-		for (auto & entry : node["allowedTerrains"].Vector())
-			allowedTerrains.insert(entry.String());
+		for(auto& entry : node["allowedTerrains"].Vector())
+			allowedTerrains.insert(VLC->terrainTypeHandler->getInfoByName(entry.String())->id);
 	}
 	else
 	{
-		for(auto & i : Terrain::Manager::terrains())
+		for(const auto & terrain : VLC->terrainTypeHandler->terrains())
 		{
-			if(!i.isPassable() || i.isWater())
+			if(!terrain.isPassable() || terrain.isWater())
 				continue;
-			allowedTerrains.insert(i);
+			allowedTerrains.insert(terrain.id);
 		}
 	}
 
 	if(withTerrain && allowedTerrains.empty())
 		logGlobal->warn("Loaded template without allowed terrains!");
-
 
 	auto charToTile = [&](const char & ch) -> ui8
 	{
@@ -371,7 +370,7 @@ void ObjectTemplate::writeJson(JsonNode & node, const bool withTerrain) const
 	if(withTerrain)
 	{
 		//assumed that ROCK and WATER terrains are not included
-		if(allowedTerrains.size() < (Terrain::Manager::terrains().size() - 2))
+		if(allowedTerrains.size() < (VLC->terrainTypeHandler->terrains().size() - 2))
 		{
 			JsonVector & data = node["allowedTerrains"].Vector();
 
@@ -558,9 +557,9 @@ void ObjectTemplate::calculateVisitableOffset()
 	visitableOffset = int3(0, 0, 0);
 }
 
-bool ObjectTemplate::canBePlacedAt(Terrain terrain) const
+bool ObjectTemplate::canBePlacedAt(TerrainId terrain) const
 {
-	return allowedTerrains.count(terrain) != 0;
+	return vstd::contains(allowedTerrains, terrain);
 }
 
 void ObjectTemplate::recalculate()

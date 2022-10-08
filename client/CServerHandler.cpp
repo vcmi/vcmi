@@ -59,6 +59,8 @@
 
 template<typename T> class CApplyOnLobby;
 
+const std::string CServerHandler::localhostAddress{"127.0.0.1"};
+
 #ifdef VCMI_ANDROID
 extern std::atomic_bool androidTestServerReadyFlag;
 #endif
@@ -171,7 +173,7 @@ void CServerHandler::startLocalServerAndConnect()
 	auto errorMsg = CGI->generaltexth->localizedTexts["server"]["errors"]["existingProcess"].String();
 	try
 	{
-		CConnection testConnection(settings["server"]["server"].String(), getDefaultPort(), NAME, uuid);
+		CConnection testConnection(localhostAddress, getDefaultPort(), NAME, uuid);
 		logNetwork->error("Port is busy, check if another instance of vcmiserver is working");
 		CInfoWindow::showInfoDialog(errorMsg, {});
 		return;
@@ -243,7 +245,7 @@ void CServerHandler::startLocalServerAndConnect()
 #else
 	const ui16 port = 0;
 #endif
-	justConnectToServer(settings["server"]["server"].String(), port);
+	justConnectToServer(localhostAddress, port);
 
 	logNetwork->trace("\tConnecting to the server: %d ms", th->getDiff());
 }
@@ -269,9 +271,17 @@ void CServerHandler::justConnectToServer(const std::string & addr, const ui16 po
 	}
 
 	if(state == EClientState::CONNECTION_CANCELLED)
+	{
 		logNetwork->info("Connection aborted by player!");
-	else
-		c->handler = std::make_shared<boost::thread>(&CServerHandler::threadHandleConnection, this);
+		return;
+	}
+
+	c->handler = std::make_shared<boost::thread>(&CServerHandler::threadHandleConnection, this);
+
+	if(addr.empty() || addr == localhostAddress)
+		return;
+	Settings serverAddress = settings.write["server"]["server"];
+	serverAddress->String() = addr;
 }
 
 void CServerHandler::applyPacksOnLobbyScreen()
@@ -502,6 +512,14 @@ void CServerHandler::sendGuiAction(ui8 action) const
 	sendLobbyPack(lga);
 }
 
+void CServerHandler::sendRestartGame() const
+{
+	LobbyEndGame endGame;
+	endGame.closeConnection = false;
+	endGame.restart = true;
+	sendLobbyPack(endGame);
+}
+
 void CServerHandler::sendStartGame(bool allowOnlyAI) const
 {
 	verifyStateBeforeStart(allowOnlyAI ? true : settings["session"]["onlyai"].Bool());
@@ -514,9 +532,11 @@ void CServerHandler::sendStartGame(bool allowOnlyAI) const
 		* si = * lsg.initializedStartInfo;
 	}
 	sendLobbyPack(lsg);
+	c->enterLobbyConnectionMode();
+	c->disableStackSendingByID();
 }
 
-void CServerHandler::startGameplay()
+void CServerHandler::startGameplay(CGameState * gameState)
 {
 	if(CMM)
 		CMM->disable();
@@ -525,13 +545,13 @@ void CServerHandler::startGameplay()
 	switch(si->mode)
 	{
 	case StartInfo::NEW_GAME:
-		client->newGame();
+		client->newGame(gameState);
 		break;
 	case StartInfo::CAMPAIGN:
-		client->newGame();
+		client->newGame(gameState);
 		break;
 	case StartInfo::LOAD_GAME:
-		client->loadGame();
+		client->loadGame(gameState);
 		break;
 	default:
 		throw std::runtime_error("Invalid mode");
@@ -566,6 +586,9 @@ void CServerHandler::endGameplay(bool closeConnection, bool restart)
 			GH.curInt = CMainMenu::create().get();
 		}
 	}
+	
+	c->enterLobbyConnectionMode();
+	c->disableStackSendingByID();
 }
 
 void CServerHandler::startCampaignScenario(std::shared_ptr<CCampaignState> cs)
@@ -578,6 +601,11 @@ void CServerHandler::startCampaignScenario(std::shared_ptr<CCampaignState> cs)
 	else
 		event.user.data1 = CMemorySerializer::deepCopy(*si->campState.get()).release();
 	SDL_PushEvent(&event);
+}
+
+void CServerHandler::showServerError(std::string txt)
+{
+	CInfoWindow::showInfoDialog(txt, {});
 }
 
 int CServerHandler::howManyPlayerInterfaces()
@@ -628,7 +656,7 @@ void CServerHandler::debugStartTest(std::string filename, bool save)
 		screenType = ESelectionScreen::newGame;
 	}
 	if(settings["session"]["donotstartserver"].Bool())
-		justConnectToServer("127.0.0.1", 3030);
+		justConnectToServer(localhostAddress, 3030);
 	else
 		startLocalServerAndConnect();
 

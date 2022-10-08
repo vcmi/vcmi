@@ -11,6 +11,8 @@
 
 #include "CGoal.h"
 
+namespace NKAI
+{
 namespace Goals
 {
 	class DLL_EXPORT DismissHero : public ElementarGoal<DismissHero>
@@ -26,4 +28,6 @@ namespace Goals
 		std::string toString() const override;
 		virtual bool operator==(const DismissHero & other) const override;
 	};
+}
+
 }

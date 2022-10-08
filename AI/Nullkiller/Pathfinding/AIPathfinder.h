@@ -13,6 +13,9 @@
 #include "AINodeStorage.h"
 #include "../AIUtility.h"
 
+namespace NKAI
+{
+
 class Nullkiller;
 
 struct PathfinderSettings
@@ -42,3 +45,5 @@ public:
 	void updatePaths(std::map<const CGHeroInstance *, HeroRole> heroes, PathfinderSettings pathfinderSettings);
 	void init();
 };
+
+}

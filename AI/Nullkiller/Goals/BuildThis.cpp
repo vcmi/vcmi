@@ -16,6 +16,9 @@
 #include "../../../lib/StringConstants.h"
 
 
+namespace NKAI
+{
+
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<AIGateway> ai;
 
@@ -63,4 +66,6 @@ void BuildThis::accept(AIGateway * ai)
 	}
 
 	throw cannotFulfillGoalException("Cannot build a given structure!");
+}
+
 }

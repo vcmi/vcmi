@@ -15,6 +15,9 @@
 #include "../AIUtility.h"
 #include "Actions/SpecialAction.h"
 
+namespace NKAI
+{
+
 extern const uint64_t MIN_ARMY_STRENGTH_FOR_CHAIN;
 
 class ChainActor;
@@ -170,3 +173,5 @@ public:
 	TownGarrisonActor(const CGTownInstance * town, uint64_t chainMask);
 	virtual std::string toString() const override;
 };
+
+}

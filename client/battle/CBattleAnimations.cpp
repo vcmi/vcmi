@@ -196,7 +196,7 @@ bool CDefenceAnimation::init()
 	}
 	//unit reversed
 
-	if(rangedAttack) //delay hit animation
+	if(rangedAttack && attacker != nullptr) //delay hit animation
 	{
 		for(std::list<ProjectileInfo>::const_iterator it = owner->projectiles.begin(); it != owner->projectiles.end(); ++it)
 		{

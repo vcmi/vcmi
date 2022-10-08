@@ -48,18 +48,18 @@
 #include "../../lib/mapObjects/CObjectHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/CPathfinder.h"
+#include "../../CCallback.h"
 
 #include <chrono>
 
 using namespace tbb;
 
-class CCallback;
-class Nullkiller;
-struct creInfo;
-
-typedef const int3 & crint3;
-typedef const std::string & crstring;
 typedef std::pair<ui32, std::vector<CreatureID>> dwellingContent;
+
+namespace NKAI
+{
+struct creInfo;
+class Nullkiller;
 
 const int GOLD_MINE_PRODUCTION = 1000, WOOD_ORE_MINE_PRODUCTION = 2, RESOURCE_MINE_PRODUCTION = 1;
 const int ACTUAL_RESOURCE_COUNT = 7;
@@ -149,39 +149,6 @@ struct ObjectIdRef
 	{
 		h & id;
 	}
-};
-
-struct TimeCheck
-{
-	CStopWatch time;
-	std::string txt;
-	TimeCheck(crstring TXT)
-		: txt(TXT)
-	{
-	}
-
-	~TimeCheck()
-	{
-		logAi->trace("Time of %s was %d ms.", txt, time.getDiff());
-	}
-};
-
-//TODO: replace with vstd::
-struct AtScopeExit
-{
-	std::function<void()> foo;
-	AtScopeExit(const std::function<void()> & FOO)
-		: foo(FOO)
-	{}
-	~AtScopeExit()
-	{
-		foo();
-	}
-};
-
-
-class ObjsVector : public std::vector<ObjectIdRef>
-{
 };
 
 template<int id>
@@ -278,7 +245,7 @@ uint64_t timeElapsed(std::chrono::time_point<std::chrono::high_resolution_clock>
 bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObjectInstance * obj);
 
 template<typename TFunc>
-void pforeachTilePos(crint3 mapSize, TFunc fn)
+void pforeachTilePos(const int3 & mapSize, TFunc fn)
 {
 	for(int z = 0; z < mapSize.z; ++z)
 	{
@@ -380,3 +347,5 @@ private:
 	std::shared_ptr<SharedPool<T> *> instance_tracker;
 	boost::mutex sync;
 };
+
+}

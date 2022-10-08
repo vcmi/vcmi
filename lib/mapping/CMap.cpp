@@ -125,22 +125,28 @@ CCastleEvent::CCastleEvent() : town(nullptr)
 
 }
 
-TerrainTile::TerrainTile() : terType("BORDER"), terView(0), riverType(RIVER_NAMES[0]),
-	riverDir(0), roadType(ROAD_NAMES[0]), roadDir(0), extTileFlags(0), visitable(false),
+TerrainTile::TerrainTile():
+	terType(nullptr),
+	terView(0),
+	riverType(const_cast<RiverType*>(&VLC->terrainTypeHandler->rivers()[River::NO_RIVER])),
+	riverDir(0),
+	roadType(const_cast<RoadType*>(&VLC->terrainTypeHandler->roads()[Road::NO_ROAD])),
+	roadDir(0),
+	extTileFlags(0),
+	visitable(false),
 	blocked(false)
 {
-
 }
 
 bool TerrainTile::entrableTerrain(const TerrainTile * from) const
 {
-	return entrableTerrain(from ? from->terType.isLand() : true, from ? from->terType.isWater() : true);
+	return entrableTerrain(from ? from->terType->isLand() : true, from ? from->terType->isWater() : true);
 }
 
 bool TerrainTile::entrableTerrain(bool allowLand, bool allowSea) const
 {
-	return terType.isPassable()
-			&& ((allowSea && terType.isWater())  ||  (allowLand && terType.isLand()));
+	return terType->isPassable()
+			&& ((allowSea && terType->isWater())  ||  (allowLand && terType->isLand()));
 }
 
 bool TerrainTile::isClear(const TerrainTile * from) const
@@ -166,7 +172,7 @@ CGObjectInstance * TerrainTile::topVisitableObj(bool excludeTop) const
 
 EDiggingStatus TerrainTile::getDiggingStatus(const bool excludeTop) const
 {
-	if(terType.isWater() || !terType.isPassable())
+	if(terType->isWater() || !terType->isPassable())
 		return EDiggingStatus::WRONG_TERRAIN;
 
 	int allowedBlocked = excludeTop ? 1 : 0;
@@ -183,7 +189,7 @@ bool TerrainTile::hasFavorableWinds() const
 
 bool TerrainTile::isWater() const
 {
-	return terType.isWater();
+	return terType->isWater();
 }
 
 void CMapHeader::setupEvents()

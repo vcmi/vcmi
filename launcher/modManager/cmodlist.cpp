@@ -19,9 +19,9 @@ namespace
 bool isCompatible(const QString & verMin, const QString & verMax)
 {
 	const int maxSections = 3; // versions consist from up to 3 sections, major.minor.patch
-	QVersionNumber vcmiVersion(GameConstants::VCMI_VERSION_MAJOR,
-							   GameConstants::VCMI_VERSION_MINOR,
-							   GameConstants::VCMI_VERSION_PATCH);
+	QVersionNumber vcmiVersion(VCMI_VERSION_MAJOR,
+							   VCMI_VERSION_MINOR,
+							   VCMI_VERSION_PATCH);
 	
 	auto versionMin = QVersionNumber::fromString(verMin);
 	auto versionMax = QVersionNumber::fromString(verMax);
@@ -118,9 +118,6 @@ bool CModEntry::isUpdateable() const
 
 bool CModEntry::isCompatible() const
 {
-	if(!isInstalled())
-		return false;
-
 	auto compatibility = localData["compatibility"].toMap();
 	return ::isCompatible(compatibility["min"].toString(), compatibility["max"].toString());
 }
@@ -206,6 +203,8 @@ void CModList::resetRepositories()
 
 void CModList::addRepository(QVariantMap data)
 {
+	for(auto & key : data.keys())
+		data[key.toLower()] = data.take(key);
 	repositories.push_back(copyField(data, "version", "latestVersion"));
 }
 
@@ -231,11 +230,7 @@ static QVariant getValue(QVariant input, QString path)
 		QString remainder = "/" + path.section('/', 2, -1);
 
 		entryName.remove(0, 1);
-		QMap<QString, QString> keyNormalize;
-		for(auto & key : input.toMap().keys())
-			keyNormalize[key.toLower()] = key;
-
-		return getValue(input.toMap().value(keyNormalize[entryName]), remainder);
+		return getValue(input.toMap().value(entryName), remainder);
 	}
 	else
 	{
@@ -304,7 +299,11 @@ CModEntry CModList::getMod(QString modname) const
 			{
 				if(repo.empty() || CModEntry::compareVersions(repo["version"].toString(), repoValMap["version"].toString()))
 				{
+					//take valid download link before assignment
+					auto download = repo.value("download");
 					repo = repoValMap;
+					if(repo.value("download").isNull())
+						repo["download"] = download;
 				}
 			}
 		}

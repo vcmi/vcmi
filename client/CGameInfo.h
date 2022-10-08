@@ -29,6 +29,7 @@ class CConsoleHandler;
 class CGameState;
 class BattleFieldHandler;
 class ObstacleHandler;
+class TerrainTypeHandler;
 
 class CMap;
 
@@ -84,6 +85,7 @@ public:
 	ConstTransitivePtr<CSpellHandler> spellh;
 	ConstTransitivePtr<CSkillHandler> skillh;
 	ConstTransitivePtr<CObjectHandler> objh;
+	ConstTransitivePtr<TerrainTypeHandler> terrainTypeHandler;
 	ConstTransitivePtr<CObjectClassesHandler> objtypeh;
 	ConstTransitivePtr<ObstacleHandler> obstacleHandler;
 	CGeneralTextHandler * generaltexth;

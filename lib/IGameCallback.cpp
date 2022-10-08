@@ -52,7 +52,7 @@ void CPrivilegedInfoCallback::getFreeTiles(std::vector<int3> & tiles) const
 			for (int yd = 0; yd < gs->map->height; yd++)
 			{
 				tinfo = getTile(int3 (xd,yd,zd));
-				if (tinfo->terType.isLand() && tinfo->terType.isPassable() && !tinfo->blocked) //land and free
+				if (tinfo->terType->isLand() && tinfo->terType->isPassable() && !tinfo->blocked) //land and free
 					tiles.push_back (int3 (xd,yd,zd));
 			}
 		}
@@ -119,8 +119,8 @@ void CPrivilegedInfoCallback::getAllTiles(std::unordered_set<int3, ShashInt3> & 
 		{
 			for (int yd = 0; yd < gs->map->height; yd++)
 			{
-				if ((getTile (int3 (xd,yd,zd))->terType.isWater() && water)
-					|| (getTile (int3 (xd,yd,zd))->terType.isLand() && land))
+				if ((getTile (int3 (xd,yd,zd))->terType->isWater() && water)
+					|| (getTile (int3 (xd,yd,zd))->terType->isLand() && land))
 					tiles.insert(int3(xd,yd,zd));
 			}
 		}

@@ -11,6 +11,9 @@
 
 #include "CGoal.h"
 
+namespace NKAI
+{
+
 struct HeroPtr;
 class AIGateway;
 class FuzzyHelper;
@@ -41,4 +44,6 @@ namespace Goals
 		virtual std::string toString() const override;
 		void accept(AIGateway * ai) override;
 	};
+}
+
 }

@@ -11,6 +11,9 @@
 
 #include "AbstractGoal.h"
 
+namespace NKAI
+{
+
 struct HeroPtr;
 class AIGateway;
 
@@ -90,34 +93,9 @@ namespace Goals
 		virtual bool isElementar() const override { return true; }
 
 		virtual HeroPtr getHero() const override { return AbstractGoal::hero; }
+
+		virtual int getHeroExchangeCount() const override { return 0; }
 	};
+}
 
-	class DLL_EXPORT Invalid : public ElementarGoal<Invalid>
-	{
-	public:
-		Invalid()
-			: ElementarGoal(Goals::INVALID)
-		{
-			priority = -1;
-		}
-		TGoalVec decompose() const override
-		{
-			return TGoalVec();
-		}
-
-		virtual bool operator==(const Invalid & other) const override
-		{
-			return true;
-		}
-
-		virtual std::string toString() const override
-		{
-			return "Invalid";
-		}
-
-		virtual void accept(AIGateway * ai) override
-		{
-			throw cannotFulfillGoalException("Can not fulfill Invalid goal!");
-		}
-	};
 }

@@ -24,8 +24,8 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 void RockPlacer::process()
 {
-	rockTerrain = Terrain::Manager::getInfo(zone.getTerrainType()).rockTerrain;
-	assert(!rockTerrain.isPassable());
+	rockTerrain = VLC->terrainTypeHandler->terrains()[zone.getTerrainType()].rockTerrain;
+	assert(!VLC->terrainTypeHandler->terrains()[rockTerrain].isPassable());
 	
 	accessibleArea = zone.freePaths() + zone.areaUsed();
 	if(auto * m = zone.getModificator<ObjectManager>())
@@ -78,7 +78,7 @@ void RockPlacer::postProcess()
 	//finally mark rock tiles as occupied, spawn no obstacles there
 	rockArea = zone.area().getSubarea([this](const int3 & t)
 	{
-		return !map.map().getTile(t).terType.isPassable();
+		return !map.map().getTile(t).terType->isPassable();
 	});
 	
 	zone.areaUsed().unite(rockArea);
@@ -97,7 +97,7 @@ void RockPlacer::init()
 
 char RockPlacer::dump(const int3 & t)
 {
-	if(!map.map().getTile(t).terType.isPassable())
+	if(!map.map().getTile(t).terType->isPassable())
 	{
 		return zone.area().contains(t) ? 'R' : 'E';
 	}

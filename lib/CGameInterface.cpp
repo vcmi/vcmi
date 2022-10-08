@@ -25,6 +25,7 @@
 #ifdef VCMI_ANDROID
 
 #include "AI/VCAI/VCAI.h"
+#include "AI/Nullkiller/AIGateway.h"
 #include "AI/BattleAI/BattleAI.h"
 
 #endif
@@ -96,7 +97,12 @@ std::shared_ptr<rett> createAny(const boost::filesystem::path & libpath, const s
 template<>
 std::shared_ptr<CGlobalAI> createAny(const boost::filesystem::path & libpath, const std::string & methodName)
 {
-	return std::make_shared<VCAI>();
+	if(libpath.stem() == "libNullkiller") {
+		return std::make_shared<NKAI::AIGateway>();
+	}
+	else{
+		return std::make_shared<VCAI>();
+	}
 }
 
 template<>

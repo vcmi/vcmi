@@ -138,12 +138,29 @@ struct LobbyGuiAction : public CLobbyPackToPropagate
 	}
 };
 
+struct LobbyEndGame : public CLobbyPackToPropagate
+{
+	bool closeConnection = false, restart = false;
+	
+	bool checkClientPermissions(CVCMIServer * srv) const;
+	bool applyOnServer(CVCMIServer * srv);
+	void applyOnServerAfterAnnounce(CVCMIServer * srv);
+	bool applyOnLobbyHandler(CServerHandler * handler);
+	
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & closeConnection;
+		h & restart;
+	}
+};
+
 struct LobbyStartGame : public CLobbyPackToPropagate
 {
 	// Set by server
 	std::shared_ptr<StartInfo> initializedStartInfo;
+	CGameState * initializedGameState;
 
-	LobbyStartGame() : initializedStartInfo(nullptr) {}
+	LobbyStartGame() : initializedStartInfo(nullptr), initializedGameState(nullptr) {}
 	bool checkClientPermissions(CVCMIServer * srv) const;
 	bool applyOnServer(CVCMIServer * srv);
 	void applyOnServerAfterAnnounce(CVCMIServer * srv);
@@ -153,6 +170,10 @@ struct LobbyStartGame : public CLobbyPackToPropagate
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & initializedStartInfo;
+		bool sps = h.smartPointerSerialization;
+		h.smartPointerSerialization = true;
+		h & initializedGameState;
+		h.smartPointerSerialization = sps;
 	}
 };
 
@@ -310,6 +331,18 @@ struct LobbyForceSetPlayer : public CLobbyPackToServer
 	{
 		h & targetConnectedPlayer;
 		h & targetPlayerColor;
+	}
+};
+
+struct LobbyShowMessage : public CLobbyPackToPropagate
+{
+	std::string message;
+	
+	void applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler);
+	
+	template <typename Handler> void serialize(Handler & h, const int version)
+	{
+		h & message;
 	}
 };
 

@@ -10,6 +10,8 @@
 #include "StdInc.h"
 #include "AIPreviousNodeRule.h"
 
+namespace NKAI
+{
 namespace AIPathfinding
 {
 	AIPreviousNodeRule::AIPreviousNodeRule(std::shared_ptr<AINodeStorage> nodeStorage)
@@ -35,7 +37,7 @@ namespace AIPathfinding
 			// we can not directly bypass objects, we need to interact with them first
 			destination.node->theNodeBefore = source.node;
 
-#if PATHFINDER_TRACE_LEVEL >= 1
+#if NKAI_PATHFINDER_TRACE_LEVEL >= 1
 			logAi->trace(
 				"Link src node %s to destination node %s while bypassing visitable obj",
 				source.coord.toString(),
@@ -44,4 +46,6 @@ namespace AIPathfinding
 			return;
 		}
 	}
+}
+
 }

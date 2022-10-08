@@ -13,6 +13,9 @@
 #include "../Engine/Nullkiller.h"
 #include "../AIUtility.h"
 
+namespace NKAI
+{
+
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<AIGateway> ai;
 
@@ -26,4 +29,6 @@ bool UnlockCluster::operator==(const UnlockCluster & other) const
 std::string UnlockCluster::toString() const
 {
 	return "Unlock Cluster " + cluster->blocker->getObjectName() + tile.toString();
+}
+
 }

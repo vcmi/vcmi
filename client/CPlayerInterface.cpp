@@ -84,8 +84,6 @@
 
 using namespace CSDL_Ext;
 
-void processCommand(const std::string &message, CClient *&client);
-
 extern std::queue<SDL_Event> SDLEventsQueue;
 extern boost::mutex eventsM;
 boost::recursive_mutex * CPlayerInterface::pim = new boost::recursive_mutex;
@@ -152,6 +150,10 @@ void CPlayerInterface::init(std::shared_ptr<Environment> ENV, std::shared_ptr<CC
 {
 	cb = CB;
 	env = ENV;
+
+	CCS->soundh->loadHorseSounds();
+	CCS->musich->loadTerrainSounds();
+
 	initializeHeroTownList();
 
 	// always recreate advmap interface to avoid possible memory-corruption bugs
@@ -274,7 +276,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 	{
 		updateAmbientSounds();
 		//We may need to change music - select new track, music handler will change it if needed
-		CCS->musich->playMusicFromSet("terrain", LOCPLINT->cb->getTile(hero->visitablePos())->terType, true);
+		CCS->musich->playMusicFromSet("terrain", LOCPLINT->cb->getTile(hero->visitablePos())->terType->name, true);
 
 		if(details.result == TryMoveHero::TELEPORTATION)
 		{
@@ -928,7 +930,6 @@ void CPlayerInterface::battleEnd(const BattleResult *br)
 		isAutoFightOn = false;
 		cb->unregisterBattleInterface(autofightingAI);
 		autofightingAI.reset();
-		adventureInt->quickCombatUnlock();
 
 		if (!battleInt)
 		{
@@ -936,6 +937,7 @@ void CPlayerInterface::battleEnd(const BattleResult *br)
 			// #1490 - during AI turn when quick combat is on, we need to display the message and wait for user to close it.
 			// Otherwise NewTurn causes freeze.
 			waitWhileDialog();
+			adventureInt->quickCombatUnlock();
 			return;
 		}
 	}
@@ -943,6 +945,7 @@ void CPlayerInterface::battleEnd(const BattleResult *br)
 	BATTLE_EVENT_POSSIBLE_RETURN;
 
 	battleInt->battleFinished(*br);
+	adventureInt->quickCombatUnlock();
 }
 
 void CPlayerInterface::battleLogMessage(const std::vector<MetaString> & lines)
@@ -1327,7 +1330,7 @@ void CPlayerInterface::availableCreaturesChanged( const CGDwelling *town )
 				ki->townChanged(townObj);
 		}
 	}
-	else if (GH.listInt.size() && (town->ID == Obj::CREATURE_GENERATOR1
+	else if(town && GH.listInt.size() && (town->ID == Obj::CREATURE_GENERATOR1
 		||  town->ID == Obj::CREATURE_GENERATOR4  ||  town->ID == Obj::WAR_MACHINE_FACTORY))
 	{
 		CRecruitmentWindow *crw = dynamic_cast<CRecruitmentWindow*>(GH.topInt().get());
@@ -2742,8 +2745,8 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 
 	{
 		path.convert(0);
-		Terrain currentTerrain = Terrain("BORDER"); // not init yet
-		Terrain newTerrain;
+		TerrainId currentTerrain = Terrain::BORDER; // not init yet
+		TerrainId newTerrain;
 		int sh = -1;
 
 		auto canStop = [&](CGPathNode * node) -> bool
@@ -2798,7 +2801,7 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 				sh = CCS->soundh->playSound(soundBase::horseFlying, -1);
 #endif
 			{
-				newTerrain = cb->getTile(CGHeroInstance::convertPosition(currentCoord, false))->terType;
+				newTerrain = cb->getTile(CGHeroInstance::convertPosition(currentCoord, false))->terType->id;
 				if(newTerrain != currentTerrain)
 				{
 					CCS->soundh->stopSound(sh);

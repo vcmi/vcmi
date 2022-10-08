@@ -17,6 +17,8 @@
 #include "../../../../lib/mapping/CMap.h"
 #include "../../../../lib/mapObjects/MapObjects.h"
 
+namespace NKAI
+{
 namespace AIPathfinding
 {
 	class AILayerTransitionRule : public LayerTransitionRule
@@ -49,4 +51,6 @@ namespace AIPathfinding
 			const PathNodeInfo & source,
 			std::shared_ptr<const VirtualBoatAction> virtualBoat) const;
 	};
+}
+
 }

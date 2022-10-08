@@ -966,8 +966,8 @@ void CGameState::initGrailPosition()
 					const TerrainTile &t = map->getTile(int3(x, y, z));
 					if(!t.blocked
 						&& !t.visitable
-						&& t.terType.isLand()
-						&& t.terType.isPassable()
+						&& t.terType->isLand()
+						&& t.terType->isPassable()
 						&& (int)map->grailPos.dist2dSQ(int3(x, y, z)) <= (map->grailRadius * map->grailRadius))
 						allowedPos.push_back(int3(x,y,z));
 				}
@@ -1921,7 +1921,7 @@ BattleField CGameState::battleGetBattlefieldType(int3 tile, CRandomGenerator & r
 		return BattleField::fromString("sand_shore");
 	
 	return BattleField::fromString(
-		*RandomGeneratorUtil::nextItem(Terrain::Manager::getInfo(t.terType).battleFields, rand));
+		*RandomGeneratorUtil::nextItem(t.terType->battleFields, rand));
 }
 
 UpgradeInfo CGameState::getUpgradeInfo(const CStackInstance &stack)
@@ -2103,7 +2103,7 @@ void CGameState::updateRumor()
 			rumorId = *RandomGeneratorUtil::nextItem(sRumorTypes, rand);
 			if(rumorId == RumorState::RUMOR_GRAIL)
 			{
-				rumorExtra = getTile(map->grailPos)->terType.id();
+				rumorExtra = getTile(map->grailPos)->terType->id;
 				break;
 			}
 

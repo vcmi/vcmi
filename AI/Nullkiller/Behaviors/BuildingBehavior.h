@@ -13,6 +13,8 @@
 #include "../AIUtility.h"
 #include "../Goals/CGoal.h"
 
+namespace NKAI
+{
 namespace Goals
 {
 	class BuildingBehavior : public CGoal<BuildingBehavior>
@@ -32,3 +34,4 @@ namespace Goals
 	};
 }
 
+}

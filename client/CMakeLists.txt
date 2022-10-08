@@ -148,14 +148,14 @@ set(client_HEADERS
 if(APPLE_IOS)
 	set(client_SRCS ${client_SRCS}
 		CFocusableHelper.cpp
-		ios/GameChatKeyboardHanlder.m
+		ios/GameChatKeyboardHandler.m
 		ios/main.m
 		ios/startSDL.mm
 		ios/utils.mm
 	)
 	set(client_HEADERS ${client_HEADERS}
 		CFocusableHelper.h
-		ios/GameChatKeyboardHanlder.h
+		ios/GameChatKeyboardHandler.h
 		ios/startSDL.h
 		ios/utils.h
 	)
@@ -198,6 +198,15 @@ if(WIN32)
 		target_link_libraries(vcmiclient SDL2::SDL2main)
 	endif()
 	target_compile_definitions(vcmiclient PRIVATE WINDOWS_IGNORE_PACKING_MISMATCH)
+
+	# TODO: very hacky, find proper solution to copy AI dlls into bin dir
+	if(MSVC)
+		add_custom_command(TARGET vcmiclient POST_BUILD
+			WORKING_DIRECTORY "$<TARGET_FILE_DIR:vcmiclient>"
+			COMMAND ${CMAKE_COMMAND} -E copy AI/fuzzylite.dll fuzzylite.dll
+			COMMAND ${CMAKE_COMMAND} -E copy AI/tbb.dll tbb.dll
+		)
+	endif()
 elseif(APPLE_IOS)
 	target_link_libraries(vcmiclient PRIVATE
 		iOS_utils
@@ -260,8 +269,10 @@ enable_pch(vcmiclient)
 
 if(APPLE_IOS)
 	add_custom_command(TARGET vcmiclient POST_BUILD
+		COMMAND ios/set_build_version.sh "$<TARGET_BUNDLE_CONTENT_DIR:vcmiclient>"
 		COMMAND ${CMAKE_COMMAND} --install "${CMAKE_BINARY_DIR}" --component "${CMAKE_INSTALL_DEFAULT_COMPONENT_NAME}" --config "$<CONFIG>" --prefix "$<TARGET_BUNDLE_CONTENT_DIR:vcmiclient>"
-		COMMAND ${CMAKE_SOURCE_DIR}/ios/codesign.sh
+		COMMAND ios/codesign.sh
+		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 	)
 	install(TARGETS vcmiclient DESTINATION Payload COMPONENT app) # for ipa generation with cpack
 else()

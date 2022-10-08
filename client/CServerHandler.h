@@ -21,6 +21,7 @@ class PlayerColor;
 struct StartInfo;
 
 class CMapInfo;
+class CGameState;
 struct ClientPlayer;
 struct CPack;
 struct CPackForLobby;
@@ -69,6 +70,7 @@ public:
 	virtual void sendMessage(const std::string & txt) const = 0;
 	virtual void sendGuiAction(ui8 action) const = 0; // TODO: possibly get rid of it?
 	virtual void sendStartGame(bool allowOnlyAI = false) const = 0;
+	virtual void sendRestartGame() const = 0;
 };
 
 /// structure to handle running server and connecting to it
@@ -106,6 +108,8 @@ public:
 
 	CondSh<bool> campaignServerRestartLock;
 
+	static const std::string localhostAddress;
+
 	CServerHandler();
 
 	void resetStateForLobby(const StartInfo::EMode mode, const std::vector<std::string> * names = nullptr);
@@ -140,11 +144,13 @@ public:
 	void setTurnLength(int npos) const override;
 	void sendMessage(const std::string & txt) const override;
 	void sendGuiAction(ui8 action) const override;
+	void sendRestartGame() const override;
 	void sendStartGame(bool allowOnlyAI = false) const override;
 
-	void startGameplay();
+	void startGameplay(CGameState * gameState = nullptr);
 	void endGameplay(bool closeConnection = true, bool restart = false);
 	void startCampaignScenario(std::shared_ptr<CCampaignState> cs = {});
+	void showServerError(std::string txt);
 
 	// TODO: LobbyState must be updated within game so we should always know how many player interfaces our client handle
 	int howManyPlayerInterfaces();

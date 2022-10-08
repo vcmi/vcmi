@@ -44,10 +44,6 @@ CSavingScreen::CSavingScreen()
 	buttonStart->assignedKeys.insert(SDLK_RETURN);
 }
 
-CSavingScreen::~CSavingScreen()
-{
-}
-
 const CMapInfo * CSavingScreen::getMapInfo()
 {
 	return localMi.get();

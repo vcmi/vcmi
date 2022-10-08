@@ -14,6 +14,8 @@
 #include "../Analyzers/ArmyManager.h"
 #include "../Analyzers/DangerHitMapAnalyzer.h"
 
+namespace NKAI
+{
 namespace Goals
 {
 	class DLL_EXPORT DefendTown : public CGoal<DefendTown>
@@ -36,4 +38,6 @@ namespace Goals
 
 		uint8_t getTurn() const { return turn; }
 	};
+}
+
 }

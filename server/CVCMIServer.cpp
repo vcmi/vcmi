@@ -171,7 +171,10 @@ void CVCMIServer::run()
 
 		startAsyncAccept();
 
-#if !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
+#if defined(VCMI_ANDROID)
+		CAndroidVMHelper vmHelper;
+		vmHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "onServerReady");
+#elif !defined(VCMI_IOS)
 		if(shm)
 		{
 			shm->sr->setToReadyAndNotify(port);
@@ -220,7 +223,7 @@ void CVCMIServer::threadAnnounceLobby()
 	}
 }
 
-void CVCMIServer::prepareToStartGame()
+void CVCMIServer::prepareToRestart()
 {
 	if(state == EServerState::GAMEPLAY)
 	{
@@ -231,7 +234,18 @@ void CVCMIServer::prepareToStartGame()
 		// FIXME: dirry hack to make sure old CGameHandler::run is finished
 		boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
 	}
-	state = EServerState::GAMEPLAY_STARTING;
+	
+	for(auto c : connections)
+	{
+		c->enterLobbyConnectionMode();
+		c->disableStackSendingByID();
+	}
+	boost::unique_lock<boost::recursive_mutex> queueLock(mx);
+	gh = nullptr;
+}
+
+bool CVCMIServer::prepareToStartGame()
+{
 	gh = std::make_shared<CGameHandler>(this);
 	switch(si->mode)
 	{
@@ -249,13 +263,17 @@ void CVCMIServer::prepareToStartGame()
 
 	case StartInfo::LOAD_GAME:
 		logNetwork->info("Preparing to start loaded game");
-		gh->load(si->mapname);
+		if(!gh->load(si->mapname))
+			return false;
 		break;
 	default:
 		logNetwork->error("Wrong mode in StartInfo!");
 		assert(0);
 		break;
 	}
+	
+	state = EServerState::GAMEPLAY_STARTING;
+	return true;
 }
 
 void CVCMIServer::startGameImmidiately()
@@ -310,11 +328,28 @@ void CVCMIServer::threadHandleClient(std::shared_ptr<CConnection> c)
 	setThreadName("CVCMIServer::handleConnection");
 	c->enterLobbyConnectionMode();
 
+#ifndef _MSC_VER
 	try
 	{
+#endif
 		while(c->connected)
 		{
-			CPack * pack = c->retrievePack();
+			CPack * pack;
+			
+			try
+			{
+				pack = c->retrievePack();
+			}
+			catch(boost::system::system_error & e)
+			{
+				logNetwork->error("Network error receiving a pack. Connection %s dies. What happened: %s", c->toString(), e.what());
+
+				if(state != EServerState::LOBBY)
+					gh->handleClientDisconnection(c);
+
+				break;
+			}
+			
 			if(auto lobbyPack = dynamic_ptr_cast<CPackForLobby>(pack))
 			{
 				handleReceivedPack(std::unique_ptr<CPackForLobby>(lobbyPack));
@@ -324,14 +359,8 @@ void CVCMIServer::threadHandleClient(std::shared_ptr<CConnection> c)
 				gh->handleReceivedPack(serverPack);
 			}
 		}
-	}
-	catch(boost::system::system_error & e)
-	{
-        (void)e;
-		if(state != EServerState::LOBBY)
-			gh->handleClientDisconnection(c);
-	}
-	/*
+#ifndef _MSC_VER
+	 }
 	catch(const std::exception & e)
 	{
         (void)e;
@@ -343,7 +372,8 @@ void CVCMIServer::threadHandleClient(std::shared_ptr<CConnection> c)
 		state = EServerState::SHUTDOWN;
 		handleException();
 		throw;
-	}*/
+	}
+#endif
 
 	boost::unique_lock<boost::recursive_mutex> queueLock(mx);
 //	if(state != ENDING_AND_STARTING_GAME)
@@ -379,6 +409,14 @@ void CVCMIServer::announcePack(std::unique_ptr<CPackForLobby> pack)
 	}
 
 	applier->getApplier(typeList.getTypeID(pack.get()))->applyOnServerAfter(this, pack.get());
+}
+
+void CVCMIServer::announceMessage(const std::string & txt)
+{
+	logNetwork->info("Show message: %s", txt);
+	auto cm = vstd::make_unique<LobbyShowMessage>();
+	cm->message = txt;
+	addToAnnounceQueue(std::move(cm));
 }
 
 void CVCMIServer::announceTxt(const std::string & txt, const std::string & playerName)
@@ -922,7 +960,9 @@ int main(int argc, char * argv[])
 	signal(SIGSEGV, handleLinuxSignal);
 #endif
 
+#ifndef VCMI_IOS
 	console = new CConsoleHandler();
+#endif
 	CBasicLogConfigurator logConfig(VCMIDirs::get().userLogsPath() / "VCMI_Server_log.txt", console);
 	logConfig.configureDefault();
 	logGlobal->info(SERVER_NAME);
@@ -984,6 +1024,7 @@ int main(int argc, char * argv[])
 void CVCMIServer::create()
 {
 	const char * foo[1] = {"android-server"};
+
 	main(1, const_cast<char **>(foo));
 }
 #elif defined(SINGLE_PROCESS_APP)

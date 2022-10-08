@@ -12,6 +12,7 @@
 #include "HeroBonus.h"
 #include "GameConstants.h"
 #include "CArtHandler.h"
+#include "CCreatureHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -40,7 +41,20 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & type;
+		if(h.saving)
+		{
+			CreatureID idNumber = type ? type->idNumber : CreatureID(CreatureID::NONE);
+			h & idNumber;
+		}
+		else
+		{
+			CreatureID idNumber;
+			h & idNumber;
+			if(idNumber != CreatureID::NONE)
+				setType(VLC->creh->objects[idNumber]);
+			else
+				type = nullptr;
+		}
 		h & count;
 	}
 

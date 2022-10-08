@@ -10,13 +10,13 @@
 
 #pragma once
 
+#include "GameConstants.h"
 #include "BattleHex.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 struct CObstacleInstance;
 class BattleField;
-class Terrain;
 
 namespace battle
 {
@@ -40,7 +40,7 @@ public:
 	virtual scripting::Pool * getContextPool() const = 0;
 #endif
 
-	virtual Terrain battleTerrainType() const = 0;
+	virtual TerrainId battleTerrainType() const = 0;
 	virtual BattleField battleGetBattlefieldType() const = 0;
 
 	///return none if battle is ongoing; otherwise the victorious side (0/1) or 2 if it is a draw

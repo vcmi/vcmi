@@ -14,6 +14,9 @@
 #include "../../../lib/CPathfinder.h"
 #include "../Behaviors/CaptureObjectsBehavior.h"
 
+namespace NKAI
+{
+
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<AIGateway> ai;
 
@@ -76,4 +79,6 @@ void BuildBoat::accept(AIGateway * ai)
 std::string BuildBoat::toString() const
 {
 	return "BuildBoat";
+}
+
 }

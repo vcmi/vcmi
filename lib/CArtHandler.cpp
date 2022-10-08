@@ -1191,18 +1191,27 @@ CArtifactInstance* CArtifactSet::getArt(ArtifactPosition pos, bool excludeLocked
 
 ArtifactPosition CArtifactSet::getArtPos(int aid, bool onlyWorn, bool allowLocked) const
 {
+	const auto result = getAllArtPositions(aid, onlyWorn, allowLocked, false);
+	return result.empty() ? ArtifactPosition{ArtifactPosition::PRE_FIRST} : result[0];
+}
+
+std::vector<ArtifactPosition> CArtifactSet::getAllArtPositions(int aid, bool onlyWorn, bool allowLocked, bool getAll) const
+{
+	std::vector<ArtifactPosition> result;
 	for(auto i = artifactsWorn.cbegin(); i != artifactsWorn.cend(); i++)
 		if(i->second.artifact->artType->id == aid && (allowLocked || !i->second.locked))
-			return i->first;
+			result.push_back(i->first);
 
 	if(onlyWorn)
-		return ArtifactPosition::PRE_FIRST;
+		return result;
+	if(!getAll && !result.empty())
+		return result;
 
 	for(int i = 0; i < artifactsInBackpack.size(); i++)
 		if(artifactsInBackpack[i].artifact->artType->id == aid)
-			return ArtifactPosition(GameConstants::BACKPACK_START + i);
+			result.push_back(ArtifactPosition(GameConstants::BACKPACK_START + i));
 
-	return ArtifactPosition::PRE_FIRST;
+	return result;
 }
 
 ArtifactPosition CArtifactSet::getArtPos(const CArtifactInstance *art) const
@@ -1237,8 +1246,19 @@ bool CArtifactSet::hasArt(
     bool searchBackpackAssemblies,
 	bool allowLocked) const
 {
-	return getArtPos(aid, onlyWorn, allowLocked) != ArtifactPosition::PRE_FIRST ||
-	       (searchBackpackAssemblies && getHiddenArt(aid));
+	return getArtPosCount(aid, onlyWorn, searchBackpackAssemblies, allowLocked) > 0;
+}
+
+unsigned CArtifactSet::getArtPosCount(int aid, bool onlyWorn, bool searchBackpackAssemblies, bool allowLocked) const
+{
+	const auto allPositions = getAllArtPositions(aid, onlyWorn, allowLocked, true);
+	if(!allPositions.empty())
+		return allPositions.size();
+
+	if(searchBackpackAssemblies && getHiddenArt(aid))
+		return 1;
+
+	return 0;
 }
 
 std::pair<const CCombinedArtifactInstance *, const CArtifactInstance *>

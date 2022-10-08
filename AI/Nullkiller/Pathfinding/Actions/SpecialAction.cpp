@@ -12,6 +12,10 @@
 #include "SpecialAction.h"
 #include "../../AIGateway.h"
 #include "../../Goals/CGoal.h"
+#include "../../Goals/Invalid.h"
+
+namespace NKAI
+{
 
 Goals::TSubgoal SpecialAction::decompose(const CGHeroInstance * hero) const
 {
@@ -21,4 +25,6 @@ Goals::TSubgoal SpecialAction::decompose(const CGHeroInstance * hero) const
 void SpecialAction::execute(const CGHeroInstance * hero) const
 {
 	throw cannotFulfillGoalException("Can not execute " + toString());
+}
+
 }
