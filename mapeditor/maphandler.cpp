@@ -50,22 +50,6 @@ void MapHandler::reset(const CMap * Map)
 
 void MapHandler::initTerrainGraphics()
 {
-	static const std::map<std::string, std::string> ROAD_FILES =
-	{
-		{ROAD_NAMES[1], "dirtrd"},
-		{ROAD_NAMES[2], "gravrd"},
-		{ROAD_NAMES[3], "cobbrd"}
-	};
-	
-	static const std::map<std::string, std::string> RIVER_FILES =
-	{
-		{RIVER_NAMES[1], "clrrvr"},
-		{RIVER_NAMES[2], "icyrvr"},
-		{RIVER_NAMES[3], "mudrvr"},
-		{RIVER_NAMES[4], "lavrvr"}
-	};
-	
-	
 	auto loadFlipped = [](TFlippedAnimations & animation, TFlippedCache & cache, const std::map<std::string, std::string> & files)
 	{
 		for(auto & type : files)
@@ -81,14 +65,24 @@ void MapHandler::initTerrainGraphics()
 	};
 	
 	std::map<std::string, std::string> terrainFiles;
-	for(auto & terrain : Terrain::Manager::terrains())
+	std::map<std::string, std::string> roadFiles;
+	std::map<std::string, std::string> riverFiles;
+	for(const auto & terrain : VLC->terrainTypeHandler->terrains())
 	{
-		terrainFiles[terrain] = Terrain::Manager::getInfo(terrain).tilesFilename;
+		terrainFiles[terrain.name] = terrain.tilesFilename;
+	}
+	for(const auto & river : VLC->terrainTypeHandler->rivers())
+	{
+		riverFiles[river.fileName] = river.fileName;
+	}
+	for(const auto & road : VLC->terrainTypeHandler->roads())
+	{
+		roadFiles[road.fileName] = road.fileName;
 	}
 	
 	loadFlipped(terrainAnimations, terrainImages, terrainFiles);
-	loadFlipped(roadAnimations, roadImages, ROAD_FILES);
-	loadFlipped(riverAnimations, riverImages, RIVER_FILES);
+	loadFlipped(riverAnimations, riverImages, riverFiles);
+	loadFlipped(roadAnimations, roadImages, roadFiles);
 }
 
 void MapHandler::drawTerrainTile(QPainter & painter, int x, int y, int z)
@@ -96,37 +90,43 @@ void MapHandler::drawTerrainTile(QPainter & painter, int x, int y, int z)
 	auto & tinfo = map->getTile(int3(x, y, z));
 	ui8 rotation = tinfo.extTileFlags % 4;
 	
-	if(terrainImages.at(tinfo.terType).size() <= tinfo.terView)
+	//TODO: use ui8 instead of string key
+	auto terrainName = tinfo.terType->name;
+	
+	if(terrainImages.at(terrainName).size() <= tinfo.terView)
 		return;
 	
 	bool hflip = (rotation == 1 || rotation == 3), vflip = (rotation == 2 || rotation == 3);
-	painter.drawImage(x * tileSize, y * tileSize, terrainImages.at(tinfo.terType)[tinfo.terView]->mirrored(hflip, vflip));
+	painter.drawImage(x * tileSize, y * tileSize, terrainImages.at(terrainName)[tinfo.terView]->mirrored(hflip, vflip));
 }
 
 void MapHandler::drawRoad(QPainter & painter, int x, int y, int z)
 {
 	auto & tinfo = map->getTile(int3(x, y, z));
 	auto * tinfoUpper = map->isInTheMap(int3(x, y - 1, z)) ? &map->getTile(int3(x, y - 1, z)) : nullptr;
-
-	if (tinfoUpper && tinfoUpper->roadType != ROAD_NAMES[0])
+	
+	//TODO: use ui8 instead of string key
+	auto roadName = tinfo.terType->name;
+	
+	if (tinfoUpper && tinfoUpper->roadType->id != Road::NO_ROAD)
 	{
 		QRect source(0, tileSize / 2, tileSize, tileSize / 2);
 		ui8 rotation = (tinfoUpper->extTileFlags >> 4) % 4;
 		bool hflip = (rotation == 1 || rotation == 3), vflip = (rotation == 2 || rotation == 3);
-		if(roadImages.at(tinfoUpper->roadType).size() > tinfoUpper->roadDir)
+		if(roadImages.at(roadName).size() > tinfoUpper->roadDir)
 		{
-			painter.drawImage(QPoint(x * tileSize, y * tileSize), roadImages.at(tinfoUpper->roadType)[tinfoUpper->roadDir]->mirrored(hflip, vflip), source);
+			painter.drawImage(QPoint(x * tileSize, y * tileSize), roadImages.at(roadName)[tinfoUpper->roadDir]->mirrored(hflip, vflip), source);
 		}
 	}
 	
-	if(tinfo.roadType != ROAD_NAMES[0]) //print road from this tile
+	if(tinfo.roadType->id != Road::NO_ROAD) //print road from this tile
 	{
 		QRect source(0, 0, tileSize, tileSize / 2);
 		ui8 rotation = (tinfo.extTileFlags >> 4) % 4;
 		bool hflip = (rotation == 1 || rotation == 3), vflip = (rotation == 2 || rotation == 3);
-		if(roadImages.at(tinfo.roadType).size() > tinfo.roadDir)
+		if(roadImages.at(roadName).size() > tinfo.roadDir)
 		{
-			painter.drawImage(QPoint(x * tileSize, y * tileSize + tileSize / 2), roadImages.at(tinfo.roadType)[tinfo.roadDir]->mirrored(hflip, vflip), source);
+			painter.drawImage(QPoint(x * tileSize, y * tileSize + tileSize / 2), roadImages.at(roadName)[tinfo.roadDir]->mirrored(hflip, vflip), source);
 		}
 	}
 }
@@ -135,16 +135,19 @@ void MapHandler::drawRiver(QPainter & painter, int x, int y, int z)
 {
 	auto & tinfo = map->getTile(int3(x, y, z));
 
-	if(tinfo.riverType == RIVER_NAMES[0])
+	if(tinfo.riverType->id == River::NO_RIVER)
 		return;
+	
+	//TODO: use ui8 instead of string key
+	auto riverName = tinfo.terType->name;
 
-	if(riverImages.at(tinfo.riverType).size() <= tinfo.riverDir)
+	if(riverImages.at(riverName).size() <= tinfo.riverDir)
 		return;
 
 	ui8 rotation = (tinfo.extTileFlags >> 2) % 4;
 	bool hflip = (rotation == 1 || rotation == 3), vflip = (rotation == 2 || rotation == 3);
 
-	painter.drawImage(x * tileSize, y * tileSize, riverImages.at(tinfo.riverType)[tinfo.riverDir]->mirrored(hflip, vflip));
+	painter.drawImage(x * tileSize, y * tileSize, riverImages.at(riverName)[tinfo.riverDir]->mirrored(hflip, vflip));
 }
 
 void setPlayerColor(QImage * sur, PlayerColor player)
@@ -411,10 +414,12 @@ QRgb MapHandler::getTileColor(int x, int y, int z)
 	}
 	
 	// else - use terrain color (blocked version or normal)
+	
 	auto & tile = map->getTile(int3(x, y, z));
-	auto color = Terrain::Manager::getInfo(tile.terType).minimapUnblocked;
+	
+	auto color = tile.terType->minimapUnblocked;
 	if (tile.blocked && (!tile.visitable))
-		color = Terrain::Manager::getInfo(tile.terType).minimapBlocked;
+		color = tile.terType->minimapBlocked;
 	
 	return qRgb(color[0], color[1], color[2]);
 }

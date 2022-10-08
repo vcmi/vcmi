@@ -8,7 +8,7 @@ class ObjectBrowser : public QSortFilterProxyModel
 public:
 	explicit ObjectBrowser(QObject *parent = nullptr);
 
-	Terrain terrain;
+	TerrainId terrain;
 	QString filter;
 
 protected:

@@ -236,7 +236,7 @@ void MapController::resetMapHandler()
 	_miniscenes[1]->initialize(*this);
 }
 
-void MapController::commitTerrainChange(int level, const Terrain & terrain)
+void MapController::commitTerrainChange(int level, const TerrainId & terrain)
 {
 	std::vector<int3> v(_scenes[level]->selectionTerrainView.selection().begin(),
 						_scenes[level]->selectionTerrainView.selection().end());
@@ -269,9 +269,9 @@ void MapController::commitRoadOrRiverChange(int level, const std::string & type,
 	
 	_map->getEditManager()->getTerrainSelection().setSelection(v);
 	if(isRoad)
-		_map->getEditManager()->drawRoad(type, &CRandomGenerator::getDefault());
+		_map->getEditManager()->drawRoad(VLC->terrainTypeHandler->getRoadByName(type)->id, &CRandomGenerator::getDefault());
 	else
-		_map->getEditManager()->drawRiver(type, &CRandomGenerator::getDefault());
+		_map->getEditManager()->drawRiver(VLC->terrainTypeHandler->getRiverByName(type)->id, &CRandomGenerator::getDefault());
 	
 	for(auto & t : v)
 		_scenes[level]->terrainView.setDirty(t);
@@ -342,14 +342,14 @@ void MapController::commitObstacleFill(int level)
 		return;
 	
 	//split by zones
-	std::map<Terrain, ObstacleProxy> terrainSelected;
+	std::map<TerrainId, ObstacleProxy> terrainSelected;
 	for(auto & t : selection)
 	{
 		auto tl = _map->getTile(t);
 		if(tl.blocked || tl.visitable)
 			continue;
 		
-		terrainSelected[tl.terType].blockedArea.add(t);
+		terrainSelected[tl.terType->id].blockedArea.add(t);
 	}
 	
 	for(auto & sel : terrainSelected)

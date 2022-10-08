@@ -29,7 +29,7 @@ public:
 	void sceneForceUpdate();
 	void sceneForceUpdate(int level);
 	
-	void commitTerrainChange(int level, const Terrain & terrain);
+	void commitTerrainChange(int level, const TerrainId & terrain);
 	void commitRoadOrRiverChange(int level, const std::string & type, bool isRoad);
 	void commitObjectErase(const CGObjectInstance* obj);
 	void commitObjectErase(int level);

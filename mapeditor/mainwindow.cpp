@@ -371,7 +371,7 @@ void MainWindow::on_actionSave_triggered()
 	saveMap();
 }
 
-void MainWindow::terrainButtonClicked(Terrain terrain)
+void MainWindow::terrainButtonClicked(TerrainId terrain)
 {
 	controller.commitTerrainChange(mapLevel, terrain);
 }
@@ -484,11 +484,11 @@ void MainWindow::loadObjectsTree()
 	{
 	ui->terrainFilterCombo->addItem("");
 	//adding terrains
-	for(auto & terrain : Terrain::Manager::terrains())
+	for(auto & terrain : VLC->terrainTypeHandler->terrains())
 	{
-		QPushButton *b = new QPushButton(QString::fromStdString(terrain));
+		QPushButton *b = new QPushButton(QString::fromStdString(terrain.name));
 		ui->terrainLayout->addWidget(b);
-		connect(b, &QPushButton::clicked, this, [this, terrain]{ terrainButtonClicked(terrain); });
+		connect(b, &QPushButton::clicked, this, [this, terrain]{ terrainButtonClicked(terrain.id); });
 
 		//filter
 		ui->terrainFilterCombo->addItem(QString::fromStdString(terrain));
@@ -496,20 +496,20 @@ void MainWindow::loadObjectsTree()
 	//add spacer to keep terrain button on the top
 	ui->terrainLayout->addItem(new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Expanding));
 	//adding roads
-	for(auto & road : ROAD_NAMES)
+	for(auto & road : VLC->terrainTypeHandler->roads())
 	{
-		QPushButton *b = new QPushButton(QString::fromStdString(road));
+		QPushButton *b = new QPushButton(QString::fromStdString(road.fileName));
 		ui->roadLayout->addWidget(b);
-		connect(b, &QPushButton::clicked, this, [this, road]{ roadOrRiverButtonClicked(road, true); });
+		connect(b, &QPushButton::clicked, this, [this, road]{ roadOrRiverButtonClicked(road.code, true); });
 	}
 	//add spacer to keep terrain button on the top
 	ui->roadLayout->addItem(new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Expanding));
 	//adding rivers
-	for(auto & river : RIVER_NAMES)
+	for(auto & river : VLC->terrainTypeHandler->rivers())
 	{
-		QPushButton *b = new QPushButton(QString::fromStdString(river));
+		QPushButton *b = new QPushButton(QString::fromStdString(river.fileName));
 		ui->riverLayout->addWidget(b);
-		connect(b, &QPushButton::clicked, this, [this, river]{ roadOrRiverButtonClicked(river, false); });
+		connect(b, &QPushButton::clicked, this, [this, river]{ roadOrRiverButtonClicked(river.code, false); });
 	}
 	//add spacer to keep terrain button on the top
 	ui->riverLayout->addItem(new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Expanding));
@@ -875,7 +875,7 @@ void MainWindow::on_terrainFilterCombo_currentTextChanged(const QString &arg1)
 	if(!objectBrowser)
 		return;
 
-	objectBrowser->terrain = arg1.isEmpty() ? Terrain::ANY : Terrain(arg1.toStdString());
+	objectBrowser->terrain = arg1.isEmpty() ? Terrain::ANY_TERRAIN : VLC->terrainTypeHandler->getInfoByName(arg1.toStdString())->id;
 	objectBrowser->invalidate();
 	objectBrowser->sort(0);
 }
@@ -1062,12 +1062,12 @@ void MainWindow::on_actionUpdate_appearance_triggered()
 			continue;
 		}
 		
-		auto terrain = controller.map()->getTile(obj->visitablePos()).terType;
+		auto * terrain = controller.map()->getTile(obj->visitablePos()).terType;
 		
 		if(handler->isStaticObject())
 		{
 			staticObjects.insert(obj);
-			if(obj->appearance->canBePlacedAt(terrain))
+			if(obj->appearance->canBePlacedAt(terrain->id))
 			{
 				controller.scene(mapLevel)->selectionObjectsView.deselectObject(obj);
 				continue;
@@ -1078,13 +1078,13 @@ void MainWindow::on_actionUpdate_appearance_triggered()
 		}
 		else
 		{
-			auto app = handler->getOverride(terrain, obj);
+			auto app = handler->getOverride(terrain->id, obj);
 			if(!app)
 			{
-				if(obj->appearance->canBePlacedAt(terrain))
+				if(obj->appearance->canBePlacedAt(terrain->id))
 					continue;
 				
-				auto templates = handler->getTemplates(terrain);
+				auto templates = handler->getTemplates(terrain->id);
 				if(templates.empty())
 				{
 					++errors;

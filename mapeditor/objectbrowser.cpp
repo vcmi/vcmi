@@ -2,7 +2,7 @@
 #include "../lib/mapObjects/CObjectClassesHandler.h"
 
 ObjectBrowser::ObjectBrowser(QObject *parent)
-	: QSortFilterProxyModel{parent}, terrain(Terrain::ANY)
+	: QSortFilterProxyModel{parent}, terrain(Terrain::ANY_TERRAIN)
 {
 }
 
@@ -22,7 +22,7 @@ bool ObjectBrowser::filterAcceptsRow(int source_row, const QModelIndex & source_
 	if(!filterAcceptsRowText(source_row, source_parent))
 		return false;
 
-	if(terrain == Terrain::ANY)
+	if(terrain == Terrain::ANY_TERRAIN)
 		return result;
 
 	auto data = item->data().toJsonObject();
