@@ -38,9 +38,6 @@ struct IdTag
 
 namespace GameConstants
 {
-	DLL_LINKAGE extern const int VCMI_VERSION_MAJOR;
-	DLL_LINKAGE extern const int VCMI_VERSION_MINOR;
-	DLL_LINKAGE extern const int VCMI_VERSION_PATCH;
 	DLL_LINKAGE extern const std::string VCMI_VERSION;
 
 	const int PUZZLE_MAP_PIECES = 48;

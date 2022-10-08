@@ -538,7 +538,7 @@ JsonNode addMeta(JsonNode config, std::string meta)
 
 CModInfo::Version CModInfo::Version::GameVersion()
 {
-	return Version(GameConstants::VCMI_VERSION_MAJOR, GameConstants::VCMI_VERSION_MINOR, GameConstants::VCMI_VERSION_PATCH);
+	return Version(VCMI_VERSION_MAJOR, VCMI_VERSION_MINOR, VCMI_VERSION_PATCH);
 }
 
 CModInfo::Version CModInfo::Version::fromString(std::string from)
