@@ -30,7 +30,7 @@ public:
 	void sceneForceUpdate(int level);
 	
 	void commitTerrainChange(int level, const TerrainId & terrain);
-	void commitRoadOrRiverChange(int level, const std::string & type, bool isRoad);
+	void commitRoadOrRiverChange(int level, ui8 type, bool isRoad);
 	void commitObjectErase(const CGObjectInstance* obj);
 	void commitObjectErase(int level);
 	void commitObstacleFill(int level);

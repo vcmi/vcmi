@@ -257,7 +257,7 @@ void MapController::commitTerrainChange(int level, const TerrainId & terrain)
 	main->mapChanged();
 }
 
-void MapController::commitRoadOrRiverChange(int level, const std::string & type, bool isRoad)
+void MapController::commitRoadOrRiverChange(int level, ui8 type, bool isRoad)
 {
 	std::vector<int3> v(_scenes[level]->selectionTerrainView.selection().begin(),
 						_scenes[level]->selectionTerrainView.selection().end());
@@ -269,9 +269,9 @@ void MapController::commitRoadOrRiverChange(int level, const std::string & type,
 	
 	_map->getEditManager()->getTerrainSelection().setSelection(v);
 	if(isRoad)
-		_map->getEditManager()->drawRoad(VLC->terrainTypeHandler->getRoadByName(type)->id, &CRandomGenerator::getDefault());
+		_map->getEditManager()->drawRoad(RoadId(type), &CRandomGenerator::getDefault());
 	else
-		_map->getEditManager()->drawRiver(VLC->terrainTypeHandler->getRiverByName(type)->id, &CRandomGenerator::getDefault());
+		_map->getEditManager()->drawRiver(RiverId(type), &CRandomGenerator::getDefault());
 	
 	for(auto & t : v)
 		_scenes[level]->terrainView.setDirty(t);

@@ -106,7 +106,7 @@ void MapHandler::drawRoad(QPainter & painter, int x, int y, int z)
 	auto * tinfoUpper = map->isInTheMap(int3(x, y - 1, z)) ? &map->getTile(int3(x, y - 1, z)) : nullptr;
 	
 	//TODO: use ui8 instead of string key
-	auto roadName = tinfo.terType->name;
+	auto roadName = tinfo.roadType->fileName;
 	
 	if (tinfoUpper && tinfoUpper->roadType->id != Road::NO_ROAD)
 	{
@@ -139,7 +139,7 @@ void MapHandler::drawRiver(QPainter & painter, int x, int y, int z)
 		return;
 	
 	//TODO: use ui8 instead of string key
-	auto riverName = tinfo.terType->name;
+	auto riverName = tinfo.riverType->fileName;
 
 	if(riverImages.at(riverName).size() <= tinfo.riverDir)
 		return;

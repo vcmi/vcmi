@@ -376,7 +376,7 @@ void MainWindow::terrainButtonClicked(TerrainId terrain)
 	controller.commitTerrainChange(mapLevel, terrain);
 }
 
-void MainWindow::roadOrRiverButtonClicked(std::string type, bool isRoad)
+void MainWindow::roadOrRiverButtonClicked(ui8 type, bool isRoad)
 {
 	controller.commitRoadOrRiverChange(mapLevel, type, isRoad);
 }
@@ -500,7 +500,7 @@ void MainWindow::loadObjectsTree()
 	{
 		QPushButton *b = new QPushButton(QString::fromStdString(road.fileName));
 		ui->roadLayout->addWidget(b);
-		connect(b, &QPushButton::clicked, this, [this, road]{ roadOrRiverButtonClicked(road.code, true); });
+		connect(b, &QPushButton::clicked, this, [this, road]{ roadOrRiverButtonClicked(road.id, true); });
 	}
 	//add spacer to keep terrain button on the top
 	ui->roadLayout->addItem(new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Expanding));
@@ -509,7 +509,7 @@ void MainWindow::loadObjectsTree()
 	{
 		QPushButton *b = new QPushButton(QString::fromStdString(river.fileName));
 		ui->riverLayout->addWidget(b);
-		connect(b, &QPushButton::clicked, this, [this, river]{ roadOrRiverButtonClicked(river.code, false); });
+		connect(b, &QPushButton::clicked, this, [this, river]{ roadOrRiverButtonClicked(river.id, false); });
 	}
 	//add spacer to keep terrain button on the top
 	ui->riverLayout->addItem(new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Expanding));
