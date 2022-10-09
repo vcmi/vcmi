@@ -490,6 +490,7 @@ bool ObjectManager::addGuard(rmg::Object & object, si32 strength, bool zoneGuard
 	
 	auto & instance = object.addInstance(*guard);
 	instance.setPosition(guardPos - object.getPosition());
+	instance.setAnyTemplate(); //terrain is irrelevant for monsters, but monsters need some template now
 		
 	return true;
 }

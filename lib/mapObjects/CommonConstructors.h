@@ -33,18 +33,10 @@ protected:
 		auto obj = new ObjectType();
 		preInitObject(obj);
 
+		//Set custom template or leave null
 		if (tmpl)
 		{
 			obj->appearance = tmpl;
-		}
-		else
-		{
-			auto templates = getTemplates();
-			if (templates.empty())
-			{
-				throw std::runtime_error("No handler for created object");
-			}
-			obj->appearance = templates.front(); //just any template for now, will be initialized later
 		}
 
 		return obj;
