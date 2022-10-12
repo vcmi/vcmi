@@ -155,11 +155,11 @@ void MapView::mouseMoveEvent(QMouseEvent *mouseEvent)
 			{
 				sc->selectionObjectsView.shift = QPoint(tile.x, tile.y);
 				sc->selectionObjectsView.selectObject(sc->selectionObjectsView.newObject);
-				sc->selectionObjectsView.selectionMode = 2;
+				sc->selectionObjectsView.selectionMode = SelectionObjectsLayer::MOVEMENT;
 			}
 			else if(mouseEvent->buttons() & Qt::LeftButton)
 			{
-				if(sc->selectionObjectsView.selectionMode == 1)
+				if(sc->selectionObjectsView.selectionMode == SelectionObjectsLayer::SELECTION)
 				{
 					sc->selectionObjectsView.clear();
 					sc->selectionObjectsView.selectObjects(tileStart.x, tileStart.y, tile.x, tile.y);
@@ -269,23 +269,23 @@ void MapView::mousePressEvent(QMouseEvent *event)
 						if(qApp->keyboardModifiers() & Qt::ControlModifier)
 						{
 							sc->selectionObjectsView.deselectObject(obj);
-							sc->selectionObjectsView.selectionMode = 1;
+							sc->selectionObjectsView.selectionMode = SelectionObjectsLayer::SELECTION;
 						}
 						else
-							sc->selectionObjectsView.selectionMode = 2;
+							sc->selectionObjectsView.selectionMode = SelectionObjectsLayer::MOVEMENT;
 					}
 					else
 					{
 						if(!(qApp->keyboardModifiers() & Qt::ControlModifier))
 							sc->selectionObjectsView.clear();
-						sc->selectionObjectsView.selectionMode = 2;
+						sc->selectionObjectsView.selectionMode = SelectionObjectsLayer::MOVEMENT;
 						sc->selectionObjectsView.selectObject(obj);
 					}
 				}
 				else
 				{
 					sc->selectionObjectsView.clear();
-					sc->selectionObjectsView.selectionMode = 1;
+					sc->selectionObjectsView.selectionMode = SelectionObjectsLayer::SELECTION;
 				}
 			}
 			sc->selectionObjectsView.shift = QPoint(0, 0);
@@ -312,7 +312,7 @@ void MapView::mouseReleaseEvent(QMouseEvent *event)
 			break;
 		//switch position
 		bool tab = false;
-		if(sc->selectionObjectsView.selectionMode == 2)
+		if(sc->selectionObjectsView.selectionMode == SelectionObjectsLayer::MOVEMENT)
 		{
 			if(sc->selectionObjectsView.newObject)
 			{
@@ -330,7 +330,7 @@ void MapView::mouseReleaseEvent(QMouseEvent *event)
 		}
 		else
 		{
-			sc->selectionObjectsView.selectionMode = 0;
+			sc->selectionObjectsView.selectionMode = SelectionObjectsLayer::NOTHING;
 			sc->selectionObjectsView.shift = QPoint(0, 0);
 			sc->selectionObjectsView.draw();
 			tab = true;

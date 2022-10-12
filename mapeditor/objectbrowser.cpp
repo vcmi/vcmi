@@ -42,8 +42,7 @@ bool ObjectBrowser::filterAcceptsRow(int source_row, const QModelIndex & source_
 
 	result = result & templ->canBePlacedAt(terrain);
 
-	//text filter
-
+	//if we are here, just text filter will be applied
 	return result;
 }
 

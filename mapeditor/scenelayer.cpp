@@ -54,7 +54,7 @@ void GridLayer::update()
 		return;
 	
 	pixmap.reset(new QPixmap(map->width * 32, map->height * 32));
-	pixmap->fill(QColor(0, 0, 0, 0));
+	pixmap->fill(QColorConstants::Transparent);
 	QPainter painter(pixmap.get());
 	painter.setPen(QColor(0, 0, 0, 190));
 	
@@ -80,7 +80,7 @@ void PassabilityLayer::update()
 		return;
 	
 	pixmap.reset(new QPixmap(map->width * 32, map->height * 32));
-	pixmap->fill(QColor(0, 0, 0, 0));
+	pixmap->fill(QColorConstants::Transparent);
 	
 	if(scene->level == 0 || map->twoLevel)
 	{
@@ -116,7 +116,7 @@ void SelectionTerrainLayer::update()
 	onSelection();
 	
 	pixmap.reset(new QPixmap(map->width * 32, map->height * 32));
-	pixmap->fill(QColor(0, 0, 0, 0));
+	pixmap->fill(QColorConstants::Transparent);
 	
 	redraw();
 }
@@ -273,7 +273,7 @@ void ObjectsLayer::update()
 		return;
 	
 	pixmap.reset(new QPixmap(map->width * 32, map->height * 32));
-	pixmap->fill(QColor(0, 0, 0, 0));
+	pixmap->fill(QColorConstants::Transparent);
 	draw(false);
 }
 
@@ -285,7 +285,7 @@ void ObjectsLayer::draw(bool onlyDirty)
 	if(!map)
 		return;
 	
-	pixmap->fill(QColor(0, 0, 0, 0));
+	pixmap->fill(QColorConstants::Transparent);
 	QPainter painter(pixmap.get());
 	std::set<const CGObjectInstance *> drawen;
 	
@@ -340,8 +340,7 @@ void SelectionObjectsLayer::update()
 	selectedObjects.clear();
 	onSelection();
 	shift = QPoint();
-	if(newObject)
-		delete newObject;
+	delete newObject;
 	newObject = nullptr;
 	
 	pixmap.reset(new QPixmap(map->width * 32, map->height * 32));
@@ -355,11 +354,11 @@ void SelectionObjectsLayer::draw()
 	if(!pixmap)
 		return;
 	
-	pixmap->fill(QColor(0, 0, 0, 0));
+	pixmap->fill(QColorConstants::Transparent);
 	
 	QPainter painter(pixmap.get());
 	painter.setCompositionMode(QPainter::CompositionMode_Source);
-	painter.setPen(QColor(255, 255, 255));
+	painter.setPen(QColorConstants::White);
 	
 	for(auto * obj : selectedObjects)
 	{
@@ -379,7 +378,7 @@ void SelectionObjectsLayer::draw()
 		}
 		
 		//show translation
-		if(selectionMode == 2 && (shift.x() || shift.y()))
+		if(selectionMode == SelectionMode::MOVEMENT && (shift.x() || shift.y()))
 		{
 			painter.setOpacity(0.5);
 			auto newPos = QPoint(obj->getPosition().x, obj->getPosition().y) + shift;
@@ -530,13 +529,8 @@ void MinimapViewLayer::update()
 		return;
 	
 	pixmap.reset(new QPixmap(map->width, map->height));
-	pixmap->fill(QColor(0, 0, 0, 0));
 	
-	QPainter painter(pixmap.get());
-	painter.setPen(QColor(255, 255, 255));
-	painter.drawRect(x, y, w, h);
-	
-	redraw();
+	draw();
 }
 
 void MinimapViewLayer::draw()
@@ -544,11 +538,11 @@ void MinimapViewLayer::draw()
 	if(!map)
 		return;
 	
-	pixmap->fill(QColor(0, 0, 0, 0));
+	pixmap->fill(QColorConstants::Transparent);
 	
 	//maybe not optimal but ok
 	QPainter painter(pixmap.get());
-	painter.setPen(QColor(255, 255, 255));
+	painter.setPen(QColorConstants::White);
 	painter.drawRect(x, y, w, h);
 	
 	redraw();

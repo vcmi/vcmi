@@ -13,6 +13,7 @@ PlayerSettings::PlayerSettings(MapController & ctrl, QWidget *parent) :
 	show();
 
 	int players = 0;
+	const int minAllowedPlayers = 2;
 	for(auto & p : controller.map()->players)
 	{
 		if(p.canAnyonePlay())
@@ -23,10 +24,10 @@ PlayerSettings::PlayerSettings(MapController & ctrl, QWidget *parent) :
 		}
 	}
 
-	if(players < 2)
+	if(players < minAllowedPlayers)
 		ui->playersCount->setCurrentText("");
 	else
-		ui->playersCount->setCurrentIndex(players - 2);
+		ui->playersCount->setCurrentIndex(players - minAllowedPlayers);
 	
 	setAttribute(Qt::WA_DeleteOnClose);
 }
@@ -38,9 +39,10 @@ PlayerSettings::~PlayerSettings()
 
 void PlayerSettings::on_playersCount_currentIndexChanged(int index)
 {
-	assert(index + 2 <= controller.map()->players.size());
+	const auto selectedPlayerCount = index + 2;
+	assert(selectedPlayerCount <= controller.map()->players.size());
 
-	for(int i = 0; i < index + 2; ++i)
+	for(int i = 0; i < selectedPlayerCount; ++i)
 	{
 		if(i < paramWidgets.size())
 			continue;
@@ -52,7 +54,7 @@ void PlayerSettings::on_playersCount_currentIndexChanged(int index)
 	}
 
 	assert(!paramWidgets.empty());
-	for(int i = paramWidgets.size() - 1; i >= index + 2; --i)
+	for(int i = paramWidgets.size() - 1; i >= selectedPlayerCount; --i)
 	{
 		auto & p = controller.map()->players[i];
 		p.canComputerPlay = false;

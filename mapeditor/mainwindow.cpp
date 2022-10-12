@@ -140,12 +140,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	graphics = new Graphics(); // should be before curh->init()
 	graphics->load();//must be after Content loading but should be in main thread
 	
-	
-	if(!testFile("DATA/new-menu/Background.png", "Cannot find file"))
-	{
-		QApplication::quit();
-	}
-	
 	ui->mapView->setScene(controller.scene(0));
 	ui->mapView->setController(&controller);
 	ui->mapView->setOptimizationFlags(QGraphicsView::DontSavePainterState | QGraphicsView::DontAdjustForAntialiasing);
@@ -173,7 +167,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	show();
 	
 	//Load map from command line
-	if(qApp->arguments().size() == 2)
+	if(qApp->arguments().size() >= 2)
 		openMap(qApp->arguments().at(1));
 }
 
@@ -973,7 +967,7 @@ void MainWindow::switchDefaultPlayer(const PlayerColor & player)
 	ui->actionNeutral->blockSignals(true);
 	ui->actionNeutral->setChecked(PlayerColor::NEUTRAL == player);
 	ui->actionNeutral->blockSignals(false);
-	for(int i = 0; i < 8; ++i)
+	for(int i = 0; i < PlayerColor::PLAYER_LIMIT.getNum(); ++i)
 	{
 		getActionPlayer(PlayerColor(i))->blockSignals(true);
 		getActionPlayer(PlayerColor(i))->setChecked(PlayerColor(i) == player);

@@ -19,10 +19,11 @@
 
 MapController::MapController(MainWindow * m): main(m)
 {
-	_scenes[0].reset(new MapScene(0));
-	_scenes[1].reset(new MapScene(1));
-	_miniscenes[0].reset(new MinimapScene(0));
-	_miniscenes[1].reset(new MinimapScene(1));
+	for(int i : {0, 1})
+	{
+		_scenes[i].reset(new MapScene(i));
+		_miniscenes[i].reset(new MinimapScene(i));
+	}
 	connectScenes();
 }
 
@@ -72,23 +73,19 @@ void MapController::repairMap()
 	//there might be extra skills, arts and spells not imported from map
 	if(VLC->skillh->getDefaultAllowed().size() > map()->allowedAbilities.size())
 	{
-		for(int i = map()->allowedAbilities.size(); i < VLC->skillh->getDefaultAllowed().size(); ++i)
-			map()->allowedAbilities.push_back(false);
+		map()->allowedAbilities.resize(VLC->skillh->getDefaultAllowed().size());
 	}
 	if(VLC->arth->getDefaultAllowed().size() > map()->allowedArtifact.size())
 	{
-		for(int i = map()->allowedArtifact.size(); i < VLC->arth->getDefaultAllowed().size(); ++i)
-			map()->allowedArtifact.push_back(false);
+		map()->allowedArtifact.resize(VLC->arth->getDefaultAllowed().size());
 	}
 	if(VLC->spellh->getDefaultAllowed().size() > map()->allowedSpell.size())
 	{
-		for(int i = map()->allowedSpell.size(); i < VLC->spellh->getDefaultAllowed().size(); ++i)
-			map()->allowedSpell.push_back(false);
+		map()->allowedSpell.resize(VLC->spellh->getDefaultAllowed().size());
 	}
 	if(VLC->heroh->getDefaultAllowed().size() > map()->allowedHeroes.size())
 	{
-		for(int i = map()->allowedHeroes.size(); i < VLC->heroh->getDefaultAllowed().size(); ++i)
-			map()->allowedHeroes.push_back(false);
+		map()->allowedHeroes.resize(VLC->heroh->getDefaultAllowed().size());
 	}
 	
 	//fix owners for objects
@@ -191,10 +188,11 @@ void MapController::setMap(std::unique_ptr<CMap> cmap)
 	
 	repairMap();
 	
-	_scenes[0].reset(new MapScene(0));
-	_scenes[1].reset(new MapScene(1));
-	_miniscenes[0].reset(new MinimapScene(0));
-	_miniscenes[1].reset(new MinimapScene(1));
+	for(int i : {0, 1})
+	{
+		_scenes[i].reset(new MapScene(i));
+		_miniscenes[i].reset(new MinimapScene(i));
+	}
 	resetMapHandler();
 	sceneForceUpdate();
 
@@ -230,10 +228,11 @@ void MapController::resetMapHandler()
 	if(!_mapHandler)
 		_mapHandler.reset(new MapHandler());
 	_mapHandler->reset(map());
-	_scenes[0]->initialize(*this);
-	_scenes[1]->initialize(*this);
-	_miniscenes[0]->initialize(*this);
-	_miniscenes[1]->initialize(*this);
+	for(int i : {0, 1})
+	{
+		_scenes[i]->initialize(*this);
+		_miniscenes[i]->initialize(*this);
+	}
 }
 
 void MapController::commitTerrainChange(int level, const TerrainId & terrain)
@@ -321,7 +320,7 @@ bool MapController::discardObject(int level) const
 		delete _scenes[level]->selectionObjectsView.newObject;
 		_scenes[level]->selectionObjectsView.newObject = nullptr;
 		_scenes[level]->selectionObjectsView.shift = QPoint(0, 0);
-		_scenes[level]->selectionObjectsView.selectionMode = 0;
+		_scenes[level]->selectionObjectsView.selectionMode = SelectionObjectsLayer::NOTHING;
 		_scenes[level]->selectionObjectsView.draw();
 		return true;
 	}
@@ -331,7 +330,7 @@ bool MapController::discardObject(int level) const
 void MapController::createObject(int level, CGObjectInstance * obj) const
 {
 	_scenes[level]->selectionObjectsView.newObject = obj;
-	_scenes[level]->selectionObjectsView.selectionMode = 2;
+	_scenes[level]->selectionObjectsView.selectionMode = SelectionObjectsLayer::MOVEMENT;
 	_scenes[level]->selectionObjectsView.draw();
 }
 
@@ -410,7 +409,7 @@ void MapController::commitObjectShift(int level)
 	
 	_scenes[level]->selectionObjectsView.newObject = nullptr;
 	_scenes[level]->selectionObjectsView.shift = QPoint(0, 0);
-	_scenes[level]->selectionObjectsView.selectionMode = 0;
+	_scenes[level]->selectionObjectsView.selectionMode = SelectionObjectsLayer::NOTHING;
 	
 	if(makeShift)
 	{
@@ -444,7 +443,7 @@ void MapController::commitObjectCreate(int level)
 	
 	_scenes[level]->selectionObjectsView.newObject = nullptr;
 	_scenes[level]->selectionObjectsView.shift = QPoint(0, 0);
-	_scenes[level]->selectionObjectsView.selectionMode = 0;
+	_scenes[level]->selectionObjectsView.selectionMode = SelectionObjectsLayer::NOTHING;
 	_scenes[level]->objectsView.draw();
 	_scenes[level]->selectionObjectsView.draw();
 	_scenes[level]->passabilityView.update();

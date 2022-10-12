@@ -15,20 +15,6 @@
 namespace Ui {
 class RewardsWidget;
 }
- 
-/*
- ui32 gainedExp;
- si32 manaDiff; //amount of gained / lost mana
- si32 moraleDiff; //morale modifier
- si32 luckDiff; //luck modifier
- TResources resources;//gained / lost resources
- std::vector<si32> primskills;//gained / lost prim skills
- std::vector<SecondarySkill> abilities; //gained abilities
- std::vector<si32> abilityLevels; //levels of gained abilities
- std::vector<ArtifactID> artifacts; //gained artifacts
- std::vector<SpellID> spells; //gained spells
- CCreatureSet creatures; //gained creatures
- */
 
 const std::array<std::string, 10> rewardTypes{"Experience", "Mana", "Morale", "Luck", "Resource", "Primary skill", "Secondary skill", "Artifact", "Spell", "Creature"};
 
@@ -37,6 +23,11 @@ class RewardsWidget : public QDialog
 	Q_OBJECT
 
 public:
+	enum RewardType
+	{
+		EXPERIENCE = 0, MANA, MORALE, LUCK, RESOURCE, PRIMARY_SKILL, SECONDARY_SKILL, ARTIFACT, SPELL, CREATURE
+	};
+	
 	explicit RewardsWidget(const CMap &, CGPandoraBox &, QWidget *parent = nullptr);
 	~RewardsWidget();
 	
@@ -57,8 +48,8 @@ private slots:
 	void on_rewardsTable_itemSelectionChanged();
 
 private:
-	void addReward(int typeId, int listId, int amount);
-	QList<QString> getListForType(int typeId);
+	void addReward(RewardType typeId, int listId, int amount);
+	QList<QString> getListForType(RewardType typeId);
 	
 	Ui::RewardsWidget *ui;
 	CGPandoraBox * pandora;

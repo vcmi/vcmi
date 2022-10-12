@@ -117,6 +117,11 @@ class SelectionObjectsLayer: public AbstractLayer
 {
 	Q_OBJECT
 public:
+	enum SelectionMode
+	{
+		NOTHING, SELECTION, MOVEMENT
+	};
+	
 	SelectionObjectsLayer(MapSceneBase* s);
 	
 	void update() override;
@@ -135,7 +140,7 @@ public:
 	QPoint shift;
 	CGObjectInstance * newObject;
 	//FIXME: magic number
-	int selectionMode = 0; //0 - nothing, 1 - selection, 2 - movement
+	SelectionMode selectionMode = SelectionMode::NOTHING;
 
 signals:
 	void selectionMade(bool anythingSlected);

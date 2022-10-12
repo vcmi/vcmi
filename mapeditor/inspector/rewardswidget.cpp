@@ -33,14 +33,14 @@ RewardsWidget::~RewardsWidget()
 	delete ui;
 }
 
-QList<QString> RewardsWidget::getListForType(int typeId)
+QList<QString> RewardsWidget::getListForType(RewardType typeId)
 {
 	assert(typeId < rewardTypes.size());
 	QList<QString> result;
 	
 	switch (typeId) {
-		case 4: //resources
-				//to convert string to index WOOD = 0, MERCURY, ORE, SULFUR, CRYSTAL, GEMS, GOLD, MITHRIL,
+		case RewardType::RESOURCE:
+			//to convert string to index WOOD = 0, MERCURY, ORE, SULFUR, CRYSTAL, GEMS, GOLD, MITHRIL,
 			result.append("Wood");
 			result.append("Mercury");
 			result.append("Ore");
@@ -50,13 +50,12 @@ QList<QString> RewardsWidget::getListForType(int typeId)
 			result.append("Gold");
 			break;
 			
-		case 5:
+		case RewardType::PRIMARY_SKILL:
 			for(auto s : PrimarySkill::names)
 				result.append(QString::fromStdString(s));
 			break;
 			
-		case 6:
-			//abilities
+		case RewardType::SECONDARY_SKILL:
 			for(int i = 0; i < map.allowedAbilities.size(); ++i)
 			{
 				if(map.allowedAbilities[i])
@@ -64,8 +63,7 @@ QList<QString> RewardsWidget::getListForType(int typeId)
 			}
 			break;
 			
-		case 7:
-			//arts
+		case RewardType::ARTIFACT:
 			for(int i = 0; i < map.allowedArtifact.size(); ++i)
 			{
 				if(map.allowedArtifact[i])
@@ -73,8 +71,7 @@ QList<QString> RewardsWidget::getListForType(int typeId)
 			}
 			break;
 			
-		case 8:
-			//spells
+		case RewardType::SPELL:
 			for(int i = 0; i < map.allowedSpell.size(); ++i)
 			{
 				if(map.allowedSpell[i])
@@ -82,8 +79,7 @@ QList<QString> RewardsWidget::getListForType(int typeId)
 			}
 			break;
 			
-		case 9:
-			//creatures
+		case RewardType::CREATURE:
 			for(auto creature : VLC->creh->objects)
 			{
 				result.append(QString::fromStdString(creature->getName()));
@@ -99,7 +95,7 @@ void RewardsWidget::on_rewardType_activated(int index)
 	ui->rewardList->setEnabled(true);
 	assert(index < rewardTypes.size());
 	
-	auto l = getListForType(index);
+	auto l = getListForType(RewardType(index));
 	if(l.empty())
 		ui->rewardList->setEnabled(false);
 	
@@ -112,40 +108,40 @@ void RewardsWidget::obtainData()
 	if(pandora)
 	{
 		if(pandora->gainedExp > 0)
-			addReward(0, 0, pandora->gainedExp);
+			addReward(RewardType::EXPERIENCE, 0, pandora->gainedExp);
 		if(pandora->manaDiff)
-			addReward(1, 0, pandora->manaDiff);
+			addReward(RewardType::MANA, 0, pandora->manaDiff);
 		if(pandora->moraleDiff)
-			addReward(2, 0, pandora->moraleDiff);
+			addReward(RewardType::MORALE, 0, pandora->moraleDiff);
 		if(pandora->luckDiff)
-			addReward(3, 0, pandora->luckDiff);
+			addReward(RewardType::LUCK, 0, pandora->luckDiff);
 		if(pandora->resources.nonZero())
 		{
 			for(Res::ResourceSet::nziterator resiter(pandora->resources); resiter.valid(); ++resiter)
-				addReward(4, resiter->resType, resiter->resVal);
+				addReward(RewardType::RESOURCE, resiter->resType, resiter->resVal);
 		}
 		for(int idx = 0; idx < pandora->primskills.size(); ++idx)
 		{
 			if(pandora->primskills[idx])
-				addReward(5, idx, pandora->primskills[idx]);
+				addReward(RewardType::PRIMARY_SKILL, idx, pandora->primskills[idx]);
 		}
 		assert(pandora->abilities.size() == pandora->abilityLevels.size());
 		for(int idx = 0; idx < pandora->abilities.size(); ++idx)
 		{
-			addReward(6, pandora->abilities[idx].getNum(), pandora->abilityLevels[idx]);
+			addReward(RewardType::SECONDARY_SKILL, pandora->abilities[idx].getNum(), pandora->abilityLevels[idx]);
 		}
 		for(auto art : pandora->artifacts)
 		{
-			addReward(7, art.getNum(), 1);
+			addReward(RewardType::ARTIFACT, art.getNum(), 1);
 		}
 		for(auto spell : pandora->spells)
 		{
-			addReward(8, spell.getNum(), 1);
+			addReward(RewardType::SPELL, spell.getNum(), 1);
 		}
 		for(int i = 0; i < pandora->creatures.Slots().size(); ++i)
 		{
 			if(auto c = pandora->creatures.getCreature(SlotID(i)))
-				addReward(9, c->getId(), pandora->creatures.getStackCount(SlotID(i)));
+				addReward(RewardType::CREATURE, c->getId(), pandora->creatures.getStackCount(SlotID(i)));
 		}
 	}
 }
@@ -171,44 +167,44 @@ bool RewardsWidget::commitChanges()
 			int amount = ui->rewardsTable->item(row, 2)->data(Qt::UserRole).toInt();
 			switch(typeId)
 			{
-				case 0:
+				case RewardType::EXPERIENCE:
 					pandora->gainedExp = amount;
 					break;
 					
-				case 1:
+				case RewardType::MANA:
 					pandora->manaDiff = amount;
 					break;
 					
-				case 2:
+				case RewardType::MORALE:
 					pandora->moraleDiff = amount;
 					break;
 					
-				case 3:
+				case RewardType::LUCK:
 					pandora->luckDiff = amount;
 					break;
 					
-				case 4:
+				case RewardType::RESOURCE:
 					pandora->resources.at(listId) = amount;
 					break;
 					
-				case 5:
+				case RewardType::PRIMARY_SKILL:
 					pandora->primskills[listId] = amount;
 					break;
 					
-				case 6:
+				case RewardType::SECONDARY_SKILL:
 					pandora->abilities.push_back(SecondarySkill(listId));
 					pandora->abilityLevels.push_back(amount);
 					break;
 					
-				case 7:
+				case RewardType::ARTIFACT:
 					pandora->artifacts.push_back(ArtifactID(listId));
 					break;
 					
-				case 8:
+				case RewardType::SPELL:
 					pandora->spells.push_back(SpellID(listId));
 					break;
 					
-				case 9:
+				case RewardType::CREATURE:
 					auto slot = pandora->creatures.getFreeSlot();
 					if(slot != SlotID() && amount > 0)
 						pandora->creatures.addToSlot(slot, CreatureID(listId), amount);
@@ -224,7 +220,7 @@ void RewardsWidget::on_rewardList_activated(int index)
 	ui->rewardAmount->setText(QStringLiteral("1"));
 }
 
-void RewardsWidget::addReward(int typeId, int listId, int amount)
+void RewardsWidget::addReward(RewardsWidget::RewardType typeId, int listId, int amount)
 {
 	ui->rewardsTable->setRowCount(++rewards);
 	
@@ -266,7 +262,7 @@ void RewardsWidget::addReward(int typeId, int listId, int amount)
 
 void RewardsWidget::on_buttonAdd_clicked()
 {
-	addReward(ui->rewardType->currentIndex(), ui->rewardList->currentIndex(), ui->rewardAmount->text().toInt());
+	addReward(RewardType(ui->rewardType->currentIndex()), ui->rewardList->currentIndex(), ui->rewardAmount->text().toInt());
 }
 
 
