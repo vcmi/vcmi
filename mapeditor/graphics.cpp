@@ -1,5 +1,5 @@
 /*
- * Graphics.cpp, part of VCMI engine
+ * graphics.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -7,6 +7,8 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+
+//code is copied from vcmiclient/Graphics.cpp with minimal changes
 #include "StdInc.h"
 #include "graphics.h"
 

@@ -7,6 +7,9 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+
+//code is copied from vcmiclient/CAnimation.cpp with minimal changes
+
 #include "StdInc.h"
 #include "Animation.h"
 

@@ -8,6 +8,7 @@
  *
  */
 #pragma once
+//code is copied from vcmiclient/CBitmapHandler.h with minimal changes
 
 #define read_le_u16(p) (* reinterpret_cast<const ui16 *>(p))
 #define read_le_u32(p) (* reinterpret_cast<const ui32 *>(p))

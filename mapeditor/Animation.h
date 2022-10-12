@@ -8,6 +8,7 @@
  *
  */
 #pragma once
+//code is copied from vcmiclient/CAnimation.h with minimal changes
 
 #include "../lib/JsonNode.h"
 #include "../lib/GameConstants.h"

@@ -1,5 +1,5 @@
 /*
- * Graphics.h, part of VCMI engine
+ * graphics.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -8,6 +8,7 @@
  *
  */
 #pragma once
+//code is copied from vcmiclient/Graphics.h with minimal changes
 
 #include "../lib/GameConstants.h"
 #include <QImage>
