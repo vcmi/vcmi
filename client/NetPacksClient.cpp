@@ -347,6 +347,14 @@ void PlayerEndsGame::applyCl(CClient *cl)
 
 void PlayerReinitInterface::applyCl(CClient * cl)
 {
+	auto initInterfaces = [cl]()
+	{
+		cl->initPlayerInterfaces();
+		auto currentPlayer = cl->gameState()->currentPlayer;
+		callAllInterfaces(cl, &IGameEventsReceiver::playerStartsTurn, currentPlayer);
+		callOnlyThatInterface(cl, currentPlayer, &CGameInterface::yourTurn);
+	};
+	
 	for(auto player : players)
 	{
 		auto & plSettings = CSH->si->getIthPlayersSettings(player);
@@ -354,19 +362,13 @@ void PlayerReinitInterface::applyCl(CClient * cl)
 		{
 			plSettings.connectedPlayerIDs.clear();
 			cl->initPlayerEnvironments();
-			cl->initPlayerInterfaces();
-			auto currentPlayer = cl->gameState()->currentPlayer;
-			callAllInterfaces(cl, &IGameEventsReceiver::playerStartsTurn, currentPlayer);
-			callOnlyThatInterface(cl, currentPlayer, &CGameInterface::yourTurn);
+			initInterfaces();
 		}
 		else if(playerConnectionId == CSH->c->connectionID)
 		{
 			plSettings.connectedPlayerIDs.insert(playerConnectionId);
 			cl->playerint.clear();
-			cl->initPlayerInterfaces();
-			auto currentPlayer = cl->gameState()->currentPlayer;
-			callAllInterfaces(cl, &IGameEventsReceiver::playerStartsTurn, currentPlayer);
-			callOnlyThatInterface(cl, currentPlayer, &CGameInterface::yourTurn);
+			initInterfaces();
 		}
 	}
 }
