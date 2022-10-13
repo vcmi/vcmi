@@ -38,12 +38,7 @@ if(APPLE_MACOS)
 	endif()
 
 	# deploy other dylibs with conan
-	install(CODE "
-		execute_process(COMMAND
-			conan imports \"${CMAKE_SOURCE_DIR}\" --install-folder \"${CMAKE_SOURCE_DIR}/conan-generated\" --import-folder \"${bundleContentsDir}\"
-		)
-		file(REMOVE \"${bundleContentsDir}/conan_imports_manifest.txt\")
-	")
+	vcmi_install_conan_deps("${bundleContentsDir}")
 
 	# perform ad-hoc codesigning
 	set(codesignCommand "codesign --verbose=4 --force --options=runtime --timestamp=none --sign -")

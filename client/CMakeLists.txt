@@ -268,6 +268,7 @@ vcmi_set_output_dir(vcmiclient "")
 enable_pch(vcmiclient)
 
 if(APPLE_IOS)
+	vcmi_install_conan_deps("\${CMAKE_INSTALL_PREFIX}")
 	add_custom_command(TARGET vcmiclient POST_BUILD
 		COMMAND ios/set_build_version.sh "$<TARGET_BUNDLE_CONTENT_DIR:vcmiclient>"
 		COMMAND ${CMAKE_COMMAND} --install "${CMAKE_BINARY_DIR}" --component "${CMAKE_INSTALL_DEFAULT_COMPONENT_NAME}" --config "$<CONFIG>" --prefix "$<TARGET_BUNDLE_CONTENT_DIR:vcmiclient>"

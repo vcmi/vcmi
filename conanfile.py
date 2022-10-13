@@ -1,13 +1,14 @@
 from conan import ConanFile
 from conan.tools.apple import is_apple_os
-from conan.tools.cmake import CMakeDeps
+from conan.tools.cmake import CMakeDeps, CMakeToolchain
 from conans import tools
 
 import os
 
+required_conan_version = ">=1.51.3"
+
 class VCMI(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
-    generators = "CMakeToolchain"
     requires = [
         "boost/1.80.0",
         "ffmpeg/4.4.3",
@@ -57,10 +58,8 @@ class VCMI(ConanFile):
     default_options = {
         # shared libs
         "boost/*:shared": True,
-        "libpng/*:shared": True, # SDL_image and Qt depend on it
         "minizip/*:shared": True,
         "onetbb/*:shared": True,
-        "qt/*:shared": True,
 
         # we need only the following Boost parts:
         # date_time filesystem locale program_options system thread
@@ -108,7 +107,6 @@ class VCMI(ConanFile):
 
         "sdl/*:vulkan": False,
 
-        "sdl_image/*:imageio": True,
         "sdl_image/*:lbm": False,
         "sdl_image/*:pnm": False,
         "sdl_image/*:svg": False,
@@ -129,7 +127,6 @@ class VCMI(ConanFile):
         "sdl_mixer/*:wav": False,
 
         "qt/*:config": " ".join(_qtOptions),
-        "qt/*:openssl": False,
         "qt/*:qttools": True,
         "qt/*:with_freetype": False,
         "qt/*:with_libjpeg": False,
@@ -144,6 +141,19 @@ class VCMI(ConanFile):
     }
 
     def configure(self):
+        # SDL_image and Qt depend on it, in iOS both are static
+        self.options["libpng"].shared = self.settings.os != "iOS"
+
+        self.options["qt"].openssl = not is_apple_os(self)
+        self.options["qt"].shared = self.settings.os != "iOS"
+        if self.settings.os == "iOS":
+            self.options["qt"].opengl = "es2"
+
+        self.options["sdl"].sdl2main = self.settings.os != "iOS"
+
+        if is_apple_os(self):
+            self.options["sdl_image"].imageio = True
+
         # workaround: macOS deployment target isn't passed to linker when building Boost
         # TODO: remove when https://github.com/conan-io/conan-center-index/pull/12468 is merged
         if is_apple_os(self):
@@ -159,6 +169,7 @@ class VCMI(ConanFile):
                 self.options["boost"].extra_b2_flags = f"linkflags={deploymentTargetFlag}"
 
     def requirements(self):
+        # TODO: will no longer be needed after merging https://github.com/conan-io/conan-center-index/pull/13399
         self.requires("libpng/1.6.38", override=True) # freetype / Qt
 
         # use Apple system libraries instead of external ones
@@ -170,13 +181,17 @@ class VCMI(ConanFile):
                 "zlib/1.2.12",
             ]
             for lib in systemLibsOverrides:
-                self.requires(f"{lib}@kambala/apple", override=True)
+                self.requires(f"{lib}@vcmi/apple", override=True)
 
-        # TODO: the latest official release of LuaJIT (which is quite old) can't be built for arm Mac
-        if self.settings.os != "Macos" or self.settings.arch != "armv8":
+        # TODO: the latest official release of LuaJIT (which is quite old) can't be built for arm
+        if not str(self.settings.arch).startswith("arm"):
             self.requires("luajit/2.0.5")
 
     def generate(self):
+        tc = CMakeToolchain(self)
+        tc.variables["USING_CONAN"] = True
+        tc.generate()
+
         deps = CMakeDeps(self)
         if os.getenv("USE_CONAN_WITH_ALL_CONFIGS", "0") == "0":
             deps.generate()
