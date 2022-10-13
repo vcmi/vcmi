@@ -154,20 +154,6 @@ class VCMI(ConanFile):
         if is_apple_os(self):
             self.options["sdl_image"].imageio = True
 
-        # workaround: macOS deployment target isn't passed to linker when building Boost
-        # TODO: remove when https://github.com/conan-io/conan-center-index/pull/12468 is merged
-        if is_apple_os(self):
-            osVersion = self.settings.get_safe("os.version")
-            if osVersion:
-                deploymentTargetFlag = tools.apple_deployment_target_flag(
-                    self.settings.os,
-                    osVersion,
-                    self.settings.get_safe("os.sdk"),
-                    self.settings.get_safe("os.subsystem"),
-                    self.settings.get_safe("arch")
-                )
-                self.options["boost"].extra_b2_flags = f"linkflags={deploymentTargetFlag}"
-
     def requirements(self):
         # TODO: will no longer be needed after merging https://github.com/conan-io/conan-center-index/pull/13399
         self.requires("libpng/1.6.38", override=True) # freetype / Qt
