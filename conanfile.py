@@ -11,7 +11,6 @@ class VCMI(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     requires = [
         "boost/1.80.0",
-        "ffmpeg/4.4.3",
         "minizip/1.2.12",
         "onetbb/2021.3.0", # Nullkiller AI
         "qt/5.15.6", # launcher
@@ -20,6 +19,10 @@ class VCMI(ConanFile):
         "sdl_mixer/2.0.4",
         "sdl_ttf/2.0.18",
     ]
+    options = {
+        "with_ffmpeg": [True, False],
+        "with_luajit": [True, False],
+    }
 
     def _disableQtOptions(disableFlag, options):
         return " ".join([f"-{disableFlag}-{tool}" for tool in options])
@@ -56,6 +59,9 @@ class VCMI(ConanFile):
     ]
 
     default_options = {
+        "with_ffmpeg": True,
+        "with_luajit": False,
+
         # shared libs
         "boost/*:shared": True,
         "minizip/*:shared": True,
@@ -158,6 +164,9 @@ class VCMI(ConanFile):
         # TODO: will no longer be needed after merging https://github.com/conan-io/conan-center-index/pull/13399
         self.requires("libpng/1.6.38", override=True) # freetype / Qt
 
+        if self.options.with_ffmpeg:
+            self.requires("ffmpeg/4.4.3")
+
         # use Apple system libraries instead of external ones
         if is_apple_os(self):
             systemLibsOverrides = [
@@ -170,7 +179,7 @@ class VCMI(ConanFile):
                 self.requires(f"{lib}@vcmi/apple", override=True)
 
         # TODO: the latest official release of LuaJIT (which is quite old) can't be built for arm
-        if not str(self.settings.arch).startswith("arm"):
+        if self.options.with_luajit and not str(self.settings.arch).startswith("arm"):
             self.requires("luajit/2.0.5")
 
     def generate(self):
