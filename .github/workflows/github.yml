@@ -95,7 +95,8 @@ jobs:
             test: 0
             pack: 1
             extension: ipa
-            preset: ios-release
+            preset: ios-release-conan
+            conan_profile: ios-arm64
           - platform: mxe
             os: ubuntu-20.04
             mxe: i686-w64-mingw32.shared

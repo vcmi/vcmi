@@ -7,6 +7,14 @@
             "binaryDir": "${sourceDir}/out/build/${presetName}"
         },
         {
+            "name": "build-with-conan",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/conan-generated/conan_toolchain.cmake",
+                "FORCE_BUNDLED_MINIZIP": "OFF"
+            }
+        },
+        {
             "name": "base-release",
             "inherits": "release-binary-dir",
             "hidden": true,
@@ -81,9 +89,11 @@
             "name": "macos-conan-ninja-release",
             "displayName": "Ninja+Conan release",
             "description": "VCMI MacOS Ninja using Conan",
-            "inherits": "default-release",
+            "inherits": [
+                "build-with-conan",
+                "default-release"
+            ],
             "cacheVariables": {
-                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/conan-generated/conan_toolchain.cmake",
                 "CMAKE_BUILD_TYPE": "Release"
             }
         },
@@ -122,16 +132,42 @@
             }
         },
         {
-            "name": "ios-release",
-            "displayName": "iOS release",
-            "description": "VCMI iOS release",
+            "name": "ios-device-conan",
+            "displayName": "Base iOS device using Conan",
+            "description": "Base VCMI preset for iOS device using Conan",
             "inherits": [
-                "base-release",
-                "ios-device",
-                "release-binary-dir"
+                "build-with-conan",
+                "ios-device"
+            ]
+        },
+        {
+            "name": "base-ios-release",
+            "displayName": "Base iOS release",
+            "description": "Base VCMI preset for iOS release",
+            "inherits": "base-release",
+            "hidden": true,
+            "cacheVariables": {
+                "BUNDLE_IDENTIFIER_PREFIX": "eu.vcmi"
+            }
+        },
+        {
+            "name": "ios-release-conan",
+            "displayName": "iOS+Conan release",
+            "description": "VCMI iOS release using Conan",
+            "inherits": [
+                "base-ios-release",
+                "ios-device-conan"
+            ]
+        },
+        {
+            "name": "ios-release-legacy",
+            "displayName": "iOS release using legacy dependencies",
+            "description": "VCMI iOS release using legacy dependencies",
+            "inherits": [
+                "base-ios-release",
+                "ios-device"
             ],
             "cacheVariables": {
-                "BUNDLE_IDENTIFIER_PREFIX": "eu.vcmi",
                 "CMAKE_PREFIX_PATH": "${sourceDir}/build/iphoneos"
             }
         }
@@ -184,14 +220,19 @@
             "inherits": "default-release"
         },
         {
-            "name": "ios-release",
-            "configurePreset": "ios-release",
+            "name": "ios-release-conan",
+            "configurePreset": "ios-release-conan",
             "inherits": "default-release",
             "configuration": "Release",
             "targets": ["vcmiclient"],
             "nativeToolOptions": [
                 "CODE_SIGNING_ALLOWED_FOR_APPS=NO"
             ]
+        },
+        {
+            "name": "ios-release-legacy",
+            "configurePreset": "ios-release-legacy",
+            "inherits": "ios-release-conan"
         }
     ],
     "testPresets": [
