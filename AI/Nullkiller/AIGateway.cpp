@@ -19,6 +19,7 @@
 #include "../../lib/serializer/CTypeList.h"
 #include "../../lib/serializer/BinarySerializer.h"
 #include "../../lib/serializer/BinaryDeserializer.h"
+#include "../../lib/battle/BattleStateInfoForRetreat.h"
 
 #include "AIGateway.h"
 #include "Goals/Goals.h"
@@ -487,6 +488,23 @@ void AIGateway::showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositio
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 }
+
+boost::optional<BattleAction> AIGateway::makeSurrenderRetreatDecision(
+	const BattleStateInfoForRetreat & battleState)
+{
+	LOG_TRACE(logAi);
+	NET_EVENT_HANDLER;
+
+	double fightRatio = battleState.getOurStrength() / (double)battleState.getEnemyStrength();
+
+	if(fightRatio < 0.3 && battleState.canFlee)
+	{
+		return BattleAction::makeRetreat(battleState.ourSide);
+	}
+
+	return boost::none;
+}
+
 
 void AIGateway::init(std::shared_ptr<Environment> env, std::shared_ptr<CCallback> CB)
 {

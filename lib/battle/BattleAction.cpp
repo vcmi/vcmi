@@ -105,6 +105,22 @@ BattleAction BattleAction::makeEndOFTacticPhase(ui8 side)
 	return ba;
 }
 
+BattleAction BattleAction::makeSurrender(ui8 side)
+{
+	BattleAction ba;
+	ba.side = side;
+	ba.actionType = EActionType::SURRENDER;
+	return ba;
+}
+
+BattleAction BattleAction::makeRetreat(ui8 side)
+{
+	BattleAction ba;
+	ba.side = side;
+	ba.actionType = EActionType::RETREAT;
+	return ba;
+}
+
 std::string BattleAction::toString() const
 {
 	std::stringstream actionTypeStream;

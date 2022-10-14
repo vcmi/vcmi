@@ -387,3 +387,9 @@ bool CBattleCallback::battleMakeTacticAction( BattleAction * action )
 	sendRequest(&ma);
 	return true;
 }
+
+boost::optional<BattleAction> CBattleCallback::makeSurrenderRetreatDecision(
+	const BattleStateInfoForRetreat & battleState)
+{
+	return cl->playerint[getPlayerID().get()]->makeSurrenderRetreatDecision(battleState);
+}

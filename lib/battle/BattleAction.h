@@ -40,6 +40,8 @@ public:
 	static BattleAction makeCreatureSpellcast(const battle::Unit * stack, const battle::Target & target, SpellID spellID);
 	static BattleAction makeMove(const battle::Unit * stack, BattleHex dest);
 	static BattleAction makeEndOFTacticPhase(ui8 side);
+	static BattleAction makeRetreat(ui8 side);
+	static BattleAction makeSurrender(ui8 side);
 
 	std::string toString() const;
 

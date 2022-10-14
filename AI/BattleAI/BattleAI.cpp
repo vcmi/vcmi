@@ -17,6 +17,7 @@
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/spells/ISpellMechanics.h"
+#include "../../lib/battle/BattleStateInfoForRetreat.h"
 #include "../../lib/CStack.h" // TODO: remove
                               // Eventually only IBattleInfoCallback and battle::Unit should be used,
                               // CUnitState should be private and CStack should be removed completely
@@ -728,13 +729,31 @@ void CBattleAI::print(const std::string &text) const
 
 boost::optional<BattleAction> CBattleAI::considerFleeingOrSurrendering()
 {
-	if(cb->battleCanSurrender(playerID))
+	BattleStateInfoForRetreat bs;
+
+	bs.canFlee = cb->battleCanFlee();
+	bs.canSurrender = cb->battleCanSurrender(playerID);
+	bs.ourSide = cb->battleGetMySide();
+	bs.ourHero = cb->battleGetMyHero();
+	bs.enemyHero = cb->battleGetFightingHero(!bs.ourSide);
+
+	for(auto stack : cb->battleGetAllStacks(false))
 	{
+		if(stack->alive())
+		{
+			if(stack->side == bs.ourSide)
+				bs.ourStacks.push_back(stack);
+			else
+				bs.enemyStacks.push_back(stack);
+		}
 	}
-	if(cb->battleCanFlee())
+
+	if(!bs.canFlee || !bs.canSurrender)
 	{
+		return boost::none;
 	}
-	return boost::none;
+
+	return cb->makeSurrenderRetreatDecision(bs);
 }
 
 
