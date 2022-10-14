@@ -177,7 +177,6 @@ public:
 	void endTurn();
 
 	// TODO: all the routines like recruiting hero or building army should be removed from here and extracted to elementar goals or whatever
-	void recruitHero(const CGTownInstance * t, bool throwing = false);
 	void recruitCreatures(const CGDwelling * d, const CArmedInstance * recruiter);
 	void pickBestCreatures(const CArmedInstance * army, const CArmedInstance * source); //called when we can't find a slot for new stack
 	void pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance * other = nullptr);

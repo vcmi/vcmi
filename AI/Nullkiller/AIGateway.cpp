@@ -1401,7 +1401,7 @@ void AIGateway::tryRealize(Goals::Trade & g) //trade
 const CGTownInstance * AIGateway::findTownWithTavern() const
 {
 	for(const CGTownInstance * t : cb->getTownsInfo())
-		if(t->hasBuilt(BuildingID::TAVERN) && !t->visitingHero)
+		if(t->hasBuilt(BuildingID::TAVERN) && (!t->visitingHero || !t->garrisonHero))
 			return t;
 
 	return nullptr;
@@ -1430,34 +1430,6 @@ void AIGateway::buildArmyIn(const CGTownInstance * t)
 	makePossibleUpgrades(t);
 	recruitCreatures(t, t->getUpperArmy());
 	moveCreaturesToHero(t);
-}
-
-void AIGateway::recruitHero(const CGTownInstance * t, bool throwing)
-{
-	logAi->debug("Trying to recruit a hero in %s at %s", t->name, t->visitablePos().toString());
-
-	auto heroes = cb->getAvailableHeroes(t);
-	if(heroes.size())
-	{
-		auto hero = heroes[0];
-		if(heroes.size() >= 2) //makes sense to recruit two heroes with starting amries in first week
-		{
-			if(heroes[1]->getTotalStrength() > hero->getTotalStrength())
-				hero = heroes[1];
-		}
-
-		cb->recruitHero(t, hero);
-		nullkiller->heroManager->update();
-
-		if(t->visitingHero)
-			moveHeroToTile(t->visitablePos(), t->visitingHero.get());
-
-		throw goalFulfilledException(sptr(Goals::RecruitHero(t)));
-	}
-	else if(throwing)
-	{
-		throw cannotFulfillGoalException("No available heroes in tavern in " + t->nodeName());
-	}
 }
 
 void AIGateway::finish()
