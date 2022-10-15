@@ -28,6 +28,18 @@ RewardsWidget::RewardsWidget(const CMap & m, CGPandoraBox & p, QWidget *parent) 
 		ui->rewardType->addItem(QString::fromStdString(type));
 }
 
+RewardsWidget::RewardsWidget(const CMap & m, CGSeerHut & p, QWidget *parent) :
+	QDialog(parent),
+	map(m),
+	seerhut(&p),
+	ui(new Ui::RewardsWidget)
+{
+	ui->setupUi(this);
+	
+	for(auto & type : rewardTypes)
+		ui->rewardType->addItem(QString::fromStdString(type));
+}
+
 RewardsWidget::~RewardsWidget()
 {
 	delete ui;
@@ -144,6 +156,55 @@ void RewardsWidget::obtainData()
 				addReward(RewardType::CREATURE, c->getId(), pandora->creatures.getStackCount(SlotID(i)));
 		}
 	}
+	
+	if(seerhut)
+	{
+		switch(seerhut->rewardType)
+		{
+			case CGSeerHut::ERewardType::EXPERIENCE:
+				addReward(RewardType::EXPERIENCE, 0, seerhut->rVal);
+				break;
+				
+			case CGSeerHut::ERewardType::MANA_POINTS:
+				addReward(RewardType::MANA, 0, seerhut->rVal);
+				break;
+				
+			case CGSeerHut::ERewardType::MORALE_BONUS:
+				addReward(RewardType::MORALE, 0, seerhut->rVal);
+				break;
+				
+			case CGSeerHut::ERewardType::LUCK_BONUS:
+				addReward(RewardType::LUCK, 0, seerhut->rVal);
+				break;
+				
+			case CGSeerHut::ERewardType::RESOURCES:
+				addReward(RewardType::RESOURCE, seerhut->rID, seerhut->rVal);
+				break;
+				
+			case CGSeerHut::ERewardType::PRIMARY_SKILL:
+				addReward(RewardType::PRIMARY_SKILL, seerhut->rID, seerhut->rVal);
+				break;
+				
+			case CGSeerHut::ERewardType::SECONDARY_SKILL:
+				addReward(RewardType::SECONDARY_SKILL, seerhut->rID, seerhut->rVal);
+				break;
+				
+			case CGSeerHut::ERewardType::ARTIFACT:
+				addReward(RewardType::ARTIFACT, seerhut->rID, seerhut->rVal);
+				break;
+				
+			case CGSeerHut::ERewardType::SPELL:
+				addReward(RewardType::SPELL, seerhut->rID, seerhut->rVal);
+				break;
+				
+			case CGSeerHut::ERewardType::CREATURE:
+				addReward(RewardType::CREATURE, seerhut->rID, seerhut->rVal);
+				break;
+				
+			default:
+				break;
+		}
+	}
 }
 
 bool RewardsWidget::commitChanges()
@@ -212,6 +273,19 @@ bool RewardsWidget::commitChanges()
 			}
 		}
 	}
+	if(seerhut)
+	{
+		for(int row = 0; row < rewards; ++row)
+		{
+			haveRewards = true;
+			int typeId = ui->rewardsTable->item(row, 0)->data(Qt::UserRole).toInt();
+			int listId = ui->rewardsTable->item(row, 1) ? ui->rewardsTable->item(row, 1)->data(Qt::UserRole).toInt() : 0;
+			int amount = ui->rewardsTable->item(row, 2)->data(Qt::UserRole).toInt();
+			seerhut->rewardType = CGSeerHut::ERewardType(typeId + 1);
+			seerhut->rID = listId;
+			seerhut->rVal = amount;
+		}
+	}
 	return haveRewards;
 }
 
@@ -222,6 +296,10 @@ void RewardsWidget::on_rewardList_activated(int index)
 
 void RewardsWidget::addReward(RewardsWidget::RewardType typeId, int listId, int amount)
 {
+	//for seerhut there could be the only one reward
+	if(!pandora && seerhut && rewards)
+		return;
+	
 	ui->rewardsTable->setRowCount(++rewards);
 	
 	auto itemType = new QTableWidgetItem(QString::fromStdString(rewardTypes[typeId]));
@@ -294,17 +372,7 @@ void RewardsWidget::on_rewardsTable_itemSelectionChanged()
 	ui->rewardAmount->setText(QString::number(type->data(Qt::UserRole).toInt()));*/
 }
 
-
-RewardsPandoraDelegate::RewardsPandoraDelegate(const CMap & m, CGPandoraBox & t): map(m), pandora(t), QStyledItemDelegate()
-{
-}
-
-QWidget * RewardsPandoraDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
-{
-	return new RewardsWidget(map, pandora, parent);
-}
-
-void RewardsPandoraDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
+void RewardsDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
 {
 	if(auto * ed = qobject_cast<RewardsWidget *>(editor))
 	{
@@ -316,7 +384,7 @@ void RewardsPandoraDelegate::setEditorData(QWidget *editor, const QModelIndex &i
 	}
 }
 
-void RewardsPandoraDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
+void RewardsDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
 {
 	if(auto * ed = qobject_cast<RewardsWidget *>(editor))
 	{
@@ -331,4 +399,22 @@ void RewardsPandoraDelegate::setModelData(QWidget *editor, QAbstractItemModel *m
 	{
 		QStyledItemDelegate::setModelData(editor, model, index);
 	}
+}
+
+RewardsPandoraDelegate::RewardsPandoraDelegate(const CMap & m, CGPandoraBox & t): map(m), pandora(t), RewardsDelegate()
+{
+}
+
+QWidget * RewardsPandoraDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+	return new RewardsWidget(map, pandora, parent);
+}
+
+RewardsSeerhutDelegate::RewardsSeerhutDelegate(const CMap & m, CGSeerHut & t): map(m), seerhut(t), RewardsDelegate()
+{
+}
+
+QWidget * RewardsSeerhutDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+	return new RewardsWidget(map, seerhut, parent);
 }

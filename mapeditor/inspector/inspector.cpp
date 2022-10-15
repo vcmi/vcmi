@@ -39,6 +39,8 @@ Initializer::Initializer(CGObjectInstance * o, const PlayerColor & pl) : default
 	INIT_OBJ_TYPE(CGSignBottle);
 	INIT_OBJ_TYPE(CGLighthouse);
 	//INIT_OBJ_TYPE(CGPandoraBox);
+	//INIT_OBJ_TYPE(CGEvent);
+	//INIT_OBJ_TYPE(CGSeerHut);
 }
 
 bool stringToBool(const QString & s)
@@ -235,7 +237,7 @@ void Inspector::updateProperties(CGHeroInstance * o)
 	addProperty<int>("Experience", o->exp, false);
 	addProperty("Hero class", o->type->heroClass->getName(), true);
 	
-	{
+	{ //Sex
 		auto * delegate = new InspectorDelegate;
 		delegate->options << "MALE" << "FEMALE";
 		addProperty<std::string>("Sex", (o->sex ? "FEMALE" : "MALE"), delegate , false);
@@ -244,7 +246,7 @@ void Inspector::updateProperties(CGHeroInstance * o)
 	addProperty("Biography", o->biography, new MessageDelegate, false);
 	addProperty("Portrait", o->portrait, false);
 	
-	{
+	{ //Hero type
 		auto * delegate = new InspectorDelegate;
 		for(int i = 0; i < VLC->heroh->objects.size(); ++i)
 		{
@@ -320,7 +322,7 @@ void Inspector::updateProperties(CGCreature * o)
 	if(!o) return;
 	
 	addProperty("Message", o->message, false);
-	{
+	{ //Character
 		auto * delegate = new InspectorDelegate;
 		delegate->options << "COMPLIANT" << "FRIENDLY" << "AGRESSIVE" << "HOSTILE" << "SAVAGE";
 		addProperty<CGCreature::Character>("Character", (CGCreature::Character)o->character, delegate, false);
@@ -353,6 +355,23 @@ void Inspector::updateProperties(CGEvent * o)
 	//ui8 availableFor; //players whom this event is available for
 }
 
+void Inspector::updateProperties(CGSeerHut * o)
+{
+	if(!o) return;
+
+	{ //Mission type
+		auto * delegate = new InspectorDelegate;
+		delegate->options << "Reach level" << "Stats" << "Kill hero" << "Kill creature" << "Artifact" << "Army" << "Resources" << "Hero" << "Player";
+		addProperty<CQuest::Emission>("Mission type", o->quest->missionType, delegate, false);
+	}
+	
+	addProperty("First visit text", o->quest->firstVisitText, new MessageDelegate, false);
+	addProperty("Next visit text", o->quest->nextVisitText, new MessageDelegate, false);
+	addProperty("Completed text", o->quest->completedText, new MessageDelegate, false);
+	
+	auto * delegate = new RewardsSeerhutDelegate(*map, *o);
+	addProperty("Reward", PropertyEditorPlaceholder(), delegate, false);
+}
 
 void Inspector::updateProperties()
 {
@@ -394,6 +413,7 @@ void Inspector::updateProperties()
 	UPDATE_OBJ_PROPERTIES(CGLighthouse);
 	UPDATE_OBJ_PROPERTIES(CGPandoraBox);
 	UPDATE_OBJ_PROPERTIES(CGEvent);
+	UPDATE_OBJ_PROPERTIES(CGSeerHut);
 	
 	table->show();
 }
@@ -428,6 +448,7 @@ void Inspector::setProperty(const QString & key, const QVariant & value)
 	SET_PROPERTIES(CGLighthouse);
 	SET_PROPERTIES(CGPandoraBox);
 	SET_PROPERTIES(CGEvent);
+	SET_PROPERTIES(CGSeerHut);
 }
 
 void Inspector::setProperty(CArmedInstance * o, const QString & key, const QVariant & value)
@@ -583,6 +604,40 @@ void Inspector::setProperty(CGCreature * o, const QString & key, const QVariant 
 		o->stacks[SlotID(0)]->count = value.toString().toInt();
 }
 
+void Inspector::setProperty(CGSeerHut * o, const QString & key, const QVariant & value)
+{
+	if(!o) return;
+	
+	if(key == "Mission type")
+	{
+		if(value == "Reach level")
+			o->quest->missionType = CQuest::Emission::MISSION_LEVEL;
+		if(value == "Stats")
+			o->quest->missionType = CQuest::Emission::MISSION_PRIMARY_STAT;
+		if(value == "Kill hero")
+			o->quest->missionType = CQuest::Emission::MISSION_KILL_HERO;
+		if(value == "Kill creature")
+			o->quest->missionType = CQuest::Emission::MISSION_KILL_CREATURE;
+		if(value == "Artifact")
+			o->quest->missionType = CQuest::Emission::MISSION_ART;
+		if(value == "Army")
+			o->quest->missionType = CQuest::Emission::MISSION_ARMY;
+		if(value == "Resources")
+			o->quest->missionType = CQuest::Emission::MISSION_RESOURCES;
+		if(value == "Hero")
+			o->quest->missionType = CQuest::Emission::MISSION_HERO;
+		if(value == "Player")
+			o->quest->missionType = CQuest::Emission::MISSION_PLAYER;
+	}
+	
+	if(key == "First visit text")
+		o->quest->firstVisitText = value.toString().toStdString();
+	if(key == "Next visit text")
+		o->quest->nextVisitText = value.toString().toStdString();
+	if(key == "Completed text")
+		o->quest->completedText = value.toString().toStdString();
+}
+
 
 //===============IMPLEMENT PROPERTY VALUE TYPE============================
 QTableWidgetItem * Inspector::addProperty(CGObjectInstance * value)
@@ -686,6 +741,46 @@ QTableWidgetItem * Inspector::addProperty(CGCreature::Character value)
 			break;
 		case CGCreature::Character::SAVAGE:
 			str = "SAVAGE";
+			break;
+		default:
+			break;
+	}
+	return new QTableWidgetItem(str);
+}
+
+QTableWidgetItem * Inspector::addProperty(CQuest::Emission value)
+{
+	QString str;
+	switch (value) {
+		case CQuest::Emission::MISSION_LEVEL:
+			str = "Reach level";
+			break;
+		case CQuest::Emission::MISSION_PRIMARY_STAT:
+			str = "Stats";
+			break;
+		case CQuest::Emission::MISSION_KILL_HERO:
+			str = "Kill hero";
+			break;
+		case CQuest::Emission::MISSION_KILL_CREATURE:
+			str = "Kill creature";
+			break;
+		case CQuest::Emission::MISSION_ART:
+			str = "Artifact";
+			break;
+		case CQuest::Emission::MISSION_ARMY:
+			str = "Army";
+			break;
+		case CQuest::Emission::MISSION_RESOURCES:
+			str = "Resources";
+			break;
+		case CQuest::Emission::MISSION_HERO:
+			str = "Hero";
+			break;
+		case CQuest::Emission::MISSION_PLAYER:
+			str = "Player";
+			break;
+		case CQuest::Emission::MISSION_KEYMASTER:
+			str = "Key master";
 			break;
 		default:
 			break;

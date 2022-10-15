@@ -10,6 +10,7 @@
 #pragma once
 #include <QDialog>
 #include "../lib/mapObjects/CGPandoraBox.h"
+#include "../lib/mapObjects/CQuest.h"
 #include "../lib/mapping/CMap.h"
 
 namespace Ui {
@@ -29,6 +30,7 @@ public:
 	};
 	
 	explicit RewardsWidget(const CMap &, CGPandoraBox &, QWidget *parent = nullptr);
+	explicit RewardsWidget(const CMap &, CGSeerHut &, QWidget *parent = nullptr);
 	~RewardsWidget();
 	
 	void obtainData();
@@ -53,23 +55,43 @@ private:
 	
 	Ui::RewardsWidget *ui;
 	CGPandoraBox * pandora;
+	CGSeerHut * seerhut;
 	const CMap & map;
 	int rewards = 0;
 };
 
-class RewardsPandoraDelegate : public QStyledItemDelegate
+class RewardsDelegate : public QStyledItemDelegate
 {
 	Q_OBJECT
 public:
 	using QStyledItemDelegate::QStyledItemDelegate;
 	
+	void setEditorData(QWidget *editor, const QModelIndex &index) const override;
+	void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const override;
+};
+
+class RewardsPandoraDelegate : public RewardsDelegate
+{
+	Q_OBJECT
+public:
 	RewardsPandoraDelegate(const CMap &, CGPandoraBox &);
 	
 	QWidget * createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
-	void setEditorData(QWidget *editor, const QModelIndex &index) const override;
-	void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const override;
 	
 private:
 	CGPandoraBox & pandora;
+	const CMap & map;
+};
+
+class RewardsSeerhutDelegate : public RewardsDelegate
+{
+	Q_OBJECT
+public:
+	RewardsSeerhutDelegate(const CMap &, CGSeerHut &);
+	
+	QWidget * createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+	
+private:
+	CGSeerHut & seerhut;
 	const CMap & map;
 };
