@@ -20,6 +20,7 @@ RewardsWidget::RewardsWidget(const CMap & m, CGPandoraBox & p, QWidget *parent) 
 	QDialog(parent),
 	map(m),
 	pandora(&p),
+	seerhut(nullptr),
 	ui(new Ui::RewardsWidget)
 {
 	ui->setupUi(this);
@@ -31,6 +32,7 @@ RewardsWidget::RewardsWidget(const CMap & m, CGPandoraBox & p, QWidget *parent) 
 RewardsWidget::RewardsWidget(const CMap & m, CGSeerHut & p, QWidget *parent) :
 	QDialog(parent),
 	map(m),
+	pandora(nullptr),
 	seerhut(&p),
 	ui(new Ui::RewardsWidget)
 {
