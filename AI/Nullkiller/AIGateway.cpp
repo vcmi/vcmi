@@ -497,7 +497,8 @@ boost::optional<BattleAction> AIGateway::makeSurrenderRetreatDecision(
 
 	double fightRatio = battleState.getOurStrength() / (double)battleState.getEnemyStrength();
 
-	if(fightRatio < 0.3 && battleState.canFlee)
+	// if we have no towns - things are already bad, so retreat is not an option.
+	if(cb->getTownsInfo().size() && fightRatio < 0.3 && battleState.canFlee)
 	{
 		return BattleAction::makeRetreat(battleState.ourSide);
 	}
@@ -1035,8 +1036,10 @@ bool AIGateway::canRecruitAnyHero(const CGTownInstance * t) const
 	//TODO: make gathering gold, building tavern or conquering town (?) possible subgoals
 	if(!t)
 		t = findTownWithTavern();
-	if(!t)
+
+	if(!t || !townHasFreeTavern(t))
 		return false;
+
 	if(cb->getResourceAmount(Res::GOLD) < GameConstants::HERO_GOLD_COST) //TODO: use ResourceManager
 		return false;
 	if(cb->getHeroesInfo().size() >= ALLOWED_ROAMING_HEROES)
@@ -1401,7 +1404,7 @@ void AIGateway::tryRealize(Goals::Trade & g) //trade
 const CGTownInstance * AIGateway::findTownWithTavern() const
 {
 	for(const CGTownInstance * t : cb->getTownsInfo())
-		if(t->hasBuilt(BuildingID::TAVERN) && (!t->visitingHero || !t->garrisonHero))
+		if(townHasFreeTavern(t))
 			return t;
 
 	return nullptr;

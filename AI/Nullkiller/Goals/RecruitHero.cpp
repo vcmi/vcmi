@@ -65,11 +65,11 @@ void RecruitHero::accept(AIGateway * ai)
 
 	if(t->visitingHero)
 	{
-		if(t->garrisonHero)
-			throw cannotFulfillGoalException("Town " + t->nodeName() + " is occupied. Cannot recruit hero!");
-
 		cb->swapGarrisonHero(t);
 	}
+
+	if(t->visitingHero)
+		throw cannotFulfillGoalException("Town " + t->nodeName() + " is occupied. Cannot recruit hero!");
 
 	cb->recruitHero(t, heroToHire);
 	ai->nullkiller->heroManager->update();

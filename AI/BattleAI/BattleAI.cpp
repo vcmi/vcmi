@@ -734,8 +734,8 @@ boost::optional<BattleAction> CBattleAI::considerFleeingOrSurrendering()
 	bs.canFlee = cb->battleCanFlee();
 	bs.canSurrender = cb->battleCanSurrender(playerID);
 	bs.ourSide = cb->battleGetMySide();
-	bs.ourHero = cb->battleGetMyHero();
-	bs.enemyHero = cb->battleGetFightingHero(!bs.ourSide);
+	bs.ourHero = cb->battleGetMyHero(); 
+	bs.enemyHero = nullptr;
 
 	for(auto stack : cb->battleGetAllStacks(false))
 	{
@@ -744,7 +744,10 @@ boost::optional<BattleAction> CBattleAI::considerFleeingOrSurrendering()
 			if(stack->side == bs.ourSide)
 				bs.ourStacks.push_back(stack);
 			else
+			{
 				bs.enemyStacks.push_back(stack);
+				bs.enemyHero = cb->battleGetOwnerHero(stack);
+			}
 		}
 	}
 

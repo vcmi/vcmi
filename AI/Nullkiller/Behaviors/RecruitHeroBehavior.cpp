@@ -53,7 +53,7 @@ Goals::TGoalVec RecruitHeroBehavior::decompose() const
 
 	for(auto town : towns)
 	{
-		if((!town->garrisonHero || !town->visitingHero) && ai->canRecruitAnyHero(town))
+		if(ai->canRecruitAnyHero(town))
 		{
 			auto availableHeroes = cb->getAvailableHeroes(town);
 
