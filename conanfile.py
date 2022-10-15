@@ -4,8 +4,6 @@ from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMakeDeps, CMakeToolchain
 from conans import tools
 
-import os
-
 required_conan_version = ">=1.51.3"
 
 class VCMI(ConanFile):
@@ -197,7 +195,7 @@ class VCMI(ConanFile):
         tc.generate()
 
         deps = CMakeDeps(self)
-        if os.getenv("USE_CONAN_WITH_ALL_CONFIGS", "0") == "0":
+        if tools.get_env("GENERATE_ONLY_BUILT_CONFIG", default=False):
             deps.generate()
             return
 
