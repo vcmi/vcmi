@@ -346,8 +346,12 @@ void RewardsWidget::on_buttonAdd_clicked()
 
 void RewardsWidget::on_buttonRemove_clicked()
 {
-	ui->rewardsTable->removeRow(ui->rewardsTable->currentRow());
-	--rewards;
+	auto currentRow = ui->rewardsTable->currentRow();
+	if(currentRow != -1)
+	{
+		ui->rewardsTable->removeRow(currentRow);
+		--rewards;
+	}
 }
 
 
