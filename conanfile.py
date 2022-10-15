@@ -11,14 +11,14 @@ required_conan_version = ">=1.51.3"
 class VCMI(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     requires = [
-        "boost/1.80.0",
-        "minizip/1.2.12",
-        "onetbb/2021.3.0", # Nullkiller AI
-        "qt/5.15.6", # launcher
-        "sdl/2.24.1",
-        "sdl_image/2.0.5",
-        "sdl_mixer/2.0.4",
-        "sdl_ttf/2.0.18",
+        "boost/[^1.69]",
+        "minizip/[~1.2.12]",
+        "onetbb/[^2021.3]", # Nullkiller AI
+        "qt/[~5.15.2]", # launcher
+        "sdl/[~2.24.0]",
+        "sdl_image/[~2.0.5]",
+        "sdl_mixer/[~2.0.4]",
+        "sdl_ttf/[~2.0.18]",
     ]
     options = {
         "default_options_of_requirements": [True, False],
@@ -164,15 +164,15 @@ class VCMI(ConanFile):
 
     def requirements(self):
         # TODO: will no longer be needed after merging https://github.com/conan-io/conan-center-index/pull/13399
-        self.requires("libpng/1.6.38", override=True) # freetype / Qt
+        self.requires("libpng/[~1.6.38]", override=True) # freetype / Qt
         if self.options.default_options_of_requirements:
             self.requires("libjpeg/9e", override=True) # libtiff / Qt
-            self.requires("freetype/2.12.1", override=True) # sdl_ttf / Qt
+            self.requires("freetype/[~2.12.1]", override=True) # sdl_ttf / Qt
             if self.options.with_ffmpeg:
-                self.requires("libwebp/1.2.4", override=True) # sdl_image / ffmpeg
+                self.requires("libwebp/[~1.2.4]", override=True) # sdl_image / ffmpeg
 
         if self.options.with_ffmpeg:
-            self.requires("ffmpeg/4.4.3")
+            self.requires("ffmpeg/[^4.4]")
 
         # use Apple system libraries instead of external ones
         if not self.options.default_options_of_requirements and is_apple_os(self):
@@ -187,7 +187,7 @@ class VCMI(ConanFile):
 
         # TODO: the latest official release of LuaJIT (which is quite old) can't be built for arm
         if self.options.with_luajit and not str(self.settings.arch).startswith("arm"):
-            self.requires("luajit/2.0.5")
+            self.requires("luajit/[~2.0.5]")
 
     def generate(self):
         tc = CMakeToolchain(self)
