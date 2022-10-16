@@ -34,10 +34,40 @@ Goals::TGoalVec RecruitHeroBehavior::decompose() const
 	Goals::TGoalVec tasks;
 	auto towns = cb->getTownsInfo();
 
+	auto ourHeroes = ai->nullkiller->heroManager->getHeroRoles();
+	auto minScoreToHireMain = std::numeric_limits<float>::max();
+
+	for(auto hero : ourHeroes)
+	{
+		if(hero.second != HeroRole::MAIN)
+			continue;
+
+		auto newScore = ai->nullkiller->heroManager->evaluateHero(hero.first.get());
+
+		if(minScoreToHireMain > newScore)
+		{
+			// weakest main hero score
+			minScoreToHireMain = newScore;
+		}
+	}
+
 	for(auto town : towns)
 	{
-		if(!town->garrisonHero && !town->visitingHero && ai->canRecruitAnyHero(town))
+		if(ai->canRecruitAnyHero(town))
 		{
+			auto availableHeroes = cb->getAvailableHeroes(town);
+
+			for(auto hero : availableHeroes)
+			{
+				auto score = ai->nullkiller->heroManager->evaluateHero(hero);
+
+				if(score > minScoreToHireMain)
+				{
+					tasks.push_back(Goals::sptr(Goals::RecruitHero(town, hero).setpriority(200)));
+					break;
+				}
+			}
+
 			if(cb->getHeroesInfo().size() < cb->getTownsInfo().size() + 1
 				|| (ai->nullkiller->getFreeResources()[Res::GOLD] > 10000
 					&& ai->nullkiller->buildAnalyzer->getGoldPreasure() < MAX_GOLD_PEASURE))

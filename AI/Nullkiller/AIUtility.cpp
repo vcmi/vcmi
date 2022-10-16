@@ -450,4 +450,14 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 	return true;
 }
 
+bool townHasFreeTavern(const CGTownInstance * town)
+{
+	if(!town->hasBuilt(BuildingID::TAVERN)) return false;
+	if(!town->visitingHero) return true;
+
+	bool canMoveVisitingHeroToGarnison = !town->getUpperArmy()->stacksCount();
+
+	return canMoveVisitingHeroToGarnison;
+}
+
 }
