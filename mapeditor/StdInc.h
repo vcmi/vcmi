@@ -13,6 +13,7 @@
 #include <QString>
 #include <QFile>
 
+VCMI_LIB_USING_NAMESPACE
 
 using NumericPointer = typename std::conditional<sizeof(void *) == sizeof(unsigned long long),
 												 unsigned long long, unsigned int>::type;
