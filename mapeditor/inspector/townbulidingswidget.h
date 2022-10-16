@@ -9,6 +9,7 @@
  */
 #pragma once
 
+#include "../StdInc.h"
 #include <QDialog>
 #include "../lib/mapObjects/CGTownInstance.h"
 

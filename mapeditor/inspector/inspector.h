@@ -9,6 +9,7 @@
  */
 #pragma once
 
+#include "../StdInc.h"
 #include <QTableWidget>
 #include <QTableWidgetItem>
 #include <QStyledItemDelegate>

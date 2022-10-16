@@ -8,6 +8,7 @@
  *
  */
 #pragma once
+#include "../StdInc.h"
 #include <QDialog>
 
 namespace Ui {

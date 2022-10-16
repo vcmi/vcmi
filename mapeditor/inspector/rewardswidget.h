@@ -8,6 +8,7 @@
  *
  */
 #pragma once
+#include "../StdInc.h"
 #include <QDialog>
 #include "../lib/mapObjects/CGPandoraBox.h"
 #include "../lib/mapObjects/CQuest.h"
