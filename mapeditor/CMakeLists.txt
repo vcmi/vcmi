@@ -23,6 +23,7 @@ set(editor_SRCS
 		inspector/armywidget.cpp
 		inspector/messagewidget.cpp
 		inspector/rewardswidget.cpp
+		inspector/questwidget.cpp
 )
 
 set(editor_HEADERS
@@ -49,6 +50,7 @@ set(editor_HEADERS
 		inspector/armywidget.h
 		inspector/messagewidget.h
 		inspector/rewardswidget.h
+		inspector/questwidget.h
 )
 
 set(editor_FORMS
@@ -63,6 +65,7 @@ set(editor_FORMS
 		inspector/armywidget.ui
 		inspector/messagewidget.ui
 		inspector/rewardswidget.ui
+		inspector/questwidget.ui
 )
 
 assign_source_group(${editor_SRCS} ${editor_HEADERS} mapeditor.rc)

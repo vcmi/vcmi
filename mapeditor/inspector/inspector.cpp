@@ -20,6 +20,7 @@
 #include "armywidget.h"
 #include "messagewidget.h"
 #include "rewardswidget.h"
+#include "questwidget.h"
 
 //===============IMPLEMENT OBJECT INITIALIZATION FUNCTIONS================
 Initializer::Initializer(CGObjectInstance * o, const PlayerColor & pl) : defaultPlayer(pl)
@@ -369,8 +370,15 @@ void Inspector::updateProperties(CGSeerHut * o)
 	addProperty("Next visit text", o->quest->nextVisitText, new MessageDelegate, false);
 	addProperty("Completed text", o->quest->completedText, new MessageDelegate, false);
 	
-	auto * delegate = new RewardsSeerhutDelegate(*map, *o);
-	addProperty("Reward", PropertyEditorPlaceholder(), delegate, false);
+	{ //Quest
+		auto * delegate = new QuestDelegate(*map, *o);
+		addProperty("Quest", PropertyEditorPlaceholder(), delegate, false);
+	}
+	
+	{ //Reward
+		auto * delegate = new RewardsSeerhutDelegate(*map, *o);
+		addProperty("Reward", PropertyEditorPlaceholder(), delegate, false);
+	}
 }
 
 void Inspector::updateProperties()

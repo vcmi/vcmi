@@ -33,12 +33,12 @@ QString MessageWidget::getMessage() const
 	return ui->messageEdit->toPlainText();
 }
 
-QWidget * MessageDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
+QWidget * MessageDelegate::createEditor(QWidget * parent, const QStyleOptionViewItem & option, const QModelIndex & index) const
 {
 	return new MessageWidget(parent);
 }
 
-void MessageDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
+void MessageDelegate::setEditorData(QWidget * editor, const QModelIndex & index) const
 {
 	if(auto *ed = qobject_cast<MessageWidget *>(editor))
 	{
@@ -50,7 +50,7 @@ void MessageDelegate::setEditorData(QWidget *editor, const QModelIndex &index) c
 	}
 }
 
-void MessageDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
+void MessageDelegate::setModelData(QWidget * editor, QAbstractItemModel * model, const QModelIndex & index) const
 {
 	if(auto *ed = qobject_cast<MessageWidget *>(editor))
 	{
