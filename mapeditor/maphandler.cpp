@@ -116,11 +116,9 @@ void MapHandler::drawRoad(QPainter & painter, int x, int y, int z)
 	auto & tinfo = map->getTile(int3(x, y, z));
 	auto * tinfoUpper = map->isInTheMap(int3(x, y - 1, z)) ? &map->getTile(int3(x, y - 1, z)) : nullptr;
 	
-	//TODO: use ui8 instead of string key
-	auto roadName = tinfo.roadType->fileName;
-	
-	if (tinfoUpper && tinfoUpper->roadType->id != Road::NO_ROAD)
+	if(tinfoUpper && tinfoUpper->roadType->id != Road::NO_ROAD)
 	{
+		auto roadName = tinfoUpper->roadType->fileName;
 		QRect source(0, tileSize / 2, tileSize, tileSize / 2);
 		ui8 rotation = (tinfoUpper->extTileFlags >> 4) % 4;
 		bool hflip = (rotation == 1 || rotation == 3), vflip = (rotation == 2 || rotation == 3);
@@ -132,6 +130,7 @@ void MapHandler::drawRoad(QPainter & painter, int x, int y, int z)
 	
 	if(tinfo.roadType->id != Road::NO_ROAD) //print road from this tile
 	{
+		auto roadName = tinfo.roadType->fileName;
 		QRect source(0, 0, tileSize, tileSize / 2);
 		ui8 rotation = (tinfo.extTileFlags >> 4) % 4;
 		bool hflip = (rotation == 1 || rotation == 3), vflip = (rotation == 2 || rotation == 3);
