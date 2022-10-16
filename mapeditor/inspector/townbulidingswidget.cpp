@@ -7,6 +7,7 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#include "StdInc.h"
 #include "townbulidingswidget.h"
 #include "ui_townbulidingswidget.h"
 #include "../lib/CModHandler.h"

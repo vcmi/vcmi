@@ -8,6 +8,7 @@
  *
  */
 
+#include "StdInc.h"
 #include "armywidget.h"
 #include "ui_armywidget.h"
 #include "CCreatureHandler.h"

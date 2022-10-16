@@ -8,6 +8,7 @@
  *
  */
 
+#include "StdInc.h"
 #include "objectbrowser.h"
 #include "../lib/mapObjects/CObjectClassesHandler.h"
 

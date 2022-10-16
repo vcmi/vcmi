@@ -7,6 +7,7 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#include "StdInc.h"
 #include "rewardswidget.h"
 #include "ui_rewardswidget.h"
 #include "../lib/VCMI_Lib.h"
