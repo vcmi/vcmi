@@ -12,6 +12,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/battle/BattleHex.cpp
 		${MAIN_LIB_DIR}/battle/BattleInfo.cpp
 		${MAIN_LIB_DIR}/battle/BattleProxy.cpp
+		${MAIN_LIB_DIR}/battle/BattleStateInfoForRetreat.cpp
 		${MAIN_LIB_DIR}/battle/CBattleInfoCallback.cpp
 		${MAIN_LIB_DIR}/battle/CBattleInfoEssentials.cpp
 		${MAIN_LIB_DIR}/battle/CCallbackBase.cpp
@@ -241,6 +242,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/battle/BattleAttackInfo.h
 		${MAIN_LIB_DIR}/battle/BattleHex.h
 		${MAIN_LIB_DIR}/battle/BattleInfo.h
+		${MAIN_LIB_DIR}/battle/BattleStateInfoForRetreat.h
 		${MAIN_LIB_DIR}/battle/BattleProxy.h
 		${MAIN_LIB_DIR}/battle/CBattleInfoCallback.h
 		${MAIN_LIB_DIR}/battle/CBattleInfoEssentials.h

@@ -58,7 +58,9 @@ class CLoadFile;
 class CSaveFile;
 class BinaryDeserializer;
 class BinarySerializer;
+class BattleStateInfo;
 struct ArtifactLocation;
+class BattleStateInfoForRetreat;
 
 #if SCRIPTING_ENABLED
 namespace scripting
@@ -93,7 +95,7 @@ public:
 
 	//pskill is gained primary skill, interface has to choose one of given skills and call callback with selection id
 	virtual void heroGotLevel(const CGHeroInstance *hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> &skills, QueryID queryID)=0;
-	virtual	void commanderGotLevel (const CCommanderInstance * commander, std::vector<ui32> skills, QueryID queryID)=0;
+	virtual void commanderGotLevel (const CCommanderInstance * commander, std::vector<ui32> skills, QueryID queryID)=0;
 
 	// Show a dialog, player must take decision. If selection then he has to choose between one of given components,
 	// if cancel he is allowed to not choose. After making choice, CCallback::selectionMade should be called
@@ -107,6 +109,11 @@ public:
 	virtual void finish(){}; //if for some reason we want to end
 
 	virtual void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions){};
+
+	virtual boost::optional<BattleAction> makeSurrenderRetreatDecision(const BattleStateInfoForRetreat & battleState)
+	{
+		return boost::none;
+	}
 
 	virtual void saveGame(BinarySerializer & h, const int version) = 0;
 	virtual void loadGame(BinaryDeserializer & h, const int version) = 0;

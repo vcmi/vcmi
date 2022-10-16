@@ -32,6 +32,7 @@ struct CPackForServer;
 class IBattleEventsReceiver;
 class IGameEventsReceiver;
 struct ArtifactLocation;
+class BattleStateInfoForRetreat;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -48,6 +49,7 @@ public:
 	//battle
 	virtual int battleMakeAction(const BattleAction * action) = 0;//for casting spells by hero - DO NOT use it for moving active stack
 	virtual bool battleMakeTacticAction(BattleAction * action) = 0; // performs tactic phase actions
+	virtual boost::optional<BattleAction> makeSurrenderRetreatDecision(const BattleStateInfoForRetreat & battleState) = 0;
 };
 
 class IGameActionCallback
@@ -104,6 +106,7 @@ public:
 	CBattleCallback(boost::optional<PlayerColor> Player, CClient *C);
 	int battleMakeAction(const BattleAction * action) override;//for casting spells by hero - DO NOT use it for moving active stack
 	bool battleMakeTacticAction(BattleAction * action) override; // performs tactic phase actions
+	boost::optional<BattleAction> makeSurrenderRetreatDecision(const BattleStateInfoForRetreat & battleState) override;
 
 #if SCRIPTING_ENABLED
 	scripting::Pool * getContextPool() const override;

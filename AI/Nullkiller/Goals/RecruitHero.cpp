@@ -35,16 +35,47 @@ void RecruitHero::accept(AIGateway * ai)
 
 	if(!t) t = ai->findTownWithTavern();
 
-	if(t)
-	{
-		ai->recruitHero(t, true);
-		//TODO try to free way to blocked town
-		//TODO: adventure map tavern or prison?
-	}
-	else
+	if(!t)
 	{
 		throw cannotFulfillGoalException("No town to recruit hero!");
 	}
+
+	logAi->debug("Trying to recruit a hero in %s at %s", t->name, t->visitablePos().toString());
+
+	auto heroes = cb->getAvailableHeroes(t);
+
+	if(!heroes.size())
+	{
+		throw cannotFulfillGoalException("No available heroes in tavern in " + t->nodeName());
+	}
+
+	auto heroToHire = heroes[0];
+
+	for(auto hero : heroes)
+	{
+		if(objid == hero->id.getNum())
+		{
+			heroToHire = hero;
+			break;
+		}
+
+		if(hero->getTotalStrength() > heroToHire->getTotalStrength())
+			heroToHire = hero;
+	}
+
+	if(t->visitingHero)
+	{
+		cb->swapGarrisonHero(t);
+	}
+
+	if(t->visitingHero)
+		throw cannotFulfillGoalException("Town " + t->nodeName() + " is occupied. Cannot recruit hero!");
+
+	cb->recruitHero(t, heroToHire);
+	ai->nullkiller->heroManager->update();
+
+	if(t->visitingHero)
+		ai->moveHeroToTile(t->visitablePos(), t->visitingHero.get());
 }
 
 }

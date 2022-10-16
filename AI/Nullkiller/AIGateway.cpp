@@ -19,6 +19,7 @@
 #include "../../lib/serializer/CTypeList.h"
 #include "../../lib/serializer/BinarySerializer.h"
 #include "../../lib/serializer/BinaryDeserializer.h"
+#include "../../lib/battle/BattleStateInfoForRetreat.h"
 
 #include "AIGateway.h"
 #include "Goals/Goals.h"
@@ -487,6 +488,24 @@ void AIGateway::showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositio
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 }
+
+boost::optional<BattleAction> AIGateway::makeSurrenderRetreatDecision(
+	const BattleStateInfoForRetreat & battleState)
+{
+	LOG_TRACE(logAi);
+	NET_EVENT_HANDLER;
+
+	double fightRatio = battleState.getOurStrength() / (double)battleState.getEnemyStrength();
+
+	// if we have no towns - things are already bad, so retreat is not an option.
+	if(cb->getTownsInfo().size() && fightRatio < 0.3 && battleState.canFlee)
+	{
+		return BattleAction::makeRetreat(battleState.ourSide);
+	}
+
+	return boost::none;
+}
+
 
 void AIGateway::init(std::shared_ptr<Environment> env, std::shared_ptr<CCallback> CB)
 {
@@ -1017,8 +1036,10 @@ bool AIGateway::canRecruitAnyHero(const CGTownInstance * t) const
 	//TODO: make gathering gold, building tavern or conquering town (?) possible subgoals
 	if(!t)
 		t = findTownWithTavern();
-	if(!t)
+
+	if(!t || !townHasFreeTavern(t))
 		return false;
+
 	if(cb->getResourceAmount(Res::GOLD) < GameConstants::HERO_GOLD_COST) //TODO: use ResourceManager
 		return false;
 	if(cb->getHeroesInfo().size() >= ALLOWED_ROAMING_HEROES)
@@ -1383,7 +1404,7 @@ void AIGateway::tryRealize(Goals::Trade & g) //trade
 const CGTownInstance * AIGateway::findTownWithTavern() const
 {
 	for(const CGTownInstance * t : cb->getTownsInfo())
-		if(t->hasBuilt(BuildingID::TAVERN) && !t->visitingHero)
+		if(townHasFreeTavern(t))
 			return t;
 
 	return nullptr;
@@ -1412,34 +1433,6 @@ void AIGateway::buildArmyIn(const CGTownInstance * t)
 	makePossibleUpgrades(t);
 	recruitCreatures(t, t->getUpperArmy());
 	moveCreaturesToHero(t);
-}
-
-void AIGateway::recruitHero(const CGTownInstance * t, bool throwing)
-{
-	logAi->debug("Trying to recruit a hero in %s at %s", t->name, t->visitablePos().toString());
-
-	auto heroes = cb->getAvailableHeroes(t);
-	if(heroes.size())
-	{
-		auto hero = heroes[0];
-		if(heroes.size() >= 2) //makes sense to recruit two heroes with starting amries in first week
-		{
-			if(heroes[1]->getTotalStrength() > hero->getTotalStrength())
-				hero = heroes[1];
-		}
-
-		cb->recruitHero(t, hero);
-		nullkiller->heroManager->update();
-
-		if(t->visitingHero)
-			moveHeroToTile(t->visitablePos(), t->visitingHero.get());
-
-		throw goalFulfilledException(sptr(Goals::RecruitHero(t)));
-	}
-	else if(throwing)
-	{
-		throw cannotFulfillGoalException("No available heroes in tavern in " + t->nodeName());
-	}
 }
 
 void AIGateway::finish()

@@ -238,6 +238,7 @@ bool isSafeToVisit(HeroPtr h, const CCreatureSet *, uint64_t dangerStrength);
 bool compareHeroStrength(HeroPtr h1, HeroPtr h2);
 bool compareArmyStrength(const CArmedInstance * a1, const CArmedInstance * a2);
 bool compareArtifacts(const CArtifactInstance * a1, const CArtifactInstance * a2);
+bool townHasFreeTavern(const CGTownInstance * town);
 
 uint64_t timeElapsed(std::chrono::time_point<std::chrono::high_resolution_clock> start);
 
