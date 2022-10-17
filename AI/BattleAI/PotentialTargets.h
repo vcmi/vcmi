@@ -17,7 +17,7 @@ public:
 	std::vector<const battle::Unit *> unreachableEnemies;
 
 	PotentialTargets(){};
-	PotentialTargets(const battle::Unit * attacker, const HypotheticBattle * state);
+	PotentialTargets(const battle::Unit * attacker, const HypotheticBattle & state);
 
 	const AttackPossibility & bestAction() const;
 	int64_t bestActionValue() const;

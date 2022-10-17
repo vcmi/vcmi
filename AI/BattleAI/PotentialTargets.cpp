@@ -11,11 +11,11 @@
 #include "PotentialTargets.h"
 #include "../../lib/CStack.h"//todo: remove
 
-PotentialTargets::PotentialTargets(const battle::Unit * attacker, const HypotheticBattle * state)
+PotentialTargets::PotentialTargets(const battle::Unit * attacker, const HypotheticBattle & state)
 {
-	auto attackerInfo = state->battleGetUnitByID(attacker->unitId());
-	auto reachability = state->getReachability(attackerInfo);
-	auto avHexes = state->battleGetAvailableHexes(reachability, attackerInfo);
+	auto attackerInfo = state.battleGetUnitByID(attacker->unitId());
+	auto reachability = state.getReachability(attackerInfo);
+	auto avHexes = state.battleGetAvailableHexes(reachability, attackerInfo);
 
 	//FIXME: this should part of battleGetAvailableHexes
 	bool forceTarget = false;
@@ -25,7 +25,7 @@ PotentialTargets::PotentialTargets(const battle::Unit * attacker, const Hypothet
 	if(attackerInfo->hasBonusOfType(Bonus::ATTACKS_NEAREST_CREATURE))
 	{
 		forceTarget = true;
-		auto nearest = state->getNearestStack(attackerInfo);
+		auto nearest = state.getNearestStack(attackerInfo);
 
 		if(nearest.first != nullptr)
 		{
@@ -34,14 +34,14 @@ PotentialTargets::PotentialTargets(const battle::Unit * attacker, const Hypothet
 		}
 	}
 
-	auto aliveUnits = state->battleGetUnitsIf([=](const battle::Unit * unit)
+	auto aliveUnits = state.battleGetUnitsIf([=](const battle::Unit * unit)
 	{
 		return unit->isValidTarget() && unit->unitId() != attackerInfo->unitId();
 	});
 
 	for(auto defender : aliveUnits)
 	{
-		if(!forceTarget && !state->battleMatchOwner(attackerInfo, defender))
+		if(!forceTarget && !state.battleMatchOwner(attackerInfo, defender))
 			continue;
 
 		auto GenerateAttackInfo = [&](bool shooting, BattleHex hex) -> AttackPossibility
@@ -61,7 +61,7 @@ PotentialTargets::PotentialTargets(const battle::Unit * attacker, const Hypothet
 			else
 				unreachableEnemies.push_back(defender);
 		}
-		else if(state->battleCanShoot(attackerInfo, defender->getPosition()))
+		else if(state.battleCanShoot(attackerInfo, defender->getPosition()))
 		{
 			possibleAttacks.push_back(GenerateAttackInfo(true, BattleHex::INVALID));
 		}
@@ -84,22 +84,18 @@ PotentialTargets::PotentialTargets(const battle::Unit * attacker, const Hypothet
 
 	boost::sort(possibleAttacks, [](const AttackPossibility & lhs, const AttackPossibility & rhs) -> bool
 	{
-		if(lhs.collateralDamage > rhs.collateralDamage)
-			return false;
-		if(lhs.collateralDamage < rhs.collateralDamage)
-			return true;
-		return (lhs.damageDealt + lhs.shootersBlockedDmg - lhs.damageReceived > rhs.damageDealt + rhs.shootersBlockedDmg - rhs.damageReceived);
+		return lhs.damageDiff() > rhs.damageDiff();
 	});
 
 	if (!possibleAttacks.empty())
 	{
 		auto & bestAp = possibleAttacks[0];
 
-		logGlobal->info("Battle AI best: %s -> %s at %d from %d, affects %d units: %lld %lld %lld %lld",
+		logGlobal->info("Battle AI best: %s -> %s at %d from %d, affects %d units: d:%lld a:%lld c:%lld s:%lld",
 			bestAp.attack.attacker->unitType()->identifier,
-			state->battleGetUnitByPos(bestAp.dest)->unitType()->identifier,
+			state.battleGetUnitByPos(bestAp.dest)->unitType()->identifier,
 			(int)bestAp.dest, (int)bestAp.from, (int)bestAp.affectedUnits.size(),
-			bestAp.damageDealt, bestAp.damageReceived, bestAp.collateralDamage, bestAp.shootersBlockedDmg);
+			bestAp.defenderDamageReduce, bestAp.attackerDamageReduce, bestAp.collateralDamageReduce, bestAp.shootersBlockedDmg);
 	}
 }
 
@@ -107,6 +103,7 @@ int64_t PotentialTargets::bestActionValue() const
 {
 	if(possibleAttacks.empty())
 		return 0;
+
 	return bestAction().attackValue();
 }
 
@@ -114,6 +111,6 @@ const AttackPossibility & PotentialTargets::bestAction() const
 {
 	if(possibleAttacks.empty())
 		throw std::runtime_error("No best action, since we don't have any actions");
-	return possibleAttacks.at(0);
-	//return *vstd::maxElementByFun(possibleAttacks, [](const AttackPossibility &ap) { return ap.attackValue(); } );
+
+	return possibleAttacks.front();
 }

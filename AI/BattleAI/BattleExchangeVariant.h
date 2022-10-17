@@ -47,6 +47,12 @@ struct EvaluationResult
 	}
 };
 
+/// <summary>
+/// The class represents evaluation of attack value
+/// of exchanges between all stacks which can access particular hex
+/// starting from initial attack represented by AttackPossibility and further according turn order.
+/// Negative score value means we get more demage than deal
+/// </summary>
 class BattleExchangeVariant
 {
 public:
@@ -55,14 +61,14 @@ public:
 	{
 	}
 
-	int64_t trackAttack(const AttackPossibility & ap, HypotheticBattle * state);
+	int64_t trackAttack(const AttackPossibility & ap, HypotheticBattle & state);
 
 	int64_t trackAttack(
 		std::shared_ptr<StackWithBonuses> attacker,
 		std::shared_ptr<StackWithBonuses> defender,
 		bool shooting,
 		bool isOurAttack,
-		std::shared_ptr<CBattleInfoCallback> cb,
+		const CBattleInfoCallback & cb,
 		bool evaluateOnly = false);
 
 	int64_t getScore() const { return dpsScore; }

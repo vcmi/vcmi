@@ -180,12 +180,13 @@ std::vector<CGPathNode *> AINodeStorage::getInitialNodes()
 	for(auto actorPtr : actors)
 	{
 		ChainActor * actor = actorPtr.get();
-		AIPathNode * initialNode =
-			getOrCreateNode(actor->initialPosition, actor->layer, actor)
-			.get();
 
-		if(!initialNode)
+		auto allocated = getOrCreateNode(actor->initialPosition, actor->layer, actor);
+
+		if(!allocated)
 			continue;
+
+		AIPathNode * initialNode = allocated.get();
 
 		initialNode->inPQ = false;
 		initialNode->pq = nullptr;
