@@ -1148,7 +1148,14 @@ void CGameState::placeCampaignHeroes()
 
 void CGameState::placeStartingHero(PlayerColor playerColor, HeroTypeID heroTypeId, int3 townPos)
 {
-	townPos.x -= 2; //FIXME: use actual visitable offset of town
+	for(auto town : map->towns)
+	{
+		if(town->getPosition() == townPos)
+		{
+			townPos = town->visitablePos();
+			break;
+		}
+	}
 
 	CGObjectInstance * hero = createObject(Obj::HERO, heroTypeId.getNum(), townPos, playerColor);
 	hero->pos += hero->getVisitableOffset();
@@ -1866,8 +1873,8 @@ void CGameState::initVisitingAndGarrisonedHeroes()
 		{
 			for(CGTownInstance *t : k->second.towns)
 			{
-				int3 vistile = t->pos; vistile.x--; //tile next to the entrance
-				if(vistile == h->pos || h->pos==t->pos)
+				int3 vistile = t->visitablePos(); vistile.x++; //tile next to the entrance
+				if(vistile == h->pos || h->pos==t->visitablePos())
 				{
 					t->setVisitingHero(h);
 					if(h->pos == t->pos) //visiting hero placed in the editor has same pos as the town - we need to correct it
