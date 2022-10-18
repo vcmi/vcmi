@@ -349,7 +349,7 @@ public:
 
 	inline bool isBattleOutsideTown(const CGHeroInstance * defendingHero) const
 	{
-		return defendingHero && defendingHero != garrisonHero;
+		return defendingHero && garrisonHero && defendingHero != garrisonHero;
 	}
 protected:
 	void setPropertyDer(ui8 what, ui32 val) override;
