@@ -22,11 +22,13 @@ class VCMI(ConanFile):
     ]
     options = {
         "default_options_of_requirements": [True, False],
+        "with_apple_system_libs": [True, False],
         "with_ffmpeg": [True, False],
         "with_luajit": [True, False],
     }
     default_options = {
         "default_options_of_requirements": False,
+        "with_apple_system_libs": False,
         "with_ffmpeg": True,
         "with_luajit": False,
 
@@ -175,7 +177,7 @@ class VCMI(ConanFile):
             self.requires("ffmpeg/[^4.4]")
 
         # use Apple system libraries instead of external ones
-        if not self.options.default_options_of_requirements and is_apple_os(self):
+        if self.options.with_apple_system_libs and not self.options.default_options_of_requirements and is_apple_os(self):
             systemLibsOverrides = [
                 "bzip2/1.0.8",
                 "libiconv/1.17",

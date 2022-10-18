@@ -136,7 +136,8 @@ jobs:
           --no-imports \
           --build=never \
           --profile:build=default \
-          --profile:host=CI/conan/${{ matrix.conan_profile }}
+          --profile:host=CI/conan/${{ matrix.conan_profile }} \
+          --options with_apple_system_libs=True
 
     - name: Git branch name
       id: git-branch-name
