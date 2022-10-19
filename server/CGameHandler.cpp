@@ -1324,23 +1324,21 @@ void CGameHandler::addGenericKilledLog(BattleLogMessage & blm, const CStack * de
 
 void CGameHandler::handleClientDisconnection(std::shared_ptr<CConnection> c)
 {
-	for(auto playerConns : connections)
+	if(lobby->state == EServerState::SHUTDOWN || !gs || !gs->scenarioOps)
+		return;
+	
+	for(auto & playerConnections : connections)
 	{
-		for(auto i = playerConns.second.begin(); i != playerConns.second.end(); )
+		PlayerColor playerId = playerConnections.first;
+		auto * playerSettings = gs->scenarioOps->getPlayersSettings(playerId.getNum());
+		if(!playerSettings)
+			continue;
+		
+		auto playerConnection = vstd::find(playerConnections.second, c);
+		if(playerConnection != playerConnections.second.end())
 		{
-			if(lobby->state != EServerState::SHUTDOWN && *i == c)
-			{
-				i = playerConns.second.erase(i);
-				if(playerConns.second.size())
-					continue;
-				PlayerCheated pc;
-				pc.player = playerConns.first;
-				pc.losingCheatCode = true;
-				sendAndApply(&pc);
-				checkVictoryLossConditionsForPlayer(playerConns.first);
-			}
-			else
-				++i;
+			std::string messageText = boost::str(boost::format("%s (cid %d) was disconnected") % playerSettings->name % c->connectionID);
+			playerMessage(playerId, messageText, ObjectInstanceID{});
 		}
 	}
 }
@@ -3396,6 +3394,11 @@ bool CGameHandler::arrangeStacks(ObjectInstanceID id1, ObjectInstanceID id2, ui8
 	return true;
 }
 
+bool CGameHandler::hasPlayerAt(PlayerColor player, std::shared_ptr<CConnection> c) const
+{
+	return connections.at(player).count(c);
+}
+
 PlayerColor CGameHandler::getPlayerAt(std::shared_ptr<CConnection> c) const
 {
 	std::set<PlayerColor> all;
@@ -5003,16 +5006,65 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 
 void CGameHandler::playerMessage(PlayerColor player, const std::string &message, ObjectInstanceID currObj)
 {
-	bool cheated = true;
+	bool cheated = false;
 	PlayerMessageClient temp_message(player, message);
 	sendAndApply(&temp_message);
 
-	std::vector<std::string> cheat;
-	boost::split(cheat, message, boost::is_any_of(" "));
-	int obj = 0;
-	if (cheat.size() == 2)
+	std::vector<std::string> words;
+	boost::split(words, message, boost::is_any_of(" "));
+	
+	bool isHost = false;
+	for(auto & c : connections[player])
+		if(lobby->isClientHost(c->connectionID))
+			isHost = true;
+	
+	if(isHost && words.size() >= 2 && words[0] == "game")
 	{
-		obj = std::atoi(cheat[1].c_str());
+		if(words[1] == "exit" || words[1] == "quit" || words[1] == "end")
+		{
+			SystemMessage temp_message("game was terminated");
+			sendAndApply(&temp_message);
+			lobby->state = EServerState::SHUTDOWN;
+			return;
+		}
+		if(words.size() == 3 && words[1] == "save")
+		{
+			save("Saves/" + words[2]);
+			SystemMessage temp_message("game saved as " + words[2]);
+			sendAndApply(&temp_message);
+			return;
+		}
+		if(words.size() == 3 && words[1] == "kick")
+		{
+			auto playername = words[2];
+			PlayerColor playerToKick(PlayerColor::CANNOT_DETERMINE);
+			if(std::all_of(playername.begin(), playername.end(), ::isdigit))
+				playerToKick = PlayerColor(std::stoi(playername));
+			else
+			{
+				for(auto & c : connections)
+				{
+					if(c.first.getStr(false) == playername)
+						playerToKick = c.first;
+				}
+			}
+			
+			if(playerToKick != PlayerColor::CANNOT_DETERMINE)
+			{
+				PlayerCheated pc;
+				pc.player = playerToKick;
+				pc.losingCheatCode = true;
+				sendAndApply(&pc);
+				checkVictoryLossConditionsForPlayer(playerToKick);
+			}
+			return;
+		}
+	}
+	
+	int obj = 0;
+	if (words.size() == 2)
+	{
+		obj = std::atoi(words[1].c_str());
 		if (obj)
 			currObj = ObjectInstanceID(obj);
 	}
@@ -5022,38 +5074,38 @@ void CGameHandler::playerMessage(PlayerColor player, const std::string &message,
 	if (!town && hero)
 		town = hero->visitedTown;
 
-	if (cheat.size() == 1 || obj)
-		handleCheatCode(cheat[0], player, hero, town, cheated);
+	if (words.size() == 1 || obj)
+		handleCheatCode(words[0], player, hero, town, cheated);
 	else
 	{
 		for (const auto & i : gs->players)
 		{
 			if (i.first == PlayerColor::NEUTRAL)
 				continue;
-			if (cheat[1] == "ai")
+			if (words[1] == "ai")
 			{
 				if (i.second.human)
 					continue;
 			}
-			else if (cheat[1] != "all" && cheat[1] != i.first.getStr())
+			else if (words[1] != "all" && words[1] != i.first.getStr())
 				continue;
 
-			if (cheat[0] == "vcmiformenos" || cheat[0] == "vcmieagles" || cheat[0] == "vcmiungoliant")
+			if (words[0] == "vcmiformenos" || words[0] == "vcmieagles" || words[0] == "vcmiungoliant")
 			{
-				handleCheatCode(cheat[0], i.first, nullptr, nullptr, cheated);
+				handleCheatCode(words[0], i.first, nullptr, nullptr, cheated);
 			}
-			else if (cheat[0] == "vcmiarmenelos")
+			else if (words[0] == "vcmiarmenelos")
 			{
 				for (const auto & t : i.second.towns)
 				{
-					handleCheatCode(cheat[0], i.first, nullptr, t, cheated);
+					handleCheatCode(words[0], i.first, nullptr, t, cheated);
 				}
 			}
 			else
 			{
 				for (const auto & h : i.second.heroes)
 				{
-					handleCheatCode(cheat[0], i.first, h, nullptr, cheated);
+					handleCheatCode(words[0], i.first, h, nullptr, cheated);
 				}
 			}
 		}
@@ -6931,6 +6983,7 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 {
 	if (cheat == "vcmiistari")
 	{
+		cheated = true;
 		if (!hero) return;
 		///Give hero spellbook
 		if (!hero->hasSpellbook())
@@ -6956,6 +7009,7 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 	}
 	else if (cheat == "vcmiarmenelos")
 	{
+		cheated = true;
 		if (!town) return;
 		///Build all buildings in selected town
 		for (auto & build : town->town->buildings)
@@ -6970,6 +7024,7 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 	}
 	else if (cheat == "vcmiainur" || cheat == "vcmiangband" || cheat == "vcmiglaurung")
 	{
+		cheated = true;
 		if (!hero) return;
 		///Gives N creatures into each slot
 		std::map<std::string, std::pair<int, int>> creatures;
@@ -6984,6 +7039,7 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 	}
 	else if (cheat == "vcminoldor")
 	{
+		cheated = true;
 		if (!hero) return;
 		///Give all war machines to hero
 		if (!hero->getArt(ArtifactPosition::MACH1))
@@ -6995,6 +7051,7 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 	}
 	else if (cheat == "vcmiforgeofnoldorking")
 	{
+		cheated = true;
 		if (!hero) return;
 		///Give hero all artifacts except war machines, spell scrolls and spell book
 		for (int g = 7; g < VLC->arth->objects.size(); ++g) //including artifacts from mods
@@ -7002,12 +7059,14 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 	}
 	else if (cheat == "vcmiglorfindel")
 	{
+		cheated = true;
 		if (!hero) return;
 		///selected hero gains a new level
 		changePrimSkill(hero, PrimarySkill::EXPERIENCE, VLC->heroh->reqExp(hero->level + 1) - VLC->heroh->reqExp(hero->level));
 	}
 	else if (cheat == "vcminahar")
 	{
+		cheated = true;
 		if (!hero) return;
 		///Give 1000000 movement points to hero
 		SetMovePoints smp;
@@ -7024,6 +7083,7 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 	}
 	else if (cheat == "vcmiformenos")
 	{
+		cheated = true;
 		///Give resources to player
 		TResources resources;
 		resources[Res::GOLD] = 100000;
@@ -7034,6 +7094,7 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 	}
 	else if (cheat == "vcmisilmaril")
 	{
+		cheated = true;
 		///Player wins
 		PlayerCheated pc;
 		pc.player = player;
@@ -7042,6 +7103,7 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 	}
 	else if (cheat == "vcmimelkor")
 	{
+		cheated = true;
 		///Player looses
 		PlayerCheated pc;
 		pc.player = player;
@@ -7050,6 +7112,7 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 	}
 	else if (cheat == "vcmieagles" || cheat == "vcmiungoliant")
 	{
+		cheated = true;
 		///Reveal or conceal FoW
 		FoWChange fc;
 		fc.mode = (cheat == "vcmieagles" ? 1 : 0);
@@ -7068,8 +7131,6 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 		delete [] hlp_tab;
 		sendAndApply(&fc);
 	}
-	else
-		cheated = false;
 }
 
 void CGameHandler::removeObstacle(const CObstacleInstance & obstacle)

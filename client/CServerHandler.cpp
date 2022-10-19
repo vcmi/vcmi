@@ -559,6 +559,23 @@ void CServerHandler::startGameplay(CGameState * gameState)
 	// After everything initialized we can accept CPackToClient netpacks
 	c->enterGameplayConnectionMode(client->gameState());
 	state = EClientState::GAMEPLAY;
+	
+	//store settings to continue game
+	if(!isServerLocal() && isGuest())
+	{
+		Settings saveSession = settings.write["server"]["reconnect"];
+		saveSession->Bool() = true;
+		Settings saveUuid = settings.write["server"]["uuid"];
+		saveUuid->String() = uuid;
+		Settings saveNames = settings.write["server"]["names"];
+		saveNames->Vector().clear();
+		for(auto & name : myNames)
+		{
+			JsonNode jsonName;
+			jsonName.String() = name;
+			saveNames->Vector().push_back(jsonName);
+		}
+	}
 }
 
 void CServerHandler::endGameplay(bool closeConnection, bool restart)
@@ -589,6 +606,10 @@ void CServerHandler::endGameplay(bool closeConnection, bool restart)
 	
 	c->enterLobbyConnectionMode();
 	c->disableStackSendingByID();
+	
+	//reset settings
+	Settings saveSession = settings.write["server"]["reconnect"];
+	saveSession->Bool() = false;
 }
 
 void CServerHandler::startCampaignScenario(std::shared_ptr<CCampaignState> cs)
@@ -637,6 +658,28 @@ ui8 CServerHandler::getLoadMode()
 		return ELoadMode::SINGLE;
 	}
 	return loadMode;
+}
+
+void CServerHandler::restoreLastSession()
+{
+	auto loadSession = [this]()
+	{
+		uuid = settings["server"]["uuid"].String();
+		for(auto & name : settings["server"]["names"].Vector())
+			myNames.push_back(name.String());
+		resetStateForLobby(StartInfo::LOAD_GAME, &myNames);
+		screenType = ESelectionScreen::loadGame;
+		justConnectToServer(settings["server"]["server"].String(), settings["server"]["port"].Integer());
+	};
+	
+	auto cleanUpSession = []()
+	{
+		//reset settings
+		Settings saveSession = settings.write["server"]["reconnect"];
+		saveSession->Bool() = false;
+	};
+	
+	CInfoWindow::showYesNoDialog(VLC->generaltexth->localizedTexts["server"]["confirmReconnect"].String(), {}, loadSession, cleanUpSession);
 }
 
 void CServerHandler::debugStartTest(std::string filename, bool save)

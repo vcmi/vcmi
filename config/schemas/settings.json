@@ -253,7 +253,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default": {},
-			"required" : [ "server", "port", "localInformation", "playerAI", "friendlyAI","neutralAI", "enemyAI" ],
+			"required" : [ "server", "port", "localInformation", "playerAI", "friendlyAI","neutralAI", "enemyAI", "reconnect", "uuid", "names" ],
 			"properties" : {
 				"server" : {
 					"type":"string",
@@ -282,6 +282,23 @@
 				"enemyAI" : {
 					"type" : "string",
 					"default" : "BattleAI"
+				},
+				"reconnect" : {
+					"type" : "boolean",
+					"default" : false
+				},
+				"uuid" : {
+					"type" : "string",
+					"default" : ""
+				},
+				"names" : {
+					"type" : "array",
+					"default" : {},
+					"items":
+					{
+						"type" : "string",
+						"default" : ""
+					}
 				}
 			}
 		},

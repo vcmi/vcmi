@@ -206,11 +206,6 @@ void CVCMIServer::threadAnnounceLobby()
 				announcePack(std::move(announceQueue.front()));
 				announceQueue.pop_front();
 			}
-			if(state != EServerState::LOBBY)
-			{
-				if(acceptor)
-					acceptor->close();
-			}
 
 			if(acceptor)
 			{
@@ -308,11 +303,14 @@ void CVCMIServer::connectionAccepted(const boost::system::error_code & ec)
 
 	try
 	{
-		logNetwork->info("We got a new connection! :)");
-		auto c = std::make_shared<CConnection>(upcomingConnection, SERVER_NAME, uuid);
-		upcomingConnection.reset();
-		connections.insert(c);
-		c->handler = std::make_shared<boost::thread>(&CVCMIServer::threadHandleClient, this, c);
+		if(state == EServerState::LOBBY || !hangingConnections.empty())
+		{
+			logNetwork->info("We got a new connection! :)");
+			auto c = std::make_shared<CConnection>(upcomingConnection, SERVER_NAME, uuid);
+			upcomingConnection.reset();
+			connections.insert(c);
+			c->handler = std::make_shared<boost::thread>(&CVCMIServer::threadHandleClient, this, c);
+		}
 	}
 	catch(std::exception & e)
 	{
@@ -343,10 +341,15 @@ void CVCMIServer::threadHandleClient(std::shared_ptr<CConnection> c)
 			catch(boost::system::system_error & e)
 			{
 				logNetwork->error("Network error receiving a pack. Connection %s dies. What happened: %s", c->toString(), e.what());
-
-				if(state != EServerState::LOBBY)
+				hangingConnections.insert(c);
+				connections.erase(c);
+				if(connections.empty() || hostClient == c)
+					state = EServerState::SHUTDOWN;
+				
+				if(gh && state == EServerState::GAMEPLAY)
+				{
 					gh->handleClientDisconnection(c);
-
+				}
 				break;
 			}
 			
@@ -453,7 +456,8 @@ bool CVCMIServer::passHost(int toConnectionId)
 
 void CVCMIServer::clientConnected(std::shared_ptr<CConnection> c, std::vector<std::string> & names, std::string uuid, StartInfo::EMode mode)
 {
-	c->connectionID = currentClientId++;
+	if(state == EServerState::LOBBY)
+		c->connectionID = currentClientId++;
 
 	if(!hostClient)
 	{
@@ -463,24 +467,28 @@ void CVCMIServer::clientConnected(std::shared_ptr<CConnection> c, std::vector<st
 	}
 
 	logNetwork->info("Connection with client %d established. UUID: %s", c->connectionID, c->uuid);
-	for(auto & name : names)
+	
+	if(state == EServerState::LOBBY)
 	{
-		logNetwork->info("Client %d player: %s", c->connectionID, name);
-		ui8 id = currentPlayerId++;
-
-		ClientPlayer cp;
-		cp.connection = c->connectionID;
-		cp.name = name;
-		playerNames.insert(std::make_pair(id, cp));
-		announceTxt(boost::str(boost::format("%s (pid %d cid %d) joins the game") % name % id % c->connectionID));
-
-		//put new player in first slot with AI
-		for(auto & elem : si->playerInfos)
+		for(auto & name : names)
 		{
-			if(elem.second.isControlledByAI() && !elem.second.compOnly)
+			logNetwork->info("Client %d player: %s", c->connectionID, name);
+			ui8 id = currentPlayerId++;
+
+			ClientPlayer cp;
+			cp.connection = c->connectionID;
+			cp.name = name;
+			playerNames.insert(std::make_pair(id, cp));
+			announceTxt(boost::str(boost::format("%s (pid %d cid %d) joins the game") % name % id % c->connectionID));
+
+			//put new player in first slot with AI
+			for(auto & elem : si->playerInfos)
 			{
-				setPlayerConnectedId(elem.second, id);
-				break;
+				if(elem.second.isControlledByAI() && !elem.second.compOnly)
+				{
+					setPlayerConnectedId(elem.second, id);
+					break;
+				}
 			}
 		}
 	}
@@ -489,23 +497,73 @@ void CVCMIServer::clientConnected(std::shared_ptr<CConnection> c, std::vector<st
 void CVCMIServer::clientDisconnected(std::shared_ptr<CConnection> c)
 {
 	connections -= c;
+	if(connections.empty() || hostClient == c)
+	{
+		state = EServerState::SHUTDOWN;
+		return;
+	}
+	
+	PlayerReinitInterface startAiPack;
+	startAiPack.playerConnectionId = PlayerSettings::PLAYER_AI;
+	
 	for(auto it = playerNames.begin(); it != playerNames.end();)
 	{
 		if(it->second.connection != c->connectionID)
 		{
-			it++;
+			++it;
 			continue;
 		}
 
 		int id = it->first;
-		announceTxt(boost::str(boost::format("%s (pid %d cid %d) left the game") % id % playerNames[id].name % c->connectionID));
-		playerNames.erase(it++);
-
-		// Reset in-game players client used back to AI
-		if(PlayerSettings * s = si->getPlayersSettings(id))
+		std::string playerLeftMsgText = boost::str(boost::format("%s (pid %d cid %d) left the game") % id % playerNames[id].name % c->connectionID);
+		announceTxt(playerLeftMsgText); //send lobby text, it will be ignored for non-lobby clients
+		auto * playerSettings = si->getPlayersSettings(id);
+		if(!playerSettings)
 		{
-			setPlayerConnectedId(*s, PlayerSettings::PLAYER_AI);
+			++it;
+			continue;
 		}
+		
+		it = playerNames.erase(it);
+		setPlayerConnectedId(*playerSettings, PlayerSettings::PLAYER_AI);
+		
+		if(gh && si && state == EServerState::GAMEPLAY)
+		{
+			gh->playerMessage(playerSettings->color, playerLeftMsgText, ObjectInstanceID{});
+			gh->connections[playerSettings->color].insert(hostClient);
+			startAiPack.players.push_back(playerSettings->color);
+		}
+	}
+	
+	if(!startAiPack.players.empty())
+		gh->sendAndApply(&startAiPack);
+}
+
+void CVCMIServer::reconnectPlayer(int connId)
+{
+	PlayerReinitInterface startAiPack;
+	startAiPack.playerConnectionId = connId;
+	
+	if(gh && si && state == EServerState::GAMEPLAY)
+	{
+		for(auto it = playerNames.begin(); it != playerNames.end(); ++it)
+		{
+			if(it->second.connection != connId)
+				continue;
+			
+			int id = it->first;
+			auto * playerSettings = si->getPlayersSettings(id);
+			if(!playerSettings)
+				continue;
+			
+			std::string messageText = boost::str(boost::format("%s (cid %d) is connected") % playerSettings->name % connId);
+			gh->playerMessage(playerSettings->color, messageText, ObjectInstanceID{});
+			
+			startAiPack.players.push_back(playerSettings->color);
+		}
+
+		if(!startAiPack.players.empty())
+			gh->sendAndApply(&startAiPack);
 	}
 }
 

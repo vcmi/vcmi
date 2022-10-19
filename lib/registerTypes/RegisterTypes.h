@@ -240,6 +240,7 @@ void registerTypesClientPacks1(Serializer &s)
 	s.template registerType<CPackForClient, GiveBonus>();
 	s.template registerType<CPackForClient, ChangeObjPos>();
 	s.template registerType<CPackForClient, PlayerEndsGame>();
+	s.template registerType<CPackForClient, PlayerReinitInterface>();
 	s.template registerType<CPackForClient, RemoveBonus>();
 	s.template registerType<CPackForClient, UpdateArtHandlerLists>();
 	s.template registerType<CPackForClient, UpdateMapEvents>();

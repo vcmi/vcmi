@@ -345,6 +345,34 @@ void PlayerEndsGame::applyCl(CClient *cl)
 		handleQuit(settings["session"]["spectate"].Bool()); // if spectator is active ask to close client or not
 }
 
+void PlayerReinitInterface::applyCl(CClient * cl)
+{
+	auto initInterfaces = [cl]()
+	{
+		cl->initPlayerInterfaces();
+		auto currentPlayer = cl->gameState()->currentPlayer;
+		callAllInterfaces(cl, &IGameEventsReceiver::playerStartsTurn, currentPlayer);
+		callOnlyThatInterface(cl, currentPlayer, &CGameInterface::yourTurn);
+	};
+	
+	for(auto player : players)
+	{
+		auto & plSettings = CSH->si->getIthPlayersSettings(player);
+		if(playerConnectionId == PlayerSettings::PLAYER_AI)
+		{
+			plSettings.connectedPlayerIDs.clear();
+			cl->initPlayerEnvironments();
+			initInterfaces();
+		}
+		else if(playerConnectionId == CSH->c->connectionID)
+		{
+			plSettings.connectedPlayerIDs.insert(playerConnectionId);
+			cl->playerint.clear();
+			initInterfaces();
+		}
+	}
+}
+
 void RemoveBonus::applyCl(CClient *cl)
 {
 	cl->invalidatePaths();
@@ -790,7 +818,11 @@ void YourTurn::applyCl(CClient *cl)
 void SaveGameClient::applyCl(CClient *cl)
 {
 	const auto stem = FileInfo::GetPathStem(fname);
-	CResourceHandler::get("local")->createResource(stem.to_string() + ".vcgm1");
+	if(!CResourceHandler::get("local")->createResource(stem.to_string() + ".vcgm1"))
+	{
+		logNetwork->error("Failed to create resource %s", stem.to_string() + ".vcgm1");
+		return;
+	}
 
 	try
 	{

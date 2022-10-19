@@ -934,6 +934,10 @@ void CAdvMapInt::activate()
 
 	screenBuf = screen;
 	GH.statusbar = statusbar;
+	
+	if(LOCPLINT)
+		LOCPLINT->cingconsole->activate();
+	
 	if(!duringAITurn)
 	{
 		activeMapPanel->activate();
@@ -945,8 +949,6 @@ void CAdvMapInt::activate()
 		}
 		minimap.activate();
 		terrain.activate();
-		if(LOCPLINT)
-			LOCPLINT->cingconsole->activate();
 
 		GH.fakeMouseMove(); //to restore the cursor
 	}
@@ -970,8 +972,6 @@ void CAdvMapInt::deactivate()
 		}
 		minimap.deactivate();
 		terrain.deactivate();
-		if(LOCPLINT)
-			LOCPLINT->cingconsole->deactivate();
 	}
 }
 
@@ -1532,8 +1532,6 @@ void CAdvMapInt::endingTurn()
 	if(settings["session"]["spectate"].Bool())
 		return;
 
-	if(LOCPLINT->cingconsole->active)
-		LOCPLINT->cingconsole->deactivate();
 	LOCPLINT->makingTurn = false;
 	LOCPLINT->cb->endTurn();
 	CCS->soundh->ambientStopAllChannels();

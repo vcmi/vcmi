@@ -421,6 +421,21 @@ struct PlayerEndsGame : public CPackForClient
 	}
 };
 
+struct PlayerReinitInterface : public CPackForClient
+{
+	void applyCl(CClient * cl);
+	DLL_LINKAGE void applyGs(CGameState *gs);
+	
+	std::vector<PlayerColor> players;
+	ui8 playerConnectionId; //PLAYER_AI for AI player
+	
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & players;
+		h & playerConnectionId;
+	}
+};
+
 struct RemoveBonus :  public CPackForClient
 {
 	RemoveBonus(ui8 Who = 0)
