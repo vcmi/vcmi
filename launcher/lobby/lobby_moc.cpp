@@ -1,7 +1,8 @@
 #include "lobby_moc.h"
 #include "ui_lobby_moc.h"
+#include "../lib/GameConstants.h"
 
-SocketTest::SocketTest(QObject *parent) :
+SocketLobby::SocketLobby(QObject *parent) :
 	QObject(parent)
 {
 	socket = new QTcpSocket(this);
@@ -11,47 +12,57 @@ SocketTest::SocketTest(QObject *parent) :
 	connect(socket, SIGNAL(bytesWritten(qint64)), this, SLOT(bytesWritten(qint64)));
 }
 
-void SocketTest::Test()
+void SocketLobby::connectServer(const QString & host, int port, const QString & usr)
 {
-	qDebug() << "Connecting,..";
-	emit text("Connecting to 127.0.0.1:5002...");
+	const int connectionTimeout = 1000;
+	username = usr;
 
-	socket->connectToHost("127.0.0.1", 5002);
+	emit text("Connecting to " + host + ":" + QString::number(port));
 
-	if(!socket->waitForDisconnected(1000) && !isConnected)
+	socket->connectToHost(host, port);
+
+	if(!socket->waitForDisconnected(connectionTimeout) && !isConnected)
 	{
 		emit text("Error: " + socket->errorString());
 	}
-
 }
 
-void SocketTest::send(const QString & msg)
+void SocketLobby::disconnectServer()
+{
+	socket->disconnectFromHost();
+}
+
+void SocketLobby::send(const QString & msg)
 {
 	socket->write(qPrintable(msg));
 }
 
-void SocketTest::connected()
+void SocketLobby::connected()
 {
 	isConnected = true;
 	emit text("Connected!");
+
+	const QString greetingConst = ProtocolStrings[GREETING].arg(username) + ProtocolStrings[VERSION].arg(QString::fromStdString(GameConstants::VCMI_VERSION));
+	send(greetingConst);
 }
 
-void SocketTest::disconnected()
+void SocketLobby::disconnected()
 {
 	isConnected = false;
 	emit text("Disconnected!");
 }
 
-void SocketTest::bytesWritten(qint64 bytes)
+void SocketLobby::bytesWritten(qint64 bytes)
 {
 	qDebug() << "We wrote: " << bytes;
 }
 
-void SocketTest::readyRead()
+void SocketLobby::readyRead()
 {
 	qDebug() << "Reading...";
 	emit text(socket->readAll());
 }
+
 
 
 
@@ -61,9 +72,7 @@ Lobby::Lobby(QWidget *parent) :
 {
 	ui->setupUi(this);
 
-	connect(&mTest, SIGNAL(text(QString)), this, SLOT(text(QString)));
-
-	mTest.Test();
+	connect(&socketLobby, SIGNAL(text(QString)), this, SLOT(text(QString)));
 }
 
 Lobby::~Lobby()
@@ -71,10 +80,10 @@ Lobby::~Lobby()
 	delete ui;
 }
 
-void Lobby::on_lineEdit_returnPressed()
+void Lobby::on_messageEdit_returnPressed()
 {
-	mTest.send(ui->lineEdit->text());
-	ui->lineEdit->clear();
+	socketLobby.send(ProtocolStrings[MESSAGE].arg(ui->messageEdit->text()));
+	ui->messageEdit->clear();
 }
 
 void Lobby::text(QString txt)
@@ -82,5 +91,17 @@ void Lobby::text(QString txt)
 	QTextCursor curs(ui->chat->document());
 	curs.movePosition(QTextCursor::End);
 	curs.insertText(txt + "\n");
+}
+
+void Lobby::on_connectButton_toggled(bool checked)
+{
+	if(checked)
+	{
+		socketLobby.connectServer(ui->hostEdit->text(), ui->portEdit->text().toInt(), ui->userEdit->text());
+	}
+	else
+	{
+		socketLobby.disconnectServer();
+	}
 }
 
