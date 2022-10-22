@@ -132,5 +132,5 @@ install(TARGETS vcmieditor DESTINATION ${BIN_DIR})
 install(DIRECTORY icons DESTINATION ${DATA_DIR}/mapeditor)
 # Install icons and desktop file on Linux
 if(NOT WIN32 AND NOT APPLE)
-	install(FILES "vcmilauncher.desktop" DESTINATION share/applications)
+	install(FILES "vcmieditor.desktop" DESTINATION share/applications)
 endif()

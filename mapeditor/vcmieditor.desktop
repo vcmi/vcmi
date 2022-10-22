@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=VCMI Map Editor
+GenericName=Strategy Game Engine
+Comment=Map editor for open engine of Heroes of Might and Magic 3
+Icon=vcmiclient
+Exec=vcmieditor
+Categories=Game;StrategyGame;
+Version=1.0
+Keywords=heroes;homm3;

@@ -51,6 +51,7 @@
 	<provides>
 		<binary>vcmibuilder</binary>
 		<binary>vcmiclient</binary>
+		<binary>vcmieditor</binary>
 		<binary>vcmilauncher</binary>
 		<binary>vcmiserver</binary>
 	</provides>
