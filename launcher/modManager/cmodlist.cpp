@@ -299,11 +299,16 @@ CModEntry CModList::getMod(QString modname) const
 			{
 				if(repo.empty() || CModEntry::compareVersions(repo["version"].toString(), repoValMap["version"].toString()))
 				{
-					//take valid download link before assignment
+					//take valid download link and screenshots before assignment
 					auto download = repo.value("download");
+					auto screenshots = repo.value("screenshots");
 					repo = repoValMap;
 					if(repo.value("download").isNull())
+					{
 						repo["download"] = download;
+						if(repo.value("screenshots").isNull()) //taking screenshot from the downloadable version
+							repo["screenshots"] = screenshots;
+					}
 				}
 			}
 		}
