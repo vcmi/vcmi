@@ -40,13 +40,23 @@ if(APPLE_MACOS)
 	vcmi_install_conan_deps("${bundleContentsDir}")
 
 	# perform ad-hoc codesigning
+	set(executablesToSign vcmiserver)
+	if(ENABLE_EDITOR)
+		list(APPEND executablesToSign vcmieditor)
+	endif()
+	# main executable must be last
+	list(APPEND executablesToSign vcmiclient)
+	if(ENABLE_LAUNCHER)
+		list(APPEND executablesToSign vcmilauncher)
+	endif()
+
 	set(codesignCommand "codesign --verbose=4 --force --options=runtime --timestamp=none --sign -")
 	set(codesignCommandWithEntitlements "${codesignCommand} --entitlements \"${CMAKE_SOURCE_DIR}/osx/entitlements.plist\"")
 	install(CODE "
 		execute_process(COMMAND
 			${codesignCommand} \"${bundleContentsDir}/MacOS/vcmibuilder\"
 		)
-		foreach(executable vcmiclient vcmiserver vcmilauncher)
+		foreach(executable ${executablesToSign})
 			execute_process(COMMAND
 				${codesignCommandWithEntitlements} \"${bundleContentsDir}/MacOS/\${executable}\"
 			)
