@@ -58,7 +58,7 @@ if(APPLE_MACOS)
 		)
 		foreach(executable ${executablesToSign})
 			execute_process(COMMAND
-				${codesignCommandWithEntitlements} \"${bundleContentsDir}/MacOS/\${executable}\"
+				${codesignCommandWithEntitlements} --identifier eu.vcmi.\${executable} \"${bundleContentsDir}/MacOS/\${executable}\"
 			)
 		endforeach()
 	")
