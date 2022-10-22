@@ -31,13 +31,11 @@ public:
 	virtual void loadObject(std::string scope, std::string name, const JsonNode & data) override;
 	virtual void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
 	
-	const CRmgTemplate * getTemplate(const std::string & templateFullId) const;
-	const CRmgTemplate * getTemplateByName(const std::string & templateName) const;
+	const CRmgTemplate* getTemplate(const std::string & templateName) const;
 	std::vector<const CRmgTemplate *> getTemplates() const;
 
 private:
-	std::map<std::string, CRmgTemplate> templates; //FIXME: doesn't IHandlerBase cover this?
-	std::map<std::string, CRmgTemplate> templatesByName;
+	std::map<std::string, CRmgTemplate> templates;
 };
 
 

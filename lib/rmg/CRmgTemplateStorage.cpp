@@ -34,8 +34,6 @@ void CRmgTemplateStorage::loadObject(std::string scope, std::string name, const 
 		templates[fullKey].setId(name);
 		templates[fullKey].serializeJson(handler);
 		templates[fullKey].validate();
-
-		templatesByName[name] = templates[fullKey];
 	}
 	catch(const std::exception & e)
 	{
@@ -55,18 +53,10 @@ std::vector<JsonNode> CRmgTemplateStorage::loadLegacyData(size_t dataSize)
 	//it would be cool to load old rmg.txt files
 }
 
-const CRmgTemplate * CRmgTemplateStorage::getTemplate(const std::string & templateFullId) const
+const CRmgTemplate * CRmgTemplateStorage::getTemplate(const std::string & templateName) const
 {
-	auto iter = templates.find(templateFullId);
+	auto iter = templates.find(templateName);
 	if(iter==templates.end())
-		return nullptr;
-	return &iter->second;
-}
-
-const CRmgTemplate * CRmgTemplateStorage::getTemplateByName(const std::string & templateName) const
-{
-	auto iter = templatesByName.find(templateName);
-	if(iter == templatesByName.end())
 		return nullptr;
 	return &iter->second;
 }
