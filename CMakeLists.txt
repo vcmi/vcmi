@@ -48,20 +48,6 @@ if(NOT CMAKE_BUILD_TYPE)
 	set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS Debug Release RelWithDebInfo)
 endif()
 
-set(VCMI_VERSION_MAJOR 1)
-set(VCMI_VERSION_MINOR 1)
-set(VCMI_VERSION_PATCH 0)
-add_definitions(
-	-DVCMI_VERSION_MAJOR=${VCMI_VERSION_MAJOR}
-	-DVCMI_VERSION_MINOR=${VCMI_VERSION_MINOR}
-	-DVCMI_VERSION_PATCH=${VCMI_VERSION_PATCH}
-	-DVCMI_VERSION_STRING="${VCMI_VERSION_MAJOR}.${VCMI_VERSION_MINOR}.${VCMI_VERSION_PATCH}"
-)
-set(APP_SHORT_VERSION "${VCMI_VERSION_MAJOR}.${VCMI_VERSION_MINOR}")
-if(NOT VCMI_VERSION_PATCH EQUAL 0)
-	string(APPEND APP_SHORT_VERSION ".${VCMI_VERSION_PATCH}")
-endif()
-
 option(ENABLE_ERM "Enable compilation of ERM scripting module" OFF)
 option(ENABLE_LUA "Enable compilation of LUA scripting module" OFF)
 option(ENABLE_LAUNCHER "Enable compilation of launcher" ON)
@@ -99,7 +85,10 @@ endif()
 
 set(CMAKE_MODULE_PATH ${CMAKE_HOME_DIRECTORY}/cmake_modules ${PROJECT_SOURCE_DIR}/CI)
 # Contains custom functions and macros, but don't altering any options
+
 include(VCMIUtils)
+include(VersionDefinition)
+
 vcmi_print_important_variables()
 
 # Options to enable folders in CMake generated projects for Visual Studio, Xcode, etc
