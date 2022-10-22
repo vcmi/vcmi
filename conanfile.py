@@ -192,6 +192,7 @@ class VCMI(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["USING_CONAN"] = True
+        tc.variables["CONAN_INSTALL_FOLDER"] = self.install_folder
         tc.generate()
 
         deps = CMakeDeps(self)
