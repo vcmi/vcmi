@@ -2,6 +2,6 @@
 
 echo DEVELOPER_DIR=/Applications/Xcode_13.4.1.app >> $GITHUB_ENV
 
-curl -L 'https://github.com/vcmi/vcmi-ios-deps/releases/latest/download/vcmi-ios-depends-xc13.2.1.txz' \
+mkdir ~/.conan ; cd ~/.conan
+curl -L 'https://github.com/vcmi/vcmi-ios-deps/releases/download/1.1/ios-arm64.xz' \
 	| tar -xf -
-build/fix_install_paths.command

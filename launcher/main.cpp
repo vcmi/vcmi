@@ -12,6 +12,13 @@
 
 #include <QApplication>
 
+// Conan workaround https://github.com/conan-io/conan-center-index/issues/13332
+#ifdef VCMI_IOS
+#if __has_include("QIOSIntegrationPlugin.h")
+#include "QIOSIntegrationPlugin.h"
+#endif
+#endif
+
 int main(int argc, char * argv[])
 {
 	int result;

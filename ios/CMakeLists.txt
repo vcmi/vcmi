@@ -8,3 +8,4 @@ target_link_libraries(iOS_utils PRIVATE
 target_include_directories(iOS_utils PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 vcmi_set_output_dir(iOS_utils "")
+install(TARGETS iOS_utils RUNTIME DESTINATION ${LIB_DIR} LIBRARY DESTINATION ${LIB_DIR})

@@ -9,9 +9,8 @@ if(APPLE_MACOS)
 		if(CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL CMAKE_SYSTEM_PROCESSOR)
 			# deploy Qt dylibs with macdeployqt
 			find_program(TOOL_MACDEPLOYQT NAMES macdeployqt PATHS ${qt_base_dir}/bin)
-			if(NOT TOOL_MACDEPLOYQT)
-				message(FATAL_ERROR "Could not find macdeployqt")
-			endif()
+		endif()
+		if(TOOL_MACDEPLOYQT)
 			install(CODE "
 				execute_process(COMMAND
 					\"${TOOL_MACDEPLOYQT}\" \"${bundleDir}\" -verbose=2
@@ -38,12 +37,7 @@ if(APPLE_MACOS)
 	endif()
 
 	# deploy other dylibs with conan
-	install(CODE "
-		execute_process(COMMAND
-			conan imports \"${CMAKE_SOURCE_DIR}\" --install-folder \"${CMAKE_SOURCE_DIR}/conan-generated\" --import-folder \"${bundleContentsDir}\"
-		)
-		file(REMOVE \"${bundleContentsDir}/conan_imports_manifest.txt\")
-	")
+	vcmi_install_conan_deps("${bundleContentsDir}")
 
 	# perform ad-hoc codesigning
 	set(codesignCommand "codesign --verbose=4 --force --options=runtime --timestamp=none --sign -")
