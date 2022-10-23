@@ -85,6 +85,7 @@ public:
 	void removeUnitBonus(const CSelector & selector);
 
 	void spendMana(ServerCallback * server, const int spellCost) const override;
+	std::string getDescription() const override;
 
 private:
 	const IBonusBearer * origBearer;

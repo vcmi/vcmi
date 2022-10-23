@@ -27,7 +27,9 @@
 namespace NKAI
 {
 
+// our to enemy strength ratio constants
 const float SAFE_ATTACK_CONSTANT = 1.2;
+const float RETREAT_THRESHOLD = 0.3;
 
 //one thread may be turn of AI and another will be handling a side effect for AI2
 boost::thread_specific_ptr<CCallback> cb;
@@ -201,6 +203,9 @@ void AIGateway::gameOver(PlayerColor player, const EVictoryLossCheckResult & vic
 		{
 			logAi->debug("AIGateway: Player %d (%s) lost. It's me. What a disappointment! :(", player, player.getStr());
 		}
+
+		// some whitespace to flush stream
+		logAi->debug(std::string(200, ' '));
 
 		finish();
 	}
@@ -498,7 +503,7 @@ boost::optional<BattleAction> AIGateway::makeSurrenderRetreatDecision(
 	double fightRatio = battleState.getOurStrength() / (double)battleState.getEnemyStrength();
 
 	// if we have no towns - things are already bad, so retreat is not an option.
-	if(cb->getTownsInfo().size() && fightRatio < 0.3 && battleState.canFlee)
+	if(cb->getTownsInfo().size() && fightRatio < RETREAT_THRESHOLD && battleState.canFlee)
 	{
 		return BattleAction::makeRetreat(battleState.ourSide);
 	}

@@ -199,6 +199,21 @@ void StackWithBonuses::removeUnitBonus(const CSelector & selector)
 	vstd::erase_if(bonusesToUpdate, [&](const Bonus & b){return selector(&b);});
 }
 
+std::string StackWithBonuses::getDescription() const
+{
+	std::ostringstream oss;
+	oss << unitOwner().getStr();
+	oss << " battle stack [" << unitId() << "]: " << getCount() << " of ";
+	if(type)
+		oss << type->namePl;
+	else
+		oss << "[UNDEFINED TYPE]";
+
+	oss << " from slot " << slot;
+
+	return oss.str();
+}
+
 void StackWithBonuses::spendMana(ServerCallback * server, const int spellCost) const
 {
 	//TODO: evaluate cast use
@@ -284,7 +299,6 @@ int32_t HypotheticBattle::getActiveStackID() const
 void HypotheticBattle::nextRound(int32_t roundNr)
 {
 	//TODO:HypotheticBattle::nextRound
-
 	for(auto unit : battleAliveUnits())
 	{
 		auto forUpdate = getForUpdate(unit->unitId());
