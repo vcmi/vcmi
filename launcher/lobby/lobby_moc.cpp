@@ -1,6 +1,9 @@
 #include "lobby_moc.h"
 #include "ui_lobby_moc.h"
 #include "../lib/GameConstants.h"
+#include "../jsonutils.h"
+#include "../../lib/CConfigHandler.h"
+//#include "../../lib/VCMIDirs.h"
 
 SocketLobby::SocketLobby(QObject *parent) :
 	QObject(parent)
@@ -253,6 +256,12 @@ void Lobby::on_connectButton_toggled(bool checked)
 	if(checked)
 	{
 		username = ui->userEdit->text();
+
+		Settings node = settings.write["launcher"];
+		node["lobbyUrl"].String() = ui->hostEdit->text().toStdString();
+		node["lobbyPort"].Integer() = ui->portEdit->text().toInt();
+		node["lobbyUsername"].String() = username.toStdString();
+
 		socketLobby.connectServer(ui->hostEdit->text(), ui->portEdit->text().toInt(), username);
 	}
 	else

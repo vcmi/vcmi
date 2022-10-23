@@ -380,7 +380,7 @@
 			"type" : "object",
 			"default": {},
 			"additionalProperties" : false,
-			"required" : [ "repositoryURL", "enableInstalledMods", "extraResolutionsModPath", "autoCheckRepositories", "updateOnStartup", "updateConfigUrl" ],
+			"required" : [ "repositoryURL", "enableInstalledMods", "extraResolutionsModPath", "autoCheckRepositories", "updateOnStartup", "updateConfigUrl", "lobbyUrl", "lobbyPort", "lobbyUsername" ],
 			"properties" : {
 				"repositoryURL" : {
 					"type" : "array",
@@ -410,6 +410,18 @@
 				"updateConfigUrl" : {
 					"type" : "string",
 					"default" : "https://raw.githubusercontent.com/vcmi/vcmi-updates/master/vcmi-updates.json"
+				},
+				"lobbyUrl" : {
+					"type" : "string",
+					"default" : "127.0.0.1"
+				},
+				"lobbyPort" : {
+					"type" : "number",
+					"default" : 5002
+				},
+				"lobbyUsername" : {
+					"type" : "string",
+					"default" : ""
 				}
 			}
 		}

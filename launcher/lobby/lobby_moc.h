@@ -36,7 +36,7 @@ const QMap<ProtocolConsts, QString> ProtocolStrings
 	{SESSIONS, "SESSIONS"}, //amount:session_name:joined_players:total_players:is_protected
 	{JOINED, "JOIN"}, //session_name:username
 	{KICKED, "KICK"}, //session_name:username
-	{START, "START"}, //session_name
+	{START, "START"}, //session_name:uuid
 	{STATUS, "STATUS"}, //joined_players:player_name:is_ready
 	{ERROR, "ERROR"},
 	{CHAT, "MSG"} //username:message
