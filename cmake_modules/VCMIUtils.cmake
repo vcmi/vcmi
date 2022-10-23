@@ -142,7 +142,7 @@ function(vcmi_install_conan_deps install_dir)
 	endif()
 	install(CODE "
 		execute_process(COMMAND
-			conan imports \"${CMAKE_SOURCE_DIR}\" --install-folder \"${CMAKE_SOURCE_DIR}/conan-generated\" --import-folder \"${install_dir}\"
+			conan imports \"${CMAKE_SOURCE_DIR}\" --install-folder \"${CONAN_INSTALL_FOLDER}\" --import-folder \"${install_dir}\"
 		)
 		file(REMOVE \"${install_dir}/conan_imports_manifest.txt\")
 	")
