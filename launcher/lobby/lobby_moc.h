@@ -14,10 +14,10 @@ public:
 enum ProtocolConsts
 {
 	//client consts
-	GREETING, USERNAME, MESSAGE, VERSION, CREATE, JOIN,
+	GREETING, USERNAME, MESSAGE, VERSION, CREATE, JOIN, LEAVE, READY,
 
 	//server consts
-	SESSIONS, CREATED, JOINED, KICKED, ERROR, CHAT
+	SESSIONS, CREATED, JOINED, KICKED, ERROR, CHAT, START, STATUS
 };
 
 const QMap<ProtocolConsts, QString> ProtocolStrings
@@ -28,12 +28,16 @@ const QMap<ProtocolConsts, QString> ProtocolStrings
 	{MESSAGE, "<MSG>%1"},
 	{CREATE, "<NEW>%1<PSWD>%2<COUNT>%3"},
 	{JOIN, "<JOIN>%1<PSWD>%2"},
+	{LEAVE, "<LEAVE>%1"}, //session
+	{READY, "<READY>%1"}, //session
 
 	//server consts
 	{CREATED, "CREATED"},
 	{SESSIONS, "SESSIONS"}, //amount:session_name:joined_players:total_players:is_protected
 	{JOINED, "JOIN"}, //session_name:username
 	{KICKED, "KICK"}, //session_name:username
+	{START, "START"}, //session_name
+	{STATUS, "STATUS"}, //joined_players:player_name:is_ready
 	{ERROR, "ERROR"},
 	{CHAT, "MSG"} //username:message
 };
@@ -56,6 +60,8 @@ public:
 	void disconnectServer();
 	void requestNewSession(const QString & session, int totalPlayers, const QString & pswd);
 	void requestJoinSession(const QString & session, const QString & pswd);
+	void requestLeaveSession(const QString & session);
+	void requestReadySession(const QString & session);
 
 	void send(const QString &);
 
@@ -102,6 +108,10 @@ private slots:
 	void on_newButton_clicked();
 
 	void on_joinButton_clicked();
+
+	void on_buttonLeave_clicked();
+
+	void on_buttonReady_clicked();
 
 private:
 	Ui::Lobby *ui;

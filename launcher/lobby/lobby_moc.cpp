@@ -44,6 +44,18 @@ void SocketLobby::requestJoinSession(const QString & session, const QString & ps
 	send(sessionMessage);
 }
 
+void SocketLobby::requestLeaveSession(const QString & session)
+{
+	const QString sessionMessage = ProtocolStrings[LEAVE].arg(session);
+	send(sessionMessage);
+}
+
+void SocketLobby::requestReadySession(const QString & session)
+{
+	const QString sessionMessage = ProtocolStrings[READY].arg(session);
+	send(sessionMessage);
+}
+
 void SocketLobby::send(const QString & msg)
 {
 	socket->write(qPrintable(msg));
@@ -100,6 +112,8 @@ Lobby::~Lobby()
 void Lobby::serverCommand(const ServerCommand & command) try
 {
 	//initialize variables outside of switch block
+	const QString statusPlaceholder("%1 %2\n");
+	QString resText;
 	const auto & args = command.arguments;
 	int amount, tagPoint;
 	QString joinStr;
@@ -137,7 +151,6 @@ void Lobby::serverCommand(const ServerCommand & command) try
 			QTableWidgetItem * sessionProtectedItem = new QTableWidgetItem(args[tagPoint++]);
 			ui->sessionsTable->setItem(i, 2, sessionProtectedItem);
 		}
-
 		break;
 
 	case JOINED:
@@ -147,12 +160,34 @@ void Lobby::serverCommand(const ServerCommand & command) try
 
 		if(args[1] == username)
 		{
+			ui->chat->clear(); //cleanup the chat
 			chatMessage(joinStr.arg("you", args[0]));
+			session = args[0];
+			ui->stackedWidget->setCurrentWidget(command.command == JOINED ? ui->roomPage : ui->sessionsPage);
 		}
 		else
 		{
 			chatMessage(joinStr.arg(args[1], args[0]));
 		}
+		break;
+
+	case STATUS:
+		protocolAssert(args.size() > 0);
+		amount = args[0].toInt();
+		protocolAssert(amount * 2 == (args.size() - 1));
+
+		tagPoint = 1;
+		ui->roomChat->clear();
+		resText.clear();
+		for(int i = 0; i < amount; ++i, tagPoint += 2)
+		{
+			resText += statusPlaceholder.arg(args[tagPoint], args[tagPoint + 1] == "True" ? "ready" : "");
+		}
+		ui->roomChat->setPlainText(resText);
+		break;
+
+	case START:
+		//actually start game
 		break;
 
 	case CHAT:
@@ -239,5 +274,17 @@ void Lobby::on_joinButton_clicked()
 	auto * item = ui->sessionsTable->item(ui->sessionsTable->currentRow(), 0);
 	if(item)
 		socketLobby.requestJoinSession(item->text(), ui->passwordInput->text());
+}
+
+
+void Lobby::on_buttonLeave_clicked()
+{
+	socketLobby.requestLeaveSession(session);
+}
+
+
+void Lobby::on_buttonReady_clicked()
+{
+	socketLobby.requestReadySession(session);
 }
 
