@@ -2217,28 +2217,28 @@ EVictoryLossCheckResult CGameState::checkForVictoryAndLoss(PlayerColor player) c
 		return this->checkForVictory(player, condition);
 	};
 
-	const PlayerState *p = CGameInfoCallback::getPlayerState(player);
+	const PlayerState * p = CGameInfoCallback::getPlayerState(player);
 
 	//cheater or tester, but has entered the code...
-	if (p->enteredWinningCheatCode)
+	if(p->enteredWinningCheatCode)
 		return EVictoryLossCheckResult::victory(messageWonSelf, messageWonOther);
 
-	if (p->enteredLosingCheatCode)
+	if(p->enteredLosingCheatCode)
 		return EVictoryLossCheckResult::defeat(messageLostSelf, messageLostOther);
 
-	for (const TriggeredEvent & event : map->triggeredEvents)
+	for(const TriggeredEvent & event : map->triggeredEvents)
 	{
-		if (event.trigger.test(evaluateEvent))
+		if(event.trigger.test(evaluateEvent))
 		{
-			if (event.effect.type == EventEffect::VICTORY)
+			if(event.effect.type == EventEffect::VICTORY)
 				return EVictoryLossCheckResult::victory(event.onFulfill, event.effect.toOtherMessage);
 
-			if (event.effect.type == EventEffect::DEFEAT)
+			if(event.effect.type == EventEffect::DEFEAT)
 				return EVictoryLossCheckResult::defeat(event.onFulfill, event.effect.toOtherMessage);
 		}
 	}
 
-	if (checkForStandardLoss(player))
+	if(checkForStandardLoss(player))
 	{
 		return EVictoryLossCheckResult::defeat(messageLostSelf, messageLostOther);
 	}
@@ -2282,23 +2282,6 @@ bool CGameState::checkForVictory(PlayerColor player, const EventCondition & cond
 		case EventCondition::HAVE_RESOURCES:
 		{
 			return p->resources[condition.objectType] >= condition.value;
-		}
-		case EventCondition::HAVE_BUILDING:
-		{
-			if (condition.object) // specific town
-			{
-				const CGTownInstance *t = static_cast<const CGTownInstance *>(condition.object);
-				return (t->tempOwner == player && t->hasBuilt(BuildingID(condition.objectType)));
-			}
-			else // any town
-			{
-				for (const CGTownInstance * t : p->towns)
-				{
-					if (t->hasBuilt(BuildingID(condition.objectType)))
-						return true;
-				}
-				return false;
-			}
 		}
 		case EventCondition::DESTROY:
 		{
@@ -2352,21 +2335,29 @@ bool CGameState::checkForVictory(PlayerColor player, const EventCondition & cond
 			return false;
 		case EventCondition::DAYS_PASSED:
 			return (si32)gs->day > condition.value;
+
 		case EventCondition::IS_HUMAN:
 			return p->human ? condition.value == 1 : condition.value == 0;
+
 		case EventCondition::DAYS_WITHOUT_TOWN:
 			if (p->daysWithoutCastle)
 				return p->daysWithoutCastle.get() >= condition.value;
 			else
 				return false;
+
 		case EventCondition::CONST_VALUE:
 			return condition.value; // just convert to bool
+
 		case EventCondition::HAVE_0:
 			return checkForHaveCondition(p, condition);
+
+		case EventCondition::HAVE_BUILDING:
 		case EventCondition::HAVE_BUILDING_0:
 			return checkForHaveBuildingCondition(p, condition);
+
 		case EventCondition::DESTROY_0:
 			return checkForDestroyCondition(p, condition);
+
 		default:
 			logGlobal->error("Invalid event condition type: %d", (int)condition.condition);
 			return false;
