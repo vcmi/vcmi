@@ -17,7 +17,7 @@ enum ProtocolConsts
 	GREETING, USERNAME, MESSAGE, VERSION, CREATE, JOIN, LEAVE, READY,
 
 	//server consts
-	SESSIONS, CREATED, JOINED, KICKED, ERROR, CHAT, START, STATUS
+	SESSIONS, CREATED, JOINED, KICKED, ERROR, CHAT, START, STATUS, HOST
 };
 
 const QMap<ProtocolConsts, QString> ProtocolStrings
@@ -37,6 +37,7 @@ const QMap<ProtocolConsts, QString> ProtocolStrings
 	{JOINED, "JOIN"}, //session_name:username
 	{KICKED, "KICK"}, //session_name:username
 	{START, "START"}, //session_name:uuid
+	{HOST, "HOST"}, //host_uuid:players_count
 	{STATUS, "STATUS"}, //joined_players:player_name:is_ready
 	{ERROR, "ERROR"},
 	{CHAT, "MSG"} //username:message
@@ -69,6 +70,7 @@ signals:
 
 	void text(QString);
 	void receive(QString);
+	void disconnect();
 
 public slots:
 
@@ -112,6 +114,8 @@ private slots:
 	void on_buttonLeave_clicked();
 
 	void on_buttonReady_clicked();
+
+	void onDisconnected();
 
 private:
 	Ui::Lobby *ui;

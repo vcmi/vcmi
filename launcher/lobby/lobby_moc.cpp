@@ -76,6 +76,7 @@ void SocketLobby::connected()
 void SocketLobby::disconnected()
 {
 	isConnected = false;
+	emit disconnect();
 	emit text("Disconnected!");
 }
 
@@ -105,6 +106,7 @@ Lobby::Lobby(QWidget *parent) :
 
 	connect(&socketLobby, SIGNAL(text(QString)), this, SLOT(chatMessage(QString)));
 	connect(&socketLobby, SIGNAL(receive(QString)), this, SLOT(dispatchMessage(QString)));
+	connect(&socketLobby, SIGNAL(disconnect()), this, SLOT(onDisconnected()));
 }
 
 Lobby::~Lobby()
@@ -189,9 +191,26 @@ void Lobby::serverCommand(const ServerCommand & command) try
 		ui->roomChat->setPlainText(resText);
 		break;
 
-	case START:
+	case START: {
+		protocolAssert(args.size() == 1);
 		//actually start game
+		Settings node = settings.write["server"];
+		node["lobby"].Bool() = true;
+		node["server"].String() = ui->hostEdit->text().toStdString();
+		node["serverport"].Integer() = ui->portEdit->text().toInt();
+		node["uuid"].String() = args[0].toStdString();
+		//node["names"].Vector().clear();
+		//node["names"].Vector().pushBack(username.toStdString());
 		break;
+		}
+
+	case HOST: {
+		protocolAssert(args.size() == 2);
+		Settings node = settings.write["server"]["host"];
+		node["uuid"].String() = args[0].toStdString();
+		node["connections"].Integer() = args[1].toInt();
+		break;
+		}
 
 	case CHAT:
 		protocolAssert(args.size() > 1);
@@ -231,6 +250,11 @@ catch(const ProtocolError & e)
 	chatMessage(QString("System error: %1").arg(e.what()));
 }
 
+void Lobby::onDisconnected()
+{
+	ui->stackedWidget->setCurrentWidget(ui->sessionsPage);
+	ui->connectButton->setChecked(false);
+}
 
 void Lobby::chatMessage(QString txt)
 {

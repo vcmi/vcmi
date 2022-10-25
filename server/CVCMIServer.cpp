@@ -170,6 +170,7 @@ void CVCMIServer::run()
 #endif
 
 		startAsyncAccept();
+		establishRemoteConnections();
 
 #if defined(VCMI_ANDROID)
 		CAndroidVMHelper vmHelper;
@@ -193,6 +194,45 @@ void CVCMIServer::run()
 	}
 	while(state == EServerState::GAMEPLAY_ENDED)
 		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+}
+
+void CVCMIServer::establishRemoteConnections()
+{
+	if(settings["server"]["lobby"].isNull() || !settings["server"]["lobby"].Bool())
+		return;
+	
+	Settings node = settings.write["server"];
+	node["lobby"].Bool() = false;
+	
+	uuid = settings["server"]["host"]["uuid"].String();
+	int numOfConnections = settings["server"]["host"]["connections"].Integer();
+	auto address = settings["server"]["server"].String();
+	int port = settings["server"]["serverport"].Integer();
+	
+	for(int i = 0; i < numOfConnections; ++i)
+		connectToRemote(address, port);
+}
+
+void CVCMIServer::connectToRemote(const std::string & addr, int port)
+{
+	std::shared_ptr<CConnection> c;
+	int attempts = 10;
+	while(!c && attempts--)
+	{
+		try
+		{
+			logNetwork->info("Establishing connection...");
+			c = std::make_shared<CConnection>(addr, port, SERVER_NAME, uuid);
+		}
+		catch(...)
+		{
+			logNetwork->error("\nCannot establish connection! Retrying within 1 second");
+			boost::this_thread::sleep(boost::posix_time::seconds(1));
+		}
+	}
+	
+	connections.insert(c);
+	c->handler = std::make_shared<boost::thread>(&CVCMIServer::threadHandleClient, this, c);
 }
 
 void CVCMIServer::threadAnnounceLobby()

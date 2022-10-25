@@ -74,6 +74,8 @@ public:
 	void prepareToRestart();
 	void startGameImmidiately();
 
+	void establishRemoteConnections();
+	void connectToRemote(const std::string & addr, int port);
 	void startAsyncAccept();
 	void connectionAccepted(const boost::system::error_code & ec);
 	void threadHandleClient(std::shared_ptr<CConnection> c);

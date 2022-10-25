@@ -1,4 +1,9 @@
+from calendar import c
+from distutils.command.clean import clean
+from pickletools import bytes8
 import socket
+import re
+import uuid
 from threading import Thread
 
 # server's IP address
@@ -8,6 +13,18 @@ SERVER_PORT = 5002 # port we want to use
 # initialize list/set of all connected client's sockets
 client_sockets = dict()
 
+
+class GameConnection:
+    server: socket
+    client: socket
+    serverInit = False
+    clientInit = False
+    messageQueueIn = []
+    messageQueueOut = []
+
+    def __init__(self) -> None:
+        pass
+
 class Session:
     total = 1
     joined = 0
@@ -15,7 +32,9 @@ class Session:
     protected = False
     name: str
     host: socket
+    host_uuid: str
     players = []
+    connections = []
     started = False
 
     def __init__(self, host: socket, name: str) -> None:
@@ -38,8 +57,44 @@ class Session:
 
         self.players.remove(player)
         self.joined -= 1
-        
-        
+
+    def addConnection(self, conn: socket, isServer: bool) -> GameConnection:
+        #find uninitialized server connection
+        for gc in self.connections:
+            if isServer and not gc.serverInit:
+                gc.server = conn
+                gc.serverInit = True
+                return gc
+            if not isServer and not gc.clientInit:
+                gc.client = conn
+                gc.clientInit = True
+                return gc
+            
+        #no existing connection - create the new one
+        gc = GameConnection()
+        if isServer:
+            gc.server = conn
+            gc.serverInit = True
+        else:
+            gc.client = conn
+            gc.clientInit = True
+        self.connections.append(gc)
+        return gc
+
+    def validPipe(self, conn) -> bool:
+        for gc in self.connections:
+            if gc.server == conn or gc.client == conn:
+                return gc.serverInit and gc.clientInit
+        return False
+
+    def getPipe(self, conn) -> socket:
+        for gc in self.connections:
+            if gc.server == conn:
+                return gc.client
+            if gc.client == conn:
+                return gc.server
+
+     
 # create a TCP socket
 s = socket.socket()
 # make the port as reusable port
@@ -47,7 +102,7 @@ s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 # bind the socket to the address we specified
 s.bind((SERVER_HOST, SERVER_PORT))
 # listen for upcoming connections
-s.listen(5)
+s.listen(10)
 print(f"[*] Listening as {SERVER_HOST}:{SERVER_PORT}")
 
 # list of active sessions
@@ -57,17 +112,18 @@ sessions = dict()
 def handleDisconnection(client: socket):
     sender = client_sockets[client]
     if sender["joined"]:
-        if sender["session"].host == client:
-            #destroy the session, sending messages inside the function
-            deleteSession(sender["session"])
-        else:
-            sender["session"].leave(client)
-            sender["joined"] = False
-            message = f":>>KICK:{sender['session'].name}:{sender['username']}"
-            for client_socket in sender["session"].players:
-                client_socket.send(message.encode())
-        updateStatus(sender["session"])
-        updateSessions()
+        if not sender["session"].started:
+            if sender["session"].host == client:
+                #destroy the session, sending messages inside the function
+                deleteSession(sender["session"])
+            else:
+                sender["session"].leave(client)
+                sender["joined"] = False
+                message = f":>>KICK:{sender['session'].name}:{sender['username']}"
+                for client_socket in sender["session"].players:
+                    client_socket.send(message.encode())
+            updateStatus(sender["session"])
+            updateSessions()
 
     client.close()
     sender["valid"] = False
@@ -85,9 +141,13 @@ def broadcast(clients: list, message: str):
 
 
 def sendSessions(client: socket):
-    msg = f":>>SESSIONS:{len(sessions.keys())}"
+    msg2 = ""
+    counter = 0
     for s in sessions.values():
-        msg += f":{s.name}:{s.joined}:{s.total}:{s.protected}"
+        if not s.started:
+            msg2 += f":{s.name}:{s.joined}:{s.total}:{s.protected}"
+            counter += 1
+    msg = f":>>SESSIONS:{counter}{msg2}"
 
     send(client, msg)
 
@@ -114,10 +174,79 @@ def updateStatus(session: Session):
     broadcast(session.players, msg)
 
 
-def dispatch(client: socket, sender: dict, msg: str):
-    if msg == '':
+def startSession(session: Session):
+    session.started = True
+    session.host_uuid = str(uuid.uuid4())
+    hostMessage = f":>>HOST:{session.host_uuid}:{session.joined - 1}" #one client will be connected locally
+    for player in session.players:
+        client_sockets[player]['uuid'] = str(uuid.uuid4())
+        msg = f":>>START:{client_sockets[player]['uuid']}"
+        send(player, msg)
+    
+    #host message must be after start message
+    send(session.host, hostMessage)
+
+
+def dispatch(client: socket, sender: dict, arr: bytes):
+    if len(arr) == 0:
         return
 
+    msg = str(arr)
+    print(msg)
+    if msg[-1] == '\n' or (msg[-1] == '\'' and msg[-2] == '\n'):
+        sender["prevmessage"] += msg
+        return
+    else:
+        msg = f"{sender['prevmessage']}{msg}"
+        sender["prevmessage"] = ""
+
+    #check for game mode connection
+    _gameModeIdentifier = msg.partition('Aiya!')
+    if _gameModeIdentifier[0] != '' and _gameModeIdentifier[1] == 'Aiya!':
+        sender["aiya"] = True
+
+    if sender["aiya"]:
+        _uuid = msg.partition('$')[2]
+        match = re.search(r"\((\w+)\)", msg)
+        _appType = ''
+        if match != None:
+            _appType = match.group(1)
+        if not _uuid == '' and not _appType == '':
+            #search for uuid
+            for session in sessions.values():
+                if session.started:
+                    if _uuid.find(session.host_uuid) != -1 and _appType == "server":
+                        gc = session.addConnection(client, True)
+                        for qmsg in gc.messageQueueIn:
+                            send(gc.server, qmsg)
+                        sender["session"] = session
+                        sender["game"] = True
+                        if not gc.clientInit:
+                            gc.messageQueueOut.append(arr)
+                        return
+
+                    if _appType == "client":
+                        for p in session.players:
+                            if _uuid.find(client_sockets[p]["uuid"]) != -1:
+                                #client connection
+                                gc = session.addConnection(client, False)
+                                for qmsg in gc.messageQueueOut:
+                                    send(gc.client, qmsg)
+                                sender["session"] = session
+                                sender["game"] = True
+                                if not gc.serverInit:
+                                    gc.messageQueueIn.append(arr)
+                                    return
+                                break
+
+    #game mode
+    if sender["game"] and sender["session"].validPipe(client):
+        sender["session"].getPipe(client).send(arr)
+        return
+        
+    
+    #lobby mode
+    msg = arr.decode()
     _open = msg.partition('<')
     _close = _open[2].partition('>')
     if _open[0] != '' or _open[1] == '' or _open[2] == '' or _close[0] == '' or _close[1] == '':
@@ -230,10 +359,14 @@ def dispatch(client: socket, sender: dict, msg: str):
             sender["session"].leave(client)
             sender["joined"] = False
             updateStatus(sender["session"])
-        updateSessions()
+        updateSessions() 
 
+    if tag == "READY" and sender["auth"] and sender["joined"] and sender["session"].name == tag_value:
+        if sender["session"].joined > 0 and sender["session"].host == client:
+            startSession(sender["session"])
+            updateSessions()
 
-    dispatch(client, sender, _nextTag[1] + _nextTag[2])
+    dispatch(client, sender, (_nextTag[1] + _nextTag[2]).encode())
 
 
 def listen_for_client(cs):
@@ -244,7 +377,7 @@ def listen_for_client(cs):
     while True:
         try:
             # keep listening for a message from `cs` socket
-            msg = cs.recv(2048).decode()
+            msg = cs.recv(2048)
         except Exception as e:
             # client no longer connected
             print(f"[!] Error: {e}")
@@ -259,7 +392,7 @@ while True:
     client_socket, client_address = s.accept()
     print(f"[+] {client_address} connected.")
     # add the new connected client to connected sockets
-    client_sockets[client_socket] = {"address": client_address, "auth": False, "username": ""}
+    client_sockets[client_socket] = {"address": client_address, "auth": False, "username": "", "joined": False, "aiya": False, "prevmessage": "", "game": False}
     # start a new thread that listens for each client's messages
     t = Thread(target=listen_for_client, args=(client_socket,))
     # make the thread daemon so it ends whenever the main thread ends

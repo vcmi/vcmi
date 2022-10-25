@@ -253,7 +253,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default": {},
-			"required" : [ "server", "port", "localInformation", "playerAI", "friendlyAI","neutralAI", "enemyAI", "reconnect", "uuid", "names" ],
+			"required" : [ "server", "port", "serverport", "localInformation", "playerAI", "friendlyAI","neutralAI", "enemyAI", "reconnect", "uuid", "names", "lobby", "host" ],
 			"properties" : {
 				"server" : {
 					"type":"string",
@@ -262,6 +262,10 @@
 				"port" : {
 					"type" : "number",
 					"default" : 3030
+				},
+				"serverport" : {
+					"type" : "number",
+					"default" : 5002
 				},
 				"localInformation" : {
 					"type" : "number",
@@ -291,14 +295,32 @@
 					"type" : "string",
 					"default" : ""
 				},
+				"host" : {
+					"type" : "object",
+					"additionalProperties" : false,
+					"default" : 
+					{
+						"host" : true
+					},
+					"required" : [ "host", "uuid", "connections" ],
+					"properties" : {
+						"uuid" : { "type" : "string" },
+						"connections" : { "type" : "number" },
+						"host" : {"type" : "boolean", "default" : false}
+					}
+				},
 				"names" : {
 					"type" : "array",
-					"default" : {},
+					"default" : [],
 					"items":
 					{
 						"type" : "string",
 						"default" : ""
 					}
+				},
+				"lobby" : {
+					"type" : "boolean",
+					"default" : false
 				}
 			}
 		},

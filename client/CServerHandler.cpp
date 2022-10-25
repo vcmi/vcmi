@@ -117,7 +117,10 @@ extern std::string NAME;
 CServerHandler::CServerHandler()
 	: state(EClientState::NONE), mx(std::make_shared<boost::recursive_mutex>()), client(nullptr), loadMode(0), campaignStateToSend(nullptr), campaignServerRestartLock(false)
 {
-	uuid = boost::uuids::to_string(boost::uuids::random_generator()());
+	if(settings["server"]["uuid"].isNull() || settings["server"]["uuid"].String().empty())
+		uuid = boost::uuids::to_string(boost::uuids::random_generator()());
+	else
+		uuid = settings["server"]["uuid"].String();
 	applier = std::make_shared<CApplier<CBaseForLobbyApply>>();
 	registerTypesLobbyPacks(*applier);
 }
@@ -352,10 +355,7 @@ bool CServerHandler::isGuest() const
 
 ui16 CServerHandler::getDefaultPort()
 {
-	if(settings["session"]["serverport"].Integer())
-		return static_cast<ui16>(settings["session"]["serverport"].Integer());
-	else
-		return static_cast<ui16>(settings["server"]["port"].Integer());
+	return static_cast<ui16>(settings["server"]["port"].Integer());
 }
 
 std::string CServerHandler::getDefaultPortStr()
