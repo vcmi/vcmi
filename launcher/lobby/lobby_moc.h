@@ -123,6 +123,7 @@ private:
 	QString hostSession;
 	QString session;
 	QString username;
+	bool startGame = false;
 
 private:
 	void protocolAssert(bool);

@@ -1,5 +1,6 @@
 #include "lobby_moc.h"
 #include "ui_lobby_moc.h"
+#include "../mainwindow_moc.h"
 #include "../lib/GameConstants.h"
 #include "../jsonutils.h"
 #include "../../lib/CConfigHandler.h"
@@ -106,6 +107,7 @@ Lobby::Lobby(QWidget *parent) :
 	ui(new Ui::Lobby)
 {
 	ui->setupUi(this);
+	ui->buttonReady->setEnabled(false);
 
 	connect(&socketLobby, SIGNAL(text(QString)), this, SLOT(chatMessage(QString)));
 	connect(&socketLobby, SIGNAL(receive(QString)), this, SLOT(dispatchMessage(QString)));
@@ -137,6 +139,7 @@ void Lobby::serverCommand(const ServerCommand & command) try
 		hostSession = args[0];
 		session = args[0];
 		chatMessage("System: new session started");
+		ui->buttonReady->setEnabled(true);
 		break;
 
 	case SESSIONS:
@@ -172,6 +175,8 @@ void Lobby::serverCommand(const ServerCommand & command) try
 			chatMessage(joinStr.arg("you", args[0]));
 			session = args[0];
 			ui->stackedWidget->setCurrentWidget(command.command == JOINED ? ui->roomPage : ui->sessionsPage);
+			if(command.command == KICKED)
+				ui->buttonReady->setEnabled(false);
 		}
 		else
 		{
@@ -202,8 +207,11 @@ void Lobby::serverCommand(const ServerCommand & command) try
 		node["server"].String() = ui->hostEdit->text().toStdString();
 		node["serverport"].Integer() = ui->portEdit->text().toInt();
 		node["uuid"].String() = args[0].toStdString();
+		startGame = true;
+		//on_startGameButton_clicked
 		//node["names"].Vector().clear();
 		//node["names"].Vector().pushBack(username.toStdString());
+		
 		break;
 		}
 
@@ -247,6 +255,9 @@ void Lobby::dispatchMessage(QString txt) try
 		ServerCommand cmd(ctype, parseArgs);
 		serverCommand(cmd);
 	}
+	
+	if(startGame)
+		qobject_cast<MainWindow *>(qApp->activeWindow())->on_startGameButton_clicked();
 }
 catch(const ProtocolError & e)
 {

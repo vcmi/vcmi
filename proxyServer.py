@@ -207,13 +207,13 @@ def startSession(session: Session):
     session.started = True
     session.host_uuid = str(uuid.uuid4())
     hostMessage = f":>>HOST:{session.host_uuid}:{session.joined - 1}" #one client will be connected locally
+    #host message must be before start message
+    send(session.host, hostMessage)
+
     for player in session.players:
         client_sockets[player]['uuid'] = str(uuid.uuid4())
         msg = f":>>START:{client_sockets[player]['uuid']}"
         send(player, msg)
-    
-    #host message must be after start message
-    send(session.host, hostMessage)
 
 
 def dispatch(client: socket, sender: dict, arr: bytes):
@@ -355,6 +355,8 @@ def dispatch(client: socket, sender: dict, arr: bytes):
             return
 
         sender["session"].total = int(tag_value)
+        message = f":>>CREATED:{sender['session'].name}"
+        send(client, message)
         #now session is ready to be broadcasted
         message = f":>>JOIN:{sender['session'].name}:{sender['username']}"
         send(client, message)

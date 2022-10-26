@@ -170,8 +170,12 @@ void CVCMIServer::run()
 #endif
 
 		startAsyncAccept();
-		if(!remoteConnectionsThread)
+		if(!remoteConnectionsThread && !settings["server"]["lobby"].isNull() && settings["server"]["lobby"].Bool())
+		{
 			remoteConnectionsThread = vstd::make_unique<boost::thread>(&CVCMIServer::establishRemoteConnections, this);
+			Settings node = settings.write["server"]["lobby"];
+			node->Bool() = false;
+		}
 
 #if defined(VCMI_ANDROID)
 		CAndroidVMHelper vmHelper;
@@ -199,12 +203,6 @@ void CVCMIServer::run()
 
 void CVCMIServer::establishRemoteConnections()
 {
-	if(settings["server"]["lobby"].isNull() || !settings["server"]["lobby"].Bool())
-		return;
-	
-	Settings node = settings.write["server"];
-	node["lobby"].Bool() = false;
-	
 	uuid = settings["server"]["host"]["uuid"].String();
 	int numOfConnections = settings["server"]["host"]["connections"].Integer();
 	auto address = settings["server"]["server"].String();

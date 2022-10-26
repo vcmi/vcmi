@@ -35,6 +35,6 @@ public:
 	explicit MainWindow(QWidget * parent = 0);
 	~MainWindow();
 
-private slots:
+public slots:
 	void on_startGameButton_clicked();
 };
