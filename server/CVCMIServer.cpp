@@ -170,7 +170,8 @@ void CVCMIServer::run()
 #endif
 
 		startAsyncAccept();
-		establishRemoteConnections();
+		if(!remoteConnectionsThread)
+			remoteConnectionsThread = vstd::make_unique<boost::thread>(&CVCMIServer::establishRemoteConnections, this);
 
 #if defined(VCMI_ANDROID)
 		CAndroidVMHelper vmHelper;
@@ -216,23 +217,21 @@ void CVCMIServer::establishRemoteConnections()
 void CVCMIServer::connectToRemote(const std::string & addr, int port)
 {
 	std::shared_ptr<CConnection> c;
-	int attempts = 10;
-	while(!c && attempts--)
+	try
 	{
-		try
-		{
-			logNetwork->info("Establishing connection...");
-			c = std::make_shared<CConnection>(addr, port, SERVER_NAME, uuid);
-		}
-		catch(...)
-		{
-			logNetwork->error("\nCannot establish connection! Retrying within 1 second");
-			boost::this_thread::sleep(boost::posix_time::seconds(1));
-		}
+		logNetwork->info("Establishing connection...");
+		c = std::make_shared<CConnection>(addr, port, SERVER_NAME, uuid);
+	}
+	catch(...)
+	{
+		logNetwork->error("\nCannot establish remote connection!");
 	}
 	
-	connections.insert(c);
-	c->handler = std::make_shared<boost::thread>(&CVCMIServer::threadHandleClient, this, c);
+	if(c)
+	{
+		connections.insert(c);
+		c->handler = std::make_shared<boost::thread>(&CVCMIServer::threadHandleClient, this, c);
+	}
 }
 
 void CVCMIServer::threadAnnounceLobby()

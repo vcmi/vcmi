@@ -4,11 +4,38 @@ from pickletools import bytes8
 import socket
 import re
 import uuid
+import struct
 from threading import Thread
 
 # server's IP address
 SERVER_HOST = "0.0.0.0"
 SERVER_PORT = 5002 # port we want to use
+
+def send_msg(sock, msg, doPack):
+    # For 1 byte (bool) send just that
+    # Prefix each message with a 4-byte length (network byte order)
+    if doPack and len(msg) > 1:
+        msg = struct.pack('<I', len(msg)) + msg
+    sock.sendall(msg)
+
+def recv_msg(sock):
+    # Read message length and unpack it into an integer
+    raw_msglen = recvall(sock, 4)
+    if not raw_msglen:
+        return None
+    msglen = struct.unpack('<I', raw_msglen)[0]
+    # Read the message data
+    return recvall(sock, msglen)
+
+def recvall(sock, n):
+    # Helper function to recv n bytes or return None if EOF is hit
+    data = bytearray()
+    while len(data) < n:
+        packet = sock.recv(n - len(data))
+        if not packet:
+            return None
+        data.extend(packet)
+    return data
 
 # initialize list/set of all connected client's sockets
 client_sockets = dict()
@@ -23,6 +50,8 @@ class GameConnection:
     messageQueueOut = []
 
     def __init__(self) -> None:
+        self.server = None
+        self.client = None
         pass
 
 class Session:
@@ -188,62 +217,81 @@ def startSession(session: Session):
 
 
 def dispatch(client: socket, sender: dict, arr: bytes):
-    if len(arr) == 0:
+    
+    if arr == None or len(arr) == 0:
         return
 
-    msg = str(arr)
-    print(msg)
-    if msg[-1] == '\n' or (msg[-1] == '\'' and msg[-2] == '\n'):
-        sender["prevmessage"] += msg
-        return
-    else:
-        msg = f"{sender['prevmessage']}{msg}"
-        sender["prevmessage"] = ""
+    #if len(sender["prevmessages"]):
+    #    arr = sender["prevmessages"] + arr
+    #    sender["prevmessages"] = bytes()
 
     #check for game mode connection
-    _gameModeIdentifier = msg.partition('Aiya!')
-    if _gameModeIdentifier[0] != '' and _gameModeIdentifier[1] == 'Aiya!':
-        sender["aiya"] = True
+    msg = str(arr)
+    if msg.find("Aiya!") != -1:
+        sender["pipe"] = True
 
-    if sender["aiya"]:
-        _uuid = msg.partition('$')[2]
-        match = re.search(r"\((\w+)\)", msg)
-        _appType = ''
-        if match != None:
-            _appType = match.group(1)
-        if not _uuid == '' and not _appType == '':
-            #search for uuid
-            for session in sessions.values():
-                if session.started:
-                    if _uuid.find(session.host_uuid) != -1 and _appType == "server":
-                        gc = session.addConnection(client, True)
-                        for qmsg in gc.messageQueueIn:
-                            send(gc.server, qmsg)
-                        sender["session"] = session
-                        sender["game"] = True
-                        if not gc.clientInit:
-                            gc.messageQueueOut.append(arr)
-                        return
+    if sender["pipe"]:
+        if sender["game"]:
+            sender["prevmessages"].append(arr)
+        else:
+            sender["prevmessages"].append(struct.pack('<I', len(arr)) + arr)
+            match = re.search(r"\((\w+)\)", msg)
+            _appType = ''
+            if match != None:
+                _appType = match.group(1)
+                sender["apptype"] = _appType
+            
+            _uuid = arr.decode()
+            if not _uuid == '' and not sender["apptype"] == '':
+                #search for uuid
+                for session in sessions.values():
+                    if session.started:
+                        if _uuid.find(session.host_uuid) != -1 and sender["apptype"] == "server":
+                            gc = session.addConnection(client, True)
+                            #send_msg(gc.server, gc.messageQueueIn)
+                            #gc.messageQueueIn = bytes()
+                            sender["session"] = session
+                            sender["game"] = True
+                            #read boolean flag for the endian
+                            sender["prevmessages"].append(client.recv(1))
+                            #if not gc.clientInit:
+                            #    gc.messageQueueOut += arr
+                            return
 
-                    if _appType == "client":
-                        for p in session.players:
-                            if _uuid.find(client_sockets[p]["uuid"]) != -1:
-                                #client connection
-                                gc = session.addConnection(client, False)
-                                for qmsg in gc.messageQueueOut:
-                                    send(gc.client, qmsg)
-                                sender["session"] = session
-                                sender["game"] = True
-                                if not gc.serverInit:
-                                    gc.messageQueueIn.append(arr)
-                                    return
-                                break
+                        if sender["apptype"] == "client":
+                            for p in session.players:
+                                if _uuid.find(client_sockets[p]["uuid"]) != -1:
+                                    #client connection
+                                    gc = session.addConnection(client, False)
+                                    #send_msg(gc.client, gc.messageQueueOut)
+                                    #gc.messageQueueOut = bytes()
+                                    sender["session"] = session
+                                    sender["game"] = True
+                                    #read boolean flag for the endian
+                                    sender["prevmessages"].append(client.recv(1))
+                                    #if not gc.serverInit:
+                                    #    gc.messageQueueIn += arr
+                                    #    return
+                                    break
 
     #game mode
-    if sender["game"] and sender["session"].validPipe(client):
-        sender["session"].getPipe(client).send(arr)
+    if sender["pipe"] and sender["game"] and sender["session"].validPipe(client):
+        #send messages from queue
+        opposite = sender["session"].getPipe(client)
+        for x in client_sockets[opposite]["prevmessages"]:
+            client.sendall(x)
+        client_sockets[opposite]["prevmessages"].clear()
+
+        try:
+            for x in sender["prevmessages"]:
+                opposite.sendall(x)
+        except Exception as e:
+            print(f"[!] Error: {e}")
+        sender["prevmessages"].clear()
         return
-        
+
+    if sender["pipe"]:
+        return
     
     #lobby mode
     msg = arr.decode()
@@ -377,7 +425,11 @@ def listen_for_client(cs):
     while True:
         try:
             # keep listening for a message from `cs` socket
-            msg = cs.recv(2048)
+            if client_sockets[cs]["game"]:
+                msg = cs.recv(4096)
+            else:
+                msg = recv_msg(cs)
+            #msg = cs.recv(2048)
         except Exception as e:
             # client no longer connected
             print(f"[!] Error: {e}")
@@ -392,7 +444,7 @@ while True:
     client_socket, client_address = s.accept()
     print(f"[+] {client_address} connected.")
     # add the new connected client to connected sockets
-    client_sockets[client_socket] = {"address": client_address, "auth": False, "username": "", "joined": False, "aiya": False, "prevmessage": "", "game": False}
+    client_sockets[client_socket] = {"address": client_address, "auth": False, "username": "", "joined": False, "game": False, "pipe": False, "apptype": "", "prevmessages": []}
     # start a new thread that listens for each client's messages
     t = Thread(target=listen_for_client, args=(client_socket,))
     # make the thread daemon so it ends whenever the main thread ends

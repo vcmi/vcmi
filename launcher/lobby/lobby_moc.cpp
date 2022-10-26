@@ -61,7 +61,10 @@ void SocketLobby::requestReadySession(const QString & session)
 
 void SocketLobby::send(const QString & msg)
 {
-	socket->write(qPrintable(msg));
+	int sz = msg.size();
+	QByteArray pack((const char *)&sz, sizeof(sz));
+	pack.append(qPrintable(msg));
+	socket->write(pack);
 }
 
 void SocketLobby::connected()
