@@ -1,3 +1,4 @@
+#include "StdInc.h"
 #include "lobby_moc.h"
 #include "ui_lobby_moc.h"
 #include "../mainwindow_moc.h"
