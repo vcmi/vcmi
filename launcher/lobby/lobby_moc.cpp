@@ -129,7 +129,7 @@ void Lobby::serverCommand(const ServerCommand & command) try
 	QString joinStr;
 	switch(command.command)
 	{
-	case ERROR:
+	case SRVERROR:
 		protocolAssert(args.size());
 		chatMessage("System error:" + args[0]);
 		break;

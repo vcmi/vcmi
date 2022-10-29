@@ -17,7 +17,7 @@ enum ProtocolConsts
 	GREETING, USERNAME, MESSAGE, VERSION, CREATE, JOIN, LEAVE, READY,
 
 	//server consts
-	SESSIONS, CREATED, JOINED, KICKED, ERROR, CHAT, START, STATUS, HOST
+	SESSIONS, CREATED, JOINED, KICKED, SRVERROR, CHAT, START, STATUS, HOST
 };
 
 const QMap<ProtocolConsts, QString> ProtocolStrings
@@ -39,7 +39,7 @@ const QMap<ProtocolConsts, QString> ProtocolStrings
 	{START, "START"}, //session_name:uuid
 	{HOST, "HOST"}, //host_uuid:players_count
 	{STATUS, "STATUS"}, //joined_players:player_name:is_ready
-	{ERROR, "ERROR"},
+	{SRVERROR, "ERROR"},
 	{CHAT, "MSG"} //username:message
 };
 
