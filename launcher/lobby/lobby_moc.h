@@ -6,7 +6,11 @@
 #include <QAbstractSocket>
 
 const unsigned int ProtocolVersion = 1;
+#ifdef VCMI_WINDOWS
+const std::string ProtocolEncoding = "utf16";
+#else
 const std::string ProtocolEncoding = "utf8";
+#endif
 
 class ProtocolError: public std::runtime_error
 {
