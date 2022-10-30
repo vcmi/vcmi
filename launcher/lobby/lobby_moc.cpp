@@ -73,8 +73,14 @@ void SocketLobby::connected()
 {
 	isConnected = true;
 	emit text("Connected!");
-
-	const QString greetingConst = ProtocolStrings[GREETING].arg(username, QString::fromStdString(GameConstants::VCMI_VERSION));
+	
+	QByteArray greetingBytes;
+	greetingBytes.append(ProtocolVersion);
+	greetingBytes.append(ProtocolEncoding.size());
+	const QString greetingConst = QString(greetingBytes)
+								+ ProtocolStrings[GREETING].arg(QString::fromStdString(ProtocolEncoding),
+																username,
+																QString::fromStdString(GameConstants::VCMI_VERSION));
 	send(greetingConst);
 }
 

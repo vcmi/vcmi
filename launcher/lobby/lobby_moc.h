@@ -5,6 +5,9 @@
 #include <QTcpSocket>
 #include <QAbstractSocket>
 
+const unsigned int ProtocolVersion = 1;
+const std::string ProtocolEncoding = "utf8";
+
 class ProtocolError: public std::runtime_error
 {
 public:
@@ -23,7 +26,7 @@ enum ProtocolConsts
 const QMap<ProtocolConsts, QString> ProtocolStrings
 {
 	//client consts
-	{GREETING, "<GREETINGS>%1<VER>%2"},
+	{GREETING, "%1<GREETINGS>%2<VER>%3"}, //protocol_version byte, encoding bytes, encoding, name, version
 	{USERNAME, "<USER>%1"},
 	{MESSAGE, "<MSG>%1"},
 	{CREATE, "<NEW>%1<PSWD>%2<COUNT>%3"},

@@ -7,6 +7,9 @@ import uuid
 import struct
 from threading import Thread
 
+PROTOCOL_VERSION_MIN = 1
+PROTOCOL_VERSION_MAX = 1
+
 # server's IP address
 SERVER_HOST = "0.0.0.0"
 SERVER_PORT = 5002 # port we want to use
@@ -42,12 +45,10 @@ client_sockets = dict()
 
 
 class GameConnection:
-    server: socket
-    client: socket
-    serverInit = False
-    clientInit = False
-    messageQueueIn = []
-    messageQueueOut = []
+    server: socket # socket to vcmiserver
+    client: socket # socket to vcmiclient
+    serverInit = False # if vcmiserver already connected
+    clientInit = False # if vcmiclient already connected
 
     def __init__(self) -> None:
         self.server = None
@@ -55,16 +56,16 @@ class GameConnection:
         pass
 
 class Session:
-    total = 1
-    joined = 0
-    password = ""
-    protected = False
-    name: str
-    host: socket
-    host_uuid: str
-    players = []
-    connections = []
-    started = False
+    total = 1 # total amount of players
+    joined = 0 # amount of players joined to the session
+    password = "" # password to connect
+    protected = False # if True, password is required to join to the session
+    name: str # name of session
+    host: socket # player socket who created the session (lobby mode)
+    host_uuid: str # uuid of vcmiserver for hosting player
+    players = [] # list of sockets of players, joined to the session
+    connections = [] # list of GameConnections for vcmiclient (game mode)
+    started = False # True - game mode, False - lobby mode
 
     def __init__(self, host: socket, name: str) -> None:
         self.name = name
@@ -87,17 +88,15 @@ class Session:
         self.players.remove(player)
         self.joined -= 1
 
-    def addConnection(self, conn: socket, isServer: bool) -> GameConnection:
+    def addConnection(self, conn: socket, isServer: bool):
         #find uninitialized server connection
         for gc in self.connections:
             if isServer and not gc.serverInit:
                 gc.server = conn
                 gc.serverInit = True
-                return gc
             if not isServer and not gc.clientInit:
                 gc.client = conn
                 gc.clientInit = True
-                return gc
             
         #no existing connection - create the new one
         gc = GameConnection()
@@ -108,7 +107,6 @@ class Session:
             gc.client = conn
             gc.clientInit = True
         self.connections.append(gc)
-        return gc
 
     def validPipe(self, conn) -> bool:
         for gc in self.connections:
@@ -161,7 +159,7 @@ def handleDisconnection(client: socket):
 def send(client: socket, message: str):
     sender = client_sockets[client]
     if "valid" not in sender or sender["valid"]:
-        client.send(message.encode())
+        client.send(message.encode(errors='replace'))
 
 
 def broadcast(clients: list, message: str):
@@ -221,57 +219,51 @@ def dispatch(client: socket, sender: dict, arr: bytes):
     if arr == None or len(arr) == 0:
         return
 
-    #if len(sender["prevmessages"]):
-    #    arr = sender["prevmessages"] + arr
-    #    sender["prevmessages"] = bytes()
-
     #check for game mode connection
     msg = str(arr)
     if msg.find("Aiya!") != -1:
-        sender["pipe"] = True
+        sender["pipe"] = True #switch to pipe mode
 
     if sender["pipe"]:
-        if sender["game"]:
+        if sender["game"]: #if already playing - sending raw bytes as is
             sender["prevmessages"].append(arr)
         else:
-            sender["prevmessages"].append(struct.pack('<I', len(arr)) + arr)
+            sender["prevmessages"].append(struct.pack('<I', len(arr)) + arr) #pack message
+            #search fo application type in the message
             match = re.search(r"\((\w+)\)", msg)
             _appType = ''
             if match != None:
                 _appType = match.group(1)
                 sender["apptype"] = _appType
             
+            #extract uuid from message
             _uuid = arr.decode()
             if not _uuid == '' and not sender["apptype"] == '':
                 #search for uuid
                 for session in sessions.values():
                     if session.started:
+                        #verify uuid of connected application
                         if _uuid.find(session.host_uuid) != -1 and sender["apptype"] == "server":
-                            gc = session.addConnection(client, True)
-                            #send_msg(gc.server, gc.messageQueueIn)
-                            #gc.messageQueueIn = bytes()
+                            session.addConnection(client, True)
                             sender["session"] = session
                             sender["game"] = True
                             #read boolean flag for the endian
+                            # this is workaround to send only one remaining byte
+                            # WARNING: reversed byte order is not supported
                             sender["prevmessages"].append(client.recv(1))
-                            #if not gc.clientInit:
-                            #    gc.messageQueueOut += arr
                             return
 
                         if sender["apptype"] == "client":
                             for p in session.players:
                                 if _uuid.find(client_sockets[p]["uuid"]) != -1:
                                     #client connection
-                                    gc = session.addConnection(client, False)
-                                    #send_msg(gc.client, gc.messageQueueOut)
-                                    #gc.messageQueueOut = bytes()
+                                    session.addConnection(client, False)
                                     sender["session"] = session
                                     sender["game"] = True
                                     #read boolean flag for the endian
+                                    # this is workaround to send only one remaining byte
+                                    # WARNING: reversed byte order is not supported
                                     sender["prevmessages"].append(client.recv(1))
-                                    #if not gc.serverInit:
-                                    #    gc.messageQueueIn += arr
-                                    #    return
                                     break
 
     #game mode
@@ -287,14 +279,42 @@ def dispatch(client: socket, sender: dict, arr: bytes):
                 opposite.sendall(x)
         except Exception as e:
             print(f"[!] Error: {e}")
+            #TODO: handle disconnection
+
         sender["prevmessages"].clear()
         return
 
+    #we are in pipe mode but game still not started - waiting other clients to connect
     if sender["pipe"]:
         return
     
     #lobby mode
-    msg = arr.decode()
+    if not sender["auth"]:
+        if len(arr) < 2: 
+            print("[!] Error: unknown client tries to connect")
+            #TODO: block address? close the socket?
+            return
+
+        # first byte is protocol version
+        sender["protocol_version"] = arr[0]
+        if arr[0] < PROTOCOL_VERSION_MIN or arr[0] > PROTOCOL_VERSION_MAX:
+            print(f"[!] Error: client has incompatbile protocol version {arr[0]}")
+            send(client, ":>>ERROR:Cannot connect to remote server due to protocol incompatibility")
+            return
+
+        # second byte is a encoding str size
+        if arr[1] == 0:
+            sender["encoding"] = "utf8"
+        else:
+            if len(arr) < arr[1] + 2:
+                send(client, ":>>ERROR:Protocol error")
+                return
+            
+            sender["encoding"] = arr[2:(arr[1] + 2)].decode(errors='ignore')
+            arr = arr[(arr[1] + 2):]
+            msg = str(arr)
+
+    msg = arr.decode(encoding=sender["encoding"], errors='replace')
     _open = msg.partition('<')
     _close = _open[2].partition('>')
     if _open[0] != '' or _open[1] == '' or _open[2] == '' or _close[0] == '' or _close[1] == '':
@@ -309,7 +329,18 @@ def dispatch(client: socket, sender: dict, arr: bytes):
     if tag == "GREETINGS":
         if sender["auth"]:
             print(f"[!] Greetings from authorized user {sender['username']} {sender['address']}")
+            send(client, ":>>ERROR:User already authorized")
             return
+
+        if len(tag_value) < 3:
+            send(client, f":>>ERROR:Too short username {tag_value}")
+            return
+
+        for user in client_sockets:
+            if user['username'] == tag_value:
+                send(client, f":>>ERROR:Can't connect with the name {tag_value}. This login is already occpupied")
+                return
+        
         print(f"[*] User {sender['address']} autorized as {tag_value}")
         sender["username"] = tag_value
         sender["auth"] = True
@@ -431,7 +462,6 @@ def listen_for_client(cs):
                 msg = cs.recv(4096)
             else:
                 msg = recv_msg(cs)
-            #msg = cs.recv(2048)
         except Exception as e:
             # client no longer connected
             print(f"[!] Error: {e}")
