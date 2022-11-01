@@ -122,6 +122,18 @@ enable_pch(vcmilauncher)
 
 if(APPLE_IOS)
 	set(ICONS_DESTINATION ${DATA_DIR})
+
+	# workaround https://github.com/conan-io/conan-center-index/issues/13332
+	if(USING_CONAN)
+		file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/QIOSIntegrationPlugin.h
+			"#include <QtPlugin>\nQ_IMPORT_PLUGIN(QIOSIntegrationPlugin)"
+		)
+		# target_include_directories(vcmilauncher PRIVATE ${CMAKE_BINARY_DIR})
+		target_link_libraries(vcmilauncher
+			Qt${QT_VERSION_MAJOR}::QIOSIntegrationPlugin
+			qt::QIOSIntegrationPlugin
+		)
+	endif()
 else()
 	set(ICONS_DESTINATION ${DATA_DIR}/launcher)
 

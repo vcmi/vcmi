@@ -48,23 +48,10 @@ if(NOT CMAKE_BUILD_TYPE)
 	set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS Debug Release RelWithDebInfo)
 endif()
 
-set(VCMI_VERSION_MAJOR 1)
-set(VCMI_VERSION_MINOR 1)
-set(VCMI_VERSION_PATCH 0)
-add_definitions(
-	-DVCMI_VERSION_MAJOR=${VCMI_VERSION_MAJOR}
-	-DVCMI_VERSION_MINOR=${VCMI_VERSION_MINOR}
-	-DVCMI_VERSION_PATCH=${VCMI_VERSION_PATCH}
-	-DVCMI_VERSION_STRING="${VCMI_VERSION_MAJOR}.${VCMI_VERSION_MINOR}.${VCMI_VERSION_PATCH}"
-)
-set(APP_SHORT_VERSION "${VCMI_VERSION_MAJOR}.${VCMI_VERSION_MINOR}")
-if(NOT VCMI_VERSION_PATCH EQUAL 0)
-	string(APPEND APP_SHORT_VERSION ".${VCMI_VERSION_PATCH}")
-endif()
-
 option(ENABLE_ERM "Enable compilation of ERM scripting module" OFF)
 option(ENABLE_LUA "Enable compilation of LUA scripting module" OFF)
 option(ENABLE_LAUNCHER "Enable compilation of launcher" ON)
+option(ENABLE_EDITOR "Enable compilation of map editor" ON)
 if(APPLE_IOS)
 	set(BUNDLE_IDENTIFIER_PREFIX "" CACHE STRING "Bundle identifier prefix")
 	set(APP_DISPLAY_NAME "VCMI" CACHE STRING "App name on the home screen")
@@ -98,7 +85,10 @@ endif()
 
 set(CMAKE_MODULE_PATH ${CMAKE_HOME_DIRECTORY}/cmake_modules ${PROJECT_SOURCE_DIR}/CI)
 # Contains custom functions and macros, but don't altering any options
+
 include(VCMIUtils)
+include(VersionDefinition)
+
 vcmi_print_important_variables()
 
 # Options to enable folders in CMake generated projects for Visual Studio, Xcode, etc
@@ -180,9 +170,11 @@ if(APPLE_IOS)
 	set(CMAKE_MACOSX_RPATH 1)
 	set(CMAKE_OSX_DEPLOYMENT_TARGET 12.0)
 
-	list(APPEND CMAKE_FIND_ROOT_PATH "${CMAKE_PREFIX_PATH}") # required for Boost
-	set(CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH FALSE)
-	set(CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH FALSE)
+	if(NOT USING_CONAN)
+		list(APPEND CMAKE_FIND_ROOT_PATH "${CMAKE_PREFIX_PATH}") # required for Boost
+		set(CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH FALSE)
+		set(CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH FALSE)
+	endif()
 
 	set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED NO)
 	set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED_FOR_APPS YES)
@@ -294,7 +286,7 @@ if(TARGET zlib::zlib)
 endif()
 
 set(FFMPEG_COMPONENTS avutil swscale avformat avcodec)
-if(APPLE_IOS)
+if(APPLE_IOS AND NOT USING_CONAN)
 	list(APPEND FFMPEG_COMPONENTS swresample)
 endif()
 find_package(ffmpeg COMPONENTS ${FFMPEG_COMPONENTS})
@@ -309,6 +301,9 @@ endif()
 
 find_package(SDL2 REQUIRED)
 find_package(SDL2_image REQUIRED)
+if(TARGET SDL2_image::SDL2_image)
+	add_library(SDL2::Image ALIAS SDL2_image::SDL2_image)
+endif()
 find_package(SDL2_mixer REQUIRED)
 if(TARGET SDL2_mixer::SDL2_mixer)
 	add_library(SDL2::Mixer ALIAS SDL2_mixer::SDL2_mixer)
@@ -319,7 +314,7 @@ if(TARGET SDL2_ttf::SDL2_ttf)
 endif()
 find_package(TBB REQUIRED)
 
-if(ENABLE_LAUNCHER)
+if(ENABLE_LAUNCHER OR ENABLE_EDITOR)
 	# Widgets finds its own dependencies (QtGui and QtCore).
 	find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Network)
 	find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Network)
@@ -450,6 +445,9 @@ endif()
 if(ENABLE_LAUNCHER)
 	add_subdirectory(launcher)
 endif()
+if(ENABLE_EDITOR)
+	add_subdirectory(mapeditor)
+endif()
 add_subdirectory(client)
 add_subdirectory(server)
 add_subdirectory_with_folder("AI" AI)
@@ -489,7 +487,7 @@ if(WIN32)
 		set(debug_postfix d)
 	endif()
 
-	if(ENABLE_LAUNCHER)
+	if(ENABLE_LAUNCHER OR ENABLE_EDITOR)
 		get_target_property(QtCore_location Qt${QT_VERSION_MAJOR}::Core LOCATION)
 		get_filename_component(Qtbin_folder ${QtCore_location} PATH)
 		file(GLOB dep_files
@@ -594,9 +592,12 @@ elseif(APPLE_MACOS AND NOT ENABLE_MONOLITHIC_INSTALL)
 
 	include(GetGitRevisionDescription)
 	get_git_head_revision(GIT_REFSPEC GIT_SHA1)
+	string(TIMESTAMP CURRENT_YEAR "%Y")
 
 	set(MACOSX_BUNDLE_NAME "${CMAKE_PROJECT_NAME}")
 	set(MACOSX_BUNDLE_BUNDLE_NAME "${CMAKE_PROJECT_NAME}")
+	set(MACOSX_BUNDLE_COPYRIGHT "Copyright © 2007-${CURRENT_YEAR} VCMI team")
+	set(MACOSX_BUNDLE_GUI_IDENTIFIER "eu.vcmi.vcmi")
 	set(MACOSX_BUNDLE_BUNDLE_VERSION ${GIT_SHA1})
 	set(MACOSX_BUNDLE_SHORT_VERSION_STRING ${APP_SHORT_VERSION})
 	if(ENABLE_LAUNCHER)

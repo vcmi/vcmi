@@ -10,6 +10,7 @@ set(battleAI_SRCS
 		PotentialTargets.cpp
 		StackWithBonuses.cpp
 		ThreatMap.cpp
+		BattleExchangeVariant.cpp
 )
 
 set(battleAI_HEADERS
@@ -23,6 +24,7 @@ set(battleAI_HEADERS
 		PossibleSpellcast.h
 		StackWithBonuses.h
 		ThreatMap.h
+		BattleExchangeVariant.h
 )
 
 assign_source_group(${battleAI_SRCS} ${battleAI_HEADERS})

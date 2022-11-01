@@ -400,7 +400,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 				EventExpression::OperatorAll oper;
 				EventCondition cond(EventCondition::HAVE_BUILDING);
 				cond.position = readInt3();
-				cond.objectType = BuildingID::VILLAGE_HALL + reader.readUInt8();
+				cond.objectType = BuildingID::TOWN_HALL + reader.readUInt8();
 				oper.expressions.push_back(cond);
 				cond.objectType = BuildingID::FORT + reader.readUInt8();
 				oper.expressions.push_back(cond);

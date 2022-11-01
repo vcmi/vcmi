@@ -97,7 +97,7 @@ void CSettingsView::loadSettings()
 
 	ui->lineEditUserDataDir->setText(pathToQString(VCMIDirs::get().userDataPath()));
 	ui->lineEditGameDir->setText(pathToQString(VCMIDirs::get().binaryPath()));
-	ui->lineEditTempDir->setText(pathToQString(VCMIDirs::get().userCachePath()));
+	ui->lineEditTempDir->setText(pathToQString(VCMIDirs::get().userLogsPath()));
 
 	std::string encoding = settings["general"]["encoding"].String();
 	size_t encodingIndex = boost::range::find(knownEncodingsList, encoding) - knownEncodingsList;

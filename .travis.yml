@@ -41,7 +41,7 @@ addons:
     notification_email: coverity@arseniyshestakov.com
     build_command_prepend: cov-configure --compiler clang-3.6 --comptype clangcc &&
       cov-configure --comptype clangcxx --compiler clang++-3.6 && cmake -G Ninja ..
-      -DCMAKE_BUILD_TYPE=DEBUG -DENABLE_LAUNCHER=0
+      -DCMAKE_BUILD_TYPE=DEBUG -DENABLE_LAUNCHER=0 -DENABLE_EDITOR=0
     build_command: ninja -j 3
     branch_pattern: coverity_scan
 
