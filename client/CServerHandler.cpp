@@ -281,10 +281,16 @@ void CServerHandler::justConnectToServer(const std::string & addr, const ui16 po
 
 	c->handler = std::make_shared<boost::thread>(&CServerHandler::threadHandleConnection, this);
 
-	if(addr.empty() || addr == localhostAddress)
-		return;
-	Settings serverAddress = settings.write["server"]["server"];
-	serverAddress->String() = addr;
+	if(!addr.empty() && addr != localhostAddress)
+	{
+		Settings serverAddress = settings.write["server"]["server"];
+		serverAddress->String() = addr;
+	}
+	if(port && port != getDefaultPort())
+	{
+		Settings serverPort = settings.write["server"]["port"];
+		serverPort->Integer() = port;
+	}
 }
 
 void CServerHandler::applyPacksOnLobbyScreen()
