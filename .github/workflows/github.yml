@@ -127,6 +127,10 @@ jobs:
         MXE_TARGET: ${{ matrix.mxe }}
         VCMI_BUILD_PLATFORM: x64
 
+    - uses: actions/setup-python@v4
+      if: "${{ matrix.conan_profile != '' }}"
+      with:
+        python-version: '3.10'
     - name: Conan setup
       if: "${{ matrix.conan_profile != '' }}"
       run: |
