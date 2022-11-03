@@ -339,7 +339,7 @@ void CPathfinder::calculatePaths()
 		auto hlp = config->getOrCreatePathfinderHelper(source, gs);
 
 		if(hlp->isHeroPatrolLocked())
-			break;
+			continue;
 
 		pq.push(initialNode);
 	}
