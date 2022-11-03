@@ -818,6 +818,10 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance * heroAttacker, con
 			}
 		}
 	}
+	
+	auto battleDialogQuery = std::make_shared<CDialogQuery>(this);
+	battleResult.data->queryID = battleDialogQuery->queryID;
+	queries.addQuery(battleDialogQuery);
 	sendAndApply(battleResult.data); //after this point casualties objects are destroyed
 
 	if (arts.size()) //display loot

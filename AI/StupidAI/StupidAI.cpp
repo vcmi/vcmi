@@ -182,7 +182,7 @@ void CStupidAI::battleStacksAttacked(const std::vector<BattleStackAttacked> & bs
 	print("battleStacksAttacked called");
 }
 
-void CStupidAI::battleEnd(const BattleResult *br)
+void CStupidAI::battleEnd(const BattleResult *br, QueryID queryID)
 {
 	print("battleEnd called");
 }

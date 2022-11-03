@@ -394,7 +394,7 @@ void CBattleOptionsWindow::bExitf()
 	close();
 }
 
-CBattleResultWindow::CBattleResultWindow(const BattleResult & br, CPlayerInterface & _owner)
+CBattleResultWindow::CBattleResultWindow(const BattleResult & br, CPlayerInterface & _owner, bool allowReplay)
 	: owner(_owner)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
@@ -405,6 +405,12 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult & br, CPlayerInterfa
 
 	exit = std::make_shared<CButton>(Point(384, 505), "iok6432.def", std::make_pair("", ""), [&](){ bExitf();}, SDLK_RETURN);
 	exit->setBorderColor(Colors::METALLIC_GOLD);
+	
+	if(allowReplay)
+	{
+		repeat = std::make_shared<CButton>(Point(24, 505), "icn6432.def", std::make_pair("", ""), [&](){ bRepeatf();}, SDLK_ESCAPE);
+		repeat->setBorderColor(Colors::METALLIC_GOLD);
+	}
 
 	if(br.winner == 0) //attacker won
 	{
@@ -566,6 +572,7 @@ void CBattleResultWindow::show(SDL_Surface * to)
 
 void CBattleResultWindow::bExitf()
 {
+	resultCallback(0);
 	CPlayerInterface &intTmp = owner; //copy reference because "this" will be destructed soon
 
 	close();
@@ -573,6 +580,22 @@ void CBattleResultWindow::bExitf()
 	if(dynamic_cast<CBattleInterface*>(GH.topInt().get()))
 		GH.popInts(1); //pop battle interface if present
 
+	//Result window and battle interface are gone. We requested all dialogs to be closed before opening the battle,
+	//so we can be sure that there is no dialogs left on GUI stack.
+	intTmp.showingDialog->setn(false);
+	CCS->videoh->close();
+}
+
+void CBattleResultWindow::bRepeatf()
+{
+	resultCallback(1);
+	CPlayerInterface &intTmp = owner; //copy reference because "this" will be destructed soon
+	
+	close();
+	
+	if(dynamic_cast<CBattleInterface*>(GH.topInt().get()))
+		GH.popInts(1); //pop battle interface if present
+	
 	//Result window and battle interface are gone. We requested all dialogs to be closed before opening the battle,
 	//so we can be sure that there is no dialogs left on GUI stack.
 	intTmp.showingDialog->setn(false);

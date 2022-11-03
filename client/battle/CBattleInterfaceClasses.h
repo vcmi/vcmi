@@ -118,14 +118,17 @@ private:
 	std::shared_ptr<CPicture> background;
 	std::vector<std::shared_ptr<CLabel>> labels;
 	std::shared_ptr<CButton> exit;
+	std::shared_ptr<CButton> repeat;
 	std::vector<std::shared_ptr<CAnimImage>> icons;
 	std::shared_ptr<CTextBox> description;
 	CPlayerInterface & owner;
 public:
-	CBattleResultWindow(const BattleResult & br, CPlayerInterface & _owner);
+	CBattleResultWindow(const BattleResult & br, CPlayerInterface & _owner, bool allowReplay = false);
 	~CBattleResultWindow();
 
 	void bExitf(); //exit button callback
+	void bRepeatf(); //repeat button callback
+	std::function<void(int result)> resultCallback; //callback receiving which button was pressed
 
 	void activate() override;
 	void show(SDL_Surface * to = 0) override;

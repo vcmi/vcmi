@@ -583,7 +583,7 @@ void CClient::battleStarted(const BattleInfo * info)
 	auto & leftSide = info->sides[0], & rightSide = info->sides[1];
 
 	//If quick combat is not, do not prepare interfaces for battleint
-	if(!settings["adventure"]["quickCombat"].Bool())
+	if(rightSide.color != PlayerColor::NEUTRAL || !settings["adventure"]["quickCombat"].Bool())
 	{
 		if(vstd::contains(playerint, leftSide.color) && playerint[leftSide.color]->human)
 			att = std::dynamic_pointer_cast<CPlayerInterface>(playerint[leftSide.color]);

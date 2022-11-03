@@ -144,6 +144,12 @@ public:
 	virtual bool blocksPack(const CPack *pack) const override;
 };
 
+class CBattleDialogQuery : public CDialogQuery
+{
+public:
+	virtual void onRemoval(PlayerColor color) override;
+};
+
 //yes/no and component selection dialogs
 class CBlockingDialogQuery : public CDialogQuery
 {

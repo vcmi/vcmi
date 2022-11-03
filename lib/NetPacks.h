@@ -1434,7 +1434,7 @@ struct BattleSetActiveStack : public CPackForClient
 	}
 };
 
-struct BattleResult : public CPackForClient
+struct BattleResult : public Query
 {
 	enum EResult {NORMAL = 0, ESCAPE = 1, SURRENDER = 2};
 
@@ -1447,6 +1447,7 @@ struct BattleResult : public CPackForClient
 	void applyFirstCl(CClient *cl);
 	void applyGs(CGameState *gs);
 
+	
 	EResult result;
 	ui8 winner; //0 - attacker, 1 - defender, [2 - draw (should be possible?)]
 	std::map<ui32,si32> casualties[2]; //first => casualties of attackers - map crid => number
@@ -1455,6 +1456,7 @@ struct BattleResult : public CPackForClient
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & queryID;
 		h & result;
 		h & winner;
 		h & casualties[0];

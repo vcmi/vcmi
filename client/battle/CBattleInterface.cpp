@@ -859,11 +859,14 @@ void CBattleInterface::reallySurrender()
 
 void CBattleInterface::bAutofightf()
 {
-	if (spellDestSelectMode) //we are casting a spell
+	//if(bresult) //battle is already finished
+		//return;
+	
+	if(spellDestSelectMode) //we are casting a spell
 		return;
 
 	//Stop auto-fight mode
-	if (curInt->isAutoFightOn)
+	if(curInt->isAutoFightOn)
 	{
 		assert(curInt->autofightingAI);
 		curInt->isAutoFightOn = false;
@@ -1129,7 +1132,8 @@ void CBattleInterface::newRoundFirst( int round )
 
 void CBattleInterface::newRound(int number)
 {
-	console->addText(CGI->generaltexth->allTexts[412]);
+	if(console)
+		console->addText(CGI->generaltexth->allTexts[412]);
 }
 
 void CBattleInterface::giveCommand(EActionType action, BattleHex tile, si32 additional)
@@ -1254,7 +1258,7 @@ void CBattleInterface::stackIsCatapulting(const CatapultAttack & ca)
 	}
 }
 
-void CBattleInterface::battleFinished(const BattleResult& br)
+void CBattleInterface::battleFinished(const BattleResult& br, QueryID queryID)
 {
 	bresult = &br;
 	{
@@ -1262,19 +1266,25 @@ void CBattleInterface::battleFinished(const BattleResult& br)
 		animsAreDisplayed.waitUntil(false);
 	}
 	setActiveStack(nullptr);
-	displayBattleFinished();
+	displayBattleFinished(queryID);
 }
 
-void CBattleInterface::displayBattleFinished()
+void CBattleInterface::displayBattleFinished(QueryID queryID)
 {
 	CCS->curh->changeGraphic(ECursor::ADVENTURE,0);
 	if(settings["session"]["spectate"].Bool() && settings["session"]["spectate-skip-battle-result"].Bool())
 	{
+		curInt->cb->selectionMade(0, queryID);
 		close();
 		return;
 	}
 
-	GH.pushInt(std::make_shared<CBattleResultWindow>(*bresult, *(this->curInt)));
+	auto wnd = std::make_shared<CBattleResultWindow>(*bresult, *(this->curInt));
+	wnd->resultCallback = [=](ui32 selection)
+	{
+		curInt->cb->selectionMade(selection, queryID);
+	};
+	GH.pushInt(wnd);
 	curInt->waitWhileDialog(); // Avoid freeze when AI end turn after battle. Check bug #1897
 	CPlayerInterface::battleInt = nullptr;
 }

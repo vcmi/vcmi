@@ -380,6 +380,16 @@ bool CGarrisonDialogQuery::blocksPack(const CPack * pack) const
 	return CDialogQuery::blocksPack(pack);
 }
 
+void CBattleDialogQuery::onRemoval(PlayerColor color)
+{
+	assert(answer);
+	if(*answer == 1)
+	{
+		int a = 0;
+		++a;
+	}
+}
+
 void CBlockingDialogQuery::notifyObjectAboutRemoval(const CObjectVisitQuery & objectVisit) const
 {
 	assert(answer);

@@ -353,8 +353,8 @@ public:
 	void newRound(int number); //caled when round is ended; number is the number of round
 	void hexLclicked(int whichOne); //hex only call-in
 	void stackIsCatapulting(const CatapultAttack & ca); //called when a stack is attacking walls
-	void battleFinished(const BattleResult& br); //called when battle is finished - battleresult window should be printed
-	void displayBattleFinished(); //displays battle result
+	void battleFinished(const BattleResult& br, QueryID queryID); //called when battle is finished - battleresult window should be printed
+	void displayBattleFinished(QueryID queryID); //displays battle result
 	void spellCast(const BattleSpellCast *sc); //called when a hero casts a spell
 	void battleStacksEffectsSet(const SetStackEffect & sse); //called when a specific effect is set to stacks
 	void castThisSpell(SpellID spellID); //called when player has chosen a spell from spellbook

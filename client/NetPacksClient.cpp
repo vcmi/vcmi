@@ -708,7 +708,7 @@ void BattleUpdateGateState::applyFirstCl(CClient * cl)
 
 void BattleResult::applyFirstCl(CClient *cl)
 {
-	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleEnd, this);
+	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleEnd, this, queryID);
 	cl->battleFinished();
 }
 
