@@ -147,6 +147,10 @@ public:
 class CBattleDialogQuery : public CDialogQuery
 {
 public:
+	CBattleDialogQuery(CGameHandler * owner, const BattleInfo * Bi);
+	
+	const BattleInfo * bi;
+	
 	virtual void onRemoval(PlayerColor color) override;
 };
 
