@@ -925,13 +925,13 @@ BattleAction CPlayerInterface::activeStack(const CStack * stack) //called when i
 void CPlayerInterface::battleEnd(const BattleResult *br)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if (isAutoFightOn)
+	if(isAutoFightOn || autofightingAI)
 	{
 		isAutoFightOn = false;
 		cb->unregisterBattleInterface(autofightingAI);
 		autofightingAI.reset();
 
-		if (!battleInt)
+		if(!battleInt)
 		{
 			GH.pushIntT<CBattleResultWindow>(*br, *this);
 			// #1490 - during AI turn when quick combat is on, we need to display the message and wait for user to close it.
