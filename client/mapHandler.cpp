@@ -536,6 +536,8 @@ void CMapHandler::CMapWorldViewBlitter::drawTileOverlay(SDL_Surface * targetSurf
 	for(auto & object : objects)
 	{
 		const CGObjectInstance * obj = object.obj;
+		if(!obj)
+			continue;
 
 		const bool sameLevel = obj->pos.z == pos.z;
 
