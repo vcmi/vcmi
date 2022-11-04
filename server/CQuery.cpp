@@ -396,6 +396,10 @@ void CBattleDialogQuery::onRemoval(PlayerColor color)
 	{
 		gh->startBattlePrimary(bi->sides[0].armyObject, bi->sides[1].armyObject, bi->tile, bi->sides[0].hero, bi->sides[1].hero, bi->creatureBank, bi->town);
 	}
+	else
+	{
+		gh->endBattleConfirm(bi);
+	}
 }
 
 void CBlockingDialogQuery::notifyObjectAboutRemoval(const CObjectVisitQuery & objectVisit) const

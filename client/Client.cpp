@@ -581,15 +581,30 @@ void CClient::battleStarted(const BattleInfo * info)
 
 	std::shared_ptr<CPlayerInterface> att, def;
 	auto & leftSide = info->sides[0], & rightSide = info->sides[1];
+	
+	auto callBattleStart = [&](PlayerColor color, ui8 side)
+	{
+		if(vstd::contains(battleints, color))
+			battleints[color]->battleStart(leftSide.armyObject, rightSide.armyObject, info->tile, leftSide.hero, rightSide.hero, side);
+	};
+	
+	callBattleStart(leftSide.color, 0);
+	callBattleStart(rightSide.color, 1);
+	callBattleStart(PlayerColor::UNFLAGGABLE, 1);
+	if(settings["session"]["spectate"].Bool() && !settings["session"]["spectate-skip-battle"].Bool())
+		callBattleStart(PlayerColor::SPECTATOR, 1);
+
+	if(vstd::contains(playerint, leftSide.color) && playerint[leftSide.color]->human)
+		att = std::dynamic_pointer_cast<CPlayerInterface>(playerint[leftSide.color]);
+
+	if(vstd::contains(playerint, rightSide.color) && playerint[rightSide.color]->human)
+		def = std::dynamic_pointer_cast<CPlayerInterface>(playerint[rightSide.color]);
 
 	//If quick combat is not, do not prepare interfaces for battleint
-	if(rightSide.color != PlayerColor::NEUTRAL || !settings["adventure"]["quickCombat"].Bool())
+	if(att && att->isAutoFightOn)
 	{
-		if(vstd::contains(playerint, leftSide.color) && playerint[leftSide.color]->human)
-			att = std::dynamic_pointer_cast<CPlayerInterface>(playerint[leftSide.color]);
-
-		if(vstd::contains(playerint, rightSide.color) && playerint[rightSide.color]->human)
-			def = std::dynamic_pointer_cast<CPlayerInterface>(playerint[rightSide.color]);
+		att.reset();
+		def.reset();
 	}
 
 	if(!settings["session"]["headless"].Bool())
@@ -609,18 +624,6 @@ void CClient::battleStarted(const BattleInfo * info)
 			GH.pushIntT<CBattleInterface>(leftSide.armyObject, rightSide.armyObject, leftSide.hero, rightSide.hero, battleIntRect, att, def, spectratorInt);
 		}
 	}
-
-	auto callBattleStart = [&](PlayerColor color, ui8 side)
-	{
-		if(vstd::contains(battleints, color))
-			battleints[color]->battleStart(leftSide.armyObject, rightSide.armyObject, info->tile, leftSide.hero, rightSide.hero, side);
-	};
-
-	callBattleStart(leftSide.color, 0);
-	callBattleStart(rightSide.color, 1);
-	callBattleStart(PlayerColor::UNFLAGGABLE, 1);
-	if(settings["session"]["spectate"].Bool() && !settings["session"]["spectate-skip-battle"].Bool())
-		callBattleStart(PlayerColor::SPECTATOR, 1);
 
 	if(info->tacticDistance && vstd::contains(battleints, info->sides[info->tacticsSide].color))
 	{

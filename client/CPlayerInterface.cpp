@@ -707,9 +707,12 @@ void CPlayerInterface::battleStartBefore(const CCreatureSet *army1, const CCreat
 void CPlayerInterface::battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
+	bool replay = (lastBattleArmies.first == army1 && lastBattleArmies.second == army2);
+	lastBattleArmies.first = army1;
+	lastBattleArmies.second = army2;
 	//quick combat with neutral creatures only
 	auto * army2_object = dynamic_cast<const CGObjectInstance *>(army2);
-	if(army2_object && army2_object->getOwner() == PlayerColor::UNFLAGGABLE && settings["adventure"]["quickCombat"].Bool())
+	if(!replay && army2_object && army2_object->getOwner() == PlayerColor::UNFLAGGABLE && settings["adventure"]["quickCombat"].Bool())
 	{
 		autofightingAI = CDynLibHandler::getNewBattleAI(settings["server"]["friendlyAI"].String());
 		autofightingAI->init(env, cb);

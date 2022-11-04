@@ -703,11 +703,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance * heroAttacker, con
 		battleResult.data->exp[0] = heroAttacker->calculateXp(battleResult.data->exp[0]);//scholar skill
 	if(heroDefender)
 		battleResult.data->exp[1] = heroDefender->calculateXp(battleResult.data->exp[1]);
-
-	const CArmedInstance *bEndArmy1 = gs->curB->sides.at(0).armyObject;
-	const CArmedInstance *bEndArmy2 = gs->curB->sides.at(1).armyObject;
-	const BattleResult::EResult result = battleResult.get()->result;
-
+	
 	auto findBattleQuery = [this]() -> std::shared_ptr<CBattleQuery>
 	{
 		for (auto &q : queries.allQueries())
@@ -732,8 +728,39 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance * heroAttacker, con
 	//Check how many battle queries were created (number of players blocked by battle)
 	const int queriedPlayers = battleQuery ? (int)boost::count(queries.allQueries(), battleQuery) : 0;
 	finishingBattle = make_unique<FinishingBattleHelper>(battleQuery, queriedPlayers);
+	
+	auto battleDialogQuery = std::make_shared<CBattleDialogQuery>(this, gs->curB);
+	battleResult.data->queryID = battleDialogQuery->queryID;
+	queries.addQuery(battleDialogQuery);
+	sendAndApply(battleResult.data); //after this point casualties objects are destroyed
+}
 
-	CasualtiesAfterBattle cab1(bEndArmy1, gs->curB), cab2(bEndArmy2, gs->curB); //calculate casualties before deleting battle
+void CGameHandler::endBattleConfirm(const BattleInfo * battleInfo)
+{
+	auto findBattleQuery = [this, battleInfo]() -> std::shared_ptr<CBattleQuery>
+	{
+		for (auto &q : queries.allQueries())
+		{
+			if (auto bq = std::dynamic_pointer_cast<CBattleQuery>(q))
+				if (bq->bi == battleInfo)
+					return bq;
+		}
+		return std::shared_ptr<CBattleQuery>();
+	};
+	
+	auto battleQuery = findBattleQuery();
+	if (!battleQuery)
+	{
+		logGlobal->error("Cannot find battle query!");
+	}
+	if (battleQuery != queries.topQuery(battleInfo->sides[0].color))
+		complain("Player " + boost::lexical_cast<std::string>(battleInfo->sides[0].color) + " although in battle has no battle query at the top!");
+	
+	const CArmedInstance *bEndArmy1 = battleInfo->sides.at(0).armyObject;
+	const CArmedInstance *bEndArmy2 = battleInfo->sides.at(1).armyObject;
+	const BattleResult::EResult result = battleResult.get()->result;
+	
+	CasualtiesAfterBattle cab1(bEndArmy1, battleInfo), cab2(bEndArmy2, battleInfo); //calculate casualties before deleting battle
 	ChangeSpells cs; //for Eagle Eye
 
 	if (finishingBattle->winnerHero)
@@ -741,7 +768,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance * heroAttacker, con
 		if (int eagleEyeLevel = finishingBattle->winnerHero->valOfBonuses(Bonus::SECONDARY_SKILL_VAL2, SecondarySkill::EAGLE_EYE))
 		{
 			double eagleEyeChance = finishingBattle->winnerHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::EAGLE_EYE);
-			for(auto & spellId : gs->curB->sides.at(!battleResult.data->winner).usedSpellsHistory)
+			for(auto & spellId : battleInfo->sides.at(!battleResult.data->winner).usedSpellsHistory)
 			{
 				auto spell = spellId.toSpell(VLC->spells());
 				if(spell && spell->getLevel() <= eagleEyeLevel && !finishingBattle->winnerHero->spellbookContainsSpell(spell->getId()) && getRandomGenerator().nextInt(99) < eagleEyeChance)
@@ -770,8 +797,8 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance * heroAttacker, con
 				ma.src = ArtifactLocation(finishingBattle->loserHero, artSlot.first);
 				const CArtifactInstance * art =  ma.src.getArt();
 				if (art && !art->artType->isBig() &&
-				    art->artType->id != ArtifactID::SPELLBOOK)
-						// don't move war machines or locked arts (spellbook)
+					art->artType->id != ArtifactID::SPELLBOOK)
+					// don't move war machines or locked arts (spellbook)
 				{
 					sendMoveArtifact(art, &ma);
 				}
@@ -781,7 +808,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance * heroAttacker, con
 				//we assume that no big artifacts can be found
 				MoveArtifact ma;
 				ma.src = ArtifactLocation(finishingBattle->loserHero,
-					ArtifactPosition(GameConstants::BACKPACK_START)); //backpack automatically shifts arts to beginning
+										  ArtifactPosition(GameConstants::BACKPACK_START)); //backpack automatically shifts arts to beginning
 				const CArtifactInstance * art =  ma.src.getArt();
 				if (art->artType->id != ArtifactID::GRAIL) //grail may not be won
 				{
@@ -803,7 +830,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance * heroAttacker, con
 				}
 			}
 		}
-		for (auto armySlot : gs->curB->battleGetArmyObject(!battleResult.data->winner)->stacks)
+		for (auto armySlot : battleInfo->sides.at(!battleResult.data->winner).armyObject->stacks)
 		{
 			auto artifactsWorn = armySlot.second->artifactsWorn;
 			for (auto artSlot : artifactsWorn)
@@ -819,11 +846,6 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance * heroAttacker, con
 		}
 	}
 	
-	auto battleDialogQuery = std::make_shared<CBattleDialogQuery>(this, battleQuery->bi);
-	battleResult.data->queryID = battleDialogQuery->queryID;
-	queries.addQuery(battleDialogQuery);
-	sendAndApply(battleResult.data); //after this point casualties objects are destroyed
-
 	if (arts.size()) //display loot
 	{
 		InfoWindow iw;
@@ -884,33 +906,25 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance * heroAttacker, con
 	}
 	cab1.updateArmy(this);
 	cab2.updateArmy(this); //take casualties after battle is deleted
-
-	if(battleResult.data->winner != BattleSide::ATTACKER && heroAttacker) //remove beaten Attacker
+	
+	if(finishingBattle->loserHero) //remove beaten hero
 	{
-		RemoveObject ro(heroAttacker->id);
+		RemoveObject ro(finishingBattle->loserHero->id);
 		sendAndApply(&ro);
 	}
-
-	if(battleResult.data->winner != BattleSide::DEFENDER && heroDefender) //remove beaten Defender
+	
+	if(battleResult.data->winner == BattleSide::DEFENDER
+	   && finishingBattle->winnerHero
+	   && finishingBattle->winnerHero->visitedTown
+	   && !finishingBattle->winnerHero->inTownGarrison
+	   && finishingBattle->winnerHero->visitedTown->garrisonHero == finishingBattle->winnerHero)
 	{
-		RemoveObject ro(heroDefender->id);
-		sendAndApply(&ro);
-	}
-
-	if(battleResult.data->winner == BattleSide::DEFENDER 
-		&& heroDefender 
-		&& heroDefender->visitedTown
-		&& !heroDefender->inTownGarrison
-		&& heroDefender->visitedTown->garrisonHero == heroDefender)
-	{
-		swapGarrisonOnSiege(heroDefender->visitedTown->id); //return defending visitor from garrison to its rightful place
+		swapGarrisonOnSiege(finishingBattle->winnerHero->visitedTown->id); //return defending visitor from garrison to its rightful place
 	}
 	//give exp
-	if(battleResult.data->exp[0] && heroAttacker && battleResult.get()->winner == BattleSide::ATTACKER)
-		changePrimSkill(heroAttacker, PrimarySkill::EXPERIENCE, battleResult.data->exp[0]);
-	else if(battleResult.data->exp[1] && heroDefender && battleResult.get()->winner == BattleSide::DEFENDER)
-		changePrimSkill(heroDefender, PrimarySkill::EXPERIENCE, battleResult.data->exp[1]);
-
+	if(battleResult.data->exp[finishingBattle->winnerSide] && finishingBattle->winnerHero)
+		changePrimSkill(finishingBattle->winnerHero, PrimarySkill::EXPERIENCE, battleResult.data->exp[finishingBattle->winnerSide]);
+	
 	queries.popIfTop(battleQuery);
 
 	//--> continuation (battleAfterLevelUp) occurs after level-up queries are handled or on removing query (above)
@@ -7259,7 +7273,7 @@ void CGameHandler::showInfoDialog(const std::string & msg, PlayerColor player)
 	showInfoDialog(&iw);
 }
 
-CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance * _army, BattleInfo *bat):
+CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance * _army, const BattleInfo * bat):
 	army(_army)
 {
 	heroWithDeadCommander = ObjectInstanceID();
@@ -7411,12 +7425,14 @@ CGameHandler::FinishingBattleHelper::FinishingBattleHelper(std::shared_ptr<const
 	loserHero = result.winner != 0 ? info.sides[0].hero : info.sides[1].hero;
 	victor = info.sides[result.winner].color;
 	loser = info.sides[!result.winner].color;
+	winnerSide = result.winner;
 	remainingBattleQueriesCount = RemainingBattleQueriesCount;
 }
 
 CGameHandler::FinishingBattleHelper::FinishingBattleHelper()
 {
 	winnerHero = loserHero = nullptr;
+	winnerSide = 0;
 	remainingBattleQueriesCount = 0;
 }
 

@@ -88,7 +88,7 @@ struct CasualtiesAfterBattle
 	TSummoned summoned;
 	ObjectInstanceID heroWithDeadCommander; //TODO: unify stack locations
 
-	CasualtiesAfterBattle(const CArmedInstance * _army, BattleInfo *bat);
+	CasualtiesAfterBattle(const CArmedInstance * _army, const BattleInfo * bat);
 	void updateArmy(CGameHandler *gh);
 };
 
@@ -129,7 +129,8 @@ public:
 	////used only in endBattle - don't touch elsewhere
 	bool visitObjectAfterVictory;
 	//
-	void endBattle(int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2); //ends battle
+	void endBattle(int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2); //ends battle
+	void endBattleConfirm(const BattleInfo * battleInfo);
 
 	void makeAttack(const CStack * attacker, const CStack * defender, int distance, BattleHex targetHex, bool first, bool ranged, bool counter);
 
@@ -309,6 +310,7 @@ public:
 
 		const CGHeroInstance *winnerHero, *loserHero;
 		PlayerColor victor, loser;
+		ui8 winnerSide;
 
 		int remainingBattleQueriesCount;
 
@@ -318,6 +320,7 @@ public:
 			h & loserHero;
 			h & victor;
 			h & loser;
+			h & winnerSide;
 			h & remainingBattleQueriesCount;
 		}
 	};
