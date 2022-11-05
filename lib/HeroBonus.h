@@ -791,21 +791,21 @@ public:
 	static PlayerColor retrieveNodeOwner(const CBonusSystemNode * node);
 	std::shared_ptr<Bonus> getBonusLocalFirst(const CSelector & selector);
 
-	void attachTo(CBonusSystemNode *parent);
-	void detachFrom(CBonusSystemNode *parent);
+	void attachTo(CBonusSystemNode & parent);
+	void detachFrom(CBonusSystemNode & parent);
 	void detachFromAll();
 	virtual void addNewBonus(const std::shared_ptr<Bonus>& b);
 	void accumulateBonus(const std::shared_ptr<Bonus>& b); //add value of bonus with same type/subtype or create new
 
-	void newChildAttached(CBonusSystemNode *child);
-	void childDetached(CBonusSystemNode *child);
+	void newChildAttached(CBonusSystemNode & child);
+	void childDetached(CBonusSystemNode & child);
 	void propagateBonus(std::shared_ptr<Bonus> b, const CBonusSystemNode & source);
 	void unpropagateBonus(std::shared_ptr<Bonus> b);
 	void removeBonus(const std::shared_ptr<Bonus>& b);
 	void removeBonuses(const CSelector & selector);
 	void removeBonusesRecursive(const CSelector & s);
-	void newRedDescendant(CBonusSystemNode *descendant); //propagation needed
-	void removedRedDescendant(CBonusSystemNode *descendant); //de-propagation needed
+	void newRedDescendant(CBonusSystemNode & descendant); //propagation needed
+	void removedRedDescendant(CBonusSystemNode & descendant); //de-propagation needed
 
 	bool isIndependentNode() const; //node is independent when it has no parents nor children
 	bool actsAsBonusSourceOnly() const;

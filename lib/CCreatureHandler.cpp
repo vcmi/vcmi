@@ -1345,12 +1345,12 @@ void CCreatureHandler::buildBonusTreeForTiers()
 	for(CCreature * c : objects)
 	{
 		if(vstd::isbetween(c->level, 0, ARRAY_COUNT(creaturesOfLevel)))
-			c->attachTo(&creaturesOfLevel[c->level]);
+			c->attachTo(creaturesOfLevel[c->level]);
 		else
-			c->attachTo(&creaturesOfLevel[0]);
+			c->attachTo(creaturesOfLevel[0]);
 	}
 	for(CBonusSystemNode &b : creaturesOfLevel)
-		b.attachTo(&allCreatures);
+		b.attachTo(allCreatures);
 }
 
 void CCreatureHandler::afterLoadFinalization()

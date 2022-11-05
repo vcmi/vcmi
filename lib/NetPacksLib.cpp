@@ -414,7 +414,7 @@ DLL_LINKAGE void RemoveObject::applyGs(CGameState *gs)
 		PlayerState * p = gs->getPlayerState(beatenHero->tempOwner);
 		gs->map->heroesOnMap -= beatenHero;
 		p->heroes -= beatenHero;
-		beatenHero->detachFrom(beatenHero->whereShouldBeAttachedOnSiege(gs));
+		beatenHero->detachFrom(*beatenHero->whereShouldBeAttachedOnSiege(gs));
 		beatenHero->tempOwner = PlayerColor::NEUTRAL; //no one owns beaten hero
 		vstd::erase_if(beatenHero->artifactsInBackpack, [](const ArtSlotInfo& asi)
 		{
@@ -683,7 +683,7 @@ DLL_LINKAGE void HeroRecruited::applyGs(CGameState *gs)
 
 	gs->map->heroesOnMap.push_back(h);
 	p->heroes.push_back(h);
-	h->attachTo(p);
+	h->attachTo(*p);
 	if(fresh)
 	{
 		h->initObj(gs->getRandomGenerator());
@@ -701,8 +701,8 @@ DLL_LINKAGE void GiveHero::applyGs(CGameState *gs)
 	CGHeroInstance *h = gs->getHero(id);
 
 	//bonus system
-	h->detachFrom(&gs->globalEffects);
-	h->attachTo(gs->getPlayerState(player));
+	h->detachFrom(gs->globalEffects);
+	h->attachTo(*gs->getPlayerState(player));
 	h->appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, h->type->heroClass->getIndex())->getTemplates().front();
 
 	gs->map->removeBlockVisTiles(h,true);
@@ -1153,7 +1153,7 @@ DLL_LINKAGE void DisassembledArtifact::applyGs(CGameState *gs)
 	{
 		ArtifactLocation constituentLoc = al;
 		constituentLoc.slot = (ci.slot >= 0 ? ci.slot : al.slot); //-1 is slot of main constituent -> it'll replace combined artifact in its pos
-		disassembled->detachFrom(ci.art);
+		disassembled->detachFrom(*ci.art);
 		ci.art->putAt(constituentLoc);
 	}
 
@@ -1281,10 +1281,10 @@ DLL_LINKAGE void SetObjectProperty::applyGs(CGameState *gs)
 			}
 		}
 
-		CBonusSystemNode *nodeToMove = cai->whatShouldBeAttached();
-		nodeToMove->detachFrom(cai->whereShouldBeAttached(gs));
+		CBonusSystemNode & nodeToMove = cai->whatShouldBeAttached();
+		nodeToMove.detachFrom(cai->whereShouldBeAttached(gs));
 		obj->setProperty(what,val);
-		nodeToMove->attachTo(cai->whereShouldBeAttached(gs));
+		nodeToMove.attachTo(cai->whereShouldBeAttached(gs));
 	}
 	else //not an armed instance
 	{

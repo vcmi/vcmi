@@ -1062,17 +1062,17 @@ CBonusSystemNode * CGHeroInstance::whereShouldBeAttachedOnSiege(CGameState * gs)
 	if(visitedTown)
 		return whereShouldBeAttachedOnSiege(visitedTown->isBattleOutsideTown(this));
 
-	return CArmedInstance::whereShouldBeAttached(gs);
+	return &CArmedInstance::whereShouldBeAttached(gs);
 }
 
-CBonusSystemNode * CGHeroInstance::whereShouldBeAttached(CGameState * gs)
+CBonusSystemNode & CGHeroInstance::whereShouldBeAttached(CGameState * gs)
 {
 	if(visitedTown)
 	{
 		if(inTownGarrison)
-			return visitedTown;
+			return *visitedTown;
 		else
-			return &visitedTown->townAndVis;
+			return visitedTown->townAndVis;
 	}
 	else
 		return CArmedInstance::whereShouldBeAttached(gs);
