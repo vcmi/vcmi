@@ -1390,10 +1390,17 @@ void BattleResult::applyGs(CGameState *gs)
 	for (auto & elem : gs->curB->stacks)
 		delete elem;
 
+	for(int i = 0; i < 2; i++)
+		gs->curB->battleGetArmyObject(i)->battle = nullptr;
 
-	for(int i = 0; i < 2; ++i)
+	gs->curB.dellNull();
+}
+
+void BattleResultAccepted::applyGs(CGameState * gs)
+{
+	for(auto * h : {hero1, hero2})
 	{
-		if(auto h = gs->curB->battleGetFightingHero(i))
+		if(h)
 		{
 			h->removeBonusesRecursive(Bonus::OneBattle); 	//remove any "until next battle" bonuses
 			if (h->commander && h->commander->alive)
@@ -1405,20 +1412,20 @@ void BattleResult::applyGs(CGameState *gs)
 			}
 		}
 	}
-
+	
 	if(VLC->modh->modules.STACK_EXP)
 	{
 		for(int i = 0; i < 2; i++)
+		{
 			if(exp[i])
-				gs->curB->battleGetArmyObject(i)->giveStackExp(exp[i]);
-
+			{
+				if(auto * army = (i == 0 ? army1 : army2))
+					army->giveStackExp(exp[i]);
+			}
+		}
+		
 		CBonusSystemNode::treeHasChanged();
-	}
-
-	for(int i = 0; i < 2; i++)
-		gs->curB->battleGetArmyObject(i)->battle = nullptr;
-
-	gs->curB.dellNull();
+	}	
 }
 
 DLL_LINKAGE void BattleLogMessage::applyGs(CGameState *gs)

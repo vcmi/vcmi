@@ -703,25 +703,14 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance * heroAttacker, con
 		battleResult.data->exp[0] = heroAttacker->calculateXp(battleResult.data->exp[0]);//scholar skill
 	if(heroDefender)
 		battleResult.data->exp[1] = heroDefender->calculateXp(battleResult.data->exp[1]);
-	
-	auto findBattleQuery = [this]() -> std::shared_ptr<CBattleQuery>
-	{
-		for (auto &q : queries.allQueries())
-		{
-			if (auto bq = std::dynamic_pointer_cast<CBattleQuery>(q))
-				if (bq->bi == gs->curB)
-					return bq;
-		}
-		return std::shared_ptr<CBattleQuery>();
-	};
 
-	auto battleQuery = findBattleQuery();
+	auto battleQuery = std::dynamic_pointer_cast<CBattleQuery>(queries.topQuery(gs->curB->sides[0].color));
 	if (!battleQuery)
 	{
 		logGlobal->error("Cannot find battle query!");
+		complain("Player " + boost::lexical_cast<std::string>(gs->curB->sides[0].color) + " has no battle query at the top!");
+		return;
 	}
-	if (battleQuery != queries.topQuery(gs->curB->sides[0].color))
-		complain("Player " + boost::lexical_cast<std::string>(gs->curB->sides[0].color) + " although in battle has no battle query at the top!");
 
 	battleQuery->result = boost::make_optional(*battleResult.data);
 
@@ -737,24 +726,13 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance * heroAttacker, con
 
 void CGameHandler::endBattleConfirm(const BattleInfo * battleInfo)
 {
-	auto findBattleQuery = [this, battleInfo]() -> std::shared_ptr<CBattleQuery>
-	{
-		for (auto &q : queries.allQueries())
-		{
-			if (auto bq = std::dynamic_pointer_cast<CBattleQuery>(q))
-				if (bq->bi == battleInfo)
-					return bq;
-		}
-		return std::shared_ptr<CBattleQuery>();
-	};
-	
-	auto battleQuery = findBattleQuery();
-	if (!battleQuery)
+	auto battleQuery = std::dynamic_pointer_cast<CBattleQuery>(queries.topQuery(battleInfo->sides.at(0).color));
+	if(!battleQuery)
 	{
 		logGlobal->error("Cannot find battle query!");
+		complain("Player " + boost::lexical_cast<std::string>(battleInfo->sides.at(0).color) + " has no battle query at the top!");
+		return;
 	}
-	if (battleQuery != queries.topQuery(battleInfo->sides[0].color))
-		complain("Player " + boost::lexical_cast<std::string>(battleInfo->sides[0].color) + " although in battle has no battle query at the top!");
 	
 	const CArmedInstance *bEndArmy1 = battleInfo->sides.at(0).armyObject;
 	const CArmedInstance *bEndArmy2 = battleInfo->sides.at(1).armyObject;
@@ -926,6 +904,15 @@ void CGameHandler::endBattleConfirm(const BattleInfo * battleInfo)
 		changePrimSkill(finishingBattle->winnerHero, PrimarySkill::EXPERIENCE, battleResult.data->exp[finishingBattle->winnerSide]);
 	
 	queries.popIfTop(battleQuery);
+	
+	BattleResultAccepted raccepted;
+	raccepted.army1 = const_cast<CArmedInstance*>(bEndArmy1);
+	raccepted.army2 = const_cast<CArmedInstance*>(bEndArmy2);
+	raccepted.hero1 = const_cast<CGHeroInstance*>(battleInfo->sides.at(0).hero);
+	raccepted.hero2 = const_cast<CGHeroInstance*>(battleInfo->sides.at(1).hero);
+	raccepted.exp[0] = battleResult.data->exp[0];
+	raccepted.exp[1] = battleResult.data->exp[1];
+	sendAndApply(&raccepted);
 
 	//--> continuation (battleAfterLevelUp) occurs after level-up queries are handled or on removing query (above)
 }
@@ -934,7 +921,9 @@ void CGameHandler::battleAfterLevelUp(const BattleResult &result)
 {
 	LOG_TRACE(logGlobal);
 
-
+	if(!finishingBattle)
+		return;
+	
 	finishingBattle->remainingBattleQueriesCount--;
 	logGlobal->trace("Decremented queries count to %d", finishingBattle->remainingBattleQueriesCount);
 
@@ -1016,6 +1005,8 @@ void CGameHandler::battleAfterLevelUp(const BattleResult &result)
 			sendAndApply(&sah);
 		}
 	}
+	
+	finishingBattle.reset();
 }
 
 void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, int distance, BattleHex targetHex, bool first, bool ranged, bool counter)

@@ -1075,6 +1075,9 @@ void AIGateway::battleEnd(const BattleResult * br, QueryID queryID)
 	bool won = br->winner == myCb->battleGetMySide();
 	logAi->debug("Player %d (%s): I %s the %s!", playerID, playerID.getStr(), (won ? "won" : "lost"), battlename);
 	battlename.clear();
+	status.addQuery(queryID, "Combat result dialog");
+	answerQuery(queryID, 0);
+	status.removeQuery(queryID); //do not wait for answer
 	CAdventureAI::battleEnd(br, queryID);
 }
 

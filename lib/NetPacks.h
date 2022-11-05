@@ -1434,6 +1434,26 @@ struct BattleSetActiveStack : public CPackForClient
 	}
 };
 
+struct BattleResultAccepted : public CPackForClient
+{
+	void applyGs(CGameState * gs);
+	
+	CGHeroInstance * hero1 = nullptr;
+	CGHeroInstance * hero2 = nullptr;
+	CArmedInstance * army1 = nullptr;
+	CArmedInstance * army2 = nullptr;
+	TExpType exp[2];
+	
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & hero1;
+		h & hero2;
+		h & army1;
+		h & army2;
+		h & exp;
+	}
+};
+
 struct BattleResult : public Query
 {
 	enum EResult {NORMAL = 0, ESCAPE = 1, SURRENDER = 2};
