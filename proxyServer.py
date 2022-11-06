@@ -1,6 +1,3 @@
-from calendar import c
-from distutils.command.clean import clean
-from pickletools import bytes8
 import socket
 import re
 import uuid
@@ -336,7 +333,7 @@ def dispatch(client: socket, sender: dict, arr: bytes):
             send(client, f":>>ERROR:Too short username {tag_value}")
             return
 
-        for user in client_sockets:
+        for user in client_sockets.values():
             if user['username'] == tag_value:
                 send(client, f":>>ERROR:Can't connect with the name {tag_value}. This login is already occpupied")
                 return
@@ -465,7 +462,7 @@ def listen_for_client(cs):
         except Exception as e:
             # client no longer connected
             print(f"[!] Error: {e}")
-            handleDisconnection(cs)            
+            handleDisconnection(cs)
             return
             
         dispatch(cs, client_sockets[cs], msg)
