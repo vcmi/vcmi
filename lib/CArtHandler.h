@@ -303,8 +303,9 @@ struct DLL_LINKAGE ArtSlotInfo
 	ui8 locked; //if locked, then artifact points to the combined artifact
 
 	ArtSlotInfo() : locked(false) {}
+	const CArtifactInstance * getArt() const;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & artifact;
 		h & locked;

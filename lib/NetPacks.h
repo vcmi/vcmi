@@ -994,12 +994,15 @@ struct EraseArtifact : CArtifactOperationPack
 
 struct MoveArtifact : CArtifactOperationPack
 {
+	MoveArtifact() {}
+	MoveArtifact(ArtifactLocation * src, ArtifactLocation * dst) 
+		: src(*src), dst(*dst) {}
 	ArtifactLocation src, dst;
 
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & src;
 		h & dst;

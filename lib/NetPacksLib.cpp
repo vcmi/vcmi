@@ -845,18 +845,11 @@ DLL_LINKAGE CBonusSystemNode *ArtifactLocation::getHolderNode()
 
 DLL_LINKAGE const CArtifactInstance *ArtifactLocation::getArt() const
 {
-	const ArtSlotInfo *s = getSlot();
-	if(s && s->artifact)
-	{
-		if(!s->locked)
-			return s->artifact;
-		else
-		{
-			logNetwork->warn("ArtifactLocation::getArt: This location is locked!");
-			return nullptr;
-		}
-	}
-	return nullptr;
+	auto s = getSlot();
+	if (s)
+		return s->getArt();
+	else
+		return nullptr;
 }
 
 DLL_LINKAGE const CArtifactSet * ArtifactLocation::getHolderArtSet() const
@@ -1093,13 +1086,13 @@ DLL_LINKAGE void EraseArtifact::applyGs(CGameState *gs)
 	al.removeArtifact();
 }
 
-DLL_LINKAGE void MoveArtifact::applyGs(CGameState *gs)
+DLL_LINKAGE void MoveArtifact::applyGs(CGameState * gs)
 {
-	CArtifactInstance *a = src.getArt();
+	CArtifactInstance * art = src.getArt();
 	if(dst.slot < GameConstants::BACKPACK_START)
 		assert(!dst.getArt());
 
-	a->move(src, dst);
+	art->move(src, dst);
 
 	//TODO what'll happen if Titan's thunder is equipped by pickin git up or the start of game?
 	if (a->artType->id == ArtifactID::TITANS_THUNDER && dst.slot == ArtifactPosition::RIGHT_HAND) //Titan's Thunder creates new spellbook on equip
@@ -1110,6 +1103,86 @@ DLL_LINKAGE void MoveArtifact::applyGs(CGameState *gs)
 			CGHeroInstance *h = *hPtr;
 			if(h && !h->hasSpellbook())
 				gs->giveHeroArtifact(h, ArtifactID::SPELLBOOK);
+		}
+	}
+}
+
+DLL_LINKAGE void BulkMoveArtifacts::applyGs(CGameState * gs)
+{
+	int numBackpackArtifactsMoved = 0;
+	if (artsPack1.has_value())
+	{
+		// Swap
+		auto & leftRightPack = artsPack0;
+		auto & rightLeftPack = artsPack1.value();
+		auto leftSet = leftRightPack.getSrcHolderArtSet();
+		auto rightSet = leftRightPack.getDstHolderArtSet();
+		CArtifactFittingSet ArtFittingSet(leftSet->bearerType());
+		std::vector<std::pair<ArtifactPosition, ArtSlotInfo>> unmovableArtsLeftHero, unmovableArtsRightHero;
+
+		// Keep unmovable artifacts separately until the swap
+		for (auto artPos : ArtifactUtils::unmovablePositions())
+		{
+			auto slotInfo = leftSet->getSlot(artPos);
+			if (slotInfo)
+			{
+				unmovableArtsLeftHero.push_back(std::make_pair(artPos, *slotInfo));
+				leftSet->eraseArtSlot(artPos);
+			}
+
+			slotInfo = rightSet->getSlot(artPos);
+			if (slotInfo)
+			{
+				unmovableArtsRightHero.push_back(std::make_pair(artPos, *slotInfo));
+				rightSet->eraseArtSlot(artPos);
+			}
+		}
+
+		ArtFittingSet.artifactsWorn = rightSet->artifactsWorn;
+		ArtFittingSet.artifactsInBackpack = rightSet->artifactsInBackpack;
+		rightSet->artifactsWorn = leftSet->artifactsWorn;
+		rightSet->artifactsInBackpack = leftSet->artifactsInBackpack;
+		leftSet->artifactsWorn = ArtFittingSet.artifactsWorn;
+		leftSet->artifactsInBackpack = ArtFittingSet.artifactsInBackpack;
+
+		// Return non movable artifacts to their place after the swap
+		for (auto & art : unmovableArtsLeftHero)
+		{
+			leftSet->putArtifact(art.first, art.second.artifact);
+		}
+		for (auto & art : unmovableArtsRightHero)
+		{
+			rightSet->putArtifact(art.first, art.second.artifact);
+		}
+	}
+	else
+	{
+		// Move
+		auto & artsPack = artsPack0;
+		for (auto & slot : artsPack.slots)
+		{
+			// When an object gets removed from the backpack, the backpack shrinks
+			// so all the following indices will be affected. Thus, we need to update
+			// the subsequent artifact slots to account for that
+			if (slot.srcPos >= GameConstants::BACKPACK_START)
+			{
+				slot.srcPos = ArtifactPosition(slot.srcPos.num - numBackpackArtifactsMoved);
+			}
+			auto srcSlotInfo = artsPack.getSrcHolderArtSet()->getSlot(slot.srcPos);
+			auto dstSlotInfo = artsPack.getDstHolderArtSet()->getSlot(slot.dstPos);
+
+			if (slot.dstPos < GameConstants::BACKPACK_START)
+				assert(!dstSlotInfo->getArt());
+			assert(srcSlotInfo);
+
+			auto art = srcSlotInfo->getArt();
+			const_cast<CArtifactInstance*>(art)->move(
+				ArtifactLocation(artsPack.srcArtHolder, slot.srcPos), ArtifactLocation(artsPack.dstArtHolder, slot.dstPos));
+
+			if (slot.srcPos >= GameConstants::BACKPACK_START)
+			{
+				numBackpackArtifactsMoved++;
+			}
 		}
 	}
 }
@@ -1710,6 +1783,31 @@ DLL_LINKAGE void EntitiesChanged::applyGs(CGameState * gs)
 {
 	for(const auto & change : changes)
 		gs->updateEntity(change.metatype, change.entityIndex, change.data);
+}
+
+const CArtifactInstance * ArtSlotInfo::getArt() const
+{
+	if (artifact)
+	{
+		if (!locked)
+			return artifact;
+		else
+		{
+			logNetwork->warn("ArtifactLocation::getArt: This location is locked!");
+			return nullptr;
+		}
+	}
+	return nullptr;
+}
+
+CArtifactSet * BulkMoveArtifacts::HeroArtsToMove::getSrcHolderArtSet()
+{
+	return boost::apply_visitor(GetBase<CArtifactSet>(), srcArtHolder);
+}
+
+CArtifactSet * BulkMoveArtifacts::HeroArtsToMove::getDstHolderArtSet()
+{
+	return boost::apply_visitor(GetBase<CArtifactSet>(), dstArtHolder);
 }
 
 VCMI_LIB_NAMESPACE_END
