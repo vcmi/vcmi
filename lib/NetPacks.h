@@ -1465,9 +1465,7 @@ struct BattleResult : public Query
 		exp[1] = 0;
 	};
 	void applyFirstCl(CClient *cl);
-	void applyGs(CGameState *gs);
 
-	
 	EResult result;
 	ui8 winner; //0 - attacker, 1 - defender, [2 - draw (should be possible?)]
 	std::map<ui32,si32> casualties[2]; //first => casualties of attackers - map crid => number

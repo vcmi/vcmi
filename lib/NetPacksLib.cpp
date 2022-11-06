@@ -1385,17 +1385,6 @@ DLL_LINKAGE void BattleUpdateGateState::applyGs(CGameState *gs)
 		gs->curB->si.gateState = state;
 }
 
-void BattleResult::applyGs(CGameState *gs)
-{
-	for (auto & elem : gs->curB->stacks)
-		delete elem;
-
-	for(int i = 0; i < 2; i++)
-		gs->curB->battleGetArmyObject(i)->battle = nullptr;
-
-	gs->curB.dellNull();
-}
-
 void BattleResultAccepted::applyGs(CGameState * gs)
 {
 	for(auto * h : {hero1, hero2})
@@ -1425,7 +1414,9 @@ void BattleResultAccepted::applyGs(CGameState * gs)
 		}
 		
 		CBonusSystemNode::treeHasChanged();
-	}	
+	}
+	
+	gs->curB.dellNull();
 }
 
 DLL_LINKAGE void BattleLogMessage::applyGs(CGameState *gs)
