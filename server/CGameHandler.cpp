@@ -3917,9 +3917,96 @@ bool CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocat
 			(si32)dst.getHolderArtSet()->artifactsInBackpack.size() + GameConstants::BACKPACK_START)));
 	}
 
-	MoveArtifact ma;
-	ma.src = src;
-	ma.dst = dst;
+	MoveArtifact ma(&src, &dst);
+	sendAndApply(&ma);
+	return true;
+}
+
+bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID dstHero)
+{
+	// Make sure exchange is even possible between the two heroes.
+	if (!isAllowedExchange(srcHero, dstHero))
+		COMPLAIN_RET("That heroes cannot make any exchange!");
+
+	auto psrcHero = getHero(srcHero);
+	auto pdstHero = getHero(dstHero);
+	BulkMoveArtifacts ma(static_cast<ConstTransitivePtr<CGHeroInstance>>(psrcHero), 
+		static_cast<ConstTransitivePtr<CGHeroInstance>>(pdstHero));
+	auto slots = &ma.artsPack0.slots;
+
+	// Temporary fitting set for artifacts. Used to select available slots before sending data.
+	CArtifactFittingSet ArtFittingSet(pdstHero->bearerType());
+	ArtFittingSet.artifactsInBackpack = pdstHero->artifactsInBackpack;
+	ArtFittingSet.artifactsWorn = pdstHero->artifactsWorn;
+
+	// Move over artifacts that are worn
+	for (auto & artInfo : psrcHero->artifactsWorn)
+	{
+		if (ArtifactUtils::isArtRemovable(artInfo))
+		{
+			auto artifact = psrcHero->getArt(artInfo.first);
+			auto dstSlot = ArtifactUtils::getArtifactDstPosition(artifact, &ArtFittingSet, pdstHero->bearerType());
+			ArtFittingSet.putArtifact(dstSlot,
+				static_cast<ConstTransitivePtr<CArtifactInstance>>(psrcHero->getArt(artInfo.first)));
+			slots->push_back(BulkMoveArtifacts::HeroArtsToMove::LinkedSlots(artInfo.first, dstSlot));
+		}
+	}
+	// Move over artifacts that are in backpack
+	for (auto & slotInfo : psrcHero->artifactsInBackpack)
+	{
+		auto artifact = psrcHero->getArt(psrcHero->getArtPos(slotInfo.artifact));
+		auto dstSlot = ArtifactUtils::getArtifactDstPosition(artifact, &ArtFittingSet, pdstHero->bearerType());
+		ArtFittingSet.putArtifact(dstSlot, static_cast<ConstTransitivePtr<CArtifactInstance>>(slotInfo.artifact));
+		slots->push_back(BulkMoveArtifacts::HeroArtsToMove::LinkedSlots(psrcHero->getArtPos(slotInfo.artifact), dstSlot));
+	}
+	sendAndApply(&ma);
+	return true;
+}
+
+bool CGameHandler::bulkSwapArtifacts(ObjectInstanceID leftHero, ObjectInstanceID rightHero)
+{
+	// Make sure exchange is even possible between the two heroes.
+	if (!isAllowedExchange(leftHero, rightHero))
+		COMPLAIN_RET("That heroes cannot make any exchange!");
+
+	auto pleftHero = getHero(leftHero);
+	auto prightHero = getHero(rightHero);
+	BulkMoveArtifacts ma(static_cast<ConstTransitivePtr<CGHeroInstance>>(pleftHero),
+		static_cast<ConstTransitivePtr<CGHeroInstance>>(prightHero));
+	ma.artsPack1 = BulkMoveArtifacts::HeroArtsToMove();
+	ma.artsPack1.value().srcArtHolder = static_cast<ConstTransitivePtr<CGHeroInstance>>(prightHero);
+	ma.artsPack1.value().dstArtHolder = static_cast<ConstTransitivePtr<CGHeroInstance>>(pleftHero);
+	auto slotsLeftRight = &ma.artsPack0.slots;
+	auto slotsRightLeft = &ma.artsPack1.value().slots;
+
+	auto moveArtsWorn = [this](const CGHeroInstance * srcHero, const CGHeroInstance * dstHero,
+		std::vector<BulkMoveArtifacts::HeroArtsToMove::LinkedSlots> * slots) -> void
+	{
+		for (auto & artifact : srcHero->artifactsWorn)
+		{
+			if (artifact.second.locked)
+				continue;
+			if (!ArtifactUtils::isArtRemovable(artifact))
+				continue;
+			slots->push_back(BulkMoveArtifacts::HeroArtsToMove::LinkedSlots(artifact.first, artifact.first));
+		}
+	};
+	// Move over artifacts that are worn leftHero -> rightHero
+	moveArtsWorn(pleftHero, prightHero, slotsLeftRight);
+	// Move over artifacts that are worn rightHero -> leftHero
+	moveArtsWorn(prightHero, pleftHero, slotsRightLeft);
+	// Move over artifacts that are in backpack leftHero -> rightHero
+	for (auto & slotInfo : pleftHero->artifactsInBackpack)
+	{
+		auto slot = pleftHero->getArtPos(slotInfo.artifact);
+		slotsLeftRight->push_back(BulkMoveArtifacts::HeroArtsToMove::LinkedSlots(slot, slot));
+	}
+	// Move over artifacts that are in backpack rightHero -> leftHero
+	for (auto & slotInfo : prightHero->artifactsInBackpack)
+	{
+		auto slot = prightHero->getArtPos(slotInfo.artifact);
+		slotsRightLeft->push_back(BulkMoveArtifacts::HeroArtsToMove::LinkedSlots(slot, slot));
+	}
 	sendAndApply(&ma);
 	return true;
 }

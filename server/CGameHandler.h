@@ -181,6 +181,9 @@ public:
 	void putArtifact(const ArtifactLocation &al, const CArtifactInstance *a) override;
 	void removeArtifact(const ArtifactLocation &al) override;
 	bool moveArtifact(const ArtifactLocation &al1, const ArtifactLocation &al2) override;
+	bool moveArtifact(const ArtifactLocation & al1, const ArtifactLocation & al2) override;
+	bool bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID dstHero);
+	bool bulkSwapArtifacts(ObjectInstanceID leftHero, ObjectInstanceID rightHero);
 	void synchronizeArtifactHandlerLists();
 
 	void showCompInfo(ShowInInfobox * comp) override;
