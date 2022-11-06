@@ -1006,6 +1006,60 @@ struct MoveArtifact : CArtifactOperationPack
 	}
 };
 
+struct BulkMoveArtifacts : CArtifactOperationPack
+{
+	struct HeroArtsToMove
+	{
+		struct LinkedSlots
+		{
+			ArtifactPosition srcPos;
+			ArtifactPosition dstPos;
+
+			LinkedSlots() {}
+			LinkedSlots(ArtifactPosition srcPos, ArtifactPosition dstPos)
+				: srcPos(srcPos), dstPos(dstPos) {}
+
+			template <typename Handler> void serialize(Handler & h, const int version)
+			{
+				h & srcPos;
+				h & dstPos;
+			}
+		};
+
+		TArtHolder srcArtHolder;
+		TArtHolder dstArtHolder;
+		std::vector<LinkedSlots> slots;
+
+		CArtifactSet * getSrcHolderArtSet();
+		CArtifactSet * getDstHolderArtSet();
+		template <typename Handler> void serialize(Handler & h, const int version)
+		{
+			h & srcArtHolder;
+			h & dstArtHolder;
+			h & slots;
+		}
+	};
+
+	BulkMoveArtifacts() {}
+	BulkMoveArtifacts(TArtHolder srcArtHolder, TArtHolder dstArtHolder)
+	{
+		artsPack0.srcArtHolder = srcArtHolder;
+		artsPack0.dstArtHolder = dstArtHolder;
+	}
+
+	void applyCl(CClient * cl);
+	DLL_LINKAGE void applyGs(CGameState * gs);
+
+	HeroArtsToMove artsPack0;
+	// If the artsPack1 is present then make swap
+	boost::optional<HeroArtsToMove> artsPack1;
+	template <typename Handler> void serialize(Handler & h, const int version)
+	{
+		h & artsPack0;
+		h & artsPack1;
+	}
+};
+
 struct AssembledArtifact : CArtifactOperationPack
 {
 	ArtifactLocation al; //where assembly will be put
@@ -2194,6 +2248,27 @@ struct ExchangeArtifacts : public CPackForServer
 		h & static_cast<CPackForServer &>(*this);
 		h & src;
 		h & dst;
+	}
+};
+
+struct BulkExchangeArtifacts : public CPackForServer
+{
+	ObjectInstanceID srcHero;
+	ObjectInstanceID dstHero;
+	bool swap;
+
+	BulkExchangeArtifacts() = default;
+	BulkExchangeArtifacts(ObjectInstanceID srcHero, ObjectInstanceID dstHero, bool swap)
+		: srcHero(srcHero), dstHero(dstHero), swap(swap)
+	{}
+
+	bool applyGh(CGameHandler * gh);
+	template <typename Handler> void serialize(Handler & h, const int version)
+	{
+		h & static_cast<CPackForServer&>(*this);
+		h & srcHero;
+		h & dstHero;
+		h & swap;
 	}
 };
 
