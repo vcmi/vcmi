@@ -2591,7 +2591,11 @@ void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const Artifact
 		if (artWin)
 			artWin->artifactMoved(src, dst);
 	}
-	GH.listInt.back()->redraw();
+	GH.objsToBlit.back()->redraw();
+}
+
+void CPlayerInterface::artifactPossibleAssembling(const ArtifactLocation & dst)
+{
 	askToAssembleArtifact(dst);
 }
 

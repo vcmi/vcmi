@@ -275,8 +275,12 @@ void EraseArtifact::applyCl(CClient *cl)
 void MoveArtifact::applyCl(CClient *cl)
 {
 	callInterfaceIfPresent(cl, src.owningPlayer(), &IGameEventsReceiver::artifactMoved, src, dst);
+	callInterfaceIfPresent(cl, src.owningPlayer(), &IGameEventsReceiver::artifactPossibleAssembling, dst);
 	if(src.owningPlayer() != dst.owningPlayer())
+	{
 		callInterfaceIfPresent(cl, dst.owningPlayer(), &IGameEventsReceiver::artifactMoved, src, dst);
+		callInterfaceIfPresent(cl, dst.owningPlayer(), &IGameEventsReceiver::artifactPossibleAssembling, dst);
+	}
 }
 
 void BulkMoveArtifacts::applyCl(CClient * cl)
@@ -286,7 +290,9 @@ void BulkMoveArtifacts::applyCl(CClient * cl)
 	{
 		auto srcLoc = ArtifactLocation(movingArts.srcArtHolder, slotToMove.srcPos);
 		auto dstLoc = ArtifactLocation(movingArts.dstArtHolder, slotToMove.dstPos);
-		MoveArtifact(&srcLoc, &dstLoc).applyCl(cl);
+		callInterfaceIfPresent(cl, srcLoc.owningPlayer(), &IGameEventsReceiver::artifactMoved, srcLoc, dstLoc);
+		if (srcLoc.owningPlayer() != dstLoc.owningPlayer())
+			callInterfaceIfPresent(cl, dstLoc.owningPlayer(), &IGameEventsReceiver::artifactMoved, srcLoc, dstLoc);
 	}
 
 	if (artsPack1.has_value())
@@ -296,7 +302,9 @@ void BulkMoveArtifacts::applyCl(CClient * cl)
 		{
 			auto srcLoc = ArtifactLocation(movingArts.srcArtHolder, slotToMove.srcPos);
 			auto dstLoc = ArtifactLocation(movingArts.dstArtHolder, slotToMove.dstPos);
-			MoveArtifact(&srcLoc, &dstLoc).applyCl(cl);
+			callInterfaceIfPresent(cl, srcLoc.owningPlayer(), &IGameEventsReceiver::artifactMoved, srcLoc, dstLoc);
+			if (srcLoc.owningPlayer() != dstLoc.owningPlayer())
+				callInterfaceIfPresent(cl, dstLoc.owningPlayer(), &IGameEventsReceiver::artifactMoved, srcLoc, dstLoc);
 		}
 	}
 }
