@@ -181,6 +181,20 @@ bool CCallback::assembleArtifacts (const CGHeroInstance * hero, ArtifactPosition
 	return true;
 }
 
+bool CCallback::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID dstHero)
+{
+	BulkExchangeArtifacts bma(srcHero, dstHero, false);
+	sendRequest(&bma);
+	return true;
+}
+
+bool CCallback::bulkSwapArtifacts(ObjectInstanceID leftHero, ObjectInstanceID rightHero)
+{
+	BulkExchangeArtifacts bma(leftHero, rightHero, true);
+	sendRequest(&bma);
+	return true;
+}
+
 bool CCallback::buildBuilding(const CGTownInstance *town, BuildingID buildingID)
 {
 	if(town->tempOwner!=player)

@@ -94,6 +94,11 @@ public:
 	virtual int bulkSplitStack(ObjectInstanceID armyId, SlotID srcSlot, int howMany = 1) = 0;
 	virtual int bulkSmartSplitStack(ObjectInstanceID armyId, SlotID srcSlot) = 0;
 	virtual int bulkMergeStacks(ObjectInstanceID armyId, SlotID srcSlot) = 0;
+	
+	
+	// Moves all artifacts from one hero to another
+	virtual bool bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID dstHero) = 0;
+	virtual bool bulkSwapArtifacts(ObjectInstanceID leftHero, ObjectInstanceID rightHero) = 0;
 };
 
 class CBattleCallback : public IBattleCallback, public CPlayerBattleCallback
@@ -151,6 +156,8 @@ public:
 	bool dismissHero(const CGHeroInstance * hero) override;
 	bool swapArtifacts(const ArtifactLocation &l1, const ArtifactLocation &l2) override;
 	bool assembleArtifacts(const CGHeroInstance * hero, ArtifactPosition artifactSlot, bool assemble, ArtifactID assembleTo) override;
+	bool bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID dstHero) override;
+	bool bulkSwapArtifacts(ObjectInstanceID leftHero, ObjectInstanceID rightHero) override;
 	bool buildBuilding(const CGTownInstance *town, BuildingID buildingID) override;
 	void recruitCreatures(const CGDwelling * obj, const CArmedInstance * dst, CreatureID ID, ui32 amount, si32 level=-1) override;
 	bool dismissCreature(const CArmedInstance *obj, SlotID stackPos) override;

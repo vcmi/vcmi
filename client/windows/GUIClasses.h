@@ -324,9 +324,7 @@ private:
 	void moveArtifacts(bool leftToRight);
 	void moveArtifact(const CGHeroInstance * source, const CGHeroInstance * target, ArtifactPosition srcPosition);
 	void moveStack(const CGHeroInstance * source, const CGHeroInstance * target, SlotID sourceSlot);
-	void swapArtifacts(ArtifactPosition artPosition);
 	std::vector<HeroArtifact> moveCompositeArtsToBackpack();
-	void swapArtifacts();
 };
 
 class CExchangeWindow : public CStatusbarWindow, public CGarrisonHolder, public CWindowWithArtifacts
