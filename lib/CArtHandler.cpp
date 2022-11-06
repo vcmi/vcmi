@@ -1520,4 +1520,19 @@ DLL_LINKAGE bool ArtifactUtils::isArtRemovable(const std::pair<ArtifactPosition,
 	    && !vstd::contains(unmovablePositions(), slot.first);
 }
 
+DLL_LINKAGE bool ArtifactUtils::checkSpellbookIsNeeded(const CGHeroInstance * heroPtr, ArtifactID artID, ArtifactPosition slot)
+{
+	// TODO what'll happen if Titan's thunder is equipped by pickin git up or the start of game?
+	// Titan's Thunder creates new spellbook on equip
+	if (artID == ArtifactID::TITANS_THUNDER && slot == ArtifactPosition::RIGHT_HAND)
+	{
+		if (heroPtr)
+		{
+			if (heroPtr && !heroPtr->hasSpellbook())
+				return true;
+		}
+	}
+	return false;
+}
+
 VCMI_LIB_NAMESPACE_END

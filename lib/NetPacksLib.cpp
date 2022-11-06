@@ -1093,18 +1093,6 @@ DLL_LINKAGE void MoveArtifact::applyGs(CGameState * gs)
 		assert(!dst.getArt());
 
 	art->move(src, dst);
-
-	//TODO what'll happen if Titan's thunder is equipped by pickin git up or the start of game?
-	if (a->artType->id == ArtifactID::TITANS_THUNDER && dst.slot == ArtifactPosition::RIGHT_HAND) //Titan's Thunder creates new spellbook on equip
-	{
-		auto hPtr = boost::get<ConstTransitivePtr<CGHeroInstance> >(&dst.artHolder);
-		if(hPtr)
-		{
-			CGHeroInstance *h = *hPtr;
-			if(h && !h->hasSpellbook())
-				gs->giveHeroArtifact(h, ArtifactID::SPELLBOOK);
-		}
-	}
 }
 
 DLL_LINKAGE void BulkMoveArtifacts::applyGs(CGameState * gs)

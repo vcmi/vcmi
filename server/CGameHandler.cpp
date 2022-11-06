@@ -3916,6 +3916,9 @@ bool CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocat
 		moveArtifact(dst, ArtifactLocation(dst.artHolder, ArtifactPosition(
 			(si32)dst.getHolderArtSet()->artifactsInBackpack.size() + GameConstants::BACKPACK_START)));
 	}
+	auto hero = boost::get<ConstTransitivePtr<CGHeroInstance>>(dst.artHolder);
+	if (ArtifactUtils::checkSpellbookIsNeeded(hero, srcArtifact->artType->id, dst.slot))
+		giveHeroNewArtifact(hero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
 
 	MoveArtifact ma(&src, &dst);
 	sendAndApply(&ma);
@@ -3949,6 +3952,10 @@ bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID 
 			ArtFittingSet.putArtifact(dstSlot,
 				static_cast<ConstTransitivePtr<CArtifactInstance>>(psrcHero->getArt(artInfo.first)));
 			slots->push_back(BulkMoveArtifacts::HeroArtsToMove::LinkedSlots(artInfo.first, dstSlot));
+			
+			
+			if (ArtifactUtils::checkSpellbookIsNeeded(pdstHero, artifact->artType->id, dstSlot))
+				giveHeroNewArtifact(pdstHero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
 		}
 	}
 	// Move over artifacts that are in backpack
@@ -3958,6 +3965,9 @@ bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID 
 		auto dstSlot = ArtifactUtils::getArtifactDstPosition(artifact, &ArtFittingSet, pdstHero->bearerType());
 		ArtFittingSet.putArtifact(dstSlot, static_cast<ConstTransitivePtr<CArtifactInstance>>(slotInfo.artifact));
 		slots->push_back(BulkMoveArtifacts::HeroArtsToMove::LinkedSlots(psrcHero->getArtPos(slotInfo.artifact), dstSlot));
+		
+		if (ArtifactUtils::checkSpellbookIsNeeded(pdstHero, artifact->artType->id, dstSlot))
+			giveHeroNewArtifact(pdstHero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
 	}
 	sendAndApply(&ma);
 	return true;
@@ -3989,6 +3999,9 @@ bool CGameHandler::bulkSwapArtifacts(ObjectInstanceID leftHero, ObjectInstanceID
 			if (!ArtifactUtils::isArtRemovable(artifact))
 				continue;
 			slots->push_back(BulkMoveArtifacts::HeroArtsToMove::LinkedSlots(artifact.first, artifact.first));
+			
+			if (ArtifactUtils::checkSpellbookIsNeeded(dstHero, artifact.second.getArt()->artType->id, artifact.first))
+				giveHeroNewArtifact(dstHero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
 		}
 	};
 	// Move over artifacts that are worn leftHero -> rightHero
@@ -4034,6 +4047,9 @@ bool CGameHandler::assembleArtifacts (ObjectInstanceID heroID, ArtifactPosition 
 			COMPLAIN_RET("assembleArtifacts: Artifact being attempted to assemble is not a combined artifacts!");
 		if (!vstd::contains(destArtifact->assemblyPossibilities(hero), combinedArt))
 			COMPLAIN_RET("assembleArtifacts: It's impossible to assemble requested artifact!");
+		
+		if (ArtifactUtils::checkSpellbookIsNeeded(hero, assembleTo, artifactSlot))
+			giveHeroNewArtifact(hero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
 
 		AssembledArtifact aa;
 		aa.al = ArtifactLocation(hero, artifactSlot);
