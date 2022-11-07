@@ -3934,7 +3934,7 @@ bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID 
 	auto psrcHero = getHero(srcHero);
 	auto pdstHero = getHero(dstHero);
 	BulkMoveArtifacts ma(static_cast<ConstTransitivePtr<CGHeroInstance>>(psrcHero), 
-		static_cast<ConstTransitivePtr<CGHeroInstance>>(pdstHero));
+		static_cast<ConstTransitivePtr<CGHeroInstance>>(pdstHero), false);
 	auto slots = &ma.artsPack0;
 
 	// Temporary fitting set for artifacts. Used to select available slots before sending data.
@@ -3981,12 +3981,11 @@ bool CGameHandler::bulkSwapArtifacts(ObjectInstanceID leftHero, ObjectInstanceID
 	auto pleftHero = getHero(leftHero);
 	auto prightHero = getHero(rightHero);
 	BulkMoveArtifacts ma(static_cast<ConstTransitivePtr<CGHeroInstance>>(pleftHero),
-		static_cast<ConstTransitivePtr<CGHeroInstance>>(prightHero));
-	ma.artsPack1 = std::vector<BulkMoveArtifacts::LinkedSlots>();
+		static_cast<ConstTransitivePtr<CGHeroInstance>>(prightHero), true);
 	ma.srcArtHolder = static_cast<ConstTransitivePtr<CGHeroInstance>>(prightHero);
 	ma.dstArtHolder = static_cast<ConstTransitivePtr<CGHeroInstance>>(pleftHero);
 	auto slotsLeftRight = &ma.artsPack0;
-	auto slotsRightLeft = &ma.artsPack1.value();
+	auto slotsRightLeft = &ma.artsPack1;
 
 	auto moveArtsWorn = [this](const CGHeroInstance * srcHero, const CGHeroInstance * dstHero,
 		std::vector<BulkMoveArtifacts::LinkedSlots> * slots) -> void

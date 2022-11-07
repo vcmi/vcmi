@@ -1098,10 +1098,9 @@ DLL_LINKAGE void MoveArtifact::applyGs(CGameState * gs)
 DLL_LINKAGE void BulkMoveArtifacts::applyGs(CGameState * gs)
 {
 	int numBackpackArtifactsMoved = 0;
-	if (artsPack1.has_value())
+	if (swap)
 	{
 		// Swap
-		auto & leftRightPack = artsPack0;
 		auto leftSet = getSrcHolderArtSet();
 		auto rightSet = getDstHolderArtSet();
 		CArtifactFittingSet ArtFittingSet(leftSet->bearerType());

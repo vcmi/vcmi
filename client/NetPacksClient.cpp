@@ -295,9 +295,9 @@ void BulkMoveArtifacts::applyCl(CClient * cl)
 			callInterfaceIfPresent(cl, dstLoc.owningPlayer(), &IGameEventsReceiver::artifactMoved, srcLoc, dstLoc);
 	}
 
-	if (artsPack1.has_value())
+	if (swap)
 	{
-		movingArts = artsPack1.value();
+		movingArts = artsPack1;
 		for (auto & slotToMove : movingArts)
 		{
 			auto srcLoc = ArtifactLocation(srcArtHolder, slotToMove.srcPos);

@@ -1019,7 +1019,6 @@ struct BulkMoveArtifacts : CArtifactOperationPack
 		LinkedSlots() {}
 		LinkedSlots(ArtifactPosition srcPos, ArtifactPosition dstPos)
 			: srcPos(srcPos), dstPos(dstPos) {}
-		
 		template <typename Handler> void serialize(Handler & h, const int version)
 		{
 			h & srcPos;
@@ -1031,16 +1030,15 @@ struct BulkMoveArtifacts : CArtifactOperationPack
 	TArtHolder dstArtHolder;
 
 	BulkMoveArtifacts() {}
-	BulkMoveArtifacts(TArtHolder srcArtHolder, TArtHolder dstArtHolder) 
-		: srcArtHolder(srcArtHolder), dstArtHolder(dstArtHolder) {}
+	BulkMoveArtifacts(TArtHolder srcArtHolder, TArtHolder dstArtHolder, bool swap) 
+		: srcArtHolder(srcArtHolder), dstArtHolder(dstArtHolder), swap(swap) {}
 
 	void applyCl(CClient * cl);
 	DLL_LINKAGE void applyGs(CGameState * gs);
 
 	std::vector<LinkedSlots> artsPack0;
-	// If the artsPack1 is present then make swap
-	boost::optional<std::vector<LinkedSlots>> artsPack1;
-
+	std::vector<LinkedSlots> artsPack1;
+	bool swap;
 	CArtifactSet * getSrcHolderArtSet();
 	CArtifactSet * getDstHolderArtSet();
 	template <typename Handler> void serialize(Handler & h, const int version)
@@ -1049,6 +1047,7 @@ struct BulkMoveArtifacts : CArtifactOperationPack
 		h & artsPack1;
 		h & srcArtHolder;
 		h & dstArtHolder;
+		h & swap;
 	}
 };
 
