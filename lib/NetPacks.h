@@ -1011,55 +1011,44 @@ struct MoveArtifact : CArtifactOperationPack
 
 struct BulkMoveArtifacts : CArtifactOperationPack
 {
-	struct HeroArtsToMove
+	struct LinkedSlots
 	{
-		struct LinkedSlots
-		{
-			ArtifactPosition srcPos;
-			ArtifactPosition dstPos;
+		ArtifactPosition srcPos;
+		ArtifactPosition dstPos;
 
-			LinkedSlots() {}
-			LinkedSlots(ArtifactPosition srcPos, ArtifactPosition dstPos)
-				: srcPos(srcPos), dstPos(dstPos) {}
-
-			template <typename Handler> void serialize(Handler & h, const int version)
-			{
-				h & srcPos;
-				h & dstPos;
-			}
-		};
-
-		TArtHolder srcArtHolder;
-		TArtHolder dstArtHolder;
-		std::vector<LinkedSlots> slots;
-
-		CArtifactSet * getSrcHolderArtSet();
-		CArtifactSet * getDstHolderArtSet();
+		LinkedSlots() {}
+		LinkedSlots(ArtifactPosition srcPos, ArtifactPosition dstPos)
+			: srcPos(srcPos), dstPos(dstPos) {}
+		
 		template <typename Handler> void serialize(Handler & h, const int version)
 		{
-			h & srcArtHolder;
-			h & dstArtHolder;
-			h & slots;
+			h & srcPos;
+			h & dstPos;
 		}
 	};
 
+	TArtHolder srcArtHolder;
+	TArtHolder dstArtHolder;
+
 	BulkMoveArtifacts() {}
-	BulkMoveArtifacts(TArtHolder srcArtHolder, TArtHolder dstArtHolder)
-	{
-		artsPack0.srcArtHolder = srcArtHolder;
-		artsPack0.dstArtHolder = dstArtHolder;
-	}
+	BulkMoveArtifacts(TArtHolder srcArtHolder, TArtHolder dstArtHolder) 
+		: srcArtHolder(srcArtHolder), dstArtHolder(dstArtHolder) {}
 
 	void applyCl(CClient * cl);
 	DLL_LINKAGE void applyGs(CGameState * gs);
 
-	HeroArtsToMove artsPack0;
+	std::vector<LinkedSlots> artsPack0;
 	// If the artsPack1 is present then make swap
-	boost::optional<HeroArtsToMove> artsPack1;
+	boost::optional<std::vector<LinkedSlots>> artsPack1;
+
+	CArtifactSet * getSrcHolderArtSet();
+	CArtifactSet * getDstHolderArtSet();
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & artsPack0;
 		h & artsPack1;
+		h & srcArtHolder;
+		h & dstArtHolder;
 	}
 };
 

@@ -286,10 +286,10 @@ void MoveArtifact::applyCl(CClient *cl)
 void BulkMoveArtifacts::applyCl(CClient * cl)
 {
 	auto & movingArts = artsPack0;
-	for (auto & slotToMove : movingArts.slots)
+	for (auto & slotToMove : movingArts)
 	{
-		auto srcLoc = ArtifactLocation(movingArts.srcArtHolder, slotToMove.srcPos);
-		auto dstLoc = ArtifactLocation(movingArts.dstArtHolder, slotToMove.dstPos);
+		auto srcLoc = ArtifactLocation(srcArtHolder, slotToMove.srcPos);
+		auto dstLoc = ArtifactLocation(dstArtHolder, slotToMove.dstPos);
 		callInterfaceIfPresent(cl, srcLoc.owningPlayer(), &IGameEventsReceiver::artifactMoved, srcLoc, dstLoc);
 		if (srcLoc.owningPlayer() != dstLoc.owningPlayer())
 			callInterfaceIfPresent(cl, dstLoc.owningPlayer(), &IGameEventsReceiver::artifactMoved, srcLoc, dstLoc);
@@ -298,10 +298,10 @@ void BulkMoveArtifacts::applyCl(CClient * cl)
 	if (artsPack1.has_value())
 	{
 		movingArts = artsPack1.value();
-		for (auto & slotToMove : movingArts.slots)
+		for (auto & slotToMove : movingArts)
 		{
-			auto srcLoc = ArtifactLocation(movingArts.srcArtHolder, slotToMove.srcPos);
-			auto dstLoc = ArtifactLocation(movingArts.dstArtHolder, slotToMove.dstPos);
+			auto srcLoc = ArtifactLocation(srcArtHolder, slotToMove.srcPos);
+			auto dstLoc = ArtifactLocation(dstArtHolder, slotToMove.dstPos);
 			callInterfaceIfPresent(cl, srcLoc.owningPlayer(), &IGameEventsReceiver::artifactMoved, srcLoc, dstLoc);
 			if (srcLoc.owningPlayer() != dstLoc.owningPlayer())
 				callInterfaceIfPresent(cl, dstLoc.owningPlayer(), &IGameEventsReceiver::artifactMoved, srcLoc, dstLoc);

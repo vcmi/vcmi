@@ -1102,9 +1102,8 @@ DLL_LINKAGE void BulkMoveArtifacts::applyGs(CGameState * gs)
 	{
 		// Swap
 		auto & leftRightPack = artsPack0;
-		auto & rightLeftPack = artsPack1.value();
-		auto leftSet = leftRightPack.getSrcHolderArtSet();
-		auto rightSet = leftRightPack.getDstHolderArtSet();
+		auto leftSet = getSrcHolderArtSet();
+		auto rightSet = getDstHolderArtSet();
 		CArtifactFittingSet ArtFittingSet(leftSet->bearerType());
 		std::vector<std::pair<ArtifactPosition, ArtSlotInfo>> unmovableArtsLeftHero, unmovableArtsRightHero;
 
@@ -1147,7 +1146,7 @@ DLL_LINKAGE void BulkMoveArtifacts::applyGs(CGameState * gs)
 	{
 		// Move
 		auto & artsPack = artsPack0;
-		for (auto & slot : artsPack.slots)
+		for (auto & slot : artsPack)
 		{
 			// When an object gets removed from the backpack, the backpack shrinks
 			// so all the following indices will be affected. Thus, we need to update
@@ -1156,16 +1155,12 @@ DLL_LINKAGE void BulkMoveArtifacts::applyGs(CGameState * gs)
 			{
 				slot.srcPos = ArtifactPosition(slot.srcPos.num - numBackpackArtifactsMoved);
 			}
-			auto srcSlotInfo = artsPack.getSrcHolderArtSet()->getSlot(slot.srcPos);
-			auto dstSlotInfo = artsPack.getDstHolderArtSet()->getSlot(slot.dstPos);
-
-			if (slot.dstPos < GameConstants::BACKPACK_START)
-				assert(!dstSlotInfo->getArt());
+			auto srcSlotInfo = getSrcHolderArtSet()->getSlot(slot.srcPos);
 			assert(srcSlotInfo);
 
 			auto art = srcSlotInfo->getArt();
 			const_cast<CArtifactInstance*>(art)->move(
-				ArtifactLocation(artsPack.srcArtHolder, slot.srcPos), ArtifactLocation(artsPack.dstArtHolder, slot.dstPos));
+				ArtifactLocation(srcArtHolder, slot.srcPos), ArtifactLocation(dstArtHolder, slot.dstPos));
 
 			if (slot.srcPos >= GameConstants::BACKPACK_START)
 			{
@@ -1788,12 +1783,12 @@ const CArtifactInstance * ArtSlotInfo::getArt() const
 	return nullptr;
 }
 
-CArtifactSet * BulkMoveArtifacts::HeroArtsToMove::getSrcHolderArtSet()
+CArtifactSet * BulkMoveArtifacts::getSrcHolderArtSet()
 {
 	return boost::apply_visitor(GetBase<CArtifactSet>(), srcArtHolder);
 }
 
-CArtifactSet * BulkMoveArtifacts::HeroArtsToMove::getDstHolderArtSet()
+CArtifactSet * BulkMoveArtifacts::getDstHolderArtSet()
 {
 	return boost::apply_visitor(GetBase<CArtifactSet>(), dstArtHolder);
 }
