@@ -209,11 +209,16 @@ void Lobby::serverCommand(const ServerCommand & command) try
 	case START: {
 		protocolAssert(args.size() == 1);
 		//actually start game
-		Settings node = settings.write["server"];
-		node["lobby"].Bool() = true;
+		//Settings node = settings.write["server"];
+		gameArguments.clear();
+		gameArguments << "--lobby";
+		gameArguments << ui->hostEdit->text();
+		gameArguments << ui->portEdit->text();
+		gameArguments << args[0];
+		/*node["lobby"].Bool() = true;
 		node["server"].String() = ui->hostEdit->text().toStdString();
 		node["serverport"].Integer() = ui->portEdit->text().toInt();
-		node["uuid"].String() = args[0].toStdString();
+		node["uuid"].String() = args[0].toStdString();*/
 		startGame = true;
 		//on_startGameButton_clicked
 		//node["names"].Vector().clear();
@@ -264,7 +269,7 @@ void Lobby::dispatchMessage(QString txt) try
 	}
 	
 	if(startGame)
-		qobject_cast<MainWindow *>(qApp->activeWindow())->on_startGameButton_clicked();
+		qobject_cast<MainWindow *>(qApp->activeWindow())->startGame(gameArguments);
 }
 catch(const ProtocolError & e)
 {

@@ -9,6 +9,9 @@
  */
 #pragma once
 
+inline int __argc;
+inline char ** __argv;
+
 #ifdef VCMI_IOS
 extern "C" void launchGame(int argc, char * argv[]);
 #endif

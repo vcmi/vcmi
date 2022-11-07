@@ -201,7 +201,8 @@ int main(int argc, char * argv[])
 		("donotstartserver,d","do not attempt to start server and just connect to it instead server")
 		("serverport", po::value<si64>(), "override port specified in config file")
 		("saveprefix", po::value<std::string>(), "prefix for auto save files")
-		("savefrequency", po::value<si64>(), "limit auto save creation to each N days");
+		("savefrequency", po::value<si64>(), "limit auto save creation to each N days")
+		("lobby", po::value<std::array<std::string, 3>>(), "parameters to connect ro remote lobby session");
 
 	if(argc > 1)
 	{
@@ -483,6 +484,16 @@ int main(int argc, char * argv[])
 	session["autoSkip"].Bool()  = vm.count("autoSkip");
 	session["oneGoodAI"].Bool() = vm.count("oneGoodAI");
 	session["aiSolo"].Bool() = false;
+	
+	session["lobby"] = false;
+	if(vm.count("lobby"))
+	{
+		auto lobbyParams = vc["lobby"].as<std::array<std::string, 3>>();
+		session["lobby"].Bool() = true;
+		session["address"].String() = lobbyParams[0];
+		session["port"].Integer() = std::stoi(lobbyParams[1]);
+		session["uuid"].String() = lobbyParams[2];
+	}
 
 	if(vm.count("testmap"))
 	{

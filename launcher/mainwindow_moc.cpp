@@ -20,6 +20,7 @@
 #include "../lib/logging/CBasicLogConfigurator.h"
 
 #include "updatedialog_moc.h"
+#include "main.h"
 
 void MainWindow::load()
 {
@@ -112,22 +113,36 @@ MainWindow::~MainWindow()
 	delete ui;
 }
 
-void MainWindow::on_startGameButton_clicked()
+void MainWindow::startGame(const QStringList & args)
 {
+	__argc = args.size();
+	__argv = new char*[__argc];
+	for(int i = 0; i < __argc; ++i)
+	{
+		const char * s = args[i].toLocal8Bit().constData();
+		__argv[i] = new char[strlen(s)];
+		strcpy(__argv[i], s);
+		
+	}
 #ifdef Q_OS_IOS
 	qApp->quit();
 #else
-	startExecutable(pathToQString(VCMIDirs::get().clientPath()));
+	startExecutable(pathToQString(VCMIDirs::get().clientPath()), args);
 #endif
 }
 
+void MainWindow::on_startGameButton_clicked()
+{
+	startGame({});
+}
+
 #ifndef Q_OS_IOS
-void MainWindow::startExecutable(QString name)
+void MainWindow::startExecutable(QString name, const QStringList & args)
 {
 	QProcess process;
 
 	// Start the executable
-	if(process.startDetached(name, {}))
+	if(process.startDetached(name, args))
 	{
 		close(); // exit launcher
 	}
