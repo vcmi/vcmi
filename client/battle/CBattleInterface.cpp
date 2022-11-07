@@ -41,6 +41,8 @@
 #include "../../lib/spells/ISpellMechanics.h"
 #include "../../lib/spells/Problem.h"
 #include "../../lib/CTownHandler.h"
+#include "../../lib/BattleFieldHandler.h"
+#include "../../lib/ObstacleHandler.h"
 #include "../../lib/CGameState.h"
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/NetPacks.h"
@@ -200,15 +202,15 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 	}
 	else
 	{
-		auto bfieldType = (int)curInt->cb->battleGetBattlefieldType();
-		if (graphics->battleBacks.size() <= bfieldType || bfieldType < 0)
-			logGlobal->error("%d is not valid battlefield type index!", bfieldType);
-		else if (graphics->battleBacks[bfieldType].empty())
-			logGlobal->error("%d battlefield type does not have any backgrounds!", bfieldType);
+		auto bfieldType = curInt->cb->battleGetBattlefieldType();
+
+		if(bfieldType == BattleField::NONE)
+		{
+			logGlobal->error("Invalid battlefield returned for current battle");
+		}
 		else
 		{
-			const std::string bgName = *RandomGeneratorUtil::nextItem(graphics->battleBacks[bfieldType], CRandomGenerator::getDefault());
-			background = BitmapHandler::loadBitmap(bgName, false);
+			background = BitmapHandler::loadBitmap(bfieldType.getInfo()->graphics, false);
 		}
 	}
 
@@ -360,7 +362,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 	{
 		if(elem->obstacleType == CObstacleInstance::USUAL)
 		{
-			std::string animationName = elem->getInfo().defName;
+			std::string animationName = elem->getInfo().animation;
 
 			auto cached = animationsCache.find(animationName);
 
@@ -378,7 +380,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 		}
 		else if (elem->obstacleType == CObstacleInstance::ABSOLUTE_OBSTACLE)
 		{
-			std::string animationName = elem->getInfo().defName;
+			std::string animationName = elem->getInfo().animation;
 
 			auto cached = animationsCache.find(animationName);
 
@@ -454,8 +456,8 @@ CBattleInterface::~CBattleInterface()
 
 	if (adventureInt && adventureInt->selection)
 	{
-		int terrain = LOCPLINT->cb->getTile(adventureInt->selection->visitablePos())->terType;
-		CCS->musich->playMusicFromSet("terrain", terrain, true);
+		const auto & terrain = *(LOCPLINT->cb->getTile(adventureInt->selection->visitablePos())->terType);
+		CCS->musich->playMusicFromSet("terrain", terrain.name, true);
 	}
 	animsAreDisplayed.setn(false);
 }
@@ -501,13 +503,14 @@ void CBattleInterface::activate()
 	bWait->activate();
 	bDefence->activate();
 
-	for (auto hex : bfield)
-		hex->activate();
-
 	if (attackingHero)
 		attackingHero->activate();
 	if (defendingHero)
 		defendingHero->activate();
+
+	for (auto hex : bfield)
+		hex->activate();
+
 	if (settings["battle"]["showQueue"].Bool())
 		queue->activate();
 
@@ -1080,11 +1083,10 @@ void CBattleInterface::stacksAreAttacked(std::vector<StackAttackedInfo> attacked
 
 	std::array<int, 2> killedBySide = {0, 0};
 
-	int targets = 0, damage = 0;
+	int targets = 0;
 	for(const StackAttackedInfo & attackedInfo : attackedInfos)
 	{
 		++targets;
-		damage += (int)attackedInfo.dmg;
 
 		ui8 side = attackedInfo.defender->side;
 		killedBySide.at(side) += attackedInfo.amountKilled;
@@ -1559,6 +1561,19 @@ CPlayerInterface *CBattleInterface::getCurrentPlayerInterface() const
 	return curInt.get();
 }
 
+bool CBattleInterface::shouldRotate(const CStack * stack, const BattleHex & oldPos, const BattleHex & nextHex)
+{
+	Point begPosition = CClickableHex::getXYUnitAnim(oldPos,stack, this);
+	Point endPosition = CClickableHex::getXYUnitAnim(nextHex, stack, this);
+
+	if((begPosition.x > endPosition.x) && creDir[stack->ID])
+		return true;
+	else if((begPosition.x < endPosition.x) && !creDir[stack->ID])
+		return true;
+
+	return false;
+}
+
 void CBattleInterface::setActiveStack(const CStack *stack)
 {
 	if (activeStack) // update UI
@@ -1869,7 +1884,7 @@ void CBattleInterface::blockUI(bool on)
 	bSurrender->block(on || curInt->cb->battleGetSurrenderCost() < 0);
 
 	// block only if during enemy turn and auto-fight is off
-	// othervice - crash on accessing non-exisiting active stack
+	// otherwise - crash on accessing non-exisiting active stack
 	bAutofight->block(!curInt->isAutoFightOn && !activeStack);
 
 	if (tacticsMode && btactEnd && btactNext)
@@ -1926,6 +1941,9 @@ void CBattleInterface::startAction(const BattleAction* action)
 		{
 			pendingAnims.push_back(std::make_pair(new CMovementStartAnimation(this, stack), false));
 		}
+
+		if(shouldRotate(stack, stack->getPosition(), actionTarget.at(0).hexValue))
+			pendingAnims.push_back(std::make_pair(new CReverseAnimation(this, stack, stack->getPosition(), true), false));
 	}
 
 	redraw(); // redraw after deactivation, including proper handling of hovered hexes
@@ -2798,6 +2816,11 @@ void CBattleInterface::requestAutofightingAIToTakeAction()
 	boost::thread aiThread([&]()
 	{
 		auto ba = make_unique<BattleAction>(curInt->autofightingAI->activeStack(activeStack));
+
+		if(curInt->cb->battleIsFinished())
+		{
+			return; // battle finished with spellcast
+		}
 
 		if (curInt->isAutoFightOn)
 		{

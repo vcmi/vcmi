@@ -11,6 +11,7 @@
 
 #include "../lib/CConfigHandler.h"
 #include "../lib/CSoundBase.h"
+#include "../lib/Terrain.h"
 
 struct _Mix_Music;
 struct SDL_RWops;
@@ -60,6 +61,7 @@ public:
 	CSoundHandler();
 
 	void init() override;
+	void loadHorseSounds();
 	void release() override;
 
 	void setVolume(ui32 percent) override;
@@ -81,8 +83,8 @@ public:
 
 	// Sets
 	std::vector<soundBase::soundID> pickupSounds;
-	std::vector<soundBase::soundID> horseSounds;
 	std::vector<soundBase::soundID> battleIntroSounds;
+	std::map<TerrainId, soundBase::soundID> horseSounds;
 };
 
 // Helper //now it looks somewhat useless
@@ -118,6 +120,7 @@ public:
 class CMusicHandler: public CAudioBase
 {
 private:
+	
 	//update volume on configuration change
 	SettingsListener listener;
 	void onVolumeChange(const JsonNode &volumeNode);
@@ -125,26 +128,28 @@ private:
 	std::unique_ptr<MusicEntry> current;
 	std::unique_ptr<MusicEntry> next;
 
-	void queueNext(CMusicHandler *owner, std::string setName, std::string musicURI, bool looped);
+	void queueNext(CMusicHandler *owner, const std::string & setName, const std::string & musicURI, bool looped);
 	void queueNext(std::unique_ptr<MusicEntry> queued);
 
-	std::map<std::string, std::map<int, std::string> > musicsSet;
+	std::map<std::string, std::map<std::string, std::string>> musicsSet;
 public:
+	
 	CMusicHandler();
 
 	/// add entry with URI musicURI in set. Track will have ID musicID
-	void addEntryToSet(std::string set, int musicID, std::string musicURI);
+	void addEntryToSet(const std::string & set, const std::string & entryID, const std::string & musicURI);
 
 	void init() override;
+	void loadTerrainSounds();
 	void release() override;
 	void setVolume(ui32 percent) override;
 
 	/// play track by URI, if loop = true music will be looped
-	void playMusic(std::string musicURI, bool loop);
+	void playMusic(const std::string & musicURI, bool loop);
 	/// play random track from this set
-	void playMusicFromSet(std::string musicSet, bool loop);
+	void playMusicFromSet(const std::string & musicSet, bool loop);
 	/// play specific track from set
-	void playMusicFromSet(std::string musicSet, int entryID, bool loop);
+	void playMusicFromSet(const std::string & musicSet, const std::string & entryID, bool loop);
 	void stopMusic(int fade_ms=1000);
 	void musicFinishedCallback();
 

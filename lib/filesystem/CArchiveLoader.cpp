@@ -15,6 +15,8 @@
 
 #include "CBinaryReader.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 ArchiveEntry::ArchiveEntry()
 	: offset(0), fullSize(0), compressedSize(0)
 {
@@ -179,3 +181,5 @@ std::unordered_set<ResourceID> CArchiveLoader::getFilteredFiles(std::function<bo
 	}
 	return foundID;
 }
+
+VCMI_LIB_NAMESPACE_END

@@ -131,25 +131,19 @@ void CLobbyScreen::startScenario(bool allowOnlyAI)
 		CSH->sendStartGame(allowOnlyAI);
 		buttonStart->block(true);
 	}
-	catch(ExceptionMapMissing & e)
+	catch(std::exception & e)
 	{
-		(void)e;	// unused
-	}
-	catch(ExceptionNoHuman & e)
-	{
-		(void)e;	// unused
-		// You must position yourself prior to starting the game.
-		CInfoWindow::showInfoDialog(std::ref(CGI->generaltexth->allTexts[530]), CInfoWindow::TCompsInfo(), PlayerColor(1));
-	}
-	catch(ExceptionNoTemplate & e)
-	{
-		(void)e; // unused
-		// Could not create a random map that fits current choices.
-		CInfoWindow::showInfoDialog(std::ref(CGI->generaltexth->allTexts[751]), CInfoWindow::TCompsInfo(), PlayerColor(1));
+		logGlobal->error("Exception during startScenario: %s", e.what());
+		
+		if(std::string(e.what()) == "ExceptionNoHuman")
+			CInfoWindow::showInfoDialog(std::ref(CGI->generaltexth->allTexts[530]), CInfoWindow::TCompsInfo(), PlayerColor(1));
+		
+		if(std::string(e.what()) == "ExceptionNoTemplate")
+			CInfoWindow::showInfoDialog(std::ref(CGI->generaltexth->allTexts[751]), CInfoWindow::TCompsInfo(), PlayerColor(1));
 	}
 	catch(...)
 	{
-
+		logGlobal->error("Unknown exception");
 	}
 }
 

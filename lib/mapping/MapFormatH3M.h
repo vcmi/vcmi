@@ -19,6 +19,8 @@
 
 #include "../filesystem/CBinaryReader.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CGHeroInstance;
 class CArtifactInstance;
 class CGObjectInstance;
@@ -245,7 +247,7 @@ private:
 
 	/** List of templates loaded from the map, used on later stage to create
 	 *  objects but not needed for fully functional CMap */
-	std::vector<ObjectTemplate> templates;
+	std::vector<std::shared_ptr<const ObjectTemplate>> templates;
 
 	/** ptr to the map object which gets filled by data from the buffer */
 	CMap * map;
@@ -260,3 +262,5 @@ private:
 	CInputStream * inputStream;
 
 };
+
+VCMI_LIB_NAMESPACE_END

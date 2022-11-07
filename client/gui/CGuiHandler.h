@@ -13,6 +13,12 @@
 #include "Geometries.h"
 #include "SDL_Extensions.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
+template <typename T> struct CondSh;
+
+VCMI_LIB_NAMESPACE_END
+
 class CFramerateManager;
 class CGStatusBar;
 class CIntObject;
@@ -20,7 +26,6 @@ class IUpdateable;
 class IShowActivatable;
 class IShowable;
 enum class EIntObjMouseBtnType;
-template <typename T> struct CondSh;
 
 // TODO: event handling need refactoring
 enum EUserEvent
@@ -51,6 +56,7 @@ public:
 	void init(); // needs to be called directly before the main game loop to reset the internal timer
 	void framerateDelay(); // needs to be called every game update cycle
 	ui32 getElapsedMilliseconds() const {return this->timeElapsed;}
+	ui32 getFrameNumber() const { return accumulatedFrames; }
 };
 
 // Handles GUI logic and drawing

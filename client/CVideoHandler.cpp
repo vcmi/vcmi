@@ -72,11 +72,6 @@ CVideoPlayer::CVideoPlayer()
 	refreshWait = 0;
 	refreshCount = 0;
 	doLoop = false;
-
-	// Register codecs. TODO: May be overkill. Should call a
-	// combination of av_register_input_format() /
-	// av_register_output_format() / av_register_protocol() instead.
-	av_register_all();
 }
 
 bool CVideoPlayer::open(std::string fname, bool scale)
@@ -127,7 +122,7 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay, bool scal
 	stream = -1;
 	for(ui32 i=0; i<format->nb_streams; i++)
 	{
-		if (format->streams[i]->codec->codec_type==AVMEDIA_TYPE_VIDEO)
+		if (format->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO)
 		{
 			stream = i;
 			break;
@@ -138,15 +133,24 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay, bool scal
 		// No video stream in that file
 		return false;
 
-	// Get a pointer to the codec context for the video stream
-	codecContext = format->streams[stream]->codec;
-
 	// Find the decoder for the video stream
-	codec = avcodec_find_decoder(codecContext->codec_id);
+	codec = avcodec_find_decoder(format->streams[stream]->codecpar->codec_id);
 
 	if (codec == nullptr)
 	{
 		// Unsupported codec
+		return false;
+	}
+
+	codecContext = avcodec_alloc_context3(codec);
+	if(!codecContext)
+		return false;
+	// Get a pointer to the codec context for the video stream
+	int ret = avcodec_parameters_to_context(codecContext, format->streams[stream]->codecpar);
+	if (ret < 0)
+	{
+		//We cannot get codec from parameters
+		avcodec_free_context(&codecContext);
 		return false;
 	}
 
@@ -266,24 +270,28 @@ bool CVideoPlayer::nextFrame()
 			if (packet.stream_index == stream)
 			{
 				// Decode video frame
-
-				avcodec_decode_video2(codecContext, frame, &frameFinished, &packet);
-
+				int rc = avcodec_send_packet(codecContext, &packet);
+				if (rc >=0)
+					packet.size = 0;
+				rc = avcodec_receive_frame(codecContext, frame);
+				if (rc >= 0)
+					frameFinished = 1;
 				// Did we get a video frame?
 				if (frameFinished)
 				{
-					AVPicture pict;
+					uint8_t *data[4];
+					int linesize[4];
 
 					if (texture) {
-						avpicture_alloc(&pict, AV_PIX_FMT_YUV420P, pos.w, pos.h);
+						av_image_alloc(data, linesize, pos.w, pos.h, AV_PIX_FMT_YUV420P, 1);
 
 						sws_scale(sws, frame->data, frame->linesize,
-								  0, codecContext->height, pict.data, pict.linesize);
+								  0, codecContext->height, data, linesize);
 
-						SDL_UpdateYUVTexture(texture, NULL, pict.data[0], pict.linesize[0],
-								pict.data[1], pict.linesize[1],
-								pict.data[2], pict.linesize[2]);
-						avpicture_free(&pict);
+						SDL_UpdateYUVTexture(texture, NULL, data[0], linesize[0],
+								data[1], linesize[1],
+								data[2], linesize[2]);
+						av_freep(&data[0]);
 					}
 					else
 					{
@@ -306,18 +314,18 @@ bool CVideoPlayer::nextFrame()
 						size_t pic_bytes = dest->pitch * dest->h;
 						size_t ffmped_pad = 1024; /* a few bytes of overflow will go here */
 						void * for_sws = av_malloc (pic_bytes + ffmped_pad);
-						pict.data[0] = (ui8 *)for_sws;
-						pict.linesize[0] = dest->pitch;
+						data[0] = (ui8 *)for_sws;
+						linesize[0] = dest->pitch;
 
 						sws_scale(sws, frame->data, frame->linesize,
-								  0, codecContext->height, pict.data, pict.linesize);
+								  0, codecContext->height, data, linesize);
 						memcpy(dest->pixels, for_sws, pic_bytes);
 						av_free(for_sws);
 					}
 				}
 			}
 
-			av_free_packet(&packet);
+			av_packet_unref(&packet);
 		}
 	}
 
@@ -401,7 +409,10 @@ void CVideoPlayer::close()
 	{
 		avcodec_close(codecContext);
 		codec = nullptr;
-		codecContext = nullptr;
+	}
+	if (codecContext)
+	{
+		avcodec_free_context(&codecContext);
 	}
 
 	if (format)

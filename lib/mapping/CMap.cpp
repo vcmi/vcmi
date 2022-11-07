@@ -23,6 +23,8 @@
 #include "CMapEditManager.h"
 #include "../serializer/JsonSerializeFormat.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 SHeroName::SHeroName() : heroId(-1)
 {
 
@@ -123,22 +125,28 @@ CCastleEvent::CCastleEvent() : town(nullptr)
 
 }
 
-TerrainTile::TerrainTile() : terType(ETerrainType::BORDER), terView(0), riverType(ERiverType::NO_RIVER),
-	riverDir(0), roadType(ERoadType::NO_ROAD), roadDir(0), extTileFlags(0), visitable(false),
+TerrainTile::TerrainTile():
+	terType(nullptr),
+	terView(0),
+	riverType(const_cast<RiverType*>(&VLC->terrainTypeHandler->rivers()[River::NO_RIVER])),
+	riverDir(0),
+	roadType(const_cast<RoadType*>(&VLC->terrainTypeHandler->roads()[Road::NO_ROAD])),
+	roadDir(0),
+	extTileFlags(0),
+	visitable(false),
 	blocked(false)
 {
-
 }
 
 bool TerrainTile::entrableTerrain(const TerrainTile * from) const
 {
-	return entrableTerrain(from ? from->terType != ETerrainType::WATER : true, from ? from->terType == ETerrainType::WATER : true);
+	return entrableTerrain(from ? from->terType->isLand() : true, from ? from->terType->isWater() : true);
 }
 
 bool TerrainTile::entrableTerrain(bool allowLand, bool allowSea) const
 {
-	return terType != ETerrainType::ROCK
-			&& ((allowSea && terType == ETerrainType::WATER)  ||  (allowLand && terType != ETerrainType::WATER));
+	return terType->isPassable()
+			&& ((allowSea && terType->isWater())  ||  (allowLand && terType->isLand()));
 }
 
 bool TerrainTile::isClear(const TerrainTile * from) const
@@ -164,7 +172,7 @@ CGObjectInstance * TerrainTile::topVisitableObj(bool excludeTop) const
 
 EDiggingStatus TerrainTile::getDiggingStatus(const bool excludeTop) const
 {
-	if(terType == ETerrainType::WATER || terType == ETerrainType::ROCK)
+	if(terType->isWater() || !terType->isPassable())
 		return EDiggingStatus::WRONG_TERRAIN;
 
 	int allowedBlocked = excludeTop ? 1 : 0;
@@ -181,7 +189,7 @@ bool TerrainTile::hasFavorableWinds() const
 
 bool TerrainTile::isWater() const
 {
-	return terType == ETerrainType::WATER;
+	return terType->isWater();
 }
 
 void CMapHeader::setupEvents()
@@ -228,12 +236,17 @@ CMapHeader::CMapHeader() : version(EMapFormat::SOD), height(72), width(72),
 
 CMapHeader::~CMapHeader()
 {
+}
 
+ui8 CMapHeader::levels() const
+{
+	return (twoLevel ? 2 : 1);
 }
 
 CMap::CMap()
 	: checksum(0), grailPos(-1, -1, -1), grailRadius(0), terrain(nullptr),
-	guardingCreaturePositions(nullptr)
+	guardingCreaturePositions(nullptr),
+	uidCounter(0)
 {
 	allHeroes.resize(allowedHeroes.size());
 	allowedAbilities = VLC->skillh->getDefaultAllowed();
@@ -245,15 +258,15 @@ CMap::~CMap()
 {
 	if(terrain)
 	{
-		for (int i=0; i<width; i++)
+		for(int z = 0; z < levels(); z++)
 		{
-			for(int j=0; j<height; j++)
+			for(int x = 0; x < width; x++)
 			{
-				delete [] terrain[i][j];
-				delete [] guardingCreaturePositions[i][j];
+				delete[] terrain[z][x];
+				delete[] guardingCreaturePositions[z][x];
 			}
-			delete [] terrain[i];
-			delete [] guardingCreaturePositions[i];
+			delete[] terrain[z];
+			delete[] guardingCreaturePositions[z];
 		}
 		delete [] terrain;
 		delete [] guardingCreaturePositions;
@@ -270,16 +283,16 @@ CMap::~CMap()
 
 void CMap::removeBlockVisTiles(CGObjectInstance * obj, bool total)
 {
-	for(int fx=0; fx<obj->getWidth(); ++fx)
+	const int zVal = obj->pos.z;
+	for(int fx = 0; fx < obj->getWidth(); ++fx)
 	{
-		for(int fy=0; fy<obj->getHeight(); ++fy)
+		int xVal = obj->pos.x - fx;
+		for(int fy = 0; fy < obj->getHeight(); ++fy)
 		{
-			int xVal = obj->pos.x - fx;
 			int yVal = obj->pos.y - fy;
-			int zVal = obj->pos.z;
-			if(xVal>=0 && xVal<width && yVal>=0 && yVal<height)
+			if(xVal>=0 && xVal < width && yVal>=0 && yVal < height)
 			{
-				TerrainTile & curt = terrain[xVal][yVal][zVal];
+				TerrainTile & curt = terrain[zVal][xVal][yVal];
 				if(total || obj->visitableAt(xVal, yVal))
 				{
 					curt.visitableObjects -= obj;
@@ -297,22 +310,22 @@ void CMap::removeBlockVisTiles(CGObjectInstance * obj, bool total)
 
 void CMap::addBlockVisTiles(CGObjectInstance * obj)
 {
-	for(int fx=0; fx<obj->getWidth(); ++fx)
+	const int zVal = obj->pos.z;
+	for(int fx = 0; fx < obj->getWidth(); ++fx)
 	{
-		for(int fy=0; fy<obj->getHeight(); ++fy)
+		int xVal = obj->pos.x - fx;
+		for(int fy = 0; fy < obj->getHeight(); ++fy)
 		{
-			int xVal = obj->pos.x - fx;
 			int yVal = obj->pos.y - fy;
-			int zVal = obj->pos.z;
-			if(xVal>=0 && xVal<width && yVal>=0 && yVal<height)
+			if(xVal>=0 && xVal < width && yVal >= 0 && yVal < height)
 			{
-				TerrainTile & curt = terrain[xVal][yVal][zVal];
-				if( obj->visitableAt(xVal, yVal))
+				TerrainTile & curt = terrain[zVal][xVal][yVal];
+				if(obj->visitableAt(xVal, yVal))
 				{
 					curt.visitableObjects.push_back(obj);
 					curt.visitable = true;
 				}
-				if( obj->blockingAt(xVal, yVal))
+				if(obj->blockingAt(xVal, yVal))
 				{
 					curt.blockingObjects.push_back(obj);
 					curt.blocked = true;
@@ -325,12 +338,14 @@ void CMap::addBlockVisTiles(CGObjectInstance * obj)
 void CMap::calculateGuardingGreaturePositions()
 {
 	int levels = twoLevel ? 2 : 1;
-	for (int i=0; i<width; i++)
+	for(int z = 0; z < levels; z++)
 	{
-		for(int j=0; j<height; j++)
+		for(int x = 0; x < width; x++)
 		{
-			for (int k = 0; k < levels; k++)
-				guardingCreaturePositions[i][j][k] = guardingCreaturePosition(int3(i,j,k));
+			for(int y = 0; y < height; y++)
+			{
+				guardingCreaturePositions[z][x][y] = guardingCreaturePosition(int3(x, y, z));
+			}
 		}
 	}
 }
@@ -388,13 +403,13 @@ bool CMap::isInTheMap(const int3 & pos) const
 TerrainTile & CMap::getTile(const int3 & tile)
 {
 	assert(isInTheMap(tile));
-	return terrain[tile.x][tile.y][tile.z];
+	return terrain[tile.z][tile.x][tile.y];
 }
 
 const TerrainTile & CMap::getTile(const int3 & tile) const
 {
 	assert(isInTheMap(tile));
-	return terrain[tile.x][tile.y][tile.z];
+	return terrain[tile.z][tile.x][tile.y];
 }
 
 bool CMap::isWaterTile(const int3 &pos) const
@@ -417,7 +432,7 @@ bool CMap::checkForVisitableDir(const int3 & src, const TerrainTile *pom, const 
 		if(!vstd::contains(pom->blockingObjects, obj)) //this visitable object is not blocking, ignore
 			continue;
 
-		if (!obj->appearance.isVisitableFrom(src.x - dst.x, src.y - dst.y))
+		if (!obj->appearance->isVisitableFrom(src.x - dst.x, src.y - dst.y))
 			return false;
 	}
 	return true;
@@ -593,6 +608,7 @@ void CMap::addNewArtifactInstance(CArtifactInstance * art)
 
 void CMap::eraseArtifactInstance(CArtifactInstance * art)
 {
+	//TODO: handle for artifacts removed in map editor
 	assert(artInstances[art->id.getNum()] == art);
 	artInstances[art->id.getNum()].dellNull();
 }
@@ -603,6 +619,33 @@ void CMap::addNewQuestInstance(CQuest* quest)
 	quests.push_back(quest);
 }
 
+void CMap::removeQuestInstance(CQuest * quest)
+
+{
+	//TODO: should be called only by map editor.
+	//During game, completed quests or quests from removed objects stay forever
+
+	//Shift indexes
+	auto iter = std::next(quests.begin(), quest->qid);
+	iter = quests.erase(iter);
+	for (int i = quest->qid; iter != quests.end(); ++i, ++iter)
+	{
+		(*iter)->qid = i;
+	}
+}
+
+void CMap::setUniqueInstanceName(CGObjectInstance * obj)
+
+{
+	//this gives object unique name even if objects are removed later
+
+	auto uid = uidCounter++;
+
+	boost::format fmt("%s_%d");
+	fmt % obj->typeName % uid;
+	obj->instanceName = fmt.str();
+}
+
 void CMap::addNewObject(CGObjectInstance * obj)
 {
 	if(obj->id != ObjectInstanceID((si32)objects.size()))
@@ -611,30 +654,56 @@ void CMap::addNewObject(CGObjectInstance * obj)
 	if(obj->instanceName == "")
 		throw std::runtime_error("Object instance name missing");
 
-	auto it = instanceNames.find(obj->instanceName);
-	if(it != instanceNames.end())
+	if (vstd::contains(instanceNames, obj->instanceName))
 		throw std::runtime_error("Object instance name duplicated: "+obj->instanceName);
 
 	objects.push_back(obj);
 	instanceNames[obj->instanceName] = obj;
 	addBlockVisTiles(obj);
 
+	//TODO: how about defeated heroes recruited again?
+
 	obj->afterAddToMap(this);
+}
+
+void CMap::moveObject(CGObjectInstance * obj, const int3 & pos)
+{
+	removeBlockVisTiles(obj);
+	obj->pos = pos;
+	addBlockVisTiles(obj);
+}
+
+void CMap::removeObject(CGObjectInstance * obj)
+{
+	removeBlockVisTiles(obj);
+	instanceNames.erase(obj->instanceName);
+
+	//update indeces
+	auto iter = std::next(objects.begin(), obj->id.getNum());
+	iter = objects.erase(iter);
+	for(int i = obj->id.getNum(); iter != objects.end(); ++i, ++iter)
+	{
+		(*iter)->id = ObjectInstanceID(i);
+	}
+	
+	obj->afterRemoveFromMap(this);
+
+	//TOOD: Clean artifact instances (mostly worn by hero?) and quests related to this object
 }
 
 void CMap::initTerrain()
 {
-	int level = twoLevel ? 2 : 1;
-	terrain = new TerrainTile**[width];
-	guardingCreaturePositions = new int3**[width];
-	for (int i = 0; i < width; ++i)
+	int level = levels();
+	terrain = new TerrainTile**[level];
+	guardingCreaturePositions = new int3**[level];
+	for(int z = 0; z < level; ++z)
 	{
-		terrain[i] = new TerrainTile*[height];
-		guardingCreaturePositions[i] = new int3*[height];
-		for (int j = 0; j < height; ++j)
+		terrain[z] = new TerrainTile*[width];
+		guardingCreaturePositions[z] = new int3*[width];
+		for(int x = 0; x < width; ++x)
 		{
-			terrain[i][j] = new TerrainTile[level];
-			guardingCreaturePositions[i][j] = new int3[level];
+			terrain[z][x] = new TerrainTile[height];
+			guardingCreaturePositions[z][x] = new int3[height];
 		}
 	}
 }
@@ -652,3 +721,5 @@ void CMap::resetStaticData()
 	CGObelisk::reset();
 	CGTownInstance::reset();
 }
+
+VCMI_LIB_NAMESPACE_END

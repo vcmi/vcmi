@@ -12,6 +12,9 @@
 
 #include "AINodeStorage.h"
 
+namespace NKAI
+{
+
 class Nullkiller;
 
 namespace AIPathfinding
@@ -30,4 +33,6 @@ namespace AIPathfinding
 
 		virtual CPathfinderHelper * getOrCreatePathfinderHelper(const PathNodeInfo & source, CGameState * gs) override;
 	};
+}
+
 }

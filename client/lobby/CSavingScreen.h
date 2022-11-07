@@ -11,9 +11,14 @@
 
 #include "CSelectionBase.h"
 
-class CSelectionBase;
+VCMI_LIB_NAMESPACE_BEGIN
+
 struct StartInfo;
 class CMapInfo;
+
+VCMI_LIB_NAMESPACE_END
+
+class CSelectionBase;
 
 class CSavingScreen : public CSelectionBase
 {
@@ -22,7 +27,6 @@ public:
 	std::shared_ptr<CMapInfo> localMi;
 
 	CSavingScreen();
-	~CSavingScreen();
 
 	void changeSelection(std::shared_ptr<CMapInfo> to);
 	void saveGame();

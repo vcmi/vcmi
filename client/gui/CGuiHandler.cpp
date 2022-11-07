@@ -466,6 +466,7 @@ void CGuiHandler::renderFrame()
 
 		SDL_UpdateTexture(screenTexture, nullptr, screen->pixels, screen->pitch);
 
+		SDL_RenderClear(mainRenderer);
 		SDL_RenderCopy(mainRenderer, screenTexture, nullptr, nullptr);
 
 		CCS->curh->render();
@@ -610,23 +611,14 @@ void CFramerateManager::init()
 void CFramerateManager::framerateDelay()
 {
 	ui32 currentTicks = SDL_GetTicks();
+
 	timeElapsed = currentTicks - lastticks;
-
-	// FPS is higher than it should be, then wait some time
-	if (timeElapsed < rateticks)
-	{
-		SDL_Delay((Uint32)ceil(this->rateticks) - timeElapsed);
-	}
-
-	accumulatedTime += timeElapsed;
 	accumulatedFrames++;
 
-	if(accumulatedFrames >= 100)
+	// FPS is higher than it should be, then wait some time
+	if(timeElapsed < rateticks)
 	{
-		//about 2 second should be passed
-		fps = static_cast<int>(ceil(1000.0 / (accumulatedTime/accumulatedFrames)));
-		accumulatedTime = 0;
-		accumulatedFrames = 0;
+		SDL_Delay((Uint32)ceil(this->rateticks) - timeElapsed);
 	}
 
 	currentTicks = SDL_GetTicks();
@@ -635,4 +627,14 @@ void CFramerateManager::framerateDelay()
 	timeElapsed = std::min<ui32>(currentTicks - lastticks, 1000);
 
 	lastticks = SDL_GetTicks();
+
+	accumulatedTime += timeElapsed;
+
+	if(accumulatedFrames >= 100)
+	{
+		//about 2 second should be passed
+		fps = static_cast<int>(ceil(1000.0 / (accumulatedTime / accumulatedFrames)));
+		accumulatedTime = 0;
+		accumulatedFrames = 0;
+	}
 }

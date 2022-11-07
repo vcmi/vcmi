@@ -13,6 +13,8 @@
 #include "lib/battle/CPlayerBattleCallback.h"
 #include "lib/int3.h" // for int3
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CGHeroInstance;
 class CGameState;
 struct CPath;
@@ -20,26 +22,34 @@ class CGObjectInstance;
 class CArmedInstance;
 class BattleAction;
 class CGTownInstance;
-struct lua_State;
-class CClient;
 class IShipyard;
 struct CGPathNode;
 struct CGPath;
 struct CPathsInfo;
 class PathfinderConfig;
 struct CPack;
+struct CPackForServer;
 class IBattleEventsReceiver;
 class IGameEventsReceiver;
 struct ArtifactLocation;
+class BattleStateInfoForRetreat;
+
+VCMI_LIB_NAMESPACE_END
+
+class CClient;
+struct lua_State;
 
 class IBattleCallback
 {
 public:
+	virtual ~IBattleCallback() = default;
+
 	bool waitTillRealize; //if true, request functions will return after they are realized by server
 	bool unlockGsWhenWaiting;//if true after sending each request, gs mutex will be unlocked so the changes can be applied; NOTICE caller must have gs mx locked prior to any call to actiob callback!
 	//battle
 	virtual int battleMakeAction(const BattleAction * action) = 0;//for casting spells by hero - DO NOT use it for moving active stack
 	virtual bool battleMakeTacticAction(BattleAction * action) = 0; // performs tactic phase actions
+	virtual boost::optional<BattleAction> makeSurrenderRetreatDecision(const BattleStateInfoForRetreat & battleState) = 0;
 };
 
 class IGameActionCallback
@@ -78,9 +88,13 @@ public:
 	virtual void save(const std::string &fname) = 0;
 	virtual void sendMessage(const std::string &mess, const CGObjectInstance * currentObject = nullptr) = 0;
 	virtual void buildBoat(const IShipyard *obj) = 0;
-};
 
-struct CPackForServer;
+	// To implement high-level army management bulk actions
+	virtual int bulkMoveArmy(ObjectInstanceID srcArmy, ObjectInstanceID destArmy, SlotID srcSlot) = 0;
+	virtual int bulkSplitStack(ObjectInstanceID armyId, SlotID srcSlot, int howMany = 1) = 0;
+	virtual int bulkSmartSplitStack(ObjectInstanceID armyId, SlotID srcSlot) = 0;
+	virtual int bulkMergeStacks(ObjectInstanceID armyId, SlotID srcSlot) = 0;
+};
 
 class CBattleCallback : public IBattleCallback, public CPlayerBattleCallback
 {
@@ -92,14 +106,19 @@ public:
 	CBattleCallback(boost::optional<PlayerColor> Player, CClient *C);
 	int battleMakeAction(const BattleAction * action) override;//for casting spells by hero - DO NOT use it for moving active stack
 	bool battleMakeTacticAction(BattleAction * action) override; // performs tactic phase actions
+	boost::optional<BattleAction> makeSurrenderRetreatDecision(const BattleStateInfoForRetreat & battleState) override;
 
+#if SCRIPTING_ENABLED
 	scripting::Pool * getContextPool() const override;
+#endif
 
 	friend class CCallback;
 	friend class CClient;
 };
 
-class CCallback : public CPlayerSpecificInfoCallback, public IGameActionCallback, public CBattleCallback
+class CCallback : public CPlayerSpecificInfoCallback,
+	public IGameActionCallback,
+	public CBattleCallback
 {
 public:
 	CCallback(CGameState * GS, boost::optional<PlayerColor> Player, CClient *C);
@@ -125,6 +144,10 @@ public:
 	int mergeOrSwapStacks(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2) override; //first goes to the second
 	int mergeStacks(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2) override; //first goes to the second
 	int splitStack(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2, int val) override;
+	int bulkMoveArmy(ObjectInstanceID srcArmy, ObjectInstanceID destArmy, SlotID srcSlot) override;
+	int bulkSplitStack(ObjectInstanceID armyId, SlotID srcSlot, int howMany = 1) override;
+	int bulkSmartSplitStack(ObjectInstanceID armyId, SlotID srcSlot) override;
+	int bulkMergeStacks(ObjectInstanceID armyId, SlotID srcSlot) override;
 	bool dismissHero(const CGHeroInstance * hero) override;
 	bool swapArtifacts(const ArtifactLocation &l1, const ArtifactLocation &l2) override;
 	bool assembleArtifacts(const CGHeroInstance * hero, ArtifactPosition artifactSlot, bool assemble, ArtifactID assembleTo) override;

@@ -67,7 +67,7 @@ void CLabel::setAutoRedraw(bool value)
 	autoRedraw = value;
 }
 
-void CLabel::setText(const std::string &Txt)
+void CLabel::setText(const std::string & Txt)
 {
 	text = Txt;
 	if(autoRedraw)
@@ -96,7 +96,7 @@ size_t CLabel::getWidth()
 	return graphics->fonts[font]->getStringWidth(visibleText());;
 }
 
-CMultiLineLabel::CMultiLineLabel(Rect position, EFonts Font, EAlignment Align, const SDL_Color &Color, const std::string &Text):
+CMultiLineLabel::CMultiLineLabel(Rect position, EFonts Font, EAlignment Align, const SDL_Color & Color, const std::string & Text) :
 	CLabel(position.x, position.y, Font, Align, Color, Text),
 	visibleSize(0, 0, position.w, position.h)
 {
@@ -124,32 +124,32 @@ void CMultiLineLabel::scrollTextTo(int distance, bool redrawAfterScroll)
 	setVisibleSize(size, redrawAfterScroll);
 }
 
-void CMultiLineLabel::setText(const std::string &Txt)
+void CMultiLineLabel::setText(const std::string & Txt)
 {
 	splitText(Txt, false); //setText used below can handle redraw
 	CLabel::setText(Txt);
 }
 
-void CTextContainer::blitLine(SDL_Surface *to, Rect destRect, std::string what)
+void CTextContainer::blitLine(SDL_Surface * to, Rect destRect, std::string what)
 {
 	const auto f = graphics->fonts[font];
 	Point where = destRect.topLeft();
 
 	// input is rect in which given text should be placed
 	// calculate proper position for top-left corner of the text
-	if (alignment == TOPLEFT)
+	if(alignment == TOPLEFT)
 	{
 		where.x += getBorderSize().x;
 		where.y += getBorderSize().y;
 	}
 
-	if (alignment == CENTER)
+	if(alignment == CENTER)
 	{
 		where.x += (int(destRect.w) - int(f->getStringWidth(what))) / 2;
 		where.y += (int(destRect.h) - int(f->getLineHeight())) / 2;
 	}
 
-	if (alignment == BOTTOMRIGHT)
+	if(alignment == BOTTOMRIGHT)
 	{
 		where.x += getBorderSize().x + destRect.w - (int)f->getStringWidth(what);
 		where.y += getBorderSize().y + destRect.h - (int)f->getLineHeight();
@@ -162,11 +162,11 @@ void CTextContainer::blitLine(SDL_Surface *to, Rect destRect, std::string what)
 	do
 	{
 		size_t end = what.find_first_of(delimeters[currDelimeter % 2], begin);
-		if (begin != end)
+		if(begin != end)
 		{
 			std::string toPrint = what.substr(begin, end - begin);
 
-			if (currDelimeter % 2) // Enclosed in {} text - set to yellow
+			if(currDelimeter % 2) // Enclosed in {} text - set to yellow
 				f->renderTextLeft(to, toPrint, Colors::YELLOW, where);
 			else // Non-enclosed text, use default color
 				f->renderTextLeft(to, toPrint, color, where);
@@ -175,15 +175,15 @@ void CTextContainer::blitLine(SDL_Surface *to, Rect destRect, std::string what)
 			where.x += (int)f->getStringWidth(toPrint);
 		}
 		currDelimeter++;
-	}
-	while (begin++ != std::string::npos);
+	} while(begin++ != std::string::npos);
 }
 
-CTextContainer::CTextContainer(EAlignment alignment, EFonts font, SDL_Color color):
+CTextContainer::CTextContainer(EAlignment alignment, EFonts font, SDL_Color color) :
 	alignment(alignment),
 	font(font),
 	color(color)
-{}
+{
+}
 
 void CMultiLineLabel::showAll(SDL_Surface * to)
 {
@@ -193,15 +193,15 @@ void CMultiLineLabel::showAll(SDL_Surface * to)
 
 	// calculate which lines should be visible
 	int totalLines = static_cast<int>(lines.size());
-	int beginLine  = visibleSize.y;
-	int endLine    = getTextLocation().h + visibleSize.y;
+	int beginLine = visibleSize.y;
+	int endLine = getTextLocation().h + visibleSize.y;
 
-	if (beginLine < 0)
+	if(beginLine < 0)
 		beginLine = 0;
 	else
 		beginLine /= (int)f->getLineHeight();
 
-	if (endLine < 0)
+	if(endLine < 0)
 		endLine = 0;
 	else
 		endLine /= (int)f->getLineHeight();
@@ -209,32 +209,32 @@ void CMultiLineLabel::showAll(SDL_Surface * to)
 
 	// and where they should be displayed
 	Point lineStart = getTextLocation().topLeft() - visibleSize + Point(0, beginLine * (int)f->getLineHeight());
-	Point lineSize  = Point(getTextLocation().w, (int)f->getLineHeight());
+	Point lineSize = Point(getTextLocation().w, (int)f->getLineHeight());
 
 	CSDL_Ext::CClipRectGuard guard(to, getTextLocation()); // to properly trim text that is too big to fit
 
-	for (int i = beginLine; i < std::min(totalLines, endLine); i++)
+	for(int i = beginLine; i < std::min(totalLines, endLine); i++)
 	{
-		if (!lines[i].empty()) //non-empty line
+		if(!lines[i].empty()) //non-empty line
 			blitLine(to, Rect(lineStart, lineSize), lines[i]);
 
 		lineStart.y += (int)f->getLineHeight();
 	}
 }
 
-void CMultiLineLabel::splitText(const std::string &Txt, bool redrawAfter)
+void CMultiLineLabel::splitText(const std::string & Txt, bool redrawAfter)
 {
 	lines.clear();
 
 	const auto f = graphics->fonts[font];
-	int lineHeight =  static_cast<int>(f->getLineHeight());
+	int lineHeight = static_cast<int>(f->getLineHeight());
 
 	lines = CMessage::breakText(Txt, pos.w, font);
 
-	 textSize.y = lineHeight * (int)lines.size();
-	 textSize.x = 0;
-	for(const std::string &line : lines)
-		vstd::amax( textSize.x, f->getStringWidth(line.c_str()));
+	textSize.y = lineHeight * (int)lines.size();
+	textSize.x = 0;
+	for(const std::string & line : lines)
+		vstd::amax(textSize.x, f->getStringWidth(line.c_str()));
 	if(redrawAfter)
 		redraw();
 }
@@ -244,7 +244,7 @@ Rect CMultiLineLabel::getTextLocation()
 	// this method is needed for vertical alignment alignment of text
 	// when height of available text is smaller than height of widget
 	// in this case - we should add proper offset to display text at required position
-	if (pos.h <= textSize.y)
+	if(pos.h <= textSize.y)
 		return pos;
 
 	Point textSize(pos.w, (int)graphics->fonts[font]->getLineHeight() * (int)lines.size());
@@ -263,12 +263,12 @@ Rect CMultiLineLabel::getTextLocation()
 CLabelGroup::CLabelGroup(EFonts Font, EAlignment Align, const SDL_Color & Color)
 	: font(Font), align(Align), color(Color)
 {
-	defActions = 255-DISPOSE;
+	defActions = 255 - DISPOSE;
 }
 
-void CLabelGroup::add(int x, int y, const std::string &text)
+void CLabelGroup::add(int x, int y, const std::string & text)
 {
-	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
 	labels.push_back(std::make_shared<CLabel>(x, y, font, align, color, text));
 }
 
@@ -277,11 +277,11 @@ size_t CLabelGroup::currentSize() const
 	return labels.size();
 }
 
-CTextBox::CTextBox(std::string Text, const Rect &rect, int SliderStyle, EFonts Font, EAlignment Align, const SDL_Color &Color):
+CTextBox::CTextBox(std::string Text, const Rect & rect, int SliderStyle, EFonts Font, EAlignment Align, const SDL_Color & Color) :
 	sliderStyle(SliderStyle),
 	slider(nullptr)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 	label = std::make_shared<CMultiLineLabel>(rect, Font, Align, Color);
 
 	type |= REDRAW_PARENT;
@@ -310,7 +310,7 @@ void CTextBox::resize(Point newSize)
 	setText(label->getText()); // force refresh
 }
 
-void CTextBox::setText(const std::string &text)
+void CTextBox::setText(const std::string & text)
 {
 	label->pos.w = pos.w; // reset to default before textSize.y check
 	label->setText(text);
@@ -332,9 +332,9 @@ void CTextBox::setText(const std::string &text)
 		label->pos.w = pos.w - 32;
 		label->setText(text);
 
-		OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
+		OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255 - DISPOSE);
 		slider = std::make_shared<CSlider>(Point(pos.w - 32, 0), pos.h, std::bind(&CTextBox::sliderMoved, this, _1),
-		                     label->pos.h, label->textSize.y, 0, false, CSlider::EStyle(sliderStyle));
+			label->pos.h, label->textSize.y, 0, false, CSlider::EStyle(sliderStyle));
 		slider->setScrollStep((int)graphics->fonts[label->font]->getLineHeight());
 	}
 }
@@ -364,7 +364,7 @@ CGStatusBar::CGStatusBar(std::shared_ptr<CPicture> background_, EFonts Font, EAl
 CGStatusBar::CGStatusBar(int x, int y, std::string name, int maxw)
 	: CLabel(x, y, FONT_SMALL, CENTER)
 {
-	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
+	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 	background = std::make_shared<CPicture>(name);
 	pos = background->pos;
 
@@ -391,12 +391,12 @@ void CGStatusBar::init()
 Point CGStatusBar::getBorderSize()
 {
 	//Width of borders where text should not be printed
-	static const Point borderSize(5,1);
+	static const Point borderSize(5, 1);
 
 	switch(alignment)
 	{
 	case TOPLEFT:     return Point(borderSize.x, borderSize.y);
-	case CENTER:      return Point(pos.w/2, pos.h/2);
+	case CENTER:      return Point(pos.w / 2, pos.h / 2);
 	case BOTTOMRIGHT: return Point(pos.w - borderSize.x, pos.h - borderSize.y);
 	}
 	assert(0);
@@ -408,35 +408,43 @@ void CGStatusBar::lock(bool shouldLock)
 	textLock = shouldLock;
 }
 
-CTextInput::CTextInput(const Rect &Pos, EFonts font, const CFunctionList<void(const std::string &)> &CB)
+CTextInput::CTextInput(const Rect & Pos, EFonts font, const CFunctionList<void(const std::string &)> & CB)
 	: CLabel(Pos.x, Pos.y, font, CENTER),
-	cb(CB)
+	cb(CB),
+	CFocusable(std::make_shared<CKeyboardFocusListener>(this))
 {
 	type |= REDRAW_PARENT;
-	focus = false;
 	pos.h = Pos.h;
 	pos.w = Pos.w;
 	captureAllKeys = true;
 	background.reset();
 	addUsedEvents(LCLICK | KEYBOARD | TEXTINPUT);
+
+#if !(defined(VCMI_ANDROID) || defined(VCMI_IOS))
 	giveFocus();
+#endif
 }
 
 CTextInput::CTextInput(const Rect & Pos, const Point & bgOffset, const std::string & bgName, const CFunctionList<void(const std::string &)> & CB)
-	:cb(CB)
+	:cb(CB), 	CFocusable(std::make_shared<CKeyboardFocusListener>(this))
 {
-	focus = false;
 	pos += Pos;
+	pos.h = Pos.h;
+	pos.w = Pos.w;
+
 	captureAllKeys = true;
 	OBJ_CONSTRUCTION;
 	background = std::make_shared<CPicture>(bgName, bgOffset.x, bgOffset.y);
 	addUsedEvents(LCLICK | KEYBOARD | TEXTINPUT);
+
+#if !(defined(VCMI_ANDROID) || defined(VCMI_IOS))
 	giveFocus();
+#endif
 }
 
 CTextInput::CTextInput(const Rect & Pos, SDL_Surface * srf)
+	:CFocusable(std::make_shared<CKeyboardFocusListener>(this))
 {
-	focus = false;
 	pos += Pos;
 	captureAllKeys = true;
 	OBJ_CONSTRUCTION;
@@ -450,35 +458,48 @@ CTextInput::CTextInput(const Rect & Pos, SDL_Surface * srf)
 	pos.h = background->pos.h;
 	background->pos = pos;
 	addUsedEvents(LCLICK | KEYBOARD | TEXTINPUT);
-	giveFocus();
-}
 
-void CTextInput::focusGot()
-{
-	CSDL_Ext::startTextInput(&pos);
-#ifdef VCMI_ANDROID
-	notifyAndroidTextInputChanged(text);
+#if !(defined(VCMI_ANDROID) || defined(VCMI_IOS))
+	giveFocus();
 #endif
 }
 
-void CTextInput::focusLost()
+std::atomic<int> CKeyboardFocusListener::usageIndex(0);
+
+CKeyboardFocusListener::CKeyboardFocusListener(CTextInput * textInput)
+	:textInput(textInput)
 {
-	CSDL_Ext::stopTextInput();
 }
 
+void CKeyboardFocusListener::focusGot()
+{
+	CSDL_Ext::startTextInput(&textInput->pos);
+#ifdef VCMI_ANDROID
+	textInput->notifyAndroidTextInputChanged(textInput->text);
+#endif
+	usageIndex++;
+}
+
+void CKeyboardFocusListener::focusLost()
+{
+	if(0 == --usageIndex)
+	{
+		CSDL_Ext::stopTextInput();
+	}
+}
 
 std::string CTextInput::visibleText()
 {
 	return focus ? text + newText + "_" : text;
 }
 
-void CTextInput::clickLeft( tribool down, bool previousState )
+void CTextInput::clickLeft(tribool down, bool previousState)
 {
 	if(down && !focus)
 		giveFocus();
 }
 
-void CTextInput::keyPressed( const SDL_KeyboardEvent & key )
+void CTextInput::keyPressed(const SDL_KeyboardEvent & key)
 {
 
 	if(!focus || key.state != SDL_PRESSED)
@@ -513,7 +534,7 @@ void CTextInput::keyPressed( const SDL_KeyboardEvent & key )
 		break;
 	}
 
-	if (redrawNeeded)
+	if(redrawNeeded)
 	{
 		redraw();
 		cb(text);
@@ -523,7 +544,7 @@ void CTextInput::keyPressed( const SDL_KeyboardEvent & key )
 	}
 }
 
-void CTextInput::setText( const std::string &nText, bool callCb )
+void CTextInput::setText(const std::string & nText, bool callCb)
 {
 	CLabel::setText(nText);
 	if(callCb)
@@ -550,8 +571,8 @@ void CTextInput::textInputed(const SDL_TextInputEvent & event)
 
 	text += event.text;
 
-	filters(text,oldText);
-	if (text != oldText)
+	filters(text, oldText);
+	if(text != oldText)
 	{
 		redraw();
 		cb(text);
@@ -570,7 +591,7 @@ void CTextInput::textEdited(const SDL_TextEditingEvent & event)
 
 	newText = event.text;
 	redraw();
-	cb(text+newText);
+	cb(text + newText);
 
 #ifdef VCMI_ANDROID
 	auto editedText = text + newText;
@@ -582,7 +603,7 @@ void CTextInput::filenameFilter(std::string & text, const std::string &)
 {
 	static const std::string forbiddenChars = "<>:\"/\\|?*\r\n"; //if we are entering a filename, some special characters won't be allowed
 	size_t pos;
-	while ((pos = text.find_first_of(forbiddenChars)) != std::string::npos)
+	while((pos = text.find_first_of(forbiddenChars)) != std::string::npos)
 		text.erase(pos, 1);
 }
 
@@ -590,16 +611,16 @@ void CTextInput::numberFilter(std::string & text, const std::string & oldText, i
 {
 	assert(minValue < maxValue);
 
-	if (text.empty())
+	if(text.empty())
 		text = "0";
 
 	size_t pos = 0;
-	if (text[0] == '-') //allow '-' sign as first symbol only
+	if(text[0] == '-') //allow '-' sign as first symbol only
 		pos++;
 
-	while (pos < text.size())
+	while(pos < text.size())
 	{
-		if (text[pos] < '0' || text[pos] > '9')
+		if(text[pos] < '0' || text[pos] > '9')
 		{
 			text = oldText;
 			return; //new text is not number.
@@ -609,9 +630,9 @@ void CTextInput::numberFilter(std::string & text, const std::string & oldText, i
 	try
 	{
 		int value = boost::lexical_cast<int>(text);
-		if (value < minValue)
+		if(value < minValue)
 			text = boost::lexical_cast<std::string>(minValue);
-		else if (value > maxValue)
+		else if(value > maxValue)
 			text = boost::lexical_cast<std::string>(maxValue);
 	}
 	catch(boost::bad_lexical_cast &)
@@ -625,7 +646,7 @@ void CTextInput::numberFilter(std::string & text, const std::string & oldText, i
 #ifdef VCMI_ANDROID
 void CTextInput::notifyAndroidTextInputChanged(std::string & text)
 {
-	if (!focus)
+	if(!focus)
 		return;
 
 	auto fun = [&text](JNIEnv * env, jclass cls, jmethodID method)
@@ -641,6 +662,12 @@ void CTextInput::notifyAndroidTextInputChanged(std::string & text)
 #endif //VCMI_ANDROID
 
 CFocusable::CFocusable()
+	:CFocusable(std::make_shared<IFocusListener>())
+{
+}
+
+CFocusable::CFocusable(std::shared_ptr<IFocusListener> focusListener)
+	: focusListener(focusListener)
 {
 	focus = false;
 	focusables.push_back(this);
@@ -648,24 +675,30 @@ CFocusable::CFocusable()
 
 CFocusable::~CFocusable()
 {
-	if(inputWithFocus == this)
+	if(hasFocus())
 	{
-		focusLost();
 		inputWithFocus = nullptr;
+		focusListener->focusLost();
 	}
 
 	focusables -= this;
 }
 
+bool CFocusable::hasFocus() const
+{
+	return inputWithFocus == this;
+}
+
 void CFocusable::giveFocus()
 {
 	focus = true;
-	focusGot();
+	focusListener->focusGot();
 	redraw();
 
 	if(inputWithFocus)
 	{
 		inputWithFocus->focus = false;
+		inputWithFocus->focusListener->focusLost();
 		inputWithFocus->redraw();
 	}
 

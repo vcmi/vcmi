@@ -9,6 +9,8 @@
  */
 #pragma once
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CInputStream;
 class ResourceID;
 
@@ -105,3 +107,5 @@ public:
 		return std::vector<const ISimpleResourceLoader *>();
 	}
 };
+
+VCMI_LIB_NAMESPACE_END

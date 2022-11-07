@@ -11,11 +11,14 @@
 #pragma once
 #include "CBattleInfoEssentials.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class ObstacleChanges;
 class UnitChanges;
 struct Bonus;
 class JsonNode;
 class JsonSerializeFormat;
+class BattleField;
 
 namespace vstd
 {
@@ -40,8 +43,8 @@ public:
 
 	virtual battle::Units getUnitsIf(battle::UnitFilter predicate) const = 0;
 
-	virtual BFieldType getBattlefieldType() const = 0;
-	virtual ETerrainType getTerrainType() const = 0;
+	virtual BattleField getBattlefieldType() const = 0;
+	virtual TerrainId getTerrainType() const = 0;
 
 	virtual ObstacleCList getAllObstacles() const = 0;
 
@@ -90,3 +93,5 @@ public:
 	virtual void updateObstacle(const ObstacleChanges & changes) = 0;
 	virtual void removeObstacle(uint32_t id) = 0;
 };
+
+VCMI_LIB_NAMESPACE_END

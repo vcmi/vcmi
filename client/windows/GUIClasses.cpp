@@ -15,6 +15,7 @@
 #include "CCreatureWindow.h"
 #include "CHeroWindow.h"
 #include "CreatureCostBox.h"
+#include "InfoWindows.h"
 
 #include "../CBitmapHandler.h"
 #include "../CGameInfo.h"
@@ -36,7 +37,6 @@
 
 #include "../widgets/CComponent.h"
 #include "../widgets/MiscWidgets.h"
-#include "../windows/InfoWindows.h"
 
 #include "../lobby/CSavingScreen.h"
 
@@ -438,6 +438,11 @@ static void setBoolSetting(std::string group, std::string field, bool value)
 	fullscreen->Bool() = value;
 }
 
+static std::string resolutionToString(int w, int h)
+{
+	return std::to_string(w) + 'x' + std::to_string(h);
+}
+
 CSystemOptionsWindow::CSystemOptionsWindow()
 	: CWindowObject(PLAYER_COLORED, "SysOpBck"),
 	onFullscreenChanged(settings.listen["video"]["fullscreen"])
@@ -550,11 +555,8 @@ CSystemOptionsWindow::CSystemOptionsWindow()
 
 	gameResButton = std::make_shared<CButton>(Point(28, 275),"buttons/resolution", CButton::tooltip(texts["resolutionButton"]), std::bind(&CSystemOptionsWindow::selectGameRes, this), SDLK_g);
 
-	std::string resText;
-	resText += boost::lexical_cast<std::string>(settings["video"]["screenRes"]["width"].Float());
-	resText += "x";
-	resText += boost::lexical_cast<std::string>(settings["video"]["screenRes"]["height"].Float());
-	gameResLabel = std::make_shared<CLabel>(170, 292, FONT_MEDIUM, CENTER, Colors::YELLOW, resText);
+	const auto & screenRes = settings["video"]["screenRes"];
+	gameResLabel = std::make_shared<CLabel>(170, 292, FONT_MEDIUM, CENTER, Colors::YELLOW, resolutionToString(screenRes["width"].Integer(), screenRes["height"].Integer()));
 }
 
 void CSystemOptionsWindow::selectGameRes()
@@ -562,14 +564,29 @@ void CSystemOptionsWindow::selectGameRes()
 	std::vector<std::string> items;
 	const JsonNode & texts = CGI->generaltexth->localizedTexts["systemOptions"]["resolutionMenu"];
 
-	for( config::CConfigHandler::GuiOptionsMap::value_type& value : conf.guiOptions)
+#ifndef VCMI_IOS
+	SDL_Rect displayBounds;
+	SDL_GetDisplayBounds(std::max(0, SDL_GetWindowDisplayIndex(mainWindow)), &displayBounds);
+#endif
+
+	size_t currentResolutionIndex = 0;
+	size_t i = 0;
+	for(const auto & it : conf.guiOptions)
 	{
-		std::string resX = boost::lexical_cast<std::string>(value.first.first);
-		std::string resY = boost::lexical_cast<std::string>(value.first.second);
-		items.push_back(resX + 'x' + resY);
+		const auto & resolution = it.first;
+#ifndef VCMI_IOS
+		if(displayBounds.w < resolution.first || displayBounds.h < resolution.second)
+			continue;
+#endif
+
+		auto resolutionStr = resolutionToString(resolution.first, resolution.second);
+		if(gameResLabel->text == resolutionStr)
+			currentResolutionIndex = i;
+		items.push_back(std::move(resolutionStr));
+		++i;
 	}
 
-	GH.pushIntT<CObjectListWindow>(items, nullptr, texts["label"].String(), texts["help"].String(), std::bind(&CSystemOptionsWindow::setGameRes, this, _1));
+	GH.pushIntT<CObjectListWindow>(items, nullptr, texts["label"].String(), texts["help"].String(), std::bind(&CSystemOptionsWindow::setGameRes, this, _1), currentResolutionIndex);
 }
 
 void CSystemOptionsWindow::setGameRes(int index)
@@ -787,9 +804,414 @@ void CTavernWindow::HeroPortrait::hover(bool on)
 		GH.statusbar->clear();
 }
 
-CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID queryID)
-	: CStatusbarWindow(PLAYER_COLORED | BORDERED, "TRADE2")
+static const std::string QUICK_EXCHANGE_MOD_PREFIX = "quick-exchange";
+static const std::string QUICK_EXCHANGE_BG = QUICK_EXCHANGE_MOD_PREFIX + "/TRADEQE";
+
+static bool isQuickExchangeLayoutAvailable()
 {
+	return CResourceHandler::get()->existsResource(ResourceID(std::string("SPRITES/") + QUICK_EXCHANGE_BG, EResType::IMAGE));
+}
+
+// Runs a task asynchronously with gamestate locking and waitTillRealize set to true
+class GsThread
+{
+private:
+	std::function<void()> action;
+	std::shared_ptr<CCallback> cb;
+
+public:
+
+	static void run(std::function<void()> action)
+	{
+		std::shared_ptr<GsThread> instance(new GsThread(action));
+
+
+		boost::thread(std::bind(&GsThread::staticRun, instance));
+	}
+
+private:
+	GsThread(std::function<void()> action)
+		:action(action), cb(LOCPLINT->cb)
+	{
+	}
+
+	static void staticRun(std::shared_ptr<GsThread> instance)
+	{
+		instance->run();
+	}
+
+	void run()
+	{
+		boost::shared_lock<boost::shared_mutex> gsLock(CGameState::mutex);
+
+		auto originalWaitTillRealize = cb->waitTillRealize;
+		auto originalUnlockGsWhenWating = cb->unlockGsWhenWaiting;
+
+		cb->waitTillRealize = true;
+		cb->unlockGsWhenWaiting = true;
+
+		action();
+
+		cb->waitTillRealize = originalWaitTillRealize;
+		cb->unlockGsWhenWaiting = originalUnlockGsWhenWating;
+	}
+};
+
+CExchangeController::CExchangeController(CExchangeWindow * view, ObjectInstanceID hero1, ObjectInstanceID hero2)
+	:left(LOCPLINT->cb->getHero(hero1)), right(LOCPLINT->cb->getHero(hero2)), cb(LOCPLINT->cb), view(view)
+{
+}
+
+std::function<void()> CExchangeController::onMoveArmyToLeft()
+{
+	return [&]() { moveArmy(false); };
+}
+
+std::function<void()> CExchangeController::onMoveArmyToRight()
+{
+	return [&]() { moveArmy(true); };
+}
+
+void CExchangeController::swapArtifacts(ArtifactPosition slot)
+{
+	bool leftHasArt = !left->isPositionFree(slot);
+	bool rightHasArt = !right->isPositionFree(slot);
+
+	if(!leftHasArt && !rightHasArt)
+		return;
+
+	ArtifactLocation leftLocation = ArtifactLocation(left, slot);
+	ArtifactLocation rightLocation = ArtifactLocation(right, slot);
+
+	if(leftHasArt && !left->artifactsWorn.at(slot).artifact->canBePutAt(rightLocation, true))
+		return;
+
+	if(rightHasArt && !right->artifactsWorn.at(slot).artifact->canBePutAt(leftLocation, true))
+		return;
+
+	if(leftHasArt)
+	{
+		if(rightHasArt)
+		{
+			auto art = right->getArt(slot);
+
+			cb->swapArtifacts(leftLocation, rightLocation);
+			cb->swapArtifacts(ArtifactLocation(right, right->getArtPos(art)), leftLocation);
+		}
+		else
+			cb->swapArtifacts(leftLocation, rightLocation);
+	}
+	else
+	{
+		cb->swapArtifacts(rightLocation, leftLocation);
+	}
+}
+
+std::vector<CArtifactInstance *> getBackpackArts(const CGHeroInstance * hero)
+{
+	std::vector<CArtifactInstance *> result;
+
+	for(auto slot : hero->artifactsInBackpack)
+	{
+		result.push_back(slot.artifact);
+	}
+
+	return result;
+}
+
+const std::vector<ArtifactPosition> unmovablePositions = {ArtifactPosition::SPELLBOOK, ArtifactPosition::MACH4};
+
+bool isArtRemovable(const std::pair<ArtifactPosition, ArtSlotInfo> & slot)
+{
+	return slot.second.artifact
+		&& !slot.second.locked
+		&& !vstd::contains(unmovablePositions, slot.first);
+}
+
+// Puts all composite arts to backpack and returns their previous location
+std::vector<HeroArtifact> CExchangeController::moveCompositeArtsToBackpack()
+{
+	std::vector<const CGHeroInstance *> sides = {left, right};
+	std::vector<HeroArtifact> artPositions;
+
+	for(auto hero : sides)
+	{
+		for(int i = ArtifactPosition::HEAD; i < ArtifactPosition::AFTER_LAST; i++)
+		{
+			auto artPosition = ArtifactPosition(i);
+			auto art = hero->getArt(artPosition);
+
+			if(art && art->canBeDisassembled())
+			{
+				cb->swapArtifacts(
+					ArtifactLocation(hero, artPosition),
+					ArtifactLocation(hero, ArtifactPosition(GameConstants::BACKPACK_START)));
+
+				artPositions.push_back(HeroArtifact(hero, art, artPosition));
+			}
+		}
+	}
+
+	return artPositions;
+}
+
+void CExchangeController::swapArtifacts()
+{
+	for(int i = ArtifactPosition::HEAD; i < ArtifactPosition::AFTER_LAST; i++)
+	{
+		if(vstd::contains(unmovablePositions, i))
+			continue;
+
+		swapArtifacts(ArtifactPosition(i));
+	}
+
+	auto leftHeroBackpack = getBackpackArts(left);
+	auto rightHeroBackpack = getBackpackArts(right);
+
+	for(auto leftArt : leftHeroBackpack)
+	{
+		cb->swapArtifacts(
+			ArtifactLocation(left, left->getArtPos(leftArt)),
+			ArtifactLocation(right, ArtifactPosition(GameConstants::BACKPACK_START)));
+	}
+
+	for(auto rightArt : rightHeroBackpack)
+	{
+		cb->swapArtifacts(
+			ArtifactLocation(right, right->getArtPos(rightArt)),
+			ArtifactLocation(left, ArtifactPosition(GameConstants::BACKPACK_START)));
+	}
+}
+
+std::function<void()> CExchangeController::onSwapArtifacts()
+{
+	return [&]()
+	{
+		GsThread::run([=]
+		{
+			// it is not possible directly exchange composite artifacts like Angelic Alliance and Armor of Damned
+			auto compositeArtLocations = moveCompositeArtsToBackpack();
+
+			swapArtifacts();
+
+			for(HeroArtifact artLocation : compositeArtLocations)
+			{
+				auto target = artLocation.hero == left ? right : left;
+				auto currentPos = target->getArtPos(artLocation.artifact);
+
+				cb->swapArtifacts(
+					ArtifactLocation(target, currentPos),
+					ArtifactLocation(target, artLocation.artPosition));
+			}
+
+			view->redraw();
+		});
+	};
+}
+
+std::function<void()> CExchangeController::onMoveArtifactsToLeft()
+{
+	return [&]() { moveArtifacts(false); };
+}
+
+std::function<void()> CExchangeController::onMoveArtifactsToRight()
+{
+	return [&]() { moveArtifacts(true); };
+}
+
+std::vector<std::pair<SlotID, CStackInstance *>> getStacks(const CArmedInstance * source)
+{
+	auto slots = source->Slots();
+
+	return std::vector<std::pair<SlotID, CStackInstance *>>(slots.begin(), slots.end());
+}
+
+std::function<void()> CExchangeController::onSwapArmy()
+{
+	return [&]()
+	{
+		GsThread::run([=]
+		{
+			if(right->tempOwner != cb->getMyColor()
+				|| right->tempOwner != cb->getMyColor())
+			{
+				return;
+			}
+
+			auto leftSlots = getStacks(left);
+			auto rightSlots = getStacks(right);
+
+			auto i = leftSlots.begin(), j = rightSlots.begin();
+
+			for(; i != leftSlots.end() && j != rightSlots.end(); i++, j++)
+			{
+				cb->swapCreatures(left, right, i->first, j->first);
+			}
+
+			if(i != leftSlots.end())
+			{
+				for(; i != leftSlots.end(); i++)
+				{
+					cb->swapCreatures(left, right, i->first, right->getFreeSlot());
+				}
+			}
+			else if(j != rightSlots.end())
+			{
+				for(; j != rightSlots.end(); j++)
+				{
+					cb->swapCreatures(left, right, left->getFreeSlot(), j->first);
+				}
+			}
+		});
+	};
+}
+
+std::function<void()> CExchangeController::onMoveStackToLeft(SlotID slotID)
+{
+	return [=]()
+	{
+		if(right->tempOwner != cb->getMyColor())
+		{
+			return;
+		}
+
+		moveStack(right, left, slotID);
+	};
+}
+
+std::function<void()> CExchangeController::onMoveStackToRight(SlotID slotID)
+{
+	return [=]()
+	{
+		if(left->tempOwner != cb->getMyColor())
+		{
+			return;
+		}
+
+		moveStack(left, right, slotID);
+	};
+}
+
+void CExchangeController::moveStack(
+	const CGHeroInstance * source,
+	const CGHeroInstance * target,
+	SlotID sourceSlot)
+{
+	auto creature = source->getCreature(sourceSlot);
+	SlotID targetSlot = target->getSlotFor(creature);
+
+	if(targetSlot.validSlot())
+	{
+		if(source->stacksCount() == 1 && source->needsLastStack())
+		{
+			cb->splitStack(
+				source,
+				target,
+				sourceSlot,
+				targetSlot,
+				target->getStackCount(targetSlot) + source->getStackCount(sourceSlot) - 1);
+		}
+		else
+		{
+			cb->mergeOrSwapStacks(source, target, sourceSlot, targetSlot);
+		}
+	}
+}
+
+void CExchangeController::moveArmy(bool leftToRight)
+{
+	const CGHeroInstance * source = leftToRight ? left : right;
+	const CGHeroInstance * target = leftToRight ? right : left;
+	const CGarrisonSlot * selection =  this->view->getSelectedSlotID();
+	SlotID slot;
+
+	if(source->tempOwner != cb->getMyColor())
+	{
+		return;
+	}
+
+	if(selection && selection->our() && selection->getObj() == source)
+	{
+		slot = selection->getSlot();
+	}
+	else
+	{
+		auto weakestSlot = vstd::minElementByFun(
+			source->Slots(), 
+			[](const std::pair<SlotID, CStackInstance *> & s) -> int
+			{
+				return s.second->getCreatureID().toCreature()->AIValue;
+			});
+
+		slot = weakestSlot->first;
+	}
+
+	cb->bulkMoveArmy(source->id, target->id, slot);
+}
+
+void CExchangeController::moveArtifacts(bool leftToRight)
+{
+	const CGHeroInstance * source = leftToRight ? left : right;
+	const CGHeroInstance * target = leftToRight ? right : left;
+
+	if(source->tempOwner != cb->getMyColor())
+	{
+		return;
+	}
+
+	GsThread::run([=]
+	{	
+		while(vstd::contains_if(source->artifactsWorn, isArtRemovable))
+		{
+			auto art = std::find_if(source->artifactsWorn.begin(), source->artifactsWorn.end(), isArtRemovable);
+
+			moveArtifact(source, target, art->first);
+		}
+
+		while(!source->artifactsInBackpack.empty())
+		{
+			moveArtifact(source, target, source->getArtPos(source->artifactsInBackpack.begin()->artifact));
+		}
+
+		view->redraw();
+	});
+}
+
+void CExchangeController::moveArtifact(
+	const CGHeroInstance * source,
+	const CGHeroInstance * target,
+	ArtifactPosition srcPosition)
+{
+	auto artifact = source->getArt(srcPosition);
+	auto srcLocation = ArtifactLocation(source, srcPosition);
+
+	for(auto slot : artifact->artType->possibleSlots.at(target->bearerType()))
+	{
+		auto existingArtifact = target->getArt(slot);
+		auto existingArtInfo = target->getSlot(slot);
+		ArtifactLocation destLocation(target, slot);
+
+		if(!existingArtifact
+			&& (!existingArtInfo || !existingArtInfo->locked)
+			&& artifact->canBePutAt(destLocation))
+		{
+			cb->swapArtifacts(srcLocation, ArtifactLocation(target, slot));
+			
+			return;
+		}
+	}
+
+	cb->swapArtifacts(srcLocation, ArtifactLocation(target, ArtifactPosition(GameConstants::BACKPACK_START)));
+}
+
+CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID queryID)
+	: CStatusbarWindow(PLAYER_COLORED | BORDERED, isQuickExchangeLayoutAvailable() ? QUICK_EXCHANGE_BG : "TRADE2"),
+	controller(this, hero1, hero2),
+	moveStackLeftButtons(),
+	moveStackRightButtons()
+{
+	const bool qeLayout = isQuickExchangeLayoutAvailable();
+
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
 	heroInst[0] = LOCPLINT->cb->getHero(hero1);
@@ -810,8 +1232,13 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 
 	auto SECSK32 = std::make_shared<CAnimation>("SECSK32");
 
-	for(int g = 0; g < 4; ++g)
-		primSkillImages.push_back(std::make_shared<CAnimImage>(PSKIL32, g, 0, 385, 19 + 36 * g));
+	for(int g = 0; g < 4; ++g) 
+	{
+		if (qeLayout)
+			primSkillImages.push_back(std::make_shared<CAnimImage>(PSKIL32, g, Rect(389, 12 + 26 * g, 22, 22)));
+		else
+			primSkillImages.push_back(std::make_shared<CAnimImage>(PSKIL32, g, 0, 385, 19 + 36 * g));
+	}
 
 	for(int leftRight : {0, 1})
 	{
@@ -820,19 +1247,19 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 		herosWArt[leftRight] = std::make_shared<CHeroWithMaybePickedArtifact>(this, hero);
 
 		for(int m=0; m<GameConstants::PRIMARY_SKILLS; ++m)
-			primSkillValues[leftRight].push_back(std::make_shared<CLabel>(352 + 93 * leftRight, 35 + 36 * m, FONT_SMALL, CENTER, Colors::WHITE));
+			primSkillValues[leftRight].push_back(std::make_shared<CLabel>(352 + (qeLayout ? 96 : 93) * leftRight, (qeLayout ? 22 : 35) + (qeLayout ? 26 : 36) * m, FONT_SMALL, CENTER, Colors::WHITE));
 
 
 		for(int m=0; m < hero->secSkills.size(); ++m)
-			secSkillIcons[leftRight].push_back(std::make_shared<CAnimImage>(SECSK32, 0, 0, 32 + 36 * m + 454 * leftRight, 88));
+			secSkillIcons[leftRight].push_back(std::make_shared<CAnimImage>(SECSK32, 0, 0, 32 + 36 * m + 454 * leftRight, qeLayout ? 83 : 88));
 
-		specImages[leftRight] = std::make_shared<CAnimImage>("UN32", hero->type->imageIndex, 0, 67 + 490 * leftRight, 45);
+		specImages[leftRight] = std::make_shared<CAnimImage>("UN32", hero->type->imageIndex, 0, 67 + 490 * leftRight, qeLayout ? 41 : 45);
 
-		expImages[leftRight] = std::make_shared<CAnimImage>(PSKIL32, 4, 0, 103 + 490 * leftRight, 45);
-		expValues[leftRight] = std::make_shared<CLabel>(119 + 490 * leftRight, 71, FONT_SMALL, CENTER, Colors::WHITE);
+		expImages[leftRight] = std::make_shared<CAnimImage>(PSKIL32, 4, 0, 103 + 490 * leftRight, qeLayout ? 41 : 45);
+		expValues[leftRight] = std::make_shared<CLabel>(119 + 490 * leftRight, qeLayout ? 66 : 71, FONT_SMALL, CENTER, Colors::WHITE);
 
-		manaImages[leftRight] = std::make_shared<CAnimImage>(PSKIL32, 5, 0, 139 + 490 * leftRight, 45);
-		manaValues[leftRight] = std::make_shared<CLabel>(155 + 490 * leftRight, 71, FONT_SMALL, CENTER, Colors::WHITE);
+		manaImages[leftRight] = std::make_shared<CAnimImage>(PSKIL32, 5, 0, 139 + 490 * leftRight, qeLayout ? 41 : 45);
+		manaValues[leftRight] = std::make_shared<CLabel>(155 + 490 * leftRight, qeLayout ? 66 : 71, FONT_SMALL, CENTER, Colors::WHITE);
 	}
 
 	portraits[0] = std::make_shared<CAnimImage>("PortraitsLarge", heroInst[0]->portrait, 0, 257, 13);
@@ -853,7 +1280,10 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	for(int g=0; g<4; ++g)
 	{
 		primSkillAreas.push_back(std::make_shared<LRClickableAreaWTextComp>());
-		primSkillAreas[g]->pos = genRect(32, 140, pos.x + 329, pos.y + 19 + 36 * g);
+		if (qeLayout)
+			primSkillAreas[g]->pos = genRect(22, 152, pos.x + 324, pos.y + 12 + 26 * g);
+		else
+			primSkillAreas[g]->pos = genRect(32, 140, pos.x + 329, pos.y + 19 + 36 * g);
 		primSkillAreas[g]->text = CGI->generaltexth->arraytxt[2+g];
 		primSkillAreas[g]->type = g;
 		primSkillAreas[g]->bonusValue = -1;
@@ -873,7 +1303,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 			int skill = hero->secSkills[g].first,
 				level = hero->secSkills[g].second; // <1, 3>
 			secSkillAreas[b].push_back(std::make_shared<LRClickableAreaWTextComp>());
-			secSkillAreas[b][g]->pos = genRect(32, 32, pos.x + 32 + g*36 + b*454 , pos.y + 88);
+			secSkillAreas[b][g]->pos = genRect(32, 32, pos.x + 32 + g*36 + b*454 , pos.y + (qeLayout ? 83 : 88));
 			secSkillAreas[b][g]->baseType = 1;
 
 			secSkillAreas[b][g]->type = skill;
@@ -888,12 +1318,12 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 		heroAreas[b] = std::make_shared<CHeroArea>(257 + 228*b, 13, hero);
 
 		specialtyAreas[b] = std::make_shared<LRClickableAreaWText>();
-		specialtyAreas[b]->pos = genRect(32, 32, pos.x + 69 + 490*b, pos.y + 45);
+		specialtyAreas[b]->pos = genRect(32, 32, pos.x + 69 + 490*b, pos.y + (qeLayout ? 41 : 45));
 		specialtyAreas[b]->hoverText = CGI->generaltexth->heroscrn[27];
 		specialtyAreas[b]->text = hero->type->specDescr;
 
 		experienceAreas[b] = std::make_shared<LRClickableAreaWText>();
-		experienceAreas[b]->pos = genRect(32, 32, pos.x + 105 + 490*b, pos.y + 45);
+		experienceAreas[b]->pos = genRect(32, 32, pos.x + 105 + 490*b, pos.y + (qeLayout ? 41 : 45));
 		experienceAreas[b]->hoverText = CGI->generaltexth->heroscrn[9];
 		experienceAreas[b]->text = CGI->generaltexth->allTexts[2];
 		boost::algorithm::replace_first(experienceAreas[b]->text, "%d", boost::lexical_cast<std::string>(hero->level));
@@ -901,7 +1331,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 		boost::algorithm::replace_first(experienceAreas[b]->text, "%d", boost::lexical_cast<std::string>(hero->exp));
 
 		spellPointsAreas[b] = std::make_shared<LRClickableAreaWText>();
-		spellPointsAreas[b]->pos = genRect(32, 32, pos.x + 141 + 490*b, pos.y + 45);
+		spellPointsAreas[b]->pos = genRect(32, 32, pos.x + 141 + 490*b, pos.y + (qeLayout ? 41 : 45));
 		spellPointsAreas[b]->hoverText = CGI->generaltexth->heroscrn[22];
 		spellPointsAreas[b]->text = CGI->generaltexth->allTexts[205];
 		boost::algorithm::replace_first(spellPointsAreas[b]->text, "%s", hero->name);
@@ -916,18 +1346,45 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	if(queryID.getNum() > 0)
 		quit->addCallback([=](){ LOCPLINT->cb->selectionMade(0, queryID); });
 
-	questlogButton[0] = std::make_shared<CButton>(Point( 10, 44), "hsbtns4.def", CButton::tooltip(CGI->generaltexth->heroscrn[0]), std::bind(&CExchangeWindow::questlog, this, 0));
-	questlogButton[1] = std::make_shared<CButton>(Point(740, 44), "hsbtns4.def", CButton::tooltip(CGI->generaltexth->heroscrn[0]), std::bind(&CExchangeWindow::questlog, this, 1));
+	questlogButton[0] = std::make_shared<CButton>(Point( 10, qeLayout ? 39 : 44), "hsbtns4.def", CButton::tooltip(CGI->generaltexth->heroscrn[0]), std::bind(&CExchangeWindow::questlog, this, 0));
+	questlogButton[1] = std::make_shared<CButton>(Point(740, qeLayout ? 39 : 44), "hsbtns4.def", CButton::tooltip(CGI->generaltexth->heroscrn[0]), std::bind(&CExchangeWindow::questlog, this, 1));
 
 	Rect barRect(5, 578, 725, 18);
 	statusbar = CGStatusBar::create(std::make_shared<CPicture>(*background, barRect, 5, 578, false));
 
 	//garrison interface
 
-	garr = std::make_shared<CGarrisonInt>(69, 131, 4, Point(418,0), heroInst[0], heroInst[1], true, true);
+	garr = std::make_shared<CGarrisonInt>(69, qeLayout ? 122 : 131, 4, Point(418,0), heroInst[0], heroInst[1], true, true);
 	auto splitButtonCallback = [&](){ garr->splitClick(); };
-	garr->addSplitBtn(std::make_shared<CButton>( Point( 10, 132), "TSBTNS.DEF", CButton::tooltip(CGI->generaltexth->tcommands[3]), splitButtonCallback));
-	garr->addSplitBtn(std::make_shared<CButton>( Point(740, 132), "TSBTNS.DEF", CButton::tooltip(CGI->generaltexth->tcommands[3]), splitButtonCallback));
+	garr->addSplitBtn(std::make_shared<CButton>( Point( 10, qeLayout ? 122 : 132), "TSBTNS.DEF", CButton::tooltip(CGI->generaltexth->tcommands[3]), splitButtonCallback));
+	garr->addSplitBtn(std::make_shared<CButton>( Point(744, qeLayout ? 122 : 132), "TSBTNS.DEF", CButton::tooltip(CGI->generaltexth->tcommands[3]), splitButtonCallback));
+
+	if (qeLayout && (CGI->generaltexth->qeModCommands.size() >= 5))
+	{
+		moveAllGarrButtonLeft    = std::make_shared<CButton>(Point(325, 118), QUICK_EXCHANGE_MOD_PREFIX + "/armRight.DEF", CButton::tooltip(CGI->generaltexth->qeModCommands[1]), controller.onMoveArmyToRight());
+		echangeGarrButton        = std::make_shared<CButton>(Point(377, 118), QUICK_EXCHANGE_MOD_PREFIX + "/swapAll.DEF", CButton::tooltip(CGI->generaltexth->qeModCommands[2]), controller.onSwapArmy());
+		moveAllGarrButtonRight   = std::make_shared<CButton>(Point(425, 118), QUICK_EXCHANGE_MOD_PREFIX + "/armLeft.DEF", CButton::tooltip(CGI->generaltexth->qeModCommands[1]), controller.onMoveArmyToLeft());
+		moveArtifactsButtonLeft  = std::make_shared<CButton>(Point(325, 154), QUICK_EXCHANGE_MOD_PREFIX + "/artRight.DEF", CButton::tooltip(CGI->generaltexth->qeModCommands[3]), controller.onMoveArtifactsToRight());
+		echangeArtifactsButton   = std::make_shared<CButton>(Point(377, 154), QUICK_EXCHANGE_MOD_PREFIX + "/swapAll.DEF", CButton::tooltip(CGI->generaltexth->qeModCommands[4]), controller.onSwapArtifacts());
+		moveArtifactsButtonRight = std::make_shared<CButton>(Point(425, 154), QUICK_EXCHANGE_MOD_PREFIX + "/artLeft.DEF", CButton::tooltip(CGI->generaltexth->qeModCommands[3]), controller.onMoveArtifactsToLeft());
+
+		for(int i = 0; i < GameConstants::ARMY_SIZE; i++)
+		{
+			moveStackLeftButtons.push_back(
+				std::make_shared<CButton>(
+					Point(484 + 35 * i, 154),
+					QUICK_EXCHANGE_MOD_PREFIX + "/unitLeft.DEF",
+					CButton::tooltip(CGI->generaltexth->qeModCommands[1]),
+					controller.onMoveStackToLeft(SlotID(i))));
+
+			moveStackRightButtons.push_back(
+				std::make_shared<CButton>(
+					Point(66 + 35 * i, 154),
+					QUICK_EXCHANGE_MOD_PREFIX + "/unitRight.DEF",
+					CButton::tooltip(CGI->generaltexth->qeModCommands[1]),
+					controller.onMoveStackToRight(SlotID(i))));
+		}
+	}
 
 	updateWidgets();
 }
@@ -936,6 +1393,11 @@ CExchangeWindow::~CExchangeWindow()
 {
 	artifs[0]->commonInfo = nullptr;
 	artifs[1]->commonInfo = nullptr;
+}
+
+const CGarrisonSlot * CExchangeWindow::getSelectedSlotID() const
+{
+	return garr->getSelection();
 }
 
 void CExchangeWindow::updateGarrisons()
@@ -1069,7 +1531,7 @@ void CPuzzleWindow::showAll(SDL_Surface * to)
 	Rect mapRect = genRect(544, 591, pos.x + 8, pos.y + 7);
 	int3 topTile = grailPos - moveInt;
 
-	MapDrawingInfo info(topTile, &LOCPLINT->cb->getVisibilityMap(), &mapRect);
+	MapDrawingInfo info(topTile, LOCPLINT->cb->getVisibilityMap(), &mapRect);
 	info.puzzleMode = true;
 	info.grailPos = grailPos;
 	CGI->mh->drawTerrainRectNew(to, &info);
@@ -1757,10 +2219,10 @@ void CObjectListWindow::CItem::clickLeft(tribool down, bool previousState)
 		parent->changeSelection(index);
 }
 
-CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback)
+CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection)
 	: CWindowObject(PLAYER_COLORED, "TPGATE"),
 	onSelect(Callback),
-	selected(0)
+	selected(initialSelection)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	items.reserve(_items.size());
@@ -1772,10 +2234,10 @@ CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::share
 	init(titleWidget_, _title, _descr);
 }
 
-CObjectListWindow::CObjectListWindow(const std::vector<std::string> & _items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback)
+CObjectListWindow::CObjectListWindow(const std::vector<std::string> & _items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection)
 	: CWindowObject(PLAYER_COLORED, "TPGATE"),
 	onSelect(Callback),
-	selected(0)
+	selected(initialSelection)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	items.reserve(_items.size());

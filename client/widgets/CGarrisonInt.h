@@ -11,13 +11,18 @@
 
 #include "../windows/CWindowObject.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
+class CArmedInstance;
+class CCreatureSet;
+class CStackInstance;
+
+VCMI_LIB_NAMESPACE_END
+
 class CGarrisonInt;
 class CButton;
-class CArmedInstance;
 class CAnimImage;
-class CCreatureSet;
 class CGarrisonSlot;
-class CStackInstance;
 class CLabel;
 
 /// A single garrison slot which holds one creature of a specific amount
@@ -45,18 +50,21 @@ class CGarrisonSlot : public CIntObject
 	bool mustForceReselection() const;
 
 	void setHighlight(bool on);
+	std::function<void()> getDismiss() const;
+
 public:
 	virtual void hover (bool on) override; //call-in
 	const CArmedInstance * getObj() const;
 	bool our() const;
+	SlotID getSlot() const { return ID; }
 	bool ally() const;
 	void clickRight(tribool down, bool previousState) override;
 	void clickLeft(tribool down, bool previousState) override;
 	void update();
 	CGarrisonSlot(CGarrisonInt *Owner, int x, int y, SlotID IID, EGarrisonType Upg=EGarrisonType::UP, const CStackInstance * creature_ = nullptr);
 
-	void splitIntoParts(EGarrisonType type, int amount, int maxOfSplittedSlots);
-	void handleSplittingShortcuts();
+	void splitIntoParts(EGarrisonType type, int amount);
+	bool handleSplittingShortcuts(); /// Returns true when some shortcut is pressed, false otherwise
 
 	friend class CGarrisonInt;
 };
@@ -70,6 +78,8 @@ class CGarrisonInt :public CIntObject
 	std::vector<std::shared_ptr<CGarrisonSlot>> availableSlots;  ///< Slots of upper and lower garrison
 
 	void createSlots();
+	bool checkSelected(const CGarrisonSlot * selected, TQuantity min = 0) const;
+
 public:
 	int interx;  ///< Space between slots
 	Point garOffset;  ///< Offset between garrisons (not used if only one hero)
@@ -83,12 +93,13 @@ public:
 		 owned[2];        ///< player Owns up or down army ([0] upper, [1] lower)
 
 	void selectSlot(CGarrisonSlot * slot); ///< @param slot null = deselect
-	const CGarrisonSlot * getSelection();
+	const CGarrisonSlot * getSelection() const;
 
 	void setSplittingMode(bool on);
 	bool getSplittingMode();
 
-	std::vector<CGarrisonSlot *> getEmptySlots(CGarrisonSlot::EGarrisonType type);
+	bool hasEmptySlot(CGarrisonSlot::EGarrisonType type) const;
+	SlotID getEmptySlot(CGarrisonSlot::EGarrisonType type) const;
 
 	const CArmedInstance * armedObjs[2];  ///< [0] is upper, [1] is down
 
@@ -99,6 +110,11 @@ public:
 
 	void splitClick();  ///< handles click on split button
 	void splitStacks(int amountLeft, int amountRight);  ///< TODO: comment me
+	void moveStackToAnotherArmy(const CGarrisonSlot * selected);
+	void bulkMoveArmy(const CGarrisonSlot * selected);
+	void bulkMergeStacks(const CGarrisonSlot * selected); // Gather all creatures of selected type to the selected slot from other hero/garrison slots
+	void bulkSplitStack(const CGarrisonSlot * selected); // Used to separate one-creature troops from main stack
+	void bulkSmartSplitStack(const CGarrisonSlot * selected);
 
 	/// Constructor
 	/// @param x, y Position

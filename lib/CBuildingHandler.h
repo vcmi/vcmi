@@ -11,8 +11,12 @@
 
 #include "GameConstants.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class DLL_LINKAGE CBuildingHandler
 {
 public:
 	static BuildingID campToERMU(int camp, int townType, std::set<BuildingID> builtBuildings);
 };
+
+VCMI_LIB_NAMESPACE_END

@@ -1,0 +1,45 @@
+{
+  "waterZone" :
+  {
+    "treasure" :
+    [
+        { "min" : 2000, "max" : 6000, "density" : 1 },
+        { "min" : 100, "max" : 1000, "density" : 5 }
+    ],
+    "shipyard" :
+    {
+      "value" : 3500
+    }
+  },
+  "mines" :
+  {
+    "extraResourcesLimit" : 3
+  },
+  "minGuardStrength" : 2000,
+  "defaultRoadType" : "pc", //pd - dirt, pg - gravel, pc - cobblestone
+  "secondaryRoadType": "pd",
+  "treasureValueLimit" : 20000, //generate pandora with gold for treasure above this limit
+  "prisons" :
+  {
+    "experience" : [0, 5000, 15000, 90000, 500000],
+    "value" : [2500, 5000, 10000, 20000, 30000],
+  },
+  "scrolls" :
+  {
+    "value" : [500, 2000, 3000, 4000, 5000],
+  },
+  "pandoras" :
+  {
+    "valueMultiplierGold" : 5000,
+    "valueMultiplierExperience" : 6000,
+    "valueMultiplierSpells" : 2500,
+    "valueSpellSchool" : 15000,
+    "valueSpell60" : 30000,
+    "creaturesValue" : [5000, 7000, 9000, 12000, 16000, 21000, 27000]
+  },
+  "quests" : 
+  {
+    "value" : [2000, 5333, 8666, 12000],
+    "rewardValue" : [5000, 10000, 15000, 20000]
+  }
+}

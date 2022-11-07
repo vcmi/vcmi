@@ -9,9 +9,10 @@
  */
 
 #include "StdInc.h"
-
 #include "CreditsScreen.h"
-#include "../mainmenu/CMainMenu.h"
+
+#include "CMainMenu.h"
+
 #include "../gui/CGuiHandler.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/ObjectLists.h"

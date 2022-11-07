@@ -28,5 +28,5 @@ extern "C" DLL_EXPORT void GetAiName(char * name)
 
 extern "C" DLL_EXPORT void GetNewAI(std::shared_ptr<CGlobalAI> & out)
 {
-	out = std::make_shared<AIGateway>();
+	out = std::make_shared<NKAI::AIGateway>();
 }

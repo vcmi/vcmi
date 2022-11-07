@@ -10,7 +10,6 @@
 // CMT.cpp : Defines the entry point for the console application.
 //
 #include "StdInc.h"
-#include <SDL_mixer.h>
 
 #include <boost/program_options.hpp>
 
@@ -59,6 +58,7 @@
 #include "gui/CAnimation.h"
 #include "../lib/serializer/Connection.h"
 #include "CServerHandler.h"
+#include "gui/NotificationHandler.h"
 
 #include <boost/asio.hpp>
 
@@ -104,7 +104,9 @@ static po::variables_map vm;
 
 //static bool setResolution = false; //set by event handling thread after resolution is adjusted
 
+#ifndef VCMI_IOS
 void processCommand(const std::string &message);
+#endif
 static void setScreenRes(int w, int h, int bpp, bool fullscreen, int displayIndex, bool resetVideo=true);
 void playIntro();
 static void mainLoop();
@@ -159,7 +161,7 @@ static void SDLLogCallback(void*           userdata,
 
 #if defined(VCMI_WINDOWS) && !defined(__GNUC__) && defined(VCMI_WITH_DEBUG_CONSOLE)
 int wmain(int argc, wchar_t* argv[])
-#elif defined(VCMI_APPLE) || defined(VCMI_ANDROID)
+#elif defined(VCMI_IOS) || defined(VCMI_ANDROID)
 int SDL_main(int argc, char *argv[])
 #else
 int main(int argc, char * argv[])
@@ -170,7 +172,7 @@ int main(int argc, char * argv[])
 	setenv("LANG", "C", 1);
 #endif
 
-#ifndef VCMI_ANDROID
+#if !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
 	// Correct working dir executable folder (not bundle folder) so we can use executable relative paths
 	boost::filesystem::current_path(boost::filesystem::system_complete(argv[0]).parent_path());
 #endif
@@ -217,22 +219,32 @@ int main(int argc, char * argv[])
 	if(vm.count("help"))
 	{
 		prog_help(opts);
+#ifdef VCMI_IOS
+		exit(0);
+#else
 		return 0;
+#endif
 	}
 	if(vm.count("version"))
 	{
 		prog_version();
+#ifdef VCMI_IOS
+		exit(0);
+#else
 		return 0;
+#endif
 	}
 
 	// Init old logging system and new (temporary) logging system
 	CStopWatch total, pomtime;
 	std::cout.flags(std::ios::unitbuf);
+#ifndef VCMI_IOS
 	console = new CConsoleHandler();
 	*console->cb = processCommand;
 	console->start();
+#endif
 
-	const bfs::path logPath = VCMIDirs::get().userCachePath() / "VCMI_Client_log.txt";
+	const bfs::path logPath = VCMIDirs::get().userLogsPath() / "VCMI_Client_log.txt";
 	logConfig = new CBasicLogConfigurator(logPath, console);
 	logConfig->configureDefault();
 	logGlobal->info(NAME);
@@ -380,27 +392,6 @@ int main(int argc, char * argv[])
 				logGlobal->info("\t%s", driverName);
 		}
 
-		config::CConfigHandler::GuiOptionsMap::key_type resPair((int)res["width"].Float(), (int)res["height"].Float());
-		if (conf.guiOptions.count(resPair) == 0)
-		{
-			// selected resolution was not found - complain & fallback to something that we do have.
-			logGlobal->error("Selected resolution %dx%d was not found!", resPair.first, resPair.second);
-			if (conf.guiOptions.empty())
-			{
-				logGlobal->error("Unable to continue - no valid resolutions found! Please reinstall VCMI to fix this");
-				exit(1);
-			}
-			else
-			{
-				Settings newRes = settings.write["video"]["screenRes"];
-				newRes["width"].Float()  = conf.guiOptions.begin()->first.first;
-				newRes["height"].Float() = conf.guiOptions.begin()->first.second;
-				conf.SetResolution((int)newRes["width"].Float(), (int)newRes["height"].Float());
-
-				logGlobal->error("Falling back to %dx%d", newRes["width"].Integer(), newRes["height"].Integer());
-			}
-		}
-
 		setScreenRes((int)res["width"].Float(), (int)res["height"].Float(), (int)video["bitsPerPixel"].Float(), video["fullscreen"].Bool(), (int)video["displayIndex"].Float());
 		logGlobal->info("\tInitializing screen: %d ms", pomtime.getDiff());
 	}
@@ -408,6 +399,7 @@ int main(int argc, char * argv[])
 	CCS = new CClientState();
 	CGI = new CGameInfo(); //contains all global informations about game (texts, lodHandlers, map handler etc.)
 	CSH = new CServerHandler();
+	
 	// Initialize video
 #ifdef DISABLE_VIDEO
 	CCS->videoh = new CEmptyVideoPlayer();
@@ -431,7 +423,7 @@ int main(int argc, char * argv[])
 		CCS->musich->setVolume((ui32)settings["general"]["music"].Float());
 		logGlobal->info("Initializing screen and sound handling: %d ms", pomtime.getDiff());
 	}
-#ifdef __APPLE__
+#ifdef VCMI_MAC
 	// Ctrl+click should be treated as a right click on Mac OS X
 	SDL_SetHint(SDL_HINT_MAC_CTRL_CLICK_EMULATE_RIGHT_CLICK, "1");
 #endif
@@ -508,6 +500,12 @@ int main(int argc, char * argv[])
 	{
 		GH.curInt = CMainMenu::create().get();
 	}
+	
+	// Restore remote session - start game immediately
+	if(settings["server"]["reconnect"].Bool())
+	{
+		CSH->restoreLastSession();
+	}
 
 	if(!settings["session"]["headless"].Bool())
 	{
@@ -566,6 +564,7 @@ void removeGUI()
 	LOCPLINT = nullptr;
 }
 
+#ifndef VCMI_IOS
 void processCommand(const std::string &message)
 {
 	std::istringstream readed;
@@ -707,6 +706,7 @@ void processCommand(const std::string &message)
 		std::cout << "\rExtracting done :)\n";
 		std::cout << " Extracted files can be found in " << outPath << " directory\n";
 	}
+#if SCRIPTING_ENABLED
 	else if(message=="get scripts")
 	{
 		std::cout << "Command accepted.\t";
@@ -729,6 +729,7 @@ void processCommand(const std::string &message)
 		std::cout << "\rExtracting done :)\n";
 		std::cout << " Extracted files can be found in " << outPath << " directory\n";
 	}
+#endif
 	else if(message=="get txt")
 	{
 		std::cout << "Command accepted.\t";
@@ -976,6 +977,7 @@ void processCommand(const std::string &message)
 		LOCPLINT->cb->sendMessage(message);
 	}*/
 }
+#endif
 
 //plays intro, ends when intro is over or button has been pressed (handles events)
 void playIntro()
@@ -986,6 +988,7 @@ void playIntro()
 	}
 }
 
+#ifndef VCMI_IOS
 static bool checkVideoMode(int monitorIndex, int w, int h)
 {
 	//we only check that our desired window size fits on screen
@@ -1007,6 +1010,7 @@ static bool checkVideoMode(int monitorIndex, int w, int h)
 
 	return false;
 }
+#endif
 
 static void cleanupRenderer()
 {
@@ -1046,39 +1050,105 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 		if (displayIndex < 0)
 			displayIndex = 0;
 	}
+#ifdef VCMI_IOS
+	SDL_GetWindowSize(mainWindow, &w, &h);
+#else
 	if(!checkVideoMode(displayIndex, w, h))
 	{
 		logGlobal->error("Error: SDL says that %dx%d resolution is not available!", w, h);
 		return false;
 	}
+#endif
 
 	bool bufOnScreen = (screenBuf == screen);
 	bool realFullscreen = settings["video"]["realFullscreen"].Bool();
+
+	/* match best rendering resolution */
+	int renderWidth = 0, renderHeight = 0;
+	auto aspectRatio = (float)w / (float)h;
+	auto minDiff = 10.f;
+	for (const auto& pair : conf.guiOptions)
+	{
+		int pWidth, pHeight;
+		std::tie(pWidth, pHeight) = pair.first;
+		/* filter out resolution which is larger than window */
+		if (pWidth > w || pHeight > h)
+		{
+			continue;
+		}
+		auto ratio = (float)pWidth / (float)pHeight;
+		auto diff = fabs(aspectRatio - ratio);
+		/* select closest aspect ratio */
+		if (diff < minDiff)
+		{
+			renderWidth = pWidth;
+			renderHeight = pHeight;
+			minDiff = diff;
+		}
+		/* select largest resolution meets prior conditions.
+		 * since there are resolutions like 1366x768(not exactly 16:9), a deviation of 0.005 is allowed. */
+		else if (fabs(diff - minDiff) < 0.005f && pWidth > renderWidth)
+		{
+			renderWidth = pWidth;
+			renderHeight = pHeight;
+		}
+	}
+	if (renderWidth == 0)
+	{
+		// no matching resolution for upscaling - complain & fallback to default resolution.
+		logGlobal->error("Failed to match rendering resolution for %dx%d!", w, h);
+		Settings newRes = settings.write["video"]["screenRes"];
+		std::tie(w, h) = conf.guiOptions.begin()->first;
+		newRes["width"].Float() = w;
+		newRes["height"].Float() = h;
+		conf.SetResolution(w, h);
+		logGlobal->error("Falling back to %dx%d", w, h);
+		renderWidth = w;
+		renderHeight = h;
+	}
+	else
+	{
+		logGlobal->info("Set logical rendering resolution to %dx%d", renderWidth, renderHeight);
+	}
 
 	cleanupRenderer();
 
 	if(nullptr == mainWindow)
 	{
+#if defined(VCMI_ANDROID) || defined(VCMI_IOS)
+		auto createWindow = [displayIndex](Uint32 extraFlags) -> bool {
+			mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex), 0, 0, SDL_WINDOW_FULLSCREEN | extraFlags);
+			return mainWindow != nullptr;
+		};
 
-	#ifdef VCMI_ANDROID
-		mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex),SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex), 0, 0, SDL_WINDOW_FULLSCREEN);
+# ifdef VCMI_IOS
+		SDL_SetHint(SDL_HINT_IOS_HIDE_HOME_INDICATOR, "1");
+		SDL_SetHint(SDL_HINT_RETURN_KEY_HIDES_IME, "1");
+		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "best");
 
-		// SDL on Android doesn't do proper letterboxing, and will show an annoying flickering in the blank space in case you're not using the full screen estate
+		Uint32 windowFlags = SDL_WINDOW_BORDERLESS | SDL_WINDOW_ALLOW_HIGHDPI;
+		if(!createWindow(windowFlags | SDL_WINDOW_METAL))
+		{
+			logGlobal->warn("Metal unavailable, using OpenGLES");
+			createWindow(windowFlags);
+		}
+# else
+		createWindow(0);
+# endif // VCMI_IOS
+
+		// SDL on mobile doesn't do proper letterboxing, and will show an annoying flickering in the blank space in case you're not using the full screen estate
 		// That's why we need to make sure our width and height we'll use below have the same aspect ratio as the screen itself to ensure we fill the full screen estate
 
 		SDL_Rect screenRect;
 
 		if(SDL_GetDisplayBounds(0, &screenRect) == 0)
 		{
-			int screenWidth, screenHeight;
-			double aspect;
+			const auto screenWidth = screenRect.w;
+			const auto screenHeight = screenRect.h;
 
-			screenWidth = screenRect.w;
-			screenHeight = screenRect.h;
+			const auto aspect = static_cast<double>(screenWidth) / screenHeight;
 
-			aspect = (double)screenWidth / (double)screenHeight;
-
-			logGlobal->info("Screen size and aspect ration: %dx%d (%lf)", screenWidth, screenHeight, aspect);
+			logGlobal->info("Screen size and aspect ratio: %dx%d (%lf)", screenWidth, screenHeight, aspect);
 
 			if((double)w / aspect > (double)h)
 			{
@@ -1095,21 +1165,20 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 		{
 			logGlobal->error("Can't fix aspect ratio for screen");
 		}
-	#else
-
+#else
 		if(fullscreen)
 		{
 			if(realFullscreen)
-				mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex), w, h, SDL_WINDOW_FULLSCREEN);
+				mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex), renderWidth, renderHeight, SDL_WINDOW_FULLSCREEN);
 			else //in windowed full-screen mode use desktop resolution
 				mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex),SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex), 0, 0, SDL_WINDOW_FULLSCREEN_DESKTOP);
-			SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+			SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "best");
 		}
 		else
 		{
 			mainWindow = SDL_CreateWindow(NAME.c_str(), SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex),SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex), w, h, 0);
 		}
-	#endif
+#endif // defined(VCMI_ANDROID) || defined(VCMI_IOS)
 
 		if(nullptr == mainWindow)
 		{
@@ -1132,7 +1201,7 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 	}
 	else
 	{
-#ifndef VCMI_ANDROID
+#if !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
 
 		if(fullscreen)
 		{
@@ -1142,8 +1211,8 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 
 				SDL_DisplayMode mode;
 				SDL_GetDesktopDisplayMode(displayIndex, &mode);
-				mode.w = w;
-				mode.h = h;
+				mode.w = renderWidth;
+				mode.h = renderHeight;
 
 				SDL_SetWindowDisplayMode(mainWindow, &mode);
 			}
@@ -1154,7 +1223,7 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 
 			SDL_SetWindowPosition(mainWindow, SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex));
 
-			SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+			SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "best");
 		}
 		else
 		{
@@ -1167,7 +1236,7 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 
 	if(!(fullscreen && realFullscreen))
 	{
-		SDL_RenderSetLogicalSize(mainRenderer, w, h);
+		SDL_RenderSetLogicalSize(mainRenderer, renderWidth, renderHeight);
 
 //following line is bugged not only on android, do not re-enable without checking
 //#ifndef VCMI_ANDROID
@@ -1190,10 +1259,10 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 		int amask = 0xFF000000;
 	#endif
 
-	screen = SDL_CreateRGBSurface(0,w,h,bpp,rmask,gmask,bmask,amask);
+	screen = SDL_CreateRGBSurface(0,renderWidth,renderHeight,bpp,rmask,gmask,bmask,amask);
 	if(nullptr == screen)
 	{
-		logGlobal->error("Unable to create surface %dx%d with %d bpp: %s", w, h, bpp, SDL_GetError());
+		logGlobal->error("Unable to create surface %dx%d with %d bpp: %s", renderWidth, renderHeight, bpp, SDL_GetError());
 		throw std::runtime_error("Unable to create surface");
 	}
 	//No blending for screen itself. Required for proper cursor rendering.
@@ -1202,7 +1271,7 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 	screenTexture = SDL_CreateTexture(mainRenderer,
 											SDL_PIXELFORMAT_ARGB8888,
 											SDL_TEXTUREACCESS_STREAMING,
-											w, h);
+											renderWidth, renderHeight);
 
 	if(nullptr == screenTexture)
 	{
@@ -1224,6 +1293,11 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 	SDL_SetRenderDrawColor(mainRenderer, 0, 0, 0, 0);
 	SDL_RenderClear(mainRenderer);
 	SDL_RenderPresent(mainRenderer);
+
+	if(!settings["session"]["headless"].Bool() && settings["general"]["notifications"].Bool())
+	{
+		NotificationHandler::init(mainWindow);
+	}
 
 	return true;
 }
@@ -1300,7 +1374,7 @@ static void handleEvent(SDL_Event & ev)
 			break;
 		case EUserEvent::RESTART_GAME:
 			{
-				CSH->sendStartGame();
+				CSH->sendRestartGame();
 			}
 			break;
 		case EUserEvent::CAMPAIGN_START_SCENARIO:
@@ -1350,10 +1424,19 @@ static void handleEvent(SDL_Event & ev)
 	{
 		switch (ev.window.event) {
 		case SDL_WINDOWEVENT_RESTORED:
+#ifndef VCMI_IOS
 			fullScreenChanged();
+#endif
 			break;
 		}
 		return;
+	}
+	else if(ev.type == SDL_SYSWMEVENT)
+	{
+		if(!settings["session"]["headless"].Bool() && settings["general"]["notifications"].Bool())
+		{
+			NotificationHandler::handleSdlEvent(ev);
+		}
 	}
 
 	//preprocessing
@@ -1430,6 +1513,11 @@ void handleQuit(bool ask)
 		boost::this_thread::sleep(boost::posix_time::milliseconds(750));//???
 		if(!settings["session"]["headless"].Bool())
 		{
+			if(settings["general"]["notifications"].Bool())
+			{
+				NotificationHandler::destroy();
+			}
+
 			cleanupRenderer();
 
 			if(nullptr != mainRenderer)

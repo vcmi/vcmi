@@ -9,17 +9,22 @@
  */
 #pragma once
 
+#include "CWindowObject.h"
 #include "../lib/GameConstants.h"
 #include "../lib/ResourceSet.h"
 #include "../lib/CConfigHandler.h"
 #include "../widgets/CArtifactHolder.h"
 #include "../widgets/CGarrisonInt.h"
 #include "../widgets/Images.h"
-#include "../windows/CWindowObject.h"
+
+VCMI_LIB_NAMESPACE_BEGIN
 
 class CGDwelling;
-class CreatureCostBox;
 class IMarket;
+
+VCMI_LIB_NAMESPACE_END
+
+class CreatureCostBox;
 class CCreaturePic;
 class MoraleLuckBox;
 class CHeroArea;
@@ -180,8 +185,8 @@ public:
 	/// Callback will be called when OK button is pressed, returns id of selected item. initState = initially selected item
 	/// Image can be nullptr
 	///item names will be taken from map objects
-	CObjectListWindow(const std::vector<int> &_items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback);
-	CObjectListWindow(const std::vector<std::string> &_items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback);
+	CObjectListWindow(const std::vector<int> &_items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection = 0);
+	CObjectListWindow(const std::vector<std::string> &_items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection = 0);
 
 	std::shared_ptr<CIntObject> genItem(size_t index);
 	void elementSelected();//call callback and close this window
@@ -280,6 +285,50 @@ public:
 	void show(SDL_Surface * to) override;
 };
 
+class CCallback;
+class CExchangeWindow;
+
+struct HeroArtifact
+{
+	const CGHeroInstance * hero;
+	const CArtifactInstance * artifact;
+	ArtifactPosition artPosition;
+
+	HeroArtifact(const CGHeroInstance * hero, const CArtifactInstance * artifact, ArtifactPosition artPosition)
+		:hero(hero), artifact(artifact), artPosition(artPosition)
+	{
+	}
+};
+
+class CExchangeController
+{
+private:
+	const CGHeroInstance * left;
+	const CGHeroInstance * right;
+	std::shared_ptr<CCallback> cb;
+	CExchangeWindow * view;
+
+public:
+	CExchangeController(CExchangeWindow * view, ObjectInstanceID hero1, ObjectInstanceID hero2);
+	std::function<void()> onMoveArmyToRight();
+	std::function<void()> onSwapArmy();
+	std::function<void()> onMoveArmyToLeft();
+	std::function<void()> onSwapArtifacts();
+	std::function<void()> onMoveArtifactsToLeft();
+	std::function<void()> onMoveArtifactsToRight();
+	std::function<void()> onMoveStackToLeft(SlotID slotID);
+	std::function<void()> onMoveStackToRight(SlotID slotID);
+
+private:
+	void moveArmy(bool leftToRight);
+	void moveArtifacts(bool leftToRight);
+	void moveArtifact(const CGHeroInstance * source, const CGHeroInstance * target, ArtifactPosition srcPosition);
+	void moveStack(const CGHeroInstance * source, const CGHeroInstance * target, SlotID sourceSlot);
+	void swapArtifacts(ArtifactPosition artPosition);
+	std::vector<HeroArtifact> moveCompositeArtsToBackpack();
+	void swapArtifacts();
+};
+
 class CExchangeWindow : public CStatusbarWindow, public CGarrisonHolder, public CWindowWithArtifacts
 {
 	std::array<std::shared_ptr<CHeroWithMaybePickedArtifact>, 2> herosWArt;
@@ -310,6 +359,15 @@ class CExchangeWindow : public CStatusbarWindow, public CGarrisonHolder, public 
 	std::array<std::shared_ptr<CButton>, 2> questlogButton;
 
 	std::shared_ptr<CGarrisonInt> garr;
+	std::shared_ptr<CButton> moveAllGarrButtonLeft;
+	std::shared_ptr<CButton> echangeGarrButton;
+	std::shared_ptr<CButton> moveAllGarrButtonRight;
+	std::shared_ptr<CButton> moveArtifactsButtonLeft;
+	std::shared_ptr<CButton> echangeArtifactsButton;
+	std::shared_ptr<CButton> moveArtifactsButtonRight;
+	std::vector<std::shared_ptr<CButton>> moveStackLeftButtons;
+	std::vector<std::shared_ptr<CButton>> moveStackRightButtons;
+	CExchangeController controller;
 
 public:
 	std::array<const CGHeroInstance *, 2> heroInst;
@@ -320,6 +378,8 @@ public:
 	void questlog(int whichHero); //questlog button callback; whichHero: 0 - left, 1 - right
 
 	void updateWidgets();
+
+	const CGarrisonSlot * getSelectedSlotID() const;
 
 	CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID queryID);
 	~CExchangeWindow();

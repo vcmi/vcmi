@@ -1,6 +1,4 @@
-if(NOT ${CMAKE_VERSION} VERSION_LESS "3.10.0")
-	include(GoogleTest)
-endif()
+include(GoogleTest)
 
 set(googleTest_Dir ${CMAKE_CURRENT_SOURCE_DIR}/googletest)
 if(EXISTS ${googleTest_Dir})
@@ -147,6 +145,9 @@ set(mock_HEADERS
 		mock/mock_CPSICallback.h
 )
 
+if(MSVC)
+	set(gtest_force_shared_crt ON CACHE BOOL "Use shared (DLL) run-time lib even when Google Test is built as static lib." FORCE)
+endif()
 add_subdirectory_with_folder("3rdparty" googletest EXCLUDE_FROM_ALL)
 
 add_executable(vcmitest ${test_SRCS} ${test_HEADERS} ${mock_HEADERS})
@@ -174,8 +175,7 @@ endif()
 
 vcmi_set_output_dir(vcmitest "")
 
-set_target_properties(vcmitest PROPERTIES ${PCH_PROPERTIES})
-cotire(vcmitest)
+enable_pch(vcmitest)
 
 file (GLOB_RECURSE testdata "testdata/*.*")
 foreach(resource ${testdata})

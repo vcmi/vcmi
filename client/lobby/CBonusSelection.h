@@ -10,14 +10,20 @@
 #pragma once
 #include "../windows/CWindowObject.h"
 
-struct SDL_Surface;
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CCampaignState;
+
+VCMI_LIB_NAMESPACE_END
+
+struct SDL_Surface;
 class CButton;
 class CTextBox;
 class CToggleGroup;
 class CAnimImage;
 class CLabel;
 class CFlagBox;
+class ISelectionScreenInfo;
 
 /// Campaign screen where you can choose one out of three starting bonuses
 class CBonusSelection : public CWindowObject

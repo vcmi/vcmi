@@ -55,16 +55,16 @@ end
 
 local SPECIAL_FIELDS = {}
 
-SPECIAL_FIELDS[0] = 0
-SPECIAL_FIELDS[22] = 1
-SPECIAL_FIELDS[9] = 2
-SPECIAL_FIELDS[18] = 3
-SPECIAL_FIELDS[20] = 4
-SPECIAL_FIELDS[19] = 5
-SPECIAL_FIELDS[17] = 6
-SPECIAL_FIELDS[14] = 7
-SPECIAL_FIELDS[15] = 8
-SPECIAL_FIELDS[16] = 9
+SPECIAL_FIELDS['sand_shore'] = 0
+SPECIAL_FIELDS['cursed_ground'] = 1
+SPECIAL_FIELDS['magic_plains'] = 2
+SPECIAL_FIELDS['holy_ground'] = 3
+SPECIAL_FIELDS['evil_fog'] = 4
+SPECIAL_FIELDS['clover_field'] = 5
+SPECIAL_FIELDS['lucid_pools'] = 6
+SPECIAL_FIELDS['fiery_fields'] = 7
+SPECIAL_FIELDS['rocklands'] = 8
+SPECIAL_FIELDS['magic_clouds'] = 9
 
 
 function BU:G(x, p1)

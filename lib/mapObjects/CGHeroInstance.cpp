@@ -32,6 +32,8 @@
 #include "../StringConstants.h"
 #include "../battle/Unit.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 
 ///helpers
 static void showInfoDialog(const PlayerColor playerID, const ui32 txtID, const ui16 soundID = 0)
@@ -51,16 +53,22 @@ static void showInfoDialog(const CGHeroInstance* h, const ui32 txtID, const ui16
 
 static int lowestSpeed(const CGHeroInstance * chi)
 {
+	static const CSelector selectorSTACKS_SPEED = Selector::type()(Bonus::STACKS_SPEED);
+	static const std::string keySTACKS_SPEED = "type_" + std::to_string((si32)Bonus::STACKS_SPEED);
+
 	if(!chi->stacksCount())
 	{
+		if(chi->commander && chi->commander->alive)
+		{
+			return chi->commander->valOfBonuses(selectorSTACKS_SPEED, keySTACKS_SPEED);
+		}
+
 		logGlobal->error("Hero %d (%s) has no army!", chi->id.getNum(), chi->name);
 		return 20;
 	}
+
 	auto i = chi->Slots().begin();
 	//TODO? should speed modifiers (eg from artifacts) affect hero movement?
-
-	static const CSelector selectorSTACKS_SPEED = Selector::type()(Bonus::STACKS_SPEED);
-	static const std::string keySTACKS_SPEED = "type_"+std::to_string((si32)Bonus::STACKS_SPEED);
 
 	int ret = (i++)->second->valOfBonuses(selectorSTACKS_SPEED, keySTACKS_SPEED);
 	for(; i != chi->Slots().end(); i++)
@@ -73,42 +81,24 @@ ui32 CGHeroInstance::getTileCost(const TerrainTile & dest, const TerrainTile & f
 	int64_t ret = GameConstants::BASE_MOVEMENT_COST;
 
 	//if there is road both on dest and src tiles - use road movement cost
-	if(dest.roadType != ERoadType::NO_ROAD && from.roadType != ERoadType::NO_ROAD)
+	if(dest.roadType->id && from.roadType->id)
 	{
-		int road = std::min(dest.roadType,from.roadType); //used road ID
-		switch(road)
-		{
-		case ERoadType::DIRT_ROAD:
-			ret = 75;
-			break;
-		case ERoadType::GRAVEL_ROAD:
-			ret = 65;
-			break;
-		case ERoadType::COBBLESTONE_ROAD:
-			ret = 50;
-			break;
-		default:
-			logGlobal->error("Unknown road type: %d", road);
-			break;
-		}
+		ret = std::max(dest.roadType->movementCost, from.roadType->movementCost);
 	}
-	else if(ti->nativeTerrain != from.terType //the terrain is not native
-		&& ti->nativeTerrain != ETerrainType::ANY_TERRAIN //no special creature bonus
-		&& !ti->hasBonusOfType(Bonus::NO_TERRAIN_PENALTY, from.terType) //no special movement bonus
-		)
+	else if(ti->nativeTerrain != from.terType->id &&//the terrain is not native
+			ti->nativeTerrain != Terrain::ANY_TERRAIN && //no special creature bonus
+			!ti->hasBonusOfType(Bonus::NO_TERRAIN_PENALTY, from.terType->id)) //no special movement bonus
 	{
-		static const CSelector selectorPATHFINDING = Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::PATHFINDING);
-		static const std::string keyPATHFINDING = "type_"+std::to_string((si32)Bonus::SECONDARY_SKILL_PREMY)+"s_"+std::to_string((si32)SecondarySkill::PATHFINDING);
 
-		ret = VLC->heroh->terrCosts[from.terType];
-		ret -= valOfBonuses(selectorPATHFINDING, keyPATHFINDING);
+		ret = VLC->heroh->terrCosts[from.terType->id];
+		ret -= ti->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::PATHFINDING);
 		if(ret < GameConstants::BASE_MOVEMENT_COST)
 			ret = GameConstants::BASE_MOVEMENT_COST;
 	}
 	return (ui32)ret;
 }
 
-ETerrainType::EETerrainType CGHeroInstance::getNativeTerrain() const
+TerrainId CGHeroInstance::getNativeTerrain() const
 {
 	// NOTE: in H3 neutral stacks will ignore terrain penalty only if placed as topmost stack(s) in hero army.
 	// This is clearly bug in H3 however intended behaviour is not clear.
@@ -116,18 +106,18 @@ ETerrainType::EETerrainType CGHeroInstance::getNativeTerrain() const
 	// will always have best penalty without any influence from player-defined stacks order
 
 	// TODO: What should we do if all hero stacks are neutral creatures?
-	ETerrainType::EETerrainType nativeTerrain = ETerrainType::BORDER;
+	TerrainId nativeTerrain = Terrain::BORDER;
 
 	for(auto stack : stacks)
 	{
-		ETerrainType::EETerrainType stackNativeTerrain = stack.second->type->getNativeTerrain(); //consider terrain bonuses e.g. Lodestar.
+		TerrainId stackNativeTerrain = stack.second->type->getNativeTerrain(); //consider terrain bonuses e.g. Lodestar.
 
-		if(stackNativeTerrain == ETerrainType::BORDER)
+		if(stackNativeTerrain == Terrain::BORDER) //where does this value come from?
 			continue;
-		if(nativeTerrain == ETerrainType::BORDER)
+		if(nativeTerrain == Terrain::BORDER)
 			nativeTerrain = stackNativeTerrain;
 		else if(nativeTerrain != stackNativeTerrain)
-			return ETerrainType::BORDER;
+			return Terrain::BORDER;
 	}
 	return nativeTerrain;
 }
@@ -145,6 +135,12 @@ int3 CGHeroInstance::convertPosition(int3 src, bool toh3m) //toh3m=true: manifes
 		return src;
 	}
 }
+
+BattleField CGHeroInstance::getBattlefield() const
+{
+	return BattleField::NONE;
+}
+
 int3 CGHeroInstance::getPosition(bool h3m) const //h3m=true - returns position of hero object; h3m=false - returns position of hero 'manifestation'
 {
 	if (h3m)
@@ -438,9 +434,8 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 	{
 		int txt_id;
 
-		if (cb->getHeroCount(h->tempOwner, false) < VLC->modh->settings.MAX_HEROES_ON_MAP_PER_PLAYER)//GameConstants::MAX_HEROES_PER_PLAYER) //free hero slot
+		if (cb->getHeroCount(h->tempOwner, false) < VLC->modh->settings.MAX_HEROES_ON_MAP_PER_PLAYER)//free hero slot
 		{
-			cb->changeObjPos(id,pos+int3(1,0,0),0);
 			//update hero parameters
 			SetMovePoints smp;
 			smp.hid = id;
@@ -520,9 +515,10 @@ void CGHeroInstance::initObj(CRandomGenerator & rand)
 
 	if (ID != Obj::PRISON)
 	{
-		auto customApp = VLC->objtypeh->getHandlerFor(ID, type->heroClass->getIndex())->getOverride(cb->gameState()->getTile(visitablePos())->terType, this);
+		auto terrain = cb->gameState()->getTile(visitablePos())->terType->id;
+		auto customApp = VLC->objtypeh->getHandlerFor(ID, type->heroClass->getIndex())->getOverride(terrain, this);
 		if (customApp)
-			appearance = customApp.get();
+			appearance = customApp;
 	}
 
 	//copy active (probably growing) bonuses from hero prototype to hero object
@@ -552,23 +548,6 @@ void CGHeroInstance::recreateSecondarySkillsBonuses()
 	for(auto skill_info : secSkills)
 		if(skill_info.second > 0)
 			updateSkillBonus(SecondarySkill(skill_info.first), skill_info.second);
-}
-
-void CGHeroInstance::recreateSpecialtyBonuses(std::vector<HeroSpecial *> & specialtyDeprecated)
-{
-	auto HeroSpecialToSpecialtyBonus = [](HeroSpecial & hs) -> SSpecialtyBonus
-	{
-		SSpecialtyBonus sb;
-		sb.growsWithLevel = hs.growsWithLevel;
-		sb.bonuses = hs.getBonusList();
-		return sb;
-	};
-
-	for(HeroSpecial * hs : specialtyDeprecated)
-	{
-		for(std::shared_ptr<Bonus> b : SpecialtyBonusToBonuses(HeroSpecialToSpecialtyBonus(*hs), type->ID.getNum()))
-			addNewBonus(b);
-	}
 }
 
 void CGHeroInstance::updateSkillBonus(SecondarySkill which, int val)
@@ -846,11 +825,10 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 				}
 				else
 				{
-					auto quality = [getCreatureID](std::shared_ptr<Bonus> pick) -> std::vector<int>
+					auto quality = [getCreatureID](std::shared_ptr<Bonus> pick) -> std::tuple<int, int, int>
 					{
 						const CCreature * c = VLC->creh->objects[getCreatureID(pick)];
-						std::vector<int> v = {c->level, static_cast<int>(c->cost.marketValue()), -pick->additionalInfo[1]};
-						return v;
+						return std::tuple<int, int, int> {c->level, static_cast<int>(c->cost.marketValue()), -pick->additionalInfo[1]};
 					};
 					if(quality(topPick) < quality(newPick))
 						topPick = newPick;
@@ -1408,6 +1386,11 @@ void CGHeroInstance::afterAddToMap(CMap * map)
 	if(ID == Obj::HERO)
 		map->heroesOnMap.push_back(this);
 }
+void CGHeroInstance::afterRemoveFromMap(CMap* map)
+{
+	if (ID == Obj::HERO)
+		vstd::erase_if_present(map->heroesOnMap, this);
+}
 
 void CGHeroInstance::setHeroTypeName(const std::string & identifier)
 {
@@ -1418,7 +1401,9 @@ void CGHeroInstance::setHeroTypeName(const std::string & identifier)
 		if(rawId)
 			subID = rawId.get();
 		else
-			subID = 0; //fallback to Orrin, throw error instead?
+		{
+			throw std::runtime_error("Couldn't resolve hero identifier " + identifier);
+		}
 	}
 }
 
@@ -1431,6 +1416,15 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 {
 	handler.serializeString("biography", biography);
 	handler.serializeInt("experience", exp, 0);
+
+	if (!handler.saving)
+	{
+		while (gainsLevel())
+		{
+			++level;
+		}
+	}
+
 	handler.serializeString("name", name);
 	handler.serializeBool<ui8>("female", sex, 1, 0, 0xFF);
 
@@ -1634,3 +1628,5 @@ bool CGHeroInstance::isMissionCritical() const
 	}
 	return false;
 }
+
+VCMI_LIB_NAMESPACE_END

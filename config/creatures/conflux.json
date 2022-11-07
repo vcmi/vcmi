@@ -31,6 +31,12 @@
 				"type" : "MORE_DAMAGE_FROM_SPELL",
 				"subtype" : "spell.chainLightning",
 				"val" : 100
+			},
+			"armageddonVulnerablity" :
+			{
+				"type" : "MORE_DAMAGE_FROM_SPELL",
+				"subtype" : "spell.armageddon",
+				"val" : 100
 			}
 		},
 		"upgrades": ["stormElemental"],
@@ -522,6 +528,12 @@
 			{
 				"type" : "MORE_DAMAGE_FROM_SPELL",
 				"subtype" : "spell.chainLightning",
+				"val" : 100
+			},
+			"armageddonVulnerablity" :
+			{
+				"type" : "MORE_DAMAGE_FROM_SPELL",
+				"subtype" : "spell.armageddon",
 				"val" : 100
 			}
 		},

@@ -160,6 +160,12 @@ QVariant CModListModel::headerData(int section, Qt::Orientation orientation, int
 	return QVariant();
 }
 
+void CModListModel::reloadRepositories()
+{
+	beginResetModel();
+	endResetModel();
+}
+
 void CModListModel::resetRepositories()
 {
 	beginResetModel();
@@ -239,6 +245,7 @@ bool CModFilterModel::filterMatchesThis(const QModelIndex & source) const
 {
 	CModEntry mod = base->getMod(source.data(ModRoles::ModNameRole).toString());
 	return (mod.getModStatus() & filterMask) == filteredType &&
+			mod.isValid() &&
 	       QSortFilterProxyModel::filterAcceptsRow(source.row(), source.parent());
 }
 
@@ -253,7 +260,7 @@ bool CModFilterModel::filterAcceptsRow(int source_row, const QModelIndex & sourc
 
 	for(size_t i = 0; i < base->rowCount(index); i++)
 	{
-		if(filterMatchesThis(index.child((int)i, 0)))
+		if(filterMatchesThis(base->index((int)i, 0, index)))
 			return true;
 	}
 

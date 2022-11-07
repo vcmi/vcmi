@@ -26,7 +26,11 @@
 #include "../../lib/CondSh.h"
 #include "Pathfinding/AIPathfinder.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 struct QuestInfo;
+
+VCMI_LIB_NAMESPACE_END
 
 class AIhelper;
 
@@ -153,7 +157,7 @@ public:
 	void finish() override;
 
 	void availableCreaturesChanged(const CGDwelling * town) override;
-	void heroMoved(const TryMoveHero & details) override;
+	void heroMoved(const TryMoveHero & details, bool verbose = true) override;
 	void heroInGarrisonChange(const CGTownInstance * town) override;
 	void centerView(int3 pos, int focusTime) override;
 	void tileHidden(const std::unordered_set<int3, ShashInt3> & pos) override;
@@ -347,11 +351,6 @@ public:
 		h & visitableObjs;
 		h & alreadyVisited;
 		h & reservedObjs;
-		if (version < 788 && !h.saving)
-		{
-			TResources saving;
-			h & saving; //mind the ambiguity
-		}
 		h & status;
 		h & battlename;
 		h & heroesUnableToExplore;

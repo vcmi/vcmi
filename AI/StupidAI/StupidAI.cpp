@@ -45,8 +45,9 @@ void CStupidAI::actionStarted(const BattleAction &action)
 	print("actionStarted called");
 }
 
-struct EnemyInfo
+class EnemyInfo
 {
+public:
 	const CStack * s;
 	int adi, adr;
 	std::vector<BattleHex> attackFrom; //for melee fight

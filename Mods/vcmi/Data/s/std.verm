@@ -1,0 +1,40 @@
+VERM
+; standard verm file, global engine things should be put here
+
+!?PI;
+; example 1 --- Hello World
+![print ^Hello world!^]
+
+; example 2 --- simple arithmetics
+![defun add [x y] [+ x y]]
+![print [add 2 3]]
+
+; example 3 --- semantic macros
+![defmacro do-n-times [times body]
+	`[progn
+		[setq do-counter 0]
+		[setq do-max ,times]
+		[do [< do-counter do-max]
+			[progn 
+				[setq do-counter [+ do-counter 1]]
+				,body
+			]
+		]
+	]
+]
+![do-n-times 4 [print ^tekst\n^]]
+
+
+; example 4 --- conditional expression
+![if [> 2 1] [print ^Wieksze^] [print ^Mniejsze^]]
+
+; example 5 --- lambda expressions
+![[lambda [x y] [if [> x y] [print ^wieksze^] [print ^mniejsze^]]] 2 3]
+
+; example 6 --- resursion
+![defun factorial [n]
+	[if [= n 0] 1
+		[* n [factorial [- n 1]]]
+	]
+]
+![print [factorial 8]]

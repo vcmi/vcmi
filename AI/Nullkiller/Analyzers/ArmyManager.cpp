@@ -14,6 +14,8 @@
 #include "../../../CCallback.h"
 #include "../../../lib/mapObjects/MapObjects.h"
 
+namespace NKAI
+{
 class StackUpgradeInfo
 {
 public:
@@ -204,7 +206,6 @@ std::shared_ptr<CCreatureSet> ArmyManager::getArmyAvailableToBuyAsCCreatureSet(
 	TResources availableRes) const
 {
 	std::vector<creInfo> creaturesInDwellings;
-	int freeHeroSlots = GameConstants::ARMY_SIZE;
 	auto army = std::make_shared<TemporaryArmy>();
 
 	for(int i = dwelling->creatures.size() - 1; i >= 0; i--)
@@ -497,4 +498,6 @@ ArmyUpgradeInfo ArmyManager::calculateCreaturesUpgrade(
 	}
 
 	return result;
+}
+
 }

@@ -28,6 +28,8 @@
 #include "StartInfo.h"
 #include "CPlayerState.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 
 DLL_LINKAGE void SetResources::applyGs(CGameState *gs)
 {
@@ -177,8 +179,9 @@ DLL_LINKAGE void SetMovePoints::applyGs(CGameState *gs)
 DLL_LINKAGE void FoWChange::applyGs(CGameState *gs)
 {
 	TeamState * team = gs->getPlayerTeam(player);
+	auto fogOfWarMap = team->fogOfWarMap;
 	for(int3 t : tiles)
-		team->fogOfWarMap[t.x][t.y][t.z] = mode;
+		(*fogOfWarMap)[t.z][t.x][t.y] = mode;
 	if (mode == 0) //do not hide too much
 	{
 		std::unordered_set<int3, ShashInt3> tilesRevealed;
@@ -200,7 +203,7 @@ DLL_LINKAGE void FoWChange::applyGs(CGameState *gs)
 			}
 		}
 		for(int3 t : tilesRevealed) //probably not the most optimal solution ever
-			team->fogOfWarMap[t.x][t.y][t.z] = 1;
+			(*fogOfWarMap)[t.z][t.x][t.y] = 1;
 	}
 }
 
@@ -359,6 +362,19 @@ DLL_LINKAGE void PlayerEndsGame::applyGs(CGameState *gs)
 	else
 	{
 		p->status = EPlayerStatus::LOSER;
+	}
+}
+
+DLL_LINKAGE void PlayerReinitInterface::applyGs(CGameState *gs)
+{
+	if(!gs || !gs->scenarioOps)
+		return;
+	
+	//TODO: what does mean if more that one player connected?
+	if(playerConnectionId == PlayerSettings::PLAYER_AI)
+	{
+		for(auto player : players)
+			gs->scenarioOps->getIthPlayersSettings(player).connectedPlayerIDs.clear();
 	}
 }
 
@@ -561,8 +577,9 @@ void TryMoveHero::applyGs(CGameState *gs)
 		gs->map->addBlockVisTiles(h);
 	}
 
+	auto fogOfWarMap = gs->getPlayerTeam(h->getOwner())->fogOfWarMap;
 	for(int3 t : fowRevealed)
-		gs->getPlayerTeam(h->getOwner())->fogOfWarMap[t.x][t.y][t.z] = 1;
+		(*fogOfWarMap)[t.z][t.x][t.y] = 1;
 }
 
 DLL_LINKAGE void NewStructures::applyGs(CGameState *gs)
@@ -699,21 +716,22 @@ DLL_LINKAGE void GiveHero::applyGs(CGameState *gs)
 
 DLL_LINKAGE void NewObject::applyGs(CGameState *gs)
 {
-	ETerrainType terrainType;
+	TerrainId terrainType = Terrain::BORDER;
 
 	if(ID == Obj::BOAT && !gs->isInTheMap(pos)) //special handling for bug #3060 - pos outside map but visitablePos is not
 	{
 		CGObjectInstance testObject = CGObjectInstance();
 		testObject.pos = pos;
-		testObject.appearance = VLC->objtypeh->getHandlerFor(ID, subID)->getTemplates(ETerrainType::WATER).front();
+		testObject.appearance = VLC->objtypeh->getHandlerFor(ID, subID)->getTemplates(Terrain::WATER).front();
 
 		const int3 previousXAxisTile = int3(pos.x - 1, pos.y, pos.z);
 		assert(gs->isInTheMap(previousXAxisTile) && (testObject.visitablePos() == previousXAxisTile));
+		UNUSED(previousXAxisTile);
 	}
 	else
 	{
 		const TerrainTile & t = gs->map->getTile(pos);
-		terrainType = t.terType;
+		terrainType = t.terType->id;
 	}
 
 	CGObjectInstance *o = nullptr;
@@ -721,7 +739,7 @@ DLL_LINKAGE void NewObject::applyGs(CGameState *gs)
 	{
 	case Obj::BOAT:
 		o = new CGBoat();
-		terrainType = ETerrainType::WATER; //TODO: either boat should only spawn on water, or all water objects should be handled this way
+		terrainType = Terrain::WATER; //TODO: either boat should only spawn on water, or all water objects should be handled this way
 		break;
 	case Obj::MONSTER: //probably more options will be needed
 		o = new CGCreature();
@@ -913,10 +931,8 @@ DLL_LINKAGE void SwapStacks::applyGs(CGameState * gs)
 
 DLL_LINKAGE void InsertNewStack::applyGs(CGameState *gs)
 {
-	auto s = new CStackInstance(type, count);
-	auto obj = gs->getArmyInstance(army);
-	if(obj)
-		obj->putStack(slot, s);
+	if(auto obj = gs->getArmyInstance(army))
+		obj->putStack(slot, new CStackInstance(type, count));
 	else
 		logNetwork->error("[CRITICAL] InsertNewStack: invalid army object %d, possible game state corruption.", army.getNum());
 }
@@ -1018,6 +1034,21 @@ DLL_LINKAGE void RebalanceStacks::applyGs(CGameState * gs)
 	}
 
 	CBonusSystemNode::treeHasChanged();
+}
+
+DLL_LINKAGE void BulkRebalanceStacks::applyGs(CGameState * gs)
+{
+	for(auto & move : moves)
+		move.applyGs(gs);
+}
+
+DLL_LINKAGE void BulkSmartRebalanceStacks::applyGs(CGameState * gs)
+{
+	for(auto & move : moves)
+		move.applyGs(gs);
+
+	for(auto & change : changes)
+		change.applyGs(gs);
 }
 
 DLL_LINKAGE void PutArtifact::applyGs(CGameState *gs)
@@ -1680,3 +1711,5 @@ DLL_LINKAGE void EntitiesChanged::applyGs(CGameState * gs)
 	for(const auto & change : changes)
 		gs->updateEntity(change.metatype, change.entityIndex, change.data);
 }
+
+VCMI_LIB_NAMESPACE_END

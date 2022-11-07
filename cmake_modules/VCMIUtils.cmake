@@ -124,3 +124,26 @@ function(vcmi_print_git_commit_hash)
 	message(STATUS "-- -- End of Git information")
 
 endfunction()
+
+#install imported target on windows
+function(install_vcpkg_imported_tgt tgt)
+	get_target_property(TGT_LIB_LOCATION ${tgt} LOCATION)
+	get_filename_component(TGT_LIB_FOLDER ${TGT_LIB_LOCATION} PATH)
+	get_filename_component(tgt_name ${TGT_LIB_LOCATION} NAME_WE)
+	get_filename_component(TGT_DLL ${TGT_LIB_FOLDER}/../bin/${tgt_name}.dll ABSOLUTE)
+	message("${tgt_name}: ${TGT_DLL}")
+	install(FILES ${TGT_DLL} DESTINATION ${BIN_DIR})
+endfunction(install_vcpkg_imported_tgt)
+
+# install dependencies from Conan, install_dir should contain \${CMAKE_INSTALL_PREFIX}
+function(vcmi_install_conan_deps install_dir)
+	if(NOT USING_CONAN)
+		return()
+	endif()
+	install(CODE "
+		execute_process(COMMAND
+			conan imports \"${CMAKE_SOURCE_DIR}\" --install-folder \"${CONAN_INSTALL_FOLDER}\" --import-folder \"${install_dir}\"
+		)
+		file(REMOVE \"${install_dir}/conan_imports_manifest.txt\")
+	")
+endfunction()

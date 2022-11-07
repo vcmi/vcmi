@@ -29,7 +29,11 @@
 
 extern FuzzyHelper * fh;
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CGVisitableOPW;
+
+VCMI_LIB_NAMESPACE_END
 
 const double SAFE_ATTACK_CONSTANT = 1.5;
 
@@ -89,7 +93,7 @@ void VCAI::availableCreaturesChanged(const CGDwelling * town)
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::heroMoved(const TryMoveHero & details)
+void VCAI::heroMoved(const TryMoveHero & details, bool verbose)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
@@ -99,8 +103,8 @@ void VCAI::heroMoved(const TryMoveHero & details)
 
 	const int3 from = CGHeroInstance::convertPosition(details.start, false);
 	const int3 to = CGHeroInstance::convertPosition(details.end, false);
-	const CGObjectInstance * o1 = vstd::frontOrNull(cb->getVisitableObjs(from));
-	const CGObjectInstance * o2 = vstd::frontOrNull(cb->getVisitableObjs(to));
+	const CGObjectInstance * o1 = vstd::frontOrNull(cb->getVisitableObjs(from, verbose));
+	const CGObjectInstance * o2 = vstd::frontOrNull(cb->getVisitableObjs(to, verbose));
 
 	if(details.result == TryMoveHero::TELEPORTATION)
 	{
@@ -1316,6 +1320,8 @@ bool VCAI::canRecruitAnyHero(const CGTownInstance * t) const
 	if(cb->getResourceAmount(Res::GOLD) < GameConstants::HERO_GOLD_COST) //TODO: use ResourceManager
 		return false;
 	if(cb->getHeroesInfo().size() >= ALLOWED_ROAMING_HEROES)
+		return false;
+	if(cb->getHeroesInfo().size() >= VLC->modh->settings.MAX_HEROES_ON_MAP_PER_PLAYER)
 		return false;
 	if(!cb->getAvailableHeroes(t).size())
 		return false;

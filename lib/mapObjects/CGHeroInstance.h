@@ -1,4 +1,4 @@
-﻿/*
+/*
  * CGHeroInstance.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
@@ -16,6 +16,8 @@
 
 #include "../CArtHandler.h" // For CArtifactSet
 #include "../CRandomGenerator.h"
+
+VCMI_LIB_NAMESPACE_BEGIN
 
 class CHero;
 class CGBoat;
@@ -89,15 +91,7 @@ public:
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
 			h & patrolling;
-			if(version >= 755) //save format backward compatibility
-			{
-				h & initialPos;
-			}
-			else if(!h.saving)
-			{
-				patrolling = false;
-				initialPos = int3();
-			}
+			h & initialPos;
 			h & patrolRadius;
 		}
 	} patrol;
@@ -163,7 +157,7 @@ public:
 	bool needsLastStack()const override;
 
 	ui32 getTileCost(const TerrainTile &dest, const TerrainTile &from, const TurnInfo * ti) const; //move cost - applying pathfinding skill, road and terrain modifiers. NOT includes diagonal move penalty, last move levelling
-	ETerrainType::EETerrainType getNativeTerrain() const;
+	TerrainId getNativeTerrain() const;
 	ui32 getLowestCreatureSpeed() const;
 	int3 getPosition(bool h3m = false) const; //h3m=true - returns position of hero object; h3m=false - returns position of hero 'manifestation'
 	si32 manaRegain() const; //how many points of mana can hero regain "naturally" in one day
@@ -276,8 +270,11 @@ public:
 	std::string getObjectName() const override;
 
 	void afterAddToMap(CMap * map) override;
+	void afterRemoveFromMap(CMap * map) override;
 
 	void updateFrom(const JsonNode & data) override;
+
+	BattleField getBattlefield() const override;
 protected:
 	void setPropertyDer(ui8 what, ui32 val) override;//synchr
 	///common part of hero instance and hero definition
@@ -287,7 +284,6 @@ protected:
 
 private:
 	void levelUpAutomatically(CRandomGenerator & rand);
-	void recreateSpecialtyBonuses(std::vector<HeroSpecial*> & specialtyDeprecated);
 
 public:
 	std::string getHeroTypeName() const;
@@ -316,18 +312,10 @@ public:
 		h & visitedTown;
 		h & boat;
 		h & type;
-		if(version < 781)
-		{
-			std::vector<HeroSpecial*> specialtyDeprecated;
-			h & specialtyDeprecated;
-			if(!h.saving)
-				recreateSpecialtyBonuses(specialtyDeprecated);
-		}
 		h & commander;
 		h & visitedObjects;
 		BONUS_TREE_DESERIALIZATION_FIX
-		//visitied town pointer will be restored by map serialization method
-		if(version < 777 && !h.saving)
-			recreateSecondarySkillsBonuses();
 	}
 };
+
+VCMI_LIB_NAMESPACE_END

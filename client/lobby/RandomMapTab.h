@@ -14,7 +14,12 @@
 #include "../../lib/FunctionList.h"
 #include "../../lib/GameConstants.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CMapGenOptions;
+
+VCMI_LIB_NAMESPACE_END
+
 class CToggleButton;
 class CLabel;
 class CLabelGroup;

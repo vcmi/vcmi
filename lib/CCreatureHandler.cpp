@@ -16,10 +16,13 @@
 #include "CGameState.h"
 #include "CTownHandler.h"
 #include "CModHandler.h"
+#include "Terrain.h"
 #include "StringConstants.h"
 #include "serializer/JsonDeserializer.h"
 #include "serializer/JsonUpdater.h"
 #include "mapObjects/CObjectClassesHandler.h"
+
+VCMI_LIB_NAMESPACE_BEGIN
 
 int32_t CCreature::getIndex() const
 {
@@ -282,19 +285,22 @@ std::string CCreature::nodeName() const
 	return "\"" + namePl + "\"";
 }
 
-bool CCreature::isItNativeTerrain(ETerrainType::EETerrainType terrain) const
+bool CCreature::isItNativeTerrain(TerrainId terrain) const
 {
 	auto native = getNativeTerrain();
-	return native == terrain || native == ETerrainType::ANY_TERRAIN;
+	return native == terrain || native == Terrain::ANY_TERRAIN;
 }
 
-ETerrainType::EETerrainType CCreature::getNativeTerrain() const
+TerrainId CCreature::getNativeTerrain() const
 {
+	const std::string cachingStringNoTerrainPenalty = "type_NO_TERRAIN_PENALTY";
+	static const auto selectorNoTerrainPenalty = Selector::type()(Bonus::NO_TERRAIN_PENALTY);
+
 	//this code is used in the CreatureTerrainLimiter::limit to setup battle bonuses
 	//and in the CGHeroInstance::getNativeTerrain() to setup mevement bonuses or/and penalties.
-	return hasBonusOfType(Bonus::NO_TERRAIN_PENALTY) ?
-		ETerrainType::ANY_TERRAIN
-		: (ETerrainType::EETerrainType)(*VLC->townh)[faction]->nativeTerrain;
+	return hasBonus(selectorNoTerrainPenalty, selectorNoTerrainPenalty)
+		? Terrain::ANY_TERRAIN
+		: (*VLC->townh)[faction]->nativeTerrain;
 }
 
 void CCreature::updateFrom(const JsonNode & data)
@@ -606,9 +612,6 @@ CCreature * CCreatureHandler::loadFromJson(const std::string & scope, const Json
 
 	if(!node["shots"].isNull())
 		cre->addBonus(node["shots"].Integer(), Bonus::SHOTS);
-
-	if(!node["spellPoints"].isNull())
-		cre->addBonus(node["spellPoints"].Integer(), Bonus::CASTS);
 
 	loadStackExperience(cre, node["stackExperience"]);
 	loadJsonAnimation(cre, node["graphics"]);
@@ -1229,7 +1232,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 	{
 		if (b.type != Bonus::REBIRTH)
 			b.val = 0; //on-off ability, no value specified
-		curVal = static_cast<si32>(parser.readNumber());// 0 level is never active
+		parser.readNumber(); // 0 level is never active
 		for (int i = 1; i < 11; ++i)
 		{
 			curVal = static_cast<si32>(parser.readNumber());
@@ -1337,11 +1340,6 @@ void CCreatureHandler::removeBonusesFromAllCreatures()
 	allCreatures.removeBonuses(Selector::all);
 }
 
-void CCreatureHandler::restoreAllCreaturesNodeType794()
-{
-	allCreatures.setNodeType(CBonusSystemNode::ENodeTypes::ALL_CREATURES);
-}
-
 void CCreatureHandler::buildBonusTreeForTiers()
 {
 	for(CCreature * c : objects)
@@ -1364,3 +1362,5 @@ void CCreatureHandler::deserializationFix()
 {
 	buildBonusTreeForTiers();
 }
+
+VCMI_LIB_NAMESPACE_END

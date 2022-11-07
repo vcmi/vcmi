@@ -12,6 +12,7 @@
 #include "ISpellMechanics.h"
 
 #include "../CRandomGenerator.h"
+#include "../VCMI_Lib.h"
 
 #include "../HeroBonus.h"
 #include "../battle/CBattleInfoCallback.h"
@@ -39,6 +40,9 @@
 
 #include "../CHeroHandler.h"//todo: remove
 #include "../IGameCallback.h"//todo: remove
+#include "../BattleFieldHandler.h"
+
+VCMI_LIB_NAMESPACE_BEGIN
 
 namespace spells
 {
@@ -488,6 +492,7 @@ bool BaseMechanics::adaptGenericProblem(Problem & target) const
 	MetaString text;
 	// %s recites the incantations but they seem to have no effect.
 	text.addTxt(MetaString::GENERAL_TXT, 541);
+	assert(caster);
 	caster->getCasterName(text);
 
 	target.add(std::move(text), spells::Problem::NORMAL);
@@ -520,7 +525,7 @@ bool BaseMechanics::adaptProblem(ESpellCastProblem::ESpellCastProblem source, Pr
 				caster->getCasterName(text);
 				target.add(std::move(text), spells::Problem::NORMAL);
 			}
-			else if(b && b->source == Bonus::TERRAIN_OVERLAY && b->sid == BFieldType::CURSED_GROUND)
+			else if(b && b->source == Bonus::TERRAIN_OVERLAY && VLC->battlefields()->getByIndex(b->sid)->identifier == "cursed_ground")
 			{
 				text.addTxt(MetaString::GENERAL_TXT, 537);
 				target.add(std::move(text), spells::Problem::NORMAL);
@@ -718,10 +723,12 @@ const CreatureService * BaseMechanics::creatures() const
 	return VLC->creatures(); //todo: redirect
 }
 
+#if SCRIPTING_ENABLED
 const scripting::Service * BaseMechanics::scripts() const
 {
 	return VLC->scripts(); //todo: redirect
 }
+#endif
 
 const Service * BaseMechanics::spells() const
 {
@@ -769,6 +776,8 @@ std::unique_ptr<IAdventureSpellMechanics> IAdventureSpellMechanics::createMechan
 	case SpellID::VIEW_AIR:
 		return make_unique<ViewAirMechanics>(s);
 	default:
-		return std::unique_ptr<IAdventureSpellMechanics>();
+		return s->combat ? std::unique_ptr<IAdventureSpellMechanics>() : make_unique<AdventureSpellMechanics>(s);
 	}
 }
+
+VCMI_LIB_NAMESPACE_END

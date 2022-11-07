@@ -69,7 +69,25 @@ void CQuery::addPlayer(PlayerColor color)
 
 std::string CQuery::toString() const
 {
-	std::string ret = boost::str(boost::format("A query of type %s and qid=%d affecting players %s") % typeid(*this).name() % queryID % formatContainer(players));
+	const auto size = players.size();
+	const std::string plural = size > 1 ? "s" : "";
+	std::string names;
+
+	for(size_t i = 0; i < size; i++)
+	{
+		names += boost::to_upper_copy<std::string>(players[i].getStr());
+
+		if(i < size - 2)
+			names += ", ";
+		else if(size > 1 && i == size - 2)
+			names += " and ";
+	}
+	std::string ret = boost::str(boost::format("A query of type '%s' and qid = %d affecting player%s %s")
+		% typeid(*this).name()
+		% queryID 
+		% plural
+		% names
+	);
 	return ret;
 }
 
@@ -326,6 +344,18 @@ bool CGarrisonDialogQuery::blocksPack(const CPack * pack) const
 
 	if(auto stacks = dynamic_ptr_cast<ArrangeStacks>(pack))
 		return !vstd::contains(ourIds, stacks->id1) || !vstd::contains(ourIds, stacks->id2);
+
+	if(auto stacks = dynamic_ptr_cast<BulkSplitStack>(pack))
+		return !vstd::contains(ourIds, stacks->srcOwner);
+
+	if(auto stacks = dynamic_ptr_cast<BulkMergeStacks>(pack))
+		return !vstd::contains(ourIds, stacks->srcOwner);
+
+	if(auto stacks = dynamic_ptr_cast<BulkSmartSplitStack>(pack))
+		return !vstd::contains(ourIds, stacks->srcOwner);
+
+	if(auto stacks = dynamic_ptr_cast<BulkMoveArmy>(pack))
+		return !vstd::contains(ourIds, stacks->srcArmy) || !vstd::contains(ourIds, stacks->destArmy);
 
 	if(auto arts = dynamic_ptr_cast<ExchangeArtifacts>(pack))
 	{

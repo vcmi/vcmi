@@ -9,6 +9,8 @@
  */
 #pragma once
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 /// Class which consists of three integer values. Represents position on adventure map.
 class int3
 {
@@ -158,11 +160,11 @@ public:
 	//returns "(x y z)" string
 	std::string toString() const
 	{
-		std::string result("(");
-		result += boost::lexical_cast<std::string>(x); result += ' ';
-		result += boost::lexical_cast<std::string>(y); result += ' ';
-		result += boost::lexical_cast<std::string>(z); result += ')';
-		return result;
+		//Performance is important here
+		char str[16] = {};
+		std::sprintf(str, "(%d %d %d)", x, y, z);
+
+		return std::string(str);
 	}
 
 	bool valid() const //Should be named "isValid"?
@@ -216,3 +218,5 @@ int3 findClosestTile (Container & container, int3 dest)
 	}
 	return result;
 }
+
+VCMI_LIB_NAMESPACE_END

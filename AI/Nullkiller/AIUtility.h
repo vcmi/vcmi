@@ -48,16 +48,18 @@
 #include "../../lib/mapObjects/CObjectHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/CPathfinder.h"
+#include "../../CCallback.h"
+
+#include <chrono>
 
 using namespace tbb;
 
-class CCallback;
-class Nullkiller;
-struct creInfo;
-
-typedef const int3 & crint3;
-typedef const std::string & crstring;
 typedef std::pair<ui32, std::vector<CreatureID>> dwellingContent;
+
+namespace NKAI
+{
+struct creInfo;
+class Nullkiller;
 
 const int GOLD_MINE_PRODUCTION = 1000, WOOD_ORE_MINE_PRODUCTION = 2, RESOURCE_MINE_PRODUCTION = 1;
 const int ACTUAL_RESOURCE_COUNT = 7;
@@ -66,6 +68,8 @@ const int ALLOWED_ROAMING_HEROES = 8;
 //implementation-dependent
 extern const float SAFE_ATTACK_CONSTANT;
 extern const int GOLD_RESERVE;
+
+extern boost::thread_specific_ptr<CCallback> cb;
 
 enum HeroRole
 {
@@ -147,39 +151,6 @@ struct ObjectIdRef
 	}
 };
 
-struct TimeCheck
-{
-	CStopWatch time;
-	std::string txt;
-	TimeCheck(crstring TXT)
-		: txt(TXT)
-	{
-	}
-
-	~TimeCheck()
-	{
-		logAi->trace("Time of %s was %d ms.", txt, time.getDiff());
-	}
-};
-
-//TODO: replace with vstd::
-struct AtScopeExit
-{
-	std::function<void()> foo;
-	AtScopeExit(const std::function<void()> & FOO)
-		: foo(FOO)
-	{}
-	~AtScopeExit()
-	{
-		foo();
-	}
-};
-
-
-class ObjsVector : public std::vector<ObjectIdRef>
-{
-};
-
 template<int id>
 bool objWithID(const CGObjectInstance * obj)
 {
@@ -195,10 +166,62 @@ struct creInfo
 };
 creInfo infoFromDC(const dwellingContent & dc);
 
-void foreach_tile_pos(std::function<void(const int3 & pos)> foo);
-void foreach_tile_pos(CCallback * cbp, std::function<void(CCallback * cbp, const int3 & pos)> foo); // avoid costly retrieval of thread-specific pointer
-void foreach_neighbour(const int3 & pos, std::function<void(const int3 & pos)> foo);
-void foreach_neighbour(CCallback * cbp, const int3 & pos, std::function<void(CCallback * cbp, const int3 & pos)> foo); // avoid costly retrieval of thread-specific pointer
+template<class Func>
+void foreach_tile_pos(const Func & foo)
+{
+	// some micro-optimizations since this function gets called a LOT
+	// callback pointer is thread-specific and slow to retrieve -> read map size only once
+	int3 mapSize = cb->getMapSize();
+	for(int z = 0; z < mapSize.z; z++)
+	{
+		for(int x = 0; x < mapSize.x; x++)
+		{
+			for(int y = 0; y < mapSize.y; y++)
+			{
+				foo(int3(x, y, z));
+			}
+		}
+	}
+}
+
+template<class Func>
+void foreach_tile_pos(CCallback * cbp, const Func & foo) // avoid costly retrieval of thread-specific pointer
+{
+	int3 mapSize = cbp->getMapSize();
+	for(int z = 0; z < mapSize.z; z++)
+	{
+		for(int x = 0; x < mapSize.x; x++)
+		{
+			for(int y = 0; y < mapSize.y; y++)
+			{
+				foo(cbp, int3(x, y, z));
+			}
+		}
+	}
+}
+
+template<class Func>
+void foreach_neighbour(const int3 & pos, const Func & foo)
+{
+	CCallback * cbp = cb.get(); // avoid costly retrieval of thread-specific pointer
+	for(const int3 & dir : int3::getDirs())
+	{
+		const int3 n = pos + dir;
+		if(cbp->isInTheMap(n))
+			foo(pos + dir);
+	}
+}
+
+template<class Func>
+void foreach_neighbour(CCallback * cbp, const int3 & pos, const Func & foo) // avoid costly retrieval of thread-specific pointer
+{
+	for(const int3 & dir : int3::getDirs())
+	{
+		const int3 n = pos + dir;
+		if(cbp->isInTheMap(n))
+			foo(cbp, pos + dir);
+	}
+}
 
 bool canBeEmbarkmentPoint(const TerrainTile * t, bool fromWater);
 bool isObjectPassable(const CGObjectInstance * obj);
@@ -215,30 +238,31 @@ bool isSafeToVisit(HeroPtr h, const CCreatureSet *, uint64_t dangerStrength);
 bool compareHeroStrength(HeroPtr h1, HeroPtr h2);
 bool compareArmyStrength(const CArmedInstance * a1, const CArmedInstance * a2);
 bool compareArtifacts(const CArtifactInstance * a1, const CArtifactInstance * a2);
+bool townHasFreeTavern(const CGTownInstance * town);
 
-uint64_t timeElapsed(boost::chrono::time_point<boost::chrono::steady_clock> start);
+uint64_t timeElapsed(std::chrono::time_point<std::chrono::high_resolution_clock> start);
 
 // todo: move to obj manager
 bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObjectInstance * obj);
 
 template<typename TFunc>
-void pforeachTilePos(crint3 mapSize, TFunc fn)
+void pforeachTilePos(const int3 & mapSize, TFunc fn)
 {
-	parallel_for(blocked_range<size_t>(0, mapSize.x), [&](const blocked_range<size_t>& r)
+	for(int z = 0; z < mapSize.z; ++z)
 	{
-		int3 pos;
-
-		for(pos.x = r.begin(); pos.x != r.end(); ++pos.x)
+		parallel_for(blocked_range<size_t>(0, mapSize.x), [&](const blocked_range<size_t>& r)
 		{
-			for(pos.y = 0; pos.y < mapSize.y; ++pos.y)
+			int3 pos(0, 0, z);
+
+			for(pos.x = r.begin(); pos.x != r.end(); ++pos.x)
 			{
-				for(pos.z = 0; pos.z < mapSize.z; ++pos.z)
+				for(pos.y = 0; pos.y < mapSize.y; ++pos.y)
 				{
 					fn(pos);
 				}
 			}
-		}
-	});
+		});
+	}
 }
 
 class CDistanceSorter
@@ -324,3 +348,5 @@ private:
 	std::shared_ptr<SharedPool<T> *> instance_tracker;
 	boost::mutex sync;
 };
+
+}

@@ -26,6 +26,8 @@
 #include "../CPlayerState.h"
 #include "../serializer/JsonSerializeFormat.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 std::map <si32, std::vector<ObjectInstanceID> > CGMagi::eyelist;
 ui8 CGObelisk::obeliskCount = 0; //how many obelisks are on map
 std::map<TeamID, ui8> CGObelisk::visited; //map: team_id => how many obelisks has been visited
@@ -838,14 +840,14 @@ std::string CGResource::getHoverText(PlayerColor player) const
 
 CGResource::CGResource()
 {
-	amount = 0;
+	amount = CGResource::RANDOM_AMOUNT;
 }
 
 void CGResource::initObj(CRandomGenerator & rand)
 {
 	blockVisit = true;
 
-	if(!amount)
+	if(amount == CGResource::RANDOM_AMOUNT)
 	{
 		switch(subID)
 		{
@@ -1406,6 +1408,11 @@ void CGArtifact::pick(const CGHeroInstance * h) const
 	cb->removeObject(this);
 }
 
+BattleField CGArtifact::getBattlefield() const
+{
+	return BattleField::NONE;
+}
+
 void CGArtifact::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
 {
 	if(result.winner == 0) //attacker won
@@ -1420,6 +1427,9 @@ void CGArtifact::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer)
 
 void CGArtifact::afterAddToMap(CMap * map)
 {
+	//Artifacts from map objects are never removed
+	//FIXME: This should be revertible in map editor
+
 	if(ID == Obj::SPELL_SCROLL && storedArtifact && storedArtifact->id.getNum() < 0)
         map->addNewArtifactInstance(storedArtifact);
 }
@@ -1442,8 +1452,10 @@ void CGWitchHut::initObj(CRandomGenerator & rand)
 {
 	if (allowedAbilities.empty()) //this can happen for RMG. regular maps load abilities from map file
 	{
+		// Necromancy can't be learned on random maps
 		for(int i = 0; i < VLC->skillh->size(); i++)
-			allowedAbilities.push_back(i);
+			if(VLC->skillh->getByIndex(i)->getId() != SecondarySkill::NECROMANCY)
+				allowedAbilities.push_back(i);
 	}
 	ability = *RandomGeneratorUtil::nextItem(allowedAbilities, rand);
 }
@@ -2200,3 +2212,5 @@ void CGLighthouse::serializeJsonOptions(JsonSerializeFormat& handler)
 {
 	serializeJsonOwner(handler);
 }
+
+VCMI_LIB_NAMESPACE_END

@@ -15,6 +15,9 @@
 #include "../AIUtility.h"
 #include "Actions/SpecialAction.h"
 
+namespace NKAI
+{
+
 extern const uint64_t MIN_ARMY_STRENGTH_FOR_CHAIN;
 
 class ChainActor;
@@ -73,13 +76,16 @@ public:
 	float heroFightingStrength;
 	uint8_t actorExchangeCount;
 	TResources armyCost;
+	std::shared_ptr<TurnInfo> tiCache;
 
-	ChainActor(){}
+	ChainActor() = default;
+	virtual ~ChainActor() = default;
 
 	virtual std::string toString() const;
 	ExchangeResult tryExchangeNoLock(const ChainActor * other) const { return tryExchangeNoLock(this, other); }
 	void setBaseActor(HeroActor * base);
 	virtual const CGObjectInstance * getActorObject() const	{ return hero; }
+	int maxMovePoints(CGPathNode::ELayer layer);
 
 protected:
 	virtual ExchangeResult tryExchangeNoLock(const ChainActor * specialActor, const ChainActor * other) const;
@@ -167,3 +173,5 @@ public:
 	TownGarrisonActor(const CGTownInstance * town, uint64_t chainMask);
 	virtual std::string toString() const override;
 };
+
+}

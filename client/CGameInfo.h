@@ -13,27 +13,34 @@
 
 #include "../lib/ConstTransitivePtr.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CModHandler;
-class CMapHandler;
 class CHeroHandler;
 class CCreatureHandler;
 class CSpellHandler;
 class CSkillHandler;
 class CBuildingHandler;
 class CObjectHandler;
-class CSoundHandler;
-class CMusicHandler;
 class CObjectClassesHandler;
 class CTownHandler;
 class CGeneralTextHandler;
 class CConsoleHandler;
-class CCursorHandler;
 class CGameState;
-class IMainVideoPlayer;
-class CServerHandler;
+class BattleFieldHandler;
+class ObstacleHandler;
+class TerrainTypeHandler;
 
 class CMap;
 
+VCMI_LIB_NAMESPACE_END
+
+class CMapHandler;
+class CSoundHandler;
+class CMusicHandler;
+class CCursorHandler;
+class IMainVideoPlayer;
+class CServerHandler;
 
 //a class for non-mechanical client GUI classes
 class CClientState
@@ -57,9 +64,13 @@ public:
 	const FactionService * factions() const override;
 	const HeroClassService * heroClasses() const override;
 	const HeroTypeService * heroTypes() const override;
+#if SCRIPTING_ENABLED
 	const scripting::Service * scripts() const override;
+#endif
 	const spells::Service * spells() const override;
 	const SkillService * skills() const override;
+	const BattleFieldService * battlefields() const override;
+	const ObstacleService * obstacles() const override;
 
 	void updateEntity(Metatype metatype, int32_t index, const JsonNode & data) override;
 
@@ -68,12 +79,15 @@ public:
 
 
 	ConstTransitivePtr<CModHandler> modh; //public?
+	ConstTransitivePtr<BattleFieldHandler> battleFieldHandler;
 	ConstTransitivePtr<CHeroHandler> heroh;
 	ConstTransitivePtr<CCreatureHandler> creh;
 	ConstTransitivePtr<CSpellHandler> spellh;
 	ConstTransitivePtr<CSkillHandler> skillh;
 	ConstTransitivePtr<CObjectHandler> objh;
+	ConstTransitivePtr<TerrainTypeHandler> terrainTypeHandler;
 	ConstTransitivePtr<CObjectClassesHandler> objtypeh;
+	ConstTransitivePtr<ObstacleHandler> obstacleHandler;
 	CGeneralTextHandler * generaltexth;
 	CMapHandler * mh;
 	CTownHandler * townh;

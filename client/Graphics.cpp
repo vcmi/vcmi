@@ -24,6 +24,7 @@
 #include "gui/CAnimation.h"
 #include <SDL_ttf.h>
 #include "../lib/CThreadHelper.h"
+#include "../lib/CModHandler.h"
 #include "CGameInfo.h"
 #include "../lib/VCMI_Lib.h"
 #include "../CCallback.h"
@@ -99,28 +100,29 @@ void Graphics::loadPaletteAndColors()
 
 void Graphics::initializeBattleGraphics()
 {
-	const JsonNode config(ResourceID("config/battles_graphics.json"));
+	auto allConfigs = VLC->modh->getActiveMods();
+	allConfigs.insert(allConfigs.begin(), "core");
+	for(auto & mod : allConfigs)
+	{
+		if(!CResourceHandler::get(mod)->existsResource(ResourceID("config/battles_graphics.json")))
+			continue;
+			
+		const JsonNode config(mod, ResourceID("config/battles_graphics.json"));
 
-	// Reserve enough space for the terrains
-	int idx = static_cast<int>(config["backgrounds"].Vector().size());
-	battleBacks.resize(idx+1);	// 1 to idx, 0 is unused
+		//initialization of AC->def name mapping
+		if(!config["ac_mapping"].isNull())
+		for(const JsonNode &ac : config["ac_mapping"].Vector())
+		{
+			int ACid = static_cast<int>(ac["id"].Float());
+			std::vector< std::string > toAdd;
 
-	idx = 1;
-	for(const JsonNode &t : config["backgrounds"].Vector()) {
-		battleBacks[idx].push_back(t.String());
-		idx++;
-	}
+			for(const JsonNode &defname : ac["defnames"].Vector())
+			{
+				toAdd.push_back(defname.String());
+			}
 
-	//initialization of AC->def name mapping
-	for(const JsonNode &ac : config["ac_mapping"].Vector()) {
-		int ACid = static_cast<int>(ac["id"].Float());
-		std::vector< std::string > toAdd;
-
-		for(const JsonNode &defname : ac["defnames"].Vector()) {
-			toAdd.push_back(defname.String());
+			battleACToDef[ACid] = toAdd;
 		}
-
-		battleACToDef[ACid] = toAdd;
 	}
 }
 Graphics::Graphics()
@@ -171,8 +173,8 @@ void Graphics::loadHeroAnimations()
 	{
 		for (auto & templ : VLC->objtypeh->getHandlerFor(Obj::HERO, elem->getIndex())->getTemplates())
 		{
-			if (!heroAnimations.count(templ.animationFile))
-				heroAnimations[templ.animationFile] = loadHeroAnimation(templ.animationFile);
+			if (!heroAnimations.count(templ->animationFile))
+				heroAnimations[templ->animationFile] = loadHeroAnimation(templ->animationFile);
 		}
 	}
 
@@ -379,21 +381,21 @@ std::shared_ptr<CAnimation> Graphics::getAnimation(const CGObjectInstance* obj)
 	return getAnimation(obj->appearance);
 }
 
-std::shared_ptr<CAnimation> Graphics::getAnimation(const ObjectTemplate & info)
+std::shared_ptr<CAnimation> Graphics::getAnimation(std::shared_ptr<const ObjectTemplate> info)
 {
 	//the only(?) invisible object
-	if(info.id == Obj::EVENT)
+	if(info->id == Obj::EVENT)
 	{
 		return std::shared_ptr<CAnimation>();
 	}
 
-	if(info.animationFile.empty())
+	if(info->animationFile.empty())
 	{
-		logGlobal->warn("Def name for obj (%d,%d) is empty!", info.id, info.subid);
+		logGlobal->warn("Def name for obj (%d,%d) is empty!", info->id, info->subid);
 		return std::shared_ptr<CAnimation>();
 	}
 
-	std::shared_ptr<CAnimation> ret = mapObjectAnimations[info.animationFile];
+	std::shared_ptr<CAnimation> ret = mapObjectAnimations[info->animationFile];
 
 	//already loaded
 	if(ret)
@@ -402,8 +404,8 @@ std::shared_ptr<CAnimation> Graphics::getAnimation(const ObjectTemplate & info)
 		return ret;
 	}
 
-	ret = std::make_shared<CAnimation>(info.animationFile);
-	mapObjectAnimations[info.animationFile] = ret;
+	ret = std::make_shared<CAnimation>(info->animationFile);
+	mapObjectAnimations[info->animationFile] = ret;
 
 	ret->preload();
 	return ret;

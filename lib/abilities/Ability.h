@@ -7,6 +7,9 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace abilities
 {
 
@@ -16,3 +19,5 @@ class DLL_LINKAGE Ability
 };
 
 }
+
+VCMI_LIB_NAMESPACE_END

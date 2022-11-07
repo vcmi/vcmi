@@ -11,16 +11,19 @@
 #include "StdInc.h"
 #include "../CRandomGenerator.h"
 #include "CZonePlacer.h"
-#include "CRmgTemplateZone.h"
 #include "../mapping/CMap.h"
+#include "../mapping/CMapEditManager.h"
+#include "RmgMap.h"
+#include "Zone.h"
+#include "Functions.h"
 
-#include "CZoneGraphGenerator.h"
+VCMI_LIB_NAMESPACE_BEGIN
 
 class CRandomGenerator;
 
-CZonePlacer::CZonePlacer(CMapGenerator * Gen)
+CZonePlacer::CZonePlacer(RmgMap & map)
 	: width(0), height(0), scaleX(0), scaleY(0), mapSize(0), gravityConstant(0), stiffnessConstant(0),
-	gen(Gen)
+	map(map)
 {
 
 }
@@ -32,7 +35,7 @@ CZonePlacer::~CZonePlacer()
 
 int3 CZonePlacer::cords (const float3 f) const
 {
-	return int3((si32)std::max(0.f, (f.x * gen->map->width)-1), (si32)std::max(0.f, (f.y * gen->map->height-1)), f.z);
+	return int3((si32)std::max(0.f, (f.x * map.map().width)-1), (si32)std::max(0.f, (f.y * map.map().height-1)), f.z);
 }
 
 float CZonePlacer::getDistance (float distance) const
@@ -40,15 +43,19 @@ float CZonePlacer::getDistance (float distance) const
 	return (distance ? distance * distance : 1e-6f);
 }
 
-void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenerator * rand)
+void CZonePlacer::placeZones(CRandomGenerator * rand)
 {
 	logGlobal->info("Starting zone placement");
 
-	width = mapGenOptions->getWidth();
-	height = mapGenOptions->getHeight();
+	width = map.getMapGenOptions().getWidth();
+	height = map.getMapGenOptions().getHeight();
 
-	auto zones = gen->getZones();
-	bool underground = mapGenOptions->getHasTwoLevels();
+	auto zones = map.getZones();
+	vstd::erase_if(zones, [](const std::pair<TRmgTemplateZoneId, std::shared_ptr<Zone>> & pr)
+	{
+		return pr.second->getType() == ETemplateZoneType::WATER;
+	});
+	bool underground = map.getMapGenOptions().getHasTwoLevels();
 
 	/*
 	gravity-based algorithm
@@ -73,7 +80,7 @@ void CZonePlacer::placeZones(const CMapGenOptions * mapGenOptions, CRandomGenera
 	float bestTotalDistance = 1e10;
 	float bestTotalOverlap = 1e10;
 
-	std::map<std::shared_ptr<CRmgTemplateZone>, float3> bestSolution;
+	std::map<std::shared_ptr<Zone>, float3> bestSolution;
 
 	TForceVector forces;
 	TForceVector totalForces; //  both attraction and pushback, overcomplicated?
@@ -174,7 +181,7 @@ void CZonePlacer::prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const 
 			if (boost::optional<int> owner = zone.second->getOwner())
 			{
 				auto player = PlayerColor(*owner - 1);
-				auto playerSettings = gen->mapGenOptions->getPlayersSettings();
+				auto playerSettings = map.getMapGenOptions().getPlayersSettings();
 				si32 faction = CMapGenOptions::CPlayerSettings::RANDOM_TOWN;
 				if (vstd::contains(playerSettings, player))
 					faction = playerSettings[player].getStartingTown();
@@ -185,28 +192,27 @@ void CZonePlacer::prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const 
 					zonesToPlace.push_back(zone);
 				else
 				{
-					switch ((*VLC->townh)[faction]->nativeTerrain)
+					auto & tt = (*VLC->townh)[faction]->nativeTerrain;
+					if(tt == Terrain::DIRT)
 					{
-					case ETerrainType::GRASS:
-					case ETerrainType::SWAMP:
-					case ETerrainType::SNOW:
-					case ETerrainType::SAND:
-					case ETerrainType::ROUGH:
-						//surface
-						zonesOnLevel[0]++;
-						levels[zone.first] = 0;
-						break;
-					case ETerrainType::LAVA:
-					case ETerrainType::SUBTERRANEAN:
-						//underground
-						zonesOnLevel[1]++;
-						levels[zone.first] = 1;
-						break;
-					case ETerrainType::DIRT:
-					default:
 						//any / random
 						zonesToPlace.push_back(zone);
-						break;
+					}
+					else
+					{
+						const auto & terrainType = VLC->terrainTypeHandler->terrains()[tt];
+						if(terrainType.isUnderground() && !terrainType.isSurface())
+						{
+							//underground only
+							zonesOnLevel[1]++;
+							levels[zone.first] = 1;
+						}
+						else
+						{
+							//surface
+							zonesOnLevel[0]++;
+							levels[zone.first] = 0;
+						}
 					}
 				}
 			}
@@ -354,7 +360,7 @@ void CZonePlacer::moveOneZone(TZoneMap &zones, TForceVector &totalForces, TDista
 {
 	float maxRatio = 0;
 	const int maxDistanceMovementRatio = static_cast<int>(zones.size() * zones.size()); //experimental - the more zones, the greater total distance expected
-	std::shared_ptr<CRmgTemplateZone> misplacedZone;
+	std::shared_ptr<Zone> misplacedZone;
 
 	float totalDistance = 0;
 	float totalOverlap = 0;
@@ -374,7 +380,7 @@ void CZonePlacer::moveOneZone(TZoneMap &zones, TForceVector &totalForces, TDista
 
 	if (maxRatio > maxDistanceMovementRatio && misplacedZone)
 	{
-		std::shared_ptr<CRmgTemplateZone> targetZone;
+		std::shared_ptr<Zone> targetZone;
 		float3 ourCenter = misplacedZone->getCenter();
 
 		if (totalDistance > totalOverlap)
@@ -453,20 +459,24 @@ d = 0.01 * dx^3 - 0.1618 * dx^2 + 1 * dx + ...
 	return dx * (1.0f + dx * (0.1f + dx * 0.01f)) + dy * (1.618f + dy * (-0.1618f + dy * 0.01618f));
 }
 
-void CZonePlacer::assignZones(const CMapGenOptions * mapGenOptions)
+void CZonePlacer::assignZones(CRandomGenerator * rand)
 {
 	logGlobal->info("Starting zone colouring");
 
-	auto width = mapGenOptions->getWidth();
-	auto height = mapGenOptions->getHeight();
+	auto width = map.getMapGenOptions().getWidth();
+	auto height = map.getMapGenOptions().getHeight();
 
 	//scale to Medium map to ensure smooth results
 	scaleX = 72.f / width;
 	scaleY = 72.f / height;
 
-	auto zones = gen->getZones();
+	auto zones = map.getZones();
+	vstd::erase_if(zones, [](const std::pair<TRmgTemplateZoneId, std::shared_ptr<Zone>> & pr)
+	{
+		return pr.second->getType() == ETemplateZoneType::WATER;
+	});
 
-	typedef std::pair<std::shared_ptr<CRmgTemplateZone>, float> Dpair;
+	typedef std::pair<std::shared_ptr<Zone>, float> Dpair;
 	std::vector <Dpair> distances;
 	distances.reserve(zones.size());
 
@@ -478,10 +488,10 @@ void CZonePlacer::assignZones(const CMapGenOptions * mapGenOptions)
 		return lhs.second / lhs.first->getSize() < rhs.second / rhs.first->getSize();
 	};
 
-	auto moveZoneToCenterOfMass = [](std::shared_ptr<CRmgTemplateZone> zone) -> void
+	auto moveZoneToCenterOfMass = [](std::shared_ptr<Zone> zone) -> void
 	{
 		int3 total(0, 0, 0);
-		auto tiles = zone->getTileInfo();
+		auto tiles = zone->area().getTiles();
 		for (auto tile : tiles)
 		{
 			total += tile;
@@ -491,29 +501,29 @@ void CZonePlacer::assignZones(const CMapGenOptions * mapGenOptions)
 		zone->setPos(int3(total.x / size, total.y / size, total.z / size));
 	};
 
-	int levels = gen->map->twoLevel ? 2 : 1;
+	int levels = map.map().levels();
 
 	/*
 	1. Create Voronoi diagram
 	2. find current center of mass for each zone. Move zone to that center to balance zones sizes
 	*/
 
-	for (int i = 0; i<width; i++)
+	int3 pos;
+	for(pos.z = 0; pos.z < levels; pos.z++)
 	{
-		for (int j = 0; j<height; j++)
+		for(pos.x = 0; pos.x < width; pos.x++)
 		{
-			for (int k = 0; k < levels; k++)
+			for(pos.y = 0; pos.y < height; pos.y++)
 			{
 				distances.clear();
-				int3 pos(i, j, k);
-				for (auto zone : zones)
+				for(auto zone : zones)
 				{
-					if (zone.second->getPos().z == k)
+					if (zone.second->getPos().z == pos.z)
 						distances.push_back(std::make_pair(zone.second, (float)pos.dist2dSQ(zone.second->getPos())));
 					else
 						distances.push_back(std::make_pair(zone.second, std::numeric_limits<float>::max()));
 				}
-				boost::min_element(distances, compareByDistance)->first->addTile(pos); //closest tile belongs to zone
+				boost::min_element(distances, compareByDistance)->first->area().add(pos); //closest tile belongs to zone
 			}
 		}
 	}
@@ -526,24 +536,23 @@ void CZonePlacer::assignZones(const CMapGenOptions * mapGenOptions)
 	for (auto zone : zones)
 		zone.second->clearTiles(); //now populate them again
 
-	for (int i=0; i<width; i++)
+	for (pos.z = 0; pos.z < levels; pos.z++)
 	{
-		for(int j=0; j<height; j++)
+		for (pos.x = 0; pos.x < width; pos.x++)
 		{
-			for (int k = 0; k < levels; k++)
+			for (pos.y = 0; pos.y < height; pos.y++)
 			{
 				distances.clear();
-				int3 pos(i, j, k);
 				for (auto zone : zones)
 				{
-					if (zone.second->getPos().z == k)
+					if (zone.second->getPos().z == pos.z)
 						distances.push_back (std::make_pair(zone.second, metric(pos, zone.second->getPos())));
 					else
 						distances.push_back (std::make_pair(zone.second, std::numeric_limits<float>::max()));
 				}
 				auto zone = boost::min_element(distances, compareByDistance)->first; //closest tile belongs to zone
-				zone->addTile(pos);
-				gen->setZoneID(pos, zone->getId());
+				zone->area().add(pos);
+				map.setZoneID(pos, zone->getId());
 			}
 		}
 	}
@@ -554,15 +563,21 @@ void CZonePlacer::assignZones(const CMapGenOptions * mapGenOptions)
 
 		//TODO: similiar for islands
 		#define	CREATE_FULL_UNDERGROUND true //consider linking this with water amount
-		if (zone.second->getPos().z)
+		if (zone.second->isUnderground())
 		{
 			if (!CREATE_FULL_UNDERGROUND)
-				zone.second->discardDistantTiles((float)(zone.second->getSize() + 1));
+			{
+				auto discardTiles = collectDistantTiles(*zone.second, zone.second->getSize() + 1.f);
+				for(auto& t : discardTiles)
+					zone.second->area().erase(t);
+			}
 
 			//make sure that terrain inside zone is not a rock
 			//FIXME: reorder actions?
-			zone.second->paintZoneTerrain (ETerrainType::SUBTERRANEAN);
+			paintZoneTerrain(*zone.second, *rand, map, Terrain::SUBTERRANEAN);
 		}
 	}
 	logGlobal->info("Finished zone colouring");
 }
+
+VCMI_LIB_NAMESPACE_END

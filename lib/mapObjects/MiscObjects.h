@@ -13,6 +13,8 @@
 #include "CArmedInstance.h"
 #include "../ResourceSet.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CMap;
 
 /// Legacy class, use CRewardableObject instead
@@ -201,6 +203,7 @@ public:
 	void initObj(CRandomGenerator & rand) override;
 
 	void afterAddToMap(CMap * map) override;
+	BattleField getBattlefield() const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -215,7 +218,9 @@ protected:
 class DLL_LINKAGE CGResource : public CArmedInstance
 {
 public:
+	static const ui32 RANDOM_AMOUNT = 0;
 	ui32 amount; //0 if random
+	
 	std::string message;
 
 	CGResource();
@@ -442,7 +447,7 @@ public:
 	}
 };
 
-class CGShipyard : public CGObjectInstance, public IShipyard
+class DLL_LINKAGE CGShipyard : public CGObjectInstance, public IShipyard
 {
 public:
 	void getOutOffsets(std::vector<int3> &offsets) const override; //offsets to obj pos when we boat can be placed
@@ -527,3 +532,16 @@ public:
 protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 };
+
+class DLL_LINKAGE CGTerrainPatch : public CGObjectInstance
+{
+public:
+	CGTerrainPatch() = default;
+
+	virtual bool isTile2Terrain() const override
+	{
+		return true;
+	}
+};
+
+VCMI_LIB_NAMESPACE_END

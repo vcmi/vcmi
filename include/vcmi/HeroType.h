@@ -12,6 +12,8 @@
 
 #include "Entity.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class HeroTypeID;
 
 class DLL_LINKAGE HeroType : public EntityT<HeroTypeID>
@@ -20,3 +22,5 @@ public:
 
 };
 
+
+VCMI_LIB_NAMESPACE_END

@@ -22,8 +22,14 @@
 #include "CGameStateFwd.h"
 #include "CPathfinder.h"
 
+namespace boost
+{
+class shared_mutex;
+}
+
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CTown;
-class CCallback;
 class IGameCallback;
 class CCreatureSet;
 class CQuest;
@@ -36,7 +42,6 @@ class CGObjectInstance;
 class CCreature;
 class CMap;
 struct StartInfo;
-class CMapHandler;
 struct SetObjectProperty;
 struct MetaString;
 struct CPack;
@@ -47,19 +52,12 @@ class CCampaign;
 class CCampaignState;
 class IModableArt;
 class CGGarrison;
-class CGameInfo;
 struct QuestInfo;
 class CQuest;
 class CCampaignScenario;
 struct EventCondition;
 class CScenarioTravel;
 class IMapService;
-
-namespace boost
-{
-	class shared_mutex;
-}
-
 
 
 template<typename T> class CApplier;
@@ -179,13 +177,13 @@ public:
 	void giveHeroArtifact(CGHeroInstance *h, ArtifactID aid);
 
 	void apply(CPack *pack);
-	BFieldType battleGetBattlefieldType(int3 tile, CRandomGenerator & rand);
+	BattleField battleGetBattlefieldType(int3 tile, CRandomGenerator & rand);
 	UpgradeInfo getUpgradeInfo(const CStackInstance &stack);
 	PlayerRelations::PlayerRelations getPlayerRelations(PlayerColor color1, PlayerColor color2);
 	bool checkForVisitableDir(const int3 & src, const int3 & dst) const; //check if src tile is visitable from dst tile
 	void calculatePaths(const CGHeroInstance *hero, CPathsInfo &out); //calculates possible paths for hero, by default uses current hero position and movement left; returns pointer to newly allocated CPath or nullptr if path does not exists
 	void calculatePaths(std::shared_ptr<PathfinderConfig> config) override;
-	int3 guardingCreaturePosition (int3 pos) const;
+	int3 guardingCreaturePosition (int3 pos) const override;
 	std::vector<CGObjectInstance*> guardingCreatures (int3 pos) const;
 	void updateRumor();
 
@@ -227,14 +225,7 @@ public:
 		h & hpool;
 		h & globalEffects;
 		h & rand;
-		if(version >= 755) //save format backward compatibility
-		{
-			h & rumor;
-		}
-		else if(!h.saving)
-		{
-			rumor = RumorState();
-		}
+		h & rumor;
 
 		BONUS_TREE_DESERIALIZATION_FIX
 	}
@@ -312,3 +303,5 @@ private:
 	friend class CMapHandler;
 	friend class CGameHandler;
 };
+
+VCMI_LIB_NAMESPACE_END

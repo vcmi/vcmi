@@ -20,7 +20,9 @@
 
 #include "../../lib/CModHandler.h"
 
-extern boost::thread_specific_ptr<CCallback> cb;
+namespace NKAI
+{
+
 extern boost::thread_specific_ptr<AIGateway> ai;
 
 //extern static const int3 dirs[8];
@@ -159,55 +161,6 @@ const CGHeroInstance * HeroPtr::operator*() const
 bool HeroPtr::operator==(const HeroPtr & rhs) const
 {
 	return h == rhs.get(true);
-}
-
-void foreach_tile_pos(std::function<void(const int3 & pos)> foo)
-{
-	// some micro-optimizations since this function gets called a LOT
-	// callback pointer is thread-specific and slow to retrieve -> read map size only once
-	int3 mapSize = cb->getMapSize();
-	for(int i = 0; i < mapSize.x; i++)
-	{
-		for(int j = 0; j < mapSize.y; j++)
-		{
-			for(int k = 0; k < mapSize.z; k++)
-				foo(int3(i, j, k));
-		}
-	}
-}
-
-void foreach_tile_pos(CCallback * cbp, std::function<void(CCallback * cbp, const int3 & pos)> foo)
-{
-	int3 mapSize = cbp->getMapSize();
-	for(int i = 0; i < mapSize.x; i++)
-	{
-		for(int j = 0; j < mapSize.y; j++)
-		{
-			for(int k = 0; k < mapSize.z; k++)
-				foo(cbp, int3(i, j, k));
-		}
-	}
-}
-
-void foreach_neighbour(const int3 & pos, std::function<void(const int3 & pos)> foo)
-{
-	CCallback * cbp = cb.get(); // avoid costly retrieval of thread-specific pointer
-	for(const int3 & dir : int3::getDirs())
-	{
-		const int3 n = pos + dir;
-		if(cbp->isInTheMap(n))
-			foo(pos + dir);
-	}
-}
-
-void foreach_neighbour(CCallback * cbp, const int3 & pos, std::function<void(CCallback * cbp, const int3 & pos)> foo)
-{
-	for(const int3 & dir : int3::getDirs())
-	{
-		const int3 n = pos + dir;
-		if(cbp->isInTheMap(n))
-			foo(cbp, pos + dir);
-	}
 }
 
 bool CDistanceSorter::operator()(const CGObjectInstance * lhs, const CGObjectInstance * rhs) const
@@ -357,6 +310,9 @@ bool compareArtifacts(const CArtifactInstance * a1, const CArtifactInstance * a2
 
 bool isWeeklyRevisitable(const CGObjectInstance * obj)
 {
+	if(!obj)
+		return false;
+
 	//TODO: allow polling of remaining creatures in dwelling
 	if(dynamic_cast<const CGVisitableOPW *>(obj)) // ensures future compatibility, unlike IDs
 		return true;
@@ -378,11 +334,11 @@ bool isWeeklyRevisitable(const CGObjectInstance * obj)
 	return false;
 }
 
-uint64_t timeElapsed(boost::chrono::time_point<boost::chrono::steady_clock> start)
+uint64_t timeElapsed(std::chrono::time_point<std::chrono::high_resolution_clock> start)
 {
-	auto end = boost::chrono::high_resolution_clock::now();
+	auto end = std::chrono::high_resolution_clock::now();
 
-	return boost::chrono::duration_cast<boost::chrono::milliseconds>(end - start).count();
+	return std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 }
 
 // todo: move to obj manager
@@ -492,4 +448,16 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 		return false;
 
 	return true;
+}
+
+bool townHasFreeTavern(const CGTownInstance * town)
+{
+	if(!town->hasBuilt(BuildingID::TAVERN)) return false;
+	if(!town->visitingHero) return true;
+
+	bool canMoveVisitingHeroToGarnison = !town->getUpperArmy()->stacksCount();
+
+	return canMoveVisitingHeroToGarnison;
+}
+
 }

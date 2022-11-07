@@ -57,7 +57,8 @@ bool LobbyClientDisconnected::applyOnLobbyHandler(CServerHandler * handler)
 
 void LobbyClientDisconnected::applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler)
 {
-	GH.popInts(1);
+	if(GH.listInt.size())
+		GH.popInts(1);
 }
 
 void LobbyChatMessage::applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler)
@@ -73,7 +74,7 @@ void LobbyChatMessage::applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler *
 
 void LobbyGuiAction::applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler)
 {
-	if(!handler->isGuest())
+	if(!lobby || !handler->isGuest())
 		return;
 
 	switch(action)
@@ -93,25 +94,42 @@ void LobbyGuiAction::applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * h
 	}
 }
 
-bool LobbyStartGame::applyOnLobbyHandler(CServerHandler * handler)
+bool LobbyEndGame::applyOnLobbyHandler(CServerHandler * handler)
 {
 	if(handler->state == EClientState::GAMEPLAY)
 	{
-		handler->endGameplay(false, true);
+		handler->endGameplay(closeConnection, restart);
 	}
+	
+	if(restart)
+		handler->sendStartGame();
+	
+	return true;
+}
+
+bool LobbyStartGame::applyOnLobbyHandler(CServerHandler * handler)
+{
+	if(clientId != -1 && clientId != handler->c->connectionID)
+		return false;
+	
 	handler->state = EClientState::STARTING;
-	if(handler->si->mode != StartInfo::LOAD_GAME)
+	if(handler->si->mode != StartInfo::LOAD_GAME || clientId == handler->c->connectionID)
 	{
+		auto modeBackup = handler->si->mode;
 		handler->si = initializedStartInfo;
+		handler->si->mode = modeBackup;
 	}
 	if(settings["session"]["headless"].Bool())
-		handler->startGameplay();
+		handler->startGameplay(initializedGameState);
 	return true;
 }
 
 void LobbyStartGame::applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler)
 {
-	GH.pushIntT<CLoadingScreen>(std::bind(&CServerHandler::startGameplay, handler));
+	if(clientId != -1 && clientId != handler->c->connectionID)
+		return;
+	
+	GH.pushIntT<CLoadingScreen>(std::bind(&CServerHandler::startGameplay, handler, initializedGameState));
 }
 
 bool LobbyUpdateState::applyOnLobbyHandler(CServerHandler * handler)
@@ -123,6 +141,9 @@ bool LobbyUpdateState::applyOnLobbyHandler(CServerHandler * handler)
 
 void LobbyUpdateState::applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler)
 {
+	if(!lobby) //stub: ignore message for game mode
+		return;
+		
 	if(!lobby->bonusSel && handler->si->campState && handler->state == EClientState::LOBBY_CAMPAIGN)
 	{
 		lobby->bonusSel = std::make_shared<CBonusSelection>();
@@ -136,4 +157,13 @@ void LobbyUpdateState::applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler *
 
 	if(hostChanged)
 		lobby->toggleMode(handler->isHost());
+}
+
+void LobbyShowMessage::applyOnLobbyScreen(CLobbyScreen * lobby, CServerHandler * handler)
+{
+	if(!lobby) //stub: ignore message for game mode
+		return;
+	
+	lobby->buttonStart->block(false);
+	handler->showServerError(message);
 }

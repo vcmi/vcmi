@@ -118,6 +118,7 @@
 			"ignoreDefence" : { "type" : "ENEMY_DEFENCE_REDUCTION", "val" : 100 },
 			"noWallPenalty" : { "type" : "NO_WALL_PENALTY" },
 			"noDistancePenalty" : { "type" : "NO_DISTANCE_PENALTY" },
+			"noRetalitation" : { "type" : "BLOCKS_RANGED_RETALIATION" },
 			"noLuck" : { "type" : "NO_LUCK" }
 		},
 		"graphics" :

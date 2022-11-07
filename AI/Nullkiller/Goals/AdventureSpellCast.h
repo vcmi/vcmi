@@ -11,6 +11,9 @@
 
 #include "CGoal.h"
 
+namespace NKAI
+{
+
 namespace Goals
 {
 	class DLL_EXPORT AdventureSpellCast : public ElementarGoal<AdventureSpellCast>
@@ -34,4 +37,6 @@ namespace Goals
 		std::string toString() const override;
 		virtual bool operator==(const AdventureSpellCast & other) const override;
 	};
+}
+
 }

@@ -15,6 +15,8 @@
 #include <boost/interprocess/mapped_region.hpp>
 #include <boost/interprocess/shared_memory_object.hpp>
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 struct ServerReady
 {
 	bool ready;
@@ -78,3 +80,5 @@ struct SharedMemory
 		boost::interprocess::shared_memory_object::remove(name.c_str());
 	}
 };
+
+VCMI_LIB_NAMESPACE_END

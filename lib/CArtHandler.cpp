@@ -48,6 +48,8 @@
 	ART_POS(SHOULDERS)  \
 	ART_POS(HEAD)
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 int32_t CArtifact::getIndex() const
 {
 	return id.toEnum();
@@ -881,7 +883,10 @@ std::vector<const CArtifact *> CArtifactInstance::assemblyPossibilities(const CA
 
 		for(const CArtifact * constituent : *artifact->constituents) //check if all constituents are available
 		{
-			if(!h->hasArt(constituent->id, true)) //constituent must be equipped
+			const bool noBackpack = false;
+			const bool notAlreadyAssembled = false;
+
+			if(!h->hasArt(constituent->id, true, noBackpack, notAlreadyAssembled)) //constituent must be equipped
 			{
 				possible = false;
 				break;
@@ -1184,20 +1189,29 @@ CArtifactInstance* CArtifactSet::getArt(ArtifactPosition pos, bool excludeLocked
 	return const_cast<CArtifactInstance*>((const_cast<const CArtifactSet*>(this))->getArt(pos, excludeLocked));
 }
 
-ArtifactPosition CArtifactSet::getArtPos(int aid, bool onlyWorn) const
+ArtifactPosition CArtifactSet::getArtPos(int aid, bool onlyWorn, bool allowLocked) const
 {
+	const auto result = getAllArtPositions(aid, onlyWorn, allowLocked, false);
+	return result.empty() ? ArtifactPosition{ArtifactPosition::PRE_FIRST} : result[0];
+}
+
+std::vector<ArtifactPosition> CArtifactSet::getAllArtPositions(int aid, bool onlyWorn, bool allowLocked, bool getAll) const
+{
+	std::vector<ArtifactPosition> result;
 	for(auto i = artifactsWorn.cbegin(); i != artifactsWorn.cend(); i++)
-		if(i->second.artifact->artType->id == aid)
-			return i->first;
+		if(i->second.artifact->artType->id == aid && (allowLocked || !i->second.locked))
+			result.push_back(i->first);
 
 	if(onlyWorn)
-		return ArtifactPosition::PRE_FIRST;
+		return result;
+	if(!getAll && !result.empty())
+		return result;
 
 	for(int i = 0; i < artifactsInBackpack.size(); i++)
 		if(artifactsInBackpack[i].artifact->artType->id == aid)
-			return ArtifactPosition(GameConstants::BACKPACK_START + i);
+			result.push_back(ArtifactPosition(GameConstants::BACKPACK_START + i));
 
-	return ArtifactPosition::PRE_FIRST;
+	return result;
 }
 
 ArtifactPosition CArtifactSet::getArtPos(const CArtifactInstance *art) const
@@ -1226,11 +1240,25 @@ const CArtifactInstance * CArtifactSet::getArtByInstanceId( ArtifactInstanceID a
 	return nullptr;
 }
 
-bool CArtifactSet::hasArt(ui32 aid, bool onlyWorn,
-                          bool searchBackpackAssemblies) const
+bool CArtifactSet::hasArt(
+	ui32 aid,
+	bool onlyWorn,
+    bool searchBackpackAssemblies,
+	bool allowLocked) const
 {
-	return getArtPos(aid, onlyWorn) != ArtifactPosition::PRE_FIRST ||
-	       (searchBackpackAssemblies && getHiddenArt(aid));
+	return getArtPosCount(aid, onlyWorn, searchBackpackAssemblies, allowLocked) > 0;
+}
+
+unsigned CArtifactSet::getArtPosCount(int aid, bool onlyWorn, bool searchBackpackAssemblies, bool allowLocked) const
+{
+	const auto allPositions = getAllArtPositions(aid, onlyWorn, allowLocked, true);
+	if(!allPositions.empty())
+		return allPositions.size();
+
+	if(searchBackpackAssemblies && getHiddenArt(aid))
+		return 1;
+
+	return 0;
 }
 
 std::pair<const CCombinedArtifactInstance *, const CArtifactInstance *>
@@ -1428,3 +1456,5 @@ void CArtifactSet::serializeJsonSlot(JsonSerializeFormat & handler, const Artifa
 		}
 	}
 }
+
+VCMI_LIB_NAMESPACE_END

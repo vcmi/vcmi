@@ -11,6 +11,8 @@
 
 #include "JsonNode.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class JsonWriter
 {
 	//prefix for each line (tabulation)
@@ -57,7 +59,7 @@ public:
 };
 
 //Internal class for string -> JsonNode conversion
-class JsonParser
+class DLL_LINKAGE JsonParser
 {
 	std::string errors;     // Contains description of all encountered errors
 	constString input;      // Input data
@@ -127,3 +129,5 @@ namespace Validation
 	std::string check(std::string schemaName, const JsonNode & data, ValidationData & validator);
 	std::string check(const JsonNode & schema, const JsonNode & data, ValidationData & validator);
 }
+
+VCMI_LIB_NAMESPACE_END

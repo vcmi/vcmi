@@ -1,0 +1,14 @@
+ZVSE
+!?PI;
+	!!VRv2777:S4;
+	!!DO1/0/5/1&v2777<>1:P0;
+
+!?FU1;
+	!!VRv2778:Sx16%2;
+	!!IF&x16>3:M^Hello world number %X16! To duza liczba^;
+	!!IF&v2778==0&x16<=3:M^Hello world number %X16! To mala parzysta liczba^;
+	!!IF&v2778==1&x16<=3:M^Hello world number %X16! To mala nieparzysta liczba^;
+
+!?PI;
+	!!VRz10:S^Composed hello ^;
+	!!IF:M^%Z10%%world%%, v2777=%V2777, v2778=%V2778!^;

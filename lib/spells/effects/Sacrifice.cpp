@@ -19,6 +19,8 @@
 #include "../../battle/Unit.h"
 #include "../../serializer/JsonSerializeFormat.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 
 static const std::string EFFECT_NAME = "core:sacrifice";
 
@@ -174,3 +176,5 @@ int64_t Sacrifice::calculateHealEffectValue(const Mechanics * m, const battle::U
 
 }
 }
+
+VCMI_LIB_NAMESPACE_END

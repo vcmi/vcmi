@@ -14,6 +14,9 @@
 #include "../../../../lib/mapping/CMap.h"
 #include "../../../../lib/mapObjects/MapObjects.h"
 
+namespace NKAI
+{
+
 namespace AIPathfinding
 {
 	class VirtualBoatAction : public SpecialAction
@@ -24,9 +27,6 @@ namespace AIPathfinding
 	
 	class SummonBoatAction : public VirtualBoatAction
 	{
-	private:
-		const CGHeroInstance * hero;
-
 	public:
 		virtual void execute(const CGHeroInstance * hero) const override;
 
@@ -71,4 +71,6 @@ namespace AIPathfinding
 
 		virtual const CGObjectInstance * targetObject() const override;
 	};
+}
+
 }

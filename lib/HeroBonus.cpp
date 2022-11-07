@@ -25,6 +25,8 @@
 #include "StringConstants.h"
 #include "battle/BattleInfo.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 #define FOREACH_PARENT(pname) 	TNodes lparents; getParents(lparents); for(CBonusSystemNode *pname : lparents)
 #define FOREACH_RED_CHILD(pname) 	TNodes lchildren; getRedChildren(lchildren); for(CBonusSystemNode *pname : lchildren)
 
@@ -97,7 +99,9 @@ CBonusProxy::CBonusProxy(const IBonusBearer * Target, CSelector Selector)
 	: bonusListCachedLast(0),
 	target(Target),
 	selector(Selector),
-	bonusList()
+	bonusList(),
+	currentBonusListIndex(0),
+	swapGuard()
 {
 
 }
@@ -106,27 +110,34 @@ CBonusProxy::CBonusProxy(const CBonusProxy & other)
 	: bonusListCachedLast(other.bonusListCachedLast),
 	target(other.target),
 	selector(other.selector),
-	bonusList(other.bonusList)
+	currentBonusListIndex(other.currentBonusListIndex),
+	swapGuard()
 {
-
+	bonusList[currentBonusListIndex] = other.bonusList[currentBonusListIndex];
 }
 
 CBonusProxy::CBonusProxy(CBonusProxy && other)
 	: bonusListCachedLast(0),
 	target(other.target),
 	selector(),
-	bonusList()
+	bonusList(),
+	currentBonusListIndex(0),
+	swapGuard()
 {
 	std::swap(bonusListCachedLast, other.bonusListCachedLast);
 	std::swap(selector, other.selector);
 	std::swap(bonusList, other.bonusList);
+	std::swap(currentBonusListIndex, other.currentBonusListIndex);
 }
 
 CBonusProxy & CBonusProxy::operator=(const CBonusProxy & other)
 {
-	bonusListCachedLast = other.bonusListCachedLast;
+	boost::lock_guard<boost::mutex> lock(swapGuard);
+
 	selector = other.selector;
-	bonusList = other.bonusList;
+	swapBonusList(other.bonusList[other.currentBonusListIndex]);
+	bonusListCachedLast = other.bonusListCachedLast;
+
 	return *this;
 }
 
@@ -135,18 +146,42 @@ CBonusProxy & CBonusProxy::operator=(CBonusProxy && other)
 	std::swap(bonusListCachedLast, other.bonusListCachedLast);
 	std::swap(selector, other.selector);
 	std::swap(bonusList, other.bonusList);
+	std::swap(currentBonusListIndex, other.currentBonusListIndex);
+
 	return *this;
+}
+
+void CBonusProxy::swapBonusList(TConstBonusListPtr other) const
+{
+	// The idea here is to avoid changing active bonusList while it can be read by a different thread.
+	// Because such use of shared ptr is not thread safe
+	// So to avoid this we change the second offline instance and swap active index
+	auto newCurrent = 1 - currentBonusListIndex;
+	bonusList[newCurrent] = other;
+	currentBonusListIndex = newCurrent;
 }
 
 TConstBonusListPtr CBonusProxy::getBonusList() const
 {
-	if(target->getTreeVersion() != bonusListCachedLast || !bonusList)
+	auto needUpdateBonusList = [&]() -> bool
 	{
-		//TODO: support limiters
-		bonusList = target->getAllBonuses(selector, Selector::all);
-		bonusListCachedLast = target->getTreeVersion();
+		return target->getTreeVersion() != bonusListCachedLast || !bonusList[currentBonusListIndex];
+	};
+
+	// avoid locking if everything is up-to-date
+	if(needUpdateBonusList())
+	{
+		boost::lock_guard<boost::mutex>lock(swapGuard);
+
+		if(needUpdateBonusList())
+		{
+			//TODO: support limiters
+			swapBonusList(target->getAllBonuses(selector, Selector::all));
+			bonusListCachedLast = target->getTreeVersion();
+		}
 	}
-	return bonusList;
+
+	return bonusList[currentBonusListIndex];
 }
 
 const BonusList * CBonusProxy::operator->() const
@@ -522,6 +557,7 @@ void BonusList::getBonuses(BonusList & out, const CSelector &selector) const
 
 void BonusList::getBonuses(BonusList & out, const CSelector &selector, const CSelector &limit) const
 {
+	out.reserve(bonuses.size());
 	for (auto & b : bonuses)
 	{
 		//add matching bonuses that matches limit predicate or have NO_LIMIT if no given predicate
@@ -587,6 +623,11 @@ void BonusList::resize(BonusList::TInternalContainer::size_type sz, std::shared_
 	changed();
 }
 
+void BonusList::reserve(TInternalContainer::size_type sz)
+{
+	bonuses.reserve(sz);
+}
+
 void BonusList::insert(BonusList::TInternalContainer::iterator position, BonusList::TInternalContainer::size_type n, std::shared_ptr<Bonus> const &x)
 {
 	bonuses.insert(position, n, x);
@@ -621,14 +662,16 @@ int IBonusBearer::valOfBonuses(Bonus::BonusType type, const CSelector &selector)
 
 int IBonusBearer::valOfBonuses(Bonus::BonusType type, int subtype) const
 {
-	boost::format fmt("type_%ds_%d");
-	fmt % (int)type % subtype;
+	//This part is performance-critical
+
+	char cachingStr[20] = {};
+	std::sprintf(cachingStr, "type_%ds_%d", (int)type, subtype);
 
 	CSelector s = Selector::type()(type);
 	if(subtype != -1)
 		s = s.And(Selector::subtype()(subtype));
 
-	return valOfBonuses(s, fmt.str());
+	return valOfBonuses(s, cachingStr);
 }
 
 int IBonusBearer::valOfBonuses(const CSelector &selector, const std::string &cachingStr) const
@@ -639,6 +682,7 @@ int IBonusBearer::valOfBonuses(const CSelector &selector, const std::string &cac
 }
 bool IBonusBearer::hasBonus(const CSelector &selector, const std::string &cachingStr) const
 {
+	//TODO: We don't need to count all bonuses and could break on first matching
 	return getBonuses(selector, cachingStr)->size() > 0;
 }
 
@@ -649,14 +693,15 @@ bool IBonusBearer::hasBonus(const CSelector &selector, const CSelector &limit, c
 
 bool IBonusBearer::hasBonusOfType(Bonus::BonusType type, int subtype) const
 {
-	boost::format fmt("type_%ds_%d");
-	fmt % (int)type % subtype;
+	//This part is performance-ciritcal
+	char cachingStr[20] = {};
+	std::sprintf(cachingStr, "type_%ds_%d", (int)type, subtype);
 
 	CSelector s = Selector::type()(type);
 	if(subtype != -1)
 		s = s.And(Selector::subtype()(subtype));
 
-	return hasBonus(s, fmt.str());
+	return hasBonus(s, cachingStr);
 }
 
 TConstBonusListPtr IBonusBearer::getBonuses(const CSelector &selector, const std::string &cachingStr) const
@@ -910,21 +955,37 @@ void CBonusSystemNode::getAllParents(TCNodes & out) const //retrieves list of pa
 
 void CBonusSystemNode::getAllBonusesRec(BonusList &out) const
 {
+	//out has been reserved sufficient capacity at getAllBonuses() call
+
 	BonusList beforeUpdate;
 	TCNodes lparents;
 	getAllParents(lparents);
 
-	for(auto parent : lparents)
-		parent->bonuses.getAllBonuses(beforeUpdate);
+	if (lparents.size())
+	{
+		//estimate on how many bonuses are missing yet - must be positive
+		beforeUpdate.reserve(std::max(out.capacity() - out.size(), bonuses.size()));
+	}
+	else
+	{
+		beforeUpdate.reserve(bonuses.size()); //at most all local bonuses
+	}
 
+	for (auto parent : lparents)
+	{
+		parent->getAllBonusesRec(beforeUpdate);
+	}
 	bonuses.getAllBonuses(beforeUpdate);
 
-	for(auto b : beforeUpdate)
+	for(const auto & b : beforeUpdate)
 	{
 		auto updated = b->updater 
 			? getUpdatedBonus(b, b->updater) 
 			: b;
-		out.push_back(updated);
+
+		//do not add bonus with same pointer
+		if(!vstd::contains(out, updated))
+			out.push_back(updated);
 	}
 }
 
@@ -940,10 +1001,12 @@ TConstBonusListPtr CBonusSystemNode::getAllBonuses(const CSelector &selector, co
 		// cache all bonus objects. Selector objects doesn't matter.
 		if (cachedLast != treeChanged)
 		{
+			BonusList allBonuses;
+			allBonuses.reserve(cachedBonuses.capacity()); //we assume we'll get about the same number of bonuses
+
 			cachedBonuses.clear();
 			cachedRequests.clear();
 
-			BonusList allBonuses;
 			getAllBonusesRec(allBonuses);
 			limitBonuses(allBonuses, cachedBonuses);
 			cachedBonuses.stackBonuses();
@@ -1373,7 +1436,7 @@ void CBonusSystemNode::getRedAncestors(TNodes &out)
 
 	TNodes redParents; 
 	getRedParents(redParents);
-	
+
 	for(CBonusSystemNode * parent : redParents)
 		parent->getRedAncestors(out);
 }
@@ -2045,15 +2108,14 @@ bool CPropagatorNodeType::shouldBeAttached(CBonusSystemNode *dest)
 	return nodeType == dest->getNodeType();
 }
 
-CreatureTerrainLimiter::CreatureTerrainLimiter(int TerrainType)
-	: terrainType(TerrainType)
+CreatureTerrainLimiter::CreatureTerrainLimiter()
+	: terrainType(Terrain::NATIVE_TERRAIN)
 {
 }
 
-CreatureTerrainLimiter::CreatureTerrainLimiter()
-	: terrainType(-1)
+CreatureTerrainLimiter::CreatureTerrainLimiter(TerrainId terrain):
+	terrainType(terrain)
 {
-
 }
 
 int CreatureTerrainLimiter::limit(const BonusLimitationContext &context) const
@@ -2061,9 +2123,14 @@ int CreatureTerrainLimiter::limit(const BonusLimitationContext &context) const
 	const CStack *stack = retrieveStackBattle(&context.node);
 	if(stack)
 	{
-		if(terrainType == -1)//terrainType not specified = native
+		if (terrainType == Terrain::NATIVE_TERRAIN)//terrainType not specified = native
+		{
 			return !stack->isOnNativeTerrain();
-		return !stack->isOnTerrain(terrainType);
+		}
+		else
+		{
+			return !stack->isOnTerrain(terrainType);
+		}
 	}
 	return true;
 	//TODO neutral creatues
@@ -2072,7 +2139,8 @@ int CreatureTerrainLimiter::limit(const BonusLimitationContext &context) const
 std::string CreatureTerrainLimiter::toString() const
 {
 	boost::format fmt("CreatureTerrainLimiter(terrainType=%s)");
-	fmt % (terrainType >= 0 ? GameConstants::TERRAIN_NAMES[terrainType] : "native");
+	auto terrainName = VLC->terrainTypeHandler->terrains()[terrainType].name;
+	fmt % (terrainType == Terrain::NATIVE_TERRAIN ? "native" : terrainName);
 	return fmt.str();
 }
 
@@ -2081,8 +2149,8 @@ JsonNode CreatureTerrainLimiter::toJsonNode() const
 	JsonNode root(JsonNode::JsonType::DATA_STRUCT);
 
 	root["type"].String() = "CREATURE_TERRAIN_LIMITER";
-	if(terrainType >= 0)
-		root["parameters"].Vector().push_back(JsonUtils::stringNode(GameConstants::TERRAIN_NAMES[terrainType]));
+	auto terrainName = VLC->terrainTypeHandler->terrains()[terrainType].name;
+	root["parameters"].Vector().push_back(JsonUtils::stringNode(terrainName));
 
 	return root;
 }
@@ -2503,3 +2571,5 @@ std::shared_ptr<Bonus> OwnerUpdater::createUpdatedBonus(const std::shared_ptr<Bo
 	updated->limiter = std::make_shared<OppositeSideLimiter>(owner);
 	return updated;
 }
+
+VCMI_LIB_NAMESPACE_END

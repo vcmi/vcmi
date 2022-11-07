@@ -14,6 +14,7 @@ set(client_SRCS
 		gui/Fonts.cpp
 		gui/Geometries.cpp
 		gui/SDL_Extensions.cpp
+		gui/NotificationHandler.cpp
 
 		widgets/AdventureMapClasses.cpp
 		widgets/Buttons.cpp
@@ -49,6 +50,7 @@ set(client_SRCS
 		lobby/CLobbyScreen.cpp
 		lobby/CSavingScreen.cpp
 		lobby/CScenarioInfoScreen.cpp
+		lobby/CCampaignInfoScreen.cpp
 		lobby/OptionsTab.cpp
 		lobby/RandomMapTab.cpp
 		lobby/SelectionTab.cpp
@@ -87,6 +89,7 @@ set(client_HEADERS
 		gui/SDL_Compat.h
 		gui/SDL_Extensions.h
 		gui/SDL_Pixels.h
+		gui/NotificationHandler.h
 
 		widgets/AdventureMapClasses.h
 		widgets/Buttons.h
@@ -121,6 +124,7 @@ set(client_HEADERS
 		lobby/CLobbyScreen.h
 		lobby/CSavingScreen.h
 		lobby/CScenarioInfoScreen.h
+		lobby/CCampaignInfoScreen.h
 		lobby/OptionsTab.h
 		lobby/RandomMapTab.h
 		lobby/SelectionTab.h
@@ -138,9 +142,24 @@ set(client_HEADERS
 		Graphics.h
 		mapHandler.h
 		resource.h
-		SDLMain.h
 		SDLRWwrapper.h
 )
+
+if(APPLE_IOS)
+	set(client_SRCS ${client_SRCS}
+		CFocusableHelper.cpp
+		ios/GameChatKeyboardHandler.m
+		ios/main.m
+		ios/startSDL.mm
+		ios/utils.mm
+	)
+	set(client_HEADERS ${client_HEADERS}
+		CFocusableHelper.h
+		ios/GameChatKeyboardHandler.h
+		ios/startSDL.h
+		ios/utils.h
+	)
+endif()
 
 assign_source_group(${client_SRCS} ${client_HEADERS} VCMI_client.rc)
 
@@ -148,9 +167,7 @@ if(ANDROID) # android needs client/server to be libraries, not executables, so w
 	return()
 endif()
 
-if(APPLE)
-	set(client_SRCS ${client_SRCS} SDLMain.m)
-elseif(WIN32)
+if(WIN32)
 	set(client_ICON "VCMI_client.rc")
 endif()
 
@@ -159,7 +176,16 @@ if(ENABLE_DEBUG_CONSOLE)
 else()
 	add_executable(vcmiclient WIN32 ${client_SRCS} ${client_HEADERS} ${client_ICON})
 endif(ENABLE_DEBUG_CONSOLE)
+
 add_dependencies(vcmiclient vcmiserver BattleAI StupidAI VCAI Nullkiller)
+if(APPLE_IOS)
+	if(ENABLE_ERM)
+		add_dependencies(vcmiclient vcmiERM)
+	endif()
+	if(ENABLE_LUA)
+		add_dependencies(vcmiclient vcmiLua)
+	endif()
+endif()
 
 if(WIN32)
 	set_target_properties(vcmiclient
@@ -169,30 +195,91 @@ if(WIN32)
 	)
 	set_property(DIRECTORY ${CMAKE_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT vcmiclient)
 	if(NOT ENABLE_DEBUG_CONSOLE)
-		target_link_libraries(vcmiclient ${SDLMAIN_LIBRARY})
+		target_link_libraries(vcmiclient SDL2::SDL2main)
 	endif()
+	target_compile_definitions(vcmiclient PRIVATE WINDOWS_IGNORE_PACKING_MISMATCH)
+
+	# TODO: very hacky, find proper solution to copy AI dlls into bin dir
+	if(MSVC)
+		add_custom_command(TARGET vcmiclient POST_BUILD
+			WORKING_DIRECTORY "$<TARGET_FILE_DIR:vcmiclient>"
+			COMMAND ${CMAKE_COMMAND} -E copy AI/fuzzylite.dll fuzzylite.dll
+			COMMAND ${CMAKE_COMMAND} -E copy AI/tbb.dll tbb.dll
+		)
+	endif()
+elseif(APPLE_IOS)
+	target_link_libraries(vcmiclient PRIVATE
+		iOS_utils
+
+		# FFmpeg
+		bz2
+		iconv
+		z
+		"-framework AudioToolbox"
+		"-framework AVFoundation"
+		"-framework CoreMedia"
+		"-framework VideoToolbox"
+	)
+
+	set_target_properties(vcmiclient PROPERTIES
+		MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_LIST_DIR}/ios/Info.plist"
+		XCODE_ATTRIBUTE_LD_RUNPATH_SEARCH_PATHS "@executable_path/Frameworks"
+		XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED "$(CODE_SIGNING_ALLOWED_FOR_APPS)"
+		XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME AppIcon
+	)
+
+	foreach(XCODE_RESOURCE LaunchScreen.storyboard Images.xcassets Settings.bundle vcmi_logo.png)
+		set(XCODE_RESOURCE_PATH ios/${XCODE_RESOURCE})
+		target_sources(vcmiclient PRIVATE ${XCODE_RESOURCE_PATH})
+		set_source_files_properties(${XCODE_RESOURCE_PATH} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+
+		# workaround to prevent CMAKE_SKIP_PRECOMPILE_HEADERS being added as compile flag
+		# add max version condition when https://gitlab.kitware.com/cmake/cmake/-/merge_requests/7562 is merged
+		if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.22.0")
+			set_source_files_properties(${XCODE_RESOURCE_PATH} PROPERTIES LANGUAGE CXX)
+		endif()
+	endforeach()
+
+	set(CMAKE_EXE_LINKER_FLAGS "-Wl,-e,_client_main")
 endif()
 
+if(BUILD_SINGLE_APP)
+	target_link_libraries(vcmiclient PRIVATE vcmiserver)
+	if(ENABLE_LAUNCHER)
+		target_link_libraries(vcmiclient PRIVATE vcmilauncher)
+	endif()
+endif()
 target_link_libraries(vcmiclient PRIVATE
-		vcmi ${SDL2_LIBRARY} ${SDL2_IMAGE_LIBRARY} ${SDL2_MIXER_LIBRARY} ${SDL2_TTF_LIBRARY}
-		${FFMPEG_LIBRARIES} ${FFMPEG_EXTRA_LINKING_OPTIONS} ${TBB_LIBRARIES}
+		${VCMI_LIB_TARGET} SDL2::SDL2 SDL2::Image SDL2::Mixer SDL2::TTF
 )
+
+if(ffmpeg_LIBRARIES)
+	target_link_libraries(vcmiclient PRIVATE
+		${ffmpeg_LIBRARIES}
+	)
+else()
+	target_compile_definitions(vcmiclient PRIVATE DISABLE_VIDEO)
+endif()
 
 target_include_directories(vcmiclient
-	PUBLIC	${CMAKE_CURRENT_SOURCE_DIR}
-	PUBLIC	${SDL2_INCLUDE_DIR}
-	PRIVATE ${SDL2_TTF_INCLUDE_DIR}
-	PRIVATE ${SDL2_MIXER_INCLUDE_DIR}
-	PRIVATE ${SDL2_IMAGE_INCLUDE_DIR}
-	PRIVATE ${FFMPEG_INCLUDE_DIRS}
-)
+	PUBLIC	${CMAKE_CURRENT_SOURCE_DIR})
 
 vcmi_set_output_dir(vcmiclient "")
+enable_pch(vcmiclient)
 
-set_target_properties(vcmiclient PROPERTIES ${PCH_PROPERTIES})
-cotire(vcmiclient)
-
-install(TARGETS vcmiclient DESTINATION ${BIN_DIR})
+if(APPLE_IOS)
+	vcmi_install_conan_deps("\${CMAKE_INSTALL_PREFIX}")
+	add_custom_command(TARGET vcmiclient POST_BUILD
+		COMMAND ios/set_build_version.sh "$<TARGET_BUNDLE_CONTENT_DIR:vcmiclient>"
+		COMMAND ${CMAKE_COMMAND} --install "${CMAKE_BINARY_DIR}" --component "${CMAKE_INSTALL_DEFAULT_COMPONENT_NAME}" --config "$<CONFIG>" --prefix "$<TARGET_BUNDLE_CONTENT_DIR:vcmiclient>"
+		COMMAND ios/rpath_remove_symlinks.sh
+		COMMAND ios/codesign.sh
+		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+	)
+	install(TARGETS vcmiclient DESTINATION Payload COMPONENT app) # for ipa generation with cpack
+else()
+	install(TARGETS vcmiclient DESTINATION ${BIN_DIR})
+endif()
 
 #install icons and desktop file on Linux
 if(NOT WIN32 AND NOT APPLE)

@@ -12,6 +12,8 @@
 #include <boost/iostreams/categories.hpp>
 #include <boost/iostreams/stream.hpp>
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class DLL_LINKAGE FileBuf
 {
 public:
@@ -32,12 +34,16 @@ private:
 	void* filePtr;
 };
 
+VCMI_LIB_NAMESPACE_END
+
 struct zlib_filefunc64_def_s;
 typedef zlib_filefunc64_def_s zlib_filefunc64_def;
 
 #ifdef VCMI_DLL
-extern template struct DLL_LINKAGE boost::iostreams::stream<FileBuf>;
+extern template struct DLL_LINKAGE boost::iostreams::stream<VCMI_LIB_WRAP_NAMESPACE(FileBuf)>;
 #endif
+
+VCMI_LIB_NAMESPACE_BEGIN
 
 class DLL_LINKAGE FileStream : public boost::iostreams::stream<FileBuf>
 {
@@ -50,3 +56,5 @@ public:
 
 	static zlib_filefunc64_def* GetMinizipFilefunc();
 };
+
+VCMI_LIB_NAMESPACE_END

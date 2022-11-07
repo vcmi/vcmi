@@ -9,6 +9,8 @@
  */
 #pragma once
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class DLL_LINKAGE CStream : private boost::noncopyable
 {
 public:
@@ -47,3 +49,5 @@ public:
 	 */
 	virtual si64 getSize() = 0;	
 };
+
+VCMI_LIB_NAMESPACE_END

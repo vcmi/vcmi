@@ -237,7 +237,8 @@
 				},
 				"sounds" : {
 					"ambient" : ["LOOPLUMB"]
-				}
+				},
+				"battleground": "subterranean"
 			},
 			"alchemistLab" : {
 				"index" : 1,
@@ -247,7 +248,8 @@
 				},
 				"sounds" : {
 					"ambient" : ["LOOPSTAR"]
-				}
+				},
+				"battleground": "subterranean"
 			},
 			"orePit" : {
 				"index" : 2,
@@ -257,7 +259,8 @@
 				},
 				"sounds" : {
 					"ambient" : ["LOOPSULF"]
-				}
+				},
+				"battleground": "subterranean"
 			},
 			"sulfurDune" : {
 				"index" : 3,
@@ -267,7 +270,8 @@
 				},
 				"sounds" : {
 					"ambient" : ["LOOPSULF"]
-				}
+				},
+				"battleground": "subterranean"
 			},
 			"crystalCavern" : {
 				"index" : 4,
@@ -277,7 +281,8 @@
 				},
 				"sounds" : {
 					"ambient" : ["LOOPCRYS"]
-				}
+				},
+				"battleground": "subterranean"
 			},
 			"gemPond" : {
 				"index" : 5,
@@ -287,7 +292,8 @@
 				},
 				"sounds" : {
 					"ambient" : ["LOOPGEMP"]
-				}
+				},
+				"battleground": "subterranean"
 			},
 			"goldMine" : {
 				"index" : 6,
@@ -297,7 +303,8 @@
 				},
 				"sounds" : {
 					"ambient" : ["LOOPMINE"]
-				}
+				},
+				"battleground": "subterranean"
 			},
 			"abandoned" :	{
 				"index" : 7,
@@ -305,7 +312,8 @@
 				"sounds" : {
 					"ambient" : ["LOOPCAVE"],
 					"visit" : ["MYSTERY"]
-				}
+				},
+				"battleground": "subterranean"
 			}
 		}
 	},
@@ -319,7 +327,7 @@
 			}
 		},
 		"types" : {
-			"mine" : { "index" : 7 }
+			"mine" : { "index" : 7, "battleground": "subterranean" }
 		}
 	},
 
@@ -470,6 +478,9 @@
 			"object" : {
 				"index" : 0,
 				"aiValue" : 500,
+				"sounds" : {
+					"removal" : [ "PICKUP01", "PICKUP02", "PICKUP03", "PICKUP04", "PICKUP05", "PICKUP06", "PICKUP07" ]
+				},
 				"templates" : {
 					"normal" : {
 						"visitableFrom" : [ "+++", "+-+", "+++" ],

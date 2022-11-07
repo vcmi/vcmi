@@ -19,11 +19,15 @@
 #include "CCreatureHandler.h"
 #include "CModHandler.h"
 #include "CTownHandler.h"
+#include "Terrain.h"
 #include "mapObjects/CObjectHandler.h" //for hero specialty
 #include "CSkillHandler.h"
 #include <math.h>
 
 #include "mapObjects/CObjectClassesHandler.h"
+#include "BattleFieldHandler.h"
+
+VCMI_LIB_NAMESPACE_BEGIN
 
 CHero::CHero() = default;
 CHero::~CHero() = default;
@@ -149,39 +153,6 @@ void CHeroClass::serializeJson(JsonSerializeFormat & handler)
 CHeroClass::CHeroClass()
  : faction(0), id(), affinity(0), defaultTavernChance(0), commander(nullptr)
 {
-}
-
-std::vector<BattleHex> CObstacleInfo::getBlocked(BattleHex hex) const
-{
-	std::vector<BattleHex> ret;
-	if(isAbsoluteObstacle)
-	{
-		assert(!hex.isValid());
-		range::copy(blockedTiles, std::back_inserter(ret));
-		return ret;
-	}
-
-	for(int offset : blockedTiles)
-	{
-		BattleHex toBlock = hex + offset;
-		if((hex.getY() & 1) && !(toBlock.getY() & 1))
-			toBlock += BattleHex::LEFT;
-
-		if(!toBlock.isValid())
-			logGlobal->error("Misplaced obstacle!");
-		else
-			ret.push_back(toBlock);
-	}
-
-	return ret;
-}
-
-bool CObstacleInfo::isAppropriate(ETerrainType terrainType, int specialBattlefield) const
-{
-	if(specialBattlefield != -1)
-		return vstd::contains(allowedSpecialBfields, specialBattlefield);
-
-	return vstd::contains(allowedTerrains, terrainType);
 }
 
 void CHeroClassHandler::fillPrimarySkillData(const JsonNode & node, CHeroClass * heroClass, PrimarySkill::PrimarySkill pSkill)
@@ -374,11 +345,10 @@ CHeroHandler::~CHeroHandler() = default;
 
 CHeroHandler::CHeroHandler()
 {
-	loadObstacles();
 	loadTerrains();
-	for (int i = 0; i < GameConstants::TERRAIN_TYPES; ++i)
+	for(const auto & terrain : VLC->terrainTypeHandler->terrains())
 	{
-		VLC->modh->identifiers.registerObject("core", "terrain", GameConstants::TERRAIN_NAMES[i], i);
+		VLC->modh->identifiers.registerObject("core", "terrain", terrain.name, terrain.id);
 	}
 	loadBallistics();
 	loadExperience();
@@ -814,31 +784,6 @@ void CHeroHandler::loadExperience()
 	expPerLevel.pop_back();//last value is broken
 }
 
-void CHeroHandler::loadObstacles()
-{
-	auto loadObstacles = [](const JsonNode &node, bool absolute, std::map<int, CObstacleInfo> &out)
-	{
-		for(const JsonNode &obs : node.Vector())
-		{
-			int ID = static_cast<int>(obs["id"].Float());
-			CObstacleInfo & obi = out[ID];
-			obi.ID = ID;
-			obi.defName = obs["defname"].String();
-			obi.width =  static_cast<si32>(obs["width"].Float());
-			obi.height = static_cast<si32>(obs["height"].Float());
-			obi.allowedTerrains = obs["allowedTerrain"].convertTo<std::vector<ETerrainType> >();
-			obi.allowedSpecialBfields = obs["specialBattlefields"].convertTo<std::vector<BFieldType> >();
-			obi.blockedTiles = obs["blockedTiles"].convertTo<std::vector<si16> >();
-			obi.isAbsoluteObstacle = absolute;
-		}
-	};
-
-	const JsonNode config(ResourceID("config/obstacles.json"));
-	loadObstacles(config["obstacles"], false, obstacles);
-	loadObstacles(config["absoluteObstacles"], true, absoluteObstacles);
-	//loadObstacles(config["moats"], true, moats);
-}
-
 /// convert h3-style ID (e.g. Gobin Wolf Rider) to vcmi (e.g. goblinWolfRider)
 static std::string genRefName(std::string input)
 {
@@ -1029,11 +974,10 @@ ui64 CHeroHandler::reqExp (ui32 level) const
 
 void CHeroHandler::loadTerrains()
 {
-	const JsonNode config(ResourceID("config/terrains.json"));
-
-	terrCosts.reserve(GameConstants::TERRAIN_TYPES);
-	for(const std::string & name : GameConstants::TERRAIN_NAMES)
-		terrCosts.push_back((int)config[name]["moveCost"].Float());
+	for(const auto & terrain : VLC->terrainTypeHandler->terrains())
+	{
+		terrCosts[terrain.id] = terrain.moveCost;
+	}
 }
 
 std::vector<bool> CHeroHandler::getDefaultAllowed() const
@@ -1049,3 +993,5 @@ std::vector<bool> CHeroHandler::getDefaultAllowed() const
 
 	return allowedHeroes;
 }
+
+VCMI_LIB_NAMESPACE_END

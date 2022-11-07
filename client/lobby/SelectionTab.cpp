@@ -129,7 +129,7 @@ static ESortBy getSortBySelectionScreen(ESelectionScreen Type)
 }
 
 SelectionTab::SelectionTab(ESelectionScreen Type)
-	: CIntObject(LCLICK | WHEEL | KEYBOARD | DOUBLECLICK), callOnSelect(nullptr), tabType(Type), selectionPos(0), sortModeAscending(true)
+	: CIntObject(LCLICK | WHEEL | KEYBOARD | DOUBLECLICK), callOnSelect(nullptr), tabType(Type), selectionPos(0), sortModeAscending(true), inputNameRect{32, 539, 350, 20}
 {
 	OBJ_CONSTRUCTION;
 
@@ -140,7 +140,7 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 		sortingBy = _format;
 		background = std::make_shared<CPicture>("SCSELBCK.bmp", 0, 6);
 		pos = background->pos;
-		inputName = std::make_shared<CTextInput>(Rect(32, 539, 350, 20), Point(-32, -25), "GSSTRIP.bmp", 0);
+		inputName = std::make_shared<CTextInput>(inputNameRect, Point(-32, -25), "GSSTRIP.bmp", 0);
 		inputName->filters += CTextInput::filenameFilter;
 		labelMapSizes = std::make_shared<CLabel>(87, 62, FONT_SMALL, EAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[510]);
 
@@ -268,10 +268,19 @@ void SelectionTab::clickLeft(tribool down, bool previousState)
 	if(down)
 	{
 		int line = getLine();
+
 		if(line != -1)
+		{
 			select(line);
+		}
+#ifdef VCMI_IOS
+        // focus input field if clicked inside it
+        else if(inputName && inputName->active && inputNameRect.isIn(GH.current->button.x, GH.current->button.y))
+            inputName->giveFocus();
+#endif
 	}
 }
+
 void SelectionTab::keyPressed(const SDL_KeyboardEvent & key)
 {
 	if(key.state != SDL_PRESSED)

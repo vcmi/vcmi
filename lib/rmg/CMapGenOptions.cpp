@@ -14,8 +14,11 @@
 #include "../mapping/CMap.h"
 #include "CRmgTemplateStorage.h"
 #include "CRmgTemplate.h"
+#include "CRandomGenerator.h"
 #include "../VCMI_Lib.h"
 #include "../CTownHandler.h"
+
+VCMI_LIB_NAMESPACE_BEGIN
 
 CMapGenOptions::CMapGenOptions()
 	: width(CMapHeader::MAP_SIZE_MIDDLE), height(CMapHeader::MAP_SIZE_MIDDLE), hasTwoLevels(true),
@@ -202,16 +205,12 @@ void CMapGenOptions::setMapTemplate(const CRmgTemplate * value)
 {
 	mapTemplate = value;
 	//TODO validate & adapt options according to template
-	assert(0);
-}
-
-const std::map<std::string, CRmgTemplate *> & CMapGenOptions::getAvailableTemplates() const
-{
-	return VLC->tplh->getTemplates();
+	//assert(0);
 }
 
 void CMapGenOptions::finalize(CRandomGenerator & rand)
 {
+	logGlobal->info("RMG map: %dx%d, %s underground", getWidth(), getHeight(), getHasTwoLevels() ? "WITH" : "NO");
 	logGlobal->info("RMG settings: players %d, teams %d, computer players %d, computer teams %d, water %d, monsters %d",
 		static_cast<int>(getPlayerCount()), static_cast<int>(getTeamCount()), static_cast<int>(getCompOnlyPlayerCount()),
 		static_cast<int>(getCompOnlyTeamCount()), static_cast<int>(getWaterContent()), static_cast<int>(getMonsterStrength()));
@@ -221,6 +220,8 @@ void CMapGenOptions::finalize(CRandomGenerator & rand)
 		mapTemplate = getPossibleTemplate(rand);
 	}
 	assert(mapTemplate);
+	
+	logGlobal->info("RMG template name: %s", mapTemplate->getName());
 
 	if (getPlayerCount() == RANDOM_SIZE)
 	{
@@ -250,8 +251,18 @@ void CMapGenOptions::finalize(CRandomGenerator & rand)
 
 	if(waterContent == EWaterContent::RANDOM)
 	{
-		waterContent = static_cast<EWaterContent::EWaterContent>(rand.nextInt(EWaterContent::NONE, EWaterContent::ISLANDS));
+		auto allowedContent = mapTemplate->getWaterContentAllowed();
+
+		if(allowedContent.size())
+		{
+			waterContent = *RandomGeneratorUtil::nextItem(mapTemplate->getWaterContentAllowed(), rand);
+		}
+		else
+		{
+			waterContent = EWaterContent::NONE;
+		}
 	}
+
 	if(monsterStrength == EMonsterStrength::RANDOM)
 	{
 		monsterStrength = static_cast<EMonsterStrength::EMonsterStrength>(rand.nextInt(EMonsterStrength::GLOBAL_WEAK, EMonsterStrength::GLOBAL_STRONG));
@@ -392,61 +403,53 @@ bool CMapGenOptions::checkOptions() const
 	}
 }
 
+std::vector<const CRmgTemplate *> CMapGenOptions::getPossibleTemplates() const
+{
+	int3 tplSize(width, height, (hasTwoLevels ? 2 : 1));
+	auto humanPlayers = countHumanPlayers();
+
+	auto templates = VLC->tplh->getTemplates();
+
+	vstd::erase_if(templates, [this, &tplSize, humanPlayers](const CRmgTemplate * tmpl)
+	{
+		if(!tmpl->matchesSize(tplSize))
+			return true;
+
+		if(!tmpl->isWaterContentAllowed(getWaterContent()))
+			return true;
+
+		if(getPlayerCount() != -1)
+		{
+			if (!tmpl->getPlayers().isInRange(getPlayerCount()))
+				return true;
+		}
+		else
+		{
+			// Human players shouldn't be banned when playing with random player count
+			if(humanPlayers > *boost::min_element(tmpl->getPlayers().getNumbers()))
+				return true;
+		}
+
+		if(compOnlyPlayerCount != -1)
+		{
+			if (!tmpl->getCpuPlayers().isInRange(compOnlyPlayerCount))
+				return true;
+		}
+
+		return false;
+	});
+
+	return templates;
+}
+
 const CRmgTemplate * CMapGenOptions::getPossibleTemplate(CRandomGenerator & rand) const
 {
-	// Find potential templates
-	const auto & tpls = getAvailableTemplates();
-	std::list<const CRmgTemplate *> potentialTpls;
-	for(const auto & tplPair : tpls)
-	{
-		const auto & tpl = tplPair.second;
-		int3 tplSize(width, height, (hasTwoLevels ? 2 : 1));
-		if(tpl->matchesSize(tplSize))
-		{
-			bool isPlayerCountValid = false;
-			if (getPlayerCount() != RANDOM_SIZE)
-			{
-				if (tpl->getPlayers().isInRange(getPlayerCount()))
-					isPlayerCountValid = true;
-			}
-			else
-			{
-				// Human players shouldn't be banned when playing with random player count
-				auto playerNumbers = tpl->getPlayers().getNumbers();
-				if(countHumanPlayers() <= *boost::min_element(playerNumbers))
-				{
-					isPlayerCountValid = true;
-				}
-			}
+	auto templates = getPossibleTemplates();
 
-			if (isPlayerCountValid)
-			{
-				bool isCpuPlayerCountValid = false;
-				if(compOnlyPlayerCount != RANDOM_SIZE)
-				{
-					if (tpl->getCpuPlayers().isInRange(compOnlyPlayerCount))
-						isCpuPlayerCountValid = true;
-				}
-				else
-				{
-					isCpuPlayerCountValid = true;
-				}
-
-				if(isCpuPlayerCountValid)
-					potentialTpls.push_back(tpl);
-			}
-		}
-	}
-
-	// Select tpl
-	if(potentialTpls.empty())
-	{
+	if(templates.empty())
 		return nullptr;
-	}
-	else
-	{
-		return *RandomGeneratorUtil::nextItem(potentialTpls, rand);
-	}
+	
+	return *RandomGeneratorUtil::nextItem(templates, rand);
 }
 
 CMapGenOptions::CPlayerSettings::CPlayerSettings() : color(0), startingTown(RANDOM_TOWN), playerType(EPlayerType::AI)
@@ -490,3 +493,5 @@ void CMapGenOptions::CPlayerSettings::setPlayerType(EPlayerType::EPlayerType val
 {
 	playerType = value;
 }
+
+VCMI_LIB_NAMESPACE_END

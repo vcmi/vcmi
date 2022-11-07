@@ -16,6 +16,8 @@
 #include "GameConstants.h"
 #include "IHandlerBase.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CArtHandler;
 class CArtifact;
 class CGHeroInstance;
@@ -102,19 +104,8 @@ public:
 		h & constituentOf;
 		h & aClass;
 		h & id;
-		if(version >= 759)
-		{
-			h & identifier;
-		}
-
-		if(version >= 771)
-		{
-			h & warMachine;
-		}
-		else if(!h.saving)
-		{
-			fillWarMachine();
-		}
+		h & identifier;
+		h & warMachine;
 	}
 
 	CArtifact();
@@ -335,15 +326,17 @@ public:
 	CArtifactInstance* getArt(ArtifactPosition pos, bool excludeLocked = true); //nullptr - no artifact
 	/// Looks for equipped artifact with given ID and returns its slot ID or -1 if none
 	/// (if more than one such artifact lower ID is returned)
-	ArtifactPosition getArtPos(int aid, bool onlyWorn = true) const;
+	ArtifactPosition getArtPos(int aid, bool onlyWorn = true, bool allowLocked = true) const;
 	ArtifactPosition getArtPos(const CArtifactInstance *art) const;
+	std::vector<ArtifactPosition> getAllArtPositions(int aid, bool onlyWorn, bool allowLocked, bool getAll) const;
 	const CArtifactInstance *getArtByInstanceId(ArtifactInstanceID artInstId) const;
 	/// Search for constituents of assemblies in backpack which do not have an ArtifactPosition
 	const CArtifactInstance *getHiddenArt(int aid) const;
 	const CCombinedArtifactInstance *getAssemblyByConstituent(int aid) const;
 	/// Checks if hero possess artifact of given id (either in backack or worn)
-	bool hasArt(ui32 aid, bool onlyWorn = false, bool searchBackpackAssemblies = false) const;
+	bool hasArt(ui32 aid, bool onlyWorn = false, bool searchBackpackAssemblies = false, bool allowLocked = true) const;
 	bool isPositionFree(ArtifactPosition pos, bool onlyLockCheck = false) const;
+	unsigned getArtPosCount(int aid, bool onlyWorn = true, bool searchBackpackAssemblies = true, bool allowLocked = true) const;
 
 	virtual ArtBearer::ArtBearer bearerType() const = 0;
 	virtual void putArtifact(ArtifactPosition pos, CArtifactInstance * art) = 0;
@@ -369,3 +362,5 @@ private:
 
 	void serializeJsonSlot(JsonSerializeFormat & handler, const ArtifactPosition & slot, CMap * map);//normal slots
 };
+
+VCMI_LIB_NAMESPACE_END

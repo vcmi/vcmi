@@ -9,7 +9,7 @@
  */
 #include "StdInc.h"
 
-#include <QDesktopWidget>
+#include <QGuiApplication>
 
 #include "imageviewer_moc.h"
 #include "ui_imageviewer_moc.h"
@@ -27,8 +27,7 @@ ImageViewer::~ImageViewer()
 
 QSize ImageViewer::calculateWindowSize()
 {
-	QDesktopWidget desktop;
-	return desktop.availableGeometry(desktop.primaryScreen()).size() * 0.8;
+	return QGuiApplication::primaryScreen()->availableGeometry().size() * 0.8;
 }
 
 void ImageViewer::showPixmap(QPixmap & pixmap, QWidget * parent)

@@ -11,12 +11,15 @@
 
 #include "CSerializer.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 struct IPointerCaster
 {
 	virtual boost::any castRawPtr(const boost::any &ptr) const = 0; // takes From*, returns To*
 	virtual boost::any castSharedPtr(const boost::any &ptr) const = 0; // takes std::shared_ptr<From>, performs dynamic cast, returns std::shared_ptr<To>
 	virtual boost::any castWeakPtr(const boost::any &ptr) const = 0; // takes std::weak_ptr<From>, performs dynamic cast, returns std::weak_ptr<To>. The object under poitner must live.
 	//virtual boost::any castUniquePtr(const boost::any &ptr) const = 0; // takes std::unique_ptr<From>, performs dynamic cast, returns std::unique_ptr<To>
+	virtual ~IPointerCaster() = default;
 };
 
 template <typename From, typename To>
@@ -147,6 +150,8 @@ public:
 		return getTypeID(getTypeInfo(t), throws);
 	}
 
+	TypeInfoPtr getTypeDescriptor(ui16 typeID) const;
+
 	template<typename TInput>
 	void * castToMostDerived(const TInput * inputPtr) const
 	{
@@ -228,3 +233,5 @@ public:
 		addApplier<Derived>(typeList.getTypeID(d));
 	}
 };
+
+VCMI_LIB_NAMESPACE_END

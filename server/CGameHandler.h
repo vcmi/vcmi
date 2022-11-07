@@ -18,8 +18,8 @@
 #include "../lib/ScriptHandler.h"
 #include "CQuery.h"
 
-class CGameHandler;
-class CVCMIServer;
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CGameState;
 struct StartInfo;
 struct BattleResult;
@@ -34,13 +34,20 @@ class IMarket;
 
 class SpellCastEnvironment;
 
+#if SCRIPTING_ENABLED
 namespace scripting
 {
 	class PoolImpl;
 }
+#endif
 
 
 template<typename T> class CApplier;
+
+VCMI_LIB_NAMESPACE_END
+
+class CGameHandler;
+class CVCMIServer;
 class CBaseForGHApply;
 
 struct PlayerStatus
@@ -126,7 +133,8 @@ public:
 
 	void makeAttack(const CStack * attacker, const CStack * defender, int distance, BattleHex targetHex, bool first, bool ranged, bool counter);
 
-	void applyBattleEffects(BattleAttack & bat, BattleLogMessage & blm, std::shared_ptr<battle::CUnitState> attackerState, FireShieldInfo & fireShield, const CStack * def, int distance, bool secondary); //damage, drain life & fire shield
+	// damage, drain life & fire shield; returns amount of drained life
+	int64_t applyBattleEffects(BattleAttack & bat, std::shared_ptr<battle::CUnitState> attackerState, FireShieldInfo & fireShield, const CStack * def, int distance, bool secondary);
 
 	void sendGenericKilledLog(const CStack * defender, int32_t killed, bool multiple);
 	void addGenericKilledLog(BattleLogMessage & blm, const CStack * defender, int32_t killed, bool multiple);
@@ -215,6 +223,7 @@ public:
 	void handleClientDisconnection(std::shared_ptr<CConnection> c);
 	void handleReceivedPack(CPackForServer * pack);
 	PlayerColor getPlayerAt(std::shared_ptr<CConnection> c) const;
+	bool hasPlayerAt(PlayerColor player, std::shared_ptr<CConnection> c) const;
 
 	void playerMessage(PlayerColor player, const std::string &message, ObjectInstanceID currObj);
 	void updateGateState();
@@ -242,15 +251,19 @@ public:
 	//void lootArtifacts (TArtHolder source, TArtHolder dest, std::vector<ui32> &arts); //after battle - move al arts to winer
 	bool buySecSkill( const IMarket *m, const CGHeroInstance *h, SecondarySkill skill);
 	bool garrisonSwap(ObjectInstanceID tid);
-	bool swapGarrisonOnSiege(ObjectInstanceID tid);
+	bool swapGarrisonOnSiege(ObjectInstanceID tid) override;
 	bool upgradeCreature( ObjectInstanceID objid, SlotID pos, CreatureID upgID );
 	bool recruitCreatures(ObjectInstanceID objid, ObjectInstanceID dst, CreatureID crid, ui32 cram, si32 level);
 	bool buildStructure(ObjectInstanceID tid, BuildingID bid, bool force=false);//force - for events: no cost, no checkings
 	bool razeStructure(ObjectInstanceID tid, BuildingID bid);
 	bool disbandCreature( ObjectInstanceID id, SlotID pos );
 	bool arrangeStacks( ObjectInstanceID id1, ObjectInstanceID id2, ui8 what, SlotID p1, SlotID p2, si32 val, PlayerColor player);
+	bool bulkMoveArmy(ObjectInstanceID srcArmy, ObjectInstanceID destArmy, SlotID srcSlot);
+	bool bulkSplitStack(SlotID src, ObjectInstanceID srcOwner, si32 howMany);
+	bool bulkMergeStacks(SlotID slotSrc, ObjectInstanceID srcOwner);
+	bool bulkSmartSplitStack(SlotID slotSrc, ObjectInstanceID srcOwner);
 	void save(const std::string &fname);
-	void load(const std::string &fname);
+	bool load(const std::string &fname);
 
 	void handleTimeEvents();
 	void handleTownEvents(CGTownInstance *town, NewTurn &n);
@@ -268,21 +281,16 @@ public:
 		h & QID;
 		h & states;
 		h & finishingBattle;
+		h & getRandomGenerator();
 
-		if(version >= 761)
-		{
-			h & getRandomGenerator();
-		}
-
-		if(version >= 800)
-		{
-			JsonNode scriptsState;
-			if(h.saving)
-				serverScripts->serializeState(h.saving, scriptsState);
-			h & scriptsState;
-			if(!h.saving)
-				serverScripts->serializeState(h.saving, scriptsState);
-		}
+#if SCRIPTING_ENABLED
+		JsonNode scriptsState;
+		if(h.saving)
+			serverScripts->serializeState(h.saving, scriptsState);
+		h & scriptsState;
+		if(!h.saving)
+			serverScripts->serializeState(h.saving, scriptsState);
+#endif
 	}
 
 	void sendMessageToAll(const std::string &message);
@@ -310,11 +318,6 @@ public:
 			h & loserHero;
 			h & victor;
 			h & loser;
-			if(version < 774 && !h.saving)
-			{
-				bool duel;
-				h & duel;
-			}
 			h & remainingBattleQueriesCount;
 		}
 	};
@@ -334,13 +337,17 @@ public:
 
 	CRandomGenerator & getRandomGenerator();
 
+#if SCRIPTING_ENABLED
 	scripting::Pool * getGlobalContextPool() const override;
 	scripting::Pool * getContextPool() const override;
+#endif
 
 	friend class CVCMIServer;
 private:
 	std::unique_ptr<events::EventBus> serverEventBus;
+#if SCRIPTING_ENABLED
 	std::shared_ptr<scripting::PoolImpl> serverScripts;
+#endif
 
 	void reinitScripting();
 
@@ -353,7 +360,9 @@ private:
 	void checkVictoryLossConditions(const std::set<PlayerColor> & playerColors);
 	void checkVictoryLossConditionsForAll();
 
-
+	const std::string complainNoCreatures;
+	const std::string complainNotEnoughCreatures;
+	const std::string complainInvalidSlot;
 };
 
 class ExceptionNotAllowedAction : public std::exception

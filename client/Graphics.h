@@ -13,17 +13,22 @@
 #include "../lib/GameConstants.h"
 #include "gui/Geometries.h"
 
-struct SDL_Surface;
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CGHeroInstance;
 class CGTownInstance;
 class CHeroClass;
-struct SDL_Color;
 struct InfoAboutHero;
 struct InfoAboutTown;
 class CGObjectInstance;
 class ObjectTemplate;
-class CAnimation;
 class EntityService;
+
+VCMI_LIB_NAMESPACE_END
+
+struct SDL_Surface;
+struct SDL_Color;
+class CAnimation;
 
 enum EFonts
 {
@@ -87,7 +92,6 @@ public:
 	//towns
 	std::map<int, std::string> ERMUtoPicture[GameConstants::F_NUMBER]; //maps building ID to it's picture's name for each town type
 	//for battles
-	std::vector< std::vector< std::string > > battleBacks; //battleBacks[terType] - vector of possible names for certain terrain type
 	std::map< int, std::vector < std::string > > battleACToDef; //maps AC format to vector of appropriate def names
 
 	//functions
@@ -99,7 +103,7 @@ public:
 	void blueToPlayersAdv(SDL_Surface * sur, PlayerColor player); //replaces blue interface colour with a color of player
 
 	std::shared_ptr<CAnimation> getAnimation(const CGObjectInstance * obj);
-	std::shared_ptr<CAnimation> getAnimation(const ObjectTemplate & info);
+	std::shared_ptr<CAnimation> getAnimation(std::shared_ptr<const ObjectTemplate> info);
 };
 
 extern Graphics * graphics;

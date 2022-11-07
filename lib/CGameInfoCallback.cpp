@@ -21,6 +21,8 @@
 #include "mapping/CMap.h"
 #include "CPlayerState.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 //TODO make clean
 #define ERROR_VERBOSE_OR_NOT_RET_VAL_IF(cond, verbose, txt, retVal) do {if(cond){if(verbose)logGlobal->error("%s: %s",BOOST_CURRENT_FUNCTION, txt); return retVal;}} while(0)
 #define ERROR_RET_IF(cond, txt) do {if(cond){logGlobal->error("%s: %s", BOOST_CURRENT_FUNCTION, txt); return;}} while(0)
@@ -493,35 +495,38 @@ std::vector<const CGHeroInstance *> CGameInfoCallback::getAvailableHeroes(const 
 
 const TerrainTile * CGameInfoCallback::getTile( int3 tile, bool verbose) const
 {
-	ERROR_VERBOSE_OR_NOT_RET_VAL_IF(!isVisible(tile), verbose, tile.toString() + " is not visible!", nullptr);
+	if(isVisible(tile))
+		return &gs->map->getTile(tile);
 
-	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
-	return &gs->map->getTile(tile);
+	if(verbose)
+		logGlobal->error("\r\n%s: %s\r\n", BOOST_CURRENT_FUNCTION, tile.toString() + " is not visible!");
+	return nullptr;
 }
 
 //TODO: typedef?
-std::shared_ptr<boost::multi_array<TerrainTile*, 3>> CGameInfoCallback::getAllVisibleTiles() const
+std::shared_ptr<const boost::multi_array<TerrainTile*, 3>> CGameInfoCallback::getAllVisibleTiles() const
 {
 	assert(player.is_initialized());
 	auto team = getPlayerTeam(player.get());
 
 	size_t width = gs->map->width;
 	size_t height = gs->map->height;
-	size_t levels = (gs->map->twoLevel ? 2 : 1);
+	size_t levels = gs->map->levels();
 
+	auto ptr = new boost::multi_array<TerrainTile*, 3>(boost::extents[levels][width][height]);
 
-	boost::multi_array<TerrainTile*, 3> tileArray(boost::extents[width][height][levels]);
-
-	for (size_t x = 0; x < width; x++)
-		for (size_t y = 0; y < height; y++)
-			for (size_t z = 0; z < levels; z++)
+	int3 tile;
+	for(tile.z = 0; tile.z < levels; tile.z++)
+		for(tile.x = 0; tile.x < width; tile.x++)
+			for(tile.y = 0; tile.y < height; tile.y++)
 			{
-				if (team->fogOfWarMap[x][y][z])
-					tileArray[x][y][z] = &gs->map->getTile(int3((si32)x, (si32)y, (si32)z));
+				if ((*team->fogOfWarMap)[tile.z][tile.x][tile.y])
+					(*ptr)[tile.z][tile.x][tile.y] = &gs->map->getTile(tile);
 				else
-					tileArray[x][y][z] = nullptr;
+					(*ptr)[tile.z][tile.x][tile.y] = nullptr;
 			}
-	return std::make_shared<boost::multi_array<TerrainTile*, 3>>(tileArray);
+
+	return std::shared_ptr<const boost::multi_array<TerrainTile*, 3>>(ptr);
 }
 
 EBuildingState::EBuildingState CGameInfoCallback::canBuildStructure( const CGTownInstance *t, BuildingID ID )
@@ -572,7 +577,7 @@ EBuildingState::EBuildingState CGameInfoCallback::canBuildStructure( const CGTow
 	{
 		const TerrainTile *tile = getTile(t->bestLocation(), false);
 
-		if(!tile || tile->terType != ETerrainType::WATER)
+		if(!tile || tile->terType->isLand())
 			return EBuildingState::NO_WATER; //lack of water
 	}
 
@@ -692,7 +697,7 @@ CGameInfoCallback::CGameInfoCallback(CGameState *GS, boost::optional<PlayerColor
 	player = Player;
 }
 
-const std::vector< std::vector< std::vector<ui8> > > & CPlayerSpecificInfoCallback::getVisibilityMap() const
+std::shared_ptr<const boost::multi_array<ui8, 3>> CPlayerSpecificInfoCallback::getVisibilityMap() const
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	return gs->getPlayerTeam(*player)->fogOfWarMap;
@@ -996,3 +1001,5 @@ bool CGameInfoCallback::isTeleportEntrancePassable(const CGTeleport * obj, Playe
 {
 	return obj && obj->isEntrance() && !isTeleportChannelImpassable(obj->channel, player);
 }
+
+VCMI_LIB_NAMESPACE_END

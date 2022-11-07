@@ -13,6 +13,8 @@
 #include "SpecialAction.h"
 #include "../../../../lib/CGameState.h"
 
+namespace NKAI
+{
 namespace AIPathfinding
 {
 	class QuestAction : public SpecialAction
@@ -34,4 +36,6 @@ namespace AIPathfinding
 
 		virtual std::string toString() const override;
 	};
+}
+
 }

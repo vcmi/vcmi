@@ -37,6 +37,8 @@
 #include "serializer/CMemorySerializer.h"
 #include "VCMIDirs.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 boost::shared_mutex CGameState::mutex;
 
 template <typename T> class CApplyOnGS;
@@ -853,9 +855,9 @@ void CGameState::initNewGame(const IMapService * mapService, bool allowSavingRan
 		CStopWatch sw;
 
 		// Gen map
-		CMapGenerator mapGenerator;
+		CMapGenerator mapGenerator(*scenarioOps->mapGenOptions, scenarioOps->seedToBeUsed);
 
-		std::unique_ptr<CMap> randomMap = mapGenerator.generate(scenarioOps->mapGenOptions.get(), scenarioOps->seedToBeUsed);
+		std::unique_ptr<CMap> randomMap = mapGenerator.generate();
 
 		if(allowSavingRandomMap)
 		{
@@ -954,19 +956,20 @@ void CGameState::initGrailPosition()
 		static const int BORDER_WIDTH = 9; // grail must be at least 9 tiles away from border
 
 		// add all not blocked tiles in range
-		for (int i = BORDER_WIDTH; i < map->width - BORDER_WIDTH ; i++)
+
+		for (int z = 0; z < map->levels(); z++)
 		{
-			for (int j = BORDER_WIDTH; j < map->height - BORDER_WIDTH; j++)
+			for(int x = BORDER_WIDTH; x < map->width - BORDER_WIDTH ; x++)
 			{
-				for (int k = 0; k < (map->twoLevel ? 2 : 1); k++)
+				for(int y = BORDER_WIDTH; y < map->height - BORDER_WIDTH; y++)
 				{
-					const TerrainTile &t = map->getTile(int3(i, j, k));
+					const TerrainTile &t = map->getTile(int3(x, y, z));
 					if(!t.blocked
 						&& !t.visitable
-						&& t.terType != ETerrainType::WATER
-						&& t.terType != ETerrainType::ROCK
-						&& (int)map->grailPos.dist2dSQ(int3(i, j, k)) <= (map->grailRadius * map->grailRadius))
-						allowedPos.push_back(int3(i,j,k));
+						&& t.terType->isLand()
+						&& t.terType->isPassable()
+						&& (int)map->grailPos.dist2dSQ(int3(x, y, z)) <= (map->grailRadius * map->grailRadius))
+						allowedPos.push_back(int3(x,y,z));
 				}
 			}
 		}
@@ -1145,7 +1148,14 @@ void CGameState::placeCampaignHeroes()
 
 void CGameState::placeStartingHero(PlayerColor playerColor, HeroTypeID heroTypeId, int3 townPos)
 {
-	townPos.x -= 2; //FIXME: use actual visitable offset of town
+	for(auto town : map->towns)
+	{
+		if(town->getPosition() == townPos)
+		{
+			townPos = town->visitablePos();
+			break;
+		}
+	}
 
 	CGObjectInstance * hero = createObject(Obj::HERO, heroTypeId.getNum(), townPos, playerColor);
 	hero->pos += hero->getVisitableOffset();
@@ -1593,20 +1603,13 @@ void CGameState::giveCampaignBonusToHero(CGHeroInstance * hero)
 void CGameState::initFogOfWar()
 {
 	logGlobal->debug("\tFog of war"); //FIXME: should be initialized after all bonuses are set
+
+	int layers = map->levels();
 	for(auto & elem : teams)
 	{
-		elem.second.fogOfWarMap.resize(map->width);
-		for(int g=0; g<map->width; ++g)
-			elem.second.fogOfWarMap[g].resize(map->height);
-
-		for(int g=-0; g<map->width; ++g)
-			for(int h=0; h<map->height; ++h)
-				elem.second.fogOfWarMap[g][h].resize(map->twoLevel ? 2 : 1, 0);
-
-		for(int g=0; g<map->width; ++g)
-			for(int h=0; h<map->height; ++h)
-				for(int v = 0; v < (map->twoLevel ? 2 : 1); ++v)
-					elem.second.fogOfWarMap[g][h][v] = 0;
+		auto fow = elem.second.fogOfWarMap;
+		fow->resize(boost::extents[layers][map->width][map->height]);
+		std::fill(fow->data(), fow->data() + fow->num_elements(), 0);
 
 		for(CGObjectInstance *obj : map->objects)
 		{
@@ -1616,7 +1619,7 @@ void CGameState::initFogOfWar()
 			getTilesInRange(tiles, obj->getSightCenter(), obj->getSightRadius(), obj->tempOwner, 1);
 			for(int3 tile : tiles)
 			{
-				elem.second.fogOfWarMap[tile.x][tile.y][tile.z] = 1;
+				(*elem.second.fogOfWarMap)[tile.z][tile.x][tile.y] = 1;
 			}
 		}
 	}
@@ -1870,8 +1873,8 @@ void CGameState::initVisitingAndGarrisonedHeroes()
 		{
 			for(CGTownInstance *t : k->second.towns)
 			{
-				int3 vistile = t->pos; vistile.x--; //tile next to the entrance
-				if(vistile == h->pos || h->pos==t->pos)
+				int3 vistile = t->visitablePos(); vistile.x++; //tile next to the entrance
+				if(vistile == h->pos || h->pos==t->visitablePos())
 				{
 					t->setVisitingHero(h);
 					if(h->pos == t->pos) //visiting hero placed in the editor has same pos as the town - we need to correct it
@@ -1894,17 +1897,20 @@ void CGameState::initVisitingAndGarrisonedHeroes()
 	}
 }
 
-BFieldType CGameState::battleGetBattlefieldType(int3 tile, CRandomGenerator & rand)
+BattleField CGameState::battleGetBattlefieldType(int3 tile, CRandomGenerator & rand)
 {
 	if(!tile.valid() && curB)
 		tile = curB->tile;
 	else if(!tile.valid() && !curB)
-		return BFieldType::NONE;
+		return BattleField::NONE;
 
 	const TerrainTile &t = map->getTile(tile);
-	//fight in mine -> subterranean
-	if(dynamic_cast<const CGMine *>(t.visitableObjects.front()))
-		return BFieldType::SUBTERRANEAN;
+
+	auto topObject = t.visitableObjects.front();
+	if(topObject && topObject->getBattlefield() != BattleField::NONE)
+	{
+		return topObject->getBattlefield();
+	}
 
 	for(auto &obj : map->objects)
 	{
@@ -1912,59 +1918,17 @@ BFieldType CGameState::battleGetBattlefieldType(int3 tile, CRandomGenerator & ra
 		if( !obj || obj->pos.z != tile.z || !obj->coveringAt(tile.x, tile.y))
 			continue;
 
-		switch(obj->ID)
-		{
-		case Obj::CLOVER_FIELD:
-			return BFieldType::CLOVER_FIELD;
-		case Obj::CURSED_GROUND1: case Obj::CURSED_GROUND2:
-			return BFieldType::CURSED_GROUND;
-		case Obj::EVIL_FOG:
-			return BFieldType::EVIL_FOG;
-		case Obj::FAVORABLE_WINDS:
-			return BFieldType::FAVORABLE_WINDS;
-		case Obj::FIERY_FIELDS:
-			return BFieldType::FIERY_FIELDS;
-		case Obj::HOLY_GROUNDS:
-			return BFieldType::HOLY_GROUND;
-		case Obj::LUCID_POOLS:
-			return BFieldType::LUCID_POOLS;
-		case Obj::MAGIC_CLOUDS:
-			return BFieldType::MAGIC_CLOUDS;
-		case Obj::MAGIC_PLAINS1: case Obj::MAGIC_PLAINS2:
-			return BFieldType::MAGIC_PLAINS;
-		case Obj::ROCKLANDS:
-			return BFieldType::ROCKLANDS;
-		}
+		auto customBattlefield = obj->getBattlefield();
+
+		if(customBattlefield != BattleField::NONE)
+			return customBattlefield;
 	}
 
 	if(map->isCoastalTile(tile)) //coastal tile is always ground
-		return BFieldType::SAND_SHORE;
-
-	switch(t.terType)
-	{
-	case ETerrainType::DIRT:
-		return BFieldType(rand.nextInt(3, 5));
-	case ETerrainType::SAND:
-		return BFieldType::SAND_MESAS; //TODO: coast support
-	case ETerrainType::GRASS:
-		return BFieldType(rand.nextInt(6, 7));
-	case ETerrainType::SNOW:
-		return BFieldType(rand.nextInt(10, 11));
-	case ETerrainType::SWAMP:
-		return BFieldType::SWAMP_TREES;
-	case ETerrainType::ROUGH:
-		return BFieldType::ROUGH;
-	case ETerrainType::SUBTERRANEAN:
-		return BFieldType::SUBTERRANEAN;
-	case ETerrainType::LAVA:
-		return BFieldType::LAVA;
-	case ETerrainType::WATER:
-		return BFieldType::SHIP;
-	case ETerrainType::ROCK:
-		return BFieldType::ROCKLANDS;
-	default:
-		return BFieldType::NONE;
-	}
+		return BattleField::fromString("sand_shore");
+	
+	return BattleField::fromString(
+		*RandomGeneratorUtil::nextItem(t.terType->battleFields, rand));
 }
 
 UpgradeInfo CGameState::getUpgradeInfo(const CStackInstance &stack)
@@ -2058,6 +2022,7 @@ void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out)
 
 void CGameState::calculatePaths(std::shared_ptr<PathfinderConfig> config)
 {
+	//FIXME: creating pathfinder is costly, maybe reset / clear is enough?
 	CPathfinder pathfinder(this, config);
 	pathfinder.calculatePaths();
 }
@@ -2119,7 +2084,7 @@ std::vector<CGObjectInstance*> CGameState::guardingCreatures (int3 pos) const
 
 int3 CGameState::guardingCreaturePosition (int3 pos) const
 {
-	return gs->map->guardingCreaturePositions[pos.x][pos.y][pos.z];
+	return gs->map->guardingCreaturePositions[pos.z][pos.x][pos.y];
 }
 
 void CGameState::updateRumor()
@@ -2145,7 +2110,7 @@ void CGameState::updateRumor()
 			rumorId = *RandomGeneratorUtil::nextItem(sRumorTypes, rand);
 			if(rumorId == RumorState::RUMOR_GRAIL)
 			{
-				rumorExtra = getTile(map->grailPos)->terType;
+				rumorExtra = getTile(map->grailPos)->terType->id;
 				break;
 			}
 
@@ -2203,7 +2168,7 @@ bool CGameState::isVisible(int3 pos, PlayerColor player)
 	if(player.isSpectator())
 		return true;
 
-	return getPlayerTeam(player)->fogOfWarMap[pos.x][pos.y][pos.z];
+	return (*getPlayerTeam(player)->fogOfWarMap)[pos.z][pos.x][pos.y];
 }
 
 bool CGameState::isVisible( const CGObjectInstance *obj, boost::optional<PlayerColor> player )
@@ -2457,8 +2422,8 @@ PlayerColor CGameState::checkForStandardWin() const
 bool CGameState::checkForStandardLoss( PlayerColor player ) const
 {
 	//std loss condition is: player lost all towns and heroes
-	const PlayerState &p = *CGameInfoCallback::getPlayerState(player);
-	return !p.heroes.size() && !p.towns.size();
+	const PlayerState & pState = *CGameInfoCallback::getPlayerState(player);
+	return pState.checkVanquished();
 }
 
 struct statsHLP
@@ -3135,6 +3100,7 @@ int ArmyDescriptor::getStrength() const
 TeamState::TeamState()
 {
 	setNodeType(TEAM);
+	fogOfWarMap = std::make_shared<boost::multi_array<ui8, 3>>();
 }
 
 TeamState::TeamState(TeamState && other):
@@ -3149,3 +3115,5 @@ CRandomGenerator & CGameState::getRandomGenerator()
 {
 	return rand;
 }
+
+VCMI_LIB_NAMESPACE_END

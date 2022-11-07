@@ -1,7 +1,7 @@
 # Minimum required version greatly affect CMake behavior
 # So cmake_minimum_required must be called before the project()
-# 2.8.12 is used since it's present in Ubuntu 14.04 and Cotire require it
-cmake_minimum_required(VERSION 2.8.12)
+# 3.10.0 is used since it's minimal in MXE dependencies for now
+cmake_minimum_required(VERSION 3.10.0)
 
 project(VCMI)
 # TODO
@@ -9,16 +9,12 @@ project(VCMI)
 # - There is problem with running fixup_bundle in main project after subdirectories.
 # Cmake put them after all install code of main CMakelists in cmake_install.cmake
 # Currently I just added extra add_subdirectory and CMakeLists.txt in osx directory to bypass that.
-# - Try to fix build with RPATH.
-# Currently if CMAKE_MACOSX_RPATH=1 then AI libs unable to find @rpath/libvcmi.dylib
-# I tried to set few different INSTALL_RPATH for all targets in AI directory, but nothing worked.
 #
 # MXE:
 # - Try to implement MXE support into BundleUtilities so we can deploy deps automatically
 #
 # Vckpg:
 # - Improve install code once there is better way to deploy DLLs and Qt plugins
-# - Move Vcpkg install BundleUtilities code from osx/CMakeLists.txt
 #
 # Other:
 # - Cleanup remove_directory copy_directory if performance will be a problem.
@@ -28,6 +24,18 @@ project(VCMI)
 # - Try to get rid of FOLDER override with define_property
 # It's used currently to make sure that 3rd-party dependencies in git submodules get proper FOLDER property
 # - Make FindFuzzyLite check for the right version and disable FORCE_BUNDLED_FL by default
+
+if(APPLE)
+	if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+		set(APPLE_MACOS 1)
+	else()
+		set(APPLE_IOS 1)
+	endif()
+endif()
+
+if(APPLE_IOS)
+	set(BUILD_SINGLE_APP 1)
+endif()
 
 ############################################
 #        User-provided options             #
@@ -40,25 +48,36 @@ if(NOT CMAKE_BUILD_TYPE)
 	set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS Debug Release RelWithDebInfo)
 endif()
 
-set(VCMI_VERSION_MAJOR 0)
-set(VCMI_VERSION_MINOR 99)
-set(VCMI_VERSION_PATCH 0)
-
-option(ENABLE_ERM "Enable compilation of ERM scripting module" ON)
-option(ENABLE_LUA "Enable compilation of LUA scripting module" ON)
+option(ENABLE_ERM "Enable compilation of ERM scripting module" OFF)
+option(ENABLE_LUA "Enable compilation of LUA scripting module" OFF)
 option(ENABLE_LAUNCHER "Enable compilation of launcher" ON)
-option(ENABLE_TEST "Enable compilation of unit tests" ON)
-option(ENABLE_PCH "Enable compilation using precompiled headers" ON)
+option(ENABLE_EDITOR "Enable compilation of map editor" ON)
+if(APPLE_IOS)
+	set(BUNDLE_IDENTIFIER_PREFIX "" CACHE STRING "Bundle identifier prefix")
+	set(APP_DISPLAY_NAME "VCMI" CACHE STRING "App name on the home screen")
+else()
+	option(ENABLE_TEST "Enable compilation of unit tests" OFF)
+endif()
+if(NOT ${CMAKE_VERSION} VERSION_LESS "3.16.0")
+	option(ENABLE_PCH "Enable compilation using precompiled headers" ON)
+endif(NOT ${CMAKE_VERSION} VERSION_LESS "3.16.0")
 option(ENABLE_GITVERSION "Enable Version.cpp with Git commit hash" ON)
 option(ENABLE_DEBUG_CONSOLE "Enable debug console for Windows builds" ON)
 option(ENABLE_MULTI_PROCESS_BUILDS "Enable /MP flag for MSVS solution" ON)
 
 # Used for Snap packages and also useful for debugging
-option(ENABLE_MONOLITHIC_INSTALL "Install everything in single directory on Linux and Mac" OFF)
+if(NOT APPLE_IOS)
+	option(ENABLE_MONOLITHIC_INSTALL "Install everything in single directory on Linux and Mac" OFF)
+endif()
 
 # Allow to pass package name from Travis CI
 set(PACKAGE_NAME_SUFFIX "" CACHE STRING "Suffix for CPack package name")
 set(PACKAGE_FILE_NAME "" CACHE STRING "Override for CPack package filename")
+
+# ERM depends on LUA implicitly
+if(ENABLE_ERM AND NOT ENABLE_LUA)
+	set(ENABLE_LUA ON)
+endif()
 
 ############################################
 #        Miscellaneous options             #
@@ -66,7 +85,10 @@ set(PACKAGE_FILE_NAME "" CACHE STRING "Override for CPack package filename")
 
 set(CMAKE_MODULE_PATH ${CMAKE_HOME_DIRECTORY}/cmake_modules ${PROJECT_SOURCE_DIR}/CI)
 # Contains custom functions and macros, but don't altering any options
+
 include(VCMIUtils)
+include(VersionDefinition)
+
 vcmi_print_important_variables()
 
 # Options to enable folders in CMake generated projects for Visual Studio, Xcode, etc
@@ -88,6 +110,7 @@ define_property(
 # Generate Version.cpp
 if(ENABLE_GITVERSION)
 	add_custom_target(update_version ALL
+		BYPRODUCTS "Version.cpp"
 		COMMAND ${CMAKE_COMMAND} -DGIT_SHA1="${GIT_SHA1}" -P "${PROJECT_SOURCE_DIR}/cmake_modules/Version.cmake"
 	)
 else()
@@ -95,18 +118,14 @@ else()
 endif(ENABLE_GITVERSION)
 
 # Precompiled header configuration
-if(ENABLE_PCH)
-	include(cotire)
-	set(PCH_PROPERTIES
-		COTIRE_ENABLE_PRECOMPILED_HEADER ${ENABLE_PCH}
-		COTIRE_ADD_UNITY_BUILD FALSE
-		COTIRE_CXX_PREFIX_HEADER_INIT "StdInc.h"
-	)
-else()
-	set(PCH_PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
-	macro(cotire ignore)
-	endmacro(cotire)
-endif(ENABLE_PCH)
+if(ENABLE_PCH AND NOT ${CMAKE_VERSION} VERSION_LESS "3.16.0")
+	macro(enable_pch name)
+		target_precompile_headers(${name} PRIVATE $<$<COMPILE_LANGUAGE:CXX>:<StdInc.h$<ANGLE-R>>)
+	endmacro(enable_pch)
+else(ENABLE_PCH AND NOT ${CMAKE_VERSION} VERSION_LESS "3.16.0")
+	macro(enable_pch ignore)
+	endmacro(enable_pch)
+endif(ENABLE_PCH AND NOT ${CMAKE_VERSION} VERSION_LESS "3.16.0")
 
 ############################################
 #        Documentation section             #
@@ -118,9 +137,50 @@ include(UseDoxygen OPTIONAL)
 #        Compile and linking options       #
 ############################################
 
-if(APPLE)
-	set(CMAKE_MACOSX_RPATH 0)
-endif(APPLE)
+#Enable C++14 Globally
+set (CMAKE_CXX_STANDARD 14)
+#General visibility options
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
+
+#Global fallback mapping
+# RelWithDebInfo falls back to Release, then MinSizeRel
+set(CMAKE_MAP_IMPORTED_CONFIG_RELWITHDEBINFO RelWithDebInfo Release MinSizeRel "")
+# MinSizeRel falls back to Release, then RelWithDebInfo
+set(CMAKE_MAP_IMPORTED_CONFIG_MINSIZEREL MinSizeRel Release RelWithDebInfo "")
+# Release falls back to RelWithDebInfo, then MinSizeRel
+set(CMAKE_MAP_IMPORTED_CONFIG_RELEASE Release RelWithDebInfo MinSizeRel "")
+
+set(CMAKE_XCODE_ATTRIBUTE_APP_DISPLAY_NAME ${APP_DISPLAY_NAME})
+set(CMAKE_XCODE_ATTRIBUTE_CLANG_ENABLE_OBJC_ARC YES)
+set(CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT[variant=Debug] dwarf)
+set(CMAKE_XCODE_ATTRIBUTE_ENABLE_BITCODE NO)
+set(CMAKE_XCODE_ATTRIBUTE_ENABLE_NS_ASSERTIONS NO)
+set(CMAKE_XCODE_ATTRIBUTE_ENABLE_NS_ASSERTIONS[variant=Debug] YES)
+set(CMAKE_XCODE_ATTRIBUTE_GCC_WARN_64_TO_32_BIT_CONVERSION NO)
+set(CMAKE_XCODE_ATTRIBUTE_MARKETING_VERSION ${APP_SHORT_VERSION})
+set(CMAKE_XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH NO)
+set(CMAKE_XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH[variant=Debug] YES)
+
+if(BUILD_SINGLE_APP)
+	add_compile_definitions(SINGLE_PROCESS_APP=1)
+endif()
+
+if(APPLE_IOS)
+	set(CMAKE_MACOSX_RPATH 1)
+	set(CMAKE_OSX_DEPLOYMENT_TARGET 12.0)
+
+	if(NOT USING_CONAN)
+		list(APPEND CMAKE_FIND_ROOT_PATH "${CMAKE_PREFIX_PATH}") # required for Boost
+		set(CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH FALSE)
+		set(CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH FALSE)
+	endif()
+
+	set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED NO)
+	set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED_FOR_APPS YES)
+	set(CMAKE_XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "${BUNDLE_IDENTIFIER_PREFIX}.$(PRODUCT_NAME)")
+	set(CMAKE_XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2")
+endif()
 
 if(MINGW OR MSVC)
 	# Windows Vista or newer for FuzzyLite 6 to compile
@@ -144,7 +204,9 @@ if(MINGW OR MSVC)
 		add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 		add_definitions(-D_SCL_SECURE_NO_WARNINGS)
 		# 4250: 'class1' : inherits 'class2::member' via dominance
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj  /wd4250")
+		# 4251: class 'xxx' needs to have dll-interface to be used by clients of class 'yyy'
+		# 4275: non dll-interface class 'xxx' used as base for dll-interface class
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj /wd4250 /wd4251 /wd4275")
 
 		if(ENABLE_MULTI_PROCESS_BUILDS)
 			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
@@ -180,23 +242,23 @@ if(MINGW OR MSVC)
 endif(MINGW OR MSVC)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR NOT WIN32) #so far all *nix compilers support such parameters
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -Wall -Wextra -Wpointer-arith -Wuninitialized")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpointer-arith -Wuninitialized")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-strict-aliasing -Wno-switch -Wno-sign-compare -Wno-unused-local-typedefs")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-parameter -Wno-overloaded-virtual -Wno-type-limits -Wno-unknown-pragmas")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-reorder")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-varargs") # fuzzylite - Operation.h
 
 	if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-mismatched-tags -Wno-unknown-warning-option -Wno-missing-braces")
 	endif()
 
 	if(UNIX)
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
 		set(SYSTEM_LIBS ${SYSTEM_LIBS} ${CMAKE_DL_LIBS})
 	endif()
 endif()
 
 # Check if some platform-specific libraries are needed for linking
-if(NOT WIN32)
+if(NOT WIN32 AND NOT APPLE_IOS)
 	include(CheckLibraryExists)
 
 	# Shared memory functions used by Boost.Interprocess
@@ -207,43 +269,79 @@ if(NOT WIN32)
 	endif()
 endif()
 
+if(ENABLE_LUA)
+	add_compile_definitions(SCRIPTING_ENABLED=1)
+endif()
+
 ############################################
 #        Finding packages                  #
 ############################################
 
-set(FFmpeg_FIND_COMPONENTS AVFORMAT SWSCALE)
-find_package(Boost 1.48.0 COMPONENTS date_time filesystem locale program_options system thread REQUIRED)
+find_package(Boost 1.48.0 REQUIRED COMPONENTS date_time filesystem locale program_options system thread)
+
 find_package(ZLIB REQUIRED)
-find_package(FFmpeg REQUIRED)
-find_package(Minizip)
-if(MINIZIP_FOUND)
-	add_definitions(-DUSE_SYSTEM_MINIZIP)
+# Conan compatibility
+if(TARGET zlib::zlib)
+	add_library(ZLIB::ZLIB ALIAS zlib::zlib)
+endif()
+
+set(FFMPEG_COMPONENTS avutil swscale avformat avcodec)
+if(APPLE_IOS AND NOT USING_CONAN)
+	list(APPEND FFMPEG_COMPONENTS swresample)
+endif()
+find_package(ffmpeg COMPONENTS ${FFMPEG_COMPONENTS})
+
+option(FORCE_BUNDLED_MINIZIP "Force bundled Minizip library" OFF)
+if(NOT FORCE_BUNDLED_MINIZIP)
+	find_package(minizip)
+	if(TARGET minizip::minizip)
+		add_definitions(-DUSE_SYSTEM_MINIZIP)
+	endif()
 endif()
 
 find_package(SDL2 REQUIRED)
 find_package(SDL2_image REQUIRED)
+if(TARGET SDL2_image::SDL2_image)
+	add_library(SDL2::Image ALIAS SDL2_image::SDL2_image)
+endif()
 find_package(SDL2_mixer REQUIRED)
+if(TARGET SDL2_mixer::SDL2_mixer)
+	add_library(SDL2::Mixer ALIAS SDL2_mixer::SDL2_mixer)
+endif()
 find_package(SDL2_ttf REQUIRED)
+if(TARGET SDL2_ttf::SDL2_ttf)
+	add_library(SDL2::TTF ALIAS SDL2_ttf::SDL2_ttf)
+endif()
 find_package(TBB REQUIRED)
 
-if(ENABLE_LAUNCHER)
+if(ENABLE_LAUNCHER OR ENABLE_EDITOR)
 	# Widgets finds its own dependencies (QtGui and QtCore).
-	find_package(Qt5Widgets REQUIRED)
-	find_package(Qt5Network REQUIRED)
+	find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Network)
+	find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Network)
 endif()
 
 if(ENABLE_LUA)
+	find_package(luajit)
 	# MXE paths hardcoded for current dependencies pack - tried and could not make it work another way
-	if((MINGW) AND (${CMAKE_CROSSCOMPILING}) AND (DEFINED MSYS))
-		set(LUA_INCLUDE_DIR "/usr/lib/mxe/usr/i686-w64-mingw32.static/include/luajit-2.0")
-		set(LUA_LIBRARY "/usr/lib/mxe/usr/i686-w64-mingw32.static/lib/libluajit-5.1.a")
+	if((MINGW) AND (${CMAKE_CROSSCOMPILING}) AND (DEFINED MSYS) AND (NOT TARGET luajit::luajit))
+		add_library(luajit::luajit STATIC IMPORTED)
+		set_target_properties(luajit::luajit PROPERTIES
+			INTERFACE_INCLUDE_DIRECTORIES "/usr/lib/mxe/usr/i686-w64-mingw32.static/include/luajit-2.0")
+		set_target_properties(luajit::luajit PROPERTIES
+			IMPORTED_LOCATION "/usr/lib/mxe/usr/i686-w64-mingw32.static/lib/libluajit-5.1.a")
 	endif()
-	find_package(LuaJIT)
-	if(LUAJIT_FOUND)
+	if(TARGET luajit::luajit)
 		message(STATUS "Using LuaJIT provided by system")
 	else()
 		message(STATUS "Cannot find LuaJIT! Fallback to using usual Lua.")
 		find_package(Lua REQUIRED)
+		if(Lua_FOUND)
+			add_library(luajit::luajit UNKNOWN IMPORTED)
+			set_target_properties(luajit::luajit PROPERTIES
+				INTERFACE_INCLUDE_DIRECTORIES "${LUA_INCLUDE_DIR}")
+			set_target_properties(luajit::luajit PROPERTIES
+				IMPORTED_LOCATION "${LUA_LIBRARIES}")
+		endif()
 	endif()
 endif()
 
@@ -259,19 +357,25 @@ elseif(APPLE)
 	# includes lib path which determines where to install shared libraries (either /lib or /lib64)
 	include(GNUInstallDirs)
 
+	set(CMAKE_INSTALL_RPATH "@executable_path/../Frameworks")
 	if(ENABLE_MONOLITHIC_INSTALL)
 		set(BIN_DIR "." CACHE STRING "Where to install binaries")
 		set(LIB_DIR "." CACHE STRING "Where to install main library")
 		set(DATA_DIR "." CACHE STRING "Where to install data files")
 	else()
-		set(APP_BUNDLE_DIR "${CMAKE_PROJECT_NAME}.app")
-		set(APP_BUNDLE_CONTENTS_DIR "${APP_BUNDLE_DIR}/Contents")
-		set(APP_BUNDLE_BINARY_DIR "${APP_BUNDLE_CONTENTS_DIR}/MacOS")
-		set(APP_BUNDLE_RESOURCES_DIR "${APP_BUNDLE_CONTENTS_DIR}/Resources")
+		if(APPLE_MACOS)
+			set(APP_BUNDLE_DIR "${CMAKE_PROJECT_NAME}.app")
+			set(APP_BUNDLE_CONTENTS_DIR "${APP_BUNDLE_DIR}/Contents")
+			set(APP_BUNDLE_BINARY_DIR "${APP_BUNDLE_CONTENTS_DIR}/MacOS")
+			set(APP_BUNDLE_RESOURCES_DIR "${APP_BUNDLE_CONTENTS_DIR}/Resources")
 
-		set(BIN_DIR "${APP_BUNDLE_BINARY_DIR}" CACHE STRING "Where to install binaries")
-		set(LIB_DIR "${APP_BUNDLE_BINARY_DIR}" CACHE STRING "Where to install main library")
-		set(DATA_DIR "${APP_BUNDLE_RESOURCES_DIR}/Data" CACHE STRING "Where to install data files")
+			set(BIN_DIR "${APP_BUNDLE_BINARY_DIR}" CACHE STRING "Where to install binaries")
+			set(LIB_DIR "${APP_BUNDLE_CONTENTS_DIR}/Frameworks" CACHE STRING "Where to install main library")
+			set(DATA_DIR "${APP_BUNDLE_RESOURCES_DIR}/Data" CACHE STRING "Where to install data files")
+		else()
+			set(LIB_DIR "Frameworks")
+			set(DATA_DIR ".")
+		endif()
 	endif()
 else()
 	# includes lib path which determines where to install shared libraries (either /lib or /lib64)
@@ -300,12 +404,32 @@ else()
 	add_definitions(-DM_LIB_DIR="${CMAKE_INSTALL_PREFIX}/${LIB_DIR}")
 endif()
 
-set(AI_LIB_DIR "${LIB_DIR}/AI")
-set(SCRIPTING_LIB_DIR "${LIB_DIR}/scripting")
+# iOS has flat libs directory structure
+if(APPLE_IOS)
+	set(AI_LIB_DIR "${LIB_DIR}")
+	set(SCRIPTING_LIB_DIR "${LIB_DIR}")
+else()
+	set(AI_LIB_DIR "${LIB_DIR}/AI")
+	set(SCRIPTING_LIB_DIR "${LIB_DIR}/scripting")
+endif()
 
 #######################################
 #        Add subdirectories           #
 #######################################
+
+if(APPLE_IOS)
+	add_subdirectory(ios)
+endif()
+
+include(VCMI_lib)
+if(BUILD_SINGLE_APP)
+	add_subdirectory(lib_client)
+	add_subdirectory(lib_server)
+	set(VCMI_LIB_TARGET vcmi_lib_client)
+else()
+	add_subdirectory(lib)
+	set(VCMI_LIB_TARGET vcmi)
+endif()
 
 if(ENABLE_ERM)
 	add_subdirectory(scripting/erm)
@@ -313,17 +437,20 @@ endif()
 if(ENABLE_LUA)
 	add_subdirectory(scripting/lua)
 endif()
-if(NOT MINIZIP_FOUND)
+if(NOT TARGET minizip::minizip)
 	add_subdirectory_with_folder("3rdparty" lib/minizip)
-	set(MINIZIP_LIBRARIES minizip)
+	add_library(minizip::minizip ALIAS minizip)
 endif()
-add_subdirectory(lib)
-add_subdirectory(client)
-add_subdirectory(server)
-add_subdirectory_with_folder("AI" AI)
+
 if(ENABLE_LAUNCHER)
 	add_subdirectory(launcher)
 endif()
+if(ENABLE_EDITOR)
+	add_subdirectory(mapeditor)
+endif()
+add_subdirectory(client)
+add_subdirectory(server)
+add_subdirectory_with_folder("AI" AI)
 if(ENABLE_TEST)
 	enable_testing()
 	add_subdirectory(test)
@@ -334,11 +461,13 @@ endif()
 #######################################
 
 install(DIRECTORY config DESTINATION ${DATA_DIR})
-install(DIRECTORY scripts DESTINATION ${DATA_DIR})
 install(DIRECTORY Mods DESTINATION ${DATA_DIR})
+if(ENABLE_LUA)
+	install(DIRECTORY scripts DESTINATION ${DATA_DIR})
+endif()
 
-# that script is useless for Windows
-if(NOT WIN32)
+# that script is useless for Windows and iOS
+if(NOT WIN32 AND NOT APPLE_IOS)
 	install(FILES vcmibuilder DESTINATION ${BIN_DIR} PERMISSIONS
 		OWNER_WRITE OWNER_READ OWNER_EXECUTE
 					GROUP_READ GROUP_EXECUTE
@@ -358,27 +487,27 @@ if(WIN32)
 		set(debug_postfix d)
 	endif()
 
-	if(ENABLE_LAUNCHER)
-		get_target_property(QtCore_location Qt5::Core LOCATION)
+	if(ENABLE_LAUNCHER OR ENABLE_EDITOR)
+		get_target_property(QtCore_location Qt${QT_VERSION_MAJOR}::Core LOCATION)
 		get_filename_component(Qtbin_folder ${QtCore_location} PATH)
 		file(GLOB dep_files
 			${dep_files}
 			${Qtbin_folder}/Qt5Core${debug_postfix}.dll
 			${Qtbin_folder}/Qt5Gui${debug_postfix}.dll
 			${Qtbin_folder}/Qt5Widgets${debug_postfix}.dll
+			${Qtbin_folder}/Qt5Network${debug_postfix}.dll
 			${Qtbin_folder}/icu*.dll)
-		file(GLOB dep_qwindows
-			${Qtbin_folder}/../plugins/platforms/qwindows${debug_postfix}.dll)
-	endif()
-
-	if (ENABLE_LAUNCHER)
-		file(GLOB dep_files
-			${dep_files}
-			${Qtbin_folder}/Qt5Network${debug_postfix}.dll)
+		get_target_property(integration_type Qt${QT_VERSION_MAJOR}::QWindowsIntegrationPlugin TYPE)
+		if(NOT(integration_type STREQUAL "INTERFACE_LIBRARY"))
+			get_target_property(integration_loc Qt${QT_VERSION_MAJOR}::QWindowsIntegrationPlugin LOCATION)
+			install(
+				FILES ${integration_loc}
+				DESTINATION ${BIN_DIR}/platforms
+			)
+		endif()
 	endif()
 
 	install(FILES ${dep_files} DESTINATION ${BIN_DIR})
-	install(FILES ${dep_qwindows} DESTINATION ${BIN_DIR}/platforms)
 endif(WIN32)
 
 #######################################
@@ -445,9 +574,9 @@ if(WIN32)
 	set(CPACK_NSIS_EXECUTABLES_DIRECTORY ".")
 	# Use BundleUtilities to fix build when Vcpkg is used and disable it for MXE
 	if(NOT (${CMAKE_CROSSCOMPILING}))
-		add_subdirectory(osx)
+		add_subdirectory(win)
 	endif()
-elseif(APPLE AND NOT ENABLE_MONOLITHIC_INSTALL)
+elseif(APPLE_MACOS AND NOT ENABLE_MONOLITHIC_INSTALL)
 	set(CPACK_MONOLITHIC_INSTALL 1)
 	set(CPACK_GENERATOR "DragNDrop")
 	set(CPACK_DMG_BACKGROUND_IMAGE "${CMAKE_SOURCE_DIR}/osx/dmg_background.png")
@@ -461,8 +590,16 @@ elseif(APPLE AND NOT ENABLE_MONOLITHIC_INSTALL)
 	# Pre-generated DS_Store use absolute path to background image
 	set(CPACK_DMG_VOLUME_NAME "${CMAKE_PROJECT_NAME}")
 
+	include(GetGitRevisionDescription)
+	get_git_head_revision(GIT_REFSPEC GIT_SHA1)
+	string(TIMESTAMP CURRENT_YEAR "%Y")
+
 	set(MACOSX_BUNDLE_NAME "${CMAKE_PROJECT_NAME}")
 	set(MACOSX_BUNDLE_BUNDLE_NAME "${CMAKE_PROJECT_NAME}")
+	set(MACOSX_BUNDLE_COPYRIGHT "Copyright © 2007-${CURRENT_YEAR} VCMI team")
+	set(MACOSX_BUNDLE_GUI_IDENTIFIER "eu.vcmi.vcmi")
+	set(MACOSX_BUNDLE_BUNDLE_VERSION ${GIT_SHA1})
+	set(MACOSX_BUNDLE_SHORT_VERSION_STRING ${APP_SHORT_VERSION})
 	if(ENABLE_LAUNCHER)
 		set(MACOSX_BUNDLE_EXECUTABLE_NAME "vcmilauncher")
 	else()
@@ -477,6 +614,10 @@ elseif(APPLE AND NOT ENABLE_MONOLITHIC_INSTALL)
 
 	# Bundle fixing code must be in separate directory to be executed after all other install code
 	add_subdirectory(osx)
+elseif(APPLE_IOS)
+	set(CPACK_GENERATOR ZIP)
+	set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY OFF)
+	set(CPACK_INSTALL_CMAKE_PROJECTS "${CMAKE_CURRENT_BINARY_DIR};${CMAKE_PROJECT_NAME};app;/")
 else()
 	set(CPACK_GENERATOR TGZ)
 endif()

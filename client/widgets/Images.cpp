@@ -228,9 +228,43 @@ CAnimImage::CAnimImage(std::shared_ptr<CAnimation> Anim, size_t Frame, size_t Gr
 	init();
 }
 
+CAnimImage::CAnimImage(std::shared_ptr<CAnimation> Anim, size_t Frame, Rect targetPos, size_t Group, ui8 Flags):
+	anim(Anim),
+	frame(Frame),
+	group(Group),
+	player(-1),
+	flags(Flags),
+	scaledSize(targetPos.w, targetPos.h)
+{
+	pos.x += targetPos.x;
+	pos.y += targetPos.y;
+	init();
+}
+
 size_t CAnimImage::size()
 {
 	return anim->size(group);
+}
+
+bool CAnimImage::isScaled() const
+{
+	return (scaledSize.x != 0);
+}
+
+void CAnimImage::setSizeFromImage(const IImage &img)
+{
+	if (isScaled())
+	{
+		// At the time of writing this, IImage had no method to scale to different aspect ratio
+		// Therefore, have to ignore the target height and preserve original aspect ratio
+		pos.w = scaledSize.x;
+		pos.h = roundf(float(scaledSize.x) * img.height() / img.width());
+	}
+	else
+	{
+		pos.w = img.width();
+		pos.h = img.height();
+	}
 }
 
 void CAnimImage::init()
@@ -242,10 +276,7 @@ void CAnimImage::init()
 
 	auto img = anim->getImage(frame, group);
 	if (img)
-	{
-		pos.w = img->width();
-		pos.h = img->height();
-	}
+		setSizeFromImage(*img);
 }
 
 CAnimImage::~CAnimImage()
@@ -257,12 +288,26 @@ void CAnimImage::showAll(SDL_Surface * to)
 	if(!visible)
 		return;
 
-	if(flags & CShowableAnim::BASE && frame != 0)
-		if(auto img = anim->getImage(0, group))
-			img->draw(to, pos.x, pos.y);
+	std::vector<size_t> frames = {frame};
 
-	if(auto img = anim->getImage(frame, group))
-		img->draw(to, pos.x, pos.y);
+	if((flags & CShowableAnim::BASE) && frame != 0)
+	{
+		frames.insert(frames.begin(), 0);
+	}
+
+	for(auto targetFrame : frames)
+	{
+		if(auto img = anim->getImage(targetFrame, group))
+		{
+			if(isScaled())
+			{
+				auto scaled = img->scaleFast(float(scaledSize.x) / img->width());
+				scaled->draw(to, pos.x, pos.y);
+			}
+			else
+				img->draw(to, pos.x, pos.y);
+		}
+	}
 }
 
 void CAnimImage::setFrame(size_t Frame, size_t Group)
@@ -278,8 +323,7 @@ void CAnimImage::setFrame(size_t Frame, size_t Group)
 		{
 			if (flags & CShowableAnim::PLAYER_COLORED)
 				img->playerColored(player);
-			pos.w = img->width();
-			pos.h = img->height();
+			setSizeFromImage(*img);
 		}
 	}
 	else

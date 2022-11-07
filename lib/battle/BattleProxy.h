@@ -12,6 +12,8 @@
 #include "CBattleInfoCallback.h"
 #include "IBattleState.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class DLL_LINKAGE BattleProxy : public CBattleInfoCallback, public IBattleState
 {
 public:
@@ -29,8 +31,8 @@ public:
 
 	battle::Units getUnitsIf(battle::UnitFilter predicate) const override;
 
-	BFieldType getBattlefieldType() const override;
-	ETerrainType getTerrainType() const override;
+	BattleField getBattlefieldType() const override;
+	TerrainId getTerrainType() const override;
 
 	ObstacleCList getAllObstacles() const override;
 
@@ -52,3 +54,5 @@ public:
 protected:
 	Subject subject;
 };
+
+VCMI_LIB_NAMESPACE_END

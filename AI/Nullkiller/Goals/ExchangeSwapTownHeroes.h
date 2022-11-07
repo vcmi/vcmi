@@ -12,6 +12,8 @@
 #include "CGoal.h"
 #include "../Engine/Nullkiller.h"
 
+namespace NKAI
+{
 namespace Goals
 {
 	class DLL_EXPORT ExchangeSwapTownHeroes : public ElementarGoal<ExchangeSwapTownHeroes>
@@ -31,4 +33,6 @@ namespace Goals
 		std::string toString() const override;
 		virtual bool operator==(const ExchangeSwapTownHeroes & other) const override;
 	};
+}
+
 }

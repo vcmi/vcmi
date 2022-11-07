@@ -18,8 +18,13 @@
 #include "../../lib/battle/BattleProxy.h"
 #include "../../lib/battle/CUnitState.h"
 
-class HypotheticBattle;
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CStack;
+
+VCMI_LIB_NAMESPACE_END
+
+class HypotheticBattle;
 
 ///Fake random generator, used by AI to evaluate random server behavior
 class RNGStub : public vstd::RNG
@@ -80,6 +85,7 @@ public:
 	void removeUnitBonus(const CSelector & selector);
 
 	void spendMana(ServerCallback * server, const int spellCost) const override;
+	std::string getDescription() const override;
 
 private:
 	const IBonusBearer * origBearer;
@@ -136,7 +142,9 @@ public:
 
 	int64_t getTreeVersion() const;
 
+#if SCRIPTING_ENABLED
 	scripting::Pool * getContextPool() const override;
+#endif
 
 	ServerCallback * getServerCallback();
 
@@ -189,6 +197,8 @@ private:
 	std::unique_ptr<HypotheticServerCallback> serverCallback;
 	std::unique_ptr<HypotheticEnvironment> localEnvironment;
 
+#if SCRIPTING_ENABLED
 	mutable std::shared_ptr<scripting::Pool> pool;
+#endif
 	mutable std::shared_ptr<events::EventBus> eventBus;
 };

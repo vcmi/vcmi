@@ -914,7 +914,7 @@
 	/// Passive objects, terrain overlays
 	"cursedGround" : {
 		"index" : 21,
-		"handler": "generic",
+		"handler": "terrain",
 		"base" : {
 			"sounds" : {
 				"ambient" : ["LOOPCURS"]
@@ -922,13 +922,14 @@
 		},
 		"types" : {
 			"object" : {
-				"index" : 0
+				"index" : 0,
+				"battleground": "cursed_ground"
 			}
 		}
 	},
-	"magicPlains"	: {
+	"magicPlains" : {
 		"index" : 46,
-		"handler" : "generic",
+		"handler" : "terrain",
 		"base" : {
 			"sounds" : {
 				"ambient" : ["LOOPMAGI"]
@@ -936,18 +937,23 @@
 		},
 		"types" : {
 			"object" : {
-				"index" : 0
+				"index" : 0,
+				"battleground": "magic_plains"
 			}
 		}
 	},
-	"swampFoliage" : { "index" :211, "handler": "generic", "types" : { "object" : { "index" : 0} } },
-	"cloverField"	: { "index" :222, "handler": "generic", "types" : { "object" : { "index" : 0} } },
+	"cloverField" : {
+		"index" :222, 
+		"handler": "terrain", 
+		"types" : { "object" : { "index" : 0, "battleground": "clover_field" } }
+	},
 	"cursedGroundDUPLICATE"	: {
 		"index" : 223,
-		"handler" : "generic",
+		"handler" : "terrain",
 		"types" : {
 			"object" : {
-				"index" : 0
+				"index" : 0,
+				"battleground": "cursed_ground"
 			}
 		},
 		"base" : {
@@ -956,15 +962,39 @@
 			}
 		}
 	},
-	"evilFog"	: { "index" :224, "handler": "generic", "types" : { "object" : { "index" : 0} } },
-	"favorableWinds" : { "index" :225, "handler": "generic", "types" : { "object" : { "index" : 0} } },
-	"fieryFields"	: { "index" :226, "handler": "generic", "types" : { "object" : { "index" : 0} } },
-	"holyGround" : { "index" :227, "handler": "generic", "types" : { "object" : { "index" : 0} } },
-	"lucidPools" : { "index" :228, "handler": "generic", "types" : { "object" : { "index" : 0} } },
-	"magicClouds"	: { "index" :229, "handler": "generic", "types" : { "object" : { "index" : 0} } },
+	"evilFog" : {
+		"index" :224,
+		"handler": "terrain",
+		"types" : { "object" : { "index" : 0, "battleground": "evil_fog" } }
+	},
+	"favorableWinds" : {
+		"index" :225,
+		"handler": "terrain",
+		"types" : { "object" : { "index" : 0, "battleground": "ship" } }
+	},
+	"fieryFields": {
+		"index" :226,
+		"handler": "terrain",
+		"types" : { "object" : { "index" : 0, "battleground": "fiery_fields" } }
+	},
+	"holyGround" : {
+		"index" :227,
+		"handler": "terrain",
+		"types" : { "object" : { "index" : 0, "battleground": "holy_ground" } }
+	},
+	"lucidPools" : {
+		"index" :228,
+		"handler": "terrain",
+		"types" : { "object" : { "index" : 0, "battleground": "lucid_pools" } }
+	},
+	"magicClouds" : {
+		"index" :229,
+		"handler": "terrain",
+		"types" : { "object" : { "index" : 0, "battleground": "magic_clouds" } }
+	},
 	"magicPlainsDUPLICATE" : {
 		"index" : 230,
-		"handler": "generic",
+		"handler": "terrain",
 		"base" : {
 			"sounds" : {
 				"ambient" : ["LOOPMAGI"]
@@ -972,11 +1002,16 @@
 		},
 		"types" : {
 			"object" : {
-				"index" : 0
+				"index" : 0,
+				"battleground": "magic_plains"
 			}
 		}
 	},
-	"rocklands"	: { "index" :231, "handler": "generic", "types" : { "object" : { "index" : 0} } },
+	"rocklands"	: {
+		"index" :231,
+		"handler": "terrain",
+		"types" : { "object" : { "index" : 0, "battleground": "rocklands" } }
+	},
 
 	/// Decorations
 	"cactus"						: { "index" :116, "handler": "static", "types" : { "object" : { "index" : 0} } },
@@ -1029,6 +1064,7 @@
 	"grassHills"					: { "index" :208, "handler": "static", "types" : { "object" : { "index" : 0} } },
 	"roughHills"					: { "index" :209, "handler": "static", "types" : { "object" : { "index" : 0} } },
 	"subterraneanRocks"				: { "index" :210, "handler": "static", "types" : { "object" : { "index" : 0} } },
+	"swampFoliage" 					: { "index" :211, "handler": "static", "types" : { "object" : { "index" : 0} } },
 
 	//These are WoG objects? They are not available in H3
 	"frozenLakeDUPLICATE"			: { "index" :172, "handler": "static", "types" : { "object" : { "index" : 0} } },

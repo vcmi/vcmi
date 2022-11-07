@@ -24,7 +24,13 @@
 #include "mapObjects/CObjectHandler.h"
 #include "HeroBonus.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 const int NAMES_PER_TOWN=16; // number of town names per faction in H3 files. Json can define any number
+
+const TerrainId CTownHandler::defaultGoodTerrain(Terrain::GRASS);
+const TerrainId CTownHandler::defaultEvilTerrain(Terrain::LAVA);
+const TerrainId CTownHandler::defaultNeutralTerrain(Terrain::ROUGH);
 
 const std::map<std::string, CBuilding::EBuildMode> CBuilding::MODES =
 {
@@ -77,133 +83,9 @@ si32 CBuilding::getDistance(BuildingID buildID) const
 	return -1;
 }
 
-void CBuilding::deserializeFix()
-{
-	//default value for mode was broken, have to fix it here for old saves (v777 and older)
-	switch(mode)
-	{
-	case BUILD_NORMAL:
-	case BUILD_AUTO:
-	case BUILD_SPECIAL:
-	case BUILD_GRAIL:
-		break;
-
-	default:
-		mode = BUILD_NORMAL;
-		break;
-	}
-}
-
 void CBuilding::addNewBonus(std::shared_ptr<Bonus> b, BonusList & bonusList)
 {
 	bonusList.push_back(b);
-}
-
-const JsonNode & CBuilding::getCurrentFactionForUpdateRoutine() const
-{
-	const auto & faction = town->faction->identifier;
-	const auto & factionsContent = (*VLC->modh->content)["factions"];
-	const auto & coreData = factionsContent.modData.at("core");
-	const auto & coreFactions = coreData.modData;
-	const auto & currentFaction = coreFactions[faction];
-
-	if(currentFaction.isNull())
-	{
-		const auto index = faction.find(':');
-		const std::string factionDir = index == std::string::npos ? faction : faction.substr(0, index);
-		const auto it = factionsContent.modData.find(factionDir);
-
-		if(it == factionsContent.modData.end())
-		{
-			logMod->warn("Warning: Update old save failed: Faction: '%s' is not found.", factionDir);
-			return currentFaction;
-		}
-		const std::string modFaction = index == std::string::npos ? faction : faction.substr(index + 1);
-		return it->second.modData[modFaction];
-	}
-	return currentFaction;
-}
-
-void CBuilding::update792()
-{
-	subId = BuildingSubID::NONE;
-	height = ETowerHeight::HEIGHT_NO_TOWER;
-
-	if(!bid.IsSpecialOrGrail() || town == nullptr || town->faction == nullptr || town->faction->identifier.empty())
-		return;
-
-	const auto buildingName = CTownHandler::getMappedValue<std::string, BuildingID>(bid, std::string(), MappedKeys::BUILDING_TYPES_TO_NAMES);
-
-	if(buildingName.empty())
-		return;
-
-	auto & currentFaction = getCurrentFactionForUpdateRoutine();
-
-	if(!currentFaction.isNull() && currentFaction.getType() == JsonNode::JsonType::DATA_STRUCT)
-	{
-		const auto & buildings = currentFaction["town"]["buildings"];
-		const auto & currentBuilding = buildings[buildingName];
-
-		subId = CTownHandler::getMappedValue<BuildingSubID::EBuildingSubID>(currentBuilding["type"], BuildingSubID::NONE, MappedKeys::SPECIAL_BUILDINGS);
-		height = subId == BuildingSubID::LOOKOUT_TOWER || bid == BuildingID::GRAIL
-			? CTownHandler::getMappedValue<CBuilding::ETowerHeight>(currentBuilding["height"], CBuilding::HEIGHT_NO_TOWER, CBuilding::TOWER_TYPES)
-			: height = CBuilding::HEIGHT_NO_TOWER;
-	}
-}
-
-void CBuilding::update794()
-{
-	if(bid == BuildingID::TAVERN || subId == BuildingSubID::BROTHERHOOD_OF_SWORD)
-	{
-		VLC->townh->addBonusesForVanilaBuilding(this);
-		return;
-	}
-	if(!bid.IsSpecialOrGrail())
-		return;
-
-	VLC->townh->addBonusesForVanilaBuilding(this);
-
-	if(!buildingBonuses.empty() //addBonusesForVanilaBuilding has done all work
-		|| town->faction == nullptr //or faction data is not valid
-		|| town->faction->identifier.empty())
-		return;
-
-	const auto buildingName = CTownHandler::getMappedValue<std::string, BuildingID>(bid, std::string(), MappedKeys::BUILDING_TYPES_TO_NAMES, false);
-
-	if(buildingName.empty())
-		return;
-
-	auto & currentFaction = getCurrentFactionForUpdateRoutine();
-
-	if(currentFaction.isNull() || currentFaction.getType() != JsonNode::JsonType::DATA_STRUCT)
-		return;
-
-	const auto & buildings = currentFaction["town"]["buildings"];
-	const auto & currentBuilding = buildings[buildingName];
-
-	CTownHandler::loadSpecialBuildingBonuses(currentBuilding["bonuses"], buildingBonuses, this);
-	CTownHandler::loadSpecialBuildingBonuses(currentBuilding["onVisitBonuses"], onVisitBonuses, this);
-
-	if(!onVisitBonuses.empty())
-	{
-		if(subId == BuildingSubID::NONE)
-			subId = BuildingSubID::CUSTOM_VISITING_BONUS;
-
-		for(auto & bonus : onVisitBonuses)
-			bonus->sid = Bonus::getSid32(town->faction->index, bid);
-	}
-	const auto & overriddenBids = currentBuilding["overrides"];
-
-	if(overriddenBids.isNull())
-		return;
-
-	auto scope = town->getBuildingScope();
-
-	for(auto b : overriddenBids.Vector())
-	{
-		auto bid = BuildingID(VLC->modh->identifiers.getIdentifier(scope, b).get());
-		overrideBids.insert(bid);
-	}
 }
 
 CFaction::CFaction()
@@ -211,6 +93,7 @@ CFaction::CFaction()
 	town = nullptr;
 	index = 0;
 	alignment = EAlignment::NEUTRAL;
+	preferUndergroundPlacement = false;
 }
 
 CFaction::~CFaction()
@@ -1061,9 +944,9 @@ void CTownHandler::loadPuzzle(CFaction &faction, const JsonNode &source)
 	assert(faction.puzzleMap.size() == GameConstants::PUZZLE_MAP_PIECES);
 }
 
-ETerrainType::EETerrainType CTownHandler::getDefaultTerrainForAlignment(EAlignment::EAlignment alignment) const
+TerrainId CTownHandler::getDefaultTerrainForAlignment(EAlignment::EAlignment alignment) const
 {
-	ETerrainType::EETerrainType terrain = defaultGoodTerrain;
+	TerrainId terrain = defaultGoodTerrain;
 
 	switch(alignment)
 	{
@@ -1094,16 +977,15 @@ CFaction * CTownHandler::loadFromJson(const std::string & scope, const JsonNode 
 		faction->alignment = EAlignment::NEUTRAL;
 	else
 		faction->alignment = static_cast<EAlignment::EAlignment>(alignment);
-
-	auto nativeTerrain = source["nativeTerrain"];
-	int terrainNum = nativeTerrain.isNull()
-		? -1
-		: vstd::find_pos(GameConstants::TERRAIN_NAMES, nativeTerrain.String());
+	
+	auto preferUndergound = source["preferUndergroundPlacement"];
+	faction->preferUndergroundPlacement = preferUndergound.isNull() ? false : preferUndergound.Bool();
 
 	//Contructor is not called here, but operator=
-	faction->nativeTerrain = terrainNum < 0
+	auto nativeTerrain = source["nativeTerrain"];
+	faction->nativeTerrain = nativeTerrain.isNull()
 		? getDefaultTerrainForAlignment(faction->alignment)
-		: static_cast<ETerrainType::EETerrainType>(terrainNum);
+		: VLC->terrainTypeHandler->getInfoByName(nativeTerrain.String())->id;
 
 	if (!source["town"].isNull())
 	{
@@ -1299,3 +1181,5 @@ const std::vector<std::string> & CTownHandler::getTypeNames() const
 	return typeNames;
 }
 
+
+VCMI_LIB_NAMESPACE_END

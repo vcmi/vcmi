@@ -256,7 +256,7 @@ namespace ERM
 	//script line
 	typedef boost::variant<TVExp, TERMline> TLine;
 
-	template <typename T> class ERM_grammar;
+	template <typename T> struct ERM_grammar;
 }
 
 struct LineInfo

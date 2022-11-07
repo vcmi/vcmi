@@ -14,10 +14,11 @@
 
 #include <boost/program_options.hpp>
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CMapInfo;
 
 struct CPackForLobby;
-class CGameHandler;
 struct SharedMemory;
 
 struct StartInfo;
@@ -26,6 +27,10 @@ struct PlayerSettings;
 class PlayerColor;
 
 template<typename T> class CApplier;
+
+VCMI_LIB_NAMESPACE_END
+
+class CGameHandler;
 class CBaseForServerApply;
 class CBaseForGHApply;
 
@@ -56,6 +61,8 @@ public:
 
 	boost::program_options::variables_map cmdLineOptions;
 	std::set<std::shared_ptr<CConnection>> connections;
+	std::set<std::shared_ptr<CConnection>> hangingConnections; //keep connections of players disconnected during the game
+	
 	std::atomic<int> currentClientId;
 	std::atomic<ui8> currentPlayerId;
 	std::shared_ptr<CConnection> hostClient;
@@ -63,7 +70,8 @@ public:
 	CVCMIServer(boost::program_options::variables_map & opts);
 	~CVCMIServer();
 	void run();
-	void prepareToStartGame();
+	bool prepareToStartGame();
+	void prepareToRestart();
 	void startGameImmidiately();
 
 	void startAsyncAccept();
@@ -76,6 +84,7 @@ public:
 	bool passHost(int toConnectionId);
 
 	void announceTxt(const std::string & txt, const std::string & playerName = "system");
+	void announceMessage(const std::string & txt);
 	void addToAnnounceQueue(std::unique_ptr<CPackForLobby> pack);
 
 	void setPlayerConnectedId(PlayerSettings & pset, ui8 player) const;
@@ -83,6 +92,7 @@ public:
 
 	void clientConnected(std::shared_ptr<CConnection> c, std::vector<std::string> & names, std::string uuid, StartInfo::EMode mode);
 	void clientDisconnected(std::shared_ptr<CConnection> c);
+	void reconnectPlayer(int connId);
 
 	void updateAndPropagateLobbyState();
 
@@ -103,5 +113,7 @@ public:
 
 #ifdef VCMI_ANDROID
 	static void create();
+#elif defined(SINGLE_PROCESS_APP)
+    static void create(boost::condition_variable * cond, const std::string & uuid);
 #endif
 };

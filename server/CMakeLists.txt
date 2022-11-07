@@ -22,13 +22,18 @@ if(ANDROID) # android needs client/server to be libraries, not executables, so w
 	return()
 endif()
 
-add_executable(vcmiserver ${server_SRCS} ${server_HEADERS})
+if(BUILD_SINGLE_APP)
+	add_library(vcmiserver STATIC ${server_SRCS} ${server_HEADERS})
+	set(server_LIBS vcmi_lib_server)
+else()
+	add_executable(vcmiserver ${server_SRCS} ${server_HEADERS})
+	set(server_LIBS vcmi)
+endif()
 
-set(server_LIBS vcmi)
 if(CMAKE_SYSTEM_NAME MATCHES FreeBSD)
 	set(server_LIBS execinfo ${server_LIBS})
 endif()
-target_link_libraries(vcmiserver PRIVATE ${server_LIBS})
+target_link_libraries(vcmiserver PRIVATE ${server_LIBS} minizip::minizip)
 
 target_include_directories(vcmiserver
 	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
@@ -43,8 +48,8 @@ if(WIN32)
 endif()
 
 vcmi_set_output_dir(vcmiserver "")
+enable_pch(vcmiserver)
 
-set_target_properties(vcmiserver PROPERTIES ${PCH_PROPERTIES})
-cotire(vcmiserver)
-
-install(TARGETS vcmiserver DESTINATION ${BIN_DIR})
+if(NOT BUILD_SINGLE_APP)
+	install(TARGETS vcmiserver DESTINATION ${BIN_DIR})
+endif()

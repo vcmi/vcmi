@@ -14,6 +14,8 @@
 
 #include "../GameConstants.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace events
 {
 
@@ -28,7 +30,8 @@ public:
 private:
 	PlayerColor player;
 	ObjectInstanceID heroId;
-	bool enabled;
 };
 
 }
+
+VCMI_LIB_NAMESPACE_END

@@ -14,6 +14,9 @@
 #include "../../../lib/mapObjects/MapObjects.h"
 #include "../AIGateway.h"
 
+namespace NKAI
+{
+
 #define MIN_AI_STRENGTH (0.5f) //lower when combat AI gets smarter
 #define UNGUARDED_OBJECT (100.0f) //we consider unguarded objects 100 times weaker than us
 
@@ -238,4 +241,6 @@ float TacticalAdvantageEngine::getTacticalAdvantage(const CArmedInstance * we, c
 	}*/
 
 	return output;
+}
+
 }

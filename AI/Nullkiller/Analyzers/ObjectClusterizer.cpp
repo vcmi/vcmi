@@ -14,6 +14,9 @@
 #include "../Engine/Nullkiller.h"
 #include "lib/mapping/CMap.h" //for victory conditions
 
+namespace NKAI
+{
+
 void ObjectCluster::addObject(const CGObjectInstance * obj, const AIPath & path, float priority)
 {
 	ClusterObjects::accessor info;
@@ -120,18 +123,23 @@ const CGObjectInstance * ObjectClusterizer::getBlocker(const AIPath & path) cons
 
 		auto blocker = blockers.front();
 
+		if(isObjectPassable(ai, blocker))
+			continue;
+
 		if(blocker->ID == Obj::GARRISON
-			|| blocker->ID == Obj::MONSTER
-			|| blocker->ID == Obj::GARRISON2
-			|| blocker->ID == Obj::BORDERGUARD
-			|| blocker->ID == Obj::BORDER_GATE
-			|| blocker->ID == Obj::SHIPYARD)
+			|| blocker->ID == Obj::GARRISON2)
 		{
-			if(!isObjectPassable(ai, blocker))
+			if(dynamic_cast<const CArmedInstance *>(blocker)->getArmyStrength() == 0)
+				continue;
+			else
 				return blocker;
 		}
 
-		if(blocker->ID == Obj::QUEST_GUARD && node->actionIsBlocked)
+		if(blocker->ID == Obj::MONSTER
+			|| blocker->ID == Obj::BORDERGUARD
+			|| blocker->ID == Obj::BORDER_GATE
+			|| blocker->ID == Obj::SHIPYARD
+			|| (blocker->ID == Obj::QUEST_GUARD && node->actionIsBlocked))
 		{
 			return blocker;
 		}
@@ -149,7 +157,7 @@ bool ObjectClusterizer::shouldVisitObject(const CGObjectInstance * obj) const
 
 	const int3 pos = obj->visitablePos();
 
-	if(obj->ID != Obj::CREATURE_GENERATOR1 && vstd::contains(ai->memory->alreadyVisited, obj)
+	if((obj->ID != Obj::CREATURE_GENERATOR1 && vstd::contains(ai->memory->alreadyVisited, obj))
 		|| obj->wasVisited(ai->playerID))
 	{
 		return false;
@@ -178,7 +186,7 @@ bool ObjectClusterizer::shouldVisitObject(const CGObjectInstance * obj) const
 
 void ObjectClusterizer::clusterize()
 {
-	auto start = boost::chrono::high_resolution_clock::now();
+	auto start = std::chrono::high_resolution_clock::now();
 
 	nearObjects.reset();
 	farObjects.reset();
@@ -223,7 +231,7 @@ void ObjectClusterizer::clusterize()
 			if(!shouldVisitObject(obj))
 				return;
 
-#if AI_TRACE_LEVEL >= 2
+#if NKAI_TRACE_LEVEL >= 2
 			logAi->trace("Check object %s%s.", obj->getObjectName(), obj->visitablePos().toString());
 #endif
 
@@ -231,7 +239,7 @@ void ObjectClusterizer::clusterize()
 
 			if(paths.empty())
 			{
-#if AI_TRACE_LEVEL >= 2
+#if NKAI_TRACE_LEVEL >= 2
 				logAi->trace("No paths found.");
 #endif
 				continue;
@@ -246,7 +254,7 @@ void ObjectClusterizer::clusterize()
 			{
 				farObjects.addObject(obj, paths.front(), 0);
 
-#if AI_TRACE_LEVEL >= 2
+#if NKAI_TRACE_LEVEL >= 2
 				logAi->trace("Object ignored. Moved to far objects with path %s", paths.front().toString());
 #endif
 
@@ -257,13 +265,13 @@ void ObjectClusterizer::clusterize()
 
 			for(auto & path : paths)
 			{
-#if AI_TRACE_LEVEL >= 2
+#if NKAI_TRACE_LEVEL >= 2
 				logAi->trace("Checking path %s", path.toString());
 #endif
 
 				if(!shouldVisit(ai, path.targetHero, obj))
 				{
-#if AI_TRACE_LEVEL >= 2
+#if NKAI_TRACE_LEVEL >= 2
 					logAi->trace("Hero %s does not need to visit %s", path.targetHero->name, obj->getObjectName());
 #endif
 					continue;
@@ -277,7 +285,7 @@ void ObjectClusterizer::clusterize()
 					{
 						if(vstd::contains(heroesProcessed, path.targetHero))
 						{
-#if AI_TRACE_LEVEL >= 2
+#if NKAI_TRACE_LEVEL >= 2
 							logAi->trace("Hero %s is already processed.", path.targetHero->name);
 #endif
 							continue;
@@ -297,7 +305,7 @@ void ObjectClusterizer::clusterize()
 
 						cluster->second->addObject(obj, path, priority);
 
-#if AI_TRACE_LEVEL >= 2
+#if NKAI_TRACE_LEVEL >= 2
 						logAi->trace("Path added to cluster %s%s", blocker->getObjectName(), blocker->visitablePos().toString());
 #endif
 						continue;
@@ -322,7 +330,7 @@ void ObjectClusterizer::clusterize()
 					farObjects.addObject(obj, path, priority);
 				}
 
-#if AI_TRACE_LEVEL >= 2
+#if NKAI_TRACE_LEVEL >= 2
 				logAi->trace("Path %s added to %s objects. Turn: %d, priority: %f",
 					path.toString(),
 					interestingObject ? "near" : "far",
@@ -340,7 +348,7 @@ void ObjectClusterizer::clusterize()
 	{
 		logAi->trace("Cluster %s %s count: %i", pair.first->getObjectName(), pair.first->visitablePos().toString(), pair.second->objects.size());
 
-#if AI_TRACE_LEVEL >= 1
+#if NKAI_TRACE_LEVEL >= 1
 		for(auto obj : pair.second->getObjects())
 		{
 			logAi->trace("Object %s %s", obj->getObjectName(), obj->visitablePos().toString());
@@ -349,4 +357,6 @@ void ObjectClusterizer::clusterize()
 	}
 
 	logAi->trace("Clusterization complete in %ld", timeElapsed(start));
+}
+
 }

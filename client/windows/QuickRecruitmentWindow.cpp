@@ -29,24 +29,24 @@ void QuickRecruitmentWindow::setButtons()
 
 void QuickRecruitmentWindow::setCancelButton()
 {
-	cancelButton = std::make_shared<CButton>(Point((pos.w / 2) + 48, 418), "ICN6432.DEF", CButton::tooltip(), [&](){ close(); }, SDLK_RETURN);
+	cancelButton = std::make_shared<CButton>(Point((pos.w / 2) + 48, 418), "ICN6432.DEF", CButton::tooltip(), [&](){ close(); }, SDLK_ESCAPE);
 	cancelButton->setImageOrder(0, 1, 2, 3);
 }
 
 void QuickRecruitmentWindow::setBuyButton()
 {
-	buyButton = std::make_shared<CButton>(Point((pos.w/2)-32, 418), "IBY6432.DEF", CButton::tooltip(), [&](){ purhaseUnits(); });
+	buyButton = std::make_shared<CButton>(Point((pos.w / 2) - 32, 418), "IBY6432.DEF", CButton::tooltip(), [&](){ purchaseUnits(); }, SDLK_RETURN);
 	cancelButton->assignedKeys.insert(SDLK_ESCAPE);
 	buyButton->setImageOrder(0, 1, 2, 3);
 }
 
 void QuickRecruitmentWindow::setMaxButton()
 {
-	maxButton = std::make_shared<CButton>(Point((pos.w/2)-112, 418), "IRCBTNS.DEF", CButton::tooltip(), [&](){ maxAllCards(cards); });
+	maxButton = std::make_shared<CButton>(Point((pos.w/2)-112, 418), "IRCBTNS.DEF", CButton::tooltip(), [&](){ maxAllCards(cards); }, SDLK_m);
 	maxButton->setImageOrder(0, 1, 2, 3);
 }
 
-void QuickRecruitmentWindow::setCreaturePurhaseCards()
+void QuickRecruitmentWindow::setCreaturePurchaseCards()
 {
 	int availableAmount = getAvailableCreatures();
 	Point position = Point((pos.w - 100*availableAmount - 8*(availableAmount-1))/2,64);
@@ -99,7 +99,7 @@ void QuickRecruitmentWindow::maxAllCards(std::vector<std::shared_ptr<CreaturePur
 }
 
 
-void QuickRecruitmentWindow::purhaseUnits()
+void QuickRecruitmentWindow::purchaseUnits()
 {
 	for(auto selected : cards)
 	{
@@ -154,6 +154,6 @@ QuickRecruitmentWindow::QuickRecruitmentWindow(const CGTownInstance * townd, Rec
 
 	initWindow(startupPosition);
 	setButtons();
-	setCreaturePurhaseCards();
+	setCreaturePurchaseCards();
 	maxAllCards(cards);
 }

@@ -15,11 +15,13 @@
 
 #include <QJsonArray>
 #include <QCryptographicHash>
+#include <QRegularExpression>
 
 #include "cmodlistmodel_moc.h"
 #include "cmodmanager.h"
 #include "cdownloadmanager_moc.h"
 #include "../launcherdirs.h"
+#include "../jsonutils.h"
 
 #include "../../lib/CConfigHandler.h"
 
@@ -27,6 +29,9 @@ void CModListView::setupModModel()
 {
 	modModel = new CModListModel(this);
 	manager = vstd::make_unique<CModManager>(modModel);
+
+	connect(manager.get(), &CModManager::extraResolutionsEnabledChanged,
+		this, &CModListView::extraResolutionsEnabledChanged);
 }
 
 void CModListView::setupFilterModel()
@@ -205,11 +210,15 @@ QString CModListView::genChangelogText(CModEntry & mod)
 QString CModListView::genModInfoText(CModEntry & mod)
 {
 	QString prefix = "<p><span style=\" font-weight:600;\">%1: </span>"; // shared prefix
+	QString redPrefix = "<p><span style=\" font-weight:600; color:red\">%1: </span>"; // shared prefix
 	QString lineTemplate = prefix + "%2</p>";
 	QString urlTemplate = prefix + "<a href=\"%2\">%3</a></p>";
 	QString textTemplate = prefix + "</p><p align=\"justify\">%2</p>";
 	QString listTemplate = "<p align=\"justify\">%1: %2</p>";
 	QString noteTemplate = "<p align=\"justify\">%1</p>";
+	QString compatibleString = prefix + "Mod is compatible</p>";
+	QString incompatibleString = redPrefix + "Mod is incompatible</p>";
+	QString supportedVersions = redPrefix + "%2 %3 %4</p>";
 
 	QString result;
 
@@ -226,6 +235,32 @@ QString CModListView::genModInfoText(CModEntry & mod)
 
 	if(mod.getValue("contact").isValid())
 		result += urlTemplate.arg(tr("Home")).arg(mod.getValue("contact").toString()).arg(mod.getValue("contact").toString());
+
+	//compatibility info
+	if(mod.isCompatible())
+		result += compatibleString.arg(tr("Compatibility"));
+	else
+	{
+		auto compatibilityInfo = mod.getValue("compatibility").toMap();
+		auto minStr = compatibilityInfo.value("min").toString();
+		auto maxStr = compatibilityInfo.value("max").toString();
+
+		result += incompatibleString.arg(tr("Compatibility"));
+		if(minStr == maxStr)
+			result += supportedVersions.arg(tr("Required VCMI version"), minStr, "", "");
+		else
+		{
+			if(minStr.isEmpty() || maxStr.isEmpty())
+			{
+				if(minStr.isEmpty())
+					result += supportedVersions.arg(tr("Supported VCMI version"), maxStr, ", ", "please upgrade mod");
+				else
+					result += supportedVersions.arg(tr("Required VCMI version"), minStr, " ", "or above");
+			}
+			else
+				result += supportedVersions.arg(tr("Supported VCMI versions"), minStr, " - ", maxStr);
+		}
+	}
 
 	result += replaceIfNotEmpty(mod.getValue("depends"), lineTemplate.arg(tr("Required mods")));
 	result += replaceIfNotEmpty(mod.getValue("conflicts"), lineTemplate.arg(tr("Conflicting mods")));
@@ -309,14 +344,19 @@ void CModListView::selectMod(const QModelIndex & index)
 		// Block buttons if action is not allowed at this time
 		// TODO: automate handling of some of these cases instead of forcing player
 		// to resolve all conflicts manually.
-		ui->disableButton->setEnabled(!hasDependentMods);
+		ui->disableButton->setEnabled(!hasDependentMods && !mod.isEssential());
 		ui->enableButton->setEnabled(!hasBlockingMods && !hasInvalidDeps);
 		ui->installButton->setEnabled(!hasInvalidDeps);
-		ui->uninstallButton->setEnabled(!hasDependentMods);
+		ui->uninstallButton->setEnabled(!hasDependentMods && !mod.isEssential());
 		ui->updateButton->setEnabled(!hasInvalidDeps && !hasDependentMods);
 
 		loadScreenshots();
 	}
+}
+
+bool CModListView::isExtraResolutionsModEnabled() const
+{
+	return manager->isExtraResolutionsModEnabled();
 }
 
 void CModListView::keyPressEvent(QKeyEvent * event)
@@ -352,8 +392,16 @@ void CModListView::on_allModsView_activated(const QModelIndex & index)
 
 void CModListView::on_lineEdit_textChanged(const QString & arg1)
 {
-	QRegExp regExp(arg1, Qt::CaseInsensitive, QRegExp::Wildcard);
-	filterModel->setFilterRegExp(regExp);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+	auto baseStr = QRegularExpression::wildcardToRegularExpression(arg1, QRegularExpression::UnanchoredWildcardConversion);
+#else
+	auto baseStr = QRegularExpression::wildcardToRegularExpression(arg1);
+	//Hack due to lack QRegularExpression::UnanchoredWildcardConversion in Qt5
+	baseStr.chop(3);
+	baseStr.remove(0,5);
+#endif
+	QRegularExpression regExp{baseStr, QRegularExpression::CaseInsensitiveOption};
+	filterModel->setFilterRegularExpression(regExp);
 }
 
 void CModListView::on_comboBox_currentIndexChanged(int index)
@@ -513,6 +561,9 @@ void CModListView::downloadFile(QString file, QString url, QString description)
 
 		connect(dlManager, SIGNAL(finished(QStringList,QStringList,QStringList)),
 			this, SLOT(downloadFinished(QStringList,QStringList,QStringList)));
+		
+		
+		connect(modModel, &CModListModel::dataChanged, filterModel, &QAbstractItemModel::dataChanged);
 
 
 		QString progressBarFormat = "Downloading %s%. %p% (%v KB out of %m KB) finished";
@@ -536,6 +587,7 @@ void CModListView::downloadFinished(QStringList savedFiles, QStringList failedFi
 	QString title = "Download failed";
 	QString firstLine = "Unable to download all files.\n\nEncountered errors:\n\n";
 	QString lastLine = "\n\nInstall successfully downloaded?";
+	bool doInstallFiles = false;
 
 	// if all files were d/loaded there should be no errors. And on failure there must be an error
 	assert(failedFiles.empty() == errors.empty());
@@ -552,12 +604,12 @@ void CModListView::downloadFinished(QStringList savedFiles, QStringList failedFi
 		                                   QMessageBox::Yes | QMessageBox::No, QMessageBox::No );
 
 		if(result == QMessageBox::Yes)
-			installFiles(savedFiles);
+			doInstallFiles = true;
 	}
 	else
 	{
 		// everything OK
-		installFiles(savedFiles);
+		doInstallFiles = true;
 	}
 
 	// remove progress bar after some delay so user can see that download was complete and not interrupted.
@@ -565,6 +617,9 @@ void CModListView::downloadFinished(QStringList savedFiles, QStringList failedFi
 
 	dlManager->deleteLater();
 	dlManager = nullptr;
+
+	if(doInstallFiles)
+		installFiles(savedFiles);
 }
 
 void CModListView::hideProgressBar()
@@ -588,7 +643,29 @@ void CModListView::installFiles(QStringList files)
 		if(filename.endsWith(".zip"))
 			mods.push_back(filename);
 		if(filename.endsWith(".json"))
-			manager->loadRepository(filename);
+		{
+			//download and merge additional files
+			auto repodata = JsonUtils::JsonFromFile(filename).toMap();
+			if(repodata.value("name").isNull())
+			{
+				for(const auto & key : repodata.keys())
+				{
+					auto modjson = repodata[key].toMap().value("mod");
+					if(!modjson.isNull())
+					{
+						downloadFile(key + ".json", modjson.toString(), "mod json");
+					}
+				}
+			}
+			else
+			{
+				auto modn = QFileInfo(filename).baseName();
+				QVariantMap temp;
+				temp[modn] = repodata;
+				repodata = temp;
+			}
+			manager->loadRepository(repodata);
+		}
 		if(filename.endsWith(".png"))
 			images.push_back(filename);
 	}
@@ -649,7 +726,7 @@ void CModListView::installMods(QStringList archives)
 		auto mod = modModel->getMod(modName);
 		if(mod.isInstalled() && !mod.getValue("keepDisabled").toBool())
 		{
-			if(manager->enableMod(modName))
+			if(mod.isDisabled() && manager->enableMod(modName))
 			{
 				for(QString child : modModel->getChildren(modName))
 					enableMod(child);

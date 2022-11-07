@@ -30,6 +30,8 @@
 #include "../serializer/JsonDeserializer.h"
 #include "../serializer/JsonSerializer.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class MapObjectResolver: public IInstanceResolver
 {
 public:
@@ -323,20 +325,6 @@ namespace TriggeredEventsDetail
 
 namespace TerrainDetail
 {
-	static const std::array<std::string, 10> terrainCodes =
-	{
-		"dt", "sa", "gr", "sn", "sw", "rg", "sb", "lv", "wt", "rc"
-	};
-	static const std::array<std::string, 4> roadCodes =
-	{
-		"", "pd", "pg", "pc"
-	};
-
-	static const std::array<std::string, 5> riverCodes =
-	{
-		"", "rw", "ri", "rm", "rl"
-	};
-
 	static const std::array<char, 4> flipCodes =
 	{
 		'_', '-', '|', '+'
@@ -956,105 +944,107 @@ void CMapLoaderJson::readHeader(const bool complete)
 
 void CMapLoaderJson::readTerrainTile(const std::string & src, TerrainTile & tile)
 {
-	using namespace TerrainDetail;
-	{//terrain type
-		const std::string typeCode = src.substr(0, 2);
-
-		int rawType = vstd::find_pos(terrainCodes, typeCode);
-
-		if(rawType < 0)
-			throw std::runtime_error("Invalid terrain type code in "+src);
-
-		tile.terType = ETerrainType(rawType);
-	}
-	int startPos = 2; //0+typeCode fixed length
-	{//terrain view
-		int pos = startPos;
-		while(isdigit(src.at(pos)))
-			pos++;
-		int len = pos - startPos;
-		if(len<=0)
-			throw std::runtime_error("Invalid terrain view in "+src);
-		const std::string rawCode = src.substr(startPos, len);
-		tile.terView = atoi(rawCode.c_str());
-		startPos+=len;
-	}
-	{//terrain flip
-		int terrainFlip = vstd::find_pos(flipCodes, src.at(startPos++));
-		if(terrainFlip < 0)
-			throw std::runtime_error("Invalid terrain flip in "+src);
-		else
-			tile.extTileFlags = terrainFlip;
-	}
-	if(startPos >= src.size())
-		return;
-	bool hasRoad = true;
-	{//road type
-		const std::string typeCode = src.substr(startPos, 2);
-		startPos+=2;
-		int rawType = vstd::find_pos(roadCodes, typeCode);
-		if(rawType < 0)
-		{
-			rawType = vstd::find_pos(riverCodes, typeCode);
-			if(rawType < 0)
-				throw std::runtime_error("Invalid river type in "+src);
-			else
-			{
-				tile.riverType = ERiverType::ERiverType(rawType);
-				hasRoad = false;
-			}
+	try
+	{
+		using namespace TerrainDetail;
+		{//terrain type
+			const std::string typeCode = src.substr(0, 2);
+			tile.terType = const_cast<TerrainType*>(VLC->terrainTypeHandler->getInfoByCode(typeCode));
 		}
-		else
-			tile.roadType = ERoadType::ERoadType(rawType);
+		int startPos = 2; //0+typeCode fixed length
+		{//terrain view
+			int pos = startPos;
+			while (isdigit(src.at(pos)))
+				pos++;
+			int len = pos - startPos;
+			if (len <= 0)
+				throw std::runtime_error("Invalid terrain view in " + src);
+			const std::string rawCode = src.substr(startPos, len);
+			tile.terView = atoi(rawCode.c_str());
+			startPos += len;
+		}
+		{//terrain flip
+			int terrainFlip = vstd::find_pos(flipCodes, src.at(startPos++));
+			if (terrainFlip < 0)
+				throw std::runtime_error("Invalid terrain flip in " + src);
+			else
+				tile.extTileFlags = terrainFlip;
+		}
+		if (startPos >= src.size())
+			return;
+		bool hasRoad = true;
+		//FIXME: check without exceptions?
+		{//road type
+			const std::string typeCode = src.substr(startPos, 2);
+			startPos += 2;
+			try
+			{
+				tile.roadType = const_cast<RoadType*>(VLC->terrainTypeHandler->getRoadByCode(typeCode));
+			}
+			catch (const std::exception& e) //it's not a road, it's a river
+			{
+				try
+				{
+					tile.riverType = const_cast<RiverType*>(VLC->terrainTypeHandler->getRiverByCode(typeCode));
+					hasRoad = false;
+				}
+				catch (const std::exception& e)
+				{
+					throw std::runtime_error("Invalid river type in " + src);
+				}
+
+			}	
+		}
+		if (hasRoad)
+		{//road dir
+			int pos = startPos;
+			while (isdigit(src.at(pos)))
+				pos++;
+			int len = pos - startPos;
+			if (len <= 0)
+				throw std::runtime_error("Invalid road dir in " + src);
+			const std::string rawCode = src.substr(startPos, len);
+			tile.roadDir = atoi(rawCode.c_str());
+			startPos += len;
+		}
+		if (hasRoad)
+		{//road flip
+			int flip = vstd::find_pos(flipCodes, src.at(startPos++));
+			if (flip < 0)
+				throw std::runtime_error("Invalid road flip in " + src);
+			else
+				tile.extTileFlags |= (flip << 4);
+		}
+		if (startPos >= src.size())
+			return;
+		if (hasRoad)
+		{//river type
+			const std::string typeCode = src.substr(startPos, 2);
+			startPos += 2;
+			tile.riverType = const_cast<RiverType*>(VLC->terrainTypeHandler->getRiverByCode(typeCode));
+		}
+		{//river dir
+			int pos = startPos;
+			while (isdigit(src.at(pos)))
+				pos++;
+			int len = pos - startPos;
+			if (len <= 0)
+				throw std::runtime_error("Invalid river dir in " + src);
+			const std::string rawCode = src.substr(startPos, len);
+			tile.riverDir = atoi(rawCode.c_str());
+			startPos += len;
+		}
+		{//river flip
+			int flip = vstd::find_pos(flipCodes, src.at(startPos++));
+			if (flip < 0)
+				throw std::runtime_error("Invalid road flip in " + src);
+			else
+				tile.extTileFlags |= (flip << 2);
+		}
 	}
-	if(hasRoad)
-	{//road dir
-		int pos = startPos;
-		while(isdigit(src.at(pos)))
-			pos++;
-		int len = pos - startPos;
-		if(len<=0)
-			throw std::runtime_error("Invalid road dir in "+src);
-		const std::string rawCode = src.substr(startPos, len);
-		tile.roadDir = atoi(rawCode.c_str());
-		startPos+=len;
-	}
-	if(hasRoad)
-	{//road flip
-		int flip = vstd::find_pos(flipCodes, src.at(startPos++));
-		if(flip < 0)
-			throw std::runtime_error("Invalid road flip in "+src);
-		else
-			tile.extTileFlags |= (flip<<4);
-	}
-	if(startPos >= src.size())
-		return;
-	if(hasRoad)
-	{//river type
-		const std::string typeCode = src.substr(startPos, 2);
-		startPos+=2;
-		int rawType = vstd::find_pos(riverCodes, typeCode);
-		if(rawType < 0)
-			throw std::runtime_error("Invalid river type in "+src);
-		tile.riverType = ERiverType::ERiverType(rawType);
-	}
-	{//river dir
-		int pos = startPos;
-		while(isdigit(src.at(pos)))
-			pos++;
-		int len = pos - startPos;
-		if(len<=0)
-			throw std::runtime_error("Invalid river dir in "+src);
-		const std::string rawCode = src.substr(startPos, len);
-		tile.riverDir = atoi(rawCode.c_str());
-		startPos+=len;
-	}
-	{//river flip
-		int flip = vstd::find_pos(flipCodes, src.at(startPos++));
-		if(flip < 0)
-			throw std::runtime_error("Invalid road flip in "+src);
-		else
-			tile.extTileFlags |= (flip<<2);
+	catch (const std::exception & e)
+	{
+		logGlobal->error("Failed to read terrain tile: %s");
 	}
 }
 
@@ -1133,13 +1123,14 @@ void CMapLoaderJson::MapObjectLoader::construct()
 
 	auto handler = VLC->objtypeh->getHandlerFor(typeName, subtypeName);
 
-	ObjectTemplate appearance;
+	auto appearance = new ObjectTemplate;
 
-	appearance.id = Obj(handler->type);
-	appearance.subid = handler->subtype;
-	appearance.readJson(configuration["template"], false);
+	appearance->id = Obj(handler->type);
+	appearance->subid = handler->subtype;
+	appearance->readJson(configuration["template"], false);
 
-	instance = handler->create(appearance);
+	// Will be destroyed soon and replaced with shared template
+	instance = handler->create(std::shared_ptr<const ObjectTemplate>(appearance));
 
 	instance->id = ObjectInstanceID((si32)owner->map->objects.size());
 	instance->instanceName = jsonKey;
@@ -1298,13 +1289,13 @@ std::string CMapSaverJson::writeTerrainTile(const TerrainTile & tile)
 	out.setf(std::ios::dec, std::ios::basefield);
 	out.unsetf(std::ios::showbase);
 
-	out << terrainCodes.at(int(tile.terType)) << (int)tile.terView << flipCodes[tile.extTileFlags % 4];
+	out << tile.terType->typeCode << (int)tile.terView << flipCodes[tile.extTileFlags % 4];
 
-	if(tile.roadType != ERoadType::NO_ROAD)
-		out << roadCodes.at(int(tile.roadType)) << (int)tile.roadDir << flipCodes[(tile.extTileFlags >> 4) % 4];
+	if(tile.roadType->id != Road::NO_ROAD)
+		out << tile.roadType << (int)tile.roadDir << flipCodes[(tile.extTileFlags >> 4) % 4];
 
-	if(tile.riverType != ERiverType::NO_RIVER)
-		out << riverCodes.at(int(tile.riverType)) << (int)tile.riverDir << flipCodes[(tile.extTileFlags >> 2) % 4];
+	if(tile.riverType->id != River::NO_RIVER)
+		out << tile.riverType << (int)tile.riverDir << flipCodes[(tile.extTileFlags >> 2) % 4];
 
 	return out.str();
 }
@@ -1386,3 +1377,5 @@ void CMapSaverJson::writeObjects()
 	addToArchive(data, OBJECTS_FILE_NAME);
 }
 
+
+VCMI_LIB_NAMESPACE_END

@@ -24,6 +24,8 @@
 #include "../battle/CObstacleInstance.h"
 #include "../CStack.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class BinarySerializer;
 class BinaryDeserializer;
 class CTypeList;
@@ -55,6 +57,7 @@ void registerTypesMapObjects1(Serializer &s)
 	s.template registerType<CGObjectInstance, CGShipyard>(); s.template registerType<IShipyard, CGShipyard>();
 	s.template registerType<CGObjectInstance, CGDenOfthieves>();
 	s.template registerType<CGObjectInstance, CGLighthouse>();
+	s.template registerType<CGObjectInstance, CGTerrainPatch>();
 	s.template registerType<CGObjectInstance, CGMarket>(); s.template registerType<IMarket, CGMarket>();
 		s.template registerType<CGMarket, CGBlackMarket>();
 		s.template registerType<CGMarket, CGUniversity>();
@@ -108,6 +111,7 @@ void registerTypesMapObjectTypes(Serializer &s)
 	REGISTER_GENERIC_HANDLER(CGHeroInstance);
 	REGISTER_GENERIC_HANDLER(CGKeymasterTent);
 	REGISTER_GENERIC_HANDLER(CGLighthouse);
+	REGISTER_GENERIC_HANDLER(CGTerrainPatch);
 	REGISTER_GENERIC_HANDLER(CGMagi);
 	REGISTER_GENERIC_HANDLER(CGMagicSpring);
 	REGISTER_GENERIC_HANDLER(CGMagicWell);
@@ -140,11 +144,11 @@ void registerTypesMapObjectTypes(Serializer &s)
 	s.template registerType<IUpdater, GrowsWithLevelUpdater>();
 	s.template registerType<IUpdater, TimesHeroLevelUpdater>();
 	s.template registerType<IUpdater, TimesStackLevelUpdater>();
+	s.template registerType<IUpdater, OwnerUpdater>();
 
 	s.template registerType<ILimiter, AnyOfLimiter>();
 	s.template registerType<ILimiter, NoneOfLimiter>();
 	s.template registerType<ILimiter, OppositeSideLimiter>();
-	s.template registerType<IUpdater, OwnerUpdater>();
 	//new types (other than netpacks) must register here
 	//order of type registration is critical for loading old savegames
 }
@@ -236,6 +240,7 @@ void registerTypesClientPacks1(Serializer &s)
 	s.template registerType<CPackForClient, GiveBonus>();
 	s.template registerType<CPackForClient, ChangeObjPos>();
 	s.template registerType<CPackForClient, PlayerEndsGame>();
+	s.template registerType<CPackForClient, PlayerReinitInterface>();
 	s.template registerType<CPackForClient, RemoveBonus>();
 	s.template registerType<CPackForClient, UpdateArtHandlerLists>();
 	s.template registerType<CPackForClient, UpdateMapEvents>();
@@ -317,6 +322,8 @@ void registerTypesClientPacks2(Serializer &s)
 
 	s.template registerType<CPackForClient, SaveGameClient>();
 	s.template registerType<CPackForClient, PlayerMessageClient>();
+	s.template registerType<CGarrisonOperationPack, BulkRebalanceStacks>();
+	s.template registerType<CGarrisonOperationPack, BulkSmartRebalanceStacks>();
 }
 
 template<typename Serializer>
@@ -347,6 +354,10 @@ void registerTypesServerPacks(Serializer &s)
 	s.template registerType<CPackForServer, CastleTeleportHero>();
 	s.template registerType<CPackForServer, SaveGame>();
 	s.template registerType<CPackForServer, PlayerMessage>();
+	s.template registerType<CPackForServer, BulkSplitStack>();
+	s.template registerType<CPackForServer, BulkMergeStacks>();
+	s.template registerType<CPackForServer, BulkSmartSplitStack>();
+	s.template registerType<CPackForServer, BulkMoveArmy>();
 }
 
 template<typename Serializer>
@@ -362,10 +373,12 @@ void registerTypesLobbyPacks(Serializer &s)
 	s.template registerType<CLobbyPackToPropagate, LobbyChatMessage>();
 	// Only host client send
 	s.template registerType<CLobbyPackToPropagate, LobbyGuiAction>();
+	s.template registerType<CLobbyPackToPropagate, LobbyEndGame>();
 	s.template registerType<CLobbyPackToPropagate, LobbyStartGame>();
 	s.template registerType<CLobbyPackToPropagate, LobbyChangeHost>();
 	// Only server send
 	s.template registerType<CLobbyPackToPropagate, LobbyUpdateState>();
+	s.template registerType<CLobbyPackToPropagate, LobbyShowMessage>();
 
 	// For client with permissions
 	s.template registerType<CLobbyPackToServer, LobbyChangePlayerOption>();
@@ -400,3 +413,5 @@ extern template DLL_LINKAGE void registerTypes<CTypeList>(CTypeList & s);
 
 #endif
 
+
+VCMI_LIB_NAMESPACE_END

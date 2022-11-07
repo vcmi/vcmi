@@ -20,6 +20,8 @@
 #include "../VCMI_Lib.h"
 #include "../CModHandler.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 
 namespace spells
 {
@@ -298,7 +300,7 @@ protected:
 		//this stack is from other player
 		else if(battleWideNegation)
 		{
-			if(!m->ownerMatches(target, false))
+			if(m->ownerMatches(target, false))
 				return true;
 		}
 		return false;
@@ -512,3 +514,5 @@ void TargetCondition::loadConditions(const JsonNode & source, bool exclusive, bo
 }
 
 }
+
+VCMI_LIB_NAMESPACE_END

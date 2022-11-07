@@ -10,13 +10,17 @@
 
 #include "StdInc.h"
 #include <vstd/ContainerUtils.h>
+#include <boost/bimap.hpp>
 #include "CRmgTemplate.h"
 
 #include "../mapping/CMap.h"
 #include "../VCMI_Lib.h"
 #include "../CTownHandler.h"
+#include "../Terrain.h"
 #include "../serializer/JsonSerializeFormat.h"
 #include "../StringConstants.h"
+
+VCMI_LIB_NAMESPACE_BEGIN
 
 namespace
 {
@@ -39,6 +43,12 @@ CTreasureInfo::CTreasureInfo()
 
 }
 
+CTreasureInfo::CTreasureInfo(ui32 imin, ui32 imax, ui16 idensity)
+	: min(imin), max(imax), density(idensity)
+{
+	
+}
+
 bool CTreasureInfo::operator==(const CTreasureInfo & other) const
 {
 	return (min == other.min) && (max == other.max) && (density == other.density);
@@ -59,12 +69,13 @@ class TerrainEncoder
 public:
 	static si32 decode(const std::string & identifier)
 	{
-		return vstd::find_pos(GameConstants::TERRAIN_NAMES, identifier);
+		return VLC->terrainTypeHandler->getInfoByCode(identifier)->id;
 	}
 
 	static std::string encode(const si32 index)
 	{
-		return (index >=0 && index < GameConstants::TERRAIN_TYPES) ? GameConstants::TERRAIN_NAMES[index] : "<INVALID TERRAIN>";
+		const auto& terrains = VLC->terrainTypeHandler->terrains();
+		return (index >=0 && index < terrains.size()) ? terrains[index].name : "<INVALID TERRAIN>";
 	}
 };
 
@@ -80,18 +91,6 @@ public:
 	{
 		return boost::lexical_cast<std::string>(id);
 	}
-};
-
-const std::set<ETerrainType> ZoneOptions::DEFAULT_TERRAIN_TYPES =
-{
-	ETerrainType::DIRT,
-	ETerrainType::SAND,
-	ETerrainType::GRASS,
-	ETerrainType::SNOW,
-	ETerrainType::SWAMP,
-	ETerrainType::ROUGH,
-	ETerrainType::SUBTERRANEAN,
-	ETerrainType::LAVA
 };
 
 const TRmgTemplateZoneId ZoneOptions::NO_ZONE = -1;
@@ -142,7 +141,6 @@ ZoneOptions::ZoneOptions()
 	playerTowns(),
 	neutralTowns(),
 	matchTerrainToTown(true),
-	terrainTypes(DEFAULT_TERRAIN_TYPES),
 	townsAreSameType(false),
 	townTypes(),
 	monsterTypes(),
@@ -154,7 +152,9 @@ ZoneOptions::ZoneOptions()
 	terrainTypeLikeZone(NO_ZONE),
 	treasureLikeZone(NO_ZONE)
 {
-
+	for(const auto & terr : VLC->terrainTypeHandler->terrains())
+		if(terr.isLand() && terr.isPassable())
+			terrainTypes.insert(terr.id);
 }
 
 ZoneOptions & ZoneOptions::operator=(const ZoneOptions & other)
@@ -196,6 +196,11 @@ ETemplateZoneType::ETemplateZoneType ZoneOptions::getType() const
 {
 	return type;
 }
+	
+void ZoneOptions::setType(ETemplateZoneType::ETemplateZoneType value)
+{
+	type = value;
+}
 
 int ZoneOptions::getSize() const
 {
@@ -212,15 +217,15 @@ boost::optional<int> ZoneOptions::getOwner() const
 	return owner;
 }
 
-const std::set<ETerrainType> & ZoneOptions::getTerrainTypes() const
+const std::set<TerrainId> & ZoneOptions::getTerrainTypes() const
 {
 	return terrainTypes;
 }
 
-void ZoneOptions::setTerrainTypes(const std::set<ETerrainType> & value)
+void ZoneOptions::setTerrainTypes(const std::set<TerrainId> & value)
 {
-	assert(value.find(ETerrainType::WRONG) == value.end() && value.find(ETerrainType::BORDER) == value.end() &&
-		   value.find(ETerrainType::WATER) == value.end() && value.find(ETerrainType::ROCK) == value.end());
+	//assert(value.find(ETerrainType::WRONG) == value.end() && value.find(ETerrainType::BORDER) == value.end() &&
+	//	   value.find(ETerrainType::WATER) == value.end() && value.find(ETerrainType::ROCK) == value.end());
 	terrainTypes = value;
 }
 
@@ -250,6 +255,11 @@ void ZoneOptions::setMonsterTypes(const std::set<TFaction> & value)
 	monsterTypes = value;
 }
 
+const std::set<TFaction> & ZoneOptions::getMonsterTypes() const
+{
+	return monsterTypes;
+}
+
 void ZoneOptions::setMinesInfo(const std::map<TResource, ui16> & value)
 {
 	mines = value;
@@ -263,6 +273,11 @@ std::map<TResource, ui16> ZoneOptions::getMinesInfo() const
 void ZoneOptions::setTreasureInfo(const std::vector<CTreasureInfo> & value)
 {
 	treasureInfo = value;
+}
+	
+void ZoneOptions::addTreasureInfo(const CTreasureInfo & value)
+{
+	treasureInfo.push_back(value);
 }
 
 const std::vector<CTreasureInfo> & ZoneOptions::getTreasureInfo() const
@@ -295,6 +310,26 @@ std::vector<TRmgTemplateZoneId> ZoneOptions::getConnections() const
 	return connections;
 }
 
+bool ZoneOptions::areTownsSameType() const
+{
+	return townsAreSameType;
+}
+
+bool ZoneOptions::isMatchTerrainToTown() const
+{
+	return matchTerrainToTown;
+}
+
+const ZoneOptions::CTownInfo & ZoneOptions::getPlayerTowns() const
+{
+	return playerTowns;
+}
+
+const ZoneOptions::CTownInfo & ZoneOptions::getNeutralTowns() const
+{
+	return neutralTowns;
+}
+
 void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 {
 	static const std::vector<std::string> zoneTypes =
@@ -302,7 +337,8 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 		"playerStart",
 		"cpuStart",
 		"treasure",
-		"junction"
+		"junction",
+		"water"
 	};
 
 	handler.serializeEnum("type", type, zoneTypes);
@@ -321,7 +357,31 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 	#undef SERIALIZE_ZONE_LINK
 
 	if(terrainTypeLikeZone == NO_ZONE)
-		handler.serializeIdArray<ETerrainType, TerrainEncoder>("terrainTypes", terrainTypes, DEFAULT_TERRAIN_TYPES);
+	{
+		JsonNode node;
+		if(handler.saving)
+		{
+			node.setType(JsonNode::JsonType::DATA_VECTOR);
+			for(auto & ttype : terrainTypes)
+			{
+				JsonNode n;
+				n.String() = ttype;
+				node.Vector().push_back(n);
+			}
+		}
+		handler.serializeRaw("terrainTypes", node, boost::none);
+		if(!handler.saving)
+		{
+			if(!node.Vector().empty())
+			{
+				terrainTypes.clear();
+				for(auto ttype : node.Vector())
+				{
+					terrainTypes.emplace(VLC->terrainTypeHandler->getInfoByName(ttype.String())->id);
+				}
+			}
+		}
+	}
 
 	handler.serializeBool("townsAreSameType", townsAreSameType, false);
 	handler.serializeIdArray<TFaction, FactionID>("allowedMonsters", monsterTypes, VLC->townh->getAllowedFactions(false));
@@ -342,7 +402,7 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 			rawStrength = static_cast<decltype(rawStrength)>(zoneMonsterStrength);
 			rawStrength++;
 		}
-		handler.serializeEnum("monsters", rawStrength, STRENGTH);
+		handler.serializeEnum("monsters", rawStrength, EMonsterStrength::ZONE_NORMAL + 1, STRENGTH);
 		if(!handler.saving)
 		{
 			rawStrength--;
@@ -389,6 +449,11 @@ int ZoneConnection::getGuardStrength() const
 {
 	return guardStrength;
 }
+	
+bool operator==(const ZoneConnection & l, const ZoneConnection & r)
+{
+	return l.zoneA == r.zoneA && l.zoneB == r.zoneB && l.guardStrength == r.guardStrength;
+}
 
 void ZoneConnection::serializeJson(JsonSerializeFormat & handler)
 {
@@ -419,6 +484,16 @@ bool CRmgTemplate::matchesSize(const int3 & value) const
 	const int64_t maxSquare = maxSize.x * maxSize.y * maxSize.z;
 
 	return minSquare <= square && square <= maxSquare;
+}
+
+bool CRmgTemplate::isWaterContentAllowed(EWaterContent::EWaterContent waterContent) const
+{
+	return waterContent == EWaterContent::EWaterContent::RANDOM || allowedWaterContent.count(waterContent);
+}
+
+const std::set<EWaterContent::EWaterContent> & CRmgTemplate::getWaterContentAllowed() const
+{
+	return allowedWaterContent;
 }
 
 void CRmgTemplate::setId(const std::string & value)
@@ -561,6 +636,32 @@ void CRmgTemplate::serializeJson(JsonSerializeFormat & handler)
 		auto connectionsData = handler.enterArray("connections");
 		connectionsData.serializeStruct(connections);
 	}
+	
+	{
+		boost::bimap<EWaterContent::EWaterContent, std::string> enc;
+		enc.insert({EWaterContent::NONE, "none"});
+		enc.insert({EWaterContent::NORMAL, "normal"});
+		enc.insert({EWaterContent::ISLANDS, "islands"});
+		JsonNode node;
+		if(handler.saving)
+		{
+			node.setType(JsonNode::JsonType::DATA_VECTOR);
+			for(auto wc : allowedWaterContent)
+			{
+				JsonNode n;
+				n.String() = enc.left.at(wc);
+				node.Vector().push_back(n);
+			}
+		}
+		handler.serializeRaw("allowedWaterContent", node, boost::none);
+		if(!handler.saving)
+		{
+			for(auto wc : node.Vector())
+			{
+				allowedWaterContent.insert(enc.right.at(std::string(wc.String())));
+			}
+		}
+	}
 
 	{
 		auto zonesData = handler.enterStruct("zones");
@@ -623,6 +724,14 @@ void CRmgTemplate::afterLoad()
 		zone1->addConnection(id2);
 		zone2->addConnection(id1);
 	}
+	
+	if(allowedWaterContent.empty() || allowedWaterContent.count(EWaterContent::EWaterContent::RANDOM))
+	{
+		allowedWaterContent.insert(EWaterContent::EWaterContent::NONE);
+		allowedWaterContent.insert(EWaterContent::EWaterContent::NORMAL);
+		allowedWaterContent.insert(EWaterContent::EWaterContent::ISLANDS);
+	}
+	allowedWaterContent.erase(EWaterContent::EWaterContent::RANDOM);
 }
 
 void CRmgTemplate::serializeSize(JsonSerializeFormat & handler, int3 & value, const std::string & fieldName)
@@ -693,3 +802,5 @@ void CRmgTemplate::serializePlayers(JsonSerializeFormat & handler, CPlayerCountR
 		value.fromString(encodedValue);
 }
 
+
+VCMI_LIB_NAMESPACE_END

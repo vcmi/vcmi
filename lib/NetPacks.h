@@ -23,8 +23,11 @@
 #include "spells/ViewSpellInt.h"
 
 class CClient;
-class CGameState;
 class CGameHandler;
+
+VCMI_LIB_NAMESPACE_BEGIN
+
+class CGameState;
 class CArtifact;
 class CGObjectInstance;
 class CArtifactInstance;
@@ -415,6 +418,21 @@ struct PlayerEndsGame : public CPackForClient
 	{
 		h & player;
 		h & victoryLossCheckResult;
+	}
+};
+
+struct PlayerReinitInterface : public CPackForClient
+{
+	void applyCl(CClient * cl);
+	DLL_LINKAGE void applyGs(CGameState *gs);
+	
+	std::vector<PlayerColor> players;
+	ui8 playerConnectionId; //PLAYER_AI for AI player
+	
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & players;
+		h & playerConnectionId;
 	}
 };
 
@@ -886,7 +904,7 @@ struct RebalanceStacks : CGarrisonOperationPack
 	TQuantity count;
 
 	void applyCl(CClient *cl);
-	DLL_LINKAGE void applyGs(CGameState *gs);
+	DLL_LINKAGE void applyGs(CGameState * gs);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -895,6 +913,36 @@ struct RebalanceStacks : CGarrisonOperationPack
 		h & srcSlot;
 		h & dstSlot;
 		h & count;
+	}
+};
+
+struct BulkRebalanceStacks : CGarrisonOperationPack
+{
+	std::vector<RebalanceStacks> moves;
+
+	void applyCl(CClient * cl);
+	DLL_LINKAGE void applyGs(CGameState * gs);
+
+	template <typename Handler> 
+	void serialize(Handler & h, const int version)
+	{
+		h & moves;
+	}
+};
+
+struct BulkSmartRebalanceStacks : CGarrisonOperationPack
+{
+	std::vector<RebalanceStacks> moves;
+	std::vector<ChangeStackCount> changes;
+
+	void applyCl(CClient * cl);
+	DLL_LINKAGE void applyGs(CGameState * gs);
+
+	template <typename Handler> 
+	void serialize(Handler & h, const int version)
+	{
+		h & moves;
+		h & changes;
 	}
 };
 
@@ -1946,6 +1994,102 @@ struct ArrangeStacks : public CPackForServer
 	}
 };
 
+struct BulkMoveArmy : public CPackForServer
+{
+	SlotID srcSlot;
+	ObjectInstanceID srcArmy;
+	ObjectInstanceID destArmy;
+
+	BulkMoveArmy()
+	{};
+
+	BulkMoveArmy(ObjectInstanceID srcArmy, ObjectInstanceID destArmy, SlotID srcSlot)
+		: srcArmy(srcArmy), destArmy(destArmy), srcSlot(srcSlot)
+	{};
+
+	bool applyGh(CGameHandler * gh);
+
+	template <typename Handler>
+	void serialize(Handler & h, const int version)
+	{
+		h & static_cast<CPackForServer&>(*this);
+		h & srcSlot;
+		h & srcArmy;
+		h & destArmy;
+	}
+};
+
+struct BulkSplitStack : public CPackForServer
+{
+	SlotID src;
+	ObjectInstanceID srcOwner;
+	si32 amount;
+
+	BulkSplitStack() : amount(0)
+	{};
+
+	BulkSplitStack(ObjectInstanceID srcOwner, SlotID src, si32 howMany)
+		: src(src), srcOwner(srcOwner), amount(howMany) 
+	{};
+
+	bool applyGh(CGameHandler * gh);
+
+	template <typename Handler> 
+	void serialize(Handler & h, const int version)
+	{
+		h & static_cast<CPackForServer&>(*this);
+		h & src;
+		h & srcOwner;
+		h & amount;
+	}
+};
+
+struct BulkMergeStacks : public CPackForServer
+{
+	SlotID src;
+	ObjectInstanceID srcOwner;
+
+	BulkMergeStacks()
+	{};
+
+	BulkMergeStacks(ObjectInstanceID srcOwner, SlotID src)
+		: src(src), srcOwner(srcOwner)
+	{};
+
+	bool applyGh(CGameHandler * gh);
+
+	template <typename Handler>
+	void serialize(Handler & h, const int version)
+	{
+		h & static_cast<CPackForServer&>(*this);
+		h & src;
+		h & srcOwner;
+	}
+};
+
+struct BulkSmartSplitStack : public CPackForServer
+{
+	SlotID src;
+	ObjectInstanceID srcOwner;
+
+	BulkSmartSplitStack()
+	{};
+
+	BulkSmartSplitStack(ObjectInstanceID srcOwner, SlotID src)
+		: src(src), srcOwner(srcOwner)
+	{};
+
+	bool applyGh(CGameHandler * gh);
+
+	template <typename Handler>
+	void serialize(Handler & h, const int version)
+	{
+		h & static_cast<CPackForServer&>(*this);
+		h & src;
+		h & srcOwner;
+	}
+};
+
 struct DisbandCreature : public CPackForServer
 {
 	DisbandCreature(){};
@@ -2325,3 +2469,5 @@ struct CenterView : public CPackForClient
 		h & focusTime;
 	}
 };
+
+VCMI_LIB_NAMESPACE_END

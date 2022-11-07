@@ -16,6 +16,9 @@
 #include "../Goals/Composition.h"
 #include "../Behaviors/CaptureObjectsBehavior.h"
 
+namespace NKAI
+{
+
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<AIGateway> ai;
 
@@ -50,7 +53,7 @@ Goals::TGoalVec ClusterBehavior::decomposeCluster(std::shared_ptr<ObjectCluster>
 
 	TGoalVec goals;
 
-#if AI_TRACE_LEVEL >= 2
+#if NKAI_TRACE_LEVEL >= 2
 	logAi->trace(
 		"Checking cluster %s %s, found %d paths",
 		cluster->blocker->getObjectName(),
@@ -60,7 +63,7 @@ Goals::TGoalVec ClusterBehavior::decomposeCluster(std::shared_ptr<ObjectCluster>
 
 	for(auto path = paths.begin(); path != paths.end();)
 	{
-#if AI_TRACE_LEVEL >= 2
+#if NKAI_TRACE_LEVEL >= 2
 		logAi->trace("Checking path %s", path->toString());
 #endif
 
@@ -89,13 +92,13 @@ Goals::TGoalVec ClusterBehavior::decomposeCluster(std::shared_ptr<ObjectCluster>
 		for(auto & node : clonedPath.nodes)
 			node.parentIndex -= path->nodes.size() - clonedPath.nodes.size();
 
-#if AI_TRACE_LEVEL >= 2
+#if NKAI_TRACE_LEVEL >= 2
 		logAi->trace("Unlock path found %s", blockerPaths.back().toString());
 #endif
 		path++;
 	}
 
-#if AI_TRACE_LEVEL >= 2
+#if NKAI_TRACE_LEVEL >= 2
 	logAi->trace("Decompose unlock paths");
 #endif
 
@@ -113,4 +116,6 @@ Goals::TGoalVec ClusterBehavior::decomposeCluster(std::shared_ptr<ObjectCluster>
 	}
 
 	return goals;
+}
+
 }

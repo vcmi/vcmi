@@ -1,9 +1,30 @@
-0.99 -> 1.00
+1.0.0 -> 1.1.0
+
+GENERAL:
+* Mods and their versions and serialized into save files. Game checks mod compatibility before loading
+* Logs are stored in system default logs directory
+* LUA/ERM libs are not compiled by default
+* FFMpeg dependency is optional now
+
+MODS:
+* Supported rewardable objects customization
+* Battleground obstacles are extendable now with VLC mechanism
+* Introduced "compatibility" section into mods settings
+
+LAUNCHER:
+* Fixed problem with duplicated mods in the list
+* Launcher shows compatible mods only
+* Uninstall button was moved to the left of layout
+
+0.99 -> 1.0.0
 
 GENERAL:
 * Spectator mode was implemented through command-line options
 * Some main menu settings get saved after returning to main menu - last selected map, save etc.
 * Restart scenario button should work correctly now
+* Skyship Grail works now immediately after capturing without battle
+* Lodestar Grail implemented
+* Fixed Gargoyles immunity
 * New bonuses:
 - SOUL_STEAL - "WoG ghost" ability, should work somewhat same as in H3
 - TRANSMUTATION - "WoG werewolf"-like ability
@@ -35,10 +56,53 @@ MODS:
 * Added bonus updaters for hero specialties
 * Added allOf, anyOf and noneOf qualifiers for bonus limiters
 * Added bonus limiters: alignment, faction and terrain
+* Supported new terrains, new battlefields, custom water and rock terrains
+* Following special buildings becomes available in the fan towns:
+- attackVisitingBonus
+- defenceVisitingBonus
+- spellPowerVisitingBonus
+- knowledgeVisitingBonus
+- experienceVisitingBonus
+- lighthouse
+- treasury
 
 SOUND:
 * Fixed many mising or wrong pickup and visit sounds for map objects
 * All map objects now have ambient sounds identical to OH3
+
+RANDOM MAP GENERATOR:
+* Random map generator supports water modes (normal, islands)
+* Added config randomMap.json with settings for map generator
+* Added parameter for template allowedWaterContent
+* Extra resource packs appear nearby mines
+* Underground can be player starting place for factions allowed to be placed underground
+* Improved obstacles placement aesthetics
+* Rivers are generated on the random maps
+* RMG works more stable, various crashes have been fixed
+* Treasures requiring guards are guaranteed to be protected
+
+VCAI:
+* Reworked goal decomposition engine, fixing many loopholes. AI will now pick correct goals faster.
+* AI will now use universal pathfinding globally
+* AI can use Summon  Boat and Town Portal
+* AI can gather and save resources on purpose
+* AI will only buy army on demand instead of every turn
+* AI can distinguish the value of all map objects
+* General speed optimizations
+
+BATTLES:
+* Towers should block ranged retaliation
+* AI can bypass broken wall with moat instead of standing and waiting until gate is destroyed
+* Towers do not attack war machines automatically
+* Draw is possible now as battle outcome in case the battle ends with only summoned creatures (both sides loose)
+
+ADVENTURE MAP:
+* Added buttons and keyboard shortcuts to quickly exchange army and artifacts between heroes
+* Fix: Captured town should not be duplicated on the UI
+
+LAUNCHER:
+* Implemented notifications about updates
+* Supported redirection links for downloading mods
 
 0.98 -> 0.99
 

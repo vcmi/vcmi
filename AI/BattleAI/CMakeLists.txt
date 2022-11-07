@@ -10,6 +10,7 @@ set(battleAI_SRCS
 		PotentialTargets.cpp
 		StackWithBonuses.cpp
 		ThreatMap.cpp
+		BattleExchangeVariant.cpp
 )
 
 set(battleAI_HEADERS
@@ -23,6 +24,7 @@ set(battleAI_HEADERS
 		PossibleSpellcast.h
 		StackWithBonuses.h
 		ThreatMap.h
+		BattleExchangeVariant.h
 )
 
 assign_source_group(${battleAI_SRCS} ${battleAI_HEADERS})
@@ -33,11 +35,9 @@ endif()
 
 add_library(BattleAI SHARED ${battleAI_SRCS} ${battleAI_HEADERS})
 target_include_directories(BattleAI PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(BattleAI PRIVATE vcmi)
+target_link_libraries(BattleAI PRIVATE ${VCMI_LIB_TARGET})
 
 vcmi_set_output_dir(BattleAI "AI")
-
-set_target_properties(BattleAI PROPERTIES ${PCH_PROPERTIES})
-cotire(BattleAI)
+enable_pch(BattleAI)
 
 install(TARGETS BattleAI RUNTIME DESTINATION ${AI_LIB_DIR} LIBRARY DESTINATION ${AI_LIB_DIR})

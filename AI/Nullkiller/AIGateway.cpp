@@ -19,13 +19,17 @@
 #include "../../lib/serializer/CTypeList.h"
 #include "../../lib/serializer/BinarySerializer.h"
 #include "../../lib/serializer/BinaryDeserializer.h"
+#include "../../lib/battle/BattleStateInfoForRetreat.h"
 
 #include "AIGateway.h"
 #include "Goals/Goals.h"
 
-class CGVisitableOPW;
+namespace NKAI
+{
 
+// our to enemy strength ratio constants
 const float SAFE_ATTACK_CONSTANT = 1.2;
+const float RETREAT_THRESHOLD = 0.3;
 
 //one thread may be turn of AI and another will be handling a side effect for AI2
 boost::thread_specific_ptr<CCallback> cb;
@@ -79,7 +83,7 @@ void AIGateway::availableCreaturesChanged(const CGDwelling * town)
 	NET_EVENT_HANDLER;
 }
 
-void AIGateway::heroMoved(const TryMoveHero & details)
+void AIGateway::heroMoved(const TryMoveHero & details, bool verbose)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
@@ -89,8 +93,8 @@ void AIGateway::heroMoved(const TryMoveHero & details)
 
 	const int3 from = CGHeroInstance::convertPosition(details.start, false);
 	const int3 to = CGHeroInstance::convertPosition(details.end, false);
-	const CGObjectInstance * o1 = vstd::frontOrNull(cb->getVisitableObjs(from));
-	const CGObjectInstance * o2 = vstd::frontOrNull(cb->getVisitableObjs(to));
+	const CGObjectInstance * o1 = vstd::frontOrNull(cb->getVisitableObjs(from, verbose));
+	const CGObjectInstance * o2 = vstd::frontOrNull(cb->getVisitableObjs(to, verbose));
 
 	if(details.result == TryMoveHero::TELEPORTATION)
 	{
@@ -199,6 +203,9 @@ void AIGateway::gameOver(PlayerColor player, const EVictoryLossCheckResult & vic
 		{
 			logAi->debug("AIGateway: Player %d (%s) lost. It's me. What a disappointment! :(", player, player.getStr());
 		}
+
+		// some whitespace to flush stream
+		logAi->debug(std::string(200, ' '));
 
 		finish();
 	}
@@ -487,6 +494,24 @@ void AIGateway::showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositio
 	NET_EVENT_HANDLER;
 }
 
+boost::optional<BattleAction> AIGateway::makeSurrenderRetreatDecision(
+	const BattleStateInfoForRetreat & battleState)
+{
+	LOG_TRACE(logAi);
+	NET_EVENT_HANDLER;
+
+	double fightRatio = battleState.getOurStrength() / (double)battleState.getEnemyStrength();
+
+	// if we have no towns - things are already bad, so retreat is not an option.
+	if(cb->getTownsInfo().size() && fightRatio < RETREAT_THRESHOLD && battleState.canFlee)
+	{
+		return BattleAction::makeRetreat(battleState.ourSide);
+	}
+
+	return boost::none;
+}
+
+
 void AIGateway::init(std::shared_ptr<Environment> env, std::shared_ptr<CCallback> CB)
 {
 	LOG_TRACE(logAi);
@@ -766,10 +791,10 @@ void AIGateway::makeTurn()
 		logAi->debug("Making turn thread has been interrupted. We'll end without calling endTurn.");
 		return;
 	}
-	/*catch (std::exception & e)
+	catch (std::exception & e)
 	{
 		logAi->debug("Making turn thread has caught an exception: %s", e.what());
-	}*/
+	}
 
 	endTurn();
 }
@@ -1016,11 +1041,15 @@ bool AIGateway::canRecruitAnyHero(const CGTownInstance * t) const
 	//TODO: make gathering gold, building tavern or conquering town (?) possible subgoals
 	if(!t)
 		t = findTownWithTavern();
-	if(!t)
+
+	if(!t || !townHasFreeTavern(t))
 		return false;
+
 	if(cb->getResourceAmount(Res::GOLD) < GameConstants::HERO_GOLD_COST) //TODO: use ResourceManager
 		return false;
 	if(cb->getHeroesInfo().size() >= ALLOWED_ROAMING_HEROES)
+		return false;
+	if(cb->getHeroesInfo().size() >= VLC->modh->settings.MAX_HEROES_ON_MAP_PER_PLAYER)
 		return false;
 	if(!cb->getAvailableHeroes(t).size())
 		return false;
@@ -1380,7 +1409,7 @@ void AIGateway::tryRealize(Goals::Trade & g) //trade
 const CGTownInstance * AIGateway::findTownWithTavern() const
 {
 	for(const CGTownInstance * t : cb->getTownsInfo())
-		if(t->hasBuilt(BuildingID::TAVERN) && !t->visitingHero)
+		if(townHasFreeTavern(t))
 			return t;
 
 	return nullptr;
@@ -1409,34 +1438,6 @@ void AIGateway::buildArmyIn(const CGTownInstance * t)
 	makePossibleUpgrades(t);
 	recruitCreatures(t, t->getUpperArmy());
 	moveCreaturesToHero(t);
-}
-
-void AIGateway::recruitHero(const CGTownInstance * t, bool throwing)
-{
-	logAi->debug("Trying to recruit a hero in %s at %s", t->name, t->visitablePos().toString());
-
-	auto heroes = cb->getAvailableHeroes(t);
-	if(heroes.size())
-	{
-		auto hero = heroes[0];
-		if(heroes.size() >= 2) //makes sense to recruit two heroes with starting amries in first week
-		{
-			if(heroes[1]->getTotalStrength() > hero->getTotalStrength())
-				hero = heroes[1];
-		}
-
-		cb->recruitHero(t, hero);
-		nullkiller->heroManager->update();
-
-		if(t->visitingHero)
-			moveHeroToTile(t->visitablePos(), t->visitingHero.get());
-
-		throw goalFulfilledException(sptr(Goals::RecruitHero(t)));
-	}
-	else if(throwing)
-	{
-		throw cannotFulfillGoalException("No available heroes in tavern in " + t->nodeName());
-	}
 }
 
 void AIGateway::finish()
@@ -1665,4 +1666,6 @@ void AIStatus::setChannelProbing(bool ongoing)
 bool AIStatus::channelProbing()
 {
 	return ongoingChannelProbing;
+}
+
 }

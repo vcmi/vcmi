@@ -232,7 +232,7 @@ TEST_F(CloneApplyTest, SetsLifetimeMarker)
 {
 	setDefaultExpectations();
 
-	EXPECT_CALL(*battleFake, addUnitBonus(_,_)).WillOnce(Invoke(this, &CloneApplyTest::checkCloneLifetimeMarker));
+	EXPECT_CALL(*battleFake, addUnitBonus(_, _)).WillOnce(Invoke(this, &CloneApplyTest::checkCloneLifetimeMarker));
 
 	subject->apply(&serverMock, &mechanicsMock, target);
 }

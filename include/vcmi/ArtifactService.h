@@ -12,6 +12,8 @@
 
 #include "EntityService.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class ArtifactID;
 class Artifact;
 
@@ -19,3 +21,5 @@ class DLL_LINKAGE ArtifactService : public EntityServiceT<ArtifactID, Artifact>
 {
 public:
 };
+
+VCMI_LIB_NAMESPACE_END

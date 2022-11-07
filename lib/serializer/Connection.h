@@ -12,8 +12,6 @@
 #include "BinaryDeserializer.h"
 #include "BinarySerializer.h"
 
-struct CPack;
-
 #if BOOST_VERSION >= 107000  // Boost version >= 1.70
 #include <boost/asio.hpp>
 typedef boost::asio::basic_stream_socket < boost::asio::ip::tcp > TSocket;
@@ -50,6 +48,10 @@ typedef boost::asio::basic_stream_socket < boost::asio::ip::tcp , boost::asio::s
 typedef boost::asio::basic_socket_acceptor<boost::asio::ip::tcp, boost::asio::socket_acceptor_service<boost::asio::ip::tcp> > TAcceptor;
 #endif
 
+
+VCMI_LIB_NAMESPACE_BEGIN
+
+struct CPack;
 
 /// Main class for network communication
 /// Allows establishing connection and bidirectional read-write
@@ -118,3 +120,5 @@ public:
 		return * this;
 	}
 };
+
+VCMI_LIB_NAMESPACE_END

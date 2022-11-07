@@ -1,3 +1,6 @@
+namespace Nullkiller
+{
+
 /*
 * GatherArmy.h, part of VCMI engine
 *
@@ -35,4 +38,6 @@ namespace Goals
 		std::string completeMessage() const override;
 		virtual bool operator==(const GatherArmy & other) const override;
 	};
+}
+
 }

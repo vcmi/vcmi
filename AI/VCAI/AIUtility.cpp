@@ -137,55 +137,6 @@ bool HeroPtr::operator==(const HeroPtr & rhs) const
 	return h == rhs.get(true);
 }
 
-void foreach_tile_pos(std::function<void(const int3 & pos)> foo)
-{
-	// some micro-optimizations since this function gets called a LOT
-	// callback pointer is thread-specific and slow to retrieve -> read map size only once
-	int3 mapSize = cb->getMapSize();
-	for(int i = 0; i < mapSize.x; i++)
-	{
-		for(int j = 0; j < mapSize.y; j++)
-		{
-			for(int k = 0; k < mapSize.z; k++)
-				foo(int3(i, j, k));
-		}
-	}
-}
-
-void foreach_tile_pos(CCallback * cbp, std::function<void(CCallback * cbp, const int3 & pos)> foo)
-{
-	int3 mapSize = cbp->getMapSize();
-	for(int i = 0; i < mapSize.x; i++)
-	{
-		for(int j = 0; j < mapSize.y; j++)
-		{
-			for(int k = 0; k < mapSize.z; k++)
-				foo(cbp, int3(i, j, k));
-		}
-	}
-}
-
-void foreach_neighbour(const int3 & pos, std::function<void(const int3 & pos)> foo)
-{
-	CCallback * cbp = cb.get(); // avoid costly retrieval of thread-specific pointer
-	for(const int3 & dir : int3::getDirs())
-	{
-		const int3 n = pos + dir;
-		if(cbp->isInTheMap(n))
-			foo(pos + dir);
-	}
-}
-
-void foreach_neighbour(CCallback * cbp, const int3 & pos, std::function<void(CCallback * cbp, const int3 & pos)> foo)
-{
-	for(const int3 & dir : int3::getDirs())
-	{
-		const int3 n = pos + dir;
-		if(cbp->isInTheMap(n))
-			foo(cbp, pos + dir);
-	}
-}
-
 bool CDistanceSorter::operator()(const CGObjectInstance * lhs, const CGObjectInstance * rhs) const
 {
 	const CGPathNode * ln = ai->myCb->getPathsInfo(hero)->getPathInfo(lhs->visitablePos());

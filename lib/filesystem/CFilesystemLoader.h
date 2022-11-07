@@ -12,6 +12,8 @@
 #include "ISimpleResourceLoader.h"
 #include "ResourceID.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CInputStream;
 
 /**
@@ -45,6 +47,8 @@ private:
 	boost::filesystem::path baseDirectory;
 
 	std::string mountPoint;
+	
+	size_t recursiveDepth;
 
 	/** A list of files in the directory
 	 * key = ResourceID for resource loader
@@ -63,3 +67,5 @@ private:
 	 */
 	std::unordered_map<ResourceID, boost::filesystem::path> listFiles(const std::string &mountPoint, size_t depth, bool initial) const;
 };
+
+VCMI_LIB_NAMESPACE_END

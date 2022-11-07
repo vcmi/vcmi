@@ -11,15 +11,13 @@
 
 #include "GameConstants.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 ///
 /// String ID which are pointless to move to config file - these types are mostly hardcoded
 ///
 namespace GameConstants
 {
-	const std::string TERRAIN_NAMES [TERRAIN_TYPES] = {
-	    "dirt", "sand", "grass", "snow", "swamp", "rough", "subterra", "lava", "water", "rock"
-	};
-
 	const std::string RESOURCE_NAMES [RESOURCE_QUANTITY] = {
 	    "wood", "mercury", "ore", "sulfur", "crystal", "gems", "gold", "mithril"
 	};
@@ -118,3 +116,5 @@ namespace NMetaclass
 		"object", "primarySkill", "secondarySkill", "spell", "resource"
     };
 }
+
+VCMI_LIB_NAMESPACE_END

@@ -10,6 +10,8 @@
 
 #pragma once
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class Environment;
 
 namespace events
@@ -164,3 +166,5 @@ private:
 	}
 };
 }
+
+VCMI_LIB_NAMESPACE_END

@@ -4,6 +4,7 @@
 		"index" : 3,
 		"nativeTerrain": "lava",
 		"alignment" : "evil",
+		"preferUndergroundPlacement": true,
 		"creatureBackground" :
 		{
 			"120px" : "TPCASINF",

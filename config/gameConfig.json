@@ -80,5 +80,17 @@
 	"skills" :
 	[
         "config/skills.json"
+	],
+	"terrains":
+	[
+		"config/terrains.json"
+	],
+	"battlefields":
+	[
+		"config/battlefields.json"
+	],
+	"obstacles":
+	[
+		"config/obstacles.json"
 	]
 }

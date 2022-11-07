@@ -324,6 +324,11 @@ CStackWindow::ButtonsSection::ButtonsSection(CStackWindow * owner, int yOffset)
 
 			upgradeBtn->addOverlay(std::make_shared<CAnimImage>("CPRSMALL", VLC->creh->objects[upgradeInfo.info.newID[buttonIndex]]->iconIndex));
 
+			if(buttonsToCreate == 1) // single upgrade avaialbe
+			{
+				upgradeBtn->assignedKeys.insert(SDLK_u);
+			}
+
 			upgrade[buttonIndex] = upgradeBtn;
 		}
 	}
@@ -732,7 +737,7 @@ void CStackWindow::init()
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
 	if(!info->stackNode)
-		info->stackNode = new CStackInstance(info->creature, 1);// FIXME: free data
+		info->stackNode = new CStackInstance(info->creature, 1, true);// FIXME: free data
 
 	selectedIcon = nullptr;
 	selectedSkill = -1;

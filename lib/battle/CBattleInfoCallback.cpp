@@ -17,6 +17,9 @@
 #include "../NetPacks.h"
 #include "../spells/CSpellHandler.h"
 #include "../mapObjects/CGTownInstance.h"
+#include "../BattleFieldHandler.h"
+
+VCMI_LIB_NAMESPACE_BEGIN
 
 namespace SiegeStuffThatShouldBeMovedToHandlers // <=== TODO
 {
@@ -1058,24 +1061,15 @@ AccessibilityInfo CBattleInfoCallback::getAccesibility() const
 	}
 
 	//special battlefields with logically unavailable tiles
-	std::vector<BattleHex> impassableHexes;
-	if(battleGetBattlefieldType().num == BFieldType::SHIP_TO_SHIP)
+	auto bFieldType = battleGetBattlefieldType();
+
+	if(bFieldType != BattleField::NONE)
 	{
-		impassableHexes =
-		{
-			6, 7, 8, 9,
-			24, 25, 26,
-			58, 59, 60,
-			75, 76, 77,
-			92, 93, 94,
-			109, 110, 111,
-			126, 127, 128,
-			159, 160, 161, 162, 163,
-			176, 177, 178, 179, 180
-		};
+		std::vector<BattleHex> impassableHexes = bFieldType.getInfo()->impassableHexes;
+
+		for(auto hex : impassableHexes)
+			ret[hex] = EAccessibility::UNAVAILABLE;
 	}
-	for(auto hex : impassableHexes)
-		ret[hex] = EAccessibility::UNAVAILABLE;
 
 	//gate -> should be before stacks
 	if(battleGetSiegeLevel() > 0)
@@ -1782,7 +1776,7 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(CRandomGenerator & rand, c
 			return stacks.front();
 	};
 
-	for(const SpellID spellID : allPossibleSpells)
+	for(const SpellID& spellID : allPossibleSpells)
 	{
 		std::stringstream cachingStr;
 		cachingStr << "source_" << Bonus::SPELL_EFFECT << "id_" << spellID.num;
@@ -1968,7 +1962,7 @@ boost::optional<int> CBattleInfoCallback::battleIsFinished() const
 {
 	auto units = battleGetUnitsIf([=](const battle::Unit * unit)
 	{
-		return unit->alive() && !unit->isTurret() && unit->alive();
+		return unit->alive() && !unit->isTurret() && !unit->hasBonusOfType(Bonus::SIEGE_WEAPON);
 	});
 
 	std::array<bool, 2> hasUnit = {false, false}; //index is BattleSide
@@ -1976,20 +1970,28 @@ boost::optional<int> CBattleInfoCallback::battleIsFinished() const
 	for(auto & unit : units)
 	{
 		//todo: move SIEGE_WEAPON check to Unit state
-		if(!unit->hasBonusOfType(Bonus::SIEGE_WEAPON))
+		hasUnit.at(unit->unitSide()) = true;
+
+		if(hasUnit[0] && hasUnit[1])
+			return boost::none;
+	}
+	
+	hasUnit = {false, false};
+
+	for(auto & unit : units)
+	{
+		if(!unit->isClone() && !unit->acquireState()->summoned && !dynamic_cast <const CCommanderInstance *>(unit))
 		{
 			hasUnit.at(unit->unitSide()) = true;
 		}
-
-		if(hasUnit[0] && hasUnit[1])
-			break;
 	}
 
 	if(!hasUnit[0] && !hasUnit[1])
 		return 2;
 	if(!hasUnit[1])
 		return 0;
-	if(!hasUnit[0])
+	else
 		return 1;
-	return boost::none;
 }
+
+VCMI_LIB_NAMESPACE_END

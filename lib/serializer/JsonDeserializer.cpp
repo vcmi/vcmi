@@ -14,6 +14,8 @@
 
 #include <vstd/StringUtils.h>
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 JsonDeserializer::JsonDeserializer(const IInstanceResolver * instanceResolver_, const JsonNode & root_):
 	JsonTreeSerializer(instanceResolver_, &root_, false, false)
 {
@@ -63,7 +65,7 @@ void JsonDeserializer::serializeInternal(const std::string & fieldName, std::vec
 	value.clear();
 	value.reserve(data.size());
 
-	for(const JsonNode elem : data)
+	for(const JsonNode& elem : data)
 	{
 		si32 rawId = decoder(elem.String());
 
@@ -281,3 +283,5 @@ void JsonDeserializer::readLICPart(const JsonNode & part, const TDecoder & decod
 	}
 }
 
+
+VCMI_LIB_NAMESPACE_END

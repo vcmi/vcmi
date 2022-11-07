@@ -12,8 +12,13 @@
 #include "../../lib/battle/BattleHex.h"
 #include "../widgets/Images.h"
 
-class CBattleInterface;
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CStack;
+
+VCMI_LIB_NAMESPACE_END
+
+class CBattleInterface;
 class CCreatureAnimation;
 struct CatapultProjectileInfo;
 struct StackAttackedInfo;
@@ -118,8 +123,6 @@ public:
 class CMovementAnimation : public CBattleStackAnimation
 {
 private:
-	bool shouldRotate();
-
 	std::vector<BattleHex> destTiles; //full path, includes already passed hexes
 	ui32 curentMoveIndex; // index of nextHex in destTiles
 

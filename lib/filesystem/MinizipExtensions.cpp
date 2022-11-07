@@ -13,6 +13,8 @@
 #include "CMemoryBuffer.h"
 #include "FileStream.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 template <class _Stream> inline uLong streamRead(voidpf opaque, voidpf stream, void * buf, uLong size)
 {
 	assert(opaque != nullptr);
@@ -252,3 +254,5 @@ int ZCALLBACK CProxyROIOApi::errorFileProxy(voidpf opaque, voidpf stream)
 {
 	return 0;
 }
+
+VCMI_LIB_NAMESPACE_END

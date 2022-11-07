@@ -12,6 +12,7 @@
 
 #include "CAdvmapInterface.h"
 #include "CCastleInterface.h"
+#include "InfoWindows.h"
 
 #include "../CGameInfo.h"
 #include "../CMT.h"
@@ -19,7 +20,6 @@
 #include "../gui/CGuiHandler.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/MiscWidgets.h"
-#include "../windows/InfoWindows.h"
 
 #include "../../CCallback.h"
 
@@ -315,6 +315,9 @@ int InfoBoxHeroData::getSubID()
 
 si64 InfoBoxHeroData::getValue()
 {
+	if(!hero)
+		return 0;
+
 	switch(type)
 	{
 	case HERO_PRIMARY_SKILL:

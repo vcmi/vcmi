@@ -11,6 +11,9 @@
 
 #include "GameConstants.h"
 #include "JsonNode.h"
+#include "Terrain.h"
+
+VCMI_LIB_NAMESPACE_BEGIN
 
 class CCreature;
 struct Bonus;
@@ -84,7 +87,10 @@ protected:
 	CSelector selector;
 	const IBonusBearer * target;
 	mutable int64_t bonusListCachedLast;
-	mutable TConstBonusListPtr bonusList;
+	mutable TConstBonusListPtr bonusList[2];
+	mutable int currentBonusListIndex;
+	mutable boost::mutex swapGuard;
+	void swapBonusList(TConstBonusListPtr other) const;
 };
 
 class DLL_LINKAGE CTotalsProxy : public CBonusProxy
@@ -125,6 +131,7 @@ class DLL_LINKAGE CCheckProxy
 public:
 	CCheckProxy(const IBonusBearer * Target, CSelector Selector);
 	CCheckProxy(const CCheckProxy & other);
+	CCheckProxy& operator= (const CCheckProxy & other) = default;
 
 	bool getHasBonus() const;
 
@@ -434,36 +441,15 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>
 		h & val;
 		h & sid;
 		h & description;
-		if(version >= 783)
-		{
-			h & additionalInfo;
-		}
-		else
-		{
-			additionalInfo.resize(1, -1);
-			h & additionalInfo[0];
-		}
+		h & additionalInfo;
 		h & turnsRemain;
 		h & valType;
-		if(version >= 784)
-		{
-			h & stacking;
-		}
+		h & stacking;
 		h & effectRange;
 		h & limiter;
 		h & propagator;
-		if(version >= 781)
-		{
-			h & updater;
-		}
-		if(version >= 801)
-		{
-			h & propagationUpdater;
-		}
-		if(version < 801 && !h.saving) //Opposite Side bonuses are introduced
-		{
-			updateOppositeBonuses();
-		}
+		h & updater;
+		h & propagationUpdater;
 	}
 
 	template <typename Ptr>
@@ -565,6 +551,8 @@ public:
 	void clear();
 	bool empty() const { return bonuses.empty(); }
 	void resize(TInternalContainer::size_type sz, std::shared_ptr<Bonus> c = nullptr );
+	void reserve(TInternalContainer::size_type sz);
+	TInternalContainer::size_type capacity() const { return bonuses.capacity(); }
 	STRONG_INLINE std::shared_ptr<Bonus> &operator[] (TInternalContainer::size_type n) { return bonuses[n]; }
 	STRONG_INLINE const std::shared_ptr<Bonus> &operator[] (TInternalContainer::size_type n) const { return bonuses[n]; }
 	std::shared_ptr<Bonus> &back() { return bonuses.back(); }
@@ -699,6 +687,7 @@ public:
 	// * root is node on which call was made (nullptr will be replaced with this)
 	//interface
 	IBonusBearer();
+	virtual ~IBonusBearer() = default;
 	virtual TConstBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = nullptr, const std::string &cachingStr = "") const = 0;
 	int valOfBonuses(const CSelector &selector, const std::string &cachingStr = "") const;
 	bool hasBonus(const CSelector &selector, const std::string &cachingStr = "") const;
@@ -994,10 +983,7 @@ public:
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & static_cast<ILimiter&>(*this);
-		if(version >= 786)
-		{
-			h & limiters;
-		}
+		h & limiters;
 	}
 };
 
@@ -1076,9 +1062,9 @@ public:
 class DLL_LINKAGE CreatureTerrainLimiter : public ILimiter //applies only to creatures that are on specified terrain, default native terrain
 {
 public:
-	int terrainType;
+	TerrainId terrainType;
 	CreatureTerrainLimiter();
-	CreatureTerrainLimiter(int TerrainType);
+	CreatureTerrainLimiter(TerrainId terrain);
 
 	int limit(const BonusLimitationContext &context) const override;
 	virtual std::string toString() const override;
@@ -1306,3 +1292,5 @@ public:
 	virtual std::string toString() const override;
 	virtual JsonNode toJsonNode() const override;
 };
+
+VCMI_LIB_NAMESPACE_END

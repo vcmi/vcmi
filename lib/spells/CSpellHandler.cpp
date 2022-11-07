@@ -32,6 +32,8 @@
 
 #include "ISpellMechanics.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace SpellConfig
 {
 static const std::string LEVEL_NAMES[] = {"none", "basic", "advanced", "expert"};
@@ -372,7 +374,7 @@ void CSpell::getEffects(std::vector<Bonus> & lst, const int level, const bool cu
 
 	lst.reserve(lst.size() + effects.size());
 
-	for(const auto b : effects)
+	for(const auto& b : effects)
 	{
 		Bonus nb(*b);
 
@@ -1019,53 +1021,4 @@ std::vector<bool> CSpellHandler::getDefaultAllowed() const
 	return allowedSpells;
 }
 
-void CSpellHandler::update780()
-{
-    static_assert(MINIMAL_SERIALIZATION_VERSION < 780, "No longer needed CSpellHandler::update780");
-
-	auto spellsContent = (*VLC->modh->content)["spells"];
-
-	const ContentTypeHandler::ModInfo & coreData = spellsContent.modData.at("core");
-
-	const JsonNode & coreSpells = coreData.modData;
-
-	const int levelsCount = GameConstants::SPELL_SCHOOL_LEVELS;
-
-	for(CSpell * spell : objects)
-	{
-		auto identifier = spell->identifier;
-		size_t colonPos = identifier.find(':');
-		if(colonPos != std::string::npos)
-			continue;
-
-		const JsonNode & actualConfig = coreSpells[spell->identifier];
-
-		if(actualConfig.getType() != JsonNode::JsonType::DATA_STRUCT)
-		{
-			logGlobal->error("Spell not found %s", spell->identifier);
-			continue;
-		}
-
-		if(actualConfig["targetCondition"].getType() == JsonNode::JsonType::DATA_STRUCT && !actualConfig["targetCondition"].Struct().empty())
-		{
-			spell->targetCondition = actualConfig["targetCondition"];
-		}
-
-		for(int levelIndex = 0; levelIndex < levelsCount; levelIndex++)
-		{
-			const JsonNode & levelNode = actualConfig["levels"][SpellConfig::LEVEL_NAMES[levelIndex]];
-
-			logGlobal->debug(levelNode.toJson());
-
-			CSpell::LevelInfo & levelObject = spell->levels[levelIndex];
-
-			if(levelNode["battleEffects"].getType() == JsonNode::JsonType::DATA_STRUCT && !levelNode["battleEffects"].Struct().empty())
-			{
-				levelObject.battleEffects = levelNode["battleEffects"];
-
-				logGlobal->trace("Updated special effects for level %d of spell %s", levelIndex, spell->identifier);
-			}
-		}
-
-	}
-}
+VCMI_LIB_NAMESPACE_END

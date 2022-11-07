@@ -15,6 +15,8 @@
 
 #include "../Registry.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 using scripting::api::netpacks::InfoWindowProxy;
 using scripting::api::RegisterAPI;
 
@@ -126,3 +128,5 @@ int InfoWindowProxy::setPlayer(lua_State * L)
 }
 }
 }
+
+VCMI_LIB_NAMESPACE_END

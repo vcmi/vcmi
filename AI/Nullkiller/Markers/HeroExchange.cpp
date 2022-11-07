@@ -14,6 +14,9 @@
 #include "../AIUtility.h"
 #include "../Analyzers/ArmyManager.h"
 
+namespace NKAI
+{
+
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<AIGateway> ai;
 
@@ -34,4 +37,6 @@ uint64_t HeroExchange::getReinforcementArmyStrength() const
 	uint64_t armyValue = ai->nullkiller->armyManager->howManyReinforcementsCanGet(hero.get(), exchangePath.heroArmy);
 
 	return armyValue;
+}
+
 }

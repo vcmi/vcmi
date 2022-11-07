@@ -17,7 +17,7 @@
 			"type" : "object",
 			"default": {},
 			"additionalProperties" : false,
-			"required" : [ "playerName", "showfps", "music", "sound", "encoding", "swipe", "saveRandomMaps", "saveFrequency" ],
+			"required" : [ "playerName", "showfps", "music", "sound", "encoding", "swipe", "saveRandomMaps", "saveFrequency", "notifications", "extraDump" ],
 			"properties" : {
 				"playerName" : {
 					"type":"string",
@@ -62,6 +62,14 @@
 				"saveFrequency" : {
 					"type" : "number",
 					"default" : 1
+				},
+				"notifications" : {
+					"type" : "boolean",
+					"default" : false
+				},
+				"extraDump" : {
+					"type" : "boolean",
+					"default" : false
 				}
 			}
 		},
@@ -245,7 +253,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default": {},
-			"required" : [ "server", "port", "localInformation", "playerAI", "friendlyAI","neutralAI", "enemyAI" ],
+			"required" : [ "server", "port", "localInformation", "playerAI", "friendlyAI","neutralAI", "enemyAI", "reconnect", "uuid", "names" ],
 			"properties" : {
 				"server" : {
 					"type":"string",
@@ -274,6 +282,23 @@
 				"enemyAI" : {
 					"type" : "string",
 					"default" : "BattleAI"
+				},
+				"reconnect" : {
+					"type" : "boolean",
+					"default" : false
+				},
+				"uuid" : {
+					"type" : "string",
+					"default" : ""
+				},
+				"names" : {
+					"type" : "array",
+					"default" : {},
+					"items":
+					{
+						"type" : "string",
+						"default" : ""
+					}
 				}
 			}
 		},
@@ -355,12 +380,12 @@
 			"type" : "object",
 			"default": {},
 			"additionalProperties" : false,
-			"required" : [ "repositoryURL", "enableInstalledMods", "autoCheckRepositories" ],
+			"required" : [ "repositoryURL", "enableInstalledMods", "extraResolutionsModPath", "autoCheckRepositories", "updateOnStartup", "updateConfigUrl" ],
 			"properties" : {
 				"repositoryURL" : {
 					"type" : "array",
 					"default" : [
-						"http://download.vcmi.eu/mods/repository/repository.json"
+						"https://raw.githubusercontent.com/vcmi/vcmi-mods-repository/develop/github.json"
 					],
 					"items" : {
 						"type" : "string"
@@ -370,9 +395,21 @@
 					"type" : "boolean",
 					"default" : true
 				},
+				"extraResolutionsModPath" : {
+					"type" : "string",
+					"default" : "/vcmi-extras/Mods/extraResolutions/Content/config/resolutions.json"
+				},
 				"autoCheckRepositories" : {
 					"type" : "boolean",
 					"default" : true
+				},
+				"updateOnStartup" : {
+					"type" : "boolean",
+					"default" : true
+				},
+				"updateConfigUrl" : {
+					"type" : "string",
+					"default" : "https://raw.githubusercontent.com/vcmi/vcmi-updates/master/vcmi-updates.json"
 				}
 			}
 		}

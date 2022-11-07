@@ -14,6 +14,9 @@
 #include "../Goals/Goals.h"
 #include "Nullkiller.h"
 
+namespace NKAI
+{
+
 ui64 FuzzyHelper::estimateBankDanger(const CBank * bank)
 {
 	//this one is not fuzzy anymore, just calculate weighted average
@@ -33,7 +36,7 @@ ui64 FuzzyHelper::estimateBankDanger(const CBank * bank)
 
 }
 
-ui64 FuzzyHelper::evaluateDanger(crint3 tile, const CGHeroInstance * visitor, bool checkGuards)
+ui64 FuzzyHelper::evaluateDanger(const int3 & tile, const CGHeroInstance * visitor, bool checkGuards)
 {
 	auto cb = ai->cb.get();
 	const TerrainTile * t = cb->getTile(tile, false);
@@ -153,4 +156,6 @@ ui64 FuzzyHelper::evaluateDanger(const CGObjectInstance * obj)
 	default:
 		return 0;
 	}
+}
+
 }

@@ -119,6 +119,8 @@ struct Rect : public SDL_Rect
 		w = r.w;
 		h = r.h;
 	}
+	Rect(const Rect& r) : Rect(static_cast<const SDL_Rect&>(r))
+	{}
 	explicit Rect(const SDL_Surface * const &surf)
 	{
 		x = y = 0;

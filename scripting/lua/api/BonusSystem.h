@@ -12,7 +12,9 @@
 
 #include "../LuaWrapper.h"
 
-class Bonus;
+VCMI_LIB_NAMESPACE_BEGIN
+
+struct Bonus;
 class BonusList;
 class IBonusBearer;
 
@@ -70,3 +72,5 @@ public:
 
 }
 }
+
+VCMI_LIB_NAMESPACE_END

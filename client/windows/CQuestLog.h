@@ -15,11 +15,17 @@
 #include "../widgets/Images.h"
 #include "CWindowObject.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CCreature;
 class CStackInstance;
+class CGHeroInstance;
+struct QuestInfo;
+
+VCMI_LIB_NAMESPACE_END
+
 class CButton;
 class CToggleButton;
-class CGHeroInstance;
 class CComponentBox;
 class LRClickableAreaWText;
 class CButton;
@@ -28,7 +34,6 @@ class CCreaturePic;
 class LRClickableAreaWTextComp;
 class CSlider;
 class CLabel;
-struct QuestInfo;
 
 const int QUEST_COUNT = 6;
 const int DESCRIPTION_HEIGHT_MAX = 355;

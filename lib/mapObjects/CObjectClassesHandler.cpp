@@ -1,4 +1,4 @@
-﻿/*
+/*
  * CObjectClassesHandler.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
@@ -23,6 +23,8 @@
 #include "CRewardableConstructor.h"
 #include "CommonConstructors.h"
 #include "MapObjects.h"
+
+VCMI_LIB_NAMESPACE_BEGIN
 
 // FIXME: move into inheritNode?
 static void inheritNodeWithMeta(JsonNode & descendant, const JsonNode & base)
@@ -56,7 +58,6 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER("randomDwelling", CGDwelling);
 
 	SET_HANDLER("generic", CGObjectInstance);
-	SET_HANDLER("market", CGMarket);
 	SET_HANDLER("cartographer", CCartographer);
 	SET_HANDLER("artifact", CGArtifact);
 	SET_HANDLER("blackMarket", CGBlackMarket);
@@ -97,6 +98,7 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER("oncePerHero", CGVisitableOPH);
 	SET_HANDLER("oncePerWeek", CGVisitableOPW);
 	SET_HANDLER("witch", CGWitchHut);
+	SET_HANDLER("terrain", CGTerrainPatch);
 
 #undef SET_HANDLER_CLASS
 #undef SET_HANDLER
@@ -114,13 +116,15 @@ std::vector<JsonNode> CObjectClassesHandler::loadLegacyData(size_t dataSize)
 	size_t totalNumber = static_cast<size_t>(parser.readNumber()); // first line contains number of objects to read and nothing else
 	parser.endLine();
 
-	for (size_t i=0; i<totalNumber; i++)
+	for (size_t i = 0; i < totalNumber; i++)
 	{
-		ObjectTemplate templ;
-		templ.readTxt(parser);
+		auto tmpl = new ObjectTemplate;
+
+		tmpl->readTxt(parser);
 		parser.endLine();
-		std::pair<si32, si32> key(templ.id.num, templ.subid);
-		legacyTemplates.insert(std::make_pair(key, templ));
+
+		std::pair<si32, si32> key(tmpl->id.num, tmpl->subid);
+		legacyTemplates.insert(std::make_pair(key, std::shared_ptr<const ObjectTemplate>(tmpl)));
 	}
 
 	std::vector<JsonNode> ret(dataSize);// create storage for 256 objects
@@ -195,7 +199,7 @@ void CObjectClassesHandler::loadObjectEntry(const std::string & identifier, cons
 	else
 		handler->init(entry);
 
-	if (handler->getTemplates().empty())
+	//if (handler->getTemplates().empty())
 	{
 		auto range = legacyTemplates.equal_range(std::make_pair(obj->id, id));
 		for (auto & templ : boost::make_iterator_range(range.first, range.second))
@@ -447,7 +451,6 @@ AObjectTypeHandler::AObjectTypeHandler():
 
 AObjectTypeHandler::~AObjectTypeHandler()
 {
-
 }
 
 void AObjectTypeHandler::setType(si32 type, si32 subtype)
@@ -487,12 +490,19 @@ void AObjectTypeHandler::init(const JsonNode & input, boost::optional<std::strin
 		entry.second.setType(JsonNode::JsonType::DATA_STRUCT);
 		JsonUtils::inherit(entry.second, base);
 
-		ObjectTemplate tmpl;
-		tmpl.id = Obj(type);
-		tmpl.subid = subtype;
-		tmpl.stringID = entry.first; // FIXME: create "fullID" - type.object.template?
-		tmpl.readJson(entry.second);
-		templates.push_back(tmpl);
+		auto tmpl = new ObjectTemplate;
+		tmpl->id = Obj(type);
+		tmpl->subid = subtype;
+		tmpl->stringID = entry.first; // FIXME: create "fullID" - type.object.template?
+		try
+		{
+			tmpl->readJson(entry.second);
+			templates.push_back(std::shared_ptr<const ObjectTemplate>(tmpl));
+		}
+		catch (const std::exception & e)
+		{
+			logGlobal->warn("Failed to load terrains for object %s: %s", entry.first, e.what());
+		}
 	}
 
 	if (input["name"].isNull())
@@ -514,10 +524,15 @@ void AObjectTypeHandler::init(const JsonNode & input, boost::optional<std::strin
 	else
 		aiValue = static_cast<boost::optional<si32>>(input["aiValue"].Integer());
 
+	if(input["battleground"].getType() == JsonNode::JsonType::DATA_STRING)
+		battlefield = input["battleground"].String();
+	else
+		battlefield = boost::none;
+
 	initTypeData(input);
 }
 
-bool AObjectTypeHandler::objectFilter(const CGObjectInstance *, const ObjectTemplate &) const
+bool AObjectTypeHandler::objectFilter(const CGObjectInstance *, std::shared_ptr<const ObjectTemplate>) const
 {
 	return false; // by default there are no overrides
 }
@@ -545,38 +560,41 @@ SObjectSounds AObjectTypeHandler::getSounds() const
 	return sounds;
 }
 
-void AObjectTypeHandler::addTemplate(const ObjectTemplate & templ)
+void AObjectTypeHandler::addTemplate(std::shared_ptr<const ObjectTemplate> templ)
 {
 	templates.push_back(templ);
-	templates.back().id = Obj(type);
-	templates.back().subid = subtype;
 }
 
 void AObjectTypeHandler::addTemplate(JsonNode config)
 {
 	config.setType(JsonNode::JsonType::DATA_STRUCT); // ensure that input is not null
 	JsonUtils::inherit(config, base);
-	ObjectTemplate tmpl;
-	tmpl.id = Obj(type);
-	tmpl.subid = subtype;
-	tmpl.stringID = ""; // TODO?
-	tmpl.readJson(config);
-	templates.push_back(tmpl);
+	auto tmpl = new ObjectTemplate;
+	tmpl->id = Obj(type);
+	tmpl->subid = subtype;
+	tmpl->stringID = ""; // TODO?
+	tmpl->readJson(config);
+	templates.emplace_back(tmpl);
 }
 
-std::vector<ObjectTemplate> AObjectTypeHandler::getTemplates() const
+std::vector<std::shared_ptr<const ObjectTemplate>> AObjectTypeHandler::getTemplates() const
 {
 	return templates;
 }
 
-std::vector<ObjectTemplate> AObjectTypeHandler::getTemplates(si32 terrainType) const// FIXME: replace with ETerrainType
+BattleField AObjectTypeHandler::getBattlefield() const
 {
-	std::vector<ObjectTemplate> templates = getTemplates();
-	std::vector<ObjectTemplate> filtered;
+	return battlefield ? BattleField::fromString(battlefield.get()) : BattleField::NONE;
+}
 
-	std::copy_if(templates.begin(), templates.end(), std::back_inserter(filtered), [&](const ObjectTemplate & obj)
+std::vector<std::shared_ptr<const ObjectTemplate>>AObjectTypeHandler::getTemplates(TerrainId terrainType) const
+{
+	std::vector<std::shared_ptr<const ObjectTemplate>> templates = getTemplates();
+	std::vector<std::shared_ptr<const ObjectTemplate>> filtered;
+
+	std::copy_if(templates.begin(), templates.end(), std::back_inserter(filtered), [&](std::shared_ptr<const ObjectTemplate> obj)
 	{
-		return obj.canBePlacedAt(ETerrainType(terrainType));
+		return obj->canBePlacedAt(terrainType);
 	});
 	// H3 defines allowed terrains in a weird way - artifacts, monsters and resources have faulty masks here
 	// Perhaps we should re-define faulty templates and remove this workaround (already done for resources)
@@ -586,15 +604,15 @@ std::vector<ObjectTemplate> AObjectTypeHandler::getTemplates(si32 terrainType) c
 		return filtered;
 }
 
-boost::optional<ObjectTemplate> AObjectTypeHandler::getOverride(si32 terrainType, const CGObjectInstance * object) const
+std::shared_ptr<const ObjectTemplate> AObjectTypeHandler::getOverride(TerrainId terrainType, const CGObjectInstance * object) const
 {
-	std::vector<ObjectTemplate> ret = getTemplates(terrainType);
-	for (auto & tmpl : ret)
+	std::vector<std::shared_ptr<const ObjectTemplate>> ret = getTemplates(terrainType);
+	for (const auto & tmpl: ret)
 	{
 		if (objectFilter(object, tmpl))
 			return tmpl;
 	}
-	return boost::optional<ObjectTemplate>();
+	return std::shared_ptr<const ObjectTemplate>(); //empty
 }
 
 const RandomMapInfo & AObjectTypeHandler::getRMGInfo()
@@ -615,3 +633,5 @@ bool AObjectTypeHandler::isStaticObject()
 void AObjectTypeHandler::afterLoadFinalization()
 {
 }
+
+VCMI_LIB_NAMESPACE_END

@@ -15,10 +15,12 @@
 #include "HeroBonus.h"
 #include "ResourceSet.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CGHeroInstance;
 class CGTownInstance;
 class CGDwelling;
-class QuestInfo;
+struct QuestInfo;
 
 struct DLL_LINKAGE PlayerState : public CBonusSystemNode, public Player
 {
@@ -49,6 +51,11 @@ public:
 	const IBonusBearer * accessBonuses() const override;
 	int getResourceAmount(int type) const override;
 
+	bool checkVanquished() const
+	{
+		return heroes.empty() && towns.empty();
+	}
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & color;
@@ -62,14 +69,6 @@ public:
 		h & dwellings;
 		h & quests;
 		h & visitedObjects;
-
-		if(version < 760)
-		{
-			//was: h & getBonusList();
-			BonusList junk;
-			h & junk;
-		}
-
 		h & status;
 		h & daysWithoutCastle;
 		h & enteredLosingCheatCode;
@@ -84,7 +83,7 @@ public:
 	TeamID id; //position in gameState::teams
 	std::set<PlayerColor> players; // members of this team
 	//TODO: boost::array, bool if possible
-	std::vector<std::vector<std::vector<ui8> > >  fogOfWarMap; //true - visible, false - hidden
+	std::shared_ptr<boost::multi_array<ui8, 3>> fogOfWarMap; //[z][x][y] true - visible, false - hidden
 
 	TeamState();
 	TeamState(TeamState && other);
@@ -98,3 +97,5 @@ public:
 	}
 
 };
+
+VCMI_LIB_NAMESPACE_END

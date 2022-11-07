@@ -14,8 +14,9 @@
 #include "CHeroWindow.h"
 #include "CKingdomInterface.h"
 #include "CSpellWindow.h"
-#include "GUIClasses.h"
 #include "CTradeWindow.h"
+#include "GUIClasses.h"
+#include "InfoWindows.h"
 
 #include "../CBitmapHandler.h"
 #include "../CGameInfo.h"
@@ -23,7 +24,8 @@
 #include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
 #include "../mainmenu/CMainMenu.h"
-#include "../lobby/CBonusSelection.h"
+#include "../lobby/CSelectionBase.h"
+#include "../lobby/CCampaignInfoScreen.h"
 #include "../lobby/CSavingScreen.h"
 #include "../lobby/CScenarioInfoScreen.h"
 #include "../Graphics.h"
@@ -34,7 +36,6 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/SDL_Extensions.h"
 #include "../widgets/MiscWidgets.h"
-#include "../windows/InfoWindows.h"
 
 #include "../../CCallback.h"
 
@@ -51,6 +52,7 @@
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/VCMI_Lib.h"
 #include "../../lib/StartInfo.h"
+#include "../../lib/mapping/CMapInfo.h"
 
 #ifdef _MSC_VER
 #pragma warning (disable : 4355)
@@ -123,7 +125,7 @@ void CTerrainRect::clickLeft(tribool down, bool previousState)
 	if(indeterminate(down))
 		return;
 
-#ifdef VCMI_ANDROID
+#if defined(VCMI_ANDROID) || defined(VCMI_IOS)
 	if(adventureInt->swipeEnabled)
 	{
 		if(handleSwipeStateChange((bool)down == true))
@@ -136,7 +138,7 @@ void CTerrainRect::clickLeft(tribool down, bool previousState)
 #endif
 		if(down == false)
 			return;
-#ifdef VCMI_ANDROID
+#if defined(VCMI_ANDROID) || defined(VCMI_IOS)
 	}
 #endif
 	int3 mp = whichTileIsIt();
@@ -148,7 +150,7 @@ void CTerrainRect::clickLeft(tribool down, bool previousState)
 
 void CTerrainRect::clickRight(tribool down, bool previousState)
 {
-#ifdef VCMI_ANDROID
+#if defined(VCMI_ANDROID) || defined(VCMI_IOS)
 	if(adventureInt->swipeEnabled && isSwiping)
 		return;
 #endif
@@ -177,11 +179,11 @@ void CTerrainRect::mouseMoved(const SDL_MouseMotionEvent & sEvent)
 
 void CTerrainRect::handleSwipeMove(const SDL_MouseMotionEvent & sEvent)
 {
-#ifdef VCMI_ANDROID
-	if(sEvent.state == 0) // any "button" is enough on android
-#else //!VCMI_ANDROID
+#if defined(VCMI_ANDROID) || defined(VCMI_IOS)
+	if(sEvent.state == 0) // any "button" is enough on mobile
+#else
 	if((sEvent.state & SDL_BUTTON_MMASK) == 0) // swipe only works with middle mouse on other platforms
-#endif //!VCMI_ANDROID
+#endif
 	{
 		return;
 	}
@@ -263,7 +265,7 @@ void CTerrainRect::showPath(const SDL_Rect * extRect, SDL_Surface * to)
 				{-1,  1,  2, 23, -1,  3, 22, 21, 12}
 			}; //table of magic values TODO meaning, change variable name
 
-	for (int i=0; i < (int)currentPath->nodes.size()-1; ++i)
+	for (int i = 0; i < -1 + (int)currentPath->nodes.size(); ++i)
 	{
 		const int3 &curPos = currentPath->nodes[i].coord, &nextPos = currentPath->nodes[i+1].coord;
 		if(curPos.z != adventureInt->position.z)
@@ -378,7 +380,7 @@ void CTerrainRect::show(SDL_Surface * to)
 {
 	if (adventureInt->mode == EAdvMapMode::NORMAL)
 	{
-		MapDrawingInfo info(adventureInt->position, &LOCPLINT->cb->getVisibilityMap(), &pos);
+		MapDrawingInfo info(adventureInt->position, LOCPLINT->cb->getVisibilityMap(), &pos);
 		info.otherheroAnim = true;
 		info.anim = adventureInt->anim;
 		info.heroAnim = adventureInt->heroAnim;
@@ -405,7 +407,7 @@ void CTerrainRect::showAll(SDL_Surface * to)
 	// world view map is static and doesn't need redraw every frame
 	if (adventureInt->mode == EAdvMapMode::WORLD_VIEW)
 	{
-		MapDrawingInfo info(adventureInt->position, &LOCPLINT->cb->getVisibilityMap(), &pos, adventureInt->worldViewIcons);
+		MapDrawingInfo info(adventureInt->position, LOCPLINT->cb->getVisibilityMap(), &pos, adventureInt->worldViewIcons);
 		info.scaled = true;
 		info.scale = adventureInt->worldViewScale;
 		adventureInt->worldViewOptions.adjustDrawingInfo(info);
@@ -755,7 +757,7 @@ void CAdvMapInt::fworldViewScale4x()
 void CAdvMapInt::fswitchLevel()
 {
 	// with support for future multi-level maps :)
-	int maxLevels = CGI->mh->map->twoLevel ? 2 : 1;
+	int maxLevels = CGI->mh->map->levels();
 	if (maxLevels < 2)
 		return;
 
@@ -932,6 +934,10 @@ void CAdvMapInt::activate()
 
 	screenBuf = screen;
 	GH.statusbar = statusbar;
+	
+	if(LOCPLINT)
+		LOCPLINT->cingconsole->activate();
+	
 	if(!duringAITurn)
 	{
 		activeMapPanel->activate();
@@ -943,8 +949,6 @@ void CAdvMapInt::activate()
 		}
 		minimap.activate();
 		terrain.activate();
-		if(LOCPLINT)
-			LOCPLINT->cingconsole->activate();
 
 		GH.fakeMouseMove(); //to restore the cursor
 	}
@@ -968,8 +972,6 @@ void CAdvMapInt::deactivate()
 		}
 		minimap.deactivate();
 		terrain.deactivate();
-		if(LOCPLINT)
-			LOCPLINT->cingconsole->deactivate();
 	}
 }
 
@@ -1047,9 +1049,9 @@ void CAdvMapInt::show(SDL_Surface * to)
 	{
 		handleSwipeUpdate();
 	}
-#ifdef VCMI_ANDROID // on android, map-moving mode is exclusive (TODO technically it might work with both enabled; to be checked)
+#if defined(VCMI_ANDROID) || defined(VCMI_IOS) // on mobile, map-moving mode is exclusive (TODO technically it might work with both enabled; to be checked)
 	else
-#endif // VCMI_ANDROID
+#endif
 	{
 		handleMapScrollingUpdate();
 	}
@@ -1215,7 +1217,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 			if(itr != LOCPLINT->towns.end())
 				LOCPLINT->showThievesGuildWindow(*itr);
 			else
-				LOCPLINT->showInfoDialog("No available town with tavern!");
+				LOCPLINT->showInfoDialog(CGI->generaltexth->localizedTexts["adventureMap"]["noTownWithTavern"].String());
 		}
 		return;
 	case SDLK_i:
@@ -1232,7 +1234,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 		return;
 	case SDLK_d:
 		{
-			if(h && isActive() && key.state == SDL_PRESSED)
+			if(h && isActive() && LOCPLINT->makingTurn && key.state == SDL_PRESSED)
 				LOCPLINT->tryDiggging(h);
 			return;
 		}
@@ -1247,7 +1249,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 	case SDLK_r:
 		if(isActive() && LOCPLINT->ctrlPressed())
 		{
-			LOCPLINT->showYesNoDialog("Are you sure you want to restart game?",
+			LOCPLINT->showYesNoDialog(CGI->generaltexth->localizedTexts["adventureMap"]["confirmRestartGame"].String(),
 				[](){ LOCPLINT->sendCustomEvent(EUserEvent::RESTART_GAME); }, nullptr);
 		}
 		return;
@@ -1306,7 +1308,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 				if(townWithMarket) //if any town has marketplace, open window
 					GH.pushIntT<CMarketplaceWindow>(townWithMarket);
 				else //if not - complain
-					LOCPLINT->showInfoDialog("No available marketplace!");
+					LOCPLINT->showInfoDialog(CGI->generaltexth->localizedTexts["adventureMap"]["noTownWithMarket"].String());
 			}
 			else if(isActive()) //no ctrl, advmapint is on the top => switch to town
 			{
@@ -1411,7 +1413,7 @@ void CAdvMapInt::select(const CArmedInstance *sel, bool centerView)
 		auto pos = sel->visitablePos();
 		auto tile = LOCPLINT->cb->getTile(pos);
 		if(tile)
-			CCS->musich->playMusicFromSet("terrain", tile->terType, true);
+			CCS->musich->playMusicFromSet("terrain", tile->terType->name, true);
 	}
 	if(centerView)
 		centerOn(sel);
@@ -1449,7 +1451,7 @@ void CAdvMapInt::select(const CArmedInstance *sel, bool centerView)
 
 void CAdvMapInt::mouseMoved( const SDL_MouseMotionEvent & sEvent )
 {
-#ifdef VCMI_ANDROID
+#if defined(VCMI_ANDROID) || defined(VCMI_IOS)
 	if(swipeEnabled)
 		return;
 #endif
@@ -1530,8 +1532,6 @@ void CAdvMapInt::endingTurn()
 	if(settings["session"]["spectate"].Bool())
 		return;
 
-	if(LOCPLINT->cingconsole->active)
-		LOCPLINT->cingconsole->deactivate();
 	LOCPLINT->makingTurn = false;
 	LOCPLINT->cb->endTurn();
 	CCS->soundh->ambientStopAllChannels();
@@ -1709,8 +1709,7 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 	}
 	else if(const CGHeroInstance * h = curHero())
 	{
-		int3 mapPosCopy = mapPos;
-		const CGPathNode * pnode = LOCPLINT->cb->getPathsInfo(h)->getPathInfo(mapPosCopy);
+		const CGPathNode * pnode = LOCPLINT->cb->getPathsInfo(h)->getPathInfo(mapPos);
 		assert(pnode);
 
 		int turns = pnode->turns;
@@ -1964,7 +1963,7 @@ void CAdventureOptions::showScenarioInfo()
 {
 	if(LOCPLINT->cb->getStartInfo()->campState)
 	{
-		GH.pushIntT<CBonusSelection>();
+		GH.pushIntT<CCampaignInfoScreen>();
 	}
 	else
 	{

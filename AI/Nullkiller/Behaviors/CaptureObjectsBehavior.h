@@ -14,6 +14,8 @@
 #include "../Goals/CGoal.h"
 #include "../Pathfinding/AINodeStorage.h"
 
+namespace NKAI
+{
 namespace Goals
 {
 	class CaptureObjectsBehavior : public CGoal<CaptureObjectsBehavior>
@@ -72,3 +74,5 @@ namespace Goals
 	};
 }
 
+
+}

@@ -10,6 +10,8 @@
 #include "StdInc.h"
 #include "InfoWindows.h"
 
+#include "CAdvmapInterface.h"
+
 #include "../CBitmapHandler.h"
 #include "../Graphics.h"
 #include "../CGameInfo.h"
@@ -17,7 +19,6 @@
 #include "../CMessage.h"
 #include "../CMusicHandler.h"
 
-#include "../windows/CAdvmapInterface.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/MiscWidgets.h"
 
@@ -307,6 +308,10 @@ void CRClickPopup::createAndPush(const std::string &txt, const CInfoWindow::TCom
 
 	auto temp = std::make_shared<CInfoWindow>(txt, player, comps);
 	temp->center(Point(GH.current->motion)); //center on mouse
+#ifdef VCMI_IOS
+    // TODO: enable also for android?
+    temp->moveBy({0, -temp->pos.h / 2});
+#endif
 	temp->fitToScreen(10);
 
 	GH.pushIntT<CRClickPopupInt>(temp);

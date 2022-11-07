@@ -12,9 +12,14 @@
 #include "../lib/int3.h"
 #include "../lib/NetPacks.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CGObjectInstance;
 class CGHeroInstance;
 class CArmedInstance;
+
+VCMI_LIB_NAMESPACE_END
+
 class CGameHandler;
 class CObjectVisitQuery;
 class CQuery;

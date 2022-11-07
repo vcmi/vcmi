@@ -13,7 +13,12 @@
 #include "CWindowObject.h"
 #include "../../lib/FunctionList.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class IMarket;
+
+VCMI_LIB_NAMESPACE_END
+
 class CSlider;
 class CTextBox;
 class CGStatusBar;

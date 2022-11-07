@@ -14,6 +14,9 @@
 #include "../../../lib/mapping/CMap.h"
 #include "../Engine/Nullkiller.h"
 
+namespace NKAI
+{
+
 AIPathfinder::AIPathfinder(CPlayerSpecificInfoCallback * cb, Nullkiller * ai)
 	:cb(cb), ai(ai)
 {
@@ -49,7 +52,7 @@ void AIPathfinder::updatePaths(std::map<const CGHeroInstance *, HeroRole> heroes
 		storage.reset(new AINodeStorage(ai, cb->getMapSize()));
 	}
 
-	auto start = boost::chrono::high_resolution_clock::now();
+	auto start = std::chrono::high_resolution_clock::now();
 	logAi->debug("Recalculate all paths");
 	int pass = 0;
 
@@ -98,4 +101,6 @@ void AIPathfinder::updatePaths(std::map<const CGHeroInstance *, HeroRole> heroes
 	} while(storage->increaseHeroChainTurnLimit());
 
 	logAi->trace("Recalculated paths in %ld", timeElapsed(start));
+}
+
 }

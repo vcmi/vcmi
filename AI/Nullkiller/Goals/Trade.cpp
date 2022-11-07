@@ -10,9 +10,13 @@
 #include "StdInc.h"
 #include "Trade.h"
 
+namespace NKAI
+{
 using namespace Goals;
 
 bool Trade::operator==(const Trade & other) const
 {
 	return resID == other.resID;
+}
+
 }

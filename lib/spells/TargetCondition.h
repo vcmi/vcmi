@@ -12,6 +12,8 @@
 
 #include "ISpellMechanics.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class JsonNode;
 class JsonSerializeFormat;
 
@@ -43,6 +45,7 @@ public:
 	using Object = std::shared_ptr<TargetConditionItem>;
 
 	static const TargetConditionItemFactory * getDefault();
+	virtual ~TargetConditionItemFactory() = default;
 
 	virtual Object createAbsoluteLevel() const = 0;
 	virtual Object createAbsoluteSpell() const = 0;
@@ -82,3 +85,5 @@ private:
 };
 
 }
+
+VCMI_LIB_NAMESPACE_END

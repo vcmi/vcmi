@@ -15,6 +15,8 @@
 
 #include "../CTownHandler.h" // For CTown
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CCastleEvent;
 class CGTownInstance;
 class CGDwelling;
@@ -130,9 +132,7 @@ public:
 	{
 		h & bID;
 		h & indexOnTV;
-
-		if(version >= 792)
-			h & bType;
+		h & bType;
 	}
 
 protected:
@@ -267,16 +267,7 @@ public:
 			return false;
 		});
 
-		if(!h.saving && version < 793)
-			updateBonusingBuildings();
-
-		if(version >= 794)
-			h & overriddenBuildings;
-		else if(!h.saving)
-			updateTown794();
-
-		if(!h.saving && (version >= 794 && version < 801))
-			fixBonusingDuplicates();
+		h & overriddenBuildings;
 
 		if(!h.saving)
 			this->setNodeType(CBonusSystemNode::TOWN);
@@ -353,6 +344,7 @@ public:
 	std::string getObjectName() const override;
 
 	void afterAddToMap(CMap * map) override;
+	void afterRemoveFromMap(CMap * map) override;
 	static void reset();
 
 	inline bool isBattleOutsideTown(const CGHeroInstance * defendingHero) const
@@ -367,7 +359,6 @@ private:
 	void setOwner(const PlayerColor owner) const;
 	void onTownCaptured(const PlayerColor winner) const;
 	int getDwellingBonus(const std::vector<CreatureID>& creatureIds, const std::vector<ConstTransitivePtr<CGDwelling> >& dwellings) const;
-	void updateBonusingBuildings();
 	bool hasBuiltInOldWay(ETownType::ETownType type, BuildingID bid) const;
 	bool townEnvisagesBuilding(BuildingSubID::EBuildingSubID bid) const;
 	bool isBonusingBuildingAdded(BuildingID::EBuildingID bid) const;
@@ -375,6 +366,6 @@ private:
 	void tryAddVisitingBonus(BuildingSubID::EBuildingSubID subID);
 	void initOverriddenBids();
 	void addTownBonuses();
-	void updateTown794(); //populate overriddenBuildings and vanila bonuses for old saves 
-	void fixBonusingDuplicates(); //For versions 794-800.
 };
+
+VCMI_LIB_NAMESPACE_END

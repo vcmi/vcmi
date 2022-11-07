@@ -20,6 +20,8 @@
 #include "../../CGeneralTextHandler.h"
 #include "../../serializer/JsonSerializeFormat.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 static const std::string EFFECT_NAME = "core:damage";
 
 namespace spells
@@ -225,3 +227,5 @@ void Damage::describeEffect(std::vector<MetaString> & log, const Mechanics * m, 
 
 }
 }
+
+VCMI_LIB_NAMESPACE_END

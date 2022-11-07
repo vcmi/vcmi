@@ -1,0 +1,169 @@
+{
+	"sand_shore": { "graphics" : "CMBKBCH.BMP" },
+	"sand_mesas": { "graphics" : "CMBKDES.BMP" },
+	"dirt_birches": { "graphics" : "CMBKDRTR.BMP" },
+	"dirt_hills": { "graphics" : "CMBKDRMT.BMP" },
+	"dirt_pines": { "graphics" : "CMBKDRDD.BMP" },
+	"grass_hills": { "graphics" : "CMBKGRMT.BMP" },
+	"grass_pines": { "graphics" : "CMBKGRTR.BMP" },
+	"lava":  { "graphics" :"CMBKLAVA.BMP" },
+	"magic_plains": {
+		"graphics": "CMBKMAG.BMP",
+		"isSpecial" : true,
+		"bonuses": [
+			{
+				"type" : "MAGIC_SCHOOL_SKILL",
+				"subtype" : 0,
+				"val" : 3,
+				"valueType" : "BASE_NUMBER"
+			}
+		]
+	},
+	"snow_mountains": { "graphics" : "CMBKSNMT.BMP" },
+	"snow_trees": { "graphics" : "CMBKSNTR.BMP" },
+	"subterranean": { "graphics" : "CMBKSUB.BMP", "isSpecial" : true },
+	"swamp_trees": { "graphics" : "CMBKSWMP.BMP" },
+	"fiery_fields": {
+		"graphics": "CMBKFF.BMP",
+		"isSpecial" : true,
+		"bonuses": [
+			{
+				"type" : "MAGIC_SCHOOL_SKILL",
+				"subtype" : 2,
+				"val" : 3,
+				"valueType" : "BASE_NUMBER"
+			}
+		]
+	},
+	"rocklands": {
+		"graphics": "CMBKRK.BMP",
+		"isSpecial" : true,
+		"bonuses": [
+			{
+				"type" : "MAGIC_SCHOOL_SKILL",
+				"subtype" : 8,
+				"val" : 3,
+				"valueType" : "BASE_NUMBER"
+			}
+		]
+	},
+	"magic_clouds": {
+		"graphics": "CMBKMC.BMP",
+		"isSpecial" : true,
+		"bonuses": [
+			{
+				"type" : "MAGIC_SCHOOL_SKILL",
+				"subtype" : 1,
+				"val" : 3,
+				"valueType" : "BASE_NUMBER"
+			}
+		]
+	},
+	"lucid_pools": {
+		"graphics": "CMBKLP.BMP",
+		"isSpecial" : true,
+		"bonuses": [
+			{
+				"type" : "MAGIC_SCHOOL_SKILL",
+				"subtype" : 4,
+				"val" : 3,
+				"valueType" : "BASE_NUMBER"
+			}
+		]
+	},
+	"holy_ground": {
+		"graphics": "CMBKHG.BMP",
+		"isSpecial" : true,
+		"bonuses": [
+			{
+				"type" : "MORALE",
+				"val" : 1,
+				"valueType" : "BASE_NUMBER",
+				"description" : "Creatures of good town alignment on Holly Ground",
+				"limiters": [{ "type" : "CREATURE_ALIGNMENT_LIMITER", "parameters" : ["good"] }]
+			},
+			{
+				"type" : "MORALE",
+				"val" : -1,
+				"valueType" : "BASE_NUMBER",
+				"description" : "Creatures of evil town alignment on Holly Ground",
+				"limiters": [{ "type" : "CREATURE_ALIGNMENT_LIMITER", "parameters" : ["evil"] }]
+			}
+		]
+	},
+	"clover_field": {
+		"graphics": "CMBKCF.BMP",
+		"isSpecial" : true,
+		"bonuses": [
+			{
+				"type" : "LUCK",
+				"val" : 2,
+				"valueType" : "BASE_NUMBER",
+				"description" : "Creatures of neutral town alignment on Clover Field",
+				"limiters": [{ "type" : "CREATURE_ALIGNMENT_LIMITER", "parameters" : ["neutral"] }]
+			}
+		]
+	},
+	"evil_fog": {
+		"graphics": "CMBKEF.BMP",
+		"isSpecial" : true,
+		"bonuses": [
+			{
+				"type" : "MORALE",
+				"val" : -1,
+				"valueType" : "BASE_NUMBER",
+				"description" : "Creatures of good town alignment on Evil Fog",
+				"limiters": [{ "type" : "CREATURE_ALIGNMENT_LIMITER", "parameters" : ["good"] }]
+			},
+			{
+				"type" : "MORALE",
+				"val" : 1,
+				"valueType" : "BASE_NUMBER",
+				"description" : "Creatures of evil town alignment on Evil Fog",
+				"limiters": [{ "type" : "CREATURE_ALIGNMENT_LIMITER", "parameters" : ["evil"] }]
+			}
+		]
+	},
+	"cursed_ground": {
+		"graphics": "CMBKCUR.BMP",
+		"isSpecial" : true,
+		"bonuses": [
+			{
+				"type" : "NO_MORALE",
+				"subtype" : 0,
+				"val" : 0,
+				"valueType" : "INDEPENDENT_MIN",
+				"description" : "Creatures on Cursed Ground"
+			},
+			{
+				"type" : "NO_LUCK",
+				"subtype" : 0,
+				"val" : 0,
+				"valueType" : "INDEPENDENT_MIN",
+				"description" : "Creatures on Cursed Ground"
+			},
+			{
+				"type" : "BLOCK_MAGIC_ABOVE",
+				"subtype" : 0,
+				"val" : 1,
+				"valueType" : "INDEPENDENT_MIN"
+			}
+		]
+	},
+	"rough": { "graphics" : "CMBKRGH.BMP" },
+	"ship_to_ship": 
+	{
+		"graphics" : "CMBKBOAT.BMP",
+		"impassableHexes" : [
+			6, 7, 8, 9,
+			24, 25, 26,
+			58, 59, 60,
+			75, 76, 77,
+			92, 93, 94,
+			109, 110, 111,
+			126, 127, 128,
+			159, 160, 161, 162, 163,
+			176, 177, 178, 179, 180]
+	},
+	"ship": { "graphics" : "CMBKDECK.BMP" }
+}

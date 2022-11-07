@@ -1,8 +1,9 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
-brew update
-brew pin python@3.9
-brew install smpeg2 libpng freetype qt5 ffmpeg ninja boost tbb luajit
-brew install sdl2 sdl2_ttf sdl2_image sdl2_mixer
+echo DEVELOPER_DIR=/Applications/Xcode_13.4.1.app >> $GITHUB_ENV
 
-echo CMAKE_PREFIX_PATH="/usr/local/opt/qt5:$CMAKE_PREFIX_PATH" >> $GITHUB_ENV
+brew install ninja
+
+mkdir ~/.conan ; cd ~/.conan
+curl -L "https://github.com/vcmi/vcmi-deps-macos/releases/download/1.1/$DEPS_FILENAME.txz" \
+	| tar -xf -

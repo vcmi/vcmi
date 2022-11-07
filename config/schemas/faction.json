@@ -73,6 +73,10 @@
 			"type":"string",
 			"description": "Native terrain for creatures. Creatures fighting on native terrain receive several bonuses"
 		},
+		"preferUndergroundPlacement": {
+			"type":"boolean",
+			"description": "Random map generator places player/cpu-owned towns underground if true is specified and on the ground otherwise. Parameter is unused for maps without underground. False by default."
+		},
 		"puzzleMap": {
 			"type":"object",
 			"additionalProperties" : false,

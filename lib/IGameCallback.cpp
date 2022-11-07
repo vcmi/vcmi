@@ -16,6 +16,8 @@
 #include "NetPacks.h"
 #include "CBonusTypeHandler.h"
 #include "CModHandler.h"
+#include "BattleFieldHandler.h"
+#include "ObstacleHandler.h"
 
 #include "serializer/CSerializer.h" // for SAVEGAME_MAGIC
 #include "serializer/BinaryDeserializer.h"
@@ -33,23 +35,24 @@
 
 #include "serializer/Connection.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 void CPrivilegedInfoCallback::getFreeTiles(std::vector<int3> & tiles) const
 {
 	std::vector<int> floors;
-	for (int b = 0; b < (gs->map->twoLevel ? 2 : 1); ++b)
+	for(int b = 0; b < gs->map->levels(); ++b)
 	{
 		floors.push_back(b);
 	}
 	const TerrainTile *tinfo;
 	for (auto zd : floors)
 	{
-
 		for (int xd = 0; xd < gs->map->width; xd++)
 		{
 			for (int yd = 0; yd < gs->map->height; yd++)
 			{
 				tinfo = getTile(int3 (xd,yd,zd));
-				if (tinfo->terType != ETerrainType::WATER && tinfo->terType != ETerrainType::ROCK && !tinfo->blocked) //land and free
+				if (tinfo->terType->isLand() && tinfo->terType->isPassable() && !tinfo->blocked) //land and free
 					tiles.push_back (int3 (xd,yd,zd));
 			}
 		}
@@ -78,8 +81,8 @@ void CPrivilegedInfoCallback::getTilesInRange(std::unordered_set<int3, ShashInt3
 				if(distance <= radious)
 				{
 					if(!player
-						|| (mode == 1  && team->fogOfWarMap[xd][yd][pos.z]==0)
-						|| (mode == -1 && team->fogOfWarMap[xd][yd][pos.z]==1)
+						|| (mode == 1  && (*team->fogOfWarMap)[pos.z][xd][yd] == 0)
+						|| (mode == -1 && (*team->fogOfWarMap)[pos.z][xd][yd] == 1)
 					)
 						tiles.insert(int3(xd,yd,pos.z));
 				}
@@ -101,7 +104,7 @@ void CPrivilegedInfoCallback::getAllTiles(std::unordered_set<int3, ShashInt3> & 
 	std::vector<int> floors;
 	if(level == -1)
 	{
-		for(int b = 0; b < (gs->map->twoLevel ? 2 : 1); ++b)
+		for(int b = 0; b < gs->map->levels(); ++b)
 		{
 			floors.push_back(b);
 		}
@@ -116,8 +119,8 @@ void CPrivilegedInfoCallback::getAllTiles(std::unordered_set<int3, ShashInt3> & 
 		{
 			for (int yd = 0; yd < gs->map->height; yd++)
 			{
-				if ((getTile (int3 (xd,yd,zd))->terType == ETerrainType::WATER && water)
-					|| (getTile (int3 (xd,yd,zd))->terType != ETerrainType::WATER && land))
+				if ((getTile (int3 (xd,yd,zd))->terType->isWater() && water)
+					|| (getTile (int3 (xd,yd,zd))->terType->isLand() && land))
 					tiles.insert(int3(xd,yd,zd));
 			}
 		}
@@ -247,3 +250,5 @@ bool IGameCallback::isVisitCoveredByAnotherQuery(const CGObjectInstance *obj, co
 	logGlobal->error("isVisitCoveredByAnotherQuery call on client side");
 	return false;
 }
+
+VCMI_LIB_NAMESPACE_END

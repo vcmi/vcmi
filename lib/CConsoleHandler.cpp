@@ -9,8 +9,11 @@
  */
 #include "StdInc.h"
 #include "CConsoleHandler.h"
+#include "CConfigHandler.h"
 
 #include "CThreadHelper.h"
+
+VCMI_LIB_NAMESPACE_BEGIN
 
 boost::mutex CConsoleHandler::smx;
 
@@ -135,7 +138,27 @@ LONG WINAPI onUnhandledException(EXCEPTION_POINTERS* exception)
 	strcat(mname, "_crashinfo.dmp");
 	HANDLE dfile = CreateFileA(mname, GENERIC_READ|GENERIC_WRITE, FILE_SHARE_WRITE|FILE_SHARE_READ, 0, CREATE_ALWAYS, 0, 0);
 	logGlobal->error("Crash info will be put in %s", mname);
-	MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), dfile, MiniDumpWithDataSegs, &meinfo, 0, 0);
+	
+	// flush loggers
+	std::string padding(1000, '@');
+
+	logGlobal->error(padding);
+	logAi->error(padding);
+	logNetwork->error(padding);
+
+	auto dumpType = MiniDumpWithDataSegs;
+	
+	if(settings["general"]["extraDump"].Bool())
+	{
+		dumpType = (MINIDUMP_TYPE)(
+			MiniDumpWithFullMemory
+			| MiniDumpWithFullMemoryInfo
+			| MiniDumpWithHandleData
+			| MiniDumpWithUnloadedModules
+			| MiniDumpWithThreadInfo);
+	}
+
+	MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), dfile, dumpType, &meinfo, 0, 0);
 	MessageBoxA(0, "VCMI has crashed. We are sorry. File with information about encountered problem has been created.", "VCMI Crashhandler", MB_OK | MB_ICONERROR);
 	return EXCEPTION_EXECUTE_HANDLER;
 }
@@ -264,3 +287,5 @@ void CConsoleHandler::start()
 {
 	thread = new boost::thread(std::bind(&CConsoleHandler::run,console));
 }
+
+VCMI_LIB_NAMESPACE_END

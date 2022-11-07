@@ -12,6 +12,8 @@
 
 #include <vcmi/spells/Magic.h>
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 struct BattleHex;
 class CBattleInfoCallback;
 class JsonSerializeFormat;
@@ -28,7 +30,7 @@ using EffectTarget = Target;
 
 namespace effects
 {
-using RNG = ::vstd::RNG;
+using RNG = vstd::RNG;
 class Effects;
 class Effect;
 class Registry;
@@ -36,7 +38,7 @@ class Registry;
 template<typename F>
 class RegisterEffect;
 
-using TargetType = ::spells::AimType;
+using TargetType = spells::AimType;
 
 class DLL_LINKAGE Effect
 {
@@ -72,3 +74,5 @@ protected:
 
 }
 }
+
+VCMI_LIB_NAMESPACE_END

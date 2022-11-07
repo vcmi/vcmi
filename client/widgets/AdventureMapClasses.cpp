@@ -14,6 +14,7 @@
 
 #include "MiscWidgets.h"
 #include "CComponent.h"
+#include "Images.h"
 
 #include "../CGameInfo.h"
 #include "../CMusicHandler.h"
@@ -25,8 +26,6 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/SDL_Pixels.h"
 #include "../gui/SDL_Compat.h"
-
-#include "../widgets/Images.h"
 
 #include "../windows/InfoWindows.h"
 #include "../windows/CAdvmapInterface.h"
@@ -42,6 +41,7 @@
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/CModHandler.h"
 #include "../../lib/CTownHandler.h"
+#include "../../lib/Terrain.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/JsonNode.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
@@ -390,10 +390,11 @@ const SDL_Color & CMinimapInstance::getTileColor(const int3 & pos)
 	}
 
 	// else - use terrain color (blocked version or normal)
+	const auto & colorPair = parent->colors.find(tile->terType->id)->second;
 	if (tile->blocked && (!tile->visitable))
-		return parent->colors.find(tile->terType)->second.second;
+		return colorPair.second;
 	else
-		return parent->colors.find(tile->terType)->second.first;
+		return colorPair.first;
 }
 void CMinimapInstance::tileToPixels (const int3 &tile, int &x, int &y, int toX, int toY)
 {
@@ -494,41 +495,29 @@ void CMinimapInstance::showAll(SDL_Surface * to)
 	}
 }
 
-std::map<int, std::pair<SDL_Color, SDL_Color> > CMinimap::loadColors(std::string from)
+std::map<TerrainId, std::pair<SDL_Color, SDL_Color> > CMinimap::loadColors()
 {
-	std::map<int, std::pair<SDL_Color, SDL_Color> > ret;
+	std::map<TerrainId, std::pair<SDL_Color, SDL_Color> > ret;
 
-	const JsonNode config(ResourceID(from, EResType::TEXT));
-
-	for(auto &m : config.Struct())
+	for(const auto & terrain : CGI->terrainTypeHandler->terrains())
 	{
-		auto index = boost::find(GameConstants::TERRAIN_NAMES, m.first);
-		if (index == std::end(GameConstants::TERRAIN_NAMES))
-		{
-			logGlobal->error("Error: unknown terrain in terrains.json: %s", m.first);
-			continue;
-		}
-		int terrainID = static_cast<int>(index - std::begin(GameConstants::TERRAIN_NAMES));
-
-		const JsonVector &unblockedVec = m.second["minimapUnblocked"].Vector();
 		SDL_Color normal =
 		{
-			ui8(unblockedVec[0].Float()),
-			ui8(unblockedVec[1].Float()),
-			ui8(unblockedVec[2].Float()),
+			ui8(terrain.minimapUnblocked[0]),
+			ui8(terrain.minimapUnblocked[1]),
+			ui8(terrain.minimapUnblocked[2]),
 			ui8(255)
 		};
 
-		const JsonVector &blockedVec = m.second["minimapBlocked"].Vector();
 		SDL_Color blocked =
 		{
-			ui8(blockedVec[0].Float()),
-			ui8(blockedVec[1].Float()),
-			ui8(blockedVec[2].Float()),
+			ui8(terrain.minimapBlocked[0]),
+			ui8(terrain.minimapBlocked[1]),
+			ui8(terrain.minimapBlocked[2]),
 			ui8(255)
 		};
 
-		ret.insert(std::make_pair(terrainID, std::make_pair(normal, blocked)));
+		ret[terrain.id] = std::make_pair(normal, blocked);
 	}
 	return ret;
 }
@@ -536,7 +525,7 @@ std::map<int, std::pair<SDL_Color, SDL_Color> > CMinimap::loadColors(std::string
 CMinimap::CMinimap(const Rect & position)
 	: CIntObject(LCLICK | RCLICK | HOVER | MOVE, position.topLeft()),
 	level(0),
-	colors(loadColors("config/terrains.json"))
+	colors(loadColors())
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	pos.w = position.w;
@@ -1140,7 +1129,7 @@ void CInGameConsole::textEdited(const SDL_TextEditingEvent & event)
 
 void CInGameConsole::startEnteringText()
 {
-	CSDL_Ext::startTextInput(&pos);
+	CSDL_Ext::startTextInput(&GH.statusbar->pos);
 
 	enteredText = "_";
 	if(GH.topInt() == adventureInt)

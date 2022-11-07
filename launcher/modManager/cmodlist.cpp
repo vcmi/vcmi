@@ -12,29 +12,53 @@
 
 #include "../../lib/JsonNode.h"
 #include "../../lib/filesystem/CFileInputStream.h"
+#include "../../lib/GameConstants.h"
+
+namespace
+{
+bool isCompatible(const QString & verMin, const QString & verMax)
+{
+	const int maxSections = 3; // versions consist from up to 3 sections, major.minor.patch
+	QVersionNumber vcmiVersion(VCMI_VERSION_MAJOR,
+							   VCMI_VERSION_MINOR,
+							   VCMI_VERSION_PATCH);
+	
+	auto versionMin = QVersionNumber::fromString(verMin);
+	auto versionMax = QVersionNumber::fromString(verMax);
+	
+	auto buildVersion = [maxSections](QVersionNumber & ver)
+	{
+		if(ver.segmentCount() < maxSections)
+		{
+			auto segments = ver.segments();
+			for(int i = segments.size() - 1; i < maxSections; ++i)
+				segments.append(0);
+			ver = QVersionNumber(segments);
+		}
+	};
+
+	if(!versionMin.isNull())
+	{
+		buildVersion(versionMin);
+		if(vcmiVersion < versionMin)
+			return false;
+	}
+	
+	if(!versionMax.isNull())
+	{
+		buildVersion(versionMax);
+		if(vcmiVersion > versionMax)
+			return false;
+	}
+	return true;
+}
+}
 
 bool CModEntry::compareVersions(QString lesser, QString greater)
 {
-	static const int maxSections = 3; // versions consist from up to 3 sections, major.minor.patch
-
-	QStringList lesserList = lesser.split(".");
-	QStringList greaterList = greater.split(".");
-
-	assert(lesserList.size() <= maxSections);
-	assert(greaterList.size() <= maxSections);
-
-	for(int i = 0; i < maxSections; i++)
-	{
-		if(greaterList.size() <= i) // 1.1.1 > 1.1
-			return false;
-
-		if(lesserList.size() <= i) // 1.1 < 1.1.1
-			return true;
-
-		if(lesserList[i].toInt() != greaterList[i].toInt())
-			return lesserList[i].toInt() < greaterList[i].toInt(); // 1.1 < 1.2
-	}
-	return false;
+	auto versionLesser = QVersionNumber::fromString(lesser);
+	auto versionGreater = QVersionNumber::fromString(greater);
+	return versionLesser < versionGreater;
 }
 
 QString CModEntry::sizeToString(double size)
@@ -92,9 +116,25 @@ bool CModEntry::isUpdateable() const
 	return false;
 }
 
+bool CModEntry::isCompatible() const
+{
+	auto compatibility = localData["compatibility"].toMap();
+	return ::isCompatible(compatibility["min"].toString(), compatibility["max"].toString());
+}
+
+bool CModEntry::isEssential() const
+{
+	return getValue("storedLocaly").toBool();
+}
+
 bool CModEntry::isInstalled() const
 {
 	return !localData.isEmpty();
+}
+
+bool CModEntry::isValid() const
+{
+	return !localData.isEmpty() || !repository.isEmpty();
 }
 
 int CModEntry::getModStatus() const
@@ -152,6 +192,10 @@ QVariantMap CModList::copyField(QVariantMap data, QString from, QString to)
 	return renamed;
 }
 
+void CModList::reloadRepositories()
+{
+}
+
 void CModList::resetRepositories()
 {
 	repositories.clear();
@@ -159,6 +203,8 @@ void CModList::resetRepositories()
 
 void CModList::addRepository(QVariantMap data)
 {
+	for(auto & key : data.keys())
+		data[key.toLower()] = data.take(key);
 	repositories.push_back(copyField(data, "version", "latestVersion"));
 }
 
@@ -176,7 +222,7 @@ void CModList::modChanged(QString modID)
 {
 }
 
-static QVariant getValue(QVariantMap input, QString path)
+static QVariant getValue(QVariant input, QString path)
 {
 	if(path.size() > 1)
 	{
@@ -184,7 +230,7 @@ static QVariant getValue(QVariantMap input, QString path)
 		QString remainder = "/" + path.section('/', 2, -1);
 
 		entryName.remove(0, 1);
-		return getValue(input.value(entryName).toMap(), remainder);
+		return getValue(input.toMap().value(entryName), remainder);
 	}
 	else
 	{
@@ -194,6 +240,7 @@ static QVariant getValue(QVariantMap input, QString path)
 
 CModEntry CModList::getMod(QString modname) const
 {
+	modname = modname.toLower();
 	QVariantMap repo;
 	QVariantMap local = localModList[modname].toMap();
 	QVariantMap settings;
@@ -208,25 +255,61 @@ CModEntry CModList::getMod(QString modname) const
 	}
 	else
 	{
-		if(conf.canConvert<QVariantMap>())
+		if(!conf.toMap().isEmpty())
+		{
 			settings = conf.toMap();
+			if(settings.value("active").isNull())
+				settings["active"] = true; // default
+		}
 		else
 			settings.insert("active", conf);
 	}
+	
+	if(settings["active"].toBool())
+	{
+		QString rootPath = path.section('/', 0, 1);
+		if(path != rootPath)
+		{
+			conf = getValue(modSettings, rootPath);
+			const auto confMap = conf.toMap();
+			if(!conf.isNull() && !confMap["active"].isNull() && !confMap["active"].toBool())
+			{
+				settings = confMap;
+			}
+		}
+	}
+
+	if(settings.value("active").toBool())
+	{
+		auto compatibility = local.value("compatibility").toMap();
+		if(compatibility["min"].isValid() || compatibility["max"].isValid())
+			if(!isCompatible(compatibility["min"].toString(), compatibility["max"].toString()))
+				settings["active"] = false;
+	}
+
 
 	for(auto entry : repositories)
 	{
 		QVariant repoVal = getValue(entry, path);
 		if(repoVal.isValid())
 		{
-			if(repo.empty())
+			auto repoValMap = repoVal.toMap();
+			auto compatibility = repoValMap["compatibility"].toMap();
+			if(isCompatible(compatibility["min"].toString(), compatibility["max"].toString()))
 			{
-				repo = repoVal.toMap();
-			}
-			else
-			{
-				if(CModEntry::compareVersions(repo["version"].toString(), repoVal.toMap()["version"].toString()))
-					repo = repoVal.toMap();
+				if(repo.empty() || CModEntry::compareVersions(repo["version"].toString(), repoValMap["version"].toString()))
+				{
+					//take valid download link and screenshots before assignment
+					auto download = repo.value("download");
+					auto screenshots = repo.value("screenshots");
+					repo = repoValMap;
+					if(repo.value("download").isNull())
+					{
+						repo["download"] = download;
+						if(repo.value("screenshots").isNull()) //taking screenshot from the downloadable version
+							repo["screenshots"] = screenshots;
+					}
+				}
 			}
 		}
 	}
@@ -270,12 +353,12 @@ QVector<QString> CModList::getModList() const
 	{
 		for(auto it = repo.begin(); it != repo.end(); it++)
 		{
-			knownMods.insert(it.key());
+			knownMods.insert(it.key().toLower());
 		}
 	}
 	for(auto it = localModList.begin(); it != localModList.end(); it++)
 	{
-		knownMods.insert(it.key());
+		knownMods.insert(it.key().toLower());
 	}
 
 	for(auto entry : knownMods)

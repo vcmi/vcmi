@@ -12,6 +12,8 @@
 #include "CBattleInfoEssentials.h"
 #include "AccessibilityInfo.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 // Reachability info is result of BFS calculation. It's dependent on stack (it's owner, whether it's flying),
 // startPosition and perpective.
 struct DLL_LINKAGE ReachabilityInfo
@@ -55,3 +57,5 @@ struct DLL_LINKAGE ReachabilityInfo
 };
 
 
+
+VCMI_LIB_NAMESPACE_END

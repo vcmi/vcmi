@@ -15,6 +15,9 @@
 #include "../../../lib/CPathfinder.h"
 #include "../Engine/Nullkiller.h"
 
+namespace NKAI
+{
+
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<AIGateway> ai;
 
@@ -42,13 +45,22 @@ void ExchangeSwapTownHeroes::accept(AIGateway * ai)
 {
 	if(!garrisonHero)
 	{
-		if(!town->garrisonHero)
+		auto currentGarrisonHero = town->garrisonHero;
+		
+		if(!currentGarrisonHero)
 			throw cannotFulfillGoalException("Invalid configuration. There is no hero in town garrison.");
 		
 		cb->swapGarrisonHero(town);
+
+		if(currentGarrisonHero.get() != town->visitingHero.get())
+		{
+			logAi->error("VisitingHero is empty, expected %s", currentGarrisonHero->name);
+			return;
+		}
+
 		ai->buildArmyIn(town);
-		ai->nullkiller->unlockHero(town->visitingHero.get());
-		logAi->debug("Extracted hero %s from garrison of %s", town->visitingHero->name, town->name);
+		ai->nullkiller->unlockHero(currentGarrisonHero.get());
+		logAi->debug("Extracted hero %s from garrison of %s", currentGarrisonHero->name, town->name);
 
 		return;
 	}
@@ -80,4 +92,6 @@ void ExchangeSwapTownHeroes::accept(AIGateway * ai)
 	}
 
 	logAi->debug("Put hero %s to garrison of %s", garrisonHero->name, town->name);
+}
+
 }

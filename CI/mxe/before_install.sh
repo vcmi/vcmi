@@ -1,11 +1,8 @@
 #!/bin/sh
 
 # Install nsis for installer creation
-sudo apt-get install -qq nsis ninja-build
-
-wget http://security.ubuntu.com/ubuntu/pool/main/o/openssl1.0/libssl1.0.0_1.0.2n-1ubuntu5.7_amd64.deb
-sudo apt install ./libssl1.0.0_1.0.2n-1ubuntu5.7_amd64.deb
-
+sudo add-apt-repository 'deb http://security.ubuntu.com/ubuntu bionic-security main'
+sudo apt-get install -qq nsis ninja-build libssl1.0.0
 
 # MXE repository was too slow for Travis far too often
 wget -nv https://github.com/vcmi/vcmi-deps-mxe/releases/download/2021-02-20/mxe-i686-w64-mingw32.shared-2021-01-22.tar

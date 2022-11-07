@@ -21,6 +21,8 @@
 #include "../battle/BattleHex.h"
 #include "../HeroBonus.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CSpell;
 class IAdventureSpellMechanics;
 class CBattleInfoCallback;
@@ -83,14 +85,7 @@ public:
 		{
 			h & resourceName;
 			h & verticalPosition;
-			if(version >= 754)
-			{
-				h & pause;
-			}
-			else if(!h.saving)
-			{
-				pause = 0;
-			}
+			h & pause;
 		}
 	};
 
@@ -120,10 +115,7 @@ public:
 			h & projectile;
 			h & hit;
 			h & cast;
-			if(version >= 762)
-			{
-				h & affect;
-			}
+			h & affect;
 		}
 
 		std::string selectProjectile(const double angle) const;
@@ -158,32 +150,11 @@ public:
 			h & AIValue;
 			h & smartTarget;
 			h & range;
-
-			if(version >= 773)
-			{
-				h & effects;
-				h & cumulativeEffects;
-			}
-			else
-			{
-				//all old effects treated as not cumulative, special cases handled by CSpell::serialize
-				std::vector<Bonus> old;
-				h & old;
-
-				if(!h.saving)
-				{
-					effects.clear();
-					cumulativeEffects.clear();
-					for(const Bonus & oldBonus : old)
-						effects.push_back(std::make_shared<Bonus>(oldBonus));
-				}
-			}
-
+			h & effects;
+			h & cumulativeEffects;
 			h & clearTarget;
 			h & clearAffected;
-
-			if(version >= 780)
-				h & battleEffects;
+			h & battleEffects;
 		}
 	};
 
@@ -316,27 +287,7 @@ public:
 		h & damage;
 		h & offensive;
 		h & targetType;
-
-		if(version >= 780)
-		{
-			h & targetCondition;
-		}
-		else
-		{
-			BTVector immunities;
-			BTVector absoluteImmunities;
-			BTVector limiters;
-			BTVector absoluteLimiters;
-
-			h & immunities;
-			h & limiters;
-			h & absoluteImmunities;
-			h & absoluteLimiters;
-
-			if(!h.saving)
-				targetCondition = convertTargetCondition(immunities, absoluteImmunities, limiters, absoluteLimiters);
-		}
-
+		h & targetCondition;
 		h & iconImmune;
 		h & defaultProbability;
 		h & special;
@@ -348,16 +299,6 @@ public:
 		h & levels;
 		h & school;
 		h & animationInfo;
-
-		//backward compatibility
-		//can not be added to level structure as level structure does not know spell id
-		if(!h.saving && version < 773)
-		{
-			if(id == SpellID::DISRUPTING_RAY || id == SpellID::ACID_BREATH_DEFENSE)
-				for(auto & level : levels)
-					std::swap(level.effects, level.cumulativeEffects);
-		}
-
 	}
 	friend class CSpellHandler;
 	friend class Graphics;
@@ -442,11 +383,6 @@ public:
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & objects;
-		if(!h.saving && version < 780)
-		{
-			update780();
-		}
-
 		if(!h.saving)
 		{
 			afterLoadFinalization();
@@ -456,6 +392,6 @@ public:
 protected:
 	const std::vector<std::string> & getTypeNames() const override;
 	CSpell * loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index) override;
-private:
-	void update780();
 };
+
+VCMI_LIB_NAMESPACE_END

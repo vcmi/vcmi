@@ -12,6 +12,8 @@
 
 #include "../registerTypes/RegisterTypes.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 extern template void registerTypes<CTypeList>(CTypeList & s);
 
 CTypeList typeList;
@@ -43,6 +45,21 @@ ui16 CTypeList::getTypeID(const std::type_info *type, bool throws) const
 		return 0;
 	}
 	return descriptor->typeID;
+}
+
+CTypeList::TypeInfoPtr CTypeList::getTypeDescriptor(ui16 typeID) const
+{
+	auto found = std::find_if(typeInfos.begin(), typeInfos.end(), [typeID](const std::pair<const std::type_info *, TypeInfoPtr> & p) -> bool
+		{
+			return p.second->typeID == typeID;
+		});
+
+	if(found != typeInfos.end())
+	{
+		return found->second;
+	}
+
+	return TypeInfoPtr();
 }
 
 std::vector<CTypeList::TypeInfoPtr> CTypeList::castSequence(TypeInfoPtr from, TypeInfoPtr to) const
@@ -120,3 +137,5 @@ CTypeList::TypeInfoPtr CTypeList::getTypeDescriptor(const std::type_info *type, 
 
 	THROW_FORMAT("Cannot find type descriptor for type %s. Was it registered?", type->name());
 }
+
+VCMI_LIB_NAMESPACE_END

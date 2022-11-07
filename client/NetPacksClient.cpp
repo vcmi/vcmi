@@ -238,6 +238,30 @@ void RebalanceStacks::applyCl(CClient * cl)
 	dispatchGarrisonChange(cl, srcArmy, dstArmy);
 }
 
+void BulkRebalanceStacks::applyCl(CClient * cl)
+{
+	if(!moves.empty())
+	{
+		auto destArmy = moves[0].srcArmy == moves[0].dstArmy
+			? ObjectInstanceID()
+			: moves[0].dstArmy;
+		dispatchGarrisonChange(cl, moves[0].srcArmy, destArmy);
+	}
+}
+
+void BulkSmartRebalanceStacks::applyCl(CClient * cl)
+{
+	if(!moves.empty())
+	{
+		assert(moves[0].srcArmy == moves[0].dstArmy);
+		dispatchGarrisonChange(cl, moves[0].srcArmy, ObjectInstanceID());
+	}
+	else if(!changes.empty())
+	{
+		dispatchGarrisonChange(cl, changes[0].army, ObjectInstanceID());
+	}
+}
+
 void PutArtifact::applyCl(CClient *cl)
 {
 	callInterfaceIfPresent(cl, al.owningPlayer(), &IGameEventsReceiver::artifactPut, al);
@@ -319,6 +343,34 @@ void PlayerEndsGame::applyCl(CClient *cl)
 	// In auto testing mode we always close client if red player won or lose
 	if(!settings["session"]["testmap"].isNull() && player == PlayerColor(0))
 		handleQuit(settings["session"]["spectate"].Bool()); // if spectator is active ask to close client or not
+}
+
+void PlayerReinitInterface::applyCl(CClient * cl)
+{
+	auto initInterfaces = [cl]()
+	{
+		cl->initPlayerInterfaces();
+		auto currentPlayer = cl->gameState()->currentPlayer;
+		callAllInterfaces(cl, &IGameEventsReceiver::playerStartsTurn, currentPlayer);
+		callOnlyThatInterface(cl, currentPlayer, &CGameInterface::yourTurn);
+	};
+	
+	for(auto player : players)
+	{
+		auto & plSettings = CSH->si->getIthPlayersSettings(player);
+		if(playerConnectionId == PlayerSettings::PLAYER_AI)
+		{
+			plSettings.connectedPlayerIDs.clear();
+			cl->initPlayerEnvironments();
+			initInterfaces();
+		}
+		else if(playerConnectionId == CSH->c->connectionID)
+		{
+			plSettings.connectedPlayerIDs.insert(playerConnectionId);
+			cl->playerint.clear();
+			initInterfaces();
+		}
+	}
 }
 
 void RemoveBonus::applyCl(CClient *cl)
@@ -409,12 +461,19 @@ void TryMoveHero::applyCl(CClient *cl)
 			i.second->tileRevealed(fowRevealed);
 
 	//notify interfaces about move
+	auto gs = cl->gameState();
+
 	for(auto i=cl->playerint.begin(); i!=cl->playerint.end(); i++)
 	{
+		if(i->first != PlayerColor::SPECTATOR && gs->checkForStandardLoss(i->first)) // Do not notify vanquished player's interface
+			continue;
+
 		if(GS(cl)->isVisible(start - int3(1, 0, 0), i->first)
 			|| GS(cl)->isVisible(end - int3(1, 0, 0), i->first))
 		{
-			i->second->heroMoved(*this);
+			// src and dst of enemy hero move may be not visible => 'verbose' should be false
+			const bool verbose = cl->getPlayerRelations(i->first, player) != PlayerRelations::ENEMIES;
+			i->second->heroMoved(*this, verbose);
 		}
 	}
 
@@ -759,7 +818,11 @@ void YourTurn::applyCl(CClient *cl)
 void SaveGameClient::applyCl(CClient *cl)
 {
 	const auto stem = FileInfo::GetPathStem(fname);
-	CResourceHandler::get("local")->createResource(stem.to_string() + ".vcgm1");
+	if(!CResourceHandler::get("local")->createResource(stem.to_string() + ".vcgm1"))
+	{
+		logNetwork->error("Failed to create resource %s", stem.to_string() + ".vcgm1");
+		return;
+	}
 
 	try
 	{

@@ -13,6 +13,8 @@
 
 #include "../registerTypes/RegisterTypes.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 extern template void registerTypes<BinarySerializer>(BinarySerializer & s);
 
 CSaveFile::CSaveFile(const boost::filesystem::path &fname)
@@ -73,3 +75,5 @@ void CSaveFile::putMagicBytes(const std::string &text)
 {
 	write(text.c_str(), (unsigned int)text.length());
 }
+
+VCMI_LIB_NAMESPACE_END

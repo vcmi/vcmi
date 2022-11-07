@@ -20,6 +20,7 @@
 #include "../lib/CGameState.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/CTownHandler.h"
+#include "../lib/CModHandler.h"
 #include "Graphics.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/CConfigHandler.h"
@@ -29,6 +30,9 @@
 #include "CMT.h"
 #include "CMusicHandler.h"
 #include "../lib/CRandomGenerator.h"
+#include "../lib/Terrain.h"
+#include "../lib/filesystem/ResourceID.h"
+#include "../lib/JsonDetail.h"
 
 #define ADVOPT (conf.go()->ac)
 
@@ -48,20 +52,22 @@ struct NeighborTilesInfo
 		 d1,
 		 d2,
 		 d3;
-	NeighborTilesInfo(const int3 & pos, const int3 & sizes, const std::vector< std::vector< std::vector<ui8> > > & visibilityMap)
+	NeighborTilesInfo(const int3 & pos, const int3 & sizes, std::shared_ptr<const boost::multi_array<ui8, 3>> visibilityMap)
 	{
 		auto getTile = [&](int dx, int dy)->bool
 		{
 			if ( dx + pos.x < 0 || dx + pos.x >= sizes.x
 			  || dy + pos.y < 0 || dy + pos.y >= sizes.y)
 				return false;
-			return settings["session"]["spectate"].Bool() ? true : visibilityMap[dx+pos.x][dy+pos.y][pos.z];
+
+			//FIXME: please do not read settings for every tile...
+			return settings["session"]["spectate"].Bool() ? true : (*visibilityMap)[pos.z][dx+pos.x][dy+pos.y];
 		};
 		d7 = getTile(-1, -1); //789
 		d8 = getTile( 0, -1); //456
 		d9 = getTile(+1, -1); //123
 		d4 = getTile(-1, 0);
-		d5 = visibilityMap[pos.x][pos.y][pos.z];
+		d5 = (*visibilityMap)[pos.z][pos.x][pos.y];
 		d6 = getTile(+1, 0);
 		d1 = getTile(-1, +1);
 		d2 = getTile( 0, +1);
@@ -109,22 +115,9 @@ void CMapHandler::prepareFOWDefs()
 		FoWfullHide[frame] = graphics->fogOfWarFullHide->getImage(frame);
 
 	//initialization of type of full-hide image
-	hideBitmap.resize(sizes.x);
-	for (auto & elem : hideBitmap)
-	{
-		elem.resize(sizes.y);
-	}
-	for (auto & elem : hideBitmap)
-	{
-		for (int j = 0; j < sizes.y; ++j)
-		{
-			elem[j].resize(sizes.z);
-			for(int k = 0; k < sizes.z; ++k)
-			{
-				elem[j][k] = CRandomGenerator::getDefault().nextInt((int)size - 1);
-			}
-		}
-	}
+	hideBitmap.resize(boost::extents[sizes.z][sizes.x][sizes.y]);
+	for (int i = 0; i < hideBitmap.num_elements(); i++)
+		hideBitmap.data()[i] = CRandomGenerator::getDefault().nextInt(size - 1);
 
 	size = graphics->fogOfWarPartialHide->size(0);
 	FoWpartialHide.resize(size);
@@ -142,92 +135,71 @@ EMapAnimRedrawStatus CMapHandler::drawTerrainRectNew(SDL_Surface * targetSurface
 
 void CMapHandler::initTerrainGraphics()
 {
-	static const std::vector<std::string> TERRAIN_FILES =
+	auto loadFlipped = [](TFlippedAnimations & animation, TFlippedCache & cache, const std::map<std::string, std::string> & files)
 	{
-		"DIRTTL",
-		"SANDTL",
-		"GRASTL",
-		"SNOWTL",
-		"SWMPTL",
-
-		"ROUGTL",
-		"SUBBTL",
-		"LAVATL",
-		"WATRTL",
-		"ROCKTL"
-	};
-
-	static const std::vector<std::string> ROAD_FILES =
-	{
-		"dirtrd",
-		"gravrd",
-		"cobbrd"
-	};
-
-	static const std::vector<std::string> RIVER_FILES =
-	{
-		"clrrvr",
-		"icyrvr",
-		"mudrvr",
-		"lavrvr"
-	};
-
-	auto loadFlipped = [](int types, TFlippedAnimations & animation, TFlippedCache & cache, const std::vector<std::string> & files)
-	{
-		animation.resize(types);
-		cache.resize(types);
-
 		//no rotation and basic setup
-		for(int i = 0; i < types; i++)
+		for(auto & type : files)
 		{
-			animation[i][0] = make_unique<CAnimation>(files[i]);
-			animation[i][0]->preload();
-			const size_t views = animation[i][0]->size(0);
-			cache[i].resize(views);
+			animation[type.first][0] = make_unique<CAnimation>(type.second);
+			animation[type.first][0]->preload();
+			const size_t views = animation[type.first][0]->size(0);
+			cache[type.first].resize(views);
 
 			for(int j = 0; j < views; j++)
-				cache[i][j][0] = animation[i][0]->getImage(j);
+				cache[type.first][j][0] = animation[type.first][0]->getImage(j);
 		}
 
 		for(int rotation = 1; rotation < 4; rotation++)
 		{
-			for(int i = 0; i < types; i++)
+			for(auto & type : files)
 			{
-				animation[i][rotation] = make_unique<CAnimation>(files[i]);
-				animation[i][rotation]->preload();
-				const size_t views = animation[i][rotation]->size(0);
+				animation[type.first][rotation] = make_unique<CAnimation>(type.second);
+				animation[type.first][rotation]->preload();
+				const size_t views = animation[type.first][rotation]->size(0);
 
 				for(int j = 0; j < views; j++)
 				{
-					auto image = animation[i][rotation]->getImage(j);
+					auto image = animation[type.first][rotation]->getImage(j);
 
 					if(rotation == 2 || rotation == 3)
 						image->horizontalFlip();
 					if(rotation == 1 || rotation == 3)
 						image->verticalFlip();
 
-					cache[i][j][rotation] = image;
+					cache[type.first][j][rotation] = image;
 				}
 			}
 		}
 	};
-
-	loadFlipped(GameConstants::TERRAIN_TYPES, terrainAnimations, terrainImages, TERRAIN_FILES);
-	loadFlipped(3, roadAnimations, roadImages, ROAD_FILES);
-	loadFlipped(4, riverAnimations, riverImages, RIVER_FILES);
+	
+	std::map<std::string, std::string> terrainFiles;
+	std::map<std::string, std::string> riverFiles;
+	std::map<std::string, std::string> roadFiles;
+	for(const auto & terrain : VLC->terrainTypeHandler->terrains())
+	{
+		terrainFiles[terrain.name] = terrain.tilesFilename;
+	}
+	for(const auto & river : VLC->terrainTypeHandler->rivers())
+	{
+		riverFiles[river.fileName] = river.fileName;
+	}
+	for(const auto & road : VLC->terrainTypeHandler->roads())
+	{
+		roadFiles[road.fileName] = road.fileName;
+	}
+	
+	loadFlipped(terrainAnimations, terrainImages, terrainFiles);
+	loadFlipped(riverAnimations, riverImages, riverFiles);
+	loadFlipped(roadAnimations, roadImages, roadFiles);
 
 	// Create enough room for the whole map and its frame
 
-	ttiles.resize(sizes.x, frameW, frameW);
-	for (int i=0-frameW;i<ttiles.size()-frameW;i++)
-	{
-		ttiles[i].resize(sizes.y, frameH, frameH);
-	}
-	for (int i=0-frameW;i<ttiles.size()-frameW;i++)
-	{
-		for (int j=0-frameH;j<(int)sizes.y+frameH;j++)
-			ttiles[i][j].resize(sizes.z, 0, 0);
-	}
+	//ttiles.resize(sizes.x, frameW, frameW);
+
+	//FIXME: why do we even handle array with z (surface and undeground) at the same time?
+
+	ttiles.resize(boost::extents[sizes.z][sizes.x + 2 * frameW][sizes.y + 2 * frameH]); 
+	ttiles.reindex(std::list<int>{ 0, -frameW, -frameH }); //need to move starting coordinates so that used index is always positive
 }
 
 void CMapHandler::initBorderGraphics()
@@ -328,19 +300,21 @@ void CMapHandler::initObjectRects()
 					obj->coveringAt(currTile.x, currTile.y) // object is visible here
 				  )
 				{
-					ttiles[currTile.x][currTile.y][currTile.z].objects.push_back(toAdd);
+					ttiles[currTile.z][currTile.x][currTile.y].objects.push_back(toAdd);
 				}
 			}
 		}
 	}
 
-	for(int ix=0; ix<ttiles.size()-frameW; ++ix)
+	auto shape = ttiles.shape();
+	for(size_t z = 0; z < shape[0]; z++)
 	{
-		for(int iy=0; iy<ttiles[0].size()-frameH; ++iy)
+		for(size_t x = 0; x < shape[1] - frameW; x++)
 		{
-			for(int iz=0; iz<ttiles[0][0].size(); ++iz)
+			for(size_t y = 0; y < shape[2] - frameH; y++)
 			{
-				stable_sort(ttiles[ix][iy][iz].objects.begin(), ttiles[ix][iy][iz].objects.end(), objectBlitOrderSorter);
+				auto & objects = ttiles[z][x][y].objects;
+				stable_sort(objects.begin(), objects.end(), objectBlitOrderSorter);
 			}
 		}
 	}
@@ -358,7 +332,7 @@ void CMapHandler::init()
 	//sizes of terrain
 	sizes.x = map->width;
 	sizes.y = map->height;
-	sizes.z = map->twoLevel ? 2 : 1;
+	sizes.z = map->levels();
 
 	// Total number of visible tiles. Subtract the center tile, then
 	// compute the number of tiles on each side, and reassemble.
@@ -564,7 +538,9 @@ void CMapHandler::CMapWorldViewBlitter::drawTileOverlay(SDL_Surface * targetSurf
 		const CGObjectInstance * obj = object.obj;
 
 		const bool sameLevel = obj->pos.z == pos.z;
-		const bool isVisible = settings["session"]["spectate"].Bool() ? true : (*info->visibilityMap)[pos.x][pos.y][pos.z];
+
+		//FIXME: Don't read options in  a loop :v
+		const bool isVisible = settings["session"]["spectate"].Bool() ? true : (*info->visibilityMap)[pos.z][pos.x][pos.y];
 		const bool isVisitable = obj->visitableAt(pos.x, pos.y);
 
 		if(sameLevel && isVisible && isVisitable)
@@ -626,8 +602,14 @@ void CMapHandler::CMapBlitter::drawTileTerrain(SDL_Surface * targetSurf, const T
 	Rect destRect(realTileRect);
 
 	ui8 rotation = tinfo.extTileFlags % 4;
+	
+	//TODO: use ui8 instead of string key
+	auto terrainName = tinfo.terType->name;
 
-	drawElement(EMapCacheType::TERRAIN, parent->terrainImages[tinfo.terType][tinfo.terView][rotation], nullptr, targetSurf, &destRect);
+	if(parent->terrainImages[terrainName].size()<=tinfo.terView)
+		return;
+
+	drawElement(EMapCacheType::TERRAIN, parent->terrainImages[terrainName][tinfo.terView][rotation], nullptr, targetSurf, &destRect);
 }
 
 void CMapHandler::CMapWorldViewBlitter::init(const MapDrawingInfo * drawingInfo)
@@ -802,21 +784,21 @@ void CMapHandler::CMapBlitter::drawObjects(SDL_Surface * targetSurf, const Terra
 
 void CMapHandler::CMapBlitter::drawRoad(SDL_Surface * targetSurf, const TerrainTile & tinfo, const TerrainTile * tinfoUpper) const
 {
-	if (tinfoUpper && tinfoUpper->roadType != ERoadType::NO_ROAD)
+	if (tinfoUpper && tinfoUpper->roadType->id != Road::NO_ROAD)
 	{
 		ui8 rotation = (tinfoUpper->extTileFlags >> 4) % 4;
 		Rect source(0, tileSize / 2, tileSize, tileSize / 2);
 		Rect dest(realPos.x, realPos.y, tileSize, tileSize / 2);
-		drawElement(EMapCacheType::ROADS, parent->roadImages[tinfoUpper->roadType - 1][tinfoUpper->roadDir][rotation],
+		drawElement(EMapCacheType::ROADS, parent->roadImages[tinfoUpper->roadType->fileName][tinfoUpper->roadDir][rotation],
 				&source, targetSurf, &dest);
 	}
 
-	if(tinfo.roadType != ERoadType::NO_ROAD) //print road from this tile
+	if(tinfo.roadType->id != Road::NO_ROAD) //print road from this tile
 	{
 		ui8 rotation = (tinfo.extTileFlags >> 4) % 4;
 		Rect source(0, 0, tileSize, halfTileSizeCeil);
 		Rect dest(realPos.x, realPos.y + tileSize / 2, tileSize, tileSize / 2);
-		drawElement(EMapCacheType::ROADS, parent->roadImages[tinfo.roadType - 1][tinfo.roadDir][rotation],
+		drawElement(EMapCacheType::ROADS, parent->roadImages[tinfo.roadType->fileName][tinfo.roadDir][rotation],
 				&source, targetSurf, &dest);
 	}
 }
@@ -825,16 +807,16 @@ void CMapHandler::CMapBlitter::drawRiver(SDL_Surface * targetSurf, const Terrain
 {
 	Rect destRect(realTileRect);
 	ui8 rotation = (tinfo.extTileFlags >> 2) % 4;
-	drawElement(EMapCacheType::RIVERS, parent->riverImages[tinfo.riverType-1][tinfo.riverDir][rotation], nullptr, targetSurf, &destRect);
+	drawElement(EMapCacheType::RIVERS, parent->riverImages[tinfo.riverType->fileName][tinfo.riverDir][rotation], nullptr, targetSurf, &destRect);
 }
 
 void CMapHandler::CMapBlitter::drawFow(SDL_Surface * targetSurf) const
 {
-	const NeighborTilesInfo neighborInfo(pos, parent->sizes, *info->visibilityMap);
+	const NeighborTilesInfo neighborInfo(pos, parent->sizes, info->visibilityMap);
 
 	int retBitmapID = neighborInfo.getBitmapID();// >=0 -> partial hide, <0 - full hide
 	if (retBitmapID < 0)
-		retBitmapID = - parent->hideBitmap[pos.x][pos.y][pos.z] - 1; //fully hidden
+		retBitmapID = - parent->hideBitmap[pos.z][pos.x][pos.y] - 1; //fully hidden
 
 	std::shared_ptr<IImage> image;
 
@@ -869,14 +851,14 @@ void CMapHandler::CMapBlitter::blit(SDL_Surface * targetSurf, const MapDrawingIn
 			realTileRect.x = realPos.x;
 			realTileRect.y = realPos.y;
 
-			const TerrainTile2 & tile = parent->ttiles[pos.x][pos.y][pos.z];
+			const TerrainTile2 & tile = parent->ttiles[pos.z][pos.x][pos.y];
 			const TerrainTile & tinfo = parent->map->getTile(pos);
 			const TerrainTile * tinfoUpper = pos.y > 0 ? &parent->map->getTile(int3(pos.x, pos.y - 1, pos.z)) : nullptr;
 
 			if(isVisible || info->showAllTerrain)
 			{
 				drawTileTerrain(targetSurf, tinfo, tile);
-				if (tinfo.riverType)
+				if(tinfo.riverType->id != River::NO_RIVER)
 					drawRiver(targetSurf, tinfo);
 				drawRoad(targetSurf, tinfo, tinfoUpper);
 			}
@@ -900,9 +882,9 @@ void CMapHandler::CMapBlitter::blit(SDL_Surface * targetSurf, const MapDrawingIn
 			}
 			else
 			{
-				const TerrainTile2 & tile = parent->ttiles[pos.x][pos.y][pos.z];
+				const TerrainTile2 & tile = parent->ttiles[pos.z][pos.x][pos.y];
 
-				if(!settings["session"]["spectate"].Bool() && !(*info->visibilityMap)[pos.x][pos.y][topTile.z] && !info->showAllTerrain)
+				if(!settings["session"]["spectate"].Bool() && !(*info->visibilityMap)[topTile.z][pos.x][pos.y] && !info->showAllTerrain)
 					drawFow(targetSurf);
 
 				// overlay needs to be drawn over fow, because of artifacts-aura-like spells
@@ -983,7 +965,7 @@ CMapHandler::AnimBitmapHolder CMapHandler::CMapBlitter::findHeroBitmap(const CGH
 		if (hero->boat)
 			animation = graphics->boatAnimations[hero->boat->subID];
 		else
-			animation = graphics->heroAnimations[hero->appearance.animationFile];
+			animation = graphics->heroAnimations[hero->appearance->animationFile];
 
 		bool moving = !hero->isStanding;
 		int group = getHeroFrameGroup(hero->moveDir, moving);
@@ -1109,7 +1091,7 @@ bool CMapHandler::CMapBlitter::canDrawCurrentTile() const
 	if(settings["session"]["spectate"].Bool())
 		return true;
 
-	const NeighborTilesInfo neighbors(pos, parent->sizes, *info->visibilityMap);
+	const NeighborTilesInfo neighbors(pos, parent->sizes, info->visibilityMap);
 	return !neighbors.areAllHidden();
 }
 
@@ -1140,7 +1122,7 @@ bool CMapHandler::updateObjectsFade()
 			++iter;
 		else // fade finished
 		{
-			auto &objs = ttiles[pos.x][pos.y][pos.z].objects;
+			auto &objs = ttiles[pos.z][pos.x][pos.y].objects;
 			for (auto objIter = objs.begin(); objIter != objs.end(); ++objIter)
 			{
 				if ((*objIter).fadeAnimKey == (*iter).first)
@@ -1214,6 +1196,9 @@ bool CMapHandler::printObject(const CGObjectInstance * obj, bool fadein)
 	const int tilesW = bitmap->width()/32;
 	const int tilesH = bitmap->height()/32;
 
+	auto ttilesWidth = ttiles.shape()[1];
+	auto ttilesHeight = ttiles.shape()[2];
+
 	for(int fx=0; fx<tilesW; ++fx)
 	{
 		for(int fy=0; fy<tilesH; ++fy)
@@ -1224,10 +1209,13 @@ bool CMapHandler::printObject(const CGObjectInstance * obj, bool fadein)
 			cr.x = fx*32;
 			cr.y = fy*32;
 
-			if((obj->pos.x + fx - tilesW+1)>=0 && (obj->pos.x + fx - tilesW+1)<ttiles.size()-frameW && (obj->pos.y + fy - tilesH+1)>=0 && (obj->pos.y + fy - tilesH+1)<ttiles[0].size()-frameH)
+			if((obj->pos.x + fx - tilesW + 1) >= 0 &&
+				(obj->pos.x + fx - tilesW + 1) < ttilesWidth - frameW &&
+				(obj->pos.y + fy - tilesH + 1) >= 0 &&
+				(obj->pos.y + fy - tilesH + 1) < ttilesHeight - frameH)
 			{
 				int3 pos(obj->pos.x + fx - tilesW + 1, obj->pos.y + fy - tilesH + 1, obj->pos.z);
-				TerrainTile2 & curt = ttiles[pos.x][pos.y][pos.z];
+				TerrainTile2 & curt = ttiles[pos.z][pos.x][pos.y];
 
 				TerrainTileObject toAdd(obj, cr, obj->visitableAt(pos.x, pos.y));
 				if (fadein && ADVOPT.objectFading)
@@ -1256,59 +1244,26 @@ bool CMapHandler::printObject(const CGObjectInstance * obj, bool fadein)
 
 bool CMapHandler::hideObject(const CGObjectInstance * obj, bool fadeout)
 {
-	//optimized version which reveals weird bugs with missing def name
-	//auto pos = obj->pos;
-
-	//for (size_t i = pos.x; i > pos.x - obj->getWidth(); i--)
-	//{
-	//	for (size_t j = pos.y; j > pos.y - obj->getHeight(); j--)
-	//	{
-	//		int3 t(i, j, pos.z);
-	//		if (!map->isInTheMap(t))
-	//			continue;
-
-	//		auto &objs = ttiles[i][j][pos.z].objects;
-	//		for (size_t x = 0; x < objs.size(); x++)
-	//		{
-	//			auto ourObj = objs[x].obj;
-	//			if (ourObj && ourObj->id == obj->id)
-	//			{
-	//				if (fadeout && ADVOPT.objectFading) // object should be faded == erase is delayed until the end of fadeout
-	//				{
-	//					if (startObjectFade(objs[x], false, t))
-	//						objs[x].obj = nullptr; //set original pointer to null
-	//					else
-	//						objs.erase(objs.begin() + x);
-	//				}
-	//				else
-	//					objs.erase(objs.begin() + x);
-	//				break;
-	//			}
-	//		}
-	//	}
-
-	//}
-
-	for (size_t i = 0; i<map->width; i++)
+	for(size_t z = 0; z < map->levels(); z++)
 	{
-		for (size_t j = 0; j<map->height; j++)
+		for(size_t x = 0; x < map->width; x++)
 		{
-			for (size_t k = 0; k<(map->twoLevel ? 2 : 1); k++)
+			for(size_t y = 0; y < map->height; y++)
 			{
-				auto &objs = ttiles[(int)i][(int)j][(int)k].objects;
-				for (size_t x = 0; x < objs.size(); x++)
+				auto &objs = ttiles[(int)z][(int)x][(int)y].objects;
+				for(size_t i = 0; i < objs.size(); i++)
 				{
-					if (objs[x].obj && objs[x].obj->id == obj->id)
+					if (objs[i].obj && objs[i].obj->id == obj->id)
 					{
 						if (fadeout && ADVOPT.objectFading) // object should be faded == erase is delayed until the end of fadeout
 						{
-							if (startObjectFade(objs[x], false, int3((si32)i, (si32)j, (si32)k)))
-								objs[x].obj = nullptr;
+							if (startObjectFade(objs[i], false, int3((si32)x, (si32)y, (si32)z)))
+								objs[i].obj = nullptr;
 							else
-								objs.erase(objs.begin() + x);
+								objs.erase(objs.begin() + i);
 						}
 						else
-							objs.erase(objs.begin() + x);
+							objs.erase(objs.begin() + i);
 						break;
 					}
 				}
@@ -1326,13 +1281,13 @@ bool CMapHandler::canStartHeroMovement()
 
 void CMapHandler::updateWater() //shift colors in palettes of water tiles
 {
-	for(auto & elem : terrainImages[7])
+	for(auto & elem : terrainImages["lava"])
 	{
 		for(auto img : elem)
 			img->shiftPalette(246, 9);
 	}
 
-	for(auto & elem : terrainImages[8])
+	for(auto & elem : terrainImages["water"])
 	{
 		for(auto img : elem)
 		{
@@ -1341,7 +1296,7 @@ void CMapHandler::updateWater() //shift colors in palettes of water tiles
 		}
 	}
 
-	for(auto & elem : riverImages[0])
+	for(auto & elem : riverImages["clrrvr"])
 	{
 		for(auto img : elem)
 		{
@@ -1350,7 +1305,7 @@ void CMapHandler::updateWater() //shift colors in palettes of water tiles
 		}
 	}
 
-	for(auto & elem : riverImages[2])
+	for(auto & elem : riverImages["mudrvr"])
 	{
 		for(auto img : elem)
 		{
@@ -1360,7 +1315,7 @@ void CMapHandler::updateWater() //shift colors in palettes of water tiles
 		}
 	}
 
-	for(auto & elem : riverImages[3])
+	for(auto & elem : riverImages["lavrvr"])
 	{
 		for(auto img : elem)
 			img->shiftPalette(240, 9);
@@ -1396,7 +1351,7 @@ CMapHandler::CMapHandler()
 
 bool CMapHandler::hasObjectHole(const int3 & pos) const
 {
-	const TerrainTile2 & tt = ttiles[pos.x][pos.y][pos.z];
+	const TerrainTile2 & tt = ttiles[pos.z][pos.x][pos.y];
 
 	for(auto & elem : tt.objects)
 	{
@@ -1415,7 +1370,7 @@ void CMapHandler::getTerrainDescr(const int3 & pos, std::string & out, bool isRM
 		out = CGI->objtypeh->getObjectName(Obj::FAVORABLE_WINDS);
 		return;
 	}
-	const TerrainTile2 & tt = ttiles[pos.x][pos.y][pos.z];
+	const TerrainTile2 & tt = ttiles[pos.z][pos.x][pos.y];
 	bool isTile2Terrain = false;
 	out.clear();
 
@@ -1432,7 +1387,7 @@ void CMapHandler::getTerrainDescr(const int3 & pos, std::string & out, bool isRM
 		}
 	}
 	if(!isTile2Terrain || out.empty())
-		out = CGI->generaltexth->terrainNames[t.terType];
+		out = CGI->generaltexth->terrainNames[t.terType->id];
 
 	if(t.getDiggingStatus(false) == EDiggingStatus::CAN_DIG)
 	{
@@ -1490,8 +1445,8 @@ bool CMapHandler::compareObjectBlitOrder(const CGObjectInstance * a, const CGObj
 		return true;
 	if (!b)
 		return false;
-	if (a->appearance.printPriority != b->appearance.printPriority)
-		return a->appearance.printPriority > b->appearance.printPriority;
+	if (a->appearance->printPriority != b->appearance->printPriority)
+		return a->appearance->printPriority > b->appearance->printPriority;
 
 	if(a->pos.y != b->pos.y)
 		return a->pos.y < b->pos.y;

@@ -15,6 +15,8 @@
 #include "ReachabilityInfo.h"
 #include "BattleAttackInfo.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CGHeroInstance;
 class CStack;
 class ISpellCaster;
@@ -22,13 +24,6 @@ class CSpell;
 struct CObstacleInstance;
 class IBonusBearer;
 class CRandomGenerator;
-
-namespace scripting
-{
-	class Context;
-	class Pool;
-	class Script;
-}
 
 namespace spells
 {
@@ -158,3 +153,5 @@ protected:
 	bool isInObstacle(BattleHex hex, const std::set<BattleHex> & obstacles, const ReachabilityInfo::Parameters & params) const;
 	std::set<BattleHex> getStoppers(BattlePerspective::BattlePerspective whichSidePerspective) const; //get hexes with stopping obstacles (quicksands)
 };
+
+VCMI_LIB_NAMESPACE_END

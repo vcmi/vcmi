@@ -16,7 +16,7 @@ static QVariantMap JsonToMap(const JsonMap & json)
 	QVariantMap map;
 	for(auto & entry : json)
 	{
-		map.insert(QString::fromUtf8(entry.first.c_str()), JsonUtils::toVariant(entry.second));
+		map.insert(QString::fromStdString(entry.first), JsonUtils::toVariant(entry.second));
 	}
 	return map;
 }
@@ -51,6 +51,8 @@ static JsonMap VariantToMap(QVariantMap variant)
 	return map;
 }
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace JsonUtils
 {
 
@@ -58,22 +60,18 @@ QVariant toVariant(const JsonNode & node)
 {
 	switch(node.getType())
 	{
-		break;
 	case JsonNode::JsonType::DATA_NULL:
 		return QVariant();
-		break;
 	case JsonNode::JsonType::DATA_BOOL:
 		return QVariant(node.Bool());
-		break;
 	case JsonNode::JsonType::DATA_FLOAT:
 		return QVariant(node.Float());
-		break;
+	case JsonNode::JsonType::DATA_INTEGER:
+		return QVariant{static_cast<qlonglong>(node.Integer())};
 	case JsonNode::JsonType::DATA_STRING:
-		return QVariant(QString::fromUtf8(node.String().c_str()));
-		break;
+		return QVariant(QString::fromStdString(node.String()));
 	case JsonNode::JsonType::DATA_VECTOR:
 		return JsonToList(node.Vector());
-		break;
 	case JsonNode::JsonType::DATA_STRUCT:
 		return JsonToMap(node.Struct());
 	}
@@ -83,19 +81,15 @@ QVariant toVariant(const JsonNode & node)
 QVariant JsonFromFile(QString filename)
 {
 	QFile file(filename);
-	file.open(QFile::ReadOnly);
-	auto data = file.readAll();
+	if(!file.open(QFile::ReadOnly))
+	{
+		logGlobal->error("Failed to open file %s. Reason: %s", qUtf8Printable(filename), qUtf8Printable(file.errorString()));
+		return {};
+	}
 
-	if(data.size() == 0)
-	{
-		logGlobal->error("Failed to open file %s", filename.toUtf8().data());
-		return QVariant();
-	}
-	else
-	{
-		JsonNode node(data.data(), data.size());
-		return toVariant(node);
-	}
+	const auto data = file.readAll();
+	JsonNode node(data.data(), data.size());
+	return toVariant(node);
 }
 
 JsonNode toJson(QVariant object)
@@ -106,10 +100,12 @@ JsonNode toJson(QVariant object)
 		ret.Struct() = VariantToMap(object.toMap());
 	else if(object.canConvert<QVariantList>())
 		ret.Vector() = VariantToList(object.toList());
-	else if(static_cast<QMetaType::Type>(object.type()) == QMetaType::QString)
+	else if(object.userType() == QMetaType::QString)
 		ret.String() = object.toString().toUtf8().data();
-	else if(static_cast<QMetaType::Type>(object.type()) == QMetaType::Bool)
+	else if(object.userType() == QMetaType::Bool)
 		ret.Bool() = object.toBool();
+	else if(object.canConvert<int>())
+		ret.Integer() = object.toInt();
 	else if(object.canConvert<double>())
 		ret.Float() = object.toFloat();
 
@@ -123,3 +119,5 @@ void JsonToFile(QString filename, QVariant object)
 }
 
 }
+
+VCMI_LIB_NAMESPACE_END

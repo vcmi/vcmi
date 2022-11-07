@@ -196,7 +196,7 @@ bool CDefenceAnimation::init()
 	}
 	//unit reversed
 
-	if(rangedAttack) //delay hit animation
+	if(rangedAttack && attacker != nullptr) //delay hit animation
 	{
 		for(std::list<ProjectileInfo>::const_iterator it = owner->projectiles.begin(); it != owner->projectiles.end(); ++it)
 		{
@@ -420,22 +420,6 @@ void CMeleeAttackAnimation::endAnim()
 	delete this;
 }
 
-bool CMovementAnimation::shouldRotate()
-{
-	Point begPosition = CClickableHex::getXYUnitAnim(oldPos, stack, owner);
-	Point endPosition = CClickableHex::getXYUnitAnim(nextHex, stack, owner);
-
-	if((begPosition.x > endPosition.x) && owner->creDir[stack->ID] == true)
-	{
-		return true;
-	}
-	else if ((begPosition.x < endPosition.x) && owner->creDir[stack->ID] == false)
-	{
-		return true;
-	}
-	return false;
-}
-
 bool CMovementAnimation::init()
 {
 	if( !isEarliest(false) )
@@ -456,7 +440,7 @@ bool CMovementAnimation::init()
 	}
 
 	//reverse unit if necessary
-	if(shouldRotate())
+	if(owner->shouldRotate(stack, oldPos, nextHex))
 	{
 		// it seems that H3 does NOT plays full rotation animation here in most situations
 		// Logical since it takes quite a lot of time

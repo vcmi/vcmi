@@ -17,8 +17,6 @@ set(VCAI_SRCS
 		ArmyManager.cpp
 		ResourceManager.cpp
 		BuildingManager.cpp
-		SectorMap.cpp
-		BuildingManager.cpp
 		MapObjectsEvaluator.cpp
 		FuzzyEngines.cpp
 		FuzzyHelper.cpp
@@ -68,8 +66,6 @@ set(VCAI_HEADERS
 		ArmyManager.h
 		ResourceManager.h
 		BuildingManager.h
-		SectorMap.h
-		BuildingManager.h
 		MapObjectsEvaluator.h
 		FuzzyEngines.h
 		FuzzyHelper.h
@@ -109,22 +105,11 @@ endif()
 
 add_library(VCAI SHARED ${VCAI_SRCS} ${VCAI_HEADERS})
 
-if(FL_FOUND)
-	target_include_directories(VCAI PUBLIC ${FL_INCLUDE_DIRS})
-else()
-	target_include_directories(VCAI PUBLIC ${CMAKE_HOME_DIRECTORY}/AI/FuzzyLite/fuzzylite)
-endif()
 target_include_directories(VCAI PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-if(FL_FOUND)
-	target_link_libraries(VCAI PRIVATE ${FL_LIBRARIES} vcmi)
-else()
-	target_link_libraries(VCAI PRIVATE fl-static vcmi)
-endif()
+target_link_libraries(VCAI PRIVATE ${VCMI_LIB_TARGET} fuzzylite::fuzzylite)
 
 vcmi_set_output_dir(VCAI "AI")
-
-set_target_properties(VCAI PROPERTIES ${PCH_PROPERTIES})
-cotire(VCAI)
+enable_pch(VCAI)
 
 install(TARGETS VCAI RUNTIME DESTINATION ${AI_LIB_DIR} LIBRARY DESTINATION ${AI_LIB_DIR})

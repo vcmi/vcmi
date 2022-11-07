@@ -13,7 +13,10 @@
 #include "../int3.h"
 #include "../GameConstants.h"
 #include "../ResourceSet.h"
+#include "../Terrain.h"
 #include "CMapGenOptions.h"
+
+VCMI_LIB_NAMESPACE_BEGIN
 
 class JsonSerializeFormat;
 
@@ -24,7 +27,8 @@ namespace ETemplateZoneType
 		PLAYER_START,
 		CPU_START,
 		TREASURE,
-		JUNCTION
+		JUNCTION,
+		WATER
 	};
 }
 
@@ -35,6 +39,7 @@ public:
 	ui32 max;
 	ui16 density;
 	CTreasureInfo();
+	CTreasureInfo(ui32 min, ui32 max, ui16 density);
 
 	bool operator ==(const CTreasureInfo & other) const;
 
@@ -54,6 +59,8 @@ public:
 	int getGuardStrength() const;
 
 	void serializeJson(JsonSerializeFormat & handler);
+	
+	friend bool operator==(const ZoneConnection &, const ZoneConnection &);
 private:
 	TRmgTemplateZoneId zoneA;
 	TRmgTemplateZoneId zoneB;
@@ -63,7 +70,6 @@ private:
 class DLL_LINKAGE ZoneOptions
 {
 public:
-	static const std::set<ETerrainType> DEFAULT_TERRAIN_TYPES;
 	static const TRmgTemplateZoneId NO_ZONE;
 
 	class DLL_LINKAGE CTownInfo
@@ -93,15 +99,20 @@ public:
 	void setId(TRmgTemplateZoneId value);
 
 	ETemplateZoneType::ETemplateZoneType getType() const;
+	void setType(ETemplateZoneType::ETemplateZoneType value);
+	
 	int getSize() const;
 	void setSize(int value);
 	boost::optional<int> getOwner() const;
 
-	const std::set<ETerrainType> & getTerrainTypes() const;
-	void setTerrainTypes(const std::set<ETerrainType> & value);
+	const std::set<TerrainId> & getTerrainTypes() const;
+	void setTerrainTypes(const std::set<TerrainId> & value);
 
+	const CTownInfo & getPlayerTowns() const;
+	const CTownInfo & getNeutralTowns() const;
 	std::set<TFaction> getDefaultTownTypes() const;
 	const std::set<TFaction> & getTownTypes() const;
+	const std::set<TFaction> & getMonsterTypes() const;
 
 	void setTownTypes(const std::set<TFaction> & value);
 	void setMonsterTypes(const std::set<TFaction> & value);
@@ -110,6 +121,7 @@ public:
 	std::map<TResource, ui16> getMinesInfo() const;
 
 	void setTreasureInfo(const std::vector<CTreasureInfo> & value);
+	void addTreasureInfo(const CTreasureInfo & value);
 	const std::vector<CTreasureInfo> & getTreasureInfo() const;
 
 	TRmgTemplateZoneId getMinesLikeZone() const;
@@ -120,6 +132,11 @@ public:
 	std::vector<TRmgTemplateZoneId> getConnections() const;
 
 	void serializeJson(JsonSerializeFormat & handler);
+	
+	EMonsterStrength::EMonsterStrength zoneMonsterStrength;
+	
+	bool areTownsSameType() const;
+	bool isMatchTerrainToTown() const;
 
 protected:
 	TRmgTemplateZoneId id;
@@ -129,13 +146,11 @@ protected:
 	CTownInfo playerTowns;
 	CTownInfo neutralTowns;
 	bool matchTerrainToTown;
-	std::set<ETerrainType> terrainTypes;
+	std::set<TerrainId> terrainTypes;
 	bool townsAreSameType;
 
 	std::set<TFaction> townTypes;
 	std::set<TFaction> monsterTypes;
-
-	EMonsterStrength::EMonsterStrength zoneMonsterStrength;
 
 	std::map<TResource, ui16> mines; //obligatory mines to spawn in this zone
 
@@ -175,6 +190,8 @@ public:
 	~CRmgTemplate();
 
 	bool matchesSize(const int3 & value) const;
+	bool isWaterContentAllowed(EWaterContent::EWaterContent waterContent) const;
+	const std::set<EWaterContent::EWaterContent> & getWaterContentAllowed() const;
 
 	void setId(const std::string & value);
 	const std::string & getName() const;
@@ -195,8 +212,11 @@ private:
 	CPlayerCountRange players, cpuPlayers;
 	Zones zones;
 	std::vector<rmg::ZoneConnection> connections;
+	std::set<EWaterContent::EWaterContent> allowedWaterContent;
 
 	void afterLoad();
 	void serializeSize(JsonSerializeFormat & handler, int3 & value, const std::string & fieldName);
 	void serializePlayers(JsonSerializeFormat & handler, CPlayerCountRange & value, const std::string & fieldName);
 };
+
+VCMI_LIB_NAMESPACE_END

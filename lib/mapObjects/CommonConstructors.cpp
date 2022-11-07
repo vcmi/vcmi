@@ -20,6 +20,8 @@
 #include "../CModHandler.h"
 #include "../IGameCallback.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 CObstacleConstructor::CObstacleConstructor()
 {
 }
@@ -56,7 +58,7 @@ void CTownInstanceConstructor::afterLoadFinalization()
 	}
 }
 
-bool CTownInstanceConstructor::objectFilter(const CGObjectInstance * object, const ObjectTemplate & templ) const
+bool CTownInstanceConstructor::objectFilter(const CGObjectInstance * object, std::shared_ptr<const ObjectTemplate> templ) const
 {
 	auto town = dynamic_cast<const CGTownInstance *>(object);
 
@@ -65,10 +67,10 @@ bool CTownInstanceConstructor::objectFilter(const CGObjectInstance * object, con
 		return town->hasBuilt(id);
 	};
 
-	return filters.count(templ.stringID) != 0 && filters.at(templ.stringID).test(buildTest);
+	return filters.count(templ->stringID) != 0 && filters.at(templ->stringID).test(buildTest);
 }
 
-CGObjectInstance * CTownInstanceConstructor::create(const ObjectTemplate & tmpl) const
+CGObjectInstance * CTownInstanceConstructor::create(std::shared_ptr<const ObjectTemplate> tmpl) const
 {
 	CGTownInstance * obj = createTyped(tmpl);
 	obj->town = faction->town;
@@ -78,9 +80,9 @@ CGObjectInstance * CTownInstanceConstructor::create(const ObjectTemplate & tmpl)
 
 void CTownInstanceConstructor::configureObject(CGObjectInstance * object, CRandomGenerator & rng) const
 {
-	auto templ = getOverride(object->cb->getTile(object->pos)->terType, object);
+	auto templ = getOverride(object->cb->getTile(object->pos)->terType->id, object);
 	if(templ)
-		object->appearance = templ.get();
+		object->appearance = templ;
 }
 
 CHeroInstanceConstructor::CHeroInstanceConstructor()
@@ -110,7 +112,7 @@ void CHeroInstanceConstructor::afterLoadFinalization()
 	}
 }
 
-bool CHeroInstanceConstructor::objectFilter(const CGObjectInstance * object, const ObjectTemplate & templ) const
+bool CHeroInstanceConstructor::objectFilter(const CGObjectInstance * object, std::shared_ptr<const ObjectTemplate> templ) const
 {
 	auto hero = dynamic_cast<const CGHeroInstance *>(object);
 
@@ -119,14 +121,14 @@ bool CHeroInstanceConstructor::objectFilter(const CGObjectInstance * object, con
 		return hero->type->ID == id;
 	};
 
-	if(filters.count(templ.stringID))
+	if(filters.count(templ->stringID))
 	{
-		return filters.at(templ.stringID).test(heroTest);
+		return filters.at(templ->stringID).test(heroTest);
 	}
 	return false;
 }
 
-CGObjectInstance * CHeroInstanceConstructor::create(const ObjectTemplate & tmpl) const
+CGObjectInstance * CHeroInstanceConstructor::create(std::shared_ptr<const ObjectTemplate> tmpl) const
 {
 	CGHeroInstance * obj = createTyped(tmpl);
 	obj->type = nullptr; //FIXME: set to valid value. somehow.
@@ -167,12 +169,12 @@ void CDwellingInstanceConstructor::initTypeData(const JsonNode & input)
 	guards = input["guards"];
 }
 
-bool CDwellingInstanceConstructor::objectFilter(const CGObjectInstance *, const ObjectTemplate &) const
+bool CDwellingInstanceConstructor::objectFilter(const CGObjectInstance *, std::shared_ptr<const ObjectTemplate>) const
 {
 	return false;
 }
 
-CGObjectInstance * CDwellingInstanceConstructor::create(const ObjectTemplate & tmpl) const
+CGObjectInstance * CDwellingInstanceConstructor::create(std::shared_ptr<const ObjectTemplate> tmpl) const
 {
 	CGDwelling * obj = createTyped(tmpl);
 
@@ -272,7 +274,7 @@ void CBankInstanceConstructor::initTypeData(const JsonNode & input)
 	bankResetDuration = static_cast<si32>(input["resetDuration"].Float());
 }
 
-CGObjectInstance *CBankInstanceConstructor::create(const ObjectTemplate & tmpl) const
+CGObjectInstance *CBankInstanceConstructor::create(std::shared_ptr<const ObjectTemplate> tmpl) const
 {
 	return createTyped(tmpl);
 }
@@ -494,7 +496,9 @@ bool CBankInfo::givesSpells() const
 }
 
 
-std::unique_ptr<IObjectInfo> CBankInstanceConstructor::getObjectInfo(const ObjectTemplate & tmpl) const
+std::unique_ptr<IObjectInfo> CBankInstanceConstructor::getObjectInfo(std::shared_ptr<const ObjectTemplate> tmpl) const
 {
 	return std::unique_ptr<IObjectInfo>(new CBankInfo(levels));
 }
+
+VCMI_LIB_NAMESPACE_END

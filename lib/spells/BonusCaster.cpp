@@ -17,6 +17,8 @@
 #include "../HeroBonus.h"
 #include "../battle/Unit.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace spells
 {
 
@@ -57,3 +59,5 @@ void BonusCaster::spendMana(ServerCallback * server, const int spellCost) const
 
 
 } // namespace spells
+
+VCMI_LIB_NAMESPACE_END

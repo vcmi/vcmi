@@ -14,6 +14,10 @@
 #include "GameConstants.h"
 #include "int3.h"
 
+class CCallback;
+
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CGTownInstance;
 class CCreature;
 class CArmedInstance;
@@ -21,7 +25,6 @@ struct StackLocation;
 struct TryMoveHero;
 struct ArtifactLocation;
 class CGHeroInstance;
-class CCallback;
 class IShipyard;
 class CGDwelling;
 struct Component;
@@ -42,7 +45,6 @@ class CCreatureSet;
 struct BattleAttack;
 struct SetStackEffect;
 struct BattleTriggerEffect;
-class CComponent;
 struct CObstacleInstance;
 struct CPackForServer;
 class EVictoryLossCheckResult;
@@ -93,7 +95,7 @@ public:
 	virtual void heroVisit(const CGHeroInstance *visitor, const CGObjectInstance *visitedObj, bool start){};
 	virtual void heroCreated(const CGHeroInstance*){};
 	virtual void heroInGarrisonChange(const CGTownInstance *town){};
-	virtual void heroMoved(const TryMoveHero & details){};
+	virtual void heroMoved(const TryMoveHero & details, bool verbose = true){};
 	virtual void heroPrimarySkillChanged(const CGHeroInstance * hero, int which, si64 val){};
 	virtual void heroSecondarySkillChanged(const CGHeroInstance * hero, int which, int val){};
 	virtual void heroManaPointsChanged(const CGHeroInstance * hero){} //not called at the beginning of turn and after spell casts
@@ -133,3 +135,5 @@ public:
 	//TODO shouldn't be moved down the tree?
 	virtual void heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID queryID){};
 };
+
+VCMI_LIB_NAMESPACE_END

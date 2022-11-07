@@ -26,6 +26,9 @@
 #include "../Markers/ArmyUpgrade.h"
 #include "../Markers/DefendTown.h"
 
+namespace NKAI
+{
+
 #define MIN_AI_STRENGHT (0.5f) //lower when combat AI gets smarter
 #define UNGUARDED_OBJECT (100.0f) //we consider unguarded objects 100 times weaker than us
 
@@ -92,6 +95,8 @@ int32_t estimateTownIncome(CCallback * cb, const CGObjectInstance * target, cons
 
 TResources getCreatureBankResources(const CGObjectInstance * target, const CGHeroInstance * hero)
 {
+	//Fixme: unused variable hero
+
 	auto objectInfo = VLC->objtypeh->getHandlerFor(target->ID, target->subID)->getObjectInfo(target->appearance);
 	CBankInfo * bankInfo = dynamic_cast<CBankInfo *>(objectInfo.get());
 	auto resources = bankInfo->getPossibleResourcesReward();
@@ -114,10 +119,32 @@ uint64_t getCreatureBankArmyReward(const CGObjectInstance * target, const CGHero
 	auto creatures = bankInfo->getPossibleCreaturesReward();
 	uint64_t result = 0;
 
-	for(auto c : creatures)
+	const auto& slots = hero->Slots();
+	ui64 weakestStackPower = 0;
+	if (slots.size() >= GameConstants::ARMY_SIZE)
 	{
-		result += c.data.type->AIValue * c.data.count * c.chance / 100;
+		//No free slot, we might discard our weakest stack
+		weakestStackPower = std::numeric_limits<ui64>().max();
+		for (const auto & stack : slots)
+		{
+			vstd::amin(weakestStackPower, stack.second->getPower());
+		}
 	}
+
+	for (auto c : creatures)
+	{
+		//Only if hero has slot for this creature in the army
+		if (hero->getSlotFor(c.data.type).validSlot())
+		{
+			result += (c.data.type->AIValue * c.data.count) * c.chance;
+		}
+		else
+		{
+			//we will need to discard the weakest stack
+			result += (c.data.type->AIValue * c.data.count - weakestStackPower) * c.chance;
+		}
+	}
+	result /= 100; //divide by total chance
 
 	return result;
 }
@@ -168,13 +195,13 @@ uint64_t evaluateArtifactArmyValue(CArtifactInstance * art)
 		return 1500;
 
 	auto statsValue =
-		4 * art->valOfBonuses(Bonus::LAND_MOVEMENT)
+		10 * art->valOfBonuses(Bonus::LAND_MOVEMENT)
+		+ 1200 * art->valOfBonuses(Bonus::STACKS_SPEED)
 		+ 700 * art->valOfBonuses(Bonus::MORALE)
 		+ 700 * art->getAttack(false)
 		+ 700 * art->getDefense(false)
 		+ 700 * art->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::KNOWLEDGE)
 		+ 700 * art->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::SPELL_POWER)
-		+ 700 * art->getDefense(false)
 		+ 500 * art->valOfBonuses(Bonus::LUCK);
 
 	auto classValue = 0;
@@ -234,6 +261,8 @@ uint64_t RewardEvaluator::getArmyReward(
 		return ai->cb->getPlayerRelations(target->tempOwner, ai->playerID) == PlayerRelations::ENEMIES
 			? enemyArmyEliminationRewardRatio * dynamic_cast<const CGHeroInstance *>(target)->getArmyStrength()
 			: 0;
+	case Obj::PANDORAS_BOX:
+		return 5000;
 	default:
 		return 0;
 	}
@@ -273,7 +302,14 @@ float RewardEvaluator::getEnemyHeroStrategicalValue(const CGHeroInstance * enemy
 		vstd::amax(objectValue, getStrategicalValue(obj));
 	}
 
-	return objectValue / 2.0f + enemy->level / 15.0f;
+	/*
+	  1. If an enemy hero can attack nearby object, it's not useful to capture the object on our own.
+	  Killing the hero is almost as important (0.9) as capturing the object itself.
+
+	  2. The formula quickly approaches 1.0 as hero level increases,
+	  but higher level always means higher value and the minimal value for level 1 hero is 0.5
+	*/
+	return std::min(1.0f, objectValue * 0.9f + (1.0f - (1.0f / (1 + enemy->level))));
 }
 
 float RewardEvaluator::getResourceRequirementStrength(int resType) const
@@ -322,13 +358,28 @@ float RewardEvaluator::getStrategicalValue(const CGObjectInstance * target) cons
 	case Obj::RESOURCE:
 		return target->subID == Res::GOLD ? 0 : 0.1f * getResourceRequirementStrength(target->subID);
 
+	case Obj::CREATURE_BANK:
+	{
+		auto resourceReward = getCreatureBankResources(target, nullptr);
+		float sum = 0.0f;
+		for (TResources::nziterator it (resourceReward); it.valid(); it++)
+		{
+			//Evaluate resources used for construction. Gold is evaluated separately.
+			if (it->resType != Res::GOLD)
+			{
+				sum += 0.1f * getResourceRequirementStrength(it->resType);
+			}
+		}
+		return sum;
+	}
+
 	case Obj::TOWN:
 		if(ai->buildAnalyzer->getDevelopmentInfo().empty())
 			return 1;
 
 		return dynamic_cast<const CGTownInstance *>(target)->hasFort()
 			? (target->tempOwner == PlayerColor::NEUTRAL ? 0.8f : 1.0f)
-			: 0.5f;
+			: 0.7f;
 
 	case Obj::HERO:
 		return ai->cb->getPlayerRelations(target->tempOwner, ai->playerID) == PlayerRelations::ENEMIES
@@ -385,6 +436,9 @@ float RewardEvaluator::getSkillReward(const CGObjectInstance * target, const CGH
 		return 8;
 	case Obj::WITCH_HUT:
 		return evaluateWitchHutSkillScore(dynamic_cast<const CGWitchHut *>(target), hero, role);
+	case Obj::PANDORAS_BOX:
+		//Can contains experience, spells, or skills (only on custom maps)
+		return 2.5f;
 	case Obj::HERO:
 		return ai->cb->getPlayerRelations(target->tempOwner, ai->playerID) == PlayerRelations::ENEMIES
 			? enemyHeroEliminationSkillRewardRatio * dynamic_cast<const CGHeroInstance *>(target)->level
@@ -464,6 +518,11 @@ int32_t RewardEvaluator::getGoldReward(const CGObjectInstance * target, const CG
 		return 10000;
 	case Obj::SEA_CHEST:
 		return 1500;
+	case Obj::PANDORAS_BOX:
+		return 5000;
+	case Obj::PRISON:
+		//Objectively saves us 2500 to hire hero
+		return GameConstants::HERO_GOLD_COST;
 	case Obj::HERO:
 		return ai->cb->getPlayerRelations(target->tempOwner, ai->playerID) == PlayerRelations::ENEMIES
 			? heroEliminationBonus + enemyArmyEliminationGoldRewardRatio * getArmyCost(dynamic_cast<const CGHeroInstance *>(target))
@@ -589,7 +648,6 @@ public:
 		}
 
 		auto heroPtr = task->hero;
-		auto day = ai->cb->getDate(Date::DAY);
 		auto hero = heroPtr.get(ai->cb.get());
 		bool checkGold = evaluationContext.danger == 0;
 		auto army = path.heroArmy;
@@ -614,11 +672,8 @@ public:
 
 class ClusterEvaluationContextBuilder : public IEvaluationContextBuilder
 {
-private:
-	const Nullkiller * ai;
-
 public:
-	ClusterEvaluationContextBuilder(const Nullkiller * ai) : ai(ai) {}
+	ClusterEvaluationContextBuilder(const Nullkiller * ai) {}
 
 	virtual void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
 	{
@@ -643,7 +698,6 @@ public:
 		for(auto objInfo : objects)
 		{
 			auto target = objInfo.first;
-			auto day = ai->cb->getDate(Date::DAY);
 			bool checkGold = objInfo.second.danger == 0;
 			auto army = hero;
 
@@ -662,9 +716,6 @@ public:
 			if(boost > 8)
 				break;
 		}
-
-		const AIPath & pathToCenter = clusterGoal.getPathToCenter();
-
 	}
 };
 
@@ -799,7 +850,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task)
 		logAi->error("evaluate VisitTile: %s", fe.getWhat());
 	}
 
-#if AI_TRACE_LEVEL >= 2
+#if NKAI_TRACE_LEVEL >= 2
 	logAi->trace("Evaluated %s, loss: %f, turn: %d, turns main: %f, scout: %f, gold: %d, cost: %d, army gain: %d, danger: %d, role: %s, strategical value: %f, cwr: %f, fear: %f, result %f",
 		task->toString(),
 		evaluationContext.armyLossPersentage,
@@ -818,4 +869,6 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task)
 #endif
 
 	return result;
+}
+
 }

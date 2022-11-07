@@ -155,7 +155,7 @@ TEST_F(ERM_BU_G, Get)
 	source << "!?PI;" << std::endl;
 	source << "!!BU:G?v1;" << std::endl;
 
-	EXPECT_CALL(binfoMock, battleGetBattlefieldType()).WillOnce(Return(BFieldType::SNOW_TREES));
+	EXPECT_CALL(binfoMock, battleGetBattlefieldType()).WillOnce(Return(BattleField::fromString("snow_trees")));
 
 
 	loadScript(VLC->scriptHandler->erm, source.str());
@@ -169,12 +169,14 @@ TEST_F(ERM_BU_G, Get)
 
 TEST_F(ERM_BU_G, Get2)
 {
+	const int EXPECTED_ERM_FOG_CODE = 4;
+
 	std::stringstream source;
 	source << "VERM" << std::endl;
 	source << "!?PI;" << std::endl;
 	source << "!!BU:G?v1;" << std::endl;
 
-	EXPECT_CALL(binfoMock, battleGetBattlefieldType()).WillOnce(Return(BFieldType::EVIL_FOG));
+	EXPECT_CALL(binfoMock, battleGetBattlefieldType()).WillOnce(Return(BattleField::fromString("evil_fog")));
 
 	loadScript(VLC->scriptHandler->erm, source.str());
 	runServer();
@@ -182,7 +184,7 @@ TEST_F(ERM_BU_G, Get2)
 	JsonNode actualState = context->saveState();
 
 
-	EXPECT_EQ(actualState["ERM"]["v"]["1"], JsonUtils::floatNode(4)) << actualState.toJson(true);
+	EXPECT_EQ(actualState["ERM"]["v"]["1"], JsonUtils::floatNode(EXPECTED_ERM_FOG_CODE)) << actualState.toJson(true);
 }
 
 //TODO: ERM_BU_G Set

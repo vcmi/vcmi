@@ -48,12 +48,12 @@ public:
 
 	std::string getText();
 	virtual void setAutoRedraw(bool option);
-	virtual void setText(const std::string &Txt);
+	virtual void setText(const std::string & Txt);
 	virtual void setColor(const SDL_Color & Color);
 	size_t getWidth();
 
-	CLabel(int x=0, int y=0, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT,
-	       const SDL_Color &Color = Colors::WHITE, const std::string &Text =  "");
+	CLabel(int x = 0, int y = 0, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT,
+		const SDL_Color & Color = Colors::WHITE, const std::string & Text = "");
 	void showAll(SDL_Surface * to) override; //shows statusbar (with current text)
 };
 
@@ -65,8 +65,8 @@ class CLabelGroup : public CIntObject
 	EAlignment align;
 	SDL_Color color;
 public:
-	CLabelGroup(EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = Colors::WHITE);
-	void add(int x=0, int y=0, const std::string &text =  "");
+	CLabelGroup(EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color & Color = Colors::WHITE);
+	void add(int x = 0, int y = 0, const std::string & text = "");
 	size_t currentSize() const;
 };
 
@@ -80,15 +80,15 @@ class CMultiLineLabel : public CLabel
 	// area of text that actually will be printed, default is widget size
 	Rect visibleSize;
 
-	void splitText(const std::string &Txt, bool redrawAfter);
+	void splitText(const std::string & Txt, bool redrawAfter);
 	Rect getTextLocation();
 public:
 	// total size of text, x = longest line of text, y = total height of lines
 	Point textSize;
 
-	CMultiLineLabel(Rect position, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = Colors::WHITE, const std::string &Text =  "");
+	CMultiLineLabel(Rect position, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color & Color = Colors::WHITE, const std::string & Text = "");
 
-	void setText(const std::string &Txt) override;
+	void setText(const std::string & Txt) override;
 	void showAll(SDL_Surface * to) override;
 
 	void setVisibleSize(Rect visibleSize, bool redrawElement = true);
@@ -140,22 +140,48 @@ public:
 	void lock(bool shouldLock); //If true, current text cannot be changed until lock(false) is called
 };
 
+class CFocusable;
+
+class IFocusListener
+{
+public:
+	virtual void focusGot() {};
+	virtual void focusLost() {};
+	virtual ~IFocusListener() = default;
+};
+
 /// UIElement which can get input focus
 class CFocusable : public virtual CIntObject
 {
-protected:
-	virtual void focusGot(){};
-	virtual void focusLost(){};
+private:
+	std::shared_ptr<IFocusListener> focusListener;
+
 public:
 	bool focus; //only one focusable control can have focus at one moment
 
 	void giveFocus(); //captures focus
 	void moveFocus(); //moves focus to next active control (may be used for tab switching)
+	bool hasFocus() const;
 
-	static std::list<CFocusable*> focusables; //all existing objs
-	static CFocusable *inputWithFocus; //who has focus now
+	static std::list<CFocusable *> focusables; //all existing objs
+	static CFocusable * inputWithFocus; //who has focus now
+
 	CFocusable();
+	CFocusable(std::shared_ptr<IFocusListener> focusListener);
 	~CFocusable();
+};
+
+class CTextInput;
+class CKeyboardFocusListener : public IFocusListener
+{
+private:
+	static std::atomic<int> usageIndex;
+	CTextInput * textInput;
+
+public:
+	CKeyboardFocusListener(CTextInput * textInput);
+	void focusGot() override;
+	void focusLost() override;
 };
 
 /// Text input box where players can enter text
@@ -165,20 +191,17 @@ class CTextInput : public CLabel, public CFocusable
 protected:
 	std::string visibleText() override;
 
-	void focusGot() override;
-	void focusLost() override;
-
 #ifdef VCMI_ANDROID
 	void notifyAndroidTextInputChanged(std::string & text);
 #endif
 public:
 	CFunctionList<void(const std::string &)> cb;
 	CFunctionList<void(std::string &, const std::string &)> filters;
-	void setText(const std::string &nText, bool callCb = false);
+	void setText(const std::string & nText, bool callCb = false);
 
-	CTextInput(const Rect &Pos, EFonts font, const CFunctionList<void(const std::string &)> &CB);
-	CTextInput(const Rect &Pos, const Point &bgOffset, const std::string &bgName, const CFunctionList<void(const std::string &)> &CB);
-	CTextInput(const Rect &Pos, SDL_Surface *srf = nullptr);
+	CTextInput(const Rect & Pos, EFonts font, const CFunctionList<void(const std::string &)> & CB);
+	CTextInput(const Rect & Pos, const Point & bgOffset, const std::string & bgName, const CFunctionList<void(const std::string &)> & CB);
+	CTextInput(const Rect & Pos, SDL_Surface * srf = nullptr);
 
 	void clickLeft(tribool down, bool previousState) override;
 	void keyPressed(const SDL_KeyboardEvent & key) override;
@@ -188,8 +211,10 @@ public:
 	void textEdited(const SDL_TextEditingEvent & event) override;
 
 	//Filter that will block all characters not allowed in filenames
-	static void filenameFilter(std::string &text, const std::string & oldText);
+	static void filenameFilter(std::string & text, const std::string & oldText);
 	//Filter that will allow only input of numbers in range min-max (min-max are allowed)
 	//min-max should be set via something like std::bind
-	static void numberFilter(std::string &text, const std::string & oldText, int minValue, int maxValue);
+	static void numberFilter(std::string & text, const std::string & oldText, int minValue, int maxValue);
+
+	friend class CKeyboardFocusListener;
 };

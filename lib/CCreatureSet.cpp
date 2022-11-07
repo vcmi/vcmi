@@ -23,6 +23,14 @@
 #include "serializer/JsonSerializeFormat.h"
 #include "NetPacksBase.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
+
+bool CreatureSlotComparer::operator()(const TPairCreatureSlot & lhs, const TPairCreatureSlot & rhs)
+{
+	return lhs.first->getAIValue() < rhs.first->getAIValue(); // Descendant order sorting
+}
+
 const CStackInstance &CCreatureSet::operator[](SlotID slot) const
 {
 	auto i = stacks.find(slot);
@@ -72,7 +80,7 @@ SlotID CCreatureSet::getSlotFor(CreatureID creature, ui32 slotsAmount) const /*r
 
 SlotID CCreatureSet::getSlotFor(const CCreature *c, ui32 slotsAmount) const
 {
-	assert(c->valid());
+	assert(c && c->valid());
 	for(auto & elem : stacks)
 	{
 		assert(elem.second->type->valid());
@@ -82,6 +90,75 @@ SlotID CCreatureSet::getSlotFor(const CCreature *c, ui32 slotsAmount) const
 		}
 	}
 	return getFreeSlot(slotsAmount);
+}
+
+bool CCreatureSet::hasCreatureSlots(const CCreature * c, SlotID exclude) const
+{
+	assert(c && c->valid());
+	for(auto & elem : stacks) // elem is const
+	{
+		if(elem.first == exclude) // Check slot
+			continue;
+
+		if(!elem.second || !elem.second->type) // Check creature
+			continue;
+
+		assert(elem.second->type->valid());
+
+		if(elem.second->type == c)
+			return true;
+	}
+	return false;
+}
+
+std::vector<SlotID> CCreatureSet::getCreatureSlots(const CCreature * c, SlotID exclude, TQuantity ignoreAmount) const
+{
+	assert(c && c->valid());
+	std::vector<SlotID> result;
+
+	for(auto & elem : stacks)
+	{
+		if(elem.first == exclude)
+			continue;
+
+		if(!elem.second || !elem.second->type || elem.second->type != c)
+			continue;
+
+		if(elem.second->count == ignoreAmount || elem.second->count < 1)
+			continue;
+
+		assert(elem.second->type->valid());
+		result.push_back(elem.first);
+	}
+	return result;
+}
+
+bool CCreatureSet::isCreatureBalanced(const CCreature * c, TQuantity ignoreAmount) const
+{
+	assert(c && c->valid());
+	TQuantity max = 0;
+	TQuantity min = std::numeric_limits<TQuantity>::max();
+
+	for(auto & elem : stacks)
+	{
+		if(!elem.second || !elem.second->type || elem.second->type != c)
+			continue;
+
+		const auto count = elem.second->count;
+
+		if(count == ignoreAmount || count < 1)
+			continue;
+
+		assert(elem.second->type->valid());
+
+		if(count > max)
+			max = count;
+		if(count < min)
+			min = count;
+		if(max - min > 1)
+			return false;
+	}
+	return true;
 }
 
 SlotID CCreatureSet::getFreeSlot(ui32 slotsAmount) const
@@ -94,6 +171,68 @@ SlotID CCreatureSet::getFreeSlot(ui32 slotsAmount) const
 		}
 	}
 	return SlotID(); //no slot available
+}
+
+std::vector<SlotID> CCreatureSet::getFreeSlots(ui32 slotsAmount) const
+{
+	std::vector<SlotID> freeSlots;
+
+	for(ui32 i = 0; i < slotsAmount; i++)
+	{
+		auto slot = SlotID(i);
+
+		if(!vstd::contains(stacks, slot))
+			freeSlots.push_back(slot);
+	}
+	return freeSlots;
+}
+
+std::queue<SlotID> CCreatureSet::getFreeSlotsQueue(ui32 slotsAmount) const
+{
+	std::queue<SlotID> freeSlots;
+
+	for (ui32 i = 0; i < slotsAmount; i++)
+	{
+		auto slot = SlotID(i);
+
+		if(!vstd::contains(stacks, slot))
+			freeSlots.push(slot);
+	}
+	return freeSlots;
+}
+
+TMapCreatureSlot CCreatureSet::getCreatureMap() const
+{
+	TMapCreatureSlot creatureMap;
+	TMapCreatureSlot::key_compare keyComp = creatureMap.key_comp();
+
+	// https://stackoverflow.com/questions/97050/stdmap-insert-or-stdmap-find
+	// https://www.cplusplus.com/reference/map/map/key_comp/
+	for(auto pair : stacks)
+	{
+		auto creature = pair.second->type;
+		auto slot = pair.first;
+		TMapCreatureSlot::iterator lb = creatureMap.lower_bound(creature);
+
+		if(lb != creatureMap.end() && !(keyComp(creature, lb->first)))
+			continue;
+
+		creatureMap.insert(lb, TMapCreatureSlot::value_type(creature, slot));
+	}
+	return creatureMap;
+}
+
+TCreatureQueue CCreatureSet::getCreatureQueue(SlotID exclude) const
+{
+	TCreatureQueue creatureQueue;
+
+	for(auto pair : stacks)
+	{
+		if(pair.first == exclude)
+			continue;
+		creatureQueue.push(std::make_pair(pair.second->type, pair.first));
+	}
+	return creatureQueue;
 }
 
 TQuantity CCreatureSet::getStackCount(SlotID slot) const
@@ -720,9 +859,6 @@ PlayerColor CStackInstance::getOwner() const
 
 void CStackInstance::deserializationFix()
 {
-	const CCreature *backup = type;
-	type = nullptr;
-		setType(backup);
 	const CArmedInstance *armyBackup = _armyObj;
 	_armyObj = nullptr;
 	setArmyObj(armyBackup);
@@ -937,3 +1073,5 @@ bool CSimpleArmy::setCreature(SlotID slot, CreatureID cre, TQuantity count)
 	army[slot] = std::make_pair(cre, count);
 	return true;
 }
+
+VCMI_LIB_NAMESPACE_END

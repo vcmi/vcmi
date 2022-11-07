@@ -10,6 +10,8 @@
 #include "StdInc.h"
 #include "AIMovementToDestinationRule.h"
 
+namespace NKAI
+{
 namespace AIPathfinding
 {
 	AIMovementToDestinationRule::AIMovementToDestinationRule(std::shared_ptr<AINodeStorage> nodeStorage)
@@ -37,7 +39,7 @@ namespace AIPathfinding
 
 		if(blocker == BlockingReason::SOURCE_GUARDED && nodeStorage->getAINode(source.node)->actor->allowBattle)
 		{
-#if PATHFINDER_TRACE_LEVEL >= 1
+#if NKAI_PATHFINDER_TRACE_LEVEL >= 1
 			logAi->trace(
 				"Bypass src guard while moving from %s to %s",
 				source.coord.toString(),
@@ -48,4 +50,6 @@ namespace AIPathfinding
 
 		destination.blocked = true;
 	}
+}
+
 }

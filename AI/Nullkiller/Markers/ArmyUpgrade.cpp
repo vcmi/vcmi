@@ -13,6 +13,9 @@
 #include "../Engine/Nullkiller.h"
 #include "../AIUtility.h"
 
+namespace NKAI
+{
+
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<AIGateway> ai;
 
@@ -33,4 +36,6 @@ bool ArmyUpgrade::operator==(const ArmyUpgrade & other) const
 std::string ArmyUpgrade::toString() const
 {
 	return "Army upgrade at " + upgrader->getObjectName() + upgrader->visitablePos().toString();
+}
+
 }

@@ -3,7 +3,7 @@
 #  find_package(TBB
 #    [REQUIRED]             # Fail with error if TBB is not found
 #    )                      #
-# Once done, this will define 
+# Once done, this will define
 #
 #  TBB_FOUND - system has TBB
 #  TBB_INCLUDE_DIRS - the TBB include directories
@@ -67,38 +67,29 @@
 #=============================================================================
 #  FindTBB helper functions and macros
 #
-message("** Looking for TBB...")
 
 # Use TBBConfig.cmake if possible.
-set(_tbb_find_quiet)
 
+set(_tbb_find_quiet)
 if (TBB_FIND_QUIETLY)
   set(_tbb_find_quiet QUIET)
 endif ()
-
 set(_tbb_find_components)
 set(_tbb_find_optional_components)
-
 foreach (_tbb_find_component IN LISTS TBB_FIND_COMPONENTS)
   if (TBB_FIND_REQUIRED_${_tbb_find_component})
-	list(APPEND _tbb_find_components "${_tbb_find_component}")
+    list(APPEND _tbb_find_components "${_tbb_find_component}")
   else ()
-	list(APPEND _tbb_find_optional_components "${_tbb_find_component}")
+    list(APPEND _tbb_find_optional_components "${_tbb_find_component}")
   endif ()
 endforeach ()
-
 unset(_tbb_find_component)
-
 find_package(TBB CONFIG ${_tbb_find_quiet}
   COMPONENTS ${_tbb_find_components}
   OPTIONAL_COMPONENTS ${_tbb_find_optional_components})
-  
 unset(_tbb_find_quiet)
 unset(_tbb_find_components)
 unset(_tbb_find_optional_components)
-
-set(TBB_LIBRARIES ${TBB_IMPORTED_TARGETS})
-
 if (TBB_FOUND)
   return ()
 endif ()
@@ -373,7 +364,7 @@ get_debug_names(TBB_LIBRARY_NAMES)
 
 
 find_path(TBB_INCLUDE_DIR
-          NAMES tbb/tbb_stddef.h
+          NAMES tbb/tbb.h
           PATHS ${TBB_INC_SEARCH_PATH})
 
 find_library(TBB_LIBRARY_RELEASE

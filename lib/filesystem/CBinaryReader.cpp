@@ -10,9 +10,12 @@
 #include "StdInc.h"
 #include "CBinaryReader.h"
 
+//FIXME:library file depends on SDL - make cause troubles
 #include <SDL_endian.h>
 #include "CInputStream.h"
 #include "../CGeneralTextHandler.h"
+
+VCMI_LIB_NAMESPACE_BEGIN
 
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 template <typename CData>
@@ -116,3 +119,5 @@ std::string CBinaryReader::getEndOfStreamExceptionMsg(long bytesToRead) const
 
 	return ss.str();
 }
+
+VCMI_LIB_NAMESPACE_END

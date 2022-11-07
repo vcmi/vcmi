@@ -11,17 +11,22 @@
 
 #include "CWindowObject.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
+class CGHeroInstance;
+class CSpell;
+
+VCMI_LIB_NAMESPACE_END
+
 struct SDL_Surface;
 struct SDL_Rect;
 class IImage;
 class CAnimImage;
 class CPicture;
 class CLabel;
-class CGHeroInstance;
 class CGStatusBar;
 class CPlayerInterface;
 class CSpellWindow;
-class CSpell;
 
 /// The spell window
 class CSpellWindow : public CWindowObject

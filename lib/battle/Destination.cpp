@@ -13,6 +13,8 @@
 
 #include "Unit.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 namespace battle
 {
 
@@ -62,3 +64,5 @@ Destination & Destination::operator=(const Destination & other)
 
 
 }
+
+VCMI_LIB_NAMESPACE_END

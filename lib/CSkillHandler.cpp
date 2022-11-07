@@ -22,6 +22,8 @@
 #include "CModHandler.h"
 #include "StringConstants.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 ///CSkill
 CSkill::LevelInfo::LevelInfo()
 {
@@ -281,3 +283,5 @@ std::string CSkillHandler::encodeSkillWithType(const si32 index)
 {
 	return CModHandler::makeFullIdentifier("", "skill", encodeSkill(index));
 }
+
+VCMI_LIB_NAMESPACE_END

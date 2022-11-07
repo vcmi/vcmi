@@ -562,7 +562,7 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 				if(!texts.empty())
 					owner->myInt->showInfoDialog(texts.front());
 				else
-					owner->myInt->showInfoDialog("Unknown problem with this spell, no more information available.");
+					owner->myInt->showInfoDialog(CGI->generaltexth->localizedTexts["adventureMap"]["spellUnknownProblem"].String());
 			}
 		}
 		else //adventure spell

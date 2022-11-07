@@ -11,11 +11,15 @@
 
 #include "MiscWidgets.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
+struct ArtifactLocation;
+
+VCMI_LIB_NAMESPACE_END
+
 class CArtifactsOfHero;
 class CAnimImage;
 class CButton;
-
-struct ArtifactLocation;
 
 class CArtifactHolder
 {

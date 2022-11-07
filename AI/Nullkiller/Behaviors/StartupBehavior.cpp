@@ -20,6 +20,9 @@
 #include "lib/CPathfinder.h"
 #include "../Engine/Nullkiller.h"
 
+namespace NKAI
+{
+
 extern boost::thread_specific_ptr<CCallback> cb;
 extern boost::thread_specific_ptr<AIGateway> ai;
 
@@ -55,7 +58,7 @@ const CGHeroInstance * getNearestHero(const CGTownInstance * town)
 	if(shortestPath.nodes.size() > 1
 		|| shortestPath.turn() != 0
 		|| shortestPath.targetHero->visitablePos().dist2dSQ(town->visitablePos()) > 4
-		|| town->garrisonHero && shortestPath.targetHero == town->garrisonHero.get())
+		|| (town->garrisonHero && shortestPath.targetHero == town->garrisonHero.get()))
 		return nullptr;
 
 	return shortestPath.targetHero;
@@ -76,13 +79,13 @@ bool needToRecruitHero(const CGTownInstance * startupTown)
 
 	for(auto obj : ai->nullkiller->objectClusterizer->getNearbyObjects())
 	{
-		if(obj->ID == Obj::RESOURCE && obj->subID == Res::GOLD
+		if((obj->ID == Obj::RESOURCE && obj->subID == Res::GOLD)
 			|| obj->ID == Obj::TREASURE_CHEST
 			|| obj->ID == Obj::CAMPFIRE
 			|| obj->ID == Obj::WATER_WHEEL)
 		{
 			auto path = paths->getPathInfo(obj->visitablePos());
-			if((path->accessible == CGPathNode::BLOCKVIS || path->accessible == CGPathNode::VISIT) 
+			if((path->accessible == CGPathNode::BLOCKVIS || path->accessible == CGPathNode::VISITABLE) 
 				&& path->reachable())
 			{
 				treasureSourcesCount++;
@@ -162,7 +165,7 @@ Goals::TGoalVec StartupBehavior::decompose() const
 				auto garrisonHeroScore = ai->nullkiller->heroManager->evaluateHero(garrisonHero);
 
 				if(visitingHeroScore > garrisonHeroScore
-					|| ai->nullkiller->heroManager->getHeroRole(garrisonHero) == HeroRole::SCOUT && ai->nullkiller->heroManager->getHeroRole(visitingHero) == HeroRole::MAIN)
+					|| (ai->nullkiller->heroManager->getHeroRole(garrisonHero) == HeroRole::SCOUT && ai->nullkiller->heroManager->getHeroRole(visitingHero) == HeroRole::MAIN))
 				{
 					if(canRecruitHero || ai->nullkiller->armyManager->howManyReinforcementsCanGet(visitingHero, garrisonHero) > 200)
 					{
@@ -220,4 +223,6 @@ Goals::TGoalVec StartupBehavior::decompose() const
 	}
 
 	return tasks;
+}
+
 }

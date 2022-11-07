@@ -1,0 +1,274 @@
+{
+    "version": 2,
+    "configurePresets": [
+        {
+            "name": "release-binary-dir",
+            "hidden": true,
+            "binaryDir": "${sourceDir}/out/build/${presetName}"
+        },
+        {
+            "name": "build-with-conan",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/conan-generated/conan_toolchain.cmake",
+                "FORCE_BUNDLED_MINIZIP": "OFF"
+            }
+        },
+        {
+            "name": "base-release",
+            "inherits": "release-binary-dir",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
+                "PACKAGE_FILE_NAME" : "$env{VCMI_PACKAGE_FILE_NAME}",
+                "PACKAGE_NAME_SUFFIX" : "$env{VCMI_PACKAGE_NAME_SUFFIX}",
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+                "ENABLE_TEST": "OFF"
+            }
+        },
+        {
+            "name": "default-release",
+            "inherits": "base-release",
+            "hidden": true,
+            "generator": "Ninja",
+            "cacheVariables": {
+                "FORCE_BUNDLED_FL": "OFF"
+            }
+        },
+        {
+            "name" : "linux-release",
+            "inherits" : "default-release",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX" : "/usr/local"
+            }
+        },
+        {
+            "name": "linux-clang-release",
+            "displayName": "Clang x86_64-pc-linux-gnu",
+            "description": "VCMI Linux Clang",
+            "inherits": "linux-release",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "/usr/bin/clang",
+                "CMAKE_CXX_COMPILER": "/usr/bin/clang++"
+            }
+        },
+        {
+            "name": "linux-gcc-release",
+            "displayName": "GCC x86_64-pc-linux-gnu",
+            "description": "VCMI Linux GCC",
+            "inherits": "linux-release",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "/usr/bin/gcc",
+                "CMAKE_CXX_COMPILER": "/usr/bin/g++"
+            }
+        },
+        {
+            "name": "windows-msvc-release",
+            "displayName": "Windows x64 RelWithDebInfo",
+            "description": "VCMI RelWithDebInfo build",
+            "inherits": "default-release",
+            "generator": "Visual Studio 17 2022",
+            "architecture": {
+                "value": "x64",
+                "strategy": "set"
+            },
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake",
+                "CMAKE_POLICY_DEFAULT_CMP0091": "NEW",
+                "FORCE_BUNDLED_MINIZIP": "ON"
+            }
+        },
+        {
+            "name": "macos-ninja-release",
+            "displayName": "Ninja release",
+            "description": "VCMI MacOS Ninja",
+            "inherits": "default-release"
+        },
+        {
+            "name": "macos-conan-ninja-release",
+            "displayName": "Ninja+Conan release",
+            "description": "VCMI MacOS Ninja using Conan",
+            "inherits": [
+                "build-with-conan",
+                "default-release"
+            ],
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "macos-arm-conan-ninja-release",
+            "displayName": "Ninja+Conan arm64 release",
+            "description": "VCMI MacOS-arm64 Ninja using Conan",
+            "inherits": "macos-conan-ninja-release"
+        },
+        {
+            "name": "macos-xcode-release",
+            "displayName": "XCode release",
+            "description": "VCMI MacOS Xcode",
+            "inherits": "default-release",
+            "generator": "Xcode"
+        },
+        {
+            "name": "ios-device",
+            "displayName": "Base iOS device",
+            "description": "Base VCMI preset for iOS device",
+            "generator": "Xcode",
+            "binaryDir": "../build-${presetName}",
+            "cacheVariables": {
+                "CMAKE_SYSTEM_NAME": "iOS",
+                "FORCE_BUNDLED_FL": "ON",
+                "FORCE_BUNDLED_MINIZIP": "ON",
+                "ENABLE_EDITOR" : "OFF"
+            }
+        },
+        {
+            "name": "ios-simulator",
+            "displayName": "Base iOS simulator",
+            "description": "Base VCMI preset for iOS simulator",
+            "inherits": "ios-device",
+            "cacheVariables": {
+                "CMAKE_OSX_SYSROOT": "iphonesimulator"
+            }
+        },
+        {
+            "name": "ios-device-conan",
+            "displayName": "Base iOS device using Conan",
+            "description": "Base VCMI preset for iOS device using Conan",
+            "inherits": [
+                "build-with-conan",
+                "ios-device"
+            ]
+        },
+        {
+            "name": "base-ios-release",
+            "displayName": "Base iOS release",
+            "description": "Base VCMI preset for iOS release",
+            "inherits": "base-release",
+            "hidden": true,
+            "cacheVariables": {
+                "BUNDLE_IDENTIFIER_PREFIX": "eu.vcmi"
+            }
+        },
+        {
+            "name": "ios-release-conan",
+            "displayName": "iOS+Conan release",
+            "description": "VCMI iOS release using Conan",
+            "inherits": [
+                "base-ios-release",
+                "ios-device-conan"
+            ]
+        },
+        {
+            "name": "ios-release-legacy",
+            "displayName": "iOS release using legacy dependencies",
+            "description": "VCMI iOS release using legacy dependencies",
+            "inherits": [
+                "base-ios-release",
+                "ios-device"
+            ],
+            "cacheVariables": {
+                "CMAKE_PREFIX_PATH": "${sourceDir}/build/iphoneos"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "default-release",
+            "hidden": true,
+            "configuration": "RelWithDebInfo"
+        },
+        {
+            "name": "linux-clang-release",
+            "configurePreset": "linux-clang-release",
+            "inherits": "default-release"
+        },
+        {
+            "name": "linux-gcc-release",
+            "configurePreset": "linux-gcc-release",
+            "inherits": "default-release"
+        },
+        {
+            "name": "macos-xcode-release",
+            "configurePreset": "macos-xcode-release",
+            "inherits": "default-release"
+        },
+        {
+            "name": "macos-ninja-release",
+            "configurePreset": "macos-ninja-release",
+            "inherits": "default-release"
+        },
+        {
+            "name": "macos-conan-ninja-release",
+            "configurePreset": "macos-conan-ninja-release",
+            "inherits": "default-release"
+        },
+        {
+            "name": "macos-arm-conan-ninja-release",
+            "configurePreset": "macos-arm-conan-ninja-release",
+            "inherits": "default-release"
+        },
+        {
+            "name": "windows-msvc-release",
+            "configurePreset": "windows-msvc-release",
+            "inherits": "default-release",
+            "configuration": "Release"
+        },
+        {
+            "name": "windows-msvc-relwithdebinfo",
+            "configurePreset": "windows-msvc-release",
+            "inherits": "default-release"
+        },
+        {
+            "name": "ios-release-conan",
+            "configurePreset": "ios-release-conan",
+            "inherits": "default-release",
+            "configuration": "Release",
+            "targets": ["vcmiclient"],
+            "nativeToolOptions": [
+                "CODE_SIGNING_ALLOWED_FOR_APPS=NO"
+            ]
+        },
+        {
+            "name": "ios-release-legacy",
+            "configurePreset": "ios-release-legacy",
+            "inherits": "ios-release-conan"
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "default-release",
+            "hidden": true,
+            "output": {
+                "shortProgress": true,
+                "verbosity": "verbose"
+            }
+        },
+        {
+          "name": "linux-clang-release",
+          "configurePreset": "linux-clang-release",
+          "inherits": "default-release"
+        },
+        {
+            "name": "linux-gcc-release",
+            "configurePreset": "linux-gcc-release",
+            "inherits": "default-release"
+        },
+        {
+            "name": "macos-xcode-release",
+            "configurePreset": "macos-xcode-release",
+            "inherits": "default-release"
+        },
+        {
+            "name": "macos-ninja-release",
+            "configurePreset": "macos-ninja-release",
+            "inherits": "default-release"
+        },
+        {
+            "name": "windows-msvc-release",
+            "configurePreset": "windows-msvc-release",
+            "inherits": "default-release"
+        }
+    ]
+}

@@ -16,7 +16,9 @@
 #include "../../lib/CStack.h"
 #include "../../lib/ScriptHandler.h"
 
+#if SCRIPTING_ENABLED
 using scripting::Pool;
+#endif
 
 void actualizeEffect(TBonusListPtr target, const Bonus & ef)
 {
@@ -197,6 +199,21 @@ void StackWithBonuses::removeUnitBonus(const CSelector & selector)
 	vstd::erase_if(bonusesToUpdate, [&](const Bonus & b){return selector(&b);});
 }
 
+std::string StackWithBonuses::getDescription() const
+{
+	std::ostringstream oss;
+	oss << unitOwner().getStr();
+	oss << " battle stack [" << unitId() << "]: " << getCount() << " of ";
+	if(type)
+		oss << type->namePl;
+	else
+		oss << "[UNDEFINED TYPE]";
+
+	oss << " from slot " << slot;
+
+	return oss.str();
+}
+
 void StackWithBonuses::spendMana(ServerCallback * server, const int spellCost) const
 {
 	//TODO: evaluate cast use
@@ -217,7 +234,9 @@ HypotheticBattle::HypotheticBattle(const Environment * ENV, Subject realBattle)
 	localEnvironment.reset(new HypotheticEnvironment(this, env));
 	serverCallback.reset(new HypotheticServerCallback(this));
 
+#if SCRIPTING_ENABLED
 	pool.reset(new scripting::PoolImpl(localEnvironment.get(), serverCallback.get()));
+#endif
 }
 
 bool HypotheticBattle::unitHasAmmoCart(const battle::Unit * unit) const
@@ -280,7 +299,6 @@ int32_t HypotheticBattle::getActiveStackID() const
 void HypotheticBattle::nextRound(int32_t roundNr)
 {
 	//TODO:HypotheticBattle::nextRound
-
 	for(auto unit : battleAliveUnits())
 	{
 		auto forUpdate = getForUpdate(unit->unitId());
@@ -420,10 +438,12 @@ int64_t HypotheticBattle::getTreeVersion() const
 	return getBattleNode()->getTreeVersion() + bonusTreeVersion;
 }
 
+#if SCRIPTING_ENABLED
 Pool * HypotheticBattle::getContextPool() const
 {
 	return pool.get();
 }
+#endif
 
 ServerCallback * HypotheticBattle::getServerCallback()
 {

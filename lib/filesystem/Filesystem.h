@@ -13,6 +13,8 @@
 #include "ISimpleResourceLoader.h"
 #include "ResourceID.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CFilesystemList;
 class JsonNode;
 
@@ -87,6 +89,14 @@ public:
 	 * @param loader resource loader to add
 	 */
 	static void addFilesystem(const std::string & parent, const std::string & identifier, ISimpleResourceLoader * loader);
+	
+	/**
+	 * @brief removeFilesystem removes previously added filesystem from global resouce holder
+	 * @param parent parent loader containing filesystem
+	 * @param identifier name of this loader
+	 * @return if filesystem was successfully removed
+	 */
+	static bool removeFilesystem(const std::string & parent, const std::string & identifier);
 
 	/**
 	 * @brief createModFileSystem - creates filesystem out of config file
@@ -105,3 +115,5 @@ private:
 	CResourceHandler() {};
 	std::unique_ptr<ISimpleResourceLoader> rootLoader;
 };
+
+VCMI_LIB_NAMESPACE_END

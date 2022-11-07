@@ -14,7 +14,11 @@
 
 #include "../../lib/battle/Destination.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CSpell;
+
+VCMI_LIB_NAMESPACE_END
 
 class PossibleSpellcast
 {

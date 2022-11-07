@@ -15,6 +15,8 @@
 #include "../int3.h"
 #include "../HeroBonus.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class CGHeroInstance;
 class IGameCallback;
 class CGObjectInstance;
@@ -123,7 +125,7 @@ public:
 	/// Index of object in map's list of objects
 	ObjectInstanceID id;
 	/// Defines appearance of object on map (animation, blocked tiles, blit order, etc)
-	ObjectTemplate appearance;
+	std::shared_ptr<const ObjectTemplate> appearance;
 	/// If true hero can visit this object only from neighbouring tiles and can't stand on this object
 	bool blockVisit;
 
@@ -159,21 +161,9 @@ public:
 	std::set<int3> getBlockedOffsets() const; //returns set of relative positions blocked by this object
 	bool isVisitable() const; //returns true if object is visitable
 
-	bool isTile2Terrain() const
-	{
-		return ID.num == Obj::CLOVER_FIELD
-			|| ID.num == Obj::CURSED_GROUND1
-			|| ID.num == Obj::CURSED_GROUND2
-			|| ID.num == Obj::EVIL_FOG
-			|| ID.num == Obj::FAVORABLE_WINDS
-			|| ID.num == Obj::FIERY_FIELDS
-			|| ID.num == Obj::HOLY_GROUNDS
-			|| ID.num == Obj::LUCID_POOLS
-			|| ID.num == Obj::MAGIC_CLOUDS
-			|| ID.num == Obj::MAGIC_PLAINS1
-			|| ID.num == Obj::MAGIC_PLAINS2
-			|| ID.num == Obj::ROCKLANDS;
-	}
+	virtual BattleField getBattlefield() const;
+
+	virtual bool isTile2Terrain() const { return false; }
 
 	boost::optional<std::string> getAmbientSound() const;
 	boost::optional<std::string> getVisitSound() const;
@@ -209,17 +199,14 @@ public:
 	void setProperty(ui8 what, ui32 val) override final;
 
 	virtual void afterAddToMap(CMap * map);
+	virtual void afterRemoveFromMap(CMap * map);
 
 	///Entry point of binary (de-)serialization
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		if(version >= 759)
-		{
-			h & instanceName;
-			h & typeName;
-			h & subTypeName;
-		}
-
+		h & instanceName;
+		h & typeName;
+		h & subTypeName;
 		h & pos;
 		h & ID;
 		h & subID;
@@ -270,3 +257,5 @@ public:
 		h & resVals;
 	}
 };
+
+VCMI_LIB_NAMESPACE_END

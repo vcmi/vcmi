@@ -19,22 +19,30 @@
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/logging/CBasicLogConfigurator.h"
 
+#include "updatedialog_moc.h"
+
 void MainWindow::load()
 {
 	// Set current working dir to executable folder.
 	// This is important on Mac for relative paths to work inside DMG.
 	QDir::setCurrent(QApplication::applicationDirPath());
 
+#ifndef VCMI_IOS
 	console = new CConsoleHandler();
-	CBasicLogConfigurator logConfig(VCMIDirs::get().userCachePath() / "VCMI_Launcher_log.txt", console);
+#endif
+	CBasicLogConfigurator logConfig(VCMIDirs::get().userLogsPath() / "VCMI_Launcher_log.txt", console);
 	logConfig.configureDefault();
 
 	CResourceHandler::initialize();
 	CResourceHandler::load("config/filesystem.json");
 
+#ifdef Q_OS_IOS
+	QDir::addSearchPath("icons", pathToQString(VCMIDirs::get().binaryPath() / "icons"));
+#else
 	for(auto & string : VCMIDirs::get().dataPaths())
 		QDir::addSearchPath("icons", pathToQString(string / "launcher" / "icons"));
 	QDir::addSearchPath("icons", pathToQString(VCMIDirs::get().userDataPath() / "launcher" / "icons"));
+#endif
 
 	settings.init();
 }
@@ -76,10 +84,22 @@ MainWindow::MainWindow(QWidget * parent)
 		ui->tabSelectList->setMaximumWidth(width + 4);
 	}
 	ui->tabListWidget->setCurrentIndex(0);
-	ui->settingsView->setDisplayList();
 
-	connect(ui->tabSelectList, SIGNAL(currentRowChanged(int)),
-		ui->tabListWidget, SLOT(setCurrentIndex(int)));
+	ui->settingsView->isExtraResolutionsModEnabled = ui->stackedWidgetPage2->isExtraResolutionsModEnabled();
+	ui->settingsView->setDisplayList();
+	connect(ui->stackedWidgetPage2, &CModListView::extraResolutionsEnabledChanged,
+		ui->settingsView, &CSettingsView::fillValidResolutions);
+
+	connect(ui->tabSelectList, &QListWidget::currentRowChanged, [this](int i) {
+#ifdef Q_OS_IOS
+		if(auto widget = qApp->focusWidget())
+			widget->clearFocus();
+#endif
+		ui->tabListWidget->setCurrentIndex(i);
+	});
+
+	if(settings["launcher"]["updateOnStartup"].Bool())
+		UpdateDialog::showUpdateDialog(false);
 }
 
 MainWindow::~MainWindow()
@@ -94,15 +114,20 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_startGameButton_clicked()
 {
+#ifdef Q_OS_IOS
+	qApp->quit();
+#else
 	startExecutable(pathToQString(VCMIDirs::get().clientPath()));
+#endif
 }
 
+#ifndef Q_OS_IOS
 void MainWindow::startExecutable(QString name)
 {
 	QProcess process;
 
 	// Start the executable
-	if(process.startDetached(name))
+	if(process.startDetached(name, {}))
 	{
 		close(); // exit launcher
 	}
@@ -114,6 +139,6 @@ void MainWindow::startExecutable(QString name)
 		                      "Reason: " + process.errorString(),
 		                      QMessageBox::Ok,
 		                      QMessageBox::Ok);
-		return;
 	}
 }
+#endif

@@ -13,6 +13,8 @@
 #include "../Goals/CGoal.h"
 #include "../AIUtility.h"
 
+namespace NKAI
+{
 namespace Goals
 {
 	class RecruitHeroBehavior : public CGoal<RecruitHeroBehavior>
@@ -31,4 +33,6 @@ namespace Goals
 			return true;
 		}
 	};
+}
+
 }

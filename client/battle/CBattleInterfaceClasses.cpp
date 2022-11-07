@@ -406,15 +406,22 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult & br, CPlayerInterfa
 	exit = std::make_shared<CButton>(Point(384, 505), "iok6432.def", std::make_pair("", ""), [&](){ bExitf();}, SDLK_RETURN);
 	exit->setBorderColor(Colors::METALLIC_GOLD);
 
-	if(br.winner==0) //attacker won
+	if(br.winner == 0) //attacker won
 	{
 		labels.push_back(std::make_shared<CLabel>(59, 124, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[410]));
-		labels.push_back(std::make_shared<CLabel>(408, 124, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[411]));
 	}
-	else //if(br.winner==1)
+	else
 	{
 		labels.push_back(std::make_shared<CLabel>(59, 124, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[411]));
+	}
+
+	if(br.winner == 1)
+	{
 		labels.push_back(std::make_shared<CLabel>(412, 124, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[410]));
+	}
+	else
+	{
+		labels.push_back(std::make_shared<CLabel>(408, 124, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[411]));
 	}
 
 	labels.push_back(std::make_shared<CLabel>(232, 302, FONT_BIG, CENTER, Colors::YELLOW,  CGI->generaltexth->allTexts[407]));

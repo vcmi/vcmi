@@ -9,11 +9,17 @@
  */
 #pragma once
 
+#include "StdInc.h"
+
 #include <QVariantMap>
 #include <QVariant>
 #include <QVector>
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class JsonNode;
+
+VCMI_LIB_NAMESPACE_END
 
 namespace ModStatus
 {
@@ -49,6 +55,12 @@ public:
 	bool isUpdateable() const;
 	// installed
 	bool isInstalled() const;
+	// vcmi essential files
+	bool isEssential() const;
+	// checks if verison is compatible with vcmi
+	bool isCompatible() const;
+	// returns if has any data
+	bool isValid() const;
 
 	// see ModStatus enum
 	int getModStatus() const;
@@ -74,6 +86,7 @@ class CModList
 
 public:
 	virtual void resetRepositories();
+	virtual void reloadRepositories();
 	virtual void addRepository(QVariantMap data);
 	virtual void setLocalModList(QVariantMap data);
 	virtual void setModSettings(QVariant data);

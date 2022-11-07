@@ -17,9 +17,13 @@
 #include "../../../lib/CTownHandler.h"
 #include "../../../lib/CBuildingHandler.h"
 
+namespace NKAI
+{
+
 class DLL_EXPORT IHeroManager //: public: IAbstractManager
 {
 public:
+	virtual ~IHeroManager() = default;
 	virtual const std::map<HeroPtr, HeroRole> & getHeroRoles() const = 0;
 	virtual int selectBestSkill(const HeroPtr & hero, const std::vector<SecondarySkill> & skills) const = 0;
 	virtual HeroRole getHeroRole(const HeroPtr & hero) const = 0;
@@ -31,6 +35,7 @@ public:
 class DLL_EXPORT ISecondarySkillRule
 {
 public:
+	virtual ~ISecondarySkillRule() = default;
 	virtual void evaluateScore(const CGHeroInstance * hero, SecondarySkill skill, float & score) const = 0;
 };
 
@@ -52,11 +57,10 @@ private:
 	static SecondarySkillEvaluator scountSkillsScores;
 
 	CCallback * cb; //this is enough, but we downcast from CCallback
-	const Nullkiller * ai;
 	std::map<HeroPtr, HeroRole> heroRoles;
 
 public:
-	HeroManager(CCallback * CB, const Nullkiller * ai) : cb(CB), ai(ai) {}
+	HeroManager(CCallback * CB, const Nullkiller * ai) : cb(CB) {}
 	const std::map<HeroPtr, HeroRole> & getHeroRoles() const override;
 	HeroRole getHeroRole(const HeroPtr & hero) const override;
 	int selectBestSkill(const HeroPtr & hero, const std::vector<SecondarySkill> & skills) const override;
@@ -103,3 +107,5 @@ private:
 public:
 	void evaluateScore(const CGHeroInstance * hero, SecondarySkill skill, float & score) const override;
 };
+
+}

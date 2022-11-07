@@ -10,6 +10,8 @@
 
 #pragma once
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class PlayerColor;
 class TeamID;
 class IBonusBearer;
@@ -24,7 +26,4 @@ public:
 	virtual int getResourceAmount(int type) const = 0;
 };
 
-
-
-
-
+VCMI_LIB_NAMESPACE_END
