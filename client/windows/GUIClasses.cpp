@@ -1083,7 +1083,6 @@ void CExchangeController::moveArtifact(
 	const CGHeroInstance * target,
 	ArtifactPosition srcPosition)
 {
-	auto artifact = source->getArt(srcPosition);
 	auto srcLocation = ArtifactLocation(source, srcPosition);
 	auto dstLocation = ArtifactLocation(target,
 	ArtifactUtils::getArtifactDstPosition(source->getArt(srcPosition), target, target->bearerType()));
