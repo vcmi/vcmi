@@ -117,7 +117,7 @@
        </property>
        <property name="icon">
         <iconset>
-         <normaloff>icons:menu-settings.png</normaloff>icons:menu-settings.png</iconset>
+         <normaloff>icons:menu-lobby.png</normaloff>icons:menu-lobby.png</iconset>
 		</property>
       </item>
      </widget>
