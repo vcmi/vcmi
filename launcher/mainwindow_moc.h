@@ -10,6 +10,7 @@
 #pragma once
 #include <QMainWindow>
 #include <QStringList>
+#include "main.h"
 
 namespace Ui
 {

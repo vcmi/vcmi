@@ -22,6 +22,9 @@
 #include "updatedialog_moc.h"
 #include "main.h"
 
+int __argc;
+char ** __argv;
+
 void MainWindow::load()
 {
 	// Set current working dir to executable folder.
