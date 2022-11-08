@@ -122,7 +122,7 @@ public:
 
 	std::shared_ptr<IImage> getImage(size_t frame, size_t group=0, bool verbose=true) const;
 
-	void exportBitmaps(const boost::filesystem::path & path) const;
+	void exportBitmaps(const boost::filesystem::path & path, bool prependResourceName = false) const;
 
 	//all available frames
 	void load  ();

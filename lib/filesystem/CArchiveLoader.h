@@ -64,6 +64,10 @@ public:
 	std::string getMountPoint() const override;
 	void updateFilteredFiles(std::function<bool(const std::string &)> filter) const override {}
 	std::unordered_set<ResourceID> getFilteredFiles(std::function<bool(const ResourceID &)> filter) const override;
+	/** Extracts one archive entry to the specified subfolder. Used for Video and Sound */
+	void extractToFolder(std::string outputSubFolder, CFileInputStream & fileStream, ArchiveEntry entry);
+	/** Extracts one archive entry to the specified subfolder. Used for Images, Sprites, etc */
+	void extractToFolder(std::string outputSubFolder, const std::string &mountPoint, ArchiveEntry entry);
 
 private:
 	/**
@@ -95,5 +99,8 @@ private:
 	/** Holds all entries of the archive file. An entry can be accessed via the entry name. **/
 	std::unordered_map<ResourceID, ArchiveEntry> entries;
 };
+
+/** Constructs the file path for the extracted file. Creates the subfolder hierarchy aswell **/
+boost::filesystem::path createExtractedFilePath(std::string outputSubFolder, std::string entryName);
 
 VCMI_LIB_NAMESPACE_END

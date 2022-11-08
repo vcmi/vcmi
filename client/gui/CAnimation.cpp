@@ -951,7 +951,7 @@ void CAnimation::initFromJson(const JsonNode & config)
 	}
 }
 
-void CAnimation::exportBitmaps(const boost::filesystem::path& path) const
+void CAnimation::exportBitmaps(const boost::filesystem::path& path, bool prependResourceName) const
 {
 	if(images.empty())
 	{
@@ -959,7 +959,7 @@ void CAnimation::exportBitmaps(const boost::filesystem::path& path) const
 		return;
 	}
 
-	boost::filesystem::path actualPath = path / "SPRITES" / name;
+	boost::filesystem::path actualPath = path / "Sprites" / name;
 	boost::filesystem::create_directories(actualPath);
 
 	size_t counter = 0;
@@ -974,9 +974,13 @@ void CAnimation::exportBitmaps(const boost::filesystem::path& path) const
 			const auto img = imagePair.second;
 
 			boost::format fmt("%d_%d.bmp");
-			fmt % group % frame;
+			fmt% group% frame;
+			std::string fileName = fmt.str();
+			if (prependResourceName)
+				fileName = name + "_" + fileName;
 
-			img->exportBitmap(actualPath / fmt.str());
+			img->exportBitmap(actualPath / fileName);
+
 			counter++;
 		}
 	}

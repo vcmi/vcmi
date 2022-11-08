@@ -59,6 +59,7 @@
 #include "../lib/serializer/Connection.h"
 #include "CServerHandler.h"
 #include "gui/NotificationHandler.h"
+#include "resourceExtractor/ResourceConverter.h"
 
 #include <boost/asio.hpp>
 
@@ -253,6 +254,7 @@ int main(int argc, char * argv[])
 
 	// Init filesystem and settings
 	preinitDLL(::console);
+
 	settings.init();
 	Settings session = settings.write["session"];
 	auto setSettingBool = [](std::string key, std::string arg) {
@@ -463,6 +465,8 @@ int main(int argc, char * argv[])
 		pomtime.getDiff();
 		CCS->curh = new CCursorHandler();
 		graphics = new Graphics(); // should be before curh->init()
+
+		ConvertOriginalResourceFiles();
 
 		CCS->curh->initCursor();
 		logGlobal->info("Screen handler: %d ms", pomtime.getDiff());
