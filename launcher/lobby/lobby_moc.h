@@ -130,7 +130,6 @@ private:
 	QString hostSession;
 	QString session;
 	QString username;
-	bool startGame = false;
 	QStringList gameArgs;
 
 private:

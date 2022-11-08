@@ -217,11 +217,7 @@ void Lobby::serverCommand(const ServerCommand & command) try
 		gameArgs << "--lobby-address" << ui->hostEdit->text();
 		gameArgs << "--lobby-port" << ui->portEdit->text();
 		gameArgs << "--uuid" << args[0];
-		qobject_cast<MainWindow *>(qApp->activeWindow())->startGame(gameArgs);
-		//on_startGameButton_clicked
-		//node["names"].Vector().clear();
-		//node["names"].Vector().pushBack(username.toStdString());
-		
+		qobject_cast<MainWindow *>(qApp->activeWindow())->startGame(gameArgs);		
 		break;
 		}
 
