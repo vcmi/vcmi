@@ -119,6 +119,10 @@ Lobby::Lobby(QWidget *parent) :
 	connect(&socketLobby, SIGNAL(text(QString)), this, SLOT(chatMessage(QString)));
 	connect(&socketLobby, SIGNAL(receive(QString)), this, SLOT(dispatchMessage(QString)));
 	connect(&socketLobby, SIGNAL(disconnect()), this, SLOT(onDisconnected()));
+	
+	ui->hostEdit->setText(QString::fromStdString(settings["launcher"]["lobbyUrl"].String()));
+	ui->portEdit->setText(QString::number(settings["launcher"]["lobbyPort"].Integer()));
+	ui->userEdit->setText(QString::fromStdString(settings["launcher"]["lobbyUsername"].String()));
 }
 
 Lobby::~Lobby()
@@ -209,17 +213,11 @@ void Lobby::serverCommand(const ServerCommand & command) try
 	case START: {
 		protocolAssert(args.size() == 1);
 		//actually start game
-		//Settings node = settings.write["server"];
-		gameArguments.clear();
-		gameArguments << "--lobby";
-		gameArguments << ui->hostEdit->text();
-		gameArguments << ui->portEdit->text();
-		gameArguments << args[0];
-		/*node["lobby"].Bool() = true;
-		node["server"].String() = ui->hostEdit->text().toStdString();
-		node["serverport"].Integer() = ui->portEdit->text().toInt();
-		node["uuid"].String() = args[0].toStdString();*/
-		startGame = true;
+		gameArgs << "--lobby";
+		gameArgs << "--lobby-address" << ui->hostEdit->text();
+		gameArgs << "--lobby-port" << ui->portEdit->text();
+		gameArgs << "--uuid" << args[0];
+		qobject_cast<MainWindow *>(qApp->activeWindow())->startGame(gameArgs);
 		//on_startGameButton_clicked
 		//node["names"].Vector().clear();
 		//node["names"].Vector().pushBack(username.toStdString());
@@ -229,9 +227,9 @@ void Lobby::serverCommand(const ServerCommand & command) try
 
 	case HOST: {
 		protocolAssert(args.size() == 2);
-		Settings node = settings.write["server"]["host"];
-		node["uuid"].String() = args[0].toStdString();
-		node["connections"].Integer() = args[1].toInt();
+		gameArgs << "--lobby-host";
+		gameArgs << "--lobby-uuid" << args[0];
+		gameArgs << "--lobby-connections" << args[1];
 		break;
 		}
 
@@ -267,9 +265,6 @@ void Lobby::dispatchMessage(QString txt) try
 		ServerCommand cmd(ctype, parseArgs);
 		serverCommand(cmd);
 	}
-	
-	if(startGame)
-		qobject_cast<MainWindow *>(qApp->activeWindow())->startGame(gameArguments);
 }
 catch(const ProtocolError & e)
 {

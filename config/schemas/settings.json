@@ -253,7 +253,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default": {},
-			"required" : [ "server", "port", "serverport", "localInformation", "playerAI", "friendlyAI","neutralAI", "enemyAI", "reconnect", "uuid", "names", "lobby", "host" ],
+			"required" : [ "server", "port", "localInformation", "playerAI", "friendlyAI","neutralAI", "enemyAI", "reconnect", "uuid", "names" ],
 			"properties" : {
 				"server" : {
 					"type":"string",
@@ -262,10 +262,6 @@
 				"port" : {
 					"type" : "number",
 					"default" : 3030
-				},
-				"serverport" : {
-					"type" : "number",
-					"default" : 5002
 				},
 				"localInformation" : {
 					"type" : "number",
@@ -295,20 +291,6 @@
 					"type" : "string",
 					"default" : ""
 				},
-				"host" : {
-					"type" : "object",
-					"additionalProperties" : false,
-					"default" : 
-					{
-						"host" : true
-					},
-					"required" : [ "host", "uuid", "connections" ],
-					"properties" : {
-						"uuid" : { "type" : "string" },
-						"connections" : { "type" : "number" },
-						"host" : {"type" : "boolean", "default" : false}
-					}
-				},
 				"names" : {
 					"type" : "array",
 					"default" : [],
@@ -317,10 +299,6 @@
 						"type" : "string",
 						"default" : ""
 					}
-				},
-				"lobby" : {
-					"type" : "boolean",
-					"default" : false
 				}
 			}
 		},
@@ -435,7 +413,7 @@
 				},
 				"lobbyUrl" : {
 					"type" : "string",
-					"default" : "127.0.0.1"
+					"default" : "beholder.vcmi.eu"
 				},
 				"lobbyPort" : {
 					"type" : "number",

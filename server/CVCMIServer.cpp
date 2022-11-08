@@ -170,11 +170,9 @@ void CVCMIServer::run()
 #endif
 
 		startAsyncAccept();
-		if(!remoteConnectionsThread && !settings["server"]["lobby"].isNull() && settings["server"]["lobby"].Bool())
+		if(!remoteConnectionsThread && cmdLineOptions.count("lobby"))
 		{
 			remoteConnectionsThread = vstd::make_unique<boost::thread>(&CVCMIServer::establishRemoteConnections, this);
-			Settings node = settings.write["server"]["lobby"];
-			node->Bool() = false;
 		}
 
 #if defined(VCMI_ANDROID)
@@ -203,10 +201,10 @@ void CVCMIServer::run()
 
 void CVCMIServer::establishRemoteConnections()
 {
-	uuid = settings["server"]["host"]["uuid"].String();
-	int numOfConnections = settings["server"]["host"]["connections"].Integer();
-	auto address = settings["server"]["server"].String();
-	int port = settings["server"]["serverport"].Integer();
+	uuid = cmdLineOptions["lobby-uuid"].as<std::string>();
+	int numOfConnections = cmdLineOptions["connections"].as<ui8>();
+	auto address = cmdLineOptions["lobby"].as<std::string>();
+	int port = cmdLineOptions["lobby-port"].as<ui16>();
 	
 	for(int i = 0; i < numOfConnections; ++i)
 		connectToRemote(address, port);
@@ -1001,7 +999,11 @@ static void handleCommandOptions(int argc, char * argv[], boost::program_options
 	("uuid", po::value<std::string>(), "")
 	("enable-shm-uuid", "use UUID for shared memory identifier")
 	("enable-shm", "enable usage of shared memory")
-	("port", po::value<ui16>(), "port at which server will listen to connections from client");
+	("port", po::value<ui16>(), "port at which server will listen to connections from client")
+	("lobby", po::value<std::string>(), "address to remote lobby")
+	("lobby-port", po::value<ui16>(), "port at which server connect to remote lobby")
+	("lobby-uuid", po::value<std::string>(), "")
+	("connections", po::value<ui8>(), "amount of connections to remote lobby");
 
 	if(argc > 1)
 	{

@@ -202,7 +202,13 @@ int main(int argc, char * argv[])
 		("serverport", po::value<si64>(), "override port specified in config file")
 		("saveprefix", po::value<std::string>(), "prefix for auto save files")
 		("savefrequency", po::value<si64>(), "limit auto save creation to each N days")
-		("lobby", po::value<std::array<std::string, 3>>(), "parameters to connect ro remote lobby session");
+		("lobby", "parameters address, port, uuid to connect ro remote lobby session")
+		("lobby-address", po::value<std::string>(), "address to remote lobby")
+		("lobby-port", po::value<ui16>(), "port to remote lobby")
+		("lobby-host", "if this client hosts session")
+		("lobby-uuid", po::value<std::string>(), "uuid to the server")
+		("lobby-connections", po::value<std::string>(), "connections of server")
+		("uuid", po::value<std::string>(), "uuid for the client");
 
 	if(argc > 1)
 	{
@@ -485,14 +491,20 @@ int main(int argc, char * argv[])
 	session["oneGoodAI"].Bool() = vm.count("oneGoodAI");
 	session["aiSolo"].Bool() = false;
 	
-	session["lobby"] = false;
+	session["lobby"].Bool() = false;
 	if(vm.count("lobby"))
 	{
-		auto lobbyParams = vc["lobby"].as<std::array<std::string, 3>>();
 		session["lobby"].Bool() = true;
-		session["address"].String() = lobbyParams[0];
-		session["port"].Integer() = std::stoi(lobbyParams[1]);
-		session["uuid"].String() = lobbyParams[2];
+		session["host"].Bool() = false;
+		session["address"].String() = vm["lobby-address"].as<std::string>();
+		CSH->uuid = vm["uuid"].as<std::string>();
+		session["port"].Integer() = vm["lobby-port"].as<ui16>();
+		if(vm.count("lobby-host"))
+		{
+			session["host"].Bool() = true;
+			session["hostConnections"].String() = vm["lobby-connections"].as<std::string>();
+			session["hostUuid"].String() = vm["lobby-uuid"].as<std::string>();
+		}
 	}
 
 	if(vm.count("testmap"))

@@ -117,9 +117,9 @@ extern std::string NAME;
 CServerHandler::CServerHandler()
 	: state(EClientState::NONE), mx(std::make_shared<boost::recursive_mutex>()), client(nullptr), loadMode(0), campaignStateToSend(nullptr), campaignServerRestartLock(false)
 {
-	if(settings["server"]["uuid"].isNull() || settings["server"]["uuid"].String().empty())
-		uuid = boost::uuids::to_string(boost::uuids::random_generator()());
-	else
+	uuid = boost::uuids::to_string(boost::uuids::random_generator()());
+	//read from file to restore last session
+	if(!settings["server"]["uuid"].isNull() && !settings["server"]["uuid"].String().empty())
 		uuid = settings["server"]["uuid"].String();
 	applier = std::make_shared<CApplier<CBaseForLobbyApply>>();
 	registerTypesLobbyPacks(*applier);
@@ -262,8 +262,8 @@ void CServerHandler::justConnectToServer(const std::string & addr, const ui16 po
 		{
 			logNetwork->info("Establishing connection...");
 			c = std::make_shared<CConnection>(
-					addr.size() ? addr : settings["server"]["server"].String(),
-					port ? port : getDefaultPort(),
+					addr.size() ? addr : getHostAddress(),
+					port ? port : getHostPort(),
 					NAME, uuid);
 		}
 		catch(...)
@@ -281,12 +281,12 @@ void CServerHandler::justConnectToServer(const std::string & addr, const ui16 po
 
 	c->handler = std::make_shared<boost::thread>(&CServerHandler::threadHandleConnection, this);
 
-	if(!addr.empty() && addr != localhostAddress)
+	if(!addr.empty() && addr != getHostAddress())
 	{
 		Settings serverAddress = settings.write["server"]["server"];
 		serverAddress->String() = addr;
 	}
-	if(port && port != getDefaultPort())
+	if(port && port != getHostPort())
 	{
 		Settings serverPort = settings.write["server"]["port"];
 		serverPort->Integer() = port;
@@ -367,6 +367,28 @@ ui16 CServerHandler::getDefaultPort()
 std::string CServerHandler::getDefaultPortStr()
 {
 	return boost::lexical_cast<std::string>(getDefaultPort());
+}
+
+std::string CServerHandler::getHostAddress() const
+{
+	if(settings["session"]["lobby"].isNull() || !settings["session"]["lobby"].Bool())
+		return settings["server"]["server"].String();
+	
+	if(settings["session"]["host"].Bool())
+		return localhostAddress;
+	
+	return settings["session"]["address"].String();
+}
+
+ui16 CServerHandler::getHostPort() const
+{
+	if(settings["session"]["lobby"].isNull() || !settings["session"]["lobby"].Bool())
+		return getDefaultPort();
+	
+	if(settings["session"]["host"].Bool())
+		return getDefaultPort();
+	
+	return settings["session"]["port"].Integer();
 }
 
 void CServerHandler::sendClientConnecting() const
@@ -813,9 +835,17 @@ void CServerHandler::threadRunServer()
 	setThreadName("CServerHandler::threadRunServer");
 	const std::string logName = (VCMIDirs::get().userLogsPath() / "server_log.txt").string();
 	std::string comm = VCMIDirs::get().serverPath().string()
-		+ " --port=" + getDefaultPortStr()
+		+ " --port=" + boost::lexical_cast<std::string>(getHostPort())
 		+ " --run-by-client"
 		+ " --uuid=" + uuid;
+	if(settings["session"]["lobby"].Bool() && settings["session"]["host"].Bool())
+	{
+		comm += " --lobby=" + settings["session"]["address"].String();
+		comm += " --connections=" + settings["session"]["hostConnections"].String();
+		comm += " --lobby-port=" + boost::lexical_cast<std::string>(settings["session"]["port"].Integer());
+		comm += " --lobby-uuid=" + settings["session"]["hostUuid"].String();
+	}
+		
 	if(shm)
 	{
 		comm += " --enable-shm";

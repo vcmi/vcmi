@@ -59,7 +59,7 @@ class Session:
     protected = False # if True, password is required to join to the session
     name: str # name of session
     host: socket # player socket who created the session (lobby mode)
-    host_uuid: str # uuid of vcmiserver for hosting player
+    token: str # uuid of vcmiserver for hosting player
     players = [] # list of sockets of players, joined to the session
     connections = [] # list of GameConnections for vcmiclient (game mode)
     started = False # True - game mode, False - lobby mode
@@ -216,16 +216,21 @@ def dispatch(client: socket, sender: dict, arr: bytes):
     if arr == None or len(arr) == 0:
         return
 
+    print(f"[{sender['address']}] dispatching message")
+
     #check for game mode connection
     msg = str(arr)
     if msg.find("Aiya!") != -1:
         sender["pipe"] = True #switch to pipe mode
+        print("  vcmi recognized")
 
     if sender["pipe"]:
         if sender["game"]: #if already playing - sending raw bytes as is
             sender["prevmessages"].append(arr)
+            print("  storing message")
         else:
             sender["prevmessages"].append(struct.pack('<I', len(arr)) + arr) #pack message
+            print("  packing message")
             #search fo application type in the message
             match = re.search(r"\((\w+)\)", msg)
             _appType = ''
@@ -235,12 +240,14 @@ def dispatch(client: socket, sender: dict, arr: bytes):
             
             #extract uuid from message
             _uuid = arr.decode()
+            print(f"  decoding {_uuid}")
             if not _uuid == '' and not sender["apptype"] == '':
                 #search for uuid
                 for session in sessions.values():
                     if session.started:
                         #verify uuid of connected application
                         if _uuid.find(session.host_uuid) != -1 and sender["apptype"] == "server":
+                            print(f"  apptype {sender['apptype']} uuid {_uuid}")
                             session.addConnection(client, True)
                             sender["session"] = session
                             sender["game"] = True
@@ -248,11 +255,13 @@ def dispatch(client: socket, sender: dict, arr: bytes):
                             # this is workaround to send only one remaining byte
                             # WARNING: reversed byte order is not supported
                             sender["prevmessages"].append(client.recv(1))
+                            print(f"  binding server connection to session {session.name}")
                             return
 
                         if sender["apptype"] == "client":
                             for p in session.players:
                                 if _uuid.find(client_sockets[p]["uuid"]) != -1:
+                                    print(f"  apptype {sender['apptype']} uuid {_uuid}")
                                     #client connection
                                     session.addConnection(client, False)
                                     sender["session"] = session
@@ -261,10 +270,12 @@ def dispatch(client: socket, sender: dict, arr: bytes):
                                     # this is workaround to send only one remaining byte
                                     # WARNING: reversed byte order is not supported
                                     sender["prevmessages"].append(client.recv(1))
+                                    print(f"  binding client connection to session {session.name}")
                                     break
 
     #game mode
     if sender["pipe"] and sender["game"] and sender["session"].validPipe(client):
+        print(f"  pipe for {sender['session'].name}")
         #send messages from queue
         opposite = sender["session"].getPipe(client)
         for x in client_sockets[opposite]["prevmessages"]:
@@ -283,6 +294,7 @@ def dispatch(client: socket, sender: dict, arr: bytes):
 
     #we are in pipe mode but game still not started - waiting other clients to connect
     if sender["pipe"]:
+        print(f"  waiting other clients")
         return
     
     #lobby mode

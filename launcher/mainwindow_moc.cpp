@@ -122,8 +122,10 @@ void MainWindow::startGame(const QStringList & args)
 		const char * s = args[i].toLocal8Bit().constData();
 		__argv[i] = new char[strlen(s)];
 		strcpy(__argv[i], s);
-		
 	}
+	
+	logGlobal->warn("Starting game with the arguments: %s", args.join(" ").toStdString());
+	
 #ifdef Q_OS_IOS
 	qApp->quit();
 #else

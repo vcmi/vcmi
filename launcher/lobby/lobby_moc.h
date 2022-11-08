@@ -131,7 +131,7 @@ private:
 	QString session;
 	QString username;
 	bool startGame = false;
-	QStringList gameArguments;
+	QStringList gameArgs;
 
 private:
 	void protocolAssert(bool);
