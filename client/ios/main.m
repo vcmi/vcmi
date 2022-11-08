@@ -50,7 +50,13 @@ int client_main(int argc, char * argv[])
 		id __block startGameObserver = [NSNotificationCenter.defaultCenter addObserverForName:@"StartGame" object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
 			[NSNotificationCenter.defaultCenter removeObserver:startGameObserver];
 			startGameObserver = nil;
-			startSDLManually(argc, argv);
+
+			__auto_type args = note.userInfo[@"args"];
+			char * newArgv[args.count];
+			[args enumerateObjectsUsingBlock:^(NSString * obj, NSUInteger idx, BOOL * stop) {
+				newArgv[idx] = obj.UTF8String;
+			}];
+			startSDLManually(args.count, newArgv);
 		}];
 		return qt_main_wrapper(argc, argv);
 	}
