@@ -114,8 +114,8 @@ public:
 	ui8 getIdOfFirstUnallocatedPlayer() const;
 
 #ifdef VCMI_ANDROID
-	static void create();
+	static void create(const std::vector<std::string> & args);
 #elif defined(SINGLE_PROCESS_APP)
-    static void create(boost::condition_variable * cond, const std::string & uuid);
+    static void create(boost::condition_variable * cond, const std::vector<std::string> & args);
 #endif
 };

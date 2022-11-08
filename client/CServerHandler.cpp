@@ -193,9 +193,17 @@ void CServerHandler::startLocalServerAndConnect()
 	}
 #elif defined(SINGLE_PROCESS_APP)
 	boost::condition_variable cond;
-	threadRunLocalServer = std::make_shared<boost::thread>([&cond, this] {
+	std::vector<std::string> args{"--uuid=" + uuid};
+	if(settings["session"]["lobby"].Bool() && settings["session"]["host"].Bool())
+	{
+		args.push_back("--lobby=" + settings["session"]["address"].String());
+		args.push_back("--connections=" + settings["session"]["hostConnections"].String());
+		args.push_back("--lobby-port=" + boost::lexical_cast<std::string>(settings["session"]["port"].Integer()));
+		args.push_back("--lobby-uuid=" + settings["session"]["hostUuid"].String());
+	}
+	threadRunLocalServer = std::make_shared<boost::thread>([&cond, args, this] {
 		setThreadName("CVCMIServer");
-		CVCMIServer::create(&cond, uuid);
+		CVCMIServer::create(&cond, args);
 		onServerFinished();
 	});
 	threadRunLocalServer->detach();

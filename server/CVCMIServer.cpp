@@ -987,10 +987,6 @@ void handleLinuxSignal(int sig)
 static void handleCommandOptions(int argc, char * argv[], boost::program_options::variables_map & options)
 {
 	namespace po = boost::program_options;
-#ifdef SINGLE_PROCESS_APP
-	options.emplace("run-by-client", po::variable_value{true, true});
-	options.emplace("uuid", po::variable_value{std::string{argv[1]}, true});
-#else
 	po::options_description opts("Allowed options");
 	opts.add_options()
 	("help,h", "display help and exit")
@@ -1016,7 +1012,6 @@ static void handleCommandOptions(int argc, char * argv[], boost::program_options
 			std::cerr << "Failure during parsing command-line options:\n" << e.what() << std::endl;
 		}
 	}
-#endif
 
 	po::notify(options);
 
@@ -1118,19 +1113,21 @@ int main(int argc, char * argv[])
 }
 
 #ifdef VCMI_ANDROID
-void CVCMIServer::create()
+void CVCMIServer::create(const std::vector<std::string> & args)
 {
-	const char * foo[1] = {"android-server"};
+	const char * foo = "android-server";
+	std::vector<const void *> argv = {foo};
+	for(auto & a : args)
+		argv.push_back(a.c_str());
 
-	main(1, const_cast<char **>(foo));
+	main(argv.size(), const_cast<char **>(foo));
 }
 #elif defined(SINGLE_PROCESS_APP)
-void CVCMIServer::create(boost::condition_variable * cond, const std::string & uuid)
+void CVCMIServer::create(boost::condition_variable * cond, const std::vector<std::string> & args)
 {
-	const std::initializer_list<const void *> argv = {
-		cond,
-		uuid.c_str(),
-	};
-	main(argv.size(), reinterpret_cast<char **>(const_cast<void **>(argv.begin())));
+	std::vector<const void *> argv = {cond};
+	for(auto & a : args)
+		argv.push_back(a.c_str());
+	main(argv.size(), reinterpret_cast<char **>(const_cast<void **>(&*argv.begin())));
 }
 #endif
