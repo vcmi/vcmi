@@ -86,7 +86,6 @@ class Session:
         self.name = ""
         self.host_uuid = ""
         self.clients_uuid = []
-        self.players = []
         self.connections = []
         pass
 
@@ -109,6 +108,19 @@ class Session:
             gc.client = conn
             gc.clientInit = True
         self.connections.append(gc)
+
+    def removeConnection(self, conn: socket):
+        newConnections = []
+        for c in self.connections:
+            if c.server == conn:
+                c.server = None
+                c.serverInit = False
+            if c.client == conn:
+                c.client = None
+                c.clientInit = False
+            if c.server != None or c.client != None:
+                newConnections.append(c)
+        self.connections = newConnections
 
     def validPipe(self, conn) -> bool:
         for gc in self.connections:
@@ -218,8 +230,12 @@ def handleDisconnection(client: socket):
             updateStatus(sender.client.room)
             updateRooms()
 
-    if sender.isPipe():
-        pass
+    if sender.isPipe() and sender.client.auth:
+        if sender.client.session in sessions:
+            sender.client.session.removeConnection(client)
+            if not len(sender.client.session.connections):
+                print(f"[*] Destroying session {sender.client.session.name}")
+                sessions.remove(sender.client.session)
 
     client.close()
     client_sockets.pop(client)
@@ -261,6 +277,7 @@ def deleteRoom(room: Room):
         msg2 = msg + f":{client_sockets[player].client.username}"
         send(player, msg2)
     
+    print(f"[*] Destroying room {room.name}")
     rooms.pop(room.name)
 
 
@@ -291,6 +308,7 @@ def startRoom(room: Room):
         client_sockets.pop(player)
 
     #this room shall not exist anymore
+    print(f"[*] Destroying room {room.name}")
     rooms.pop(room.name)
 
 
@@ -336,7 +354,7 @@ def dispatch(cs: socket, sender: Sender, arr: bytes):
                         # WARNING: reversed byte order is not supported
                         sender.client.prevmessages.append(cs.recv(1))
                         print(f"  binding server connection to session {session.name}")
-                        return
+                        break
 
                     if sender.client.apptype == "client":
                         for p in session.clients_uuid:
