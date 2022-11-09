@@ -2,6 +2,7 @@ import socket
 import re
 import uuid
 import struct
+import logging
 from threading import Thread
 
 PROTOCOL_VERSION_MIN = 1
@@ -10,6 +11,15 @@ PROTOCOL_VERSION_MAX = 1
 # server's IP address
 SERVER_HOST = "0.0.0.0"
 SERVER_PORT = 5002 # port we want to use
+
+#logging
+logHandlerHighlevel = logging.FileHandler('proxyServer.log')
+logHandlerHighlevel.setLevel(logging.WARNING)
+
+logHandlerLowlevel = logging.FileHandler('proxyServer_debug.log')
+logHandlerLowlevel.setLevel(logging.DEBUG)
+
+logging.basicConfig(handlers=[logHandlerHighlevel, logHandlerLowlevel], level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
 
 def receive_packed(sock):
     # Read message length and unpack it into an integer
@@ -200,7 +210,7 @@ s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 s.bind((SERVER_HOST, SERVER_PORT))
 # listen for upcoming connections
 s.listen(10)
-print(f"[*] Listening as {SERVER_HOST}:{SERVER_PORT}")
+logging.critical(f"[*] Listening as {SERVER_HOST}:{SERVER_PORT}")
 
 # active rooms
 rooms = {}
@@ -213,6 +223,8 @@ client_sockets = {}
 
 
 def handleDisconnection(client: socket):
+    logging.warning(f"[!] Disconnecting client {client}")
+    
     if not client in client_sockets:
         return
 
@@ -234,7 +246,7 @@ def handleDisconnection(client: socket):
         if sender.client.session in sessions:
             sender.client.session.removeConnection(client)
             if not len(sender.client.session.connections):
-                print(f"[*] Destroying session {sender.client.session.name}")
+                logging.warning(f"[*] Destroying session {sender.client.session.name}")
                 sessions.remove(sender.client.session)
 
     client.close()
@@ -277,7 +289,7 @@ def deleteRoom(room: Room):
         msg2 = msg + f":{client_sockets[player].client.username}"
         send(player, msg2)
     
-    print(f"[*] Destroying room {room.name}")
+    logging.warning(f"[*] Destroying room {room.name}")
     rooms.pop(room.name)
 
 
@@ -293,6 +305,7 @@ def startRoom(room: Room):
     session = Session()
     session.name = room.name
     sessions.append(session)
+    logging.warning(f"[*] Starting session {session.name}")
     session.host_uuid = str(uuid.uuid4())
     hostMessage = f":>>HOST:{session.host_uuid}:{room.joined - 1}" #one client will be connected locally
     #host message must be before start message
@@ -308,7 +321,7 @@ def startRoom(room: Room):
         client_sockets.pop(player)
 
     #this room shall not exist anymore
-    print(f"[*] Destroying room {room.name}")
+    logging.info(f"[*] Destroying room {room.name}")
     rooms.pop(room.name)
 
 
@@ -321,15 +334,14 @@ def dispatch(cs: socket, sender: Sender, arr: bytes):
     msg = str(arr)
     if msg.find("Aiya!") != -1:
         sender.client = ClientPipe()
-        print("  vcmi recognized")
+        logging.debug("  vcmi recognized")
 
     if sender.isPipe():
         if sender.client.auth: #if already playing - sending raw bytes as is
             sender.client.prevmessages.append(arr)
-            print("  storing message")
         else:
             sender.client.prevmessages.append(struct.pack('<I', len(arr)) + arr) #pack message
-            print("  packing message")
+            logging.debug("  packing message")
             #search fo application type in the message
             match = re.search(r"\((\w+)\)", msg)
             _appType = ''
@@ -339,13 +351,13 @@ def dispatch(cs: socket, sender: Sender, arr: bytes):
             
             #extract uuid from message
             _uuid = arr.decode()
-            print(f"  decoding {_uuid}")
+            logging.debug(f"  decoding {_uuid}")
             if not _uuid == '' and not sender.client.apptype == '':
                 #search for uuid
                 for session in sessions:
                     #verify uuid of connected application
                     if _uuid.find(session.host_uuid) != -1 and sender.client.apptype == "server":
-                        print(f"  apptype {sender.client.apptype} uuid {_uuid}")
+                        logging.debug(f"  apptype {sender.client.apptype} uuid {_uuid}")
                         session.addConnection(cs, True)
                         sender.client.session = session
                         sender.client.auth = True
@@ -353,13 +365,13 @@ def dispatch(cs: socket, sender: Sender, arr: bytes):
                         # this is workaround to send only one remaining byte
                         # WARNING: reversed byte order is not supported
                         sender.client.prevmessages.append(cs.recv(1))
-                        print(f"  binding server connection to session {session.name}")
+                        logging.debug(f"  binding server connection to session {session.name}")
                         break
 
                     if sender.client.apptype == "client":
                         for p in session.clients_uuid:
                             if _uuid.find(p) != -1:
-                                print(f"  apptype {sender.client.apptype} uuid {_uuid}")
+                                logging.debug(f"  apptype {sender.client.apptype} uuid {_uuid}")
                                 #client connection
                                 session.addConnection(cs, False)
                                 sender.client.session = session
@@ -368,7 +380,7 @@ def dispatch(cs: socket, sender: Sender, arr: bytes):
                                 # this is workaround to send only one remaining byte
                                 # WARNING: reversed byte order is not supported
                                 sender.client.prevmessages.append(cs.recv(1))
-                                print(f"  binding client connection to session {session.name}")
+                                logging.debug(f"  binding client connection to session {session.name}")
                                 break
 
     #game mode
@@ -379,25 +391,21 @@ def dispatch(cs: socket, sender: Sender, arr: bytes):
             cs.sendall(x)
         client_sockets[opposite].client.prevmessages.clear()
 
-        try:
-            for x in sender.client.prevmessages:
-                opposite.sendall(x)
-        except Exception as e:
-            print(f"[!] Error: {e}")
-            #TODO: handle disconnection
+        for x in sender.client.prevmessages:
+            opposite.sendall(x)
 
         sender.client.prevmessages.clear()
         return
 
     #we are in pipe mode but game still not started - waiting other clients to connect
     if sender.isPipe():
-        print(f"  waiting other clients")
+        logging.debug(f"  waiting other clients")
         return
     
     #intialize lobby mode
     if not sender.isLobby():
         if len(arr) < 2: 
-            print("[!] Error: unknown client tries to connect")
+            logging.critical("[!] Error: unknown client tries to connect")
             #TODO: block address? close the socket?
             return
 
@@ -406,7 +414,7 @@ def dispatch(cs: socket, sender: Sender, arr: bytes):
         # first byte is protocol version
         sender.client.protocolVersion = arr[0]
         if arr[0] < PROTOCOL_VERSION_MIN or arr[0] > PROTOCOL_VERSION_MAX:
-            print(f"[!] Error: client has incompatbile protocol version {arr[0]}")
+            logging.critical(f"[!] Error: client has incompatbile protocol version {arr[0]}")
             send(cs, ":>>ERROR:Cannot connect to remote server due to protocol incompatibility")
             return
 
@@ -426,7 +434,7 @@ def dispatch(cs: socket, sender: Sender, arr: bytes):
     _open = msg.partition('<')
     _close = _open[2].partition('>')
     if _open[0] != '' or _open[1] == '' or _open[2] == '' or _close[0] == '' or _close[1] == '':
-        print(f"[!] Incorrect message from {sender.address}: {msg}")
+        logging.error(f"[!] Incorrect message from {sender.address}: {msg}")
         return
 
     _nextTag = _close[2].partition('<')
@@ -436,7 +444,7 @@ def dispatch(cs: socket, sender: Sender, arr: bytes):
     #greetings to the server
     if tag == "GREETINGS":
         if sender.client.auth:
-            print(f"[!] Greetings from authorized user {sender.client.username} {sender.address}")
+            logging.error(f"[!] Greetings from authorized user {sender.client.username} {sender.address}")
             send(cs, ":>>ERROR:User already authorized")
             return
 
@@ -449,14 +457,14 @@ def dispatch(cs: socket, sender: Sender, arr: bytes):
                 send(cs, f":>>ERROR:Can't connect with the name {tag_value}. This login is already occpupied")
                 return
         
-        print(f"[*] {sender.address} autorized as {tag_value}")
+        logging.info(f"[*] {sender.address} autorized as {tag_value}")
         sender.client.username = tag_value
         sender.client.auth = True
         sendRooms(cs)
 
     #VCMI version received
     if tag == "VER" and sender.client.auth:
-        print(f"[*] User {sender.client.username} has version {tag_value}")
+        logging.info(f"[*] User {sender.client.username} has version {tag_value}")
         sender.client.vcmiversion = tag_value
 
     #message received
@@ -573,7 +581,6 @@ def listen_for_client(cs):
                 msg = receive_packed(cs)
 
             if msg == None or msg == b'':
-                print(f"[!] Disconnecting client {cs}")
                 handleDisconnection(cs)
                 return
 
@@ -581,7 +588,7 @@ def listen_for_client(cs):
 
         except Exception as e:
             # client no longer connected
-            print(f"[!] Error: {e}")
+            logging.error(f"[!] Error: {e}")
             handleDisconnection(cs)
             return
 
@@ -589,7 +596,7 @@ def listen_for_client(cs):
 while True:
     # we keep listening for new connections all the time
     client_socket, client_address = s.accept()
-    print(f"[+] {client_address} connected.")
+    logging.warning(f"[+] {client_address} connected.")
     # add the new connected client to connected sockets
     client_sockets[client_socket] = Sender()
     client_sockets[client_socket].address = client_address
