@@ -52,11 +52,11 @@ int client_main(int argc, char * argv[])
 			startGameObserver = nil;
 
 			NSArray<NSString *> * args = note.userInfo[@"args"];
-			const char * __block newArgv[args.count];
+			const char * newArgv[args.count];
 			[args enumerateObjectsUsingBlock:^(NSString * obj, NSUInteger idx, BOOL * stop) {
 				newArgv[idx] = obj.UTF8String;
 			}];
-			startSDLManually(cnt, const_cast<char *>(newArgv));
+			startSDLManually(args.count, (char *)(newArgv));
 		}];
 		return qt_main_wrapper(argc, argv);
 	}
