@@ -3943,9 +3943,9 @@ bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID 
 	ArtFittingSet.artifactsWorn = pdstHero->artifactsWorn;
 
 	// Move over artifacts that are worn
-	for (auto & artInfo : psrcHero->artifactsWorn)
+	for(auto & artInfo : psrcHero->artifactsWorn)
 	{
-		if (ArtifactUtils::isArtRemovable(artInfo))
+		if(ArtifactUtils::isArtRemovable(artInfo))
 		{
 			auto artifact = psrcHero->getArt(artInfo.first);
 			auto dstSlot = ArtifactUtils::getArtifactDstPosition(artifact, &ArtFittingSet, pdstHero->bearerType());
@@ -3953,19 +3953,19 @@ bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID 
 				static_cast<ConstTransitivePtr<CArtifactInstance>>(psrcHero->getArt(artInfo.first)));
 			slots->push_back(BulkMoveArtifacts::LinkedSlots(artInfo.first, dstSlot));
 			
-			if (ArtifactUtils::checkSpellbookIsNeeded(pdstHero, artifact->artType->id, dstSlot))
+			if(ArtifactUtils::checkSpellbookIsNeeded(pdstHero, artifact->artType->id, dstSlot))
 				giveHeroNewArtifact(pdstHero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
 		}
 	}
 	// Move over artifacts that are in backpack
-	for (auto & slotInfo : psrcHero->artifactsInBackpack)
+	for(auto & slotInfo : psrcHero->artifactsInBackpack)
 	{
 		auto artifact = psrcHero->getArt(psrcHero->getArtPos(slotInfo.artifact));
 		auto dstSlot = ArtifactUtils::getArtifactDstPosition(artifact, &ArtFittingSet, pdstHero->bearerType());
 		ArtFittingSet.putArtifact(dstSlot, static_cast<ConstTransitivePtr<CArtifactInstance>>(slotInfo.artifact));
 		slots->push_back(BulkMoveArtifacts::LinkedSlots(psrcHero->getArtPos(slotInfo.artifact), dstSlot));
 		
-		if (ArtifactUtils::checkSpellbookIsNeeded(pdstHero, artifact->artType->id, dstSlot))
+		if(ArtifactUtils::checkSpellbookIsNeeded(pdstHero, artifact->artType->id, dstSlot))
 			giveHeroNewArtifact(pdstHero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
 	}
 	sendAndApply(&ma);
@@ -3975,7 +3975,7 @@ bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID 
 bool CGameHandler::bulkSwapArtifacts(ObjectInstanceID leftHero, ObjectInstanceID rightHero)
 {
 	// Make sure exchange is even possible between the two heroes.
-	if (!isAllowedExchange(leftHero, rightHero))
+	if(!isAllowedExchange(leftHero, rightHero))
 		COMPLAIN_RET("That heroes cannot make any exchange!");
 
 	auto pleftHero = getHero(leftHero);
@@ -3990,15 +3990,15 @@ bool CGameHandler::bulkSwapArtifacts(ObjectInstanceID leftHero, ObjectInstanceID
 	auto moveArtsWorn = [this](const CGHeroInstance * srcHero, const CGHeroInstance * dstHero,
 		std::vector<BulkMoveArtifacts::LinkedSlots> & slots) -> void
 	{
-		for (auto & artifact : srcHero->artifactsWorn)
+		for(auto & artifact : srcHero->artifactsWorn)
 		{
-			if (artifact.second.locked)
+			if(artifact.second.locked)
 				continue;
-			if (!ArtifactUtils::isArtRemovable(artifact))
+			if(!ArtifactUtils::isArtRemovable(artifact))
 				continue;
 			slots.push_back(BulkMoveArtifacts::LinkedSlots(artifact.first, artifact.first));
 			
-			if (ArtifactUtils::checkSpellbookIsNeeded(dstHero, artifact.second.getArt()->artType->id, artifact.first))
+			if(ArtifactUtils::checkSpellbookIsNeeded(dstHero, artifact.second.getArt()->artType->id, artifact.first))
 				giveHeroNewArtifact(dstHero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
 		}
 	};
@@ -4007,13 +4007,13 @@ bool CGameHandler::bulkSwapArtifacts(ObjectInstanceID leftHero, ObjectInstanceID
 	// Move over artifacts that are worn rightHero -> leftHero
 	moveArtsWorn(prightHero, pleftHero, slotsRightLeft);
 	// Move over artifacts that are in backpack leftHero -> rightHero
-	for (auto & slotInfo : pleftHero->artifactsInBackpack)
+	for(auto & slotInfo : pleftHero->artifactsInBackpack)
 	{
 		auto slot = pleftHero->getArtPos(slotInfo.artifact);
 		slotsLeftRight.push_back(BulkMoveArtifacts::LinkedSlots(slot, slot));
 	}
 	// Move over artifacts that are in backpack rightHero -> leftHero
-	for (auto & slotInfo : prightHero->artifactsInBackpack)
+	for(auto & slotInfo : prightHero->artifactsInBackpack)
 	{
 		auto slot = prightHero->getArtPos(slotInfo.artifact);
 		slotsRightLeft.push_back(BulkMoveArtifacts::LinkedSlots(slot, slot));
@@ -4046,7 +4046,7 @@ bool CGameHandler::assembleArtifacts (ObjectInstanceID heroID, ArtifactPosition 
 		if (!vstd::contains(destArtifact->assemblyPossibilities(hero), combinedArt))
 			COMPLAIN_RET("assembleArtifacts: It's impossible to assemble requested artifact!");
 		
-		if (ArtifactUtils::checkSpellbookIsNeeded(hero, assembleTo, artifactSlot))
+		if(ArtifactUtils::checkSpellbookIsNeeded(hero, assembleTo, artifactSlot))
 			giveHeroNewArtifact(hero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
 
 		AssembledArtifact aa;

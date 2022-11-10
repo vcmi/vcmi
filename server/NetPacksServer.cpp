@@ -184,7 +184,7 @@ bool BulkExchangeArtifacts::applyGh(CGameHandler * gh)
 {
 	const CGHeroInstance * pSrcHero = gh->getHero(srcHero);
 	throwOnWrongPlayer(gh, pSrcHero->getOwner());
-	if (swap)
+	if(swap)
 		return gh->bulkSwapArtifacts(srcHero, dstHero);
 	else
 		return gh->bulkMoveArtifacts(srcHero, dstHero);

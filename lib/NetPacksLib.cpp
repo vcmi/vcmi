@@ -846,7 +846,7 @@ DLL_LINKAGE CBonusSystemNode *ArtifactLocation::getHolderNode()
 DLL_LINKAGE const CArtifactInstance *ArtifactLocation::getArt() const
 {
 	auto s = getSlot();
-	if (s)
+	if(s)
 		return s->getArt();
 	else
 		return nullptr;
@@ -1098,7 +1098,7 @@ DLL_LINKAGE void MoveArtifact::applyGs(CGameState * gs)
 DLL_LINKAGE void BulkMoveArtifacts::applyGs(CGameState * gs)
 {
 	int numBackpackArtifactsMoved = 0;
-	if (swap)
+	if(swap)
 	{
 		// Swap
 		auto leftSet = getSrcHolderArtSet();
@@ -1107,17 +1107,17 @@ DLL_LINKAGE void BulkMoveArtifacts::applyGs(CGameState * gs)
 		std::vector<std::pair<ArtifactPosition, ArtSlotInfo>> unmovableArtsLeftHero, unmovableArtsRightHero;
 
 		// Keep unmovable artifacts separately until the swap
-		for (auto artPos : ArtifactUtils::unmovablePositions())
+		for(auto artPos : ArtifactUtils::unmovablePositions())
 		{
 			auto slotInfo = leftSet->getSlot(artPos);
-			if (slotInfo)
+			if(slotInfo)
 			{
 				unmovableArtsLeftHero.push_back(std::make_pair(artPos, *slotInfo));
 				leftSet->eraseArtSlot(artPos);
 			}
 
 			slotInfo = rightSet->getSlot(artPos);
-			if (slotInfo)
+			if(slotInfo)
 			{
 				unmovableArtsRightHero.push_back(std::make_pair(artPos, *slotInfo));
 				rightSet->eraseArtSlot(artPos);
@@ -1132,11 +1132,11 @@ DLL_LINKAGE void BulkMoveArtifacts::applyGs(CGameState * gs)
 		leftSet->artifactsInBackpack = ArtFittingSet.artifactsInBackpack;
 
 		// Return non movable artifacts to their place after the swap
-		for (auto & art : unmovableArtsLeftHero)
+		for(auto & art : unmovableArtsLeftHero)
 		{
 			leftSet->putArtifact(art.first, art.second.artifact);
 		}
-		for (auto & art : unmovableArtsRightHero)
+		for(auto & art : unmovableArtsRightHero)
 		{
 			rightSet->putArtifact(art.first, art.second.artifact);
 		}
@@ -1144,12 +1144,12 @@ DLL_LINKAGE void BulkMoveArtifacts::applyGs(CGameState * gs)
 	else
 	{
 		// Move
-		for (auto & slot : artsPack0)
+		for(auto & slot : artsPack0)
 		{
 			// When an object gets removed from the backpack, the backpack shrinks
 			// so all the following indices will be affected. Thus, we need to update
 			// the subsequent artifact slots to account for that
-			if (slot.srcPos >= GameConstants::BACKPACK_START)
+			if(slot.srcPos >= GameConstants::BACKPACK_START)
 			{
 				slot.srcPos = ArtifactPosition(slot.srcPos.num - numBackpackArtifactsMoved);
 			}
@@ -1160,7 +1160,7 @@ DLL_LINKAGE void BulkMoveArtifacts::applyGs(CGameState * gs)
 			const_cast<CArtifactInstance*>(art)->move(
 				ArtifactLocation(srcArtHolder, slot.srcPos), ArtifactLocation(dstArtHolder, slot.dstPos));
 
-			if (slot.srcPos >= GameConstants::BACKPACK_START)
+			if(slot.srcPos >= GameConstants::BACKPACK_START)
 			{
 				numBackpackArtifactsMoved++;
 			}

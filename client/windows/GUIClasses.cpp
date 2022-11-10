@@ -884,33 +884,6 @@ std::vector<CArtifactInstance *> getBackpackArts(const CGHeroInstance * hero)
 	return result;
 }
 
-// Puts all composite arts to backpack and returns their previous location
-std::vector<HeroArtifact> CExchangeController::moveCompositeArtsToBackpack()
-{
-	std::vector<const CGHeroInstance *> sides = {left, right};
-	std::vector<HeroArtifact> artPositions;
-
-	for(auto hero : sides)
-	{
-		for(int i = ArtifactPosition::HEAD; i < ArtifactPosition::AFTER_LAST; i++)
-		{
-			auto artPosition = ArtifactPosition(i);
-			auto art = hero->getArt(artPosition);
-
-			if(art && art->canBeDisassembled())
-			{
-				cb->swapArtifacts(
-					ArtifactLocation(hero, artPosition),
-					ArtifactLocation(hero, ArtifactPosition(GameConstants::BACKPACK_START)));
-
-				artPositions.push_back(HeroArtifact(hero, art, artPosition));
-			}
-		}
-	}
-
-	return artPositions;
-}
-
 std::function<void()> CExchangeController::onSwapArtifacts()
 {
 	return [&]()

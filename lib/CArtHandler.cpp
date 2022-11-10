@@ -1469,11 +1469,11 @@ void CArtifactFittingSet::setNewArtSlot(ArtifactPosition slot, CArtifactInstance
 	asi.locked = locked;
 }
 
-void CArtifactFittingSet::putArtifact(ArtifactPosition pos, CArtifactInstance & art)
+void CArtifactFittingSet::putArtifact(ArtifactPosition pos, CArtifactInstance * art)
 {
-	if (art->canBeDisassembled() && (pos < ArtifactPosition::AFTER_LAST))
+	if(art && art->canBeDisassembled() && (pos < ArtifactPosition::AFTER_LAST))
 	{
-		for (auto part : dynamic_cast<CCombinedArtifactInstance*>(art)->constituentsInfo)
+		for(auto & part : dynamic_cast<CCombinedArtifactInstance*>(art)->constituentsInfo)
 		{
 			// For the ArtFittingSet is no needed to do figureMainConstituent, just lock slots
 			this->setNewArtSlot(part.art->firstAvailableSlot(this), part.art, true);
@@ -1491,14 +1491,14 @@ ArtBearer::ArtBearer CArtifactFittingSet::bearerType() const
 }
 
 DLL_LINKAGE ArtifactPosition ArtifactUtils::getArtifactDstPosition(const CArtifactInstance * artifact,
-	const CArtifactSet * target, ArtBearer::ArtBearer barer)
+	const CArtifactSet * target, ArtBearer::ArtBearer bearer)
 {
-	for (auto slot : artifact->artType->possibleSlots.at(barer))
+	for(auto slot : artifact->artType->possibleSlots.at(bearer))
 	{
 		auto existingArtifact = target->getArt(slot);
 		auto existingArtInfo = target->getSlot(slot);
 
-		if (!existingArtifact
+		if(!existingArtifact
 			&& (!existingArtInfo || !existingArtInfo->locked)
 			&& artifact->canBePutAt(target, slot))
 		{
@@ -1524,11 +1524,11 @@ DLL_LINKAGE bool ArtifactUtils::checkSpellbookIsNeeded(const CGHeroInstance * he
 {
 	// TODO what'll happen if Titan's thunder is equipped by pickin git up or the start of game?
 	// Titan's Thunder creates new spellbook on equip
-	if (artID == ArtifactID::TITANS_THUNDER && slot == ArtifactPosition::RIGHT_HAND)
+	if(artID == ArtifactID::TITANS_THUNDER && slot == ArtifactPosition::RIGHT_HAND)
 	{
-		if (heroPtr)
+		if(heroPtr)
 		{
-			if (heroPtr && !heroPtr->hasSpellbook())
+			if(heroPtr && !heroPtr->hasSpellbook())
 				return true;
 		}
 	}
