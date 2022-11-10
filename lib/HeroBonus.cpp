@@ -1150,53 +1150,53 @@ CBonusSystemNode::~CBonusSystemNode()
 	if(children.size())
 	{
 		while(children.size())
-			children.front()->detachFrom(this);
+			children.front()->detachFrom(*this);
 	}
 }
 
-void CBonusSystemNode::attachTo(CBonusSystemNode *parent)
+void CBonusSystemNode::attachTo(CBonusSystemNode & parent)
 {
-	assert(!vstd::contains(parents, parent));
-	parents.push_back(parent);
+	assert(!vstd::contains(parents, &parent));
+	parents.push_back(&parent);
 
 	if(!isHypothetic())
 	{
-		if(parent->actsAsBonusSourceOnly())
-			parent->newRedDescendant(this);
+		if(parent.actsAsBonusSourceOnly())
+			parent.newRedDescendant(*this);
 		else
 			newRedDescendant(parent);
 
-		parent->newChildAttached(this);
+		parent.newChildAttached(*this);
 	}
 
 	CBonusSystemNode::treeHasChanged();
 }
 
-void CBonusSystemNode::detachFrom(CBonusSystemNode *parent)
+void CBonusSystemNode::detachFrom(CBonusSystemNode & parent)
 {
-	assert(vstd::contains(parents, parent));
+	assert(vstd::contains(parents, &parent));
 
 	if(!isHypothetic())
 	{
-		if(parent->actsAsBonusSourceOnly())
-			parent->removedRedDescendant(this);
+		if(parent.actsAsBonusSourceOnly())
+			parent.removedRedDescendant(*this);
 		else
 			removedRedDescendant(parent);
 	}
 
-	if (vstd::contains(parents, parent))
+	if (vstd::contains(parents, &parent))
 	{
-		parents -= parent;
+		parents -= &parent;
 	}
 	else
 	{
 		logBonus->error("Error on Detach. Node %s (nodeType=%d) has not parent %s (nodeType=%d)"
-			, nodeShortInfo(), nodeType, parent->nodeShortInfo(), parent->nodeType);
+			, nodeShortInfo(), nodeType, parent.nodeShortInfo(), parent.nodeType);
 	}
 
 	if(!isHypothetic())
 	{
-		parent->childDetached(this);
+		parent.childDetached(*this);
 	}
 	CBonusSystemNode::treeHasChanged();
 }
@@ -1304,27 +1304,27 @@ void CBonusSystemNode::unpropagateBonus(std::shared_ptr<Bonus> b)
 		child->unpropagateBonus(b);
 }
 
-void CBonusSystemNode::newChildAttached(CBonusSystemNode *child)
+void CBonusSystemNode::newChildAttached(CBonusSystemNode & child)
 {
-	assert(!vstd::contains(children, child));
-	children.push_back(child);
+	assert(!vstd::contains(children, &child));
+	children.push_back(&child);
 }
 
-void CBonusSystemNode::childDetached(CBonusSystemNode *child)
+void CBonusSystemNode::childDetached(CBonusSystemNode & child)
 {
-	if(vstd::contains(children, child))
-		children -= child;
+	if(vstd::contains(children, &child))
+		children -= &child;
 	else
 	{
 		logBonus->error("Error on Detach. Node %s (nodeType=%d) is not a child of %s (nodeType=%d)"
-			, child->nodeShortInfo(), child->nodeType, nodeShortInfo(), nodeType);
+			, child.nodeShortInfo(), child.nodeType, nodeShortInfo(), nodeType);
 	}
 }
 
 void CBonusSystemNode::detachFromAll()
 {
 	while(parents.size())
-		detachFrom(parents.front());
+		detachFrom(*parents.front());
 }
 
 bool CBonusSystemNode::isIndependentNode() const
@@ -1393,12 +1393,12 @@ void CBonusSystemNode::getRedChildren(TNodes &out)
 	}
 }
 
-void CBonusSystemNode::newRedDescendant(CBonusSystemNode * descendant)
+void CBonusSystemNode::newRedDescendant(CBonusSystemNode & descendant)
 {
 	for(auto b : exportedBonuses)
 	{
 		if(b->propagator)
-			descendant->propagateBonus(b, *this);
+			descendant.propagateBonus(b, *this);
 	}
 	TNodes redParents;
 	getRedAncestors(redParents); //get all red parents recursively
@@ -1408,16 +1408,16 @@ void CBonusSystemNode::newRedDescendant(CBonusSystemNode * descendant)
 		for(auto b : parent->exportedBonuses)
 		{
 			if(b->propagator)
-				descendant->propagateBonus(b, *this);
+				descendant.propagateBonus(b, *this);
 		}
 	}
 }
 
-void CBonusSystemNode::removedRedDescendant(CBonusSystemNode *descendant)
+void CBonusSystemNode::removedRedDescendant(CBonusSystemNode & descendant)
 {
 	for(auto b : exportedBonuses)
 		if(b->propagator)
-			descendant->unpropagateBonus(b);
+			descendant.unpropagateBonus(b);
 
 	TNodes redParents;
 	getRedAncestors(redParents); //get all red parents recursively
@@ -1426,7 +1426,7 @@ void CBonusSystemNode::removedRedDescendant(CBonusSystemNode *descendant)
 	{
 		for(auto b : parent->exportedBonuses)
 			if(b->propagator)
-				descendant->unpropagateBonus(b);
+				descendant.unpropagateBonus(b);
 	}
 }
 

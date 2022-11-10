@@ -240,7 +240,7 @@ public:
 	ArtBearer::ArtBearer bearerType() const override;
 
 	///IBonusBearer
-	CBonusSystemNode * whereShouldBeAttached(CGameState *gs) override;
+	CBonusSystemNode & whereShouldBeAttached(CGameState * gs) override;
 	std::string nodeName() const override;
 
 	CBonusSystemNode * whereShouldBeAttachedOnSiege(const bool isBattleOutsideTown) const;
