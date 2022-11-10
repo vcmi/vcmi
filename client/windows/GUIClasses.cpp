@@ -890,7 +890,7 @@ std::function<void()> CExchangeController::onSwapArtifacts()
 	{
 		GsThread::run([=]
 		{
-			cb->bulkSwapArtifacts(left->id, right->id);
+			cb->bulkMoveArtifacts(left->id, right->id, true);
 		});
 	};
 }
@@ -1047,7 +1047,7 @@ void CExchangeController::moveArtifacts(bool leftToRight)
 
 	GsThread::run([=]
 	{
-		cb->bulkMoveArtifacts(source->id, target->id);
+		cb->bulkMoveArtifacts(source->id, target->id, false);
 	});
 }
 
