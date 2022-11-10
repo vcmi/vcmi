@@ -51,12 +51,12 @@ int client_main(int argc, char * argv[])
 			[NSNotificationCenter.defaultCenter removeObserver:startGameObserver];
 			startGameObserver = nil;
 
-			int cnt = note.userInfo[@"args"].count;
-			char * newArgv[cnt];
+			NSArray<NSString *> * args = note.userInfo[@"args"];
+			const char * __block newArgv[args.count];
 			[args enumerateObjectsUsingBlock:^(NSString * obj, NSUInteger idx, BOOL * stop) {
 				newArgv[idx] = obj.UTF8String;
 			}];
-			startSDLManually(cnt, newArgv);
+			startSDLManually(cnt, const_cast<char *>(newArgv));
 		}];
 		return qt_main_wrapper(argc, argv);
 	}
