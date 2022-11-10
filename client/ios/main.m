@@ -56,7 +56,7 @@ int client_main(int argc, char * argv[])
 			[args enumerateObjectsUsingBlock:^(NSString * obj, NSUInteger idx, BOOL * stop) {
 				newArgv[idx] = obj.UTF8String;
 			}];
-			startSDLManually(args.count, (char *)(newArgv));
+			startSDLManually(args.count, (char **)(newArgv));
 		}];
 		return qt_main_wrapper(argc, argv);
 	}
