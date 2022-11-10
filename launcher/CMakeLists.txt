@@ -33,7 +33,9 @@ set(launcher_SRCS
 		launcherdirs.cpp
 		jsonutils.cpp
 		updatedialog_moc.cpp
+		lobby/lobby.cpp
 		lobby/lobby_moc.cpp
+		lobby/lobbyroomrequest_moc.cpp
 )
 
 set(launcher_HEADERS
@@ -44,7 +46,9 @@ set(launcher_HEADERS
 		launcherdirs.h
 		jsonutils.h
 		updatedialog_moc.h
+		lobby/lobby.h
 		lobby/lobby_moc.h
+		lobby/lobbyroomrequest_moc.h
 		main.h
 )
 
@@ -55,6 +59,7 @@ set(launcher_FORMS
 		mainwindow_moc.ui
 		updatedialog_moc.ui
 		lobby/lobby_moc.ui
+		lobby/lobbyroomrequest_moc.ui
 )
 
 if(APPLE_IOS)

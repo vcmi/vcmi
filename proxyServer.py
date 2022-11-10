@@ -483,6 +483,12 @@ def dispatch(cs: socket, sender: Sender, arr: bytes):
             message = f":>>ERROR:Cannot create session with name {tag_value}, session with this name already exists"
             send(cs, message)
             return
+
+        if tag_value == "" or tag_value.startswith(" ") or len(tag_value) < 3:
+            #refuse creating game
+            message = f":>>ERROR:Cannot create session with invalid name {tag_value}"
+            send(cs, message)
+            return
         
         rooms[tag_value] = Room(cs, tag_value)
         sender.client.joined = True
@@ -499,6 +505,13 @@ def dispatch(cs: socket, sender: Sender, arr: bytes):
         if sender.client.room.total != 1:
             #refuse changing amount of players
             message = f":>>ERROR:Changing amount of players is not possible for existing session"
+            send(cs, message)
+            return
+
+        if int(tag_value) < 2 or int(tag_value) > 8:
+            #refuse and cleanup room
+            deleteRoom(sender.client.room)
+            message = f":>>ERROR:Cannot create room with invalid amount of players"
             send(cs, message)
             return
 

@@ -1,113 +1,9 @@
 #include "StdInc.h"
 #include "lobby_moc.h"
 #include "ui_lobby_moc.h"
+#include "lobbyroomrequest_moc.h"
 #include "../mainwindow_moc.h"
-#include "../lib/GameConstants.h"
-#include "../jsonutils.h"
 #include "../../lib/CConfigHandler.h"
-//#include "../../lib/VCMIDirs.h"
-
-SocketLobby::SocketLobby(QObject *parent) :
-	QObject(parent)
-{
-	socket = new QTcpSocket(this);
-	connect(socket, SIGNAL(connected()), this, SLOT(connected()));
-	connect(socket, SIGNAL(disconnected()), this, SLOT(disconnected()));
-	connect(socket, SIGNAL(readyRead()), this, SLOT(readyRead()));
-	connect(socket, SIGNAL(bytesWritten(qint64)), this, SLOT(bytesWritten(qint64)));
-}
-
-void SocketLobby::connectServer(const QString & host, int port, const QString & usr)
-{
-	const int connectionTimeout = 1000;
-	username = usr;
-
-	emit text("Connecting to " + host + ":" + QString::number(port));
-
-	socket->connectToHost(host, port);
-
-	if(!socket->waitForDisconnected(connectionTimeout) && !isConnected)
-	{
-		emit text("Error: " + socket->errorString());
-	}
-}
-
-void SocketLobby::disconnectServer()
-{
-	socket->disconnectFromHost();
-}
-
-void SocketLobby::requestNewSession(const QString & session, int totalPlayers, const QString & pswd)
-{
-	const QString sessionMessage = ProtocolStrings[CREATE].arg(session, pswd, QString::number(totalPlayers));
-	send(sessionMessage);
-}
-
-void SocketLobby::requestJoinSession(const QString & session, const QString & pswd)
-{
-	const QString sessionMessage = ProtocolStrings[JOIN].arg(session, pswd);
-	send(sessionMessage);
-}
-
-void SocketLobby::requestLeaveSession(const QString & session)
-{
-	const QString sessionMessage = ProtocolStrings[LEAVE].arg(session);
-	send(sessionMessage);
-}
-
-void SocketLobby::requestReadySession(const QString & session)
-{
-	const QString sessionMessage = ProtocolStrings[READY].arg(session);
-	send(sessionMessage);
-}
-
-void SocketLobby::send(const QString & msg)
-{
-	int sz = msg.size();
-	QByteArray pack((const char *)&sz, sizeof(sz));
-	pack.append(qPrintable(msg));
-	socket->write(pack);
-}
-
-void SocketLobby::connected()
-{
-	isConnected = true;
-	emit text("Connected!");
-	
-	QByteArray greetingBytes;
-	greetingBytes.append(ProtocolVersion);
-	greetingBytes.append(ProtocolEncoding.size());
-	const QString greetingConst = QString(greetingBytes)
-								+ ProtocolStrings[GREETING].arg(QString::fromStdString(ProtocolEncoding),
-																username,
-																QString::fromStdString(GameConstants::VCMI_VERSION));
-	send(greetingConst);
-}
-
-void SocketLobby::disconnected()
-{
-	isConnected = false;
-	emit disconnect();
-	emit text("Disconnected!");
-}
-
-void SocketLobby::bytesWritten(qint64 bytes)
-{
-	qDebug() << "We wrote: " << bytes;
-}
-
-void SocketLobby::readyRead()
-{
-	qDebug() << "Reading...";
-	emit receive(socket->readAll());
-}
-
-
-ServerCommand::ServerCommand(ProtocolConsts cmd, const QStringList & args):
-	command(cmd),
-	arguments(args)
-{
-}
 
 Lobby::Lobby(QWidget *parent) :
 	QWidget(parent),
@@ -313,17 +209,14 @@ void Lobby::on_connectButton_toggled(bool checked)
 
 void Lobby::on_newButton_clicked()
 {
-	bool ok;
-	QString sessionName = QInputDialog::getText(this, tr("New session"), tr("Session name:"), QLineEdit::Normal, "", &ok);
-	if(ok && !sessionName.isEmpty())
-		socketLobby.requestNewSession(sessionName, 2, ui->passwordInput->text());
+	new LobbyRoomRequest(socketLobby, "", this);
 }
 
 void Lobby::on_joinButton_clicked()
 {
 	auto * item = ui->sessionsTable->item(ui->sessionsTable->currentRow(), 0);
 	if(item)
-		socketLobby.requestJoinSession(item->text(), ui->passwordInput->text());
+		new LobbyRoomRequest(socketLobby, item->text(), this);
 }
 
 
