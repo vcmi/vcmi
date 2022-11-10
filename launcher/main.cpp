@@ -22,10 +22,10 @@
 int main(int argc, char * argv[])
 {
 	int result;
-#ifdef VCMI_IOS
-	{
 	__argc = argc;
 	__argv = argv;
+#ifdef VCMI_IOS
+	{
 #endif
 	QApplication vcmilauncher(argc, argv);
 	MainWindow mainWindow;

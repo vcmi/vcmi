@@ -69,7 +69,7 @@ void SocketLobby::send(const QString & msg)
 {
 	int sz = msg.size();
 	QByteArray pack((const char *)&sz, sizeof(sz));
-	pack.append(qPrintable(msg));
+	pack.append(qUtf8Printable(msg));
 	socket->write(pack);
 }
 

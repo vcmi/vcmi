@@ -119,7 +119,8 @@ MainWindow::~MainWindow()
 void MainWindow::startGame(const QStringList & args)
 {
 	__argc = args.size();
-	__argv = new char*[__argc];
+	if(__argc)
+		__argv = new char*[__argc];
 	for(int i = 0; i < __argc; ++i)
 	{
 		const char * s = args[i].toLocal8Bit().constData();
