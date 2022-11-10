@@ -46,10 +46,13 @@
        </size>
       </property>
       <property name="verticalScrollBarPolicy">
-       <enum>Qt::ScrollBarAlwaysOff</enum>
+       <enum>Qt::ScrollBarAsNeeded</enum>
       </property>
       <property name="horizontalScrollBarPolicy">
        <enum>Qt::ScrollBarAlwaysOff</enum>
+      </property>
+      <property name="sizeAdjustPolicy">
+       <enum>QAbstractScrollArea::AdjustToContents</enum>
       </property>
       <property name="editTriggers">
        <set>QAbstractItemView::NoEditTriggers</set>
@@ -118,7 +121,7 @@
        <property name="icon">
         <iconset>
          <normaloff>icons:menu-lobby.png</normaloff>icons:menu-lobby.png</iconset>
-		</property>
+       </property>
       </item>
      </widget>
     </item>
