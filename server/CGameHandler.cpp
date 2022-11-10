@@ -3984,8 +3984,8 @@ bool CGameHandler::bulkSwapArtifacts(ObjectInstanceID leftHero, ObjectInstanceID
 		static_cast<ConstTransitivePtr<CGHeroInstance>>(prightHero), true);
 	ma.srcArtHolder = static_cast<ConstTransitivePtr<CGHeroInstance>>(prightHero);
 	ma.dstArtHolder = static_cast<ConstTransitivePtr<CGHeroInstance>>(pleftHero);
-	auto slotsLeftRight = &ma.artsPack0;
-	auto slotsRightLeft = &ma.artsPack1;
+	auto & slotsLeftRight = ma.artsPack0;
+	auto & slotsRightLeft = ma.artsPack1;
 
 	auto moveArtsWorn = [this](const CGHeroInstance * srcHero, const CGHeroInstance * dstHero,
 		std::vector<BulkMoveArtifacts::LinkedSlots> * slots) -> void
