@@ -1469,7 +1469,7 @@ void CArtifactFittingSet::setNewArtSlot(ArtifactPosition slot, CArtifactInstance
 	asi.locked = locked;
 }
 
-void CArtifactFittingSet::putArtifact(ArtifactPosition pos, CArtifactInstance * art)
+void CArtifactFittingSet::putArtifact(ArtifactPosition pos, CArtifactInstance & art)
 {
 	if (art->canBeDisassembled() && (pos < ArtifactPosition::AFTER_LAST))
 	{

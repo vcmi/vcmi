@@ -1144,8 +1144,7 @@ DLL_LINKAGE void BulkMoveArtifacts::applyGs(CGameState * gs)
 	else
 	{
 		// Move
-		auto & artsPack = artsPack0;
-		for (auto & slot : artsPack)
+		for (auto & slot : artsPack0)
 		{
 			// When an object gets removed from the backpack, the backpack shrinks
 			// so all the following indices will be affected. Thus, we need to update
@@ -1769,17 +1768,12 @@ DLL_LINKAGE void EntitiesChanged::applyGs(CGameState * gs)
 
 const CArtifactInstance * ArtSlotInfo::getArt() const
 {
-	if (artifact)
+	if(locked)
 	{
-		if (!locked)
-			return artifact;
-		else
-		{
-			logNetwork->warn("ArtifactLocation::getArt: This location is locked!");
-			return nullptr;
-		}
+		logNetwork->warn("ArtifactLocation::getArt: This location is locked!");
+		return nullptr;
 	}
-	return nullptr;
+	return artifact;
 }
 
 CArtifactSet * BulkMoveArtifacts::getSrcHolderArtSet()
