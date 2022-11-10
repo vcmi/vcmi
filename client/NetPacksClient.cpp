@@ -285,20 +285,9 @@ void MoveArtifact::applyCl(CClient *cl)
 
 void BulkMoveArtifacts::applyCl(CClient * cl)
 {
-	auto & movingArts = artsPack0;
-	for(auto & slotToMove : movingArts)
+	auto applyMove = [this, cl](std::vector<LinkedSlots> & artsPack) -> void
 	{
-		auto srcLoc = ArtifactLocation(srcArtHolder, slotToMove.srcPos);
-		auto dstLoc = ArtifactLocation(dstArtHolder, slotToMove.dstPos);
-		callInterfaceIfPresent(cl, srcLoc.owningPlayer(), &IGameEventsReceiver::artifactMoved, srcLoc, dstLoc);
-		if (srcLoc.owningPlayer() != dstLoc.owningPlayer())
-			callInterfaceIfPresent(cl, dstLoc.owningPlayer(), &IGameEventsReceiver::artifactMoved, srcLoc, dstLoc);
-	}
-
-	if(swap)
-	{
-		movingArts = artsPack1;
-		for(auto & slotToMove : movingArts)
+		for(auto & slotToMove : artsPack)
 		{
 			auto srcLoc = ArtifactLocation(srcArtHolder, slotToMove.srcPos);
 			auto dstLoc = ArtifactLocation(dstArtHolder, slotToMove.dstPos);
@@ -306,7 +295,11 @@ void BulkMoveArtifacts::applyCl(CClient * cl)
 			if(srcLoc.owningPlayer() != dstLoc.owningPlayer())
 				callInterfaceIfPresent(cl, dstLoc.owningPlayer(), &IGameEventsReceiver::artifactMoved, srcLoc, dstLoc);
 		}
-	}
+	};
+
+	applyMove(artsPack0);
+	if(swap)
+		applyMove(artsPack1);
 }
 
 void AssembledArtifact::applyCl(CClient *cl)

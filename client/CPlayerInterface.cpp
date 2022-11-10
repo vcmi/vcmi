@@ -2591,7 +2591,8 @@ void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const Artifact
 		if (artWin)
 			artWin->artifactMoved(src, dst);
 	}
-	GH.objsToBlit.back()->redraw();
+	if(!GH.objsToBlit.empty())
+		GH.objsToBlit.back()->redraw();
 }
 
 void CPlayerInterface::artifactPossibleAssembling(const ArtifactLocation & dst)

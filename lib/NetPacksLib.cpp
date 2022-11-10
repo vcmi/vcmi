@@ -1097,7 +1097,6 @@ DLL_LINKAGE void MoveArtifact::applyGs(CGameState * gs)
 
 DLL_LINKAGE void BulkMoveArtifacts::applyGs(CGameState * gs)
 {
-	int numBackpackArtifactsMoved = 0;
 	if(swap)
 	{
 		// Swap
@@ -1144,6 +1143,7 @@ DLL_LINKAGE void BulkMoveArtifacts::applyGs(CGameState * gs)
 	else
 	{
 		// Move
+		int numBackpackArtifactsMoved = 0;
 		for(auto & slot : artsPack0)
 		{
 			// When an object gets removed from the backpack, the backpack shrinks

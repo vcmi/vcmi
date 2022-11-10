@@ -1029,8 +1029,9 @@ struct BulkMoveArtifacts : CArtifactOperationPack
 	TArtHolder srcArtHolder;
 	TArtHolder dstArtHolder;
 
-	BulkMoveArtifacts() {}
-	BulkMoveArtifacts(TArtHolder srcArtHolder, TArtHolder dstArtHolder, bool swap) 
+	BulkMoveArtifacts()
+		: swap(false) {}
+	BulkMoveArtifacts(TArtHolder srcArtHolder, TArtHolder dstArtHolder, bool swap)
 		: srcArtHolder(srcArtHolder), dstArtHolder(dstArtHolder), swap(swap) {}
 
 	void applyCl(CClient * cl);
@@ -2248,10 +2249,10 @@ struct BulkExchangeArtifacts : public CPackForServer
 	ObjectInstanceID dstHero;
 	bool swap;
 
-	BulkExchangeArtifacts() = default;
+	BulkExchangeArtifacts() 
+		: swap(false) {}
 	BulkExchangeArtifacts(ObjectInstanceID srcHero, ObjectInstanceID dstHero, bool swap)
-		: srcHero(srcHero), dstHero(dstHero), swap(swap)
-	{}
+		: srcHero(srcHero), dstHero(dstHero), swap(swap) {}
 
 	bool applyGh(CGameHandler * gh);
 	template <typename Handler> void serialize(Handler & h, const int version)
