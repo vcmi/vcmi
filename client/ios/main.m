@@ -53,9 +53,9 @@ int client_main(int argc, char * argv[])
 
 			NSArray<NSString *> * args = note.userInfo[@"args"];
 			const char * newArgv[args.count];
-			[args enumerateObjectsUsingBlock:^(NSString * obj, NSUInteger idx, BOOL * stop) {
-				newArgv[idx] = obj.UTF8String;
-			}];
+			NSUInteger i = 0;
+			for (NSString * obj in args)
+				newArgv[i++] = obj.UTF8String;
 			startSDLManually(args.count, (char **)(newArgv));
 		}];
 		return qt_main_wrapper(argc, argv);
