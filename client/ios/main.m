@@ -51,8 +51,7 @@ int client_main(int argc, char * argv[])
 			[NSNotificationCenter.defaultCenter removeObserver:startGameObserver];
 			startGameObserver = nil;
 
-			__auto_type args = note.userInfo[@"args"];
-			int cnt = [[args] count];
+			int cnt = note.userInfo[@"args"].count;
 			char * newArgv[cnt];
 			[args enumerateObjectsUsingBlock:^(NSString * obj, NSUInteger idx, BOOL * stop) {
 				newArgv[idx] = obj.UTF8String;
