@@ -181,11 +181,10 @@ bool CCallback::assembleArtifacts (const CGHeroInstance * hero, ArtifactPosition
 	return true;
 }
 
-bool CCallback::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID dstHero, bool swap)
+void CCallback::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID dstHero, bool swap)
 {
 	BulkExchangeArtifacts bma(srcHero, dstHero, swap);
 	sendRequest(&bma);
-	return true;
 }
 
 bool CCallback::buildBuilding(const CGTownInstance *town, BuildingID buildingID)

@@ -97,7 +97,7 @@ public:
 	
 	
 	// Moves all artifacts from one hero to another
-	virtual bool bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID dstHero, bool swap) = 0;
+	virtual void bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID dstHero, bool swap) = 0;
 };
 
 class CBattleCallback : public IBattleCallback, public CPlayerBattleCallback
@@ -155,7 +155,7 @@ public:
 	bool dismissHero(const CGHeroInstance * hero) override;
 	bool swapArtifacts(const ArtifactLocation &l1, const ArtifactLocation &l2) override;
 	bool assembleArtifacts(const CGHeroInstance * hero, ArtifactPosition artifactSlot, bool assemble, ArtifactID assembleTo) override;
-	bool bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID dstHero, bool swap) override;
+	void bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID dstHero, bool swap) override;
 	bool buildBuilding(const CGTownInstance *town, BuildingID buildingID) override;
 	void recruitCreatures(const CGDwelling * obj, const CArmedInstance * dst, CreatureID ID, ui32 amount, si32 level=-1) override;
 	bool dismissCreature(const CArmedInstance *obj, SlotID stackPos) override;

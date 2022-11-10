@@ -3956,37 +3956,37 @@ bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID 
 					giveHeroNewArtifact(dstHero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
 			}
 		};
+		auto moveArtsInBackpack = [](const CGHeroInstance * pHero,
+			std::vector<BulkMoveArtifacts::LinkedSlots> & slots) -> void
+		{
+			for(auto & slotInfo : pHero->artifactsInBackpack)
+			{
+				auto slot = pHero->getArtPos(slotInfo.artifact);
+				slots.push_back(BulkMoveArtifacts::LinkedSlots(slot, slot));
+			}
+		};
 		// Move over artifacts that are worn srcHero -> dstHero
 		moveArtsWorn(psrcHero, pdstHero, slotsSrcDst);
 		// Move over artifacts that are worn dstHero -> srcHero
 		moveArtsWorn(pdstHero, psrcHero, slotsDstSrc);
 		// Move over artifacts that are in backpack srcHero -> dstHero
-		for(auto & slotInfo : psrcHero->artifactsInBackpack)
-		{
-			auto slot = psrcHero->getArtPos(slotInfo.artifact);
-			slotsSrcDst.push_back(BulkMoveArtifacts::LinkedSlots(slot, slot));
-		}
+		moveArtsInBackpack(psrcHero, slotsSrcDst);
 		// Move over artifacts that are in backpack dstHero -> srcHero
-		for(auto & slotInfo : pdstHero->artifactsInBackpack)
-		{
-			auto slot = pdstHero->getArtPos(slotInfo.artifact);
-			slotsDstSrc.push_back(BulkMoveArtifacts::LinkedSlots(slot, slot));
-		}
+		moveArtsInBackpack(pdstHero, slotsDstSrc);
 	}
 	else
 	{
-		auto & slots = ma.artsPack0;
 		// Temporary fitting set for artifacts. Used to select available slots before sending data.
 		CArtifactFittingSet ArtFittingSet(pdstHero->bearerType());
 		ArtFittingSet.artifactsInBackpack = pdstHero->artifactsInBackpack;
 		ArtFittingSet.artifactsWorn = pdstHero->artifactsWorn;
 
-		auto moveArtifact = [this, &ArtFittingSet, &slots](const CArtifactInstance * artifact,
+		auto moveArtifact = [this, &ArtFittingSet, &slotsSrcDst](const CArtifactInstance * artifact,
 			ArtifactPosition srcSlot, const CGHeroInstance * pdstHero) -> void
 		{
 			auto dstSlot = ArtifactUtils::getArtifactDstPosition(artifact, &ArtFittingSet, pdstHero->bearerType());
 			ArtFittingSet.putArtifact(dstSlot, static_cast<ConstTransitivePtr<CArtifactInstance>>(artifact));
-			slots.push_back(BulkMoveArtifacts::LinkedSlots(srcSlot, dstSlot));
+			slotsSrcDst.push_back(BulkMoveArtifacts::LinkedSlots(srcSlot, dstSlot));
 
 			if(ArtifactUtils::checkSpellbookIsNeeded(pdstHero, artifact->artType->id, dstSlot))
 				giveHeroNewArtifact(pdstHero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
