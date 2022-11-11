@@ -22,8 +22,10 @@
 #include "updatedialog_moc.h"
 #include "main.h"
 
+#ifdef VCMI_IOS
 int __argc;
 char ** __argv;
+#endif
 
 void MainWindow::load()
 {
@@ -118,10 +120,11 @@ MainWindow::~MainWindow()
 
 void MainWindow::startGame(const QStringList & args)
 {
-	__argc = args.size();
-	if(__argc)
-		__argv = new char*[__argc];
-	for(int i = 0; i < __argc; ++i)
+#ifdef Q_OS_IOS
+	__argc = args.size() + 1; //first argument is omitted
+	__argv = new char*[__argc];
+	__argv[0] = "vcmiclient";
+	for(int i = 1; i < __argc; ++i)
 	{
 		const char * s = args[i].toLocal8Bit().constData();
 		__argv[i] = new char[strlen(s)];
@@ -129,8 +132,6 @@ void MainWindow::startGame(const QStringList & args)
 	}
 	
 	logGlobal->warn("Starting game with the arguments: %s", args.join(" ").toStdString());
-	
-#ifdef Q_OS_IOS
 	qApp->quit();
 #else
 	startExecutable(pathToQString(VCMIDirs::get().clientPath()), args);
