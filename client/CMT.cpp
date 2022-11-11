@@ -499,11 +499,13 @@ int main(int argc, char * argv[])
 		session["address"].String() = vm["lobby-address"].as<std::string>();
 		CSH->uuid = vm["uuid"].as<std::string>();
 		session["port"].Integer() = vm["lobby-port"].as<ui16>();
+		logGlobal->info("Remote lobby mode at %s:%d, uuid is %s", session["address"].String(), session["port"].Integer(), CSH->uuid);
 		if(vm.count("lobby-host"))
 		{
 			session["host"].Bool() = true;
 			session["hostConnections"].String() = vm["lobby-connections"].as<std::string>();
 			session["hostUuid"].String() = vm["lobby-uuid"].as<std::string>();
+			logGlobal->info("This client will host session, server uuid is %s", session["hostUuid"].String());
 		}
 	}
 
