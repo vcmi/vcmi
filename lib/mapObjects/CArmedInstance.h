@@ -33,8 +33,8 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 //	int valOfGlobalBonuses(CSelector selector) const; //used only for castle interface								???
-	virtual CBonusSystemNode *whereShouldBeAttached(CGameState *gs);
-	virtual CBonusSystemNode *whatShouldBeAttached();
+	virtual CBonusSystemNode & whereShouldBeAttached(CGameState * gs);
+	virtual CBonusSystemNode & whatShouldBeAttached();
 	//////////////////////////////////////////////////////////////////////////
 
 	CArmedInstance();

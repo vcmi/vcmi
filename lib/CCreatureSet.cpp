@@ -773,7 +773,7 @@ void CStackInstance::setType(const CCreature *c)
 {
 	if(type)
 	{
-		detachFrom(const_cast<CCreature*>(type));
+		detachFrom(const_cast<CCreature&>(*type));
 		if (type->isMyUpgrade(c) && VLC->modh->modules.STACK_EXP)
 			experience = static_cast<TExpType>(experience * VLC->creh->expAfterUpgrade / 100.0);
 	}
@@ -781,7 +781,7 @@ void CStackInstance::setType(const CCreature *c)
 	CStackBasicDescriptor::setType(c);
 
 	if(type)
-		attachTo(const_cast<CCreature*>(type));
+		attachTo(const_cast<CCreature&>(*type));
 }
 std::string CStackInstance::bonusToString(const std::shared_ptr<Bonus>& bonus, bool description) const
 {
@@ -804,12 +804,12 @@ std::string CStackInstance::bonusToGraphics(const std::shared_ptr<Bonus>& bonus)
 void CStackInstance::setArmyObj(const CArmedInstance * ArmyObj)
 {
 	if(_armyObj)
-		detachFrom(const_cast<CArmedInstance*>(_armyObj));
+		detachFrom(const_cast<CArmedInstance&>(*_armyObj));
 
 	_armyObj = ArmyObj;
 
 	if(ArmyObj)
-		attachTo(const_cast<CArmedInstance*>(_armyObj));
+		attachTo(const_cast<CArmedInstance&>(*_armyObj));
 }
 
 std::string CStackInstance::getQuantityTXT(bool capitalized) const
@@ -1052,7 +1052,7 @@ void CStackBasicDescriptor::serializeJson(JsonSerializeFormat & handler)
 	{
 		std::string typeName("");
 		handler.serializeString("type", typeName);
-		if(typeName != "")
+		if(!typeName.empty())
 			setType(VLC->creh->getCreature("core", typeName));
 	}
 }

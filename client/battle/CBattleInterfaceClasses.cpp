@@ -506,7 +506,7 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult & br, CPlayerInterfa
 			break;
 		}
 
-		CCS->musich->playMusic("Music/Win Battle", false);
+		CCS->musich->playMusic("Music/Win Battle", false, true);
 		CCS->videoh->open("WIN3.BIK");
 		std::string str = CGI->generaltexth->allTexts[text];
 
@@ -543,7 +543,7 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult & br, CPlayerInterfa
 			logGlobal->error("Invalid battle result code %d. Assumed normal.", static_cast<int>(br.result));
 			break;
 		}
-		CCS->musich->playMusic(musicName, false);
+		CCS->musich->playMusic(musicName, false, true);
 		CCS->videoh->open(videoName);
 
 		labels.push_back(std::make_shared<CLabel>(235, 235, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[text]));

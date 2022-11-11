@@ -303,8 +303,9 @@ struct DLL_LINKAGE ArtSlotInfo
 	ui8 locked; //if locked, then artifact points to the combined artifact
 
 	ArtSlotInfo() : locked(false) {}
+	const CArtifactInstance * getArt() const;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & artifact;
 		h & locked;
@@ -362,5 +363,29 @@ private:
 
 	void serializeJsonSlot(JsonSerializeFormat & handler, const ArtifactPosition & slot, CMap * map);//normal slots
 };
+
+// Used to try on artifacts before the claimed changes have been applied
+class DLL_LINKAGE CArtifactFittingSet : public CArtifactSet
+{
+public:
+	CArtifactFittingSet(ArtBearer::ArtBearer Bearer);
+	void setNewArtSlot(ArtifactPosition slot, CArtifactInstance * art, bool locked);
+	void putArtifact(ArtifactPosition pos, CArtifactInstance * art) override;
+	ArtBearer::ArtBearer bearerType() const override;
+
+protected:
+	ArtBearer::ArtBearer Bearer;
+};
+
+namespace ArtifactUtils
+{
+	// Calculates where an artifact gets placed when it gets transferred from one hero to another.
+	DLL_LINKAGE ArtifactPosition getArtifactDstPosition(	const CArtifactInstance * artifact, 
+								const CArtifactSet * target,
+								ArtBearer::ArtBearer bearer);
+	DLL_LINKAGE std::vector<ArtifactPosition> unmovablePositions(); // TODO: Make this constexpr when the toolset is upgraded
+	DLL_LINKAGE bool isArtRemovable(const std::pair<ArtifactPosition, ArtSlotInfo> & slot);
+	DLL_LINKAGE bool checkSpellbookIsNeeded(const CGHeroInstance * heroPtr, ArtifactID artID, ArtifactPosition slot);
+}
 
 VCMI_LIB_NAMESPACE_END

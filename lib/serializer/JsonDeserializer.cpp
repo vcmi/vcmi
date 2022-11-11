@@ -38,7 +38,7 @@ void JsonDeserializer::serializeInternal(const std::string & fieldName, si32 & v
 
 	value = defaultValue ? defaultValue.get() : 0;
 
-	if(identifier != "")
+	if(!identifier.empty())
 	{
 		si32 rawId = decoder(identifier);
 

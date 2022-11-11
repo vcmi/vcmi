@@ -9,6 +9,7 @@
  */
 #include "StdInc.h"
 #include <SDL_mixer.h>
+#include <SDL.h>
 
 #include "CMusicHandler.h"
 #include "CGameInfo.h"
@@ -410,15 +411,15 @@ void CMusicHandler::release()
 	CAudioBase::release();
 }
 
-void CMusicHandler::playMusic(const std::string & musicURI, bool loop)
+void CMusicHandler::playMusic(const std::string & musicURI, bool loop, bool fromStart)
 {
 	if (current && current->isTrack(musicURI))
 		return;
 
-	queueNext(this, "", musicURI, loop);
+	queueNext(this, "", musicURI, loop, fromStart);
 }
 
-void CMusicHandler::playMusicFromSet(const std::string & whichSet, bool loop)
+void CMusicHandler::playMusicFromSet(const std::string & whichSet, bool loop, bool fromStart)
 {
 	auto selectedSet = musicsSet.find(whichSet);
 	if (selectedSet == musicsSet.end())
@@ -431,10 +432,10 @@ void CMusicHandler::playMusicFromSet(const std::string & whichSet, bool loop)
 		return;
 
 	// in this mode - play random track from set
-	queueNext(this, whichSet, "", loop);
+	queueNext(this, whichSet, "", loop, fromStart);
 }
 
-void CMusicHandler::playMusicFromSet(const std::string & whichSet, const std::string & entryID, bool loop)
+void CMusicHandler::playMusicFromSet(const std::string & whichSet, const std::string & entryID, bool loop,  bool fromStart)
 {
 	auto selectedSet = musicsSet.find(whichSet);
 	if (selectedSet == musicsSet.end())
@@ -454,7 +455,7 @@ void CMusicHandler::playMusicFromSet(const std::string & whichSet, const std::st
 		return;
 
 	// in this mode - play specific track from set
-	queueNext(this, "", selectedEntry->second, loop);
+	queueNext(this, "", selectedEntry->second, loop, fromStart);
 }
 
 void CMusicHandler::queueNext(std::unique_ptr<MusicEntry> queued)
@@ -473,11 +474,11 @@ void CMusicHandler::queueNext(std::unique_ptr<MusicEntry> queued)
 	}
 }
 
-void CMusicHandler::queueNext(CMusicHandler *owner, const std::string & setName, const std::string & musicURI, bool looped)
+void CMusicHandler::queueNext(CMusicHandler *owner, const std::string & setName, const std::string & musicURI, bool looped, bool fromStart)
 {
 	try
 	{
-		queueNext(make_unique<MusicEntry>(owner, setName, musicURI, looped));
+		queueNext(make_unique<MusicEntry>(owner, setName, musicURI, looped, fromStart));
 	}
 	catch(std::exception &e)
 	{
@@ -526,10 +527,13 @@ void CMusicHandler::musicFinishedCallback()
 	}
 }
 
-MusicEntry::MusicEntry(CMusicHandler *owner, std::string setName, std::string musicURI, bool looped):
+MusicEntry::MusicEntry(CMusicHandler *owner, std::string setName, std::string musicURI, bool looped, bool fromStart):
 	owner(owner),
 	music(nullptr),
+	startTime(uint32_t(-1)),
+	startPosition(0),
 	loop(looped ? -1 : 1),
+	fromStart(fromStart),
 	setName(std::move(setName))
 {
 	if (!musicURI.empty())
@@ -578,11 +582,25 @@ bool MusicEntry::play()
 	}
 
 	logGlobal->trace("Playing music file %s", currentName);
-	if(Mix_PlayMusic(music, 1) == -1)
+
+	if ( !fromStart && owner->trackPositions.count(currentName) > 0 && owner->trackPositions[currentName] > 0)
+	{
+		float timeToStart = owner->trackPositions[currentName];
+		startPosition = std::round(timeToStart * 1000);
+
+		if (Mix_FadeInMusicPos(music, 1, 1000, timeToStart) == -1)
+		{
+			logGlobal->error("Unable to play music (%s)", Mix_GetError());
+			return false;
+		}
+	}
+	else if(Mix_PlayMusic(music, 1) == -1)
 	{
 		logGlobal->error("Unable to play music (%s)", Mix_GetError());
 		return false;
 	}
+
+	startTime = SDL_GetTicks();
 	return true;
 }
 
@@ -590,8 +608,13 @@ bool MusicEntry::stop(int fade_ms)
 {
 	if (Mix_PlayingMusic())
 	{
-		logGlobal->trace("Stopping music file %s", currentName);
 		loop = 0;
+		uint32_t endTime = SDL_GetTicks();
+		assert(startTime != uint32_t(-1));
+		float playDuration = (endTime - startTime + startPosition) / 1000.f;
+		owner->trackPositions[currentName] = playDuration;
+		logGlobal->info("Stopping music file %s at %f", currentName, playDuration);
+
 		Mix_FadeOutMusic(fade_ms);
 		return true;
 	}

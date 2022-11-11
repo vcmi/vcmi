@@ -411,7 +411,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 	{
 		if(LOCPLINT->battleInt)
 		{
-			CCS->musich->playMusicFromSet("battle", true);
+			CCS->musich->playMusicFromSet("battle", true, true);
 			battleActionsStarted = true;
 			blockUI(settings["session"]["spectate"].Bool());
 			battleIntroSoundChannel = -1;
@@ -457,7 +457,7 @@ CBattleInterface::~CBattleInterface()
 	if (adventureInt && adventureInt->selection)
 	{
 		const auto & terrain = *(LOCPLINT->cb->getTile(adventureInt->selection->visitablePos())->terType);
-		CCS->musich->playMusicFromSet("terrain", terrain.name, true);
+		CCS->musich->playMusicFromSet("terrain", terrain.name, true, false);
 	}
 	animsAreDisplayed.setn(false);
 }
@@ -859,17 +859,17 @@ void CBattleInterface::reallySurrender()
 
 void CBattleInterface::bAutofightf()
 {
-	if (spellDestSelectMode) //we are casting a spell
+	if(spellDestSelectMode) //we are casting a spell
 		return;
 
 	//Stop auto-fight mode
-	if (curInt->isAutoFightOn)
+	if(curInt->isAutoFightOn)
 	{
 		assert(curInt->autofightingAI);
 		curInt->isAutoFightOn = false;
 		logGlobal->trace("Stopping the autofight...");
 	}
-	else
+	else if(!curInt->autofightingAI)
 	{
 		curInt->isAutoFightOn = true;
 		blockUI(true);
@@ -1619,7 +1619,9 @@ void CBattleInterface::activateStack()
 
 	setActiveStack(stackToActivate);
 	stackToActivate = nullptr;
-	const CStack *s = activeStack;
+	const CStack * s = activeStack;
+	if(!s)
+		return;
 
 	queue->update();
 	redrawBackgroundWithHexes(activeStack);

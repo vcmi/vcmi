@@ -46,7 +46,7 @@ void CCreGenAsCastleInfo::serializeJson(JsonSerializeFormat & handler)
 
 	if(!handler.saving)
 	{
-		asCastle = (instanceId != "");
+		asCastle = !instanceId.empty();
 		allowedFactions.clear();
 	}
 
@@ -1146,7 +1146,7 @@ std::string CGTownInstance::nodeName() const
 
 void CGTownInstance::deserializationFix()
 {
-	attachTo(&townAndVis);
+	attachTo(townAndVis);
 
 	//Hero is already handled by CGameState::attachArmedObjects
 
@@ -1216,8 +1216,8 @@ void CGTownInstance::setVisitingHero(CGHeroInstance *h)
 	{
 		PlayerState *p = cb->gameState()->getPlayerState(h->tempOwner);
 		assert(p);
-		h->detachFrom(p);
-		h->attachTo(&townAndVis);
+		h->detachFrom(*p);
+		h->attachTo(townAndVis);
 		visitingHero = h;
 		h->visitedTown = this;
 		h->inTownGarrison = false;
@@ -1226,8 +1226,8 @@ void CGTownInstance::setVisitingHero(CGHeroInstance *h)
 	{
 		PlayerState *p = cb->gameState()->getPlayerState(visitingHero->tempOwner);
 		visitingHero->visitedTown = nullptr;
-		visitingHero->detachFrom(&townAndVis);
-		visitingHero->attachTo(p);
+		visitingHero->detachFrom(townAndVis);
+		visitingHero->attachTo(*p);
 		visitingHero = nullptr;
 	}
 }
@@ -1239,8 +1239,8 @@ void CGTownInstance::setGarrisonedHero(CGHeroInstance *h)
 	{
 		PlayerState *p = cb->gameState()->getPlayerState(h->tempOwner);
 		assert(p);
-		h->detachFrom(p);
-		h->attachTo(this);
+		h->detachFrom(*p);
+		h->attachTo(*this);
 		garrisonHero = h;
 		h->visitedTown = this;
 		h->inTownGarrison = true;
@@ -1250,8 +1250,8 @@ void CGTownInstance::setGarrisonedHero(CGHeroInstance *h)
 		PlayerState *p = cb->gameState()->getPlayerState(garrisonHero->tempOwner);
 		garrisonHero->visitedTown = nullptr;
 		garrisonHero->inTownGarrison = false;
-		garrisonHero->detachFrom(this);
-		garrisonHero->attachTo(p);
+		garrisonHero->detachFrom(*this);
+		garrisonHero->attachTo(*p);
 		garrisonHero = nullptr;
 	}
 	updateMoraleBonusFromArmy(); //avoid giving morale bonus for same army twice
@@ -1290,9 +1290,9 @@ int CGTownInstance::getTownLevel() const
 	return level;
 }
 
-CBonusSystemNode * CGTownInstance::whatShouldBeAttached()
+CBonusSystemNode & CGTownInstance::whatShouldBeAttached()
 {
-	return &townAndVis;
+	return townAndVis;
 }
 
 const CArmedInstance * CGTownInstance::getUpperArmy() const

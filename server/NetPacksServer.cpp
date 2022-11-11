@@ -180,6 +180,13 @@ bool ExchangeArtifacts::applyGh(CGameHandler * gh)
 	return gh->moveArtifact(src, dst);
 }
 
+bool BulkExchangeArtifacts::applyGh(CGameHandler * gh)
+{
+	const CGHeroInstance * pSrcHero = gh->getHero(srcHero);
+	throwOnWrongPlayer(gh, pSrcHero->getOwner());
+	return gh->bulkMoveArtifacts(srcHero, dstHero, swap);
+}
+
 bool AssembleArtifacts::applyGh(CGameHandler * gh)
 {
 	throwOnWrongOwner(gh, heroID);

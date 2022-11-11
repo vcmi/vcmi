@@ -275,8 +275,31 @@ void EraseArtifact::applyCl(CClient *cl)
 void MoveArtifact::applyCl(CClient *cl)
 {
 	callInterfaceIfPresent(cl, src.owningPlayer(), &IGameEventsReceiver::artifactMoved, src, dst);
+	callInterfaceIfPresent(cl, src.owningPlayer(), &IGameEventsReceiver::artifactPossibleAssembling, dst);
 	if(src.owningPlayer() != dst.owningPlayer())
+	{
 		callInterfaceIfPresent(cl, dst.owningPlayer(), &IGameEventsReceiver::artifactMoved, src, dst);
+		callInterfaceIfPresent(cl, dst.owningPlayer(), &IGameEventsReceiver::artifactPossibleAssembling, dst);
+	}
+}
+
+void BulkMoveArtifacts::applyCl(CClient * cl)
+{
+	auto applyMove = [this, cl](std::vector<LinkedSlots> & artsPack) -> void
+	{
+		for(auto & slotToMove : artsPack)
+		{
+			auto srcLoc = ArtifactLocation(srcArtHolder, slotToMove.srcPos);
+			auto dstLoc = ArtifactLocation(dstArtHolder, slotToMove.dstPos);
+			callInterfaceIfPresent(cl, srcLoc.owningPlayer(), &IGameEventsReceiver::artifactMoved, srcLoc, dstLoc);
+			if(srcLoc.owningPlayer() != dstLoc.owningPlayer())
+				callInterfaceIfPresent(cl, dstLoc.owningPlayer(), &IGameEventsReceiver::artifactMoved, srcLoc, dstLoc);
+		}
+	};
+
+	applyMove(artsPack0);
+	if(swap)
+		applyMove(artsPack1);
 }
 
 void AssembledArtifact::applyCl(CClient *cl)
