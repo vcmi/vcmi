@@ -18,6 +18,7 @@ class CModListView;
 }
 
 class CModManager;
+class CModList;
 class CModListModel;
 class CModFilterModel;
 class CDownloadManager;
@@ -79,6 +80,8 @@ public:
 
 	void selectMod(const QModelIndex & index);
 	bool isExtraResolutionsModEnabled() const;
+
+	const CModList & getModList() const;
 
 private slots:
 	void dataChanged(const QModelIndex & topleft, const QModelIndex & bottomRight);

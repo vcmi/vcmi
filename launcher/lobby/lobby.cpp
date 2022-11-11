@@ -21,18 +21,16 @@ SocketLobby::SocketLobby(QObject *parent) :
 	connect(socket, SIGNAL(bytesWritten(qint64)), this, SLOT(bytesWritten(qint64)));
 }
 
-void SocketLobby::connectServer(const QString & host, int port, const QString & usr)
+void SocketLobby::connectServer(const QString & host, int port, const QString & usr, int timeout)
 {
-	const int connectionTimeout = 1000;
 	username = usr;
-
-	emit text("Connecting to " + host + ":" + QString::number(port));
 
 	socket->connectToHost(host, port);
 
-	if(!socket->waitForDisconnected(connectionTimeout) && !isConnected)
+	if(!socket->waitForDisconnected(timeout) && !isConnected)
 	{
 		emit text("Error: " + socket->errorString());
+		emit disconnect();
 	}
 }
 
@@ -41,15 +39,15 @@ void SocketLobby::disconnectServer()
 	socket->disconnectFromHost();
 }
 
-void SocketLobby::requestNewSession(const QString & session, int totalPlayers, const QString & pswd)
+void SocketLobby::requestNewSession(const QString & session, int totalPlayers, const QString & pswd, const QMap<QString, QString> & mods)
 {
-	const QString sessionMessage = ProtocolStrings[CREATE].arg(session, pswd, QString::number(totalPlayers));
+	const QString sessionMessage = ProtocolStrings[CREATE].arg(session, pswd, QString::number(totalPlayers), prepareModsClientString(mods));
 	send(sessionMessage);
 }
 
-void SocketLobby::requestJoinSession(const QString & session, const QString & pswd)
+void SocketLobby::requestJoinSession(const QString & session, const QString & pswd, const QMap<QString, QString> & mods)
 {
-	const QString sessionMessage = ProtocolStrings[JOIN].arg(session, pswd);
+	const QString sessionMessage = ProtocolStrings[JOIN].arg(session, pswd, prepareModsClientString(mods));
 	send(sessionMessage);
 }
 
@@ -67,9 +65,10 @@ void SocketLobby::requestReadySession(const QString & session)
 
 void SocketLobby::send(const QString & msg)
 {
-	int sz = msg.size();
+	QByteArray str = msg.toUtf8();
+	int sz = str.size();
 	QByteArray pack((const char *)&sz, sizeof(sz));
-	pack.append(qUtf8Printable(msg));
+	pack.append(str);
 	socket->write(pack);
 }
 
@@ -111,4 +110,14 @@ ServerCommand::ServerCommand(ProtocolConsts cmd, const QStringList & args):
 	command(cmd),
 	arguments(args)
 {
+}
+
+QString prepareModsClientString(const QMap<QString, QString> & mods)
+{
+	QStringList result;
+	for(auto & mod : mods.keys())
+	{
+		result << mod + "&" + mods[mod];
+	}
+	return result.join(";");
 }

@@ -203,7 +203,7 @@ void CMapHeader::setupEvents()
 	standardVictory.effect.type = EventEffect::VICTORY;
 	standardVictory.effect.toOtherMessage = VLC->generaltexth->allTexts[5];
 	standardVictory.identifier = "standardVictory";
-	standardVictory.description = ""; // TODO: display in quest window
+	standardVictory.description.clear(); // TODO: display in quest window
 	standardVictory.onFulfill = VLC->generaltexth->allTexts[659];
 	standardVictory.trigger = EventExpression(victoryCondition);
 
@@ -212,7 +212,7 @@ void CMapHeader::setupEvents()
 	standardDefeat.effect.type = EventEffect::DEFEAT;
 	standardDefeat.effect.toOtherMessage = VLC->generaltexth->allTexts[8];
 	standardDefeat.identifier = "standardDefeat";
-	standardDefeat.description = ""; // TODO: display in quest window
+	standardDefeat.description.clear(); // TODO: display in quest window
 	standardDefeat.onFulfill = VLC->generaltexth->allTexts[7];
 	standardDefeat.trigger = EventExpression(defeatCondition);
 
@@ -651,7 +651,7 @@ void CMap::addNewObject(CGObjectInstance * obj)
 	if(obj->id != ObjectInstanceID((si32)objects.size()))
 		throw std::runtime_error("Invalid object instance id");
 
-	if(obj->instanceName == "")
+	if(obj->instanceName.empty())
 		throw std::runtime_error("Object instance name missing");
 
 	if (vstd::contains(instanceNames, obj->instanceName))

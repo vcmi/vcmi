@@ -825,3 +825,9 @@ void CModListView::on_showInfoButton_clicked()
 {
 	showModInfo();
 }
+
+const CModList & CModListView::getModList() const
+{
+	assert(modModel);
+	return *modModel;
+}

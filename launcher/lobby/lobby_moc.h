@@ -17,7 +17,8 @@ public:
 private slots:
 	void on_messageEdit_returnPressed();
 
-	void chatMessage(QString);
+	void chatMessage(QString title, QString body, bool isSystem = false);
+	void sysMessage(QString body);
 	void dispatchMessage(QString);
 	void serverCommand(const ServerCommand &);
 
@@ -41,6 +42,17 @@ private:
 	QString username;
 	QStringList gameArgs;
 
+	enum AuthStatus
+	{
+		AUTH_NONE, AUTH_OK, AUTH_ERROR
+	};
+
+	AuthStatus authentificationStatus = AUTH_NONE;
+
 private:
+	QMap<QString, QString> buildModsMap() const;
+	bool isModAvailable(const QString & modName, const QString & modVersion) const;
+
+
 	void protocolAssert(bool);
 };

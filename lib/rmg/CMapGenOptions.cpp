@@ -70,7 +70,7 @@ void CMapGenOptions::setPlayerCount(si8 value)
 	assert((value >= 1 && value <= PlayerColor::PLAYER_LIMIT_I) || value == RANDOM_SIZE);
 	playerCount = value;
 
-	auto possibleCompPlayersCount = value;
+	auto possibleCompPlayersCount = PlayerColor::PLAYER_LIMIT_I - value;
 	if (compOnlyPlayerCount > possibleCompPlayersCount)
 		setCompOnlyPlayerCount(possibleCompPlayersCount);
 

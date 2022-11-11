@@ -274,7 +274,7 @@ public:
 	}
 	//////////////////////////////////////////////////////////////////////////
 
-	CBonusSystemNode *whatShouldBeAttached() override;
+	CBonusSystemNode & whatShouldBeAttached() override;
 	std::string nodeName() const override;
 	void updateMoraleBonusFromArmy() override;
 	void deserializationFix();

@@ -82,13 +82,14 @@ void CStack::localInit(BattleInfo * battleInfo)
 	exportBonuses();
 	if(base) //stack originating from "real" stack in garrison -> attach to it
 	{
-		attachTo(const_cast<CStackInstance *>(base));
+		attachTo(const_cast<CStackInstance&>(*base));
 	}
 	else //attach directly to obj to which stack belongs and creature type
 	{
 		CArmedInstance * army = battle->battleGetArmyObject(side);
-		attachTo(army);
-		attachTo(const_cast<CCreature *>(type));
+		assert(army);
+		attachTo(*army);
+		attachTo(const_cast<CCreature&>(*type));
 	}
 	nativeTerrain = type->getNativeTerrain(); //save nativeTerrain in the variable on the battle start to avoid dead lock
 	CUnitState::localInit(this); //it causes execution of the CStack::isOnNativeTerrain where nativeTerrain will be considered

@@ -107,6 +107,10 @@ RandomMapTab::RandomMapTab()
 	groupCompOnlyPlayers->addCallback([&](int btnId)
 	{
 		mapGenOptions->setCompOnlyPlayerCount(btnId);
+		
+		// deactive some MaxPlayers buttons to prevent total number of players exceeds PlayerColor::PLAYER_LIMIT_I
+		deactivateButtonsFrom(groupMaxPlayers.get(), PlayerColor::PLAYER_LIMIT_I - btnId + 1);
+		
 		deactivateButtonsFrom(groupCompOnlyTeams.get(), (btnId == 0 ? 1 : btnId));
 		validateCompOnlyPlayersCnt(btnId);
 		updateMapInfoByHost();

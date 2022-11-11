@@ -13,7 +13,7 @@ class LobbyRoomRequest : public QDialog
 	Q_OBJECT
 
 public:
-	explicit LobbyRoomRequest(SocketLobby & socket, const QString & room, QWidget *parent = nullptr);
+	explicit LobbyRoomRequest(SocketLobby & socket, const QString & room, const QMap<QString, QString> & mods, QWidget *parent = nullptr);
 	~LobbyRoomRequest();
 
 private slots:
@@ -22,6 +22,7 @@ private slots:
 private:
 	Ui::LobbyRoomRequest *ui;
 	SocketLobby & socketLobby;
+	QMap<QString, QString> mods;
 };
 
 #endif // LOBBYROOMREQUEST_MOC_H

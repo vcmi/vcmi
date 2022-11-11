@@ -55,7 +55,7 @@ static void retrieveTurretDamageRange(const CGTownInstance * town, const battle:
 	const int baseDamage = 15;
 
 	outMinDmg = multiplier * (baseDamage + town->getTownLevel() * 3);
-	outMaxDmg = multiplier * (baseDamage + town->getTownLevel() * 3);
+	outMaxDmg = outMinDmg;
 }
 
 static BattleHex lineToWallHex(int line) //returns hex with wall in given line (y coordinate)

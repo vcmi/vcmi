@@ -10,7 +10,6 @@
 #pragma once
 #include <QMainWindow>
 #include <QStringList>
-#include "main.h"
 
 namespace Ui
 {
@@ -20,6 +19,8 @@ const QString appName = "VCMI Launcher";
 }
 
 class QTableWidgetItem;
+class CModList;
+
 
 class MainWindow : public QMainWindow
 {
@@ -28,16 +29,14 @@ class MainWindow : public QMainWindow
 private:
 	Ui::MainWindow * ui;
 	void load();
-#ifndef Q_OS_IOS
-	void startExecutable(QString name, const QStringList & args);
-#endif
 
 public:
 	explicit MainWindow(QWidget * parent = 0);
 	~MainWindow();
-	
-	void startGame(const QStringList & args);
 
+	const CModList & getModList() const;
+
+	
 public slots:
 	void on_startGameButton_clicked();
 };

@@ -192,7 +192,7 @@ void CTradeWindow::CTradeableItem::clickLeft(tribool down, bool previousState)
 
 				aw->arts->artifactsOnAltar.erase(art);
 				setID(-1);
-				subtitle = "";
+				subtitle.clear();
 				aw->deal->block(!aw->arts->artifactsOnAltar.size());
 			}
 

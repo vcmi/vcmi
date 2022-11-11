@@ -334,7 +334,7 @@ BuildingInfo::BuildingInfo()
 	buildCost = 0;
 	buildCostWithPrerequisits = 0;
 	prerequisitesCount = 0;
-	name = "";
+	name.clear();
 	armyStrength = 0;
 }
 

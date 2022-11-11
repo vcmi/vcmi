@@ -152,9 +152,9 @@
        </sizepolicy>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
-      <widget class="CModListView" name="stackedWidgetPage2"/>
+      <widget class="CModListView" name="modlistView"/>
       <widget class="CSettingsView" name="settingsView"/>
       <widget class="Lobby" name="lobbyView"/>
      </widget>

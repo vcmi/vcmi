@@ -11,7 +11,6 @@
 #include "mainwindow_moc.h"
 #include "ui_mainwindow_moc.h"
 
-#include <QProcess>
 #include <QDir>
 
 #include "../lib/CConfigHandler.h"
@@ -21,11 +20,6 @@
 
 #include "updatedialog_moc.h"
 #include "main.h"
-
-#ifdef VCMI_IOS
-int __argc;
-char ** __argv;
-#endif
 
 void MainWindow::load()
 {
@@ -91,9 +85,9 @@ MainWindow::MainWindow(QWidget * parent)
 	}
 	ui->tabListWidget->setCurrentIndex(0);
 
-	ui->settingsView->isExtraResolutionsModEnabled = ui->stackedWidgetPage2->isExtraResolutionsModEnabled();
+	ui->settingsView->isExtraResolutionsModEnabled = ui->modlistView->isExtraResolutionsModEnabled();
 	ui->settingsView->setDisplayList();
-	connect(ui->stackedWidgetPage2, &CModListView::extraResolutionsEnabledChanged,
+	connect(ui->modlistView, &CModListView::extraResolutionsEnabledChanged,
 		ui->settingsView, &CSettingsView::fillValidResolutions);
 
 	connect(ui->tabSelectList, &QListWidget::currentRowChanged, [this](int i) {
@@ -118,49 +112,12 @@ MainWindow::~MainWindow()
 	delete ui;
 }
 
-void MainWindow::startGame(const QStringList & args)
-{
-#ifdef Q_OS_IOS
-	__argc = args.size() + 1; //first argument is omitted
-	__argv = new char*[__argc];
-	__argv[0] = "vcmiclient";
-	for(int i = 1; i < __argc; ++i)
-	{
-		const char * s = args[i].toLocal8Bit().constData();
-		__argv[i] = new char[strlen(s)];
-		strcpy(__argv[i], s);
-	}
-	
-	logGlobal->warn("Starting game with the arguments: %s", args.join(" ").toStdString());
-	qApp->quit();
-#else
-	startExecutable(pathToQString(VCMIDirs::get().clientPath()), args);
-#endif
-}
-
 void MainWindow::on_startGameButton_clicked()
 {
 	startGame({});
 }
 
-#ifndef Q_OS_IOS
-void MainWindow::startExecutable(QString name, const QStringList & args)
+const CModList & MainWindow::getModList() const
 {
-	QProcess process;
-
-	// Start the executable
-	if(process.startDetached(name, args))
-	{
-		close(); // exit launcher
-	}
-	else
-	{
-		QMessageBox::critical(this,
-		                      "Error starting executable",
-		                      "Failed to start " + name + "\n"
-		                      "Reason: " + process.errorString(),
-		                      QMessageBox::Ok,
-		                      QMessageBox::Ok);
-	}
+	return ui->modlistView->getModList();
 }
-#endif

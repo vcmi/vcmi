@@ -532,7 +532,7 @@ std::pair<Obj,int> CGameState::pickObject (CGObjectInstance *obj)
 			if (auto info = dynamic_cast<CCreGenAsCastleInfo*>(dwl->info))
 			{
 				faction = getRandomGenerator().nextInt((int)VLC->townh->size() - 1);
-				if(info->asCastle && info->instanceId != "")
+				if(info->asCastle && !info->instanceId.empty())
 				{
 					auto iter = map->instanceNames.find(info->instanceId);
 
@@ -2724,13 +2724,13 @@ void CGameState::buildGlobalTeamPlayerTree()
 	for(auto k=teams.begin(); k!=teams.end(); ++k)
 	{
 		TeamState *t = &k->second;
-		t->attachTo(&globalEffects);
+		t->attachTo(globalEffects);
 
 		for(PlayerColor teamMember : k->second.players)
 		{
 			PlayerState *p = getPlayerState(teamMember);
 			assert(p);
-			p->attachTo(t);
+			p->attachTo(*t);
 		}
 	}
 }
@@ -2740,7 +2740,9 @@ void CGameState::attachArmedObjects()
 	for(CGObjectInstance *obj : map->objects)
 	{
 		if(CArmedInstance *armed = dynamic_cast<CArmedInstance*>(obj))
-			armed->whatShouldBeAttached()->attachTo(armed->whereShouldBeAttached(this));
+		{
+			armed->whatShouldBeAttached().attachTo(armed->whereShouldBeAttached(this));
+		}
 	}
 }
 
