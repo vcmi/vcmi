@@ -142,17 +142,18 @@ void CArmedInstance::armyChanged()
 	updateMoraleBonusFromArmy();
 }
 
-CBonusSystemNode * CArmedInstance::whereShouldBeAttached(CGameState *gs)
+CBonusSystemNode & CArmedInstance::whereShouldBeAttached(CGameState * gs)
 {
 	if(tempOwner < PlayerColor::PLAYER_LIMIT)
-		return gs->getPlayerState(tempOwner);
-	else
-		return &gs->globalEffects;
+		if(auto * where = gs->getPlayerState(tempOwner))
+			return *where;
+
+	return gs->globalEffects;
 }
 
-CBonusSystemNode * CArmedInstance::whatShouldBeAttached()
+CBonusSystemNode & CArmedInstance::whatShouldBeAttached()
 {
-	return this;
+	return *this;
 }
 
 VCMI_LIB_NAMESPACE_END

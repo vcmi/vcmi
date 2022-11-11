@@ -85,7 +85,7 @@ ObstacleInfo * ObstacleHandler::loadFromJson(const std::string & scope, const Js
 	info->animation = json["animation"].String();
 	info->width = json["width"].Integer();
 	info->height = json["height"].Integer();
-	for(auto & t : json["allowedTerrain"].Vector())
+	for(auto & t : json["allowedTerrains"].Vector())
 		info->allowedTerrains.emplace_back(VLC->terrainTypeHandler->getInfoByName(t.String())->id);
 	for(auto & t : json["specialBattlefields"].Vector())
 		info->allowedSpecialBfields.emplace_back(t.String());

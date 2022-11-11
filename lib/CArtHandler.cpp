@@ -729,7 +729,7 @@ CArtifactInstance::CArtifactInstance( CArtifact *Art)
 void CArtifactInstance::setType( CArtifact *Art )
 {
 	artType = Art;
-	attachTo(Art);
+	attachTo(*Art);
 }
 
 std::string CArtifactInstance::nodeName() const
@@ -852,7 +852,7 @@ void CArtifactInstance::putAt(ArtifactLocation al)
 
 	al.getHolderArtSet()->setNewArtSlot(al.slot, this, false);
 	if(al.slot < GameConstants::BACKPACK_START)
-		al.getHolderNode()->attachTo(this);
+		al.getHolderNode()->attachTo(*this);
 }
 
 void CArtifactInstance::removeFrom(ArtifactLocation al)
@@ -860,7 +860,7 @@ void CArtifactInstance::removeFrom(ArtifactLocation al)
 	assert(al.getHolderArtSet()->getArt(al.slot) == this);
 	al.getHolderArtSet()->eraseArtSlot(al.slot);
 	if(al.slot < GameConstants::BACKPACK_START)
-		al.getHolderNode()->detachFrom(this);
+		al.getHolderNode()->detachFrom(*this);
 
 	//TODO delete me?
 }
@@ -1054,7 +1054,7 @@ void CCombinedArtifactInstance::addAsConstituent(CArtifactInstance *art, Artifac
 	assert(vstd::contains(*artType->constituents, art->artType.get()));
 	assert(art->getParentNodes().size() == 1  &&  art->getParentNodes().front() == art->artType);
 	constituentsInfo.push_back(ConstituentInfo(art, slot));
-	attachTo(art);
+	attachTo(*art);
 }
 
 void CCombinedArtifactInstance::putAt(ArtifactLocation al)
@@ -1143,7 +1143,7 @@ CArtifactInstance * CCombinedArtifactInstance::figureMainConstituent(const Artif
 void CCombinedArtifactInstance::deserializationFix()
 {
 	for(ConstituentInfo &ci : constituentsInfo)
-		attachTo(ci.art);
+		attachTo(*ci.art);
 }
 
 bool CCombinedArtifactInstance::isPart(const CArtifactInstance *supposedPart) const
@@ -1350,7 +1350,7 @@ void CArtifactSet::artDeserializationFix(CBonusSystemNode *node)
 {
 	for(auto & elem : artifactsWorn)
 		if(elem.second.artifact && !elem.second.locked)
-			node->attachTo(elem.second.artifact);
+			node->attachTo(*elem.second.artifact);
 }
 
 void CArtifactSet::serializeJsonArtifacts(JsonSerializeFormat & handler, const std::string & fieldName, CMap * map)
