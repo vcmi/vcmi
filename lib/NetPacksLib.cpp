@@ -1097,74 +1097,71 @@ DLL_LINKAGE void MoveArtifact::applyGs(CGameState * gs)
 
 DLL_LINKAGE void BulkMoveArtifacts::applyGs(CGameState * gs)
 {
+	enum class EBulkArtsOp
+	{
+		BULK_MOVE,
+		BULK_REMOVE,
+		BULK_PUT
+	};
+
+	auto bulkArtsOperation = [this](std::vector<LinkedSlots> & artsPack, 
+		CArtifactSet * artSet, EBulkArtsOp operation) -> void
+	{
+		int numBackpackArtifactsMoved = 0;
+		for(auto & slot : artsPack)
+		{
+			// When an object gets removed from the backpack, the backpack shrinks
+			// so all the following indices will be affected. Thus, we need to update
+			// the subsequent artifact slots to account for that
+			auto srcPos = slot.srcPos;
+			if((srcPos >= GameConstants::BACKPACK_START) && (operation != EBulkArtsOp::BULK_PUT))
+			{
+				srcPos = ArtifactPosition(srcPos.num - numBackpackArtifactsMoved);
+			}
+			auto slotInfo = artSet->getSlot(srcPos);
+			assert(slotInfo);
+			auto art = const_cast<CArtifactInstance*>(slotInfo->getArt());
+			assert(art);
+			switch(operation)
+			{
+			case EBulkArtsOp::BULK_MOVE:
+				const_cast<CArtifactInstance*>(art)->move(
+					ArtifactLocation(srcArtHolder, srcPos), ArtifactLocation(dstArtHolder, slot.dstPos));
+				break;
+			case EBulkArtsOp::BULK_REMOVE:
+				art->removeFrom(ArtifactLocation(dstArtHolder, srcPos));
+				break;
+			case EBulkArtsOp::BULK_PUT:
+				art->putAt(ArtifactLocation(srcArtHolder, slot.dstPos));
+				break;
+			default:
+				break;
+			}
+
+			if(srcPos >= GameConstants::BACKPACK_START)
+			{
+				numBackpackArtifactsMoved++;
+			}
+		}
+	};
+	
 	if(swap)
 	{
 		// Swap
 		auto leftSet = getSrcHolderArtSet();
 		auto rightSet = getDstHolderArtSet();
 		CArtifactFittingSet ArtFittingSet(leftSet->bearerType());
-		std::vector<std::pair<ArtifactPosition, ArtSlotInfo>> unmovableArtsLeftHero, unmovableArtsRightHero;
-
-		// Keep unmovable artifacts separately until the swap
-		for(auto artPos : ArtifactUtils::unmovablePositions())
-		{
-			auto slotInfo = leftSet->getSlot(artPos);
-			if(slotInfo)
-			{
-				unmovableArtsLeftHero.push_back(std::make_pair(artPos, *slotInfo));
-				leftSet->eraseArtSlot(artPos);
-			}
-
-			slotInfo = rightSet->getSlot(artPos);
-			if(slotInfo)
-			{
-				unmovableArtsRightHero.push_back(std::make_pair(artPos, *slotInfo));
-				rightSet->eraseArtSlot(artPos);
-			}
-		}
 
 		ArtFittingSet.artifactsWorn = rightSet->artifactsWorn;
 		ArtFittingSet.artifactsInBackpack = rightSet->artifactsInBackpack;
-		rightSet->artifactsWorn = leftSet->artifactsWorn;
-		rightSet->artifactsInBackpack = leftSet->artifactsInBackpack;
-		leftSet->artifactsWorn = ArtFittingSet.artifactsWorn;
-		leftSet->artifactsInBackpack = ArtFittingSet.artifactsInBackpack;
 
-		// Return non movable artifacts to their place after the swap
-		for(auto & art : unmovableArtsLeftHero)
-		{
-			leftSet->putArtifact(art.first, art.second.artifact);
-		}
-		for(auto & art : unmovableArtsRightHero)
-		{
-			rightSet->putArtifact(art.first, art.second.artifact);
-		}
+		bulkArtsOperation(artsPack1, rightSet, EBulkArtsOp::BULK_REMOVE);
+		bulkArtsOperation(artsPack0, leftSet, EBulkArtsOp::BULK_MOVE);
+		bulkArtsOperation(artsPack1, &ArtFittingSet, EBulkArtsOp::BULK_PUT);
 	}
 	else
 	{
-		// Move
-		int numBackpackArtifactsMoved = 0;
-		for(auto & slot : artsPack0)
-		{
-			// When an object gets removed from the backpack, the backpack shrinks
-			// so all the following indices will be affected. Thus, we need to update
-			// the subsequent artifact slots to account for that
-			if(slot.srcPos >= GameConstants::BACKPACK_START)
-			{
-				slot.srcPos = ArtifactPosition(slot.srcPos.num - numBackpackArtifactsMoved);
-			}
-			auto srcSlotInfo = getSrcHolderArtSet()->getSlot(slot.srcPos);
-			assert(srcSlotInfo);
-
-			auto art = srcSlotInfo->getArt();
-			const_cast<CArtifactInstance*>(art)->move(
-				ArtifactLocation(srcArtHolder, slot.srcPos), ArtifactLocation(dstArtHolder, slot.dstPos));
-
-			if(slot.srcPos >= GameConstants::BACKPACK_START)
-			{
-				numBackpackArtifactsMoved++;
-			}
-		}
+		bulkArtsOperation(artsPack0, getSrcHolderArtSet(), EBulkArtsOp::BULK_MOVE);
 	}
 }
 
