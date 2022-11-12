@@ -23,7 +23,7 @@ SocketLobby::SocketLobby(QObject *parent) :
 
 void SocketLobby::connectServer(const QString & host, int port, const QString & usr)
 {
-	const int connectionTimeout = 1000;
+	const int connectionTimeout = 2000;
 	username = usr;
 
 	emit text("Connecting to " + host + ":" + QString::number(port));

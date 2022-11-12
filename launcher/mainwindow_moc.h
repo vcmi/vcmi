@@ -36,8 +36,6 @@ public:
 	explicit MainWindow(QWidget * parent = 0);
 	~MainWindow();
 	
-	void startGame(const QStringList & args);
-
 public slots:
 	void on_startGameButton_clicked();
 };
