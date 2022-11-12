@@ -1,4 +1,5 @@
 #include "StdInc.h"
+#include "main.h"
 #include "lobby_moc.h"
 #include "ui_lobby_moc.h"
 #include "lobbyroomrequest_moc.h"

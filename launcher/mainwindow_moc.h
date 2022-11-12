@@ -10,7 +10,6 @@
 #pragma once
 #include <QMainWindow>
 #include <QStringList>
-#include "main.h"
 
 namespace Ui
 {
@@ -28,9 +27,6 @@ class MainWindow : public QMainWindow
 private:
 	Ui::MainWindow * ui;
 	void load();
-#ifndef Q_OS_IOS
-	void startExecutable(QString name, const QStringList & args);
-#endif
 
 public:
 	explicit MainWindow(QWidget * parent = 0);
