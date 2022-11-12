@@ -123,7 +123,7 @@ void MainWindow::startGame(const QStringList & args)
 	__argv[0] = "vcmiclient";
 	for(int i = 1; i < __argc; ++i)
 	{
-		const char * s = args[i].toLocal8Bit().constData();
+		const char * s = args[i - 1].toLocal8Bit().constData();
 		__argv[i] = new char[strlen(s)];
 		strcpy(__argv[i], s);
 	}
