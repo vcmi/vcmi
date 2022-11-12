@@ -15,7 +15,7 @@
 		"specialBattlefields": {
 			"type": "array",
 			"description": "Obstacles can be placed on specified specified battlefields",
-			"items": { "$ref" : "battlefield.json" }
+			"items": { "type" : "string" }
 		},
 		"width": {
 			"type": "number",

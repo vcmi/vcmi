@@ -307,7 +307,7 @@ void Nullkiller::executeTask(Goals::TTask task)
 	{
 		logAi->trace("Task %s completed", task->toString());
 	}
-	catch(std::exception & e)
+	catch(cannotFulfillGoalException & e)
 	{
 		logAi->debug("Failed to realize subgoal of type %s, I will stop.", taskDescr);
 		logAi->debug("The error message was: %s", e.what());

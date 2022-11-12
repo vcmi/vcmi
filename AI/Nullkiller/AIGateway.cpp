@@ -774,8 +774,10 @@ void AIGateway::makeTurn()
 		retrieveVisitableObjs();
 	}
 
+#if NKAI_TRACE_LEVEL == 0
 	try
 	{
+#endif
 		nullkiller->makeTurn();
 
 		//for debug purpose
@@ -784,6 +786,7 @@ void AIGateway::makeTurn()
 			if (h->movement)
 				logAi->warn("Hero %s has %d MP left", h->name, h->movement);
 		}
+#if NKAI_TRACE_LEVEL == 0
 	}
 	catch (boost::thread_interrupted & e)
 	{
@@ -795,6 +798,7 @@ void AIGateway::makeTurn()
 	{
 		logAi->debug("Making turn thread has caught an exception: %s", e.what());
 	}
+#endif
 
 	endTurn();
 }

@@ -859,9 +859,6 @@ void CBattleInterface::reallySurrender()
 
 void CBattleInterface::bAutofightf()
 {
-	//if(bresult) //battle is already finished
-		//return;
-	
 	if(spellDestSelectMode) //we are casting a spell
 		return;
 
@@ -872,7 +869,7 @@ void CBattleInterface::bAutofightf()
 		curInt->isAutoFightOn = false;
 		logGlobal->trace("Stopping the autofight...");
 	}
-	else
+	else if(!curInt->autofightingAI)
 	{
 		curInt->isAutoFightOn = true;
 		blockUI(true);
@@ -1629,7 +1626,9 @@ void CBattleInterface::activateStack()
 
 	setActiveStack(stackToActivate);
 	stackToActivate = nullptr;
-	const CStack *s = activeStack;
+	const CStack * s = activeStack;
+	if(!s)
+		return;
 
 	queue->update();
 	redrawBackgroundWithHexes(activeStack);

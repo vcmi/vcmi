@@ -1011,7 +1011,7 @@ void MainWindow::onSelectionMade(int level, bool anythingSelected)
 {
 	if (level == mapLevel)
 	{
-		auto info = QString::asprintf("Selection on layer %d: %b", level, anythingSelected ? "true" : "false");
+		auto info = QString::asprintf("Selection on layer %d: %s", level, anythingSelected ? "true" : "false");
 		setStatusMessage(info);
 
 		ui->actionErase->setEnabled(anythingSelected);

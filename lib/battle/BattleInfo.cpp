@@ -84,7 +84,7 @@ void BattleInfo::localInit()
 	{
 		auto armyObj = battleGetArmyObject(i);
 		armyObj->battle = this;
-		armyObj->attachTo(this);
+		armyObj->attachTo(*this);
 	}
 
 	for(CStack * s : stacks)
