@@ -12,6 +12,7 @@
 
 #include <QApplication>
 #include <QProcess>
+#include <QMessageBox>
 #include "../lib/VCMIDirs.h"
 
 // Conan workaround https://github.com/conan-io/conan-center-index/issues/13332
