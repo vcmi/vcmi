@@ -14,7 +14,7 @@ SERVER_PORT = 5002 # port we want to use
 
 #logging
 logHandlerHighlevel = logging.FileHandler('proxyServer.log')
-logHandlerHighlevel.setLevel(logging.WARNING)
+logHandlerHighlevel.setLevel(logging.INFO)
 
 logHandlerLowlevel = logging.FileHandler('proxyServer_debug.log')
 logHandlerLowlevel.setLevel(logging.DEBUG)
@@ -308,6 +308,7 @@ def startRoom(room: Room):
     logging.warning(f"[*] Starting session {session.name}")
     session.host_uuid = str(uuid.uuid4())
     hostMessage = f":>>HOST:{session.host_uuid}:{room.joined - 1}" #one client will be connected locally
+    logging.debug(f"    host: {session.host_uuid} connections {room.joined - 1}")
     #host message must be before start message
     send(room.host, hostMessage)
 
@@ -334,14 +335,14 @@ def dispatch(cs: socket, sender: Sender, arr: bytes):
     msg = str(arr)
     if msg.find("Aiya!") != -1:
         sender.client = ClientPipe()
-        logging.debug("  vcmi recognized")
+        logging.debug("    vcmi recognized")
 
     if sender.isPipe():
         if sender.client.auth: #if already playing - sending raw bytes as is
             sender.client.prevmessages.append(arr)
         else:
             sender.client.prevmessages.append(struct.pack('<I', len(arr)) + arr) #pack message
-            logging.debug("  packing message")
+            logging.debug("    packing message")
             #search fo application type in the message
             match = re.search(r"\((\w+)\)", msg)
             _appType = ''
@@ -351,13 +352,13 @@ def dispatch(cs: socket, sender: Sender, arr: bytes):
             
             #extract uuid from message
             _uuid = arr.decode()
-            logging.debug(f"  decoding {_uuid}")
+            logging.debug(f"    decoding {_uuid}")
             if not _uuid == '' and not sender.client.apptype == '':
                 #search for uuid
                 for session in sessions:
                     #verify uuid of connected application
                     if _uuid.find(session.host_uuid) != -1 and sender.client.apptype == "server":
-                        logging.debug(f"  apptype {sender.client.apptype} uuid {_uuid}")
+                        logging.info(f"    apptype {sender.client.apptype} uuid {_uuid}")
                         session.addConnection(cs, True)
                         sender.client.session = session
                         sender.client.auth = True
@@ -365,13 +366,13 @@ def dispatch(cs: socket, sender: Sender, arr: bytes):
                         # this is workaround to send only one remaining byte
                         # WARNING: reversed byte order is not supported
                         sender.client.prevmessages.append(cs.recv(1))
-                        logging.debug(f"  binding server connection to session {session.name}")
+                        logging.info(f"    binding server connection to session {session.name}")
                         break
 
                     if sender.client.apptype == "client":
                         for p in session.clients_uuid:
                             if _uuid.find(p) != -1:
-                                logging.debug(f"  apptype {sender.client.apptype} uuid {_uuid}")
+                                logging.info(f"    apptype {sender.client.apptype} uuid {_uuid}")
                                 #client connection
                                 session.addConnection(cs, False)
                                 sender.client.session = session
@@ -380,7 +381,7 @@ def dispatch(cs: socket, sender: Sender, arr: bytes):
                                 # this is workaround to send only one remaining byte
                                 # WARNING: reversed byte order is not supported
                                 sender.client.prevmessages.append(cs.recv(1))
-                                logging.debug(f"  binding client connection to session {session.name}")
+                                logging.info(f"    binding client connection to session {session.name}")
                                 break
 
     #game mode

@@ -202,12 +202,12 @@ void CVCMIServer::run()
 void CVCMIServer::establishRemoteConnections()
 {
 	uuid = cmdLineOptions["lobby-uuid"].as<std::string>();
-	int numOfConnections = cmdLineOptions["connections"].as<ui8>();
+    int numOfConnections = cmdLineOptions["connections"].as<ui16>();
 	auto address = cmdLineOptions["lobby"].as<std::string>();
 	int port = cmdLineOptions["lobby-port"].as<ui16>();
-	logGlobal->info("Server is connecting to remote at %s:%d with uuid %d times", address, port, uuid, numOfConnections);
+	logGlobal->info("Server is connecting to remote at %s:%d with uuid %s %d times", address, port, uuid, numOfConnections);
 	
-	for(int i = 0; i < numOfConnections && i == remotePipeConnections; ++i, ++remotePipeConnections)
+	for(int i = 0; i < numOfConnections; ++i)
 		connectToRemote(address, port);
 }
 
@@ -1000,7 +1000,7 @@ static void handleCommandOptions(int argc, char * argv[], boost::program_options
 	("lobby", po::value<std::string>(), "address to remote lobby")
 	("lobby-port", po::value<ui16>(), "port at which server connect to remote lobby")
 	("lobby-uuid", po::value<std::string>(), "")
-	("connections", po::value<ui8>(), "amount of connections to remote lobby");
+	("connections", po::value<ui16>(), "amount of connections to remote lobby");
 
 	if(argc > 1)
 	{
