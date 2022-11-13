@@ -207,7 +207,7 @@ void CVCMIServer::establishRemoteConnections()
 	int port = cmdLineOptions["lobby-port"].as<ui16>();
 	logGlobal->info("Server is connecting to remote at %s:%d with uuid %d times", address, port, uuid, numOfConnections);
 	
-	for(int i = 0; i < numOfConnections; ++i)
+	for(int i = 0; i < numOfConnections && i == remotePipeConnections; ++i, ++remotePipeConnections)
 		connectToRemote(address, port);
 }
 

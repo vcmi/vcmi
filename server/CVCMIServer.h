@@ -53,6 +53,7 @@ class CVCMIServer : public LobbyInfo
 	boost::recursive_mutex mx;
 	std::shared_ptr<CApplier<CBaseForServerApply>> applier;
 	std::unique_ptr<boost::thread> announceLobbyThread, remoteConnectionsThread;
+    int remotePipeConnections = 0;
 
 public:
 	std::shared_ptr<CGameHandler> gh;

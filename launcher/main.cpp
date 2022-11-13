@@ -29,8 +29,6 @@ int main(int argc, char * argv[])
 {
 	int result;
 #ifdef VCMI_IOS
-	argcForClient = argc;
-	argvForClient = argv;
 	{
 #endif
 	QApplication vcmilauncher(argc, argv);
@@ -51,13 +49,13 @@ void startGame(const QStringList & args)
 
 #ifdef Q_OS_IOS
 	argcForClient = args.size() + 1; //first argument is omitted
-	argvForClient = new char*[argcForClient];
+    argvForClient = new char*[argcForClient];
 	argvForClient[0] = "vcmiclient";
 	for(int i = 1; i < argcForClient; ++i)
 	{
-		const char * s = args[i - 1].toLocal8Bit().constData();
-		argvForClient[i] = new char[strlen(s)];
-		strcpy(argvForClient[i], s);
+        std::string s = args.at(i - 1).toStdString();
+        argvForClient[i] = new char[s.size() + 1];
+        strcpy(argvForClient[i], s.c_str());
 	}
 	qApp->quit();
 #else
