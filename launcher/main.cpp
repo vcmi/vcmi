@@ -40,7 +40,7 @@ int main(int argc, char * argv[])
 #ifdef VCMI_IOS
 	}
 	if (result == 0)
-		launchGame(__argc, __argv);
+		launchGame(argcForClient, argvForClient);
 #endif
 	return result;
 }
