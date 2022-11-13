@@ -99,6 +99,9 @@ class MusicEntry
 	Mix_Music *music;
 
 	int loop; // -1 = indefinite
+	bool fromStart;
+	uint32_t startTime;
+	uint32_t startPosition;
 	//if not null - set from which music will be randomly selected
 	std::string setName;
 	std::string currentName;
@@ -110,7 +113,7 @@ public:
 	bool isSet(std::string setName);
 	bool isTrack(std::string trackName);
 
-	MusicEntry(CMusicHandler *owner, std::string setName, std::string musicURI, bool looped);
+	MusicEntry(CMusicHandler *owner, std::string setName, std::string musicURI, bool looped, bool fromStart);
 	~MusicEntry();
 
 	bool play();
@@ -128,10 +131,11 @@ private:
 	std::unique_ptr<MusicEntry> current;
 	std::unique_ptr<MusicEntry> next;
 
-	void queueNext(CMusicHandler *owner, const std::string & setName, const std::string & musicURI, bool looped);
+	void queueNext(CMusicHandler *owner, const std::string & setName, const std::string & musicURI, bool looped, bool fromStart);
 	void queueNext(std::unique_ptr<MusicEntry> queued);
 
 	std::map<std::string, std::map<std::string, std::string>> musicsSet;
+	std::map<std::string, float> trackPositions;
 public:
 	
 	CMusicHandler();
@@ -145,11 +149,11 @@ public:
 	void setVolume(ui32 percent) override;
 
 	/// play track by URI, if loop = true music will be looped
-	void playMusic(const std::string & musicURI, bool loop);
+	void playMusic(const std::string & musicURI, bool loop, bool fromStart);
 	/// play random track from this set
-	void playMusicFromSet(const std::string & musicSet, bool loop);
+	void playMusicFromSet(const std::string & musicSet, bool loop, bool fromStart);
 	/// play specific track from set
-	void playMusicFromSet(const std::string & musicSet, const std::string & entryID, bool loop);
+	void playMusicFromSet(const std::string & musicSet, const std::string & entryID, bool loop, bool fromStart);
 	void stopMusic(int fade_ms=1000);
 	void musicFinishedCallback();
 

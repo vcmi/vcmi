@@ -1413,7 +1413,7 @@ void CAdvMapInt::select(const CArmedInstance *sel, bool centerView)
 		auto pos = sel->visitablePos();
 		auto tile = LOCPLINT->cb->getTile(pos);
 		if(tile)
-			CCS->musich->playMusicFromSet("terrain", tile->terType->name, true);
+			CCS->musich->playMusicFromSet("terrain", tile->terType->name, true, false);
 	}
 	if(centerView)
 		centerOn(sel);
@@ -1863,7 +1863,7 @@ void CAdvMapInt::aiTurnStarted()
 		return;
 
 	adjustActiveness(true);
-	CCS->musich->playMusicFromSet("enemy-turn", true);
+	CCS->musich->playMusicFromSet("enemy-turn", true, false);
 	adventureInt->minimap.setAIRadar(true);
 	adventureInt->infoBar.startEnemyTurn(LOCPLINT->cb->getCurrentPlayer());
 	adventureInt->infoBar.showAll(screen);//force refresh on inactive object
