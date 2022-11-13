@@ -1491,8 +1491,8 @@ ArtBearer::ArtBearer CArtifactFittingSet::bearerType() const
 }
 
 DLL_LINKAGE ArtifactPosition ArtifactUtils::getArtifactDstPosition(	const CArtifactInstance * artifact,
-																	const CArtifactSet * target, 
-																	ArtBearer::ArtBearer bearer)
+									const CArtifactSet * target, 
+									ArtBearer::ArtBearer bearer)
 {
 	for(auto slot : artifact->artType->possibleSlots.at(bearer))
 	{
