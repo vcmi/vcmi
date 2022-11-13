@@ -411,7 +411,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 	{
 		if(LOCPLINT->battleInt)
 		{
-            CCS->musich->playMusicFromSet("battle", true, true);
+			CCS->musich->playMusicFromSet("battle", true, true);
 			battleActionsStarted = true;
 			blockUI(settings["session"]["spectate"].Bool());
 			battleIntroSoundChannel = -1;
@@ -457,7 +457,7 @@ CBattleInterface::~CBattleInterface()
 	if (adventureInt && adventureInt->selection)
 	{
 		const auto & terrain = *(LOCPLINT->cb->getTile(adventureInt->selection->visitablePos())->terType);
-        CCS->musich->playMusicFromSet("terrain", terrain.name, true, false);
+		CCS->musich->playMusicFromSet("terrain", terrain.name, true, false);
 	}
 	animsAreDisplayed.setn(false);
 }
