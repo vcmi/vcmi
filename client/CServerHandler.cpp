@@ -861,6 +861,7 @@ void CServerHandler::threadRunServer()
 			comm += " --enable-shm-uuid";
 	}
 	comm += " > \"" + logName + '\"';
+    logGlobal->info("Server command line: %s", comm);
 
 #ifdef VCMI_WINDOWS
 	int result = -1;

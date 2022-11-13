@@ -207,7 +207,7 @@ int main(int argc, char * argv[])
 		("lobby-port", po::value<ui16>(), "port to remote lobby")
 		("lobby-host", "if this client hosts session")
 		("lobby-uuid", po::value<std::string>(), "uuid to the server")
-		("lobby-connections", po::value<std::string>(), "connections of server")
+		("lobby-connections", po::value<ui16>(), "connections of server")
 		("uuid", po::value<std::string>(), "uuid for the client");
 
 	if(argc > 1)
@@ -503,7 +503,7 @@ int main(int argc, char * argv[])
 		if(vm.count("lobby-host"))
 		{
 			session["host"].Bool() = true;
-			session["hostConnections"].String() = vm["lobby-connections"].as<std::string>();
+			session["hostConnections"].String() = std::to_string(vm["lobby-connections"].as<ui16>());
 			session["hostUuid"].String() = vm["lobby-uuid"].as<std::string>();
 			logGlobal->info("This client will host session, server uuid is %s", session["hostUuid"].String());
 		}
