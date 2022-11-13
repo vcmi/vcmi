@@ -3977,15 +3977,15 @@ bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID 
 	else
 	{
 		// Temporary fitting set for artifacts. Used to select available slots before sending data.
-		CArtifactFittingSet ArtFittingSet(pdstHero->bearerType());
-		ArtFittingSet.artifactsInBackpack = pdstHero->artifactsInBackpack;
-		ArtFittingSet.artifactsWorn = pdstHero->artifactsWorn;
+		CArtifactFittingSet artFittingSet(pdstHero->bearerType());
+		artFittingSet.artifactsInBackpack = pdstHero->artifactsInBackpack;
+		artFittingSet.artifactsWorn = pdstHero->artifactsWorn;
 
-		auto moveArtifact = [this, &ArtFittingSet, &slotsSrcDst](const CArtifactInstance * artifact,
+		auto moveArtifact = [this, &artFittingSet, &slotsSrcDst](const CArtifactInstance * artifact,
 			ArtifactPosition srcSlot, const CGHeroInstance * pdstHero) -> void
 		{
-			auto dstSlot = ArtifactUtils::getArtifactDstPosition(artifact, &ArtFittingSet, pdstHero->bearerType());
-			ArtFittingSet.putArtifact(dstSlot, static_cast<ConstTransitivePtr<CArtifactInstance>>(artifact));
+			auto dstSlot = ArtifactUtils::getArtifactDstPosition(artifact, &artFittingSet, pdstHero->bearerType());
+			artFittingSet.putArtifact(dstSlot, static_cast<ConstTransitivePtr<CArtifactInstance>>(artifact));
 			slotsSrcDst.push_back(BulkMoveArtifacts::LinkedSlots(srcSlot, dstSlot));
 
 			if(ArtifactUtils::checkSpellbookIsNeeded(pdstHero, artifact->artType->id, dstSlot))

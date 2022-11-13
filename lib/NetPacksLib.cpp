@@ -1150,14 +1150,14 @@ DLL_LINKAGE void BulkMoveArtifacts::applyGs(CGameState * gs)
 		// Swap
 		auto leftSet = getSrcHolderArtSet();
 		auto rightSet = getDstHolderArtSet();
-		CArtifactFittingSet ArtFittingSet(leftSet->bearerType());
+		CArtifactFittingSet artFittingSet(leftSet->bearerType());
 
-		ArtFittingSet.artifactsWorn = rightSet->artifactsWorn;
-		ArtFittingSet.artifactsInBackpack = rightSet->artifactsInBackpack;
+		artFittingSet.artifactsWorn = rightSet->artifactsWorn;
+		artFittingSet.artifactsInBackpack = rightSet->artifactsInBackpack;
 
 		bulkArtsOperation(artsPack1, rightSet, EBulkArtsOp::BULK_REMOVE);
 		bulkArtsOperation(artsPack0, leftSet, EBulkArtsOp::BULK_MOVE);
-		bulkArtsOperation(artsPack1, &ArtFittingSet, EBulkArtsOp::BULK_PUT);
+		bulkArtsOperation(artsPack1, &artFittingSet, EBulkArtsOp::BULK_PUT);
 	}
 	else
 	{

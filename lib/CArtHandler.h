@@ -380,8 +380,9 @@ protected:
 namespace ArtifactUtils
 {
 	// Calculates where an artifact gets placed when it gets transferred from one hero to another.
-	DLL_LINKAGE ArtifactPosition getArtifactDstPosition(const CArtifactInstance * artifact, const CArtifactSet * target,
-		ArtBearer::ArtBearer bearer);
+	DLL_LINKAGE ArtifactPosition getArtifactDstPosition(const CArtifactInstance * artifact, 
+														const CArtifactSet * target,
+														ArtBearer::ArtBearer bearer);
 	DLL_LINKAGE std::vector<ArtifactPosition> unmovablePositions(); // TODO: Make this constexpr when the toolset is upgraded
 	DLL_LINKAGE bool isArtRemovable(const std::pair<ArtifactPosition, ArtSlotInfo> & slot);
 	DLL_LINKAGE bool checkSpellbookIsNeeded(const CGHeroInstance * heroPtr, ArtifactID artID, ArtifactPosition slot);
