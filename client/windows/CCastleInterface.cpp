@@ -1171,7 +1171,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 	townlist->onSelect = std::bind(&CCastleInterface::townChange, this);
 
 	recreateIcons();
-	CCS->musich->playMusic(town->town->clientInfo.musicTheme, true);
+    CCS->musich->playMusic(town->town->clientInfo.musicTheme, true, false);
 }
 
 CCastleInterface::~CCastleInterface()
