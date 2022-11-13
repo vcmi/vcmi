@@ -21,17 +21,16 @@
 #if __has_include("QIOSIntegrationPlugin.h")
 #include "QIOSIntegrationPlugin.h"
 #endif
+int argcForClient;
+char ** argvForClient;
 #endif
-
-int __argc;
-char ** __argv;
 
 int main(int argc, char * argv[])
 {
 	int result;
 #ifdef VCMI_IOS
-	__argc = argc;
-	__argv = argv;
+	argcForClient = argc;
+	argvForClient = argv;
 	{
 #endif
 	QApplication vcmilauncher(argc, argv);
@@ -48,18 +47,18 @@ int main(int argc, char * argv[])
 
 void startGame(const QStringList & args)
 {
-	__argc = args.size() + 1; //first argument is omitted
-	__argv = new char*[__argc];
-	__argv[0] = new char[strlen("vcmi")];
-	strcpy(__argv[0], "vcmi");
-	for(int i = 1; i < __argc; ++i)
+	logGlobal->warn("Starting game with the arguments: %s", args.join(" ").toStdString());
+
+#ifdef Q_OS_IOS
+	argcForClient = args.size() + 1; //first argument is omitted
+	argvForClient = new char*[argcForClient];
+	argvForClient[0] = "vcmiclient";
+	for(int i = 1; i < argcForClient; ++i)
 	{
 		const char * s = args[i - 1].toLocal8Bit().constData();
-		__argv[i] = new char[strlen(s)];
-		strcpy(__argv[i], s);
+		argvForClient[i] = new char[strlen(s)];
+		strcpy(argvForClient[i], s);
 	}
-#ifdef Q_OS_IOS
-	logGlobal->warn("Starting game with the arguments: %s", args.join(" ").toStdString());
 	qApp->quit();
 #else
 	startExecutable(pathToQString(VCMIDirs::get().clientPath()), args);
