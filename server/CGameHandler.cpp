@@ -3933,6 +3933,8 @@ bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID 
 
 	auto psrcHero = getHero(srcHero);
 	auto pdstHero = getHero(dstHero);
+	if((!psrcHero) || (!pdstHero))
+		COMPLAIN_RET("bulkMoveArtifacts: wrong hero's ID");
 
 	BulkMoveArtifacts ma(static_cast<ConstTransitivePtr<CGHeroInstance>>(psrcHero),
 		static_cast<ConstTransitivePtr<CGHeroInstance>>(pdstHero), swap);
@@ -3952,7 +3954,9 @@ bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID 
 					continue;
 				slots.push_back(BulkMoveArtifacts::LinkedSlots(artifact.first, artifact.first));
 
-				if(ArtifactUtils::checkSpellbookIsNeeded(dstHero, artifact.second.getArt()->artType->id, artifact.first))
+				auto art = artifact.second.getArt();
+				assert(art);
+				if(ArtifactUtils::checkSpellbookIsNeeded(dstHero, art->artType->id, artifact.first))
 					giveHeroNewArtifact(dstHero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
 			}
 		};
@@ -3984,6 +3988,7 @@ bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID 
 		auto moveArtifact = [this, &artFittingSet, &slotsSrcDst](const CArtifactInstance * artifact,
 			ArtifactPosition srcSlot, const CGHeroInstance * pdstHero) -> void
 		{
+			assert(artifact);
 			auto dstSlot = ArtifactUtils::getArtifactDstPosition(artifact, &artFittingSet, pdstHero->bearerType());
 			artFittingSet.putArtifact(dstSlot, static_cast<ConstTransitivePtr<CArtifactInstance>>(artifact));
 			slotsSrcDst.push_back(BulkMoveArtifacts::LinkedSlots(srcSlot, dstSlot));

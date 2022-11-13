@@ -1518,7 +1518,7 @@ DLL_LINKAGE bool ArtifactUtils::isArtRemovable(const std::pair<ArtifactPosition,
 {
 	return slot.second.artifact
 		&& !slot.second.locked
-	    && !vstd::contains(unmovablePositions(), slot.first);
+		&& !vstd::contains(unmovablePositions(), slot.first);
 }
 
 DLL_LINKAGE bool ArtifactUtils::checkSpellbookIsNeeded(const CGHeroInstance * heroPtr, ArtifactID artID, ArtifactPosition slot)
