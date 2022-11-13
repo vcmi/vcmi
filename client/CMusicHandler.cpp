@@ -530,7 +530,7 @@ void CMusicHandler::musicFinishedCallback()
 MusicEntry::MusicEntry(CMusicHandler *owner, std::string setName, std::string musicURI, bool looped, bool fromStart):
 	owner(owner),
 	music(nullptr),
-	startTime(uint64_t(-1)),
+	startTime(uint32_t(-1)),
 	startPosition(0),
 	loop(looped ? -1 : 1),
 	fromStart(fromStart),
@@ -600,7 +600,7 @@ bool MusicEntry::play()
 		return false;
 	}
 
-	startTime = SDL_GetTicks64();
+	startTime = SDL_GetTicks();
 	return true;
 }
 
@@ -609,8 +609,8 @@ bool MusicEntry::stop(int fade_ms)
 	if (Mix_PlayingMusic())
 	{
 		loop = 0;
-		uint64_t endTime = SDL_GetTicks64();
-		assert(startTime != uint64_t(-1));
+		uint32_t endTime = SDL_GetTicks();
+		assert(startTime != uint32_t(-1));
 		float playDuration = (endTime - startTime + startPosition) / 1000.f;
 		owner->trackPositions[currentName] = playDuration;
 		logGlobal->info("Stopping music file %s at %f", currentName, playDuration);

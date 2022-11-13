@@ -100,8 +100,8 @@ class MusicEntry
 
 	int loop; // -1 = indefinite
 	bool fromStart;
-	uint64_t startTime;
-	uint64_t startPosition;
+	uint32_t startTime;
+	uint32_t startPosition;
 	//if not null - set from which music will be randomly selected
 	std::string setName;
 	std::string currentName;
