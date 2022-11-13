@@ -489,7 +489,7 @@ void CServerHandler::sendMessage(const std::string & txt) const
 		std::string connectedId, playerColorId;
 		readed >> connectedId;
 		readed >> playerColorId;
-		if(connectedId.length(), playerColorId.length()) // BUG https://bugs.vcmi.eu/view.php?id=3144
+		if(connectedId.length() && playerColorId.length())
 		{
 			ui8 connected = boost::lexical_cast<int>(connectedId);
 			auto color = PlayerColor(boost::lexical_cast<int>(playerColorId));
