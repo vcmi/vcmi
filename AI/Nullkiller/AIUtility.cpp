@@ -237,7 +237,7 @@ bool isObjectPassable(const Nullkiller * ai, const CGObjectInstance * obj)
 
 bool isObjectPassable(const CGObjectInstance * obj)
 {
-	return isObjectPassable(obj, ai->playerID, cb->getPlayerRelations(obj->tempOwner, ai->playerID));
+	return isObjectPassable(obj, ai->playerID, ai->myCb->getPlayerRelations(obj->tempOwner, ai->playerID));
 }
 
 // Pathfinder internal helper
@@ -344,11 +344,14 @@ uint64_t timeElapsed(std::chrono::time_point<std::chrono::high_resolution_clock>
 // todo: move to obj manager
 bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObjectInstance * obj)
 {
+	auto relations = ai->cb->getPlayerRelations(obj->tempOwner, h->tempOwner);
+
 	switch(obj->ID)
 	{
 	case Obj::TOWN:
 	case Obj::HERO: //never visit our heroes at random
-		return obj->tempOwner != h->tempOwner; //do not visit our towns at random
+		return relations == PlayerRelations::ENEMIES; //do not visit our towns at random
+
 	case Obj::BORDER_GATE:
 	{
 		for(auto q : ai->cb->getMyQuests())
@@ -378,8 +381,11 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 	}
 	case Obj::CREATURE_GENERATOR1:
 	{
-		if(obj->tempOwner != h->tempOwner)
+		if(relations == PlayerRelations::ENEMIES)
 			return true; //flag just in case
+
+		if(relations == PlayerRelations::ALLIES)
+			return false;
 
 		const CGDwelling * d = dynamic_cast<const CGDwelling *>(obj);
 
@@ -420,7 +426,7 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 		break;
 	}
 	case Obj::LIBRARY_OF_ENLIGHTENMENT:
-		if(h->level < 12)
+		if(h->level < 10)
 			return false;
 		break;
 	case Obj::TREE_OF_KNOWLEDGE:
