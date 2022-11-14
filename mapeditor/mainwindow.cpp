@@ -38,6 +38,7 @@
 #include "mapsettings.h"
 #include "playersettings.h"
 #include "validator.h"
+#include "resourceExtractor/ResourceConverter.h"
 
 static CBasicLogConfigurator * logConfig;
 
@@ -110,6 +111,9 @@ MainWindow::MainWindow(QWidget *parent) :
 	
 	//init
 	preinitDLL(::console);
+
+	//ConvertOriginalResourceFiles();
+
 	settings.init();
 	
 	// Initialize logging based on settings
@@ -139,6 +143,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	
 	graphics = new Graphics(); // should be before curh->init()
 	graphics->load();//must be after Content loading but should be in main thread
+	ConvertOriginalResourceFiles();
 	
 	ui->mapView->setScene(controller.scene(0));
 	ui->mapView->setController(&controller);

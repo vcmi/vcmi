@@ -19,9 +19,22 @@
 #include "../lib/filesystem/ISimpleResourceLoader.h"
 #include "../lib/JsonNode.h"
 #include "../lib/CRandomGenerator.h"
+#include "../lib/VCMIDirs.h"
 
+#include <boost/filesystem.hpp>
+namespace bfs = boost::filesystem;
 
 typedef std::map<size_t, std::vector<JsonNode>> source_map;
+
+// ToDo: krs - temp location for this function. Need to move to right lib and see if it works on other platforms.
+QString QStringFromPath(const bfs::path& filePath)
+{
+#ifdef _WIN32
+	return QString::fromStdWString(filePath.generic_wstring());
+#else
+	return QString::fromStdString(filePath.native());
+#endif
+}
 
 /// Class for def loading
 /// After loading will store general info (palette and frame offsets) and pointer to file itself
@@ -684,6 +697,44 @@ std::shared_ptr<QImage> Animation::getImage(size_t frame, size_t group, bool ver
 	if(verbose)
 		printError(frame, group, "GetImage");
 	return nullptr;
+}
+
+void Animation::exportBitmaps(const bfs::path& path, bool prependResourceName) const
+{
+	if (images.empty())
+	{
+		logGlobal->error("Nothing to export, animation is empty");
+		return;
+	}
+
+	boost::filesystem::path actualPath = path / "Sprites" / name;
+	boost::filesystem::create_directories(actualPath);
+
+	size_t counter = 0;
+
+	for (const auto& groupPair : images)
+	{
+		size_t group = groupPair.first;
+
+		for (const auto& imagePair : groupPair.second)
+		{
+			size_t frame = imagePair.first;
+			const auto img = imagePair.second;
+
+			boost::format fmt("%d_%d.bmp");
+			fmt% group% frame;
+			std::string fileName = fmt.str();
+			if (prependResourceName)
+				fileName = name + "_" + fileName;
+
+			auto s = img->size();
+			img->save(QStringFromPath(actualPath / fileName), "PNG");
+
+			counter++;
+		}
+	}
+
+	logGlobal->info("Exported %d frames to %s", counter, actualPath.string());
 }
 
 void Animation::load()

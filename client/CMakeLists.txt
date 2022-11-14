@@ -54,8 +54,6 @@ set(client_SRCS
 		lobby/OptionsTab.cpp
 		lobby/RandomMapTab.cpp
 		lobby/SelectionTab.cpp
-		
-		resourceExtractor/ResourceConverter.cpp
 
 		CBitmapHandler.cpp
 		CreatureCostBox.cpp
@@ -130,8 +128,6 @@ set(client_HEADERS
 		lobby/OptionsTab.h
 		lobby/RandomMapTab.h
 		lobby/SelectionTab.h
-		
-		resourceExtractor/ResourceConverter.h
 
 		CBitmapHandler.h
 		CreatureCostBox.h

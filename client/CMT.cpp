@@ -59,7 +59,6 @@
 #include "../lib/serializer/Connection.h"
 #include "CServerHandler.h"
 #include "gui/NotificationHandler.h"
-#include "resourceExtractor/ResourceConverter.h"
 
 #include <boost/asio.hpp>
 
@@ -466,7 +465,7 @@ int main(int argc, char * argv[])
 		CCS->curh = new CCursorHandler();
 		graphics = new Graphics(); // should be before curh->init()
 
-		ConvertOriginalResourceFiles();
+		// ConvertOriginalResourceFiles();
 
 		CCS->curh->initCursor();
 		logGlobal->info("Screen handler: %d ms", pomtime.getDiff());

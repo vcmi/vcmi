@@ -6,9 +6,9 @@
 #include "../lib/VCMIDirs.h"
 #include "../lib/filesystem/Filesystem.h"
 
-#include "SDL.h"
-#include "./gui/CAnimation.h"
-#include "CBitmapHandler.h"
+//#include "SDL.h"
+#include "Animation.h"
+//#include "CBitmapHandler.h"
 
 #include "boost/filesystem/path.hpp"
 #include "boost/locale.hpp"
@@ -16,51 +16,51 @@
 namespace bfs = boost::filesystem;
 
 bool split_def_files = 1;
-bool convert_pcx_to_bmp = 1; // converts Images from .pcx to bmp. Can be used when you have .pcx converted already
-bool delete_source_files = 1; // delete source files or leave a copy in place.
+bool convert_pcx_to_bmp = 0; // converts Images from .pcx to bmp. Can be used when you have .pcx converted already
+bool delete_source_files = 0; // delete source files or leave a copy in place.
 
 // converts all pcx files into bmp (H3 saves images as .pcx)
-void convertPcxToBmp()
-{
-	bfs::path extractedPath = VCMIDirs::get().userDataPath() / "extracted";
-	bfs::path imagesPath = extractedPath / "Images";
-
-	bfs::directory_iterator end_iter;
-
-	for ( bfs::directory_iterator dir_itr(imagesPath); dir_itr != end_iter; ++dir_itr )
-	{
-		try
-		{
-			if ( bfs::is_regular_file( dir_itr->status() ) )
-			{
-				std::string filename = dir_itr->path().filename().string();
-				filename = boost::locale::to_lower(filename);
-
-				if(filename.find(".pcx") != std::string::npos)
-				{
-					SDL_Surface *bitmap;
-					
-					bitmap = BitmapHandler::loadBitmap(filename);
-					
-					if(delete_source_files)
-						bfs::remove(imagesPath / filename);
-
-					bfs::path outFilePath = imagesPath / filename;
-					outFilePath.replace_extension(".bmp");
-	 				SDL_SaveBMP(bitmap, outFilePath.string().c_str());
-				}
-			}
-			else
-			{
-				logGlobal->info(dir_itr->path().filename().string() + " [other]\n");
-			}
-		}
-		catch ( const std::exception & ex )
-		{
-			logGlobal->info(dir_itr->path().filename().string() + " " + ex.what() + "\n");
-		}
-	}
-}
+//void convertPcxToBmp()
+//{
+//	bfs::path extractedPath = VCMIDirs::get().userDataPath() / "extracted";
+//	bfs::path imagesPath = extractedPath / "Images";
+//
+//	bfs::directory_iterator end_iter;
+//
+//	for ( bfs::directory_iterator dir_itr(imagesPath); dir_itr != end_iter; ++dir_itr )
+//	{
+//		try
+//		{
+//			if ( bfs::is_regular_file( dir_itr->status() ) )
+//			{
+//				std::string filename = dir_itr->path().filename().string();
+//				filename = boost::locale::to_lower(filename);
+//
+//				if(filename.find(".pcx") != std::string::npos)
+//				{
+//					SDL_Surface *bitmap;
+//					
+//					bitmap = BitmapHandler::loadBitmap(filename);
+//					
+//					if(delete_source_files)
+//						bfs::remove(imagesPath / filename);
+//
+//					bfs::path outFilePath = imagesPath / filename;
+//					outFilePath.replace_extension(".bmp");
+//	 				SDL_SaveBMP(bitmap, outFilePath.string().c_str());
+//				}
+//			}
+//			else
+//			{
+//				logGlobal->info(dir_itr->path().filename().string() + " [other]\n");
+//			}
+//		}
+//		catch ( const std::exception & ex )
+//		{
+//			logGlobal->info(dir_itr->path().filename().string() + " " + ex.what() + "\n");
+//		}
+//	}
+//}
 
 // splits a def file into individual parts
 void splitDefFile(std::string fileName, bfs::path spritesPath)
@@ -68,7 +68,7 @@ void splitDefFile(std::string fileName, bfs::path spritesPath)
 	if (CResourceHandler::get()->existsResource(ResourceID("SPRITES/" + fileName)))
 	{
 		std::string URI = fileName;
-		std::unique_ptr<CAnimation> anim = make_unique<CAnimation>(URI);
+		std::unique_ptr<Animation> anim = make_unique<Animation>(URI);
 		anim->preload();
 		anim->exportBitmaps(VCMIDirs::get().userCachePath() / "extracted", true);
 
@@ -100,8 +100,8 @@ void ConvertOriginalResourceFiles()
 	if (split_def_files)
 		splitDefFiles();
 
-	if (convert_pcx_to_bmp)
-		convertPcxToBmp();
+	//if (convert_pcx_to_bmp)
+	//	convertPcxToBmp();
 }
 
 
