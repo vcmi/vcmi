@@ -845,18 +845,11 @@ DLL_LINKAGE CBonusSystemNode *ArtifactLocation::getHolderNode()
 
 DLL_LINKAGE const CArtifactInstance *ArtifactLocation::getArt() const
 {
-	const ArtSlotInfo *s = getSlot();
-	if(s && s->artifact)
-	{
-		if(!s->locked)
-			return s->artifact;
-		else
-		{
-			logNetwork->warn("ArtifactLocation::getArt: This location is locked!");
-			return nullptr;
-		}
-	}
-	return nullptr;
+	auto s = getSlot();
+	if(s)
+		return s->getArt();
+	else
+		return nullptr;
 }
 
 DLL_LINKAGE const CArtifactSet * ArtifactLocation::getHolderArtSet() const
@@ -1093,24 +1086,82 @@ DLL_LINKAGE void EraseArtifact::applyGs(CGameState *gs)
 	al.removeArtifact();
 }
 
-DLL_LINKAGE void MoveArtifact::applyGs(CGameState *gs)
+DLL_LINKAGE void MoveArtifact::applyGs(CGameState * gs)
 {
-	CArtifactInstance *a = src.getArt();
+	CArtifactInstance * art = src.getArt();
 	if(dst.slot < GameConstants::BACKPACK_START)
 		assert(!dst.getArt());
 
-	a->move(src, dst);
+	art->move(src, dst);
+}
 
-	//TODO what'll happen if Titan's thunder is equipped by pickin git up or the start of game?
-	if (a->artType->id == ArtifactID::TITANS_THUNDER && dst.slot == ArtifactPosition::RIGHT_HAND) //Titan's Thunder creates new spellbook on equip
+DLL_LINKAGE void BulkMoveArtifacts::applyGs(CGameState * gs)
+{
+	enum class EBulkArtsOp
 	{
-		auto hPtr = boost::get<ConstTransitivePtr<CGHeroInstance> >(&dst.artHolder);
-		if(hPtr)
+		BULK_MOVE,
+		BULK_REMOVE,
+		BULK_PUT
+	};
+
+	auto bulkArtsOperation = [this](std::vector<LinkedSlots> & artsPack, 
+		CArtifactSet * artSet, EBulkArtsOp operation) -> void
+	{
+		int numBackpackArtifactsMoved = 0;
+		for(auto & slot : artsPack)
 		{
-			CGHeroInstance *h = *hPtr;
-			if(h && !h->hasSpellbook())
-				gs->giveHeroArtifact(h, ArtifactID::SPELLBOOK);
+			// When an object gets removed from the backpack, the backpack shrinks
+			// so all the following indices will be affected. Thus, we need to update
+			// the subsequent artifact slots to account for that
+			auto srcPos = slot.srcPos;
+			if((srcPos >= GameConstants::BACKPACK_START) && (operation != EBulkArtsOp::BULK_PUT))
+			{
+				srcPos = ArtifactPosition(srcPos.num - numBackpackArtifactsMoved);
+			}
+			auto slotInfo = artSet->getSlot(srcPos);
+			assert(slotInfo);
+			auto art = const_cast<CArtifactInstance*>(slotInfo->getArt());
+			assert(art);
+			switch(operation)
+			{
+			case EBulkArtsOp::BULK_MOVE:
+				const_cast<CArtifactInstance*>(art)->move(
+					ArtifactLocation(srcArtHolder, srcPos), ArtifactLocation(dstArtHolder, slot.dstPos));
+				break;
+			case EBulkArtsOp::BULK_REMOVE:
+				art->removeFrom(ArtifactLocation(dstArtHolder, srcPos));
+				break;
+			case EBulkArtsOp::BULK_PUT:
+				art->putAt(ArtifactLocation(srcArtHolder, slot.dstPos));
+				break;
+			default:
+				break;
+			}
+
+			if(srcPos >= GameConstants::BACKPACK_START)
+			{
+				numBackpackArtifactsMoved++;
+			}
 		}
+	};
+	
+	if(swap)
+	{
+		// Swap
+		auto leftSet = getSrcHolderArtSet();
+		auto rightSet = getDstHolderArtSet();
+		CArtifactFittingSet artFittingSet(leftSet->bearerType());
+
+		artFittingSet.artifactsWorn = rightSet->artifactsWorn;
+		artFittingSet.artifactsInBackpack = rightSet->artifactsInBackpack;
+
+		bulkArtsOperation(artsPack1, rightSet, EBulkArtsOp::BULK_REMOVE);
+		bulkArtsOperation(artsPack0, leftSet, EBulkArtsOp::BULK_MOVE);
+		bulkArtsOperation(artsPack1, &artFittingSet, EBulkArtsOp::BULK_PUT);
+	}
+	else
+	{
+		bulkArtsOperation(artsPack0, getSrcHolderArtSet(), EBulkArtsOp::BULK_MOVE);
 	}
 }
 
@@ -1710,6 +1761,26 @@ DLL_LINKAGE void EntitiesChanged::applyGs(CGameState * gs)
 {
 	for(const auto & change : changes)
 		gs->updateEntity(change.metatype, change.entityIndex, change.data);
+}
+
+const CArtifactInstance * ArtSlotInfo::getArt() const
+{
+	if(locked)
+	{
+		logNetwork->warn("ArtifactLocation::getArt: This location is locked!");
+		return nullptr;
+	}
+	return artifact;
+}
+
+CArtifactSet * BulkMoveArtifacts::getSrcHolderArtSet()
+{
+	return boost::apply_visitor(GetBase<CArtifactSet>(), srcArtHolder);
+}
+
+CArtifactSet * BulkMoveArtifacts::getDstHolderArtSet()
+{
+	return boost::apply_visitor(GetBase<CArtifactSet>(), dstArtHolder);
 }
 
 VCMI_LIB_NAMESPACE_END

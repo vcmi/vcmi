@@ -319,6 +319,7 @@ void registerTypesClientPacks2(Serializer &s)
 	s.template registerType<CArtifactOperationPack, MoveArtifact>();
 	s.template registerType<CArtifactOperationPack, AssembledArtifact>();
 	s.template registerType<CArtifactOperationPack, DisassembledArtifact>();
+	s.template registerType<CArtifactOperationPack, BulkMoveArtifacts>();
 
 	s.template registerType<CPackForClient, SaveGameClient>();
 	s.template registerType<CPackForClient, PlayerMessageClient>();
@@ -358,6 +359,7 @@ void registerTypesServerPacks(Serializer &s)
 	s.template registerType<CPackForServer, BulkMergeStacks>();
 	s.template registerType<CPackForServer, BulkSmartSplitStack>();
 	s.template registerType<CPackForServer, BulkMoveArmy>();
+	s.template registerType<CPackForServer, BulkExchangeArtifacts>();
 }
 
 template<typename Serializer>

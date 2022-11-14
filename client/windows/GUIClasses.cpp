@@ -872,41 +872,6 @@ std::function<void()> CExchangeController::onMoveArmyToRight()
 	return [&]() { moveArmy(true); };
 }
 
-void CExchangeController::swapArtifacts(ArtifactPosition slot)
-{
-	bool leftHasArt = !left->isPositionFree(slot);
-	bool rightHasArt = !right->isPositionFree(slot);
-
-	if(!leftHasArt && !rightHasArt)
-		return;
-
-	ArtifactLocation leftLocation = ArtifactLocation(left, slot);
-	ArtifactLocation rightLocation = ArtifactLocation(right, slot);
-
-	if(leftHasArt && !left->artifactsWorn.at(slot).artifact->canBePutAt(rightLocation, true))
-		return;
-
-	if(rightHasArt && !right->artifactsWorn.at(slot).artifact->canBePutAt(leftLocation, true))
-		return;
-
-	if(leftHasArt)
-	{
-		if(rightHasArt)
-		{
-			auto art = right->getArt(slot);
-
-			cb->swapArtifacts(leftLocation, rightLocation);
-			cb->swapArtifacts(ArtifactLocation(right, right->getArtPos(art)), leftLocation);
-		}
-		else
-			cb->swapArtifacts(leftLocation, rightLocation);
-	}
-	else
-	{
-		cb->swapArtifacts(rightLocation, leftLocation);
-	}
-}
-
 std::vector<CArtifactInstance *> getBackpackArts(const CGHeroInstance * hero)
 {
 	std::vector<CArtifactInstance *> result;
@@ -919,92 +884,13 @@ std::vector<CArtifactInstance *> getBackpackArts(const CGHeroInstance * hero)
 	return result;
 }
 
-const std::vector<ArtifactPosition> unmovablePositions = {ArtifactPosition::SPELLBOOK, ArtifactPosition::MACH4};
-
-bool isArtRemovable(const std::pair<ArtifactPosition, ArtSlotInfo> & slot)
-{
-	return slot.second.artifact
-		&& !slot.second.locked
-		&& !vstd::contains(unmovablePositions, slot.first);
-}
-
-// Puts all composite arts to backpack and returns their previous location
-std::vector<HeroArtifact> CExchangeController::moveCompositeArtsToBackpack()
-{
-	std::vector<const CGHeroInstance *> sides = {left, right};
-	std::vector<HeroArtifact> artPositions;
-
-	for(auto hero : sides)
-	{
-		for(int i = ArtifactPosition::HEAD; i < ArtifactPosition::AFTER_LAST; i++)
-		{
-			auto artPosition = ArtifactPosition(i);
-			auto art = hero->getArt(artPosition);
-
-			if(art && art->canBeDisassembled())
-			{
-				cb->swapArtifacts(
-					ArtifactLocation(hero, artPosition),
-					ArtifactLocation(hero, ArtifactPosition(GameConstants::BACKPACK_START)));
-
-				artPositions.push_back(HeroArtifact(hero, art, artPosition));
-			}
-		}
-	}
-
-	return artPositions;
-}
-
-void CExchangeController::swapArtifacts()
-{
-	for(int i = ArtifactPosition::HEAD; i < ArtifactPosition::AFTER_LAST; i++)
-	{
-		if(vstd::contains(unmovablePositions, i))
-			continue;
-
-		swapArtifacts(ArtifactPosition(i));
-	}
-
-	auto leftHeroBackpack = getBackpackArts(left);
-	auto rightHeroBackpack = getBackpackArts(right);
-
-	for(auto leftArt : leftHeroBackpack)
-	{
-		cb->swapArtifacts(
-			ArtifactLocation(left, left->getArtPos(leftArt)),
-			ArtifactLocation(right, ArtifactPosition(GameConstants::BACKPACK_START)));
-	}
-
-	for(auto rightArt : rightHeroBackpack)
-	{
-		cb->swapArtifacts(
-			ArtifactLocation(right, right->getArtPos(rightArt)),
-			ArtifactLocation(left, ArtifactPosition(GameConstants::BACKPACK_START)));
-	}
-}
-
 std::function<void()> CExchangeController::onSwapArtifacts()
 {
 	return [&]()
 	{
 		GsThread::run([=]
 		{
-			// it is not possible directly exchange composite artifacts like Angelic Alliance and Armor of Damned
-			auto compositeArtLocations = moveCompositeArtsToBackpack();
-
-			swapArtifacts();
-
-			for(HeroArtifact artLocation : compositeArtLocations)
-			{
-				auto target = artLocation.hero == left ? right : left;
-				auto currentPos = target->getArtPos(artLocation.artifact);
-
-				cb->swapArtifacts(
-					ArtifactLocation(target, currentPos),
-					ArtifactLocation(target, artLocation.artPosition));
-			}
-
-			view->redraw();
+			cb->bulkMoveArtifacts(left->id, right->id, true);
 		});
 	};
 }
@@ -1160,20 +1046,8 @@ void CExchangeController::moveArtifacts(bool leftToRight)
 	}
 
 	GsThread::run([=]
-	{	
-		while(vstd::contains_if(source->artifactsWorn, isArtRemovable))
-		{
-			auto art = std::find_if(source->artifactsWorn.begin(), source->artifactsWorn.end(), isArtRemovable);
-
-			moveArtifact(source, target, art->first);
-		}
-
-		while(!source->artifactsInBackpack.empty())
-		{
-			moveArtifact(source, target, source->getArtPos(source->artifactsInBackpack.begin()->artifact));
-		}
-
-		view->redraw();
+	{
+		cb->bulkMoveArtifacts(source->id, target->id, false);
 	});
 }
 
@@ -1182,26 +1056,11 @@ void CExchangeController::moveArtifact(
 	const CGHeroInstance * target,
 	ArtifactPosition srcPosition)
 {
-	auto artifact = source->getArt(srcPosition);
 	auto srcLocation = ArtifactLocation(source, srcPosition);
+	auto dstLocation = ArtifactLocation(target,
+		ArtifactUtils::getArtifactDstPosition(source->getArt(srcPosition), target, target->bearerType()));
 
-	for(auto slot : artifact->artType->possibleSlots.at(target->bearerType()))
-	{
-		auto existingArtifact = target->getArt(slot);
-		auto existingArtInfo = target->getSlot(slot);
-		ArtifactLocation destLocation(target, slot);
-
-		if(!existingArtifact
-			&& (!existingArtInfo || !existingArtInfo->locked)
-			&& artifact->canBePutAt(destLocation))
-		{
-			cb->swapArtifacts(srcLocation, ArtifactLocation(target, slot));
-			
-			return;
-		}
-	}
-
-	cb->swapArtifacts(srcLocation, ArtifactLocation(target, ArtifactPosition(GameConstants::BACKPACK_START)));
+	cb->swapArtifacts(srcLocation, dstLocation);
 }
 
 CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID queryID)

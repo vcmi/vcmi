@@ -91,6 +91,7 @@ public:
 	virtual void artifactAssembled(const ArtifactLocation &al){};
 	virtual void artifactDisassembled(const ArtifactLocation &al){};
 	virtual void artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst){};
+	virtual void artifactPossibleAssembling(const ArtifactLocation & dst) {};
 
 	virtual void heroVisit(const CGHeroInstance *visitor, const CGObjectInstance *visitedObj, bool start){};
 	virtual void heroCreated(const CGHeroInstance*){};

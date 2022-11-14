@@ -994,15 +994,61 @@ struct EraseArtifact : CArtifactOperationPack
 
 struct MoveArtifact : CArtifactOperationPack
 {
+	MoveArtifact() {}
+	MoveArtifact(ArtifactLocation * src, ArtifactLocation * dst) 
+		: src(*src), dst(*dst) {}
 	ArtifactLocation src, dst;
 
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & src;
 		h & dst;
+	}
+};
+
+struct BulkMoveArtifacts : CArtifactOperationPack
+{
+	struct LinkedSlots
+	{
+		ArtifactPosition srcPos;
+		ArtifactPosition dstPos;
+
+		LinkedSlots() {}
+		LinkedSlots(ArtifactPosition srcPos, ArtifactPosition dstPos)
+			: srcPos(srcPos), dstPos(dstPos) {}
+		template <typename Handler> void serialize(Handler & h, const int version)
+		{
+			h & srcPos;
+			h & dstPos;
+		}
+	};
+
+	TArtHolder srcArtHolder;
+	TArtHolder dstArtHolder;
+
+	BulkMoveArtifacts()
+		: swap(false) {}
+	BulkMoveArtifacts(TArtHolder srcArtHolder, TArtHolder dstArtHolder, bool swap)
+		: srcArtHolder(srcArtHolder), dstArtHolder(dstArtHolder), swap(swap) {}
+
+	void applyCl(CClient * cl);
+	DLL_LINKAGE void applyGs(CGameState * gs);
+
+	std::vector<LinkedSlots> artsPack0;
+	std::vector<LinkedSlots> artsPack1;
+	bool swap;
+	CArtifactSet * getSrcHolderArtSet();
+	CArtifactSet * getDstHolderArtSet();
+	template <typename Handler> void serialize(Handler & h, const int version)
+	{
+		h & artsPack0;
+		h & artsPack1;
+		h & srcArtHolder;
+		h & dstArtHolder;
+		h & swap;
 	}
 };
 
@@ -2194,6 +2240,27 @@ struct ExchangeArtifacts : public CPackForServer
 		h & static_cast<CPackForServer &>(*this);
 		h & src;
 		h & dst;
+	}
+};
+
+struct BulkExchangeArtifacts : public CPackForServer
+{
+	ObjectInstanceID srcHero;
+	ObjectInstanceID dstHero;
+	bool swap;
+
+	BulkExchangeArtifacts() 
+		: swap(false) {}
+	BulkExchangeArtifacts(ObjectInstanceID srcHero, ObjectInstanceID dstHero, bool swap)
+		: srcHero(srcHero), dstHero(dstHero), swap(swap) {}
+
+	bool applyGh(CGameHandler * gh);
+	template <typename Handler> void serialize(Handler & h, const int version)
+	{
+		h & static_cast<CPackForServer&>(*this);
+		h & srcHero;
+		h & dstHero;
+		h & swap;
 	}
 };
 
