@@ -2338,10 +2338,13 @@ void CPlayerInterface::acceptTurn()
 		while(CInfoWindow *iw = dynamic_cast<CInfoWindow *>(GH.topInt().get()))
 			iw->close();
 	}
-	waitWhileDialog();
 
 	if(CSH->howManyPlayerInterfaces() > 1)
+	{
+		waitWhileDialog(); // wait for player to accept turn in hot-seat mode
+
 		adventureInt->startTurn();
+	}
 
 	adventureInt->heroList.update();
 	adventureInt->townList.update();
