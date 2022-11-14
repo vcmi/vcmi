@@ -1700,9 +1700,7 @@ int CUniversityWindow::CItem::state()
 {
 	if(parent->hero->getSecSkillLevel(SecondarySkill(ID)))//hero know this skill
 		return 1;
-	if(!parent->hero->canLearnSkill())//can't learn more skills
-		return 0;
-	if(parent->hero->type->heroClass->secSkillProbability[ID]==0)//can't learn this skill (like necromancy for most of non-necros)
+	if(!parent->hero->canLearnSkill(SecondarySkill(ID)))//can't learn more skills
 		return 0;
 	return 2;
 }

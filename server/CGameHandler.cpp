@@ -4083,7 +4083,7 @@ bool CGameHandler::buySecSkill(const IMarket *m, const CGHeroInstance *h, Second
 	if (!h->canLearnSkill())
 		COMPLAIN_RET("Hero can't learn any more skills");
 
-	if (h->type->heroClass->secSkillProbability.at(skill)==0)//can't learn this skill (like necromancy for most of non-necros)
+	if (!h->canLearnSkill(skill))
 		COMPLAIN_RET("The hero can't learn this skill!");
 
 	if (!vstd::contains(m->availableItemsIds(EMarketMode::RESOURCE_SKILL), skill))
