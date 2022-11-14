@@ -721,7 +721,7 @@ void Animation::exportBitmaps(const bfs::path& path, bool prependResourceName) c
 			size_t frame = imagePair.first;
 			const auto img = imagePair.second;
 
-			boost::format fmt("%d_%d.bmp");
+			boost::format fmt("%d_%d.png");
 			fmt% group% frame;
 			std::string fileName = fmt.str();
 			if (prependResourceName)

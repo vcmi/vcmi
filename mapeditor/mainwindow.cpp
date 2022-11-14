@@ -111,9 +111,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	
 	//init
 	preinitDLL(::console);
-
-	//ConvertOriginalResourceFiles();
-
 	settings.init();
 	
 	// Initialize logging based on settings
