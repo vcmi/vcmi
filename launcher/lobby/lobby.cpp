@@ -67,7 +67,7 @@ void SocketLobby::requestReadySession(const QString & session)
 
 void SocketLobby::send(const QString & msg)
 {
-    QByteArray str = msg.toUtf8();
+	QByteArray str = msg.toUtf8();
 	int sz = str.size();
 	QByteArray pack((const char *)&sz, sizeof(sz));
 	pack.append(str);
