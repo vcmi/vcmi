@@ -195,6 +195,23 @@ bool CGHeroInstance::canLearnSkill() const
 	return secSkills.size() < GameConstants::SKILL_PER_HERO;
 }
 
+bool CGHeroInstance::canLearnSkill(SecondarySkill which) const
+{
+	if ( !canLearnSkill())
+		return false;
+
+	if (!cb->isAllowed(2, which))
+		return false;
+
+	if (getSecSkillLevel(which) > 0)
+		return false;
+
+	if (type->heroClass->secSkillProbability[which] == 0)
+		return false;
+
+	return true;
+}
+
 int CGHeroInstance::maxMovePoints(bool onLand) const
 {
 	TurnInfo ti(this);
@@ -1117,7 +1134,7 @@ std::vector<SecondarySkill> CGHeroInstance::getLevelUpProposedSecondarySkills() 
 	std::vector<SecondarySkill> obligatorySkills; //hero is offered magic school or wisdom if possible
 	if (!skillsInfo.wisdomCounter)
 	{
-		if (cb->isAllowed(2, SecondarySkill::WISDOM) && !getSecSkillLevel(SecondarySkill::WISDOM))
+		if (canLearnSkill(SecondarySkill::WISDOM))
 			obligatorySkills.push_back(SecondarySkill::WISDOM);
 	}
 	if (!skillsInfo.magicSchoolCounter)
@@ -1131,7 +1148,7 @@ std::vector<SecondarySkill> CGHeroInstance::getLevelUpProposedSecondarySkills() 
 
 		for (auto skill : ss)
 		{
-			if (cb->isAllowed(2, skill) && !getSecSkillLevel(skill)) //only schools hero doesn't know yet
+			if (canLearnSkill(skill)) //only schools hero doesn't know yet
 			{
 				obligatorySkills.push_back(skill);
 				break; //only one
@@ -1143,7 +1160,7 @@ std::vector<SecondarySkill> CGHeroInstance::getLevelUpProposedSecondarySkills() 
 	//picking sec. skills for choice
 	std::set<SecondarySkill> basicAndAdv, expert, none;
 	for(int i = 0; i < VLC->skillh->size(); i++)
-		if (cb->isAllowed(2,i))
+		if (canLearnSkill(SecondarySkill(i)))
 			none.insert(SecondarySkill(i));
 
 	for(auto & elem : secSkills)
