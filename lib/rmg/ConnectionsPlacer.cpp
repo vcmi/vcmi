@@ -214,7 +214,7 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 			rmgGate2.setTemplate(otherZone->getTerrainType());
 			bool guarded1 = manager.addGuard(rmgGate1, connection.getGuardStrength(), true);
 			bool guarded2 = managerOther.addGuard(rmgGate2, connection.getGuardStrength(), true);
-			int minDist = 3;
+			constexpr int minDist = 3;
 			
 			rmg::Path path2(otherZone->area());
 			rmg::Path path1 = manager.placeAndConnectObject(commonArea, rmgGate1, [this, minDist, &path2, &rmgGate1, &zShift, guarded2, &managerOther, &rmgGate2	](const int3 & tile)

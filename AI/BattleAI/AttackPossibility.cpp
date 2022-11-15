@@ -175,7 +175,7 @@ AttackPossibility AttackPossibility::evaluate(const BattleAttackInfo & attackInf
 				if (!attackInfo.shooting && defenderState->ableToRetaliate() && !counterAttacksBlocked)
 				{
 					damageReceived = averageDmg(retaliation);
-					attackerDamageReduce = calculateDamageReduce(defender, attacker, damageReceived, state);
+					attackerDamageReduce = calculateDamageReduce(attacker, defender, damageReceived, state);
 					defenderState->afterAttack(attackInfo.shooting, true);
 				}
 

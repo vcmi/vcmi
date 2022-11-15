@@ -1032,7 +1032,7 @@ std::function<void()> CExchangeController::onSwapArmy()
 	{
 		GsThread::run([=]
 		{
-			if(right->tempOwner != cb->getMyColor()
+			if(left->tempOwner != cb->getMyColor()
 				|| right->tempOwner != cb->getMyColor())
 			{
 				return;

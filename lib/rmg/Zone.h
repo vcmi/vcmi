@@ -119,7 +119,7 @@ public:
 	template<class T>
 	void addModificator()
 	{
-		modificators.emplace_back(new T(*this, map, generator));
+		modificators.push_back(std::make_unique<T>(*this, map, generator));
 	}
 	
 	void initModificators();

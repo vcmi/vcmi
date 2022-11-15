@@ -44,7 +44,7 @@ std::unique_ptr<CMap> CMapService::loadMap(const ui8 * buffer, int size, const s
 
 	//might be original campaign and require patch
 	getMapPatcher(name)->patchMapHeader(header);
-	header.release();
+	header.reset();
 
 	return map;
 }

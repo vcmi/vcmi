@@ -219,8 +219,10 @@ bool CHeroArtPlace::askToAssemble(const CArtifactInstance *art, ArtifactPosition
 			std::bind(&CCallback::assembleArtifacts, LOCPLINT->cb.get(), hero, slot, true, combination->id));
 
 		if(assemblyPossibilities.size() > 2)
+		{
 			logGlobal->warn("More than one possibility of assembling on %s... taking only first", art->artType->getName());
-		return true;
+			return true;
+		}
 	}
 	return false;
 }

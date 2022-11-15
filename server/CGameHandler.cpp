@@ -507,7 +507,7 @@ void CGameHandler::levelUpCommander (const CCommanderInstance * c, int skill)
 				break;
 			case ECommander::DAMAGE:
 				scp.accumulatedBonus.type = Bonus::CREATURE_DAMAGE;
-				scp.accumulatedBonus.subtype = 0;
+				scp.accumulatedBonus.subtype = PrimarySkill::ATTACK;
 				scp.accumulatedBonus.valType = Bonus::PERCENT_TO_BASE;
 				break;
 			case ECommander::SPEED:
@@ -1029,7 +1029,7 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 		}
 		if (VLC->modh->settings.data["hardcodedFeatures"]["NEGATIVE_LUCK"].Bool()) // negative luck enabled
 		{
-			if (attackerLuck < 0 && getRandomGenerator().nextInt(23) < abs(attackerLuck))
+			if (attackerLuck != INT_MIN && attackerLuck < 0 && getRandomGenerator().nextInt(23) < abs(attackerLuck))
 			{
 				bat.flags |= BattleAttack::UNLUCKY;
 			}
