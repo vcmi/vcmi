@@ -352,7 +352,7 @@ CArtifact * CArtHandler::loadFromJson(const std::string & scope, const JsonNode 
 	}
 
 	const JsonNode & warMachine = node["warMachine"];
-	if(warMachine.getType() == JsonNode::JsonType::DATA_STRING && warMachine.String() != "")
+	if(warMachine.getType() == JsonNode::JsonType::DATA_STRING && !warMachine.String().empty())
 	{
 		VLC->modh->identifiers.requestIdentifier("creature", warMachine, [=](si32 id)
 		{

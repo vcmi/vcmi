@@ -134,7 +134,7 @@ namespace TriggeredEventsDetail
 
 	static EMetaclass decodeMetaclass(const std::string & source)
 	{
-		if(source == "")
+		if(source.empty())
 			return EMetaclass::INVALID;
 		auto rawId = vstd::find_pos(NMetaclass::names, source);
 
@@ -286,7 +286,7 @@ namespace TriggeredEventsDetail
 				if(event.value > 0)
 					data["value"].Integer() = event.value;
 
-				if(event.objectInstanceName != "")
+				if(!event.objectInstanceName.empty())
 					data["object"].String() = event.objectInstanceName;
 			}
 			break;

@@ -572,7 +572,7 @@ void AObjectTypeHandler::addTemplate(JsonNode config)
 	auto tmpl = new ObjectTemplate;
 	tmpl->id = Obj(type);
 	tmpl->subid = subtype;
-	tmpl->stringID = ""; // TODO?
+	tmpl->stringID.clear(); // TODO?
 	tmpl->readJson(config);
 	templates.emplace_back(tmpl);
 }

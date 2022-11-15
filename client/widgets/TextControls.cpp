@@ -577,7 +577,7 @@ void CTextInput::textInputed(const SDL_TextInputEvent & event)
 		redraw();
 		cb(text);
 	}
-	newText = "";
+	newText.clear();
 
 #ifdef VCMI_ANDROID
 	notifyAndroidTextInputChanged(text);

@@ -313,7 +313,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 	standardVictory.effect.type = EventEffect::VICTORY;
 	standardVictory.effect.toOtherMessage = VLC->generaltexth->allTexts[5];
 	standardVictory.identifier = "standardVictory";
-	standardVictory.description = ""; // TODO: display in quest window
+	standardVictory.description.clear(); // TODO: display in quest window
 	standardVictory.onFulfill = VLC->generaltexth->allTexts[659];
 	standardVictory.trigger = EventExpression(victoryCondition);
 
@@ -321,7 +321,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 	standardDefeat.effect.type = EventEffect::DEFEAT;
 	standardDefeat.effect.toOtherMessage = VLC->generaltexth->allTexts[8];
 	standardDefeat.identifier = "standardDefeat";
-	standardDefeat.description = ""; // TODO: display in quest window
+	standardDefeat.description.clear(); // TODO: display in quest window
 	standardDefeat.onFulfill = VLC->generaltexth->allTexts[7];
 	standardDefeat.trigger = EventExpression(defeatCondition);
 
@@ -338,7 +338,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 		TriggeredEvent specialVictory;
 		specialVictory.effect.type = EventEffect::VICTORY;
 		specialVictory.identifier = "specialVictory";
-		specialVictory.description = ""; // TODO: display in quest window
+		specialVictory.description.clear(); // TODO: display in quest window
 
 		mapHeader->victoryIconIndex = ui16(vicCondition);
 		mapHeader->victoryMessage = VLC->generaltexth->victoryConditions[size_t(vicCondition) + 1];
@@ -526,7 +526,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 		specialDefeat.effect.type = EventEffect::DEFEAT;
 		specialDefeat.effect.toOtherMessage = VLC->generaltexth->allTexts[5];
 		specialDefeat.identifier = "specialDefeat";
-		specialDefeat.description = ""; // TODO: display in quest window
+		specialDefeat.description.clear(); // TODO: display in quest window
 
 		mapHeader->defeatIconIndex = ui16(lossCond);
 		mapHeader->defeatMessage = VLC->generaltexth->lossCondtions[size_t(lossCond) + 1];

@@ -938,7 +938,7 @@ void CGSeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
 		case MANA_POINTS:
 		case MORALE_BONUS:
 		case LUCK_BONUS:
-			identifier = "";
+			identifier.clear();
 			break;
 		case RESOURCES:
 			identifier = GameConstants::RESOURCE_NAMES[rID];
@@ -976,7 +976,7 @@ void CGSeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
 
 		const JsonNode & rewardsJson = handler.getCurrent();
 
-		fullIdentifier = "";
+		fullIdentifier.clear();
 
 		if(rewardsJson.Struct().empty())
 			return;

@@ -94,7 +94,9 @@ std::string MacroString::build(const GetValue & getValue) const
 CBonusType::CBonusType()
 {
 	hidden = true;
-	icon = nameTemplate = descriptionTemplate = "";
+	icon.clear();
+	nameTemplate.clear();
+	descriptionTemplate.clear();
 }
 
 CBonusType::~CBonusType()
