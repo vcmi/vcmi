@@ -217,13 +217,17 @@
 				"missile": {
 					"type":"object",
 					"additionalProperties" : false,
-					"required" : [ "projectile", "frameAngles", "offset", "attackClimaxFrame" ],
+					"required" : [ "frameAngles", "offset", "attackClimaxFrame" ],
 					"description": "Missile description for archers",
 					"properties":{
 						"projectile": {
 							"type":"string",
 							"description": "Path to projectile animation",
 							"format" : "defFile"
+						},
+						"ray": {
+							"type":"array",
+							"description": "Colors of ray projectile animation"
 						},
 						"frameAngles": {
 							"type":"array",

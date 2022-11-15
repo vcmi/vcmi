@@ -361,6 +361,74 @@ void CSDL_Ext::update(SDL_Surface * what)
 	if(0 !=SDL_UpdateTexture(screenTexture, nullptr, what->pixels, what->pitch))
 		logGlobal->error("%s SDL_UpdateTexture %s", __FUNCTION__, SDL_GetError());
 }
+
+uint8_t lerp(uint8_t a, uint8_t b, float f)
+{
+	return a + std::round((b-a)*f);
+}
+
+static void drawLineX(SDL_Surface * sur, int x1, int y1, int x2, int y2, const SDL_Color & color1, const SDL_Color & color2)
+{
+	for(int x = x1; x <= x2; x++)
+	{
+		float f = float(x - x1) / float(x2 - x1);
+		int y = y1 + std::round((y2-y1)*f);
+
+		uint8_t r = lerp(color1.r, color2.r, f);
+		uint8_t g = lerp(color1.g, color2.g, f);
+		uint8_t b = lerp(color1.b, color2.b, f);
+		uint8_t a = lerp(color1.a, color2.a, f);
+
+		Uint8 *p = CSDL_Ext::getPxPtr(sur, x, y);
+		ColorPutter<4, 0>::PutColor(p, r,g,b,a);
+	}
+}
+
+static void drawLineY(SDL_Surface * sur, int x1, int y1, int x2, int y2, const SDL_Color & color1, const SDL_Color & color2)
+{
+	for(int y = y1; y <= y2; y++)
+	{
+		float f = float(y - y1) / float(y2 - y1);
+		int x = x1 + std::round((x2-x1)*f);
+
+		uint8_t r = lerp(color1.r, color2.r, f);
+		uint8_t g = lerp(color1.g, color2.g, f);
+		uint8_t b = lerp(color1.b, color2.b, f);
+		uint8_t a = lerp(color1.a, color2.a, f);
+
+		Uint8 *p = CSDL_Ext::getPxPtr(sur, x, y);
+		ColorPutter<4, 0>::PutColor(p, r,g,b,a);
+	}
+}
+
+void CSDL_Ext::drawLine(SDL_Surface * sur, int x1, int y1, int x2, int y2, const SDL_Color & color1, const SDL_Color & color2)
+{
+	int width  = std::abs(x1-x2);
+	int height = std::abs(y1-y2);
+
+	if ( width == 0 && height == 0)
+	{
+		Uint8 *p = CSDL_Ext::getPxPtr(sur, x1, y1);
+		ColorPutter<4, 0>::PutColorAlpha(p, color1);
+		return;
+	}
+
+	if (width > height)
+	{
+		if ( x1 < x2)
+			drawLineX(sur, x1,y1,x2,y2, color1, color2);
+		else
+			drawLineX(sur, x2,y2,x1,y1, color1, color2);
+	}
+	else
+	{
+		if ( y1 < y2)
+			drawLineY(sur, x1,y1,x2,y2, color1, color2);
+		else
+			drawLineY(sur, x2,y2,x1,y1, color1, color2);
+	}
+}
+
 void CSDL_Ext::drawBorder(SDL_Surface * sur, int x, int y, int w, int h, const int3 &color)
 {
 	for(int i = 0; i < w; i++)
