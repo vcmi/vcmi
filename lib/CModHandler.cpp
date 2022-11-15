@@ -226,7 +226,7 @@ std::vector<CIdentifierStorage::ObjectData> CIdentifierStorage::getPossibleIdent
 
 		//for map format support core mod has access to any mod
 		//TODO: better solution for access from map?
-		if(request.localScope == "core" || request.localScope == "")
+		if(request.localScope == "core" || request.localScope.empty())
 		{
 			allowedScopes.insert(request.remoteScope);
 		}
@@ -1116,13 +1116,13 @@ void CModHandler::parseIdentifier(const std::string & fullIdentifier, std::strin
 	else
 	{
 		type = p.second;
-		identifier = "";
+		identifier.clear();
 	}
 }
 
 std::string CModHandler::makeFullIdentifier(const std::string & scope, const std::string & type, const std::string & identifier)
 {
-	if(type == "")
+	if(type.empty())
 		logGlobal->error("Full identifier (%s %s) requires type name", scope, identifier);
 
 	std::string actualScope = scope;
@@ -1137,13 +1137,13 @@ std::string CModHandler::makeFullIdentifier(const std::string & scope, const std
 		actualName = scopeAndName.second;
 	}
 
-	if(actualScope == "")
+	if(actualScope.empty())
 	{
-		return actualName == "" ? type : type + "." + actualName;
+		return actualName.empty() ? type : type + "." + actualName;
 	}
 	else
 	{
-		return actualName == "" ? actualScope+ ":" + type : actualScope + ":" + type + "." + actualName;
+		return actualName.empty() ? actualScope+ ":" + type : actualScope + ":" + type + "." + actualName;
 	}
 }
 

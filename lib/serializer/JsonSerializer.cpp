@@ -108,7 +108,7 @@ void JsonSerializer::serializeLIC(const std::string & fieldName, LICSet & value)
 
 void JsonSerializer::serializeString(const std::string & fieldName, std::string & value)
 {
-	if(value != "")
+	if(!value.empty())
 		currentObject->operator[](fieldName).String() = value;
 }
 

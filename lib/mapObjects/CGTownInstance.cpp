@@ -46,7 +46,7 @@ void CCreGenAsCastleInfo::serializeJson(JsonSerializeFormat & handler)
 
 	if(!handler.saving)
 	{
-		asCastle = (instanceId != "");
+		asCastle = !instanceId.empty();
 		allowedFactions.clear();
 	}
 

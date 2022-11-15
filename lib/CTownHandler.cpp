@@ -822,11 +822,11 @@ void CTownHandler::loadClientData(CTown &town, const JsonNode & source)
 	info.buildingsIcons = source["buildingsIcons"].String();
 
 	//left for back compatibility - will be removed later
-	if (source["guildBackground"].String() != "")
+	if(!source["guildBackground"].String().empty())
 		info.guildBackground = source["guildBackground"].String();
 	else
 		info.guildBackground = "TPMAGE.bmp";
-	if (source["tavernVideo"].String() != "")
+	if(!source["tavernVideo"].String().empty())
 	    info.tavernVideo = source["tavernVideo"].String();
 	else
 		info.tavernVideo = "TAVERN.BIK";
@@ -963,7 +963,6 @@ TerrainId CTownHandler::getDefaultTerrainForAlignment(EAlignment::EAlignment ali
 CFaction * CTownHandler::loadFromJson(const std::string & scope, const JsonNode & source, const std::string & identifier, size_t index)
 {
 	auto faction = new CFaction();
-	faction->index = index;
 
 	faction->index = static_cast<TFaction>(index);
 	faction->name = source["name"].String();

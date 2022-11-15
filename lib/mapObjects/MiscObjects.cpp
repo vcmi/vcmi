@@ -1802,7 +1802,7 @@ void CGScholar::serializeJsonOptions(JsonSerializeFormat & handler)
 		//TODO: unify
 		const JsonNode & json = handler.getCurrent();
 		bonusType = RANDOM;
-		if(json["rewardPrimSkill"].String() != "")
+		if(!json["rewardPrimSkill"].String().empty())
 		{
 			auto raw = VLC->modh->identifiers.getIdentifier("core", "primSkill", json["rewardPrimSkill"].String());
 			if(raw)
@@ -1811,7 +1811,7 @@ void CGScholar::serializeJsonOptions(JsonSerializeFormat & handler)
 				bonusID = raw.get();
 			}
 		}
-		else if(json["rewardSkill"].String() != "")
+		else if(!json["rewardSkill"].String().empty())
 		{
 			auto raw = VLC->modh->identifiers.getIdentifier("core", "skill", json["rewardSkill"].String());
 			if(raw)
@@ -1820,7 +1820,7 @@ void CGScholar::serializeJsonOptions(JsonSerializeFormat & handler)
 				bonusID = raw.get();
 			}
 		}
-		else if(json["rewardSpell"].String() != "")
+		else if(!json["rewardSpell"].String().empty())
 		{
 			auto raw = VLC->modh->identifiers.getIdentifier("core", "spell", json["rewardSpell"].String());
 			if(raw)
