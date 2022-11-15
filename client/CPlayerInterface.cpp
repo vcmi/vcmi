@@ -276,7 +276,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 	{
 		updateAmbientSounds();
 		//We may need to change music - select new track, music handler will change it if needed
-		CCS->musich->playMusicFromSet("terrain", LOCPLINT->cb->getTile(hero->visitablePos())->terType->name, true);
+		CCS->musich->playMusicFromSet("terrain", LOCPLINT->cb->getTile(hero->visitablePos())->terType->name, true, false);
 
 		if(details.result == TryMoveHero::TELEPORTATION)
 		{
@@ -2348,10 +2348,13 @@ void CPlayerInterface::acceptTurn()
 		while(CInfoWindow *iw = dynamic_cast<CInfoWindow *>(GH.topInt().get()))
 			iw->close();
 	}
-	waitWhileDialog();
 
 	if(CSH->howManyPlayerInterfaces() > 1)
+	{
+		waitWhileDialog(); // wait for player to accept turn in hot-seat mode
+
 		adventureInt->startTurn();
+	}
 
 	adventureInt->heroList.update();
 	adventureInt->townList.update();
@@ -2601,6 +2604,12 @@ void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const Artifact
 		if (artWin)
 			artWin->artifactMoved(src, dst);
 	}
+	if(!GH.objsToBlit.empty())
+		GH.objsToBlit.back()->redraw();
+}
+
+void CPlayerInterface::artifactPossibleAssembling(const ArtifactLocation & dst)
+{
 	askToAssembleArtifact(dst);
 }
 

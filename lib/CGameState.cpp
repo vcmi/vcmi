@@ -532,7 +532,7 @@ std::pair<Obj,int> CGameState::pickObject (CGObjectInstance *obj)
 			if (auto info = dynamic_cast<CCreGenAsCastleInfo*>(dwl->info))
 			{
 				faction = getRandomGenerator().nextInt((int)VLC->townh->size() - 1);
-				if(info->asCastle && info->instanceId != "")
+				if(info->asCastle && !info->instanceId.empty())
 				{
 					auto iter = map->instanceNames.find(info->instanceId);
 

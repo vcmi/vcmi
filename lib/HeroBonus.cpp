@@ -1016,7 +1016,7 @@ TConstBonusListPtr CBonusSystemNode::getAllBonuses(const CSelector &selector, co
 
 		// If a bonus system request comes with a caching string then look up in the map if there are any
 		// pre-calculated bonus results. Limiters can't be cached so they have to be calculated.
-		if (cachingStr != "")
+		if(!cachingStr.empty())
 		{
 			auto it = cachedRequests.find(cachingStr);
 			if(it != cachedRequests.end())
@@ -1032,7 +1032,7 @@ TConstBonusListPtr CBonusSystemNode::getAllBonuses(const CSelector &selector, co
 		cachedBonuses.getBonuses(*ret, selector, limit);
 
 		// Save the results in the cache
-		if(cachingStr != "")
+		if(!cachingStr.empty())
 			cachedRequests[cachingStr] = ret;
 
 		return ret;
@@ -1708,9 +1708,9 @@ JsonNode Bonus::toJsonNode() const
 		root["val"].Integer() = val;
 	if(valType != ADDITIVE_VALUE)
 		root["valueType"].String() = vstd::findKey(bonusValueMap, valType);
-	if(stacking != "")
+	if(!stacking.empty())
 		root["stacking"].String() = stacking;
-	if(description != "")
+	if(!description.empty())
 		root["description"].String() = description;
 	if(effectRange != NO_LIMIT)
 		root["effectRange"].String() = vstd::findKey(bonusLimitEffect, effectRange);

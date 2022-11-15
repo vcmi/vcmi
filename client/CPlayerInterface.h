@@ -134,6 +134,7 @@ public:
 	void artifactRemoved(const ArtifactLocation &al) override;
 	void artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst) override;
 	void artifactAssembled(const ArtifactLocation &al) override;
+	void artifactPossibleAssembling(const ArtifactLocation & dst) override;
 	void artifactDisassembled(const ArtifactLocation &al) override;
 
 	void heroVisit(const CGHeroInstance * visitor, const CGObjectInstance * visitedObj, bool start) override;

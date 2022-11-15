@@ -593,7 +593,7 @@ void CSpellWindow::SpellArea::clickRight(tribool down, bool previousState)
 		std::string dmgInfo;
 		auto causedDmg = owner->myInt->cb->estimateSpellDamage(mySpell, owner->myHero);
 		if(causedDmg == 0 || mySpell->id == SpellID::TITANS_LIGHTNING_BOLT) //Titan's Lightning Bolt already has damage info included
-			dmgInfo = "";
+			dmgInfo.clear();
 		else
 		{
 			dmgInfo = CGI->generaltexth->allTexts[343];

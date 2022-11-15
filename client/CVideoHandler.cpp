@@ -381,7 +381,7 @@ void CVideoPlayer::update( int x, int y, SDL_Surface *dst, bool forceRedraw, boo
 
 void CVideoPlayer::close()
 {
-	fname = "";
+	fname.clear();
 	if (sws)
 	{
 		sws_freeContext(sws);

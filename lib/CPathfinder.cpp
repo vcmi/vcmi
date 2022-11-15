@@ -1252,7 +1252,7 @@ int CPathfinderHelper::getMovementCost(
 	if(src.x != dst.x && src.y != dst.y) //it's diagonal move
 	{
 		int old = ret;
-		ret = static_cast < int>(ret * 1.414213);
+		ret = static_cast<int>(ret * M_SQRT2);
 		//diagonal move costs too much but normal move is possible - allow diagonal move for remaining move points
 		if(ret > remainingMovePoints && remainingMovePoints >= old)
 		{

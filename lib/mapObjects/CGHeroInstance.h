@@ -187,6 +187,7 @@ public:
 
 	/// Returns true if hero has free secondary skill slot.
 	bool canLearnSkill() const;
+	bool canLearnSkill(SecondarySkill which) const;
 
 	void setPrimarySkill(PrimarySkill::PrimarySkill primarySkill, si64 value, ui8 abs);
 	void setSecSkillLevel(SecondarySkill which, int val, bool abs);// abs == 0 - changes by value; 1 - sets to value

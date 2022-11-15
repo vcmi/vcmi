@@ -3928,10 +3928,101 @@ bool CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocat
 		moveArtifact(dst, ArtifactLocation(dst.artHolder, ArtifactPosition(
 			(si32)dst.getHolderArtSet()->artifactsInBackpack.size() + GameConstants::BACKPACK_START)));
 	}
+	auto hero = boost::get<ConstTransitivePtr<CGHeroInstance>>(dst.artHolder);
+	if(ArtifactUtils::checkSpellbookIsNeeded(hero, srcArtifact->artType->id, dst.slot))
+		giveHeroNewArtifact(hero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
 
-	MoveArtifact ma;
-	ma.src = src;
-	ma.dst = dst;
+	MoveArtifact ma(&src, &dst);
+	sendAndApply(&ma);
+	return true;
+}
+
+bool CGameHandler::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID dstHero, bool swap)
+{
+	// Make sure exchange is even possible between the two heroes.
+	if(!isAllowedExchange(srcHero, dstHero))
+		COMPLAIN_RET("That heroes cannot make any exchange!");
+
+	auto psrcHero = getHero(srcHero);
+	auto pdstHero = getHero(dstHero);
+	if((!psrcHero) || (!pdstHero))
+		COMPLAIN_RET("bulkMoveArtifacts: wrong hero's ID");
+
+	BulkMoveArtifacts ma(static_cast<ConstTransitivePtr<CGHeroInstance>>(psrcHero),
+		static_cast<ConstTransitivePtr<CGHeroInstance>>(pdstHero), swap);
+	auto & slotsSrcDst = ma.artsPack0;
+	auto & slotsDstSrc = ma.artsPack1;
+
+	if(swap)
+	{
+		auto moveArtsWorn = [this](const CGHeroInstance * srcHero, const CGHeroInstance * dstHero,
+			std::vector<BulkMoveArtifacts::LinkedSlots> & slots) -> void
+		{
+			for(auto & artifact : srcHero->artifactsWorn)
+			{
+				if(artifact.second.locked)
+					continue;
+				if(!ArtifactUtils::isArtRemovable(artifact))
+					continue;
+				slots.push_back(BulkMoveArtifacts::LinkedSlots(artifact.first, artifact.first));
+
+				auto art = artifact.second.getArt();
+				assert(art);
+				if(ArtifactUtils::checkSpellbookIsNeeded(dstHero, art->artType->id, artifact.first))
+					giveHeroNewArtifact(dstHero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
+			}
+		};
+		auto moveArtsInBackpack = [](const CGHeroInstance * pHero,
+			std::vector<BulkMoveArtifacts::LinkedSlots> & slots) -> void
+		{
+			for(auto & slotInfo : pHero->artifactsInBackpack)
+			{
+				auto slot = pHero->getArtPos(slotInfo.artifact);
+				slots.push_back(BulkMoveArtifacts::LinkedSlots(slot, slot));
+			}
+		};
+		// Move over artifacts that are worn srcHero -> dstHero
+		moveArtsWorn(psrcHero, pdstHero, slotsSrcDst);
+		// Move over artifacts that are worn dstHero -> srcHero
+		moveArtsWorn(pdstHero, psrcHero, slotsDstSrc);
+		// Move over artifacts that are in backpack srcHero -> dstHero
+		moveArtsInBackpack(psrcHero, slotsSrcDst);
+		// Move over artifacts that are in backpack dstHero -> srcHero
+		moveArtsInBackpack(pdstHero, slotsDstSrc);
+	}
+	else
+	{
+		// Temporary fitting set for artifacts. Used to select available slots before sending data.
+		CArtifactFittingSet artFittingSet(pdstHero->bearerType());
+		artFittingSet.artifactsInBackpack = pdstHero->artifactsInBackpack;
+		artFittingSet.artifactsWorn = pdstHero->artifactsWorn;
+
+		auto moveArtifact = [this, &artFittingSet, &slotsSrcDst](const CArtifactInstance * artifact,
+			ArtifactPosition srcSlot, const CGHeroInstance * pdstHero) -> void
+		{
+			assert(artifact);
+			auto dstSlot = ArtifactUtils::getArtifactDstPosition(artifact, &artFittingSet, pdstHero->bearerType());
+			artFittingSet.putArtifact(dstSlot, static_cast<ConstTransitivePtr<CArtifactInstance>>(artifact));
+			slotsSrcDst.push_back(BulkMoveArtifacts::LinkedSlots(srcSlot, dstSlot));
+
+			if(ArtifactUtils::checkSpellbookIsNeeded(pdstHero, artifact->artType->id, dstSlot))
+				giveHeroNewArtifact(pdstHero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
+		};
+
+		// Move over artifacts that are worn
+		for(auto & artInfo : psrcHero->artifactsWorn)
+		{
+			if(ArtifactUtils::isArtRemovable(artInfo))
+			{
+				moveArtifact(psrcHero->getArt(artInfo.first), artInfo.first, pdstHero);
+			}
+		}
+		// Move over artifacts that are in backpack
+		for(auto & slotInfo : psrcHero->artifactsInBackpack)
+		{
+			moveArtifact(psrcHero->getArt(psrcHero->getArtPos(slotInfo.artifact)), psrcHero->getArtPos(slotInfo.artifact), pdstHero);
+		}
+	}
 	sendAndApply(&ma);
 	return true;
 }
@@ -3959,6 +4050,9 @@ bool CGameHandler::assembleArtifacts (ObjectInstanceID heroID, ArtifactPosition 
 			COMPLAIN_RET("assembleArtifacts: Artifact being attempted to assemble is not a combined artifacts!");
 		if (!vstd::contains(destArtifact->assemblyPossibilities(hero), combinedArt))
 			COMPLAIN_RET("assembleArtifacts: It's impossible to assemble requested artifact!");
+		
+		if(ArtifactUtils::checkSpellbookIsNeeded(hero, assembleTo, artifactSlot))
+			giveHeroNewArtifact(hero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
 
 		AssembledArtifact aa;
 		aa.al = ArtifactLocation(hero, artifactSlot);
@@ -4095,7 +4189,7 @@ bool CGameHandler::buySecSkill(const IMarket *m, const CGHeroInstance *h, Second
 	if (!h->canLearnSkill())
 		COMPLAIN_RET("Hero can't learn any more skills");
 
-	if (h->type->heroClass->secSkillProbability.at(skill)==0)//can't learn this skill (like necromancy for most of non-necros)
+	if (!h->canLearnSkill(skill))
 		COMPLAIN_RET("The hero can't learn this skill!");
 
 	if (!vstd::contains(m->availableItemsIds(EMarketMode::RESOURCE_SKILL), skill))

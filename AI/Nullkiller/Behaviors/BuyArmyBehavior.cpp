@@ -57,8 +57,7 @@ Goals::TGoalVec BuyArmyBehavior::decompose() const
 				continue;
 			}
 
-			if(ai->nullkiller->heroManager->getHeroRole(targetHero) == HeroRole::MAIN
-				&& targetHero->getArmyStrength() >= 300)
+			if(ai->nullkiller->heroManager->getHeroRole(targetHero) == HeroRole::MAIN)
 			{
 				auto reinforcement = ai->nullkiller->armyManager->howManyReinforcementsCanGet(
 					targetHero,

@@ -367,7 +367,7 @@ void CHeroArtPlace::setArtifact(const CArtifactInstance *art)
 	if(!art)
 	{
 		image->disable();
-		text = std::string();
+		text.clear();
 		hoverText = CGI->generaltexth->allTexts[507];
 		return;
 	}
@@ -1034,7 +1034,7 @@ void CCommanderArtPlace::setArtifact(const CArtifactInstance * art)
 	if (!art)
 	{
 		image->disable();
-		text = std::string();
+		text.clear();
 		return;
 	}
 

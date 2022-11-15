@@ -1158,7 +1158,7 @@ void CInGameConsole::endEnteringText(bool printEnteredText)
 		previouslyEntered.push_back(txt);
 		//print(txt);
 	}
-	enteredText = "";
+	enteredText.clear();
 	if(GH.topInt() == adventureInt)
 	{
 		GH.statusbar->alignment = CENTER;

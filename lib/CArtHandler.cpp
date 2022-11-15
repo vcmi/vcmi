@@ -352,7 +352,7 @@ CArtifact * CArtHandler::loadFromJson(const std::string & scope, const JsonNode 
 	}
 
 	const JsonNode & warMachine = node["warMachine"];
-	if(warMachine.getType() == JsonNode::JsonType::DATA_STRING && warMachine.String() != "")
+	if(warMachine.getType() == JsonNode::JsonType::DATA_STRING && !warMachine.String().empty())
 	{
 		VLC->modh->identifiers.requestIdentifier("creature", warMachine, [=](si32 id)
 		{
@@ -1455,6 +1455,85 @@ void CArtifactSet::serializeJsonSlot(JsonSerializeFormat & handler, const Artifa
 			}
 		}
 	}
+}
+
+CArtifactFittingSet::CArtifactFittingSet(ArtBearer::ArtBearer Bearer)
+{
+	this->Bearer = Bearer;
+}
+
+void CArtifactFittingSet::setNewArtSlot(ArtifactPosition slot, CArtifactInstance * art, bool locked)
+{
+	ArtSlotInfo & asi = retrieveNewArtSlot(slot);
+	asi.artifact = art;
+	asi.locked = locked;
+}
+
+void CArtifactFittingSet::putArtifact(ArtifactPosition pos, CArtifactInstance * art)
+{
+	if(art && art->canBeDisassembled() && (pos < ArtifactPosition::AFTER_LAST))
+	{
+		for(auto & part : dynamic_cast<CCombinedArtifactInstance*>(art)->constituentsInfo)
+		{
+			// For the ArtFittingSet is no needed to do figureMainConstituent, just lock slots
+			this->setNewArtSlot(part.art->firstAvailableSlot(this), part.art, true);
+		}
+	}
+	else
+	{
+		this->setNewArtSlot(pos, art, false);
+	}
+}
+
+ArtBearer::ArtBearer CArtifactFittingSet::bearerType() const
+{
+	return this->Bearer;
+}
+
+DLL_LINKAGE ArtifactPosition ArtifactUtils::getArtifactDstPosition(	const CArtifactInstance * artifact,
+									const CArtifactSet * target, 
+									ArtBearer::ArtBearer bearer)
+{
+	for(auto slot : artifact->artType->possibleSlots.at(bearer))
+	{
+		auto existingArtifact = target->getArt(slot);
+		auto existingArtInfo = target->getSlot(slot);
+
+		if(!existingArtifact
+			&& (!existingArtInfo || !existingArtInfo->locked)
+			&& artifact->canBePutAt(target, slot))
+		{
+			return slot;
+		}
+	}
+	return ArtifactPosition(GameConstants::BACKPACK_START);
+}
+
+DLL_LINKAGE std::vector<ArtifactPosition> ArtifactUtils::unmovablePositions()
+{
+	return { ArtifactPosition::SPELLBOOK, ArtifactPosition::MACH4 };
+}
+
+DLL_LINKAGE bool ArtifactUtils::isArtRemovable(const std::pair<ArtifactPosition, ArtSlotInfo> & slot)
+{
+	return slot.second.artifact
+		&& !slot.second.locked
+		&& !vstd::contains(unmovablePositions(), slot.first);
+}
+
+DLL_LINKAGE bool ArtifactUtils::checkSpellbookIsNeeded(const CGHeroInstance * heroPtr, ArtifactID artID, ArtifactPosition slot)
+{
+	// TODO what'll happen if Titan's thunder is equipped by pickin git up or the start of game?
+	// Titan's Thunder creates new spellbook on equip
+	if(artID == ArtifactID::TITANS_THUNDER && slot == ArtifactPosition::RIGHT_HAND)
+	{
+		if(heroPtr)
+		{
+			if(heroPtr && !heroPtr->hasSpellbook())
+				return true;
+		}
+	}
+	return false;
 }
 
 VCMI_LIB_NAMESPACE_END
