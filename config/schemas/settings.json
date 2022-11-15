@@ -124,7 +124,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default": {},
-			"required" : [ "heroSpeed", "enemySpeed", "scrollSpeed", "heroReminder", "quickCombat" ],
+			"required" : [ "heroSpeed", "enemySpeed", "scrollSpeed", "heroReminder", "quickCombat", "alwaysSkipCombat" ],
 			"properties" : {
 				"heroSpeed" : {
 					"type" : "number",
@@ -144,7 +144,13 @@
 				},
 				"quickCombat" : {
 					"type" : "boolean",
-					"default" : true
+					"default" : true,
+					"description" : "enable to allow AI to play combats versus neutrals. Player can refuse battle result and replay it manually. This option can be switched from in-game menu"
+				},
+				"alwaysSkipCombat" : {
+					"type" : "boolean",
+					"default" : false,
+					"description" : "if enabled, all battles will be controlled by AI"
 				}
 			}
 		},

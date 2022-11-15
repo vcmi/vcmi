@@ -308,6 +308,8 @@ public:
 	{
 		FinishingBattleHelper();
 		FinishingBattleHelper(std::shared_ptr<const CBattleQuery> Query, int RemainingBattleQueriesCount);
+		
+		inline bool isDraw() const {return winnerSide == 2;}
 
 		const CGHeroInstance *winnerHero, *loserHero;
 		PlayerColor victor, loser;

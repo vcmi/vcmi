@@ -122,6 +122,8 @@ private:
 	std::vector<std::shared_ptr<CAnimImage>> icons;
 	std::shared_ptr<CTextBox> description;
 	CPlayerInterface & owner;
+	
+	void buttonPressed(int button); //internal function for button callbacks
 public:
 	CBattleResultWindow(const BattleResult & br, CPlayerInterface & _owner, bool allowReplay = false);
 	~CBattleResultWindow();

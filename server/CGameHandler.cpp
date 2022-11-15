@@ -741,9 +741,9 @@ void CGameHandler::endBattleConfirm(const BattleInfo * battleInfo)
 	CasualtiesAfterBattle cab1(bEndArmy1, battleInfo), cab2(bEndArmy2, battleInfo); //calculate casualties before deleting battle
 	ChangeSpells cs; //for Eagle Eye
 
-	if (finishingBattle->winnerHero)
+	if(!finishingBattle->isDraw() && finishingBattle->winnerHero)
 	{
-		if (int eagleEyeLevel = finishingBattle->winnerHero->valOfBonuses(Bonus::SECONDARY_SKILL_VAL2, SecondarySkill::EAGLE_EYE))
+		if(int eagleEyeLevel = finishingBattle->winnerHero->valOfBonuses(Bonus::SECONDARY_SKILL_VAL2, SecondarySkill::EAGLE_EYE))
 		{
 			double eagleEyeChance = finishingBattle->winnerHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::EAGLE_EYE);
 			for(auto & spellId : battleInfo->sides.at(!battleResult.data->winner).usedSpellsHistory)
@@ -756,7 +756,7 @@ void CGameHandler::endBattleConfirm(const BattleInfo * battleInfo)
 	}
 	std::vector<const CArtifactInstance *> arts; //display them in window
 
-	if (result == BattleResult::NORMAL && finishingBattle->winnerHero)
+	if(result == BattleResult::NORMAL && !finishingBattle->isDraw() && finishingBattle->winnerHero)
 	{
 		auto sendMoveArtifact = [&](const CArtifactInstance *art, MoveArtifact *ma)
 		{
@@ -890,6 +890,11 @@ void CGameHandler::endBattleConfirm(const BattleInfo * battleInfo)
 		RemoveObject ro(finishingBattle->loserHero->id);
 		sendAndApply(&ro);
 	}
+	if(finishingBattle->isDraw() && finishingBattle->winnerHero) //for draw case both heroes should be removed
+	{
+		RemoveObject ro(finishingBattle->winnerHero->id);
+		sendAndApply(&ro);
+	}
 	
 	if(battleResult.data->winner == BattleSide::DEFENDER
 	   && finishingBattle->winnerHero
@@ -900,10 +905,10 @@ void CGameHandler::endBattleConfirm(const BattleInfo * battleInfo)
 		swapGarrisonOnSiege(finishingBattle->winnerHero->visitedTown->id); //return defending visitor from garrison to its rightful place
 	}
 	//give exp
-	if(battleResult.data->exp[finishingBattle->winnerSide] && finishingBattle->winnerHero)
+	if(!finishingBattle->isDraw() && battleResult.data->exp[finishingBattle->winnerSide] && finishingBattle->winnerHero)
 		changePrimSkill(finishingBattle->winnerHero, PrimarySkill::EXPERIENCE, battleResult.data->exp[finishingBattle->winnerSide]);
 	
-	queries.popIfTop(battleQuery);
+	//queries.popIfTop(battleQuery);
 	
 	BattleResultAccepted raccepted;
 	raccepted.army1 = const_cast<CArmedInstance*>(bEndArmy1);
@@ -914,6 +919,7 @@ void CGameHandler::endBattleConfirm(const BattleInfo * battleInfo)
 	raccepted.exp[1] = battleResult.data->exp[1];
 	sendAndApply(&raccepted);
 
+	queries.popIfTop(battleQuery);
 	//--> continuation (battleAfterLevelUp) occurs after level-up queries are handled or on removing query (above)
 }
 

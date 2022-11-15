@@ -600,7 +600,7 @@ void CClient::battleStarted(const BattleInfo * info)
 	if(vstd::contains(playerint, rightSide.color) && playerint[rightSide.color]->human)
 		def = std::dynamic_pointer_cast<CPlayerInterface>(playerint[rightSide.color]);
 
-	//If quick combat is not, do not prepare interfaces for battleint
+	//Remove player interfaces for auto battle (quickCombat option)
 	if(att && att->isAutoFightOn)
 	{
 		att.reset();

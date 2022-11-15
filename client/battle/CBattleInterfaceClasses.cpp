@@ -570,9 +570,9 @@ void CBattleResultWindow::show(SDL_Surface * to)
 	CCS->videoh->update(pos.x + 107, pos.y + 70, screen, true, false);
 }
 
-void CBattleResultWindow::bExitf()
+void CBattleResultWindow::buttonPressed(int button)
 {
-	resultCallback(0);
+	resultCallback(button);
 	CPlayerInterface &intTmp = owner; //copy reference because "this" will be destructed soon
 
 	close();
@@ -586,20 +586,14 @@ void CBattleResultWindow::bExitf()
 	CCS->videoh->close();
 }
 
+void CBattleResultWindow::bExitf()
+{
+	buttonPressed(0);
+}
+
 void CBattleResultWindow::bRepeatf()
 {
-	resultCallback(1);
-	CPlayerInterface &intTmp = owner; //copy reference because "this" will be destructed soon
-	
-	close();
-	
-	if(dynamic_cast<CBattleInterface*>(GH.topInt().get()))
-		GH.popInts(1); //pop battle interface if present
-	
-	//Result window and battle interface are gone. We requested all dialogs to be closed before opening the battle,
-	//so we can be sure that there is no dialogs left on GUI stack.
-	intTmp.showingDialog->setn(false);
-	CCS->videoh->close();
+	buttonPressed(1);
 }
 
 Point CClickableHex::getXYUnitAnim(BattleHex hexNum, const CStack * stack, CBattleInterface * cbi)
