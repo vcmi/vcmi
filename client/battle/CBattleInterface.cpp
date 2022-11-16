@@ -3269,7 +3269,7 @@ void CBattleInterface::showProjectiles(SDL_Surface *to)
 
 		// Update projectile
 		++it->step;
-		if (it->step == it->lastStep)
+		if (it->step > it->lastStep)
 		{
 			toBeDeleted.insert(toBeDeleted.end(), it);
 		}

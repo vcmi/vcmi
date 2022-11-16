@@ -814,7 +814,9 @@ bool CShootingAnimation::init()
 	if (attackedStack)
 	{
 		double animSpeed = AnimationControls::getProjectileSpeed(); // flight speed of projectile
-		spi.lastStep = static_cast<int>(sqrt(static_cast<double>((destPos.x - spi.x) * (destPos.x - spi.x) + (destPos.y - spi.y) * (destPos.y - spi.y))) / animSpeed);
+		double distanceSquared = (destPos.x - spi.x) * (destPos.x - spi.x) + (destPos.y - spi.y) * (destPos.y - spi.y);
+		double distance = sqrt(distanceSquared);
+		spi.lastStep = std::round(distance / animSpeed);
 		if(spi.lastStep == 0)
 			spi.lastStep = 1;
 		spi.dx = (destPos.x - spi.x) / spi.lastStep;
