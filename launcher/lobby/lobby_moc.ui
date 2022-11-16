@@ -95,6 +95,24 @@
          <property name="selectionBehavior">
           <enum>QAbstractItemView::SelectRows</enum>
          </property>
+         <attribute name="horizontalHeaderCascadingSectionResizes">
+          <bool>false</bool>
+         </attribute>
+         <attribute name="horizontalHeaderDefaultSectionSize">
+          <number>80</number>
+         </attribute>
+         <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
+          <bool>false</bool>
+         </attribute>
+         <attribute name="horizontalHeaderStretchLastSection">
+          <bool>true</bool>
+         </attribute>
+         <attribute name="verticalHeaderMinimumSectionSize">
+          <number>20</number>
+         </attribute>
+         <attribute name="verticalHeaderDefaultSectionSize">
+          <number>20</number>
+         </attribute>
          <column>
           <property name="text">
            <string>Session</string>
@@ -107,7 +125,7 @@
          </column>
          <column>
           <property name="text">
-           <string>Private</string>
+           <string/>
           </property>
          </column>
         </widget>

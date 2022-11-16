@@ -67,7 +67,11 @@ void Lobby::serverCommand(const ServerCommand & command) try
 			QTableWidgetItem * sessionPlayerItem = new QTableWidgetItem(QString("%1/%2").arg(playersJoined).arg(playersTotal));
 			ui->sessionsTable->setItem(i, 1, sessionPlayerItem);
 
-			QTableWidgetItem * sessionProtectedItem = new QTableWidgetItem(args[tagPoint++]);
+			QTableWidgetItem * sessionProtectedItem = new QTableWidgetItem();
+			bool isPrivate = (args[tagPoint++] == "True");
+			sessionProtectedItem->setData(Qt::UserRole, isPrivate);
+			if(isPrivate)
+				sessionProtectedItem->setIcon(QIcon("icons:room-private.png"));
 			ui->sessionsTable->setItem(i, 2, sessionProtectedItem);
 		}
 		break;
@@ -236,8 +240,8 @@ void Lobby::on_joinButton_clicked()
 	auto * item = ui->sessionsTable->item(ui->sessionsTable->currentRow(), 0);
 	if(item)
 	{
-		auto isPrivate = ui->sessionsTable->item(ui->sessionsTable->currentRow(), 2)->text(); //check if private
-		if(isPrivate == "True")
+		auto isPrivate = ui->sessionsTable->item(ui->sessionsTable->currentRow(), 2)->data(Qt::UserRole).toBool();
+		if(isPrivate)
 			new LobbyRoomRequest(socketLobby, item->text(), this);
 		else
 			socketLobby.requestJoinSession(item->text(), "");
