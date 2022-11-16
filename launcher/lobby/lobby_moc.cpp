@@ -13,7 +13,7 @@ Lobby::Lobby(QWidget *parent) :
 	ui->setupUi(this);
 	ui->buttonReady->setEnabled(false);
 
-	connect(&socketLobby, SIGNAL(text(QString)), this, SLOT(chatMessage(QString)));
+	connect(&socketLobby, SIGNAL(text(QString)), this, SLOT(sysMessage(QString)));
 	connect(&socketLobby, SIGNAL(receive(QString)), this, SLOT(dispatchMessage(QString)));
 	connect(&socketLobby, SIGNAL(disconnect()), this, SLOT(onDisconnected()));
 	
@@ -39,14 +39,14 @@ void Lobby::serverCommand(const ServerCommand & command) try
 	{
 	case SRVERROR:
 		protocolAssert(args.size());
-		chatMessage("System error:" + args[0]);
+		chatMessage("System error", args[0], true);
 		break;
 
 	case CREATED:
 		protocolAssert(args.size());
 		hostSession = args[0];
 		session = args[0];
-		chatMessage("System: new session started");
+		sysMessage("new session started");
 		ui->buttonReady->setEnabled(true);
 		break;
 
@@ -75,12 +75,12 @@ void Lobby::serverCommand(const ServerCommand & command) try
 	case JOINED:
 	case KICKED:
 		protocolAssert(args.size() == 2);
-		joinStr = (command.command == JOINED ? "System: %1 joined to the session %2" : "System: %1 left session %2");
+		joinStr = (command.command == JOINED ? "%1 joined to the session %2" : "%1 left session %2");
 
 		if(args[1] == username)
 		{
 			ui->chat->clear(); //cleanup the chat
-			chatMessage(joinStr.arg("you", args[0]));
+			sysMessage(joinStr.arg("you", args[0]));
 			session = args[0];
 			ui->stackedWidget->setCurrentWidget(command.command == JOINED ? ui->roomPage : ui->sessionsPage);
 			if(command.command == KICKED)
@@ -88,7 +88,7 @@ void Lobby::serverCommand(const ServerCommand & command) try
 		}
 		else
 		{
-			chatMessage(joinStr.arg(args[1], args[0]));
+			sysMessage(joinStr.arg(args[1], args[0]));
 		}
 		break;
 
@@ -131,13 +131,13 @@ void Lobby::serverCommand(const ServerCommand & command) try
 		QString msg;
 		for(int i = 1; i < args.size(); ++i)
 			msg += args[i];
-		chatMessage(QString("%1: %2").arg(args[0], msg));
+		chatMessage(args[0], msg);
 		break;
 	}
 }
 catch(const ProtocolError & e)
 {
-	chatMessage(QString("System error: %1").arg(e.what()));
+	chatMessage("System error", e.what(), true);
 }
 
 void Lobby::dispatchMessage(QString txt) try
@@ -161,7 +161,7 @@ void Lobby::dispatchMessage(QString txt) try
 }
 catch(const ProtocolError & e)
 {
-	chatMessage(QString("System error: %1").arg(e.what()));
+	chatMessage("System error", e.what(), true);
 }
 
 void Lobby::onDisconnected()
@@ -170,11 +170,23 @@ void Lobby::onDisconnected()
 	ui->connectButton->setChecked(false);
 }
 
-void Lobby::chatMessage(QString txt)
+void Lobby::chatMessage(QString title, QString body, bool isSystem)
 {
+	QTextCharFormat fmtBody, fmtTitle;
+	fmtTitle.setFontWeight(QFont::Bold);
+	if(isSystem)
+		fmtBody.setFontWeight(QFont::DemiBold);
+	
 	QTextCursor curs(ui->chat->document());
 	curs.movePosition(QTextCursor::End);
-	curs.insertText(txt + "\n");
+	curs.insertText(title + ": ", fmtTitle);
+	curs.insertText(body + "\n", fmtBody);
+	ui->chat->ensureCursorVisible();
+}
+
+void Lobby::sysMessage(QString body)
+{
+	chatMessage("System", body, true);
 }
 
 void Lobby::protocolAssert(bool expr)
@@ -194,13 +206,17 @@ void Lobby::on_connectButton_toggled(bool checked)
 	if(checked)
 	{
 		username = ui->userEdit->text();
+		const int connectionTimeout = settings["launcher"]["connectionTimeout"].Integer();
 
 		Settings node = settings.write["launcher"];
 		node["lobbyUrl"].String() = ui->hostEdit->text().toStdString();
 		node["lobbyPort"].Integer() = ui->portEdit->text().toInt();
 		node["lobbyUsername"].String() = username.toStdString();
 
-		socketLobby.connectServer(ui->hostEdit->text(), ui->portEdit->text().toInt(), username);
+		sysMessage("Connecting to " + ui->hostEdit->text() + ":" + ui->portEdit->text());
+		ui->chat->repaint();
+		
+		socketLobby.connectServer(ui->hostEdit->text(), ui->portEdit->text().toInt(), username, connectionTimeout);
 	}
 	else
 	{

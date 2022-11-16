@@ -67,7 +67,7 @@ class SocketLobby : public QObject
 	Q_OBJECT
 public:
 	explicit SocketLobby(QObject *parent = 0);
-	void connectServer(const QString & host, int port, const QString & username);
+	void connectServer(const QString & host, int port, const QString & username, int timeout);
 	void disconnectServer();
 	void requestNewSession(const QString & session, int totalPlayers, const QString & pswd);
 	void requestJoinSession(const QString & session, const QString & pswd);

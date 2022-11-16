@@ -21,16 +21,13 @@ SocketLobby::SocketLobby(QObject *parent) :
 	connect(socket, SIGNAL(bytesWritten(qint64)), this, SLOT(bytesWritten(qint64)));
 }
 
-void SocketLobby::connectServer(const QString & host, int port, const QString & usr)
+void SocketLobby::connectServer(const QString & host, int port, const QString & usr, int timeout)
 {
-	const int connectionTimeout = 2000;
 	username = usr;
-
-	emit text("Connecting to " + host + ":" + QString::number(port));
 
 	socket->connectToHost(host, port);
 
-	if(!socket->waitForDisconnected(connectionTimeout) && !isConnected)
+	if(!socket->waitForDisconnected(timeout) && !isConnected)
 	{
 		emit text("Error: " + socket->errorString());
 	}

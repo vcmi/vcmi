@@ -17,7 +17,8 @@ public:
 private slots:
 	void on_messageEdit_returnPressed();
 
-	void chatMessage(QString);
+	void chatMessage(QString title, QString body, bool isSystem = false);
+	void sysMessage(QString body);
 	void dispatchMessage(QString);
 	void serverCommand(const ServerCommand &);
 
