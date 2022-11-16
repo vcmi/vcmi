@@ -214,7 +214,9 @@ void Lobby::on_connectButton_toggled(bool checked)
 		node["lobbyUsername"].String() = username.toStdString();
 
 		sysMessage("Connecting to " + ui->hostEdit->text() + ":" + ui->portEdit->text());
+		//show text immediately
 		ui->chat->repaint();
+		qApp->processEvents();
 		
 		socketLobby.connectServer(ui->hostEdit->text(), ui->portEdit->text().toInt(), username, connectionTimeout);
 	}
@@ -233,7 +235,13 @@ void Lobby::on_joinButton_clicked()
 {
 	auto * item = ui->sessionsTable->item(ui->sessionsTable->currentRow(), 0);
 	if(item)
-		new LobbyRoomRequest(socketLobby, item->text(), this);
+	{
+		auto isPrivate = ui->sessionsTable->item(ui->sessionsTable->currentRow(), 2)->text(); //check if private
+		if(isPrivate == "True")
+			new LobbyRoomRequest(socketLobby, item->text(), this);
+		else
+			socketLobby.requestJoinSession(item->text(), "");
+	}
 }
 
 
