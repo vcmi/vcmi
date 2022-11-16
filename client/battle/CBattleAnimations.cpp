@@ -841,10 +841,10 @@ bool CShootingAnimation::init()
 	double pi = boost::math::constants::pi<double>();
 
 	//in some cases (known one: hero grants shooter bonus to unit) the shooter stack's projectile may not be properly initialized
-	if (owner->idToProjectile.count(spi.creID) == 0 && owner->idToRay.count(spi.creID) == 0)
+	if (!owner->idToProjectile.count(spi.creID) && !owner->idToRay.count(spi.creID))
 		owner->initStackProjectile(shooter);
 
-	if (owner->idToProjectile.count(spi.creID) != 0)
+	if (owner->idToProjectile.count(spi.creID))
 	{
 		// only frames below maxFrame are usable: anything  higher is either no present or we don't know when it should be used
 		size_t maxFrame = std::min<size_t>(angles.size(), owner->idToProjectile.at(spi.creID)->size(0));
@@ -868,7 +868,7 @@ bool CShootingAnimation::init()
 
 		spi.frameNum = static_cast<int>(bestID);
 	}
-	else if (owner->idToRay.count(spi.creID) != 0)
+	else if (owner->idToRay.count(spi.creID))
 	{
 		// no-op
 	}

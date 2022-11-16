@@ -3213,7 +3213,7 @@ void CBattleInterface::showProjectiles(SDL_Surface *to)
 				continue; // wait...
 		}
 
-		if ( idToProjectile.count(it->creID) != 0)
+		if (idToProjectile.count(it->creID))
 		{
 			size_t group = it->reverse ? 1 : 0;
 			auto image = idToProjectile[it->creID]->getImage(it->frameNum, group, true);
@@ -3229,7 +3229,7 @@ void CBattleInterface::showProjectiles(SDL_Surface *to)
 				image->draw(to, &dst, nullptr);
 			}
 		}
-		if (idToRay.count(it->creID) != 0)
+		if (idToRay.count(it->creID))
 		{
 			auto const & ray = idToRay[it->creID];
 
