@@ -218,27 +218,6 @@ void CPlayerInterface::yourTurn()
 	acceptTurn();
 }
 
-STRONG_INLINE void subRect(const int & x, const int & y, const int & z, const SDL_Rect & r, const ObjectInstanceID & hid)
-{
-	TerrainTile2 & hlp = CGI->mh->ttiles[z][x][y];
-	for (auto & elem : hlp.objects)
-		if (elem.obj && elem.obj->id == hid)
-		{
-			elem.rect = r;
-			return;
-		}
-}
-
-STRONG_INLINE void delObjRect(const int & x, const int & y, const int & z, const ObjectInstanceID & hid)
-{
-	TerrainTile2 & hlp = CGI->mh->ttiles[z][x][y];
-	for (int h=0; h<hlp.objects.size(); ++h)
-		if (hlp.objects[h].obj && hlp.objects[h].obj->id == hid)
-		{
-			hlp.objects.erase(hlp.objects.begin()+h);
-			return;
-		}
-}
 void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
@@ -1744,432 +1723,144 @@ void CPlayerInterface::initMovement( const TryMoveHero &details, const CGHeroIns
 {
 	auto subArr = (CGI->mh->ttiles)[hp.z];
 
-	if (details.end.x+1 == details.start.x && details.end.y+1 == details.start.y) //tl
+	ho->isStanding = false;
+
+	int heroWidth  = ho->appearance->getWidth();
+	int heroHeight = ho->appearance->getHeight();
+
+	int tileMinX = std::min(details.start.x, details.end.x) - heroWidth;
+	int tileMaxX = std::max(details.start.x, details.end.x);
+	int tileMinY = std::min(details.start.y, details.end.y) - heroHeight;
+	int tileMaxY = std::max(details.start.y, details.end.y);
+
+	// determine tiles on which hero will be visible during movement and add hero as visible object on these tiles where necessary
+	for ( int tileX = tileMinX; tileX <= tileMaxX; ++tileX)
 	{
-		//ho->moveDir = 1;
-		ho->isStanding = false;
-		subArr[hp.x-3][hp.y-2].objects.push_back(TerrainTileObject(ho, genRect(32, 32, -31, -31)));
-		subArr[hp.x-2][hp.y-2].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 1, -31)));
-		subArr[hp.x-1][hp.y-2].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 33, -31)));
-		subArr[hp.x][hp.y-2].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 65, -31)));
+		for ( int tileY = tileMinY; tileY <= tileMaxY; ++tileY)
+		{
+			bool heroVisibleHere = false;
+			auto & tile = subArr[tileX][tileY];
 
-		subArr[hp.x-3][hp.y-1].objects.push_back(TerrainTileObject(ho, genRect(32, 32, -31, 1)));
-		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 1, 1), ho->id);
-		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 33, 1), ho->id);
-		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 65, 1), ho->id);
+			for ( auto const & obj : tile.objects)
+			{
+				if (obj.obj == ho)
+				{
+					heroVisibleHere = true;
+					break;
+				}
+			}
 
-		subArr[hp.x-3][hp.y].objects.push_back(TerrainTileObject(ho, genRect(32, 32, -31, 33)));
-		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 1, 33), ho->id);
-		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 33, 33), ho->id);
-		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 65, 33), ho->id);
-
-		std::stable_sort(subArr[hp.x-3][hp.y-2].objects.begin(), subArr[hp.x-3][hp.y-2].objects.end(), objectBlitOrderSorter);
-		std::stable_sort(subArr[hp.x-2][hp.y-2].objects.begin(), subArr[hp.x-2][hp.y-2].objects.end(), objectBlitOrderSorter);
-		std::stable_sort(subArr[hp.x-1][hp.y-2].objects.begin(), subArr[hp.x-1][hp.y-2].objects.end(), objectBlitOrderSorter);
-		std::stable_sort(subArr[hp.x][hp.y-2].objects.begin(), subArr[hp.x][hp.y-2].objects.end(), objectBlitOrderSorter);
-
-		std::stable_sort(subArr[hp.x-3][hp.y-1].objects.begin(), subArr[hp.x-3][hp.y-1].objects.end(), objectBlitOrderSorter);
-
-		std::stable_sort(subArr[hp.x-3][hp.y].objects.begin(), subArr[hp.x-3][hp.y].objects.end(), objectBlitOrderSorter);
-	}
-	else if (details.end.x == details.start.x && details.end.y+1 == details.start.y) //t
-	{
-		//ho->moveDir = 2;
-		ho->isStanding = false;
-		subArr[hp.x-2][hp.y-2].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 0, -31)));
-		subArr[hp.x-1][hp.y-2].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 32, -31)));
-		subArr[hp.x][hp.y-2].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 64, -31)));
-
-		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 0, 1), ho->id);
-		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 32, 1), ho->id);
-		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 64, 1), ho->id);
-
-		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 0, 33), ho->id);
-		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 32, 33), ho->id);
-		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 64, 33), ho->id);
-
-		std::stable_sort(subArr[hp.x-2][hp.y-2].objects.begin(), subArr[hp.x-2][hp.y-2].objects.end(), objectBlitOrderSorter);
-		std::stable_sort(subArr[hp.x-1][hp.y-2].objects.begin(), subArr[hp.x-1][hp.y-2].objects.end(), objectBlitOrderSorter);
-		std::stable_sort(subArr[hp.x][hp.y-2].objects.begin(), subArr[hp.x][hp.y-2].objects.end(), objectBlitOrderSorter);
-	}
-	else if (details.end.x-1 == details.start.x && details.end.y+1 == details.start.y) //tr
-	{
-		//ho->moveDir = 3;
-		ho->isStanding = false;
-		subArr[hp.x-2][hp.y-2].objects.push_back(TerrainTileObject(ho, genRect(32, 32, -1, -31)));
-		subArr[hp.x-1][hp.y-2].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 31, -31)));
-		subArr[hp.x][hp.y-2].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 63, -31)));
-		subArr[hp.x+1][hp.y-2].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 95, -31)));
-
-		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, -1, 1), ho->id);
-		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 31, 1), ho->id);
-		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 63, 1), ho->id);
-		subArr[hp.x+1][hp.y-1].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 95, 1)));
-
-		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, -1, 33), ho->id);
-		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 31, 33), ho->id);
-		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 63, 33), ho->id);
-		subArr[hp.x+1][hp.y].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 95, 33)));
-
-		std::stable_sort(subArr[hp.x-2][hp.y-2].objects.begin(), subArr[hp.x-2][hp.y-2].objects.end(), objectBlitOrderSorter);
-		std::stable_sort(subArr[hp.x-1][hp.y-2].objects.begin(), subArr[hp.x-1][hp.y-2].objects.end(), objectBlitOrderSorter);
-		std::stable_sort(subArr[hp.x][hp.y-2].objects.begin(), subArr[hp.x][hp.y-2].objects.end(), objectBlitOrderSorter);
-		std::stable_sort(subArr[hp.x+1][hp.y-2].objects.begin(), subArr[hp.x+1][hp.y-2].objects.end(), objectBlitOrderSorter);
-
-		std::stable_sort(subArr[hp.x+1][hp.y-1].objects.begin(), subArr[hp.x+1][hp.y-1].objects.end(), objectBlitOrderSorter);
-
-		std::stable_sort(subArr[hp.x+1][hp.y].objects.begin(), subArr[hp.x+1][hp.y].objects.end(), objectBlitOrderSorter);
-	}
-	else if (details.end.x-1 == details.start.x && details.end.y == details.start.y) //r
-	{
-		//ho->moveDir = 4;
-		ho->isStanding = false;
-		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, -1, 0), ho->id);
-		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 31, 0), ho->id);
-		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 63, 0), ho->id);
-		subArr[hp.x+1][hp.y-1].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 95, 0)));
-
-		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, -1, 32), ho->id);
-		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 31, 32), ho->id);
-		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 63, 32), ho->id);
-		subArr[hp.x+1][hp.y].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 95, 32)));
-
-		std::stable_sort(subArr[hp.x+1][hp.y-1].objects.begin(), subArr[hp.x+1][hp.y-1].objects.end(), objectBlitOrderSorter);
-
-		std::stable_sort(subArr[hp.x+1][hp.y].objects.begin(), subArr[hp.x+1][hp.y].objects.end(), objectBlitOrderSorter);
-	}
-	else if (details.end.x-1 == details.start.x && details.end.y-1 == details.start.y) //br
-	{
-		//ho->moveDir = 5;
-		ho->isStanding = false;
-		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, -1, -1), ho->id);
-		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 31, -1), ho->id);
-		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 63, -1), ho->id);
-		subArr[hp.x+1][hp.y-1].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 95, -1)));
-
-		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, -1, 31), ho->id);
-		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 31, 31), ho->id);
-		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 63, 31), ho->id);
-		subArr[hp.x+1][hp.y].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 95, 31)));
-
-		subArr[hp.x-2][hp.y+1].objects.push_back(TerrainTileObject(ho, genRect(32, 32, -1, 63)));
-		subArr[hp.x-1][hp.y+1].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 31, 63)));
-		subArr[hp.x][hp.y+1].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 63, 63)));
-		subArr[hp.x+1][hp.y+1].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 95, 63)));
-
-		std::stable_sort(subArr[hp.x+1][hp.y-1].objects.begin(), subArr[hp.x+1][hp.y-1].objects.end(), objectBlitOrderSorter);
-
-		std::stable_sort(subArr[hp.x+1][hp.y].objects.begin(), subArr[hp.x+1][hp.y].objects.end(), objectBlitOrderSorter);
-
-		std::stable_sort(subArr[hp.x-2][hp.y+1].objects.begin(), subArr[hp.x-2][hp.y+1].objects.end(), objectBlitOrderSorter);
-		std::stable_sort(subArr[hp.x-1][hp.y+1].objects.begin(), subArr[hp.x-1][hp.y+1].objects.end(), objectBlitOrderSorter);
-		std::stable_sort(subArr[hp.x][hp.y+1].objects.begin(), subArr[hp.x][hp.y+1].objects.end(), objectBlitOrderSorter);
-		std::stable_sort(subArr[hp.x+1][hp.y+1].objects.begin(), subArr[hp.x+1][hp.y+1].objects.end(), objectBlitOrderSorter);
-	}
-	else if (details.end.x == details.start.x && details.end.y-1 == details.start.y) //b
-	{
-		//ho->moveDir = 6;
-		ho->isStanding = false;
-		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 0, -1), ho->id);
-		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 32, -1), ho->id);
-		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 64, -1), ho->id);
-
-		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 0, 31), ho->id);
-		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 32, 31), ho->id);
-		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 64, 31), ho->id);
-
-		subArr[hp.x-2][hp.y+1].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 0, 63)));
-		subArr[hp.x-1][hp.y+1].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 32, 63)));
-		subArr[hp.x][hp.y+1].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 64, 63)));
-
-		std::stable_sort(subArr[hp.x-2][hp.y+1].objects.begin(), subArr[hp.x-2][hp.y+1].objects.end(), objectBlitOrderSorter);
-		std::stable_sort(subArr[hp.x-1][hp.y+1].objects.begin(), subArr[hp.x-1][hp.y+1].objects.end(), objectBlitOrderSorter);
-		std::stable_sort(subArr[hp.x][hp.y+1].objects.begin(), subArr[hp.x][hp.y+1].objects.end(), objectBlitOrderSorter);
-	}
-	else if (details.end.x+1 == details.start.x && details.end.y-1 == details.start.y) //bl
-	{
-		//ho->moveDir = 7;
-		ho->isStanding = false;
-		subArr[hp.x-3][hp.y-1].objects.push_back(TerrainTileObject(ho, genRect(32, 32, -31, -1)));
-		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 1, -1), ho->id);
-		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 33, -1), ho->id);
-		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 65, -1), ho->id);
-
-		subArr[hp.x-3][hp.y].objects.push_back(TerrainTileObject(ho, genRect(32, 32, -31, 31)));
-		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 1, 31), ho->id);
-		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 33, 31), ho->id);
-		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 65, 31), ho->id);
-
-		subArr[hp.x-3][hp.y+1].objects.push_back(TerrainTileObject(ho, genRect(32, 32, -31, 63)));
-		subArr[hp.x-2][hp.y+1].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 1, 63)));
-		subArr[hp.x-1][hp.y+1].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 33, 63)));
-		subArr[hp.x][hp.y+1].objects.push_back(TerrainTileObject(ho, genRect(32, 32, 65, 63)));
-
-		std::stable_sort(subArr[hp.x-3][hp.y-1].objects.begin(), subArr[hp.x-3][hp.y-1].objects.end(), objectBlitOrderSorter);
-
-		std::stable_sort(subArr[hp.x-3][hp.y].objects.begin(), subArr[hp.x-3][hp.y].objects.end(), objectBlitOrderSorter);
-
-		std::stable_sort(subArr[hp.x-3][hp.y+1].objects.begin(), subArr[hp.x-3][hp.y+1].objects.end(), objectBlitOrderSorter);
-		std::stable_sort(subArr[hp.x-2][hp.y+1].objects.begin(), subArr[hp.x-2][hp.y+1].objects.end(), objectBlitOrderSorter);
-		std::stable_sort(subArr[hp.x-1][hp.y+1].objects.begin(), subArr[hp.x-1][hp.y+1].objects.end(), objectBlitOrderSorter);
-		std::stable_sort(subArr[hp.x][hp.y+1].objects.begin(), subArr[hp.x][hp.y+1].objects.end(), objectBlitOrderSorter);
-	}
-	else if (details.end.x+1 == details.start.x && details.end.y == details.start.y) //l
-	{
-		//ho->moveDir = 8;
-		ho->isStanding = false;
-		subArr[hp.x-3][hp.y-1].objects.push_back(TerrainTileObject(ho, genRect(32, 32, -31, 0)));
-		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 1, 0), ho->id);
-		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 33, 0), ho->id);
-		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 65, 0), ho->id);
-
-		subArr[hp.x-3][hp.y].objects.push_back(TerrainTileObject(ho, genRect(32, 32, -31, 32)));
-		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 1, 32), ho->id);
-		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 33, 32), ho->id);
-		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 65, 32), ho->id);
-
-		std::stable_sort(subArr[hp.x-3][hp.y-1].objects.begin(), subArr[hp.x-3][hp.y-1].objects.end(), objectBlitOrderSorter);
-
-		std::stable_sort(subArr[hp.x-3][hp.y].objects.begin(), subArr[hp.x-3][hp.y].objects.end(), objectBlitOrderSorter);
+			if ( !heroVisibleHere)
+			{
+				tile.objects.push_back(TerrainTileObject(ho, {0,0,32,32}));
+				std::stable_sort(tile.objects.begin(), tile.objects.end(), objectBlitOrderSorter);
+			}
+		}
 	}
 }
 
 void CPlayerInterface::movementPxStep( const TryMoveHero &details, int i, const int3 &hp, const CGHeroInstance * ho )
 {
-	if (details.end.x+1 == details.start.x && details.end.y+1 == details.start.y) //tl
+	auto subArr = (CGI->mh->ttiles)[hp.z];
+
+	int heroWidth  = ho->appearance->getWidth();
+	int heroHeight = ho->appearance->getHeight();
+
+	int tileMinX = std::min(details.start.x, details.end.x) - heroWidth;
+	int tileMaxX = std::max(details.start.x, details.end.x);
+	int tileMinY = std::min(details.start.y, details.end.y) - heroHeight;
+	int tileMaxY = std::max(details.start.y, details.end.y);
+
+	std::shared_ptr<CAnimation> animation = graphics->getAnimation(ho);
+
+	assert(animation);
+	assert(animation->size(0) != 0);
+	auto image = animation->getImage(0,0);
+
+	int heroImageOldX = details.start.x * 32;
+	int heroImageOldY = details.start.y * 32;
+
+	int heroImageNewX = details.end.x * 32;
+	int heroImageNewY = details.end.y * 32;
+
+	int heroImageCurrX = heroImageOldX + i*(heroImageNewX - heroImageOldX)/32;
+	int heroImageCurrY = heroImageOldY + i*(heroImageNewY - heroImageOldY)/32;
+
+	// recompute which part of hero sprite will be visible on each tile at this point of movement animation
+	for ( int tileX = tileMinX; tileX <= tileMaxX; ++tileX)
 	{
-		//setting advmap shift
-		adventureInt->terrain.moveX = i-32;
-		adventureInt->terrain.moveY = i-32;
+		for ( int tileY = tileMinY; tileY <= tileMaxY; ++tileY)
+		{
+			auto & tile = subArr[tileX][tileY];
+			for ( auto & obj : tile.objects)
+			{
+				if (obj.obj == ho)
+				{
+					int tilePosX = tileX * 32;
+					int tilePosY = tileY * 32;
 
-		subRect(hp.x-3, hp.y-2, hp.z, genRect(32, 32, -31+i, -31+i), ho->id);
-		subRect(hp.x-2, hp.y-2, hp.z, genRect(32, 32, 1+i, -31+i), ho->id);
-		subRect(hp.x-1, hp.y-2, hp.z, genRect(32, 32, 33+i, -31+i), ho->id);
-		subRect(hp.x, hp.y-2, hp.z, genRect(32, 32, 65+i, -31+i), ho->id);
-
-		subRect(hp.x-3, hp.y-1, hp.z, genRect(32, 32, -31+i, 1+i), ho->id);
-		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 1+i, 1+i), ho->id);
-		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 33+i, 1+i), ho->id);
-		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 65+i, 1+i), ho->id);
-
-		subRect(hp.x-3, hp.y, hp.z, genRect(32, 32, -31+i, 33+i), ho->id);
-		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 1+i, 33+i), ho->id);
-		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 33+i, 33+i), ho->id);
-		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 65+i, 33+i), ho->id);
+					obj.rect.x = tilePosX - heroImageCurrX + image->width() - 32;
+					obj.rect.y = tilePosY - heroImageCurrY + image->height() - 32;
+				}
+			}
+		}
 	}
-	else if (details.end.x == details.start.x && details.end.y+1 == details.start.y) //t
-	{
-		//setting advmap shift
-		adventureInt->terrain.moveY = i-32;
 
-		subRect(hp.x-2, hp.y-2, hp.z, genRect(32, 32, 0, -31+i), ho->id);
-		subRect(hp.x-1, hp.y-2, hp.z, genRect(32, 32, 32, -31+i), ho->id);
-		subRect(hp.x, hp.y-2, hp.z, genRect(32, 32, 64, -31+i), ho->id);
-
-		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 0, 1+i), ho->id);
-		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 32, 1+i), ho->id);
-		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 64, 1+i), ho->id);
-
-		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 0, 33+i), ho->id);
-		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 32, 33+i), ho->id);
-		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 64, 33+i), ho->id);
-	}
-	else if (details.end.x-1 == details.start.x && details.end.y+1 == details.start.y) //tr
-	{
-		//setting advmap shift
-		adventureInt->terrain.moveX = -i+32;
-		adventureInt->terrain.moveY = i-32;
-
-		subRect(hp.x-2, hp.y-2, hp.z, genRect(32, 32, -1-i, -31+i), ho->id);
-		subRect(hp.x-1, hp.y-2, hp.z, genRect(32, 32, 31-i, -31+i), ho->id);
-		subRect(hp.x, hp.y-2, hp.z, genRect(32, 32, 63-i, -31+i), ho->id);
-		subRect(hp.x+1, hp.y-2, hp.z, genRect(32, 32, 95-i, -31+i), ho->id);
-
-		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, -1-i, 1+i), ho->id);
-		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 31-i, 1+i), ho->id);
-		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 63-i, 1+i), ho->id);
-		subRect(hp.x+1, hp.y-1, hp.z, genRect(32, 32, 95-i, 1+i), ho->id);
-
-		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, -1-i, 33+i), ho->id);
-		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 31-i, 33+i), ho->id);
-		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 63-i, 33+i), ho->id);
-		subRect(hp.x+1, hp.y, hp.z, genRect(32, 32, 95-i, 33+i), ho->id);
-	}
-	else if (details.end.x-1 == details.start.x && details.end.y == details.start.y) //r
-	{
-		//setting advmap shift
-		adventureInt->terrain.moveX = -i+32;
-
-		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, -1-i, 0), ho->id);
-		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 31-i, 0), ho->id);
-		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 63-i, 0), ho->id);
-		subRect(hp.x+1, hp.y-1, hp.z, genRect(32, 32, 95-i, 0), ho->id);
-
-		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, -1-i, 32), ho->id);
-		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 31-i, 32), ho->id);
-		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 63-i, 32), ho->id);
-		subRect(hp.x+1, hp.y, hp.z, genRect(32, 32, 95-i, 32), ho->id);
-	}
-	else if (details.end.x-1 == details.start.x && details.end.y-1 == details.start.y) //br
-	{
-
-		//setting advmap shift
-		adventureInt->terrain.moveX = -i+32;
-		adventureInt->terrain.moveY = -i+32;
-
-		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, -1-i, -1-i), ho->id);
-		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 31-i, -1-i), ho->id);
-		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 63-i, -1-i), ho->id);
-		subRect(hp.x+1, hp.y-1, hp.z, genRect(32, 32, 95-i, -1-i), ho->id);
-
-		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, -1-i, 31-i), ho->id);
-		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 31-i, 31-i), ho->id);
-		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 63-i, 31-i), ho->id);
-		subRect(hp.x+1, hp.y, hp.z, genRect(32, 32, 95-i, 31-i), ho->id);
-
-		subRect(hp.x-2, hp.y+1, hp.z, genRect(32, 32, -1-i, 63-i), ho->id);
-		subRect(hp.x-1, hp.y+1, hp.z, genRect(32, 32, 31-i, 63-i), ho->id);
-		subRect(hp.x, hp.y+1, hp.z, genRect(32, 32, 63-i, 63-i), ho->id);
-		subRect(hp.x+1, hp.y+1, hp.z, genRect(32, 32, 95-i, 63-i), ho->id);
-	}
-	else if (details.end.x == details.start.x && details.end.y-1 == details.start.y) //b
-	{
-		//setting advmap shift
-		adventureInt->terrain.moveY = -i+32;
-
-		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 0, -1-i), ho->id);
-		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 32, -1-i), ho->id);
-		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 64, -1-i), ho->id);
-
-		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 0, 31-i), ho->id);
-		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 32, 31-i), ho->id);
-		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 64, 31-i), ho->id);
-
-		subRect(hp.x-2, hp.y+1, hp.z, genRect(32, 32, 0, 63-i), ho->id);
-		subRect(hp.x-1, hp.y+1, hp.z, genRect(32, 32, 32, 63-i), ho->id);
-		subRect(hp.x, hp.y+1, hp.z, genRect(32, 32, 64, 63-i), ho->id);
-	}
-	else if (details.end.x+1 == details.start.x && details.end.y-1 == details.start.y) //bl
-	{
-		//setting advmap shift
-		adventureInt->terrain.moveX = i-32;
-		adventureInt->terrain.moveY = -i+32;
-
-		subRect(hp.x-3, hp.y-1, hp.z, genRect(32, 32, -31+i, -1-i), ho->id);
-		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 1+i, -1-i), ho->id);
-		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 33+i, -1-i), ho->id);
-		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 65+i, -1-i), ho->id);
-
-		subRect(hp.x-3, hp.y, hp.z, genRect(32, 32, -31+i, 31-i), ho->id);
-		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 1+i, 31-i), ho->id);
-		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 33+i, 31-i), ho->id);
-		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 65+i, 31-i), ho->id);
-
-		subRect(hp.x-3, hp.y+1, hp.z, genRect(32, 32, -31+i, 63-i), ho->id);
-		subRect(hp.x-2, hp.y+1, hp.z, genRect(32, 32, 1+i, 63-i), ho->id);
-		subRect(hp.x-1, hp.y+1, hp.z, genRect(32, 32, 33+i, 63-i), ho->id);
-		subRect(hp.x, hp.y+1, hp.z, genRect(32, 32, 65+i, 63-i), ho->id);
-	}
-	else if (details.end.x+1 == details.start.x && details.end.y == details.start.y) //l
-	{
-		//setting advmap shift
-		adventureInt->terrain.moveX = i-32;
-
-		subRect(hp.x-3, hp.y-1, hp.z, genRect(32, 32, -31+i, 0), ho->id);
-		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 1+i, 0), ho->id);
-		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 33+i, 0), ho->id);
-		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 65+i, 0), ho->id);
-
-		subRect(hp.x-3, hp.y, hp.z, genRect(32, 32, -31+i, 32), ho->id);
-		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 1+i, 32), ho->id);
-		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 33+i, 32), ho->id);
-		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 65+i, 32), ho->id);
-	}
+	adventureInt->terrain.moveX = (32 - i) * (heroImageNewX - heroImageOldX) / 32;
+	adventureInt->terrain.moveY = (32 - i) * (heroImageNewY - heroImageOldY) / 32;
 }
 
 void CPlayerInterface::finishMovement( const TryMoveHero &details, const int3 &hp, const CGHeroInstance * ho )
 {
-	adventureInt->terrain.moveX = adventureInt->terrain.moveY = 0;
+	auto subArr = (CGI->mh->ttiles)[hp.z];
 
-	if (details.end.x+1 == details.start.x && details.end.y+1 == details.start.y) //tl
+	int heroWidth  = ho->appearance->getWidth();
+	int heroHeight = ho->appearance->getHeight();
+
+	int tileMinX = std::min(details.start.x, details.end.x) - heroWidth;
+	int tileMaxX = std::max(details.start.x, details.end.x);
+	int tileMinY = std::min(details.start.y, details.end.y) - heroHeight;
+	int tileMaxY = std::max(details.start.y, details.end.y);
+
+	// erase hero from all tiles on which he is currently visible
+	for ( int tileX = tileMinX; tileX <= tileMaxX; ++tileX)
 	{
-		delObjRect(hp.x, hp.y-2, hp.z, ho->id);
-		delObjRect(hp.x, hp.y-1, hp.z, ho->id);
-		delObjRect(hp.x, hp.y, hp.z, ho->id);
-		delObjRect(hp.x-1, hp.y, hp.z, ho->id);
-		delObjRect(hp.x-2, hp.y, hp.z, ho->id);
-		delObjRect(hp.x-3, hp.y, hp.z, ho->id);
-	}
-	else if (details.end.x == details.start.x && details.end.y+1 == details.start.y) //t
-	{
-		delObjRect(hp.x, hp.y, hp.z, ho->id);
-		delObjRect(hp.x-1, hp.y, hp.z, ho->id);
-		delObjRect(hp.x-2, hp.y, hp.z, ho->id);
-	}
-	else if (details.end.x-1 == details.start.x && details.end.y+1 == details.start.y) //tr
-	{
-		delObjRect(hp.x-2, hp.y-2, hp.z, ho->id);
-		delObjRect(hp.x-2, hp.y-1, hp.z, ho->id);
-		delObjRect(hp.x+1, hp.y, hp.z, ho->id);
-		delObjRect(hp.x, hp.y, hp.z, ho->id);
-		delObjRect(hp.x-1, hp.y, hp.z, ho->id);
-		delObjRect(hp.x-2, hp.y, hp.z, ho->id);
-	}
-	else if (details.end.x-1 == details.start.x && details.end.y == details.start.y) //r
-	{
-		delObjRect(hp.x-2, hp.y-1, hp.z, ho->id);
-		delObjRect(hp.x-2, hp.y, hp.z, ho->id);
-	}
-	else if (details.end.x-1 == details.start.x && details.end.y-1 == details.start.y) //br
-	{
-		delObjRect(hp.x-2, hp.y+1, hp.z, ho->id);
-		delObjRect(hp.x-2, hp.y, hp.z, ho->id);
-		delObjRect(hp.x+1, hp.y-1, hp.z, ho->id);
-		delObjRect(hp.x, hp.y-1, hp.z, ho->id);
-		delObjRect(hp.x-1, hp.y-1, hp.z, ho->id);
-		delObjRect(hp.x-2, hp.y-1, hp.z, ho->id);
-	}
-	else if (details.end.x == details.start.x && details.end.y-1 == details.start.y) //b
-	{
-		delObjRect(hp.x, hp.y-1, hp.z, ho->id);
-		delObjRect(hp.x-1, hp.y-1, hp.z, ho->id);
-		delObjRect(hp.x-2, hp.y-1, hp.z, ho->id);
-	}
-	else if (details.end.x+1 == details.start.x && details.end.y-1 == details.start.y) //bl
-	{
-		delObjRect(hp.x, hp.y-1, hp.z, ho->id);
-		delObjRect(hp.x-1, hp.y-1, hp.z, ho->id);
-		delObjRect(hp.x-2, hp.y-1, hp.z, ho->id);
-		delObjRect(hp.x-3, hp.y-1, hp.z, ho->id);
-		delObjRect(hp.x, hp.y, hp.z, ho->id);
-		delObjRect(hp.x, hp.y+1, hp.z, ho->id);
-	}
-	else if (details.end.x+1 == details.start.x && details.end.y == details.start.y) //l
-	{
-		delObjRect(hp.x, hp.y-1, hp.z, ho->id);
-		delObjRect(hp.x, hp.y, hp.z, ho->id);
+		for ( int tileY = tileMinY; tileY <= tileMaxY; ++tileY)
+		{
+			auto & tile = subArr[tileX][tileY];
+			for (size_t i = 0; i < tile.objects.size(); ++i)
+			{
+				if ( tile.objects[i].obj == ho)
+				{
+					tile.objects.erase(tile.objects.begin() + i);
+					break;
+				}
+			}
+		}
 	}
 
-	//restoring good rects
-	subRect(details.end.x-2, details.end.y-1, details.end.z, genRect(32, 32, 0, 0), ho->id);
-	subRect(details.end.x-1, details.end.y-1, details.end.z, genRect(32, 32, 32, 0), ho->id);
-	subRect(details.end.x, details.end.y-1, details.end.z, genRect(32, 32, 64, 0), ho->id);
+	// re-add hero to all tiles on which he will still be visible after animation is over
+	for ( int tileX = details.end.x - heroWidth + 1; tileX <= details.end.x; ++tileX)
+	{
+		for ( int tileY = details.end.y - heroHeight + 1; tileY <= details.end.y; ++tileY)
+		{
+			auto & tile = subArr[tileX][tileY];
+			tile.objects.push_back(TerrainTileObject(ho, {0,0,32,32}));
+		}
+	}
 
-	subRect(details.end.x-2, details.end.y, details.end.z, genRect(32, 32, 0, 32), ho->id);
-	subRect(details.end.x-1, details.end.y, details.end.z, genRect(32, 32, 32, 32), ho->id);
-	subRect(details.end.x, details.end.y, details.end.z, genRect(32, 32, 64, 32), ho->id);
+	// update object list on all tiles that were affected during previous operations
+	for ( int tileX = tileMinX; tileX <= tileMaxX; ++tileX)
+	{
+		for ( int tileY = tileMinY; tileY <= tileMaxY; ++tileY)
+		{
+			auto & tile = subArr[tileX][tileY];
+			std::stable_sort(tile.objects.begin(), tile.objects.end(), objectBlitOrderSorter);
+		}
+	}
 
-	//restoring good order of objects
-
-	boost::detail::multi_array::sub_array<TerrainTile2, 2> subArr = (CGI->mh->ttiles)[details.end.z];
-
-	std::stable_sort(subArr[details.end.x-2][details.end.y-1].objects.begin(), subArr[details.end.x-2][details.end.y-1].objects.end(), objectBlitOrderSorter);
-	std::stable_sort(subArr[details.end.x-1][details.end.y-1].objects.begin(), subArr[details.end.x-1][details.end.y-1].objects.end(), objectBlitOrderSorter);
-	std::stable_sort(subArr[details.end.x][details.end.y-1].objects.begin(), subArr[details.end.x][details.end.y-1].objects.end(), objectBlitOrderSorter);
-
-	std::stable_sort(subArr[details.end.x-2][details.end.y].objects.begin(), subArr[details.end.x-2][details.end.y].objects.end(), objectBlitOrderSorter);
-	std::stable_sort(subArr[details.end.x-1][details.end.y].objects.begin(), subArr[details.end.x-1][details.end.y].objects.end(), objectBlitOrderSorter);
-	std::stable_sort(subArr[details.end.x][details.end.y].objects.begin(), subArr[details.end.x][details.end.y].objects.end(), objectBlitOrderSorter);
+	//recompute hero sprite positioning using hero's final position
+	movementPxStep(details, 32, hp, ho);
 }
 
 void CPlayerInterface::gameOver(PlayerColor player, const EVictoryLossCheckResult & victoryLossCheckResult )

@@ -17,6 +17,7 @@
 #include "CBattleAnimations.h"
 
 #include "../../lib/spells/CSpellHandler.h" //CSpell::TAnimation
+#include "../../lib/CCreatureHandler.h"
 #include "../../lib/battle/CBattleInfoCallback.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -148,6 +149,7 @@ private:
 	std::map<int32_t, std::shared_ptr<CCreatureAnimation>> creAnims; //animations of creatures from fighting armies (order by BattleInfo's stacks' ID)
 
 	std::map<int, std::shared_ptr<CAnimation>> idToProjectile;
+	std::map<int, std::vector<CCreature::CreatureAnimation::RayColor>> idToRay;
 
 	std::map<std::string, std::shared_ptr<CAnimation>> animationsCache;
 	std::map<si32, std::shared_ptr<CAnimation>> obstacleAnimations;

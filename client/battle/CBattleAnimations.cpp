@@ -785,21 +785,24 @@ bool CShootingAnimation::init()
 	if (projectileAngle > straightAngle)
 	{
 		//upper shot
-		spi.x = fromPos.x + 222 + ( -25 + shooterInfo->animation.upperRightMissleOffsetX ) * multiplier;
-		spi.y = fromPos.y + 265 + shooterInfo->animation.upperRightMissleOffsetY;
+		spi.x0 = fromPos.x + 222 + ( -25 + shooterInfo->animation.upperRightMissleOffsetX ) * multiplier;
+		spi.y0 = fromPos.y + 265 + shooterInfo->animation.upperRightMissleOffsetY;
 	}
 	else if (projectileAngle < -straightAngle)
 	{
 		//lower shot
-		spi.x = fromPos.x + 222 + ( -25 + shooterInfo->animation.lowerRightMissleOffsetX ) * multiplier;
-		spi.y = fromPos.y + 265 + shooterInfo->animation.lowerRightMissleOffsetY;
+		spi.x0 = fromPos.x + 222 + ( -25 + shooterInfo->animation.lowerRightMissleOffsetX ) * multiplier;
+		spi.y0 = fromPos.y + 265 + shooterInfo->animation.lowerRightMissleOffsetY;
 	}
 	else
 	{
 		//straight shot
-		spi.x = fromPos.x + 222 + ( -25 + shooterInfo->animation.rightMissleOffsetX ) * multiplier;
-		spi.y = fromPos.y + 265 + shooterInfo->animation.rightMissleOffsetY;
+		spi.x0 = fromPos.x + 222 + ( -25 + shooterInfo->animation.rightMissleOffsetX ) * multiplier;
+		spi.y0 = fromPos.y + 265 + shooterInfo->animation.rightMissleOffsetY;
 	}
+
+	spi.x = spi.x0;
+	spi.y = spi.y0;
 
 	destPos += Point(225, 225);
 
@@ -811,7 +814,9 @@ bool CShootingAnimation::init()
 	if (attackedStack)
 	{
 		double animSpeed = AnimationControls::getProjectileSpeed(); // flight speed of projectile
-		spi.lastStep = static_cast<int>(sqrt(static_cast<double>((destPos.x - spi.x) * (destPos.x - spi.x) + (destPos.y - spi.y) * (destPos.y - spi.y))) / animSpeed);
+		double distanceSquared = (destPos.x - spi.x) * (destPos.x - spi.x) + (destPos.y - spi.y) * (destPos.y - spi.y);
+		double distance = sqrt(distanceSquared);
+		spi.lastStep = std::round(distance / animSpeed);
 		if(spi.lastStep == 0)
 			spi.lastStep = 1;
 		spi.dx = (destPos.x - spi.x) / spi.lastStep;
@@ -837,30 +842,42 @@ bool CShootingAnimation::init()
 	}
 	double pi = boost::math::constants::pi<double>();
 
-	if (owner->idToProjectile.count(spi.creID) == 0) //in some cases (known one: hero grants shooter bonus to unit) the shooter stack's projectile may not be properly initialized
+	//in some cases (known one: hero grants shooter bonus to unit) the shooter stack's projectile may not be properly initialized
+	if (!owner->idToProjectile.count(spi.creID) && !owner->idToRay.count(spi.creID))
 		owner->initStackProjectile(shooter);
 
-	// only frames below maxFrame are usable: anything  higher is either no present or we don't know when it should be used
-	size_t maxFrame = std::min<size_t>(angles.size(), owner->idToProjectile.at(spi.creID)->size(0));
-
-	assert(maxFrame > 0);
-
-	// values in angles array indicate position from which this frame was rendered, in degrees.
-	// find frame that has closest angle to one that we need for this shot
-	size_t bestID = 0;
-	double bestDiff = fabs( angles[0] / 180 * pi - projectileAngle );
-
-	for (size_t i=1; i<maxFrame; i++)
+	if (owner->idToProjectile.count(spi.creID))
 	{
-		double currentDiff = fabs( angles[i] / 180 * pi - projectileAngle );
-		if (currentDiff < bestDiff)
-		{
-			bestID = i;
-			bestDiff = currentDiff;
-		}
-	}
+		// only frames below maxFrame are usable: anything  higher is either no present or we don't know when it should be used
+		size_t maxFrame = std::min<size_t>(angles.size(), owner->idToProjectile.at(spi.creID)->size(0));
 
-	spi.frameNum = static_cast<int>(bestID);
+		assert(maxFrame > 0);
+
+		// values in angles array indicate position from which this frame was rendered, in degrees.
+		// find frame that has closest angle to one that we need for this shot
+		size_t bestID = 0;
+		double bestDiff = fabs( angles[0] / 180 * pi - projectileAngle );
+
+		for (size_t i=1; i<maxFrame; i++)
+		{
+			double currentDiff = fabs( angles[i] / 180 * pi - projectileAngle );
+			if (currentDiff < bestDiff)
+			{
+				bestID = i;
+				bestDiff = currentDiff;
+			}
+		}
+
+		spi.frameNum = static_cast<int>(bestID);
+	}
+	else if (owner->idToRay.count(spi.creID))
+	{
+		// no-op
+	}
+	else
+	{
+		logGlobal->error("Unable to find valid projectile for shooter %d", spi.creID);
+	}
 
 	// Set projectile animation start delay which is specified in frames
 	spi.animStartDelay = shooterInfo->animation.attackClimaxFrame;

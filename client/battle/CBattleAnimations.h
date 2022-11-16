@@ -189,6 +189,7 @@ public:
 /// Small struct which contains information about the position and the velocity of a projectile
 struct ProjectileInfo
 {
+	double x0, y0; //initial position on the screen
 	double x, y; //position on the screen
 	double dx, dy; //change in position in one step
 	int step, lastStep; //to know when finish showing this projectile
