@@ -30,6 +30,7 @@ void SocketLobby::connectServer(const QString & host, int port, const QString & 
 	if(!socket->waitForDisconnected(timeout) && !isConnected)
 	{
 		emit text("Error: " + socket->errorString());
+		emit disconnect();
 	}
 }
 

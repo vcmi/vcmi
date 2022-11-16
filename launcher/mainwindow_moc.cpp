@@ -85,9 +85,9 @@ MainWindow::MainWindow(QWidget * parent)
 	}
 	ui->tabListWidget->setCurrentIndex(0);
 
-	ui->settingsView->isExtraResolutionsModEnabled = ui->stackedWidgetPage2->isExtraResolutionsModEnabled();
+	ui->settingsView->isExtraResolutionsModEnabled = ui->modlistView->isExtraResolutionsModEnabled();
 	ui->settingsView->setDisplayList();
-	connect(ui->stackedWidgetPage2, &CModListView::extraResolutionsEnabledChanged,
+	connect(ui->modlistView, &CModListView::extraResolutionsEnabledChanged,
 		ui->settingsView, &CSettingsView::fillValidResolutions);
 
 	connect(ui->tabSelectList, &QListWidget::currentRowChanged, [this](int i) {

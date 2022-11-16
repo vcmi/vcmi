@@ -42,6 +42,8 @@ private:
 	QString username;
 	QStringList gameArgs;
 
+	int authentificationStatus = 0;
+
 private:
 	void protocolAssert(bool);
 };

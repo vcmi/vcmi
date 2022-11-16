@@ -40,6 +40,8 @@ void Lobby::serverCommand(const ServerCommand & command) try
 	case SRVERROR:
 		protocolAssert(args.size());
 		chatMessage("System error", args[0], true);
+		if(authentificationStatus == 0)
+			authentificationStatus = 2;
 		break;
 
 	case CREATED:
@@ -138,6 +140,11 @@ void Lobby::serverCommand(const ServerCommand & command) try
 		chatMessage(args[0], msg);
 		break;
 	}
+
+	if(authentificationStatus == 2)
+		socketLobby.disconnectServer();
+	else
+		authentificationStatus = 1;
 }
 catch(const ProtocolError & e)
 {
@@ -170,6 +177,7 @@ catch(const ProtocolError & e)
 
 void Lobby::onDisconnected()
 {
+	authentificationStatus = 0;
 	ui->stackedWidget->setCurrentWidget(ui->sessionsPage);
 	ui->connectButton->setChecked(false);
 }
@@ -209,6 +217,7 @@ void Lobby::on_connectButton_toggled(bool checked)
 {
 	if(checked)
 	{
+		authentificationStatus = 0;
 		username = ui->userEdit->text();
 		const int connectionTimeout = settings["launcher"]["connectionTimeout"].Integer();
 
