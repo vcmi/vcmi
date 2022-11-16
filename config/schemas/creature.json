@@ -227,7 +227,34 @@
 						},
 						"ray": {
 							"type":"array",
-							"description": "Colors of ray projectile animation"
+							"description": "Colors of ray projectile animation",
+							"minItems" : 1,
+							"items": {
+								"type":"object",
+								"required" : [ "start", "end" ],
+								"properties":{
+									"start":  {
+										"type":"array",
+										"minItems" : 4,
+										"maxItems" : 4,
+										"items": {
+											"minimum" : 0,
+											"maximum" : 255,
+											"type":"number"
+										}
+									 },
+									"end":  {
+										"type":"array",
+										"minItems" : 4,
+										"maxItems" : 4,
+										"items": {
+											"minimum" : 0,
+											"maximum" : 255,
+											"type":"number"
+										}
+									}
+								}
+							}
 						},
 						"frameAngles": {
 							"type":"array",
