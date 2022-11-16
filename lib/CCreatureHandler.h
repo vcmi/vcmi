@@ -11,7 +11,6 @@
 
 #include <vcmi/Creature.h>
 #include <vcmi/CreatureService.h>
-#include <int3.h>
 
 #include "HeroBonus.h"
 #include "ConstTransitivePtr.h"
