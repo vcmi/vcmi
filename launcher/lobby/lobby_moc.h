@@ -42,8 +42,17 @@ private:
 	QString username;
 	QStringList gameArgs;
 
-	int authentificationStatus = 0;
+	enum AuthStatus
+	{
+		NONE, OK, ERROR
+	};
+
+	AuthStatus authentificationStatus = NONE;
 
 private:
+	QMap<QString, QString> buildModsMap() const;
+	bool isModAvailable(const QString & modName, const QString & modVersion) const;
+
+
 	void protocolAssert(bool);
 };

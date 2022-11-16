@@ -39,15 +39,15 @@ void SocketLobby::disconnectServer()
 	socket->disconnectFromHost();
 }
 
-void SocketLobby::requestNewSession(const QString & session, int totalPlayers, const QString & pswd)
+void SocketLobby::requestNewSession(const QString & session, int totalPlayers, const QString & pswd, const QMap<QString, QString> & mods)
 {
-	const QString sessionMessage = ProtocolStrings[CREATE].arg(session, pswd, QString::number(totalPlayers));
+	const QString sessionMessage = ProtocolStrings[CREATE].arg(session, pswd, QString::number(totalPlayers), prepareModsClientString(mods));
 	send(sessionMessage);
 }
 
-void SocketLobby::requestJoinSession(const QString & session, const QString & pswd)
+void SocketLobby::requestJoinSession(const QString & session, const QString & pswd, const QMap<QString, QString> & mods)
 {
-	const QString sessionMessage = ProtocolStrings[JOIN].arg(session, pswd);
+	const QString sessionMessage = ProtocolStrings[JOIN].arg(session, pswd, prepareModsClientString(mods));
 	send(sessionMessage);
 }
 
@@ -110,4 +110,14 @@ ServerCommand::ServerCommand(ProtocolConsts cmd, const QStringList & args):
 	command(cmd),
 	arguments(args)
 {
+}
+
+QString prepareModsClientString(const QMap<QString, QString> & mods)
+{
+	QStringList result;
+	for(auto & mod : mods.keys())
+	{
+		result << mod + "&" + mods[mod];
+	}
+	return result.join(";");
 }

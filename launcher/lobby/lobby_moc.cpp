@@ -4,6 +4,7 @@
 #include "ui_lobby_moc.h"
 #include "lobbyroomrequest_moc.h"
 #include "../mainwindow_moc.h"
+#include "../modManager/cmodlist.h"
 #include "../../lib/CConfigHandler.h"
 
 Lobby::Lobby(QWidget *parent) :
@@ -27,11 +28,35 @@ Lobby::~Lobby()
 	delete ui;
 }
 
+QMap<QString, QString> Lobby::buildModsMap() const
+{
+	QMap<QString, QString> result;
+	const auto & modlist = qobject_cast<MainWindow*>(qApp->activeWindow())->getModList();
+	for(auto & modname : modlist.getModList())
+	{
+		auto mod = modlist.getMod(modname);
+		if(mod.isEnabled())
+		{
+			result[modname] = mod.getValue("version").toString();
+		}
+	}
+	return result;
+}
+
+bool Lobby::isModAvailable(const QString & modName, const QString & modVersion) const
+{
+	const auto & modlist = qobject_cast<MainWindow*>(qApp->activeWindow())->getModList();
+	if(!modlist.hasMod(modName))
+		return false;
+
+	auto mod = modlist.getMod(modName);
+	return (mod.isInstalled () || mod.isAvailable()) && (mod.getValue("version") == modVersion);
+}
+
 void Lobby::serverCommand(const ServerCommand & command) try
 {
 	//initialize variables outside of switch block
 	const QString statusPlaceholder("%1 %2\n");
-	QString resText;
 	const auto & args = command.arguments;
 	int amount, tagPoint;
 	QString joinStr;
@@ -40,8 +65,8 @@ void Lobby::serverCommand(const ServerCommand & command) try
 	case SRVERROR:
 		protocolAssert(args.size());
 		chatMessage("System error", args[0], true);
-		if(authentificationStatus == 0)
-			authentificationStatus = 2;
+		if(authentificationStatus == AuthStatus::NONE)
+			authentificationStatus = AuthStatus::ERROR;
 		break;
 
 	case CREATED:
@@ -98,19 +123,49 @@ void Lobby::serverCommand(const ServerCommand & command) try
 		}
 		break;
 
+	case MODS: {
+		protocolAssert(args.size() > 0);
+		amount = args[0].toInt();
+		protocolAssert(amount * 2 == (args.size() - 1));
+
+		tagPoint = 1;
+		ui->modsList->clear();
+		auto enabledMods = buildModsMap();
+		for(int i = 0; i < amount; ++i, tagPoint += 2)
+		{
+			if(enabledMods.contains(args[tagPoint]))
+			{
+				if(enabledMods[args[tagPoint]] == args[tagPoint + 1])
+					enabledMods.remove(args[tagPoint]);
+				else
+					ui->modsList->addItem(new QListWidgetItem(QIcon("icons:mod-update.png"), QString("%1 (v%2)").arg(args[tagPoint], args[tagPoint + 1])));
+			}
+			else if(isModAvailable(args[tagPoint], args[tagPoint + 1]))
+				ui->modsList->addItem(new QListWidgetItem(QIcon("icons:mod-enabled.png"), QString("%1 (v%2)").arg(args[tagPoint], args[tagPoint + 1])));
+			else
+				ui->modsList->addItem(new QListWidgetItem(QIcon("icons:mod-delete.png"), QString("%1 (v%2)").arg(args[tagPoint], args[tagPoint + 1])));
+		}
+		for(auto & remainMod : enabledMods.keys())
+		{
+			ui->modsList->addItem(new QListWidgetItem(QIcon("icons:mod-disabled.png"), QString("%1 (v%2)").arg(remainMod, enabledMods[remainMod])));
+		}
+		if(!ui->modsList->count())
+			ui->modsList->addItem("No issues detected");
+		break;
+		}
+
+
 	case STATUS:
 		protocolAssert(args.size() > 0);
 		amount = args[0].toInt();
 		protocolAssert(amount * 2 == (args.size() - 1));
 
 		tagPoint = 1;
-		ui->roomChat->clear();
-		resText.clear();
+		ui->playersList->clear();
 		for(int i = 0; i < amount; ++i, tagPoint += 2)
 		{
-			resText += statusPlaceholder.arg(args[tagPoint], args[tagPoint + 1] == "True" ? "ready" : "");
+			ui->playersList->addItem(args[tagPoint]);
 		}
-		ui->roomChat->setPlainText(resText);
 		break;
 
 	case START: {
@@ -132,19 +187,23 @@ void Lobby::serverCommand(const ServerCommand & command) try
 		break;
 		}
 
-	case CHAT:
+	case CHAT: {
 		protocolAssert(args.size() > 1);
 		QString msg;
 		for(int i = 1; i < args.size(); ++i)
 			msg += args[i];
 		chatMessage(args[0], msg);
 		break;
+		}
+
+	default:
+		sysMessage("Unknown server command");
 	}
 
-	if(authentificationStatus == 2)
+	if(authentificationStatus == AuthStatus::ERROR)
 		socketLobby.disconnectServer();
 	else
-		authentificationStatus = 1;
+		authentificationStatus = AuthStatus::OK;
 }
 catch(const ProtocolError & e)
 {
@@ -177,7 +236,7 @@ catch(const ProtocolError & e)
 
 void Lobby::onDisconnected()
 {
-	authentificationStatus = 0;
+	authentificationStatus = AuthStatus::NONE;
 	ui->stackedWidget->setCurrentWidget(ui->sessionsPage);
 	ui->connectButton->setChecked(false);
 }
@@ -217,7 +276,7 @@ void Lobby::on_connectButton_toggled(bool checked)
 {
 	if(checked)
 	{
-		authentificationStatus = 0;
+		authentificationStatus = AuthStatus::NONE;
 		username = ui->userEdit->text();
 		const int connectionTimeout = settings["launcher"]["connectionTimeout"].Integer();
 
@@ -241,7 +300,7 @@ void Lobby::on_connectButton_toggled(bool checked)
 
 void Lobby::on_newButton_clicked()
 {
-	new LobbyRoomRequest(socketLobby, "", this);
+	new LobbyRoomRequest(socketLobby, "", buildModsMap(), this);
 }
 
 void Lobby::on_joinButton_clicked()
@@ -251,9 +310,9 @@ void Lobby::on_joinButton_clicked()
 	{
 		auto isPrivate = ui->sessionsTable->item(ui->sessionsTable->currentRow(), 2)->data(Qt::UserRole).toBool();
 		if(isPrivate)
-			new LobbyRoomRequest(socketLobby, item->text(), this);
+			new LobbyRoomRequest(socketLobby, item->text(), buildModsMap(), this);
 		else
-			socketLobby.requestJoinSession(item->text(), "");
+			socketLobby.requestJoinSession(item->text(), "", buildModsMap());
 	}
 }
 

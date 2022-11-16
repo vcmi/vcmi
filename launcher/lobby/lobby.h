@@ -12,7 +12,7 @@
 #include <QTcpSocket>
 #include <QAbstractSocket>
 
-const unsigned int ProtocolVersion = 1;
+const unsigned int ProtocolVersion = 2;
 const std::string ProtocolEncoding = "utf8";
 
 class ProtocolError: public std::runtime_error
@@ -27,7 +27,7 @@ enum ProtocolConsts
 	GREETING, USERNAME, MESSAGE, VERSION, CREATE, JOIN, LEAVE, READY,
 
 	//server consts
-	SESSIONS, CREATED, JOINED, KICKED, SRVERROR, CHAT, START, STATUS, HOST
+	SESSIONS, CREATED, JOINED, KICKED, SRVERROR, CHAT, START, STATUS, HOST, MODS
 };
 
 const QMap<ProtocolConsts, QString> ProtocolStrings
@@ -36,8 +36,8 @@ const QMap<ProtocolConsts, QString> ProtocolStrings
 	{GREETING, "%1<GREETINGS>%2<VER>%3"}, //protocol_version byte, encoding bytes, encoding, name, version
 	{USERNAME, "<USER>%1"},
 	{MESSAGE, "<MSG>%1"},
-	{CREATE, "<NEW>%1<PSWD>%2<COUNT>%3"},
-	{JOIN, "<JOIN>%1<PSWD>%2"},
+	{CREATE, "<NEW>%1<PSWD>%2<COUNT>%3<MODS>%4"}, //last placeholder for the mods
+	{JOIN, "<JOIN>%1<PSWD>%2<MODS>%3"}, //last placeholder for the mods
 	{LEAVE, "<LEAVE>%1"}, //session
 	{READY, "<READY>%1"}, //session
 
@@ -50,6 +50,7 @@ const QMap<ProtocolConsts, QString> ProtocolStrings
 	{HOST, "HOST"}, //host_uuid:players_count
 	{STATUS, "STATUS"}, //joined_players:player_name:is_ready
 	{SRVERROR, "ERROR"},
+	{MODS, "MODS"}, //amount:modname:modversion
 	{CHAT, "MSG"} //username:message
 };
 
@@ -69,8 +70,8 @@ public:
 	explicit SocketLobby(QObject *parent = 0);
 	void connectServer(const QString & host, int port, const QString & username, int timeout);
 	void disconnectServer();
-	void requestNewSession(const QString & session, int totalPlayers, const QString & pswd);
-	void requestJoinSession(const QString & session, const QString & pswd);
+	void requestNewSession(const QString & session, int totalPlayers, const QString & pswd, const QMap<QString, QString> & mods);
+	void requestJoinSession(const QString & session, const QString & pswd, const QMap<QString, QString> & mods);
 	void requestLeaveSession(const QString & session);
 	void requestReadySession(const QString & session);
 
@@ -93,5 +94,6 @@ private:
 	QTcpSocket *socket;
 	bool isConnected = false;
 	QString username;
-
 };
+
+QString prepareModsClientString(const QMap<QString, QString> & mods);

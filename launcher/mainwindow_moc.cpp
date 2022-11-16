@@ -116,3 +116,8 @@ void MainWindow::on_startGameButton_clicked()
 {
 	startGame({});
 }
+
+const CModList & MainWindow::getModList() const
+{
+	return ui->modlistView->getModList();
+}

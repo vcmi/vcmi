@@ -19,6 +19,8 @@ const QString appName = "VCMI Launcher";
 }
 
 class QTableWidgetItem;
+class CModList;
+
 
 class MainWindow : public QMainWindow
 {
@@ -31,6 +33,9 @@ private:
 public:
 	explicit MainWindow(QWidget * parent = 0);
 	~MainWindow();
+
+	const CModList & getModList() const;
+
 	
 public slots:
 	void on_startGameButton_clicked();
