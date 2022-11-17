@@ -31,7 +31,11 @@ Lobby::~Lobby()
 QMap<QString, QString> Lobby::buildModsMap() const
 {
 	QMap<QString, QString> result;
-	const auto & modlist = qobject_cast<MainWindow*>(qApp->activeWindow())->getModList();
+	QObject * mainWindow = qApp->activeWindow();
+	while(mainWindow->parent())
+		mainWindow = mainWindow->parent();
+	const auto & modlist = qobject_cast<MainWindow*>(mainWindow)->getModList();
+	
 	for(auto & modname : modlist.getModList())
 	{
 		auto mod = modlist.getMod(modname);
@@ -45,7 +49,11 @@ QMap<QString, QString> Lobby::buildModsMap() const
 
 bool Lobby::isModAvailable(const QString & modName, const QString & modVersion) const
 {
-	const auto & modlist = qobject_cast<MainWindow*>(qApp->activeWindow())->getModList();
+	QObject * mainWindow = qApp->activeWindow();
+	while(mainWindow->parent())
+		mainWindow = mainWindow->parent();
+	const auto & modlist = qobject_cast<MainWindow*>(mainWindow)->getModList();
+	
 	if(!modlist.hasMod(modName))
 		return false;
 
