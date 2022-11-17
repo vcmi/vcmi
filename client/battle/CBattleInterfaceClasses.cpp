@@ -11,6 +11,7 @@
 #include "CBattleInterfaceClasses.h"
 
 #include "CBattleInterface.h"
+#include "CBattleSiegeController.h"
 
 #include "../CBitmapHandler.h"
 #include "../CGameInfo.h"
@@ -585,48 +586,33 @@ Point CClickableHex::getXYUnitAnim(BattleHex hexNum, const CStack * stack, CBatt
 
 	Point ret(-500, -500); //returned value
 	if(stack && stack->initialPosition < 0) //creatures in turrets
+		return cbi->siegeController->turretCreaturePosition(stack->initialPosition);
+
+	static const Point basePos(-190, -139); // position of creature in topleft corner
+	static const int imageShiftX = 30; // X offset to base pos for facing right stacks, negative for facing left
+
+	ret.x = basePos.x + 22 * ( (hexNum.getY() + 1)%2 ) + 44 * hexNum.getX();
+	ret.y = basePos.y + 42 * hexNum.getY();
+
+	if (stack)
 	{
-		switch(stack->initialPosition)
+		if(cbi->creDir[stack->ID])
+			ret.x += imageShiftX;
+		else
+			ret.x -= imageShiftX;
+
+		//shifting position for double - hex creatures
+		if(stack->doubleWide())
 		{
-		case -2: //keep
-			ret = cbi->siegeH->town->town->clientInfo.siegePositions[18];
-			break;
-		case -3: //lower turret
-			ret = cbi->siegeH->town->town->clientInfo.siegePositions[19];
-			break;
-		case -4: //upper turret
-			ret = cbi->siegeH->town->town->clientInfo.siegePositions[20];
-			break;
-		}
-	}
-	else
-	{
-		static const Point basePos(-190, -139); // position of creature in topleft corner
-		static const int imageShiftX = 30; // X offset to base pos for facing right stacks, negative for facing left
-
-		ret.x = basePos.x + 22 * ( (hexNum.getY() + 1)%2 ) + 44 * hexNum.getX();
-		ret.y = basePos.y + 42 * hexNum.getY();
-
-		if (stack)
-		{
-			if(cbi->creDir[stack->ID])
-				ret.x += imageShiftX;
-			else
-				ret.x -= imageShiftX;
-
-			//shifting position for double - hex creatures
-			if(stack->doubleWide())
+			if(stack->side == BattleSide::ATTACKER)
 			{
-				if(stack->side == BattleSide::ATTACKER)
-				{
-					if(cbi->creDir[stack->ID])
-						ret.x -= 44;
-				}
-				else
-				{
-					if(!cbi->creDir[stack->ID])
-						ret.x += 44;
-				}
+				if(cbi->creDir[stack->ID])
+					ret.x -= 44;
+			}
+			else
+			{
+				if(!cbi->creDir[stack->ID])
+					ret.x += 44;
 			}
 		}
 	}

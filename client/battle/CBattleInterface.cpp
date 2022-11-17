@@ -14,6 +14,7 @@
 #include "CBattleInterfaceClasses.h"
 #include "CCreatureAnimation.h"
 #include "CBattleProjectileController.h"
+#include "CBattleSiegeController.h"
 
 #include "../CBitmapHandler.h"
 #include "../CGameInfo.h"
@@ -109,7 +110,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 	activeStack(nullptr), mouseHoveredStack(nullptr), stackToActivate(nullptr), selectedStack(nullptr), previouslyHoveredHex(-1),
 	currentlyHoveredHex(-1), attackingHex(-1), stackCanCastSpell(false), creatureCasting(false), spellDestSelectMode(false), spellToCast(nullptr), sp(nullptr),
 	creatureSpellToCast(-1),
-	siegeH(nullptr), attackerInt(att), defenderInt(defen), curInt(att), animIDhelper(0),
+	attackerInt(att), defenderInt(defen), curInt(att), animIDhelper(0),
 	myTurn(false), moveStarted(false), moveSoundHander(-1), bresult(nullptr), battleActionsStarted(false)
 {
 	OBJ_CONSTRUCTION;
@@ -164,9 +165,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 	//preparing siege info
 	const CGTownInstance *town = curInt->cb->battleGetDefendedTown();
 	if(town && town->hasFort())
-	{
-		siegeH = new SiegeHelper(town, this);
-	}
+		siegeController.reset(new CBattleSiegeController(this, town));
 
 	CPlayerInterface::battleInt = this;
 
@@ -180,30 +179,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 	}
 
 	//preparing menu background and terrain
-	if(siegeH)
-	{
-		background = BitmapHandler::loadBitmap( siegeH->getSiegeName(0), false );
-		ui8 siegeLevel = curInt->cb->battleGetSiegeLevel();
-		if (siegeLevel >= 2) //citadel or castle
-		{
-			//print moat/mlip
-			SDL_Surface *moat = BitmapHandler::loadBitmap( siegeH->getSiegeName(13) ),
-				* mlip = BitmapHandler::loadBitmap( siegeH->getSiegeName(14) );
-
-			auto & info = siegeH->town->town->clientInfo;
-			Point moatPos(info.siegePositions[13].x, info.siegePositions[13].y);
-			Point mlipPos(info.siegePositions[14].x, info.siegePositions[14].y);
-
-			if (moat) //eg. tower has no moat
-				blitAt(moat, moatPos.x,moatPos.y, background);
-			if (mlip) //eg. tower has no mlip
-				blitAt(mlip, mlipPos.x, mlipPos.y, background);
-
-			SDL_FreeSurface(moat);
-			SDL_FreeSurface(mlip);
-		}
-	}
-	else
+	if(!siegeController)
 	{
 		auto bfieldType = curInt->cb->battleGetBattlefieldType();
 
@@ -450,8 +426,6 @@ CBattleInterface::~CBattleInterface()
 
 	SDL_FreeSurface(cellBorder);
 	SDL_FreeSurface(cellShade);
-
-	delete siegeH;
 
 	//TODO: play AI tracks if battle was during AI turn
 	//if (!curInt->makingTurn)
@@ -971,31 +945,14 @@ void CBattleInterface::unitAdded(const CStack * stack)
 
 	if(stack->initialPosition < 0) //turret
 	{
-		const CCreature *turretCreature = CGI->creh->objects[siegeH->town->town->clientInfo.siegeShooter];
+		assert(siegeController);
+
+		const CCreature *turretCreature = siegeController->turretCreature();
 
 		creAnims[stack->ID] = AnimationControls::getAnimation(turretCreature);
-
-		// Turret positions are read out of the config/wall_pos.txt
-		int posID = 0;
-		switch (stack->initialPosition)
-		{
-		case -2: // keep creature
-			posID = 18;
-			break;
-		case -3: // bottom creature
-			posID = 19;
-			break;
-		case -4: // upper creature
-			posID = 20;
-			break;
-		}
-
-		if (posID != 0)
-		{
-			coords.x = siegeH->town->town->clientInfo.siegePositions[posID].x + this->pos.x;
-			coords.y = siegeH->town->town->clientInfo.siegePositions[posID].y + this->pos.y;
-		}
 		creAnims[stack->ID]->pos.h = 225;
+
+		coords = siegeController->turretCreaturePosition(stack->initialPosition);
 	}
 	else
 	{
@@ -1170,16 +1127,6 @@ bool CBattleInterface::isTileAttackable(const BattleHex & number) const
 	return false;
 }
 
-bool CBattleInterface::isCatapultAttackable(BattleHex hex) const
-{
-	if (!siegeH || tacticsMode) return false;
-
-	auto wallPart = curInt->cb->battleHexToWallPart(hex);
-	if (!curInt->cb->isWallPartPotentiallyAttackable(wallPart)) return false;
-
-	auto state = curInt->cb->battleGetWallState(static_cast<int>(wallPart));
-	return state != EWallState::DESTROYED && state != EWallState::NONE;
-}
 
 const CGHeroInstance * CBattleInterface::getActiveHero()
 {
@@ -1204,38 +1151,14 @@ void CBattleInterface::hexLclicked(int whichOne)
 
 void CBattleInterface::stackIsCatapulting(const CatapultAttack & ca)
 {
-	if (ca.attacker != -1)
-	{
-		const CStack *stack = curInt->cb->battleGetStackByID(ca.attacker);
-		for (auto attackInfo : ca.attackedParts)
-		{
-			addNewAnim(new CShootingAnimation(this, stack, attackInfo.destinationTile, nullptr, true, attackInfo.damageDealt));
-		}
-	}
-	else
-	{
-		//no attacker stack, assume spell-related (earthquake) - only hit animation
-		for (auto attackInfo : ca.attackedParts)
-		{
-			Point destPos = CClickableHex::getXYUnitAnim(attackInfo.destinationTile, nullptr, this) + Point(99, 120);
+	if (siegeController)
+		siegeController->stackIsCatapulting(ca);
+}
 
-			addNewAnim(new CEffectAnimation(this, "SGEXPL.DEF", destPos.x, destPos.y));
-		}
-	}
-
-	waitForAnims();
-
-	for (auto attackInfo : ca.attackedParts)
-	{
-		int wallId = attackInfo.attackedPart + 2;
-		//gate state changing handled separately
-		if (wallId == SiegeHelper::GATE)
-			continue;
-
-		SDL_FreeSurface(siegeH->walls[wallId]);
-		siegeH->walls[wallId] = BitmapHandler::loadBitmap(
-			siegeH->getSiegeName(wallId, curInt->cb->battleGetWallState(attackInfo.attackedPart)));
-	}
+void CBattleInterface::gateStateChanged(const EGateState state)
+{
+	if (siegeController)
+		siegeController->gateStateChanged(state);
 }
 
 void CBattleInterface::battleFinished(const BattleResult& br)
@@ -2178,7 +2101,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				}
 				break;
 			case PossiblePlayerBattleAction::CATAPULT:
-				if (isCatapultAttackable(myNumber))
+				if (siegeController && siegeController->isCatapultAttackable(myNumber))
 					legalAction = true;
 				break;
 			case PossiblePlayerBattleAction::HEAL:
@@ -2743,39 +2666,6 @@ void CBattleInterface::obstaclePlaced(const CObstacleInstance & oi)
 	//CCS->soundh->playSound(sound);
 }
 
-void CBattleInterface::gateStateChanged(const EGateState state)
-{
-	auto oldState = curInt->cb->battleGetGateState();
-	bool playSound = false;
-	int stateId = EWallState::NONE;
-	switch(state)
-	{
-	case EGateState::CLOSED:
-		if (oldState != EGateState::BLOCKED)
-			playSound = true;
-		break;
-	case EGateState::BLOCKED:
-		if (oldState != EGateState::CLOSED)
-			playSound = true;
-		break;
-	case EGateState::OPENED:
-		playSound = true;
-		stateId = EWallState::DAMAGED;
-		break;
-	case EGateState::DESTROYED:
-		stateId = EWallState::DESTROYED;
-		break;
-	}
-
-	if (oldState != EGateState::NONE && oldState != EGateState::CLOSED && oldState != EGateState::BLOCKED)
-		SDL_FreeSurface(siegeH->walls[SiegeHelper::GATE]);
-
-	if (stateId != EWallState::NONE)
-		siegeH->walls[SiegeHelper::GATE] = BitmapHandler::loadBitmap(siegeH->getSiegeName(SiegeHelper::GATE, stateId));
-	if (playSound)
-		CCS->soundh->playSound(soundBase::DRAWBRG);
-}
-
 const CGHeroInstance *CBattleInterface::currentHero() const
 {
 	if (attackingHeroInstance->tempOwner == curInt->playerID)
@@ -2833,138 +2723,6 @@ void CBattleInterface::requestAutofightingAIToTakeAction()
 	});
 
 	aiThread.detach();
-}
-
-CBattleInterface::SiegeHelper::SiegeHelper(const CGTownInstance *siegeTown, const CBattleInterface *_owner)
-	: owner(_owner), town(siegeTown)
-{
-	for (int g = 0; g < ARRAY_COUNT(walls); ++g)
-	{
-		if (g != SiegeHelper::GATE)
-			walls[g] = BitmapHandler::loadBitmap(getSiegeName(g));
-	}
-}
-
-CBattleInterface::SiegeHelper::~SiegeHelper()
-{
-	auto gateState = owner->curInt->cb->battleGetGateState();
-	for (int g = 0; g < ARRAY_COUNT(walls); ++g)
-	{
-		if (g != SiegeHelper::GATE || (gateState != EGateState::NONE && gateState != EGateState::CLOSED && gateState != EGateState::BLOCKED))
-			SDL_FreeSurface(walls[g]);
-	}
-}
-
-std::string CBattleInterface::SiegeHelper::getSiegeName(ui16 what) const
-{
-	return getSiegeName(what, EWallState::INTACT);
-}
-
-std::string CBattleInterface::SiegeHelper::getSiegeName(ui16 what, int state) const
-{
-	auto getImageIndex = [&]() -> int
-	{
-		switch (state)
-		{
-		case EWallState::INTACT : return 1;
-		case EWallState::DAMAGED :
-			if(what == 2 || what == 3 || what == 8) // towers don't have separate image here - INTACT and DAMAGED is 1, DESTROYED is 2
-				return 1;
-			else
-				return 2;
-		case EWallState::DESTROYED :
-			if (what == 2 || what == 3 || what == 8)
-				return 2;
-			else
-				return 3;
-		}
-		return 1;
-	};
-
-	const std::string & prefix = town->town->clientInfo.siegePrefix;
-	std::string addit = boost::lexical_cast<std::string>(getImageIndex());
-
-	switch(what)
-	{
-	case SiegeHelper::BACKGROUND:
-		return prefix + "BACK.BMP";
-	case SiegeHelper::BACKGROUND_WALL:
-		{
-			switch(town->town->faction->index)
-			{
-			case ETownType::RAMPART:
-			case ETownType::NECROPOLIS:
-			case ETownType::DUNGEON:
-			case ETownType::STRONGHOLD:
-				return prefix + "TPW1.BMP";
-			default:
-				return prefix + "TPWL.BMP";
-			}
-		}
-	case SiegeHelper::KEEP:
-		return prefix + "MAN" + addit + ".BMP";
-	case SiegeHelper::BOTTOM_TOWER:
-		return prefix + "TW1" + addit + ".BMP";
-	case SiegeHelper::BOTTOM_WALL:
-		return prefix + "WA1" + addit + ".BMP";
-	case SiegeHelper::WALL_BELLOW_GATE:
-		return prefix + "WA3" + addit + ".BMP";
-	case SiegeHelper::WALL_OVER_GATE:
-		return prefix + "WA4" + addit + ".BMP";
-	case SiegeHelper::UPPER_WALL:
-		return prefix + "WA6" + addit + ".BMP";
-	case SiegeHelper::UPPER_TOWER:
-		return prefix + "TW2" + addit + ".BMP";
-	case SiegeHelper::GATE:
-		return prefix + "DRW" + addit + ".BMP";
-	case SiegeHelper::GATE_ARCH:
-		return prefix + "ARCH.BMP";
-	case SiegeHelper::BOTTOM_STATIC_WALL:
-		return prefix + "WA2.BMP";
-	case SiegeHelper::UPPER_STATIC_WALL:
-		return prefix + "WA5.BMP";
-	case SiegeHelper::MOAT:
-		return prefix + "MOAT.BMP";
-	case SiegeHelper::BACKGROUND_MOAT:
-		return prefix + "MLIP.BMP";
-	case SiegeHelper::KEEP_BATTLEMENT:
-		return prefix + "MANC.BMP";
-	case SiegeHelper::BOTTOM_BATTLEMENT:
-		return prefix + "TW1C.BMP";
-	case SiegeHelper::UPPER_BATTLEMENT:
-		return prefix + "TW2C.BMP";
-	default:
-		return "";
-	}
-}
-
-void CBattleInterface::SiegeHelper::printPartOfWall(SDL_Surface *to, int what)
-{
-	Point pos = Point(-1, -1);
-	auto & ci = town->town->clientInfo;
-
-	if (vstd::iswithin(what, 1, 17))
-	{
-		pos.x = ci.siegePositions[what].x + owner->pos.x;
-		pos.y = ci.siegePositions[what].y + owner->pos.y;
-	}
-
-	if (town->town->faction->index == ETownType::TOWER
-		&& (what == SiegeHelper::MOAT || what == SiegeHelper::BACKGROUND_MOAT))
-		return; // no moat in Tower. TODO: remove hardcode somehow?
-
-	if (pos.x != -1)
-	{
-		//gate have no displayed bitmap when drawbridge is raised
-		if (what == SiegeHelper::GATE)
-		{
-			auto gateState = owner->curInt->cb->battleGetGateState();
-			if (gateState != EGateState::OPENED && gateState != EGateState::DESTROYED)
-				return;
-		}
-
-		blitAt(walls[what], pos.x, pos.y, to);
-	}
 }
 
 void CBattleInterface::showAll(SDL_Surface *to)
@@ -3041,9 +2799,8 @@ void CBattleInterface::showAbsoluteObstacles(SDL_Surface * to)
 		}
 	}
 
-
-	if (siegeH && siegeH->town->hasBuilt(BuildingID::CITADEL))
-		siegeH->printPartOfWall(to, SiegeHelper::BACKGROUND_MOAT);
+	if ( siegeController )
+		siegeController->showAbsoluteObstacles(to);
 }
 
 void CBattleInterface::showHighlightedHexes(SDL_Surface *to)
@@ -3143,7 +2900,8 @@ void CBattleInterface::showBattlefieldObjects(SDL_Surface *to)
 {
 	auto showHexEntry = [&](BattleObjectsByHex::HexData & hex)
 	{
-		showPiecesOfWall(to, hex.walls);
+		if (siegeController)
+			siegeController->showPiecesOfWall(to, hex.walls);
 		showObstacles(to, hex.obstacles);
 		showAliveStacks(to, hex.alive);
 		showBattleEffects(to, hex.effects);
@@ -3436,33 +3194,9 @@ BattleObjectsByHex CBattleInterface::sortObjectsByHex()
 		}
 	}
 	// Sort wall parts
-	if (siegeH)
-	{
-		sorted.beforeAll.walls.push_back(SiegeHelper::BACKGROUND_WALL);
-		sorted.hex[135].walls.push_back(SiegeHelper::KEEP);
-		sorted.afterAll.walls.push_back(SiegeHelper::BOTTOM_TOWER);
-		sorted.hex[182].walls.push_back(SiegeHelper::BOTTOM_WALL);
-		sorted.hex[130].walls.push_back(SiegeHelper::WALL_BELLOW_GATE);
-		sorted.hex[78].walls.push_back(SiegeHelper::WALL_OVER_GATE);
-		sorted.hex[12].walls.push_back(SiegeHelper::UPPER_WALL);
-		sorted.beforeAll.walls.push_back(SiegeHelper::UPPER_TOWER);
-		sorted.hex[94].walls.push_back(SiegeHelper::GATE);
-		sorted.hex[112].walls.push_back(SiegeHelper::GATE_ARCH);
-		sorted.hex[165].walls.push_back(SiegeHelper::BOTTOM_STATIC_WALL);
-		sorted.hex[45].walls.push_back(SiegeHelper::UPPER_STATIC_WALL);
+	if (siegeController)
+		siegeController->sortObjectsByHex(sorted);
 
-		if (siegeH && siegeH->town->hasBuilt(BuildingID::CITADEL))
-		{
-			sorted.beforeAll.walls.push_back(SiegeHelper::MOAT);
-			//sorted.beforeAll.walls.push_back(SiegeHelper::BACKGROUND_MOAT); // blit as absolute obstacle
-			sorted.hex[135].walls.push_back(SiegeHelper::KEEP_BATTLEMENT);
-		}
-		if (siegeH && siegeH->town->hasBuilt(BuildingID::CASTLE))
-		{
-			sorted.afterAll.walls.push_back(SiegeHelper::BOTTOM_BATTLEMENT);
-			sorted.beforeAll.walls.push_back(SiegeHelper::UPPER_BATTLEMENT);
-		}
-	}
 	return sorted;
 }
 
@@ -3604,41 +3338,3 @@ void CBattleInterface::redrawBackgroundWithHexes(const CStack *activeStack)
 		CSDL_Ext::blit8bppAlphaTo24bpp(cellBorders, nullptr, backgroundWithHexes, nullptr);
 }
 
-void CBattleInterface::showPiecesOfWall(SDL_Surface *to, std::vector<int> pieces)
-{
-	if (!siegeH)
-		return;
-	for (auto piece : pieces)
-	{
-		if (piece < 15) // not a tower - just print
-			siegeH->printPartOfWall(to, piece);
-		else // tower. find if tower is built and not destroyed - stack is present
-		{
-			// PieceID    StackID
-			// 15 = keep,  -2
-			// 16 = lower, -3
-			// 17 = upper, -4
-
-			// tower. check if tower is alive - stack is found
-			int stackPos = 13 - piece;
-
-			const CStack *turret = nullptr;
-
-			for (auto & stack : curInt->cb->battleGetAllStacks(true))
-			{
-				if(stack->initialPosition == stackPos)
-				{
-					turret = stack;
-					break;
-				}
-			}
-
-			if (turret)
-			{
-				std::vector<const CStack *> stackList(1, turret);
-				showStacks(to, stackList);
-				siegeH->printPartOfWall(to, piece);
-			}
-		}
-	}
-}

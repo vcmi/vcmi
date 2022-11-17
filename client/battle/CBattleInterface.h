@@ -59,6 +59,7 @@ class CAnimation;
 class IImage;
 
 class CBattleProjectileController;
+class CBattleSiegeController;
 
 /// Small struct which contains information about the id of the attacked stack, the damage dealt,...
 struct StackAttackedInfo
@@ -188,51 +189,8 @@ private:
 	void sendCommand(BattleAction *& command, const CStack * actor = nullptr);
 
 	bool isTileAttackable(const BattleHex & number) const; //returns true if tile 'number' is neighboring any tile from active stack's range or is one of these tiles
-	bool isCatapultAttackable(BattleHex hex) const; //returns true if given tile can be attacked by catapult
 
 	std::list<BattleEffect> battleEffects; //different animations to display on the screen like spell effects
-
-	/// Class which is responsible for drawing the wall of a siege during battle
-	class SiegeHelper
-	{
-	private:
-		SDL_Surface* walls[18];
-		const CBattleInterface *owner;
-	public:
-		const CGTownInstance *town; //besieged town
-
-		SiegeHelper(const CGTownInstance *siegeTown, const CBattleInterface *_owner);
-		~SiegeHelper();
-
-		std::string getSiegeName(ui16 what) const;
-		std::string getSiegeName(ui16 what, int state) const; // state uses EWallState enum
-
-		void printPartOfWall(SDL_Surface *to, int what);
-
-		enum EWallVisual
-		{
-			BACKGROUND = 0,
-			BACKGROUND_WALL = 1,
-			KEEP,
-			BOTTOM_TOWER,
-			BOTTOM_WALL,
-			WALL_BELLOW_GATE,
-			WALL_OVER_GATE,
-			UPPER_WALL,
-			UPPER_TOWER,
-			GATE,
-			GATE_ARCH,
-			BOTTOM_STATIC_WALL,
-			UPPER_STATIC_WALL,
-			MOAT,
-			BACKGROUND_MOAT,
-			KEEP_BATTLEMENT,
-			BOTTOM_BATTLEMENT,
-			UPPER_BATTLEMENT
-		};
-
-		friend class CBattleInterface;
-	} *siegeH;
 
 	std::shared_ptr<CPlayerInterface> attackerInt, defenderInt; //because LOCPLINT is not enough in hotSeat
 	std::shared_ptr<CPlayerInterface> curInt; //current player interface
@@ -252,7 +210,6 @@ private:
 	void showAliveStacks(SDL_Surface *to, std::vector<const CStack *> stacks);
 	void showStacks(SDL_Surface *to, std::vector<const CStack *> stacks);
 	void showObstacles(SDL_Surface *to, std::vector<std::shared_ptr<const CObstacleInstance>> &obstacles);
-	void showPiecesOfWall(SDL_Surface *to, std::vector<int> pieces);
 
 	void showBattleEffects(SDL_Surface *to, const std::vector<const BattleEffect *> &battleEffects);
 
@@ -269,6 +226,7 @@ private:
 	void setHeroAnimation(ui8 side, int phase);
 public:
 	std::unique_ptr<CBattleProjectileController> projectilesController;
+	std::unique_ptr<CBattleSiegeController> siegeController;
 
 	static CondSh<bool> animsAreDisplayed; //for waiting with the end of battle for end of anims
 	static CondSh<BattleAction *> givenCommand; //data != nullptr if we have i.e. moved current unit
@@ -397,4 +355,5 @@ public:
 	friend class CCastAnimation;
 	friend class CClickableHex;
 	friend class CBattleProjectileController;
+	friend class CBattleSiegeController;
 };

@@ -15,6 +15,7 @@
 #include "CBattleInterfaceClasses.h"
 #include "CBattleInterface.h"
 #include "CBattleProjectileController.h"
+#include "CBattleSiegeController.h"
 #include "CCreatureAnimation.h"
 
 #include "../CGameInfo.h"
@@ -734,10 +735,7 @@ bool CShootingAnimation::init()
 	const CCreature *shooterInfo = shooter->getCreature();
 
 	if(shooterInfo->idNumber == CreatureID::ARROW_TOWERS)
-	{
-		CreatureID creID = owner->siegeH->town->town->clientInfo.siegeShooter;
-		shooterInfo = CGI->creh->objects[creID];
-	}
+		shooterInfo = owner->siegeController->turretCreature();
 
 	Point shooterPos;
 	Point shotPos;
