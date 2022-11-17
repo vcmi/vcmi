@@ -825,16 +825,33 @@ void CArtifactsOfHero::artifactAssembled(const ArtifactLocation &al)
 		updateWornSlots();
 }
 
-void CArtifactsOfHero::artifactDisassembled(const ArtifactLocation &al)
+void CArtifactsOfHero::artifactDisassembled(const ArtifactLocation & al)
 {
 	if(al.isHolder(curHero))
-		updateWornSlots();
+	{
+		if(al.slot >= GameConstants::BACKPACK_START)
+		{
+			updateBackpackSlots();
+		}
+		else
+			updateWornSlots();
+	}
 }
 
 void CArtifactsOfHero::updateWornSlots(bool redrawParent)
 {
 	for(auto p : artWorn)
 		updateSlot(p.first);
+
+	if(redrawParent)
+		updateParentWindow();
+}
+
+void CArtifactsOfHero::updateBackpackSlots(bool redrawParent)
+{
+	for(auto & artPlace : backpack)
+		updateSlot(artPlace->slotID);
+	scrollBackpack(0);
 
 	if(redrawParent)
 		updateParentWindow();
