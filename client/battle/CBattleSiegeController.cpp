@@ -145,7 +145,9 @@ void CBattleSiegeController::printPartOfWall(SDL_Surface *to, int what)
 }
 
 
-CBattleSiegeController::CBattleSiegeController(CBattleInterface * owner, const CGTownInstance *siegeTown)
+CBattleSiegeController::CBattleSiegeController(CBattleInterface * owner, const CGTownInstance *siegeTown):
+	owner(owner),
+	town(siegeTown)
 {
 	owner->background = BitmapHandler::loadBitmap( getSiegeName(0), false );
 	ui8 siegeLevel = owner->curInt->cb->battleGetSiegeLevel();

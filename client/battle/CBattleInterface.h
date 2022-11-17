@@ -60,6 +60,7 @@ class IImage;
 
 class CBattleProjectileController;
 class CBattleSiegeController;
+class CBattleObstacleController;
 
 /// Small struct which contains information about the id of the attacked stack, the damage dealt,...
 struct StackAttackedInfo
@@ -139,9 +140,6 @@ private:
 	const CGHeroInstance *attackingHeroInstance, *defendingHeroInstance;
 	std::map<int32_t, std::shared_ptr<CCreatureAnimation>> creAnims; //animations of creatures from fighting armies (order by BattleInfo's stacks' ID)
 
-	std::map<std::string, std::shared_ptr<CAnimation>> animationsCache;
-	std::map<si32, std::shared_ptr<CAnimation>> obstacleAnimations;
-
 	std::map<int, bool> creDir; // <creatureID, if false reverse creature's animation> //TODO: move it to battle callback
 	ui8 animCount;
 	const CStack *activeStack; //number of active stack; nullptr - no one
@@ -200,7 +198,6 @@ private:
 	void showBackground(SDL_Surface *to);
 
 	void showBackgroundImage(SDL_Surface *to);
-	void showAbsoluteObstacles(SDL_Surface *to);
 	void showHighlightedHexes(SDL_Surface *to);
 	void showHighlightedHex(SDL_Surface *to, BattleHex hex, bool darkBorder = false);
 	void showInterface(SDL_Surface *to);
@@ -209,16 +206,11 @@ private:
 
 	void showAliveStacks(SDL_Surface *to, std::vector<const CStack *> stacks);
 	void showStacks(SDL_Surface *to, std::vector<const CStack *> stacks);
-	void showObstacles(SDL_Surface *to, std::vector<std::shared_ptr<const CObstacleInstance>> &obstacles);
 
 	void showBattleEffects(SDL_Surface *to, const std::vector<const BattleEffect *> &battleEffects);
 
 	BattleObjectsByHex sortObjectsByHex();
 	void updateBattleAnimations();
-
-	std::shared_ptr<IImage> getObstacleImage(const CObstacleInstance & oi);
-
-	Point getObstaclePosition(std::shared_ptr<IImage> image, const CObstacleInstance & obstacle);
 
 	void redrawBackgroundWithHexes(const CStack *activeStack);
 	/** End of battle screen blitting methods */
@@ -227,6 +219,7 @@ private:
 public:
 	std::unique_ptr<CBattleProjectileController> projectilesController;
 	std::unique_ptr<CBattleSiegeController> siegeController;
+	std::unique_ptr<CBattleObstacleController> obstacleController;
 
 	static CondSh<bool> animsAreDisplayed; //for waiting with the end of battle for end of anims
 	static CondSh<BattleAction *> givenCommand; //data != nullptr if we have i.e. moved current unit
@@ -356,4 +349,5 @@ public:
 	friend class CClickableHex;
 	friend class CBattleProjectileController;
 	friend class CBattleSiegeController;
+	friend class CBattleObstacleController;
 };
