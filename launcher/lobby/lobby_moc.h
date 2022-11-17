@@ -42,12 +42,12 @@ private:
 	QString username;
 	QStringList gameArgs;
 
-	enum AuthStatus
+	enum class AuthStatus
 	{
 		NONE, OK, ERROR
 	};
 
-	AuthStatus authentificationStatus = NONE;
+	AuthStatus authentificationStatus = AuthStatus::NONE;
 
 private:
 	QMap<QString, QString> buildModsMap() const;
