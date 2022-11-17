@@ -65,8 +65,8 @@ void Lobby::serverCommand(const ServerCommand & command) try
 	case SRVERROR:
 		protocolAssert(args.size());
 		chatMessage("System error", args[0], true);
-		if(authentificationStatus == AuthStatus::NONE)
-			authentificationStatus = AuthStatus::ERROR;
+		if(authentificationStatus == AuthStatus::AUTH_NONE)
+			authentificationStatus = AuthStatus::AUTH_ERROR;
 		break;
 
 	case CREATED:
@@ -200,10 +200,10 @@ void Lobby::serverCommand(const ServerCommand & command) try
 		sysMessage("Unknown server command");
 	}
 
-	if(authentificationStatus == AuthStatus::ERROR)
+	if(authentificationStatus == AuthStatus::AUTH_ERROR)
 		socketLobby.disconnectServer();
 	else
-		authentificationStatus = AuthStatus::OK;
+		authentificationStatus = AuthStatus::AUTH_OK;
 }
 catch(const ProtocolError & e)
 {
@@ -236,7 +236,7 @@ catch(const ProtocolError & e)
 
 void Lobby::onDisconnected()
 {
-	authentificationStatus = AuthStatus::NONE;
+	authentificationStatus = AuthStatus::AUTH_NONE;
 	ui->stackedWidget->setCurrentWidget(ui->sessionsPage);
 	ui->connectButton->setChecked(false);
 }
@@ -276,7 +276,7 @@ void Lobby::on_connectButton_toggled(bool checked)
 {
 	if(checked)
 	{
-		authentificationStatus = AuthStatus::NONE;
+		authentificationStatus = AuthStatus::AUTH_NONE;
 		username = ui->userEdit->text();
 		const int connectionTimeout = settings["launcher"]["connectionTimeout"].Integer();
 
