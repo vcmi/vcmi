@@ -140,8 +140,7 @@ public:
 	void realizeCurrentTransaction(); //calls callback with parameters stored in commonInfo
 	void artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst);
 	void artifactRemoved(const ArtifactLocation &al);
-	void artifactAssembled(const ArtifactLocation &al);
-	void artifactDisassembled(const ArtifactLocation &al);
+	void artifactUpdateSlots(const ArtifactLocation &al);
 	ArtPlacePtr getArtPlace(int slot);//may return null
 
 	void setHero(const CGHeroInstance * hero);

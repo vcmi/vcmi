@@ -819,13 +819,7 @@ CArtifactsOfHero::ArtPlacePtr CArtifactsOfHero::getArtPlace(int slot)
 	}
 }
 
-void CArtifactsOfHero::artifactAssembled(const ArtifactLocation &al)
-{
-	if(al.isHolder(curHero))
-		updateWornSlots();
-}
-
-void CArtifactsOfHero::artifactDisassembled(const ArtifactLocation & al)
+void CArtifactsOfHero::artifactUpdateSlots(const ArtifactLocation & al)
 {
 	if(al.isHolder(curHero))
 	{
@@ -927,7 +921,7 @@ void CWindowWithArtifacts::artifactDisassembled(const ArtifactLocation &artLoc)
 	{
 		std::shared_ptr<CArtifactsOfHero> realPtr = artSetWeak.lock();
 		if(realPtr)
-			realPtr->artifactDisassembled(artLoc);
+			realPtr->artifactUpdateSlots(artLoc);
 	}
 }
 
@@ -937,7 +931,7 @@ void CWindowWithArtifacts::artifactAssembled(const ArtifactLocation &artLoc)
 	{
 		std::shared_ptr<CArtifactsOfHero> realPtr = artSetWeak.lock();
 		if(realPtr)
-			realPtr->artifactAssembled(artLoc);
+			realPtr->artifactUpdateSlots(artLoc);
 	}
 }
 
