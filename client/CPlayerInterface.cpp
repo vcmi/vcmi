@@ -13,6 +13,7 @@
 
 #include "windows/CAdvmapInterface.h"
 #include "battle/CBattleInterface.h"
+#include "battle/CBattleFieldController.h"
 #include "battle/CBattleInterfaceClasses.h"
 #include "../CCallback.h"
 #include "windows/CCastleInterface.h"
@@ -794,8 +795,6 @@ void CPlayerInterface::battleObstaclesChanged(const std::vector<ObstacleChanges>
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BATTLE_EVENT_POSSIBLE_RETURN;
 
-	bool needUpdate = false;
-
 	for(auto & change : obstacles)
 	{
 		if(change.operation == BattleChanges::EOperation::ADD)
@@ -808,13 +807,9 @@ void CPlayerInterface::battleObstaclesChanged(const std::vector<ObstacleChanges>
 		}
 		else
 		{
-			needUpdate = true;
+			battleInt->fieldController->redrawBackgroundWithHexes(battleInt->activeStack);
 		}
 	}
-
-	if(needUpdate)
-		//update accessible hexes
-		battleInt->redrawBackgroundWithHexes(battleInt->activeStack);
 }
 
 void CPlayerInterface::battleCatapultAttacked(const CatapultAttack & ca)

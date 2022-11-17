@@ -16,6 +16,7 @@
 #include "CBattleProjectileController.h"
 #include "CBattleObstacleController.h"
 #include "CBattleSiegeController.h"
+#include "CBattleFieldController.h"
 
 #include "../CBitmapHandler.h"
 #include "../CGameInfo.h"
@@ -107,9 +108,9 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 		const CGHeroInstance *hero1, const CGHeroInstance *hero2,
 		const SDL_Rect & myRect,
 		std::shared_ptr<CPlayerInterface> att, std::shared_ptr<CPlayerInterface> defen, std::shared_ptr<CPlayerInterface> spectatorInt)
-	: background(nullptr), attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0),
-	activeStack(nullptr), mouseHoveredStack(nullptr), stackToActivate(nullptr), selectedStack(nullptr), previouslyHoveredHex(-1),
-	currentlyHoveredHex(-1), attackingHex(-1), stackCanCastSpell(false), creatureCasting(false), spellDestSelectMode(false), spellToCast(nullptr), sp(nullptr),
+	: attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0),
+	activeStack(nullptr), mouseHoveredStack(nullptr), stackToActivate(nullptr), selectedStack(nullptr),
+	stackCanCastSpell(false), creatureCasting(false), spellDestSelectMode(false), spellToCast(nullptr), sp(nullptr),
 	creatureSpellToCast(-1),
 	attackerInt(att), defenderInt(defen), curInt(att), animIDhelper(0),
 	myTurn(false), moveStarted(false), moveSoundHander(-1), bresult(nullptr), battleActionsStarted(false)
@@ -180,19 +181,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 	}
 
 	//preparing menu background and terrain
-	if(!siegeController)
-	{
-		auto bfieldType = curInt->cb->battleGetBattlefieldType();
-
-		if(bfieldType == BattleField::NONE)
-		{
-			logGlobal->error("Invalid battlefield returned for current battle");
-		}
-		else
-		{
-			background = BitmapHandler::loadBitmap(bfieldType.getInfo()->graphics, false);
-		}
-	}
+	fieldController.reset( new CBattleFieldController(this));
 
 	//preparing graphics for displaying amounts of creatures
 	amountNormal = BitmapHandler::loadBitmap("CMNUMWIN.BMP");
@@ -289,57 +278,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 			defendingHero->pos = genRect(img->height(), img->width(), pos.x + 693, pos.y - 19);
 	}
 
-
-	//preparing cells and hexes
-	cellBorder = BitmapHandler::loadBitmap("CCELLGRD.BMP");
-	CSDL_Ext::alphaTransform(cellBorder);
-	cellShade = BitmapHandler::loadBitmap("CCELLSHD.BMP");
-	CSDL_Ext::alphaTransform(cellShade);
-	for (int h = 0; h < GameConstants::BFIELD_SIZE; ++h)
-	{
-		auto hex = std::make_shared<CClickableHex>();
-		hex->myNumber = h;
-		hex->pos = hexPosition(h);
-		hex->accessible = true;
-		hex->myInterface = this;
-		bfield.push_back(hex);
-	}
-	//locking occupied positions on batlefield
-	for(const CStack * s : stacks)  //stacks gained at top of this function
-		if(s->initialPosition >= 0) //turrets have position < 0
-			bfield[s->getPosition()]->accessible = false;
-
-	//preparing graphic with cell borders
-	cellBorders = CSDL_Ext::newSurface(background->w, background->h, cellBorder);
-	//copying palette
-	for (int g=0; g<cellBorder->format->palette->ncolors; ++g) //we assume that cellBorders->format->palette->ncolors == 256
-	{
-		cellBorders->format->palette->colors[g] = cellBorder->format->palette->colors[g];
-	}
-	//palette copied
-	for (int i=0; i<GameConstants::BFIELD_HEIGHT; ++i) //rows
-	{
-		for (int j=0; j<GameConstants::BFIELD_WIDTH-2; ++j) //columns
-		{
-			int x = 58 + (i%2==0 ? 22 : 0) + 44*j;
-			int y = 86 + 42 *i;
-			for (int cellX = 0; cellX < cellBorder->w; ++cellX)
-			{
-				for (int cellY = 0; cellY < cellBorder->h; ++cellY)
-				{
-					if (y+cellY < cellBorders->h && x+cellX < cellBorders->w)
-						* ((Uint8*)cellBorders->pixels + (y+cellY) *cellBorders->pitch + (x+cellX)) |= *((Uint8*)cellBorder->pixels + cellY *cellBorder->pitch + cellX);
-				}
-			}
-		}
-	}
-
-	backgroundWithHexes = CSDL_Ext::newSurface(background->w, background->h, screen);
-
 	obstacleController.reset(new CBattleObstacleController(this));
-
-	for(auto hex : bfield)
-		addChild(hex.get());
 
 	if(tacticsMode)
 		bTacticNextStack();
@@ -374,18 +313,11 @@ CBattleInterface::~CBattleInterface()
 	{
 		deactivate();
 	}
-	SDL_FreeSurface(background);
 	SDL_FreeSurface(menu);
 	SDL_FreeSurface(amountNormal);
 	SDL_FreeSurface(amountNegative);
 	SDL_FreeSurface(amountPositive);
 	SDL_FreeSurface(amountEffNeutral);
-	SDL_FreeSurface(cellBorders);
-	SDL_FreeSurface(backgroundWithHexes);
-
-
-	SDL_FreeSurface(cellBorder);
-	SDL_FreeSurface(cellShade);
 
 	//TODO: play AI tracks if battle was during AI turn
 	//if (!curInt->makingTurn)
@@ -404,7 +336,7 @@ void CBattleInterface::setPrintCellBorders(bool set)
 	Settings cellBorders = settings.write["battle"]["cellBorders"];
 	cellBorders->Bool() = set;
 
-	redrawBackgroundWithHexes(activeStack);
+	fieldController->redrawBackgroundWithHexes(activeStack);
 	GH.totalRedraw();
 }
 
@@ -413,7 +345,7 @@ void CBattleInterface::setPrintStackRange(bool set)
 	Settings stackRange = settings.write["battle"]["stackRange"];
 	stackRange->Bool() = set;
 
-	redrawBackgroundWithHexes(activeStack);
+	fieldController->redrawBackgroundWithHexes(activeStack);
 	GH.totalRedraw();
 }
 
@@ -445,8 +377,7 @@ void CBattleInterface::activate()
 	if (defendingHero)
 		defendingHero->activate();
 
-	for (auto hex : bfield)
-		hex->activate();
+	fieldController->activate();
 
 	if (settings["battle"]["showQueue"].Bool())
 		queue->activate();
@@ -477,8 +408,7 @@ void CBattleInterface::deactivate()
 	bWait->deactivate();
 	bDefence->deactivate();
 
-	for (auto hex : bfield)
-		hex->deactivate();
+	fieldController->deactivate();
 
 	if (attackingHero)
 		attackingHero->deactivate();
@@ -525,185 +455,9 @@ void CBattleInterface::keyPressed(const SDL_KeyboardEvent & key)
 }
 void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 {
-	auto hexItr = std::find_if(bfield.begin(), bfield.end(), [](std::shared_ptr<CClickableHex> hex)
-	{
-		return hex->hovered && hex->strictHovered;
-	});
+	BattleHex selectedHex = fieldController->getHoveredHex();
 
-	handleHex(hexItr == bfield.end() ? -1 : (*hexItr)->myNumber, MOVE);
-}
-
-void CBattleInterface::setBattleCursor(const int myNumber)
-{
-	const CClickableHex & hoveredHex = *bfield[myNumber];
-	CCursorHandler *cursor = CCS->curh;
-
-	const double subdividingAngle = 2.0*M_PI/6.0; // Divide a hex into six sectors.
-	const double hexMidX = hoveredHex.pos.x + hoveredHex.pos.w/2.0;
-	const double hexMidY = hoveredHex.pos.y + hoveredHex.pos.h/2.0;
-	const double cursorHexAngle = M_PI - atan2(hexMidY - cursor->ypos, cursor->xpos - hexMidX) + subdividingAngle/2; //TODO: refactor this nightmare
-	const double sector = fmod(cursorHexAngle/subdividingAngle, 6.0);
-	const int zigzagCorrection = !((myNumber/GameConstants::BFIELD_WIDTH)%2); // Off-by-one correction needed to deal with the odd battlefield rows.
-
-	std::vector<int> sectorCursor; // From left to bottom left.
-	sectorCursor.push_back(8);
-	sectorCursor.push_back(9);
-	sectorCursor.push_back(10);
-	sectorCursor.push_back(11);
-	sectorCursor.push_back(12);
-	sectorCursor.push_back(7);
-
-	const bool doubleWide = activeStack->doubleWide();
-	bool aboveAttackable = true, belowAttackable = true;
-
-	// Exclude directions which cannot be attacked from.
-	// Check to the left.
-	if (myNumber%GameConstants::BFIELD_WIDTH <= 1 || !vstd::contains(occupyableHexes, myNumber - 1))
-	{
-		sectorCursor[0] = -1;
-	}
-	// Check top left, top right as well as above for 2-hex creatures.
-	if (myNumber/GameConstants::BFIELD_WIDTH == 0)
-	{
-			sectorCursor[1] = -1;
-			sectorCursor[2] = -1;
-			aboveAttackable = false;
-	}
-	else
-	{
-		if (doubleWide)
-		{
-			bool attackRow[4] = {true, true, true, true};
-
-			if (myNumber%GameConstants::BFIELD_WIDTH <= 1 || !vstd::contains(occupyableHexes, myNumber - GameConstants::BFIELD_WIDTH - 2 + zigzagCorrection))
-				attackRow[0] = false;
-			if (!vstd::contains(occupyableHexes, myNumber - GameConstants::BFIELD_WIDTH - 1 + zigzagCorrection))
-				attackRow[1] = false;
-			if (!vstd::contains(occupyableHexes, myNumber - GameConstants::BFIELD_WIDTH + zigzagCorrection))
-				attackRow[2] = false;
-			if (myNumber%GameConstants::BFIELD_WIDTH >= GameConstants::BFIELD_WIDTH - 2 || !vstd::contains(occupyableHexes, myNumber - GameConstants::BFIELD_WIDTH + 1 + zigzagCorrection))
-				attackRow[3] = false;
-
-			if (!(attackRow[0] && attackRow[1]))
-				sectorCursor[1] = -1;
-			if (!(attackRow[1] && attackRow[2]))
-				aboveAttackable = false;
-			if (!(attackRow[2] && attackRow[3]))
-				sectorCursor[2] = -1;
-		}
-		else
-		{
-			if (!vstd::contains(occupyableHexes, myNumber - GameConstants::BFIELD_WIDTH - 1 + zigzagCorrection))
-				sectorCursor[1] = -1;
-			if (!vstd::contains(occupyableHexes, myNumber - GameConstants::BFIELD_WIDTH + zigzagCorrection))
-				sectorCursor[2] = -1;
-		}
-	}
-	// Check to the right.
-	if (myNumber%GameConstants::BFIELD_WIDTH >= GameConstants::BFIELD_WIDTH - 2 || !vstd::contains(occupyableHexes, myNumber + 1))
-	{
-		sectorCursor[3] = -1;
-	}
-	// Check bottom right, bottom left as well as below for 2-hex creatures.
-	if (myNumber/GameConstants::BFIELD_WIDTH == GameConstants::BFIELD_HEIGHT - 1)
-	{
-		sectorCursor[4] = -1;
-		sectorCursor[5] = -1;
-		belowAttackable = false;
-	}
-	else
-	{
-		if (doubleWide)
-		{
-			bool attackRow[4] = {true, true, true, true};
-
-			if (myNumber%GameConstants::BFIELD_WIDTH <= 1 || !vstd::contains(occupyableHexes, myNumber + GameConstants::BFIELD_WIDTH - 2 + zigzagCorrection))
-				attackRow[0] = false;
-			if (!vstd::contains(occupyableHexes, myNumber + GameConstants::BFIELD_WIDTH - 1 + zigzagCorrection))
-				attackRow[1] = false;
-			if (!vstd::contains(occupyableHexes, myNumber + GameConstants::BFIELD_WIDTH + zigzagCorrection))
-				attackRow[2] = false;
-			if (myNumber%GameConstants::BFIELD_WIDTH >= GameConstants::BFIELD_WIDTH - 2 || !vstd::contains(occupyableHexes, myNumber + GameConstants::BFIELD_WIDTH + 1 + zigzagCorrection))
-				attackRow[3] = false;
-
-			if (!(attackRow[0] && attackRow[1]))
-				sectorCursor[5] = -1;
-			if (!(attackRow[1] && attackRow[2]))
-				belowAttackable = false;
-			if (!(attackRow[2] && attackRow[3]))
-				sectorCursor[4] = -1;
-		}
-		else
-		{
-			if (!vstd::contains(occupyableHexes, myNumber + GameConstants::BFIELD_WIDTH + zigzagCorrection))
-				sectorCursor[4] = -1;
-			if (!vstd::contains(occupyableHexes, myNumber + GameConstants::BFIELD_WIDTH - 1 + zigzagCorrection))
-				sectorCursor[5] = -1;
-		}
-	}
-
-	// Determine index from sector.
-	int cursorIndex;
-	if (doubleWide)
-	{
-		sectorCursor.insert(sectorCursor.begin() + 5, belowAttackable ? 13 : -1);
-		sectorCursor.insert(sectorCursor.begin() + 2, aboveAttackable ? 14 : -1);
-
-		if (sector < 1.5)
-			cursorIndex = static_cast<int>(sector);
-		else if (sector >= 1.5 && sector < 2.5)
-			cursorIndex = 2;
-		else if (sector >= 2.5 && sector < 4.5)
-			cursorIndex = (int) sector + 1;
-		else if (sector >= 4.5 && sector < 5.5)
-			cursorIndex = 6;
-		else
-			cursorIndex = (int) sector + 2;
-	}
-	else
-	{
-		cursorIndex = static_cast<int>(sector);
-	}
-
-	// Generally should NEVER happen, but to avoid the possibility of having endless loop below... [#1016]
-	if (!vstd::contains_if (sectorCursor, [](int sc) { return sc != -1; }))
-	{
-		logGlobal->error("Error: for hex %d cannot find a hex to attack from!", myNumber);
-		attackingHex = -1;
-		return;
-	}
-
-	// Find the closest direction attackable, starting with the right one.
-	// FIXME: Is this really how the original H3 client does it?
-	int i = 0;
-	while (sectorCursor[(cursorIndex + i)%sectorCursor.size()] == -1) //Why hast thou forsaken me?
-		i = i <= 0 ? 1 - i : -i; // 0, 1, -1, 2, -2, 3, -3 etc..
-	int index = (cursorIndex + i)%sectorCursor.size(); //hopefully we get elements from sectorCursor
-	cursor->changeGraphic(ECursor::COMBAT, sectorCursor[index]);
-	switch (index)
-	{
-		case 0:
-			attackingHex = myNumber - 1; //left
-			break;
-		case 1:
-			attackingHex = myNumber - GameConstants::BFIELD_WIDTH - 1 + zigzagCorrection; //top left
-			break;
-		case 2:
-			attackingHex = myNumber - GameConstants::BFIELD_WIDTH + zigzagCorrection; //top right
-			break;
-		case 3:
-			attackingHex = myNumber + 1; //right
-			break;
-		case 4:
-			attackingHex = myNumber + GameConstants::BFIELD_WIDTH + zigzagCorrection; //bottom right
-			break;
-		case 5:
-			attackingHex = myNumber + GameConstants::BFIELD_WIDTH - 1 + zigzagCorrection; //bottom left
-			break;
-	}
-	BattleHex hex(attackingHex);
-	if (!hex.isValid())
-		attackingHex = -1;
+	handleHex(selectedHex, MOVE);
 }
 
 void CBattleInterface::clickRight(tribool down, bool previousState)
@@ -949,7 +703,7 @@ void CBattleInterface::stackRemoved(uint32_t stackID)
 
 	//todo: ensure that ghost stack animation has fadeout effect
 
-	redrawBackgroundWithHexes(activeStack);
+	fieldController->redrawBackgroundWithHexes(activeStack);
 	queue->update();
 }
 
@@ -1076,17 +830,6 @@ void CBattleInterface::sendCommand(BattleAction *& command, const CStack * actor
 		//next stack will be activated when action ends
 	}
 }
-
-bool CBattleInterface::isTileAttackable(const BattleHex & number) const
-{
-	for (auto & elem : occupyableHexes)
-	{
-		if (BattleHex::mutualPosition(elem, number) != -1 || elem == number)
-			return true;
-	}
-	return false;
-}
-
 
 const CGHeroInstance * CBattleInterface::getActiveHero()
 {
@@ -1254,7 +997,7 @@ void CBattleInterface::spellCast(const BattleSpellCast * sc)
 void CBattleInterface::battleStacksEffectsSet(const SetStackEffect & sse)
 {
 	if(activeStack != nullptr)
-		redrawBackgroundWithHexes(activeStack);
+		fieldController->redrawBackgroundWithHexes(activeStack);
 }
 
 void CBattleInterface::setHeroAnimation(ui8 side, int phase)
@@ -1491,7 +1234,7 @@ void CBattleInterface::activateStack()
 		return;
 
 	queue->update();
-	redrawBackgroundWithHexes(activeStack);
+	fieldController->redrawBackgroundWithHexes(activeStack);
 
 	//set casting flag to true if creature can use it to not check it every time
 	const auto spellcaster = s->getBonusLocalFirst(Selector::type()(Bonus::SPELLCASTER)),
@@ -1691,7 +1434,7 @@ void CBattleInterface::endAction(const BattleAction* action)
 		bTacticNextStack(stack);
 
 	if(action->actionType == EActionType::HERO_SPELL) //we have activated next stack after sending request that has been just realized -> blockmap due to movement has changed
-		redrawBackgroundWithHexes(activeStack);
+		fieldController->redrawBackgroundWithHexes(activeStack);
 
 	if (activeStack && !animsAreDisplayed.get() && pendingAnims.empty() && !active)
 	{
@@ -1989,10 +1732,10 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 			{
 				if(curInt->cb->battleCanAttack(activeStack, shere, myNumber))
 				{
-					if (isTileAttackable(myNumber)) // move isTileAttackable to be part of battleCanAttack?
+					if (fieldController->isTileAttackable(myNumber)) // move isTileAttackable to be part of battleCanAttack?
 					{
-						setBattleCursor(myNumber); // temporary - needed for following function :(
-						BattleHex attackFromHex = fromWhichHexAttack(myNumber);
+						fieldController->setBattleCursor(myNumber); // temporary - needed for following function :(
+						BattleHex attackFromHex = fieldController->fromWhichHexAttack(myNumber);
 
 						if (attackFromHex >= 0) //we can be in this line when unreachable creature is L - clicked (as of revision 1308)
 							legalAction = true;
@@ -2154,14 +1897,14 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 			case PossiblePlayerBattleAction::WALK_AND_ATTACK:
 			case PossiblePlayerBattleAction::ATTACK_AND_RETURN: //TODO: allow to disable return
 				{
-					setBattleCursor(myNumber); //handle direction of cursor and attackable tile
+					fieldController->setBattleCursor(myNumber); //handle direction of cursor and attackable tile
 					setCursor = false; //don't overwrite settings from the call above //TODO: what does it mean?
 
 					bool returnAfterAttack = currentAction == PossiblePlayerBattleAction::ATTACK_AND_RETURN;
 
 					realizeAction = [=]()
 					{
-						BattleHex attackFromHex = fromWhichHexAttack(myNumber);
+						BattleHex attackFromHex = fieldController->fromWhichHexAttack(myNumber);
 						if(attackFromHex.isValid()) //we can be in this line when unreachable creature is L - clicked (as of revision 1308)
 						{
 							auto command = new BattleAction(BattleAction::makeMeleeAttack(activeStack, myNumber, attackFromHex, returnAfterAttack));
@@ -2426,163 +2169,6 @@ bool CBattleInterface::isCastingPossibleHere(const CStack *sactive, const CStack
 	return isCastingPossible;
 }
 
-BattleHex CBattleInterface::fromWhichHexAttack(BattleHex myNumber)
-{
-	//TODO far too much repeating code
-	BattleHex destHex;
-	switch(CCS->curh->frame)
-	{
-	case 12: //from bottom right
-		{
-			bool doubleWide = activeStack->doubleWide();
-			destHex = myNumber + ( (myNumber/GameConstants::BFIELD_WIDTH)%2 ? GameConstants::BFIELD_WIDTH : GameConstants::BFIELD_WIDTH+1 ) +
-				(activeStack->side == BattleSide::ATTACKER && doubleWide ? 1 : 0);
-			if(vstd::contains(occupyableHexes, destHex))
-				return destHex;
-			else if(activeStack->side == BattleSide::ATTACKER)
-			{
-				if (vstd::contains(occupyableHexes, destHex+1))
-					return destHex+1;
-			}
-			else //if we are defender
-			{
-				if(vstd::contains(occupyableHexes, destHex-1))
-					return destHex-1;
-			}
-			break;
-		}
-	case 7: //from bottom left
-		{
-			destHex = myNumber + ( (myNumber/GameConstants::BFIELD_WIDTH)%2 ? GameConstants::BFIELD_WIDTH-1 : GameConstants::BFIELD_WIDTH );
-			if (vstd::contains(occupyableHexes, destHex))
-				return destHex;
-			else if(activeStack->side == BattleSide::ATTACKER)
-			{
-				if(vstd::contains(occupyableHexes, destHex+1))
-					return destHex+1;
-			}
-			else //we are defender
-			{
-				if(vstd::contains(occupyableHexes, destHex-1))
-					return destHex-1;
-			}
-			break;
-		}
-	case 8: //from left
-		{
-			if(activeStack->doubleWide() && activeStack->side == BattleSide::DEFENDER)
-			{
-				std::vector<BattleHex> acc = curInt->cb->battleGetAvailableHexes(activeStack);
-				if (vstd::contains(acc, myNumber))
-					return myNumber - 1;
-				else
-					return myNumber - 2;
-			}
-			else
-			{
-				return myNumber - 1;
-			}
-			break;
-		}
-	case 9: //from top left
-		{
-			destHex = myNumber - ((myNumber/GameConstants::BFIELD_WIDTH) % 2 ? GameConstants::BFIELD_WIDTH + 1 : GameConstants::BFIELD_WIDTH);
-			if(vstd::contains(occupyableHexes, destHex))
-				return destHex;
-			else if(activeStack->side == BattleSide::ATTACKER)
-			{
-				if(vstd::contains(occupyableHexes, destHex+1))
-					return destHex+1;
-			}
-			else //if we are defender
-			{
-				if(vstd::contains(occupyableHexes, destHex-1))
-					return destHex-1;
-			}
-			break;
-		}
-	case 10: //from top right
-		{
-			bool doubleWide = activeStack->doubleWide();
-			destHex = myNumber - ( (myNumber/GameConstants::BFIELD_WIDTH)%2 ? GameConstants::BFIELD_WIDTH : GameConstants::BFIELD_WIDTH-1 ) +
-				(activeStack->side == BattleSide::ATTACKER && doubleWide ? 1 : 0);
-			if(vstd::contains(occupyableHexes, destHex))
-				return destHex;
-			else if(activeStack->side == BattleSide::ATTACKER)
-			{
-				if(vstd::contains(occupyableHexes, destHex+1))
-					return destHex+1;
-			}
-			else //if we are defender
-			{
-				if(vstd::contains(occupyableHexes, destHex-1))
-					return destHex-1;
-			}
-			break;
-		}
-	case 11: //from right
-		{
-			if(activeStack->doubleWide() && activeStack->side == BattleSide::ATTACKER)
-			{
-				std::vector<BattleHex> acc = curInt->cb->battleGetAvailableHexes(activeStack);
-				if(vstd::contains(acc, myNumber))
-					return myNumber + 1;
-				else
-					return myNumber + 2;
-			}
-			else
-			{
-				return myNumber + 1;
-			}
-			break;
-		}
-	case 13: //from bottom
-		{
-			destHex = myNumber + ( (myNumber/GameConstants::BFIELD_WIDTH)%2 ? GameConstants::BFIELD_WIDTH : GameConstants::BFIELD_WIDTH+1 );
-			if(vstd::contains(occupyableHexes, destHex))
-				return destHex;
-			else if(activeStack->side == BattleSide::ATTACKER)
-			{
-				if(vstd::contains(occupyableHexes, destHex+1))
-					return destHex+1;
-			}
-			else //if we are defender
-			{
-				if(vstd::contains(occupyableHexes, destHex-1))
-					return destHex-1;
-			}
-			break;
-		}
-	case 14: //from top
-		{
-			destHex = myNumber - ( (myNumber/GameConstants::BFIELD_WIDTH)%2 ? GameConstants::BFIELD_WIDTH : GameConstants::BFIELD_WIDTH-1 );
-			if (vstd::contains(occupyableHexes, destHex))
-				return destHex;
-			else if(activeStack->side == BattleSide::ATTACKER)
-			{
-				if(vstd::contains(occupyableHexes, destHex+1))
-					return destHex+1;
-			}
-			else //if we are defender
-			{
-				if(vstd::contains(occupyableHexes, destHex-1))
-					return destHex-1;
-			}
-			break;
-		}
-	}
-	return -1;
-}
-
-Rect CBattleInterface::hexPosition(BattleHex hex) const
-{
-	int x = 14 + ((hex.getY())%2==0 ? 22 : 0) + 44*hex.getX() + pos.x;
-	int y = 86 + 42 *hex.getY() + pos.y;
-	int w = cellShade->w;
-	int h = cellShade->h;
-	return Rect(x, y, w, h);
-}
-
 void CBattleInterface::obstaclePlaced(const CObstacleInstance & oi)
 {
 	obstacleController->obstaclePlaced(oi);
@@ -2662,7 +2248,20 @@ void CBattleInterface::show(SDL_Surface *to)
 
 	++animCount;
 
-	showBackground(to);
+	if (activeStack != nullptr && creAnims[activeStack->ID]->isIdle()) //show everything with range
+	{
+		// FIXME: any *real* reason to keep this separate? Speed difference can't be that big
+		fieldController->showBackgroundImageWithHexes(to);
+	}
+	else
+	{
+		fieldController->showBackgroundImage(to);
+		obstacleController->showAbsoluteObstacles(to);
+		if ( siegeController )
+			siegeController->showAbsoluteObstacles(to);
+	}
+	fieldController->showHighlightedHexes(to);
+
 	showBattlefieldObjects(to);
 	projectilesController->showProjectiles(to);
 
@@ -2682,126 +2281,6 @@ void CBattleInterface::show(SDL_Surface *to)
 		// so we can't continue drawing with old setting.
 		show(to);
 	}
-}
-
-void CBattleInterface::showBackground(SDL_Surface *to)
-{
-	if (activeStack != nullptr && creAnims[activeStack->ID]->isIdle()) //show everything with range
-	{
-		// FIXME: any *real* reason to keep this separate? Speed difference can't be that big
-		blitAt(backgroundWithHexes, pos.x, pos.y, to);
-	}
-	else
-	{
-		showBackgroundImage(to);
-		obstacleController->showAbsoluteObstacles(to);
-		if ( siegeController )
-			siegeController->showAbsoluteObstacles(to);
-	}
-	showHighlightedHexes(to);
-}
-
-void CBattleInterface::showBackgroundImage(SDL_Surface *to)
-{
-	blitAt(background, pos.x, pos.y, to);
-	if (settings["battle"]["cellBorders"].Bool())
-	{
-		CSDL_Ext::blit8bppAlphaTo24bpp(cellBorders, nullptr, to, &pos);
-	}
-}
-
-
-void CBattleInterface::showHighlightedHexes(SDL_Surface *to)
-{
-	bool delayedBlit = false; //workaround for blitting enemy stack hex without mouse shadow with stack range on
-	if(activeStack && settings["battle"]["stackRange"].Bool())
-	{
-		std::set<BattleHex> set = curInt->cb->battleGetAttackedHexes(activeStack, currentlyHoveredHex, attackingHex);
-		for(BattleHex hex : set)
-			if(hex != currentlyHoveredHex)
-				showHighlightedHex(to, hex);
-
-		// display the movement shadow of the stack at b (i.e. stack under mouse)
-		const CStack * const shere = curInt->cb->battleGetStackByPos(currentlyHoveredHex, false);
-		if(shere && shere != activeStack && shere->alive())
-		{
-			std::vector<BattleHex> v = curInt->cb->battleGetAvailableHexes(shere, true, nullptr);
-			for(BattleHex hex : v)
-			{
-				if(hex != currentlyHoveredHex)
-					showHighlightedHex(to, hex);
-				else if(!settings["battle"]["mouseShadow"].Bool())
-					delayedBlit = true; //blit at the end of method to avoid graphic artifacts
-				else
-					showHighlightedHex(to, hex, true); //blit now and blit 2nd time later for darker shadow - avoids graphic artifacts
-			}
-		}
-	}
-
-	for(int b=0; b<GameConstants::BFIELD_SIZE; ++b)
-	{
-		if(bfield[b]->strictHovered && bfield[b]->hovered)
-		{
-			if(previouslyHoveredHex == -1)
-				previouslyHoveredHex = b; //something to start with
-			if(currentlyHoveredHex == -1)
-				currentlyHoveredHex = b; //something to start with
-
-			if(currentlyHoveredHex != b) //repair hover info
-			{
-				previouslyHoveredHex = currentlyHoveredHex;
-				currentlyHoveredHex = b;
-			}
-			if(settings["battle"]["mouseShadow"].Bool() || delayedBlit)
-			{
-				const spells::Caster *caster = nullptr;
-				const CSpell *spell = nullptr;
-
-				spells::Mode mode = spells::Mode::HERO;
-
-				if(spellToCast)//hero casts spell
-				{
-					spell = SpellID(spellToCast->actionSubtype).toSpell();
-					caster = getActiveHero();
-				}
-				else if(creatureSpellToCast >= 0 && stackCanCastSpell && creatureCasting)//stack casts spell
-				{
-					spell = SpellID(creatureSpellToCast).toSpell();
-					caster = activeStack;
-					mode = spells::Mode::CREATURE_ACTIVE;
-				}
-
-				if(caster && spell) //when casting spell
-				{
-					// printing shaded hex(es)
-					spells::BattleCast event(curInt->cb.get(), caster, mode, spell);
-					auto shaded = spell->battleMechanics(&event)->rangeInHexes(currentlyHoveredHex);
-
-					for(BattleHex shadedHex : shaded)
-					{
-						if((shadedHex.getX() != 0) && (shadedHex.getX() != GameConstants::BFIELD_WIDTH - 1))
-							showHighlightedHex(to, shadedHex, true);
-					}
-				}
-				else if(active || delayedBlit) //always highlight pointed hex, keep this condition last in this method for correct behavior
-				{
-					if(currentlyHoveredHex.getX() != 0
-					 && currentlyHoveredHex.getX() != GameConstants::BFIELD_WIDTH - 1)
-						showHighlightedHex(to, currentlyHoveredHex, true); //keep true for OH3 behavior: hovered hex frame "thinner"
-				}
-			}
-		}
-	}
-}
-
-void CBattleInterface::showHighlightedHex(SDL_Surface *to, BattleHex hex, bool darkBorder)
-{
-	int x = 14 + (hex.getY() % 2 == 0 ? 22 : 0) + 44 *(hex.getX()) + pos.x;
-	int y = 86 + 42 *hex.getY() + pos.y;
-	SDL_Rect temp_rect = genRect (cellShade->h, cellShade->w, x, y);
-	CSDL_Ext::blit8bppAlphaTo24bpp (cellShade, nullptr, to, &temp_rect);
-	if(!darkBorder && settings["battle"]["cellBorders"].Bool())
-		CSDL_Ext::blit8bppAlphaTo24bpp(cellBorder, nullptr, to, &temp_rect); //redraw border to make it light green instead of shaded
 }
 
 void CBattleInterface::showBattlefieldObjects(SDL_Surface *to)
@@ -2915,7 +2394,7 @@ void CBattleInterface::showAliveStacks(SDL_Surface *to, std::vector<const CStack
 			const int reverseSideShift = stack->side == BattleSide::ATTACKER ? -1 : 1;
 			const BattleHex nextPos = stack->getPosition() + sideShift;
 			const bool edge = stack->getPosition() % GameConstants::BFIELD_WIDTH == (stack->side == BattleSide::ATTACKER ? GameConstants::BFIELD_WIDTH - 2 : 1);
-			const bool moveInside = !edge && !stackCountOutsideHexes[nextPos];
+			const bool moveInside = !edge && !fieldController->stackCountOutsideHex(nextPos);
 			int xAdd = (stack->side == BattleSide::ATTACKER ? 220 : 202) +
 					   (stack->doubleWide() ? 44 : 0) * sideShift +
 					   (moveInside ? amountNormal->w + 10 : 0) * reverseSideShift;
@@ -3120,44 +2599,3 @@ void CBattleInterface::updateBattleAnimations()
 		animsAreDisplayed.setn(false);
 	}
 }
-
-void CBattleInterface::redrawBackgroundWithHexes(const CStack *activeStack)
-{
-	attackableHexes.clear();
-	if (activeStack)
-		occupyableHexes = curInt->cb->battleGetAvailableHexes(activeStack, true, &attackableHexes);
-
-	auto fillStackCountOutsideHexes = [&]()
-	{
-		auto accessibility = curInt->cb->getAccesibility();
-
-		for(int i = 0; i < accessibility.size(); i++)
-			stackCountOutsideHexes.at(i) = (accessibility[i] == EAccessibility::ACCESSIBLE);
-	};
-
-	fillStackCountOutsideHexes();
-
-	//prepare background graphic with hexes and shaded hexes
-	blitAt(background, 0, 0, backgroundWithHexes);
-
-	obstacleController->redrawBackgroundWithHexes();
-
-	if (settings["battle"]["stackRange"].Bool())
-	{
-		std::vector<BattleHex> hexesToShade = occupyableHexes;
-		hexesToShade.insert(hexesToShade.end(), attackableHexes.begin(), attackableHexes.end());
-		for (BattleHex hex : hexesToShade)
-		{
-			int i = hex.getY(); //row
-			int j = hex.getX()-1; //column
-			int x = 58 + (i%2==0 ? 22 : 0) + 44*j;
-			int y = 86 + 42 *i;
-			SDL_Rect temp_rect = genRect(cellShade->h, cellShade->w, x, y);
-			CSDL_Ext::blit8bppAlphaTo24bpp(cellShade, nullptr, backgroundWithHexes, &temp_rect);
-		}
-	}
-
-	if(settings["battle"]["cellBorders"].Bool())
-		CSDL_Ext::blit8bppAlphaTo24bpp(cellBorders, nullptr, backgroundWithHexes, nullptr);
-}
-

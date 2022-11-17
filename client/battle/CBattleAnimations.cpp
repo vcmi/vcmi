@@ -16,6 +16,7 @@
 #include "CBattleInterface.h"
 #include "CBattleProjectileController.h"
 #include "CBattleSiegeController.h"
+#include "CBattleFieldController.h"
 #include "CCreatureAnimation.h"
 
 #include "../CGameInfo.h"
@@ -1056,7 +1057,7 @@ bool CEffectAnimation::init()
 		be.y = y;
 		if(destTile.isValid())
 		{
-			Rect & tilePos = owner->bfield[destTile]->pos;
+			Rect tilePos = owner->fieldController->hexPosition(destTile);
 			if(x == -1)
 				be.x = tilePos.x + tilePos.w/2 - first->width()/2;
 			if(y == -1)

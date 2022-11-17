@@ -30,6 +30,9 @@ CBattleSiegeController::~CBattleSiegeController()
 		if (g != EWallVisual::GATE || (gateState != EGateState::NONE && gateState != EGateState::CLOSED && gateState != EGateState::BLOCKED))
 			SDL_FreeSurface(walls[g]);
 	}
+
+	SDL_FreeSurface(moatSurface);
+	SDL_FreeSurface(mlipSurface);
 }
 
 std::string CBattleSiegeController::getSiegeName(ui16 what) const
@@ -144,31 +147,19 @@ void CBattleSiegeController::printPartOfWall(SDL_Surface *to, int what)
 	}
 }
 
+std::string CBattleSiegeController::getBattleBackgroundName()
+{
+	return getSiegeName(0);
+}
 
 CBattleSiegeController::CBattleSiegeController(CBattleInterface * owner, const CGTownInstance *siegeTown):
 	owner(owner),
 	town(siegeTown)
 {
-	owner->background = BitmapHandler::loadBitmap( getSiegeName(0), false );
-	ui8 siegeLevel = owner->curInt->cb->battleGetSiegeLevel();
-	if (siegeLevel >= 2) //citadel or castle
-	{
-		//print moat/mlip
-		SDL_Surface *moat = BitmapHandler::loadBitmap( getSiegeName(13) ),
-			* mlip = BitmapHandler::loadBitmap( getSiegeName(14) );
+	assert(owner->fieldController.get() == nullptr); // must be created after this
 
-		auto & info = town->town->clientInfo;
-		Point moatPos(info.siegePositions[13].x, info.siegePositions[13].y);
-		Point mlipPos(info.siegePositions[14].x, info.siegePositions[14].y);
-
-		if (moat) //eg. tower has no moat
-			blitAt(moat, moatPos.x,moatPos.y, owner->background);
-		if (mlip) //eg. tower has no mlip
-			blitAt(mlip, mlipPos.x, mlipPos.y, owner->background);
-
-		SDL_FreeSurface(moat);
-		SDL_FreeSurface(mlip);
-	}
+	moatSurface = BitmapHandler::loadBitmap( getSiegeName(13) );
+	mlipSurface = BitmapHandler::loadBitmap( getSiegeName(14) );
 
 	for (int g = 0; g < ARRAY_COUNT(walls); ++g)
 	{
@@ -247,13 +238,26 @@ void CBattleSiegeController::gateStateChanged(const EGateState state)
 
 void CBattleSiegeController::showAbsoluteObstacles(SDL_Surface * to)
 {
-	if (town->hasBuilt(BuildingID::CITADEL))
+	ui8 siegeLevel = owner->curInt->cb->battleGetSiegeLevel();
+	if (siegeLevel >= 2) //citadel or castle
+	{
+		//print moat/mlip
+
+		auto & info = town->town->clientInfo;
+		Point moatPos(info.siegePositions[13].x, info.siegePositions[13].y);
+		Point mlipPos(info.siegePositions[14].x, info.siegePositions[14].y);
+
+		if (moatSurface) //eg. tower has no moat
+			blitAt(moatSurface, moatPos.x + owner->pos.x, moatPos.y  + owner->pos.y, to);
+		if (mlipSurface) //eg. tower has no mlip
+			blitAt(mlipSurface, mlipPos.x + owner->pos.x, mlipPos.y + owner->pos.y, to);
+
 		printPartOfWall(to, EWallVisual::BACKGROUND_MOAT);
+	}
 }
 
 void CBattleSiegeController::sortObjectsByHex(BattleObjectsByHex & sorted)
 {
-
 	sorted.beforeAll.walls.push_back(EWallVisual::BACKGROUND_WALL);
 	sorted.hex[135].walls.push_back(EWallVisual::KEEP);
 	sorted.afterAll.walls.push_back(EWallVisual::BOTTOM_TOWER);

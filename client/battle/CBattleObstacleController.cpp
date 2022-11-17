@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "CBattleObstacleController.h"
 #include "CBattleInterface.h"
+#include "CBattleFieldController.h"
 #include "../CPlayerInterface.h"
 #include "../../CCallback.h"
 #include "../../lib/battle/CObstacleInstance.h"
@@ -194,13 +195,13 @@ Point CBattleObstacleController::getObstaclePosition(std::shared_ptr<IImage> ima
 {
 	int offset = obstacle.getAnimationYOffset(image->height());
 
-	Rect r = owner->hexPosition(obstacle.pos);
+	Rect r = owner->fieldController->hexPosition(obstacle.pos);
 	r.y += 42 - image->height() + offset;
 
 	return r.topLeft();
 }
 
-void CBattleObstacleController::redrawBackgroundWithHexes()
+void CBattleObstacleController::redrawBackgroundWithHexes(SDL_Surface * to)
 {
 	//draw absolute obstacles (cliffs and so on)
 	for(auto & oi : owner->curInt->cb->battleGetAllObstacles())
@@ -209,7 +210,7 @@ void CBattleObstacleController::redrawBackgroundWithHexes()
 		{
 			auto img = getObstacleImage(*oi);
 			if(img)
-				img->draw(owner->backgroundWithHexes, oi->getInfo().width, oi->getInfo().height);
+				img->draw(to, oi->getInfo().width, oi->getInfo().height);
 		}
 	}
 }

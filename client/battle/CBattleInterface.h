@@ -61,6 +61,7 @@ class IImage;
 class CBattleProjectileController;
 class CBattleSiegeController;
 class CBattleObstacleController;
+class CBattleFieldController;
 
 /// Small struct which contains information about the id of the attacked stack, the damage dealt,...
 struct StackAttackedInfo
@@ -117,7 +118,7 @@ enum class MouseHoveredHexContext
 class CBattleInterface : public WindowBase
 {
 private:
-	SDL_Surface *background, *menu, *amountNormal, *amountNegative, *amountPositive, *amountEffNeutral, *cellBorders, *backgroundWithHexes;
+	SDL_Surface *menu, *amountNormal, *amountNegative, *amountPositive, *amountEffNeutral;
 
 	std::shared_ptr<CButton> bOptions;
 	std::shared_ptr<CButton> bSurrender;
@@ -147,12 +148,6 @@ private:
 	const CStack *stackToActivate; //when animation is playing, we should wait till the end to make the next stack active; nullptr of none
 	const CStack *selectedStack; //for Teleport / Sacrifice
 	void activateStack(); //sets activeStack to stackToActivate etc. //FIXME: No, it's not clear at all
-	std::vector<BattleHex> occupyableHexes, //hexes available for active stack
-		attackableHexes; //hexes attackable by active stack
-	std::array<bool, GameConstants::BFIELD_SIZE> stackCountOutsideHexes; // hexes that when in front of a unit cause it's amount box to move back
-	BattleHex previouslyHoveredHex; //number of hex that was hovered by the cursor a while ago
-	BattleHex currentlyHoveredHex; //number of hex that is supposed to be hovered (for a while it may be inappropriately set, but will be renewed soon)
-	int attackingHex; //hex from which the stack would perform attack with current cursor
 
 	std::shared_ptr<CPlayerInterface> tacticianInterface; //used during tactics mode, points to the interface of player with higher tactics (can be either attacker or defender in hot-seat), valid onloy for human players
 	bool tacticsMode;
@@ -186,8 +181,6 @@ private:
 	void giveCommand(EActionType action, BattleHex tile = BattleHex(), si32 additional = -1);
 	void sendCommand(BattleAction *& command, const CStack * actor = nullptr);
 
-	bool isTileAttackable(const BattleHex & number) const; //returns true if tile 'number' is neighboring any tile from active stack's range or is one of these tiles
-
 	std::list<BattleEffect> battleEffects; //different animations to display on the screen like spell effects
 
 	std::shared_ptr<CPlayerInterface> attackerInt, defenderInt; //because LOCPLINT is not enough in hotSeat
@@ -195,11 +188,6 @@ private:
 	const CGHeroInstance *getActiveHero(); //returns hero that can currently cast a spell
 
 	/** Methods for displaying battle screen */
-	void showBackground(SDL_Surface *to);
-
-	void showBackgroundImage(SDL_Surface *to);
-	void showHighlightedHexes(SDL_Surface *to);
-	void showHighlightedHex(SDL_Surface *to, BattleHex hex, bool darkBorder = false);
 	void showInterface(SDL_Surface *to);
 
 	void showBattlefieldObjects(SDL_Surface *to);
@@ -212,7 +200,6 @@ private:
 	BattleObjectsByHex sortObjectsByHex();
 	void updateBattleAnimations();
 
-	void redrawBackgroundWithHexes(const CStack *activeStack);
 	/** End of battle screen blitting methods */
 
 	void setHeroAnimation(ui8 side, int phase);
@@ -220,6 +207,7 @@ public:
 	std::unique_ptr<CBattleProjectileController> projectilesController;
 	std::unique_ptr<CBattleSiegeController> siegeController;
 	std::unique_ptr<CBattleObstacleController> obstacleController;
+	std::unique_ptr<CBattleFieldController> fieldController;
 
 	static CondSh<bool> animsAreDisplayed; //for waiting with the end of battle for end of anims
 	static CondSh<BattleAction *> givenCommand; //data != nullptr if we have i.e. moved current unit
@@ -240,9 +228,6 @@ public:
 	int getAnimSpeed() const; //speed of animation; range 1..100
 	CPlayerInterface *getCurrentPlayerInterface() const;
 	bool shouldRotate(const CStack * stack, const BattleHex & oldPos, const BattleHex & nextHex);
-
-	std::vector<std::shared_ptr<CClickableHex>> bfield; //11 lines, 17 hexes on each
-	SDL_Surface *cellBorder, *cellShade;
 
 	bool myTurn; //if true, interface is active (commands can be ordered)
 
@@ -310,18 +295,14 @@ public:
 	void displaySpellHit(SpellID spellID, BattleHex destinationTile); //displays spell`s affected animation
 
 	void battleTriggerEffect(const BattleTriggerEffect & bte);
-	void setBattleCursor(const int myNumber); //really complex and messy, sets attackingHex
 	void endAction(const BattleAction* action);
 	void hideQueue();
 	void showQueue();
-
-	Rect hexPosition(BattleHex hex) const;
 
 	void handleHex(BattleHex myNumber, int eventType);
 	bool isCastingPossibleHere (const CStack *sactive, const CStack *shere, BattleHex myNumber);
 	bool canStackMoveHere (const CStack *sactive, BattleHex MyNumber); //TODO: move to BattleState / callback
 
-	BattleHex fromWhichHexAttack(BattleHex myNumber);
 	void obstaclePlaced(const CObstacleInstance & oi);
 
 	void gateStateChanged(const EGateState state);
@@ -350,4 +331,5 @@ public:
 	friend class CBattleProjectileController;
 	friend class CBattleSiegeController;
 	friend class CBattleObstacleController;
+	friend class CBattleFieldController;
 };

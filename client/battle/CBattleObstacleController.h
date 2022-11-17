@@ -37,5 +37,5 @@ public:
 
 	Point getObstaclePosition(std::shared_ptr<IImage> image, const CObstacleInstance & obstacle);
 
-	void redrawBackgroundWithHexes();
+	void redrawBackgroundWithHexes(SDL_Surface * to);
 };

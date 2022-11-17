@@ -138,7 +138,7 @@ private:
 	bool setAlterText; //if true, this hex has set alternative text in console and will clean it
 public:
 	ui32 myNumber; //number of hex in commonly used format
-	bool accessible; //if true, this hex is accessible for units
+	//bool accessible; //if true, this hex is accessible for units
 	//CStack * ourStack;
 	bool strictHovered; //for determining if hex is hovered by mouse (this is different problem than hex's graphic hovering)
 	CBattleInterface * myInterface; //interface that owns me

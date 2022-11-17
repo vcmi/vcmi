@@ -12,6 +12,7 @@
 
 #include "CBattleInterface.h"
 #include "CBattleSiegeController.h"
+#include "CBattleFieldController.h"
 
 #include "../CBitmapHandler.h"
 #include "../CGameInfo.h"
@@ -206,11 +207,11 @@ void CBattleHero::clickLeft(tribool down, bool previousState)
 
 	if(myOwner->getCurrentPlayerInterface()->cb->battleCanCastSpell(myHero, spells::Mode::HERO) == ESpellCastProblem::OK) //check conditions
 	{
-		for(int it=0; it<GameConstants::BFIELD_SIZE; ++it) //do nothing when any hex is hovered - hero's animation overlaps battlefield
-		{
-			if(myOwner->bfield[it]->hovered && myOwner->bfield[it]->strictHovered)
-				return;
-		}
+		BattleHex hoveredHex = myOwner->fieldController->getHoveredHex();
+		//do nothing when any hex is hovered - hero's animation overlaps battlefield
+		if ( hoveredHex != BattleHex::INVALID )
+			return;
+
 		CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
 
 		GH.pushIntT<CSpellWindow>(myHero, myOwner->getCurrentPlayerInterface());
@@ -631,24 +632,14 @@ void CClickableHex::hover(bool on)
 	}
 }
 
-CClickableHex::CClickableHex() : setAlterText(false), myNumber(-1), accessible(true), strictHovered(false), myInterface(nullptr)
+CClickableHex::CClickableHex() : setAlterText(false), myNumber(-1), strictHovered(false), myInterface(nullptr)
 {
 	addUsedEvents(LCLICK | RCLICK | HOVER | MOVE);
 }
 
 void CClickableHex::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 {
-	if(myInterface->cellShade)
-	{
-		if(CSDL_Ext::SDL_GetPixel(myInterface->cellShade, sEvent.x-pos.x, sEvent.y-pos.y) == 0) //hovered pixel is outside hex
-		{
-			strictHovered = false;
-		}
-		else //hovered pixel is inside hex
-		{
-			strictHovered = true;
-		}
-	}
+	strictHovered = myInterface->fieldController->isPixelInHex(Point(sEvent.x-pos.x, sEvent.y-pos.y));
 
 	if(hovered && strictHovered) //print attacked creature to console
 	{

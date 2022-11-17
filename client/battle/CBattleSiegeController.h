@@ -49,6 +49,9 @@ class CBattleSiegeController
 {
 	CBattleInterface * owner;
 
+	SDL_Surface *moatSurface;
+	SDL_Surface *mlipSurface;
+
 	SDL_Surface* walls[18];
 	const CGTownInstance *town; //besieged town
 
@@ -63,6 +66,7 @@ public:
 
 	void showPiecesOfWall(SDL_Surface *to, std::vector<int> pieces);
 
+	std::string getBattleBackgroundName();
 	const CCreature *turretCreature();
 	Point turretCreaturePosition( BattleHex position );
 
