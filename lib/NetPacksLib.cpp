@@ -1170,7 +1170,7 @@ DLL_LINKAGE void AssembledArtifact::applyGs(CGameState *gs)
 	CArtifactSet *artSet = al.getHolderArtSet();
 	const CArtifactInstance *transformedArt = al.getArt();
 	assert(transformedArt);
-	assert(vstd::contains(transformedArt->assemblyPossibilities(artSet), builtArt));
+	assert(vstd::contains(transformedArt->assemblyPossibilities(artSet, true), builtArt));
 	UNUSED(transformedArt);
 
 	auto combinedArt = new CCombinedArtifactInstance(builtArt);

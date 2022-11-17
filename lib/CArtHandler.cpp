@@ -870,26 +870,36 @@ bool CArtifactInstance::canBeDisassembled() const
 	return bool(artType->constituents);
 }
 
-std::vector<const CArtifact *> CArtifactInstance::assemblyPossibilities(const CArtifactSet *h) const
+std::vector<const CArtifact *> CArtifactInstance::assemblyPossibilities(const CArtifactSet * h, bool equipped) const
 {
 	std::vector<const CArtifact *> ret;
 	if(artType->constituents) //combined artifact already: no combining of combined artifacts... for now.
 		return ret;
 
-	for(const CArtifact * artifact : artType->constituentOf)
+	for(auto artifact : artType->constituentOf)
 	{
 		assert(artifact->constituents);
 		bool possible = true;
 
-		for(const CArtifact * constituent : *artifact->constituents) //check if all constituents are available
+		for(auto constituent : *artifact->constituents) //check if all constituents are available
 		{
-			const bool noBackpack = false;
-			const bool notAlreadyAssembled = false;
-
-			if(!h->hasArt(constituent->id, true, noBackpack, notAlreadyAssembled)) //constituent must be equipped
+			if (equipped)
 			{
-				possible = false;
-				break;
+				// Search for equipped arts
+				if (!h->hasArt(constituent->id, true, false, false))
+				{
+					possible = false;
+					break;
+				}
+			}
+			else
+			{
+				// Search in backpack
+				if(!h->hasArtBackpack(constituent->id))
+				{
+					possible = false;
+					break;
+				}
 			}
 		}
 
@@ -1198,19 +1208,32 @@ ArtifactPosition CArtifactSet::getArtPos(int aid, bool onlyWorn, bool allowLocke
 std::vector<ArtifactPosition> CArtifactSet::getAllArtPositions(int aid, bool onlyWorn, bool allowLocked, bool getAll) const
 {
 	std::vector<ArtifactPosition> result;
-	for(auto i = artifactsWorn.cbegin(); i != artifactsWorn.cend(); i++)
-		if(i->second.artifact->artType->id == aid && (allowLocked || !i->second.locked))
-			result.push_back(i->first);
+	for(auto & slotInfo : artifactsWorn)
+		if(slotInfo.second.artifact->artType->id == aid && (allowLocked || !slotInfo.second.locked))
+			result.push_back(slotInfo.first);
 
 	if(onlyWorn)
 		return result;
 	if(!getAll && !result.empty())
 		return result;
 
-	for(int i = 0; i < artifactsInBackpack.size(); i++)
-		if(artifactsInBackpack[i].artifact->artType->id == aid)
-			result.push_back(ArtifactPosition(GameConstants::BACKPACK_START + i));
+	auto backpackPositions = getBackpackArtPositions(aid);
+	result.insert(result.end(), backpackPositions.begin(), backpackPositions.end());
+	return result;
+}
 
+std::vector<ArtifactPosition> CArtifactSet::getBackpackArtPositions(int aid) const
+{
+	std::vector<ArtifactPosition> result;
+
+	si32 backpackPosition = GameConstants::BACKPACK_START;
+	for(auto & artInfo : artifactsInBackpack)
+	{
+		auto art = artInfo.getArt();
+		if (art && art->artType->id == aid)
+			result.push_back(ArtifactPosition(backpackPosition));
+		backpackPosition++;
+	}
 	return result;
 }
 
@@ -1247,6 +1270,11 @@ bool CArtifactSet::hasArt(
 	bool allowLocked) const
 {
 	return getArtPosCount(aid, onlyWorn, searchBackpackAssemblies, allowLocked) > 0;
+}
+
+bool CArtifactSet::hasArtBackpack(ui32 aid) const
+{
+	return getBackpackArtPositions(aid).size() > 0;
 }
 
 unsigned CArtifactSet::getArtPosCount(int aid, bool onlyWorn, bool searchBackpackAssemblies, bool allowLocked) const

@@ -206,12 +206,17 @@ void CHeroArtPlace::clickLeft(tribool down, bool previousState)
 bool CHeroArtPlace::askToAssemble(const CArtifactInstance *art, ArtifactPosition slot,
                               const CGHeroInstance *hero)
 {
-	assert(art != nullptr);
-	assert(hero != nullptr);
-	std::vector<const CArtifact *> assemblyPossibilities = art->assemblyPossibilities(hero);
+	assert(art);
+	assert(hero);
+	bool assembleEqipped = true;
+	if(slot >= GameConstants::BACKPACK_START)
+	{
+		assembleEqipped = false;
+	}
+	auto assemblyPossibilities = art->assemblyPossibilities(hero, assembleEqipped);
 
 	// If the artifact can be assembled, display dialog.
-	for(const CArtifact *combination : assemblyPossibilities)
+	for(auto combination : assemblyPossibilities)
 	{
 		LOCPLINT->showArtifactAssemblyDialog(
 			art->artType,
@@ -229,27 +234,22 @@ void CHeroArtPlace::clickRight(tribool down, bool previousState)
 {
 	if(ourArt && down && !locked && text.size() && !picked)  //if there is no description or it's a lock, do nothing ;]
 	{
-		if(slotID < GameConstants::BACKPACK_START)
+		if(ourOwner->allowedAssembling)
 		{
-			if(ourOwner->allowedAssembling)
+			// If the artifact can be assembled, display dialog.
+			if(askToAssemble(ourArt, slotID, ourOwner->curHero))
 			{
-				std::vector<const CArtifact *> assemblyPossibilities = ourArt->assemblyPossibilities(ourOwner->curHero);
+				return;
+			}
 
-				// If the artifact can be assembled, display dialog.
-				if(askToAssemble(ourArt, slotID, ourOwner->curHero))
-				{
-					return;
-				}
-
-				// Otherwise if the artifact can be diasassembled, display dialog.
-				if(ourArt->canBeDisassembled())
-				{
-					LOCPLINT->showArtifactAssemblyDialog(
-						ourArt->artType,
-						nullptr,
-						std::bind(&CCallback::assembleArtifacts, LOCPLINT->cb.get(), ourOwner->curHero, slotID, false, ArtifactID()));
-					return;
-				}
+			// Otherwise if the artifact can be diasassembled, display dialog.
+			if(ourArt->canBeDisassembled())
+			{
+				LOCPLINT->showArtifactAssemblyDialog(
+					ourArt->artType,
+					nullptr,
+					std::bind(&CCallback::assembleArtifacts, LOCPLINT->cb.get(), ourOwner->curHero, slotID, false, ArtifactID()));
+				return;
 			}
 		}
 

@@ -4036,7 +4036,7 @@ bool CGameHandler::assembleArtifacts (ObjectInstanceID heroID, ArtifactPosition 
 		CArtifact *combinedArt = VLC->arth->objects[assembleTo];
 		if (!combinedArt->constituents)
 			COMPLAIN_RET("assembleArtifacts: Artifact being attempted to assemble is not a combined artifacts!");
-		if (!vstd::contains(destArtifact->assemblyPossibilities(hero), combinedArt))
+		if (!vstd::contains(destArtifact->assemblyPossibilities(hero, true), combinedArt))
 			COMPLAIN_RET("assembleArtifacts: It's impossible to assemble requested artifact!");
 		
 		if(ArtifactUtils::checkSpellbookIsNeeded(hero, assembleTo, artifactSlot))
