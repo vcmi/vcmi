@@ -47,7 +47,6 @@ class CCallback;
 class CButton;
 class CToggleButton;
 class CToggleGroup;
-struct CatapultProjectileInfo;
 class CBattleAnimation;
 class CBattleHero;
 class CBattleConsole;
@@ -55,10 +54,11 @@ class CBattleResultWindow;
 class CStackQueue;
 class CPlayerInterface;
 class CCreatureAnimation;
-struct ProjectileInfo;
 class CClickableHex;
 class CAnimation;
 class IImage;
+
+class CBattleProjectileController;
 
 /// Small struct which contains information about the id of the attacked stack, the damage dealt,...
 struct StackAttackedInfo
@@ -104,16 +104,6 @@ struct BattleObjectsByHex
 	std::array<HexData, GameConstants::BFIELD_SIZE> hex;
 };
 
-/// Small struct which is needed for drawing the parabolic trajectory of the catapult cannon
-struct CatapultProjectileInfo
-{
-	CatapultProjectileInfo(Point from, Point dest);
-
-	double facA, facB, facC;
-
-	double calculateY(double x);
-};
-
 enum class MouseHoveredHexContext
 {
 	UNOCCUPIED_HEX,
@@ -147,9 +137,6 @@ private:
 	const CCreatureSet *army1, *army2; //copy of initial armies (for result window)
 	const CGHeroInstance *attackingHeroInstance, *defendingHeroInstance;
 	std::map<int32_t, std::shared_ptr<CCreatureAnimation>> creAnims; //animations of creatures from fighting armies (order by BattleInfo's stacks' ID)
-
-	std::map<int, std::shared_ptr<CAnimation>> idToProjectile;
-	std::map<int, std::vector<CCreature::CreatureAnimation::RayColor>> idToRay;
 
 	std::map<std::string, std::shared_ptr<CAnimation>> animationsCache;
 	std::map<si32, std::shared_ptr<CAnimation>> obstacleAnimations;
@@ -197,7 +184,6 @@ private:
 	//force active stack to cast a spell if possible
 	void enterCreatureCastingMode();
 
-	std::list<ProjectileInfo> projectiles; //projectiles flying on battlefield
 	void giveCommand(EActionType action, BattleHex tile = BattleHex(), si32 additional = -1);
 	void sendCommand(BattleAction *& command, const CStack * actor = nullptr);
 
@@ -269,7 +255,6 @@ private:
 	void showPiecesOfWall(SDL_Surface *to, std::vector<int> pieces);
 
 	void showBattleEffects(SDL_Surface *to, const std::vector<const BattleEffect *> &battleEffects);
-	void showProjectiles(SDL_Surface *to);
 
 	BattleObjectsByHex sortObjectsByHex();
 	void updateBattleAnimations();
@@ -283,6 +268,8 @@ private:
 
 	void setHeroAnimation(ui8 side, int phase);
 public:
+	std::unique_ptr<CBattleProjectileController> projectilesController;
+
 	static CondSh<bool> animsAreDisplayed; //for waiting with the end of battle for end of anims
 	static CondSh<BattleAction *> givenCommand; //data != nullptr if we have i.e. moved current unit
 
@@ -388,7 +375,6 @@ public:
 
 	void gateStateChanged(const EGateState state);
 
-	void initStackProjectile(const CStack * stack);
 
 	const CGHeroInstance *currentHero() const;
 	InfoAboutHero enemyHero() const;
@@ -410,4 +396,5 @@ public:
 	friend class CShootingAnimation;
 	friend class CCastAnimation;
 	friend class CClickableHex;
+	friend class CBattleProjectileController;
 };

@@ -14,6 +14,7 @@
 
 #include "CBattleInterfaceClasses.h"
 #include "CBattleInterface.h"
+#include "CBattleProjectileController.h"
 #include "CCreatureAnimation.h"
 
 #include "../CGameInfo.h"
@@ -196,15 +197,9 @@ bool CDefenceAnimation::init()
 	}
 	//unit reversed
 
-	if(rangedAttack && attacker != nullptr) //delay hit animation
+	if(rangedAttack && attacker != nullptr && owner->projectilesController->hasActiveProjectile(attacker)) //delay hit animation
 	{
-		for(std::list<ProjectileInfo>::const_iterator it = owner->projectiles.begin(); it != owner->projectiles.end(); ++it)
-		{
-			if(it->creID == attacker->getCreature()->idNumber)
-			{
-				return false;
-			}
-		}
+		return false;
 	}
 
 	// synchronize animation with attacker, unless defending or attacked by shooter:
@@ -725,14 +720,10 @@ bool CShootingAnimation::init()
 		return false;
 	}
 
-	// opponent must face attacker ( = different directions) before he can be attacked
 	//FIXME: this cause freeze
-
-//	if (attackingStack && attackedStack &&
-//	    owner->creDir[attackingStack->ID] == owner->creDir[attackedStack->ID])
-//		return false;
-
-	// Create the projectile animation
+	// opponent must face attacker ( = different directions) before he can be attacked
+	//if (attackingStack && attackedStack && owner->creDir[attackingStack->ID] == owner->creDir[attackedStack->ID])
+	//	return false;
 
 	//maximal angle in radians between straight horizontal line and shooting line for which shot is considered to be straight (absoulte value)
 	static const double straightAngle = 0.2;
@@ -744,40 +735,31 @@ bool CShootingAnimation::init()
 
 	if(shooterInfo->idNumber == CreatureID::ARROW_TOWERS)
 	{
-		int creID = owner->siegeH->town->town->clientInfo.siegeShooter;
-		shooterInfo = CGI->creh->operator[](creID);
+		CreatureID creID = owner->siegeH->town->town->clientInfo.siegeShooter;
+		shooterInfo = CGI->creh->objects[creID];
 	}
-	if(!shooterInfo->animation.missleFrameAngles.size())
-		logAnim->error("Mod error: Creature '%s' on the Archer's tower is not a shooter. Mod should be fixed. Trying to use archer's data instead..."
-			, shooterInfo->nameSing);
 
-	auto & angles = shooterInfo->animation.missleFrameAngles.size()
-		? shooterInfo->animation.missleFrameAngles
-		: CGI->creh->operator[](CreatureID::ARCHER)->animation.missleFrameAngles;
-
-	ProjectileInfo spi;
-	spi.shotDone = false;
-	spi.creID = shooter->getCreature()->idNumber;
-	spi.stackID = shooter->ID;
-	// reverse if creature is facing right OR this is non-existing stack that is not tower (war machines)
-	spi.reverse = attackingStack ? !owner->creDir[attackingStack->ID] : shooter->getCreature()->idNumber != CreatureID::ARROW_TOWERS ;
-
-	spi.step = 0;
-	spi.frameNum = 0;
-
-	Point fromPos;
+	Point shooterPos;
+	Point shotPos;
 	Point destPos;
 
 	// NOTE: two lines below return different positions (very notable with 2-hex creatures). Obtaining via creanims seems to be more precise
-	fromPos = owner->creAnims[spi.stackID]->pos.topLeft();
+	shooterPos = owner->creAnims[shooter->ID]->pos.topLeft();
 	//xycoord = CClickableHex::getXYUnitAnim(shooter->position, true, shooter, owner);
 
-	destPos = CClickableHex::getXYUnitAnim(dest, attackedStack, owner);
+	destPos = CClickableHex::getXYUnitAnim(dest, attackedStack, owner) + Point(225, 225);
 
 	// to properly translate coordinates when shooter is rotated
-	int multiplier = spi.reverse ? -1 : 1;
+	int multiplier = 0;
+	if (shooter)
+		multiplier = owner->creDir[shooter->ID] ? 1 : -1;
+	else
+	{
+		assert(false); // unreachable?
+		multiplier = shooter->getCreature()->idNumber == CreatureID::ARROW_TOWERS ? -1 : 1;
+	}
 
-	double projectileAngle = atan2(fabs((double)destPos.y - fromPos.y), fabs((double)destPos.x - fromPos.x));
+	double projectileAngle = atan2(fabs((double)destPos.y - shooterPos.y), fabs((double)destPos.x - shooterPos.x));
 	if(shooter->getPosition() < dest)
 		projectileAngle = -projectileAngle;
 
@@ -785,103 +767,23 @@ bool CShootingAnimation::init()
 	if (projectileAngle > straightAngle)
 	{
 		//upper shot
-		spi.x0 = fromPos.x + 222 + ( -25 + shooterInfo->animation.upperRightMissleOffsetX ) * multiplier;
-		spi.y0 = fromPos.y + 265 + shooterInfo->animation.upperRightMissleOffsetY;
+		shotPos.x = shooterPos.x + 222 + ( -25 + shooterInfo->animation.upperRightMissleOffsetX ) * multiplier;
+		shotPos.y = shooterPos.y + 265 + shooterInfo->animation.upperRightMissleOffsetY;
 	}
 	else if (projectileAngle < -straightAngle)
 	{
 		//lower shot
-		spi.x0 = fromPos.x + 222 + ( -25 + shooterInfo->animation.lowerRightMissleOffsetX ) * multiplier;
-		spi.y0 = fromPos.y + 265 + shooterInfo->animation.lowerRightMissleOffsetY;
+		shotPos.x = shooterPos.x + 222 + ( -25 + shooterInfo->animation.lowerRightMissleOffsetX ) * multiplier;
+		shotPos.y = shooterPos.y + 265 + shooterInfo->animation.lowerRightMissleOffsetY;
 	}
 	else
 	{
 		//straight shot
-		spi.x0 = fromPos.x + 222 + ( -25 + shooterInfo->animation.rightMissleOffsetX ) * multiplier;
-		spi.y0 = fromPos.y + 265 + shooterInfo->animation.rightMissleOffsetY;
+		shotPos.x = shooterPos.x + 222 + ( -25 + shooterInfo->animation.rightMissleOffsetX ) * multiplier;
+		shotPos.y = shooterPos.y + 265 + shooterInfo->animation.rightMissleOffsetY;
 	}
 
-	spi.x = spi.x0;
-	spi.y = spi.y0;
-
-	destPos += Point(225, 225);
-
-	// recalculate angle taking in account offsets
-	//projectileAngle = atan2(fabs(destPos.y - spi.y), fabs(destPos.x - spi.x));
-	//if(shooter->position < dest)
-	//	projectileAngle = -projectileAngle;
-
-	if (attackedStack)
-	{
-		double animSpeed = AnimationControls::getProjectileSpeed(); // flight speed of projectile
-		double distanceSquared = (destPos.x - spi.x) * (destPos.x - spi.x) + (destPos.y - spi.y) * (destPos.y - spi.y);
-		double distance = sqrt(distanceSquared);
-		spi.lastStep = std::round(distance / animSpeed);
-		if(spi.lastStep == 0)
-			spi.lastStep = 1;
-		spi.dx = (destPos.x - spi.x) / spi.lastStep;
-		spi.dy = (destPos.y - spi.y) / spi.lastStep;
-	}
-	else
-	{
-		// Catapult attack
-		spi.catapultInfo.reset(new CatapultProjectileInfo(Point((int)spi.x, (int)spi.y), destPos));
-
-		double animSpeed = AnimationControls::getProjectileSpeed() / 10;
-		spi.lastStep = static_cast<int>(std::abs((destPos.x - spi.x) / animSpeed));
-		spi.dx = animSpeed;
-		spi.dy = 0;
-
-		auto img = owner->idToProjectile[spi.creID]->getImage(0);
-
-		// Add explosion anim
-		Point animPos(destPos.x - 126 + img->width() / 2,
-					  destPos.y - 105 + img->height() / 2);
-
-		owner->addNewAnim( new CEffectAnimation(owner, catapultDamage ? "SGEXPL.DEF" : "CSGRCK.DEF", animPos.x, animPos.y));
-	}
-	double pi = boost::math::constants::pi<double>();
-
-	//in some cases (known one: hero grants shooter bonus to unit) the shooter stack's projectile may not be properly initialized
-	if (!owner->idToProjectile.count(spi.creID) && !owner->idToRay.count(spi.creID))
-		owner->initStackProjectile(shooter);
-
-	if (owner->idToProjectile.count(spi.creID))
-	{
-		// only frames below maxFrame are usable: anything  higher is either no present or we don't know when it should be used
-		size_t maxFrame = std::min<size_t>(angles.size(), owner->idToProjectile.at(spi.creID)->size(0));
-
-		assert(maxFrame > 0);
-
-		// values in angles array indicate position from which this frame was rendered, in degrees.
-		// find frame that has closest angle to one that we need for this shot
-		size_t bestID = 0;
-		double bestDiff = fabs( angles[0] / 180 * pi - projectileAngle );
-
-		for (size_t i=1; i<maxFrame; i++)
-		{
-			double currentDiff = fabs( angles[i] / 180 * pi - projectileAngle );
-			if (currentDiff < bestDiff)
-			{
-				bestID = i;
-				bestDiff = currentDiff;
-			}
-		}
-
-		spi.frameNum = static_cast<int>(bestID);
-	}
-	else if (owner->idToRay.count(spi.creID))
-	{
-		// no-op
-	}
-	else
-	{
-		logGlobal->error("Unable to find valid projectile for shooter %d", spi.creID);
-	}
-
-	// Set projectile animation start delay which is specified in frames
-	spi.animStartDelay = shooterInfo->animation.attackClimaxFrame;
-	owner->projectiles.push_back(spi);
+	owner->projectilesController->createProjectile(attackingStack, attackedStack, shotPos, destPos);
 
 	//attack animation
 

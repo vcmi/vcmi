@@ -701,6 +701,10 @@ namespace VCMIDirs
 			#ifdef VCMI_WINDOWS
 			std::locale::global(boost::locale::generator().generate("en_US.UTF-8"));
 			#endif
+
+			#ifdef VCMI_XDG
+			setenv("LC_ALL", "C", 1);
+			#endif
 			boost::filesystem::path::imbue(std::locale());
 
 			singleton.init();

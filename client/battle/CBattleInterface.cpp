@@ -13,6 +13,7 @@
 #include "CBattleAnimations.h"
 #include "CBattleInterfaceClasses.h"
 #include "CCreatureAnimation.h"
+#include "CBattleProjectileController.h"
 
 #include "../CBitmapHandler.h"
 #include "../CGameInfo.h"
@@ -112,6 +113,8 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 	myTurn(false), moveStarted(false), moveSoundHander(-1), bresult(nullptr), battleActionsStarted(false)
 {
 	OBJ_CONSTRUCTION;
+
+	projectilesController.reset(new CBattleProjectileController(this));
 
 	if(spectatorInt)
 	{
@@ -1008,33 +1011,7 @@ void CBattleInterface::unitAdded(const CStack * stack)
 	//loading projectiles for units
 	if(stack->isShooter())
 	{
-		initStackProjectile(stack);
-	}
-}
-
-void CBattleInterface::initStackProjectile(const CStack * stack)
-{
-	const CCreature * creature;//creature whose shots should be loaded
-	if(stack->getCreature()->idNumber == CreatureID::ARROW_TOWERS)
-		creature = CGI->creh->objects[siegeH->town->town->clientInfo.siegeShooter];
-	else
-		creature = stack->getCreature();
-
-	if (creature->animation.projectileRay.empty())
-	{
-		std::shared_ptr<CAnimation> projectile = std::make_shared<CAnimation>(creature->animation.projectileImageName);
-		projectile->preload();
-
-		if(projectile->size(1) != 0)
-			logAnim->error("Expected empty group 1 in stack projectile");
-		else
-			projectile->createFlippedGroup(0, 1);
-
-		idToProjectile[stack->getCreature()->idNumber] = projectile;
-	}
-	else
-	{
-		idToRay[stack->getCreature()->idNumber] = creature->animation.projectileRay;
+		projectilesController->initStackProjectile(stack);
 	}
 }
 
@@ -2990,35 +2967,6 @@ void CBattleInterface::SiegeHelper::printPartOfWall(SDL_Surface *to, int what)
 	}
 }
 
-CatapultProjectileInfo::CatapultProjectileInfo(Point from, Point dest)
-{
-	facA = 0.005; // seems to be constant
-
-	// system of 2 linear equations, solutions of which are missing coefficients
-	// for quadratic equation a*x*x + b*x + c
-	double eq[2][3] = {
-		{ static_cast<double>(from.x), 1.0, from.y - facA*from.x*from.x },
-		{ static_cast<double>(dest.x), 1.0, dest.y - facA*dest.x*dest.x }
-	};
-
-	// solve system via determinants
-	double det  = eq[0][0] *eq[1][1] - eq[1][0] *eq[0][1];
-	double detB = eq[0][2] *eq[1][1] - eq[1][2] *eq[0][1];
-	double detC = eq[0][0] *eq[1][2] - eq[1][0] *eq[0][2];
-
-	facB = detB / det;
-	facC = detC / det;
-
-	// make sure that parabola is correct e.g. passes through from and dest
-	assert(fabs(calculateY(from.x) - from.y) < 1.0);
-	assert(fabs(calculateY(dest.x) - dest.y) < 1.0);
-}
-
-double CatapultProjectileInfo::calculateY(double x)
-{
-	return facA *pow(x, 2.0) + facB *x + facC;
-}
-
 void CBattleInterface::showAll(SDL_Surface *to)
 {
 	show(to);
@@ -3036,7 +2984,7 @@ void CBattleInterface::show(SDL_Surface *to)
 
 	showBackground(to);
 	showBattlefieldObjects(to);
-	showProjectiles(to);
+	projectilesController->showProjectiles(to);
 
 	if(battleActionsStarted)
 		updateBattleAnimations();
@@ -3189,116 +3137,6 @@ void CBattleInterface::showHighlightedHex(SDL_Surface *to, BattleHex hex, bool d
 	CSDL_Ext::blit8bppAlphaTo24bpp (cellShade, nullptr, to, &temp_rect);
 	if(!darkBorder && settings["battle"]["cellBorders"].Bool())
 		CSDL_Ext::blit8bppAlphaTo24bpp(cellBorder, nullptr, to, &temp_rect); //redraw border to make it light green instead of shaded
-}
-
-void CBattleInterface::showProjectiles(SDL_Surface *to)
-{
-	assert(to);
-
-	std::list< std::list<ProjectileInfo>::iterator > toBeDeleted;
-	for (auto it = projectiles.begin(); it!=projectiles.end(); ++it)
-	{
-		// Check if projectile is already visible (shooter animation did the shot)
-		if (!it->shotDone)
-		{
-			// frame we're waiting for is reached OR animation has already finished
-			if (creAnims[it->stackID]->getCurrentFrame() >= it->animStartDelay ||
-				creAnims[it->stackID]->isShooting() == false)
-			{
-				//at this point projectile should become visible
-				creAnims[it->stackID]->pause(); // pause animation
-				it->shotDone = true;
-			}
-			else
-				continue; // wait...
-		}
-
-		if (idToProjectile.count(it->creID))
-		{
-			size_t group = it->reverse ? 1 : 0;
-			auto image = idToProjectile[it->creID]->getImage(it->frameNum, group, true);
-
-			if(image)
-			{
-				SDL_Rect dst;
-				dst.h = image->height();
-				dst.w = image->width();
-				dst.x = static_cast<int>(it->x - dst.w / 2);
-				dst.y = static_cast<int>(it->y - dst.h / 2);
-
-				image->draw(to, &dst, nullptr);
-			}
-		}
-		if (idToRay.count(it->creID))
-		{
-			auto const & ray = idToRay[it->creID];
-
-			if (std::abs(it->dx) > std::abs(it->dy)) // draw in horizontal axis
-			{
-				int y1 =  it->y0 - ray.size() / 2;
-				int y2 =  it->y - ray.size() / 2;
-
-				int x1 = it->x0;
-				int x2 = it->x;
-
-				for (size_t i = 0; i < ray.size(); ++i)
-				{
-					SDL_Color beginColor{ ray[i].r1, ray[i].g1, ray[i].b1, ray[i].a1};
-					SDL_Color endColor  { ray[i].r2, ray[i].g2, ray[i].b2, ray[i].a2};
-
-					CSDL_Ext::drawLine(to, x1, y1 + i, x2, y2 + i, beginColor, endColor);
-				}
-			}
-			else // draw in vertical axis
-			{
-				int x1 = it->x0 - ray.size() / 2;
-				int x2 = it->x - ray.size() / 2;
-
-				int y1 =  it->y0;
-				int y2 =  it->y;
-
-				for (size_t i = 0; i < ray.size(); ++i)
-				{
-					SDL_Color beginColor{ ray[i].r1, ray[i].g1, ray[i].b1, ray[i].a1};
-					SDL_Color endColor  { ray[i].r2, ray[i].g2, ray[i].b2, ray[i].a2};
-
-					CSDL_Ext::drawLine(to, x1 + i, y1, x2 + i, y2, beginColor, endColor);
-				}
-			}
-		}
-
-		// Update projectile
-		++it->step;
-		if (it->step > it->lastStep)
-		{
-			toBeDeleted.insert(toBeDeleted.end(), it);
-		}
-		else
-		{
-			if (it->catapultInfo)
-			{
-				// Parabolic shot of the trajectory, as follows: f(x) = ax^2 + bx + c
-				it->x += it->dx;
-				it->y = it->catapultInfo->calculateY(it->x);
-
-				++(it->frameNum);
-				it->frameNum %= idToProjectile[it->creID]->size(0);
-			}
-			else
-			{
-				// Normal projectile, just add the calculated "deltas" to the x and y positions.
-				it->x += it->dx;
-				it->y += it->dy;
-			}
-		}
-	}
-
-	for (auto & elem : toBeDeleted)
-	{
-		// resume animation
-		creAnims[elem->stackID]->play();
-		projectiles.erase(elem);
-	}
 }
 
 void CBattleInterface::showBattlefieldObjects(SDL_Surface *to)

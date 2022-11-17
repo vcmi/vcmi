@@ -186,23 +186,6 @@ public:
 	virtual ~CReverseAnimation(){};
 };
 
-/// Small struct which contains information about the position and the velocity of a projectile
-struct ProjectileInfo
-{
-	double x0, y0; //initial position on the screen
-	double x, y; //position on the screen
-	double dx, dy; //change in position in one step
-	int step, lastStep; //to know when finish showing this projectile
-	int creID; //ID of creature that shot this projectile
-	int stackID; //ID of stack
-	int frameNum; //frame to display form projectile animation
-	//bool spin; //if true, frameNum will be increased
-	int animStartDelay; //frame of shooter animation when projectile should appear
-	bool shotDone; // actual shot already done, projectile is flying
-	bool reverse; //if true, projectile will be flipped by vertical asix
-	std::shared_ptr<CatapultProjectileInfo> catapultInfo; // holds info about the parabolic trajectory of the cannon
-};
-
 class CRangedAttackAnimation : public CAttackAnimation
 {
 public:
