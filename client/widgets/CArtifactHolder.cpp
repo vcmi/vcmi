@@ -216,7 +216,7 @@ bool CHeroArtPlace::askToAssemble(const CArtifactInstance *art, ArtifactPosition
 	auto assemblyPossibilities = art->assemblyPossibilities(hero, assembleEqipped);
 
 	// If the artifact can be assembled, display dialog.
-	for(auto combination : assemblyPossibilities)
+	for(const auto * combination : assemblyPossibilities)
 	{
 		LOCPLINT->showArtifactAssemblyDialog(
 			art->artType,
@@ -824,9 +824,7 @@ void CArtifactsOfHero::artifactUpdateSlots(const ArtifactLocation & al)
 	if(al.isHolder(curHero))
 	{
 		if(al.slot >= GameConstants::BACKPACK_START)
-		{
 			updateBackpackSlots();
-		}
 		else
 			updateWornSlots();
 	}
@@ -843,7 +841,7 @@ void CArtifactsOfHero::updateWornSlots(bool redrawParent)
 
 void CArtifactsOfHero::updateBackpackSlots(bool redrawParent)
 {
-	for(auto & artPlace : backpack)
+	for(auto * artPlace : backpack)
 		updateSlot(artPlace->slotID);
 	scrollBackpack(0);
 

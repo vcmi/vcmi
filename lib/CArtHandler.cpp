@@ -876,12 +876,12 @@ std::vector<const CArtifact *> CArtifactInstance::assemblyPossibilities(const CA
 	if(artType->constituents) //combined artifact already: no combining of combined artifacts... for now.
 		return ret;
 
-	for(auto artifact : artType->constituentOf)
+	for(const auto * artifact : artType->constituentOf)
 	{
 		assert(artifact->constituents);
 		bool possible = true;
 
-		for(auto constituent : *artifact->constituents) //check if all constituents are available
+		for(const auto * constituent : *artifact->constituents) //check if all constituents are available
 		{
 			if (equipped)
 			{
@@ -1229,9 +1229,9 @@ std::vector<ArtifactPosition> CArtifactSet::getBackpackArtPositions(int aid) con
 	si32 backpackPosition = GameConstants::BACKPACK_START;
 	for(auto & artInfo : artifactsInBackpack)
 	{
-		auto art = artInfo.getArt();
+		auto * art = artInfo.getArt();
 		if (art && art->artType->id == aid)
-			result.push_back(ArtifactPosition(backpackPosition));
+			result.emplace_back(backpackPosition);
 		backpackPosition++;
 	}
 	return result;

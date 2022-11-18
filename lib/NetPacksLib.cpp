@@ -1196,8 +1196,7 @@ DLL_LINKAGE void AssembledArtifact::applyGs(CGameState *gs)
 		}
 		else
 		{
-			if(al.slot > pos)
-				al.slot = pos;
+			al.slot = std::min(al.slot, pos)
 		}
 	}
 
