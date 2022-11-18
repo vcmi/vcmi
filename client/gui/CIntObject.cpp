@@ -373,3 +373,6 @@ void WindowBase::close()
 		logGlobal->error("Only top interface must be closed");
 	GH.popInts(1);
 }
+
+IStatusBar::~IStatusBar()
+{}

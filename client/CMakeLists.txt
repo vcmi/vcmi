@@ -3,6 +3,7 @@ set(client_SRCS
 		../CCallback.cpp
 
 		battle/CBattleAnimations.cpp
+		battle/CBattleControlPanel.cpp
 		battle/CBattleInterfaceClasses.cpp
 		battle/CBattleInterface.cpp
 		battle/CBattleFieldController.cpp
@@ -80,6 +81,7 @@ set(client_HEADERS
 		StdInc.h
 
 		battle/CBattleAnimations.h
+		battle/CBattleControlPanel.h
 		battle/CBattleInterfaceClasses.h
 		battle/CBattleInterface.h
 		battle/CBattleFieldController.h

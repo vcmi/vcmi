@@ -62,6 +62,7 @@ class CBattleProjectileController;
 class CBattleSiegeController;
 class CBattleObstacleController;
 class CBattleFieldController;
+class CBattleControlPanel;
 
 /// Small struct which contains information about the id of the attacked stack, the damage dealt,...
 struct StackAttackedInfo
@@ -118,24 +119,12 @@ enum class MouseHoveredHexContext
 class CBattleInterface : public WindowBase
 {
 private:
-	SDL_Surface *menu, *amountNormal, *amountNegative, *amountPositive, *amountEffNeutral;
+	SDL_Surface *amountNormal, *amountNegative, *amountPositive, *amountEffNeutral;
 
-	std::shared_ptr<CButton> bOptions;
-	std::shared_ptr<CButton> bSurrender;
-	std::shared_ptr<CButton> bFlee;
-	std::shared_ptr<CButton> bAutofight;
-	std::shared_ptr<CButton> bSpell;
-	std::shared_ptr<CButton> bWait;
-	std::shared_ptr<CButton> bDefence;
-	std::shared_ptr<CButton> bConsoleUp;
-	std::shared_ptr<CButton> bConsoleDown;
-	std::shared_ptr<CButton> btactNext;
-	std::shared_ptr<CButton> btactEnd;
-
-	std::shared_ptr<CBattleConsole> console;
 	std::shared_ptr<CBattleHero> attackingHero;
 	std::shared_ptr<CBattleHero> defendingHero;
 	std::shared_ptr<CStackQueue> queue;
+	std::shared_ptr<CBattleControlPanel> controlPanel;
 
 	const CCreatureSet *army1, *army2; //copy of initial armies (for result window)
 	const CGHeroInstance *attackingHeroInstance, *defendingHeroInstance;
@@ -236,25 +225,9 @@ public:
 
 	const BattleResult *bresult; //result of a battle; if non-zero then display when all animations end
 
-	// block all UI elements, e.g. during enemy turn
-	// unlike activate/deactivate this method will correctly grey-out all elements
-	void blockUI(bool on);
+	void tacticNextStack(const CStack *current);
+	void tacticPhaseEnd();
 
-	//button handle funcs:
-	void bOptionsf();
-	void bSurrenderf();
-	void bFleef();
-	void reallyFlee(); //performs fleeing without asking player
-	void reallySurrender(); //performs surrendering without asking player
-	void bAutofightf();
-	void bSpellf();
-	void bWaitf();
-	void bDefencef();
-	void bConsoleUpf();
-	void bConsoleDownf();
-	void bTacticNextStack(const CStack *current = nullptr);
-	void bEndTacticPhase();
-	//end of button handle funcs
 	//napisz tu klase odpowiadajaca za wyswietlanie bitwy i obsluge uzytkownika, polecenia ma przekazywac callbackiem
 	void activate() override;
 	void deactivate() override;
@@ -332,4 +305,5 @@ public:
 	friend class CBattleSiegeController;
 	friend class CBattleObstacleController;
 	friend class CBattleFieldController;
+	friend class CBattleControlPanel;
 };

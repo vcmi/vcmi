@@ -87,7 +87,7 @@ void CList::CListItem::clickLeft(tribool down, bool previousState)
 void CList::CListItem::hover(bool on)
 {
 	if (on)
-		GH.statusbar->setText(getHoverText());
+		GH.statusbar->write(getHoverText());
 	else
 		GH.statusbar->clear();
 }
@@ -572,7 +572,7 @@ void CMinimap::clickRight(tribool down, bool previousState)
 void CMinimap::hover(bool on)
 {
 	if(on)
-		GH.statusbar->setText(CGI->generaltexth->zelp[291].first);
+		GH.statusbar->write(CGI->generaltexth->zelp[291].first);
 	else
 		GH.statusbar->clear();
 }
@@ -876,7 +876,7 @@ void CInfoBar::clickRight(tribool down, bool previousState)
 void CInfoBar::hover(bool on)
 {
 	if(on)
-		GH.statusbar->setText(CGI->generaltexth->zelp[292].first);
+		GH.statusbar->write(CGI->generaltexth->zelp[292].first);
 	else
 		GH.statusbar->clear();
 }
@@ -1129,20 +1129,17 @@ void CInGameConsole::textEdited(const SDL_TextEditingEvent & event)
 
 void CInGameConsole::startEnteringText()
 {
-	CSDL_Ext::startTextInput(&GH.statusbar->pos);
+	auto * statusBar = dynamic_cast<CGStatusBar*>(GH.statusbar.get());
 
-	enteredText = "_";
-	if(GH.topInt() == adventureInt)
+	if (statusBar)
 	{
-		GH.statusbar->alignment = TOPLEFT;
-		GH.statusbar->setText(enteredText);
+		CSDL_Ext::startTextInput(&statusBar->pos);
 
-		//Prevent changes to the text from mouse interaction with the adventure map
-		GH.statusbar->lock(true);
-	}
-	else if(LOCPLINT->battleInt)
-	{
-		LOCPLINT->battleInt->console->ingcAlter = enteredText;
+		enteredText = "_";
+
+		statusBar->alignment = TOPLEFT;
+		statusBar->write(enteredText);
+		statusBar->lock(true);
 	}
 }
 
@@ -1159,31 +1156,23 @@ void CInGameConsole::endEnteringText(bool printEnteredText)
 		//print(txt);
 	}
 	enteredText.clear();
-	if(GH.topInt() == adventureInt)
+
+	auto * statusBar = dynamic_cast<CGStatusBar*>(GH.statusbar.get());
+
+	if(statusBar)
 	{
-		GH.statusbar->alignment = CENTER;
-		GH.statusbar->lock(false);
-		GH.statusbar->clear();
+		statusBar->alignment = CENTER;
 	}
-	else if(LOCPLINT->battleInt)
-	{
-		LOCPLINT->battleInt->console->ingcAlter = "";
-	}
+	GH.statusbar->lock(false);
+	GH.statusbar->clear();
 }
 
 void CInGameConsole::refreshEnteredText()
 {
-	if(GH.topInt() == adventureInt)
-	{
-		GH.statusbar->lock(false);
-		GH.statusbar->clear();
-		GH.statusbar->setText(enteredText);
-		GH.statusbar->lock(true);
-	}
-	else if(LOCPLINT->battleInt)
-	{
-		LOCPLINT->battleInt->console->ingcAlter = enteredText;
-	}
+	GH.statusbar->lock(false);
+	GH.statusbar->clear();
+	GH.statusbar->write(enteredText);
+	GH.statusbar->lock(true);
 }
 
 CAdvMapPanel::CAdvMapPanel(SDL_Surface * bg, Point position)

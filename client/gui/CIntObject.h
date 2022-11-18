@@ -217,3 +217,13 @@ public:
 protected:
 	void close();
 };
+
+class IStatusBar
+{
+public:
+	virtual ~IStatusBar();
+	virtual void clear() = 0;
+	virtual void clearMatching(const std::string & Text) = 0;
+	virtual void write(const std::string & Text) = 0;
+	virtual void lock(bool shouldLock) = 0;
+};

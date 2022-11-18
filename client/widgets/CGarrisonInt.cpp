@@ -118,7 +118,7 @@ void CGarrisonSlot::hover (bool on)
 				temp = CGI->generaltexth->tcommands[11]; //Empty
 			}
 		}
-		GH.statusbar->setText(temp);
+		GH.statusbar->write(temp);
 	}
 	else
 	{

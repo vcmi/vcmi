@@ -39,23 +39,26 @@ class CAnimImage;
 class CPlayerInterface;
 
 /// Class which shows the console at the bottom of the battle screen and manages the text of the console
-class CBattleConsole : public CIntObject
+class CBattleConsole : public CIntObject, public IStatusBar
 {
 private:
 	std::vector< std::string > texts; //a place where texts are stored
 	int lastShown; //last shown line of text
-public:
-	std::string alterTxt; //if it's not empty, this text is displayed
+
 	std::string ingcAlter; //alternative text set by in-game console - very important!
-	int whoSetAlter; //who set alter text; 0 - battle interface or none, 1 - button
-	CBattleConsole();
+public:
+	CBattleConsole(const Rect & position);
 	void showAll(SDL_Surface * to = 0) override;
+
 	bool addText(const std::string &text); //adds text at the last position; returns false if failed (e.g. text longer than 70 characters)
-	void alterText(const std::string &text); //place string at alterTxt
-	void eraseText(ui32 pos); //erases added text at position pos
-	void changeTextAt(const std::string &text, ui32 pos); //if we have more than pos texts, pos-th is changed to given one
 	void scrollUp(ui32 by = 1); //scrolls console up by 'by' positions
 	void scrollDown(ui32 by = 1); //scrolls console up by 'by' positions
+
+	void clearMatching(const std::string & Text) override;
+	void clear() override;
+	void write(const std::string & Text) override;
+	void lock(bool shouldLock) override;
+
 };
 
 /// Hero battle animation

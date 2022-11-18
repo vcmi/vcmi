@@ -13,6 +13,7 @@
 #include "CBattleInterface.h"
 #include "CBattleSiegeController.h"
 #include "CBattleFieldController.h"
+#include "CBattleControlPanel.h"
 
 #include "../CBitmapHandler.h"
 #include "../CGameInfo.h"
@@ -50,10 +51,6 @@ void CBattleConsole::showAll(SDL_Surface * to)
 	{
 		graphics->fonts[FONT_SMALL]->renderTextLinesCenter(to, CMessage::breakText(ingcAlter, pos.w, FONT_SMALL), Colors::WHITE, textPos);
 	}
-	else if(alterTxt.size())
-	{
-		graphics->fonts[FONT_SMALL]->renderTextLinesCenter(to, CMessage::breakText(alterTxt, pos.w, FONT_SMALL), Colors::WHITE, textPos);
-	}
 	else if(texts.size())
 	{
 		if(texts.size()==1)
@@ -88,32 +85,6 @@ bool CBattleConsole::addText(const std::string & text)
 	lastShown = (int)texts.size()-1;
 	return true;
 }
-
-void CBattleConsole::alterText(const std::string &text)
-{
-	//char buf[500];
-	//sprintf(buf, text.c_str());
-	//alterTxt = buf;
-	alterTxt = text;
-}
-
-void CBattleConsole::eraseText(ui32 pos)
-{
-	if(pos < texts.size())
-	{
-		texts.erase(texts.begin() + pos);
-		if(lastShown == texts.size())
-			--lastShown;
-	}
-}
-
-void CBattleConsole::changeTextAt(const std::string & text, ui32 pos)
-{
-	if(pos >= texts.size()) //no such pos
-		return;
-	texts[pos] = text;
-}
-
 void CBattleConsole::scrollUp(ui32 by)
 {
 	if(lastShown > static_cast<int>(by))
@@ -126,8 +97,31 @@ void CBattleConsole::scrollDown(ui32 by)
 		lastShown += by;
 }
 
-CBattleConsole::CBattleConsole() : lastShown(-1), alterTxt(""), whoSetAlter(0)
-{}
+CBattleConsole::CBattleConsole(const Rect & position) : lastShown(-1)
+{
+	pos = position;
+}
+
+void CBattleConsole::clearMatching(const std::string & Text)
+{
+	if (ingcAlter == Text)
+		clear();
+}
+
+void CBattleConsole::clear()
+{
+	ingcAlter.clear();
+}
+
+void CBattleConsole::write(const std::string & Text)
+{
+	ingcAlter = Text;
+}
+
+void CBattleConsole::lock(bool shouldLock)
+{
+	// no-op?
+}
 
 void CBattleHero::show(SDL_Surface * to)
 {
@@ -627,7 +621,7 @@ void CClickableHex::hover(bool on)
 	//Hoverable::hover(on);
 	if(!on && setAlterText)
 	{
-		myInterface->console->alterTxt = std::string();
+		myInterface->controlPanel->console->clear();
 		setAlterText = false;
 	}
 }
@@ -644,20 +638,20 @@ void CClickableHex::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 	if(hovered && strictHovered) //print attacked creature to console
 	{
 		const CStack * attackedStack = myInterface->getCurrentPlayerInterface()->cb->battleGetStackByPos(myNumber);
-		if(myInterface->console->alterTxt.size() == 0 &&attackedStack != nullptr &&
+		if( attackedStack != nullptr &&
 			attackedStack->owner != myInterface->getCurrentPlayerInterface()->playerID &&
 			attackedStack->alive())
 		{
 			MetaString text;
 			text.addTxt(MetaString::GENERAL_TXT, 220);
 			attackedStack->addNameReplacement(text);
-			myInterface->console->alterTxt = text.toString();
+			myInterface->controlPanel->console->write(text.toString());
 			setAlterText = true;
 		}
 	}
 	else if(setAlterText)
 	{
-		myInterface->console->alterTxt = std::string();
+		myInterface->controlPanel->console->clear();
 		setAlterText = false;
 	}
 }

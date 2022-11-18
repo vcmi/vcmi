@@ -339,10 +339,16 @@ void CTextBox::setText(const std::string & text)
 	}
 }
 
-void CGStatusBar::setText(const std::string & Text)
+void CGStatusBar::write(const std::string & Text)
 {
 	if(!textLock)
 		CLabel::setText(Text);
+}
+
+void CGStatusBar::clearMatching(const std::string & Text)
+{
+	if (getText() == Text)
+		clear();
 }
 
 void CGStatusBar::clear()

@@ -17,6 +17,7 @@
 #include "CBattleObstacleController.h"
 #include "CBattleSiegeController.h"
 #include "CBattleFieldController.h"
+#include "CBattleControlPanel.h"
 
 #include "../CBitmapHandler.h"
 #include "../CGameInfo.h"
@@ -200,37 +201,6 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 	CSDL_Ext::alphaTransform(amountEffNeutral);
 	transformPalette(amountEffNeutral, 1.00, 1.00, 0.18);
 
-	//preparing buttons and console
-	bOptions = std::make_shared<CButton>(Point(  3, 561), "icm003.def", CGI->generaltexth->zelp[381], std::bind(&CBattleInterface::bOptionsf,this), SDLK_o);
-	bSurrender = std::make_shared<CButton>(Point( 54, 561), "icm001.def", CGI->generaltexth->zelp[379], std::bind(&CBattleInterface::bSurrenderf,this), SDLK_s);
-	bFlee = std::make_shared<CButton>(Point(105, 561), "icm002.def", CGI->generaltexth->zelp[380], std::bind(&CBattleInterface::bFleef,this), SDLK_r);
-	bAutofight = std::make_shared<CButton>(Point(157, 561), "icm004.def", CGI->generaltexth->zelp[382], std::bind(&CBattleInterface::bAutofightf,this), SDLK_a);
-	bSpell = std::make_shared<CButton>(Point(645, 561), "icm005.def", CGI->generaltexth->zelp[385], std::bind(&CBattleInterface::bSpellf,this), SDLK_c);
-	bWait = std::make_shared<CButton>(Point(696, 561), "icm006.def", CGI->generaltexth->zelp[386], std::bind(&CBattleInterface::bWaitf,this), SDLK_w);
-	bDefence = std::make_shared<CButton>(Point(747, 561), "icm007.def", CGI->generaltexth->zelp[387], std::bind(&CBattleInterface::bDefencef,this), SDLK_d);
-	bDefence->assignedKeys.insert(SDLK_SPACE);
-	bConsoleUp = std::make_shared<CButton>(Point(624, 561), "ComSlide.def", std::make_pair("", ""), std::bind(&CBattleInterface::bConsoleUpf,this), SDLK_UP);
-	bConsoleDown = std::make_shared<CButton>(Point(624, 580), "ComSlide.def", std::make_pair("", ""), std::bind(&CBattleInterface::bConsoleDownf,this), SDLK_DOWN);
-	bConsoleUp->setImageOrder(0, 1, 0, 0);
-	bConsoleDown->setImageOrder(2, 3, 2, 2);
-
-	console = std::make_shared<CBattleConsole>();
-	console->pos.x += 211;
-	console->pos.y += 560;
-	console->pos.w = 406;
-	console->pos.h = 38;
-	if(tacticsMode)
-	{
-		btactNext = std::make_shared<CButton>(Point(213, 560), "icm011.def", std::make_pair("", ""), [&](){ bTacticNextStack(nullptr);}, SDLK_SPACE);
-		btactEnd = std::make_shared<CButton>(Point(419, 560), "icm012.def", std::make_pair("", ""), [&](){ bEndTacticPhase();}, SDLK_RETURN);
-		menu = BitmapHandler::loadBitmap("COPLACBR.BMP");
-	}
-	else
-	{
-		menu = BitmapHandler::loadBitmap("CBAR.BMP");
-	}
-	graphics->blueToPlayersAdv(menu, curInt->playerID);
-
 	//loading hero animations
 	if(hero1) // attacking hero
 	{
@@ -281,7 +251,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 	obstacleController.reset(new CBattleObstacleController(this));
 
 	if(tacticsMode)
-		bTacticNextStack();
+		tacticNextStack(nullptr);
 
 	CCS->musich->stopMusic();
 	battleIntroSoundChannel = CCS->soundh->playSoundFromSet(CCS->soundh->battleIntroSounds);
@@ -291,7 +261,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 		{
 			CCS->musich->playMusicFromSet("battle", true, true);
 			battleActionsStarted = true;
-			blockUI(settings["session"]["spectate"].Bool());
+			controlPanel->blockUI(settings["session"]["spectate"].Bool());
 			battleIntroSoundChannel = -1;
 		}
 	};
@@ -301,7 +271,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 	currentAction = PossiblePlayerBattleAction::INVALID;
 	selectedAction = PossiblePlayerBattleAction::INVALID;
 	addUsedEvents(RCLICK | MOVE | KEYBOARD);
-	blockUI(true);
+	controlPanel->blockUI(true);
 }
 
 CBattleInterface::~CBattleInterface()
@@ -313,7 +283,6 @@ CBattleInterface::~CBattleInterface()
 	{
 		deactivate();
 	}
-	SDL_FreeSurface(menu);
 	SDL_FreeSurface(amountNormal);
 	SDL_FreeSurface(amountNegative);
 	SDL_FreeSurface(amountPositive);
@@ -357,20 +326,12 @@ void CBattleInterface::setPrintMouseShadow(bool set)
 
 void CBattleInterface::activate()
 {
+	controlPanel->activate();
+
 	if (curInt->isAutoFightOn)
-	{
-		bAutofight->activate();
 		return;
-	}
 
 	CIntObject::activate();
-	bOptions->activate();
-	bSurrender->activate();
-	bFlee->activate();
-	bAutofight->activate();
-	bSpell->activate();
-	bWait->activate();
-	bDefence->activate();
 
 	if (attackingHero)
 		attackingHero->activate();
@@ -382,31 +343,13 @@ void CBattleInterface::activate()
 	if (settings["battle"]["showQueue"].Bool())
 		queue->activate();
 
-	if (tacticsMode)
-	{
-		btactNext->activate();
-		btactEnd->activate();
-	}
-	else
-	{
-		bConsoleUp->activate();
-		bConsoleDown->activate();
-	}
-
 	LOCPLINT->cingconsole->activate();
 }
 
 void CBattleInterface::deactivate()
 {
+	controlPanel->deactivate();
 	CIntObject::deactivate();
-
-	bOptions->deactivate();
-	bSurrender->deactivate();
-	bFlee->deactivate();
-	bAutofight->deactivate();
-	bSpell->deactivate();
-	bWait->deactivate();
-	bDefence->deactivate();
 
 	fieldController->deactivate();
 
@@ -416,17 +359,6 @@ void CBattleInterface::deactivate()
 		defendingHero->deactivate();
 	if (settings["battle"]["showQueue"].Bool())
 		queue->deactivate();
-
-	if (tacticsMode)
-	{
-		btactNext->deactivate();
-		btactEnd->deactivate();
-	}
-	else
-	{
-		bConsoleUp->deactivate();
-		bConsoleDown->deactivate();
-	}
 
 	LOCPLINT->cingconsole->deactivate();
 }
@@ -466,189 +398,6 @@ void CBattleInterface::clickRight(tribool down, bool previousState)
 	{
 		endCastingSpell();
 	}
-}
-
-void CBattleInterface::bOptionsf()
-{
-	if (spellDestSelectMode) //we are casting a spell
-		return;
-
-	CCS->curh->changeGraphic(ECursor::ADVENTURE,0);
-
-	Rect tempRect = genRect(431, 481, 160, 84);
-	tempRect += pos.topLeft();
-	GH.pushIntT<CBattleOptionsWindow>(tempRect, this);
-}
-
-void CBattleInterface::bSurrenderf()
-{
-	if(spellDestSelectMode) //we are casting a spell
-		return;
-
-	int cost = curInt->cb->battleGetSurrenderCost();
-	if(cost >= 0)
-	{
-		std::string enemyHeroName = curInt->cb->battleGetEnemyHero().name;
-		if(enemyHeroName.empty())
-		{
-			logGlobal->warn("Surrender performed without enemy hero, should not happen!");
-			enemyHeroName = "#ENEMY#";
-		}
-
-		std::string surrenderMessage = boost::str(boost::format(CGI->generaltexth->allTexts[32]) % enemyHeroName % cost); //%s states: "I will accept your surrender and grant you and your troops safe passage for the price of %d gold."
-		curInt->showYesNoDialog(surrenderMessage, [this](){ reallySurrender(); }, nullptr);
-	}
-}
-
-void CBattleInterface::bFleef()
-{
-	if (spellDestSelectMode) //we are casting a spell
-		return;
-
-	if ( curInt->cb->battleCanFlee() )
-	{
-		CFunctionList<void()> ony = std::bind(&CBattleInterface::reallyFlee,this);
-		curInt->showYesNoDialog(CGI->generaltexth->allTexts[28], ony, nullptr); //Are you sure you want to retreat?
-	}
-	else
-	{
-		std::vector<std::shared_ptr<CComponent>> comps;
-		std::string heroName;
-		//calculating fleeing hero's name
-		if (attackingHeroInstance)
-			if (attackingHeroInstance->tempOwner == curInt->cb->getMyColor())
-				heroName = attackingHeroInstance->name;
-		if (defendingHeroInstance)
-			if (defendingHeroInstance->tempOwner == curInt->cb->getMyColor())
-				heroName = defendingHeroInstance->name;
-		//calculating text
-		auto txt = boost::format(CGI->generaltexth->allTexts[340]) % heroName; //The Shackles of War are present.  %s can not retreat!
-
-		//printing message
-		curInt->showInfoDialog(boost::to_string(txt), comps);
-	}
-}
-
-void CBattleInterface::reallyFlee()
-{
-	giveCommand(EActionType::RETREAT);
-	CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
-}
-
-void CBattleInterface::reallySurrender()
-{
-	if (curInt->cb->getResourceAmount(Res::GOLD) < curInt->cb->battleGetSurrenderCost())
-	{
-		curInt->showInfoDialog(CGI->generaltexth->allTexts[29]); //You don't have enough gold!
-	}
-	else
-	{
-		giveCommand(EActionType::SURRENDER);
-		CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
-	}
-}
-
-void CBattleInterface::bAutofightf()
-{
-	if(spellDestSelectMode) //we are casting a spell
-		return;
-
-	//Stop auto-fight mode
-	if(curInt->isAutoFightOn)
-	{
-		assert(curInt->autofightingAI);
-		curInt->isAutoFightOn = false;
-		logGlobal->trace("Stopping the autofight...");
-	}
-	else if(!curInt->autofightingAI)
-	{
-		curInt->isAutoFightOn = true;
-		blockUI(true);
-
-		auto ai = CDynLibHandler::getNewBattleAI(settings["server"]["friendlyAI"].String());
-		ai->init(curInt->env, curInt->cb);
-		ai->battleStart(army1, army2, int3(0,0,0), attackingHeroInstance, defendingHeroInstance, curInt->cb->battleGetMySide());
-		curInt->autofightingAI = ai;
-		curInt->cb->registerBattleInterface(ai);
-
-		requestAutofightingAIToTakeAction();
-	}
-}
-
-void CBattleInterface::bSpellf()
-{
-	if (spellDestSelectMode) //we are casting a spell
-		return;
-
-	if (!myTurn)
-		return;
-
-	auto myHero = currentHero();
-	if(!myHero)
-		return;
-
-	CCS->curh->changeGraphic(ECursor::ADVENTURE,0);
-
-	ESpellCastProblem::ESpellCastProblem spellCastProblem = curInt->cb->battleCanCastSpell(myHero, spells::Mode::HERO);
-
-	if(spellCastProblem == ESpellCastProblem::OK)
-	{
-		GH.pushIntT<CSpellWindow>(myHero, curInt.get());
-	}
-	else if (spellCastProblem == ESpellCastProblem::MAGIC_IS_BLOCKED)
-	{
-		//TODO: move to spell mechanics, add more information to spell cast problem
-		//Handle Orb of Inhibition-like effects -> we want to display dialog with info, why casting is impossible
-		auto blockingBonus = currentHero()->getBonusLocalFirst(Selector::type()(Bonus::BLOCK_ALL_MAGIC));
-		if (!blockingBonus)
-			return;
-
-		if (blockingBonus->source == Bonus::ARTIFACT)
-		{
-			const int32_t artID = blockingBonus->sid;
-			//If we have artifact, put name of our hero. Otherwise assume it's the enemy.
-			//TODO check who *really* is source of bonus
-			std::string heroName = myHero->hasArt(artID) ? myHero->name : enemyHero().name;
-
-			//%s wields the %s, an ancient artifact which creates a p dead to all magic.
-			LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[683])
-										% heroName % CGI->artifacts()->getByIndex(artID)->getName()));
-		}
-	}
-}
-
-void CBattleInterface::bWaitf()
-{
-	if (spellDestSelectMode) //we are casting a spell
-		return;
-
-	if (activeStack != nullptr)
-		giveCommand(EActionType::WAIT);
-}
-
-void CBattleInterface::bDefencef()
-{
-	if (spellDestSelectMode) //we are casting a spell
-		return;
-
-	if (activeStack != nullptr)
-		giveCommand(EActionType::DEFEND);
-}
-
-void CBattleInterface::bConsoleUpf()
-{
-	if (spellDestSelectMode) //we are casting a spell
-		return;
-
-	console->scrollUp();
-}
-
-void CBattleInterface::bConsoleDownf()
-{
-	if (spellDestSelectMode) //we are casting a spell
-		return;
-
-	console->scrollDown();
 }
 
 void CBattleInterface::unitAdded(const CStack * stack)
@@ -784,7 +533,7 @@ void CBattleInterface::newRoundFirst( int round )
 
 void CBattleInterface::newRound(int number)
 {
-	console->addText(CGI->generaltexth->allTexts[412]);
+	controlPanel->console->addText(CGI->generaltexth->allTexts[412]);
 }
 
 void CBattleInterface::giveCommand(EActionType action, BattleHex tile, si32 additional)
@@ -1050,7 +799,7 @@ void CBattleInterface::displayBattleLog(const std::vector<MetaString> & battleLo
 	{
 		std::string formatted = line.toString();
 		boost::algorithm::trim(formatted);
-		if(!console->addText(formatted))
+		if(!controlPanel->console->addText(formatted))
 			logGlobal->warn("Too long battle log line");
 	}
 }
@@ -1143,7 +892,7 @@ void CBattleInterface::battleTriggerEffect(const BattleTriggerEffect & bte)
 			boost::algorithm::replace_first(hlp,"%s",(stack->getName()));
 			displayEffect(20,stack->getPosition());
 			CCS->soundh->playSound(soundBase::GOODMRLE);
-			console->addText(hlp);
+			controlPanel->console->addText(hlp);
 			break;
 		}
 		default:
@@ -1194,7 +943,7 @@ void CBattleInterface::setActiveStack(const CStack *stack)
 	if (activeStack) // update UI
 		creAnims[activeStack->ID]->setBorderColor(AnimationControls::getGoldBorder());
 
-	blockUI(activeStack == nullptr);
+	controlPanel->blockUI(activeStack == nullptr);
 }
 
 void CBattleInterface::setHoveredStack(const CStack *stack)
@@ -1431,7 +1180,7 @@ void CBattleInterface::endAction(const BattleAction* action)
 	queue->update();
 
 	if (tacticsMode) //stack ended movement in tactics phase -> select the next one
-		bTacticNextStack(stack);
+		tacticNextStack(stack);
 
 	if(action->actionType == EActionType::HERO_SPELL) //we have activated next stack after sending request that has been just realized -> blockmap due to movement has changed
 		fieldController->redrawBackgroundWithHexes(activeStack);
@@ -1439,12 +1188,12 @@ void CBattleInterface::endAction(const BattleAction* action)
 	if (activeStack && !animsAreDisplayed.get() && pendingAnims.empty() && !active)
 	{
 		logGlobal->warn("Something wrong... interface was deactivated but there is no animation. Reactivating...");
-		blockUI(false);
+		controlPanel->blockUI(false);
 	}
 	else
 	{
 		// block UI if no active stack (e.g. enemy turn);
-		blockUI(activeStack == nullptr);
+		controlPanel->blockUI(activeStack == nullptr);
 	}
 }
 
@@ -1476,58 +1225,15 @@ void CBattleInterface::showQueue()
 	}
 }
 
-void CBattleInterface::blockUI(bool on)
-{
-	bool canCastSpells = false;
-	auto hero = curInt->cb->battleGetMyHero();
-
-	if(hero)
-	{
-		ESpellCastProblem::ESpellCastProblem spellcastingProblem = curInt->cb->battleCanCastSpell(hero, spells::Mode::HERO);
-
-		//if magic is blocked, we leave button active, so the message can be displayed after button click
-		canCastSpells = spellcastingProblem == ESpellCastProblem::OK || spellcastingProblem == ESpellCastProblem::MAGIC_IS_BLOCKED;
-	}
-
-	bool canWait = activeStack ? !activeStack->waitedThisTurn : false;
-
-	bOptions->block(on);
-	bFlee->block(on || !curInt->cb->battleCanFlee());
-	bSurrender->block(on || curInt->cb->battleGetSurrenderCost() < 0);
-
-	// block only if during enemy turn and auto-fight is off
-	// otherwise - crash on accessing non-exisiting active stack
-	bAutofight->block(!curInt->isAutoFightOn && !activeStack);
-
-	if (tacticsMode && btactEnd && btactNext)
-	{
-		btactNext->block(on);
-		btactEnd->block(on);
-	}
-	else
-	{
-		bConsoleUp->block(on);
-		bConsoleDown->block(on);
-	}
-
-
-	bSpell->block(on || tacticsMode || !canCastSpells);
-	bWait->block(on || tacticsMode || !canWait);
-	bDefence->block(on || tacticsMode);
-}
-
 void CBattleInterface::startAction(const BattleAction* action)
 {
 	//setActiveStack(nullptr);
 	setHoveredStack(nullptr);
-	blockUI(true);
+	controlPanel->blockUI(true);
 
 	if(action->actionType == EActionType::END_TACTIC_PHASE)
 	{
-		SDL_FreeSurface(menu);
-		menu = BitmapHandler::loadBitmap("CBAR.bmp");
-
-		graphics->blueToPlayersAdv(menu, curInt->playerID);
+		controlPanel->tacticPhaseEnded();
 		return;
 	}
 
@@ -1586,7 +1292,7 @@ void CBattleInterface::startAction(const BattleAction* action)
 	}
 
 	if(txtid != 0)
-		console->addText(stack->formatGeneralMessage(txtid));
+		controlPanel->console->addText(stack->formatGeneralMessage(txtid));
 
 	//displaying special abilities
 	switch(action->actionType)
@@ -1604,10 +1310,10 @@ void CBattleInterface::waitForAnims()
 	animsAreDisplayed.waitWhileTrue();
 }
 
-void CBattleInterface::bEndTacticPhase()
+void CBattleInterface::tacticPhaseEnd()
 {
 	setActiveStack(nullptr);
-	blockUI(true);
+	controlPanel->blockUI(true);
 	tacticsMode = false;
 }
 
@@ -1616,7 +1322,7 @@ static bool immobile(const CStack *s)
 	return !s->Speed(0, true); //should bound stacks be immobile?
 }
 
-void CBattleInterface::bTacticNextStack(const CStack * current)
+void CBattleInterface::tacticNextStack(const CStack * current)
 {
 	if (!current)
 		current = activeStack;
@@ -1628,7 +1334,7 @@ void CBattleInterface::bTacticNextStack(const CStack * current)
 	vstd::erase_if (stacksOfMine, &immobile);
 	if (stacksOfMine.empty())
 	{
-		bEndTacticPhase();
+		tacticPhaseEnd();
 		return;
 	}
 
@@ -2099,8 +1805,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 		{
 			if (setCursor)
 				CCS->curh->changeGraphic(cursorType, cursorFrame);
-			this->console->alterText(consoleMsg);
-			this->console->whoSetAlter = 0;
+			controlPanel->console->write(consoleMsg);
 		}
 		if (eventType == LCLICK && realizeAction)
 		{
@@ -2112,7 +1817,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 			realizeAction();
 			if (!secondaryTarget) //do not replace teleport or sacrifice cursor
 				CCS->curh->changeGraphic(ECursor::COMBAT, ECursor::COMBAT_POINTER);
-			this->console->alterText("");
+			controlPanel->console->clear();
 		}
 	}
 }
@@ -2215,7 +1920,7 @@ void CBattleInterface::requestAutofightingAIToTakeAction()
 				//TODO implement the possibility that the AI will be triggered for further actions
 				//TODO any solution to merge tactics phase & normal phase in the way it is handled by the player and battle interface?
 				setActiveStack(nullptr);
-				blockUI(true);
+				controlPanel->blockUI(true);
 				tacticsMode = false;
 			}
 			else
@@ -2443,31 +2148,9 @@ void CBattleInterface::showBattleEffects(SDL_Surface *to, const std::vector<cons
 
 void CBattleInterface::showInterface(SDL_Surface *to)
 {
-	blitAt(menu, pos.x, 556 + pos.y, to);
-
-	if (tacticsMode)
-	{
-		btactNext->showAll(to);
-		btactEnd->showAll(to);
-	}
-	else
-	{
-		console->showAll(to);
-		bConsoleUp->showAll(to);
-		bConsoleDown->showAll(to);
-	}
-
-	//showing buttons
-	bOptions->showAll(to);
-	bSurrender->showAll(to);
-	bFlee->showAll(to);
-	bAutofight->showAll(to);
-	bSpell->showAll(to);
-	bWait->showAll(to);
-	bDefence->showAll(to);
-
 	//showing in-game console
 	LOCPLINT->cingconsole->show(to);
+	controlPanel->show(to);
 
 	Rect posWithQueue = Rect(pos.x, pos.y, 800, 600);
 
@@ -2594,7 +2277,7 @@ void CBattleInterface::updateBattleAnimations()
 	if (preSize > 0 && pendingAnims.empty())
 	{
 		//anims ended
-		blockUI(activeStack == nullptr);
+		controlPanel->blockUI(activeStack == nullptr);
 
 		animsAreDisplayed.setn(false);
 	}

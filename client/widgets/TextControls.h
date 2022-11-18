@@ -114,7 +114,7 @@ public:
 };
 
 /// Status bar which is shown at the bottom of the in-game screens
-class CGStatusBar : public CLabel, public std::enable_shared_from_this<CGStatusBar>
+class CGStatusBar : public CLabel, public std::enable_shared_from_this<CGStatusBar>, public IStatusBar
 {
 	bool textLock; //Used for blocking changes to the text
 	void init();
@@ -132,12 +132,14 @@ public:
 		ret->init();
 		return ret;
 	}
-	void clear();//clears statusbar and refreshes
-	void setText(const std::string & Text) override; //prints text and refreshes statusbar
+
+	void clearMatching(const std::string & Text) override;
+	void clear() override;//clears statusbar and refreshes
+	void write(const std::string & Text) override; //prints text and refreshes statusbar
 
 	void show(SDL_Surface * to) override; //shows statusbar (with current text)
 
-	void lock(bool shouldLock); //If true, current text cannot be changed until lock(false) is called
+	void lock(bool shouldLock) override; //If true, current text cannot be changed until lock(false) is called
 };
 
 class CFocusable;

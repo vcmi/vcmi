@@ -15,6 +15,7 @@
 #include "battle/CBattleInterface.h"
 #include "battle/CBattleFieldController.h"
 #include "battle/CBattleInterfaceClasses.h"
+#include "battle/CBattleControlPanel.h"
 #include "../CCallback.h"
 #include "windows/CCastleInterface.h"
 #include "gui/CCursorHandler.h"
@@ -1028,19 +1029,19 @@ void CPlayerInterface::battleAttack(const BattleAttack * ba)
 
 	if(ba->lucky()) //lucky hit
 	{
-		battleInt->console->addText(attacker->formatGeneralMessage(-45));
+		battleInt->controlPanel->console->addText(attacker->formatGeneralMessage(-45));
 		battleInt->displayEffect(18, attacker->getPosition());
 		CCS->soundh->playSound(soundBase::GOODLUCK);
 	}
 	if(ba->unlucky()) //unlucky hit
 	{
-		battleInt->console->addText(attacker->formatGeneralMessage(-44));
+		battleInt->controlPanel->console->addText(attacker->formatGeneralMessage(-44));
 		battleInt->displayEffect(48, attacker->getPosition());
 		CCS->soundh->playSound(soundBase::BADLUCK);
 	}
 	if(ba->deathBlow())
 	{
-		battleInt->console->addText(attacker->formatGeneralMessage(365));
+		battleInt->controlPanel->console->addText(attacker->formatGeneralMessage(365));
 		for(auto & elem : ba->bsa)
 		{
 			const CStack * attacked = cb->battleGetStackByID(elem.stackAttacked);

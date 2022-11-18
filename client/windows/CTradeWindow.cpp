@@ -244,13 +244,13 @@ void CTradeWindow::CTradeableItem::hover(bool on)
 	{
 	case CREATURE:
 	case CREATURE_PLACEHOLDER:
-		GH.statusbar->setText(boost::str(boost::format(CGI->generaltexth->allTexts[481]) % CGI->creh->objects[id]->namePl));
+		GH.statusbar->write(boost::str(boost::format(CGI->generaltexth->allTexts[481]) % CGI->creh->objects[id]->namePl));
 		break;
 	case ARTIFACT_PLACEHOLDER:
 		if(id < 0)
-			GH.statusbar->setText(CGI->generaltexth->zelp[582].first);
+			GH.statusbar->write(CGI->generaltexth->zelp[582].first);
 		else
-			GH.statusbar->setText(CGI->artifacts()->getByIndex(id)->getName());
+			GH.statusbar->write(CGI->artifacts()->getByIndex(id)->getName());
 		break;
 	}
 }

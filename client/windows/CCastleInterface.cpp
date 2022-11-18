@@ -261,7 +261,7 @@ void CBuildingRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 			  || (*parent->selectedBuilding)<(*this)) //or we are on top
 			{
 				parent->selectedBuilding = this;
-				GH.statusbar->setText(getSubtitle());
+				GH.statusbar->write(getSubtitle());
 			}
 		}
 	}
@@ -379,7 +379,7 @@ void CHeroGSlot::hover(bool on)
 		}
 	}
 	if(temp.size())
-		GH.statusbar->setText(temp);
+		GH.statusbar->write(temp);
 }
 
 void CHeroGSlot::clickLeft(tribool down, bool previousState)
@@ -1031,11 +1031,11 @@ void CCreaInfo::hover(bool on)
 
 	if(on)
 	{
-		GH.statusbar->setText(message);
+		GH.statusbar->write(message);
 	}
-	else if (message == GH.statusbar->getText())
+	else
 	{
-		GH.statusbar->clear();
+		GH.statusbar->clearMatching(message);
 	}
 }
 
@@ -1105,7 +1105,7 @@ void CTownInfo::hover(bool on)
 	if(on)
 	{
 		if(building )
-			GH.statusbar->setText(building->Name());
+			GH.statusbar->write(building->Name());
 	}
 	else
 	{
@@ -1326,7 +1326,7 @@ void CHallInterface::CBuildingBox::hover(bool on)
 		else
 			toPrint = CGI->generaltexth->hcommands[state];
 		boost::algorithm::replace_first(toPrint,"%s",building->Name());
-		GH.statusbar->setText(toPrint);
+		GH.statusbar->write(toPrint);
 	}
 	else
 	{
@@ -1515,7 +1515,7 @@ void LabeledValue::hover(bool on)
 {
 	if(on)
 	{
-		GH.statusbar->setText(hoverText);
+		GH.statusbar->write(hoverText);
 	}
 	else
 	{
@@ -1683,7 +1683,7 @@ const CBuilding * CFortScreen::RecruitArea::getMyBuilding()
 void CFortScreen::RecruitArea::hover(bool on)
 {
 	if(on)
-		GH.statusbar->setText(hoverText);
+		GH.statusbar->write(hoverText);
 	else
 		GH.statusbar->clear();
 }
@@ -1774,7 +1774,7 @@ void CMageGuildScreen::Scroll::clickRight(tribool down, bool previousState)
 void CMageGuildScreen::Scroll::hover(bool on)
 {
 	if(on)
-		GH.statusbar->setText(spell->name);
+		GH.statusbar->write(spell->name);
 	else
 		GH.statusbar->clear();
 

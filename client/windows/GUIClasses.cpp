@@ -799,7 +799,7 @@ void CTavernWindow::HeroPortrait::hover(bool on)
 {
 	//Hoverable::hover(on);
 	if(on)
-		GH.statusbar->setText(hoverName);
+		GH.statusbar->write(hoverName);
 	else
 		GH.statusbar->clear();
 }
@@ -1550,7 +1550,7 @@ void CUniversityWindow::CItem::clickRight(tribool down, bool previousState)
 void CUniversityWindow::CItem::hover(bool on)
 {
 	if(on)
-		GH.statusbar->setText(CGI->skillh->skillName(ID));
+		GH.statusbar->write(CGI->skillh->skillName(ID));
 	else
 		GH.statusbar->clear();
 }

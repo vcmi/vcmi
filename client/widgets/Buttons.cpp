@@ -207,26 +207,10 @@ void CButton::hover (bool on)
 
 	if(!name.empty() && !isBlocked()) //if there is no name, there is nothing to display also
 	{
-		if (LOCPLINT && LOCPLINT->battleInt) //for battle buttons
-		{
-			if(on && LOCPLINT->battleInt->console->alterTxt == "")
-			{
-				LOCPLINT->battleInt->console->alterTxt = name;
-				LOCPLINT->battleInt->console->whoSetAlter = 1;
-			}
-			else if (LOCPLINT->battleInt->console->alterTxt == name)
-			{
-				LOCPLINT->battleInt->console->alterTxt = "";
-				LOCPLINT->battleInt->console->whoSetAlter = 0;
-			}
-		}
-		else if(GH.statusbar) //for other buttons
-		{
-			if (on)
-				GH.statusbar->setText(name);
-			else if ( GH.statusbar->getText()==(name) )
-				GH.statusbar->clear();
-		}
+		if (on)
+			GH.statusbar->write(name);
+		else
+			GH.statusbar->clearMatching(name);
 	}
 }
 
@@ -530,7 +514,7 @@ void CVolumeSlider::clickRight(tribool down, bool previousState)
 		if(!helpBox.empty())
 			CRClickPopup::createAndPush(helpBox);
 		if(GH.statusbar)
-			GH.statusbar->setText(helpBox);
+			GH.statusbar->write(helpBox);
 	}
 }
 

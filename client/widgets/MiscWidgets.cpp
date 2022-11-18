@@ -34,9 +34,9 @@
 void CHoverableArea::hover (bool on)
 {
 	if (on)
-		GH.statusbar->setText(hoverText);
-	else if (GH.statusbar->getText()==hoverText)
-		GH.statusbar->clear();
+		GH.statusbar->write(hoverText);
+	else
+		GH.statusbar->clearMatching(hoverText);
 }
 
 CHoverableArea::CHoverableArea()
@@ -150,7 +150,7 @@ void CHeroArea::clickRight(tribool down, bool previousState)
 void CHeroArea::hover(bool on)
 {
 	if (on && hero)
-		GH.statusbar->setText(hero->getObjectName());
+		GH.statusbar->write(hero->getObjectName());
 	else
 		GH.statusbar->clear();
 }
