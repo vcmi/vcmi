@@ -388,6 +388,7 @@ namespace ArtifactUtils
 	DLL_LINKAGE std::vector<ArtifactPosition> unmovablePositions(); // TODO: Make this constexpr when the toolset is upgraded
 	DLL_LINKAGE bool isArtRemovable(const std::pair<ArtifactPosition, ArtSlotInfo> & slot);
 	DLL_LINKAGE bool checkSpellbookIsNeeded(const CGHeroInstance * heroPtr, ArtifactID artID, ArtifactPosition slot);
+	DLL_LINKAGE bool isSlotBackpack(ArtifactPosition slot);
 }
 
 VCMI_LIB_NAMESPACE_END

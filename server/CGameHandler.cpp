@@ -4036,9 +4036,7 @@ bool CGameHandler::assembleArtifacts (ObjectInstanceID heroID, ArtifactPosition 
 		CArtifact *combinedArt = VLC->arth->objects[assembleTo];
 		if(!combinedArt->constituents)
 			COMPLAIN_RET("assembleArtifacts: Artifact being attempted to assemble is not a combined artifacts!");
-		bool combineEquipped = true;
-		if(artifactSlot >= GameConstants::BACKPACK_START)
-			combineEquipped = false;
+		bool combineEquipped = !ArtifactUtils::isSlotBackpack(artifactSlot);
 		if(!vstd::contains(destArtifact->assemblyPossibilities(hero, combineEquipped), combinedArt))
 			COMPLAIN_RET("assembleArtifacts: It's impossible to assemble requested artifact!");
 

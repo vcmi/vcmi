@@ -883,7 +883,7 @@ std::vector<const CArtifact *> CArtifactInstance::assemblyPossibilities(const CA
 
 		for(const auto * constituent : *artifact->constituents) //check if all constituents are available
 		{
-			if (equipped)
+			if(equipped)
 			{
 				// Search for equipped arts
 				if (!h->hasArt(constituent->id, true, false, false))
@@ -1562,6 +1562,11 @@ DLL_LINKAGE bool ArtifactUtils::checkSpellbookIsNeeded(const CGHeroInstance * he
 		}
 	}
 	return false;
+}
+
+DLL_LINKAGE bool ArtifactUtils::isSlotBackpack(ArtifactPosition slot)
+{
+	return slot >= GameConstants::BACKPACK_START;
 }
 
 VCMI_LIB_NAMESPACE_END
