@@ -81,7 +81,7 @@ namespace BitmapHandler
 		}
 		else
 		{
-			QImage image(pcx + it, width, height, width * 4, QImage::Format_RGB32);
+			QImage image(pcx + it, width, height, width * 3, QImage::Format_RGB888);
 			return image;
 		}
 	}
