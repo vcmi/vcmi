@@ -477,7 +477,7 @@ inline void ImageLoader::Load(size_t size, ui8 color)
 
 inline void ImageLoader::EndLine()
 {
-	lineStart += fullSize.x();
+	lineStart += image->bytesPerLine();
 	position = lineStart;
 }
 
