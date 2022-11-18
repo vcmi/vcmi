@@ -450,10 +450,10 @@ void ImageLoader::init(QPoint SpriteSize, QPoint Margins, QPoint FullSize)
 	margins = Margins;
 	fullSize = FullSize;
 	
-	memset((void *)image->bits(), 0, fullSize.y() * fullSize.x());
+	memset((void *)image->bits(), 0, fullSize.y() * image->bytesPerLine());
 	
 	lineStart = image->bits();
-	lineStart += margins.y() * fullSize.x() + margins.x();
+	lineStart += margins.y() * image->bytesPerLine + margins.x();
 	position = lineStart;
 }
 
