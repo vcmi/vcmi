@@ -26,16 +26,6 @@ namespace bfs = boost::filesystem;
 
 typedef std::map<size_t, std::vector<JsonNode>> source_map;
 
-// ToDo: krs - temp location for this function. Need to move to right lib and see if it works on other platforms.
-QString QStringFromPath(const bfs::path& filePath)
-{
-#ifdef _WIN32
-	return QString::fromStdWString(filePath.generic_wstring());
-#else
-	return QString::fromStdString(filePath.native());
-#endif
-}
-
 /// Class for def loading
 /// After loading will store general info (palette and frame offsets) and pointer to file itself
 class DefFile
@@ -825,4 +815,13 @@ void Animation::createFlippedGroup(const size_t sourceGroup, const size_t target
 		auto image = getImage(frame, targetGroup);
 		*image = image->transformed(QTransform::fromScale(1, -1));
 	}
+}
+
+QString QStringFromPath(const bfs::path& filePath)
+{
+#ifdef _WIN32
+	return QString::fromStdWString(filePath.generic_wstring());
+#else
+	return QString::fromStdString(filePath.native());
+#endif
 }

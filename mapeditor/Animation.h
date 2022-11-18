@@ -83,7 +83,7 @@ public:
 	void load  (size_t frame, size_t group = 0);
 	void unload(size_t frame, size_t group = 0);
 
-	void exportBitmaps(const boost::filesystem::path& path, bool prependResourceName) const;
+	void exportBitmaps(const boost::filesystem::path& path, bool prependResourceName = false) const;
 
 	//total count of frames in group (including not loaded)
 	size_t size(size_t group = 0) const;
@@ -94,3 +94,6 @@ public:
 
 	void createFlippedGroup(const size_t sourceGroup, const size_t targetGroup);
 };
+
+// ToDo: krs - temp location for this function. Need to move to right lib and see if it works on other platforms.
+QString QStringFromPath(const boost::filesystem::path& filePath);

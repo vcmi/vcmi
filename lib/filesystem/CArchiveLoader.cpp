@@ -20,7 +20,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 namespace bfs = boost::filesystem;
 
-const bool extractArchives = 1;
+const bool extractArchives = false;
 
 ArchiveEntry::ArchiveEntry()
 	: offset(0), fullSize(0), compressedSize(0)

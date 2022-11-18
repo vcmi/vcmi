@@ -6,63 +6,54 @@
 #include "../lib/VCMIDirs.h"
 #include "../lib/filesystem/Filesystem.h"
 
-//#include "SDL.h"
+#include "BitmapHandler.h"
 #include "Animation.h"
-//#include "CBitmapHandler.h"
 
 #include "boost/filesystem/path.hpp"
 #include "boost/locale.hpp"
 
 namespace bfs = boost::filesystem;
 
-bool split_def_files = 1;
-bool convert_pcx_to_bmp = 0; // converts Images from .pcx to bmp. Can be used when you have .pcx converted already
-bool delete_source_files = 0; // delete source files or leave a copy in place.
+bool split_def_files = false;		// splits TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 and Un44 into individual PNG's
+bool convert_pcx_to_png = false;	// converts single Images (found in Images folder) from .pcx to png.
+bool delete_source_files = false;	// delete source files after splitting / conversion.
 
-// converts all pcx files into bmp (H3 saves images as .pcx)
-//void convertPcxToBmp()
-//{
-//	bfs::path extractedPath = VCMIDirs::get().userDataPath() / "extracted";
-//	bfs::path imagesPath = extractedPath / "Images";
-//
-//	bfs::directory_iterator end_iter;
-//
-//	for ( bfs::directory_iterator dir_itr(imagesPath); dir_itr != end_iter; ++dir_itr )
-//	{
-//		try
-//		{
-//			if ( bfs::is_regular_file( dir_itr->status() ) )
-//			{
-//				std::string filename = dir_itr->path().filename().string();
-//				filename = boost::locale::to_lower(filename);
-//
-//				if(filename.find(".pcx") != std::string::npos)
-//				{
-//					SDL_Surface *bitmap;
-//					
-//					bitmap = BitmapHandler::loadBitmap(filename);
-//					
-//					if(delete_source_files)
-//						bfs::remove(imagesPath / filename);
-//
-//					bfs::path outFilePath = imagesPath / filename;
-//					outFilePath.replace_extension(".bmp");
-//	 				SDL_SaveBMP(bitmap, outFilePath.string().c_str());
-//				}
-//			}
-//			else
-//			{
-//				logGlobal->info(dir_itr->path().filename().string() + " [other]\n");
-//			}
-//		}
-//		catch ( const std::exception & ex )
-//		{
-//			logGlobal->info(dir_itr->path().filename().string() + " " + ex.what() + "\n");
-//		}
-//	}
-//}
+// converts all pcx files from /Images into PNG
+void convertPcxToPng()
+{
+	bfs::path imagesPath = VCMIDirs::get().userCachePath() / "extracted" / "Images";
+	bfs::directory_iterator end_iter;
 
-// splits a def file into individual parts
+	for ( bfs::directory_iterator dir_itr(imagesPath); dir_itr != end_iter; ++dir_itr )
+	{
+		try
+		{
+			if (!bfs::is_regular_file(dir_itr->status()))
+				return;
+
+			std::string filePath = dir_itr->path().string();
+			std::string fileStem = dir_itr->path().stem().string();
+			std::string filename = dir_itr->path().filename().string();
+			filename = boost::locale::to_lower(filename);
+
+			if(filename.find(".pcx") != std::string::npos)
+			{
+				auto img = BitmapHandler::loadBitmap(filename);
+				bfs::path pngFilePath = imagesPath / (fileStem + ".png");
+				img.save(QStringFromPath(pngFilePath), "PNG");
+
+				if (delete_source_files)
+					bfs::remove(filePath);
+			}
+		}
+		catch ( const std::exception & ex )
+		{
+			logGlobal->info(dir_itr->path().filename().string() + " " + ex.what() + "\n");
+		}
+	}
+}
+
+// splits a def file into individual parts and converts the output to PNG format
 void splitDefFile(std::string fileName, bfs::path spritesPath)
 {
 	if (CResourceHandler::get()->existsResource(ResourceID("SPRITES/" + fileName)))
@@ -79,7 +70,7 @@ void splitDefFile(std::string fileName, bfs::path spritesPath)
 		logGlobal->error("Def File Split error! " + fileName);
 }
 
-// split def files, this way faction resources are independent
+// splits def files (TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 and Un44), this way faction resources are independent
 void splitDefFiles()
 {
 	bfs::path extractedPath = VCMIDirs::get().userDataPath() / "extracted";
@@ -100,27 +91,6 @@ void ConvertOriginalResourceFiles()
 	if (split_def_files)
 		splitDefFiles();
 
-	//if (convert_pcx_to_bmp)
-	//	convertPcxToBmp();
+	if (convert_pcx_to_png)
+		convertPcxToPng();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
