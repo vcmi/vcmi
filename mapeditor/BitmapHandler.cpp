@@ -117,7 +117,7 @@ namespace BitmapHandler
 			{
 				logGlobal->error("Failed to open %s as H3 PCX!", fname);
 			}
-			return image;
+			return image.copy(); //copy must be returned here because buffer readFile.first used to build QImage will be cleaned after this line
 		}
 		else
 		{ //loading via QImage
