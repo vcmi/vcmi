@@ -329,6 +329,7 @@ public:
 	/// (if more than one such artifact lower ID is returned)
 	ArtifactPosition getArtPos(int aid, bool onlyWorn = true, bool allowLocked = true) const;
 	ArtifactPosition getArtPos(const CArtifactInstance *art) const;
+	ArtifactPosition getArtBackpackPos(int aid) const;
 	std::vector<ArtifactPosition> getAllArtPositions(int aid, bool onlyWorn, bool allowLocked, bool getAll) const;
 	std::vector<ArtifactPosition> getBackpackArtPositions(int aid) const;
 	const CArtifactInstance *getArtByInstanceId(ArtifactInstanceID artInstId) const;

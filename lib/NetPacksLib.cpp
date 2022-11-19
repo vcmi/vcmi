@@ -1179,7 +1179,8 @@ DLL_LINKAGE void AssembledArtifact::applyGs(CGameState *gs)
 	// Retrieve all constituents
 	for(const CArtifact * constituent : *builtArt->constituents)
 	{
-		ArtifactPosition pos = artSet->getArtPos(constituent->id, combineEquipped);
+		ArtifactPosition pos = combineEquipped ? artSet->getArtPos(constituent->id, true, false) :
+			artSet->getArtBackpackPos(constituent->id);
 		assert(pos >= 0);
 		CArtifactInstance * constituentInstance = artSet->getArt(pos);
 
