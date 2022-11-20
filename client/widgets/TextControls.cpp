@@ -388,6 +388,20 @@ void CGStatusBar::init()
 	GH.statusbar = shared_from_this();
 }
 
+void CGStatusBar::clickLeft(tribool down, bool previousState)
+{
+	if(!down && onClick)
+	{
+		onClick();
+	}
+}
+
+void CGStatusBar::setOnClick(std::function<void()> handler)
+{
+	onClick = handler;
+	addUsedEvents(LCLICK);
+}
+
 Point CGStatusBar::getBorderSize()
 {
 	//Width of borders where text should not be printed
