@@ -1236,7 +1236,7 @@ std::vector<ArtifactPosition> CArtifactSet::getBackpackArtPositions(int aid) con
 	for(auto & artInfo : artifactsInBackpack)
 	{
 		auto * art = artInfo.getArt();
-		if (art && art->artType->id == aid)
+		if(art && art->artType->id == aid)
 			result.emplace_back(backpackPosition);
 		backpackPosition++;
 	}
