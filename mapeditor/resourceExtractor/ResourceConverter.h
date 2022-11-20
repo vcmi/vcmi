@@ -10,4 +10,5 @@
  *
  */
  
-void ConvertOriginalResourceFiles();
+ // Splits def files that are shared between factions and converts pcx to bmp
+void ConvertExtractedResourceFiles(bool splitDefs, bool convertPcxToPng, bool deleteOriginals);

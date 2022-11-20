@@ -52,10 +52,11 @@ public:
 	 * These are valid extensions: .LOD, .SND, .VID
 	 *
 	 * @param archive Specifies the file path to the archive which should be indexed and loaded.
+	 * @param extractArchives Specifies if the original H3 archives should be extracted to a separate folder.
 	 *
 	 * @throws std::runtime_error if the archive wasn't found or if the archive isn't supported
 	 */
-	CArchiveLoader(std::string mountPoint, boost::filesystem::path archive);
+	CArchiveLoader(std::string mountPoint, boost::filesystem::path archive, bool extractArchives = false);
 
 	/// Interface implementation
 	/// @see ISimpleResourceLoader
@@ -98,6 +99,9 @@ private:
 
 	/** Holds all entries of the archive file. An entry can be accessed via the entry name. **/
 	std::unordered_map<ResourceID, ArchiveEntry> entries;
+
+	/** Specifies if Original H3 archives should be extracted to a separate folder **/
+	bool extractArchives;
 };
 
 /** Constructs the file path for the extracted file. Creates the subfolder hierarchy aswell **/

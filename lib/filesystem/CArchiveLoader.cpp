@@ -20,18 +20,18 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 namespace bfs = boost::filesystem;
 
-const bool extractArchives = false;
-
 ArchiveEntry::ArchiveEntry()
 	: offset(0), fullSize(0), compressedSize(0)
 {
 
 }
 
-CArchiveLoader::CArchiveLoader(std::string _mountPoint, bfs::path _archive) :
+CArchiveLoader::CArchiveLoader(std::string _mountPoint, bfs::path _archive, bool extractArchives) :
     archive(std::move(_archive)),
     mountPoint(std::move(_mountPoint))
 {
+	this->extractArchives = extractArchives;
+
 	// Open archive file(.snd, .vid, .lod)
 	CFileInputStream fileStream(archive);
 

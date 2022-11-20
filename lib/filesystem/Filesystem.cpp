@@ -26,10 +26,11 @@ VCMI_LIB_NAMESPACE_BEGIN
 std::map<std::string, ISimpleResourceLoader*> CResourceHandler::knownLoaders = std::map<std::string, ISimpleResourceLoader*>();
 CResourceHandler CResourceHandler::globalResourceHandler;
 
-CFilesystemGenerator::CFilesystemGenerator(std::string prefix):
+CFilesystemGenerator::CFilesystemGenerator(std::string prefix, bool extractArchives):
 	filesystem(new CFilesystemList()),
 	prefix(prefix)
 {
+	this->extractArchives = extractArchives;
 }
 
 CFilesystemGenerator::TLoadFunctorMap CFilesystemGenerator::genFunctorMap()
@@ -105,7 +106,7 @@ void CFilesystemGenerator::loadArchive(const std::string &mountPoint, const Json
 	std::string URI = prefix + config["path"].String();
 	auto filename = CResourceHandler::get("initial")->getResourceName(ResourceID(URI, archiveType));
 	if (filename)
-		filesystem->addLoader(new CArchiveLoader(mountPoint, *filename), false);
+		filesystem->addLoader(new CArchiveLoader(mountPoint, *filename, extractArchives), false);
 }
 
 void CFilesystemGenerator::loadJsonMap(const std::string &mountPoint, const JsonNode & config)
@@ -200,16 +201,16 @@ ISimpleResourceLoader * CResourceHandler::get(std::string identifier)
 	return knownLoaders.at(identifier);
 }
 
-void CResourceHandler::load(const std::string &fsConfigURI)
+void CResourceHandler::load(const std::string &fsConfigURI, bool extractArchives)
 {
 	auto fsConfigData = get("initial")->load(ResourceID(fsConfigURI, EResType::TEXT))->readAll();
 
 	const JsonNode fsConfig((char*)fsConfigData.first.get(), fsConfigData.second);
 
-	addFilesystem("data", "core", createFileSystem("", fsConfig["filesystem"]));
+	addFilesystem("data", "core", createFileSystem("", fsConfig["filesystem"], extractArchives));
 }
 
-void CResourceHandler::addFilesystem(const std::string & parent, const std::string & identifier, ISimpleResourceLoader * loader)
+void CResourceHandler::addFilesystem(const std::string & parent, const std::string & identifier, ISimpleResourceLoader * loader, bool extractArchives)
 {
 	if(knownLoaders.count(identifier) != 0)
 	{
@@ -246,9 +247,9 @@ bool CResourceHandler::removeFilesystem(const std::string & parent, const std::s
 	return true;
 }
 
-ISimpleResourceLoader * CResourceHandler::createFileSystem(const std::string & prefix, const JsonNode &fsConfig)
+ISimpleResourceLoader * CResourceHandler::createFileSystem(const std::string & prefix, const JsonNode &fsConfig, bool extractArchives)
 {
-	CFilesystemGenerator generator(prefix);
+	CFilesystemGenerator generator(prefix, extractArchives);
 	generator.loadConfig(fsConfig);
 	return generator.getFilesystem();
 }

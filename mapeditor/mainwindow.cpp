@@ -89,6 +89,39 @@ void MainWindow::saveUserSettings()
 	s.setValue(mainWindowPositionSetting, pos());
 }
 
+void MainWindow::parseCommandLine()
+{
+	QCommandLineParser parser;
+	parser.addHelpOption();
+	parser.addPositionalArgument("map", QCoreApplication::translate("main", "Filepath of the map to open."));
+
+	parser.addOptions({
+		{"e", QCoreApplication::translate("main", "Extract original H3 archives into a separate folder.")},
+		{"s", QCoreApplication::translate("main", "From an extracted archive, it Splits TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 and Un44 into individual PNG's.")},
+		{"c", QCoreApplication::translate("main", "From an extracted archive, Converts single Images (found in Images folder) from .pcx to png.")},
+		{"d", QCoreApplication::translate("main", "Delete original files, for the ones splitted / converted.")},
+		});
+
+	parser.process(qApp->arguments());
+
+	const QStringList positionalArgs = parser.positionalArguments();
+
+	if (!positionalArgs.isEmpty())
+		mapFilePath = positionalArgs.at(0);
+
+	if (parser.isSet("e"))
+		extractArchives = true;
+
+	if (parser.isSet("s"))
+		splitDefs = true;
+
+	if (parser.isSet("c"))
+		convertPcxToPng = true;
+
+	if (parser.isSet("d"))
+		deleteOriginals = true;
+}
+
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
 	ui(new Ui::MainWindow),
@@ -102,15 +135,17 @@ MainWindow::MainWindow(QWidget *parent) :
 	// This is important on Mac for relative paths to work inside DMG.
 	QDir::setCurrent(QApplication::applicationDirPath());
 
+	parseCommandLine();
+
 	//configure logging
 	const boost::filesystem::path logPath = VCMIDirs::get().userLogsPath() / "VCMI_Editor_log.txt";
 	console = new CConsoleHandler();
 	logConfig = new CBasicLogConfigurator(logPath, console);
 	logConfig->configureDefault();
 	logGlobal->info("The log file will be saved to %s", logPath);
-	
+
 	//init
-	preinitDLL(::console);
+	preinitDLL(::console, false, extractArchives);
 	settings.init();
 	
 	// Initialize logging based on settings
@@ -140,7 +175,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	
 	graphics = new Graphics(); // should be before curh->init()
 	graphics->load();//must be after Content loading but should be in main thread
-	ConvertOriginalResourceFiles();
+
+	ConvertExtractedResourceFiles(splitDefs, convertPcxToPng, deleteOriginals);
 	
 	ui->mapView->setScene(controller.scene(0));
 	ui->mapView->setController(&controller);
@@ -169,8 +205,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	show();
 	
 	//Load map from command line
-	if(qApp->arguments().size() >= 2)
-		openMap(qApp->arguments().at(1));
+	if(!mapFilePath.isEmpty())
+		openMap(mapFilePath);
 }
 
 MainWindow::~MainWindow()

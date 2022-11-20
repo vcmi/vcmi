@@ -14,12 +14,8 @@
 
 namespace bfs = boost::filesystem;
 
-bool split_def_files = false;		// splits TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 and Un44 into individual PNG's
-bool convert_pcx_to_png = false;	// converts single Images (found in Images folder) from .pcx to png.
-bool delete_source_files = false;	// delete source files after splitting / conversion.
-
 // converts all pcx files from /Images into PNG
-void convertPcxToPng()
+void ConvertPcxToPng(bool deleteOriginals)
 {
 	bfs::path imagesPath = VCMIDirs::get().userCachePath() / "extracted" / "Images";
 	bfs::directory_iterator end_iter;
@@ -42,7 +38,7 @@ void convertPcxToPng()
 				bfs::path pngFilePath = imagesPath / (fileStem + ".png");
 				img.save(QStringFromPath(pngFilePath), "PNG");
 
-				if (delete_source_files)
+				if (deleteOriginals)
 					bfs::remove(filePath);
 			}
 		}
@@ -54,7 +50,7 @@ void convertPcxToPng()
 }
 
 // splits a def file into individual parts and converts the output to PNG format
-void splitDefFile(std::string fileName, bfs::path spritesPath)
+void SplitDefFile(std::string fileName, bfs::path spritesPath, bool deleteOriginals)
 {
 	if (CResourceHandler::get()->existsResource(ResourceID("SPRITES/" + fileName)))
 	{
@@ -63,7 +59,7 @@ void splitDefFile(std::string fileName, bfs::path spritesPath)
 		anim->preload();
 		anim->exportBitmaps(VCMIDirs::get().userCachePath() / "extracted", true);
 
-		if(delete_source_files)
+		if(deleteOriginals)
 			bfs::remove(spritesPath / fileName);
 	}
 	else
@@ -71,26 +67,25 @@ void splitDefFile(std::string fileName, bfs::path spritesPath)
 }
 
 // splits def files (TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 and Un44), this way faction resources are independent
-void splitDefFiles()
+void splitDefFiles(bool deleteOriginals)
 {
 	bfs::path extractedPath = VCMIDirs::get().userDataPath() / "extracted";
 	bfs::path spritesPath = extractedPath / "Sprites";
 
-	splitDefFile("TwCrPort.def", spritesPath);	// split town creature portraits
-	splitDefFile("CPRSMALL.def", spritesPath);	// split hero army creature portraits 
-	splitDefFile("FlagPort.def", spritesPath);	// adventure map dwellings
-	splitDefFile("ITPA.def", spritesPath);		// small town icons
-	splitDefFile("ITPt.def", spritesPath);		// big town icons
-	splitDefFile("Un32.def", spritesPath);		// big town icons
-	splitDefFile("Un44.def", spritesPath);		// big town icons
+	SplitDefFile("TwCrPort.def", spritesPath, deleteOriginals);	// split town creature portraits
+	SplitDefFile("CPRSMALL.def", spritesPath, deleteOriginals);	// split hero army creature portraits 
+	SplitDefFile("FlagPort.def", spritesPath, deleteOriginals);	// adventure map dwellings
+	SplitDefFile("ITPA.def", spritesPath, deleteOriginals);		// small town icons
+	SplitDefFile("ITPt.def", spritesPath, deleteOriginals);		// big town icons
+	SplitDefFile("Un32.def", spritesPath, deleteOriginals);		// big town icons
+	SplitDefFile("Un44.def", spritesPath, deleteOriginals);		// big town icons
 }
 
-// Splits def files that are shared between factions and converts pcx to bmp
-void ConvertOriginalResourceFiles()
+void ConvertExtractedResourceFiles(bool splitDefs, bool convertPcxToPng, bool deleteOriginals)
 {
-	if (split_def_files)
-		splitDefFiles();
+	if (splitDefs)
+		splitDefFiles(deleteOriginals);
 
-	if (convert_pcx_to_png)
-		convertPcxToPng();
+	if (convertPcxToPng)
+		ConvertPcxToPng(deleteOriginals);
 }

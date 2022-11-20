@@ -129,6 +129,8 @@ private:
 	void loadUserSettings();
 	void saveUserSettings();
 
+	void parseCommandLine();
+
 private:
     Ui::MainWindow * ui;
 	ObjectBrowser * objectBrowser = nullptr;
@@ -142,4 +144,11 @@ private:
 	int mapLevel = 0;
 
 	std::set<int> catalog;
+
+	// command line options
+	QString mapFilePath;			// FilePath to the H3 or VCMI map to open
+	bool extractArchives = false;	// extract original H3 archives into a separate folder
+	bool splitDefs = false;			// splits TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 and Un44 into individual PNG's
+	bool convertPcxToPng = false;	// converts single Images (found in Images folder) from .pcx to png.
+	bool deleteOriginals = false;	// delete original files, for the ones splitted / converted.
 };

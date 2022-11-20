@@ -39,13 +39,13 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 LibClasses * VLC = nullptr;
 
-DLL_LINKAGE void preinitDLL(CConsoleHandler * Console, bool onlyEssential)
+DLL_LINKAGE void preinitDLL(CConsoleHandler * Console, bool onlyEssential, bool extractArchives)
 {
 	console = Console;
 	VLC = new LibClasses();
 	try
 	{
-		VLC->loadFilesystem(onlyEssential);
+		VLC->loadFilesystem(onlyEssential, extractArchives);
 	}
 	catch(...)
 	{
@@ -157,7 +157,7 @@ void LibClasses::updateEntity(Metatype metatype, int32_t index, const JsonNode &
 	}
 }
 
-void LibClasses::loadFilesystem(bool onlyEssential)
+void LibClasses::loadFilesystem(bool onlyEssential, bool extractArchives)
 {
 	CStopWatch totalTime;
 	CStopWatch loadTime;
@@ -165,7 +165,7 @@ void LibClasses::loadFilesystem(bool onlyEssential)
 	CResourceHandler::initialize();
 	logGlobal->info("\tInitialization: %d ms", loadTime.getDiff());
 
-	CResourceHandler::load("config/filesystem.json");
+	CResourceHandler::load("config/filesystem.json", extractArchives);
 	logGlobal->info("\tData loading: %d ms", loadTime.getDiff());
 
 	modh = new CModHandler();
