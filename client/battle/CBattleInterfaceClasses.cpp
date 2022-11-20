@@ -11,6 +11,7 @@
 #include "CBattleInterfaceClasses.h"
 
 #include "CBattleInterface.h"
+#include "CBattleActionsController.h"
 #include "CBattleSiegeController.h"
 #include "CBattleFieldController.h"
 #include "CBattleStacksController.h"
@@ -191,7 +192,7 @@ void CBattleHero::hover(bool on)
 
 void CBattleHero::clickLeft(tribool down, bool previousState)
 {
-	if(myOwner->spellDestSelectMode) //we are casting a spell
+	if(myOwner->actionsController->spellcastingModeActive()) //we are casting a spell
 		return;
 
 	if(boost::logic::indeterminate(down))

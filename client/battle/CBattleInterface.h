@@ -64,6 +64,7 @@ class CBattleObstacleController;
 class CBattleFieldController;
 class CBattleControlPanel;
 class CBattleStacksController;
+class CBattleActionsController;
 
 /// Small struct which contains information about the id of the attacked stack, the damage dealt,...
 struct StackAttackedInfo
@@ -109,12 +110,6 @@ struct BattleObjectsByHex
 	std::array<HexData, GameConstants::BFIELD_SIZE> hex;
 };
 
-enum class MouseHoveredHexContext
-{
-	UNOCCUPIED_HEX,
-	OCCUPIED_HEX
-};
-
 /// Big class which handles the overall battle interface actions and it is also responsible for
 /// drawing everything correctly.
 class CBattleInterface : public WindowBase
@@ -135,16 +130,6 @@ private:
 	ui8 animCount;
 
 	bool tacticsMode;
-	bool creatureCasting; //if true, stack currently aims to cats a spell
-	bool spellDestSelectMode; //if true, player is choosing destination for his spell - only for GUI / console
-	std::shared_ptr<BattleAction> spellToCast; //spell for which player is choosing destination
-	const CSpell *sp; //spell pointer for convenience
-	std::vector<PossiblePlayerBattleAction> possibleActions; //all actions possible to call at the moment by player
-	std::vector<PossiblePlayerBattleAction> localActions; //actions possible to take on hovered hex
-	std::vector<PossiblePlayerBattleAction> illegalActions; //these actions display message in case of illegal target
-	PossiblePlayerBattleAction currentAction; //action that will be performed on l-click
-	PossiblePlayerBattleAction selectedAction; //last action chosen (and saved) by player
-	PossiblePlayerBattleAction illegalAction; //most likely action that can't be performed here
 	bool battleActionsStarted; //used for delaying battle actions until intro sound stops
 	int battleIntroSoundChannel; //required as variable for disabling it via ESC key
 
@@ -154,12 +139,6 @@ private:
 	void activateStack(); //sets activeStack to stackToActivate etc. //FIXME: No, it's not clear at all
 	void requestAutofightingAIToTakeAction();
 
-	std::vector<PossiblePlayerBattleAction> getPossibleActionsForStack (const CStack *stack); //called when stack gets its turn
-	void endCastingSpell(); //ends casting spell (eg. when spell has been cast or canceled)
-	void reorderPossibleActionsPriority(const CStack * stack, MouseHoveredHexContext context);
-
-	//force active stack to cast a spell if possible
-	void enterCreatureCastingMode();
 
 	void giveCommand(EActionType action, BattleHex tile = BattleHex(), si32 additional = -1);
 	void sendCommand(BattleAction *& command, const CStack * actor = nullptr);
@@ -181,12 +160,12 @@ public:
 	std::unique_ptr<CBattleObstacleController> obstacleController;
 	std::unique_ptr<CBattleFieldController> fieldController;
 	std::unique_ptr<CBattleStacksController> stacksController;
+	std::unique_ptr<CBattleActionsController> actionsController;
 
 	static CondSh<bool> animsAreDisplayed; //for waiting with the end of battle for end of anims
 	static CondSh<BattleAction *> givenCommand; //data != nullptr if we have i.e. moved current unit
 
 	bool myTurn; //if true, interface is active (commands can be ordered)
-
 	bool moveStarted; //if true, the creature that is already moving is going to make its first step
 	int moveSoundHander; // sound handler used when moving a unit
 
@@ -251,10 +230,6 @@ public:
 	void hideQueue();
 	void showQueue();
 
-	void handleHex(BattleHex myNumber, int eventType);
-	bool isCastingPossibleHere (const CStack *sactive, const CStack *shere, BattleHex myNumber);
-	bool canStackMoveHere (const CStack *sactive, BattleHex MyNumber); //TODO: move to BattleState / callback
-
 	void obstaclePlaced(const CObstacleInstance & oi);
 
 	void gateStateChanged(const EGateState state);
@@ -286,4 +261,5 @@ public:
 	friend class CBattleFieldController;
 	friend class CBattleControlPanel;
 	friend class CBattleStacksController;
+	friend class CBattleActionsController;
 };

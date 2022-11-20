@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "CBattleFieldController.h"
 #include "CBattleInterface.h"
+#include "CBattleActionsController.h"
 #include "CBattleInterfaceClasses.h"
 #include "CBattleSiegeController.h"
 #include "CBattleStacksController.h"
@@ -220,12 +221,12 @@ void CBattleFieldController::showHighlightedHexes(SDL_Surface *to)
 
 				spells::Mode mode = spells::Mode::HERO;
 
-				if(owner->spellToCast)//hero casts spell
+				if(owner->actionsController->spellcastingModeActive())//hero casts spell
 				{
-					spell = SpellID(owner->spellToCast->actionSubtype).toSpell();
+					spell = owner->actionsController->selectedSpell().toSpell();
 					caster = owner->getActiveHero();
 				}
-				else if(owner->stacksController->activeStackSpellToCast() != SpellID::NONE && owner->creatureCasting)//stack casts spell
+				else if(owner->stacksController->activeStackSpellToCast() != SpellID::NONE)//stack casts spell
 				{
 					spell = SpellID(owner->stacksController->activeStackSpellToCast()).toSpell();
 					caster = owner->stacksController->getActiveStack();

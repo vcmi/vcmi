@@ -12,6 +12,7 @@
 #include "CBattleInterface.h"
 #include "CBattleInterfaceClasses.h"
 #include "CBattleStacksController.h"
+#include "CBattleActionsController.h"
 #include "../widgets/Buttons.h"
 #include "../CGameInfo.h"
 #include "../CBitmapHandler.h"
@@ -67,13 +68,16 @@ void CBattleControlPanel::tacticPhaseEnded()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
+	btactNext.reset();
+	btactEnd.reset();
+
 	menu = std::make_shared<CPicture>("CBAR.BMP", 0, 0);
 	menu->colorize(owner->curInt->playerID);
 }
 
 void CBattleControlPanel::bOptionsf()
 {
-	if (owner->spellDestSelectMode) //we are casting a spell
+	if (owner->actionsController->spellcastingModeActive())
 		return;
 
 	CCS->curh->changeGraphic(ECursor::ADVENTURE,0);
@@ -85,7 +89,7 @@ void CBattleControlPanel::bOptionsf()
 
 void CBattleControlPanel::bSurrenderf()
 {
-	if(owner->spellDestSelectMode) //we are casting a spell
+	if (owner->actionsController->spellcastingModeActive())
 		return;
 
 	int cost = owner->curInt->cb->battleGetSurrenderCost();
@@ -105,7 +109,7 @@ void CBattleControlPanel::bSurrenderf()
 
 void CBattleControlPanel::bFleef()
 {
-	if (owner->spellDestSelectMode) //we are casting a spell
+	if (owner->actionsController->spellcastingModeActive())
 		return;
 
 	if ( owner->curInt->cb->battleCanFlee() )
@@ -153,7 +157,7 @@ void CBattleControlPanel::reallySurrender()
 
 void CBattleControlPanel::bAutofightf()
 {
-	if(owner->spellDestSelectMode) //we are casting a spell
+	if (owner->actionsController->spellcastingModeActive())
 		return;
 
 	//Stop auto-fight mode
@@ -180,7 +184,7 @@ void CBattleControlPanel::bAutofightf()
 
 void CBattleControlPanel::bSpellf()
 {
-	if (owner->spellDestSelectMode) //we are casting a spell
+	if (owner->actionsController->spellcastingModeActive())
 		return;
 
 	if (!owner->myTurn)
@@ -222,7 +226,7 @@ void CBattleControlPanel::bSpellf()
 
 void CBattleControlPanel::bWaitf()
 {
-	if (owner->spellDestSelectMode) //we are casting a spell
+	if (owner->actionsController->spellcastingModeActive())
 		return;
 
 	if (owner->stacksController->getActiveStack() != nullptr)
@@ -231,7 +235,7 @@ void CBattleControlPanel::bWaitf()
 
 void CBattleControlPanel::bDefencef()
 {
-	if (owner->spellDestSelectMode) //we are casting a spell
+	if (owner->actionsController->spellcastingModeActive())
 		return;
 
 	if (owner->stacksController->getActiveStack() != nullptr)
@@ -240,7 +244,7 @@ void CBattleControlPanel::bDefencef()
 
 void CBattleControlPanel::bConsoleUpf()
 {
-	if (owner->spellDestSelectMode) //we are casting a spell
+	if (owner->actionsController->spellcastingModeActive())
 		return;
 
 	console->scrollUp();
@@ -248,7 +252,7 @@ void CBattleControlPanel::bConsoleUpf()
 
 void CBattleControlPanel::bConsoleDownf()
 {
-	if (owner->spellDestSelectMode) //we are casting a spell
+	if (owner->actionsController->spellcastingModeActive())
 		return;
 
 	console->scrollDown();
