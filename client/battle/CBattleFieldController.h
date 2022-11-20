@@ -47,7 +47,7 @@ public:
 	void showBackgroundImage(SDL_Surface *to);
 	void showBackgroundImageWithHexes(SDL_Surface *to);
 
-	void redrawBackgroundWithHexes(const CStack *activeStack);
+	void redrawBackgroundWithHexes();
 
 	void showHighlightedHexes(SDL_Surface *to);
 	void showHighlightedHex(SDL_Surface *to, BattleHex hex, bool darkBorder);

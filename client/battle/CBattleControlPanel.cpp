@@ -11,6 +11,7 @@
 #include "CBattleControlPanel.h"
 #include "CBattleInterface.h"
 #include "CBattleInterfaceClasses.h"
+#include "CBattleStacksController.h"
 #include "../widgets/Buttons.h"
 #include "../CGameInfo.h"
 #include "../CBitmapHandler.h"
@@ -224,7 +225,7 @@ void CBattleControlPanel::bWaitf()
 	if (owner->spellDestSelectMode) //we are casting a spell
 		return;
 
-	if (owner->activeStack != nullptr)
+	if (owner->stacksController->getActiveStack() != nullptr)
 		owner->giveCommand(EActionType::WAIT);
 }
 
@@ -233,7 +234,7 @@ void CBattleControlPanel::bDefencef()
 	if (owner->spellDestSelectMode) //we are casting a spell
 		return;
 
-	if (owner->activeStack != nullptr)
+	if (owner->stacksController->getActiveStack() != nullptr)
 		owner->giveCommand(EActionType::DEFEND);
 }
 
@@ -276,7 +277,7 @@ void CBattleControlPanel::blockUI(bool on)
 		canCastSpells = spellcastingProblem == ESpellCastProblem::OK || spellcastingProblem == ESpellCastProblem::MAGIC_IS_BLOCKED;
 	}
 
-	bool canWait = owner->activeStack ? !owner->activeStack->waitedThisTurn : false;
+	bool canWait = owner->stacksController->getActiveStack() ? !owner->stacksController->getActiveStack()->waitedThisTurn : false;
 
 	bOptions->block(on);
 	bFlee->block(on || !owner->curInt->cb->battleCanFlee());
@@ -284,7 +285,7 @@ void CBattleControlPanel::blockUI(bool on)
 
 	// block only if during enemy turn and auto-fight is off
 	// otherwise - crash on accessing non-exisiting active stack
-	bAutofight->block(!owner->curInt->isAutoFightOn && !owner->activeStack);
+	bAutofight->block(!owner->curInt->isAutoFightOn && !owner->stacksController->getActiveStack());
 
 	if (owner->tacticsMode && btactEnd && btactNext)
 	{

@@ -21,6 +21,7 @@
 #include "CBattleInterface.h"
 #include "CBattleAnimations.h"
 #include "CBattleInterfaceClasses.h"
+#include "CBattleStacksController.h"
 
 CBattleSiegeController::~CBattleSiegeController()
 {
@@ -315,7 +316,7 @@ void CBattleSiegeController::showPiecesOfWall(SDL_Surface *to, std::vector<int> 
 			if (turret)
 			{
 				std::vector<const CStack *> stackList(1, turret);
-				owner->showStacks(to, stackList);
+				owner->stacksController->showStacks(to, stackList);
 				printPartOfWall(to, piece);
 			}
 		}
@@ -343,7 +344,7 @@ void CBattleSiegeController::stackIsCatapulting(const CatapultAttack & ca)
 		const CStack *stack = owner->curInt->cb->battleGetStackByID(ca.attacker);
 		for (auto attackInfo : ca.attackedParts)
 		{
-			owner->addNewAnim(new CShootingAnimation(owner, stack, attackInfo.destinationTile, nullptr, true, attackInfo.damageDealt));
+			owner->stacksController->addNewAnim(new CShootingAnimation(owner, stack, attackInfo.destinationTile, nullptr, true, attackInfo.damageDealt));
 		}
 	}
 	else
@@ -353,7 +354,7 @@ void CBattleSiegeController::stackIsCatapulting(const CatapultAttack & ca)
 		{
 			Point destPos = CClickableHex::getXYUnitAnim(attackInfo.destinationTile, nullptr, owner) + Point(99, 120);
 
-			owner->addNewAnim(new CEffectAnimation(owner, "SGEXPL.DEF", destPos.x, destPos.y));
+			owner->stacksController->addNewAnim(new CEffectAnimation(owner, "SGEXPL.DEF", destPos.x, destPos.y));
 		}
 	}
 

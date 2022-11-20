@@ -38,7 +38,6 @@ struct ProjectileInfo
 	int stackID; //ID of stack
 	int frameNum; //frame to display form projectile animation
 	//bool spin; //if true, frameNum will be increased
-	int animStartDelay; //frame of shooter animation when projectile should appear
 	bool shotDone; // actual shot already done, projectile is flying
 	bool reverse; //if true, projectile will be flipped by vertical asix
 	std::shared_ptr<CatapultProjectileInfo> catapultInfo; // holds info about the parabolic trajectory of the cannon
@@ -58,6 +57,7 @@ public:
 
 	void showProjectiles(SDL_Surface *to);
 	void initStackProjectile(const CStack * stack);
+	void fireStackProjectile(const CStack * stack);
 
 	bool hasActiveProjectile(const CStack * stack);
 

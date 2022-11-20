@@ -738,34 +738,14 @@ void CPlayerInterface::battleUnitsChanged(const std::vector<UnitChanges> & units
 		{
 		case UnitChanges::EOperation::RESET_STATE:
 			{
-				const battle::Unit * unit = cb->battleGetUnitByID(info.id);
+				const CStack * stack = cb->battleGetStackByID(info.id );
 
-				if(!unit)
+				if(!stack)
 				{
 					logGlobal->error("Invalid unit ID %d", info.id);
 					continue;
 				}
-
-				auto iter = battleInt->creAnims.find(info.id);
-
-				if(iter == battleInt->creAnims.end())
-				{
-					logGlobal->error("Unit %d have no animation", info.id);
-					continue;
-				}
-
-				auto animation = iter->second;
-
-				if(unit->alive() && animation->isDead())
-					animation->setType(CCreatureAnim::HOLDING);
-
-				if (unit->isClone())
-				{
-					std::unique_ptr<ColorShifterDeepBlue> shifter(new ColorShifterDeepBlue());
-					animation->shiftColor(shifter.get());
-				}
-
-				//TODO: handle more cases
+				battleInt->stackReset(stack);
 			}
 			break;
 		case UnitChanges::EOperation::REMOVE:
@@ -779,7 +759,7 @@ void CPlayerInterface::battleUnitsChanged(const std::vector<UnitChanges> & units
 					logGlobal->error("Invalid unit ID %d", info.id);
 					continue;
 				}
-				battleInt->unitAdded(unit);
+				battleInt->stackAdded(unit);
 			}
 			break;
 		default:
@@ -808,7 +788,7 @@ void CPlayerInterface::battleObstaclesChanged(const std::vector<ObstacleChanges>
 		}
 		else
 		{
-			battleInt->fieldController->redrawBackgroundWithHexes(battleInt->activeStack);
+			battleInt->fieldController->redrawBackgroundWithHexes();
 		}
 	}
 }

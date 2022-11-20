@@ -63,6 +63,7 @@ class CBattleSiegeController;
 class CBattleObstacleController;
 class CBattleFieldController;
 class CBattleControlPanel;
+class CBattleStacksController;
 
 /// Small struct which contains information about the id of the attacked stack, the damage dealt,...
 struct StackAttackedInfo
@@ -119,33 +120,25 @@ enum class MouseHoveredHexContext
 class CBattleInterface : public WindowBase
 {
 private:
-	SDL_Surface *amountNormal, *amountNegative, *amountPositive, *amountEffNeutral;
-
 	std::shared_ptr<CBattleHero> attackingHero;
 	std::shared_ptr<CBattleHero> defendingHero;
 	std::shared_ptr<CStackQueue> queue;
 	std::shared_ptr<CBattleControlPanel> controlPanel;
 
+	std::shared_ptr<CPlayerInterface> tacticianInterface; //used during tactics mode, points to the interface of player with higher tactics (can be either attacker or defender in hot-seat), valid onloy for human players
+	std::shared_ptr<CPlayerInterface> attackerInt, defenderInt; //because LOCPLINT is not enough in hotSeat
+	std::shared_ptr<CPlayerInterface> curInt; //current player interface
+
 	const CCreatureSet *army1, *army2; //copy of initial armies (for result window)
 	const CGHeroInstance *attackingHeroInstance, *defendingHeroInstance;
-	std::map<int32_t, std::shared_ptr<CCreatureAnimation>> creAnims; //animations of creatures from fighting armies (order by BattleInfo's stacks' ID)
 
-	std::map<int, bool> creDir; // <creatureID, if false reverse creature's animation> //TODO: move it to battle callback
 	ui8 animCount;
-	const CStack *activeStack; //number of active stack; nullptr - no one
-	const CStack *mouseHoveredStack; // stack below mouse pointer, used for border animation
-	const CStack *stackToActivate; //when animation is playing, we should wait till the end to make the next stack active; nullptr of none
-	const CStack *selectedStack; //for Teleport / Sacrifice
-	void activateStack(); //sets activeStack to stackToActivate etc. //FIXME: No, it's not clear at all
 
-	std::shared_ptr<CPlayerInterface> tacticianInterface; //used during tactics mode, points to the interface of player with higher tactics (can be either attacker or defender in hot-seat), valid onloy for human players
 	bool tacticsMode;
-	bool stackCanCastSpell; //if true, active stack could possibly cast some target spell
 	bool creatureCasting; //if true, stack currently aims to cats a spell
 	bool spellDestSelectMode; //if true, player is choosing destination for his spell - only for GUI / console
 	std::shared_ptr<BattleAction> spellToCast; //spell for which player is choosing destination
 	const CSpell *sp; //spell pointer for convenience
-	si32 creatureSpellToCast;
 	std::vector<PossiblePlayerBattleAction> possibleActions; //all actions possible to call at the moment by player
 	std::vector<PossiblePlayerBattleAction> localActions; //actions possible to take on hovered hex
 	std::vector<PossiblePlayerBattleAction> illegalActions; //these actions display message in case of illegal target
@@ -155,9 +148,10 @@ private:
 	bool battleActionsStarted; //used for delaying battle actions until intro sound stops
 	int battleIntroSoundChannel; //required as variable for disabling it via ESC key
 
-	void setActiveStack(const CStack *stack);
-	void setHoveredStack(const CStack *stack);
+	std::list<BattleEffect> battleEffects; //different animations to display on the screen like spell effects
 
+	void trySetActivePlayer( PlayerColor player ); // if in hotseat, will activate interface of chosen player
+	void activateStack(); //sets activeStack to stackToActivate etc. //FIXME: No, it's not clear at all
 	void requestAutofightingAIToTakeAction();
 
 	std::vector<PossiblePlayerBattleAction> getPossibleActionsForStack (const CStack *stack); //called when stack gets its turn
@@ -170,26 +164,15 @@ private:
 	void giveCommand(EActionType action, BattleHex tile = BattleHex(), si32 additional = -1);
 	void sendCommand(BattleAction *& command, const CStack * actor = nullptr);
 
-	std::list<BattleEffect> battleEffects; //different animations to display on the screen like spell effects
-
-	std::shared_ptr<CPlayerInterface> attackerInt, defenderInt; //because LOCPLINT is not enough in hotSeat
-	std::shared_ptr<CPlayerInterface> curInt; //current player interface
 	const CGHeroInstance *getActiveHero(); //returns hero that can currently cast a spell
 
-	/** Methods for displaying battle screen */
 	void showInterface(SDL_Surface *to);
 
 	void showBattlefieldObjects(SDL_Surface *to);
 
-	void showAliveStacks(SDL_Surface *to, std::vector<const CStack *> stacks);
-	void showStacks(SDL_Surface *to, std::vector<const CStack *> stacks);
-
 	void showBattleEffects(SDL_Surface *to, const std::vector<const BattleEffect *> &battleEffects);
 
 	BattleObjectsByHex sortObjectsByHex();
-	void updateBattleAnimations();
-
-	/** End of battle screen blitting methods */
 
 	void setHeroAnimation(ui8 side, int phase);
 public:
@@ -197,14 +180,17 @@ public:
 	std::unique_ptr<CBattleSiegeController> siegeController;
 	std::unique_ptr<CBattleObstacleController> obstacleController;
 	std::unique_ptr<CBattleFieldController> fieldController;
+	std::unique_ptr<CBattleStacksController> stacksController;
 
 	static CondSh<bool> animsAreDisplayed; //for waiting with the end of battle for end of anims
 	static CondSh<BattleAction *> givenCommand; //data != nullptr if we have i.e. moved current unit
 
-	std::list<std::pair<CBattleAnimation *, bool>> pendingAnims; //currently displayed animations <anim, initialized>
-	void addNewAnim(CBattleAnimation *anim); //adds new anim to pendingAnims
-	ui32 animIDhelper; //for giving IDs for animations
+	bool myTurn; //if true, interface is active (commands can be ordered)
 
+	bool moveStarted; //if true, the creature that is already moving is going to make its first step
+	int moveSoundHander; // sound handler used when moving a unit
+
+	const BattleResult *bresult; //result of a battle; if non-zero then display when all animations end
 
 	CBattleInterface(const CCreatureSet *army1, const CCreatureSet *army2, const CGHeroInstance *hero1, const CGHeroInstance *hero2, const SDL_Rect & myRect, std::shared_ptr<CPlayerInterface> att, std::shared_ptr<CPlayerInterface> defen, std::shared_ptr<CPlayerInterface> spectatorInt = nullptr);
 	virtual ~CBattleInterface();
@@ -216,17 +202,10 @@ public:
 	void setAnimSpeed(int set); //speed of animation; range 1..100
 	int getAnimSpeed() const; //speed of animation; range 1..100
 	CPlayerInterface *getCurrentPlayerInterface() const;
-	bool shouldRotate(const CStack * stack, const BattleHex & oldPos, const BattleHex & nextHex);
-
-	bool myTurn; //if true, interface is active (commands can be ordered)
-
-	bool moveStarted; //if true, the creature that is already moving is going to make its first step
-	int moveSoundHander; // sound handler used when moving a unit
-
-	const BattleResult *bresult; //result of a battle; if non-zero then display when all animations end
 
 	void tacticNextStack(const CStack *current);
 	void tacticPhaseEnd();
+	void waitForAnims();
 
 	//napisz tu klase odpowiadajaca za wyswietlanie bitwy i obsluge uzytkownika, polecenia ma przekazywac callbackiem
 	void activate() override;
@@ -240,11 +219,11 @@ public:
 
 	//call-ins
 	void startAction(const BattleAction* action);
-	void unitAdded(const CStack * stack); //new stack appeared on battlefield
+	void stackReset(const CStack * stack);
+	void stackAdded(const CStack * stack); //new stack appeared on battlefield
 	void stackRemoved(uint32_t stackID); //stack disappeared from batlefiled
 	void stackActivated(const CStack *stack); //active stack has been changed
 	void stackMoved(const CStack *stack, std::vector<BattleHex> destHex, int distance); //stack with id number moved to destHex
-	void waitForAnims();
 	void stacksAreAttacked(std::vector<StackAttackedInfo> attackedInfos); //called when a certain amount of stacks has been attacked
 	void stackAttacking(const CStack *attacker, BattleHex dest, const CStack *attacked, bool shooting); //called when stack with id ID is attacking something on hex dest
 	void newRoundFirst( int round );
@@ -306,4 +285,5 @@ public:
 	friend class CBattleObstacleController;
 	friend class CBattleFieldController;
 	friend class CBattleControlPanel;
+	friend class CBattleStacksController;
 };

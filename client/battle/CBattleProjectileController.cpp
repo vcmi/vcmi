@@ -16,6 +16,7 @@
 #include "../gui/CAnimation.h"
 #include "CBattleInterface.h"
 #include "CBattleSiegeController.h"
+#include "CBattleStacksController.h"
 #include "CCreatureAnimation.h"
 
 CatapultProjectileInfo::CatapultProjectileInfo(const Point &from, const Point &dest)
@@ -79,6 +80,17 @@ void CBattleProjectileController::initStackProjectile(const CStack * stack)
 	}
 }
 
+void CBattleProjectileController::fireStackProjectile(const CStack * stack)
+{
+	for (auto it = projectiles.begin(); it!=projectiles.end(); ++it)
+	{
+		if ( !it->shotDone && it->stackID == stack->ID)
+		{
+			it->shotDone = true;
+			return;
+		}
+	}
+}
 
 void CBattleProjectileController::showProjectiles(SDL_Surface *to)
 {
@@ -89,18 +101,7 @@ void CBattleProjectileController::showProjectiles(SDL_Surface *to)
 	{
 		// Check if projectile is already visible (shooter animation did the shot)
 		if (!it->shotDone)
-		{
-			// frame we're waiting for is reached OR animation has already finished
-			if (owner->creAnims[it->stackID]->getCurrentFrame() >= it->animStartDelay ||
-				owner->creAnims[it->stackID]->isShooting() == false)
-			{
-				//at this point projectile should become visible
-				owner->creAnims[it->stackID]->pause(); // pause animation
-				it->shotDone = true;
-			}
-			else
-				continue; // wait...
-		}
+			continue;
 
 		if (idToProjectile.count(it->creID))
 		{
@@ -183,11 +184,7 @@ void CBattleProjectileController::showProjectiles(SDL_Surface *to)
 	}
 
 	for (auto & elem : toBeDeleted)
-	{
-		// resume animation
-		owner->creAnims[elem->stackID]->play();
 		projectiles.erase(elem);
-	}
 }
 
 bool CBattleProjectileController::hasActiveProjectile(const CStack * stack)
@@ -231,7 +228,7 @@ void CBattleProjectileController::createProjectile(const CStack * shooter, const
 	spi.creID = shooter->getCreature()->idNumber;
 	spi.stackID = shooter->ID;
 	// reverse if creature is facing right OR this is non-existing stack that is not tower (war machines)
-	spi.reverse = shooter ? !owner->creDir[shooter->ID] : shooter->getCreature()->idNumber != CreatureID::ARROW_TOWERS;
+	spi.reverse = shooter ? !owner->stacksController->facingRight(shooter) : shooter->getCreature()->idNumber != CreatureID::ARROW_TOWERS;
 
 	spi.step = 0;
 	spi.frameNum = 0;
@@ -314,6 +311,5 @@ void CBattleProjectileController::createProjectile(const CStack * shooter, const
 	}
 
 	// Set projectile animation start delay which is specified in frames
-	spi.animStartDelay = shooterInfo->animation.attackClimaxFrame;
 	projectiles.push_back(spi);
 }

@@ -20,6 +20,7 @@ VCMI_LIB_NAMESPACE_END
 
 class CBattleInterface;
 class CCreatureAnimation;
+class CBattleAnimation;
 struct CatapultProjectileInfo;
 struct StackAttackedInfo;
 
@@ -28,6 +29,13 @@ class CBattleAnimation
 {
 protected:
 	CBattleInterface * owner;
+
+	std::list<std::pair<CBattleAnimation *, bool>> & pendingAnimations();
+	std::shared_ptr<CCreatureAnimation> stackAnimation(const CStack * stack);
+	bool stackFacingRight(const CStack * stack);
+	void setStackFacingRight(const CStack * stack, bool facingRight);
+	ui32 maxAnimationID();
+
 public:
 	virtual bool init() = 0; //to be called - if returned false, call again until returns true
 	virtual void nextFrame() {} //call every new frame
@@ -50,6 +58,7 @@ public:
 	CBattleStackAnimation(CBattleInterface * _owner, const CStack * _stack);
 
 	void shiftColor(const ColorShifter * shifter);
+	void rotateStack(BattleHex hex);
 };
 
 /// This class is responsible for managing the battle attack animation
@@ -177,7 +186,7 @@ public:
 	bool priority; //true - high, false - low
 	bool init() override;
 
-	static void rotateStack(CBattleInterface * owner, const CStack * stack, BattleHex hex);
+
 
 	void setupSecondPart();
 	void endAnim() override;

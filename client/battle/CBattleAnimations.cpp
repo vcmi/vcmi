@@ -17,6 +17,7 @@
 #include "CBattleProjectileController.h"
 #include "CBattleSiegeController.h"
 #include "CBattleFieldController.h"
+#include "CBattleStacksController.h"
 #include "CCreatureAnimation.h"
 
 #include "../CGameInfo.h"
@@ -34,7 +35,7 @@
 #include "../../lib/mapObjects/CGTownInstance.h"
 
 CBattleAnimation::CBattleAnimation(CBattleInterface * _owner)
-	: owner(_owner), ID(_owner->animIDhelper++)
+	: owner(_owner), ID(_owner->stacksController->animIDhelper++)
 {
 	logAnim->trace("Animation #%d created", ID);
 }
@@ -44,10 +45,35 @@ CBattleAnimation::~CBattleAnimation()
 	logAnim->trace("Animation #%d deleted", ID);
 }
 
+std::list<std::pair<CBattleAnimation *, bool>> & CBattleAnimation::pendingAnimations()
+{
+	return owner->stacksController->pendingAnims;
+}
+
+std::shared_ptr<CCreatureAnimation> CBattleAnimation::stackAnimation(const CStack * stack)
+{
+	return owner->stacksController->creAnims[stack->ID];
+}
+
+bool CBattleAnimation::stackFacingRight(const CStack * stack)
+{
+	return owner->stacksController->creDir[stack->ID];
+}
+
+ui32 CBattleAnimation::maxAnimationID()
+{
+	return owner->stacksController->animIDhelper;
+}
+
+void CBattleAnimation::setStackFacingRight(const CStack * stack, bool facingRight)
+{
+	owner->stacksController->creDir[stack->ID] = facingRight;
+}
+
 void CBattleAnimation::endAnim()
 {
 	logAnim->trace("Animation #%d ended, type is %s", ID, typeid(this).name());
-	for(auto & elem : owner->pendingAnims)
+	for(auto & elem : pendingAnimations())
 	{
 		if(elem.first == this)
 		{
@@ -58,13 +84,12 @@ void CBattleAnimation::endAnim()
 
 bool CBattleAnimation::isEarliest(bool perStackConcurrency)
 {
-	int lowestMoveID = owner->animIDhelper + 5;
+	int lowestMoveID = maxAnimationID() + 5;//FIXME: why 5?
 	CBattleStackAnimation * thAnim = dynamic_cast<CBattleStackAnimation *>(this);
 	CEffectAnimation * thSen = dynamic_cast<CEffectAnimation *>(this);
 
-	for(auto & elem : owner->pendingAnims)
+	for(auto & elem : pendingAnimations())
 	{
-
 		CBattleStackAnimation * stAnim = dynamic_cast<CBattleStackAnimation *>(elem.first);
 		CEffectAnimation * sen = dynamic_cast<CEffectAnimation *>(elem.first);
 		if(perStackConcurrency && stAnim && thAnim && stAnim->stack->ID != thAnim->stack->ID)
@@ -81,12 +106,12 @@ bool CBattleAnimation::isEarliest(bool perStackConcurrency)
 		if(elem.first)
 			vstd::amin(lowestMoveID, elem.first->ID);
 	}
-	return (ID == lowestMoveID) || (lowestMoveID == (owner->animIDhelper + 5));
+	return (ID == lowestMoveID) || (lowestMoveID == (maxAnimationID() + 5));
 }
 
 CBattleStackAnimation::CBattleStackAnimation(CBattleInterface * owner, const CStack * stack)
 	: CBattleAnimation(owner),
-	  myAnim(owner->creAnims[stack->ID]),
+	  myAnim(stackAnimation(stack)),
 	  stack(stack)
 {
 	assert(myAnim);
@@ -125,7 +150,7 @@ void CAttackAnimation::endAnim()
 
 bool CAttackAnimation::checkInitialConditions()
 {
-	for(auto & elem : owner->pendingAnims)
+	for(auto & elem : pendingAnimations())
 	{
 		CBattleStackAnimation * stAnim = dynamic_cast<CBattleStackAnimation *>(elem.first);
 		CReverseAnimation * revAnim = dynamic_cast<CReverseAnimation *>(stAnim);
@@ -162,8 +187,8 @@ bool CDefenceAnimation::init()
 	if(attacker == nullptr && owner->battleEffects.size() > 0)
 		return false;
 
-	ui32 lowestMoveID = owner->animIDhelper + 5;
-	for(auto & elem : owner->pendingAnims)
+	ui32 lowestMoveID = maxAnimationID() + 5;
+	for(auto & elem : pendingAnimations())
 	{
 
 		CDefenceAnimation * defAnim = dynamic_cast<CDefenceAnimation *>(elem.first);
@@ -192,9 +217,9 @@ bool CDefenceAnimation::init()
 
 
 	//reverse unit if necessary
-	if(attacker && owner->getCurrentPlayerInterface()->cb->isToReverse(stack->getPosition(), attacker->getPosition(), owner->creDir[stack->ID], attacker->doubleWide(), owner->creDir[attacker->ID]))
+	if(attacker && owner->getCurrentPlayerInterface()->cb->isToReverse(stack->getPosition(), attacker->getPosition(), stackFacingRight(stack), attacker->doubleWide(), stackFacingRight(attacker)))
 	{
-		owner->addNewAnim(new CReverseAnimation(owner, stack, stack->getPosition(), true));
+		owner->stacksController->addNewAnim(new CReverseAnimation(owner, stack, stack->getPosition(), true));
 		return false;
 	}
 	//unit reversed
@@ -209,7 +234,7 @@ bool CDefenceAnimation::init()
 	if (!rangedAttack && getMyAnimType() != CCreatureAnim::DEFENCE)
 	{
 		float frameLength = AnimationControls::getCreatureAnimationSpeed(
-								  stack->getCreature(), owner->creAnims[stack->ID].get(), getMyAnimType());
+								  stack->getCreature(), stackAnimation(stack).get(), getMyAnimType());
 
 		timeToWait = myAnim->framesInGroup(getMyAnimType()) * frameLength / 2;
 
@@ -325,17 +350,17 @@ bool CMeleeAttackAnimation::init()
 		return false;
 	}
 
-	bool toReverse = owner->getCurrentPlayerInterface()->cb->isToReverse(attackingStackPosBeforeReturn, attackedStack->getPosition(), owner->creDir[stack->ID], attackedStack->doubleWide(), owner->creDir[attackedStack->ID]);
+	bool toReverse = owner->getCurrentPlayerInterface()->cb->isToReverse(attackingStackPosBeforeReturn, attackedStack->getPosition(), stackFacingRight(stack), attackedStack->doubleWide(), stackFacingRight(attackedStack));
 
 	if(toReverse)
 	{
-		owner->addNewAnim(new CReverseAnimation(owner, stack, attackingStackPosBeforeReturn, true));
+		owner->stacksController->addNewAnim(new CReverseAnimation(owner, stack, attackingStackPosBeforeReturn, true));
 		return false;
 	}
 
 	// opponent must face attacker ( = different directions) before he can be attacked
 	if(attackingStack && attackedStack &&
-		owner->creDir[attackingStack->ID] == owner->creDir[attackedStack->ID])
+		stackFacingRight(attackingStack) == stackFacingRight(attackedStack))
 		return false;
 
 	//reversed
@@ -428,7 +453,7 @@ bool CMovementAnimation::init()
 		return false;
 	}
 
-	if(owner->creAnims[stack->ID]->framesInGroup(CCreatureAnim::MOVING) == 0 ||
+	if(stackAnimation(stack)->framesInGroup(CCreatureAnim::MOVING) == 0 ||
 	   stack->hasBonus(Selector::typeSubtype(Bonus::FLYING, 1)))
 	{
 		//no movement or teleport, end immediately
@@ -437,18 +462,18 @@ bool CMovementAnimation::init()
 	}
 
 	//reverse unit if necessary
-	if(owner->shouldRotate(stack, oldPos, nextHex))
+	if(owner->stacksController->shouldRotate(stack, oldPos, nextHex))
 	{
 		// it seems that H3 does NOT plays full rotation animation here in most situations
 		// Logical since it takes quite a lot of time
 		if (curentMoveIndex == 0) // full rotation only for moving towards first tile.
 		{
-			owner->addNewAnim(new CReverseAnimation(owner, stack, oldPos, true));
+			owner->stacksController->addNewAnim(new CReverseAnimation(owner, stack, oldPos, true));
 			return false;
 		}
 		else
 		{
-			CReverseAnimation::rotateStack(owner, stack, oldPos);
+			rotateStack(oldPos);
 		}
 	}
 
@@ -508,7 +533,7 @@ void CMovementAnimation::nextFrame()
 			nextHex = destTiles[curentMoveIndex];
 
 			// re-init animation
-			for(auto & elem : owner->pendingAnims)
+			for(auto & elem : pendingAnimations())
 			{
 				if (elem.first == this)
 				{
@@ -529,7 +554,7 @@ void CMovementAnimation::endAnim()
 	myAnim->pos = CClickableHex::getXYUnitAnim(nextHex, stack, owner);
 	CBattleAnimation::endAnim();
 
-	owner->addNewAnim(new CMovementEndAnimation(owner, stack, nextHex));
+	owner->stacksController->addNewAnim(new CMovementEndAnimation(owner, stack, nextHex));
 
 	if(owner->moveSoundHander != -1)
 	{
@@ -662,11 +687,11 @@ void CReverseAnimation::endAnim()
 	delete this;
 }
 
-void CReverseAnimation::rotateStack(CBattleInterface * owner, const CStack * stack, BattleHex hex)
+void CBattleStackAnimation::rotateStack(BattleHex hex)
 {
-	owner->creDir[stack->ID] = !owner->creDir[stack->ID];
+	setStackFacingRight(stack, !stackFacingRight(stack));
 
-	owner->creAnims[stack->ID]->pos = CClickableHex::getXYUnitAnim(hex, stack, owner);
+	stackAnimation(stack)->pos = CClickableHex::getXYUnitAnim(hex, stack, owner);
 }
 
 void CReverseAnimation::setupSecondPart()
@@ -677,7 +702,7 @@ void CReverseAnimation::setupSecondPart()
 		return;
 	}
 
-	rotateStack(owner, stack, hex);
+	rotateStack(hex);
 
 	if(myAnim->framesInGroup(CCreatureAnim::TURN_R))
 	{
@@ -716,9 +741,9 @@ bool CShootingAnimation::init()
 	}
 
 	//reverse unit if necessary
-	if (attackingStack && attackedStack && owner->getCurrentPlayerInterface()->cb->isToReverse(attackingStack->getPosition(), attackedStack->getPosition(), owner->creDir[attackingStack->ID], attackingStack->doubleWide(), owner->creDir[attackedStack->ID]))
+	if (attackingStack && attackedStack && owner->getCurrentPlayerInterface()->cb->isToReverse(attackingStack->getPosition(), attackedStack->getPosition(), stackFacingRight(attackingStack), attackingStack->doubleWide(), stackFacingRight(attackedStack)))
 	{
-		owner->addNewAnim(new CReverseAnimation(owner, attackingStack, attackingStack->getPosition(), true));
+		owner->stacksController->addNewAnim(new CReverseAnimation(owner, attackingStack, attackingStack->getPosition(), true));
 		return false;
 	}
 
@@ -743,7 +768,7 @@ bool CShootingAnimation::init()
 	Point destPos;
 
 	// NOTE: two lines below return different positions (very notable with 2-hex creatures). Obtaining via creanims seems to be more precise
-	shooterPos = owner->creAnims[shooter->ID]->pos.topLeft();
+	shooterPos = stackAnimation(shooter)->pos.topLeft();
 	//xycoord = CClickableHex::getXYUnitAnim(shooter->position, true, shooter, owner);
 
 	destPos = CClickableHex::getXYUnitAnim(dest, attackedStack, owner) + Point(225, 225);
@@ -751,7 +776,7 @@ bool CShootingAnimation::init()
 	// to properly translate coordinates when shooter is rotated
 	int multiplier = 0;
 	if (shooter)
-		multiplier = owner->creDir[shooter->ID] ? 1 : -1;
+		multiplier = stackFacingRight(shooter) ? 1 : -1;
 	else
 	{
 		assert(false); // unreachable?
@@ -800,7 +825,22 @@ bool CShootingAnimation::init()
 
 void CShootingAnimation::nextFrame()
 {
-	for(auto & it : owner->pendingAnims)
+	if (owner->projectilesController->hasActiveProjectile(attackingStack))
+	{
+		const CCreature *shooterInfo = attackingStack->getCreature();
+
+		if(shooterInfo->idNumber == CreatureID::ARROW_TOWERS)
+			shooterInfo = owner->siegeController->turretCreature();
+
+		// animation should be paused if there is an active projectile
+		if ( stackAnimation(attackingStack)->getCurrentFrame() >= shooterInfo->animation.attackClimaxFrame )
+		{
+			owner->projectilesController->fireStackProjectile(attackingStack);//FIXME: should only be called once
+			return;
+		}
+	}
+
+	for(auto & it : pendingAnimations())
 	{
 		CMovementStartAnimation * anim = dynamic_cast<CMovementStartAnimation *>(it.first);
 		CReverseAnimation * anim2 = dynamic_cast<CReverseAnimation *>(it.first);
@@ -813,6 +853,9 @@ void CShootingAnimation::nextFrame()
 
 void CShootingAnimation::endAnim()
 {
+	// FIXME: is this possible? Animation is over but we're yet to fire projectile?
+	owner->projectilesController->fireStackProjectile(attackingStack);
+
 	// play wall hit/miss sound for catapult attack
 	if(!attackedStack)
 	{
@@ -851,17 +894,17 @@ bool CCastAnimation::init()
 	//reverse unit if necessary
 	if(attackedStack)
 	{
-		if(owner->getCurrentPlayerInterface()->cb->isToReverse(attackingStack->getPosition(), attackedStack->getPosition(), owner->creDir[attackingStack->ID], attackingStack->doubleWide(), owner->creDir[attackedStack->ID]))
+		if(owner->getCurrentPlayerInterface()->cb->isToReverse(attackingStack->getPosition(), attackedStack->getPosition(), stackFacingRight(attackingStack), attackingStack->doubleWide(), stackFacingRight(attackedStack)))
 		{
-			owner->addNewAnim(new CReverseAnimation(owner, attackingStack, attackingStack->getPosition(), true));
+			owner->stacksController->addNewAnim(new CReverseAnimation(owner, attackingStack, attackingStack->getPosition(), true));
 			return false;
 		}
 	}
 	else
 	{
-		if(dest.isValid() && owner->getCurrentPlayerInterface()->cb->isToReverse(attackingStack->getPosition(), dest, owner->creDir[attackingStack->ID], false, false))
+		if(dest.isValid() && owner->getCurrentPlayerInterface()->cb->isToReverse(attackingStack->getPosition(), dest, stackFacingRight(attackingStack), false, false))
 		{
-			owner->addNewAnim(new CReverseAnimation(owner, attackingStack, attackingStack->getPosition(), true));
+			owner->stacksController->addNewAnim(new CReverseAnimation(owner, attackingStack, attackingStack->getPosition(), true));
 			return false;
 		}
 	}
@@ -875,7 +918,7 @@ bool CCastAnimation::init()
 	Point destPos;
 
 	// NOTE: two lines below return different positions (very notable with 2-hex creatures). Obtaining via creanims seems to be more precise
-	fromPos = owner->creAnims[attackingStack->ID]->pos.topLeft();
+	fromPos = stackAnimation(attackingStack)->pos.topLeft();
 	//xycoord = CClickableHex::getXYUnitAnim(shooter->getPosition(), true, shooter, owner);
 
 	destPos = CClickableHex::getXYUnitAnim(dest, attackedStack, owner);
@@ -932,7 +975,7 @@ bool CCastAnimation::init()
 
 void CCastAnimation::nextFrame()
 {
-	for(auto & it : owner->pendingAnims)
+	for(auto & it : pendingAnimations())
 	{
 		CReverseAnimation * anim = dynamic_cast<CReverseAnimation *>(it.first);
 		if(anim && anim->stack->ID == stack->ID && anim->priority)

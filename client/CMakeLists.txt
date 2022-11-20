@@ -10,6 +10,7 @@ set(client_SRCS
 		battle/CBattleObstacleController.cpp
 		battle/CBattleProjectileController.cpp
 		battle/CBattleSiegeController.cpp
+		battle/CBattleStacksController.cpp
 		battle/CCreatureAnimation.cpp
 
 		gui/CAnimation.cpp
@@ -88,6 +89,7 @@ set(client_HEADERS
 		battle/CBattleObstacleController.h
 		battle/CBattleProjectileController.h
 		battle/CBattleSiegeController.h
+		battle/CBattleStacksController.h
 		battle/CCreatureAnimation.h
 
 		gui/CAnimation.h

@@ -13,6 +13,7 @@
 #include "CBattleInterface.h"
 #include "CBattleSiegeController.h"
 #include "CBattleFieldController.h"
+#include "CBattleStacksController.h"
 #include "CBattleControlPanel.h"
 
 #include "../CBitmapHandler.h"
@@ -591,7 +592,7 @@ Point CClickableHex::getXYUnitAnim(BattleHex hexNum, const CStack * stack, CBatt
 
 	if (stack)
 	{
-		if(cbi->creDir[stack->ID])
+		if(cbi->stacksController->facingRight(stack))
 			ret.x += imageShiftX;
 		else
 			ret.x -= imageShiftX;
@@ -601,12 +602,12 @@ Point CClickableHex::getXYUnitAnim(BattleHex hexNum, const CStack * stack, CBatt
 		{
 			if(stack->side == BattleSide::ATTACKER)
 			{
-				if(cbi->creDir[stack->ID])
+				if(cbi->stacksController->facingRight(stack))
 					ret.x -= 44;
 			}
 			else
 			{
-				if(!cbi->creDir[stack->ID])
+				if(!cbi->stacksController->facingRight(stack))
 					ret.x += 44;
 			}
 		}

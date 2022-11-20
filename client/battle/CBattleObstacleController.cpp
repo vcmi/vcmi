@@ -11,6 +11,7 @@
 #include "CBattleObstacleController.h"
 #include "CBattleInterface.h"
 #include "CBattleFieldController.h"
+#include "CBattleStacksController.h"
 #include "../CPlayerInterface.h"
 #include "../../CCallback.h"
 #include "../../lib/battle/CObstacleInstance.h"
@@ -100,7 +101,7 @@ void CBattleObstacleController::obstaclePlaced(const CObstacleInstance & oi)
 	//we assume here that effect graphics have the same size as the usual obstacle image
 	// -> if we know how to blit obstacle, let's blit the effect in the same place
 	Point whereTo = getObstaclePosition(first, oi);
-	owner->addNewAnim(new CEffectAnimation(owner, animation, whereTo.x, whereTo.y));
+	owner->stacksController->addNewAnim(new CEffectAnimation(owner, animation, whereTo.x, whereTo.y));
 
 	//TODO we need to wait after playing sound till it's finished, otherwise it overlaps and sounds really bad
 	//CCS->soundh->playSound(sound);
