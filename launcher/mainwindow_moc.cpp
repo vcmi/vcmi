@@ -97,6 +97,11 @@ MainWindow::MainWindow(QWidget * parent)
 #endif
 		ui->tabListWidget->setCurrentIndex(i);
 	});
+	
+#ifdef Q_OS_IOS
+	QScroller::grabGesture(ui->tabSelectList, QScroller::LeftMouseButtonGesture);
+	ui->tabSelectList->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+#endif
 
 	if(settings["launcher"]["updateOnStartup"].Bool())
 		UpdateDialog::showUpdateDialog(false);

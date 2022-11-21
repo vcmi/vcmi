@@ -46,7 +46,7 @@
        </size>
       </property>
       <property name="verticalScrollBarPolicy">
-       <enum>Qt::ScrollBarAsNeeded</enum>
+       <enum>Qt::ScrollBarAlwaysOff</enum>
       </property>
       <property name="horizontalScrollBarPolicy">
        <enum>Qt::ScrollBarAlwaysOff</enum>
@@ -78,6 +78,9 @@
       <property name="flow">
        <enum>QListView::TopToBottom</enum>
       </property>
+      <property name="isWrapping" stdset="0">
+       <bool>false</bool>
+      </property>
       <property name="resizeMode">
        <enum>QListView::Adjust</enum>
       </property>
@@ -94,7 +97,7 @@
        <bool>true</bool>
       </property>
       <property name="wordWrap">
-       <bool>true</bool>
+       <bool>false</bool>
       </property>
       <item>
        <property name="text">

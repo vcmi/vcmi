@@ -102,6 +102,17 @@ CModListView::CModListView(QWidget * parent)
 	{
 		manager->resetRepositories();
 	}
+	
+#ifdef Q_OS_IOS
+	for(auto * scrollWidget : {
+		(QAbstractItemView*)ui->allModsView,
+		(QAbstractItemView*)ui->screenshotsList})
+	{
+		QScroller::grabGesture(scrollWidget, QScroller::LeftMouseButtonGesture);
+		scrollWidget->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+		scrollWidget->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	}
+#endif
 }
 
 void CModListView::loadRepositories()
