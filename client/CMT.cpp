@@ -507,6 +507,10 @@ int main(int argc, char * argv[])
 			session["hostUuid"].String() = vm["lobby-uuid"].as<std::string>();
 			logGlobal->info("This client will host session, server uuid is %s", session["hostUuid"].String());
 		}
+		
+		//we should not reconnect to previous game in online mode
+		Settings saveSession = settings.write["server"]["reconnect"];
+		saveSession->Bool() = false;
 	}
 
 	if(vm.count("testmap"))
