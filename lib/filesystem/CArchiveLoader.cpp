@@ -86,9 +86,6 @@ void CArchiveLoader::initLODArchive(const std::string &mountPoint, CFileInputStr
 		if(extractArchives)
 		{
 			si64 currentPosition = fileStream.tell(); // save filestream position
-		
-			boost::locale::generator gen;
-			std::locale::global(gen(""));         // Create locale generator
 
 			std::string fName = filename;
 			boost::to_upper(fName);
