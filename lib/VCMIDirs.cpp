@@ -171,6 +171,7 @@ class VCMIDirsWIN32 final : public IVCMIDirs
 void VCMIDirsWIN32::init()
 {
 	std::locale::global(boost::locale::generator().generate("en_US.UTF-8"));
+	boost::filesystem::path::imbue(std::locale());
 
 	// Call base (init dirs)
 	IVCMIDirs::init();
