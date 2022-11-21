@@ -100,21 +100,22 @@ class MusicEntry
 
 	int loop; // -1 = indefinite
 	bool fromStart;
+	bool playing;
 	uint32_t startTime;
 	uint32_t startPosition;
 	//if not null - set from which music will be randomly selected
 	std::string setName;
 	std::string currentName;
 
-
 	void load(std::string musicURI);
 
 public:
-	bool isSet(std::string setName);
-	bool isTrack(std::string trackName);
-
 	MusicEntry(CMusicHandler *owner, std::string setName, std::string musicURI, bool looped, bool fromStart);
 	~MusicEntry();
+
+	bool isSet(std::string setName);
+	bool isTrack(std::string trackName);
+	bool isPlaying();
 
 	bool play();
 	bool stop(int fade_ms=0);
@@ -123,7 +124,6 @@ public:
 class CMusicHandler: public CAudioBase
 {
 private:
-	
 	//update volume on configuration change
 	SettingsListener listener;
 	void onVolumeChange(const JsonNode &volumeNode);
@@ -133,18 +133,21 @@ private:
 
 	void queueNext(CMusicHandler *owner, const std::string & setName, const std::string & musicURI, bool looped, bool fromStart);
 	void queueNext(std::unique_ptr<MusicEntry> queued);
+	void musicFinishedCallback();
 
-	std::map<std::string, std::map<std::string, std::string>> musicsSet;
+	/// map <set name> -> <list of URI's to tracks belonging to the said set>
+	std::map<std::string, std::vector<std::string>> musicsSet;
+	/// stored position, in seconds at which music player should resume playing this track
 	std::map<std::string, float> trackPositions;
+
 public:
-	
 	CMusicHandler();
 
 	/// add entry with URI musicURI in set. Track will have ID musicID
-	void addEntryToSet(const std::string & set, const std::string & entryID, const std::string & musicURI);
+	void addEntryToSet(const std::string & set, const std::string & musicURI);
 
 	void init() override;
-	void loadTerrainSounds();
+	void loadTerrainMusicThemes();
 	void release() override;
 	void setVolume(ui32 percent) override;
 
@@ -152,10 +155,10 @@ public:
 	void playMusic(const std::string & musicURI, bool loop, bool fromStart);
 	/// play random track from this set
 	void playMusicFromSet(const std::string & musicSet, bool loop, bool fromStart);
-	/// play specific track from set
+	/// play random track from set (musicSet, entryID)
 	void playMusicFromSet(const std::string & musicSet, const std::string & entryID, bool loop, bool fromStart);
+	/// stops currently playing music by fading out it over fade_ms and starts next scheduled track, if any
 	void stopMusic(int fade_ms=1000);
-	void musicFinishedCallback();
 
 	friend class MusicEntry;
 };

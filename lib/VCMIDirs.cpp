@@ -170,6 +170,8 @@ class VCMIDirsWIN32 final : public IVCMIDirs
 
 void VCMIDirsWIN32::init()
 {
+	std::locale::global(boost::locale::generator().generate("en_US.UTF-8"));
+
 	// Call base (init dirs)
 	IVCMIDirs::init();
 
@@ -698,17 +700,11 @@ namespace VCMIDirs
 		static bool initialized = false;
 		if (!initialized)
 		{
-			#ifdef VCMI_WINDOWS
-			std::locale::global(boost::locale::generator().generate("en_US.UTF-8"));
-			#endif
-			boost::filesystem::path::imbue(std::locale());
-
 			singleton.init();
 			initialized = true;
 		}
 		return singleton;
 	}
 }
-
 
 VCMI_LIB_NAMESPACE_END
