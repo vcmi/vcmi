@@ -233,7 +233,7 @@ void CArchiveLoader::extractToFolder( std::string outputSubFolder, CFileInputStr
 void CArchiveLoader::extractToFolder( std::string outputSubFolder, const std::string& mountPoint, ArchiveEntry entry)
 {
 
-	std::unique_ptr<CInputStream> & inputStream = load(ResourceID(mountPoint + entry.name));
+	std::unique_ptr<CInputStream> inputStream = load(ResourceID(mountPoint + entry.name));
 
 	std::unique_ptr<char[]> data = std::unique_ptr<char[]>(new char[entry.fullSize]);
 	inputStream->read((ui8*)data.get(), entry.fullSize);
