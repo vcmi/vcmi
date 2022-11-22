@@ -12,6 +12,8 @@
 #include "ISimpleResourceLoader.h"
 #include "ResourceID.h"
 
+namespace bfs = boost::filesystem;
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CFileInputStream;
@@ -56,7 +58,7 @@ public:
 	 *
 	 * @throws std::runtime_error if the archive wasn't found or if the archive isn't supported
 	 */
-	CArchiveLoader(std::string mountPoint, boost::filesystem::path archive, bool extractArchives = false);
+	CArchiveLoader(std::string mountPoint, bfs::path archive, bool extractArchives = false);
 
 	/// Interface implementation
 	/// @see ISimpleResourceLoader
@@ -66,9 +68,9 @@ public:
 	void updateFilteredFiles(std::function<bool(const std::string &)> filter) const override {}
 	std::unordered_set<ResourceID> getFilteredFiles(std::function<bool(const ResourceID &)> filter) const override;
 	/** Extracts one archive entry to the specified subfolder. Used for Video and Sound */
-	void extractToFolder(std::string outputSubFolder, CFileInputStream & fileStream, ArchiveEntry entry);
+	void extractToFolder(const std::string & outputSubFolder, CFileInputStream & fileStream, ArchiveEntry entry);
 	/** Extracts one archive entry to the specified subfolder. Used for Images, Sprites, etc */
-	void extractToFolder(std::string outputSubFolder, const std::string &mountPoint, ArchiveEntry entry);
+	void extractToFolder(const std::string & outputSubFolder, const std::string & mountPoint, ArchiveEntry entry);
 
 private:
 	/**
@@ -93,7 +95,7 @@ private:
 	void initSNDArchive(const std::string &mountPoint, CFileInputStream & fileStream);
 
 	/** The file path to the archive which is scanned and indexed. */
-	boost::filesystem::path archive;
+	bfs::path archive;
 
 	std::string mountPoint;
 
@@ -105,6 +107,6 @@ private:
 };
 
 /** Constructs the file path for the extracted file. Creates the subfolder hierarchy aswell **/
-boost::filesystem::path createExtractedFilePath(const std::string & outputSubFolder, const std::string & entryName);
+bfs::path createExtractedFilePath(const std::string & outputSubFolder, const std::string & entryName);
 
 VCMI_LIB_NAMESPACE_END

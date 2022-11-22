@@ -18,8 +18,6 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-namespace bfs = boost::filesystem;
-
 ArchiveEntry::ArchiveEntry()
 	: offset(0), fullSize(0), compressedSize(0)
 {
@@ -211,7 +209,7 @@ std::unordered_set<ResourceID> CArchiveLoader::getFilteredFiles(std::function<bo
 	return foundID;
 }
 
-void CArchiveLoader::extractToFolder(std::string outputSubFolder, CFileInputStream & fileStream, ArchiveEntry entry)
+void CArchiveLoader::extractToFolder(const std::string & outputSubFolder, CFileInputStream & fileStream, ArchiveEntry entry)
 {
 	si64 currentPosition = fileStream.tell(); // save filestream position
 
@@ -229,7 +227,7 @@ void CArchiveLoader::extractToFolder(std::string outputSubFolder, CFileInputStre
 	fileStream.seek(currentPosition); // restore filestream position
 }
 
-void CArchiveLoader::extractToFolder(std::string outputSubFolder, const std::string & mountPoint, ArchiveEntry entry)
+void CArchiveLoader::extractToFolder(const std::string & outputSubFolder, const std::string & mountPoint, ArchiveEntry entry)
 {
 	std::unique_ptr<CInputStream> inputStream = load(ResourceID(mountPoint + entry.name));
 

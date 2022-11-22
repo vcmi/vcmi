@@ -28,9 +28,9 @@ CResourceHandler CResourceHandler::globalResourceHandler;
 
 CFilesystemGenerator::CFilesystemGenerator(std::string prefix, bool extractArchives):
 	filesystem(new CFilesystemList()),
-	prefix(prefix)
+	prefix(prefix),
+	extractArchives(extractArchives)
 {
-	this->extractArchives = extractArchives;
 }
 
 CFilesystemGenerator::TLoadFunctorMap CFilesystemGenerator::genFunctorMap()

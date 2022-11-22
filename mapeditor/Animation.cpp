@@ -23,8 +23,6 @@
 
 #include <boost/filesystem.hpp>
 
-namespace bfs = boost::filesystem;
-
 typedef std::map<size_t, std::vector<JsonNode>> source_map;
 
 /// Class for def loading

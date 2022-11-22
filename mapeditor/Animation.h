@@ -15,6 +15,8 @@
 #include <QRgb>
 #include <QImage>
 
+namespace bfs = boost::filesystem;
+
 /*
  * Base class for images, can be used for non-animation pictures as well
  */
@@ -83,7 +85,7 @@ public:
 	void load  (size_t frame, size_t group = 0);
 	void unload(size_t frame, size_t group = 0);
 
-	void exportBitmaps(const boost::filesystem::path& path, bool prependResourceName = false) const;
+	void exportBitmaps(const bfs::path & path, bool prependResourceName = false) const;
 
 	//total count of frames in group (including not loaded)
 	size_t size(size_t group = 0) const;

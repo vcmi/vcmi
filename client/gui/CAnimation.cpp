@@ -21,8 +21,6 @@
 #include "../lib/JsonNode.h"
 #include "../lib/CRandomGenerator.h"
 
-namespace bfs = boost::filesystem;
-
 class SDLImageLoader;
 
 typedef std::map <size_t, std::vector <JsonNode> > source_map;
@@ -961,7 +959,7 @@ void CAnimation::exportBitmaps(const bfs::path & path, bool prependResourceName)
 		return;
 	}
 
-	bfs::path actualPath = path / "Sprites" / name;
+	bfs::path actualPath = path / "SPRITES" / name;
 	bfs::create_directories(actualPath);
 
 	size_t counter = 0;
