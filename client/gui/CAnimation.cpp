@@ -21,6 +21,8 @@
 #include "../lib/JsonNode.h"
 #include "../lib/CRandomGenerator.h"
 
+namespace bfs = boost::filesystem;
+
 class SDLImageLoader;
 
 typedef std::map <size_t, std::vector <JsonNode> > source_map;
@@ -95,7 +97,7 @@ public:
 	void draw(SDL_Surface * where, int posX=0, int posY=0, Rect *src=nullptr, ui8 alpha=255) const override;
 	void draw(SDL_Surface * where, SDL_Rect * dest, SDL_Rect * src, ui8 alpha=255) const override;
 	std::shared_ptr<IImage> scaleFast(float scale) const override;
-	void exportBitmap(const boost::filesystem::path & path) const override;
+	void exportBitmap(const bfs::path & path) const override;
 	void playerColored(PlayerColor player) override;
 	void setFlagColor(PlayerColor player) override;
 	int width() const override;
@@ -714,7 +716,7 @@ std::shared_ptr<IImage> SDLImage::scaleFast(float scale) const
 	return std::shared_ptr<IImage>(ret);
 }
 
-void SDLImage::exportBitmap(const boost::filesystem::path& path) const
+void SDLImage::exportBitmap(const bfs::path & path) const
 {
 	SDL_SaveBMP(surf, path.string().c_str());
 }
@@ -951,7 +953,7 @@ void CAnimation::initFromJson(const JsonNode & config)
 	}
 }
 
-void CAnimation::exportBitmaps(const boost::filesystem::path& path, bool prependResourceName) const
+void CAnimation::exportBitmaps(const bfs::path & path, bool prependResourceName) const
 {
 	if(images.empty())
 	{
@@ -959,8 +961,8 @@ void CAnimation::exportBitmaps(const boost::filesystem::path& path, bool prepend
 		return;
 	}
 
-	boost::filesystem::path actualPath = path / "Sprites" / name;
-	boost::filesystem::create_directories(actualPath);
+	bfs::path actualPath = path / "Sprites" / name;
+	bfs::create_directories(actualPath);
 
 	size_t counter = 0;
 
@@ -974,9 +976,9 @@ void CAnimation::exportBitmaps(const boost::filesystem::path& path, bool prepend
 			const auto img = imagePair.second;
 
 			boost::format fmt("%d_%d.bmp");
-			fmt% group% frame;
+			fmt % group % frame;
 			std::string fileName = fmt.str();
-			if (prependResourceName)
+			if(prependResourceName)
 				fileName = name + "_" + fileName;
 
 			img->exportBitmap(actualPath / fileName);

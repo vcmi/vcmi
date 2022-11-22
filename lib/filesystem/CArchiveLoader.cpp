@@ -91,13 +91,13 @@ void CArchiveLoader::initLODArchive(const std::string &mountPoint, CFileInputStr
 			boost::to_upper(fName);
 
 			if(fName.find(".PCX") != std::string::npos)
-				extractToFolder("Images", mountPoint, entry);
+				extractToFolder("IMAGES", mountPoint, entry);
 			else if ((fName.find(".DEF") != std::string::npos ) || (fName.find(".MSK") != std::string::npos) || (fName.find(".FNT") != std::string::npos) || (fName.find(".PAL") != std::string::npos))
-				extractToFolder("Sprites", mountPoint, entry);
+				extractToFolder("SPRITES", mountPoint, entry);
 			else if ((fName.find(".h3c") != std::string::npos))
-				extractToFolder("Sprites", mountPoint, entry);
+				extractToFolder("SPRITES", mountPoint, entry);
 			else
-				extractToFolder("Misc", mountPoint, entry);
+				extractToFolder("MISC", mountPoint, entry);
 
 			fileStream.seek(currentPosition); // restore filestream position
 		}
@@ -138,7 +138,7 @@ void CArchiveLoader::initVIDArchive(const std::string &mountPoint, CFileInputStr
 		entry.second.fullSize = *it - entry.second.offset;
 
 		if(extractArchives)
-			extractToFolder("Video", fileStream, entry.second);
+			extractToFolder("VIDEO", fileStream, entry.second);
 	}
 }
 
@@ -168,7 +168,7 @@ void CArchiveLoader::initSNDArchive(const std::string &mountPoint, CFileInputStr
 		entries[ResourceID(mountPoint + entry.name)] = entry;
 
 		if(extractArchives)
-			extractToFolder("Sound", fileStream, entry);
+			extractToFolder("SOUND", fileStream, entry);
 	}
 }
 
@@ -212,7 +212,7 @@ std::unordered_set<ResourceID> CArchiveLoader::getFilteredFiles(std::function<bo
 	return foundID;
 }
 
-void CArchiveLoader::extractToFolder( std::string outputSubFolder, CFileInputStream& fileStream, ArchiveEntry entry)
+void CArchiveLoader::extractToFolder(std::string outputSubFolder, CFileInputStream & fileStream, ArchiveEntry entry)
 {
 	si64 currentPosition = fileStream.tell(); // save filestream position
 
@@ -230,7 +230,7 @@ void CArchiveLoader::extractToFolder( std::string outputSubFolder, CFileInputStr
 	fileStream.seek(currentPosition); // restore filestream position
 }
 
-void CArchiveLoader::extractToFolder( std::string outputSubFolder, const std::string& mountPoint, ArchiveEntry entry)
+void CArchiveLoader::extractToFolder(std::string outputSubFolder, const std::string & mountPoint, ArchiveEntry entry)
 {
 
 	std::unique_ptr<CInputStream> inputStream = load(ResourceID(mountPoint + entry.name));

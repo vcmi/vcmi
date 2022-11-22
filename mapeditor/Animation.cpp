@@ -22,6 +22,7 @@
 #include "../lib/VCMIDirs.h"
 
 #include <boost/filesystem.hpp>
+
 namespace bfs = boost::filesystem;
 
 typedef std::map<size_t, std::vector<JsonNode>> source_map;
@@ -689,32 +690,32 @@ std::shared_ptr<QImage> Animation::getImage(size_t frame, size_t group, bool ver
 	return nullptr;
 }
 
-void Animation::exportBitmaps(const bfs::path& path, bool prependResourceName) const
+void Animation::exportBitmaps(const bfs::path & path, bool prependResourceName) const
 {
-	if (images.empty())
+	if(images.empty())
 	{
 		logGlobal->error("Nothing to export, animation is empty");
 		return;
 	}
 
-	boost::filesystem::path actualPath = path / "Sprites" / name;
-	boost::filesystem::create_directories(actualPath);
+	bfs::path actualPath = path / "SPRITES" / name;
+	bfs::create_directories(actualPath);
 
 	size_t counter = 0;
 
-	for (const auto& groupPair : images)
+	for(const auto& groupPair : images)
 	{
 		size_t group = groupPair.first;
 
-		for (const auto& imagePair : groupPair.second)
+		for(const auto& imagePair : groupPair.second)
 		{
 			size_t frame = imagePair.first;
 			const auto img = imagePair.second;
 
 			boost::format fmt("%d_%d.png");
-			fmt% group% frame;
+			fmt % group % frame;
 			std::string fileName = fmt.str();
-			if (prependResourceName)
+			if(prependResourceName)
 				fileName = name + "_" + fileName;
 
 			auto s = img->size();
