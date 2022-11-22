@@ -215,34 +215,33 @@ void CArchiveLoader::extractToFolder(std::string outputSubFolder, CFileInputStre
 {
 	si64 currentPosition = fileStream.tell(); // save filestream position
 
-	std::unique_ptr<char[]> data = std::unique_ptr<char[]>(new char[entry.fullSize]);
+	std::vector<ui8> data(entry.fullSize);
 	fileStream.seek(entry.offset);
-	fileStream.read((ui8*)data.get(), entry.fullSize);
+	fileStream.read(data.data(), entry.fullSize);
 
 	bfs::path extractedFilePath = createExtractedFilePath(outputSubFolder, entry.name);
 
 	// writeToOutputFile
 	std::ofstream out(extractedFilePath.string(), std::ofstream::binary);
 	out.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-	out.write(data.get(), entry.fullSize);
+	out.write((char*)&data[0], entry.fullSize);
 
 	fileStream.seek(currentPosition); // restore filestream position
 }
 
 void CArchiveLoader::extractToFolder(std::string outputSubFolder, const std::string & mountPoint, ArchiveEntry entry)
 {
-
 	std::unique_ptr<CInputStream> inputStream = load(ResourceID(mountPoint + entry.name));
 
-	std::unique_ptr<char[]> data = std::unique_ptr<char[]>(new char[entry.fullSize]);
-	inputStream->read((ui8*)data.get(), entry.fullSize);
+	std::vector<ui8> data(entry.fullSize);
+	inputStream->read(data.data(), entry.fullSize);
 
 	bfs::path extractedFilePath = createExtractedFilePath(outputSubFolder, entry.name);
 
 	// writeToOutputFile
 	std::ofstream out(extractedFilePath.string(), std::ofstream::binary);
 	out.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-	out.write(data.get(), entry.fullSize);
+	out.write((char*)&data[0], entry.fullSize);
 }
 
 bfs::path createExtractedFilePath(const std::string & outputSubFolder, const std::string & entryName)
