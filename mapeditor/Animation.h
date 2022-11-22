@@ -94,6 +94,3 @@ public:
 
 	void createFlippedGroup(const size_t sourceGroup, const size_t targetGroup);
 };
-
-// ToDo: krs - temp location for this function. Need to move to right lib and see if it works on other platforms.
-QString QStringFromPath(const boost::filesystem::path& filePath);

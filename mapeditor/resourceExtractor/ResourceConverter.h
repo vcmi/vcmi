@@ -1,7 +1,5 @@
-#pragma once
-
 /*
- * VCMI_Lib.cpp, part of VCMI engine
+ * ResourceConverter.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -9,6 +7,7 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+#pragma once
  
  // Splits def files that are shared between factions and converts pcx to bmp
-void ConvertExtractedResourceFiles(bool splitDefs, bool convertPcxToPng, bool deleteOriginals);
+void convertExtractedResourceFiles(bool splitDefs, bool convertPcxToPng, bool deleteOriginals);

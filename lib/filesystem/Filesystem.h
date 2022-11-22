@@ -92,7 +92,7 @@ public:
 	 * @param identifier name of this loader by which it can be retrieved later
 	 * @param loader resource loader to add
 	 */
-	static void addFilesystem(const std::string & parent, const std::string & identifier, ISimpleResourceLoader * loader, bool extractArchives = false);
+	static void addFilesystem(const std::string & parent, const std::string & identifier, ISimpleResourceLoader * loader);
 	
 	/**
 	 * @brief removeFilesystem removes previously added filesystem from global resouce holder

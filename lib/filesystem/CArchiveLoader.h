@@ -105,6 +105,6 @@ private:
 };
 
 /** Constructs the file path for the extracted file. Creates the subfolder hierarchy aswell **/
-boost::filesystem::path createExtractedFilePath(std::string outputSubFolder, std::string entryName);
+boost::filesystem::path createExtractedFilePath(const std::string & outputSubFolder, const std::string & entryName);
 
 VCMI_LIB_NAMESPACE_END

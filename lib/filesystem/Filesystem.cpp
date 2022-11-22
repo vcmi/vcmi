@@ -210,7 +210,7 @@ void CResourceHandler::load(const std::string &fsConfigURI, bool extractArchives
 	addFilesystem("data", "core", createFileSystem("", fsConfig["filesystem"], extractArchives));
 }
 
-void CResourceHandler::addFilesystem(const std::string & parent, const std::string & identifier, ISimpleResourceLoader * loader, bool extractArchives)
+void CResourceHandler::addFilesystem(const std::string & parent, const std::string & identifier, ISimpleResourceLoader * loader)
 {
 	if(knownLoaders.count(identifier) != 0)
 	{

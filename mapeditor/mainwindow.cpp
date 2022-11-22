@@ -109,17 +109,10 @@ void MainWindow::parseCommandLine()
 	if (!positionalArgs.isEmpty())
 		mapFilePath = positionalArgs.at(0);
 
-	if (parser.isSet("e"))
-		extractArchives = true;
-
-	if (parser.isSet("s"))
-		splitDefs = true;
-
-	if (parser.isSet("c"))
-		convertPcxToPng = true;
-
-	if (parser.isSet("d"))
-		deleteOriginals = true;
+	extractArchives = parser.isSet("e");
+	splitDefs = parser.isSet("s");
+	convertPcxToPng = parser.isSet("c");
+	deleteOriginals = parser.isSet("d");
 }
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -176,7 +169,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	graphics = new Graphics(); // should be before curh->init()
 	graphics->load();//must be after Content loading but should be in main thread
 
-	ConvertExtractedResourceFiles(splitDefs, convertPcxToPng, deleteOriginals);
+	convertExtractedResourceFiles(splitDefs, convertPcxToPng, deleteOriginals);
 	
 	ui->mapView->setScene(controller.scene(0));
 	ui->mapView->setController(&controller);

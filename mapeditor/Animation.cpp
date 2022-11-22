@@ -719,7 +719,7 @@ void Animation::exportBitmaps(const bfs::path & path, bool prependResourceName) 
 				fileName = name + "_" + fileName;
 
 			auto s = img->size();
-			img->save(QStringFromPath(actualPath / fileName), "PNG");
+			img->save(pathToQString(actualPath / fileName), "PNG");
 
 			counter++;
 		}
@@ -816,13 +816,4 @@ void Animation::createFlippedGroup(const size_t sourceGroup, const size_t target
 		auto image = getImage(frame, targetGroup);
 		*image = image->transformed(QTransform::fromScale(1, -1));
 	}
-}
-
-QString QStringFromPath(const bfs::path& filePath)
-{
-#ifdef _WIN32
-	return QString::fromStdWString(filePath.generic_wstring());
-#else
-	return QString::fromStdString(filePath.native());
-#endif
 }

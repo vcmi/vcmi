@@ -28,10 +28,9 @@ ArchiveEntry::ArchiveEntry()
 
 CArchiveLoader::CArchiveLoader(std::string _mountPoint, bfs::path _archive, bool extractArchives) :
     archive(std::move(_archive)),
-    mountPoint(std::move(_mountPoint))
+    mountPoint(std::move(_mountPoint)),
+	extractArchives(extractArchives)
 {
-	this->extractArchives = extractArchives;
-
 	// Open archive file(.snd, .vid, .lod)
 	CFileInputStream fileStream(archive);
 
@@ -246,7 +245,7 @@ void CArchiveLoader::extractToFolder(std::string outputSubFolder, const std::str
 	out.write(data.get(), entry.fullSize);
 }
 
-bfs::path createExtractedFilePath(std::string outputSubFolder, std::string entryName)
+bfs::path createExtractedFilePath(const std::string & outputSubFolder, const std::string & entryName)
 {
 	bfs::path extractionFolderPath = VCMIDirs::get().userCachePath() / "extracted" / outputSubFolder;
 	bfs::path extractedFilePath = extractionFolderPath / entryName;
