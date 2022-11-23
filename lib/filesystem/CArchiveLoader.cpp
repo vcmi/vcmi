@@ -209,7 +209,7 @@ std::unordered_set<ResourceID> CArchiveLoader::getFilteredFiles(std::function<bo
 	return foundID;
 }
 
-void CArchiveLoader::extractToFolder(const std::string & outputSubFolder, CFileInputStream & fileStream, ArchiveEntry entry)
+void CArchiveLoader::extractToFolder(const std::string & outputSubFolder, CInputStream & fileStream, ArchiveEntry entry)
 {
 	si64 currentPosition = fileStream.tell(); // save filestream position
 
@@ -231,15 +231,7 @@ void CArchiveLoader::extractToFolder(const std::string & outputSubFolder, const 
 {
 	std::unique_ptr<CInputStream> inputStream = load(ResourceID(mountPoint + entry.name));
 
-	std::vector<ui8> data(entry.fullSize);
-	inputStream->read(data.data(), entry.fullSize);
-
-	bfs::path extractedFilePath = createExtractedFilePath(outputSubFolder, entry.name);
-
-	// writeToOutputFile
-	std::ofstream out(extractedFilePath.string(), std::ofstream::binary);
-	out.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-	out.write((char*)&data[0], entry.fullSize);
+	extractToFolder(outputSubFolder, *inputStream, entry);
 }
 
 bfs::path createExtractedFilePath(const std::string & outputSubFolder, const std::string & entryName)

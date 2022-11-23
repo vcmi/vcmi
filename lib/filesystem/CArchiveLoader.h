@@ -68,7 +68,7 @@ public:
 	void updateFilteredFiles(std::function<bool(const std::string &)> filter) const override {}
 	std::unordered_set<ResourceID> getFilteredFiles(std::function<bool(const ResourceID &)> filter) const override;
 	/** Extracts one archive entry to the specified subfolder. Used for Video and Sound */
-	void extractToFolder(const std::string & outputSubFolder, CFileInputStream & fileStream, ArchiveEntry entry);
+	void extractToFolder(const std::string & outputSubFolder, CInputStream & fileStream, ArchiveEntry entry);
 	/** Extracts one archive entry to the specified subfolder. Used for Images, Sprites, etc */
 	void extractToFolder(const std::string & outputSubFolder, const std::string & mountPoint, ArchiveEntry entry);
 
