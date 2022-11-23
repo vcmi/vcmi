@@ -68,7 +68,7 @@ void splitDefFile(const std::string & fileName, const bfs::path & spritesPath, b
 	{
 		std::unique_ptr<Animation> anim = make_unique<Animation>(fileName);
 		anim->preload();
-		anim->exportBitmaps(VCMIDirs::get().userCachePath() / "extracted", true);
+		anim->exportBitmaps(VCMIDirs::get().userCachePath() / "extracted");
 
 		if(deleteOriginals)
 			bfs::remove(spritesPath / fileName);

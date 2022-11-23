@@ -688,7 +688,7 @@ std::shared_ptr<QImage> Animation::getImage(size_t frame, size_t group, bool ver
 	return nullptr;
 }
 
-void Animation::exportBitmaps(const bfs::path & path, bool prependResourceName) const
+void Animation::exportBitmaps(const bfs::path & path) const
 {
 	if(images.empty())
 	{
@@ -713,8 +713,7 @@ void Animation::exportBitmaps(const bfs::path & path, bool prependResourceName) 
 			boost::format fmt("%d_%d.png");
 			fmt % group % frame;
 			std::string fileName = fmt.str();
-			if(prependResourceName)
-				fileName = name + "_" + fileName;
+			fileName = name + "_" + fileName;
 
 			auto s = img->size();
 			img->save(pathToQString(actualPath / fileName), "PNG");

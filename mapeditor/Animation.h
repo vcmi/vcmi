@@ -85,7 +85,7 @@ public:
 	void load  (size_t frame, size_t group = 0);
 	void unload(size_t frame, size_t group = 0);
 
-	void exportBitmaps(const bfs::path & path, bool prependResourceName = false) const;
+	void exportBitmaps(const bfs::path & path) const;
 
 	//total count of frames in group (including not loaded)
 	size_t size(size_t group = 0) const;
