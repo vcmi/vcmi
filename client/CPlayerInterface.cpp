@@ -152,7 +152,7 @@ void CPlayerInterface::init(std::shared_ptr<Environment> ENV, std::shared_ptr<CC
 	env = ENV;
 
 	CCS->soundh->loadHorseSounds();
-	CCS->musich->loadTerrainSounds();
+	CCS->musich->loadTerrainMusicThemes();
 
 	initializeHeroTownList();
 
