@@ -21,8 +21,6 @@
 #include "../lib/CRandomGenerator.h"
 #include "../lib/VCMIDirs.h"
 
-#include <boost/filesystem.hpp>
-
 typedef std::map<size_t, std::vector<JsonNode>> source_map;
 
 /// Class for def loading
@@ -688,7 +686,7 @@ std::shared_ptr<QImage> Animation::getImage(size_t frame, size_t group, bool ver
 	return nullptr;
 }
 
-void Animation::exportBitmaps(const bfs::path & path) const
+void Animation::exportBitmaps(const QDir & path) const
 {
 	if(images.empty())
 	{
@@ -696,8 +694,8 @@ void Animation::exportBitmaps(const bfs::path & path) const
 		return;
 	}
 
-	bfs::path actualPath = path / "SPRITES" / name;
-	bfs::create_directories(actualPath);
+	QString actualPath = path.absolutePath() + "/SPRITES/" + QString::fromStdString(name);
+	QDir().mkdir(actualPath);
 
 	size_t counter = 0;
 
@@ -710,19 +708,15 @@ void Animation::exportBitmaps(const bfs::path & path) const
 			size_t frame = imagePair.first;
 			const auto img = imagePair.second;
 
-			boost::format fmt("%d_%d.png");
-			fmt % group % frame;
-			std::string fileName = fmt.str();
-			fileName = name + "_" + fileName;
-
-			auto s = img->size();
-			img->save(pathToQString(actualPath / fileName), "PNG");
+			QString filename = QString("%1_%2_%3.png").arg(QString::fromStdString(name)).arg(group).arg(frame);
+			QString filePath = actualPath + "/" + filename;
+			img->save(filePath, "PNG");
 
 			counter++;
 		}
 	}
 
-	logGlobal->info("Exported %d frames to %s", counter, actualPath.string());
+	logGlobal->info("Exported %d frames to %s", counter, actualPath.toStdString());
 }
 
 void Animation::load()
