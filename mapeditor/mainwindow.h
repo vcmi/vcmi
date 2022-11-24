@@ -147,6 +147,12 @@ private:
 
 	// command line options
 	QString mapFilePath;			// FilePath to the H3 or VCMI map to open
+};
+
+struct ExtractionOptions
+{
+	ExtractionOptions(const bool extractArchives, const bool splitDefs, const bool convertPcxToPng, const bool deleteOriginals);
+
 	bool extractArchives = false;	// extract original H3 archives into a separate folder
 	bool splitDefs = false;			// splits TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 and Un44 into individual PNG's
 	bool convertPcxToPng = false;	// converts single Images (found in Images folder) from .pcx to png.

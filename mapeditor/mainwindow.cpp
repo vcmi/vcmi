@@ -41,6 +41,15 @@
 #include "resourceExtractor/ResourceConverter.h"
 
 static CBasicLogConfigurator * logConfig;
+ExtractionOptions * extractionOptions; // All command line options for resource extractor
+
+ExtractionOptions::ExtractionOptions(const bool extractArchives, const bool splitDefs, const bool convertPcxToPng, const bool deleteOriginals) :
+	extractArchives(extractArchives),
+	splitDefs(splitDefs),
+	convertPcxToPng(convertPcxToPng),
+	deleteOriginals(deleteOriginals)
+{
+}
 
 QJsonValue jsonFromPixmap(const QPixmap &p)
 {
@@ -109,10 +118,7 @@ void MainWindow::parseCommandLine()
 	if (!positionalArgs.isEmpty())
 		mapFilePath = positionalArgs.at(0);
 
-	extractArchives = parser.isSet("e");
-	splitDefs = parser.isSet("s");
-	convertPcxToPng = parser.isSet("c");
-	deleteOriginals = parser.isSet("d");
+	extractionOptions =  new ExtractionOptions(parser.isSet("e"), parser.isSet("s"), parser.isSet("c"), parser.isSet("d"));
 }
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -138,7 +144,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	logGlobal->info("The log file will be saved to %s", logPath);
 
 	//init
-	preinitDLL(::console, false, extractArchives);
+	preinitDLL(::console, false, extractionOptions->extractArchives);
 	settings.init();
 	
 	// Initialize logging based on settings
@@ -169,7 +175,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	graphics = new Graphics(); // should be before curh->init()
 	graphics->load();//must be after Content loading but should be in main thread
 
-	convertExtractedResourceFiles(splitDefs, convertPcxToPng, deleteOriginals);
+	if (extractionOptions->extractArchives)
+		convertExtractedResourceFiles(extractionOptions->splitDefs, extractionOptions->convertPcxToPng, extractionOptions->deleteOriginals);
 	
 	ui->mapView->setScene(controller.scene(0));
 	ui->mapView->setController(&controller);
