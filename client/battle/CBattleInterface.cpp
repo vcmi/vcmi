@@ -15,6 +15,7 @@
 #include "CBattleInterfaceClasses.h"
 #include "CCreatureAnimation.h"
 #include "CBattleProjectileController.h"
+#include "CBattleEffectsController.h"
 #include "CBattleObstacleController.h"
 #include "CBattleSiegeController.h"
 #include "CBattleFieldController.h"
@@ -583,7 +584,7 @@ void CBattleInterface::spellCast(const BattleSpellCast * sc)
 	{
 		auto stack = curInt->cb->battleGetStackByID(elem.stack, false);
 		if(stack)
-			displayEffect(elem.effect, stack->getPosition());
+			effectsController->displayEffect(EBattleEffect::EBattleEffect(elem.effect), stack->getPosition());
 	}
 
 	waitForAnims();
@@ -628,25 +629,6 @@ void CBattleInterface::displayBattleLog(const std::vector<MetaString> & battleLo
 	}
 }
 
-void CBattleInterface::displayCustomEffects(const std::vector<CustomEffectInfo> & customEffects)
-{
-	for(const CustomEffectInfo & one : customEffects)
-	{
-		if(one.sound != 0)
-			CCS->soundh->playSound(soundBase::soundID(one.sound));
-		const CStack * s = curInt->cb->battleGetStackByID(one.stack, false);
-		if(s && one.effect != 0)
-			displayEffect(one.effect, s->getPosition());
-	}
-}
-
-void CBattleInterface::displayEffect(ui32 effect, BattleHex destTile)
-{
-	std::string customAnim = graphics->battleACToDef[effect][0];
-
-	stacksController->addNewAnim(new CEffectAnimation(this, customAnim, destTile));
-}
-
 void CBattleInterface::displaySpellAnimationQueue(const CSpell::TAnimationQueue & q, BattleHex destinationTile)
 {
 	for(const CSpell::TAnimation & animation : q)
@@ -680,49 +662,6 @@ void CBattleInterface::displaySpellHit(SpellID spellID, BattleHex destinationTil
 
 	if(spell)
 		displaySpellAnimationQueue(spell->animationInfo.hit, destinationTile);
-}
-
-void CBattleInterface::battleTriggerEffect(const BattleTriggerEffect & bte)
-{
-	const CStack * stack = curInt->cb->battleGetStackByID(bte.stackID);
-	if(!stack)
-	{
-		logGlobal->error("Invalid stack ID %d", bte.stackID);
-		return;
-	}
-	//don't show animation when no HP is regenerated
-	switch(bte.effect)
-	{
-		//TODO: move to bonus type handler
-		case Bonus::HP_REGENERATION:
-			displayEffect(74, stack->getPosition());
-			CCS->soundh->playSound(soundBase::REGENER);
-			break;
-		case Bonus::MANA_DRAIN:
-			displayEffect(77, stack->getPosition());
-			CCS->soundh->playSound(soundBase::MANADRAI);
-			break;
-		case Bonus::POISON:
-			displayEffect(67, stack->getPosition());
-			CCS->soundh->playSound(soundBase::POISON);
-			break;
-		case Bonus::FEAR:
-			displayEffect(15, stack->getPosition());
-			CCS->soundh->playSound(soundBase::FEAR);
-			break;
-		case Bonus::MORALE:
-		{
-			std::string hlp = CGI->generaltexth->allTexts[33];
-			boost::algorithm::replace_first(hlp,"%s",(stack->getName()));
-			displayEffect(20,stack->getPosition());
-			CCS->soundh->playSound(soundBase::GOODMRLE);
-			controlPanel->console->addText(hlp);
-			break;
-		}
-		default:
-			return;
-	}
-	//waitForAnims(); //fixme: freezes game :?
 }
 
 void CBattleInterface::setAnimSpeed(int set)
@@ -830,7 +769,6 @@ void CBattleInterface::showQueue()
 
 void CBattleInterface::startAction(const BattleAction* action)
 {
-	//setActiveStack(nullptr);
 	controlPanel->blockUI(true);
 
 	if(action->actionType == EActionType::END_TACTIC_PHASE)
@@ -866,31 +804,7 @@ void CBattleInterface::startAction(const BattleAction* action)
 		return;
 	}
 
-	int txtid = 0;
-	switch(action->actionType)
-	{
-	case EActionType::WAIT:
-		txtid = 136;
-		break;
-	case EActionType::BAD_MORALE:
-		txtid = -34; //negative -> no separate singular/plural form
-		displayEffect(30, stack->getPosition());
-		CCS->soundh->playSound(soundBase::BADMRLE);
-		break;
-	}
-
-	if(txtid != 0)
-		controlPanel->console->addText(stack->formatGeneralMessage(txtid));
-
-	//displaying special abilities
-	auto actionTarget = action->getTarget(curInt->cb.get());
-	switch(action->actionType)
-	{
-		case EActionType::STACK_HEAL:
-			displayEffect(74, actionTarget.at(0).hexValue);
-			CCS->soundh->playSound(soundBase::REGENER);
-			break;
-	}
+	effectsController->startAction(action);
 }
 
 void CBattleInterface::waitForAnims()
@@ -1051,7 +965,7 @@ void CBattleInterface::showBattlefieldObjects(SDL_Surface *to)
 			siegeController->showPiecesOfWall(to, hex.walls);
 		obstacleController->showObstacles(to, hex.obstacles);
 		stacksController->showAliveStacks(to, hex.alive);
-		showBattleEffects(to, hex.effects);
+		effectsController->showBattleEffects(to, hex.effects);
 	};
 
 	BattleObjectsByHex objects = sortObjectsByHex();
@@ -1078,21 +992,6 @@ void CBattleInterface::showBattlefieldObjects(SDL_Surface *to)
 
 	// objects that must be blit *after* everything else - e.g. bottom tower or some spell effects
 	showHexEntry(objects.afterAll);
-}
-
-void CBattleInterface::showBattleEffects(SDL_Surface *to, const std::vector<const BattleEffect *> &battleEffects)
-{
-	for (auto & elem : battleEffects)
-	{
-		int currentFrame = static_cast<int>(floor(elem->currentFrame));
-		currentFrame %= elem->animation->size();
-
-		auto img = elem->animation->getImage(currentFrame);
-
-		SDL_Rect temp_rect = genRect(img->height(), img->width(), elem->x, elem->y);
-
-		img->draw(to, &temp_rect, nullptr);
-	}
 }
 
 void CBattleInterface::showInterface(SDL_Surface *to)
@@ -1125,22 +1024,9 @@ BattleObjectsByHex CBattleInterface::sortObjectsByHex()
 {
 	BattleObjectsByHex sorted;
 
-	// Sort creatures
 	stacksController->sortObjectsByHex(sorted);
-
-	// Sort battle effects (spells)
-	for (auto & battleEffect : battleEffects)
-	{
-		if (battleEffect.position.isValid())
-			sorted.hex[battleEffect.position].effects.push_back(&battleEffect);
-		else
-			sorted.afterAll.effects.push_back(&battleEffect);
-	}
-
-	// Sort obstacles
 	obstacleController->sortObjectsByHex(sorted);
-
-	// Sort wall parts
+	effectsController->sortObjectsByHex(sorted);
 	if (siegeController)
 		siegeController->sortObjectsByHex(sorted);
 

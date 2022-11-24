@@ -29,6 +29,7 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/SDL_Extensions.h"
 #include "../widgets/Buttons.h"
+#include "../widgets/Images.h"
 #include "../widgets/TextControls.h"
 #include "../windows/CCreatureWindow.h"
 #include "../windows/CSpellWindow.h"

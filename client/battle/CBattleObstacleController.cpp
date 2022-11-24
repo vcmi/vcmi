@@ -11,6 +11,7 @@
 #include "CBattleObstacleController.h"
 #include "CBattleInterface.h"
 #include "CBattleFieldController.h"
+#include "CBattleAnimations.h"
 #include "CBattleStacksController.h"
 #include "../CPlayerInterface.h"
 #include "../../CCallback.h"

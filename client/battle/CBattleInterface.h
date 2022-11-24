@@ -9,16 +9,8 @@
  */
 #pragma once
 
-#include <vcmi/spells/Magic.h>
-
-#include "../../lib/ConstTransitivePtr.h" //may be redundant
-#include "../../lib/GameConstants.h"
-
-#include "CBattleAnimations.h"
-
+#include "../gui/CIntObject.h"
 #include "../../lib/spells/CSpellHandler.h" //CSpell::TAnimation
-#include "../../lib/CCreatureHandler.h"
-#include "../../lib/battle/CBattleInfoCallback.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -36,27 +28,25 @@ struct CatapultAttack;
 struct BattleTriggerEffect;
 struct BattleHex;
 struct InfoAboutHero;
-class CBattleGameInterface;
+//class CBattleGameInterface;
 struct CustomEffectInfo;
-class CSpell;
+//class CSpell;
 
 VCMI_LIB_NAMESPACE_END
 
-class CLabel;
-class CCallback;
-class CButton;
-class CToggleButton;
-class CToggleGroup;
-class CBattleAnimation;
+//class CLabel;
+//class CCallback;
+//class CBattleAnimation;
 class CBattleHero;
-class CBattleConsole;
+//class CBattleConsole;
 class CBattleResultWindow;
 class CStackQueue;
 class CPlayerInterface;
-class CCreatureAnimation;
+//class CCreatureAnimation;
 class CClickableHex;
 class CAnimation;
-class IImage;
+//class IImage;
+struct BattleEffect;
 
 class CBattleProjectileController;
 class CBattleSiegeController;
@@ -65,6 +55,7 @@ class CBattleFieldController;
 class CBattleControlPanel;
 class CBattleStacksController;
 class CBattleActionsController;
+class CBattleEffectsController;
 
 /// Small struct which contains information about the id of the attacked stack, the damage dealt,...
 struct StackAttackedInfo
@@ -79,15 +70,6 @@ struct StackAttackedInfo
 	bool cloneKilled;
 };
 
-/// Struct for battle effect animation e.g. morale, prayer, armageddon, bless,...
-struct BattleEffect
-{
-	int x, y; //position on the screen
-	float currentFrame;
-	std::shared_ptr<CAnimation> animation;
-	int effectID; //uniqueID equal ot ID of appropriate CSpellEffectAnim
-	BattleHex position; //Indicates if effect which hex the effect is drawn on
-};
 
 struct BattleObjectsByHex
 {
@@ -133,8 +115,6 @@ private:
 	bool battleActionsStarted; //used for delaying battle actions until intro sound stops
 	int battleIntroSoundChannel; //required as variable for disabling it via ESC key
 
-	std::list<BattleEffect> battleEffects; //different animations to display on the screen like spell effects
-
 	void trySetActivePlayer( PlayerColor player ); // if in hotseat, will activate interface of chosen player
 	void activateStack(); //sets activeStack to stackToActivate etc. //FIXME: No, it's not clear at all
 	void requestAutofightingAIToTakeAction();
@@ -149,8 +129,6 @@ private:
 
 	void showBattlefieldObjects(SDL_Surface *to);
 
-	void showBattleEffects(SDL_Surface *to, const std::vector<const BattleEffect *> &battleEffects);
-
 	BattleObjectsByHex sortObjectsByHex();
 
 	void setHeroAnimation(ui8 side, int phase);
@@ -161,6 +139,7 @@ public:
 	std::unique_ptr<CBattleFieldController> fieldController;
 	std::unique_ptr<CBattleStacksController> stacksController;
 	std::unique_ptr<CBattleActionsController> actionsController;
+	std::unique_ptr<CBattleEffectsController> effectsController;
 
 	static CondSh<bool> animsAreDisplayed; //for waiting with the end of battle for end of anims
 	static CondSh<BattleAction *> givenCommand; //data != nullptr if we have i.e. moved current unit
@@ -174,7 +153,6 @@ public:
 	CBattleInterface(const CCreatureSet *army1, const CCreatureSet *army2, const CGHeroInstance *hero1, const CGHeroInstance *hero2, const SDL_Rect & myRect, std::shared_ptr<CPlayerInterface> att, std::shared_ptr<CPlayerInterface> defen, std::shared_ptr<CPlayerInterface> spectatorInt = nullptr);
 	virtual ~CBattleInterface();
 
-	//std::vector<TimeInterested*> timeinterested; //animation handling
 	void setPrintCellBorders(bool set); //if true, cell borders will be printed
 	void setPrintStackRange(bool set); //if true,range of active stack will be printed
 	void setPrintMouseShadow(bool set); //if true, hex under mouse will be shaded
@@ -216,16 +194,12 @@ public:
 	void castThisSpell(SpellID spellID); //called when player has chosen a spell from spellbook
 
 	void displayBattleLog(const std::vector<MetaString> & battleLog);
-	void displayCustomEffects(const std::vector<CustomEffectInfo> & customEffects);
-
-	void displayEffect(ui32 effect, BattleHex destTile); //displays custom effect on the battlefield
 
 	void displaySpellAnimationQueue(const CSpell::TAnimationQueue & q, BattleHex destinationTile);
 	void displaySpellCast(SpellID spellID, BattleHex destinationTile); //displays spell`s cast animation
 	void displaySpellEffect(SpellID spellID, BattleHex destinationTile); //displays spell`s affected animation
 	void displaySpellHit(SpellID spellID, BattleHex destinationTile); //displays spell`s affected animation
 
-	void battleTriggerEffect(const BattleTriggerEffect & bte);
 	void endAction(const BattleAction* action);
 	void hideQueue();
 	void showQueue();
@@ -234,12 +208,10 @@ public:
 
 	void gateStateChanged(const EGateState state);
 
-
 	const CGHeroInstance *currentHero() const;
 	InfoAboutHero enemyHero() const;
 
 	friend class CPlayerInterface;
-	friend class CButton;
 	friend class CInGameConsole;
 
 	friend class CBattleResultWindow;
@@ -262,4 +234,5 @@ public:
 	friend class CBattleControlPanel;
 	friend class CBattleStacksController;
 	friend class CBattleActionsController;
+	friend class CBattleEffectsController;
 };

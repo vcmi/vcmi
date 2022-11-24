@@ -13,6 +13,7 @@
 
 #include "windows/CAdvmapInterface.h"
 #include "battle/CBattleInterface.h"
+#include "battle/CBattleEffectsController.h"
 #include "battle/CBattleFieldController.h"
 #include "battle/CBattleInterfaceClasses.h"
 #include "battle/CBattleControlPanel.h"
@@ -768,7 +769,7 @@ void CPlayerInterface::battleUnitsChanged(const std::vector<UnitChanges> & units
 		}
 	}
 
-	battleInt->displayCustomEffects(customEffects);
+	battleInt->effectsController->displayCustomEffects(customEffects);
 }
 
 void CPlayerInterface::battleObstaclesChanged(const std::vector<ObstacleChanges> & obstacles)
@@ -959,7 +960,7 @@ void CPlayerInterface::battleTriggerEffect (const BattleTriggerEffect & bte)
 	//TODO why is this different (no return on LOPLINT != this) ?
 
 	RETURN_IF_QUICK_COMBAT;
-	battleInt->battleTriggerEffect(bte);
+	battleInt->effectsController->battleTriggerEffect(bte);
 }
 void CPlayerInterface::battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa)
 {
@@ -974,7 +975,7 @@ void CPlayerInterface::battleStacksAttacked(const std::vector<BattleStackAttacke
 		if(elem.isEffect())
 		{
 			if(defender && !elem.isSecondary())
-				battleInt->displayEffect(elem.effect, defender->getPosition());
+				battleInt->effectsController->displayEffect(EBattleEffect::EBattleEffect(elem.effect), defender->getPosition());
 		}
 		if(elem.isSpell())
 		{
@@ -1010,14 +1011,12 @@ void CPlayerInterface::battleAttack(const BattleAttack * ba)
 	if(ba->lucky()) //lucky hit
 	{
 		battleInt->controlPanel->console->addText(attacker->formatGeneralMessage(-45));
-		battleInt->displayEffect(18, attacker->getPosition());
-		CCS->soundh->playSound(soundBase::GOODLUCK);
+		battleInt->effectsController->displayEffect(EBattleEffect::GOOD_LUCK, soundBase::GOODLUCK, attacker->getPosition());
 	}
 	if(ba->unlucky()) //unlucky hit
 	{
 		battleInt->controlPanel->console->addText(attacker->formatGeneralMessage(-44));
-		battleInt->displayEffect(48, attacker->getPosition());
-		CCS->soundh->playSound(soundBase::BADLUCK);
+		battleInt->effectsController->displayEffect(EBattleEffect::BAD_LUCK, soundBase::BADLUCK, attacker->getPosition());
 	}
 	if(ba->deathBlow())
 	{
@@ -1025,12 +1024,12 @@ void CPlayerInterface::battleAttack(const BattleAttack * ba)
 		for(auto & elem : ba->bsa)
 		{
 			const CStack * attacked = cb->battleGetStackByID(elem.stackAttacked);
-			battleInt->displayEffect(73, attacked->getPosition());
+			battleInt->effectsController->displayEffect(EBattleEffect::DEATH_BLOW, attacked->getPosition());
 		}
 		CCS->soundh->playSound(soundBase::deathBlow);
 	}
 
-	battleInt->displayCustomEffects(ba->customEffects);
+	battleInt->effectsController->displayCustomEffects(ba->customEffects);
 
 	battleInt->waitForAnims();
 

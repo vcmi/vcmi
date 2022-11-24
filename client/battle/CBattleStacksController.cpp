@@ -12,7 +12,9 @@
 #include "CBattleSiegeController.h"
 #include "CBattleInterfaceClasses.h"
 #include "CBattleInterface.h"
+#include "CBattleAnimations.h"
 #include "CBattleFieldController.h"
+#include "CBattleEffectsController.h"
 #include "CBattleProjectileController.h"
 #include "CBattleControlPanel.h"
 #include "../CBitmapHandler.h"
@@ -444,8 +446,7 @@ void CBattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> a
 
 		if(attackedInfo.rebirth)
 		{
-			owner->displayEffect(50, attackedInfo.defender->getPosition()); //TODO: play reverse death animation
-			CCS->soundh->playSound(soundBase::RESURECT);
+			owner->effectsController->displayEffect(EBattleEffect::RESURRECT, soundBase::RESURECT, attackedInfo.defender->getPosition()); //TODO: play reverse death animation
 		}
 	}
 	owner->waitForAnims();

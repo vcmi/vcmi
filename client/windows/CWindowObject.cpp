@@ -13,6 +13,7 @@
 #include "CAdvmapInterface.h"
 
 #include "../widgets/MiscWidgets.h"
+#include "../widgets/Images.h"
 
 #include "../gui/SDL_Pixels.h"
 #include "../gui/SDL_Extensions.h"

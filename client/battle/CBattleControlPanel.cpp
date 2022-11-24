@@ -14,6 +14,7 @@
 #include "CBattleStacksController.h"
 #include "CBattleActionsController.h"
 #include "../widgets/Buttons.h"
+#include "../widgets/Images.h"
 #include "../CGameInfo.h"
 #include "../CBitmapHandler.h"
 #include "../../lib/CGeneralTextHandler.h"

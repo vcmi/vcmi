@@ -17,6 +17,7 @@
 #include "CBattleProjectileController.h"
 #include "CBattleSiegeController.h"
 #include "CBattleFieldController.h"
+#include "CBattleEffectsController.h"
 #include "CBattleStacksController.h"
 #include "CCreatureAnimation.h"
 
@@ -184,9 +185,6 @@ killed(_attackedInfo.killed), timeToWait(0)
 
 bool CDefenceAnimation::init()
 {
-	if(attacker == nullptr && owner->battleEffects.size() > 0)
-		return false;
-
 	ui32 lowestMoveID = maxAnimationID() + 5;
 	for(auto & elem : pendingAnimations())
 	{
@@ -200,6 +198,9 @@ bool CDefenceAnimation::init()
 			continue;
 
 		CEffectAnimation * sen = dynamic_cast<CEffectAnimation *>(elem.first);
+		if (sen && attacker == nullptr)
+			return false;
+
 		if (sen)
 			continue;
 
@@ -1078,7 +1079,7 @@ bool CEffectAnimation::init()
 				be.y = j * first->height() + owner->pos.y;
 				be.position = BattleHex::INVALID;
 
-				owner->battleEffects.push_back(be);
+				owner->effectsController->battleEffects.push_back(be);
 			}
 		}
 	}
@@ -1121,16 +1122,15 @@ bool CEffectAnimation::init()
 		//Indicate if effect should be drawn on top of everything or just on top of the hex
 		be.position = destTile;
 
-		owner->battleEffects.push_back(be);
+		owner->effectsController->battleEffects.push_back(be);
 	}
-	//battleEffects
 	return true;
 }
 
 void CEffectAnimation::nextFrame()
 {
 	//notice: there may be more than one effect in owner->battleEffects correcponding to this animation (ie. armageddon)
-	for(auto & elem : owner->battleEffects)
+	for(auto & elem : owner->effectsController->battleEffects)
 	{
 		if(elem.effectID == ID)
 		{
@@ -1154,20 +1154,11 @@ void CEffectAnimation::endAnim()
 {
 	CBattleAnimation::endAnim();
 
-	std::vector<std::list<BattleEffect>::iterator> toDel;
-
-	for(auto it = owner->battleEffects.begin(); it != owner->battleEffects.end(); ++it)
-	{
-		if(it->effectID == ID)
+	boost::range::remove_if(owner->effectsController->battleEffects,
+		[&](const BattleEffect & elem)
 		{
-			toDel.push_back(it);
-		}
-	}
-
-	for(auto & elem : toDel)
-	{
-		owner->battleEffects.erase(elem);
-	}
+			return elem.effectID == ID;
+		});
 
 	delete this;
 }
