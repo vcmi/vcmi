@@ -370,7 +370,7 @@ void CBattleActionsController::handleHex(BattleHex myNumber, int eventType)
 				}
 				break;
 			case PossiblePlayerBattleAction::CATAPULT:
-				if (owner->siegeController && owner->siegeController->isCatapultAttackable(myNumber))
+				if (owner->siegeController && owner->siegeController->isAttackableByCatapult(myNumber))
 					legalAction = true;
 				break;
 			case PossiblePlayerBattleAction::HEAL:

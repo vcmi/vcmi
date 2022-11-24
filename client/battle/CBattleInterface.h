@@ -70,28 +70,6 @@ struct StackAttackedInfo
 	bool cloneKilled;
 };
 
-
-struct BattleObjectsByHex
-{
-	typedef std::vector<int> TWallList;
-	typedef std::vector<const CStack *> TStackList;
-	typedef std::vector<const BattleEffect *> TEffectList;
-	typedef std::vector<std::shared_ptr<const CObstacleInstance>> TObstacleList;
-
-	struct HexData
-	{
-		TWallList walls;
-		TStackList dead;
-		TStackList alive;
-		TEffectList effects;
-		TObstacleList obstacles;
-	};
-
-	HexData beforeAll;
-	HexData afterAll;
-	std::array<HexData, GameConstants::BFIELD_SIZE> hex;
-};
-
 /// Big class which handles the overall battle interface actions and it is also responsible for
 /// drawing everything correctly.
 class CBattleInterface : public WindowBase
@@ -128,8 +106,7 @@ private:
 	void showInterface(SDL_Surface *to);
 
 	void showBattlefieldObjects(SDL_Surface *to);
-
-	BattleObjectsByHex sortObjectsByHex();
+	void showBattlefieldObjects(SDL_Surface *to, const BattleHex & location );
 
 	void setHeroAnimation(ui8 side, int phase);
 public:

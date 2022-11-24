@@ -17,7 +17,7 @@
 #include "CBattleEffectsController.h"
 #include "CBattleProjectileController.h"
 #include "CBattleControlPanel.h"
-#include "../CBitmapHandler.h"
+#include "../gui/CAnimation.h"
 #include "../gui/SDL_Extensions.h"
 #include "../gui/CGuiHandler.h"
 #include "../../lib/battle/BattleHex.h"
@@ -56,42 +56,24 @@ static void onAnimationFinished(const CStack *stack, std::weak_ptr<CCreatureAnim
 	animation->onAnimationReset += std::bind(&onAnimationFinished, stack, anim);
 }
 
-static void transformPalette(SDL_Surface *surf, double rCor, double gCor, double bCor)
-{
-	SDL_Color *colorsToChange = surf->format->palette->colors;
-	for (int g=0; g<surf->format->palette->ncolors; ++g)
-	{
-		SDL_Color *color = &colorsToChange[g];
-		if (color->b != 132 &&
-			color->g != 231 &&
-			color->r != 255) //it's not yellow border
-		{
-			color->r = static_cast<Uint8>(color->r * rCor);
-			color->g = static_cast<Uint8>(color->g * gCor);
-			color->b = static_cast<Uint8>(color->b * bCor);
-		}
-	}
-}
-
 CBattleStacksController::CBattleStacksController(CBattleInterface * owner):
 	owner(owner)
 {
 	//preparing graphics for displaying amounts of creatures
-	amountNormal = BitmapHandler::loadBitmap("CMNUMWIN.BMP");
-	CSDL_Ext::alphaTransform(amountNormal);
-	transformPalette(amountNormal, 0.59, 0.19, 0.93);
+	amountNormal     = IImage::createFromFile("CMNUMWIN.BMP");
+	amountPositive   = IImage::createFromFile("CMNUMWIN.BMP");
+	amountNegative   = IImage::createFromFile("CMNUMWIN.BMP");
+	amountEffNeutral = IImage::createFromFile("CMNUMWIN.BMP");
 
-	amountPositive = BitmapHandler::loadBitmap("CMNUMWIN.BMP");
-	CSDL_Ext::alphaTransform(amountPositive);
-	transformPalette(amountPositive, 0.18, 1.00, 0.18);
+	ColorShifterAddMulExcept shifterNormal  ({0,0,0,0}, {150,  48, 237, 255}, {132, 231, 255, 255});
+	ColorShifterAddMulExcept shifterPositive({0,0,0,0}, { 45, 255,  45, 255}, {132, 231, 255, 255});
+	ColorShifterAddMulExcept shifterNegative({0,0,0,0}, {255,  45,  45, 255}, {132, 231, 255, 255});
+	ColorShifterAddMulExcept shifterNeutral ({0,0,0,0}, {255, 255,  45, 255}, {132, 231, 255, 255});
 
-	amountNegative = BitmapHandler::loadBitmap("CMNUMWIN.BMP");
-	CSDL_Ext::alphaTransform(amountNegative);
-	transformPalette(amountNegative, 1.00, 0.18, 0.18);
-
-	amountEffNeutral = BitmapHandler::loadBitmap("CMNUMWIN.BMP");
-	CSDL_Ext::alphaTransform(amountEffNeutral);
-	transformPalette(amountEffNeutral, 1.00, 1.00, 0.18);
+	amountNormal->adjustPalette(&shifterNormal);
+	amountPositive->adjustPalette(&shifterPositive);
+	amountNegative->adjustPalette(&shifterNegative);
+	amountEffNeutral->adjustPalette(&shifterNeutral);
 
 	std::vector<const CStack*> stacks = owner->curInt->cb->battleGetAllStacks(true);
 	for(const CStack * s : stacks)
@@ -100,15 +82,7 @@ CBattleStacksController::CBattleStacksController(CBattleInterface * owner):
 	}
 }
 
-CBattleStacksController::~CBattleStacksController()
-{
-	SDL_FreeSurface(amountNormal);
-	SDL_FreeSurface(amountNegative);
-	SDL_FreeSurface(amountPositive);
-	SDL_FreeSurface(amountEffNeutral);
-}
-
-void CBattleStacksController::sortObjectsByHex(BattleObjectsByHex & sorted)
+void CBattleStacksController::showBattlefieldObjects(SDL_Surface *to, const BattleHex & location )
 {
 	auto getCurrentPosition = [&](const CStack *stack) -> BattleHex
 	{
@@ -127,18 +101,15 @@ void CBattleStacksController::sortObjectsByHex(BattleObjectsByHex & sorted)
 		return stack->getPosition();
 	};
 
-	auto stacks = owner->curInt->cb->battleGetStacksIf([](const CStack *s)
-	{
-		return !s->isTurret();
-	});
+	auto stacks = owner->curInt->cb->battleGetAllStacks(true);
 
 	for (auto & stack : stacks)
 	{
 		if (creAnims.find(stack->ID) == creAnims.end()) //e.g. for summoned but not yet handled stacks
 			continue;
 
-		if (stack->initialPosition < 0) // turret shooters are handled separately
-			continue;
+		//if (stack->initialPosition < 0) // turret shooters are handled separately
+		//	continue;
 
 		//FIXME: hack to ignore ghost stacks
 		if ((creAnims[stack->ID]->getType() == CCreatureAnim::DEAD || creAnims[stack->ID]->getType() == CCreatureAnim::HOLDING) && stack->isGhost())
@@ -146,24 +117,34 @@ void CBattleStacksController::sortObjectsByHex(BattleObjectsByHex & sorted)
 
 		if (creAnims[stack->ID]->isDead())
 		{
-			sorted.hex[stack->getPosition()].dead.push_back(stack);
+			//if ( location == stack->getPosition() )
+			if ( location == BattleHex::HEX_BEFORE_ALL ) //FIXME: any cases when this won't work?
+			{};
 			continue;
 		}
 
+		// standing - blit at current position
 		if (!creAnims[stack->ID]->isMoving())
 		{
-			sorted.hex[stack->getPosition()].alive.push_back(stack);
+			if ( location == stack->getPosition() )
+			{};
 			continue;
 		}
 
 		// flying creature - just blit them over everyone else
 		if (stack->hasBonusOfType(Bonus::FLYING))
 		{
-			sorted.afterAll.alive.push_back(stack);
+			if ( location == BattleHex::HEX_AFTER_ALL)
+			{};
 			continue;
 		}
 
-		sorted.hex[getCurrentPosition(stack)].alive.push_back(stack);
+		// else - unit moving on ground
+		{
+			if ( location == getCurrentPosition(stack) )
+			{};
+			continue;
+		}
 	}
 }
 
@@ -184,7 +165,7 @@ void CBattleStacksController::stackReset(const CStack * stack)
 
 	if (stack->isClone())
 	{
-		ColorShifterDeepBlue shifter;
+		auto shifter = ColorShifterAddMul::deepBlue();
 		animation->shiftColor(&shifter);
 	}
 
@@ -201,12 +182,12 @@ void CBattleStacksController::stackAdded(const CStack * stack)
 	{
 		assert(owner->siegeController);
 
-		const CCreature *turretCreature = owner->siegeController->turretCreature();
+		const CCreature *turretCreature = owner->siegeController->getTurretCreature();
 
 		creAnims[stack->ID] = AnimationControls::getAnimation(turretCreature);
 		creAnims[stack->ID]->pos.h = 225;
 
-		coords = owner->siegeController->turretCreaturePosition(stack->initialPosition);
+		coords = owner->siegeController->getTurretCreaturePosition(stack->initialPosition);
 	}
 	else
 	{
@@ -263,7 +244,7 @@ void CBattleStacksController::setHoveredStack(const CStack *stack)
 		mouseHoveredStack = nullptr;
 }
 
-void CBattleStacksController::showAliveStacks(SDL_Surface *to, std::vector<const CStack *> stacks)
+bool CBattleStacksController::stackNeedsAmountBox(const CStack * stack)
 {
 	BattleHex currentActionTarget;
 	if(owner->curInt->curAction)
@@ -273,39 +254,41 @@ void CBattleStacksController::showAliveStacks(SDL_Surface *to, std::vector<const
 			currentActionTarget = target.at(0).hexValue;
 	}
 
-	auto isAmountBoxVisible = [&](const CStack *stack) -> bool
+	if(!stack->alive())
+		return false;
+
+	if(stack->hasBonusOfType(Bonus::SIEGE_WEAPON) && stack->getCount() == 1) //do not show box for singular war machines, stacked war machines with box shown are supported as extension feature
+		return false;
+
+	if(stack->getCount() == 0) //hide box when target is going to die anyway - do not display "0 creatures"
+		return false;
+
+	for(auto anim : pendingAnims) //no matter what other conditions below are, hide box when creature is playing hit animation
 	{
-		if(stack->hasBonusOfType(Bonus::SIEGE_WEAPON) && stack->getCount() == 1) //do not show box for singular war machines, stacked war machines with box shown are supported as extension feature
+		auto hitAnimation = dynamic_cast<CDefenceAnimation*>(anim.first);
+		if(hitAnimation && (hitAnimation->stack->ID == stack->ID)) //we process only "current creature" as other creatures will be processed reliably on their own iteration
 			return false;
+	}
 
-		if(stack->getCount() == 0) //hide box when target is going to die anyway - do not display "0 creatures"
-			return false;
-
-		for(auto anim : pendingAnims) //no matter what other conditions below are, hide box when creature is playing hit animation
+	if(owner->curInt->curAction)
+	{
+		if(owner->curInt->curAction->stackNumber == stack->ID) //stack is currently taking action (is not a target of another creature's action etc)
 		{
-			auto hitAnimation = dynamic_cast<CDefenceAnimation*>(anim.first);
-			if(hitAnimation && (hitAnimation->stack->ID == stack->ID)) //we process only "current creature" as other creatures will be processed reliably on their own iteration
+			if(owner->curInt->curAction->actionType == EActionType::WALK || owner->curInt->curAction->actionType == EActionType::SHOOT) //hide when stack walks or shoots
+				return false;
+
+			else if(owner->curInt->curAction->actionType == EActionType::WALK_AND_ATTACK && currentActionTarget != stack->getPosition()) //when attacking, hide until walk phase finished
 				return false;
 		}
 
-		if(owner->curInt->curAction)
-		{
-			if(owner->curInt->curAction->stackNumber == stack->ID) //stack is currently taking action (is not a target of another creature's action etc)
-			{
-				if(owner->curInt->curAction->actionType == EActionType::WALK || owner->curInt->curAction->actionType == EActionType::SHOOT) //hide when stack walks or shoots
-					return false;
+		if(owner->curInt->curAction->actionType == EActionType::SHOOT && currentActionTarget == stack->getPosition()) //hide if we are ranged attack target
+			return false;
+	}
+	return true;
+}
 
-				else if(owner->curInt->curAction->actionType == EActionType::WALK_AND_ATTACK && currentActionTarget != stack->getPosition()) //when attacking, hide until walk phase finished
-					return false;
-			}
-
-			if(owner->curInt->curAction->actionType == EActionType::SHOOT && currentActionTarget == stack->getPosition()) //hide if we are ranged attack target
-				return false;
-		}
-
-		return true;
-	};
-
+void CBattleStacksController::showStackAmountBox(SDL_Surface *to, const CStack * stack)
+{
 	auto getEffectsPositivness = [&](const std::vector<si32> & activeSpells) -> int
 	{
 		int pos = 0;
@@ -316,7 +299,7 @@ void CBattleStacksController::showAliveStacks(SDL_Surface *to, std::vector<const
 		return pos;
 	};
 
-	auto getAmountBoxBackground = [&](int positivness) -> SDL_Surface *
+	auto getAmountBoxBackground = [&](int positivness) -> auto
 	{
 		if (positivness > 0)
 			return amountPositive;
@@ -325,48 +308,36 @@ void CBattleStacksController::showAliveStacks(SDL_Surface *to, std::vector<const
 		return amountEffNeutral;
 	};
 
-	showStacks(to, stacks); // Actual display of all stacks
+	const int sideShift = stack->side == BattleSide::ATTACKER ? 1 : -1;
+	const int reverseSideShift = stack->side == BattleSide::ATTACKER ? -1 : 1;
+	const BattleHex nextPos = stack->getPosition() + sideShift;
+	const bool edge = stack->getPosition() % GameConstants::BFIELD_WIDTH == (stack->side == BattleSide::ATTACKER ? GameConstants::BFIELD_WIDTH - 2 : 1);
+	const bool moveInside = !edge && !owner->fieldController->stackCountOutsideHex(nextPos);
+	int xAdd = (stack->side == BattleSide::ATTACKER ? 220 : 202) +
+			(stack->doubleWide() ? 44 : 0) * sideShift +
+			(moveInside ? amountNormal->width() + 10 : 0) * reverseSideShift;
+	int yAdd = 260 + ((stack->side == BattleSide::ATTACKER || moveInside) ? 0 : -15);
 
-	for (auto & stack : stacks)
-	{
-		assert(stack);
-		//printing amount
-		if (isAmountBoxVisible(stack))
-		{
-			const int sideShift = stack->side == BattleSide::ATTACKER ? 1 : -1;
-			const int reverseSideShift = stack->side == BattleSide::ATTACKER ? -1 : 1;
-			const BattleHex nextPos = stack->getPosition() + sideShift;
-			const bool edge = stack->getPosition() % GameConstants::BFIELD_WIDTH == (stack->side == BattleSide::ATTACKER ? GameConstants::BFIELD_WIDTH - 2 : 1);
-			const bool moveInside = !edge && !owner->fieldController->stackCountOutsideHex(nextPos);
-			int xAdd = (stack->side == BattleSide::ATTACKER ? 220 : 202) +
-					   (stack->doubleWide() ? 44 : 0) * sideShift +
-					   (moveInside ? amountNormal->w + 10 : 0) * reverseSideShift;
-			int yAdd = 260 + ((stack->side == BattleSide::ATTACKER || moveInside) ? 0 : -15);
+	//blitting amount background box
+	std::vector<si32> activeSpells = stack->activeSpells();
 
-			//blitting amount background box
-			SDL_Surface *amountBG = amountNormal;
-			std::vector<si32> activeSpells = stack->activeSpells();
-			if (!activeSpells.empty())
-				amountBG = getAmountBoxBackground(getEffectsPositivness(activeSpells));
+	auto amountBG = activeSpells.empty() ? amountNormal : getAmountBoxBackground(getEffectsPositivness(activeSpells));
+	amountBG->draw(to, creAnims[stack->ID]->pos.x + xAdd, creAnims[stack->ID]->pos.y + yAdd);
 
-			SDL_Rect temp_rect = genRect(amountBG->h, amountBG->w, creAnims[stack->ID]->pos.x + xAdd, creAnims[stack->ID]->pos.y + yAdd);
-			SDL_BlitSurface(amountBG, nullptr, to, &temp_rect);
+	//blitting amount
+	Point textPos(creAnims[stack->ID]->pos.x + xAdd + amountNormal->width()/2,
+			creAnims[stack->ID]->pos.y + yAdd + amountNormal->height()/2);
+	graphics->fonts[FONT_TINY]->renderTextCenter(to, makeNumberShort(stack->getCount()), Colors::WHITE, textPos);
 
-			//blitting amount
-			Point textPos(creAnims[stack->ID]->pos.x + xAdd + amountNormal->w/2,
-						  creAnims[stack->ID]->pos.y + yAdd + amountNormal->h/2);
-			graphics->fonts[FONT_TINY]->renderTextCenter(to, makeNumberShort(stack->getCount()), Colors::WHITE, textPos);
-		}
-	}
 }
 
-void CBattleStacksController::showStacks(SDL_Surface *to, std::vector<const CStack *> stacks)
+void CBattleStacksController::showStack(SDL_Surface *to, const CStack * stack)
 {
-	for (const CStack *stack : stacks)
-	{
-		creAnims[stack->ID]->nextFrame(to, facingRight(stack)); // do actual blit
-		creAnims[stack->ID]->incrementFrame(float(GH.mainFPSmng->getElapsedMilliseconds()) / 1000);
-	}
+	creAnims[stack->ID]->nextFrame(to, facingRight(stack)); // do actual blit
+	creAnims[stack->ID]->incrementFrame(float(GH.mainFPSmng->getElapsedMilliseconds()) / 1000);
+
+	if (stackNeedsAmountBox(stack))
+		showStackAmountBox(to, stack);
 }
 
 void CBattleStacksController::updateBattleAnimations()

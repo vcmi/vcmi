@@ -584,7 +584,7 @@ Point CClickableHex::getXYUnitAnim(BattleHex hexNum, const CStack * stack, CBatt
 
 	Point ret(-500, -500); //returned value
 	if(stack && stack->initialPosition < 0) //creatures in turrets
-		return cbi->siegeController->turretCreaturePosition(stack->initialPosition);
+		return cbi->siegeController->getTurretCreaturePosition(stack->initialPosition);
 
 	static const Point basePos(-190, -139); // position of creature in topleft corner
 	static const int imageShiftX = 30; // X offset to base pos for facing right stacks, negative for facing left

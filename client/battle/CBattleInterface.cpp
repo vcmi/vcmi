@@ -957,27 +957,36 @@ void CBattleInterface::show(SDL_Surface *to)
 	activateStack();
 }
 
+void CBattleInterface::showBattlefieldObjects(SDL_Surface *to, const BattleHex & location )
+{
+	if (siegeController)
+		siegeController->showBattlefieldObjects(to, location);
+	obstacleController->showBattlefieldObjects(to, location);
+	stacksController->showBattlefieldObjects(to, location);
+	effectsController->showBattlefieldObjects(to, location);
+}
+
 void CBattleInterface::showBattlefieldObjects(SDL_Surface *to)
 {
-	auto showHexEntry = [&](BattleObjectsByHex::HexData & hex)
-	{
-		if (siegeController)
-			siegeController->showPiecesOfWall(to, hex.walls);
-		obstacleController->showObstacles(to, hex.obstacles);
-		stacksController->showAliveStacks(to, hex.alive);
-		effectsController->showBattleEffects(to, hex.effects);
-	};
+	//auto showHexEntry = [&](BattleObjectsByHex::HexData & hex)
+	//{
+	//	if (siegeController)
+	//		siegeController->showPiecesOfWall(to, hex.walls);
+	//	obstacleController->showObstacles(to, hex.obstacles);
+	//	stacksController->showAliveStacks(to, hex.alive);
+	//	effectsController->showBattleEffects(to, hex.effects);
+	//};
 
-	BattleObjectsByHex objects = sortObjectsByHex();
+	//BattleObjectsByHex objects = sortObjectsByHex();
 
 	// dead stacks should be blit first
-	stacksController->showStacks(to, objects.beforeAll.dead);
-	for (auto & data : objects.hex)
-		stacksController->showStacks(to, data.dead);
-	stacksController->showStacks(to, objects.afterAll.dead);
+	//stacksController->showStacks(to, objects.beforeAll.dead);
+	//for (auto & data : objects.hex)
+	//	stacksController->showStacks(to, data.dead);
+	//stacksController->showStacks(to, objects.afterAll.dead);
 
 	// display objects that must be blit before anything else (e.g. topmost walls)
-	showHexEntry(objects.beforeAll);
+	//showHexEntry(objects.beforeAll);
 
 	// show heroes after "beforeAll" - e.g. topmost wall in siege
 	if (attackingHero)
@@ -987,11 +996,11 @@ void CBattleInterface::showBattlefieldObjects(SDL_Surface *to)
 
 	// actual blit of most of objects, hex by hex
 	// NOTE: row-by-row blitting may be a better approach
-	for (auto &data : objects.hex)
-		showHexEntry(data);
+	//for (auto &data : objects.hex)
+	//	showHexEntry(data);
 
 	// objects that must be blit *after* everything else - e.g. bottom tower or some spell effects
-	showHexEntry(objects.afterAll);
+	//showHexEntry(objects.afterAll);
 }
 
 void CBattleInterface::showInterface(SDL_Surface *to)
@@ -1018,19 +1027,6 @@ void CBattleInterface::showInterface(SDL_Surface *to)
 	{
 		CMessage::drawBorder(curInt->playerID,to,posWithQueue.w + 28, posWithQueue.h + 28, posWithQueue.x-14, posWithQueue.y-15);
 	}
-}
-
-BattleObjectsByHex CBattleInterface::sortObjectsByHex()
-{
-	BattleObjectsByHex sorted;
-
-	stacksController->sortObjectsByHex(sorted);
-	obstacleController->sortObjectsByHex(sorted);
-	effectsController->sortObjectsByHex(sorted);
-	if (siegeController)
-		siegeController->sortObjectsByHex(sorted);
-
-	return sorted;
 }
 
 void CBattleInterface::castThisSpell(SpellID spellID)

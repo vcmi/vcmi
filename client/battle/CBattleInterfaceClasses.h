@@ -145,7 +145,11 @@ public:
 	//CStack * ourStack;
 	bool strictHovered; //for determining if hex is hovered by mouse (this is different problem than hex's graphic hovering)
 	CBattleInterface * myInterface; //interface that owns me
-	static Point getXYUnitAnim(BattleHex hexNum, const CStack * creature, CBattleInterface * cbi); //returns (x, y) of left top corner of animation
+
+	/// returns (x, y) of left top corner of animation
+	/// FIXME: move someplace else?
+	/// FIXME: some usages should be replaced with creAnims->pos?
+	static Point getXYUnitAnim(BattleHex hexNum, const CStack * creature, CBattleInterface * cbi);
 
 	//for user interactions
 	void hover (bool on) override;

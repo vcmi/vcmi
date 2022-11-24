@@ -21,15 +21,16 @@ class CBattleAnimation;
 class CCreatureAnimation;
 class CStack;
 class CBattleAnimation;
+class IImage;
 
 class CBattleStacksController
 {
 	CBattleInterface * owner;
 
-	SDL_Surface *amountNormal;
-	SDL_Surface *amountNegative;
-	SDL_Surface *amountPositive;
-	SDL_Surface *amountEffNeutral;
+	std::shared_ptr<IImage> amountNormal;
+	std::shared_ptr<IImage> amountNegative;
+	std::shared_ptr<IImage> amountPositive;
+	std::shared_ptr<IImage> amountEffNeutral;
 
 	std::list<std::pair<CBattleAnimation *, bool>> pendingAnims; //currently displayed animations <anim, initialized>
 	std::map<int32_t, std::shared_ptr<CCreatureAnimation>> creAnims; //animations of creatures from fighting armies (order by BattleInfo's stacks' ID)
@@ -44,11 +45,13 @@ class CBattleStacksController
 	si32 creatureSpellToCast;
 
 	ui32 animIDhelper; //for giving IDs for animations
+
+	bool stackNeedsAmountBox(const CStack * stack);
+	void showStackAmountBox(SDL_Surface *to, const CStack * stack);
+
 public:
 	CBattleStacksController(CBattleInterface * owner);
-	~CBattleStacksController();
 
-	void sortObjectsByHex(BattleObjectsByHex & sorted);
 	bool shouldRotate(const CStack * stack, const BattleHex & oldPos, const BattleHex & nextHex);
 	bool facingRight(const CStack * stack);
 
@@ -72,8 +75,10 @@ public:
 	void setHoveredStack(const CStack *stack);
 	void setSelectedStack(const CStack *stack);
 
-	void showAliveStacks(SDL_Surface *to, std::vector<const CStack *> stacks);
-	void showStacks(SDL_Surface *to, std::vector<const CStack *> stacks);
+	void showAliveStack(SDL_Surface *to, const CStack * stack);
+	void showStack(SDL_Surface *to, const CStack * stack);
+
+	void showBattlefieldObjects(SDL_Surface *to, const BattleHex & location );
 
 	void addNewAnim(CBattleAnimation *anim); //adds new anim to pendingAnims
 	void updateBattleAnimations();

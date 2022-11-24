@@ -69,6 +69,9 @@ public:
 
 	IImage();
 	virtual ~IImage();
+
+	/// loads image from specified file. Returns 0-sized images on failure
+	static std::shared_ptr<IImage> createFromFile( const std::string & path );
 };
 
 /// Class for handling animation

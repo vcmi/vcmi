@@ -10,22 +10,23 @@
 #pragma once
 
 #include "../../lib/GameConstants.h"
+#include "../../lib/battle/BattleHex.h"
 
-struct BattleObjectsByHex;
 struct CatapultAttack;
-struct SDL_Surface;
-struct BattleHex;
 struct Point;
+struct SDL_Surface;
 class CGTownInstance;
 class CBattleInterface;
 class CCreature;
+class IImage;
 
 namespace EWallVisual
 {
 	enum EWallVisual
 	{
-		BACKGROUND = 0,
-		BACKGROUND_WALL = 1,
+		BACKGROUND,
+		BACKGROUND_WALL,
+
 		KEEP,
 		BOTTOM_TOWER,
 		BOTTOM_WALL,
@@ -34,6 +35,7 @@ namespace EWallVisual
 		UPPER_WALL,
 		UPPER_TOWER,
 		GATE,
+
 		GATE_ARCH,
 		BOTTOM_STATIC_WALL,
 		UPPER_STATIC_WALL,
@@ -41,7 +43,18 @@ namespace EWallVisual
 		BACKGROUND_MOAT,
 		KEEP_BATTLEMENT,
 		BOTTOM_BATTLEMENT,
-		UPPER_BATTLEMENT
+		UPPER_BATTLEMENT,
+
+		CREATURE_KEEP,
+		CREATURE_BOTTOM_TOWER,
+		CREATURE_UPPER_TOWER,
+
+		WALL_FIRST = BACKGROUND_WALL,
+		WALL_LAST  = UPPER_BATTLEMENT,
+
+		// these entries are mapped to EWallPart enum
+		DESTRUCTIBLE_FIRST = KEEP,
+		DESTRUCTIBLE_LAST = GATE,
 	};
 }
 
@@ -49,32 +62,39 @@ class CBattleSiegeController
 {
 	CBattleInterface * owner;
 
-	SDL_Surface *moatSurface;
-	SDL_Surface *mlipSurface;
+	/// besieged town
+	const CGTownInstance *town;
 
-	SDL_Surface* walls[18];
-	const CGTownInstance *town; //besieged town
+	/// sections of castle walls, in their currently visible state
+	std::array<std::shared_ptr<IImage>, EWallVisual::WALL_LAST + 1> wallPieceImages;
 
-	std::string getSiegeName(ui16 what) const;
-	std::string getSiegeName(ui16 what, int state) const; // state uses EWallState enum
+	/// return URI for image for a wall piece
+	std::string getWallPieceImageName(EWallVisual::EWallVisual what, EWallState::EWallState state) const;
 
-	void printPartOfWall(SDL_Surface *to, int what);
+	/// returns BattleHex to which chosen wall piece is bound
+	BattleHex getWallPiecePosition(EWallVisual::EWallVisual what) const;
+
+	/// returns true if chosen wall piece should be present in current battle
+	bool getWallPieceExistance(EWallVisual::EWallVisual what) const;
+
+	void showWallPiece(SDL_Surface *to, EWallVisual::EWallVisual what);
 
 public:
 	CBattleSiegeController(CBattleInterface * owner, const CGTownInstance *siegeTown);
-	~CBattleSiegeController();
 
-	void showPiecesOfWall(SDL_Surface *to, std::vector<int> pieces);
-
-	std::string getBattleBackgroundName();
-	const CCreature *turretCreature();
-	Point turretCreaturePosition( BattleHex position );
-
+	/// call-ins from server
 	void gateStateChanged(const EGateState state);
+	void stackIsCatapulting(const CatapultAttack & ca);
 
+	/// call-ins from other battle controllers
 	void showAbsoluteObstacles(SDL_Surface * to);
-	bool isCatapultAttackable(BattleHex hex) const; //returns true if given tile can be attacked by catapult
-	void stackIsCatapulting(const CatapultAttack & ca); //called when a stack is attacking walls
+	void showBattlefieldObjects(SDL_Surface *to, const BattleHex & location );
 
-	void sortObjectsByHex(BattleObjectsByHex & sorted);
+	/// queries from other battle controllers
+	bool isAttackableByCatapult(BattleHex hex) const;
+	std::string getBattleBackgroundName() const;
+	const CCreature *getTurretCreature() const;
+	Point getTurretCreaturePosition( BattleHex position ) const;
+
+
 };

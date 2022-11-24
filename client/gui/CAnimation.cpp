@@ -134,6 +134,11 @@ public:
 	~SDLImageLoader();
 };
 
+std::shared_ptr<IImage> IImage::createFromFile( const std::string & path )
+{
+	return std::shared_ptr<IImage>(new SDLImage(path));
+}
+
 // Extremely simple file cache. TODO: smarter, more general solution
 class CFileCache
 {

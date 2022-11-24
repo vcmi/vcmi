@@ -94,7 +94,6 @@ void CBattleEffectsController::battleTriggerEffect(const BattleTriggerEffect & b
 	//waitForAnims(); //fixme: freezes game :?
 }
 
-
 void CBattleEffectsController::startAction(const BattleAction* action)
 {
 	const CStack *stack = owner->curInt->cb->battleGetStackByID(action->stackNumber);
@@ -124,29 +123,23 @@ void CBattleEffectsController::startAction(const BattleAction* action)
 	}
 }
 
-
-void CBattleEffectsController::showBattleEffects(SDL_Surface *to, const std::vector<const BattleEffect *> &battleEffects)
+void CBattleEffectsController::showBattlefieldObjects(SDL_Surface *to, const BattleHex & destTile)
 {
 	for (auto & elem : battleEffects)
 	{
-		int currentFrame = static_cast<int>(floor(elem->currentFrame));
-		currentFrame %= elem->animation->size();
+		if (!elem.position.isValid() && destTile != BattleHex::HEX_AFTER_ALL)
+			continue;
 
-		auto img = elem->animation->getImage(currentFrame);
+		if (elem.position.isValid() && elem.position != destTile)
+			continue;
 
-		SDL_Rect temp_rect = genRect(img->height(), img->width(), elem->x, elem->y);
+		int currentFrame = static_cast<int>(floor(elem.currentFrame));
+		currentFrame %= elem.animation->size();
+
+		auto img = elem.animation->getImage(currentFrame);
+
+		SDL_Rect temp_rect = genRect(img->height(), img->width(), elem.x, elem.y);
 
 		img->draw(to, &temp_rect, nullptr);
-	}
-}
-
-void CBattleEffectsController::sortObjectsByHex(BattleObjectsByHex & sorted)
-{
-	for (auto & battleEffect : battleEffects)
-	{
-		if (battleEffect.position.isValid())
-			sorted.hex[battleEffect.position].effects.push_back(&battleEffect);
-		else
-			sorted.afterAll.effects.push_back(&battleEffect);
 	}
 }

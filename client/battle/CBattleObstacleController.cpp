@@ -122,10 +122,19 @@ void CBattleObstacleController::showAbsoluteObstacles(SDL_Surface * to)
 	}
 }
 
-void CBattleObstacleController::showObstacles(SDL_Surface * to, std::vector<std::shared_ptr<const CObstacleInstance>> & obstacles)
+void CBattleObstacleController::showBattlefieldObjects(SDL_Surface *to, const BattleHex & location )
 {
-	for(auto & obstacle : obstacles)
+	for (auto &obstacle : owner->curInt->cb->battleGetAllObstacles())
 	{
+		if (obstacle->obstacleType == CObstacleInstance::ABSOLUTE_OBSTACLE)
+			continue;
+
+		if (obstacle->obstacleType != CObstacleInstance::MOAT)
+			continue;
+
+		if ( obstacle->pos != location)
+			continue;
+
 		auto img = getObstacleImage(*obstacle);
 		if(img)
 		{
@@ -134,22 +143,6 @@ void CBattleObstacleController::showObstacles(SDL_Surface * to, std::vector<std:
 		}
 	}
 }
-
-void CBattleObstacleController::sortObjectsByHex(BattleObjectsByHex & sorted)
-{
-	std::map<BattleHex, std::shared_ptr<const CObstacleInstance>> backgroundObstacles;
-	for (auto &obstacle : owner->curInt->cb->battleGetAllObstacles()) {
-		if (obstacle->obstacleType != CObstacleInstance::ABSOLUTE_OBSTACLE
-			&& obstacle->obstacleType != CObstacleInstance::MOAT) {
-			backgroundObstacles[obstacle->pos] = obstacle;
-		}
-	}
-	for (auto &op : backgroundObstacles)
-	{
-		sorted.beforeAll.obstacles.push_back(op.second);
-	}
-}
-
 
 std::shared_ptr<IImage> CBattleObstacleController::getObstacleImage(const CObstacleInstance & oi)
 {

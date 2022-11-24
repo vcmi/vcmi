@@ -54,19 +54,21 @@ class CBattleEffectsController
 {
 	CBattleInterface * owner;
 
-	std::vector<BattleEffect> battleEffects; //different animations to display on the screen like spell effects
+	/// list of current effects that are being displayed on screen (spells & creature abilities)
+	std::vector<BattleEffect> battleEffects;
+
 public:
 	CBattleEffectsController(CBattleInterface * owner);
 
 	void startAction(const BattleAction* action);
-	void sortObjectsByHex(BattleObjectsByHex & sorted);
 
 	void displayCustomEffects(const std::vector<CustomEffectInfo> & customEffects);
 
 	void displayEffect(EBattleEffect::EBattleEffect effect, const BattleHex & destTile); //displays custom effect on the battlefield
 	void displayEffect(EBattleEffect::EBattleEffect effect, uint32_t soundID, const BattleHex & destTile); //displays custom effect on the battlefield
 	void battleTriggerEffect(const BattleTriggerEffect & bte);
-	void showBattleEffects(SDL_Surface *to, const std::vector<const BattleEffect *> &battleEffects);
+
+	void showBattlefieldObjects(SDL_Surface *to, const BattleHex & destTile);
 
 
 	friend class CEffectAnimation; // currently, battleEffects is largely managed by CEffectAnimation, TODO: move this logic into CBattleEffectsController

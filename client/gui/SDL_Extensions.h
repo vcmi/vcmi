@@ -155,37 +155,50 @@ typedef void (*BlitterWithRotationVal)(SDL_Surface *src,SDL_Rect srcRect, SDL_Su
 class ColorShifter
 {
 public:
-	virtual ~ColorShifter() = default;
-	virtual SDL_Color shiftColor(SDL_Color clr) const = 0;
+	~ColorShifter() = default;
+	virtual SDL_Color shiftColor(SDL_Color input) const = 0;
 };
 
-class ColorShifterLightBlue : public ColorShifter
+class ColorShifterAddMul : public ColorShifter
 {
+	SDL_Color add;
+	SDL_Color mul;
 public:
-	SDL_Color shiftColor(SDL_Color clr) const override
+
+	static ColorShifterAddMul deepBlue()
 	{
-		clr.b = clr.b + (255 - clr.b) / 2;
-		return clr;
+		return ColorShifterAddMul({0, 0, 255, 0}, {255, 255, 0, 255});
+	}
+
+	ColorShifterAddMul(SDL_Color add, SDL_Color mul) :
+		add(add),
+		mul(mul)
+	{}
+
+	SDL_Color shiftColor(SDL_Color input) const override
+	{
+		return {
+			uint8_t(std::min(255.f, std::round(input.r * float(mul.r) / 255 + add.r))),
+			uint8_t(std::min(255.f, std::round(input.g * float(mul.g) / 255 + add.g))),
+			uint8_t(std::min(255.f, std::round(input.b * float(mul.b) / 255 + add.b))),
+			uint8_t(std::min(255.f, std::round(input.a * float(mul.a) / 255 + add.a))),
+		};
 	}
 };
 
-class ColorShifterDeepBlue : public ColorShifter
+class ColorShifterAddMulExcept : public ColorShifterAddMul
 {
+	SDL_Color ignored;
 public:
-	SDL_Color shiftColor(SDL_Color clr) const override
-	{
-		clr.b = 255;
-		return clr;
-	}
-};
+	ColorShifterAddMulExcept(SDL_Color add, SDL_Color mul, SDL_Color ignored) :
+		ColorShifterAddMul(add, mul)
+	{}
 
-class ColorShifterDeepRed : public ColorShifter
-{
-public:
-	SDL_Color shiftColor(SDL_Color clr) const override
+	SDL_Color shiftColor(SDL_Color input) const override
 	{
-		clr.r = 255;
-		return clr;
+		if ( input.r == ignored.r && input.g == ignored.g && input.b == ignored.b && input.a == ignored.a)
+			return input;
+		return ColorShifterAddMul::shiftColor(input);
 	}
 };
 

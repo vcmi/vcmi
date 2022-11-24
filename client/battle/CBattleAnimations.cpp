@@ -762,7 +762,7 @@ bool CShootingAnimation::init()
 	const CCreature *shooterInfo = shooter->getCreature();
 
 	if(shooterInfo->idNumber == CreatureID::ARROW_TOWERS)
-		shooterInfo = owner->siegeController->turretCreature();
+		shooterInfo = owner->siegeController->getTurretCreature();
 
 	Point shooterPos;
 	Point shotPos;
@@ -831,7 +831,7 @@ void CShootingAnimation::nextFrame()
 		const CCreature *shooterInfo = attackingStack->getCreature();
 
 		if(shooterInfo->idNumber == CreatureID::ARROW_TOWERS)
-			shooterInfo = owner->siegeController->turretCreature();
+			shooterInfo = owner->siegeController->getTurretCreature();
 
 		// animation should be paused if there is an active projectile
 		if ( stackAnimation(attackingStack)->getCurrentFrame() >= shooterInfo->animation.attackClimaxFrame )

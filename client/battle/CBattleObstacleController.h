@@ -11,6 +11,7 @@
 
 struct SDL_Surface;
 struct BattleObjectsByHex;
+struct BattleHex;
 class IImage;
 class CAnimation;
 class CBattleInterface;
@@ -24,6 +25,10 @@ class CBattleObstacleController
 	CBattleInterface * owner;
 
 	std::map<si32, std::shared_ptr<CAnimation>> obstacleAnimations;
+
+	std::shared_ptr<IImage> getObstacleImage(const CObstacleInstance & oi);
+	Point getObstaclePosition(std::shared_ptr<IImage> image, const CObstacleInstance & obstacle);
+
 public:
 	CBattleObstacleController(CBattleInterface * owner);
 
@@ -31,11 +36,7 @@ public:
 	void showObstacles(SDL_Surface *to, std::vector<std::shared_ptr<const CObstacleInstance>> &obstacles);
 	void showAbsoluteObstacles(SDL_Surface *to);
 
-	void sortObjectsByHex(BattleObjectsByHex & sorted);
-
-	std::shared_ptr<IImage> getObstacleImage(const CObstacleInstance & oi);
-
-	Point getObstaclePosition(std::shared_ptr<IImage> image, const CObstacleInstance & obstacle);
+	void showBattlefieldObjects(SDL_Surface *to, const BattleHex & location );
 
 	void redrawBackgroundWithHexes(SDL_Surface * to);
 };

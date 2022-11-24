@@ -58,7 +58,7 @@ void CBattleProjectileController::initStackProjectile(const CStack * stack)
 {
 	const CCreature * creature;//creature whose shots should be loaded
 	if(stack->getCreature()->idNumber == CreatureID::ARROW_TOWERS)
-		creature = owner->siegeController->turretCreature();
+		creature = owner->siegeController->getTurretCreature();
 	else
 		creature = stack->getCreature();
 
@@ -208,7 +208,7 @@ void CBattleProjectileController::createProjectile(const CStack * shooter, const
 	const CCreature *shooterInfo = shooter->getCreature();
 
 	if(shooterInfo->idNumber == CreatureID::ARROW_TOWERS)
-		shooterInfo = owner->siegeController->turretCreature();
+		shooterInfo = owner->siegeController->getTurretCreature();
 
 	if(!shooterInfo->animation.missleFrameAngles.size())
 		logAnim->error("Mod error: Creature '%s' on the Archer's tower is not a shooter. Mod should be fixed. Trying to use archer's data instead..."

@@ -468,18 +468,18 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 	else
 		whoCanPlay = HUMAN;
 
-	static const char * flags[] =
+	static std::string flags[] =
 	{
 		"AOFLGBR.DEF", "AOFLGBB.DEF", "AOFLGBY.DEF", "AOFLGBG.DEF",
 		"AOFLGBO.DEF", "AOFLGBP.DEF", "AOFLGBT.DEF", "AOFLGBS.DEF"
 	};
-	static const char * bgs[] =
+	static std::string bgs[] =
 	{
 		"ADOPRPNL.bmp", "ADOPBPNL.bmp", "ADOPYPNL.bmp", "ADOPGPNL.bmp",
 		"ADOPOPNL.bmp", "ADOPPPNL.bmp", "ADOPTPNL.bmp", "ADOPSPNL.bmp"
 	};
 
-	background = std::make_shared<CPicture>(BitmapHandler::loadBitmap(bgs[s.color.getNum()]), 0, 0, true);
+	background = std::make_shared<CPicture>(bgs[s.color.getNum()], 0, 0);
 	labelPlayerName = std::make_shared<CLabel>(55, 10, EFonts::FONT_SMALL, EAlignment::CENTER, Colors::WHITE, s.name);
 	labelWhoCanPlay = std::make_shared<CMultiLineLabel>(Rect(6, 23, 45, (int)graphics->fonts[EFonts::FONT_TINY]->getLineHeight()*2), EFonts::FONT_TINY, EAlignment::CENTER, Colors::WHITE, CGI->generaltexth->arraytxt[206 + whoCanPlay]);
 
