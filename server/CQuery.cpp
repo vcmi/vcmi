@@ -288,8 +288,8 @@ QueryPtr Queries::getQuery(QueryID queryID)
 
 void CBattleQuery::notifyObjectAboutRemoval(const CObjectVisitQuery & objectVisit) const
 {
-	assert(result);
-	objectVisit.visitedObject->battleFinished(objectVisit.visitingHero, *result);
+	if(result)
+		objectVisit.visitedObject->battleFinished(objectVisit.visitingHero, *result);
 }
 
 CBattleQuery::CBattleQuery(CGameHandler * owner, const BattleInfo * Bi):
@@ -318,7 +318,8 @@ bool CBattleQuery::blocksPack(const CPack * pack) const
 
 void CBattleQuery::onRemoval(PlayerColor color)
 {
-	gh->battleAfterLevelUp(*result);
+	if(result)
+		gh->battleAfterLevelUp(*result);
 }
 
 void CGarrisonDialogQuery::notifyObjectAboutRemoval(const CObjectVisitQuery & objectVisit) const

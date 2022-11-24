@@ -713,6 +713,14 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance * heroAttacker, con
 	}
 
 	battleQuery->result = boost::make_optional(*battleResult.data);
+	
+	//set same battle result for all queries
+	for(auto q : queries.allQueries())
+	{
+		auto otherBattleQuery = std::dynamic_pointer_cast<CBattleQuery>(q);
+		if(otherBattleQuery && otherBattleQuery->bi == battleQuery->bi)
+			otherBattleQuery->result = battleQuery->result;
+	}
 
 	//Check how many battle queries were created (number of players blocked by battle)
 	const int queriedPlayers = battleQuery ? (int)boost::count(queries.allQueries(), battleQuery) : 0;
@@ -729,8 +737,7 @@ void CGameHandler::endBattleConfirm(const BattleInfo * battleInfo)
 	auto battleQuery = std::dynamic_pointer_cast<CBattleQuery>(queries.topQuery(battleInfo->sides.at(0).color));
 	if(!battleQuery)
 	{
-		logGlobal->error("Cannot find battle query!");
-		complain("Player " + boost::lexical_cast<std::string>(battleInfo->sides.at(0).color) + " has no battle query at the top!");
+		logGlobal->trace("No battle query, battle end was confirmed by another player");
 		return;
 	}
 	
@@ -908,8 +915,6 @@ void CGameHandler::endBattleConfirm(const BattleInfo * battleInfo)
 	if(!finishingBattle->isDraw() && battleResult.data->exp[finishingBattle->winnerSide] && finishingBattle->winnerHero)
 		changePrimSkill(finishingBattle->winnerHero, PrimarySkill::EXPERIENCE, battleResult.data->exp[finishingBattle->winnerSide]);
 	
-	//queries.popIfTop(battleQuery);
-	
 	BattleResultAccepted raccepted;
 	raccepted.army1 = const_cast<CArmedInstance*>(bEndArmy1);
 	raccepted.army2 = const_cast<CArmedInstance*>(bEndArmy2);
@@ -919,8 +924,7 @@ void CGameHandler::endBattleConfirm(const BattleInfo * battleInfo)
 	raccepted.exp[1] = battleResult.data->exp[1];
 	sendAndApply(&raccepted);
 
-	queries.popIfTop(battleQuery);
-	//--> continuation (battleAfterLevelUp) occurs after level-up queries are handled or on removing query (above)
+	//--> continuation (battleAfterLevelUp) occurs after level-up queries are handled or on removing query
 }
 
 void CGameHandler::battleAfterLevelUp(const BattleResult &result)
@@ -2726,11 +2730,19 @@ void CGameHandler::startBattlePrimary(const CArmedInstance *army1, const CArmedI
 	heroes[0] = hero1;
 	heroes[1] = hero2;
 
-
 	setupBattle(tile, armies, heroes, creatureBank, town); //initializes stacks, places creatures on battlefield, blocks and informs player interfaces
 
-	auto battleQuery = std::make_shared<CBattleQuery>(this, gs->curB);
-	queries.addQuery(battleQuery);
+	//existing battle query for retying auto-combat
+	auto battleQuery = std::dynamic_pointer_cast<CBattleQuery>(queries.topQuery(gs->curB->sides[0].color));
+	if(battleQuery)
+	{
+		battleQuery->bi = gs->curB;
+		battleQuery->result = boost::none;
+		battleQuery->belligerents[0] = gs->curB->sides[0].armyObject;
+		battleQuery->belligerents[1] = gs->curB->sides[1].armyObject;
+	}
+	
+	queries.addQuery(std::make_shared<CBattleQuery>(this, gs->curB));
 
 	boost::thread(&CGameHandler::runBattle, this);
 }
