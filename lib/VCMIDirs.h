@@ -29,6 +29,9 @@ public:
 	// Path to saved games
 	virtual boost::filesystem::path userSavePath() const;
 
+	// Path to "extracted" directory, used to temporarily hold extracted Original H3 files
+	virtual boost::filesystem::path userExtractedPath() const;
+
 	// Paths to global system-wide data directories. First items have higher priority
 	virtual std::vector<boost::filesystem::path> dataPaths() const = 0;
 

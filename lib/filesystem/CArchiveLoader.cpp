@@ -236,7 +236,7 @@ void CArchiveLoader::extractToFolder(const std::string & outputSubFolder, const 
 
 bfs::path createExtractedFilePath(const std::string & outputSubFolder, const std::string & entryName)
 {
-	bfs::path extractionFolderPath = VCMIDirs::get().userCachePath() / "extracted" / outputSubFolder;
+	bfs::path extractionFolderPath = VCMIDirs::get().userExtractedPath() / outputSubFolder;
 	bfs::path extractedFilePath = extractionFolderPath / entryName;
 
 	bfs::create_directories(extractionFolderPath);

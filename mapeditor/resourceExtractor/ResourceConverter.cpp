@@ -29,7 +29,7 @@ void doConvertPcxToPng(bool deleteOriginals)
 {
 	std::string filename;
 
-	bfs::path imagesPath = VCMIDirs::get().userCachePath() / "extracted" / "IMAGES";
+	bfs::path imagesPath = VCMIDirs::get().userExtractedPath() / "IMAGES";
 	bfs::directory_iterator end_iter;
 
 	for(bfs::directory_iterator dir_itr(imagesPath); dir_itr != end_iter; ++dir_itr)
@@ -68,7 +68,7 @@ void splitDefFile(const std::string & fileName, const bfs::path & spritesPath, b
 	{
 		std::unique_ptr<Animation> anim = make_unique<Animation>(fileName);
 		anim->preload();
-		anim->exportBitmaps(pathToQString(VCMIDirs::get().userCachePath() / "extracted"));
+		anim->exportBitmaps(pathToQString(VCMIDirs::get().userExtractedPath()));
 
 		if(deleteOriginals)
 			bfs::remove(spritesPath / fileName);
@@ -82,8 +82,7 @@ void splitDefFile(const std::string & fileName, const bfs::path & spritesPath, b
 // hero speciality small icons, hero speciality large icons)
 void splitDefFiles(bool deleteOriginals)
 {
-	bfs::path extractedPath = VCMIDirs::get().userDataPath() / "extracted";
-	bfs::path spritesPath = extractedPath / "SPRITES";
+	bfs::path spritesPath = VCMIDirs::get().userExtractedPath() / "SPRITES";
 
 	for(std::string defFilename : {"TwCrPort.def", "CPRSMALL.def", "FlagPort.def", "ITPA.def", "ITPt.def", "Un32.def", "Un44.def"})
 		splitDefFile(defFilename, spritesPath, deleteOriginals);

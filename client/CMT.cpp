@@ -638,7 +638,7 @@ void processCommand(const std::string &message)
 		std::cout << "Command accepted.\t";
 
 		const bfs::path outPath =
-			VCMIDirs::get().userCachePath() / "extracted";
+			VCMIDirs::get().userExtractedPath();
 
 		bfs::create_directories(outPath);
 
@@ -671,7 +671,7 @@ void processCommand(const std::string &message)
 		std::cout << "Command accepted.\t";
 
 		const bfs::path outPath =
-			VCMIDirs::get().userCachePath() / "extracted" / "configuration";
+			VCMIDirs::get().userExtractedPath() / "configuration";
 
 		bfs::create_directories(outPath);
 
@@ -712,7 +712,7 @@ void processCommand(const std::string &message)
 		std::cout << "Command accepted.\t";
 
 		const bfs::path outPath =
-			VCMIDirs::get().userCachePath() / "extracted" / "scripts";
+			VCMIDirs::get().userExtractedPath() / "scripts";
 
 		bfs::create_directories(outPath);
 
@@ -735,7 +735,7 @@ void processCommand(const std::string &message)
 		std::cout << "Command accepted.\t";
 
 		const bfs::path outPath =
-			VCMIDirs::get().userCachePath() / "extracted";
+			VCMIDirs::get().userExtractedPath();
 
 		auto list = CResourceHandler::get()->getFilteredFiles([](const ResourceID & ident)
 		{
@@ -851,7 +851,7 @@ void processCommand(const std::string &message)
 		readed >> URI;
 		std::unique_ptr<CAnimation> anim = make_unique<CAnimation>(URI);
 		anim->preload();
-		anim->exportBitmaps(VCMIDirs::get().userCachePath() / "extracted");
+		anim->exportBitmaps(VCMIDirs::get().userExtractedPath());
 	}
 	else if(cn == "extract")
 	{
@@ -860,7 +860,7 @@ void processCommand(const std::string &message)
 
 		if (CResourceHandler::get()->existsResource(ResourceID(URI)))
 		{
-			const bfs::path outPath = VCMIDirs::get().userCachePath() / "extracted" / URI;
+			const bfs::path outPath = VCMIDirs::get().userExtractedPath() / URI;
 
 			auto data = CResourceHandler::get()->load(ResourceID(URI))->readAll();
 
