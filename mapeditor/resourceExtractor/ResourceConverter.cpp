@@ -22,10 +22,16 @@
 #include "boost/filesystem/path.hpp"
 #include "boost/locale.hpp"
 
-namespace bfs = boost::filesystem;
+void ResourceConverter::convertExtractedResourceFiles(ConversionOptions conversionOptions)
+{
+	if (conversionOptions.splitDefs)
+		splitDefFiles(conversionOptions.deleteOriginals);
 
-// converts all pcx files from /Images into PNG
-void doConvertPcxToPng(bool deleteOriginals)
+	if (conversionOptions.convertPcxToPng)
+		doConvertPcxToPng(conversionOptions.deleteOriginals);
+}
+
+void ResourceConverter::doConvertPcxToPng(bool deleteOriginals)
 {
 	std::string filename;
 
@@ -61,8 +67,7 @@ void doConvertPcxToPng(bool deleteOriginals)
 	}
 }
 
-// splits a def file into individual parts and converts the output to PNG format
-void splitDefFile(const std::string & fileName, const bfs::path & spritesPath, bool deleteOriginals)
+void ResourceConverter::splitDefFile(const std::string & fileName, const bfs::path & spritesPath, bool deleteOriginals)
 {
 	if(CResourceHandler::get()->existsResource(ResourceID("SPRITES/" + fileName)))
 	{
@@ -77,22 +82,10 @@ void splitDefFile(const std::string & fileName, const bfs::path & spritesPath, b
 		logGlobal->error("Def File Split error! " + fileName);
 }
 
-// splits def files (TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 and Un44) so that faction resources are independent
-// (town creature portraits, hero army creature portraits, adventure map dwellings, small town icons, big town icons, 
-// hero speciality small icons, hero speciality large icons)
-void splitDefFiles(bool deleteOriginals)
+void ResourceConverter::splitDefFiles(bool deleteOriginals)
 {
 	bfs::path spritesPath = VCMIDirs::get().userExtractedPath() / "SPRITES";
 
 	for(std::string defFilename : {"TwCrPort.def", "CPRSMALL.def", "FlagPort.def", "ITPA.def", "ITPt.def", "Un32.def", "Un44.def"})
 		splitDefFile(defFilename, spritesPath, deleteOriginals);
-}
-
-void convertExtractedResourceFiles(bool splitDefs, bool convertPcxToPng, bool deleteOriginals)
-{
-	if(splitDefs)
-		splitDefFiles(deleteOriginals);
-
-	if(convertPcxToPng)
-		doConvertPcxToPng(deleteOriginals);
 }

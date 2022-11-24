@@ -41,15 +41,8 @@
 #include "resourceExtractor/ResourceConverter.h"
 
 static CBasicLogConfigurator * logConfig;
-ExtractionOptions * extractionOptions; // All command line options for resource extractor
 
-ExtractionOptions::ExtractionOptions(const bool extractArchives, const bool splitDefs, const bool convertPcxToPng, const bool deleteOriginals) :
-	extractArchives(extractArchives),
-	splitDefs(splitDefs),
-	convertPcxToPng(convertPcxToPng),
-	deleteOriginals(deleteOriginals)
-{
-}
+ExtractionOptions extractionOptions;
 
 QJsonValue jsonFromPixmap(const QPixmap &p)
 {
@@ -118,10 +111,10 @@ void MainWindow::parseCommandLine()
 	if (!positionalArgs.isEmpty())
 		mapFilePath = positionalArgs.at(0);
 
-	extractionOptions =  new ExtractionOptions(parser.isSet("e"), parser.isSet("s"), parser.isSet("c"), parser.isSet("d"));
+	extractionOptions = {parser.isSet("e"), {parser.isSet("s"),	 parser.isSet("c"),	 parser.isSet("d")}};
 }
 
-MainWindow::MainWindow(QWidget *parent) :
+MainWindow::MainWindow(QWidget* parent) :
 	QMainWindow(parent),
 	ui(new Ui::MainWindow),
 	controller(this)
@@ -129,7 +122,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	ui->setupUi(this);
 	loadUserSettings(); //For example window size
 	setTitle();
-	
+
 	// Set current working dir to executable folder.
 	// This is important on Mac for relative paths to work inside DMG.
 	QDir::setCurrent(QApplication::applicationDirPath());
@@ -144,39 +137,39 @@ MainWindow::MainWindow(QWidget *parent) :
 	logGlobal->info("The log file will be saved to %s", logPath);
 
 	//init
-	preinitDLL(::console, false, extractionOptions->extractArchives);
+	preinitDLL(::console, false, extractionOptions.extractArchives);
 	settings.init();
-	
+
 	// Initialize logging based on settings
 	logConfig->configure();
 	logGlobal->debug("settings = %s", settings.toJsonNode().toJson());
-	
+
 	// Some basic data validation to produce better error messages in cases of incorrect install
 	auto testFile = [](std::string filename, std::string message) -> bool
 	{
 		if (CResourceHandler::get()->existsResource(ResourceID(filename)))
 			return true;
-		
+
 		logGlobal->error("Error: %s was not found!", message);
 		return false;
 	};
-	
-	if(!testFile("DATA/HELP.TXT", "Heroes III data") ||
-	   !testFile("MODS/VCMI/MOD.JSON", "VCMI data"))
+
+	if (!testFile("DATA/HELP.TXT", "Heroes III data") ||
+		!testFile("MODS/VCMI/MOD.JSON", "VCMI data"))
 	{
 		QApplication::quit();
 	}
-	
+
 	conf.init();
 	logGlobal->info("Loading settings");
-	
+
 	init();
-	
+
 	graphics = new Graphics(); // should be before curh->init()
 	graphics->load();//must be after Content loading but should be in main thread
 
-	if (extractionOptions->extractArchives)
-		convertExtractedResourceFiles(extractionOptions->splitDefs, extractionOptions->convertPcxToPng, extractionOptions->deleteOriginals);
+	if (extractionOptions.extractArchives)
+		ResourceConverter::convertExtractedResourceFiles(extractionOptions.conversionOptions);
 	
 	ui->mapView->setScene(controller.scene(0));
 	ui->mapView->setController(&controller);
