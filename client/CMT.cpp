@@ -1387,6 +1387,8 @@ static void handleEvent(SDL_Event & ev)
 				{
 					if(ourCampaign->mapsRemaining.size())
 					{
+						GH.pushInt(CMM);
+						GH.pushInt(CMM->menu);
 						CMM->openCampaignLobby(ourCampaign);
 					}
 				};
