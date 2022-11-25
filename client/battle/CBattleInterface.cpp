@@ -30,6 +30,7 @@
 #include "../CVideoHandler.h"
 #include "../Graphics.h"
 #include "../gui/CAnimation.h"
+#include "../gui/CCanvas.h"
 #include "../gui/CCursorHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/SDL_Extensions.h"
@@ -919,6 +920,8 @@ void CBattleInterface::showAll(SDL_Surface *to)
 
 void CBattleInterface::show(SDL_Surface *to)
 {
+	auto canvas = std::make_shared<CCanvas>(to);
+
 	assert(to);
 
 	SDL_Rect buf;
@@ -942,7 +945,7 @@ void CBattleInterface::show(SDL_Surface *to)
 	fieldController->showHighlightedHexes(to);
 
 	showBattlefieldObjects(to);
-	projectilesController->showProjectiles(to);
+	projectilesController->showProjectiles(canvas);
 
 	if(battleActionsStarted)
 		stacksController->updateBattleAnimations();

@@ -723,7 +723,8 @@ CRangedAttackAnimation::CRangedAttackAnimation(CBattleInterface * owner_, const 
 
 CShootingAnimation::CShootingAnimation(CBattleInterface * _owner, const CStack * attacker, BattleHex _dest, const CStack * _attacked, bool _catapult, int _catapultDmg)
 	: CRangedAttackAnimation(_owner, attacker, _dest, _attacked),
-	catapultDamage(_catapultDmg)
+	catapultDamage(_catapultDmg),
+	projectileEmitted(false)
 {
 	logAnim->debug("Created shooting anim for %s", stack->getName());
 }
@@ -733,10 +734,9 @@ bool CShootingAnimation::init()
 	if( !CAttackAnimation::checkInitialConditions() )
 		return false;
 
-	const CStack * shooter = attackingStack;
-
-	if(!shooter || myAnim->isDead())
+	if(!attackingStack || myAnim->isDead())
 	{
+		//FIXME: how is this possible?
 		endAnim();
 		return false;
 	}
@@ -753,80 +753,81 @@ bool CShootingAnimation::init()
 	//if (attackingStack && attackedStack && owner->creDir[attackingStack->ID] == owner->creDir[attackedStack->ID])
 	//	return false;
 
+	setAnimationGroup();
+	shooting = true;
+	return true;
+}
+
+void CShootingAnimation::setAnimationGroup()
+{
+	Point shooterPos = stackAnimation(attackingStack)->pos.topLeft();
+	Point shotTarget = CClickableHex::getXYUnitAnim(dest, attackedStack, owner) + Point(225, 225);
+
 	//maximal angle in radians between straight horizontal line and shooting line for which shot is considered to be straight (absoulte value)
 	static const double straightAngle = 0.2;
 
-	// Get further info about the shooter e.g. relative pos of projectile to unit.
-	// If the creature id is 149 then it's a arrow tower which has no additional info so get the
-	// actual arrow tower shooter instead.
-	const CCreature *shooterInfo = shooter->getCreature();
+	double projectileAngle = atan2(shotTarget.y - shooterPos.y, std::abs(shotTarget.x - shooterPos.x));
+
+	// Calculate projectile start position. Offsets are read out of the CRANIM.TXT.
+	if (projectileAngle > straightAngle)
+		group = CCreatureAnim::SHOOT_UP;
+	else if (projectileAngle < -straightAngle)
+		group = CCreatureAnim::SHOOT_DOWN;
+	else
+		group = CCreatureAnim::SHOOT_FRONT;
+}
+
+void CShootingAnimation::initializeProjectile()
+{
+	const CCreature *shooterInfo = attackingStack->getCreature();
 
 	if(shooterInfo->idNumber == CreatureID::ARROW_TOWERS)
 		shooterInfo = owner->siegeController->getTurretCreature();
 
-	Point shooterPos;
-	Point shotPos;
-	Point destPos;
+	Point shotTarget = CClickableHex::getXYUnitAnim(dest, attackedStack, owner) + Point(225, 225);
+	Point shotOrigin = stackAnimation(attackingStack)->pos.topLeft() + Point(222, 265);
+	int multiplier = stackFacingRight(attackingStack) ? 1 : -1;
 
-	// NOTE: two lines below return different positions (very notable with 2-hex creatures). Obtaining via creanims seems to be more precise
-	shooterPos = stackAnimation(shooter)->pos.topLeft();
-	//xycoord = CClickableHex::getXYUnitAnim(shooter->position, true, shooter, owner);
-
-	destPos = CClickableHex::getXYUnitAnim(dest, attackedStack, owner) + Point(225, 225);
-
-	// to properly translate coordinates when shooter is rotated
-	int multiplier = 0;
-	if (shooter)
-		multiplier = stackFacingRight(shooter) ? 1 : -1;
-	else
+	if (group == CCreatureAnim::SHOOT_UP)
 	{
-		assert(false); // unreachable?
-		multiplier = shooter->getCreature()->idNumber == CreatureID::ARROW_TOWERS ? -1 : 1;
+		shotOrigin.x += ( -25 + shooterInfo->animation.upperRightMissleOffsetX ) * multiplier;
+		shotOrigin.y += shooterInfo->animation.upperRightMissleOffsetY;
 	}
-
-	double projectileAngle = atan2(fabs((double)destPos.y - shooterPos.y), fabs((double)destPos.x - shooterPos.x));
-	if(shooter->getPosition() < dest)
-		projectileAngle = -projectileAngle;
-
-	// Calculate projectile start position. Offsets are read out of the CRANIM.TXT.
-	if (projectileAngle > straightAngle)
+	else if (group == CCreatureAnim::SHOOT_DOWN)
 	{
-		//upper shot
-		shotPos.x = shooterPos.x + 222 + ( -25 + shooterInfo->animation.upperRightMissleOffsetX ) * multiplier;
-		shotPos.y = shooterPos.y + 265 + shooterInfo->animation.upperRightMissleOffsetY;
+		shotOrigin.x += ( -25 + shooterInfo->animation.lowerRightMissleOffsetX ) * multiplier;
+		shotOrigin.y += shooterInfo->animation.lowerRightMissleOffsetY;
 	}
-	else if (projectileAngle < -straightAngle)
+	else if (group == CCreatureAnim::SHOOT_FRONT)
 	{
-		//lower shot
-		shotPos.x = shooterPos.x + 222 + ( -25 + shooterInfo->animation.lowerRightMissleOffsetX ) * multiplier;
-		shotPos.y = shooterPos.y + 265 + shooterInfo->animation.lowerRightMissleOffsetY;
+		shotOrigin.x += ( -25 + shooterInfo->animation.rightMissleOffsetX ) * multiplier;
+		shotOrigin.y += shooterInfo->animation.rightMissleOffsetY;
 	}
 	else
 	{
-		//straight shot
-		shotPos.x = shooterPos.x + 222 + ( -25 + shooterInfo->animation.rightMissleOffsetX ) * multiplier;
-		shotPos.y = shooterPos.y + 265 + shooterInfo->animation.rightMissleOffsetY;
+		assert(0);
 	}
 
-	owner->projectilesController->createProjectile(attackingStack, attackedStack, shotPos, destPos);
+	owner->projectilesController->createProjectile(attackingStack, attackedStack, shotOrigin, shotTarget);
+}
 
-	//attack animation
-
-	shooting = true;
-
-	if(projectileAngle > straightAngle)
-		group = CCreatureAnim::SHOOT_UP;
-	else if(projectileAngle < -straightAngle)
-		group = CCreatureAnim::SHOOT_DOWN;
-	else //straight shot
-		group = CCreatureAnim::SHOOT_FRONT;
-
-	return true;
+void CShootingAnimation::emitProjectile()
+{
+	//owner->projectilesController->fireStackProjectile(attackingStack);
+	projectileEmitted = true;
 }
 
 void CShootingAnimation::nextFrame()
 {
-	if (owner->projectilesController->hasActiveProjectile(attackingStack))
+	for(auto & it : pendingAnimations())
+	{
+		CMovementStartAnimation * anim = dynamic_cast<CMovementStartAnimation *>(it.first);
+		CReverseAnimation * anim2 = dynamic_cast<CReverseAnimation *>(it.first);
+		if( (anim && anim->stack->ID == stack->ID) || (anim2 && anim2->stack->ID == stack->ID && anim2->priority ) )
+			return;
+	}
+
+	if (!projectileEmitted)
 	{
 		const CCreature *shooterInfo = attackingStack->getCreature();
 
@@ -836,18 +837,15 @@ void CShootingAnimation::nextFrame()
 		// animation should be paused if there is an active projectile
 		if ( stackAnimation(attackingStack)->getCurrentFrame() >= shooterInfo->animation.attackClimaxFrame )
 		{
-			owner->projectilesController->fireStackProjectile(attackingStack);//FIXME: should only be called once
+			initializeProjectile();
+			emitProjectile();
 			return;
 		}
 	}
 
-	for(auto & it : pendingAnimations())
-	{
-		CMovementStartAnimation * anim = dynamic_cast<CMovementStartAnimation *>(it.first);
-		CReverseAnimation * anim2 = dynamic_cast<CReverseAnimation *>(it.first);
-		if( (anim && anim->stack->ID == stack->ID) || (anim2 && anim2->stack->ID == stack->ID && anim2->priority ) )
-			return;
-	}
+	if (projectileEmitted && owner->projectilesController->hasActiveProjectile(attackingStack))
+		return; // projectile in air, pause animation
+
 
 	CAttackAnimation::nextFrame();
 }
@@ -855,7 +853,11 @@ void CShootingAnimation::nextFrame()
 void CShootingAnimation::endAnim()
 {
 	// FIXME: is this possible? Animation is over but we're yet to fire projectile?
-	owner->projectilesController->fireStackProjectile(attackingStack);
+	if (!projectileEmitted)
+	{
+		initializeProjectile();
+		emitProjectile();
+	}
 
 	// play wall hit/miss sound for catapult attack
 	if(!attackedStack)

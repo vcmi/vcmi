@@ -49,6 +49,12 @@ inline bool isShiftKeyDown()
 }
 namespace CSDL_Ext
 {
+	template<typename Int>
+	Int lerp(Int a, Int b, float f)
+	{
+		return a + std::round((b - a) * f);
+	}
+
 	//todo: should this better be assignment operator?
 	STRONG_INLINE void colorAssign(SDL_Color & dest, const SDL_Color & source)
 	{

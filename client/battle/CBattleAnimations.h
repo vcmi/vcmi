@@ -207,7 +207,12 @@ protected:
 class CShootingAnimation : public CRangedAttackAnimation
 {
 private:
+	bool projectileEmitted;
 	int catapultDamage;
+
+	void setAnimationGroup();
+	void initializeProjectile();
+	void emitProjectile();
 public:
 	bool init() override;
 	void nextFrame() override;

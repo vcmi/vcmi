@@ -199,12 +199,6 @@ void CBattleStacksController::stackAdded(const CStack * stack)
 	creAnims[stack->ID]->pos.y = coords.y;
 	creAnims[stack->ID]->pos.w = creAnims[stack->ID]->getWidth();
 	creAnims[stack->ID]->setType(CCreatureAnim::HOLDING);
-
-	//loading projectiles for units
-	if(stack->isShooter())
-	{
-		owner->projectilesController->initStackProjectile(stack);
-	}
 }
 
 void CBattleStacksController::setActiveStack(const CStack *stack)

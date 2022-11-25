@@ -40,6 +40,11 @@ void CCanvas::draw(std::shared_ptr<CCanvas> image, const Point & pos)
 	image->copyTo(surface, pos);
 }
 
+void CCanvas::drawLine(const Point & from, const Point & dest, const SDL_Color & colorFrom, const SDL_Color & colorDest)
+{
+	CSDL_Ext::drawLine(surface, from.x, from.y, dest.x, dest.y, colorFrom, colorDest);
+}
+
 void CCanvas::copyTo(SDL_Surface * to, const Point & pos)
 {
 	blitAt(to, pos.x, pos.y, surface);

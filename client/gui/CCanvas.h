@@ -9,6 +9,7 @@
  */
 #pragma once
 
+struct SDL_Color;
 struct SDL_Surface;
 struct Point;
 class IImage;
@@ -29,6 +30,9 @@ public:
 
 	// renders another canvas onto this canvas
 	void draw(std::shared_ptr<CCanvas> image, const Point & pos);
+
+	// renders continuous, 1-pixel wide line with color gradient
+	void drawLine(const Point & from, const Point & dest, const SDL_Color & colorFrom, const SDL_Color & colorDest);
 
 	// for compatibility, copies content of this canvas onto SDL_Surface
 	void copyTo(SDL_Surface * to, const Point & pos);
