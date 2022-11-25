@@ -2857,6 +2857,8 @@ void CGameState::replaceHeroesPlaceholders(const std::vector<CGameState::Campaig
 		heroToPlace->tempOwner = heroPlaceholder->tempOwner;
 		heroToPlace->pos = heroPlaceholder->pos;
 		heroToPlace->type = VLC->heroh->objects[heroToPlace->subID];
+		heroToPlace->appearance = VLC->objtypeh->getHandlerFor(Obj::HERO,
+															   heroToPlace->type->heroClass->getIndex())->getTemplates().front();
 
 		for(auto &&i : heroToPlace->stacks)
 			i.second->type = VLC->creh->objects[i.second->getCreatureID()];

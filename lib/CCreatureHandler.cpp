@@ -907,6 +907,23 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 
 	creature->animation.projectileImageName = config["graphics"]["missile"]["projectile"].String();
 
+	for(const JsonNode & value : config["graphics"]["missile"]["ray"].Vector())
+	{
+		CCreature::CreatureAnimation::RayColor color;
+
+		color.r1 = value["start"].Vector()[0].Integer();
+		color.g1 = value["start"].Vector()[1].Integer();
+		color.b1 = value["start"].Vector()[2].Integer();
+		color.a1 = value["start"].Vector()[3].Integer();
+
+		color.r2 = value["end"].Vector()[0].Integer();
+		color.g2 = value["end"].Vector()[1].Integer();
+		color.b2 = value["end"].Vector()[2].Integer();
+		color.a2 = value["end"].Vector()[3].Integer();
+
+		creature->animation.projectileRay.push_back(color);
+	}
+
 	creature->special = config["special"].Bool() || config["disabled"].Bool();
 
 	const JsonNode & sounds = config["sound"];

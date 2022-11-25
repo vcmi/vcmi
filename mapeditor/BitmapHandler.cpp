@@ -63,7 +63,7 @@ namespace BitmapHandler
 		{
 			it = 0xC;
 			//auto bitmap = QBitmap::fromData(qsize, pcx + it);
-			QImage image(pcx + it, width, height, QImage::Format_Indexed8);
+			QImage image(pcx + it, width, height, width, QImage::Format_Indexed8);
 			
 			//palette - last 256*3 bytes
 			QVector<QRgb> colorTable;
@@ -81,7 +81,7 @@ namespace BitmapHandler
 		}
 		else
 		{
-			QImage image(pcx + it, width, height, QImage::Format_RGB32);
+			QImage image(pcx + it, width, height, width * 3, QImage::Format_RGB888);
 			return image;
 		}
 	}
@@ -117,7 +117,7 @@ namespace BitmapHandler
 			{
 				logGlobal->error("Failed to open %s as H3 PCX!", fname);
 			}
-			return image;
+			return image.copy(); //copy must be returned here because buffer readFile.first used to build QImage will be cleaned after this line
 		}
 		else
 		{ //loading via QImage

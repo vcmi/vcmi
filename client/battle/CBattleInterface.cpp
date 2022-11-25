@@ -1020,15 +1020,22 @@ void CBattleInterface::initStackProjectile(const CStack * stack)
 	else
 		creature = stack->getCreature();
 
-	std::shared_ptr<CAnimation> projectile = std::make_shared<CAnimation>(creature->animation.projectileImageName);
-	projectile->preload();
+	if (creature->animation.projectileRay.empty())
+	{
+		std::shared_ptr<CAnimation> projectile = std::make_shared<CAnimation>(creature->animation.projectileImageName);
+		projectile->preload();
 
-	if(projectile->size(1) != 0)
-		logAnim->error("Expected empty group 1 in stack projectile");
+		if(projectile->size(1) != 0)
+			logAnim->error("Expected empty group 1 in stack projectile");
+		else
+			projectile->createFlippedGroup(0, 1);
+
+		idToProjectile[stack->getCreature()->idNumber] = projectile;
+	}
 	else
-		projectile->createFlippedGroup(0, 1);
-
-	idToProjectile[stack->getCreature()->idNumber] = projectile;
+	{
+		idToRay[stack->getCreature()->idNumber] = creature->animation.projectileRay;
+	}
 }
 
 void CBattleInterface::stackRemoved(uint32_t stackID)
@@ -3213,23 +3220,63 @@ void CBattleInterface::showProjectiles(SDL_Surface *to)
 				continue; // wait...
 		}
 
-		size_t group = it->reverse ? 1 : 0;
-		auto image = idToProjectile[it->creID]->getImage(it->frameNum, group, true);
-
-		if(image)
+		if (idToProjectile.count(it->creID))
 		{
-			SDL_Rect dst;
-			dst.h = image->height();
-			dst.w = image->width();
-			dst.x = static_cast<int>(it->x - dst.w / 2);
-			dst.y = static_cast<int>(it->y - dst.h / 2);
+			size_t group = it->reverse ? 1 : 0;
+			auto image = idToProjectile[it->creID]->getImage(it->frameNum, group, true);
 
-			image->draw(to, &dst, nullptr);
+			if(image)
+			{
+				SDL_Rect dst;
+				dst.h = image->height();
+				dst.w = image->width();
+				dst.x = static_cast<int>(it->x - dst.w / 2);
+				dst.y = static_cast<int>(it->y - dst.h / 2);
+
+				image->draw(to, &dst, nullptr);
+			}
+		}
+		if (idToRay.count(it->creID))
+		{
+			auto const & ray = idToRay[it->creID];
+
+			if (std::abs(it->dx) > std::abs(it->dy)) // draw in horizontal axis
+			{
+				int y1 =  it->y0 - ray.size() / 2;
+				int y2 =  it->y - ray.size() / 2;
+
+				int x1 = it->x0;
+				int x2 = it->x;
+
+				for (size_t i = 0; i < ray.size(); ++i)
+				{
+					SDL_Color beginColor{ ray[i].r1, ray[i].g1, ray[i].b1, ray[i].a1};
+					SDL_Color endColor  { ray[i].r2, ray[i].g2, ray[i].b2, ray[i].a2};
+
+					CSDL_Ext::drawLine(to, x1, y1 + i, x2, y2 + i, beginColor, endColor);
+				}
+			}
+			else // draw in vertical axis
+			{
+				int x1 = it->x0 - ray.size() / 2;
+				int x2 = it->x - ray.size() / 2;
+
+				int y1 =  it->y0;
+				int y2 =  it->y;
+
+				for (size_t i = 0; i < ray.size(); ++i)
+				{
+					SDL_Color beginColor{ ray[i].r1, ray[i].g1, ray[i].b1, ray[i].a1};
+					SDL_Color endColor  { ray[i].r2, ray[i].g2, ray[i].b2, ray[i].a2};
+
+					CSDL_Ext::drawLine(to, x1 + i, y1, x2 + i, y2, beginColor, endColor);
+				}
+			}
 		}
 
 		// Update projectile
 		++it->step;
-		if (it->step == it->lastStep)
+		if (it->step > it->lastStep)
 		{
 			toBeDeleted.insert(toBeDeleted.end(), it);
 		}

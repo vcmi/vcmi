@@ -63,6 +63,16 @@ public:
 
 	struct CreatureAnimation
 	{
+		struct RayColor {
+			uint8_t r1, g1, b1, a1;
+			uint8_t r2, g2, b2, a2;
+
+			template <typename Handler> void serialize(Handler &h, const int version)
+			{
+				h & r1 & g1 & b1 & a1 & r2 & g2 & b2 & a2;
+			}
+		};
+
 		double timeBetweenFidgets, idleAnimationTime,
 			   walkAnimationTime, attackAnimationTime, flightAnimationDistance;
 		int upperRightMissleOffsetX, rightMissleOffsetX, lowerRightMissleOffsetX,
@@ -72,6 +82,7 @@ public:
 		int troopCountLocationOffset, attackClimaxFrame;
 
 		std::string projectileImageName;
+		std::vector<RayColor> projectileRay;
 		//bool projectileSpin; //if true, appropriate projectile is spinning during flight
 
 		template <typename Handler> void serialize(Handler &h, const int version)
@@ -91,6 +102,7 @@ public:
 			h & troopCountLocationOffset;
 			h & attackClimaxFrame;
 			h & projectileImageName;
+			h & projectileRay;
 		}
 	} animation;
 
