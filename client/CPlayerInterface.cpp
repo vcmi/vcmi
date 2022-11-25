@@ -694,7 +694,7 @@ void CPlayerInterface::battleStart(const CCreatureSet *army1, const CCreatureSet
 	if((!replay && army2_object
 		&& army2_object->getOwner() == PlayerColor::UNFLAGGABLE
 		&& settings["adventure"]["quickCombat"].Bool())
-	   || settings["adventure"]["alwaysSkipBattle"].Bool())
+	   || settings["adventure"]["alwaysSkipCombat"].Bool())
 	{
 		autofightingAI = CDynLibHandler::getNewBattleAI(settings["server"]["friendlyAI"].String());
 		autofightingAI->init(env, cb);
