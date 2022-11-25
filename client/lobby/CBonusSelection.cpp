@@ -427,6 +427,9 @@ void CBonusSelection::startMap()
 		if(scenario.prolog.hasPrologEpilog)
 		{
 			GH.pushIntT<CPrologEpilogVideo>(scenario.prolog, exitCb);
+			buttonStart->block(true);
+			buttonRestart->block(true);
+			buttonBack->block(true);
 		}
 		else
 		{
