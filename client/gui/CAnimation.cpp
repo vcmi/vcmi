@@ -98,6 +98,8 @@ public:
 	void exportBitmap(const boost::filesystem::path & path) const override;
 	void playerColored(PlayerColor player) override;
 	void setFlagColor(PlayerColor player) override;
+	bool isTransparent(const Point & coords) const override;
+	Point dimensions() const override;
 	int width() const override;
 	int height() const override;
 
@@ -743,6 +745,16 @@ int SDLImage::width() const
 int SDLImage::height() const
 {
 	return fullSize.y;
+}
+
+bool SDLImage::isTransparent(const Point & coords) const
+{
+	return CSDL_Ext::isTransparent(surf, coords.x, coords.y);
+}
+
+Point SDLImage::dimensions() const
+{
+	return fullSize;
 }
 
 void SDLImage::horizontalFlip()

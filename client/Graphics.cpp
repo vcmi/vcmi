@@ -29,7 +29,6 @@
 #include "../lib/VCMI_Lib.h"
 #include "../CCallback.h"
 #include "../lib/CGeneralTextHandler.h"
-#include "CBitmapHandler.h"
 #include "../lib/CGameState.h"
 #include "../lib/JsonNode.h"
 #include "../lib/vcmi_endian.h"

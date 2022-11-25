@@ -18,7 +18,6 @@ class CBattleConsole;
 
 class CBattleControlPanel : public CIntObject
 {
-
 	CBattleInterface * owner;
 
 	std::shared_ptr<CPicture> menu;
@@ -39,8 +38,6 @@ class CBattleControlPanel : public CIntObject
 	void bOptionsf();
 	void bSurrenderf();
 	void bFleef();
-	void reallyFlee(); //performs fleeing without asking player
-	void reallySurrender(); //performs surrendering without asking player
 	void bAutofightf();
 	void bSpellf();
 	void bWaitf();
@@ -49,6 +46,9 @@ class CBattleControlPanel : public CIntObject
 	void bConsoleDownf();
 	void bTacticNextStack();
 	void bTacticPhaseEnd();
+
+	void reallyFlee(); //performs fleeing without asking player
+	void reallySurrender(); //performs surrendering without asking player
 
 public:
 	std::shared_ptr<CBattleConsole> console;

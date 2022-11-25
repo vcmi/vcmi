@@ -2,13 +2,13 @@ set(client_SRCS
 		StdInc.cpp
 		../CCallback.cpp
 
+		battle/CBattleActionsController.cpp
 		battle/CBattleAnimations.cpp
 		battle/CBattleControlPanel.cpp
-		battle/CBattleInterfaceClasses.cpp
-		battle/CBattleInterface.cpp
-		battle/CBattleActionsController.cpp
 		battle/CBattleEffectsController.cpp
 		battle/CBattleFieldController.cpp
+		battle/CBattleInterfaceClasses.cpp
+		battle/CBattleInterface.cpp
 		battle/CBattleObstacleController.cpp
 		battle/CBattleProjectileController.cpp
 		battle/CBattleSiegeController.cpp
@@ -16,6 +16,7 @@ set(client_SRCS
 		battle/CCreatureAnimation.cpp
 
 		gui/CAnimation.cpp
+		gui/CCanvas.cpp
 		gui/CCursorHandler.cpp
 		gui/CGuiHandler.cpp
 		gui/CIntObject.cpp
@@ -83,13 +84,13 @@ set(client_SRCS
 set(client_HEADERS
 		StdInc.h
 
+		battle/CBattleActionsController.h
 		battle/CBattleAnimations.h
 		battle/CBattleControlPanel.h
 		battle/CBattleEffectsController.h
+		battle/CBattleFieldController.h
 		battle/CBattleInterfaceClasses.h
 		battle/CBattleInterface.h
-		battle/CBattleActionsController.h
-		battle/CBattleFieldController.h
 		battle/CBattleObstacleController.h
 		battle/CBattleProjectileController.h
 		battle/CBattleSiegeController.h
@@ -97,6 +98,7 @@ set(client_HEADERS
 		battle/CCreatureAnimation.h
 
 		gui/CAnimation.h
+		gui/CCanvas.h
 		gui/CCursorHandler.h
 		gui/CGuiHandler.h
 		gui/CIntObject.h

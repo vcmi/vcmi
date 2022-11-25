@@ -13,6 +13,7 @@ struct SDL_Surface;
 struct BattleObjectsByHex;
 struct BattleHex;
 class IImage;
+class CCanvas;
 class CAnimation;
 class CBattleInterface;
 class CObstacleInstance;
@@ -38,5 +39,5 @@ public:
 
 	void showBattlefieldObjects(SDL_Surface *to, const BattleHex & location );
 
-	void redrawBackgroundWithHexes(SDL_Surface * to);
+	void redrawBackgroundWithHexes(std::shared_ptr<CCanvas> to);
 };

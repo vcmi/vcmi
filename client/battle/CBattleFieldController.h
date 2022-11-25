@@ -17,32 +17,39 @@ struct Rect;
 struct Point;
 
 class CClickableHex;
+class CCanvas;
 class CStack;
+class IImage;
 class CBattleInterface;
 
 class CBattleFieldController : public CIntObject
 {
 	CBattleInterface * owner;
 
-	SDL_Surface *background;
-	SDL_Surface *backgroundWithHexes;
-	SDL_Surface *cellBorders;
-	SDL_Surface *cellBorder;
-	SDL_Surface *cellShade;
+	std::shared_ptr<IImage> background;
+	std::shared_ptr<IImage> cellBorder;
+	std::shared_ptr<IImage> cellShade;
 
-	BattleHex previouslyHoveredHex; //number of hex that was hovered by the cursor a while ago
-	BattleHex currentlyHoveredHex; //number of hex that is supposed to be hovered (for a while it may be inappropriately set, but will be renewed soon)
+	std::shared_ptr<CCanvas> cellBorders;
+
+	/// Canvas that contains background, hex grid (if enabled), absolute obstacles and movement range of active stack
+	std::shared_ptr<CCanvas> backgroundWithHexes;
+
+	//BattleHex previouslyHoveredHex; //number of hex that was hovered by the cursor a while ago
+	//BattleHex currentlyHoveredHex; //number of hex that is supposed to be hovered (for a while it may be inappropriately set, but will be renewed soon)
 	BattleHex attackingHex; //hex from which the stack would perform attack with current cursor
 
 	std::vector<BattleHex> occupyableHexes; //hexes available for active stack
-	std::vector<BattleHex> attackableHexes; //hexes attackable by active stack
 	std::array<bool, GameConstants::BFIELD_SIZE> stackCountOutsideHexes; // hexes that when in front of a unit cause it's amount box to move back
 
 	std::vector<std::shared_ptr<CClickableHex>> bfield; //11 lines, 17 hexes on each
 
+	void showHighlightedHex(std::shared_ptr<CCanvas> to, BattleHex hex, bool darkBorder);
+
+	std::set<BattleHex> getHighlightedHexesStackRange();
+	std::set<BattleHex> getHighlightedHexesSpellRange();
 public:
 	CBattleFieldController(CBattleInterface * owner);
-	~CBattleFieldController();
 
 	void showBackgroundImage(SDL_Surface *to);
 	void showBackgroundImageWithHexes(SDL_Surface *to);
@@ -50,8 +57,8 @@ public:
 	void redrawBackgroundWithHexes();
 
 	void showHighlightedHexes(SDL_Surface *to);
-	void showHighlightedHex(SDL_Surface *to, BattleHex hex, bool darkBorder);
 
+	Rect hexPositionLocal(BattleHex hex) const;
 	Rect hexPosition(BattleHex hex) const;
 	bool isPixelInHex(Point const & position);
 

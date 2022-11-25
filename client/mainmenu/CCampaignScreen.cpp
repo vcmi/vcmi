@@ -15,7 +15,6 @@
 
 #include "../CGameInfo.h"
 #include "../CMessage.h"
-#include "../CBitmapHandler.h"
 #include "../CMusicHandler.h"
 #include "../CVideoHandler.h"
 #include "../CPlayerInterface.h"

@@ -15,10 +15,10 @@
 #include "CBattleSiegeController.h"
 #include "CBattleStacksController.h"
 #include "CBattleObstacleController.h"
-#include "../CBitmapHandler.h"
 #include "../CGameInfo.h"
 #include "../../CCallback.h"
-#include "../gui/SDL_Extensions.h"
+#include "../gui/CAnimation.h"
+#include "../gui/CCanvas.h"
 #include "../gui/CGuiHandler.h"
 #include "../CPlayerInterface.h"
 #include "../gui/CCursorHandler.h"
@@ -29,8 +29,6 @@
 
 CBattleFieldController::CBattleFieldController(CBattleInterface * owner):
 	owner(owner),
-	previouslyHoveredHex(-1),
-	currentlyHoveredHex(-1),
 	attackingHex(-1)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
@@ -38,58 +36,31 @@ CBattleFieldController::CBattleFieldController(CBattleInterface * owner):
 	pos.h = owner->pos.h;
 
 	//preparing cells and hexes
-	cellBorder = BitmapHandler::loadBitmap("CCELLGRD.BMP");
-	CSDL_Ext::alphaTransform(cellBorder);
-	cellShade = BitmapHandler::loadBitmap("CCELLSHD.BMP");
-	CSDL_Ext::alphaTransform(cellShade);
-
+	cellBorder = IImage::createFromFile("CCELLGRD.BMP");
+	cellShade = IImage::createFromFile("CCELLSHD.BMP");
 
 	if(!owner->siegeController)
 	{
 		auto bfieldType = owner->curInt->cb->battleGetBattlefieldType();
 
 		if(bfieldType == BattleField::NONE)
-		{
 			logGlobal->error("Invalid battlefield returned for current battle");
-		}
 		else
-		{
-			background = BitmapHandler::loadBitmap(bfieldType.getInfo()->graphics, false);
-		}
+			background = IImage::createFromFile(bfieldType.getInfo()->graphics);
 	}
 	else
 	{
 		std::string backgroundName = owner->siegeController->getBattleBackgroundName();
-		background = BitmapHandler::loadBitmap(backgroundName, false);
+		background = IImage::createFromFile(backgroundName);
 	}
 
 	//preparing graphic with cell borders
-	cellBorders = CSDL_Ext::newSurface(background->w, background->h, cellBorder);
-	//copying palette
-	for (int g=0; g<cellBorder->format->palette->ncolors; ++g) //we assume that cellBorders->format->palette->ncolors == 256
-	{
-		cellBorders->format->palette->colors[g] = cellBorder->format->palette->colors[g];
-	}
-	//palette copied
-	for (int i=0; i<GameConstants::BFIELD_HEIGHT; ++i) //rows
-	{
-		for (int j=0; j<GameConstants::BFIELD_WIDTH-2; ++j) //columns
-		{
-			int x = 58 + (i%2==0 ? 22 : 0) + 44*j;
-			int y = 86 + 42 *i;
-			for (int cellX = 0; cellX < cellBorder->w; ++cellX)
-			{
-				for (int cellY = 0; cellY < cellBorder->h; ++cellY)
-				{
-					if (y+cellY < cellBorders->h && x+cellX < cellBorders->w)
-						* ((Uint8*)cellBorders->pixels + (y+cellY) *cellBorders->pitch + (x+cellX)) |= *((Uint8*)cellBorder->pixels + cellY *cellBorder->pitch + cellX);
-				}
-			}
-		}
-	}
+	cellBorders = std::make_shared<CCanvas>(Point(background->width(), background->height()));
 
-	backgroundWithHexes = CSDL_Ext::newSurface(background->w, background->h, screen);
+	for (int i=0; i<GameConstants::BFIELD_SIZE; ++i)
+		cellBorders->draw(cellBorder, hexPositionLocal(i).topLeft());
 
+	backgroundWithHexes = std::make_shared<CCanvas>(Point(background->width(), background->height()));
 
 	for (int h = 0; h < GameConstants::BFIELD_SIZE; ++h)
 	{
@@ -99,38 +70,25 @@ CBattleFieldController::CBattleFieldController(CBattleInterface * owner):
 		hex->myInterface = owner;
 		bfield.push_back(hex);
 	}
-
-	//for(auto hex : bfield)
-	//	addChild(hex.get());
-}
-
-CBattleFieldController::~CBattleFieldController()
-{
-	SDL_FreeSurface(background);
-	SDL_FreeSurface(cellBorders);
-	SDL_FreeSurface(backgroundWithHexes);
-	SDL_FreeSurface(cellBorder);
-	SDL_FreeSurface(cellShade);
 }
 
 void CBattleFieldController::showBackgroundImage(SDL_Surface *to)
 {
-	blitAt(background, owner->pos.x, owner->pos.y, to);
+	background->draw(to, owner->pos.x, owner->pos.y);
+
 	if (settings["battle"]["cellBorders"].Bool())
-	{
-		CSDL_Ext::blit8bppAlphaTo24bpp(cellBorders, nullptr, to, &owner->pos);
-	}
+		cellBorders->copyTo(to, owner->pos.topLeft());
 }
 
 void CBattleFieldController::showBackgroundImageWithHexes(SDL_Surface *to)
 {
-	blitAt(backgroundWithHexes, owner->pos.x, owner->pos.y, to);
+	backgroundWithHexes->copyTo(to, owner->pos.topLeft());
 }
 
 void CBattleFieldController::redrawBackgroundWithHexes()
 {
 	const CStack *activeStack = owner->stacksController->getActiveStack();
-	attackableHexes.clear();
+	std::vector<BattleHex> attackableHexes;
 	if (activeStack)
 		occupyableHexes = owner->curInt->cb->battleGetAvailableHexes(activeStack, true, &attackableHexes);
 
@@ -140,8 +98,7 @@ void CBattleFieldController::redrawBackgroundWithHexes()
 		stackCountOutsideHexes[i] = (accessibility[i] == EAccessibility::ACCESSIBLE);
 
 	//prepare background graphic with hexes and shaded hexes
-	blitAt(background, 0, 0, backgroundWithHexes);
-
+	backgroundWithHexes->draw(background, Point(0,0));
 	owner->obstacleController->redrawBackgroundWithHexes(backgroundWithHexes);
 
 	if (settings["battle"]["stackRange"].Bool())
@@ -150,125 +107,142 @@ void CBattleFieldController::redrawBackgroundWithHexes()
 		hexesToShade.insert(hexesToShade.end(), attackableHexes.begin(), attackableHexes.end());
 		for (BattleHex hex : hexesToShade)
 		{
-			int i = hex.getY(); //row
-			int j = hex.getX()-1; //column
-			int x = 58 + (i%2==0 ? 22 : 0) + 44*j;
-			int y = 86 + 42 *i;
-			SDL_Rect temp_rect = genRect(cellShade->h, cellShade->w, x, y);
-			CSDL_Ext::blit8bppAlphaTo24bpp(cellShade, nullptr, backgroundWithHexes, &temp_rect);
+			backgroundWithHexes->draw(cellShade, hexPositionLocal(hex).topLeft());
 		}
 	}
 
 	if(settings["battle"]["cellBorders"].Bool())
-		CSDL_Ext::blit8bppAlphaTo24bpp(cellBorders, nullptr, backgroundWithHexes, nullptr);
+		backgroundWithHexes->draw(cellBorders, Point(0, 0));
 }
 
-void CBattleFieldController::showHighlightedHex(SDL_Surface *to, BattleHex hex, bool darkBorder)
+void CBattleFieldController::showHighlightedHex(std::shared_ptr<CCanvas> to, BattleHex hex, bool darkBorder)
 {
-	int x = 14 + (hex.getY() % 2 == 0 ? 22 : 0) + 44 *(hex.getX()) + owner->pos.x;
-	int y = 86 + 42 *hex.getY() + owner->pos.y;
-	SDL_Rect temp_rect = genRect (cellShade->h, cellShade->w, x, y);
-	CSDL_Ext::blit8bppAlphaTo24bpp (cellShade, nullptr, to, &temp_rect);
+	Point hexPos = hexPosition(hex).topLeft();
+
+	to->draw(cellShade, hexPos);
 	if(!darkBorder && settings["battle"]["cellBorders"].Bool())
-		CSDL_Ext::blit8bppAlphaTo24bpp(cellBorder, nullptr, to, &temp_rect); //redraw border to make it light green instead of shaded
+		to->draw(cellBorder, hexPos);
+}
+
+std::set<BattleHex> CBattleFieldController::getHighlightedHexesStackRange()
+{
+	std::set<BattleHex> result;
+
+	if ( !owner->stacksController->getActiveStack())
+		return result;
+
+	if ( !settings["battle"]["stackRange"].Bool())
+		return result;
+
+	auto hoveredHex = getHoveredHex();
+
+	std::set<BattleHex> set = owner->curInt->cb->battleGetAttackedHexes(owner->stacksController->getActiveStack(), hoveredHex, attackingHex);
+	for(BattleHex hex : set)
+		result.insert(hex);
+
+	// display the movement shadow of the stack at b (i.e. stack under mouse)
+	const CStack * const shere = owner->curInt->cb->battleGetStackByPos(hoveredHex, false);
+	if(shere && shere != owner->stacksController->getActiveStack() && shere->alive())
+	{
+		std::vector<BattleHex> v = owner->curInt->cb->battleGetAvailableHexes(shere, true, nullptr);
+		for(BattleHex hex : v)
+			result.insert(hex);
+	}
+	return result;
+}
+
+std::set<BattleHex> CBattleFieldController::getHighlightedHexesSpellRange()
+{
+	std::set<BattleHex> result;
+	auto hoveredHex = getHoveredHex();
+
+	if(!settings["battle"]["mouseShadow"].Bool())
+		return result;
+
+	const spells::Caster *caster = nullptr;
+	const CSpell *spell = nullptr;
+
+	spells::Mode mode = spells::Mode::HERO;
+
+	if(owner->actionsController->spellcastingModeActive())//hero casts spell
+	{
+		spell = owner->actionsController->selectedSpell().toSpell();
+		caster = owner->getActiveHero();
+	}
+	else if(owner->stacksController->activeStackSpellToCast() != SpellID::NONE)//stack casts spell
+	{
+		spell = SpellID(owner->stacksController->activeStackSpellToCast()).toSpell();
+		caster = owner->stacksController->getActiveStack();
+		mode = spells::Mode::CREATURE_ACTIVE;
+	}
+
+	if(caster && spell) //when casting spell
+	{
+		// printing shaded hex(es)
+		spells::BattleCast event(owner->curInt->cb.get(), caster, mode, spell);
+		auto shaded = spell->battleMechanics(&event)->rangeInHexes(hoveredHex);
+
+		for(BattleHex shadedHex : shaded)
+		{
+			if((shadedHex.getX() != 0) && (shadedHex.getX() != GameConstants::BFIELD_WIDTH - 1))
+				result.insert(shadedHex);
+		}
+	}
+	else if(owner->active) //always highlight pointed hex
+	{
+		if(hoveredHex.getX() != 0 && hoveredHex.getX() != GameConstants::BFIELD_WIDTH - 1)
+			result.insert(hoveredHex);
+	}
+
+	return result;
 }
 
 void CBattleFieldController::showHighlightedHexes(SDL_Surface *to)
 {
-	bool delayedBlit = false; //workaround for blitting enemy stack hex without mouse shadow with stack range on
-	if(owner->stacksController->getActiveStack() && settings["battle"]["stackRange"].Bool())
-	{
-		std::set<BattleHex> set = owner->curInt->cb->battleGetAttackedHexes(owner->stacksController->getActiveStack(), currentlyHoveredHex, attackingHex);
-		for(BattleHex hex : set)
-			if(hex != currentlyHoveredHex)
-				showHighlightedHex(to, hex, false);
+	auto canvas = std::make_shared<CCanvas>(to);
 
-		// display the movement shadow of the stack at b (i.e. stack under mouse)
-		const CStack * const shere = owner->curInt->cb->battleGetStackByPos(currentlyHoveredHex, false);
-		if(shere && shere != owner->stacksController->getActiveStack() && shere->alive())
-		{
-			std::vector<BattleHex> v = owner->curInt->cb->battleGetAvailableHexes(shere, true, nullptr);
-			for(BattleHex hex : v)
-			{
-				if(hex != currentlyHoveredHex)
-					showHighlightedHex(to, hex, false);
-				else if(!settings["battle"]["mouseShadow"].Bool())
-					delayedBlit = true; //blit at the end of method to avoid graphic artifacts
-				else
-					showHighlightedHex(to, hex, true); //blit now and blit 2nd time later for darker shadow - avoids graphic artifacts
-			}
-		}
-	}
+	std::set<BattleHex> hoveredStack = getHighlightedHexesStackRange();
+	std::set<BattleHex> hoveredMouse = getHighlightedHexesSpellRange();
 
 	for(int b=0; b<GameConstants::BFIELD_SIZE; ++b)
 	{
-		if(bfield[b]->strictHovered && bfield[b]->hovered)
+		bool stack = hoveredStack.count(b);
+		bool mouse = hoveredMouse.count(b);
+
+		if ( stack && mouse )
 		{
-			if(previouslyHoveredHex == -1)
-				previouslyHoveredHex = b; //something to start with
-			if(currentlyHoveredHex == -1)
-				currentlyHoveredHex = b; //something to start with
-
-			if(currentlyHoveredHex != b) //repair hover info
-			{
-				previouslyHoveredHex = currentlyHoveredHex;
-				currentlyHoveredHex = b;
-			}
-			if(settings["battle"]["mouseShadow"].Bool() || delayedBlit)
-			{
-				const spells::Caster *caster = nullptr;
-				const CSpell *spell = nullptr;
-
-				spells::Mode mode = spells::Mode::HERO;
-
-				if(owner->actionsController->spellcastingModeActive())//hero casts spell
-				{
-					spell = owner->actionsController->selectedSpell().toSpell();
-					caster = owner->getActiveHero();
-				}
-				else if(owner->stacksController->activeStackSpellToCast() != SpellID::NONE)//stack casts spell
-				{
-					spell = SpellID(owner->stacksController->activeStackSpellToCast()).toSpell();
-					caster = owner->stacksController->getActiveStack();
-					mode = spells::Mode::CREATURE_ACTIVE;
-				}
-
-				if(caster && spell) //when casting spell
-				{
-					// printing shaded hex(es)
-					spells::BattleCast event(owner->curInt->cb.get(), caster, mode, spell);
-					auto shaded = spell->battleMechanics(&event)->rangeInHexes(currentlyHoveredHex);
-
-					for(BattleHex shadedHex : shaded)
-					{
-						if((shadedHex.getX() != 0) && (shadedHex.getX() != GameConstants::BFIELD_WIDTH - 1))
-							showHighlightedHex(to, shadedHex, true);
-					}
-				}
-				else if(owner->active || delayedBlit) //always highlight pointed hex, keep this condition last in this method for correct behavior
-				{
-					if(currentlyHoveredHex.getX() != 0
-					 && currentlyHoveredHex.getX() != GameConstants::BFIELD_WIDTH - 1)
-						showHighlightedHex(to, currentlyHoveredHex, true); //keep true for OH3 behavior: hovered hex frame "thinner"
-				}
-			}
+			// area where enemy stack can move AND affected by mouse cursor - create darker highlight by blitting twice
+			showHighlightedHex(canvas, b, true);
+			showHighlightedHex(canvas, b, true);
+		}
+		if ( !stack && mouse )
+		{
+			showHighlightedHex(canvas, b, true);
+		}
+		if ( stack && !mouse )
+		{
+			showHighlightedHex(canvas, b, false);
 		}
 	}
+}
+
+Rect CBattleFieldController::hexPositionLocal(BattleHex hex) const
+{
+	int x = 14 + ((hex.getY())%2==0 ? 22 : 0) + 44*hex.getX();
+	int y = 86 + 42 *hex.getY();
+	int w = cellShade->width();
+	int h = cellShade->height();
+	return Rect(x, y, w, h);
 }
 
 Rect CBattleFieldController::hexPosition(BattleHex hex) const
 {
-	int x = 14 + ((hex.getY())%2==0 ? 22 : 0) + 44*hex.getX() + owner->pos.x;
-	int y = 86 + 42 *hex.getY() + owner->pos.y;
-	int w = cellShade->w;
-	int h = cellShade->h;
-	return Rect(x, y, w, h);
+	return hexPositionLocal(hex) + owner->pos.topLeft();
 }
 
 bool CBattleFieldController::isPixelInHex(Point const & position)
 {
-	assert(cellShade);
-	return CSDL_Ext::SDL_GetPixel(cellShade, position.x, position.y) != 0;
+	return !cellShade->isTransparent(position);
 }
 
 BattleHex CBattleFieldController::getHoveredHex()

@@ -16,7 +16,6 @@
 #include "../widgets/Buttons.h"
 #include "../widgets/Images.h"
 #include "../CGameInfo.h"
-#include "../CBitmapHandler.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../CPlayerInterface.h"

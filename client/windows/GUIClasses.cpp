@@ -17,7 +17,6 @@
 #include "CreatureCostBox.h"
 #include "InfoWindows.h"
 
-#include "../CBitmapHandler.h"
 #include "../CGameInfo.h"
 #include "../CMessage.h"
 #include "../CMusicHandler.h"

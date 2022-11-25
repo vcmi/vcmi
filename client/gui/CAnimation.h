@@ -53,6 +53,10 @@ public:
 	//set special color for flag
 	virtual void setFlagColor(PlayerColor player)=0;
 
+	//test transparency of specific pixel
+	virtual bool isTransparent(const Point & coords) const = 0;
+
+	virtual Point dimensions() const = 0;
 	virtual int width() const=0;
 	virtual int height() const=0;
 

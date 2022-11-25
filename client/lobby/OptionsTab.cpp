@@ -12,7 +12,6 @@
 #include "CSelectionBase.h"
 #include "OptionsTab.h"
 
-#include "../CBitmapHandler.h"
 #include "../CGameInfo.h"
 #include "../CServerHandler.h"
 #include "../gui/CAnimation.h"

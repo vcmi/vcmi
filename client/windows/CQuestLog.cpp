@@ -12,7 +12,6 @@
 
 #include "CAdvmapInterface.h"
 
-#include "../CBitmapHandler.h"
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../Graphics.h"

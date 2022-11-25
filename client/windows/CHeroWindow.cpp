@@ -15,7 +15,6 @@
 #include "CKingdomInterface.h"
 #include "GUIClasses.h"
 
-#include "../CBitmapHandler.h"
 #include "../CGameInfo.h"
 #include "../CMessage.h"
 #include "../CMT.h"

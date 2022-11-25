@@ -17,7 +17,6 @@
 #include "CBattleStacksController.h"
 #include "CBattleControlPanel.h"
 
-#include "../CBitmapHandler.h"
 #include "../CGameInfo.h"
 #include "../CMessage.h"
 #include "../CMusicHandler.h"

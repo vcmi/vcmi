@@ -18,6 +18,7 @@
 #include "../../lib/battle/CObstacleInstance.h"
 #include "../../lib/ObstacleHandler.h"
 #include "../gui/CAnimation.h"
+#include "../gui/CCanvas.h"
 
 CBattleObstacleController::CBattleObstacleController(CBattleInterface * owner):
 	owner(owner)
@@ -196,7 +197,7 @@ Point CBattleObstacleController::getObstaclePosition(std::shared_ptr<IImage> ima
 	return r.topLeft();
 }
 
-void CBattleObstacleController::redrawBackgroundWithHexes(SDL_Surface * to)
+void CBattleObstacleController::redrawBackgroundWithHexes(std::shared_ptr<CCanvas> to)
 {
 	//draw absolute obstacles (cliffs and so on)
 	for(auto & oi : owner->curInt->cb->battleGetAllObstacles())
@@ -205,7 +206,7 @@ void CBattleObstacleController::redrawBackgroundWithHexes(SDL_Surface * to)
 		{
 			auto img = getObstacleImage(*oi);
 			if(img)
-				img->draw(to, oi->getInfo().width, oi->getInfo().height);
+				to->draw(img, Point(oi->getInfo().width, oi->getInfo().height));
 		}
 	}
 }

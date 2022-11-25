@@ -37,7 +37,6 @@
 #include "../CPlayerInterface.h"
 #include "../../CCallback.h"
 #include "../CMessage.h"
-#include "../CBitmapHandler.h"
 #include "../Client.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/CAnimation.h"
