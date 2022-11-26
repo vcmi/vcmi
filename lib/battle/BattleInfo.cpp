@@ -281,8 +281,6 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 			{
 				//silently ignore, if we can't place absolute obstacle, we'll go with the usual ones
 				logGlobal->debug("RangeGenerator::ExhaustedPossibilities exception occured - cannot place absolute obstacle");
-				
-				//
 			}
 		}
 
