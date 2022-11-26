@@ -14,21 +14,7 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="4">
-    <widget class="QLabel" name="label_4">
-     <property name="text">
-      <string>User</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="2">
-    <widget class="QLabel" name="label_2">
-     <property name="text">
-      <string>Port</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="6">
+   <item row="0" column="5">
     <widget class="QPushButton" name="connectButton">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -44,40 +30,47 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="0">
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>Address</string>
-     </property>
-    </widget>
+   <item row="3" column="0" colspan="3">
+    <widget class="QLineEdit" name="messageEdit"/>
    </item>
    <item row="0" column="3">
-    <widget class="QLineEdit" name="portEdit">
+    <widget class="QLabel" name="label_4">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="inputMethodHints">
-      <set>Qt::ImhDigitsOnly</set>
-     </property>
      <property name="text">
-      <string>5002</string>
+      <string>Username</string>
      </property>
     </widget>
    </item>
-   <item row="0" column="1">
-    <widget class="QLineEdit" name="hostEdit">
-     <property name="text">
-      <string>127.0.0.1</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="5">
+   <item row="0" column="4">
     <widget class="QLineEdit" name="userEdit"/>
    </item>
-   <item row="2" column="4" rowspan="2" colspan="3">
+   <item row="0" column="1">
+    <widget class="QLineEdit" name="serverEdit">
+     <property name="text">
+      <string>127.0.0.1:5002</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0" colspan="3">
+    <widget class="QPlainTextEdit" name="chat">
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Server</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="3" rowspan="2" colspan="3">
     <widget class="QStackedWidget" name="stackedWidget">
      <property name="currentIndex">
       <number>0</number>
@@ -132,15 +125,21 @@
        </item>
        <item row="1" column="0">
         <widget class="QPushButton" name="newButton">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="text">
-          <string>New game</string>
+          <string>New room</string>
          </property>
         </widget>
        </item>
        <item row="1" column="1">
         <widget class="QPushButton" name="joinButton">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="text">
-          <string>Join game</string>
+          <string>Join room</string>
          </property>
         </widget>
        </item>
@@ -199,16 +198,6 @@
       </layout>
      </widget>
     </widget>
-   </item>
-   <item row="2" column="0" colspan="4">
-    <widget class="QPlainTextEdit" name="chat">
-     <property name="readOnly">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0" colspan="4">
-    <widget class="QLineEdit" name="messageEdit"/>
    </item>
   </layout>
  </widget>

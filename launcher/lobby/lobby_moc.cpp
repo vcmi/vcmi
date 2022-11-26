@@ -18,8 +18,11 @@ Lobby::Lobby(QWidget *parent) :
 	connect(&socketLobby, SIGNAL(receive(QString)), this, SLOT(dispatchMessage(QString)));
 	connect(&socketLobby, SIGNAL(disconnect()), this, SLOT(onDisconnected()));
 	
-	ui->hostEdit->setText(QString::fromStdString(settings["launcher"]["lobbyUrl"].String()));
-	ui->portEdit->setText(QString::number(settings["launcher"]["lobbyPort"].Integer()));
+	QString hostString("%1:%2");
+	hostString = hostString.arg(QString::fromStdString(settings["launcher"]["lobbyUrl"].String()));
+	hostString = hostString.arg(settings["launcher"]["lobbyPort"].Integer());
+	
+	ui->serverEdit->setText(hostString);
 	ui->userEdit->setText(QString::fromStdString(settings["launcher"]["lobbyUsername"].String()));
 }
 
@@ -172,7 +175,7 @@ void Lobby::serverCommand(const ServerCommand & command) try
 		ui->playersList->clear();
 		for(int i = 0; i < amount; ++i, tagPoint += 2)
 		{
-			ui->playersList->addItem(args[tagPoint]);
+			ui->playersList->addItem(new QListWidgetItem(QIcon("icons:mod-enabled.png"), args[tagPoint]));
 		}
 		break;
 
@@ -180,8 +183,8 @@ void Lobby::serverCommand(const ServerCommand & command) try
 		protocolAssert(args.size() == 1);
 		//actually start game
 		gameArgs << "--lobby";
-		gameArgs << "--lobby-address" << ui->hostEdit->text();
-		gameArgs << "--lobby-port" << ui->portEdit->text();
+		gameArgs << "--lobby-address" << serverUrl;
+		gameArgs << "--lobby-port" << QString::number(serverPort);
 		gameArgs << "--uuid" << args[0];
 		startGame(gameArgs);		
 		break;
@@ -209,9 +212,14 @@ void Lobby::serverCommand(const ServerCommand & command) try
 	}
 
 	if(authentificationStatus == AuthStatus::AUTH_ERROR)
+	{
 		socketLobby.disconnectServer();
+	}
 	else
+	{
 		authentificationStatus = AuthStatus::AUTH_OK;
+		ui->newButton->setEnabled(true);
+	}
 }
 catch(const ProtocolError & e)
 {
@@ -247,6 +255,10 @@ void Lobby::onDisconnected()
 	authentificationStatus = AuthStatus::AUTH_NONE;
 	ui->stackedWidget->setCurrentWidget(ui->sessionsPage);
 	ui->connectButton->setChecked(false);
+	ui->serverEdit->setEnabled(true);
+	ui->newButton->setEnabled(false);
+	ui->joinButton->setEnabled(false);
+	ui->sessionsTable->clear();
 }
 
 void Lobby::chatMessage(QString title, QString body, bool isSystem)
@@ -287,21 +299,34 @@ void Lobby::on_connectButton_toggled(bool checked)
 		authentificationStatus = AuthStatus::AUTH_NONE;
 		username = ui->userEdit->text();
 		const int connectionTimeout = settings["launcher"]["connectionTimeout"].Integer();
+		
+		auto serverStrings = ui->serverEdit->text().split(":");
+		if(serverStrings.size() != 2)
+		{
+			QMessageBox::critical(this, "Connection error", "Server address must have the format URL:port");
+			return;
+		}
+		
+		serverUrl = serverStrings[0];
+		serverPort = serverStrings[1].toInt();
 
 		Settings node = settings.write["launcher"];
-		node["lobbyUrl"].String() = ui->hostEdit->text().toStdString();
-		node["lobbyPort"].Integer() = ui->portEdit->text().toInt();
+		node["lobbyUrl"].String() = serverUrl.toStdString();
+		node["lobbyPort"].Integer() = serverPort;
 		node["lobbyUsername"].String() = username.toStdString();
+		
+		ui->serverEdit->setEnabled(false);
 
-		sysMessage("Connecting to " + ui->hostEdit->text() + ":" + ui->portEdit->text());
+		sysMessage("Connecting to " + serverUrl + ":" + QString::number(serverPort));
 		//show text immediately
 		ui->chat->repaint();
 		qApp->processEvents();
 		
-		socketLobby.connectServer(ui->hostEdit->text(), ui->portEdit->text().toInt(), username, connectionTimeout);
+		socketLobby.connectServer(serverUrl, serverPort, username, connectionTimeout);
 	}
 	else
 	{
+		ui->serverEdit->setEnabled(true);
 		socketLobby.disconnectServer();
 	}
 }
@@ -334,5 +359,12 @@ void Lobby::on_buttonLeave_clicked()
 void Lobby::on_buttonReady_clicked()
 {
 	socketLobby.requestReadySession(session);
+}
+
+
+void Lobby::on_sessionsTable_itemSelectionChanged()
+{
+	auto selection = ui->sessionsTable->selectedItems();
+	ui->joinButton->setEnabled(!selection.empty());
 }
 

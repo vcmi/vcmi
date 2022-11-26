@@ -34,7 +34,12 @@ private slots:
 
 	void onDisconnected();
 
+	void on_sessionsTable_itemSelectionChanged();
+
 private:
+	QString serverUrl;
+	int serverPort;
+	
 	Ui::Lobby *ui;
 	SocketLobby socketLobby;
 	QString hostSession;
