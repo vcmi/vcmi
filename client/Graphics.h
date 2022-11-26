@@ -30,7 +30,7 @@ struct SDL_Surface;
 struct SDL_Color;
 class CAnimation;
 
-enum EFonts
+enum EFonts : int
 {
 	FONT_BIG, FONT_CALLI, FONT_CREDITS, FONT_HIGH_SCORE, FONT_MEDIUM, FONT_SMALL, FONT_TIMES, FONT_TINY, FONT_VERD
 };

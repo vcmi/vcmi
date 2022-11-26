@@ -51,12 +51,12 @@ class CBattleFieldController : public CIntObject
 public:
 	CBattleFieldController(CBattleInterface * owner);
 
-	void showBackgroundImage(SDL_Surface *to);
-	void showBackgroundImageWithHexes(SDL_Surface *to);
+	void showBackgroundImage(std::shared_ptr<CCanvas> canvas);
+	void showBackgroundImageWithHexes(std::shared_ptr<CCanvas> canvas);
 
 	void redrawBackgroundWithHexes();
 
-	void showHighlightedHexes(SDL_Surface *to);
+	void showHighlightedHexes(std::shared_ptr<CCanvas> canvas);
 
 	Rect hexPositionLocal(BattleHex hex) const;
 	Rect hexPosition(BattleHex hex) const;

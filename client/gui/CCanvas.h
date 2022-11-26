@@ -9,31 +9,42 @@
  */
 #pragma once
 
+#include "Geometries.h"
+
 struct SDL_Color;
 struct SDL_Surface;
-struct Point;
 class IImage;
+enum EFonts : int;
 
 /// Class that represents surface for drawing on
 class CCanvas
 {
 	SDL_Surface * surface;
 public:
-	// constructs canvas using existing surface. Caller maintains ownership on the surface
+
+	/// constructs canvas using existing surface. Caller maintains ownership on the surface
 	CCanvas(SDL_Surface * surface);
 
+	/// constructs canvas of specified size
 	CCanvas(const Point & size);
+
 	~CCanvas();
 
-	// renders image onto this canvas
+	/// renders image onto this canvas
 	void draw(std::shared_ptr<IImage> image, const Point & pos);
 
-	// renders another canvas onto this canvas
+	/// renders another canvas onto this canvas
 	void draw(std::shared_ptr<CCanvas> image, const Point & pos);
 
-	// renders continuous, 1-pixel wide line with color gradient
+	/// renders continuous, 1-pixel wide line with color gradient
 	void drawLine(const Point & from, const Point & dest, const SDL_Color & colorFrom, const SDL_Color & colorDest);
 
-	// for compatibility, copies content of this canvas onto SDL_Surface
-	void copyTo(SDL_Surface * to, const Point & pos);
+	/// renders single line of text with specified parameters
+	void drawText(const Point & position, const EFonts & font, const SDL_Color & colorDest, ETextAlignment alignment, const std::string & text );
+
+	/// renders multiple lines of text with specified parameters
+	void drawText(const Point & position, const EFonts & font, const SDL_Color & colorDest, ETextAlignment alignment, const std::vector<std::string> & text );
+
+	/// for compatibility, returns pointer to internal SDL surface
+	SDL_Surface * getSurface();
 };

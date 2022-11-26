@@ -20,6 +20,7 @@
 #include "../gui/CAnimation.h"
 #include "../gui/SDL_Extensions.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/CCanvas.h"
 #include "../../lib/battle/BattleHex.h"
 #include "../CPlayerInterface.h"
 #include "CCreatureAnimation.h"
@@ -82,7 +83,7 @@ CBattleStacksController::CBattleStacksController(CBattleInterface * owner):
 	}
 }
 
-void CBattleStacksController::showBattlefieldObjects(SDL_Surface *to, const BattleHex & location )
+void CBattleStacksController::showBattlefieldObjects(std::shared_ptr<CCanvas> canvas, const BattleHex & location )
 {
 	auto getCurrentPosition = [&](const CStack *stack) -> BattleHex
 	{
@@ -260,7 +261,7 @@ bool CBattleStacksController::stackNeedsAmountBox(const CStack * stack)
 	for(auto anim : pendingAnims) //no matter what other conditions below are, hide box when creature is playing hit animation
 	{
 		auto hitAnimation = dynamic_cast<CDefenceAnimation*>(anim.first);
-		if(hitAnimation && (hitAnimation->stack->ID == stack->ID)) //we process only "current creature" as other creatures will be processed reliably on their own iteration
+		if(hitAnimation && (hitAnimation->stack->ID == stack->ID))
 			return false;
 	}
 
@@ -281,57 +282,58 @@ bool CBattleStacksController::stackNeedsAmountBox(const CStack * stack)
 	return true;
 }
 
-void CBattleStacksController::showStackAmountBox(SDL_Surface *to, const CStack * stack)
+std::shared_ptr<IImage> CBattleStacksController::getStackAmountBox(const CStack * stack)
 {
-	auto getEffectsPositivness = [&](const std::vector<si32> & activeSpells) -> int
-	{
-		int pos = 0;
-		for (const auto & spellId : activeSpells)
-		{
-			pos += CGI->spellh->objects.at(spellId)->positiveness;
-		}
-		return pos;
-	};
+	std::vector<si32> activeSpells = stack->activeSpells();
 
-	auto getAmountBoxBackground = [&](int positivness) -> auto
-	{
-		if (positivness > 0)
-			return amountPositive;
-		if (positivness < 0)
-			return amountNegative;
-		return amountEffNeutral;
-	};
+	if ( activeSpells.empty())
+		return amountNormal;
+
+	int effectsPositivness = 0;
+
+	for ( auto const & spellID : activeSpells)
+		effectsPositivness += CGI->spellh->objects.at(spellID)->positiveness;
+
+	if (effectsPositivness > 0)
+		return amountPositive;
+
+	if (effectsPositivness < 0)
+		return amountNegative;
+
+	return amountEffNeutral;
+}
+
+void CBattleStacksController::showStackAmountBox(std::shared_ptr<CCanvas> canvas, const CStack * stack)
+{
+	//blitting amount background box
+	auto amountBG = getStackAmountBox(stack);
 
 	const int sideShift = stack->side == BattleSide::ATTACKER ? 1 : -1;
 	const int reverseSideShift = stack->side == BattleSide::ATTACKER ? -1 : 1;
 	const BattleHex nextPos = stack->getPosition() + sideShift;
 	const bool edge = stack->getPosition() % GameConstants::BFIELD_WIDTH == (stack->side == BattleSide::ATTACKER ? GameConstants::BFIELD_WIDTH - 2 : 1);
 	const bool moveInside = !edge && !owner->fieldController->stackCountOutsideHex(nextPos);
+
 	int xAdd = (stack->side == BattleSide::ATTACKER ? 220 : 202) +
 			(stack->doubleWide() ? 44 : 0) * sideShift +
-			(moveInside ? amountNormal->width() + 10 : 0) * reverseSideShift;
+			(moveInside ? amountBG->width() + 10 : 0) * reverseSideShift;
 	int yAdd = 260 + ((stack->side == BattleSide::ATTACKER || moveInside) ? 0 : -15);
 
-	//blitting amount background box
-	std::vector<si32> activeSpells = stack->activeSpells();
-
-	auto amountBG = activeSpells.empty() ? amountNormal : getAmountBoxBackground(getEffectsPositivness(activeSpells));
-	amountBG->draw(to, creAnims[stack->ID]->pos.x + xAdd, creAnims[stack->ID]->pos.y + yAdd);
+	canvas->draw(amountBG, creAnims[stack->ID]->pos.topLeft() + Point(xAdd, yAdd));
 
 	//blitting amount
-	Point textPos(creAnims[stack->ID]->pos.x + xAdd + amountNormal->width()/2,
-			creAnims[stack->ID]->pos.y + yAdd + amountNormal->height()/2);
-	graphics->fonts[FONT_TINY]->renderTextCenter(to, makeNumberShort(stack->getCount()), Colors::WHITE, textPos);
+	Point textPos = creAnims[stack->ID]->pos.topLeft() + amountBG->dimensions()/2 + Point(xAdd, yAdd);
 
+	canvas->drawText(textPos, EFonts::FONT_TINY, Colors::WHITE, ETextAlignment::CENTER, makeNumberShort(stack->getCount()));
 }
 
-void CBattleStacksController::showStack(SDL_Surface *to, const CStack * stack)
+void CBattleStacksController::showStack(std::shared_ptr<CCanvas> canvas, const CStack * stack)
 {
-	creAnims[stack->ID]->nextFrame(to, facingRight(stack)); // do actual blit
+	creAnims[stack->ID]->nextFrame(canvas, facingRight(stack)); // do actual blit
 	creAnims[stack->ID]->incrementFrame(float(GH.mainFPSmng->getElapsedMilliseconds()) / 1000);
 
 	if (stackNeedsAmountBox(stack))
-		showStackAmountBox(to, stack);
+		showStackAmountBox(canvas, stack);
 }
 
 void CBattleStacksController::updateBattleAnimations()
@@ -488,12 +490,10 @@ void CBattleStacksController::startAction(const BattleAction* action)
 		assert(stack);
 		owner->moveStarted = true;
 		if (creAnims[action->stackNumber]->framesInGroup(CCreatureAnim::MOVE_START))
-		{
-			pendingAnims.push_back(std::make_pair(new CMovementStartAnimation(owner, stack), false));
-		}
+			addNewAnim(new CMovementStartAnimation(owner, stack));
 
 		if(shouldRotate(stack, stack->getPosition(), actionTarget.at(0).hexValue))
-			pendingAnims.push_back(std::make_pair(new CReverseAnimation(owner, stack, stack->getPosition(), true), false));
+			addNewAnim(new CReverseAnimation(owner, stack, stack->getPosition(), true));
 	}
 }
 

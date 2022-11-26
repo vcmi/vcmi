@@ -14,6 +14,7 @@
 struct SDL_Surface;
 class BattleAction;
 class CAnimation;
+class CCanvas;
 class CBattleInterface;
 struct BattleObjectsByHex;
 struct CustomEffectInfo;
@@ -68,7 +69,7 @@ public:
 	void displayEffect(EBattleEffect::EBattleEffect effect, uint32_t soundID, const BattleHex & destTile); //displays custom effect on the battlefield
 	void battleTriggerEffect(const BattleTriggerEffect & bte);
 
-	void showBattlefieldObjects(SDL_Surface *to, const BattleHex & destTile);
+	void showBattlefieldObjects(std::shared_ptr<CCanvas> canvas, const BattleHex & destTile);
 
 
 	friend class CEffectAnimation; // currently, battleEffects is largely managed by CEffectAnimation, TODO: move this logic into CBattleEffectsController

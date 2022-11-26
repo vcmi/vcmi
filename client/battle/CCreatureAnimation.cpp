@@ -14,6 +14,7 @@
 #include "../../lib/CCreatureHandler.h"
 
 #include "../gui/SDL_Extensions.h"
+#include "../gui/CCanvas.h"
 
 static const SDL_Color creatureBlueBorder = { 0, 255, 255, 255 };
 static const SDL_Color creatureGoldBorder = { 255, 255, 0, 255 };
@@ -296,7 +297,7 @@ void CCreatureAnimation::genBorderPalette(IImage::BorderPallete & target)
 	target[2] = addColors(genShadow(64),  genBorderColor(getBorderStrength(elapsedTime), border));
 }
 
-void CCreatureAnimation::nextFrame(SDL_Surface * dest, bool attacker)
+void CCreatureAnimation::nextFrame(std::shared_ptr<CCanvas> canvas, bool attacker)
 {
 	size_t frame = static_cast<size_t>(floor(currentFrame));
 
@@ -314,7 +315,7 @@ void CCreatureAnimation::nextFrame(SDL_Surface * dest, bool attacker)
 
 		image->setBorderPallete(borderPallete);
 
-		image->draw(dest, pos.x, pos.y);
+		canvas->draw(image, pos.topLeft());
 	}
 }
 

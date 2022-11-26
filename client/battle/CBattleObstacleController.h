@@ -35,9 +35,9 @@ public:
 
 	void obstaclePlaced(const CObstacleInstance & oi);
 	void showObstacles(SDL_Surface *to, std::vector<std::shared_ptr<const CObstacleInstance>> &obstacles);
-	void showAbsoluteObstacles(SDL_Surface *to);
+	void showAbsoluteObstacles(std::shared_ptr<CCanvas> canvas);
 
-	void showBattlefieldObjects(SDL_Surface *to, const BattleHex & location );
+	void showBattlefieldObjects(std::shared_ptr<CCanvas> canvas, const BattleHex & location );
 
 	void redrawBackgroundWithHexes(std::shared_ptr<CCanvas> to);
 };

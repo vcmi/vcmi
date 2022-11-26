@@ -36,7 +36,7 @@ void CLabel::showAll(SDL_Surface * to)
 
 }
 
-CLabel::CLabel(int x, int y, EFonts Font, EAlignment Align, const SDL_Color & Color, const std::string & Text)
+CLabel::CLabel(int x, int y, EFonts Font, ETextAlignment Align, const SDL_Color & Color, const std::string & Text)
 	: CTextContainer(Align, Font, Color), text(Text)
 {
 	type |= REDRAW_PARENT;
@@ -45,7 +45,7 @@ CLabel::CLabel(int x, int y, EFonts Font, EAlignment Align, const SDL_Color & Co
 	pos.y += y;
 	pos.w = pos.h = 0;
 
-	if(alignment == TOPLEFT) // causes issues for MIDDLE
+	if(alignment == ETextAlignment::TOPLEFT) // causes issues for MIDDLE
 	{
 		pos.w = (int)graphics->fonts[font]->getStringWidth(visibleText().c_str());
 		pos.h = (int)graphics->fonts[font]->getLineHeight();
@@ -96,7 +96,7 @@ size_t CLabel::getWidth()
 	return graphics->fonts[font]->getStringWidth(visibleText());;
 }
 
-CMultiLineLabel::CMultiLineLabel(Rect position, EFonts Font, EAlignment Align, const SDL_Color & Color, const std::string & Text) :
+CMultiLineLabel::CMultiLineLabel(Rect position, EFonts Font, ETextAlignment Align, const SDL_Color & Color, const std::string & Text) :
 	CLabel(position.x, position.y, Font, Align, Color, Text),
 	visibleSize(0, 0, position.w, position.h)
 {
@@ -137,19 +137,19 @@ void CTextContainer::blitLine(SDL_Surface * to, Rect destRect, std::string what)
 
 	// input is rect in which given text should be placed
 	// calculate proper position for top-left corner of the text
-	if(alignment == TOPLEFT)
+	if(alignment == ETextAlignment::TOPLEFT)
 	{
 		where.x += getBorderSize().x;
 		where.y += getBorderSize().y;
 	}
 
-	if(alignment == CENTER)
+	if(alignment == ETextAlignment::CENTER)
 	{
 		where.x += (int(destRect.w) - int(f->getStringWidth(what))) / 2;
 		where.y += (int(destRect.h) - int(f->getLineHeight())) / 2;
 	}
 
-	if(alignment == BOTTOMRIGHT)
+	if(alignment == ETextAlignment::BOTTOMRIGHT)
 	{
 		where.x += getBorderSize().x + destRect.w - (int)f->getStringWidth(what);
 		where.y += getBorderSize().y + destRect.h - (int)f->getLineHeight();
@@ -178,7 +178,7 @@ void CTextContainer::blitLine(SDL_Surface * to, Rect destRect, std::string what)
 	} while(begin++ != std::string::npos);
 }
 
-CTextContainer::CTextContainer(EAlignment alignment, EFonts font, SDL_Color color) :
+CTextContainer::CTextContainer(ETextAlignment alignment, EFonts font, SDL_Color color) :
 	alignment(alignment),
 	font(font),
 	color(color)
@@ -252,15 +252,15 @@ Rect CMultiLineLabel::getTextLocation()
 
 	switch(alignment)
 	{
-	case TOPLEFT:     return Rect(pos.topLeft(), textSize);
-	case CENTER:      return Rect(pos.topLeft() + textOffset / 2, textSize);
-	case BOTTOMRIGHT: return Rect(pos.topLeft() + textOffset, textSize);
+	case ETextAlignment::TOPLEFT:     return Rect(pos.topLeft(), textSize);
+	case ETextAlignment::CENTER:      return Rect(pos.topLeft() + textOffset / 2, textSize);
+	case ETextAlignment::BOTTOMRIGHT: return Rect(pos.topLeft() + textOffset, textSize);
 	}
 	assert(0);
 	return Rect();
 }
 
-CLabelGroup::CLabelGroup(EFonts Font, EAlignment Align, const SDL_Color & Color)
+CLabelGroup::CLabelGroup(EFonts Font, ETextAlignment Align, const SDL_Color & Color)
 	: font(Font), align(Align), color(Color)
 {
 	defActions = 255 - DISPOSE;
@@ -277,7 +277,7 @@ size_t CLabelGroup::currentSize() const
 	return labels.size();
 }
 
-CTextBox::CTextBox(std::string Text, const Rect & rect, int SliderStyle, EFonts Font, EAlignment Align, const SDL_Color & Color) :
+CTextBox::CTextBox(std::string Text, const Rect & rect, int SliderStyle, EFonts Font, ETextAlignment Align, const SDL_Color & Color) :
 	sliderStyle(SliderStyle),
 	slider(nullptr)
 {
@@ -356,7 +356,7 @@ void CGStatusBar::clear()
 	setText("");
 }
 
-CGStatusBar::CGStatusBar(std::shared_ptr<CPicture> background_, EFonts Font, EAlignment Align, const SDL_Color & Color)
+CGStatusBar::CGStatusBar(std::shared_ptr<CPicture> background_, EFonts Font, ETextAlignment Align, const SDL_Color & Color)
 	: CLabel(background_->pos.x, background_->pos.y, Font, Align, Color, "")
 {
 	background = background_;
@@ -368,7 +368,7 @@ CGStatusBar::CGStatusBar(std::shared_ptr<CPicture> background_, EFonts Font, EAl
 }
 
 CGStatusBar::CGStatusBar(int x, int y, std::string name, int maxw)
-	: CLabel(x, y, FONT_SMALL, CENTER)
+	: CLabel(x, y, FONT_SMALL, ETextAlignment::CENTER)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 	background = std::make_shared<CPicture>(name);
@@ -401,9 +401,9 @@ Point CGStatusBar::getBorderSize()
 
 	switch(alignment)
 	{
-	case TOPLEFT:     return Point(borderSize.x, borderSize.y);
-	case CENTER:      return Point(pos.w / 2, pos.h / 2);
-	case BOTTOMRIGHT: return Point(pos.w - borderSize.x, pos.h - borderSize.y);
+	case ETextAlignment::TOPLEFT:     return Point(borderSize.x, borderSize.y);
+	case ETextAlignment::CENTER:      return Point(pos.w / 2, pos.h / 2);
+	case ETextAlignment::BOTTOMRIGHT: return Point(pos.w - borderSize.x, pos.h - borderSize.y);
 	}
 	assert(0);
 	return Point();
@@ -415,7 +415,7 @@ void CGStatusBar::lock(bool shouldLock)
 }
 
 CTextInput::CTextInput(const Rect & Pos, EFonts font, const CFunctionList<void(const std::string &)> & CB)
-	: CLabel(Pos.x, Pos.y, font, CENTER),
+	: CLabel(Pos.x, Pos.y, font, ETextAlignment::CENTER),
 	cb(CB),
 	CFocusable(std::make_shared<CKeyboardFocusListener>(this))
 {

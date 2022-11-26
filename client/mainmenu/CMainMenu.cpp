@@ -414,7 +414,7 @@ CMultiPlayers::CMultiPlayers(const std::string & firstPlayer, ESelectionScreen S
 
 	std::string text = CGI->generaltexth->allTexts[446];
 	boost::replace_all(text, "\t", "\n");
-	textTitle = std::make_shared<CTextBox>(text, Rect(25, 20, 315, 50), 0, FONT_BIG, CENTER, Colors::WHITE); //HOTSEAT	Please enter names
+	textTitle = std::make_shared<CTextBox>(text, Rect(25, 20, 315, 50), 0, FONT_BIG, ETextAlignment::CENTER, Colors::WHITE); //HOTSEAT	Please enter names
 
 	for(int i = 0; i < inputNames.size(); i++)
 	{
@@ -462,7 +462,7 @@ CSimpleJoinScreen::CSimpleJoinScreen(bool host)
 	background = std::make_shared<CPicture>("MUDIALOG.bmp"); // address background
 	pos = background->center(); //center, window has size of bg graphic (x,y = 396,278 w=232 h=212)
 
-	textTitle = std::make_shared<CTextBox>("", Rect(20, 20, 205, 50), 0, FONT_BIG, CENTER, Colors::WHITE);
+	textTitle = std::make_shared<CTextBox>("", Rect(20, 20, 205, 50), 0, FONT_BIG, ETextAlignment::CENTER, Colors::WHITE);
 	inputAddress = std::make_shared<CTextInput>(Rect(25, 68, 175, 16), *background.get());
 	inputPort = std::make_shared<CTextInput>(Rect(25, 115, 175, 16), *background.get());
 	if(host && !settings["session"]["donotstartserver"].Bool())

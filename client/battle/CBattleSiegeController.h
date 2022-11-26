@@ -15,6 +15,7 @@
 struct CatapultAttack;
 struct Point;
 struct SDL_Surface;
+class CCanvas;
 class CGTownInstance;
 class CBattleInterface;
 class CCreature;
@@ -77,7 +78,7 @@ class CBattleSiegeController
 	/// returns true if chosen wall piece should be present in current battle
 	bool getWallPieceExistance(EWallVisual::EWallVisual what) const;
 
-	void showWallPiece(SDL_Surface *to, EWallVisual::EWallVisual what);
+	void showWallPiece(std::shared_ptr<CCanvas> canvas, EWallVisual::EWallVisual what);
 
 public:
 	CBattleSiegeController(CBattleInterface * owner, const CGTownInstance *siegeTown);
@@ -87,8 +88,8 @@ public:
 	void stackIsCatapulting(const CatapultAttack & ca);
 
 	/// call-ins from other battle controllers
-	void showAbsoluteObstacles(SDL_Surface * to);
-	void showBattlefieldObjects(SDL_Surface *to, const BattleHex & location );
+	void showAbsoluteObstacles(std::shared_ptr<CCanvas> canvas);
+	void showBattlefieldObjects(std::shared_ptr<CCanvas> canvas, const BattleHex & location );
 
 	/// queries from other battle controllers
 	bool isAttackableByCatapult(BattleHex hex) const;

@@ -275,19 +275,19 @@ CDwellingInfoBox::CDwellingInfoBox(int centerX, int centerY, const CGTownInstanc
 
 	const CCreature * creature = CGI->creh->objects.at(Town->creatures.at(level).second.back());
 
-	title = std::make_shared<CLabel>(80, 30, FONT_SMALL, CENTER, Colors::WHITE, creature->namePl);
+	title = std::make_shared<CLabel>(80, 30, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, creature->namePl);
 	animation = std::make_shared<CCreaturePic>(30, 44, creature, true, true);
 
 	std::string text = boost::lexical_cast<std::string>(Town->creatures.at(level).first);
-	available = std::make_shared<CLabel>(80,190, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[217] + text);
-	costPerTroop = std::make_shared<CLabel>(80, 227, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[346]);
+	available = std::make_shared<CLabel>(80,190, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[217] + text);
+	costPerTroop = std::make_shared<CLabel>(80, 227, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[346]);
 
 	for(int i = 0; i<GameConstants::RESOURCE_QUANTITY; i++)
 	{
 		if(creature->cost[i])
 		{
 			resPicture.push_back(std::make_shared<CAnimImage>("RESOURCE", i, 0, 0, 0));
-			resAmount.push_back(std::make_shared<CLabel>(0,0, FONT_SMALL, CENTER, Colors::WHITE, boost::lexical_cast<std::string>(creature->cost[i])));
+			resAmount.push_back(std::make_shared<CLabel>(0,0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, boost::lexical_cast<std::string>(creature->cost[i])));
 		}
 	}
 
@@ -996,14 +996,14 @@ CCreaInfo::CCreaInfo(Point position, const CGTownInstance * Town, int Level, boo
 
 	if(compact)
 	{
-		label = std::make_shared<CLabel>(40, 32, FONT_TINY, BOTTOMRIGHT, Colors::WHITE, value);
+		label = std::make_shared<CLabel>(40, 32, FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, value);
 		pos.x += 8;
 		pos.w = 32;
 		pos.h = 32;
 	}
 	else
 	{
-		label = std::make_shared<CLabel>(24, 40, FONT_SMALL, CENTER, Colors::WHITE, value);
+		label = std::make_shared<CLabel>(24, 40, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, value);
 		pos.w = 48;
 		pos.h = 48;
 	}
@@ -1143,8 +1143,8 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 	garr->type |= REDRAW_PARENT;
 
 	heroes = std::make_shared<HeroSlots>(town, Point(241, 387), Point(241, 483), garr, true);
-	title = std::make_shared<CLabel>(85, 387, FONT_MEDIUM, TOPLEFT, Colors::WHITE, town->name);
-	income = std::make_shared<CLabel>(195, 443, FONT_SMALL, CENTER);
+	title = std::make_shared<CLabel>(85, 387, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, town->name);
+	income = std::make_shared<CLabel>(195, 443, FONT_SMALL, ETextAlignment::CENTER);
 	icon = std::make_shared<CAnimImage>("ITPT", 0, 0, 15, 387);
 
 	exit = std::make_shared<CButton>(Point(744, 544), "TSBTNS", CButton::tooltip(CGI->generaltexth->tcommands[8]), [&](){close();}, SDLK_RETURN);
@@ -1307,7 +1307,7 @@ CHallInterface::CBuildingBox::CBuildingBox(int x, int y, const CGTownInstance * 
 	header = std::make_shared<CAnimImage>("TPTHBAR", panelIndex[state], 0, 1, 73);
 	if(iconIndex[state] >=0)
 		mark = std::make_shared<CAnimImage>("TPTHCHK", iconIndex[state], 0, 136, 56);
-	name = std::make_shared<CLabel>(75, 81, FONT_SMALL, CENTER, Colors::WHITE, building->Name());
+	name = std::make_shared<CLabel>(75, 81, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, building->Name());
 
 	//todo: add support for all possible states
 	if(state >= EBuildingState::BUILDING_ERROR)
@@ -1359,7 +1359,7 @@ CHallInterface::CHallInterface(const CGTownInstance * Town):
 	auto statusbarBackground = std::make_shared<CPicture>(*background, barRect, 5, 556, false);
 	statusbar = CGStatusBar::create(statusbarBackground);
 
-	title = std::make_shared<CLabel>(399, 12, FONT_MEDIUM, CENTER, Colors::WHITE, town->town->buildings.at(BuildingID(town->hallLevel()+BuildingID::VILLAGE_HALL))->Name());
+	title = std::make_shared<CLabel>(399, 12, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, town->town->buildings.at(BuildingID(town->hallLevel()+BuildingID::VILLAGE_HALL))->Name());
 	exit = std::make_shared<CButton>(Point(748, 556), "TPMAGE1.DEF", CButton::tooltip(CGI->generaltexth->hcommands[8]), [&](){close();}, SDLK_RETURN);
 	exit->assignedKeys.insert(SDLK_ESCAPE);
 
@@ -1406,9 +1406,9 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 	auto statusbarBackground = std::make_shared<CPicture>(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26);
 	statusbar = CGStatusBar::create(statusbarBackground);
 
-	name = std::make_shared<CLabel>(197, 30, FONT_MEDIUM, CENTER, Colors::WHITE, boost::str(boost::format(CGI->generaltexth->hcommands[7]) % building->Name()));
-	description = std::make_shared<CTextBox>(building->Description(), Rect(33, 135, 329, 67), 0, FONT_MEDIUM, CENTER);
-	stateText = std::make_shared<CTextBox>(getTextForState(state), Rect(33, 216, 329, 67), 0, FONT_SMALL, CENTER);
+	name = std::make_shared<CLabel>(197, 30, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, boost::str(boost::format(CGI->generaltexth->hcommands[7]) % building->Name()));
+	description = std::make_shared<CTextBox>(building->Description(), Rect(33, 135, 329, 67), 0, FONT_MEDIUM, ETextAlignment::CENTER);
+	stateText = std::make_shared<CTextBox>(getTextForState(state), Rect(33, 216, 329, 67), 0, FONT_SMALL, ETextAlignment::CENTER);
 
 	//Create components for all required resources
 	std::vector<std::shared_ptr<CComponent>> components;
@@ -1507,8 +1507,8 @@ void LabeledValue::init(std::string nameText, std::string descr, int min, int ma
 		if(min != max)
 			valueText += '-' + boost::lexical_cast<std::string>(max);
 	}
-	name = std::make_shared<CLabel>(3, 0, FONT_SMALL, TOPLEFT, Colors::WHITE, nameText);
-	value = std::make_shared<CLabel>(pos.w-3, pos.h-2, FONT_SMALL, BOTTOMRIGHT, Colors::WHITE, valueText);
+	name = std::make_shared<CLabel>(3, 0, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, nameText);
+	value = std::make_shared<CLabel>(pos.w-3, pos.h-2, FONT_SMALL, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, valueText);
 }
 
 void LabeledValue::hover(bool on)
@@ -1533,7 +1533,7 @@ CFortScreen::CFortScreen(const CGTownInstance * town):
 		fortSize--;
 
 	const CBuilding * fortBuilding = town->town->buildings.at(BuildingID(town->fortLevel()+6));
-	title = std::make_shared<CLabel>(400, 12, FONT_BIG, CENTER, Colors::WHITE, fortBuilding->Name());
+	title = std::make_shared<CLabel>(400, 12, FONT_BIG, ETextAlignment::CENTER, Colors::WHITE, fortBuilding->Name());
 
 	std::string text = boost::str(boost::format(CGI->generaltexth->fcommands[6]) % fortBuilding->Name());
 	exit = std::make_shared<CButton>(Point(748, 556), "TPMAGE1", CButton::tooltip(text), [&](){ close(); }, SDLK_RETURN);
@@ -1620,13 +1620,13 @@ CFortScreen::RecruitArea::RecruitArea(int posX, int posY, const CGTownInstance *
 	if(getMyBuilding() != nullptr)
 	{
 		buildingIcon = std::make_shared<CAnimImage>(town->town->clientInfo.buildingsIcons, getMyBuilding()->bid, 0, 4, 21);
-		buildingName = std::make_shared<CLabel>(78, 101, FONT_SMALL, CENTER, Colors::WHITE, getMyBuilding()->Name());
+		buildingName = std::make_shared<CLabel>(78, 101, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, getMyBuilding()->Name());
 
 		if(vstd::contains(town->builtBuildings, getMyBuilding()->bid))
 		{
 			ui32 available = town->creatures[level].first;
 			std::string availableText = CGI->generaltexth->allTexts[217]+ boost::lexical_cast<std::string>(available);
-			availableCount = std::make_shared<CLabel>(78, 119, FONT_SMALL, CENTER, Colors::WHITE, availableText);
+			availableCount = std::make_shared<CLabel>(78, 119, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, availableText);
 		}
 	}
 
@@ -1634,7 +1634,7 @@ CFortScreen::RecruitArea::RecruitArea(int posX, int posY, const CGTownInstance *
 	{
 		hoverText = boost::str(boost::format(CGI->generaltexth->tcommands[21]) % getMyCreature()->namePl);
 		new CCreaturePic(159, 4, getMyCreature(), false);
-		new CLabel(78,  11, FONT_SMALL, CENTER, Colors::WHITE, getMyCreature()->namePl);
+		new CLabel(78,  11, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, getMyCreature()->namePl);
 
 		Rect sizes(287, 4, 96, 18);
 		values.push_back(std::make_shared<LabeledValue>(sizes, CGI->generaltexth->allTexts[190], CGI->generaltexth->fcommands[0], getMyCreature()->getAttack(false)));
@@ -1797,10 +1797,10 @@ CBlacksmithDialog::CBlacksmithDialog(bool possible, CreatureID creMachineID, Art
 	anim = std::make_shared<CCreatureAnim>(64, 50, creature->animDefName);
 	anim->clipRect(113,125,200,150);
 
-	title = std::make_shared<CLabel>(165, 28, FONT_BIG, CENTER, Colors::YELLOW,
+	title = std::make_shared<CLabel>(165, 28, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW,
 	            boost::str(boost::format(CGI->generaltexth->allTexts[274]) % creature->nameSing));
-	costText = std::make_shared<CLabel>(165, 218, FONT_MEDIUM, CENTER, Colors::WHITE, CGI->generaltexth->jktexts[43]);
-	costValue = std::make_shared<CLabel>(165, 290, FONT_MEDIUM, CENTER, Colors::WHITE,
+	costText = std::make_shared<CLabel>(165, 218, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->jktexts[43]);
+	costValue = std::make_shared<CLabel>(165, 290, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE,
 	                boost::lexical_cast<std::string>(aid.toArtifact(CGI->artifacts())->getPrice()));
 
 	std::string text = boost::str(boost::format(CGI->generaltexth->allTexts[595]) % creature->nameSing);

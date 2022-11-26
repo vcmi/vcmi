@@ -74,7 +74,7 @@ void CComponent::init(Etype Type, int Subtype, int Val, ESize imageSize)
 	for(auto & line : textLines)
 	{
 		int height = static_cast<int>(graphics->fonts[font]->getLineHeight());
-		auto label = std::make_shared<CLabel>(pos.w/2, pos.h + height/2, font, CENTER, Colors::WHITE, line);
+		auto label = std::make_shared<CLabel>(pos.w/2, pos.h + height/2, font, ETextAlignment::CENTER, Colors::WHITE, line);
 
 		pos.h += height;
 		if(label->pos.w > pos.w)
@@ -423,7 +423,7 @@ void CComponentBox::placeComponents(bool selectable)
 				{
 					Point orPos = Point(currentX - freeSpace, currentY) + getOrTextPos(prevComp.get(), iter->get());
 
-					orLabels.push_back(std::make_shared<CLabel>(orPos.x, orPos.y, FONT_MEDIUM, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[4]));
+					orLabels.push_back(std::make_shared<CLabel>(orPos.x, orPos.y, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[4]));
 				}
 				currentX += getDistance(prevComp.get(), iter->get());
 			}

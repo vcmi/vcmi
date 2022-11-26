@@ -72,17 +72,17 @@ CBattleFieldController::CBattleFieldController(CBattleInterface * owner):
 	}
 }
 
-void CBattleFieldController::showBackgroundImage(SDL_Surface *to)
+void CBattleFieldController::showBackgroundImage(std::shared_ptr<CCanvas> canvas)
 {
-	background->draw(to, owner->pos.x, owner->pos.y);
+	canvas->draw(background, owner->pos.topLeft());
 
 	if (settings["battle"]["cellBorders"].Bool())
-		cellBorders->copyTo(to, owner->pos.topLeft());
+		canvas->draw(cellBorders, owner->pos.topLeft());
 }
 
-void CBattleFieldController::showBackgroundImageWithHexes(SDL_Surface *to)
+void CBattleFieldController::showBackgroundImageWithHexes(std::shared_ptr<CCanvas> canvas)
 {
-	backgroundWithHexes->copyTo(to, owner->pos.topLeft());
+	canvas->draw(backgroundWithHexes, owner->pos.topLeft());
 }
 
 void CBattleFieldController::redrawBackgroundWithHexes()
@@ -197,10 +197,8 @@ std::set<BattleHex> CBattleFieldController::getHighlightedHexesSpellRange()
 	return result;
 }
 
-void CBattleFieldController::showHighlightedHexes(SDL_Surface *to)
+void CBattleFieldController::showHighlightedHexes(std::shared_ptr<CCanvas> canvas)
 {
-	auto canvas = std::make_shared<CCanvas>(to);
-
 	std::set<BattleHex> hoveredStack = getHighlightedHexesStackRange();
 	std::set<BattleHex> hoveredMouse = getHighlightedHexesSpellRange();
 

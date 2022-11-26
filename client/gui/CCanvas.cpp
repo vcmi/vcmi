@@ -14,6 +14,8 @@
 #include "Geometries.h"
 #include "CAnimation.h"
 
+#include "../Graphics.h"
+
 CCanvas::CCanvas(SDL_Surface * surface):
 	surface(surface)
 {
@@ -37,7 +39,7 @@ void CCanvas::draw(std::shared_ptr<IImage> image, const Point & pos)
 
 void CCanvas::draw(std::shared_ptr<CCanvas> image, const Point & pos)
 {
-	image->copyTo(surface, pos);
+	blitAt(image->surface, pos.x, pos.y, surface);
 }
 
 void CCanvas::drawLine(const Point & from, const Point & dest, const SDL_Color & colorFrom, const SDL_Color & colorDest)
@@ -45,7 +47,28 @@ void CCanvas::drawLine(const Point & from, const Point & dest, const SDL_Color &
 	CSDL_Ext::drawLine(surface, from.x, from.y, dest.x, dest.y, colorFrom, colorDest);
 }
 
-void CCanvas::copyTo(SDL_Surface * to, const Point & pos)
+void CCanvas::drawText(const Point & position, const EFonts & font, const SDL_Color & colorDest, ETextAlignment alignment, const std::string & text )
 {
-	blitAt(to, pos.x, pos.y, surface);
+	switch (alignment)
+	{
+	case ETextAlignment::TOPLEFT:      return graphics->fonts[font]->renderTextLeft  (surface, text, colorDest, position);
+	case ETextAlignment::CENTER:       return graphics->fonts[font]->renderTextCenter(surface, text, colorDest, position);
+	case ETextAlignment::BOTTOMRIGHT:  return graphics->fonts[font]->renderTextRight (surface, text, colorDest, position);
+	}
+}
+
+void CCanvas::drawText(const Point & position, const EFonts & font, const SDL_Color & colorDest, ETextAlignment alignment, const std::vector<std::string> & text )
+{
+	switch (alignment)
+	{
+	case ETextAlignment::TOPLEFT:      return graphics->fonts[font]->renderTextLinesLeft  (surface, text, colorDest, position);
+	case ETextAlignment::CENTER:       return graphics->fonts[font]->renderTextLinesCenter(surface, text, colorDest, position);
+	case ETextAlignment::BOTTOMRIGHT:  return graphics->fonts[font]->renderTextLinesRight (surface, text, colorDest, position);
+	}
+
+}
+
+SDL_Surface * CCanvas::getSurface()
+{
+	return surface;
 }

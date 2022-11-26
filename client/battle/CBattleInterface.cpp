@@ -933,16 +933,16 @@ void CBattleInterface::show(SDL_Surface *to)
 	if (stacksController->getActiveStack() != nullptr /*&& creAnims[stacksController->getActiveStack()->ID]->isIdle()*/) //show everything with range
 	{
 		// FIXME: any *real* reason to keep this separate? Speed difference can't be that big // TODO: move to showAll?
-		fieldController->showBackgroundImageWithHexes(to);
+		fieldController->showBackgroundImageWithHexes(canvas);
 	}
 	else
 	{
-		fieldController->showBackgroundImage(to);
-		obstacleController->showAbsoluteObstacles(to);
+		fieldController->showBackgroundImage(canvas);
+		obstacleController->showAbsoluteObstacles(canvas);
 		if ( siegeController )
-			siegeController->showAbsoluteObstacles(to);
+			siegeController->showAbsoluteObstacles(canvas);
 	}
-	fieldController->showHighlightedHexes(to);
+	fieldController->showHighlightedHexes(canvas);
 
 	showBattlefieldObjects(to);
 	projectilesController->showProjectiles(canvas);
@@ -959,36 +959,20 @@ void CBattleInterface::show(SDL_Surface *to)
 	activateStack();
 }
 
-void CBattleInterface::showBattlefieldObjects(SDL_Surface *to, const BattleHex & location )
+void CBattleInterface::showBattlefieldObjects(std::shared_ptr<CCanvas> canvas, const BattleHex & location )
 {
 	if (siegeController)
-		siegeController->showBattlefieldObjects(to, location);
-	obstacleController->showBattlefieldObjects(to, location);
-	stacksController->showBattlefieldObjects(to, location);
-	effectsController->showBattlefieldObjects(to, location);
+		siegeController->showBattlefieldObjects(canvas, location);
+	obstacleController->showBattlefieldObjects(canvas, location);
+	stacksController->showBattlefieldObjects(canvas, location);
+	effectsController->showBattlefieldObjects(canvas, location);
 }
 
 void CBattleInterface::showBattlefieldObjects(SDL_Surface *to)
 {
-	//auto showHexEntry = [&](BattleObjectsByHex::HexData & hex)
-	//{
-	//	if (siegeController)
-	//		siegeController->showPiecesOfWall(to, hex.walls);
-	//	obstacleController->showObstacles(to, hex.obstacles);
-	//	stacksController->showAliveStacks(to, hex.alive);
-	//	effectsController->showBattleEffects(to, hex.effects);
-	//};
+	auto canvas = std::make_shared<CCanvas>(to);
 
-	//BattleObjectsByHex objects = sortObjectsByHex();
-
-	// dead stacks should be blit first
-	//stacksController->showStacks(to, objects.beforeAll.dead);
-	//for (auto & data : objects.hex)
-	//	stacksController->showStacks(to, data.dead);
-	//stacksController->showStacks(to, objects.afterAll.dead);
-
-	// display objects that must be blit before anything else (e.g. topmost walls)
-	//showHexEntry(objects.beforeAll);
+	showBattlefieldObjects(canvas, BattleHex::HEX_BEFORE_ALL);
 
 	// show heroes after "beforeAll" - e.g. topmost wall in siege
 	if (attackingHero)
@@ -996,13 +980,10 @@ void CBattleInterface::showBattlefieldObjects(SDL_Surface *to)
 	if (defendingHero)
 		defendingHero->show(to);
 
-	// actual blit of most of objects, hex by hex
-	// NOTE: row-by-row blitting may be a better approach
-	//for (auto &data : objects.hex)
-	//	showHexEntry(data);
+	for (int i = 0; i < GameConstants::BFIELD_SIZE; ++i)
+		showBattlefieldObjects(canvas, BattleHex(i));
 
-	// objects that must be blit *after* everything else - e.g. bottom tower or some spell effects
-	//showHexEntry(objects.afterAll);
+	showBattlefieldObjects(canvas, BattleHex::HEX_AFTER_ALL);
 }
 
 void CBattleInterface::showInterface(SDL_Surface *to)

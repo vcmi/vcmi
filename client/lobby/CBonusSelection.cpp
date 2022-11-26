@@ -75,25 +75,25 @@ CBonusSelection::CBonusSelection()
 	buttonRestart = std::make_shared<CButton>(Point(475, 536), "CBRESTB.DEF", CButton::tooltip(), std::bind(&CBonusSelection::restartMap, this), SDLK_RETURN);
 	buttonBack = std::make_shared<CButton>(Point(624, 536), "CBCANCB.DEF", CButton::tooltip(), std::bind(&CBonusSelection::goBack, this), SDLK_ESCAPE);
 
-	campaignName = std::make_shared<CLabel>(481, 28, FONT_BIG, EAlignment::TOPLEFT, Colors::YELLOW, CSH->si->getCampaignName());
+	campaignName = std::make_shared<CLabel>(481, 28, FONT_BIG, ETextAlignment::TOPLEFT, Colors::YELLOW, CSH->si->getCampaignName());
 
 	iconsMapSizes = std::make_shared<CAnimImage>("SCNRMPSZ", 4, 0, 735, 26);
 
-	labelCampaignDescription = std::make_shared<CLabel>(481, 63, FONT_SMALL, EAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->allTexts[38]);
+	labelCampaignDescription = std::make_shared<CLabel>(481, 63, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->allTexts[38]);
 	campaignDescription = std::make_shared<CTextBox>(getCampaign()->camp->header.description, Rect(480, 86, 286, 117), 1);
 
-	mapName = std::make_shared<CLabel>(481, 219, FONT_BIG, EAlignment::TOPLEFT, Colors::YELLOW, CSH->mi->getName());
-	labelMapDescription = std::make_shared<CLabel>(481, 253, FONT_SMALL, EAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->allTexts[496]);
+	mapName = std::make_shared<CLabel>(481, 219, FONT_BIG, ETextAlignment::TOPLEFT, Colors::YELLOW, CSH->mi->getName());
+	labelMapDescription = std::make_shared<CLabel>(481, 253, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->allTexts[496]);
 	mapDescription = std::make_shared<CTextBox>("", Rect(480, 280, 286, 117), 1);
 
-	labelChooseBonus = std::make_shared<CLabel>(511, 432, FONT_SMALL, EAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[71]);
+	labelChooseBonus = std::make_shared<CLabel>(511, 432, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[71]);
 	groupBonuses = std::make_shared<CToggleGroup>(std::bind(&IServerAPI::setCampaignBonus, CSH, _1));
 
 	flagbox = std::make_shared<CFlagBox>(Rect(486, 407, 335, 23));
 
 	std::vector<std::string> difficulty;
 	boost::split(difficulty, CGI->generaltexth->allTexts[492], boost::is_any_of(" "));
-	labelDifficulty = std::make_shared<CLabel>(689, 432, FONT_MEDIUM, EAlignment::TOPLEFT, Colors::WHITE, difficulty.back());
+	labelDifficulty = std::make_shared<CLabel>(689, 432, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, difficulty.back());
 
 	for(size_t b = 0; b < difficultyIcons.size(); ++b)
 	{

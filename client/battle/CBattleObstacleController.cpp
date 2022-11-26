@@ -109,7 +109,7 @@ void CBattleObstacleController::obstaclePlaced(const CObstacleInstance & oi)
 	//CCS->soundh->playSound(sound);
 }
 
-void CBattleObstacleController::showAbsoluteObstacles(SDL_Surface * to)
+void CBattleObstacleController::showAbsoluteObstacles(std::shared_ptr<CCanvas> canvas)
 {
 	//Blit absolute obstacles
 	for(auto & oi : owner->curInt->cb->battleGetAllObstacles())
@@ -118,12 +118,12 @@ void CBattleObstacleController::showAbsoluteObstacles(SDL_Surface * to)
 		{
 			auto img = getObstacleImage(*oi);
 			if(img)
-				img->draw(to, owner->pos.x + oi->getInfo().width, owner->pos.y + oi->getInfo().height);
+				canvas->draw(img, Point(owner->pos.x + oi->getInfo().width, owner->pos.y + oi->getInfo().height));
 		}
 	}
 }
 
-void CBattleObstacleController::showBattlefieldObjects(SDL_Surface *to, const BattleHex & location )
+void CBattleObstacleController::showBattlefieldObjects(std::shared_ptr<CCanvas> canvas, const BattleHex & location )
 {
 	for (auto &obstacle : owner->curInt->cb->battleGetAllObstacles())
 	{
@@ -140,7 +140,7 @@ void CBattleObstacleController::showBattlefieldObjects(SDL_Surface *to, const Ba
 		if(img)
 		{
 			Point p = getObstaclePosition(img, *obstacle);
-			img->draw(to, p.x, p.y);
+			canvas->draw(img, p);
 		}
 	}
 }

@@ -34,18 +34,13 @@ struct CustomEffectInfo;
 
 VCMI_LIB_NAMESPACE_END
 
-//class CLabel;
-//class CCallback;
-//class CBattleAnimation;
 class CBattleHero;
-//class CBattleConsole;
+class CCanvas;
 class CBattleResultWindow;
 class CStackQueue;
 class CPlayerInterface;
-//class CCreatureAnimation;
 class CClickableHex;
 class CAnimation;
-//class IImage;
 struct BattleEffect;
 
 class CBattleProjectileController;
@@ -106,7 +101,7 @@ private:
 	void showInterface(SDL_Surface *to);
 
 	void showBattlefieldObjects(SDL_Surface *to);
-	void showBattlefieldObjects(SDL_Surface *to, const BattleHex & location );
+	void showBattlefieldObjects(std::shared_ptr<CCanvas> canvas, const BattleHex & location );
 
 	void setHeroAnimation(ui8 side, int phase);
 public:

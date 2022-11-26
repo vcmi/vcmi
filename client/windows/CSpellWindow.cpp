@@ -183,7 +183,7 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 
 	for(auto item : schoolBorders)
 		item->preload();
-	mana = std::make_shared<CLabel>(435, 426, FONT_SMALL, CENTER, Colors::YELLOW, boost::lexical_cast<std::string>(myHero->mana));
+	mana = std::make_shared<CLabel>(435, 426, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, boost::lexical_cast<std::string>(myHero->mana));
 	statusBar = CGStatusBar::create(7, 569, "Spelroll.bmp");
 
 	SDL_Rect temp_rect = genRect(45, 35, 479 + pos.x, 405 + pos.y);
@@ -508,9 +508,9 @@ CSpellWindow::SpellArea::SpellArea(SDL_Rect pos, CSpellWindow * owner)
 	image = std::make_shared<CAnimImage>(owner->spellIcons, 0, 0);
 	image->visible = false;
 
-	name = std::make_shared<CLabel>(39, 70, FONT_TINY, CENTER);
-	level = std::make_shared<CLabel>(39, 82, FONT_TINY, CENTER);
-	cost = std::make_shared<CLabel>(39, 94, FONT_TINY, CENTER);
+	name = std::make_shared<CLabel>(39, 70, FONT_TINY, ETextAlignment::CENTER);
+	level = std::make_shared<CLabel>(39, 82, FONT_TINY, ETextAlignment::CENTER);
+	cost = std::make_shared<CLabel>(39, 94, FONT_TINY, ETextAlignment::CENTER);
 
 	for(auto l : {name, level, cost})
 		l->autoRedraw = false;

@@ -16,6 +16,7 @@
 #include "CBattleInterfaceClasses.h"
 #include "CBattleStacksController.h"
 #include "../gui/CAnimation.h"
+#include "../gui/CCanvas.h"
 #include "../CMusicHandler.h"
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
@@ -34,7 +35,7 @@ void CBattleEffectsController::displayEffect(EBattleEffect::EBattleEffect effect
 {
 	std::string customAnim = graphics->battleACToDef[effect][0];
 
-	owner->stacksController->addNewAnim(new CEffectAnimation(owner, customAnim, destTile));
+	owner->stacksController->addNewAnim(new CEffectAnimation(owner, customAnim, destTile));//FIXME: check positioning for double-hex creatures
 }
 
 void CBattleEffectsController::displayEffect(EBattleEffect::EBattleEffect effect, uint32_t soundID, const BattleHex & destTile)
@@ -98,20 +99,16 @@ void CBattleEffectsController::startAction(const BattleAction* action)
 {
 	const CStack *stack = owner->curInt->cb->battleGetStackByID(action->stackNumber);
 
-	int txtid = 0;
 	switch(action->actionType)
 	{
 	case EActionType::WAIT:
-		txtid = 136;
+		owner->controlPanel->console->addText(stack->formatGeneralMessage(136));
 		break;
 	case EActionType::BAD_MORALE:
-		txtid = -34; //negative -> no separate singular/plural form
+		owner->controlPanel->console->addText(stack->formatGeneralMessage(-34));
 		displayEffect(EBattleEffect::BAD_MORALE, soundBase::BADMRLE, stack->getPosition());
 		break;
 	}
-
-	if(txtid != 0)
-		owner->controlPanel->console->addText(stack->formatGeneralMessage(txtid));
 
 	//displaying special abilities
 	auto actionTarget = action->getTarget(owner->curInt->cb.get());
@@ -123,7 +120,7 @@ void CBattleEffectsController::startAction(const BattleAction* action)
 	}
 }
 
-void CBattleEffectsController::showBattlefieldObjects(SDL_Surface *to, const BattleHex & destTile)
+void CBattleEffectsController::showBattlefieldObjects(std::shared_ptr<CCanvas> canvas, const BattleHex & destTile)
 {
 	for (auto & elem : battleEffects)
 	{
@@ -138,8 +135,6 @@ void CBattleEffectsController::showBattlefieldObjects(SDL_Surface *to, const Bat
 
 		auto img = elem.animation->getImage(currentFrame);
 
-		SDL_Rect temp_rect = genRect(img->height(), img->width(), elem.x, elem.y);
-
-		img->draw(to, &temp_rect, nullptr);
+		canvas->draw(img, Point(elem.x, elem.y));
 	}
 }

@@ -165,8 +165,6 @@ public:
 	//request complete redraw of this object
 	void redraw() override;
 
-	enum EAlignment {TOPLEFT, CENTER, BOTTOMRIGHT};
-
 	bool isItInLoc(const SDL_Rect &rect, int x, int y);
 	bool isItInLoc(const SDL_Rect &rect, const Point &p);
 	const Rect & center(const Rect &r, bool propagate = true); //sets pos so that r will be in the center of screen, assigns sizes of r to pos, returns new position

@@ -15,6 +15,7 @@ struct BattleHex;
 struct StackAttackedInfo;
 struct BattleAction;
 
+class CCanvas;
 class SpellID;
 class CBattleInterface;
 class CBattleAnimation;
@@ -47,7 +48,9 @@ class CBattleStacksController
 	ui32 animIDhelper; //for giving IDs for animations
 
 	bool stackNeedsAmountBox(const CStack * stack);
-	void showStackAmountBox(SDL_Surface *to, const CStack * stack);
+	void showStackAmountBox(std::shared_ptr<CCanvas> canvas, const CStack * stack);
+
+	std::shared_ptr<IImage> getStackAmountBox(const CStack * stack);
 
 public:
 	CBattleStacksController(CBattleInterface * owner);
@@ -75,10 +78,10 @@ public:
 	void setHoveredStack(const CStack *stack);
 	void setSelectedStack(const CStack *stack);
 
-	void showAliveStack(SDL_Surface *to, const CStack * stack);
-	void showStack(SDL_Surface *to, const CStack * stack);
+	void showAliveStack(std::shared_ptr<CCanvas> canvas, const CStack * stack);
+	void showStack(std::shared_ptr<CCanvas> canvas, const CStack * stack);
 
-	void showBattlefieldObjects(SDL_Surface *to, const BattleHex & location );
+	void showBattlefieldObjects(std::shared_ptr<CCanvas> canvas, const BattleHex & location );
 
 	void addNewAnim(CBattleAnimation *anim); //adds new anim to pendingAnims
 	void updateBattleAnimations();

@@ -19,6 +19,7 @@
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../gui/CAnimation.h"
+#include "../gui/CCanvas.h"
 
 #include "../../CCallback.h"
 #include "../../lib/NetPacks.h"
@@ -103,12 +104,12 @@ std::string CBattleSiegeController::getWallPieceImageName(EWallVisual::EWallVisu
 	}
 }
 
-void CBattleSiegeController::showWallPiece(SDL_Surface *to, EWallVisual::EWallVisual what)
+void CBattleSiegeController::showWallPiece(std::shared_ptr<CCanvas> canvas, EWallVisual::EWallVisual what)
 {
 	auto & ci = town->town->clientInfo;
 	auto const & pos = ci.siegePositions[what];
 
-	wallPieceImages[what]->draw(to, pos.x + owner->pos.x, pos.y + owner->pos.y);
+	canvas->draw(wallPieceImages[what], owner->pos.topLeft() + Point(pos.x, pos.y));
 }
 
 std::string CBattleSiegeController::getBattleBackgroundName() const
@@ -249,24 +250,16 @@ void CBattleSiegeController::gateStateChanged(const EGateState state)
 		CCS->soundh->playSound(soundBase::DRAWBRG);
 }
 
-void CBattleSiegeController::showAbsoluteObstacles(SDL_Surface * to)
+void CBattleSiegeController::showAbsoluteObstacles(std::shared_ptr<CCanvas> canvas)
 {
-	auto & info = town->town->clientInfo;
-
 	if (getWallPieceExistance(EWallVisual::MOAT))
-	{
-		auto const & pos = info.siegePositions[EWallVisual::MOAT];
-		wallPieceImages[EWallVisual::MOAT]->draw(to, pos.x + owner->pos.x, pos.y + owner->pos.y);
-	}
+		showWallPiece(canvas, EWallVisual::MOAT);
 
 	if (getWallPieceExistance(EWallVisual::BACKGROUND_MOAT))
-	{
-		auto const & pos = info.siegePositions[EWallVisual::BACKGROUND_MOAT];
-		wallPieceImages[EWallVisual::BACKGROUND_MOAT]->draw(to, pos.x + owner->pos.x, pos.y + owner->pos.y);
-	}
+		showWallPiece(canvas, EWallVisual::BACKGROUND_MOAT);
 }
 
-void CBattleSiegeController::showBattlefieldObjects(SDL_Surface *to, const BattleHex & location )
+void CBattleSiegeController::showBattlefieldObjects(std::shared_ptr<CCanvas> canvas, const BattleHex & location )
 {
 	for (int i = EWallVisual::WALL_FIRST; i <= EWallVisual::WALL_LAST; ++i)
 	{
@@ -282,7 +275,7 @@ void CBattleSiegeController::showBattlefieldObjects(SDL_Surface *to, const Battl
 			wallPiece != EWallVisual::BOTTOM_BATTLEMENT &&
 			wallPiece != EWallVisual::UPPER_BATTLEMENT)
 		{
-			showWallPiece(to, wallPiece);
+			showWallPiece(canvas, wallPiece);
 			continue;
 		}
 
@@ -314,8 +307,8 @@ void CBattleSiegeController::showBattlefieldObjects(SDL_Surface *to, const Battl
 
 		if (turret)
 		{
-			owner->stacksController->showStack(to, turret);
-			showWallPiece(to, wallPiece);
+			owner->stacksController->showStack(canvas, turret);
+			showWallPiece(canvas, wallPiece);
 		}
 	}
 }

@@ -295,26 +295,26 @@ CHeroInfoWindow::CHeroInfoWindow(const InfoAboutHero & hero, Point * position)
 	icons.push_back(std::make_shared<CAnimImage>("PortraitsLarge", hero.portrait, 0, 10, 6));
 
 	//primary stats
-	labels.push_back(std::make_shared<CLabel>(9, 75, EFonts::FONT_TINY, EAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[380] + ":"));
-	labels.push_back(std::make_shared<CLabel>(9, 87, EFonts::FONT_TINY, EAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[381] + ":"));
-	labels.push_back(std::make_shared<CLabel>(9, 99, EFonts::FONT_TINY, EAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[382] + ":"));
-	labels.push_back(std::make_shared<CLabel>(9, 111, EFonts::FONT_TINY, EAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[383] + ":"));
+	labels.push_back(std::make_shared<CLabel>(9, 75, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[380] + ":"));
+	labels.push_back(std::make_shared<CLabel>(9, 87, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[381] + ":"));
+	labels.push_back(std::make_shared<CLabel>(9, 99, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[382] + ":"));
+	labels.push_back(std::make_shared<CLabel>(9, 111, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[383] + ":"));
 
-	labels.push_back(std::make_shared<CLabel>(69, 87, EFonts::FONT_TINY, EAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(attack)));
-	labels.push_back(std::make_shared<CLabel>(69, 99, EFonts::FONT_TINY, EAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(defense)));
-	labels.push_back(std::make_shared<CLabel>(69, 111, EFonts::FONT_TINY, EAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(power)));
-	labels.push_back(std::make_shared<CLabel>(69, 123, EFonts::FONT_TINY, EAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(knowledge)));
+	labels.push_back(std::make_shared<CLabel>(69, 87, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(attack)));
+	labels.push_back(std::make_shared<CLabel>(69, 99, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(defense)));
+	labels.push_back(std::make_shared<CLabel>(69, 111, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(power)));
+	labels.push_back(std::make_shared<CLabel>(69, 123, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(knowledge)));
 
 	//morale+luck
-	labels.push_back(std::make_shared<CLabel>(9, 131, EFonts::FONT_TINY, EAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[384] + ":"));
-	labels.push_back(std::make_shared<CLabel>(9, 143, EFonts::FONT_TINY, EAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[385] + ":"));
+	labels.push_back(std::make_shared<CLabel>(9, 131, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[384] + ":"));
+	labels.push_back(std::make_shared<CLabel>(9, 143, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[385] + ":"));
 
 	icons.push_back(std::make_shared<CAnimImage>("IMRL22", morale + 3, 0, 47, 131));
 	icons.push_back(std::make_shared<CAnimImage>("ILCK22", luck + 3, 0, 47, 143));
 
 	//spell points
-	labels.push_back(std::make_shared<CLabel>(39, 174, EFonts::FONT_TINY, EAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[387]));
-	labels.push_back(std::make_shared<CLabel>(39, 186, EFonts::FONT_TINY, EAlignment::CENTER, Colors::WHITE, std::to_string(currentSpellPoints) + "/" + std::to_string(maxSpellPoints)));
+	labels.push_back(std::make_shared<CLabel>(39, 174, EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[387]));
+	labels.push_back(std::make_shared<CLabel>(39, 186, EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, std::to_string(currentSpellPoints) + "/" + std::to_string(maxSpellPoints)));
 }
 
 CBattleOptionsWindow::CBattleOptionsWindow(const SDL_Rect & position, CBattleInterface *owner)
@@ -357,29 +357,29 @@ CBattleOptionsWindow::CBattleOptionsWindow(const SDL_Rect & position, CBattleInt
 	exit->setImageOrder(1, 0, 2, 3);
 
 	//creating labels
-	labels.push_back(std::make_shared<CLabel>(242,  32, FONT_BIG,    CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[392]));//window title
-	labels.push_back(std::make_shared<CLabel>(122, 214, FONT_MEDIUM, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[393]));//animation speed
-	labels.push_back(std::make_shared<CLabel>(122, 293, FONT_MEDIUM, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[394]));//music volume
-	labels.push_back(std::make_shared<CLabel>(122, 359, FONT_MEDIUM, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[395]));//effects' volume
-	labels.push_back(std::make_shared<CLabel>(353,  66, FONT_MEDIUM, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[396]));//auto - combat options
-	labels.push_back(std::make_shared<CLabel>(353, 265, FONT_MEDIUM, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[397]));//creature info
+	labels.push_back(std::make_shared<CLabel>(242,  32, FONT_BIG,    ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[392]));//window title
+	labels.push_back(std::make_shared<CLabel>(122, 214, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[393]));//animation speed
+	labels.push_back(std::make_shared<CLabel>(122, 293, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[394]));//music volume
+	labels.push_back(std::make_shared<CLabel>(122, 359, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[395]));//effects' volume
+	labels.push_back(std::make_shared<CLabel>(353,  66, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[396]));//auto - combat options
+	labels.push_back(std::make_shared<CLabel>(353, 265, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[397]));//creature info
 
 	//auto - combat options
-	labels.push_back(std::make_shared<CLabel>(283,  86, FONT_MEDIUM, TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[398]));//creatures
-	labels.push_back(std::make_shared<CLabel>(283, 116, FONT_MEDIUM, TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[399]));//spells
-	labels.push_back(std::make_shared<CLabel>(283, 146, FONT_MEDIUM, TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[400]));//catapult
-	labels.push_back(std::make_shared<CLabel>(283, 176, FONT_MEDIUM, TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[151]));//ballista
-	labels.push_back(std::make_shared<CLabel>(283, 206, FONT_MEDIUM, TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[401]));//first aid tent
+	labels.push_back(std::make_shared<CLabel>(283,  86, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[398]));//creatures
+	labels.push_back(std::make_shared<CLabel>(283, 116, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[399]));//spells
+	labels.push_back(std::make_shared<CLabel>(283, 146, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[400]));//catapult
+	labels.push_back(std::make_shared<CLabel>(283, 176, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[151]));//ballista
+	labels.push_back(std::make_shared<CLabel>(283, 206, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[401]));//first aid tent
 
 	//creature info
-	labels.push_back(std::make_shared<CLabel>(283, 285, FONT_MEDIUM, TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[402]));//all stats
-	labels.push_back(std::make_shared<CLabel>(283, 315, FONT_MEDIUM, TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[403]));//spells only
+	labels.push_back(std::make_shared<CLabel>(283, 285, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[402]));//all stats
+	labels.push_back(std::make_shared<CLabel>(283, 315, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[403]));//spells only
 
 	//general options
-	labels.push_back(std::make_shared<CLabel>(61,  57, FONT_MEDIUM, TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[404]));
-	labels.push_back(std::make_shared<CLabel>(61,  90, FONT_MEDIUM, TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[405]));
-	labels.push_back(std::make_shared<CLabel>(61, 123, FONT_MEDIUM, TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[406]));
-	labels.push_back(std::make_shared<CLabel>(61, 156, FONT_MEDIUM, TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[407]));
+	labels.push_back(std::make_shared<CLabel>(61,  57, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[404]));
+	labels.push_back(std::make_shared<CLabel>(61,  90, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[405]));
+	labels.push_back(std::make_shared<CLabel>(61, 123, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[406]));
+	labels.push_back(std::make_shared<CLabel>(61, 156, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[407]));
 }
 
 void CBattleOptionsWindow::bDefaultf()
@@ -406,25 +406,25 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult & br, CPlayerInterfa
 
 	if(br.winner == 0) //attacker won
 	{
-		labels.push_back(std::make_shared<CLabel>(59, 124, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[410]));
+		labels.push_back(std::make_shared<CLabel>(59, 124, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[410]));
 	}
 	else
 	{
-		labels.push_back(std::make_shared<CLabel>(59, 124, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[411]));
+		labels.push_back(std::make_shared<CLabel>(59, 124, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[411]));
 	}
 
 	if(br.winner == 1)
 	{
-		labels.push_back(std::make_shared<CLabel>(412, 124, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[410]));
+		labels.push_back(std::make_shared<CLabel>(412, 124, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[410]));
 	}
 	else
 	{
-		labels.push_back(std::make_shared<CLabel>(408, 124, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[411]));
+		labels.push_back(std::make_shared<CLabel>(408, 124, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[411]));
 	}
 
-	labels.push_back(std::make_shared<CLabel>(232, 302, FONT_BIG, CENTER, Colors::YELLOW,  CGI->generaltexth->allTexts[407]));
-	labels.push_back(std::make_shared<CLabel>(232, 332, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[408]));
-	labels.push_back(std::make_shared<CLabel>(232, 428, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[409]));
+	labels.push_back(std::make_shared<CLabel>(232, 302, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW,  CGI->generaltexth->allTexts[407]));
+	labels.push_back(std::make_shared<CLabel>(232, 332, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[408]));
+	labels.push_back(std::make_shared<CLabel>(232, 428, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[409]));
 
 	std::string sideNames[2] = {"N/A", "N/A"};
 
@@ -460,15 +460,15 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult & br, CPlayerInterfa
 	}
 
 	//printing attacker and defender's names
-	labels.push_back(std::make_shared<CLabel>(89, 37, FONT_SMALL, TOPLEFT, Colors::WHITE, sideNames[0]));
-	labels.push_back(std::make_shared<CLabel>(381, 53, FONT_SMALL, BOTTOMRIGHT, Colors::WHITE, sideNames[1]));
+	labels.push_back(std::make_shared<CLabel>(89, 37, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, sideNames[0]));
+	labels.push_back(std::make_shared<CLabel>(381, 53, FONT_SMALL, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, sideNames[1]));
 
 	//printing casualties
 	for(int step = 0; step < 2; ++step)
 	{
 		if(br.casualties[step].size()==0)
 		{
-			labels.push_back(std::make_shared<CLabel>(235, 360 + 97 * step, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[523]));
+			labels.push_back(std::make_shared<CLabel>(235, 360 + 97 * step, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[523]));
 		}
 		else
 		{
@@ -479,7 +479,7 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult & br, CPlayerInterfa
 				icons.push_back(std::make_shared<CAnimImage>("CPRSMALL", CGI->creatures()->getByIndex(elem.first)->getIconIndex(), 0, xPos, yPos));
 				std::ostringstream amount;
 				amount<<elem.second;
-				labels.push_back(std::make_shared<CLabel>(xPos + 16, yPos + 42, FONT_SMALL, CENTER, Colors::WHITE, amount.str()));
+				labels.push_back(std::make_shared<CLabel>(xPos + 16, yPos + 42, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, amount.str()));
 				xPos += 42;
 			}
 		}
@@ -516,7 +516,7 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult & br, CPlayerInterfa
 			boost::algorithm::replace_first(str, "%d", boost::lexical_cast<std::string>(br.exp[weAreAttacker ? 0 : 1]));
 		}
 
-		description = std::make_shared<CTextBox>(str, Rect(69, 203, 330, 68), 0, FONT_SMALL, CENTER, Colors::WHITE);
+		description = std::make_shared<CTextBox>(str, Rect(69, 203, 330, 68), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 	}
 	else // we lose
 	{
@@ -544,7 +544,7 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult & br, CPlayerInterfa
 		CCS->musich->playMusic(musicName, false, true);
 		CCS->videoh->open(videoName);
 
-		labels.push_back(std::make_shared<CLabel>(235, 235, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[text]));
+		labels.push_back(std::make_shared<CLabel>(235, 235, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[text]));
 	}
 }
 
@@ -747,12 +747,12 @@ CStackQueue::StackBox::StackBox(CStackQueue * owner)
 	if(owner->embedded)
 	{
 		icon = std::make_shared<CAnimImage>(owner->icons, 0, 0, 5, 2);
-		amount = std::make_shared<CLabel>(pos.w/2, pos.h - 7, FONT_SMALL, CENTER, Colors::WHITE);
+		amount = std::make_shared<CLabel>(pos.w/2, pos.h - 7, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 	}
 	else
 	{
 		icon = std::make_shared<CAnimImage>(owner->icons, 0, 0, 9, 1);
-		amount = std::make_shared<CLabel>(pos.w/2, pos.h - 8, FONT_MEDIUM, CENTER, Colors::WHITE);
+		amount = std::make_shared<CLabel>(pos.w/2, pos.h - 8, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE);
 
 		int icon_x = pos.w - 17;
 		int icon_y = pos.h - 18;

@@ -705,7 +705,7 @@ CInfoBar::VisibleDateInfo::VisibleDateInfo()
 	else
 		labelText = CGI->generaltexth->allTexts[64] + " " + boost::lexical_cast<std::string>(LOCPLINT->cb->getDate(Date::DAY_OF_WEEK));
 
-	label = std::make_shared<CLabel>(95, 31, FONT_MEDIUM, CENTER, Colors::WHITE, labelText);
+	label = std::make_shared<CLabel>(95, 31, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, labelText);
 
 	forceRefresh.push_back(label);
 }
@@ -771,8 +771,8 @@ CInfoBar::VisibleGameStatusInfo::VisibleGameStatusInfo()
 
 	//generate widgets
 	background = std::make_shared<CPicture>("ADSTATIN");
-	allyLabel = std::make_shared<CLabel>(10, 106, FONT_SMALL, TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[390] + ":");
-	enemyLabel = std::make_shared<CLabel>(10, 136, FONT_SMALL, TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[391] + ":");
+	allyLabel = std::make_shared<CLabel>(10, 106, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[390] + ":");
+	enemyLabel = std::make_shared<CLabel>(10, 136, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[391] + ":");
 
 	int posx = allyLabel->pos.w + allyLabel->pos.x - pos.x + 4;
 	for(PlayerColor & player : allies)
@@ -794,7 +794,7 @@ CInfoBar::VisibleGameStatusInfo::VisibleGameStatusInfo()
 	{
 		hallIcons.push_back(std::make_shared<CAnimImage>("itmtl", i, 0, 6 + 42 * (int)i , 11));
 		if(halls[i])
-			hallLabels.push_back(std::make_shared<CLabel>( 26 + 42 * (int)i, 64, FONT_SMALL, CENTER, Colors::WHITE, boost::lexical_cast<std::string>(halls[i])));
+			hallLabels.push_back(std::make_shared<CLabel>( 26 + 42 * (int)i, 64, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, boost::lexical_cast<std::string>(halls[i])));
 	}
 }
 
@@ -807,7 +807,7 @@ CInfoBar::VisibleComponentInfo::VisibleComponentInfo(const Component & compToDis
 	comp = std::make_shared<CComponent>(compToDisplay);
 	comp->moveTo(Point(pos.x+47, pos.y+50));
 
-	text = std::make_shared<CTextBox>(message, Rect(10, 4, 160, 50), 0, FONT_SMALL, CENTER, Colors::WHITE);
+	text = std::make_shared<CTextBox>(message, Rect(10, 4, 160, 50), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 }
 
 void CInfoBar::playNewDaySound()
@@ -1137,7 +1137,7 @@ void CInGameConsole::startEnteringText()
 
 		enteredText = "_";
 
-		statusBar->alignment = TOPLEFT;
+		statusBar->alignment = ETextAlignment::TOPLEFT;
 		statusBar->write(enteredText);
 		statusBar->lock(true);
 	}
@@ -1161,7 +1161,7 @@ void CInGameConsole::endEnteringText(bool printEnteredText)
 
 	if(statusBar)
 	{
-		statusBar->alignment = CENTER;
+		statusBar->alignment = ETextAlignment::CENTER;
 	}
 	GH.statusbar->lock(false);
 	GH.statusbar->clear();

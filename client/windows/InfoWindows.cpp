@@ -77,7 +77,7 @@ CSelWindow::CSelWindow(const std::string &Text, PlayerColor player, int charperl
 		buttons[i]->addCallback(std::bind(&CInfoWindow::close, this)); //each button will close the window apart from call-defined actions
 	}
 
-	text = std::make_shared<CTextBox>(Text, Rect(0, 0, 250, 100), 0, FONT_MEDIUM, CENTER, Colors::WHITE);
+	text = std::make_shared<CTextBox>(Text, Rect(0, 0, 250, 100), 0, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE);
 
 	buttons.front()->assignedKeys.insert(SDLK_RETURN); //first button - reacts on enter
 	buttons.back()->assignedKeys.insert(SDLK_ESCAPE); //last button - reacts on escape
@@ -131,7 +131,7 @@ CInfoWindow::CInfoWindow(std::string Text, PlayerColor player, const TCompsInfo 
 		buttons.push_back(button);
 	}
 
-	text = std::make_shared<CTextBox>(Text, Rect(0, 0, 250, 100), 0, FONT_MEDIUM, CENTER, Colors::WHITE);
+	text = std::make_shared<CTextBox>(Text, Rect(0, 0, 250, 100), 0, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE);
 	if(!text->slider)
 	{
 		text->resize(text->label->textSize);
@@ -218,18 +218,18 @@ CInfoPopup::CInfoPopup(SDL_Surface * Bitmap, int x, int y, bool Free)
 }
 
 
-CInfoPopup::CInfoPopup(SDL_Surface * Bitmap, const Point &p, EAlignment alignment, bool Free)
+CInfoPopup::CInfoPopup(SDL_Surface * Bitmap, const Point &p, ETextAlignment alignment, bool Free)
  : free(Free),bitmap(Bitmap)
 {
 	switch(alignment)
 	{
-	case BOTTOMRIGHT:
+	case ETextAlignment::BOTTOMRIGHT:
 		init(p.x - Bitmap->w, p.y - Bitmap->h);
 		break;
-	case CENTER:
+	case ETextAlignment::CENTER:
 		init(p.x - Bitmap->w/2, p.y - Bitmap->h/2);
 		break;
-	case TOPLEFT:
+	case ETextAlignment::TOPLEFT:
 		init(p.x, p.y);
 		break;
 	default:
@@ -324,7 +324,7 @@ void CRClickPopup::createAndPush(const std::string & txt, std::shared_ptr<CCompo
 	createAndPush(txt, intComps);
 }
 
-void CRClickPopup::createAndPush(const CGObjectInstance * obj, const Point & p, EAlignment alignment)
+void CRClickPopup::createAndPush(const CGObjectInstance * obj, const Point & p, ETextAlignment alignment)
 {
 	auto iWin = createInfoWin(p, obj); //try get custom infowindow for this obj
 	if(iWin)

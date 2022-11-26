@@ -77,7 +77,7 @@ void CButton::addCallback(std::function<void()> callback)
 void CButton::addTextOverlay(const std::string & Text, EFonts font, SDL_Color color)
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
-	addOverlay(std::make_shared<CLabel>(pos.w/2, pos.h/2, font, CENTER, color, Text));
+	addOverlay(std::make_shared<CLabel>(pos.w/2, pos.h/2, font, ETextAlignment::CENTER, color, Text));
 	update();
 }
 
