@@ -30,8 +30,11 @@ public:
 
 	~CCanvas();
 
-	/// renders image onto this canvas
+	/// renders image onto this canvas at specified position
 	void draw(std::shared_ptr<IImage> image, const Point & pos);
+
+	/// renders section of image bounded by sourceRect at specified position
+	void draw(std::shared_ptr<IImage> image, const Point & pos, const Rect & sourceRect);
 
 	/// renders another canvas onto this canvas
 	void draw(std::shared_ptr<CCanvas> image, const Point & pos);

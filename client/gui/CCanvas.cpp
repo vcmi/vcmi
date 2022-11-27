@@ -37,6 +37,11 @@ void CCanvas::draw(std::shared_ptr<IImage> image, const Point & pos)
 	image->draw(surface, pos.x, pos.y);
 }
 
+void CCanvas::draw(std::shared_ptr<IImage> image, const Point & pos, const Rect & sourceRect)
+{
+	image->draw(surface, pos.x, pos.y, &sourceRect);
+}
+
 void CCanvas::draw(std::shared_ptr<CCanvas> image, const Point & pos)
 {
 	blitAt(image->surface, pos.x, pos.y, surface);

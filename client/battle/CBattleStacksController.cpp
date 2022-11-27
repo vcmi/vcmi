@@ -498,8 +498,8 @@ void CBattleStacksController::startAction(const BattleAction* action)
 		if (creAnims[action->stackNumber]->framesInGroup(CCreatureAnim::MOVE_START))
 			addNewAnim(new CMovementStartAnimation(owner, stack));
 
-		if(shouldRotate(stack, stack->getPosition(), actionTarget.at(0).hexValue))
-			addNewAnim(new CReverseAnimation(owner, stack, stack->getPosition(), true));
+		//if(shouldRotate(stack, stack->getPosition(), actionTarget.at(0).hexValue))
+		//	addNewAnim(new CReverseAnimation(owner, stack, stack->getPosition(), true));
 	}
 }
 

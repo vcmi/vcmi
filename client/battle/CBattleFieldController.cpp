@@ -77,6 +77,10 @@ CBattleFieldController::CBattleFieldController(CBattleInterface * owner):
 		hex->myInterface = owner;
 		bfield.push_back(hex);
 	}
+
+	auto accessibility = owner->curInt->cb->getAccesibility();
+	for(int i = 0; i < accessibility.size(); i++)
+		stackCountOutsideHexes[i] = (accessibility[i] == EAccessibility::ACCESSIBLE);
 }
 
 void CBattleFieldController::showBackgroundImage(std::shared_ptr<CCanvas> canvas)

@@ -314,7 +314,7 @@ void CCreatureAnimation::nextFrame(std::shared_ptr<CCanvas> canvas, bool facingR
 
 		image->setBorderPallete(borderPallete);
 
-		canvas->draw(image, pos.topLeft());
+		canvas->draw(image, pos.topLeft(), Rect(0, 0, pos.w, pos.h));
 	}
 }
 

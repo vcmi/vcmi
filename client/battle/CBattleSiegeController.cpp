@@ -91,7 +91,7 @@ std::string CBattleSiegeController::getWallPieceImageName(EWallVisual::EWallVisu
 		return prefix + "WA5.BMP";
 	case EWallVisual::MOAT:
 		return prefix + "MOAT.BMP";
-	case EWallVisual::BACKGROUND_MOAT:
+	case EWallVisual::MOAT_BANK:
 		return prefix + "MLIP.BMP";
 	case EWallVisual::KEEP_BATTLEMENT:
 		return prefix + "MANC.BMP";
@@ -124,19 +124,15 @@ bool CBattleSiegeController::getWallPieceExistance(EWallVisual::EWallVisual what
 	//FIXME: use this instead of buildings test?
 	//ui8 siegeLevel = owner->curInt->cb->battleGetSiegeLevel();
 
-	bool isMoat = (what == EWallVisual::BACKGROUND_MOAT || what == EWallVisual::MOAT);
-	bool isKeep = what == EWallVisual::KEEP_BATTLEMENT;
-	bool isTower = (what == EWallVisual::UPPER_BATTLEMENT || what == EWallVisual::BOTTOM_BATTLEMENT);
-
-	bool hasMoat = town->hasBuilt(BuildingID::CITADEL) && town->town->faction->index != ETownType::TOWER;
-	bool hasKeep = town->hasBuilt(BuildingID::CITADEL);
-	bool hasTower = town->hasBuilt(BuildingID::CASTLE);
-
-	if ( isMoat ) return hasMoat;
-	if ( isKeep ) return hasKeep;
-	if ( isTower ) return hasTower;
-
-	return true;
+	switch (what)
+	{
+	case EWallVisual::MOAT:              return town->hasBuilt(BuildingID::CITADEL) && town->town->faction->index != ETownType::TOWER;
+	case EWallVisual::MOAT_BANK:         return town->hasBuilt(BuildingID::CITADEL) && town->town->faction->index != ETownType::TOWER && town->town->faction->index != ETownType::NECROPOLIS;
+	case EWallVisual::KEEP_BATTLEMENT:   return town->hasBuilt(BuildingID::CITADEL);
+	case EWallVisual::UPPER_BATTLEMENT:  return town->hasBuilt(BuildingID::CASTLE);
+	case EWallVisual::BOTTOM_BATTLEMENT: return town->hasBuilt(BuildingID::CASTLE);
+	default:                             return true;
+	}
 }
 
 BattleHex CBattleSiegeController::getWallPiecePosition(EWallVisual::EWallVisual what) const
@@ -256,8 +252,8 @@ void CBattleSiegeController::showAbsoluteObstacles(std::shared_ptr<CCanvas> canv
 	if (getWallPieceExistance(EWallVisual::MOAT))
 		showWallPiece(canvas, EWallVisual::MOAT, owner->pos.topLeft());
 
-	if (getWallPieceExistance(EWallVisual::BACKGROUND_MOAT))
-		showWallPiece(canvas, EWallVisual::BACKGROUND_MOAT, owner->pos.topLeft());
+	if (getWallPieceExistance(EWallVisual::MOAT_BANK))
+		showWallPiece(canvas, EWallVisual::MOAT_BANK, owner->pos.topLeft());
 }
 
 void CBattleSiegeController::showBattlefieldObjects(std::shared_ptr<CCanvas> canvas, const BattleHex & location )
