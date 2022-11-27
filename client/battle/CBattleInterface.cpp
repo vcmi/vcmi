@@ -24,19 +24,12 @@
 
 #include "../CGameInfo.h"
 #include "../CMessage.h"
-#include "../CMT.h"
 #include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
-#include "../CVideoHandler.h"
-#include "../Graphics.h"
-#include "../gui/CAnimation.h"
 #include "../gui/CCanvas.h"
 #include "../gui/CCursorHandler.h"
 #include "../gui/CGuiHandler.h"
-#include "../gui/SDL_Extensions.h"
 #include "../windows/CAdvmapInterface.h"
-#include "../windows/CCreatureWindow.h"
-#include "../windows/CSpellWindow.h"
 
 #include "../../CCallback.h"
 #include "../../lib/CStack.h"
@@ -44,15 +37,7 @@
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/CondSh.h"
-#include "../../lib/CRandomGenerator.h"
-#include "../../lib/spells/CSpellHandler.h"
-#include "../../lib/spells/ISpellMechanics.h"
-#include "../../lib/spells/Problem.h"
-#include "../../lib/CTownHandler.h"
-#include "../../lib/BattleFieldHandler.h"
-#include "../../lib/ObstacleHandler.h"
-#include "../../lib/CGameState.h"
-#include "../../lib/mapping/CMap.h"
+#include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/NetPacks.h"
 #include "../../lib/UnlockGuard.h"
 
@@ -127,10 +112,14 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 	this->army1 = army1;
 	this->army2 = army2;
 
+	controlPanel = std::make_shared<CBattleControlPanel>(this, Point(0, 556));
+
 	//preparing menu background and terrain
 	fieldController.reset( new CBattleFieldController(this));
 	stacksController.reset( new CBattleStacksController(this));
 	actionsController.reset( new CBattleActionsController(this));
+	effectsController.reset(new CBattleEffectsController(this));
+
 
 	//loading hero animations
 	if(hero1) // attacking hero
@@ -517,7 +506,7 @@ void CBattleInterface::spellCast(const BattleSpellCast * sc)
 	{
 		if(casterStack != nullptr)
 		{
-			srccoord = CClickableHex::getXYUnitAnim(casterStack->getPosition(), casterStack, this);
+			srccoord = stacksController->getStackPositionAtHex(casterStack->getPosition(), casterStack);
 			srccoord.x += 250;
 			srccoord.y += 240;
 		}
@@ -536,7 +525,7 @@ void CBattleInterface::spellCast(const BattleSpellCast * sc)
 	//playing projectile animation
 	if (sc->tile.isValid())
 	{
-		Point destcoord = CClickableHex::getXYUnitAnim(sc->tile, curInt->cb->battleGetStackByPos(sc->tile), this); //position attacked by projectile
+		Point destcoord = stacksController->getStackPositionAtHex(sc->tile, curInt->cb->battleGetStackByPos(sc->tile)); //position attacked by projectile
 		destcoord.x += 250; destcoord.y += 240;
 
 		//animation angle
@@ -921,7 +910,6 @@ void CBattleInterface::showAll(SDL_Surface *to)
 void CBattleInterface::show(SDL_Surface *to)
 {
 	auto canvas = std::make_shared<CCanvas>(to);
-
 	assert(to);
 
 	SDL_Rect buf;
@@ -944,7 +932,7 @@ void CBattleInterface::show(SDL_Surface *to)
 	}
 	fieldController->showHighlightedHexes(canvas);
 
-	showBattlefieldObjects(to);
+	showBattlefieldObjects(canvas);
 	projectilesController->showProjectiles(canvas);
 
 	if(battleActionsStarted)
@@ -952,7 +940,7 @@ void CBattleInterface::show(SDL_Surface *to)
 
 	SDL_SetClipRect(to, &buf); //restoring previous clip_rect
 
-	showInterface(to);
+	showInterface(canvas);
 
 	//activation of next stack, if any
 	//TODO: should be moved to the very start of this method?
@@ -968,17 +956,15 @@ void CBattleInterface::showBattlefieldObjects(std::shared_ptr<CCanvas> canvas, c
 	effectsController->showBattlefieldObjects(canvas, location);
 }
 
-void CBattleInterface::showBattlefieldObjects(SDL_Surface *to)
+void CBattleInterface::showBattlefieldObjects(std::shared_ptr<CCanvas> canvas)
 {
-	auto canvas = std::make_shared<CCanvas>(to);
-
 	showBattlefieldObjects(canvas, BattleHex::HEX_BEFORE_ALL);
 
 	// show heroes after "beforeAll" - e.g. topmost wall in siege
 	if (attackingHero)
-		attackingHero->show(to);
+		attackingHero->show(canvas->getSurface());
 	if (defendingHero)
-		defendingHero->show(to);
+		defendingHero->show(canvas->getSurface());
 
 	for (int i = 0; i < GameConstants::BFIELD_SIZE; ++i)
 		showBattlefieldObjects(canvas, BattleHex(i));
@@ -986,11 +972,11 @@ void CBattleInterface::showBattlefieldObjects(SDL_Surface *to)
 	showBattlefieldObjects(canvas, BattleHex::HEX_AFTER_ALL);
 }
 
-void CBattleInterface::showInterface(SDL_Surface *to)
+void CBattleInterface::showInterface(std::shared_ptr<CCanvas> canvas)
 {
 	//showing in-game console
-	LOCPLINT->cingconsole->show(to);
-	controlPanel->show(to);
+	LOCPLINT->cingconsole->show(canvas->getSurface());
+	controlPanel->showAll(canvas->getSurface());
 
 	Rect posWithQueue = Rect(pos.x, pos.y, 800, 600);
 
@@ -1002,13 +988,13 @@ void CBattleInterface::showInterface(SDL_Surface *to)
 			posWithQueue.h += queue->pos.h;
 		}
 
-		queue->showAll(to);
+		queue->showAll(canvas->getSurface());
 	}
 
 	//printing border around interface
 	if (screen->w != 800 || screen->h !=600)
 	{
-		CMessage::drawBorder(curInt->playerID,to,posWithQueue.w + 28, posWithQueue.h + 28, posWithQueue.x-14, posWithQueue.y-15);
+		CMessage::drawBorder(curInt->playerID,canvas->getSurface(),posWithQueue.w + 28, posWithQueue.h + 28, posWithQueue.x-14, posWithQueue.y-15);
 	}
 }
 

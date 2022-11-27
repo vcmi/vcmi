@@ -341,7 +341,7 @@ void CBattleSiegeController::stackIsCatapulting(const CatapultAttack & ca)
 		//no attacker stack, assume spell-related (earthquake) - only hit animation
 		for (auto attackInfo : ca.attackedParts)
 		{
-			Point destPos = CClickableHex::getXYUnitAnim(attackInfo.destinationTile, nullptr, owner) + Point(99, 120);
+			Point destPos = owner->stacksController->getStackPositionAtHex(attackInfo.destinationTile, nullptr) + Point(99, 120);
 
 			owner->stacksController->addNewAnim(new CEffectAnimation(owner, "SGEXPL.DEF", destPos.x, destPos.y));
 		}

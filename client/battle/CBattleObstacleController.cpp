@@ -130,7 +130,7 @@ void CBattleObstacleController::showBattlefieldObjects(std::shared_ptr<CCanvas> 
 		if (obstacle->obstacleType == CObstacleInstance::ABSOLUTE_OBSTACLE)
 			continue;
 
-		if (obstacle->obstacleType != CObstacleInstance::MOAT)
+		if (obstacle->obstacleType == CObstacleInstance::MOAT)
 			continue;
 
 		if ( obstacle->pos != location)

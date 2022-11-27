@@ -57,8 +57,12 @@ public:
 	// unlike activate/deactivate this method will correctly grey-out all elements
 	void blockUI(bool on);
 
+	void show(SDL_Surface * to) override;
+	void showAll(SDL_Surface * to) override;
+
 	void tacticPhaseStarted();
 	void tacticPhaseEnded();
 
-	CBattleControlPanel(CBattleInterface * owner);
+	CBattleControlPanel(CBattleInterface * owner, const Point & position);
 };
+

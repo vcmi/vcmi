@@ -13,7 +13,6 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CCreatureHandler.h"
 
-#include "../gui/SDL_Extensions.h"
 #include "../gui/CCanvas.h"
 
 static const SDL_Color creatureBlueBorder = { 0, 255, 255, 255 };

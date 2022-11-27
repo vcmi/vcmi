@@ -197,7 +197,8 @@ class ColorShifterAddMulExcept : public ColorShifterAddMul
 	SDL_Color ignored;
 public:
 	ColorShifterAddMulExcept(SDL_Color add, SDL_Color mul, SDL_Color ignored) :
-		ColorShifterAddMul(add, mul)
+		ColorShifterAddMul(add, mul),
+		ignored(ignored)
 	{}
 
 	SDL_Color shiftColor(SDL_Color input) const override
@@ -241,7 +242,6 @@ namespace CSDL_Ext
 	SDL_Surface * verticalFlip(SDL_Surface * toRot); //vertical flip
 	SDL_Surface * horizontalFlip(SDL_Surface * toRot); //horizontal flip
 	Uint32 SDL_GetPixel(SDL_Surface *surface, const int & x, const int & y, bool colorByte = false);
-	void alphaTransform(SDL_Surface * src); //adds transparency and shadows (partial handling only; see examples of using for details)
 	bool isTransparent(SDL_Surface * srf, int x, int y); //checks if surface is transparent at given position
 
 	Uint8 *getPxPtr(const SDL_Surface * const &srf, const int x, const int y);

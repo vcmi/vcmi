@@ -26,10 +26,11 @@
 #include "../../lib/CStack.h"
 #include "../../lib/CConfigHandler.h"
 
-CBattleControlPanel::CBattleControlPanel(CBattleInterface * owner):
+CBattleControlPanel::CBattleControlPanel(CBattleInterface * owner, const Point & position):
 	owner(owner)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	pos += position;
 
 	//preparing buttons and console
 	bOptions = std::make_shared<CButton>    (Point(  3,  5), "icm003.def", CGI->generaltexth->zelp[381], std::bind(&CBattleControlPanel::bOptionsf,this), SDLK_o);
@@ -55,6 +56,21 @@ CBattleControlPanel::CBattleControlPanel(CBattleInterface * owner):
 		tacticPhaseEnded();
 }
 
+void CBattleControlPanel::show(SDL_Surface * to)
+{
+	//show menu before all other elements to keep it in background
+	menu->show(to);
+	CIntObject::show(to);
+}
+
+void CBattleControlPanel::showAll(SDL_Surface * to)
+{
+	//show menu before all other elements to keep it in background
+	menu->showAll(to);
+	CIntObject::showAll(to);
+}
+
+
 void CBattleControlPanel::tacticPhaseStarted()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
@@ -63,6 +79,7 @@ void CBattleControlPanel::tacticPhaseStarted()
 	btactEnd = std::make_shared<CButton>(Point(419,  4), "icm012.def", std::make_pair("", ""),  [&](){ bTacticPhaseEnd();}, SDLK_RETURN);
 	menu = std::make_shared<CPicture>("COPLACBR.BMP", 0, 0);
 	menu->colorize(owner->curInt->playerID);
+	menu->recActions &= ~(SHOWALL | UPDATE);
 }
 void CBattleControlPanel::tacticPhaseEnded()
 {
@@ -73,6 +90,7 @@ void CBattleControlPanel::tacticPhaseEnded()
 
 	menu = std::make_shared<CPicture>("CBAR.BMP", 0, 0);
 	menu->colorize(owner->curInt->playerID);
+	menu->recActions &= ~(SHOWALL | UPDATE);
 }
 
 void CBattleControlPanel::bOptionsf()
@@ -82,9 +100,7 @@ void CBattleControlPanel::bOptionsf()
 
 	CCS->curh->changeGraphic(ECursor::ADVENTURE,0);
 
-	Rect tempRect = genRect(431, 481, 160, 84);
-	tempRect += pos.topLeft();
-	GH.pushIntT<CBattleOptionsWindow>(tempRect, owner);
+	GH.pushIntT<CBattleOptionsWindow>(owner);
 }
 
 void CBattleControlPanel::bSurrenderf()

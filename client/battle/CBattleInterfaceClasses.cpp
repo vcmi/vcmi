@@ -26,7 +26,6 @@
 #include "../gui/CAnimation.h"
 #include "../gui/CCursorHandler.h"
 #include "../gui/CGuiHandler.h"
-#include "../gui/SDL_Extensions.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/Images.h"
 #include "../widgets/TextControls.h"
@@ -317,13 +316,10 @@ CHeroInfoWindow::CHeroInfoWindow(const InfoAboutHero & hero, Point * position)
 	labels.push_back(std::make_shared<CLabel>(39, 186, EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, std::to_string(currentSpellPoints) + "/" + std::to_string(maxSpellPoints)));
 }
 
-CBattleOptionsWindow::CBattleOptionsWindow(const SDL_Rect & position, CBattleInterface *owner)
+CBattleOptionsWindow::CBattleOptionsWindow(CBattleInterface *owner):
+	CWindowObject(PLAYER_COLORED, "comopbck.bmp")
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
-	pos = position;
-
-	background = std::make_shared<CPicture>("comopbck.bmp");
-	background->colorize(owner->getCurrentPlayerInterface()->playerID);
 
 	auto viewGrid = std::make_shared<CToggleButton>(Point(25, 56), "sysopchk.def", CGI->generaltexth->zelp[427], [=](bool on){owner->setPrintCellBorders(on);} );
 	viewGrid->setSelected(settings["battle"]["cellBorders"].Bool());
@@ -575,46 +571,6 @@ void CBattleResultWindow::bExitf()
 	//so we can be sure that there is no dialogs left on GUI stack.
 	intTmp.showingDialog->setn(false);
 	CCS->videoh->close();
-}
-
-Point CClickableHex::getXYUnitAnim(BattleHex hexNum, const CStack * stack, CBattleInterface * cbi)
-{
-	assert(cbi);
-
-	Point ret(-500, -500); //returned value
-	if(stack && stack->initialPosition < 0) //creatures in turrets
-		return cbi->siegeController->getTurretCreaturePosition(stack->initialPosition);
-
-	static const Point basePos(-190, -139); // position of creature in topleft corner
-	static const int imageShiftX = 30; // X offset to base pos for facing right stacks, negative for facing left
-
-	ret.x = basePos.x + 22 * ( (hexNum.getY() + 1)%2 ) + 44 * hexNum.getX();
-	ret.y = basePos.y + 42 * hexNum.getY();
-
-	if (stack)
-	{
-		if(cbi->stacksController->facingRight(stack))
-			ret.x += imageShiftX;
-		else
-			ret.x -= imageShiftX;
-
-		//shifting position for double - hex creatures
-		if(stack->doubleWide())
-		{
-			if(stack->side == BattleSide::ATTACKER)
-			{
-				if(cbi->stacksController->facingRight(stack))
-					ret.x -= 44;
-			}
-			else
-			{
-				if(!cbi->stacksController->facingRight(stack))
-					ret.x += 44;
-			}
-		}
-	}
-	//returning
-	return ret + CPlayerInterface::battleInt->pos;
 }
 
 void CClickableHex::hover(bool on)

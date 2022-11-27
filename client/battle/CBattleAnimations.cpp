@@ -28,7 +28,6 @@
 #include "../gui/CAnimation.h"
 #include "../gui/CCursorHandler.h"
 #include "../gui/CGuiHandler.h"
-#include "../gui/SDL_Extensions.h"
 
 #include "../../CCallback.h"
 #include "../../lib/CStack.h"
@@ -488,8 +487,8 @@ bool CMovementAnimation::init()
 		owner->moveSoundHander = CCS->soundh->playSound(battle_sound(stack->getCreature(), move), -1);
 	}
 
-	Point begPosition = CClickableHex::getXYUnitAnim(oldPos, stack, owner);
-	Point endPosition = CClickableHex::getXYUnitAnim(nextHex, stack, owner);
+	Point begPosition = owner->stacksController->getStackPositionAtHex(oldPos, stack);
+	Point endPosition = owner->stacksController->getStackPositionAtHex(nextHex, stack);
 
 	timeToMove = AnimationControls::getMovementDuration(stack->getCreature());
 
@@ -522,7 +521,7 @@ void CMovementAnimation::nextFrame()
 	if(progress >= 1.0)
 	{
 		// Sets the position of the creature animation sprites
-		Point coords = CClickableHex::getXYUnitAnim(nextHex, stack, owner);
+		Point coords = owner->stacksController->getStackPositionAtHex(nextHex, stack);
 		myAnim->pos = coords;
 
 		// true if creature haven't reached the final destination hex
@@ -552,7 +551,7 @@ void CMovementAnimation::endAnim()
 {
 	assert(stack);
 
-	myAnim->pos = CClickableHex::getXYUnitAnim(nextHex, stack, owner);
+	myAnim->pos = owner->stacksController->getStackPositionAtHex(nextHex, stack);
 	CBattleAnimation::endAnim();
 
 	owner->stacksController->addNewAnim(new CMovementEndAnimation(owner, stack, nextHex));
@@ -692,7 +691,7 @@ void CBattleStackAnimation::rotateStack(BattleHex hex)
 {
 	setStackFacingRight(stack, !stackFacingRight(stack));
 
-	stackAnimation(stack)->pos = CClickableHex::getXYUnitAnim(hex, stack, owner);
+	stackAnimation(stack)->pos = owner->stacksController->getStackPositionAtHex(hex, stack);
 }
 
 void CReverseAnimation::setupSecondPart()
@@ -761,7 +760,7 @@ bool CShootingAnimation::init()
 void CShootingAnimation::setAnimationGroup()
 {
 	Point shooterPos = stackAnimation(attackingStack)->pos.topLeft();
-	Point shotTarget = CClickableHex::getXYUnitAnim(dest, attackedStack, owner) + Point(225, 225);
+	Point shotTarget = owner->stacksController->getStackPositionAtHex(dest, attackedStack) + Point(225, 225);
 
 	//maximal angle in radians between straight horizontal line and shooting line for which shot is considered to be straight (absoulte value)
 	static const double straightAngle = 0.2;
@@ -784,7 +783,7 @@ void CShootingAnimation::initializeProjectile()
 	if(shooterInfo->idNumber == CreatureID::ARROW_TOWERS)
 		shooterInfo = owner->siegeController->getTurretCreature();
 
-	Point shotTarget = CClickableHex::getXYUnitAnim(dest, attackedStack, owner) + Point(225, 225);
+	Point shotTarget = owner->stacksController->getStackPositionAtHex(dest, attackedStack) + Point(225, 225);
 	Point shotOrigin = stackAnimation(attackingStack)->pos.topLeft() + Point(222, 265);
 	int multiplier = stackFacingRight(attackingStack) ? 1 : -1;
 
@@ -922,9 +921,9 @@ bool CCastAnimation::init()
 
 	// NOTE: two lines below return different positions (very notable with 2-hex creatures). Obtaining via creanims seems to be more precise
 	fromPos = stackAnimation(attackingStack)->pos.topLeft();
-	//xycoord = CClickableHex::getXYUnitAnim(shooter->getPosition(), true, shooter, owner);
+	//xycoord = owner->stacksController->getStackPositionAtHex(shooter->getPosition(), shooter);
 
-	destPos = CClickableHex::getXYUnitAnim(dest, attackedStack, owner);
+	destPos = owner->stacksController->getStackPositionAtHex(dest, attackedStack);
 
 
 	double projectileAngle = atan2(fabs((double)destPos.y - fromPos.y), fabs((double)destPos.x - fromPos.x));

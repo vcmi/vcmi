@@ -29,7 +29,7 @@
 
 CBattleFieldController::CBattleFieldController(CBattleInterface * owner):
 	owner(owner),
-	attackingHex(-1)
+	attackingHex(BattleHex::INVALID)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	pos.w = owner->pos.w;
@@ -58,7 +58,14 @@ CBattleFieldController::CBattleFieldController(CBattleInterface * owner):
 	cellBorders = std::make_shared<CCanvas>(Point(background->width(), background->height()));
 
 	for (int i=0; i<GameConstants::BFIELD_SIZE; ++i)
+	{
+		if ( i % GameConstants::BFIELD_WIDTH == 0)
+			continue;
+		if ( i % GameConstants::BFIELD_WIDTH == GameConstants::BFIELD_WIDTH - 1)
+			continue;
+
 		cellBorders->draw(cellBorder, hexPositionLocal(i).topLeft());
+	}
 
 	backgroundWithHexes = std::make_shared<CCanvas>(Point(background->width(), background->height()));
 

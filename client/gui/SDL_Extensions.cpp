@@ -188,24 +188,6 @@ Uint32 CSDL_Ext::SDL_GetPixel(SDL_Surface *surface, const int & x, const int & y
 	}
 }
 
-void CSDL_Ext::alphaTransform(SDL_Surface *src)
-{
-	assert(src->format->BitsPerPixel == 8);
-	SDL_Color colors[] =
-	{
-		{  0,   0,  0,   0}, {  0,   0,   0,  32}, {  0,   0,   0,  64},
-		{  0,   0,  0, 128}, {  0,   0,   0, 128}
-	};
-
-
-	for (size_t i=0; i< ARRAY_COUNT(colors); i++ )
-	{
-		SDL_Color & palColor = src->format->palette->colors[i];
-		palColor = colors[i];
-	}
-	SDL_SetColorKey(src, SDL_TRUE, 0);
-}
-
 template<int bpp>
 int CSDL_Ext::blit8bppAlphaTo24bppT(const SDL_Surface * src, const SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect)
 {

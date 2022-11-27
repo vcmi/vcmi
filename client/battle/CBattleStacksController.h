@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "../gui/Geometries.h"
+
 struct BattleObjectsByHex;
 struct SDL_Surface;
 struct BattleHex;
@@ -88,6 +90,9 @@ public:
 
 	const CStack* getActiveStack();
 	const CStack* getSelectedStack();
+
+	/// returns position of animation needed to place stack in specific hex
+	Point getStackPositionAtHex(BattleHex hexNum, const CStack * creature);
 
 	friend class CBattleAnimation; // for exposing pendingAnims/creAnims/creDir to animations
 };

@@ -98,17 +98,16 @@ public:
 };
 
 /// Class which manages the battle options window
-class CBattleOptionsWindow : public WindowBase
+class CBattleOptionsWindow : public CWindowObject
 {
 private:
-	std::shared_ptr<CPicture> background;
 	std::shared_ptr<CButton> setToDefault;
 	std::shared_ptr<CButton> exit;
 	std::shared_ptr<CToggleGroup> animSpeeds;
 	std::vector<std::shared_ptr<CLabel>> labels;
 	std::vector<std::shared_ptr<CToggleButton>> toggles;
 public:
-	CBattleOptionsWindow(const SDL_Rect & position, CBattleInterface * owner);
+	CBattleOptionsWindow(CBattleInterface * owner);
 
 	void bDefaultf(); //default button callback
 	void bExitf(); //exit button callback
@@ -145,11 +144,6 @@ public:
 	//CStack * ourStack;
 	bool strictHovered; //for determining if hex is hovered by mouse (this is different problem than hex's graphic hovering)
 	CBattleInterface * myInterface; //interface that owns me
-
-	/// returns (x, y) of left top corner of animation
-	/// FIXME: move someplace else?
-	/// FIXME: some usages should be replaced with creAnims->pos?
-	static Point getXYUnitAnim(BattleHex hexNum, const CStack * creature, CBattleInterface * cbi);
 
 	//for user interactions
 	void hover (bool on) override;

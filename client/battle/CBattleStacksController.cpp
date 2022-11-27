@@ -18,7 +18,6 @@
 #include "CBattleProjectileController.h"
 #include "CBattleControlPanel.h"
 #include "../gui/CAnimation.h"
-#include "../gui/SDL_Extensions.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/CCanvas.h"
 #include "../../lib/battle/BattleHex.h"
@@ -58,7 +57,14 @@ static void onAnimationFinished(const CStack *stack, std::weak_ptr<CCreatureAnim
 }
 
 CBattleStacksController::CBattleStacksController(CBattleInterface * owner):
-	owner(owner)
+	owner(owner),
+	activeStack(nullptr),
+	mouseHoveredStack(nullptr),
+	stackToActivate(nullptr),
+	selectedStack(nullptr),
+	stackCanCastSpell(false),
+	creatureSpellToCast(uint32_t(-1)),
+	animIDhelper(0)
 {
 	//preparing graphics for displaying amounts of creatures
 	amountNormal     = IImage::createFromFile("CMNUMWIN.BMP");
@@ -66,10 +72,10 @@ CBattleStacksController::CBattleStacksController(CBattleInterface * owner):
 	amountNegative   = IImage::createFromFile("CMNUMWIN.BMP");
 	amountEffNeutral = IImage::createFromFile("CMNUMWIN.BMP");
 
-	ColorShifterAddMulExcept shifterNormal  ({0,0,0,0}, {150,  48, 237, 255}, {132, 231, 255, 255});
-	ColorShifterAddMulExcept shifterPositive({0,0,0,0}, { 45, 255,  45, 255}, {132, 231, 255, 255});
-	ColorShifterAddMulExcept shifterNegative({0,0,0,0}, {255,  45,  45, 255}, {132, 231, 255, 255});
-	ColorShifterAddMulExcept shifterNeutral ({0,0,0,0}, {255, 255,  45, 255}, {132, 231, 255, 255});
+	ColorShifterAddMulExcept shifterNormal  ({0,0,0,0}, {150,  50, 255, 255}, {255, 231, 132, 255});
+	ColorShifterAddMulExcept shifterPositive({0,0,0,0}, { 50, 255,  50, 255}, {255, 231, 132, 255});
+	ColorShifterAddMulExcept shifterNegative({0,0,0,0}, {255,  50,  50, 255}, {255, 231, 132, 255});
+	ColorShifterAddMulExcept shifterNeutral ({0,0,0,0}, {255, 255,  50, 255}, {255, 231, 132, 255});
 
 	amountNormal->adjustPalette(&shifterNormal);
 	amountPositive->adjustPalette(&shifterPositive);
@@ -119,8 +125,8 @@ void CBattleStacksController::showBattlefieldObjects(std::shared_ptr<CCanvas> ca
 		if (creAnims[stack->ID]->isDead())
 		{
 			//if ( location == stack->getPosition() )
-			if ( location == BattleHex::HEX_BEFORE_ALL ) //FIXME: any cases when this won't work?
-			{};
+			if ( location == BattleHex::HEX_BEFORE_ALL ) //FIXME: any cases when using BEFORE_ALL won't work?
+				showStack(canvas, stack);
 			continue;
 		}
 
@@ -128,7 +134,7 @@ void CBattleStacksController::showBattlefieldObjects(std::shared_ptr<CCanvas> ca
 		if (!creAnims[stack->ID]->isMoving())
 		{
 			if ( location == stack->getPosition() )
-			{};
+				showStack(canvas, stack);
 			continue;
 		}
 
@@ -136,14 +142,14 @@ void CBattleStacksController::showBattlefieldObjects(std::shared_ptr<CCanvas> ca
 		if (stack->hasBonusOfType(Bonus::FLYING))
 		{
 			if ( location == BattleHex::HEX_AFTER_ALL)
-			{};
+				showStack(canvas, stack);
 			continue;
 		}
 
 		// else - unit moving on ground
 		{
 			if ( location == getCurrentPosition(stack) )
-			{};
+				showStack(canvas, stack);
 			continue;
 		}
 	}
@@ -177,7 +183,7 @@ void CBattleStacksController::stackAdded(const CStack * stack)
 {
 	creDir[stack->ID] = stack->side == BattleSide::ATTACKER; // must be set before getting stack position
 
-	Point coords = CClickableHex::getXYUnitAnim(stack->getPosition(), stack, owner);
+	Point coords = getStackPositionAtHex(stack->getPosition(), stack);
 
 	if(stack->initialPosition < 0) //turret
 	{
@@ -396,7 +402,7 @@ void CBattleStacksController::stackRemoved(uint32_t stackID)
 			BattleAction *action = new BattleAction();
 			action->side = owner->defendingHeroInstance ? (owner->curInt->playerID == owner->defendingHeroInstance->tempOwner) : false;
 			action->actionType = EActionType::CANCEL;
-			action->stackNumber = owner->stacksController->getActiveStack()->ID;
+			action->stackNumber = getActiveStack()->ID;
 			owner->givenCommand.setn(action);
 			setActiveStack(nullptr);
 		}
@@ -448,8 +454,8 @@ void CBattleStacksController::stackAttacking( const CStack *attacker, BattleHex 
 
 bool CBattleStacksController::shouldRotate(const CStack * stack, const BattleHex & oldPos, const BattleHex & nextHex)
 {
-	Point begPosition = CClickableHex::getXYUnitAnim(oldPos,stack, owner);
-	Point endPosition = CClickableHex::getXYUnitAnim(nextHex, stack, owner);
+	Point begPosition = getStackPositionAtHex(oldPos,stack);
+	Point endPosition = getStackPositionAtHex(nextHex, stack);
 
 	if((begPosition.x > endPosition.x) && facingRight(stack))
 		return true;
@@ -510,7 +516,7 @@ void CBattleStacksController::activateStack()
 	setActiveStack(stackToActivate);
 	stackToActivate = nullptr;
 
-	const CStack * s = owner->stacksController->getActiveStack();
+	const CStack * s = getActiveStack();
 	if(!s)
 		return;
 
@@ -564,4 +570,43 @@ SpellID CBattleStacksController::activeStackSpellToCast()
 	if (!stackCanCastSpell)
 		return SpellID::NONE;
 	return SpellID(creatureSpellToCast);
+}
+
+Point CBattleStacksController::getStackPositionAtHex(BattleHex hexNum, const CStack * stack)
+{
+	Point ret(-500, -500); //returned value
+	if(stack && stack->initialPosition < 0) //creatures in turrets
+		return owner->siegeController->getTurretCreaturePosition(stack->initialPosition);
+
+	static const Point basePos(-190, -139); // position of creature in topleft corner
+	static const int imageShiftX = 30; // X offset to base pos for facing right stacks, negative for facing left
+
+	ret.x = basePos.x + 22 * ( (hexNum.getY() + 1)%2 ) + 44 * hexNum.getX();
+	ret.y = basePos.y + 42 * hexNum.getY();
+
+	if (stack)
+	{
+		if(facingRight(stack))
+			ret.x += imageShiftX;
+		else
+			ret.x -= imageShiftX;
+
+		//shifting position for double - hex creatures
+		if(stack->doubleWide())
+		{
+			if(stack->side == BattleSide::ATTACKER)
+			{
+				if(facingRight(stack))
+					ret.x -= 44;
+			}
+			else
+			{
+				if(!facingRight(stack))
+					ret.x += 44;
+			}
+		}
+	}
+	//returning
+	return ret + owner->pos.topLeft();
+
 }
