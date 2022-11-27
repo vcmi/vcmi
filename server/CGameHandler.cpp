@@ -4031,13 +4031,15 @@ bool CGameHandler::assembleArtifacts (ObjectInstanceID heroID, ArtifactPosition 
 	if (!destArtifact)
 		COMPLAIN_RET("assembleArtifacts: there is no such artifact instance!");
 
-	if (assemble)
+	if(assemble)
 	{
 		CArtifact *combinedArt = VLC->arth->objects[assembleTo];
-		if (!combinedArt->constituents)
+		if(!combinedArt->constituents)
 			COMPLAIN_RET("assembleArtifacts: Artifact being attempted to assemble is not a combined artifacts!");
-		if (!vstd::contains(destArtifact->assemblyPossibilities(hero), combinedArt))
+		bool combineEquipped = !ArtifactUtils::isSlotBackpack(artifactSlot);
+		if(!vstd::contains(destArtifact->assemblyPossibilities(hero, combineEquipped), combinedArt))
 			COMPLAIN_RET("assembleArtifacts: It's impossible to assemble requested artifact!");
+
 		
 		if(ArtifactUtils::checkSpellbookIsNeeded(hero, assembleTo, artifactSlot))
 			giveHeroNewArtifact(hero, VLC->arth->objects[ArtifactID::SPELLBOOK], ArtifactPosition::SPELLBOOK);
