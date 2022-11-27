@@ -134,9 +134,9 @@ void CAttackAnimation::nextFrame()
 	if(!soundPlayed)
 	{
 		if(shooting)
-			CCS->soundh->playSound(battle_sound(attackingStack->getCreature(), shoot));
+			CCS->soundh->playSound(battle_sound(getCreature(), shoot));
 		else
-			CCS->soundh->playSound(battle_sound(attackingStack->getCreature(), attack));
+			CCS->soundh->playSound(battle_sound(getCreature(), attack));
 		soundPlayed = true;
 	}
 	CBattleAnimation::nextFrame();
@@ -162,6 +162,14 @@ bool CAttackAnimation::checkInitialConditions()
 		}
 	}
 	return isEarliest(false);
+}
+
+const CCreature * CAttackAnimation::getCreature()
+{
+	if (attackingStack->getCreature()->idNumber == CreatureID::ARROW_TOWERS)
+		return owner->siegeController->getTurretCreature();
+	else
+		return attackingStack->getCreature();
 }
 
 CAttackAnimation::CAttackAnimation(CBattleInterface *_owner, const CStack *attacker, BattleHex _dest, const CStack *defender)
@@ -767,7 +775,7 @@ void CShootingAnimation::setAnimationGroup()
 	//maximal angle in radians between straight horizontal line and shooting line for which shot is considered to be straight (absoulte value)
 	static const double straightAngle = 0.2;
 
-	double projectileAngle = atan2(shotTarget.y - shooterPos.y, std::abs(shotTarget.x - shooterPos.x));
+	double projectileAngle = -atan2(shotTarget.y - shooterPos.y, std::abs(shotTarget.x - shooterPos.x));
 
 	// Calculate projectile start position. Offsets are read out of the CRANIM.TXT.
 	if (projectileAngle > straightAngle)
@@ -780,11 +788,7 @@ void CShootingAnimation::setAnimationGroup()
 
 void CShootingAnimation::initializeProjectile()
 {
-	const CCreature *shooterInfo = attackingStack->getCreature();
-
-	if(shooterInfo->idNumber == CreatureID::ARROW_TOWERS)
-		shooterInfo = owner->siegeController->getTurretCreature();
-
+	const CCreature *shooterInfo = getCreature();
 	Point shotTarget = owner->stacksController->getStackPositionAtHex(dest, attackedStack) + Point(225, 225);
 	Point shotOrigin = stackAnimation(attackingStack)->pos.topLeft() + Point(222, 265);
 	int multiplier = stackFacingRight(attackingStack) ? 1 : -1;
@@ -828,12 +832,25 @@ void CShootingAnimation::nextFrame()
 			return;
 	}
 
+	// animation should be paused if there is an active projectile
+	if (projectileEmitted)
+	{
+		if (owner->projectilesController->hasActiveProjectile(attackingStack))
+		{
+			stackAnimation(attackingStack)->pause();
+			return;
+		}
+		else
+			stackAnimation(attackingStack)->play();
+	}
+
+	CAttackAnimation::nextFrame();
+
 	if (!projectileEmitted)
 	{
-		const CCreature *shooterInfo = attackingStack->getCreature();
+		const CCreature *shooterInfo = getCreature();
 
-		if(shooterInfo->idNumber == CreatureID::ARROW_TOWERS)
-			shooterInfo = owner->siegeController->getTurretCreature();
+		assert(stackAnimation(attackingStack)->isShooting());
 
 		// emit projectile once animation playback reached "climax" frame
 		if ( stackAnimation(attackingStack)->getCurrentFrame() >= shooterInfo->animation.attackClimaxFrame )
@@ -842,17 +859,13 @@ void CShootingAnimation::nextFrame()
 			return;
 		}
 	}
-
-	// animation should be paused if there is an active projectile
-	if (projectileEmitted && owner->projectilesController->hasActiveProjectile(attackingStack))
-		return;
-
-
-	CAttackAnimation::nextFrame();
 }
 
 void CShootingAnimation::endAnim()
 {
+	assert(!owner->projectilesController->hasActiveProjectile(attackingStack));
+	assert(projectileEmitted);
+
 	// FIXME: is this possible? Animation is over but we're yet to fire projectile?
 	if (!projectileEmitted)
 	{
@@ -1157,11 +1170,15 @@ void CEffectAnimation::endAnim()
 {
 	CBattleAnimation::endAnim();
 
-	boost::range::remove_if(owner->effectsController->battleEffects,
-		[&](const BattleEffect & elem)
-		{
-			return elem.effectID == ID;
-		});
+	auto & effects = owner->effectsController->battleEffects;
+
+	for ( auto it = effects.begin(); it != effects.end(); )
+	{
+		if (it->effectID == ID)
+			it = effects.erase(it);
+		else
+			it++;
+	}
 
 	delete this;
 }

@@ -246,7 +246,7 @@ bool CBattleProjectileController::hasActiveProjectile(const CStack * stack)
 
 void CBattleProjectileController::createProjectile(const CStack * shooter, const CStack * target, Point from, Point dest)
 {
-	const CCreature *shooterInfo = shooter->getCreature();
+	const CCreature *shooterInfo = getShooter(shooter);
 
 	std::shared_ptr<ProjectileBase> projectile;
 
@@ -262,8 +262,8 @@ void CBattleProjectileController::createProjectile(const CStack * shooter, const
 		catapultProjectile->step = 0;
 		catapultProjectile->steps = 0;
 
-		double animSpeed = AnimationControls::getProjectileSpeed() / 10;
-		catapultProjectile->steps = std::round(std::abs((dest.x - from.x) / animSpeed));
+		//double animSpeed = AnimationControls::getProjectileSpeed() / 10;
+		//catapultProjectile->steps = std::round(std::abs((dest.x - from.x) / animSpeed));
 	}
 	else
 	{
@@ -312,15 +312,17 @@ void CBattleProjectileController::createProjectile(const CStack * shooter, const
 			}
 			missileProjectile->frameNum = bestID;
 		}
-
-		double animSpeed = AnimationControls::getProjectileSpeed(); // flight speed of projectile
-		double distanceSquared = (dest.x - from.x) * (dest.x - from.x) + (dest.y - from.y) * (dest.y - from.y);
-		double distance = sqrt(distanceSquared);
-		projectile->steps = std::round(distance / animSpeed);
-		if(projectile->steps == 0)
-			projectile->steps = 1;
-
 	}
+
+	double animSpeed = AnimationControls::getProjectileSpeed(); // flight speed of projectile
+	if (!target)
+		animSpeed *= 0.2; // catapult attack needs slower speed
+
+	double distanceSquared = (dest.x - from.x) * (dest.x - from.x) + (dest.y - from.y) * (dest.y - from.y);
+	double distance = sqrt(distanceSquared);
+	projectile->steps = std::round(distance / animSpeed);
+	if(projectile->steps == 0)
+		projectile->steps = 1;
 
 	projectile->from     = from;
 	projectile->dest     = dest;

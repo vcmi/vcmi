@@ -106,7 +106,9 @@ void CBattleFieldController::redrawBackgroundWithHexes()
 
 	//prepare background graphic with hexes and shaded hexes
 	backgroundWithHexes->draw(background, Point(0,0));
-	owner->obstacleController->redrawBackgroundWithHexes(backgroundWithHexes);
+	owner->obstacleController->showAbsoluteObstacles(backgroundWithHexes, Point(0,0));
+	if ( owner->siegeController )
+		owner->siegeController->showAbsoluteObstacles(backgroundWithHexes, Point(0,0));
 
 	if (settings["battle"]["stackRange"].Bool())
 	{

@@ -927,9 +927,9 @@ void CBattleInterface::show(SDL_Surface *to)
 	else
 	{
 		fieldController->showBackgroundImage(canvas);
-		obstacleController->showAbsoluteObstacles(canvas);
+		obstacleController->showAbsoluteObstacles(canvas, pos.topLeft());
 		if ( siegeController )
-			siegeController->showAbsoluteObstacles(canvas);
+			siegeController->showAbsoluteObstacles(canvas, pos.topLeft());
 	}
 	fieldController->showHighlightedHexes(canvas);
 

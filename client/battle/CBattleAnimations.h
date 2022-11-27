@@ -73,6 +73,8 @@ protected:
 	const CStack *attackedStack;
 	const CStack *attackingStack;
 	int attackingStackPosBeforeReturn; //for stacks with return_after_strike feature
+
+	const CCreature * getCreature();
 public:
 	void nextFrame() override;
 	void endAnim() override;

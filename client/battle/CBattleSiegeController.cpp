@@ -104,12 +104,13 @@ std::string CBattleSiegeController::getWallPieceImageName(EWallVisual::EWallVisu
 	}
 }
 
-void CBattleSiegeController::showWallPiece(std::shared_ptr<CCanvas> canvas, EWallVisual::EWallVisual what)
+void CBattleSiegeController::showWallPiece(std::shared_ptr<CCanvas> canvas, EWallVisual::EWallVisual what, const Point & offset)
 {
 	auto & ci = town->town->clientInfo;
 	auto const & pos = ci.siegePositions[what];
 
-	canvas->draw(wallPieceImages[what], owner->pos.topLeft() + Point(pos.x, pos.y));
+	if ( wallPieceImages[what])
+		canvas->draw(wallPieceImages[what], offset + Point(pos.x, pos.y));
 }
 
 std::string CBattleSiegeController::getBattleBackgroundName() const
@@ -250,13 +251,13 @@ void CBattleSiegeController::gateStateChanged(const EGateState state)
 		CCS->soundh->playSound(soundBase::DRAWBRG);
 }
 
-void CBattleSiegeController::showAbsoluteObstacles(std::shared_ptr<CCanvas> canvas)
+void CBattleSiegeController::showAbsoluteObstacles(std::shared_ptr<CCanvas> canvas, const Point & offset)
 {
 	if (getWallPieceExistance(EWallVisual::MOAT))
-		showWallPiece(canvas, EWallVisual::MOAT);
+		showWallPiece(canvas, EWallVisual::MOAT, owner->pos.topLeft());
 
 	if (getWallPieceExistance(EWallVisual::BACKGROUND_MOAT))
-		showWallPiece(canvas, EWallVisual::BACKGROUND_MOAT);
+		showWallPiece(canvas, EWallVisual::BACKGROUND_MOAT, owner->pos.topLeft());
 }
 
 void CBattleSiegeController::showBattlefieldObjects(std::shared_ptr<CCanvas> canvas, const BattleHex & location )
@@ -275,7 +276,7 @@ void CBattleSiegeController::showBattlefieldObjects(std::shared_ptr<CCanvas> can
 			wallPiece != EWallVisual::BOTTOM_BATTLEMENT &&
 			wallPiece != EWallVisual::UPPER_BATTLEMENT)
 		{
-			showWallPiece(canvas, wallPiece);
+			showWallPiece(canvas, wallPiece, owner->pos.topLeft());
 			continue;
 		}
 
@@ -308,7 +309,7 @@ void CBattleSiegeController::showBattlefieldObjects(std::shared_ptr<CCanvas> can
 		if (turret)
 		{
 			owner->stacksController->showStack(canvas, turret);
-			showWallPiece(canvas, wallPiece);
+			showWallPiece(canvas, wallPiece, owner->pos.topLeft());
 		}
 	}
 }

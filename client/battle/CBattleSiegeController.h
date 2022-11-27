@@ -78,7 +78,7 @@ class CBattleSiegeController
 	/// returns true if chosen wall piece should be present in current battle
 	bool getWallPieceExistance(EWallVisual::EWallVisual what) const;
 
-	void showWallPiece(std::shared_ptr<CCanvas> canvas, EWallVisual::EWallVisual what);
+	void showWallPiece(std::shared_ptr<CCanvas> canvas, EWallVisual::EWallVisual what, const Point & offset);
 
 public:
 	CBattleSiegeController(CBattleInterface * owner, const CGTownInstance *siegeTown);
@@ -88,7 +88,7 @@ public:
 	void stackIsCatapulting(const CatapultAttack & ca);
 
 	/// call-ins from other battle controllers
-	void showAbsoluteObstacles(std::shared_ptr<CCanvas> canvas);
+	void showAbsoluteObstacles(std::shared_ptr<CCanvas> canvas, const Point & offset);
 	void showBattlefieldObjects(std::shared_ptr<CCanvas> canvas, const BattleHex & location );
 
 	/// queries from other battle controllers
