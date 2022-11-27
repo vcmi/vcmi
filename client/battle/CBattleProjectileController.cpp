@@ -78,15 +78,6 @@ void ProjectileCatapult::show(std::shared_ptr<CCanvas> canvas)
 		canvas->draw(image, pos);
 
 		frameNum = (frameNum + 1) % animation->size(0);
-
-		if (step == steps)
-		{
-			//TODO: re-enable. Move to ShootingAnimation? What about spells?
-			// last step - explosion effect
-			//Point explosion_pos = pos + image->dimensions() / 2 - Point(126, 105);
-
-			//owner->addNewAnim( new CEffectAnimation(owner, catapultDamage ? "SGEXPL.DEF" : "CSGRCK.DEF", animPos.x, animPos.y));
-		}
 	}
 	++step;
 }

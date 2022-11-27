@@ -210,11 +210,13 @@ class CShootingAnimation : public CRangedAttackAnimation
 {
 private:
 	bool projectileEmitted;
+	bool explosionEmitted;
 	int catapultDamage;
 
 	void setAnimationGroup();
 	void initializeProjectile();
 	void emitProjectile();
+	void emitExplosion();
 public:
 	bool init() override;
 	void nextFrame() override;

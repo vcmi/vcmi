@@ -731,7 +731,8 @@ CRangedAttackAnimation::CRangedAttackAnimation(CBattleInterface * owner_, const 
 CShootingAnimation::CShootingAnimation(CBattleInterface * _owner, const CStack * attacker, BattleHex _dest, const CStack * _attacked, bool _catapult, int _catapultDmg)
 	: CRangedAttackAnimation(_owner, attacker, _dest, _attacked),
 	catapultDamage(_catapultDmg),
-	projectileEmitted(false)
+	projectileEmitted(false),
+	explosionEmitted(false)
 {
 	logAnim->debug("Created shooting anim for %s", stack->getName());
 }
@@ -841,7 +842,10 @@ void CShootingAnimation::nextFrame()
 			return;
 		}
 		else
+		{
 			stackAnimation(attackingStack)->play();
+			emitExplosion();
+		}
 	}
 
 	CAttackAnimation::nextFrame();
@@ -861,6 +865,30 @@ void CShootingAnimation::nextFrame()
 	}
 }
 
+void CShootingAnimation::emitExplosion()
+{
+	if (attackedStack)
+		return;
+
+	if (explosionEmitted)
+		return;
+
+	explosionEmitted = true;
+
+	Point shotTarget = owner->stacksController->getStackPositionAtHex(dest, attackedStack) + Point(225, 225) - Point(126, 105);
+
+	owner->stacksController->addNewAnim( new CEffectAnimation(owner, catapultDamage ? "SGEXPL.DEF" : "CSGRCK.DEF", shotTarget.x, shotTarget.y));
+
+	if(catapultDamage > 0)
+	{
+		CCS->soundh->playSound("WALLHIT");
+	}
+	else
+	{
+		CCS->soundh->playSound("WALLMISS");
+	}
+}
+
 void CShootingAnimation::endAnim()
 {
 	assert(!owner->projectilesController->hasActiveProjectile(attackingStack));
@@ -872,20 +900,6 @@ void CShootingAnimation::endAnim()
 		logAnim->warn("Shooting animation has finished but projectile was not emitted! Emitting it now...");
 		emitProjectile();
 	}
-
-	// play wall hit/miss sound for catapult attack
-	if(!attackedStack)
-	{
-		if(catapultDamage > 0)
-		{
-			CCS->soundh->playSound("WALLHIT");
-		}
-		else
-		{
-			CCS->soundh->playSound("WALLMISS");
-		}
-	}
-
 	CAttackAnimation::endAnim();
 	delete this;
 }
