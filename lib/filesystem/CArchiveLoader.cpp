@@ -222,7 +222,7 @@ void CArchiveLoader::extractToFolder(const std::string & outputSubFolder, CInput
 	// writeToOutputFile
 	std::ofstream out(extractedFilePath.string(), std::ofstream::binary);
 	out.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-	out.write((char*)&data[0], entry.fullSize);
+	out.write((char*)data.data(), entry.fullSize);
 
 	fileStream.seek(currentPosition); // restore filestream position
 }
