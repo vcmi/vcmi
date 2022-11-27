@@ -919,20 +919,7 @@ void CBattleInterface::show(SDL_Surface *to)
 
 	++animCount;
 
-	if (stacksController->getActiveStack() != nullptr /*&& creAnims[stacksController->getActiveStack()->ID]->isIdle()*/) //show everything with range
-	{
-		// FIXME: any *real* reason to keep this separate? Speed difference can't be that big // TODO: move to showAll?
-		fieldController->showBackgroundImageWithHexes(canvas);
-	}
-	else
-	{
-		fieldController->showBackgroundImage(canvas);
-		obstacleController->showAbsoluteObstacles(canvas, pos.topLeft());
-		if ( siegeController )
-			siegeController->showAbsoluteObstacles(canvas, pos.topLeft());
-	}
-	fieldController->showHighlightedHexes(canvas);
-
+	fieldController->showBackground(canvas);
 	showBattlefieldObjects(canvas);
 	projectilesController->showProjectiles(canvas);
 

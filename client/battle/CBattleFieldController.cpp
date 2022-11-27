@@ -83,9 +83,24 @@ CBattleFieldController::CBattleFieldController(CBattleInterface * owner):
 		stackCountOutsideHexes[i] = (accessibility[i] == EAccessibility::ACCESSIBLE);
 }
 
+void CBattleFieldController::showBackground(std::shared_ptr<CCanvas> canvas)
+{
+	if (owner->stacksController->getActiveStack() != nullptr ) //&& creAnims[stacksController->getActiveStack()->ID]->isIdle() //show everything with range
+		showBackgroundImageWithHexes(canvas);
+	else
+		showBackgroundImage(canvas);
+
+	showHighlightedHexes(canvas);
+
+}
+
 void CBattleFieldController::showBackgroundImage(std::shared_ptr<CCanvas> canvas)
 {
 	canvas->draw(background, owner->pos.topLeft());
+
+	owner->obstacleController->showAbsoluteObstacles(canvas, pos.topLeft());
+	if ( owner->siegeController )
+		owner->siegeController->showAbsoluteObstacles(canvas, pos.topLeft());
 
 	if (settings["battle"]["cellBorders"].Bool())
 		canvas->draw(cellBorders, owner->pos.topLeft());

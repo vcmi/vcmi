@@ -147,7 +147,7 @@ BattleHex CBattleSiegeController::getWallPiecePosition(EWallVisual::EWallVisual 
 		78,
 		12,
 		BattleHex::HEX_BEFORE_ALL,
-		94,
+		BattleHex::HEX_BEFORE_ALL, //gates // 94,
 		112,
 		165,
 		45,

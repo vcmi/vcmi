@@ -48,15 +48,17 @@ class CBattleFieldController : public CIntObject
 
 	std::set<BattleHex> getHighlightedHexesStackRange();
 	std::set<BattleHex> getHighlightedHexesSpellRange();
-public:
-	CBattleFieldController(CBattleInterface * owner);
 
 	void showBackgroundImage(std::shared_ptr<CCanvas> canvas);
 	void showBackgroundImageWithHexes(std::shared_ptr<CCanvas> canvas);
+	void showHighlightedHexes(std::shared_ptr<CCanvas> canvas);
+
+public:
+	CBattleFieldController(CBattleInterface * owner);
+
+	void showBackground(std::shared_ptr<CCanvas> canvas);
 
 	void redrawBackgroundWithHexes();
-
-	void showHighlightedHexes(std::shared_ptr<CCanvas> canvas);
 
 	Rect hexPositionLocal(BattleHex hex) const;
 	Rect hexPosition(BattleHex hex) const;
