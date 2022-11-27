@@ -108,10 +108,14 @@ void MainWindow::parseCommandLine()
 
 	const QStringList positionalArgs = parser.positionalArguments();
 
-	if (!positionalArgs.isEmpty())
+	if(!positionalArgs.isEmpty())
 		mapFilePath = positionalArgs.at(0);
 
-	extractionOptions = {parser.isSet("e"), {parser.isSet("s"),	 parser.isSet("c"),	 parser.isSet("d")}};
+	extractionOptions = {
+		parser.isSet("e"), {
+			parser.isSet("s"),
+			parser.isSet("c"),
+			parser.isSet("d")}};
 }
 
 MainWindow::MainWindow(QWidget* parent) :
