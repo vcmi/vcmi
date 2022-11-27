@@ -296,13 +296,13 @@ void CCreatureAnimation::genBorderPalette(IImage::BorderPallete & target)
 	target[2] = addColors(genShadow(64),  genBorderColor(getBorderStrength(elapsedTime), border));
 }
 
-void CCreatureAnimation::nextFrame(std::shared_ptr<CCanvas> canvas, bool attacker)
+void CCreatureAnimation::nextFrame(std::shared_ptr<CCanvas> canvas, bool facingRight)
 {
 	size_t frame = static_cast<size_t>(floor(currentFrame));
 
 	std::shared_ptr<IImage> image;
 
-	if(attacker)
+	if(facingRight)
 		image = forward->getImage(frame, type);
 	else
 		image = reverse->getImage(frame, type);

@@ -31,6 +31,7 @@ struct ProjectileBase
 	int step;      // current step counter
 	int steps;     // total number of steps/frames to show
 	int shooterID; // ID of shooter stack
+	bool playing;  // if set to true, projectile animation is playing, e.g. flying to target
 };
 
 struct ProjectileMissile : ProjectileBase
@@ -82,8 +83,8 @@ public:
 	CBattleProjectileController(CBattleInterface * owner);
 
 	void showProjectiles(std::shared_ptr<CCanvas> canvas);
-	//void fireStackProjectile(const CStack * stack);
 
 	bool hasActiveProjectile(const CStack * stack);
+	void emitStackProjectile(const CStack * stack);
 	void createProjectile(const CStack * shooter, const CStack * target, Point from, Point dest);
 };

@@ -99,7 +99,7 @@ public:
 	void setType(CCreatureAnim::EAnimType type); //sets type of animation and cleares framecount
 	CCreatureAnim::EAnimType getType() const; //returns type of animation
 
-	void nextFrame(std::shared_ptr<CCanvas> canvas, bool attacker);
+	void nextFrame(std::shared_ptr<CCanvas> canvas, bool facingRight);
 
 	// should be called every frame, return true when animation was reset to beginning
 	bool incrementFrame(float timePassed);

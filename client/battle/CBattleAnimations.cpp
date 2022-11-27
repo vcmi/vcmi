@@ -736,6 +736,7 @@ bool CShootingAnimation::init()
 	if(!attackingStack || myAnim->isDead())
 	{
 		//FIXME: how is this possible?
+		logAnim->warn("Shooting animation has not started yet but attacker is dead! Aborting...");
 		endAnim();
 		return false;
 	}
@@ -753,6 +754,7 @@ bool CShootingAnimation::init()
 	//	return false;
 
 	setAnimationGroup();
+	initializeProjectile();
 	shooting = true;
 	return true;
 }
@@ -812,7 +814,7 @@ void CShootingAnimation::initializeProjectile()
 
 void CShootingAnimation::emitProjectile()
 {
-	//owner->projectilesController->fireStackProjectile(attackingStack);
+	owner->projectilesController->emitStackProjectile(attackingStack);
 	projectileEmitted = true;
 }
 
@@ -833,17 +835,17 @@ void CShootingAnimation::nextFrame()
 		if(shooterInfo->idNumber == CreatureID::ARROW_TOWERS)
 			shooterInfo = owner->siegeController->getTurretCreature();
 
-		// animation should be paused if there is an active projectile
+		// emit projectile once animation playback reached "climax" frame
 		if ( stackAnimation(attackingStack)->getCurrentFrame() >= shooterInfo->animation.attackClimaxFrame )
 		{
-			initializeProjectile();
 			emitProjectile();
 			return;
 		}
 	}
 
+	// animation should be paused if there is an active projectile
 	if (projectileEmitted && owner->projectilesController->hasActiveProjectile(attackingStack))
-		return; // projectile in air, pause animation
+		return;
 
 
 	CAttackAnimation::nextFrame();
@@ -854,7 +856,7 @@ void CShootingAnimation::endAnim()
 	// FIXME: is this possible? Animation is over but we're yet to fire projectile?
 	if (!projectileEmitted)
 	{
-		initializeProjectile();
+		logAnim->warn("Shooting animation has finished but projectile was not emitted! Emitting it now...");
 		emitProjectile();
 	}
 

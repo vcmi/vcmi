@@ -138,6 +138,7 @@ void ProjectileRay::show(std::shared_ptr<CCanvas> canvas)
 			canvas->drawLine(Point(x1 + i, y1), Point(x2 + i, y2), beginColor, endColor);
 		}
 	}
+	++step;
 }
 
 CBattleProjectileController::CBattleProjectileController(CBattleInterface * owner):
@@ -199,42 +200,43 @@ std::shared_ptr<CAnimation> CBattleProjectileController::getProjectileImage(cons
 	return projectilesCache[imageName];
 }
 
-//void CBattleProjectileController::fireStackProjectile(const CStack * stack)
-//{
-//	for (auto it = projectiles.begin(); it!=projectiles.end(); ++it)
-//	{
-//		if ( !it->shotDone && it->stackID == stack->ID)
-//		{
-//			it->shotDone = true;
-//			return;
-//		}
-//	}
-//}
-
-
-void CBattleProjectileController::showProjectiles(std::shared_ptr<CCanvas> canvas)
+void CBattleProjectileController::emitStackProjectile(const CStack * stack)
 {
 	for (auto projectile : projectiles)
 	{
+		if ( !projectile->playing && projectile->shooterID == stack->ID)
+		{
+			projectile->playing = true;
+			return;
+		}
+	}
+}
+
+void CBattleProjectileController::showProjectiles(std::shared_ptr<CCanvas> canvas)
+{
+	for ( auto it = projectiles.begin(); it != projectiles.end();)
+	{
+		auto projectile = *it;
 		// Check if projectile is already visible (shooter animation did the shot)
 		//if (!it->shotDone)
 		//	continue;
 
-		projectile->show(canvas);
+		if ( projectile->playing )
+			projectile->show(canvas);
 
 		// finished flying
 		if ( projectile->step > projectile->steps)
-			projectile.reset();
+			it = projectiles.erase(it);
+		else
+			it++;
 	}
-
-	boost::range::remove( projectiles, std::shared_ptr<ProjectileBase>());
 }
 
 bool CBattleProjectileController::hasActiveProjectile(const CStack * stack)
 {
 	for(auto const & instance : projectiles)
 	{
-		if(instance->shooterID == stack->getCreature()->idNumber)
+		if(instance->shooterID == stack->ID)
 		{
 			return true;
 		}
@@ -285,16 +287,16 @@ void CBattleProjectileController::createProjectile(const CStack * shooter, const
 			auto & angles = shooterInfo->animation.missleFrameAngles;
 
 			missileProjectile->animation = getProjectileImage(shooter);
-			missileProjectile->reverse  = owner->stacksController->facingRight(shooter);
-
+			missileProjectile->reverse  = !owner->stacksController->facingRight(shooter);
 
 			// only frames below maxFrame are usable: anything  higher is either no present or we don't know when it should be used
 			size_t maxFrame = std::min<size_t>(angles.size(), missileProjectile->animation->size(0));
 
 			assert(maxFrame > 0);
-			double projectileAngle = atan2(dest.y - from.y, std::abs(dest.x - from.x));
+			double projectileAngle = -atan2(dest.y - from.y, std::abs(dest.x - from.x));
 
 			// values in angles array indicate position from which this frame was rendered, in degrees.
+			// possible range is 90 ... -90, where projectile for +90 will be used for shooting upwards, +0 for shots towards right and -90 for downwards shots
 			// find frame that has closest angle to one that we need for this shot
 			int bestID = 0;
 			double bestDiff = fabs( angles[0] / 180 * M_PI - projectileAngle );
@@ -317,12 +319,14 @@ void CBattleProjectileController::createProjectile(const CStack * shooter, const
 		projectile->steps = std::round(distance / animSpeed);
 		if(projectile->steps == 0)
 			projectile->steps = 1;
+
 	}
 
 	projectile->from     = from;
 	projectile->dest     = dest;
 	projectile->shooterID = shooter->ID;
 	projectile->step     = 0;
+	projectile->playing  = false;
 
 	projectiles.push_back(projectile);
 }
