@@ -29,6 +29,11 @@ class MainWindow : public QMainWindow
 private:
 	Ui::MainWindow * ui;
 	void load();
+	
+	enum TabRows
+	{
+		MODS = 0, SETTINGS = 1, LOBBY = 2
+	};
 
 public:
 	explicit MainWindow(QWidget * parent = 0);
@@ -39,4 +44,7 @@ public:
 	
 public slots:
 	void on_startGameButton_clicked();
+	
+private slots:
+	void on_tabSelectList_currentRowChanged(int currentRow);
 };

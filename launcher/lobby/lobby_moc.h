@@ -36,6 +36,10 @@ private slots:
 
 	void on_sessionsTable_itemSelectionChanged();
 
+	void on_playersList_currentRowChanged(int currentRow);
+
+	void on_kickButton_clicked();
+
 private:
 	QString serverUrl;
 	int serverPort;

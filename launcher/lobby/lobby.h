@@ -12,7 +12,7 @@
 #include <QTcpSocket>
 #include <QAbstractSocket>
 
-const unsigned int ProtocolVersion = 2;
+const unsigned int ProtocolVersion = 3;
 const std::string ProtocolEncoding = "utf8";
 
 class ProtocolError: public std::runtime_error
@@ -24,10 +24,10 @@ public:
 enum ProtocolConsts
 {
 	//client consts
-	GREETING, USERNAME, MESSAGE, VERSION, CREATE, JOIN, LEAVE, READY,
+	GREETING, USERNAME, MESSAGE, VERSION, CREATE, JOIN, LEAVE, KICK, READY, FORCESTART,
 
 	//server consts
-	SESSIONS, CREATED, JOINED, KICKED, SRVERROR, CHAT, START, STATUS, HOST, MODS
+	SESSIONS, CREATED, JOINED, KICKED, SRVERROR, CHAT, START, STATUS, HOST, MODS, CLIENTMODS
 };
 
 const QMap<ProtocolConsts, QString> ProtocolStrings
@@ -39,7 +39,9 @@ const QMap<ProtocolConsts, QString> ProtocolStrings
 	{CREATE, "<NEW>%1<PSWD>%2<COUNT>%3<MODS>%4"}, //last placeholder for the mods
 	{JOIN, "<JOIN>%1<PSWD>%2<MODS>%3"}, //last placeholder for the mods
 	{LEAVE, "<LEAVE>%1"}, //session
+	{KICK, "<KICK>%1"}, //player username
 	{READY, "<READY>%1"}, //session
+	{FORCESTART, "<FORCESTART>%1"}, //session
 
 	//server consts
 	{CREATED, "CREATED"},
@@ -51,6 +53,7 @@ const QMap<ProtocolConsts, QString> ProtocolStrings
 	{STATUS, "STATUS"}, //joined_players:player_name:is_ready
 	{SRVERROR, "ERROR"},
 	{MODS, "MODS"}, //amount:modname:modversion
+	{CLIENTMODS, "MODSOTHER"}, //username:amount:modname:modversion
 	{CHAT, "MSG"} //username:message
 };
 

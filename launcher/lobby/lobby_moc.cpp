@@ -12,7 +12,6 @@ Lobby::Lobby(QWidget *parent) :
 	ui(new Ui::Lobby)
 {
 	ui->setupUi(this);
-	ui->buttonReady->setEnabled(false);
 
 	connect(&socketLobby, SIGNAL(text(QString)), this, SLOT(sysMessage(QString)));
 	connect(&socketLobby, SIGNAL(receive(QString)), this, SLOT(dispatchMessage(QString)));
@@ -24,6 +23,7 @@ Lobby::Lobby(QWidget *parent) :
 	
 	ui->serverEdit->setText(hostString);
 	ui->userEdit->setText(QString::fromStdString(settings["launcher"]["lobbyUsername"].String()));
+	ui->kickButton->setVisible(false);
 }
 
 Lobby::~Lobby()
@@ -35,6 +35,11 @@ QMap<QString, QString> Lobby::buildModsMap() const
 {
 	QMap<QString, QString> result;
 	QObject * mainWindow = qApp->activeWindow();
+	if(!mainWindow)
+		mainWindow = parent();
+	if(!mainWindow)
+		return result; //probably something is really wrong here
+	
 	while(mainWindow->parent())
 		mainWindow = mainWindow->parent();
 	const auto & modlist = qobject_cast<MainWindow*>(mainWindow)->getModList();
@@ -85,7 +90,6 @@ void Lobby::serverCommand(const ServerCommand & command) try
 		hostSession = args[0];
 		session = args[0];
 		sysMessage("new session started");
-		ui->buttonReady->setEnabled(true);
 		break;
 
 	case SESSIONS:
@@ -121,12 +125,11 @@ void Lobby::serverCommand(const ServerCommand & command) try
 
 		if(args[1] == username)
 		{
+			ui->buttonReady->setText("Ready");
 			ui->chat->clear(); //cleanup the chat
 			sysMessage(joinStr.arg("you", args[0]));
 			session = args[0];
 			ui->stackedWidget->setCurrentWidget(command.command == JOINED ? ui->roomPage : ui->sessionsPage);
-			if(command.command == KICKED)
-				ui->buttonReady->setEnabled(false);
 		}
 		else
 		{
@@ -164,6 +167,15 @@ void Lobby::serverCommand(const ServerCommand & command) try
 			ui->modsList->addItem("No issues detected");
 		break;
 		}
+			
+	case CLIENTMODS: {
+		protocolAssert(args.size() > 1);
+		amount = args[1].toInt();
+		protocolAssert(amount * 2 == (args.size() - 2));
+
+		tagPoint = 2;
+		break;
+		}
 
 
 	case STATUS:
@@ -175,7 +187,16 @@ void Lobby::serverCommand(const ServerCommand & command) try
 		ui->playersList->clear();
 		for(int i = 0; i < amount; ++i, tagPoint += 2)
 		{
-			ui->playersList->addItem(new QListWidgetItem(QIcon("icons:mod-enabled.png"), args[tagPoint]));
+			if(args[tagPoint + 1] == "True")
+				ui->playersList->addItem(new QListWidgetItem(QIcon("icons:mod-enabled.png"), args[tagPoint]));
+			else
+				ui->playersList->addItem(new QListWidgetItem(QIcon("icons:mod-disabled.png"), args[tagPoint]));
+			
+			if(args[tagPoint] == username)
+				if(args[tagPoint + 1] == "True")
+					ui->buttonReady->setText("Not ready");
+				else
+					ui->buttonReady->setText("Ready");
 		}
 		break;
 
@@ -256,6 +277,7 @@ void Lobby::onDisconnected()
 	ui->stackedWidget->setCurrentWidget(ui->sessionsPage);
 	ui->connectButton->setChecked(false);
 	ui->serverEdit->setEnabled(true);
+	ui->userEdit->setEnabled(true);
 	ui->newButton->setEnabled(false);
 	ui->joinButton->setEnabled(false);
 	ui->sessionsTable->clear();
@@ -316,6 +338,7 @@ void Lobby::on_connectButton_toggled(bool checked)
 		node["lobbyUsername"].String() = username.toStdString();
 		
 		ui->serverEdit->setEnabled(false);
+		ui->userEdit->setEnabled(false);
 
 		sysMessage("Connecting to " + serverUrl + ":" + QString::number(serverPort));
 		//show text immediately
@@ -327,6 +350,7 @@ void Lobby::on_connectButton_toggled(bool checked)
 	else
 	{
 		ui->serverEdit->setEnabled(true);
+		ui->userEdit->setEnabled(true);
 		socketLobby.disconnectServer();
 	}
 }
@@ -349,22 +373,36 @@ void Lobby::on_joinButton_clicked()
 	}
 }
 
-
 void Lobby::on_buttonLeave_clicked()
 {
 	socketLobby.requestLeaveSession(session);
 }
 
-
 void Lobby::on_buttonReady_clicked()
 {
+	if(ui->buttonReady->text() == "Ready")
+		ui->buttonReady->setText("Not ready");
+	else
+		ui->buttonReady->setText("Ready");
 	socketLobby.requestReadySession(session);
 }
-
 
 void Lobby::on_sessionsTable_itemSelectionChanged()
 {
 	auto selection = ui->sessionsTable->selectedItems();
 	ui->joinButton->setEnabled(!selection.empty());
+}
+
+void Lobby::on_playersList_currentRowChanged(int currentRow)
+{
+	ui->kickButton->setVisible(ui->playersList->currentItem()
+							   && currentRow > 0
+							   && ui->playersList->currentItem()->text() != username);
+}
+
+void Lobby::on_kickButton_clicked()
+{
+	if(ui->playersList->currentItem() && ui->playersList->currentItem()->text() != username)
+		socketLobby.send(ProtocolStrings[KICK].arg(ui->playersList->currentItem()->text()));
 }
 

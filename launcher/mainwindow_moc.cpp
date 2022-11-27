@@ -122,6 +122,11 @@ void MainWindow::on_startGameButton_clicked()
 	startGame({});
 }
 
+void MainWindow::on_tabSelectList_currentRowChanged(int currentRow)
+{
+	ui->startGameButton->setEnabled(currentRow != TabRows::LOBBY);
+}
+
 const CModList & MainWindow::getModList() const
 {
 	return ui->modlistView->getModList();
