@@ -181,6 +181,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 		{
 			CCS->musich->playMusicFromSet("battle", true, true);
 			battleActionsStarted = true;
+			activateStack();
 			controlPanel->blockUI(settings["session"]["spectate"].Bool());
 			battleIntroSoundChannel = -1;
 		}
@@ -944,7 +945,7 @@ void CBattleInterface::show(SDL_Surface *to)
 
 	//activation of next stack, if any
 	//TODO: should be moved to the very start of this method?
-	activateStack();
+	//activateStack();
 }
 
 void CBattleInterface::showBattlefieldObjects(std::shared_ptr<CCanvas> canvas, const BattleHex & location )

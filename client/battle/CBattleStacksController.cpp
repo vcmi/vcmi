@@ -390,7 +390,7 @@ void CBattleStacksController::stackActivated(const CStack *stack) //TODO: check 
 	stackToActivate = stack;
 	owner->waitForAnims();
 	if (stackToActivate) //during waiting stack may have gotten activated through show
-		activateStack();
+		owner->activateStack();
 }
 
 void CBattleStacksController::stackRemoved(uint32_t stackID)
