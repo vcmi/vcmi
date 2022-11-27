@@ -5,7 +5,7 @@
 #include <QStandardItemModel>
 #include "mapcontroller.h"
 #include "../lib/Terrain.h"
-
+#include "resourceExtractor/ResourceConverter.h"
 
 class CMap;
 class ObjectBrowser;
@@ -129,7 +129,7 @@ private:
 	void loadUserSettings();
 	void saveUserSettings();
 
-	void parseCommandLine();
+	void parseCommandLine(ExtractionOptions & extractionOptions);
 
 private:
     Ui::MainWindow * ui;

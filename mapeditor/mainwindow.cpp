@@ -38,11 +38,8 @@
 #include "mapsettings.h"
 #include "playersettings.h"
 #include "validator.h"
-#include "resourceExtractor/ResourceConverter.h"
 
 static CBasicLogConfigurator * logConfig;
-
-ExtractionOptions extractionOptions;
 
 QJsonValue jsonFromPixmap(const QPixmap &p)
 {
@@ -91,7 +88,7 @@ void MainWindow::saveUserSettings()
 	s.setValue(mainWindowPositionSetting, pos());
 }
 
-void MainWindow::parseCommandLine()
+void MainWindow::parseCommandLine(ExtractionOptions & extractionOptions)
 {
 	QCommandLineParser parser;
 	parser.addHelpOption();
@@ -131,7 +128,8 @@ MainWindow::MainWindow(QWidget* parent) :
 	// This is important on Mac for relative paths to work inside DMG.
 	QDir::setCurrent(QApplication::applicationDirPath());
 
-	parseCommandLine();
+	ExtractionOptions extractionOptions;
+	parseCommandLine(extractionOptions);
 
 	//configure logging
 	const boost::filesystem::path logPath = VCMIDirs::get().userLogsPath() / "VCMI_Editor_log.txt";
