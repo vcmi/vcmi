@@ -206,12 +206,13 @@ void CHeroArtPlace::clickLeft(tribool down, bool previousState)
 bool CHeroArtPlace::askToAssemble(const CArtifactInstance *art, ArtifactPosition slot,
                               const CGHeroInstance *hero)
 {
-	assert(art != nullptr);
-	assert(hero != nullptr);
-	std::vector<const CArtifact *> assemblyPossibilities = art->assemblyPossibilities(hero);
+	assert(art);
+	assert(hero);
+	bool assembleEqipped = !ArtifactUtils::isSlotBackpack(slot);
+	auto assemblyPossibilities = art->assemblyPossibilities(hero, assembleEqipped);
 
 	// If the artifact can be assembled, display dialog.
-	for(const CArtifact *combination : assemblyPossibilities)
+	for(const auto * combination : assemblyPossibilities)
 	{
 		LOCPLINT->showArtifactAssemblyDialog(
 			art->artType,
@@ -229,27 +230,22 @@ void CHeroArtPlace::clickRight(tribool down, bool previousState)
 {
 	if(ourArt && down && !locked && text.size() && !picked)  //if there is no description or it's a lock, do nothing ;]
 	{
-		if(slotID < GameConstants::BACKPACK_START)
+		if(ourOwner->allowedAssembling)
 		{
-			if(ourOwner->allowedAssembling)
+			// If the artifact can be assembled, display dialog.
+			if(askToAssemble(ourArt, slotID, ourOwner->curHero))
 			{
-				std::vector<const CArtifact *> assemblyPossibilities = ourArt->assemblyPossibilities(ourOwner->curHero);
+				return;
+			}
 
-				// If the artifact can be assembled, display dialog.
-				if(askToAssemble(ourArt, slotID, ourOwner->curHero))
-				{
-					return;
-				}
-
-				// Otherwise if the artifact can be diasassembled, display dialog.
-				if(ourArt->canBeDisassembled())
-				{
-					LOCPLINT->showArtifactAssemblyDialog(
-						ourArt->artType,
-						nullptr,
-						std::bind(&CCallback::assembleArtifacts, LOCPLINT->cb.get(), ourOwner->curHero, slotID, false, ArtifactID()));
-					return;
-				}
+			// Otherwise if the artifact can be diasassembled, display dialog.
+			if(ourArt->canBeDisassembled())
+			{
+				LOCPLINT->showArtifactAssemblyDialog(
+					ourArt->artType,
+					nullptr,
+					std::bind(&CCallback::assembleArtifacts, LOCPLINT->cb.get(), ourOwner->curHero, slotID, false, ArtifactID()));
+				return;
 			}
 		}
 
@@ -819,22 +815,31 @@ CArtifactsOfHero::ArtPlacePtr CArtifactsOfHero::getArtPlace(int slot)
 	}
 }
 
-void CArtifactsOfHero::artifactAssembled(const ArtifactLocation &al)
+void CArtifactsOfHero::artifactUpdateSlots(const ArtifactLocation & al)
 {
 	if(al.isHolder(curHero))
-		updateWornSlots();
-}
-
-void CArtifactsOfHero::artifactDisassembled(const ArtifactLocation &al)
-{
-	if(al.isHolder(curHero))
-		updateWornSlots();
+	{
+		if(ArtifactUtils::isSlotBackpack(al.slot))
+			updateBackpackSlots();
+		else
+			updateWornSlots();
+	}
 }
 
 void CArtifactsOfHero::updateWornSlots(bool redrawParent)
 {
 	for(auto p : artWorn)
 		updateSlot(p.first);
+
+	if(redrawParent)
+		updateParentWindow();
+}
+
+void CArtifactsOfHero::updateBackpackSlots(bool redrawParent)
+{
+	for(auto artPlace : backpack)
+		updateSlot(artPlace->slotID);
+	scrollBackpack(0);
 
 	if(redrawParent)
 		updateParentWindow();
@@ -910,7 +915,7 @@ void CWindowWithArtifacts::artifactDisassembled(const ArtifactLocation &artLoc)
 	{
 		std::shared_ptr<CArtifactsOfHero> realPtr = artSetWeak.lock();
 		if(realPtr)
-			realPtr->artifactDisassembled(artLoc);
+			realPtr->artifactUpdateSlots(artLoc);
 	}
 }
 
@@ -920,7 +925,7 @@ void CWindowWithArtifacts::artifactAssembled(const ArtifactLocation &artLoc)
 	{
 		std::shared_ptr<CArtifactsOfHero> realPtr = artSetWeak.lock();
 		if(realPtr)
-			realPtr->artifactAssembled(artLoc);
+			realPtr->artifactUpdateSlots(artLoc);
 	}
 }
 

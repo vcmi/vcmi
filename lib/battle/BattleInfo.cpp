@@ -261,13 +261,12 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 			auto * info = Obstacle(id).getInfo();
 			return info && !info->isAbsoluteObstacle && info->isAppropriate(curB->terrainType, battlefieldType);
 		};
-
-		RangeGenerator obidgen(0, VLC->obstacleHandler->objects.size() - 1, ourRand);
 		
 		if(r.rand(1,100) <= 40) //put cliff-like obstacle
 		{
 			try
 			{
+				RangeGenerator obidgen(0, VLC->obstacleHandler->objects.size() - 1, ourRand);
 				auto obstPtr = std::make_shared<CObstacleInstance>();
 				obstPtr->obstacleType = CObstacleInstance::ABSOLUTE_OBSTACLE;
 				obstPtr->ID = obidgen.getSuchNumber(appropriateAbsoluteObstacle);
@@ -289,6 +288,7 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 		{
 			while(tilesToBlock > 0)
 			{
+				RangeGenerator obidgen(0, VLC->obstacleHandler->objects.size() - 1, ourRand);
 				auto tileAccessibility = curB->getAccesibility();
 				const int obid = obidgen.getSuchNumber(appropriateUsualObstacle);
 				const ObstacleInfo &obi = *Obstacle(obid).getInfo();

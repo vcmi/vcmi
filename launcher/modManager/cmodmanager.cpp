@@ -160,8 +160,6 @@ bool CModManager::canUninstallMod(QString modname)
 	if(!mod.isInstalled())
 		return addError(modname, "Mod is not installed");
 
-	if(mod.isEnabled())
-		return addError(modname, "Mod must be disabled first");
 	return true;
 }
 

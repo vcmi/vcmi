@@ -432,6 +432,11 @@ void CBonusSelection::startMap()
 			exitCb();
 		}
 	};
+	
+	//block buttons immediately
+	buttonStart->block(true);
+	buttonRestart->block(true);
+	buttonBack->block(true);
 
 	if(LOCPLINT) // we're currently ingame, so ask for starting new map and end game
 	{

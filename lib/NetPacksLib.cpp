@@ -1089,7 +1089,7 @@ DLL_LINKAGE void EraseArtifact::applyGs(CGameState *gs)
 DLL_LINKAGE void MoveArtifact::applyGs(CGameState * gs)
 {
 	CArtifactInstance * art = src.getArt();
-	if(dst.slot < GameConstants::BACKPACK_START)
+	if(!ArtifactUtils::isSlotBackpack(dst.slot))
 		assert(!dst.getArt());
 
 	art->move(src, dst);
@@ -1114,7 +1114,7 @@ DLL_LINKAGE void BulkMoveArtifacts::applyGs(CGameState * gs)
 			// so all the following indices will be affected. Thus, we need to update
 			// the subsequent artifact slots to account for that
 			auto srcPos = slot.srcPos;
-			if((srcPos >= GameConstants::BACKPACK_START) && (operation != EBulkArtsOp::BULK_PUT))
+			if(ArtifactUtils::isSlotBackpack(srcPos) && (operation != EBulkArtsOp::BULK_PUT))
 			{
 				srcPos = ArtifactPosition(srcPos.num - numBackpackArtifactsMoved);
 			}
@@ -1167,26 +1167,36 @@ DLL_LINKAGE void BulkMoveArtifacts::applyGs(CGameState * gs)
 
 DLL_LINKAGE void AssembledArtifact::applyGs(CGameState *gs)
 {
-	CArtifactSet *artSet = al.getHolderArtSet();
+	CArtifactSet * artSet = al.getHolderArtSet();
 	const CArtifactInstance *transformedArt = al.getArt();
 	assert(transformedArt);
-	assert(vstd::contains(transformedArt->assemblyPossibilities(artSet), builtArt));
+	bool combineEquipped = !ArtifactUtils::isSlotBackpack(al.slot);
+	assert(vstd::contains(transformedArt->assemblyPossibilities(artSet, combineEquipped), builtArt));
 	UNUSED(transformedArt);
 
 	auto combinedArt = new CCombinedArtifactInstance(builtArt);
 	gs->map->addNewArtifactInstance(combinedArt);
-	//retrieve all constituents
+	// Retrieve all constituents
 	for(const CArtifact * constituent : *builtArt->constituents)
 	{
-		ArtifactPosition pos = artSet->getArtPos(constituent->id);
+		ArtifactPosition pos = combineEquipped ? artSet->getArtPos(constituent->id, true, false) :
+			artSet->getArtBackpackPos(constituent->id);
 		assert(pos >= 0);
-		CArtifactInstance *constituentInstance = artSet->getArt(pos);
+		CArtifactInstance * constituentInstance = artSet->getArt(pos);
 
 		//move constituent from hero to be part of new, combined artifact
 		constituentInstance->removeFrom(ArtifactLocation(al.artHolder, pos));
 		combinedArt->addAsConstituent(constituentInstance, pos);
-		if(!vstd::contains(combinedArt->artType->possibleSlots[artSet->bearerType()], al.slot) && vstd::contains(combinedArt->artType->possibleSlots[artSet->bearerType()], pos))
-			al.slot = pos;
+		if(combineEquipped)
+		{
+			if(!vstd::contains(combinedArt->artType->possibleSlots[artSet->bearerType()], al.slot)
+				&& vstd::contains(combinedArt->artType->possibleSlots[artSet->bearerType()], pos))
+				al.slot = pos;
+		}
+		else
+		{
+			al.slot = std::min(al.slot, pos);
+		}
 	}
 
 	//put new combined artifacts

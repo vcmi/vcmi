@@ -163,7 +163,7 @@ public:
 	/// of itself, additionally truth is returned for constituents of combined arts
 	virtual bool isPart(const CArtifactInstance *supposedPart) const;
 
-	std::vector<const CArtifact *> assemblyPossibilities(const CArtifactSet *h) const;
+	std::vector<const CArtifact *> assemblyPossibilities(const CArtifactSet * h, bool equipped) const;
 	void move(ArtifactLocation src, ArtifactLocation dst);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -329,13 +329,16 @@ public:
 	/// (if more than one such artifact lower ID is returned)
 	ArtifactPosition getArtPos(int aid, bool onlyWorn = true, bool allowLocked = true) const;
 	ArtifactPosition getArtPos(const CArtifactInstance *art) const;
+	ArtifactPosition getArtBackpackPos(int aid) const;
 	std::vector<ArtifactPosition> getAllArtPositions(int aid, bool onlyWorn, bool allowLocked, bool getAll) const;
+	std::vector<ArtifactPosition> getBackpackArtPositions(int aid) const;
 	const CArtifactInstance *getArtByInstanceId(ArtifactInstanceID artInstId) const;
 	/// Search for constituents of assemblies in backpack which do not have an ArtifactPosition
 	const CArtifactInstance *getHiddenArt(int aid) const;
 	const CCombinedArtifactInstance *getAssemblyByConstituent(int aid) const;
 	/// Checks if hero possess artifact of given id (either in backack or worn)
 	bool hasArt(ui32 aid, bool onlyWorn = false, bool searchBackpackAssemblies = false, bool allowLocked = true) const;
+	bool hasArtBackpack(ui32 aid) const;
 	bool isPositionFree(ArtifactPosition pos, bool onlyLockCheck = false) const;
 	unsigned getArtPosCount(int aid, bool onlyWorn = true, bool searchBackpackAssemblies = true, bool allowLocked = true) const;
 
@@ -386,6 +389,7 @@ namespace ArtifactUtils
 	DLL_LINKAGE std::vector<ArtifactPosition> unmovablePositions(); // TODO: Make this constexpr when the toolset is upgraded
 	DLL_LINKAGE bool isArtRemovable(const std::pair<ArtifactPosition, ArtSlotInfo> & slot);
 	DLL_LINKAGE bool checkSpellbookIsNeeded(const CGHeroInstance * heroPtr, ArtifactID artID, ArtifactPosition slot);
+	DLL_LINKAGE bool isSlotBackpack(ArtifactPosition slot);
 }
 
 VCMI_LIB_NAMESPACE_END
