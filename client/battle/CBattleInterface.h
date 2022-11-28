@@ -28,9 +28,7 @@ struct CatapultAttack;
 struct BattleTriggerEffect;
 struct BattleHex;
 struct InfoAboutHero;
-//class CBattleGameInterface;
 struct CustomEffectInfo;
-//class CSpell;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -91,7 +89,6 @@ private:
 	void trySetActivePlayer( PlayerColor player ); // if in hotseat, will activate interface of chosen player
 	void activateStack(); //sets activeStack to stackToActivate etc. //FIXME: No, it's not clear at all
 	void requestAutofightingAIToTakeAction();
-
 
 	void giveCommand(EActionType action, BattleHex tile = BattleHex(), si32 additional = -1);
 	void sendCommand(BattleAction *& command, const CStack * actor = nullptr);

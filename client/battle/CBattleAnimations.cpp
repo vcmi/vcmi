@@ -35,78 +35,85 @@
 #include "../../lib/mapObjects/CGTownInstance.h"
 
 CBattleAnimation::CBattleAnimation(CBattleInterface * _owner)
-	: owner(_owner), ID(_owner->stacksController->animIDhelper++)
+	: owner(_owner),
+	  ID(_owner->stacksController->animIDhelper++),
+	  initialized(false)
 {
 	logAnim->trace("Animation #%d created", ID);
 }
 
+bool CBattleAnimation::tryInitialize()
+{
+	assert(!initialized);
+
+	if ( init() )
+	{
+		initialized = true;
+		return true;
+	}
+	return false;
+}
+
+bool CBattleAnimation::isInitialized()
+{
+	return initialized;
+}
+
 CBattleAnimation::~CBattleAnimation()
-{
-	logAnim->trace("Animation #%d deleted", ID);
-}
-
-std::list<std::pair<CBattleAnimation *, bool>> & CBattleAnimation::pendingAnimations()
-{
-	return owner->stacksController->pendingAnims;
-}
-
-std::shared_ptr<CCreatureAnimation> CBattleAnimation::stackAnimation(const CStack * stack)
-{
-	return owner->stacksController->creAnims[stack->ID];
-}
-
-bool CBattleAnimation::stackFacingRight(const CStack * stack)
-{
-	return owner->stacksController->creDir[stack->ID];
-}
-
-ui32 CBattleAnimation::maxAnimationID()
-{
-	return owner->stacksController->animIDhelper;
-}
-
-void CBattleAnimation::setStackFacingRight(const CStack * stack, bool facingRight)
-{
-	owner->stacksController->creDir[stack->ID] = facingRight;
-}
-
-void CBattleAnimation::endAnim()
 {
 	logAnim->trace("Animation #%d ended, type is %s", ID, typeid(this).name());
 	for(auto & elem : pendingAnimations())
 	{
-		if(elem.first == this)
-		{
-			elem.first = nullptr;
-		}
+		if(elem == this)
+			elem = nullptr;
 	}
+	logAnim->trace("Animation #%d deleted", ID);
 }
 
-bool CBattleAnimation::isEarliest(bool perStackConcurrency)
+std::vector<CBattleAnimation *> & CBattleAnimation::pendingAnimations()
 {
-	int lowestMoveID = maxAnimationID() + 5;//FIXME: why 5?
+	return owner->stacksController->currentAnimations;
+}
+
+std::shared_ptr<CCreatureAnimation> CBattleAnimation::stackAnimation(const CStack * stack)
+{
+	return owner->stacksController->stackAnimation[stack->ID];
+}
+
+bool CBattleAnimation::stackFacingRight(const CStack * stack)
+{
+	return owner->stacksController->stackFacingRight[stack->ID];
+}
+
+void CBattleAnimation::setStackFacingRight(const CStack * stack, bool facingRight)
+{
+	owner->stacksController->stackFacingRight[stack->ID] = facingRight;
+}
+
+bool CBattleAnimation::checkInitialConditions()
+{
+	int lowestMoveID = ID;
 	CBattleStackAnimation * thAnim = dynamic_cast<CBattleStackAnimation *>(this);
 	CEffectAnimation * thSen = dynamic_cast<CEffectAnimation *>(this);
 
 	for(auto & elem : pendingAnimations())
 	{
-		CBattleStackAnimation * stAnim = dynamic_cast<CBattleStackAnimation *>(elem.first);
-		CEffectAnimation * sen = dynamic_cast<CEffectAnimation *>(elem.first);
-		if(perStackConcurrency && stAnim && thAnim && stAnim->stack->ID != thAnim->stack->ID)
+		CEffectAnimation * sen = dynamic_cast<CEffectAnimation *>(elem);
+
+		// all effect animations can play concurrently with each other
+		if(sen && thSen && sen != thSen)
 			continue;
 
-		if(perStackConcurrency && sen && thSen && sen != thSen)
-			continue;
+		CReverseAnimation * revAnim = dynamic_cast<CReverseAnimation *>(elem);
 
-		CReverseAnimation * revAnim = dynamic_cast<CReverseAnimation *>(stAnim);
-
-		if(revAnim && thAnim && stAnim && stAnim->stack->ID == thAnim->stack->ID && revAnim->priority)
+		// if there is high-priority reverse animation affecting our stack then this animation will wait
+		if(revAnim && thAnim && revAnim && revAnim->stack->ID == thAnim->stack->ID && revAnim->priority)
 			return false;
 
-		if(elem.first)
-			vstd::amin(lowestMoveID, elem.first->ID);
+		if(elem)
+			vstd::amin(lowestMoveID, elem->ID);
 	}
-	return (ID == lowestMoveID) || (lowestMoveID == (maxAnimationID() + 5));
+	return ID == lowestMoveID;
 }
 
 CBattleStackAnimation::CBattleStackAnimation(CBattleInterface * owner, const CStack * stack)
@@ -128,7 +135,7 @@ void CAttackAnimation::nextFrame()
 	if(myAnim->getType() != group)
 	{
 		myAnim->setType(group);
-		myAnim->onAnimationReset += std::bind(&CAttackAnimation::endAnim, this);
+		myAnim->onAnimationReset += [&](){ delete this; };
 	}
 
 	if(!soundPlayed)
@@ -139,20 +146,18 @@ void CAttackAnimation::nextFrame()
 			CCS->soundh->playSound(battle_sound(getCreature(), attack));
 		soundPlayed = true;
 	}
-	CBattleAnimation::nextFrame();
 }
 
-void CAttackAnimation::endAnim()
+CAttackAnimation::~CAttackAnimation()
 {
 	myAnim->setType(CCreatureAnim::HOLDING);
-	CBattleStackAnimation::endAnim();
 }
 
 bool CAttackAnimation::checkInitialConditions()
 {
 	for(auto & elem : pendingAnimations())
 	{
-		CBattleStackAnimation * stAnim = dynamic_cast<CBattleStackAnimation *>(elem.first);
+		CBattleStackAnimation * stAnim = dynamic_cast<CBattleStackAnimation *>(elem);
 		CReverseAnimation * revAnim = dynamic_cast<CReverseAnimation *>(stAnim);
 
 		if(revAnim && attackedStack) // enemy must be fully reversed
@@ -161,7 +166,7 @@ bool CAttackAnimation::checkInitialConditions()
 				return false;
 		}
 	}
-	return isEarliest(false);
+	return CBattleAnimation::checkInitialConditions();
 }
 
 const CCreature * CAttackAnimation::getCreature()
@@ -192,32 +197,32 @@ killed(_attackedInfo.killed), timeToWait(0)
 
 bool CDefenceAnimation::init()
 {
-	ui32 lowestMoveID = maxAnimationID() + 5;
+	ui32 lowestMoveID = ID;
 	for(auto & elem : pendingAnimations())
 	{
 
-		CDefenceAnimation * defAnim = dynamic_cast<CDefenceAnimation *>(elem.first);
+		CDefenceAnimation * defAnim = dynamic_cast<CDefenceAnimation *>(elem);
 		if(defAnim && defAnim->stack->ID != stack->ID)
 			continue;
 
-		CAttackAnimation * attAnim = dynamic_cast<CAttackAnimation *>(elem.first);
+		CAttackAnimation * attAnim = dynamic_cast<CAttackAnimation *>(elem);
 		if(attAnim && attAnim->stack->ID != stack->ID)
 			continue;
 
-		CEffectAnimation * sen = dynamic_cast<CEffectAnimation *>(elem.first);
+		CEffectAnimation * sen = dynamic_cast<CEffectAnimation *>(elem);
 		if (sen && attacker == nullptr)
 			return false;
 
 		if (sen)
 			continue;
 
-		CReverseAnimation * animAsRev = dynamic_cast<CReverseAnimation *>(elem.first);
+		CReverseAnimation * animAsRev = dynamic_cast<CReverseAnimation *>(elem);
 
 		if(animAsRev)
 			return false;
 
-		if(elem.first)
-			vstd::amin(lowestMoveID, elem.first->ID);
+		if(elem)
+			vstd::amin(lowestMoveID, elem->ID);
 	}
 
 	if(ID > lowestMoveID)
@@ -287,7 +292,7 @@ void CDefenceAnimation::startAnimation()
 {
 	CCS->soundh->playSound(getMySound());
 	myAnim->setType(getMyAnimType());
-	myAnim->onAnimationReset += std::bind(&CDefenceAnimation::endAnim, this);
+	myAnim->onAnimationReset += [&](){ delete this; };
 }
 
 void CDefenceAnimation::nextFrame()
@@ -302,7 +307,7 @@ void CDefenceAnimation::nextFrame()
 	CBattleAnimation::nextFrame();
 }
 
-void CDefenceAnimation::endAnim()
+CDefenceAnimation::~CDefenceAnimation()
 {
 	if(killed)
 	{
@@ -315,11 +320,6 @@ void CDefenceAnimation::endAnim()
 	{
 		myAnim->setType(CCreatureAnim::HOLDING);
 	}
-
-
-	CBattleAnimation::endAnim();
-
-	delete this;
 }
 
 CDummyAnimation::CDummyAnimation(CBattleInterface * _owner, int howManyFrames)
@@ -337,14 +337,7 @@ void CDummyAnimation::nextFrame()
 {
 	counter++;
 	if(counter > howMany)
-		endAnim();
-}
-
-void CDummyAnimation::endAnim()
-{
-	CBattleAnimation::endAnim();
-
-	delete this;
+		delete this;
 }
 
 bool CMeleeAttackAnimation::init()
@@ -354,7 +347,7 @@ bool CMeleeAttackAnimation::init()
 
 	if(!attackingStack || myAnim->isDead())
 	{
-		endAnim();
+		delete this;
 		return false;
 	}
 
@@ -444,20 +437,14 @@ CMeleeAttackAnimation::CMeleeAttackAnimation(CBattleInterface * _owner, const CS
 	logAnim->debug("Created melee attack anim for %s", attacker->getName());
 }
 
-void CMeleeAttackAnimation::endAnim()
-{
-	CAttackAnimation::endAnim();
-	delete this;
-}
-
 bool CMovementAnimation::init()
 {
-	if( !isEarliest(false) )
+	if( !CBattleAnimation::checkInitialConditions() )
 		return false;
 
 	if(!stack || myAnim->isDead())
 	{
-		endAnim();
+		delete this;
 		return false;
 	}
 
@@ -465,7 +452,7 @@ bool CMovementAnimation::init()
 	   stack->hasBonus(Selector::typeSubtype(Bonus::FLYING, 1)))
 	{
 		//no movement or teleport, end immediately
-		endAnim();
+		delete this;
 		return false;
 	}
 
@@ -540,28 +527,19 @@ void CMovementAnimation::nextFrame()
 			oldPos = nextHex;
 			nextHex = destTiles[curentMoveIndex];
 
-			// re-init animation
-			for(auto & elem : pendingAnimations())
-			{
-				if (elem.first == this)
-				{
-					elem.second = false;
-					break;
-				}
-			}
+			// request re-initialization
+			initialized = false;
 		}
 		else
-			endAnim();
+			delete this;
 	}
 }
 
-void CMovementAnimation::endAnim()
+CMovementAnimation::~CMovementAnimation()
 {
 	assert(stack);
 
 	myAnim->pos = owner->stacksController->getStackPositionAtHex(nextHex, stack);
-	CBattleAnimation::endAnim();
-
 	owner->stacksController->addNewAnim(new CMovementEndAnimation(owner, stack, nextHex));
 
 	if(owner->moveSoundHander != -1)
@@ -569,7 +547,6 @@ void CMovementAnimation::endAnim()
 		CCS->soundh->stopSound(owner->moveSoundHander);
 		owner->moveSoundHander = -1;
 	}
-	delete this;
 }
 
 CMovementAnimation::CMovementAnimation(CBattleInterface *_owner, const CStack *_stack, std::vector<BattleHex> _destTiles, int _distance)
@@ -594,14 +571,13 @@ CMovementEndAnimation::CMovementEndAnimation(CBattleInterface * _owner, const CS
 
 bool CMovementEndAnimation::init()
 {
-	if( !isEarliest(true) )
-		return false;
+	//if( !isEarliest(true) )
+	//	return false;
 
 	if(!stack || myAnim->framesInGroup(CCreatureAnim::MOVE_END) == 0 ||
 		myAnim->isDead())
 	{
-		endAnim();
-
+		delete this;
 		return false;
 	}
 
@@ -609,20 +585,17 @@ bool CMovementEndAnimation::init()
 
 	myAnim->setType(CCreatureAnim::MOVE_END);
 
-	myAnim->onAnimationReset += std::bind(&CMovementEndAnimation::endAnim, this);
+	myAnim->onAnimationReset += [&](){ delete this; };
 
 	return true;
 }
 
-void CMovementEndAnimation::endAnim()
+CMovementEndAnimation::~CMovementEndAnimation()
 {
-	CBattleAnimation::endAnim();
-
 	if(myAnim->getType() != CCreatureAnim::DEAD)
 		myAnim->setType(CCreatureAnim::HOLDING); //resetting to default
 
 	CCS->curh->show();
-	delete this;
 }
 
 CMovementStartAnimation::CMovementStartAnimation(CBattleInterface * _owner, const CStack * _stack)
@@ -633,28 +606,21 @@ CMovementStartAnimation::CMovementStartAnimation(CBattleInterface * _owner, cons
 
 bool CMovementStartAnimation::init()
 {
-	if( !isEarliest(false) )
+	if( !CBattleAnimation::checkInitialConditions() )
 		return false;
 
 
 	if(!stack || myAnim->isDead())
 	{
-		CMovementStartAnimation::endAnim();
+		delete this;
 		return false;
 	}
 
 	CCS->soundh->playSound(battle_sound(stack->getCreature(), startMoving));
 	myAnim->setType(CCreatureAnim::MOVE_START);
-	myAnim->onAnimationReset += std::bind(&CMovementStartAnimation::endAnim, this);
+	myAnim->onAnimationReset += [&](){ delete this; };
 
 	return true;
-}
-
-void CMovementStartAnimation::endAnim()
-{
-	CBattleAnimation::endAnim();
-
-	delete this;
 }
 
 CReverseAnimation::CReverseAnimation(CBattleInterface * _owner, const CStack * stack, BattleHex dest, bool _priority)
@@ -667,11 +633,11 @@ bool CReverseAnimation::init()
 {
 	if(myAnim == nullptr || myAnim->isDead())
 	{
-		endAnim();
+		delete this;
 		return false; //there is no such creature
 	}
 
-	if(!priority && !isEarliest(false))
+	if(!priority && !CBattleAnimation::checkInitialConditions())
 		return false;
 
 	if(myAnim->framesInGroup(CCreatureAnim::TURN_L))
@@ -686,13 +652,10 @@ bool CReverseAnimation::init()
 	return true;
 }
 
-void CReverseAnimation::endAnim()
+CReverseAnimation::~CReverseAnimation()
 {
-	CBattleAnimation::endAnim();
-	if( stack->alive() )//don't do that if stack is dead
+	if( stack && stack->alive() )//don't do that if stack is dead
 		myAnim->setType(CCreatureAnim::HOLDING);
-
-	delete this;
 }
 
 void CBattleStackAnimation::rotateStack(BattleHex hex)
@@ -706,7 +669,7 @@ void CReverseAnimation::setupSecondPart()
 {
 	if(!stack)
 	{
-		endAnim();
+		delete this;
 		return;
 	}
 
@@ -715,10 +678,10 @@ void CReverseAnimation::setupSecondPart()
 	if(myAnim->framesInGroup(CCreatureAnim::TURN_R))
 	{
 		myAnim->setType(CCreatureAnim::TURN_R);
-		myAnim->onAnimationReset += std::bind(&CReverseAnimation::endAnim, this);
+		myAnim->onAnimationReset += [&](){ delete this; };
 	}
 	else
-		endAnim();
+		delete this;
 }
 
 CRangedAttackAnimation::CRangedAttackAnimation(CBattleInterface * owner_, const CStack * attacker, BattleHex dest_, const CStack * defender)
@@ -742,11 +705,14 @@ bool CShootingAnimation::init()
 	if( !CAttackAnimation::checkInitialConditions() )
 		return false;
 
+	assert(attackingStack);
+	assert(!myAnim->isDead());
+
 	if(!attackingStack || myAnim->isDead())
 	{
 		//FIXME: how is this possible?
 		logAnim->warn("Shooting animation has not started yet but attacker is dead! Aborting...");
-		endAnim();
+		delete this;
 		return false;
 	}
 
@@ -756,11 +722,6 @@ bool CShootingAnimation::init()
 		owner->stacksController->addNewAnim(new CReverseAnimation(owner, attackingStack, attackingStack->getPosition(), true));
 		return false;
 	}
-
-	//FIXME: this cause freeze
-	// opponent must face attacker ( = different directions) before he can be attacked
-	//if (attackingStack && attackedStack && owner->creDir[attackingStack->ID] == owner->creDir[attackedStack->ID])
-	//	return false;
 
 	setAnimationGroup();
 	initializeProjectile();
@@ -827,8 +788,8 @@ void CShootingAnimation::nextFrame()
 {
 	for(auto & it : pendingAnimations())
 	{
-		CMovementStartAnimation * anim = dynamic_cast<CMovementStartAnimation *>(it.first);
-		CReverseAnimation * anim2 = dynamic_cast<CReverseAnimation *>(it.first);
+		CMovementStartAnimation * anim = dynamic_cast<CMovementStartAnimation *>(it);
+		CReverseAnimation * anim2 = dynamic_cast<CReverseAnimation *>(it);
 		if( (anim && anim->stack->ID == stack->ID) || (anim2 && anim2->stack->ID == stack->ID && anim2->priority ) )
 			return;
 	}
@@ -889,7 +850,7 @@ void CShootingAnimation::emitExplosion()
 	}
 }
 
-void CShootingAnimation::endAnim()
+CShootingAnimation::~CShootingAnimation()
 {
 	assert(!owner->projectilesController->hasActiveProjectile(attackingStack));
 	assert(projectileEmitted);
@@ -900,8 +861,6 @@ void CShootingAnimation::endAnim()
 		logAnim->warn("Shooting animation has finished but projectile was not emitted! Emitting it now...");
 		emitProjectile();
 	}
-	CAttackAnimation::endAnim();
-	delete this;
 }
 
 CCastAnimation::CCastAnimation(CBattleInterface * owner_, const CStack * attacker, BattleHex dest_, const CStack * defender)
@@ -918,7 +877,7 @@ bool CCastAnimation::init()
 
 	if(!attackingStack || myAnim->isDead())
 	{
-		endAnim();
+		delete this;
 		return false;
 	}
 
@@ -1008,7 +967,7 @@ void CCastAnimation::nextFrame()
 {
 	for(auto & it : pendingAnimations())
 	{
-		CReverseAnimation * anim = dynamic_cast<CReverseAnimation *>(it.first);
+		CReverseAnimation * anim = dynamic_cast<CReverseAnimation *>(it);
 		if(anim && anim->stack->ID == stack->ID && anim->priority)
 			return;
 	}
@@ -1016,19 +975,11 @@ void CCastAnimation::nextFrame()
 	if(myAnim->getType() != group)
 	{
 		myAnim->setType(group);
-		myAnim->onAnimationReset += std::bind(&CAttackAnimation::endAnim, this);
+		myAnim->onAnimationReset += [&](){ delete this; };
 	}
 
 	CBattleAnimation::nextFrame();
 }
-
-
-void CCastAnimation::endAnim()
-{
-	CAttackAnimation::endAnim();
-	delete this;
-}
-
 
 CEffectAnimation::CEffectAnimation(CBattleInterface * _owner, std::string _customAnim, int _x, int _y, int _dx, int _dy, bool _Vflip, bool _alignToBottom)
 	: CBattleAnimation(_owner),
@@ -1076,7 +1027,7 @@ CEffectAnimation::CEffectAnimation(CBattleInterface * _owner, std::string _custo
 
 bool CEffectAnimation::init()
 {
-	if(!isEarliest(true))
+	if(!CBattleAnimation::checkInitialConditions())
 		return false;
 
 	const bool areaEffect = (!destTile.isValid() && x == -1 && y == -1);
@@ -1090,7 +1041,7 @@ bool CEffectAnimation::init()
 	auto first = animation->getImage(0, 0, true);
 	if(!first)
 	{
-		endAnim();
+		delete this;
 		return false;
 	}
 
@@ -1168,8 +1119,8 @@ void CEffectAnimation::nextFrame()
 
 			if(elem.currentFrame >= elem.animation->size())
 			{
-				endAnim();
-				break;
+				delete this;
+				return;
 			}
 			else
 			{
@@ -1180,10 +1131,8 @@ void CEffectAnimation::nextFrame()
 	}
 }
 
-void CEffectAnimation::endAnim()
+CEffectAnimation::~CEffectAnimation()
 {
-	CBattleAnimation::endAnim();
-
 	auto & effects = owner->effectsController->battleEffects;
 
 	for ( auto it = effects.begin(); it != effects.end(); )
@@ -1193,6 +1142,4 @@ void CEffectAnimation::endAnim()
 		else
 			it++;
 	}
-
-	delete this;
 }

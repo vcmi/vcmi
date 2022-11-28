@@ -27,24 +27,27 @@ struct StackAttackedInfo;
 /// Base class of battle animations
 class CBattleAnimation
 {
+
 protected:
 	CBattleInterface * owner;
+	bool initialized;
 
-	std::list<std::pair<CBattleAnimation *, bool>> & pendingAnimations();
+	std::vector<CBattleAnimation *> & pendingAnimations();
 	std::shared_ptr<CCreatureAnimation> stackAnimation(const CStack * stack);
 	bool stackFacingRight(const CStack * stack);
 	void setStackFacingRight(const CStack * stack, bool facingRight);
-	ui32 maxAnimationID();
+
+	virtual bool init() = 0; //to be called - if returned false, call again until returns true
+	bool checkInitialConditions(); //determines if this animation is earliest of all
 
 public:
-	virtual bool init() = 0; //to be called - if returned false, call again until returns true
+	ui32 ID; //unique identifier
+
+	bool isInitialized();
+	bool tryInitialize();
 	virtual void nextFrame() {} //call every new frame
-	virtual void endAnim(); //to be called mostly internally; in this class it removes animation from pendingAnims list
 	virtual ~CBattleAnimation();
 
-	bool isEarliest(bool perStackConcurrency); //determines if this animation is earliest of all
-
-	ui32 ID; //unique identifier
 	CBattleAnimation(CBattleInterface * _owner);
 };
 
@@ -77,10 +80,10 @@ protected:
 	const CCreature * getCreature();
 public:
 	void nextFrame() override;
-	void endAnim() override;
 	bool checkInitialConditions();
 
 	CAttackAnimation(CBattleInterface *_owner, const CStack *attacker, BattleHex _dest, const CStack *defender);
+	~CAttackAnimation();
 };
 
 /// Animation of a defending unit
@@ -99,10 +102,9 @@ class CDefenceAnimation : public CBattleStackAnimation
 public:
 	bool init() override;
 	void nextFrame() override;
-	void endAnim() override;
 
 	CDefenceAnimation(StackAttackedInfo _attackedInfo, CBattleInterface * _owner);
-	virtual ~CDefenceAnimation(){};
+	~CDefenceAnimation();
 };
 
 class CDummyAnimation : public CBattleAnimation
@@ -113,10 +115,8 @@ private:
 public:
 	bool init() override;
 	void nextFrame() override;
-	void endAnim() override;
 
 	CDummyAnimation(CBattleInterface * _owner, int howManyFrames);
-	virtual ~CDummyAnimation(){}
 };
 
 /// Hand-to-hand attack
@@ -124,10 +124,8 @@ class CMeleeAttackAnimation : public CAttackAnimation
 {
 public:
 	bool init() override;
-	void endAnim() override;
 
 	CMeleeAttackAnimation(CBattleInterface * _owner, const CStack * attacker, BattleHex _dest, const CStack * _attacked);
-	virtual ~CMeleeAttackAnimation(){};
 };
 
 /// Move animation of a creature
@@ -150,10 +148,9 @@ public:
 
 	bool init() override;
 	void nextFrame() override;
-	void endAnim() override;
 
 	CMovementAnimation(CBattleInterface *_owner, const CStack *_stack, std::vector<BattleHex> _destTiles, int _distance);
-	virtual ~CMovementAnimation(){};
+	~CMovementAnimation();
 };
 
 /// Move end animation of a creature
@@ -163,10 +160,9 @@ private:
 	BattleHex destinationTile;
 public:
 	bool init() override;
-	void endAnim() override;
 
 	CMovementEndAnimation(CBattleInterface * _owner, const CStack * _stack, BattleHex destTile);
-	virtual ~CMovementEndAnimation(){};
+	~CMovementEndAnimation();
 };
 
 /// Move start animation of a creature
@@ -174,10 +170,8 @@ class CMovementStartAnimation : public CBattleStackAnimation
 {
 public:
 	bool init() override;
-	void endAnim() override;
 
 	CMovementStartAnimation(CBattleInterface * _owner, const CStack * _stack);
-	virtual ~CMovementStartAnimation(){};
 };
 
 /// Class responsible for animation of stack chaning direction (left <-> right)
@@ -188,13 +182,10 @@ public:
 	bool priority; //true - high, false - low
 	bool init() override;
 
-
-
 	void setupSecondPart();
-	void endAnim() override;
 
 	CReverseAnimation(CBattleInterface * _owner, const CStack * stack, BattleHex dest, bool _priority);
-	virtual ~CReverseAnimation(){};
+	~CReverseAnimation();
 };
 
 class CRangedAttackAnimation : public CAttackAnimation
@@ -220,12 +211,11 @@ private:
 public:
 	bool init() override;
 	void nextFrame() override;
-	void endAnim() override;
 
 	//last two params only for catapult attacks
 	CShootingAnimation(CBattleInterface * _owner, const CStack * attacker, BattleHex _dest,
 		const CStack * _attacked, bool _catapult = false, int _catapultDmg = 0);
-	virtual ~CShootingAnimation(){};
+	~CShootingAnimation();
 };
 
 class CCastAnimation : public CRangedAttackAnimation
@@ -235,10 +225,7 @@ public:
 
 	bool init() override;
 	void nextFrame() override;
-	void endAnim() override;
-
 };
-
 
 /// This class manages effect animation
 class CEffectAnimation : public CBattleAnimation
@@ -252,12 +239,11 @@ private:
 public:
 	bool init() override;
 	void nextFrame() override;
-	void endAnim() override;
 
 	CEffectAnimation(CBattleInterface * _owner, std::string _customAnim, int _x, int _y, int _dx = 0, int _dy = 0, bool _Vflip = false, bool _alignToBottom = false);
 
 	CEffectAnimation(CBattleInterface * _owner, std::shared_ptr<CAnimation> _customAnim, int _x, int _y, int _dx = 0, int _dy = 0);
 
 	CEffectAnimation(CBattleInterface * _owner, std::string _customAnim, BattleHex _destTile, bool _Vflip = false, bool _alignToBottom = false);
-	virtual ~CEffectAnimation(){};
+	 ~CEffectAnimation();
 };

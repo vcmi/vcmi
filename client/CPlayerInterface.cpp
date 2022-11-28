@@ -32,7 +32,6 @@
 #include "windows/CTradeWindow.h"
 #include "windows/CSpellWindow.h"
 #include "../lib/CConfigHandler.h"
-#include "battle/CCreatureAnimation.h"
 #include "Graphics.h"
 #include "windows/GUIClasses.h"
 #include "../lib/CArtHandler.h"

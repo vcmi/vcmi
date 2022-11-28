@@ -93,13 +93,13 @@ void CBattleStacksController::showBattlefieldObjects(std::shared_ptr<CCanvas> ca
 {
 	auto getCurrentPosition = [&](const CStack *stack) -> BattleHex
 	{
-		for (auto & anim : pendingAnims)
+		for (auto & anim : currentAnimations)
 		{
 			// certainly ugly workaround but fixes quite annoying bug
 			// stack position will be updated only *after* movement is finished
 			// before this - stack is always at its initial position. Thus we need to find
 			// its current position. Which can be found only in this class
-			if (CMovementAnimation *move = dynamic_cast<CMovementAnimation*>(anim.first))
+			if (CMovementAnimation *move = dynamic_cast<CMovementAnimation*>(anim))
 			{
 				if (move->stack == stack)
 					return move->nextHex;
@@ -112,17 +112,17 @@ void CBattleStacksController::showBattlefieldObjects(std::shared_ptr<CCanvas> ca
 
 	for (auto & stack : stacks)
 	{
-		if (creAnims.find(stack->ID) == creAnims.end()) //e.g. for summoned but not yet handled stacks
+		if (stackAnimation.find(stack->ID) == stackAnimation.end()) //e.g. for summoned but not yet handled stacks
 			continue;
 
 		//if (stack->initialPosition < 0) // turret shooters are handled separately
 		//	continue;
 
 		//FIXME: hack to ignore ghost stacks
-		if ((creAnims[stack->ID]->getType() == CCreatureAnim::DEAD || creAnims[stack->ID]->getType() == CCreatureAnim::HOLDING) && stack->isGhost())
+		if ((stackAnimation[stack->ID]->getType() == CCreatureAnim::DEAD || stackAnimation[stack->ID]->getType() == CCreatureAnim::HOLDING) && stack->isGhost())
 			continue;//ignore
 
-		if (creAnims[stack->ID]->isDead())
+		if (stackAnimation[stack->ID]->isDead())
 		{
 			//if ( location == stack->getPosition() )
 			if ( location == BattleHex::HEX_BEFORE_ALL ) //FIXME: any cases when using BEFORE_ALL won't work?
@@ -131,7 +131,7 @@ void CBattleStacksController::showBattlefieldObjects(std::shared_ptr<CCanvas> ca
 		}
 
 		// standing - blit at current position
-		if (!creAnims[stack->ID]->isMoving())
+		if (!stackAnimation[stack->ID]->isMoving())
 		{
 			if ( location == stack->getPosition() )
 				showStack(canvas, stack);
@@ -157,9 +157,9 @@ void CBattleStacksController::showBattlefieldObjects(std::shared_ptr<CCanvas> ca
 
 void CBattleStacksController::stackReset(const CStack * stack)
 {
-	auto iter = creAnims.find(stack->ID);
+	auto iter = stackAnimation.find(stack->ID);
 
-	if(iter == creAnims.end())
+	if(iter == stackAnimation.end())
 	{
 		logGlobal->error("Unit %d have no animation", stack->ID);
 		return;
@@ -181,7 +181,7 @@ void CBattleStacksController::stackReset(const CStack * stack)
 
 void CBattleStacksController::stackAdded(const CStack * stack)
 {
-	creDir[stack->ID] = stack->side == BattleSide::ATTACKER; // must be set before getting stack position
+	stackFacingRight[stack->ID] = stack->side == BattleSide::ATTACKER; // must be set before getting stack position
 
 	Point coords = getStackPositionAtHex(stack->getPosition(), stack);
 
@@ -191,32 +191,32 @@ void CBattleStacksController::stackAdded(const CStack * stack)
 
 		const CCreature *turretCreature = owner->siegeController->getTurretCreature();
 
-		creAnims[stack->ID] = AnimationControls::getAnimation(turretCreature);
-		creAnims[stack->ID]->pos.h = 225;
+		stackAnimation[stack->ID] = AnimationControls::getAnimation(turretCreature);
+		stackAnimation[stack->ID]->pos.h = 225;
 
 		coords = owner->siegeController->getTurretCreaturePosition(stack->initialPosition);
 	}
 	else
 	{
-		creAnims[stack->ID] = AnimationControls::getAnimation(stack->getCreature());
-		creAnims[stack->ID]->onAnimationReset += std::bind(&onAnimationFinished, stack, creAnims[stack->ID]);
-		creAnims[stack->ID]->pos.h = creAnims[stack->ID]->getHeight();
+		stackAnimation[stack->ID] = AnimationControls::getAnimation(stack->getCreature());
+		stackAnimation[stack->ID]->onAnimationReset += std::bind(&onAnimationFinished, stack, stackAnimation[stack->ID]);
+		stackAnimation[stack->ID]->pos.h = stackAnimation[stack->ID]->getHeight();
 	}
-	creAnims[stack->ID]->pos.x = coords.x;
-	creAnims[stack->ID]->pos.y = coords.y;
-	creAnims[stack->ID]->pos.w = creAnims[stack->ID]->getWidth();
-	creAnims[stack->ID]->setType(CCreatureAnim::HOLDING);
+	stackAnimation[stack->ID]->pos.x = coords.x;
+	stackAnimation[stack->ID]->pos.y = coords.y;
+	stackAnimation[stack->ID]->pos.w = stackAnimation[stack->ID]->getWidth();
+	stackAnimation[stack->ID]->setType(CCreatureAnim::HOLDING);
 }
 
 void CBattleStacksController::setActiveStack(const CStack *stack)
 {
 	if (activeStack) // update UI
-		creAnims[activeStack->ID]->setBorderColor(AnimationControls::getNoBorder());
+		stackAnimation[activeStack->ID]->setBorderColor(AnimationControls::getNoBorder());
 
 	activeStack = stack;
 
 	if (activeStack) // update UI
-		creAnims[activeStack->ID]->setBorderColor(AnimationControls::getGoldBorder());
+		stackAnimation[activeStack->ID]->setBorderColor(AnimationControls::getGoldBorder());
 
 	owner->controlPanel->blockUI(activeStack == nullptr);
 }
@@ -227,7 +227,7 @@ void CBattleStacksController::setHoveredStack(const CStack *stack)
 		 return;
 
 	if (mouseHoveredStack)
-		creAnims[mouseHoveredStack->ID]->setBorderColor(AnimationControls::getNoBorder());
+		stackAnimation[mouseHoveredStack->ID]->setBorderColor(AnimationControls::getNoBorder());
 
 	// stack must be alive and not active (which uses gold border instead)
 	if (stack && stack->alive() && stack != activeStack)
@@ -236,9 +236,9 @@ void CBattleStacksController::setHoveredStack(const CStack *stack)
 
 		if (mouseHoveredStack)
 		{
-			creAnims[mouseHoveredStack->ID]->setBorderColor(AnimationControls::getBlueBorder());
-			if (creAnims[mouseHoveredStack->ID]->framesInGroup(CCreatureAnim::MOUSEON) > 0)
-				creAnims[mouseHoveredStack->ID]->playOnce(CCreatureAnim::MOUSEON);
+			stackAnimation[mouseHoveredStack->ID]->setBorderColor(AnimationControls::getBlueBorder());
+			if (stackAnimation[mouseHoveredStack->ID]->framesInGroup(CCreatureAnim::MOUSEON) > 0)
+				stackAnimation[mouseHoveredStack->ID]->playOnce(CCreatureAnim::MOUSEON);
 		}
 	}
 	else
@@ -264,9 +264,9 @@ bool CBattleStacksController::stackNeedsAmountBox(const CStack * stack)
 	if(stack->getCount() == 0) //hide box when target is going to die anyway - do not display "0 creatures"
 		return false;
 
-	for(auto anim : pendingAnims) //no matter what other conditions below are, hide box when creature is playing hit animation
+	for(auto anim : currentAnimations) //no matter what other conditions below are, hide box when creature is playing hit animation
 	{
-		auto hitAnimation = dynamic_cast<CDefenceAnimation*>(anim.first);
+		auto hitAnimation = dynamic_cast<CDefenceAnimation*>(anim);
 		if(hitAnimation && (hitAnimation->stack->ID == stack->ID))
 			return false;
 	}
@@ -325,18 +325,18 @@ void CBattleStacksController::showStackAmountBox(std::shared_ptr<CCanvas> canvas
 			(moveInside ? amountBG->width() + 10 : 0) * reverseSideShift;
 	int yAdd = 260 + ((stack->side == BattleSide::ATTACKER || moveInside) ? 0 : -15);
 
-	canvas->draw(amountBG, creAnims[stack->ID]->pos.topLeft() + Point(xAdd, yAdd));
+	canvas->draw(amountBG, stackAnimation[stack->ID]->pos.topLeft() + Point(xAdd, yAdd));
 
 	//blitting amount
-	Point textPos = creAnims[stack->ID]->pos.topLeft() + amountBG->dimensions()/2 + Point(xAdd, yAdd);
+	Point textPos = stackAnimation[stack->ID]->pos.topLeft() + amountBG->dimensions()/2 + Point(xAdd, yAdd);
 
 	canvas->drawText(textPos, EFonts::FONT_TINY, Colors::WHITE, ETextAlignment::CENTER, makeNumberShort(stack->getCount()));
 }
 
 void CBattleStacksController::showStack(std::shared_ptr<CCanvas> canvas, const CStack * stack)
 {
-	creAnims[stack->ID]->nextFrame(canvas, facingRight(stack)); // do actual blit
-	creAnims[stack->ID]->incrementFrame(float(GH.mainFPSmng->getElapsedMilliseconds()) / 1000);
+	stackAnimation[stack->ID]->nextFrame(canvas, facingRight(stack)); // do actual blit
+	stackAnimation[stack->ID]->incrementFrame(float(GH.mainFPSmng->getElapsedMilliseconds()) / 1000);
 
 	if (stackNeedsAmountBox(stack))
 		showStackAmountBox(canvas, stack);
@@ -344,44 +344,37 @@ void CBattleStacksController::showStack(std::shared_ptr<CCanvas> canvas, const C
 
 void CBattleStacksController::updateBattleAnimations()
 {
-	//handle animations
-	for (auto & elem : pendingAnims)
+	for (auto & elem : currentAnimations)
 	{
-		if (!elem.first) //this animation should be deleted
+		if (!elem)
 			continue;
 
-		if (!elem.second)
-		{
-			elem.second = elem.first->init();
-		}
-		if (elem.second && elem.first)
-			elem.first->nextFrame();
+		if (elem->isInitialized())
+			elem->nextFrame();
+		else
+			elem->tryInitialize();
 	}
 
-	//delete anims
-	int preSize = static_cast<int>(pendingAnims.size());
-	for (auto it = pendingAnims.begin(); it != pendingAnims.end(); ++it)
+	bool hadAnimations = !currentAnimations.empty();
+	for (auto it = currentAnimations.begin(); it != currentAnimations.end();)
 	{
-		if (it->first == nullptr)
-		{
-			pendingAnims.erase(it);
-			it = pendingAnims.begin();
-			break;
-		}
+		if (*it == nullptr)
+			it = currentAnimations.erase(it);
+		else
+			++it;
 	}
 
-	if (preSize > 0 && pendingAnims.empty())
+	if (hadAnimations && currentAnimations.empty())
 	{
 		//anims ended
 		owner->controlPanel->blockUI(activeStack == nullptr);
-
 		owner->animsAreDisplayed.setn(false);
 	}
 }
 
 void CBattleStacksController::addNewAnim(CBattleAnimation *anim)
 {
-	pendingAnims.push_back( std::make_pair(anim, false) );
+	currentAnimations.push_back(anim);
 	owner->animsAreDisplayed.setn(true);
 }
 
@@ -427,7 +420,7 @@ void CBattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> a
 	for (auto & attackedInfo : attackedInfos)
 	{
 		if (attackedInfo.rebirth)
-			creAnims[attackedInfo.defender->ID]->setType(CCreatureAnim::HOLDING);
+			stackAnimation[attackedInfo.defender->ID]->setType(CCreatureAnim::HOLDING);
 		if (attackedInfo.cloneKilled)
 			stackRemoved(attackedInfo.defender->ID);
 	}
@@ -476,7 +469,7 @@ void CBattleStacksController::endAction(const BattleAction* action)
 	{
 		bool shouldFaceRight  = s && s->side == BattleSide::ATTACKER;
 
-		if (s && facingRight(s) != shouldFaceRight && s->alive() && creAnims[s->ID]->isIdle())
+		if (s && facingRight(s) != shouldFaceRight && s->alive() && stackAnimation[s->ID]->isIdle())
 		{
 			addNewAnim(new CReverseAnimation(owner, s, s->getPosition(), false));
 		}
@@ -495,7 +488,7 @@ void CBattleStacksController::startAction(const BattleAction* action)
 	{
 		assert(stack);
 		owner->moveStarted = true;
-		if (creAnims[action->stackNumber]->framesInGroup(CCreatureAnim::MOVE_START))
+		if (stackAnimation[action->stackNumber]->framesInGroup(CCreatureAnim::MOVE_START))
 			addNewAnim(new CMovementStartAnimation(owner, stack));
 
 		//if(shouldRotate(stack, stack->getPosition(), actionTarget.at(0).hexValue))
@@ -505,7 +498,7 @@ void CBattleStacksController::startAction(const BattleAction* action)
 
 void CBattleStacksController::activateStack()
 {
-	if ( !pendingAnims.empty())
+	if ( !currentAnimations.empty())
 		return;
 
 	if ( !stackToActivate)
@@ -557,7 +550,7 @@ const CStack* CBattleStacksController::getActiveStack()
 
 bool CBattleStacksController::facingRight(const CStack * stack)
 {
-	return creDir[stack->ID];
+	return stackFacingRight[stack->ID];
 }
 
 bool CBattleStacksController::activeStackSpellcaster()

@@ -35,9 +35,9 @@ class CBattleStacksController
 	std::shared_ptr<IImage> amountPositive;
 	std::shared_ptr<IImage> amountEffNeutral;
 
-	std::list<std::pair<CBattleAnimation *, bool>> pendingAnims; //currently displayed animations <anim, initialized>
-	std::map<int32_t, std::shared_ptr<CCreatureAnimation>> creAnims; //animations of creatures from fighting armies (order by BattleInfo's stacks' ID)
-	std::map<int, bool> creDir; // <creatureID, if false reverse creature's animation> //TODO: move it to battle callback
+	std::vector<CBattleAnimation *> currentAnimations; //currently displayed animations <anim, initialized>
+	std::map<int32_t, std::shared_ptr<CCreatureAnimation>> stackAnimation; //animations of creatures from fighting armies (order by BattleInfo's stacks' ID)
+	std::map<int, bool> stackFacingRight; // <creatureID, if false reverse creature's animation> //TODO: move it to battle callback
 
 	const CStack *activeStack; //number of active stack; nullptr - no one
 	const CStack *mouseHoveredStack; // stack below mouse pointer, used for border animation

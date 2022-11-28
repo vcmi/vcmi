@@ -42,7 +42,6 @@ class CAdvMapInt;
 class CCastleInterface;
 class CBattleInterface;
 class CComponent;
-class CCreatureAnimation;
 class CSelectableComponent;
 class CSlider;
 class CInGameConsole;

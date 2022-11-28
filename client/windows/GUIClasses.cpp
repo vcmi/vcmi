@@ -28,8 +28,8 @@
 
 #include "../battle/CBattleInterfaceClasses.h"
 #include "../battle/CBattleInterface.h"
-#include "../battle/CCreatureAnimation.h"
 
+#include "../gui/CAnimation.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/SDL_Extensions.h"
 #include "../gui/CCursorHandler.h"
