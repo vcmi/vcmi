@@ -260,10 +260,13 @@ bool CBattleStacksController::stackNeedsAmountBox(const CStack * stack)
 			currentActionTarget = target.at(0).hexValue;
 	}
 
-	if(!stack->alive())
+	if(stack->hasBonusOfType(Bonus::SIEGE_WEAPON) && stack->getCount() == 1) //do not show box for singular war machines, stacked war machines with box shown are supported as extension feature
 		return false;
 
-	if(stack->hasBonusOfType(Bonus::SIEGE_WEAPON) && stack->getCount() == 1) //do not show box for singular war machines, stacked war machines with box shown are supported as extension feature
+	if (!owner->battleActionsStarted) // do not perform any further checks since they are related to actions that will only occur after intro music
+		return true;
+
+	if(!stack->alive())
 		return false;
 
 	if(stack->getCount() == 0) //hide box when target is going to die anyway - do not display "0 creatures"
