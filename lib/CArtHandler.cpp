@@ -938,12 +938,12 @@ CArtifactInstance * CArtifactInstance::createNewArtifactInstance(CArtifact *Art)
 	}
 }
 
-CArtifactInstance * CArtifactInstance::createNewArtifactInstance(int aid)
+CArtifactInstance * CArtifactInstance::createNewArtifactInstance(ArtifactID aid)
 {
 	return createNewArtifactInstance(VLC->arth->objects[aid]);
 }
 
-CArtifactInstance * CArtifactInstance::createArtifact(CMap * map, int aid, int spellID)
+CArtifactInstance * CArtifactInstance::createArtifact(CMap * map, ArtifactID aid, int spellID)
 {
 	CArtifactInstance * a = nullptr;
 	if(aid >= 0)
@@ -1199,19 +1199,19 @@ CArtifactInstance* CArtifactSet::getArt(ArtifactPosition pos, bool excludeLocked
 	return const_cast<CArtifactInstance*>((const_cast<const CArtifactSet*>(this))->getArt(pos, excludeLocked));
 }
 
-ArtifactPosition CArtifactSet::getArtPos(int aid, bool onlyWorn, bool allowLocked) const
+ArtifactPosition CArtifactSet::getArtPos(ArtifactID aid, bool onlyWorn, bool allowLocked) const
 {
 	const auto result = getAllArtPositions(aid, onlyWorn, allowLocked, false);
 	return result.empty() ? ArtifactPosition{ArtifactPosition::PRE_FIRST} : result[0];
 }
 
-ArtifactPosition CArtifactSet::getArtBackpackPos(int aid) const
+ArtifactPosition CArtifactSet::getArtBackpackPos(ArtifactID aid) const
 {
 	const auto result = getBackpackArtPositions(aid);
 	return result.empty() ? ArtifactPosition{ArtifactPosition::PRE_FIRST} : result[0];
 }
 
-std::vector<ArtifactPosition> CArtifactSet::getAllArtPositions(int aid, bool onlyWorn, bool allowLocked, bool getAll) const
+std::vector<ArtifactPosition> CArtifactSet::getAllArtPositions(ArtifactID aid, bool onlyWorn, bool allowLocked, bool getAll) const
 {
 	std::vector<ArtifactPosition> result;
 	for(auto & slotInfo : artifactsWorn)
@@ -1228,7 +1228,7 @@ std::vector<ArtifactPosition> CArtifactSet::getAllArtPositions(int aid, bool onl
 	return result;
 }
 
-std::vector<ArtifactPosition> CArtifactSet::getBackpackArtPositions(int aid) const
+std::vector<ArtifactPosition> CArtifactSet::getBackpackArtPositions(ArtifactID aid) const
 {
 	std::vector<ArtifactPosition> result;
 
@@ -1270,7 +1270,7 @@ const CArtifactInstance * CArtifactSet::getArtByInstanceId( ArtifactInstanceID a
 }
 
 bool CArtifactSet::hasArt(
-	ui32 aid,
+	ArtifactID aid,
 	bool onlyWorn,
     bool searchBackpackAssemblies,
 	bool allowLocked) const
@@ -1278,12 +1278,12 @@ bool CArtifactSet::hasArt(
 	return getArtPosCount(aid, onlyWorn, searchBackpackAssemblies, allowLocked) > 0;
 }
 
-bool CArtifactSet::hasArtBackpack(ui32 aid) const
+bool CArtifactSet::hasArtBackpack(ArtifactID aid) const
 {
 	return getBackpackArtPositions(aid).size() > 0;
 }
 
-unsigned CArtifactSet::getArtPosCount(int aid, bool onlyWorn, bool searchBackpackAssemblies, bool allowLocked) const
+unsigned CArtifactSet::getArtPosCount(ArtifactID aid, bool onlyWorn, bool searchBackpackAssemblies, bool allowLocked) const
 {
 	const auto allPositions = getAllArtPositions(aid, onlyWorn, allowLocked, true);
 	if(!allPositions.empty())
@@ -1296,7 +1296,7 @@ unsigned CArtifactSet::getArtPosCount(int aid, bool onlyWorn, bool searchBackpac
 }
 
 std::pair<const CCombinedArtifactInstance *, const CArtifactInstance *>
-CArtifactSet::searchForConstituent(int aid) const
+CArtifactSet::searchForConstituent(ArtifactID aid) const
 {
 	for(auto & slot : artifactsInBackpack)
 	{
@@ -1316,12 +1316,12 @@ CArtifactSet::searchForConstituent(int aid) const
 	return {nullptr, nullptr};
 }
 
-const CArtifactInstance *CArtifactSet::getHiddenArt(int aid) const
+const CArtifactInstance *CArtifactSet::getHiddenArt(ArtifactID aid) const
 {
 	return searchForConstituent(aid).second;
 }
 
-const CCombinedArtifactInstance *CArtifactSet::getAssemblyByConstituent(int aid) const
+const CCombinedArtifactInstance *CArtifactSet::getAssemblyByConstituent(ArtifactID aid) const
 {
 	return searchForConstituent(aid).first;
 }

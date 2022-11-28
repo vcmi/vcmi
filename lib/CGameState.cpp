@@ -2256,7 +2256,7 @@ bool CGameState::checkForVictory(PlayerColor player, const EventCondition & cond
 		case EventCondition::HAVE_ARTIFACT: //check if any hero has winning artifact
 		{
 			for(auto & elem : p->heroes)
-				if(elem->hasArt(condition.objectType))
+				if(elem->hasArt(ArtifactID(condition.objectType)))
 					return true;
 			return false;
 		}
@@ -2342,8 +2342,8 @@ bool CGameState::checkForVictory(PlayerColor player, const EventCondition & cond
 		case EventCondition::TRANSPORT:
 		{
 			const CGTownInstance *t = static_cast<const CGTownInstance *>(condition.object);
-			if((t->visitingHero && t->visitingHero->hasArt(condition.objectType))
-				|| (t->garrisonHero && t->garrisonHero->hasArt(condition.objectType)))
+			if((t->visitingHero && t->visitingHero->hasArt(ArtifactID(condition.objectType)))
+				|| (t->garrisonHero && t->garrisonHero->hasArt(ArtifactID(condition.objectType))))
 			{
 				return true;
 			}

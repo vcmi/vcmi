@@ -1755,7 +1755,7 @@ HeroPtr VCAI::getHeroWithGrail() const
 {
 	for(const CGHeroInstance * h : cb->getHeroesInfo())
 	{
-		if(h->hasArt(2)) //grail
+		if(h->hasArt(ArtifactID::GRAIL))
 			return h;
 	}
 	return nullptr;

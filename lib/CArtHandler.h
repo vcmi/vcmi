@@ -176,7 +176,7 @@ public:
 
 	static CArtifactInstance *createScroll(SpellID sid);
 	static CArtifactInstance *createNewArtifactInstance(CArtifact *Art);
-	static CArtifactInstance *createNewArtifactInstance(int aid);
+	static CArtifactInstance *createNewArtifactInstance(ArtifactID aid);
 
 	/**
 	 * Creates an artifact instance.
@@ -185,7 +185,7 @@ public:
 	 * @param spellID optional. the id of a spell if a spell scroll object should be created
 	 * @return the created artifact instance
 	 */
-	static CArtifactInstance * createArtifact(CMap * map, int aid, int spellID = -1);
+	static CArtifactInstance * createArtifact(CMap * map, ArtifactID aid, int spellID = -1);
 };
 
 class DLL_LINKAGE CCombinedArtifactInstance : public CArtifactInstance
@@ -327,20 +327,20 @@ public:
 	CArtifactInstance* getArt(ArtifactPosition pos, bool excludeLocked = true); //nullptr - no artifact
 	/// Looks for equipped artifact with given ID and returns its slot ID or -1 if none
 	/// (if more than one such artifact lower ID is returned)
-	ArtifactPosition getArtPos(int aid, bool onlyWorn = true, bool allowLocked = true) const;
+	ArtifactPosition getArtPos(ArtifactID aid, bool onlyWorn = true, bool allowLocked = true) const;
 	ArtifactPosition getArtPos(const CArtifactInstance *art) const;
-	ArtifactPosition getArtBackpackPos(int aid) const;
-	std::vector<ArtifactPosition> getAllArtPositions(int aid, bool onlyWorn, bool allowLocked, bool getAll) const;
-	std::vector<ArtifactPosition> getBackpackArtPositions(int aid) const;
+	ArtifactPosition getArtBackpackPos(ArtifactID aid) const;
+	std::vector<ArtifactPosition> getAllArtPositions(ArtifactID aid, bool onlyWorn, bool allowLocked, bool getAll) const;
+	std::vector<ArtifactPosition> getBackpackArtPositions(ArtifactID aid) const;
 	const CArtifactInstance *getArtByInstanceId(ArtifactInstanceID artInstId) const;
 	/// Search for constituents of assemblies in backpack which do not have an ArtifactPosition
-	const CArtifactInstance *getHiddenArt(int aid) const;
-	const CCombinedArtifactInstance *getAssemblyByConstituent(int aid) const;
+	const CArtifactInstance *getHiddenArt(ArtifactID aid) const;
+	const CCombinedArtifactInstance *getAssemblyByConstituent(ArtifactID aid) const;
 	/// Checks if hero possess artifact of given id (either in backack or worn)
-	bool hasArt(ui32 aid, bool onlyWorn = false, bool searchBackpackAssemblies = false, bool allowLocked = true) const;
-	bool hasArtBackpack(ui32 aid) const;
+	bool hasArt(ArtifactID aid, bool onlyWorn = false, bool searchBackpackAssemblies = false, bool allowLocked = true) const;
+	bool hasArtBackpack(ArtifactID aid) const;
 	bool isPositionFree(ArtifactPosition pos, bool onlyLockCheck = false) const;
-	unsigned getArtPosCount(int aid, bool onlyWorn = true, bool searchBackpackAssemblies = true, bool allowLocked = true) const;
+	unsigned getArtPosCount(ArtifactID aid, bool onlyWorn = true, bool searchBackpackAssemblies = true, bool allowLocked = true) const;
 
 	virtual ArtBearer::ArtBearer bearerType() const = 0;
 	virtual void putArtifact(ArtifactPosition pos, CArtifactInstance * art) = 0;
@@ -358,7 +358,7 @@ public:
 protected:
 
 
-	std::pair<const CCombinedArtifactInstance *, const CArtifactInstance *> searchForConstituent(int aid) const;
+	std::pair<const CCombinedArtifactInstance *, const CArtifactInstance *> searchForConstituent(ArtifactID aid) const;
 private:
 	void serializeJsonHero(JsonSerializeFormat & handler, CMap * map);
 	void serializeJsonCreature(JsonSerializeFormat & handler, CMap * map);
