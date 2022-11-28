@@ -103,11 +103,12 @@ void CBattleStacksController::showBattlefieldObjects(std::shared_ptr<CCanvas> ca
 			// stack position will be updated only *after* movement is finished
 			// before this - stack is always at its initial position. Thus we need to find
 			// its current position. Which can be found only in this class
-			if (CMovementAnimation *move = dynamic_cast<CMovementAnimation*>(anim))
+			if (CStackMoveAnimation *move = dynamic_cast<CStackMoveAnimation*>(anim))
 			{
 				if (move->stack == stack)
-					return move->nextHex;
+					return move->currentHex;
 			}
+
 		}
 		return stack->getPosition();
 	};
@@ -171,7 +172,7 @@ void CBattleStacksController::stackReset(const CStack * stack)
 
 	auto animation = iter->second;
 
-	if(stack->alive() && animation->isDead())
+	if(stack->alive() && animation->isDeadOrDying())
 		animation->setType(CCreatureAnim::HOLDING);
 
 	if (stack->isClone())

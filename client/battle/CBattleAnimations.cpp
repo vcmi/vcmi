@@ -352,7 +352,7 @@ bool CMeleeAttackAnimation::init()
 	if(!CAttackAnimation::checkInitialConditions())
 		return false;
 
-	if(!attackingStack || myAnim->isDead())
+	if(!attackingStack || myAnim->isDeadOrDying())
 	{
 		delete this;
 		return false;
@@ -444,12 +444,19 @@ CMeleeAttackAnimation::CMeleeAttackAnimation(CBattleInterface * _owner, const CS
 	logAnim->debug("Created melee attack anim for %s", attacker->getName());
 }
 
+CStackMoveAnimation::CStackMoveAnimation(CBattleInterface * _owner, const CStack * _stack, BattleHex _currentHex):
+	CBattleStackAnimation(_owner, _stack),
+	currentHex(_currentHex)
+{
+
+}
+
 bool CMovementAnimation::init()
 {
 	if( !CBattleAnimation::checkInitialConditions() )
 		return false;
 
-	if(!stack || myAnim->isDead())
+	if(!stack || myAnim->isDeadOrDying())
 	{
 		delete this;
 		return false;
@@ -464,7 +471,7 @@ bool CMovementAnimation::init()
 	}
 
 	//reverse unit if necessary
-	if(owner->stacksController->shouldRotate(stack, oldPos, nextHex))
+	if(owner->stacksController->shouldRotate(stack, oldPos, currentHex))
 	{
 		// it seems that H3 does NOT plays full rotation animation here in most situations
 		// Logical since it takes quite a lot of time
@@ -490,7 +497,7 @@ bool CMovementAnimation::init()
 	}
 
 	Point begPosition = owner->stacksController->getStackPositionAtHex(oldPos, stack);
-	Point endPosition = owner->stacksController->getStackPositionAtHex(nextHex, stack);
+	Point endPosition = owner->stacksController->getStackPositionAtHex(currentHex, stack);
 
 	timeToMove = AnimationControls::getMovementDuration(stack->getCreature());
 
@@ -523,7 +530,7 @@ void CMovementAnimation::nextFrame()
 	if(progress >= 1.0)
 	{
 		// Sets the position of the creature animation sprites
-		Point coords = owner->stacksController->getStackPositionAtHex(nextHex, stack);
+		Point coords = owner->stacksController->getStackPositionAtHex(currentHex, stack);
 		myAnim->pos = coords;
 
 		// true if creature haven't reached the final destination hex
@@ -531,8 +538,8 @@ void CMovementAnimation::nextFrame()
 		{
 			// update the next hex field which has to be reached by the stack
 			curentMoveIndex++;
-			oldPos = nextHex;
-			nextHex = destTiles[curentMoveIndex];
+			oldPos = currentHex;
+			currentHex = destTiles[curentMoveIndex];
 
 			// request re-initialization
 			initialized = false;
@@ -546,8 +553,8 @@ CMovementAnimation::~CMovementAnimation()
 {
 	assert(stack);
 
-	myAnim->pos = owner->stacksController->getStackPositionAtHex(nextHex, stack);
-	owner->stacksController->addNewAnim(new CMovementEndAnimation(owner, stack, nextHex));
+	myAnim->pos = owner->stacksController->getStackPositionAtHex(currentHex, stack);
+	owner->stacksController->addNewAnim(new CMovementEndAnimation(owner, stack, currentHex));
 
 	if(owner->moveSoundHander != -1)
 	{
@@ -557,21 +564,20 @@ CMovementAnimation::~CMovementAnimation()
 }
 
 CMovementAnimation::CMovementAnimation(CBattleInterface *_owner, const CStack *_stack, std::vector<BattleHex> _destTiles, int _distance)
-	: CBattleStackAnimation(_owner, _stack),
+	: CStackMoveAnimation(_owner, _stack, _destTiles.front()),
 	  destTiles(_destTiles),
 	  curentMoveIndex(0),
 	  oldPos(stack->getPosition()),
 	  begX(0), begY(0),
 	  distanceX(0), distanceY(0),
 	  timeToMove(0.0),
-	  progress(0.0),
-	  nextHex(destTiles.front())
+	  progress(0.0)
 {
 	logAnim->debug("Created movement anim for %s", stack->getName());
 }
 
 CMovementEndAnimation::CMovementEndAnimation(CBattleInterface * _owner, const CStack * _stack, BattleHex destTile)
-: CBattleStackAnimation(_owner, _stack), destinationTile(destTile)
+: CStackMoveAnimation(_owner, _stack, destTile)
 {
 	logAnim->debug("Created movement end anim for %s", stack->getName());
 }
@@ -582,7 +588,7 @@ bool CMovementEndAnimation::init()
 	//	return false;
 
 	if(!stack || myAnim->framesInGroup(CCreatureAnim::MOVE_END) == 0 ||
-		myAnim->isDead())
+		myAnim->isDeadOrDying())
 	{
 		delete this;
 		return false;
@@ -606,7 +612,7 @@ CMovementEndAnimation::~CMovementEndAnimation()
 }
 
 CMovementStartAnimation::CMovementStartAnimation(CBattleInterface * _owner, const CStack * _stack)
-	: CBattleStackAnimation(_owner, _stack)
+	: CStackMoveAnimation(_owner, _stack, _stack->getPosition())
 {
 	logAnim->debug("Created movement start anim for %s", stack->getName());
 }
@@ -617,7 +623,7 @@ bool CMovementStartAnimation::init()
 		return false;
 
 
-	if(!stack || myAnim->isDead())
+	if(!stack || myAnim->isDeadOrDying())
 	{
 		delete this;
 		return false;
@@ -631,8 +637,7 @@ bool CMovementStartAnimation::init()
 }
 
 CReverseAnimation::CReverseAnimation(CBattleInterface * _owner, const CStack * stack, BattleHex dest, bool _priority)
-	: CBattleStackAnimation(_owner, stack),
-	  hex(dest),
+	: CStackMoveAnimation(_owner, stack, dest),
 	  priority(_priority)
 {
 	logAnim->debug("Created reverse anim for %s", stack->getName());
@@ -640,7 +645,7 @@ CReverseAnimation::CReverseAnimation(CBattleInterface * _owner, const CStack * s
 
 bool CReverseAnimation::init()
 {
-	if(myAnim == nullptr || myAnim->isDead())
+	if(myAnim == nullptr || myAnim->isDeadOrDying())
 	{
 		delete this;
 		return false; //there is no such creature
@@ -682,7 +687,7 @@ void CReverseAnimation::setupSecondPart()
 		return;
 	}
 
-	rotateStack(hex);
+	rotateStack(currentHex);
 
 	if(myAnim->framesInGroup(CCreatureAnim::TURN_R))
 	{
@@ -715,9 +720,9 @@ bool CShootingAnimation::init()
 		return false;
 
 	assert(attackingStack);
-	assert(!myAnim->isDead());
+	assert(!myAnim->isDeadOrDying());
 
-	if(!attackingStack || myAnim->isDead())
+	if(!attackingStack || myAnim->isDeadOrDying())
 	{
 		//FIXME: how is this possible?
 		logAnim->warn("Shooting animation has not started yet but attacker is dead! Aborting...");
@@ -884,7 +889,7 @@ bool CCastAnimation::init()
 	if(!CAttackAnimation::checkInitialConditions())
 		return false;
 
-	if(!attackingStack || myAnim->isDead())
+	if(!attackingStack || myAnim->isDeadOrDying())
 	{
 		delete this;
 		return false;

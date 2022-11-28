@@ -326,9 +326,21 @@ int CCreatureAnimation::framesInGroup(CCreatureAnim::EAnimType group) const
 bool CCreatureAnimation::isDead() const
 {
 	return getType() == CCreatureAnim::DEAD
-	    || getType() == CCreatureAnim::DEATH
-	    || getType() == CCreatureAnim::DEAD_RANGED
-	    || getType() == CCreatureAnim::DEATH_RANGED;
+		|| getType() == CCreatureAnim::DEAD_RANGED;
+}
+
+bool CCreatureAnimation::isDying() const
+{
+	return getType() == CCreatureAnim::DEATH
+		|| getType() == CCreatureAnim::DEATH_RANGED;
+}
+
+bool CCreatureAnimation::isDeadOrDying() const
+{
+	return getType() == CCreatureAnim::DEAD
+		|| getType() == CCreatureAnim::DEATH
+		|| getType() == CCreatureAnim::DEAD_RANGED
+		|| getType() == CCreatureAnim::DEATH_RANGED;
 }
 
 bool CCreatureAnimation::isIdle() const
@@ -341,7 +353,9 @@ bool CCreatureAnimation::isMoving() const
 {
 	return getType() == CCreatureAnim::MOVE_START
 	    || getType() == CCreatureAnim::MOVING
-	    || getType() == CCreatureAnim::MOVE_END;
+		|| getType() == CCreatureAnim::MOVE_END
+		|| getType() == CCreatureAnim::TURN_L
+		|| getType() == CCreatureAnim::TURN_R;
 }
 
 bool CCreatureAnimation::isShooting() const

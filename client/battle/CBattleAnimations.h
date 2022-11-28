@@ -128,8 +128,16 @@ public:
 	CMeleeAttackAnimation(CBattleInterface * _owner, const CStack * attacker, BattleHex _dest, const CStack * _attacked);
 };
 
+class CStackMoveAnimation : public CBattleStackAnimation
+{
+public:
+	BattleHex currentHex;
+
+	CStackMoveAnimation(CBattleInterface * _owner, const CStack * _stack, BattleHex _currentHex);
+};
+
 /// Move animation of a creature
-class CMovementAnimation : public CBattleStackAnimation
+class CMovementAnimation : public CStackMoveAnimation
 {
 private:
 	std::vector<BattleHex> destTiles; //full path, includes already passed hexes
@@ -144,8 +152,6 @@ private:
 	double progress; // range 0 -> 1, indicates move progrees. 0 = movement starts, 1 = move ends
 
 public:
-	BattleHex nextHex; // next hex, to which creature move right now
-
 	bool init() override;
 	void nextFrame() override;
 
@@ -154,10 +160,8 @@ public:
 };
 
 /// Move end animation of a creature
-class CMovementEndAnimation : public CBattleStackAnimation
+class CMovementEndAnimation : public CStackMoveAnimation
 {
-private:
-	BattleHex destinationTile;
 public:
 	bool init() override;
 
@@ -166,7 +170,7 @@ public:
 };
 
 /// Move start animation of a creature
-class CMovementStartAnimation : public CBattleStackAnimation
+class CMovementStartAnimation : public CStackMoveAnimation
 {
 public:
 	bool init() override;
@@ -175,9 +179,8 @@ public:
 };
 
 /// Class responsible for animation of stack chaning direction (left <-> right)
-class CReverseAnimation : public CBattleStackAnimation
+class CReverseAnimation : public CStackMoveAnimation
 {
-	BattleHex hex;
 public:
 	bool priority; //true - high, false - low
 	bool init() override;
