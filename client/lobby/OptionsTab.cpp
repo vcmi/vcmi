@@ -467,16 +467,16 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 	else
 		whoCanPlay = HUMAN;
 
-	static std::string flags[] =
-	{
+	static const std::array<std::string, PlayerColor::PLAYER_LIMIT_I> flags =
+	{{
 		"AOFLGBR.DEF", "AOFLGBB.DEF", "AOFLGBY.DEF", "AOFLGBG.DEF",
 		"AOFLGBO.DEF", "AOFLGBP.DEF", "AOFLGBT.DEF", "AOFLGBS.DEF"
-	};
-	static std::string bgs[] =
-	{
+	}};
+	static const std::array<std::string, PlayerColor::PLAYER_LIMIT_I> bgs =
+	{{
 		"ADOPRPNL.bmp", "ADOPBPNL.bmp", "ADOPYPNL.bmp", "ADOPGPNL.bmp",
 		"ADOPOPNL.bmp", "ADOPPPNL.bmp", "ADOPTPNL.bmp", "ADOPSPNL.bmp"
-	};
+	}};
 
 	background = std::make_shared<CPicture>(bgs[s.color.getNum()], 0, 0);
 	labelPlayerName = std::make_shared<CLabel>(55, 10, EFonts::FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, s.name);
