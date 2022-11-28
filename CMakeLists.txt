@@ -242,13 +242,17 @@ if(MINGW OR MSVC)
 endif(MINGW OR MSVC)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR NOT WIN32) #so far all *nix compilers support such parameters
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpointer-arith -Wuninitialized -Wmismatched-tags")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpointer-arith -Wuninitialized")
+	if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 10.0 OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang" )
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wmismatched-tags")
+	endif()
+
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-strict-aliasing -Wno-switch -Wno-sign-compare -Wno-unused-local-typedefs")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-parameter -Wno-overloaded-virtual -Wno-type-limits -Wno-unknown-pragmas")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-reorder")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-varargs") # fuzzylite - Operation.h
 
-	if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+	if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unknown-warning-option")
 	endif()
 
