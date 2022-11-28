@@ -16,7 +16,7 @@ class IImage;
 class CCanvas;
 class CAnimation;
 class CBattleInterface;
-class CObstacleInstance;
+struct CObstacleInstance;
 struct Point;
 
 class CBattleObstacleController

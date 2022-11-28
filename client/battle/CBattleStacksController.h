@@ -15,8 +15,8 @@ struct BattleObjectsByHex;
 struct SDL_Surface;
 struct BattleHex;
 struct StackAttackedInfo;
-struct BattleAction;
 
+class BattleAction;
 class CCanvas;
 class SpellID;
 class CBattleInterface;
