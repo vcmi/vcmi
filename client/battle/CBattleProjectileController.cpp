@@ -9,16 +9,19 @@
  */
 #include "StdInc.h"
 #include "CBattleProjectileController.h"
-#include "../gui/Geometries.h"
-#include "../../lib/CStack.h"
-#include "../../lib/mapObjects/CGTownInstance.h"
-#include "../CGameInfo.h"
-#include "../gui/CAnimation.h"
-#include "../gui/CCanvas.h"
+
 #include "CBattleInterface.h"
 #include "CBattleSiegeController.h"
 #include "CBattleStacksController.h"
 #include "CCreatureAnimation.h"
+
+#include "../gui/Geometries.h"
+#include "../gui/CAnimation.h"
+#include "../gui/CCanvas.h"
+#include "../CGameInfo.h"
+
+#include "../../lib/CStack.h"
+#include "../../lib/mapObjects/CGTownInstance.h"
 
 static double calculateCatapultParabolaY(const Point & from, const Point & dest, int x)
 {

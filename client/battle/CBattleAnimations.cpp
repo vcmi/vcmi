@@ -179,18 +179,23 @@ const CCreature * CAttackAnimation::getCreature()
 
 CAttackAnimation::CAttackAnimation(CBattleInterface *_owner, const CStack *attacker, BattleHex _dest, const CStack *defender)
 	: CBattleStackAnimation(_owner, attacker),
-		shooting(false), group(CCreatureAnim::SHOOT_FRONT),
-		soundPlayed(false),
-		dest(_dest), attackedStack(defender), attackingStack(attacker)
+	  shooting(false),
+	  group(CCreatureAnim::SHOOT_FRONT),
+	  soundPlayed(false),
+	  dest(_dest),
+	  attackedStack(defender),
+	  attackingStack(attacker)
 {
 	assert(attackingStack && "attackingStack is nullptr in CBattleAttack::CBattleAttack !\n");
 	attackingStackPosBeforeReturn = attackingStack->getPosition();
 }
 
 CDefenceAnimation::CDefenceAnimation(StackAttackedInfo _attackedInfo, CBattleInterface * _owner)
-: CBattleStackAnimation(_owner, _attackedInfo.defender),
-attacker(_attackedInfo.attacker), rangedAttack(_attackedInfo.indirectAttack),
-killed(_attackedInfo.killed), timeToWait(0)
+	: CBattleStackAnimation(_owner, _attackedInfo.defender),
+	  attacker(_attackedInfo.attacker),
+	  rangedAttack(_attackedInfo.indirectAttack),
+	  killed(_attackedInfo.killed),
+	  timeToWait(0)
 {
 	logAnim->debug("Created defence anim for %s", _attackedInfo.defender->getName());
 }
@@ -323,7 +328,9 @@ CDefenceAnimation::~CDefenceAnimation()
 }
 
 CDummyAnimation::CDummyAnimation(CBattleInterface * _owner, int howManyFrames)
-: CBattleAnimation(_owner), counter(0), howMany(howManyFrames)
+	: CBattleAnimation(_owner),
+	  counter(0),
+	  howMany(howManyFrames)
 {
 	logAnim->debug("Created dummy animation for %d frames", howManyFrames);
 }
@@ -432,7 +439,7 @@ bool CMeleeAttackAnimation::init()
 }
 
 CMeleeAttackAnimation::CMeleeAttackAnimation(CBattleInterface * _owner, const CStack * attacker, BattleHex _dest, const CStack * _attacked)
-: CAttackAnimation(_owner, attacker, _dest, _attacked)
+	: CAttackAnimation(_owner, attacker, _dest, _attacked)
 {
 	logAnim->debug("Created melee attack anim for %s", attacker->getName());
 }
@@ -599,7 +606,7 @@ CMovementEndAnimation::~CMovementEndAnimation()
 }
 
 CMovementStartAnimation::CMovementStartAnimation(CBattleInterface * _owner, const CStack * _stack)
-: CBattleStackAnimation(_owner, _stack)
+	: CBattleStackAnimation(_owner, _stack)
 {
 	logAnim->debug("Created movement start anim for %s", stack->getName());
 }
@@ -624,7 +631,9 @@ bool CMovementStartAnimation::init()
 }
 
 CReverseAnimation::CReverseAnimation(CBattleInterface * _owner, const CStack * stack, BattleHex dest, bool _priority)
-: CBattleStackAnimation(_owner, stack), hex(dest), priority(_priority)
+	: CBattleStackAnimation(_owner, stack),
+	  hex(dest),
+	  priority(_priority)
 {
 	logAnim->debug("Created reverse anim for %s", stack->getName());
 }

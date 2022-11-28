@@ -17,12 +17,13 @@
 #include "CBattleSiegeController.h"
 #include "CBattleInterfaceClasses.h"
 
+#include "../CGameInfo.h"
+#include "../CPlayerInterface.h"
 #include "../gui/CCursorHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/CIntObject.h"
 #include "../windows/CCreatureWindow.h"
-#include "../CGameInfo.h"
-#include "../CPlayerInterface.h"
+
 #include "../../CCallback.h"
 #include "../../lib/CStack.h"
 #include "../../lib/battle/BattleAction.h"
@@ -45,7 +46,7 @@ CBattleActionsController::CBattleActionsController(CBattleInterface * owner):
 	creatureCasting(false),
 	spellDestSelectMode(false),
 	spellToCast(nullptr),
-	sp(nullptr)
+	currentSpell(nullptr)
 {
 	currentAction = PossiblePlayerBattleAction::INVALID;
 	selectedAction = PossiblePlayerBattleAction::INVALID;
@@ -57,7 +58,7 @@ void CBattleActionsController::endCastingSpell()
 	{
 		spellToCast.reset();
 
-		sp = nullptr;
+		currentSpell = nullptr;
 		spellDestSelectMode = false;
 		CCS->curh->changeGraphic(ECursor::COMBAT, ECursor::COMBAT_POINTER);
 
@@ -212,8 +213,8 @@ void CBattleActionsController::castThisSpell(SpellID spellID)
 	//choosing possible targets
 	const CGHeroInstance *castingHero = (owner->attackingHeroInstance->tempOwner == owner->curInt->playerID) ? owner->attackingHeroInstance : owner->defendingHeroInstance;
 	assert(castingHero); // code below assumes non-null hero
-	sp = spellID.toSpell();
-	PossiblePlayerBattleAction spellSelMode = owner->curInt->cb->getCasterAction(sp, castingHero, spells::Mode::HERO);
+	currentSpell = spellID.toSpell();
+	PossiblePlayerBattleAction spellSelMode = owner->curInt->cb->getCasterAction(currentSpell, castingHero, spells::Mode::HERO);
 
 	if (spellSelMode == PossiblePlayerBattleAction::NO_LOCATION) //user does not have to select location
 	{
@@ -498,9 +499,9 @@ void CBattleActionsController::handleHex(BattleHex myNumber, int eventType)
 			}
 				break;
 			case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:
-				sp = CGI->spellh->objects[creatureCasting ? owner->stacksController->activeStackSpellToCast() : spellToCast->actionSubtype]; //necessary if creature has random Genie spell at same time
-				consoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[27]) % sp->name % shere->getName()); //Cast %s on %s
-				switch (sp->id)
+				currentSpell = CGI->spellh->objects[creatureCasting ? owner->stacksController->activeStackSpellToCast() : spellToCast->actionSubtype]; //necessary if creature has random Genie spell at same time
+				consoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[27]) % currentSpell->name % shere->getName()); //Cast %s on %s
+				switch (currentSpell->id)
 				{
 					case SpellID::SACRIFICE:
 					case SpellID::TELEPORT:
@@ -511,12 +512,12 @@ void CBattleActionsController::handleHex(BattleHex myNumber, int eventType)
 				isCastingPossible = true;
 				break;
 			case PossiblePlayerBattleAction::ANY_LOCATION:
-				sp = CGI->spellh->objects[creatureCasting ? owner->stacksController->activeStackSpellToCast() : spellToCast->actionSubtype]; //necessary if creature has random Genie spell at same time
-				consoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[26]) % sp->name); //Cast %s
+				currentSpell = CGI->spellh->objects[creatureCasting ? owner->stacksController->activeStackSpellToCast() : spellToCast->actionSubtype]; //necessary if creature has random Genie spell at same time
+				consoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[26]) % currentSpell->name); //Cast %s
 				isCastingPossible = true;
 				break;
 			case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL: //we assume that teleport / sacrifice will never be available as random spell
-				sp = nullptr;
+				currentSpell = nullptr;
 				consoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[301]) % shere->getName()); //Cast a spell on %
 				creatureCasting = true;
 				isCastingPossible = true;
@@ -537,7 +538,7 @@ void CBattleActionsController::handleHex(BattleHex myNumber, int eventType)
 				isCastingPossible = true;
 				break;
 			case PossiblePlayerBattleAction::FREE_LOCATION:
-				consoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[26]) % sp->name); //Cast %s
+				consoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[26]) % currentSpell->name); //Cast %s
 				isCastingPossible = true;
 				break;
 			case PossiblePlayerBattleAction::HEAL:
@@ -583,7 +584,7 @@ void CBattleActionsController::handleHex(BattleHex myNumber, int eventType)
 				break;
 			case PossiblePlayerBattleAction::FREE_LOCATION:
 				cursorFrame = ECursor::COMBAT_BLOCKED;
-				consoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[181]) % sp->name); //No room to place %s here
+				consoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[181]) % currentSpell->name); //No room to place %s here
 				break;
 			default:
 				if (myNumber == -1)
@@ -604,8 +605,8 @@ void CBattleActionsController::handleHex(BattleHex myNumber, int eventType)
 			default:
 				cursorType = ECursor::SPELLBOOK;
 				cursorFrame = 0;
-				if (consoleMsg.empty() && sp)
-					consoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[26]) % sp->name); //Cast %s
+				if (consoleMsg.empty() && currentSpell)
+					consoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[26]) % currentSpell->name); //Cast %s
 				break;
 		}
 
@@ -615,7 +616,7 @@ void CBattleActionsController::handleHex(BattleHex myNumber, int eventType)
 			{
 
 				possibleActions.clear();
-				switch (sp->id.toEnum())
+				switch (currentSpell->id.toEnum())
 				{
 					case SpellID::TELEPORT: //don't cast spell yet, only select target
 						spellToCast->aimToUnit(shere);
@@ -631,7 +632,7 @@ void CBattleActionsController::handleHex(BattleHex myNumber, int eventType)
 			{
 				if (creatureCasting)
 				{
-					if (sp)
+					if (currentSpell)
 					{
 						owner->giveCommand(EActionType::MONSTER_SPELL, myNumber, owner->stacksController->activeStackSpellToCast());
 					}
@@ -642,8 +643,8 @@ void CBattleActionsController::handleHex(BattleHex myNumber, int eventType)
 				}
 				else
 				{
-					assert(sp);
-					switch (sp->id.toEnum())
+					assert(currentSpell);
+					switch (currentSpell->id.toEnum())
 					{
 					case SpellID::SACRIFICE:
 						spellToCast->aimToUnit(shere);//victim
@@ -701,11 +702,11 @@ bool CBattleActionsController::isCastingPossibleHere(const CStack *sactive, cons
 	}
 
 
-	sp = nullptr;
+	currentSpell = nullptr;
 	if (spellID >= 0)
-		sp = CGI->spellh->objects[spellID];
+		currentSpell = CGI->spellh->objects[spellID];
 
-	if (sp)
+	if (currentSpell)
 	{
 		const spells::Caster *caster = creatureCasting ? static_cast<const spells::Caster *>(sactive) : static_cast<const spells::Caster *>(owner->curInt->cb->battleGetMyHero());
 		if (caster == nullptr)
@@ -719,9 +720,9 @@ bool CBattleActionsController::isCastingPossibleHere(const CStack *sactive, cons
 			spells::Target target;
 			target.emplace_back(myNumber);
 
-			spells::BattleCast cast(owner->curInt->cb.get(), caster, mode, sp);
+			spells::BattleCast cast(owner->curInt->cb.get(), caster, mode, currentSpell);
 
-			auto m = sp->battleMechanics(&cast);
+			auto m = currentSpell->battleMechanics(&cast);
 			spells::detail::ProblemImpl problem; //todo: display problem in status bar
 
 			isCastingPossible = m->canBeCastAt(target, problem);

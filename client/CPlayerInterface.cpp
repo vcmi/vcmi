@@ -57,6 +57,7 @@
 #include "../lib/CPlayerState.h"
 #include "../lib/GameConstants.h"
 #include "gui/CGuiHandler.h"
+#include "gui/CAnimation.h"
 #include "windows/InfoWindows.h"
 #include "../lib/UnlockGuard.h"
 #include "../lib/CPathfinder.h"

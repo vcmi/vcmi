@@ -9,6 +9,7 @@
  */
 #include "StdInc.h"
 #include "CBattleStacksController.h"
+
 #include "CBattleSiegeController.h"
 #include "CBattleInterfaceClasses.h"
 #include "CBattleInterface.h"
@@ -17,18 +18,21 @@
 #include "CBattleEffectsController.h"
 #include "CBattleProjectileController.h"
 #include "CBattleControlPanel.h"
+
+#include "CCreatureAnimation.h"
+
+#include "../CPlayerInterface.h"
+#include "../CMusicHandler.h"
+#include "../CGameInfo.h"
 #include "../gui/CAnimation.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/CCanvas.h"
-#include "../../lib/battle/BattleHex.h"
-#include "../CPlayerInterface.h"
-#include "CCreatureAnimation.h"
-#include "../../lib/CGameState.h"
+
 #include "../../CCallback.h"
+#include "../../lib/battle/BattleHex.h"
+#include "../../lib/CGameState.h"
 #include "../../lib/CStack.h"
 #include "../../lib/CondSh.h"
-#include "../CMusicHandler.h"
-#include "../CGameInfo.h"
 
 static void onAnimationFinished(const CStack *stack, std::weak_ptr<CCreatureAnimation> anim)
 {

@@ -9,20 +9,23 @@
  */
 #include "StdInc.h"
 #include "CBattleControlPanel.h"
+
 #include "CBattleInterface.h"
 #include "CBattleInterfaceClasses.h"
 #include "CBattleStacksController.h"
 #include "CBattleActionsController.h"
-#include "../widgets/Buttons.h"
-#include "../widgets/Images.h"
+
 #include "../CGameInfo.h"
-#include "../../lib/CGeneralTextHandler.h"
-#include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../CPlayerInterface.h"
-#include "../../CCallback.h"
 #include "../gui/CCursorHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../windows/CSpellWindow.h"
+#include "../widgets/Buttons.h"
+#include "../widgets/Images.h"
+
+#include "../../CCallback.h"
+#include "../../lib/CGeneralTextHandler.h"
+#include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/CStack.h"
 #include "../../lib/CConfigHandler.h"
 

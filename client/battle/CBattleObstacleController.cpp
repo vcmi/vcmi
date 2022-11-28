@@ -9,16 +9,19 @@
  */
 #include "StdInc.h"
 #include "CBattleObstacleController.h"
+
 #include "CBattleInterface.h"
 #include "CBattleFieldController.h"
 #include "CBattleAnimations.h"
 #include "CBattleStacksController.h"
+
 #include "../CPlayerInterface.h"
+#include "../gui/CAnimation.h"
+#include "../gui/CCanvas.h"
+
 #include "../../CCallback.h"
 #include "../../lib/battle/CObstacleInstance.h"
 #include "../../lib/ObstacleHandler.h"
-#include "../gui/CAnimation.h"
-#include "../gui/CCanvas.h"
 
 CBattleObstacleController::CBattleObstacleController(CBattleInterface * owner):
 	owner(owner)

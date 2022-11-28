@@ -70,7 +70,6 @@ void CCanvas::drawText(const Point & position, const EFonts & font, const SDL_Co
 	case ETextAlignment::CENTER:       return graphics->fonts[font]->renderTextLinesCenter(surface, text, colorDest, position);
 	case ETextAlignment::BOTTOMRIGHT:  return graphics->fonts[font]->renderTextLinesRight (surface, text, colorDest, position);
 	}
-
 }
 
 SDL_Surface * CCanvas::getSurface()

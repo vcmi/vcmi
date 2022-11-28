@@ -15,11 +15,13 @@
 #include "CBattleInterface.h"
 #include "CBattleInterfaceClasses.h"
 #include "CBattleStacksController.h"
-#include "../gui/CAnimation.h"
-#include "../gui/CCanvas.h"
+
 #include "../CMusicHandler.h"
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
+#include "../gui/CAnimation.h"
+#include "../gui/CCanvas.h"
+
 #include "../../CCallback.h"
 #include "../../lib/battle/BattleAction.h"
 #include "../../lib/NetPacks.h"
