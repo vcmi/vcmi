@@ -250,10 +250,10 @@ void CBattleSiegeController::gateStateChanged(const EGateState state)
 void CBattleSiegeController::showAbsoluteObstacles(std::shared_ptr<CCanvas> canvas, const Point & offset)
 {
 	if (getWallPieceExistance(EWallVisual::MOAT))
-		showWallPiece(canvas, EWallVisual::MOAT, owner->pos.topLeft());
+		showWallPiece(canvas, EWallVisual::MOAT, offset);
 
 	if (getWallPieceExistance(EWallVisual::MOAT_BANK))
-		showWallPiece(canvas, EWallVisual::MOAT_BANK, owner->pos.topLeft());
+		showWallPiece(canvas, EWallVisual::MOAT_BANK, offset);
 }
 
 void CBattleSiegeController::showBattlefieldObjects(std::shared_ptr<CCanvas> canvas, const BattleHex & location )
