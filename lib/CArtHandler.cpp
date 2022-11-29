@@ -1544,41 +1544,14 @@ DLL_LINKAGE ArtifactPosition ArtifactUtils::getArtifactDstPosition(	const CArtif
 	return ArtifactPosition(GameConstants::BACKPACK_START);
 }
 
-namespace ArtifactUtils
-{
-
-DLL_LINKAGE const std::array<ArtifactPosition::EArtifactPosition, 2> unmovableSlots =
-{
-	ArtifactPosition::SPELLBOOK, 
-	ArtifactPosition::MACH4
-};
-
-DLL_LINKAGE const std::array<ArtifactPosition::EArtifactPosition, 14> constituentWornSlots =
-{
-	ArtifactPosition::HEAD,
-	ArtifactPosition::SHOULDERS,
-	ArtifactPosition::NECK,
-	ArtifactPosition::RIGHT_HAND,
-	ArtifactPosition::LEFT_HAND,
-	ArtifactPosition::TORSO,
-	ArtifactPosition::RIGHT_RING,
-	ArtifactPosition::LEFT_RING,
-	ArtifactPosition::FEET,
-	ArtifactPosition::MISC1,
-	ArtifactPosition::MISC2,
-	ArtifactPosition::MISC3,
-	ArtifactPosition::MISC4,
-	ArtifactPosition::MISC5,
-};
-
-DLL_LINKAGE bool isArtRemovable(const std::pair<ArtifactPosition, ArtSlotInfo> & slot)
+DLL_LINKAGE bool ArtifactUtils::isArtRemovable(const std::pair<ArtifactPosition, ArtSlotInfo> & slot)
 {
 	return slot.second.artifact
 		&& !slot.second.locked
 		&& !vstd::contains(unmovableSlots, slot.first);
 }
 
-DLL_LINKAGE bool checkSpellbookIsNeeded(const CGHeroInstance * heroPtr, ArtifactID artID, ArtifactPosition slot)
+DLL_LINKAGE bool ArtifactUtils::checkSpellbookIsNeeded(const CGHeroInstance * heroPtr, ArtifactID artID, ArtifactPosition slot)
 {
 	// TODO what'll happen if Titan's thunder is equipped by pickin git up or the start of game?
 	// Titan's Thunder creates new spellbook on equip
@@ -1593,10 +1566,9 @@ DLL_LINKAGE bool checkSpellbookIsNeeded(const CGHeroInstance * heroPtr, Artifact
 	return false;
 }
 
-DLL_LINKAGE bool isSlotBackpack(ArtifactPosition slot)
+DLL_LINKAGE bool ArtifactUtils::isSlotBackpack(ArtifactPosition slot)
 {
 	return slot >= GameConstants::BACKPACK_START;
 }
-};
 
 VCMI_LIB_NAMESPACE_END

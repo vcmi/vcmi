@@ -15,18 +15,21 @@
 #include "../CCreatureSet.h"
 #include "../NetPacksBase.h"
 
+namespace std
+{
+	// Used in std::unordered_map
+	template<> struct hash<VCMI_LIB_WRAP_NAMESPACE(ArtifactID)>
+	{
+		size_t operator()(const VCMI_LIB_WRAP_NAMESPACE(ArtifactID) & aid) const
+		{
+			return hash<int>{}(aid.num);
+		}
+	};
+}
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CGCreature;
-
-// Used in std::unordered_map
-template<> struct std::hash<ArtifactID>
-{
-	std::size_t operator()(const ArtifactID & aid) const
-	{
-		return std::hash<int>{}(aid.num);
-	}
-};
 
 class DLL_LINKAGE CQuest final
 {
