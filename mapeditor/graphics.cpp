@@ -315,7 +315,7 @@ void Graphics::addImageListEntry(size_t index, size_t group, const std::string &
 	if (!imageName.empty())
 	{
 		JsonNode entry;
-		if ( group != 0)
+		if(group != 0)
 			entry["group"].Integer() = group;
 		entry["frame"].Integer() = index;
 		entry["file"].String() = imageName;
