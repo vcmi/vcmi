@@ -1038,12 +1038,10 @@ void CInGameConsole::keyPressed (const SDL_KeyboardEvent & key)
 		{
 			if(captureAllKeys)
 			{
-				captureAllKeys = false;
 				endEnteringText(false);
 			}
 			else if(SDLK_TAB == key.keysym.sym)
 			{
-				captureAllKeys = true;
 				startEnteringText();
 			}
 			break;
@@ -1052,7 +1050,6 @@ void CInGameConsole::keyPressed (const SDL_KeyboardEvent & key)
 		{
 			if(enteredText.size() > 0  &&  captureAllKeys)
 			{
-				captureAllKeys = false;
 				endEnteringText(true);
 				CCS->soundh->playSound("CHAT");
 			}
@@ -1129,6 +1126,8 @@ void CInGameConsole::textEdited(const SDL_TextEditingEvent & event)
 
 void CInGameConsole::startEnteringText()
 {
+	captureAllKeys = true;
+
 	CSDL_Ext::startTextInput(&GH.statusbar->pos);
 
 	enteredText = "_";
@@ -1148,6 +1147,8 @@ void CInGameConsole::startEnteringText()
 
 void CInGameConsole::endEnteringText(bool printEnteredText)
 {
+	captureAllKeys = false;
+
 	CSDL_Ext::stopTextInput();
 
 	prevEntDisp = -1;
