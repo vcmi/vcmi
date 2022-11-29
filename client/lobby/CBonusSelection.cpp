@@ -528,7 +528,7 @@ void CBonusSelection::CRegion::clickLeft(tribool down, bool previousState)
 	if(indeterminate(down))
 		return;
 
-	if(!down && selectable && !CSDL_Ext::isTransparent(*graphicsNotSelected, GH.current->motion.x - pos.x, GH.current->motion.y - pos.y))
+	if(!down && selectable && !CSDL_Ext::isTransparent(graphicsNotSelected->getSurface(), GH.current->motion.x - pos.x, GH.current->motion.y - pos.y))
 	{
 		CSH->setCampaignMap(idOfMapAndRegion);
 	}
@@ -538,7 +538,7 @@ void CBonusSelection::CRegion::clickRight(tribool down, bool previousState)
 {
 	// FIXME: For some reason "down" is only ever contain indeterminate_value
 	auto text = CSH->si->campState->camp->scenarios[idOfMapAndRegion].regionText;
-	if(!CSDL_Ext::isTransparent(*graphicsNotSelected, GH.current->motion.x - pos.x, GH.current->motion.y - pos.y) && text.size())
+	if(!CSDL_Ext::isTransparent(graphicsNotSelected->getSurface(), GH.current->motion.x - pos.x, GH.current->motion.y - pos.y) && text.size())
 	{
 		CRClickPopup::createAndPush(text);
 	}

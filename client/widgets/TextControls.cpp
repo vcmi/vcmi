@@ -457,9 +457,9 @@ CTextInput::CTextInput(const Rect & Pos, SDL_Surface * srf)
 	background = std::make_shared<CPicture>(Pos, 0, true);
 	Rect hlp = Pos;
 	if(srf)
-		CSDL_Ext::blitSurface(srf, &hlp, *background.get(), nullptr);
+		CSDL_Ext::blitSurface(srf, &hlp, background->getSurface(), nullptr);
 	else
-		SDL_FillRect(*background.get(), nullptr, 0);
+		SDL_FillRect(background->getSurface(), nullptr, 0);
 	pos.w = background->pos.w;
 	pos.h = background->pos.h;
 	background->pos = pos;
