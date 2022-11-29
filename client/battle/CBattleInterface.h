@@ -59,6 +59,7 @@ struct ProjectileInfo;
 class CClickableHex;
 class CAnimation;
 class IImage;
+class CStackQueue;
 
 /// Small struct which contains information about the id of the attacked stack, the damage dealt,...
 struct StackAttackedInfo
@@ -396,7 +397,7 @@ public:
 	friend class CPlayerInterface;
 	friend class CButton;
 	friend class CInGameConsole;
-
+	friend class CStackQueue;
 	friend class CBattleResultWindow;
 	friend class CBattleHero;
 	friend class CEffectAnimation;

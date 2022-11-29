@@ -763,7 +763,13 @@ void CStackQueue::update()
 		stackBoxes[boxIndex]->setUnit(nullptr);
 }
 
-CStackQueue::StackBox::StackBox(CStackQueue * owner)
+int32_t CStackQueue::getSiegeShooterIconID()
+{
+		return owner->siegeH->town->town->faction->index;
+}
+
+CStackQueue::StackBox::StackBox(CStackQueue * owner):
+	owner(owner)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	background = std::make_shared<CPicture>(owner->embedded ? "StackQueueSmall" : "StackQueueLarge");
@@ -795,7 +801,16 @@ void CStackQueue::StackBox::setUnit(const battle::Unit * unit, size_t turn)
 	{
 		background->colorize(unit->unitOwner());
 		icon->visible = true;
-		icon->setFrame(unit->creatureIconIndex());
+
+		// temporary code for mod compatibility:
+		// first, set icon that should definitely exist (arrow tower icon in base vcmi mod)
+		// second, try to switch to icon that should be provided by mod
+		// if mod is not up to date and does have arrow tower icon yet - second setFrame call will fail and retain previously set image
+		// for 1.2 release & later next line should be moved into 'else' block
+		icon->setFrame(unit->creatureIconIndex(), 0);
+		if (unit->unitType()->idNumber == CreatureID::ARROW_TOWERS)
+			icon->setFrame(owner->getSiegeShooterIconID(), 1);
+
 		amount->setText(makeNumberShort(unit->getCount()));
 
 		if(stateIcon)
