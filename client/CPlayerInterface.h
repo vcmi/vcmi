@@ -69,6 +69,7 @@ namespace boost
 class CPlayerInterface : public CGameInterface, public IUpdateable
 {
 	const CArmedInstance * currentSelection;
+	bool allowBattleReplay = false;
 	std::pair<const CCreatureSet *, const CCreatureSet *> lastBattleArmies;
 
 public:

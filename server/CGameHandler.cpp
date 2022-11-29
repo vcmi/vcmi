@@ -924,6 +924,7 @@ void CGameHandler::endBattleConfirm(const BattleInfo * battleInfo)
 	raccepted.exp[1] = battleResult.data->exp[1];
 	sendAndApply(&raccepted);
 
+	queries.popIfTop(battleQuery);
 	//--> continuation (battleAfterLevelUp) occurs after level-up queries are handled or on removing query
 }
 

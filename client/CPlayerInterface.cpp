@@ -691,7 +691,7 @@ void CPlayerInterface::battleStart(const CCreatureSet *army1, const CCreatureSet
 	lastBattleArmies.second = army2;
 	//quick combat with neutral creatures only
 	auto * army2_object = dynamic_cast<const CGObjectInstance *>(army2);
-	if((!replay && army2_object
+	if((!replay && !allowBattleReplay && army2_object
 		&& army2_object->getOwner() == PlayerColor::UNFLAGGABLE
 		&& settings["adventure"]["quickCombat"].Bool())
 	   || settings["adventure"]["alwaysSkipCombat"].Bool())
@@ -703,6 +703,7 @@ void CPlayerInterface::battleStart(const CCreatureSet *army1, const CCreatureSet
 		cb->registerBattleInterface(autofightingAI);
 		// Player shouldn't be able to move on adventure map if quick combat is going
 		adventureInt->quickCombatLock();
+		allowBattleReplay = true;
 	}
 
 	//Don't wait for dialogs when we are non-active hot-seat player
@@ -920,7 +921,8 @@ void CPlayerInterface::battleEnd(const BattleResult *br, QueryID queryID)
 
 		if(!battleInt)
 		{
-			bool replay = !settings["adventure"]["alwaysSkipCombat"].Bool(); //do not allow manual replay
+			bool replay = allowBattleReplay && !settings["adventure"]["alwaysSkipCombat"].Bool(); //do not allow manual replay
+			allowBattleReplay = false;
 			auto wnd = std::make_shared<CBattleResultWindow>(*br, *this, replay);
 			wnd->resultCallback = [=](ui32 selection)
 			{
