@@ -465,22 +465,33 @@ DLL_LINKAGE void RemoveObject::applyGs(CGameState *gs)
 		}
 	}
 
-	for (TriggeredEvent & event : gs->map->triggeredEvents)
+	for(TriggeredEvent & event : gs->map->triggeredEvents)
 	{
 		auto patcher = [&](EventCondition cond) -> EventExpression::Variant
 		{
-			if (cond.object == obj)
+			if(cond.object == nullptr && cond.condition == EventCondition::DESTROY_0 && cond.value > 0)
 			{
-				if (cond.condition == EventCondition::DESTROY || cond.condition == EventCondition::DESTROY_0)
+				if(obj->ID == cond.objectType && cond.metaType == EMetaclass::OBJECT)
+				{
+					if(cond.value == 1)
+						cond.condition = EventCondition::CONST_VALUE;
+					else
+						cond.value--;
+				}
+			}
+			else if(cond.object == obj)
+			{
+				if(cond.condition == EventCondition::DESTROY || cond.condition == EventCondition::DESTROY_0)
 				{
 					cond.condition = EventCondition::CONST_VALUE;
 					cond.value = 1; // destroyed object, from now on always fulfilled
 				}
-				else if (cond.condition == EventCondition::CONTROL || cond.condition == EventCondition::HAVE_0)
+				else if(cond.condition == EventCondition::CONTROL || cond.condition == EventCondition::HAVE_0)
 				{
 					cond.condition = EventCondition::CONST_VALUE;
 					cond.value = 0; // destroyed object, from now on can not be fulfilled
 				}
+				cond.object = nullptr;
 			}
 			return cond;
 		};

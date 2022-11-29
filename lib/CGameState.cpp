@@ -36,6 +36,7 @@
 #include "serializer/CTypeList.h"
 #include "serializer/CMemorySerializer.h"
 #include "VCMIDirs.h"
+#include "StringConstants.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -2216,28 +2217,28 @@ EVictoryLossCheckResult CGameState::checkForVictoryAndLoss(PlayerColor player) c
 		return this->checkForVictory(player, condition);
 	};
 
-	const PlayerState *p = CGameInfoCallback::getPlayerState(player);
+	const PlayerState * p = CGameInfoCallback::getPlayerState(player);
 
 	//cheater or tester, but has entered the code...
-	if (p->enteredWinningCheatCode)
+	if(p->enteredWinningCheatCode)
 		return EVictoryLossCheckResult::victory(messageWonSelf, messageWonOther);
 
-	if (p->enteredLosingCheatCode)
+	if(p->enteredLosingCheatCode)
 		return EVictoryLossCheckResult::defeat(messageLostSelf, messageLostOther);
 
-	for (const TriggeredEvent & event : map->triggeredEvents)
+	for(const TriggeredEvent & event : map->triggeredEvents)
 	{
-		if (event.trigger.test(evaluateEvent))
+		if(event.trigger.test(evaluateEvent))
 		{
-			if (event.effect.type == EventEffect::VICTORY)
+			if(event.effect.type == EventEffect::VICTORY)
 				return EVictoryLossCheckResult::victory(event.onFulfill, event.effect.toOtherMessage);
 
-			if (event.effect.type == EventEffect::DEFEAT)
+			if(event.effect.type == EventEffect::DEFEAT)
 				return EVictoryLossCheckResult::defeat(event.onFulfill, event.effect.toOtherMessage);
 		}
 	}
 
-	if (checkForStandardLoss(player))
+	if(checkForStandardLoss(player))
 	{
 		return EVictoryLossCheckResult::defeat(messageLostSelf, messageLostOther);
 	}
@@ -2282,23 +2283,6 @@ bool CGameState::checkForVictory(PlayerColor player, const EventCondition & cond
 		{
 			return p->resources[condition.objectType] >= condition.value;
 		}
-		case EventCondition::HAVE_BUILDING:
-		{
-			if (condition.object) // specific town
-			{
-				const CGTownInstance *t = static_cast<const CGTownInstance *>(condition.object);
-				return (t->tempOwner == player && t->hasBuilt(BuildingID(condition.objectType)));
-			}
-			else // any town
-			{
-				for (const CGTownInstance * t : p->towns)
-				{
-					if (t->hasBuilt(BuildingID(condition.objectType)))
-						return true;
-				}
-				return false;
-			}
-		}
 		case EventCondition::DESTROY:
 		{
 			if (condition.object) // mode A - destroy specific object of this type
@@ -2340,56 +2324,273 @@ bool CGameState::checkForVictory(PlayerColor player, const EventCondition & cond
 			}
 		}
 		case EventCondition::TRANSPORT:
-		{
-			const CGTownInstance *t = static_cast<const CGTownInstance *>(condition.object);
-			if((t->visitingHero && t->visitingHero->hasArt(condition.objectType))
-				|| (t->garrisonHero && t->garrisonHero->hasArt(condition.objectType)))
 			{
-				return true;
+				const CGTownInstance *t = static_cast<const CGTownInstance *>(condition.object);
+				if((t->visitingHero && t->visitingHero->hasArt(condition.objectType))
+					|| (t->garrisonHero && t->garrisonHero->hasArt(condition.objectType)))
+				{
+					return true;
+				}
 			}
 			return false;
-		}
 		case EventCondition::DAYS_PASSED:
-		{
 			return (si32)gs->day > condition.value;
-		}
+
 		case EventCondition::IS_HUMAN:
-		{
 			return p->human ? condition.value == 1 : condition.value == 0;
-		}
+
 		case EventCondition::DAYS_WITHOUT_TOWN:
-		{
 			if (p->daysWithoutCastle)
 				return p->daysWithoutCastle.get() >= condition.value;
 			else
 				return false;
-		}
+
 		case EventCondition::CONST_VALUE:
-		{
 			return condition.value; // just convert to bool
-		}
+
 		case EventCondition::HAVE_0:
-		{
-			logGlobal->debug("Not implemented event condition type: %d", (int)condition.condition);
-			//TODO: support new condition format
-			return false;
-		}
+			return checkForHaveCondition(p, condition);
+
+		case EventCondition::HAVE_BUILDING:
 		case EventCondition::HAVE_BUILDING_0:
-		{
-			logGlobal->debug("Not implemented event condition type: %d", (int)condition.condition);
-			//TODO: support new condition format
-			return false;
-		}
+			return checkForHaveBuildingCondition(p, condition);
+
 		case EventCondition::DESTROY_0:
-		{
-			logGlobal->debug("Not implemented event condition type: %d", (int)condition.condition);
-			//TODO: support new condition format
-			return false;
-		}
+			return checkForDestroyCondition(p, condition);
+
 		default:
 			logGlobal->error("Invalid event condition type: %d", (int)condition.condition);
 			return false;
 	}
+}
+
+bool CGameState::checkForHaveCondition(const PlayerState * playerState, const EventCondition & condition) const
+{
+	//FIXME: with such flexible conditions server must check victory loss almost every time smth changed
+
+	auto & team = CGameInfoCallback::getPlayerTeam(playerState->color)->players;
+
+	bool checkTeam = false;
+
+	auto checkOwner = [&](const CGObjectInstance * object) -> bool
+	{
+		if(checkTeam)
+			return team.count(object->getOwner()) != 0;
+		else
+			return object->getOwner() == playerState->color;
+	};
+
+	std::vector<const CGHeroInstance *> heroesToCheck;
+
+	std::vector<const CArmedInstance *> armiesToCheck;
+
+	auto collectHeroes = [&]()
+	{
+		if(condition.object)
+		{
+			auto hero = dynamic_cast<const CGHeroInstance *>(condition.object);
+
+			if(hero)
+			{
+				if(checkOwner(hero))
+					heroesToCheck.push_back(hero);
+			}
+			else
+			{
+				auto town = dynamic_cast<const CGTownInstance *>(condition.object);
+
+				if(town && checkOwner(town))
+				{
+					if(town->visitingHero)
+						heroesToCheck.push_back(town->visitingHero);
+					if(town->garrisonHero)
+						heroesToCheck.push_back(town->visitingHero);
+				}
+			}
+		}
+		else
+		{
+			if(checkTeam)
+			{
+				for(auto player : team)
+				{
+					auto allyState = CGameInfoCallback::getPlayerState(player);
+					for(auto hero : allyState->heroes)
+						heroesToCheck.push_back(hero.get());
+				}
+			}
+			else
+			{
+				for(auto hero : playerState->heroes)
+					heroesToCheck.push_back(hero.get());
+			}
+		}
+	};
+
+	auto collectArmies = [&]()
+	{
+		if(condition.object)
+		{
+			collectHeroes();
+
+			std::copy(heroesToCheck.begin(), heroesToCheck.end(), std::back_inserter(armiesToCheck));
+		}
+		else
+		{
+			for(size_t i = 0; i < map->objects.size(); i++)
+			{
+				const CArmedInstance * army = nullptr;
+				if(map->objects[i]
+					&& checkOwner(map->objects[i])
+					&& (army = dynamic_cast<const CArmedInstance*>(map->objects[i].get())))
+				{
+					armiesToCheck.push_back(army);
+				}
+			}
+		}
+	};
+
+	switch(condition.metaType)
+	{
+	case EMetaclass::ARTIFACT:
+		{
+			collectHeroes();
+
+			for(const CGHeroInstance * hero : heroesToCheck)
+			{
+				if(hero->hasArt(condition.objectType))
+					return true;
+			}
+		}
+		return false;
+	case EMetaclass::CREATURE:
+		{
+			collectArmies();
+
+			int total = 0;
+
+			for(const CArmedInstance * army : armiesToCheck)
+			{
+				for(auto & elem : army->Slots())
+					if(elem.second->type->idNumber == condition.objectType)
+						total += elem.second->count;
+			}
+			return total >= condition.value;
+		}
+	case EMetaclass::INVALID:
+		{
+			checkTeam = true;
+			if(condition.object)
+				return checkOwner(condition.object);
+		}
+		return false;
+	case EMetaclass::OBJECT:
+		{
+			checkTeam = true;
+			if(condition.object)
+			{
+				//only this object
+				return checkOwner(condition.object);
+			}
+			else if(condition.value == 0)
+			{
+				//all objects
+				for(auto & elem : map->objects)
+				{
+					if(elem && elem->ID == condition.objectType && !checkOwner(elem))
+						return false;
+				}
+				return true;
+			}
+			else
+			{
+				//at least N objects
+				int total = 0;
+
+				for(auto & elem : map->objects)
+				{
+					if(elem && elem->ID == condition.objectType && checkOwner(elem))
+						total++;
+				}
+				return total >= condition.value;
+			}
+		}
+
+//	case EMetaclass::PRIMARY_SKILL:
+//		break;
+//	case EMetaclass::SECONDARY_SKILL:
+//		break;
+	case EMetaclass::SPELL:
+		{
+			//amount ignored
+			//object if set must be hero
+			//check spellbook for now
+
+			SpellID spell(condition.objectType);
+			collectHeroes();
+
+			for(const CGHeroInstance * hero : heroesToCheck)
+			{
+				if(hero->spellbookContainsSpell(spell))
+					return true;
+			}
+			return false;
+		}
+		return false;
+	case EMetaclass::RESOURCE:
+		return playerState->resources[condition.objectType] >= condition.value;
+
+	default:
+		logGlobal->error("Not supported meta type %s in event condition type HAVE_0", NMetaclass::names[(int)condition.metaType]);
+		return false;
+	}
+}
+
+bool CGameState::checkForHaveBuildingCondition(const PlayerState * playerState, const EventCondition & condition) const
+{
+	auto bid = condition.condition == EventCondition::HAVE_BUILDING
+		? condition.objectType
+		: condition.objectSubtype;
+
+	if(condition.object)
+	{
+		const CGTownInstance * town = static_cast<const CGTownInstance *>(condition.object);
+		return (town->tempOwner == playerState->color && town->hasBuilt(BuildingID(bid)));
+	}
+	else // any town
+	{
+		for(const CGTownInstance * town : playerState->towns)
+		{
+			if(town->hasBuilt(BuildingID(bid)))
+				return true;
+		}
+		return false;
+	}
+}
+
+bool CGameState::checkForDestroyCondition(const PlayerState * playerState, const EventCondition & condition) const
+{
+	if(condition.object)
+	{
+		return getObj(condition.object->id) == nullptr;
+	}
+	else if(condition.value > 0 && condition.metaType == EMetaclass::OBJECT)
+	{
+		return false;//handled by RemoveObject::applyGs
+	}
+	else if(condition.metaType == EMetaclass::OBJECT)
+	{
+		for(auto & elem : map->objects)
+		{
+			if(elem && elem->ID == condition.objectType)
+				return false;
+		}
+		return true;
+	}
+
+	logGlobal->error("Not supported meta type %s in event condition type DESTROY_0", NMetaclass::names[(int)condition.metaType]);
+
+	return false;
 }
 
 PlayerColor CGameState::checkForStandardWin() const
