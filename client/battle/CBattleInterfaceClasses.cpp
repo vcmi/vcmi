@@ -100,7 +100,9 @@ void CBattleConsole::scrollDown(ui32 by)
 
 CBattleConsole::CBattleConsole(const Rect & position) : lastShown(-1)
 {
-	pos = position;
+	pos += position.topLeft();
+	pos.w = position.w;
+	pos.h = position.h;
 }
 
 void CBattleConsole::clearMatching(const std::string & Text)
