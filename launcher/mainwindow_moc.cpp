@@ -11,7 +11,6 @@
 #include "mainwindow_moc.h"
 #include "ui_mainwindow_moc.h"
 
-#include <QProcess>
 #include <QDir>
 
 #include "../lib/CConfigHandler.h"
@@ -20,6 +19,7 @@
 #include "../lib/logging/CBasicLogConfigurator.h"
 
 #include "updatedialog_moc.h"
+#include "main.h"
 
 void MainWindow::load()
 {
@@ -85,9 +85,9 @@ MainWindow::MainWindow(QWidget * parent)
 	}
 	ui->tabListWidget->setCurrentIndex(0);
 
-	ui->settingsView->isExtraResolutionsModEnabled = ui->stackedWidgetPage2->isExtraResolutionsModEnabled();
+	ui->settingsView->isExtraResolutionsModEnabled = ui->modlistView->isExtraResolutionsModEnabled();
 	ui->settingsView->setDisplayList();
-	connect(ui->stackedWidgetPage2, &CModListView::extraResolutionsEnabledChanged,
+	connect(ui->modlistView, &CModListView::extraResolutionsEnabledChanged,
 		ui->settingsView, &CSettingsView::fillValidResolutions);
 
 	connect(ui->tabSelectList, &QListWidget::currentRowChanged, [this](int i) {
@@ -97,6 +97,11 @@ MainWindow::MainWindow(QWidget * parent)
 #endif
 		ui->tabListWidget->setCurrentIndex(i);
 	});
+	
+#ifdef Q_OS_IOS
+	QScroller::grabGesture(ui->tabSelectList, QScroller::LeftMouseButtonGesture);
+	ui->tabSelectList->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+#endif
 
 	if(settings["launcher"]["updateOnStartup"].Bool())
 		UpdateDialog::showUpdateDialog(false);
@@ -114,31 +119,15 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_startGameButton_clicked()
 {
-#ifdef Q_OS_IOS
-	qApp->quit();
-#else
-	startExecutable(pathToQString(VCMIDirs::get().clientPath()));
-#endif
+	startGame({});
 }
 
-#ifndef Q_OS_IOS
-void MainWindow::startExecutable(QString name)
+void MainWindow::on_tabSelectList_currentRowChanged(int currentRow)
 {
-	QProcess process;
-
-	// Start the executable
-	if(process.startDetached(name, {}))
-	{
-		close(); // exit launcher
-	}
-	else
-	{
-		QMessageBox::critical(this,
-		                      "Error starting executable",
-		                      "Failed to start " + name + "\n"
-		                      "Reason: " + process.errorString(),
-		                      QMessageBox::Ok,
-		                      QMessageBox::Ok);
-	}
+	ui->startGameButton->setEnabled(currentRow != TabRows::LOBBY);
 }
-#endif
+
+const CModList & MainWindow::getModList() const
+{
+	return ui->modlistView->getModList();
+}

@@ -5,7 +5,7 @@
 #include <QStandardItemModel>
 #include "mapcontroller.h"
 #include "../lib/Terrain.h"
-
+#include "resourceExtractor/ResourceConverter.h"
 
 class CMap;
 class ObjectBrowser;
@@ -129,6 +129,8 @@ private:
 	void loadUserSettings();
 	void saveUserSettings();
 
+	void parseCommandLine(ExtractionOptions & extractionOptions);
+
 private:
     Ui::MainWindow * ui;
 	ObjectBrowser * objectBrowser = nullptr;
@@ -142,4 +144,7 @@ private:
 	int mapLevel = 0;
 
 	std::set<int> catalog;
+
+	// command line options
+	QString mapFilePath;			// FilePath to the H3 or VCMI map to open
 };

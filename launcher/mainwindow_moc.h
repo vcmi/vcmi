@@ -19,6 +19,8 @@ const QString appName = "VCMI Launcher";
 }
 
 class QTableWidgetItem;
+class CModList;
+
 
 class MainWindow : public QMainWindow
 {
@@ -27,14 +29,22 @@ class MainWindow : public QMainWindow
 private:
 	Ui::MainWindow * ui;
 	void load();
-#ifndef Q_OS_IOS
-	void startExecutable(QString name);
-#endif
+	
+	enum TabRows
+	{
+		MODS = 0, SETTINGS = 1, LOBBY = 2
+	};
 
 public:
 	explicit MainWindow(QWidget * parent = 0);
 	~MainWindow();
 
-private slots:
+	const CModList & getModList() const;
+
+	
+public slots:
 	void on_startGameButton_clicked();
+	
+private slots:
+	void on_tabSelectList_currentRowChanged(int currentRow);
 };

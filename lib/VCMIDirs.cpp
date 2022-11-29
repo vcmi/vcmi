@@ -23,6 +23,8 @@ bfs::path IVCMIDirs::userLogsPath() const { return userCachePath(); }
 
 bfs::path IVCMIDirs::userSavePath() const { return userDataPath() / "Saves"; }
 
+bfs::path IVCMIDirs::userExtractedPath() const { return userCachePath() / "extracted"; }
+
 bfs::path IVCMIDirs::fullLibraryPath(const std::string &desiredFolder, const std::string &baseLibName) const
 {
 	return libraryPath() / desiredFolder / libraryName(baseLibName);
@@ -36,15 +38,16 @@ std::string IVCMIDirs::genHelpString() const
 	const auto gdStringA = boost::algorithm::join(tempVec, ":");
 
 	return
-		"  game data:   " + gdStringA + "\n"
-		"  libraries:   " + libraryPath().string() + "\n"
-		"  server:      " + serverPath().string() + "\n"
+		"  game data:		" + gdStringA + "\n"
+		"  libraries:		" + libraryPath().string() + "\n"
+		"  server:			" + serverPath().string() + "\n"
 		"\n"
-		"  user data:   " + userDataPath().string() + "\n"
-		"  user cache:  " + userCachePath().string() + "\n"
-		"  user config: " + userConfigPath().string() + "\n"
-		"  user logs:   " + userLogsPath().string() + "\n"
-		"  user saves:  " + userSavePath().string() + "\n"; // Should end without new-line?
+		"  user data:		" + userDataPath().string() + "\n"
+		"  user cache:		" + userCachePath().string() + "\n"
+		"  user config:		" + userConfigPath().string() + "\n"
+		"  user logs:		" + userLogsPath().string() + "\n"
+		"  user saves:		" + userSavePath().string() + "\n";
+		"  user extracted:	" + userExtractedPath().string() + "\n"; // Should end without new-line?
 }
 
 void IVCMIDirs::init()
@@ -148,24 +151,24 @@ bool StartBatchCopyDataProgram(
 class VCMIDirsWIN32 final : public IVCMIDirs
 {
 	public:
-		boost::filesystem::path userDataPath() const override;
-		boost::filesystem::path userCachePath() const override;
-		boost::filesystem::path userConfigPath() const override;
+		bfs::path userDataPath() const override;
+		bfs::path userCachePath() const override;
+		bfs::path userConfigPath() const override;
 
-		std::vector<boost::filesystem::path> dataPaths() const override;
+		std::vector<bfs::path> dataPaths() const override;
 
-		boost::filesystem::path clientPath() const override;
-		boost::filesystem::path serverPath() const override;
+		bfs::path clientPath() const override;
+		bfs::path serverPath() const override;
 
-		boost::filesystem::path libraryPath() const override;
-		boost::filesystem::path binaryPath() const override;
+		bfs::path libraryPath() const override;
+		bfs::path binaryPath() const override;
 
 		std::string libraryName(const std::string& basename) const override;
 
 		void init() override;
 	protected:
-		boost::filesystem::path oldUserDataPath() const;
-		boost::filesystem::path oldUserSavePath() const;
+		bfs::path oldUserDataPath() const;
+		bfs::path oldUserSavePath() const;
 };
 
 void VCMIDirsWIN32::init()
@@ -355,8 +358,8 @@ std::string VCMIDirsWIN32::libraryName(const std::string& basename) const { retu
 class IVCMIDirsUNIX : public IVCMIDirs
 {
 	public:
-		boost::filesystem::path clientPath() const override;
-		boost::filesystem::path serverPath() const override;
+		bfs::path clientPath() const override;
+		bfs::path serverPath() const override;
 
 		virtual bool developmentMode() const;
 };
@@ -427,14 +430,14 @@ bfs::path VCMIDirsIOS::binaryPath() const { return {iOS_utils::bundlePath()}; }
 class VCMIDirsOSX final : public VCMIDirsApple
 {
 public:
-	boost::filesystem::path userDataPath() const override;
-	boost::filesystem::path userCachePath() const override;
-	boost::filesystem::path userLogsPath() const override;
+	bfs::path userDataPath() const override;
+	bfs::path userCachePath() const override;
+	bfs::path userLogsPath() const override;
 
-	std::vector<boost::filesystem::path> dataPaths() const override;
+	std::vector<bfs::path> dataPaths() const override;
 
-	boost::filesystem::path libraryPath() const override;
-	boost::filesystem::path binaryPath() const override;
+	bfs::path libraryPath() const override;
+	bfs::path binaryPath() const override;
 
 	void init() override;
 };
@@ -464,12 +467,12 @@ void VCMIDirsOSX::init()
 
 		for (bfs::directory_iterator file(from); file != bfs::directory_iterator(); ++file)
 		{
-			const boost::filesystem::path& srcFilePath = file->path();
-			const boost::filesystem::path  dstFilePath = to / srcFilePath.filename();
+			const bfs::path& srcFilePath = file->path();
+			const bfs::path  dstFilePath = to / srcFilePath.filename();
 
 			// TODO: Aplication should ask user what to do when file exists:
 			// replace/ignore/stop process/replace all/ignore all
-			if (!boost::filesystem::exists(dstFilePath))
+			if (!bfs::exists(dstFilePath))
 				bfs::rename(srcFilePath, dstFilePath);
 		}
 
@@ -526,14 +529,14 @@ bfs::path VCMIDirsOSX::binaryPath() const { return "."; }
 class VCMIDirsXDG : public IVCMIDirsUNIX
 {
 public:
-	boost::filesystem::path userDataPath() const override;
-	boost::filesystem::path userCachePath() const override;
-	boost::filesystem::path userConfigPath() const override;
+	bfs::path userDataPath() const override;
+	bfs::path userCachePath() const override;
+	bfs::path userConfigPath() const override;
 
-	std::vector<boost::filesystem::path> dataPaths() const override;
+	std::vector<bfs::path> dataPaths() const override;
 
-	boost::filesystem::path libraryPath() const override;
-	boost::filesystem::path binaryPath() const override;
+	bfs::path libraryPath() const override;
+	bfs::path binaryPath() const override;
 
 	std::string libraryName(const std::string& basename) const override;
 };

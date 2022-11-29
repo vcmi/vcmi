@@ -26,5 +26,9 @@ void launchGame(int argc, char * argv[]) {
 			qtNativeWindow.windowScene = nil;
 #endif
 	}
-	[NSNotificationCenter.defaultCenter postNotificationName:@"StartGame" object:nil];
+
+	__auto_type args = [NSMutableArray arrayWithCapacity:argc];
+	for (int i = 0; i < argc; ++i)
+		[args addObject:@(argv[i])];
+	[NSNotificationCenter.defaultCenter postNotificationName:@"StartGame" object:nil userInfo:@{@"args": args}];
 }
