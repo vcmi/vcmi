@@ -2,7 +2,7 @@
 	"name" : "VCMI essential files",
 	"description" : "Essential files required for VCMI to run correctly",
 
-	"version" : "0.99",
+	"version" : "1.0",
 	"author" : "VCMI Team",
 	"contact" : "http://forum.vcmi.eu/index.php",
 	"modType" : "Graphical",
