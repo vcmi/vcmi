@@ -32,29 +32,115 @@ enum ProtocolConsts
 
 const QMap<ProtocolConsts, QString> ProtocolStrings
 {
-	//client consts
-	{GREETING, "%1<GREETINGS>%2<VER>%3"}, //protocol_version byte, encoding bytes, encoding, name, version
+	//=== client commands ===
+	
+	//handshaking with server
+	//%1: first byte is protocol_version, then size of encoding string in bytes, then encoding string
+	//%2: client name
+	//%3: VCMI version
+	{GREETING, "%1<GREETINGS>%2<VER>%3"},
+	
+	//[unsupported] autorization with username
+	//%1: username
 	{USERNAME, "<USER>%1"},
+	
+	//sending message to the chat
+	//%1: message text
 	{MESSAGE, "<MSG>%1"},
-	{CREATE, "<NEW>%1<PSWD>%2<COUNT>%3<MODS>%4"}, //last placeholder for the mods
-	{JOIN, "<JOIN>%1<PSWD>%2<MODS>%3"}, //last placeholder for the mods
-	{LEAVE, "<LEAVE>%1"}, //session
-	{KICK, "<KICK>%1"}, //player username
-	{READY, "<READY>%1"}, //session
-	{FORCESTART, "<FORCESTART>%1"}, //session
+	
+	//create new room
+	//%1: room name
+	//%2: password for the room
+	//%3: max number of players
+	//%4: mods used by host
+	// each mod has a format modname&modversion, mods should be separated by ; symbol
+	{CREATE, "<NEW>%1<PSWD>%2<COUNT>%3<MODS>%4"},
+	
+	//join to the room
+	//%1: room name
+	//%2: password for the room
+	//%3: list of mods used by player
+	// each mod has a format modname&modversion, mods should be separated by ; symbol
+	{JOIN, "<JOIN>%1<PSWD>%2<MODS>%3"},
+	
+	//leave the room
+	//%1: room name
+	{LEAVE, "<LEAVE>%1"},
+	
+	//kick user from the current room
+	//%1: player username
+	{KICK, "<KICK>%1"},
+	
+	//signal that player is ready for game
+	//%1: room name
+	{READY, "<READY>%1"},
+	
+	//[unsupported] start session immediately
+	//%1: room name
+	{FORCESTART, "<FORCESTART>%1"},
 
-	//server consts
+	//=== server commands ===
+	//server commands are started from :>>, arguments are enumerated by : symbol
+	
+	//new session was created
+	//arg[0]: room name
 	{CREATED, "CREATED"},
-	{SESSIONS, "SESSIONS"}, //amount:session_name:joined_players:total_players:is_protected
-	{JOINED, "JOIN"}, //session_name:username
-	{KICKED, "KICK"}, //session_name:username
-	{START, "START"}, //session_name:uuid
-	{HOST, "HOST"}, //host_uuid:players_count
+	
+	//list of existing sessions
+	//arg[0]: amount of sessions, following arguments depending on it
+	//arg[x]: session name
+	//arg[x+1]: amount of players in the session
+	//arg[x+2]: total amount of players allowed
+	//arg[x+3]: True if session is protected by password
+	{SESSIONS, "SESSIONS"},
+	
+	//user has joined to the session
+	//arg[0]: session name
+	//arg[1]: username (who was joined)
+	{JOINED, "JOIN"},
+	
+	//user has left the session
+	//arg[0]: session name
+	//arg[1]: username (who has left)
+	{KICKED, "KICK"},
+	
+	//session has been started
+	//arg[0]: session name
+	//arg[1]: uuid to be used for connection
+	{START, "START"},
+	
+	//host ownership for the game session
+	//arg[0]: uuid to be used by vcmiserver
+	//arg[1]: amount of players (clients) to be connected
+	{HOST, "HOST"},
+	
+	//room status
+	//arg[0]: amount of players, following arguments depending on it
+	//arg[x]: player username
+	//arg[x+1]: True if player is ready
 	{STATUS, "STATUS"}, //joined_players:player_name:is_ready
+	
+	//server error
+	//arg[0]: error message
 	{SRVERROR, "ERROR"},
-	{MODS, "MODS"}, //amount:modname:modversion
-	{CLIENTMODS, "MODSOTHER"}, //username:amount:modname:modversion
-	{CHAT, "MSG"} //username:message
+	
+	//mods used in the session by host player
+	//arg[0]: amount of mods, following arguments depending on it
+	//arg[x]: mod name
+	//arg[x+1]: mod version
+	{MODS, "MODS"},
+	
+	//mods used by user
+	//arg[0]: username
+	//arg[1]: amount of mods, following arguments depending on it
+	//arg[x]: mod name
+	//arg[x+1]: mod version
+	{CLIENTMODS, "MODSOTHER"},
+	
+	//received chat message
+	//arg[0]: sender username
+	//arg[1]: message text
+	{CHAT, "MSG"}
 };
 
 class ServerCommand
