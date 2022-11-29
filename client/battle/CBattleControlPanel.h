@@ -11,7 +11,11 @@
 
 #include "../gui/CIntObject.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
 class CStack;
+
+VCMI_LIB_NAMESPACE_END
+
 class CButton;
 class CBattleInterface;
 class CBattleConsole;

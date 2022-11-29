@@ -12,13 +12,18 @@
 #include "../../lib/GameConstants.h"
 #include "../../lib/battle/BattleHex.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 struct CatapultAttack;
+class CCreature;
+class CGTownInstance;
+
+VCMI_LIB_NAMESPACE_END
+
 struct Point;
 struct SDL_Surface;
 class CCanvas;
-class CGTownInstance;
 class CBattleInterface;
-class CCreature;
 class IImage;
 
 namespace EWallVisual

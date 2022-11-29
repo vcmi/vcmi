@@ -12,11 +12,16 @@
 #include "../../lib/CCreatureHandler.h"
 #include "../gui/Geometries.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
+class CStack;
+
+VCMI_LIB_NAMESPACE_END
+
 struct Point;
 struct SDL_Surface;
 class CAnimation;
 class CCanvas;
-class CStack;
 class CBattleInterface;
 
 /// Small struct which contains information about the position and the velocity of a projectile

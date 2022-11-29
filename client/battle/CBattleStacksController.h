@@ -11,18 +11,22 @@
 
 #include "../gui/Geometries.h"
 
-struct BattleObjectsByHex;
-struct SDL_Surface;
+VCMI_LIB_NAMESPACE_BEGIN
+
 struct BattleHex;
+class BattleAction;
+class CStack;
+class SpellID;
+
+VCMI_LIB_NAMESPACE_END
+
+struct SDL_Surface;
 struct StackAttackedInfo;
 
-class BattleAction;
 class CCanvas;
-class SpellID;
 class CBattleInterface;
 class CBattleAnimation;
 class CCreatureAnimation;
-class CStack;
 class CBattleAnimation;
 class IImage;
 

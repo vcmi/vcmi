@@ -12,13 +12,18 @@
 #include "../../lib/battle/BattleHex.h"
 #include "../gui/CIntObject.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
+class CStack;
+
+VCMI_LIB_NAMESPACE_END
+
 struct SDL_Surface;
 struct Rect;
 struct Point;
 
 class CClickableHex;
 class CCanvas;
-class CStack;
 class IImage;
 class CBattleInterface;
 

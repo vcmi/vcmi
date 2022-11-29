@@ -9,14 +9,18 @@
  */
 #pragma once
 
-struct SDL_Surface;
-struct BattleObjectsByHex;
+VCMI_LIB_NAMESPACE_BEGIN
+
 struct BattleHex;
+struct CObstacleInstance;
+
+VCMI_LIB_NAMESPACE_END
+
+struct SDL_Surface;
 class IImage;
 class CCanvas;
 class CAnimation;
 class CBattleInterface;
-struct CObstacleInstance;
 struct Point;
 
 class CBattleObstacleController

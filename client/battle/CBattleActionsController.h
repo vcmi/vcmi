@@ -11,7 +11,12 @@
 
 #include "../../lib/battle/CBattleInfoCallback.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 class BattleAction;
+
+VCMI_LIB_NAMESPACE_END
+
 class CBattleInterface;
 
 enum class MouseHoveredHexContext

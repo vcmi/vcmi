@@ -11,14 +11,18 @@
 
 #include "../../lib/battle/BattleHex.h"
 
-struct SDL_Surface;
+VCMI_LIB_NAMESPACE_BEGIN
+
 class BattleAction;
+struct CustomEffectInfo;
+struct BattleTriggerEffect;
+
+VCMI_LIB_NAMESPACE_END
+
+struct SDL_Surface;
 class CAnimation;
 class CCanvas;
 class CBattleInterface;
-struct BattleObjectsByHex;
-struct CustomEffectInfo;
-struct BattleTriggerEffect;
 class CEffectAnimation;
 
 namespace EBattleEffect
