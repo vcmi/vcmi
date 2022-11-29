@@ -310,11 +310,13 @@ std::shared_ptr<Animation> Graphics::getAnimation(const std::shared_ptr<const Ob
 	return ret;
 }
 
-void Graphics::addImageListEntry(size_t index, const std::string & listName, const std::string & imageName)
+void Graphics::addImageListEntry(size_t index, size_t group, const std::string & listName, const std::string & imageName)
 {
 	if (!imageName.empty())
 	{
 		JsonNode entry;
+		if ( group != 0)
+			entry["group"].Integer() = group;
 		entry["frame"].Integer() = index;
 		entry["file"].String() = imageName;
 		
@@ -324,7 +326,7 @@ void Graphics::addImageListEntry(size_t index, const std::string & listName, con
 
 void Graphics::addImageListEntries(const EntityService * service)
 {
-	auto cb = std::bind(&Graphics::addImageListEntry, this, _1, _2, _3);
+	auto cb = std::bind(&Graphics::addImageListEntry, this, _1, _2, _3, _4);
 	
 	auto loopCb = [&](const Entity * entity, bool & stop)
 	{

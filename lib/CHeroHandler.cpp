@@ -59,10 +59,10 @@ HeroTypeID CHero::getId() const
 
 void CHero::registerIcons(const IconRegistar & cb) const
 {
-	cb(getIconIndex(), "UN32", iconSpecSmall);
-	cb(getIconIndex(), "UN44", iconSpecLarge);
-	cb(getIconIndex(), "PORTRAITSLARGE", portraitLarge);
-	cb(getIconIndex(), "PORTRAITSSMALL", portraitSmall);
+	cb(getIconIndex(), 0, "UN32", iconSpecSmall);
+	cb(getIconIndex(), 0, "UN44", iconSpecLarge);
+	cb(getIconIndex(), 0, "PORTRAITSLARGE", portraitLarge);
+	cb(getIconIndex(), 0, "PORTRAITSSMALL", portraitSmall);
 }
 
 void CHero::updateFrom(const JsonNode & data)

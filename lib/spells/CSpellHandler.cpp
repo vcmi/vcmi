@@ -505,10 +505,10 @@ std::unique_ptr<spells::Mechanics> CSpell::battleMechanics(const spells::IBattle
 
 void CSpell::registerIcons(const IconRegistar & cb) const
 {
-	cb(getIndex(), "SPELLS", iconBook);
-	cb(getIndex()+1, "SPELLINT", iconEffect);
-	cb(getIndex(), "SPELLBON", iconScenarioBonus);
-	cb(getIndex(), "SPELLSCR", iconScroll);
+	cb(getIndex(), 0, "SPELLS", iconBook);
+	cb(getIndex()+1, 0, "SPELLINT", iconEffect);
+	cb(getIndex(), 0, "SPELLBON", iconScenarioBonus);
+	cb(getIndex(), 0, "SPELLSCR", iconScroll);
 }
 
 void CSpell::updateFrom(const JsonNode & data)

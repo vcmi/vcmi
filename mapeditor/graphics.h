@@ -27,7 +27,7 @@ class JsonNode;
 /// Handles fonts, hero images, town images, various graphics
 class Graphics
 {
-	void addImageListEntry(size_t index, const std::string & listName, const std::string & imageName);
+	void addImageListEntry(size_t index, size_t group, const std::string & listName, const std::string & imageName);
 	
 	void addImageListEntries(const EntityService * service);
 	
