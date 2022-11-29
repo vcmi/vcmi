@@ -44,6 +44,7 @@ void CTownInstanceConstructor::initTypeData(const JsonNode & input)
 	});
 
 	filtersJson = input["filters"];
+	filtersJson.setMeta(input["faction"].meta);
 }
 
 void CTownInstanceConstructor::afterLoadFinalization()

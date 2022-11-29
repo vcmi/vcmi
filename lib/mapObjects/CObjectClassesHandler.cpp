@@ -26,14 +26,6 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-// FIXME: move into inheritNode?
-static void inheritNodeWithMeta(JsonNode & descendant, const JsonNode & base)
-{
-	std::string oldMeta = descendant.meta;
-	JsonUtils::inherit(descendant, base);
-	descendant.setMeta(oldMeta);
-}
-
 CObjectClassesHandler::CObjectClassesHandler()
 {
 #define SET_HANDLER_CLASS(STRING, CLASSNAME) handlerConstructors[STRING] = std::make_shared<CLASSNAME>;
@@ -291,8 +283,9 @@ void CObjectClassesHandler::loadSubObject(const std::string & identifier, JsonNo
 		assert(objects.at(ID)->subObjects.count(subID.get()) == 0);
 		assert(config["index"].isNull());
 		config["index"].Float() = subID.get();
+		config["index"].setMeta(config.meta);
 	}
-	inheritNodeWithMeta(config, objects.at(ID)->base);
+	JsonUtils::inherit(config, objects.at(ID)->base);
 	loadObjectEntry(identifier, config, objects[ID], isSubObject);
 }
 
@@ -367,10 +360,16 @@ void CObjectClassesHandler::beforeValidate(JsonNode & object)
 {
 	for (auto & entry : object["types"].Struct())
 	{
-		inheritNodeWithMeta(entry.second, object["base"]);
+		JsonNode base = object["base"];
+		base.setMeta(entry.second.meta);
+
+		JsonUtils::inherit(entry.second, base);
 		for (auto & templ : entry.second["templates"].Struct())
 		{
-			inheritNodeWithMeta(templ.second, entry.second["base"]);
+			JsonNode subBase = entry.second["base"];
+			subBase.setMeta(entry.second.meta);
+
+			JsonUtils::inherit(templ.second, subBase);
 		}
 	}
 }

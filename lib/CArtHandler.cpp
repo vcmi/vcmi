@@ -373,8 +373,8 @@ CArtifact * CArtHandler::loadFromJson(const std::string & scope, const JsonNode 
 		if(!art->advMapDef.empty())
 		{
 			JsonNode templ;
-			templ.setMeta(scope);
 			templ["animation"].String() = art->advMapDef;
+			templ.setMeta(scope);
 
 			// add new template.
 			// Necessary for objects added via mods that don't have any templates in H3
