@@ -201,7 +201,14 @@ int main(int argc, char * argv[])
 		("donotstartserver,d","do not attempt to start server and just connect to it instead server")
 		("serverport", po::value<si64>(), "override port specified in config file")
 		("saveprefix", po::value<std::string>(), "prefix for auto save files")
-		("savefrequency", po::value<si64>(), "limit auto save creation to each N days");
+		("savefrequency", po::value<si64>(), "limit auto save creation to each N days")
+		("lobby", "parameters address, port, uuid to connect ro remote lobby session")
+		("lobby-address", po::value<std::string>(), "address to remote lobby")
+		("lobby-port", po::value<ui16>(), "port to remote lobby")
+		("lobby-host", "if this client hosts session")
+		("lobby-uuid", po::value<std::string>(), "uuid to the server")
+		("lobby-connections", po::value<ui16>(), "connections of server")
+		("uuid", po::value<std::string>(), "uuid for the client");
 
 	if(argc > 1)
 	{
@@ -483,6 +490,28 @@ int main(int argc, char * argv[])
 	session["autoSkip"].Bool()  = vm.count("autoSkip");
 	session["oneGoodAI"].Bool() = vm.count("oneGoodAI");
 	session["aiSolo"].Bool() = false;
+	
+	session["lobby"].Bool() = false;
+	if(vm.count("lobby"))
+	{
+		session["lobby"].Bool() = true;
+		session["host"].Bool() = false;
+		session["address"].String() = vm["lobby-address"].as<std::string>();
+		CSH->uuid = vm["uuid"].as<std::string>();
+		session["port"].Integer() = vm["lobby-port"].as<ui16>();
+		logGlobal->info("Remote lobby mode at %s:%d, uuid is %s", session["address"].String(), session["port"].Integer(), CSH->uuid);
+		if(vm.count("lobby-host"))
+		{
+			session["host"].Bool() = true;
+			session["hostConnections"].String() = std::to_string(vm["lobby-connections"].as<ui16>());
+			session["hostUuid"].String() = vm["lobby-uuid"].as<std::string>();
+			logGlobal->info("This client will host session, server uuid is %s", session["hostUuid"].String());
+		}
+		
+		//we should not reconnect to previous game in online mode
+		Settings saveSession = settings.write["server"]["reconnect"];
+		saveSession->Bool() = false;
+	}
 
 	if(vm.count("testmap"))
 	{

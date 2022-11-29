@@ -111,6 +111,9 @@ public:
 	static const std::string localhostAddress;
 
 	CServerHandler();
+	
+	std::string getHostAddress() const;
+	ui16 getHostPort() const;
 
 	void resetStateForLobby(const StartInfo::EMode mode, const std::vector<std::string> * names = nullptr);
 	void startLocalServerAndConnect();
