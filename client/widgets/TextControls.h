@@ -124,6 +124,11 @@ class CGStatusBar : public CLabel, public std::enable_shared_from_this<CGStatusB
 protected:
 	Point getBorderSize() override;
 
+	void clickLeft(tribool down, bool previousState) override;
+
+private:
+	std::function<void()> onClick;
+
 public:
 	template<typename ...Args>
 	static std::shared_ptr<CGStatusBar> create(Args... args)
@@ -138,6 +143,8 @@ public:
 	void show(SDL_Surface * to) override; //shows statusbar (with current text)
 
 	void lock(bool shouldLock); //If true, current text cannot be changed until lock(false) is called
+
+	void setOnClick(std::function<void()> handler);
 };
 
 class CFocusable;

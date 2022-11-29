@@ -24,6 +24,7 @@ set(editor_SRCS
 		inspector/messagewidget.cpp
 		inspector/rewardswidget.cpp
 		inspector/questwidget.cpp
+		resourceExtractor/ResourceConverter.cpp
 )
 
 set(editor_HEADERS
@@ -51,6 +52,7 @@ set(editor_HEADERS
 		inspector/messagewidget.h
 		inspector/rewardswidget.h
 		inspector/questwidget.h
+		resourceExtractor/ResourceConverter.h
 )
 
 set(editor_FORMS

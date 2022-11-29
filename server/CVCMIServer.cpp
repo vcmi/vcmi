@@ -170,6 +170,10 @@ void CVCMIServer::run()
 #endif
 
 		startAsyncAccept();
+		if(!remoteConnectionsThread && cmdLineOptions.count("lobby"))
+		{
+			remoteConnectionsThread = vstd::make_unique<boost::thread>(&CVCMIServer::establishRemoteConnections, this);
+		}
 
 #if defined(VCMI_ANDROID)
 		CAndroidVMHelper vmHelper;
@@ -193,6 +197,38 @@ void CVCMIServer::run()
 	}
 	while(state == EServerState::GAMEPLAY_ENDED)
 		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+}
+
+void CVCMIServer::establishRemoteConnections()
+{
+	uuid = cmdLineOptions["lobby-uuid"].as<std::string>();
+    int numOfConnections = cmdLineOptions["connections"].as<ui16>();
+	auto address = cmdLineOptions["lobby"].as<std::string>();
+	int port = cmdLineOptions["lobby-port"].as<ui16>();
+	logGlobal->info("Server is connecting to remote at %s:%d with uuid %s %d times", address, port, uuid, numOfConnections);
+	
+	for(int i = 0; i < numOfConnections; ++i)
+		connectToRemote(address, port);
+}
+
+void CVCMIServer::connectToRemote(const std::string & addr, int port)
+{
+	std::shared_ptr<CConnection> c;
+	try
+	{
+		logNetwork->info("Establishing connection...");
+		c = std::make_shared<CConnection>(addr, port, SERVER_NAME, uuid);
+	}
+	catch(...)
+	{
+		logNetwork->error("\nCannot establish remote connection!");
+	}
+	
+	if(c)
+	{
+		connections.insert(c);
+		c->handler = std::make_shared<boost::thread>(&CVCMIServer::threadHandleClient, this, c);
+	}
 }
 
 void CVCMIServer::threadAnnounceLobby()
@@ -952,10 +988,6 @@ void handleLinuxSignal(int sig)
 static void handleCommandOptions(int argc, char * argv[], boost::program_options::variables_map & options)
 {
 	namespace po = boost::program_options;
-#ifdef SINGLE_PROCESS_APP
-	options.emplace("run-by-client", po::variable_value{true, true});
-	options.emplace("uuid", po::variable_value{std::string{argv[1]}, true});
-#else
 	po::options_description opts("Allowed options");
 	opts.add_options()
 	("help,h", "display help and exit")
@@ -964,7 +996,11 @@ static void handleCommandOptions(int argc, char * argv[], boost::program_options
 	("uuid", po::value<std::string>(), "")
 	("enable-shm-uuid", "use UUID for shared memory identifier")
 	("enable-shm", "enable usage of shared memory")
-	("port", po::value<ui16>(), "port at which server will listen to connections from client");
+	("port", po::value<ui16>(), "port at which server will listen to connections from client")
+	("lobby", po::value<std::string>(), "address to remote lobby")
+	("lobby-port", po::value<ui16>(), "port at which server connect to remote lobby")
+	("lobby-uuid", po::value<std::string>(), "")
+	("connections", po::value<ui16>(), "amount of connections to remote lobby");
 
 	if(argc > 1)
 	{
@@ -977,7 +1013,6 @@ static void handleCommandOptions(int argc, char * argv[], boost::program_options
 			std::cerr << "Failure during parsing command-line options:\n" << e.what() << std::endl;
 		}
 	}
-#endif
 
 	po::notify(options);
 
@@ -1079,19 +1114,21 @@ int main(int argc, char * argv[])
 }
 
 #ifdef VCMI_ANDROID
-void CVCMIServer::create()
+void CVCMIServer::create(const std::vector<std::string> & args)
 {
-	const char * foo[1] = {"android-server"};
+	const char * foo = "android-server";
+	std::vector<const void *> argv = {foo};
+	for(auto & a : args)
+		argv.push_back(a.c_str());
 
-	main(1, const_cast<char **>(foo));
+	main(argv.size(), const_cast<char **>(foo));
 }
 #elif defined(SINGLE_PROCESS_APP)
-void CVCMIServer::create(boost::condition_variable * cond, const std::string & uuid)
+void CVCMIServer::create(boost::condition_variable * cond, const std::vector<std::string> & args)
 {
-	const std::initializer_list<const void *> argv = {
-		cond,
-		uuid.c_str(),
-	};
-	main(argv.size(), reinterpret_cast<char **>(const_cast<void **>(argv.begin())));
+	std::vector<const void *> argv = {cond};
+	for(auto & a : args)
+		argv.push_back(a.c_str());
+	main(argv.size(), reinterpret_cast<char **>(const_cast<void **>(&*argv.begin())));
 }
 #endif
