@@ -319,9 +319,9 @@ TObjectTypeHandler CObjectClassesHandler::getHandlerFor(si32 type, si32 subtype)
 	throw std::runtime_error("Object type handler not found");
 }
 
-TObjectTypeHandler CObjectClassesHandler::getHandlerFor(std::string type, std::string subtype) const
+TObjectTypeHandler CObjectClassesHandler::getHandlerFor(std::string scope, std::string type, std::string subtype) const
 {
-	boost::optional<si32> id = VLC->modh->identifiers.getIdentifier("core", "object", type, false);
+	boost::optional<si32> id = VLC->modh->identifiers.getIdentifier(scope, "object", type, false);
 	if(id)
 	{
 		auto object = objects.at(id.get());

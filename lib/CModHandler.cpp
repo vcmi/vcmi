@@ -208,8 +208,14 @@ std::vector<CIdentifierStorage::ObjectData> CIdentifierStorage::getPossibleIdent
 
 	if (request.remoteScope.empty())
 	{
+		if (request.localScope == "map")
+		{
+			for (auto const & modName : VLC->modh->getActiveMods())
+				allowedScopes.insert(modName);
+		}
+
 		// normally ID's from all required mods, own mod and virtual "core" mod are allowed
-		if(request.localScope != "core" && !request.localScope.empty())
+		else if(request.localScope != "core" && !request.localScope.empty())
 		{
 			allowedScopes = VLC->modh->getModDependencies(request.localScope, isValidScope);
 
@@ -222,23 +228,26 @@ std::vector<CIdentifierStorage::ObjectData> CIdentifierStorage::getPossibleIdent
 	else
 	{
 		//...unless destination mod was specified explicitly
-		//note: getModDependencies does not work for "core" by design
 
-		//for map format support core mod has access to any mod
-		//TODO: better solution for access from map?
-		if(request.localScope == "core" || request.localScope.empty())
+		if(request.remoteScope == "core" )
 		{
+			//"core" mod is an implicit dependency for all mods, allow access into it
+			allowedScopes.insert(request.remoteScope);
+		}
+		else if(request.remoteScope == request.localScope )
+		{
+			// allow self-access
 			allowedScopes.insert(request.remoteScope);
 		}
 		else
 		{
-			// allow only available to all core mod or dependencies
+			// allow access only if mod is in our dependencies
 			auto myDeps = VLC->modh->getModDependencies(request.localScope, isValidScope);
 
 			if(!isValidScope)
 				return std::vector<ObjectData>();
 
-			if(request.remoteScope == "core" || request.remoteScope == request.localScope || myDeps.count(request.remoteScope))
+			if(myDeps.count(request.remoteScope))
 				allowedScopes.insert(request.remoteScope);
 		}
 	}
