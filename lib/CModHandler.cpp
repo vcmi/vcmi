@@ -311,10 +311,14 @@ void CIdentifierStorage::finalize()
 	state = FINALIZING;
 	bool errorsFound = false;
 
-	//Note: we may receive new requests during resolution phase -> end may change -> range for can't be used
-	for(auto it = scheduledRequests.begin(); it != scheduledRequests.end(); it++)
+	while ( !scheduledRequests.empty() )
 	{
-		errorsFound |= !resolveIdentifier(*it);
+		// Use local copy since new requests may appear during resolving, invalidating any iterators
+		auto request = scheduledRequests.back();
+		scheduledRequests.pop_back();
+
+		if (!resolveIdentifier(request))
+			errorsFound = true;
 	}
 
 	if (errorsFound)
