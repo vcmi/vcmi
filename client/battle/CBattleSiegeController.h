@@ -16,6 +16,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 struct CatapultAttack;
 class CCreature;
+class CStack;
 class CGTownInstance;
 
 VCMI_LIB_NAMESPACE_END
@@ -84,6 +85,9 @@ class CBattleSiegeController
 	bool getWallPieceExistance(EWallVisual::EWallVisual what) const;
 
 	void showWallPiece(std::shared_ptr<CCanvas> canvas, EWallVisual::EWallVisual what, const Point & offset);
+
+	BattleHex getTurretBattleHex(EWallVisual::EWallVisual wallPiece) const;
+	const CStack * getTurretStack(EWallVisual::EWallVisual wallPiece) const;
 
 public:
 	CBattleSiegeController(CBattleInterface * owner, const CGTownInstance *siegeTown);

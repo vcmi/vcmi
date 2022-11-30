@@ -113,15 +113,12 @@ void CBattleStacksController::showBattlefieldObjects(std::shared_ptr<CCanvas> ca
 		return stack->getPosition();
 	};
 
-	auto stacks = owner->curInt->cb->battleGetAllStacks(true);
+	auto stacks = owner->curInt->cb->battleGetAllStacks(false);
 
 	for (auto & stack : stacks)
 	{
 		if (stackAnimation.find(stack->ID) == stackAnimation.end()) //e.g. for summoned but not yet handled stacks
 			continue;
-
-		//if (stack->initialPosition < 0) // turret shooters are handled separately
-		//	continue;
 
 		//FIXME: hack to ignore ghost stacks
 		if ((stackAnimation[stack->ID]->getType() == CCreatureAnim::DEAD || stackAnimation[stack->ID]->getType() == CCreatureAnim::HOLDING) && stack->isGhost())

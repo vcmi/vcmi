@@ -128,9 +128,9 @@ bool CBattleSiegeController::getWallPieceExistance(EWallVisual::EWallVisual what
 	{
 	case EWallVisual::MOAT:              return town->hasBuilt(BuildingID::CITADEL) && town->town->faction->index != ETownType::TOWER;
 	case EWallVisual::MOAT_BANK:         return town->hasBuilt(BuildingID::CITADEL) && town->town->faction->index != ETownType::TOWER && town->town->faction->index != ETownType::NECROPOLIS;
-	case EWallVisual::KEEP_BATTLEMENT:   return town->hasBuilt(BuildingID::CITADEL);
-	case EWallVisual::UPPER_BATTLEMENT:  return town->hasBuilt(BuildingID::CASTLE);
-	case EWallVisual::BOTTOM_BATTLEMENT: return town->hasBuilt(BuildingID::CASTLE);
+	case EWallVisual::KEEP_BATTLEMENT:   return town->hasBuilt(BuildingID::CITADEL) && EWallState::EWallState(owner->curInt->cb->battleGetWallState(EWallPart::KEEP)) != EWallState::DESTROYED;
+	case EWallVisual::UPPER_BATTLEMENT:  return town->hasBuilt(BuildingID::CASTLE) && EWallState::EWallState(owner->curInt->cb->battleGetWallState(EWallPart::UPPER_TOWER)) != EWallState::DESTROYED;
+	case EWallVisual::BOTTOM_BATTLEMENT: return town->hasBuilt(BuildingID::CASTLE) && EWallState::EWallState(owner->curInt->cb->battleGetWallState(EWallPart::BOTTOM_TOWER)) != EWallState::DESTROYED;
 	default:                             return true;
 	}
 }
@@ -138,24 +138,24 @@ bool CBattleSiegeController::getWallPieceExistance(EWallVisual::EWallVisual what
 BattleHex CBattleSiegeController::getWallPiecePosition(EWallVisual::EWallVisual what) const
 {
 	static const std::array<BattleHex, 18> wallsPositions = {
-		BattleHex::INVALID, // background, handled separately
-		BattleHex::HEX_BEFORE_ALL,
-		135,
-		BattleHex::HEX_AFTER_ALL,
-		182,
-		130,
-		78,
-		12,
-		BattleHex::HEX_BEFORE_ALL,
-		BattleHex::HEX_BEFORE_ALL, //gates // 94,
-		112,
-		165,
-		45,
-		BattleHex::INVALID, //moat, printed as obstacle // BattleHex::HEX_BEFORE_ALL,
-		BattleHex::INVALID, //moat, printed as obstacle
-		135,
-		BattleHex::HEX_AFTER_ALL,
-		BattleHex::HEX_BEFORE_ALL
+		BattleHex::INVALID,        // BACKGROUND,         // handled separately
+		BattleHex::HEX_BEFORE_ALL, // BACKGROUND_WALL,
+		135,                       // KEEP,
+		BattleHex::HEX_AFTER_ALL,  // BOTTOM_TOWER,
+		182,                       // BOTTOM_WALL,
+		130,                       // WALL_BELLOW_GATE,
+		78,                        // WALL_OVER_GATE,
+		12,                        // UPPER_WALL,
+		BattleHex::HEX_BEFORE_ALL, // UPPER_TOWER,
+		BattleHex::HEX_BEFORE_ALL, // GATE,               // 94
+		112,                       // GATE_ARCH,
+		165,                       // BOTTOM_STATIC_WALL,
+		45,                        // UPPER_STATIC_WALL,
+		BattleHex::INVALID,        // MOAT,               // printed as absolute obstacle
+		BattleHex::INVALID,        // MOAT_BANK,          // printed as absolute obstacle
+		135,                       // KEEP_BATTLEMENT,
+		BattleHex::HEX_AFTER_ALL,  // BOTTOM_BATTLEMENT,
+		BattleHex::HEX_BEFORE_ALL, // UPPER_BATTLEMENT,
 	};
 
 	return wallsPositions[what];
@@ -256,6 +256,29 @@ void CBattleSiegeController::showAbsoluteObstacles(std::shared_ptr<CCanvas> canv
 		showWallPiece(canvas, EWallVisual::MOAT_BANK, offset);
 }
 
+BattleHex CBattleSiegeController::getTurretBattleHex(EWallVisual::EWallVisual wallPiece) const
+{
+	switch(wallPiece)
+	{
+	case EWallVisual::KEEP_BATTLEMENT:   return BattleHex::CASTLE_CENTRAL_TOWER;
+	case EWallVisual::BOTTOM_BATTLEMENT: return BattleHex::CASTLE_BOTTOM_TOWER;
+	case EWallVisual::UPPER_BATTLEMENT:  return BattleHex::CASTLE_UPPER_TOWER;
+	}
+	assert(0);
+	return BattleHex::INVALID;
+}
+
+const CStack * CBattleSiegeController::getTurretStack(EWallVisual::EWallVisual wallPiece) const
+{
+	for (auto & stack : owner->curInt->cb->battleGetAllStacks(true))
+	{
+		if ( stack->initialPosition == getTurretBattleHex(wallPiece))
+			return stack;
+	}
+	assert(0);
+	return nullptr;
+}
+
 void CBattleSiegeController::showBattlefieldObjects(std::shared_ptr<CCanvas> canvas, const BattleHex & location )
 {
 	for (int i = EWallVisual::WALL_FIRST; i <= EWallVisual::WALL_LAST; ++i)
@@ -268,45 +291,13 @@ void CBattleSiegeController::showBattlefieldObjects(std::shared_ptr<CCanvas> can
 		if ( getWallPiecePosition(wallPiece) != location)
 			continue;
 
-		if (wallPiece != EWallVisual::KEEP_BATTLEMENT &&
-			wallPiece != EWallVisual::BOTTOM_BATTLEMENT &&
-			wallPiece != EWallVisual::UPPER_BATTLEMENT)
+		if (wallPiece == EWallVisual::KEEP_BATTLEMENT ||
+			wallPiece == EWallVisual::BOTTOM_BATTLEMENT ||
+			wallPiece == EWallVisual::UPPER_BATTLEMENT)
 		{
-			showWallPiece(canvas, wallPiece, owner->pos.topLeft());
-			continue;
+			owner->stacksController->showStack(canvas, getTurretStack(wallPiece));
 		}
-
-		// tower. check if tower is alive - stack is found
-		BattleHex stackPos;
-		switch(wallPiece)
-		{
-		case EWallVisual::KEEP_BATTLEMENT:
-			stackPos = BattleHex::CASTLE_CENTRAL_TOWER;
-			break;
-		case EWallVisual::BOTTOM_BATTLEMENT:
-			stackPos = BattleHex::CASTLE_BOTTOM_TOWER;
-			break;
-		case EWallVisual::UPPER_BATTLEMENT:
-			stackPos = BattleHex::CASTLE_UPPER_TOWER;
-			break;
-		}
-
-		const CStack *turret = nullptr;
-
-		for (auto & stack : owner->curInt->cb->battleGetAllStacks(true))
-		{
-			if(stack->initialPosition == stackPos)
-			{
-				turret = stack;
-				break;
-			}
-		}
-
-		if (turret)
-		{
-			owner->stacksController->showStack(canvas, turret);
-			showWallPiece(canvas, wallPiece, owner->pos.topLeft());
-		}
+		showWallPiece(canvas, wallPiece, owner->pos.topLeft());
 	}
 }
 
