@@ -112,7 +112,7 @@ if(WIN32)
 endif()
 
 if(APPLE)
-	# This makes Xcode project prettier by moving vcmilauncher_autogen directory into vcmiclient subfolder
+	# This makes Xcode project prettier by moving mapeditor_autogen directory into vcmiclient subfolder
 	set_property(GLOBAL PROPERTY AUTOGEN_TARGETS_FOLDER vcmieditor)
 endif()
 
