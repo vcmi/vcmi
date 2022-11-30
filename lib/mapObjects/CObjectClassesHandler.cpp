@@ -360,17 +360,9 @@ void CObjectClassesHandler::beforeValidate(JsonNode & object)
 {
 	for (auto & entry : object["types"].Struct())
 	{
-		JsonNode base = object["base"];
-		base.setMeta(entry.second.meta);
-
-		JsonUtils::inherit(entry.second, base);
+		JsonUtils::inherit(entry.second, object["base"]);
 		for (auto & templ : entry.second["templates"].Struct())
-		{
-			JsonNode subBase = entry.second["base"];
-			subBase.setMeta(entry.second.meta);
-
-			JsonUtils::inherit(templ.second, subBase);
-		}
+			JsonUtils::inherit(templ.second, entry.second["base"]);
 	}
 }
 
