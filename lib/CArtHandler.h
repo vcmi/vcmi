@@ -386,28 +386,9 @@ namespace ArtifactUtils
 	DLL_LINKAGE ArtifactPosition getArtifactDstPosition(	const CArtifactInstance * artifact, 
 								const CArtifactSet * target,
 								ArtBearer::ArtBearer bearer);
-	const std::array<ArtifactPosition::EArtifactPosition, 2> unmovableSlots =
-	{
-		ArtifactPosition::SPELLBOOK,
-		ArtifactPosition::MACH4
-	};
-	const std::array<ArtifactPosition::EArtifactPosition, 14> constituentWornSlots =
-	{
-		ArtifactPosition::HEAD,
-		ArtifactPosition::SHOULDERS,
-		ArtifactPosition::NECK,
-		ArtifactPosition::RIGHT_HAND,
-		ArtifactPosition::LEFT_HAND,
-		ArtifactPosition::TORSO,
-		ArtifactPosition::RIGHT_RING,
-		ArtifactPosition::LEFT_RING,
-		ArtifactPosition::FEET,
-		ArtifactPosition::MISC1,
-		ArtifactPosition::MISC2,
-		ArtifactPosition::MISC3,
-		ArtifactPosition::MISC4,
-		ArtifactPosition::MISC5,
-	};
+	// TODO: Make this constexpr when the toolset is upgraded
+	DLL_LINKAGE const std::vector<ArtifactPosition::EArtifactPosition> & unmovableSlots();
+	DLL_LINKAGE const std::vector<ArtifactPosition::EArtifactPosition> & constituentWornSlots();
 	DLL_LINKAGE bool isArtRemovable(const std::pair<ArtifactPosition, ArtSlotInfo> & slot);
 	DLL_LINKAGE bool checkSpellbookIsNeeded(const CGHeroInstance * heroPtr, ArtifactID artID, ArtifactPosition slot);
 	DLL_LINKAGE bool isSlotBackpack(ArtifactPosition slot);

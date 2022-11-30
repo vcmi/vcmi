@@ -15,25 +15,13 @@
 #include "../CCreatureSet.h"
 #include "../NetPacksBase.h"
 
-namespace std
-{
-	// Used in std::unordered_map
-	template<> struct hash<VCMI_LIB_WRAP_NAMESPACE(ArtifactID)>
-	{
-		size_t operator()(const VCMI_LIB_WRAP_NAMESPACE(ArtifactID) & aid) const
-		{
-			return hash<int>{}(aid.num);
-		}
-	};
-}
-
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CGCreature;
 
 class DLL_LINKAGE CQuest final
 {
-	mutable std::unordered_map<ArtifactID, unsigned> artifactsRequirements; // artifact ID -> required count
+	mutable std::unordered_map<ArtifactID, unsigned, ArtifactID::hash> artifactsRequirements; // artifact ID -> required count
 
 public:
 	enum Emission {MISSION_NONE = 0, MISSION_LEVEL = 1, MISSION_PRIMARY_STAT = 2, MISSION_KILL_HERO = 3, MISSION_KILL_CREATURE = 4,

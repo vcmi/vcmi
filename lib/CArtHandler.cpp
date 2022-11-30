@@ -1019,7 +1019,7 @@ bool CCombinedArtifactInstance::canBePutAt(const CArtifactSet *artSet, ArtifactP
 	}
 
 	//we iterate over all active slots and check if constituents fits them
-	for(const auto pos : ArtifactUtils::constituentWornSlots)
+	for(const auto pos : ArtifactUtils::constituentWornSlots())
 	{
 		for(auto art = constituentsToBePlaced.begin(); art != constituentsToBePlaced.end(); art++)
 		{
@@ -1372,6 +1372,7 @@ void CArtifactSet::eraseArtSlot(ArtifactPosition slot)
 {
 	if(ArtifactUtils::isSlotBackpack(slot))
 	{
+		assert(artifactsInBackpack.begin() + slot < artifactsInBackpack.end());
 		slot = ArtifactPosition(slot - GameConstants::BACKPACK_START);
 		artifactsInBackpack.erase(artifactsInBackpack.begin() + slot);
 	}
@@ -1544,11 +1545,41 @@ DLL_LINKAGE ArtifactPosition ArtifactUtils::getArtifactDstPosition(	const CArtif
 	return ArtifactPosition(GameConstants::BACKPACK_START);
 }
 
+DLL_LINKAGE const std::vector<ArtifactPosition::EArtifactPosition> & ArtifactUtils::unmovableSlots()
+{
+	return
+	{
+		ArtifactPosition::SPELLBOOK,
+		ArtifactPosition::MACH4
+	};
+}
+
+DLL_LINKAGE const std::vector<ArtifactPosition::EArtifactPosition> & ArtifactUtils::constituentWornSlots()
+{
+	return
+	{
+		ArtifactPosition::HEAD,
+		ArtifactPosition::SHOULDERS,
+		ArtifactPosition::NECK,
+		ArtifactPosition::RIGHT_HAND,
+		ArtifactPosition::LEFT_HAND,
+		ArtifactPosition::TORSO,
+		ArtifactPosition::RIGHT_RING,
+		ArtifactPosition::LEFT_RING,
+		ArtifactPosition::FEET,
+		ArtifactPosition::MISC1,
+		ArtifactPosition::MISC2,
+		ArtifactPosition::MISC3,
+		ArtifactPosition::MISC4,
+		ArtifactPosition::MISC5,
+	};
+}
+
 DLL_LINKAGE bool ArtifactUtils::isArtRemovable(const std::pair<ArtifactPosition, ArtSlotInfo> & slot)
 {
 	return slot.second.artifact
 		&& !slot.second.locked
-		&& !vstd::contains(unmovableSlots, slot.first);
+		&& !vstd::contains(unmovableSlots(), slot.first);
 }
 
 DLL_LINKAGE bool ArtifactUtils::checkSpellbookIsNeeded(const CGHeroInstance * heroPtr, ArtifactID artID, ArtifactPosition slot)
