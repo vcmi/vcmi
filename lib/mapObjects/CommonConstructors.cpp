@@ -44,6 +44,9 @@ void CTownInstanceConstructor::initTypeData(const JsonNode & input)
 	});
 
 	filtersJson = input["filters"];
+
+	// change scope of "filters" to scope of object that is being loaded
+	// since this filters require to resolve building ID's
 	filtersJson.setMeta(input["faction"].meta);
 }
 
