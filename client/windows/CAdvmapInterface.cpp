@@ -716,6 +716,11 @@ CAdvMapInt::CAdvMapInt():
 	worldViewUnderground->block(!CGI->mh->map->twoLevel);
 
 	addUsedEvents(MOVE);
+
+	statusbar->setOnClick([&]
+		{
+			if(LOCPLINT) LOCPLINT->cingconsole->startEnteringText();
+		});
 }
 
 CAdvMapInt::~CAdvMapInt()
@@ -949,6 +954,7 @@ void CAdvMapInt::activate()
 		}
 		minimap.activate();
 		terrain.activate();
+		statusbar->activate();
 
 		GH.fakeMouseMove(); //to restore the cursor
 	}

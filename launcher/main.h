@@ -9,6 +9,10 @@
  */
 #pragma once
 
+void startGame(const QStringList & args);
+
 #ifdef VCMI_IOS
 extern "C" void launchGame(int argc, char * argv[]);
+#else
+void startExecutable(QString name, const QStringList & args);
 #endif

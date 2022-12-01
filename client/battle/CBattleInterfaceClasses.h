@@ -158,6 +158,7 @@ class CStackQueue : public CIntObject
 {
 	class StackBox : public CIntObject
 	{
+		CStackQueue * owner;
 	public:
 		std::shared_ptr<CPicture> background;
 		std::shared_ptr<CAnimImage> icon;
@@ -176,6 +177,7 @@ class CStackQueue : public CIntObject
 	std::shared_ptr<CAnimation> icons;
 	std::shared_ptr<CAnimation> stateIcons;
 
+	int32_t getSiegeShooterIconID();
 public:
 	const bool embedded;
 

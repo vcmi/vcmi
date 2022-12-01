@@ -126,15 +126,19 @@ void CFaction::registerIcons(const IconRegistar & cb) const
 	if(town)
 	{
 		auto & info = town->clientInfo;
-		cb(info.icons[0][0], "ITPT", info.iconLarge[0][0]);
-		cb(info.icons[0][1], "ITPT", info.iconLarge[0][1]);
-		cb(info.icons[1][0], "ITPT", info.iconLarge[1][0]);
-		cb(info.icons[1][1], "ITPT", info.iconLarge[1][1]);
+		cb(info.icons[0][0], 0, "ITPT", info.iconLarge[0][0]);
+		cb(info.icons[0][1], 0, "ITPT", info.iconLarge[0][1]);
+		cb(info.icons[1][0], 0, "ITPT", info.iconLarge[1][0]);
+		cb(info.icons[1][1], 0, "ITPT", info.iconLarge[1][1]);
 
-		cb(info.icons[0][0] + 2, "ITPA", info.iconSmall[0][0]);
-		cb(info.icons[0][1] + 2, "ITPA", info.iconSmall[0][1]);
-		cb(info.icons[1][0] + 2, "ITPA", info.iconSmall[1][0]);
-		cb(info.icons[1][1] + 2, "ITPA", info.iconSmall[1][1]);
+		cb(info.icons[0][0] + 2, 0, "ITPA", info.iconSmall[0][0]);
+		cb(info.icons[0][1] + 2, 0, "ITPA", info.iconSmall[0][1]);
+		cb(info.icons[1][0] + 2, 0, "ITPA", info.iconSmall[1][0]);
+		cb(info.icons[1][1] + 2, 0, "ITPA", info.iconSmall[1][1]);
+
+		cb(index, 1, "CPRSMALL", info.towerIconSmall);
+		cb(index, 1, "TWCRPORT", info.towerIconLarge);
+
 	}
 }
 
@@ -755,6 +759,9 @@ CTown::ClientInfo::Point JsonToPoint(const JsonNode & node)
 void CTownHandler::loadSiegeScreen(CTown &town, const JsonNode & source)
 {
 	town.clientInfo.siegePrefix = source["imagePrefix"].String();
+	town.clientInfo.towerIconSmall = source["towerIconSmall"].String();
+	town.clientInfo.towerIconLarge = source["towerIconLarge"].String();
+
 	VLC->modh->identifiers.requestIdentifier("creature", source["shooter"], [&town](si32 creature)
 	{
 		auto crId = CreatureID(creature);

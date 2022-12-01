@@ -210,6 +210,8 @@
 			"siege" :
 			{
 				"shooter" : "stormElemental",
+				"towerIconSmall" : "vcmi/creatureIcons/towerSmall",
+				"towerIconLarge" : "vcmi/creatureIcons/towerLarge",
 				"imagePrefix" : "SGEL",
 				"gate" :
 				{

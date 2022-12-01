@@ -51,6 +51,9 @@
       <property name="horizontalScrollBarPolicy">
        <enum>Qt::ScrollBarAlwaysOff</enum>
       </property>
+      <property name="sizeAdjustPolicy">
+       <enum>QAbstractScrollArea::AdjustToContents</enum>
+      </property>
       <property name="editTriggers">
        <set>QAbstractItemView::NoEditTriggers</set>
       </property>
@@ -75,6 +78,9 @@
       <property name="flow">
        <enum>QListView::TopToBottom</enum>
       </property>
+      <property name="isWrapping" stdset="0">
+       <bool>false</bool>
+      </property>
       <property name="resizeMode">
        <enum>QListView::Adjust</enum>
       </property>
@@ -91,7 +97,7 @@
        <bool>true</bool>
       </property>
       <property name="wordWrap">
-       <bool>true</bool>
+       <bool>false</bool>
       </property>
       <item>
        <property name="text">
@@ -111,13 +117,21 @@
          <normaloff>icons:menu-settings.png</normaloff>icons:menu-settings.png</iconset>
        </property>
       </item>
+      <item>
+       <property name="text">
+        <string>Lobby</string>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>icons:menu-lobby.png</normaloff>icons:menu-lobby.png</iconset>
+       </property>
+      </item>
      </widget>
     </item>
     <item row="2" column="0">
      <widget class="QLabel" name="startGameTitle">
       <property name="font">
        <font>
-        <weight>75</weight>
         <bold>true</bold>
        </font>
       </property>
@@ -143,8 +157,9 @@
       <property name="currentIndex">
        <number>0</number>
       </property>
-      <widget class="CModListView" name="stackedWidgetPage2"/>
+      <widget class="CModListView" name="modlistView"/>
       <widget class="CSettingsView" name="settingsView"/>
+      <widget class="Lobby" name="lobbyView"/>
      </widget>
     </item>
     <item row="1" column="0">
@@ -200,6 +215,12 @@
    <class>CSettingsView</class>
    <extends>QWidget</extends>
    <header>settingsView/csettingsview_moc.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>Lobby</class>
+   <extends>QWidget</extends>
+   <header>lobby/lobby_moc.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

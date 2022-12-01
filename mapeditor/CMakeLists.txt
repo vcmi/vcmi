@@ -24,6 +24,7 @@ set(editor_SRCS
 		inspector/messagewidget.cpp
 		inspector/rewardswidget.cpp
 		inspector/questwidget.cpp
+		resourceExtractor/ResourceConverter.cpp
 )
 
 set(editor_HEADERS
@@ -51,6 +52,7 @@ set(editor_HEADERS
 		inspector/messagewidget.h
 		inspector/rewardswidget.h
 		inspector/questwidget.h
+		resourceExtractor/ResourceConverter.h
 )
 
 set(editor_FORMS
@@ -110,7 +112,7 @@ if(WIN32)
 endif()
 
 if(APPLE)
-	# This makes Xcode project prettier by moving vcmilauncher_autogen directory into vcmiclient subfolder
+	# This makes Xcode project prettier by moving mapeditor_autogen directory into vcmiclient subfolder
 	set_property(GLOBAL PROPERTY AUTOGEN_TARGETS_FOLDER vcmieditor)
 endif()
 

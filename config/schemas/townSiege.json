@@ -6,6 +6,7 @@
 	"description" : "Format used to define town siege screen in VCMI",
 	"required" : [
 		"gate", "imagePrefix", "moat", "shooter",
+		"towerIconLarge", "towerIconSmall",
 		"static", "towers", "walls"
 	 ],
 	
@@ -79,6 +80,16 @@
 		"shooter": {
 			"type":"string",
 			"description" : "Identifier of creature that will be used as tower shooter"
+		},
+		"towerIconSmall": {
+			"type":"string",
+			"description": "Small icon for tower, used in battle queue",
+			"format" : "imageFile"
+		},
+		"towerIconLarge": {
+			"type":"string",
+			"description": "Large icon for tower, used in battle queue",
+			"format" : "imageFile"
 		},
 		"static": {
 			"type":"object",

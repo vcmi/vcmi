@@ -19,7 +19,7 @@
 #include "../lib/filesystem/ISimpleResourceLoader.h"
 #include "../lib/JsonNode.h"
 #include "../lib/CRandomGenerator.h"
-
+#include "../lib/VCMIDirs.h"
 
 typedef std::map<size_t, std::vector<JsonNode>> source_map;
 
@@ -684,6 +684,39 @@ std::shared_ptr<QImage> Animation::getImage(size_t frame, size_t group, bool ver
 	if(verbose)
 		printError(frame, group, "GetImage");
 	return nullptr;
+}
+
+void Animation::exportBitmaps(const QDir & path) const
+{
+	if(images.empty())
+	{
+		logGlobal->error("Nothing to export, animation is empty");
+		return;
+	}
+
+	QString actualPath = path.absolutePath() + "/SPRITES/" + QString::fromStdString(name);
+	QDir().mkdir(actualPath);
+
+	size_t counter = 0;
+
+	for(const auto& groupPair : images)
+	{
+		size_t group = groupPair.first;
+
+		for(const auto& imagePair : groupPair.second)
+		{
+			size_t frame = imagePair.first;
+			const auto img = imagePair.second;
+
+			QString filename = QString("%1_%2_%3.png").arg(QString::fromStdString(name)).arg(group).arg(frame);
+			QString filePath = actualPath + "/" + filename;
+			img->save(filePath, "PNG");
+
+			counter++;
+		}
+	}
+
+	logGlobal->info("Exported %d frames to %s", counter, actualPath.toStdString());
 }
 
 void Animation::load()

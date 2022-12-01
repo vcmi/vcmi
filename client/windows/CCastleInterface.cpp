@@ -935,7 +935,7 @@ void CCastleBuildings::enterMagesGuild()
 
 void CCastleBuildings::enterTownHall()
 {
-	if(town->visitingHero && town->visitingHero->hasArt(2) &&
+	if(town->visitingHero && town->visitingHero->hasArt(ArtifactID::GRAIL) &&
 		!vstd::contains(town->builtBuildings, BuildingID::GRAIL)) //hero has grail, but town does not have it
 	{
 		if(!vstd::contains(town->forbiddenBuildings, BuildingID::GRAIL))

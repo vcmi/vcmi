@@ -303,6 +303,8 @@ public:
 		std::string siegePrefix;
 		std::vector<Point> siegePositions;
 		CreatureID siegeShooter; // shooter creature ID
+		std::string towerIconSmall;
+		std::string towerIconLarge;
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
@@ -321,6 +323,8 @@ public:
 			h & siegePrefix;
 			h & siegePositions;
 			h & siegeShooter;
+			h & towerIconSmall;
+			h & towerIconLarge;
 		}
 	} clientInfo;
 

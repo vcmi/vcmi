@@ -88,18 +88,52 @@ void MainWindow::saveUserSettings()
 	s.setValue(mainWindowPositionSetting, pos());
 }
 
-MainWindow::MainWindow(QWidget *parent) :
+void MainWindow::parseCommandLine(ExtractionOptions & extractionOptions)
+{
+	QCommandLineParser parser;
+	parser.addHelpOption();
+	parser.addPositionalArgument("map", QCoreApplication::translate("main", "Filepath of the map to open."));
+
+	parser.addOptions({
+		{"e", QCoreApplication::translate("main", "Extract original H3 archives into a separate folder.")},
+		{"s", QCoreApplication::translate("main", "From an extracted archive, it Splits TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 and Un44 into individual PNG's.")},
+		{"c", QCoreApplication::translate("main", "From an extracted archive, Converts single Images (found in Images folder) from .pcx to png.")},
+		{"d", QCoreApplication::translate("main", "Delete original files, for the ones splitted / converted.")},
+		});
+
+	parser.process(qApp->arguments());
+
+	const QStringList positionalArgs = parser.positionalArguments();
+
+	if(!positionalArgs.isEmpty())
+		mapFilePath = positionalArgs.at(0);
+
+	extractionOptions = {
+		parser.isSet("e"), {
+			parser.isSet("s"),
+			parser.isSet("c"),
+			parser.isSet("d")}};
+}
+
+MainWindow::MainWindow(QWidget* parent) :
 	QMainWindow(parent),
 	ui(new Ui::MainWindow),
 	controller(this)
 {
+	for(auto & string : VCMIDirs::get().dataPaths())
+		QDir::addSearchPath("icons", pathToQString(string / "mapeditor" / "icons"));
+	QDir::addSearchPath("icons", pathToQString(VCMIDirs::get().userDataPath() / "mapeditor" / "icons"));
+	
 	ui->setupUi(this);
 	loadUserSettings(); //For example window size
 	setTitle();
-	
+
 	// Set current working dir to executable folder.
 	// This is important on Mac for relative paths to work inside DMG.
 	QDir::setCurrent(QApplication::applicationDirPath());
+
+	ExtractionOptions extractionOptions;
+	parseCommandLine(extractionOptions);
 
 	//configure logging
 	const boost::filesystem::path logPath = VCMIDirs::get().userLogsPath() / "VCMI_Editor_log.txt";
@@ -107,38 +141,41 @@ MainWindow::MainWindow(QWidget *parent) :
 	logConfig = new CBasicLogConfigurator(logPath, console);
 	logConfig->configureDefault();
 	logGlobal->info("The log file will be saved to %s", logPath);
-	
+
 	//init
-	preinitDLL(::console);
+	preinitDLL(::console, false, extractionOptions.extractArchives);
 	settings.init();
-	
+
 	// Initialize logging based on settings
 	logConfig->configure();
 	logGlobal->debug("settings = %s", settings.toJsonNode().toJson());
-	
+
 	// Some basic data validation to produce better error messages in cases of incorrect install
 	auto testFile = [](std::string filename, std::string message) -> bool
 	{
 		if (CResourceHandler::get()->existsResource(ResourceID(filename)))
 			return true;
-		
+
 		logGlobal->error("Error: %s was not found!", message);
 		return false;
 	};
-	
-	if(!testFile("DATA/HELP.TXT", "Heroes III data") ||
-	   !testFile("MODS/VCMI/MOD.JSON", "VCMI data"))
+
+	if (!testFile("DATA/HELP.TXT", "Heroes III data") ||
+		!testFile("MODS/VCMI/MOD.JSON", "VCMI data"))
 	{
 		QApplication::quit();
 	}
-	
+
 	conf.init();
 	logGlobal->info("Loading settings");
-	
+
 	init();
-	
+
 	graphics = new Graphics(); // should be before curh->init()
 	graphics->load();//must be after Content loading but should be in main thread
+
+	if (extractionOptions.extractArchives)
+		ResourceConverter::convertExtractedResourceFiles(extractionOptions.conversionOptions);
 	
 	ui->mapView->setScene(controller.scene(0));
 	ui->mapView->setController(&controller);
@@ -167,8 +204,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	show();
 	
 	//Load map from command line
-	if(qApp->arguments().size() >= 2)
-		openMap(qApp->arguments().at(1));
+	if(!mapFilePath.isEmpty())
+		openMap(mapFilePath);
 }
 
 MainWindow::~MainWindow()

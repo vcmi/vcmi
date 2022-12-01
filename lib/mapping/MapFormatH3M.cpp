@@ -870,15 +870,15 @@ void CMapLoaderH3M::loadArtifactsOfHero(CGHeroInstance * hero)
 bool CMapLoaderH3M::loadArtifactToSlot(CGHeroInstance * hero, int slot)
 {
 	const int artmask = map->version == EMapFormat::ROE ? 0xff : 0xffff;
-	int aid;
+	ArtifactID aid;
 
 	if(map->version == EMapFormat::ROE)
 	{
-		aid = reader.readUInt8();
+		aid = ArtifactID(reader.readUInt8());
 	}
 	else
 	{
-		aid = reader.readUInt16();
+		aid = ArtifactID(reader.readUInt16());
 	}
 
 	bool isArt  =  aid != artmask;
@@ -1207,7 +1207,7 @@ void CMapLoaderH3M::readObjects()
 		case Obj::RANDOM_RELIC_ART:
 		case Obj::SPELL_SCROLL:
 			{
-				int artID = ArtifactID::NONE; //random, set later
+				auto artID = ArtifactID::NONE; //random, set later
 				int spellID = -1;
 				auto  art = new CGArtifact();
 				nobj = art;
@@ -1222,7 +1222,7 @@ void CMapLoaderH3M::readObjects()
 				else if(objTempl->id == Obj::ARTIFACT)
 				{
 					//specific artifact
-					artID = objTempl->subid;
+					artID = ArtifactID(objTempl->subid);
 				}
 
 				art->storedArtifact = CArtifactInstance::createArtifact(map, artID, spellID);
@@ -1754,7 +1754,7 @@ CGSeerHut * CMapLoaderH3M::readSeerHut()
 	else
 	{
 		//RoE
-		int artID = reader.readUInt8();
+		auto artID = ArtifactID(reader.readUInt8());
 		if (artID != 255)
 		{
 			//not none quest
@@ -1886,7 +1886,7 @@ void CMapLoaderH3M::readQuest(IQuestObject * guard)
 			int artNumber = reader.readUInt8();
 			for(int yy = 0; yy < artNumber; ++yy)
 			{
-				int artid = reader.readUInt16();
+				auto artid = ArtifactID(reader.readUInt16());
 				guard->quest->addArtifactID(artid);
 				map->allowedArtifact[artid] = false; //these are unavailable for random generation
 			}

@@ -155,10 +155,11 @@ std::string CComponent::getDescription()
 	case creature:   return "";
 	case artifact:
 	{
+		auto artID = ArtifactID(subtype);
 		std::unique_ptr<CArtifactInstance> art;
-		if (subtype != ArtifactID::SPELL_SCROLL)
+		if (artID != ArtifactID::SPELL_SCROLL)
 		{
-			art.reset(CArtifactInstance::createNewArtifactInstance(subtype));
+			art.reset(CArtifactInstance::createNewArtifactInstance(artID));
 		}
 		else
 		{

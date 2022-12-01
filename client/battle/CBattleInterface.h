@@ -40,6 +40,8 @@ class CPlayerInterface;
 class CClickableHex;
 class CAnimation;
 struct BattleEffect;
+class IImage;
+class CStackQueue;
 
 class CBattleProjectileController;
 class CBattleSiegeController;
@@ -182,7 +184,7 @@ public:
 
 	friend class CPlayerInterface;
 	friend class CInGameConsole;
-
+	friend class CStackQueue;
 	friend class CBattleResultWindow;
 	friend class CBattleHero;
 	friend class CBattleStackAnimation;

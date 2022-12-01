@@ -487,7 +487,17 @@
            </size>
           </property>
           <property name="text">
-           <string>1</string>
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>icons:brush-1.png</normaloff>icons:brush-1.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>16</width>
+            <height>16</height>
+           </size>
           </property>
           <property name="checkable">
            <bool>true</bool>
@@ -521,7 +531,17 @@
            </size>
           </property>
           <property name="text">
-           <string>2</string>
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>icons:brush-2.png</normaloff>icons:brush-2.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>16</width>
+            <height>16</height>
+           </size>
           </property>
           <property name="checkable">
            <bool>true</bool>
@@ -555,7 +575,17 @@
            </size>
           </property>
           <property name="text">
-           <string>4</string>
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>icons:brush-4.png</normaloff>icons:brush-4.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>16</width>
+            <height>16</height>
+           </size>
           </property>
           <property name="checkable">
            <bool>true</bool>
@@ -586,7 +616,11 @@
            </size>
           </property>
           <property name="text">
-           <string>[]</string>
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>icons:brush-5.png</normaloff>icons:brush-5.png</iconset>
           </property>
           <property name="checkable">
            <bool>true</bool>
@@ -654,7 +688,11 @@
            </size>
           </property>
           <property name="text">
-           <string>E</string>
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>icons:edit-clear.png</normaloff>icons:edit-clear.png</iconset>
           </property>
           <property name="checkable">
            <bool>false</bool>
@@ -690,7 +728,7 @@
           <x>0</x>
           <y>0</y>
           <width>128</width>
-          <height>271</height>
+          <height>251</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -733,7 +771,7 @@
           <x>0</x>
           <y>0</y>
           <width>128</width>
-          <height>271</height>
+          <height>251</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -769,7 +807,7 @@
           <x>0</x>
           <y>0</y>
           <width>128</width>
-          <height>271</height>
+          <height>251</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -821,6 +859,10 @@
    </widget>
   </widget>
   <action name="actionOpen">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons:document-open.png</normaloff>icons:document-open.png</iconset>
+   </property>
    <property name="text">
     <string>Open</string>
    </property>
@@ -829,6 +871,10 @@
    </property>
   </action>
   <action name="actionSave">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons:document-save.png</normaloff>icons:document-save.png</iconset>
+   </property>
    <property name="text">
     <string>Save</string>
    </property>
@@ -837,6 +883,10 @@
    </property>
   </action>
   <action name="actionNew">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons:document-new.png</normaloff>icons:document-new.png</iconset>
+   </property>
    <property name="text">
     <string>New</string>
    </property>
@@ -853,6 +903,10 @@
    </property>
   </action>
   <action name="actionLevel">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons:toggle-underground.png</normaloff>icons:toggle-underground.png</iconset>
+   </property>
    <property name="text">
     <string>U/G</string>
    </property>
@@ -867,6 +921,10 @@
    <property name="checkable">
     <bool>true</bool>
    </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>icons:toggle-pass.png</normaloff>icons:toggle-pass.png</iconset>
+   </property>
    <property name="text">
     <string>Pass</string>
    </property>
@@ -875,6 +933,10 @@
    </property>
   </action>
   <action name="actionCut">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons:edit-cut.png</normaloff>icons:edit-cut.png</iconset>
+   </property>
    <property name="text">
     <string>Cut</string>
    </property>
@@ -883,6 +945,10 @@
    </property>
   </action>
   <action name="actionCopy">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons:edit-copy.png</normaloff>icons:edit-copy.png</iconset>
+   </property>
    <property name="text">
     <string>Copy</string>
    </property>
@@ -891,6 +957,10 @@
    </property>
   </action>
   <action name="actionPaste">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons:edit-paste.png</normaloff>icons:edit-paste.png</iconset>
+   </property>
    <property name="text">
     <string>Paste</string>
    </property>
@@ -899,6 +969,10 @@
    </property>
   </action>
   <action name="actionFill">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons:fill-obstacles.png</normaloff>icons:fill-obstacles.png</iconset>
+   </property>
    <property name="text">
     <string>Fill</string>
    </property>
@@ -912,6 +986,10 @@
   <action name="actionGrid">
    <property name="checkable">
     <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>icons:toggle-grid.png</normaloff>icons:toggle-grid.png</iconset>
    </property>
    <property name="text">
     <string>Grid</string>
@@ -970,6 +1048,10 @@
   <action name="actionErase">
    <property name="enabled">
     <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>icons:edit-clear.png</normaloff>icons:edit-clear.png</iconset>
    </property>
    <property name="text">
     <string>Erase</string>
