@@ -15,6 +15,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CStack;
+class CSpell;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -48,11 +49,18 @@ struct ProjectileMissile : ProjectileBase
 	bool reverse;  // if true, projectile will be flipped by vertical axis
 };
 
-struct ProjectileCatapult : ProjectileMissile
+struct ProjectileAnimatedMissile : ProjectileMissile
+{
+	void show(std::shared_ptr<CCanvas> canvas) override;
+	float frameProgress;
+};
+
+struct ProjectileCatapult : ProjectileBase
 {
 	void show(std::shared_ptr<CCanvas> canvas) override;
 
-	int wallDamageAmount;
+	std::shared_ptr<CAnimation> animation;
+	int frameNum;  // frame to display from projectile animation
 };
 
 struct ProjectileRay : ProjectileBase
@@ -76,6 +84,7 @@ class CBattleProjectileController
 	std::vector<std::shared_ptr<ProjectileBase>> projectiles;
 
 	std::shared_ptr<CAnimation> getProjectileImage(const CStack * stack);
+	std::shared_ptr<CAnimation> createProjectileImage(const std::string & path );
 	void initStackProjectile(const CStack * stack);
 
 	bool stackUsesRayProjectile(const CStack * stack);
@@ -84,6 +93,9 @@ class CBattleProjectileController
 	void showProjectile(std::shared_ptr<CCanvas> canvas, std::shared_ptr<ProjectileBase> projectile);
 
 	const CCreature * getShooter(const CStack * stack);
+
+	int computeProjectileFrameID( Point from, Point dest, const CStack * stack);
+	int computeProjectileFlightTime( Point from, Point dest, double speed);
 public:
 	CBattleProjectileController(CBattleInterface * owner);
 
@@ -92,4 +104,6 @@ public:
 	bool hasActiveProjectile(const CStack * stack);
 	void emitStackProjectile(const CStack * stack);
 	void createProjectile(const CStack * shooter, const CStack * target, Point from, Point dest);
+	void createSpellProjectile(const CStack * shooter, const CStack * target, Point from, Point dest, const CSpell * spell);
+	void createCatapultProjectile(const CStack * shooter, Point from, Point dest);
 };

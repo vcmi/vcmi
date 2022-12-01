@@ -173,7 +173,7 @@ public:
 	void hideQueue();
 	void showQueue();
 
-	void obstaclePlaced(const CObstacleInstance & oi);
+	void obstaclePlaced(const std::vector<std::shared_ptr<const CObstacleInstance>> oi);
 
 	void gateStateChanged(const EGateState state);
 
@@ -185,7 +185,6 @@ public:
 
 	friend class CBattleResultWindow;
 	friend class CBattleHero;
-	friend class CEffectAnimation;
 	friend class CBattleStackAnimation;
 	friend class CReverseAnimation;
 	friend class CDefenceAnimation;

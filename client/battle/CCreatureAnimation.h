@@ -35,6 +35,9 @@ namespace AnimationControls
 	/// TODO: make it time-based
 	float getProjectileSpeed();
 
+	/// returns speed of catapult projectile
+	float getCatapultSpeed();
+
 	/// returns speed of any spell effects, including any special effects like morale (in frames per second)
 	float getSpellEffectSpeed();
 

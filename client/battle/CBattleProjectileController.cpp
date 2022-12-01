@@ -18,6 +18,7 @@
 #include "../gui/Geometries.h"
 #include "../gui/CAnimation.h"
 #include "../gui/CCanvas.h"
+#include "../gui/CGuiHandler.h"
 #include "../CGameInfo.h"
 
 #include "../../lib/CStack.h"
@@ -47,6 +48,7 @@ static double calculateCatapultParabolaY(const Point & from, const Point & dest,
 
 void ProjectileMissile::show(std::shared_ptr<CCanvas> canvas)
 {
+	logAnim->info("Projectile rendering, %d / %d", step, steps);
 	size_t group = reverse ? 1 : 0;
 	auto image = animation->getImage(frameNum, group, true);
 
@@ -61,14 +63,23 @@ void ProjectileMissile::show(std::shared_ptr<CCanvas> canvas)
 
 		canvas->draw(image, pos);
 	}
-
 	++step;
+}
+
+void ProjectileAnimatedMissile::show(std::shared_ptr<CCanvas> canvas)
+{
+	ProjectileMissile::show(canvas);
+	frameProgress += AnimationControls::getSpellEffectSpeed() * GH.mainFPSmng->getElapsedMilliseconds() / 1000;
+	size_t animationSize = animation->size(reverse ? 1 : 0);
+	while (frameProgress > animationSize)
+		frameProgress -= animationSize;
+
+	frameNum = std::floor(frameProgress);
 }
 
 void ProjectileCatapult::show(std::shared_ptr<CCanvas> canvas)
 {
-	size_t group = reverse ? 1 : 0;
-	auto image = animation->getImage(frameNum, group, true);
+	auto image = animation->getImage(frameNum, 0, true);
 
 	if(image)
 	{
@@ -171,8 +182,12 @@ void CBattleProjectileController::initStackProjectile(const CStack * stack)
 		return;
 
 	const CCreature * creature = getShooter(stack);
+	projectilesCache[creature->animation.projectileImageName] = createProjectileImage(creature->animation.projectileImageName);
+}
 
-	std::shared_ptr<CAnimation> projectile = std::make_shared<CAnimation>(creature->animation.projectileImageName);
+std::shared_ptr<CAnimation> CBattleProjectileController::createProjectileImage(const std::string & path )
+{
+	std::shared_ptr<CAnimation> projectile = std::make_shared<CAnimation>(path);
 	projectile->preload();
 
 	if(projectile->size(1) != 0)
@@ -180,7 +195,7 @@ void CBattleProjectileController::initStackProjectile(const CStack * stack)
 	else
 		projectile->createFlippedGroup(0, 1);
 
-	projectilesCache[creature->animation.projectileImageName] = projectile;
+	return projectile;
 }
 
 std::shared_ptr<CAnimation> CBattleProjectileController::getProjectileImage(const CStack * stack)
@@ -196,9 +211,11 @@ std::shared_ptr<CAnimation> CBattleProjectileController::getProjectileImage(cons
 
 void CBattleProjectileController::emitStackProjectile(const CStack * stack)
 {
+	int stackID = stack ? stack->ID : -1;
+
 	for (auto projectile : projectiles)
 	{
-		if ( !projectile->playing && projectile->shooterID == stack->ID)
+		if ( !projectile->playing && projectile->shooterID == stackID)
 		{
 			projectile->playing = true;
 			return;
@@ -228,9 +245,11 @@ void CBattleProjectileController::showProjectiles(std::shared_ptr<CCanvas> canva
 
 bool CBattleProjectileController::hasActiveProjectile(const CStack * stack)
 {
+	int stackID = stack ? stack->ID : -1;
+
 	for(auto const & instance : projectiles)
 	{
-		if(instance->shooterID == stack->ID)
+		if(instance->shooterID == stackID)
 		{
 			return true;
 		}
@@ -238,85 +257,94 @@ bool CBattleProjectileController::hasActiveProjectile(const CStack * stack)
 	return false;
 }
 
+int CBattleProjectileController::computeProjectileFlightTime( Point from, Point dest, double animSpeed)
+{
+	double distanceSquared = (dest.x - from.x) * (dest.x - from.x) + (dest.y - from.y) * (dest.y - from.y);
+	double distance = sqrt(distanceSquared);
+	int steps = std::round(distance / animSpeed);
+
+	if (steps > 0)
+		return steps;
+	return 1;
+}
+
+int CBattleProjectileController::computeProjectileFrameID( Point from, Point dest, const CStack * stack)
+{
+	const CCreature * creature = getShooter(stack);
+
+	auto & angles = creature->animation.missleFrameAngles;
+	auto animation = getProjectileImage(stack);
+
+	// only frames below maxFrame are usable: anything  higher is either no present or we don't know when it should be used
+	size_t maxFrame = std::min<size_t>(angles.size(), animation->size(0));
+
+	assert(maxFrame > 0);
+	double projectileAngle = -atan2(dest.y - from.y, std::abs(dest.x - from.x));
+
+	// values in angles array indicate position from which this frame was rendered, in degrees.
+	// possible range is 90 ... -90, where projectile for +90 will be used for shooting upwards, +0 for shots towards right and -90 for downwards shots
+	// find frame that has closest angle to one that we need for this shot
+	int bestID = 0;
+	double bestDiff = fabs( angles[0] / 180 * M_PI - projectileAngle );
+
+	for (int i=1; i<maxFrame; i++)
+	{
+		double currentDiff = fabs( angles[i] / 180 * M_PI - projectileAngle );
+		if (currentDiff < bestDiff)
+		{
+			bestID = i;
+			bestDiff = currentDiff;
+		}
+	}
+	return bestID;
+}
+
+void CBattleProjectileController::createCatapultProjectile(const CStack * shooter, Point from, Point dest)
+{
+	auto catapultProjectile       = new ProjectileCatapult();
+
+	catapultProjectile->animation = getProjectileImage(shooter);
+	catapultProjectile->frameNum  = 0;
+	catapultProjectile->step      = 0;
+	catapultProjectile->steps     = computeProjectileFlightTime(from, dest, AnimationControls::getCatapultSpeed());
+	catapultProjectile->from      = from;
+	catapultProjectile->dest      = dest;
+	catapultProjectile->shooterID = shooter->ID;
+	catapultProjectile->step      = 0;
+	catapultProjectile->playing   = false;
+
+	projectiles.push_back(std::shared_ptr<ProjectileBase>(catapultProjectile));
+}
+
 void CBattleProjectileController::createProjectile(const CStack * shooter, const CStack * target, Point from, Point dest)
 {
+	assert(target);
+
 	const CCreature *shooterInfo = getShooter(shooter);
 
 	std::shared_ptr<ProjectileBase> projectile;
-
-	if (!target)
+	if (stackUsesRayProjectile(shooter) && stackUsesMissileProjectile(shooter))
 	{
-		auto catapultProjectile= new ProjectileCatapult();
-		projectile.reset(catapultProjectile);
-
-		catapultProjectile->animation = getProjectileImage(shooter);
-		catapultProjectile->wallDamageAmount = 0; //FIXME - receive from caller
-		catapultProjectile->frameNum = 0;
-		catapultProjectile->reverse = false;
-		catapultProjectile->step = 0;
-		catapultProjectile->steps = 0;
-
-		//double animSpeed = AnimationControls::getProjectileSpeed() / 10;
-		//catapultProjectile->steps = std::round(std::abs((dest.x - from.x) / animSpeed));
-	}
-	else
-	{
-		if (stackUsesRayProjectile(shooter) && stackUsesMissileProjectile(shooter))
-		{
-			logAnim->error("Mod error: Creature '%s' has both missile and ray projectiles configured. Mod should be fixed. Using ray projectile configuration...", shooterInfo->nameSing);
-		}
-
-		if (stackUsesRayProjectile(shooter))
-		{
-			auto rayProjectile = new ProjectileRay();
-			projectile.reset(rayProjectile);
-
-			rayProjectile->rayConfig = shooterInfo->animation.projectileRay;
-		}
-		else if (stackUsesMissileProjectile(shooter))
-		{
-			auto missileProjectile = new ProjectileMissile();
-			projectile.reset(missileProjectile);
-
-			auto & angles = shooterInfo->animation.missleFrameAngles;
-
-			missileProjectile->animation = getProjectileImage(shooter);
-			missileProjectile->reverse  = !owner->stacksController->facingRight(shooter);
-
-			// only frames below maxFrame are usable: anything  higher is either no present or we don't know when it should be used
-			size_t maxFrame = std::min<size_t>(angles.size(), missileProjectile->animation->size(0));
-
-			assert(maxFrame > 0);
-			double projectileAngle = -atan2(dest.y - from.y, std::abs(dest.x - from.x));
-
-			// values in angles array indicate position from which this frame was rendered, in degrees.
-			// possible range is 90 ... -90, where projectile for +90 will be used for shooting upwards, +0 for shots towards right and -90 for downwards shots
-			// find frame that has closest angle to one that we need for this shot
-			int bestID = 0;
-			double bestDiff = fabs( angles[0] / 180 * M_PI - projectileAngle );
-
-			for (int i=1; i<maxFrame; i++)
-			{
-				double currentDiff = fabs( angles[i] / 180 * M_PI - projectileAngle );
-				if (currentDiff < bestDiff)
-				{
-					bestID = i;
-					bestDiff = currentDiff;
-				}
-			}
-			missileProjectile->frameNum = bestID;
-		}
+		logAnim->error("Mod error: Creature '%s' has both missile and ray projectiles configured. Mod should be fixed. Using ray projectile configuration...", shooterInfo->nameSing);
 	}
 
-	double animSpeed = AnimationControls::getProjectileSpeed(); // flight speed of projectile
-	if (!target)
-		animSpeed *= 0.2; // catapult attack needs slower speed
+	if (stackUsesRayProjectile(shooter))
+	{
+		auto rayProjectile = new ProjectileRay();
+		projectile.reset(rayProjectile);
 
-	double distanceSquared = (dest.x - from.x) * (dest.x - from.x) + (dest.y - from.y) * (dest.y - from.y);
-	double distance = sqrt(distanceSquared);
-	projectile->steps = std::round(distance / animSpeed);
-	if(projectile->steps == 0)
-		projectile->steps = 1;
+		rayProjectile->rayConfig = shooterInfo->animation.projectileRay;
+	}
+	else if (stackUsesMissileProjectile(shooter))
+	{
+		auto missileProjectile = new ProjectileMissile();
+		projectile.reset(missileProjectile);
+
+		missileProjectile->animation = getProjectileImage(shooter);
+		missileProjectile->reverse  = !owner->stacksController->facingRight(shooter);
+		missileProjectile->frameNum = computeProjectileFrameID(from, dest, shooter);
+		missileProjectile->steps = computeProjectileFlightTime(from, dest, AnimationControls::getProjectileSpeed());
+	}
 
 	projectile->from     = from;
 	projectile->dest     = dest;
@@ -325,4 +353,30 @@ void CBattleProjectileController::createProjectile(const CStack * shooter, const
 	projectile->playing  = false;
 
 	projectiles.push_back(projectile);
+}
+
+void CBattleProjectileController::createSpellProjectile(const CStack * shooter, const CStack * target, Point from, Point dest, const CSpell * spell)
+{
+	double projectileAngle = std::abs(atan2(dest.x - from.x, dest.y - from.y));
+	std::string animToDisplay = spell->animationInfo.selectProjectile(projectileAngle);
+
+	assert(!animToDisplay.empty());
+
+	if(!animToDisplay.empty())
+	{
+		auto projectile = new ProjectileAnimatedMissile();
+
+		projectile->animation     = createProjectileImage(animToDisplay);
+		projectile->frameProgress = 0;
+		projectile->frameNum      = 0;
+		projectile->reverse       = from.x > dest.x;
+		projectile->from          = from;
+		projectile->dest          = dest;
+		projectile->shooterID     = shooter ? shooter->ID : -1;
+		projectile->step          = 0;
+		projectile->steps         = computeProjectileFlightTime(from, dest, AnimationControls::getSpellEffectSpeed());
+		projectile->playing       = false;
+
+		projectiles.push_back(std::shared_ptr<ProjectileBase>(projectile));
+	}
 }

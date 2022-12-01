@@ -81,9 +81,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 	tacticsMode = static_cast<bool>(tacticianInterface);
 
 	//create stack queue
-
 	bool embedQueue;
-
 	std::string queueSize = settings["battle"]["queueSize"].String();
 
 	if(queueSize == "auto")
@@ -119,7 +117,6 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 	stacksController.reset( new CBattleStacksController(this));
 	actionsController.reset( new CBattleActionsController(this));
 	effectsController.reset(new CBattleEffectsController(this));
-
 
 	//loading hero animations
 	if(hero1) // attacking hero
@@ -182,7 +179,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 			CCS->musich->playMusicFromSet("battle", true, true);
 			battleActionsStarted = true;
 			activateStack();
-			controlPanel->blockUI(settings["session"]["spectate"].Bool());
+			controlPanel->blockUI(settings["session"]["spectate"].Bool() || stacksController->getActiveStack() == nullptr);
 			battleIntroSoundChannel = -1;
 		}
 	};
@@ -203,12 +200,9 @@ CBattleInterface::~CBattleInterface()
 		deactivate();
 	}
 
-	//TODO: play AI tracks if battle was during AI turn
-	//if (!curInt->makingTurn)
-	//CCS->musich->playMusicFromSet(CCS->musich->aiMusics, -1);
-
 	if (adventureInt && adventureInt->selection)
 	{
+		//FIXME: this should be moved to adventureInt which should restore correct track based on selection/active player
 		const auto & terrain = *(LOCPLINT->cb->getTile(adventureInt->selection->visitablePos())->terType);
 		CCS->musich->playMusicFromSet("terrain", terrain.name, true, false);
 	}
@@ -360,9 +354,9 @@ void CBattleInterface::stacksAreAttacked(std::vector<StackAttackedInfo> attacked
 	for(ui8 side = 0; side < 2; side++)
 	{
 		if(killedBySide.at(side) > killedBySide.at(1-side))
-			setHeroAnimation(side, 2);
+			setHeroAnimation(side, CCreatureAnim::HERO_DEFEAT);
 		else if(killedBySide.at(side) < killedBySide.at(1-side))
-			setHeroAnimation(side, 3);
+			setHeroAnimation(side, CCreatureAnim::HERO_VICTORY);
 	}
 }
 
@@ -488,6 +482,7 @@ void CBattleInterface::spellCast(const BattleSpellCast * sc)
 	const SpellID spellID = sc->spellID;
 	const CSpell * spell = spellID.toSpell();
 
+	assert(spell);
 	if(!spell)
 		return;
 
@@ -496,64 +491,31 @@ void CBattleInterface::spellCast(const BattleSpellCast * sc)
 	if (!castSoundPath.empty())
 		CCS->soundh->playSound(castSoundPath);
 
-	const auto casterStackID = sc->casterStack;
-	const CStack * casterStack = nullptr;
-	if(casterStackID >= 0)
+	if ( sc->activeCast )
 	{
-		casterStack = curInt->cb->battleGetStackByID(casterStackID);
-	}
+		const CStack * casterStack = curInt->cb->battleGetStackByID(sc->casterStack);
 
-	Point srccoord = (sc->side ? Point(770, 60) : Point(30, 60)) + pos;	//hero position by default
-	{
-		if(casterStack != nullptr)
+		if(casterStack != nullptr )
 		{
-			srccoord = stacksController->getStackPositionAtHex(casterStack->getPosition(), casterStack);
-			srccoord.x += 250;
-			srccoord.y += 240;
+			displaySpellCast(spellID, casterStack->getPosition());
+
+			stacksController->addNewAnim(new CCastAnimation(this, casterStack, sc->tile, curInt->cb->battleGetStackByPos(sc->tile), spell));
 		}
-	}
-
-	if(casterStack != nullptr && sc->activeCast)
-	{
-		//todo: custom cast animation for hero
-		displaySpellCast(spellID, casterStack->getPosition());
-
-		stacksController->addNewAnim(new CCastAnimation(this, casterStack, sc->tile, curInt->cb->battleGetStackByPos(sc->tile)));
-	}
-
-	waitForAnims(); //wait for cast animation
-
-	//playing projectile animation
-	if (sc->tile.isValid())
-	{
-		Point destcoord = stacksController->getStackPositionAtHex(sc->tile, curInt->cb->battleGetStackByPos(sc->tile)); //position attacked by projectile
-		destcoord.x += 250; destcoord.y += 240;
-
-		//animation angle
-		double angle = atan2(static_cast<double>(destcoord.x - srccoord.x), static_cast<double>(destcoord.y - srccoord.y));
-		bool Vflip = (angle < 0);
-		if (Vflip)
-			angle = -angle;
-
-		std::string animToDisplay = spell->animationInfo.selectProjectile(angle);
-
-		if(!animToDisplay.empty())
+		else
+		if (sc->tile.isValid() && !spell->animationInfo.projectile.empty())
 		{
-			//TODO: calculate inside CEffectAnimation
-			std::shared_ptr<CAnimation> tmp = std::make_shared<CAnimation>(animToDisplay);
-			tmp->load(0, 0);
-			auto first = tmp->getImage(0, 0);
+			// this is spell cast by hero with valid destination & valid projectile -> play animation
 
-			//displaying animation
-			double diffX = (destcoord.x - srccoord.x)*(destcoord.x - srccoord.x);
-			double diffY = (destcoord.y - srccoord.y)*(destcoord.y - srccoord.y);
-			double distance = sqrt(diffX + diffY);
+			const CStack * target = curInt->cb->battleGetStackByPos(sc->tile);
+			Point srccoord = (sc->side ? Point(770, 60) : Point(30, 60)) + pos;	//hero position
+			Point destcoord = stacksController->getStackPositionAtHex(sc->tile, target); //position attacked by projectile
+			destcoord += Point(250, 240); // FIXME: what are these constants?
 
-			int steps = static_cast<int>(distance / AnimationControls::getSpellEffectSpeed() + 1);
-			int dx = (destcoord.x - srccoord.x - first->width())/steps;
-			int dy = (destcoord.y - srccoord.y - first->height())/steps;
+			projectilesController->createSpellProjectile( nullptr, target, srccoord, destcoord, spell);
+			projectilesController->emitStackProjectile( nullptr );
 
-			stacksController->addNewAnim(new CEffectAnimation(this, animToDisplay, srccoord.x, srccoord.y, dx, dy, Vflip));
+			// wait fo projectile to end
+			stacksController->addNewAnim(new CWaitingProjectileAnimation(this, nullptr));
 		}
 	}
 
@@ -583,8 +545,8 @@ void CBattleInterface::spellCast(const BattleSpellCast * sc)
 	{
 		Point leftHero = Point(15, 30) + pos;
 		Point rightHero = Point(755, 30) + pos;
-		stacksController->addNewAnim(new CEffectAnimation(this, sc->side ? "SP07_A.DEF" : "SP07_B.DEF", leftHero.x, leftHero.y, 0, 0, false));
-		stacksController->addNewAnim(new CEffectAnimation(this, sc->side ? "SP07_B.DEF" : "SP07_A.DEF", rightHero.x, rightHero.y, 0, 0, false));
+		stacksController->addNewAnim(new CPointEffectAnimation(this, soundBase::invalid, sc->side ? "SP07_A.DEF" : "SP07_B.DEF", leftHero));
+		stacksController->addNewAnim(new CPointEffectAnimation(this, soundBase::invalid, sc->side ? "SP07_B.DEF" : "SP07_A.DEF", rightHero));
 	}
 }
 
@@ -626,7 +588,14 @@ void CBattleInterface::displaySpellAnimationQueue(const CSpell::TAnimationQueue 
 		if(animation.pause > 0)
 			stacksController->addNewAnim(new CDummyAnimation(this, animation.pause));
 		else
-			stacksController->addNewAnim(new CEffectAnimation(this, animation.resourceName, destinationTile, false, animation.verticalPosition == VerticalPosition::BOTTOM));
+		{
+			if (!destinationTile.isValid())
+				stacksController->addNewAnim(new CPointEffectAnimation(this, soundBase::invalid, animation.resourceName));
+			else if (animation.verticalPosition == VerticalPosition::BOTTOM)
+				stacksController->addNewAnim(new CPointEffectAnimation(this, soundBase::invalid, animation.resourceName, destinationTile, CPointEffectAnimation::ALIGN_TO_BOTTOM));
+			else
+				stacksController->addNewAnim(new CPointEffectAnimation(this, soundBase::invalid, animation.resourceName, destinationTile));
+		}
 	}
 }
 
@@ -705,7 +674,7 @@ void CBattleInterface::endAction(const BattleAction* action)
 	const CStack *stack = curInt->cb->battleGetStackByID(action->stackNumber);
 
 	if(action->actionType == EActionType::HERO_SPELL)
-		setHeroAnimation(action->side, 0);
+		setHeroAnimation(action->side, CCreatureAnim::HERO_HOLDING);
 
 	stacksController->endAction(action);
 
@@ -784,7 +753,7 @@ void CBattleInterface::startAction(const BattleAction* action)
 
 	if(action->actionType == EActionType::HERO_SPELL) //when hero casts spell
 	{
-		setHeroAnimation(action->side, 4);
+		setHeroAnimation(action->side, CCreatureAnim::HERO_CAST_SPELL);
 		return;
 	}
 
@@ -839,7 +808,7 @@ void CBattleInterface::tacticNextStack(const CStack * current)
 
 }
 
-void CBattleInterface::obstaclePlaced(const CObstacleInstance & oi)
+void CBattleInterface::obstaclePlaced(const std::vector<std::shared_ptr<const CObstacleInstance>> oi)
 {
 	obstacleController->obstaclePlaced(oi);
 }

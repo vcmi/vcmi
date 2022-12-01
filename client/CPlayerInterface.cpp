@@ -756,21 +756,24 @@ void CPlayerInterface::battleObstaclesChanged(const std::vector<ObstacleChanges>
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BATTLE_EVENT_POSSIBLE_RETURN;
 
+	std::vector<std::shared_ptr<const CObstacleInstance>> newObstacles;
+
 	for(auto & change : obstacles)
 	{
 		if(change.operation == BattleChanges::EOperation::ADD)
 		{
 			auto instance = cb->battleGetObstacleByID(change.id);
 			if(instance)
-				battleInt->obstaclePlaced(*instance);
+				newObstacles.push_back(instance);
 			else
 				logNetwork->error("Invalid obstacle instance %d", change.id);
 		}
-		else
-		{
-			battleInt->fieldController->redrawBackgroundWithHexes();
-		}
 	}
+
+	if (!newObstacles.empty())
+		battleInt->obstaclePlaced(newObstacles);
+
+	battleInt->fieldController->redrawBackgroundWithHexes();
 }
 
 void CPlayerInterface::battleCatapultAttacked(const CatapultAttack & ca)

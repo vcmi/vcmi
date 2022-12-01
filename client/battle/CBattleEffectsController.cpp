@@ -35,27 +35,26 @@ CBattleEffectsController::CBattleEffectsController(CBattleInterface * owner):
 
 void CBattleEffectsController::displayEffect(EBattleEffect::EBattleEffect effect, const BattleHex & destTile)
 {
-	std::string customAnim = graphics->battleACToDef[effect][0];
-
-	owner->stacksController->addNewAnim(new CEffectAnimation(owner, customAnim, destTile));//FIXME: check positioning for double-hex creatures
+	displayEffect(effect, soundBase::invalid, destTile);
 }
 
 void CBattleEffectsController::displayEffect(EBattleEffect::EBattleEffect effect, uint32_t soundID, const BattleHex & destTile)
 {
-	displayEffect(effect, destTile);
-	if(soundBase::soundID(soundID) != soundBase::invalid )
-		CCS->soundh->playSound(soundBase::soundID(soundID));
+	std::string customAnim = graphics->battleACToDef[effect][0];
+
+	owner->stacksController->addNewAnim(new CPointEffectAnimation(owner, soundBase::soundID(soundID), customAnim, destTile));
 }
 
 void CBattleEffectsController::displayCustomEffects(const std::vector<CustomEffectInfo> & customEffects)
 {
 	for(const CustomEffectInfo & one : customEffects)
 	{
-		if(one.sound != 0)
-			CCS->soundh->playSound(soundBase::soundID(one.sound));
 		const CStack * s = owner->curInt->cb->battleGetStackByID(one.stack, false);
-		if(s && one.effect != 0)
-			displayEffect(EBattleEffect::EBattleEffect(one.effect), s->getPosition());
+
+		assert(s);
+		assert(one.effect != 0);
+
+		displayEffect(EBattleEffect::EBattleEffect(one.effect), soundBase::soundID(one.sound), s->getPosition());
 	}
 }
 

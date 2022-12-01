@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../../lib/battle/BattleHex.h"
+#include "../../lib/CSoundBase.h"
 #include "../widgets/Images.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -128,11 +129,13 @@ public:
 	CMeleeAttackAnimation(CBattleInterface * _owner, const CStack * attacker, BattleHex _dest, const CStack * _attacked);
 };
 
+/// Base class for all animations that play during stack movement
 class CStackMoveAnimation : public CBattleStackAnimation
 {
 public:
 	BattleHex currentHex;
 
+protected:
 	CStackMoveAnimation(CBattleInterface * _owner, const CStack * _stack, BattleHex _currentHex);
 };
 
@@ -193,60 +196,133 @@ public:
 
 class CRangedAttackAnimation : public CAttackAnimation
 {
-public:
-	CRangedAttackAnimation(CBattleInterface * owner_, const CStack * attacker, BattleHex dest_, const CStack * defender);
-protected:
-
-};
-
-/// Shooting attack
-class CShootingAnimation : public CRangedAttackAnimation
-{
-private:
-	bool projectileEmitted;
-	bool explosionEmitted;
-	int catapultDamage;
 
 	void setAnimationGroup();
 	void initializeProjectile();
 	void emitProjectile();
 	void emitExplosion();
+
+protected:
+	bool projectileEmitted;
+
+	virtual CCreatureAnim::EAnimType getUpwardsGroup() const = 0;
+	virtual CCreatureAnim::EAnimType getForwardGroup() const = 0;
+	virtual CCreatureAnim::EAnimType getDownwardsGroup() const = 0;
+
+	virtual void createProjectile(const Point & from, const Point & dest) const = 0;
+
 public:
+	CRangedAttackAnimation(CBattleInterface * owner_, const CStack * attacker, BattleHex dest, const CStack * defender);
+	~CRangedAttackAnimation();
+
 	bool init() override;
 	void nextFrame() override;
+};
 
-	//last two params only for catapult attacks
-	CShootingAnimation(CBattleInterface * _owner, const CStack * attacker, BattleHex _dest,
-		const CStack * _attacked, bool _catapult = false, int _catapultDmg = 0);
-	~CShootingAnimation();
+/// Shooting attack
+class CShootingAnimation : public CRangedAttackAnimation
+{
+	CCreatureAnim::EAnimType getUpwardsGroup() const override;
+	CCreatureAnim::EAnimType getForwardGroup() const override;
+	CCreatureAnim::EAnimType getDownwardsGroup() const override;
+
+	void createProjectile(const Point & from, const Point & dest) const override;
+
+public:
+	CShootingAnimation(CBattleInterface * _owner, const CStack * attacker, BattleHex dest, const CStack * defender);
+
+};
+
+/// Catapult attack
+class CCatapultAnimation : public CShootingAnimation
+{
+private:
+	bool explosionEmitted;
+	int catapultDamage;
+
+public:
+	CCatapultAnimation(CBattleInterface * _owner, const CStack * attacker, BattleHex dest, const CStack * defender, int _catapultDmg = 0);
+
+	void createProjectile(const Point & from, const Point & dest) const override;
+	void nextFrame() override;
 };
 
 class CCastAnimation : public CRangedAttackAnimation
 {
+	const CSpell * spell;
+
+	CCreatureAnim::EAnimType findValidGroup( const std::vector<CCreatureAnim::EAnimType> candidates ) const;
+	CCreatureAnim::EAnimType getUpwardsGroup() const override;
+	CCreatureAnim::EAnimType getForwardGroup() const override;
+	CCreatureAnim::EAnimType getDownwardsGroup() const override;
+
+	void createProjectile(const Point & from, const Point & dest) const override;
+
 public:
-	CCastAnimation(CBattleInterface * owner_, const CStack * attacker, BattleHex dest_, const CStack * defender);
+	CCastAnimation(CBattleInterface * owner_, const CStack * attacker, BattleHex dest_, const CStack * defender, const CSpell * spell);
+};
+
+/// Class that plays effect at one or more positions along with (single) sound effect
+class CPointEffectAnimation : public CBattleAnimation
+{
+	soundBase::soundID sound;
+	bool soundPlayed;
+	bool soundFinished;
+	bool effectFinished;
+	int effectFlags;
+
+	std::shared_ptr<CAnimation>	animation;
+	std::vector<Point> positions;
+	std::vector<BattleHex> battlehexes;
+
+	bool alignToBottom() const;
+	bool waitForSound() const;
+
+	void onEffectFinished();
+	void onSoundFinished();
+	void clearEffect();
+
+	void playSound();
+	void playEffect();
+
+public:
+	enum EEffectFlags
+	{
+		ALIGN_TO_BOTTOM = 1,
+		WAIT_FOR_SOUND  = 2
+	};
+
+	/// Create animation with screen-wide effect
+	CPointEffectAnimation(CBattleInterface * _owner, soundBase::soundID sound, std::string animationName, int effects = 0);
+
+	/// Create animation positioned at point(s). Note that positions must be are absolute, including battleint position offset
+	CPointEffectAnimation(CBattleInterface * _owner, soundBase::soundID sound, std::string animationName, Point pos                 , int effects = 0);
+	CPointEffectAnimation(CBattleInterface * _owner, soundBase::soundID sound, std::string animationName, std::vector<Point> pos    , int effects = 0);
+
+	/// Create animation positioned at certain hex(es)
+	CPointEffectAnimation(CBattleInterface * _owner, soundBase::soundID sound, std::string animationName, BattleHex pos             , int effects = 0);
+	CPointEffectAnimation(CBattleInterface * _owner, soundBase::soundID sound, std::string animationName, std::vector<BattleHex> pos, int effects = 0);
+	 ~CPointEffectAnimation();
 
 	bool init() override;
 	void nextFrame() override;
 };
 
-/// This class manages effect animation
-class CEffectAnimation : public CBattleAnimation
+/// Base class (e.g. for use in dynamic_cast's) for "animations" that wait for certain event
+class CWaitingAnimation : public CBattleAnimation
 {
-private:
-	BattleHex destTile;
-	std::shared_ptr<CAnimation>	customAnim;
-	int	x, y, dx, dy;
-	bool Vflip;
-	bool alignToBottom;
+protected:
+	CWaitingAnimation(CBattleInterface * owner_);
 public:
-	bool init() override;
 	void nextFrame() override;
+};
 
-	CEffectAnimation(CBattleInterface * _owner, std::string _customAnim, int _x, int _y, int _dx = 0, int _dy = 0, bool _Vflip = false, bool _alignToBottom = false);
+/// Class that waits till projectile of certain shooter hits a target
+class CWaitingProjectileAnimation : public CWaitingAnimation
+{
+	const CStack * shooter;
+public:
+	CWaitingProjectileAnimation(CBattleInterface * owner_, const CStack * shooter);
 
-	CEffectAnimation(CBattleInterface * _owner, std::shared_ptr<CAnimation> _customAnim, int _x, int _y, int _dx = 0, int _dy = 0);
-
-	CEffectAnimation(CBattleInterface * _owner, std::string _customAnim, BattleHex _destTile, bool _Vflip = false, bool _alignToBottom = false);
-	 ~CEffectAnimation();
+	bool init() override;
 };

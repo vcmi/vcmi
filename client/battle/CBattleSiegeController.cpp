@@ -321,18 +321,19 @@ void CBattleSiegeController::stackIsCatapulting(const CatapultAttack & ca)
 		const CStack *stack = owner->curInt->cb->battleGetStackByID(ca.attacker);
 		for (auto attackInfo : ca.attackedParts)
 		{
-			owner->stacksController->addNewAnim(new CShootingAnimation(owner, stack, attackInfo.destinationTile, nullptr, true, attackInfo.damageDealt));
+			owner->stacksController->addNewAnim(new CCatapultAnimation(owner, stack, attackInfo.destinationTile, nullptr, attackInfo.damageDealt));
 		}
 	}
 	else
 	{
+		std::vector<Point> positions;
+
 		//no attacker stack, assume spell-related (earthquake) - only hit animation
 		for (auto attackInfo : ca.attackedParts)
-		{
-			Point destPos = owner->stacksController->getStackPositionAtHex(attackInfo.destinationTile, nullptr) + Point(99, 120);
+			positions.push_back(owner->stacksController->getStackPositionAtHex(attackInfo.destinationTile, nullptr) + Point(99, 120));
 
-			owner->stacksController->addNewAnim(new CEffectAnimation(owner, "SGEXPL.DEF", destPos.x, destPos.y));
-		}
+
+		owner->stacksController->addNewAnim(new CPointEffectAnimation(owner, soundBase::invalid, "SGEXPL.DEF", positions));
 	}
 
 	owner->waitForAnims();

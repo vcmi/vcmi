@@ -29,87 +29,91 @@ CBattleObstacleController::CBattleObstacleController(CBattleInterface * owner):
 	auto obst = owner->curInt->cb->battleGetAllObstacles();
 	for(auto & elem : obst)
 	{
-		if(elem->obstacleType == CObstacleInstance::USUAL)
-		{
-			std::string animationName = elem->getInfo().animation;
-
-			auto cached = animationsCache.find(animationName);
-
-			if(cached == animationsCache.end())
-			{
-				auto animation = std::make_shared<CAnimation>(animationName);
-				animationsCache[animationName] = animation;
-				obstacleAnimations[elem->uniqueID] = animation;
-				animation->preload();
-			}
-			else
-			{
-				obstacleAnimations[elem->uniqueID] = cached->second;
-			}
-		}
-		else if (elem->obstacleType == CObstacleInstance::ABSOLUTE_OBSTACLE)
-		{
-			std::string animationName = elem->getInfo().animation;
-
-			auto cached = animationsCache.find(animationName);
-
-			if(cached == animationsCache.end())
-			{
-				auto animation = std::make_shared<CAnimation>();
-				animation->setCustom(animationName, 0, 0);
-				animationsCache[animationName] = animation;
-				obstacleAnimations[elem->uniqueID] = animation;
-				animation->preload();
-			}
-			else
-			{
-				obstacleAnimations[elem->uniqueID] = cached->second;
-			}
-		}
+		if ( elem->obstacleType == CObstacleInstance::MOAT )
+			continue; // handled by siege controller;
+		loadObstacleImage(*elem);
 	}
 }
 
-void CBattleObstacleController::obstaclePlaced(const CObstacleInstance & oi)
+void CBattleObstacleController::loadObstacleImage(const CObstacleInstance & oi)
 {
-	//so when multiple obstacles are added, they show up one after another
-	owner->waitForAnims();
+	std::string animationName;
 
-	//soundBase::soundID sound; // FIXME(v.markovtsev): soundh->playSound() is commented in the end => warning
-
-	std::string defname;
-
-	switch(oi.obstacleType)
+	if (auto spellObstacle = dynamic_cast<const SpellCreatedObstacle*>(&oi))
 	{
-	case CObstacleInstance::SPELL_CREATED:
-		{
-			auto &spellObstacle = dynamic_cast<const SpellCreatedObstacle&>(oi);
-			defname = spellObstacle.appearAnimation;
-			//TODO: sound
-			//soundBase::QUIKSAND
-			//soundBase::LANDMINE
-			//soundBase::FORCEFLD
-			//soundBase::fireWall
-		}
-		break;
-	default:
-		logGlobal->error("I don't know how to animate appearing obstacle of type %d", (int)oi.obstacleType);
-		return;
+		animationName = spellObstacle->animation;
+	}
+	else
+	{
+		assert( oi.obstacleType == CObstacleInstance::USUAL || oi.obstacleType == CObstacleInstance::ABSOLUTE_OBSTACLE);
+		animationName = oi.getInfo().animation;
 	}
 
-	auto animation = std::make_shared<CAnimation>(defname);
-	animation->preload();
+	if (animationsCache.count(animationName) == 0)
+	{
+		if (oi.obstacleType == CObstacleInstance::ABSOLUTE_OBSTACLE)
+		{
+			// obstacle use single bitmap image for animations
+			auto animation = std::make_shared<CAnimation>();
+			animation->setCustom(animationName, 0, 0);
+			animationsCache[animationName] = animation;
+		}
+		else
+		{
+			auto animation = std::make_shared<CAnimation>(animationName);
+			animationsCache[animationName] = animation;
+			animation->preload();
+		}
+	}
+	obstacleAnimations[oi.uniqueID] = animationsCache[animationName];
+}
 
-	auto first = animation->getImage(0, 0);
-	if(!first)
-		return;
+void CBattleObstacleController::obstaclePlaced(const std::vector<std::shared_ptr<const CObstacleInstance>> & obstacles)
+{
+	assert(obstaclesBeingPlaced.empty());
+	for (auto const & oi : obstacles)
+		obstaclesBeingPlaced.push_back(oi->uniqueID);
 
-	//we assume here that effect graphics have the same size as the usual obstacle image
-	// -> if we know how to blit obstacle, let's blit the effect in the same place
-	Point whereTo = getObstaclePosition(first, oi);
-	owner->stacksController->addNewAnim(new CEffectAnimation(owner, animation, whereTo.x, whereTo.y));
+	for (auto const & oi : obstacles)
+	{
+		auto spellObstacle = dynamic_cast<const SpellCreatedObstacle*>(oi.get());
 
-	//TODO we need to wait after playing sound till it's finished, otherwise it overlaps and sounds really bad
-	//CCS->soundh->playSound(sound);
+		if (!spellObstacle)
+		{
+			logGlobal->error("I don't know how to animate appearing obstacle of type %d", (int)oi->obstacleType);
+			obstaclesBeingPlaced.erase(obstaclesBeingPlaced.begin());
+			continue;
+		}
+
+		std::string defname = spellObstacle->appearAnimation;
+
+		//TODO: sound
+		//soundBase::QUIKSAND
+		//soundBase::LANDMINE
+		//soundBase::FORCEFLD
+		//soundBase::fireWall
+
+		auto animation = std::make_shared<CAnimation>(defname);
+		animation->preload();
+
+		auto first = animation->getImage(0, 0);
+		if(!first)
+		{
+			obstaclesBeingPlaced.erase(obstaclesBeingPlaced.begin());
+			continue;
+		}
+
+		//we assume here that effect graphics have the same size as the usual obstacle image
+		// -> if we know how to blit obstacle, let's blit the effect in the same place
+		Point whereTo = getObstaclePosition(first, *oi);
+		owner->stacksController->addNewAnim(new CPointEffectAnimation(owner, soundBase::QUIKSAND, defname, whereTo, CPointEffectAnimation::WAIT_FOR_SOUND));
+
+		//so when multiple obstacles are added, they show up one after another
+		owner->waitForAnims();
+
+		obstaclesBeingPlaced.erase(obstaclesBeingPlaced.begin());
+		loadObstacleImage(*spellObstacle);
+	}
 }
 
 void CBattleObstacleController::showAbsoluteObstacles(std::shared_ptr<CCanvas> canvas, const Point & offset)
@@ -153,40 +157,28 @@ std::shared_ptr<IImage> CBattleObstacleController::getObstacleImage(const CObsta
 	int frameIndex = (owner->animCount+1) *25 / owner->getAnimSpeed();
 	std::shared_ptr<CAnimation> animation;
 
-	if(oi.obstacleType == CObstacleInstance::USUAL || oi.obstacleType == CObstacleInstance::ABSOLUTE_OBSTACLE)
+	if (obstacleAnimations.count(oi.uniqueID) == 0)
 	{
-		animation = obstacleAnimations[oi.uniqueID];
-	}
-	else if(oi.obstacleType == CObstacleInstance::SPELL_CREATED)
-	{
-		const SpellCreatedObstacle * spellObstacle = dynamic_cast<const SpellCreatedObstacle *>(&oi);
-		if(!spellObstacle)
-			return std::shared_ptr<IImage>();
-
-		std::string animationName = spellObstacle->animation;
-
-		auto cacheIter = animationsCache.find(animationName);
-
-		if(cacheIter == animationsCache.end())
+		if (boost::range::find(obstaclesBeingPlaced, oi.uniqueID) != obstaclesBeingPlaced.end())
 		{
-			logAnim->trace("Creating obstacle animation %s", animationName);
-
-			animation = std::make_shared<CAnimation>(animationName);
-			animation->preload();
-			animationsCache[animationName] = animation;
+			// obstacle is not loaded yet, don't show anything
+			return nullptr;
 		}
 		else
 		{
-			animation = cacheIter->second;
+			assert(0); // how?
+			loadObstacleImage(oi);
 		}
 	}
+
+	animation = obstacleAnimations[oi.uniqueID];
+	assert(animation);
 
 	if(animation)
 	{
 		frameIndex %= animation->size(0);
 		return animation->getImage(frameIndex, 0);
 	}
-
 	return nullptr;
 }
 

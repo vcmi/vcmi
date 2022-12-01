@@ -23,7 +23,7 @@ struct SDL_Surface;
 class CAnimation;
 class CCanvas;
 class CBattleInterface;
-class CEffectAnimation;
+class CPointEffectAnimation;
 
 namespace EBattleEffect
 {
@@ -36,6 +36,7 @@ namespace EBattleEffect
 		BAD_MORALE   = 30,
 		BAD_LUCK     = 48,
 		RESURRECT    = 50,
+		DRAIN_LIFE   = 52, // hardcoded constant in CGameHandler
 		POISON       = 67,
 		DEATH_BLOW   = 73,
 		REGENERATION = 74,
@@ -69,12 +70,14 @@ public:
 
 	void displayCustomEffects(const std::vector<CustomEffectInfo> & customEffects);
 
-	void displayEffect(EBattleEffect::EBattleEffect effect, const BattleHex & destTile); //displays custom effect on the battlefield
-	void displayEffect(EBattleEffect::EBattleEffect effect, uint32_t soundID, const BattleHex & destTile); //displays custom effect on the battlefield
+	//displays custom effect on the battlefield
+	void displayEffect(EBattleEffect::EBattleEffect effect, const BattleHex & destTile);
+	void displayEffect(EBattleEffect::EBattleEffect effect, uint32_t soundID, const BattleHex & destTile);
+	//void displayEffects(EBattleEffect::EBattleEffect effect, uint32_t soundID, const std::vector<BattleHex> & destTiles);
+
 	void battleTriggerEffect(const BattleTriggerEffect & bte);
 
 	void showBattlefieldObjects(std::shared_ptr<CCanvas> canvas, const BattleHex & destTile);
 
-
-	friend class CEffectAnimation; // currently, battleEffects is largely managed by CEffectAnimation, TODO: move this logic into CBattleEffectsController
+	friend class CPointEffectAnimation;
 };

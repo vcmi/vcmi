@@ -113,6 +113,11 @@ float AnimationControls::getProjectileSpeed()
 	return static_cast<float>(settings["battle"]["animationSpeed"].Float() * 100);
 }
 
+float AnimationControls::getCatapultSpeed()
+{
+	return static_cast<float>(settings["battle"]["animationSpeed"].Float() * 20);
+}
+
 float AnimationControls::getSpellEffectSpeed()
 {
 	return static_cast<float>(settings["battle"]["animationSpeed"].Float() * 30);

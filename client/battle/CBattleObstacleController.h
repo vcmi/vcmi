@@ -31,13 +31,19 @@ class CBattleObstacleController
 
 	std::map<si32, std::shared_ptr<CAnimation>> obstacleAnimations;
 
+	// semi-debug member, contains obstacles that should not yet be visible due to ongoing placement animation
+	// used only for sanity checks to ensure that there are no invisible obstacles
+	std::vector<si32> obstaclesBeingPlaced;
+
+	void loadObstacleImage(const CObstacleInstance & oi);
+
 	std::shared_ptr<IImage> getObstacleImage(const CObstacleInstance & oi);
 	Point getObstaclePosition(std::shared_ptr<IImage> image, const CObstacleInstance & obstacle);
 
 public:
 	CBattleObstacleController(CBattleInterface * owner);
 
-	void obstaclePlaced(const CObstacleInstance & oi);
+	void obstaclePlaced(const std::vector<std::shared_ptr<const CObstacleInstance>> & oi);
 	void showObstacles(SDL_Surface *to, std::vector<std::shared_ptr<const CObstacleInstance>> &obstacles);
 	void showAbsoluteObstacles(std::shared_ptr<CCanvas> canvas, const Point & offset);
 
