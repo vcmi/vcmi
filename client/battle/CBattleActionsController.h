@@ -47,6 +47,7 @@ class CBattleActionsController
 	std::vector<PossiblePlayerBattleAction> getPossibleActionsForStack (const CStack *stack); //called when stack gets its turn
 	void reorderPossibleActionsPriority(const CStack * stack, MouseHoveredHexContext context);
 
+	std::string currentConsoleMsg;
 public:
 	CBattleActionsController(CBattleInterface * owner);
 
