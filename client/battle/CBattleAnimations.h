@@ -262,6 +262,19 @@ public:
 	CCastAnimation(CBattleInterface * owner_, const CStack * attacker, BattleHex dest_, const CStack * defender, const CSpell * spell);
 };
 
+struct CPointEffectParameters
+{
+	std::vector<Point> positions;
+	std::vector<BattleHex> tiles;
+	std::string animation;
+
+	soundBase::soundID sound = soundBase::invalid;
+	BattleHex boundHex = BattleHex::INVALID;
+	bool aligntoBottom = false;
+	bool waitForSound = false;
+	bool screenFill = false;
+};
+
 /// Class that plays effect at one or more positions along with (single) sound effect
 class CPointEffectAnimation : public CBattleAnimation
 {
@@ -277,6 +290,8 @@ class CPointEffectAnimation : public CBattleAnimation
 
 	bool alignToBottom() const;
 	bool waitForSound() const;
+	bool forceOnTop() const;
+	bool screenFill() const;
 
 	void onEffectFinished();
 	void onSoundFinished();
@@ -289,7 +304,9 @@ public:
 	enum EEffectFlags
 	{
 		ALIGN_TO_BOTTOM = 1,
-		WAIT_FOR_SOUND  = 2
+		WAIT_FOR_SOUND  = 2,
+		FORCE_ON_TOP    = 4,
+		SCREEN_FILL     = 8,
 	};
 
 	/// Create animation with screen-wide effect
@@ -300,8 +317,10 @@ public:
 	CPointEffectAnimation(CBattleInterface * _owner, soundBase::soundID sound, std::string animationName, std::vector<Point> pos    , int effects = 0);
 
 	/// Create animation positioned at certain hex(es)
-	CPointEffectAnimation(CBattleInterface * _owner, soundBase::soundID sound, std::string animationName, BattleHex pos             , int effects = 0);
-	CPointEffectAnimation(CBattleInterface * _owner, soundBase::soundID sound, std::string animationName, std::vector<BattleHex> pos, int effects = 0);
+	CPointEffectAnimation(CBattleInterface * _owner, soundBase::soundID sound, std::string animationName, BattleHex hex             , int effects = 0);
+	CPointEffectAnimation(CBattleInterface * _owner, soundBase::soundID sound, std::string animationName, std::vector<BattleHex> hex, int effects = 0);
+
+	CPointEffectAnimation(CBattleInterface * _owner, soundBase::soundID sound, std::string animationName, Point pos, BattleHex hex,   int effects = 0);
 	 ~CPointEffectAnimation();
 
 	bool init() override;

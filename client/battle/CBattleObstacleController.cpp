@@ -85,15 +85,7 @@ void CBattleObstacleController::obstaclePlaced(const std::vector<std::shared_ptr
 			continue;
 		}
 
-		std::string defname = spellObstacle->appearAnimation;
-
-		//TODO: sound
-		//soundBase::QUIKSAND
-		//soundBase::LANDMINE
-		//soundBase::FORCEFLD
-		//soundBase::fireWall
-
-		auto animation = std::make_shared<CAnimation>(defname);
+		auto animation = std::make_shared<CAnimation>(spellObstacle->appearAnimation);
 		animation->preload();
 
 		auto first = animation->getImage(0, 0);
@@ -103,10 +95,14 @@ void CBattleObstacleController::obstaclePlaced(const std::vector<std::shared_ptr
 			continue;
 		}
 
+		//TODO: sound
+		//soundBase::QUIKSAND
+		//soundBase::LANDMINE
+
 		//we assume here that effect graphics have the same size as the usual obstacle image
 		// -> if we know how to blit obstacle, let's blit the effect in the same place
 		Point whereTo = getObstaclePosition(first, *oi);
-		owner->stacksController->addNewAnim(new CPointEffectAnimation(owner, soundBase::QUIKSAND, defname, whereTo, CPointEffectAnimation::WAIT_FOR_SOUND));
+		owner->stacksController->addNewAnim(new CPointEffectAnimation(owner, soundBase::invalid, spellObstacle->appearAnimation, whereTo, oi->pos, CPointEffectAnimation::WAIT_FOR_SOUND));
 
 		//so when multiple obstacles are added, they show up one after another
 		owner->waitForAnims();

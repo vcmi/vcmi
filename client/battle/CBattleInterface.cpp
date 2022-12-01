@@ -583,7 +583,7 @@ void CBattleInterface::displayBattleLog(const std::vector<MetaString> & battleLo
 	}
 }
 
-void CBattleInterface::displaySpellAnimationQueue(const CSpell::TAnimationQueue & q, BattleHex destinationTile)
+void CBattleInterface::displaySpellAnimationQueue(const CSpell::TAnimationQueue & q, BattleHex destinationTile, bool isHit)
 {
 	for(const CSpell::TAnimation & animation : q)
 	{
@@ -591,12 +591,21 @@ void CBattleInterface::displaySpellAnimationQueue(const CSpell::TAnimationQueue 
 			stacksController->addNewAnim(new CDummyAnimation(this, animation.pause));
 		else
 		{
+			int flags = 0;
+
+			if (isHit)
+				flags |= CPointEffectAnimation::FORCE_ON_TOP;
+
+			if (animation.verticalPosition == VerticalPosition::BOTTOM)
+				flags |= CPointEffectAnimation::ALIGN_TO_BOTTOM;
+
 			if (!destinationTile.isValid())
-				stacksController->addNewAnim(new CPointEffectAnimation(this, soundBase::invalid, animation.resourceName));
-			else if (animation.verticalPosition == VerticalPosition::BOTTOM)
-				stacksController->addNewAnim(new CPointEffectAnimation(this, soundBase::invalid, animation.resourceName, destinationTile, CPointEffectAnimation::ALIGN_TO_BOTTOM));
+				flags |= CPointEffectAnimation::SCREEN_FILL;
+
+			if (!destinationTile.isValid())
+				stacksController->addNewAnim(new CPointEffectAnimation(this, soundBase::invalid, animation.resourceName, flags));
 			else
-				stacksController->addNewAnim(new CPointEffectAnimation(this, soundBase::invalid, animation.resourceName, destinationTile));
+				stacksController->addNewAnim(new CPointEffectAnimation(this, soundBase::invalid, animation.resourceName, destinationTile, flags));
 		}
 	}
 }
@@ -606,7 +615,7 @@ void CBattleInterface::displaySpellCast(SpellID spellID, BattleHex destinationTi
 	const CSpell * spell = spellID.toSpell();
 
 	if(spell)
-		displaySpellAnimationQueue(spell->animationInfo.cast, destinationTile);
+		displaySpellAnimationQueue(spell->animationInfo.cast, destinationTile, false);
 }
 
 void CBattleInterface::displaySpellEffect(SpellID spellID, BattleHex destinationTile)
@@ -614,7 +623,7 @@ void CBattleInterface::displaySpellEffect(SpellID spellID, BattleHex destination
 	const CSpell *spell = spellID.toSpell();
 
 	if(spell)
-		displaySpellAnimationQueue(spell->animationInfo.affect, destinationTile);
+		displaySpellAnimationQueue(spell->animationInfo.affect, destinationTile, false);
 }
 
 void CBattleInterface::displaySpellHit(SpellID spellID, BattleHex destinationTile)
@@ -622,7 +631,7 @@ void CBattleInterface::displaySpellHit(SpellID spellID, BattleHex destinationTil
 	const CSpell * spell = spellID.toSpell();
 
 	if(spell)
-		displaySpellAnimationQueue(spell->animationInfo.hit, destinationTile);
+		displaySpellAnimationQueue(spell->animationInfo.hit, destinationTile, true);
 }
 
 void CBattleInterface::setAnimSpeed(int set)

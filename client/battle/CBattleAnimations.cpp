@@ -980,17 +980,17 @@ CPointEffectAnimation::CPointEffectAnimation(CBattleInterface * _owner, soundBas
 {
 }
 
-CPointEffectAnimation::CPointEffectAnimation(CBattleInterface * _owner, soundBase::soundID sound, std::string animationName, std::vector<BattleHex> pos, int effects):
+CPointEffectAnimation::CPointEffectAnimation(CBattleInterface * _owner, soundBase::soundID sound, std::string animationName, std::vector<BattleHex> hex, int effects):
 	CPointEffectAnimation(_owner, sound, animationName, effects)
 {
-	battlehexes = pos;
+	battlehexes = hex;
 }
 
-CPointEffectAnimation::CPointEffectAnimation(CBattleInterface * _owner, soundBase::soundID sound, std::string animationName, BattleHex pos, int effects):
+CPointEffectAnimation::CPointEffectAnimation(CBattleInterface * _owner, soundBase::soundID sound, std::string animationName, BattleHex hex, int effects):
 	CPointEffectAnimation(_owner, sound, animationName, effects)
 {
-	assert(pos.isValid());
-	battlehexes.push_back(pos);
+	assert(hex.isValid());
+	battlehexes.push_back(hex);
 }
 
 CPointEffectAnimation::CPointEffectAnimation(CBattleInterface * _owner, soundBase::soundID sound, std::string animationName, std::vector<Point> pos, int effects):
@@ -1002,6 +1002,14 @@ CPointEffectAnimation::CPointEffectAnimation(CBattleInterface * _owner, soundBas
 CPointEffectAnimation::CPointEffectAnimation(CBattleInterface * _owner, soundBase::soundID sound, std::string animationName, Point pos, int effects):
 	CPointEffectAnimation(_owner, sound, animationName, effects)
 {
+	positions.push_back(pos);
+}
+
+CPointEffectAnimation::CPointEffectAnimation(CBattleInterface * _owner, soundBase::soundID sound, std::string animationName, Point pos, BattleHex hex,   int effects):
+	CPointEffectAnimation(_owner, sound, animationName, effects)
+{
+	assert(hex.isValid());
+	battlehexes.push_back(hex);
 	positions.push_back(pos);
 }
 
@@ -1019,9 +1027,8 @@ bool CPointEffectAnimation::init()
 		return false;
 	}
 
-	if (positions.empty() && battlehexes.empty())
+	if (screenFill())
 	{
-		//armageddon, create screen fill
 		for(int i=0; i * first->width() < owner->pos.w ; ++i)
 			for(int j=0; j * first->height() < owner->pos.h ; ++j)
 				positions.push_back(Point(i * first->width(), j * first->height()));
@@ -1032,35 +1039,36 @@ bool CPointEffectAnimation::init()
 	be.animation = animation;
 	be.currentFrame = 0;
 
-	for ( auto const position : positions)
+	for (size_t i = 0; i < std::max(battlehexes.size(), positions.size()); ++i)
 	{
-		be.x = position.x;
-		be.y = position.y;
-		be.position = BattleHex::INVALID;
+		bool hasTile = i < battlehexes.size();
+		bool hasPosition = i < positions.size();
 
-		owner->effectsController->battleEffects.push_back(be);
-	}
-
-	for ( auto const tile : battlehexes)
-	{
-		const CStack * destStack = owner->getCurrentPlayerInterface()->cb->battleGetStackByPos(tile, false);
-
-		assert(tile.isValid());
-		if(!tile.isValid())
-			continue;
-
-		Rect tilePos = owner->fieldController->hexPosition(tile);
-		be.position = tile;
-		be.x = tilePos.x + tilePos.w/2 - first->width()/2;
-
-		if(destStack && destStack->doubleWide()) // Correction for 2-hex creatures.
-			be.x += (destStack->side == BattleSide::ATTACKER ? -1 : 1)*tilePos.w/2;
-
-		if (alignToBottom())
-			be.y = tilePos.y + tilePos.h - first->height();
+		if (hasTile && !forceOnTop())
+			be.position = battlehexes[i];
 		else
-			be.y = tilePos.y - first->height()/2;
+			be.position = BattleHex::INVALID;
 
+		if (hasPosition)
+		{
+			be.x = positions[i].x;
+			be.y = positions[i].y;
+		}
+		else
+		{
+			const CStack * destStack = owner->getCurrentPlayerInterface()->cb->battleGetStackByPos(battlehexes[i], false);
+			Rect tilePos = owner->fieldController->hexPosition(battlehexes[i]);
+
+			be.x = tilePos.x + tilePos.w/2 - first->width()/2;
+
+			if(destStack && destStack->doubleWide()) // Correction for 2-hex creatures.
+				be.x += (destStack->side == BattleSide::ATTACKER ? -1 : 1)*tilePos.w/2;
+
+			if (alignToBottom())
+				be.y = tilePos.y + tilePos.h - first->height();
+			else
+				be.y = tilePos.y - first->height()/2;
+		}
 		owner->effectsController->battleEffects.push_back(be);
 	}
 	return true;
@@ -1072,7 +1080,11 @@ void CPointEffectAnimation::nextFrame()
 	playEffect();
 
 	if (soundFinished && effectFinished)
+	{
+		//remove visual effect itself only if sound has finished as well - necessary for obstacles like force field
+		clearEffect();
 		delete this;
+	}
 }
 
 bool CPointEffectAnimation::alignToBottom() const
@@ -1085,10 +1097,19 @@ bool CPointEffectAnimation::waitForSound() const
 	return effectFlags & WAIT_FOR_SOUND;
 }
 
+bool CPointEffectAnimation::forceOnTop() const
+{
+	return effectFlags & FORCE_ON_TOP;
+}
+
+bool CPointEffectAnimation::screenFill() const
+{
+	return effectFlags & SCREEN_FILL;
+}
+
 void CPointEffectAnimation::onEffectFinished()
 {
 	effectFinished = true;
-	clearEffect();
 }
 
 void CPointEffectAnimation::onSoundFinished()
@@ -1118,6 +1139,9 @@ void CPointEffectAnimation::playSound()
 
 void CPointEffectAnimation::playEffect()
 {
+	if ( effectFinished )
+		return;
+
 	for(auto & elem : owner->effectsController->battleEffects)
 	{
 		if(elem.effectID == ID)
@@ -1126,6 +1150,7 @@ void CPointEffectAnimation::playEffect()
 
 			if(elem.currentFrame >= elem.animation->size())
 			{
+				elem.currentFrame = elem.animation->size() - 1;
 				onEffectFinished();
 				break;
 			}
