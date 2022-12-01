@@ -294,11 +294,13 @@ void CBattleInterface::keyPressed(const SDL_KeyboardEvent & key)
 			actionsController->endCastingSpell();
 	}
 }
-void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
+void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &event)
 {
 	BattleHex selectedHex = fieldController->getHoveredHex();
 
 	actionsController->handleHex(selectedHex, MOVE);
+
+	controlPanel->mouseMoved(event);
 }
 
 void CBattleInterface::clickRight(tribool down, bool previousState)
