@@ -350,3 +350,8 @@ void CBattleSiegeController::stackIsCatapulting(const CatapultAttack & ca)
 		wallPieceImages[wallId] = IImage::createFromFile(getWallPieceImageName(EWallVisual::EWallVisual(wallId), wallState));
 	}
 }
+
+const CGTownInstance *CBattleSiegeController::getSiegedTown() const
+{
+	return town;
+}

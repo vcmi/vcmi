@@ -696,7 +696,7 @@ void CStackQueue::update()
 
 int32_t CStackQueue::getSiegeShooterIconID()
 {
-	return owner->siegeH->town->town->faction->index;
+	return owner->siegeController->getSiegedTown()->town->faction->index;
 }
 
 CStackQueue::StackBox::StackBox(CStackQueue * owner):

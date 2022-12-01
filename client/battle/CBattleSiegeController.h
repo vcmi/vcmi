@@ -106,5 +106,5 @@ public:
 	const CCreature *getTurretCreature() const;
 	Point getTurretCreaturePosition( BattleHex position ) const;
 
-
+	const CGTownInstance *getSiegedTown() const;
 };

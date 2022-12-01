@@ -188,7 +188,6 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 	addUsedEvents(RCLICK | MOVE | KEYBOARD);
 	controlPanel->blockUI(true);
 	queue->update();
-	blockUI(true);
 }
 
 CBattleInterface::~CBattleInterface()
