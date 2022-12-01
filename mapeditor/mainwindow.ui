@@ -1010,6 +1010,9 @@
    </property>
   </action>
   <action name="actionPlayers_settings">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Players settings</string>
    </property>
