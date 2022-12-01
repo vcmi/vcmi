@@ -204,6 +204,8 @@
 			"siege" :
 			{
 				"shooter" : "gog",
+				"towerIconSmall" : "vcmi/creatureIcons/towerSmall",
+				"towerIconLarge" : "vcmi/creatureIcons/towerLarge",
 				"imagePrefix" : "SGIN",
 				"gate" :
 				{

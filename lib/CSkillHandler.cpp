@@ -70,9 +70,9 @@ void CSkill::registerIcons(const IconRegistar & cb) const
 	{
 		int frame = 2 + level + 3 * id;
 		const LevelInfo & skillAtLevel = at(level);
-		cb(frame, "SECSK32", skillAtLevel.iconSmall);
-		cb(frame, "SECSKILL", skillAtLevel.iconMedium);
-		cb(frame, "SECSK82", skillAtLevel.iconLarge);
+		cb(frame, 0, "SECSK32", skillAtLevel.iconSmall);
+		cb(frame, 0, "SECSKILL", skillAtLevel.iconMedium);
+		cb(frame, 0, "SECSK82", skillAtLevel.iconLarge);
 	}
 }
 

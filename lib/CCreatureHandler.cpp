@@ -46,8 +46,8 @@ const std::string & CCreature::getJsonKey() const
 
 void CCreature::registerIcons(const IconRegistar & cb) const
 {
-	cb(getIconIndex(), "CPRSMALL", smallIconName);
-	cb(getIconIndex(), "TWCRPORT", largeIconName);
+	cb(getIconIndex(), 0, "CPRSMALL", smallIconName);
+	cb(getIconIndex(), 0, "TWCRPORT", largeIconName);
 }
 
 CreatureID CCreature::getId() const

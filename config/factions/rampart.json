@@ -211,6 +211,8 @@
 			"siege" :
 			{
 				"shooter" : "woodElf",
+				"towerIconSmall" : "vcmi/creatureIcons/towerSmall",
+				"towerIconLarge" : "vcmi/creatureIcons/towerLarge",
 				"imagePrefix" : "SGRM",
 				"gate" :
 				{

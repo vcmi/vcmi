@@ -204,6 +204,8 @@
 			"siege" :
 			{
 				"shooter" : "medusa",
+				"towerIconSmall" : "vcmi/creatureIcons/towerSmall",
+				"towerIconLarge" : "vcmi/creatureIcons/towerLarge",
 				"imagePrefix" : "SGDN",
 				"gate" :
 				{

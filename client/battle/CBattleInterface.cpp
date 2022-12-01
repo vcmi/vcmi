@@ -156,7 +156,6 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 
 		queue->moveTo(Point(pos.x, pos.y - queue->pos.h));
 	}
-	queue->update();
 
 	//preparing siege info
 	const CGTownInstance *town = curInt->cb->battleGetDefendedTown();
@@ -423,6 +422,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet *army1, const CCreatureSet
 	currentAction = PossiblePlayerBattleAction::INVALID;
 	selectedAction = PossiblePlayerBattleAction::INVALID;
 	addUsedEvents(RCLICK | MOVE | KEYBOARD);
+	queue->update();
 	blockUI(true);
 }
 

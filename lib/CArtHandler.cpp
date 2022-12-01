@@ -72,8 +72,8 @@ const std::string & CArtifact::getJsonKey() const
 
 void CArtifact::registerIcons(const IconRegistar & cb) const
 {
-	cb(getIconIndex(), "ARTIFACT", image);
-	cb(getIconIndex(), "ARTIFACTLARGE", large);
+	cb(getIconIndex(), 0, "ARTIFACT", image);
+	cb(getIconIndex(), 0, "ARTIFACTLARGE", large);
 }
 
 ArtifactID CArtifact::getId() const

@@ -123,6 +123,8 @@
 		},
 		"graphics" :
 		{
+			"iconSmall" : "vcmi/creatureIcons/towerSmall",
+			"iconLarge" : "vcmi/creatureIcons/towerLarge",
 			"animation": "CLCBOW.DEF" // needed to pass validation, never used
 		},
 		"sound": {}
