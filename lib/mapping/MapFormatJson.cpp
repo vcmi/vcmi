@@ -1152,7 +1152,7 @@ void CMapLoaderJson::MapObjectLoader::configure()
 
 	if(auto art = dynamic_cast<CGArtifact *>(instance))
 	{
-		int artID = ArtifactID::NONE;
+		auto artID = ArtifactID::NONE;
 		int spellID = -1;
 
 		if(art->ID == Obj::SPELL_SCROLL)
@@ -1168,7 +1168,7 @@ void CMapLoaderJson::MapObjectLoader::configure()
 		else if(art->ID  == Obj::ARTIFACT)
 		{
 			//specific artifact
-			artID = art->subID;
+			artID = ArtifactID(art->subID);
 		}
 
 		art->storedArtifact = CArtifactInstance::createArtifact(owner->map, artID, spellID);

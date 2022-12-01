@@ -21,7 +21,7 @@ class CGCreature;
 
 class DLL_LINKAGE CQuest final
 {
-	mutable std::unordered_map<ui16, unsigned> artifactsRequirements; // artifact ID -> required count
+	mutable std::unordered_map<ArtifactID, unsigned, ArtifactID::hash> artifactsRequirements; // artifact ID -> required count
 
 public:
 	enum Emission {MISSION_NONE = 0, MISSION_LEVEL = 1, MISSION_PRIMARY_STAT = 2, MISSION_KILL_HERO = 3, MISSION_KILL_CREATURE = 4,
@@ -36,7 +36,7 @@ public:
 
 	ui32 m13489val;
 	std::vector<ui32> m2stats;
-	std::vector<ui16> m5arts; // artifact IDs. Add IDs through addArtifactID(), not directly to the field.
+	std::vector<ArtifactID> m5arts; // artifact IDs. Add IDs through addArtifactID(), not directly to the field.
 	std::vector<CStackBasicDescriptor> m6creatures; //pair[cre id, cre count], CreatureSet info irrelevant
 	std::vector<ui32> m7resources; //TODO: use resourceset?
 
@@ -62,7 +62,7 @@ public:
 	virtual void getRolloverText (MetaString &text, bool onHover) const; //hover or quest log entry
 	virtual void completeQuest (const CGHeroInstance * h) const {};
 	virtual void addReplacements(MetaString &out, const std::string &base) const;
-	void addArtifactID(ui16 id);
+	void addArtifactID(ArtifactID id);
 
 	bool operator== (const CQuest & quest) const
 	{

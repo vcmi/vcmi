@@ -1054,6 +1054,14 @@ public:
 	ID_LIKE_CLASS_COMMON(ArtifactID, EArtifactID)
 
 	EArtifactID num;
+
+	struct hash
+	{
+		size_t operator()(const ArtifactID & aid) const
+		{
+			return std::hash<int>()(aid.num);
+		}
+	};
 };
 
 ID_LIKE_OPERATORS(ArtifactID, ArtifactID::EArtifactID)

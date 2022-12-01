@@ -851,7 +851,7 @@ void CArtifactInstance::putAt(ArtifactLocation al)
 	assert(canBePutAt(al));
 
 	al.getHolderArtSet()->setNewArtSlot(al.slot, this, false);
-	if(al.slot < GameConstants::BACKPACK_START)
+	if(!ArtifactUtils::isSlotBackpack(al.slot))
 		al.getHolderNode()->attachTo(*this);
 }
 
@@ -859,7 +859,7 @@ void CArtifactInstance::removeFrom(ArtifactLocation al)
 {
 	assert(al.getHolderArtSet()->getArt(al.slot) == this);
 	al.getHolderArtSet()->eraseArtSlot(al.slot);
-	if(al.slot < GameConstants::BACKPACK_START)
+	if(!ArtifactUtils::isSlotBackpack(al.slot))
 		al.getHolderNode()->detachFrom(*this);
 
 	//TODO delete me?
@@ -938,12 +938,12 @@ CArtifactInstance * CArtifactInstance::createNewArtifactInstance(CArtifact *Art)
 	}
 }
 
-CArtifactInstance * CArtifactInstance::createNewArtifactInstance(int aid)
+CArtifactInstance * CArtifactInstance::createNewArtifactInstance(ArtifactID aid)
 {
 	return createNewArtifactInstance(VLC->arth->objects[aid]);
 }
 
-CArtifactInstance * CArtifactInstance::createArtifact(CMap * map, int aid, int spellID)
+CArtifactInstance * CArtifactInstance::createArtifact(CMap * map, ArtifactID aid, int spellID)
 {
 	CArtifactInstance * a = nullptr;
 	if(aid >= 0)
@@ -1003,7 +1003,7 @@ bool CCombinedArtifactInstance::canBePutAt(const CArtifactSet *artSet, ArtifactP
 	bool canMainArtifactBePlaced = CArtifactInstance::canBePutAt(artSet, slot, assumeDestRemoved);
 	if(!canMainArtifactBePlaced)
 		return false; //no is no...
-	if(slot >= GameConstants::BACKPACK_START)
+	if(ArtifactUtils::isSlotBackpack(slot))
 		return true; //we can always remove combined art to the backapck
 
 
@@ -1019,11 +1019,12 @@ bool CCombinedArtifactInstance::canBePutAt(const CArtifactSet *artSet, ArtifactP
 	}
 
 	//we iterate over all active slots and check if constituents fits them
-	for (int i = 0; i < GameConstants::BACKPACK_START; i++)
+	for(const auto pos : ArtifactUtils::constituentWornSlots())
 	{
 		for(auto art = constituentsToBePlaced.begin(); art != constituentsToBePlaced.end(); art++)
 		{
-			if(art->art->canBePutAt(artSet, ArtifactPosition(i), i == slot)) // i == al.slot because we can remove already worn artifact only from that slot  that is our main destination
+			// pos == slot because we can remove already worn artifact only from that slot. That is our main destination
+			if(art->art->canBePutAt(artSet, pos, pos == slot))
 			{
 				constituentsToBePlaced.erase(art);
 				break;
@@ -1069,7 +1070,7 @@ void CCombinedArtifactInstance::addAsConstituent(CArtifactInstance *art, Artifac
 
 void CCombinedArtifactInstance::putAt(ArtifactLocation al)
 {
-	if(al.slot >= GameConstants::BACKPACK_START)
+	if(ArtifactUtils::isSlotBackpack(al.slot))
 	{
 		CArtifactInstance::putAt(al);
 		for(ConstituentInfo &ci : constituentsInfo)
@@ -1094,7 +1095,7 @@ void CCombinedArtifactInstance::putAt(ArtifactLocation al)
 				else
 					ci.slot = pos = ci.art->firstAvailableSlot(al.getHolderArtSet());
 
-				assert(pos < GameConstants::BACKPACK_START);
+				assert(!ArtifactUtils::isSlotBackpack(pos));
 				al.getHolderArtSet()->setNewArtSlot(pos, ci.art, true); //sets as lock
 			}
 			else
@@ -1107,7 +1108,7 @@ void CCombinedArtifactInstance::putAt(ArtifactLocation al)
 
 void CCombinedArtifactInstance::removeFrom(ArtifactLocation al)
 {
-	if(al.slot >= GameConstants::BACKPACK_START)
+	if(ArtifactUtils::isSlotBackpack(al.slot))
 	{
 		CArtifactInstance::removeFrom(al);
 	}
@@ -1199,19 +1200,19 @@ CArtifactInstance* CArtifactSet::getArt(ArtifactPosition pos, bool excludeLocked
 	return const_cast<CArtifactInstance*>((const_cast<const CArtifactSet*>(this))->getArt(pos, excludeLocked));
 }
 
-ArtifactPosition CArtifactSet::getArtPos(int aid, bool onlyWorn, bool allowLocked) const
+ArtifactPosition CArtifactSet::getArtPos(ArtifactID aid, bool onlyWorn, bool allowLocked) const
 {
 	const auto result = getAllArtPositions(aid, onlyWorn, allowLocked, false);
 	return result.empty() ? ArtifactPosition{ArtifactPosition::PRE_FIRST} : result[0];
 }
 
-ArtifactPosition CArtifactSet::getArtBackpackPos(int aid) const
+ArtifactPosition CArtifactSet::getArtBackpackPos(ArtifactID aid) const
 {
 	const auto result = getBackpackArtPositions(aid);
 	return result.empty() ? ArtifactPosition{ArtifactPosition::PRE_FIRST} : result[0];
 }
 
-std::vector<ArtifactPosition> CArtifactSet::getAllArtPositions(int aid, bool onlyWorn, bool allowLocked, bool getAll) const
+std::vector<ArtifactPosition> CArtifactSet::getAllArtPositions(ArtifactID aid, bool onlyWorn, bool allowLocked, bool getAll) const
 {
 	std::vector<ArtifactPosition> result;
 	for(auto & slotInfo : artifactsWorn)
@@ -1228,7 +1229,7 @@ std::vector<ArtifactPosition> CArtifactSet::getAllArtPositions(int aid, bool onl
 	return result;
 }
 
-std::vector<ArtifactPosition> CArtifactSet::getBackpackArtPositions(int aid) const
+std::vector<ArtifactPosition> CArtifactSet::getBackpackArtPositions(ArtifactID aid) const
 {
 	std::vector<ArtifactPosition> result;
 
@@ -1270,7 +1271,7 @@ const CArtifactInstance * CArtifactSet::getArtByInstanceId( ArtifactInstanceID a
 }
 
 bool CArtifactSet::hasArt(
-	ui32 aid,
+	ArtifactID aid,
 	bool onlyWorn,
     bool searchBackpackAssemblies,
 	bool allowLocked) const
@@ -1278,12 +1279,12 @@ bool CArtifactSet::hasArt(
 	return getArtPosCount(aid, onlyWorn, searchBackpackAssemblies, allowLocked) > 0;
 }
 
-bool CArtifactSet::hasArtBackpack(ui32 aid) const
+bool CArtifactSet::hasArtBackpack(ArtifactID aid) const
 {
 	return getBackpackArtPositions(aid).size() > 0;
 }
 
-unsigned CArtifactSet::getArtPosCount(int aid, bool onlyWorn, bool searchBackpackAssemblies, bool allowLocked) const
+unsigned CArtifactSet::getArtPosCount(ArtifactID aid, bool onlyWorn, bool searchBackpackAssemblies, bool allowLocked) const
 {
 	const auto allPositions = getAllArtPositions(aid, onlyWorn, allowLocked, true);
 	if(!allPositions.empty())
@@ -1296,7 +1297,7 @@ unsigned CArtifactSet::getArtPosCount(int aid, bool onlyWorn, bool searchBackpac
 }
 
 std::pair<const CCombinedArtifactInstance *, const CArtifactInstance *>
-CArtifactSet::searchForConstituent(int aid) const
+CArtifactSet::searchForConstituent(ArtifactID aid) const
 {
 	for(auto & slot : artifactsInBackpack)
 	{
@@ -1316,12 +1317,12 @@ CArtifactSet::searchForConstituent(int aid) const
 	return {nullptr, nullptr};
 }
 
-const CArtifactInstance *CArtifactSet::getHiddenArt(int aid) const
+const CArtifactInstance *CArtifactSet::getHiddenArt(ArtifactID aid) const
 {
 	return searchForConstituent(aid).second;
 }
 
-const CCombinedArtifactInstance *CArtifactSet::getAssemblyByConstituent(int aid) const
+const CCombinedArtifactInstance *CArtifactSet::getAssemblyByConstituent(ArtifactID aid) const
 {
 	return searchForConstituent(aid).first;
 }
@@ -1353,7 +1354,7 @@ bool CArtifactSet::isPositionFree(ArtifactPosition pos, bool onlyLockCheck) cons
 ArtSlotInfo & CArtifactSet::retrieveNewArtSlot(ArtifactPosition slot)
 {
 	assert(!vstd::contains(artifactsWorn, slot));
-	ArtSlotInfo &ret = slot < GameConstants::BACKPACK_START
+	ArtSlotInfo &ret = !ArtifactUtils::isSlotBackpack(slot)
 		? artifactsWorn[slot]
 		: *artifactsInBackpack.insert(artifactsInBackpack.begin() + (slot - GameConstants::BACKPACK_START), ArtSlotInfo());
 
@@ -1369,14 +1370,15 @@ void CArtifactSet::setNewArtSlot(ArtifactPosition slot, CArtifactInstance *art, 
 
 void CArtifactSet::eraseArtSlot(ArtifactPosition slot)
 {
-	if(slot < GameConstants::BACKPACK_START)
+	if(ArtifactUtils::isSlotBackpack(slot))
 	{
-		artifactsWorn.erase(slot);
+		assert(artifactsInBackpack.begin() + slot < artifactsInBackpack.end());
+		slot = ArtifactPosition(slot - GameConstants::BACKPACK_START);
+		artifactsInBackpack.erase(artifactsInBackpack.begin() + slot);
 	}
 	else
 	{
-		slot = ArtifactPosition(slot - GameConstants::BACKPACK_START);
-		artifactsInBackpack.erase(artifactsInBackpack.begin() + slot);
+		artifactsWorn.erase(slot);
 	}
 }
 
@@ -1543,16 +1545,41 @@ DLL_LINKAGE ArtifactPosition ArtifactUtils::getArtifactDstPosition(	const CArtif
 	return ArtifactPosition(GameConstants::BACKPACK_START);
 }
 
-DLL_LINKAGE std::vector<ArtifactPosition> ArtifactUtils::unmovablePositions()
+DLL_LINKAGE const std::vector<ArtifactPosition::EArtifactPosition> & ArtifactUtils::unmovableSlots()
 {
-	return { ArtifactPosition::SPELLBOOK, ArtifactPosition::MACH4 };
+	return
+	{
+		ArtifactPosition::SPELLBOOK,
+		ArtifactPosition::MACH4
+	};
+}
+
+DLL_LINKAGE const std::vector<ArtifactPosition::EArtifactPosition> & ArtifactUtils::constituentWornSlots()
+{
+	return
+	{
+		ArtifactPosition::HEAD,
+		ArtifactPosition::SHOULDERS,
+		ArtifactPosition::NECK,
+		ArtifactPosition::RIGHT_HAND,
+		ArtifactPosition::LEFT_HAND,
+		ArtifactPosition::TORSO,
+		ArtifactPosition::RIGHT_RING,
+		ArtifactPosition::LEFT_RING,
+		ArtifactPosition::FEET,
+		ArtifactPosition::MISC1,
+		ArtifactPosition::MISC2,
+		ArtifactPosition::MISC3,
+		ArtifactPosition::MISC4,
+		ArtifactPosition::MISC5,
+	};
 }
 
 DLL_LINKAGE bool ArtifactUtils::isArtRemovable(const std::pair<ArtifactPosition, ArtSlotInfo> & slot)
 {
 	return slot.second.artifact
 		&& !slot.second.locked
-		&& !vstd::contains(unmovablePositions(), slot.first);
+		&& !vstd::contains(unmovableSlots(), slot.first);
 }
 
 DLL_LINKAGE bool ArtifactUtils::checkSpellbookIsNeeded(const CGHeroInstance * heroPtr, ArtifactID artID, ArtifactPosition slot)

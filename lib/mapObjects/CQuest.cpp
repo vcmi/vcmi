@@ -422,7 +422,7 @@ void CQuest::getCompletionText(MetaString &iwText, std::vector<Component> &compo
 	}
 }
 
-void CQuest::addArtifactID(ui16 id)
+void CQuest::addArtifactID(ArtifactID id)
 {
 	m5arts.push_back(id);
 	++artifactsRequirements[id];
@@ -474,7 +474,7 @@ void CQuest::serializeJson(JsonSerializeFormat & handler, const std::string & fi
 		break;
 	case MISSION_ART:
 		//todo: ban artifacts
-		handler.serializeIdArray<ui16, ArtifactID>("artifacts", m5arts);
+		handler.serializeIdArray<ArtifactID>("artifacts", m5arts);
 		break;
 	case MISSION_ARMY:
         {
