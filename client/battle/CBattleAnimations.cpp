@@ -738,7 +738,7 @@ bool CRangedAttackAnimation::init()
 void CRangedAttackAnimation::setAnimationGroup()
 {
 	Point shooterPos = stackAnimation(attackingStack)->pos.topLeft();
-	Point shotTarget = owner->stacksController->getStackPositionAtHex(dest, attackedStack) + Point(225, 225);
+	Point shotTarget = owner->stacksController->getStackPositionAtHex(dest, attackedStack);
 
 	//maximal angle in radians between straight horizontal line and shooting line for which shot is considered to be straight (absoulte value)
 	static const double straightAngle = 0.2;
@@ -761,17 +761,17 @@ void CRangedAttackAnimation::initializeProjectile()
 	Point shotOrigin = stackAnimation(attackingStack)->pos.topLeft() + Point(222, 265);
 	int multiplier = stackFacingRight(attackingStack) ? 1 : -1;
 
-	if (group == CCreatureAnim::SHOOT_UP)
+	if (group == getUpwardsGroup())
 	{
 		shotOrigin.x += ( -25 + shooterInfo->animation.upperRightMissleOffsetX ) * multiplier;
 		shotOrigin.y += shooterInfo->animation.upperRightMissleOffsetY;
 	}
-	else if (group == CCreatureAnim::SHOOT_DOWN)
+	else if (group == getDownwardsGroup())
 	{
 		shotOrigin.x += ( -25 + shooterInfo->animation.lowerRightMissleOffsetX ) * multiplier;
 		shotOrigin.y += shooterInfo->animation.lowerRightMissleOffsetY;
 	}
-	else if (group == CCreatureAnim::SHOOT_FRONT)
+	else if (group == getForwardGroup())
 	{
 		shotOrigin.x += ( -25 + shooterInfo->animation.rightMissleOffsetX ) * multiplier;
 		shotOrigin.y += shooterInfo->animation.rightMissleOffsetY;
@@ -818,8 +818,6 @@ void CRangedAttackAnimation::nextFrame()
 	if (!projectileEmitted)
 	{
 		const CCreature *shooterInfo = getCreature();
-
-		assert(stackAnimation(attackingStack)->isShooting());
 
 		logAnim->info("Ranged attack executing, %d / %d / %d",
 					  stackAnimation(attackingStack)->getCurrentFrame(),
@@ -967,7 +965,8 @@ CCreatureAnim::EAnimType CCastAnimation::getDownwardsGroup() const
 
 void CCastAnimation::createProjectile(const Point & from, const Point & dest) const
 {
-	owner->projectilesController->createSpellProjectile(attackingStack, attackedStack, from, dest, spell);
+	if (!spell->animationInfo.projectile.empty())
+		owner->projectilesController->createSpellProjectile(attackingStack, attackedStack, from, dest, spell);
 }
 
 CPointEffectAnimation::CPointEffectAnimation(CBattleInterface * _owner, soundBase::soundID sound, std::string animationName, int effects):

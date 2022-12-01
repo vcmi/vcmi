@@ -343,14 +343,14 @@ void CBattleProjectileController::createProjectile(const CStack * shooter, const
 		missileProjectile->animation = getProjectileImage(shooter);
 		missileProjectile->reverse  = !owner->stacksController->facingRight(shooter);
 		missileProjectile->frameNum = computeProjectileFrameID(from, dest, shooter);
-		missileProjectile->steps = computeProjectileFlightTime(from, dest, AnimationControls::getProjectileSpeed());
 	}
 
-	projectile->from     = from;
-	projectile->dest     = dest;
+	projectile->steps     = computeProjectileFlightTime(from, dest, AnimationControls::getProjectileSpeed());
+	projectile->from      = from;
+	projectile->dest      = dest;
 	projectile->shooterID = shooter->ID;
-	projectile->step     = 0;
-	projectile->playing  = false;
+	projectile->step      = 0;
+	projectile->playing   = false;
 
 	projectiles.push_back(projectile);
 }
