@@ -64,6 +64,50 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 		item->setCheckState(controller.map()->allowedHeroes[i] ? Qt::Checked : Qt::Unchecked);
 		ui->listHeroes->addItem(item);
 	}
+	
+	//set difficulty
+	switch(controller.map()->difficulty)
+	{
+		case 0:
+			ui->diffRadio1->setChecked(true);
+			break;
+			
+		case 1:
+			ui->diffRadio2->setChecked(true);
+			break;
+			
+		case 2:
+			ui->diffRadio3->setChecked(true);
+			break;
+			
+		case 3:
+			ui->diffRadio4->setChecked(true);
+			break;
+			
+		case 4:
+			ui->diffRadio5->setChecked(true);
+			break;
+	};
+	
+	//victory & loss messages
+	ui->victoryMessageEdit->setText(QString::fromStdString(controller.map()->victoryMessage));
+	ui->defeatMessageEdit->setText(QString::fromStdString(controller.map()->defeatMessage));
+	
+	//victory & loss conditions
+	for(auto & ev : controller.map()->triggeredEvents)
+	{
+		if(ev.effect.type == EventEffect::VICTORY)
+		{
+			if(ev.identifier == "standardVictory")
+				ui->standardVictoryCheck->setChecked(true);
+
+			if(ev.identifier == "specialVictory")
+			{
+				if(ev.trigger.get() == EventCondition::HAVE_ARTIFACT)
+					
+			}
+		}
+	}
 
 	//ui8 difficulty;
 	//ui8 levelLimit;
