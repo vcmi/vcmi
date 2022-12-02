@@ -28,6 +28,7 @@ class CBattleInterface;
 class CBattleAnimation;
 class CCreatureAnimation;
 class CBattleAnimation;
+class CBattleFieldRenderer;
 class IImage;
 
 class CBattleStacksController
@@ -55,6 +56,7 @@ class CBattleStacksController
 
 	bool stackNeedsAmountBox(const CStack * stack);
 	void showStackAmountBox(std::shared_ptr<CCanvas> canvas, const CStack * stack);
+	BattleHex getStackCurrentPosition(const CStack * stack);
 
 	std::shared_ptr<IImage> getStackAmountBox(const CStack * stack);
 
@@ -87,7 +89,7 @@ public:
 	void showAliveStack(std::shared_ptr<CCanvas> canvas, const CStack * stack);
 	void showStack(std::shared_ptr<CCanvas> canvas, const CStack * stack);
 
-	void showBattlefieldObjects(std::shared_ptr<CCanvas> canvas, const BattleHex & location );
+	void collectRenderableObjects(CBattleFieldRenderer & renderer);
 
 	void addNewAnim(CBattleAnimation *anim); //adds new anim to pendingAnims
 	void updateBattleAnimations();

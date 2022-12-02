@@ -47,6 +47,7 @@ class CBattleProjectileController;
 class CBattleSiegeController;
 class CBattleObstacleController;
 class CBattleFieldController;
+class CBattleFieldRenderer;
 class CBattleControlPanel;
 class CBattleStacksController;
 class CBattleActionsController;
@@ -99,9 +100,6 @@ private:
 
 	void showInterface(std::shared_ptr<CCanvas> canvas);
 
-	void showBattlefieldObjects(std::shared_ptr<CCanvas> canvas);
-	void showBattlefieldObjects(std::shared_ptr<CCanvas> canvas, const BattleHex & location );
-
 	void setHeroAnimation(ui8 side, int phase);
 public:
 	std::unique_ptr<CBattleProjectileController> projectilesController;
@@ -144,6 +142,8 @@ public:
 
 	void show(SDL_Surface *to) override;
 	void showAll(SDL_Surface *to) override;
+
+	void collectRenderableObjects(CBattleFieldRenderer & renderer);
 
 	//call-ins
 	void startAction(const BattleAction* action);

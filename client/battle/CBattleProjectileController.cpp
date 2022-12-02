@@ -228,10 +228,6 @@ void CBattleProjectileController::showProjectiles(std::shared_ptr<CCanvas> canva
 	for ( auto it = projectiles.begin(); it != projectiles.end();)
 	{
 		auto projectile = *it;
-		// Check if projectile is already visible (shooter animation did the shot)
-		//if (!it->shotDone)
-		//	continue;
-
 		if ( projectile->playing )
 			projectile->show(canvas);
 

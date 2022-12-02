@@ -126,9 +126,9 @@ void CBattleObstacleController::showAbsoluteObstacles(std::shared_ptr<CCanvas> c
 	}
 }
 
-void CBattleObstacleController::showBattlefieldObjects(std::shared_ptr<CCanvas> canvas, const BattleHex & location )
+void CBattleObstacleController::collectRenderableObjects(CBattleFieldRenderer & renderer)
 {
-	for (auto &obstacle : owner->curInt->cb->battleGetAllObstacles())
+	for (auto obstacle : owner->curInt->cb->battleGetAllObstacles())
 	{
 		if (obstacle->obstacleType == CObstacleInstance::ABSOLUTE_OBSTACLE)
 			continue;
@@ -136,15 +136,14 @@ void CBattleObstacleController::showBattlefieldObjects(std::shared_ptr<CCanvas> 
 		if (obstacle->obstacleType == CObstacleInstance::MOAT)
 			continue;
 
-		if ( obstacle->pos != location)
-			continue;
-
-		auto img = getObstacleImage(*obstacle);
-		if(img)
-		{
-			Point p = getObstaclePosition(img, *obstacle);
-			canvas->draw(img, p);
-		}
+		renderer.insert(EBattleFieldLayer::OBSTACLES, obstacle->pos, [this, obstacle]( CBattleFieldRenderer::RendererPtr canvas ){
+			auto img = getObstacleImage(*obstacle);
+			if(img)
+			{
+				Point p = getObstaclePosition(img, *obstacle);
+				canvas->draw(img, p);
+			}
+		});
 	}
 }
 

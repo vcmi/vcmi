@@ -93,66 +93,54 @@ CBattleStacksController::CBattleStacksController(CBattleInterface * owner):
 	}
 }
 
-void CBattleStacksController::showBattlefieldObjects(std::shared_ptr<CCanvas> canvas, const BattleHex & location )
+BattleHex CBattleStacksController::getStackCurrentPosition(const CStack * stack)
 {
-	auto getCurrentPosition = [&](const CStack *stack) -> BattleHex
-	{
-		for (auto & anim : currentAnimations)
-		{
-			// certainly ugly workaround but fixes quite annoying bug
-			// stack position will be updated only *after* movement is finished
-			// before this - stack is always at its initial position. Thus we need to find
-			// its current position. Which can be found only in this class
-			if (CStackMoveAnimation *move = dynamic_cast<CStackMoveAnimation*>(anim))
-			{
-				if (move->stack == stack)
-					return move->currentHex;
-			}
-
-		}
+	if ( !stackAnimation[stack->ID]->isMoving())
 		return stack->getPosition();
-	};
 
+	if (stack->hasBonusOfType(Bonus::FLYING))
+		return BattleHex::HEX_AFTER_ALL;
+
+	for (auto & anim : currentAnimations)
+	{
+		// certainly ugly workaround but fixes quite annoying bug
+		// stack position will be updated only *after* movement is finished
+		// before this - stack is always at its initial position. Thus we need to find
+		// its current position. Which can be found only in this class
+		if (CStackMoveAnimation *move = dynamic_cast<CStackMoveAnimation*>(anim))
+		{
+			if (move->stack == stack)
+				return move->currentHex;
+		}
+	}
+	return stack->getPosition();
+}
+
+void CBattleStacksController::collectRenderableObjects(CBattleFieldRenderer & renderer)
+{
 	auto stacks = owner->curInt->cb->battleGetAllStacks(false);
 
-	for (auto & stack : stacks)
+	for (auto stack : stacks)
 	{
 		if (stackAnimation.find(stack->ID) == stackAnimation.end()) //e.g. for summoned but not yet handled stacks
 			continue;
 
 		//FIXME: hack to ignore ghost stacks
 		if ((stackAnimation[stack->ID]->getType() == CCreatureAnim::DEAD || stackAnimation[stack->ID]->getType() == CCreatureAnim::HOLDING) && stack->isGhost())
-			continue;//ignore
-
-		if (stackAnimation[stack->ID]->isDead())
-		{
-			//if ( location == stack->getPosition() )
-			if ( location == BattleHex::HEX_BEFORE_ALL ) //FIXME: any cases when using BEFORE_ALL won't work?
-				showStack(canvas, stack);
 			continue;
-		}
 
-		// standing - blit at current position
-		if (!stackAnimation[stack->ID]->isMoving())
-		{
-			if ( location == stack->getPosition() )
-				showStack(canvas, stack);
-			continue;
-		}
+		auto layer = stackAnimation[stack->ID]->isDead() ? EBattleFieldLayer::CORPSES : EBattleFieldLayer::STACKS;
+		auto location = getStackCurrentPosition(stack);
 
-		// flying creature - just blit them over everyone else
-		if (stack->hasBonusOfType(Bonus::FLYING))
-		{
-			if ( location == BattleHex::HEX_AFTER_ALL)
-				showStack(canvas, stack);
-			continue;
-		}
+		renderer.insert(layer, location, [this, stack]( CBattleFieldRenderer::RendererPtr renderer ){
+			showStack(renderer, stack);
+		});
 
-		// else - unit moving on ground
+		if (stackNeedsAmountBox(stack))
 		{
-			if ( location == getCurrentPosition(stack) )
-				showStack(canvas, stack);
-			continue;
+			renderer.insert(EBattleFieldLayer::STACK_AMOUNTS, location, [this, stack]( CBattleFieldRenderer::RendererPtr renderer ){
+				showStackAmountBox(renderer, stack);
+			});
 		}
 	}
 }
@@ -342,9 +330,6 @@ void CBattleStacksController::showStack(std::shared_ptr<CCanvas> canvas, const C
 {
 	stackAnimation[stack->ID]->nextFrame(canvas, facingRight(stack)); // do actual blit
 	stackAnimation[stack->ID]->incrementFrame(float(GH.mainFPSmng->getElapsedMilliseconds()) / 1000);
-
-	if (stackNeedsAmountBox(stack))
-		showStackAmountBox(canvas, stack);
 }
 
 void CBattleStacksController::updateBattleAnimations()

@@ -21,6 +21,7 @@ class IImage;
 class CCanvas;
 class CAnimation;
 class CBattleInterface;
+class CBattleFieldRenderer;
 struct Point;
 
 class CBattleObstacleController
@@ -47,5 +48,5 @@ public:
 	void showObstacles(SDL_Surface *to, std::vector<std::shared_ptr<const CObstacleInstance>> &obstacles);
 	void showAbsoluteObstacles(std::shared_ptr<CCanvas> canvas, const Point & offset);
 
-	void showBattlefieldObjects(std::shared_ptr<CCanvas> canvas, const BattleHex & location );
+	void collectRenderableObjects(CBattleFieldRenderer & renderer);
 };

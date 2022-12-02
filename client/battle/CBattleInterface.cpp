@@ -899,9 +899,7 @@ void CBattleInterface::show(SDL_Surface *to)
 
 	++animCount;
 
-	fieldController->showBackground(canvas);
-	showBattlefieldObjects(canvas);
-	projectilesController->showProjectiles(canvas);
+	fieldController->renderBattlefield(canvas);
 
 	if(battleActionsStarted)
 		stacksController->updateBattleAnimations();
@@ -915,29 +913,22 @@ void CBattleInterface::show(SDL_Surface *to)
 	//activateStack();
 }
 
-void CBattleInterface::showBattlefieldObjects(std::shared_ptr<CCanvas> canvas, const BattleHex & location )
+void CBattleInterface::collectRenderableObjects(CBattleFieldRenderer & renderer)
 {
-	if (siegeController)
-		siegeController->showBattlefieldObjects(canvas, location);
-	obstacleController->showBattlefieldObjects(canvas, location);
-	stacksController->showBattlefieldObjects(canvas, location);
-	effectsController->showBattlefieldObjects(canvas, location);
-}
-
-void CBattleInterface::showBattlefieldObjects(std::shared_ptr<CCanvas> canvas)
-{
-	showBattlefieldObjects(canvas, BattleHex::HEX_BEFORE_ALL);
-
-	// show heroes after "beforeAll" - e.g. topmost wall in siege
 	if (attackingHero)
-		attackingHero->show(canvas->getSurface());
+	{
+		renderer.insert(EBattleFieldLayer::HEROES, BattleHex(0),[this](CBattleFieldRenderer::RendererPtr canvas)
+		{
+			attackingHero->show(canvas->getSurface());
+		});
+	}
 	if (defendingHero)
-		defendingHero->show(canvas->getSurface());
-
-	for (int i = 0; i < GameConstants::BFIELD_SIZE; ++i)
-		showBattlefieldObjects(canvas, BattleHex(i));
-
-	showBattlefieldObjects(canvas, BattleHex::HEX_AFTER_ALL);
+	{
+		renderer.insert(EBattleFieldLayer::HEROES, BattleHex(GameConstants::BFIELD_WIDTH-1),[this](CBattleFieldRenderer::RendererPtr canvas)
+		{
+			defendingHero->show(canvas->getSurface());
+		});
+	}
 }
 
 void CBattleInterface::showInterface(std::shared_ptr<CCanvas> canvas)

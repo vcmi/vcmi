@@ -14,6 +14,7 @@
 #include "CBattleControlPanel.h"
 #include "CBattleInterface.h"
 #include "CBattleInterfaceClasses.h"
+#include "CBattleFieldController.h"
 #include "CBattleStacksController.h"
 
 #include "../CMusicHandler.h"
@@ -121,21 +122,18 @@ void CBattleEffectsController::startAction(const BattleAction* action)
 	}
 }
 
-void CBattleEffectsController::showBattlefieldObjects(std::shared_ptr<CCanvas> canvas, const BattleHex & destTile)
+void CBattleEffectsController::collectRenderableObjects(CBattleFieldRenderer & renderer)
 {
 	for (auto & elem : battleEffects)
 	{
-		if (!elem.position.isValid() && destTile != BattleHex::HEX_AFTER_ALL)
-			continue;
+		renderer.insert( EBattleFieldLayer::EFFECTS, elem.position, [&elem](CBattleFieldRenderer::RendererPtr canvas)
+		{
+			int currentFrame = static_cast<int>(floor(elem.currentFrame));
+			currentFrame %= elem.animation->size();
 
-		if (elem.position.isValid() && elem.position != destTile)
-			continue;
+			auto img = elem.animation->getImage(currentFrame);
 
-		int currentFrame = static_cast<int>(floor(elem.currentFrame));
-		currentFrame %= elem.animation->size();
-
-		auto img = elem.animation->getImage(currentFrame);
-
-		canvas->draw(img, Point(elem.x, elem.y));
+			canvas->draw(img, Point(elem.x, elem.y));
+		});
 	}
 }
