@@ -194,7 +194,7 @@ void CBattleStacksController::stackAdded(const CStack * stack)
 		const CCreature *turretCreature = owner->siegeController->getTurretCreature();
 
 		stackAnimation[stack->ID] = AnimationControls::getAnimation(turretCreature);
-		stackAnimation[stack->ID]->pos.h = 225;
+		stackAnimation[stack->ID]->pos.h = 235;
 
 		coords = owner->siegeController->getTurretCreaturePosition(stack->initialPosition);
 	}
