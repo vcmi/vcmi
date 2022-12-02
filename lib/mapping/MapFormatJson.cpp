@@ -1121,7 +1121,7 @@ void CMapLoaderJson::MapObjectLoader::construct()
 		return;
 	}
 
-	auto handler = VLC->objtypeh->getHandlerFor(typeName, subtypeName);
+	auto handler = VLC->objtypeh->getHandlerFor( "map", typeName, subtypeName);
 
 	auto appearance = new ObjectTemplate;
 

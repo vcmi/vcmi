@@ -303,7 +303,7 @@ public:
 
 	/// returns handler for specified object (ID-based). ObjectHandler keeps ownership
 	TObjectTypeHandler getHandlerFor(si32 type, si32 subtype) const;
-	TObjectTypeHandler getHandlerFor(std::string type, std::string subtype) const;
+	TObjectTypeHandler getHandlerFor(std::string scope, std::string type, std::string subtype) const;
 	TObjectTypeHandler getHandlerFor(CompoundMapObjectID compoundIdentifier) const;
 
 	std::string getObjectName(si32 type) const;

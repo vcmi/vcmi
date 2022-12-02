@@ -1014,13 +1014,21 @@ const JsonNode & JsonUtils::getSchema(std::string URI)
 		return getSchemaByName(filename).resolvePointer(URI.substr(posHash + 1));
 }
 
-void JsonUtils::merge(JsonNode & dest, JsonNode & source, bool noOverride)
+void JsonUtils::merge(JsonNode & dest, JsonNode & source, bool ignoreOverride, bool copyMeta)
 {
 	if (dest.getType() == JsonNode::JsonType::DATA_NULL)
 	{
 		std::swap(dest, source);
 		return;
 	}
+
+	bool hasNull = dest.isNull() || source.isNull();
+	bool sameType = dest.getType() == source.getType();
+	bool sourceNumeric = source.getType() == JsonNode::JsonType::DATA_FLOAT || source.getType() == JsonNode::JsonType::DATA_INTEGER;
+	bool destNumeric = dest.getType() == JsonNode::JsonType::DATA_FLOAT || dest.getType() == JsonNode::JsonType::DATA_INTEGER;
+	bool bothNumeric = sourceNumeric && destNumeric;
+
+	assert( hasNull || sameType || bothNumeric );
 
 	switch (source.getType())
 	{
@@ -1040,30 +1048,33 @@ void JsonUtils::merge(JsonNode & dest, JsonNode & source, bool noOverride)
 		}
 		case JsonNode::JsonType::DATA_STRUCT:
 		{
-			if(!noOverride && vstd::contains(source.flags, "override"))
+			if(!ignoreOverride && vstd::contains(source.flags, "override"))
 			{
 				std::swap(dest, source);
 			}
 			else
 			{
+				if (copyMeta)
+					dest.meta = source.meta;
+
 				//recursively merge all entries from struct
 				for(auto & node : source.Struct())
-					merge(dest[node.first], node.second, noOverride);
+					merge(dest[node.first], node.second, ignoreOverride);
 			}
 		}
 	}
 }
 
-void JsonUtils::mergeCopy(JsonNode & dest, JsonNode source, bool noOverride)
+void JsonUtils::mergeCopy(JsonNode & dest, JsonNode source, bool ignoreOverride, bool copyMeta)
 {
 	// uses copy created in stack to safely merge two nodes
-	merge(dest, source, noOverride);
+	merge(dest, source, ignoreOverride, copyMeta);
 }
 
 void JsonUtils::inherit(JsonNode & descendant, const JsonNode & base)
 {
 	JsonNode inheritedNode(base);
-	merge(inheritedNode, descendant, true);
+	merge(inheritedNode, descendant, true, true);
 	descendant.swap(inheritedNode);
 }
 

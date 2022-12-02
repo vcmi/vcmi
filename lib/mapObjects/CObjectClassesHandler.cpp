@@ -26,14 +26,6 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-// FIXME: move into inheritNode?
-static void inheritNodeWithMeta(JsonNode & descendant, const JsonNode & base)
-{
-	std::string oldMeta = descendant.meta;
-	JsonUtils::inherit(descendant, base);
-	descendant.setMeta(oldMeta);
-}
-
 CObjectClassesHandler::CObjectClassesHandler()
 {
 #define SET_HANDLER_CLASS(STRING, CLASSNAME) handlerConstructors[STRING] = std::make_shared<CLASSNAME>;
@@ -291,8 +283,9 @@ void CObjectClassesHandler::loadSubObject(const std::string & identifier, JsonNo
 		assert(objects.at(ID)->subObjects.count(subID.get()) == 0);
 		assert(config["index"].isNull());
 		config["index"].Float() = subID.get();
+		config["index"].setMeta(config.meta);
 	}
-	inheritNodeWithMeta(config, objects.at(ID)->base);
+	JsonUtils::inherit(config, objects.at(ID)->base);
 	loadObjectEntry(identifier, config, objects[ID], isSubObject);
 }
 
@@ -319,9 +312,9 @@ TObjectTypeHandler CObjectClassesHandler::getHandlerFor(si32 type, si32 subtype)
 	throw std::runtime_error("Object type handler not found");
 }
 
-TObjectTypeHandler CObjectClassesHandler::getHandlerFor(std::string type, std::string subtype) const
+TObjectTypeHandler CObjectClassesHandler::getHandlerFor(std::string scope, std::string type, std::string subtype) const
 {
-	boost::optional<si32> id = VLC->modh->identifiers.getIdentifier("core", "object", type, false);
+	boost::optional<si32> id = VLC->modh->identifiers.getIdentifier(scope, "object", type, false);
 	if(id)
 	{
 		auto object = objects.at(id.get());
@@ -367,11 +360,9 @@ void CObjectClassesHandler::beforeValidate(JsonNode & object)
 {
 	for (auto & entry : object["types"].Struct())
 	{
-		inheritNodeWithMeta(entry.second, object["base"]);
+		JsonUtils::inherit(entry.second, object["base"]);
 		for (auto & templ : entry.second["templates"].Struct())
-		{
-			inheritNodeWithMeta(templ.second, entry.second["base"]);
-		}
+			JsonUtils::inherit(templ.second, entry.second["base"]);
 	}
 }
 

@@ -633,6 +633,7 @@ CCreature * CCreatureHandler::loadFromJson(const std::string & scope, const Json
 		{
 			JsonNode templ;
 			templ["animation"].String() = cre->advMapDef;
+			templ.setMeta(scope);
 			VLC->objtypeh->getHandlerFor(Obj::MONSTER, cre->idNumber.num)->addTemplate(templ);
 		}
 

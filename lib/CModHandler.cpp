@@ -206,39 +206,54 @@ std::vector<CIdentifierStorage::ObjectData> CIdentifierStorage::getPossibleIdent
 	std::set<std::string> allowedScopes;
 	bool isValidScope = true;
 
+	// called have not specified destination mod explicitly
 	if (request.remoteScope.empty())
 	{
+		// FIXME: temporary, for queries from map loader allow access to any identifer
+		// should be changed to list of mods that are marked as required by current map
+		if (request.localScope == "map")
+		{
+			for (auto const & modName : VLC->modh->getActiveMods())
+				allowedScopes.insert(modName);
+		}
+
 		// normally ID's from all required mods, own mod and virtual "core" mod are allowed
-		if(request.localScope != "core" && !request.localScope.empty())
+		else if(request.localScope != "core" && !request.localScope.empty())
 		{
 			allowedScopes = VLC->modh->getModDependencies(request.localScope, isValidScope);
 
 			if(!isValidScope)
 				return std::vector<ObjectData>();
+
+			allowedScopes.insert(request.localScope);
 		}
-		allowedScopes.insert(request.localScope);
+
+		// all mods can access built-in mod
 		allowedScopes.insert("core");
 	}
 	else
 	{
-		//...unless destination mod was specified explicitly
-		//note: getModDependencies does not work for "core" by design
+		//if destination mod was specified explicitly, restrict lookup to this mod
 
-		//for map format support core mod has access to any mod
-		//TODO: better solution for access from map?
-		if(request.localScope == "core" || request.localScope.empty())
+		if(request.remoteScope == "core" )
 		{
+			//"core" mod is an implicit dependency for all mods, allow access into it
+			allowedScopes.insert(request.remoteScope);
+		}
+		else if(request.remoteScope == request.localScope )
+		{
+			// allow self-access
 			allowedScopes.insert(request.remoteScope);
 		}
 		else
 		{
-			// allow only available to all core mod or dependencies
+			// allow access only if mod is in our dependencies
 			auto myDeps = VLC->modh->getModDependencies(request.localScope, isValidScope);
 
 			if(!isValidScope)
 				return std::vector<ObjectData>();
 
-			if(request.remoteScope == "core" || request.remoteScope == request.localScope || myDeps.count(request.remoteScope))
+			if(myDeps.count(request.remoteScope))
 				allowedScopes.insert(request.remoteScope);
 		}
 	}
@@ -296,10 +311,14 @@ void CIdentifierStorage::finalize()
 	state = FINALIZING;
 	bool errorsFound = false;
 
-	//Note: we may receive new requests during resolution phase -> end may change -> range for can't be used
-	for(auto it = scheduledRequests.begin(); it != scheduledRequests.end(); it++)
+	while ( !scheduledRequests.empty() )
 	{
-		errorsFound |= !resolveIdentifier(*it);
+		// Use local copy since new requests may appear during resolving, invalidating any iterators
+		auto request = scheduledRequests.back();
+		scheduledRequests.pop_back();
+
+		if (!resolveIdentifier(request))
+			errorsFound = true;
 	}
 
 	if (errorsFound)
