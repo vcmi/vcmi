@@ -37,8 +37,10 @@ WindowNewMap::WindowNewMap(QWidget *parent) :
 	show();
 
 	//setup initial parameters
-	mapGenOptions.setWidth(ui->widthTxt->text().toInt());
-	mapGenOptions.setHeight(ui->heightTxt->text().toInt());
+	int width = ui->widthTxt->text().toInt();
+	int height = ui->heightTxt->text().toInt();
+	mapGenOptions.setWidth(width ? width : 1);
+	mapGenOptions.setHeight(height ? height : 1);
 	bool twoLevel = ui->twoLevelCheck->isChecked();
 	mapGenOptions.setHasTwoLevels(twoLevel);
 	updateTemplateList();
