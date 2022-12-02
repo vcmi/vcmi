@@ -28,7 +28,14 @@ public:
 private slots:
 	void on_pushButton_clicked();
 
+	void on_victoryComboBox_currentIndexChanged(int index);
+
+	void on_loseComboBox_currentIndexChanged(int index);
+
 private:
 	Ui::MapSettings *ui;
 	MapController & controller;
+	
+	QComboBox * victoryTypeWidget = nullptr, * loseTypeWidget = nullptr;
+	QLineEdit * victoryValueWidget = nullptr, * loseValueWidget = nullptr;
 };

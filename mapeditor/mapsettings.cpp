@@ -16,6 +16,43 @@
 #include "../lib/spells/CSpellHandler.h"
 #include "../lib/CArtHandler.h"
 #include "../lib/CHeroHandler.h"
+#include "../lib/CGeneralTextHandler.h"
+
+//parses date for lose condition (1m 1w 1d)
+int expiredDate(const QString & date)
+{
+	int result = 0;
+	for(auto component : date.split(" "))
+	{
+		result += component.left(component.lastIndexOf('d')).toInt();
+		result += component.left(component.lastIndexOf('w')).toInt() * 7;
+		result += component.left(component.lastIndexOf('m')).toInt() * 28;
+	}
+	return result;
+}
+
+QString expiredDate(int date)
+{
+	QString result;
+	int m = date / 28;
+	int w = (date % 28) / 7;
+	int d = date % 7;
+	if(m)
+		result += QString::number(m) + "m";
+	if(w)
+	{
+		if(!result.isEmpty())
+			result += " ";
+		result += QString::number(w) + "w";
+	}
+	if(d)
+	{
+		if(!result.isEmpty())
+			result += " ";
+		result += QString::number(d) + "d";
+	}
+	return result;
+}
 
 MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 	QDialog(parent),
@@ -94,6 +131,81 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 	ui->defeatMessageEdit->setText(QString::fromStdString(controller.map()->defeatMessage));
 	
 	//victory & loss conditions
+	/*namespace EVictoryConditionType
+	{
+		enum EVictoryConditionType { ARTIFACT, GATHERTROOP, GATHERRESOURCE, BUILDCITY, BUILDGRAIL, BEATHERO,
+			CAPTURECITY, BEATMONSTER, TAKEDWELLINGS, TAKEMINES, TRANSPORTITEM, WINSTANDARD = 255 };
+	}
+
+	namespace ELossConditionType
+	{
+		enum ELossConditionType { LOSSCASTLE, LOSSHERO, TIMEEXPIRES, LOSSSTANDARD = 255 };
+	}*/
+	//internal use, deprecated
+	/*HAVE_ARTIFACT,     // type - required artifact
+	HAVE_CREATURES,    // type - creatures to collect, value - amount to collect
+	HAVE_RESOURCES,    // type - resource ID, value - amount to collect
+	HAVE_BUILDING,     // position - town, optional, type - building to build
+	CONTROL,           // position - position of object, optional, type - type of object
+	DESTROY,           // position - position of object, optional, type - type of object
+	TRANSPORT,         // position - where artifact should be transported, type - type of artifact
+
+	//map format version pre 1.0
+	DAYS_PASSED,       // value - number of days from start of the game
+	IS_HUMAN,          // value - 0 = player is AI, 1 = player is human
+	DAYS_WITHOUT_TOWN, // value - how long player can live without town, 0=instakill
+	STANDARD_WIN,      // normal defeat all enemies condition
+	CONST_VALUE,        // condition that always evaluates to "value" (0 = false, 1 = true) */
+	const std::array<std::string, 8> conditionStringsWin = {
+		"No special victory",
+		"Have artifact",
+		"Have creatures",
+		"Have resources",
+		"Have building",
+		"Capture object",
+		"Destroy object",
+		"Transport artifact"
+	};
+	const std::array<std::string, 5> conditionStringsLose = {
+		"No special loss",
+		"Lose castle",
+		"Lose hero",
+		"Time expired",
+		"Days without town"
+	};
+	
+	for(auto & s : conditionStringsWin)
+	{
+		ui->victoryComboBox->addItem(QString::fromStdString(s));
+	}
+	ui->standardVictoryCheck->setChecked(false);
+	ui->onlyForHumansCheck->setChecked(false);
+	
+	for(auto & s : conditionStringsLose)
+	{
+		ui->loseComboBox->addItem(QString::fromStdString(s));
+	}
+	ui->standardLoseCheck->setChecked(false);
+	
+	auto conditionToJson = [](const EventCondition & event) -> JsonNode
+	{
+		JsonNode result;
+		result["condition"].Integer() = event.condition;
+		result["value"].Integer() = event.value;
+		result["objectType"].Integer() = event.objectType;
+		result["objectSubytype"].Integer() = event.objectSubtype;
+		result["objectInstanceName"].String() = event.objectInstanceName;
+		result["metaType"].Integer() = (ui8)event.metaType;
+		{
+			auto & position = result["position"].Vector();
+			position.resize(3);
+			position[0].Float() = event.position.x;
+			position[1].Float() = event.position.y;
+			position[2].Float() = event.position.z;
+		}
+		return result;
+	};
+	
 	for(auto & ev : controller.map()->triggeredEvents)
 	{
 		if(ev.effect.type == EventEffect::VICTORY)
@@ -103,8 +215,70 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 
 			if(ev.identifier == "specialVictory")
 			{
-				if(ev.trigger.get() == EventCondition::HAVE_ARTIFACT)
+				auto json = ev.trigger.toJson(conditionToJson);
+				switch(json["condition"].Integer())
+				{
+					case EventCondition::HAVE_ARTIFACT: {
+						ui->victoryComboBox->setCurrentIndex(1);
+						assert(victoryTypeWidget);
+						victoryTypeWidget->setCurrentIndex(json["objectType"].Integer());
+						break;
+					}
+						
+					case EventCondition::HAVE_CREATURES: {
+						ui->victoryComboBox->setCurrentIndex(2);
+						assert(victoryTypeWidget);
+						assert(victoryValueWidget);
+						victoryTypeWidget->setCurrentIndex(json["objectType"].Integer());
+						victoryValueWidget->setText(QString::number(json["value"].Integer()));
+						break;
+					}
+				};
+			}
+		}
+		
+		if(ev.effect.type == EventEffect::DEFEAT)
+		{
+			if(ev.identifier == "standardDefeat")
+				ui->standardLoseCheck->setChecked(true);
+			
+			if(ev.identifier == "specialDefeat")
+			{
+				auto json = ev.trigger.toJson(conditionToJson);
+				switch(json["condition"].Integer())
+				{
+					case EventCondition::CONTROL: {
+						if(json["objectType"].Integer() == Obj::TOWN)
+						{
+							ui->loseComboBox->setCurrentIndex(1);
+							//assert(loseValueWidget);
+							//loseValueWidget->setText(QString::number(json["value"].Integer()));
+						}
+						if(json["objectType"].Integer() == Obj::HERO)
+						{
+							ui->loseComboBox->setCurrentIndex(2);
+							//assert(loseValueWidget);
+							//loseValueWidget->setText(QString::number(json["value"].Integer()));
+						}
+						
+						break;
+					}
+						
+					case EventCondition::DAYS_PASSED: {
+						ui->loseComboBox->setCurrentIndex(3);
+						assert(loseValueWidget);
+						loseValueWidget->setText(expiredDate(json["value"].Integer()));
+						break;
+					}
 					
+					case EventCondition::DAYS_WITHOUT_TOWN: {
+						ui->loseComboBox->setCurrentIndex(4);
+						assert(loseValueWidget);
+						loseValueWidget->setText(QString::number(json["value"].Integer()));
+						break;
+					}
+						
+				};
 			}
 		}
 	}
@@ -152,5 +326,260 @@ void MapSettings::on_pushButton_clicked()
 		controller.map()->allowedHeroes[i] = item->checkState() == Qt::Checked;
 	}
 	
+	//set difficulty
+	if(ui->diffRadio1->isChecked()) controller.map()->difficulty = 0;
+	if(ui->diffRadio2->isChecked()) controller.map()->difficulty = 1;
+	if(ui->diffRadio3->isChecked()) controller.map()->difficulty = 2;
+	if(ui->diffRadio4->isChecked()) controller.map()->difficulty = 3;
+	if(ui->diffRadio5->isChecked()) controller.map()->difficulty = 4;
+	
+	//victory & loss messages
+	
+	controller.map()->victoryMessage = ui->victoryMessageEdit->text().toStdString();
+	controller.map()->defeatMessage = ui->defeatMessageEdit->text().toStdString();
+	
+	//victory & loss conditions
+	EventCondition victoryCondition(EventCondition::STANDARD_WIN);
+	EventCondition defeatCondition(EventCondition::DAYS_WITHOUT_TOWN);
+	defeatCondition.value = 7;
+
+	//Victory condition - defeat all
+	TriggeredEvent standardVictory;
+	standardVictory.effect.type = EventEffect::VICTORY;
+	standardVictory.effect.toOtherMessage = VLC->generaltexth->allTexts[5];
+	standardVictory.identifier = "standardVictory";
+	standardVictory.description.clear(); // TODO: display in quest window
+	standardVictory.onFulfill = VLC->generaltexth->allTexts[659];
+	standardVictory.trigger = EventExpression(victoryCondition);
+
+	//Loss condition - 7 days without town
+	TriggeredEvent standardDefeat;
+	standardDefeat.effect.type = EventEffect::DEFEAT;
+	standardDefeat.effect.toOtherMessage = VLC->generaltexth->allTexts[8];
+	standardDefeat.identifier = "standardDefeat";
+	standardDefeat.description.clear(); // TODO: display in quest window
+	standardDefeat.onFulfill = VLC->generaltexth->allTexts[7];
+	standardDefeat.trigger = EventExpression(defeatCondition);
+	
+	controller.map()->triggeredEvents.clear();
+	
+	//VICTORY
+	if(ui->victoryComboBox->currentIndex() == 0)
+	{
+		controller.map()->triggeredEvents.push_back(standardVictory);
+		controller.map()->victoryIconIndex = 11;
+		controller.map()->victoryMessage = VLC->generaltexth->victoryConditions[0];
+	}
+	else
+	{
+		int vicCondition = ui->victoryComboBox->currentIndex() - 1;
+		
+		TriggeredEvent specialVictory;
+		specialVictory.effect.type = EventEffect::VICTORY;
+		specialVictory.identifier = "specialVictory";
+		specialVictory.description.clear(); // TODO: display in quest window
+		
+		controller.map()->victoryIconIndex = vicCondition;
+		controller.map()->victoryMessage = VLC->generaltexth->victoryConditions[size_t(vicCondition) + 1];
+		
+		switch(vicCondition)
+		{
+			case 0: {
+				EventCondition cond(EventCondition::HAVE_ARTIFACT);
+				assert(victoryTypeWidget);
+				cond.objectType = victoryTypeWidget->currentData().toInt();
+				specialVictory.effect.toOtherMessage = VLC->generaltexth->allTexts[281];
+				specialVictory.onFulfill = VLC->generaltexth->allTexts[280];
+				specialVictory.trigger = EventExpression(cond);
+				break;
+			}
+				
+			case 1: {
+				EventCondition cond(EventCondition::HAVE_CREATURES);
+				assert(victoryTypeWidget);
+				cond.objectType = victoryTypeWidget->currentData().toInt();
+				cond.value = victoryValueWidget->text().toInt();
+				specialVictory.effect.toOtherMessage = VLC->generaltexth->allTexts[277];
+				specialVictory.onFulfill = VLC->generaltexth->allTexts[276];
+				specialVictory.trigger = EventExpression(cond);
+				break;
+			}
+		}
+		
+		// if condition is human-only turn it into following construction: AllOf(human, condition)
+		if(ui->onlyForHumansCheck->isChecked())
+		{
+			EventExpression::OperatorAll oper;
+			EventCondition notAI(EventCondition::IS_HUMAN);
+			notAI.value = 1;
+			oper.expressions.push_back(notAI);
+			oper.expressions.push_back(specialVictory.trigger.get());
+			specialVictory.trigger = EventExpression(oper);
+		}
+
+		// if normal victory allowed - add one more quest
+		if(ui->standardVictoryCheck->isChecked())
+		{
+			controller.map()->victoryMessage += " / ";
+			controller.map()->victoryMessage += VLC->generaltexth->victoryConditions[0];
+			controller.map()->triggeredEvents.push_back(standardVictory);
+		}
+		controller.map()->triggeredEvents.push_back(specialVictory);
+	}
+	
+	//DEFEAT
+	if(ui->loseComboBox->currentIndex() == 0)
+	{
+		controller.map()->triggeredEvents.push_back(standardDefeat);
+		controller.map()->defeatIconIndex = 3;
+		controller.map()->defeatMessage = VLC->generaltexth->lossCondtions[0];
+	}
+	else
+	{
+		int lossCondition = ui->victoryComboBox->currentIndex() - 1;
+		
+		TriggeredEvent specialDefeat;
+		specialDefeat.effect.type = EventEffect::DEFEAT;
+		specialDefeat.identifier = "specialDefeat";
+		specialDefeat.description.clear(); // TODO: display in quest window
+		
+		controller.map()->defeatIconIndex = lossCondition;
+		controller.map()->defeatMessage = VLC->generaltexth->lossCondtions[1]; //TODO: get proper text
+		
+		switch(lossCondition)
+		{
+			case 2: {
+				EventCondition cond(EventCondition::DAYS_PASSED);
+				assert(loseValueWidget);
+				cond.value = expiredDate(loseValueWidget->text());
+				specialDefeat.onFulfill = VLC->generaltexth->allTexts[254];
+				specialDefeat.trigger = EventExpression(cond);
+				break;
+			}
+				
+			case 3: {
+				EventCondition cond(EventCondition::DAYS_WITHOUT_TOWN);
+				assert(loseValueWidget);
+				cond.value = victoryValueWidget->text().toInt();
+				specialDefeat.onFulfill = VLC->generaltexth->allTexts[7];
+				specialDefeat.trigger = EventExpression(cond);
+				break;
+			}
+		}
+		
+		EventExpression::OperatorAll allOf;
+		EventCondition isHuman(EventCondition::IS_HUMAN);
+		isHuman.value = 1;
+
+		allOf.expressions.push_back(specialDefeat.trigger.get());
+		allOf.expressions.push_back(isHuman);
+		specialDefeat.trigger = EventExpression(allOf);
+
+		if(ui->standardLoseCheck->isChecked())
+		{
+			controller.map()->triggeredEvents.push_back(standardDefeat);
+		}
+		controller.map()->triggeredEvents.push_back(specialDefeat);
+	}
+	
 	close();
 }
+
+void MapSettings::on_victoryComboBox_currentIndexChanged(int index)
+{
+	delete victoryTypeWidget;
+	delete victoryValueWidget;
+	victoryTypeWidget = nullptr;
+	victoryValueWidget = nullptr;
+	
+	if(index == 0)
+	{
+		ui->standardVictoryCheck->setChecked(true);
+		ui->standardVictoryCheck->setEnabled(false);
+		ui->onlyForHumansCheck->setChecked(false);
+		ui->onlyForHumansCheck->setEnabled(false);
+		return;
+	}
+	ui->onlyForHumansCheck->setEnabled(true);
+	ui->standardVictoryCheck->setEnabled(true);
+	
+	int vicCondition = index - 1;
+	switch(vicCondition)
+	{
+		case 0: { //EventCondition::HAVE_ARTIFACT
+			victoryTypeWidget = new QComboBox;
+			ui->victoryParamsLayout->addWidget(victoryTypeWidget);
+			for(int i = 0; i < controller.map()->allowedArtifact.size(); ++i)
+				victoryTypeWidget->addItem(QString::fromStdString(VLC->arth->objects[i]->getName()), QVariant::fromValue(i));
+			break;
+		}
+			
+		case 1: { //EventCondition::HAVE_CREATURES
+			victoryTypeWidget = new QComboBox;
+			ui->victoryParamsLayout->addWidget(victoryTypeWidget);
+			for(int i = 0; i < VLC->creh->objects.size(); ++i)
+			victoryTypeWidget->addItem(QString::fromStdString(VLC->creh->objects[i]->getName()), QVariant::fromValue(i));
+			
+			victoryValueWidget = new QLineEdit;
+			ui->victoryParamsLayout->addWidget(victoryValueWidget);
+			victoryValueWidget->setInputMask("9000");
+			victoryValueWidget->setText("1");
+			break;
+		}
+	}
+}
+
+
+void MapSettings::on_loseComboBox_currentIndexChanged(int index)
+{
+	delete loseTypeWidget;
+	delete loseValueWidget;
+	loseTypeWidget = nullptr;
+	loseValueWidget = nullptr;
+	
+	if(index == 0)
+	{
+		ui->standardLoseCheck->setChecked(true);
+		ui->standardLoseCheck->setEnabled(false);
+		return;
+	}
+	ui->standardLoseCheck->setEnabled(true);
+	
+	int loseCondition = index - 1;
+	switch(loseCondition)
+	{
+		case 0: {  //EventCondition::CONTROL (Obj::TOWN)
+			loseTypeWidget = new QComboBox;
+			ui->loseParamsLayout->addWidget(loseTypeWidget);
+			//for(int i = 0; i < controller.map()->allowedArtifact.size(); ++i)
+				//loseTypeWidget->addItem(QString::fromStdString(VLC->arth->objects[i]->getName()), QVariant::fromValue(i));
+			break;
+		}
+			
+		case 1: { //EventCondition::CONTROL (Obj::HERO)
+			loseTypeWidget = new QComboBox;
+			ui->loseParamsLayout->addWidget(loseTypeWidget);
+			//for(int i = 0; i < controller.map()->allowedArtifact.size(); ++i)
+				//victoryTypeWidget->addItem(QString::fromStdString(VLC->arth->objects[i]->getName()), QVariant::fromValue(i));
+			break;
+		}
+			
+		case 2: { //EventCondition::DAYS_PASSED
+			loseValueWidget = new QLineEdit;
+			ui->loseParamsLayout->addWidget(loseValueWidget);
+			
+			loseValueWidget->setText("1m 1w 1d");
+			break;
+		}
+			
+		case 3: { //EventCondition::DAYS_WITHOUT_TOWN
+			loseValueWidget = new QLineEdit;
+			ui->loseParamsLayout->addWidget(loseValueWidget);
+			
+			loseValueWidget->setInputMask("9000");
+			loseValueWidget->setText("7");
+			break;
+		}
+	}
+}
+
