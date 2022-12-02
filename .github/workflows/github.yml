@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - features/*
+      - beta
   pull_request:
   schedule:
     - cron: '0 2 * * *'
