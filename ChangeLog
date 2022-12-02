@@ -1,20 +1,62 @@
 1.0.0 -> 1.1.0
 
 GENERAL:
+* iOS is supported
 * Mods and their versions and serialized into save files. Game checks mod compatibility before loading
 * Logs are stored in system default logs directory
 * LUA/ERM libs are not compiled by default
 * FFMpeg dependency is optional now
+* Conan package manager is supported for MacOS and iOS
+
+MULTIPLAYER:
+* Map is passed over network, so different platforms are compatible with each other
+* Server self-killing is more robust
+* Unlock in-game console while opponent's turn
+* Host can control game session by using console commands
+* Control over player is transferred to AI if client escaped the game
+* Reconnection mode for crashed client processes
+* Playing online is available using proxy server
+
+ADVENTURE MAP:
+* Fix for digging while opponent's turn
+* Supported right click for quick recruit window
+* Fixed problem with quests are requiring identical artefacts
+* Bulk move and swap artifacts
+* Pause & resume for towns and terrains music themes
+* Feature to assemble/disassemble artefacts in backpack
+* Clickable status bar to send messages
+
+BATTLES:
+* Fix healing/regeneration behaviour and effect
+* Fix crashes related to auto battle
+* Implemented ray projectiles for shooters
+* Introduced default tower shooter icons
+
+AI:
+* Target prioritizing is now based on damage difference instead of health difference
+* AI can retreat and surrender for NullkillerAI
+* NullkillerAI doesn't visit allied dwellings anymore
+
+RANDOM MAP GENERATOR:
+* Speedup generation of random maps
+* Necromancy cannot be learned in Witch Hut on random maps
 
 MODS:
 * Supported rewardable objects customization
 * Battleground obstacles are extendable now with VLC mechanism
 * Introduced "compatibility" section into mods settings
+* Fixed bonus system for custom advmap spells
+* Supported customisable town entrance placement
 
 LAUNCHER:
 * Fixed problem with duplicated mods in the list
 * Launcher shows compatible mods only
 * Uninstall button was moved to the left of layout
+* Unsupported resolutions are not shown
+* Lobby for online gameplay is implemented
+
+MAP EDITOR:
+* Basic version of QT-based map editor
 
 0.99 -> 1.0.0
 
