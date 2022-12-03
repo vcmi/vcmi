@@ -172,11 +172,22 @@ void TownBulidingsWidget::addBuildings(const CTown & ctown)
 std::set<BuildingID> TownBulidingsWidget::getBuildingsFromModel(int modelColumn, Qt::CheckState checkState)
 {
 	std::set<BuildingID> result;
-	for(int i = 0; i < model.rowCount(); ++i)
+	std::vector<QModelIndex> stack;
+	stack.push_back(QModelIndex());
+	while(!stack.empty())
 	{
-		if(auto * item = model.item(i, modelColumn))
-			if(item->checkState() == checkState)
-				result.emplace(item->data(Qt::UserRole).toInt());
+		auto pindex = stack.back();
+		stack.pop_back();
+		for(int i = 0; i < model.rowCount(pindex); ++i)
+		{
+			QModelIndex index = model.index(i, modelColumn, pindex);
+			if(auto * item = model.itemFromIndex(index))
+				if(item->checkState() == checkState)
+					result.emplace(item->data(Qt::UserRole).toInt());
+			index = model.index(i, 0, pindex); //children are linked to first column of the model
+			if(model.hasChildren(index))
+				stack.push_back(index);
+		}
 	}
 	
 	return result;
