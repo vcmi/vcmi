@@ -978,6 +978,7 @@ void CAdvMapInt::deactivate()
 		}
 		minimap.deactivate();
 		terrain.deactivate();
+		statusbar->deactivate();
 	}
 }
 
