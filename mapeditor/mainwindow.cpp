@@ -1126,3 +1126,31 @@ void MainWindow::on_actionRecreate_obstacles_triggered()
 
 }
 
+
+void MainWindow::on_actionCut_triggered()
+{
+	if(controller.map())
+	{
+		controller.copyToClipboard(mapLevel);
+		controller.commitObjectErase(mapLevel);
+	}
+}
+
+
+void MainWindow::on_actionCopy_triggered()
+{
+	if(controller.map())
+	{
+		controller.copyToClipboard(mapLevel);
+	}
+}
+
+
+void MainWindow::on_actionPaste_triggered()
+{
+	if(controller.map())
+	{
+		controller.pasteFromClipboard(mapLevel);
+	}
+}
+

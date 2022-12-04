@@ -138,7 +138,7 @@ public:
 	
 	void draw();
 	
-	CGObjectInstance * selectObjectAt(int x, int y) const;
+	CGObjectInstance * selectObjectAt(int x, int y, const CGObjectInstance * ignore = nullptr) const;
 	void selectObjects(int x1, int y1, int x2, int y2);
 	void selectObject(CGObjectInstance *, bool inform = true);
 	void deselectObject(CGObjectInstance *);

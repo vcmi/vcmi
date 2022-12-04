@@ -270,6 +270,7 @@ void MapView::mousePressEvent(QMouseEvent *event)
 			if(event->button() == Qt::LeftButton)
 			{
 				auto * obj = sc->selectionObjectsView.selectObjectAt(tileStart.x, tileStart.y);
+				auto * obj2 = sc->selectionObjectsView.selectObjectAt(tileStart.x, tileStart.y, obj);
 				if(obj)
 				{
 					if(sc->selectionObjectsView.isSelected(obj))
@@ -284,10 +285,13 @@ void MapView::mousePressEvent(QMouseEvent *event)
 					}
 					else
 					{
-						if(!(qApp->keyboardModifiers() & Qt::ControlModifier))
-							sc->selectionObjectsView.clear();
+						if(!obj2 || !sc->selectionObjectsView.isSelected(obj2))
+						{
+							if(!(qApp->keyboardModifiers() & Qt::ControlModifier))
+								sc->selectionObjectsView.clear();
+							sc->selectionObjectsView.selectObject(obj);
+						}
 						sc->selectionObjectsView.selectionMode = SelectionObjectsLayer::MOVEMENT;
-						sc->selectionObjectsView.selectObject(obj);
 					}
 				}
 				else

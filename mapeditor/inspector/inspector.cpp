@@ -67,7 +67,8 @@ void Initializer::initialize(CGCreature * o)
 	if(!o) return;
 	
 	o->character = CGCreature::Character::HOSTILE;
-	o->putStack(SlotID(0), new CStackInstance(CreatureID(o->subID), 0, false));
+	if(!o->hasStackAtSlot(SlotID(0)))
+	   o->putStack(SlotID(0), new CStackInstance(CreatureID(o->subID), 0, false));
 }
 
 void Initializer::initialize(CGDwelling * o)
