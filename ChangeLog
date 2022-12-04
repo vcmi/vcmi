@@ -33,9 +33,10 @@ BATTLES:
 * Introduced default tower shooter icons
 
 AI:
-* Target prioritizing is now based on damage difference instead of health difference
-* AI can retreat and surrender for NullkillerAI
-* NullkillerAI doesn't visit allied dwellings anymore
+* BattleAI: Target prioritizing is now based on damage difference instead of health difference
+* Nullkiller AI can retreat and surrender
+* Nullkiller AI doesn't visit allied dwellings anymore
+* Fixed a few freezes in Nullkiller AI
 
 RANDOM MAP GENERATOR:
 * Speedup generation of random maps
@@ -56,7 +57,7 @@ LAUNCHER:
 * Lobby for online gameplay is implemented
 
 MAP EDITOR:
-* Basic version of QT-based map editor
+* Basic version of Qt-based map editor
 
 0.99 -> 1.0.0
 
