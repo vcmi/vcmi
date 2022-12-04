@@ -390,7 +390,7 @@ void SelectionObjectsLayer::draw()
 		//show translation
 		if(selectionMode == SelectionMode::MOVEMENT && (shift.x() || shift.y()))
 		{
-			painter.setOpacity(0.5);
+			painter.setOpacity(0.7);
 			auto newPos = QPoint(obj->getPosition().x, obj->getPosition().y) + shift;
 			handler->drawObjectAt(painter, obj, newPos.x(), newPos.y());
 		}
