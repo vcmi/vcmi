@@ -550,7 +550,7 @@ void MainWindow::loadObjectsTree()
 
 	//model
 	objectsModel.setHorizontalHeaderLabels(QStringList() << tr("Type"));
-	objectBrowser = new ObjectBrowser(this);
+	objectBrowser = new ObjectBrowserProxyModel(this);
 	objectBrowser->setSourceModel(&objectsModel);
 	objectBrowser->setDynamicSortFilter(false);
 	objectBrowser->setRecursiveFilteringEnabled(true);

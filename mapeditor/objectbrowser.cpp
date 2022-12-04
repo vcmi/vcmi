@@ -12,12 +12,12 @@
 #include "objectbrowser.h"
 #include "../lib/mapObjects/CObjectClassesHandler.h"
 
-ObjectBrowser::ObjectBrowser(QObject *parent)
+ObjectBrowserProxyModel::ObjectBrowserProxyModel(QObject *parent)
 	: QSortFilterProxyModel{parent}, terrain(Terrain::ANY_TERRAIN)
 {
 }
 
-bool ObjectBrowser::filterAcceptsRow(int source_row, const QModelIndex & source_parent) const
+bool ObjectBrowserProxyModel::filterAcceptsRow(int source_row, const QModelIndex & source_parent) const
 {
 	bool result = QSortFilterProxyModel::filterAcceptsRow(source_row, source_parent);
 
@@ -57,7 +57,7 @@ bool ObjectBrowser::filterAcceptsRow(int source_row, const QModelIndex & source_
 	return result;
 }
 
-bool ObjectBrowser::filterAcceptsRowText(int source_row, const QModelIndex &source_parent) const
+bool ObjectBrowserProxyModel::filterAcceptsRowText(int source_row, const QModelIndex &source_parent) const
 {
 	if(source_parent.isValid())
 	{
@@ -76,3 +76,48 @@ bool ObjectBrowser::filterAcceptsRowText(int source_row, const QModelIndex &sour
 	return (filter.isNull() || filter.isEmpty() || item->text().contains(filter, Qt::CaseInsensitive));
 }
 
+Qt::ItemFlags ObjectBrowserProxyModel::flags(const QModelIndex & index) const
+{
+	Qt::ItemFlags defaultFlags = QSortFilterProxyModel::flags(index);
+
+	if (index.isValid())
+		return Qt::ItemIsDragEnabled | defaultFlags;
+	
+	return defaultFlags;
+}
+
+QStringList ObjectBrowserProxyModel::mimeTypes() const
+{
+	QStringList types;
+	types << "application/vcmi.object";
+	return types;
+}
+
+QMimeData * ObjectBrowserProxyModel::mimeData(const QModelIndexList & indexes) const
+{
+	assert(indexes.size() == 1);
+	
+	auto * standardModel = qobject_cast<QStandardItemModel*>(sourceModel());
+	assert(standardModel);
+	
+	QModelIndex index = indexes.front();
+	QMimeData * mimeData = new QMimeData;
+	QByteArray encodedData;
+
+	QDataStream stream(&encodedData, QIODevice::WriteOnly);
+	
+	if(index.isValid())
+	{
+		auto text = standardModel->itemFromIndex(mapToSource(index))->data().toJsonObject();
+		stream << text;
+	}
+
+	mimeData->setData("application/vcmi.object", encodedData);
+	return mimeData;
+}
+
+ObjectBrowser::ObjectBrowser(QWidget * parent):
+	QTreeView(parent)
+{
+	
+}

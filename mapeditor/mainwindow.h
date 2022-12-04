@@ -8,7 +8,7 @@
 #include "resourceExtractor/ResourceConverter.h"
 
 class CMap;
-class ObjectBrowser;
+class ObjectBrowserProxyModel;
 class CGObjectInstance;
 
 namespace Ui
@@ -133,7 +133,7 @@ private:
 
 private:
     Ui::MainWindow * ui;
-	ObjectBrowser * objectBrowser = nullptr;
+	ObjectBrowserProxyModel * objectBrowser = nullptr;
 	QGraphicsScene * scenePreview;
 	
 	QString filename;

@@ -303,7 +303,7 @@
           <widget class="QLineEdit" name="filter"/>
          </item>
          <item>
-          <widget class="QTreeView" name="treeView">
+          <widget class="ObjectBrowser" name="treeView">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
              <horstretch>0</horstretch>
@@ -319,8 +319,11 @@
            <property name="editTriggers">
             <set>QAbstractItemView::NoEditTriggers</set>
            </property>
+           <property name="showDropIndicator" stdset="0">
+            <bool>false</bool>
+           </property>
            <property name="dragDropMode">
-            <enum>QAbstractItemView::NoDragDrop</enum>
+            <enum>QAbstractItemView::DragOnly</enum>
            </property>
            <property name="selectionBehavior">
             <enum>QAbstractItemView::SelectItems</enum>
@@ -1205,6 +1208,11 @@
    <class>MinimapView</class>
    <extends>QGraphicsView</extends>
    <header>mapview.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ObjectBrowser</class>
+   <extends>QTreeView</extends>
+   <header>objectbrowser.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
