@@ -853,12 +853,11 @@ void MainWindow::on_toolErase_clicked()
 	ui->tabWidget->setCurrentIndex(0);
 }
 
-void MainWindow::preparePreview(const QModelIndex &index, bool createNew)
+void MainWindow::preparePreview(const QModelIndex &index)
 {
 	scenePreview->clear();
 
 	auto data = objectsModel.itemFromIndex(objectBrowser->mapToSource(index))->data().toJsonObject();
-
 	if(!data.empty())
 	{
 		auto preview = data["preview"];
@@ -866,17 +865,6 @@ void MainWindow::preparePreview(const QModelIndex &index, bool createNew)
 		{
 			QPixmap objPreview = pixmapFromJson(preview);
 			scenePreview->addPixmap(objPreview);
-
-			auto objId = data["id"].toInt();
-			auto objSubId = data["subid"].toInt();
-			auto templateId = data["template"].toInt();
-
-			if(controller.discardObject(mapLevel) || createNew)
-			{
-				auto factory = VLC->objtypeh->getHandlerFor(objId, objSubId);
-				auto templ = factory->getTemplates()[templateId];
-				controller.createObject(mapLevel, factory->create(templ));
-			}
 		}
 	}
 }
@@ -884,22 +872,15 @@ void MainWindow::preparePreview(const QModelIndex &index, bool createNew)
 
 void MainWindow::treeViewSelected(const QModelIndex & index, const QModelIndex & deselected)
 {
-	preparePreview(index, false);
-}
-
-
-void MainWindow::on_treeView_activated(const QModelIndex &index)
-{
 	ui->toolBrush->setChecked(false);
 	ui->toolBrush2->setChecked(false);
 	ui->toolBrush4->setChecked(false);
 	ui->toolArea->setChecked(false);
 	ui->toolLasso->setChecked(false);
 	ui->mapView->selectionTool = MapView::SelectionTool::None;
-
-	preparePreview(index, true);
+	
+	preparePreview(index);
 }
-
 
 void MainWindow::on_terrainFilterCombo_currentTextChanged(const QString &arg1)
 {

@@ -101,17 +101,17 @@ QMimeData * ObjectBrowserProxyModel::mimeData(const QModelIndexList & indexes) c
 	assert(standardModel);
 	
 	QModelIndex index = indexes.front();
-	QMimeData * mimeData = new QMimeData;
 	QByteArray encodedData;
 
 	QDataStream stream(&encodedData, QIODevice::WriteOnly);
 	
-	if(index.isValid())
-	{
-		auto text = standardModel->itemFromIndex(mapToSource(index))->data().toJsonObject();
-		stream << text;
-	}
+	if(!index.isValid())
+		return nullptr;
+	
+	auto text = standardModel->itemFromIndex(mapToSource(index))->data().toJsonObject();
+	stream << text;
 
+	QMimeData * mimeData = new QMimeData;
 	mimeData->setData("application/vcmi.object", encodedData);
 	return mimeData;
 }
@@ -119,5 +119,21 @@ QMimeData * ObjectBrowserProxyModel::mimeData(const QModelIndexList & indexes) c
 ObjectBrowser::ObjectBrowser(QWidget * parent):
 	QTreeView(parent)
 {
+	setDropIndicatorShown(false);
+}
+
+void ObjectBrowser::startDrag(Qt::DropActions supportedActions)
+{
+	QDrag *drag = new QDrag(this);
+	auto indexes = selectedIndexes();
+	if(indexes.isEmpty())
+		return;
 	
+	QMimeData * mimeData = model()->mimeData(indexes);
+	if(!mimeData)
+		return;
+		
+	drag->setMimeData(mimeData);
+
+	Qt::DropAction dropAction = drag->exec();
 }

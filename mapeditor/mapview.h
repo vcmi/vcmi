@@ -114,6 +114,7 @@ protected:
 	
 private:
 	MapController * controller = nullptr;
+	QRubberBand * rubberBand = nullptr;
 	QPointF mouseStart;
 	int3 tileStart;
 	int3 tilePrev;

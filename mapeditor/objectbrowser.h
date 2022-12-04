@@ -36,4 +36,7 @@ class ObjectBrowser : public QTreeView
 {
 public:
 	ObjectBrowser(QWidget * parent);
+	
+protected:
+	void startDrag(Qt::DropActions supportedActions) override;
 };
