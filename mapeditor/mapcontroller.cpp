@@ -214,6 +214,7 @@ void MapController::setMap(std::unique_ptr<CMap> cmap)
 			main->enableRedo(allowRedo);
 		}
 	);
+	_map->getEditManager()->getUndoManager().clearAll();
 }
 
 void MapController::sceneForceUpdate()

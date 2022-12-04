@@ -308,8 +308,9 @@ TObjectTypeHandler CObjectClassesHandler::getHandlerFor(si32 type, si32 subtype)
 		if (objects.at(type)->subObjects.count(subtype))
 			return objects.at(type)->subObjects.at(subtype);
 	}
-	logGlobal->error("Failed to find object of type %d:%d", type, subtype);
-	throw std::runtime_error("Object type handler not found");
+	std::string errorString = "Failed to find object of type " + std::to_string(type) + "::" + std::to_string(subtype);
+	logGlobal->error(errorString);
+	throw std::runtime_error(errorString);
 }
 
 TObjectTypeHandler CObjectClassesHandler::getHandlerFor(std::string scope, std::string type, std::string subtype) const
@@ -325,8 +326,9 @@ TObjectTypeHandler CObjectClassesHandler::getHandlerFor(std::string scope, std::
 			return object->subObjects.at(subId);
 		}
 	}
-	logGlobal->error("Failed to find object of type %s::%s", type, subtype);
-	throw std::runtime_error("Object type handler not found");
+	std::string errorString = "Failed to find object of type " + type + "::" + subtype;
+	logGlobal->error(errorString);
+	throw std::runtime_error(errorString);
 }
 
 TObjectTypeHandler CObjectClassesHandler::getHandlerFor(CompoundMapObjectID compoundIdentifier) const

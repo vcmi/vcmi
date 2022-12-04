@@ -123,6 +123,9 @@
    <addaction name="actionOpen"/>
    <addaction name="actionSave"/>
    <addaction name="separator"/>
+   <addaction name="actionUndo"/>
+   <addaction name="actionRedo"/>
+   <addaction name="separator"/>
    <addaction name="actionLevel"/>
    <addaction name="actionGrid"/>
    <addaction name="actionPass"/>
@@ -1010,6 +1013,9 @@
    </property>
   </action>
   <action name="actionPlayers_settings">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Players settings</string>
    </property>
@@ -1017,6 +1023,10 @@
   <action name="actionUndo">
    <property name="enabled">
     <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>icons:edit-undo.png</normaloff>icons:edit-undo.png</iconset>
    </property>
    <property name="text">
     <string>Undo</string>
@@ -1034,6 +1044,10 @@
   <action name="actionRedo">
    <property name="enabled">
     <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>icons:edit-redo.png</normaloff>icons:edit-redo.png</iconset>
    </property>
    <property name="text">
     <string>Redo</string>

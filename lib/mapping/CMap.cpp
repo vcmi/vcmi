@@ -256,6 +256,8 @@ CMap::CMap()
 
 CMap::~CMap()
 {
+	getEditManager()->getUndoManager().clearAll();
+	
 	if(terrain)
 	{
 		for(int z = 0; z < levels(); z++)
