@@ -195,7 +195,9 @@ std::set<int3> CGObjectInstance::getBlockedOffsets() const
 
 void CGObjectInstance::setType(si32 ID, si32 subID)
 {
-	const TerrainTile &tile = cb->gameState()->map->getTile(visitablePos());
+	auto position = visitablePos();
+	auto oldOffset = getVisitableOffset();
+	auto &tile = cb->gameState()->map->getTile(position);
 
 	//recalculate blockvis tiles - new appearance might have different blockmap than before
 	cb->gameState()->map->removeBlockVisTiles(this, true);
@@ -206,14 +208,23 @@ void CGObjectInstance::setType(si32 ID, si32 subID)
 		return;
 	}
 	if(!handler->getTemplates(tile.terType->id).empty())
+	{
 		appearance = handler->getTemplates(tile.terType->id)[0];
+	}
 	else
+	{
+		logGlobal->warn("Object %d:%d at %s has no templates suitable for terrain %s", ID, subID, visitablePos().toString(), tile.terType->name);
 		appearance = handler->getTemplates()[0]; // get at least some appearance since alternative is crash
+	}
 
 	if(this->ID == Obj::PRISON && ID == Obj::HERO)
 	{
-		//adjust for the prison offset
-		pos = visitablePos();
+		auto newOffset = getVisitableOffset();
+		// FIXME: potentially unused code - setType is NOT called when releasing hero from prison
+		// instead, appearance update & pos adjustment occurs in GiveHero::applyGs
+
+		// adjust position since hero and prison may have different visitable offset
+		pos = pos - oldOffset + newOffset;
 	}
 
 	this->ID = Obj(ID);
