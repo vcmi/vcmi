@@ -555,6 +555,9 @@ void Inspector::setProperty(CGHeroInstance * o, const QString & key, const QVari
 	if(key == "Name")
 		o->name = value.toString().toStdString();
 	
+	if(key == "Experience")
+		o->exp = value.toInt();
+	
 	if(key == "Hero type")
 	{
 		for(auto t : VLC->heroh->objects)
