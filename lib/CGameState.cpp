@@ -1882,7 +1882,10 @@ void CGameState::initVisitingAndGarrisonedHeroes()
 				{
 					int3 townVisitablePos = t->visitablePos();
 					int3 correctedPos = townVisitablePos + h->getVisitableOffset();
+
+					map->removeBlockVisTiles(h);
 					h->pos = correctedPos;
+					map->addBlockVisTiles(h);
 
 					assert(t->visitableAt(h->visitablePos().x, h->visitablePos().y));
 				}
