@@ -108,7 +108,7 @@ QMimeData * ObjectBrowserProxyModel::mimeData(const QModelIndexList & indexes) c
 	if(!index.isValid())
 		return nullptr;
 	
-	auto text = standardModel->itemFromIndex(mapToSource(index))->data().toJsonObject();
+	auto text = standardModel->itemFromIndex(mapToSource(index))->data();
 	stream << text;
 
 	QMimeData * mimeData = new QMimeData;

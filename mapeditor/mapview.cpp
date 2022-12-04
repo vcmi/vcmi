@@ -362,8 +362,9 @@ void MapView::dragEnterEvent(QDragEnterEvent * event)
 	{
 		auto encodedData = event->mimeData()->data("application/vcmi.object");
 		QDataStream stream(&encodedData, QIODevice::ReadOnly);
-		QJsonObject data;
-		stream >> data;
+		QVariant vdata;
+		stream >> vdata;
+		auto data = vdata.toJsonObject();
 		if(!data.empty())
 		{
 			auto preview = data["preview"];
