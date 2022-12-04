@@ -460,8 +460,11 @@ void SelectionObjectsLayer::selectObjects(int x1, int y1, int x2, int y2)
 	{
 		for(int i = x1; i < x2; ++i)
 		{
-			for(auto & o : handler->getObjects(i, j, scene->level))
-				selectObject(o.obj, false); //do not inform about each object added
+			if(map->isInTheMap(int3(i, j, scene->level)))
+			{
+				for(auto & o : handler->getObjects(i, j, scene->level))
+					selectObject(o.obj, false); //do not inform about each object added
+			}
 		}
 	}
 	onSelection();

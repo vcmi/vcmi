@@ -1434,7 +1434,7 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 	handler.serializeString("biography", biography);
 	handler.serializeInt("experience", exp, 0);
 
-	if (!handler.saving)
+	if(!handler.saving && exp != 0xffffffff) //do not gain levels if experience is not initialized
 	{
 		while (gainsLevel())
 		{
