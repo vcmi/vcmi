@@ -46,8 +46,8 @@ std::string IVCMIDirs::genHelpString() const
 		"  user cache:		" + userCachePath().string() + "\n"
 		"  user config:		" + userConfigPath().string() + "\n"
 		"  user logs:		" + userLogsPath().string() + "\n"
-		"  user saves:		" + userSavePath().string() + "\n";
-		"  user extracted:	" + userExtractedPath().string() + "\n"; // Should end without new-line?
+		"  user saves:		" + userSavePath().string() + "\n"
+		"  user extracted:	" + userExtractedPath().string() + "\n";
 }
 
 void IVCMIDirs::init()
@@ -361,13 +361,20 @@ class IVCMIDirsUNIX : public IVCMIDirs
 		bfs::path clientPath() const override;
 		bfs::path serverPath() const override;
 
-		virtual bool developmentMode() const;
+		virtual bool developmentModeData() const;
+		virtual bool developmentModeBinaries() const;
 };
 
-bool IVCMIDirsUNIX::developmentMode() const
+bool IVCMIDirsUNIX::developmentModeData() const
 {
 	// We want to be able to run VCMI from single directory. E.g to run from build output directory
-	return bfs::exists("AI") && bfs::exists("config") && bfs::exists("Mods") && bfs::exists("../CMakeCache.txt");
+	return bfs::exists("config") && bfs::exists("Mods") && bfs::exists("../CMakeCache.txt");
+}
+
+bool IVCMIDirsUNIX::developmentModeBinaries() const
+{
+	// We want to be able to run VCMI from single directory. E.g to run from build output directory
+	return bfs::exists("AI") && bfs::exists("../CMakeCache.txt");
 }
 
 bfs::path IVCMIDirsUNIX::clientPath() const { return binaryPath() / "vcmiclient"; }
@@ -511,7 +518,7 @@ std::vector<bfs::path> VCMIDirsOSX::dataPaths() const
 {
 	std::vector<bfs::path> ret;
 	//FIXME: need some proper codepath for detecting running from build output directory
-	if(developmentMode())
+	if(developmentModeData())
 	{
 		ret.push_back(".");
 	}
@@ -584,7 +591,7 @@ std::vector<bfs::path> VCMIDirsXDG::dataPaths() const
 	// in vcmi fs last directory has highest priority
 	std::vector<bfs::path> ret;
 
-	if(developmentMode())
+	if(developmentModeData())
 	{
 		//For now we'll disable usage of system directories when VCMI running from bin directory
 		ret.push_back(".");
@@ -616,7 +623,7 @@ std::vector<bfs::path> VCMIDirsXDG::dataPaths() const
 
 bfs::path VCMIDirsXDG::libraryPath() const
 {
-	if(developmentMode())
+	if(developmentModeBinaries())
 		return ".";
 	else
 		return M_LIB_DIR;
@@ -624,7 +631,7 @@ bfs::path VCMIDirsXDG::libraryPath() const
 
 bfs::path VCMIDirsXDG::binaryPath() const
 {
-	if(developmentMode())
+	if(developmentModeBinaries())
 		return ".";
 	else
 		return M_BIN_DIR;
