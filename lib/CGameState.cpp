@@ -1873,17 +1873,27 @@ void CGameState::initVisitingAndGarrisonedHeroes()
 		{
 			for(CGTownInstance *t : k->second.towns)
 			{
-				int3 vistile = t->visitablePos(); vistile.x++; //tile next to the entrance
-				if(vistile == h->pos || h->pos==t->visitablePos())
+				bool heroOnTownBlockableTile = t->blockingAt(h->visitablePos().x, h->visitablePos().y);
+				bool heroOnTownVisitableTile = t->visitableAt(h->visitablePos().x, h->visitablePos().y);
+
+				// current hero position is at one of blocking tiles of current town
+				// assume that this hero should be visiting the town (H3M format quirk) and move hero to correct position
+				if (heroOnTownBlockableTile)
 				{
+					int3 townVisitablePos = t->visitablePos();
+					int3 correctedPos = townVisitablePos + h->getVisitableOffset();
+
+					map->removeBlockVisTiles(h);
+					h->pos = correctedPos;
+					map->addBlockVisTiles(h);
+
+					assert(t->visitableAt(h->visitablePos().x, h->visitablePos().y));
+				}
+
+				if (heroOnTownBlockableTile || heroOnTownVisitableTile)
+				{
+					assert(t->visitingHero == nullptr);
 					t->setVisitingHero(h);
-					if(h->pos == t->pos) //visiting hero placed in the editor has same pos as the town - we need to correct it
-					{
-						map->removeBlockVisTiles(h);
-						h->pos.x -= 1;
-						map->addBlockVisTiles(h);
-					}
-					break;
 				}
 			}
 		}
