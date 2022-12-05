@@ -25,6 +25,8 @@ ADVENTURE MAP:
 * Pause & resume for towns and terrains music themes
 * Feature to assemble/disassemble artefacts in backpack
 * Clickable status bar to send messages
+* Heroes no longer have chance to receive forbidden skill on leveling up
+* Fixed visibility of newly recruited heroes near town 
 
 BATTLES:
 * Fix healing/regeneration behaviour and effect
