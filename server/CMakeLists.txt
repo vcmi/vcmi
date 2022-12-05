@@ -22,7 +22,7 @@ if(ANDROID) # android needs client/server to be libraries, not executables, so w
 	return()
 endif()
 
-if(BUILD_SINGLE_APP)
+if(ENABLE_SINGLE_APP_BUILD)
 	add_library(vcmiserver STATIC ${server_SRCS} ${server_HEADERS})
 	set(server_LIBS vcmi_lib_server)
 else()
@@ -50,6 +50,6 @@ endif()
 vcmi_set_output_dir(vcmiserver "")
 enable_pch(vcmiserver)
 
-if(NOT BUILD_SINGLE_APP)
+if(NOT ENABLE_SINGLE_APP_BUILD)
 	install(TARGETS vcmiserver DESTINATION ${BIN_DIR})
 endif()
