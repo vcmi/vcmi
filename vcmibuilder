@@ -168,13 +168,19 @@ mkdir -p "$temp_dir"
 
 if [[ -n "$gog_file" ]]
 then
-	data_dir="$temp_dir"/app
+	data_dir="$temp_dir"/gog
 	mkdir -p "$data_dir"
 
 	# innoextract always reports error (iconv 84 error). Just test file for presence
 	test -f "$gog_file" || fail "Error: gog.com executable was not found!"
 	gog_file="$(cd "$(dirname "$gog_file")"; pwd)/$(basename "$gog_file")"
 	cd "$data_dir" && innoextract "$gog_file"
+	
+	# some versions of gog.com installer (or innoextract tool?) place game files inside /app directory
+	if [[ -d "$data_dir"/app ]]
+	then
+		data_dir="$data_dir"/app
+	fi
 fi
 
 if [[ -n "$cd1_dir" ]]
