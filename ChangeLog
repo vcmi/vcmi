@@ -50,6 +50,7 @@ MODS:
 * Introduced "compatibility" section into mods settings
 * Fixed bonus system for custom advmap spells
 * Supported customisable town entrance placement
+* Fixed validation of mods with new adventure map objects
 
 LAUNCHER:
 * Fixed problem with duplicated mods in the list
