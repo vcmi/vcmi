@@ -1043,7 +1043,7 @@ static void handleCommandOptions(int argc, char * argv[], boost::program_options
 #endif
 int main(int argc, char * argv[])
 {
-#if !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
+#if !defined(VCMI_ANDROID) && !defined(SINGLE_PROCESS_APP)
 	// Correct working dir executable folder (not bundle folder) so we can use executable relative paths
 	boost::filesystem::current_path(boost::filesystem::system_complete(argv[0]).parent_path());
 #endif
