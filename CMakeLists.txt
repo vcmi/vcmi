@@ -80,6 +80,11 @@ if(ENABLE_ERM AND NOT ENABLE_LUA)
 	set(ENABLE_LUA ON)
 endif()
 
+# We want to deploy assets into build directory for easier debugging without install
+if(NOT APPLE_IOS AND NOT COPY_CONFIG_ON_BUILD)
+	set(COPY_CONFIG_ON_BUILD OFF)
+endif()
+
 ############################################
 #        Miscellaneous options             #
 ############################################

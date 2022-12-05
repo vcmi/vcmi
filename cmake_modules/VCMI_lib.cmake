@@ -485,7 +485,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 	enable_pch(${TARGET_NAME})
 
 	# We want to deploy assets into build directory for easier debugging without install
-	if(NOT APPLE_IOS)
+	if(COPY_CONFIG_ON_BUILD)
 		add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
 			COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/config
 			COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/Mods
