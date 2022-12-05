@@ -60,7 +60,7 @@ endif(NOT ${CMAKE_VERSION} VERSION_LESS "3.16.0")
 option(ENABLE_GITVERSION "Enable Version.cpp with Git commit hash" ON)
 option(ENABLE_DEBUG_CONSOLE "Enable debug console for Windows builds" ON)
 option(ENABLE_MULTI_PROCESS_BUILDS "Enable /MP flag for MSVS solution" ON)
-option(ENABLE_SINGLE_APP_BUILD "Builds client and server as single executable" OFF)
+option(ENABLE_SINGLE_APP_BUILD "Builds client and server as single executable" ON)
 
 # Used for Snap packages and also useful for debugging
 if(NOT APPLE_IOS)
@@ -71,9 +71,9 @@ endif()
 set(PACKAGE_NAME_SUFFIX "" CACHE STRING "Suffix for CPack package name")
 set(PACKAGE_FILE_NAME "" CACHE STRING "Override for CPack package filename")
 
-if(APPLE_IOS AND NOT ENABLE_SINGLE_APP_BUILD)
-	set(ENABLE_SINGLE_APP_BUILD ON)
-endif()
+#if(APPLE_IOS AND NOT ENABLE_SINGLE_APP_BUILD)
+#	set(ENABLE_SINGLE_APP_BUILD ON)
+#endif()
 
 # ERM depends on LUA implicitly
 if(ENABLE_ERM AND NOT ENABLE_LUA)
