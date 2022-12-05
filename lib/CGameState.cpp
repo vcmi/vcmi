@@ -760,6 +760,7 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, bool allow
 	initHeroes();
 	initStartingBonus();
 	initTowns();
+	placeHeroesInTowns();
 	initMapObjects();
 	buildBonusSystemTree();
 	initVisitingAndGarrisonedHeroes();
@@ -1363,7 +1364,8 @@ void CGameState::placeStartingHeroes()
 			{
 				if(auto campaignBonus = scenarioOps->campState->getBonusForCurrentMap())
 				{
-					if(campaignBonus->type == CScenarioTravel::STravelBonus::HERO && playerColor == PlayerColor(campaignBonus->info1)) continue;
+					if(campaignBonus->type == CScenarioTravel::STravelBonus::HERO && playerColor == PlayerColor(campaignBonus->info1))
+						continue;
 				}
 			}
 
@@ -1861,20 +1863,18 @@ void CGameState::initMapObjects()
 	map->calculateGuardingGreaturePositions(); //calculate once again when all the guards are placed and initialized
 }
 
-void CGameState::initVisitingAndGarrisonedHeroes()
+void CGameState::placeHeroesInTowns()
 {
 	for(auto k=players.begin(); k!=players.end(); ++k)
 	{
 		if(k->first==PlayerColor::NEUTRAL)
 			continue;
 
-		//init visiting and garrisoned heroes
 		for(CGHeroInstance *h : k->second.heroes)
 		{
 			for(CGTownInstance *t : k->second.towns)
 			{
 				bool heroOnTownBlockableTile = t->blockingAt(h->visitablePos().x, h->visitablePos().y);
-				bool heroOnTownVisitableTile = t->visitableAt(h->visitablePos().x, h->visitablePos().y);
 
 				// current hero position is at one of blocking tiles of current town
 				// assume that this hero should be visiting the town (H3M format quirk) and move hero to correct position
@@ -1889,8 +1889,24 @@ void CGameState::initVisitingAndGarrisonedHeroes()
 
 					assert(t->visitableAt(h->visitablePos().x, h->visitablePos().y));
 				}
+			}
+		}
+	}
+}
 
-				if (heroOnTownBlockableTile || heroOnTownVisitableTile)
+void CGameState::initVisitingAndGarrisonedHeroes()
+{
+	for(auto k=players.begin(); k!=players.end(); ++k)
+	{
+		if(k->first==PlayerColor::NEUTRAL)
+			continue;
+
+		//init visiting and garrisoned heroes
+		for(CGHeroInstance *h : k->second.heroes)
+		{
+			for(CGTownInstance *t : k->second.towns)
+			{
+				if (t->visitableAt(h->visitablePos().x, h->visitablePos().y))
 				{
 					assert(t->visitingHero == nullptr);
 					t->setVisitingHero(h);
