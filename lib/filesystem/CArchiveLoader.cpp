@@ -231,7 +231,15 @@ void CArchiveLoader::extractToFolder(const std::string & outputSubFolder, const 
 {
 	std::unique_ptr<CInputStream> inputStream = load(ResourceID(mountPoint + entry.name));
 
-	extractToFolder(outputSubFolder, *inputStream, entry);
+	std::vector<ui8> data(entry.fullSize);
+	inputStream->read(data.data(), entry.fullSize);
+
+	bfs::path extractedFilePath = createExtractedFilePath(outputSubFolder, entry.name);
+
+	// writeToOutputFile
+	std::ofstream out(extractedFilePath.string(), std::ofstream::binary);
+	out.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+	out.write((char*)data.data(), entry.fullSize);
 }
 
 bfs::path createExtractedFilePath(const std::string & outputSubFolder, const std::string & entryName)
