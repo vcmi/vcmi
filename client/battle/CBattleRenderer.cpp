@@ -22,8 +22,9 @@ void CBattleRenderer::collectObjects()
 	owner->collectRenderableObjects(*this);
 	owner->effectsController->collectRenderableObjects(*this);
 	owner->obstacleController->collectRenderableObjects(*this);
-	owner->siegeController->collectRenderableObjects(*this);
 	owner->stacksController->collectRenderableObjects(*this);
+	if (owner->siegeController)
+		owner->siegeController->collectRenderableObjects(*this);
 }
 
 void CBattleRenderer::sortObjects()
