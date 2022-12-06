@@ -15,6 +15,26 @@
 #include "iOS_utils.h"
 #endif
 
+#ifdef VCMI_ANDROID
+#include "CAndroidVMHelper.h"
+#endif
+
+#ifdef VCMI_WINDOWS
+
+#ifdef __MINGW32__
+	#define _WIN32_IE 0x0500
+
+	#ifndef CSIDL_MYDOCUMENTS
+	#define CSIDL_MYDOCUMENTS CSIDL_PERSONAL
+	#endif
+#endif // __MINGW32__
+
+#include <windows.h>
+#include <shlobj.h>
+#include <shellapi.h>
+
+#endif
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 namespace bfs = boost::filesystem;
@@ -60,24 +80,8 @@ void IVCMIDirs::init()
 	bfs::create_directories(userSavePath());
 }
 
-#ifdef VCMI_ANDROID
-#include "CAndroidVMHelper.h"
-
-#endif
 
 #ifdef VCMI_WINDOWS
-
-#ifdef __MINGW32__
-    #define _WIN32_IE 0x0500
-
-	#ifndef CSIDL_MYDOCUMENTS
-	#define CSIDL_MYDOCUMENTS CSIDL_PERSONAL
-	#endif
-#endif // __MINGW32__
-
-#include <windows.h>
-#include <shlobj.h>
-#include <shellapi.h>
 
 // Generates script file named _temp.bat in 'to' directory and runs it
 // Script will:
