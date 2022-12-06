@@ -75,7 +75,7 @@ std::vector<CBattleAnimation *> & CBattleAnimation::pendingAnimations()
 	return owner->stacksController->currentAnimations;
 }
 
-std::shared_ptr<CCreatureAnimation> CBattleAnimation::stackAnimation(const CStack * stack)
+std::shared_ptr<CCreatureAnimation> CBattleAnimation::stackAnimation(const CStack * stack) const
 {
 	return owner->stacksController->stackAnimation[stack->ID];
 }
@@ -169,7 +169,7 @@ bool CAttackAnimation::checkInitialConditions()
 	return CBattleAnimation::checkInitialConditions();
 }
 
-const CCreature * CAttackAnimation::getCreature()
+const CCreature * CAttackAnimation::getCreature() const
 {
 	if (attackingStack->getCreature()->idNumber == CreatureID::ARROW_TOWERS)
 		return owner->siegeController->getTurretCreature();
@@ -817,15 +817,13 @@ void CRangedAttackAnimation::nextFrame()
 
 	if (!projectileEmitted)
 	{
-		const CCreature *shooterInfo = getCreature();
-
 		logAnim->info("Ranged attack executing, %d / %d / %d",
 					  stackAnimation(attackingStack)->getCurrentFrame(),
-					  shooterInfo->animation.attackClimaxFrame,
+					  getAttackClimaxFrame(),
 					  stackAnimation(attackingStack)->framesInGroup(group));
 
 		// emit projectile once animation playback reached "climax" frame
-		if ( stackAnimation(attackingStack)->getCurrentFrame() >= shooterInfo->animation.attackClimaxFrame )
+		if ( stackAnimation(attackingStack)->getCurrentFrame() >= getAttackClimaxFrame() )
 		{
 			emitProjectile();
 			stackAnimation(attackingStack)->pause();
@@ -858,6 +856,12 @@ CShootingAnimation::CShootingAnimation(CBattleInterface * _owner, const CStack *
 void CShootingAnimation::createProjectile(const Point & from, const Point & dest) const
 {
 	owner->projectilesController->createProjectile(attackingStack, attackedStack, from, dest);
+}
+
+uint32_t CShootingAnimation::getAttackClimaxFrame() const
+{
+	const CCreature *shooterInfo = getCreature();
+	return shooterInfo->animation.attackClimaxFrame;
 }
 
 CCreatureAnim::EAnimType CShootingAnimation::getUpwardsGroup() const
@@ -967,6 +971,16 @@ void CCastAnimation::createProjectile(const Point & from, const Point & dest) co
 {
 	if (!spell->animationInfo.projectile.empty())
 		owner->projectilesController->createSpellProjectile(attackingStack, attackedStack, from, dest, spell);
+}
+
+uint32_t CCastAnimation::getAttackClimaxFrame() const
+{
+	//FIXME: allow defining this parameter in config file, separately from attackClimaxFrame of missile attacks
+	uint32_t maxFrames = stackAnimation(attackingStack)->framesInGroup(group);
+
+	if (maxFrames > 2)
+		return maxFrames - 2;
+	return 0;
 }
 
 CPointEffectAnimation::CPointEffectAnimation(CBattleInterface * _owner, soundBase::soundID sound, std::string animationName, int effects):

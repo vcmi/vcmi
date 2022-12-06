@@ -34,7 +34,7 @@ protected:
 	bool initialized;
 
 	std::vector<CBattleAnimation *> & pendingAnimations();
-	std::shared_ptr<CCreatureAnimation> stackAnimation(const CStack * stack);
+	std::shared_ptr<CCreatureAnimation> stackAnimation(const CStack * stack) const;
 	bool stackFacingRight(const CStack * stack);
 	void setStackFacingRight(const CStack * stack, bool facingRight);
 
@@ -78,7 +78,7 @@ protected:
 	const CStack *attackingStack;
 	int attackingStackPosBeforeReturn; //for stacks with return_after_strike feature
 
-	const CCreature * getCreature();
+	const CCreature * getCreature() const;
 public:
 	void nextFrame() override;
 	bool checkInitialConditions();
@@ -210,6 +210,7 @@ protected:
 	virtual CCreatureAnim::EAnimType getDownwardsGroup() const = 0;
 
 	virtual void createProjectile(const Point & from, const Point & dest) const = 0;
+	virtual uint32_t getAttackClimaxFrame() const = 0;
 
 public:
 	CRangedAttackAnimation(CBattleInterface * owner_, const CStack * attacker, BattleHex dest, const CStack * defender);
@@ -227,6 +228,7 @@ class CShootingAnimation : public CRangedAttackAnimation
 	CCreatureAnim::EAnimType getDownwardsGroup() const override;
 
 	void createProjectile(const Point & from, const Point & dest) const override;
+	uint32_t getAttackClimaxFrame() const override;
 
 public:
 	CShootingAnimation(CBattleInterface * _owner, const CStack * attacker, BattleHex dest, const CStack * defender);
@@ -257,6 +259,7 @@ class CCastAnimation : public CRangedAttackAnimation
 	CCreatureAnim::EAnimType getDownwardsGroup() const override;
 
 	void createProjectile(const Point & from, const Point & dest) const override;
+	uint32_t getAttackClimaxFrame() const override;
 
 public:
 	CCastAnimation(CBattleInterface * owner_, const CStack * attacker, BattleHex dest_, const CStack * defender, const CSpell * spell);
