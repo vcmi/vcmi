@@ -1045,7 +1045,7 @@ bool CPointEffectAnimation::init()
 	{
 		for(int i=0; i * first->width() < owner->pos.w ; ++i)
 			for(int j=0; j * first->height() < owner->pos.h ; ++j)
-				positions.push_back(Point(i * first->width(), j * first->height()));
+				positions.push_back(Point( owner->pos.x + i * first->width(), owner->pos.y + j * first->height()));
 	}
 
 	BattleEffect be;
