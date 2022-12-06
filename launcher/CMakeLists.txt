@@ -93,7 +93,6 @@ endif()
 
 if(ENABLE_SINGLE_APP_BUILD)
 	add_library(vcmilauncher STATIC ${launcher_SRCS} ${launcher_HEADERS} ${launcher_UI_HEADERS})
-	target_compile_definitions(vcmilauncher PUBLIC VCMI_DLL_STATIC=1)
 else()
 	add_executable(vcmilauncher WIN32 ${launcher_SRCS} ${launcher_HEADERS} ${launcher_UI_HEADERS} ${launcher_ICON})
 endif()
