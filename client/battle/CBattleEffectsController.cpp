@@ -16,6 +16,7 @@
 #include "CBattleInterfaceClasses.h"
 #include "CBattleFieldController.h"
 #include "CBattleStacksController.h"
+#include "CBattleRenderer.h"
 
 #include "../CMusicHandler.h"
 #include "../CGameInfo.h"
@@ -122,11 +123,11 @@ void CBattleEffectsController::startAction(const BattleAction* action)
 	}
 }
 
-void CBattleEffectsController::collectRenderableObjects(CBattleFieldRenderer & renderer)
+void CBattleEffectsController::collectRenderableObjects(CBattleRenderer & renderer)
 {
 	for (auto & elem : battleEffects)
 	{
-		renderer.insert( EBattleFieldLayer::EFFECTS, elem.position, [&elem](CBattleFieldRenderer::RendererPtr canvas)
+		renderer.insert( EBattleFieldLayer::EFFECTS, elem.position, [&elem](CBattleRenderer::RendererPtr canvas)
 		{
 			int currentFrame = static_cast<int>(floor(elem.currentFrame));
 			currentFrame %= elem.animation->size();

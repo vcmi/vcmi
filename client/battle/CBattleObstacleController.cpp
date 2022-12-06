@@ -14,6 +14,7 @@
 #include "CBattleFieldController.h"
 #include "CBattleAnimations.h"
 #include "CBattleStacksController.h"
+#include "CBattleRenderer.h"
 
 #include "../CPlayerInterface.h"
 #include "../gui/CAnimation.h"
@@ -126,7 +127,7 @@ void CBattleObstacleController::showAbsoluteObstacles(std::shared_ptr<CCanvas> c
 	}
 }
 
-void CBattleObstacleController::collectRenderableObjects(CBattleFieldRenderer & renderer)
+void CBattleObstacleController::collectRenderableObjects(CBattleRenderer & renderer)
 {
 	for (auto obstacle : owner->curInt->cb->battleGetAllObstacles())
 	{
@@ -136,7 +137,7 @@ void CBattleObstacleController::collectRenderableObjects(CBattleFieldRenderer & 
 		if (obstacle->obstacleType == CObstacleInstance::MOAT)
 			continue;
 
-		renderer.insert(EBattleFieldLayer::OBSTACLES, obstacle->pos, [this, obstacle]( CBattleFieldRenderer::RendererPtr canvas ){
+		renderer.insert(EBattleFieldLayer::OBSTACLES, obstacle->pos, [this, obstacle]( CBattleRenderer::RendererPtr canvas ){
 			auto img = getObstacleImage(*obstacle);
 			if(img)
 			{

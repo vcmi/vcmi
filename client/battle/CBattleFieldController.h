@@ -27,45 +27,6 @@ class CCanvas;
 class IImage;
 class CBattleInterface;
 
-enum class EBattleFieldLayer {
-					   // confirmed ordering requirements:
-	OBSTACLES     = 0,
-	CORPSES       = 0,
-	WALLS         = 1,
-	HEROES        = 1,
-	STACKS        = 1, // after corpses, obstacles
-	BATTLEMENTS   = 2, // after stacks
-	STACK_AMOUNTS = 2, // after stacks, obstacles, corpses
-	EFFECTS       = 3, // after obstacles, battlements
-};
-
-class CBattleFieldRenderer
-{
-public:
-	using RendererPtr = std::shared_ptr<CCanvas>;
-	using RenderFunctor = std::function<void(RendererPtr)>;
-
-private:
-	CBattleInterface * owner;
-
-	struct RenderableInstance
-	{
-		RenderFunctor functor;
-		EBattleFieldLayer layer;
-		BattleHex tile;
-	};
-	std::vector<RenderableInstance> objects;
-
-	void collectObjects();
-	void sortObjects();
-	void renderObjects(RendererPtr targetCanvas);
-public:
-	CBattleFieldRenderer(CBattleInterface * owner);
-
-	void insert(EBattleFieldLayer layer, BattleHex tile, RenderFunctor functor);
-	void execute(RendererPtr targetCanvas);
-};
-
 class CBattleFieldController : public CIntObject
 {
 	CBattleInterface * owner;

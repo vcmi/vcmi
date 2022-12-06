@@ -25,7 +25,7 @@ struct Point;
 struct SDL_Surface;
 class CCanvas;
 class CBattleInterface;
-class CBattleFieldRenderer;
+class CBattleRenderer;
 class IImage;
 
 namespace EWallVisual
@@ -99,7 +99,7 @@ public:
 
 	/// call-ins from other battle controllers
 	void showAbsoluteObstacles(std::shared_ptr<CCanvas> canvas, const Point & offset);
-	void collectRenderableObjects(CBattleFieldRenderer & renderer);
+	void collectRenderableObjects(CBattleRenderer & renderer);
 
 	/// queries from other battle controllers
 	bool isAttackableByCatapult(BattleHex hex) const;

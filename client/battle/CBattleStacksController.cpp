@@ -18,6 +18,7 @@
 #include "CBattleEffectsController.h"
 #include "CBattleProjectileController.h"
 #include "CBattleControlPanel.h"
+#include "CBattleRenderer.h"
 
 #include "CCreatureAnimation.h"
 
@@ -116,7 +117,7 @@ BattleHex CBattleStacksController::getStackCurrentPosition(const CStack * stack)
 	return stack->getPosition();
 }
 
-void CBattleStacksController::collectRenderableObjects(CBattleFieldRenderer & renderer)
+void CBattleStacksController::collectRenderableObjects(CBattleRenderer & renderer)
 {
 	auto stacks = owner->curInt->cb->battleGetAllStacks(false);
 
@@ -132,13 +133,13 @@ void CBattleStacksController::collectRenderableObjects(CBattleFieldRenderer & re
 		auto layer = stackAnimation[stack->ID]->isDead() ? EBattleFieldLayer::CORPSES : EBattleFieldLayer::STACKS;
 		auto location = getStackCurrentPosition(stack);
 
-		renderer.insert(layer, location, [this, stack]( CBattleFieldRenderer::RendererPtr renderer ){
+		renderer.insert(layer, location, [this, stack]( CBattleRenderer::RendererPtr renderer ){
 			showStack(renderer, stack);
 		});
 
 		if (stackNeedsAmountBox(stack))
 		{
-			renderer.insert(EBattleFieldLayer::STACK_AMOUNTS, location, [this, stack]( CBattleFieldRenderer::RendererPtr renderer ){
+			renderer.insert(EBattleFieldLayer::STACK_AMOUNTS, location, [this, stack]( CBattleRenderer::RendererPtr renderer ){
 				showStackAmountBox(renderer, stack);
 			});
 		}

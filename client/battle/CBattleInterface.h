@@ -47,7 +47,7 @@ class CBattleProjectileController;
 class CBattleSiegeController;
 class CBattleObstacleController;
 class CBattleFieldController;
-class CBattleFieldRenderer;
+class CBattleRenderer;
 class CBattleControlPanel;
 class CBattleStacksController;
 class CBattleActionsController;
@@ -143,7 +143,7 @@ public:
 	void show(SDL_Surface *to) override;
 	void showAll(SDL_Surface *to) override;
 
-	void collectRenderableObjects(CBattleFieldRenderer & renderer);
+	void collectRenderableObjects(CBattleRenderer & renderer);
 
 	//call-ins
 	void startAction(const BattleAction* action);

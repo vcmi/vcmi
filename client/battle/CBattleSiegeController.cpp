@@ -15,6 +15,7 @@
 #include "CBattleInterfaceClasses.h"
 #include "CBattleStacksController.h"
 #include "CBattleFieldController.h"
+#include "CBattleRenderer.h"
 
 #include "../CMusicHandler.h"
 #include "../CGameInfo.h"
@@ -280,7 +281,7 @@ const CStack * CBattleSiegeController::getTurretStack(EWallVisual::EWallVisual w
 	return nullptr;
 }
 
-void CBattleSiegeController::collectRenderableObjects(CBattleFieldRenderer & renderer)
+void CBattleSiegeController::collectRenderableObjects(CBattleRenderer & renderer)
 {
 	for (int i = EWallVisual::WALL_FIRST; i <= EWallVisual::WALL_LAST; ++i)
 	{
@@ -296,14 +297,14 @@ void CBattleSiegeController::collectRenderableObjects(CBattleFieldRenderer & ren
 			wallPiece == EWallVisual::BOTTOM_BATTLEMENT ||
 			wallPiece == EWallVisual::UPPER_BATTLEMENT)
 		{
-			renderer.insert( EBattleFieldLayer::STACKS, getWallPiecePosition(wallPiece), [this, wallPiece](CBattleFieldRenderer::RendererPtr canvas){
+			renderer.insert( EBattleFieldLayer::STACKS, getWallPiecePosition(wallPiece), [this, wallPiece](CBattleRenderer::RendererPtr canvas){
 				owner->stacksController->showStack(canvas, getTurretStack(wallPiece));
 			});
-			renderer.insert( EBattleFieldLayer::BATTLEMENTS, getWallPiecePosition(wallPiece), [this, wallPiece](CBattleFieldRenderer::RendererPtr canvas){
+			renderer.insert( EBattleFieldLayer::BATTLEMENTS, getWallPiecePosition(wallPiece), [this, wallPiece](CBattleRenderer::RendererPtr canvas){
 				showWallPiece(canvas, wallPiece, owner->pos.topLeft());
 			});
 		}
-		renderer.insert( EBattleFieldLayer::WALLS, getWallPiecePosition(wallPiece), [this, wallPiece](CBattleFieldRenderer::RendererPtr canvas){
+		renderer.insert( EBattleFieldLayer::WALLS, getWallPiecePosition(wallPiece), [this, wallPiece](CBattleRenderer::RendererPtr canvas){
 			showWallPiece(canvas, wallPiece, owner->pos.topLeft());
 		});
 

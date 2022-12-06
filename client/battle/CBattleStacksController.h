@@ -28,7 +28,7 @@ class CBattleInterface;
 class CBattleAnimation;
 class CCreatureAnimation;
 class CBattleAnimation;
-class CBattleFieldRenderer;
+class CBattleRenderer;
 class IImage;
 
 class CBattleStacksController
@@ -89,7 +89,7 @@ public:
 	void showAliveStack(std::shared_ptr<CCanvas> canvas, const CStack * stack);
 	void showStack(std::shared_ptr<CCanvas> canvas, const CStack * stack);
 
-	void collectRenderableObjects(CBattleFieldRenderer & renderer);
+	void collectRenderableObjects(CBattleRenderer & renderer);
 
 	void addNewAnim(CBattleAnimation *anim); //adds new anim to pendingAnims
 	void updateBattleAnimations();

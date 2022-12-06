@@ -21,6 +21,7 @@
 #include "CBattleFieldController.h"
 #include "CBattleControlPanel.h"
 #include "CBattleStacksController.h"
+#include "CBattleRenderer.h"
 
 #include "../CGameInfo.h"
 #include "../CMessage.h"
@@ -913,18 +914,18 @@ void CBattleInterface::show(SDL_Surface *to)
 	//activateStack();
 }
 
-void CBattleInterface::collectRenderableObjects(CBattleFieldRenderer & renderer)
+void CBattleInterface::collectRenderableObjects(CBattleRenderer & renderer)
 {
 	if (attackingHero)
 	{
-		renderer.insert(EBattleFieldLayer::HEROES, BattleHex(0),[this](CBattleFieldRenderer::RendererPtr canvas)
+		renderer.insert(EBattleFieldLayer::HEROES, BattleHex(0),[this](CBattleRenderer::RendererPtr canvas)
 		{
 			attackingHero->show(canvas->getSurface());
 		});
 	}
 	if (defendingHero)
 	{
-		renderer.insert(EBattleFieldLayer::HEROES, BattleHex(GameConstants::BFIELD_WIDTH-1),[this](CBattleFieldRenderer::RendererPtr canvas)
+		renderer.insert(EBattleFieldLayer::HEROES, BattleHex(GameConstants::BFIELD_WIDTH-1),[this](CBattleRenderer::RendererPtr canvas)
 		{
 			defendingHero->show(canvas->getSurface());
 		});

@@ -23,7 +23,7 @@ struct SDL_Surface;
 class CAnimation;
 class CCanvas;
 class CBattleInterface;
-class CBattleFieldRenderer;
+class CBattleRenderer;
 class CPointEffectAnimation;
 
 namespace EBattleEffect
@@ -78,7 +78,7 @@ public:
 
 	void battleTriggerEffect(const BattleTriggerEffect & bte);
 
-	void collectRenderableObjects(CBattleFieldRenderer & renderer);
+	void collectRenderableObjects(CBattleRenderer & renderer);
 
 	friend class CPointEffectAnimation;
 };
