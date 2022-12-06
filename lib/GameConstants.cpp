@@ -86,7 +86,7 @@ const Artifact * ArtifactID::toArtifact(const ArtifactService * service) const
 
 si32 ArtifactID::decode(const std::string & identifier)
 {
-	auto rawId = VLC->modh->identifiers.getIdentifier("core", "artifact", identifier);
+	auto rawId = VLC->modh->identifiers.getIdentifier("map", "artifact", identifier);
 	if(rawId)
 		return rawId.get();
 	else
@@ -110,7 +110,7 @@ const Creature * CreatureID::toCreature(const CreatureService * creatures) const
 
 si32 CreatureID::decode(const std::string & identifier)
 {
-	auto rawId = VLC->modh->identifiers.getIdentifier("core", "creature", identifier);
+	auto rawId = VLC->modh->identifiers.getIdentifier("map", "creature", identifier);
 	if(rawId)
 		return rawId.get();
 	else
@@ -139,7 +139,7 @@ const spells::Spell * SpellID::toSpell(const spells::Service * service) const
 
 si32 SpellID::decode(const std::string & identifier)
 {
-	auto rawId = VLC->modh->identifiers.getIdentifier("core", "spell", identifier);
+	auto rawId = VLC->modh->identifiers.getIdentifier("map", "spell", identifier);
 	if(rawId)
 		return rawId.get();
 	else
@@ -201,7 +201,7 @@ const FactionID FactionID::NEUTRAL = FactionID(9);
 
 si32 FactionID::decode(const std::string & identifier)
 {
-	auto rawId = VLC->modh->identifiers.getIdentifier("core", "faction", identifier);
+	auto rawId = VLC->modh->identifiers.getIdentifier("map", "faction", identifier);
 	if(rawId)
 		return rawId.get();
 	else

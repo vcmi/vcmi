@@ -209,8 +209,7 @@ std::vector<CIdentifierStorage::ObjectData> CIdentifierStorage::getPossibleIdent
 	// called have not specified destination mod explicitly
 	if (request.remoteScope.empty())
 	{
-		// FIXME: temporary, for queries from map loader allow access to any identifer
-		// should be changed to list of mods that are marked as required by current map
+		// "map" is special scope that should have access to all in-game objects
 		if (request.localScope == "map")
 		{
 			for (auto const & modName : VLC->modh->getActiveMods())
@@ -234,10 +233,14 @@ std::vector<CIdentifierStorage::ObjectData> CIdentifierStorage::getPossibleIdent
 	else
 	{
 		//if destination mod was specified explicitly, restrict lookup to this mod
-
 		if(request.remoteScope == "core" )
 		{
 			//"core" mod is an implicit dependency for all mods, allow access into it
+			allowedScopes.insert(request.remoteScope);
+		}
+		else if ( request.localScope == "map" )
+		{
+			// allow access, "map" is special scope that should have access to all in-game objects
 			allowedScopes.insert(request.remoteScope);
 		}
 		else if(request.remoteScope == request.localScope )
