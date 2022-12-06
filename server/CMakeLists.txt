@@ -24,6 +24,7 @@ endif()
 
 if(ENABLE_SINGLE_APP_BUILD)
 	add_library(vcmiserver STATIC ${server_SRCS} ${server_HEADERS})
+	target_compile_definitions(vcmiserver PUBLIC VCMI_DLL_STATIC=1)
 	set(server_LIBS vcmi_lib_server)
 else()
 	add_executable(vcmiserver ${server_SRCS} ${server_HEADERS})

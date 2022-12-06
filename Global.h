@@ -217,7 +217,10 @@ typedef boost::lock_guard<boost::recursive_mutex> TLockGuardRec;
 /* ---------------------------------------------------------------------------- */
 // Import + Export macro declarations
 #ifdef VCMI_WINDOWS
-#  ifdef __GNUC__
+#ifdef VCMI_DLL_STATIC
+#    define DLL_IMPORT
+#    define DLL_EXPORT
+#elif defined(__GNUC__)
 #    define DLL_IMPORT __attribute__((dllimport))
 #    define DLL_EXPORT __attribute__((dllexport))
 #  else
