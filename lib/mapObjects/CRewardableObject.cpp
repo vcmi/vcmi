@@ -970,22 +970,22 @@ void CGVisitableOPH::initObj(CRandomGenerator & rand)
 			break;
 		case Obj::LIBRARY_OF_ENLIGHTENMENT:
 		{
+			selectMode = SELECT_FIRST;
 			onVisited.addTxt(MetaString::ADVOB_TXT, 67);
 			onEmpty.addTxt(MetaString::ADVOB_TXT, 68);
 
-			// Don't like this one but don't see any easier approach
 			CVisitInfo visit;
 			visit.reward.primary[PrimarySkill::ATTACK] = 2;
 			visit.reward.primary[PrimarySkill::DEFENSE] = 2;
 			visit.reward.primary[PrimarySkill::KNOWLEDGE] = 2;
 			visit.reward.primary[PrimarySkill::SPELL_POWER] = 2;
+			visit.message.addTxt(MetaString::ADVOB_TXT, 66);
 
 			static_assert(SecSkillLevel::LEVELS_SIZE == 4, "Behavior of Library of Enlignment may not be correct");
 			for (int i=0; i<SecSkillLevel::LEVELS_SIZE; i++)
 			{
 				visit.limiter.minLevel = 10 - i * 2;
 				visit.limiter.secondary[SecondarySkill::DIPLOMACY] = i;
-				visit.message.addTxt(MetaString::ADVOB_TXT, 66);
 				info.push_back(visit);
 			}
 			break;
