@@ -209,16 +209,15 @@ std::vector<CIdentifierStorage::ObjectData> CIdentifierStorage::getPossibleIdent
 	// called have not specified destination mod explicitly
 	if (request.remoteScope.empty())
 	{
-		// FIXME: temporary, for queries from map loader allow access to any identifer
-		// should be changed to list of mods that are marked as required by current map
-		if (request.localScope == "map")
+		// special scope that should have access to all in-game objects
+		if (request.localScope == CModHandler::scopeGame())
 		{
 			for (auto const & modName : VLC->modh->getActiveMods())
 				allowedScopes.insert(modName);
 		}
 
-		// normally ID's from all required mods, own mod and virtual "core" mod are allowed
-		else if(request.localScope != "core" && !request.localScope.empty())
+		// normally ID's from all required mods, own mod and virtual built-in mod are allowed
+		else if(request.localScope != CModHandler::scopeBuiltin() && !request.localScope.empty())
 		{
 			allowedScopes = VLC->modh->getModDependencies(request.localScope, isValidScope);
 
@@ -229,15 +228,19 @@ std::vector<CIdentifierStorage::ObjectData> CIdentifierStorage::getPossibleIdent
 		}
 
 		// all mods can access built-in mod
-		allowedScopes.insert("core");
+		allowedScopes.insert(CModHandler::scopeBuiltin());
 	}
 	else
 	{
 		//if destination mod was specified explicitly, restrict lookup to this mod
-
-		if(request.remoteScope == "core" )
+		if(request.remoteScope == CModHandler::scopeBuiltin() )
 		{
-			//"core" mod is an implicit dependency for all mods, allow access into it
+			//built-in mod is an implicit dependency for all mods, allow access into it
+			allowedScopes.insert(request.remoteScope);
+		}
+		else if ( request.localScope == CModHandler::scopeGame() )
+		{
+			// allow access, this is special scope that should have access to all in-game objects
 			allowedScopes.insert(request.remoteScope);
 		}
 		else if(request.remoteScope == request.localScope )
@@ -340,7 +343,7 @@ ContentTypeHandler::ContentTypeHandler(IHandlerBase * handler, std::string objec
 {
 	for(auto & node : originalData)
 	{
-		node.setMeta("core");
+		node.setMeta(CModHandler::scopeBuiltin());
 	}
 }
 
@@ -506,7 +509,7 @@ void CContentHandler::preloadData(CModInfo & mod)
 	// print message in format [<8-symbols checksum>] <modname>
 	logMod->info("\t\t[%08x]%s", mod.checksum, mod.name);
 
-	if (validate && mod.identifier != "core")
+	if (validate && mod.identifier != CModHandler::scopeBuiltin())
 	{
 		if (!JsonUtils::validate(mod.config, "vcmi:mod", mod.identifier))
 			mod.validation = CModInfo::FAILED;
@@ -698,13 +701,13 @@ CModHandler::CModHandler() : content(std::make_shared<CContentHandler>())
     modules.MITHRIL = false;
 	for (int i = 0; i < GameConstants::RESOURCE_QUANTITY; ++i)
 	{
-		identifiers.registerObject("core", "resource", GameConstants::RESOURCE_NAMES[i], i);
+		identifiers.registerObject(CModHandler::scopeBuiltin(), "resource", GameConstants::RESOURCE_NAMES[i], i);
 	}
 
 	for(int i=0; i<GameConstants::PRIMARY_SKILLS; ++i)
 	{
-		identifiers.registerObject("core", "primSkill", PrimarySkill::names[i], i);
-		identifiers.registerObject("core", "primarySkill", PrimarySkill::names[i], i);
+		identifiers.registerObject(CModHandler::scopeBuiltin(), "primSkill", PrimarySkill::names[i], i);
+		identifiers.registerObject(CModHandler::scopeBuiltin(), "primarySkill", PrimarySkill::names[i], i);
 	}
 }
 
@@ -905,6 +908,35 @@ std::vector<std::string> CModHandler::getModList(std::string path)
 	return foundMods;
 }
 
+bool CModHandler::isScopeReserved(const TModID & scope)
+{
+	static const std::array<TModID, 3> reservedScopes = {
+		"core", "map", "game"
+	};
+
+	return std::find(reservedScopes.begin(), reservedScopes.end(), scope) != reservedScopes.end();
+}
+
+const TModID & CModHandler::scopeBuiltin()
+{
+	static const TModID scope = "core";
+	return scope;
+}
+
+const TModID & CModHandler::scopeGame()
+{
+	static const TModID scope = "game";
+	return scope;
+}
+
+const TModID & CModHandler::scopeMap()
+{
+	//TODO: implement accessing map dependencies for both H3 and VCMI maps
+	// for now, allow access to any identifiers
+	static const TModID scope = "game";
+	return scope;
+}
+
 void CModHandler::loadMods(std::string path, std::string parent, const JsonNode & modSettings, bool enableMods)
 {
 	for(std::string modName : getModList(path))
@@ -915,6 +947,12 @@ void CModHandler::loadOneMod(std::string modName, std::string parent, const Json
 {
 	boost::to_lower(modName);
 	std::string modFullName = parent.empty() ? modName : parent + '.' + modName;
+
+	if ( isScopeReserved(modFullName))
+	{
+		logMod->error("Can not load mod %s - this name is reserved for internal use!", modFullName);
+		return;
+	}
 
 	if(CResourceHandler::get("initial")->existsResource(ResourceID(CModInfo::getModFile(modFullName))))
 	{
@@ -944,7 +982,7 @@ void CModHandler::loadMods(bool onlyEssential)
 		loadMods("", "", modConfig["activeMods"], true);
 	}
 
-	coreMod = CModInfo("core", modConfig["core"], JsonNode(ResourceID("config/gameConfig.json")));
+	coreMod = CModInfo(CModHandler::scopeBuiltin(), modConfig[CModHandler::scopeBuiltin()], JsonNode(ResourceID("config/gameConfig.json")));
 	coreMod.name = "Original game files";
 }
 
@@ -991,7 +1029,7 @@ static ui32 calculateModChecksum(const std::string modName, ISimpleResourceLoade
 
 	// second - add mod.json into checksum because filesystem does not contains this file
 	// FIXME: remove workaround for core mod
-	if (modName != "core")
+	if (modName != CModHandler::scopeBuiltin())
 	{
 		ResourceID modConfFile(CModInfo::getModFile(modName), EResType::TEXT);
 		ui32 configChecksum = CResourceHandler::get("initial")->load(modConfFile)->calculateCRC32();
@@ -1017,7 +1055,7 @@ void CModHandler::loadModFilesystems()
 {
 	activeMods = validateAndSortDependencies(activeMods);
 
-	coreMod.updateChecksum(calculateModChecksum("core", CResourceHandler::get("core")));
+	coreMod.updateChecksum(calculateModChecksum(CModHandler::scopeBuiltin(), CResourceHandler::get(CModHandler::scopeBuiltin())));
 
 	for(std::string & modName : activeMods)
 	{
@@ -1057,7 +1095,7 @@ void CModHandler::load()
 		allMods[modName].updateChecksum(calculateModChecksum(modName, CResourceHandler::get(modName)));
 	}
 
-	// first - load virtual "core" mod that contains all data
+	// first - load virtual builtin mod that contains all data
 	// TODO? move all data into real mods? RoE, AB, SoD, WoG
 	content->preloadData(coreMod);
 	for(const TModID & modName : activeMods)
@@ -1096,7 +1134,7 @@ void CModHandler::afterLoad(bool onlyEssential)
 
 		modSettings["activeMods"].resolvePointer(pointer) = modEntry.second.saveLocalData();
 	}
-	modSettings["core"] = coreMod.saveLocalData();
+	modSettings[CModHandler::scopeBuiltin()] = coreMod.saveLocalData();
 
 	if(!onlyEssential)
 	{

@@ -267,7 +267,7 @@ std::vector<bool> CSkillHandler::getDefaultAllowed() const
 
 si32 CSkillHandler::decodeSkill(const std::string & identifier)
 {
-	auto rawId = VLC->modh->identifiers.getIdentifier("core", "skill", identifier);
+	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeBuiltin(), "skill", identifier);
 	if(rawId)
 		return rawId.get();
 	else

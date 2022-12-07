@@ -280,7 +280,7 @@ std::vector<JsonNode> CArtHandler::loadLegacyData(size_t dataSize)
 
 void CArtHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
-	auto object = loadFromJson(scope, data, normalizeIdentifier(scope, "core", name), objects.size());
+	auto object = loadFromJson(scope, data, normalizeIdentifier(scope, CModHandler::scopeBuiltin(), name), objects.size());
 
 	object->iconIndex = object->getIndex() + 5;
 
@@ -291,7 +291,7 @@ void CArtHandler::loadObject(std::string scope, std::string name, const JsonNode
 
 void CArtHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
-	auto object = loadFromJson(scope, data, normalizeIdentifier(scope, "core", name), index);
+	auto object = loadFromJson(scope, data, normalizeIdentifier(scope, CModHandler::scopeBuiltin(), name), index);
 
 	object->iconIndex = object->getIndex();
 
