@@ -569,7 +569,7 @@ void CMapHandler::CMapWorldViewBlitter::drawOverlayEx(SDL_Surface * targetSurf)
 			continue;
 
 		realPos.x = initPos.x + (iconInfo.pos.x - topTile.x) * tileSize;
-		realPos.y = initPos.x + (iconInfo.pos.y - topTile.y) * tileSize;
+		realPos.y = initPos.y + (iconInfo.pos.y - topTile.y) * tileSize;
 
 		auto wvIcon = this->objectToIcon(iconInfo.id, iconInfo.subId, iconInfo.owner);
 
