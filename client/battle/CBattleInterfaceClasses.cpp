@@ -478,7 +478,11 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult & br, CPlayerInterfa
 			int yPos = 344 + step * 97;
 			for(auto & elem : br.casualties[step])
 			{
-				icons.push_back(std::make_shared<CAnimImage>("CPRSMALL", CGI->creatures()->getByIndex(elem.first)->getIconIndex(), 0, xPos, yPos));
+				auto creature = CGI->creatures()->getByIndex(elem.first);
+				if (creature->getId() == CreatureID::ARROW_TOWERS )
+					continue; // do not show destroyed towers in battle results
+
+				icons.push_back(std::make_shared<CAnimImage>("CPRSMALL", creature->getIconIndex(), 0, xPos, yPos));
 				std::ostringstream amount;
 				amount<<elem.second;
 				labels.push_back(std::make_shared<CLabel>(xPos + 16, yPos + 42, FONT_SMALL, CENTER, Colors::WHITE, amount.str()));
