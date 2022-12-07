@@ -277,7 +277,19 @@ class DLL_LINKAGE CModHandler
 	void loadMods(std::string path, std::string parent, const JsonNode & modSettings, bool enableMods);
 	void loadOneMod(std::string modName, std::string parent, const JsonNode & modSettings, bool enableMods);
 public:
-	
+
+	/// returns true if scope is reserved for internal use and can not be used by mods
+	static bool isScopeReserved(const TModID & scope);
+
+	/// reserved scope name for referencing built-in (e.g. H3) objects
+	static const TModID & scopeBuiltin();
+
+	/// reserved scope name for accessing objects from any loaded mod
+	static const TModID & scopeGame();
+
+	/// reserved scope name for accessing object for map loading
+	static const TModID & scopeMap();
+
 	class DLL_LINKAGE Incompatibility: public std::exception
 	{
 	public:
