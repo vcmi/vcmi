@@ -594,7 +594,7 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 
 					logAi->trace("Guarded object query hook: %s by %s danger ratio %f", target.toString(), hero.name, ratio);
 
-					if(text.find("guarded") >= 0 && (dangerUnknown || dangerTooHigh))
+					if(text.find("guarded") != std::string::npos && (dangerUnknown || dangerTooHigh))
 						answer = 0; // no
 				}
 			}

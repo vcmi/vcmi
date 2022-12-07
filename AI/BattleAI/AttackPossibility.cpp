@@ -156,7 +156,6 @@ AttackPossibility AttackPossibility::evaluate(const BattleAttackInfo & attackInf
 
 				TDmgRange retaliation(0, 0);
 				auto attackDmg = state.battleEstimateDamage(ap.attack, &retaliation);
-				TDmgRange defenderDamageBeforeAttack = state.battleEstimateDamage(BattleAttackInfo(u, attacker, u->canShoot()));
 
 				vstd::amin(attackDmg.first, defenderState->getAvailableHealth());
 				vstd::amin(attackDmg.second, defenderState->getAvailableHealth());

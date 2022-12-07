@@ -186,7 +186,6 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 
 			if(evaluationResult.score > score)
 			{
-				auto & target = bestAttack;
 				score = evaluationResult.score;
 				std::string action;
 

@@ -83,6 +83,7 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #endif
 
 // Each compiler uses own way to supress fall through warning. Try to find it.
+// TODO: replace with c++17 [[fallthrough]]
 #ifdef __has_cpp_attribute
 #  if __has_cpp_attribute(fallthrough)
 #    define FALLTHROUGH [[fallthrough]];

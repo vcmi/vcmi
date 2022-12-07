@@ -906,7 +906,7 @@ void MainWindow::on_terrainFilterCombo_currentTextChanged(const QString &arg1)
 	if(!objectBrowser)
 		return;
 
-	objectBrowser->terrain = arg1.isEmpty() ? Terrain::ANY_TERRAIN : VLC->terrainTypeHandler->getInfoByName(arg1.toStdString())->id;
+	objectBrowser->terrain = arg1.isEmpty() ? TerrainId(Terrain::ANY_TERRAIN) : VLC->terrainTypeHandler->getInfoByName(arg1.toStdString())->id;
 	objectBrowser->invalidate();
 	objectBrowser->sort(0);
 }

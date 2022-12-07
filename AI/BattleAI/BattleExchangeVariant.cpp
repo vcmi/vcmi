@@ -211,8 +211,6 @@ MoveTarget BattleExchangeEvaluator::findMoveTowardsUnreachable(const battle::Uni
 
 	for(const battle::Unit * enemy : targets.unreachableEnemies)
 	{
-		int64_t stackScore = EvaluationResult::INEFFECTIVE_SCORE;
-
 		std::vector<const battle::Unit *> adjacentStacks = getAdjacentUnits(enemy);
 		auto closestStack = *vstd::minElementByFun(adjacentStacks, [&](const battle::Unit * u) -> int64_t
 			{
