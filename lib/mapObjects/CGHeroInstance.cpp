@@ -122,18 +122,12 @@ TerrainId CGHeroInstance::getNativeTerrain() const
 	return nativeTerrain;
 }
 
-int3 CGHeroInstance::convertPosition(int3 src, bool toh3m) //toh3m=true: manifest->h3m; toh3m=false: h3m->manifest
+int3 CGHeroInstance::convertPosition(int3 src, bool toh3m) const //toh3m=true: manifest->h3m; toh3m=false: h3m->manifest
 {
 	if (toh3m)
-	{
-		src.x+=1;
-		return src;
-	}
+		return src + getVisitableOffset();
 	else
-	{
-		src.x-=1;
-		return src;
-	}
+		return src - getVisitableOffset();
 }
 
 BattleField CGHeroInstance::getBattlefield() const

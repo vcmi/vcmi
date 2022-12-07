@@ -1282,17 +1282,6 @@ int3 CGPath::endPos() const
 	return nodes[0].coord;
 }
 
-void CGPath::convert(ui8 mode)
-{
-	if(mode==0)
-	{
-		for(auto & elem : nodes)
-		{
-			elem.coord = CGHeroInstance::convertPosition(elem.coord,true);
-		}
-	}
-}
-
 CPathsInfo::CPathsInfo(const int3 & Sizes, const CGHeroInstance * hero_)
 	: sizes(Sizes), hero(hero_)
 {

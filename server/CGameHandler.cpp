@@ -2326,7 +2326,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 	}
 
 	logGlobal->trace("Player %d (%s) wants to move hero %d from %s to %s", asker, asker.getStr(), hid.getNum(), h->pos.toString(), dst.toString());
-	const int3 hmpos = CGHeroInstance::convertPosition(dst, false);
+	const int3 hmpos = h->convertPosition(dst, false);
 
 	if (!gs->map->isInTheMap(hmpos))
 	{

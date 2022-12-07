@@ -264,8 +264,8 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 				assert(adventureInt->terrain.currentPath->nodes.size() >= 2);
 				std::vector<CGPathNode>::const_iterator nodesIt = adventureInt->terrain.currentPath->nodes.end() - 1;
 
-				if((nodesIt)->coord == CGHeroInstance::convertPosition(details.start, false)
-					&& (nodesIt - 1)->coord == CGHeroInstance::convertPosition(details.end, false))
+				if((nodesIt)->coord == hero->convertPosition(details.start, false)
+					&& (nodesIt - 1)->coord == hero->convertPosition(details.end, false))
 				{
 					//path was between entrance and exit of teleport -> OK, erase node as usual
 					removeLastNodeFromPath(hero);
@@ -2405,7 +2405,7 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 	int i = 1;
 	auto getObj = [&](int3 coord, bool ignoreHero)
 	{
-		return cb->getTile(CGHeroInstance::convertPosition(coord,false))->topVisitableObj(ignoreHero);
+		return cb->getTile(h->convertPosition(coord,false))->topVisitableObj(ignoreHero);
 	};
 
 	auto isTeleportAction = [&](CGPathNode::ENodeAction action) -> bool
@@ -2444,7 +2444,9 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 	};
 
 	{
-		path.convert(0);
+		for (auto & elem : path.nodes)
+			elem.coord = h->convertPosition(elem.coord,true);
+
 		TerrainId currentTerrain = Terrain::BORDER; // not init yet
 		TerrainId newTerrain;
 		int sh = -1;
@@ -2501,7 +2503,7 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 				sh = CCS->soundh->playSound(soundBase::horseFlying, -1);
 #endif
 			{
-				newTerrain = cb->getTile(CGHeroInstance::convertPosition(currentCoord, false))->terType->id;
+				newTerrain = cb->getTile(h->convertPosition(currentCoord, false))->terType->id;
 				if(newTerrain != currentTerrain)
 				{
 					CCS->soundh->stopSound(sh);

@@ -1074,7 +1074,7 @@ void CGMonolith::onHeroVisit( const CGHeroInstance * h ) const
 			auto exits = cb->getTeleportChannelExits(channel);
 			for(auto exit : exits)
 			{
-				td.exits.push_back(std::make_pair(exit, CGHeroInstance::convertPosition(cb->getObj(exit)->visitablePos(), true)));
+				td.exits.push_back(std::make_pair(exit, h->convertPosition(cb->getObj(exit)->visitablePos(), true)));
 			}
 		}
 
@@ -1106,7 +1106,7 @@ void CGMonolith::teleportDialogAnswered(const CGHeroInstance *hero, ui32 answer,
 	else if(vstd::isValidIndex(exits, answer))
 		dPos = exits[answer].second;
 	else
-		dPos = CGHeroInstance::convertPosition(cb->getObj(randomExit)->visitablePos(), true);
+		dPos = hero->convertPosition(cb->getObj(randomExit)->visitablePos(), true);
 
 	cb->moveHero(hero->id, dPos, true);
 }
@@ -1150,7 +1150,7 @@ void CGSubterraneanGate::onHeroVisit( const CGHeroInstance * h ) const
 	else
 	{
 		auto exit = getRandomExit(h);
-		td.exits.push_back(std::make_pair(exit, CGHeroInstance::convertPosition(cb->getObj(exit)->visitablePos(), true)));
+		td.exits.push_back(std::make_pair(exit, h->convertPosition(cb->getObj(exit)->visitablePos(), true)));
 	}
 
 	cb->showTeleportDialog(&td);
@@ -1259,7 +1259,7 @@ void CGWhirlpool::onHeroVisit( const CGHeroInstance * h ) const
 		{
 			auto blockedPosList = cb->getObj(exit)->getBlockedPos();
 			for(auto bPos : blockedPosList)
-				td.exits.push_back(std::make_pair(exit, CGHeroInstance::convertPosition(bPos, true)));
+				td.exits.push_back(std::make_pair(exit, h->convertPosition(bPos, true)));
 		}
 	}
 
@@ -1283,7 +1283,7 @@ void CGWhirlpool::teleportDialogAnswered(const CGHeroInstance *hero, ui32 answer
 
 		auto obj = cb->getObj(exit);
 		std::set<int3> tiles = obj->getBlockedPos();
-		dPos = CGHeroInstance::convertPosition(*RandomGeneratorUtil::nextItem(tiles, CRandomGenerator::getDefault()), true);
+		dPos = hero->convertPosition(*RandomGeneratorUtil::nextItem(tiles, CRandomGenerator::getDefault()), true);
 	}
 
 	cb->moveHero(hero->id, dPos, true);

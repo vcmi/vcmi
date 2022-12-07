@@ -170,7 +170,6 @@ struct DLL_LINKAGE CGPath
 
 	int3 startPos() const; // start point
 	int3 endPos() const; //destination point
-	void convert(ui8 mode); //mode=0 -> from 'manifest' to 'object'
 };
 
 struct DLL_LINKAGE CPathsInfo
