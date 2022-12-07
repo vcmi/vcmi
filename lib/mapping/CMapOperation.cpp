@@ -551,12 +551,12 @@ CClearTerrainOperation::CClearTerrainOperation(CMap* map, CRandomGenerator* gen)
 {
 	CTerrainSelection terrainSel(map);
 	terrainSel.selectRange(MapRect(int3(0, 0, 0), map->width, map->height));
-	addOperation(make_unique<CDrawTerrainOperation>(map, terrainSel, Terrain::WATER, gen));
+	addOperation(std::make_unique<CDrawTerrainOperation>(map, terrainSel, Terrain::WATER, gen));
 	if(map->twoLevel)
 	{
 		terrainSel.clearSelection();
 		terrainSel.selectRange(MapRect(int3(0, 0, 1), map->width, map->height));
-		addOperation(make_unique<CDrawTerrainOperation>(map, terrainSel, Terrain::ROCK, gen));
+		addOperation(std::make_unique<CDrawTerrainOperation>(map, terrainSel, Terrain::ROCK, gen));
 	}
 }
 

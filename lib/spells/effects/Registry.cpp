@@ -52,7 +52,7 @@ Registry::~Registry() = default;
 
 Registry * GlobalRegistry::get()
 {
-	static std::unique_ptr<Registry> Instance = make_unique<detail::RegistryImpl>();
+	static std::unique_ptr<Registry> Instance = std::make_unique<detail::RegistryImpl>();
 	return Instance.get();
 }
 

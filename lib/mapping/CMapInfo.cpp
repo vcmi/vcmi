@@ -49,7 +49,7 @@ void CMapInfo::saveInit(ResourceID file)
 	CLoadFile lf(*CResourceHandler::get()->getResourceName(file), MINIMAL_SERIALIZATION_VERSION);
 	lf.checkMagicBytes(SAVEGAME_MAGIC);
 
-	mapHeader = make_unique<CMapHeader>();
+	mapHeader = std::make_unique<CMapHeader>();
 	lf >> *(mapHeader.get()) >> scenarioOptionsOfSave;
 	fileURI = file.getName();
 	countPlayers();

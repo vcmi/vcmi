@@ -2824,7 +2824,7 @@ void CBattleInterface::requestAutofightingAIToTakeAction()
 
 	boost::thread aiThread([&]()
 	{
-		auto ba = make_unique<BattleAction>(curInt->autofightingAI->activeStack(activeStack));
+		auto ba = std::make_unique<BattleAction>(curInt->autofightingAI->activeStack(activeStack));
 
 		if(curInt->cb->battleIsFinished())
 		{

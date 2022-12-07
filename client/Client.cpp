@@ -764,7 +764,7 @@ scripting::Pool * CClient::getContextPool() const
 
 void CClient::reinitScripting()
 {
-	clientEventBus = make_unique<events::EventBus>();
+	clientEventBus = std::make_unique<events::EventBus>();
 #if SCRIPTING_ENABLED
 	clientScripts.reset(new scripting::PoolImpl(this));
 #endif

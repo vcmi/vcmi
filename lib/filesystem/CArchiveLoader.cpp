@@ -177,13 +177,13 @@ std::unique_ptr<CInputStream> CArchiveLoader::load(const ResourceID & resourceNa
 
 	if (entry.compressedSize != 0) //compressed data
 	{
-		auto fileStream = make_unique<CFileInputStream>(archive, entry.offset, entry.compressedSize);
+		auto fileStream = std::make_unique<CFileInputStream>(archive, entry.offset, entry.compressedSize);
 
-		return make_unique<CCompressedStream>(std::move(fileStream), false, entry.fullSize);
+		return std::make_unique<CCompressedStream>(std::move(fileStream), false, entry.fullSize);
 	}
 	else
 	{
-		return make_unique<CFileInputStream>(archive, entry.offset, entry.fullSize);
+		return std::make_unique<CFileInputStream>(archive, entry.offset, entry.fullSize);
 	}
 }
 

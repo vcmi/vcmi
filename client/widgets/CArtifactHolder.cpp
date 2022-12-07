@@ -274,7 +274,7 @@ void CHeroArtPlace::select ()
 		}
 	}
 
-	CCS->curh->dragAndDropCursor(make_unique<CAnimImage>("artifact", ourArt->artType->getIconIndex()));
+	CCS->curh->dragAndDropCursor(std::make_unique<CAnimImage>("artifact", ourArt->artType->getIconIndex()));
 	ourOwner->commonInfo->src.setTo(this, false);
 	ourOwner->markPossibleSlots(ourArt);
 
@@ -749,7 +749,7 @@ void CArtifactsOfHero::artifactMoved(const ArtifactLocation &src, const Artifact
 			commonInfo->src.art = dst.getArt();
 			commonInfo->src.slotID = dst.slot;
 			assert(commonInfo->src.AOH);
-			CCS->curh->dragAndDropCursor(make_unique<CAnimImage>("artifact", dst.getArt()->artType->getIconIndex()));
+			CCS->curh->dragAndDropCursor(std::make_unique<CAnimImage>("artifact", dst.getArt()->artType->getIconIndex()));
 			markPossibleSlots(dst.getArt());
 		}
 	}

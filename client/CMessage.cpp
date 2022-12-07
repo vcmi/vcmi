@@ -71,7 +71,7 @@ void CMessage::init()
 {
 	for(int i=0; i<PlayerColor::PLAYER_LIMIT_I; i++)
 	{
-		dialogBorders[i] = make_unique<CAnimation>("DIALGBOX");
+		dialogBorders[i] = std::make_unique<CAnimation>("DIALGBOX");
 		dialogBorders[i]->preload();
 
 		for(int j=0; j < dialogBorders[i]->size(0); j++)

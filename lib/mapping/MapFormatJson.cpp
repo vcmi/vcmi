@@ -340,7 +340,7 @@ const std::string CMapFormatJson::OBJECTS_FILE_NAME = "objects.json";
 
 CMapFormatJson::CMapFormatJson():
 	fileVersionMajor(0), fileVersionMinor(0),
-	mapObjectResolver(make_unique<MapObjectResolver>(this)),
+	mapObjectResolver(std::make_unique<MapObjectResolver>(this)),
 	map(nullptr), mapHeader(nullptr)
 {
 
@@ -1191,7 +1191,7 @@ void CMapLoaderJson::readObjects()
 
 	//get raw data
 	for(auto & p : data.Struct())
-		loaders.push_back(vstd::make_unique<MapObjectLoader>(this, p));
+		loaders.push_back(std::make_unique<MapObjectLoader>(this, p));
 
 	for(auto & ptr : loaders)
 		ptr->construct();

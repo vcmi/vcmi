@@ -608,7 +608,7 @@ void VCAI::yourTurn()
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 	status.startedTurn();
-	makingTurn = make_unique<boost::thread>(&VCAI::makeTurn, this);
+	makingTurn = std::make_unique<boost::thread>(&VCAI::makeTurn, this);
 }
 
 void VCAI::heroGotLevel(const CGHeroInstance * hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> & skills, QueryID queryID)

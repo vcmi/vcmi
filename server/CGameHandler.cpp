@@ -731,7 +731,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance * heroAttacker, con
 
 	//Check how many battle queries were created (number of players blocked by battle)
 	const int queriedPlayers = battleQuery ? (int)boost::count(queries.allQueries(), battleQuery) : 0;
-	finishingBattle = make_unique<FinishingBattleHelper>(battleQuery, queriedPlayers);
+	finishingBattle = std::make_unique<FinishingBattleHelper>(battleQuery, queriedPlayers);
 
 	CasualtiesAfterBattle cab1(bEndArmy1, gs->curB), cab2(bEndArmy2, gs->curB); //calculate casualties before deleting battle
 	ChangeSpells cs; //for Eagle Eye
@@ -1669,7 +1669,7 @@ CGameHandler::~CGameHandler()
 
 void CGameHandler::reinitScripting()
 {
-	serverEventBus = make_unique<events::EventBus>();
+	serverEventBus = std::make_unique<events::EventBus>();
 #if SCRIPTING_ENABLED
 	serverScripts.reset(new scripting::PoolImpl(this, spellEnv));
 #endif
@@ -1929,7 +1929,7 @@ void CGameHandler::newTurn()
 
 			NewTurn::Hero hth;
 			hth.id = h->id;
-			auto ti = make_unique<TurnInfo>(h, 1);
+			auto ti = std::make_unique<TurnInfo>(h, 1);
 			// TODO: this code executed when bonuses of previous day not yet updated (this happen in NewTurn::applyGs). See issue 2356
 			hth.move = h->maxMovePointsCached(gs->map->getTile(h->visitablePos()).terType->isLand(), ti.get());
 			hth.mana = h->getManaNewTurn();
@@ -2349,7 +2349,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 	tmh.movePoints = h->movement;
 
 	//check if destination tile is available
-	auto pathfinderHelper = make_unique<CPathfinderHelper>(gs, h, PathfinderOptions());
+	auto pathfinderHelper = std::make_unique<CPathfinderHelper>(gs, h, PathfinderOptions());
 
 	pathfinderHelper->updateTurnInfo(0);
 	auto ti = pathfinderHelper->getTurnInfo();

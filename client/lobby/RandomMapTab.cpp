@@ -169,7 +169,7 @@ void RandomMapTab::updateMapInfoByHost()
 	// Generate header info
 	mapInfo = std::make_shared<CMapInfo>();
 	mapInfo->isRandomMap = true;
-	mapInfo->mapHeader = make_unique<CMapHeader>();
+	mapInfo->mapHeader = std::make_unique<CMapHeader>();
 	mapInfo->mapHeader->version = EMapFormat::SOD;
 	mapInfo->mapHeader->name = CGI->generaltexth->allTexts[740];
 	mapInfo->mapHeader->description = CGI->generaltexth->allTexts[741];

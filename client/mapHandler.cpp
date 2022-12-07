@@ -140,7 +140,7 @@ void CMapHandler::initTerrainGraphics()
 		//no rotation and basic setup
 		for(auto & type : files)
 		{
-			animation[type.first][0] = make_unique<CAnimation>(type.second);
+			animation[type.first][0] = std::make_unique<CAnimation>(type.second);
 			animation[type.first][0]->preload();
 			const size_t views = animation[type.first][0]->size(0);
 			cache[type.first].resize(views);
@@ -153,7 +153,7 @@ void CMapHandler::initTerrainGraphics()
 		{
 			for(auto & type : files)
 			{
-				animation[type.first][rotation] = make_unique<CAnimation>(type.second);
+				animation[type.first][rotation] = std::make_unique<CAnimation>(type.second);
 				animation[type.first][rotation]->preload();
 				const size_t views = animation[type.first][rotation]->size(0);
 
@@ -1347,7 +1347,7 @@ CMapHandler::CMapHandler()
 	tilesW = tilesH = 0;
 	offsetX = offsetY = 0;
 
-	egdeAnimation = make_unique<CAnimation>("EDG");
+	egdeAnimation = std::make_unique<CAnimation>("EDG");
 	egdeAnimation->preload();
 }
 

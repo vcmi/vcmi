@@ -405,9 +405,9 @@ ISpellMechanicsFactory::~ISpellMechanicsFactory()
 std::unique_ptr<ISpellMechanicsFactory> ISpellMechanicsFactory::get(const CSpell * s)
 {
 	if(s->hasBattleEffects())
-		return make_unique<ConfigurableMechanicsFactory>(s);
+		return std::make_unique<ConfigurableMechanicsFactory>(s);
 	else
-		return make_unique<FallbackMechanicsFactory>(s);
+		return std::make_unique<FallbackMechanicsFactory>(s);
 }
 
 ///Mechanics
@@ -759,24 +759,24 @@ std::unique_ptr<IAdventureSpellMechanics> IAdventureSpellMechanics::createMechan
 	switch (s->id)
 	{
 	case SpellID::SUMMON_BOAT:
-		return make_unique<SummonBoatMechanics>(s);
+		return std::make_unique<SummonBoatMechanics>(s);
 	case SpellID::SCUTTLE_BOAT:
-		return make_unique<ScuttleBoatMechanics>(s);
+		return std::make_unique<ScuttleBoatMechanics>(s);
 	case SpellID::DIMENSION_DOOR:
-		return make_unique<DimensionDoorMechanics>(s);
+		return std::make_unique<DimensionDoorMechanics>(s);
 	case SpellID::FLY:
 	case SpellID::WATER_WALK:
 	case SpellID::VISIONS:
 	case SpellID::DISGUISE:
-		return make_unique<AdventureSpellMechanics>(s); //implemented using bonus system
+		return std::make_unique<AdventureSpellMechanics>(s); //implemented using bonus system
 	case SpellID::TOWN_PORTAL:
-		return make_unique<TownPortalMechanics>(s);
+		return std::make_unique<TownPortalMechanics>(s);
 	case SpellID::VIEW_EARTH:
-		return make_unique<ViewEarthMechanics>(s);
+		return std::make_unique<ViewEarthMechanics>(s);
 	case SpellID::VIEW_AIR:
-		return make_unique<ViewAirMechanics>(s);
+		return std::make_unique<ViewAirMechanics>(s);
 	default:
-		return s->combat ? std::unique_ptr<IAdventureSpellMechanics>() : make_unique<AdventureSpellMechanics>(s);
+		return s->combat ? std::unique_ptr<IAdventureSpellMechanics>() : std::make_unique<AdventureSpellMechanics>(s);
 	}
 }
 

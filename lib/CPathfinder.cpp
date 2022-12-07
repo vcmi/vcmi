@@ -1018,7 +1018,7 @@ TurnInfo::TurnInfo(const CGHeroInstance * Hero, const int turn)
 	: hero(Hero), maxMovePointsLand(-1), maxMovePointsWater(-1)
 {
 	bonuses = hero->getAllBonuses(Selector::days(turn), Selector::all, nullptr, "");
-	bonusCache = make_unique<BonusCache>(bonuses);
+	bonusCache = std::make_unique<BonusCache>(bonuses);
 	nativeTerrain = hero->getNativeTerrain();
 }
 

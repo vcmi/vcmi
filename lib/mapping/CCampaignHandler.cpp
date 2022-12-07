@@ -70,7 +70,7 @@ CCampaignHeader CCampaignHandler::getHeader( const std::string & name)
 
 std::unique_ptr<CCampaign> CCampaignHandler::getCampaign( const std::string & name )
 {
-	auto ret = make_unique<CCampaign>();
+	auto ret = std::make_unique<CCampaign>();
 
 	std::vector<std::vector<ui8>> file = getFile(name, false);
 
