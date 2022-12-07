@@ -294,7 +294,7 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 		if(gs->curB && gs->curB->playerHasAccessToHeroInfo(*player, h)) //if it's battle we can get enemy hero full data
 			infoLevel = InfoAboutHero::EInfoLevel::INBATTLE;
 		else
-			ERROR_RET_VAL_IF(!isVisible(h->getPosition(false)), "That hero is not visible!", false);
+			ERROR_RET_VAL_IF(!isVisible(h->visitablePos()), "That hero is not visible!", false);
 	}
 
 	if( (infoLevel == InfoAboutHero::EInfoLevel::BASIC) && nullptr != selectedObject)
@@ -734,7 +734,7 @@ std::vector < const CGHeroInstance *> CPlayerSpecificInfoCallback::getHeroesInfo
 	{
 		// !player || // - why would we even get access to hero not owned by any player?
 		if((hero->tempOwner == *player) ||
-			(isVisible(hero->getPosition(false), player) && !onlyOur)	)
+			(isVisible(hero->visitablePos(), player) && !onlyOur)	)
 		{
 			ret.push_back(hero);
 		}

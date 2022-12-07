@@ -2008,7 +2008,7 @@ CGPath * CPlayerInterface::getAndVerifyPath(const CGHeroInstance * h)
 		}
 		else
 		{
-			assert(h->getPosition(false) == path.startPos());
+			assert(h->visitablePos() == path.startPos());
 			//update the hero path in case of something has changed on map
 			if (LOCPLINT->cb->getPathsInfo(h)->getPath(path, path.endPos()))
 				return &path;
@@ -2112,7 +2112,7 @@ void CPlayerInterface::acceptTurn()
 void CPlayerInterface::tryDiggging(const CGHeroInstance * h)
 {
 	int msgToShow = -1;
-	const bool isBlocked = CGI->mh->hasObjectHole(h->getPosition(false)); // Don't dig in the pit.
+	const bool isBlocked = CGI->mh->hasObjectHole(h->visitablePos()); // Don't dig in the pit.
 
 	const auto diggingStatus = isBlocked
 		? EDiggingStatus::TILE_OCCUPIED

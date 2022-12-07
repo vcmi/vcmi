@@ -46,8 +46,6 @@ class DLL_LINKAGE CGHeroInstance : public CArmedInstance, public IBoatGenerator,
 	friend class CCampaignState;
 	friend class CMapLoaderH3M;
 
-	using CArmedInstance::getPosition; //FIXME: recheck: overloaded-virtual
-
 private:
 	std::set<SpellID> spells; //known spells (spell IDs)
 
@@ -161,7 +159,6 @@ public:
 	ui32 getTileCost(const TerrainTile &dest, const TerrainTile &from, const TurnInfo * ti) const; //move cost - applying pathfinding skill, road and terrain modifiers. NOT includes diagonal move penalty, last move levelling
 	TerrainId getNativeTerrain() const;
 	ui32 getLowestCreatureSpeed() const;
-	int3 getPosition(bool h3m = false) const; //h3m=true - returns position of hero object; h3m=false - returns position of hero 'manifestation'
 	si32 manaRegain() const; //how many points of mana can hero regain "naturally" in one day
 	si32 getManaNewTurn() const; //calculate how much mana this hero is going to have the next day
 	int getCurrentLuck(int stack=-1, bool town=false) const;

@@ -1920,7 +1920,7 @@ void CGMagi::onHeroVisit(const CGHeroInstance * h) const
 
 				cb->sendAndApply(&cv);
 			}
-			cv.pos = h->getPosition(false);
+			cv.pos = h->visitablePos();
 			cv.focusTime = 0;
 			cb->sendAndApply(&cv);
 		}

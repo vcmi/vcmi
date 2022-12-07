@@ -141,7 +141,7 @@ NodeStorage::NodeStorage(CPathsInfo & pathsInfo, const CGHeroInstance * hero)
 	:out(pathsInfo)
 {
 	out.hero = hero;
-	out.hpos = hero->getPosition(false);
+	out.hpos = hero->visitablePos();
 }
 
 void NodeStorage::resetTile(

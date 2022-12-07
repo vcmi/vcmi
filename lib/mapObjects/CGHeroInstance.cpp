@@ -141,18 +141,6 @@ BattleField CGHeroInstance::getBattlefield() const
 	return BattleField::NONE;
 }
 
-int3 CGHeroInstance::getPosition(bool h3m) const //h3m=true - returns position of hero object; h3m=false - returns position of hero 'manifestation'
-{
-	if (h3m)
-	{
-		return pos;
-	}
-	else
-	{
-		return convertPosition(pos,false);
-	}
-}
-
 ui8 CGHeroInstance::getSecSkillLevel(SecondarySkill skill) const
 {
 	for(auto & elem : secSkills)
@@ -1121,7 +1109,7 @@ EDiggingStatus CGHeroInstance::diggingStatus() const
 	if((int)movement < maxMovePoints(true))
 		return EDiggingStatus::LACK_OF_MOVEMENT;
 
-	return cb->getTile(getPosition(false))->getDiggingStatus();
+	return cb->getTile(visitablePos())->getDiggingStatus();
 }
 
 ArtBearer::ArtBearer CGHeroInstance::bearerType() const
@@ -1375,7 +1363,7 @@ bool CGHeroInstance::hasVisions(const CGObjectInstance * target, const int subty
 	if (visionsMultiplier > 0)
 		vstd::amax(visionsRange, 3); //minimum range is 3 tiles, but only if VISIONS bonus present
 
-	const int distance = static_cast<int>(target->pos.dist2d(getPosition(false)));
+	const int distance = static_cast<int>(target->pos.dist2d(visitablePos()));
 
 	//logGlobal->debug(boost::to_string(boost::format("Visions: dist %d, mult %d, range %d") % distance % visionsMultiplier % visionsRange));
 
