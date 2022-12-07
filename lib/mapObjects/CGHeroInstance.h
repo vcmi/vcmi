@@ -198,7 +198,6 @@ public:
 
 	int movementPointsAfterEmbark(int MPsBefore, int basicCost, bool disembark = false, const TurnInfo * ti = nullptr) const;
 
-	int3 convertPosition(int3 src, bool toh3m) const; //toh3m=true: manifest->h3m; toh3m=false: h3m->manifest
 	double getFightingStrength() const; // takes attack / defense skill into account
 	double getMagicStrength() const; // takes knowledge / spell power skill into account
 	double getHeroStrength() const; // includes fighting and magic strength

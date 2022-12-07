@@ -122,14 +122,6 @@ TerrainId CGHeroInstance::getNativeTerrain() const
 	return nativeTerrain;
 }
 
-int3 CGHeroInstance::convertPosition(int3 src, bool toh3m) const //toh3m=true: manifest->h3m; toh3m=false: h3m->manifest
-{
-	if (toh3m)
-		return src + getVisitableOffset();
-	else
-		return src - getVisitableOffset();
-}
-
 BattleField CGHeroInstance::getBattlefield() const
 {
 	return BattleField::NONE;
@@ -1593,7 +1585,7 @@ void CGHeroInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 		if(!handler.saving)
 		{
 			patrol.patrolling = (rawPatrolRadius > NO_PATROLING);
-			patrol.initialPos = convertPosition(pos, false);
+			patrol.initialPos = pos - getVisitableOffset();
 			patrol.patrolRadius = (rawPatrolRadius > NO_PATROLING) ? rawPatrolRadius : 0;
 		}
 	}

@@ -550,7 +550,7 @@ void TryMoveHero::applyGs(CGameState *gs)
 
 	if(result == EMBARK) //hero enters boat at destination tile
 	{
-		const TerrainTile &tt = gs->map->getTile(h->convertPosition(end, false));
+		const TerrainTile &tt = gs->map->getTile(end - h->getVisitableOffset());
 		assert(tt.visitableObjects.size() >= 1  &&  tt.visitableObjects.back()->ID == Obj::BOAT); //the only visitable object at destination is Boat
 		CGBoat *boat = static_cast<CGBoat*>(tt.visitableObjects.back());
 

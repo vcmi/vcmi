@@ -489,7 +489,7 @@ void CHeroMovementQuery::onExposure(QueryPtr topQuery)
 		logGlobal->trace("Hero %s after victory over guard finishes visit to %s", hero->name, tmh.end.toString());
 		//finish movement
 		visitDestAfterVictory = false;
-		gh->visitObjectOnTile(*gh->getTile(hero->convertPosition(tmh.end, false)), hero);
+		gh->visitObjectOnTile(*gh->getTile(tmh.end - hero->getVisitableOffset()), hero);
 	}
 
 	owner->popIfTop(*this);
