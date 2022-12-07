@@ -514,7 +514,7 @@ boost::optional<BattleAction> AIGateway::makeSurrenderRetreatDecision(
 }
 
 
-void AIGateway::init(std::shared_ptr<Environment> env, std::shared_ptr<CCallback> CB)
+void AIGateway::initGameInterface(std::shared_ptr<Environment> env, std::shared_ptr<CCallback> CB)
 {
 	LOG_TRACE(logAi);
 	myCb = CB;

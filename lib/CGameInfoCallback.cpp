@@ -171,7 +171,7 @@ void CGameInfoCallback::getUpgradeInfo(const CArmedInstance *obj, SlotID stackPo
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	ERROR_RET_IF(!canGetFullInfo(obj), "Cannot get info about not owned object!");
 	ERROR_RET_IF(!obj->hasStackAtSlot(stackPos), "There is no such stack!");
-	out = gs->getUpgradeInfo(obj->getStack(stackPos));
+	gs->getUpgradeInfo(obj, stackPos, out);
 	//return gs->getUpgradeInfo(obj->getStack(stackPos));
 }
 
@@ -402,7 +402,7 @@ int CGameInfoCallback::getDate(Date::EDateType mode) const
 bool CGameInfoCallback::isVisible(int3 pos, boost::optional<PlayerColor> Player) const
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
-	return gs->map->isInTheMap(pos) && (!Player || gs->isVisible(pos, *Player));
+	return gs->isVisible(pos, *Player);
 }
 
 bool CGameInfoCallback::isVisible(int3 pos) const
@@ -932,6 +932,12 @@ void CGameInfoCallback::calculatePaths(std::shared_ptr<PathfinderConfig> config)
 {
 	gs->calculatePaths(config);
 }
+
+void CGameInfoCallback::calculatePaths( const CGHeroInstance *hero, CPathsInfo &out)
+{
+	gs->calculatePaths(hero, out);
+}
+
 
 const CArtifactInstance * CGameInfoCallback::getArtInstance( ArtifactInstanceID aid ) const
 {

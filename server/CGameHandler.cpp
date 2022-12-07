@@ -950,7 +950,7 @@ void CGameHandler::battleAfterLevelUp(const BattleResult &result)
 	if (visitObjectAfterVictory && result.winner==0 && !finishingBattle->winnerHero->stacks.empty())
 	{
 		logGlobal->trace("post-victory visit");
-		visitObjectOnTile(*getTile(finishingBattle->winnerHero->getPosition()), finishingBattle->winnerHero);
+		visitObjectOnTile(*getTile(finishingBattle->winnerHero->visitablePos()), finishingBattle->winnerHero);
 	}
 	visitObjectAfterVictory = false;
 
@@ -2356,7 +2356,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 
 	const bool canFly = pathfinderHelper->hasBonusOfType(Bonus::FLYING_MOVEMENT);
 	const bool canWalkOnSea = pathfinderHelper->hasBonusOfType(Bonus::WATER_WALKING);
-	const int cost = pathfinderHelper->getMovementCost(h->getPosition(), hmpos, nullptr, nullptr, h->movement);
+	const int cost = pathfinderHelper->getMovementCost(h->visitablePos(), hmpos, nullptr, nullptr, h->movement);
 
 	//it's a rock or blocked and not visitable tile
 	//OR hero is on land and dest is water and (there is not present only one object - boat)
@@ -6013,7 +6013,7 @@ bool CGameHandler::dig(const CGHeroInstance *h)
 {
 	for (auto i = gs->map->objects.cbegin(); i != gs->map->objects.cend(); i++) //unflag objs
 	{
-		if (*i && (*i)->ID == Obj::HOLE  &&  (*i)->pos == h->getPosition())
+		if (*i && (*i)->ID == Obj::HOLE  &&  (*i)->pos == h->visitablePos())
 		{
 			complain("Cannot dig - there is already a hole under the hero!");
 			return false;
@@ -6026,7 +6026,7 @@ bool CGameHandler::dig(const CGHeroInstance *h)
 	//create a hole
 	NewObject no;
 	no.ID = Obj::HOLE;
-	no.pos = h->getPosition();
+	no.pos = h->visitablePos();
 	no.subID = 0;
 	sendAndApply(&no);
 
@@ -6038,7 +6038,7 @@ bool CGameHandler::dig(const CGHeroInstance *h)
 
 	InfoWindow iw;
 	iw.player = h->tempOwner;
-	if (gs->map->grailPos == h->getPosition())
+	if (gs->map->grailPos == h->visitablePos())
 	{
 		iw.text.addTxt(MetaString::GENERAL_TXT, 58); //"Congratulations! After spending many hours digging here, your hero has uncovered the "
 		iw.text.addTxt(MetaString::ART_NAMES, ArtifactID::GRAIL);

@@ -75,6 +75,11 @@ bool CTeamVisited::wasVisited(PlayerColor player) const
 	return wasVisited(cb->getPlayerState(player)->team);
 }
 
+bool CTeamVisited::wasVisited(const CGHeroInstance * h) const
+{
+	return wasVisited(h->tempOwner);
+}
+
 bool CTeamVisited::wasVisited(TeamID team) const
 {
 	for(auto i : players)

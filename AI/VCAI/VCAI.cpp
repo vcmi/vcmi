@@ -583,7 +583,7 @@ void VCAI::showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions)
 	NET_EVENT_HANDLER;
 }
 
-void VCAI::init(std::shared_ptr<Environment> ENV, std::shared_ptr<CCallback> CB)
+void VCAI::initGameInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CCallback> CB)
 {
 	LOG_TRACE(logAi);
 	env = ENV;

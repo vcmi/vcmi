@@ -46,6 +46,8 @@ class DLL_LINKAGE CGHeroInstance : public CArmedInstance, public IBoatGenerator,
 	friend class CCampaignState;
 	friend class CMapLoaderH3M;
 
+	using CArmedInstance::getPosition; //FIXME: recheck: overloaded-virtual
+
 private:
 	std::set<SpellID> spells; //known spells (spell IDs)
 

@@ -116,6 +116,16 @@ public:
 class DLL_LINKAGE CNonConstInfoCallback : public CPrivilegedInfoCallback
 {
 public:
+	//keep const version of callback accessible
+	using CGameInfoCallback::getPlayerState;
+	using CGameInfoCallback::getTeam;
+	using CGameInfoCallback::getPlayerTeam;
+	using CGameInfoCallback::getHero;
+	using CGameInfoCallback::getTown;
+	using CGameInfoCallback::getTile;
+	using CGameInfoCallback::getArtInstance;
+	using CGameInfoCallback::getObjInstance;
+
 	PlayerState * getPlayerState(PlayerColor color, bool verbose = true);
 	TeamState *getTeam(TeamID teamID);//get team by team ID
 	TeamState *getPlayerTeam(PlayerColor color);// get team by player color

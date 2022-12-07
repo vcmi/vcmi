@@ -204,10 +204,8 @@ if(MINGW OR MSVC)
 		add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 		add_definitions(-D_SCL_SECURE_NO_WARNINGS)
 
-		# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /w4") # Enable all warnings
-
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4250") # 4250: 'class1' : inherits 'class2::member' via dominance
+		#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4250") # 4250: 'class1' : inherits 'class2::member' via dominance
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4251") # 4251: class 'xxx' needs to have dll-interface to be used by clients of class 'yyy'
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4275") # 4275: non dll-interface class 'xxx' used as base for dll-interface class
 
@@ -252,9 +250,8 @@ if(CMAKE_COMPILER_IS_GNUCXX OR NOT WIN32) #so far all *nix compilers support suc
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-parameter")   # low chance of valid reports, a lot of emitted warnings
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-switch")             # large number of false-positives, disabled
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-sign-compare")       # low chance of any significant issues
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-overloaded-virtual") # research
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-reorder")            # research
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-varargs")            # research - fuzzylite - Operation.h
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-varargs")            # emitted in fuzzylite headers, disabled
 
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=array-bounds") # false positives in boost::multiarray during release build, keep as warning-only

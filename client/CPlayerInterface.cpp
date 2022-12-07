@@ -146,7 +146,7 @@ CPlayerInterface::~CPlayerInterface()
 	if (LOCPLINT == this)
 		LOCPLINT = nullptr;
 }
-void CPlayerInterface::init(std::shared_ptr<Environment> ENV, std::shared_ptr<CCallback> CB)
+void CPlayerInterface::initGameInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<CCallback> CB)
 {
 	cb = CB;
 	env = ENV;
@@ -689,7 +689,7 @@ void CPlayerInterface::battleStart(const CCreatureSet *army1, const CCreatureSet
 	if (settings["adventure"]["quickCombat"].Bool())
 	{
 		autofightingAI = CDynLibHandler::getNewBattleAI(settings["server"]["friendlyAI"].String());
-		autofightingAI->init(env, cb);
+		autofightingAI->initBattleInterface(env, cb);
 		autofightingAI->battleStart(army1, army2, int3(0,0,0), hero1, hero2, side);
 		isAutoFightOn = true;
 		cb->registerBattleInterface(autofightingAI);

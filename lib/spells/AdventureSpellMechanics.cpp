@@ -186,7 +186,7 @@ ESpellCastResult SummonBoatMechanics::applyAdventureEffects(SpellCastEnvironment
 			if(b->hero)
 				continue; //we're looking for unoccupied boat
 
-			double nDist = b->pos.dist2d(parameters.caster->getPosition());
+			double nDist = b->pos.dist2d(parameters.caster->visitablePos());
 			if(!nearest || nDist < dist) //it's first boat or closer than previous
 			{
 				nearest = b;

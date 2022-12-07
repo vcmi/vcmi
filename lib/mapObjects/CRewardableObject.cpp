@@ -1157,7 +1157,7 @@ std::vector<ui32> CGMagicSpring::getAvailableRewards(const CGHeroInstance * hero
 	auto tiles = getVisitableOffsets();
 	for (size_t i=0; i<tiles.size(); i++)
 	{
-		if (pos - tiles[i] == hero->getPosition() && info[i].numOfGrants == 0)
+		if (pos - tiles[i] == hero->visitablePos() && info[i].numOfGrants == 0)
 		{
 			return std::vector<ui32>(1, (ui32)i);
 		}

@@ -178,10 +178,11 @@ public:
 
 	void apply(CPack *pack);
 	BattleField battleGetBattlefieldType(int3 tile, CRandomGenerator & rand);
-	UpgradeInfo getUpgradeInfo(const CStackInstance &stack);
-	PlayerRelations::PlayerRelations getPlayerRelations(PlayerColor color1, PlayerColor color2);
+
+	void getUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, UpgradeInfo &out) const override;
+	PlayerRelations::PlayerRelations getPlayerRelations(PlayerColor color1, PlayerColor color2) const override;
 	bool checkForVisitableDir(const int3 & src, const int3 & dst) const; //check if src tile is visitable from dst tile
-	void calculatePaths(const CGHeroInstance *hero, CPathsInfo &out); //calculates possible paths for hero, by default uses current hero position and movement left; returns pointer to newly allocated CPath or nullptr if path does not exists
+	void calculatePaths(const CGHeroInstance *hero, CPathsInfo &out) override; //calculates possible paths for hero, by default uses current hero position and movement left; returns pointer to newly allocated CPath or nullptr if path does not exists
 	void calculatePaths(std::shared_ptr<PathfinderConfig> config) override;
 	int3 guardingCreaturePosition (int3 pos) const override;
 	std::vector<CGObjectInstance*> guardingCreatures (int3 pos) const;
@@ -197,8 +198,9 @@ public:
 	void obtainPlayersStats(SThievesGuildInfo & tgi, int level); //fills tgi with info about other players that is available at given level of thieves' guild
 	std::map<ui32, ConstTransitivePtr<CGHeroInstance> > unusedHeroesFromPool(); //heroes pool without heroes that are available in taverns
 
-	bool isVisible(int3 pos, PlayerColor player);
-	bool isVisible(const CGObjectInstance *obj, boost::optional<PlayerColor> player);
+
+	bool isVisible(int3 pos, boost::optional<PlayerColor> player) const override;
+	bool isVisible(const CGObjectInstance *obj, boost::optional<PlayerColor> player) const override;
 
 	int getDate(Date::EDateType mode=Date::DAY) const override; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
 
@@ -292,6 +294,7 @@ private:
 	std::pair<Obj,int> pickObject(CGObjectInstance *obj); //chooses type of object to be randomized, returns <type, subtype>
 	int pickUnusedHeroTypeRandomly(PlayerColor owner); // picks a unused hero type randomly
 	int pickNextHeroType(PlayerColor owner); // picks next free hero type of the H3 hero init sequence -> chosen starting hero, then unused hero type randomly
+	UpgradeInfo getUpgradeInfo(const CStackInstance &stack) const;
 
 	// ---- data -----
 	std::shared_ptr<CApplier<CBaseForGSApply>> applier;
