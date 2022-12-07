@@ -307,7 +307,7 @@ std::vector<BattleHex> CStack::meleeAttackHexes(const battle::Unit * attacker, c
 			res.push_back(otherDefenderPos);
 		}
 	}
-	UNUSED(mask);
+	MAYBE_UNUSED(mask);
 
 	return res;
 }

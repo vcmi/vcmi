@@ -1768,7 +1768,7 @@ void CGameState::initTowns()
 		for(auto building : vti->builtBuildings)
 		{
 			assert(vti->town->buildings.at(building) != nullptr);
-			UNUSED(building);
+			MAYBE_UNUSED(building);
 		}
 
 		//town events

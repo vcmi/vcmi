@@ -42,6 +42,7 @@ void WaterProxy::process()
 	//check terrain type
 	for(auto & t : zone.area().getTilesVector())
 	{
+		MAYBE_UNUSED(t);
 		assert(map.isOnMap(t));
 		assert(map.map().getTile(t).terType->id == zone.getTerrainType());
 	}
