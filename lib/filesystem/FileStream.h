@@ -40,7 +40,14 @@ struct zlib_filefunc64_def_s;
 typedef zlib_filefunc64_def_s zlib_filefunc64_def;
 
 #ifdef VCMI_DLL
+#ifdef _MSC_VER
+#pragma warning (push)
+#pragma warning (disable : 4910)
+#endif
 extern template struct DLL_LINKAGE boost::iostreams::stream<VCMI_LIB_WRAP_NAMESPACE(FileBuf)>;
+#ifdef _MSC_VER
+#pragma warning (pop)
+#endif
 #endif
 
 VCMI_LIB_NAMESPACE_BEGIN

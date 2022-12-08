@@ -698,7 +698,7 @@ void MainWindow::loadObjectsTree()
 	addGroupIntoCatalog("OBSTACLES", true);
 	addGroupIntoCatalog("OTHER", false);
 	}
-	catch(const std::exception & e)
+	catch(const std::exception &)
 	{
 		QMessageBox::critical(this, "Mods loading problem", "Critical error during Mods loading. Disable invalid mods and restart.");
 	}

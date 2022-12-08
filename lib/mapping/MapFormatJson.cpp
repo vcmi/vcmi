@@ -981,14 +981,14 @@ void CMapLoaderJson::readTerrainTile(const std::string & src, TerrainTile & tile
 			{
 				tile.roadType = const_cast<RoadType*>(VLC->terrainTypeHandler->getRoadByCode(typeCode));
 			}
-			catch (const std::exception& e) //it's not a road, it's a river
+			catch (const std::exception&) //it's not a road, it's a river
 			{
 				try
 				{
 					tile.riverType = const_cast<RiverType*>(VLC->terrainTypeHandler->getRiverByCode(typeCode));
 					hasRoad = false;
 				}
-				catch (const std::exception& e)
+				catch (const std::exception&)
 				{
 					throw std::runtime_error("Invalid river type in " + src);
 				}
@@ -1042,7 +1042,7 @@ void CMapLoaderJson::readTerrainTile(const std::string & src, TerrainTile & tile
 				tile.extTileFlags |= (flip << 2);
 		}
 	}
-	catch (const std::exception & e)
+	catch (const std::exception &)
 	{
 		logGlobal->error("Failed to read terrain tile: %s");
 	}

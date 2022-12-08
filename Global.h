@@ -28,13 +28,6 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #endif
 
 /* ---------------------------------------------------------------------------- */
-/* Suppress some compiler warnings */
-/* ---------------------------------------------------------------------------- */
-#ifdef _MSC_VER
-#  pragma warning (disable : 4800 ) /* disable conversion to bool warning -- I think it's intended in all places */
-#endif
-
-/* ---------------------------------------------------------------------------- */
 /* System detection. */
 /* ---------------------------------------------------------------------------- */
 // Based on: http://sourceforge.net/p/predef/wiki/OperatingSystems/
@@ -102,9 +95,15 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 /* Commonly used C++, Boost headers */
 /* ---------------------------------------------------------------------------- */
 #ifdef VCMI_WINDOWS
-#  define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers - delete this line if something is missing.
-#  define NOMINMAX					// Exclude min/max macros from <Windows.h>. Use std::[min/max] from <algorithm> instead.
-#  define _NO_W32_PSEUDO_MODIFIERS  // Exclude more macros for compiling with MinGW on Linux.
+#  ifndef WIN32_LEAN_AND_MEAN
+#    define WIN32_LEAN_AND_MEAN		 // Exclude rarely-used stuff from Windows headers - delete this line if something is missing.
+#  endif
+#  ifndef NOMINMAX
+#    define NOMINMAX				 // Exclude min/max macros from <Windows.h>. Use std::[min/max] from <algorithm> instead.
+#  endif
+#  ifndef _NO_W32_PSEUDO_MODIFIERS
+#    define _NO_W32_PSEUDO_MODIFIERS // Exclude more macros for compiling with MinGW on Linux.
+#  endif
 #endif
 
 #ifdef VCMI_ANDROID

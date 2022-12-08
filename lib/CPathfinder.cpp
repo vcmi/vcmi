@@ -1220,7 +1220,7 @@ int CPathfinderHelper::getMovementCost(
 	/// TODO: by the original game rules hero shouldn't be affected by terrain penalty while flying.
 	/// Also flying movement only has penalty when player moving over blocked tiles.
 	/// So if you only have base flying with 40% penalty you can still ignore terrain penalty while having zero flying penalty.
-	ui32 ret = hero->getTileCost(*dt, *ct, ti);
+	int ret = hero->getTileCost(*dt, *ct, ti);
 	/// Unfortunately this can't be implemented yet as server don't know when player flying and when he's not.
 	/// Difference in cost calculation on client and server is much worse than incorrect cost.
 	/// So this one is waiting till server going to use pathfinder rules for path validation.

@@ -576,7 +576,7 @@ CModInfo::Version CModInfo::Version::fromString(std::string from)
 				patch = std::stoi(from.substr(pointPos + 1));
 		}
 	}
-	catch(const std::invalid_argument & e)
+	catch(const std::invalid_argument &)
 	{
 		return Version();
 	}

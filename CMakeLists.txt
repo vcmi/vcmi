@@ -206,9 +206,12 @@ if(MINGW OR MSVC)
 		add_definitions(-D_SCL_SECURE_NO_WARNINGS)
 
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
-		#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4250") # 4250: 'class1' : inherits 'class2::member' via dominance
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4250") # 4250: 'class1' : inherits 'class2::member' via dominance
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4251") # 4251: class 'xxx' needs to have dll-interface to be used by clients of class 'yyy'
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4244") # 4244: conversion from 'xxx' to 'yyy', possible loss of data
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4267") # 4267: conversion from 'xxx' to 'yyy', possible loss of data
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4275") # 4275: non dll-interface class 'xxx' used as base for dll-interface class
+		#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4800") # 4800: implicit conversion from 'xxx' to bool. Possible information loss
 
 		if(ENABLE_STRICT_COMPILATION)
 			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wx") # Treats all compiler warnings as errors
@@ -257,6 +260,11 @@ if(CMAKE_COMPILER_IS_GNUCXX OR NOT WIN32)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-reorder")            # large number of noise, low chance of any significant issues
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-sign-compare")       # low chance of any significant issues
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-varargs")            # emitted in fuzzylite headers, disabled
+
+	if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 6.0)
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unknown-pragmas") # emitted only by ancient gcc 5.5 in MXE build, remove after upgrade
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-variable") # emitted only by ancient gcc 5.5 in MXE build, remove after upgrade
+	endif()
 
 	if(ENABLE_STRICT_COMPILATION)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")

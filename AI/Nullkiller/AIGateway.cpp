@@ -28,8 +28,8 @@ namespace NKAI
 {
 
 // our to enemy strength ratio constants
-const float SAFE_ATTACK_CONSTANT = 1.2;
-const float RETREAT_THRESHOLD = 0.3;
+const float SAFE_ATTACK_CONSTANT = 1.2f;
+const float RETREAT_THRESHOLD = 0.3f;
 const double RETREAT_ABSOLUTE_THRESHOLD = 10000.;
 
 //one thread may be turn of AI and another will be handling a side effect for AI2

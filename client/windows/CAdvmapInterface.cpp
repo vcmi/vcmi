@@ -54,10 +54,6 @@
 #include "../../lib/StartInfo.h"
 #include "../../lib/mapping/CMapInfo.h"
 
-#ifdef _MSC_VER
-#pragma warning (disable : 4355)
-#endif
-
 #define ADVOPT (conf.go()->ac)
 using namespace CSDL_Ext;
 
