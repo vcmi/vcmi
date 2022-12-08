@@ -158,7 +158,9 @@ void BattleStacksController::stackReset(const CStack * stack)
 	auto animation = iter->second;
 
 	if(stack->alive() && animation->isDeadOrDying())
-		animation->setType(ECreatureAnimType::HOLDING);
+	{
+		addNewAnim(new CResurrectionAnimation(owner, stack));
+	}
 
 	static const ColorShifterMultiplyAndAdd shifterClone ({255, 255, 0, 255}, {0, 0, 255, 0});
 
@@ -166,6 +168,8 @@ void BattleStacksController::stackReset(const CStack * stack)
 	{
 		animation->shiftColor(&shifterClone);
 	}
+
+	owner.waitForAnims();
 
 	//TODO: handle more cases
 }
@@ -396,7 +400,7 @@ void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> at
 
 		if(attackedInfo.rebirth)
 		{
-			owner.effectsController->displayEffect(EBattleEffect::RESURRECT, soundBase::RESURECT, attackedInfo.defender->getPosition()); //TODO: play reverse death animation
+			owner.effectsController->displayEffect(EBattleEffect::RESURRECT, soundBase::RESURECT, attackedInfo.defender->getPosition());
 		}
 	}
 	owner.waitForAnims();
@@ -404,10 +408,11 @@ void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> at
 	for (auto & attackedInfo : attackedInfos)
 	{
 		if (attackedInfo.rebirth)
-			stackAnimation[attackedInfo.defender->ID]->setType(ECreatureAnimType::HOLDING);
+			addNewAnim(new CResurrectionAnimation(owner, attackedInfo.defender));
 		if (attackedInfo.cloneKilled)
 			stackRemoved(attackedInfo.defender->ID);
 	}
+	owner.waitForAnims();
 }
 
 void BattleStacksController::stackMoved(const CStack *stack, std::vector<BattleHex> destHex, int distance)

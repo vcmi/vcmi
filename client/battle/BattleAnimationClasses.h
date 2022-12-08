@@ -199,6 +199,16 @@ public:
 	~CReverseAnimation();
 };
 
+/// Resurrects stack from dead state
+class CResurrectionAnimation : public CBattleStackAnimation
+{
+public:
+	bool init() override;
+
+	CResurrectionAnimation(BattleInterface & owner, const CStack * stack);
+	~CResurrectionAnimation();
+};
+
 class CRangedAttackAnimation : public CAttackAnimation
 {
 

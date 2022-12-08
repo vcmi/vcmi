@@ -622,7 +622,6 @@ bool CMovementStartAnimation::init()
 	if( !CBattleAnimation::checkInitialConditions() )
 		return false;
 
-
 	if(!stack || myAnim->isDeadOrDying())
 	{
 		delete this;
@@ -696,6 +695,34 @@ void CReverseAnimation::setupSecondPart()
 	}
 	else
 		delete this;
+}
+
+bool CResurrectionAnimation::init()
+{
+	if( !CBattleAnimation::checkInitialConditions() )
+		return false;
+
+	if(!stack)
+	{
+		delete this;
+		return false;
+	}
+
+	myAnim->playOnce(ECreatureAnimType::RESURRECTION);
+	myAnim->onAnimationReset += [&](){ delete this; };
+
+	return true;
+}
+
+CResurrectionAnimation::CResurrectionAnimation(BattleInterface & owner, const CStack * stack):
+	CBattleStackAnimation(owner, stack)
+{
+
+}
+
+CResurrectionAnimation::~CResurrectionAnimation()
+{
+
 }
 
 CRangedAttackAnimation::CRangedAttackAnimation(BattleInterface & owner, const CStack * attacker, BattleHex dest_, const CStack * defender)
