@@ -27,12 +27,14 @@ ADVENTURE MAP:
 * Clickable status bar to send messages
 * Heroes no longer have chance to receive forbidden skill on leveling up
 * Fixed visibility of newly recruited heroes near town 
+* Fixed missing artifact slot in Artifact Merchant window
 
 BATTLES:
 * Fix healing/regeneration behaviour and effect
 * Fix crashes related to auto battle
 * Implemented ray projectiles for shooters
 * Introduced default tower shooter icons
+* Towers destroyed during battle will no longer be listed as casualties
 
 AI:
 * BattleAI: Target prioritizing is now based on damage difference instead of health difference
