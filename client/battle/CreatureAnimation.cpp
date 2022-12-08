@@ -42,7 +42,7 @@ std::shared_ptr<CreatureAnimation> AnimationControls::getAnimation(const CCreatu
 
 float AnimationControls::getCreatureAnimationSpeed(const CCreature * creature, const CreatureAnimation * anim, size_t group)
 {
-	CCreatureAnim::EAnimType type = CCreatureAnim::EAnimType(group);
+	ECreatureAnimType::Type type = ECreatureAnimType::Type(group);
 
 	assert(creature->animation.walkAnimationTime != 0);
 	assert(creature->animation.attackAnimationTime != 0);
@@ -58,49 +58,50 @@ float AnimationControls::getCreatureAnimationSpeed(const CCreature * creature, c
 
 	switch (type)
 	{
-	case CCreatureAnim::MOVING:
+	case ECreatureAnimType::MOVING:
 		return static_cast<float>(speed * 2 * creature->animation.walkAnimationTime / anim->framesInGroup(type));
 
-	case CCreatureAnim::MOUSEON:
+	case ECreatureAnimType::MOUSEON:
 		return baseSpeed;
-	case CCreatureAnim::HOLDING:
+	case ECreatureAnimType::HOLDING:
 		return static_cast<float>(baseSpeed * creature->animation.idleAnimationTime / anim->framesInGroup(type));
 
-	case CCreatureAnim::SHOOT_UP:
-	case CCreatureAnim::SHOOT_FRONT:
-	case CCreatureAnim::SHOOT_DOWN:
-	case CCreatureAnim::CAST_UP:
-	case CCreatureAnim::CAST_FRONT:
-	case CCreatureAnim::CAST_DOWN:
-	case CCreatureAnim::VCMI_CAST_DOWN:
-	case CCreatureAnim::VCMI_CAST_FRONT:
-	case CCreatureAnim::VCMI_CAST_UP:
+	case ECreatureAnimType::SHOOT_UP:
+	case ECreatureAnimType::SHOOT_FRONT:
+	case ECreatureAnimType::SHOOT_DOWN:
+	case ECreatureAnimType::CAST_UP:
+	case ECreatureAnimType::CAST_FRONT:
+	case ECreatureAnimType::CAST_DOWN:
+	case ECreatureAnimType::VCMI_CAST_DOWN:
+	case ECreatureAnimType::VCMI_CAST_FRONT:
+	case ECreatureAnimType::VCMI_CAST_UP:
 		return static_cast<float>(speed * 4 * creature->animation.attackAnimationTime / anim->framesInGroup(type));
 
 	// as strange as it looks like "attackAnimationTime" does not affects melee attacks
 	// necessary because length of these animations must be same for all creatures for synchronization
-	case CCreatureAnim::ATTACK_UP:
-	case CCreatureAnim::ATTACK_FRONT:
-	case CCreatureAnim::ATTACK_DOWN:
-	case CCreatureAnim::HITTED:
-	case CCreatureAnim::DEFENCE:
-	case CCreatureAnim::DEATH:
-	case CCreatureAnim::DEATH_RANGED:
-	case CCreatureAnim::VCMI_2HEX_DOWN:
-	case CCreatureAnim::VCMI_2HEX_FRONT:
-	case CCreatureAnim::VCMI_2HEX_UP:
+	case ECreatureAnimType::ATTACK_UP:
+	case ECreatureAnimType::ATTACK_FRONT:
+	case ECreatureAnimType::ATTACK_DOWN:
+	case ECreatureAnimType::HITTED:
+	case ECreatureAnimType::DEFENCE:
+	case ECreatureAnimType::DEATH:
+	case ECreatureAnimType::DEATH_RANGED:
+	case ECreatureAnimType::RESURRECTION:
+	case ECreatureAnimType::VCMI_2HEX_DOWN:
+	case ECreatureAnimType::VCMI_2HEX_FRONT:
+	case ECreatureAnimType::VCMI_2HEX_UP:
 		return speed * 3 / anim->framesInGroup(type);
 
-	case CCreatureAnim::TURN_L:
-	case CCreatureAnim::TURN_R:
+	case ECreatureAnimType::TURN_L:
+	case ECreatureAnimType::TURN_R:
 		return speed / 3;
 
-	case CCreatureAnim::MOVE_START:
-	case CCreatureAnim::MOVE_END:
+	case ECreatureAnimType::MOVE_START:
+	case ECreatureAnimType::MOVE_END:
 		return speed / 3;
 
-	case CCreatureAnim::DEAD:
-	case CCreatureAnim::DEAD_RANGED:
+	case ECreatureAnimType::DEAD:
+	case ECreatureAnimType::DEAD_RANGED:
 		return speed;
 
 	default:
@@ -133,12 +134,12 @@ float AnimationControls::getFlightDistance(const CCreature * creature)
 	return static_cast<float>(creature->animation.flightAnimationDistance * 200);
 }
 
-CCreatureAnim::EAnimType CreatureAnimation::getType() const
+ECreatureAnimType::Type CreatureAnimation::getType() const
 {
 	return type;
 }
 
-void CreatureAnimation::setType(CCreatureAnim::EAnimType type)
+void CreatureAnimation::setType(ECreatureAnimType::Type type)
 {
 	this->type = type;
 	currentFrame = 0;
@@ -161,7 +162,7 @@ CreatureAnimation::CreatureAnimation(const std::string & name_, TSpeedController
 	  speed(0.1f),
 	  currentFrame(0),
 	  elapsedTime(0),
-	  type(CCreatureAnim::HOLDING),
+	  type(ECreatureAnimType::HOLDING),
 	  border(CSDL_Ext::makeColor(0, 0, 0, 0)),
 	  speedController(controller),
 	  once(false)
@@ -174,16 +175,27 @@ CreatureAnimation::CreatureAnimation(const std::string & name_, TSpeedController
 	reverse->preload();
 
 	// if necessary, add one frame into vcmi-only group DEAD
-	if(forward->size(CCreatureAnim::DEAD) == 0)
+	if(forward->size(ECreatureAnimType::DEAD) == 0)
 	{
-		forward->duplicateImage(CCreatureAnim::DEATH, forward->size(CCreatureAnim::DEATH)-1, CCreatureAnim::DEAD);
-		reverse->duplicateImage(CCreatureAnim::DEATH, reverse->size(CCreatureAnim::DEATH)-1, CCreatureAnim::DEAD);
+		forward->duplicateImage(ECreatureAnimType::DEATH, forward->size(ECreatureAnimType::DEATH)-1, ECreatureAnimType::DEAD);
+		reverse->duplicateImage(ECreatureAnimType::DEATH, reverse->size(ECreatureAnimType::DEATH)-1, ECreatureAnimType::DEAD);
 	}
 
-	if(forward->size(CCreatureAnim::DEAD_RANGED) == 0 && forward->size(CCreatureAnim::DEATH_RANGED) != 0)
+	if(forward->size(ECreatureAnimType::DEAD_RANGED) == 0 && forward->size(ECreatureAnimType::DEATH_RANGED) != 0)
 	{
-		forward->duplicateImage(CCreatureAnim::DEATH_RANGED, forward->size(CCreatureAnim::DEATH_RANGED)-1, CCreatureAnim::DEAD_RANGED);
-		reverse->duplicateImage(CCreatureAnim::DEATH_RANGED, reverse->size(CCreatureAnim::DEATH_RANGED)-1, CCreatureAnim::DEAD_RANGED);
+		forward->duplicateImage(ECreatureAnimType::DEATH_RANGED, forward->size(ECreatureAnimType::DEATH_RANGED)-1, ECreatureAnimType::DEAD_RANGED);
+		reverse->duplicateImage(ECreatureAnimType::DEATH_RANGED, reverse->size(ECreatureAnimType::DEATH_RANGED)-1, ECreatureAnimType::DEAD_RANGED);
+	}
+
+	if(forward->size(ECreatureAnimType::RESURRECTION) == 0)
+	{
+		for (size_t i = 0; i < forward->size(ECreatureAnimType::DEATH); ++i)
+		{
+			size_t current = forward->size(ECreatureAnimType::DEATH) - 1 - i;
+
+			forward->duplicateImage(ECreatureAnimType::DEATH, current, ECreatureAnimType::RESURRECTION);
+			reverse->duplicateImage(ECreatureAnimType::DEATH, current, ECreatureAnimType::RESURRECTION);
+		}
 	}
 
 	//TODO: get dimensions form CAnimation
@@ -228,7 +240,7 @@ bool CreatureAnimation::incrementFrame(float timePassed)
 			currentFrame -= framesNumber;
 
 		if(once)
-			setType(CCreatureAnim::HOLDING);
+			setType(ECreatureAnimType::HOLDING);
 
 		endAnimation();
 		return true;
@@ -256,7 +268,7 @@ float CreatureAnimation::getCurrentFrame() const
 	return currentFrame;
 }
 
-void CreatureAnimation::playOnce( CCreatureAnim::EAnimType type )
+void CreatureAnimation::playOnce( ECreatureAnimType::Type type )
 {
 	setType(type);
 	once = true;
@@ -323,51 +335,51 @@ void CreatureAnimation::nextFrame(Canvas & canvas, bool facingRight)
 	}
 }
 
-int CreatureAnimation::framesInGroup(CCreatureAnim::EAnimType group) const
+int CreatureAnimation::framesInGroup(ECreatureAnimType::Type group) const
 {
 	return static_cast<int>(forward->size(group));
 }
 
 bool CreatureAnimation::isDead() const
 {
-	return getType() == CCreatureAnim::DEAD
-		|| getType() == CCreatureAnim::DEAD_RANGED;
+	return getType() == ECreatureAnimType::DEAD
+		|| getType() == ECreatureAnimType::DEAD_RANGED;
 }
 
 bool CreatureAnimation::isDying() const
 {
-	return getType() == CCreatureAnim::DEATH
-		|| getType() == CCreatureAnim::DEATH_RANGED;
+	return getType() == ECreatureAnimType::DEATH
+		|| getType() == ECreatureAnimType::DEATH_RANGED;
 }
 
 bool CreatureAnimation::isDeadOrDying() const
 {
-	return getType() == CCreatureAnim::DEAD
-		|| getType() == CCreatureAnim::DEATH
-		|| getType() == CCreatureAnim::DEAD_RANGED
-		|| getType() == CCreatureAnim::DEATH_RANGED;
+	return getType() == ECreatureAnimType::DEAD
+		|| getType() == ECreatureAnimType::DEATH
+		|| getType() == ECreatureAnimType::DEAD_RANGED
+		|| getType() == ECreatureAnimType::DEATH_RANGED;
 }
 
 bool CreatureAnimation::isIdle() const
 {
-	return getType() == CCreatureAnim::HOLDING
-	    || getType() == CCreatureAnim::MOUSEON;
+	return getType() == ECreatureAnimType::HOLDING
+		|| getType() == ECreatureAnimType::MOUSEON;
 }
 
 bool CreatureAnimation::isMoving() const
 {
-	return getType() == CCreatureAnim::MOVE_START
-	    || getType() == CCreatureAnim::MOVING
-		|| getType() == CCreatureAnim::MOVE_END
-		|| getType() == CCreatureAnim::TURN_L
-		|| getType() == CCreatureAnim::TURN_R;
+	return getType() == ECreatureAnimType::MOVE_START
+		|| getType() == ECreatureAnimType::MOVING
+		|| getType() == ECreatureAnimType::MOVE_END
+		|| getType() == ECreatureAnimType::TURN_L
+		|| getType() == ECreatureAnimType::TURN_R;
 }
 
 bool CreatureAnimation::isShooting() const
 {
-	return getType() == CCreatureAnim::SHOOT_UP
-	    || getType() == CCreatureAnim::SHOOT_FRONT
-	    || getType() == CCreatureAnim::SHOOT_DOWN;
+	return getType() == ECreatureAnimType::SHOOT_UP
+		|| getType() == ECreatureAnimType::SHOOT_FRONT
+		|| getType() == ECreatureAnimType::SHOOT_DOWN;
 }
 
 void CreatureAnimation::pause()

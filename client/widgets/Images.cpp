@@ -466,7 +466,7 @@ void CShowableAnim::rotate(bool on, bool vertical)
 		flags &= ~flag;
 }
 
-CCreatureAnim::CCreatureAnim(int x, int y, std::string name, ui8 flags, EAnimType type):
+CCreatureAnim::CCreatureAnim(int x, int y, std::string name, ui8 flags, ECreatureAnimType::Type type):
 	CShowableAnim(x,y,name,flags,4,type)
 {
 	xOffset = 0;
@@ -475,10 +475,23 @@ CCreatureAnim::CCreatureAnim(int x, int y, std::string name, ui8 flags, EAnimTyp
 
 void CCreatureAnim::loopPreview(bool warMachine)
 {
-	std::vector<EAnimType> available;
+	std::vector<ECreatureAnimType::Type> available;
 
-	static const EAnimType creaPreviewList[] = {HOLDING, HITTED, DEFENCE, ATTACK_FRONT, CAST_FRONT};
-	static const EAnimType machPreviewList[] = {HOLDING, MOVING, SHOOT_UP, SHOOT_FRONT, SHOOT_DOWN};
+	static const ECreatureAnimType::Type creaPreviewList[] = {
+		ECreatureAnimType::HOLDING,
+		ECreatureAnimType::HITTED,
+		ECreatureAnimType::DEFENCE,
+		ECreatureAnimType::ATTACK_FRONT,
+		ECreatureAnimType::CAST_FRONT
+	};
+	static const ECreatureAnimType::Type machPreviewList[] = {
+		ECreatureAnimType::HOLDING,
+		ECreatureAnimType::MOVING,
+		ECreatureAnimType::SHOOT_UP,
+		ECreatureAnimType::SHOOT_FRONT,
+		ECreatureAnimType::SHOOT_DOWN
+	};
+
 	auto & previewList = warMachine ? machPreviewList : creaPreviewList;
 
 	for (auto & elem : previewList)
@@ -489,11 +502,11 @@ void CCreatureAnim::loopPreview(bool warMachine)
 
 	if (rnd >= available.size())
 	{
-		EAnimType type;
-		if ( anim->size(MOVING) == 0 )//no moving animation present
-			type = HOLDING;
+		ECreatureAnimType::Type type;
+		if ( anim->size(ECreatureAnimType::MOVING) == 0 )//no moving animation present
+			type = ECreatureAnimType::HOLDING;
 		else
-			type = MOVING;
+			type = ECreatureAnimType::MOVING;
 
 		//display this anim for ~1 second (time is random, but it looks good)
 		for (size_t i=0; i< 12/anim->size(type) + 1; i++)
@@ -503,17 +516,17 @@ void CCreatureAnim::loopPreview(bool warMachine)
 		addLast(available[rnd]);
 }
 
-void CCreatureAnim::addLast(EAnimType newType)
+void CCreatureAnim::addLast(ECreatureAnimType::Type newType)
 {
-	if (type != MOVING && newType == MOVING)//starting moving - play init sequence
+	if (type != ECreatureAnimType::MOVING && newType == ECreatureAnimType::MOVING)//starting moving - play init sequence
 	{
-		queue.push( MOVE_START );
+		queue.push( ECreatureAnimType::MOVE_START );
 	}
-	else if (type == MOVING && newType != MOVING )//previous anim was moving - finish it
+	else if (type == ECreatureAnimType::MOVING && newType != ECreatureAnimType::MOVING )//previous anim was moving - finish it
 	{
-		queue.push( MOVE_END );
+		queue.push( ECreatureAnimType::MOVE_END );
 	}
-	if (newType == TURN_L || newType == TURN_R)
+	if (newType == ECreatureAnimType::TURN_L || newType == ECreatureAnimType::TURN_R)
 		queue.push(newType);
 
 	queue.push(newType);
@@ -522,14 +535,14 @@ void CCreatureAnim::addLast(EAnimType newType)
 void CCreatureAnim::reset()
 {
 	//if we are in the middle of rotation - set flag
-	if (type == TURN_L && !queue.empty() && queue.front() == TURN_L)
+	if (type == ECreatureAnimType::TURN_L && !queue.empty() && queue.front() == ECreatureAnimType::TURN_L)
 		rotate(true);
-	if (type == TURN_R && !queue.empty() && queue.front() == TURN_R)
+	if (type == ECreatureAnimType::TURN_R && !queue.empty() && queue.front() == ECreatureAnimType::TURN_R)
 		rotate(false);
 
 	while (!queue.empty())
 	{
-		EAnimType at = queue.front();
+		ECreatureAnimType::Type at = queue.front();
 		queue.pop();
 		if (set(at))
 			return;
@@ -538,12 +551,12 @@ void CCreatureAnim::reset()
 		callback();
 	while (!queue.empty())
 	{
-		EAnimType at = queue.front();
+		ECreatureAnimType::Type at = queue.front();
 		queue.pop();
 		if (set(at))
 			return;
 	}
-	set(HOLDING);
+	set(ECreatureAnimType::HOLDING);
 }
 
 void CCreatureAnim::startPreview(bool warMachine)
@@ -551,7 +564,7 @@ void CCreatureAnim::startPreview(bool warMachine)
 	callback = std::bind(&CCreatureAnim::loopPreview, this, warMachine);
 }
 
-void CCreatureAnim::clearAndSet(EAnimType type)
+void CCreatureAnim::clearAndSet(ECreatureAnimType::Type type)
 {
 	while (!queue.empty())
 		queue.pop();

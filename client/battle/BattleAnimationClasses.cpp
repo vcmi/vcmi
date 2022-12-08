@@ -150,7 +150,7 @@ void CAttackAnimation::nextFrame()
 
 CAttackAnimation::~CAttackAnimation()
 {
-	myAnim->setType(CCreatureAnim::HOLDING);
+	myAnim->setType(ECreatureAnimType::HOLDING);
 }
 
 bool CAttackAnimation::checkInitialConditions()
@@ -180,7 +180,7 @@ const CCreature * CAttackAnimation::getCreature() const
 CAttackAnimation::CAttackAnimation(BattleInterface & owner, const CStack *attacker, BattleHex _dest, const CStack *defender)
 	: CBattleStackAnimation(owner, attacker),
 	  shooting(false),
-	  group(CCreatureAnim::SHOOT_FRONT),
+	  group(ECreatureAnimType::SHOOT_FRONT),
 	  soundPlayed(false),
 	  dest(_dest),
 	  attackedStack(defender),
@@ -249,14 +249,14 @@ bool CDefenceAnimation::init()
 
 	// synchronize animation with attacker, unless defending or attacked by shooter:
 	// wait for 1/2 of attack animation
-	if (!rangedAttack && getMyAnimType() != CCreatureAnim::DEFENCE)
+	if (!rangedAttack && getMyAnimType() != ECreatureAnimType::DEFENCE)
 	{
 		float frameLength = AnimationControls::getCreatureAnimationSpeed(
 								  stack->getCreature(), stackAnimation(stack).get(), getMyAnimType());
 
 		timeToWait = myAnim->framesInGroup(getMyAnimType()) * frameLength / 2;
 
-		myAnim->setType(CCreatureAnim::HOLDING);
+		myAnim->setType(ECreatureAnimType::HOLDING);
 	}
 	else
 	{
@@ -277,20 +277,20 @@ std::string CDefenceAnimation::getMySound()
 		return battle_sound(stack->getCreature(), wince);
 }
 
-CCreatureAnim::EAnimType CDefenceAnimation::getMyAnimType()
+ECreatureAnimType::Type CDefenceAnimation::getMyAnimType()
 {
 	if(killed)
 	{
-		if(rangedAttack && myAnim->framesInGroup(CCreatureAnim::DEATH_RANGED) > 0)
-			return CCreatureAnim::DEATH_RANGED;
+		if(rangedAttack && myAnim->framesInGroup(ECreatureAnimType::DEATH_RANGED) > 0)
+			return ECreatureAnimType::DEATH_RANGED;
 		else
-			return CCreatureAnim::DEATH;
+			return ECreatureAnimType::DEATH;
 	}
 
 	if(stack->defendingAnim)
-		return CCreatureAnim::DEFENCE;
+		return ECreatureAnimType::DEFENCE;
 	else
-		return CCreatureAnim::HITTED;
+		return ECreatureAnimType::HITTED;
 }
 
 void CDefenceAnimation::startAnimation()
@@ -316,14 +316,14 @@ CDefenceAnimation::~CDefenceAnimation()
 {
 	if(killed)
 	{
-		if(rangedAttack && myAnim->framesInGroup(CCreatureAnim::DEAD_RANGED) > 0)
-			myAnim->setType(CCreatureAnim::DEAD_RANGED);
+		if(rangedAttack && myAnim->framesInGroup(ECreatureAnimType::DEAD_RANGED) > 0)
+			myAnim->setType(ECreatureAnimType::DEAD_RANGED);
 		else
-			myAnim->setType(CCreatureAnim::DEAD);
+			myAnim->setType(ECreatureAnimType::DEAD);
 	}
 	else
 	{
-		myAnim->setType(CCreatureAnim::HOLDING);
+		myAnim->setType(ECreatureAnimType::HOLDING);
 	}
 }
 
@@ -375,24 +375,24 @@ bool CMeleeAttackAnimation::init()
 
 	shooting = false;
 
-	static const CCreatureAnim::EAnimType mutPosToGroup[] =
+	static const ECreatureAnimType::Type mutPosToGroup[] =
 	{
-		CCreatureAnim::ATTACK_UP,
-		CCreatureAnim::ATTACK_UP,
-		CCreatureAnim::ATTACK_FRONT,
-		CCreatureAnim::ATTACK_DOWN,
-		CCreatureAnim::ATTACK_DOWN,
-		CCreatureAnim::ATTACK_FRONT
+		ECreatureAnimType::ATTACK_UP,
+		ECreatureAnimType::ATTACK_UP,
+		ECreatureAnimType::ATTACK_FRONT,
+		ECreatureAnimType::ATTACK_DOWN,
+		ECreatureAnimType::ATTACK_DOWN,
+		ECreatureAnimType::ATTACK_FRONT
 	};
 
-	static const CCreatureAnim::EAnimType mutPosToGroup2H[] =
+	static const ECreatureAnimType::Type mutPosToGroup2H[] =
 	{
-		CCreatureAnim::VCMI_2HEX_UP,
-		CCreatureAnim::VCMI_2HEX_UP,
-		CCreatureAnim::VCMI_2HEX_FRONT,
-		CCreatureAnim::VCMI_2HEX_DOWN,
-		CCreatureAnim::VCMI_2HEX_DOWN,
-		CCreatureAnim::VCMI_2HEX_FRONT
+		ECreatureAnimType::VCMI_2HEX_UP,
+		ECreatureAnimType::VCMI_2HEX_UP,
+		ECreatureAnimType::VCMI_2HEX_FRONT,
+		ECreatureAnimType::VCMI_2HEX_DOWN,
+		ECreatureAnimType::VCMI_2HEX_DOWN,
+		ECreatureAnimType::VCMI_2HEX_FRONT
 	};
 
 	int revShiftattacker = (attackingStack->side == BattleSide::ATTACKER ? -1 : 1);
@@ -423,7 +423,7 @@ bool CMeleeAttackAnimation::init()
 		group = mutPosToGroup[mutPos];
 		if(attackingStack->hasBonusOfType(Bonus::TWO_HEX_ATTACK_BREATH))
 		{
-			CCreatureAnim::EAnimType group2H = mutPosToGroup2H[mutPos];
+			ECreatureAnimType::Type group2H = mutPosToGroup2H[mutPos];
 			if(myAnim->framesInGroup(group2H)>0)
 				group = group2H;
 		}
@@ -431,7 +431,7 @@ bool CMeleeAttackAnimation::init()
 		break;
 	default:
 		logGlobal->error("Critical Error! Wrong dest in stackAttacking! dest: %d; attacking stack pos: %d; mutual pos: %d", dest.hex, attackingStackPosBeforeReturn, mutPos);
-		group = CCreatureAnim::ATTACK_FRONT;
+		group = ECreatureAnimType::ATTACK_FRONT;
 		break;
 	}
 
@@ -462,7 +462,7 @@ bool CMovementAnimation::init()
 		return false;
 	}
 
-	if(stackAnimation(stack)->framesInGroup(CCreatureAnim::MOVING) == 0 ||
+	if(stackAnimation(stack)->framesInGroup(ECreatureAnimType::MOVING) == 0 ||
 	   stack->hasBonus(Selector::typeSubtype(Bonus::FLYING, 1)))
 	{
 		//no movement or teleport, end immediately
@@ -486,9 +486,9 @@ bool CMovementAnimation::init()
 		}
 	}
 
-	if(myAnim->getType() != CCreatureAnim::MOVING)
+	if(myAnim->getType() != ECreatureAnimType::MOVING)
 	{
-		myAnim->setType(CCreatureAnim::MOVING);
+		myAnim->setType(ECreatureAnimType::MOVING);
 	}
 
 	if (owner.moveSoundHander == -1)
@@ -587,7 +587,7 @@ bool CMovementEndAnimation::init()
 	//if( !isEarliest(true) )
 	//	return false;
 
-	if(!stack || myAnim->framesInGroup(CCreatureAnim::MOVE_END) == 0 ||
+	if(!stack || myAnim->framesInGroup(ECreatureAnimType::MOVE_END) == 0 ||
 		myAnim->isDeadOrDying())
 	{
 		delete this;
@@ -596,7 +596,7 @@ bool CMovementEndAnimation::init()
 
 	CCS->soundh->playSound(battle_sound(stack->getCreature(), endMoving));
 
-	myAnim->setType(CCreatureAnim::MOVE_END);
+	myAnim->setType(ECreatureAnimType::MOVE_END);
 
 	myAnim->onAnimationReset += [&](){ delete this; };
 
@@ -605,8 +605,8 @@ bool CMovementEndAnimation::init()
 
 CMovementEndAnimation::~CMovementEndAnimation()
 {
-	if(myAnim->getType() != CCreatureAnim::DEAD)
-		myAnim->setType(CCreatureAnim::HOLDING); //resetting to default
+	if(myAnim->getType() != ECreatureAnimType::DEAD)
+		myAnim->setType(ECreatureAnimType::HOLDING); //resetting to default
 
 	CCS->curh->show();
 }
@@ -630,7 +630,7 @@ bool CMovementStartAnimation::init()
 	}
 
 	CCS->soundh->playSound(battle_sound(stack->getCreature(), startMoving));
-	myAnim->setType(CCreatureAnim::MOVE_START);
+	myAnim->setType(ECreatureAnimType::MOVE_START);
 	myAnim->onAnimationReset += [&](){ delete this; };
 
 	return true;
@@ -654,9 +654,9 @@ bool CReverseAnimation::init()
 	if(!priority && !CBattleAnimation::checkInitialConditions())
 		return false;
 
-	if(myAnim->framesInGroup(CCreatureAnim::TURN_L))
+	if(myAnim->framesInGroup(ECreatureAnimType::TURN_L))
 	{
-		myAnim->setType(CCreatureAnim::TURN_L);
+		myAnim->setType(ECreatureAnimType::TURN_L);
 		myAnim->onAnimationReset += std::bind(&CReverseAnimation::setupSecondPart, this);
 	}
 	else
@@ -669,7 +669,7 @@ bool CReverseAnimation::init()
 CReverseAnimation::~CReverseAnimation()
 {
 	if( stack && stack->alive() )//don't do that if stack is dead
-		myAnim->setType(CCreatureAnim::HOLDING);
+		myAnim->setType(ECreatureAnimType::HOLDING);
 }
 
 void CBattleStackAnimation::rotateStack(BattleHex hex)
@@ -689,9 +689,9 @@ void CReverseAnimation::setupSecondPart()
 
 	rotateStack(currentHex);
 
-	if(myAnim->framesInGroup(CCreatureAnim::TURN_R))
+	if(myAnim->framesInGroup(ECreatureAnimType::TURN_R))
 	{
-		myAnim->setType(CCreatureAnim::TURN_R);
+		myAnim->setType(ECreatureAnimType::TURN_R);
 		myAnim->onAnimationReset += [&](){ delete this; };
 	}
 	else
@@ -864,19 +864,19 @@ uint32_t CShootingAnimation::getAttackClimaxFrame() const
 	return shooterInfo->animation.attackClimaxFrame;
 }
 
-CCreatureAnim::EAnimType CShootingAnimation::getUpwardsGroup() const
+ECreatureAnimType::Type CShootingAnimation::getUpwardsGroup() const
 {
-	return CCreatureAnim::SHOOT_UP;
+	return ECreatureAnimType::SHOOT_UP;
 }
 
-CCreatureAnim::EAnimType CShootingAnimation::getForwardGroup() const
+ECreatureAnimType::Type CShootingAnimation::getForwardGroup() const
 {
-	return CCreatureAnim::SHOOT_FRONT;
+	return ECreatureAnimType::SHOOT_FRONT;
 }
 
-CCreatureAnim::EAnimType CShootingAnimation::getDownwardsGroup() const
+ECreatureAnimType::Type CShootingAnimation::getDownwardsGroup() const
 {
-	return CCreatureAnim::SHOOT_DOWN;
+	return ECreatureAnimType::SHOOT_DOWN;
 }
 
 CCatapultAnimation::CCatapultAnimation(BattleInterface & owner, const CStack * attacker, BattleHex _dest, const CStack * _attacked, int _catapultDmg)
@@ -925,7 +925,7 @@ CCastAnimation::CCastAnimation(BattleInterface & owner, const CStack * attacker,
 		dest = defender->getPosition();
 }
 
-CCreatureAnim::EAnimType CCastAnimation::findValidGroup( const std::vector<CCreatureAnim::EAnimType> candidates ) const
+ECreatureAnimType::Type CCastAnimation::findValidGroup( const std::vector<ECreatureAnimType::Type> candidates ) const
 {
 	for ( auto group : candidates)
 	{
@@ -934,36 +934,36 @@ CCreatureAnim::EAnimType CCastAnimation::findValidGroup( const std::vector<CCrea
 	}
 
 	assert(0);
-	return CCreatureAnim::HOLDING;
+	return ECreatureAnimType::HOLDING;
 }
 
-CCreatureAnim::EAnimType CCastAnimation::getUpwardsGroup() const
+ECreatureAnimType::Type CCastAnimation::getUpwardsGroup() const
 {
 	return findValidGroup({
-		CCreatureAnim::VCMI_CAST_UP,
-		CCreatureAnim::CAST_UP,
-		CCreatureAnim::SHOOT_UP,
-		CCreatureAnim::ATTACK_UP
+		ECreatureAnimType::VCMI_CAST_UP,
+		ECreatureAnimType::CAST_UP,
+		ECreatureAnimType::SHOOT_UP,
+		ECreatureAnimType::ATTACK_UP
 	});
 }
 
-CCreatureAnim::EAnimType CCastAnimation::getForwardGroup() const
+ECreatureAnimType::Type CCastAnimation::getForwardGroup() const
 {
 	return findValidGroup({
-		CCreatureAnim::VCMI_CAST_FRONT,
-		CCreatureAnim::CAST_FRONT,
-		CCreatureAnim::SHOOT_FRONT,
-		CCreatureAnim::ATTACK_FRONT
+		ECreatureAnimType::VCMI_CAST_FRONT,
+		ECreatureAnimType::CAST_FRONT,
+		ECreatureAnimType::SHOOT_FRONT,
+		ECreatureAnimType::ATTACK_FRONT
 	});
 }
 
-CCreatureAnim::EAnimType CCastAnimation::getDownwardsGroup() const
+ECreatureAnimType::Type CCastAnimation::getDownwardsGroup() const
 {
 	return findValidGroup({
-		CCreatureAnim::VCMI_CAST_DOWN,
-		CCreatureAnim::CAST_DOWN,
-		CCreatureAnim::SHOOT_DOWN,
-		CCreatureAnim::ATTACK_DOWN
+		ECreatureAnimType::VCMI_CAST_DOWN,
+		ECreatureAnimType::CAST_DOWN,
+		ECreatureAnimType::SHOOT_DOWN,
+		ECreatureAnimType::ATTACK_DOWN
 	});
 }
 

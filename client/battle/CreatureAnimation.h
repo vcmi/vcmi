@@ -78,7 +78,7 @@ private:
 	float elapsedTime;
 
 	///type of animation being displayed
-	CCreatureAnim::EAnimType type;
+	ECreatureAnimType::Type type;
 
 	/// border color, disabled if alpha = 0
 	SDL_Color border;
@@ -107,10 +107,10 @@ public:
 	CreatureAnimation(const std::string & name_, TSpeedController speedController);
 
 	/// sets type of animation and resets framecount
-	void setType(CCreatureAnim::EAnimType type);
+	void setType(ECreatureAnimType::Type type);
 
 	/// returns currently rendered type of animation
-	CCreatureAnim::EAnimType getType() const;
+	ECreatureAnimType::Type getType() const;
 
 	void nextFrame(Canvas & canvas, bool facingRight);
 
@@ -126,10 +126,10 @@ public:
 	float getCurrentFrame() const;
 
 	/// plays once given type of animation, then resets to idle
-	void playOnce(CCreatureAnim::EAnimType type);
+	void playOnce(ECreatureAnimType::Type type);
 
 	/// returns number of frames in selected animation type
-	int framesInGroup(CCreatureAnim::EAnimType type) const;
+	int framesInGroup(ECreatureAnimType::Type group) const;
 
 	void pause();
 	void play();

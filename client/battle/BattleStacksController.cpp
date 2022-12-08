@@ -44,16 +44,16 @@ static void onAnimationFinished(const CStack *stack, std::weak_ptr<CreatureAnima
 	{
 		const CCreature *creature = stack->getCreature();
 
-		if (animation->framesInGroup(CCreatureAnim::MOUSEON) > 0)
+		if (animation->framesInGroup(ECreatureAnimType::MOUSEON) > 0)
 		{
 			if (CRandomGenerator::getDefault().nextDouble(99.0) < creature->animation.timeBetweenFidgets *10)
-				animation->playOnce(CCreatureAnim::MOUSEON);
+				animation->playOnce(ECreatureAnimType::MOUSEON);
 			else
-				animation->setType(CCreatureAnim::HOLDING);
+				animation->setType(ECreatureAnimType::HOLDING);
 		}
 		else
 		{
-			animation->setType(CCreatureAnim::HOLDING);
+			animation->setType(ECreatureAnimType::HOLDING);
 		}
 	}
 	// always reset callback
@@ -126,7 +126,7 @@ void BattleStacksController::collectRenderableObjects(BattleRenderer & renderer)
 			continue;
 
 		//FIXME: hack to ignore ghost stacks
-		if ((stackAnimation[stack->ID]->getType() == CCreatureAnim::DEAD || stackAnimation[stack->ID]->getType() == CCreatureAnim::HOLDING) && stack->isGhost())
+		if ((stackAnimation[stack->ID]->getType() == ECreatureAnimType::DEAD || stackAnimation[stack->ID]->getType() == ECreatureAnimType::HOLDING) && stack->isGhost())
 			continue;
 
 		auto layer = stackAnimation[stack->ID]->isDead() ? EBattleFieldLayer::CORPSES : EBattleFieldLayer::STACKS;
@@ -158,7 +158,7 @@ void BattleStacksController::stackReset(const CStack * stack)
 	auto animation = iter->second;
 
 	if(stack->alive() && animation->isDeadOrDying())
-		animation->setType(CCreatureAnim::HOLDING);
+		animation->setType(ECreatureAnimType::HOLDING);
 
 	static const ColorShifterMultiplyAndAdd shifterClone ({255, 255, 0, 255}, {0, 0, 255, 0});
 
@@ -199,7 +199,7 @@ void BattleStacksController::stackAdded(const CStack * stack)
 	stackAnimation[stack->ID]->pos.x = coords.x;
 	stackAnimation[stack->ID]->pos.y = coords.y;
 	stackAnimation[stack->ID]->pos.w = stackAnimation[stack->ID]->getWidth();
-	stackAnimation[stack->ID]->setType(CCreatureAnim::HOLDING);
+	stackAnimation[stack->ID]->setType(ECreatureAnimType::HOLDING);
 }
 
 void BattleStacksController::setActiveStack(const CStack *stack)
@@ -231,8 +231,8 @@ void BattleStacksController::setHoveredStack(const CStack *stack)
 		if (mouseHoveredStack)
 		{
 			stackAnimation[mouseHoveredStack->ID]->setBorderColor(AnimationControls::getBlueBorder());
-			if (stackAnimation[mouseHoveredStack->ID]->framesInGroup(CCreatureAnim::MOUSEON) > 0)
-				stackAnimation[mouseHoveredStack->ID]->playOnce(CCreatureAnim::MOUSEON);
+			if (stackAnimation[mouseHoveredStack->ID]->framesInGroup(ECreatureAnimType::MOUSEON) > 0)
+				stackAnimation[mouseHoveredStack->ID]->playOnce(ECreatureAnimType::MOUSEON);
 		}
 	}
 	else
@@ -404,7 +404,7 @@ void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> at
 	for (auto & attackedInfo : attackedInfos)
 	{
 		if (attackedInfo.rebirth)
-			stackAnimation[attackedInfo.defender->ID]->setType(CCreatureAnim::HOLDING);
+			stackAnimation[attackedInfo.defender->ID]->setType(ECreatureAnimType::HOLDING);
 		if (attackedInfo.cloneKilled)
 			stackRemoved(attackedInfo.defender->ID);
 	}
@@ -472,7 +472,7 @@ void BattleStacksController::startAction(const BattleAction* action)
 	{
 		assert(stack);
 		owner.moveStarted = true;
-		if (stackAnimation[action->stackNumber]->framesInGroup(CCreatureAnim::MOVE_START))
+		if (stackAnimation[action->stackNumber]->framesInGroup(ECreatureAnimType::MOVE_START))
 			addNewAnim(new CMovementStartAnimation(owner, stack));
 
 		//if(shouldRotate(stack, stack->getPosition(), actionTarget.at(0).hexValue))

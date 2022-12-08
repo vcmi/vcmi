@@ -98,6 +98,7 @@ set(client_HEADERS
 		battle/BattleSiegeController.h
 		battle/BattleStacksController.h
 		battle/CreatureAnimation.h
+		battle/BattleConstants.h
 
 		gui/CAnimation.h
 		gui/Canvas.h

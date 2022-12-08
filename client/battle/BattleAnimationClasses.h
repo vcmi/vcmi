@@ -11,19 +11,24 @@
 
 #include "../../lib/battle/BattleHex.h"
 #include "../../lib/CSoundBase.h"
-#include "../widgets/Images.h"
+#include "BattleConstants.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CStack;
+class CCreature;
+class CSpell;
 
 VCMI_LIB_NAMESPACE_END
 
+class CAnimation;
 class BattleInterface;
 class CreatureAnimation;
 class CBattleAnimation;
 struct CatapultProjectileInfo;
 struct StackAttackedInfo;
+struct Point;
+class ColorShifter;
 
 /// Base class of battle animations
 class CBattleAnimation
@@ -73,7 +78,7 @@ class CAttackAnimation : public CBattleStackAnimation
 protected:
 	BattleHex dest; //attacked hex
 	bool shooting;
-	CCreatureAnim::EAnimType group; //if shooting is true, print this animation group
+	ECreatureAnimType::Type group; //if shooting is true, print this animation group
 	const CStack *attackedStack;
 	const CStack *attackingStack;
 	int attackingStackPosBeforeReturn; //for stacks with return_after_strike feature
@@ -90,7 +95,7 @@ public:
 /// Animation of a defending unit
 class CDefenceAnimation : public CBattleStackAnimation
 {
-	CCreatureAnim::EAnimType getMyAnimType();
+	ECreatureAnimType::Type getMyAnimType();
 	std::string getMySound();
 
 	void startAnimation();
@@ -205,9 +210,9 @@ class CRangedAttackAnimation : public CAttackAnimation
 protected:
 	bool projectileEmitted;
 
-	virtual CCreatureAnim::EAnimType getUpwardsGroup() const = 0;
-	virtual CCreatureAnim::EAnimType getForwardGroup() const = 0;
-	virtual CCreatureAnim::EAnimType getDownwardsGroup() const = 0;
+	virtual ECreatureAnimType::Type getUpwardsGroup() const = 0;
+	virtual ECreatureAnimType::Type getForwardGroup() const = 0;
+	virtual ECreatureAnimType::Type getDownwardsGroup() const = 0;
 
 	virtual void createProjectile(const Point & from, const Point & dest) const = 0;
 	virtual uint32_t getAttackClimaxFrame() const = 0;
@@ -223,9 +228,9 @@ public:
 /// Shooting attack
 class CShootingAnimation : public CRangedAttackAnimation
 {
-	CCreatureAnim::EAnimType getUpwardsGroup() const override;
-	CCreatureAnim::EAnimType getForwardGroup() const override;
-	CCreatureAnim::EAnimType getDownwardsGroup() const override;
+	ECreatureAnimType::Type getUpwardsGroup() const override;
+	ECreatureAnimType::Type getForwardGroup() const override;
+	ECreatureAnimType::Type getDownwardsGroup() const override;
 
 	void createProjectile(const Point & from, const Point & dest) const override;
 	uint32_t getAttackClimaxFrame() const override;
@@ -253,10 +258,10 @@ class CCastAnimation : public CRangedAttackAnimation
 {
 	const CSpell * spell;
 
-	CCreatureAnim::EAnimType findValidGroup( const std::vector<CCreatureAnim::EAnimType> candidates ) const;
-	CCreatureAnim::EAnimType getUpwardsGroup() const override;
-	CCreatureAnim::EAnimType getForwardGroup() const override;
-	CCreatureAnim::EAnimType getDownwardsGroup() const override;
+	ECreatureAnimType::Type findValidGroup( const std::vector<ECreatureAnimType::Type> candidates ) const;
+	ECreatureAnimType::Type getUpwardsGroup() const override;
+	ECreatureAnimType::Type getForwardGroup() const override;
+	ECreatureAnimType::Type getDownwardsGroup() const override;
 
 	void createProjectile(const Point & from, const Point & dest) const override;
 	uint32_t getAttackClimaxFrame() const override;

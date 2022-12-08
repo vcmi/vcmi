@@ -354,9 +354,9 @@ void BattleInterface::stacksAreAttacked(std::vector<StackAttackedInfo> attackedI
 	for(ui8 side = 0; side < 2; side++)
 	{
 		if(killedBySide.at(side) > killedBySide.at(1-side))
-			setHeroAnimation(side, CCreatureAnim::HERO_DEFEAT);
+			setHeroAnimation(side, EHeroAnimType::DEFEAT);
 		else if(killedBySide.at(side) < killedBySide.at(1-side))
-			setHeroAnimation(side, CCreatureAnim::HERO_VICTORY);
+			setHeroAnimation(side, EHeroAnimType::VICTORY);
 	}
 }
 
@@ -683,7 +683,7 @@ void BattleInterface::endAction(const BattleAction* action)
 	const CStack *stack = curInt->cb->battleGetStackByID(action->stackNumber);
 
 	if(action->actionType == EActionType::HERO_SPELL)
-		setHeroAnimation(action->side, CCreatureAnim::HERO_HOLDING);
+		setHeroAnimation(action->side, EHeroAnimType::HOLDING);
 
 	stacksController->endAction(action);
 
@@ -762,7 +762,7 @@ void BattleInterface::startAction(const BattleAction* action)
 
 	if(action->actionType == EActionType::HERO_SPELL) //when hero casts spell
 	{
-		setHeroAnimation(action->side, CCreatureAnim::HERO_CAST_SPELL);
+		setHeroAnimation(action->side, EHeroAnimType::CAST_SPELL);
 		return;
 	}
 
