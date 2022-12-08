@@ -4920,13 +4920,13 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 					switch(attackedPart)
 					{
 					case EWallPart::KEEP:
-						posRemove = -2;
+						posRemove = BattleHex::CASTLE_CENTRAL_TOWER;
 						break;
 					case EWallPart::BOTTOM_TOWER:
-						posRemove = -3;
+						posRemove = BattleHex::CASTLE_BOTTOM_TOWER;
 						break;
 					case EWallPart::UPPER_TOWER:
-						posRemove = -4;
+						posRemove = BattleHex::CASTLE_UPPER_TOWER;
 						break;
 					}
 
