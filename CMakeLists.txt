@@ -63,7 +63,7 @@ if(NOT ${CMAKE_VERSION} VERSION_LESS "3.16.0")
 endif(NOT ${CMAKE_VERSION} VERSION_LESS "3.16.0")
 option(ENABLE_GITVERSION "Enable Version.cpp with Git commit hash" ON)
 option(ENABLE_DEBUG_CONSOLE "Enable debug console for Windows builds" ON)
-option(ENABLE_STRICT_COMPILATION "Enable treating all compiler warning as errors" ON)
+option(ENABLE_STRICT_COMPILATION "Enable treating all compiler warning as errors" OFF)
 option(ENABLE_MULTI_PROCESS_BUILDS "Enable /MP flag for MSVS solution" ON)
 
 # Used for Snap packages and also useful for debugging
