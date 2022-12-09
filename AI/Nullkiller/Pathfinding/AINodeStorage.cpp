@@ -412,6 +412,9 @@ public:
 
 	void execute(const blocked_range<size_t>& r)
 	{
+		std::random_device randomDevice;
+		std::mt19937 randomEngine(randomDevice());
+
 		for(int i = r.begin(); i != r.end(); i++)
 		{
 			auto & pos = tiles[i];
@@ -433,7 +436,7 @@ public:
 						existingChains.push_back(&node);
 				}
 
-				std::random_shuffle(existingChains.begin(), existingChains.end());
+				std::shuffle(existingChains.begin(), existingChains.end(), randomEngine);
 
 				for(AIPathNode * node : existingChains)
 				{
@@ -491,6 +494,9 @@ public:
 
 bool AINodeStorage::calculateHeroChain()
 {
+	std::random_device randomDevice;
+	std::mt19937 randomEngine(randomDevice());
+
 	heroChainPass = EHeroChainPass::CHAIN;
 	heroChain.clear();
 
@@ -500,7 +506,7 @@ bool AINodeStorage::calculateHeroChain()
 	{
 		boost::mutex resultMutex;
 
-		std::random_shuffle(data.begin(), data.end());
+		std::shuffle(data.begin(), data.end(), randomEngine);
 
 		parallel_for(blocked_range<size_t>(0, data.size()), [&](const blocked_range<size_t>& r)
 		{
