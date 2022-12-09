@@ -20,8 +20,8 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/CCursorHandler.h"
 
-#include "../battle/CBattleInterface.h"
-#include "../battle/CBattleInterfaceClasses.h"
+#include "../battle/BattleInterface.h"
+#include "../battle/BattleInterfaceClasses.h"
 
 #include "../Graphics.h"
 #include "../CGameInfo.h"

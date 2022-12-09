@@ -26,8 +26,8 @@
 #include "../mapHandler.h"
 #include "../CServerHandler.h"
 
-#include "../battle/CBattleInterfaceClasses.h"
-#include "../battle/CBattleInterface.h"
+#include "../battle/BattleInterfaceClasses.h"
+#include "../battle/BattleInterface.h"
 
 #include "../gui/CAnimation.h"
 #include "../gui/CGuiHandler.h"

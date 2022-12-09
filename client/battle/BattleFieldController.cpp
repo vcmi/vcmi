@@ -8,17 +8,17 @@
  *
  */
 #include "StdInc.h"
-#include "CBattleFieldController.h"
+#include "BattleFieldController.h"
 
-#include "CBattleInterface.h"
-#include "CBattleActionsController.h"
-#include "CBattleInterfaceClasses.h"
-#include "CBattleEffectsController.h"
-#include "CBattleSiegeController.h"
-#include "CBattleStacksController.h"
-#include "CBattleObstacleController.h"
-#include "CBattleProjectileController.h"
-#include "CBattleRenderer.h"
+#include "BattleInterface.h"
+#include "BattleActionsController.h"
+#include "BattleInterfaceClasses.h"
+#include "BattleEffectsController.h"
+#include "BattleSiegeController.h"
+#include "BattleStacksController.h"
+#include "BattleObstacleController.h"
+#include "BattleProjectileController.h"
+#include "BattleRenderer.h"
 
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"

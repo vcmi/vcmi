@@ -8,15 +8,15 @@
  *
  */
 #include "StdInc.h"
-#include "CBattleEffectsController.h"
+#include "BattleEffectsController.h"
 
-#include "CBattleAnimations.h"
-#include "CBattleControlPanel.h"
-#include "CBattleInterface.h"
-#include "CBattleInterfaceClasses.h"
-#include "CBattleFieldController.h"
-#include "CBattleStacksController.h"
-#include "CBattleRenderer.h"
+#include "BattleAnimationClasses.h"
+#include "BattleControlPanel.h"
+#include "BattleInterface.h"
+#include "BattleInterfaceClasses.h"
+#include "BattleFieldController.h"
+#include "BattleStacksController.h"
+#include "BattleRenderer.h"
 
 #include "../CMusicHandler.h"
 #include "../CGameInfo.h"

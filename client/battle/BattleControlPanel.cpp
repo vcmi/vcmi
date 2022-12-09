@@ -8,12 +8,12 @@
  *
  */
 #include "StdInc.h"
-#include "CBattleControlPanel.h"
+#include "BattleControlPanel.h"
 
-#include "CBattleInterface.h"
-#include "CBattleInterfaceClasses.h"
-#include "CBattleStacksController.h"
-#include "CBattleActionsController.h"
+#include "BattleInterface.h"
+#include "BattleInterfaceClasses.h"
+#include "BattleStacksController.h"
+#include "BattleActionsController.h"
 
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"

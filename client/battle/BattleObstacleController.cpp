@@ -8,13 +8,13 @@
  *
  */
 #include "StdInc.h"
-#include "CBattleObstacleController.h"
+#include "BattleObstacleController.h"
 
-#include "CBattleInterface.h"
-#include "CBattleFieldController.h"
-#include "CBattleAnimations.h"
-#include "CBattleStacksController.h"
-#include "CBattleRenderer.h"
+#include "BattleInterface.h"
+#include "BattleFieldController.h"
+#include "BattleAnimationClasses.h"
+#include "BattleStacksController.h"
+#include "BattleRenderer.h"
 
 #include "../CPlayerInterface.h"
 #include "../gui/CAnimation.h"

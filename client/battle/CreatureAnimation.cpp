@@ -8,7 +8,7 @@
  *
  */
 #include "StdInc.h"
-#include "CCreatureAnimation.h"
+#include "CreatureAnimation.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CCreatureHandler.h"

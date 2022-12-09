@@ -42,7 +42,7 @@
 #include "mainmenu/CMainMenu.h"
 #include "mainmenu/CCampaignScreen.h"
 #include "lobby/CBonusSelection.h"
-#include "battle/CBattleInterface.h"
+#include "battle/BattleInterface.h"
 #include "../lib/CThreadHelper.h"
 #include "../lib/registerTypes/RegisterTypes.h"
 #include "gui/CGuiHandler.h"

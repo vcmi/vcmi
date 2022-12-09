@@ -8,18 +8,18 @@
  *
  */
 #include "StdInc.h"
-#include "CBattleAnimations.h"
+#include "BattleAnimationClasses.h"
 
 #include <boost/math/constants/constants.hpp>
 
-#include "CBattleInterfaceClasses.h"
-#include "CBattleInterface.h"
-#include "CBattleProjectileController.h"
-#include "CBattleSiegeController.h"
-#include "CBattleFieldController.h"
-#include "CBattleEffectsController.h"
-#include "CBattleStacksController.h"
-#include "CCreatureAnimation.h"
+#include "BattleInterfaceClasses.h"
+#include "BattleInterface.h"
+#include "BattleProjectileController.h"
+#include "BattleSiegeController.h"
+#include "BattleFieldController.h"
+#include "BattleEffectsController.h"
+#include "BattleStacksController.h"
+#include "CreatureAnimation.h"
 
 #include "../CGameInfo.h"
 #include "../CMusicHandler.h"

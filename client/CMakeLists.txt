@@ -2,19 +2,19 @@ set(client_SRCS
 		StdInc.cpp
 		../CCallback.cpp
 
-		battle/CBattleActionsController.cpp
-		battle/CBattleAnimations.cpp
-		battle/CBattleControlPanel.cpp
-		battle/CBattleEffectsController.cpp
-		battle/CBattleFieldController.cpp
-		battle/CBattleInterfaceClasses.cpp
-		battle/CBattleInterface.cpp
-		battle/CBattleObstacleController.cpp
-		battle/CBattleProjectileController.cpp
-		battle/CBattleRenderer.cpp
-		battle/CBattleSiegeController.cpp
-		battle/CBattleStacksController.cpp
-		battle/CCreatureAnimation.cpp
+		battle/BattleActionsController.cpp
+		battle/BattleAnimationClasses.cpp
+		battle/BattleControlPanel.cpp
+		battle/BattleEffectsController.cpp
+		battle/BattleFieldController.cpp
+		battle/BattleInterfaceClasses.cpp
+		battle/BattleInterface.cpp
+		battle/BattleObstacleController.cpp
+		battle/BattleProjectileController.cpp
+		battle/BattleRenderer.cpp
+		battle/BattleSiegeController.cpp
+		battle/BattleStacksController.cpp
+		battle/CreatureAnimation.cpp
 
 		gui/CAnimation.cpp
 		gui/CCanvas.cpp
@@ -85,19 +85,19 @@ set(client_SRCS
 set(client_HEADERS
 		StdInc.h
 
-		battle/CBattleActionsController.h
-		battle/CBattleAnimations.h
-		battle/CBattleControlPanel.h
-		battle/CBattleEffectsController.h
-		battle/CBattleFieldController.h
-		battle/CBattleInterfaceClasses.h
-		battle/CBattleInterface.h
-		battle/CBattleObstacleController.h
-		battle/CBattleProjectileController.h
-		battle/CBattleRenderer.h
-		battle/CBattleSiegeController.h
-		battle/CBattleStacksController.h
-		battle/CCreatureAnimation.h
+		battle/BattleActionsController.h
+		battle/BattleAnimationClasses.h
+		battle/BattleControlPanel.h
+		battle/BattleEffectsController.h
+		battle/BattleFieldController.h
+		battle/BattleInterfaceClasses.h
+		battle/BattleInterface.h
+		battle/BattleObstacleController.h
+		battle/BattleProjectileController.h
+		battle/BattleRenderer.h
+		battle/BattleSiegeController.h
+		battle/BattleStacksController.h
+		battle/CreatureAnimation.h
 
 		gui/CAnimation.h
 		gui/CCanvas.h

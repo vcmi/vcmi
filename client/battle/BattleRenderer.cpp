@@ -8,14 +8,13 @@
  *
  */
 #include "StdInc.h"
-#include "CBattleRenderer.h"
+#include "BattleRenderer.h"
 
-#include "CBattleInterface.h"
-
-#include "CBattleEffectsController.h"
-#include "CBattleSiegeController.h"
-#include "CBattleStacksController.h"
-#include "CBattleObstacleController.h"
+#include "BattleInterface.h"
+#include "BattleEffectsController.h"
+#include "BattleSiegeController.h"
+#include "BattleStacksController.h"
+#include "BattleObstacleController.h"
 
 void BattleRenderer::collectObjects()
 {

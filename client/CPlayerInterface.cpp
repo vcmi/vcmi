@@ -12,11 +12,11 @@
 #include <vcmi/Artifact.h>
 
 #include "windows/CAdvmapInterface.h"
-#include "battle/CBattleInterface.h"
-#include "battle/CBattleEffectsController.h"
-#include "battle/CBattleFieldController.h"
-#include "battle/CBattleInterfaceClasses.h"
-#include "battle/CBattleControlPanel.h"
+#include "battle/BattleInterface.h"
+#include "battle/BattleEffectsController.h"
+#include "battle/BattleFieldController.h"
+#include "battle/BattleInterfaceClasses.h"
+#include "battle/BattleControlPanel.h"
 #include "../CCallback.h"
 #include "windows/CCastleInterface.h"
 #include "gui/CCursorHandler.h"

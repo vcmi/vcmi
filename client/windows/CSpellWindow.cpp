@@ -24,7 +24,7 @@
 #include "../CVideoHandler.h"
 #include "../Graphics.h"
 
-#include "../battle/CBattleInterface.h"
+#include "../battle/BattleInterface.h"
 #include "../gui/CAnimation.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/SDL_Extensions.h"

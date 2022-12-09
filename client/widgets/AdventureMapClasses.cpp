@@ -31,8 +31,8 @@
 #include "../windows/CAdvmapInterface.h"
 #include "../windows/GUIClasses.h"
 
-#include "../battle/CBattleInterfaceClasses.h"
-#include "../battle/CBattleInterface.h"
+#include "../battle/BattleInterfaceClasses.h"
+#include "../battle/BattleInterface.h"
 
 #include "../../CCallback.h"
 #include "../../lib/StartInfo.h"
