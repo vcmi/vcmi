@@ -8,7 +8,7 @@
 #include "resourceExtractor/ResourceConverter.h"
 
 class CMap;
-class ObjectBrowser;
+class ObjectBrowserProxyModel;
 class CGObjectInstance;
 
 namespace Ui
@@ -74,8 +74,6 @@ private slots:
 
 	void on_toolErase_clicked();
 
-	void on_treeView_activated(const QModelIndex &index);
-
 	void on_terrainFilterCombo_currentTextChanged(const QString &arg1);
 
 	void on_filter_textChanged(const QString &arg1);
@@ -113,7 +111,7 @@ public slots:
 	void displayStatus(const QString& message, int timeout = 2000);
 
 private:
-	void preparePreview(const QModelIndex &index, bool createNew);
+	void preparePreview(const QModelIndex & index);
 	void addGroupIntoCatalog(const std::string & groupName, bool staticOnly);
 	void addGroupIntoCatalog(const std::string & groupName, bool useCustomName, bool staticOnly, int ID);
 	
@@ -133,7 +131,7 @@ private:
 
 private:
     Ui::MainWindow * ui;
-	ObjectBrowser * objectBrowser = nullptr;
+	ObjectBrowserProxyModel * objectBrowser = nullptr;
 	QGraphicsScene * scenePreview;
 	
 	QString filename;
