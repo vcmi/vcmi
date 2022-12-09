@@ -1880,8 +1880,7 @@ void CGameState::placeHeroesInTowns()
 				// assume that this hero should be visiting the town (H3M format quirk) and move hero to correct position
 				if (heroOnTownBlockableTile)
 				{
-					int3 townVisitablePos = t->visitablePos();
-					int3 correctedPos = townVisitablePos + h->getVisitableOffset();
+					int3 correctedPos = h->convertFromVisitablePos(t->visitablePos());
 
 					map->removeBlockVisTiles(h);
 					h->pos = correctedPos;

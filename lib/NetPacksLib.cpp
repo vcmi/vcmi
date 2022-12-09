@@ -550,7 +550,7 @@ void TryMoveHero::applyGs(CGameState *gs)
 
 	if(result == EMBARK) //hero enters boat at destination tile
 	{
-		const TerrainTile &tt = gs->map->getTile(end - h->getVisitableOffset());
+		const TerrainTile &tt = gs->map->getTile(h->convertToVisitablePos(end));
 		assert(tt.visitableObjects.size() >= 1  &&  tt.visitableObjects.back()->ID == Obj::BOAT); //the only visitable object at destination is Boat
 		CGBoat *boat = static_cast<CGBoat*>(tt.visitableObjects.back());
 
@@ -704,14 +704,13 @@ DLL_LINKAGE void GiveHero::applyGs(CGameState *gs)
 	h->detachFrom(gs->globalEffects);
 	h->attachTo(*gs->getPlayerState(player));
 
-	auto oldOffset = h->getVisitableOffset();
+	auto oldVisitablePos = h->visitablePos();
 	gs->map->removeBlockVisTiles(h,true);
 	h->appearance = VLC->objtypeh->getHandlerFor(Obj::HERO, h->type->heroClass->getIndex())->getTemplates().front();
-	auto newOffset = h->getVisitableOffset();
 
 	h->setOwner(player);
 	h->movement =  h->maxMovePoints(true);
-	h->pos = h->pos - oldOffset + newOffset;
+	h->pos = h->convertFromVisitablePos(oldVisitablePos);
 	gs->map->heroesOnMap.push_back(h);
 	gs->getPlayerState(h->getOwner())->heroes.push_back(h);
 

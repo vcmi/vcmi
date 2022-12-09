@@ -164,6 +164,16 @@ void CGHeroInstance::setSecSkillLevel(SecondarySkill which, int val, bool abs)
 	}
 }
 
+int3 CGHeroInstance::convertToVisitablePos(const int3 & position) const
+{
+	return position - getVisitableOffset();
+}
+
+int3 CGHeroInstance::convertFromVisitablePos(const int3 & position) const
+{
+	return position + getVisitableOffset();
+}
+
 bool CGHeroInstance::canLearnSkill() const
 {
 	return secSkills.size() < GameConstants::SKILL_PER_HERO;
@@ -1585,7 +1595,7 @@ void CGHeroInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 		if(!handler.saving)
 		{
 			patrol.patrolling = (rawPatrolRadius > NO_PATROLING);
-			patrol.initialPos = pos - getVisitableOffset();
+			patrol.initialPos = visitablePos();
 			patrol.patrolRadius = (rawPatrolRadius > NO_PATROLING) ? rawPatrolRadius : 0;
 		}
 	}

@@ -92,8 +92,8 @@ void AIGateway::heroMoved(const TryMoveHero & details, bool verbose)
 	validateObject(details.id); //enemy hero may have left visible area
 	auto hero = cb->getHero(details.id);
 
-	const int3 from = details.start - hero->getVisitableOffset();
-	const int3 to = details.end - hero->getVisitableOffset();
+	const int3 from = hero->convertToVisitablePos(details.start);
+	const int3 to = hero->convertToVisitablePos(details.end);
 	const CGObjectInstance * o1 = vstd::frontOrNull(cb->getVisitableObjs(from, verbose));
 	const CGObjectInstance * o2 = vstd::frontOrNull(cb->getVisitableObjs(to, verbose));
 
@@ -1178,7 +1178,7 @@ bool AIGateway::moveHeroToTile(int3 dst, HeroPtr h)
 	{
 		//FIXME: this assertion fails also if AI moves onto defeated guarded object
 		assert(cb->getVisitableObjs(dst).size() > 1); //there's no point in revisiting tile where there is no visitable object
-		cb->moveHero(*h, dst + h->getVisitableOffset());
+		cb->moveHero(*h, h->convertFromVisitablePos(dst));
 		afterMovementCheck(); // TODO: is it feasible to hero get killed there if game work properly?
 		// If revisiting, teleport probing is never done, and so the entries into the list would remain unused and uncleared
 		teleportChannelProbingList.clear();
@@ -1232,14 +1232,14 @@ bool AIGateway::moveHeroToTile(int3 dst, HeroPtr h)
 
 		auto doMovement = [&](int3 dst, bool transit)
 		{
-			cb->moveHero(*h, dst + h->getVisitableOffset(), transit);
+			cb->moveHero(*h, h->convertFromVisitablePos(dst), transit);
 		};
 
 		auto doTeleportMovement = [&](ObjectInstanceID exitId, int3 exitPos)
 		{
 			destinationTeleport = exitId;
 			if(exitPos.valid())
-				destinationTeleportPos = exitPos + h->getVisitableOffset();
+				destinationTeleportPos = h->convertFromVisitablePos(exitPos);
 			cb->moveHero(*h, h->pos);
 			destinationTeleport = ObjectInstanceID();
 			destinationTeleportPos = int3(-1);

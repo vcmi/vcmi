@@ -1664,7 +1664,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(ObjectInstanceID idToBeGiven, const i
 	else
 	{
 		nhi->patrol.patrolling = true;
-		nhi->patrol.initialPos = initialPos - nhi->getVisitableOffset();
+		nhi->patrol.initialPos = nhi->convertToVisitablePos(initialPos);
 	}
 
 	if(map->version > EMapFormat::ROE)

@@ -324,7 +324,7 @@ ESpellCastResult DimensionDoorMechanics::applyAdventureEffects(SpellCastEnvironm
 		iw.text.addTxt(MetaString::GENERAL_TXT, 70); //Dimension Door failed!
 		env->apply(&iw);
 	}
-	else if(env->moveHero(parameters.caster->id, parameters.pos + parameters.caster->getVisitableOffset(), true))
+	else if(env->moveHero(parameters.caster->id, parameters.caster->convertFromVisitablePos(parameters.pos), true))
 	{
 		SetMovePoints smp;
 		smp.hid = parameters.caster->id;
@@ -424,7 +424,7 @@ ESpellCastResult TownPortalMechanics::applyAdventureEffects(SpellCastEnvironment
 		return ESpellCastResult::ERROR;
 	}
 
-	if(env->moveHero(parameters.caster->id, destination->visitablePos() + parameters.caster->getVisitableOffset(), true))
+	if(env->moveHero(parameters.caster->id, parameters.caster->convertFromVisitablePos(destination->visitablePos()), true))
 	{
 		SetMovePoints smp;
 		smp.hid = parameters.caster->id;

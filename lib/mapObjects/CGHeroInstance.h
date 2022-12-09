@@ -167,6 +167,9 @@ public:
 	bool canLearnSpell(const spells::Spell * spell) const;
 	bool canCastThisSpell(const spells::Spell * spell) const; //determines if this hero can cast given spell; takes into account existing spell in spellbook, existing spellbook and artifact bonuses
 
+	/// convert given position between map position (CGObjectInstance::pos) and visitable position used for hero interactions
+	int3 convertToVisitablePos(const int3 & position) const;
+	int3 convertFromVisitablePos(const int3 & position) const;
 
 	// ----- primary and secondary skill, experience, level handling -----
 

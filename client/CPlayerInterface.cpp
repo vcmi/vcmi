@@ -264,8 +264,8 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 				assert(adventureInt->terrain.currentPath->nodes.size() >= 2);
 				std::vector<CGPathNode>::const_iterator nodesIt = adventureInt->terrain.currentPath->nodes.end() - 1;
 
-				if((nodesIt)->coord == details.start - hero->getVisitableOffset()
-					&& (nodesIt - 1)->coord == details.end - hero->getVisitableOffset())
+				if((nodesIt)->coord == hero->convertToVisitablePos(details.start)
+					&& (nodesIt - 1)->coord == hero->convertToVisitablePos(details.end))
 				{
 					//path was between entrance and exit of teleport -> OK, erase node as usual
 					removeLastNodeFromPath(hero);
@@ -1573,7 +1573,7 @@ void CPlayerInterface::newObject( const CGObjectInstance * obj )
 	//we might have built a boat in shipyard in opened town screen
 	if (obj->ID == Obj::BOAT
 		&& LOCPLINT->castleInt
-		&&  obj->pos-obj->getVisitableOffset() == LOCPLINT->castleInt->town->bestLocation())
+		&&  obj->visitablePos() == LOCPLINT->castleInt->town->bestLocation())
 	{
 		CCS->soundh->playSound(soundBase::newBuilding);
 		LOCPLINT->castleInt->addBuilding(BuildingID::SHIP);
@@ -2405,7 +2405,7 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 	int i = 1;
 	auto getObj = [&](int3 coord, bool ignoreHero)
 	{
-		return cb->getTile(coord - h->getVisitableOffset())->topVisitableObj(ignoreHero);
+		return cb->getTile(h->convertToVisitablePos(coord))->topVisitableObj(ignoreHero);
 	};
 
 	auto isTeleportAction = [&](CGPathNode::ENodeAction action) -> bool
@@ -2445,7 +2445,7 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 
 	{
 		for (auto & elem : path.nodes)
-			elem.coord = elem.coord + h->getVisitableOffset();
+			elem.coord = h->convertFromVisitablePos(elem.coord);
 
 		TerrainId currentTerrain = Terrain::BORDER; // not init yet
 		TerrainId newTerrain;
@@ -2503,7 +2503,7 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 				sh = CCS->soundh->playSound(soundBase::horseFlying, -1);
 #endif
 			{
-				newTerrain = cb->getTile(currentCoord - h->getVisitableOffset())->terType->id;
+				newTerrain = cb->getTile(h->convertToVisitablePos(currentCoord))->terType->id;
 				if(newTerrain != currentTerrain)
 				{
 					CCS->soundh->stopSound(sh);

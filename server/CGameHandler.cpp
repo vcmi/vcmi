@@ -2326,7 +2326,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, ui8 teleporting, boo
 	}
 
 	logGlobal->trace("Player %d (%s) wants to move hero %d from %s to %s", asker, asker.getStr(), hid.getNum(), h->pos.toString(), dst.toString());
-	const int3 hmpos = dst - h->getVisitableOffset();
+	const int3 hmpos = h->convertToVisitablePos(dst);
 
 	if (!gs->map->isInTheMap(hmpos))
 	{
@@ -2526,8 +2526,8 @@ bool CGameHandler::teleportHero(ObjectInstanceID hid, ObjectInstanceID dstid, ui
 	|| (!t->hasBuilt(BuildingSubID::CASTLE_GATE)
 		&& complain("Cannot teleport hero to town without Castle gate in it")))
 			return false;
-	int3 pos = t->visitablePos();
-	pos += h->getVisitableOffset();
+
+	int3 pos = h->convertFromVisitablePos(t->visitablePos());
 	moveHero(hid,pos,1);
 	return true;
 }
@@ -4353,7 +4353,7 @@ bool CGameHandler::hireHero(const CGObjectInstance *obj, ui8 hid, PlayerColor pl
 	hr.tid = obj->id;
 	hr.hid = nh->subID;
 	hr.player = player;
-	hr.tile = obj->visitablePos() + nh->getVisitableOffset();
+	hr.tile = nh->convertFromVisitablePos(obj->visitablePos());
 	sendAndApply(&hr);
 
 	std::map<ui32, ConstTransitivePtr<CGHeroInstance> > pool = gs->unusedHeroesFromPool();
