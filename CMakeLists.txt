@@ -63,7 +63,7 @@ if(NOT ${CMAKE_VERSION} VERSION_LESS "3.16.0")
 endif(NOT ${CMAKE_VERSION} VERSION_LESS "3.16.0")
 option(ENABLE_GITVERSION "Enable Version.cpp with Git commit hash" ON)
 option(ENABLE_DEBUG_CONSOLE "Enable debug console for Windows builds" ON)
-option(ENABLE_STRICT_COMPILATION "Enable treating all compiler warning as errro" OFF)
+option(ENABLE_STRICT_COMPILATION "Enable treating all compiler warning as errors" ON)
 option(ENABLE_MULTI_PROCESS_BUILDS "Enable /MP flag for MSVS solution" ON)
 
 # Used for Snap packages and also useful for debugging
@@ -264,6 +264,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR NOT WIN32)
 	if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 6.0)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unknown-pragmas") # emitted only by ancient gcc 5.5 in MXE build, remove after upgrade
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-variable") # emitted only by ancient gcc 5.5 in MXE build, remove after upgrade
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-maybe-uninitialized") # emitted only by ancient gcc 5.5 in MXE build, remove after upgrade
 	endif()
 
 	if(ENABLE_STRICT_COMPILATION)
