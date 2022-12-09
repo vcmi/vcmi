@@ -48,7 +48,6 @@ static double calculateCatapultParabolaY(const Point & from, const Point & dest,
 
 void ProjectileMissile::show(Canvas & canvas)
 {
-	logAnim->info("Projectile rendering, %d / %d", step, steps);
 	size_t group = reverse ? 1 : 0;
 	auto image = animation->getImage(frameNum, group, true);
 

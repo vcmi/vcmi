@@ -42,18 +42,29 @@
 #include "../../lib/NetPacks.h"
 #include "../../lib/UnlockGuard.h"
 
-CondSh<bool> BattleInterface::animsAreDisplayed(false);
 CondSh<BattleAction *> BattleInterface::givenCommand(nullptr);
 
 BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *army2,
 		const CGHeroInstance *hero1, const CGHeroInstance *hero2,
 		const SDL_Rect & myRect,
-		std::shared_ptr<CPlayerInterface> att, std::shared_ptr<CPlayerInterface> defen, std::shared_ptr<CPlayerInterface> spectatorInt)
-	: attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0),
-	attackerInt(att), defenderInt(defen), curInt(att),
-	myTurn(false), moveSoundHander(-1), bresult(nullptr), battleActionsStarted(false)
+		std::shared_ptr<CPlayerInterface> att,
+		std::shared_ptr<CPlayerInterface> defen,
+		std::shared_ptr<CPlayerInterface> spectatorInt)
+	: attackingHeroInstance(hero1)
+	, defendingHeroInstance(hero2)
+	, animCount(0)
+	, attackerInt(att)
+	, defenderInt(defen)
+	, curInt(att)
+	, myTurn(false)
+	, moveSoundHander(-1)
+	, bresult(nullptr)
+	, battleActionsStarted(false)
 {
 	OBJ_CONSTRUCTION;
+
+	for ( auto & event : animationEvents)
+		event.setn(false);
 
 	if(spectatorInt)
 	{
@@ -65,7 +76,6 @@ BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *
 		curInt = defenderInt;
 	}
 
-	animsAreDisplayed.setn(false);
 	pos = myRect;
 	strongInterest = true;
 	givenCommand.setn(nullptr);
@@ -204,7 +214,9 @@ BattleInterface::~BattleInterface()
 		const auto & terrain = *(LOCPLINT->cb->getTile(adventureInt->selection->visitablePos())->terType);
 		CCS->musich->playMusicFromSet("terrain", terrain.name, true, false);
 	}
-	animsAreDisplayed.setn(false);
+	assert(getAnimationCondition(EAnimationEvents::ACTION) == false);
+
+	setAnimationCondition(EAnimationEvents::ACTION, false);
 }
 
 void BattleInterface::setPrintCellBorders(bool set)
@@ -367,7 +379,7 @@ void BattleInterface::stackAttacking( const CStack *attacker, BattleHex dest, co
 
 void BattleInterface::newRoundFirst( int round )
 {
-	waitForAnims();
+	waitForAnimationCondition(EAnimationEvents::ACTION, false);
 }
 
 void BattleInterface::newRound(int number)
@@ -455,10 +467,7 @@ void BattleInterface::gateStateChanged(const EGateState state)
 void BattleInterface::battleFinished(const BattleResult& br)
 {
 	bresult = &br;
-	{
-		auto unlockPim = vstd::makeUnlockGuard(*CPlayerInterface::pim);
-		animsAreDisplayed.waitUntil(false);
-	}
+	waitForAnimationCondition(EAnimationEvents::ACTION, false);
 	stacksController->setActiveStack(nullptr);
 	displayBattleFinished();
 }
@@ -519,7 +528,7 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 		}
 	}
 
-	waitForAnims(); //wait for projectile animation
+	waitForAnimationCondition(EAnimationEvents::ACTION, false);//wait for projectile animation
 
 	displaySpellHit(spellID, sc->tile);
 
@@ -539,7 +548,7 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 			effectsController->displayEffect(EBattleEffect::EBattleEffect(elem.effect), stack->getPosition());
 	}
 
-	waitForAnims();
+	waitForAnimationCondition(EAnimationEvents::ACTION, false);
 	//mana absorption
 	if (sc->manaGained > 0)
 	{
@@ -548,7 +557,7 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 		stacksController->addNewAnim(new CPointEffectAnimation(*this, soundBase::invalid, sc->side ? "SP07_A.DEF" : "SP07_B.DEF", leftHero));
 		stacksController->addNewAnim(new CPointEffectAnimation(*this, soundBase::invalid, sc->side ? "SP07_B.DEF" : "SP07_A.DEF", rightHero));
 	}
-	waitForAnims();
+	waitForAnimationCondition(EAnimationEvents::ACTION, false);
 }
 
 void BattleInterface::battleStacksEffectsSet(const SetStackEffect & sse)
@@ -776,12 +785,6 @@ void BattleInterface::startAction(const BattleAction* action)
 	effectsController->startAction(action);
 }
 
-void BattleInterface::waitForAnims()
-{
-	auto unlockPim = vstd::makeUnlockGuard(*CPlayerInterface::pim);
-	animsAreDisplayed.waitWhileTrue();
-}
-
 void BattleInterface::tacticPhaseEnd()
 {
 	stacksController->setActiveStack(nullptr);
@@ -800,7 +803,7 @@ void BattleInterface::tacticNextStack(const CStack * current)
 		current = stacksController->getActiveStack();
 
 	//no switching stacks when the current one is moving
-	waitForAnims();
+	waitForAnimationCondition(EAnimationEvents::ACTION, false);
 
 	TStacks stacksOfMine = tacticianInterface->cb->battleGetStacks(CBattleCallback::ONLY_MINE);
 	vstd::erase_if (stacksOfMine, &immobile);
@@ -958,4 +961,41 @@ void BattleInterface::showInterface(SDL_Surface * to)
 void BattleInterface::castThisSpell(SpellID spellID)
 {
 	actionsController->castThisSpell(spellID);
+}
+
+void BattleInterface::setAnimationCondition( EAnimationEvents event, bool state)
+{
+	logAnim->info("setAnimationCondition: %d -> %s", static_cast<int>(event), state ? "ON" : "OFF");
+
+	size_t index = static_cast<size_t>(event);
+	animationEvents[index].setn(state);
+
+	for (auto it = awaitingEvents.begin(); it != awaitingEvents.end();)
+	{
+		if (it->event == event && it->eventState == state)
+		{
+			it->action();
+			it = awaitingEvents.erase(it);
+		}
+		else
+			++it;
+	}
+}
+
+bool BattleInterface::getAnimationCondition( EAnimationEvents event)
+{
+	size_t index = static_cast<size_t>(event);
+	return animationEvents[index].get();
+}
+
+void BattleInterface::waitForAnimationCondition( EAnimationEvents event, bool state)
+{
+	auto unlockPim = vstd::makeUnlockGuard(*CPlayerInterface::pim);
+	size_t index = static_cast<size_t>(event);
+	animationEvents[index].waitUntil(state);
+}
+
+void BattleInterface::executeOnAnimationCondition( EAnimationEvents event, bool state, const AwaitingAnimationAction & action)
+{
+	awaitingEvents.push_back({action, event, state});
 }

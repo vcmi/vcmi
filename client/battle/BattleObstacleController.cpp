@@ -107,7 +107,7 @@ void BattleObstacleController::obstaclePlaced(const std::vector<std::shared_ptr<
 		owner.stacksController->addNewAnim(new CPointEffectAnimation(owner, soundBase::invalid, spellObstacle->appearAnimation, whereTo, oi->pos, CPointEffectAnimation::WAIT_FOR_SOUND));
 
 		//so when multiple obstacles are added, they show up one after another
-		owner.waitForAnims();
+		owner.waitForAnimationCondition(EAnimationEvents::ACTION, false);
 
 		obstaclesBeingPlaced.erase(obstaclesBeingPlaced.begin());
 		loadObstacleImage(*spellObstacle);

@@ -1017,7 +1017,7 @@ void CPlayerInterface::battleAttack(const BattleAttack * ba)
 
 	battleInt->effectsController->displayCustomEffects(ba->customEffects);
 
-	battleInt->waitForAnims();
+	battleInt->waitForAnimationCondition(EAnimationEvents::ACTION, false);
 
 	auto actionTarget = curAction->getTarget(cb.get());
 
@@ -1035,14 +1035,13 @@ void CPlayerInterface::battleAttack(const BattleAttack * ba)
 			{
 				const CStack * attacked = cb->battleGetStackByID(elem.stackAttacked);
 				battleInt->stackAttacking(attacker, attacked->getPosition(), attacked, true);
+				break;
 			}
 		}
 	}
 	else
 	{
 		auto attackTarget = actionTarget.at(1).hexValue;
-
-		//TODO: use information from BattleAttack but not curAction
 
 		int shift = 0;
 		if(ba->counter() && BattleHex::mutualPosition(attackTarget, attacker->getPosition()) < 0)
@@ -1058,17 +1057,15 @@ void CPlayerInterface::battleAttack(const BattleAttack * ba)
 
 		if(!ba->bsa.empty())
 		{
-			const CStack * attacked = cb->battleGetStackByID(ba->bsa.begin()->stackAttacked);
-			battleInt->stackAttacking(attacker, ba->counter() ? BattleHex(attackTarget + shift) : attackTarget, attacked, false);
+			const CStack * defender = cb->battleGetStackByID(ba->bsa.begin()->stackAttacked);
+			battleInt->stackAttacking(attacker, BattleHex(attackTarget + shift), defender, false);
 		}
 	}
 
-	//battleInt->waitForAnims(); //FIXME: freeze
+	//battleInt->waitForAnimationCondition(EAnimationEvents::ACTION, false); // FIXME: freeze
 
 	if(ba->spellLike())
 	{
-		//TODO: use information from BattleAttack but not curAction
-
 		auto destination = actionTarget.at(0).hexValue;
 		//display hit animation
 		SpellID spellID = ba->spellID;

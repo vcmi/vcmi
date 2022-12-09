@@ -62,6 +62,8 @@ void BattleEffectsController::displayCustomEffects(const std::vector<CustomEffec
 
 void BattleEffectsController::battleTriggerEffect(const BattleTriggerEffect & bte)
 {
+	assert(owner.getAnimationCondition(EAnimationEvents::ACTION) == false);
+
 	const CStack * stack = owner.curInt->cb->battleGetStackByID(bte.stackID);
 	if(!stack)
 	{
@@ -95,11 +97,13 @@ void BattleEffectsController::battleTriggerEffect(const BattleTriggerEffect & bt
 		default:
 			return;
 	}
-	//waitForAnims(); //fixme: freezes game :?
+	owner.waitForAnimationCondition(EAnimationEvents::ACTION, false);
 }
 
 void BattleEffectsController::startAction(const BattleAction* action)
 {
+	assert(owner.getAnimationCondition(EAnimationEvents::ACTION) == false);
+
 	const CStack *stack = owner.curInt->cb->battleGetStackByID(action->stackNumber);
 
 	switch(action->actionType)
@@ -121,6 +125,8 @@ void BattleEffectsController::startAction(const BattleAction* action)
 			displayEffect(EBattleEffect::REGENERATION, soundBase::REGENER, actionTarget.at(0).hexValue);
 			break;
 	}
+
+	owner.waitForAnimationCondition(EAnimationEvents::ACTION, false);
 }
 
 void BattleEffectsController::collectRenderableObjects(BattleRenderer & renderer)

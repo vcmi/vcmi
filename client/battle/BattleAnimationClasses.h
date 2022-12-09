@@ -96,16 +96,12 @@ class CDefenceAnimation : public CBattleStackAnimation
 	ECreatureAnimType::Type getMyAnimType();
 	std::string getMySound();
 
-	void startAnimation();
-
 	const CStack * attacker; //attacking stack
 	bool rangedAttack; //if true, stack has been attacked by shooting
 	bool killed; //if true, stack has been killed
 
-	float timeToWait; // for how long this animation should be paused
 public:
 	bool init() override;
-	void nextFrame() override;
 
 	CDefenceAnimation(StackAttackedInfo _attackedInfo, BattleInterface & owner);
 	~CDefenceAnimation();
@@ -128,6 +124,7 @@ class CMeleeAttackAnimation : public CAttackAnimation
 {
 public:
 	bool init() override;
+	void nextFrame() override;
 
 	CMeleeAttackAnimation(BattleInterface & owner, const CStack * attacker, BattleHex _dest, const CStack * _attacked);
 };
@@ -187,13 +184,11 @@ public:
 /// Class responsible for animation of stack chaning direction (left <-> right)
 class CReverseAnimation : public CStackMoveAnimation
 {
+	void setupSecondPart();
 public:
 	bool init() override;
 
-	void setupSecondPart();
-
 	CReverseAnimation(BattleInterface & owner, const CStack * stack, BattleHex dest);
-	~CReverseAnimation();
 };
 
 /// Resurrects stack from dead state
@@ -202,8 +197,7 @@ class CResurrectionAnimation : public CBattleStackAnimation
 public:
 	bool init() override;
 
-	CResurrectionAnimation(BattleInterface & owner, const CStack * stack);
-	~CResurrectionAnimation();
+	CResurrectionAnimation(BattleInterface & owner, const CStack * _stack);
 };
 
 class CRangedAttackAnimation : public CAttackAnimation

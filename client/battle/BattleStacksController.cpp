@@ -148,8 +148,8 @@ void BattleStacksController::collectRenderableObjects(BattleRenderer & renderer)
 void BattleStacksController::stackReset(const CStack * stack)
 {
 	//FIXME: there should be no more ongoing animations. If not - then some other method created animations but did not wait for them to end
-	assert(!owner.animsAreDisplayed.get());
-	owner.waitForAnims();
+	assert(owner.getAnimationCondition(EAnimationEvents::ACTION) == false);
+	owner.waitForAnimationCondition(EAnimationEvents::ACTION, false);
 
 	auto iter = stackAnimation.find(stack->ID);
 
@@ -173,7 +173,7 @@ void BattleStacksController::stackReset(const CStack * stack)
 		animation->shiftColor(&shifterClone);
 	}
 
-	owner.waitForAnims();
+	owner.waitForAnimationCondition(EAnimationEvents::ACTION, false);
 }
 
 void BattleStacksController::stackAdded(const CStack * stack)
@@ -355,6 +355,7 @@ void BattleStacksController::updateBattleAnimations()
 			elem->tryInitialize();
 	}
 
+
 	bool hadAnimations = !currentAnimations.empty();
 	vstd::erase(currentAnimations, nullptr);
 
@@ -362,20 +363,20 @@ void BattleStacksController::updateBattleAnimations()
 	{
 		//anims ended
 		owner.controlPanel->blockUI(activeStack == nullptr);
-		owner.animsAreDisplayed.setn(false);
+		owner.setAnimationCondition(EAnimationEvents::ACTION, false);
 	}
 }
 
 void BattleStacksController::addNewAnim(CBattleAnimation *anim)
 {
 	currentAnimations.push_back(anim);
-	owner.animsAreDisplayed.setn(true);
+	owner.setAnimationCondition(EAnimationEvents::ACTION, true);
 }
 
 void BattleStacksController::stackActivated(const CStack *stack) //TODO: check it all before game state is changed due to abilities
 {
 	stackToActivate = stack;
-	owner.waitForAnims();
+	owner.waitForAnimationCondition(EAnimationEvents::ACTION, false);
 	if (stackToActivate) //during waiting stack may have gotten activated through show
 		owner.activateStack();
 }
@@ -412,17 +413,34 @@ void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> at
 			addNewAnim(new CReverseAnimation(owner, attackedInfo.defender, attackedInfo.defender->getPosition()));
 	}
 
+	// raise flag that movement phase started, starting any queued movements
+	owner.setAnimationCondition(EAnimationEvents::MOVEMENT, true);
+
+	owner.waitForAnimationCondition(EAnimationEvents::ACTION, false);
+	owner.setAnimationCondition(EAnimationEvents::MOVEMENT, false);
+
 	for(auto & attackedInfo : attackedInfos)
 	{
-		addNewAnim(new CDefenceAnimation(attackedInfo, owner));
+		bool useDefenceAnim = attackedInfo.defender->defendingAnim && !attackedInfo.indirectAttack && !attackedInfo.killed;
 
-		if (attackedInfo.battleEffect != EBattleEffect::INVALID)
-			owner.effectsController->displayEffect(EBattleEffect::EBattleEffect(attackedInfo.battleEffect), attackedInfo.defender->getPosition());
+		EAnimationEvents usedEvent = useDefenceAnim ? EAnimationEvents::ATTACK : EAnimationEvents::HIT;
 
-		if (attackedInfo.spellEffect != SpellID::NONE)
-			owner.displaySpellEffect(attackedInfo.spellEffect, attackedInfo.defender->getPosition());
+		owner.executeOnAnimationCondition(usedEvent, true, [=]()
+		{
+			addNewAnim(new CDefenceAnimation(attackedInfo, owner));
+
+			if (attackedInfo.battleEffect != EBattleEffect::INVALID)
+				owner.effectsController->displayEffect(EBattleEffect::EBattleEffect(attackedInfo.battleEffect), attackedInfo.defender->getPosition());
+
+			if (attackedInfo.spellEffect != SpellID::NONE)
+				owner.displaySpellEffect(attackedInfo.spellEffect, attackedInfo.defender->getPosition());
+		});
 	}
-	owner.waitForAnims();
+
+	owner.setAnimationCondition(EAnimationEvents::ATTACK, true);
+	owner.waitForAnimationCondition(EAnimationEvents::ACTION, false);
+	owner.setAnimationCondition(EAnimationEvents::ATTACK, false);
+	owner.setAnimationCondition(EAnimationEvents::HIT, false);
 
 	for (auto & attackedInfo : attackedInfos)
 	{
@@ -435,7 +453,7 @@ void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> at
 		if (attackedInfo.cloneKilled)
 			stackRemoved(attackedInfo.defender->ID);
 	}
-	owner.waitForAnims();
+	owner.waitForAnimationCondition(EAnimationEvents::ACTION, false);
 }
 
 void BattleStacksController::stackMoved(const CStack *stack, std::vector<BattleHex> destHex, int distance)
@@ -443,23 +461,27 @@ void BattleStacksController::stackMoved(const CStack *stack, std::vector<BattleH
 	assert(destHex.size() > 0);
 
 	//FIXME: there should be no more ongoing animations. If not - then some other method created animations but did not wait for them to end
-	assert(!owner.animsAreDisplayed.get());
+	assert(owner.getAnimationCondition(EAnimationEvents::ACTION) == false);
 
 	if(shouldRotate(stack, stack->getPosition(), destHex[0]))
 		addNewAnim(new CReverseAnimation(owner, stack, destHex[0]));
 
 	addNewAnim(new CMovementStartAnimation(owner, stack));
-	owner.waitForAnims();
+
+	owner.waitForAnimationCondition(EAnimationEvents::ACTION, false);
 
 	addNewAnim(new CMovementAnimation(owner, stack, destHex, distance));
-	owner.waitForAnims();
+	owner.waitForAnimationCondition(EAnimationEvents::ACTION, false);
 
 	addNewAnim(new CMovementEndAnimation(owner, stack, destHex.back()));
-	owner.waitForAnims();
+	owner.waitForAnimationCondition(EAnimationEvents::ACTION, false);
 }
 
 void BattleStacksController::stackAttacking( const CStack *attacker, BattleHex dest, const CStack *defender, bool shooting )
 {
+	//FIXME: there should be no more ongoing animations. If not - then some other method created animations but did not wait for them to end
+	assert(owner.getAnimationCondition(EAnimationEvents::ACTION) == false);
+
 	bool needsReverse =
 			owner.curInt->cb->isToReverse(
 				attacker->getPosition(),
@@ -469,21 +491,26 @@ void BattleStacksController::stackAttacking( const CStack *attacker, BattleHex d
 				facingRight(defender));
 
 	if (needsReverse)
-		addNewAnim(new CReverseAnimation(owner, attacker, attacker->getPosition()));
-
-	owner.waitForAnims();
-
-	if (shooting)
 	{
-		addNewAnim(new CShootingAnimation(owner, attacker, dest, defender));
-	}
-	else
-	{
-		addNewAnim(new CMeleeAttackAnimation(owner, attacker, dest, defender));
+		owner.executeOnAnimationCondition(EAnimationEvents::MOVEMENT, true, [=]()
+		{
+			addNewAnim(new CReverseAnimation(owner, attacker, attacker->getPosition()));
+		});
 	}
 
-	// do not wait - waiting will be done at stacksAreAttacked
-	// waitForAnims();
+	owner.executeOnAnimationCondition(EAnimationEvents::ATTACK, true, [=]()
+	{
+		if (shooting)
+		{
+			addNewAnim(new CShootingAnimation(owner, attacker, dest, defender));
+		}
+		else
+		{
+			addNewAnim(new CMeleeAttackAnimation(owner, attacker, dest, defender));
+		}
+	});
+
+	//waiting will be done in stacksAreAttacked
 }
 
 bool BattleStacksController::shouldRotate(const CStack * stack, const BattleHex & oldPos, const BattleHex & nextHex) const
@@ -503,8 +530,8 @@ bool BattleStacksController::shouldRotate(const CStack * stack, const BattleHex 
 void BattleStacksController::endAction(const BattleAction* action)
 {
 	//FIXME: there should be no more ongoing animations. If not - then some other method created animations but did not wait for them to end
-	assert(!owner.animsAreDisplayed.get());
-	owner.waitForAnims();
+	assert(owner.getAnimationCondition(EAnimationEvents::ACTION) == false);
+	owner.waitForAnimationCondition(EAnimationEvents::ACTION, false);
 
 	//check if we should reverse stacks
 	TStacks stacks = owner.curInt->cb->battleGetStacks(CBattleCallback::MINE_AND_ENEMY);
@@ -518,7 +545,15 @@ void BattleStacksController::endAction(const BattleAction* action)
 			addNewAnim(new CReverseAnimation(owner, s, s->getPosition()));
 		}
 	}
-	owner.waitForAnims();
+	owner.waitForAnimationCondition(EAnimationEvents::ACTION, false);
+
+	//FIXME: there should be no more ongoing animations. If not - then some other method created animations but did not wait for them to end
+	assert(owner.getAnimationCondition(EAnimationEvents::OPENING) == false);
+	assert(owner.getAnimationCondition(EAnimationEvents::ACTION) == false);
+	assert(owner.getAnimationCondition(EAnimationEvents::MOVEMENT) == false);
+	assert(owner.getAnimationCondition(EAnimationEvents::ATTACK) == false);
+	assert(owner.getAnimationCondition(EAnimationEvents::HIT) == false);
+	assert(owner.getAnimationCondition(EAnimationEvents::PROJECTILES) == false);
 }
 
 void BattleStacksController::startAction(const BattleAction* action)

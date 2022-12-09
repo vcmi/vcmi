@@ -12,6 +12,7 @@
 #include "BattleConstants.h"
 #include "../gui/CIntObject.h"
 #include "../../lib/spells/CSpellHandler.h" //CSpell::TAnimation
+#include "../../lib/CondSh.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -21,7 +22,6 @@ class CStack;
 struct BattleResult;
 struct BattleSpellCast;
 struct CObstacleInstance;
-template <typename T> struct CondSh;
 struct SetStackEffect;
 class BattleAction;
 class CGTownInstance;
@@ -95,6 +95,20 @@ private:
 	bool battleActionsStarted; //used for delaying battle actions until intro sound stops
 	int battleIntroSoundChannel; //required as variable for disabling it via ESC key
 
+	using AwaitingAnimationAction = std::function<void()>;
+
+	struct AwaitingAnimationEvents {
+		AwaitingAnimationAction action;
+		EAnimationEvents event;
+		bool eventState;
+	};
+
+	/// Conditional variables that are set depending on ongoing animations on the battlefield
+	std::array< CondSh<bool>, static_cast<size_t>(EAnimationEvents::COUNT)> animationEvents;
+
+	/// List of events that are waiting to be triggered
+	std::vector<AwaitingAnimationEvents> awaitingEvents;
+
 	void trySetActivePlayer( PlayerColor player ); // if in hotseat, will activate interface of chosen player
 	void activateStack(); //sets activeStack to stackToActivate etc. //FIXME: No, it's not clear at all
 	void requestAutofightingAIToTakeAction();
@@ -116,7 +130,6 @@ public:
 	std::unique_ptr<BattleActionsController> actionsController;
 	std::unique_ptr<BattleEffectsController> effectsController;
 
-	static CondSh<bool> animsAreDisplayed; //for waiting with the end of battle for end of anims
 	static CondSh<BattleAction *> givenCommand; //data != nullptr if we have i.e. moved current unit
 
 	bool myTurn; //if true, interface is active (commands can be ordered)
@@ -136,7 +149,18 @@ public:
 
 	void tacticNextStack(const CStack *current);
 	void tacticPhaseEnd();
-	void waitForAnims();
+
+	/// sets condition to targeted state and executes any awaiting actions
+	void setAnimationCondition( EAnimationEvents event, bool state);
+
+	/// returns current state of condition
+	bool getAnimationCondition( EAnimationEvents event);
+
+	/// locks execution until selected condition reached targeted state
+	void waitForAnimationCondition( EAnimationEvents event, bool state);
+
+	/// adds action that will be executed one selected condition reached targeted state
+	void executeOnAnimationCondition( EAnimationEvents event, bool state, const AwaitingAnimationAction & action);
 
 	//napisz tu klase odpowiadajaca za wyswietlanie bitwy i obsluge uzytkownika, polecenia ma przekazywac callbackiem
 	void activate() override;
