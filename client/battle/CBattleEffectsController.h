@@ -22,8 +22,8 @@ VCMI_LIB_NAMESPACE_END
 struct SDL_Surface;
 class CAnimation;
 class CCanvas;
-class CBattleInterface;
-class CBattleRenderer;
+class BattleInterface;
+class BattleRenderer;
 class CPointEffectAnimation;
 
 namespace EBattleEffect
@@ -57,15 +57,15 @@ struct BattleEffect
 	BattleHex position; //Indicates if effect which hex the effect is drawn on
 };
 
-class CBattleEffectsController
+class BattleEffectsController
 {
-	CBattleInterface * owner;
+	BattleInterface * owner;
 
 	/// list of current effects that are being displayed on screen (spells & creature abilities)
 	std::vector<BattleEffect> battleEffects;
 
 public:
-	CBattleEffectsController(CBattleInterface * owner);
+	BattleEffectsController(BattleInterface * owner);
 
 	void startAction(const BattleAction* action);
 
@@ -78,7 +78,7 @@ public:
 
 	void battleTriggerEffect(const BattleTriggerEffect & bte);
 
-	void collectRenderableObjects(CBattleRenderer & renderer);
+	void collectRenderableObjects(BattleRenderer & renderer);
 
 	friend class CPointEffectAnimation;
 };

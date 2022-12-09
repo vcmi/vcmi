@@ -34,7 +34,7 @@
 #include "../../lib/CTownHandler.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 
-CBattleAnimation::CBattleAnimation(CBattleInterface * _owner)
+CBattleAnimation::CBattleAnimation(BattleInterface * _owner)
 	: owner(_owner),
 	  ID(_owner->stacksController->animIDhelper++),
 	  initialized(false)
@@ -75,7 +75,7 @@ std::vector<CBattleAnimation *> & CBattleAnimation::pendingAnimations()
 	return owner->stacksController->currentAnimations;
 }
 
-std::shared_ptr<CCreatureAnimation> CBattleAnimation::stackAnimation(const CStack * stack) const
+std::shared_ptr<CreatureAnimation> CBattleAnimation::stackAnimation(const CStack * stack) const
 {
 	return owner->stacksController->stackAnimation[stack->ID];
 }
@@ -116,7 +116,7 @@ bool CBattleAnimation::checkInitialConditions()
 	return ID == lowestMoveID;
 }
 
-CBattleStackAnimation::CBattleStackAnimation(CBattleInterface * owner, const CStack * stack)
+CBattleStackAnimation::CBattleStackAnimation(BattleInterface * owner, const CStack * stack)
 	: CBattleAnimation(owner),
 	  myAnim(stackAnimation(stack)),
 	  stack(stack)
@@ -177,7 +177,7 @@ const CCreature * CAttackAnimation::getCreature() const
 		return attackingStack->getCreature();
 }
 
-CAttackAnimation::CAttackAnimation(CBattleInterface *_owner, const CStack *attacker, BattleHex _dest, const CStack *defender)
+CAttackAnimation::CAttackAnimation(BattleInterface *_owner, const CStack *attacker, BattleHex _dest, const CStack *defender)
 	: CBattleStackAnimation(_owner, attacker),
 	  shooting(false),
 	  group(CCreatureAnim::SHOOT_FRONT),
@@ -190,7 +190,7 @@ CAttackAnimation::CAttackAnimation(CBattleInterface *_owner, const CStack *attac
 	attackingStackPosBeforeReturn = attackingStack->getPosition();
 }
 
-CDefenceAnimation::CDefenceAnimation(StackAttackedInfo _attackedInfo, CBattleInterface * _owner)
+CDefenceAnimation::CDefenceAnimation(StackAttackedInfo _attackedInfo, BattleInterface * _owner)
 	: CBattleStackAnimation(_owner, _attackedInfo.defender),
 	  attacker(_attackedInfo.attacker),
 	  rangedAttack(_attackedInfo.indirectAttack),
@@ -327,7 +327,7 @@ CDefenceAnimation::~CDefenceAnimation()
 	}
 }
 
-CDummyAnimation::CDummyAnimation(CBattleInterface * _owner, int howManyFrames)
+CDummyAnimation::CDummyAnimation(BattleInterface * _owner, int howManyFrames)
 	: CBattleAnimation(_owner),
 	  counter(0),
 	  howMany(howManyFrames)
@@ -438,13 +438,13 @@ bool CMeleeAttackAnimation::init()
 	return true;
 }
 
-CMeleeAttackAnimation::CMeleeAttackAnimation(CBattleInterface * _owner, const CStack * attacker, BattleHex _dest, const CStack * _attacked)
+CMeleeAttackAnimation::CMeleeAttackAnimation(BattleInterface * _owner, const CStack * attacker, BattleHex _dest, const CStack * _attacked)
 	: CAttackAnimation(_owner, attacker, _dest, _attacked)
 {
 	logAnim->debug("Created melee attack anim for %s", attacker->getName());
 }
 
-CStackMoveAnimation::CStackMoveAnimation(CBattleInterface * _owner, const CStack * _stack, BattleHex _currentHex):
+CStackMoveAnimation::CStackMoveAnimation(BattleInterface * _owner, const CStack * _stack, BattleHex _currentHex):
 	CBattleStackAnimation(_owner, _stack),
 	currentHex(_currentHex)
 {
@@ -563,7 +563,7 @@ CMovementAnimation::~CMovementAnimation()
 	}
 }
 
-CMovementAnimation::CMovementAnimation(CBattleInterface *_owner, const CStack *_stack, std::vector<BattleHex> _destTiles, int _distance)
+CMovementAnimation::CMovementAnimation(BattleInterface *_owner, const CStack *_stack, std::vector<BattleHex> _destTiles, int _distance)
 	: CStackMoveAnimation(_owner, _stack, _destTiles.front()),
 	  destTiles(_destTiles),
 	  curentMoveIndex(0),
@@ -576,7 +576,7 @@ CMovementAnimation::CMovementAnimation(CBattleInterface *_owner, const CStack *_
 	logAnim->debug("Created movement anim for %s", stack->getName());
 }
 
-CMovementEndAnimation::CMovementEndAnimation(CBattleInterface * _owner, const CStack * _stack, BattleHex destTile)
+CMovementEndAnimation::CMovementEndAnimation(BattleInterface * _owner, const CStack * _stack, BattleHex destTile)
 : CStackMoveAnimation(_owner, _stack, destTile)
 {
 	logAnim->debug("Created movement end anim for %s", stack->getName());
@@ -611,7 +611,7 @@ CMovementEndAnimation::~CMovementEndAnimation()
 	CCS->curh->show();
 }
 
-CMovementStartAnimation::CMovementStartAnimation(CBattleInterface * _owner, const CStack * _stack)
+CMovementStartAnimation::CMovementStartAnimation(BattleInterface * _owner, const CStack * _stack)
 	: CStackMoveAnimation(_owner, _stack, _stack->getPosition())
 {
 	logAnim->debug("Created movement start anim for %s", stack->getName());
@@ -636,7 +636,7 @@ bool CMovementStartAnimation::init()
 	return true;
 }
 
-CReverseAnimation::CReverseAnimation(CBattleInterface * _owner, const CStack * stack, BattleHex dest, bool _priority)
+CReverseAnimation::CReverseAnimation(BattleInterface * _owner, const CStack * stack, BattleHex dest, bool _priority)
 	: CStackMoveAnimation(_owner, stack, dest),
 	  priority(_priority)
 {
@@ -698,7 +698,7 @@ void CReverseAnimation::setupSecondPart()
 		delete this;
 }
 
-CRangedAttackAnimation::CRangedAttackAnimation(CBattleInterface * owner_, const CStack * attacker, BattleHex dest_, const CStack * defender)
+CRangedAttackAnimation::CRangedAttackAnimation(BattleInterface * owner_, const CStack * attacker, BattleHex dest_, const CStack * defender)
 	: CAttackAnimation(owner_, attacker, dest_, defender),
 	  projectileEmitted(false)
 {
@@ -847,7 +847,7 @@ CRangedAttackAnimation::~CRangedAttackAnimation()
 	}
 }
 
-CShootingAnimation::CShootingAnimation(CBattleInterface * _owner, const CStack * attacker, BattleHex _dest, const CStack * _attacked)
+CShootingAnimation::CShootingAnimation(BattleInterface * _owner, const CStack * attacker, BattleHex _dest, const CStack * _attacked)
 	: CRangedAttackAnimation(_owner, attacker, _dest, _attacked)
 {
 	logAnim->debug("Created shooting anim for %s", stack->getName());
@@ -879,7 +879,7 @@ CCreatureAnim::EAnimType CShootingAnimation::getDownwardsGroup() const
 	return CCreatureAnim::SHOOT_DOWN;
 }
 
-CCatapultAnimation::CCatapultAnimation(CBattleInterface * _owner, const CStack * attacker, BattleHex _dest, const CStack * _attacked, int _catapultDmg)
+CCatapultAnimation::CCatapultAnimation(BattleInterface * _owner, const CStack * attacker, BattleHex _dest, const CStack * _attacked, int _catapultDmg)
 	: CShootingAnimation(_owner, attacker, _dest, _attacked),
 	catapultDamage(_catapultDmg),
 	explosionEmitted(false)
@@ -915,7 +915,7 @@ void CCatapultAnimation::createProjectile(const Point & from, const Point & dest
 }
 
 
-CCastAnimation::CCastAnimation(CBattleInterface * owner_, const CStack * attacker, BattleHex dest_, const CStack * defender, const CSpell * spell)
+CCastAnimation::CCastAnimation(BattleInterface * owner_, const CStack * attacker, BattleHex dest_, const CStack * defender, const CSpell * spell)
 	: CRangedAttackAnimation(owner_, attacker, dest_, defender),
 	  spell(spell)
 {
@@ -983,7 +983,7 @@ uint32_t CCastAnimation::getAttackClimaxFrame() const
 	return 0;
 }
 
-CPointEffectAnimation::CPointEffectAnimation(CBattleInterface * _owner, soundBase::soundID sound, std::string animationName, int effects):
+CPointEffectAnimation::CPointEffectAnimation(BattleInterface * _owner, soundBase::soundID sound, std::string animationName, int effects):
 	CBattleAnimation(_owner),
 	animation(std::make_shared<CAnimation>(animationName)),
 	sound(sound),
@@ -994,32 +994,32 @@ CPointEffectAnimation::CPointEffectAnimation(CBattleInterface * _owner, soundBas
 {
 }
 
-CPointEffectAnimation::CPointEffectAnimation(CBattleInterface * _owner, soundBase::soundID sound, std::string animationName, std::vector<BattleHex> hex, int effects):
+CPointEffectAnimation::CPointEffectAnimation(BattleInterface * _owner, soundBase::soundID sound, std::string animationName, std::vector<BattleHex> hex, int effects):
 	CPointEffectAnimation(_owner, sound, animationName, effects)
 {
 	battlehexes = hex;
 }
 
-CPointEffectAnimation::CPointEffectAnimation(CBattleInterface * _owner, soundBase::soundID sound, std::string animationName, BattleHex hex, int effects):
+CPointEffectAnimation::CPointEffectAnimation(BattleInterface * _owner, soundBase::soundID sound, std::string animationName, BattleHex hex, int effects):
 	CPointEffectAnimation(_owner, sound, animationName, effects)
 {
 	assert(hex.isValid());
 	battlehexes.push_back(hex);
 }
 
-CPointEffectAnimation::CPointEffectAnimation(CBattleInterface * _owner, soundBase::soundID sound, std::string animationName, std::vector<Point> pos, int effects):
+CPointEffectAnimation::CPointEffectAnimation(BattleInterface * _owner, soundBase::soundID sound, std::string animationName, std::vector<Point> pos, int effects):
 	CPointEffectAnimation(_owner, sound, animationName, effects)
 {
 	positions = pos;
 }
 
-CPointEffectAnimation::CPointEffectAnimation(CBattleInterface * _owner, soundBase::soundID sound, std::string animationName, Point pos, int effects):
+CPointEffectAnimation::CPointEffectAnimation(BattleInterface * _owner, soundBase::soundID sound, std::string animationName, Point pos, int effects):
 	CPointEffectAnimation(_owner, sound, animationName, effects)
 {
 	positions.push_back(pos);
 }
 
-CPointEffectAnimation::CPointEffectAnimation(CBattleInterface * _owner, soundBase::soundID sound, std::string animationName, Point pos, BattleHex hex,   int effects):
+CPointEffectAnimation::CPointEffectAnimation(BattleInterface * _owner, soundBase::soundID sound, std::string animationName, Point pos, BattleHex hex,   int effects):
 	CPointEffectAnimation(_owner, sound, animationName, effects)
 {
 	assert(hex.isValid());
@@ -1191,7 +1191,7 @@ CPointEffectAnimation::~CPointEffectAnimation()
 	assert(soundFinished);
 }
 
-CWaitingAnimation::CWaitingAnimation(CBattleInterface * owner_):
+CWaitingAnimation::CWaitingAnimation(BattleInterface * owner_):
 	CBattleAnimation(owner_)
 {}
 
@@ -1201,7 +1201,7 @@ void CWaitingAnimation::nextFrame()
 	delete this;
 }
 
-CWaitingProjectileAnimation::CWaitingProjectileAnimation(CBattleInterface * owner_, const CStack * shooter):
+CWaitingProjectileAnimation::CWaitingProjectileAnimation(BattleInterface * owner_, const CStack * shooter):
 	CWaitingAnimation(owner_),
 	shooter(shooter)
 {}

@@ -23,7 +23,7 @@ struct Point;
 struct SDL_Surface;
 class CAnimation;
 class CCanvas;
-class CBattleInterface;
+class BattleInterface;
 
 /// Small struct which contains information about the position and the velocity of a projectile
 struct ProjectileBase
@@ -70,9 +70,9 @@ struct ProjectileRay : ProjectileBase
 	std::vector<CCreature::CreatureAnimation::RayColor> rayConfig;
 };
 
-class CBattleProjectileController
+class BattleProjectileController
 {
-	CBattleInterface * owner;
+	BattleInterface * owner;
 
 	/// all projectiles loaded during current battle
 	std::map<std::string, std::shared_ptr<CAnimation>> projectilesCache;
@@ -97,7 +97,7 @@ class CBattleProjectileController
 	int computeProjectileFrameID( Point from, Point dest, const CStack * stack);
 	int computeProjectileFlightTime( Point from, Point dest, double speed);
 public:
-	CBattleProjectileController(CBattleInterface * owner);
+	BattleProjectileController(BattleInterface * owner);
 
 	void showProjectiles(std::shared_ptr<CCanvas> canvas);
 

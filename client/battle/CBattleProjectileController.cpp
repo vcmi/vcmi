@@ -146,11 +146,11 @@ void ProjectileRay::show(std::shared_ptr<CCanvas> canvas)
 	++step;
 }
 
-CBattleProjectileController::CBattleProjectileController(CBattleInterface * owner):
+BattleProjectileController::BattleProjectileController(BattleInterface * owner):
 	owner(owner)
 {}
 
-const CCreature * CBattleProjectileController::getShooter(const CStack * stack)
+const CCreature * BattleProjectileController::getShooter(const CStack * stack)
 {
 	const CCreature * creature = stack->getCreature();
 
@@ -166,17 +166,17 @@ const CCreature * CBattleProjectileController::getShooter(const CStack * stack)
 	return creature;
 }
 
-bool CBattleProjectileController::stackUsesRayProjectile(const CStack * stack)
+bool BattleProjectileController::stackUsesRayProjectile(const CStack * stack)
 {
 	return !getShooter(stack)->animation.projectileRay.empty();
 }
 
-bool CBattleProjectileController::stackUsesMissileProjectile(const CStack * stack)
+bool BattleProjectileController::stackUsesMissileProjectile(const CStack * stack)
 {
 	return !getShooter(stack)->animation.projectileImageName.empty();
 }
 
-void CBattleProjectileController::initStackProjectile(const CStack * stack)
+void BattleProjectileController::initStackProjectile(const CStack * stack)
 {
 	if (!stackUsesMissileProjectile(stack))
 		return;
@@ -185,7 +185,7 @@ void CBattleProjectileController::initStackProjectile(const CStack * stack)
 	projectilesCache[creature->animation.projectileImageName] = createProjectileImage(creature->animation.projectileImageName);
 }
 
-std::shared_ptr<CAnimation> CBattleProjectileController::createProjectileImage(const std::string & path )
+std::shared_ptr<CAnimation> BattleProjectileController::createProjectileImage(const std::string & path )
 {
 	std::shared_ptr<CAnimation> projectile = std::make_shared<CAnimation>(path);
 	projectile->preload();
@@ -198,7 +198,7 @@ std::shared_ptr<CAnimation> CBattleProjectileController::createProjectileImage(c
 	return projectile;
 }
 
-std::shared_ptr<CAnimation> CBattleProjectileController::getProjectileImage(const CStack * stack)
+std::shared_ptr<CAnimation> BattleProjectileController::getProjectileImage(const CStack * stack)
 {
 	const CCreature * creature = getShooter(stack);
 	std::string imageName = creature->animation.projectileImageName;
@@ -209,7 +209,7 @@ std::shared_ptr<CAnimation> CBattleProjectileController::getProjectileImage(cons
 	return projectilesCache[imageName];
 }
 
-void CBattleProjectileController::emitStackProjectile(const CStack * stack)
+void BattleProjectileController::emitStackProjectile(const CStack * stack)
 {
 	int stackID = stack ? stack->ID : -1;
 
@@ -223,7 +223,7 @@ void CBattleProjectileController::emitStackProjectile(const CStack * stack)
 	}
 }
 
-void CBattleProjectileController::showProjectiles(std::shared_ptr<CCanvas> canvas)
+void BattleProjectileController::showProjectiles(std::shared_ptr<CCanvas> canvas)
 {
 	for ( auto it = projectiles.begin(); it != projectiles.end();)
 	{
@@ -239,7 +239,7 @@ void CBattleProjectileController::showProjectiles(std::shared_ptr<CCanvas> canva
 	}
 }
 
-bool CBattleProjectileController::hasActiveProjectile(const CStack * stack)
+bool BattleProjectileController::hasActiveProjectile(const CStack * stack)
 {
 	int stackID = stack ? stack->ID : -1;
 
@@ -253,7 +253,7 @@ bool CBattleProjectileController::hasActiveProjectile(const CStack * stack)
 	return false;
 }
 
-int CBattleProjectileController::computeProjectileFlightTime( Point from, Point dest, double animSpeed)
+int BattleProjectileController::computeProjectileFlightTime( Point from, Point dest, double animSpeed)
 {
 	double distanceSquared = (dest.x - from.x) * (dest.x - from.x) + (dest.y - from.y) * (dest.y - from.y);
 	double distance = sqrt(distanceSquared);
@@ -264,7 +264,7 @@ int CBattleProjectileController::computeProjectileFlightTime( Point from, Point 
 	return 1;
 }
 
-int CBattleProjectileController::computeProjectileFrameID( Point from, Point dest, const CStack * stack)
+int BattleProjectileController::computeProjectileFrameID( Point from, Point dest, const CStack * stack)
 {
 	const CCreature * creature = getShooter(stack);
 
@@ -295,7 +295,7 @@ int CBattleProjectileController::computeProjectileFrameID( Point from, Point des
 	return bestID;
 }
 
-void CBattleProjectileController::createCatapultProjectile(const CStack * shooter, Point from, Point dest)
+void BattleProjectileController::createCatapultProjectile(const CStack * shooter, Point from, Point dest)
 {
 	auto catapultProjectile       = new ProjectileCatapult();
 
@@ -312,7 +312,7 @@ void CBattleProjectileController::createCatapultProjectile(const CStack * shoote
 	projectiles.push_back(std::shared_ptr<ProjectileBase>(catapultProjectile));
 }
 
-void CBattleProjectileController::createProjectile(const CStack * shooter, const CStack * target, Point from, Point dest)
+void BattleProjectileController::createProjectile(const CStack * shooter, const CStack * target, Point from, Point dest)
 {
 	assert(target);
 
@@ -351,7 +351,7 @@ void CBattleProjectileController::createProjectile(const CStack * shooter, const
 	projectiles.push_back(projectile);
 }
 
-void CBattleProjectileController::createSpellProjectile(const CStack * shooter, const CStack * target, Point from, Point dest, const CSpell * spell)
+void BattleProjectileController::createSpellProjectile(const CStack * shooter, const CStack * target, Point from, Point dest, const CSpell * spell)
 {
 	double projectileAngle = std::abs(atan2(dest.x - from.x, dest.y - from.y));
 	std::string animToDisplay = spell->animationInfo.selectProjectile(projectileAngle);

@@ -24,7 +24,7 @@ VCMI_LIB_NAMESPACE_END
 //class CClickableHex;
 class CCanvas;
 //class IImage;
-class CBattleInterface;
+class BattleInterface;
 
 enum class EBattleFieldLayer {
 					   // confirmed ordering requirements:
@@ -38,14 +38,14 @@ enum class EBattleFieldLayer {
 	EFFECTS       = 3, // after obstacles, battlements
 };
 
-class CBattleRenderer
+class BattleRenderer
 {
 public:
 	using RendererPtr = std::shared_ptr<CCanvas>;
 	using RenderFunctor = std::function<void(RendererPtr)>;
 
 private:
-	CBattleInterface * owner;
+	BattleInterface * owner;
 
 	struct RenderableInstance
 	{
@@ -59,7 +59,7 @@ private:
 	void sortObjects();
 	void renderObjects(RendererPtr targetCanvas);
 public:
-	CBattleRenderer(CBattleInterface * owner);
+	BattleRenderer(BattleInterface * owner);
 
 	void insert(EBattleFieldLayer layer, BattleHex tile, RenderFunctor functor);
 	void execute(RendererPtr targetCanvas);

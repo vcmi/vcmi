@@ -17,7 +17,7 @@ class BattleAction;
 
 VCMI_LIB_NAMESPACE_END
 
-class CBattleInterface;
+class BattleInterface;
 
 enum class MouseHoveredHexContext
 {
@@ -25,9 +25,9 @@ enum class MouseHoveredHexContext
 	OCCUPIED_HEX
 };
 
-class CBattleActionsController
+class BattleActionsController
 {
-	CBattleInterface * owner;
+	BattleInterface * owner;
 
 	std::vector<PossiblePlayerBattleAction> possibleActions; //all actions possible to call at the moment by player
 	std::vector<PossiblePlayerBattleAction> localActions; //actions possible to take on hovered hex
@@ -49,7 +49,7 @@ class CBattleActionsController
 
 	std::string currentConsoleMsg;
 public:
-	CBattleActionsController(CBattleInterface * owner);
+	BattleActionsController(BattleInterface * owner);
 
 	void activateStack();
 	void endCastingSpell(); //ends casting spell (eg. when spell has been cast or canceled)

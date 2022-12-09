@@ -41,7 +41,7 @@ static std::string formatDmgRange(std::pair<ui32, ui32> dmgRange)
 }
 
 
-CBattleActionsController::CBattleActionsController(CBattleInterface * owner):
+BattleActionsController::BattleActionsController(BattleInterface * owner):
 	owner(owner),
 	creatureCasting(false),
 	spellDestSelectMode(false),
@@ -52,7 +52,7 @@ CBattleActionsController::CBattleActionsController(CBattleInterface * owner):
 	selectedAction = PossiblePlayerBattleAction::INVALID;
 }
 
-void CBattleActionsController::endCastingSpell()
+void BattleActionsController::endCastingSpell()
 {
 	if(spellDestSelectMode)
 	{
@@ -78,7 +78,7 @@ void CBattleActionsController::endCastingSpell()
 	}
 }
 
-void CBattleActionsController::enterCreatureCastingMode()
+void BattleActionsController::enterCreatureCastingMode()
 {
 	//silently check for possible errors
 	if (!owner->myTurn)
@@ -141,7 +141,7 @@ void CBattleActionsController::enterCreatureCastingMode()
 	}
 }
 
-std::vector<PossiblePlayerBattleAction> CBattleActionsController::getPossibleActionsForStack(const CStack *stack)
+std::vector<PossiblePlayerBattleAction> BattleActionsController::getPossibleActionsForStack(const CStack *stack)
 {
 	BattleClientInterfaceData data; //hard to get rid of these things so for now they're required data to pass
 	data.creatureSpellToCast = owner->stacksController->activeStackSpellToCast();
@@ -151,7 +151,7 @@ std::vector<PossiblePlayerBattleAction> CBattleActionsController::getPossibleAct
 	return std::vector<PossiblePlayerBattleAction>(allActions);
 }
 
-void CBattleActionsController::reorderPossibleActionsPriority(const CStack * stack, MouseHoveredHexContext context)
+void BattleActionsController::reorderPossibleActionsPriority(const CStack * stack, MouseHoveredHexContext context)
 {
 	if(owner->tacticsMode || possibleActions.empty()) return; //this function is not supposed to be called in tactics mode or before getPossibleActionsForStack
 
@@ -200,7 +200,7 @@ void CBattleActionsController::reorderPossibleActionsPriority(const CStack * sta
 	std::make_heap(possibleActions.begin(), possibleActions.end(), comparer);
 }
 
-void CBattleActionsController::castThisSpell(SpellID spellID)
+void BattleActionsController::castThisSpell(SpellID spellID)
 {
 	spellToCast = std::make_shared<BattleAction>();
 	spellToCast->actionType = EActionType::HERO_SPELL;
@@ -231,7 +231,7 @@ void CBattleActionsController::castThisSpell(SpellID spellID)
 }
 
 
-void CBattleActionsController::handleHex(BattleHex myNumber, int eventType)
+void BattleActionsController::handleHex(BattleHex myNumber, int eventType)
 {
 	if (!owner->myTurn || !owner->battleActionsStarted) //we are not permit to do anything
 		return;
@@ -690,7 +690,7 @@ void CBattleActionsController::handleHex(BattleHex myNumber, int eventType)
 }
 
 
-bool CBattleActionsController::isCastingPossibleHere(const CStack *sactive, const CStack *shere, BattleHex myNumber)
+bool BattleActionsController::isCastingPossibleHere(const CStack *sactive, const CStack *shere, BattleHex myNumber)
 {
 	creatureCasting = owner->stacksController->activeStackSpellcaster() && !spellDestSelectMode; //TODO: allow creatures to cast aimed spells
 
@@ -742,7 +742,7 @@ bool CBattleActionsController::isCastingPossibleHere(const CStack *sactive, cons
 	return isCastingPossible;
 }
 
-bool CBattleActionsController::canStackMoveHere(const CStack * stackToMove, BattleHex myNumber)
+bool BattleActionsController::canStackMoveHere(const CStack * stackToMove, BattleHex myNumber)
 {
 	std::vector<BattleHex> acc = owner->curInt->cb->battleGetAvailableHexes(stackToMove);
 	BattleHex shiftedDest = myNumber.cloneInDirection(stackToMove->destShiftDir(), false);
@@ -755,19 +755,19 @@ bool CBattleActionsController::canStackMoveHere(const CStack * stackToMove, Batt
 		return false;
 }
 
-void CBattleActionsController::activateStack()
+void BattleActionsController::activateStack()
 {
 	const CStack * s = owner->stacksController->getActiveStack();
 	if(s)
 		possibleActions = getPossibleActionsForStack(s);
 }
 
-bool CBattleActionsController::spellcastingModeActive()
+bool BattleActionsController::spellcastingModeActive()
 {
 	return spellDestSelectMode;
 }
 
-SpellID CBattleActionsController::selectedSpell()
+SpellID BattleActionsController::selectedSpell()
 {
 	if (!spellToCast)
 		return SpellID::NONE;

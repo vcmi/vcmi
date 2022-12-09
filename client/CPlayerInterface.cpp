@@ -93,7 +93,7 @@ boost::recursive_mutex * CPlayerInterface::pim = new boost::recursive_mutex;
 
 CPlayerInterface * LOCPLINT;
 
-CBattleInterface * CPlayerInterface::battleInt;
+BattleInterface * CPlayerInterface::battleInt;
 
 enum  EMoveState {STOP_MOVE, WAITING_MOVE, CONTINUE_MOVE, DURING_MOVE};
 CondSh<EMoveState> stillMoveHero(STOP_MOVE); //used during hero movement
@@ -838,17 +838,17 @@ BattleAction CPlayerInterface::activeStack(const CStack * stack) //called when i
 		autofightingAI.reset();
 	}
 
-	CBattleInterface *b = battleInt;
+	BattleInterface *b = battleInt;
 
 	if(!b)
 	{
 		return BattleAction::makeDefend(stack); // probably battle is finished already
 	}
 
-	if(CBattleInterface::givenCommand.get())
+	if(BattleInterface::givenCommand.get())
 	{
 		logGlobal->error("Command buffer must be clean! (we don't want to use old command)");
-		vstd::clear_pointer(CBattleInterface::givenCommand.data);
+		vstd::clear_pointer(BattleInterface::givenCommand.data);
 	}
 
 	{
@@ -857,17 +857,17 @@ BattleAction CPlayerInterface::activeStack(const CStack * stack) //called when i
 		//Regeneration & mana drain go there
 	}
 	//wait till BattleInterface sets its command
-	boost::unique_lock<boost::mutex> lock(CBattleInterface::givenCommand.mx);
-	while(!CBattleInterface::givenCommand.data)
+	boost::unique_lock<boost::mutex> lock(BattleInterface::givenCommand.mx);
+	while(!BattleInterface::givenCommand.data)
 	{
-		CBattleInterface::givenCommand.cond.wait(lock);
+		BattleInterface::givenCommand.cond.wait(lock);
 		if (!battleInt) //battle ended while we were waiting for movement (eg. because of spell)
 			throw boost::thread_interrupted(); //will shut the thread peacefully
 	}
 
 	//tidy up
-	BattleAction ret = *(CBattleInterface::givenCommand.data);
-	vstd::clear_pointer(CBattleInterface::givenCommand.data);
+	BattleAction ret = *(BattleInterface::givenCommand.data);
+	vstd::clear_pointer(BattleInterface::givenCommand.data);
 
 	if(ret.actionType == EActionType::CANCEL)
 	{
@@ -892,7 +892,7 @@ void CPlayerInterface::battleEnd(const BattleResult *br)
 
 		if(!battleInt)
 		{
-			GH.pushIntT<CBattleResultWindow>(*br, *this);
+			GH.pushIntT<BattleResultWindow>(*br, *this);
 			// #1490 - during AI turn when quick combat is on, we need to display the message and wait for user to close it.
 			// Otherwise NewTurn causes freeze.
 			waitWhileDialog();

@@ -24,8 +24,8 @@ VCMI_LIB_NAMESPACE_END
 struct Point;
 struct SDL_Surface;
 class CCanvas;
-class CBattleInterface;
-class CBattleRenderer;
+class BattleInterface;
+class BattleRenderer;
 class IImage;
 
 namespace EWallVisual
@@ -66,9 +66,9 @@ namespace EWallVisual
 	};
 }
 
-class CBattleSiegeController
+class BattleSiegeController
 {
-	CBattleInterface * owner;
+	BattleInterface * owner;
 
 	/// besieged town
 	const CGTownInstance *town;
@@ -91,7 +91,7 @@ class CBattleSiegeController
 	const CStack * getTurretStack(EWallVisual::EWallVisual wallPiece) const;
 
 public:
-	CBattleSiegeController(CBattleInterface * owner, const CGTownInstance *siegeTown);
+	BattleSiegeController(BattleInterface * owner, const CGTownInstance *siegeTown);
 
 	/// call-ins from server
 	void gateStateChanged(const EGateState state);
@@ -99,7 +99,7 @@ public:
 
 	/// call-ins from other battle controllers
 	void showAbsoluteObstacles(std::shared_ptr<CCanvas> canvas, const Point & offset);
-	void collectRenderableObjects(CBattleRenderer & renderer);
+	void collectRenderableObjects(BattleRenderer & renderer);
 
 	/// queries from other battle controllers
 	bool isAttackableByCatapult(BattleHex hex) const;

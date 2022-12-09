@@ -32,26 +32,26 @@ struct CustomEffectInfo;
 
 VCMI_LIB_NAMESPACE_END
 
-class CBattleHero;
+class BattleHero;
 class CCanvas;
-class CBattleResultWindow;
-class CStackQueue;
+class BattleResultWindow;
+class StackQueue;
 class CPlayerInterface;
-class CClickableHex;
+class ClickableHex;
 class CAnimation;
 struct BattleEffect;
 class IImage;
-class CStackQueue;
+class StackQueue;
 
-class CBattleProjectileController;
-class CBattleSiegeController;
-class CBattleObstacleController;
-class CBattleFieldController;
-class CBattleRenderer;
-class CBattleControlPanel;
-class CBattleStacksController;
-class CBattleActionsController;
-class CBattleEffectsController;
+class BattleProjectileController;
+class BattleSiegeController;
+class BattleObstacleController;
+class BattleFieldController;
+class BattleRenderer;
+class BattleControlPanel;
+class BattleStacksController;
+class BattleActionsController;
+class BattleEffectsController;
 
 /// Small struct which contains information about the id of the attacked stack, the damage dealt,...
 struct StackAttackedInfo
@@ -68,13 +68,13 @@ struct StackAttackedInfo
 
 /// Big class which handles the overall battle interface actions and it is also responsible for
 /// drawing everything correctly.
-class CBattleInterface : public WindowBase
+class BattleInterface : public WindowBase
 {
 private:
-	std::shared_ptr<CBattleHero> attackingHero;
-	std::shared_ptr<CBattleHero> defendingHero;
-	std::shared_ptr<CStackQueue> queue;
-	std::shared_ptr<CBattleControlPanel> controlPanel;
+	std::shared_ptr<BattleHero> attackingHero;
+	std::shared_ptr<BattleHero> defendingHero;
+	std::shared_ptr<StackQueue> queue;
+	std::shared_ptr<BattleControlPanel> controlPanel;
 
 	std::shared_ptr<CPlayerInterface> tacticianInterface; //used during tactics mode, points to the interface of player with higher tactics (can be either attacker or defender in hot-seat), valid onloy for human players
 	std::shared_ptr<CPlayerInterface> attackerInt, defenderInt; //because LOCPLINT is not enough in hotSeat
@@ -102,13 +102,13 @@ private:
 
 	void setHeroAnimation(ui8 side, int phase);
 public:
-	std::unique_ptr<CBattleProjectileController> projectilesController;
-	std::unique_ptr<CBattleSiegeController> siegeController;
-	std::unique_ptr<CBattleObstacleController> obstacleController;
-	std::unique_ptr<CBattleFieldController> fieldController;
-	std::unique_ptr<CBattleStacksController> stacksController;
-	std::unique_ptr<CBattleActionsController> actionsController;
-	std::unique_ptr<CBattleEffectsController> effectsController;
+	std::unique_ptr<BattleProjectileController> projectilesController;
+	std::unique_ptr<BattleSiegeController> siegeController;
+	std::unique_ptr<BattleObstacleController> obstacleController;
+	std::unique_ptr<BattleFieldController> fieldController;
+	std::unique_ptr<BattleStacksController> stacksController;
+	std::unique_ptr<BattleActionsController> actionsController;
+	std::unique_ptr<BattleEffectsController> effectsController;
 
 	static CondSh<bool> animsAreDisplayed; //for waiting with the end of battle for end of anims
 	static CondSh<BattleAction *> givenCommand; //data != nullptr if we have i.e. moved current unit
@@ -119,8 +119,8 @@ public:
 
 	const BattleResult *bresult; //result of a battle; if non-zero then display when all animations end
 
-	CBattleInterface(const CCreatureSet *army1, const CCreatureSet *army2, const CGHeroInstance *hero1, const CGHeroInstance *hero2, const SDL_Rect & myRect, std::shared_ptr<CPlayerInterface> att, std::shared_ptr<CPlayerInterface> defen, std::shared_ptr<CPlayerInterface> spectatorInt = nullptr);
-	virtual ~CBattleInterface();
+	BattleInterface(const CCreatureSet *army1, const CCreatureSet *army2, const CGHeroInstance *hero1, const CGHeroInstance *hero2, const SDL_Rect & myRect, std::shared_ptr<CPlayerInterface> att, std::shared_ptr<CPlayerInterface> defen, std::shared_ptr<CPlayerInterface> spectatorInt = nullptr);
+	virtual ~BattleInterface();
 
 	void setPrintCellBorders(bool set); //if true, cell borders will be printed
 	void setPrintStackRange(bool set); //if true,range of active stack will be printed
@@ -143,7 +143,7 @@ public:
 	void show(SDL_Surface *to) override;
 	void showAll(SDL_Surface *to) override;
 
-	void collectRenderableObjects(CBattleRenderer & renderer);
+	void collectRenderableObjects(BattleRenderer & renderer);
 
 	//call-ins
 	void startAction(const BattleAction* action);
@@ -184,9 +184,9 @@ public:
 
 	friend class CPlayerInterface;
 	friend class CInGameConsole;
-	friend class CStackQueue;
-	friend class CBattleResultWindow;
-	friend class CBattleHero;
+	friend class StackQueue;
+	friend class BattleResultWindow;
+	friend class BattleHero;
 	friend class CBattleStackAnimation;
 	friend class CReverseAnimation;
 	friend class CDefenceAnimation;
@@ -196,13 +196,13 @@ public:
 	friend class CMeleeAttackAnimation;
 	friend class CShootingAnimation;
 	friend class CCastAnimation;
-	friend class CClickableHex;
-	friend class CBattleProjectileController;
-	friend class CBattleSiegeController;
-	friend class CBattleObstacleController;
-	friend class CBattleFieldController;
-	friend class CBattleControlPanel;
-	friend class CBattleStacksController;
-	friend class CBattleActionsController;
-	friend class CBattleEffectsController;
+	friend class ClickableHex;
+	friend class BattleProjectileController;
+	friend class BattleSiegeController;
+	friend class BattleObstacleController;
+	friend class BattleFieldController;
+	friend class BattleControlPanel;
+	friend class BattleStacksController;
+	friend class BattleActionsController;
+	friend class BattleEffectsController;
 };

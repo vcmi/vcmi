@@ -31,23 +31,23 @@
 #include "../../lib/IGameEventsReceiver.h"
 #include "../../lib/CGeneralTextHandler.h"
 
-CBattleEffectsController::CBattleEffectsController(CBattleInterface * owner):
+BattleEffectsController::BattleEffectsController(BattleInterface * owner):
 	owner(owner)
 {}
 
-void CBattleEffectsController::displayEffect(EBattleEffect::EBattleEffect effect, const BattleHex & destTile)
+void BattleEffectsController::displayEffect(EBattleEffect::EBattleEffect effect, const BattleHex & destTile)
 {
 	displayEffect(effect, soundBase::invalid, destTile);
 }
 
-void CBattleEffectsController::displayEffect(EBattleEffect::EBattleEffect effect, uint32_t soundID, const BattleHex & destTile)
+void BattleEffectsController::displayEffect(EBattleEffect::EBattleEffect effect, uint32_t soundID, const BattleHex & destTile)
 {
 	std::string customAnim = graphics->battleACToDef[effect][0];
 
 	owner->stacksController->addNewAnim(new CPointEffectAnimation(owner, soundBase::soundID(soundID), customAnim, destTile));
 }
 
-void CBattleEffectsController::displayCustomEffects(const std::vector<CustomEffectInfo> & customEffects)
+void BattleEffectsController::displayCustomEffects(const std::vector<CustomEffectInfo> & customEffects)
 {
 	for(const CustomEffectInfo & one : customEffects)
 	{
@@ -60,7 +60,7 @@ void CBattleEffectsController::displayCustomEffects(const std::vector<CustomEffe
 	}
 }
 
-void CBattleEffectsController::battleTriggerEffect(const BattleTriggerEffect & bte)
+void BattleEffectsController::battleTriggerEffect(const BattleTriggerEffect & bte)
 {
 	const CStack * stack = owner->curInt->cb->battleGetStackByID(bte.stackID);
 	if(!stack)
@@ -98,7 +98,7 @@ void CBattleEffectsController::battleTriggerEffect(const BattleTriggerEffect & b
 	//waitForAnims(); //fixme: freezes game :?
 }
 
-void CBattleEffectsController::startAction(const BattleAction* action)
+void BattleEffectsController::startAction(const BattleAction* action)
 {
 	const CStack *stack = owner->curInt->cb->battleGetStackByID(action->stackNumber);
 
@@ -123,11 +123,11 @@ void CBattleEffectsController::startAction(const BattleAction* action)
 	}
 }
 
-void CBattleEffectsController::collectRenderableObjects(CBattleRenderer & renderer)
+void BattleEffectsController::collectRenderableObjects(BattleRenderer & renderer)
 {
 	for (auto & elem : battleEffects)
 	{
-		renderer.insert( EBattleFieldLayer::EFFECTS, elem.position, [&elem](CBattleRenderer::RendererPtr canvas)
+		renderer.insert( EBattleFieldLayer::EFFECTS, elem.position, [&elem](BattleRenderer::RendererPtr canvas)
 		{
 			int currentFrame = static_cast<int>(floor(elem.currentFrame));
 			currentFrame %= elem.animation->size();

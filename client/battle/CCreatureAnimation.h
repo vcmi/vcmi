@@ -14,7 +14,7 @@
 #include "../gui/CAnimation.h"
 
 class CIntObject;
-class CCreatureAnimation;
+class CreatureAnimation;
 class CCanvas;
 
 /// Namespace for some common controls of animations
@@ -26,10 +26,10 @@ namespace AnimationControls
 	SDL_Color getNoBorder();
 
 	/// creates animation object with preset speed control
-	std::shared_ptr<CCreatureAnimation> getAnimation(const CCreature * creature);
+	std::shared_ptr<CreatureAnimation> getAnimation(const CCreature * creature);
 
 	/// returns animation speed of specific group, taking in mind game setting (in frames per second)
-	float getCreatureAnimationSpeed(const CCreature * creature, const CCreatureAnimation * anim, size_t groupID);
+	float getCreatureAnimationSpeed(const CCreature * creature, const CreatureAnimation * anim, size_t groupID);
 
 	/// returns how far projectile should move each frame
 	/// TODO: make it time-based
@@ -50,10 +50,10 @@ namespace AnimationControls
 
 /// Class which manages animations of creatures/units inside battles
 /// TODO: split into constant image container and class that does *control* of animation
-class CCreatureAnimation : public CIntObject
+class CreatureAnimation : public CIntObject
 {
 public:
-	typedef std::function<float(CCreatureAnimation *, size_t)> TSpeedController;
+	typedef std::function<float(CreatureAnimation *, size_t)> TSpeedController;
 
 private:
 	std::string name;
@@ -97,7 +97,7 @@ public:
 	/// name - path to .def file, relative to SPRITES/ directory
 	/// controller - function that will return for how long *each* frame
 	/// in specified group of animation should be played, measured in seconds
-	CCreatureAnimation(const std::string & name_, TSpeedController speedController);
+	CreatureAnimation(const std::string & name_, TSpeedController speedController);
 
 	void setType(CCreatureAnim::EAnimType type); //sets type of animation and cleares framecount
 	CCreatureAnim::EAnimType getType() const; //returns type of animation

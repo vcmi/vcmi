@@ -27,7 +27,7 @@ class Unit;
 VCMI_LIB_NAMESPACE_END
 
 struct SDL_Surface;
-class CBattleInterface;
+class BattleInterface;
 class CPicture;
 class CFilledTexture;
 class CButton;
@@ -39,7 +39,7 @@ class CAnimImage;
 class CPlayerInterface;
 
 /// Class which shows the console at the bottom of the battle screen and manages the text of the console
-class CBattleConsole : public CIntObject, public IStatusBar
+class BattleConsole : public CIntObject, public IStatusBar
 {
 private:
 	std::vector< std::string > texts; //a place where texts are stored
@@ -47,7 +47,7 @@ private:
 
 	std::string ingcAlter; //alternative text set by in-game console - very important!
 public:
-	CBattleConsole(const Rect & position);
+	BattleConsole(const Rect & position);
 	void showAll(SDL_Surface * to = 0) override;
 
 	bool addText(const std::string &text); //adds text at the last position; returns false if failed (e.g. text longer than 70 characters)
@@ -62,7 +62,7 @@ public:
 };
 
 /// Hero battle animation
-class CBattleHero : public CIntObject
+class BattleHero : public CIntObject
 {
 	void switchToNextPhase();
 public:
@@ -72,7 +72,7 @@ public:
 	std::shared_ptr<CAnimation> flagAnimation;
 
 	const CGHeroInstance * myHero; //this animation's hero instance
-	const CBattleInterface * myOwner; //battle interface to which this animation is assigned
+	const BattleInterface * myOwner; //battle interface to which this animation is assigned
 	int phase; //stage of animation
 	int nextPhase; //stage of animation to be set after current phase is fully displayed
 	int currentFrame, firstFrame, lastFrame; //frame of animation
@@ -84,21 +84,20 @@ public:
 	void hover(bool on) override;
 	void clickLeft(tribool down, bool previousState) override; //call-in
 	void clickRight(tribool down, bool previousState) override; //call-in
-	CBattleHero(const std::string & animationPath, bool filpG, PlayerColor player, const CGHeroInstance * hero, const CBattleInterface * owner);
-	~CBattleHero();
+	BattleHero(const std::string & animationPath, bool filpG, PlayerColor player, const CGHeroInstance * hero, const BattleInterface * owner);
 };
 
-class CHeroInfoWindow : public CWindowObject
+class HeroInfoWindow : public CWindowObject
 {
 private:
 	std::vector<std::shared_ptr<CLabel>> labels;
 	std::vector<std::shared_ptr<CAnimImage>> icons;
 public:
-	CHeroInfoWindow(const InfoAboutHero & hero, Point * position);
+	HeroInfoWindow(const InfoAboutHero & hero, Point * position);
 };
 
 /// Class which manages the battle options window
-class CBattleOptionsWindow : public CWindowObject
+class BattleOptionsWindow : public CWindowObject
 {
 private:
 	std::shared_ptr<CButton> setToDefault;
@@ -107,14 +106,14 @@ private:
 	std::vector<std::shared_ptr<CLabel>> labels;
 	std::vector<std::shared_ptr<CToggleButton>> toggles;
 public:
-	CBattleOptionsWindow(CBattleInterface * owner);
+	BattleOptionsWindow(BattleInterface * owner);
 
 	void bDefaultf(); //default button callback
 	void bExitf(); //exit button callback
 };
 
 /// Class which is responsible for showing the battle result window
-class CBattleResultWindow : public WindowBase
+class BattleResultWindow : public WindowBase
 {
 private:
 	std::shared_ptr<CPicture> background;
@@ -124,8 +123,7 @@ private:
 	std::shared_ptr<CTextBox> description;
 	CPlayerInterface & owner;
 public:
-	CBattleResultWindow(const BattleResult & br, CPlayerInterface & _owner);
-	~CBattleResultWindow();
+	BattleResultWindow(const BattleResult & br, CPlayerInterface & _owner);
 
 	void bExitf(); //exit button callback
 
@@ -134,7 +132,7 @@ public:
 };
 
 /// Class which stands for a single hex field on a battlefield
-class CClickableHex : public CIntObject
+class ClickableHex : public CIntObject
 {
 private:
 	bool setAlterText; //if true, this hex has set alternative text in console and will clean it
@@ -143,22 +141,22 @@ public:
 	//bool accessible; //if true, this hex is accessible for units
 	//CStack * ourStack;
 	bool strictHovered; //for determining if hex is hovered by mouse (this is different problem than hex's graphic hovering)
-	CBattleInterface * myInterface; //interface that owns me
+	BattleInterface * myInterface; //interface that owns me
 
 	//for user interactions
 	void hover (bool on) override;
 	void mouseMoved (const SDL_MouseMotionEvent &sEvent) override;
 	void clickLeft(tribool down, bool previousState) override;
 	void clickRight(tribool down, bool previousState) override;
-	CClickableHex();
+	ClickableHex();
 };
 
 /// Shows the stack queue
-class CStackQueue : public CIntObject
+class StackQueue : public CIntObject
 {
 	class StackBox : public CIntObject
 	{
-		CStackQueue * owner;
+		StackQueue * owner;
 	public:
 		std::shared_ptr<CPicture> background;
 		std::shared_ptr<CAnimImage> icon;
@@ -166,13 +164,13 @@ class CStackQueue : public CIntObject
 		std::shared_ptr<CAnimImage> stateIcon;
 
 		void setUnit(const battle::Unit * unit, size_t turn = 0);
-		StackBox(CStackQueue * owner);
+		StackBox(StackQueue * owner);
 	};
 
 	static const int QUEUE_SIZE = 10;
 	std::shared_ptr<CFilledTexture> background;
 	std::vector<std::shared_ptr<StackBox>> stackBoxes;
-	CBattleInterface * owner;
+	BattleInterface * owner;
 
 	std::shared_ptr<CAnimation> icons;
 	std::shared_ptr<CAnimation> stateIcons;
@@ -181,7 +179,6 @@ class CStackQueue : public CIntObject
 public:
 	const bool embedded;
 
-	CStackQueue(bool Embedded, CBattleInterface * _owner);
-	~CStackQueue();
+	StackQueue(bool Embedded, BattleInterface * _owner);
 	void update();
 };

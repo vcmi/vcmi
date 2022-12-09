@@ -33,7 +33,7 @@
 #include "../../lib/CStack.h"
 #include "../../lib/spells/ISpellMechanics.h"
 
-CBattleFieldController::CBattleFieldController(CBattleInterface * owner):
+BattleFieldController::BattleFieldController(BattleInterface * owner):
 	owner(owner),
 	attackingHex(BattleHex::INVALID)
 {
@@ -77,7 +77,7 @@ CBattleFieldController::CBattleFieldController(CBattleInterface * owner):
 
 	for (int h = 0; h < GameConstants::BFIELD_SIZE; ++h)
 	{
-		auto hex = std::make_shared<CClickableHex>();
+		auto hex = std::make_shared<ClickableHex>();
 		hex->myNumber = h;
 		hex->pos = hexPosition(h);
 		hex->myInterface = owner;
@@ -89,18 +89,18 @@ CBattleFieldController::CBattleFieldController(CBattleInterface * owner):
 		stackCountOutsideHexes[i] = (accessibility[i] == EAccessibility::ACCESSIBLE);
 }
 
-void CBattleFieldController::renderBattlefield(std::shared_ptr<CCanvas> canvas)
+void BattleFieldController::renderBattlefield(std::shared_ptr<CCanvas> canvas)
 {
 	showBackground(canvas);
 
-	CBattleRenderer renderer(owner);
+	BattleRenderer renderer(owner);
 
 	renderer.execute(canvas);
 
 	owner->projectilesController->showProjectiles(canvas);
 }
 
-void CBattleFieldController::showBackground(std::shared_ptr<CCanvas> canvas)
+void BattleFieldController::showBackground(std::shared_ptr<CCanvas> canvas)
 {
 	if (owner->stacksController->getActiveStack() != nullptr ) //&& creAnims[stacksController->getActiveStack()->ID]->isIdle() //show everything with range
 		showBackgroundImageWithHexes(canvas);
@@ -111,7 +111,7 @@ void CBattleFieldController::showBackground(std::shared_ptr<CCanvas> canvas)
 
 }
 
-void CBattleFieldController::showBackgroundImage(std::shared_ptr<CCanvas> canvas)
+void BattleFieldController::showBackgroundImage(std::shared_ptr<CCanvas> canvas)
 {
 	canvas->draw(background, owner->pos.topLeft());
 
@@ -123,12 +123,12 @@ void CBattleFieldController::showBackgroundImage(std::shared_ptr<CCanvas> canvas
 		canvas->draw(cellBorders, owner->pos.topLeft());
 }
 
-void CBattleFieldController::showBackgroundImageWithHexes(std::shared_ptr<CCanvas> canvas)
+void BattleFieldController::showBackgroundImageWithHexes(std::shared_ptr<CCanvas> canvas)
 {
 	canvas->draw(backgroundWithHexes, owner->pos.topLeft());
 }
 
-void CBattleFieldController::redrawBackgroundWithHexes()
+void BattleFieldController::redrawBackgroundWithHexes()
 {
 	const CStack *activeStack = owner->stacksController->getActiveStack();
 	std::vector<BattleHex> attackableHexes;
@@ -160,7 +160,7 @@ void CBattleFieldController::redrawBackgroundWithHexes()
 		backgroundWithHexes->draw(cellBorders, Point(0, 0));
 }
 
-void CBattleFieldController::showHighlightedHex(std::shared_ptr<CCanvas> to, BattleHex hex, bool darkBorder)
+void BattleFieldController::showHighlightedHex(std::shared_ptr<CCanvas> to, BattleHex hex, bool darkBorder)
 {
 	Point hexPos = hexPosition(hex).topLeft();
 
@@ -169,7 +169,7 @@ void CBattleFieldController::showHighlightedHex(std::shared_ptr<CCanvas> to, Bat
 		to->draw(cellBorder, hexPos);
 }
 
-std::set<BattleHex> CBattleFieldController::getHighlightedHexesStackRange()
+std::set<BattleHex> BattleFieldController::getHighlightedHexesStackRange()
 {
 	std::set<BattleHex> result;
 
@@ -196,7 +196,7 @@ std::set<BattleHex> CBattleFieldController::getHighlightedHexesStackRange()
 	return result;
 }
 
-std::set<BattleHex> CBattleFieldController::getHighlightedHexesSpellRange()
+std::set<BattleHex> BattleFieldController::getHighlightedHexesSpellRange()
 {
 	std::set<BattleHex> result;
 	auto hoveredHex = getHoveredHex();
@@ -242,7 +242,7 @@ std::set<BattleHex> CBattleFieldController::getHighlightedHexesSpellRange()
 	return result;
 }
 
-void CBattleFieldController::showHighlightedHexes(std::shared_ptr<CCanvas> canvas)
+void BattleFieldController::showHighlightedHexes(std::shared_ptr<CCanvas> canvas)
 {
 	std::set<BattleHex> hoveredStack = getHighlightedHexesStackRange();
 	std::set<BattleHex> hoveredMouse = getHighlightedHexesSpellRange();
@@ -269,7 +269,7 @@ void CBattleFieldController::showHighlightedHexes(std::shared_ptr<CCanvas> canva
 	}
 }
 
-Rect CBattleFieldController::hexPositionLocal(BattleHex hex) const
+Rect BattleFieldController::hexPositionLocal(BattleHex hex) const
 {
 	int x = 14 + ((hex.getY())%2==0 ? 22 : 0) + 44*hex.getX();
 	int y = 86 + 42 *hex.getY();
@@ -278,17 +278,17 @@ Rect CBattleFieldController::hexPositionLocal(BattleHex hex) const
 	return Rect(x, y, w, h);
 }
 
-Rect CBattleFieldController::hexPosition(BattleHex hex) const
+Rect BattleFieldController::hexPosition(BattleHex hex) const
 {
 	return hexPositionLocal(hex) + owner->pos.topLeft();
 }
 
-bool CBattleFieldController::isPixelInHex(Point const & position)
+bool BattleFieldController::isPixelInHex(Point const & position)
 {
 	return !cellShade->isTransparent(position);
 }
 
-BattleHex CBattleFieldController::getHoveredHex()
+BattleHex BattleFieldController::getHoveredHex()
 {
 	for ( auto const & hex : bfield)
 		if (hex->hovered && hex->strictHovered)
@@ -297,7 +297,7 @@ BattleHex CBattleFieldController::getHoveredHex()
 	return BattleHex::INVALID;
 }
 
-void CBattleFieldController::setBattleCursor(BattleHex myNumber)
+void BattleFieldController::setBattleCursor(BattleHex myNumber)
 {
 	Rect hoveredHexPos = hexPosition(myNumber);
 	CCursorHandler *cursor = CCS->curh;
@@ -470,7 +470,7 @@ void CBattleFieldController::setBattleCursor(BattleHex myNumber)
 		attackingHex = -1;
 }
 
-BattleHex CBattleFieldController::fromWhichHexAttack(BattleHex myNumber)
+BattleHex BattleFieldController::fromWhichHexAttack(BattleHex myNumber)
 {
 	//TODO far too much repeating code
 	BattleHex destHex;
@@ -618,7 +618,7 @@ BattleHex CBattleFieldController::fromWhichHexAttack(BattleHex myNumber)
 	return -1;
 }
 
-bool CBattleFieldController::isTileAttackable(const BattleHex & number) const
+bool BattleFieldController::isTileAttackable(const BattleHex & number) const
 {
 	for (auto & elem : occupyableHexes)
 	{
@@ -628,7 +628,7 @@ bool CBattleFieldController::isTileAttackable(const BattleHex & number) const
 	return false;
 }
 
-bool CBattleFieldController::stackCountOutsideHex(const BattleHex & number) const
+bool BattleFieldController::stackCountOutsideHex(const BattleHex & number) const
 {
 	return stackCountOutsideHexes[number];
 }

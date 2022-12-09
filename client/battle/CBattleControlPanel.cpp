@@ -29,28 +29,28 @@
 #include "../../lib/CStack.h"
 #include "../../lib/CConfigHandler.h"
 
-CBattleControlPanel::CBattleControlPanel(CBattleInterface * owner, const Point & position):
+BattleControlPanel::BattleControlPanel(BattleInterface * owner, const Point & position):
 	owner(owner)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	pos += position;
 
 	//preparing buttons and console
-	bOptions = std::make_shared<CButton>    (Point(  3,  5), "icm003.def", CGI->generaltexth->zelp[381], std::bind(&CBattleControlPanel::bOptionsf,this), SDLK_o);
-	bSurrender = std::make_shared<CButton>  (Point( 54,  5), "icm001.def", CGI->generaltexth->zelp[379], std::bind(&CBattleControlPanel::bSurrenderf,this), SDLK_s);
-	bFlee = std::make_shared<CButton>       (Point(105,  5), "icm002.def", CGI->generaltexth->zelp[380], std::bind(&CBattleControlPanel::bFleef,this), SDLK_r);
-	bAutofight = std::make_shared<CButton>  (Point(157,  5), "icm004.def", CGI->generaltexth->zelp[382], std::bind(&CBattleControlPanel::bAutofightf,this), SDLK_a);
-	bSpell = std::make_shared<CButton>      (Point(645,  5), "icm005.def", CGI->generaltexth->zelp[385], std::bind(&CBattleControlPanel::bSpellf,this), SDLK_c);
-	bWait = std::make_shared<CButton>       (Point(696,  5), "icm006.def", CGI->generaltexth->zelp[386], std::bind(&CBattleControlPanel::bWaitf,this), SDLK_w);
-	bDefence = std::make_shared<CButton>    (Point(747,  5), "icm007.def", CGI->generaltexth->zelp[387], std::bind(&CBattleControlPanel::bDefencef,this), SDLK_d);
-	bConsoleUp = std::make_shared<CButton>  (Point(624,  5), "ComSlide.def", std::make_pair("", ""),     std::bind(&CBattleControlPanel::bConsoleUpf,this), SDLK_UP);
-	bConsoleDown = std::make_shared<CButton>(Point(624, 24), "ComSlide.def", std::make_pair("", ""),     std::bind(&CBattleControlPanel::bConsoleDownf,this), SDLK_DOWN);
+	bOptions = std::make_shared<CButton>    (Point(  3,  5), "icm003.def", CGI->generaltexth->zelp[381], std::bind(&BattleControlPanel::bOptionsf,this), SDLK_o);
+	bSurrender = std::make_shared<CButton>  (Point( 54,  5), "icm001.def", CGI->generaltexth->zelp[379], std::bind(&BattleControlPanel::bSurrenderf,this), SDLK_s);
+	bFlee = std::make_shared<CButton>       (Point(105,  5), "icm002.def", CGI->generaltexth->zelp[380], std::bind(&BattleControlPanel::bFleef,this), SDLK_r);
+	bAutofight = std::make_shared<CButton>  (Point(157,  5), "icm004.def", CGI->generaltexth->zelp[382], std::bind(&BattleControlPanel::bAutofightf,this), SDLK_a);
+	bSpell = std::make_shared<CButton>      (Point(645,  5), "icm005.def", CGI->generaltexth->zelp[385], std::bind(&BattleControlPanel::bSpellf,this), SDLK_c);
+	bWait = std::make_shared<CButton>       (Point(696,  5), "icm006.def", CGI->generaltexth->zelp[386], std::bind(&BattleControlPanel::bWaitf,this), SDLK_w);
+	bDefence = std::make_shared<CButton>    (Point(747,  5), "icm007.def", CGI->generaltexth->zelp[387], std::bind(&BattleControlPanel::bDefencef,this), SDLK_d);
+	bConsoleUp = std::make_shared<CButton>  (Point(624,  5), "ComSlide.def", std::make_pair("", ""),     std::bind(&BattleControlPanel::bConsoleUpf,this), SDLK_UP);
+	bConsoleDown = std::make_shared<CButton>(Point(624, 24), "ComSlide.def", std::make_pair("", ""),     std::bind(&BattleControlPanel::bConsoleDownf,this), SDLK_DOWN);
 
 	bDefence->assignedKeys.insert(SDLK_SPACE);
 	bConsoleUp->setImageOrder(0, 1, 0, 0);
 	bConsoleDown->setImageOrder(2, 3, 2, 2);
 
-	console = std::make_shared<CBattleConsole>(Rect(211, 4, 406,38));
+	console = std::make_shared<BattleConsole>(Rect(211, 4, 406,38));
 	GH.statusbar = console;
 
 	if ( owner->tacticsMode )
@@ -59,14 +59,14 @@ CBattleControlPanel::CBattleControlPanel(CBattleInterface * owner, const Point &
 		tacticPhaseEnded();
 }
 
-void CBattleControlPanel::show(SDL_Surface * to)
+void BattleControlPanel::show(SDL_Surface * to)
 {
 	//show menu before all other elements to keep it in background
 	menu->show(to);
 	CIntObject::show(to);
 }
 
-void CBattleControlPanel::showAll(SDL_Surface * to)
+void BattleControlPanel::showAll(SDL_Surface * to)
 {
 	//show menu before all other elements to keep it in background
 	menu->showAll(to);
@@ -74,7 +74,7 @@ void CBattleControlPanel::showAll(SDL_Surface * to)
 }
 
 
-void CBattleControlPanel::tacticPhaseStarted()
+void BattleControlPanel::tacticPhaseStarted()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
@@ -84,7 +84,7 @@ void CBattleControlPanel::tacticPhaseStarted()
 	menu->colorize(owner->curInt->playerID);
 	menu->recActions &= ~(SHOWALL | UPDATE);
 }
-void CBattleControlPanel::tacticPhaseEnded()
+void BattleControlPanel::tacticPhaseEnded()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
@@ -96,17 +96,17 @@ void CBattleControlPanel::tacticPhaseEnded()
 	menu->recActions &= ~(SHOWALL | UPDATE);
 }
 
-void CBattleControlPanel::bOptionsf()
+void BattleControlPanel::bOptionsf()
 {
 	if (owner->actionsController->spellcastingModeActive())
 		return;
 
 	CCS->curh->changeGraphic(ECursor::ADVENTURE,0);
 
-	GH.pushIntT<CBattleOptionsWindow>(owner);
+	GH.pushIntT<BattleOptionsWindow>(owner);
 }
 
-void CBattleControlPanel::bSurrenderf()
+void BattleControlPanel::bSurrenderf()
 {
 	if (owner->actionsController->spellcastingModeActive())
 		return;
@@ -126,14 +126,14 @@ void CBattleControlPanel::bSurrenderf()
 	}
 }
 
-void CBattleControlPanel::bFleef()
+void BattleControlPanel::bFleef()
 {
 	if (owner->actionsController->spellcastingModeActive())
 		return;
 
 	if ( owner->curInt->cb->battleCanFlee() )
 	{
-		CFunctionList<void()> ony = std::bind(&CBattleControlPanel::reallyFlee,this);
+		CFunctionList<void()> ony = std::bind(&BattleControlPanel::reallyFlee,this);
 		owner->curInt->showYesNoDialog(CGI->generaltexth->allTexts[28], ony, nullptr); //Are you sure you want to retreat?
 	}
 	else
@@ -155,13 +155,13 @@ void CBattleControlPanel::bFleef()
 	}
 }
 
-void CBattleControlPanel::reallyFlee()
+void BattleControlPanel::reallyFlee()
 {
 	owner->giveCommand(EActionType::RETREAT);
 	CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
 }
 
-void CBattleControlPanel::reallySurrender()
+void BattleControlPanel::reallySurrender()
 {
 	if (owner->curInt->cb->getResourceAmount(Res::GOLD) < owner->curInt->cb->battleGetSurrenderCost())
 	{
@@ -174,7 +174,7 @@ void CBattleControlPanel::reallySurrender()
 	}
 }
 
-void CBattleControlPanel::bAutofightf()
+void BattleControlPanel::bAutofightf()
 {
 	if (owner->actionsController->spellcastingModeActive())
 		return;
@@ -201,7 +201,7 @@ void CBattleControlPanel::bAutofightf()
 	}
 }
 
-void CBattleControlPanel::bSpellf()
+void BattleControlPanel::bSpellf()
 {
 	if (owner->actionsController->spellcastingModeActive())
 		return;
@@ -243,7 +243,7 @@ void CBattleControlPanel::bSpellf()
 	}
 }
 
-void CBattleControlPanel::bWaitf()
+void BattleControlPanel::bWaitf()
 {
 	if (owner->actionsController->spellcastingModeActive())
 		return;
@@ -252,7 +252,7 @@ void CBattleControlPanel::bWaitf()
 		owner->giveCommand(EActionType::WAIT);
 }
 
-void CBattleControlPanel::bDefencef()
+void BattleControlPanel::bDefencef()
 {
 	if (owner->actionsController->spellcastingModeActive())
 		return;
@@ -261,7 +261,7 @@ void CBattleControlPanel::bDefencef()
 		owner->giveCommand(EActionType::DEFEND);
 }
 
-void CBattleControlPanel::bConsoleUpf()
+void BattleControlPanel::bConsoleUpf()
 {
 	if (owner->actionsController->spellcastingModeActive())
 		return;
@@ -269,7 +269,7 @@ void CBattleControlPanel::bConsoleUpf()
 	console->scrollUp();
 }
 
-void CBattleControlPanel::bConsoleDownf()
+void BattleControlPanel::bConsoleDownf()
 {
 	if (owner->actionsController->spellcastingModeActive())
 		return;
@@ -277,17 +277,17 @@ void CBattleControlPanel::bConsoleDownf()
 	console->scrollDown();
 }
 
-void CBattleControlPanel::bTacticNextStack()
+void BattleControlPanel::bTacticNextStack()
 {
 	owner->tacticNextStack(nullptr);
 }
 
-void CBattleControlPanel::bTacticPhaseEnd()
+void BattleControlPanel::bTacticPhaseEnd()
 {
 	owner->tacticPhaseEnd();
 }
 
-void CBattleControlPanel::blockUI(bool on)
+void BattleControlPanel::blockUI(bool on)
 {
 	bool canCastSpells = false;
 	auto hero = owner->curInt->cb->battleGetMyHero();

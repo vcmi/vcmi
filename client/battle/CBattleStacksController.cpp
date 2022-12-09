@@ -35,9 +35,9 @@
 #include "../../lib/CStack.h"
 #include "../../lib/CondSh.h"
 
-static void onAnimationFinished(const CStack *stack, std::weak_ptr<CCreatureAnimation> anim)
+static void onAnimationFinished(const CStack *stack, std::weak_ptr<CreatureAnimation> anim)
 {
-	std::shared_ptr<CCreatureAnimation> animation = anim.lock();
+	std::shared_ptr<CreatureAnimation> animation = anim.lock();
 	if(!animation)
 		return;
 
@@ -61,7 +61,7 @@ static void onAnimationFinished(const CStack *stack, std::weak_ptr<CCreatureAnim
 	animation->onAnimationReset += std::bind(&onAnimationFinished, stack, anim);
 }
 
-CBattleStacksController::CBattleStacksController(CBattleInterface * owner):
+BattleStacksController::BattleStacksController(BattleInterface * owner):
 	owner(owner),
 	activeStack(nullptr),
 	mouseHoveredStack(nullptr),
@@ -94,7 +94,7 @@ CBattleStacksController::CBattleStacksController(CBattleInterface * owner):
 	}
 }
 
-BattleHex CBattleStacksController::getStackCurrentPosition(const CStack * stack)
+BattleHex BattleStacksController::getStackCurrentPosition(const CStack * stack)
 {
 	if ( !stackAnimation[stack->ID]->isMoving())
 		return stack->getPosition();
@@ -117,7 +117,7 @@ BattleHex CBattleStacksController::getStackCurrentPosition(const CStack * stack)
 	return stack->getPosition();
 }
 
-void CBattleStacksController::collectRenderableObjects(CBattleRenderer & renderer)
+void BattleStacksController::collectRenderableObjects(BattleRenderer & renderer)
 {
 	auto stacks = owner->curInt->cb->battleGetAllStacks(false);
 
@@ -133,20 +133,20 @@ void CBattleStacksController::collectRenderableObjects(CBattleRenderer & rendere
 		auto layer = stackAnimation[stack->ID]->isDead() ? EBattleFieldLayer::CORPSES : EBattleFieldLayer::STACKS;
 		auto location = getStackCurrentPosition(stack);
 
-		renderer.insert(layer, location, [this, stack]( CBattleRenderer::RendererPtr renderer ){
+		renderer.insert(layer, location, [this, stack]( BattleRenderer::RendererPtr renderer ){
 			showStack(renderer, stack);
 		});
 
 		if (stackNeedsAmountBox(stack))
 		{
-			renderer.insert(EBattleFieldLayer::STACK_AMOUNTS, location, [this, stack]( CBattleRenderer::RendererPtr renderer ){
+			renderer.insert(EBattleFieldLayer::STACK_AMOUNTS, location, [this, stack]( BattleRenderer::RendererPtr renderer ){
 				showStackAmountBox(renderer, stack);
 			});
 		}
 	}
 }
 
-void CBattleStacksController::stackReset(const CStack * stack)
+void BattleStacksController::stackReset(const CStack * stack)
 {
 	auto iter = stackAnimation.find(stack->ID);
 
@@ -170,7 +170,7 @@ void CBattleStacksController::stackReset(const CStack * stack)
 	//TODO: handle more cases
 }
 
-void CBattleStacksController::stackAdded(const CStack * stack)
+void BattleStacksController::stackAdded(const CStack * stack)
 {
 	stackFacingRight[stack->ID] = stack->side == BattleSide::ATTACKER; // must be set before getting stack position
 
@@ -199,7 +199,7 @@ void CBattleStacksController::stackAdded(const CStack * stack)
 	stackAnimation[stack->ID]->setType(CCreatureAnim::HOLDING);
 }
 
-void CBattleStacksController::setActiveStack(const CStack *stack)
+void BattleStacksController::setActiveStack(const CStack *stack)
 {
 	if (activeStack) // update UI
 		stackAnimation[activeStack->ID]->setBorderColor(AnimationControls::getNoBorder());
@@ -212,7 +212,7 @@ void CBattleStacksController::setActiveStack(const CStack *stack)
 	owner->controlPanel->blockUI(activeStack == nullptr);
 }
 
-void CBattleStacksController::setHoveredStack(const CStack *stack)
+void BattleStacksController::setHoveredStack(const CStack *stack)
 {
 	if ( stack == mouseHoveredStack )
 		 return;
@@ -236,7 +236,7 @@ void CBattleStacksController::setHoveredStack(const CStack *stack)
 		mouseHoveredStack = nullptr;
 }
 
-bool CBattleStacksController::stackNeedsAmountBox(const CStack * stack)
+bool BattleStacksController::stackNeedsAmountBox(const CStack * stack)
 {
 	BattleHex currentActionTarget;
 	if(owner->curInt->curAction)
@@ -282,7 +282,7 @@ bool CBattleStacksController::stackNeedsAmountBox(const CStack * stack)
 	return true;
 }
 
-std::shared_ptr<IImage> CBattleStacksController::getStackAmountBox(const CStack * stack)
+std::shared_ptr<IImage> BattleStacksController::getStackAmountBox(const CStack * stack)
 {
 	std::vector<si32> activeSpells = stack->activeSpells();
 
@@ -303,7 +303,7 @@ std::shared_ptr<IImage> CBattleStacksController::getStackAmountBox(const CStack 
 	return amountEffNeutral;
 }
 
-void CBattleStacksController::showStackAmountBox(std::shared_ptr<CCanvas> canvas, const CStack * stack)
+void BattleStacksController::showStackAmountBox(std::shared_ptr<CCanvas> canvas, const CStack * stack)
 {
 	//blitting amount background box
 	auto amountBG = getStackAmountBox(stack);
@@ -327,13 +327,13 @@ void CBattleStacksController::showStackAmountBox(std::shared_ptr<CCanvas> canvas
 	canvas->drawText(textPos, EFonts::FONT_TINY, Colors::WHITE, ETextAlignment::CENTER, makeNumberShort(stack->getCount()));
 }
 
-void CBattleStacksController::showStack(std::shared_ptr<CCanvas> canvas, const CStack * stack)
+void BattleStacksController::showStack(std::shared_ptr<CCanvas> canvas, const CStack * stack)
 {
 	stackAnimation[stack->ID]->nextFrame(canvas, facingRight(stack)); // do actual blit
 	stackAnimation[stack->ID]->incrementFrame(float(GH.mainFPSmng->getElapsedMilliseconds()) / 1000);
 }
 
-void CBattleStacksController::updateBattleAnimations()
+void BattleStacksController::updateBattleAnimations()
 {
 	for (auto & elem : currentAnimations)
 	{
@@ -363,13 +363,13 @@ void CBattleStacksController::updateBattleAnimations()
 	}
 }
 
-void CBattleStacksController::addNewAnim(CBattleAnimation *anim)
+void BattleStacksController::addNewAnim(CBattleAnimation *anim)
 {
 	currentAnimations.push_back(anim);
 	owner->animsAreDisplayed.setn(true);
 }
 
-void CBattleStacksController::stackActivated(const CStack *stack) //TODO: check it all before game state is changed due to abilities
+void BattleStacksController::stackActivated(const CStack *stack) //TODO: check it all before game state is changed due to abilities
 {
 	stackToActivate = stack;
 	owner->waitForAnims();
@@ -377,7 +377,7 @@ void CBattleStacksController::stackActivated(const CStack *stack) //TODO: check 
 		owner->activateStack();
 }
 
-void CBattleStacksController::stackRemoved(uint32_t stackID)
+void BattleStacksController::stackRemoved(uint32_t stackID)
 {
 	if (getActiveStack() != nullptr)
 	{
@@ -394,7 +394,7 @@ void CBattleStacksController::stackRemoved(uint32_t stackID)
 	//todo: ensure that ghost stack animation has fadeout effect
 }
 
-void CBattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> attackedInfos)
+void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> attackedInfos)
 {
 	for(auto & attackedInfo : attackedInfos)
 	{
@@ -417,13 +417,13 @@ void CBattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> a
 	}
 }
 
-void CBattleStacksController::stackMoved(const CStack *stack, std::vector<BattleHex> destHex, int distance)
+void BattleStacksController::stackMoved(const CStack *stack, std::vector<BattleHex> destHex, int distance)
 {
 	addNewAnim(new CMovementAnimation(owner, stack, destHex, distance));
 	owner->waitForAnims();
 }
 
-void CBattleStacksController::stackAttacking( const CStack *attacker, BattleHex dest, const CStack *attacked, bool shooting )
+void BattleStacksController::stackAttacking( const CStack *attacker, BattleHex dest, const CStack *attacked, bool shooting )
 {
 	if (shooting)
 	{
@@ -436,7 +436,7 @@ void CBattleStacksController::stackAttacking( const CStack *attacker, BattleHex 
 	//waitForAnims();
 }
 
-bool CBattleStacksController::shouldRotate(const CStack * stack, const BattleHex & oldPos, const BattleHex & nextHex)
+bool BattleStacksController::shouldRotate(const CStack * stack, const BattleHex & oldPos, const BattleHex & nextHex)
 {
 	Point begPosition = getStackPositionAtHex(oldPos,stack);
 	Point endPosition = getStackPositionAtHex(nextHex, stack);
@@ -450,7 +450,7 @@ bool CBattleStacksController::shouldRotate(const CStack * stack, const BattleHex
 }
 
 
-void CBattleStacksController::endAction(const BattleAction* action)
+void BattleStacksController::endAction(const BattleAction* action)
 {
 	//check if we should reverse stacks
 	//for some strange reason, it's not enough
@@ -467,7 +467,7 @@ void CBattleStacksController::endAction(const BattleAction* action)
 	}
 }
 
-void CBattleStacksController::startAction(const BattleAction* action)
+void BattleStacksController::startAction(const BattleAction* action)
 {
 	const CStack *stack = owner->curInt->cb->battleGetStackByID(action->stackNumber);
 	setHoveredStack(nullptr);
@@ -487,7 +487,7 @@ void CBattleStacksController::startAction(const BattleAction* action)
 	}
 }
 
-void CBattleStacksController::activateStack()
+void BattleStacksController::activateStack()
 {
 	if ( !currentAnimations.empty())
 		return;
@@ -524,39 +524,39 @@ void CBattleStacksController::activateStack()
 	}
 }
 
-void CBattleStacksController::setSelectedStack(const CStack *stack)
+void BattleStacksController::setSelectedStack(const CStack *stack)
 {
 	selectedStack = stack;
 }
 
-const CStack* CBattleStacksController::getSelectedStack()
+const CStack* BattleStacksController::getSelectedStack()
 {
 	return selectedStack;
 }
 
-const CStack* CBattleStacksController::getActiveStack()
+const CStack* BattleStacksController::getActiveStack()
 {
 	return activeStack;
 }
 
-bool CBattleStacksController::facingRight(const CStack * stack)
+bool BattleStacksController::facingRight(const CStack * stack)
 {
 	return stackFacingRight[stack->ID];
 }
 
-bool CBattleStacksController::activeStackSpellcaster()
+bool BattleStacksController::activeStackSpellcaster()
 {
 	return stackCanCastSpell;
 }
 
-SpellID CBattleStacksController::activeStackSpellToCast()
+SpellID BattleStacksController::activeStackSpellToCast()
 {
 	if (!stackCanCastSpell)
 		return SpellID::NONE;
 	return SpellID(creatureSpellToCast);
 }
 
-Point CBattleStacksController::getStackPositionAtHex(BattleHex hexNum, const CStack * stack)
+Point BattleStacksController::getStackPositionAtHex(BattleHex hexNum, const CStack * stack)
 {
 	Point ret(-500, -500); //returned value
 	if(stack && stack->initialPosition < 0) //creatures in turrets

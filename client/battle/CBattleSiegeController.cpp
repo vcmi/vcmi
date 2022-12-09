@@ -28,7 +28,7 @@
 #include "../../lib/CStack.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 
-std::string CBattleSiegeController::getWallPieceImageName(EWallVisual::EWallVisual what, EWallState::EWallState state) const
+std::string BattleSiegeController::getWallPieceImageName(EWallVisual::EWallVisual what, EWallState::EWallState state) const
 {
 	auto getImageIndex = [&]() -> int
 	{
@@ -106,7 +106,7 @@ std::string CBattleSiegeController::getWallPieceImageName(EWallVisual::EWallVisu
 	}
 }
 
-void CBattleSiegeController::showWallPiece(std::shared_ptr<CCanvas> canvas, EWallVisual::EWallVisual what, const Point & offset)
+void BattleSiegeController::showWallPiece(std::shared_ptr<CCanvas> canvas, EWallVisual::EWallVisual what, const Point & offset)
 {
 	auto & ci = town->town->clientInfo;
 	auto const & pos = ci.siegePositions[what];
@@ -115,13 +115,13 @@ void CBattleSiegeController::showWallPiece(std::shared_ptr<CCanvas> canvas, EWal
 		canvas->draw(wallPieceImages[what], offset + Point(pos.x, pos.y));
 }
 
-std::string CBattleSiegeController::getBattleBackgroundName() const
+std::string BattleSiegeController::getBattleBackgroundName() const
 {
 	const std::string & prefix = town->town->clientInfo.siegePrefix;
 	return prefix + "BACK.BMP";
 }
 
-bool CBattleSiegeController::getWallPieceExistance(EWallVisual::EWallVisual what) const
+bool BattleSiegeController::getWallPieceExistance(EWallVisual::EWallVisual what) const
 {
 	//FIXME: use this instead of buildings test?
 	//ui8 siegeLevel = owner->curInt->cb->battleGetSiegeLevel();
@@ -137,7 +137,7 @@ bool CBattleSiegeController::getWallPieceExistance(EWallVisual::EWallVisual what
 	}
 }
 
-BattleHex CBattleSiegeController::getWallPiecePosition(EWallVisual::EWallVisual what) const
+BattleHex BattleSiegeController::getWallPiecePosition(EWallVisual::EWallVisual what) const
 {
 	static const std::array<BattleHex, 18> wallsPositions = {
 		BattleHex::INVALID,        // BACKGROUND,         // handled separately
@@ -163,7 +163,7 @@ BattleHex CBattleSiegeController::getWallPiecePosition(EWallVisual::EWallVisual 
 	return wallsPositions[what];
 }
 
-CBattleSiegeController::CBattleSiegeController(CBattleInterface * owner, const CGTownInstance *siegeTown):
+BattleSiegeController::BattleSiegeController(BattleInterface * owner, const CGTownInstance *siegeTown):
 	owner(owner),
 	town(siegeTown)
 {
@@ -181,12 +181,12 @@ CBattleSiegeController::CBattleSiegeController(CBattleInterface * owner, const C
 	}
 }
 
-const CCreature *CBattleSiegeController::getTurretCreature() const
+const CCreature *BattleSiegeController::getTurretCreature() const
 {
 	return CGI->creh->objects[town->town->clientInfo.siegeShooter];
 }
 
-Point CBattleSiegeController::getTurretCreaturePosition( BattleHex position ) const
+Point BattleSiegeController::getTurretCreaturePosition( BattleHex position ) const
 {
 	// Turret positions are read out of the config/wall_pos.txt
 	int posID = 0;
@@ -215,7 +215,7 @@ Point CBattleSiegeController::getTurretCreaturePosition( BattleHex position ) co
 	return Point(0,0);
 }
 
-void CBattleSiegeController::gateStateChanged(const EGateState state)
+void BattleSiegeController::gateStateChanged(const EGateState state)
 {
 	auto oldState = owner->curInt->cb->battleGetGateState();
 	bool playSound = false;
@@ -249,7 +249,7 @@ void CBattleSiegeController::gateStateChanged(const EGateState state)
 		CCS->soundh->playSound(soundBase::DRAWBRG);
 }
 
-void CBattleSiegeController::showAbsoluteObstacles(std::shared_ptr<CCanvas> canvas, const Point & offset)
+void BattleSiegeController::showAbsoluteObstacles(std::shared_ptr<CCanvas> canvas, const Point & offset)
 {
 	if (getWallPieceExistance(EWallVisual::MOAT))
 		showWallPiece(canvas, EWallVisual::MOAT, offset);
@@ -258,7 +258,7 @@ void CBattleSiegeController::showAbsoluteObstacles(std::shared_ptr<CCanvas> canv
 		showWallPiece(canvas, EWallVisual::MOAT_BANK, offset);
 }
 
-BattleHex CBattleSiegeController::getTurretBattleHex(EWallVisual::EWallVisual wallPiece) const
+BattleHex BattleSiegeController::getTurretBattleHex(EWallVisual::EWallVisual wallPiece) const
 {
 	switch(wallPiece)
 	{
@@ -270,7 +270,7 @@ BattleHex CBattleSiegeController::getTurretBattleHex(EWallVisual::EWallVisual wa
 	return BattleHex::INVALID;
 }
 
-const CStack * CBattleSiegeController::getTurretStack(EWallVisual::EWallVisual wallPiece) const
+const CStack * BattleSiegeController::getTurretStack(EWallVisual::EWallVisual wallPiece) const
 {
 	for (auto & stack : owner->curInt->cb->battleGetAllStacks(true))
 	{
@@ -281,7 +281,7 @@ const CStack * CBattleSiegeController::getTurretStack(EWallVisual::EWallVisual w
 	return nullptr;
 }
 
-void CBattleSiegeController::collectRenderableObjects(CBattleRenderer & renderer)
+void BattleSiegeController::collectRenderableObjects(BattleRenderer & renderer)
 {
 	for (int i = EWallVisual::WALL_FIRST; i <= EWallVisual::WALL_LAST; ++i)
 	{
@@ -297,14 +297,14 @@ void CBattleSiegeController::collectRenderableObjects(CBattleRenderer & renderer
 			wallPiece == EWallVisual::BOTTOM_BATTLEMENT ||
 			wallPiece == EWallVisual::UPPER_BATTLEMENT)
 		{
-			renderer.insert( EBattleFieldLayer::STACKS, getWallPiecePosition(wallPiece), [this, wallPiece](CBattleRenderer::RendererPtr canvas){
+			renderer.insert( EBattleFieldLayer::STACKS, getWallPiecePosition(wallPiece), [this, wallPiece](BattleRenderer::RendererPtr canvas){
 				owner->stacksController->showStack(canvas, getTurretStack(wallPiece));
 			});
-			renderer.insert( EBattleFieldLayer::BATTLEMENTS, getWallPiecePosition(wallPiece), [this, wallPiece](CBattleRenderer::RendererPtr canvas){
+			renderer.insert( EBattleFieldLayer::BATTLEMENTS, getWallPiecePosition(wallPiece), [this, wallPiece](BattleRenderer::RendererPtr canvas){
 				showWallPiece(canvas, wallPiece, owner->pos.topLeft());
 			});
 		}
-		renderer.insert( EBattleFieldLayer::WALLS, getWallPiecePosition(wallPiece), [this, wallPiece](CBattleRenderer::RendererPtr canvas){
+		renderer.insert( EBattleFieldLayer::WALLS, getWallPiecePosition(wallPiece), [this, wallPiece](BattleRenderer::RendererPtr canvas){
 			showWallPiece(canvas, wallPiece, owner->pos.topLeft());
 		});
 
@@ -312,7 +312,7 @@ void CBattleSiegeController::collectRenderableObjects(CBattleRenderer & renderer
 	}
 }
 
-bool CBattleSiegeController::isAttackableByCatapult(BattleHex hex) const
+bool BattleSiegeController::isAttackableByCatapult(BattleHex hex) const
 {
 	if (owner->tacticsMode)
 		return false;
@@ -325,7 +325,7 @@ bool CBattleSiegeController::isAttackableByCatapult(BattleHex hex) const
 	return state != EWallState::DESTROYED && state != EWallState::NONE;
 }
 
-void CBattleSiegeController::stackIsCatapulting(const CatapultAttack & ca)
+void BattleSiegeController::stackIsCatapulting(const CatapultAttack & ca)
 {
 	if (ca.attacker != -1)
 	{
@@ -362,7 +362,7 @@ void CBattleSiegeController::stackIsCatapulting(const CatapultAttack & ca)
 	}
 }
 
-const CGTownInstance *CBattleSiegeController::getSiegedTown() const
+const CGTownInstance *BattleSiegeController::getSiegedTown() const
 {
 	return town;
 }

@@ -17,7 +17,7 @@
 #include "CBattleStacksController.h"
 #include "CBattleObstacleController.h"
 
-void CBattleRenderer::collectObjects()
+void BattleRenderer::collectObjects()
 {
 	owner->collectRenderableObjects(*this);
 	owner->effectsController->collectRenderableObjects(*this);
@@ -27,7 +27,7 @@ void CBattleRenderer::collectObjects()
 		owner->siegeController->collectRenderableObjects(*this);
 }
 
-void CBattleRenderer::sortObjects()
+void BattleRenderer::sortObjects()
 {
 	auto getRow = [](const RenderableInstance & object) -> int
 	{
@@ -54,23 +54,23 @@ void CBattleRenderer::sortObjects()
 	});
 }
 
-void CBattleRenderer::renderObjects(CBattleRenderer::RendererPtr targetCanvas)
+void BattleRenderer::renderObjects(BattleRenderer::RendererPtr targetCanvas)
 {
 	for (auto const & object : objects)
 		object.functor(targetCanvas);
 }
 
-CBattleRenderer::CBattleRenderer(CBattleInterface * owner):
+BattleRenderer::BattleRenderer(BattleInterface * owner):
 	owner(owner)
 {
 }
 
-void CBattleRenderer::insert(EBattleFieldLayer layer, BattleHex tile, CBattleRenderer::RenderFunctor functor)
+void BattleRenderer::insert(EBattleFieldLayer layer, BattleHex tile, BattleRenderer::RenderFunctor functor)
 {
 	objects.push_back({ functor, layer, tile });
 }
 
-void CBattleRenderer::execute(CBattleRenderer::RendererPtr targetCanvas)
+void BattleRenderer::execute(BattleRenderer::RendererPtr targetCanvas)
 {
 	collectObjects();
 	sortObjects();

@@ -24,16 +24,16 @@ struct SDL_Surface;
 struct StackAttackedInfo;
 
 class CCanvas;
-class CBattleInterface;
+class BattleInterface;
 class CBattleAnimation;
-class CCreatureAnimation;
+class CreatureAnimation;
 class CBattleAnimation;
-class CBattleRenderer;
+class BattleRenderer;
 class IImage;
 
-class CBattleStacksController
+class BattleStacksController
 {
-	CBattleInterface * owner;
+	BattleInterface * owner;
 
 	std::shared_ptr<IImage> amountNormal;
 	std::shared_ptr<IImage> amountNegative;
@@ -41,7 +41,7 @@ class CBattleStacksController
 	std::shared_ptr<IImage> amountEffNeutral;
 
 	std::vector<CBattleAnimation *> currentAnimations; //currently displayed animations <anim, initialized>
-	std::map<int32_t, std::shared_ptr<CCreatureAnimation>> stackAnimation; //animations of creatures from fighting armies (order by BattleInfo's stacks' ID)
+	std::map<int32_t, std::shared_ptr<CreatureAnimation>> stackAnimation; //animations of creatures from fighting armies (order by BattleInfo's stacks' ID)
 	std::map<int, bool> stackFacingRight; // <creatureID, if false reverse creature's animation> //TODO: move it to battle callback
 
 	const CStack *activeStack; //number of active stack; nullptr - no one
@@ -61,7 +61,7 @@ class CBattleStacksController
 	std::shared_ptr<IImage> getStackAmountBox(const CStack * stack);
 
 public:
-	CBattleStacksController(CBattleInterface * owner);
+	BattleStacksController(BattleInterface * owner);
 
 	bool shouldRotate(const CStack * stack, const BattleHex & oldPos, const BattleHex & nextHex);
 	bool facingRight(const CStack * stack);
@@ -89,7 +89,7 @@ public:
 	void showAliveStack(std::shared_ptr<CCanvas> canvas, const CStack * stack);
 	void showStack(std::shared_ptr<CCanvas> canvas, const CStack * stack);
 
-	void collectRenderableObjects(CBattleRenderer & renderer);
+	void collectRenderableObjects(BattleRenderer & renderer);
 
 	void addNewAnim(CBattleAnimation *anim); //adds new anim to pendingAnims
 	void updateBattleAnimations();

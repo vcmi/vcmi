@@ -17,12 +17,12 @@ class CStack;
 VCMI_LIB_NAMESPACE_END
 
 class CButton;
-class CBattleInterface;
-class CBattleConsole;
+class BattleInterface;
+class BattleConsole;
 
-class CBattleControlPanel : public CIntObject
+class BattleControlPanel : public CIntObject
 {
-	CBattleInterface * owner;
+	BattleInterface * owner;
 
 	std::shared_ptr<CPicture> menu;
 
@@ -55,7 +55,7 @@ class CBattleControlPanel : public CIntObject
 	void reallySurrender(); //performs surrendering without asking player
 
 public:
-	std::shared_ptr<CBattleConsole> console;
+	std::shared_ptr<BattleConsole> console;
 
 	// block all UI elements, e.g. during enemy turn
 	// unlike activate/deactivate this method will correctly grey-out all elements
@@ -67,6 +67,6 @@ public:
 	void tacticPhaseStarted();
 	void tacticPhaseEnded();
 
-	CBattleControlPanel(CBattleInterface * owner, const Point & position);
+	BattleControlPanel(BattleInterface * owner, const Point & position);
 };
 

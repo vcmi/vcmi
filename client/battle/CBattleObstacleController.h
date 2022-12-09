@@ -20,15 +20,15 @@ struct SDL_Surface;
 class IImage;
 class CCanvas;
 class CAnimation;
-class CBattleInterface;
-class CBattleRenderer;
+class BattleInterface;
+class BattleRenderer;
 struct Point;
 
-class CBattleObstacleController
+class BattleObstacleController
 {
 	std::map<std::string, std::shared_ptr<CAnimation>> animationsCache;
 
-	CBattleInterface * owner;
+	BattleInterface * owner;
 
 	std::map<si32, std::shared_ptr<CAnimation>> obstacleAnimations;
 
@@ -42,11 +42,11 @@ class CBattleObstacleController
 	Point getObstaclePosition(std::shared_ptr<IImage> image, const CObstacleInstance & obstacle);
 
 public:
-	CBattleObstacleController(CBattleInterface * owner);
+	BattleObstacleController(BattleInterface * owner);
 
 	void obstaclePlaced(const std::vector<std::shared_ptr<const CObstacleInstance>> & oi);
 	void showObstacles(SDL_Surface *to, std::vector<std::shared_ptr<const CObstacleInstance>> &obstacles);
 	void showAbsoluteObstacles(std::shared_ptr<CCanvas> canvas, const Point & offset);
 
-	void collectRenderableObjects(CBattleRenderer & renderer);
+	void collectRenderableObjects(BattleRenderer & renderer);
 };

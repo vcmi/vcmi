@@ -22,14 +22,14 @@ struct SDL_Surface;
 struct Rect;
 struct Point;
 
-class CClickableHex;
+class ClickableHex;
 class CCanvas;
 class IImage;
-class CBattleInterface;
+class BattleInterface;
 
-class CBattleFieldController : public CIntObject
+class BattleFieldController : public CIntObject
 {
-	CBattleInterface * owner;
+	BattleInterface * owner;
 
 	std::shared_ptr<IImage> background;
 	std::shared_ptr<IImage> cellBorder;
@@ -47,7 +47,7 @@ class CBattleFieldController : public CIntObject
 	std::vector<BattleHex> occupyableHexes; //hexes available for active stack
 	std::array<bool, GameConstants::BFIELD_SIZE> stackCountOutsideHexes; // hexes that when in front of a unit cause it's amount box to move back
 
-	std::vector<std::shared_ptr<CClickableHex>> bfield; //11 lines, 17 hexes on each
+	std::vector<std::shared_ptr<ClickableHex>> bfield; //11 lines, 17 hexes on each
 
 	void showHighlightedHex(std::shared_ptr<CCanvas> to, BattleHex hex, bool darkBorder);
 
@@ -60,7 +60,7 @@ class CBattleFieldController : public CIntObject
 	void showHighlightedHexes(std::shared_ptr<CCanvas> canvas);
 
 public:
-	CBattleFieldController(CBattleInterface * owner);
+	BattleFieldController(BattleInterface * owner);
 
 	void redrawBackgroundWithHexes();
 	void renderBattlefield(std::shared_ptr<CCanvas> canvas);

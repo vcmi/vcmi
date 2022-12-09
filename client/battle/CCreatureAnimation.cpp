@@ -34,13 +34,13 @@ SDL_Color AnimationControls::getNoBorder()
 	return creatureNoBorder;
 }
 
-std::shared_ptr<CCreatureAnimation> AnimationControls::getAnimation(const CCreature * creature)
+std::shared_ptr<CreatureAnimation> AnimationControls::getAnimation(const CCreature * creature)
 {
 	auto func = std::bind(&AnimationControls::getCreatureAnimationSpeed, creature, _1, _2);
-	return std::make_shared<CCreatureAnimation>(creature->animDefName, func);
+	return std::make_shared<CreatureAnimation>(creature->animDefName, func);
 }
 
-float AnimationControls::getCreatureAnimationSpeed(const CCreature * creature, const CCreatureAnimation * anim, size_t group)
+float AnimationControls::getCreatureAnimationSpeed(const CCreature * creature, const CreatureAnimation * anim, size_t group)
 {
 	CCreatureAnim::EAnimType type = CCreatureAnim::EAnimType(group);
 
@@ -133,12 +133,12 @@ float AnimationControls::getFlightDistance(const CCreature * creature)
 	return static_cast<float>(creature->animation.flightAnimationDistance * 200);
 }
 
-CCreatureAnim::EAnimType CCreatureAnimation::getType() const
+CCreatureAnim::EAnimType CreatureAnimation::getType() const
 {
 	return type;
 }
 
-void CCreatureAnimation::setType(CCreatureAnim::EAnimType type)
+void CreatureAnimation::setType(CCreatureAnim::EAnimType type)
 {
 	this->type = type;
 	currentFrame = 0;
@@ -147,7 +147,7 @@ void CCreatureAnimation::setType(CCreatureAnim::EAnimType type)
 	play();
 }
 
-void CCreatureAnimation::shiftColor(const ColorShifter* shifter)
+void CreatureAnimation::shiftColor(const ColorShifter* shifter)
 {
 	if(forward)
 		forward->shiftColor(shifter);
@@ -156,7 +156,7 @@ void CCreatureAnimation::shiftColor(const ColorShifter* shifter)
 		reverse->shiftColor(shifter);
 }
 
-CCreatureAnimation::CCreatureAnimation(const std::string & name_, TSpeedController controller)
+CreatureAnimation::CreatureAnimation(const std::string & name_, TSpeedController controller)
 	: name(name_),
 	  speed(0.1f),
 	  currentFrame(0),
@@ -203,7 +203,7 @@ CCreatureAnimation::CCreatureAnimation(const std::string & name_, TSpeedControll
 	play();
 }
 
-void CCreatureAnimation::endAnimation()
+void CreatureAnimation::endAnimation()
 {
 	once = false;
 	auto copy = onAnimationReset;
@@ -211,7 +211,7 @@ void CCreatureAnimation::endAnimation()
 	copy();
 }
 
-bool CCreatureAnimation::incrementFrame(float timePassed)
+bool CreatureAnimation::incrementFrame(float timePassed)
 {
 	elapsedTime += timePassed;
 	currentFrame += timePassed * speed;
@@ -236,27 +236,27 @@ bool CCreatureAnimation::incrementFrame(float timePassed)
 	return false;
 }
 
-void CCreatureAnimation::setBorderColor(SDL_Color palette)
+void CreatureAnimation::setBorderColor(SDL_Color palette)
 {
 	border = palette;
 }
 
-int CCreatureAnimation::getWidth() const
+int CreatureAnimation::getWidth() const
 {
 	return fullWidth;
 }
 
-int CCreatureAnimation::getHeight() const
+int CreatureAnimation::getHeight() const
 {
 	return fullHeight;
 }
 
-float CCreatureAnimation::getCurrentFrame() const
+float CreatureAnimation::getCurrentFrame() const
 {
 	return currentFrame;
 }
 
-void CCreatureAnimation::playOnce( CCreatureAnim::EAnimType type )
+void CreatureAnimation::playOnce( CCreatureAnim::EAnimType type )
 {
 	setType(type);
 	once = true;
@@ -294,14 +294,14 @@ static SDL_Color addColors(const SDL_Color & base, const SDL_Color & over)
 			);
 }
 
-void CCreatureAnimation::genBorderPalette(IImage::BorderPallete & target)
+void CreatureAnimation::genBorderPalette(IImage::BorderPallete & target)
 {
 	target[0] = genBorderColor(getBorderStrength(elapsedTime), border);
 	target[1] = addColors(genShadow(128), genBorderColor(getBorderStrength(elapsedTime), border));
 	target[2] = addColors(genShadow(64),  genBorderColor(getBorderStrength(elapsedTime), border));
 }
 
-void CCreatureAnimation::nextFrame(std::shared_ptr<CCanvas> canvas, bool facingRight)
+void CreatureAnimation::nextFrame(std::shared_ptr<CCanvas> canvas, bool facingRight)
 {
 	size_t frame = static_cast<size_t>(floor(currentFrame));
 
@@ -323,24 +323,24 @@ void CCreatureAnimation::nextFrame(std::shared_ptr<CCanvas> canvas, bool facingR
 	}
 }
 
-int CCreatureAnimation::framesInGroup(CCreatureAnim::EAnimType group) const
+int CreatureAnimation::framesInGroup(CCreatureAnim::EAnimType group) const
 {
 	return static_cast<int>(forward->size(group));
 }
 
-bool CCreatureAnimation::isDead() const
+bool CreatureAnimation::isDead() const
 {
 	return getType() == CCreatureAnim::DEAD
 		|| getType() == CCreatureAnim::DEAD_RANGED;
 }
 
-bool CCreatureAnimation::isDying() const
+bool CreatureAnimation::isDying() const
 {
 	return getType() == CCreatureAnim::DEATH
 		|| getType() == CCreatureAnim::DEATH_RANGED;
 }
 
-bool CCreatureAnimation::isDeadOrDying() const
+bool CreatureAnimation::isDeadOrDying() const
 {
 	return getType() == CCreatureAnim::DEAD
 		|| getType() == CCreatureAnim::DEATH
@@ -348,13 +348,13 @@ bool CCreatureAnimation::isDeadOrDying() const
 		|| getType() == CCreatureAnim::DEATH_RANGED;
 }
 
-bool CCreatureAnimation::isIdle() const
+bool CreatureAnimation::isIdle() const
 {
 	return getType() == CCreatureAnim::HOLDING
 	    || getType() == CCreatureAnim::MOUSEON;
 }
 
-bool CCreatureAnimation::isMoving() const
+bool CreatureAnimation::isMoving() const
 {
 	return getType() == CCreatureAnim::MOVE_START
 	    || getType() == CCreatureAnim::MOVING
@@ -363,19 +363,19 @@ bool CCreatureAnimation::isMoving() const
 		|| getType() == CCreatureAnim::TURN_R;
 }
 
-bool CCreatureAnimation::isShooting() const
+bool CreatureAnimation::isShooting() const
 {
 	return getType() == CCreatureAnim::SHOOT_UP
 	    || getType() == CCreatureAnim::SHOOT_FRONT
 	    || getType() == CCreatureAnim::SHOOT_DOWN;
 }
 
-void CCreatureAnimation::pause()
+void CreatureAnimation::pause()
 {
 	speed = 0;
 }
 
-void CCreatureAnimation::play()
+void CreatureAnimation::play()
 {
 	//logAnim->trace("Play %s group %d at %d:%d", name, static_cast<int>(getType()), pos.x, pos.y);
     speed = 0;

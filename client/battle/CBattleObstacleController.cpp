@@ -24,7 +24,7 @@
 #include "../../lib/battle/CObstacleInstance.h"
 #include "../../lib/ObstacleHandler.h"
 
-CBattleObstacleController::CBattleObstacleController(CBattleInterface * owner):
+BattleObstacleController::BattleObstacleController(BattleInterface * owner):
 	owner(owner)
 {
 	auto obst = owner->curInt->cb->battleGetAllObstacles();
@@ -36,7 +36,7 @@ CBattleObstacleController::CBattleObstacleController(CBattleInterface * owner):
 	}
 }
 
-void CBattleObstacleController::loadObstacleImage(const CObstacleInstance & oi)
+void BattleObstacleController::loadObstacleImage(const CObstacleInstance & oi)
 {
 	std::string animationName;
 
@@ -69,7 +69,7 @@ void CBattleObstacleController::loadObstacleImage(const CObstacleInstance & oi)
 	obstacleAnimations[oi.uniqueID] = animationsCache[animationName];
 }
 
-void CBattleObstacleController::obstaclePlaced(const std::vector<std::shared_ptr<const CObstacleInstance>> & obstacles)
+void BattleObstacleController::obstaclePlaced(const std::vector<std::shared_ptr<const CObstacleInstance>> & obstacles)
 {
 	assert(obstaclesBeingPlaced.empty());
 	for (auto const & oi : obstacles)
@@ -113,7 +113,7 @@ void CBattleObstacleController::obstaclePlaced(const std::vector<std::shared_ptr
 	}
 }
 
-void CBattleObstacleController::showAbsoluteObstacles(std::shared_ptr<CCanvas> canvas, const Point & offset)
+void BattleObstacleController::showAbsoluteObstacles(std::shared_ptr<CCanvas> canvas, const Point & offset)
 {
 	//Blit absolute obstacles
 	for(auto & oi : owner->curInt->cb->battleGetAllObstacles())
@@ -127,7 +127,7 @@ void CBattleObstacleController::showAbsoluteObstacles(std::shared_ptr<CCanvas> c
 	}
 }
 
-void CBattleObstacleController::collectRenderableObjects(CBattleRenderer & renderer)
+void BattleObstacleController::collectRenderableObjects(BattleRenderer & renderer)
 {
 	for (auto obstacle : owner->curInt->cb->battleGetAllObstacles())
 	{
@@ -137,7 +137,7 @@ void CBattleObstacleController::collectRenderableObjects(CBattleRenderer & rende
 		if (obstacle->obstacleType == CObstacleInstance::MOAT)
 			continue;
 
-		renderer.insert(EBattleFieldLayer::OBSTACLES, obstacle->pos, [this, obstacle]( CBattleRenderer::RendererPtr canvas ){
+		renderer.insert(EBattleFieldLayer::OBSTACLES, obstacle->pos, [this, obstacle]( BattleRenderer::RendererPtr canvas ){
 			auto img = getObstacleImage(*obstacle);
 			if(img)
 			{
@@ -148,7 +148,7 @@ void CBattleObstacleController::collectRenderableObjects(CBattleRenderer & rende
 	}
 }
 
-std::shared_ptr<IImage> CBattleObstacleController::getObstacleImage(const CObstacleInstance & oi)
+std::shared_ptr<IImage> BattleObstacleController::getObstacleImage(const CObstacleInstance & oi)
 {
 	int frameIndex = (owner->animCount+1) *25 / owner->getAnimSpeed();
 	std::shared_ptr<CAnimation> animation;
@@ -178,7 +178,7 @@ std::shared_ptr<IImage> CBattleObstacleController::getObstacleImage(const CObsta
 	return nullptr;
 }
 
-Point CBattleObstacleController::getObstaclePosition(std::shared_ptr<IImage> image, const CObstacleInstance & obstacle)
+Point BattleObstacleController::getObstaclePosition(std::shared_ptr<IImage> image, const CObstacleInstance & obstacle)
 {
 	int offset = obstacle.getAnimationYOffset(image->height());
 

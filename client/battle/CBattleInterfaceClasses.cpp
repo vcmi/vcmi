@@ -44,7 +44,7 @@
 #include "../../lib/CondSh.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 
-void CBattleConsole::showAll(SDL_Surface * to)
+void BattleConsole::showAll(SDL_Surface * to)
 {
 	Point textPos(pos.x + pos.w/2, pos.y + 17);
 
@@ -67,7 +67,7 @@ void CBattleConsole::showAll(SDL_Surface * to)
 	}
 }
 
-bool CBattleConsole::addText(const std::string & text)
+bool BattleConsole::addText(const std::string & text)
 {
 	logGlobal->trace("CBattleConsole message: %s", text);
 	if(text.size()>70)
@@ -86,47 +86,47 @@ bool CBattleConsole::addText(const std::string & text)
 	lastShown = (int)texts.size()-1;
 	return true;
 }
-void CBattleConsole::scrollUp(ui32 by)
+void BattleConsole::scrollUp(ui32 by)
 {
 	if(lastShown > static_cast<int>(by))
 		lastShown -= by;
 }
 
-void CBattleConsole::scrollDown(ui32 by)
+void BattleConsole::scrollDown(ui32 by)
 {
 	if(lastShown + by < texts.size())
 		lastShown += by;
 }
 
-CBattleConsole::CBattleConsole(const Rect & position) : lastShown(-1)
+BattleConsole::BattleConsole(const Rect & position) : lastShown(-1)
 {
 	pos += position.topLeft();
 	pos.w = position.w;
 	pos.h = position.h;
 }
 
-void CBattleConsole::clearMatching(const std::string & Text)
+void BattleConsole::clearMatching(const std::string & Text)
 {
 	if (ingcAlter == Text)
 		clear();
 }
 
-void CBattleConsole::clear()
+void BattleConsole::clear()
 {
 	ingcAlter.clear();
 }
 
-void CBattleConsole::write(const std::string & Text)
+void BattleConsole::write(const std::string & Text)
 {
 	ingcAlter = Text;
 }
 
-void CBattleConsole::lock(bool shouldLock)
+void BattleConsole::lock(bool shouldLock)
 {
 	// no-op?
 }
 
-void CBattleHero::show(SDL_Surface * to)
+void BattleHero::show(SDL_Surface * to)
 {
 	auto flagFrame = flagAnimation->getImage(flagAnim, 0, true);
 
@@ -175,14 +175,14 @@ void CBattleHero::show(SDL_Surface * to)
 	}
 }
 
-void CBattleHero::setPhase(int newPhase)
+void BattleHero::setPhase(int newPhase)
 {
 	nextPhase = newPhase;
 	switchToNextPhase(); //immediately switch to next phase and then restore idling phase
 	nextPhase = 0;
 }
 
-void CBattleHero::hover(bool on)
+void BattleHero::hover(bool on)
 {
 	//TODO: Make lines below work properly
 	if (on)
@@ -191,7 +191,7 @@ void CBattleHero::hover(bool on)
 		CCS->curh->changeGraphic(ECursor::COMBAT, 0);
 }
 
-void CBattleHero::clickLeft(tribool down, bool previousState)
+void BattleHero::clickLeft(tribool down, bool previousState)
 {
 	if(myOwner->actionsController->spellcastingModeActive()) //we are casting a spell
 		return;
@@ -215,7 +215,7 @@ void CBattleHero::clickLeft(tribool down, bool previousState)
 	}
 }
 
-void CBattleHero::clickRight(tribool down, bool previousState)
+void BattleHero::clickRight(tribool down, bool previousState)
 {
 	if(boost::logic::indeterminate(down))
 		return;
@@ -229,11 +229,11 @@ void CBattleHero::clickRight(tribool down, bool previousState)
 	{
 		auto h = flip ? myOwner->defendingHeroInstance : myOwner->attackingHeroInstance;
 		targetHero.initFromHero(h, InfoAboutHero::EInfoLevel::INBATTLE);
-		GH.pushIntT<CHeroInfoWindow>(targetHero, &windowPosition);
+		GH.pushIntT<HeroInfoWindow>(targetHero, &windowPosition);
 	}
 }
 
-void CBattleHero::switchToNextPhase()
+void BattleHero::switchToNextPhase()
 {
 	if(phase != nextPhase)
 	{
@@ -247,7 +247,7 @@ void CBattleHero::switchToNextPhase()
 	currentFrame = firstFrame;
 }
 
-CBattleHero::CBattleHero(const std::string & animationPath, bool flipG, PlayerColor player, const CGHeroInstance * hero, const CBattleInterface * owner):
+BattleHero::BattleHero(const std::string & animationPath, bool flipG, PlayerColor player, const CGHeroInstance * hero, const BattleInterface * owner):
     flip(flipG),
     myHero(hero),
     myOwner(owner),
@@ -274,9 +274,7 @@ CBattleHero::CBattleHero(const std::string & animationPath, bool flipG, PlayerCo
 	switchToNextPhase();
 }
 
-CBattleHero::~CBattleHero() = default;
-
-CHeroInfoWindow::CHeroInfoWindow(const InfoAboutHero & hero, Point * position)
+HeroInfoWindow::HeroInfoWindow(const InfoAboutHero & hero, Point * position)
 	: CWindowObject(RCLICK_POPUP | SHADOW_DISABLED, "CHRPOP")
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
@@ -318,7 +316,7 @@ CHeroInfoWindow::CHeroInfoWindow(const InfoAboutHero & hero, Point * position)
 	labels.push_back(std::make_shared<CLabel>(39, 186, EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, std::to_string(currentSpellPoints) + "/" + std::to_string(maxSpellPoints)));
 }
 
-CBattleOptionsWindow::CBattleOptionsWindow(CBattleInterface *owner):
+BattleOptionsWindow::BattleOptionsWindow(BattleInterface *owner):
 	CWindowObject(PLAYER_COLORED, "comopbck.bmp")
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
@@ -380,17 +378,17 @@ CBattleOptionsWindow::CBattleOptionsWindow(CBattleInterface *owner):
 	labels.push_back(std::make_shared<CLabel>(61, 156, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[407]));
 }
 
-void CBattleOptionsWindow::bDefaultf()
+void BattleOptionsWindow::bDefaultf()
 {
 	//TODO: implement
 }
 
-void CBattleOptionsWindow::bExitf()
+void BattleOptionsWindow::bExitf()
 {
 	close();
 }
 
-CBattleResultWindow::CBattleResultWindow(const BattleResult & br, CPlayerInterface & _owner)
+BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface & _owner)
 	: owner(_owner)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
@@ -546,27 +544,25 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult & br, CPlayerInterfa
 	}
 }
 
-CBattleResultWindow::~CBattleResultWindow() = default;
-
-void CBattleResultWindow::activate()
+void BattleResultWindow::activate()
 {
 	owner.showingDialog->set(true);
 	CIntObject::activate();
 }
 
-void CBattleResultWindow::show(SDL_Surface * to)
+void BattleResultWindow::show(SDL_Surface * to)
 {
 	CIntObject::show(to);
 	CCS->videoh->update(pos.x + 107, pos.y + 70, screen, true, false);
 }
 
-void CBattleResultWindow::bExitf()
+void BattleResultWindow::bExitf()
 {
 	CPlayerInterface &intTmp = owner; //copy reference because "this" will be destructed soon
 
 	close();
 
-	if(dynamic_cast<CBattleInterface*>(GH.topInt().get()))
+	if(dynamic_cast<BattleInterface*>(GH.topInt().get()))
 		GH.popInts(1); //pop battle interface if present
 
 	//Result window and battle interface are gone. We requested all dialogs to be closed before opening the battle,
@@ -575,7 +571,7 @@ void CBattleResultWindow::bExitf()
 	CCS->videoh->close();
 }
 
-void CClickableHex::hover(bool on)
+void ClickableHex::hover(bool on)
 {
 	hovered = on;
 	//Hoverable::hover(on);
@@ -586,12 +582,12 @@ void CClickableHex::hover(bool on)
 	}
 }
 
-CClickableHex::CClickableHex() : setAlterText(false), myNumber(-1), strictHovered(false), myInterface(nullptr)
+ClickableHex::ClickableHex() : setAlterText(false), myNumber(-1), strictHovered(false), myInterface(nullptr)
 {
 	addUsedEvents(LCLICK | RCLICK | HOVER | MOVE);
 }
 
-void CClickableHex::mouseMoved(const SDL_MouseMotionEvent &sEvent)
+void ClickableHex::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 {
 	strictHovered = myInterface->fieldController->isPixelInHex(Point(sEvent.x-pos.x, sEvent.y-pos.y));
 
@@ -616,7 +612,7 @@ void CClickableHex::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 	}
 }
 
-void CClickableHex::clickLeft(tribool down, bool previousState)
+void ClickableHex::clickLeft(tribool down, bool previousState)
 {
 	if(!down && hovered && strictHovered) //we've been really clicked!
 	{
@@ -624,7 +620,7 @@ void CClickableHex::clickLeft(tribool down, bool previousState)
 	}
 }
 
-void CClickableHex::clickRight(tribool down, bool previousState)
+void ClickableHex::clickRight(tribool down, bool previousState)
 {
 	const CStack * myst = myInterface->getCurrentPlayerInterface()->cb->battleGetStackByPos(myNumber); //stack info
 	if(hovered && strictHovered && myst!=nullptr)
@@ -637,7 +633,7 @@ void CClickableHex::clickRight(tribool down, bool previousState)
 	}
 }
 
-CStackQueue::CStackQueue(bool Embedded, CBattleInterface * _owner)
+StackQueue::StackQueue(bool Embedded, BattleInterface * _owner)
 	: embedded(Embedded),
 	owner(_owner)
 {
@@ -674,9 +670,7 @@ CStackQueue::CStackQueue(bool Embedded, CBattleInterface * _owner)
 	}
 }
 
-CStackQueue::~CStackQueue() = default;
-
-void CStackQueue::update()
+void StackQueue::update()
 {
 	std::vector<battle::Units> queueData;
 
@@ -694,12 +688,12 @@ void CStackQueue::update()
 		stackBoxes[boxIndex]->setUnit(nullptr);
 }
 
-int32_t CStackQueue::getSiegeShooterIconID()
+int32_t StackQueue::getSiegeShooterIconID()
 {
 	return owner->siegeController->getSiegedTown()->town->faction->index;
 }
 
-CStackQueue::StackBox::StackBox(CStackQueue * owner):
+StackQueue::StackBox::StackBox(StackQueue * owner):
 	owner(owner)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
@@ -726,7 +720,7 @@ CStackQueue::StackBox::StackBox(CStackQueue * owner):
 	}
 }
 
-void CStackQueue::StackBox::setUnit(const battle::Unit * unit, size_t turn)
+void StackQueue::StackBox::setUnit(const battle::Unit * unit, size_t turn)
 {
 	if(unit)
 	{
