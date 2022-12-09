@@ -197,7 +197,7 @@ public:
 	void battleSpellCast(const BattleSpellCast *sc) override;
 	void battleStacksEffectsSet(const SetStackEffect & sse) override; //called when a specific effect is set to stacks
 	void battleTriggerEffect(const BattleTriggerEffect & bte) override; //various one-shot effect
-	void battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa) override;
+	void battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa, bool ranged) override;
 	void battleStartBefore(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2) override; //called by engine just before battle starts; side=0 - left, side=1 - right
 	void battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side) override; //called by engine when battle starts; side=0 - left, side=1 - right
 	void battleUnitsChanged(const std::vector<UnitChanges> & units, const std::vector<CustomEffectInfo> & customEffects) override;

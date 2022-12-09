@@ -90,32 +90,6 @@ void CBattleAnimation::setStackFacingRight(const CStack * stack, bool facingRigh
 	owner.stacksController->stackFacingRight[stack->ID] = facingRight;
 }
 
-bool CBattleAnimation::checkInitialConditions()
-{
-	int lowestMoveID = ID;
-	auto * thAnim = dynamic_cast<CBattleStackAnimation *>(this);
-	auto * thSen = dynamic_cast<CPointEffectAnimation *>(this);
-
-	for(auto & elem : pendingAnimations())
-	{
-		auto * sen = dynamic_cast<CPointEffectAnimation *>(elem);
-
-		// all effect animations can play concurrently with each other
-		if(sen && thSen && sen != thSen)
-			continue;
-
-		auto * revAnim = dynamic_cast<CReverseAnimation *>(elem);
-
-		// if there is high-priority reverse animation affecting our stack then this animation will wait
-		if(revAnim && thAnim && revAnim && revAnim->stack->ID == thAnim->stack->ID && revAnim->priority)
-			return false;
-
-		if(elem)
-			vstd::amin(lowestMoveID, elem->ID);
-	}
-	return ID == lowestMoveID;
-}
-
 CBattleStackAnimation::CBattleStackAnimation(BattleInterface & owner, const CStack * stack)
 	: CBattleAnimation(owner),
 	  myAnim(stackAnimation(stack)),
@@ -153,22 +127,6 @@ CAttackAnimation::~CAttackAnimation()
 	myAnim->setType(ECreatureAnimType::HOLDING);
 }
 
-bool CAttackAnimation::checkInitialConditions()
-{
-	for(auto & elem : pendingAnimations())
-	{
-		CBattleStackAnimation * stAnim = dynamic_cast<CBattleStackAnimation *>(elem);
-		CReverseAnimation * revAnim = dynamic_cast<CReverseAnimation *>(stAnim);
-
-		if(revAnim && attackedStack) // enemy must be fully reversed
-		{
-			if (revAnim->stack->ID == attackedStack->ID)
-				return false;
-		}
-	}
-	return CBattleAnimation::checkInitialConditions();
-}
-
 const CCreature * CAttackAnimation::getCreature() const
 {
 	if (attackingStack->getCreature()->idNumber == CreatureID::ARROW_TOWERS)
@@ -202,46 +160,6 @@ CDefenceAnimation::CDefenceAnimation(StackAttackedInfo _attackedInfo, BattleInte
 
 bool CDefenceAnimation::init()
 {
-	ui32 lowestMoveID = ID;
-	for(auto & elem : pendingAnimations())
-	{
-
-		auto * defAnim = dynamic_cast<CDefenceAnimation *>(elem);
-		if(defAnim && defAnim->stack->ID != stack->ID)
-			continue;
-
-		auto * attAnim = dynamic_cast<CAttackAnimation *>(elem);
-		if(attAnim && attAnim->stack->ID != stack->ID)
-			continue;
-
-		auto * sen = dynamic_cast<CPointEffectAnimation *>(elem);
-		if (sen && attacker == nullptr)
-			return false;
-
-		if (sen)
-			continue;
-
-		CReverseAnimation * animAsRev = dynamic_cast<CReverseAnimation *>(elem);
-
-		if(animAsRev)
-			return false;
-
-		if(elem)
-			vstd::amin(lowestMoveID, elem->ID);
-	}
-
-	if(ID > lowestMoveID)
-		return false;
-
-
-	//reverse unit if necessary
-	if(attacker && owner.getCurrentPlayerInterface()->cb->isToReverse(stack->getPosition(), attacker->getPosition(), stackFacingRight(stack), attacker->doubleWide(), stackFacingRight(attacker)))
-	{
-		owner.stacksController->addNewAnim(new CReverseAnimation(owner, stack, stack->getPosition(), true));
-		return false;
-	}
-	//unit reversed
-
 	if(rangedAttack && attacker != nullptr && owner.projectilesController->hasActiveProjectile(attacker)) //delay hit animation
 	{
 		return false;
@@ -256,6 +174,7 @@ bool CDefenceAnimation::init()
 
 		timeToWait = myAnim->framesInGroup(getMyAnimType()) * frameLength / 2;
 
+		//FIXME: perhaps this should be pause instead?
 		myAnim->setType(ECreatureAnimType::HOLDING);
 	}
 	else
@@ -349,9 +268,6 @@ void CDummyAnimation::nextFrame()
 
 bool CMeleeAttackAnimation::init()
 {
-	if(!CAttackAnimation::checkInitialConditions())
-		return false;
-
 	if(!attackingStack || myAnim->isDeadOrDying())
 	{
 		delete this;
@@ -362,7 +278,7 @@ bool CMeleeAttackAnimation::init()
 
 	if(toReverse)
 	{
-		owner.stacksController->addNewAnim(new CReverseAnimation(owner, stack, attackingStackPosBeforeReturn, true));
+		owner.stacksController->addNewAnim(new CReverseAnimation(owner, stack, attackingStackPosBeforeReturn));
 		return false;
 	}
 
@@ -453,8 +369,8 @@ CStackMoveAnimation::CStackMoveAnimation(BattleInterface & owner, const CStack *
 
 bool CMovementAnimation::init()
 {
-	if( !CBattleAnimation::checkInitialConditions() )
-		return false;
+	assert(stack);
+	assert(!myAnim->isDeadOrDying());
 
 	if(!stack || myAnim->isDeadOrDying())
 	{
@@ -473,17 +389,9 @@ bool CMovementAnimation::init()
 	//reverse unit if necessary
 	if(owner.stacksController->shouldRotate(stack, oldPos, currentHex))
 	{
-		// it seems that H3 does NOT plays full rotation animation here in most situations
+		// it seems that H3 does NOT plays full rotation animation during movement
 		// Logical since it takes quite a lot of time
-		if (curentMoveIndex == 0) // full rotation only for moving towards first tile.
-		{
-			owner.stacksController->addNewAnim(new CReverseAnimation(owner, stack, oldPos, true));
-			return false;
-		}
-		else
-		{
-			rotateStack(oldPos);
-		}
+		rotateStack(oldPos);
 	}
 
 	if(myAnim->getType() != ECreatureAnimType::MOVING)
@@ -554,7 +462,6 @@ CMovementAnimation::~CMovementAnimation()
 	assert(stack);
 
 	myAnim->pos = owner.stacksController->getStackPositionAtHex(currentHex, stack);
-	owner.stacksController->addNewAnim(new CMovementEndAnimation(owner, stack, currentHex));
 
 	if(owner.moveSoundHander != -1)
 	{
@@ -584,11 +491,10 @@ CMovementEndAnimation::CMovementEndAnimation(BattleInterface & owner, const CSta
 
 bool CMovementEndAnimation::init()
 {
-	//if( !isEarliest(true) )
-	//	return false;
+	assert(stack);
+	assert(!myAnim->isDeadOrDying());
 
-	if(!stack || myAnim->framesInGroup(ECreatureAnimType::MOVE_END) == 0 ||
-		myAnim->isDeadOrDying())
+	if(!stack || myAnim->isDeadOrDying())
 	{
 		delete this;
 		return false;
@@ -596,8 +502,13 @@ bool CMovementEndAnimation::init()
 
 	CCS->soundh->playSound(battle_sound(stack->getCreature(), endMoving));
 
-	myAnim->setType(ECreatureAnimType::MOVE_END);
+	if(!myAnim->framesInGroup(ECreatureAnimType::MOVE_END))
+	{
+		delete this;
+		return false;
+	}
 
+	myAnim->setType(ECreatureAnimType::MOVE_END);
 	myAnim->onAnimationReset += [&](){ delete this; };
 
 	return true;
@@ -619,8 +530,8 @@ CMovementStartAnimation::CMovementStartAnimation(BattleInterface & owner, const 
 
 bool CMovementStartAnimation::init()
 {
-	if( !CBattleAnimation::checkInitialConditions() )
-		return false;
+	assert(stack);
+	assert(!myAnim->isDeadOrDying());
 
 	if(!stack || myAnim->isDeadOrDying())
 	{
@@ -629,15 +540,20 @@ bool CMovementStartAnimation::init()
 	}
 
 	CCS->soundh->playSound(battle_sound(stack->getCreature(), startMoving));
+
+	if(!myAnim->framesInGroup(ECreatureAnimType::MOVE_START))
+	{
+		delete this;
+		return false;
+	}
+
 	myAnim->setType(ECreatureAnimType::MOVE_START);
 	myAnim->onAnimationReset += [&](){ delete this; };
-
 	return true;
 }
 
-CReverseAnimation::CReverseAnimation(BattleInterface & owner, const CStack * stack, BattleHex dest, bool _priority)
-	: CStackMoveAnimation(owner, stack, dest),
-	  priority(_priority)
+CReverseAnimation::CReverseAnimation(BattleInterface & owner, const CStack * stack, BattleHex dest)
+	: CStackMoveAnimation(owner, stack, dest)
 {
 	logAnim->debug("Created reverse anim for %s", stack->getName());
 }
@@ -649,9 +565,6 @@ bool CReverseAnimation::init()
 		delete this;
 		return false; //there is no such creature
 	}
-
-	if(!priority && !CBattleAnimation::checkInitialConditions())
-		return false;
 
 	if(myAnim->framesInGroup(ECreatureAnimType::TURN_L))
 	{
@@ -699,9 +612,6 @@ void CReverseAnimation::setupSecondPart()
 
 bool CResurrectionAnimation::init()
 {
-	if( !CBattleAnimation::checkInitialConditions() )
-		return false;
-
 	if(!stack)
 	{
 		delete this;
@@ -734,9 +644,6 @@ CRangedAttackAnimation::CRangedAttackAnimation(BattleInterface & owner, const CS
 
 bool CRangedAttackAnimation::init()
 {
-	if( !CAttackAnimation::checkInitialConditions() )
-		return false;
-
 	assert(attackingStack);
 	assert(!myAnim->isDeadOrDying());
 
@@ -745,13 +652,6 @@ bool CRangedAttackAnimation::init()
 		//FIXME: how is this possible?
 		logAnim->warn("Shooting animation has not started yet but attacker is dead! Aborting...");
 		delete this;
-		return false;
-	}
-
-	//reverse unit if necessary
-	if (attackingStack && attackedStack && owner.getCurrentPlayerInterface()->cb->isToReverse(attackingStack->getPosition(), attackedStack->getPosition(), stackFacingRight(attackingStack), attackingStack->doubleWide(), stackFacingRight(attackedStack)))
-	{
-		owner.stacksController->addNewAnim(new CReverseAnimation(owner, attackingStack, attackingStack->getPosition(), true));
 		return false;
 	}
 
@@ -820,17 +720,6 @@ void CRangedAttackAnimation::emitProjectile()
 
 void CRangedAttackAnimation::nextFrame()
 {
-	for(auto & it : pendingAnimations())
-	{
-		CMovementStartAnimation * anim = dynamic_cast<CMovementStartAnimation *>(it);
-		CReverseAnimation * anim2 = dynamic_cast<CReverseAnimation *>(it);
-		if( (anim && anim->stack->ID == stack->ID) || (anim2 && anim2->stack->ID == stack->ID && anim2->priority ) )
-		{
-			assert(0); // FIXME: our stack started to move even though we are playing shooting animation? How?
-			return;
-		}
-	}
-
 	// animation should be paused if there is an active projectile
 	if (projectileEmitted)
 	{
@@ -1056,9 +945,6 @@ CPointEffectAnimation::CPointEffectAnimation(BattleInterface & owner, soundBase:
 
 bool CPointEffectAnimation::init()
 {
-	if(!CBattleAnimation::checkInitialConditions())
-		return false;
-
 	animation->preload();
 
 	auto first = animation->getImage(0, 0, true);

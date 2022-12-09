@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../../lib/battle/BattleHex.h"
+#include "BattleConstants.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -24,27 +25,6 @@ class Canvas;
 class BattleInterface;
 class BattleRenderer;
 class CPointEffectAnimation;
-
-namespace EBattleEffect
-{
-	enum EBattleEffect
-	{
-		// list of battle effects that have hardcoded triggers
-		FEAR         = 15,
-		GOOD_LUCK    = 18,
-		GOOD_MORALE  = 20,
-		BAD_MORALE   = 30,
-		BAD_LUCK     = 48,
-		RESURRECT    = 50,
-		DRAIN_LIFE   = 52, // hardcoded constant in CGameHandler
-		POISON       = 67,
-		DEATH_BLOW   = 73,
-		REGENERATION = 74,
-		MANA_DRAIN   = 77,
-
-		INVALID      = -1,
-	};
-}
 
 /// Struct for battle effect animation e.g. morale, prayer, armageddon, bless,...
 struct BattleEffect
@@ -74,7 +54,6 @@ public:
 	//displays custom effect on the battlefield
 	void displayEffect(EBattleEffect::EBattleEffect effect, const BattleHex & destTile);
 	void displayEffect(EBattleEffect::EBattleEffect effect, uint32_t soundID, const BattleHex & destTile);
-	//void displayEffects(EBattleEffect::EBattleEffect effect, uint32_t soundID, const std::vector<BattleHex> & destTiles);
 
 	void battleTriggerEffect(const BattleTriggerEffect & bte);
 

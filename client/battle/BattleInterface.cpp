@@ -51,7 +51,7 @@ BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *
 		std::shared_ptr<CPlayerInterface> att, std::shared_ptr<CPlayerInterface> defen, std::shared_ptr<CPlayerInterface> spectatorInt)
 	: attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0),
 	attackerInt(att), defenderInt(defen), curInt(att),
-	myTurn(false), moveStarted(false), moveSoundHander(-1), bresult(nullptr), battleActionsStarted(false)
+	myTurn(false), moveSoundHander(-1), bresult(nullptr), battleActionsStarted(false)
 {
 	OBJ_CONSTRUCTION;
 
@@ -548,6 +548,7 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 		stacksController->addNewAnim(new CPointEffectAnimation(*this, soundBase::invalid, sc->side ? "SP07_A.DEF" : "SP07_B.DEF", leftHero));
 		stacksController->addNewAnim(new CPointEffectAnimation(*this, soundBase::invalid, sc->side ? "SP07_B.DEF" : "SP07_A.DEF", rightHero));
 	}
+	waitForAnims();
 }
 
 void BattleInterface::battleStacksEffectsSet(const SetStackEffect & sse)
@@ -908,10 +909,6 @@ void BattleInterface::show(SDL_Surface *to)
 	SDL_SetClipRect(to, &buf); //restoring previous clip_rect
 
 	showInterface(to);
-
-	//activation of next stack, if any
-	//TODO: should be moved to the very start of this method?
-	//activateStack();
 }
 
 void BattleInterface::collectRenderableObjects(BattleRenderer & renderer)

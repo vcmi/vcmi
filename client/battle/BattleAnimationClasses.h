@@ -44,7 +44,6 @@ protected:
 	void setStackFacingRight(const CStack * stack, bool facingRight);
 
 	virtual bool init() = 0; //to be called - if returned false, call again until returns true
-	bool checkInitialConditions(); //determines if this animation is earliest of all
 
 public:
 	ui32 ID; //unique identifier
@@ -61,7 +60,7 @@ public:
 class CBattleStackAnimation : public CBattleAnimation
 {
 public:
-	std::shared_ptr<CreatureAnimation> myAnim; //animation for our stack, managed by CBattleInterface
+	std::shared_ptr<CreatureAnimation> myAnim; //animation for our stack, managed by BattleInterface
 	const CStack * stack; //id of stack whose animation it is
 
 	CBattleStackAnimation(BattleInterface & owner, const CStack * _stack);
@@ -86,7 +85,6 @@ protected:
 	const CCreature * getCreature() const;
 public:
 	void nextFrame() override;
-	bool checkInitialConditions();
 
 	CAttackAnimation(BattleInterface & owner, const CStack *attacker, BattleHex _dest, const CStack *defender);
 	~CAttackAnimation();
@@ -190,12 +188,11 @@ public:
 class CReverseAnimation : public CStackMoveAnimation
 {
 public:
-	bool priority; //true - high, false - low
 	bool init() override;
 
 	void setupSecondPart();
 
-	CReverseAnimation(BattleInterface & owner, const CStack * stack, BattleHex dest, bool _priority);
+	CReverseAnimation(BattleInterface & owner, const CStack * stack, BattleHex dest);
 	~CReverseAnimation();
 };
 

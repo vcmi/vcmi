@@ -31,7 +31,7 @@ public:
 	BattleAction activeStack(const CStack * stack) override; //called when it's turn of that stack
 
 	void battleAttack(const BattleAttack *ba) override; //called when stack is performing attack
-	void battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa) override; //called when stack receives damage (after battleAttack())
+	void battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa, bool ranged) override; //called when stack receives damage (after battleAttack())
 	void battleEnd(const BattleResult *br) override;
 	//void battleResultsApplied() override; //called when all effects of last battle are applied
 	void battleNewRoundFirst(int round) override; //called at the beginning of each turn before changes are applied;

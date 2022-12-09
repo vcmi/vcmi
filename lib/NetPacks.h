@@ -1569,10 +1569,14 @@ struct BattleUnitsChanged : public CPackForClient
 struct BattleStackAttacked
 {
 	BattleStackAttacked():
-		stackAttacked(0), attackerID(0),
-		killedAmount(0), damageAmount(0),
+		stackAttacked(0),
+		attackerID(0),
+		killedAmount(0),
+		damageAmount(0),
 		newState(),
-		flags(0), effect(0), spellID(SpellID::NONE)
+		flags(0),
+		effect(0),
+		spellID(SpellID::NONE)
 	{};
 
 	DLL_LINKAGE void applyGs(CGameState *gs);

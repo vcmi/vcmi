@@ -174,9 +174,9 @@ void CAdventureAI::battleStart(const CCreatureSet * army1, const CCreatureSet * 
 	battleAI->battleStart(army1, army2, tile, hero1, hero2, side);
 }
 
-void CAdventureAI::battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa)
+void CAdventureAI::battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa, bool ranged)
 {
-	battleAI->battleStacksAttacked(bsa);
+	battleAI->battleStacksAttacked(bsa, ranged);
 }
 
 void CAdventureAI::actionStarted(const BattleAction & action)

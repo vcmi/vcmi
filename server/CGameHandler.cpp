@@ -1221,6 +1221,7 @@ int64_t CGameHandler::applyBattleEffects(BattleAttack & bat, std::shared_ptr<bat
 	BattleStackAttacked bsa;
 	if(secondary)
 		bsa.flags |= BattleStackAttacked::SECONDARY; //all other targets do not suffer from spells & spell-like abilities
+
 	bsa.attackerID = attackerState->unitId();
 	bsa.stackAttacked = def->unitId();
 	{

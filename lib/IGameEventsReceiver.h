@@ -59,7 +59,7 @@ public:
 	virtual void actionFinished(const BattleAction &action){};//occurs AFTER every action taken by any stack or by the hero
 	virtual void actionStarted(const BattleAction &action){};//occurs BEFORE every action taken by any stack or by the hero
 	virtual void battleAttack(const BattleAttack *ba){}; //called when stack is performing attack
-	virtual void battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa){}; //called when stack receives damage (after battleAttack())
+	virtual void battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa, bool ranged){}; //called when stack receives damage (after battleAttack())
 	virtual void battleEnd(const BattleResult *br){};
 	virtual void battleNewRoundFirst(int round){}; //called at the beginning of each turn before changes are applied;
 	virtual void battleNewRound(int round){}; //called at the beginning of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn

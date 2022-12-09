@@ -944,7 +944,7 @@ void CPlayerInterface::battleTriggerEffect (const BattleTriggerEffect & bte)
 	RETURN_IF_QUICK_COMBAT;
 	battleInt->effectsController->battleTriggerEffect(bte);
 }
-void CPlayerInterface::battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa)
+void CPlayerInterface::battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa, bool ranged)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BATTLE_EVENT_POSSIBLE_RETURN;
@@ -954,24 +954,28 @@ void CPlayerInterface::battleStacksAttacked(const std::vector<BattleStackAttacke
 	{
 		const CStack * defender = cb->battleGetStackByID(elem.stackAttacked, false);
 		const CStack * attacker = cb->battleGetStackByID(elem.attackerID, false);
-		if(elem.isEffect())
-		{
-			if(defender && !elem.isSecondary())
-				battleInt->effectsController->displayEffect(EBattleEffect::EBattleEffect(elem.effect), defender->getPosition());
-		}
-		if(elem.isSpell())
-		{
-			if(defender)
-				battleInt->displaySpellEffect(elem.spellID, defender->getPosition());
-		}
-		//FIXME: why action is deleted during enchanter cast?
-		bool remoteAttack = false;
 
-		if(LOCPLINT->curAction)
-			remoteAttack |= LOCPLINT->curAction->actionType != EActionType::WALK_AND_ATTACK;
+		assert(defender);
 
-		StackAttackedInfo to_put = {defender, elem.damageAmount, elem.killedAmount, attacker, remoteAttack, elem.killed(), elem.willRebirth(), elem.cloneKilled()};
-		arg.push_back(to_put);
+		StackAttackedInfo     info;
+		info.defender       = defender;
+		info.attacker       = attacker;
+		info.damageDealt    = elem.damageAmount;
+		info.amountKilled   = elem.killedAmount;
+		info.battleEffect   = EBattleEffect::INVALID;
+		info.spellEffect    = SpellID::NONE;
+		info.indirectAttack = ranged;
+		info.killed         = elem.killed();
+		info.rebirth        = elem.willRebirth();
+		info.cloneKilled    = elem.cloneKilled();
+
+		if(elem.isEffect() && !elem.isSecondary())
+			info.battleEffect = EBattleEffect::EBattleEffect(elem.effect);
+
+		if (elem.isSpell())
+			info.spellEffect = elem.spellID;
+
+		arg.push_back(info);
 	}
 	battleInt->stacksAreAttacked(arg);
 }

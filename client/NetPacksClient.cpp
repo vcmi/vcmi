@@ -748,7 +748,7 @@ void BattleAttack::applyFirstCl(CClient *cl)
 
 void BattleAttack::applyCl(CClient *cl)
 {
-	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleStacksAttacked, bsa);
+	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleStacksAttacked, bsa, shot());
 }
 
 void StartAction::applyFirstCl(CClient *cl)
@@ -770,7 +770,7 @@ void SetStackEffect::applyCl(CClient *cl)
 
 void StacksInjured::applyCl(CClient *cl)
 {
-	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleStacksAttacked, stacks);
+	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleStacksAttacked, stacks, false);
 }
 
 void BattleResultsApplied::applyCl(CClient *cl)

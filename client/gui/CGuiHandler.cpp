@@ -238,7 +238,7 @@ void CGuiHandler::handleCurrentEvent()
 				break;
 
 			case SDLK_F9:
-				//not working yet since CClient::run remain locked after CBattleInterface removal
+				//not working yet since CClient::run remain locked after BattleInterface removal
 //				if(LOCPLINT->battleInt)
 //				{
 //					GH.popInts(1);

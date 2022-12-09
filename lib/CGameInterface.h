@@ -154,7 +154,7 @@ public:
 	virtual void battleNewRound(int round) override;
 	virtual void battleCatapultAttacked(const CatapultAttack & ca) override;
 	virtual void battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side) override;
-	virtual void battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa) override;
+	virtual void battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa, bool ranged) override;
 	virtual void actionStarted(const BattleAction &action) override;
 	virtual void battleNewRoundFirst(int round) override;
 	virtual void actionFinished(const BattleAction &action) override;

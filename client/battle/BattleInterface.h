@@ -9,6 +9,7 @@
  */
 #pragma once
 
+#include "BattleConstants.h"
 #include "../gui/CIntObject.h"
 #include "../../lib/spells/CSpellHandler.h" //CSpell::TAnimation
 
@@ -56,10 +57,15 @@ class BattleEffectsController;
 /// Small struct which contains information about the id of the attacked stack, the damage dealt,...
 struct StackAttackedInfo
 {
-	const CStack *defender; //attacked stack
-	int64_t dmg; //damage dealt
-	unsigned int amountKilled; //how many creatures in stack has been killed
-	const CStack *attacker; //attacking stack
+	const CStack *defender;
+	const CStack *attacker;
+
+	int64_t  damageDealt;
+	uint32_t amountKilled;
+
+	EBattleEffect::EBattleEffect battleEffect;
+	SpellID spellEffect;
+
 	bool indirectAttack; //if true, stack was attacked indirectly - spell or ranged attack
 	bool killed; //if true, stack has been killed
 	bool rebirth; //if true, play rebirth animation after all
@@ -114,7 +120,6 @@ public:
 	static CondSh<BattleAction *> givenCommand; //data != nullptr if we have i.e. moved current unit
 
 	bool myTurn; //if true, interface is active (commands can be ordered)
-	bool moveStarted; //if true, the creature that is already moving is going to make its first step
 	int moveSoundHander; // sound handler used when moving a unit
 
 	const BattleResult *bresult; //result of a battle; if non-zero then display when all animations end

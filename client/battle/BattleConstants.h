@@ -9,6 +9,27 @@
  */
 #pragma once
 
+namespace EBattleEffect
+{
+	enum EBattleEffect
+	{
+		// list of battle effects that have hardcoded triggers
+		FEAR         = 15,
+		GOOD_LUCK    = 18,
+		GOOD_MORALE  = 20,
+		BAD_MORALE   = 30,
+		BAD_LUCK     = 48,
+		RESURRECT    = 50,
+		DRAIN_LIFE   = 52, // hardcoded constant in CGameHandler
+		POISON       = 67,
+		DEATH_BLOW   = 73,
+		REGENERATION = 74,
+		MANA_DRAIN   = 77,
+
+		INVALID      = -1,
+	};
+}
+
 namespace EHeroAnimType
 {
 enum Type
