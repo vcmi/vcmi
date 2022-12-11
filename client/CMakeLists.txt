@@ -15,6 +15,7 @@ set(client_SRCS
 		gui/Geometries.cpp
 		gui/SDL_Extensions.cpp
 		gui/NotificationHandler.cpp
+		gui/InterfaceBuilder.cpp
 
 		widgets/AdventureMapClasses.cpp
 		widgets/Buttons.cpp
@@ -90,6 +91,7 @@ set(client_HEADERS
 		gui/SDL_Extensions.h
 		gui/SDL_Pixels.h
 		gui/NotificationHandler.h
+		gui/InterfaceBuilder.h
 
 		widgets/AdventureMapClasses.h
 		widgets/Buttons.h
