@@ -1,5 +1,5 @@
 /*
- * CBattleStacksController.cpp, part of VCMI engine
+ * BattleStacksController.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -435,7 +435,7 @@ void BattleStacksController::stackAttacking( const CStack *attacker, BattleHex d
 	//waitForAnims();
 }
 
-bool BattleStacksController::shouldRotate(const CStack * stack, const BattleHex & oldPos, const BattleHex & nextHex)
+bool BattleStacksController::shouldRotate(const CStack * stack, const BattleHex & oldPos, const BattleHex & nextHex) const
 {
 	Point begPosition = getStackPositionAtHex(oldPos,stack);
 	Point endPosition = getStackPositionAtHex(nextHex, stack);
@@ -528,19 +528,19 @@ void BattleStacksController::setSelectedStack(const CStack *stack)
 	selectedStack = stack;
 }
 
-const CStack* BattleStacksController::getSelectedStack()
+const CStack* BattleStacksController::getSelectedStack() const
 {
 	return selectedStack;
 }
 
-const CStack* BattleStacksController::getActiveStack()
+const CStack* BattleStacksController::getActiveStack() const
 {
 	return activeStack;
 }
 
-bool BattleStacksController::facingRight(const CStack * stack)
+bool BattleStacksController::facingRight(const CStack * stack) const
 {
-	return stackFacingRight[stack->ID];
+	return stackFacingRight.at(stack->ID);
 }
 
 bool BattleStacksController::activeStackSpellcaster()
@@ -555,7 +555,7 @@ SpellID BattleStacksController::activeStackSpellToCast()
 	return SpellID(creatureSpellToCast);
 }
 
-Point BattleStacksController::getStackPositionAtHex(BattleHex hexNum, const CStack * stack)
+Point BattleStacksController::getStackPositionAtHex(BattleHex hexNum, const CStack * stack) const
 {
 	Point ret(-500, -500); //returned value
 	if(stack && stack->initialPosition < 0) //creatures in turrets

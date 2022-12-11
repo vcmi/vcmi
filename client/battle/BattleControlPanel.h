@@ -1,5 +1,5 @@
 /*
- * CBattleControlPanel.h, part of VCMI engine
+ * BattleControlPanel.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -20,6 +20,7 @@ class CButton;
 class BattleInterface;
 class BattleConsole;
 
+/// GUI object that handles functionality of panel at the bottom of combat screen
 class BattleControlPanel : public CIntObject
 {
 	BattleInterface * owner;
@@ -38,7 +39,7 @@ class BattleControlPanel : public CIntObject
 	std::shared_ptr<CButton> btactNext;
 	std::shared_ptr<CButton> btactEnd;
 
-	//button handle funcs:
+	/// button press handling functions
 	void bOptionsf();
 	void bSurrenderf();
 	void bFleef();
@@ -51,20 +52,23 @@ class BattleControlPanel : public CIntObject
 	void bTacticNextStack();
 	void bTacticPhaseEnd();
 
-	void reallyFlee(); //performs fleeing without asking player
-	void reallySurrender(); //performs surrendering without asking player
+	/// functions for handling actions after they were confirmed by popup window
+	void reallyFlee();
+	void reallySurrender();
 
 public:
 	std::shared_ptr<BattleConsole> console;
 
-	// block all UI elements, e.g. during enemy turn
-	// unlike activate/deactivate this method will correctly grey-out all elements
+	/// block all UI elements when player is not allowed to act, e.g. during enemy turn
 	void blockUI(bool on);
 
 	void show(SDL_Surface * to) override;
 	void showAll(SDL_Surface * to) override;
 
+	/// Toggle UI to displaying tactics phase
 	void tacticPhaseStarted();
+
+	/// Toggle UI to displaying battle log in place of tactics UI
 	void tacticPhaseEnded();
 
 	BattleControlPanel(BattleInterface * owner, const Point & position);

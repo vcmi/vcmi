@@ -57,37 +57,44 @@ public:
 
 private:
 	std::string name;
+
+	/// animation for rendering stack in default orientation - facing right
 	std::shared_ptr<CAnimation> forward;
+
+	/// animation that has all its frames flipped for rendering stack facing left
 	std::shared_ptr<CAnimation> reverse;
 
 	int fullWidth;
 	int fullHeight;
 
-	// speed of animation, measure in frames per second
+	/// speed of animation, measure in frames per second
 	float speed;
 
-	// currently displayed frame. Float to allow H3-style animations where frames
-	// don't display for integer number of frames
+	/// currently displayed frame. Float to allow H3-style animations where frames
+	/// don't display for integer number of frames
 	float currentFrame;
-	// cumulative, real-time duration of animation. Used for effects like selection border
-	float elapsedTime;
-	CCreatureAnim::EAnimType type; //type of animation being displayed
 
-	// border color, disabled if alpha = 0
+	/// cumulative, real-time duration of animation. Used for effects like selection border
+	float elapsedTime;
+
+	///type of animation being displayed
+	CCreatureAnim::EAnimType type;
+
+	/// border color, disabled if alpha = 0
 	SDL_Color border;
 
 	TSpeedController speedController;
 
-	bool once; // animation will be played once and the reset to idling
+	/// animation will be played once and the reset to idling
+	bool once;
 
 	void endAnimation();
-
 
 	void genBorderPalette(IImage::BorderPallete & target);
 public:
 
-	// function(s) that will be called when animation ends, after reset to 1st frame
-	// NOTE that these function will be fired only once
+	/// function(s) that will be called when animation ends, after reset to 1st frame
+	/// NOTE that these functions will be fired only once
 	CFunctionList<void()> onAnimationReset;
 
 	int getWidth() const;
@@ -99,28 +106,35 @@ public:
 	/// in specified group of animation should be played, measured in seconds
 	CreatureAnimation(const std::string & name_, TSpeedController speedController);
 
-	void setType(CCreatureAnim::EAnimType type); //sets type of animation and cleares framecount
-	CCreatureAnim::EAnimType getType() const; //returns type of animation
+	/// sets type of animation and resets framecount
+	void setType(CCreatureAnim::EAnimType type);
+
+	/// returns currently rendered type of animation
+	CCreatureAnim::EAnimType getType() const;
 
 	void nextFrame(Canvas & canvas, bool facingRight);
 
-	// should be called every frame, return true when animation was reset to beginning
+	/// should be called every frame, return true when animation was reset to beginning
 	bool incrementFrame(float timePassed);
+
 	void setBorderColor(SDL_Color palette);
 
-	// tint color effect
+	/// apply color tint effect
 	void shiftColor(const ColorShifter * shifter);
 
-	float getCurrentFrame() const; // Gets the current frame ID relative to frame group.
+	/// Gets the current frame ID within current group.
+	float getCurrentFrame() const;
 
-	void playOnce(CCreatureAnim::EAnimType type); //plays once given stage of animation, then resets to 2
+	/// plays once given type of animation, then resets to idle
+	void playOnce(CCreatureAnim::EAnimType type);
 
-	int framesInGroup(CCreatureAnim::EAnimType group) const;
+	/// returns number of frames in selected animation type
+	int framesInGroup(CCreatureAnim::EAnimType type) const;
 
 	void pause();
 	void play();
 
-	//helpers. TODO: move them somewhere else
+	/// helpers to classify current type of animation
 	bool isDead() const;
 	bool isDying() const;
 	bool isDeadOrDying() const;

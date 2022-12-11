@@ -1,5 +1,5 @@
 /*
- * CBattleAnimations.cpp, part of VCMI engine
+ * BattleAnimationClasses.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -855,7 +855,7 @@ CShootingAnimation::CShootingAnimation(BattleInterface * _owner, const CStack * 
 
 void CShootingAnimation::createProjectile(const Point & from, const Point & dest) const
 {
-	owner->projectilesController->createProjectile(attackingStack, attackedStack, from, dest);
+	owner->projectilesController->createProjectile(attackingStack, from, dest);
 }
 
 uint32_t CShootingAnimation::getAttackClimaxFrame() const
@@ -970,7 +970,7 @@ CCreatureAnim::EAnimType CCastAnimation::getDownwardsGroup() const
 void CCastAnimation::createProjectile(const Point & from, const Point & dest) const
 {
 	if (!spell->animationInfo.projectile.empty())
-		owner->projectilesController->createSpellProjectile(attackingStack, attackedStack, from, dest, spell);
+		owner->projectilesController->createSpellProjectile(attackingStack, from, dest, spell);
 }
 
 uint32_t CCastAnimation::getAttackClimaxFrame() const
@@ -1071,7 +1071,7 @@ bool CPointEffectAnimation::init()
 		else
 		{
 			const CStack * destStack = owner->getCurrentPlayerInterface()->cb->battleGetStackByPos(battlehexes[i], false);
-			Rect tilePos = owner->fieldController->hexPosition(battlehexes[i]);
+			Rect tilePos = owner->fieldController->hexPositionAbsolute(battlehexes[i]);
 
 			be.x = tilePos.x + tilePos.w/2 - first->width()/2;
 

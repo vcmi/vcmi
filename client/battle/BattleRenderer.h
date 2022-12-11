@@ -1,5 +1,5 @@
 /*
- * CBattleFieldController.h, part of VCMI engine
+ * BattleFieldController.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -11,19 +11,7 @@
 
 #include "../../lib/battle/BattleHex.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-
-//class CStack;
-
-VCMI_LIB_NAMESPACE_END
-
-//struct SDL_Surface;
-//struct Rect;
-//struct Point;
-//
-//class CClickableHex;
 class Canvas;
-//class IImage;
 class BattleInterface;
 
 enum class EBattleFieldLayer {

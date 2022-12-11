@@ -1,5 +1,5 @@
 /*
- * CBattleFieldController.cpp, part of VCMI engine
+ * BattleFieldController.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -79,7 +79,7 @@ BattleFieldController::BattleFieldController(BattleInterface * owner):
 	{
 		auto hex = std::make_shared<ClickableHex>();
 		hex->myNumber = h;
-		hex->pos = hexPosition(h);
+		hex->pos = hexPositionAbsolute(h);
 		hex->myInterface = owner;
 		bfield.push_back(hex);
 	}
@@ -162,7 +162,7 @@ void BattleFieldController::redrawBackgroundWithHexes()
 
 void BattleFieldController::showHighlightedHex(Canvas & canvas, BattleHex hex, bool darkBorder)
 {
-	Point hexPos = hexPosition(hex).topLeft();
+	Point hexPos = hexPositionAbsolute(hex).topLeft();
 
 	canvas.draw(cellShade, hexPos);
 	if(!darkBorder && settings["battle"]["cellBorders"].Bool())
@@ -278,7 +278,7 @@ Rect BattleFieldController::hexPositionLocal(BattleHex hex) const
 	return Rect(x, y, w, h);
 }
 
-Rect BattleFieldController::hexPosition(BattleHex hex) const
+Rect BattleFieldController::hexPositionAbsolute(BattleHex hex) const
 {
 	return hexPositionLocal(hex) + owner->pos.topLeft();
 }
@@ -299,7 +299,7 @@ BattleHex BattleFieldController::getHoveredHex()
 
 void BattleFieldController::setBattleCursor(BattleHex myNumber)
 {
-	Rect hoveredHexPos = hexPosition(myNumber);
+	Rect hoveredHexPos = hexPositionAbsolute(myNumber);
 	CCursorHandler *cursor = CCS->curh;
 
 	const double subdividingAngle = 2.0*M_PI/6.0; // Divide a hex into six sectors.

@@ -1,5 +1,5 @@
 /*
- * CBattleEffectsController.h, part of VCMI engine
+ * BattleEffectsController.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -57,6 +57,7 @@ struct BattleEffect
 	BattleHex position; //Indicates if effect which hex the effect is drawn on
 };
 
+/// Controls rendering of effects in battle, e.g. from spells, abilities and various other actions like morale
 class BattleEffectsController
 {
 	BattleInterface * owner;

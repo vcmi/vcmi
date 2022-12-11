@@ -1,5 +1,5 @@
 /*
- * CBattleControlPanel.cpp, part of VCMI engine
+ * BattleControlPanel.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *

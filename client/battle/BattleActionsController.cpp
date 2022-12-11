@@ -1,5 +1,5 @@
 /*
- * CBattleActionsController.cpp, part of VCMI engine
+ * BattleActionsController.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -141,7 +141,7 @@ void BattleActionsController::enterCreatureCastingMode()
 	}
 }
 
-std::vector<PossiblePlayerBattleAction> BattleActionsController::getPossibleActionsForStack(const CStack *stack)
+std::vector<PossiblePlayerBattleAction> BattleActionsController::getPossibleActionsForStack(const CStack *stack) const
 {
 	BattleClientInterfaceData data; //hard to get rid of these things so for now they're required data to pass
 	data.creatureSpellToCast = owner->stacksController->activeStackSpellToCast();
@@ -742,7 +742,7 @@ bool BattleActionsController::isCastingPossibleHere(const CStack *sactive, const
 	return isCastingPossible;
 }
 
-bool BattleActionsController::canStackMoveHere(const CStack * stackToMove, BattleHex myNumber)
+bool BattleActionsController::canStackMoveHere(const CStack * stackToMove, BattleHex myNumber) const
 {
 	std::vector<BattleHex> acc = owner->curInt->cb->battleGetAvailableHexes(stackToMove);
 	BattleHex shiftedDest = myNumber.cloneInDirection(stackToMove->destShiftDir(), false);
@@ -762,12 +762,12 @@ void BattleActionsController::activateStack()
 		possibleActions = getPossibleActionsForStack(s);
 }
 
-bool BattleActionsController::spellcastingModeActive()
+bool BattleActionsController::spellcastingModeActive() const
 {
 	return spellDestSelectMode;
 }
 
-SpellID BattleActionsController::selectedSpell()
+SpellID BattleActionsController::selectedSpell() const
 {
 	if (!spellToCast)
 		return SpellID::NONE;

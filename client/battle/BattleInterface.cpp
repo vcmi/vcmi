@@ -1,5 +1,5 @@
 /*
- * CBattleInterface.cpp, part of VCMI engine
+ * BattleInterface.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -514,7 +514,7 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 			Point destcoord = stacksController->getStackPositionAtHex(sc->tile, target); //position attacked by projectile
 			destcoord += Point(250, 240); // FIXME: what are these constants?
 
-			projectilesController->createSpellProjectile( nullptr, target, srccoord, destcoord, spell);
+			projectilesController->createSpellProjectile( nullptr, srccoord, destcoord, spell);
 			projectilesController->emitStackProjectile( nullptr );
 
 			// wait fo projectile to end

@@ -1,5 +1,5 @@
 /*
- * CBattleSiegeController.h, part of VCMI engine
+ * BattleSiegeController.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -25,7 +25,7 @@ class CAnimation;
 class Canvas;
 class BattleInterface;
 
-/// Small struct which contains information about the position and the velocity of a projectile
+/// Base class for projectiles
 struct ProjectileBase
 {
 	virtual ~ProjectileBase() = default;
@@ -40,6 +40,7 @@ struct ProjectileBase
 	bool playing;  // if set to true, projectile animation is playing, e.g. flying to target
 };
 
+/// Projectile for most shooters - render pre-selected frame moving in straight line from origin to destination
 struct ProjectileMissile : ProjectileBase
 {
 	void show(Canvas & canvas) override;
@@ -49,12 +50,14 @@ struct ProjectileMissile : ProjectileBase
 	bool reverse;  // if true, projectile will be flipped by vertical axis
 };
 
+/// Projectile for spell - render animation moving in straight line from origin to destination
 struct ProjectileAnimatedMissile : ProjectileMissile
 {
 	void show(Canvas & canvas) override;
 	float frameProgress;
 };
 
+/// Projectile for catapult - render spinning projectile moving at parabolic trajectory to its destination
 struct ProjectileCatapult : ProjectileBase
 {
 	void show(Canvas & canvas) override;
@@ -63,6 +66,7 @@ struct ProjectileCatapult : ProjectileBase
 	int frameNum;  // frame to display from projectile animation
 };
 
+/// Projectile for mages/evil eye - render ray expanding from origin position to destination
 struct ProjectileRay : ProjectileBase
 {
 	void show(Canvas & canvas) override;
@@ -70,15 +74,14 @@ struct ProjectileRay : ProjectileBase
 	std::vector<CCreature::CreatureAnimation::RayColor> rayConfig;
 };
 
+/// Class that manages all ongoing projectiles in the game
+/// ... even though in H3 only 1 projectile can be on screen at any point of time
 class BattleProjectileController
 {
 	BattleInterface * owner;
 
 	/// all projectiles loaded during current battle
 	std::map<std::string, std::shared_ptr<CAnimation>> projectilesCache;
-
-//	std::map<int, std::shared_ptr<CAnimation>> idToProjectile;
-//	std::map<int, std::vector<CCreature::CreatureAnimation::RayColor>> idToRay;
 
 	/// projectiles currently flying on battlefield
 	std::vector<std::shared_ptr<ProjectileBase>> projectiles;
@@ -96,14 +99,21 @@ class BattleProjectileController
 
 	int computeProjectileFrameID( Point from, Point dest, const CStack * stack);
 	int computeProjectileFlightTime( Point from, Point dest, double speed);
+
 public:
 	BattleProjectileController(BattleInterface * owner);
 
+	/// renders all currently active projectiles
 	void showProjectiles(Canvas & canvas);
 
-	bool hasActiveProjectile(const CStack * stack);
+	/// returns true if stack has projectile that is yet to hit target
+	bool hasActiveProjectile(const CStack * stack) const;
+
+	/// starts rendering previously created projectile
 	void emitStackProjectile(const CStack * stack);
-	void createProjectile(const CStack * shooter, const CStack * target, Point from, Point dest);
-	void createSpellProjectile(const CStack * shooter, const CStack * target, Point from, Point dest, const CSpell * spell);
+
+	/// creates (but not emits!) projectile and initializes it based on parameters
+	void createProjectile(const CStack * shooter, Point from, Point dest);
+	void createSpellProjectile(const CStack * shooter, Point from, Point dest, const CSpell * spell);
 	void createCatapultProjectile(const CStack * shooter, Point from, Point dest);
 };

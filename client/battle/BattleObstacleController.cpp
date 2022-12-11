@@ -1,5 +1,5 @@
 /*
- * CBattleObstacleController.cpp, part of VCMI engine
+ * BattleObstacleController.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -182,7 +182,7 @@ Point BattleObstacleController::getObstaclePosition(std::shared_ptr<IImage> imag
 {
 	int offset = obstacle.getAnimationYOffset(image->height());
 
-	Rect r = owner->fieldController->hexPosition(obstacle.pos);
+	Rect r = owner->fieldController->hexPositionAbsolute(obstacle.pos);
 	r.y += 42 - image->height() + offset;
 
 	return r.topLeft();

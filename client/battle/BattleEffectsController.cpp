@@ -1,5 +1,5 @@
 /*
- * CBattleEffectsController.cpp, part of VCMI engine
+ * BattleEffectsController.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *

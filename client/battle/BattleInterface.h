@@ -1,5 +1,5 @@
 /*
- * CBattleInterface.h, part of VCMI engine
+ * BattleInterface.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -182,6 +182,7 @@ public:
 	const CGHeroInstance *currentHero() const;
 	InfoAboutHero enemyHero() const;
 
+	// TODO: cleanup this list
 	friend class CPlayerInterface;
 	friend class CInGameConsole;
 	friend class StackQueue;

@@ -1,5 +1,5 @@
 /*
- * CBattleStacksController.h, part of VCMI engine
+ * BattleStacksController.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -31,6 +31,10 @@ class CBattleAnimation;
 class BattleRenderer;
 class IImage;
 
+/// Class responsible for handling stacks in battle
+/// Handles ordering of stacks animation
+/// As well as rendering of stacks, their amount boxes
+/// And any other effect applied to stacks
 class BattleStacksController
 {
 	BattleInterface * owner;
@@ -40,19 +44,33 @@ class BattleStacksController
 	std::shared_ptr<IImage> amountPositive;
 	std::shared_ptr<IImage> amountEffNeutral;
 
-	std::vector<CBattleAnimation *> currentAnimations; //currently displayed animations <anim, initialized>
-	std::map<int32_t, std::shared_ptr<CreatureAnimation>> stackAnimation; //animations of creatures from fighting armies (order by BattleInfo's stacks' ID)
-	std::map<int, bool> stackFacingRight; // <creatureID, if false reverse creature's animation> //TODO: move it to battle callback
+	/// currently displayed animations <anim, initialized>
+	std::vector<CBattleAnimation *> currentAnimations;
 
-	const CStack *activeStack; //number of active stack; nullptr - no one
-	const CStack *mouseHoveredStack; // stack below mouse pointer, used for border animation
-	const CStack *stackToActivate; //when animation is playing, we should wait till the end to make the next stack active; nullptr of none
-	const CStack *selectedStack; //for Teleport / Sacrifice
+	/// animations of creatures from fighting armies (order by BattleInfo's stacks' ID)
+	std::map<int32_t, std::shared_ptr<CreatureAnimation>> stackAnimation;
 
-	bool stackCanCastSpell; //if true, active stack could possibly cast some target spell
+	/// <creatureID, if false reverse creature's animation> //TODO: move it to battle callback
+	std::map<int, bool> stackFacingRight;
+
+	/// number of active stack; nullptr - no one
+	const CStack *activeStack;
+
+	/// stack below mouse pointer, used for border animation
+	const CStack *mouseHoveredStack;
+
+	///when animation is playing, we should wait till the end to make the next stack active; nullptr of none
+	const CStack *stackToActivate;
+
+	/// stack that was selected for multi-target spells - Teleport / Sacrifice
+	const CStack *selectedStack;
+
+	/// if true, active stack could possibly cast some target spell
+	bool stackCanCastSpell;
 	si32 creatureSpellToCast;
 
-	ui32 animIDhelper; //for giving IDs for animations
+	/// for giving IDs for animations
+	ui32 animIDhelper;
 
 	bool stackNeedsAmountBox(const CStack * stack);
 	void showStackAmountBox(Canvas & canvas, const CStack * stack);
@@ -63,8 +81,8 @@ class BattleStacksController
 public:
 	BattleStacksController(BattleInterface * owner);
 
-	bool shouldRotate(const CStack * stack, const BattleHex & oldPos, const BattleHex & nextHex);
-	bool facingRight(const CStack * stack);
+	bool shouldRotate(const CStack * stack, const BattleHex & oldPos, const BattleHex & nextHex) const;
+	bool facingRight(const CStack * stack) const;
 
 	void stackReset(const CStack * stack);
 	void stackAdded(const CStack * stack); //new stack appeared on battlefield
@@ -94,11 +112,11 @@ public:
 	void addNewAnim(CBattleAnimation *anim); //adds new anim to pendingAnims
 	void updateBattleAnimations();
 
-	const CStack* getActiveStack();
-	const CStack* getSelectedStack();
+	const CStack* getActiveStack() const;
+	const CStack* getSelectedStack() const;
 
 	/// returns position of animation needed to place stack in specific hex
-	Point getStackPositionAtHex(BattleHex hexNum, const CStack * creature);
+	Point getStackPositionAtHex(BattleHex hexNum, const CStack * creature) const;
 
 	friend class CBattleAnimation; // for exposing pendingAnims/creAnims/creDir to animations
 };

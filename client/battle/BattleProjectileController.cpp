@@ -1,5 +1,5 @@
 /*
- * CBattleProjectileController.cpp, part of VCMI engine
+ * BattleProjectileController.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -239,7 +239,7 @@ void BattleProjectileController::showProjectiles(Canvas & canvas)
 	}
 }
 
-bool BattleProjectileController::hasActiveProjectile(const CStack * stack)
+bool BattleProjectileController::hasActiveProjectile(const CStack * stack) const
 {
 	int stackID = stack ? stack->ID : -1;
 
@@ -312,10 +312,8 @@ void BattleProjectileController::createCatapultProjectile(const CStack * shooter
 	projectiles.push_back(std::shared_ptr<ProjectileBase>(catapultProjectile));
 }
 
-void BattleProjectileController::createProjectile(const CStack * shooter, const CStack * target, Point from, Point dest)
+void BattleProjectileController::createProjectile(const CStack * shooter, Point from, Point dest)
 {
-	assert(target);
-
 	const CCreature *shooterInfo = getShooter(shooter);
 
 	std::shared_ptr<ProjectileBase> projectile;
@@ -351,7 +349,7 @@ void BattleProjectileController::createProjectile(const CStack * shooter, const 
 	projectiles.push_back(projectile);
 }
 
-void BattleProjectileController::createSpellProjectile(const CStack * shooter, const CStack * target, Point from, Point dest, const CSpell * spell)
+void BattleProjectileController::createSpellProjectile(const CStack * shooter, Point from, Point dest, const CSpell * spell)
 {
 	double projectileAngle = std::abs(atan2(dest.x - from.x, dest.y - from.y));
 	std::string animToDisplay = spell->animationInfo.selectProjectile(projectileAngle);

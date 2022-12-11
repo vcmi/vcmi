@@ -1,5 +1,5 @@
 /*
- * CBattleInterfaceClasses.h, part of VCMI engine
+ * BattleInterfaceClasses.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *

@@ -1,5 +1,5 @@
 /*
- * CBattleSiegeController.cpp, part of VCMI engine
+ * BattleSiegeController.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *

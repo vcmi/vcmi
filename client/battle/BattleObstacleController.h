@@ -1,5 +1,5 @@
 /*
- * CBattleObstacleController.h, part of VCMI engine
+ * BattleObstacleController.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -24,16 +24,20 @@ class BattleInterface;
 class BattleRenderer;
 struct Point;
 
+/// Controls all currently active projectiles on the battlefield
+/// (with exception of moat, which is apparently handled by siege controller)
 class BattleObstacleController
 {
-	std::map<std::string, std::shared_ptr<CAnimation>> animationsCache;
-
 	BattleInterface * owner;
 
+	/// cached animations of all obstacles in current battle
+	std::map<std::string, std::shared_ptr<CAnimation>> animationsCache;
+
+	/// list of all obstacles that are currently being rendered
 	std::map<si32, std::shared_ptr<CAnimation>> obstacleAnimations;
 
-	// semi-debug member, contains obstacles that should not yet be visible due to ongoing placement animation
-	// used only for sanity checks to ensure that there are no invisible obstacles
+	/// semi-debug member, contains obstacles that should not yet be visible due to ongoing placement animation
+	/// used only for sanity checks to ensure that there are no invisible obstacles
 	std::vector<si32> obstaclesBeingPlaced;
 
 	void loadObstacleImage(const CObstacleInstance & oi);
@@ -44,9 +48,12 @@ class BattleObstacleController
 public:
 	BattleObstacleController(BattleInterface * owner);
 
+	/// call-in from network pack, add newly placed obstacles with any required animations
 	void obstaclePlaced(const std::vector<std::shared_ptr<const CObstacleInstance>> & oi);
-	void showObstacles(SDL_Surface *to, std::vector<std::shared_ptr<const CObstacleInstance>> &obstacles);
+
+	/// renders all "absolute" obstacles
 	void showAbsoluteObstacles(Canvas & canvas, const Point & offset);
 
+	/// adds all non-"absolute" visible obstacles for rendering
 	void collectRenderableObjects(BattleRenderer & renderer);
 };
