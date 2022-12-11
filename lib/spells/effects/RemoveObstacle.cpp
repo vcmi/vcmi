@@ -47,6 +47,7 @@ bool RemoveObstacle::applicable(Problem & problem, const Mechanics * m) const
 	{
 		return m->adaptProblem(ESpellCastProblem::NO_APPROPRIATE_TARGET, problem);
 	}
+	return true;
 }
 
 bool RemoveObstacle::applicable(Problem & problem, const Mechanics * m, const EffectTarget & target) const

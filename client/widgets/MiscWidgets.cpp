@@ -35,7 +35,7 @@ void CHoverableArea::hover (bool on)
 	if (on)
 		GH.statusbar->write(hoverText);
 	else
-		GH.statusbar->clearMatching(hoverText);
+		GH.statusbar->clearIfMatching(hoverText);
 }
 
 CHoverableArea::CHoverableArea()

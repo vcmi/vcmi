@@ -158,6 +158,7 @@ struct ColorPutter
 
 typedef void (*BlitterWithRotationVal)(SDL_Surface *src,SDL_Rect srcRect, SDL_Surface * dst, SDL_Rect dstRect, ui8 rotation);
 
+/// Base class for applying palette transformation on images
 class ColorShifter
 {
 public:
@@ -165,39 +166,38 @@ public:
 	virtual SDL_Color shiftColor(SDL_Color input) const = 0;
 };
 
-class ColorShifterAddMul : public ColorShifter
+/// Generic class for palette transformation
+/// formula:
+/// result = input * factor + added
+class ColorShifterMultiplyAndAdd : public ColorShifter
 {
-	SDL_Color add;
-	SDL_Color mul;
+	SDL_Color added;
+	SDL_Color factor;
+
 public:
-
-	static ColorShifterAddMul deepBlue()
-	{
-		return ColorShifterAddMul({0, 0, 255, 0}, {255, 255, 0, 255});
-	}
-
-	ColorShifterAddMul(SDL_Color add, SDL_Color mul) :
-		add(add),
-		mul(mul)
+	ColorShifterMultiplyAndAdd(SDL_Color factor, SDL_Color added) :
+		factor(factor),
+		added(added)
 	{}
 
 	SDL_Color shiftColor(SDL_Color input) const override
 	{
 		return {
-			uint8_t(std::min(255.f, std::round(input.r * float(mul.r) / 255 + add.r))),
-			uint8_t(std::min(255.f, std::round(input.g * float(mul.g) / 255 + add.g))),
-			uint8_t(std::min(255.f, std::round(input.b * float(mul.b) / 255 + add.b))),
-			uint8_t(std::min(255.f, std::round(input.a * float(mul.a) / 255 + add.a))),
+			uint8_t(std::min(255.f, std::round(input.r * float(factor.r) / 255.f + added.r))),
+			uint8_t(std::min(255.f, std::round(input.g * float(factor.g) / 255.f + added.g))),
+			uint8_t(std::min(255.f, std::round(input.b * float(factor.b) / 255.f + added.b))),
+			uint8_t(std::min(255.f, std::round(input.a * float(factor.a) / 255.f + added.a))),
 		};
 	}
 };
 
-class ColorShifterAddMulExcept : public ColorShifterAddMul
+/// Color shifter that allows to specify color to be excempt from changes
+class ColorShifterMultiplyAndAddExcept : public ColorShifterMultiplyAndAdd
 {
 	SDL_Color ignored;
 public:
-	ColorShifterAddMulExcept(SDL_Color add, SDL_Color mul, SDL_Color ignored) :
-		ColorShifterAddMul(add, mul),
+	ColorShifterMultiplyAndAddExcept(SDL_Color factor, SDL_Color added, SDL_Color ignored) :
+		ColorShifterMultiplyAndAdd(factor, added),
 		ignored(ignored)
 	{}
 
@@ -205,7 +205,7 @@ public:
 	{
 		if ( input.r == ignored.r && input.g == ignored.g && input.b == ignored.b && input.a == ignored.a)
 			return input;
-		return ColorShifterAddMul::shiftColor(input);
+		return ColorShifterMultiplyAndAdd::shiftColor(input);
 	}
 };
 

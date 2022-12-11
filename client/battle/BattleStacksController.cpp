@@ -76,10 +76,10 @@ BattleStacksController::BattleStacksController(BattleInterface * owner):
 	amountNegative   = IImage::createFromFile("CMNUMWIN.BMP");
 	amountEffNeutral = IImage::createFromFile("CMNUMWIN.BMP");
 
-	ColorShifterAddMulExcept shifterNormal  ({0,0,0,0}, {150,  50, 255, 255}, {255, 231, 132, 255});
-	ColorShifterAddMulExcept shifterPositive({0,0,0,0}, { 50, 255,  50, 255}, {255, 231, 132, 255});
-	ColorShifterAddMulExcept shifterNegative({0,0,0,0}, {255,  50,  50, 255}, {255, 231, 132, 255});
-	ColorShifterAddMulExcept shifterNeutral ({0,0,0,0}, {255, 255,  50, 255}, {255, 231, 132, 255});
+	static const ColorShifterMultiplyAndAddExcept shifterNormal  ({150,  50, 255, 255}, {0,0,0,0}, {255, 231, 132, 255});
+	static const ColorShifterMultiplyAndAddExcept shifterPositive({ 50, 255,  50, 255}, {0,0,0,0}, {255, 231, 132, 255});
+	static const ColorShifterMultiplyAndAddExcept shifterNegative({255,  50,  50, 255}, {0,0,0,0}, {255, 231, 132, 255});
+	static const ColorShifterMultiplyAndAddExcept shifterNeutral ({255, 255,  50, 255}, {0,0,0,0}, {255, 231, 132, 255});
 
 	amountNormal->adjustPalette(&shifterNormal);
 	amountPositive->adjustPalette(&shifterPositive);
@@ -160,10 +160,11 @@ void BattleStacksController::stackReset(const CStack * stack)
 	if(stack->alive() && animation->isDeadOrDying())
 		animation->setType(CCreatureAnim::HOLDING);
 
+	static const ColorShifterMultiplyAndAdd shifterClone ({255, 255, 0, 255}, {0, 0, 255, 0});
+
 	if (stack->isClone())
 	{
-		auto shifter = ColorShifterAddMul::deepBlue();
-		animation->shiftColor(&shifter);
+		animation->shiftColor(&shifterClone);
 	}
 
 	//TODO: handle more cases

@@ -55,7 +55,7 @@ public:
 	void scrollUp(ui32 by = 1); //scrolls console up by 'by' positions
 	void scrollDown(ui32 by = 1); //scrolls console up by 'by' positions
 
-	void clearMatching(const std::string & Text) override;
+	void clearIfMatching(const std::string & Text) override;
 	void clear() override;
 	void write(const std::string & Text) override;
 	void lock(bool shouldLock) override;

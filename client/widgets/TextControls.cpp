@@ -345,7 +345,7 @@ void CGStatusBar::write(const std::string & Text)
 		CLabel::setText(Text);
 }
 
-void CGStatusBar::clearMatching(const std::string & Text)
+void CGStatusBar::clearIfMatching(const std::string & Text)
 {
 	if (getText() == Text)
 		clear();

@@ -138,7 +138,7 @@ public:
 		return ret;
 	}
 
-	void clearMatching(const std::string & Text) override;
+	void clearIfMatching(const std::string & Text) override;
 	void clear() override;//clears statusbar and refreshes
 	void write(const std::string & Text) override; //prints text and refreshes statusbar
 

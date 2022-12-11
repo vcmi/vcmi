@@ -369,10 +369,10 @@ CMultiMode::CMultiMode(ESelectionScreen ScreenType)
 	: screenType(ScreenType)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
-	background = std::make_shared<CPicture>("MUPOPUP.bmp");
-	background->convertToScreenBPP(); //so we could draw without problems
-	blitAt(CPicture("MUMAP.bmp").getSurface(), 16, 77, background->getSurface());
 	pos = background->center(); //center, window has size of bg graphic
+
+	background = std::make_shared<CPicture>("MUPOPUP.bmp");
+	picture    = std::make_shared<CPicture>("MUMAP.bmp", 16, 77);
 
 	statusBar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(7, 465, 440, 18), 7, 465));
 	playerName = std::make_shared<CTextInput>(Rect(19, 436, 334, 16), background->getSurface());

@@ -1035,7 +1035,7 @@ void CCreaInfo::hover(bool on)
 	}
 	else
 	{
-		GH.statusbar->clearMatching(message);
+		GH.statusbar->clearIfMatching(message);
 	}
 }
 

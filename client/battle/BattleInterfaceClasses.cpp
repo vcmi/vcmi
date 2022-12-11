@@ -106,7 +106,7 @@ BattleConsole::BattleConsole(const Rect & position) : lastShown(-1)
 	pos.h = position.h;
 }
 
-void BattleConsole::clearMatching(const std::string & Text)
+void BattleConsole::clearIfMatching(const std::string & Text)
 {
 	if (ingcAlter == Text)
 		clear();

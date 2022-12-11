@@ -668,7 +668,7 @@ void BattleActionsController::handleHex(BattleHex myNumber, int eventType)
 				CCS->curh->changeGraphic(cursorType, cursorFrame);
 
 			if (!currentConsoleMsg.empty())
-				owner->controlPanel->console->clearMatching(currentConsoleMsg);
+				owner->controlPanel->console->clearIfMatching(currentConsoleMsg);
 			if (!newConsoleMsg.empty())
 				owner->controlPanel->console->write(newConsoleMsg);
 

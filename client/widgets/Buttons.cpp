@@ -210,7 +210,7 @@ void CButton::hover (bool on)
 		if (on)
 			GH.statusbar->write(name);
 		else
-			GH.statusbar->clearMatching(name);
+			GH.statusbar->clearIfMatching(name);
 	}
 }
 

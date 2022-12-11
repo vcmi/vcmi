@@ -1126,7 +1126,7 @@ void CInGameConsole::textEdited(const SDL_TextEditingEvent & event)
 
 void CInGameConsole::startEnteringText()
 {
-	auto * statusBar = dynamic_cast<CGStatusBar*>(GH.statusbar.get());
+	auto statusBar = std::dynamic_pointer_cast<CGStatusBar>(GH.statusbar);
 
 	if (statusBar)
 	{
@@ -1158,7 +1158,7 @@ void CInGameConsole::endEnteringText(bool printEnteredText)
 	}
 	enteredText.clear();
 
-	auto * statusBar = dynamic_cast<CGStatusBar*>(GH.statusbar.get());
+	auto statusBar = std::dynamic_pointer_cast<CGStatusBar>(GH.statusbar);
 
 	if(statusBar)
 	{
