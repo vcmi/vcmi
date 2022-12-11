@@ -54,10 +54,11 @@ void BattleObstacleController::loadObstacleImage(const CObstacleInstance & oi)
 	{
 		if (oi.obstacleType == CObstacleInstance::ABSOLUTE_OBSTACLE)
 		{
-			// obstacle use single bitmap image for animations
+			// obstacle uses single bitmap image for animations
 			auto animation = std::make_shared<CAnimation>();
 			animation->setCustom(animationName, 0, 0);
 			animationsCache[animationName] = animation;
+			animation->preload();
 		}
 		else
 		{
