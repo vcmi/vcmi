@@ -10,12 +10,15 @@
 #pragma once
 
 enum class EAnimationEvents {
-	OPENING     = 0, // battle opening sound is playing
+	OPENING     = 0, // TODO battle opening sound is playing
 	ACTION      = 1, // there are any ongoing animations
-	MOVEMENT    = 2, // stacks are moving or turning around
-	ATTACK      = 3, // attack and defense animations are playing
-	HIT         = 4, // hit & death animations are playing
-	PROJECTILES = 5, // there are any flying projectiles
+	BEFORE_MOVE = 2, // TODO effects played before stack can act, e.g. regen or bad morale
+	MOVEMENT    = 3, // stacks are moving or turning around
+	BEFORE_HIT  = 4, // effects played before all attack/defence/hit animations
+	ATTACK      = 5, // attack and defence animations are playing
+	HIT         = 6, // hit & death animations are playing
+	AFTER_HIT   = 7, // after all hit & death animations are over
+	PROJECTILES = 8, // TODO there are any flying projectiles
 	COUNT
 };
 
@@ -30,7 +33,7 @@ namespace EBattleEffect
 		BAD_MORALE   = 30,
 		BAD_LUCK     = 48,
 		RESURRECT    = 50,
-		DRAIN_LIFE   = 52, // hardcoded constant in CGameHandler
+		DRAIN_LIFE   = 52,
 		POISON       = 67,
 		DEATH_BLOW   = 73,
 		REGENERATION = 74,

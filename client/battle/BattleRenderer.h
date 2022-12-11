@@ -19,11 +19,11 @@ enum class EBattleFieldLayer {
 	OBSTACLES     = 0,
 	CORPSES       = 0,
 	WALLS         = 1,
-	HEROES        = 1,
-	STACKS        = 1, // after corpses, obstacles
-	BATTLEMENTS   = 2, // after stacks
-	STACK_AMOUNTS = 2, // after stacks, obstacles, corpses
-	EFFECTS       = 3, // after obstacles, battlements
+	HEROES        = 2,
+	STACKS        = 2, // after corpses, obstacles, walls
+	BATTLEMENTS   = 3, // after stacks
+	STACK_AMOUNTS = 3, // after stacks, obstacles, corpses
+	EFFECTS       = 4, // after obstacles, battlements
 };
 
 class BattleRenderer

@@ -72,6 +72,24 @@ struct StackAttackedInfo
 	bool cloneKilled;
 };
 
+struct StackAttackInfo
+{
+	const CStack *attacker;
+	const CStack *defender;
+	std::vector< const CStack *> secondaryDefender;
+
+	//EBattleEffect::EBattleEffect battleEffect;
+	SpellID spellEffect;
+	BattleHex tile;
+
+	bool indirectAttack;
+	bool lucky;
+	bool unlucky;
+	bool deathBlow;
+	bool lifeDrain;
+};
+
+
 /// Big class which handles the overall battle interface actions and it is also responsible for
 /// drawing everything correctly.
 class BattleInterface : public WindowBase
@@ -121,6 +139,9 @@ private:
 	void showInterface(SDL_Surface * to);
 
 	void setHeroAnimation(ui8 side, int phase);
+
+	void executeSpellCast(); //called when a hero casts a spell
+
 public:
 	std::unique_ptr<BattleProjectileController> projectilesController;
 	std::unique_ptr<BattleSiegeController> siegeController;
@@ -182,7 +203,7 @@ public:
 	void stackActivated(const CStack *stack); //active stack has been changed
 	void stackMoved(const CStack *stack, std::vector<BattleHex> destHex, int distance); //stack with id number moved to destHex
 	void stacksAreAttacked(std::vector<StackAttackedInfo> attackedInfos); //called when a certain amount of stacks has been attacked
-	void stackAttacking(const CStack *attacker, BattleHex dest, const CStack *attacked, bool shooting); //called when stack with id ID is attacking something on hex dest
+	void stackAttacking(const StackAttackInfo & attackInfo); //called when stack with id ID is attacking something on hex dest
 	void newRoundFirst( int round );
 	void newRound(int number); //caled when round is ended; number is the number of round
 	void hexLclicked(int whichOne); //hex only call-in

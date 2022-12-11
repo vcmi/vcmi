@@ -1647,11 +1647,10 @@ struct BattleAttack : public CPackForClient
 	std::vector<BattleStackAttacked> bsa;
 	ui32 stackAttacking;
 	ui32 flags; //uses Eflags (below)
-	enum EFlags{SHOT = 1, COUNTER = 2, LUCKY = 4, UNLUCKY = 8, BALLISTA_DOUBLE_DMG = 16, DEATH_BLOW = 32, SPELL_LIKE = 64};
+	enum EFlags{SHOT = 1, COUNTER = 2, LUCKY = 4, UNLUCKY = 8, BALLISTA_DOUBLE_DMG = 16, DEATH_BLOW = 32, SPELL_LIKE = 64, LIFE_DRAIN = 128};
 
+	BattleHex tile;
 	SpellID spellID; //for SPELL_LIKE
-
-	std::vector<CustomEffectInfo> customEffects;
 
 	bool shot() const//distance attack - decrease number of shots
 	{
@@ -1681,13 +1680,17 @@ struct BattleAttack : public CPackForClient
 	{
 		return flags & SPELL_LIKE;
 	}
+	bool lifeDrain() const
+	{
+		return flags & LIFE_DRAIN;
+	}
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & bsa;
 		h & stackAttacking;
 		h & flags;
+		h & tile;
 		h & spellID;
-		h & customEffects;
 		h & attackerChanges;
 	}
 };

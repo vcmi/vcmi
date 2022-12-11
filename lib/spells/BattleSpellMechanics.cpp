@@ -330,8 +330,6 @@ void BattleSpellMechanics::cast(ServerCallback * server, const Target & target)
 	for(auto & p : effectsToApply)
 		p.first->apply(server, this, p.second);
 
-//	afterCast();
-
 	if(sc.activeCast)
 	{
 		caster->spendMana(server, spellCost);
@@ -342,6 +340,11 @@ void BattleSpellMechanics::cast(ServerCallback * server, const Target & target)
 			otherHero->spendMana(server, -sc.manaGained);
 		}
 	}
+
+	// send empty event to client
+	// temporary(?) workaround to force animations to trigger
+	StacksInjured fake_event;
+	server->apply(&fake_event);
 }
 
 void BattleSpellMechanics::beforeCast(BattleSpellCast & sc, vstd::RNG & rng, const Target & target)

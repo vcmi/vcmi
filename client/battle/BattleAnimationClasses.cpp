@@ -159,7 +159,7 @@ CDefenceAnimation::CDefenceAnimation(StackAttackedInfo _attackedInfo, BattleInte
 
 bool CDefenceAnimation::init()
 {
-	logAnim->info("CDefenceAnimation::init: stack %d", stack->ID);
+	logAnim->info("CDefenceAnimation::init: stack %s", stack->getName());
 
 	CCS->soundh->playSound(getMySound());
 	myAnim->setType(getMyAnimType());
@@ -231,13 +231,16 @@ void CDummyAnimation::nextFrame()
 
 bool CMeleeAttackAnimation::init()
 {
+	assert(attackingStack);
+	assert(!myAnim->isDeadOrDying());
+
 	if(!attackingStack || myAnim->isDeadOrDying())
 	{
 		delete this;
 		return false;
 	}
 
-	logAnim->info("CMeleeAttackAnimation::init: stack %d -> stack %d", stack->ID, attackedStack->ID);
+	logAnim->info("CMeleeAttackAnimation::init: stack %s -> stack %s", stack->getName(), attackedStack->getName());
 	//reversed
 
 	shooting = false;
@@ -351,7 +354,7 @@ bool CMovementAnimation::init()
 		return false;
 	}
 
-	logAnim->info("CMovementAnimation::init: stack %d moves %d -> %d", stack->ID, oldPos, currentHex);
+	logAnim->info("CMovementAnimation::init: stack %s moves %d -> %d", stack->getName(), oldPos, currentHex);
 
 	//reverse unit if necessary
 	if(owner.stacksController->shouldRotate(stack, oldPos, currentHex))
@@ -467,7 +470,7 @@ bool CMovementEndAnimation::init()
 		return false;
 	}
 
-	logAnim->info("CMovementEndAnimation::init: stack %d", stack->ID);
+	logAnim->info("CMovementEndAnimation::init: stack %s", stack->getName());
 
 	CCS->soundh->playSound(battle_sound(stack->getCreature(), endMoving));
 
@@ -509,7 +512,7 @@ bool CMovementStartAnimation::init()
 		return false;
 	}
 
-	logAnim->info("CMovementStartAnimation::init: stack %d", stack->ID);
+	logAnim->info("CMovementStartAnimation::init: stack %s", stack->getName());
 	CCS->soundh->playSound(battle_sound(stack->getCreature(), startMoving));
 
 	if(!myAnim->framesInGroup(ECreatureAnimType::MOVE_START))
@@ -531,13 +534,16 @@ CReverseAnimation::CReverseAnimation(BattleInterface & owner, const CStack * sta
 
 bool CReverseAnimation::init()
 {
+	assert(myAnim);
+	assert(!myAnim->isDeadOrDying());
+
 	if(myAnim == nullptr || myAnim->isDeadOrDying())
 	{
 		delete this;
 		return false; //there is no such creature
 	}
 
-	logAnim->info("CReverseAnimation::init: stack %d", stack->ID);
+	logAnim->info("CReverseAnimation::init: stack %s", stack->getName());
 	if(myAnim->framesInGroup(ECreatureAnimType::TURN_L))
 	{
 		myAnim->playOnce(ECreatureAnimType::TURN_L);
@@ -559,6 +565,8 @@ void CBattleStackAnimation::rotateStack(BattleHex hex)
 
 void CReverseAnimation::setupSecondPart()
 {
+	assert(stack);
+
 	if(!stack)
 	{
 		delete this;
@@ -578,13 +586,15 @@ void CReverseAnimation::setupSecondPart()
 
 bool CResurrectionAnimation::init()
 {
+	assert(stack);
+
 	if(!stack)
 	{
 		delete this;
 		return false;
 	}
 
-	logAnim->info("CResurrectionAnimation::init: stack %d", stack->ID);
+	logAnim->info("CResurrectionAnimation::init: stack %s", stack->getName());
 	myAnim->playOnce(ECreatureAnimType::RESURRECTION);
 	myAnim->onAnimationReset += [&](){ delete this; };
 
@@ -616,7 +626,7 @@ bool CRangedAttackAnimation::init()
 		return false;
 	}
 
-	logAnim->info("CRangedAttackAnimation::init: stack %d", stack->ID);
+	logAnim->info("CRangedAttackAnimation::init: stack %s", stack->getName());
 
 	setAnimationGroup();
 	initializeProjectile();
@@ -1067,6 +1077,9 @@ CWaitingAnimation::CWaitingAnimation(BattleInterface & owner):
 void CWaitingAnimation::nextFrame()
 {
 	// initialization conditions fulfilled, delay is over
+	if(owner.getAnimationCondition(EAnimationEvents::HIT) == false)
+		owner.setAnimationCondition(EAnimationEvents::HIT, true);
+
 	delete this;
 }
 

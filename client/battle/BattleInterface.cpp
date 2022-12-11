@@ -372,9 +372,9 @@ void BattleInterface::stacksAreAttacked(std::vector<StackAttackedInfo> attackedI
 	}
 }
 
-void BattleInterface::stackAttacking( const CStack *attacker, BattleHex dest, const CStack *attacked, bool shooting )
+void BattleInterface::stackAttacking( const StackAttackInfo & attackInfo )
 {
-	stacksController->stackAttacking(attacker, dest, attacked, shooting);
+	stacksController->stackAttacking(attackInfo);
 }
 
 void BattleInterface::newRoundFirst( int round )
@@ -490,6 +490,7 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 {
 	const SpellID spellID = sc->spellID;
 	const CSpell * spell = spellID.toSpell();
+	auto targetedTile = sc->tile;
 
 	assert(spell);
 	if(!spell)
@@ -498,7 +499,11 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 	const std::string & castSoundPath = spell->getCastSound();
 
 	if (!castSoundPath.empty())
-		CCS->soundh->playSound(castSoundPath);
+	{
+		executeOnAnimationCondition(EAnimationEvents::BEFORE_HIT, true, [=]() {
+			CCS->soundh->playSound(castSoundPath);
+		});
+	}
 
 	if ( sc->activeCast )
 	{
@@ -506,58 +511,74 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 
 		if(casterStack != nullptr )
 		{
-			displaySpellCast(spellID, casterStack->getPosition());
-
-			stacksController->addNewAnim(new CCastAnimation(*this, casterStack, sc->tile, curInt->cb->battleGetStackByPos(sc->tile), spell));
+			executeOnAnimationCondition(EAnimationEvents::BEFORE_HIT, true, [=]()
+			{
+				stacksController->addNewAnim(new CCastAnimation(*this, casterStack, targetedTile, curInt->cb->battleGetStackByPos(targetedTile), spell));
+				displaySpellCast(spellID, casterStack->getPosition());
+			});
 		}
 		else
-		if (sc->tile.isValid() && !spell->animationInfo.projectile.empty())
+		if (targetedTile.isValid() && !spell->animationInfo.projectile.empty())
 		{
 			// this is spell cast by hero with valid destination & valid projectile -> play animation
 
-			const CStack * target = curInt->cb->battleGetStackByPos(sc->tile);
+			const CStack * target = curInt->cb->battleGetStackByPos(targetedTile);
 			Point srccoord = (sc->side ? Point(770, 60) : Point(30, 60)) + pos;	//hero position
-			Point destcoord = stacksController->getStackPositionAtHex(sc->tile, target); //position attacked by projectile
+			Point destcoord = stacksController->getStackPositionAtHex(targetedTile, target); //position attacked by projectile
 			destcoord += Point(250, 240); // FIXME: what are these constants?
 
-			projectilesController->createSpellProjectile( nullptr, srccoord, destcoord, spell);
-			projectilesController->emitStackProjectile( nullptr );
-
-			// wait fo projectile to end
-			stacksController->addNewAnim(new CWaitingProjectileAnimation(*this, nullptr));
+			//FIXME: should be replaced with new hero cast animation type
+			executeOnAnimationCondition(EAnimationEvents::BEFORE_HIT, true, [=]()
+			{
+				projectilesController->createSpellProjectile( nullptr, srccoord, destcoord, spell);
+				projectilesController->emitStackProjectile( nullptr );
+				stacksController->addNewAnim(new CWaitingProjectileAnimation(*this, nullptr));
+			});
 		}
 	}
 
-	waitForAnimationCondition(EAnimationEvents::ACTION, false);//wait for projectile animation
-
-	displaySpellHit(spellID, sc->tile);
+	executeOnAnimationCondition(EAnimationEvents::HIT, true, [=](){
+		displaySpellHit(spellID, targetedTile);
+	});
 
 	//queuing affect animation
 	for(auto & elem : sc->affectedCres)
 	{
 		auto stack = curInt->cb->battleGetStackByID(elem, false);
+		assert(stack);
 		if(stack)
-			displaySpellEffect(spellID, stack->getPosition());
+		{
+			executeOnAnimationCondition(EAnimationEvents::HIT, true, [=](){
+				displaySpellEffect(spellID, stack->getPosition());
+			});
+		}
 	}
 
-	//queuing additional animation
+	//queuing additional animation (magic mirror / resistance)
 	for(auto & elem : sc->customEffects)
 	{
 		auto stack = curInt->cb->battleGetStackByID(elem.stack, false);
+		assert(stack);
 		if(stack)
-			effectsController->displayEffect(EBattleEffect::EBattleEffect(elem.effect), stack->getPosition());
+		{
+			executeOnAnimationCondition(EAnimationEvents::HIT, true, [=](){
+				effectsController->displayEffect(EBattleEffect::EBattleEffect(elem.effect), stack->getPosition());
+			});
+		}
 	}
 
-	waitForAnimationCondition(EAnimationEvents::ACTION, false);
 	//mana absorption
 	if (sc->manaGained > 0)
 	{
 		Point leftHero = Point(15, 30) + pos;
 		Point rightHero = Point(755, 30) + pos;
-		stacksController->addNewAnim(new CPointEffectAnimation(*this, soundBase::invalid, sc->side ? "SP07_A.DEF" : "SP07_B.DEF", leftHero));
-		stacksController->addNewAnim(new CPointEffectAnimation(*this, soundBase::invalid, sc->side ? "SP07_B.DEF" : "SP07_A.DEF", rightHero));
+		bool side = sc->side;
+
+		executeOnAnimationCondition(EAnimationEvents::AFTER_HIT, true, [=](){
+			stacksController->addNewAnim(new CPointEffectAnimation(*this, soundBase::invalid, side ? "SP07_A.DEF" : "SP07_B.DEF", leftHero));
+			stacksController->addNewAnim(new CPointEffectAnimation(*this, soundBase::invalid, side ? "SP07_B.DEF" : "SP07_A.DEF", rightHero));
+		});
 	}
-	waitForAnimationCondition(EAnimationEvents::ACTION, false);
 }
 
 void BattleInterface::battleStacksEffectsSet(const SetStackEffect & sse)

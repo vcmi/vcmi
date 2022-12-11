@@ -21,6 +21,7 @@ class SpellID;
 VCMI_LIB_NAMESPACE_END
 
 struct StackAttackedInfo;
+struct StackAttackInfo;
 
 class Canvas;
 class BattleInterface;
@@ -77,6 +78,7 @@ class BattleStacksController
 
 	std::shared_ptr<IImage> getStackAmountBox(const CStack * stack);
 
+	void executeAttackAnimations();
 public:
 	BattleStacksController(BattleInterface & owner);
 
@@ -89,7 +91,7 @@ public:
 	void stackActivated(const CStack *stack); //active stack has been changed
 	void stackMoved(const CStack *stack, std::vector<BattleHex> destHex, int distance); //stack with id number moved to destHex
 	void stacksAreAttacked(std::vector<StackAttackedInfo> attackedInfos); //called when a certain amount of stacks has been attacked
-	void stackAttacking(const CStack *attacker, BattleHex dest, const CStack *attacked, bool shooting); //called when stack with id ID is attacking something on hex dest
+	void stackAttacking(const StackAttackInfo & info); //called when stack with id ID is attacking something on hex dest
 
 	void startAction(const BattleAction* action);
 	void endAction(const BattleAction* action);

@@ -986,91 +986,36 @@ void CPlayerInterface::battleAttack(const BattleAttack * ba)
 
 	assert(curAction);
 
-	const CStack * attacker = cb->battleGetStackByID(ba->stackAttacking);
+	StackAttackInfo info;
+	info.attacker = cb->battleGetStackByID(ba->stackAttacking);
+	info.defender = nullptr;
+	info.indirectAttack = ba->shot();
+	info.lucky = ba->lucky();
+	info.unlucky = ba->unlucky();
+	info.deathBlow = ba->deathBlow();
+	info.lifeDrain = ba->lifeDrain();
+	info.tile = ba->tile;
+	info.spellEffect = SpellID::NONE;
 
-	if(!attacker)
-	{
-		logGlobal->error("Attacking stack not found");
-		return;
-	}
+	if (ba->spellLike())
+		info.spellEffect = ba->spellID;
 
-	if(ba->lucky()) //lucky hit
+	for(auto & elem : ba->bsa)
 	{
-		battleInt->controlPanel->console->addText(attacker->formatGeneralMessage(-45));
-		battleInt->effectsController->displayEffect(EBattleEffect::GOOD_LUCK, soundBase::GOODLUCK, attacker->getPosition());
-	}
-	if(ba->unlucky()) //unlucky hit
-	{
-		battleInt->controlPanel->console->addText(attacker->formatGeneralMessage(-44));
-		battleInt->effectsController->displayEffect(EBattleEffect::BAD_LUCK, soundBase::BADLUCK, attacker->getPosition());
-	}
-	if(ba->deathBlow())
-	{
-		battleInt->controlPanel->console->addText(attacker->formatGeneralMessage(365));
-		for(auto & elem : ba->bsa)
+		if(!elem.isSecondary())
 		{
-			const CStack * attacked = cb->battleGetStackByID(elem.stackAttacked);
-			battleInt->effectsController->displayEffect(EBattleEffect::DEATH_BLOW, attacked->getPosition());
+			assert(info.defender == nullptr);
+			info.defender = cb->battleGetStackByID(elem.stackAttacked);
 		}
-		CCS->soundh->playSound(soundBase::deathBlow);
-	}
-
-	battleInt->effectsController->displayCustomEffects(ba->customEffects);
-
-	battleInt->waitForAnimationCondition(EAnimationEvents::ACTION, false);
-
-	auto actionTarget = curAction->getTarget(cb.get());
-
-	if(actionTarget.empty() || (actionTarget.size() < 2 && !ba->shot()))
-	{
-		logNetwork->error("Invalid current action: no destination.");
-		return;
-	}
-
-	if(ba->shot())
-	{
-		for(auto & elem : ba->bsa)
+		else
 		{
-			if(!elem.isSecondary()) //display projectile only for primary target
-			{
-				const CStack * attacked = cb->battleGetStackByID(elem.stackAttacked);
-				battleInt->stackAttacking(attacker, attacked->getPosition(), attacked, true);
-				break;
-			}
+			info.secondaryDefender.push_back(cb->battleGetStackByID(elem.stackAttacked));
 		}
 	}
-	else
-	{
-		auto attackTarget = actionTarget.at(1).hexValue;
+	assert(info.defender != nullptr);
+	assert(info.attacker != nullptr);
 
-		int shift = 0;
-		if(ba->counter() && BattleHex::mutualPosition(attackTarget, attacker->getPosition()) < 0)
-		{
-			int distp = BattleHex::getDistance(attackTarget + 1, attacker->getPosition());
-			int distm = BattleHex::getDistance(attackTarget - 1, attacker->getPosition());
-
-			if(distp < distm)
-				shift = 1;
-			else
-				shift = -1;
-		}
-
-		if(!ba->bsa.empty())
-		{
-			const CStack * defender = cb->battleGetStackByID(ba->bsa.begin()->stackAttacked);
-			battleInt->stackAttacking(attacker, BattleHex(attackTarget + shift), defender, false);
-		}
-	}
-
-	//battleInt->waitForAnimationCondition(EAnimationEvents::ACTION, false); // FIXME: freeze
-
-	if(ba->spellLike())
-	{
-		auto destination = actionTarget.at(0).hexValue;
-		//display hit animation
-		SpellID spellID = ba->spellID;
-		battleInt->displaySpellHit(spellID, destination);
-	}
+	battleInt->stackAttacking(info);
 }
 
 void CPlayerInterface::battleGateStateChanged(const EGateState state)

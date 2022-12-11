@@ -146,7 +146,7 @@ BattleHex BattleSiegeController::getWallPiecePosition(EWallVisual::EWallVisual w
 		BattleHex::HEX_AFTER_ALL,  // BOTTOM_TOWER,
 		182,                       // BOTTOM_WALL,
 		130,                       // WALL_BELLOW_GATE,
-		78,                        // WALL_OVER_GATE,
+		62,                        // WALL_OVER_GATE,
 		12,                        // UPPER_WALL,
 		BattleHex::HEX_BEFORE_ALL, // UPPER_TOWER,
 		BattleHex::HEX_BEFORE_ALL, // GATE,               // 94
@@ -327,6 +327,10 @@ bool BattleSiegeController::isAttackableByCatapult(BattleHex hex) const
 
 void BattleSiegeController::stackIsCatapulting(const CatapultAttack & ca)
 {
+	//FIXME: there should be no more ongoing animations. If not - then some other method created animations but did not wait for them to end
+	assert(owner.getAnimationCondition(EAnimationEvents::ACTION) == false);
+	owner.waitForAnimationCondition(EAnimationEvents::ACTION, false);
+
 	if (ca.attacker != -1)
 	{
 		const CStack *stack = owner.curInt->cb->battleGetStackByID(ca.attacker);
@@ -342,7 +346,6 @@ void BattleSiegeController::stackIsCatapulting(const CatapultAttack & ca)
 		//no attacker stack, assume spell-related (earthquake) - only hit animation
 		for (auto attackInfo : ca.attackedParts)
 			positions.push_back(owner.stacksController->getStackPositionAtHex(attackInfo.destinationTile, nullptr) + Point(99, 120));
-
 
 		owner.stacksController->addNewAnim(new CPointEffectAnimation(owner, soundBase::WALLHIT, "SGEXPL.DEF", positions));
 	}

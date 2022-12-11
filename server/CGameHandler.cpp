@@ -1009,6 +1009,7 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 	BattleAttack bat;
 	BattleLogMessage blm;
 	bat.stackAttacking = attacker->unitId();
+	bat.tile = targetHex;
 
 	std::shared_ptr<battle::CUnitState> attackerState = attacker->acquireState();
 
@@ -1114,6 +1115,9 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 		bat.attackerChanges.changedStacks.push_back(info);
 	}
 
+	if (drainedLife > 0)
+		bat.flags |= BattleAttack::LIFE_DRAIN;
+
 	sendAndApply(&bat);
 
 	{
@@ -1142,17 +1146,6 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 	// drain life effect (as well as log entry) must be applied after the attack
 	if(drainedLife > 0)
 	{
-		BattleAttack bat;
-		bat.stackAttacking = attacker->unitId();
-		{
-			CustomEffectInfo customEffect;
-			customEffect.sound = soundBase::DRAINLIF;
-			customEffect.effect = 52;
-			customEffect.stack = attackerState->unitId();
-			bat.customEffects.push_back(std::move(customEffect));
-		}
-		sendAndApply(&bat);
-
 		MetaString text;
 		attackerState->addText(text, MetaString::GENERAL_TXT, 361);
 		attackerState->addNameReplacement(text, false);
