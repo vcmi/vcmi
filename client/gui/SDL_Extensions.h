@@ -186,7 +186,7 @@ public:
 			uint8_t(std::min(255.f, std::round(input.r * float(factor.r) / 255.f + added.r))),
 			uint8_t(std::min(255.f, std::round(input.g * float(factor.g) / 255.f + added.g))),
 			uint8_t(std::min(255.f, std::round(input.b * float(factor.b) / 255.f + added.b))),
-			uint8_t(std::min(255.f, std::round(input.a * float(factor.a) / 255.f + added.a))),
+			uint8_t(std::min(255.f, std::round(input.a * float(factor.a) / 255.f + added.a)))
 		};
 	}
 };
