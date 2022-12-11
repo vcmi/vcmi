@@ -1,5 +1,5 @@
 /*
- * CCanvas.cpp, part of VCMI engine
+ * Canvas.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -8,7 +8,7 @@
  *
  */
 #include "StdInc.h"
-#include "CCanvas.h"
+#include "Canvas.h"
 
 #include "SDL_Extensions.h"
 #include "Geometries.h"
@@ -16,43 +16,53 @@
 
 #include "../Graphics.h"
 
-CCanvas::CCanvas(SDL_Surface * surface):
+Canvas::Canvas(SDL_Surface * surface):
 	surface(surface)
 {
 	surface->refcount++;
 }
 
-CCanvas::CCanvas(const Point & size)
+Canvas::Canvas(Canvas & other):
+	surface(other.surface)
+{
+	surface->refcount++;
+}
+
+Canvas::Canvas(const Point & size)
 {
 	surface = CSDL_Ext::newSurface(size.x, size.y);
 }
 
-CCanvas::~CCanvas()
+Canvas::~Canvas()
 {
 	SDL_FreeSurface(surface);
 }
 
-void CCanvas::draw(std::shared_ptr<IImage> image, const Point & pos)
+void Canvas::draw(std::shared_ptr<IImage> image, const Point & pos)
 {
-	image->draw(surface, pos.x, pos.y);
+	assert(image);
+	if (image)
+		image->draw(surface, pos.x, pos.y);
 }
 
-void CCanvas::draw(std::shared_ptr<IImage> image, const Point & pos, const Rect & sourceRect)
+void Canvas::draw(std::shared_ptr<IImage> image, const Point & pos, const Rect & sourceRect)
 {
-	image->draw(surface, pos.x, pos.y, &sourceRect);
+	assert(image);
+	if (image)
+		image->draw(surface, pos.x, pos.y, &sourceRect);
 }
 
-void CCanvas::draw(std::shared_ptr<CCanvas> image, const Point & pos)
+void Canvas::draw(Canvas & image, const Point & pos)
 {
-	blitAt(image->surface, pos.x, pos.y, surface);
+	blitAt(image.surface, pos.x, pos.y, surface);
 }
 
-void CCanvas::drawLine(const Point & from, const Point & dest, const SDL_Color & colorFrom, const SDL_Color & colorDest)
+void Canvas::drawLine(const Point & from, const Point & dest, const SDL_Color & colorFrom, const SDL_Color & colorDest)
 {
 	CSDL_Ext::drawLine(surface, from.x, from.y, dest.x, dest.y, colorFrom, colorDest);
 }
 
-void CCanvas::drawText(const Point & position, const EFonts & font, const SDL_Color & colorDest, ETextAlignment alignment, const std::string & text )
+void Canvas::drawText(const Point & position, const EFonts & font, const SDL_Color & colorDest, ETextAlignment alignment, const std::string & text )
 {
 	switch (alignment)
 	{
@@ -62,7 +72,7 @@ void CCanvas::drawText(const Point & position, const EFonts & font, const SDL_Co
 	}
 }
 
-void CCanvas::drawText(const Point & position, const EFonts & font, const SDL_Color & colorDest, ETextAlignment alignment, const std::vector<std::string> & text )
+void Canvas::drawText(const Point & position, const EFonts & font, const SDL_Color & colorDest, ETextAlignment alignment, const std::vector<std::string> & text )
 {
 	switch (alignment)
 	{
@@ -72,7 +82,3 @@ void CCanvas::drawText(const Point & position, const EFonts & font, const SDL_Co
 	}
 }
 
-SDL_Surface * CCanvas::getSurface()
-{
-	return surface;
-}

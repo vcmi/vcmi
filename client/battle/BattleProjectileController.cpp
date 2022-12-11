@@ -17,7 +17,7 @@
 
 #include "../gui/Geometries.h"
 #include "../gui/CAnimation.h"
-#include "../gui/CCanvas.h"
+#include "../gui/Canvas.h"
 #include "../gui/CGuiHandler.h"
 #include "../CGameInfo.h"
 
@@ -46,7 +46,7 @@ static double calculateCatapultParabolaY(const Point & from, const Point & dest,
 	return facA *pow(x, 2.0) + facB *x + facC;
 }
 
-void ProjectileMissile::show(std::shared_ptr<CCanvas> canvas)
+void ProjectileMissile::show(Canvas & canvas)
 {
 	logAnim->info("Projectile rendering, %d / %d", step, steps);
 	size_t group = reverse ? 1 : 0;
@@ -61,12 +61,12 @@ void ProjectileMissile::show(std::shared_ptr<CCanvas> canvas)
 			CSDL_Ext::lerp(from.y, dest.y, progress) - image->height() / 2,
 		};
 
-		canvas->draw(image, pos);
+		canvas.draw(image, pos);
 	}
 	++step;
 }
 
-void ProjectileAnimatedMissile::show(std::shared_ptr<CCanvas> canvas)
+void ProjectileAnimatedMissile::show(Canvas & canvas)
 {
 	ProjectileMissile::show(canvas);
 	frameProgress += AnimationControls::getSpellEffectSpeed() * GH.mainFPSmng->getElapsedMilliseconds() / 1000;
@@ -77,7 +77,7 @@ void ProjectileAnimatedMissile::show(std::shared_ptr<CCanvas> canvas)
 	frameNum = std::floor(frameProgress);
 }
 
-void ProjectileCatapult::show(std::shared_ptr<CCanvas> canvas)
+void ProjectileCatapult::show(Canvas & canvas)
 {
 	auto image = animation->getImage(frameNum, 0, true);
 
@@ -89,14 +89,14 @@ void ProjectileCatapult::show(std::shared_ptr<CCanvas> canvas)
 		int posY = calculateCatapultParabolaY(from, dest, posX);
 		Point pos(posX, posY);
 
-		canvas->draw(image, pos);
+		canvas.draw(image, pos);
 
 		frameNum = (frameNum + 1) % animation->size(0);
 	}
 	++step;
 }
 
-void ProjectileRay::show(std::shared_ptr<CCanvas> canvas)
+void ProjectileRay::show(Canvas & canvas)
 {
 	float progress = float(step) / steps;
 
@@ -123,7 +123,7 @@ void ProjectileRay::show(std::shared_ptr<CCanvas> canvas)
 			SDL_Color beginColor{ ray.r1, ray.g1, ray.b1, ray.a1};
 			SDL_Color endColor  { ray.r2, ray.g2, ray.b2, ray.a2};
 
-			canvas->drawLine(Point(x1, y1 + i), Point(x2, y2+i), beginColor, endColor);
+			canvas.drawLine(Point(x1, y1 + i), Point(x2, y2+i), beginColor, endColor);
 		}
 	}
 	else // draw in vertical axis
@@ -140,7 +140,7 @@ void ProjectileRay::show(std::shared_ptr<CCanvas> canvas)
 			SDL_Color beginColor{ ray.r1, ray.g1, ray.b1, ray.a1};
 			SDL_Color endColor  { ray.r2, ray.g2, ray.b2, ray.a2};
 
-			canvas->drawLine(Point(x1 + i, y1), Point(x2 + i, y2), beginColor, endColor);
+			canvas.drawLine(Point(x1 + i, y1), Point(x2 + i, y2), beginColor, endColor);
 		}
 	}
 	++step;
@@ -223,7 +223,7 @@ void BattleProjectileController::emitStackProjectile(const CStack * stack)
 	}
 }
 
-void BattleProjectileController::showProjectiles(std::shared_ptr<CCanvas> canvas)
+void BattleProjectileController::showProjectiles(Canvas & canvas)
 {
 	for ( auto it = projectiles.begin(); it != projectiles.end();)
 	{

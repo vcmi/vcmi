@@ -21,7 +21,7 @@ VCMI_LIB_NAMESPACE_END
 
 struct SDL_Surface;
 class CAnimation;
-class CCanvas;
+class Canvas;
 class BattleInterface;
 class BattleRenderer;
 class CPointEffectAnimation;

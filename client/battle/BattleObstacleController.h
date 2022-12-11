@@ -18,7 +18,7 @@ VCMI_LIB_NAMESPACE_END
 
 struct SDL_Surface;
 class IImage;
-class CCanvas;
+class Canvas;
 class CAnimation;
 class BattleInterface;
 class BattleRenderer;
@@ -46,7 +46,7 @@ public:
 
 	void obstaclePlaced(const std::vector<std::shared_ptr<const CObstacleInstance>> & oi);
 	void showObstacles(SDL_Surface *to, std::vector<std::shared_ptr<const CObstacleInstance>> &obstacles);
-	void showAbsoluteObstacles(std::shared_ptr<CCanvas> canvas, const Point & offset);
+	void showAbsoluteObstacles(Canvas & canvas, const Point & offset);
 
 	void collectRenderableObjects(BattleRenderer & renderer);
 };

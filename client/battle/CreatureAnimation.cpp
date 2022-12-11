@@ -13,7 +13,7 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CCreatureHandler.h"
 
-#include "../gui/CCanvas.h"
+#include "../gui/Canvas.h"
 
 static const SDL_Color creatureBlueBorder = { 0, 255, 255, 255 };
 static const SDL_Color creatureGoldBorder = { 255, 255, 0, 255 };
@@ -301,7 +301,7 @@ void CreatureAnimation::genBorderPalette(IImage::BorderPallete & target)
 	target[2] = addColors(genShadow(64),  genBorderColor(getBorderStrength(elapsedTime), border));
 }
 
-void CreatureAnimation::nextFrame(std::shared_ptr<CCanvas> canvas, bool facingRight)
+void CreatureAnimation::nextFrame(Canvas & canvas, bool facingRight)
 {
 	size_t frame = static_cast<size_t>(floor(currentFrame));
 
@@ -319,7 +319,7 @@ void CreatureAnimation::nextFrame(std::shared_ptr<CCanvas> canvas, bool facingRi
 
 		image->setBorderPallete(borderPallete);
 
-		canvas->draw(image, pos.topLeft(), Rect(0, 0, pos.w, pos.h));
+		canvas.draw(image, pos.topLeft(), Rect(0, 0, pos.w, pos.h));
 	}
 }
 

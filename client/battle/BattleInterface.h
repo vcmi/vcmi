@@ -33,7 +33,7 @@ struct CustomEffectInfo;
 VCMI_LIB_NAMESPACE_END
 
 class BattleHero;
-class CCanvas;
+class Canvas;
 class BattleResultWindow;
 class StackQueue;
 class CPlayerInterface;
@@ -98,7 +98,7 @@ private:
 
 	const CGHeroInstance *getActiveHero(); //returns hero that can currently cast a spell
 
-	void showInterface(std::shared_ptr<CCanvas> canvas);
+	void showInterface(SDL_Surface * to);
 
 	void setHeroAnimation(ui8 side, int phase);
 public:

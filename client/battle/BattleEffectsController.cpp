@@ -22,7 +22,7 @@
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../gui/CAnimation.h"
-#include "../gui/CCanvas.h"
+#include "../gui/Canvas.h"
 
 #include "../../CCallback.h"
 #include "../../lib/battle/BattleAction.h"
@@ -134,7 +134,7 @@ void BattleEffectsController::collectRenderableObjects(BattleRenderer & renderer
 
 			auto img = elem.animation->getImage(currentFrame);
 
-			canvas->draw(img, Point(elem.x, elem.y));
+			canvas.draw(img, Point(elem.x, elem.y));
 		});
 	}
 }

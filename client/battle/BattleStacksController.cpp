@@ -26,7 +26,7 @@
 #include "../CGameInfo.h"
 #include "../gui/CAnimation.h"
 #include "../gui/CGuiHandler.h"
-#include "../gui/CCanvas.h"
+#include "../gui/Canvas.h"
 
 #include "../../CCallback.h"
 #include "../../lib/battle/BattleHex.h"
@@ -302,7 +302,7 @@ std::shared_ptr<IImage> BattleStacksController::getStackAmountBox(const CStack *
 	return amountEffNeutral;
 }
 
-void BattleStacksController::showStackAmountBox(std::shared_ptr<CCanvas> canvas, const CStack * stack)
+void BattleStacksController::showStackAmountBox(Canvas & canvas, const CStack * stack)
 {
 	//blitting amount background box
 	auto amountBG = getStackAmountBox(stack);
@@ -318,15 +318,15 @@ void BattleStacksController::showStackAmountBox(std::shared_ptr<CCanvas> canvas,
 			(moveInside ? amountBG->width() + 10 : 0) * reverseSideShift;
 	int yAdd = 260 + ((stack->side == BattleSide::ATTACKER || moveInside) ? 0 : -15);
 
-	canvas->draw(amountBG, stackAnimation[stack->ID]->pos.topLeft() + Point(xAdd, yAdd));
+	canvas.draw(amountBG, stackAnimation[stack->ID]->pos.topLeft() + Point(xAdd, yAdd));
 
 	//blitting amount
 	Point textPos = stackAnimation[stack->ID]->pos.topLeft() + amountBG->dimensions()/2 + Point(xAdd, yAdd);
 
-	canvas->drawText(textPos, EFonts::FONT_TINY, Colors::WHITE, ETextAlignment::CENTER, makeNumberShort(stack->getCount()));
+	canvas.drawText(textPos, EFonts::FONT_TINY, Colors::WHITE, ETextAlignment::CENTER, makeNumberShort(stack->getCount()));
 }
 
-void BattleStacksController::showStack(std::shared_ptr<CCanvas> canvas, const CStack * stack)
+void BattleStacksController::showStack(Canvas & canvas, const CStack * stack)
 {
 	stackAnimation[stack->ID]->nextFrame(canvas, facingRight(stack)); // do actual blit
 	stackAnimation[stack->ID]->incrementFrame(float(GH.mainFPSmng->getElapsedMilliseconds()) / 1000);

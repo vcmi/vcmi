@@ -23,7 +23,7 @@
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../gui/CAnimation.h"
-#include "../gui/CCanvas.h"
+#include "../gui/Canvas.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/CCursorHandler.h"
 
@@ -61,7 +61,7 @@ BattleFieldController::BattleFieldController(BattleInterface * owner):
 	}
 
 	//preparing graphic with cell borders
-	cellBorders = std::make_shared<CCanvas>(Point(background->width(), background->height()));
+	cellBorders = std::make_unique<Canvas>(Point(background->width(), background->height()));
 
 	for (int i=0; i<GameConstants::BFIELD_SIZE; ++i)
 	{
@@ -73,7 +73,7 @@ BattleFieldController::BattleFieldController(BattleInterface * owner):
 		cellBorders->draw(cellBorder, hexPositionLocal(i).topLeft());
 	}
 
-	backgroundWithHexes = std::make_shared<CCanvas>(Point(background->width(), background->height()));
+	backgroundWithHexes = std::make_unique<Canvas>(Point(background->width(), background->height()));
 
 	for (int h = 0; h < GameConstants::BFIELD_SIZE; ++h)
 	{
@@ -89,7 +89,7 @@ BattleFieldController::BattleFieldController(BattleInterface * owner):
 		stackCountOutsideHexes[i] = (accessibility[i] == EAccessibility::ACCESSIBLE);
 }
 
-void BattleFieldController::renderBattlefield(std::shared_ptr<CCanvas> canvas)
+void BattleFieldController::renderBattlefield(Canvas & canvas)
 {
 	showBackground(canvas);
 
@@ -100,7 +100,7 @@ void BattleFieldController::renderBattlefield(std::shared_ptr<CCanvas> canvas)
 	owner->projectilesController->showProjectiles(canvas);
 }
 
-void BattleFieldController::showBackground(std::shared_ptr<CCanvas> canvas)
+void BattleFieldController::showBackground(Canvas & canvas)
 {
 	if (owner->stacksController->getActiveStack() != nullptr ) //&& creAnims[stacksController->getActiveStack()->ID]->isIdle() //show everything with range
 		showBackgroundImageWithHexes(canvas);
@@ -111,21 +111,21 @@ void BattleFieldController::showBackground(std::shared_ptr<CCanvas> canvas)
 
 }
 
-void BattleFieldController::showBackgroundImage(std::shared_ptr<CCanvas> canvas)
+void BattleFieldController::showBackgroundImage(Canvas & canvas)
 {
-	canvas->draw(background, owner->pos.topLeft());
+	canvas.draw(background, owner->pos.topLeft());
 
 	owner->obstacleController->showAbsoluteObstacles(canvas, pos.topLeft());
 	if ( owner->siegeController )
 		owner->siegeController->showAbsoluteObstacles(canvas, pos.topLeft());
 
 	if (settings["battle"]["cellBorders"].Bool())
-		canvas->draw(cellBorders, owner->pos.topLeft());
+		canvas.draw(*cellBorders, owner->pos.topLeft());
 }
 
-void BattleFieldController::showBackgroundImageWithHexes(std::shared_ptr<CCanvas> canvas)
+void BattleFieldController::showBackgroundImageWithHexes(Canvas & canvas)
 {
-	canvas->draw(backgroundWithHexes, owner->pos.topLeft());
+	canvas.draw(*backgroundWithHexes.get(), owner->pos.topLeft());
 }
 
 void BattleFieldController::redrawBackgroundWithHexes()
@@ -142,9 +142,9 @@ void BattleFieldController::redrawBackgroundWithHexes()
 
 	//prepare background graphic with hexes and shaded hexes
 	backgroundWithHexes->draw(background, Point(0,0));
-	owner->obstacleController->showAbsoluteObstacles(backgroundWithHexes, Point(0,0));
+	owner->obstacleController->showAbsoluteObstacles(*backgroundWithHexes, Point(0,0));
 	if ( owner->siegeController )
-		owner->siegeController->showAbsoluteObstacles(backgroundWithHexes, Point(0,0));
+		owner->siegeController->showAbsoluteObstacles(*backgroundWithHexes, Point(0,0));
 
 	if (settings["battle"]["stackRange"].Bool())
 	{
@@ -157,16 +157,16 @@ void BattleFieldController::redrawBackgroundWithHexes()
 	}
 
 	if(settings["battle"]["cellBorders"].Bool())
-		backgroundWithHexes->draw(cellBorders, Point(0, 0));
+		backgroundWithHexes->draw(*cellBorders, Point(0, 0));
 }
 
-void BattleFieldController::showHighlightedHex(std::shared_ptr<CCanvas> to, BattleHex hex, bool darkBorder)
+void BattleFieldController::showHighlightedHex(Canvas & canvas, BattleHex hex, bool darkBorder)
 {
 	Point hexPos = hexPosition(hex).topLeft();
 
-	to->draw(cellShade, hexPos);
+	canvas.draw(cellShade, hexPos);
 	if(!darkBorder && settings["battle"]["cellBorders"].Bool())
-		to->draw(cellBorder, hexPos);
+		canvas.draw(cellBorder, hexPos);
 }
 
 std::set<BattleHex> BattleFieldController::getHighlightedHexesStackRange()
@@ -242,7 +242,7 @@ std::set<BattleHex> BattleFieldController::getHighlightedHexesSpellRange()
 	return result;
 }
 
-void BattleFieldController::showHighlightedHexes(std::shared_ptr<CCanvas> canvas)
+void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 {
 	std::set<BattleHex> hoveredStack = getHighlightedHexesStackRange();
 	std::set<BattleHex> hoveredMouse = getHighlightedHexesSpellRange();

@@ -18,6 +18,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 class CGHeroInstance;
 struct BattleResult;
 class CStack;
+class Canvas;
 
 namespace battle
 {
@@ -79,7 +80,7 @@ public:
 
 	size_t flagAnim;
 	ui8 animCount; //for flag animation
-	void show(SDL_Surface * to) override; //prints next frame of animation to to
+	void render(Canvas & canvas); //prints next frame of animation to to
 	void setPhase(int newPhase); //sets phase of hero animation
 	void hover(bool on) override;
 	void clickLeft(tribool down, bool previousState) override; //call-in

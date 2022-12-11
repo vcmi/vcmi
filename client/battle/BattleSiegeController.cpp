@@ -21,7 +21,7 @@
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../gui/CAnimation.h"
-#include "../gui/CCanvas.h"
+#include "../gui/Canvas.h"
 
 #include "../../CCallback.h"
 #include "../../lib/NetPacks.h"
@@ -106,13 +106,13 @@ std::string BattleSiegeController::getWallPieceImageName(EWallVisual::EWallVisua
 	}
 }
 
-void BattleSiegeController::showWallPiece(std::shared_ptr<CCanvas> canvas, EWallVisual::EWallVisual what, const Point & offset)
+void BattleSiegeController::showWallPiece(Canvas & canvas, EWallVisual::EWallVisual what, const Point & offset)
 {
 	auto & ci = town->town->clientInfo;
 	auto const & pos = ci.siegePositions[what];
 
 	if ( wallPieceImages[what])
-		canvas->draw(wallPieceImages[what], offset + Point(pos.x, pos.y));
+		canvas.draw(wallPieceImages[what], offset + Point(pos.x, pos.y));
 }
 
 std::string BattleSiegeController::getBattleBackgroundName() const
@@ -249,7 +249,7 @@ void BattleSiegeController::gateStateChanged(const EGateState state)
 		CCS->soundh->playSound(soundBase::DRAWBRG);
 }
 
-void BattleSiegeController::showAbsoluteObstacles(std::shared_ptr<CCanvas> canvas, const Point & offset)
+void BattleSiegeController::showAbsoluteObstacles(Canvas & canvas, const Point & offset)
 {
 	if (getWallPieceExistance(EWallVisual::MOAT))
 		showWallPiece(canvas, EWallVisual::MOAT, offset);

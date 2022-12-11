@@ -22,7 +22,7 @@ VCMI_LIB_NAMESPACE_END
 //struct Point;
 //
 //class CClickableHex;
-class CCanvas;
+class Canvas;
 //class IImage;
 class BattleInterface;
 
@@ -41,7 +41,7 @@ enum class EBattleFieldLayer {
 class BattleRenderer
 {
 public:
-	using RendererPtr = std::shared_ptr<CCanvas>;
+	using RendererPtr = Canvas &;
 	using RenderFunctor = std::function<void(RendererPtr)>;
 
 private:

@@ -100,8 +100,6 @@ public:
 	void setFlagColor(PlayerColor player) override;
 	bool isTransparent(const Point & coords) const override;
 	Point dimensions() const override;
-	int width() const override;
-	int height() const override;
 
 	void horizontalFlip() override;
 	void verticalFlip() override;
@@ -561,6 +559,15 @@ SDLImageLoader::~SDLImageLoader()
 IImage::IImage() = default;
 IImage::~IImage() = default;
 
+int IImage::width() const
+{
+	return dimensions().x;
+}
+
+int IImage::height() const
+{
+	return dimensions().y;
+}
 
 SDLImage::SDLImage(CDefFile * data, size_t frame, size_t group)
 	: surf(nullptr),
@@ -735,16 +742,6 @@ void SDLImage::setFlagColor(PlayerColor player)
 {
 	if(player < PlayerColor::PLAYER_LIMIT || player==PlayerColor::NEUTRAL)
 		CSDL_Ext::setPlayerColor(surf, player);
-}
-
-int SDLImage::width() const
-{
-	return fullSize.x;
-}
-
-int SDLImage::height() const
-{
-	return fullSize.y;
 }
 
 bool SDLImage::isTransparent(const Point & coords) const

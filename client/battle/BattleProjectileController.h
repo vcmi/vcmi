@@ -22,14 +22,14 @@ VCMI_LIB_NAMESPACE_END
 struct Point;
 struct SDL_Surface;
 class CAnimation;
-class CCanvas;
+class Canvas;
 class BattleInterface;
 
 /// Small struct which contains information about the position and the velocity of a projectile
 struct ProjectileBase
 {
 	virtual ~ProjectileBase() = default;
-	virtual void show(std::shared_ptr<CCanvas> canvas) =  0;
+	virtual void show(Canvas & canvas) =  0;
 
 	Point from; // initial position on the screen
 	Point dest; // target position on the screen
@@ -42,7 +42,7 @@ struct ProjectileBase
 
 struct ProjectileMissile : ProjectileBase
 {
-	void show(std::shared_ptr<CCanvas> canvas) override;
+	void show(Canvas & canvas) override;
 
 	std::shared_ptr<CAnimation> animation;
 	int frameNum;  // frame to display from projectile animation
@@ -51,13 +51,13 @@ struct ProjectileMissile : ProjectileBase
 
 struct ProjectileAnimatedMissile : ProjectileMissile
 {
-	void show(std::shared_ptr<CCanvas> canvas) override;
+	void show(Canvas & canvas) override;
 	float frameProgress;
 };
 
 struct ProjectileCatapult : ProjectileBase
 {
-	void show(std::shared_ptr<CCanvas> canvas) override;
+	void show(Canvas & canvas) override;
 
 	std::shared_ptr<CAnimation> animation;
 	int frameNum;  // frame to display from projectile animation
@@ -65,7 +65,7 @@ struct ProjectileCatapult : ProjectileBase
 
 struct ProjectileRay : ProjectileBase
 {
-	void show(std::shared_ptr<CCanvas> canvas) override;
+	void show(Canvas & canvas) override;
 
 	std::vector<CCreature::CreatureAnimation::RayColor> rayConfig;
 };
@@ -90,7 +90,7 @@ class BattleProjectileController
 	bool stackUsesRayProjectile(const CStack * stack);
 	bool stackUsesMissileProjectile(const CStack * stack);
 
-	void showProjectile(std::shared_ptr<CCanvas> canvas, std::shared_ptr<ProjectileBase> projectile);
+	void showProjectile(Canvas & canvas, std::shared_ptr<ProjectileBase> projectile);
 
 	const CCreature * getShooter(const CStack * stack);
 
@@ -99,7 +99,7 @@ class BattleProjectileController
 public:
 	BattleProjectileController(BattleInterface * owner);
 
-	void showProjectiles(std::shared_ptr<CCanvas> canvas);
+	void showProjectiles(Canvas & canvas);
 
 	bool hasActiveProjectile(const CStack * stack);
 	void emitStackProjectile(const CStack * stack);

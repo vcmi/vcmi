@@ -57,8 +57,8 @@ public:
 	virtual bool isTransparent(const Point & coords) const = 0;
 
 	virtual Point dimensions() const = 0;
-	virtual int width() const=0;
-	virtual int height() const=0;
+	int width() const;
+	int height() const;
 
 	//only indexed bitmaps, 16 colors maximum
 	virtual void shiftPalette(int from, int howMany) = 0;

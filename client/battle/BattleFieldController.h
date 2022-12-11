@@ -23,7 +23,7 @@ struct Rect;
 struct Point;
 
 class ClickableHex;
-class CCanvas;
+class Canvas;
 class IImage;
 class BattleInterface;
 
@@ -35,10 +35,10 @@ class BattleFieldController : public CIntObject
 	std::shared_ptr<IImage> cellBorder;
 	std::shared_ptr<IImage> cellShade;
 
-	std::shared_ptr<CCanvas> cellBorders;
+	std::unique_ptr<Canvas> cellBorders;
 
 	/// Canvas that contains background, hex grid (if enabled), absolute obstacles and movement range of active stack
-	std::shared_ptr<CCanvas> backgroundWithHexes;
+	std::unique_ptr<Canvas> backgroundWithHexes;
 
 	//BattleHex previouslyHoveredHex; //number of hex that was hovered by the cursor a while ago
 	//BattleHex currentlyHoveredHex; //number of hex that is supposed to be hovered (for a while it may be inappropriately set, but will be renewed soon)
@@ -49,21 +49,21 @@ class BattleFieldController : public CIntObject
 
 	std::vector<std::shared_ptr<ClickableHex>> bfield; //11 lines, 17 hexes on each
 
-	void showHighlightedHex(std::shared_ptr<CCanvas> to, BattleHex hex, bool darkBorder);
+	void showHighlightedHex(Canvas & to, BattleHex hex, bool darkBorder);
 
 	std::set<BattleHex> getHighlightedHexesStackRange();
 	std::set<BattleHex> getHighlightedHexesSpellRange();
 
-	void showBackground(std::shared_ptr<CCanvas> canvas);
-	void showBackgroundImage(std::shared_ptr<CCanvas> canvas);
-	void showBackgroundImageWithHexes(std::shared_ptr<CCanvas> canvas);
-	void showHighlightedHexes(std::shared_ptr<CCanvas> canvas);
+	void showBackground(Canvas & canvas);
+	void showBackgroundImage(Canvas & canvas);
+	void showBackgroundImageWithHexes(Canvas & canvas);
+	void showHighlightedHexes(Canvas & canvas);
 
 public:
 	BattleFieldController(BattleInterface * owner);
 
 	void redrawBackgroundWithHexes();
-	void renderBattlefield(std::shared_ptr<CCanvas> canvas);
+	void renderBattlefield(Canvas & canvas);
 
 	Rect hexPositionLocal(BattleHex hex) const;
 	Rect hexPosition(BattleHex hex) const;

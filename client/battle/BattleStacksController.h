@@ -23,7 +23,7 @@ VCMI_LIB_NAMESPACE_END
 struct SDL_Surface;
 struct StackAttackedInfo;
 
-class CCanvas;
+class Canvas;
 class BattleInterface;
 class CBattleAnimation;
 class CreatureAnimation;
@@ -55,7 +55,7 @@ class BattleStacksController
 	ui32 animIDhelper; //for giving IDs for animations
 
 	bool stackNeedsAmountBox(const CStack * stack);
-	void showStackAmountBox(std::shared_ptr<CCanvas> canvas, const CStack * stack);
+	void showStackAmountBox(Canvas & canvas, const CStack * stack);
 	BattleHex getStackCurrentPosition(const CStack * stack);
 
 	std::shared_ptr<IImage> getStackAmountBox(const CStack * stack);
@@ -86,8 +86,8 @@ public:
 	void setHoveredStack(const CStack *stack);
 	void setSelectedStack(const CStack *stack);
 
-	void showAliveStack(std::shared_ptr<CCanvas> canvas, const CStack * stack);
-	void showStack(std::shared_ptr<CCanvas> canvas, const CStack * stack);
+	void showAliveStack(Canvas & canvas, const CStack * stack);
+	void showStack(Canvas & canvas, const CStack * stack);
 
 	void collectRenderableObjects(BattleRenderer & renderer);
 

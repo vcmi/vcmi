@@ -17,7 +17,7 @@ set(client_SRCS
 		battle/CreatureAnimation.cpp
 
 		gui/CAnimation.cpp
-		gui/CCanvas.cpp
+		gui/Canvas.cpp
 		gui/CCursorHandler.cpp
 		gui/CGuiHandler.cpp
 		gui/CIntObject.cpp
@@ -100,7 +100,7 @@ set(client_HEADERS
 		battle/CreatureAnimation.h
 
 		gui/CAnimation.h
-		gui/CCanvas.h
+		gui/Canvas.h
 		gui/CCursorHandler.h
 		gui/CGuiHandler.h
 		gui/CIntObject.h

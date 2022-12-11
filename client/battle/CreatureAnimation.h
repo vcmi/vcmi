@@ -15,7 +15,7 @@
 
 class CIntObject;
 class CreatureAnimation;
-class CCanvas;
+class Canvas;
 
 /// Namespace for some common controls of animations
 namespace AnimationControls
@@ -102,7 +102,7 @@ public:
 	void setType(CCreatureAnim::EAnimType type); //sets type of animation and cleares framecount
 	CCreatureAnim::EAnimType getType() const; //returns type of animation
 
-	void nextFrame(std::shared_ptr<CCanvas> canvas, bool facingRight);
+	void nextFrame(Canvas & canvas, bool facingRight);
 
 	// should be called every frame, return true when animation was reset to beginning
 	bool incrementFrame(float timePassed);

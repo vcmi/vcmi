@@ -24,6 +24,7 @@
 #include "../CVideoHandler.h"
 #include "../Graphics.h"
 #include "../gui/CAnimation.h"
+#include "../gui/Canvas.h"
 #include "../gui/CCursorHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../widgets/Buttons.h"
@@ -126,7 +127,7 @@ void BattleConsole::lock(bool shouldLock)
 	// no-op?
 }
 
-void BattleHero::show(SDL_Surface * to)
+void BattleHero::render(Canvas & canvas)
 {
 	auto flagFrame = flagAnimation->getImage(flagAnim, 0, true);
 
@@ -134,35 +135,18 @@ void BattleHero::show(SDL_Surface * to)
 		return;
 
 	//animation of flag
-	SDL_Rect temp_rect;
+	Point flagPosition = pos.topLeft();
+
 	if(flip)
-	{
-		temp_rect = genRect(
-			flagFrame->height(),
-			flagFrame->width(),
-			pos.x + 61,
-			pos.y + 39);
-
-	}
+		flagPosition += Point(61, 39);
 	else
-	{
-		temp_rect = genRect(
-			flagFrame->height(),
-			flagFrame->width(),
-			pos.x + 72,
-			pos.y + 39);
-	}
+		flagPosition += Point(72, 39);
 
-	flagFrame->draw(screen, &temp_rect, nullptr); //FIXME: why screen?
-
-	//animation of hero
-	SDL_Rect rect = pos;
 
 	auto heroFrame = animation->getImage(currentFrame, phase, true);
-	if(!heroFrame)
-		return;
 
-	heroFrame->draw(to, &rect, nullptr);
+	canvas.draw(flagFrame, flagPosition);
+	canvas.draw(heroFrame, pos.topLeft());
 
 	if(++animCount >= 4)
 	{

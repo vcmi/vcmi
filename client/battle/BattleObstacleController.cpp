@@ -18,7 +18,7 @@
 
 #include "../CPlayerInterface.h"
 #include "../gui/CAnimation.h"
-#include "../gui/CCanvas.h"
+#include "../gui/Canvas.h"
 
 #include "../../CCallback.h"
 #include "../../lib/battle/CObstacleInstance.h"
@@ -113,7 +113,7 @@ void BattleObstacleController::obstaclePlaced(const std::vector<std::shared_ptr<
 	}
 }
 
-void BattleObstacleController::showAbsoluteObstacles(std::shared_ptr<CCanvas> canvas, const Point & offset)
+void BattleObstacleController::showAbsoluteObstacles(Canvas & canvas, const Point & offset)
 {
 	//Blit absolute obstacles
 	for(auto & oi : owner->curInt->cb->battleGetAllObstacles())
@@ -122,7 +122,7 @@ void BattleObstacleController::showAbsoluteObstacles(std::shared_ptr<CCanvas> ca
 		{
 			auto img = getObstacleImage(*oi);
 			if(img)
-				canvas->draw(img, Point(offset.x + oi->getInfo().width, offset.y + oi->getInfo().height));
+				canvas.draw(img, Point(offset.x + oi->getInfo().width, offset.y + oi->getInfo().height));
 		}
 	}
 }
@@ -142,7 +142,7 @@ void BattleObstacleController::collectRenderableObjects(BattleRenderer & rendere
 			if(img)
 			{
 				Point p = getObstaclePosition(img, *obstacle);
-				canvas->draw(img, p);
+				canvas.draw(img, p);
 			}
 		});
 	}

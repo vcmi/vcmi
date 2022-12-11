@@ -27,7 +27,7 @@
 #include "../CMessage.h"
 #include "../CMusicHandler.h"
 #include "../CPlayerInterface.h"
-#include "../gui/CCanvas.h"
+#include "../gui/Canvas.h"
 #include "../gui/CCursorHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../windows/CAdvmapInterface.h"
@@ -891,7 +891,7 @@ void BattleInterface::showAll(SDL_Surface *to)
 
 void BattleInterface::show(SDL_Surface *to)
 {
-	auto canvas = std::make_shared<CCanvas>(to);
+	Canvas canvas(to);
 	assert(to);
 
 	SDL_Rect buf;
@@ -907,7 +907,7 @@ void BattleInterface::show(SDL_Surface *to)
 
 	SDL_SetClipRect(to, &buf); //restoring previous clip_rect
 
-	showInterface(canvas);
+	showInterface(to);
 
 	//activation of next stack, if any
 	//TODO: should be moved to the very start of this method?
@@ -920,23 +920,23 @@ void BattleInterface::collectRenderableObjects(BattleRenderer & renderer)
 	{
 		renderer.insert(EBattleFieldLayer::HEROES, BattleHex(0),[this](BattleRenderer::RendererPtr canvas)
 		{
-			attackingHero->show(canvas->getSurface());
+			attackingHero->render(canvas);
 		});
 	}
 	if (defendingHero)
 	{
 		renderer.insert(EBattleFieldLayer::HEROES, BattleHex(GameConstants::BFIELD_WIDTH-1),[this](BattleRenderer::RendererPtr canvas)
 		{
-			defendingHero->show(canvas->getSurface());
+			defendingHero->render(canvas);
 		});
 	}
 }
 
-void BattleInterface::showInterface(std::shared_ptr<CCanvas> canvas)
+void BattleInterface::showInterface(SDL_Surface * to)
 {
 	//showing in-game console
-	LOCPLINT->cingconsole->show(canvas->getSurface());
-	controlPanel->showAll(canvas->getSurface());
+	LOCPLINT->cingconsole->show(to);
+	controlPanel->showAll(to);
 
 	Rect posWithQueue = Rect(pos.x, pos.y, 800, 600);
 
@@ -948,13 +948,13 @@ void BattleInterface::showInterface(std::shared_ptr<CCanvas> canvas)
 			posWithQueue.h += queue->pos.h;
 		}
 
-		queue->showAll(canvas->getSurface());
+		queue->showAll(to);
 	}
 
 	//printing border around interface
 	if (screen->w != 800 || screen->h !=600)
 	{
-		CMessage::drawBorder(curInt->playerID,canvas->getSurface(),posWithQueue.w + 28, posWithQueue.h + 28, posWithQueue.x-14, posWithQueue.y-15);
+		CMessage::drawBorder(curInt->playerID,to,posWithQueue.w + 28, posWithQueue.h + 28, posWithQueue.x-14, posWithQueue.y-15);
 	}
 }
 
