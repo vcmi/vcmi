@@ -347,7 +347,7 @@ void BattleSiegeController::stackIsCatapulting(const CatapultAttack & ca)
 		for (auto attackInfo : ca.attackedParts)
 			positions.push_back(owner.stacksController->getStackPositionAtHex(attackInfo.destinationTile, nullptr) + Point(99, 120));
 
-		owner.stacksController->addNewAnim(new CPointEffectAnimation(owner, soundBase::WALLHIT, "SGEXPL.DEF", positions));
+		owner.stacksController->addNewAnim(new CPointEffectAnimation(owner, "WALLHIT", "SGEXPL.DEF", positions));
 	}
 
 	owner.waitForAnimationCondition(EAnimationEvents::ACTION, false);

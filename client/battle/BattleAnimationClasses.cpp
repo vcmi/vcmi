@@ -790,9 +790,9 @@ void CCatapultAnimation::nextFrame()
 	Point shotTarget = owner.stacksController->getStackPositionAtHex(dest, attackedStack) + Point(225, 225) - Point(126, 105);
 
 	if(catapultDamage > 0)
-		owner.stacksController->addNewAnim( new CPointEffectAnimation(owner, soundBase::WALLHIT, "SGEXPL.DEF", shotTarget));
+		owner.stacksController->addNewAnim( new CPointEffectAnimation(owner, "WALLHIT", "SGEXPL.DEF", shotTarget));
 	else
-		owner.stacksController->addNewAnim( new CPointEffectAnimation(owner, soundBase::WALLMISS, "CSGRCK.DEF", shotTarget));
+		owner.stacksController->addNewAnim( new CPointEffectAnimation(owner, "WALLMISS", "CSGRCK.DEF", shotTarget));
 }
 
 void CCatapultAnimation::createProjectile(const Point & from, const Point & dest) const
@@ -868,10 +868,10 @@ uint32_t CCastAnimation::getAttackClimaxFrame() const
 	return 0;
 }
 
-CPointEffectAnimation::CPointEffectAnimation(BattleInterface & owner, soundBase::soundID sound, std::string animationName, int effects):
+CPointEffectAnimation::CPointEffectAnimation(BattleInterface & owner, std::string soundName, std::string animationName, int effects):
 	CBattleAnimation(owner),
 	animation(std::make_shared<CAnimation>(animationName)),
-	sound(sound),
+	soundName(soundName),
 	effectFlags(effects),
 	soundPlayed(false),
 	soundFinished(false),
@@ -880,33 +880,33 @@ CPointEffectAnimation::CPointEffectAnimation(BattleInterface & owner, soundBase:
 	logAnim->info("CPointEffectAnimation::init: effect %s", animationName);
 }
 
-CPointEffectAnimation::CPointEffectAnimation(BattleInterface & owner, soundBase::soundID sound, std::string animationName, std::vector<BattleHex> hex, int effects):
-	CPointEffectAnimation(owner, sound, animationName, effects)
+CPointEffectAnimation::CPointEffectAnimation(BattleInterface & owner, std::string soundName, std::string animationName, std::vector<BattleHex> hex, int effects):
+	CPointEffectAnimation(owner, soundName, animationName, effects)
 {
 	battlehexes = hex;
 }
 
-CPointEffectAnimation::CPointEffectAnimation(BattleInterface & owner, soundBase::soundID sound, std::string animationName, BattleHex hex, int effects):
-	CPointEffectAnimation(owner, sound, animationName, effects)
+CPointEffectAnimation::CPointEffectAnimation(BattleInterface & owner, std::string soundName, std::string animationName, BattleHex hex, int effects):
+	CPointEffectAnimation(owner, soundName, animationName, effects)
 {
 	assert(hex.isValid());
 	battlehexes.push_back(hex);
 }
 
-CPointEffectAnimation::CPointEffectAnimation(BattleInterface & owner, soundBase::soundID sound, std::string animationName, std::vector<Point> pos, int effects):
-	CPointEffectAnimation(owner, sound, animationName, effects)
+CPointEffectAnimation::CPointEffectAnimation(BattleInterface & owner, std::string soundName, std::string animationName, std::vector<Point> pos, int effects):
+	CPointEffectAnimation(owner, soundName, animationName, effects)
 {
 	positions = pos;
 }
 
-CPointEffectAnimation::CPointEffectAnimation(BattleInterface & owner, soundBase::soundID sound, std::string animationName, Point pos, int effects):
-	CPointEffectAnimation(owner, sound, animationName, effects)
+CPointEffectAnimation::CPointEffectAnimation(BattleInterface & owner, std::string soundName, std::string animationName, Point pos, int effects):
+	CPointEffectAnimation(owner, soundName, animationName, effects)
 {
 	positions.push_back(pos);
 }
 
-CPointEffectAnimation::CPointEffectAnimation(BattleInterface & owner, soundBase::soundID sound, std::string animationName, Point pos, BattleHex hex,   int effects):
-	CPointEffectAnimation(owner, sound, animationName, effects)
+CPointEffectAnimation::CPointEffectAnimation(BattleInterface & owner, std::string soundName, std::string animationName, Point pos, BattleHex hex,   int effects):
+	CPointEffectAnimation(owner, soundName, animationName, effects)
 {
 	assert(hex.isValid());
 	battlehexes.push_back(hex);
@@ -1020,13 +1020,13 @@ void CPointEffectAnimation::playSound()
 		return;
 
 	soundPlayed = true;
-	if (sound == soundBase::invalid)
+	if (soundName.empty())
 	{
 		onSoundFinished();
 		return;
 	}
 
-	int channel = CCS->soundh->playSound(sound);
+	int channel = CCS->soundh->playSound(soundName);
 
 	if (!waitForSound() || channel == -1)
 		onSoundFinished();

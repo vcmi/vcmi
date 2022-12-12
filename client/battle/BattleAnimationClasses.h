@@ -287,7 +287,7 @@ struct CPointEffectParameters
 /// Class that plays effect at one or more positions along with (single) sound effect
 class CPointEffectAnimation : public CBattleAnimation
 {
-	soundBase::soundID sound;
+	std::string soundName;
 	bool soundPlayed;
 	bool soundFinished;
 	bool effectFinished;
@@ -319,17 +319,17 @@ public:
 	};
 
 	/// Create animation with screen-wide effect
-	CPointEffectAnimation(BattleInterface & owner, soundBase::soundID sound, std::string animationName, int effects = 0);
+	CPointEffectAnimation(BattleInterface & owner, std::string soundName, std::string animationName, int effects = 0);
 
 	/// Create animation positioned at point(s). Note that positions must be are absolute, including battleint position offset
-	CPointEffectAnimation(BattleInterface & owner, soundBase::soundID sound, std::string animationName, Point pos                 , int effects = 0);
-	CPointEffectAnimation(BattleInterface & owner, soundBase::soundID sound, std::string animationName, std::vector<Point> pos    , int effects = 0);
+	CPointEffectAnimation(BattleInterface & owner, std::string soundName, std::string animationName, Point pos                 , int effects = 0);
+	CPointEffectAnimation(BattleInterface & owner, std::string soundName, std::string animationName, std::vector<Point> pos    , int effects = 0);
 
 	/// Create animation positioned at certain hex(es)
-	CPointEffectAnimation(BattleInterface & owner, soundBase::soundID sound, std::string animationName, BattleHex hex             , int effects = 0);
-	CPointEffectAnimation(BattleInterface & owner, soundBase::soundID sound, std::string animationName, std::vector<BattleHex> hex, int effects = 0);
+	CPointEffectAnimation(BattleInterface & owner, std::string soundName, std::string animationName, BattleHex hex             , int effects = 0);
+	CPointEffectAnimation(BattleInterface & owner, std::string soundName, std::string animationName, std::vector<BattleHex> hex, int effects = 0);
 
-	CPointEffectAnimation(BattleInterface & owner, soundBase::soundID sound, std::string animationName, Point pos, BattleHex hex,   int effects = 0);
+	CPointEffectAnimation(BattleInterface & owner, std::string soundName, std::string animationName, Point pos, BattleHex hex,   int effects = 0);
 	 ~CPointEffectAnimation();
 
 	bool init() override;

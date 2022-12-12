@@ -44,7 +44,7 @@ void BattleEffectsController::displayEffect(EBattleEffect::EBattleEffect effect,
 {
 	std::string customAnim = graphics->battleACToDef[effect][0];
 
-	owner.stacksController->addNewAnim(new CPointEffectAnimation(owner, soundBase::soundID(soundID), customAnim, destTile));
+	owner.stacksController->addNewAnim(new CPointEffectAnimation(owner, soundBase::stringsList()[soundID], customAnim, destTile));
 }
 
 void BattleEffectsController::displayCustomEffects(const std::vector<CustomEffectInfo> & customEffects)

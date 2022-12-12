@@ -29,6 +29,7 @@ public:
 	RelativeShape shape; //shape of single obstacle relative to obstacle position
 	RelativeShape range; //position of obstacles relative to effect destination
 
+	std::string appearSound;
 	std::string appearAnimation;
 	std::string animation;
 

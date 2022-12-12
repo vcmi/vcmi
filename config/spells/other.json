@@ -21,11 +21,13 @@
 						"attacker" :{
 							"animation" : "C17SPE1",
 							"appearAnimation" : "C17SPE0",
+							"appearSound" : "QUIKSAND",
 							"offsetY" : -42
 						},
 						"defender" :{
 							"animation" : "C17SPE1",
 							"appearAnimation" : "C17SPE0",
+							"appearSound" : "QUIKSAND",
 							"offsetY" : -42
 						}
 					}
@@ -72,11 +74,13 @@
 						"turnsRemaining" : -1,
 						"attacker" :{
 							"animation" : "C09SPF1",
-							"appearAnimation" : "C09SPF0"
+							"appearAnimation" : "C09SPF0",
+							"appearSound" : "LANDMINE"
 						},
 						"defender" :{
 							"animation" : "C09SPF1",
-							"appearAnimation" : "C09SPF0"
+							"appearAnimation" : "C09SPF0",
+							"appearSound" : "LANDMINE"
 						}
 					},
 					"damage":{

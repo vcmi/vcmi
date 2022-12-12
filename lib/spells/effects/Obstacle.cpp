@@ -41,6 +41,7 @@ void ObstacleSideOptions::serializeJson(JsonSerializeFormat & handler)
 	serializeRelativeShape(handler, "shape", shape);
 	serializeRelativeShape(handler, "range", range);
 
+	handler.serializeString("appearSound", appearSound);
 	handler.serializeString("appearAnimation", appearAnimation);
 	handler.serializeString("animation", animation);
 
@@ -313,6 +314,7 @@ void Obstacle::placeObstacles(ServerCallback * server, const Mechanics * m, cons
 		obstacle.trap = trap;
 		obstacle.removeOnTrigger = removeOnTrigger;
 
+		obstacle.appearSound = options.appearSound;
 		obstacle.appearAnimation = options.appearAnimation;
 		obstacle.animation = options.animation;
 

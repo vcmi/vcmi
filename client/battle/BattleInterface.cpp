@@ -575,8 +575,8 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 		bool side = sc->side;
 
 		executeOnAnimationCondition(EAnimationEvents::AFTER_HIT, true, [=](){
-			stacksController->addNewAnim(new CPointEffectAnimation(*this, soundBase::invalid, side ? "SP07_A.DEF" : "SP07_B.DEF", leftHero));
-			stacksController->addNewAnim(new CPointEffectAnimation(*this, soundBase::invalid, side ? "SP07_B.DEF" : "SP07_A.DEF", rightHero));
+			stacksController->addNewAnim(new CPointEffectAnimation(*this, "", side ? "SP07_A.DEF" : "SP07_B.DEF", leftHero));
+			stacksController->addNewAnim(new CPointEffectAnimation(*this, "", side ? "SP07_B.DEF" : "SP07_A.DEF", rightHero));
 		});
 	}
 }
@@ -632,9 +632,9 @@ void BattleInterface::displaySpellAnimationQueue(const CSpell::TAnimationQueue &
 				flags |= CPointEffectAnimation::SCREEN_FILL;
 
 			if (!destinationTile.isValid())
-				stacksController->addNewAnim(new CPointEffectAnimation(*this, soundBase::invalid, animation.resourceName, flags));
+				stacksController->addNewAnim(new CPointEffectAnimation(*this, "", animation.resourceName, flags));
 			else
-				stacksController->addNewAnim(new CPointEffectAnimation(*this, soundBase::invalid, animation.resourceName, destinationTile, flags));
+				stacksController->addNewAnim(new CPointEffectAnimation(*this, "", animation.resourceName, destinationTile, flags));
 		}
 	}
 }
