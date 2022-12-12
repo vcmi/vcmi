@@ -514,7 +514,7 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 		{
 			executeOnAnimationCondition(EAnimationEvents::BEFORE_HIT, true, [=]()
 			{
-				stacksController->addNewAnim(new CCastAnimation(*this, casterStack, targetedTile, curInt->cb->battleGetStackByPos(targetedTile), spell));
+				stacksController->addNewAnim(new CastAnimation(*this, casterStack, targetedTile, curInt->cb->battleGetStackByPos(targetedTile), spell));
 				displaySpellCast(spellID, casterStack->getPosition());
 			});
 		}
@@ -533,7 +533,7 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 			{
 				projectilesController->createSpellProjectile( nullptr, srccoord, destcoord, spell);
 				projectilesController->emitStackProjectile( nullptr );
-				stacksController->addNewAnim(new CWaitingProjectileAnimation(*this, nullptr));
+				stacksController->addNewAnim(new WaitingProjectileAnimation(*this, nullptr));
 			});
 		}
 	}
@@ -576,8 +576,8 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 		bool side = sc->side;
 
 		executeOnAnimationCondition(EAnimationEvents::AFTER_HIT, true, [=](){
-			stacksController->addNewAnim(new CPointEffectAnimation(*this, "", side ? "SP07_A.DEF" : "SP07_B.DEF", leftHero));
-			stacksController->addNewAnim(new CPointEffectAnimation(*this, "", side ? "SP07_B.DEF" : "SP07_A.DEF", rightHero));
+			stacksController->addNewAnim(new PointEffectAnimation(*this, "", side ? "SP07_A.DEF" : "SP07_B.DEF", leftHero));
+			stacksController->addNewAnim(new PointEffectAnimation(*this, "", side ? "SP07_B.DEF" : "SP07_A.DEF", rightHero));
 		});
 	}
 }
@@ -618,24 +618,24 @@ void BattleInterface::displaySpellAnimationQueue(const CSpell::TAnimationQueue &
 	for(const CSpell::TAnimation & animation : q)
 	{
 		if(animation.pause > 0)
-			stacksController->addNewAnim(new CDummyAnimation(*this, animation.pause));
+			stacksController->addNewAnim(new DummyAnimation(*this, animation.pause));
 		else
 		{
 			int flags = 0;
 
 			if (isHit)
-				flags |= CPointEffectAnimation::FORCE_ON_TOP;
+				flags |= PointEffectAnimation::FORCE_ON_TOP;
 
 			if (animation.verticalPosition == VerticalPosition::BOTTOM)
-				flags |= CPointEffectAnimation::ALIGN_TO_BOTTOM;
+				flags |= PointEffectAnimation::ALIGN_TO_BOTTOM;
 
 			if (!destinationTile.isValid())
-				flags |= CPointEffectAnimation::SCREEN_FILL;
+				flags |= PointEffectAnimation::SCREEN_FILL;
 
 			if (!destinationTile.isValid())
-				stacksController->addNewAnim(new CPointEffectAnimation(*this, "", animation.resourceName, flags));
+				stacksController->addNewAnim(new PointEffectAnimation(*this, "", animation.resourceName, flags));
 			else
-				stacksController->addNewAnim(new CPointEffectAnimation(*this, "", animation.resourceName, destinationTile, flags));
+				stacksController->addNewAnim(new PointEffectAnimation(*this, "", animation.resourceName, destinationTile, flags));
 		}
 	}
 }

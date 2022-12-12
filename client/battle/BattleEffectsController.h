@@ -24,7 +24,7 @@ class CAnimation;
 class Canvas;
 class BattleInterface;
 class BattleRenderer;
-class CPointEffectAnimation;
+class PointEffectAnimation;
 
 /// Struct for battle effect animation e.g. morale, prayer, armageddon, bless,...
 struct BattleEffect
@@ -59,5 +59,5 @@ public:
 
 	void collectRenderableObjects(BattleRenderer & renderer);
 
-	friend class CPointEffectAnimation;
+	friend class PointEffectAnimation;
 };

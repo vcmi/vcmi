@@ -336,7 +336,7 @@ void BattleSiegeController::stackIsCatapulting(const CatapultAttack & ca)
 		const CStack *stack = owner.curInt->cb->battleGetStackByID(ca.attacker);
 		for (auto attackInfo : ca.attackedParts)
 		{
-			owner.stacksController->addNewAnim(new CCatapultAnimation(owner, stack, attackInfo.destinationTile, nullptr, attackInfo.damageDealt));
+			owner.stacksController->addNewAnim(new CatapultAnimation(owner, stack, attackInfo.destinationTile, nullptr, attackInfo.damageDealt));
 		}
 	}
 	else
@@ -347,7 +347,7 @@ void BattleSiegeController::stackIsCatapulting(const CatapultAttack & ca)
 		for (auto attackInfo : ca.attackedParts)
 			positions.push_back(owner.stacksController->getStackPositionAtHex(attackInfo.destinationTile, nullptr) + Point(99, 120));
 
-		owner.stacksController->addNewAnim(new CPointEffectAnimation(owner, "WALLHIT", "SGEXPL.DEF", positions));
+		owner.stacksController->addNewAnim(new PointEffectAnimation(owner, "WALLHIT", "SGEXPL.DEF", positions));
 	}
 
 	owner.waitForAnimationCondition(EAnimationEvents::ACTION, false);

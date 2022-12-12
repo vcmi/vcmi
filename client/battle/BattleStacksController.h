@@ -25,9 +25,9 @@ struct StackAttackInfo;
 
 class Canvas;
 class BattleInterface;
-class CBattleAnimation;
+class BattleAnimation;
 class CreatureAnimation;
-class CBattleAnimation;
+class BattleAnimation;
 class BattleRenderer;
 class IImage;
 
@@ -45,7 +45,7 @@ class BattleStacksController
 	std::shared_ptr<IImage> amountEffNeutral;
 
 	/// currently displayed animations <anim, initialized>
-	std::vector<CBattleAnimation *> currentAnimations;
+	std::vector<BattleAnimation *> currentAnimations;
 
 	/// animations of creatures from fighting armies (order by BattleInfo's stacks' ID)
 	std::map<int32_t, std::shared_ptr<CreatureAnimation>> stackAnimation;
@@ -110,7 +110,7 @@ public:
 
 	void collectRenderableObjects(BattleRenderer & renderer);
 
-	void addNewAnim(CBattleAnimation *anim); //adds new anim to pendingAnims
+	void addNewAnim(BattleAnimation *anim); //adds new anim to pendingAnims
 	void updateBattleAnimations();
 
 	const CStack* getActiveStack() const;
@@ -119,5 +119,5 @@ public:
 	/// returns position of animation needed to place stack in specific hex
 	Point getStackPositionAtHex(BattleHex hexNum, const CStack * creature) const;
 
-	friend class CBattleAnimation; // for exposing pendingAnims/creAnims/creDir to animations
+	friend class BattleAnimation; // for exposing pendingAnims/creAnims/creDir to animations
 };
