@@ -196,8 +196,24 @@ public:
 		int movementLeft,
 		float cost) const;
 
-	const AIPathNode * getAINode(const CGPathNode * node) const;
-	void updateAINode(CGPathNode * node, std::function<void (AIPathNode *)> updater);
+	inline const AIPathNode * getAINode(const CGPathNode * node) const
+	{
+		return static_cast<const AIPathNode *>(node);
+	}
+
+	inline void updateAINode(CGPathNode * node, std::function<void (AIPathNode *)> updater)
+	{
+		auto aiNode = static_cast<AIPathNode *>(node);
+
+		updater(aiNode);
+	}
+
+	inline const CGHeroInstance * getHero(const CGPathNode * node) const
+	{
+		auto aiNode = getAINode(node);
+
+		return aiNode->actor->hero;
+	}
 
 	bool hasBetterChain(const PathNodeInfo & source, CDestinationNodeInfo & destination) const;
 
@@ -223,18 +239,17 @@ public:
 	void setTownsAndDwellings(
 		const std::vector<const CGTownInstance *> & towns,
 		const std::set<const CGObjectInstance *> & visitableObjs);
-	const CGHeroInstance * getHero(const CGPathNode * node) const;
 	const std::set<const CGHeroInstance *> getAllHeroes() const;
 	void clear();
 	bool calculateHeroChain();
 	bool calculateHeroChainFinal();
 
-	uint64_t evaluateDanger(const int3 &  tile, const CGHeroInstance * hero, bool checkGuards) const
+	inline uint64_t evaluateDanger(const int3 &  tile, const CGHeroInstance * hero, bool checkGuards) const
 	{
 		return dangerEvaluator->evaluateDanger(tile, hero, checkGuards);
 	}
 
-	uint64_t evaluateArmyLoss(const CGHeroInstance * hero, uint64_t armyValue, uint64_t danger) const
+	inline uint64_t evaluateArmyLoss(const CGHeroInstance * hero, uint64_t armyValue, uint64_t danger) const
 	{
 		double ratio = (double)danger / (armyValue * hero->getFightingStrength());
 
@@ -243,6 +258,7 @@ public:
 
 	STRONG_INLINE
 	void resetTile(const int3 & tile, EPathfindingLayer layer, CGPathNode::EAccessibility accessibility);
+
 	STRONG_INLINE int getBucket(const ChainActor * actor) const
 	{
 		return ((uintptr_t)actor * 395) % AIPathfinding::BUCKET_COUNT;

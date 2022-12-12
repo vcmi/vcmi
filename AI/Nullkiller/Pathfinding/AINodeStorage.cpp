@@ -119,18 +119,6 @@ void AINodeStorage::clear()
 	turnDistanceLimit[HeroRole::SCOUT] = 255;
 }
 
-const AIPathNode * AINodeStorage::getAINode(const CGPathNode * node) const
-{
-	return static_cast<const AIPathNode *>(node);
-}
-
-void AINodeStorage::updateAINode(CGPathNode * node, std::function<void(AIPathNode *)> updater)
-{
-	auto aiNode = static_cast<AIPathNode *>(node);
-
-	updater(aiNode);
-}
-
 boost::optional<AIPathNode *> AINodeStorage::getOrCreateNode(
 	const int3 & pos, 
 	const EPathfindingLayer layer, 
@@ -821,13 +809,6 @@ ExchangeCandidate HeroChainCalculationTask::calculateExchange(
 	}
 
 	return candidate;
-}
-
-const CGHeroInstance * AINodeStorage::getHero(const CGPathNode * node) const
-{
-	auto aiNode = getAINode(node);
-
-	return aiNode->actor->hero;
 }
 
 const std::set<const CGHeroInstance *> AINodeStorage::getAllHeroes() const
