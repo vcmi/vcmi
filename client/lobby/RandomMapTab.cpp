@@ -30,7 +30,7 @@
 #include "../../lib/CModHandler.h"
 
 RandomMapTab::RandomMapTab():
-	InterfaceBuilder()
+	InterfaceObjectConfigurable()
 {
 	recActions = 0;
 	mapGenOptions = std::make_shared<CMapGenOptions>();

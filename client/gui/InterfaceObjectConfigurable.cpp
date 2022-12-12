@@ -81,7 +81,8 @@ std::shared_ptr<CIntObject> InterfaceObjectConfigurable::buildWidget(const JsonN
 		y = config["position"]["y"].Integer();
 	}
 	
-	std::string image, text = buildText(config["text"]);
+	std::string image;
+	std::string text = buildText(config["text"]);
 	auto alignment = EAlignment::CENTER;
 	auto color = Colors::DEFAULT_KEY_COLOR;
 	auto font = EFonts::FONT_TIMES;

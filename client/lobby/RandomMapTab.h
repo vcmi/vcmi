@@ -13,7 +13,7 @@
 
 #include "../../lib/FunctionList.h"
 #include "../../lib/GameConstants.h"
-#include "../gui/InterfaceBuilder.h"
+#include "../gui/InterfaceObjectConfigurable.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -25,7 +25,7 @@ class CToggleButton;
 class CLabel;
 class CLabelGroup;
 
-class RandomMapTab : public InterfaceBuilder
+class RandomMapTab : public InterfaceObjectConfigurable
 {
 public:
 	RandomMapTab();
