@@ -107,7 +107,6 @@ BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *
 		queue->moveTo(Point(pos.x, pos.y - queue->pos.h));
 	}
 
-
 	CPlayerInterface::battleInt = this;
 
 	//initializing armies
@@ -142,10 +141,6 @@ BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *
 		}
 
 		attackingHero = std::make_shared<BattleHero>(battleImage, false, hero1->tempOwner, hero1->tempOwner == curInt->playerID ? hero1 : nullptr, *this);
-
-		auto img = attackingHero->animation->getImage(0, 0, true);
-		if(img)
-			attackingHero->pos = genRect(img->height(), img->width(), pos.x - 43, pos.y - 19);
 	}
 
 
@@ -166,10 +161,6 @@ BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *
 		}
 
 		defendingHero = std::make_shared<BattleHero>(battleImage, true, hero2->tempOwner, hero2->tempOwner == curInt->playerID ? hero2 : nullptr, *this);
-
-		auto img = defendingHero->animation->getImage(0, 0, true);
-		if(img)
-			defendingHero->pos = genRect(img->height(), img->width(), pos.x + 693, pos.y - 19);
 	}
 
 	obstacleController.reset(new BattleObstacleController(*this));
@@ -588,7 +579,7 @@ void BattleInterface::battleStacksEffectsSet(const SetStackEffect & sse)
 		fieldController->redrawBackgroundWithHexes();
 }
 
-void BattleInterface::setHeroAnimation(ui8 side, int phase)
+void BattleInterface::setHeroAnimation(ui8 side, EHeroAnimType phase)
 {
 	if(side == BattleSide::ATTACKER)
 	{
@@ -713,9 +704,6 @@ void BattleInterface::activateStack()
 void BattleInterface::endAction(const BattleAction* action)
 {
 	const CStack *stack = curInt->cb->battleGetStackByID(action->stackNumber);
-
-	if(action->actionType == EActionType::HERO_SPELL)
-		setHeroAnimation(action->side, EHeroAnimType::HOLDING);
 
 	stacksController->endAction(action);
 

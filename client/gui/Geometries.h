@@ -160,6 +160,14 @@ struct Rect : public SDL_Rect
 	{
 		return Point(x+w,y+h);
 	}
+	Point center() const
+	{
+		return Point(x+w/2,y+h/2);
+	}
+	Point dimensions() const
+	{
+		return Point(w,h);
+	}
 	Rect operator+(const Rect &p) const //moves this rect by p's rect position
 	{
 		return Rect(x+p.x,y+p.y,w,h);

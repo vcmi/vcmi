@@ -9,6 +9,7 @@
  */
 #pragma once
 
+#include "BattleConstants.h"
 #include "../gui/CIntObject.h"
 #include "../../lib/battle/BattleHex.h"
 #include "../windows/CWindowObject.h"
@@ -77,23 +78,30 @@ public:
 /// Hero battle animation
 class BattleHero : public CIntObject
 {
-	void switchToNextPhase();
-public:
 	bool flip; //false if it's attacking hero, true otherwise
 
+	std::function<void()> phaseFinishedCallback;
 	std::shared_ptr<CAnimation> animation;
 	std::shared_ptr<CAnimation> flagAnimation;
 
 	const CGHeroInstance * myHero; //this animation's hero instance
-	const BattleInterface * myOwner; //battle interface to which this animation is assigned
-	int phase; //stage of animation
-	int nextPhase; //stage of animation to be set after current phase is fully displayed
-	int currentFrame, firstFrame, lastFrame; //frame of animation
+	const BattleInterface & owner; //battle interface to which this animation is assigned
 
-	size_t flagAnim;
-	ui8 animCount; //for flag animation
+	EHeroAnimType phase; //stage of animation
+	EHeroAnimType nextPhase; //stage of animation to be set after current phase is fully displayed
+
+	float currentFrame; //frame of animation
+	float flagCurrentFrame;
+
+	void switchToNextPhase();
+
+public:
 	void render(Canvas & canvas); //prints next frame of animation to to
-	void setPhase(int newPhase); //sets phase of hero animation
+	void setPhase(EHeroAnimType newPhase); //sets phase of hero animation
+
+	float getFrame() const;
+	void onPhaseFinished(const std::function<void()> &);
+
 	void hover(bool on) override;
 	void clickLeft(tribool down, bool previousState) override; //call-in
 	void clickRight(tribool down, bool previousState) override; //call-in

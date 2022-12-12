@@ -93,7 +93,6 @@ BattleStackAnimation::BattleStackAnimation(BattleInterface & owner, const CStack
 
 void AttackAnimation::nextFrame()
 {
-	assert(myAnim->getType() == group);
 	if(myAnim->getType() != group)
 	{
 		myAnim->setType(group);

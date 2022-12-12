@@ -47,8 +47,8 @@
 
 void BattleConsole::showAll(SDL_Surface * to)
 {
-	Point consolePos(pos.x + 10,      pos.y + 17);
-	Point textPos   (pos.x + pos.w/2, pos.y + 17);
+	Point consolePos(pos.x + 10,      pos.y + 19);
+	Point textPos   (pos.x + pos.w/2, pos.y + 19);
 
 	if (!consoleText.empty())
 	{
@@ -160,46 +160,60 @@ void BattleConsole::clear()
 
 void BattleHero::render(Canvas & canvas)
 {
-	auto flagFrame = flagAnimation->getImage(flagAnim, 0, true);
+	size_t groupIndex = static_cast<size_t>(phase);
 
-	if(!flagFrame)
-		return;
+	auto flagFrame = flagAnimation->getImage(flagCurrentFrame, 0, true);
+	auto heroFrame = animation->getImage(currentFrame, groupIndex, true);
 
-	//animation of flag
-	Point flagPosition = pos.topLeft();
+	Point heroPosition = pos.center() - heroFrame->dimensions() / 2;
+	Point flagPosition = pos.center() - flagFrame->dimensions() / 2;
 
 	if(flip)
-		flagPosition += Point(61, 39);
+		flagPosition += Point(-4, -41);
 	else
-		flagPosition += Point(72, 39);
-
-
-	auto heroFrame = animation->getImage(currentFrame, phase, true);
+		flagPosition += Point(4, -41);
 
 	canvas.draw(flagFrame, flagPosition);
-	canvas.draw(heroFrame, pos.topLeft());
+	canvas.draw(heroFrame, heroPosition);
 
-	if(++animCount >= 4)
+	//FIXME: un-hardcode speed
+	flagCurrentFrame += 0.25f;
+	currentFrame += 0.25f;
+
+	if(flagCurrentFrame >= flagAnimation->size(0))
+		flagCurrentFrame -= flagAnimation->size(0);
+
+	if(currentFrame >= animation->size(groupIndex))
 	{
-		animCount = 0;
-		if(++flagAnim >= flagAnimation->size(0))
-			flagAnim = 0;
-
-		if(++currentFrame >= lastFrame)
-			switchToNextPhase();
+		currentFrame -= animation->size(groupIndex);
+		if (phaseFinishedCallback)
+		{
+			phaseFinishedCallback();
+			phaseFinishedCallback = std::function<void()>();
+		}
 	}
 }
 
-void BattleHero::setPhase(int newPhase)
+float BattleHero::getFrame() const
+{
+	return currentFrame;
+}
+
+void BattleHero::onPhaseFinished(const std::function<void()> & callback)
+{
+	phaseFinishedCallback = callback;
+}
+
+void BattleHero::setPhase(EHeroAnimType newPhase)
 {
 	nextPhase = newPhase;
 	switchToNextPhase(); //immediately switch to next phase and then restore idling phase
-	nextPhase = 0;
+	nextPhase = EHeroAnimType::HOLDING;
 }
 
 void BattleHero::hover(bool on)
 {
-	//TODO: Make lines below work properly
+	//TODO: BROKEN CODE
 	if (on)
 		CCS->curh->changeGraphic(ECursor::COMBAT, 5);
 	else
@@ -208,25 +222,25 @@ void BattleHero::hover(bool on)
 
 void BattleHero::clickLeft(tribool down, bool previousState)
 {
-	if(myOwner->actionsController->spellcastingModeActive()) //we are casting a spell
+	if(owner.actionsController->spellcastingModeActive()) //we are casting a spell
 		return;
 
 	if(boost::logic::indeterminate(down))
 		return;
 
-	if(!myHero || down || !myOwner->myTurn)
+	if(!myHero || down || !owner.myTurn)
 		return;
 
-	if(myOwner->getCurrentPlayerInterface()->cb->battleCanCastSpell(myHero, spells::Mode::HERO) == ESpellCastProblem::OK) //check conditions
+	if(owner.getCurrentPlayerInterface()->cb->battleCanCastSpell(myHero, spells::Mode::HERO) == ESpellCastProblem::OK) //check conditions
 	{
-		BattleHex hoveredHex = myOwner->fieldController->getHoveredHex();
+		BattleHex hoveredHex = owner.fieldController->getHoveredHex();
 		//do nothing when any hex is hovered - hero's animation overlaps battlefield
 		if ( hoveredHex != BattleHex::INVALID )
 			return;
 
 		CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
 
-		GH.pushIntT<CSpellWindow>(myHero, myOwner->getCurrentPlayerInterface());
+		GH.pushIntT<CSpellWindow>(myHero, owner.getCurrentPlayerInterface());
 	}
 }
 
@@ -236,13 +250,13 @@ void BattleHero::clickRight(tribool down, bool previousState)
 		return;
 
 	Point windowPosition;
-	windowPosition.x = (!flip) ? myOwner->pos.topLeft().x + 1 : myOwner->pos.topRight().x - 79;
-	windowPosition.y = myOwner->pos.y + 135;
+	windowPosition.x = (!flip) ? owner.pos.topLeft().x + 1 : owner.pos.topRight().x - 79;
+	windowPosition.y = owner.pos.y + 135;
 
 	InfoAboutHero targetHero;
-	if(down && (myOwner->myTurn || settings["session"]["spectate"].Bool()))
+	if(down && (owner.myTurn || settings["session"]["spectate"].Bool()))
 	{
-		auto h = flip ? myOwner->defendingHeroInstance : myOwner->attackingHeroInstance;
+		auto h = flip ? owner.defendingHeroInstance : owner.attackingHeroInstance;
 		targetHero.initFromHero(h, InfoAboutHero::EInfoLevel::INBATTLE);
 		GH.pushIntT<HeroInfoWindow>(targetHero, &windowPosition);
 	}
@@ -250,30 +264,33 @@ void BattleHero::clickRight(tribool down, bool previousState)
 
 void BattleHero::switchToNextPhase()
 {
-	if(phase != nextPhase)
+	phase = nextPhase;
+	currentFrame = 0.f;
+	if (phaseFinishedCallback)
 	{
-		phase = nextPhase;
-
-		firstFrame = 0;
-
-		lastFrame = static_cast<int>(animation->size(phase));
+		phaseFinishedCallback();
+		phaseFinishedCallback = std::function<void()>();
 	}
-
-	currentFrame = firstFrame;
 }
 
 BattleHero::BattleHero(const std::string & animationPath, bool flipG, PlayerColor player, const CGHeroInstance * hero, const BattleInterface & owner):
-    flip(flipG),
-    myHero(hero),
-	myOwner(&owner),
-    phase(1),
-    nextPhase(0),
-    flagAnim(0),
-    animCount(0)
+	flip(flipG),
+	myHero(hero),
+	owner(owner),
+	phase(EHeroAnimType::HOLDING),
+	nextPhase(EHeroAnimType::HOLDING),
+	currentFrame(0.f),
+	flagCurrentFrame(0.f)
 {
 	animation = std::make_shared<CAnimation>(animationPath);
 	animation->preload();
-	if(flipG)
+
+	pos.w = 64;
+	pos.h = 136;
+	pos.x = owner.pos.x + (flipG ? (owner.pos.w - pos.w) : 0);
+	pos.y = owner.pos.y;
+
+	if(flip)
 		animation->verticalFlip();
 
 	if(flip)

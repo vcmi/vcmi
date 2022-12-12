@@ -39,7 +39,7 @@ BattleControlPanel::BattleControlPanel(BattleInterface & owner, const Point & po
 	bOptions = std::make_shared<CButton>    (Point(  3,  5), "icm003.def", CGI->generaltexth->zelp[381], std::bind(&BattleControlPanel::bOptionsf,this), SDLK_o);
 	bSurrender = std::make_shared<CButton>  (Point( 54,  5), "icm001.def", CGI->generaltexth->zelp[379], std::bind(&BattleControlPanel::bSurrenderf,this), SDLK_s);
 	bFlee = std::make_shared<CButton>       (Point(105,  5), "icm002.def", CGI->generaltexth->zelp[380], std::bind(&BattleControlPanel::bFleef,this), SDLK_r);
-	bAutofight = std::make_shared<CButton>  (Point(157,  5), "icm004.def", CGI->generaltexth->zelp[382], std::bind(&BattleControlPanel::bAutofightf,this), SDLK_a);
+	bAutofight = std::make_shared<CButton>  (Point(158,  5), "icm004.def", CGI->generaltexth->zelp[382], std::bind(&BattleControlPanel::bAutofightf,this), SDLK_a);
 	bSpell = std::make_shared<CButton>      (Point(645,  5), "icm005.def", CGI->generaltexth->zelp[385], std::bind(&BattleControlPanel::bSpellf,this), SDLK_c);
 	bWait = std::make_shared<CButton>       (Point(696,  5), "icm006.def", CGI->generaltexth->zelp[386], std::bind(&BattleControlPanel::bWaitf,this), SDLK_w);
 	bDefence = std::make_shared<CButton>    (Point(747,  5), "icm007.def", CGI->generaltexth->zelp[387], std::bind(&BattleControlPanel::bDefencef,this), SDLK_d);

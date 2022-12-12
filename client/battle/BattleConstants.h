@@ -43,9 +43,7 @@ namespace EBattleEffect
 	};
 }
 
-namespace EHeroAnimType
-{
-enum Type
+enum class EHeroAnimType
 {
 	HOLDING    = 0,
 	IDLE       = 1, // idling movement that happens from time to time
@@ -53,7 +51,6 @@ enum Type
 	VICTORY    = 3, // when enemy stack killed or huge damage is dealt
 	CAST_SPELL = 4  // spellcasting
 };
-}
 
 namespace ECreatureAnimType
 {

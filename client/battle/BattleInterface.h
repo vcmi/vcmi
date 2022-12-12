@@ -138,7 +138,7 @@ private:
 
 	void showInterface(SDL_Surface * to);
 
-	void setHeroAnimation(ui8 side, int phase);
+	void setHeroAnimation(ui8 side, EHeroAnimType phase);
 
 	void executeSpellCast(); //called when a hero casts a spell
 

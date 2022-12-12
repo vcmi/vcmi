@@ -328,6 +328,12 @@ public:
 	void nextFrame() override;
 };
 
+class HeroAnimation : public BattleAnimation
+{
+public:
+	HeroAnimation(BattleInterface * owner_, const CStack * shooter);
+};
+
 /// Class that waits till projectile of certain shooter hits a target
 class WaitingProjectileAnimation : public BattleAnimation
 {
