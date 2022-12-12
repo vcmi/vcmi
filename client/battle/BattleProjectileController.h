@@ -20,7 +20,6 @@ class CSpell;
 VCMI_LIB_NAMESPACE_END
 
 struct Point;
-struct SDL_Surface;
 class CAnimation;
 class Canvas;
 class BattleInterface;

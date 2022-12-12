@@ -16,7 +16,6 @@ struct CObstacleInstance;
 
 VCMI_LIB_NAMESPACE_END
 
-struct SDL_Surface;
 class IImage;
 class Canvas;
 class CAnimation;

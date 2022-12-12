@@ -18,7 +18,6 @@ VCMI_LIB_NAMESPACE_BEGIN
 class CGHeroInstance;
 struct BattleResult;
 class CStack;
-class Canvas;
 
 namespace battle
 {
@@ -27,6 +26,7 @@ class Unit;
 
 VCMI_LIB_NAMESPACE_END
 
+class Canvas;
 struct SDL_Surface;
 class BattleInterface;
 class CPicture;

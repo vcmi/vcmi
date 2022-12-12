@@ -18,7 +18,6 @@ class CStack;
 
 VCMI_LIB_NAMESPACE_END
 
-struct SDL_Surface;
 struct Rect;
 struct Point;
 

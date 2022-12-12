@@ -20,7 +20,6 @@ class SpellID;
 
 VCMI_LIB_NAMESPACE_END
 
-struct SDL_Surface;
 struct StackAttackedInfo;
 
 class Canvas;
