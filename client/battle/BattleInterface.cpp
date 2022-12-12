@@ -186,7 +186,6 @@ BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *
 			CCS->musich->playMusicFromSet("battle", true, true);
 			battleActionsStarted = true;
 			activateStack();
-			controlPanel->blockUI(settings["session"]["spectate"].Bool() || stacksController->getActiveStack() == nullptr);
 			battleIntroSoundChannel = -1;
 		}
 	};
@@ -194,8 +193,9 @@ BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *
 	CCS->soundh->setCallback(battleIntroSoundChannel, onIntroPlayed);
 
 	addUsedEvents(RCLICK | MOVE | KEYBOARD);
-	controlPanel->blockUI(true);
 	queue->update();
+
+	controlPanel->blockUI(true);
 }
 
 BattleInterface::~BattleInterface()
@@ -203,10 +203,9 @@ BattleInterface::~BattleInterface()
 	CPlayerInterface::battleInt = nullptr;
 	givenCommand.cond.notify_all(); //that two lines should make any stacksController->getActiveStack() waiting thread to finish
 
+	assert(!active);
 	if (active) //dirty fix for #485
-	{
 		deactivate();
-	}
 
 	if (adventureInt && adventureInt->selection)
 	{
@@ -214,8 +213,8 @@ BattleInterface::~BattleInterface()
 		const auto & terrain = *(LOCPLINT->cb->getTile(adventureInt->selection->visitablePos())->terType);
 		CCS->musich->playMusicFromSet("terrain", terrain.name, true, false);
 	}
-	assert(getAnimationCondition(EAnimationEvents::ACTION) == false);
 
+	assert(getAnimationCondition(EAnimationEvents::ACTION) == false);
 	setAnimationCondition(EAnimationEvents::ACTION, false);
 }
 
@@ -488,6 +487,8 @@ void BattleInterface::displayBattleFinished()
 
 void BattleInterface::spellCast(const BattleSpellCast * sc)
 {
+	controlPanel->blockUI(true);
+
 	const SpellID spellID = sc->spellID;
 	const CSpell * spell = spellID.toSpell();
 	auto targetedTile = sc->tile;
@@ -720,22 +721,13 @@ void BattleInterface::endAction(const BattleAction* action)
 
 	queue->update();
 
-	if (tacticsMode) //stack ended movement in tactics phase -> select the next one
+	//stack ended movement in tactics phase -> select the next one
+	if (tacticsMode)
 		tacticNextStack(stack);
 
-	if(action->actionType == EActionType::HERO_SPELL) //we have activated next stack after sending request that has been just realized -> blockmap due to movement has changed
+	//we have activated next stack after sending request that has been just realized -> blockmap due to movement has changed
+	if(action->actionType == EActionType::HERO_SPELL)
 		fieldController->redrawBackgroundWithHexes();
-
-//	if (stacksController->getActiveStack() && !animsAreDisplayed.get() && pendingAnims.empty() && !active)
-//	{
-//		logGlobal->warn("Something wrong... interface was deactivated but there is no animation. Reactivating...");
-//		controlPanel->blockUI(false);
-//	}
-//	else
-//	{
-		// block UI if no active stack (e.g. enemy turn);
-	controlPanel->blockUI(stacksController->getActiveStack() == nullptr);
-//	}
 }
 
 void BattleInterface::hideQueue()
@@ -768,8 +760,6 @@ void BattleInterface::showQueue()
 
 void BattleInterface::startAction(const BattleAction* action)
 {
-	controlPanel->blockUI(true);
-
 	if(action->actionType == EActionType::END_TACTIC_PHASE)
 	{
 		controlPanel->tacticPhaseEnded();
@@ -809,7 +799,6 @@ void BattleInterface::startAction(const BattleAction* action)
 void BattleInterface::tacticPhaseEnd()
 {
 	stacksController->setActiveStack(nullptr);
-	controlPanel->blockUI(true);
 	tacticsMode = false;
 }
 
@@ -891,7 +880,6 @@ void BattleInterface::requestAutofightingAIToTakeAction()
 				//TODO implement the possibility that the AI will be triggered for further actions
 				//TODO any solution to merge tactics phase & normal phase in the way it is handled by the player and battle interface?
 				stacksController->setActiveStack(nullptr);
-				controlPanel->blockUI(true);
 				tacticsMode = false;
 			}
 			else

@@ -368,7 +368,6 @@ void BattleStacksController::updateBattleAnimations()
 	if (hadAnimations && currentAnimations.empty())
 	{
 		//anims ended
-		owner.controlPanel->blockUI(activeStack == nullptr);
 		owner.setAnimationCondition(EAnimationEvents::ACTION, false);
 	}
 }
@@ -638,6 +637,8 @@ void BattleStacksController::endAction(const BattleAction* action)
 	assert(owner.getAnimationCondition(EAnimationEvents::ATTACK) == false);
 	assert(owner.getAnimationCondition(EAnimationEvents::HIT) == false);
 	assert(owner.getAnimationCondition(EAnimationEvents::PROJECTILES) == false);
+
+	owner.controlPanel->blockUI(activeStack == nullptr);
 }
 
 void BattleStacksController::startAction(const BattleAction* action)
