@@ -32,7 +32,7 @@ protected:
 		auto iter = widgets.find(name);
 		if(iter == widgets.end())
 			return nullptr;
-		return dynamic_pointer_cast<T>(iter->second);
+		return std::dynamic_pointer_cast<T>(iter->second);
 	}
 	
 private:
