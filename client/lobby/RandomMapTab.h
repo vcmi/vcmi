@@ -24,6 +24,7 @@ VCMI_LIB_NAMESPACE_END
 class CToggleButton;
 class CLabel;
 class CLabelGroup;
+class CSlider;
 
 class RandomMapTab : public InterfaceObjectConfigurable
 {
@@ -43,4 +44,34 @@ private:
 
 	std::shared_ptr<CMapGenOptions> mapGenOptions;
 	std::shared_ptr<CMapInfo> mapInfo;
+};
+
+class TemplatesDropBox : public CIntObject
+{
+	struct ListItem : public CIntObject
+	{
+		std::shared_ptr<CLabel> labelName;
+		std::shared_ptr<CPicture> hoverImage;
+		ListItem(Point position, const std::string & text);
+		void updateItem(int info = 0, bool selected = false);
+		
+		void hover(bool on) override;
+	};
+	
+public:
+	TemplatesDropBox(std::shared_ptr<CMapGenOptions> options);
+	
+	void hover(bool on) override;
+	void clickLeft(tribool down, bool previousState) override;
+	
+private:
+	
+	void sliderMove(int slidPos);
+	
+	std::shared_ptr<CMapGenOptions> mapGenOptions;
+	
+	std::shared_ptr<CPicture> background;
+	std::vector<std::shared_ptr<ListItem>> listItems;
+	std::shared_ptr<CSlider> slider;
+	
 };

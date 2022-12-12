@@ -105,6 +105,13 @@ RandomMapTab::RandomMapTab():
 		updateMapInfoByHost();
 	});
 	
+	//new callbacks available only from mod
+	addCallback("templateSelection", [&](int)
+	{
+		GH.pushInt(std::shared_ptr<TemplatesDropBox>(new TemplatesDropBox(mapGenOptions)));
+	});
+	
+	
 	init(config);
 	
 	updateMapInfoByHost();
@@ -246,4 +253,64 @@ void RandomMapTab::validateCompOnlyPlayersCnt(int compOnlyPlayersCnt)
 std::vector<int> RandomMapTab::getPossibleMapSizes()
 {
 	return {CMapHeader::MAP_SIZE_SMALL, CMapHeader::MAP_SIZE_MIDDLE, CMapHeader::MAP_SIZE_LARGE, CMapHeader::MAP_SIZE_XLARGE, CMapHeader::MAP_SIZE_HUGE, CMapHeader::MAP_SIZE_XHUGE, CMapHeader::MAP_SIZE_GIANT};
+}
+
+TemplatesDropBox::ListItem::ListItem(Point position, const std::string & text)
+	: CIntObject(LCLICK | HOVER, position)
+{
+	OBJ_CONSTRUCTION;
+	labelName = std::make_shared<CLabel>(0, 0, FONT_SMALL, EAlignment::TOPLEFT, Colors::WHITE, text);
+	labelName->setAutoRedraw(false);
+	
+	hoverImage = std::make_shared<CPicture>("List10Sl", 0, 0);
+	hoverImage->visible = false;
+	
+	pos.w = hoverImage->pos.w;
+	pos.h = hoverImage->pos.h;
+	type |= REDRAW_PARENT;
+}
+
+void TemplatesDropBox::ListItem::hover(bool on)
+{
+	hoverImage->visible = on;
+	redraw();
+}
+
+TemplatesDropBox::TemplatesDropBox(std::shared_ptr<CMapGenOptions> options):
+	CIntObject(LCLICK | HOVER),
+	mapGenOptions(options)
+{
+	OBJ_CONSTRUCTION;
+	background = std::make_shared<CPicture>("List10Bk", 158, 76);
+	
+	int positionsToShow = 10;
+	
+	for(int i = 0; i < positionsToShow; i++)
+		listItems.push_back(std::make_shared<ListItem>(Point(158, 76 + i * 25), "test" + std::to_string(i)));
+	
+	slider = std::make_shared<CSlider>(Point(212 + 158, 76), 252, std::bind(&TemplatesDropBox::sliderMove, this, _1), positionsToShow, 20, 0, false, CSlider::BLUE);
+	
+	pos = background->pos;
+}
+
+void TemplatesDropBox::sliderMove(int slidPos)
+{
+	if(!slider)
+		return; // ignore spurious call when slider is being created
+	//updateListItems();
+	redraw();
+}
+
+void TemplatesDropBox::hover(bool on)
+{
+	hovered = on;
+}
+
+void TemplatesDropBox::clickLeft(tribool down, bool previousState)
+{
+	if(!hovered)
+	{
+		assert(GH.topInt().get() == this);
+		GH.popInt(GH.topInt());
+	}
 }

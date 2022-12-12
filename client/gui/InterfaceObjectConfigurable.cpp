@@ -179,6 +179,15 @@ std::shared_ptr<CIntObject> InterfaceObjectConfigurable::buildWidget(const JsonN
 		if(!config["zelp"].isNull())
 			zelp = CGI->generaltexth->zelp[config["zelp"].Integer()];
 		auto button = std::make_shared<CButton>(Point(x, y), image, zelp);
+		if(!config["items"].isNull())
+		{
+			for(const auto & item : config["items"].Vector())
+			{
+				button->addOverlay(buildWidget(item));
+			}
+		}
+		if(!config["callback"].isNull())
+			button->addCallback(std::bind(callbacks[config["callback"].String()], 0));
 		return button;
 	}
 	if(type == "labelGroup")
