@@ -53,11 +53,11 @@ RandomMapTab::RandomMapTab():
 	{
 		mapGenOptions->setPlayerCount(btnId);
 	
-		if(auto w = dynamic_pointer_cast<CToggleGroup>(widget("groupMaxTeams")))
+		if(auto w = widget<CToggleGroup>("groupMaxTeams"))
 			deactivateButtonsFrom(w.get(), btnId);
 
 		// deactive some CompOnlyPlayers buttons to prevent total number of players exceeds PlayerColor::PLAYER_LIMIT_I
-		if(auto w = dynamic_pointer_cast<CToggleGroup>(widget("groupCompOnlyPlayers")))
+		if(auto w = widget<CToggleGroup>("groupCompOnlyPlayers"))
 			deactivateButtonsFrom(w.get(), PlayerColor::PLAYER_LIMIT_I - btnId + 1);
 
 		validatePlayersCnt(btnId);
@@ -75,10 +75,10 @@ RandomMapTab::RandomMapTab():
 		mapGenOptions->setCompOnlyPlayerCount(btnId);
 
 		// deactive some MaxPlayers buttons to prevent total number of players exceeds PlayerColor::PLAYER_LIMIT_I
-		if(auto w = dynamic_pointer_cast<CToggleGroup>(widget("groupMaxPlayers")))
+		if(auto w = widget<CToggleGroup>("groupMaxPlayers"))
 			deactivateButtonsFrom(w.get(), PlayerColor::PLAYER_LIMIT_I - btnId + 1);
 		
-		if(auto w = dynamic_pointer_cast<CToggleGroup>(widget("groupCompOnlyTeams")))
+		if(auto w = widget<CToggleGroup>("groupCompOnlyTeams"))
 			deactivateButtonsFrom(w.get(), (btnId == 0 ? 1 : btnId));
 		validateCompOnlyPlayersCnt(btnId);
 		updateMapInfoByHost();
@@ -96,7 +96,7 @@ RandomMapTab::RandomMapTab():
 		updateMapInfoByHost();
 	});
 	
-	addCallback("setMonsterStrenght", [&](int btnId)
+	addCallback("setMonsterStrength", [&](int btnId)
 	{
 		if(btnId < 0)
 			mapGenOptions->setMonsterStrength(EMonsterStrength::RANDOM);
@@ -165,21 +165,21 @@ void RandomMapTab::updateMapInfoByHost()
 
 void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 {
-	if(auto w = dynamic_pointer_cast<CToggleGroup>(widget("groupMapSize")))
+	if(auto w = widget<CToggleGroup>("groupMapSize"))
 		w->setSelected(vstd::find_pos(getPossibleMapSizes(), opts->getWidth()));
-	if(auto w = dynamic_pointer_cast<CToggleButton>(widget("buttonTwoLevels")))
+	if(auto w = widget<CToggleButton>("buttonTwoLevels"))
 		w->setSelected(opts->getHasTwoLevels());
-	if(auto w = dynamic_pointer_cast<CToggleGroup>(widget("groupMaxPlayers")))
+	if(auto w = widget<CToggleGroup>("groupMaxPlayers"))
 		w->setSelected(opts->getPlayerCount());
-	if(auto w = dynamic_pointer_cast<CToggleGroup>(widget("groupMaxTeams")))
+	if(auto w = widget<CToggleGroup>("groupMaxTeams"))
 		w->setSelected(opts->getTeamCount());
-	if(auto w = dynamic_pointer_cast<CToggleGroup>(widget("groupCompOnlyPlayers")))
+	if(auto w = widget<CToggleGroup>("groupCompOnlyPlayers"))
 		w->setSelected(opts->getCompOnlyPlayerCount());
-	if(auto w = dynamic_pointer_cast<CToggleGroup>(widget("groupCompOnlyTeams")))
+	if(auto w = widget<CToggleGroup>("groupCompOnlyTeams"))
 		w->setSelected(opts->getCompOnlyTeamCount());
-	if(auto w = dynamic_pointer_cast<CToggleGroup>(widget("groupWaterContent")))
+	if(auto w = widget<CToggleGroup>("groupWaterContent"))
 		w->setSelected(opts->getWaterContent());
-	if(auto w = dynamic_pointer_cast<CToggleGroup>(widget("groupgroupMonsterStrengthMaxTeams")))
+	if(auto w = widget<CToggleGroup>("groupMonsterStrength"))
 		w->setSelected(opts->getMonsterStrength());
 }
 
@@ -212,14 +212,14 @@ void RandomMapTab::validatePlayersCnt(int playersCnt)
 	if(mapGenOptions->getTeamCount() >= playersCnt)
 	{
 		mapGenOptions->setTeamCount(playersCnt - 1);
-		if(auto w = dynamic_pointer_cast<CToggleGroup>(widget("groupMaxTeams")))
+		if(auto w = widget<CToggleGroup>("groupMaxTeams"))
 			w->setSelected(mapGenOptions->getTeamCount());
 	}
 	// total players should not exceed PlayerColor::PLAYER_LIMIT_I (8 in homm3)
 	if(mapGenOptions->getCompOnlyPlayerCount() + playersCnt > PlayerColor::PLAYER_LIMIT_I)
 	{
 		mapGenOptions->setCompOnlyPlayerCount(PlayerColor::PLAYER_LIMIT_I - playersCnt);
-		if(auto w = dynamic_pointer_cast<CToggleGroup>(widget("groupCompOnlyPlayers")))
+		if(auto w = widget<CToggleGroup>("groupCompOnlyPlayers"))
 			w->setSelected(mapGenOptions->getCompOnlyPlayerCount());
 	}
 
@@ -238,7 +238,7 @@ void RandomMapTab::validateCompOnlyPlayersCnt(int compOnlyPlayersCnt)
 		int compOnlyTeamCount = compOnlyPlayersCnt == 0 ? 0 : compOnlyPlayersCnt - 1;
 		mapGenOptions->setCompOnlyTeamCount(compOnlyTeamCount);
 		updateMapInfoByHost();
-		if(auto w = dynamic_pointer_cast<CToggleGroup>(widget("groupCompOnlyTeams")))
+		if(auto w = widget<CToggleGroup>("groupCompOnlyTeams"))
 			w->setSelected(compOnlyTeamCount);
 	}
 }

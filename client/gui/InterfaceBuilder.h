@@ -26,7 +26,14 @@ protected:
 	
 	void addCallback(const std::string & callbackName, std::function<void(int)> callback);
 	
-	const std::shared_ptr<CIntObject> widget(const std::string &) const;
+	template<class T>
+	const std::shared_ptr<T> widget(const std::string & name) const
+	{
+		auto iter = widgets.find(name);
+		if(iter == widgets.end())
+			return nullptr;
+		return dynamic_pointer_cast<T>(iter->second);
+	}
 	
 private:
 	

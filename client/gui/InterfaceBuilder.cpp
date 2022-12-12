@@ -42,14 +42,6 @@ void InterfaceBuilder::addCallback(const std::string & callbackName, std::functi
 	callbacks[callbackName] = callback;
 }
 
-const std::shared_ptr<CIntObject> InterfaceBuilder::widget(const std::string & name) const
-{
-	auto iter = widgets.find(name);
-	if(iter == widgets.end())
-		return nullptr;
-	return iter->second;
-}
-
 void InterfaceBuilder::init(const JsonNode &config)
 {
 	OBJ_CONSTRUCTION;
