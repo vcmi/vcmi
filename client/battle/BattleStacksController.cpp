@@ -496,11 +496,16 @@ void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 				info.attacker->doubleWide(),
 				facingRight(info.defender));
 
+	auto attacker    = info.attacker;
+	auto defender    = info.defender;
+	auto tile        = info.tile;
+	auto spellEffect = info.spellEffect;
+
 	if (needsReverse)
 	{
 		owner.executeOnAnimationCondition(EAnimationEvents::MOVEMENT, true, [=]()
 		{
-			addNewAnim(new CReverseAnimation(owner, info.attacker, info.attacker->getPosition()));
+			addNewAnim(new CReverseAnimation(owner, attacker, attacker->getPosition()));
 		});
 	}
 
@@ -508,7 +513,7 @@ void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 	{
 		owner.executeOnAnimationCondition(EAnimationEvents::BEFORE_HIT, true, [=]() {
 			owner.controlPanel->console->addText(info.attacker->formatGeneralMessage(-45));
-			owner.effectsController->displayEffect(EBattleEffect::GOOD_LUCK, soundBase::GOODLUCK, info.attacker->getPosition());
+			owner.effectsController->displayEffect(EBattleEffect::GOOD_LUCK, soundBase::GOODLUCK, attacker->getPosition());
 		});
 	}
 
@@ -516,7 +521,7 @@ void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 	{
 		owner.executeOnAnimationCondition(EAnimationEvents::BEFORE_HIT, true, [=]() {
 			owner.controlPanel->console->addText(info.attacker->formatGeneralMessage(-44));
-			owner.effectsController->displayEffect(EBattleEffect::BAD_LUCK, soundBase::BADLUCK, info.attacker->getPosition());
+			owner.effectsController->displayEffect(EBattleEffect::BAD_LUCK, soundBase::BADLUCK, attacker->getPosition());
 		});
 	}
 
@@ -524,10 +529,10 @@ void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 	{
 		owner.executeOnAnimationCondition(EAnimationEvents::BEFORE_HIT, true, [=]() {
 			owner.controlPanel->console->addText(info.attacker->formatGeneralMessage(365));
-			owner.effectsController->displayEffect(EBattleEffect::DEATH_BLOW, soundBase::deathBlow, info.defender->getPosition());
+			owner.effectsController->displayEffect(EBattleEffect::DEATH_BLOW, soundBase::deathBlow, defender->getPosition());
 		});
 
-		for(auto & elem : info.secondaryDefender)
+		for(auto elem : info.secondaryDefender)
 		{
 			owner.executeOnAnimationCondition(EAnimationEvents::BEFORE_HIT, true, [=]() {
 				owner.effectsController->displayEffect(EBattleEffect::DEATH_BLOW, elem->getPosition());
@@ -539,11 +544,11 @@ void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 	{
 		if (info.indirectAttack)
 		{
-			addNewAnim(new CShootingAnimation(owner, info.attacker, info.tile, info.defender));
+			addNewAnim(new CShootingAnimation(owner, attacker, tile, defender));
 		}
 		else
 		{
-			addNewAnim(new CMeleeAttackAnimation(owner, info.attacker, info.tile, info.defender));
+			addNewAnim(new CMeleeAttackAnimation(owner, attacker, tile, defender));
 		}
 	});
 
@@ -551,7 +556,7 @@ void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 	{
 		owner.executeOnAnimationCondition(EAnimationEvents::HIT, true, [=]()
 		{
-			owner.displaySpellHit(info.spellEffect, info.tile);
+			owner.displaySpellHit(spellEffect, tile);
 		});
 	}
 
@@ -559,7 +564,7 @@ void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 	{
 		owner.executeOnAnimationCondition(EAnimationEvents::AFTER_HIT, true, [=]()
 		{
-			owner.effectsController->displayEffect(EBattleEffect::DRAIN_LIFE, soundBase::DRAINLIF, info.attacker->getPosition());
+			owner.effectsController->displayEffect(EBattleEffect::DRAIN_LIFE, soundBase::DRAINLIF, attacker->getPosition());
 		});
 	}
 
