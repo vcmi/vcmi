@@ -170,7 +170,6 @@ set(CMAKE_XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH[variant=Debug] YES)
 
 if(ENABLE_SINGLE_APP_BUILD)
 	add_definitions(-DSINGLE_PROCESS_APP=1)
-	#add_compile_definitions(SINGLE_PROCESS_APP=1) # requires cmake 3.12
 endif()
 
 if(APPLE_IOS)
@@ -278,7 +277,6 @@ endif()
 
 if(ENABLE_LUA)
 	add_definitions(-DSCRIPTING_ENABLED=1)
-	#add_compile_definitions(SCRIPTING_ENABLED=1) # requires cmake 3.12
 endif()
 
 ############################################
