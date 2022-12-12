@@ -339,36 +339,67 @@ void CTextBox::setText(const std::string & text)
 	}
 }
 
+void CGStatusBar::setEnteringMode(bool on)
+{
+	consoleText.clear();
+
+	if (on)
+	{
+		assert(enteringText == false);
+		alignment = ETextAlignment::TOPLEFT;
+		CSDL_Ext::startTextInput(&pos);
+		setText(consoleText);
+	}
+	else
+	{
+		assert(enteringText == true);
+		alignment = ETextAlignment::CENTER;
+		CSDL_Ext::stopTextInput();
+		setText(hoverText);
+	}
+	enteringText = on;
+}
+
+void CGStatusBar::setEnteredText(const std::string & text)
+{
+	assert(enteringText == true);
+	consoleText = text;
+	setText(text);
+}
+
 void CGStatusBar::write(const std::string & Text)
 {
-	if(!textLock)
-		CLabel::setText(Text);
+	hoverText = Text;
+
+	if (enteringText == false)
+		setText(hoverText);
 }
 
 void CGStatusBar::clearIfMatching(const std::string & Text)
 {
-	if (getText() == Text)
+	if (hoverText == Text)
 		clear();
 }
 
 void CGStatusBar::clear()
 {
-	setText("");
+	write({});
 }
 
 CGStatusBar::CGStatusBar(std::shared_ptr<CPicture> background_, EFonts Font, ETextAlignment Align, const SDL_Color & Color)
 	: CLabel(background_->pos.x, background_->pos.y, Font, Align, Color, "")
+	, enteringText(false)
 {
 	background = background_;
 	addChild(background.get());
 	pos = background->pos;
 	getBorderSize();
-	textLock = false;
 	autoRedraw = false;
 }
 
 CGStatusBar::CGStatusBar(int x, int y, std::string name, int maxw)
 	: CLabel(x, y, FONT_SMALL, ETextAlignment::CENTER)
+	, enteringText(false)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255 - DISPOSE);
 	background = std::make_shared<CPicture>(name);
@@ -380,7 +411,6 @@ CGStatusBar::CGStatusBar(int x, int y, std::string name, int maxw)
 		vstd::amin(pos.w, maxw);
 		background->srcRect = new Rect(0, 0, maxw, pos.h);
 	}
-	textLock = false;
 	autoRedraw = false;
 }
 
@@ -421,11 +451,6 @@ Point CGStatusBar::getBorderSize()
 	}
 	assert(0);
 	return Point();
-}
-
-void CGStatusBar::lock(bool shouldLock)
-{
-	textLock = shouldLock;
 }
 
 CTextInput::CTextInput(const Rect & Pos, EFonts font, const CFunctionList<void(const std::string &)> & CB)

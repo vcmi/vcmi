@@ -47,23 +47,28 @@
 
 void BattleConsole::showAll(SDL_Surface * to)
 {
-	Point textPos(pos.x + pos.w/2, pos.y + 17);
+	Point consolePos(pos.x + 10,      pos.y + 17);
+	Point textPos   (pos.x + pos.w/2, pos.y + 17);
 
-	if(ingcAlter.size())
+	if (!consoleText.empty())
 	{
-		graphics->fonts[FONT_SMALL]->renderTextLinesCenter(to, CMessage::breakText(ingcAlter, pos.w, FONT_SMALL), Colors::WHITE, textPos);
+		graphics->fonts[FONT_SMALL]->renderTextLinesLeft(to, CMessage::breakText(consoleText, pos.w, FONT_SMALL), Colors::WHITE, consolePos);
 	}
-	else if(texts.size())
+	else if(!hoverText.empty())
 	{
-		if(texts.size()==1)
+		graphics->fonts[FONT_SMALL]->renderTextLinesCenter(to, CMessage::breakText(hoverText, pos.w, FONT_SMALL), Colors::WHITE, textPos);
+	}
+	else if(logEntries.size())
+	{
+		if(logEntries.size()==1)
 		{
-			graphics->fonts[FONT_SMALL]->renderTextLinesCenter(to, CMessage::breakText(texts[0], pos.w, FONT_SMALL), Colors::WHITE, textPos);
+			graphics->fonts[FONT_SMALL]->renderTextLinesCenter(to, CMessage::breakText(logEntries[0], pos.w, FONT_SMALL), Colors::WHITE, textPos);
 		}
 		else
 		{
-			graphics->fonts[FONT_SMALL]->renderTextLinesCenter(to, CMessage::breakText(texts[lastShown - 1], pos.w, FONT_SMALL), Colors::WHITE, textPos);
+			graphics->fonts[FONT_SMALL]->renderTextLinesCenter(to, CMessage::breakText(logEntries[scrollPosition - 1], pos.w, FONT_SMALL), Colors::WHITE, textPos);
 			textPos.y += 16;
-			graphics->fonts[FONT_SMALL]->renderTextLinesCenter(to, CMessage::breakText(texts[lastShown], pos.w, FONT_SMALL), Colors::WHITE, textPos);
+			graphics->fonts[FONT_SMALL]->renderTextLinesCenter(to, CMessage::breakText(logEntries[scrollPosition], pos.w, FONT_SMALL), Colors::WHITE, textPos);
 		}
 	}
 }
@@ -78,53 +83,79 @@ bool BattleConsole::addText(const std::string & text)
 	{
 		if(text[i] == 10)
 		{
-			texts.push_back( text.substr(firstInToken, i-firstInToken) );
+			logEntries.push_back( text.substr(firstInToken, i-firstInToken) );
 			firstInToken = (int)i+1;
 		}
 	}
 
-	texts.push_back( text.substr(firstInToken, text.size()) );
-	lastShown = (int)texts.size()-1;
+	logEntries.push_back( text.substr(firstInToken, text.size()) );
+	scrollPosition = (int)logEntries.size()-1;
 	return true;
 }
 void BattleConsole::scrollUp(ui32 by)
 {
-	if(lastShown > static_cast<int>(by))
-		lastShown -= by;
+	if(scrollPosition > static_cast<int>(by))
+		scrollPosition -= by;
 }
 
 void BattleConsole::scrollDown(ui32 by)
 {
-	if(lastShown + by < texts.size())
-		lastShown += by;
+	if(scrollPosition + by < logEntries.size())
+		scrollPosition += by;
 }
 
-BattleConsole::BattleConsole(const Rect & position) : lastShown(-1)
+BattleConsole::BattleConsole(const Rect & position)
+	: scrollPosition(-1)
+	, enteringText(false)
 {
 	pos += position.topLeft();
 	pos.w = position.w;
 	pos.h = position.h;
 }
 
+BattleConsole::~BattleConsole()
+{
+	if (enteringText)
+		setEnteringMode(false);
+}
+
+void BattleConsole::setEnteringMode(bool on)
+{
+	consoleText.clear();
+
+	if (on)
+	{
+		assert(enteringText == false);
+		CSDL_Ext::startTextInput(&pos);
+	}
+	else
+	{
+		assert(enteringText == true);
+		CSDL_Ext::stopTextInput();
+	}
+	enteringText = on;
+}
+
+void BattleConsole::setEnteredText(const std::string & text)
+{
+	assert(enteringText == true);
+	consoleText = text;
+}
+
+void BattleConsole::write(const std::string & Text)
+{
+	hoverText = Text;
+}
+
 void BattleConsole::clearIfMatching(const std::string & Text)
 {
-	if (ingcAlter == Text)
+	if (hoverText == Text)
 		clear();
 }
 
 void BattleConsole::clear()
 {
-	ingcAlter.clear();
-}
-
-void BattleConsole::write(const std::string & Text)
-{
-	ingcAlter = Text;
-}
-
-void BattleConsole::lock(bool shouldLock)
-{
-	// no-op?
+	write({});
 }
 
 void BattleHero::render(Canvas & canvas)

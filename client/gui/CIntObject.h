@@ -220,8 +220,20 @@ class IStatusBar
 {
 public:
 	virtual ~IStatusBar();
+
+	/// set current text for the status bar
+	virtual void write(const std::string & text) = 0;
+
+	/// remove any current text from the status bar
 	virtual void clear() = 0;
-	virtual void clearIfMatching(const std::string & Text) = 0;
-	virtual void write(const std::string & Text) = 0;
-	virtual void lock(bool shouldLock) = 0;
+
+	/// remove text from status bar if current text matches tested text
+	virtual void clearIfMatching(const std::string & testedText) = 0;
+
+	/// enables mode for entering text instead of showing hover text
+	virtual void setEnteringMode(bool on) = 0;
+
+	/// overrides hover text from controls with text entered into in-game console (for chat/cheats)
+	virtual void setEnteredText(const std::string & text) = 0;
+
 };

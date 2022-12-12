@@ -43,23 +43,35 @@ class CPlayerInterface;
 class BattleConsole : public CIntObject, public IStatusBar
 {
 private:
-	std::vector< std::string > texts; //a place where texts are stored
-	int lastShown; //last shown line of text
+	/// List of all texts added during battle, essentially - log of entire battle
+	std::vector< std::string > logEntries;
 
-	std::string ingcAlter; //alternative text set by in-game console - very important!
+	/// Current scrolling position, to allow showing older entries via scroll buttons
+	int scrollPosition;
+
+	/// current hover text set on mouse move, takes priority over log entries
+	std::string hoverText;
+
+	/// current text entered via in-game console, takes priority over both log entries and hover text
+	std::string consoleText;
+
+	/// if true then we are currently entering console text
+	bool enteringText;
 public:
 	BattleConsole(const Rect & position);
-	void showAll(SDL_Surface * to = 0) override;
+	~BattleConsole();
+	void showAll(SDL_Surface * to) override;
 
 	bool addText(const std::string &text); //adds text at the last position; returns false if failed (e.g. text longer than 70 characters)
 	void scrollUp(ui32 by = 1); //scrolls console up by 'by' positions
 	void scrollDown(ui32 by = 1); //scrolls console up by 'by' positions
 
+	// IStatusBar interface
+	void write(const std::string & Text) override;
 	void clearIfMatching(const std::string & Text) override;
 	void clear() override;
-	void write(const std::string & Text) override;
-	void lock(bool shouldLock) override;
-
+	void setEnteringMode(bool on) override;
+	void setEnteredText(const std::string & text) override;
 };
 
 /// Hero battle animation

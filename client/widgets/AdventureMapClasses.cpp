@@ -1126,54 +1126,31 @@ void CInGameConsole::textEdited(const SDL_TextEditingEvent & event)
 
 void CInGameConsole::startEnteringText()
 {
-	auto statusBar = std::dynamic_pointer_cast<CGStatusBar>(GH.statusbar);
+	assert(GH.statusbar);
+	captureAllKeys = true;
+	enteredText = "_";
 
-	if (statusBar)
-	{
-		captureAllKeys = true;
-
-		CSDL_Ext::startTextInput(&statusBar->pos);
-
-		enteredText = "_";
-
-		statusBar->alignment = ETextAlignment::TOPLEFT;
-		statusBar->write(enteredText);
-		statusBar->lock(true);
-	}
+	GH.statusbar->setEnteringMode(true);
+	GH.statusbar->setEnteredText(enteredText);
 }
 
 void CInGameConsole::endEnteringText(bool printEnteredText)
 {
 	captureAllKeys = false;
-
-	CSDL_Ext::stopTextInput();
-
 	prevEntDisp = -1;
 	if(printEnteredText)
 	{
 		std::string txt = enteredText.substr(0, enteredText.size()-1);
 		LOCPLINT->cb->sendMessage(txt, LOCPLINT->getSelection());
 		previouslyEntered.push_back(txt);
-		//print(txt);
 	}
 	enteredText.clear();
-
-	auto statusBar = std::dynamic_pointer_cast<CGStatusBar>(GH.statusbar);
-
-	if(statusBar)
-	{
-		statusBar->alignment = ETextAlignment::CENTER;
-	}
-	GH.statusbar->lock(false);
-	GH.statusbar->clear();
+	GH.statusbar->setEnteringMode(false);
 }
 
 void CInGameConsole::refreshEnteredText()
 {
-	GH.statusbar->lock(false);
-	GH.statusbar->clear();
-	GH.statusbar->write(enteredText);
-	GH.statusbar->lock(true);
+	GH.statusbar->setEnteredText(enteredText);
 }
 
 CAdvMapPanel::CAdvMapPanel(SDL_Surface * bg, Point position)
