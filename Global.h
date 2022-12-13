@@ -544,7 +544,7 @@ namespace vstd
 	}
 
 	template <typename Container, typename Item>
-	bool erase(Container &c, const Item &item)
+	void erase(Container &c, const Item &item)
 	{
 		c.erase(boost::remove(c, item), c.end());
 	}
