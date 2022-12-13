@@ -510,21 +510,14 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 			});
 		}
 		else
-		if (targetedTile.isValid() && !spell->animationInfo.projectile.empty())
+		if (targetedTile.isValid())
 		{
-			// this is spell cast by hero with valid destination & valid projectile -> play animation
+			auto hero = sc->side ? defendingHero : attackingHero;
+			assert(hero);
 
-			const CStack * target = curInt->cb->battleGetStackByPos(targetedTile);
-			Point srccoord = (sc->side ? Point(770, 60) : Point(30, 60)) + pos;	//hero position
-			Point destcoord = stacksController->getStackPositionAtHex(targetedTile, target); //position attacked by projectile
-			destcoord += Point(250, 240); // FIXME: what are these constants?
-
-			//FIXME: should be replaced with new hero cast animation type
 			executeOnAnimationCondition(EAnimationEvents::BEFORE_HIT, true, [=]()
 			{
-				projectilesController->createSpellProjectile( nullptr, srccoord, destcoord, spell);
-				projectilesController->emitStackProjectile( nullptr );
-				stacksController->addNewAnim(new WaitingProjectileAnimation(*this, nullptr));
+				stacksController->addNewAnim(new HeroCastAnimation(*this, hero, targetedTile, curInt->cb->battleGetStackByPos(targetedTile), spell));
 			});
 		}
 	}
@@ -770,10 +763,7 @@ void BattleInterface::startAction(const BattleAction* action)
 	redraw(); // redraw after deactivation, including proper handling of hovered hexes
 
 	if(action->actionType == EActionType::HERO_SPELL) //when hero casts spell
-	{
-		setHeroAnimation(action->side, EHeroAnimType::CAST_SPELL);
 		return;
-	}
 
 	if (!stack)
 	{

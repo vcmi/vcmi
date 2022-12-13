@@ -176,9 +176,8 @@ void BattleHero::render(Canvas & canvas)
 	canvas.draw(flagFrame, flagPosition);
 	canvas.draw(heroFrame, heroPosition);
 
-	//FIXME: un-hardcode speed
-	flagCurrentFrame += 0.25f;
-	currentFrame += 0.25f;
+	flagCurrentFrame += currentSpeed;
+	currentFrame += currentSpeed;
 
 	if(flagCurrentFrame >= flagAnimation->size(0))
 		flagCurrentFrame -= flagAnimation->size(0);
@@ -186,12 +185,19 @@ void BattleHero::render(Canvas & canvas)
 	if(currentFrame >= animation->size(groupIndex))
 	{
 		currentFrame -= animation->size(groupIndex);
-		if (phaseFinishedCallback)
-		{
-			phaseFinishedCallback();
-			phaseFinishedCallback = std::function<void()>();
-		}
+		switchToNextPhase();
 	}
+}
+
+void BattleHero::pause()
+{
+	currentSpeed = 0.f;
+}
+
+void BattleHero::play()
+{
+	//FIXME: un-hardcode speed
+	currentSpeed = 0.25f;
 }
 
 float BattleHero::getFrame() const
@@ -266,11 +272,10 @@ void BattleHero::switchToNextPhase()
 {
 	phase = nextPhase;
 	currentFrame = 0.f;
-	if (phaseFinishedCallback)
-	{
-		phaseFinishedCallback();
-		phaseFinishedCallback = std::function<void()>();
-	}
+
+	auto copy = phaseFinishedCallback;
+	phaseFinishedCallback.clear();
+	copy();
 }
 
 BattleHero::BattleHero(const std::string & animationPath, bool flipG, PlayerColor player, const CGHeroInstance * hero, const BattleInterface & owner):
@@ -279,6 +284,7 @@ BattleHero::BattleHero(const std::string & animationPath, bool flipG, PlayerColo
 	owner(owner),
 	phase(EHeroAnimType::HOLDING),
 	nextPhase(EHeroAnimType::HOLDING),
+	currentSpeed(0.f),
 	currentFrame(0.f),
 	flagCurrentFrame(0.f)
 {
@@ -304,6 +310,7 @@ BattleHero::BattleHero(const std::string & animationPath, bool flipG, PlayerColo
 	addUsedEvents(LCLICK | RCLICK | HOVER);
 
 	switchToNextPhase();
+	play();
 }
 
 HeroInfoWindow::HeroInfoWindow(const InfoAboutHero & hero, Point * position)

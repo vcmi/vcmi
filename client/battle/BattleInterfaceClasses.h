@@ -11,6 +11,7 @@
 
 #include "BattleConstants.h"
 #include "../gui/CIntObject.h"
+#include "../../lib/FunctionList.h"
 #include "../../lib/battle/BattleHex.h"
 #include "../windows/CWindowObject.h"
 
@@ -80,7 +81,8 @@ class BattleHero : public CIntObject
 {
 	bool flip; //false if it's attacking hero, true otherwise
 
-	std::function<void()> phaseFinishedCallback;
+	CFunctionList<void()> phaseFinishedCallback;
+
 	std::shared_ptr<CAnimation> animation;
 	std::shared_ptr<CAnimation> flagAnimation;
 
@@ -90,6 +92,7 @@ class BattleHero : public CIntObject
 	EHeroAnimType phase; //stage of animation
 	EHeroAnimType nextPhase; //stage of animation to be set after current phase is fully displayed
 
+	float currentSpeed;
 	float currentFrame; //frame of animation
 	float flagCurrentFrame;
 
@@ -101,6 +104,9 @@ public:
 
 	float getFrame() const;
 	void onPhaseFinished(const std::function<void()> &);
+
+	void pause();
+	void play();
 
 	void hover(bool on) override;
 	void clickLeft(tribool down, bool previousState) override; //call-in

@@ -11,6 +11,7 @@
 #include "BattleAnimationClasses.h"
 
 #include "BattleInterface.h"
+#include "BattleInterfaceClasses.h"
 #include "BattleProjectileController.h"
 #include "BattleSiegeController.h"
 #include "BattleFieldController.h"
@@ -1055,35 +1056,81 @@ PointEffectAnimation::~PointEffectAnimation()
 	assert(soundFinished);
 }
 
-void WaitingProjectileAnimation::nextFrame()
+HeroCastAnimation::HeroCastAnimation(BattleInterface & owner, std::shared_ptr<BattleHero> hero, BattleHex dest, const CStack * defender, const CSpell * spell):
+	BattleAnimation(owner),
+	projectileEmitted(false),
+	hero(hero),
+	target(defender),
+	tile(dest),
+	spell(spell)
 {
-	// initialization conditions fulfilled, delay is over
-	if(owner.getAnimationCondition(EAnimationEvents::HIT) == false)
-		owner.setAnimationCondition(EAnimationEvents::HIT, true);
-
-	delete this;
 }
 
-WaitingProjectileAnimation::WaitingProjectileAnimation(BattleInterface & owner_, const CStack * shooter):
-	BattleAnimation(owner_),
-	shooter(shooter)
-{}
-
-bool WaitingProjectileAnimation::init()
+bool HeroCastAnimation::init()
 {
-	for(auto & elem : pendingAnimations())
-	{
-		auto * attackAnim = dynamic_cast<RangedAttackAnimation *>(elem);
+	hero->setPhase(EHeroAnimType::CAST_SPELL);
 
-		if( attackAnim && shooter && attackAnim->stack->ID == shooter->ID && !attackAnim->isInitialized() )
-		{
-			// there is ongoing ranged attack that involves our stack, but projectile was not created yet
-			return false;
-		}
-	}
+	hero->onPhaseFinished([&](){
+		assert(owner.getAnimationCondition(EAnimationEvents::HIT) == true);
+		delete this;
+	});
 
-	if(owner.projectilesController->hasActiveProjectile(shooter))
-		return false;
+	initializeProjectile();
 
 	return true;
+}
+
+void HeroCastAnimation::initializeProjectile()
+{
+	//spell has no projectile to play, ignore this step
+	if (spell->animationInfo.projectile.empty())
+		return;
+
+	Point srccoord = hero->pos.center();
+	Point destcoord = owner.stacksController->getStackPositionAtHex(tile, target); //position attacked by projectile
+
+	destcoord += Point(222, 265); // FIXME: what are these constants?
+	owner.projectilesController->createSpellProjectile( nullptr, srccoord, destcoord, spell);
+}
+
+void HeroCastAnimation::emitProjectile()
+{
+	if (projectileEmitted)
+		return;
+
+	//spell has no projectile to play, skip this step and immediately play hit animations
+	if (spell->animationInfo.projectile.empty())
+		emitAnimationEvent();
+	else
+		owner.projectilesController->emitStackProjectile( nullptr );
+
+	projectileEmitted = true;
+}
+
+void HeroCastAnimation::emitAnimationEvent()
+{
+	if(owner.getAnimationCondition(EAnimationEvents::HIT) == false)
+		owner.setAnimationCondition(EAnimationEvents::HIT, true);
+}
+
+void HeroCastAnimation::nextFrame()
+{
+	float frame = hero->getFrame();
+
+	if (frame < 4.0f)
+		return;
+
+	if (!projectileEmitted)
+	{
+		emitProjectile();
+		hero->pause();
+		return;
+	}
+
+	if (!owner.projectilesController->hasActiveProjectile(nullptr))
+	{
+		emitAnimationEvent();
+		//FIXME: check H3 - it is possible that hero animation should be paused until hit effect is over, not just projectile
+		hero->play();
+	}
 }

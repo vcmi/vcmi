@@ -20,6 +20,7 @@ class CSpell;
 
 VCMI_LIB_NAMESPACE_END
 
+class BattleHero;
 class CAnimation;
 class BattleInterface;
 class CreatureAnimation;
@@ -328,18 +329,20 @@ public:
 	void nextFrame() override;
 };
 
-class HeroAnimation : public BattleAnimation
+class HeroCastAnimation : public BattleAnimation
 {
-public:
-	HeroAnimation(BattleInterface * owner_, const CStack * shooter);
-};
+	std::shared_ptr<BattleHero> hero;
+	const CStack * target;
+	const CSpell * spell;
+	BattleHex tile;
+	bool projectileEmitted;
 
-/// Class that waits till projectile of certain shooter hits a target
-class WaitingProjectileAnimation : public BattleAnimation
-{
-	const CStack * shooter;
+	void initializeProjectile();
+	void emitProjectile();
+	void emitAnimationEvent();
+
 public:
-	WaitingProjectileAnimation(BattleInterface & owner, const CStack * shooter);
+	HeroCastAnimation(BattleInterface & owner, std::shared_ptr<BattleHero> hero, BattleHex dest, const CStack * defender, const CSpell * spell);
 
 	void nextFrame() override;
 	bool init() override;
