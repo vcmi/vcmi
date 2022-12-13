@@ -225,9 +225,8 @@ void BattleProjectileController::emitStackProjectile(const CStack * stack)
 
 void BattleProjectileController::showProjectiles(Canvas & canvas)
 {
-	for ( auto it = projectiles.begin(); it != projectiles.end();)
+	for ( auto projectile: projectiles)
 	{
-		auto projectile = *it;
 		if ( projectile->playing )
 			projectile->show(canvas);
 	}
