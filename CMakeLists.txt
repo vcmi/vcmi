@@ -312,7 +312,6 @@ find_package(SDL2_ttf REQUIRED)
 if(TARGET SDL2_ttf::SDL2_ttf)
 	add_library(SDL2::TTF ALIAS SDL2_ttf::SDL2_ttf)
 endif()
-find_package(TBB)
 
 if(ENABLE_LAUNCHER OR ENABLE_EDITOR)
 	# Widgets finds its own dependencies (QtGui and QtCore).
