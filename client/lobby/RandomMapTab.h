@@ -13,6 +13,7 @@
 
 #include "../../lib/FunctionList.h"
 #include "../../lib/GameConstants.h"
+#include "../../lib/rmg/CRmgTemplate.h"
 #include "../gui/InterfaceObjectConfigurable.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -33,6 +34,7 @@ public:
 
 	void updateMapInfoByHost();
 	void setMapGenOptions(std::shared_ptr<CMapGenOptions> opts);
+	void setTemplate(const CRmgTemplate *);
 
 	CFunctionList<void(std::shared_ptr<CMapInfo>, std::shared_ptr<CMapGenOptions>)> mapInfoChanged;
 
@@ -52,26 +54,33 @@ class TemplatesDropBox : public CIntObject
 	{
 		std::shared_ptr<CLabel> labelName;
 		std::shared_ptr<CPicture> hoverImage;
-		ListItem(Point position, const std::string & text);
-		void updateItem(int info = 0, bool selected = false);
+		TemplatesDropBox * dropBox;
+		const CRmgTemplate * item = nullptr;
+		
+		ListItem(TemplatesDropBox *, Point position);
+		void updateItem(int index, const CRmgTemplate * item = nullptr);
 		
 		void hover(bool on) override;
+		void clickLeft(tribool down, bool previousState) override;
 	};
 	
 public:
-	TemplatesDropBox(std::shared_ptr<CMapGenOptions> options);
+	TemplatesDropBox(RandomMapTab * randomMapTab);
 	
 	void hover(bool on) override;
 	void clickLeft(tribool down, bool previousState) override;
+	void setTemplate(const CRmgTemplate *);
 	
 private:
 	
 	void sliderMove(int slidPos);
+	void updateListItems();
 	
-	std::shared_ptr<CMapGenOptions> mapGenOptions;
-	
+	RandomMapTab * randomMapTab;
 	std::shared_ptr<CPicture> background;
 	std::vector<std::shared_ptr<ListItem>> listItems;
 	std::shared_ptr<CSlider> slider;
+	
+	std::vector<const CRmgTemplate *> curItems;
 	
 };

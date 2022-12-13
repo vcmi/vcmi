@@ -28,6 +28,7 @@
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/rmg/CMapGenOptions.h"
 #include "../../lib/CModHandler.h"
+#include "../../lib/rmg/CRmgTemplateStorage.h"
 
 RandomMapTab::RandomMapTab():
 	InterfaceObjectConfigurable()
@@ -108,7 +109,7 @@ RandomMapTab::RandomMapTab():
 	//new callbacks available only from mod
 	addCallback("templateSelection", [&](int)
 	{
-		GH.pushInt(std::shared_ptr<TemplatesDropBox>(new TemplatesDropBox(mapGenOptions)));
+		GH.pushInt(std::make_shared<TemplatesDropBox>(this));
 	});
 	
 	
@@ -190,6 +191,18 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 		w->setSelected(opts->getMonsterStrength());
 }
 
+void RandomMapTab::setTemplate(const CRmgTemplate * tmpl)
+{
+	mapGenOptions->setMapTemplate(tmpl);
+	if(auto w = widget<CButton>("templateButton"))
+	{
+		if(tmpl)
+			w->addTextOverlay(tmpl->getName(), EFonts::FONT_SMALL);
+		else
+			w->addTextOverlay("default", EFonts::FONT_SMALL);
+	}
+}
+
 void RandomMapTab::deactivateButtonsFrom(CToggleGroup * group, int startId)
 {
 	logGlobal->debug("Blocking buttons from %d", startId);
@@ -255,11 +268,12 @@ std::vector<int> RandomMapTab::getPossibleMapSizes()
 	return {CMapHeader::MAP_SIZE_SMALL, CMapHeader::MAP_SIZE_MIDDLE, CMapHeader::MAP_SIZE_LARGE, CMapHeader::MAP_SIZE_XLARGE, CMapHeader::MAP_SIZE_HUGE, CMapHeader::MAP_SIZE_XHUGE, CMapHeader::MAP_SIZE_GIANT};
 }
 
-TemplatesDropBox::ListItem::ListItem(Point position, const std::string & text)
-	: CIntObject(LCLICK | HOVER, position)
+TemplatesDropBox::ListItem::ListItem(TemplatesDropBox * _dropBox, Point position)
+	: CIntObject(LCLICK | HOVER, position),
+	dropBox(_dropBox)
 {
 	OBJ_CONSTRUCTION;
-	labelName = std::make_shared<CLabel>(0, 0, FONT_SMALL, EAlignment::TOPLEFT, Colors::WHITE, text);
+	labelName = std::make_shared<CLabel>(0, 0, FONT_SMALL, EAlignment::TOPLEFT, Colors::WHITE);
 	labelName->setAutoRedraw(false);
 	
 	hoverImage = std::make_shared<CPicture>("List10Sl", 0, 0);
@@ -270,26 +284,63 @@ TemplatesDropBox::ListItem::ListItem(Point position, const std::string & text)
 	type |= REDRAW_PARENT;
 }
 
+void TemplatesDropBox::ListItem::updateItem(int idx, const CRmgTemplate * _item)
+{
+	item = _item;
+	if(item)
+	{
+		labelName->setText(item->getName());
+	}
+	else
+	{
+		if(idx)
+			labelName->setText("");
+		else
+			labelName->setText("default");
+	}
+}
+
 void TemplatesDropBox::ListItem::hover(bool on)
 {
-	hoverImage->visible = on;
+	if(labelName->getText().empty())
+	{
+		hovered = false;
+		hoverImage->visible = false;
+	}
+	else
+	{
+		hoverImage->visible = on;
+	}
 	redraw();
 }
 
-TemplatesDropBox::TemplatesDropBox(std::shared_ptr<CMapGenOptions> options):
-	CIntObject(LCLICK | HOVER),
-	mapGenOptions(options)
+void TemplatesDropBox::ListItem::clickLeft(tribool down, bool previousState)
 {
+	if(down && hovered)
+	{
+		dropBox->setTemplate(item);
+	}
+}
+
+
+TemplatesDropBox::TemplatesDropBox(RandomMapTab * randomMapTab):
+	CIntObject(LCLICK | HOVER),
+	randomMapTab(randomMapTab)
+{
+	curItems = VLC->tplh->getTemplates();
+	curItems.insert(curItems.begin(), nullptr); //default template
+	
 	OBJ_CONSTRUCTION;
 	background = std::make_shared<CPicture>("List10Bk", 158, 76);
 	
 	int positionsToShow = 10;
 	
 	for(int i = 0; i < positionsToShow; i++)
-		listItems.push_back(std::make_shared<ListItem>(Point(158, 76 + i * 25), "test" + std::to_string(i)));
+		listItems.push_back(std::make_shared<ListItem>(this, Point(158, 76 + i * 25)));
 	
-	slider = std::make_shared<CSlider>(Point(212 + 158, 76), 252, std::bind(&TemplatesDropBox::sliderMove, this, _1), positionsToShow, 20, 0, false, CSlider::BLUE);
+	slider = std::make_shared<CSlider>(Point(212 + 158, 76), 252, std::bind(&TemplatesDropBox::sliderMove, this, _1), positionsToShow, (int)curItems.size(), 0, false, CSlider::BLUE);
 	
+	updateListItems();
 	pos = background->pos;
 }
 
@@ -297,7 +348,7 @@ void TemplatesDropBox::sliderMove(int slidPos)
 {
 	if(!slider)
 		return; // ignore spurious call when slider is being created
-	//updateListItems();
+	updateListItems();
 	redraw();
 }
 
@@ -308,9 +359,33 @@ void TemplatesDropBox::hover(bool on)
 
 void TemplatesDropBox::clickLeft(tribool down, bool previousState)
 {
-	if(!hovered)
+	if(down && !hovered)
 	{
 		assert(GH.topInt().get() == this);
 		GH.popInt(GH.topInt());
 	}
+}
+
+void TemplatesDropBox::updateListItems()
+{
+	int elemIdx = slider->getValue();
+	for(auto item : listItems)
+	{
+		if(elemIdx < curItems.size())
+		{
+			item->updateItem(elemIdx, curItems[elemIdx]);
+			elemIdx++;
+		}
+		else
+		{
+			item->updateItem(elemIdx);
+		}
+	}
+}
+
+void TemplatesDropBox::setTemplate(const CRmgTemplate * tmpl)
+{
+	randomMapTab->setTemplate(tmpl);
+	assert(GH.topInt().get() == this);
+	GH.popInt(GH.topInt());
 }
