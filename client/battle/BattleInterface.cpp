@@ -55,8 +55,6 @@ BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *
 {
 	OBJ_CONSTRUCTION;
 
-	projectilesController.reset(new BattleProjectileController(this));
-
 	if(spectatorInt)
 	{
 		curInt = spectatorInt;
@@ -90,7 +88,7 @@ BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *
 	else
 		embedQueue = screen->h < 700 || queueSize == "small";
 
-	queue = std::make_shared<StackQueue>(embedQueue, this);
+	queue = std::make_shared<StackQueue>(embedQueue, *this);
 	if(!embedQueue)
 	{
 		if (settings["battle"]["showQueue"].Bool())
@@ -99,10 +97,6 @@ BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *
 		queue->moveTo(Point(pos.x, pos.y - queue->pos.h));
 	}
 
-	//preparing siege info
-	const CGTownInstance *town = curInt->cb->battleGetDefendedTown();
-	if(town && town->hasFort())
-		siegeController.reset(new BattleSiegeController(this, town));
 
 	CPlayerInterface::battleInt = this;
 
@@ -110,13 +104,16 @@ BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *
 	this->army1 = army1;
 	this->army2 = army2;
 
-	controlPanel = std::make_shared<BattleControlPanel>(this, Point(0, 556));
+	const CGTownInstance *town = curInt->cb->battleGetDefendedTown();
+	if(town && town->hasFort())
+		siegeController.reset(new BattleSiegeController(*this, town));
 
-	//preparing menu background and terrain
-	fieldController.reset( new BattleFieldController(this));
-	stacksController.reset( new BattleStacksController(this));
-	actionsController.reset( new BattleActionsController(this));
-	effectsController.reset(new BattleEffectsController(this));
+	controlPanel = std::make_shared<BattleControlPanel>(*this, Point(0, 556));
+	projectilesController.reset(new BattleProjectileController(*this));
+	fieldController.reset( new BattleFieldController(*this));
+	stacksController.reset( new BattleStacksController(*this));
+	actionsController.reset( new BattleActionsController(*this));
+	effectsController.reset(new BattleEffectsController(*this));
 
 	//loading hero animations
 	if(hero1) // attacking hero
@@ -134,7 +131,7 @@ BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *
 				battleImage = hero1->type->heroClass->imageBattleMale;
 		}
 
-		attackingHero = std::make_shared<BattleHero>(battleImage, false, hero1->tempOwner, hero1->tempOwner == curInt->playerID ? hero1 : nullptr, this);
+		attackingHero = std::make_shared<BattleHero>(battleImage, false, hero1->tempOwner, hero1->tempOwner == curInt->playerID ? hero1 : nullptr, *this);
 
 		auto img = attackingHero->animation->getImage(0, 0, true);
 		if(img)
@@ -158,14 +155,14 @@ BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *
 				battleImage = hero2->type->heroClass->imageBattleMale;
 		}
 
-		defendingHero = std::make_shared<BattleHero>(battleImage, true, hero2->tempOwner, hero2->tempOwner == curInt->playerID ? hero2 : nullptr, this);
+		defendingHero = std::make_shared<BattleHero>(battleImage, true, hero2->tempOwner, hero2->tempOwner == curInt->playerID ? hero2 : nullptr, *this);
 
 		auto img = defendingHero->animation->getImage(0, 0, true);
 		if(img)
 			defendingHero->pos = genRect(img->height(), img->width(), pos.x + 693, pos.y - 19);
 	}
 
-	obstacleController.reset(new BattleObstacleController(this));
+	obstacleController.reset(new BattleObstacleController(*this));
 
 	if(tacticsMode)
 		tacticNextStack(nullptr);
@@ -502,7 +499,7 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 		{
 			displaySpellCast(spellID, casterStack->getPosition());
 
-			stacksController->addNewAnim(new CCastAnimation(this, casterStack, sc->tile, curInt->cb->battleGetStackByPos(sc->tile), spell));
+			stacksController->addNewAnim(new CCastAnimation(*this, casterStack, sc->tile, curInt->cb->battleGetStackByPos(sc->tile), spell));
 		}
 		else
 		if (sc->tile.isValid() && !spell->animationInfo.projectile.empty())
@@ -518,7 +515,7 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 			projectilesController->emitStackProjectile( nullptr );
 
 			// wait fo projectile to end
-			stacksController->addNewAnim(new CWaitingProjectileAnimation(this, nullptr));
+			stacksController->addNewAnim(new CWaitingProjectileAnimation(*this, nullptr));
 		}
 	}
 
@@ -548,8 +545,8 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 	{
 		Point leftHero = Point(15, 30) + pos;
 		Point rightHero = Point(755, 30) + pos;
-		stacksController->addNewAnim(new CPointEffectAnimation(this, soundBase::invalid, sc->side ? "SP07_A.DEF" : "SP07_B.DEF", leftHero));
-		stacksController->addNewAnim(new CPointEffectAnimation(this, soundBase::invalid, sc->side ? "SP07_B.DEF" : "SP07_A.DEF", rightHero));
+		stacksController->addNewAnim(new CPointEffectAnimation(*this, soundBase::invalid, sc->side ? "SP07_A.DEF" : "SP07_B.DEF", leftHero));
+		stacksController->addNewAnim(new CPointEffectAnimation(*this, soundBase::invalid, sc->side ? "SP07_B.DEF" : "SP07_A.DEF", rightHero));
 	}
 }
 
@@ -589,7 +586,7 @@ void BattleInterface::displaySpellAnimationQueue(const CSpell::TAnimationQueue &
 	for(const CSpell::TAnimation & animation : q)
 	{
 		if(animation.pause > 0)
-			stacksController->addNewAnim(new CDummyAnimation(this, animation.pause));
+			stacksController->addNewAnim(new CDummyAnimation(*this, animation.pause));
 		else
 		{
 			int flags = 0;
@@ -604,9 +601,9 @@ void BattleInterface::displaySpellAnimationQueue(const CSpell::TAnimationQueue &
 				flags |= CPointEffectAnimation::SCREEN_FILL;
 
 			if (!destinationTile.isValid())
-				stacksController->addNewAnim(new CPointEffectAnimation(this, soundBase::invalid, animation.resourceName, flags));
+				stacksController->addNewAnim(new CPointEffectAnimation(*this, soundBase::invalid, animation.resourceName, flags));
 			else
-				stacksController->addNewAnim(new CPointEffectAnimation(this, soundBase::invalid, animation.resourceName, destinationTile, flags));
+				stacksController->addNewAnim(new CPointEffectAnimation(*this, soundBase::invalid, animation.resourceName, destinationTile, flags));
 		}
 	}
 }
@@ -827,10 +824,13 @@ void BattleInterface::obstaclePlaced(const std::vector<std::shared_ptr<const COb
 
 const CGHeroInstance *BattleInterface::currentHero() const
 {
-	if (attackingHeroInstance->tempOwner == curInt->playerID)
+	if (attackingHeroInstance && attackingHeroInstance->tempOwner == curInt->playerID)
 		return attackingHeroInstance;
-	else
+
+	if (defendingHeroInstance && defendingHeroInstance->tempOwner == curInt->playerID)
 		return defendingHeroInstance;
+
+	return nullptr;
 }
 
 InfoAboutHero BattleInterface::enemyHero() const

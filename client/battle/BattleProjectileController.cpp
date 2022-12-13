@@ -146,16 +146,16 @@ void ProjectileRay::show(Canvas & canvas)
 	++step;
 }
 
-BattleProjectileController::BattleProjectileController(BattleInterface * owner):
+BattleProjectileController::BattleProjectileController(BattleInterface & owner):
 	owner(owner)
 {}
 
-const CCreature * BattleProjectileController::getShooter(const CStack * stack)
+const CCreature & BattleProjectileController::getShooter(const CStack * stack) const
 {
 	const CCreature * creature = stack->getCreature();
 
 	if(creature->idNumber == CreatureID::ARROW_TOWERS)
-		creature = owner->siegeController->getTurretCreature();
+		creature = owner.siegeController->getTurretCreature();
 
 	if(creature->animation.missleFrameAngles.empty())
 	{
@@ -163,17 +163,17 @@ const CCreature * BattleProjectileController::getShooter(const CStack * stack)
 		creature = CGI->creh->objects[CreatureID::ARCHER];
 	}
 
-	return creature;
+	return *creature;
 }
 
-bool BattleProjectileController::stackUsesRayProjectile(const CStack * stack)
+bool BattleProjectileController::stackUsesRayProjectile(const CStack * stack) const
 {
-	return !getShooter(stack)->animation.projectileRay.empty();
+	return !getShooter(stack).animation.projectileRay.empty();
 }
 
-bool BattleProjectileController::stackUsesMissileProjectile(const CStack * stack)
+bool BattleProjectileController::stackUsesMissileProjectile(const CStack * stack) const
 {
-	return !getShooter(stack)->animation.projectileImageName.empty();
+	return !getShooter(stack).animation.projectileImageName.empty();
 }
 
 void BattleProjectileController::initStackProjectile(const CStack * stack)
@@ -181,8 +181,8 @@ void BattleProjectileController::initStackProjectile(const CStack * stack)
 	if (!stackUsesMissileProjectile(stack))
 		return;
 
-	const CCreature * creature = getShooter(stack);
-	projectilesCache[creature->animation.projectileImageName] = createProjectileImage(creature->animation.projectileImageName);
+	const CCreature & creature = getShooter(stack);
+	projectilesCache[creature.animation.projectileImageName] = createProjectileImage(creature.animation.projectileImageName);
 }
 
 std::shared_ptr<CAnimation> BattleProjectileController::createProjectileImage(const std::string & path )
@@ -200,8 +200,8 @@ std::shared_ptr<CAnimation> BattleProjectileController::createProjectileImage(co
 
 std::shared_ptr<CAnimation> BattleProjectileController::getProjectileImage(const CStack * stack)
 {
-	const CCreature * creature = getShooter(stack);
-	std::string imageName = creature->animation.projectileImageName;
+	const CCreature & creature = getShooter(stack);
+	std::string imageName = creature.animation.projectileImageName;
 
 	if (!projectilesCache.count(imageName))
 		initStackProjectile(stack);
@@ -266,9 +266,9 @@ int BattleProjectileController::computeProjectileFlightTime( Point from, Point d
 
 int BattleProjectileController::computeProjectileFrameID( Point from, Point dest, const CStack * stack)
 {
-	const CCreature * creature = getShooter(stack);
+	const CCreature & creature = getShooter(stack);
 
-	auto & angles = creature->animation.missleFrameAngles;
+	auto & angles = creature.animation.missleFrameAngles;
 	auto animation = getProjectileImage(stack);
 
 	// only frames below maxFrame are usable: anything  higher is either no present or we don't know when it should be used
@@ -314,12 +314,12 @@ void BattleProjectileController::createCatapultProjectile(const CStack * shooter
 
 void BattleProjectileController::createProjectile(const CStack * shooter, Point from, Point dest)
 {
-	const CCreature *shooterInfo = getShooter(shooter);
+	const CCreature & shooterInfo = getShooter(shooter);
 
 	std::shared_ptr<ProjectileBase> projectile;
 	if (stackUsesRayProjectile(shooter) && stackUsesMissileProjectile(shooter))
 	{
-		logAnim->error("Mod error: Creature '%s' has both missile and ray projectiles configured. Mod should be fixed. Using ray projectile configuration...", shooterInfo->nameSing);
+		logAnim->error("Mod error: Creature '%s' has both missile and ray projectiles configured. Mod should be fixed. Using ray projectile configuration...", shooterInfo.nameSing);
 	}
 
 	if (stackUsesRayProjectile(shooter))
@@ -327,7 +327,7 @@ void BattleProjectileController::createProjectile(const CStack * shooter, Point 
 		auto rayProjectile = new ProjectileRay();
 		projectile.reset(rayProjectile);
 
-		rayProjectile->rayConfig = shooterInfo->animation.projectileRay;
+		rayProjectile->rayConfig = shooterInfo.animation.projectileRay;
 	}
 	else if (stackUsesMissileProjectile(shooter))
 	{
@@ -335,7 +335,7 @@ void BattleProjectileController::createProjectile(const CStack * shooter, Point 
 		projectile.reset(missileProjectile);
 
 		missileProjectile->animation = getProjectileImage(shooter);
-		missileProjectile->reverse  = !owner->stacksController->facingRight(shooter);
+		missileProjectile->reverse  = !owner.stacksController->facingRight(shooter);
 		missileProjectile->frameNum = computeProjectileFrameID(from, dest, shooter);
 	}
 

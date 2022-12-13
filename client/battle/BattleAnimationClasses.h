@@ -30,7 +30,7 @@ class CBattleAnimation
 {
 
 protected:
-	BattleInterface * owner;
+	BattleInterface & owner;
 	bool initialized;
 
 	std::vector<CBattleAnimation *> & pendingAnimations();
@@ -49,7 +49,7 @@ public:
 	virtual void nextFrame() {} //call every new frame
 	virtual ~CBattleAnimation();
 
-	CBattleAnimation(BattleInterface * _owner);
+	CBattleAnimation(BattleInterface & owner);
 };
 
 /// Sub-class which is responsible for managing the battle stack animation.
@@ -59,7 +59,7 @@ public:
 	std::shared_ptr<CreatureAnimation> myAnim; //animation for our stack, managed by CBattleInterface
 	const CStack * stack; //id of stack whose animation it is
 
-	CBattleStackAnimation(BattleInterface * _owner, const CStack * _stack);
+	CBattleStackAnimation(BattleInterface & owner, const CStack * _stack);
 
 	void shiftColor(const ColorShifter * shifter);
 	void rotateStack(BattleHex hex);
@@ -83,7 +83,7 @@ public:
 	void nextFrame() override;
 	bool checkInitialConditions();
 
-	CAttackAnimation(BattleInterface *_owner, const CStack *attacker, BattleHex _dest, const CStack *defender);
+	CAttackAnimation(BattleInterface & owner, const CStack *attacker, BattleHex _dest, const CStack *defender);
 	~CAttackAnimation();
 };
 
@@ -104,7 +104,7 @@ public:
 	bool init() override;
 	void nextFrame() override;
 
-	CDefenceAnimation(StackAttackedInfo _attackedInfo, BattleInterface * _owner);
+	CDefenceAnimation(StackAttackedInfo _attackedInfo, BattleInterface & owner);
 	~CDefenceAnimation();
 };
 
@@ -117,7 +117,7 @@ public:
 	bool init() override;
 	void nextFrame() override;
 
-	CDummyAnimation(BattleInterface * _owner, int howManyFrames);
+	CDummyAnimation(BattleInterface & owner, int howManyFrames);
 };
 
 /// Hand-to-hand attack
@@ -126,7 +126,7 @@ class CMeleeAttackAnimation : public CAttackAnimation
 public:
 	bool init() override;
 
-	CMeleeAttackAnimation(BattleInterface * _owner, const CStack * attacker, BattleHex _dest, const CStack * _attacked);
+	CMeleeAttackAnimation(BattleInterface & owner, const CStack * attacker, BattleHex _dest, const CStack * _attacked);
 };
 
 /// Base class for all animations that play during stack movement
@@ -136,7 +136,7 @@ public:
 	BattleHex currentHex;
 
 protected:
-	CStackMoveAnimation(BattleInterface * _owner, const CStack * _stack, BattleHex _currentHex);
+	CStackMoveAnimation(BattleInterface & owner, const CStack * _stack, BattleHex _currentHex);
 };
 
 /// Move animation of a creature
@@ -158,7 +158,7 @@ public:
 	bool init() override;
 	void nextFrame() override;
 
-	CMovementAnimation(BattleInterface *_owner, const CStack *_stack, std::vector<BattleHex> _destTiles, int _distance);
+	CMovementAnimation(BattleInterface & owner, const CStack *_stack, std::vector<BattleHex> _destTiles, int _distance);
 	~CMovementAnimation();
 };
 
@@ -168,7 +168,7 @@ class CMovementEndAnimation : public CStackMoveAnimation
 public:
 	bool init() override;
 
-	CMovementEndAnimation(BattleInterface * _owner, const CStack * _stack, BattleHex destTile);
+	CMovementEndAnimation(BattleInterface & owner, const CStack * _stack, BattleHex destTile);
 	~CMovementEndAnimation();
 };
 
@@ -178,7 +178,7 @@ class CMovementStartAnimation : public CStackMoveAnimation
 public:
 	bool init() override;
 
-	CMovementStartAnimation(BattleInterface * _owner, const CStack * _stack);
+	CMovementStartAnimation(BattleInterface & owner, const CStack * _stack);
 };
 
 /// Class responsible for animation of stack chaning direction (left <-> right)
@@ -190,7 +190,7 @@ public:
 
 	void setupSecondPart();
 
-	CReverseAnimation(BattleInterface * _owner, const CStack * stack, BattleHex dest, bool _priority);
+	CReverseAnimation(BattleInterface & owner, const CStack * stack, BattleHex dest, bool _priority);
 	~CReverseAnimation();
 };
 
@@ -213,7 +213,7 @@ protected:
 	virtual uint32_t getAttackClimaxFrame() const = 0;
 
 public:
-	CRangedAttackAnimation(BattleInterface * owner_, const CStack * attacker, BattleHex dest, const CStack * defender);
+	CRangedAttackAnimation(BattleInterface & owner, const CStack * attacker, BattleHex dest, const CStack * defender);
 	~CRangedAttackAnimation();
 
 	bool init() override;
@@ -231,7 +231,7 @@ class CShootingAnimation : public CRangedAttackAnimation
 	uint32_t getAttackClimaxFrame() const override;
 
 public:
-	CShootingAnimation(BattleInterface * _owner, const CStack * attacker, BattleHex dest, const CStack * defender);
+	CShootingAnimation(BattleInterface & owner, const CStack * attacker, BattleHex dest, const CStack * defender);
 
 };
 
@@ -243,7 +243,7 @@ private:
 	int catapultDamage;
 
 public:
-	CCatapultAnimation(BattleInterface * _owner, const CStack * attacker, BattleHex dest, const CStack * defender, int _catapultDmg = 0);
+	CCatapultAnimation(BattleInterface & owner, const CStack * attacker, BattleHex dest, const CStack * defender, int _catapultDmg = 0);
 
 	void createProjectile(const Point & from, const Point & dest) const override;
 	void nextFrame() override;
@@ -262,7 +262,7 @@ class CCastAnimation : public CRangedAttackAnimation
 	uint32_t getAttackClimaxFrame() const override;
 
 public:
-	CCastAnimation(BattleInterface * owner_, const CStack * attacker, BattleHex dest_, const CStack * defender, const CSpell * spell);
+	CCastAnimation(BattleInterface & owner, const CStack * attacker, BattleHex dest_, const CStack * defender, const CSpell * spell);
 };
 
 struct CPointEffectParameters
@@ -313,17 +313,17 @@ public:
 	};
 
 	/// Create animation with screen-wide effect
-	CPointEffectAnimation(BattleInterface * _owner, soundBase::soundID sound, std::string animationName, int effects = 0);
+	CPointEffectAnimation(BattleInterface & owner, soundBase::soundID sound, std::string animationName, int effects = 0);
 
 	/// Create animation positioned at point(s). Note that positions must be are absolute, including battleint position offset
-	CPointEffectAnimation(BattleInterface * _owner, soundBase::soundID sound, std::string animationName, Point pos                 , int effects = 0);
-	CPointEffectAnimation(BattleInterface * _owner, soundBase::soundID sound, std::string animationName, std::vector<Point> pos    , int effects = 0);
+	CPointEffectAnimation(BattleInterface & owner, soundBase::soundID sound, std::string animationName, Point pos                 , int effects = 0);
+	CPointEffectAnimation(BattleInterface & owner, soundBase::soundID sound, std::string animationName, std::vector<Point> pos    , int effects = 0);
 
 	/// Create animation positioned at certain hex(es)
-	CPointEffectAnimation(BattleInterface * _owner, soundBase::soundID sound, std::string animationName, BattleHex hex             , int effects = 0);
-	CPointEffectAnimation(BattleInterface * _owner, soundBase::soundID sound, std::string animationName, std::vector<BattleHex> hex, int effects = 0);
+	CPointEffectAnimation(BattleInterface & owner, soundBase::soundID sound, std::string animationName, BattleHex hex             , int effects = 0);
+	CPointEffectAnimation(BattleInterface & owner, soundBase::soundID sound, std::string animationName, std::vector<BattleHex> hex, int effects = 0);
 
-	CPointEffectAnimation(BattleInterface * _owner, soundBase::soundID sound, std::string animationName, Point pos, BattleHex hex,   int effects = 0);
+	CPointEffectAnimation(BattleInterface & owner, soundBase::soundID sound, std::string animationName, Point pos, BattleHex hex,   int effects = 0);
 	 ~CPointEffectAnimation();
 
 	bool init() override;
@@ -334,7 +334,7 @@ public:
 class CWaitingAnimation : public CBattleAnimation
 {
 protected:
-	CWaitingAnimation(BattleInterface * owner_);
+	CWaitingAnimation(BattleInterface & owner);
 public:
 	void nextFrame() override;
 };
@@ -344,7 +344,7 @@ class CWaitingProjectileAnimation : public CWaitingAnimation
 {
 	const CStack * shooter;
 public:
-	CWaitingProjectileAnimation(BattleInterface * owner_, const CStack * shooter);
+	CWaitingProjectileAnimation(BattleInterface & owner, const CStack * shooter);
 
 	bool init() override;
 };

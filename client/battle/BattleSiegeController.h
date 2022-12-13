@@ -67,7 +67,7 @@ namespace EWallVisual
 
 class BattleSiegeController
 {
-	BattleInterface * owner;
+	BattleInterface & owner;
 
 	/// besieged town
 	const CGTownInstance *town;
@@ -90,7 +90,7 @@ class BattleSiegeController
 	const CStack * getTurretStack(EWallVisual::EWallVisual wallPiece) const;
 
 public:
-	BattleSiegeController(BattleInterface * owner, const CGTownInstance *siegeTown);
+	BattleSiegeController(BattleInterface & owner, const CGTownInstance *siegeTown);
 
 	/// call-ins from server
 	void gateStateChanged(const EGateState state);

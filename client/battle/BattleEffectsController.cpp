@@ -31,7 +31,7 @@
 #include "../../lib/IGameEventsReceiver.h"
 #include "../../lib/CGeneralTextHandler.h"
 
-BattleEffectsController::BattleEffectsController(BattleInterface * owner):
+BattleEffectsController::BattleEffectsController(BattleInterface & owner):
 	owner(owner)
 {}
 
@@ -44,14 +44,14 @@ void BattleEffectsController::displayEffect(EBattleEffect::EBattleEffect effect,
 {
 	std::string customAnim = graphics->battleACToDef[effect][0];
 
-	owner->stacksController->addNewAnim(new CPointEffectAnimation(owner, soundBase::soundID(soundID), customAnim, destTile));
+	owner.stacksController->addNewAnim(new CPointEffectAnimation(owner, soundBase::soundID(soundID), customAnim, destTile));
 }
 
 void BattleEffectsController::displayCustomEffects(const std::vector<CustomEffectInfo> & customEffects)
 {
 	for(const CustomEffectInfo & one : customEffects)
 	{
-		const CStack * s = owner->curInt->cb->battleGetStackByID(one.stack, false);
+		const CStack * s = owner.curInt->cb->battleGetStackByID(one.stack, false);
 
 		assert(s);
 		assert(one.effect != 0);
@@ -62,7 +62,7 @@ void BattleEffectsController::displayCustomEffects(const std::vector<CustomEffec
 
 void BattleEffectsController::battleTriggerEffect(const BattleTriggerEffect & bte)
 {
-	const CStack * stack = owner->curInt->cb->battleGetStackByID(bte.stackID);
+	const CStack * stack = owner.curInt->cb->battleGetStackByID(bte.stackID);
 	if(!stack)
 	{
 		logGlobal->error("Invalid stack ID %d", bte.stackID);
@@ -89,7 +89,7 @@ void BattleEffectsController::battleTriggerEffect(const BattleTriggerEffect & bt
 			std::string hlp = CGI->generaltexth->allTexts[33];
 			boost::algorithm::replace_first(hlp,"%s",(stack->getName()));
 			displayEffect(EBattleEffect::GOOD_MORALE, soundBase::GOODMRLE, stack->getPosition());
-			owner->controlPanel->console->addText(hlp);
+			owner.controlPanel->console->addText(hlp);
 			break;
 		}
 		default:
@@ -100,21 +100,21 @@ void BattleEffectsController::battleTriggerEffect(const BattleTriggerEffect & bt
 
 void BattleEffectsController::startAction(const BattleAction* action)
 {
-	const CStack *stack = owner->curInt->cb->battleGetStackByID(action->stackNumber);
+	const CStack *stack = owner.curInt->cb->battleGetStackByID(action->stackNumber);
 
 	switch(action->actionType)
 	{
 	case EActionType::WAIT:
-		owner->controlPanel->console->addText(stack->formatGeneralMessage(136));
+		owner.controlPanel->console->addText(stack->formatGeneralMessage(136));
 		break;
 	case EActionType::BAD_MORALE:
-		owner->controlPanel->console->addText(stack->formatGeneralMessage(-34));
+		owner.controlPanel->console->addText(stack->formatGeneralMessage(-34));
 		displayEffect(EBattleEffect::BAD_MORALE, soundBase::BADMRLE, stack->getPosition());
 		break;
 	}
 
 	//displaying special abilities
-	auto actionTarget = action->getTarget(owner->curInt->cb.get());
+	auto actionTarget = action->getTarget(owner.curInt->cb.get());
 	switch(action->actionType)
 	{
 		case EActionType::STACK_HEAL:

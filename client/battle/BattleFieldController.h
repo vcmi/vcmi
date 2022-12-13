@@ -29,7 +29,7 @@ class BattleInterface;
 /// Handles battlefield grid as well as rendering of background layer of battle interface
 class BattleFieldController : public CIntObject
 {
-	BattleInterface * owner;
+	BattleInterface & owner;
 
 	std::shared_ptr<IImage> background;
 	std::shared_ptr<IImage> cellBorder;
@@ -63,7 +63,7 @@ class BattleFieldController : public CIntObject
 	void showHighlightedHexes(Canvas & canvas);
 
 public:
-	BattleFieldController(BattleInterface * owner);
+	BattleFieldController(BattleInterface & owner);
 
 	void redrawBackgroundWithHexes();
 	void renderBattlefield(Canvas & canvas);

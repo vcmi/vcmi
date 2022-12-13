@@ -29,7 +29,7 @@
 #include "../../lib/CStack.h"
 #include "../../lib/CConfigHandler.h"
 
-BattleControlPanel::BattleControlPanel(BattleInterface * owner, const Point & position):
+BattleControlPanel::BattleControlPanel(BattleInterface & owner, const Point & position):
 	owner(owner)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
@@ -53,7 +53,7 @@ BattleControlPanel::BattleControlPanel(BattleInterface * owner, const Point & po
 	console = std::make_shared<BattleConsole>(Rect(211, 4, 406,38));
 	GH.statusbar = console;
 
-	if ( owner->tacticsMode )
+	if ( owner.tacticsMode )
 		tacticPhaseStarted();
 	else
 		tacticPhaseEnded();
@@ -81,7 +81,7 @@ void BattleControlPanel::tacticPhaseStarted()
 	btactNext = std::make_shared<CButton>(Point(213, 4), "icm011.def", std::make_pair("", ""), [&]() { bTacticNextStack();}, SDLK_SPACE);
 	btactEnd = std::make_shared<CButton>(Point(419,  4), "icm012.def", std::make_pair("", ""),  [&](){ bTacticPhaseEnd();}, SDLK_RETURN);
 	menu = std::make_shared<CPicture>("COPLACBR.BMP", 0, 0);
-	menu->colorize(owner->curInt->playerID);
+	menu->colorize(owner.curInt->playerID);
 	menu->recActions &= ~(SHOWALL | UPDATE);
 }
 void BattleControlPanel::tacticPhaseEnded()
@@ -92,13 +92,13 @@ void BattleControlPanel::tacticPhaseEnded()
 	btactEnd.reset();
 
 	menu = std::make_shared<CPicture>("CBAR.BMP", 0, 0);
-	menu->colorize(owner->curInt->playerID);
+	menu->colorize(owner.curInt->playerID);
 	menu->recActions &= ~(SHOWALL | UPDATE);
 }
 
 void BattleControlPanel::bOptionsf()
 {
-	if (owner->actionsController->spellcastingModeActive())
+	if (owner.actionsController->spellcastingModeActive())
 		return;
 
 	CCS->curh->changeGraphic(ECursor::ADVENTURE,0);
@@ -108,13 +108,13 @@ void BattleControlPanel::bOptionsf()
 
 void BattleControlPanel::bSurrenderf()
 {
-	if (owner->actionsController->spellcastingModeActive())
+	if (owner.actionsController->spellcastingModeActive())
 		return;
 
-	int cost = owner->curInt->cb->battleGetSurrenderCost();
+	int cost = owner.curInt->cb->battleGetSurrenderCost();
 	if(cost >= 0)
 	{
-		std::string enemyHeroName = owner->curInt->cb->battleGetEnemyHero().name;
+		std::string enemyHeroName = owner.curInt->cb->battleGetEnemyHero().name;
 		if(enemyHeroName.empty())
 		{
 			logGlobal->warn("Surrender performed without enemy hero, should not happen!");
@@ -122,110 +122,110 @@ void BattleControlPanel::bSurrenderf()
 		}
 
 		std::string surrenderMessage = boost::str(boost::format(CGI->generaltexth->allTexts[32]) % enemyHeroName % cost); //%s states: "I will accept your surrender and grant you and your troops safe passage for the price of %d gold."
-		owner->curInt->showYesNoDialog(surrenderMessage, [this](){ reallySurrender(); }, nullptr);
+		owner.curInt->showYesNoDialog(surrenderMessage, [this](){ reallySurrender(); }, nullptr);
 	}
 }
 
 void BattleControlPanel::bFleef()
 {
-	if (owner->actionsController->spellcastingModeActive())
+	if (owner.actionsController->spellcastingModeActive())
 		return;
 
-	if ( owner->curInt->cb->battleCanFlee() )
+	if ( owner.curInt->cb->battleCanFlee() )
 	{
 		CFunctionList<void()> ony = std::bind(&BattleControlPanel::reallyFlee,this);
-		owner->curInt->showYesNoDialog(CGI->generaltexth->allTexts[28], ony, nullptr); //Are you sure you want to retreat?
+		owner.curInt->showYesNoDialog(CGI->generaltexth->allTexts[28], ony, nullptr); //Are you sure you want to retreat?
 	}
 	else
 	{
 		std::vector<std::shared_ptr<CComponent>> comps;
 		std::string heroName;
 		//calculating fleeing hero's name
-		if (owner->attackingHeroInstance)
-			if (owner->attackingHeroInstance->tempOwner == owner->curInt->cb->getMyColor())
-				heroName = owner->attackingHeroInstance->name;
-		if (owner->defendingHeroInstance)
-			if (owner->defendingHeroInstance->tempOwner == owner->curInt->cb->getMyColor())
-				heroName = owner->defendingHeroInstance->name;
+		if (owner.attackingHeroInstance)
+			if (owner.attackingHeroInstance->tempOwner == owner.curInt->cb->getMyColor())
+				heroName = owner.attackingHeroInstance->name;
+		if (owner.defendingHeroInstance)
+			if (owner.defendingHeroInstance->tempOwner == owner.curInt->cb->getMyColor())
+				heroName = owner.defendingHeroInstance->name;
 		//calculating text
 		auto txt = boost::format(CGI->generaltexth->allTexts[340]) % heroName; //The Shackles of War are present.  %s can not retreat!
 
 		//printing message
-		owner->curInt->showInfoDialog(boost::to_string(txt), comps);
+		owner.curInt->showInfoDialog(boost::to_string(txt), comps);
 	}
 }
 
 void BattleControlPanel::reallyFlee()
 {
-	owner->giveCommand(EActionType::RETREAT);
+	owner.giveCommand(EActionType::RETREAT);
 	CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
 }
 
 void BattleControlPanel::reallySurrender()
 {
-	if (owner->curInt->cb->getResourceAmount(Res::GOLD) < owner->curInt->cb->battleGetSurrenderCost())
+	if (owner.curInt->cb->getResourceAmount(Res::GOLD) < owner.curInt->cb->battleGetSurrenderCost())
 	{
-		owner->curInt->showInfoDialog(CGI->generaltexth->allTexts[29]); //You don't have enough gold!
+		owner.curInt->showInfoDialog(CGI->generaltexth->allTexts[29]); //You don't have enough gold!
 	}
 	else
 	{
-		owner->giveCommand(EActionType::SURRENDER);
+		owner.giveCommand(EActionType::SURRENDER);
 		CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
 	}
 }
 
 void BattleControlPanel::bAutofightf()
 {
-	if (owner->actionsController->spellcastingModeActive())
+	if (owner.actionsController->spellcastingModeActive())
 		return;
 
 	//Stop auto-fight mode
-	if(owner->curInt->isAutoFightOn)
+	if(owner.curInt->isAutoFightOn)
 	{
-		assert(owner->curInt->autofightingAI);
-		owner->curInt->isAutoFightOn = false;
+		assert(owner.curInt->autofightingAI);
+		owner.curInt->isAutoFightOn = false;
 		logGlobal->trace("Stopping the autofight...");
 	}
-	else if(!owner->curInt->autofightingAI)
+	else if(!owner.curInt->autofightingAI)
 	{
-		owner->curInt->isAutoFightOn = true;
+		owner.curInt->isAutoFightOn = true;
 		blockUI(true);
 
 		auto ai = CDynLibHandler::getNewBattleAI(settings["server"]["friendlyAI"].String());
-		ai->init(owner->curInt->env, owner->curInt->cb);
-		ai->battleStart(owner->army1, owner->army2, int3(0,0,0), owner->attackingHeroInstance, owner->defendingHeroInstance, owner->curInt->cb->battleGetMySide());
-		owner->curInt->autofightingAI = ai;
-		owner->curInt->cb->registerBattleInterface(ai);
+		ai->init(owner.curInt->env, owner.curInt->cb);
+		ai->battleStart(owner.army1, owner.army2, int3(0,0,0), owner.attackingHeroInstance, owner.defendingHeroInstance, owner.curInt->cb->battleGetMySide());
+		owner.curInt->autofightingAI = ai;
+		owner.curInt->cb->registerBattleInterface(ai);
 
-		owner->requestAutofightingAIToTakeAction();
+		owner.requestAutofightingAIToTakeAction();
 	}
 }
 
 void BattleControlPanel::bSpellf()
 {
-	if (owner->actionsController->spellcastingModeActive())
+	if (owner.actionsController->spellcastingModeActive())
 		return;
 
-	if (!owner->myTurn)
+	if (!owner.myTurn)
 		return;
 
-	auto myHero = owner->currentHero();
+	auto myHero = owner.currentHero();
 	if(!myHero)
 		return;
 
 	CCS->curh->changeGraphic(ECursor::ADVENTURE,0);
 
-	ESpellCastProblem::ESpellCastProblem spellCastProblem = owner->curInt->cb->battleCanCastSpell(myHero, spells::Mode::HERO);
+	ESpellCastProblem::ESpellCastProblem spellCastProblem = owner.curInt->cb->battleCanCastSpell(myHero, spells::Mode::HERO);
 
 	if(spellCastProblem == ESpellCastProblem::OK)
 	{
-		GH.pushIntT<CSpellWindow>(myHero, owner->curInt.get());
+		GH.pushIntT<CSpellWindow>(myHero, owner.curInt.get());
 	}
 	else if (spellCastProblem == ESpellCastProblem::MAGIC_IS_BLOCKED)
 	{
 		//TODO: move to spell mechanics, add more information to spell cast problem
 		//Handle Orb of Inhibition-like effects -> we want to display dialog with info, why casting is impossible
-		auto blockingBonus = owner->currentHero()->getBonusLocalFirst(Selector::type()(Bonus::BLOCK_ALL_MAGIC));
+		auto blockingBonus = owner.currentHero()->getBonusLocalFirst(Selector::type()(Bonus::BLOCK_ALL_MAGIC));
 		if (!blockingBonus)
 			return;
 
@@ -234,7 +234,7 @@ void BattleControlPanel::bSpellf()
 			const auto artID = ArtifactID(blockingBonus->sid);
 			//If we have artifact, put name of our hero. Otherwise assume it's the enemy.
 			//TODO check who *really* is source of bonus
-			std::string heroName = myHero->hasArt(artID) ? myHero->name : owner->enemyHero().name;
+			std::string heroName = myHero->hasArt(artID) ? myHero->name : owner.enemyHero().name;
 
 			//%s wields the %s, an ancient artifact which creates a p dead to all magic.
 			LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[683])
@@ -245,25 +245,25 @@ void BattleControlPanel::bSpellf()
 
 void BattleControlPanel::bWaitf()
 {
-	if (owner->actionsController->spellcastingModeActive())
+	if (owner.actionsController->spellcastingModeActive())
 		return;
 
-	if (owner->stacksController->getActiveStack() != nullptr)
-		owner->giveCommand(EActionType::WAIT);
+	if (owner.stacksController->getActiveStack() != nullptr)
+		owner.giveCommand(EActionType::WAIT);
 }
 
 void BattleControlPanel::bDefencef()
 {
-	if (owner->actionsController->spellcastingModeActive())
+	if (owner.actionsController->spellcastingModeActive())
 		return;
 
-	if (owner->stacksController->getActiveStack() != nullptr)
-		owner->giveCommand(EActionType::DEFEND);
+	if (owner.stacksController->getActiveStack() != nullptr)
+		owner.giveCommand(EActionType::DEFEND);
 }
 
 void BattleControlPanel::bConsoleUpf()
 {
-	if (owner->actionsController->spellcastingModeActive())
+	if (owner.actionsController->spellcastingModeActive())
 		return;
 
 	console->scrollUp();
@@ -271,7 +271,7 @@ void BattleControlPanel::bConsoleUpf()
 
 void BattleControlPanel::bConsoleDownf()
 {
-	if (owner->actionsController->spellcastingModeActive())
+	if (owner.actionsController->spellcastingModeActive())
 		return;
 
 	console->scrollDown();
@@ -279,38 +279,38 @@ void BattleControlPanel::bConsoleDownf()
 
 void BattleControlPanel::bTacticNextStack()
 {
-	owner->tacticNextStack(nullptr);
+	owner.tacticNextStack(nullptr);
 }
 
 void BattleControlPanel::bTacticPhaseEnd()
 {
-	owner->tacticPhaseEnd();
+	owner.tacticPhaseEnd();
 }
 
 void BattleControlPanel::blockUI(bool on)
 {
 	bool canCastSpells = false;
-	auto hero = owner->curInt->cb->battleGetMyHero();
+	auto hero = owner.curInt->cb->battleGetMyHero();
 
 	if(hero)
 	{
-		ESpellCastProblem::ESpellCastProblem spellcastingProblem = owner->curInt->cb->battleCanCastSpell(hero, spells::Mode::HERO);
+		ESpellCastProblem::ESpellCastProblem spellcastingProblem = owner.curInt->cb->battleCanCastSpell(hero, spells::Mode::HERO);
 
 		//if magic is blocked, we leave button active, so the message can be displayed after button click
 		canCastSpells = spellcastingProblem == ESpellCastProblem::OK || spellcastingProblem == ESpellCastProblem::MAGIC_IS_BLOCKED;
 	}
 
-	bool canWait = owner->stacksController->getActiveStack() ? !owner->stacksController->getActiveStack()->waitedThisTurn : false;
+	bool canWait = owner.stacksController->getActiveStack() ? !owner.stacksController->getActiveStack()->waitedThisTurn : false;
 
 	bOptions->block(on);
-	bFlee->block(on || !owner->curInt->cb->battleCanFlee());
-	bSurrender->block(on || owner->curInt->cb->battleGetSurrenderCost() < 0);
+	bFlee->block(on || !owner.curInt->cb->battleCanFlee());
+	bSurrender->block(on || owner.curInt->cb->battleGetSurrenderCost() < 0);
 
 	// block only if during enemy turn and auto-fight is off
 	// otherwise - crash on accessing non-exisiting active stack
-	bAutofight->block(!owner->curInt->isAutoFightOn && !owner->stacksController->getActiveStack());
+	bAutofight->block(!owner.curInt->isAutoFightOn && !owner.stacksController->getActiveStack());
 
-	if (owner->tacticsMode && btactEnd && btactNext)
+	if (owner.tacticsMode && btactEnd && btactNext)
 	{
 		btactNext->block(on);
 		btactEnd->block(on);
@@ -322,7 +322,7 @@ void BattleControlPanel::blockUI(bool on)
 	}
 
 
-	bSpell->block(on || owner->tacticsMode || !canCastSpells);
-	bWait->block(on || owner->tacticsMode || !canWait);
-	bDefence->block(on || owner->tacticsMode);
+	bSpell->block(on || owner.tacticsMode || !canCastSpells);
+	bWait->block(on || owner.tacticsMode || !canWait);
+	bDefence->block(on || owner.tacticsMode);
 }

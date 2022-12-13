@@ -24,10 +24,10 @@
 #include "../../lib/battle/CObstacleInstance.h"
 #include "../../lib/ObstacleHandler.h"
 
-BattleObstacleController::BattleObstacleController(BattleInterface * owner):
+BattleObstacleController::BattleObstacleController(BattleInterface & owner):
 	owner(owner)
 {
-	auto obst = owner->curInt->cb->battleGetAllObstacles();
+	auto obst = owner.curInt->cb->battleGetAllObstacles();
 	for(auto & elem : obst)
 	{
 		if ( elem->obstacleType == CObstacleInstance::MOAT )
@@ -104,10 +104,10 @@ void BattleObstacleController::obstaclePlaced(const std::vector<std::shared_ptr<
 		//we assume here that effect graphics have the same size as the usual obstacle image
 		// -> if we know how to blit obstacle, let's blit the effect in the same place
 		Point whereTo = getObstaclePosition(first, *oi);
-		owner->stacksController->addNewAnim(new CPointEffectAnimation(owner, soundBase::invalid, spellObstacle->appearAnimation, whereTo, oi->pos, CPointEffectAnimation::WAIT_FOR_SOUND));
+		owner.stacksController->addNewAnim(new CPointEffectAnimation(owner, soundBase::invalid, spellObstacle->appearAnimation, whereTo, oi->pos, CPointEffectAnimation::WAIT_FOR_SOUND));
 
 		//so when multiple obstacles are added, they show up one after another
-		owner->waitForAnims();
+		owner.waitForAnims();
 
 		obstaclesBeingPlaced.erase(obstaclesBeingPlaced.begin());
 		loadObstacleImage(*spellObstacle);
@@ -117,7 +117,7 @@ void BattleObstacleController::obstaclePlaced(const std::vector<std::shared_ptr<
 void BattleObstacleController::showAbsoluteObstacles(Canvas & canvas, const Point & offset)
 {
 	//Blit absolute obstacles
-	for(auto & oi : owner->curInt->cb->battleGetAllObstacles())
+	for(auto & oi : owner.curInt->cb->battleGetAllObstacles())
 	{
 		if(oi->obstacleType == CObstacleInstance::ABSOLUTE_OBSTACLE)
 		{
@@ -130,7 +130,7 @@ void BattleObstacleController::showAbsoluteObstacles(Canvas & canvas, const Poin
 
 void BattleObstacleController::collectRenderableObjects(BattleRenderer & renderer)
 {
-	for (auto obstacle : owner->curInt->cb->battleGetAllObstacles())
+	for (auto obstacle : owner.curInt->cb->battleGetAllObstacles())
 	{
 		if (obstacle->obstacleType == CObstacleInstance::ABSOLUTE_OBSTACLE)
 			continue;
@@ -151,7 +151,7 @@ void BattleObstacleController::collectRenderableObjects(BattleRenderer & rendere
 
 std::shared_ptr<IImage> BattleObstacleController::getObstacleImage(const CObstacleInstance & oi)
 {
-	int frameIndex = (owner->animCount+1) *25 / owner->getAnimSpeed();
+	int frameIndex = (owner.animCount+1) *25 / owner.getAnimSpeed();
 	std::shared_ptr<CAnimation> animation;
 
 	if (obstacleAnimations.count(oi.uniqueID) == 0)
@@ -183,7 +183,7 @@ Point BattleObstacleController::getObstaclePosition(std::shared_ptr<IImage> imag
 {
 	int offset = obstacle.getAnimationYOffset(image->height());
 
-	Rect r = owner->fieldController->hexPositionAbsolute(obstacle.pos);
+	Rect r = owner.fieldController->hexPositionAbsolute(obstacle.pos);
 	r.y += 42 - image->height() + offset;
 
 	return r.topLeft();

@@ -36,7 +36,7 @@ class IImage;
 /// And any other effect applied to stacks
 class BattleStacksController
 {
-	BattleInterface * owner;
+	BattleInterface & owner;
 
 	std::shared_ptr<IImage> amountNormal;
 	std::shared_ptr<IImage> amountNegative;
@@ -78,7 +78,7 @@ class BattleStacksController
 	std::shared_ptr<IImage> getStackAmountBox(const CStack * stack);
 
 public:
-	BattleStacksController(BattleInterface * owner);
+	BattleStacksController(BattleInterface & owner);
 
 	bool shouldRotate(const CStack * stack, const BattleHex & oldPos, const BattleHex & nextHex) const;
 	bool facingRight(const CStack * stack) const;

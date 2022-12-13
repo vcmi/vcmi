@@ -59,13 +59,13 @@ struct BattleEffect
 /// Controls rendering of effects in battle, e.g. from spells, abilities and various other actions like morale
 class BattleEffectsController
 {
-	BattleInterface * owner;
+	BattleInterface & owner;
 
 	/// list of current effects that are being displayed on screen (spells & creature abilities)
 	std::vector<BattleEffect> battleEffects;
 
 public:
-	BattleEffectsController(BattleInterface * owner);
+	BattleEffectsController(BattleInterface & owner);
 
 	void startAction(const BattleAction* action);
 

@@ -27,7 +27,7 @@ struct Point;
 /// (with exception of moat, which is apparently handled by siege controller)
 class BattleObstacleController
 {
-	BattleInterface * owner;
+	BattleInterface & owner;
 
 	/// cached animations of all obstacles in current battle
 	std::map<std::string, std::shared_ptr<CAnimation>> animationsCache;
@@ -45,7 +45,7 @@ class BattleObstacleController
 	Point getObstaclePosition(std::shared_ptr<IImage> image, const CObstacleInstance & obstacle);
 
 public:
-	BattleObstacleController(BattleInterface * owner);
+	BattleObstacleController(BattleInterface & owner);
 
 	/// call-in from network pack, add newly placed obstacles with any required animations
 	void obstaclePlaced(const std::vector<std::shared_ptr<const CObstacleInstance>> & oi);

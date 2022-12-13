@@ -124,15 +124,15 @@ std::string BattleSiegeController::getBattleBackgroundName() const
 bool BattleSiegeController::getWallPieceExistance(EWallVisual::EWallVisual what) const
 {
 	//FIXME: use this instead of buildings test?
-	//ui8 siegeLevel = owner->curInt->cb->battleGetSiegeLevel();
+	//ui8 siegeLevel = owner.curInt->cb->battleGetSiegeLevel();
 
 	switch (what)
 	{
 	case EWallVisual::MOAT:              return town->hasBuilt(BuildingID::CITADEL) && town->town->faction->index != ETownType::TOWER;
 	case EWallVisual::MOAT_BANK:         return town->hasBuilt(BuildingID::CITADEL) && town->town->faction->index != ETownType::TOWER && town->town->faction->index != ETownType::NECROPOLIS;
-	case EWallVisual::KEEP_BATTLEMENT:   return town->hasBuilt(BuildingID::CITADEL) && EWallState::EWallState(owner->curInt->cb->battleGetWallState(EWallPart::KEEP)) != EWallState::DESTROYED;
-	case EWallVisual::UPPER_BATTLEMENT:  return town->hasBuilt(BuildingID::CASTLE) && EWallState::EWallState(owner->curInt->cb->battleGetWallState(EWallPart::UPPER_TOWER)) != EWallState::DESTROYED;
-	case EWallVisual::BOTTOM_BATTLEMENT: return town->hasBuilt(BuildingID::CASTLE) && EWallState::EWallState(owner->curInt->cb->battleGetWallState(EWallPart::BOTTOM_TOWER)) != EWallState::DESTROYED;
+	case EWallVisual::KEEP_BATTLEMENT:   return town->hasBuilt(BuildingID::CITADEL) && EWallState::EWallState(owner.curInt->cb->battleGetWallState(EWallPart::KEEP)) != EWallState::DESTROYED;
+	case EWallVisual::UPPER_BATTLEMENT:  return town->hasBuilt(BuildingID::CASTLE) && EWallState::EWallState(owner.curInt->cb->battleGetWallState(EWallPart::UPPER_TOWER)) != EWallState::DESTROYED;
+	case EWallVisual::BOTTOM_BATTLEMENT: return town->hasBuilt(BuildingID::CASTLE) && EWallState::EWallState(owner.curInt->cb->battleGetWallState(EWallPart::BOTTOM_TOWER)) != EWallState::DESTROYED;
 	default:                             return true;
 	}
 }
@@ -163,11 +163,11 @@ BattleHex BattleSiegeController::getWallPiecePosition(EWallVisual::EWallVisual w
 	return wallsPositions[what];
 }
 
-BattleSiegeController::BattleSiegeController(BattleInterface * owner, const CGTownInstance *siegeTown):
+BattleSiegeController::BattleSiegeController(BattleInterface & owner, const CGTownInstance *siegeTown):
 	owner(owner),
 	town(siegeTown)
 {
-	assert(owner->fieldController.get() == nullptr); // must be created after this
+	assert(owner.fieldController.get() == nullptr); // must be created after this
 
 	for (int g = 0; g < wallPieceImages.size(); ++g)
 	{
@@ -205,7 +205,7 @@ Point BattleSiegeController::getTurretCreaturePosition( BattleHex position ) con
 
 	if (posID != 0)
 	{
-		Point result = owner->pos.topLeft();
+		Point result = owner.pos.topLeft();
 		result.x += town->town->clientInfo.siegePositions[posID].x;
 		result.y += town->town->clientInfo.siegePositions[posID].y;
 		return result;
@@ -217,7 +217,7 @@ Point BattleSiegeController::getTurretCreaturePosition( BattleHex position ) con
 
 void BattleSiegeController::gateStateChanged(const EGateState state)
 {
-	auto oldState = owner->curInt->cb->battleGetGateState();
+	auto oldState = owner.curInt->cb->battleGetGateState();
 	bool playSound = false;
 	auto stateId = EWallState::NONE;
 	switch(state)
@@ -272,7 +272,7 @@ BattleHex BattleSiegeController::getTurretBattleHex(EWallVisual::EWallVisual wal
 
 const CStack * BattleSiegeController::getTurretStack(EWallVisual::EWallVisual wallPiece) const
 {
-	for (auto & stack : owner->curInt->cb->battleGetAllStacks(true))
+	for (auto & stack : owner.curInt->cb->battleGetAllStacks(true))
 	{
 		if ( stack->initialPosition == getTurretBattleHex(wallPiece))
 			return stack;
@@ -298,14 +298,14 @@ void BattleSiegeController::collectRenderableObjects(BattleRenderer & renderer)
 			wallPiece == EWallVisual::UPPER_BATTLEMENT)
 		{
 			renderer.insert( EBattleFieldLayer::STACKS, getWallPiecePosition(wallPiece), [this, wallPiece](BattleRenderer::RendererPtr canvas){
-				owner->stacksController->showStack(canvas, getTurretStack(wallPiece));
+				owner.stacksController->showStack(canvas, getTurretStack(wallPiece));
 			});
 			renderer.insert( EBattleFieldLayer::BATTLEMENTS, getWallPiecePosition(wallPiece), [this, wallPiece](BattleRenderer::RendererPtr canvas){
-				showWallPiece(canvas, wallPiece, owner->pos.topLeft());
+				showWallPiece(canvas, wallPiece, owner.pos.topLeft());
 			});
 		}
 		renderer.insert( EBattleFieldLayer::WALLS, getWallPiecePosition(wallPiece), [this, wallPiece](BattleRenderer::RendererPtr canvas){
-			showWallPiece(canvas, wallPiece, owner->pos.topLeft());
+			showWallPiece(canvas, wallPiece, owner.pos.topLeft());
 		});
 
 
@@ -314,14 +314,14 @@ void BattleSiegeController::collectRenderableObjects(BattleRenderer & renderer)
 
 bool BattleSiegeController::isAttackableByCatapult(BattleHex hex) const
 {
-	if (owner->tacticsMode)
+	if (owner.tacticsMode)
 		return false;
 
-	auto wallPart = owner->curInt->cb->battleHexToWallPart(hex);
-	if (!owner->curInt->cb->isWallPartPotentiallyAttackable(wallPart))
+	auto wallPart = owner.curInt->cb->battleHexToWallPart(hex);
+	if (!owner.curInt->cb->isWallPartPotentiallyAttackable(wallPart))
 		return false;
 
-	auto state = owner->curInt->cb->battleGetWallState(static_cast<int>(wallPart));
+	auto state = owner.curInt->cb->battleGetWallState(static_cast<int>(wallPart));
 	return state != EWallState::DESTROYED && state != EWallState::NONE;
 }
 
@@ -329,10 +329,10 @@ void BattleSiegeController::stackIsCatapulting(const CatapultAttack & ca)
 {
 	if (ca.attacker != -1)
 	{
-		const CStack *stack = owner->curInt->cb->battleGetStackByID(ca.attacker);
+		const CStack *stack = owner.curInt->cb->battleGetStackByID(ca.attacker);
 		for (auto attackInfo : ca.attackedParts)
 		{
-			owner->stacksController->addNewAnim(new CCatapultAnimation(owner, stack, attackInfo.destinationTile, nullptr, attackInfo.damageDealt));
+			owner.stacksController->addNewAnim(new CCatapultAnimation(owner, stack, attackInfo.destinationTile, nullptr, attackInfo.damageDealt));
 		}
 	}
 	else
@@ -341,13 +341,13 @@ void BattleSiegeController::stackIsCatapulting(const CatapultAttack & ca)
 
 		//no attacker stack, assume spell-related (earthquake) - only hit animation
 		for (auto attackInfo : ca.attackedParts)
-			positions.push_back(owner->stacksController->getStackPositionAtHex(attackInfo.destinationTile, nullptr) + Point(99, 120));
+			positions.push_back(owner.stacksController->getStackPositionAtHex(attackInfo.destinationTile, nullptr) + Point(99, 120));
 
 
-		owner->stacksController->addNewAnim(new CPointEffectAnimation(owner, soundBase::WALLHIT, "SGEXPL.DEF", positions));
+		owner.stacksController->addNewAnim(new CPointEffectAnimation(owner, soundBase::WALLHIT, "SGEXPL.DEF", positions));
 	}
 
-	owner->waitForAnims();
+	owner.waitForAnims();
 
 	for (auto attackInfo : ca.attackedParts)
 	{
@@ -356,7 +356,7 @@ void BattleSiegeController::stackIsCatapulting(const CatapultAttack & ca)
 		if (wallId == EWallVisual::GATE)
 			continue;
 
-		auto wallState = EWallState::EWallState(owner->curInt->cb->battleGetWallState(attackInfo.attackedPart));
+		auto wallState = EWallState::EWallState(owner.curInt->cb->battleGetWallState(attackInfo.attackedPart));
 
 		wallPieceImages[wallId] = IImage::createFromFile(getWallPieceImageName(EWallVisual::EWallVisual(wallId), wallState));
 	}

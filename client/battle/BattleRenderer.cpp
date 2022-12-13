@@ -18,12 +18,12 @@
 
 void BattleRenderer::collectObjects()
 {
-	owner->collectRenderableObjects(*this);
-	owner->effectsController->collectRenderableObjects(*this);
-	owner->obstacleController->collectRenderableObjects(*this);
-	owner->stacksController->collectRenderableObjects(*this);
-	if (owner->siegeController)
-		owner->siegeController->collectRenderableObjects(*this);
+	owner.collectRenderableObjects(*this);
+	owner.effectsController->collectRenderableObjects(*this);
+	owner.obstacleController->collectRenderableObjects(*this);
+	owner.stacksController->collectRenderableObjects(*this);
+	if (owner.siegeController)
+		owner.siegeController->collectRenderableObjects(*this);
 }
 
 void BattleRenderer::sortObjects()
@@ -36,13 +36,7 @@ void BattleRenderer::sortObjects()
 		if ( object.tile == BattleHex::HEX_BEFORE_ALL )
 			return -1;
 
-		if ( object.tile == BattleHex::HEX_AFTER_ALL )
-			return GameConstants::BFIELD_HEIGHT;
-
-		if ( object.tile == BattleHex::INVALID )
-			return GameConstants::BFIELD_HEIGHT;
-
-		assert(0);
+		assert( object.tile == BattleHex::HEX_AFTER_ALL || object.tile == BattleHex::INVALID);
 		return GameConstants::BFIELD_HEIGHT;
 	};
 
@@ -59,14 +53,14 @@ void BattleRenderer::renderObjects(BattleRenderer::RendererPtr targetCanvas)
 		object.functor(targetCanvas);
 }
 
-BattleRenderer::BattleRenderer(BattleInterface * owner):
+BattleRenderer::BattleRenderer(BattleInterface & owner):
 	owner(owner)
 {
 }
 
 void BattleRenderer::insert(EBattleFieldLayer layer, BattleHex tile, BattleRenderer::RenderFunctor functor)
 {
-	objects.push_back({ functor, layer, tile });
+	objects.push_back({functor, layer, tile});
 }
 
 void BattleRenderer::execute(BattleRenderer::RendererPtr targetCanvas)

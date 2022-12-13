@@ -23,7 +23,7 @@ class BattleConsole;
 /// GUI object that handles functionality of panel at the bottom of combat screen
 class BattleControlPanel : public CIntObject
 {
-	BattleInterface * owner;
+	BattleInterface & owner;
 
 	std::shared_ptr<CPicture> menu;
 
@@ -71,6 +71,6 @@ public:
 	/// Toggle UI to displaying battle log in place of tactics UI
 	void tacticPhaseEnded();
 
-	BattleControlPanel(BattleInterface * owner, const Point & position);
+	BattleControlPanel(BattleInterface & owner, const Point & position);
 };
 

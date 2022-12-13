@@ -60,7 +60,7 @@ static void onAnimationFinished(const CStack *stack, std::weak_ptr<CreatureAnima
 	animation->onAnimationReset += std::bind(&onAnimationFinished, stack, anim);
 }
 
-BattleStacksController::BattleStacksController(BattleInterface * owner):
+BattleStacksController::BattleStacksController(BattleInterface & owner):
 	owner(owner),
 	activeStack(nullptr),
 	mouseHoveredStack(nullptr),
@@ -86,7 +86,7 @@ BattleStacksController::BattleStacksController(BattleInterface * owner):
 	amountNegative->adjustPalette(&shifterNegative);
 	amountEffNeutral->adjustPalette(&shifterNeutral);
 
-	std::vector<const CStack*> stacks = owner->curInt->cb->battleGetAllStacks(true);
+	std::vector<const CStack*> stacks = owner.curInt->cb->battleGetAllStacks(true);
 	for(const CStack * s : stacks)
 	{
 		stackAdded(s);
@@ -118,7 +118,7 @@ BattleHex BattleStacksController::getStackCurrentPosition(const CStack * stack)
 
 void BattleStacksController::collectRenderableObjects(BattleRenderer & renderer)
 {
-	auto stacks = owner->curInt->cb->battleGetAllStacks(false);
+	auto stacks = owner.curInt->cb->battleGetAllStacks(false);
 
 	for (auto stack : stacks)
 	{
@@ -178,14 +178,14 @@ void BattleStacksController::stackAdded(const CStack * stack)
 
 	if(stack->initialPosition < 0) //turret
 	{
-		assert(owner->siegeController);
+		assert(owner.siegeController);
 
-		const CCreature *turretCreature = owner->siegeController->getTurretCreature();
+		const CCreature *turretCreature = owner.siegeController->getTurretCreature();
 
 		stackAnimation[stack->ID] = AnimationControls::getAnimation(turretCreature);
 		stackAnimation[stack->ID]->pos.h = 235;
 
-		coords = owner->siegeController->getTurretCreaturePosition(stack->initialPosition);
+		coords = owner.siegeController->getTurretCreaturePosition(stack->initialPosition);
 	}
 	else
 	{
@@ -209,7 +209,7 @@ void BattleStacksController::setActiveStack(const CStack *stack)
 	if (activeStack) // update UI
 		stackAnimation[activeStack->ID]->setBorderColor(AnimationControls::getGoldBorder());
 
-	owner->controlPanel->blockUI(activeStack == nullptr);
+	owner.controlPanel->blockUI(activeStack == nullptr);
 }
 
 void BattleStacksController::setHoveredStack(const CStack *stack)
@@ -239,9 +239,9 @@ void BattleStacksController::setHoveredStack(const CStack *stack)
 bool BattleStacksController::stackNeedsAmountBox(const CStack * stack)
 {
 	BattleHex currentActionTarget;
-	if(owner->curInt->curAction)
+	if(owner.curInt->curAction)
 	{
-		auto target = owner->curInt->curAction->getTarget(owner->curInt->cb.get());
+		auto target = owner.curInt->curAction->getTarget(owner.curInt->cb.get());
 		if(!target.empty())
 			currentActionTarget = target.at(0).hexValue;
 	}
@@ -249,7 +249,7 @@ bool BattleStacksController::stackNeedsAmountBox(const CStack * stack)
 	if(stack->hasBonusOfType(Bonus::SIEGE_WEAPON) && stack->getCount() == 1) //do not show box for singular war machines, stacked war machines with box shown are supported as extension feature
 		return false;
 
-	if (!owner->battleActionsStarted) // do not perform any further checks since they are related to actions that will only occur after intro music
+	if (!owner.battleActionsStarted) // do not perform any further checks since they are related to actions that will only occur after intro music
 		return true;
 
 	if(!stack->alive())
@@ -265,18 +265,18 @@ bool BattleStacksController::stackNeedsAmountBox(const CStack * stack)
 			return false;
 	}
 
-	if(owner->curInt->curAction)
+	if(owner.curInt->curAction)
 	{
-		if(owner->curInt->curAction->stackNumber == stack->ID) //stack is currently taking action (is not a target of another creature's action etc)
+		if(owner.curInt->curAction->stackNumber == stack->ID) //stack is currently taking action (is not a target of another creature's action etc)
 		{
-			if(owner->curInt->curAction->actionType == EActionType::WALK || owner->curInt->curAction->actionType == EActionType::SHOOT) //hide when stack walks or shoots
+			if(owner.curInt->curAction->actionType == EActionType::WALK || owner.curInt->curAction->actionType == EActionType::SHOOT) //hide when stack walks or shoots
 				return false;
 
-			else if(owner->curInt->curAction->actionType == EActionType::WALK_AND_ATTACK && currentActionTarget != stack->getPosition()) //when attacking, hide until walk phase finished
+			else if(owner.curInt->curAction->actionType == EActionType::WALK_AND_ATTACK && currentActionTarget != stack->getPosition()) //when attacking, hide until walk phase finished
 				return false;
 		}
 
-		if(owner->curInt->curAction->actionType == EActionType::SHOOT && currentActionTarget == stack->getPosition()) //hide if we are ranged attack target
+		if(owner.curInt->curAction->actionType == EActionType::SHOOT && currentActionTarget == stack->getPosition()) //hide if we are ranged attack target
 			return false;
 	}
 	return true;
@@ -312,7 +312,7 @@ void BattleStacksController::showStackAmountBox(Canvas & canvas, const CStack * 
 	const int reverseSideShift = stack->side == BattleSide::ATTACKER ? -1 : 1;
 	const BattleHex nextPos = stack->getPosition() + sideShift;
 	const bool edge = stack->getPosition() % GameConstants::BFIELD_WIDTH == (stack->side == BattleSide::ATTACKER ? GameConstants::BFIELD_WIDTH - 2 : 1);
-	const bool moveInside = !edge && !owner->fieldController->stackCountOutsideHex(nextPos);
+	const bool moveInside = !edge && !owner.fieldController->stackCountOutsideHex(nextPos);
 
 	int xAdd = (stack->side == BattleSide::ATTACKER ? 220 : 202) +
 			(stack->doubleWide() ? 44 : 0) * sideShift +
@@ -358,23 +358,23 @@ void BattleStacksController::updateBattleAnimations()
 	if (hadAnimations && currentAnimations.empty())
 	{
 		//anims ended
-		owner->controlPanel->blockUI(activeStack == nullptr);
-		owner->animsAreDisplayed.setn(false);
+		owner.controlPanel->blockUI(activeStack == nullptr);
+		owner.animsAreDisplayed.setn(false);
 	}
 }
 
 void BattleStacksController::addNewAnim(CBattleAnimation *anim)
 {
 	currentAnimations.push_back(anim);
-	owner->animsAreDisplayed.setn(true);
+	owner.animsAreDisplayed.setn(true);
 }
 
 void BattleStacksController::stackActivated(const CStack *stack) //TODO: check it all before game state is changed due to abilities
 {
 	stackToActivate = stack;
-	owner->waitForAnims();
+	owner.waitForAnims();
 	if (stackToActivate) //during waiting stack may have gotten activated through show
-		owner->activateStack();
+		owner.activateStack();
 }
 
 void BattleStacksController::stackRemoved(uint32_t stackID)
@@ -384,10 +384,10 @@ void BattleStacksController::stackRemoved(uint32_t stackID)
 		if (getActiveStack()->ID == stackID)
 		{
 			BattleAction *action = new BattleAction();
-			action->side = owner->defendingHeroInstance ? (owner->curInt->playerID == owner->defendingHeroInstance->tempOwner) : false;
+			action->side = owner.defendingHeroInstance ? (owner.curInt->playerID == owner.defendingHeroInstance->tempOwner) : false;
 			action->actionType = EActionType::CANCEL;
 			action->stackNumber = getActiveStack()->ID;
-			owner->givenCommand.setn(action);
+			owner.givenCommand.setn(action);
 			setActiveStack(nullptr);
 		}
 	}
@@ -403,10 +403,10 @@ void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> at
 
 		if(attackedInfo.rebirth)
 		{
-			owner->effectsController->displayEffect(EBattleEffect::RESURRECT, soundBase::RESURECT, attackedInfo.defender->getPosition()); //TODO: play reverse death animation
+			owner.effectsController->displayEffect(EBattleEffect::RESURRECT, soundBase::RESURECT, attackedInfo.defender->getPosition()); //TODO: play reverse death animation
 		}
 	}
-	owner->waitForAnims();
+	owner.waitForAnims();
 
 	for (auto & attackedInfo : attackedInfos)
 	{
@@ -420,7 +420,7 @@ void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> at
 void BattleStacksController::stackMoved(const CStack *stack, std::vector<BattleHex> destHex, int distance)
 {
 	addNewAnim(new CMovementAnimation(owner, stack, destHex, distance));
-	owner->waitForAnims();
+	owner.waitForAnims();
 }
 
 void BattleStacksController::stackAttacking( const CStack *attacker, BattleHex dest, const CStack *attacked, bool shooting )
@@ -454,7 +454,7 @@ void BattleStacksController::endAction(const BattleAction* action)
 {
 	//check if we should reverse stacks
 	//for some strange reason, it's not enough
-	TStacks stacks = owner->curInt->cb->battleGetStacks(CBattleCallback::MINE_AND_ENEMY);
+	TStacks stacks = owner.curInt->cb->battleGetStacks(CBattleCallback::MINE_AND_ENEMY);
 
 	for (const CStack *s : stacks)
 	{
@@ -469,16 +469,16 @@ void BattleStacksController::endAction(const BattleAction* action)
 
 void BattleStacksController::startAction(const BattleAction* action)
 {
-	const CStack *stack = owner->curInt->cb->battleGetStackByID(action->stackNumber);
+	const CStack *stack = owner.curInt->cb->battleGetStackByID(action->stackNumber);
 	setHoveredStack(nullptr);
 
-	auto actionTarget = action->getTarget(owner->curInt->cb.get());
+	auto actionTarget = action->getTarget(owner.curInt->cb.get());
 
 	if(action->actionType == EActionType::WALK
 		|| (action->actionType == EActionType::WALK_AND_ATTACK && actionTarget.at(0).hexValue != stack->getPosition()))
 	{
 		assert(stack);
-		owner->moveStarted = true;
+		owner.moveStarted = true;
 		if (stackAnimation[action->stackNumber]->framesInGroup(CCreatureAnim::MOVE_START))
 			addNewAnim(new CMovementStartAnimation(owner, stack));
 
@@ -495,7 +495,7 @@ void BattleStacksController::activateStack()
 	if ( !stackToActivate)
 		return;
 
-	owner->trySetActivePlayer(stackToActivate->owner);
+	owner.trySetActivePlayer(stackToActivate->owner);
 
 	setActiveStack(stackToActivate);
 	stackToActivate = nullptr;
@@ -513,7 +513,7 @@ void BattleStacksController::activateStack()
 		if(randomSpellcaster)
 			creatureSpellToCast = -1; //spell will be set later on cast
 		else
-			creatureSpellToCast = owner->curInt->cb->battleGetRandomStackSpell(CRandomGenerator::getDefault(), s, CBattleInfoCallback::RANDOM_AIMED); //faerie dragon can cast only one spell until their next move
+			creatureSpellToCast = owner.curInt->cb->battleGetRandomStackSpell(CRandomGenerator::getDefault(), s, CBattleInfoCallback::RANDOM_AIMED); //faerie dragon can cast only one spell until their next move
 		//TODO: what if creature can cast BOTH random genie spell and aimed spell?
 		//TODO: faerie dragon type spell should be selected by server
 	}
@@ -560,7 +560,7 @@ Point BattleStacksController::getStackPositionAtHex(BattleHex hexNum, const CSta
 {
 	Point ret(-500, -500); //returned value
 	if(stack && stack->initialPosition < 0) //creatures in turrets
-		return owner->siegeController->getTurretCreaturePosition(stack->initialPosition);
+		return owner.siegeController->getTurretCreaturePosition(stack->initialPosition);
 
 	static const Point basePos(-190, -139); // position of creature in topleft corner
 	static const int imageShiftX = 30; // X offset to base pos for facing right stacks, negative for facing left
@@ -591,6 +591,6 @@ Point BattleStacksController::getStackPositionAtHex(BattleHex hexNum, const CSta
 		}
 	}
 	//returning
-	return ret + owner->pos.topLeft();
+	return ret + owner.pos.topLeft();
 
 }

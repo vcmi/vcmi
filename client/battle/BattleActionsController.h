@@ -29,7 +29,7 @@ enum class MouseHoveredHexContext
 /// As well as all relevant feedback for these actions in user interface
 class BattleActionsController
 {
-	BattleInterface * owner;
+	BattleInterface & owner;
 
 	/// all actions possible to call at the moment by player
 	std::vector<PossiblePlayerBattleAction> possibleActions;
@@ -70,7 +70,7 @@ class BattleActionsController
 	void reorderPossibleActionsPriority(const CStack * stack, MouseHoveredHexContext context);
 
 public:
-	BattleActionsController(BattleInterface * owner);
+	BattleActionsController(BattleInterface & owner);
 
 	/// initialize list of potential actions for new active stack
 	void activateStack();

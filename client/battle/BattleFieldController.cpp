@@ -33,21 +33,21 @@
 #include "../../lib/CStack.h"
 #include "../../lib/spells/ISpellMechanics.h"
 
-BattleFieldController::BattleFieldController(BattleInterface * owner):
+BattleFieldController::BattleFieldController(BattleInterface & owner):
 	owner(owner),
 	attackingHex(BattleHex::INVALID)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
-	pos.w = owner->pos.w;
-	pos.h = owner->pos.h;
+	pos.w = owner.pos.w;
+	pos.h = owner.pos.h;
 
 	//preparing cells and hexes
 	cellBorder = IImage::createFromFile("CCELLGRD.BMP");
 	cellShade = IImage::createFromFile("CCELLSHD.BMP");
 
-	if(!owner->siegeController)
+	if(!owner.siegeController)
 	{
-		auto bfieldType = owner->curInt->cb->battleGetBattlefieldType();
+		auto bfieldType = owner.curInt->cb->battleGetBattlefieldType();
 
 		if(bfieldType == BattleField::NONE)
 			logGlobal->error("Invalid battlefield returned for current battle");
@@ -56,7 +56,7 @@ BattleFieldController::BattleFieldController(BattleInterface * owner):
 	}
 	else
 	{
-		std::string backgroundName = owner->siegeController->getBattleBackgroundName();
+		std::string backgroundName = owner.siegeController->getBattleBackgroundName();
 		background = IImage::createFromFile(backgroundName);
 	}
 
@@ -80,11 +80,11 @@ BattleFieldController::BattleFieldController(BattleInterface * owner):
 		auto hex = std::make_shared<ClickableHex>();
 		hex->myNumber = h;
 		hex->pos = hexPositionAbsolute(h);
-		hex->myInterface = owner;
+		hex->myInterface = &owner;
 		bfield.push_back(hex);
 	}
 
-	auto accessibility = owner->curInt->cb->getAccesibility();
+	auto accessibility = owner.curInt->cb->getAccesibility();
 	for(int i = 0; i < accessibility.size(); i++)
 		stackCountOutsideHexes[i] = (accessibility[i] == EAccessibility::ACCESSIBLE);
 }
@@ -97,12 +97,12 @@ void BattleFieldController::renderBattlefield(Canvas & canvas)
 
 	renderer.execute(canvas);
 
-	owner->projectilesController->showProjectiles(canvas);
+	owner.projectilesController->showProjectiles(canvas);
 }
 
 void BattleFieldController::showBackground(Canvas & canvas)
 {
-	if (owner->stacksController->getActiveStack() != nullptr ) //&& creAnims[stacksController->getActiveStack()->ID]->isIdle() //show everything with range
+	if (owner.stacksController->getActiveStack() != nullptr ) //&& creAnims[stacksController->getActiveStack()->ID]->isIdle() //show everything with range
 		showBackgroundImageWithHexes(canvas);
 	else
 		showBackgroundImage(canvas);
@@ -113,38 +113,38 @@ void BattleFieldController::showBackground(Canvas & canvas)
 
 void BattleFieldController::showBackgroundImage(Canvas & canvas)
 {
-	canvas.draw(background, owner->pos.topLeft());
+	canvas.draw(background, owner.pos.topLeft());
 
-	owner->obstacleController->showAbsoluteObstacles(canvas, pos.topLeft());
-	if ( owner->siegeController )
-		owner->siegeController->showAbsoluteObstacles(canvas, pos.topLeft());
+	owner.obstacleController->showAbsoluteObstacles(canvas, pos.topLeft());
+	if ( owner.siegeController )
+		owner.siegeController->showAbsoluteObstacles(canvas, pos.topLeft());
 
 	if (settings["battle"]["cellBorders"].Bool())
-		canvas.draw(*cellBorders, owner->pos.topLeft());
+		canvas.draw(*cellBorders, owner.pos.topLeft());
 }
 
 void BattleFieldController::showBackgroundImageWithHexes(Canvas & canvas)
 {
-	canvas.draw(*backgroundWithHexes.get(), owner->pos.topLeft());
+	canvas.draw(*backgroundWithHexes.get(), owner.pos.topLeft());
 }
 
 void BattleFieldController::redrawBackgroundWithHexes()
 {
-	const CStack *activeStack = owner->stacksController->getActiveStack();
+	const CStack *activeStack = owner.stacksController->getActiveStack();
 	std::vector<BattleHex> attackableHexes;
 	if (activeStack)
-		occupyableHexes = owner->curInt->cb->battleGetAvailableHexes(activeStack, true, &attackableHexes);
+		occupyableHexes = owner.curInt->cb->battleGetAvailableHexes(activeStack, true, &attackableHexes);
 
-	auto accessibility = owner->curInt->cb->getAccesibility();
+	auto accessibility = owner.curInt->cb->getAccesibility();
 
 	for(int i = 0; i < accessibility.size(); i++)
 		stackCountOutsideHexes[i] = (accessibility[i] == EAccessibility::ACCESSIBLE);
 
 	//prepare background graphic with hexes and shaded hexes
 	backgroundWithHexes->draw(background, Point(0,0));
-	owner->obstacleController->showAbsoluteObstacles(*backgroundWithHexes, Point(0,0));
-	if ( owner->siegeController )
-		owner->siegeController->showAbsoluteObstacles(*backgroundWithHexes, Point(0,0));
+	owner.obstacleController->showAbsoluteObstacles(*backgroundWithHexes, Point(0,0));
+	if ( owner.siegeController )
+		owner.siegeController->showAbsoluteObstacles(*backgroundWithHexes, Point(0,0));
 
 	if (settings["battle"]["stackRange"].Bool())
 	{
@@ -173,7 +173,7 @@ std::set<BattleHex> BattleFieldController::getHighlightedHexesStackRange()
 {
 	std::set<BattleHex> result;
 
-	if ( !owner->stacksController->getActiveStack())
+	if ( !owner.stacksController->getActiveStack())
 		return result;
 
 	if ( !settings["battle"]["stackRange"].Bool())
@@ -181,15 +181,15 @@ std::set<BattleHex> BattleFieldController::getHighlightedHexesStackRange()
 
 	auto hoveredHex = getHoveredHex();
 
-	std::set<BattleHex> set = owner->curInt->cb->battleGetAttackedHexes(owner->stacksController->getActiveStack(), hoveredHex, attackingHex);
+	std::set<BattleHex> set = owner.curInt->cb->battleGetAttackedHexes(owner.stacksController->getActiveStack(), hoveredHex, attackingHex);
 	for(BattleHex hex : set)
 		result.insert(hex);
 
 	// display the movement shadow of the stack at b (i.e. stack under mouse)
-	const CStack * const shere = owner->curInt->cb->battleGetStackByPos(hoveredHex, false);
-	if(shere && shere != owner->stacksController->getActiveStack() && shere->alive())
+	const CStack * const shere = owner.curInt->cb->battleGetStackByPos(hoveredHex, false);
+	if(shere && shere != owner.stacksController->getActiveStack() && shere->alive())
 	{
-		std::vector<BattleHex> v = owner->curInt->cb->battleGetAvailableHexes(shere, true, nullptr);
+		std::vector<BattleHex> v = owner.curInt->cb->battleGetAvailableHexes(shere, true, nullptr);
 		for(BattleHex hex : v)
 			result.insert(hex);
 	}
@@ -209,22 +209,22 @@ std::set<BattleHex> BattleFieldController::getHighlightedHexesSpellRange()
 
 	spells::Mode mode = spells::Mode::HERO;
 
-	if(owner->actionsController->spellcastingModeActive())//hero casts spell
+	if(owner.actionsController->spellcastingModeActive())//hero casts spell
 	{
-		spell = owner->actionsController->selectedSpell().toSpell();
-		caster = owner->getActiveHero();
+		spell = owner.actionsController->selectedSpell().toSpell();
+		caster = owner.getActiveHero();
 	}
-	else if(owner->stacksController->activeStackSpellToCast() != SpellID::NONE)//stack casts spell
+	else if(owner.stacksController->activeStackSpellToCast() != SpellID::NONE)//stack casts spell
 	{
-		spell = SpellID(owner->stacksController->activeStackSpellToCast()).toSpell();
-		caster = owner->stacksController->getActiveStack();
+		spell = SpellID(owner.stacksController->activeStackSpellToCast()).toSpell();
+		caster = owner.stacksController->getActiveStack();
 		mode = spells::Mode::CREATURE_ACTIVE;
 	}
 
 	if(caster && spell) //when casting spell
 	{
 		// printing shaded hex(es)
-		spells::BattleCast event(owner->curInt->cb.get(), caster, mode, spell);
+		spells::BattleCast event(owner.curInt->cb.get(), caster, mode, spell);
 		auto shaded = spell->battleMechanics(&event)->rangeInHexes(hoveredHex);
 
 		for(BattleHex shadedHex : shaded)
@@ -233,7 +233,7 @@ std::set<BattleHex> BattleFieldController::getHighlightedHexesSpellRange()
 				result.insert(shadedHex);
 		}
 	}
-	else if(owner->active) //always highlight pointed hex
+	else if(owner.active) //always highlight pointed hex
 	{
 		if(hoveredHex.getX() != 0 && hoveredHex.getX() != GameConstants::BFIELD_WIDTH - 1)
 			result.insert(hoveredHex);
@@ -280,7 +280,7 @@ Rect BattleFieldController::hexPositionLocal(BattleHex hex) const
 
 Rect BattleFieldController::hexPositionAbsolute(BattleHex hex) const
 {
-	return hexPositionLocal(hex) + owner->pos.topLeft();
+	return hexPositionLocal(hex) + owner.pos.topLeft();
 }
 
 bool BattleFieldController::isPixelInHex(Point const & position)
@@ -317,7 +317,7 @@ void BattleFieldController::setBattleCursor(BattleHex myNumber)
 	sectorCursor.push_back(12);
 	sectorCursor.push_back(7);
 
-	const bool doubleWide = owner->stacksController->getActiveStack()->doubleWide();
+	const bool doubleWide = owner.stacksController->getActiveStack()->doubleWide();
 	bool aboveAttackable = true, belowAttackable = true;
 
 	// Exclude directions which cannot be attacked from.
@@ -478,12 +478,12 @@ BattleHex BattleFieldController::fromWhichHexAttack(BattleHex myNumber)
 	{
 	case 12: //from bottom right
 		{
-			bool doubleWide = owner->stacksController->getActiveStack()->doubleWide();
+			bool doubleWide = owner.stacksController->getActiveStack()->doubleWide();
 			destHex = myNumber + ( (myNumber/GameConstants::BFIELD_WIDTH)%2 ? GameConstants::BFIELD_WIDTH : GameConstants::BFIELD_WIDTH+1 ) +
-				(owner->stacksController->getActiveStack()->side == BattleSide::ATTACKER && doubleWide ? 1 : 0);
+				(owner.stacksController->getActiveStack()->side == BattleSide::ATTACKER && doubleWide ? 1 : 0);
 			if(vstd::contains(occupyableHexes, destHex))
 				return destHex;
-			else if(owner->stacksController->getActiveStack()->side == BattleSide::ATTACKER)
+			else if(owner.stacksController->getActiveStack()->side == BattleSide::ATTACKER)
 			{
 				if (vstd::contains(occupyableHexes, destHex+1))
 					return destHex+1;
@@ -500,7 +500,7 @@ BattleHex BattleFieldController::fromWhichHexAttack(BattleHex myNumber)
 			destHex = myNumber + ( (myNumber/GameConstants::BFIELD_WIDTH)%2 ? GameConstants::BFIELD_WIDTH-1 : GameConstants::BFIELD_WIDTH );
 			if (vstd::contains(occupyableHexes, destHex))
 				return destHex;
-			else if(owner->stacksController->getActiveStack()->side == BattleSide::ATTACKER)
+			else if(owner.stacksController->getActiveStack()->side == BattleSide::ATTACKER)
 			{
 				if(vstd::contains(occupyableHexes, destHex+1))
 					return destHex+1;
@@ -514,9 +514,9 @@ BattleHex BattleFieldController::fromWhichHexAttack(BattleHex myNumber)
 		}
 	case 8: //from left
 		{
-			if(owner->stacksController->getActiveStack()->doubleWide() && owner->stacksController->getActiveStack()->side == BattleSide::DEFENDER)
+			if(owner.stacksController->getActiveStack()->doubleWide() && owner.stacksController->getActiveStack()->side == BattleSide::DEFENDER)
 			{
-				std::vector<BattleHex> acc = owner->curInt->cb->battleGetAvailableHexes(owner->stacksController->getActiveStack());
+				std::vector<BattleHex> acc = owner.curInt->cb->battleGetAvailableHexes(owner.stacksController->getActiveStack());
 				if (vstd::contains(acc, myNumber))
 					return myNumber - 1;
 				else
@@ -533,7 +533,7 @@ BattleHex BattleFieldController::fromWhichHexAttack(BattleHex myNumber)
 			destHex = myNumber - ((myNumber/GameConstants::BFIELD_WIDTH) % 2 ? GameConstants::BFIELD_WIDTH + 1 : GameConstants::BFIELD_WIDTH);
 			if(vstd::contains(occupyableHexes, destHex))
 				return destHex;
-			else if(owner->stacksController->getActiveStack()->side == BattleSide::ATTACKER)
+			else if(owner.stacksController->getActiveStack()->side == BattleSide::ATTACKER)
 			{
 				if(vstd::contains(occupyableHexes, destHex+1))
 					return destHex+1;
@@ -547,12 +547,12 @@ BattleHex BattleFieldController::fromWhichHexAttack(BattleHex myNumber)
 		}
 	case 10: //from top right
 		{
-			bool doubleWide = owner->stacksController->getActiveStack()->doubleWide();
+			bool doubleWide = owner.stacksController->getActiveStack()->doubleWide();
 			destHex = myNumber - ( (myNumber/GameConstants::BFIELD_WIDTH)%2 ? GameConstants::BFIELD_WIDTH : GameConstants::BFIELD_WIDTH-1 ) +
-				(owner->stacksController->getActiveStack()->side == BattleSide::ATTACKER && doubleWide ? 1 : 0);
+				(owner.stacksController->getActiveStack()->side == BattleSide::ATTACKER && doubleWide ? 1 : 0);
 			if(vstd::contains(occupyableHexes, destHex))
 				return destHex;
-			else if(owner->stacksController->getActiveStack()->side == BattleSide::ATTACKER)
+			else if(owner.stacksController->getActiveStack()->side == BattleSide::ATTACKER)
 			{
 				if(vstd::contains(occupyableHexes, destHex+1))
 					return destHex+1;
@@ -566,9 +566,9 @@ BattleHex BattleFieldController::fromWhichHexAttack(BattleHex myNumber)
 		}
 	case 11: //from right
 		{
-			if(owner->stacksController->getActiveStack()->doubleWide() && owner->stacksController->getActiveStack()->side == BattleSide::ATTACKER)
+			if(owner.stacksController->getActiveStack()->doubleWide() && owner.stacksController->getActiveStack()->side == BattleSide::ATTACKER)
 			{
-				std::vector<BattleHex> acc = owner->curInt->cb->battleGetAvailableHexes(owner->stacksController->getActiveStack());
+				std::vector<BattleHex> acc = owner.curInt->cb->battleGetAvailableHexes(owner.stacksController->getActiveStack());
 				if(vstd::contains(acc, myNumber))
 					return myNumber + 1;
 				else
@@ -585,7 +585,7 @@ BattleHex BattleFieldController::fromWhichHexAttack(BattleHex myNumber)
 			destHex = myNumber + ( (myNumber/GameConstants::BFIELD_WIDTH)%2 ? GameConstants::BFIELD_WIDTH : GameConstants::BFIELD_WIDTH+1 );
 			if(vstd::contains(occupyableHexes, destHex))
 				return destHex;
-			else if(owner->stacksController->getActiveStack()->side == BattleSide::ATTACKER)
+			else if(owner.stacksController->getActiveStack()->side == BattleSide::ATTACKER)
 			{
 				if(vstd::contains(occupyableHexes, destHex+1))
 					return destHex+1;
@@ -602,7 +602,7 @@ BattleHex BattleFieldController::fromWhichHexAttack(BattleHex myNumber)
 			destHex = myNumber - ( (myNumber/GameConstants::BFIELD_WIDTH)%2 ? GameConstants::BFIELD_WIDTH : GameConstants::BFIELD_WIDTH-1 );
 			if (vstd::contains(occupyableHexes, destHex))
 				return destHex;
-			else if(owner->stacksController->getActiveStack()->side == BattleSide::ATTACKER)
+			else if(owner.stacksController->getActiveStack()->side == BattleSide::ATTACKER)
 			{
 				if(vstd::contains(occupyableHexes, destHex+1))
 					return destHex+1;

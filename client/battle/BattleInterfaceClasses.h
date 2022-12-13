@@ -97,7 +97,7 @@ public:
 	void hover(bool on) override;
 	void clickLeft(tribool down, bool previousState) override; //call-in
 	void clickRight(tribool down, bool previousState) override; //call-in
-	BattleHero(const std::string & animationPath, bool filpG, PlayerColor player, const CGHeroInstance * hero, const BattleInterface * owner);
+	BattleHero(const std::string & animationPath, bool filpG, PlayerColor player, const CGHeroInstance * hero, const BattleInterface & owner);
 };
 
 class HeroInfoWindow : public CWindowObject
@@ -119,7 +119,7 @@ private:
 	std::vector<std::shared_ptr<CLabel>> labels;
 	std::vector<std::shared_ptr<CToggleButton>> toggles;
 public:
-	BattleOptionsWindow(BattleInterface * owner);
+	BattleOptionsWindow(BattleInterface & owner);
 
 	void bDefaultf(); //default button callback
 	void bExitf(); //exit button callback
@@ -151,8 +151,6 @@ private:
 	bool setAlterText; //if true, this hex has set alternative text in console and will clean it
 public:
 	ui32 myNumber; //number of hex in commonly used format
-	//bool accessible; //if true, this hex is accessible for units
-	//CStack * ourStack;
 	bool strictHovered; //for determining if hex is hovered by mouse (this is different problem than hex's graphic hovering)
 	BattleInterface * myInterface; //interface that owns me
 
@@ -183,7 +181,7 @@ class StackQueue : public CIntObject
 	static const int QUEUE_SIZE = 10;
 	std::shared_ptr<CFilledTexture> background;
 	std::vector<std::shared_ptr<StackBox>> stackBoxes;
-	BattleInterface * owner;
+	BattleInterface & owner;
 
 	std::shared_ptr<CAnimation> icons;
 	std::shared_ptr<CAnimation> stateIcons;
@@ -192,6 +190,6 @@ class StackQueue : public CIntObject
 public:
 	const bool embedded;
 
-	StackQueue(bool Embedded, BattleInterface * _owner);
+	StackQueue(bool Embedded, BattleInterface & owner);
 	void update();
 };

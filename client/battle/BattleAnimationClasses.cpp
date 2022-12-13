@@ -34,9 +34,9 @@
 #include "../../lib/CTownHandler.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 
-CBattleAnimation::CBattleAnimation(BattleInterface * _owner)
-	: owner(_owner),
-	  ID(_owner->stacksController->animIDhelper++),
+CBattleAnimation::CBattleAnimation(BattleInterface & owner)
+	: owner(owner),
+	  ID(owner.stacksController->animIDhelper++),
 	  initialized(false)
 {
 	logAnim->trace("Animation #%d created", ID);
@@ -72,22 +72,22 @@ CBattleAnimation::~CBattleAnimation()
 
 std::vector<CBattleAnimation *> & CBattleAnimation::pendingAnimations()
 {
-	return owner->stacksController->currentAnimations;
+	return owner.stacksController->currentAnimations;
 }
 
 std::shared_ptr<CreatureAnimation> CBattleAnimation::stackAnimation(const CStack * stack) const
 {
-	return owner->stacksController->stackAnimation[stack->ID];
+	return owner.stacksController->stackAnimation[stack->ID];
 }
 
 bool CBattleAnimation::stackFacingRight(const CStack * stack)
 {
-	return owner->stacksController->stackFacingRight[stack->ID];
+	return owner.stacksController->stackFacingRight[stack->ID];
 }
 
 void CBattleAnimation::setStackFacingRight(const CStack * stack, bool facingRight)
 {
-	owner->stacksController->stackFacingRight[stack->ID] = facingRight;
+	owner.stacksController->stackFacingRight[stack->ID] = facingRight;
 }
 
 bool CBattleAnimation::checkInitialConditions()
@@ -116,7 +116,7 @@ bool CBattleAnimation::checkInitialConditions()
 	return ID == lowestMoveID;
 }
 
-CBattleStackAnimation::CBattleStackAnimation(BattleInterface * owner, const CStack * stack)
+CBattleStackAnimation::CBattleStackAnimation(BattleInterface & owner, const CStack * stack)
 	: CBattleAnimation(owner),
 	  myAnim(stackAnimation(stack)),
 	  stack(stack)
@@ -172,13 +172,13 @@ bool CAttackAnimation::checkInitialConditions()
 const CCreature * CAttackAnimation::getCreature() const
 {
 	if (attackingStack->getCreature()->idNumber == CreatureID::ARROW_TOWERS)
-		return owner->siegeController->getTurretCreature();
+		return owner.siegeController->getTurretCreature();
 	else
 		return attackingStack->getCreature();
 }
 
-CAttackAnimation::CAttackAnimation(BattleInterface *_owner, const CStack *attacker, BattleHex _dest, const CStack *defender)
-	: CBattleStackAnimation(_owner, attacker),
+CAttackAnimation::CAttackAnimation(BattleInterface & owner, const CStack *attacker, BattleHex _dest, const CStack *defender)
+	: CBattleStackAnimation(owner, attacker),
 	  shooting(false),
 	  group(CCreatureAnim::SHOOT_FRONT),
 	  soundPlayed(false),
@@ -190,8 +190,8 @@ CAttackAnimation::CAttackAnimation(BattleInterface *_owner, const CStack *attack
 	attackingStackPosBeforeReturn = attackingStack->getPosition();
 }
 
-CDefenceAnimation::CDefenceAnimation(StackAttackedInfo _attackedInfo, BattleInterface * _owner)
-	: CBattleStackAnimation(_owner, _attackedInfo.defender),
+CDefenceAnimation::CDefenceAnimation(StackAttackedInfo _attackedInfo, BattleInterface & owner)
+	: CBattleStackAnimation(owner, _attackedInfo.defender),
 	  attacker(_attackedInfo.attacker),
 	  rangedAttack(_attackedInfo.indirectAttack),
 	  killed(_attackedInfo.killed),
@@ -235,14 +235,14 @@ bool CDefenceAnimation::init()
 
 
 	//reverse unit if necessary
-	if(attacker && owner->getCurrentPlayerInterface()->cb->isToReverse(stack->getPosition(), attacker->getPosition(), stackFacingRight(stack), attacker->doubleWide(), stackFacingRight(attacker)))
+	if(attacker && owner.getCurrentPlayerInterface()->cb->isToReverse(stack->getPosition(), attacker->getPosition(), stackFacingRight(stack), attacker->doubleWide(), stackFacingRight(attacker)))
 	{
-		owner->stacksController->addNewAnim(new CReverseAnimation(owner, stack, stack->getPosition(), true));
+		owner.stacksController->addNewAnim(new CReverseAnimation(owner, stack, stack->getPosition(), true));
 		return false;
 	}
 	//unit reversed
 
-	if(rangedAttack && attacker != nullptr && owner->projectilesController->hasActiveProjectile(attacker)) //delay hit animation
+	if(rangedAttack && attacker != nullptr && owner.projectilesController->hasActiveProjectile(attacker)) //delay hit animation
 	{
 		return false;
 	}
@@ -327,8 +327,8 @@ CDefenceAnimation::~CDefenceAnimation()
 	}
 }
 
-CDummyAnimation::CDummyAnimation(BattleInterface * _owner, int howManyFrames)
-	: CBattleAnimation(_owner),
+CDummyAnimation::CDummyAnimation(BattleInterface & owner, int howManyFrames)
+	: CBattleAnimation(owner),
 	  counter(0),
 	  howMany(howManyFrames)
 {
@@ -358,11 +358,11 @@ bool CMeleeAttackAnimation::init()
 		return false;
 	}
 
-	bool toReverse = owner->getCurrentPlayerInterface()->cb->isToReverse(attackingStackPosBeforeReturn, attackedStack->getPosition(), stackFacingRight(stack), attackedStack->doubleWide(), stackFacingRight(attackedStack));
+	bool toReverse = owner.getCurrentPlayerInterface()->cb->isToReverse(attackingStackPosBeforeReturn, attackedStack->getPosition(), stackFacingRight(stack), attackedStack->doubleWide(), stackFacingRight(attackedStack));
 
 	if(toReverse)
 	{
-		owner->stacksController->addNewAnim(new CReverseAnimation(owner, stack, attackingStackPosBeforeReturn, true));
+		owner.stacksController->addNewAnim(new CReverseAnimation(owner, stack, attackingStackPosBeforeReturn, true));
 		return false;
 	}
 
@@ -438,14 +438,14 @@ bool CMeleeAttackAnimation::init()
 	return true;
 }
 
-CMeleeAttackAnimation::CMeleeAttackAnimation(BattleInterface * _owner, const CStack * attacker, BattleHex _dest, const CStack * _attacked)
-	: CAttackAnimation(_owner, attacker, _dest, _attacked)
+CMeleeAttackAnimation::CMeleeAttackAnimation(BattleInterface & owner, const CStack * attacker, BattleHex _dest, const CStack * _attacked)
+	: CAttackAnimation(owner, attacker, _dest, _attacked)
 {
 	logAnim->debug("Created melee attack anim for %s", attacker->getName());
 }
 
-CStackMoveAnimation::CStackMoveAnimation(BattleInterface * _owner, const CStack * _stack, BattleHex _currentHex):
-	CBattleStackAnimation(_owner, _stack),
+CStackMoveAnimation::CStackMoveAnimation(BattleInterface & owner, const CStack * _stack, BattleHex _currentHex):
+	CBattleStackAnimation(owner, _stack),
 	currentHex(_currentHex)
 {
 
@@ -471,13 +471,13 @@ bool CMovementAnimation::init()
 	}
 
 	//reverse unit if necessary
-	if(owner->stacksController->shouldRotate(stack, oldPos, currentHex))
+	if(owner.stacksController->shouldRotate(stack, oldPos, currentHex))
 	{
 		// it seems that H3 does NOT plays full rotation animation here in most situations
 		// Logical since it takes quite a lot of time
 		if (curentMoveIndex == 0) // full rotation only for moving towards first tile.
 		{
-			owner->stacksController->addNewAnim(new CReverseAnimation(owner, stack, oldPos, true));
+			owner.stacksController->addNewAnim(new CReverseAnimation(owner, stack, oldPos, true));
 			return false;
 		}
 		else
@@ -491,13 +491,13 @@ bool CMovementAnimation::init()
 		myAnim->setType(CCreatureAnim::MOVING);
 	}
 
-	if (owner->moveSoundHander == -1)
+	if (owner.moveSoundHander == -1)
 	{
-		owner->moveSoundHander = CCS->soundh->playSound(battle_sound(stack->getCreature(), move), -1);
+		owner.moveSoundHander = CCS->soundh->playSound(battle_sound(stack->getCreature(), move), -1);
 	}
 
-	Point begPosition = owner->stacksController->getStackPositionAtHex(oldPos, stack);
-	Point endPosition = owner->stacksController->getStackPositionAtHex(currentHex, stack);
+	Point begPosition = owner.stacksController->getStackPositionAtHex(oldPos, stack);
+	Point endPosition = owner.stacksController->getStackPositionAtHex(currentHex, stack);
 
 	timeToMove = AnimationControls::getMovementDuration(stack->getCreature());
 
@@ -530,7 +530,7 @@ void CMovementAnimation::nextFrame()
 	if(progress >= 1.0)
 	{
 		// Sets the position of the creature animation sprites
-		Point coords = owner->stacksController->getStackPositionAtHex(currentHex, stack);
+		Point coords = owner.stacksController->getStackPositionAtHex(currentHex, stack);
 		myAnim->pos = coords;
 
 		// true if creature haven't reached the final destination hex
@@ -553,18 +553,18 @@ CMovementAnimation::~CMovementAnimation()
 {
 	assert(stack);
 
-	myAnim->pos = owner->stacksController->getStackPositionAtHex(currentHex, stack);
-	owner->stacksController->addNewAnim(new CMovementEndAnimation(owner, stack, currentHex));
+	myAnim->pos = owner.stacksController->getStackPositionAtHex(currentHex, stack);
+	owner.stacksController->addNewAnim(new CMovementEndAnimation(owner, stack, currentHex));
 
-	if(owner->moveSoundHander != -1)
+	if(owner.moveSoundHander != -1)
 	{
-		CCS->soundh->stopSound(owner->moveSoundHander);
-		owner->moveSoundHander = -1;
+		CCS->soundh->stopSound(owner.moveSoundHander);
+		owner.moveSoundHander = -1;
 	}
 }
 
-CMovementAnimation::CMovementAnimation(BattleInterface *_owner, const CStack *_stack, std::vector<BattleHex> _destTiles, int _distance)
-	: CStackMoveAnimation(_owner, _stack, _destTiles.front()),
+CMovementAnimation::CMovementAnimation(BattleInterface & owner, const CStack *_stack, std::vector<BattleHex> _destTiles, int _distance)
+	: CStackMoveAnimation(owner, _stack, _destTiles.front()),
 	  destTiles(_destTiles),
 	  curentMoveIndex(0),
 	  oldPos(stack->getPosition()),
@@ -576,8 +576,8 @@ CMovementAnimation::CMovementAnimation(BattleInterface *_owner, const CStack *_s
 	logAnim->debug("Created movement anim for %s", stack->getName());
 }
 
-CMovementEndAnimation::CMovementEndAnimation(BattleInterface * _owner, const CStack * _stack, BattleHex destTile)
-: CStackMoveAnimation(_owner, _stack, destTile)
+CMovementEndAnimation::CMovementEndAnimation(BattleInterface & owner, const CStack * _stack, BattleHex destTile)
+: CStackMoveAnimation(owner, _stack, destTile)
 {
 	logAnim->debug("Created movement end anim for %s", stack->getName());
 }
@@ -611,8 +611,8 @@ CMovementEndAnimation::~CMovementEndAnimation()
 	CCS->curh->show();
 }
 
-CMovementStartAnimation::CMovementStartAnimation(BattleInterface * _owner, const CStack * _stack)
-	: CStackMoveAnimation(_owner, _stack, _stack->getPosition())
+CMovementStartAnimation::CMovementStartAnimation(BattleInterface & owner, const CStack * _stack)
+	: CStackMoveAnimation(owner, _stack, _stack->getPosition())
 {
 	logAnim->debug("Created movement start anim for %s", stack->getName());
 }
@@ -636,8 +636,8 @@ bool CMovementStartAnimation::init()
 	return true;
 }
 
-CReverseAnimation::CReverseAnimation(BattleInterface * _owner, const CStack * stack, BattleHex dest, bool _priority)
-	: CStackMoveAnimation(_owner, stack, dest),
+CReverseAnimation::CReverseAnimation(BattleInterface & owner, const CStack * stack, BattleHex dest, bool _priority)
+	: CStackMoveAnimation(owner, stack, dest),
 	  priority(_priority)
 {
 	logAnim->debug("Created reverse anim for %s", stack->getName());
@@ -676,7 +676,7 @@ void CBattleStackAnimation::rotateStack(BattleHex hex)
 {
 	setStackFacingRight(stack, !stackFacingRight(stack));
 
-	stackAnimation(stack)->pos = owner->stacksController->getStackPositionAtHex(hex, stack);
+	stackAnimation(stack)->pos = owner.stacksController->getStackPositionAtHex(hex, stack);
 }
 
 void CReverseAnimation::setupSecondPart()
@@ -698,8 +698,8 @@ void CReverseAnimation::setupSecondPart()
 		delete this;
 }
 
-CRangedAttackAnimation::CRangedAttackAnimation(BattleInterface * owner_, const CStack * attacker, BattleHex dest_, const CStack * defender)
-	: CAttackAnimation(owner_, attacker, dest_, defender),
+CRangedAttackAnimation::CRangedAttackAnimation(BattleInterface & owner, const CStack * attacker, BattleHex dest_, const CStack * defender)
+	: CAttackAnimation(owner, attacker, dest_, defender),
 	  projectileEmitted(false)
 {
 	logAnim->info("Ranged attack animation created");
@@ -722,9 +722,9 @@ bool CRangedAttackAnimation::init()
 	}
 
 	//reverse unit if necessary
-	if (attackingStack && attackedStack && owner->getCurrentPlayerInterface()->cb->isToReverse(attackingStack->getPosition(), attackedStack->getPosition(), stackFacingRight(attackingStack), attackingStack->doubleWide(), stackFacingRight(attackedStack)))
+	if (attackingStack && attackedStack && owner.getCurrentPlayerInterface()->cb->isToReverse(attackingStack->getPosition(), attackedStack->getPosition(), stackFacingRight(attackingStack), attackingStack->doubleWide(), stackFacingRight(attackedStack)))
 	{
-		owner->stacksController->addNewAnim(new CReverseAnimation(owner, attackingStack, attackingStack->getPosition(), true));
+		owner.stacksController->addNewAnim(new CReverseAnimation(owner, attackingStack, attackingStack->getPosition(), true));
 		return false;
 	}
 
@@ -738,7 +738,7 @@ bool CRangedAttackAnimation::init()
 void CRangedAttackAnimation::setAnimationGroup()
 {
 	Point shooterPos = stackAnimation(attackingStack)->pos.topLeft();
-	Point shotTarget = owner->stacksController->getStackPositionAtHex(dest, attackedStack);
+	Point shotTarget = owner.stacksController->getStackPositionAtHex(dest, attackedStack);
 
 	//maximal angle in radians between straight horizontal line and shooting line for which shot is considered to be straight (absoulte value)
 	static const double straightAngle = 0.2;
@@ -757,7 +757,7 @@ void CRangedAttackAnimation::setAnimationGroup()
 void CRangedAttackAnimation::initializeProjectile()
 {
 	const CCreature *shooterInfo = getCreature();
-	Point shotTarget = owner->stacksController->getStackPositionAtHex(dest, attackedStack) + Point(225, 225);
+	Point shotTarget = owner.stacksController->getStackPositionAtHex(dest, attackedStack) + Point(225, 225);
 	Point shotOrigin = stackAnimation(attackingStack)->pos.topLeft() + Point(222, 265);
 	int multiplier = stackFacingRight(attackingStack) ? 1 : -1;
 
@@ -787,7 +787,7 @@ void CRangedAttackAnimation::initializeProjectile()
 void CRangedAttackAnimation::emitProjectile()
 {
 	logAnim->info("Ranged attack projectile emitted");
-	owner->projectilesController->emitStackProjectile(attackingStack);
+	owner.projectilesController->emitStackProjectile(attackingStack);
 	projectileEmitted = true;
 }
 
@@ -807,7 +807,7 @@ void CRangedAttackAnimation::nextFrame()
 	// animation should be paused if there is an active projectile
 	if (projectileEmitted)
 	{
-		if (owner->projectilesController->hasActiveProjectile(attackingStack))
+		if (owner.projectilesController->hasActiveProjectile(attackingStack))
 			stackAnimation(attackingStack)->pause();
 		else
 			stackAnimation(attackingStack)->play();
@@ -836,7 +836,7 @@ CRangedAttackAnimation::~CRangedAttackAnimation()
 {
 	logAnim->info("Ranged attack animation is over");
 	//FIXME: this assert triggers under some unclear, rare conditions. Possibly - if game window is inactive and/or in foreground/minimized?
-	assert(!owner->projectilesController->hasActiveProjectile(attackingStack));
+	assert(!owner.projectilesController->hasActiveProjectile(attackingStack));
 	assert(projectileEmitted);
 
 	// FIXME: is this possible? Animation is over but we're yet to fire projectile?
@@ -847,15 +847,15 @@ CRangedAttackAnimation::~CRangedAttackAnimation()
 	}
 }
 
-CShootingAnimation::CShootingAnimation(BattleInterface * _owner, const CStack * attacker, BattleHex _dest, const CStack * _attacked)
-	: CRangedAttackAnimation(_owner, attacker, _dest, _attacked)
+CShootingAnimation::CShootingAnimation(BattleInterface & owner, const CStack * attacker, BattleHex _dest, const CStack * _attacked)
+	: CRangedAttackAnimation(owner, attacker, _dest, _attacked)
 {
 	logAnim->debug("Created shooting anim for %s", stack->getName());
 }
 
 void CShootingAnimation::createProjectile(const Point & from, const Point & dest) const
 {
-	owner->projectilesController->createProjectile(attackingStack, from, dest);
+	owner.projectilesController->createProjectile(attackingStack, from, dest);
 }
 
 uint32_t CShootingAnimation::getAttackClimaxFrame() const
@@ -879,8 +879,8 @@ CCreatureAnim::EAnimType CShootingAnimation::getDownwardsGroup() const
 	return CCreatureAnim::SHOOT_DOWN;
 }
 
-CCatapultAnimation::CCatapultAnimation(BattleInterface * _owner, const CStack * attacker, BattleHex _dest, const CStack * _attacked, int _catapultDmg)
-	: CShootingAnimation(_owner, attacker, _dest, _attacked),
+CCatapultAnimation::CCatapultAnimation(BattleInterface & owner, const CStack * attacker, BattleHex _dest, const CStack * _attacked, int _catapultDmg)
+	: CShootingAnimation(owner, attacker, _dest, _attacked),
 	catapultDamage(_catapultDmg),
 	explosionEmitted(false)
 {
@@ -897,26 +897,26 @@ void CCatapultAnimation::nextFrame()
 	if ( !projectileEmitted)
 		return;
 
-	if (owner->projectilesController->hasActiveProjectile(attackingStack))
+	if (owner.projectilesController->hasActiveProjectile(attackingStack))
 		return;
 
 	explosionEmitted = true;
-	Point shotTarget = owner->stacksController->getStackPositionAtHex(dest, attackedStack) + Point(225, 225) - Point(126, 105);
+	Point shotTarget = owner.stacksController->getStackPositionAtHex(dest, attackedStack) + Point(225, 225) - Point(126, 105);
 
 	if(catapultDamage > 0)
-		owner->stacksController->addNewAnim( new CPointEffectAnimation(owner, soundBase::WALLHIT, "SGEXPL.DEF", shotTarget));
+		owner.stacksController->addNewAnim( new CPointEffectAnimation(owner, soundBase::WALLHIT, "SGEXPL.DEF", shotTarget));
 	else
-		owner->stacksController->addNewAnim( new CPointEffectAnimation(owner, soundBase::WALLMISS, "CSGRCK.DEF", shotTarget));
+		owner.stacksController->addNewAnim( new CPointEffectAnimation(owner, soundBase::WALLMISS, "CSGRCK.DEF", shotTarget));
 }
 
 void CCatapultAnimation::createProjectile(const Point & from, const Point & dest) const
 {
-	owner->projectilesController->createCatapultProjectile(attackingStack, from, dest);
+	owner.projectilesController->createCatapultProjectile(attackingStack, from, dest);
 }
 
 
-CCastAnimation::CCastAnimation(BattleInterface * owner_, const CStack * attacker, BattleHex dest_, const CStack * defender, const CSpell * spell)
-	: CRangedAttackAnimation(owner_, attacker, dest_, defender),
+CCastAnimation::CCastAnimation(BattleInterface & owner, const CStack * attacker, BattleHex dest_, const CStack * defender, const CSpell * spell)
+	: CRangedAttackAnimation(owner, attacker, dest_, defender),
 	  spell(spell)
 {
 	assert(dest.isValid());// FIXME: when?
@@ -970,7 +970,7 @@ CCreatureAnim::EAnimType CCastAnimation::getDownwardsGroup() const
 void CCastAnimation::createProjectile(const Point & from, const Point & dest) const
 {
 	if (!spell->animationInfo.projectile.empty())
-		owner->projectilesController->createSpellProjectile(attackingStack, from, dest, spell);
+		owner.projectilesController->createSpellProjectile(attackingStack, from, dest, spell);
 }
 
 uint32_t CCastAnimation::getAttackClimaxFrame() const
@@ -983,8 +983,8 @@ uint32_t CCastAnimation::getAttackClimaxFrame() const
 	return 0;
 }
 
-CPointEffectAnimation::CPointEffectAnimation(BattleInterface * _owner, soundBase::soundID sound, std::string animationName, int effects):
-	CBattleAnimation(_owner),
+CPointEffectAnimation::CPointEffectAnimation(BattleInterface & owner, soundBase::soundID sound, std::string animationName, int effects):
+	CBattleAnimation(owner),
 	animation(std::make_shared<CAnimation>(animationName)),
 	sound(sound),
 	effectFlags(effects),
@@ -994,33 +994,33 @@ CPointEffectAnimation::CPointEffectAnimation(BattleInterface * _owner, soundBase
 {
 }
 
-CPointEffectAnimation::CPointEffectAnimation(BattleInterface * _owner, soundBase::soundID sound, std::string animationName, std::vector<BattleHex> hex, int effects):
-	CPointEffectAnimation(_owner, sound, animationName, effects)
+CPointEffectAnimation::CPointEffectAnimation(BattleInterface & owner, soundBase::soundID sound, std::string animationName, std::vector<BattleHex> hex, int effects):
+	CPointEffectAnimation(owner, sound, animationName, effects)
 {
 	battlehexes = hex;
 }
 
-CPointEffectAnimation::CPointEffectAnimation(BattleInterface * _owner, soundBase::soundID sound, std::string animationName, BattleHex hex, int effects):
-	CPointEffectAnimation(_owner, sound, animationName, effects)
+CPointEffectAnimation::CPointEffectAnimation(BattleInterface & owner, soundBase::soundID sound, std::string animationName, BattleHex hex, int effects):
+	CPointEffectAnimation(owner, sound, animationName, effects)
 {
 	assert(hex.isValid());
 	battlehexes.push_back(hex);
 }
 
-CPointEffectAnimation::CPointEffectAnimation(BattleInterface * _owner, soundBase::soundID sound, std::string animationName, std::vector<Point> pos, int effects):
-	CPointEffectAnimation(_owner, sound, animationName, effects)
+CPointEffectAnimation::CPointEffectAnimation(BattleInterface & owner, soundBase::soundID sound, std::string animationName, std::vector<Point> pos, int effects):
+	CPointEffectAnimation(owner, sound, animationName, effects)
 {
 	positions = pos;
 }
 
-CPointEffectAnimation::CPointEffectAnimation(BattleInterface * _owner, soundBase::soundID sound, std::string animationName, Point pos, int effects):
-	CPointEffectAnimation(_owner, sound, animationName, effects)
+CPointEffectAnimation::CPointEffectAnimation(BattleInterface & owner, soundBase::soundID sound, std::string animationName, Point pos, int effects):
+	CPointEffectAnimation(owner, sound, animationName, effects)
 {
 	positions.push_back(pos);
 }
 
-CPointEffectAnimation::CPointEffectAnimation(BattleInterface * _owner, soundBase::soundID sound, std::string animationName, Point pos, BattleHex hex,   int effects):
-	CPointEffectAnimation(_owner, sound, animationName, effects)
+CPointEffectAnimation::CPointEffectAnimation(BattleInterface & owner, soundBase::soundID sound, std::string animationName, Point pos, BattleHex hex,   int effects):
+	CPointEffectAnimation(owner, sound, animationName, effects)
 {
 	assert(hex.isValid());
 	battlehexes.push_back(hex);
@@ -1043,9 +1043,9 @@ bool CPointEffectAnimation::init()
 
 	if (screenFill())
 	{
-		for(int i=0; i * first->width() < owner->pos.w ; ++i)
-			for(int j=0; j * first->height() < owner->pos.h ; ++j)
-				positions.push_back(Point( owner->pos.x + i * first->width(), owner->pos.y + j * first->height()));
+		for(int i=0; i * first->width() < owner.pos.w ; ++i)
+			for(int j=0; j * first->height() < owner.pos.h ; ++j)
+				positions.push_back(Point( owner.pos.x + i * first->width(), owner.pos.y + j * first->height()));
 	}
 
 	BattleEffect be;
@@ -1070,8 +1070,8 @@ bool CPointEffectAnimation::init()
 		}
 		else
 		{
-			const CStack * destStack = owner->getCurrentPlayerInterface()->cb->battleGetStackByPos(battlehexes[i], false);
-			Rect tilePos = owner->fieldController->hexPositionAbsolute(battlehexes[i]);
+			const CStack * destStack = owner.getCurrentPlayerInterface()->cb->battleGetStackByPos(battlehexes[i], false);
+			Rect tilePos = owner.fieldController->hexPositionAbsolute(battlehexes[i]);
 
 			be.x = tilePos.x + tilePos.w/2 - first->width()/2;
 
@@ -1083,7 +1083,7 @@ bool CPointEffectAnimation::init()
 			else
 				be.y = tilePos.y - first->height()/2;
 		}
-		owner->effectsController->battleEffects.push_back(be);
+		owner.effectsController->battleEffects.push_back(be);
 	}
 	return true;
 }
@@ -1156,7 +1156,7 @@ void CPointEffectAnimation::playEffect()
 	if ( effectFinished )
 		return;
 
-	for(auto & elem : owner->effectsController->battleEffects)
+	for(auto & elem : owner.effectsController->battleEffects)
 	{
 		if(elem.effectID == ID)
 		{
@@ -1174,7 +1174,7 @@ void CPointEffectAnimation::playEffect()
 
 void CPointEffectAnimation::clearEffect()
 {
-	auto & effects = owner->effectsController->battleEffects;
+	auto & effects = owner.effectsController->battleEffects;
 
 	for ( auto it = effects.begin(); it != effects.end(); )
 	{
@@ -1191,8 +1191,8 @@ CPointEffectAnimation::~CPointEffectAnimation()
 	assert(soundFinished);
 }
 
-CWaitingAnimation::CWaitingAnimation(BattleInterface * owner_):
-	CBattleAnimation(owner_)
+CWaitingAnimation::CWaitingAnimation(BattleInterface & owner):
+	CBattleAnimation(owner)
 {}
 
 void CWaitingAnimation::nextFrame()
@@ -1201,8 +1201,8 @@ void CWaitingAnimation::nextFrame()
 	delete this;
 }
 
-CWaitingProjectileAnimation::CWaitingProjectileAnimation(BattleInterface * owner_, const CStack * shooter):
-	CWaitingAnimation(owner_),
+CWaitingProjectileAnimation::CWaitingProjectileAnimation(BattleInterface & owner, const CStack * shooter):
+	CWaitingAnimation(owner),
 	shooter(shooter)
 {}
 
@@ -1219,7 +1219,7 @@ bool CWaitingProjectileAnimation::init()
 		}
 	}
 
-	if(owner->projectilesController->hasActiveProjectile(shooter))
+	if(owner.projectilesController->hasActiveProjectile(shooter))
 		return false;
 
 	return true;

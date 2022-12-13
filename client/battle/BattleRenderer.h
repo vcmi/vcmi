@@ -33,7 +33,7 @@ public:
 	using RenderFunctor = std::function<void(RendererPtr)>;
 
 private:
-	BattleInterface * owner;
+	BattleInterface & owner;
 
 	struct RenderableInstance
 	{
@@ -47,7 +47,7 @@ private:
 	void sortObjects();
 	void renderObjects(RendererPtr targetCanvas);
 public:
-	BattleRenderer(BattleInterface * owner);
+	BattleRenderer(BattleInterface & owner);
 
 	void insert(EBattleFieldLayer layer, BattleHex tile, RenderFunctor functor);
 	void execute(RendererPtr targetCanvas);

@@ -262,10 +262,10 @@ void BattleHero::switchToNextPhase()
 	currentFrame = firstFrame;
 }
 
-BattleHero::BattleHero(const std::string & animationPath, bool flipG, PlayerColor player, const CGHeroInstance * hero, const BattleInterface * owner):
+BattleHero::BattleHero(const std::string & animationPath, bool flipG, PlayerColor player, const CGHeroInstance * hero, const BattleInterface & owner):
     flip(flipG),
     myHero(hero),
-    myOwner(owner),
+	myOwner(&owner),
     phase(1),
     nextPhase(0),
     flagAnim(0),
@@ -331,24 +331,24 @@ HeroInfoWindow::HeroInfoWindow(const InfoAboutHero & hero, Point * position)
 	labels.push_back(std::make_shared<CLabel>(39, 186, EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, std::to_string(currentSpellPoints) + "/" + std::to_string(maxSpellPoints)));
 }
 
-BattleOptionsWindow::BattleOptionsWindow(BattleInterface *owner):
+BattleOptionsWindow::BattleOptionsWindow(BattleInterface & owner):
 	CWindowObject(PLAYER_COLORED, "comopbck.bmp")
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	auto viewGrid = std::make_shared<CToggleButton>(Point(25, 56), "sysopchk.def", CGI->generaltexth->zelp[427], [=](bool on){owner->setPrintCellBorders(on);} );
+	auto viewGrid = std::make_shared<CToggleButton>(Point(25, 56), "sysopchk.def", CGI->generaltexth->zelp[427], [&](bool on){owner.setPrintCellBorders(on);} );
 	viewGrid->setSelected(settings["battle"]["cellBorders"].Bool());
 	toggles.push_back(viewGrid);
 
-	auto movementShadow = std::make_shared<CToggleButton>(Point(25, 89), "sysopchk.def", CGI->generaltexth->zelp[428], [=](bool on){owner->setPrintStackRange(on);});
+	auto movementShadow = std::make_shared<CToggleButton>(Point(25, 89), "sysopchk.def", CGI->generaltexth->zelp[428], [&](bool on){owner.setPrintStackRange(on);});
 	movementShadow->setSelected(settings["battle"]["stackRange"].Bool());
 	toggles.push_back(movementShadow);
 
-	auto mouseShadow = std::make_shared<CToggleButton>(Point(25, 122), "sysopchk.def", CGI->generaltexth->zelp[429], [=](bool on){owner->setPrintMouseShadow(on);});
+	auto mouseShadow = std::make_shared<CToggleButton>(Point(25, 122), "sysopchk.def", CGI->generaltexth->zelp[429], [&](bool on){owner.setPrintMouseShadow(on);});
 	mouseShadow->setSelected(settings["battle"]["mouseShadow"].Bool());
 	toggles.push_back(mouseShadow);
 
-	animSpeeds = std::make_shared<CToggleGroup>([=](int value){ owner->setAnimSpeed(value);});
+	animSpeeds = std::make_shared<CToggleGroup>([&](int value){ owner.setAnimSpeed(value);});
 
 	std::shared_ptr<CToggleButton> toggle;
 	toggle = std::make_shared<CToggleButton>(Point( 28, 225), "sysopb9.def", CGI->generaltexth->zelp[422]);
@@ -360,7 +360,7 @@ BattleOptionsWindow::BattleOptionsWindow(BattleInterface *owner):
 	toggle = std::make_shared<CToggleButton>(Point(156, 225), "sysob11.def", CGI->generaltexth->zelp[424]);
 	animSpeeds->addToggle(100, toggle);
 
-	animSpeeds->setSelected(owner->getAnimSpeed());
+	animSpeeds->setSelected(owner.getAnimSpeed());
 
 	setToDefault = std::make_shared<CButton>(Point(246, 359), "codefaul.def", CGI->generaltexth->zelp[393], [&](){ bDefaultf(); });
 	setToDefault->setImageOrder(1, 0, 2, 3);
@@ -648,9 +648,9 @@ void ClickableHex::clickRight(tribool down, bool previousState)
 	}
 }
 
-StackQueue::StackQueue(bool Embedded, BattleInterface * _owner)
+StackQueue::StackQueue(bool Embedded, BattleInterface & owner)
 	: embedded(Embedded),
-	owner(_owner)
+	owner(owner)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	if(embedded)
@@ -689,7 +689,7 @@ void StackQueue::update()
 {
 	std::vector<battle::Units> queueData;
 
-	owner->getCurrentPlayerInterface()->cb->battleGetTurnOrder(queueData, stackBoxes.size(), 0);
+	owner.getCurrentPlayerInterface()->cb->battleGetTurnOrder(queueData, stackBoxes.size(), 0);
 
 	size_t boxIndex = 0;
 
@@ -705,7 +705,7 @@ void StackQueue::update()
 
 int32_t StackQueue::getSiegeShooterIconID()
 {
-	return owner->siegeController->getSiegedTown()->town->faction->index;
+	return owner.siegeController->getSiegedTown()->town->faction->index;
 }
 
 StackQueue::StackBox::StackBox(StackQueue * owner):

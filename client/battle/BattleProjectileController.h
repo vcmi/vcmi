@@ -77,7 +77,7 @@ struct ProjectileRay : ProjectileBase
 /// ... even though in H3 only 1 projectile can be on screen at any point of time
 class BattleProjectileController
 {
-	BattleInterface * owner;
+	BattleInterface & owner;
 
 	/// all projectiles loaded during current battle
 	std::map<std::string, std::shared_ptr<CAnimation>> projectilesCache;
@@ -89,18 +89,18 @@ class BattleProjectileController
 	std::shared_ptr<CAnimation> createProjectileImage(const std::string & path );
 	void initStackProjectile(const CStack * stack);
 
-	bool stackUsesRayProjectile(const CStack * stack);
-	bool stackUsesMissileProjectile(const CStack * stack);
+	bool stackUsesRayProjectile(const CStack * stack) const;
+	bool stackUsesMissileProjectile(const CStack * stack) const;
 
 	void showProjectile(Canvas & canvas, std::shared_ptr<ProjectileBase> projectile);
 
-	const CCreature * getShooter(const CStack * stack);
+	const CCreature & getShooter(const CStack * stack) const;
 
 	int computeProjectileFrameID( Point from, Point dest, const CStack * stack);
 	int computeProjectileFlightTime( Point from, Point dest, double speed);
 
 public:
-	BattleProjectileController(BattleInterface * owner);
+	BattleProjectileController(BattleInterface & owner);
 
 	/// renders all currently active projectiles
 	void showProjectiles(Canvas & canvas);
