@@ -1176,13 +1176,9 @@ void CPointEffectAnimation::clearEffect()
 {
 	auto & effects = owner.effectsController->battleEffects;
 
-	for ( auto it = effects.begin(); it != effects.end(); )
-	{
-		if (it->effectID == ID)
-			it = effects.erase(it);
-		else
-			it++;
-	}
+	vstd::erase_if(effects, [&](const BattleEffect & effect){
+		return effect.effectID == ID;
+	});
 }
 
 CPointEffectAnimation::~CPointEffectAnimation()

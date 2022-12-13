@@ -29,8 +29,8 @@ enum class EBattleFieldLayer {
 class BattleRenderer
 {
 public:
-	using RendererPtr = Canvas &;
-	using RenderFunctor = std::function<void(RendererPtr)>;
+	using RendererRef = Canvas &;
+	using RenderFunctor = std::function<void(RendererRef)>;
 
 private:
 	BattleInterface & owner;
@@ -45,10 +45,10 @@ private:
 
 	void collectObjects();
 	void sortObjects();
-	void renderObjects(RendererPtr targetCanvas);
+	void renderObjects(RendererRef targetCanvas);
 public:
 	BattleRenderer(BattleInterface & owner);
 
 	void insert(EBattleFieldLayer layer, BattleHex tile, RenderFunctor functor);
-	void execute(RendererPtr targetCanvas);
+	void execute(RendererRef targetCanvas);
 };

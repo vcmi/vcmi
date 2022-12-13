@@ -918,14 +918,14 @@ void BattleInterface::collectRenderableObjects(BattleRenderer & renderer)
 {
 	if (attackingHero)
 	{
-		renderer.insert(EBattleFieldLayer::HEROES, BattleHex(0),[this](BattleRenderer::RendererPtr canvas)
+		renderer.insert(EBattleFieldLayer::HEROES, BattleHex(0),[this](BattleRenderer::RendererRef canvas)
 		{
 			attackingHero->render(canvas);
 		});
 	}
 	if (defendingHero)
 	{
-		renderer.insert(EBattleFieldLayer::HEROES, BattleHex(GameConstants::BFIELD_WIDTH-1),[this](BattleRenderer::RendererPtr canvas)
+		renderer.insert(EBattleFieldLayer::HEROES, BattleHex(GameConstants::BFIELD_WIDTH-1),[this](BattleRenderer::RendererRef canvas)
 		{
 			defendingHero->render(canvas);
 		});

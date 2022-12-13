@@ -93,9 +93,9 @@ BattleStacksController::BattleStacksController(BattleInterface & owner):
 	}
 }
 
-BattleHex BattleStacksController::getStackCurrentPosition(const CStack * stack)
+BattleHex BattleStacksController::getStackCurrentPosition(const CStack * stack) const
 {
-	if ( !stackAnimation[stack->ID]->isMoving())
+	if ( !stackAnimation.at(stack->ID)->isMoving())
 		return stack->getPosition();
 
 	if (stack->hasBonusOfType(Bonus::FLYING))
@@ -132,13 +132,13 @@ void BattleStacksController::collectRenderableObjects(BattleRenderer & renderer)
 		auto layer = stackAnimation[stack->ID]->isDead() ? EBattleFieldLayer::CORPSES : EBattleFieldLayer::STACKS;
 		auto location = getStackCurrentPosition(stack);
 
-		renderer.insert(layer, location, [this, stack]( BattleRenderer::RendererPtr renderer ){
+		renderer.insert(layer, location, [this, stack]( BattleRenderer::RendererRef renderer ){
 			showStack(renderer, stack);
 		});
 
 		if (stackNeedsAmountBox(stack))
 		{
-			renderer.insert(EBattleFieldLayer::STACK_AMOUNTS, location, [this, stack]( BattleRenderer::RendererPtr renderer ){
+			renderer.insert(EBattleFieldLayer::STACK_AMOUNTS, location, [this, stack]( BattleRenderer::RendererRef renderer ){
 				showStackAmountBox(renderer, stack);
 			});
 		}
@@ -172,6 +172,9 @@ void BattleStacksController::stackReset(const CStack * stack)
 
 void BattleStacksController::stackAdded(const CStack * stack)
 {
+	// Tower shooters have only their upper half visible
+	static const int turretCreatureAnimationHeight = 235;
+
 	stackFacingRight[stack->ID] = stack->side == BattleSide::ATTACKER; // must be set before getting stack position
 
 	Point coords = getStackPositionAtHex(stack->getPosition(), stack);
@@ -183,7 +186,7 @@ void BattleStacksController::stackAdded(const CStack * stack)
 		const CCreature *turretCreature = owner.siegeController->getTurretCreature();
 
 		stackAnimation[stack->ID] = AnimationControls::getAnimation(turretCreature);
-		stackAnimation[stack->ID]->pos.h = 235;
+		stackAnimation[stack->ID]->pos.h = turretCreatureAnimationHeight;
 
 		coords = owner.siegeController->getTurretCreaturePosition(stack->initialPosition);
 	}
@@ -236,7 +239,7 @@ void BattleStacksController::setHoveredStack(const CStack *stack)
 		mouseHoveredStack = nullptr;
 }
 
-bool BattleStacksController::stackNeedsAmountBox(const CStack * stack)
+bool BattleStacksController::stackNeedsAmountBox(const CStack * stack) const
 {
 	BattleHex currentActionTarget;
 	if(owner.curInt->curAction)
@@ -347,13 +350,7 @@ void BattleStacksController::updateBattleAnimations()
 	}
 
 	bool hadAnimations = !currentAnimations.empty();
-	for (auto it = currentAnimations.begin(); it != currentAnimations.end();)
-	{
-		if (*it == nullptr)
-			it = currentAnimations.erase(it);
-		else
-			++it;
-	}
+	vstd::erase(currentAnimations, nullptr);
 
 	if (hadAnimations && currentAnimations.empty())
 	{
@@ -379,19 +376,15 @@ void BattleStacksController::stackActivated(const CStack *stack) //TODO: check i
 
 void BattleStacksController::stackRemoved(uint32_t stackID)
 {
-	if (getActiveStack() != nullptr)
+	if (getActiveStack() && getActiveStack()->ID == stackID)
 	{
-		if (getActiveStack()->ID == stackID)
-		{
-			BattleAction *action = new BattleAction();
-			action->side = owner.defendingHeroInstance ? (owner.curInt->playerID == owner.defendingHeroInstance->tempOwner) : false;
-			action->actionType = EActionType::CANCEL;
-			action->stackNumber = getActiveStack()->ID;
-			owner.givenCommand.setn(action);
-			setActiveStack(nullptr);
-		}
+		BattleAction *action = new BattleAction();
+		action->side = owner.defendingHeroInstance ? (owner.curInt->playerID == owner.defendingHeroInstance->tempOwner) : false;
+		action->actionType = EActionType::CANCEL;
+		action->stackNumber = getActiveStack()->ID;
+		owner.givenCommand.setn(action);
+		setActiveStack(nullptr);
 	}
-	//todo: ensure that ghost stack animation has fadeout effect
 }
 
 void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> attackedInfos)

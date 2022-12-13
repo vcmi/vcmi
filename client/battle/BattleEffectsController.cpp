@@ -127,7 +127,7 @@ void BattleEffectsController::collectRenderableObjects(BattleRenderer & renderer
 {
 	for (auto & elem : battleEffects)
 	{
-		renderer.insert( EBattleFieldLayer::EFFECTS, elem.position, [&elem](BattleRenderer::RendererPtr canvas)
+		renderer.insert( EBattleFieldLayer::EFFECTS, elem.position, [&elem](BattleRenderer::RendererRef canvas)
 		{
 			int currentFrame = static_cast<int>(floor(elem.currentFrame));
 			currentFrame %= elem.animation->size();

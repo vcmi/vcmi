@@ -47,7 +47,7 @@ void BattleRenderer::sortObjects()
 	});
 }
 
-void BattleRenderer::renderObjects(BattleRenderer::RendererPtr targetCanvas)
+void BattleRenderer::renderObjects(BattleRenderer::RendererRef targetCanvas)
 {
 	for (auto const & object : objects)
 		object.functor(targetCanvas);
@@ -63,7 +63,7 @@ void BattleRenderer::insert(EBattleFieldLayer layer, BattleHex tile, BattleRende
 	objects.push_back({functor, layer, tile});
 }
 
-void BattleRenderer::execute(BattleRenderer::RendererPtr targetCanvas)
+void BattleRenderer::execute(BattleRenderer::RendererRef targetCanvas)
 {
 	collectObjects();
 	sortObjects();

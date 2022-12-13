@@ -230,13 +230,11 @@ void BattleProjectileController::showProjectiles(Canvas & canvas)
 		auto projectile = *it;
 		if ( projectile->playing )
 			projectile->show(canvas);
-
-		// finished flying
-		if ( projectile->step > projectile->steps)
-			it = projectiles.erase(it);
-		else
-			it++;
 	}
+
+	vstd::erase_if(projectiles, [&](const std::shared_ptr<ProjectileBase> & projectile){
+		return projectile->step > projectile->steps;
+	});
 }
 
 bool BattleProjectileController::hasActiveProjectile(const CStack * stack) const

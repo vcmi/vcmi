@@ -71,9 +71,9 @@ class BattleStacksController
 	/// for giving IDs for animations
 	ui32 animIDhelper;
 
-	bool stackNeedsAmountBox(const CStack * stack);
+	bool stackNeedsAmountBox(const CStack * stack) const;
 	void showStackAmountBox(Canvas & canvas, const CStack * stack);
-	BattleHex getStackCurrentPosition(const CStack * stack);
+	BattleHex getStackCurrentPosition(const CStack * stack) const;
 
 	std::shared_ptr<IImage> getStackAmountBox(const CStack * stack);
 

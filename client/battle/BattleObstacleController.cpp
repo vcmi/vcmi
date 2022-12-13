@@ -138,7 +138,7 @@ void BattleObstacleController::collectRenderableObjects(BattleRenderer & rendere
 		if (obstacle->obstacleType == CObstacleInstance::MOAT)
 			continue;
 
-		renderer.insert(EBattleFieldLayer::OBSTACLES, obstacle->pos, [this, obstacle]( BattleRenderer::RendererPtr canvas ){
+		renderer.insert(EBattleFieldLayer::OBSTACLES, obstacle->pos, [this, obstacle]( BattleRenderer::RendererRef canvas ){
 			auto img = getObstacleImage(*obstacle);
 			if(img)
 			{

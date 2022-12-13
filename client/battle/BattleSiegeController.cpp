@@ -297,14 +297,14 @@ void BattleSiegeController::collectRenderableObjects(BattleRenderer & renderer)
 			wallPiece == EWallVisual::BOTTOM_BATTLEMENT ||
 			wallPiece == EWallVisual::UPPER_BATTLEMENT)
 		{
-			renderer.insert( EBattleFieldLayer::STACKS, getWallPiecePosition(wallPiece), [this, wallPiece](BattleRenderer::RendererPtr canvas){
+			renderer.insert( EBattleFieldLayer::STACKS, getWallPiecePosition(wallPiece), [this, wallPiece](BattleRenderer::RendererRef canvas){
 				owner.stacksController->showStack(canvas, getTurretStack(wallPiece));
 			});
-			renderer.insert( EBattleFieldLayer::BATTLEMENTS, getWallPiecePosition(wallPiece), [this, wallPiece](BattleRenderer::RendererPtr canvas){
+			renderer.insert( EBattleFieldLayer::BATTLEMENTS, getWallPiecePosition(wallPiece), [this, wallPiece](BattleRenderer::RendererRef canvas){
 				showWallPiece(canvas, wallPiece, owner.pos.topLeft());
 			});
 		}
-		renderer.insert( EBattleFieldLayer::WALLS, getWallPiecePosition(wallPiece), [this, wallPiece](BattleRenderer::RendererPtr canvas){
+		renderer.insert( EBattleFieldLayer::WALLS, getWallPiecePosition(wallPiece), [this, wallPiece](BattleRenderer::RendererRef canvas){
 			showWallPiece(canvas, wallPiece, owner.pos.topLeft());
 		});
 
