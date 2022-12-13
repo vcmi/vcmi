@@ -13,16 +13,16 @@
 #include "CAdvmapInterface.h"
 
 #include "../widgets/MiscWidgets.h"
+#include "../widgets/Images.h"
 
 #include "../gui/SDL_Pixels.h"
 #include "../gui/SDL_Extensions.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/CCursorHandler.h"
 
-#include "../battle/CBattleInterface.h"
-#include "../battle/CBattleInterfaceClasses.h"
+#include "../battle/BattleInterface.h"
+#include "../battle/BattleInterfaceClasses.h"
 
-#include "../CBitmapHandler.h"
 #include "../Graphics.h"
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"

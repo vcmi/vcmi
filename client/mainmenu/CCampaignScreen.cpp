@@ -15,7 +15,6 @@
 
 #include "../CGameInfo.h"
 #include "../CMessage.h"
-#include "../CBitmapHandler.h"
 #include "../CMusicHandler.h"
 #include "../CVideoHandler.h"
 #include "../CPlayerInterface.h"
@@ -105,7 +104,7 @@ CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode & config)
 		addUsedEvents(LCLICK | HOVER);
 		graphicsImage = std::make_shared<CPicture>(config["image"].String());
 
-		hoverLabel = std::make_shared<CLabel>(pos.w / 2, pos.h + 20, FONT_MEDIUM, CENTER, Colors::YELLOW, "");
+		hoverLabel = std::make_shared<CLabel>(pos.w / 2, pos.h + 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, "");
 		parent->addChild(hoverLabel.get());
 	}
 

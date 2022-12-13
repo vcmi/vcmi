@@ -2,12 +2,22 @@ set(client_SRCS
 		StdInc.cpp
 		../CCallback.cpp
 
-		battle/CBattleAnimations.cpp
-		battle/CBattleInterfaceClasses.cpp
-		battle/CBattleInterface.cpp
-		battle/CCreatureAnimation.cpp
+		battle/BattleActionsController.cpp
+		battle/BattleAnimationClasses.cpp
+		battle/BattleControlPanel.cpp
+		battle/BattleEffectsController.cpp
+		battle/BattleFieldController.cpp
+		battle/BattleInterfaceClasses.cpp
+		battle/BattleInterface.cpp
+		battle/BattleObstacleController.cpp
+		battle/BattleProjectileController.cpp
+		battle/BattleRenderer.cpp
+		battle/BattleSiegeController.cpp
+		battle/BattleStacksController.cpp
+		battle/CreatureAnimation.cpp
 
 		gui/CAnimation.cpp
+		gui/Canvas.cpp
 		gui/CCursorHandler.cpp
 		gui/CGuiHandler.cpp
 		gui/CIntObject.cpp
@@ -75,12 +85,22 @@ set(client_SRCS
 set(client_HEADERS
 		StdInc.h
 
-		battle/CBattleAnimations.h
-		battle/CBattleInterfaceClasses.h
-		battle/CBattleInterface.h
-		battle/CCreatureAnimation.h
+		battle/BattleActionsController.h
+		battle/BattleAnimationClasses.h
+		battle/BattleControlPanel.h
+		battle/BattleEffectsController.h
+		battle/BattleFieldController.h
+		battle/BattleInterfaceClasses.h
+		battle/BattleInterface.h
+		battle/BattleObstacleController.h
+		battle/BattleProjectileController.h
+		battle/BattleRenderer.h
+		battle/BattleSiegeController.h
+		battle/BattleStacksController.h
+		battle/CreatureAnimation.h
 
 		gui/CAnimation.h
+		gui/Canvas.h
 		gui/CCursorHandler.h
 		gui/CGuiHandler.h
 		gui/CIntObject.h

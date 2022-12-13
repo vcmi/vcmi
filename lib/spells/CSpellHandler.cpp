@@ -547,7 +547,7 @@ std::string CSpell::AnimationInfo::selectProjectile(const double angle) const
 
 	for(const auto & info : projectile)
 	{
-		if(info.minimumAngle < angle && info.minimumAngle > maximum)
+		if(info.minimumAngle < angle && info.minimumAngle >= maximum)
 		{
 			maximum = info.minimumAngle;
 			res = info.resourceName;

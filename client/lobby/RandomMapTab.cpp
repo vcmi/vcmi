@@ -35,10 +35,10 @@ RandomMapTab::RandomMapTab()
 	OBJ_CONSTRUCTION;
 	background = std::make_shared<CPicture>("RANMAPBK", 0, 6);
 
-	labelHeadlineBig = std::make_shared<CLabel>(222, 36, FONT_BIG, EAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[738]);
-	labelHeadlineSmall = std::make_shared<CLabel>(222, 56, FONT_SMALL, EAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[739]);
+	labelHeadlineBig = std::make_shared<CLabel>(222, 36, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[738]);
+	labelHeadlineSmall = std::make_shared<CLabel>(222, 56, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[739]);
 
-	labelMapSize = std::make_shared<CLabel>(104, 97, FONT_SMALL, EAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[752]);
+	labelMapSize = std::make_shared<CLabel>(104, 97, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[752]);
 	groupMapSize = std::make_shared<CToggleGroup>(0);
 	groupMapSize->pos.y += 81;
 	groupMapSize->pos.x += 158;
@@ -61,7 +61,7 @@ RandomMapTab::RandomMapTab()
 		updateMapInfoByHost();
 	});
 
-	labelGroupForOptions = std::make_shared<CLabelGroup>(FONT_SMALL, EAlignment::TOPLEFT, Colors::WHITE);
+	labelGroupForOptions = std::make_shared<CLabelGroup>(FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
 	// Create number defs list
 	std::vector<std::string> numberDefs;
 	for(int i = 0; i <= 8; ++i)

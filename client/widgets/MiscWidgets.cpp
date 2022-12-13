@@ -15,7 +15,6 @@
 #include "../gui/CGuiHandler.h"
 #include "../gui/CCursorHandler.h"
 
-#include "../CBitmapHandler.h"
 #include "../CPlayerInterface.h"
 #include "../CMessage.h"
 #include "../CGameInfo.h"
@@ -34,9 +33,9 @@
 void CHoverableArea::hover (bool on)
 {
 	if (on)
-		GH.statusbar->setText(hoverText);
-	else if (GH.statusbar->getText()==hoverText)
-		GH.statusbar->clear();
+		GH.statusbar->write(hoverText);
+	else
+		GH.statusbar->clearIfMatching(hoverText);
 }
 
 CHoverableArea::CHoverableArea()
@@ -150,7 +149,7 @@ void CHeroArea::clickRight(tribool down, bool previousState)
 void CHeroArea::hover(bool on)
 {
 	if (on && hero)
-		GH.statusbar->setText(hero->getObjectName());
+		GH.statusbar->write(hero->getObjectName());
 	else
 		GH.statusbar->clear();
 }
@@ -224,7 +223,7 @@ void CArmyTooltip::init(const InfoAboutArmy &army)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 
-	title = std::make_shared<CLabel>(66, 2, FONT_SMALL, TOPLEFT, Colors::WHITE, army.name);
+	title = std::make_shared<CLabel>(66, 2, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, army.name);
 
 	std::vector<Point> slotsPos;
 	slotsPos.push_back(Point(36, 73));
@@ -257,7 +256,7 @@ void CArmyTooltip::init(const InfoAboutArmy &army)
 				subtitle = CGI->generaltexth->arraytxt[171 + 3*(slot.second.count)];
 		}
 
-		subtitles.push_back(std::make_shared<CLabel>(slotsPos[slot.first.getNum()].x + 17, slotsPos[slot.first.getNum()].y + 41, FONT_TINY, CENTER, Colors::WHITE, subtitle));
+		subtitles.push_back(std::make_shared<CLabel>(slotsPos[slot.first.getNum()].x + 17, slotsPos[slot.first.getNum()].y + 41, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, subtitle));
 	}
 
 }
@@ -282,10 +281,10 @@ void CHeroTooltip::init(const InfoAboutHero & hero)
 	if(hero.details)
 	{
 		for(size_t i = 0; i < hero.details->primskills.size(); i++)
-			labels.push_back(std::make_shared<CLabel>(75 + 28 * (int)i, 58, FONT_SMALL, CENTER, Colors::WHITE,
+			labels.push_back(std::make_shared<CLabel>(75 + 28 * (int)i, 58, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE,
 					   boost::lexical_cast<std::string>(hero.details->primskills[i])));
 
-		labels.push_back(std::make_shared<CLabel>(158, 98, FONT_TINY, CENTER, Colors::WHITE, boost::lexical_cast<std::string>(hero.details->mana)));
+		labels.push_back(std::make_shared<CLabel>(158, 98, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, boost::lexical_cast<std::string>(hero.details->mana)));
 
 		morale = std::make_shared<CAnimImage>("IMRL22", hero.details->morale + 3, 0, 5, 74);
 		luck = std::make_shared<CAnimImage>("ILCK22", hero.details->luck + 3, 0, 5, 91);
@@ -325,7 +324,7 @@ void CTownTooltip::init(const InfoAboutTown & town)
 
 		if(town.details->goldIncome)
 		{
-			income = std::make_shared<CLabel>(157, 58, FONT_TINY, CENTER, Colors::WHITE,
+			income = std::make_shared<CLabel>(157, 58, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE,
 					   boost::lexical_cast<std::string>(town.details->goldIncome));
 		}
 		if(town.details->garrisonedHero) //garrisoned hero icon
@@ -453,7 +452,7 @@ CCreaturePic::CCreaturePic(int x, int y, const CCreature * cre, bool Big, bool A
 	anim->clipRect(cre->isDoubleWide()?170:150, 155, bg->pos.w, bg->pos.h);
 	anim->startPreview(cre->hasBonusOfType(Bonus::SIEGE_WEAPON));
 
-	amount = std::make_shared<CLabel>(bg->pos.w, bg->pos.h, FONT_MEDIUM, BOTTOMRIGHT, Colors::WHITE);
+	amount = std::make_shared<CLabel>(bg->pos.w, bg->pos.h, FONT_MEDIUM, ETextAlignment::BOTTOMRIGHT, Colors::WHITE);
 
 	pos.w = bg->pos.w;
 	pos.h = bg->pos.h;

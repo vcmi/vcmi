@@ -168,7 +168,7 @@
 		"targetType": "NO_TARGET",
 
 		"animation":{
-			//missing
+			"affect":["SP10_"]
 		},
 		"sounds": {
 			"cast": "PARALYZE"

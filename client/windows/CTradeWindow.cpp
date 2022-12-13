@@ -244,13 +244,13 @@ void CTradeWindow::CTradeableItem::hover(bool on)
 	{
 	case CREATURE:
 	case CREATURE_PLACEHOLDER:
-		GH.statusbar->setText(boost::str(boost::format(CGI->generaltexth->allTexts[481]) % CGI->creh->objects[id]->namePl));
+		GH.statusbar->write(boost::str(boost::format(CGI->generaltexth->allTexts[481]) % CGI->creh->objects[id]->namePl));
 		break;
 	case ARTIFACT_PLACEHOLDER:
 		if(id < 0)
-			GH.statusbar->setText(CGI->generaltexth->zelp[582].first);
+			GH.statusbar->write(CGI->generaltexth->zelp[582].first);
 		else
-			GH.statusbar->setText(CGI->artifacts()->getByIndex(id)->getName());
+			GH.statusbar->write(CGI->artifacts()->getByIndex(id)->getName());
 		break;
 	}
 }
@@ -659,7 +659,7 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket * Market, const CGHeroInsta
 	madeTransaction = false;
 	bool sliderNeeded = true;
 
-	statusBar = CGStatusBar::create(std::make_shared<CPicture>(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
+	statusBar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 
 	std::string title;
 
@@ -703,7 +703,7 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket * Market, const CGHeroInsta
 		}
 	}
 
-	titleLabel = std::make_shared<CLabel>(300, 27, FONT_BIG, CENTER, Colors::YELLOW, title);
+	titleLabel = std::make_shared<CLabel>(300, 27, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, title);
 
 	initItems(false);
 	initItems(true);
@@ -730,15 +730,15 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket * Market, const CGHeroInsta
 	case EMarketMode::RESOURCE_RESOURCE:
 	case EMarketMode::RESOURCE_PLAYER:
 	case EMarketMode::RESOURCE_ARTIFACT:
-		labels.push_back(std::make_shared<CLabel>(154, 148, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[270]));
+		labels.push_back(std::make_shared<CLabel>(154, 148, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[270]));
 		break;
 	case EMarketMode::CREATURE_RESOURCE:
 		//%s's Creatures
-		labels.push_back(std::make_shared<CLabel>(152, 102, FONT_SMALL, CENTER, Colors::WHITE, boost::str(boost::format(CGI->generaltexth->allTexts[272]) % hero->name)));
+		labels.push_back(std::make_shared<CLabel>(152, 102, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, boost::str(boost::format(CGI->generaltexth->allTexts[272]) % hero->name)));
 		break;
 	case EMarketMode::ARTIFACT_RESOURCE:
 		//%s's Artifacts
-		labels.push_back(std::make_shared<CLabel>(152, 56, FONT_SMALL, CENTER, Colors::WHITE, boost::str(boost::format(CGI->generaltexth->allTexts[271]) % hero->name)));
+		labels.push_back(std::make_shared<CLabel>(152, 56, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, boost::str(boost::format(CGI->generaltexth->allTexts[271]) % hero->name)));
 		break;
 	}
 
@@ -751,16 +751,16 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket * Market, const CGHeroInsta
 	case EMarketMode::CREATURE_RESOURCE:
 	case EMarketMode::RESOURCE_ARTIFACT:
 	case EMarketMode::ARTIFACT_RESOURCE:
-		labels.push_back(std::make_shared<CLabel>(445, 148, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[168]));
+		labels.push_back(std::make_shared<CLabel>(445, 148, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[168]));
 		traderTextRect = Rect(316, 48, 260, 75);
 		break;
 	case EMarketMode::RESOURCE_PLAYER:
-		labels.push_back(std::make_shared<CLabel>(445, 55, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[169]));
+		labels.push_back(std::make_shared<CLabel>(445, 55, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[169]));
 		traderTextRect = Rect(28, 48, 260, 75);
 		break;
 	}
 
-	traderText = std::make_shared<CTextBox>("", traderTextRect, 0, FONT_SMALL, CENTER);
+	traderText = std::make_shared<CTextBox>("", traderTextRect, 0, FONT_SMALL, ETextAlignment::CENTER);
 	int specialOffset = mode == EMarketMode::ARTIFACT_RESOURCE ? 35 : 0; //in selling artifacts mode we need to move res-res and art-res buttons down
 
 	if(printButtonFor(EMarketMode::RESOURCE_PLAYER))
@@ -1094,14 +1094,14 @@ CAltarWindow::CAltarWindow(const IMarket * Market, const CGHeroInstance * Hero, 
 	if(Mode == EMarketMode::CREATURE_EXP)
 	{
 		//%s's Creatures
-		labels.push_back(std::make_shared<CLabel>(155, 30, FONT_SMALL, CENTER, Colors::YELLOW,
+		labels.push_back(std::make_shared<CLabel>(155, 30, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW,
 				   boost::str(boost::format(CGI->generaltexth->allTexts[272]) % hero->name)));
 
 		//Altar of Sacrifice
-		labels.push_back(std::make_shared<CLabel>(450, 30, FONT_SMALL, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[479]));
+		labels.push_back(std::make_shared<CLabel>(450, 30, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[479]));
 
 		 //To sacrifice creatures, move them from your army on to the Altar and click Sacrifice
-		new CTextBox(CGI->generaltexth->allTexts[480], Rect(320, 56, 256, 40), 0, FONT_SMALL, CENTER, Colors::YELLOW);
+		new CTextBox(CGI->generaltexth->allTexts[480], Rect(320, 56, 256, 40), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW);
 
 		slider = std::make_shared<CSlider>(Point(231,481),137,std::bind(&CAltarWindow::sliderMoved,this,_1),0,0);
 		max = std::make_shared<CButton>(Point(147, 520), "IRCBTNS.DEF", CGI->generaltexth->zelp[578], std::bind(&CSlider::moveToMax, slider));
@@ -1115,9 +1115,9 @@ CAltarWindow::CAltarWindow(const IMarket * Market, const CGHeroInstance * Hero, 
 	else
 	{
 		//Sacrifice artifacts for experience
-		labels.push_back(std::make_shared<CLabel>(450, 34, FONT_SMALL, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[477]));
+		labels.push_back(std::make_shared<CLabel>(450, 34, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[477]));
 		//%s's Creatures
-		labels.push_back(std::make_shared<CLabel>(302, 423, FONT_SMALL, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[478]));
+		labels.push_back(std::make_shared<CLabel>(302, 423, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[478]));
 
 		sacrificeAll = std::make_shared<CButton>(Point(393, 520), "ALTFILL.DEF", CGI->generaltexth->zelp[571], std::bind(&CAltarWindow::SacrificeAll,this));
 		sacrificeAll->block(hero->artifactsInBackpack.empty() && hero->artifactsWorn.empty());
@@ -1131,11 +1131,11 @@ CAltarWindow::CAltarWindow(const IMarket * Market, const CGHeroInstance * Hero, 
 	}
 
 	//Experience needed to reach next level
-	texts.push_back(std::make_shared<CTextBox>(CGI->generaltexth->allTexts[475], Rect(15, 415, 125, 50), 0, FONT_SMALL, CENTER, Colors::YELLOW));
+	texts.push_back(std::make_shared<CTextBox>(CGI->generaltexth->allTexts[475], Rect(15, 415, 125, 50), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW));
 	//Total experience on the Altar
-	texts.push_back(std::make_shared<CTextBox>(CGI->generaltexth->allTexts[476], Rect(15, 495, 125, 40), 0, FONT_SMALL, CENTER, Colors::YELLOW));
+	texts.push_back(std::make_shared<CTextBox>(CGI->generaltexth->allTexts[476], Rect(15, 495, 125, 40), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW));
 
-	statusBar = CGStatusBar::create(std::make_shared<CPicture>(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
+	statusBar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 
 	ok = std::make_shared<CButton>(Point(516, 520), "IOK6432.DEF", CGI->generaltexth->zelp[568], [&](){ close();}, SDLK_RETURN);
 	ok->assignedKeys.insert(SDLK_ESCAPE);
@@ -1160,8 +1160,8 @@ CAltarWindow::CAltarWindow(const IMarket * Market, const CGHeroInstance * Hero, 
 	expPerUnit.resize(GameConstants::ARMY_SIZE, 0);
 	getExpValues();
 
-	expToLevel = std::make_shared<CLabel>(73, 475, FONT_SMALL, CENTER);
-	expOnAltar = std::make_shared<CLabel>(73, 543, FONT_SMALL, CENTER);
+	expToLevel = std::make_shared<CLabel>(73, 475, FONT_SMALL, ETextAlignment::CENTER);
+	expOnAltar = std::make_shared<CLabel>(73, 543, FONT_SMALL, ETextAlignment::CENTER);
 
 	setExpToLevel();
 	calcTotalExp();

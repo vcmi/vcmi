@@ -43,7 +43,11 @@ RemoveObstacle::~RemoveObstacle() = default;
 
 bool RemoveObstacle::applicable(Problem & problem, const Mechanics * m) const
 {
-	return !getTargets(m, EffectTarget(), true).empty();
+	if (getTargets(m, EffectTarget(), true).empty())
+	{
+		return m->adaptProblem(ESpellCastProblem::NO_APPROPRIATE_TARGET, problem);
+	}
+	return true;
 }
 
 bool RemoveObstacle::applicable(Problem & problem, const Mechanics * m, const EffectTarget & target) const
