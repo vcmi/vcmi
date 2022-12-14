@@ -126,12 +126,13 @@ public:
 /// Hand-to-hand attack
 class MeleeAttackAnimation : public AttackAnimation
 {
+	bool multiAttack;
 public:
 	bool init() override;
 	void nextFrame() override;
 	void playSound() override;
 
-	MeleeAttackAnimation(BattleInterface & owner, const CStack * attacker, BattleHex _dest, const CStack * _attacked);
+	MeleeAttackAnimation(BattleInterface & owner, const CStack * attacker, BattleHex _dest, const CStack * _attacked, bool multiAttack);
 };
 
 /// Base class for all animations that play during stack movement

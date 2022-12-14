@@ -318,14 +318,13 @@ static SDL_Color addColors(const SDL_Color & base, const SDL_Color & over)
 
 void CreatureAnimation::genSpecialPalette(IImage::SpecialPalette & target)
 {
-	target[0] = genBorderColor(getBorderStrength(elapsedTime), border);
+	target[0] = genShadow(shadowAlpha / 2);
 	target[1] = genShadow(shadowAlpha / 2);
-	target[2] = genShadow(shadowAlpha / 2);
+	target[2] = genShadow(shadowAlpha);
 	target[3] = genShadow(shadowAlpha);
-	target[4] = genShadow(shadowAlpha);
-	target[5] = genBorderColor(getBorderStrength(elapsedTime), border);
-	target[6] = addColors(genShadow(shadowAlpha),     genBorderColor(getBorderStrength(elapsedTime), border));
-	target[7] = addColors(genShadow(shadowAlpha / 2), genBorderColor(getBorderStrength(elapsedTime), border));
+	target[4] = genBorderColor(getBorderStrength(elapsedTime), border);
+	target[5] = addColors(genShadow(shadowAlpha),     genBorderColor(getBorderStrength(elapsedTime), border));
+	target[6] = addColors(genShadow(shadowAlpha / 2), genBorderColor(getBorderStrength(elapsedTime), border));
 }
 
 void CreatureAnimation::nextFrame(Canvas & canvas, bool facingRight)

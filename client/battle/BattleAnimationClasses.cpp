@@ -606,11 +606,11 @@ void FadingAnimation::nextFrame()
 	if (progress > 1.0f)
 		progress = 1.0f;
 
-	uint8_t blueFactor = stack->cloned ? 0 : 255;
-	uint8_t blueAdded  = stack->cloned ? 255 : 0;
-	uint8_t alpha = CSDL_Ext::lerp(from, dest, progress);
+	uint8_t factor = stack->cloned ? 128 : 255;
+	uint8_t blue   = stack->cloned ? 128 : 0;
+	uint8_t alpha  = CSDL_Ext::lerp(from, dest, progress);
 
-	ColorShifterMultiplyAndAdd shifterFade ({255, 255, blueFactor, alpha}, {0, 0, blueAdded, 0});
+	ColorShifterMultiplyAndAdd shifterFade ({factor, factor, factor, alpha}, {0, 0, blue, 0});
 	stackAnimation(stack)->shiftColor(&shifterFade);
 
 	if (progress == 1.0f)
