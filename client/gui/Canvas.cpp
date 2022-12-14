@@ -52,6 +52,13 @@ void Canvas::draw(std::shared_ptr<IImage> image, const Point & pos, const Rect &
 		image->draw(surface, pos.x, pos.y, &sourceRect);
 }
 
+void Canvas::draw(std::shared_ptr<IImage> image, const Point & pos, const Rect & sourceRect, uint8_t alpha)
+{
+	assert(image);
+	if (image)
+		image->draw(surface, pos.x, pos.y, &sourceRect, alpha);
+}
+
 void Canvas::draw(Canvas & image, const Point & pos)
 {
 	blitAt(image.surface, pos.x, pos.y, surface);

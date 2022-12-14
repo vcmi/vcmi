@@ -46,6 +46,9 @@ namespace AnimationControls
 
 	/// Returns distance on which flying creatures should during one animation loop
 	float getFlightDistance(const CCreature * creature);
+
+	/// Returns total time for full fade-in effect on newly summoned creatures, in seconds
+	float getFadeInDuration();
 }
 
 /// Class which manages animations of creatures/units inside battles
@@ -80,6 +83,9 @@ private:
 	///type of animation being displayed
 	ECreatureAnimType::Type type;
 
+	/// current value of shadow transparency
+	uint8_t shadowAlpha;
+
 	/// border color, disabled if alpha = 0
 	SDL_Color border;
 
@@ -90,7 +96,7 @@ private:
 
 	void endAnimation();
 
-	void genBorderPalette(IImage::BorderPallete & target);
+	void genSpecialPalette(IImage::SpecialPalette & target);
 public:
 
 	/// function(s) that will be called when animation ends, after reset to 1st frame

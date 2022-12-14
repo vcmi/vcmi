@@ -86,7 +86,7 @@ public:
 	bool facingRight(const CStack * stack) const;
 
 	void stackReset(const CStack * stack);
-	void stackAdded(const CStack * stack); //new stack appeared on battlefield
+	void stackAdded(const CStack * stack, bool instant); //new stack appeared on battlefield
 	void stackRemoved(uint32_t stackID); //stack disappeared from batlefiled
 	void stackActivated(const CStack *stack); //active stack has been changed
 	void stackMoved(const CStack *stack, std::vector<BattleHex> destHex, int distance); //stack with id number moved to destHex

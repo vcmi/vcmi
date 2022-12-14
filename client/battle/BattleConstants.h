@@ -62,7 +62,7 @@ enum Type // list of creature animations, numbers were taken from def files
 	HITTED          = 3,  // base animation for when stack is taking damage
 	DEFENCE         = 4,  // alternative animation for defending in melee if stack spent its action on defending
 	DEATH           = 5,
-	DEATH_RANGED    = 6,  // alternative animation for when stack is killed by ranged attack
+	DEATH_RANGED    = 6,  // Optional, alternative animation for when stack is killed by ranged attack
 	TURN_L          = 7,
 	TURN_R          = 8,
 	//TURN_L2       = 9,  //unused - identical to TURN_L
@@ -70,14 +70,14 @@ enum Type // list of creature animations, numbers were taken from def files
 	ATTACK_UP       = 11,
 	ATTACK_FRONT    = 12,
 	ATTACK_DOWN     = 13,
-	SHOOT_UP        = 14,
-	SHOOT_FRONT     = 15,
-	SHOOT_DOWN      = 16,
-	CAST_UP         = 17,
-	CAST_FRONT      = 18,
-	CAST_DOWN       = 19,
-	MOVE_START      = 20,  // small animation to be played before MOVING
-	MOVE_END        = 21,  // small animation to be played after MOVING
+	SHOOT_UP        = 14, // Shooters only
+	SHOOT_FRONT     = 15, // Shooters only
+	SHOOT_DOWN      = 16, // Shooters only
+	CAST_UP         = 17, // If empty, fallback to CAST_FRONT
+	CAST_FRONT      = 18, // Used for any special moves - dragon breath, spellcasting, (possibly - Pit Lord/Ogre Mage ability)
+	CAST_DOWN       = 19, // If empty, fallback to CAST_FRONT
+	MOVE_START      = 20, // small animation to be played before MOVING
+	MOVE_END        = 21, // small animation to be played after MOVING
 
 	DEAD            = 22, // new group, used to show dead stacks. If empty - last frame from "DEATH" will be copied here
 	DEAD_RANGED     = 23, // new group, used to show dead stacks (if DEATH_RANGED was used). If empty - last frame from "DEATH_RANGED" will be copied here

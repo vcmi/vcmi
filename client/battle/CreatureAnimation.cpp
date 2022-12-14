@@ -19,6 +19,11 @@ static const SDL_Color creatureBlueBorder = { 0, 255, 255, 255 };
 static const SDL_Color creatureGoldBorder = { 255, 255, 0, 255 };
 static const SDL_Color creatureNoBorder  =  { 0, 0, 0, 0 };
 
+static SDL_Color genShadow(ui8 alpha)
+{
+	return CSDL_Ext::makeColor(0, 0, 0, alpha);
+}
+
 SDL_Color AnimationControls::getBlueBorder()
 {
 	return creatureBlueBorder;
@@ -134,6 +139,11 @@ float AnimationControls::getFlightDistance(const CCreature * creature)
 	return static_cast<float>(creature->animation.flightAnimationDistance * 200);
 }
 
+float AnimationControls::getFadeInDuration()
+{
+	return 1.0f / settings["battle"]["animationSpeed"].Float();
+}
+
 ECreatureAnimType::Type CreatureAnimation::getType() const
 {
 	return type;
@@ -150,6 +160,10 @@ void CreatureAnimation::setType(ECreatureAnimType::Type type)
 
 void CreatureAnimation::shiftColor(const ColorShifter* shifter)
 {
+	SDL_Color shadowTest = shifter->shiftColor(genShadow(128));
+
+	shadowAlpha = shadowTest.a;
+
 	if(forward)
 		forward->shiftColor(shifter);
 
@@ -160,6 +174,7 @@ void CreatureAnimation::shiftColor(const ColorShifter* shifter)
 CreatureAnimation::CreatureAnimation(const std::string & name_, TSpeedController controller)
 	: name(name_),
 	  speed(0.1f),
+	  shadowAlpha(128),
 	  currentFrame(0),
 	  elapsedTime(0),
 	  type(ECreatureAnimType::HOLDING),
@@ -281,11 +296,6 @@ inline int getBorderStrength(float time)
 	return static_cast<int>(borderStrength * 155 + 100); // scale to 0-255
 }
 
-static SDL_Color genShadow(ui8 alpha)
-{
-	return CSDL_Ext::makeColor(0, 0, 0, alpha);
-}
-
 static SDL_Color genBorderColor(ui8 alpha, const SDL_Color & base)
 {
 	return CSDL_Ext::makeColor(base.r, base.g, base.b, ui8(base.a * alpha / 256));
@@ -306,11 +316,16 @@ static SDL_Color addColors(const SDL_Color & base, const SDL_Color & over)
 			);
 }
 
-void CreatureAnimation::genBorderPalette(IImage::BorderPallete & target)
+void CreatureAnimation::genSpecialPalette(IImage::SpecialPalette & target)
 {
 	target[0] = genBorderColor(getBorderStrength(elapsedTime), border);
-	target[1] = addColors(genShadow(128), genBorderColor(getBorderStrength(elapsedTime), border));
-	target[2] = addColors(genShadow(64),  genBorderColor(getBorderStrength(elapsedTime), border));
+	target[1] = genShadow(shadowAlpha / 2);
+	target[2] = genShadow(shadowAlpha / 2);
+	target[3] = genShadow(shadowAlpha);
+	target[4] = genShadow(shadowAlpha);
+	target[5] = genBorderColor(getBorderStrength(elapsedTime), border);
+	target[6] = addColors(genShadow(shadowAlpha),     genBorderColor(getBorderStrength(elapsedTime), border));
+	target[7] = addColors(genShadow(shadowAlpha / 2), genBorderColor(getBorderStrength(elapsedTime), border));
 }
 
 void CreatureAnimation::nextFrame(Canvas & canvas, bool facingRight)
@@ -326,12 +341,13 @@ void CreatureAnimation::nextFrame(Canvas & canvas, bool facingRight)
 
 	if(image)
 	{
-		IImage::BorderPallete borderPallete;
-		genBorderPalette(borderPallete);
+		IImage::SpecialPalette SpecialPalette;
+		genSpecialPalette(SpecialPalette);
 
-		image->setBorderPallete(borderPallete);
+		image->setSpecialPallete(SpecialPalette);
 
 		canvas.draw(image, pos.topLeft(), Rect(0, 0, pos.w, pos.h));
+
 	}
 }
 

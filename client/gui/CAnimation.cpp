@@ -108,7 +108,7 @@ public:
 	void adjustPalette(const ColorShifter * shifter) override;
 	void resetPalette() override;
 
-	void setBorderPallete(const BorderPallete & borderPallete) override;
+	void setSpecialPallete(const SpecialPalette & SpecialPalette) override;
 
 	friend class SDLImageLoader;
 
@@ -212,32 +212,17 @@ CDefFile::CDefFile(std::string Name):
 	data(nullptr),
 	palette(nullptr)
 {
-
-	#if 0
-	static SDL_Color H3_ORIG_PALETTE[8] =
-	{
-	   {  0, 255, 255, SDL_ALPHA_OPAQUE},
-	   {255, 150, 255, SDL_ALPHA_OPAQUE},
-	   {255, 100, 255, SDL_ALPHA_OPAQUE},
-	   {255,  50, 255, SDL_ALPHA_OPAQUE},
-	   {255,   0, 255, SDL_ALPHA_OPAQUE},
-	   {255, 255, 0,   SDL_ALPHA_OPAQUE},
-	   {180,   0, 255, SDL_ALPHA_OPAQUE},
-	   {  0, 255, 0,   SDL_ALPHA_OPAQUE}
-	};
-	#endif // 0
-
 	//First 8 colors in def palette used for transparency
 	static SDL_Color H3Palette[8] =
 	{
-		{   0,   0,   0,   0},// 100% - transparency
-		{   0,   0,   0,  32},//  75% - shadow border,
-		{   0,   0,   0,  64},// TODO: find exact value
-		{   0,   0,   0, 128},// TODO: for transparency
-		{   0,   0,   0, 128},//  50% - shadow body
-		{   0,   0,   0,   0},// 100% - selection highlight
-		{   0,   0,   0, 128},//  50% - shadow body   below selection
-		{   0,   0,   0,  64} // 75% - shadow border below selection
+		{   0,   0,   0,   0},// transparency                  ( used in most images )
+		{   0,   0,   0,  64},// shadow border                 ( used in battle, adventure map def's )
+		{   0,   0,   0,  64},// shadow border                 ( used in fog-of-war def's )
+		{   0,   0,   0, 128},// shadow body                   ( used in fog-of-war def's )
+		{   0,   0,   0, 128},// shadow body                   ( used in battle, adventure map def's )
+		{   0,   0,   0,   0},// selection                     ( used in battle def's )
+		{   0,   0,   0, 128},// shadow body   below selection ( used in battle def's )
+		{   0,   0,   0,  64} // shadow border below selection ( used in battle def's )
 	};
 	data = animationCache.getCachedFile(ResourceID(std::string("SPRITES/") + Name, EResType::ANIMATION));
 
@@ -827,11 +812,11 @@ void SDLImage::resetPalette()
 	SDL_SetPaletteColors(surf->format->palette, originalPalette->colors, 0, originalPalette->ncolors);
 }
 
-void SDLImage::setBorderPallete(const IImage::BorderPallete & borderPallete)
+void SDLImage::setSpecialPallete(const IImage::SpecialPalette & SpecialPalette)
 {
 	if(surf->format->palette)
 	{
-		SDL_SetColors(surf, const_cast<SDL_Color *>(borderPallete.data()), 5, 3);
+		SDL_SetColors(surf, const_cast<SDL_Color *>(SpecialPalette.data()), 1, 7);
 	}
 }
 

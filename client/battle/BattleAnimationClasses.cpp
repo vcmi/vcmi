@@ -589,6 +589,42 @@ ResurrectionAnimation::ResurrectionAnimation(BattleInterface & owner, const CSta
 
 }
 
+bool FadingAnimation::init()
+{
+	logAnim->info("FadingAnimation::init: stack %s", stack->getName());
+	//TODO: pause animation?
+	return true;
+}
+
+void FadingAnimation::nextFrame()
+{
+	float elapsed  = GH.mainFPSmng->getElapsedMilliseconds() / 1000.f;
+	float fullTime = AnimationControls::getFadeInDuration();
+	float delta    = elapsed / fullTime;
+	progress += delta;
+
+	if (progress > 1.0f)
+		progress = 1.0f;
+
+	uint8_t blueFactor = stack->cloned ? 0 : 255;
+	uint8_t blueAdded  = stack->cloned ? 255 : 0;
+	uint8_t alpha = CSDL_Ext::lerp(from, dest, progress);
+
+	ColorShifterMultiplyAndAdd shifterFade ({255, 255, blueFactor, alpha}, {0, 0, blueAdded, 0});
+	stackAnimation(stack)->shiftColor(&shifterFade);
+
+	if (progress == 1.0f)
+		delete this;
+}
+
+FadingAnimation::FadingAnimation(BattleInterface & owner, const CStack * _stack, uint8_t alphaFrom, uint8_t alphaDest):
+	BattleStackAnimation(owner, _stack),
+	from(alphaFrom),
+	dest(alphaDest)
+{
+}
+
+
 RangedAttackAnimation::RangedAttackAnimation(BattleInterface & owner_, const CStack * attacker, BattleHex dest_, const CStack * defender)
 	: AttackAnimation(owner_, attacker, dest_, defender),
 	  projectileEmitted(false)
@@ -707,7 +743,6 @@ void RangedAttackAnimation::nextFrame()
 
 RangedAttackAnimation::~RangedAttackAnimation()
 {
-	//FIXME: this assert triggers under some unclear, rare conditions. Possibly - if game window is inactive and/or in foreground/minimized?
 	assert(!owner.projectilesController->hasActiveProjectile(attackingStack));
 	assert(projectileEmitted);
 
@@ -846,7 +881,7 @@ void CastAnimation::createProjectile(const Point & from, const Point & dest) con
 
 uint32_t CastAnimation::getAttackClimaxFrame() const
 {
-	//FIXME: allow defining this parameter in config file, separately from attackClimaxFrame of missile attacks
+	//TODO: allow defining this parameter in config file, separately from attackClimaxFrame of missile attacks
 	uint32_t maxFrames = stackAnimation(attackingStack)->framesInGroup(group);
 
 	if (maxFrames > 2)
@@ -1117,7 +1152,7 @@ void HeroCastAnimation::nextFrame()
 {
 	float frame = hero->getFrame();
 
-	if (frame < 4.0f)
+	if (frame < 4.0f) // middle point of animation //TODO: un-hardcode
 		return;
 
 	if (!projectileEmitted)
@@ -1130,7 +1165,7 @@ void HeroCastAnimation::nextFrame()
 	if (!owner.projectilesController->hasActiveProjectile(nullptr))
 	{
 		emitAnimationEvent();
-		//FIXME: check H3 - it is possible that hero animation should be paused until hit effect is over, not just projectile
+		//TODO: check H3 - it is possible that hero animation should be paused until hit effect is over, not just projectile
 		hero->play();
 	}
 }

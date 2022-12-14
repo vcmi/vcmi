@@ -73,7 +73,6 @@ void BattleEffectsController::battleTriggerEffect(const BattleTriggerEffect & bt
 	//don't show animation when no HP is regenerated
 	switch(bte.effect)
 	{
-		//TODO: move to bonus type handler
 		case Bonus::HP_REGENERATION:
 			displayEffect(EBattleEffect::REGENERATION, soundBase::REGENER, stack->getPosition());
 			break;

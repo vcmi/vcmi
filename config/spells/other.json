@@ -592,7 +592,6 @@
 		"index" : 65,
 		"targetType" : "CREATURE",
 		"animation":{
-			"cast":[2]
 		},
 		"sounds": {
 			"cast": "CLONE"
@@ -636,7 +635,6 @@
 		"index" : 66,
 		"targetType" : "NO_TARGET",
 		"animation":{
-			"cast":[2]
 		},
 		"sounds": {
 			"cast": "SUMNELM"
@@ -662,7 +660,6 @@
 		"index" : 67,
 		"targetType" : "NO_TARGET",
 		"animation":{
-			"cast":[2]
 		},
 		"sounds": {
 			"cast": "SUMNELM"
@@ -688,7 +685,6 @@
 		"index" : 68,
 		"targetType" : "NO_TARGET",
 		"animation":{
-			"cast":[2]
 		},
 		"sounds": {
 			"cast": "SUMNELM"
@@ -714,7 +710,6 @@
 		"index" : 69,
 		"targetType" : "NO_TARGET",
 		"animation":{
-			"cast":[2]
 		},
 		"sounds": {
 			"cast": "SUMNELM"

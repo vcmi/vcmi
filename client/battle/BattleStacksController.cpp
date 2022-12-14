@@ -89,7 +89,7 @@ BattleStacksController::BattleStacksController(BattleInterface & owner):
 	std::vector<const CStack*> stacks = owner.curInt->cb->battleGetAllStacks(true);
 	for(const CStack * s : stacks)
 	{
-		stackAdded(s);
+		stackAdded(s, true);
 	}
 }
 
@@ -172,17 +172,15 @@ void BattleStacksController::stackReset(const CStack * stack)
 		});
 	}
 
-	static const ColorShifterMultiplyAndAdd shifterClone ({255, 255, 0, 255}, {0, 0, 255, 0});
-
-	if (stack->isClone())
-	{
-		animation->shiftColor(&shifterClone);
-	}
-
+	//static const ColorShifterMultiplyAndAdd shifterClone ({255, 255, 0, 255}, {0, 0, 255, 0});
+	//if (stack->isClone())
+	//{
+	//	animation->shiftColor(&shifterClone);
+	//}
 	//owner.waitForAnimationCondition(EAnimationEvents::ACTION, false);
 }
 
-void BattleStacksController::stackAdded(const CStack * stack)
+void BattleStacksController::stackAdded(const CStack * stack, bool instant)
 {
 	// Tower shooters have only their upper half visible
 	static const int turretCreatureAnimationHeight = 235;
@@ -212,6 +210,17 @@ void BattleStacksController::stackAdded(const CStack * stack)
 	stackAnimation[stack->ID]->pos.y = coords.y;
 	stackAnimation[stack->ID]->pos.w = stackAnimation[stack->ID]->getWidth();
 	stackAnimation[stack->ID]->setType(ECreatureAnimType::HOLDING);
+
+	if (!instant)
+	{
+		ColorShifterMultiplyAndAdd shifterFade ({255, 255, 255, 0}, {0, 0, 0, 0});
+		stackAnimation[stack->ID]->shiftColor(&shifterFade);
+
+		owner.executeOnAnimationCondition(EAnimationEvents::HIT, true, [=]()
+		{
+			addNewAnim(new FadingAnimation(owner, stack, 0, 255));
+		});
+	}
 }
 
 void BattleStacksController::setActiveStack(const CStack *stack)

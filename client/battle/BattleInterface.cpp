@@ -318,7 +318,7 @@ void BattleInterface::stackReset(const CStack * stack)
 
 void BattleInterface::stackAdded(const CStack * stack)
 {
-	stacksController->stackAdded(stack);
+	stacksController->stackAdded(stack, false);
 }
 
 void BattleInterface::stackRemoved(uint32_t stackID)
@@ -328,7 +328,7 @@ void BattleInterface::stackRemoved(uint32_t stackID)
 	queue->update();
 }
 
-void BattleInterface::stackActivated(const CStack *stack) //TODO: check it all before game state is changed due to abilities
+void BattleInterface::stackActivated(const CStack *stack)
 {
 	stacksController->stackActivated(stack);
 }

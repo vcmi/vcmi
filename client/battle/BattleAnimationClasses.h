@@ -205,9 +205,21 @@ public:
 	ResurrectionAnimation(BattleInterface & owner, const CStack * _stack);
 };
 
+/// Performs fade-in or fade-out animation on stack
+class FadingAnimation : public BattleStackAnimation
+{
+	float progress;
+	uint8_t from;
+	uint8_t dest;
+public:
+	bool init() override;
+	void nextFrame() override;
+
+	FadingAnimation(BattleInterface & owner, const CStack * _stack, uint8_t alphaFrom, uint8_t alphaDest);
+};
+
 class RangedAttackAnimation : public AttackAnimation
 {
-
 	void setAnimationGroup();
 	void initializeProjectile();
 	void emitProjectile();
