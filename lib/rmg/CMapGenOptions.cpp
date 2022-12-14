@@ -413,7 +413,6 @@ PlayerColor CMapGenOptions::getNextPlayerColor() const
 
 bool CMapGenOptions::checkOptions() const
 {
-	assert(countHumanPlayers() > 0);
 	if(mapTemplate)
 	{
 		return true;
