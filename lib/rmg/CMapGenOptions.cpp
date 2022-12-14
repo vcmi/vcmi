@@ -204,8 +204,30 @@ const CRmgTemplate * CMapGenOptions::getMapTemplate() const
 void CMapGenOptions::setMapTemplate(const CRmgTemplate * value)
 {
 	mapTemplate = value;
-	//TODO validate & adapt options according to template
-	//assert(0);
+	//validate & adapt options according to template
+	if(mapTemplate)
+	{
+		if(!mapTemplate->matchesSize(int3(getWidth(), getHeight(), 1 + getHasTwoLevels())))
+		{
+			auto sizes = mapTemplate->getMapSizes();
+			setWidth(sizes.first.x);
+			setHeight(sizes.first.y);
+			setHasTwoLevels(sizes.first.z - 1);
+		}
+		
+		if(!mapTemplate->getPlayers().isInRange(getPlayerCount()))
+			setPlayerCount(RANDOM_SIZE);
+		if(!mapTemplate->getCpuPlayers().isInRange(getCompOnlyPlayerCount()))
+			setCompOnlyPlayerCount(RANDOM_SIZE);
+		if(!mapTemplate->getWaterContentAllowed().count(getWaterContent()))
+			setWaterContent(EWaterContent::RANDOM);
+	}
+}
+
+void CMapGenOptions::setMapTemplate(const std::string & name)
+{
+	if(!name.empty())
+		setMapTemplate(VLC->tplh->getTemplate(name));
 }
 
 void CMapGenOptions::finalize(CRandomGenerator & rand)

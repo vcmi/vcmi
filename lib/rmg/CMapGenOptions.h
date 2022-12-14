@@ -11,36 +11,11 @@
 #pragma once
 
 #include "../GameConstants.h"
+#include "CRmgTemplate.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class CRmgTemplate;
 class CRandomGenerator;
-
-namespace EWaterContent
-{
-	enum EWaterContent
-	{
-		RANDOM = -1,
-		NONE,
-		NORMAL,
-		ISLANDS
-	};
-}
-
-namespace EMonsterStrength
-{
-	enum EMonsterStrength
-	{
-		RANDOM = -2,
-		ZONE_WEAK = -1,
-		ZONE_NORMAL = 0,
-		ZONE_STRONG = 1,
-		GLOBAL_WEAK = 2,
-		GLOBAL_NORMAL = 3,
-		GLOBAL_STRONG = 4
-	};
-}
 
 namespace EPlayerType
 {
@@ -143,6 +118,7 @@ public:
 	/// Default: Not set/random.
 	const CRmgTemplate * getMapTemplate() const;
 	void setMapTemplate(const CRmgTemplate * value);
+	void setMapTemplate(const std::string & name);
 
 	std::vector<const CRmgTemplate *> getPossibleTemplates() const;
 
@@ -187,7 +163,17 @@ public:
 		h & waterContent;
 		h & monsterStrength;
 		h & players;
-		//TODO add name of template to class, enables selection of a template by a user
+		std::string templateName;
+		if(mapTemplate && h.saving)
+		{
+			templateName = mapTemplate->getId();
+		}
+		//if(version > xxx) do not forget to bump version
+		h & templateName;
+		if(!h.saving)
+		{
+			setMapTemplate(templateName);
+		}
 	}
 };
 

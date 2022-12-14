@@ -13,6 +13,7 @@
 #include "CZonePlacer.h"
 #include "../mapping/CMap.h"
 #include "../mapping/CMapEditManager.h"
+#include "CMapGenOptions.h"
 #include "RmgMap.h"
 #include "Zone.h"
 #include "Functions.h"

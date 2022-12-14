@@ -47,21 +47,15 @@ RandomMapTab::RandomMapTab():
 	addCallback("toggleTwoLevels", [&](bool on)
 	{
 		mapGenOptions->setHasTwoLevels(on);
+		setTemplate(mapGenOptions->getMapTemplate());
 		updateMapInfoByHost();
 	});
 	
 	addCallback("setPlayersCount", [&](int btnId)
 	{
 		mapGenOptions->setPlayerCount(btnId);
-	
-		if(auto w = widget<CToggleGroup>("groupMaxTeams"))
-			deactivateButtonsFrom(w.get(), btnId);
-
-		// deactive some CompOnlyPlayers buttons to prevent total number of players exceeds PlayerColor::PLAYER_LIMIT_I
-		if(auto w = widget<CToggleGroup>("groupCompOnlyPlayers"))
-			deactivateButtonsFrom(w.get(), PlayerColor::PLAYER_LIMIT_I - btnId + 1);
-
-		validatePlayersCnt(btnId);
+		setMapGenOptions(mapGenOptions);
+		//validatePlayersCnt(btnId);
 		updateMapInfoByHost();
 	});
 	
@@ -74,14 +68,8 @@ RandomMapTab::RandomMapTab():
 	addCallback("setCompOnlyPlayers", [&](int btnId)
 	{
 		mapGenOptions->setCompOnlyPlayerCount(btnId);
-
-		// deactive some MaxPlayers buttons to prevent total number of players exceeds PlayerColor::PLAYER_LIMIT_I
-		if(auto w = widget<CToggleGroup>("groupMaxPlayers"))
-			deactivateButtonsFrom(w.get(), PlayerColor::PLAYER_LIMIT_I - btnId + 1);
-		
-		if(auto w = widget<CToggleGroup>("groupCompOnlyTeams"))
-			deactivateButtonsFrom(w.get(), (btnId == 0 ? 1 : btnId));
-		validateCompOnlyPlayersCnt(btnId);
+		setMapGenOptions(mapGenOptions);
+		//validateCompOnlyPlayersCnt(btnId);
 		updateMapInfoByHost();
 	});
 	
@@ -173,20 +161,80 @@ void RandomMapTab::updateMapInfoByHost()
 
 void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 {
+	mapGenOptions = opts;
+	
+	//prepare allowed options
+	for(int i = 0; i <= PlayerColor::PLAYER_LIMIT_I; ++i)
+	{
+		playerCountAllowed.insert(i);
+		compCountAllowed.insert(i);
+		playerTeamsAllowed.insert(i);
+		compTeamsAllowed.insert(i);
+	}
+	auto * tmpl = mapGenOptions->getMapTemplate();
+	if(tmpl)
+	{
+		playerCountAllowed = tmpl->getPlayers().getNumbers();
+		compCountAllowed = tmpl->getCpuPlayers().getNumbers();
+	}
+	if(mapGenOptions->getPlayerCount() != CMapGenOptions::RANDOM_SIZE)
+	{
+		vstd::erase_if(compCountAllowed,
+		[opts](int el){
+			return PlayerColor::PLAYER_LIMIT_I - opts->getPlayerCount() < el;
+		});
+		vstd::erase_if(playerTeamsAllowed,
+		[opts](int el){
+			return PlayerColor::PLAYER_LIMIT_I - opts->getPlayerCount() < el + 1;
+		});
+	}
+	if(mapGenOptions->getCompOnlyPlayerCount() != CMapGenOptions::RANDOM_SIZE)
+	{
+		vstd::erase_if(playerCountAllowed,
+		[opts](int el){
+			return PlayerColor::PLAYER_LIMIT_I - opts->getCompOnlyPlayerCount() < el;
+		});
+		vstd::erase_if(compTeamsAllowed,
+		[opts](int el){
+			return PlayerColor::PLAYER_LIMIT_I - opts->getCompOnlyPlayerCount() < el + 1;
+		});
+	}
+	
 	if(auto w = widget<CToggleGroup>("groupMapSize"))
 		w->setSelected(vstd::find_pos(getPossibleMapSizes(), opts->getWidth()));
 	if(auto w = widget<CToggleButton>("buttonTwoLevels"))
 		w->setSelected(opts->getHasTwoLevels());
 	if(auto w = widget<CToggleGroup>("groupMaxPlayers"))
+	{
 		w->setSelected(opts->getPlayerCount());
+		deactivateButtonsFrom(*w, playerCountAllowed);
+	}
 	if(auto w = widget<CToggleGroup>("groupMaxTeams"))
+	{
 		w->setSelected(opts->getTeamCount());
+		deactivateButtonsFrom(*w, playerCountAllowed);
+	}
 	if(auto w = widget<CToggleGroup>("groupCompOnlyPlayers"))
+	{
 		w->setSelected(opts->getCompOnlyPlayerCount());
+		deactivateButtonsFrom(*w, playerTeamsAllowed);
+	}
 	if(auto w = widget<CToggleGroup>("groupCompOnlyTeams"))
+	{
 		w->setSelected(opts->getCompOnlyTeamCount());
+		deactivateButtonsFrom(*w, compTeamsAllowed);
+	}
 	if(auto w = widget<CToggleGroup>("groupWaterContent"))
+	{
 		w->setSelected(opts->getWaterContent());
+		if(opts->getMapTemplate())
+		{
+			std::set<int> allowedWater(opts->getMapTemplate()->getWaterContentAllowed().begin(), opts->getMapTemplate()->getWaterContentAllowed().end());
+			deactivateButtonsFrom(*w, allowedWater);
+		}
+		else
+			deactivateButtonsFrom(*w, {-1});
+	}
 	if(auto w = widget<CToggleGroup>("groupMonsterStrength"))
 		w->setSelected(opts->getMonsterStrength());
 }
@@ -194,6 +242,7 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 void RandomMapTab::setTemplate(const CRmgTemplate * tmpl)
 {
 	mapGenOptions->setMapTemplate(tmpl);
+	setMapGenOptions(mapGenOptions);
 	if(auto w = widget<CButton>("templateButton"))
 	{
 		if(tmpl)
@@ -201,16 +250,41 @@ void RandomMapTab::setTemplate(const CRmgTemplate * tmpl)
 		else
 			w->addTextOverlay("default", EFonts::FONT_SMALL);
 	}
+	updateMapInfoByHost();
 }
 
-void RandomMapTab::deactivateButtonsFrom(CToggleGroup * group, int startId)
+void RandomMapTab::deactivateButtonsFrom(CToggleGroup & group, int startAllowed, int endAllowed)
 {
-	logGlobal->debug("Blocking buttons from %d", startId);
-	for(auto toggle : group->buttons)
+	logGlobal->debug("Blocking all buttons except %d - %d", startAllowed, endAllowed);
+	for(auto toggle : group.buttons)
 	{
 		if(auto button = std::dynamic_pointer_cast<CToggleButton>(toggle.second))
 		{
-			if(startId == CMapGenOptions::RANDOM_SIZE || toggle.first < startId)
+			if(toggle.first == CMapGenOptions::RANDOM_SIZE
+			   || (startAllowed == CMapGenOptions::RANDOM_SIZE && endAllowed == CMapGenOptions::RANDOM_SIZE)
+			   || (toggle.first >= startAllowed
+			   && (endAllowed == CMapGenOptions::RANDOM_SIZE || toggle.first <= endAllowed)))
+			{
+				//button->block(false);
+			}
+			else
+			{
+				button->block(true);
+			}
+		}
+	}
+}
+
+void RandomMapTab::deactivateButtonsFrom(CToggleGroup & group, const std::set<int> & allowed)
+{
+	logGlobal->debug("Blocking buttons");
+	for(auto toggle : group.buttons)
+	{
+		if(auto button = std::dynamic_pointer_cast<CToggleButton>(toggle.second))
+		{
+			if(allowed.count(CMapGenOptions::RANDOM_SIZE)
+			   || allowed.count(toggle.first)
+			   || toggle.first == CMapGenOptions::RANDOM_SIZE)
 			{
 				button->block(false);
 			}
@@ -229,7 +303,7 @@ void RandomMapTab::validatePlayersCnt(int playersCnt)
 		return;
 	}
 
-	if(mapGenOptions->getTeamCount() >= playersCnt)
+	/*if(mapGenOptions->getTeamCount() >= playersCnt)
 	{
 		mapGenOptions->setTeamCount(playersCnt - 1);
 		if(auto w = widget<CToggleGroup>("groupMaxTeams"))
@@ -241,7 +315,7 @@ void RandomMapTab::validatePlayersCnt(int playersCnt)
 		mapGenOptions->setCompOnlyPlayerCount(PlayerColor::PLAYER_LIMIT_I - playersCnt);
 		if(auto w = widget<CToggleGroup>("groupCompOnlyPlayers"))
 			w->setSelected(mapGenOptions->getCompOnlyPlayerCount());
-	}
+	}*/
 
 	validateCompOnlyPlayersCnt(mapGenOptions->getCompOnlyPlayerCount());
 }
@@ -253,14 +327,14 @@ void RandomMapTab::validateCompOnlyPlayersCnt(int compOnlyPlayersCnt)
 		return;
 	}
 
-	if(mapGenOptions->getCompOnlyTeamCount() >= compOnlyPlayersCnt)
+	/*if(mapGenOptions->getCompOnlyTeamCount() >= compOnlyPlayersCnt)
 	{
 		int compOnlyTeamCount = compOnlyPlayersCnt == 0 ? 0 : compOnlyPlayersCnt - 1;
 		mapGenOptions->setCompOnlyTeamCount(compOnlyTeamCount);
 		updateMapInfoByHost();
 		if(auto w = widget<CToggleGroup>("groupCompOnlyTeams"))
 			w->setSelected(compOnlyTeamCount);
-	}
+	}*/
 }
 
 std::vector<int> RandomMapTab::getPossibleMapSizes()

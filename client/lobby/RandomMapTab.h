@@ -39,13 +39,17 @@ public:
 	CFunctionList<void(std::shared_ptr<CMapInfo>, std::shared_ptr<CMapGenOptions>)> mapInfoChanged;
 
 private:
-	void deactivateButtonsFrom(CToggleGroup * group, int startId);
+	void deactivateButtonsFrom(CToggleGroup & group, int startAllower, int endAllowed);
+	void deactivateButtonsFrom(CToggleGroup & group, const std::set<int> & allowed);
 	void validatePlayersCnt(int playersCnt);
 	void validateCompOnlyPlayersCnt(int compOnlyPlayersCnt);
 	std::vector<int> getPossibleMapSizes();
 
 	std::shared_ptr<CMapGenOptions> mapGenOptions;
 	std::shared_ptr<CMapInfo> mapInfo;
+	
+	//options allowed - need to store as impact each other
+	std::set<int> playerCountAllowed, playerTeamsAllowed, compCountAllowed, compTeamsAllowed;
 };
 
 class TemplatesDropBox : public CIntObject
