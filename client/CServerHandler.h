@@ -25,12 +25,11 @@ class CGameState;
 struct ClientPlayer;
 struct CPack;
 struct CPackForLobby;
+struct SharedMemory;
 
 template<typename T> class CApplier;
 
 VCMI_LIB_NAMESPACE_END
-
-struct SharedMemory;
 
 class CClient;
 
