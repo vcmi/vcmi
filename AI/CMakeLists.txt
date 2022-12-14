@@ -14,7 +14,7 @@ if(ENABLE_NULLKILLER_AI)
 	if(MSVC)
 		install_vcpkg_imported_tgt(TBB::tbb)
 	endif()
-end()
+endif()
 
 
 if(NOT FORCE_BUNDLED_FL)
