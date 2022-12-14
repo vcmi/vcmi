@@ -188,8 +188,11 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 		});
 		vstd::erase_if(playerTeamsAllowed,
 		[opts](int el){
-			return PlayerColor::PLAYER_LIMIT_I - opts->getPlayerCount() < el + 1;
+			return opts->getPlayerCount() <= el;
 		});
+		
+		if(!playerTeamsAllowed.count(opts->getTeamCount()))
+		   opts->setTeamCount(CMapGenOptions::RANDOM_SIZE);
 	}
 	if(mapGenOptions->getCompOnlyPlayerCount() != CMapGenOptions::RANDOM_SIZE)
 	{
@@ -199,8 +202,11 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 		});
 		vstd::erase_if(compTeamsAllowed,
 		[opts](int el){
-			return PlayerColor::PLAYER_LIMIT_I - opts->getCompOnlyPlayerCount() < el + 1;
+			return opts->getCompOnlyPlayerCount() <= el;
 		});
+		
+		if(!compTeamsAllowed.count(opts->getCompOnlyTeamCount()))
+			opts->setCompOnlyTeamCount(CMapGenOptions::RANDOM_SIZE);
 	}
 	
 	if(auto w = widget<CToggleGroup>("groupMapSize"))
