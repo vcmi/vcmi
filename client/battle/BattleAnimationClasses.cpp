@@ -628,7 +628,7 @@ void FadingAnimation::nextFrame()
 	uint8_t blue   = stack->cloned ? 128 : 0;
 	uint8_t alpha  = CSDL_Ext::lerp(from, dest, progress);
 
-	ColorShifterMultiplyAndAdd shifterFade ({factor, factor, factor, alpha}, {0, 0, blue, 0});
+	ColorShifterRange shifterFade ({0, 0, blue, 0}, {factor, factor, 255, alpha});
 	stackAnimation(stack)->shiftColor(&shifterFade);
 
 	if (progress == 1.0f)

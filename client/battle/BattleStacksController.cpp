@@ -76,10 +76,10 @@ BattleStacksController::BattleStacksController(BattleInterface & owner):
 	amountNegative   = IImage::createFromFile("CMNUMWIN.BMP");
 	amountEffNeutral = IImage::createFromFile("CMNUMWIN.BMP");
 
-	static const ColorShifterMultiplyAndAddExcept shifterNormal  ({150,  50, 255, 255}, {0,0,0,0}, {255, 231, 132, 255});
-	static const ColorShifterMultiplyAndAddExcept shifterPositive({ 50, 255,  50, 255}, {0,0,0,0}, {255, 231, 132, 255});
-	static const ColorShifterMultiplyAndAddExcept shifterNegative({255,  50,  50, 255}, {0,0,0,0}, {255, 231, 132, 255});
-	static const ColorShifterMultiplyAndAddExcept shifterNeutral ({255, 255,  50, 255}, {0,0,0,0}, {255, 231, 132, 255});
+	static const ColorShifterRangeExcept shifterNormal  ({0,0,0,0}, {150,  50, 255, 255}, {255, 231, 132, 255});
+	static const ColorShifterRangeExcept shifterPositive({0,0,0,0}, { 50, 255,  50, 255}, {255, 231, 132, 255});
+	static const ColorShifterRangeExcept shifterNegative({0,0,0,0}, {255,  50,  50, 255}, {255, 231, 132, 255});
+	static const ColorShifterRangeExcept shifterNeutral ({0,0,0,0}, {255, 255,  50, 255}, {255, 231, 132, 255});
 
 	amountNormal->adjustPalette(&shifterNormal);
 	amountPositive->adjustPalette(&shifterPositive);
@@ -213,7 +213,7 @@ void BattleStacksController::stackAdded(const CStack * stack, bool instant)
 
 	if (!instant)
 	{
-		ColorShifterMultiplyAndAdd shifterFade ({255, 255, 255, 0}, {0, 0, 0, 0});
+		ColorShifterRange shifterFade ({0, 0, 0, 0}, {255, 255, 255, 0});
 		stackAnimation[stack->ID]->shiftColor(&shifterFade);
 
 		owner.executeOnAnimationCondition(EAnimationEvents::HIT, true, [=]()
