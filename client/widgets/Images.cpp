@@ -482,7 +482,7 @@ void CCreatureAnim::loopPreview(bool warMachine)
 		ECreatureAnimType::HITTED,
 		ECreatureAnimType::DEFENCE,
 		ECreatureAnimType::ATTACK_FRONT,
-		ECreatureAnimType::CAST_FRONT
+		ECreatureAnimType::SPECIAL_FRONT
 	};
 	static const ECreatureAnimType::Type machPreviewList[] = {
 		ECreatureAnimType::HOLDING,

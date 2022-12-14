@@ -76,6 +76,8 @@ protected:
 	int attackingStackPosBeforeReturn; //for stacks with return_after_strike feature
 
 	const CCreature * getCreature() const;
+	ECreatureAnimType::Type findValidGroup( const std::vector<ECreatureAnimType::Type> candidates ) const;
+
 public:
 	virtual void playSound() = 0;
 
@@ -127,6 +129,11 @@ public:
 class MeleeAttackAnimation : public AttackAnimation
 {
 	bool multiAttack;
+
+	ECreatureAnimType::Type getUpwardsGroup() const;
+	ECreatureAnimType::Type getForwardGroup() const;
+	ECreatureAnimType::Type getDownwardsGroup() const;
+
 public:
 	bool init() override;
 	void nextFrame() override;
@@ -278,7 +285,6 @@ class CastAnimation : public RangedAttackAnimation
 {
 	const CSpell * spell;
 
-	ECreatureAnimType::Type findValidGroup( const std::vector<ECreatureAnimType::Type> candidates ) const;
 	ECreatureAnimType::Type getUpwardsGroup() const override;
 	ECreatureAnimType::Type getForwardGroup() const override;
 	ECreatureAnimType::Type getDownwardsGroup() const override;

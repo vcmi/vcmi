@@ -92,6 +92,18 @@ BattleStackAnimation::BattleStackAnimation(BattleInterface & owner, const CStack
 	assert(myAnim);
 }
 
+ECreatureAnimType::Type AttackAnimation::findValidGroup( const std::vector<ECreatureAnimType::Type> candidates ) const
+{
+	for ( auto group : candidates)
+	{
+		if(myAnim->framesInGroup(group) > 0)
+			return group;
+	}
+
+	assert(0);
+	return ECreatureAnimType::HOLDING;
+}
+
 void AttackAnimation::nextFrame()
 {
 	if(myAnim->getType() != group)
@@ -210,6 +222,42 @@ void DummyAnimation::nextFrame()
 		delete this;
 }
 
+ECreatureAnimType::Type MeleeAttackAnimation::getUpwardsGroup() const
+{
+	if (!multiAttack)
+		return ECreatureAnimType::ATTACK_UP;
+
+	return findValidGroup({
+		ECreatureAnimType::GROUP_ATTACK_UP,
+		ECreatureAnimType::SPECIAL_UP,
+		ECreatureAnimType::ATTACK_UP
+	});
+}
+
+ECreatureAnimType::Type MeleeAttackAnimation::getForwardGroup() const
+{
+	if (!multiAttack)
+		return ECreatureAnimType::ATTACK_FRONT;
+
+	return findValidGroup({
+		ECreatureAnimType::GROUP_ATTACK_FRONT,
+		ECreatureAnimType::SPECIAL_FRONT,
+		ECreatureAnimType::ATTACK_FRONT
+	});
+}
+
+ECreatureAnimType::Type MeleeAttackAnimation::getDownwardsGroup() const
+{
+	if (!multiAttack)
+		return ECreatureAnimType::ATTACK_DOWN;
+
+	return findValidGroup({
+		ECreatureAnimType::GROUP_ATTACK_DOWN,
+		ECreatureAnimType::SPECIAL_DOWN,
+		ECreatureAnimType::ATTACK_DOWN
+	});
+}
+
 bool MeleeAttackAnimation::init()
 {
 	assert(attackingStack);
@@ -223,24 +271,14 @@ bool MeleeAttackAnimation::init()
 
 	logAnim->info("CMeleeAttackAnimation::init: stack %s -> stack %s", stack->getName(), defendingStack->getName());
 
-	static const ECreatureAnimType::Type mutPosToGroup[] =
+	const ECreatureAnimType::Type mutPosToGroup[] =
 	{
-		ECreatureAnimType::ATTACK_UP,
-		ECreatureAnimType::ATTACK_UP,
-		ECreatureAnimType::ATTACK_FRONT,
-		ECreatureAnimType::ATTACK_DOWN,
-		ECreatureAnimType::ATTACK_DOWN,
-		ECreatureAnimType::ATTACK_FRONT
-	};
-
-	static const ECreatureAnimType::Type mutPosToGroup2H[] =
-	{
-		ECreatureAnimType::VCMI_2HEX_UP,
-		ECreatureAnimType::VCMI_2HEX_UP,
-		ECreatureAnimType::VCMI_2HEX_FRONT,
-		ECreatureAnimType::VCMI_2HEX_DOWN,
-		ECreatureAnimType::VCMI_2HEX_DOWN,
-		ECreatureAnimType::VCMI_2HEX_FRONT
+		getUpwardsGroup(),
+		getUpwardsGroup(),
+		getForwardGroup(),
+		getDownwardsGroup(),
+		getDownwardsGroup(),
+		getForwardGroup()
 	};
 
 	int revShiftattacker = (attackingStack->side == BattleSide::ATTACKER ? -1 : 1);
@@ -259,30 +297,9 @@ bool MeleeAttackAnimation::init()
 		mutPos = BattleHex::mutualPosition(attackingStackPosBeforeReturn + revShiftattacker, defendingStack->occupiedHex());
 	}
 
+	assert(mutPos >= 0 && mutPos <=5);
 
-	switch(mutPos) //attack direction
-	{
-	case 0:
-	case 1:
-	case 2:
-	case 3:
-	case 4:
-	case 5:
-		group = mutPosToGroup[mutPos];
-		if(attackingStack->hasBonusOfType(Bonus::TWO_HEX_ATTACK_BREATH))
-		{
-			ECreatureAnimType::Type group2H = mutPosToGroup2H[mutPos];
-			if(myAnim->framesInGroup(group2H)>0)
-				group = group2H;
-		}
-
-		break;
-	default:
-		logGlobal->error("Critical Error! Wrong dest in stackAttacking! dest: %d; attacking stack pos: %d; mutual pos: %d", dest.hex, attackingStackPosBeforeReturn, mutPos);
-		group = ECreatureAnimType::ATTACK_FRONT;
-		break;
-	}
-
+	group = mutPosToGroup[mutPos];
 	return true;
 }
 
@@ -304,8 +321,9 @@ void MeleeAttackAnimation::playSound()
 	CCS->soundh->playSound(battle_sound(getCreature(), attack));
 }
 
-MeleeAttackAnimation::MeleeAttackAnimation(BattleInterface & owner, const CStack * attacker, BattleHex _dest, const CStack * _attacked)
-	: AttackAnimation(owner, attacker, _dest, _attacked)
+MeleeAttackAnimation::MeleeAttackAnimation(BattleInterface & owner, const CStack * attacker, BattleHex _dest, const CStack * _attacked, bool multiAttack)
+	: AttackAnimation(owner, attacker, _dest, _attacked),
+	  multiAttack(multiAttack)
 {
 	logAnim->debug("Created melee attack anim for %s", attacker->getName());
 }
@@ -831,23 +849,11 @@ CastAnimation::CastAnimation(BattleInterface & owner_, const CStack * attacker, 
 		dest = defender->getPosition();
 }
 
-ECreatureAnimType::Type CastAnimation::findValidGroup( const std::vector<ECreatureAnimType::Type> candidates ) const
-{
-	for ( auto group : candidates)
-	{
-		if(myAnim->framesInGroup(group) > 0)
-			return group;
-	}
-
-	assert(0);
-	return ECreatureAnimType::HOLDING;
-}
-
 ECreatureAnimType::Type CastAnimation::getUpwardsGroup() const
 {
 	return findValidGroup({
-		ECreatureAnimType::VCMI_CAST_UP,
 		ECreatureAnimType::CAST_UP,
+		ECreatureAnimType::SPECIAL_UP,
 		ECreatureAnimType::SHOOT_UP,
 		ECreatureAnimType::ATTACK_UP
 	});
@@ -856,8 +862,8 @@ ECreatureAnimType::Type CastAnimation::getUpwardsGroup() const
 ECreatureAnimType::Type CastAnimation::getForwardGroup() const
 {
 	return findValidGroup({
-		ECreatureAnimType::VCMI_CAST_FRONT,
 		ECreatureAnimType::CAST_FRONT,
+		ECreatureAnimType::SPECIAL_FRONT,
 		ECreatureAnimType::SHOOT_FRONT,
 		ECreatureAnimType::ATTACK_FRONT
 	});
@@ -866,8 +872,8 @@ ECreatureAnimType::Type CastAnimation::getForwardGroup() const
 ECreatureAnimType::Type CastAnimation::getDownwardsGroup() const
 {
 	return findValidGroup({
-		ECreatureAnimType::VCMI_CAST_DOWN,
 		ECreatureAnimType::CAST_DOWN,
+		ECreatureAnimType::SPECIAL_DOWN,
 		ECreatureAnimType::SHOOT_DOWN,
 		ECreatureAnimType::ATTACK_DOWN
 	});

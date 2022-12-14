@@ -73,9 +73,9 @@ enum Type // list of creature animations, numbers were taken from def files
 	SHOOT_UP        = 14, // Shooters only
 	SHOOT_FRONT     = 15, // Shooters only
 	SHOOT_DOWN      = 16, // Shooters only
-	CAST_UP         = 17, // If empty, fallback to CAST_FRONT
-	CAST_FRONT      = 18, // Used for any special moves - dragon breath, spellcasting, (possibly - Pit Lord/Ogre Mage ability)
-	CAST_DOWN       = 19, // If empty, fallback to CAST_FRONT
+	SPECIAL_UP      = 17, // If empty, fallback to SPECIAL_FRONT
+	SPECIAL_FRONT   = 18, // Used for any special moves - dragon breath, spellcasting, (possibly - Pit Lord/Ogre Mage ability)
+	SPECIAL_DOWN    = 19, // If empty, fallback to SPECIAL_FRONT
 	MOVE_START      = 20, // small animation to be played before MOVING
 	MOVE_END        = 21, // small animation to be played after MOVING
 
@@ -83,11 +83,12 @@ enum Type // list of creature animations, numbers were taken from def files
 	DEAD_RANGED     = 23, // new group, used to show dead stacks (if DEATH_RANGED was used). If empty - last frame from "DEATH_RANGED" will be copied here
 	RESURRECTION    = 24, // new group, used for animating resurrection, if empty - reversed "DEATH" animation will be copiend here
 
-	VCMI_CAST_UP    = 30,
-	VCMI_CAST_FRONT = 31,
-	VCMI_CAST_DOWN  = 32,
-	VCMI_2HEX_UP    = 40,
-	VCMI_2HEX_FRONT = 41,
-	VCMI_2HEX_DOWN  = 42
+	CAST_UP            = 30,
+	CAST_FRONT         = 31,
+	CAST_DOWN          = 32,
+
+	GROUP_ATTACK_UP    = 40,
+	GROUP_ATTACK_FRONT = 41,
+	GROUP_ATTACK_DOWN  = 42
 };
 }

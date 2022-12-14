@@ -74,12 +74,12 @@ float AnimationControls::getCreatureAnimationSpeed(const CCreature * creature, c
 	case ECreatureAnimType::SHOOT_UP:
 	case ECreatureAnimType::SHOOT_FRONT:
 	case ECreatureAnimType::SHOOT_DOWN:
-	case ECreatureAnimType::CAST_UP:
-	case ECreatureAnimType::CAST_FRONT:
+	case ECreatureAnimType::SPECIAL_UP:
+	case ECreatureAnimType::SPECIAL_FRONT:
+	case ECreatureAnimType::SPECIAL_DOWN:
 	case ECreatureAnimType::CAST_DOWN:
-	case ECreatureAnimType::VCMI_CAST_DOWN:
-	case ECreatureAnimType::VCMI_CAST_FRONT:
-	case ECreatureAnimType::VCMI_CAST_UP:
+	case ECreatureAnimType::CAST_FRONT:
+	case ECreatureAnimType::CAST_UP:
 		return static_cast<float>(speed * 4 * creature->animation.attackAnimationTime / anim->framesInGroup(type));
 
 	// as strange as it looks like "attackAnimationTime" does not affects melee attacks
@@ -92,9 +92,9 @@ float AnimationControls::getCreatureAnimationSpeed(const CCreature * creature, c
 	case ECreatureAnimType::DEATH:
 	case ECreatureAnimType::DEATH_RANGED:
 	case ECreatureAnimType::RESURRECTION:
-	case ECreatureAnimType::VCMI_2HEX_DOWN:
-	case ECreatureAnimType::VCMI_2HEX_FRONT:
-	case ECreatureAnimType::VCMI_2HEX_UP:
+	case ECreatureAnimType::GROUP_ATTACK_DOWN:
+	case ECreatureAnimType::GROUP_ATTACK_FRONT:
+	case ECreatureAnimType::GROUP_ATTACK_UP:
 		return speed * 3 / anim->framesInGroup(type);
 
 	case ECreatureAnimType::TURN_L:

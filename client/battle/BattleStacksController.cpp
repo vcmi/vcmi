@@ -513,6 +513,7 @@ void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 	auto defender    = info.defender;
 	auto tile        = info.tile;
 	auto spellEffect = info.spellEffect;
+	auto multiAttack = !info.secondaryDefender.empty();
 
 	if (needsReverse)
 	{
@@ -561,7 +562,7 @@ void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 		}
 		else
 		{
-			addNewAnim(new MeleeAttackAnimation(owner, attacker, tile, defender));
+			addNewAnim(new MeleeAttackAnimation(owner, attacker, tile, defender, multiAttack));
 		}
 	});
 
