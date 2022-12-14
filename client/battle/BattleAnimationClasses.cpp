@@ -1123,9 +1123,12 @@ bool HeroCastAnimation::init()
 
 void HeroCastAnimation::initializeProjectile()
 {
-	//spell has no projectile to play, ignore this step
+	// spell has no projectile to play, ignore this step
 	if (spell->animationInfo.projectile.empty())
 		return;
+
+	// targeted spells should have well, target
+	assert(tile.isValid());
 
 	Point srccoord = hero->pos.center();
 	Point destcoord = owner.stacksController->getStackPositionAtHex(tile, target); //position attacked by projectile

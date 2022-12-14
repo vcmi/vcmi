@@ -492,7 +492,11 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 
 	if (!castSoundPath.empty())
 	{
-		executeOnAnimationCondition(EAnimationEvents::BEFORE_HIT, true, [=]() {
+		auto group = spell->animationInfo.projectile.empty() ?
+					EAnimationEvents::HIT:
+					EAnimationEvents::BEFORE_HIT;//FIXME: should be on projectile spawning
+
+		executeOnAnimationCondition(group, true, [=]() {
 			CCS->soundh->playSound(castSoundPath);
 		});
 	}
@@ -510,7 +514,6 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 			});
 		}
 		else
-		if (targetedTile.isValid())
 		{
 			auto hero = sc->side ? defendingHero : attackingHero;
 			assert(hero);
