@@ -106,7 +106,7 @@ public:
 	void showProjectiles(Canvas & canvas);
 
 	/// returns true if stack has projectile that is yet to hit target
-	bool hasActiveProjectile(const CStack * stack) const;
+	bool hasActiveProjectile(const CStack * stack, bool emittedOnly) const;
 
 	/// starts rendering previously created projectile
 	void emitStackProjectile(const CStack * stack);

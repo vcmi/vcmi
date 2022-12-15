@@ -49,12 +49,6 @@ inline bool isShiftKeyDown()
 }
 namespace CSDL_Ext
 {
-	template<typename Int>
-	Int lerp(Int a, Int b, float f)
-	{
-		return a + std::round((b - a) * f);
-	}
-
 	//todo: should this better be assignment operator?
 	STRONG_INLINE void colorAssign(SDL_Color & dest, const SDL_Color & source)
 	{
@@ -157,82 +151,6 @@ struct ColorPutter
 };
 
 typedef void (*BlitterWithRotationVal)(SDL_Surface *src,SDL_Rect srcRect, SDL_Surface * dst, SDL_Rect dstRect, ui8 rotation);
-
-/// Base class for applying palette transformation on images
-class ColorShifter
-{
-public:
-	~ColorShifter() = default;
-	virtual SDL_Color shiftColor(SDL_Color input) const = 0;
-};
-
-/// Generic class for palette transformation
-/// Applies linear transformation to move all colors into range (min, max)
-class ColorShifterRange : public ColorShifter
-{
-	SDL_Color base;
-	SDL_Color factor;
-
-public:
-	ColorShifterRange(SDL_Color min, SDL_Color max) :
-		base(min)
-	{
-		assert(max.r >= min.r);
-		assert(max.g >= min.g);
-		assert(max.b >= min.b);
-		assert(max.a >= min.a);
-		factor.r = max.r - min.r;
-		factor.g = max.g - min.g;
-		factor.b = max.b - min.b;
-		factor.a = max.a - min.a;
-	}
-
-	SDL_Color shiftColor(SDL_Color input) const override
-	{
-		return {
-			uint8_t(base.r + input.r * factor.r / 255),
-			uint8_t(base.g + input.g * factor.g / 255),
-			uint8_t(base.b + input.b * factor.b / 255),
-			uint8_t(base.a + input.a * factor.a / 255),
-		};
-	}
-};
-
-/// Color shifter that allows to specify color to be excempt from changes
-class ColorShifterRangeExcept : public ColorShifterRange
-{
-	SDL_Color ignored;
-public:
-	ColorShifterRangeExcept(SDL_Color min, SDL_Color max, SDL_Color ignored) :
-		ColorShifterRange(min, max),
-		ignored(ignored)
-	{}
-
-	SDL_Color shiftColor(SDL_Color input) const override
-	{
-		if ( input.r == ignored.r && input.g == ignored.g && input.b == ignored.b && input.a == ignored.a)
-			return input;
-		return ColorShifterRange::shiftColor(input);
-	}
-};
-
-class ColorShifterGrayscale : public ColorShifter
-{
-public:
-	SDL_Color shiftColor(SDL_Color input) const override
-	{
-		// Apply grayscale conversion according to human eye perception values
-		uint32_t gray = static_cast<uint32_t>(0.299 * input.r + 0.587 * input.g + 0.114 * input.b);
-		assert(gray < 256);
-
-		return {
-			uint8_t(gray),
-			uint8_t(gray),
-			uint8_t(gray),
-			input.a
-		};
-	}
-};
 
 namespace CSDL_Ext
 {

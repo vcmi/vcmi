@@ -12,6 +12,7 @@
 
 #include "SDL_Extensions.h"
 #include "SDL_Pixels.h"
+#include "ColorFilter.h"
 
 #include "../CBitmapHandler.h"
 #include "../Graphics.h"
@@ -105,7 +106,8 @@ public:
 	void verticalFlip() override;
 
 	void shiftPalette(int from, int howMany) override;
-	void adjustPalette(const ColorShifter * shifter) override;
+	void adjustPalette(const ColorFilter & shifter) override;
+	void resetPalette(int colorID) override;
 	void resetPalette() override;
 
 	void setSpecialPallete(const SpecialPalette & SpecialPalette) override;
@@ -789,7 +791,7 @@ void SDLImage::shiftPalette(int from, int howMany)
 	}
 }
 
-void SDLImage::adjustPalette(const ColorShifter * shifter)
+void SDLImage::adjustPalette(const ColorFilter & shifter)
 {
 	if(originalPalette == nullptr)
 		return;
@@ -799,7 +801,7 @@ void SDLImage::adjustPalette(const ColorShifter * shifter)
 	// Note: here we skip the first 8 colors in the palette that predefined in H3Palette
 	for(int i = 8; i < palette->ncolors; i++)
 	{
-		palette->colors[i] = shifter->shiftColor(originalPalette->colors[i]);
+		palette->colors[i] = shifter.shiftColor(originalPalette->colors[i]);
 	}
 }
 
@@ -810,6 +812,15 @@ void SDLImage::resetPalette()
 	
 	// Always keept the original palette not changed, copy a new palette to assign to surface
 	SDL_SetPaletteColors(surf->format->palette, originalPalette->colors, 0, originalPalette->ncolors);
+}
+
+void SDLImage::resetPalette( int colorID )
+{
+	if(originalPalette == nullptr)
+		return;
+
+	// Always keept the original palette not changed, copy a new palette to assign to surface
+	SDL_SetPaletteColors(surf->format->palette, originalPalette->colors + colorID, colorID, 1);
 }
 
 void SDLImage::setSpecialPallete(const IImage::SpecialPalette & SpecialPalette)
@@ -1079,7 +1090,7 @@ void CAnimation::duplicateImage(const size_t sourceGroup, const size_t sourceFra
 		load(index, targetGroup);
 }
 
-void CAnimation::shiftColor(const ColorShifter * shifter)
+void CAnimation::shiftColor(const ColorFilter & shifter)
 {
 	for(auto groupIter = images.begin(); groupIter != images.end(); groupIter++)
 	{

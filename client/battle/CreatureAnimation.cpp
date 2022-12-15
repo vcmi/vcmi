@@ -14,6 +14,7 @@
 #include "../../lib/CCreatureHandler.h"
 
 #include "../gui/Canvas.h"
+#include "../gui/ColorFilter.h"
 
 static const SDL_Color creatureBlueBorder = { 0, 255, 255, 255 };
 static const SDL_Color creatureGoldBorder = { 255, 255, 0, 255 };
@@ -156,19 +157,6 @@ void CreatureAnimation::setType(ECreatureAnimType::Type type)
 	once = false;
 
 	play();
-}
-
-void CreatureAnimation::shiftColor(const ColorShifter* shifter)
-{
-	SDL_Color shadowTest = shifter->shiftColor(genShadow(128));
-
-	shadowAlpha = shadowTest.a;
-
-	if(forward)
-		forward->shiftColor(shifter);
-
-	if(reverse)
-		reverse->shiftColor(shifter);
 }
 
 CreatureAnimation::CreatureAnimation(const std::string & name_, TSpeedController controller)
@@ -327,8 +315,11 @@ void CreatureAnimation::genSpecialPalette(IImage::SpecialPalette & target)
 	target[6] = addColors(genShadow(shadowAlpha / 2), genBorderColor(getBorderStrength(elapsedTime), border));
 }
 
-void CreatureAnimation::nextFrame(Canvas & canvas, bool facingRight)
+void CreatureAnimation::nextFrame(Canvas & canvas, const ColorFilter & shifter, bool facingRight)
 {
+	SDL_Color shadowTest = shifter.shiftColor(genShadow(128));
+	shadowAlpha = shadowTest.a;
+
 	size_t frame = static_cast<size_t>(floor(currentFrame));
 
 	std::shared_ptr<IImage> image;
@@ -344,6 +335,7 @@ void CreatureAnimation::nextFrame(Canvas & canvas, bool facingRight)
 		genSpecialPalette(SpecialPalette);
 
 		image->setSpecialPallete(SpecialPalette);
+		image->adjustPalette(shifter);
 
 		canvas.draw(image, pos.topLeft(), Rect(0, 0, pos.w, pos.h));
 

@@ -1810,7 +1810,7 @@ void CAdvMapInt::tileRClicked(const int3 &mapPos)
 		return;
 	}
 
-	CRClickPopup::createAndPush(obj, GH.current->motion, ETextAlignment::CENTER);
+	CRClickPopup::createAndPush(obj, Point(GH.current->motion), ETextAlignment::CENTER);
 }
 
 void CAdvMapInt::enterCastingMode(const CSpell * sp)

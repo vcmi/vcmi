@@ -21,6 +21,7 @@ set(client_SRCS
 		gui/CCursorHandler.cpp
 		gui/CGuiHandler.cpp
 		gui/CIntObject.cpp
+		gui/ColorFilter.cpp
 		gui/Fonts.cpp
 		gui/Geometries.cpp
 		gui/SDL_Extensions.cpp
@@ -104,6 +105,7 @@ set(client_HEADERS
 		gui/Canvas.h
 		gui/CCursorHandler.h
 		gui/CGuiHandler.h
+		gui/ColorFilter.h
 		gui/CIntObject.h
 		gui/Fonts.h
 		gui/Geometries.h

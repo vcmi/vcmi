@@ -349,12 +349,12 @@ static void drawLineX(SDL_Surface * sur, int x1, int y1, int x2, int y2, const S
 	for(int x = x1; x <= x2; x++)
 	{
 		float f = float(x - x1) / float(x2 - x1);
-		int y = CSDL_Ext::lerp(y1, y2, f);
+		int y = vstd::lerp(y1, y2, f);
 
-		uint8_t r = CSDL_Ext::lerp(color1.r, color2.r, f);
-		uint8_t g = CSDL_Ext::lerp(color1.g, color2.g, f);
-		uint8_t b = CSDL_Ext::lerp(color1.b, color2.b, f);
-		uint8_t a = CSDL_Ext::lerp(color1.a, color2.a, f);
+		uint8_t r = vstd::lerp(color1.r, color2.r, f);
+		uint8_t g = vstd::lerp(color1.g, color2.g, f);
+		uint8_t b = vstd::lerp(color1.b, color2.b, f);
+		uint8_t a = vstd::lerp(color1.a, color2.a, f);
 
 		Uint8 *p = CSDL_Ext::getPxPtr(sur, x, y);
 		ColorPutter<4, 0>::PutColor(p, r,g,b,a);
@@ -366,12 +366,12 @@ static void drawLineY(SDL_Surface * sur, int x1, int y1, int x2, int y2, const S
 	for(int y = y1; y <= y2; y++)
 	{
 		float f = float(y - y1) / float(y2 - y1);
-		int x = CSDL_Ext::lerp(x1, x2, f);
+		int x = vstd::lerp(x1, x2, f);
 
-		uint8_t r = CSDL_Ext::lerp(color1.r, color2.r, f);
-		uint8_t g = CSDL_Ext::lerp(color1.g, color2.g, f);
-		uint8_t b = CSDL_Ext::lerp(color1.b, color2.b, f);
-		uint8_t a = CSDL_Ext::lerp(color1.a, color2.a, f);
+		uint8_t r = vstd::lerp(color1.r, color2.r, f);
+		uint8_t g = vstd::lerp(color1.g, color2.g, f);
+		uint8_t b = vstd::lerp(color1.b, color2.b, f);
+		uint8_t a = vstd::lerp(color1.a, color2.a, f);
 
 		Uint8 *p = CSDL_Ext::getPxPtr(sur, x, y);
 		ColorPutter<4, 0>::PutColor(p, r,g,b,a);
@@ -920,7 +920,6 @@ void CSDL_Ext::setDefaultColorKeyPresize(SDL_Surface * surface)
 		color.a = SDL_ALPHA_TRANSPARENT;
 	}
 }
-
 
 
 template SDL_Surface * CSDL_Ext::createSurfaceWithBpp<2>(int, int);

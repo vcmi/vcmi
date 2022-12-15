@@ -10,12 +10,14 @@
 #pragma once
 
 #include "../gui/Geometries.h"
+#include "../gui/ColorFilter.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 struct BattleHex;
 class BattleAction;
 class CStack;
+class CSpell;
 class SpellID;
 
 VCMI_LIB_NAMESPACE_END
@@ -23,6 +25,7 @@ VCMI_LIB_NAMESPACE_END
 struct StackAttackedInfo;
 struct StackAttackInfo;
 
+class ColorFilter;
 class Canvas;
 class BattleInterface;
 class BattleAnimation;
@@ -30,6 +33,14 @@ class CreatureAnimation;
 class BattleAnimation;
 class BattleRenderer;
 class IImage;
+
+struct BattleStackFilterEffect
+{
+	ColorFilter effect;
+	const CStack * target;
+	const CSpell * source;
+	bool persistent;
+};
 
 /// Class responsible for handling stacks in battle
 /// Handles ordering of stacks animation
@@ -47,13 +58,16 @@ class BattleStacksController
 	/// currently displayed animations <anim, initialized>
 	std::vector<BattleAnimation *> currentAnimations;
 
+	/// currently active color effects on stacks, in order of their addition (which corresponds to their apply order)
+	std::vector<BattleStackFilterEffect> stackFilterEffects;
+
 	/// animations of creatures from fighting armies (order by BattleInfo's stacks' ID)
 	std::map<int32_t, std::shared_ptr<CreatureAnimation>> stackAnimation;
 
 	/// <creatureID, if false reverse creature's animation> //TODO: move it to battle callback
 	std::map<int, bool> stackFacingRight;
 
-	/// number of active stack; nullptr - no one
+	/// currently active stack; nullptr - no one
 	const CStack *activeStack;
 
 	/// stack below mouse pointer, used for border animation
@@ -79,6 +93,7 @@ class BattleStacksController
 	std::shared_ptr<IImage> getStackAmountBox(const CStack * stack);
 
 	void executeAttackAnimations();
+	void removeExpiredColorFilters();
 public:
 	BattleStacksController(BattleInterface & owner);
 
@@ -110,6 +125,10 @@ public:
 
 	void collectRenderableObjects(BattleRenderer & renderer);
 
+	/// Adds new color filter effect targeting stack
+	/// Effect will last as long as stack is affected by specified spell (unless effect is persistent)
+	/// If effect from same (target, source) already exists, it will be updated
+	void setStackColorFilter(const ColorFilter & effect, const CStack * target, const CSpell *source, bool persistent);
 	void addNewAnim(BattleAnimation *anim); //adds new anim to pendingAnims
 	void updateBattleAnimations();
 

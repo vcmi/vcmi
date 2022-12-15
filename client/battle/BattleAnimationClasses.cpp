@@ -24,6 +24,7 @@
 #include "../CPlayerInterface.h"
 #include "../gui/CCursorHandler.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/SDL_Extensions.h"
 
 #include "../../CCallback.h"
 #include "../../lib/CStack.h"
@@ -409,7 +410,7 @@ void MovementAnimation::nextFrame()
 	{
 		// Sets the position of the creature animation sprites
 		Point coords = owner.stacksController->getStackPositionAtHex(currentHex, stack);
-		myAnim->pos = coords;
+		myAnim->pos.moveTo(coords);
 
 		// true if creature haven't reached the final destination hex
 		if ((curentMoveIndex + 1) < destTiles.size())
@@ -431,7 +432,7 @@ MovementAnimation::~MovementAnimation()
 {
 	assert(stack);
 
-	myAnim->pos = owner.stacksController->getStackPositionAtHex(currentHex, stack);
+	myAnim->pos.moveTo(owner.stacksController->getStackPositionAtHex(currentHex, stack));
 
 	if(owner.moveSoundHander != -1)
 	{
@@ -560,7 +561,7 @@ void BattleStackAnimation::rotateStack(BattleHex hex)
 {
 	setStackFacingRight(stack, !stackFacingRight(stack));
 
-	stackAnimation(stack)->pos = owner.stacksController->getStackPositionAtHex(hex, stack);
+	stackAnimation(stack)->pos.moveTo(owner.stacksController->getStackPositionAtHex(hex, stack));
 }
 
 void ReverseAnimation::setupSecondPart()
@@ -607,41 +608,109 @@ ResurrectionAnimation::ResurrectionAnimation(BattleInterface & owner, const CSta
 
 }
 
-bool FadingAnimation::init()
+bool ColorTransformAnimation::init()
 {
-	logAnim->info("FadingAnimation::init: stack %s", stack->getName());
-	//TODO: pause animation?
 	return true;
 }
 
-void FadingAnimation::nextFrame()
+void ColorTransformAnimation::nextFrame()
 {
 	float elapsed  = GH.mainFPSmng->getElapsedMilliseconds() / 1000.f;
 	float fullTime = AnimationControls::getFadeInDuration();
 	float delta    = elapsed / fullTime;
-	progress += delta;
+	totalProgress += delta;
 
-	if (progress > 1.0f)
-		progress = 1.0f;
+	size_t index = 0;
 
-	uint8_t factor = stack->cloned ? 128 : 255;
-	uint8_t blue   = stack->cloned ? 128 : 0;
-	uint8_t alpha  = CSDL_Ext::lerp(from, dest, progress);
+	while (index < timePoints.size() && timePoints[index] < totalProgress )
+		++index;
 
-	ColorShifterRange shifterFade ({0, 0, blue, 0}, {factor, factor, 255, alpha});
-	stackAnimation(stack)->shiftColor(&shifterFade);
-
-	if (progress == 1.0f)
+	if (index == timePoints.size())
+	{
+		//end of animation. Apply ColorShifter using final values and die
+		const auto & shifter = steps[index - 1];
+		owner.stacksController->setStackColorFilter(shifter, stack, spell, false);
 		delete this;
+		return;
+	}
+
+	assert(index != 0);
+
+	const auto & prevShifter = steps[index - 1];
+	const auto & nextShifter = steps[index];
+
+	float prevPoint = timePoints[index-1];
+	float nextPoint = timePoints[index];
+	float localProgress = totalProgress - prevPoint;
+	float stepDuration = (nextPoint - prevPoint);
+	float factor = localProgress / stepDuration;
+
+	auto shifter = ColorFilter::genInterpolated(prevShifter, nextShifter, factor);
+
+	owner.stacksController->setStackColorFilter(shifter, stack, spell, true);
 }
 
-FadingAnimation::FadingAnimation(BattleInterface & owner, const CStack * _stack, uint8_t alphaFrom, uint8_t alphaDest):
+ColorTransformAnimation::ColorTransformAnimation(BattleInterface & owner, const CStack * _stack, const CSpell * spell):
 	BattleStackAnimation(owner, _stack),
-	from(alphaFrom),
-	dest(alphaDest)
+	spell(spell),
+	totalProgress(0.f)
 {
+
 }
 
+ColorTransformAnimation * ColorTransformAnimation::bloodlustAnimation(BattleInterface & owner, const CStack * stack, const CSpell * spell)
+{
+	auto result = new ColorTransformAnimation(owner, stack, spell);
+
+	result->steps.push_back(ColorFilter::genEmptyShifter());
+	result->steps.push_back(ColorFilter::genMuxerShifter( { 0.3, 0.0, 0.3, 0.4}, { 0, 1, 0, 0}, { 0, 0, 1, 0}, 1.f ));
+	result->steps.push_back(ColorFilter::genMuxerShifter( { 0.3, 0.3, 0.3, 0.1}, { 0, 0.5, 0, 0}, { 0, 0.5, 0, 0}, 1.f ));
+	result->steps.push_back(ColorFilter::genMuxerShifter( { 0.3, 0.0, 0.3, 0.4}, { 0, 1, 0, 0}, { 0, 0, 1, 0}, 1.f ));
+	result->steps.push_back(ColorFilter::genEmptyShifter());
+
+	result->timePoints.push_back(0.0f);
+	result->timePoints.push_back(0.2f);
+	result->timePoints.push_back(0.4f);
+	result->timePoints.push_back(0.6f);
+	result->timePoints.push_back(0.8f);
+
+	return result;
+}
+
+ColorTransformAnimation * ColorTransformAnimation::cloneAnimation(BattleInterface & owner, const CStack * stack, const CSpell * spell)
+{
+	auto result = new ColorTransformAnimation(owner, stack, spell);
+	result->steps.push_back(ColorFilter::genRangeShifter( 0, 0, 0.5, 0.5, 0.5, 1.0));
+	result->timePoints.push_back(0.f);
+	return result;
+}
+
+ColorTransformAnimation * ColorTransformAnimation::petrifyAnimation(BattleInterface & owner, const CStack * stack, const CSpell * spell)
+{
+	auto result = new ColorTransformAnimation(owner, stack, spell);
+	result->steps.push_back(ColorFilter::genEmptyShifter());
+	result->steps.push_back(ColorFilter::genGrayscaleShifter());
+	result->timePoints.push_back(0.f);
+	result->timePoints.push_back(1.f);
+	return result;
+}
+
+ColorTransformAnimation * ColorTransformAnimation::fadeInAnimation(BattleInterface & owner, const CStack * stack)
+{
+	auto result = new ColorTransformAnimation(owner, stack, nullptr);
+	result->steps.push_back(ColorFilter::genAlphaShifter(0.f));
+	result->steps.push_back(ColorFilter::genEmptyShifter());
+	result->timePoints.push_back(0.f);
+	result->timePoints.push_back(1.f);
+	return result;
+}
+
+ColorTransformAnimation * ColorTransformAnimation::fadeOutAnimation(BattleInterface & owner, const CStack * stack)
+{
+	auto result = fadeInAnimation(owner, stack);
+	std::swap(result->steps[0], result->steps[1]);
+	return result;
+}
 
 RangedAttackAnimation::RangedAttackAnimation(BattleInterface & owner_, const CStack * attacker, BattleHex dest_, const CStack * defender)
 	: AttackAnimation(owner_, attacker, dest_, defender),
@@ -735,11 +804,8 @@ void RangedAttackAnimation::nextFrame()
 	// animation should be paused if there is an active projectile
 	if (projectileEmitted)
 	{
-		if (owner.projectilesController->hasActiveProjectile(attackingStack))
-			stackAnimation(attackingStack)->pause();
-		else
+		if (!owner.projectilesController->hasActiveProjectile(attackingStack, false))
 		{
-			stackAnimation(attackingStack)->play();
 			if(owner.getAnimationCondition(EAnimationEvents::HIT) == false)
 				owner.setAnimationCondition(EAnimationEvents::HIT, true);
 		}
@@ -753,7 +819,6 @@ void RangedAttackAnimation::nextFrame()
 		if ( stackAnimation(attackingStack)->getCurrentFrame() >= getAttackClimaxFrame() )
 		{
 			emitProjectile();
-			stackAnimation(attackingStack)->pause();
 			return;
 		}
 	}
@@ -761,7 +826,7 @@ void RangedAttackAnimation::nextFrame()
 
 RangedAttackAnimation::~RangedAttackAnimation()
 {
-	assert(!owner.projectilesController->hasActiveProjectile(attackingStack));
+	assert(!owner.projectilesController->hasActiveProjectile(attackingStack, false));
 	assert(projectileEmitted);
 
 	// FIXME: is this possible? Animation is over but we're yet to fire projectile?
@@ -822,7 +887,7 @@ void CatapultAnimation::nextFrame()
 	if ( !projectileEmitted)
 		return;
 
-	if (owner.projectilesController->hasActiveProjectile(attackingStack))
+	if (owner.projectilesController->hasActiveProjectile(attackingStack, false))
 		return;
 
 	explosionEmitted = true;
@@ -1171,7 +1236,7 @@ void HeroCastAnimation::nextFrame()
 		return;
 	}
 
-	if (!owner.projectilesController->hasActiveProjectile(nullptr))
+	if (!owner.projectilesController->hasActiveProjectile(nullptr, false))
 	{
 		emitAnimationEvent();
 		//TODO: check H3 - it is possible that hero animation should be paused until hit effect is over, not just projectile

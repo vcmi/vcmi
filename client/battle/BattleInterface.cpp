@@ -457,6 +457,7 @@ void BattleInterface::gateStateChanged(const EGateState state)
 void BattleInterface::battleFinished(const BattleResult& br)
 {
 	bresult = &br;
+	assert(getAnimationCondition(EAnimationEvents::ACTION) == false);
 	waitForAnimationCondition(EAnimationEvents::ACTION, false);
 	stacksController->setActiveStack(nullptr);
 	displayBattleFinished();
@@ -537,7 +538,12 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 		if(stack)
 		{
 			executeOnAnimationCondition(EAnimationEvents::HIT, true, [=](){
-				displaySpellEffect(spellID, stack->getPosition());
+				if (spellID == SpellID::BLOODLUST)
+					stacksController->addNewAnim( ColorTransformAnimation::bloodlustAnimation(*this, stack, spell));
+				else if (spellID == SpellID::STONE_GAZE)
+					stacksController->addNewAnim( ColorTransformAnimation::petrifyAnimation(*this, stack, spell));
+				else
+					displaySpellEffect(spellID, stack->getPosition());
 			});
 		}
 	}
@@ -794,6 +800,7 @@ void BattleInterface::tacticNextStack(const CStack * current)
 		current = stacksController->getActiveStack();
 
 	//no switching stacks when the current one is moving
+	assert(getAnimationCondition(EAnimationEvents::ACTION) == false);
 	waitForAnimationCondition(EAnimationEvents::ACTION, false);
 
 	TStacks stacksOfMine = tacticianInterface->cb->battleGetStacks(CBattleCallback::ONLY_MINE);

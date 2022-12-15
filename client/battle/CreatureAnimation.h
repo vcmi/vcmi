@@ -118,15 +118,12 @@ public:
 	/// returns currently rendered type of animation
 	ECreatureAnimType::Type getType() const;
 
-	void nextFrame(Canvas & canvas, bool facingRight);
+	void nextFrame(Canvas & canvas, const ColorFilter & shifter, bool facingRight);
 
 	/// should be called every frame, return true when animation was reset to beginning
 	bool incrementFrame(float timePassed);
 
 	void setBorderColor(SDL_Color palette);
-
-	/// apply color tint effect
-	void shiftColor(const ColorShifter * shifter);
 
 	/// Gets the current frame ID within current group.
 	float getCurrentFrame() const;

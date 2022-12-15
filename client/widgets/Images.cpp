@@ -167,7 +167,7 @@ void CPicture::scaleTo(Point size)
 
 void CPicture::createSimpleRect(const Rect &r, bool screenFormat, ui32 color)
 {
-	pos += r;
+	pos += r.topLeft();
 	pos.w = r.w;
 	pos.h = r.h;
 	if(screenFormat)

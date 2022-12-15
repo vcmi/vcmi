@@ -327,9 +327,7 @@ bool BattleSiegeController::isAttackableByCatapult(BattleHex hex) const
 
 void BattleSiegeController::stackIsCatapulting(const CatapultAttack & ca)
 {
-	//FIXME: there should be no more ongoing animations. If not - then some other method created animations but did not wait for them to end
 	assert(owner.getAnimationCondition(EAnimationEvents::ACTION) == false);
-	owner.waitForAnimationCondition(EAnimationEvents::ACTION, false);
 
 	if (ca.attacker != -1)
 	{

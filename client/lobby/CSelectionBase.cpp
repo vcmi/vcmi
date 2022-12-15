@@ -307,7 +307,7 @@ CChatBox::CChatBox(const Rect & rect)
 	: CIntObject(KEYBOARD | TEXTINPUT)
 {
 	OBJ_CONSTRUCTION;
-	pos += rect;
+	pos += rect.topLeft();
 	captureAllKeys = true;
 	type |= REDRAW_PARENT;
 
@@ -341,7 +341,7 @@ void CChatBox::addNewMessage(const std::string & text)
 CFlagBox::CFlagBox(const Rect & rect)
 	: CIntObject(RCLICK)
 {
-	pos += rect;
+	pos += rect.topLeft();
 	pos.w = rect.w;
 	pos.h = rect.h;
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;

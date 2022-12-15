@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../../lib/battle/BattleHex.h"
+#include "../gui/Geometries.h"
 #include "BattleConstants.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -20,6 +21,8 @@ class CSpell;
 
 VCMI_LIB_NAMESPACE_END
 
+struct SDL_Color;
+class ColorFilter;
 class BattleHero;
 class CAnimation;
 class BattleInterface;
@@ -213,17 +216,25 @@ public:
 	ResurrectionAnimation(BattleInterface & owner, const CStack * _stack);
 };
 
-/// Performs fade-in or fade-out animation on stack
-class FadingAnimation : public BattleStackAnimation
+class ColorTransformAnimation : public BattleStackAnimation
 {
-	float progress;
-	uint8_t from;
-	uint8_t dest;
-public:
+	std::vector<ColorFilter> steps;
+	std::vector<float> timePoints;
+	const CSpell * spell;
+
+	float totalProgress;
+
 	bool init() override;
 	void nextFrame() override;
 
-	FadingAnimation(BattleInterface & owner, const CStack * _stack, uint8_t alphaFrom, uint8_t alphaDest);
+	ColorTransformAnimation(BattleInterface & owner, const CStack * _stack, const CSpell * spell);
+public:
+
+	static ColorTransformAnimation * petrifyAnimation  (BattleInterface & owner, const CStack * _stack, const CSpell * spell);
+	static ColorTransformAnimation * cloneAnimation    (BattleInterface & owner, const CStack * _stack, const CSpell * spell);
+	static ColorTransformAnimation * bloodlustAnimation(BattleInterface & owner, const CStack * _stack, const CSpell * spell);
+	static ColorTransformAnimation * fadeInAnimation   (BattleInterface & owner, const CStack * _stack);
+	static ColorTransformAnimation * fadeOutAnimation  (BattleInterface & owner, const CStack * _stack);
 };
 
 class RangedAttackAnimation : public AttackAnimation

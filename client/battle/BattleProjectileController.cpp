@@ -56,8 +56,8 @@ void ProjectileMissile::show(Canvas & canvas)
 		float progress = float(step) / steps;
 
 		Point pos {
-			CSDL_Ext::lerp(from.x, dest.x, progress) - image->width() / 2,
-			CSDL_Ext::lerp(from.y, dest.y, progress) - image->height() / 2,
+			vstd::lerp(from.x, dest.x, progress) - image->width() / 2,
+			vstd::lerp(from.y, dest.y, progress) - image->height() / 2,
 		};
 
 		canvas.draw(image, pos);
@@ -84,7 +84,7 @@ void ProjectileCatapult::show(Canvas & canvas)
 	{
 		float progress = float(step) / steps;
 
-		int posX = CSDL_Ext::lerp(from.x, dest.x, progress);
+		int posX = vstd::lerp(from.x, dest.x, progress);
 		int posY = calculateCatapultParabolaY(from, dest, posX);
 		Point pos(posX, posY);
 
@@ -100,8 +100,8 @@ void ProjectileRay::show(Canvas & canvas)
 	float progress = float(step) / steps;
 
 	Point curr {
-		CSDL_Ext::lerp(from.x, dest.x, progress),
-		CSDL_Ext::lerp(from.y, dest.y, progress),
+		vstd::lerp(from.x, dest.x, progress),
+		vstd::lerp(from.y, dest.y, progress),
 	};
 
 	Point length = curr - from;
@@ -235,13 +235,13 @@ void BattleProjectileController::showProjectiles(Canvas & canvas)
 	});
 }
 
-bool BattleProjectileController::hasActiveProjectile(const CStack * stack) const
+bool BattleProjectileController::hasActiveProjectile(const CStack * stack, bool emittedOnly) const
 {
 	int stackID = stack ? stack->ID : -1;
 
 	for(auto const & instance : projectiles)
 	{
-		if(instance->shooterID == stackID)
+		if(instance->shooterID == stackID && (instance->playing || !emittedOnly))
 		{
 			return true;
 		}
