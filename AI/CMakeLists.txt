@@ -8,14 +8,6 @@ else()
 	option(FORCE_BUNDLED_FL "Force to use FuzzyLite included into VCMI's source tree" OFF)
 endif()
 
-if(ENABLE_NULLKILLER_AI)
-	find_package(TBB REQUIRED)
-	if(MSVC)
-		install_vcpkg_imported_tgt(TBB::tbb)
-	endif()
-endif()
-
-
 if(NOT FORCE_BUNDLED_FL)
 	find_package(fuzzylite)
 else()

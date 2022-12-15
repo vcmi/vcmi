@@ -320,6 +320,13 @@ if(ENABLE_LAUNCHER OR ENABLE_EDITOR)
 	find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Network)
 endif()
 
+if(ENABLE_NULLKILLER_AI)
+	find_package(TBB REQUIRED)
+	if(MSVC)
+		install_vcpkg_imported_tgt(TBB::tbb)
+	endif()
+endif()
+
 if(ENABLE_LUA)
 	find_package(luajit)
 	# MXE paths hardcoded for current dependencies pack - tried and could not make it work another way
