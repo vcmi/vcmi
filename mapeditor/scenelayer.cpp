@@ -295,28 +295,33 @@ void ObjectsLayer::draw(bool onlyDirty)
 	if(!map)
 		return;
 	
-	pixmap->fill(Qt::transparent);
 	QPainter painter(pixmap.get());
 	std::set<const CGObjectInstance *> drawen;
 	
-	
-	for(int j = 0; j < map->height; ++j)
+	if(onlyDirty)
 	{
-		for(int i = 0; i < map->width; ++i)
+		//objects could be modified
+		for(auto * obj : objDirty)
+			setDirty(obj);
+		
+		//clear tiles which will be redrawn. It's needed because some object could be replaced
+		painter.setCompositionMode(QPainter::CompositionMode_Source);
+		for(auto & p : dirty)
+			painter.fillRect(p.x * 32, p.y * 32, 32, 32, Qt::transparent);
+		painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+		
+		for(auto & p : dirty)
+			handler->drawObjects(painter, p.x, p.y, p.z);
+	}
+	else
+	{
+		pixmap->fill(Qt::transparent);
+		for(int j = 0; j < map->height; ++j)
 		{
-			handler->drawObjects(painter, i, j, scene->level);
-			/*auto & objects = main->getMapHandler()->getObjects(i, j, scene->level);
-			 for(auto & object : objects)
-			 {
-			 if(!object.obj || drawen.count(object.obj))
-			 continue;
-			 
-			 if(!onlyDirty || dirty.count(object.obj))
-			 {
-			 main->getMapHandler()->drawObject(painter, object);
-			 drawen.insert(object.obj);
-			 }
-			 }*/
+			for(int i = 0; i < map->width; ++i)
+			{
+				handler->drawObjects(painter, i, j, scene->level);
+			}
 		}
 	}
 	
@@ -326,16 +331,22 @@ void ObjectsLayer::draw(bool onlyDirty)
 
 void ObjectsLayer::setDirty(int x, int y)
 {
-	/*auto & objects = main->getMapHandler()->getObjects(x, y, scene->level);
-	for(auto & object : objects)
-	{
-		if(object.obj)
-			dirty.insert(object.obj);
-	}*/
+	int3 pos(x, y, scene->level);
+	if(map->isInTheMap(pos))
+		dirty.insert(pos);
 }
 
 void ObjectsLayer::setDirty(const CGObjectInstance * object)
 {
+	objDirty.insert(object);
+	//mark tiles under object as dirty
+	for(int j = 0; j < object->getHeight(); ++j)
+	{
+		for(int i = 0; i < object->getWidth(); ++i)
+		{
+			setDirty(object->getPosition().x - i, object->getPosition().y - j);
+		}
+	}
 }
 
 SelectionObjectsLayer::SelectionObjectsLayer(MapSceneBase * s): AbstractLayer(s), newObject(nullptr)
