@@ -14,6 +14,13 @@
 
 #include "../../lib/JsonNode.h"
 
+class CPicture;
+class CLabel;
+class CToggleGroup;
+class CToggleButton;
+class CButton;
+class CLabelGroup;
+
 class InterfaceObjectConfigurable: public CIntObject
 {
 public:
@@ -35,12 +42,29 @@ protected:
 		return std::dynamic_pointer_cast<T>(iter->second);
 	}
 	
+private: //field deserializers
+	//basic serializers
+	Point readPosition(const JsonNode &) const;
+	ETextAlignment readTextAlignment(const JsonNode &) const;
+	SDL_Color readColor(const JsonNode &) const;
+	EFonts readFont(const JsonNode &) const;
+	std::string readText(const JsonNode &) const;
+	std::pair<std::string, std::string> readHintText(const JsonNode &) const;
+	
+	//basic widgets
+	std::shared_ptr<CPicture> buildPicture(const JsonNode &) const;
+	std::shared_ptr<CLabel> buildLabel(const JsonNode &) const;
+	std::shared_ptr<CToggleGroup> buildToggleGroup(const JsonNode &) const;
+	std::shared_ptr<CToggleButton> buildToggleButton(const JsonNode &) const;
+	std::shared_ptr<CButton> buildButton(const JsonNode &) const;
+	std::shared_ptr<CLabelGroup> buildLabelGroup(const JsonNode &) const;
+	
+	
+	std::shared_ptr<CIntObject> buildWidget(const JsonNode & config) const;
+	
+	
 private:
 	
 	std::map<std::string, std::shared_ptr<CIntObject>> widgets;
 	std::map<std::string, std::function<void(int)>> callbacks;
-	
-	std::shared_ptr<CIntObject> buildWidget(const JsonNode & config);
-	
-	std::string buildText(const JsonNode & param) const;
 };

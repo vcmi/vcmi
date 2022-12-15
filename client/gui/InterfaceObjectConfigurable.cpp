@@ -57,7 +57,7 @@ void InterfaceObjectConfigurable::init(const JsonNode &config)
 	}
 }
 
-std::string InterfaceObjectConfigurable::buildText(const JsonNode & config) const
+std::string InterfaceObjectConfigurable::readText(const JsonNode & config) const
 {
 	if(config.isNull())
 		return "";
@@ -69,145 +69,207 @@ std::string InterfaceObjectConfigurable::buildText(const JsonNode & config) cons
 	return config.String();
 }
 
-std::shared_ptr<CIntObject> InterfaceObjectConfigurable::buildWidget(const JsonNode & config)
+Point InterfaceObjectConfigurable::readPosition(const JsonNode & config) const
+{
+	Point p;
+	p.x = config["x"].Integer();
+	p.y = config["y"].Integer();
+	return p;
+}
+
+ETextAlignment InterfaceObjectConfigurable::readTextAlignment(const JsonNode & config) const
+{
+	if(!config.isNull())
+	{
+		if(config.String() == "center")
+			return ETextAlignment::CENTER;
+		if(config.String() == "left")
+			return ETextAlignment::TOPLEFT;
+		if(config.String() == "right")
+			return ETextAlignment::BOTTOMRIGHT;
+	}
+	return ETextAlignment::CENTER;
+}
+
+SDL_Color InterfaceObjectConfigurable::readColor(const JsonNode & config) const
+{
+	if(!config.isNull())
+	{
+		if(config.String() == "yellow")
+			return Colors::YELLOW;
+		if(config.String() == "white")
+			return Colors::WHITE;
+		if(config.String() == "gold")
+			return Colors::METALLIC_GOLD;
+		if(config.String() == "green")
+			return Colors::GREEN;
+		if(config.String() == "orange")
+			return Colors::ORANGE;
+		if(config.String() == "bright-yellow")
+			return Colors::BRIGHT_YELLOW;
+	}
+	return Colors::DEFAULT_KEY_COLOR;
+	
+}
+EFonts InterfaceObjectConfigurable::readFont(const JsonNode & config) const
+{
+	if(!config.isNull())
+	{
+		if(config.String() == "big")
+			return EFonts::FONT_BIG;
+		if(config.String() == "medium")
+			return EFonts::FONT_MEDIUM;
+		if(config.String() == "small")
+			return EFonts::FONT_SMALL;
+		if(config.String() == "tiny")
+			return EFonts::FONT_TINY;
+	}
+	return EFonts::FONT_TIMES;
+}
+
+std::pair<std::string, std::string> InterfaceObjectConfigurable::readHintText(const JsonNode & config) const
+{
+	std::pair<std::string, std::string> result;
+	if(!config.isNull())
+	{
+		if(config.isNumber())
+			return CGI->generaltexth->zelp[config.Integer()];
+		
+		if(config.getType() == JsonNode::JsonType::DATA_STRUCT)
+		{
+			result.first = config["hover"].String();
+			result.second = config["help"].String();
+			return result;
+		}
+		if(config.getType() == JsonNode::JsonType::DATA_STRING)
+		{
+			result.first = result.second = config.String();
+		}
+	}
+	return result;
+}
+
+std::shared_ptr<CPicture> InterfaceObjectConfigurable::buildPicture(const JsonNode & config) const
+{
+	auto image = readText(config["image"]);
+	auto position = readPosition(config["position"]);
+	return std::make_shared<CPicture>(image, position.x, position.y);
+}
+
+std::shared_ptr<CLabel> InterfaceObjectConfigurable::buildLabel(const JsonNode & config) const
+{
+	auto font = readFont(config["font"]);
+	auto alignment = readTextAlignment(config["alignment"]);
+	auto color = readColor(config["color"]);
+	auto text = readText(config["text"]);
+	auto position = readPosition(config["position"]);
+	return std::make_shared<CLabel>(position.x, position.y, font, alignment, color, text);
+}
+
+std::shared_ptr<CToggleGroup> InterfaceObjectConfigurable::buildToggleGroup(const JsonNode & config) const
+{
+	auto position = readPosition(config["position"]);
+	auto group = std::make_shared<CToggleGroup>(0);
+	group->pos += position;
+	if(!config["items"].isNull())
+	{
+		SObjectConstruction obj__i(group.get());
+		int itemIdx = -1;
+		for(const auto & item : config["items"].Vector())
+		{
+			itemIdx = item["index"].isNull() ? itemIdx + 1 : item["index"].Integer();
+			group->addToggle(itemIdx, std::dynamic_pointer_cast<CToggleBase>(buildWidget(item)));
+		}
+	}
+	if(!config["selected"].isNull())
+		group->setSelected(config["selected"].Integer());
+	if(!config["callback"].isNull())
+		group->addCallback(callbacks.at(config["callback"].String()));
+	return group;
+}
+
+std::shared_ptr<CToggleButton> InterfaceObjectConfigurable::buildToggleButton(const JsonNode & config) const
+{
+	auto position = readPosition(config["position"]);
+	auto image = config["image"].String();
+	auto zelp = readHintText(config["zelp"]);
+	auto button = std::make_shared<CToggleButton>(position, image, zelp);
+	if(!config["selected"].isNull())
+		button->setSelected(config["selected"].Bool());
+	if(!config["imageOrder"].isNull())
+	{
+		auto imgOrder = config["imageOrder"].Vector();
+		assert(imgOrder.size() >= 4);
+		button->setImageOrder(imgOrder[0].Integer(), imgOrder[1].Integer(), imgOrder[2].Integer(), imgOrder[3].Integer());
+	}
+	if(!config["callback"].isNull())
+		button->addCallback(callbacks.at(config["callback"].String()));
+	return button;
+}
+
+std::shared_ptr<CButton> InterfaceObjectConfigurable::buildButton(const JsonNode & config) const
+{
+	auto position = readPosition(config["position"]);
+	auto image = config["image"].String();
+	auto zelp = readHintText(config["zelp"]);
+	auto button = std::make_shared<CButton>(position, image, zelp);
+	if(!config["items"].isNull())
+	{
+		for(const auto & item : config["items"].Vector())
+		{
+			button->addOverlay(buildWidget(item));
+		}
+	}
+	if(!config["callback"].isNull())
+		button->addCallback(std::bind(callbacks.at(config["callback"].String()), 0));
+	return button;
+}
+
+std::shared_ptr<CLabelGroup> InterfaceObjectConfigurable::buildLabelGroup(const JsonNode & config) const
+{
+	auto font = readFont(config["font"]);
+	auto alignment = readTextAlignment(config["alignment"]);
+	auto color = readColor(config["color"]);
+	auto group = std::make_shared<CLabelGroup>(font, alignment, color);
+	if(!config["items"].isNull())
+	{
+		for(const auto & item : config["items"].Vector())
+		{
+			auto position = readPosition(item["position"]);
+			auto text = readText(item["text"]);
+			group->add(position.x, position.y, text);
+		}
+	}
+	return group;
+}
+
+std::shared_ptr<CIntObject> InterfaceObjectConfigurable::buildWidget(const JsonNode & config) const
 {
 	assert(!config.isNull());
 	auto type = config["type"].String();
-	
-	int x = 0, y = 0;
-	if(!config["position"].isNull())
-	{
-		x = config["position"]["x"].Integer();
-		y = config["position"]["y"].Integer();
-	}
-	
-	std::string image;
-	std::string text = buildText(config["text"]);
-	auto alignment = EAlignment::CENTER;
-	auto color = Colors::DEFAULT_KEY_COLOR;
-	auto font = EFonts::FONT_TIMES;
-	
-	if(!config["image"].isNull())
-		image = config["image"].String();
-	if(!config["alignment"].isNull())
-	{
-		if(config["alignment"].String() == "left")
-			alignment = EAlignment::TOPLEFT;
-		if(config["alignment"].String() == "center")
-			alignment = EAlignment::CENTER;
-		if(config["alignment"].String() == "right")
-			alignment = EAlignment::BOTTOMRIGHT;
-	}
-	if(!config["color"].isNull())
-	{
-		if(config["color"].String() == "yellow")
-			color = Colors::YELLOW;
-		if(config["color"].String() == "white")
-			color = Colors::WHITE;
-		if(config["color"].String() == "gold")
-			color = Colors::METALLIC_GOLD;
-		if(config["color"].String() == "green")
-			color = Colors::GREEN;
-		if(config["color"].String() == "orange")
-			color = Colors::ORANGE;
-		if(config["color"].String() == "bright-yellow")
-			color = Colors::BRIGHT_YELLOW;
-	}
-	if(!config["font"].isNull())
-	{
-		if(config["font"].String() == "big")
-			font = EFonts::FONT_BIG;
-		if(config["font"].String() == "medium")
-			font = EFonts::FONT_MEDIUM;
-		if(config["font"].String() == "small")
-			font = EFonts::FONT_SMALL;
-		if(config["font"].String() == "tiny")
-			font = EFonts::FONT_TINY;
-	}
-	
-	
 	if(type == "picture")
 	{
-		return std::make_shared<CPicture>(image, x, y);
+		return buildPicture(config);
 	}
 	if(type == "label")
 	{
-		return std::make_shared<CLabel>(x, y, font, alignment, color, text);
+		return buildLabel(config);
 	}
 	if(type == "toggleGroup")
 	{
-		auto group = std::make_shared<CToggleGroup>(0);
-		group->pos.x += x;
-		group->pos.y += y;
-		if(!config["items"].isNull())
-		{
-			SObjectConstruction obj__i(group.get());
-			int itemIdx = -1;
-			for(const auto & item : config["items"].Vector())
-			{
-				itemIdx = item["index"].isNull() ? itemIdx + 1 : item["index"].Integer();
-				group->addToggle(itemIdx, std::dynamic_pointer_cast<CToggleBase>(buildWidget(item)));
-			}
-		}
-		if(!config["selected"].isNull())
-			group->setSelected(config["selected"].Integer());
-		if(!config["callback"].isNull())
-			group->addCallback(callbacks[config["callback"].String()]);
-		return group;
+		return buildToggleGroup(config);
 	}
 	if(type == "toggleButton")
 	{
-		std::pair<std::string, std::string> zelp;
-		if(!config["zelp"].isNull())
-			zelp = CGI->generaltexth->zelp[config["zelp"].Integer()];
-		auto button = std::make_shared<CToggleButton>(Point(x, y), image, zelp);
-		if(!config["selected"].isNull())
-			button->setSelected(config["selected"].Bool());
-		if(!config["imageOrder"].isNull())
-		{
-			auto imgOrder = config["imageOrder"].Vector();
-			assert(imgOrder.size() >= 4);
-			button->setImageOrder(imgOrder[0].Integer(), imgOrder[1].Integer(), imgOrder[2].Integer(), imgOrder[3].Integer());
-		}
-		if(!config["callback"].isNull())
-			button->addCallback(callbacks[config["callback"].String()]);
-		return button;
+		return buildToggleButton(config);
 	}
 	if(type == "button")
 	{
-		std::pair<std::string, std::string> zelp;
-		if(!config["zelp"].isNull())
-			zelp = CGI->generaltexth->zelp[config["zelp"].Integer()];
-		auto button = std::make_shared<CButton>(Point(x, y), image, zelp);
-		if(!config["items"].isNull())
-		{
-			for(const auto & item : config["items"].Vector())
-			{
-				button->addOverlay(buildWidget(item));
-			}
-		}
-		if(!config["callback"].isNull())
-			button->addCallback(std::bind(callbacks[config["callback"].String()], 0));
-		return button;
+		return buildButton(config);
 	}
 	if(type == "labelGroup")
 	{
-		auto group = std::make_shared<CLabelGroup>(font, alignment, color);
-		if(!config["items"].isNull())
-		{
-			for(const auto & item : config["items"].Vector())
-			{
-				if(!item["position"].isNull())
-				{
-					x = item["position"]["x"].Integer();
-					y = item["position"]["y"].Integer();
-				}
-				if(!item["text"].isNull())
-					text = buildText(item["text"]);
-				group->add(x, y, text);
-			}
-		}
-		return group;
+		return buildLabelGroup(config);
 	}
 	return std::shared_ptr<CIntObject>(nullptr);
 }

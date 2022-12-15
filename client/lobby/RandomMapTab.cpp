@@ -100,8 +100,22 @@ RandomMapTab::RandomMapTab():
 	//new callbacks available only from mod
 	addCallback("templateSelection", [&](int)
 	{
-		GH.pushInt(std::make_shared<TemplatesDropBox>(this, int3{mapGenOptions->getWidth(), mapGenOptions->getHeight(), 1 + mapGenOptions->getHasTwoLevels()}));
+		GH.pushIntT<TemplatesDropBox>(this, int3{mapGenOptions->getWidth(), mapGenOptions->getHeight(), 1 + mapGenOptions->getHasTwoLevels()});
 	});
+	
+	addCallback("teamAlignments", [&](int)
+	{
+		GH.pushIntT<TeamAlignmentsWidget>(this);
+	});
+	
+	for(auto road : VLC->terrainTypeHandler->roads())
+	{
+		std::string cbRoadType = "selectRoad_" + road.fileName;
+		addCallback(cbRoadType, [&](bool on)
+		{
+			//TODO: support road types
+		});
+	}
 	
 	
 	init(config);
@@ -293,7 +307,7 @@ TemplatesDropBox::ListItem::ListItem(TemplatesDropBox * _dropBox, Point position
 	dropBox(_dropBox)
 {
 	OBJ_CONSTRUCTION;
-	labelName = std::make_shared<CLabel>(0, 0, FONT_SMALL, EAlignment::TOPLEFT, Colors::WHITE);
+	labelName = std::make_shared<CLabel>(0, 0, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
 	labelName->setAutoRedraw(false);
 	
 	hoverImage = std::make_shared<CPicture>("List10Sl", 0, 0);
@@ -352,6 +366,9 @@ TemplatesDropBox::TemplatesDropBox(RandomMapTab * randomMapTab, int3 size):
 	curItems.insert(curItems.begin(), nullptr); //default template
 	
 	OBJ_CONSTRUCTION;
+	pos = randomMapTab->pos.topLeft();
+	pos.w = randomMapTab->pos.w;
+	pos.h = randomMapTab->pos.h;
 	background = std::make_shared<CPicture>("List10Bk", 158, 76);
 	
 	int positionsToShow = 10;
@@ -362,7 +379,6 @@ TemplatesDropBox::TemplatesDropBox(RandomMapTab * randomMapTab, int3 size):
 	slider = std::make_shared<CSlider>(Point(212 + 158, 76), 252, std::bind(&TemplatesDropBox::sliderMove, this, _1), positionsToShow, (int)curItems.size(), 0, false, CSlider::BLUE);
 	
 	updateListItems();
-	pos = background->pos;
 }
 
 void TemplatesDropBox::sliderMove(int slidPos)
@@ -409,4 +425,25 @@ void TemplatesDropBox::setTemplate(const CRmgTemplate * tmpl)
 	randomMapTab->setTemplate(tmpl);
 	assert(GH.topInt().get() == this);
 	GH.popInt(GH.topInt());
+}
+
+TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab * randomMapTab):
+	CIntObject(),
+	randomMapTab(randomMapTab)
+{
+	OBJ_CONSTRUCTION;
+	
+	pos.w = 300;
+	pos.h = 300;
+	background = std::make_shared<CFilledTexture>("Bl3DCvex", pos);
+	center(pos);
+	
+	buttonOk = std::make_shared<CButton>(Point(43, 240), "MUBCHCK.DEF", CGI->generaltexth->zelp[560], [](){});
+	buttonCancel = std::make_shared<CButton>(Point(193, 240), "MUBCANC.DEF", CGI->generaltexth->zelp[561], [&]()
+	{
+		assert(GH.topInt().get() == this);
+		GH.popInt(GH.topInt());
+	}, SDLK_ESCAPE);
+	
+	
 }
