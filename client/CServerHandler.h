@@ -25,7 +25,6 @@ class CGameState;
 struct ClientPlayer;
 struct CPack;
 struct CPackForLobby;
-struct SharedMemory;
 
 template<typename T> class CApplier;
 
