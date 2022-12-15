@@ -21,7 +21,6 @@
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../CMessage.h"
-#include "../CBitmapHandler.h"
 #include "../CMusicHandler.h"
 #include "../CVideoHandler.h"
 #include "../CPlayerInterface.h"
@@ -118,8 +117,8 @@ InfoCard::InfoCard()
 	pos.x += 393;
 	pos.y += 6;
 
-	labelSaveDate = std::make_shared<CLabel>(158, 19, FONT_SMALL, TOPLEFT, Colors::WHITE);
-	mapName = std::make_shared<CLabel>(26, 39, FONT_BIG, TOPLEFT, Colors::YELLOW);
+	labelSaveDate = std::make_shared<CLabel>(158, 19, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
+	mapName = std::make_shared<CLabel>(26, 39, FONT_BIG, ETextAlignment::TOPLEFT, Colors::YELLOW);
 	Rect descriptionRect(26, 149, 320, 115);
 	mapDescription = std::make_shared<CTextBox>("", descriptionRect, 1);
 	playerListBg = std::make_shared<CPicture>("CHATPLUG.bmp", 16, 276);
@@ -127,7 +126,7 @@ InfoCard::InfoCard()
 
 	if(SEL->screenType == ESelectionScreen::campaignList)
 	{
-		labelCampaignDescription = std::make_shared<CLabel>(26, 132, FONT_SMALL, TOPLEFT, Colors::YELLOW, CGI->generaltexth->allTexts[38]);
+		labelCampaignDescription = std::make_shared<CLabel>(26, 132, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->allTexts[38]);
 	}
 	else
 	{
@@ -155,24 +154,24 @@ InfoCard::InfoCard()
 		}
 
 		flagbox = std::make_shared<CFlagBox>(Rect(24, 400, 335, 23));
-		labelMapDiff = std::make_shared<CLabel>(33, 430, FONT_SMALL, TOPLEFT, Colors::YELLOW, CGI->generaltexth->allTexts[494]);
-		labelPlayerDifficulty = std::make_shared<CLabel>(133, 430, FONT_SMALL, TOPLEFT, Colors::YELLOW, CGI->generaltexth->allTexts[492] + ":");
-		labelRating = std::make_shared<CLabel>(290, 430, FONT_SMALL, TOPLEFT, Colors::YELLOW, CGI->generaltexth->allTexts[218] + ":");
-		labelScenarioName = std::make_shared<CLabel>(26, 22, FONT_SMALL, TOPLEFT, Colors::YELLOW, CGI->generaltexth->allTexts[495]);
-		labelScenarioDescription = std::make_shared<CLabel>(26, 132, FONT_SMALL, TOPLEFT, Colors::YELLOW, CGI->generaltexth->allTexts[496]);
-		labelVictoryCondition = std::make_shared<CLabel>(26, 283, FONT_SMALL, TOPLEFT, Colors::YELLOW, CGI->generaltexth->allTexts[497]);
-		labelLossCondition = std::make_shared<CLabel>(26, 339, FONT_SMALL, TOPLEFT, Colors::YELLOW, CGI->generaltexth->allTexts[498]);
+		labelMapDiff = std::make_shared<CLabel>(33, 430, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->allTexts[494]);
+		labelPlayerDifficulty = std::make_shared<CLabel>(133, 430, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->allTexts[492] + ":");
+		labelRating = std::make_shared<CLabel>(290, 430, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->allTexts[218] + ":");
+		labelScenarioName = std::make_shared<CLabel>(26, 22, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->allTexts[495]);
+		labelScenarioDescription = std::make_shared<CLabel>(26, 132, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->allTexts[496]);
+		labelVictoryCondition = std::make_shared<CLabel>(26, 283, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->allTexts[497]);
+		labelLossCondition = std::make_shared<CLabel>(26, 339, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, CGI->generaltexth->allTexts[498]);
 		iconsVictoryCondition = std::make_shared<CAnimImage>("SCNRVICT", 0, 0, 24, 302);
 		iconsLossCondition = std::make_shared<CAnimImage>("SCNRLOSS", 0, 0, 24, 359);
 
-		labelVictoryConditionText = std::make_shared<CLabel>(60, 307, FONT_SMALL, TOPLEFT, Colors::WHITE);
-		labelLossConditionText = std::make_shared<CLabel>(60, 366, FONT_SMALL, TOPLEFT, Colors::WHITE);
+		labelVictoryConditionText = std::make_shared<CLabel>(60, 307, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
+		labelLossConditionText = std::make_shared<CLabel>(60, 366, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
 
-		labelDifficulty = std::make_shared<CLabel>(62, 472, FONT_SMALL, CENTER, Colors::WHITE);
-		labelDifficultyPercent = std::make_shared<CLabel>(311, 472, FONT_SMALL, CENTER, Colors::WHITE);
+		labelDifficulty = std::make_shared<CLabel>(62, 472, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
+		labelDifficultyPercent = std::make_shared<CLabel>(311, 472, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 
-		labelGroupPlayersAssigned = std::make_shared<CLabelGroup>(FONT_SMALL, TOPLEFT, Colors::WHITE);
-		labelGroupPlayersUnassigned = std::make_shared<CLabelGroup>(FONT_SMALL, TOPLEFT, Colors::WHITE);
+		labelGroupPlayersAssigned = std::make_shared<CLabelGroup>(FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
+		labelGroupPlayersUnassigned = std::make_shared<CLabelGroup>(FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
 		disableLabelRedraws();
 	}
 	setChat(false);
@@ -220,8 +219,8 @@ void InfoCard::changeSelection()
 
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 	// FIXME: We recreate them each time because CLabelGroup don't use smart pointers
-	labelGroupPlayersAssigned = std::make_shared<CLabelGroup>(FONT_SMALL, TOPLEFT, Colors::WHITE);
-	labelGroupPlayersUnassigned = std::make_shared<CLabelGroup>(FONT_SMALL, TOPLEFT, Colors::WHITE);
+	labelGroupPlayersAssigned = std::make_shared<CLabelGroup>(FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
+	labelGroupPlayersUnassigned = std::make_shared<CLabelGroup>(FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
 	if(!showChat)
 	{
 		labelGroupPlayersAssigned->disable();
@@ -347,8 +346,8 @@ CFlagBox::CFlagBox(const Rect & rect)
 	pos.h = rect.h;
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
-	labelAllies = std::make_shared<CLabel>(0, 0, FONT_SMALL, EAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[390] + ":");
-	labelEnemies = std::make_shared<CLabel>(133, 0, FONT_SMALL, EAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[391] + ":");
+	labelAllies = std::make_shared<CLabel>(0, 0, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[390] + ":");
+	labelEnemies = std::make_shared<CLabel>(133, 0, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[391] + ":");
 
 	iconsTeamFlags = std::make_shared<CAnimation>("ITGFLAGS.DEF");
 	iconsTeamFlags->preload();
@@ -390,8 +389,8 @@ CFlagBox::CFlagBoxTooltipBox::CFlagBoxTooltipBox(std::shared_ptr<CAnimation> ico
 	pos.w = 256;
 	pos.h = 90 + 50 * SEL->getMapInfo()->mapHeader->howManyTeams;
 
-	labelTeamAlignment = std::make_shared<CLabel>(128, 30, FONT_MEDIUM, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[657]);
-	labelGroupTeams = std::make_shared<CLabelGroup>(FONT_SMALL, EAlignment::CENTER, Colors::WHITE);
+	labelTeamAlignment = std::make_shared<CLabel>(128, 30, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[657]);
+	labelGroupTeams = std::make_shared<CLabelGroup>(FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 	for(int i = 0; i < SEL->getMapInfo()->mapHeader->howManyTeams; i++)
 	{
 		std::vector<ui8> flags;

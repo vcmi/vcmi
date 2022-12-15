@@ -29,7 +29,8 @@ public:
 	bool freeSurf; //whether surface will be freed upon CPicture destruction
 	bool needRefresh;//Surface needs to be displayed each frame
 	bool visible;
-	operator SDL_Surface*()
+
+	SDL_Surface * getSurface()
 	{
 		return bg;
 	}

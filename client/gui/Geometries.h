@@ -12,6 +12,8 @@
 #include <SDL_video.h>
 #include "../../lib/int3.h"
 
+enum class ETextAlignment {TOPLEFT, CENTER, BOTTOMRIGHT};
+
 struct SDL_MouseMotionEvent;
 
 // A point with x/y coordinate, used mostly for graphic rendering

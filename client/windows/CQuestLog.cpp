@@ -12,7 +12,6 @@
 
 #include "CAdvmapInterface.h"
 
-#include "../CBitmapHandler.h"
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
 #include "../Graphics.h"
@@ -131,11 +130,11 @@ CQuestLog::CQuestLog (const std::vector<QuestInfo> & Quests)
 
 	minimap = std::make_shared<CQuestMinimap>(Rect(12, 12, 169, 169));
 	// TextBox have it's own 4 pixel padding from top at least for English. To achieve 10px from both left and top only add 6px margin
-	description = std::make_shared<CTextBox>("", Rect(205, 18, 385, DESCRIPTION_HEIGHT_MAX), CSlider::BROWN, FONT_MEDIUM, TOPLEFT, Colors::WHITE);
+	description = std::make_shared<CTextBox>("", Rect(205, 18, 385, DESCRIPTION_HEIGHT_MAX), CSlider::BROWN, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE);
 	ok = std::make_shared<CButton>(Point(539, 398), "IOKAY.DEF", CGI->generaltexth->zelp[445], std::bind(&CQuestLog::close, this), SDLK_RETURN);
 	// Both button and lable are shifted to -2px by x and y to not make them actually look like they're on same line with quests list and ok button
 	hideCompleteButton = std::make_shared<CToggleButton>(Point(10, 396), "sysopchk.def", CButton::tooltip(texts["hideComplete"]), std::bind(&CQuestLog::toggleComplete, this, _1));
-	hideCompleteLabel = std::make_shared<CLabel>(46, 398, FONT_MEDIUM, TOPLEFT, Colors::WHITE, texts["hideComplete"]["label"].String());
+	hideCompleteLabel = std::make_shared<CLabel>(46, 398, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, texts["hideComplete"]["label"].String());
 	slider = std::make_shared<CSlider>(Point(166, 195), 191, std::bind(&CQuestLog::sliderMoved, this, _1), QUEST_COUNT, 0, false, CSlider::BROWN);
 
 	recreateLabelList();
@@ -176,7 +175,7 @@ void CQuestLog::recreateLabelList()
 			else
 				text.addReplacement(quests[i].obj->getObjectName()); //get name of the object
 		}
-		auto label = std::make_shared<CQuestLabel>(Rect(13, 195, 149,31), FONT_SMALL, TOPLEFT, Colors::WHITE, text.toString());
+		auto label = std::make_shared<CQuestLabel>(Rect(13, 195, 149,31), FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, text.toString());
 		label->disable();
 
 		label->callback = std::bind(&CQuestLog::selectQuest, this, i, currentLabel);

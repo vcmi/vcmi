@@ -34,6 +34,8 @@ CObstacleInstance::~CObstacleInstance()
 
 const ObstacleInfo & CObstacleInstance::getInfo() const
 {
+	assert( obstacleType == USUAL || obstacleType == ABSOLUTE_OBSTACLE);
+
 	return *Obstacle(ID).getInfo();
 }
 

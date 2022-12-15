@@ -20,7 +20,7 @@ template <typename T> struct CondSh;
 VCMI_LIB_NAMESPACE_END
 
 class CFramerateManager;
-class CGStatusBar;
+class IStatusBar;
 class CIntObject;
 class IUpdateable;
 class IShowActivatable;
@@ -65,7 +65,7 @@ class CGuiHandler
 public:
 	CFramerateManager * mainFPSmng; //to keep const framerate
 	std::list<std::shared_ptr<IShowActivatable>> listInt; //list of interfaces - front=foreground; back = background (includes adventure map, window interfaces, all kind of active dialogs, and so on)
-	std::shared_ptr<CGStatusBar> statusbar;
+	std::shared_ptr<IStatusBar> statusbar;
 
 private:
 	std::vector<std::shared_ptr<IShowActivatable>> disposed;

@@ -239,8 +239,8 @@ CStackWindow::BonusLineSection::BonusLineSection(CStackWindow * owner, size_t li
 		{
 			BonusInfo & bi = parent->activeBonuses[bonusIndex];
 			icon[leftRight] = std::make_shared<CPicture>(bi.imagePath, position.x, position.y);
-			name[leftRight] = std::make_shared<CLabel>(position.x + 60, position.y + 2, FONT_SMALL, TOPLEFT, Colors::WHITE, bi.name);
-			description[leftRight] = std::make_shared<CMultiLineLabel>(Rect(position.x + 60, position.y + 17, 137, 30), FONT_SMALL, TOPLEFT, Colors::WHITE, bi.description);
+			name[leftRight] = std::make_shared<CLabel>(position.x + 60, position.y + 2, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, bi.name);
+			description[leftRight] = std::make_shared<CMultiLineLabel>(Rect(position.x + 60, position.y + 17, 137, 30), FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, bi.description);
 		}
 	}
 }
@@ -511,7 +511,7 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 		animation->setAmount(parent->info->creatureCount);
 	}
 
-	name = std::make_shared<CLabel>(215, 12, FONT_SMALL, CENTER, Colors::YELLOW, parent->info->getName());
+	name = std::make_shared<CLabel>(215, 12, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, parent->info->getName());
 
 	int dmgMultiply = 1;
 	if(parent->info->owner && parent->info->stackNode->hasBonusOfType(Bonus::SIEGE_WEAPON))
@@ -585,7 +585,7 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 			expArea->text = parent->generateStackExpDescription();
 		}
 		expLabel = std::make_shared<CLabel>(
-				pos.x + 21, pos.y + 52, FONT_SMALL, CENTER, Colors::WHITE,
+				pos.x + 21, pos.y + 52, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE,
 				makeNumberShort<TExpType>(stack->experience, 6));
 	}
 
@@ -630,7 +630,7 @@ std::string CStackWindow::MainSection::getBackgroundName(bool showExp, bool show
 void CStackWindow::MainSection::addStatLabel(EStat index, int64_t value1, int64_t value2)
 {
 	const auto title = statNames.at(static_cast<size_t>(index));
-	stats.push_back(std::make_shared<CLabel>(145, 32 + (int)index*19, FONT_SMALL, TOPLEFT, Colors::WHITE, title));
+	stats.push_back(std::make_shared<CLabel>(145, 32 + (int)index*19, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, title));
 
 	const bool useRange = value1 != value2;
 	std::string formatStr = useRange ? statFormats.at(static_cast<size_t>(index)) : "%d";
@@ -640,7 +640,7 @@ void CStackWindow::MainSection::addStatLabel(EStat index, int64_t value1, int64_
 	if(useRange)
 		fmt % value2;
 
-	stats.push_back(std::make_shared<CLabel>(307, 48 + (int)index*19, FONT_SMALL, BOTTOMRIGHT, Colors::WHITE, fmt.str()));
+	stats.push_back(std::make_shared<CLabel>(307, 48 + (int)index*19, FONT_SMALL, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, fmt.str()));
 }
 
 void CStackWindow::MainSection::addStatLabel(EStat index, int64_t value)

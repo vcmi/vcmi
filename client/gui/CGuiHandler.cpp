@@ -21,7 +21,7 @@
 #include "../../lib/CConfigHandler.h"
 #include "../CMT.h"
 #include "../CPlayerInterface.h"
-#include "../battle/CBattleInterface.h"
+#include "../battle/BattleInterface.h"
 
 extern std::queue<SDL_Event> SDLEventsQueue;
 extern boost::mutex eventsM;

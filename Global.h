@@ -543,6 +543,12 @@ namespace vstd
 		return *itr;
 	}
 
+	template <typename Container, typename Item>
+	void erase(Container &c, const Item &item)
+	{
+		c.erase(boost::remove(c, item), c.end());
+	}
+
 	template<typename Range, typename Predicate>
 	void erase_if(Range &vec, Predicate pred)
 	{
@@ -702,12 +708,6 @@ namespace vstd
 			return true;
 		}
 		return false;
-	}
-
-	template <typename Container, typename Pred>
-	void erase(Container &c, Pred pred)
-	{
-		c.erase(boost::remove_if(c, pred), c.end());
 	}
 
 	template<typename T>

@@ -18,16 +18,16 @@ class JsonSerializeFormat;
 
 struct DLL_LINKAGE CObstacleInstance
 {
-	BattleHex pos; //position on battlefield, typically left bottom corner
-	ui8 obstacleType; //if true, then position is meaningless
-	si32 uniqueID;
-	si32 ID; //ID of obstacle (defines type of it)
-
-	enum EObstacleType
+	enum EObstacleType : ui8
 	{
 		//ABSOLUTE needs an underscore because it's a Win
 		USUAL, ABSOLUTE_OBSTACLE, SPELL_CREATED, MOAT
 	};
+
+	BattleHex pos; //position on battlefield, typically left bottom corner
+	EObstacleType obstacleType;
+	si32 uniqueID;
+	si32 ID; //ID of obstacle (defines type of it)
 
 	CObstacleInstance();
 	virtual ~CObstacleInstance();
