@@ -100,12 +100,12 @@ RandomMapTab::RandomMapTab():
 	//new callbacks available only from mod
 	addCallback("templateSelection", [&](int)
 	{
-		GH.pushIntT<TemplatesDropBox>(this, int3{mapGenOptions->getWidth(), mapGenOptions->getHeight(), 1 + mapGenOptions->getHasTwoLevels()});
+		GH.pushIntT<TemplatesDropBox>(*this, int3{mapGenOptions->getWidth(), mapGenOptions->getHeight(), 1 + mapGenOptions->getHasTwoLevels()});
 	});
 	
 	addCallback("teamAlignments", [&](int)
 	{
-		GH.pushIntT<TeamAlignmentsWidget>(this);
+		GH.pushIntT<TeamAlignmentsWidget>(*this);
 	});
 	
 	for(auto road : VLC->terrainTypeHandler->roads())
@@ -302,7 +302,7 @@ std::vector<int> RandomMapTab::getPossibleMapSizes()
 	return {CMapHeader::MAP_SIZE_SMALL, CMapHeader::MAP_SIZE_MIDDLE, CMapHeader::MAP_SIZE_LARGE, CMapHeader::MAP_SIZE_XLARGE, CMapHeader::MAP_SIZE_HUGE, CMapHeader::MAP_SIZE_XHUGE, CMapHeader::MAP_SIZE_GIANT};
 }
 
-TemplatesDropBox::ListItem::ListItem(TemplatesDropBox * _dropBox, Point position)
+TemplatesDropBox::ListItem::ListItem(TemplatesDropBox & _dropBox, Point position)
 	: CIntObject(LCLICK | HOVER, position),
 	dropBox(_dropBox)
 {
@@ -352,12 +352,12 @@ void TemplatesDropBox::ListItem::clickLeft(tribool down, bool previousState)
 {
 	if(down && hovered)
 	{
-		dropBox->setTemplate(item);
+		dropBox.setTemplate(item);
 	}
 }
 
 
-TemplatesDropBox::TemplatesDropBox(RandomMapTab * randomMapTab, int3 size):
+TemplatesDropBox::TemplatesDropBox(RandomMapTab & randomMapTab, int3 size):
 	CIntObject(LCLICK | HOVER),
 	randomMapTab(randomMapTab)
 {
@@ -366,15 +366,15 @@ TemplatesDropBox::TemplatesDropBox(RandomMapTab * randomMapTab, int3 size):
 	curItems.insert(curItems.begin(), nullptr); //default template
 	
 	OBJ_CONSTRUCTION;
-	pos = randomMapTab->pos.topLeft();
-	pos.w = randomMapTab->pos.w;
-	pos.h = randomMapTab->pos.h;
+	pos = randomMapTab.pos.topLeft();
+	pos.w = randomMapTab.pos.w;
+	pos.h = randomMapTab.pos.h;
 	background = std::make_shared<CPicture>("List10Bk", 158, 76);
 	
 	int positionsToShow = 10;
 	
 	for(int i = 0; i < positionsToShow; i++)
-		listItems.push_back(std::make_shared<ListItem>(this, Point(158, 76 + i * 25)));
+		listItems.push_back(std::make_shared<ListItem>(*this, Point(158, 76 + i * 25)));
 	
 	slider = std::make_shared<CSlider>(Point(212 + 158, 76), 252, std::bind(&TemplatesDropBox::sliderMove, this, _1), positionsToShow, (int)curItems.size(), 0, false, CSlider::BLUE);
 	
@@ -422,12 +422,12 @@ void TemplatesDropBox::updateListItems()
 
 void TemplatesDropBox::setTemplate(const CRmgTemplate * tmpl)
 {
-	randomMapTab->setTemplate(tmpl);
+	randomMapTab.setTemplate(tmpl);
 	assert(GH.topInt().get() == this);
 	GH.popInt(GH.topInt());
 }
 
-TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab * randomMapTab):
+TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 	CIntObject(),
 	randomMapTab(randomMapTab)
 {

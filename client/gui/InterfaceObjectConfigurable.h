@@ -42,6 +42,8 @@ protected:
 		return std::dynamic_pointer_cast<T>(iter->second);
 	}
 	
+	virtual std::shared_ptr<CIntObject> buildCustomWidget(const JsonNode & config) const;
+	
 private: //field deserializers
 	//basic serializers
 	Point readPosition(const JsonNode &) const;
@@ -61,7 +63,6 @@ private: //field deserializers
 	
 	
 	std::shared_ptr<CIntObject> buildWidget(const JsonNode & config) const;
-	
 	
 private:
 	

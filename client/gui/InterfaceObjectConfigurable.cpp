@@ -271,5 +271,14 @@ std::shared_ptr<CIntObject> InterfaceObjectConfigurable::buildWidget(const JsonN
 	{
 		return buildLabelGroup(config);
 	}
+	if(type == "custom")
+	{
+		return buildCustomWidget(config);
+	}
 	return std::shared_ptr<CIntObject>(nullptr);
+}
+
+std::shared_ptr<CIntObject> InterfaceObjectConfigurable::buildCustomWidget(const JsonNode & config) const
+{
+	return nullptr;
 }

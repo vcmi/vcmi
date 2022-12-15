@@ -55,10 +55,10 @@ class TemplatesDropBox : public CIntObject
 	{
 		std::shared_ptr<CLabel> labelName;
 		std::shared_ptr<CPicture> hoverImage;
-		TemplatesDropBox * dropBox;
+		TemplatesDropBox & dropBox;
 		const CRmgTemplate * item = nullptr;
 		
-		ListItem(TemplatesDropBox *, Point position);
+		ListItem(TemplatesDropBox &, Point position);
 		void updateItem(int index, const CRmgTemplate * item = nullptr);
 		
 		void hover(bool on) override;
@@ -66,7 +66,7 @@ class TemplatesDropBox : public CIntObject
 	};
 	
 public:
-	TemplatesDropBox(RandomMapTab * randomMapTab, int3 size);
+	TemplatesDropBox(RandomMapTab & randomMapTab, int3 size);
 	
 	void hover(bool on) override;
 	void clickLeft(tribool down, bool previousState) override;
@@ -77,7 +77,7 @@ private:
 	void sliderMove(int slidPos);
 	void updateListItems();
 	
-	RandomMapTab * randomMapTab;
+	RandomMapTab & randomMapTab;
 	std::shared_ptr<CPicture> background;
 	std::vector<std::shared_ptr<ListItem>> listItems;
 	std::shared_ptr<CSlider> slider;
@@ -89,11 +89,11 @@ private:
 class TeamAlignmentsWidget: public CIntObject
 {
 public:
-	TeamAlignmentsWidget(RandomMapTab * randomMapTab);
+	TeamAlignmentsWidget(RandomMapTab & randomMapTab);
 	
 private:
 	
-	RandomMapTab * randomMapTab;
+	RandomMapTab & randomMapTab;
 	
 	std::shared_ptr<CFilledTexture> background;
 	std::shared_ptr<CLabelGroup> labels;
