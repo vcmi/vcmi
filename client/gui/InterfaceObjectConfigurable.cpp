@@ -72,7 +72,18 @@ std::string InterfaceObjectConfigurable::readText(const JsonNode & config) const
 	{
 		return CGI->generaltexth->allTexts[config.Integer()];
 	}
-	return config.String();
+	
+	const std::string delimiter = "/";
+	std::string s = config.String();
+	JsonNode translated = CGI->generaltexth->localizedTexts;
+	for(size_t p = s.find(delimiter); p != std::string::npos; p = s.find(delimiter))
+	{
+		translated = translated[s.substr(0, p)];
+		s.erase(0, p + delimiter.length());
+	}
+	if(s == config.String())
+		return s;
+	return translated[s].String();
 }
 
 Point InterfaceObjectConfigurable::readPosition(const JsonNode & config) const
@@ -157,7 +168,7 @@ std::pair<std::string, std::string> InterfaceObjectConfigurable::readHintText(co
 
 std::shared_ptr<CPicture> InterfaceObjectConfigurable::buildPicture(const JsonNode & config) const
 {
-	auto image = readText(config["image"]);
+	auto image = config["image"].String();
 	auto position = readPosition(config["position"]);
 	auto pic = std::make_shared<CPicture>(image, position.x, position.y);
 	if(!config["visible"].isNull())
