@@ -263,7 +263,7 @@ elseif(APPLE_IOS)
 	set(CMAKE_EXE_LINKER_FLAGS "-Wl,-e,_client_main")
 endif()
 
-if(BUILD_SINGLE_APP)
+if(ENABLE_SINGLE_APP_BUILD)
 	target_link_libraries(vcmiclient PRIVATE vcmiserver)
 	if(ENABLE_LAUNCHER)
 		target_link_libraries(vcmiclient PRIVATE vcmilauncher)
