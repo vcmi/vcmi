@@ -154,8 +154,8 @@ std::pair<std::string, std::string> InterfaceObjectConfigurable::readHintText(co
 		
 		if(config.getType() == JsonNode::JsonType::DATA_STRUCT)
 		{
-			result.first = config["hover"].String();
-			result.second = config["help"].String();
+			result.first = readText(config["hover"]);
+			result.second = readText(config["help"]);
 			return result;
 		}
 		if(config.getType() == JsonNode::JsonType::DATA_STRING)
