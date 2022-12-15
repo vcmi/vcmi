@@ -26,14 +26,14 @@
 #include "../../lib/CGeneralTextHandler.h"
 
 
-InterfaceObjectConfigurable::InterfaceObjectConfigurable(const JsonNode & config):
-	CIntObject()
+InterfaceObjectConfigurable::InterfaceObjectConfigurable(const JsonNode & config, int used, Point offset):
+	CIntObject(used, offset)
 {
 	init(config);
 }
 
-InterfaceObjectConfigurable::InterfaceObjectConfigurable():
-	CIntObject()
+InterfaceObjectConfigurable::InterfaceObjectConfigurable(int used, Point offset):
+	CIntObject(used, offset)
 {
 }
 
@@ -55,6 +55,12 @@ void InterfaceObjectConfigurable::init(const JsonNode &config)
 						: item["name"].String();
 		widgets[name] = buildWidget(item);
 	}
+	variables = config["variables"];
+}
+
+const JsonNode & InterfaceObjectConfigurable::variable(const std::string & name) const
+{
+	return variables[name];
 }
 
 std::string InterfaceObjectConfigurable::readText(const JsonNode & config) const
@@ -153,7 +159,10 @@ std::shared_ptr<CPicture> InterfaceObjectConfigurable::buildPicture(const JsonNo
 {
 	auto image = readText(config["image"]);
 	auto position = readPosition(config["position"]);
-	return std::make_shared<CPicture>(image, position.x, position.y);
+	auto pic = std::make_shared<CPicture>(image, position.x, position.y);
+	if(!config["visible"].isNull())
+		pic->visible = config["visible"].Bool();
+	return pic;
 }
 
 std::shared_ptr<CLabel> InterfaceObjectConfigurable::buildLabel(const JsonNode & config) const
@@ -243,6 +252,18 @@ std::shared_ptr<CLabelGroup> InterfaceObjectConfigurable::buildLabelGroup(const 
 	return group;
 }
 
+std::shared_ptr<CSlider> InterfaceObjectConfigurable::buildSlider(const JsonNode & config) const
+{
+	auto position = readPosition(config["position"]);
+	int length = config["size"].Integer();
+	auto style = config["style"].String() == "brown" ? CSlider::BROWN : CSlider::BLUE;
+	auto itemsVisible = config["itemsVisible"].Integer();
+	auto itemsTotal = config["itemsTotal"].Integer();
+	auto value = config["selected"].Integer();
+	bool horizontal = config["orientation"].String() == "horizontal";
+	return std::make_shared<CSlider>(position, length, callbacks.at(config["callback"].String()), itemsVisible, itemsTotal, value, horizontal, style);
+}
+
 std::shared_ptr<CIntObject> InterfaceObjectConfigurable::buildWidget(const JsonNode & config) const
 {
 	assert(!config.isNull());
@@ -271,14 +292,18 @@ std::shared_ptr<CIntObject> InterfaceObjectConfigurable::buildWidget(const JsonN
 	{
 		return buildLabelGroup(config);
 	}
+	if(type == "slider")
+	{
+		return buildSlider(config);
+	}
 	if(type == "custom")
 	{
-		return buildCustomWidget(config);
+		return const_cast<InterfaceObjectConfigurable*>(this)->buildCustomWidget(config);
 	}
 	return std::shared_ptr<CIntObject>(nullptr);
 }
 
-std::shared_ptr<CIntObject> InterfaceObjectConfigurable::buildCustomWidget(const JsonNode & config) const
+std::shared_ptr<CIntObject> InterfaceObjectConfigurable::buildCustomWidget(const JsonNode & config)
 {
 	return nullptr;
 }

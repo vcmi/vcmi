@@ -566,14 +566,19 @@ void CSlider::setScrollStep(int to)
 	scrollStep = to;
 }
 
-int CSlider::getAmount()
+int CSlider::getAmount() const
 {
 	return amount;
 }
 
-int CSlider::getValue()
+int CSlider::getValue() const
 {
 	return value;
+}
+
+int CSlider::getCapacity() const
+{
+	return capacity;
 }
 
 void CSlider::moveLeft()

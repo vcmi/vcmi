@@ -49,16 +49,14 @@ private:
 	std::set<int> playerCountAllowed, playerTeamsAllowed, compCountAllowed, compTeamsAllowed;
 };
 
-class TemplatesDropBox : public CIntObject
+class TemplatesDropBox : public InterfaceObjectConfigurable
 {
-	struct ListItem : public CIntObject
+	struct ListItem : public InterfaceObjectConfigurable
 	{
-		std::shared_ptr<CLabel> labelName;
-		std::shared_ptr<CPicture> hoverImage;
 		TemplatesDropBox & dropBox;
 		const CRmgTemplate * item = nullptr;
 		
-		ListItem(TemplatesDropBox &, Point position);
+		ListItem(const JsonNode &, TemplatesDropBox &, Point position);
 		void updateItem(int index, const CRmgTemplate * item = nullptr);
 		
 		void hover(bool on) override;
@@ -72,15 +70,16 @@ public:
 	void clickLeft(tribool down, bool previousState) override;
 	void setTemplate(const CRmgTemplate *);
 	
+protected:
+	std::shared_ptr<CIntObject> buildCustomWidget(const JsonNode & config) override;
+	
 private:
 	
 	void sliderMove(int slidPos);
 	void updateListItems();
 	
 	RandomMapTab & randomMapTab;
-	std::shared_ptr<CPicture> background;
 	std::vector<std::shared_ptr<ListItem>> listItems;
-	std::shared_ptr<CSlider> slider;
 	
 	std::vector<const CRmgTemplate *> curItems;
 	

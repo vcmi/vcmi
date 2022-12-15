@@ -20,12 +20,13 @@ class CToggleGroup;
 class CToggleButton;
 class CButton;
 class CLabelGroup;
+class CSlider;
 
 class InterfaceObjectConfigurable: public CIntObject
 {
 public:
-	InterfaceObjectConfigurable();
-	InterfaceObjectConfigurable(const JsonNode & config);
+	InterfaceObjectConfigurable(int used=0, Point offset=Point());
+	InterfaceObjectConfigurable(const JsonNode & config, int used=0, Point offset=Point());
 
 protected:
 	//must be called after adding callbacks
@@ -42,9 +43,8 @@ protected:
 		return std::dynamic_pointer_cast<T>(iter->second);
 	}
 	
-	virtual std::shared_ptr<CIntObject> buildCustomWidget(const JsonNode & config) const;
+	const JsonNode & variable(const std::string & name) const;
 	
-private: //field deserializers
 	//basic serializers
 	Point readPosition(const JsonNode &) const;
 	ETextAlignment readTextAlignment(const JsonNode &) const;
@@ -60,12 +60,15 @@ private: //field deserializers
 	std::shared_ptr<CToggleButton> buildToggleButton(const JsonNode &) const;
 	std::shared_ptr<CButton> buildButton(const JsonNode &) const;
 	std::shared_ptr<CLabelGroup> buildLabelGroup(const JsonNode &) const;
+	std::shared_ptr<CSlider> buildSlider(const JsonNode &) const;
 	
-	
+	//composite widgets
+	virtual std::shared_ptr<CIntObject> buildCustomWidget(const JsonNode & config);
 	std::shared_ptr<CIntObject> buildWidget(const JsonNode & config) const;
 	
 private:
 	
 	std::map<std::string, std::shared_ptr<CIntObject>> widgets;
 	std::map<std::string, std::function<void(int)>> callbacks;
+	JsonNode variables;
 };

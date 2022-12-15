@@ -302,48 +302,56 @@ std::vector<int> RandomMapTab::getPossibleMapSizes()
 	return {CMapHeader::MAP_SIZE_SMALL, CMapHeader::MAP_SIZE_MIDDLE, CMapHeader::MAP_SIZE_LARGE, CMapHeader::MAP_SIZE_XLARGE, CMapHeader::MAP_SIZE_HUGE, CMapHeader::MAP_SIZE_XHUGE, CMapHeader::MAP_SIZE_GIANT};
 }
 
-TemplatesDropBox::ListItem::ListItem(TemplatesDropBox & _dropBox, Point position)
-	: CIntObject(LCLICK | HOVER, position),
+TemplatesDropBox::ListItem::ListItem(const JsonNode & config, TemplatesDropBox & _dropBox, Point position)
+	: InterfaceObjectConfigurable(LCLICK | HOVER, position),
 	dropBox(_dropBox)
 {
 	OBJ_CONSTRUCTION;
-	labelName = std::make_shared<CLabel>(0, 0, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
-	labelName->setAutoRedraw(false);
 	
-	hoverImage = std::make_shared<CPicture>("List10Sl", 0, 0);
-	hoverImage->visible = false;
+	init(config);
 	
-	pos.w = hoverImage->pos.w;
-	pos.h = hoverImage->pos.h;
+	if(auto w = widget<CPicture>("hoverImage"))
+	{
+		pos.w = w->pos.w;
+		pos.h = w->pos.h;
+	}
 	type |= REDRAW_PARENT;
 }
 
 void TemplatesDropBox::ListItem::updateItem(int idx, const CRmgTemplate * _item)
 {
-	item = _item;
-	if(item)
+	if(auto w = widget<CLabel>("labelName"))
 	{
-		labelName->setText(item->getName());
-	}
-	else
-	{
-		if(idx)
-			labelName->setText("");
+		item = _item;
+		if(item)
+		{
+			w->setText(item->getName());
+		}
 		else
-			labelName->setText("default");
+		{
+			if(idx)
+				w->setText("");
+			else
+				w->setText("default");
+		}
 	}
 }
 
 void TemplatesDropBox::ListItem::hover(bool on)
 {
-	if(labelName->getText().empty())
+	auto h = widget<CPicture>("hoverImage");
+	auto w = widget<CLabel>("labelName");
+	if(h && w)
 	{
-		hovered = false;
-		hoverImage->visible = false;
-	}
-	else
-	{
-		hoverImage->visible = on;
+		if(w->getText().empty())
+		{
+			hovered = false;
+			h->visible = false;
+		}
+		else
+		{
+			h->visible = on;
+		}
 	}
 	redraw();
 }
@@ -358,32 +366,43 @@ void TemplatesDropBox::ListItem::clickLeft(tribool down, bool previousState)
 
 
 TemplatesDropBox::TemplatesDropBox(RandomMapTab & randomMapTab, int3 size):
-	CIntObject(LCLICK | HOVER),
+	InterfaceObjectConfigurable(LCLICK | HOVER),
 	randomMapTab(randomMapTab)
 {
 	curItems = VLC->tplh->getTemplates();
 	vstd::erase_if(curItems, [size](const CRmgTemplate * t){return !t->matchesSize(size);});
 	curItems.insert(curItems.begin(), nullptr); //default template
 	
+	const JsonNode config(ResourceID("config/windows/randomMapTemplateWidget.json"));
+	
+	addCallback("sliderMove", std::bind(&TemplatesDropBox::sliderMove, this, std::placeholders::_1));
+	
 	OBJ_CONSTRUCTION;
 	pos = randomMapTab.pos.topLeft();
 	pos.w = randomMapTab.pos.w;
 	pos.h = randomMapTab.pos.h;
-	background = std::make_shared<CPicture>("List10Bk", 158, 76);
 	
-	int positionsToShow = 10;
+	init(config);
 	
-	for(int i = 0; i < positionsToShow; i++)
-		listItems.push_back(std::make_shared<ListItem>(*this, Point(158, 76 + i * 25)));
-	
-	slider = std::make_shared<CSlider>(Point(212 + 158, 76), 252, std::bind(&TemplatesDropBox::sliderMove, this, _1), positionsToShow, (int)curItems.size(), 0, false, CSlider::BLUE);
+	if(auto w = widget<CSlider>("slider"))
+	{
+		w->setAmount(curItems.size());
+	}
 	
 	updateListItems();
 }
 
+std::shared_ptr<CIntObject> TemplatesDropBox::buildCustomWidget(const JsonNode & config)
+{
+	auto position = readPosition(config["position"]);
+	listItems.push_back(std::make_shared<ListItem>(config, *this, position));
+	return listItems.back();
+}
+
 void TemplatesDropBox::sliderMove(int slidPos)
 {
-	if(!slider)
+	auto w = widget<CSlider>("slider");
+	if(!w)
 		return; // ignore spurious call when slider is being created
 	updateListItems();
 	redraw();
@@ -405,17 +424,20 @@ void TemplatesDropBox::clickLeft(tribool down, bool previousState)
 
 void TemplatesDropBox::updateListItems()
 {
-	int elemIdx = slider->getValue();
-	for(auto item : listItems)
+	if(auto w = widget<CSlider>("slider"))
 	{
-		if(elemIdx < curItems.size())
+		int elemIdx = w->getValue();
+		for(auto item : listItems)
 		{
-			item->updateItem(elemIdx, curItems[elemIdx]);
-			elemIdx++;
-		}
-		else
-		{
-			item->updateItem(elemIdx);
+			if(elemIdx < curItems.size())
+			{
+				item->updateItem(elemIdx, curItems[elemIdx]);
+				elemIdx++;
+			}
+			else
+			{
+				item->updateItem(elemIdx);
+			}
 		}
 	}
 }

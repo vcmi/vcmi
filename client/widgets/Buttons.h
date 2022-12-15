@@ -256,8 +256,9 @@ public:
 	void setAmount(int to);
 
 	/// Accessors
-	int getAmount();
-	int getValue();
+	int getAmount() const;
+	int getValue() const;
+	int getCapacity() const;
 
 	void addCallback(std::function<void(int)> callback);
 
