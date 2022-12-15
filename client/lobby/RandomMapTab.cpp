@@ -36,7 +36,7 @@ RandomMapTab::RandomMapTab():
 	recActions = 0;
 	mapGenOptions = std::make_shared<CMapGenOptions>();
 	
-	const JsonNode config(ResourceID("config/windows/randomMapTab.json"));
+	const JsonNode config(ResourceID("config/widgets/randomMapTab.json"));
 	addCallback("toggleMapSize", [&](int btnId)
 	{
 		auto mapSizeVal = getPossibleMapSizes();
@@ -374,7 +374,7 @@ TemplatesDropBox::TemplatesDropBox(RandomMapTab & randomMapTab, int3 size):
 	vstd::erase_if(curItems, [size](const CRmgTemplate * t){return !t->matchesSize(size);});
 	curItems.insert(curItems.begin(), nullptr); //default template
 	
-	const JsonNode config(ResourceID("config/windows/randomMapTemplateWidget.json"));
+	const JsonNode config(ResourceID("config/widgets/randomMapTemplateWidget.json"));
 	
 	addCallback("sliderMove", std::bind(&TemplatesDropBox::sliderMove, this, std::placeholders::_1));
 	
