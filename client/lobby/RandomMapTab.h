@@ -84,18 +84,3 @@ private:
 	std::vector<const CRmgTemplate *> curItems;
 	
 };
-
-class TeamAlignmentsWidget: public CIntObject
-{
-public:
-	TeamAlignmentsWidget(RandomMapTab & randomMapTab);
-	
-private:
-	
-	RandomMapTab & randomMapTab;
-	
-	std::shared_ptr<CFilledTexture> background;
-	std::shared_ptr<CLabelGroup> labels;
-	std::shared_ptr<CButton> buttonOk, buttonCancel;
-	std::vector<std::shared_ptr<CToggleGroup>> teams;
-};
