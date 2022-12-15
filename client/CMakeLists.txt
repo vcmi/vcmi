@@ -178,7 +178,7 @@ else()
 endif(ENABLE_DEBUG_CONSOLE)
 
 add_dependencies(vcmiclient vcmiserver BattleAI StupidAI VCAI)
-if(TBB_FOUND)
+if(ENABLE_NULLKILLER_AI)
 	add_dependencies(vcmiclient Nullkiller)
 endif()
 if(APPLE_IOS)

@@ -2,7 +2,6 @@
 #        FuzzyLite support            #
 #######################################
 
-option(ENABLE_NULLKILLER_AI "Enable compilation of Nullkiller AI library" ON)
 if(NOT WIN32 AND NOT APPLE)
 	option(FORCE_BUNDLED_FL "Force to use FuzzyLite included into VCMI's source tree" ON)
 else()
