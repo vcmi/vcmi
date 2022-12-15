@@ -322,9 +322,6 @@ endif()
 
 if(ENABLE_NULLKILLER_AI)
 	find_package(TBB REQUIRED)
-	if(MSVC)
-		install_vcpkg_imported_tgt(TBB::tbb)
-	endif()
 endif()
 
 if(ENABLE_LUA)
