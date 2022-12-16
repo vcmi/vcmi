@@ -15,13 +15,35 @@ struct SDL_Texture;
 
 namespace ECursor
 {
-	enum ECursorTypes { ADVENTURE, COMBAT, DEFAULT, SPELLBOOK };
+	enum ECursorTypes {
+		ADVENTURE, // set of various cursors for adventure map
+		COMBAT,    // set of various cursors for combat
+		DEFAULT,   // default arror and hourglass cursors
+		SPELLBOOK  // animated cursor for spellcasting
+	};
 
-	enum EBattleCursors { COMBAT_BLOCKED, COMBAT_MOVE, COMBAT_FLY, COMBAT_SHOOT,
-						COMBAT_HERO, COMBAT_QUERY, COMBAT_POINTER,
-						//various attack frames
-						COMBAT_SHOOT_PENALTY = 15, COMBAT_SHOOT_CATAPULT, COMBAT_HEAL,
-						COMBAT_SACRIFICE, COMBAT_TELEPORT};
+	enum EBattleCursors {
+		COMBAT_BLOCKED        = 0,
+		COMBAT_MOVE           = 1,
+		COMBAT_FLY            = 2,
+		COMBAT_SHOOT          = 3,
+		COMBAT_HERO           = 4,
+		COMBAT_QUERY          = 5,
+		COMBAT_POINTER        = 6,
+		COMBAT_HIT_NORTHEAST  = 7,
+		COMBAT_HIT_EAST       = 8,
+		COMBAT_HIT_SOUTHEAST  = 9,
+		COMBAT_HIT_SOUTHWEST  = 10,
+		COMBAT_HIT_WEST       = 11,
+		COMBAT_HIT_NORTHWEST  = 12,
+		COMBAT_HIT_NORTH      = 13,
+		COMBAT_HIT_SOUTH      = 14,
+		COMBAT_SHOOT_PENALTY  = 15,
+		COMBAT_SHOOT_CATAPULT = 16,
+		COMBAT_HEAL           = 17,
+		COMBAT_SACRIFICE      = 18,
+		COMBAT_TELEPORT       = 19
+	};
 }
 
 /// handles mouse cursor

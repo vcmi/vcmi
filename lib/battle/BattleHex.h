@@ -74,7 +74,14 @@ struct DLL_LINKAGE BattleHex //TODO: decide if this should be changed to class f
 	BattleHex& operator+=(EDir dir);
 	BattleHex cloneInDirection(EDir dir, bool hasToBeValid = true) const;
 	BattleHex operator+(EDir dir) const;
+
+	/// returns all valid neighbouring tiles
 	std::vector<BattleHex> neighbouringTiles() const;
+
+	/// returns all tiles, unavailable tiles will be set as invalid
+	/// order of returned tiles matches EDir enim
+	std::vector<BattleHex> allNeighbouringTiles() const;
+
 	static signed char mutualPosition(BattleHex hex1, BattleHex hex2);
 	static char getDistance(BattleHex hex1, BattleHex hex2);
 	static void checkAndPush(BattleHex tile, std::vector<BattleHex> & ret);
