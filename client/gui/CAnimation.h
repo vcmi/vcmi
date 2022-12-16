@@ -122,9 +122,6 @@ public:
 	//and loads it if animation is preloaded
 	void duplicateImage(const size_t sourceGroup, const size_t sourceFrame, const size_t targetGroup);
 
-	// adjust the color of the animation, used in battle spell effects, e.g. Cloned objects
-	void shiftColor(const ColorFilter & shifter);
-
 	//add custom surface to the selected position.
 	void setCustom(std::string filename, size_t frame, size_t group=0);
 

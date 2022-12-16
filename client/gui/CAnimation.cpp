@@ -1090,18 +1090,6 @@ void CAnimation::duplicateImage(const size_t sourceGroup, const size_t sourceFra
 		load(index, targetGroup);
 }
 
-void CAnimation::shiftColor(const ColorFilter & shifter)
-{
-	for(auto groupIter = images.begin(); groupIter != images.end(); groupIter++)
-	{
-		for(auto frameIter = groupIter->second.begin(); frameIter != groupIter->second.end(); frameIter++)
-		{
-			std::shared_ptr<IImage> image = frameIter->second;
-			image->adjustPalette(shifter);
-		}
-	}
-}
-
 void CAnimation::setCustom(std::string filename, size_t frame, size_t group)
 {
 	if (source[group].size() <= frame)
