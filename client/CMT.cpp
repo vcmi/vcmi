@@ -585,6 +585,7 @@ void removeGUI()
 	GH.curInt = nullptr;
 	if(GH.topInt())
 		GH.topInt()->deactivate();
+	adventureInt = nullptr;
 	GH.listInt.clear();
 	GH.objsToBlit.clear();
 	GH.statusbar = nullptr;
@@ -1573,7 +1574,15 @@ void handleQuit(bool ask)
 			logConfig = nullptr;
 		}
 
+
 		std::cout << "Ending...\n";
+
+		// Workaround for assertion failure on exit:
+		// handleQuit() is alway called during SDL event processing
+		// during which, eventsM is kept locked
+		// this leads to assertion failure if boost::mutex is in locked state
+		eventsM.unlock();
+
 		exit(0);
 	};
 

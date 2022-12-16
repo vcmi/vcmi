@@ -205,7 +205,9 @@ BattleInterface::~BattleInterface()
 		CCS->musich->playMusicFromSet("terrain", terrain.name, true, false);
 	}
 
-	assert(getAnimationCondition(EAnimationEvents::ACTION) == false);
+	// may happen if user decided to close game while in battle
+	if (getAnimationCondition(EAnimationEvents::ACTION) == true)
+		logGlobal->error("Shutting down BattleInterface during animation playback!");
 	setAnimationCondition(EAnimationEvents::ACTION, false);
 }
 
