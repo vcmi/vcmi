@@ -263,9 +263,6 @@ void BattleActionsController::handleHex(BattleHex myNumber, int eventType)
 	if (shere)
 		ourStack = shere->owner == owner.curInt->playerID;
 
-	//stack may have changed, update selection border
-	owner.stacksController->setHoveredStack(shere);
-
 	localActions.clear();
 	illegalActions.clear();
 

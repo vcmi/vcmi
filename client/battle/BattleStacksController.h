@@ -70,8 +70,8 @@ class BattleStacksController
 	/// currently active stack; nullptr - no one
 	const CStack *activeStack;
 
-	/// stack below mouse pointer, used for border animation
-	const CStack *mouseHoveredStack;
+	/// stacks below mouse pointer (multiple stacks possible while spellcasting), used for border animation
+	std::vector<const CStack *> mouseHoveredStacks;
 
 	///when animation is playing, we should wait till the end to make the next stack active; nullptr of none
 	const CStack *stackToActivate;
@@ -94,6 +94,12 @@ class BattleStacksController
 
 	void executeAttackAnimations();
 	void removeExpiredColorFilters();
+
+	void updateBattleAnimations();
+	void updateHoveredStacks();
+
+	std::vector<const CStack *> selectHoveredStacks();
+
 public:
 	BattleStacksController(BattleInterface & owner);
 
@@ -117,7 +123,6 @@ public:
 	void activateStack(); //sets activeStack to stackToActivate etc. //FIXME: No, it's not clear at all
 
 	void setActiveStack(const CStack *stack);
-	void setHoveredStack(const CStack *stack);
 	void setSelectedStack(const CStack *stack);
 
 	void showAliveStack(Canvas & canvas, const CStack * stack);
@@ -130,10 +135,11 @@ public:
 	/// If effect from same (target, source) already exists, it will be updated
 	void setStackColorFilter(const ColorFilter & effect, const CStack * target, const CSpell *source, bool persistent);
 	void addNewAnim(BattleAnimation *anim); //adds new anim to pendingAnims
-	void updateBattleAnimations();
 
 	const CStack* getActiveStack() const;
 	const CStack* getSelectedStack() const;
+
+	void update();
 
 	/// returns position of animation needed to place stack in specific hex
 	Point getStackPositionAtHex(BattleHex hexNum, const CStack * creature) const;

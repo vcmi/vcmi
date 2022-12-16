@@ -13,6 +13,7 @@
 #include "BattleSiegeController.h"
 #include "BattleInterfaceClasses.h"
 #include "BattleInterface.h"
+#include "BattleActionsController.h"
 #include "BattleAnimationClasses.h"
 #include "BattleFieldController.h"
 #include "BattleEffectsController.h"
@@ -27,6 +28,7 @@
 #include "../gui/CAnimation.h"
 #include "../gui/CGuiHandler.h"
 #include "../gui/Canvas.h"
+#include "../../lib/spells/ISpellMechanics.h"
 
 #include "../../CCallback.h"
 #include "../../lib/battle/BattleHex.h"
@@ -69,7 +71,6 @@ static void onAnimationFinished(const CStack *stack, std::weak_ptr<CreatureAnima
 BattleStacksController::BattleStacksController(BattleInterface & owner):
 	owner(owner),
 	activeStack(nullptr),
-	mouseHoveredStack(nullptr),
 	stackToActivate(nullptr),
 	selectedStack(nullptr),
 	stackCanCastSpell(false),
@@ -242,30 +243,6 @@ void BattleStacksController::setActiveStack(const CStack *stack)
 	owner.controlPanel->blockUI(activeStack == nullptr);
 }
 
-void BattleStacksController::setHoveredStack(const CStack *stack)
-{
-	if ( stack == mouseHoveredStack )
-		 return;
-
-	if (mouseHoveredStack)
-		stackAnimation[mouseHoveredStack->ID]->setBorderColor(AnimationControls::getNoBorder());
-
-	// stack must be alive and not active (which uses gold border instead)
-	if (stack && stack->alive() && stack != activeStack)
-	{
-		mouseHoveredStack = stack;
-
-		if (mouseHoveredStack && !mouseHoveredStack->isFrozen())
-		{
-			stackAnimation[mouseHoveredStack->ID]->setBorderColor(AnimationControls::getBlueBorder());
-			if (stackAnimation[mouseHoveredStack->ID]->framesInGroup(ECreatureAnimType::MOUSEON) > 0)
-				stackAnimation[mouseHoveredStack->ID]->playOnce(ECreatureAnimType::MOUSEON);
-		}
-	}
-	else
-		mouseHoveredStack = nullptr;
-}
-
 bool BattleStacksController::stackNeedsAmountBox(const CStack * stack) const
 {
 	BattleHex currentActionTarget;
@@ -278,9 +255,6 @@ bool BattleStacksController::stackNeedsAmountBox(const CStack * stack) const
 
 	if(stack->hasBonusOfType(Bonus::SIEGE_WEAPON) && stack->getCount() == 1) //do not show box for singular war machines, stacked war machines with box shown are supported as extension feature
 		return false;
-
-	if (!owner.battleActionsStarted) // do not perform any further checks since they are related to actions that will only occur after intro music
-		return true;
 
 	if(!stack->alive())
 		return false;
@@ -377,6 +351,12 @@ void BattleStacksController::showStack(Canvas & canvas, const CStack * stack)
 	stackAnimation[stack->ID]->incrementFrame(float(GH.mainFPSmng->getElapsedMilliseconds()) / 1000);
 }
 
+void BattleStacksController::update()
+{
+	updateHoveredStacks();
+	updateBattleAnimations();
+}
+
 void BattleStacksController::updateBattleAnimations()
 {
 	for (auto & elem : currentAnimations)
@@ -389,7 +369,6 @@ void BattleStacksController::updateBattleAnimations()
 		else
 			elem->tryInitialize();
 	}
-
 
 	bool hadAnimations = !currentAnimations.empty();
 	vstd::erase(currentAnimations, nullptr);
@@ -674,7 +653,6 @@ void BattleStacksController::endAction(const BattleAction* action)
 
 void BattleStacksController::startAction(const BattleAction* action)
 {
-	setHoveredStack(nullptr);
 	removeExpiredColorFilters();
 }
 
@@ -818,4 +796,78 @@ void BattleStacksController::removeExpiredColorFilters()
 			return false;
 		return true;
 	});
+}
+
+void BattleStacksController::updateHoveredStacks()
+{
+	auto newStacks = selectHoveredStacks();
+
+	for (auto const * stack : mouseHoveredStacks)
+	{
+		if (vstd::contains(newStacks, stack))
+			continue;
+
+		if (stack == activeStack)
+			stackAnimation[stack->ID]->setBorderColor(AnimationControls::getGoldBorder());
+		else
+			stackAnimation[stack->ID]->setBorderColor(AnimationControls::getNoBorder());
+	}
+
+	for (auto const * stack : newStacks)
+	{
+		if (vstd::contains(mouseHoveredStacks, stack))
+			continue;
+
+		stackAnimation[stack->ID]->setBorderColor(AnimationControls::getBlueBorder());
+		if (stackAnimation[stack->ID]->framesInGroup(ECreatureAnimType::MOUSEON) > 0)
+			stackAnimation[stack->ID]->playOnce(ECreatureAnimType::MOUSEON);
+
+	}
+
+	mouseHoveredStacks = newStacks;
+}
+
+std::vector<const CStack *> BattleStacksController::selectHoveredStacks()
+{
+	auto hoveredHex = owner.fieldController->getHoveredHex();
+
+	if (!hoveredHex.isValid())
+		return {};
+
+	const spells::Caster *caster = nullptr;
+	const CSpell *spell = nullptr;
+
+	spells::Mode mode = spells::Mode::HERO;
+
+	if(owner.actionsController->spellcastingModeActive())//hero casts spell
+	{
+		spell = owner.actionsController->selectedSpell().toSpell();
+		caster = owner.getActiveHero();
+	}
+	else if(owner.stacksController->activeStackSpellToCast() != SpellID::NONE)//stack casts spell
+	{
+		spell = SpellID(owner.stacksController->activeStackSpellToCast()).toSpell();
+		caster = owner.stacksController->getActiveStack();
+		mode = spells::Mode::CREATURE_ACTIVE;
+	}
+
+	if(caster && spell) //when casting spell
+	{
+		spells::Target target;
+		target.emplace_back(hoveredHex);
+
+		spells::BattleCast event(owner.curInt->cb.get(), caster, mode, spell);
+		auto mechanics = spell->battleMechanics(&event);
+		return mechanics->getAffectedStacks(target);
+	}
+
+	if(hoveredHex.isValid())
+	{
+		const CStack * const stack = owner.curInt->cb->battleGetStackByPos(hoveredHex, true);
+
+		if (stack)
+			return {stack};
+	}
+
+	return {};
 }

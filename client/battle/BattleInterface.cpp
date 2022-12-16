@@ -902,7 +902,7 @@ void BattleInterface::show(SDL_Surface *to)
 
 	fieldController->renderBattlefield(canvas);
 
-	stacksController->updateBattleAnimations();
+	stacksController->update();
 
 	SDL_SetClipRect(to, &buf); //restoring previous clip_rect
 
