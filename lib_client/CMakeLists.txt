@@ -1,2 +1,0 @@
-add_main_lib(vcmi_lib_client SHARED)
-target_compile_definitions(vcmi_lib_client PUBLIC VCMI_LIB_NAMESPACE=LIB_CLIENT)

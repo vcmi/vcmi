@@ -15,18 +15,6 @@
 // Fixed width bool data type is important for serialization
 static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 
-#ifdef __GNUC__
-#  define GCC_VERSION (__GNUC__ * 100 + __GNUC_MINOR__ * 10 + __GNUC_PATCHLEVEL__)
-#endif
-
-#if !defined(__clang__) && defined(__GNUC__) && (GCC_VERSION < 470)
-#  error VCMI requires at least gcc-4.7.2 for successful compilation or clang-3.1. Please update your compiler
-#endif
-
-#if defined(__GNUC__) && (GCC_VERSION == 470 || GCC_VERSION == 471)
-#  error This GCC version has buggy std::array::at version and should not be used. Please update to 4.7.2 or later
-#endif
-
 /* ---------------------------------------------------------------------------- */
 /* Suppress some compiler warnings */
 /* ---------------------------------------------------------------------------- */
@@ -121,10 +109,6 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #else
 #  define STRONG_INLINE inline
 #endif
-
-#define TO_STRING_HELPER(x) #x
-#define TO_STRING(x) TO_STRING_HELPER(x)
-#define LINE_IN_FILE __FILE__ ":" TO_STRING(__LINE__)
 
 #define _USE_MATH_DEFINES
 
@@ -233,7 +217,10 @@ typedef boost::lock_guard<boost::recursive_mutex> TLockGuardRec;
 /* ---------------------------------------------------------------------------- */
 // Import + Export macro declarations
 #ifdef VCMI_WINDOWS
-#  ifdef __GNUC__
+#ifdef VCMI_DLL_STATIC
+#    define DLL_IMPORT
+#    define DLL_EXPORT
+#elif defined(__GNUC__)
 #    define DLL_IMPORT __attribute__((dllimport))
 #    define DLL_EXPORT __attribute__((dllexport))
 #  else
@@ -503,9 +490,6 @@ namespace vstd
 		ptr = nullptr;
 	}
 
-#if _MSC_VER >= 1800
-	using std::make_unique;
-#else
 	template<typename T>
 	std::unique_ptr<T> make_unique()
 	{
@@ -531,7 +515,6 @@ namespace vstd
 	{
 		return std::unique_ptr<T>(new T(std::forward<Arg1>(arg1), std::forward<Arg2>(arg2), std::forward<Arg3>(arg3), std::forward<Arg4>(arg4)));
 	}
-#endif
 
 	template <typename Container>
 	typename Container::const_reference circularAt(const Container &r, size_t index)

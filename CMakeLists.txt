@@ -33,10 +33,6 @@ if(APPLE)
 	endif()
 endif()
 
-if(APPLE_IOS)
-	set(BUILD_SINGLE_APP 1)
-endif()
-
 ############################################
 #        User-provided options             #
 ############################################
@@ -64,6 +60,8 @@ endif(NOT ${CMAKE_VERSION} VERSION_LESS "3.16.0")
 option(ENABLE_GITVERSION "Enable Version.cpp with Git commit hash" ON)
 option(ENABLE_DEBUG_CONSOLE "Enable debug console for Windows builds" ON)
 option(ENABLE_MULTI_PROCESS_BUILDS "Enable /MP flag for MSVS solution" ON)
+option(ENABLE_SINGLE_APP_BUILD "Builds client and server as single executable" OFF)
+option(COPY_CONFIG_ON_BUILD "Copies config folder into output directory at building phase" ON)
 
 # Used for Snap packages and also useful for debugging
 if(NOT APPLE_IOS)
@@ -74,9 +72,18 @@ endif()
 set(PACKAGE_NAME_SUFFIX "" CACHE STRING "Suffix for CPack package name")
 set(PACKAGE_FILE_NAME "" CACHE STRING "Override for CPack package filename")
 
+if(APPLE_IOS AND NOT ENABLE_SINGLE_APP_BUILD)
+	set(ENABLE_SINGLE_APP_BUILD ON)
+endif()
+
 # ERM depends on LUA implicitly
 if(ENABLE_ERM AND NOT ENABLE_LUA)
 	set(ENABLE_LUA ON)
+endif()
+
+# We don't want to deploy assets into build directory for iOS build
+if(APPLE_IOS AND COPY_CONFIG_ON_BUILD)
+	set(COPY_CONFIG_ON_BUILD OFF)
 endif()
 
 ############################################
@@ -162,8 +169,8 @@ set(CMAKE_XCODE_ATTRIBUTE_MARKETING_VERSION ${APP_SHORT_VERSION})
 set(CMAKE_XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH NO)
 set(CMAKE_XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH[variant=Debug] YES)
 
-if(BUILD_SINGLE_APP)
-	add_compile_definitions(SINGLE_PROCESS_APP=1)
+if(ENABLE_SINGLE_APP_BUILD)
+	add_definitions(-DSINGLE_PROCESS_APP=1)
 endif()
 
 if(APPLE_IOS)
@@ -274,7 +281,7 @@ if(NOT WIN32 AND NOT APPLE_IOS)
 endif()
 
 if(ENABLE_LUA)
-	add_compile_definitions(SCRIPTING_ENABLED=1)
+	add_definitions(-DSCRIPTING_ENABLED=1)
 endif()
 
 ############################################
@@ -426,13 +433,10 @@ if(APPLE_IOS)
 endif()
 
 include(VCMI_lib)
-if(BUILD_SINGLE_APP)
-	add_subdirectory(lib_client)
+add_subdirectory(lib)
+set(VCMI_LIB_TARGET vcmi)
+if(ENABLE_SINGLE_APP_BUILD)
 	add_subdirectory(lib_server)
-	set(VCMI_LIB_TARGET vcmi_lib_client)
-else()
-	add_subdirectory(lib)
-	set(VCMI_LIB_TARGET vcmi)
 endif()
 
 if(ENABLE_ERM)
