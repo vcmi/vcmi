@@ -181,6 +181,7 @@ HittedAnimation::HittedAnimation(BattleInterface & owner, const CStack * stack)
 {
 	setGroup(ECreatureAnimType::HITTED);
 	setSound(battle_sound(stack->getCreature(), wince));
+	logAnim->debug("Created HittedAnimation for %s", stack->getName());
 }
 
 DefenceAnimation::DefenceAnimation(BattleInterface & owner, const CStack * stack)
@@ -188,6 +189,7 @@ DefenceAnimation::DefenceAnimation(BattleInterface & owner, const CStack * stack
 {
 	setGroup(ECreatureAnimType::DEFENCE);
 	setSound(battle_sound(stack->getCreature(), defend));
+	logAnim->debug("Created DefenceAnimation for %s", stack->getName());
 }
 
 DeathAnimation::DeathAnimation(BattleInterface & owner, const CStack * stack, bool ranged):
@@ -204,6 +206,8 @@ DeathAnimation::DeathAnimation(BattleInterface & owner, const CStack * stack, bo
 		setNextGroup(ECreatureAnimType::DEAD_RANGED);
 	else
 		setNextGroup(ECreatureAnimType::DEAD);
+
+	logAnim->debug("Created DeathAnimation for %s", stack->getName());
 }
 
 DummyAnimation::DummyAnimation(BattleInterface & owner, int howManyFrames)
@@ -311,7 +315,7 @@ void MeleeAttackAnimation::nextFrame()
 MeleeAttackAnimation::MeleeAttackAnimation(BattleInterface & owner, const CStack * attacker, BattleHex _dest, const CStack * _attacked, bool multiAttack)
 	: AttackAnimation(owner, attacker, _dest, _attacked)
 {
-	logAnim->debug("Created melee attack anim for %s", attacker->getName());
+	logAnim->debug("Created MeleeAttackAnimation for %s", attacker->getName());
 	setSound(battle_sound(getCreature(), attack));
 	setGroup(selectGroup(multiAttack));
 }
@@ -328,12 +332,6 @@ bool MovementAnimation::init()
 	assert(stack);
 	assert(!myAnim->isDeadOrDying());
 
-	if(!stack || myAnim->isDeadOrDying())
-	{
-		delete this;
-		return false;
-	}
-
 	if(stackAnimation(stack)->framesInGroup(ECreatureAnimType::MOVING) == 0 ||
 	   stack->hasBonus(Selector::typeSubtype(Bonus::FLYING, 1)))
 	{
@@ -342,7 +340,7 @@ bool MovementAnimation::init()
 		return false;
 	}
 
-	logAnim->info("CMovementAnimation::init: stack %s moves %d -> %d", stack->getName(), prevHex, nextHex);
+	logAnim->debug("CMovementAnimation::init: stack %s moves %d -> %d", stack->getName(), prevHex, nextHex);
 
 	//reverse unit if necessary
 	if(owner.stacksController->shouldRotate(stack, prevHex, nextHex))
@@ -437,13 +435,13 @@ MovementAnimation::MovementAnimation(BattleInterface & owner, const CStack *stac
 	  timeToMove(0.0),
 	  progress(0.0)
 {
-	logAnim->debug("Created movement anim for %s", stack->getName());
+	logAnim->debug("Created MovementAnimation for %s", stack->getName());
 }
 
 MovementEndAnimation::MovementEndAnimation(BattleInterface & owner, const CStack * _stack, BattleHex destTile)
 : StackMoveAnimation(owner, _stack, destTile, destTile)
 {
-	logAnim->debug("Created movement end anim for %s", stack->getName());
+	logAnim->debug("Created MovementEndAnimation for %s", stack->getName());
 }
 
 bool MovementEndAnimation::init()
@@ -457,7 +455,7 @@ bool MovementEndAnimation::init()
 		return false;
 	}
 
-	logAnim->info("CMovementEndAnimation::init: stack %s", stack->getName());
+	logAnim->debug("CMovementEndAnimation::init: stack %s", stack->getName());
 
 	CCS->soundh->playSound(battle_sound(stack->getCreature(), endMoving));
 
@@ -485,7 +483,7 @@ MovementEndAnimation::~MovementEndAnimation()
 MovementStartAnimation::MovementStartAnimation(BattleInterface & owner, const CStack * _stack)
 	: StackMoveAnimation(owner, _stack, _stack->getPosition(), _stack->getPosition())
 {
-	logAnim->debug("Created movement start anim for %s", stack->getName());
+	logAnim->debug("Created MovementStartAnimation for %s", stack->getName());
 }
 
 bool MovementStartAnimation::init()
@@ -499,7 +497,7 @@ bool MovementStartAnimation::init()
 		return false;
 	}
 
-	logAnim->info("CMovementStartAnimation::init: stack %s", stack->getName());
+	logAnim->debug("CMovementStartAnimation::init: stack %s", stack->getName());
 	CCS->soundh->playSound(battle_sound(stack->getCreature(), startMoving));
 
 	if(!myAnim->framesInGroup(ECreatureAnimType::MOVE_START))
@@ -516,7 +514,7 @@ bool MovementStartAnimation::init()
 ReverseAnimation::ReverseAnimation(BattleInterface & owner, const CStack * stack, BattleHex dest)
 	: StackMoveAnimation(owner, stack, dest, dest)
 {
-	logAnim->debug("Created reverse anim for %s", stack->getName());
+	logAnim->debug("Created ReverseAnimation for %s", stack->getName());
 }
 
 bool ReverseAnimation::init()
@@ -530,7 +528,7 @@ bool ReverseAnimation::init()
 		return false; //there is no such creature
 	}
 
-	logAnim->info("CReverseAnimation::init: stack %s", stack->getName());
+	logAnim->debug("CReverseAnimation::init: stack %s", stack->getName());
 	if(myAnim->framesInGroup(ECreatureAnimType::TURN_L))
 	{
 		myAnim->playOnce(ECreatureAnimType::TURN_L);
@@ -575,6 +573,7 @@ ResurrectionAnimation::ResurrectionAnimation(BattleInterface & owner, const CSta
 	StackActionAnimation(owner, _stack)
 {
 	setGroup(ECreatureAnimType::RESURRECTION);
+	logAnim->debug("Created ResurrectionAnimation for %s", stack->getName());
 }
 
 void ColorTransformAnimation::nextFrame()
@@ -619,7 +618,7 @@ ColorTransformAnimation::ColorTransformAnimation(BattleInterface & owner, const 
 	spell(spell),
 	totalProgress(0.f)
 {
-
+	logAnim->debug("Created ColorTransformAnimation for %s", stack->getName());
 }
 
 ColorTransformAnimation * ColorTransformAnimation::bloodlustAnimation(BattleInterface & owner, const CStack * stack, const CSpell * spell)
@@ -742,7 +741,7 @@ void RangedAttackAnimation::initializeProjectile()
 
 void RangedAttackAnimation::emitProjectile()
 {
-	logAnim->info("Ranged attack projectile emitted");
+	logAnim->debug("Ranged attack projectile emitted");
 	owner.projectilesController->emitStackProjectile(attackingStack);
 	projectileEmitted = true;
 }
@@ -788,7 +787,7 @@ RangedAttackAnimation::~RangedAttackAnimation()
 ShootingAnimation::ShootingAnimation(BattleInterface & owner, const CStack * attacker, BattleHex _dest, const CStack * _attacked)
 	: RangedAttackAnimation(owner, attacker, _dest, _attacked)
 {
-	logAnim->debug("Created shooting anim for %s", stack->getName());
+	logAnim->debug("Created ShootingAnimation for %s", stack->getName());
 }
 
 void ShootingAnimation::createProjectile(const Point & from, const Point & dest) const
@@ -915,7 +914,7 @@ PointEffectAnimation::PointEffectAnimation(BattleInterface & owner, std::string 
 	soundFinished(false),
 	effectFinished(false)
 {
-	logAnim->info("CPointEffectAnimation::init: effect %s", animationName);
+	logAnim->debug("CPointEffectAnimation::init: effect %s", animationName);
 }
 
 PointEffectAnimation::PointEffectAnimation(BattleInterface & owner, std::string soundName, std::string animationName, std::vector<BattleHex> hex, int effects):

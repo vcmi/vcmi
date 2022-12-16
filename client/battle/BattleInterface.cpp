@@ -964,7 +964,7 @@ void BattleInterface::castThisSpell(SpellID spellID)
 
 void BattleInterface::setAnimationCondition( EAnimationEvents event, bool state)
 {
-	logAnim->info("setAnimationCondition: %d -> %s", static_cast<int>(event), state ? "ON" : "OFF");
+	logAnim->debug("setAnimationCondition: %d -> %s", static_cast<int>(event), state ? "ON" : "OFF");
 
 	size_t index = static_cast<size_t>(event);
 	animationEvents[index].setn(state);
