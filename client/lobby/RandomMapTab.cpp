@@ -105,8 +105,7 @@ RandomMapTab::RandomMapTab():
 	
 	addCallback("teamAlignments", [&](int)
 	{
-		//TODO: support team alignments
-		//GH.pushIntT<TeamAlignmentsWidget>(*this);
+		GH.pushIntT<TeamAlignmentsWidget>(*this);
 	});
 	
 	for(auto road : VLC->terrainTypeHandler->roads())
@@ -448,4 +447,25 @@ void TemplatesDropBox::setTemplate(const CRmgTemplate * tmpl)
 	randomMapTab.setTemplate(tmpl);
 	assert(GH.topInt().get() == this);
 	GH.popInt(GH.topInt());
+}
+
+TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
+	CIntObject(),
+	randomMapTab(randomMapTab)
+{
+	OBJ_CONSTRUCTION;
+	
+	pos.w = 300;
+	pos.h = 300;
+	background = std::make_shared<CFilledTexture>("Bl3DCvex", pos);
+	center(pos);
+	
+	buttonOk = std::make_shared<CButton>(Point(43, 240), "MUBCHCK.DEF", CGI->generaltexth->zelp[560], [](){});
+	buttonCancel = std::make_shared<CButton>(Point(193, 240), "MUBCANC.DEF", CGI->generaltexth->zelp[561], [&]()
+	{
+		assert(GH.topInt().get() == this);
+		GH.popInt(GH.topInt());
+	}, SDLK_ESCAPE);
+	
+	
 }
