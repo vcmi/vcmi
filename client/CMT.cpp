@@ -1508,88 +1508,89 @@ static void mainLoop()
 	}
 }
 
+static void quitApplication()
+{
+	if(!settings["session"]["headless"].Bool())
+	{
+		if(CSH->client)
+			CSH->endGameplay();
+	}
+
+	GH.listInt.clear();
+	GH.objsToBlit.clear();
+
+	CMM.reset();
+
+	if(!settings["session"]["headless"].Bool())
+	{
+		// cleanup, mostly to remove false leaks from analyzer
+		if(CCS)
+		{
+			CCS->musich->release();
+			CCS->soundh->release();
+
+			vstd::clear_pointer(CCS);
+		}
+		CMessage::dispose();
+
+		vstd::clear_pointer(graphics);
+	}
+
+	vstd::clear_pointer(VLC);
+
+	vstd::clear_pointer(console);// should be removed after everything else since used by logging
+
+	boost::this_thread::sleep(boost::posix_time::milliseconds(750));//???
+	if(!settings["session"]["headless"].Bool())
+	{
+		if(settings["general"]["notifications"].Bool())
+		{
+			NotificationHandler::destroy();
+		}
+
+		cleanupRenderer();
+
+		if(nullptr != mainRenderer)
+		{
+			SDL_DestroyRenderer(mainRenderer);
+			mainRenderer = nullptr;
+		}
+
+		if(nullptr != mainWindow)
+		{
+			SDL_DestroyWindow(mainWindow);
+			mainWindow = nullptr;
+		}
+
+		SDL_Quit();
+	}
+
+	if(logConfig != nullptr)
+	{
+		logConfig->deconfigure();
+		delete logConfig;
+		logConfig = nullptr;
+	}
+
+	std::cout << "Ending...\n";
+	exit(0);
+}
+
 void handleQuit(bool ask)
 {
-	auto quitApplication = []()
-	{
-		if(!settings["session"]["headless"].Bool())
-		{
-			if(CSH->client)
-				CSH->endGameplay();
-		}
-
-		GH.listInt.clear();
-		GH.objsToBlit.clear();
-
-		CMM.reset();
-
-		if(!settings["session"]["headless"].Bool())
-		{
-			// cleanup, mostly to remove false leaks from analyzer
-			if(CCS)
-			{
-				CCS->musich->release();
-				CCS->soundh->release();
-
-				vstd::clear_pointer(CCS);
-			}
-			CMessage::dispose();
-
-			vstd::clear_pointer(graphics);
-		}
-
-		vstd::clear_pointer(VLC);
-
-		vstd::clear_pointer(console);// should be removed after everything else since used by logging
-
-		boost::this_thread::sleep(boost::posix_time::milliseconds(750));//???
-		if(!settings["session"]["headless"].Bool())
-		{
-			if(settings["general"]["notifications"].Bool())
-			{
-				NotificationHandler::destroy();
-			}
-
-			cleanupRenderer();
-
-			if(nullptr != mainRenderer)
-			{
-				SDL_DestroyRenderer(mainRenderer);
-				mainRenderer = nullptr;
-			}
-
-			if(nullptr != mainWindow)
-			{
-				SDL_DestroyWindow(mainWindow);
-				mainWindow = nullptr;
-			}
-
-			SDL_Quit();
-		}
-
-		if(logConfig != nullptr)
-		{
-			logConfig->deconfigure();
-			delete logConfig;
-			logConfig = nullptr;
-		}
-
-
-		std::cout << "Ending...\n";
-
-		// Workaround for assertion failure on exit:
-		// handleQuit() is alway called during SDL event processing
-		// during which, eventsM is kept locked
-		// this leads to assertion failure if boost::mutex is in locked state
-		eventsM.unlock();
-
-		exit(0);
-	};
 
 	if(CSH->client && LOCPLINT && ask)
 	{
 		CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
-		LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[69], quitApplication, nullptr);
+		LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[69], [](){
+			// Workaround for assertion failure on exit:
+			// handleQuit() is alway called during SDL event processing
+			// during which, eventsM is kept locked
+			// this leads to assertion failure if boost::mutex is in locked state
+			eventsM.unlock();
+
+			quitApplication();
+		}, nullptr);
 	}
 	else
 	{
