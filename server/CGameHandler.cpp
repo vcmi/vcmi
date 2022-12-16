@@ -4680,8 +4680,8 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 					makeAttack(destinationStack, stack, 0, stack->getPosition(), true, false, true);
 				}
 
-				//move can cause death, eg. by walking into the moat, first strike can cause death as well
-				if(stack->alive() && destinationStack->alive())
+				//move can cause death, eg. by walking into the moat, first strike can cause death or paralysis/petrification
+				if(stack->alive() && !stack->hasBonusOfType(Bonus::NOT_ACTIVE) && destinationStack->alive())
 				{
 					makeAttack(stack, destinationStack, (i ? 0 : distance), destinationTile, i==0, false, false);//no distance travelled on second attack
 				}
