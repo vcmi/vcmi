@@ -59,7 +59,6 @@ BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *
 	, myTurn(false)
 	, moveSoundHander(-1)
 	, bresult(nullptr)
-	, battleActionsStarted(false)
 {
 	OBJ_CONSTRUCTION;
 
@@ -169,13 +168,14 @@ BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *
 		tacticNextStack(nullptr);
 
 	CCS->musich->stopMusic();
+	setAnimationCondition(EAnimationEvents::OPENING, true);
 	battleIntroSoundChannel = CCS->soundh->playSoundFromSet(CCS->soundh->battleIntroSounds);
 	auto onIntroPlayed = [&]()
 	{
 		if(LOCPLINT->battleInt)
 		{
 			CCS->musich->playMusicFromSet("battle", true, true);
-			battleActionsStarted = true;
+			setAnimationCondition(EAnimationEvents::OPENING, false);
 			activateStack();
 			battleIntroSoundChannel = -1;
 		}
@@ -290,7 +290,7 @@ void BattleInterface::keyPressed(const SDL_KeyboardEvent & key)
 	}
 	else if(key.keysym.sym == SDLK_ESCAPE)
 	{
-		if(!battleActionsStarted)
+		if(getAnimationCondition(EAnimationEvents::OPENING) == true)
 			CCS->soundh->stopSound(battleIntroSoundChannel);
 		else
 			actionsController->endCastingSpell();
@@ -371,7 +371,7 @@ void BattleInterface::stackAttacking( const StackAttackInfo & attackInfo )
 
 void BattleInterface::newRoundFirst( int round )
 {
-	waitForAnimationCondition(EAnimationEvents::ACTION, false);
+	waitForAnimationCondition(EAnimationEvents::OPENING, false);
 }
 
 void BattleInterface::newRound(int number)
@@ -689,9 +689,6 @@ void BattleInterface::trySetActivePlayer( PlayerColor player )
 
 void BattleInterface::activateStack()
 {
-	if(!battleActionsStarted)
-		return; //"show" function should re-call this function
-
 	stacksController->activateStack();
 
 	const CStack * s = stacksController->getActiveStack();
@@ -905,8 +902,7 @@ void BattleInterface::show(SDL_Surface *to)
 
 	fieldController->renderBattlefield(canvas);
 
-	if(battleActionsStarted)
-		stacksController->updateBattleAnimations();
+	stacksController->updateBattleAnimations();
 
 	SDL_SetClipRect(to, &buf); //restoring previous clip_rect
 

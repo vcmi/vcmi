@@ -233,7 +233,7 @@ void BattleActionsController::castThisSpell(SpellID spellID)
 
 void BattleActionsController::handleHex(BattleHex myNumber, int eventType)
 {
-	if (!owner.myTurn || !owner.battleActionsStarted) //we are not permit to do anything
+	if (!owner.myTurn) //we are not permit to do anything
 		return;
 
 	// This function handles mouse move over hexes and l-clicking on them.

@@ -110,7 +110,6 @@ private:
 	ui8 animCount;
 
 	bool tacticsMode;
-	bool battleActionsStarted; //used for delaying battle actions until intro sound stops
 	int battleIntroSoundChannel; //required as variable for disabling it via ESC key
 
 	using AwaitingAnimationAction = std::function<void()>;
