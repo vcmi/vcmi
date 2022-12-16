@@ -122,7 +122,7 @@ BattleHex BattleStacksController::getStackCurrentPosition(const CStack * stack) 
 		if (StackMoveAnimation *move = dynamic_cast<StackMoveAnimation*>(anim))
 		{
 			if (move->stack == stack)
-				return move->currentHex;
+				return std::max(move->prevHex, move->nextHex);
 		}
 	}
 	return stack->getPosition();

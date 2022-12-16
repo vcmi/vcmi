@@ -316,9 +316,10 @@ MeleeAttackAnimation::MeleeAttackAnimation(BattleInterface & owner, const CStack
 	setGroup(selectGroup(multiAttack));
 }
 
-StackMoveAnimation::StackMoveAnimation(BattleInterface & owner, const CStack * _stack, BattleHex _currentHex):
+StackMoveAnimation::StackMoveAnimation(BattleInterface & owner, const CStack * _stack, BattleHex prevHex, BattleHex nextHex):
 	BattleStackAnimation(owner, _stack),
-	currentHex(_currentHex)
+	prevHex(prevHex),
+	nextHex(nextHex)
 {
 }
 
@@ -341,14 +342,14 @@ bool MovementAnimation::init()
 		return false;
 	}
 
-	logAnim->info("CMovementAnimation::init: stack %s moves %d -> %d", stack->getName(), oldPos, currentHex);
+	logAnim->info("CMovementAnimation::init: stack %s moves %d -> %d", stack->getName(), prevHex, nextHex);
 
 	//reverse unit if necessary
-	if(owner.stacksController->shouldRotate(stack, oldPos, currentHex))
+	if(owner.stacksController->shouldRotate(stack, prevHex, nextHex))
 	{
 		// it seems that H3 does NOT plays full rotation animation during movement
 		// Logical since it takes quite a lot of time
-		rotateStack(oldPos);
+		rotateStack(prevHex);
 	}
 
 	if(myAnim->getType() != ECreatureAnimType::MOVING)
@@ -361,8 +362,8 @@ bool MovementAnimation::init()
 		owner.moveSoundHander = CCS->soundh->playSound(battle_sound(stack->getCreature(), move), -1);
 	}
 
-	Point begPosition = owner.stacksController->getStackPositionAtHex(oldPos, stack);
-	Point endPosition = owner.stacksController->getStackPositionAtHex(currentHex, stack);
+	Point begPosition = owner.stacksController->getStackPositionAtHex(prevHex, stack);
+	Point endPosition = owner.stacksController->getStackPositionAtHex(nextHex, stack);
 
 	timeToMove = AnimationControls::getMovementDuration(stack->getCreature());
 
@@ -395,7 +396,7 @@ void MovementAnimation::nextFrame()
 	if(progress >= 1.0)
 	{
 		// Sets the position of the creature animation sprites
-		Point coords = owner.stacksController->getStackPositionAtHex(currentHex, stack);
+		Point coords = owner.stacksController->getStackPositionAtHex(nextHex, stack);
 		myAnim->pos.moveTo(coords);
 
 		// true if creature haven't reached the final destination hex
@@ -403,8 +404,8 @@ void MovementAnimation::nextFrame()
 		{
 			// update the next hex field which has to be reached by the stack
 			curentMoveIndex++;
-			oldPos = currentHex;
-			currentHex = destTiles[curentMoveIndex];
+			prevHex = nextHex;
+			nextHex = destTiles[curentMoveIndex];
 
 			// request re-initialization
 			initialized = false;
@@ -418,7 +419,7 @@ MovementAnimation::~MovementAnimation()
 {
 	assert(stack);
 
-	myAnim->pos.moveTo(owner.stacksController->getStackPositionAtHex(currentHex, stack));
+	myAnim->pos.moveTo(owner.stacksController->getStackPositionAtHex(nextHex, stack));
 
 	if(owner.moveSoundHander != -1)
 	{
@@ -427,11 +428,10 @@ MovementAnimation::~MovementAnimation()
 	}
 }
 
-MovementAnimation::MovementAnimation(BattleInterface & owner, const CStack *_stack, std::vector<BattleHex> _destTiles, int _distance)
-	: StackMoveAnimation(owner, _stack, _destTiles.front()),
+MovementAnimation::MovementAnimation(BattleInterface & owner, const CStack *stack, std::vector<BattleHex> _destTiles, int _distance)
+	: StackMoveAnimation(owner, stack, stack->getPosition(), _destTiles.front()),
 	  destTiles(_destTiles),
 	  curentMoveIndex(0),
-	  oldPos(stack->getPosition()),
 	  begX(0), begY(0),
 	  distanceX(0), distanceY(0),
 	  timeToMove(0.0),
@@ -441,7 +441,7 @@ MovementAnimation::MovementAnimation(BattleInterface & owner, const CStack *_sta
 }
 
 MovementEndAnimation::MovementEndAnimation(BattleInterface & owner, const CStack * _stack, BattleHex destTile)
-: StackMoveAnimation(owner, _stack, destTile)
+: StackMoveAnimation(owner, _stack, destTile, destTile)
 {
 	logAnim->debug("Created movement end anim for %s", stack->getName());
 }
@@ -483,7 +483,7 @@ MovementEndAnimation::~MovementEndAnimation()
 }
 
 MovementStartAnimation::MovementStartAnimation(BattleInterface & owner, const CStack * _stack)
-	: StackMoveAnimation(owner, _stack, _stack->getPosition())
+	: StackMoveAnimation(owner, _stack, _stack->getPosition(), _stack->getPosition())
 {
 	logAnim->debug("Created movement start anim for %s", stack->getName());
 }
@@ -514,7 +514,7 @@ bool MovementStartAnimation::init()
 }
 
 ReverseAnimation::ReverseAnimation(BattleInterface & owner, const CStack * stack, BattleHex dest)
-	: StackMoveAnimation(owner, stack, dest)
+	: StackMoveAnimation(owner, stack, dest, dest)
 {
 	logAnim->debug("Created reverse anim for %s", stack->getName());
 }
@@ -560,7 +560,7 @@ void ReverseAnimation::setupSecondPart()
 		return;
 	}
 
-	rotateStack(currentHex);
+	rotateStack(nextHex);
 
 	if(myAnim->framesInGroup(ECreatureAnimType::TURN_R))
 	{

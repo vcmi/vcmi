@@ -136,10 +136,11 @@ public:
 class StackMoveAnimation : public BattleStackAnimation
 {
 public:
-	BattleHex currentHex;
+	BattleHex nextHex;
+	BattleHex prevHex;
 
 protected:
-	StackMoveAnimation(BattleInterface & owner, const CStack * _stack, BattleHex _currentHex);
+	StackMoveAnimation(BattleInterface & owner, const CStack * _stack, BattleHex prevHex, BattleHex nextHex);
 };
 
 /// Move animation of a creature
@@ -148,8 +149,6 @@ class MovementAnimation : public StackMoveAnimation
 private:
 	std::vector<BattleHex> destTiles; //full path, includes already passed hexes
 	ui32 curentMoveIndex; // index of nextHex in destTiles
-
-	BattleHex oldPos; //position of stack before move
 
 	double begX, begY; // starting position
 	double distanceX, distanceY; // full movement distance, may be negative if creture moves topleft
