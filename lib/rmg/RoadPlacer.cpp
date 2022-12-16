@@ -22,6 +22,9 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 void RoadPlacer::process()
 {
+	if(generator.getConfig().defaultRoadType.empty() && generator.getConfig().secondaryRoadType.empty())
+		return; //do not generate roads at all
+	
 	connectRoads();
 }
 
@@ -68,6 +71,10 @@ bool RoadPlacer::createRoad(const int3 & dst)
 
 void RoadPlacer::drawRoads(bool secondary)
 {
+	if((secondary && generator.getConfig().secondaryRoadType.empty())
+	   || (!secondary && generator.getConfig().defaultRoadType.empty()))
+		return;
+	
 	zone.areaPossible().subtract(roads);
 	zone.freePaths().unite(roads);
 	map.getEditManager()->getTerrainSelection().setSelection(roads.getTilesVector());

@@ -230,6 +230,26 @@ void CMapGenOptions::setMapTemplate(const std::string & name)
 		setMapTemplate(VLC->tplh->getTemplate(name));
 }
 
+void CMapGenOptions::setRoadEnabled(const std::string & roadName, bool enable)
+{
+	if(enable)
+		disabledRoads.erase(roadName);
+	else
+		disabledRoads.insert(roadName);
+}
+
+bool CMapGenOptions::isRoadEnabled(const std::string & roadName) const
+{
+	return !disabledRoads.count(roadName);
+}
+
+void CMapGenOptions::setPlayerTeam(PlayerColor color, TeamID team)
+{
+	auto it = players.find(color);
+	if(it == players.end()) assert(0);
+	it->second.setTeam(team);
+}
+
 void CMapGenOptions::finalize(CRandomGenerator & rand)
 {
 	logGlobal->info("RMG map: %dx%d, %s underground", getWidth(), getHeight(), getHasTwoLevels() ? "WITH" : "NO");
@@ -473,7 +493,7 @@ const CRmgTemplate * CMapGenOptions::getPossibleTemplate(CRandomGenerator & rand
 	return *RandomGeneratorUtil::nextItem(templates, rand);
 }
 
-CMapGenOptions::CPlayerSettings::CPlayerSettings() : color(0), startingTown(RANDOM_TOWN), playerType(EPlayerType::AI)
+CMapGenOptions::CPlayerSettings::CPlayerSettings() : color(0), startingTown(RANDOM_TOWN), playerType(EPlayerType::AI), team(TeamID::NO_TEAM)
 {
 
 }
@@ -513,6 +533,16 @@ EPlayerType::EPlayerType CMapGenOptions::CPlayerSettings::getPlayerType() const
 void CMapGenOptions::CPlayerSettings::setPlayerType(EPlayerType::EPlayerType value)
 {
 	playerType = value;
+}
+
+TeamID CMapGenOptions::CPlayerSettings::getTeam() const
+{
+	return team;
+}
+
+void CMapGenOptions::CPlayerSettings::setTeam(TeamID value)
+{
+	team = value;
 }
 
 VCMI_LIB_NAMESPACE_END
