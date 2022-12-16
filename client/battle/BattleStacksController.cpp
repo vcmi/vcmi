@@ -500,7 +500,10 @@ void BattleStacksController::stackMoved(const CStack *stack, std::vector<BattleH
 	assert(owner.getAnimationCondition(EAnimationEvents::ACTION) == false);
 
 	if(shouldRotate(stack, stack->getPosition(), destHex[0]))
-		addNewAnim(new ReverseAnimation(owner, stack, destHex[0]));
+	{
+		addNewAnim(new ReverseAnimation(owner, stack, stack->getPosition()));
+		owner.waitForAnimationCondition(EAnimationEvents::ACTION, false);
+	}
 
 	addNewAnim(new MovementStartAnimation(owner, stack));
 	owner.waitForAnimationCondition(EAnimationEvents::ACTION, false);
