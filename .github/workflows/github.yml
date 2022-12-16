@@ -9,6 +9,11 @@ on:
   schedule:
     - cron: '0 2 * * *'
   workflow_dispatch:
+    inputs:
+      disable_gitversion:
+        description: 'Removes SHA from VCMI version. Set true for release build'
+        required: false
+        default: false
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
@@ -127,6 +132,12 @@ jobs:
       env:
         MXE_TARGET: ${{ matrix.mxe }}
         VCMI_BUILD_PLATFORM: x64
+
+    - if: gihub.event.input.disable_gitversion == 'true'
+      name: Remove Git sha from version
+      env:
+        VCMI_ENABLE_GITVERSION: OFF
+
 
     - uses: actions/setup-python@v4
       if: "${{ matrix.conan_profile != '' }}"
