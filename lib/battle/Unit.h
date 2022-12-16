@@ -43,6 +43,7 @@ public:
 	virtual bool ableToRetaliate() const = 0;
 	virtual bool alive() const = 0;
 	virtual bool isGhost() const = 0;
+	virtual bool isFrozen() const = 0;
 
 	bool isDead() const;
 	bool isTurret() const;

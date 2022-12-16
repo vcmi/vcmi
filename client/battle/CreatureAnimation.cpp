@@ -190,6 +190,12 @@ CreatureAnimation::CreatureAnimation(const std::string & name_, TSpeedController
 		reverse->duplicateImage(ECreatureAnimType::DEATH_RANGED, reverse->size(ECreatureAnimType::DEATH_RANGED)-1, ECreatureAnimType::DEAD_RANGED);
 	}
 
+	if(forward->size(ECreatureAnimType::FROZEN) == 0)
+	{
+		forward->duplicateImage(ECreatureAnimType::HOLDING, 0, ECreatureAnimType::FROZEN);
+		reverse->duplicateImage(ECreatureAnimType::HOLDING, 0, ECreatureAnimType::FROZEN);
+	}
+
 	if(forward->size(ECreatureAnimType::RESURRECTION) == 0)
 	{
 		for (size_t i = 0; i < forward->size(ECreatureAnimType::DEATH); ++i)

@@ -93,6 +93,58 @@ BattleStackAnimation::BattleStackAnimation(BattleInterface & owner, const CStack
 	assert(myAnim);
 }
 
+StackActionAnimation::StackActionAnimation(BattleInterface & owner, const CStack * stack)
+	: BattleStackAnimation(owner, stack)
+	, nextGroup(ECreatureAnimType::HOLDING)
+	, currGroup(ECreatureAnimType::HOLDING)
+{
+}
+
+ECreatureAnimType::Type StackActionAnimation::getGroup() const
+{
+	return currGroup;
+}
+
+void StackActionAnimation::setNextGroup( ECreatureAnimType::Type group )
+{
+	nextGroup = group;
+}
+
+void StackActionAnimation::setGroup( ECreatureAnimType::Type group )
+{
+	currGroup = group;
+}
+
+void StackActionAnimation::setSound( std::string sound )
+{
+	this->sound = sound;
+}
+
+bool StackActionAnimation::init()
+{
+	if (!sound.empty())
+		CCS->soundh->playSound(sound);
+
+	if (myAnim->framesInGroup(currGroup) > 0)
+	{
+		myAnim->playOnce(currGroup);
+		myAnim->onAnimationReset += [&](){ delete this; };
+	}
+	else
+		delete this;
+
+	return true;
+}
+
+StackActionAnimation::~StackActionAnimation()
+{
+	if (stack->isFrozen())
+		myAnim->setType(ECreatureAnimType::HOLDING);
+	else
+		myAnim->setType(nextGroup);
+
+}
+
 ECreatureAnimType::Type AttackAnimation::findValidGroup( const std::vector<ECreatureAnimType::Type> candidates ) const
 {
 	for ( auto group : candidates)
@@ -105,26 +157,6 @@ ECreatureAnimType::Type AttackAnimation::findValidGroup( const std::vector<ECrea
 	return ECreatureAnimType::HOLDING;
 }
 
-void AttackAnimation::nextFrame()
-{
-	if(myAnim->getType() != group)
-	{
-		myAnim->setType(group);
-		myAnim->onAnimationReset += [&](){ delete this; };
-	}
-
-	if(!soundPlayed)
-	{
-		playSound();
-		soundPlayed = true;
-	}
-}
-
-AttackAnimation::~AttackAnimation()
-{
-	myAnim->setType(ECreatureAnimType::HOLDING);
-}
-
 const CCreature * AttackAnimation::getCreature() const
 {
 	if (attackingStack->getCreature()->idNumber == CreatureID::ARROW_TOWERS)
@@ -135,9 +167,7 @@ const CCreature * AttackAnimation::getCreature() const
 
 
 AttackAnimation::AttackAnimation(BattleInterface & owner, const CStack *attacker, BattleHex _dest, const CStack *defender)
-	: BattleStackAnimation(owner, attacker),
-	  group(ECreatureAnimType::SHOOT_FRONT),
-	  soundPlayed(false),
+	: StackActionAnimation(owner, attacker),
 	  dest(_dest),
 	  defendingStack(defender),
 	  attackingStack(attacker)
@@ -146,61 +176,34 @@ AttackAnimation::AttackAnimation(BattleInterface & owner, const CStack *attacker
 	attackingStackPosBeforeReturn = attackingStack->getPosition();
 }
 
-bool HittedAnimation::init()
-{
-	CCS->soundh->playSound(battle_sound(stack->getCreature(), wince));
-	myAnim->playOnce(ECreatureAnimType::HITTED);
-	myAnim->onAnimationReset += [&](){ delete this; };
-	return true;
-}
-
 HittedAnimation::HittedAnimation(BattleInterface & owner, const CStack * stack)
-	: BattleStackAnimation(owner, stack)
+	: StackActionAnimation(owner, stack)
 {
+	setGroup(ECreatureAnimType::HITTED);
+	setSound(battle_sound(stack->getCreature(), wince));
 }
 
 DefenceAnimation::DefenceAnimation(BattleInterface & owner, const CStack * stack)
-	: BattleStackAnimation(owner, stack)
+	: StackActionAnimation(owner, stack)
 {
-}
-
-bool DefenceAnimation::init()
-{
-	CCS->soundh->playSound(battle_sound(stack->getCreature(), defend));
-	myAnim->playOnce(ECreatureAnimType::DEFENCE);
-	myAnim->onAnimationReset += [&](){ delete this; };
-
-	return true; //initialized successfuly
-}
-
-ECreatureAnimType::Type DeathAnimation::getMyAnimType()
-{
-	if(rangedAttack && myAnim->framesInGroup(ECreatureAnimType::DEATH_RANGED) > 0)
-		return ECreatureAnimType::DEATH_RANGED;
-	else
-		return ECreatureAnimType::DEATH;
-}
-
-bool DeathAnimation::init()
-{
-	CCS->soundh->playSound(battle_sound(stack->getCreature(), killed));
-	myAnim->playOnce(getMyAnimType());
-	myAnim->onAnimationReset += [&](){ delete this; };
-	return true;
+	setGroup(ECreatureAnimType::DEFENCE);
+	setSound(battle_sound(stack->getCreature(), defend));
 }
 
 DeathAnimation::DeathAnimation(BattleInterface & owner, const CStack * stack, bool ranged):
-	BattleStackAnimation(owner, stack),
-	rangedAttack(ranged)
+	StackActionAnimation(owner, stack)
 {
-}
+	setSound(battle_sound(stack->getCreature(), killed));
 
-DeathAnimation::~DeathAnimation()
-{
-	if(rangedAttack && myAnim->framesInGroup(ECreatureAnimType::DEAD_RANGED) > 0)
-		myAnim->setType(ECreatureAnimType::DEAD_RANGED);
+	if(ranged && myAnim->framesInGroup(ECreatureAnimType::DEATH_RANGED) > 0)
+		setGroup(ECreatureAnimType::DEATH_RANGED);
 	else
-		myAnim->setType(ECreatureAnimType::DEAD);
+		setGroup(ECreatureAnimType::DEATH);
+
+	if(ranged && myAnim->framesInGroup(ECreatureAnimType::DEAD_RANGED) > 0)
+		setNextGroup(ECreatureAnimType::DEAD_RANGED);
+	else
+		setNextGroup(ECreatureAnimType::DEAD);
 }
 
 DummyAnimation::DummyAnimation(BattleInterface & owner, int howManyFrames)
@@ -223,7 +226,7 @@ void DummyAnimation::nextFrame()
 		delete this;
 }
 
-ECreatureAnimType::Type MeleeAttackAnimation::getUpwardsGroup() const
+ECreatureAnimType::Type MeleeAttackAnimation::getUpwardsGroup(bool multiAttack) const
 {
 	if (!multiAttack)
 		return ECreatureAnimType::ATTACK_UP;
@@ -235,7 +238,7 @@ ECreatureAnimType::Type MeleeAttackAnimation::getUpwardsGroup() const
 	});
 }
 
-ECreatureAnimType::Type MeleeAttackAnimation::getForwardGroup() const
+ECreatureAnimType::Type MeleeAttackAnimation::getForwardGroup(bool multiAttack) const
 {
 	if (!multiAttack)
 		return ECreatureAnimType::ATTACK_FRONT;
@@ -247,7 +250,7 @@ ECreatureAnimType::Type MeleeAttackAnimation::getForwardGroup() const
 	});
 }
 
-ECreatureAnimType::Type MeleeAttackAnimation::getDownwardsGroup() const
+ECreatureAnimType::Type MeleeAttackAnimation::getDownwardsGroup(bool multiAttack) const
 {
 	if (!multiAttack)
 		return ECreatureAnimType::ATTACK_DOWN;
@@ -259,27 +262,16 @@ ECreatureAnimType::Type MeleeAttackAnimation::getDownwardsGroup() const
 	});
 }
 
-bool MeleeAttackAnimation::init()
+ECreatureAnimType::Type MeleeAttackAnimation::selectGroup(bool multiAttack)
 {
-	assert(attackingStack);
-	assert(!myAnim->isDeadOrDying());
-
-	if(!attackingStack || myAnim->isDeadOrDying())
-	{
-		delete this;
-		return false;
-	}
-
-	logAnim->info("CMeleeAttackAnimation::init: stack %s -> stack %s", stack->getName(), defendingStack->getName());
-
 	const ECreatureAnimType::Type mutPosToGroup[] =
 	{
-		getUpwardsGroup(),
-		getUpwardsGroup(),
-		getForwardGroup(),
-		getDownwardsGroup(),
-		getDownwardsGroup(),
-		getForwardGroup()
+		getUpwardsGroup  (multiAttack),
+		getUpwardsGroup  (multiAttack),
+		getForwardGroup  (multiAttack),
+		getDownwardsGroup(multiAttack),
+		getDownwardsGroup(multiAttack),
+		getForwardGroup  (multiAttack)
 	};
 
 	int revShiftattacker = (attackingStack->side == BattleSide::ATTACKER ? -1 : 1);
@@ -300,14 +292,13 @@ bool MeleeAttackAnimation::init()
 
 	assert(mutPos >= 0 && mutPos <=5);
 
-	group = mutPosToGroup[mutPos];
-	return true;
+	return mutPosToGroup[mutPos];
 }
 
 void MeleeAttackAnimation::nextFrame()
 {
 	size_t currentFrame = stackAnimation(attackingStack)->getCurrentFrame();
-	size_t totalFrames = stackAnimation(attackingStack)->framesInGroup(group);
+	size_t totalFrames = stackAnimation(attackingStack)->framesInGroup(getGroup());
 
 	if ( currentFrame * 2 >= totalFrames )
 	{
@@ -317,23 +308,18 @@ void MeleeAttackAnimation::nextFrame()
 	AttackAnimation::nextFrame();
 }
 
-void MeleeAttackAnimation::playSound()
-{
-	CCS->soundh->playSound(battle_sound(getCreature(), attack));
-}
-
 MeleeAttackAnimation::MeleeAttackAnimation(BattleInterface & owner, const CStack * attacker, BattleHex _dest, const CStack * _attacked, bool multiAttack)
-	: AttackAnimation(owner, attacker, _dest, _attacked),
-	  multiAttack(multiAttack)
+	: AttackAnimation(owner, attacker, _dest, _attacked)
 {
 	logAnim->debug("Created melee attack anim for %s", attacker->getName());
+	setSound(battle_sound(getCreature(), attack));
+	setGroup(selectGroup(multiAttack));
 }
 
 StackMoveAnimation::StackMoveAnimation(BattleInterface & owner, const CStack * _stack, BattleHex _currentHex):
 	BattleStackAnimation(owner, _stack),
 	currentHex(_currentHex)
 {
-
 }
 
 bool MovementAnimation::init()
@@ -585,32 +571,10 @@ void ReverseAnimation::setupSecondPart()
 		delete this;
 }
 
-bool ResurrectionAnimation::init()
-{
-	assert(stack);
-
-	if(!stack)
-	{
-		delete this;
-		return false;
-	}
-
-	logAnim->info("CResurrectionAnimation::init: stack %s", stack->getName());
-	myAnim->playOnce(ECreatureAnimType::RESURRECTION);
-	myAnim->onAnimationReset += [&](){ delete this; };
-
-	return true;
-}
-
 ResurrectionAnimation::ResurrectionAnimation(BattleInterface & owner, const CStack * _stack):
-	BattleStackAnimation(owner, _stack)
+	StackActionAnimation(owner, _stack)
 {
-
-}
-
-bool ColorTransformAnimation::init()
-{
-	return true;
+	setGroup(ECreatureAnimType::RESURRECTION);
 }
 
 void ColorTransformAnimation::nextFrame()
@@ -651,7 +615,7 @@ void ColorTransformAnimation::nextFrame()
 }
 
 ColorTransformAnimation::ColorTransformAnimation(BattleInterface & owner, const CStack * _stack, const CSpell * spell):
-	BattleStackAnimation(owner, _stack),
+	StackActionAnimation(owner, _stack),
 	spell(spell),
 	totalProgress(0.f)
 {
@@ -716,31 +680,15 @@ RangedAttackAnimation::RangedAttackAnimation(BattleInterface & owner_, const CSt
 	: AttackAnimation(owner_, attacker, dest_, defender),
 	  projectileEmitted(false)
 {
-}
-
-void RangedAttackAnimation::playSound()
-{
-	CCS->soundh->playSound(battle_sound(getCreature(), shoot));
+	setSound(battle_sound(getCreature(), shoot));
 }
 
 bool RangedAttackAnimation::init()
 {
-	assert(attackingStack);
-	assert(!myAnim->isDeadOrDying());
-
-	if(!attackingStack || myAnim->isDeadOrDying())
-	{
-		//FIXME: how is this possible?
-		logAnim->warn("Shooting animation has not started yet but attacker is dead! Aborting...");
-		delete this;
-		return false;
-	}
-
-	logAnim->info("CRangedAttackAnimation::init: stack %s", stack->getName());
-
 	setAnimationGroup();
 	initializeProjectile();
-	return true;
+
+	return AttackAnimation::init();
 }
 
 void RangedAttackAnimation::setAnimationGroup()
@@ -755,11 +703,11 @@ void RangedAttackAnimation::setAnimationGroup()
 
 	// Calculate projectile start position. Offsets are read out of the CRANIM.TXT.
 	if (projectileAngle > straightAngle)
-		group = getUpwardsGroup();
+		setGroup(getUpwardsGroup());
 	else if (projectileAngle < -straightAngle)
-		group = getDownwardsGroup();
+		setGroup(getDownwardsGroup());
 	else
-		group = getForwardGroup();
+		setGroup(getForwardGroup());
 }
 
 void RangedAttackAnimation::initializeProjectile()
@@ -769,17 +717,17 @@ void RangedAttackAnimation::initializeProjectile()
 	Point shotOrigin = stackAnimation(attackingStack)->pos.topLeft() + Point(222, 265);
 	int multiplier = stackFacingRight(attackingStack) ? 1 : -1;
 
-	if (group == getUpwardsGroup())
+	if (getGroup() == getUpwardsGroup())
 	{
 		shotOrigin.x += ( -25 + shooterInfo->animation.upperRightMissleOffsetX ) * multiplier;
 		shotOrigin.y += shooterInfo->animation.upperRightMissleOffsetY;
 	}
-	else if (group == getDownwardsGroup())
+	else if (getGroup() == getDownwardsGroup())
 	{
 		shotOrigin.x += ( -25 + shooterInfo->animation.lowerRightMissleOffsetX ) * multiplier;
 		shotOrigin.y += shooterInfo->animation.lowerRightMissleOffsetY;
 	}
-	else if (group == getForwardGroup())
+	else if (getGroup() == getForwardGroup())
 	{
 		shotOrigin.x += ( -25 + shooterInfo->animation.rightMissleOffsetX ) * multiplier;
 		shotOrigin.y += shooterInfo->animation.rightMissleOffsetY;
@@ -953,11 +901,9 @@ void CastAnimation::createProjectile(const Point & from, const Point & dest) con
 uint32_t CastAnimation::getAttackClimaxFrame() const
 {
 	//TODO: allow defining this parameter in config file, separately from attackClimaxFrame of missile attacks
-	uint32_t maxFrames = stackAnimation(attackingStack)->framesInGroup(group);
+	uint32_t maxFrames = stackAnimation(attackingStack)->framesInGroup(getGroup());
 
-	if (maxFrames > 2)
-		return maxFrames - 2;
-	return 0;
+	return maxFrames / 2;
 }
 
 PointEffectAnimation::PointEffectAnimation(BattleInterface & owner, std::string soundName, std::string animationName, int effects):

@@ -40,8 +40,14 @@ static void onAnimationFinished(const CStack *stack, std::weak_ptr<CreatureAnima
 	if(!animation)
 		return;
 
+	if (!stack->isFrozen() && animation->getType() == ECreatureAnimType::FROZEN)
+		animation->setType(ECreatureAnimType::HOLDING);
+
 	if (animation->isIdle())
 	{
+		if (stack->isFrozen())
+			animation->setType(ECreatureAnimType::FROZEN);
+
 		const CCreature *creature = stack->getCreature();
 
 		if (animation->framesInGroup(ECreatureAnimType::MOUSEON) > 0)
@@ -249,7 +255,7 @@ void BattleStacksController::setHoveredStack(const CStack *stack)
 	{
 		mouseHoveredStack = stack;
 
-		if (mouseHoveredStack)
+		if (mouseHoveredStack && !mouseHoveredStack->isFrozen())
 		{
 			stackAnimation[mouseHoveredStack->ID]->setBorderColor(AnimationControls::getBlueBorder());
 			if (stackAnimation[mouseHoveredStack->ID]->framesInGroup(ECreatureAnimType::MOUSEON) > 0)
@@ -361,8 +367,6 @@ void BattleStacksController::showStack(Canvas & canvas, const CStack * stack)
 	}
 
 	bool stackHasProjectile = owner.projectilesController->hasActiveProjectile(stack, true);
-	//bool stackPetrified = stack->hasBonus(Selector::source(Bonus::SPELL_EFFECT, SpellID::STONE_GAZE));
-	//bool stackFrozen = stackHasProjectile || stackPetrified;
 
 	if (stackHasProjectile)
 		stackAnimation[stack->ID]->pause();

@@ -56,6 +56,8 @@ namespace ECreatureAnimType
 {
 enum Type // list of creature animations, numbers were taken from def files
 {
+	INVALID         = -1,
+
 	MOVING          = 0,
 	MOUSEON         = 1,
 	HOLDING         = 2,  // base idling animation
@@ -82,6 +84,7 @@ enum Type // list of creature animations, numbers were taken from def files
 	DEAD            = 22, // new group, used to show dead stacks. If empty - last frame from "DEATH" will be copied here
 	DEAD_RANGED     = 23, // new group, used to show dead stacks (if DEATH_RANGED was used). If empty - last frame from "DEATH_RANGED" will be copied here
 	RESURRECTION    = 24, // new group, used for animating resurrection, if empty - reversed "DEATH" animation will be copiend here
+	FROZEN          = 25, // new group, used when stack animation is paused (e.g. petrified). If empty - consist of first frame from HOLDING animation
 
 	CAST_UP            = 30,
 	CAST_FRONT         = 31,

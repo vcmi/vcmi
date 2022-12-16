@@ -63,86 +63,73 @@ public:
 	const CStack * stack; //id of stack whose animation it is
 
 	BattleStackAnimation(BattleInterface & owner, const CStack * _stack);
-
 	void rotateStack(BattleHex hex);
 };
 
-/// This class is responsible for managing the battle attack animation
-class AttackAnimation : public BattleStackAnimation
+class StackActionAnimation : public BattleStackAnimation
 {
-	bool soundPlayed;
-protected:
-	BattleHex dest; //attacked hex
-	ECreatureAnimType::Type group;
-	const CStack *defendingStack;
-	const CStack *attackingStack;
-	int attackingStackPosBeforeReturn; //for stacks with return_after_strike feature
-
-	const CCreature * getCreature() const;
-	ECreatureAnimType::Type findValidGroup( const std::vector<ECreatureAnimType::Type> candidates ) const;
-
+	ECreatureAnimType::Type nextGroup;
+	ECreatureAnimType::Type currGroup;
+	std::string sound;
 public:
-	virtual void playSound() = 0;
+	void setNextGroup( ECreatureAnimType::Type group );
+	void setGroup( ECreatureAnimType::Type group );
+	void setSound( std::string sound );
 
-	void nextFrame() override;
-	AttackAnimation(BattleInterface & owner, const CStack *attacker, BattleHex _dest, const CStack *defender);
-	~AttackAnimation();
+	ECreatureAnimType::Type getGroup() const;
+
+	StackActionAnimation(BattleInterface & owner, const CStack * _stack);
+	~StackActionAnimation();
+
+	bool init() override;
 };
 
 /// Animation of a defending unit
-class DefenceAnimation : public BattleStackAnimation
+class DefenceAnimation : public StackActionAnimation
 {
 public:
-	bool init() override;
 	DefenceAnimation(BattleInterface & owner, const CStack * stack);
 };
 
 /// Animation of a hit unit
-class HittedAnimation : public BattleStackAnimation
+class HittedAnimation : public StackActionAnimation
 {
 public:
 	HittedAnimation(BattleInterface & owner, const CStack * stack);
-	bool init() override;
 };
 
 /// Animation of a dying unit
-class DeathAnimation : public BattleStackAnimation
+class DeathAnimation : public StackActionAnimation
 {
-	bool rangedAttack;
-	ECreatureAnimType::Type getMyAnimType();
 public:
-	bool init() override;
 	DeathAnimation(BattleInterface & owner, const CStack * stack, bool ranged);
-	~DeathAnimation();
 };
 
-class DummyAnimation : public BattleAnimation
+/// Resurrects stack from dead state
+class ResurrectionAnimation : public StackActionAnimation
 {
-private:
-	int counter;
-	int howMany;
 public:
-	bool init() override;
-	void nextFrame() override;
-
-	DummyAnimation(BattleInterface & owner, int howManyFrames);
+	ResurrectionAnimation(BattleInterface & owner, const CStack * _stack);
 };
 
-/// Hand-to-hand attack
-class MeleeAttackAnimation : public AttackAnimation
+class ColorTransformAnimation : public StackActionAnimation
 {
-	bool multiAttack;
+	std::vector<ColorFilter> steps;
+	std::vector<float> timePoints;
+	const CSpell * spell;
 
-	ECreatureAnimType::Type getUpwardsGroup() const;
-	ECreatureAnimType::Type getForwardGroup() const;
-	ECreatureAnimType::Type getDownwardsGroup() const;
+	float totalProgress;
 
-public:
-	bool init() override;
 	void nextFrame() override;
-	void playSound() override;
 
-	MeleeAttackAnimation(BattleInterface & owner, const CStack * attacker, BattleHex _dest, const CStack * _attacked, bool multiAttack);
+	ColorTransformAnimation(BattleInterface & owner, const CStack * _stack, const CSpell * spell);
+public:
+
+	static ColorTransformAnimation * petrifyAnimation  (BattleInterface & owner, const CStack * _stack, const CSpell * spell);
+	static ColorTransformAnimation * cloneAnimation    (BattleInterface & owner, const CStack * _stack, const CSpell * spell);
+	static ColorTransformAnimation * bloodlustAnimation(BattleInterface & owner, const CStack * _stack, const CSpell * spell);
+	static ColorTransformAnimation * fadeInAnimation   (BattleInterface & owner, const CStack * _stack);
+	static ColorTransformAnimation * fadeOutAnimation  (BattleInterface & owner, const CStack * _stack);
 };
 
 /// Base class for all animations that play during stack movement
@@ -207,35 +194,37 @@ public:
 	ReverseAnimation(BattleInterface & owner, const CStack * stack, BattleHex dest);
 };
 
-/// Resurrects stack from dead state
-class ResurrectionAnimation : public BattleStackAnimation
+/// This class is responsible for managing the battle attack animation
+class AttackAnimation : public StackActionAnimation
 {
-public:
-	bool init() override;
+protected:
+	BattleHex dest; //attacked hex
+	const CStack *defendingStack;
+	const CStack *attackingStack;
+	int attackingStackPosBeforeReturn; //for stacks with return_after_strike feature
 
-	ResurrectionAnimation(BattleInterface & owner, const CStack * _stack);
+	const CCreature * getCreature() const;
+	ECreatureAnimType::Type findValidGroup( const std::vector<ECreatureAnimType::Type> candidates ) const;
+
+public:
+	AttackAnimation(BattleInterface & owner, const CStack *attacker, BattleHex _dest, const CStack *defender);
 };
 
-class ColorTransformAnimation : public BattleStackAnimation
+/// Hand-to-hand attack
+class MeleeAttackAnimation : public AttackAnimation
 {
-	std::vector<ColorFilter> steps;
-	std::vector<float> timePoints;
-	const CSpell * spell;
+	ECreatureAnimType::Type getUpwardsGroup(bool multiAttack) const;
+	ECreatureAnimType::Type getForwardGroup(bool multiAttack) const;
+	ECreatureAnimType::Type getDownwardsGroup(bool multiAttack) const;
 
-	float totalProgress;
+	ECreatureAnimType::Type selectGroup(bool multiAttack);
 
-	bool init() override;
+public:
+	MeleeAttackAnimation(BattleInterface & owner, const CStack * attacker, BattleHex _dest, const CStack * _attacked, bool multiAttack);
+
 	void nextFrame() override;
-
-	ColorTransformAnimation(BattleInterface & owner, const CStack * _stack, const CSpell * spell);
-public:
-
-	static ColorTransformAnimation * petrifyAnimation  (BattleInterface & owner, const CStack * _stack, const CSpell * spell);
-	static ColorTransformAnimation * cloneAnimation    (BattleInterface & owner, const CStack * _stack, const CSpell * spell);
-	static ColorTransformAnimation * bloodlustAnimation(BattleInterface & owner, const CStack * _stack, const CSpell * spell);
-	static ColorTransformAnimation * fadeInAnimation   (BattleInterface & owner, const CStack * _stack);
-	static ColorTransformAnimation * fadeOutAnimation  (BattleInterface & owner, const CStack * _stack);
 };
+
 
 class RangedAttackAnimation : public AttackAnimation
 {
@@ -260,7 +249,6 @@ public:
 
 	bool init() override;
 	void nextFrame() override;
-	void playSound() override;
 };
 
 /// Shooting attack
@@ -305,6 +293,18 @@ class CastAnimation : public RangedAttackAnimation
 
 public:
 	CastAnimation(BattleInterface & owner, const CStack * attacker, BattleHex dest_, const CStack * defender, const CSpell * spell);
+};
+
+class DummyAnimation : public BattleAnimation
+{
+private:
+	int counter;
+	int howMany;
+public:
+	bool init() override;
+	void nextFrame() override;
+
+	DummyAnimation(BattleInterface & owner, int howManyFrames);
 };
 
 /// Class that plays effect at one or more positions along with (single) sound effect

@@ -547,6 +547,11 @@ bool CUnitState::isGhost() const
 	return ghost;
 }
 
+bool CUnitState::isFrozen() const
+{
+	return hasBonus(Selector::source(Bonus::SPELL_EFFECT, SpellID::STONE_GAZE));
+}
+
 bool CUnitState::isValidTarget(bool allowDead) const
 {
 	return (alive() || (allowDead && isDead())) && getPosition().isValid() && !isTurret();
