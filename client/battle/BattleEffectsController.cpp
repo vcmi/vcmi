@@ -35,29 +35,18 @@ BattleEffectsController::BattleEffectsController(BattleInterface & owner):
 	owner(owner)
 {}
 
-void BattleEffectsController::displayEffect(EBattleEffect::EBattleEffect effect, const BattleHex & destTile)
+void BattleEffectsController::displayEffect(EBattleEffect effect, const BattleHex & destTile)
 {
 	displayEffect(effect, soundBase::invalid, destTile);
 }
 
-void BattleEffectsController::displayEffect(EBattleEffect::EBattleEffect effect, uint32_t soundID, const BattleHex & destTile)
+void BattleEffectsController::displayEffect(EBattleEffect effect, uint32_t soundID, const BattleHex & destTile)
 {
-	std::string customAnim = graphics->battleACToDef[effect][0];
+	size_t effectID = static_cast<size_t>(effect);
+
+	std::string customAnim = graphics->battleACToDef[effectID][0];
 
 	owner.stacksController->addNewAnim(new PointEffectAnimation(owner, soundBase::stringsList()[soundID], customAnim, destTile));
-}
-
-void BattleEffectsController::displayCustomEffects(const std::vector<CustomEffectInfo> & customEffects)
-{
-	for(const CustomEffectInfo & one : customEffects)
-	{
-		const CStack * s = owner.curInt->cb->battleGetStackByID(one.stack, false);
-
-		assert(s);
-		assert(one.effect != 0);
-
-		displayEffect(EBattleEffect::EBattleEffect(one.effect), soundBase::soundID(one.sound), s->getPosition());
-	}
 }
 
 void BattleEffectsController::battleTriggerEffect(const BattleTriggerEffect & bte)

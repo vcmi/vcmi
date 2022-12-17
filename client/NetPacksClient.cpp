@@ -782,7 +782,7 @@ void BattleResultsApplied::applyCl(CClient *cl)
 
 void BattleUnitsChanged::applyCl(CClient * cl)
 {
-	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleUnitsChanged, changedStacks, customEffects);
+	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleUnitsChanged, changedStacks);
 }
 
 void BattleObstaclesChanged::applyCl(CClient *cl)

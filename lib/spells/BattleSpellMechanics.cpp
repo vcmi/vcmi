@@ -401,12 +401,12 @@ void BattleSpellMechanics::beforeCast(BattleSpellCast & sc, vstd::RNG & rng, con
 	{
 		if(caster->getCasterUnitId() >= 0)
 		{
-			addCustomEffect(sc, caster->getCasterUnitId(), 3);
+			sc.reflectedCres.insert(caster->getCasterUnitId());
 		}
 	}
 
 	for(auto unit : resisted)
-		addCustomEffect(sc, unit, 78);
+		sc.resistedCres.insert(unit->unitId());
 }
 
 void BattleSpellMechanics::castEval(ServerCallback * server, const Target & target)
@@ -428,19 +428,6 @@ void BattleSpellMechanics::castEval(ServerCallback * server, const Target & targ
 
 	for(auto & p : effectsToApply)
 		p.first->apply(server, this, p.second);
-}
-
-void BattleSpellMechanics::addCustomEffect(BattleSpellCast & sc, const battle::Unit * target, ui32 effect)
-{
-	addCustomEffect(sc, target->unitId(), effect);
-}
-
-void BattleSpellMechanics::addCustomEffect(BattleSpellCast & sc, ui32 targetId, ui32 effect)
-{
-	CustomEffectInfo customEffect;
-	customEffect.effect = effect;
-	customEffect.stack = targetId;
-	sc.customEffects.push_back(customEffect);
 }
 
 std::set<const battle::Unit *> BattleSpellMechanics::collectTargets() const

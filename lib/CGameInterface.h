@@ -164,7 +164,7 @@ public:
 	virtual void battleAttack(const BattleAttack *ba) override;
 	virtual void battleSpellCast(const BattleSpellCast *sc) override;
 	virtual void battleEnd(const BattleResult *br) override;
-	virtual void battleUnitsChanged(const std::vector<UnitChanges> & units, const std::vector<CustomEffectInfo> & customEffects) override;
+	virtual void battleUnitsChanged(const std::vector<UnitChanges> & units) override;
 
 	virtual void saveGame(BinarySerializer & h, const int version) override;
 	virtual void loadGame(BinaryDeserializer & h, const int version) override;

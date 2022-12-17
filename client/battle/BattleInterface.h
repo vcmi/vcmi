@@ -29,7 +29,6 @@ struct CatapultAttack;
 struct BattleTriggerEffect;
 struct BattleHex;
 struct InfoAboutHero;
-struct CustomEffectInfo;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -62,14 +61,13 @@ struct StackAttackedInfo
 
 	int64_t  damageDealt;
 	uint32_t amountKilled;
-
-	EBattleEffect::EBattleEffect battleEffect;
 	SpellID spellEffect;
 
 	bool indirectAttack; //if true, stack was attacked indirectly - spell or ranged attack
 	bool killed; //if true, stack has been killed
 	bool rebirth; //if true, play rebirth animation after all
 	bool cloneKilled;
+	bool fireShield;
 };
 
 struct StackAttackInfo
@@ -78,7 +76,6 @@ struct StackAttackInfo
 	const CStack *defender;
 	std::vector< const CStack *> secondaryDefender;
 
-	//EBattleEffect::EBattleEffect battleEffect;
 	SpellID spellEffect;
 	BattleHex tile;
 

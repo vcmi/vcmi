@@ -707,7 +707,7 @@ void CPlayerInterface::battleStart(const CCreatureSet *army1, const CCreatureSet
 	BATTLE_EVENT_POSSIBLE_RETURN;
 }
 
-void CPlayerInterface::battleUnitsChanged(const std::vector<UnitChanges> & units, const std::vector<CustomEffectInfo> & customEffects)
+void CPlayerInterface::battleUnitsChanged(const std::vector<UnitChanges> & units)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BATTLE_EVENT_POSSIBLE_RETURN;
@@ -747,8 +747,6 @@ void CPlayerInterface::battleUnitsChanged(const std::vector<UnitChanges> & units
 			break;
 		}
 	}
-
-	battleInt->effectsController->displayCustomEffects(customEffects);
 }
 
 void CPlayerInterface::battleObstaclesChanged(const std::vector<ObstacleChanges> & obstacles)
@@ -962,15 +960,12 @@ void CPlayerInterface::battleStacksAttacked(const std::vector<BattleStackAttacke
 		info.attacker       = attacker;
 		info.damageDealt    = elem.damageAmount;
 		info.amountKilled   = elem.killedAmount;
-		info.battleEffect   = EBattleEffect::INVALID;
 		info.spellEffect    = SpellID::NONE;
 		info.indirectAttack = ranged;
 		info.killed         = elem.killed();
 		info.rebirth        = elem.willRebirth();
 		info.cloneKilled    = elem.cloneKilled();
-
-		if(elem.isEffect() && !elem.isSecondary())
-			info.battleEffect = EBattleEffect::EBattleEffect(elem.effect);
+		info.fireShield    = elem.fireShield();
 
 		if (elem.isSpell())
 			info.spellEffect = elem.spellID;

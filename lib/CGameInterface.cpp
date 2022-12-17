@@ -225,9 +225,9 @@ void CAdventureAI::battleEnd(const BattleResult * br)
 	battleAI.reset();
 }
 
-void CAdventureAI::battleUnitsChanged(const std::vector<UnitChanges> & units, const std::vector<CustomEffectInfo> & customEffects)
+void CAdventureAI::battleUnitsChanged(const std::vector<UnitChanges> & units)
 {
-	battleAI->battleUnitsChanged(units, customEffects);
+	battleAI->battleUnitsChanged(units);
 }
 
 BattleAction CAdventureAI::activeStack(const CStack * stack)

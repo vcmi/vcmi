@@ -1182,10 +1182,9 @@ void CGameHandler::makeAttack(const CStack * attacker, const CStack * defender, 
 
 		BattleStackAttacked bsa;
 
+		bsa.flags |= BattleStackAttacked::FIRE_SHIELD;
 		bsa.stackAttacked = attacker->ID; //invert
-		bsa.attackerID = uint32_t(-1);
-		bsa.flags |= BattleStackAttacked::EFFECT;
-		bsa.effect = 11;
+		bsa.attackerID = defender->ID;
 		bsa.damageAmount = totalDamage;
 		attacker->prepareAttacked(bsa, getRandomGenerator());
 

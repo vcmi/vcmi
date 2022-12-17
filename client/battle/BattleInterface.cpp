@@ -550,17 +550,22 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 		}
 	}
 
-	//queuing additional animation (magic mirror / resistance)
-	for(auto & elem : sc->customEffects)
+	for(auto & elem : sc->reflectedCres)
 	{
-		auto stack = curInt->cb->battleGetStackByID(elem.stack, false);
+		auto stack = curInt->cb->battleGetStackByID(elem, false);
 		assert(stack);
-		if(stack)
-		{
-			executeOnAnimationCondition(EAnimationEvents::HIT, true, [=](){
-				effectsController->displayEffect(EBattleEffect::EBattleEffect(elem.effect), stack->getPosition());
-			});
-		}
+		executeOnAnimationCondition(EAnimationEvents::HIT, true, [=](){
+			effectsController->displayEffect(EBattleEffect::MAGIC_MIRROR, stack->getPosition());
+		});
+	}
+
+	for(auto & elem : sc->resistedCres)
+	{
+		auto stack = curInt->cb->battleGetStackByID(elem, false);
+		assert(stack);
+		executeOnAnimationCondition(EAnimationEvents::HIT, true, [=](){
+			effectsController->displayEffect(EBattleEffect::RESISTANCE, stack->getPosition());
+		});
 	}
 
 	//mana absorption

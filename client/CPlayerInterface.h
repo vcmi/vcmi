@@ -200,7 +200,7 @@ public:
 	void battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa, bool ranged) override;
 	void battleStartBefore(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2) override; //called by engine just before battle starts; side=0 - left, side=1 - right
 	void battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side) override; //called by engine when battle starts; side=0 - left, side=1 - right
-	void battleUnitsChanged(const std::vector<UnitChanges> & units, const std::vector<CustomEffectInfo> & customEffects) override;
+	void battleUnitsChanged(const std::vector<UnitChanges> & units) override;
 	void battleObstaclesChanged(const std::vector<ObstacleChanges> & obstacles) override;
 	void battleCatapultAttacked(const CatapultAttack & ca) override; //called when catapult makes an attack
 	void battleGateStateChanged(const EGateState state) override;

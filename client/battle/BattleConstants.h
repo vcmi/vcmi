@@ -9,6 +9,27 @@
  */
 #pragma once
 
+enum class EBattleEffect
+{
+	// list of battle effects that have hardcoded triggers
+	MAGIC_MIRROR = 3,
+	FIRE_SHIELD  = 11,
+	FEAR         = 15,
+	GOOD_LUCK    = 18,
+	GOOD_MORALE  = 20,
+	BAD_MORALE   = 30,
+	BAD_LUCK     = 48,
+	RESURRECT    = 50,
+	DRAIN_LIFE   = 52,
+	POISON       = 67,
+	DEATH_BLOW   = 73,
+	REGENERATION = 74,
+	MANA_DRAIN   = 77,
+	RESISTANCE   = 78,
+
+	INVALID      = -1,
+};
+
 enum class EAnimationEvents {
 	OPENING     = 0, // TODO battle opening sound is playing
 	ACTION      = 1, // there are any ongoing animations
@@ -21,27 +42,6 @@ enum class EAnimationEvents {
 	PROJECTILES = 8, // TODO there are any flying projectiles
 	COUNT
 };
-
-namespace EBattleEffect
-{
-	enum EBattleEffect
-	{
-		// list of battle effects that have hardcoded triggers
-		FEAR         = 15,
-		GOOD_LUCK    = 18,
-		GOOD_MORALE  = 20,
-		BAD_MORALE   = 30,
-		BAD_LUCK     = 48,
-		RESURRECT    = 50,
-		DRAIN_LIFE   = 52,
-		POISON       = 67,
-		DEATH_BLOW   = 73,
-		REGENERATION = 74,
-		MANA_DRAIN   = 77,
-
-		INVALID      = -1,
-	};
-}
 
 enum class EHeroAnimType
 {

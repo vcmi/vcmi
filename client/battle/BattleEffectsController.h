@@ -15,7 +15,6 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class BattleAction;
-struct CustomEffectInfo;
 struct BattleTriggerEffect;
 
 VCMI_LIB_NAMESPACE_END
@@ -49,11 +48,9 @@ public:
 
 	void startAction(const BattleAction* action);
 
-	void displayCustomEffects(const std::vector<CustomEffectInfo> & customEffects);
-
 	//displays custom effect on the battlefield
-	void displayEffect(EBattleEffect::EBattleEffect effect, const BattleHex & destTile);
-	void displayEffect(EBattleEffect::EBattleEffect effect, uint32_t soundID, const BattleHex & destTile);
+	void displayEffect(EBattleEffect effect, const BattleHex & destTile);
+	void displayEffect(EBattleEffect effect, uint32_t soundID, const BattleHex & destTile);
 
 	void battleTriggerEffect(const BattleTriggerEffect & bte);
 

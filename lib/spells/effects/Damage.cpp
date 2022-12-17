@@ -33,7 +33,6 @@ VCMI_REGISTER_SPELL_EFFECT(Damage, EFFECT_NAME);
 
 Damage::Damage()
 	: UnitEffect(),
-	customEffectId(-1),
 	killByPercentage(false),
 	killByCount(false)
 {
@@ -74,12 +73,6 @@ void Damage::apply(ServerCallback * server, const Mechanics * m, const EffectTar
 				damageToDisplay += bsa.damageAmount;
 				killed += bsa.killedAmount;
 			}
-			if(customEffectId >= 0)
-			{
-				bsa.effect = 82;
-				bsa.flags |= BattleStackAttacked::EFFECT;
-			}
-
 			stacksInjured.stacks.push_back(bsa);
 		}
 		targetIndex++;
@@ -116,7 +109,6 @@ bool Damage::isReceptive(const Mechanics * m, const battle::Unit * unit) const
 
 void Damage::serializeJsonUnitEffect(JsonSerializeFormat & handler)
 {
-	handler.serializeInt("customEffectId", customEffectId, -1);
 	handler.serializeBool("killByPercentage", killByPercentage);
 	handler.serializeBool("killByCount", killByCount);
 }
