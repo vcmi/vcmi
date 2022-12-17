@@ -23,6 +23,7 @@ namespace NKAI
 {
 
 std::shared_ptr<boost::multi_array<AIPathNode, 5>> AISharedStorage::shared;
+boost::mutex AISharedStorage::locker;
 std::set<int3> commitedTiles;
 std::set<int3> commitedTilesInitial;
 

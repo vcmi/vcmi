@@ -535,6 +535,7 @@ void AIGateway::yourTurn()
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 	status.startedTurn();
+
 	makingTurn = make_unique<boost::thread>(&AIGateway::makeTurn, this);
 }
 
@@ -1428,7 +1429,15 @@ void AIGateway::endTurn()
 	{
 		logAi->error("Not having turn at the end of turn???");
 	}
+
 	logAi->debug("Resources at the end of turn: %s", cb->getResourceAmount().toString());
+
+	if(cb->getPlayerStatus(playerID) != EPlayerStatus::INGAME)
+	{
+		logAi->info("Ending turn is not needed because we already lost");
+		return;
+	}
+
 	do
 	{
 		cb->endTurn();
@@ -1601,7 +1610,7 @@ void AIStatus::waitTillFree()
 {
 	boost::unique_lock<boost::mutex> lock(mx);
 	while(battle != NO_BATTLE || !remainingQueries.empty() || !objectsBeingVisited.empty() || ongoingHeroMovement)
-		cv.timed_wait(lock, boost::posix_time::milliseconds(100));
+		cv.timed_wait(lock, boost::posix_time::milliseconds(10));
 }
 
 bool AIStatus::haveTurn()
