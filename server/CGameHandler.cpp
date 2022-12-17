@@ -4639,12 +4639,12 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 
 			logGlobal->trace("%s will attack %s", stack->nodeName(), destinationStack->nodeName());
 
-			if(stack->getPosition() != attackPos //we wasn't able to reach destination tile
-				&& !(stack->doubleWide() && (stack->getPosition() == attackPos.cloneInDirection(stack->destShiftDir(), false))) //nor occupy specified hex
+			if(stack->getPosition() != attackPos
+				&& !(stack->doubleWide() && (stack->getPosition() == attackPos.cloneInDirection(stack->destShiftDir(), false)))
 				)
 			{
-				complain("We cannot move this stack to its destination " + stack->getCreature()->namePl);
-				ok = false;
+				// we were not able to reach destination tile, nor occupy specified hex
+				// abort attack attempt, but treat this case as legal - we may have stepped onto a quicksands/mine
 				break;
 			}
 
