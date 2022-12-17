@@ -1547,17 +1547,16 @@ DLL_LINKAGE ArtifactPosition ArtifactUtils::getArtifactDstPosition(	const CArtif
 
 DLL_LINKAGE const std::vector<ArtifactPosition::EArtifactPosition> & ArtifactUtils::unmovableSlots()
 {
-	return
-	{
+	static const std::vector<ArtifactPosition::EArtifactPosition> slots = {
 		ArtifactPosition::SPELLBOOK,
 		ArtifactPosition::MACH4
 	};
+	return slots;
 }
 
 DLL_LINKAGE const std::vector<ArtifactPosition::EArtifactPosition> & ArtifactUtils::constituentWornSlots()
 {
-	return
-	{
+	static const std::vector<ArtifactPosition::EArtifactPosition> slots = {
 		ArtifactPosition::HEAD,
 		ArtifactPosition::SHOULDERS,
 		ArtifactPosition::NECK,
@@ -1573,6 +1572,7 @@ DLL_LINKAGE const std::vector<ArtifactPosition::EArtifactPosition> & ArtifactUti
 		ArtifactPosition::MISC4,
 		ArtifactPosition::MISC5,
 	};
+	return slots;
 }
 
 DLL_LINKAGE bool ArtifactUtils::isArtRemovable(const std::pair<ArtifactPosition, ArtSlotInfo> & slot)
