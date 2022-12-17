@@ -276,6 +276,20 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 	}
 	if(auto w = widget<CToggleGroup>("groupMonsterStrength"))
 		w->setSelected(opts->getMonsterStrength());
+	if(auto w = widget<CButton>("templateButton"))
+	{
+		if(tmpl)
+			w->addTextOverlay(tmpl->getName(), EFonts::FONT_SMALL);
+		else
+			w->addTextOverlay("default", EFonts::FONT_SMALL);
+	}
+	for(auto r : VLC->terrainTypeHandler->roads())
+	{
+		if(auto w = widget<CToggleButton>(r.name))
+		{
+			w->setSelected(opts->isRoadEnabled(r.name));
+		}
+	}
 }
 
 void RandomMapTab::setTemplate(const CRmgTemplate * tmpl)
