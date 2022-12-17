@@ -45,9 +45,14 @@ void InterfaceObjectConfigurable::addCallback(const std::string & callbackName, 
 void InterfaceObjectConfigurable::init(const JsonNode &config)
 {
 	OBJ_CONSTRUCTION;
+	
+	for(auto & item : config["variables"].Struct())
+	{
+		variables[item.first] = item.second;
+	}
+	
 	int unnamedObjectId = 0;
 	const std::string unnamedObjectPrefix = "__widget_";
-	
 	for(const auto & item : config["items"].Vector())
 	{
 		std::string name = item["name"].isNull()
@@ -55,11 +60,6 @@ void InterfaceObjectConfigurable::init(const JsonNode &config)
 						: item["name"].String();
 		widgets[name] = buildWidget(item);
 	}
-}
-
-const JsonNode & InterfaceObjectConfigurable::variable(const std::string & name) const
-{
-	return variables[name];
 }
 
 std::string InterfaceObjectConfigurable::readText(const JsonNode & config) const
@@ -296,7 +296,7 @@ std::shared_ptr<CAnimImage> InterfaceObjectConfigurable::buildImage(const JsonNo
 std::shared_ptr<CFilledTexture> InterfaceObjectConfigurable::buildTexture(const JsonNode & config) const
 {
 	auto image = config["image"].String();
-	auto rect = readRect(config);
+	auto rect = readRect(config["rect"]);
 	return std::make_shared<CFilledTexture>(image, rect);
 }
 
@@ -323,9 +323,15 @@ std::shared_ptr<CShowableAnim> InterfaceObjectConfigurable::buildAnimation(const
 	return anim;
 }
 
-std::shared_ptr<CIntObject> InterfaceObjectConfigurable::buildWidget(const JsonNode & config) const
+std::shared_ptr<CIntObject> InterfaceObjectConfigurable::buildWidget(JsonNode config) const
 {
 	assert(!config.isNull());
+	//overrides from variables
+	for(auto & item : config["overrides"].Struct())
+	{
+		config[item.first] = variables[item.second.String()];
+	}
+	
 	auto type = config["type"].String();
 	if(type == "picture")
 	{

@@ -87,7 +87,7 @@ private:
 	
 };
 
-class TeamAlignmentsWidget: public CIntObject
+class TeamAlignmentsWidget: public InterfaceObjectConfigurable
 {
 public:
 	TeamAlignmentsWidget(RandomMapTab & randomMapTab);
@@ -100,5 +100,5 @@ private:
 	std::shared_ptr<CLabelGroup> labels;
 	std::shared_ptr<CButton> buttonOk, buttonCancel;
 	std::vector<std::shared_ptr<CToggleGroup>> players;
-	std::vector<std::shared_ptr<CPicture>> placeholders;
+	std::vector<std::shared_ptr<CIntObject>> placeholders;
 };

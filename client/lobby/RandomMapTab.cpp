@@ -480,10 +480,11 @@ void TemplatesDropBox::setTemplate(const CRmgTemplate * tmpl)
 }
 
 TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
-	CIntObject(),
+	InterfaceObjectConfigurable(),
 	randomMapTab(randomMapTab)
 {
-	OBJ_CONSTRUCTION;
+	const JsonNode config(ResourceID("config/widgets/randomMapTeamsWidget.json"));
+	variables = config["variables"];
 	
 	int humanPlayers = randomMapTab.obtainMapGenOptions().getPlayerCount();
 	int cpuPlayers = randomMapTab.obtainMapGenOptions().getCompOnlyPlayerCount();
@@ -491,51 +492,20 @@ TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 	? PlayerColor::PLAYER_LIMIT_I : humanPlayers + cpuPlayers;
 	assert(totalPlayers <= PlayerColor::PLAYER_LIMIT_I);
 	auto settings = randomMapTab.obtainMapGenOptions().getPlayersSettings();
+	variables["totalPlayers"].Integer() = totalPlayers;
 	
-	pos.w = 80 + totalPlayers * 32;
-	pos.h = 80 + totalPlayers * 32;
-	background = std::make_shared<CFilledTexture>("Bl3DCvex", pos);
-	center(pos);
+	pos.w = variables["windowSize"]["x"].Integer() + totalPlayers * variables["cellMargin"]["x"].Integer();
+	pos.h = variables["windowSize"]["y"].Integer() + totalPlayers * variables["cellMargin"]["y"].Integer();
+	variables["backgroundRect"]["x"].Integer() = pos.x;
+	variables["backgroundRect"]["y"].Integer() = pos.y;
+	variables["backgroundRect"]["w"].Integer() = pos.w;
+	variables["backgroundRect"]["h"].Integer() = pos.h;
+	variables["okButtonPosition"]["x"].Integer() = variables["buttonsOffset"]["ok"]["x"].Integer();
+	variables["okButtonPosition"]["y"].Integer() = variables["buttonsOffset"]["ok"]["y"].Integer() + totalPlayers * variables["cellMargin"]["y"].Integer();
+	variables["cancelButtonPosition"]["x"].Integer() = variables["buttonsOffset"]["cancel"]["x"].Integer();
+	variables["cancelButtonPosition"]["y"].Integer() = variables["buttonsOffset"]["cancel"]["y"].Integer() + totalPlayers * variables["cellMargin"]["y"].Integer();
 	
-	for(int plId = 0; plId < totalPlayers; ++plId)
-	{
-		players.push_back(std::make_shared<CToggleGroup>([&, totalPlayers, plId](int sel)
-		{
-			SObjectConstruction obj__i(players[plId].get());
-			for(int teamId = 0; teamId < totalPlayers; ++teamId)
-			{
-				auto button = std::dynamic_pointer_cast<CToggleButton>(players[plId]->buttons[teamId]);
-				assert(button);
-				if(sel == teamId)
-				{
-					button->addOverlay(std::make_shared<CAnimImage>("ITGFLAGS", plId, 0, 8, 8));
-				}
-				else
-				{
-					button->addOverlay(std::make_shared<CPicture>("TeamPlSl"));
-				}
-			}
-		}));
-		
-		SObjectConstruction obj__i(players.back().get());
-		for(int teamId = 0; teamId < totalPlayers; ++teamId)
-		{
-			Point p(40 + plId * 32, 20 + teamId * 32);
-			placeholders.push_back(std::make_shared<CPicture>("TeamPlSl", p.x, p.y));
-			auto button = std::make_shared<CToggleButton>(p, "TeamPlSl", std::pair<std::string, std::string>{"", ""});
-			button->pos.w = 32;
-			button->pos.h = 32;
-			players.back()->addToggle(teamId, button);
-		}
-		
-		auto team = settings.at(PlayerColor(plId)).getTeam();
-		if(team == TeamID::NO_TEAM)
-			players.back()->setSelected(plId);
-		else
-			players.back()->setSelected(team.getNum());
-	}
-	
-	buttonOk = std::make_shared<CButton>(Point(40, 40 + totalPlayers * 32), "MUBCHCK.DEF", CGI->generaltexth->zelp[560], [&]()
+	addCallback("ok", [&](int)
 	{
 		for(int plId = 0; plId < players.size(); ++plId)
 		{
@@ -545,11 +515,57 @@ TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 		assert(GH.topInt().get() == this);
 		GH.popInt(GH.topInt());
 	});
-	buttonCancel = std::make_shared<CButton>(Point(120, 40 + totalPlayers * 32), "MUBCANC.DEF", CGI->generaltexth->zelp[561], [&]()
+	
+	addCallback("cancel", [&](int)
 	{
 		assert(GH.topInt().get() == this);
 		GH.popInt(GH.topInt());
-	}, SDLK_ESCAPE);
+	});
 	
+	init(config);
 	
+	center(pos);
+	
+	OBJ_CONSTRUCTION;
+	
+	for(int plId = 0; plId < totalPlayers; ++plId)
+	{
+		players.push_back(std::make_shared<CToggleGroup>([&, totalPlayers, plId](int sel)
+		{
+			variables["player_id"].Integer() = plId;
+			SObjectConstruction obj__i(players[plId].get());
+			for(int teamId = 0; teamId < totalPlayers; ++teamId)
+			{
+				auto button = std::dynamic_pointer_cast<CToggleButton>(players[plId]->buttons[teamId]);
+				assert(button);
+				if(sel == teamId)
+				{
+					button->addOverlay(buildWidget(variables["flagsAnimation"]));
+				}
+				else
+				{
+					button->addOverlay(buildWidget(variables["unchecked"]));
+				}
+			}
+		}));
+		
+		SObjectConstruction obj__i(players.back().get());
+		for(int teamId = 0; teamId < totalPlayers; ++teamId)
+		{
+			variables["point"]["x"].Integer() = variables["cellOffset"]["x"].Integer() + plId * variables["cellMargin"]["x"].Integer();
+			variables["point"]["y"].Integer() = variables["cellOffset"]["y"].Integer() + teamId * variables["cellMargin"]["y"].Integer();
+			//Point p(40 + plId * 32, 20 + teamId * 32);
+			placeholders.push_back(buildWidget(variables["placeholder"]));
+			auto button = buildWidget(variables["button"]);
+			button->pos.w = variables["cellMargin"]["x"].Integer();
+			button->pos.h = variables["cellMargin"]["y"].Integer();
+			players.back()->addToggle(teamId, std::dynamic_pointer_cast<CToggleBase>(button));
+		}
+		
+		auto team = settings.at(PlayerColor(plId)).getTeam();
+		if(team == TeamID::NO_TEAM)
+			players.back()->setSelected(plId);
+		else
+			players.back()->setSelected(team.getNum());
+	}
 }

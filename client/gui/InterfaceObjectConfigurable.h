@@ -36,6 +36,7 @@ protected:
 	void init(const JsonNode & config);
 	
 	void addCallback(const std::string & callbackName, std::function<void(int)> callback);
+	JsonNode variables;
 	
 	template<class T>
 	const std::shared_ptr<T> widget(const std::string & name) const
@@ -45,9 +46,7 @@ protected:
 			return nullptr;
 		return std::dynamic_pointer_cast<T>(iter->second);
 	}
-	
-	const JsonNode & variable(const std::string & name) const;
-	
+		
 	//basic serializers
 	Point readPosition(const JsonNode &) const;
 	Rect readRect(const JsonNode &) const;
@@ -72,11 +71,10 @@ protected:
 	
 	//composite widgets
 	virtual std::shared_ptr<CIntObject> buildCustomWidget(const JsonNode & config);
-	std::shared_ptr<CIntObject> buildWidget(const JsonNode & config) const;
+	std::shared_ptr<CIntObject> buildWidget(JsonNode config) const;
 	
 private:
 	
 	std::map<std::string, std::shared_ptr<CIntObject>> widgets;
 	std::map<std::string, std::function<void(int)>> callbacks;
-	JsonNode variables;
 };
