@@ -278,7 +278,9 @@ public:
 		ADD,
 		RESET_STATE,
 		UPDATE,
-		REMOVE
+		REMOVE,
+		ACTIVATE_AND_UPDATE,
+		ACTIVATE_AND_REMOVE
 	};
 
 	JsonNode data;

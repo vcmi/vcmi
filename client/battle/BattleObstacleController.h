@@ -35,10 +35,6 @@ class BattleObstacleController
 	/// list of all obstacles that are currently being rendered
 	std::map<si32, std::shared_ptr<CAnimation>> obstacleAnimations;
 
-	/// semi-debug member, contains obstacles that should not yet be visible due to ongoing placement animation
-	/// used only for sanity checks to ensure that there are no invisible obstacles
-	std::vector<si32> obstaclesBeingPlaced;
-
 	void loadObstacleImage(const CObstacleInstance & oi);
 
 	std::shared_ptr<IImage> getObstacleImage(const CObstacleInstance & oi);

@@ -187,7 +187,7 @@ void BattleStacksController::stackReset(const CStack * stack)
 void BattleStacksController::stackAdded(const CStack * stack, bool instant)
 {
 	// Tower shooters have only their upper half visible
-	static const int turretCreatureAnimationHeight = 235;
+	static const int turretCreatureAnimationHeight = 225;
 
 	stackFacingRight[stack->ID] = stack->side == BattleSide::ATTACKER; // must be set before getting stack position
 

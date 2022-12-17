@@ -57,7 +57,7 @@
 		"targetType" : "NO_TARGET",
 
 		"sounds": {
-			"cast": "" // no casting sound, only obstacle placement sound
+			"cast": "", // no casting sound, only obstacle placement sound
 		},
 		"levels" : {
 			"base":{
@@ -75,12 +75,16 @@
 						"attacker" :{
 							"animation" : "C09SPF1",
 							"appearAnimation" : "C09SPF0",
-							"appearSound" : "LANDMINE"
+							"appearSound" : "LANDMINE",
+							"triggerAnimation" : "C09SPF3",
+							"triggerSound" : "LANDKILL"
 						},
 						"defender" :{
 							"animation" : "C09SPF1",
 							"appearAnimation" : "C09SPF0",
-							"appearSound" : "LANDMINE"
+							"appearSound" : "LANDMINE",
+							"triggerAnimation" : "C09SPF3",
+							"triggerSound" : "LANDKILL"
 						}
 					},
 					"damage":{

@@ -5459,33 +5459,29 @@ bool CGameHandler::handleDamageFromObstacle(const CStack * curStack, bool stackI
 					if(!sp)
 						COMPLAIN_RET("Invalid obstacle instance");
 
+					// For the hidden spell created obstacles, e.g. QuickSand, it should be revealed after taking damage
+					ObstacleChanges changeInfo;
+					changeInfo.id = spellObstacle->uniqueID;
+					if (oneTimeObstacle)
+						changeInfo.operation = ObstacleChanges::EOperation::ACTIVATE_AND_REMOVE;
+					else
+						changeInfo.operation = ObstacleChanges::EOperation::ACTIVATE_AND_UPDATE;
+
+					SpellCreatedObstacle changedObstacle;
+					changedObstacle.uniqueID = spellObstacle->uniqueID;
+					changedObstacle.revealed = true;
+
+					changeInfo.data.clear();
+					JsonSerializer ser(nullptr, changeInfo.data);
+					ser.serializeStruct("obstacle", changedObstacle);
+
+					BattleObstaclesChanged bocp;
+					bocp.changes.emplace_back(changeInfo);
+					sendAndApply(&bocp);
+
 					spells::BattleCast battleCast(gs->curB, &caster, spells::Mode::HERO, sp);
 					battleCast.applyEffects(spellEnv, spells::Target(1, spells::Destination(curStack)), true);
-
-					if(oneTimeObstacle)
-					{
-						removeObstacle(*obstacle);
 				}
-					else
-					{
-						// For the hidden spell created obstacles, e.g. QuickSand, it should be revealed after taking damage
-						ObstacleChanges changeInfo;
-						changeInfo.id = spellObstacle->uniqueID;
-						changeInfo.operation = ObstacleChanges::EOperation::UPDATE;
-
-						SpellCreatedObstacle changedObstacle;
-						changedObstacle.uniqueID = spellObstacle->uniqueID;
-						changedObstacle.revealed = true;
-
-						changeInfo.data.clear();
-						JsonSerializer ser(nullptr, changeInfo.data);
-						ser.serializeStruct("obstacle", changedObstacle);
-
-						BattleObstaclesChanged bocp;
-						bocp.changes.emplace_back(changeInfo);
-						sendAndApply(&bocp);
-			}
-		}
 			}
 		}
 		else if(obstacle->obstacleType == CObstacleInstance::MOAT)
@@ -7225,7 +7221,7 @@ void CGameHandler::handleCheatCode(std::string & cheat, PlayerColor player, cons
 void CGameHandler::removeObstacle(const CObstacleInstance & obstacle)
 {
 	BattleObstaclesChanged obsRem;
-	obsRem.changes.emplace_back(obstacle.uniqueID, BattleChanges::EOperation::REMOVE);
+	obsRem.changes.emplace_back(obstacle.uniqueID, ObstacleChanges::EOperation::REMOVE);
 	sendAndApply(&obsRem);
 }
 

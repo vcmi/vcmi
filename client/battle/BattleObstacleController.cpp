@@ -72,10 +72,6 @@ void BattleObstacleController::loadObstacleImage(const CObstacleInstance & oi)
 
 void BattleObstacleController::obstaclePlaced(const std::vector<std::shared_ptr<const CObstacleInstance>> & obstacles)
 {
-	assert(obstaclesBeingPlaced.empty());
-	for (auto const & oi : obstacles)
-		obstaclesBeingPlaced.push_back(oi->uniqueID);
-
 	for (auto const & oi : obstacles)
 	{
 		auto spellObstacle = dynamic_cast<const SpellCreatedObstacle*>(oi.get());
@@ -83,7 +79,6 @@ void BattleObstacleController::obstaclePlaced(const std::vector<std::shared_ptr<
 		if (!spellObstacle)
 		{
 			logGlobal->error("I don't know how to animate appearing obstacle of type %d", (int)oi->obstacleType);
-			obstaclesBeingPlaced.erase(obstaclesBeingPlaced.begin());
 			continue;
 		}
 
@@ -92,10 +87,7 @@ void BattleObstacleController::obstaclePlaced(const std::vector<std::shared_ptr<
 
 		auto first = animation->getImage(0, 0);
 		if(!first)
-		{
-			obstaclesBeingPlaced.erase(obstaclesBeingPlaced.begin());
 			continue;
-		}
 
 		//we assume here that effect graphics have the same size as the usual obstacle image
 		// -> if we know how to blit obstacle, let's blit the effect in the same place
@@ -105,7 +97,6 @@ void BattleObstacleController::obstaclePlaced(const std::vector<std::shared_ptr<
 		//so when multiple obstacles are added, they show up one after another
 		owner.waitForAnimationCondition(EAnimationEvents::ACTION, false);
 
-		obstaclesBeingPlaced.erase(obstaclesBeingPlaced.begin());
 		loadObstacleImage(*spellObstacle);
 	}
 }
@@ -150,19 +141,9 @@ std::shared_ptr<IImage> BattleObstacleController::getObstacleImage(const CObstac
 	int frameIndex = (owner.animCount+1) *25 / owner.getAnimSpeed();
 	std::shared_ptr<CAnimation> animation;
 
+	// obstacle is not loaded yet, don't show anything
 	if (obstacleAnimations.count(oi.uniqueID) == 0)
-	{
-		if (boost::range::find(obstaclesBeingPlaced, oi.uniqueID) != obstaclesBeingPlaced.end())
-		{
-			// obstacle is not loaded yet, don't show anything
-			return nullptr;
-		}
-		else
-		{
-			assert(0); // how?
-			loadObstacleImage(oi);
-		}
-	}
+		return nullptr;
 
 	animation = obstacleAnimations[oi.uniqueID];
 	assert(animation);

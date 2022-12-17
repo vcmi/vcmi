@@ -81,6 +81,8 @@ struct DLL_LINKAGE SpellCreatedObstacle : CObstacleInstance
 
 	std::string appearSound;
 	std::string appearAnimation;
+	std::string triggerSound;
+	std::string triggerAnimation;
 	std::string animation;
 
 	int animationYOffset;
