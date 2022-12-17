@@ -449,6 +449,11 @@ void CToggleGroup::selectionChanged(int to)
 		parent->redraw();
 }
 
+int CToggleGroup::getSelected() const
+{
+	return selectedID;
+}
+
 CVolumeSlider::CVolumeSlider(const Point & position, const std::string & defName, const int value, const std::pair<std::string, std::string> * const help)
 	: CIntObject(LCLICK | RCLICK | WHEEL),
 	value(value),

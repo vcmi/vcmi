@@ -21,6 +21,9 @@ class CToggleButton;
 class CButton;
 class CLabelGroup;
 class CSlider;
+class CAnimImage;
+class CShowableAnim;
+class CFilledTexture;
 
 class InterfaceObjectConfigurable: public CIntObject
 {
@@ -47,6 +50,7 @@ protected:
 	
 	//basic serializers
 	Point readPosition(const JsonNode &) const;
+	Rect readRect(const JsonNode &) const;
 	ETextAlignment readTextAlignment(const JsonNode &) const;
 	SDL_Color readColor(const JsonNode &) const;
 	EFonts readFont(const JsonNode &) const;
@@ -61,6 +65,10 @@ protected:
 	std::shared_ptr<CButton> buildButton(const JsonNode &) const;
 	std::shared_ptr<CLabelGroup> buildLabelGroup(const JsonNode &) const;
 	std::shared_ptr<CSlider> buildSlider(const JsonNode &) const;
+	std::shared_ptr<CAnimImage> buildImage(const JsonNode &) const;
+	std::shared_ptr<CShowableAnim> buildAnimation(const JsonNode &) const;
+	std::shared_ptr<CFilledTexture> buildTexture(const JsonNode &) const;
+	
 	
 	//composite widgets
 	virtual std::shared_ptr<CIntObject> buildCustomWidget(const JsonNode & config);

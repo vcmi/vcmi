@@ -121,10 +121,7 @@
 			"defaultTemplate": "default",
 			"templateLabel": "Template",
 			"teamAlignmentsButton": "Setup...",
-			"teamAlignmentsLabel": "Team alignments",
-			"dirtRoad": "Dirt",
-			"gravelRoad": "Gravel",
-			"cobblestoneRoad": "Stone"
+			"teamAlignmentsLabel": "Team alignments"
 		}
 	}
 }

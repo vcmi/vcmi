@@ -55,7 +55,6 @@ void InterfaceObjectConfigurable::init(const JsonNode &config)
 						: item["name"].String();
 		widgets[name] = buildWidget(item);
 	}
-	variables = config["variables"];
 }
 
 const JsonNode & InterfaceObjectConfigurable::variable(const std::string & name) const
@@ -91,6 +90,16 @@ Point InterfaceObjectConfigurable::readPosition(const JsonNode & config) const
 	Point p;
 	p.x = config["x"].Integer();
 	p.y = config["y"].Integer();
+	return p;
+}
+
+Rect InterfaceObjectConfigurable::readRect(const JsonNode & config) const
+{
+	Rect p;
+	p.x = config["x"].Integer();
+	p.y = config["y"].Integer();
+	p.w = config["w"].Integer();
+	p.h = config["h"].Integer();
 	return p;
 }
 
@@ -275,6 +284,45 @@ std::shared_ptr<CSlider> InterfaceObjectConfigurable::buildSlider(const JsonNode
 	return std::make_shared<CSlider>(position, length, callbacks.at(config["callback"].String()), itemsVisible, itemsTotal, value, horizontal, style);
 }
 
+std::shared_ptr<CAnimImage> InterfaceObjectConfigurable::buildImage(const JsonNode & config) const
+{
+	auto position = readPosition(config["position"]);
+	auto image = config["image"].String();
+	int group = config["group"].isNull() ? 0 : config["group"].Integer();
+	int frame = config["frame"].isNull() ? 0 : config["frame"].Integer();
+	return std::make_shared<CAnimImage>(image, frame, group, position.x, position.y);
+}
+
+std::shared_ptr<CFilledTexture> InterfaceObjectConfigurable::buildTexture(const JsonNode & config) const
+{
+	auto image = config["image"].String();
+	auto rect = readRect(config);
+	return std::make_shared<CFilledTexture>(image, rect);
+}
+
+std::shared_ptr<CShowableAnim> InterfaceObjectConfigurable::buildAnimation(const JsonNode & config) const
+{
+	auto position = readPosition(config["position"]);
+	auto image = config["image"].String();
+	ui8 flags = 0;
+	if(!config["repeat"].Bool())
+		flags |= CShowableAnim::EFlags::PLAY_ONCE;
+	
+	int group = config["group"].isNull() ? 0 : config["group"].Integer();
+	auto anim = std::make_shared<CShowableAnim>(position.x, position.y, image, flags, 4, group);
+	if(!config["alpha"].isNull())
+		anim->setAlpha(config["alpha"].Integer());
+	if(!config["callback"].isNull())
+		anim->callback = std::bind(callbacks.at(config["callback"].String()), 0);
+	if(!config["frames"].isNull())
+	{
+		auto b = config["frames"]["start"].Integer();
+		auto e = config["frames"]["end"].Integer();
+		anim->set(group, b, e);
+	}
+	return anim;
+}
+
 std::shared_ptr<CIntObject> InterfaceObjectConfigurable::buildWidget(const JsonNode & config) const
 {
 	assert(!config.isNull());
@@ -282,6 +330,18 @@ std::shared_ptr<CIntObject> InterfaceObjectConfigurable::buildWidget(const JsonN
 	if(type == "picture")
 	{
 		return buildPicture(config);
+	}
+	if(type == "image")
+	{
+		return buildImage(config);
+	}
+	if(type == "texture")
+	{
+		return buildTexture(config);
+	}
+	if(type == "animation")
+	{
+		return buildAnimation(config);
 	}
 	if(type == "label")
 	{

@@ -155,6 +155,7 @@ void RandomMapTab::updateMapInfoByHost()
 
 	mapInfo->mapHeader->howManyTeams = playersToGen;
 
+	std::set<TeamID> occupiedTeams;
 	for(int i = 0; i < playersToGen; ++i)
 	{
 		PlayerInfo player;
@@ -168,10 +169,24 @@ void RandomMapTab::updateMapInfoByHost()
 		{
 			player.canHumanPlay = true;
 		}
-		player.team = TeamID(i);
+		auto team = mapGenOptions->getPlayersSettings().at(PlayerColor(i)).getTeam();
+		player.team = team;
+		occupiedTeams.insert(team);
 		player.hasMainTown = true;
 		player.generateHeroAtMainTown = true;
 		mapInfo->mapHeader->players.push_back(player);
+	}
+	for(auto & player : mapInfo->mapHeader->players)
+	{
+		for(int i = 0; player.team == TeamID::NO_TEAM; ++i)
+		{
+			TeamID team(i);
+			if(!occupiedTeams.count(team))
+			{
+				player.team = team;
+				occupiedTeams.insert(team);
+			}
+		}
 	}
 
 	mapInfoChanged(mapInfo, mapGenOptions);
@@ -456,13 +471,67 @@ TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 {
 	OBJ_CONSTRUCTION;
 	
-	pos.w = 300;
-	pos.h = 300;
+	int humanPlayers = randomMapTab.obtainMapGenOptions().getPlayerCount();
+	int cpuPlayers = randomMapTab.obtainMapGenOptions().getCompOnlyPlayerCount();
+	int totalPlayers = humanPlayers == CMapGenOptions::RANDOM_SIZE || cpuPlayers == CMapGenOptions::RANDOM_SIZE
+	? PlayerColor::PLAYER_LIMIT_I : humanPlayers + cpuPlayers;
+	assert(totalPlayers <= PlayerColor::PLAYER_LIMIT_I);
+	auto settings = randomMapTab.obtainMapGenOptions().getPlayersSettings();
+	
+	pos.w = 80 + totalPlayers * 32;
+	pos.h = 80 + totalPlayers * 32;
 	background = std::make_shared<CFilledTexture>("Bl3DCvex", pos);
 	center(pos);
 	
-	buttonOk = std::make_shared<CButton>(Point(43, 240), "MUBCHCK.DEF", CGI->generaltexth->zelp[560], [](){});
-	buttonCancel = std::make_shared<CButton>(Point(193, 240), "MUBCANC.DEF", CGI->generaltexth->zelp[561], [&]()
+	for(int plId = 0; plId < totalPlayers; ++plId)
+	{
+		players.push_back(std::make_shared<CToggleGroup>([&, totalPlayers, plId](int sel)
+		{
+			SObjectConstruction obj__i(players[plId].get());
+			for(int teamId = 0; teamId < totalPlayers; ++teamId)
+			{
+				auto button = std::dynamic_pointer_cast<CToggleButton>(players[plId]->buttons[teamId]);
+				assert(button);
+				if(sel == teamId)
+				{
+					button->addOverlay(std::make_shared<CAnimImage>("ITGFLAGS", plId, 0, 8, 8));
+				}
+				else
+				{
+					button->addOverlay(std::make_shared<CPicture>("TeamPlSl"));
+				}
+			}
+		}));
+		
+		SObjectConstruction obj__i(players.back().get());
+		for(int teamId = 0; teamId < totalPlayers; ++teamId)
+		{
+			Point p(40 + plId * 32, 20 + teamId * 32);
+			placeholders.push_back(std::make_shared<CPicture>("TeamPlSl", p.x, p.y));
+			auto button = std::make_shared<CToggleButton>(p, "TeamPlSl", std::pair<std::string, std::string>{"", ""});
+			button->pos.w = 32;
+			button->pos.h = 32;
+			players.back()->addToggle(teamId, button);
+		}
+		
+		auto team = settings.at(PlayerColor(plId)).getTeam();
+		if(team == TeamID::NO_TEAM)
+			players.back()->setSelected(plId);
+		else
+			players.back()->setSelected(team.getNum());
+	}
+	
+	buttonOk = std::make_shared<CButton>(Point(40, 40 + totalPlayers * 32), "MUBCHCK.DEF", CGI->generaltexth->zelp[560], [&]()
+	{
+		for(int plId = 0; plId < players.size(); ++plId)
+		{
+			randomMapTab.obtainMapGenOptions().setPlayerTeam(PlayerColor(plId), TeamID(players[plId]->getSelected()));
+		}
+		randomMapTab.updateMapInfoByHost();
+		assert(GH.topInt().get() == this);
+		GH.popInt(GH.topInt());
+	});
+	buttonCancel = std::make_shared<CButton>(Point(120, 40 + totalPlayers * 32), "MUBCANC.DEF", CGI->generaltexth->zelp[561], [&]()
 	{
 		assert(GH.topInt().get() == this);
 		GH.popInt(GH.topInt());

@@ -136,12 +136,14 @@ void CMapGenOptions::resetPlayersMap()
 {
 
 	std::map<PlayerColor, TFaction> rememberTownTypes;
+	std::map<PlayerColor, TeamID> rememberTeam;
 
 	for (auto p : players)
 	{
 		auto town = p.second.getStartingTown();
 		if (town != RANDOM_SIZE)
 			rememberTownTypes[p.first] = town;
+		rememberTeam[p.first] = p.second.getTeam();
 	}
 
 
@@ -169,6 +171,7 @@ void CMapGenOptions::resetPlayersMap()
 			playerType = EPlayerType::COMP_ONLY;
 		}
 		player.setPlayerType(playerType);
+		player.setTeam(rememberTeam[pc]);
 		players[pc] = player;
 
 		if (vstd::contains(rememberTownTypes, pc))

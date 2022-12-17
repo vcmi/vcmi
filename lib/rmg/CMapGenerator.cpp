@@ -188,6 +188,7 @@ void CMapGenerator::addPlayerInfo()
 
 	enum ETeams {CPHUMAN = 0, CPUONLY = 1, AFTER_LAST = 2};
 	std::array<std::list<int>, 2> teamNumbers;
+	std::set<int> teamsTotal;
 
 	int teamOffset = 0;
 	int playerCount = 0;
@@ -258,11 +259,11 @@ void CMapGenerator::addPlayerInfo()
 			player.team = TeamID(*itTeam);
 			teamNumbers[j].erase(itTeam);
 		}
+		teamsTotal.insert(player.team.getNum());
 		map->map().players[pSettings.getColor().getNum()] = player;
 	}
 
-	map->map().howManyTeams = (mapGenOptions.getTeamCount() == 0 ? mapGenOptions.getPlayerCount() : mapGenOptions.getTeamCount())
-			+ (mapGenOptions.getCompOnlyTeamCount() == 0 ? mapGenOptions.getCompOnlyPlayerCount() : mapGenOptions.getCompOnlyTeamCount());
+	map->map().howManyTeams = teamsTotal.size();
 }
 
 void CMapGenerator::genZones()

@@ -26,6 +26,7 @@ class CToggleButton;
 class CLabel;
 class CLabelGroup;
 class CSlider;
+class CPicture;
 
 class RandomMapTab : public InterfaceObjectConfigurable
 {
@@ -35,6 +36,7 @@ public:
 	void updateMapInfoByHost();
 	void setMapGenOptions(std::shared_ptr<CMapGenOptions> opts);
 	void setTemplate(const CRmgTemplate *);
+	CMapGenOptions & obtainMapGenOptions() {return *mapGenOptions;}
 
 	CFunctionList<void(std::shared_ptr<CMapInfo>, std::shared_ptr<CMapGenOptions>)> mapInfoChanged;
 
@@ -97,5 +99,6 @@ private:
 	std::shared_ptr<CFilledTexture> background;
 	std::shared_ptr<CLabelGroup> labels;
 	std::shared_ptr<CButton> buttonOk, buttonCancel;
-	std::vector<std::shared_ptr<CToggleGroup>> teams;
+	std::vector<std::shared_ptr<CToggleGroup>> players;
+	std::vector<std::shared_ptr<CPicture>> placeholders;
 };
