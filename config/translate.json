@@ -113,5 +113,18 @@
 			"label" : "Hide complete quests",
 			"help" : "Hide all quests that already completed"
 		}
+	},
+	"randomMapTab":
+	{
+		"widgets":
+		{
+			"defaultTemplate": "default",
+			"templateLabel": "Template",
+			"teamAlignmentsButton": "Setup...",
+			"teamAlignmentsLabel": "Team alignments",
+			"dirtRoad": "Dirt",
+			"gravelRoad": "Gravel",
+			"cobblestoneRoad": "Stone"
+		}
 	}
 }

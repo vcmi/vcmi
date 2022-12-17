@@ -110,10 +110,11 @@ RandomMapTab::RandomMapTab():
 	
 	for(auto road : VLC->terrainTypeHandler->roads())
 	{
-		std::string cbRoadType = "selectRoad_" + road.fileName;
-		addCallback(cbRoadType, [&](bool on)
+		std::string cbRoadType = "selectRoad_" + road.name;
+		addCallback(cbRoadType, [&, road](bool on)
 		{
-			//TODO: support road types
+			mapGenOptions->setRoadEnabled(road.name, on);
+			updateMapInfoByHost();
 		});
 	}
 	
