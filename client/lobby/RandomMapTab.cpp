@@ -544,7 +544,7 @@ TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 				}
 				else
 				{
-					button->addOverlay(buildWidget(variables["unchecked"]));
+					button->addOverlay(nullptr);
 				}
 			}
 		}));
@@ -554,11 +554,7 @@ TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 		{
 			variables["point"]["x"].Integer() = variables["cellOffset"]["x"].Integer() + plId * variables["cellMargin"]["x"].Integer();
 			variables["point"]["y"].Integer() = variables["cellOffset"]["y"].Integer() + teamId * variables["cellMargin"]["y"].Integer();
-			//Point p(40 + plId * 32, 20 + teamId * 32);
-			placeholders.push_back(buildWidget(variables["placeholder"]));
 			auto button = buildWidget(variables["button"]);
-			button->pos.w = variables["cellMargin"]["x"].Integer();
-			button->pos.h = variables["cellMargin"]["y"].Integer();
 			players.back()->addToggle(teamId, std::dynamic_pointer_cast<CToggleBase>(button));
 		}
 		

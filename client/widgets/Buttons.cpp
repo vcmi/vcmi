@@ -84,8 +84,11 @@ void CButton::addTextOverlay(const std::string & Text, EFonts font, SDL_Color co
 void CButton::addOverlay(std::shared_ptr<CIntObject> newOverlay)
 {
 	overlay = newOverlay;
-	addChild(newOverlay.get());
-	overlay->moveTo(overlay->pos.centerIn(pos).topLeft());
+	if(overlay)
+	{
+		addChild(newOverlay.get());
+		overlay->moveTo(overlay->pos.centerIn(pos).topLeft());
+	}
 	update();
 }
 
