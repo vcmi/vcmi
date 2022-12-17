@@ -1200,7 +1200,7 @@
 				"effects" : {
 					"attacksNearestCreature" : {
 						"type" : "ATTACKS_NEAREST_CREATURE",
-						"duration" : "STACK_GETS_TURN"
+						"duration" : "UNTIL_ATTACK"
 					}
 				}
 			},
