@@ -69,11 +69,8 @@
 			"affect":["C05SPF0"]
 		},
 		"sounds": {
-			"cast": "FIRESHIE"
+			"cast": "FIRESHLD"
 		},
-		// It looks that fireshield has two separate sounds
-		//			"soundfile":"FIRESHLD.wav"
-		//
 		"levels" : {
 			"base":{
 				"range" : "0",

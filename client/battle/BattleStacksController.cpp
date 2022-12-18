@@ -444,7 +444,7 @@ void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> at
 				addNewAnim(new HittedAnimation(owner, attackedInfo.defender));
 
 			if (attackedInfo.fireShield)
-				owner.effectsController->displayEffect(EBattleEffect::FIRE_SHIELD, attackedInfo.attacker->getPosition());
+				owner.effectsController->displayEffect(EBattleEffect::FIRE_SHIELD, soundBase::FIRESHIE, attackedInfo.attacker->getPosition());
 
 			if (attackedInfo.spellEffect != SpellID::NONE)
 				owner.displaySpellEffect(attackedInfo.spellEffect, attackedInfo.defender->getPosition());
