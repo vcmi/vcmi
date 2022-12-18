@@ -823,7 +823,7 @@ void CUnitState::damage(int64_t & amount)
 		// block ability should not kill clone (0 damage)
 		if(amount > 0)
 		{
-			amount = 1;//TODO: what should be actual damage against clone?
+			amount = 0;
 			health.reset();
 		}
 	}
