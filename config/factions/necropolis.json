@@ -214,8 +214,6 @@
 			"siege" :
 			{
 				"shooter" : "lich",
-				"towerIconSmall" : "vcmi/creatureIcons/towerSmall",
-				"towerIconLarge" : "vcmi/creatureIcons/towerLarge",
 				"imagePrefix" : "SGNC",
 				"gate" :
 				{
