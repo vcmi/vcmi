@@ -100,6 +100,8 @@ class BattleStacksController
 
 	std::vector<const CStack *> selectHoveredStacks();
 
+	bool shouldAttackFacingRight(const CStack * attacker, const CStack * defender);
+
 public:
 	BattleStacksController(BattleInterface & owner);
 

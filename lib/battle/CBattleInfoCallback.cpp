@@ -1382,8 +1382,12 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes (const  battl
 	const int WN = GameConstants::BFIELD_WIDTH;
 	BattleHex hex = (attackerPos != BattleHex::INVALID) ? attackerPos : attacker->getPosition(); //real or hypothetical (cursor) position
 
+	auto defender = battleGetUnitByPos(hex, true);
+	if (!defender)
+		return at; // can't attack thin air
+
 	//FIXME: dragons or cerbers can rotate before attack, making their base hex different (#1124)
-	bool reverse = isToReverse(hex, destinationTile, isAttacker, attacker->doubleWide(), isAttacker);
+	bool reverse = isToReverse(destinationTile, attacker, defender);
 	if(reverse && attacker->doubleWide())
 	{
 		hex = attacker->occupiedHex(hex); //the other hex stack stands on
@@ -1537,60 +1541,50 @@ std::set<const CStack*> CBattleInfoCallback::getAttackedCreatures(const CStack* 
 	return attackedCres;
 }
 
-//TODO: this should apply also to mechanics and cursor interface
-bool CBattleInfoCallback::isToReverseHlp (BattleHex hexFrom, BattleHex hexTo, bool curDir) const
+static bool isHexInFront(BattleHex hex, BattleHex testHex, BattleSide::Type side )
 {
-	int fromX = hexFrom.getX();
-	int fromY = hexFrom.getY();
-	int toX = hexTo.getX();
-	int toY = hexTo.getY();
+	static const std::set<BattleHex::EDir> rightDirs { BattleHex::BOTTOM_RIGHT, BattleHex::TOP_RIGHT, BattleHex::RIGHT };
+	static const std::set<BattleHex::EDir> leftDirs  { BattleHex::BOTTOM_LEFT, BattleHex::TOP_LEFT, BattleHex::LEFT };
 
-	if (curDir) // attacker, facing right
-	{
-		if (fromX < toX)
-			return false;
-		if (fromX > toX)
-			return true;
+	auto mutualPos = BattleHex::mutualPosition(hex, testHex);
 
-		if (fromY % 2 == 0 && toY % 2 == 1)
-
-			return true;
-		return false;
-	}
-	else // defender, facing left
-	{
-		if(fromX < toX)
-			return true;
-		if(fromX > toX)
-			return false;
-
-		if (fromY % 2 == 1 && toY % 2 == 0)
-			return true;
-		return false;
-	}
+	if (side == BattleSide::ATTACKER)
+		return rightDirs.count(mutualPos);
+	else
+		return leftDirs.count(mutualPos);
 }
 
 //TODO: this should apply also to mechanics and cursor interface
-bool CBattleInfoCallback::isToReverse (BattleHex hexFrom, BattleHex hexTo, bool curDir, bool toDoubleWide, bool toDir) const
+bool CBattleInfoCallback::isToReverse (BattleHex attackerHex, const battle::Unit * attacker, const battle::Unit * defender) const
 {
-	if (hexTo < 0 || hexFrom < 0) //turret
+	if (attackerHex < 0 ) //turret
 		return false;
 
-	if (toDoubleWide)
-	{
-		if (isToReverseHlp (hexFrom, hexTo, curDir))
-		{
-			if (toDir)
-				return isToReverseHlp (hexFrom, hexTo-1, curDir);
-			else
-				return isToReverseHlp (hexFrom, hexTo+1, curDir);
-		}
+	BattleHex defenderHex = defender->getPosition();
+
+	if (isHexInFront(attackerHex, defenderHex, BattleSide::Type(attacker->unitSide())))
 		return false;
-	}
-	else
+
+	if (defender->doubleWide())
 	{
-		return isToReverseHlp(hexFrom, hexTo, curDir);
+		if (isHexInFront(attackerHex,defender->occupiedHex(), BattleSide::Type(attacker->unitSide())))
+			return false;
 	}
+
+	if (attacker->doubleWide())
+	{
+		if (isHexInFront(attacker->occupiedHex(), defenderHex, BattleSide::Type(attacker->unitSide())))
+			return false;
+	}
+
+	// a bit weird case since here defender is slightly behind attacker, so reversing seems preferable,
+	// but this is how H3 handles it which is important, e.g. for direction of dragon breath attacks
+	if (attacker->doubleWide() && defender->doubleWide())
+	{
+		if (isHexInFront(attacker->occupiedHex(), defender->occupiedHex(), BattleSide::Type(attacker->unitSide())))
+			return false;
+	}
+	return true;
 }
 
 ReachabilityInfo::TDistances CBattleInfoCallback::battleGetDistances(const battle::Unit * unit, BattleHex assumedPosition) const

@@ -411,15 +411,14 @@ void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> at
 		if (!attackedInfo.attacker)
 			continue;
 
-		bool needsReverse =
-				owner.curInt->cb->isToReverse(
-					attackedInfo.defender->getPosition(),
-					attackedInfo.attacker->getPosition(),
-					facingRight(attackedInfo.defender),
-					attackedInfo.attacker->doubleWide(),
-					facingRight(attackedInfo.attacker));
+		// In H3, attacked stack will not reverse on ranged attack
+		if (attackedInfo.indirectAttack)
+			continue;
 
-		if (needsReverse)
+		// defender need to face in direction opposited to out attacker
+		bool needsReverse = shouldAttackFacingRight(attackedInfo.attacker, attackedInfo.defender) == facingRight(attackedInfo.defender);
+
+		if (needsReverse && !attackedInfo.defender->isFrozen())
 		{
 			owner.executeOnAnimationCondition(EAnimationEvents::MOVEMENT, true, [=]()
 			{
@@ -494,23 +493,38 @@ void BattleStacksController::stackMoved(const CStack *stack, std::vector<BattleH
 	owner.waitForAnimationCondition(EAnimationEvents::ACTION, false);
 }
 
+bool BattleStacksController::shouldAttackFacingRight(const CStack * attacker, const CStack * defender)
+{
+	bool mustReverse = owner.curInt->cb->isToReverse(
+				attacker->getPosition(),
+				attacker,
+				defender);
+
+	if (attacker->side == BattleSide::ATTACKER)
+		return !mustReverse;
+	else
+		return mustReverse;
+}
+
 void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 {
 	assert(owner.getAnimationCondition(EAnimationEvents::ACTION) == false);
-
-	bool needsReverse =
-			owner.curInt->cb->isToReverse(
-				info.attacker->getPosition(),
-				info.defender->getPosition(),
-				facingRight(info.attacker),
-				info.attacker->doubleWide(),
-				facingRight(info.defender));
 
 	auto attacker    = info.attacker;
 	auto defender    = info.defender;
 	auto tile        = info.tile;
 	auto spellEffect = info.spellEffect;
 	auto multiAttack = !info.secondaryDefender.empty();
+	bool needsReverse = false;
+
+	if (info.indirectAttack)
+	{
+		needsReverse = shouldRotate(attacker, attacker->position, info.tile);
+	}
+	else
+	{
+		needsReverse = shouldAttackFacingRight(attacker, defender) != facingRight(attacker);
+	}
 
 	if (needsReverse)
 	{
