@@ -233,19 +233,50 @@ std::set<BattleHex> BattleFieldController::getHighlightedHexesSpellRange()
 				result.insert(shadedHex);
 		}
 	}
-	else if(owner.active) //always highlight pointed hex
-	{
-		if(hoveredHex.getX() != 0 && hoveredHex.getX() != GameConstants::BFIELD_WIDTH - 1)
-			result.insert(hoveredHex);
-	}
+	return result;
+}
 
+std::set<BattleHex> BattleFieldController::getHighlightedHexesMovementTarget()
+{
+	const CStack * stack = owner.stacksController->getActiveStack();
+	std::set<BattleHex> result;
+	auto hoveredHex = getHoveredHex();
+
+	if (stack)
+	{
+		std::vector<BattleHex> v = owner.curInt->cb->battleGetAvailableHexes(stack, false, nullptr);
+
+		if (vstd::contains(v,hoveredHex))
+		{
+			result.insert(hoveredHex);
+			if (stack->doubleWide())
+				result.insert(stack->occupiedHex(hoveredHex));
+		}
+		else
+		{
+			if (stack->doubleWide())
+			{
+				for (auto const & hex : v)
+				{
+					if (stack->occupiedHex(hex) == hoveredHex)
+					{
+						result.insert(hoveredHex);
+						result.insert(hex);
+					}
+				}
+			}
+		}
+	}
 	return result;
 }
 
 void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 {
 	std::set<BattleHex> hoveredStack = getHighlightedHexesStackRange();
-	std::set<BattleHex> hoveredMouse = getHighlightedHexesSpellRange();
+	std::set<BattleHex> hoveredSpell = getHighlightedHexesSpellRange();
+	std::set<BattleHex> hoveredMove  = getHighlightedHexesMovementTarget();
+
+	auto const & hoveredMouse = owner.actionsController->spellcastingModeActive() ? hoveredSpell : hoveredMove;
 
 	for(int b=0; b<GameConstants::BFIELD_SIZE; ++b)
 	{
