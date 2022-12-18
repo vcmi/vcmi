@@ -691,10 +691,8 @@ void CArtifactsOfHero::updateParentWindow()
 
 		if(!updateState)
 		{
-			cew->deactivate();
 			cew->updateWidgets();
 			cew->redraw();
-			cew->activate();
 		}
 	}
 }
