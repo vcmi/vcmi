@@ -287,7 +287,15 @@ void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
 	if(withTerrain && !node["allowedTerrains"].isNull())
 	{
 		for(auto& entry : node["allowedTerrains"].Vector())
-			allowedTerrains.insert(VLC->terrainTypeHandler->getInfoByName(entry.String())->id);
+		{
+			try {
+				allowedTerrains.insert(VLC->terrainTypeHandler->getInfoByName(entry.String())->id);
+			}
+			catch (const std::out_of_range & )
+			{
+				logGlobal->warn("Failed to find terrain %s for object %s", entry.String(), animationFile);
+			}
+		}
 	}
 	else
 	{
@@ -300,7 +308,7 @@ void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
 	}
 
 	if(withTerrain && allowedTerrains.empty())
-		logGlobal->warn("Loaded template without allowed terrains!");
+		logGlobal->warn("Loaded template %s without allowed terrains!", animationFile);
 
 	auto charToTile = [&](const char & ch) -> ui8
 	{
