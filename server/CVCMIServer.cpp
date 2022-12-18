@@ -1013,6 +1013,10 @@ static void handleCommandOptions(int argc, char * argv[], boost::program_options
 			std::cerr << "Failure during parsing command-line options:\n" << e.what() << std::endl;
 		}
 	}
+	
+#ifdef SINGLE_PROCESS_APP
+	options.emplace("run-by-client", po::variable_value{true, true});
+#endif
 
 	po::notify(options);
 
