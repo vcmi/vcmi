@@ -55,6 +55,10 @@ struct DLL_LINKAGE BattleHex //TODO: decide if this should be changed to class f
 		BOTTOM_RIGHT,
 		BOTTOM_LEFT,
 		LEFT,
+
+		//Note: unused by BattleHex class, used by other code
+		TOP,
+		BOTTOM
 	};
 
 	BattleHex();

@@ -864,6 +864,10 @@ void BattleStacksController::updateHoveredStacks()
 
 std::vector<const CStack *> BattleStacksController::selectHoveredStacks()
 {
+	// only allow during our turn - do not try to highlight creatures while they are in the middle of actions
+	if (!activeStack)
+		return {};
+
 	auto hoveredHex = owner.fieldController->getHoveredHex();
 
 	if (!hoveredHex.isValid())

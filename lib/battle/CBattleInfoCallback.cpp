@@ -1373,9 +1373,6 @@ ReachabilityInfo CBattleInfoCallback::getFlyingReachability(const ReachabilityIn
 AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes (const  battle::Unit* attacker, BattleHex destinationTile, BattleHex attackerPos) const
 {
 	//does not return hex attacked directly
-	//TODO: apply rotation to two-hex attackers
-	bool isAttacker = attacker->unitSide() == BattleSide::ATTACKER;
-
 	AttackableTiles at;
 	RETURN_IF_NOT_BATTLE(at);
 

@@ -298,7 +298,6 @@ void BattleActionsController::handleHex(BattleHex myNumber, int eventType)
 				{
 					if (owner.fieldController->isTileAttackable(myNumber)) // move isTileAttackable to be part of battleCanAttack?
 					{
-						owner.fieldController->setBattleCursor(myNumber); // temporary - needed for following function :(
 						BattleHex attackFromHex = owner.fieldController->fromWhichHexAttack(myNumber);
 
 						if (attackFromHex >= 0) //we can be in this line when unreachable creature is L - clicked (as of revision 1308)
@@ -461,7 +460,7 @@ void BattleActionsController::handleHex(BattleHex myNumber, int eventType)
 			case PossiblePlayerBattleAction::WALK_AND_ATTACK:
 			case PossiblePlayerBattleAction::ATTACK_AND_RETURN: //TODO: allow to disable return
 				{
-					owner.fieldController->setBattleCursor(myNumber); //handle direction of cursor and attackable tile
+					owner.fieldController->setBattleCursor(myNumber); //handle direction of cursor
 					setCursor = false; //don't overwrite settings from the call above //TODO: what does it mean?
 
 					bool returnAfterAttack = currentAction == PossiblePlayerBattleAction::ATTACK_AND_RETURN;
