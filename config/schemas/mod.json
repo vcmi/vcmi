@@ -56,6 +56,13 @@
 			"description": "List of mods that can't be enabled in the same time as this one",
 			"items": { "type":"string" }
 		},
+		"compatibility" : {
+			"type":"object",
+			"description": "List of supported version of vcmi engine",
+			"additionalProperties" : {
+				"type" : "string"
+			}
+		},
 
 		"keepDisabled" : {
 			"type":"boolean",
@@ -116,6 +123,12 @@
 		"battlefields":{
 			"type":"array",
 			"description": "List of configuration files for battlefields",
+			"items": { "type":"string", "format" : "textFile" }
+
+		},
+		"obstacles":{
+			"type":"array",
+			"description": "List of configuration files for obstacles",
 			"items": { "type":"string", "format" : "textFile" }
 
 		},
