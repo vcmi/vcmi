@@ -197,7 +197,7 @@ public:
 	void stackAdded(const CStack * stack); //new stack appeared on battlefield
 	void stackRemoved(uint32_t stackID); //stack disappeared from batlefiled
 	void stackActivated(const CStack *stack); //active stack has been changed
-	void stackMoved(const CStack *stack, std::vector<BattleHex> destHex, int distance); //stack with id number moved to destHex
+	void stackMoved(const CStack *stack, std::vector<BattleHex> destHex, int distance, bool teleport); //stack with id number moved to destHex
 	void stacksAreAttacked(std::vector<StackAttackedInfo> attackedInfos); //called when a certain amount of stacks has been attacked
 	void stackAttacking(const StackAttackInfo & attackInfo); //called when stack with id ID is attacking something on hex dest
 	void newRoundFirst( int round );

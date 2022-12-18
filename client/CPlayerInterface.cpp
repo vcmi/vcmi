@@ -913,12 +913,12 @@ void CPlayerInterface::battleLogMessage(const std::vector<MetaString> & lines)
 	battleInt->displayBattleLog(lines);
 }
 
-void CPlayerInterface::battleStackMoved(const CStack * stack, std::vector<BattleHex> dest, int distance)
+void CPlayerInterface::battleStackMoved(const CStack * stack, std::vector<BattleHex> dest, int distance, bool teleport)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BATTLE_EVENT_POSSIBLE_RETURN;
 
-	battleInt->stackMoved(stack, dest, distance);
+	battleInt->stackMoved(stack, dest, distance, teleport);
 }
 void CPlayerInterface::battleSpellCast( const BattleSpellCast *sc )
 {

@@ -1545,6 +1545,7 @@ struct BattleStackMoved : public CPackForClient
 		h & stack;
 		h & tilesToMove;
 		h & distance;
+		h & teleporting;
 	}
 };
 

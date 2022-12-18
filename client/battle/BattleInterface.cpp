@@ -335,9 +335,12 @@ void BattleInterface::stackActivated(const CStack *stack)
 	stacksController->stackActivated(stack);
 }
 
-void BattleInterface::stackMoved(const CStack *stack, std::vector<BattleHex> destHex, int distance)
+void BattleInterface::stackMoved(const CStack *stack, std::vector<BattleHex> destHex, int distance, bool teleport)
 {
-	stacksController->stackMoved(stack, destHex, distance);
+	if (teleport)
+		stacksController->stackTeleported(stack, destHex, distance);
+	else
+		stacksController->stackMoved(stack, destHex, distance);
 }
 
 void BattleInterface::stacksAreAttacked(std::vector<StackAttackedInfo> attackedInfos)

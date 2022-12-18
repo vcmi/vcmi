@@ -738,7 +738,7 @@ void BattleResult::applyFirstCl(CClient *cl)
 void BattleStackMoved::applyFirstCl(CClient *cl)
 {
 	const CStack * movedStack = GS(cl)->curB->battleGetStackByID(stack);
-	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleStackMoved, movedStack, tilesToMove, distance);
+	callBattleInterfaceIfPresentForBothSides(cl, &IBattleEventsReceiver::battleStackMoved, movedStack, tilesToMove, distance, teleporting);
 }
 
 void BattleAttack::applyFirstCl(CClient *cl)

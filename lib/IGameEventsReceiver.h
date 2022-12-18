@@ -63,7 +63,7 @@ public:
 	virtual void battleNewRoundFirst(int round){}; //called at the beginning of each turn before changes are applied;
 	virtual void battleNewRound(int round){}; //called at the beginning of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
 	virtual void battleLogMessage(const std::vector<MetaString> & lines){};
-	virtual void battleStackMoved(const CStack * stack, std::vector<BattleHex> dest, int distance){};
+	virtual void battleStackMoved(const CStack * stack, std::vector<BattleHex> dest, int distance, bool teleport){};
 	virtual void battleSpellCast(const BattleSpellCast *sc){};
 	virtual void battleStacksEffectsSet(const SetStackEffect & sse){};//called when a specific effect is set to stacks
 	virtual void battleTriggerEffect(const BattleTriggerEffect & bte){}; //called for various one-shot effects

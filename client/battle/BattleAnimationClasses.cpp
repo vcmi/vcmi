@@ -331,11 +331,11 @@ bool MovementAnimation::init()
 {
 	assert(stack);
 	assert(!myAnim->isDeadOrDying());
+	assert(stackAnimation(stack)->framesInGroup(ECreatureAnimType::MOVING) > 0);
 
-	if(stackAnimation(stack)->framesInGroup(ECreatureAnimType::MOVING) == 0 ||
-	   stack->hasBonus(Selector::typeSubtype(Bonus::FLYING, 1)))
+	if(stackAnimation(stack)->framesInGroup(ECreatureAnimType::MOVING) == 0)
 	{
-		//no movement or teleport, end immediately
+		//no movement, end immediately
 		delete this;
 		return false;
 	}
@@ -576,6 +576,11 @@ ResurrectionAnimation::ResurrectionAnimation(BattleInterface & owner, const CSta
 	logAnim->debug("Created ResurrectionAnimation for %s", stack->getName());
 }
 
+bool ColorTransformAnimation::init()
+{
+	return true;
+}
+
 void ColorTransformAnimation::nextFrame()
 {
 	float elapsed  = GH.mainFPSmng->getElapsedMilliseconds() / 1000.f;
@@ -614,7 +619,7 @@ void ColorTransformAnimation::nextFrame()
 }
 
 ColorTransformAnimation::ColorTransformAnimation(BattleInterface & owner, const CStack * _stack, const CSpell * spell):
-	StackActionAnimation(owner, _stack),
+	BattleStackAnimation(owner, _stack),
 	spell(spell),
 	totalProgress(0.f)
 {
@@ -658,20 +663,35 @@ ColorTransformAnimation * ColorTransformAnimation::petrifyAnimation(BattleInterf
 	return result;
 }
 
-ColorTransformAnimation * ColorTransformAnimation::fadeInAnimation(BattleInterface & owner, const CStack * stack)
+ColorTransformAnimation * ColorTransformAnimation::summonAnimation(BattleInterface & owner, const CStack * stack)
+{
+	auto result = teleportInAnimation(owner, stack);
+	result->timePoints.back() = 1.0f;
+	return result;
+}
+
+
+ColorTransformAnimation * ColorTransformAnimation::teleportInAnimation(BattleInterface & owner, const CStack * stack)
 {
 	auto result = new ColorTransformAnimation(owner, stack, nullptr);
 	result->steps.push_back(ColorFilter::genAlphaShifter(0.f));
 	result->steps.push_back(ColorFilter::genEmptyShifter());
-	result->timePoints.push_back(0.f);
-	result->timePoints.push_back(1.f);
+	result->timePoints.push_back(0.0f);
+	result->timePoints.push_back(0.2f);
+	return result;
+}
+
+ColorTransformAnimation * ColorTransformAnimation::teleportOutAnimation(BattleInterface & owner, const CStack * stack)
+{
+	auto result = teleportInAnimation(owner, stack);
+	std::swap(result->steps[0], result->steps[1]);
 	return result;
 }
 
 ColorTransformAnimation * ColorTransformAnimation::fadeOutAnimation(BattleInterface & owner, const CStack * stack)
 {
-	auto result = fadeInAnimation(owner, stack);
-	std::swap(result->steps[0], result->steps[1]);
+	auto result = teleportOutAnimation(owner, stack);
+	result->timePoints.back() = 1.0f;
 	return result;
 }
 

@@ -202,7 +202,7 @@ void CStupidAI::battleNewRound(int round)
 	print("battleNewRound called");
 }
 
-void CStupidAI::battleStackMoved(const CStack * stack, std::vector<BattleHex> dest, int distance)
+void CStupidAI::battleStackMoved(const CStack * stack, std::vector<BattleHex> dest, int distance, bool teleport)
 {
 	print("battleStackMoved called");
 }

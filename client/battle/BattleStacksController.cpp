@@ -223,7 +223,7 @@ void BattleStacksController::stackAdded(const CStack * stack, bool instant)
 
 		owner.executeOnAnimationCondition(EAnimationEvents::HIT, true, [=]()
 		{
-			addNewAnim(ColorTransformAnimation::fadeInAnimation(owner, stack));
+			addNewAnim(ColorTransformAnimation::summonAnimation(owner, stack));
 			if (stack->isClone())
 				addNewAnim(ColorTransformAnimation::cloneAnimation(owner, stack, SpellID(SpellID::CLONE).toSpell()));
 		});
@@ -472,6 +472,23 @@ void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> at
 	executeAttackAnimations();
 }
 
+void BattleStacksController::stackTeleported(const CStack *stack, std::vector<BattleHex> destHex, int distance)
+{
+	assert(destHex.size() > 0);
+	assert(owner.getAnimationCondition(EAnimationEvents::ACTION) == false);
+
+	owner.executeOnAnimationCondition(EAnimationEvents::HIT, true, [=](){
+		addNewAnim( ColorTransformAnimation::teleportOutAnimation(owner, stack) );
+	});
+
+	owner.executeOnAnimationCondition(EAnimationEvents::AFTER_HIT, true, [=](){
+		stackAnimation[stack->ID]->pos.moveTo(getStackPositionAtHex(destHex.back(), stack));
+		addNewAnim( ColorTransformAnimation::teleportInAnimation(owner, stack) );
+	});
+
+	// animations will be executed by spell
+}
+
 void BattleStacksController::stackMoved(const CStack *stack, std::vector<BattleHex> destHex, int distance)
 {
 	assert(destHex.size() > 0);
@@ -486,8 +503,12 @@ void BattleStacksController::stackMoved(const CStack *stack, std::vector<BattleH
 	addNewAnim(new MovementStartAnimation(owner, stack));
 	owner.waitForAnimationCondition(EAnimationEvents::ACTION, false);
 
-	addNewAnim(new MovementAnimation(owner, stack, destHex, distance));
-	owner.waitForAnimationCondition(EAnimationEvents::ACTION, false);
+	// if creature can teleport, e.g Devils - skip movement animation
+	if ( !stack->hasBonus(Selector::typeSubtype(Bonus::FLYING, 1)) )
+	{
+		addNewAnim(new MovementAnimation(owner, stack, destHex, distance));
+		owner.waitForAnimationCondition(EAnimationEvents::ACTION, false);
+	}
 
 	addNewAnim(new MovementEndAnimation(owner, stack, destHex.back()));
 	owner.waitForAnimationCondition(EAnimationEvents::ACTION, false);
@@ -806,7 +827,7 @@ void BattleStacksController::removeExpiredColorFilters()
 			return false;
 		if (filter.effect == ColorFilter::genEmptyShifter())
 			return false;
-		if (filter.target->hasBonus(Selector::source(Bonus::SPELL_EFFECT, filter.source->id)))
+		if (filter.source && filter.target->hasBonus(Selector::source(Bonus::SPELL_EFFECT, filter.source->id)))
 			return false;
 		return true;
 	});

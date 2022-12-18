@@ -160,7 +160,7 @@ public:
 	virtual void actionFinished(const BattleAction &action) override;
 	virtual void battleStacksEffectsSet(const SetStackEffect & sse) override;
 	virtual void battleObstaclesChanged(const std::vector<ObstacleChanges> & obstacles) override;
-	virtual void battleStackMoved(const CStack * stack, std::vector<BattleHex> dest, int distance) override;
+	virtual void battleStackMoved(const CStack * stack, std::vector<BattleHex> dest, int distance, bool teleport) override;
 	virtual void battleAttack(const BattleAttack *ba) override;
 	virtual void battleSpellCast(const BattleSpellCast *sc) override;
 	virtual void battleEnd(const BattleResult *br) override;
