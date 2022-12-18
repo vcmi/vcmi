@@ -1179,14 +1179,6 @@ DLL_LINKAGE void AssembledArtifact::applyGs(CGameState *gs)
 
 	UNUSED(transformedArt);
 
-	if(!vstd::contains_if(transformedArt->assemblyPossibilities(artSet, combineEquipped), [=](const CArtifact * art)->bool
-		{
-			return art->id == builtArt->id;
-		}))
-	{
-		throw std::exception("Bad");
-	}
-
 	auto combinedArt = new CCombinedArtifactInstance(builtArt);
 	gs->map->addNewArtifactInstance(combinedArt);
 	// Retrieve all constituents
