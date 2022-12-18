@@ -221,9 +221,9 @@ void BattleHero::hover(bool on)
 {
 	//TODO: BROKEN CODE
 	if (on)
-		CCS->curh->changeGraphic(ECursor::COMBAT, 5);
+		CCS->curh->set(Cursor::Combat::HERO);
 	else
-		CCS->curh->changeGraphic(ECursor::COMBAT, 0);
+		CCS->curh->set(Cursor::Combat::POINTER);
 }
 
 void BattleHero::clickLeft(tribool down, bool previousState)
@@ -244,7 +244,7 @@ void BattleHero::clickLeft(tribool down, bool previousState)
 		if ( hoveredHex != BattleHex::INVALID )
 			return;
 
-		CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
+		CCS->curh->set(Cursor::Map::POINTER);
 
 		GH.pushIntT<CSpellWindow>(myHero, owner.getCurrentPlayerInterface());
 	}

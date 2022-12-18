@@ -468,10 +468,9 @@ int main(int argc, char * argv[])
 	if(!settings["session"]["headless"].Bool())
 	{
 		pomtime.getDiff();
-		CCS->curh = new CCursorHandler();
-		graphics = new Graphics(); // should be before curh->init()
+		graphics = new Graphics(); // should be before curh
 
-		CCS->curh->initCursor();
+		CCS->curh = new CCursorHandler();
 		logGlobal->info("Screen handler: %d ms", pomtime.getDiff());
 		pomtime.getDiff();
 
@@ -1581,7 +1580,7 @@ void handleQuit(bool ask)
 
 	if(CSH->client && LOCPLINT && ask)
 	{
-		CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
+		CCS->curh->set(Cursor::Map::POINTER);
 		LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[69], [](){
 			// Workaround for assertion failure on exit:
 			// handleQuit() is alway called during SDL event processing

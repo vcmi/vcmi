@@ -417,8 +417,6 @@ MovementAnimation::~MovementAnimation()
 {
 	assert(stack);
 
-	myAnim->pos.moveTo(owner.stacksController->getStackPositionAtHex(nextHex, stack));
-
 	if(owner.moveSoundHander != -1)
 	{
 		CCS->soundh->stopSound(owner.moveSoundHander);
@@ -456,6 +454,7 @@ bool MovementEndAnimation::init()
 	}
 
 	logAnim->debug("CMovementEndAnimation::init: stack %s", stack->getName());
+	myAnim->pos.moveTo(owner.stacksController->getStackPositionAtHex(nextHex, stack));
 
 	CCS->soundh->playSound(battle_sound(stack->getCreature(), endMoving));
 

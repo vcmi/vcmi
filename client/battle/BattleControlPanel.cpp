@@ -101,7 +101,7 @@ void BattleControlPanel::bOptionsf()
 	if (owner.actionsController->spellcastingModeActive())
 		return;
 
-	CCS->curh->changeGraphic(ECursor::ADVENTURE,0);
+	CCS->curh->set(Cursor::Map::POINTER);
 
 	GH.pushIntT<BattleOptionsWindow>(owner);
 }
@@ -158,7 +158,7 @@ void BattleControlPanel::bFleef()
 void BattleControlPanel::reallyFlee()
 {
 	owner.giveCommand(EActionType::RETREAT);
-	CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
+	CCS->curh->set(Cursor::Map::POINTER);
 }
 
 void BattleControlPanel::reallySurrender()
@@ -170,7 +170,7 @@ void BattleControlPanel::reallySurrender()
 	else
 	{
 		owner.giveCommand(EActionType::SURRENDER);
-		CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
+		CCS->curh->set(Cursor::Map::POINTER);
 	}
 }
 
@@ -213,7 +213,7 @@ void BattleControlPanel::bSpellf()
 	if(!myHero)
 		return;
 
-	CCS->curh->changeGraphic(ECursor::ADVENTURE,0);
+	CCS->curh->set(Cursor::Map::POINTER);
 
 	ESpellCastProblem::ESpellCastProblem spellCastProblem = owner.curInt->cb->battleCanCastSpell(myHero, spells::Mode::HERO);
 

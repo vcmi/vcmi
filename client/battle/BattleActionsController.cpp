@@ -60,7 +60,7 @@ void BattleActionsController::endCastingSpell()
 
 		currentSpell = nullptr;
 		spellDestSelectMode = false;
-		CCS->curh->changeGraphic(ECursor::COMBAT, ECursor::COMBAT_POINTER);
+		CCS->curh->set(Cursor::Combat::POINTER);
 
 		if(owner.stacksController->getActiveStack())
 		{
@@ -122,7 +122,7 @@ void BattleActionsController::enterCreatureCastingMode()
 			owner.giveCommand(EActionType::MONSTER_SPELL, BattleHex::INVALID, owner.stacksController->activeStackSpellToCast());
 			owner.stacksController->setSelectedStack(nullptr);
 
-			CCS->curh->changeGraphic(ECursor::COMBAT, ECursor::COMBAT_POINTER);
+			CCS->curh->set(Cursor::Combat::POINTER);
 		}
 	}
 	else
@@ -245,8 +245,8 @@ void BattleActionsController::handleHex(BattleHex myNumber, int eventType)
 	std::string newConsoleMsg;
 	//used when hovering -> tooltip message and cursor to be set
 	bool setCursor = true; //if we want to suppress setting cursor
-	ECursor::ECursorTypes cursorType = ECursor::COMBAT;
-	int cursorFrame = ECursor::COMBAT_POINTER; //TODO: is this line used?
+	bool spellcastingCursor = false;
+	auto cursorFrame = Cursor::Combat::POINTER;
 
 	//used when l-clicking -> action to be called upon the click
 	std::function<void()> realizeAction;
@@ -431,12 +431,12 @@ void BattleActionsController::handleHex(BattleHex myNumber, int eventType)
 			case PossiblePlayerBattleAction::MOVE_STACK:
 				if (owner.stacksController->getActiveStack()->hasBonusOfType(Bonus::FLYING))
 				{
-					cursorFrame = ECursor::COMBAT_FLY;
+					cursorFrame = Cursor::Combat::FLY;
 					newConsoleMsg = (boost::format(CGI->generaltexth->allTexts[295]) % owner.stacksController->getActiveStack()->getName()).str(); //Fly %s here
 				}
 				else
 				{
-					cursorFrame = ECursor::COMBAT_MOVE;
+					cursorFrame = Cursor::Combat::MOVE;
 					newConsoleMsg = (boost::format(CGI->generaltexth->allTexts[294]) % owner.stacksController->getActiveStack()->getName()).str(); //Move %s here
 				}
 
@@ -484,9 +484,9 @@ void BattleActionsController::handleHex(BattleHex myNumber, int eventType)
 			case PossiblePlayerBattleAction::SHOOT:
 			{
 				if (owner.curInt->cb->battleHasShootingPenalty(owner.stacksController->getActiveStack(), myNumber))
-					cursorFrame = ECursor::COMBAT_SHOOT_PENALTY;
+					cursorFrame = Cursor::Combat::SHOOT_PENALTY;
 				else
-					cursorFrame = ECursor::COMBAT_SHOOT;
+					cursorFrame = Cursor::Combat::SHOOT;
 
 				realizeAction = [=](){owner.giveCommand(EActionType::SHOOT, myNumber);};
 				TDmgRange damage = owner.curInt->cb->battleEstimateDamage(owner.stacksController->getActiveStack(), shere);
@@ -521,7 +521,7 @@ void BattleActionsController::handleHex(BattleHex myNumber, int eventType)
 				break;
 			case PossiblePlayerBattleAction::TELEPORT:
 				newConsoleMsg = CGI->generaltexth->allTexts[25]; //Teleport Here
-				cursorFrame = ECursor::COMBAT_TELEPORT;
+				cursorFrame = Cursor::Combat::TELEPORT;
 				isCastingPossible = true;
 				break;
 			case PossiblePlayerBattleAction::OBSTACLE:
@@ -531,7 +531,7 @@ void BattleActionsController::handleHex(BattleHex myNumber, int eventType)
 				break;
 			case PossiblePlayerBattleAction::SACRIFICE:
 				newConsoleMsg = (boost::format(CGI->generaltexth->allTexts[549]) % shere->getName()).str(); //sacrifice the %s
-				cursorFrame = ECursor::COMBAT_SACRIFICE;
+				cursorFrame = Cursor::Combat::SACRIFICE;
 				isCastingPossible = true;
 				break;
 			case PossiblePlayerBattleAction::FREE_LOCATION:
@@ -539,24 +539,24 @@ void BattleActionsController::handleHex(BattleHex myNumber, int eventType)
 				isCastingPossible = true;
 				break;
 			case PossiblePlayerBattleAction::HEAL:
-				cursorFrame = ECursor::COMBAT_HEAL;
+				cursorFrame = Cursor::Combat::HEAL;
 				newConsoleMsg = (boost::format(CGI->generaltexth->allTexts[419]) % shere->getName()).str(); //Apply first aid to the %s
 				realizeAction = [=](){ owner.giveCommand(EActionType::STACK_HEAL, myNumber); }; //command healing
 				break;
 			case PossiblePlayerBattleAction::RISE_DEMONS:
-				cursorType = ECursor::SPELLBOOK;
+				spellcastingCursor = true;
 				realizeAction = [=]()
 				{
 					owner.giveCommand(EActionType::DAEMON_SUMMONING, myNumber);
 				};
 				break;
 			case PossiblePlayerBattleAction::CATAPULT:
-				cursorFrame = ECursor::COMBAT_SHOOT_CATAPULT;
+				cursorFrame = Cursor::Combat::SHOOT_CATAPULT;
 				realizeAction = [=](){ owner.giveCommand(EActionType::CATAPULT, myNumber); };
 				break;
 			case PossiblePlayerBattleAction::CREATURE_INFO:
 			{
-				cursorFrame = ECursor::COMBAT_QUERY;
+				cursorFrame = Cursor::Combat::QUERY;
 				newConsoleMsg = (boost::format(CGI->generaltexth->allTexts[297]) % shere->getName()).str();
 				realizeAction = [=](){ GH.pushIntT<CStackWindow>(shere, false); };
 				break;
@@ -569,25 +569,25 @@ void BattleActionsController::handleHex(BattleHex myNumber, int eventType)
 		{
 			case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:
 			case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL:
-				cursorFrame = ECursor::COMBAT_BLOCKED;
+				cursorFrame = Cursor::Combat::BLOCKED;
 				newConsoleMsg = CGI->generaltexth->allTexts[23];
 				break;
 			case PossiblePlayerBattleAction::TELEPORT:
-				cursorFrame = ECursor::COMBAT_BLOCKED;
+				cursorFrame = Cursor::Combat::BLOCKED;
 				newConsoleMsg = CGI->generaltexth->allTexts[24]; //Invalid Teleport Destination
 				break;
 			case PossiblePlayerBattleAction::SACRIFICE:
 				newConsoleMsg = CGI->generaltexth->allTexts[543]; //choose army to sacrifice
 				break;
 			case PossiblePlayerBattleAction::FREE_LOCATION:
-				cursorFrame = ECursor::COMBAT_BLOCKED;
+				cursorFrame = Cursor::Combat::BLOCKED;
 				newConsoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[181]) % currentSpell->name); //No room to place %s here
 				break;
 			default:
 				if (myNumber == -1)
-					CCS->curh->changeGraphic(ECursor::COMBAT, ECursor::COMBAT_POINTER); //set neutral cursor over menu etc.
+					CCS->curh->set(Cursor::Combat::POINTER);
 				else
-					cursorFrame = ECursor::COMBAT_BLOCKED;
+					cursorFrame = Cursor::Combat::BLOCKED;
 				break;
 		}
 	}
@@ -600,8 +600,7 @@ void BattleActionsController::handleHex(BattleHex myNumber, int eventType)
 			case PossiblePlayerBattleAction::SACRIFICE:
 				break;
 			default:
-				cursorType = ECursor::SPELLBOOK;
-				cursorFrame = 0;
+				spellcastingCursor = true;
 				if (newConsoleMsg.empty() && currentSpell)
 					newConsoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[26]) % currentSpell->name); //Cast %s
 				break;
@@ -662,7 +661,12 @@ void BattleActionsController::handleHex(BattleHex myNumber, int eventType)
 		if (eventType == CIntObject::MOVE)
 		{
 			if (setCursor)
-				CCS->curh->changeGraphic(cursorType, cursorFrame);
+			{
+				if (spellcastingCursor)
+					CCS->curh->set(Cursor::Spellcast::SPELL);
+				else
+					CCS->curh->set(cursorFrame);
+			}
 
 			if (!currentConsoleMsg.empty())
 				owner.controlPanel->console->clearIfMatching(currentConsoleMsg);
@@ -680,7 +684,7 @@ void BattleActionsController::handleHex(BattleHex myNumber, int eventType)
 			}
 			realizeAction();
 			if (!secondaryTarget) //do not replace teleport or sacrifice cursor
-				CCS->curh->changeGraphic(ECursor::COMBAT, ECursor::COMBAT_POINTER);
+				CCS->curh->set(Cursor::Combat::POINTER);
 			owner.controlPanel->console->clear();
 		}
 	}

@@ -336,17 +336,17 @@ void BattleFieldController::setBattleCursor(BattleHex myNumber)
 	const double subdividingAngle = 2.0*M_PI/6.0; // Divide a hex into six sectors.
 	const double hexMidX = hoveredHexPos.x + hoveredHexPos.w/2.0;
 	const double hexMidY = hoveredHexPos.y + hoveredHexPos.h/2.0;
-	const double cursorHexAngle = M_PI - atan2(hexMidY - cursor->ypos, cursor->xpos - hexMidX) + subdividingAngle/2; //TODO: refactor this nightmare
+	const double cursorHexAngle = M_PI - atan2(hexMidY - cursor->position().y, cursor->position().y - hexMidX) + subdividingAngle/2; //TODO: refactor this nightmare
 	const double sector = fmod(cursorHexAngle/subdividingAngle, 6.0);
 	const int zigzagCorrection = !((myNumber/GameConstants::BFIELD_WIDTH)%2); // Off-by-one correction needed to deal with the odd battlefield rows.
 
-	std::vector<int> sectorCursor; // From left to bottom left.
-	sectorCursor.push_back(8);
-	sectorCursor.push_back(9);
-	sectorCursor.push_back(10);
-	sectorCursor.push_back(11);
-	sectorCursor.push_back(12);
-	sectorCursor.push_back(7);
+	std::vector<Cursor::Combat> sectorCursor; // From left to bottom left.
+	sectorCursor.push_back(Cursor::Combat::HIT_EAST);
+	sectorCursor.push_back(Cursor::Combat::HIT_SOUTHEAST);
+	sectorCursor.push_back(Cursor::Combat::HIT_SOUTHWEST);
+	sectorCursor.push_back(Cursor::Combat::HIT_WEST);
+	sectorCursor.push_back(Cursor::Combat::HIT_NORTHWEST);
+	sectorCursor.push_back(Cursor::Combat::HIT_NORTHEAST);
 
 	const bool doubleWide = owner.stacksController->getActiveStack()->doubleWide();
 	bool aboveAttackable = true, belowAttackable = true;
@@ -355,13 +355,13 @@ void BattleFieldController::setBattleCursor(BattleHex myNumber)
 	// Check to the left.
 	if (myNumber%GameConstants::BFIELD_WIDTH <= 1 || !vstd::contains(occupyableHexes, myNumber - 1))
 	{
-		sectorCursor[0] = -1;
+		sectorCursor[0] = Cursor::Combat::INVALID;
 	}
 	// Check top left, top right as well as above for 2-hex creatures.
 	if (myNumber/GameConstants::BFIELD_WIDTH == 0)
 	{
-			sectorCursor[1] = -1;
-			sectorCursor[2] = -1;
+			sectorCursor[1] = Cursor::Combat::INVALID;
+			sectorCursor[2] = Cursor::Combat::INVALID;
 			aboveAttackable = false;
 	}
 	else
@@ -380,30 +380,30 @@ void BattleFieldController::setBattleCursor(BattleHex myNumber)
 				attackRow[3] = false;
 
 			if (!(attackRow[0] && attackRow[1]))
-				sectorCursor[1] = -1;
+				sectorCursor[1] = Cursor::Combat::INVALID;
 			if (!(attackRow[1] && attackRow[2]))
 				aboveAttackable = false;
 			if (!(attackRow[2] && attackRow[3]))
-				sectorCursor[2] = -1;
+				sectorCursor[2] = Cursor::Combat::INVALID;
 		}
 		else
 		{
 			if (!vstd::contains(occupyableHexes, myNumber - GameConstants::BFIELD_WIDTH - 1 + zigzagCorrection))
-				sectorCursor[1] = -1;
+				sectorCursor[1] = Cursor::Combat::INVALID;
 			if (!vstd::contains(occupyableHexes, myNumber - GameConstants::BFIELD_WIDTH + zigzagCorrection))
-				sectorCursor[2] = -1;
+				sectorCursor[2] = Cursor::Combat::INVALID;
 		}
 	}
 	// Check to the right.
 	if (myNumber%GameConstants::BFIELD_WIDTH >= GameConstants::BFIELD_WIDTH - 2 || !vstd::contains(occupyableHexes, myNumber + 1))
 	{
-		sectorCursor[3] = -1;
+		sectorCursor[3] = Cursor::Combat::INVALID;
 	}
 	// Check bottom right, bottom left as well as below for 2-hex creatures.
 	if (myNumber/GameConstants::BFIELD_WIDTH == GameConstants::BFIELD_HEIGHT - 1)
 	{
-		sectorCursor[4] = -1;
-		sectorCursor[5] = -1;
+		sectorCursor[4] = Cursor::Combat::INVALID;
+		sectorCursor[5] = Cursor::Combat::INVALID;
 		belowAttackable = false;
 	}
 	else
@@ -422,18 +422,18 @@ void BattleFieldController::setBattleCursor(BattleHex myNumber)
 				attackRow[3] = false;
 
 			if (!(attackRow[0] && attackRow[1]))
-				sectorCursor[5] = -1;
+				sectorCursor[5] = Cursor::Combat::INVALID;
 			if (!(attackRow[1] && attackRow[2]))
 				belowAttackable = false;
 			if (!(attackRow[2] && attackRow[3]))
-				sectorCursor[4] = -1;
+				sectorCursor[4] = Cursor::Combat::INVALID;
 		}
 		else
 		{
 			if (!vstd::contains(occupyableHexes, myNumber + GameConstants::BFIELD_WIDTH + zigzagCorrection))
-				sectorCursor[4] = -1;
+				sectorCursor[4] = Cursor::Combat::INVALID;
 			if (!vstd::contains(occupyableHexes, myNumber + GameConstants::BFIELD_WIDTH - 1 + zigzagCorrection))
-				sectorCursor[5] = -1;
+				sectorCursor[5] = Cursor::Combat::INVALID;
 		}
 	}
 
@@ -441,8 +441,8 @@ void BattleFieldController::setBattleCursor(BattleHex myNumber)
 	int cursorIndex;
 	if (doubleWide)
 	{
-		sectorCursor.insert(sectorCursor.begin() + 5, belowAttackable ? 13 : -1);
-		sectorCursor.insert(sectorCursor.begin() + 2, aboveAttackable ? 14 : -1);
+		sectorCursor.insert(sectorCursor.begin() + 5, belowAttackable ? Cursor::Combat::HIT_NORTH : Cursor::Combat::INVALID);
+		sectorCursor.insert(sectorCursor.begin() + 2, aboveAttackable ? Cursor::Combat::HIT_SOUTH : Cursor::Combat::INVALID);
 
 		if (sector < 1.5)
 			cursorIndex = static_cast<int>(sector);
@@ -461,7 +461,7 @@ void BattleFieldController::setBattleCursor(BattleHex myNumber)
 	}
 
 	// Generally should NEVER happen, but to avoid the possibility of having endless loop below... [#1016]
-	if (!vstd::contains_if (sectorCursor, [](int sc) { return sc != -1; }))
+	if (!vstd::contains_if (sectorCursor, [](Cursor::Combat sc) { return sc != Cursor::Combat::INVALID; }))
 	{
 		logGlobal->error("Error: for hex %d cannot find a hex to attack from!", myNumber);
 		attackingHex = -1;
@@ -471,10 +471,10 @@ void BattleFieldController::setBattleCursor(BattleHex myNumber)
 	// Find the closest direction attackable, starting with the right one.
 	// FIXME: Is this really how the original H3 client does it?
 	int i = 0;
-	while (sectorCursor[(cursorIndex + i)%sectorCursor.size()] == -1) //Why hast thou forsaken me?
+	while (sectorCursor[(cursorIndex + i)%sectorCursor.size()] == Cursor::Combat::INVALID) //Why hast thou forsaken me?
 		i = i <= 0 ? 1 - i : -i; // 0, 1, -1, 2, -2, 3, -3 etc..
 	int index = (cursorIndex + i)%sectorCursor.size(); //hopefully we get elements from sectorCursor
-	cursor->changeGraphic(ECursor::COMBAT, sectorCursor[index]);
+	cursor->set(sectorCursor[index]);
 	switch (index)
 	{
 		case 0:
@@ -505,9 +505,9 @@ BattleHex BattleFieldController::fromWhichHexAttack(BattleHex myNumber)
 {
 	//TODO far too much repeating code
 	BattleHex destHex;
-	switch(CCS->curh->frame)
+	switch(CCS->curh->get<Cursor::Combat>())
 	{
-	case 12: //from bottom right
+	case Cursor::Combat::HIT_NORTHWEST: //from bottom right
 		{
 			bool doubleWide = owner.stacksController->getActiveStack()->doubleWide();
 			destHex = myNumber + ( (myNumber/GameConstants::BFIELD_WIDTH)%2 ? GameConstants::BFIELD_WIDTH : GameConstants::BFIELD_WIDTH+1 ) +
@@ -526,7 +526,7 @@ BattleHex BattleFieldController::fromWhichHexAttack(BattleHex myNumber)
 			}
 			break;
 		}
-	case 7: //from bottom left
+	case Cursor::Combat::HIT_NORTHEAST: //from bottom left
 		{
 			destHex = myNumber + ( (myNumber/GameConstants::BFIELD_WIDTH)%2 ? GameConstants::BFIELD_WIDTH-1 : GameConstants::BFIELD_WIDTH );
 			if (vstd::contains(occupyableHexes, destHex))
@@ -543,7 +543,7 @@ BattleHex BattleFieldController::fromWhichHexAttack(BattleHex myNumber)
 			}
 			break;
 		}
-	case 8: //from left
+	case Cursor::Combat::HIT_EAST: //from left
 		{
 			if(owner.stacksController->getActiveStack()->doubleWide() && owner.stacksController->getActiveStack()->side == BattleSide::DEFENDER)
 			{
@@ -559,7 +559,7 @@ BattleHex BattleFieldController::fromWhichHexAttack(BattleHex myNumber)
 			}
 			break;
 		}
-	case 9: //from top left
+	case Cursor::Combat::HIT_SOUTHEAST: //from top left
 		{
 			destHex = myNumber - ((myNumber/GameConstants::BFIELD_WIDTH) % 2 ? GameConstants::BFIELD_WIDTH + 1 : GameConstants::BFIELD_WIDTH);
 			if(vstd::contains(occupyableHexes, destHex))
@@ -576,7 +576,7 @@ BattleHex BattleFieldController::fromWhichHexAttack(BattleHex myNumber)
 			}
 			break;
 		}
-	case 10: //from top right
+	case Cursor::Combat::HIT_SOUTHWEST: //from top right
 		{
 			bool doubleWide = owner.stacksController->getActiveStack()->doubleWide();
 			destHex = myNumber - ( (myNumber/GameConstants::BFIELD_WIDTH)%2 ? GameConstants::BFIELD_WIDTH : GameConstants::BFIELD_WIDTH-1 ) +
@@ -595,7 +595,7 @@ BattleHex BattleFieldController::fromWhichHexAttack(BattleHex myNumber)
 			}
 			break;
 		}
-	case 11: //from right
+	case Cursor::Combat::HIT_WEST: //from right
 		{
 			if(owner.stacksController->getActiveStack()->doubleWide() && owner.stacksController->getActiveStack()->side == BattleSide::ATTACKER)
 			{
@@ -611,7 +611,7 @@ BattleHex BattleFieldController::fromWhichHexAttack(BattleHex myNumber)
 			}
 			break;
 		}
-	case 13: //from bottom
+	case Cursor::Combat::HIT_NORTH: //from bottom
 		{
 			destHex = myNumber + ( (myNumber/GameConstants::BFIELD_WIDTH)%2 ? GameConstants::BFIELD_WIDTH : GameConstants::BFIELD_WIDTH+1 );
 			if(vstd::contains(occupyableHexes, destHex))
@@ -628,7 +628,7 @@ BattleHex BattleFieldController::fromWhichHexAttack(BattleHex myNumber)
 			}
 			break;
 		}
-	case 14: //from top
+	case Cursor::Combat::HIT_SOUTH: //from top
 		{
 			destHex = myNumber - ( (myNumber/GameConstants::BFIELD_WIDTH)%2 ? GameConstants::BFIELD_WIDTH : GameConstants::BFIELD_WIDTH-1 );
 			if (vstd::contains(occupyableHexes, destHex))
@@ -646,7 +646,7 @@ BattleHex BattleFieldController::fromWhichHexAttack(BattleHex myNumber)
 			break;
 		}
 	}
-	return -1;
+	return BattleHex::INVALID;
 }
 
 bool BattleFieldController::isTileAttackable(const BattleHex & number) const

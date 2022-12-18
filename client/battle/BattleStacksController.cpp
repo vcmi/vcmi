@@ -504,7 +504,7 @@ void BattleStacksController::stackMoved(const CStack *stack, std::vector<BattleH
 	owner.waitForAnimationCondition(EAnimationEvents::ACTION, false);
 
 	// if creature can teleport, e.g Devils - skip movement animation
-	if ( !stack->hasBonus(Selector::typeSubtype(Bonus::FLYING, 1)) )
+	if (!stack->hasBonus(Selector::typeSubtype(Bonus::FLYING, 1)) )
 	{
 		addNewAnim(new MovementAnimation(owner, stack, destHex, distance));
 		owner.waitForAnimationCondition(EAnimationEvents::ACTION, false);
