@@ -1171,8 +1171,21 @@ DLL_LINKAGE void AssembledArtifact::applyGs(CGameState *gs)
 	const CArtifactInstance *transformedArt = al.getArt();
 	assert(transformedArt);
 	bool combineEquipped = !ArtifactUtils::isSlotBackpack(al.slot);
-	assert(vstd::contains(transformedArt->assemblyPossibilities(artSet, combineEquipped), builtArt));
+
+	assert(vstd::contains_if(transformedArt->assemblyPossibilities(artSet, combineEquipped), [=](const CArtifact * art)->bool
+		{
+			return art->id == builtArt->id;
+		}));
+
 	UNUSED(transformedArt);
+
+	if(!vstd::contains_if(transformedArt->assemblyPossibilities(artSet, combineEquipped), [=](const CArtifact * art)->bool
+		{
+			return art->id == builtArt->id;
+		}))
+	{
+		throw std::exception("Bad");
+	}
 
 	auto combinedArt = new CCombinedArtifactInstance(builtArt);
 	gs->map->addNewArtifactInstance(combinedArt);
