@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string/>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="5">
@@ -52,7 +52,7 @@
    <item row="0" column="1">
     <widget class="QLineEdit" name="serverEdit">
      <property name="text">
-      <string>127.0.0.1:5002</string>
+      <string notr="true">127.0.0.1:5002</string>
      </property>
     </widget>
    </item>

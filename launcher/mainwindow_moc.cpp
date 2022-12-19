@@ -68,41 +68,13 @@ MainWindow::MainWindow(QWidget * parent)
 		move(position);
 	}
 
-	//set default margins
-
-	auto width = ui->startGameTitle->fontMetrics().boundingRect(ui->startGameTitle->text()).width();
-	if(ui->startGameButton->iconSize().width() < width)
-	{
-		ui->startGameButton->setIconSize(QSize(width, width));
-	}
-	auto tab_icon_size = ui->tabSelectList->iconSize();
-	if(tab_icon_size.width() < width)
-	{
-		ui->tabSelectList->setIconSize(QSize(width, width + tab_icon_size.height() - tab_icon_size.width()));
-		ui->tabSelectList->setGridSize(QSize(width, width));
-		// 4 is a dirty hack to make it look right
-		ui->tabSelectList->setMaximumWidth(width + 4);
-	}
 	ui->tabListWidget->setCurrentIndex(0);
 
 	ui->settingsView->isExtraResolutionsModEnabled = ui->modlistView->isExtraResolutionsModEnabled();
 	ui->settingsView->setDisplayList();
 	connect(ui->modlistView, &CModListView::extraResolutionsEnabledChanged,
 		ui->settingsView, &CSettingsView::fillValidResolutions);
-
-	connect(ui->tabSelectList, &QListWidget::currentRowChanged, [this](int i) {
-#ifdef Q_OS_IOS
-		if(auto widget = qApp->focusWidget())
-			widget->clearFocus();
-#endif
-		ui->tabListWidget->setCurrentIndex(i);
-	});
 	
-#ifdef Q_OS_IOS
-	QScroller::grabGesture(ui->tabSelectList, QScroller::LeftMouseButtonGesture);
-	ui->tabSelectList->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
-#endif
-
 	if(settings["launcher"]["updateOnStartup"].Bool())
 		UpdateDialog::showUpdateDialog(false);
 }
@@ -122,12 +94,25 @@ void MainWindow::on_startGameButton_clicked()
 	startGame({});
 }
 
-void MainWindow::on_tabSelectList_currentRowChanged(int currentRow)
-{
-	ui->startGameButton->setEnabled(currentRow != TabRows::LOBBY);
-}
-
 const CModList & MainWindow::getModList() const
 {
 	return ui->modlistView->getModList();
+}
+
+void MainWindow::on_modslistButton_clicked()
+{
+	ui->startGameButton->setEnabled(true);
+	ui->tabListWidget->setCurrentIndex(TabRows::MODS);
+}
+
+void MainWindow::on_settingsButton_clicked()
+{
+	ui->startGameButton->setEnabled(true);
+	ui->tabListWidget->setCurrentIndex(TabRows::SETTINGS);
+}
+
+void MainWindow::on_lobbyButton_clicked()
+{
+	ui->startGameButton->setEnabled(false);
+	ui->tabListWidget->setCurrentIndex(TabRows::LOBBY);
 }

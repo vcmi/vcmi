@@ -46,5 +46,7 @@ public slots:
 	void on_startGameButton_clicked();
 	
 private slots:
-	void on_tabSelectList_currentRowChanged(int currentRow);
+	void on_modslistButton_clicked();
+	void on_settingsButton_clicked();
+	void on_lobbyButton_clicked();
 };

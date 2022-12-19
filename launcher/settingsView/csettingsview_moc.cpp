@@ -72,12 +72,10 @@ void CSettingsView::loadSettings()
 
 #ifdef Q_OS_IOS
 	ui->comboBoxFullScreen->setCurrentIndex(true);
-	ui->checkBoxFullScreen->setChecked(false);
-	for (auto widget : std::initializer_list<QWidget *>{ui->comboBoxFullScreen, ui->checkBoxFullScreen})
-		widget->setDisabled(true);
+	ui->comboBoxFullScreen->setDisabled(true);
 #else
 	ui->comboBoxFullScreen->setCurrentIndex(settings["video"]["fullscreen"].Bool());
-	ui->checkBoxFullScreen->setChecked(settings["video"]["realFullscreen"].Bool());
+	//ui->checkBoxFullScreen->setChecked(settings["video"]["realFullscreen"].Bool());
 #endif
 
 	ui->comboBoxFriendlyAI->setCurrentText(QString::fromStdString(settings["server"]["friendlyAI"].String()));
@@ -192,14 +190,10 @@ void CSettingsView::on_comboBoxResolution_currentTextChanged(const QString & arg
 
 void CSettingsView::on_comboBoxFullScreen_currentIndexChanged(int index)
 {
-	Settings node = settings.write["video"]["fullscreen"];
-	node->Bool() = index;
-}
-
-void CSettingsView::on_checkBoxFullScreen_stateChanged(int state)
-{
-	Settings node = settings.write["video"]["realFullscreen"];
-	node->Bool() = state;
+	Settings nodeFullscreen     = settings.write["video"]["fullscreen"];
+	Settings nodeRealFullscreen = settings.write["video"]["realFullscreen"];
+	nodeFullscreen->Bool() = index != 0;
+	nodeFullscreen->Bool() = index == 2;
 }
 
 void CSettingsView::on_comboBoxAutoCheck_currentIndexChanged(int index)
