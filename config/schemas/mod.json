@@ -58,9 +58,19 @@
 		},
 		"compatibility" : {
 			"type":"object",
-			"description": "List of supported version of vcmi engine",
-			"additionalProperties" : {
-				"type" : "string"
+			"description": "Supported versions of vcmi engine",
+			"additionalProperties" : false,
+			"properties" : {
+				"min" : {
+					"type" : "string",
+					"description" : "minimal compatible vcmi engine version in a format major.minor.patch. When specified, earlier versions won't be supported"
+					//"pattern" : "^\\d+\\.\\d+\\.\\d+$" // Not implemented in schema support
+				},
+				"max" : {
+					"type" : "string",
+					"description" : "maximum compatible vcmi engine version in a format major.minor.patch. When specified, later versions won't be supported"
+					//"pattern" : "^\\d+\\.\\d+\\.\\d+$" // Not implemented in schema support
+				}
 			}
 		},
 
