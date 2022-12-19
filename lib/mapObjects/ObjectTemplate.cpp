@@ -293,7 +293,7 @@ void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
 			}
 			catch (const std::out_of_range & )
 			{
-				logGlobal->warn("Failed to find terrain %s for object %s", entry.String(), animationFile);
+				logGlobal->warn("Failed to find terrain '%s' for object '%s'", entry.String(), animationFile);
 			}
 		}
 	}
