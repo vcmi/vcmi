@@ -404,6 +404,9 @@ bool ContentTypeHandler::loadMod(std::string modName, bool validate)
 
 		if (vstd::contains(data.Struct(), "index") && !data["index"].isNull())
 		{
+			if (modName != "core")
+				logMod->warn("Mod %s is attempting to load original data! This should be reserved for built-in mod.", modName);
+
 			// try to add H3 object data
 			size_t index = static_cast<size_t>(data["index"].Float());
 
@@ -416,7 +419,7 @@ bool ContentTypeHandler::loadMod(std::string modName, bool validate)
 			}
 			else
 			{
-				logMod->warn("no original data in loadMod(%s) at index %d", name, index);
+				logMod->trace("no original data in loadMod(%s) at index %d", name, index);
 			}
 			performValidate(data, name);
 			handler->loadObject(modName, name, data, index);
