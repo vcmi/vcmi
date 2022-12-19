@@ -19,6 +19,7 @@
 #include "../CPlayerInterface.h"
 #include "../gui/CCursorHandler.h"
 #include "../gui/CGuiHandler.h"
+#include "../gui/CAnimation.h"
 #include "../windows/CSpellWindow.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/Images.h"
@@ -43,14 +44,15 @@ BattleControlPanel::BattleControlPanel(BattleInterface & owner, const Point & po
 	bSpell = std::make_shared<CButton>      (Point(645,  5), "icm005.def", CGI->generaltexth->zelp[385], std::bind(&BattleControlPanel::bSpellf,this), SDLK_c);
 	bWait = std::make_shared<CButton>       (Point(696,  5), "icm006.def", CGI->generaltexth->zelp[386], std::bind(&BattleControlPanel::bWaitf,this), SDLK_w);
 	bDefence = std::make_shared<CButton>    (Point(747,  5), "icm007.def", CGI->generaltexth->zelp[387], std::bind(&BattleControlPanel::bDefencef,this), SDLK_d);
-	bConsoleUp = std::make_shared<CButton>  (Point(624,  5), "ComSlide.def", std::make_pair("", ""),     std::bind(&BattleControlPanel::bConsoleUpf,this), SDLK_UP);
-	bConsoleDown = std::make_shared<CButton>(Point(624, 24), "ComSlide.def", std::make_pair("", ""),     std::bind(&BattleControlPanel::bConsoleDownf,this), SDLK_DOWN);
+	bSwitchAction = std::make_shared<CButton>(Point(589,  5), "icmalt00", CGI->generaltexth->zelp[387], std::bind(&BattleControlPanel::bSwitchActionf,this), SDLK_r);
+	bConsoleUp = std::make_shared<CButton>  (Point(578,  5), "ComSlide.def", std::make_pair("", ""),     std::bind(&BattleControlPanel::bConsoleUpf,this), SDLK_UP);
+	bConsoleDown = std::make_shared<CButton>(Point(578, 24), "ComSlide.def", std::make_pair("", ""),     std::bind(&BattleControlPanel::bConsoleDownf,this), SDLK_DOWN);
 
 	bDefence->assignedKeys.insert(SDLK_SPACE);
 	bConsoleUp->setImageOrder(0, 1, 0, 0);
 	bConsoleDown->setImageOrder(2, 3, 2, 2);
 
-	console = std::make_shared<BattleConsole>(Rect(211, 4, 406,38));
+	console = std::make_shared<BattleConsole>(Rect(211, 4, 350 ,38));
 	GH.statusbar = console;
 
 	if ( owner.tacticsMode )
@@ -174,6 +176,52 @@ void BattleControlPanel::reallySurrender()
 	}
 }
 
+void BattleControlPanel::showAlternativeActionIcon(PossiblePlayerBattleAction action)
+{
+	std::string iconName = "icmalt00";
+	switch(action)
+	{
+		case PossiblePlayerBattleAction::ATTACK:
+			iconName = "icmalt01";
+			break;
+			
+		case PossiblePlayerBattleAction::SHOOT:
+			iconName = "icmalt02";
+			break;
+			
+		case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:
+			iconName = "icmalt03";
+			break;
+			
+		//case PossiblePlayerBattleAction::ATTACK_AND_RETURN:
+			//iconName = "icmalt04";
+			//break;
+			
+		case PossiblePlayerBattleAction::ATTACK_AND_RETURN:
+			iconName = "icmalt05";
+			break;
+			
+		case PossiblePlayerBattleAction::WALK_AND_ATTACK:
+			iconName = "icmalt06";
+			break;
+	}
+		
+	auto anim = std::make_shared<CAnimation>(iconName);
+	bSwitchAction->setImage(anim, false);
+}
+
+void BattleControlPanel::setAlternativeActions(const std::list<PossiblePlayerBattleAction> & actions)
+{
+	alternativeActions = actions;
+	defaultAction = PossiblePlayerBattleAction::INVALID;
+	if(alternativeActions.size() > 1)
+		defaultAction = alternativeActions.back();
+	if(!alternativeActions.empty())
+		showAlternativeActionIcon(alternativeActions.front());
+	else
+		showAlternativeActionIcon(defaultAction);
+}
+
 void BattleControlPanel::bAutofightf()
 {
 	if (owner.actionsController->spellcastingModeActive())
@@ -241,6 +289,33 @@ void BattleControlPanel::bSpellf()
 										% heroName % CGI->artifacts()->getByIndex(artID)->getName()));
 		}
 	}
+}
+
+void BattleControlPanel::bSwitchActionf()
+{
+	if(alternativeActions.empty())
+		return;
+	
+	if(alternativeActions.front() == defaultAction)
+	{
+		alternativeActions.push_back(alternativeActions.front());
+		alternativeActions.pop_front();
+	}
+	
+	auto actions = owner.actionsController->getPossibleActions();
+	if(!actions.empty() && actions.front() == alternativeActions.front())
+	{
+		owner.actionsController->removePossibleAction(alternativeActions.front());
+		showAlternativeActionIcon(defaultAction);
+	}
+	else
+	{
+		owner.actionsController->pushFrontPossibleAction(alternativeActions.front());
+		showAlternativeActionIcon(alternativeActions.front());
+	}
+	
+	alternativeActions.push_back(alternativeActions.front());
+	alternativeActions.pop_front();
 }
 
 void BattleControlPanel::bWaitf()
