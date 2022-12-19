@@ -1126,6 +1126,9 @@ void CInGameConsole::textEdited(const SDL_TextEditingEvent & event)
 
 void CInGameConsole::startEnteringText()
 {
+	if (captureAllKeys)
+		return;
+
 	assert(GH.statusbar);
 	captureAllKeys = true;
 	enteredText = "_";

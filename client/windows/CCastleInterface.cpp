@@ -1019,7 +1019,7 @@ void CCreaInfo::update()
 		else
 			value = boost::lexical_cast<std::string>(town->creatureGrowth(level));
 
-		if(value != label->text)
+		if(value != label->getText())
 			label->setText(value);
 	}
 }
