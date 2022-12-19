@@ -27,6 +27,7 @@
 #include "../gui/Canvas.h"
 #include "../gui/CCursorHandler.h"
 #include "../gui/CGuiHandler.h"
+#include "../widgets/AdventureMapClasses.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/Images.h"
 #include "../widgets/TextControls.h"
@@ -116,7 +117,7 @@ BattleConsole::BattleConsole(const Rect & position)
 void BattleConsole::deactivate()
 {
 	if (enteringText)
-		setEnteringMode(false);
+		LOCPLINT->cingconsole->endEnteringText(false);
 
 	CIntObject::deactivate();
 }

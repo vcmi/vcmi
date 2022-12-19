@@ -149,8 +149,6 @@ public:
 		return ret;
 	}
 
-	void setOnClick(std::function<void()> handler);
-
 	void show(SDL_Surface * to) override;
 	void deactivate() override;
 
