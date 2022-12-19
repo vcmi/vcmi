@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../gui/CIntObject.h"
+#include "../../lib/battle/CBattleInfoCallback.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 class CStack;
@@ -31,6 +32,7 @@ class BattleControlPanel : public CIntObject
 	std::shared_ptr<CButton> bSurrender;
 	std::shared_ptr<CButton> bFlee;
 	std::shared_ptr<CButton> bAutofight;
+	std::shared_ptr<CButton> bSwitchAction;
 	std::shared_ptr<CButton> bSpell;
 	std::shared_ptr<CButton> bWait;
 	std::shared_ptr<CButton> bDefence;
@@ -46,6 +48,7 @@ class BattleControlPanel : public CIntObject
 	void bAutofightf();
 	void bSpellf();
 	void bWaitf();
+	void bSwitchActionf();
 	void bDefencef();
 	void bConsoleUpf();
 	void bConsoleDownf();
@@ -55,6 +58,11 @@ class BattleControlPanel : public CIntObject
 	/// functions for handling actions after they were confirmed by popup window
 	void reallyFlee();
 	void reallySurrender();
+	
+	/// management of alternative actions
+	std::list<PossiblePlayerBattleAction> alternativeActions;
+	PossiblePlayerBattleAction defaultAction;
+	void showAlternativeActionIcon(PossiblePlayerBattleAction);
 
 public:
 	std::shared_ptr<BattleConsole> console;
@@ -70,6 +78,9 @@ public:
 
 	/// Toggle UI to displaying battle log in place of tactics UI
 	void tacticPhaseEnded();
+	
+	/// Set possible alternative options. If more than 1 - the last will be considered as default option
+	void setAlternativeActions(const std::list<PossiblePlayerBattleAction> &);
 
 	BattleControlPanel(BattleInterface & owner, const Point & position);
 };

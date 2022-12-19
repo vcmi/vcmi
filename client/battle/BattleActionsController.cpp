@@ -759,7 +759,30 @@ void BattleActionsController::activateStack()
 {
 	const CStack * s = owner.stacksController->getActiveStack();
 	if(s)
+	{
 		possibleActions = getPossibleActionsForStack(s);
+		std::list<PossiblePlayerBattleAction> actionsToSelect;
+		if(!possibleActions.empty())
+		{
+			switch(possibleActions.front())
+			{
+				case PossiblePlayerBattleAction::SHOOT:
+					actionsToSelect.push_back(possibleActions.front());
+					actionsToSelect.push_back(PossiblePlayerBattleAction::ATTACK);
+					break;
+					
+				case PossiblePlayerBattleAction::ATTACK_AND_RETURN:
+					actionsToSelect.push_back(possibleActions.front());
+					actionsToSelect.push_back(PossiblePlayerBattleAction::WALK_AND_ATTACK);
+					break;
+					
+				case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:
+					actionsToSelect.push_back(possibleActions.front());
+					break;
+			}
+		}
+		owner.controlPanel->setAlternativeActions(actionsToSelect);
+	}
 }
 
 bool BattleActionsController::spellcastingModeActive() const
@@ -772,4 +795,19 @@ SpellID BattleActionsController::selectedSpell() const
 	if (!spellToCast)
 		return SpellID::NONE;
 	return SpellID(spellToCast->actionSubtype);
+}
+
+const std::vector<PossiblePlayerBattleAction> & BattleActionsController::getPossibleActions() const
+{
+	return possibleActions;
+}
+
+void BattleActionsController::removePossibleAction(PossiblePlayerBattleAction action)
+{
+	vstd::erase(possibleActions, action);
+}
+
+void BattleActionsController::pushFrontPossibleAction(PossiblePlayerBattleAction action)
+{
+	possibleActions.insert(possibleActions.begin(), action);
 }
