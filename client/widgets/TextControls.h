@@ -152,6 +152,7 @@ public:
 	void setOnClick(std::function<void()> handler);
 
 	void show(SDL_Surface * to) override;
+	void deactivate() override;
 
 	// IStatusBar interface
 	void write(const std::string & Text) override;

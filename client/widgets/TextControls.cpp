@@ -432,6 +432,14 @@ void CGStatusBar::clickLeft(tribool down, bool previousState)
 	}
 }
 
+void CGStatusBar::deactivate()
+{
+	if (enteringText)
+		setEnteringMode(false);
+
+	CIntObject::deactivate();
+}
+
 void CGStatusBar::setOnClick(std::function<void()> handler)
 {
 	onClick = handler;

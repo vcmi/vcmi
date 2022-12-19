@@ -113,10 +113,12 @@ BattleConsole::BattleConsole(const Rect & position)
 	pos.h = position.h;
 }
 
-BattleConsole::~BattleConsole()
+void BattleConsole::deactivate()
 {
 	if (enteringText)
 		setEnteringMode(false);
+
+	CIntObject::deactivate();
 }
 
 void BattleConsole::setEnteringMode(bool on)

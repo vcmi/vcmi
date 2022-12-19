@@ -55,12 +55,13 @@ private:
 	/// current text entered via in-game console, takes priority over both log entries and hover text
 	std::string consoleText;
 
-	/// if true then we are currently entering console text
+	/// if true then we are currently entering console tex
 	bool enteringText;
 public:
 	BattleConsole(const Rect & position);
-	~BattleConsole();
+
 	void showAll(SDL_Surface * to) override;
+	void deactivate() override;
 
 	bool addText(const std::string &text); //adds text at the last position; returns false if failed (e.g. text longer than 70 characters)
 	void scrollUp(ui32 by = 1); //scrolls console up by 'by' positions
