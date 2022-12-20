@@ -499,25 +499,25 @@ std::map<TerrainId, std::pair<SDL_Color, SDL_Color> > CMinimap::loadColors()
 {
 	std::map<TerrainId, std::pair<SDL_Color, SDL_Color> > ret;
 
-	for(const auto & terrain : CGI->terrainTypeHandler->terrains())
+	for(const auto & terrain : CGI->terrainTypeHandler->objects)
 	{
 		SDL_Color normal =
 		{
-			ui8(terrain.minimapUnblocked[0]),
-			ui8(terrain.minimapUnblocked[1]),
-			ui8(terrain.minimapUnblocked[2]),
+			ui8(terrain->minimapUnblocked[0]),
+			ui8(terrain->minimapUnblocked[1]),
+			ui8(terrain->minimapUnblocked[2]),
 			ui8(255)
 		};
 
 		SDL_Color blocked =
 		{
-			ui8(terrain.minimapBlocked[0]),
-			ui8(terrain.minimapBlocked[1]),
-			ui8(terrain.minimapBlocked[2]),
+			ui8(terrain->minimapBlocked[0]),
+			ui8(terrain->minimapBlocked[1]),
+			ui8(terrain->minimapBlocked[2]),
 			ui8(255)
 		};
 
-		ret[terrain.id] = std::make_pair(normal, blocked);
+		ret[terrain->id] = std::make_pair(normal, blocked);
 	}
 	return ret;
 }

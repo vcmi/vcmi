@@ -272,7 +272,7 @@ CTerrainViewPatternConfig::~CTerrainViewPatternConfig()
 
 const std::vector<CTerrainViewPatternConfig::TVPVector> & CTerrainViewPatternConfig::getTerrainViewPatterns(TerrainId terrain) const
 {
-	auto iter = terrainViewPatterns.find(VLC->terrainTypeHandler->terrains()[terrain].terrainViewPatterns);
+	auto iter = terrainViewPatterns.find(VLC->terrainTypeHandler->getById(terrain)->terrainViewPatterns);
 	if (iter == terrainViewPatterns.end())
 		return terrainViewPatterns.at("normal");
 	return iter->second;

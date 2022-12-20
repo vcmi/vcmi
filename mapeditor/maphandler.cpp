@@ -78,17 +78,17 @@ void MapHandler::initTerrainGraphics()
 	std::map<std::string, std::string> terrainFiles;
 	std::map<std::string, std::string> roadFiles;
 	std::map<std::string, std::string> riverFiles;
-	for(const auto & terrain : VLC->terrainTypeHandler->terrains())
+	for(const auto & terrain : VLC->terrainTypeHandler->objects)
 	{
-		terrainFiles[terrain.name] = terrain.tilesFilename;
+		terrainFiles[terrain->name] = terrain->tilesFilename;
 	}
-	for(const auto & river : VLC->terrainTypeHandler->rivers())
+	for(const auto & river : VLC->riverTypeHandler->objects)
 	{
-		riverFiles[river.fileName] = river.fileName;
+		riverFiles[river->fileName] = river->fileName;
 	}
-	for(const auto & road : VLC->terrainTypeHandler->roads())
+	for(const auto & road : VLC->roadTypeHandler->objects)
 	{
-		roadFiles[road.fileName] = road.fileName;
+		roadFiles[road->fileName] = road->fileName;
 	}
 	
 	loadFlipped(terrainAnimations, terrainImages, terrainFiles);

@@ -74,8 +74,8 @@ public:
 
 	static std::string encode(const si32 index)
 	{
-		const auto& terrains = VLC->terrainTypeHandler->terrains();
-		return (index >=0 && index < terrains.size()) ? terrains[index].name : "<INVALID TERRAIN>";
+		const auto& terrains = VLC->terrainTypeHandler->objects;
+		return (index >=0 && index < terrains.size()) ? terrains[index]->name : "<INVALID TERRAIN>";
 	}
 };
 
@@ -152,9 +152,9 @@ ZoneOptions::ZoneOptions()
 	terrainTypeLikeZone(NO_ZONE),
 	treasureLikeZone(NO_ZONE)
 {
-	for(const auto & terr : VLC->terrainTypeHandler->terrains())
-		if(terr.isLand() && terr.isPassable())
-			terrainTypes.insert(terr.id);
+	for(const auto & terr : VLC->terrainTypeHandler->objects)
+		if(terr->isLand() && terr->isPassable())
+			terrainTypes.insert(terr->id);
 }
 
 ZoneOptions & ZoneOptions::operator=(const ZoneOptions & other)
@@ -365,7 +365,7 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 			for(auto & ttype : terrainTypes)
 			{
 				JsonNode n;
-				n.String() = ttype;
+				n.String() = VLC->terrainTypeHandler->getById(ttype)->name;
 				node.Vector().push_back(n);
 			}
 		}

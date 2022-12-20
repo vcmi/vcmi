@@ -979,13 +979,13 @@ void CMapLoaderJson::readTerrainTile(const std::string & src, TerrainTile & tile
 			startPos += 2;
 			try
 			{
-				tile.roadType = const_cast<RoadType*>(VLC->terrainTypeHandler->getRoadByCode(typeCode));
+				tile.roadType = const_cast<RoadType*>(VLC->roadTypeHandler->getInfoByCode(typeCode));
 			}
 			catch (const std::exception&) //it's not a road, it's a river
 			{
 				try
 				{
-					tile.riverType = const_cast<RiverType*>(VLC->terrainTypeHandler->getRiverByCode(typeCode));
+					tile.riverType = const_cast<RiverType*>(VLC->riverTypeHandler->getInfoByCode(typeCode));
 					hasRoad = false;
 				}
 				catch (const std::exception&)
@@ -1021,7 +1021,7 @@ void CMapLoaderJson::readTerrainTile(const std::string & src, TerrainTile & tile
 		{//river type
 			const std::string typeCode = src.substr(startPos, 2);
 			startPos += 2;
-			tile.riverType = const_cast<RiverType*>(VLC->terrainTypeHandler->getRiverByCode(typeCode));
+			tile.riverType = const_cast<RiverType*>(VLC->riverTypeHandler->getInfoByCode(typeCode));
 		}
 		{//river dir
 			int pos = startPos;

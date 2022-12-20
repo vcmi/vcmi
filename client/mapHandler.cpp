@@ -175,17 +175,17 @@ void CMapHandler::initTerrainGraphics()
 	std::map<std::string, std::string> terrainFiles;
 	std::map<std::string, std::string> riverFiles;
 	std::map<std::string, std::string> roadFiles;
-	for(const auto & terrain : VLC->terrainTypeHandler->terrains())
+	for(const auto & terrain : VLC->terrainTypeHandler->objects)
 	{
-		terrainFiles[terrain.name] = terrain.tilesFilename;
+		terrainFiles[terrain->name] = terrain->tilesFilename;
 	}
-	for(const auto & river : VLC->terrainTypeHandler->rivers())
+	for(const auto & river : VLC->riverTypeHandler->objects)
 	{
-		riverFiles[river.fileName] = river.fileName;
+		riverFiles[river->fileName] = river->fileName;
 	}
-	for(const auto & road : VLC->terrainTypeHandler->roads())
+	for(const auto & road : VLC->roadTypeHandler->objects)
 	{
-		roadFiles[road.fileName] = road.fileName;
+		roadFiles[road->fileName] = road->fileName;
 	}
 	
 	loadFlipped(terrainAnimations, terrainImages, terrainFiles);
@@ -1388,8 +1388,8 @@ void CMapHandler::getTerrainDescr(const int3 & pos, std::string & out, bool isRM
 			break;
 		}
 	}
-	if(!isTile2Terrain || out.empty())
-		out = CGI->generaltexth->terrainNames[t.terType->id];
+
+	VLC->terrainTypeHandler->getById(t.terType->id)->terrainText;
 
 	if(t.getDiggingStatus(false) == EDiggingStatus::CAN_DIG)
 	{

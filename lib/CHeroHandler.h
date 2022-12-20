@@ -260,7 +260,6 @@ class DLL_LINKAGE CHeroHandler : public CHandlerBase<HeroTypeID, HeroType, CHero
 
 	void loadExperience();
 	void loadBallistics();
-	void loadTerrains();
 
 public:
 	CHeroClassHandler classes;

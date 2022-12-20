@@ -830,29 +830,6 @@ public:
 
 ID_LIKE_OPERATORS(Obj, Obj::EObj)
 
-namespace Terrain
-{
-	enum ETerrain : si8
-	{
-		NATIVE_TERRAIN = -4,
-		ANY_TERRAIN = -3,
-		WRONG = -2,
-		BORDER = -1,
-		FIRST_REGULAR_TERRAIN = 0,
-		DIRT = 0,
-		SAND,
-		GRASS,
-		SNOW,
-		SWAMP,
-		ROUGH,
-		SUBTERRANEAN,
-		LAVA,
-		WATER,
-		ROCK,
-		ORIGINAL_TERRAIN_COUNT
-	};
-}
-
 namespace Road
 {
 	enum ERoad : ui8
@@ -1181,7 +1158,50 @@ class BattleField : public BaseForID<BattleField, si32>
 
 	DLL_LINKAGE static BattleField fromString(std::string identifier);
 };
-	
+
+class TerrainId
+{
+public:
+	enum ETerrainID {
+			NATIVE_TERRAIN = -4,
+			ANY_TERRAIN = -3,
+			WRONG = -2,
+			BORDER = -1,
+			FIRST_REGULAR_TERRAIN = 0,
+			DIRT,
+			SAND,
+			GRASS,
+			SNOW,
+			SWAMP,
+			ROUGH,
+			SUBTERRANEAN,
+			LAVA,
+			WATER,
+			ROCK,
+			ORIGINAL_TERRAIN_COUNT
+	};
+
+	TerrainId(ETerrainID _num = WRONG) : num(_num)
+	{}
+
+	ETerrainID num;
+
+	ID_LIKE_CLASS_COMMON(TerrainId, ETerrainID)
+
+	DLL_LINKAGE operator std::string() const;
+	DLL_LINKAGE const TerrainId * getInfo() const;
+
+	DLL_LINKAGE static ETerrainID fromString(std::string identifier);
+
+	TerrainId & operator++()
+	{
+		num = static_cast<ETerrainID>(static_cast<int>(num) + 1);
+		return *this;
+	}
+};
+
+ID_LIKE_OPERATORS(TerrainId, TerrainId::ETerrainID)
+
 class ObstacleInfo;
 class Obstacle : public BaseForID<Obstacle, si32>
 {
@@ -1239,7 +1259,7 @@ typedef si64 TExpType;
 typedef std::pair<si64, si64> TDmgRange;
 typedef si32 TBonusSubtype;
 typedef si32 TQuantity;
-typedef si8 TerrainId;
+//typedef si8 TerrainId;
 typedef si8 RoadId;
 typedef si8 RiverId;
 

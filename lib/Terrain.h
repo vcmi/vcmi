@@ -10,16 +10,25 @@
 
 #pragma once
 
+#include <vcmi/EntityService.h>
+#include <vcmi/Entity.h>
 #include "ConstTransitivePtr.h"
 #include "GameConstants.h"
 #include "JsonNode.h"
+#include "IHandlerBase.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class DLL_LINKAGE TerrainType
+class DLL_LINKAGE TerrainType : public EntityT<TerrainId>
 {
 public:
-	
+	int32_t getIndex() const override;
+	int32_t getIconIndex() const override;
+	const std::string & getName() const override;
+	const std::string & getJsonKey() const override;
+	void registerIcons(const IconRegistar & cb) const override;
+	TerrainId getId() const override;
+
 	enum PassabilityType : ui8
 	{
 		LAND = 1,
@@ -88,10 +97,16 @@ public:
 	}
 };
 
-class DLL_LINKAGE RiverType
+class DLL_LINKAGE RiverType : public EntityT<TerrainId>
 {
 public:
-	std::string name;
+	int32_t getIndex() const override;
+	int32_t getIconIndex() const override;
+	const std::string & getName() const override;
+	const std::string & getJsonKey() const override;
+	void registerIcons(const IconRegistar & cb) const override;
+	TerrainId getId() const override;
+
 	std::string fileName;
 	std::string code;
 	std::string deltaName;
@@ -101,10 +116,6 @@ public:
 
 	template <typename Handler> void serialize(Handler& h, const int version)
 	{
-		if(version >= 806)
-		{
-			h & name;
-		}
 		h & fileName;
 		h & code;
 		h & deltaName;
@@ -112,10 +123,16 @@ public:
 	}
 };
 
-class DLL_LINKAGE RoadType
+class DLL_LINKAGE RoadType : public EntityT<TerrainId>
 {
 public:
-	std::string name;
+	int32_t getIndex() const override;
+	int32_t getIconIndex() const override;
+	const std::string & getName() const override;
+	const std::string & getJsonKey() const override;
+	void registerIcons(const IconRegistar & cb) const override;
+	TerrainId getId() const override;
+
 	std::string fileName;
 	std::string code;
 	RoadId id;
@@ -125,10 +142,6 @@ public:
 
 	template <typename Handler> void serialize(Handler& h, const int version)
 	{
-		if(version >= 806)
-		{
-			h & name;
-		}
 		h & fileName;
 		h & code;
 		h & id;
@@ -136,69 +149,85 @@ public:
 	}
 };
 
-DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const TerrainType & terrainType);
-
-class DLL_LINKAGE TerrainTypeHandler //TODO: public IHandlerBase ?
+class DLL_LINKAGE TerrainTypeService : public EntityServiceT<TerrainId, TerrainType>
 {
 public:
+};
 
-	TerrainTypeHandler();
-	~TerrainTypeHandler() {};
+class DLL_LINKAGE RiverTypeService : public EntityServiceT<TerrainId, RiverType>
+{
+public:
+};
 
-	const std::vector<TerrainType> & terrains() const;
-	const TerrainType * getInfoByName(const std::string & terrainName) const;
-	const TerrainType * getInfoByCode(const std::string & terrainCode) const;
-	const TerrainType * getInfoById(TerrainId id) const;
+class DLL_LINKAGE RoadTypeService : public EntityServiceT<TerrainId, RoadType>
+{
+public:
+};
 
-	const std::vector<RiverType> & rivers() const;
-	const RiverType * getRiverByName(const std::string & riverName) const;
-	const RiverType * getRiverByCode(const std::string & riverCode) const;
-	const RiverType * getRiverById(RiverId id) const;
+class DLL_LINKAGE TerrainTypeHandler : public CHandlerBase<TerrainId, TerrainType, TerrainType, TerrainTypeService>
+{
+public:
+	virtual TerrainType * loadFromJson(
+		const std::string & scope,
+		const JsonNode & json,
+		const std::string & identifier,
+		size_t index) override;
 
-	const std::vector<RoadType> & roads() const;
-	const RoadType * getRoadByName(const std::string & roadName) const;
-	const RoadType * getRoadByCode(const std::string & roadCode) const;
-	const RoadType * getRoadById(RoadId id) const;
+	virtual const std::vector<std::string> & getTypeNames() const override;
+	virtual std::vector<JsonNode> loadLegacyData(size_t dataSize) override;
+	virtual std::vector<bool> getDefaultAllowed() const override;
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	TerrainType * getInfoByCode(const std::string & identifier);
+	TerrainType * getInfoByName(const std::string & identifier);
+
+	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & objects;
-		h & riverTypes;
-		h & roadTypes;
-
-		if (!h.saving)
-		{
-			recreateTerrainMaps();
-			recreateRiverMaps();
-			recreateRoadMaps();
-		}
 	}
+};
 
-private:
+class DLL_LINKAGE RiverTypeHandler : public CHandlerBase<TerrainId, RiverType, RiverType, RiverTypeService>
+{
+public:
+	virtual RiverType * loadFromJson(
+		const std::string & scope,
+		const JsonNode & json,
+		const std::string & identifier,
+		size_t index) override;
 
-	std::vector<TerrainType> objects;
-	std::vector<RiverType> riverTypes;
-	std::vector<RoadType> roadTypes;
+	virtual const std::vector<std::string> & getTypeNames() const override;
+	virtual std::vector<JsonNode> loadLegacyData(size_t dataSize) override;
+	virtual std::vector<bool> getDefaultAllowed() const override;
 
-	std::unordered_map<std::string, const TerrainType*> terrainInfoByName;
-	std::unordered_map<std::string, const TerrainType*> terrainInfoByCode;
-	std::unordered_map<TerrainId, const TerrainType*> terrainInfoById;
+	RiverType * getInfoByCode(const std::string & identifier);
+	RiverType * getInfoByName(const std::string & identifier);
 
-	std::unordered_map<std::string, const RiverType*> riverInfoByName;
-	std::unordered_map<std::string, const RiverType*> riverInfoByCode;
-	std::unordered_map<RiverId, const RiverType*> riverInfoById;
+	template <typename Handler> void serialize(Handler & h, const int version)
+	{
+		h & objects;
+	}
+};
 
-	std::unordered_map<std::string, const RoadType*> roadInfoByName;
-	std::unordered_map<std::string, const RoadType*> roadInfoByCode;
-	std::unordered_map<RoadId, const RoadType*> roadInfoById;
+class DLL_LINKAGE RoadTypeHandler : public CHandlerBase<TerrainId, RoadType, RoadType, RoadTypeService>
+{
+public:
+	virtual RoadType * loadFromJson(
+		const std::string & scope,
+		const JsonNode & json,
+		const std::string & identifier,
+		size_t index) override;
 
-	void initTerrains(const std::vector<std::string> & allConfigs);
-	void initRivers(const std::vector<std::string> & allConfigs);
-	void initRoads(const std::vector<std::string> & allConfigs);
-	void recreateTerrainMaps();
-	void recreateRiverMaps();
-	void recreateRoadMaps();
+	virtual const std::vector<std::string> & getTypeNames() const override;
+	virtual std::vector<JsonNode> loadLegacyData(size_t dataSize) override;
+	virtual std::vector<bool> getDefaultAllowed() const override;
 
+	RoadType * getInfoByCode(const std::string & identifier);
+	RoadType * getInfoByName(const std::string & identifier);
+
+	template <typename Handler> void serialize(Handler & h, const int version)
+	{
+		h & objects;
+	}
 };
 
 VCMI_LIB_NAMESPACE_END

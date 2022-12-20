@@ -343,7 +343,6 @@ CGeneralTextHandler::CGeneralTextHandler():
 	advobtxt         (*this, "core.advevent" ),
 	xtrainfo         (*this, "core.xtrainfo" ),
 	restypes         (*this, "core.restypes" ),
-	terrainNames     (*this, "core.terrname" ),
 	randsign         (*this, "core.randsign" ),
 	overview         (*this, "core.overview" ),
 	arraytxt         (*this, "core.arraytxt" ),
@@ -372,7 +371,6 @@ CGeneralTextHandler::CGeneralTextHandler():
 	readToVector("core.advevent", "DATA/ADVEVENT.TXT" );
 	readToVector("core.xtrainfo", "DATA/XTRAINFO.TXT" );
 	readToVector("core.restypes", "DATA/RESTYPES.TXT" );
-	readToVector("core.terrname", "DATA/TERRNAME.TXT" );
 	readToVector("core.randsign", "DATA/RANDSIGN.TXT" );
 	readToVector("core.overview", "DATA/OVERVIEW.TXT" );
 	readToVector("core.arraytxt", "DATA/ARRAYTXT.TXT" );

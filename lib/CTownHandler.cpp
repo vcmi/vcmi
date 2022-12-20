@@ -28,9 +28,9 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 const int NAMES_PER_TOWN=16; // number of town names per faction in H3 files. Json can define any number
 
-const TerrainId CTownHandler::defaultGoodTerrain(Terrain::GRASS);
-const TerrainId CTownHandler::defaultEvilTerrain(Terrain::LAVA);
-const TerrainId CTownHandler::defaultNeutralTerrain(Terrain::ROUGH);
+const TerrainId CTownHandler::defaultGoodTerrain(TerrainId::GRASS);
+const TerrainId CTownHandler::defaultEvilTerrain(TerrainId::LAVA);
+const TerrainId CTownHandler::defaultNeutralTerrain(TerrainId::ROUGH);
 
 const std::map<std::string, CBuilding::EBuildMode> CBuilding::MODES =
 {

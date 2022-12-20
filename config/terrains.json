@@ -1,7 +1,7 @@
 {
 	"dirt" :
 	{
-		"originalTerrainId": 0,
+		"index": 0,
 		"moveCost" : 100,
 		"minimapUnblocked" : [ 82, 56, 8 ],
 		"minimapBlocked"   : [ 57, 40, 8 ],
@@ -15,7 +15,7 @@
 	},
 	"sand" :
 	{
-		"originalTerrainId": 1,
+		"index": 1,
 		"moveCost" : 150,
 		"minimapUnblocked" : [ 222, 207, 140 ],
 		"minimapBlocked"   : [ 165, 158, 107 ],
@@ -30,7 +30,7 @@
 	},
 	"grass" :
 	{
-		"originalTerrainId": 2,
+		"index": 2,
 		"moveCost" : 100,
 		"minimapUnblocked" : [ 0, 65, 0 ],
 		"minimapBlocked"   : [ 0, 48, 0 ],
@@ -43,7 +43,7 @@
 	},
 	"snow" :
 	{
-		"originalTerrainId": 3,
+		"index": 3,
 		"moveCost" : 150,
 		"minimapUnblocked" : [ 181, 199, 198 ],
 		"minimapBlocked"   : [ 140, 158, 156 ],
@@ -56,7 +56,7 @@
 	},
 	"swamp" :
 	{
-		"originalTerrainId": 4,
+		"index": 4,
 		"moveCost" : 175,
 		"minimapUnblocked" : [ 74, 134, 107 ],
 		"minimapBlocked"   : [ 33,  89,  66 ],
@@ -69,7 +69,7 @@
 	},
 	"rough" :
 	{
-		"originalTerrainId": 5,
+		"index": 5,
 		"moveCost" : 125,
 		"minimapUnblocked" : [ 132, 113, 49 ],
 		"minimapBlocked"   : [  99,  81, 33 ],
@@ -82,7 +82,7 @@
 	},
 	"subterra" :
 	{
-		"originalTerrainId": 6,
+		"index": 6,
 		"moveCost" : 100,
 		"minimapUnblocked" : [ 132, 48, 0 ],
 		"minimapBlocked"   : [  90,  8, 0 ],
@@ -97,7 +97,7 @@
 	},
 	"lava" :
 	{
-		"originalTerrainId": 7,
+		"index": 7,
 		"moveCost" : 100,
 		"minimapUnblocked" : [ 74, 73, 74 ],
 		"minimapBlocked"   : [ 41, 40, 41 ],
@@ -112,7 +112,7 @@
 	},
 	"water" :
 	{
-		"originalTerrainId": 8,
+		"index": 8,
 		"moveCost" : 100,
 		"minimapUnblocked" : [ 8, 81, 148 ],
 		"minimapBlocked"   : [ 8, 81, 148 ],
@@ -130,7 +130,7 @@
 	},
 	"rock" :
 	{
-		"originalTerrainId": 9,
+		"index": 9,
 		"moveCost" : -1,
 		"minimapUnblocked" : [ 0, 0, 0 ],
 		"minimapBlocked"   : [ 0, 0, 0 ],

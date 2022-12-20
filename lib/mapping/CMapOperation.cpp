@@ -97,7 +97,7 @@ void CDrawTerrainOperation::execute()
 	for(const auto & pos : terrainSel.getSelectedItems())
 	{
 		auto & tile = map->getTile(pos);
-		tile.terType = const_cast<TerrainType*>(&VLC->terrainTypeHandler->terrains()[terType]);
+		tile.terType = const_cast<TerrainType*>(VLC->terrainTypeHandler->getById(terType));
 		invalidateTerrainViews(pos);
 	}
 
@@ -422,14 +422,14 @@ CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainVi
 			bool nativeTestOk, nativeTestStrongOk;
 			nativeTestOk = nativeTestStrongOk = (rule.isNativeStrong() || rule.isNativeRule()) && !isAlien;
 
-			if(centerTerType->id == Terrain::DIRT)
+			if(centerTerType->id == TerrainId::DIRT)
 			{
 				nativeTestOk = rule.isNativeRule() && !terType->isTransitionRequired();
 				bool sandTestOk = (rule.isSandRule() || rule.isTransition())
 					&& terType->isTransitionRequired();
 				applyValidationRslt(rule.isAnyRule() || sandTestOk || nativeTestOk || nativeTestStrongOk);
 			}
-			else if(centerTerType->id == Terrain::SAND)
+			else if(centerTerType->id == TerrainId::SAND)
 			{
 				applyValidationRslt(true);
 			}
@@ -551,12 +551,12 @@ CClearTerrainOperation::CClearTerrainOperation(CMap* map, CRandomGenerator* gen)
 {
 	CTerrainSelection terrainSel(map);
 	terrainSel.selectRange(MapRect(int3(0, 0, 0), map->width, map->height));
-	addOperation(std::make_unique<CDrawTerrainOperation>(map, terrainSel, Terrain::WATER, gen));
+	addOperation(std::make_unique<CDrawTerrainOperation>(map, terrainSel, TerrainId::WATER, gen));
 	if(map->twoLevel)
 	{
 		terrainSel.clearSelection();
 		terrainSel.selectRange(MapRect(int3(0, 0, 1), map->width, map->height));
-		addOperation(std::make_unique<CDrawTerrainOperation>(map, terrainSel, Terrain::ROCK, gen));
+		addOperation(std::make_unique<CDrawTerrainOperation>(map, terrainSel, TerrainId::ROCK, gen));
 	}
 }
 

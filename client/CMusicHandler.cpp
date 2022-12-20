@@ -94,30 +94,29 @@ CSoundHandler::CSoundHandler():
 	//TODO: support custom sounds for new terrains and load from json
 	horseSounds =
 	{
-		{Terrain::DIRT, soundBase::horseDirt},
-		{Terrain::SAND, soundBase::horseSand},
-		{Terrain::GRASS, soundBase::horseGrass},
-		{Terrain::SNOW, soundBase::horseSnow},
-		{Terrain::SWAMP, soundBase::horseSwamp},
-		{Terrain::ROUGH, soundBase::horseRough},
-		{Terrain::SUBTERRANEAN, soundBase::horseSubterranean},
-		{Terrain::LAVA, soundBase::horseLava},
-		{Terrain::WATER, soundBase::horseWater},
-		{Terrain::ROCK, soundBase::horseRock}
+		{TerrainId::DIRT, soundBase::horseDirt},
+		{TerrainId::SAND, soundBase::horseSand},
+		{TerrainId::GRASS, soundBase::horseGrass},
+		{TerrainId::SNOW, soundBase::horseSnow},
+		{TerrainId::SWAMP, soundBase::horseSwamp},
+		{TerrainId::ROUGH, soundBase::horseRough},
+		{TerrainId::SUBTERRANEAN, soundBase::horseSubterranean},
+		{TerrainId::LAVA, soundBase::horseLava},
+		{TerrainId::WATER, soundBase::horseWater},
+		{TerrainId::ROCK, soundBase::horseRock}
 	};
 }
 
 void CSoundHandler::loadHorseSounds()
 {
-	const auto & terrains = CGI->terrainTypeHandler->terrains();
-	for(const auto & terrain : terrains)
+	for(const auto & terrain : CGI->terrainTypeHandler->objects)
 	{
 		//since all sounds are hardcoded, let's keep it
-		if(vstd::contains(horseSounds, terrain.id))
+		if(vstd::contains(horseSounds, terrain->id))
 			continue;
 
 		//Use already existing horse sound
-		horseSounds[terrain.id] = horseSounds.at(terrains[terrain.id].horseSoundId);
+		horseSounds[terrain->id] = horseSounds.at(static_cast<TerrainId>(CGI->terrainTypeHandler->getById(terrain->id)->horseSoundId));
 	}
 }
 
@@ -368,9 +367,9 @@ CMusicHandler::CMusicHandler():
 
 void CMusicHandler::loadTerrainMusicThemes()
 {
-	for (const auto & terrain : CGI->terrainTypeHandler->terrains())
+	for (const auto & terrain : CGI->terrainTypeHandler->objects)
 	{
-		addEntryToSet("terrain_" + terrain.name, "Music/" + terrain.musicFilename);
+		addEntryToSet("terrain_" + terrain->name, "Music/" + terrain->musicFilename);
 	}
 }
 

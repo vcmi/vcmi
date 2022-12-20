@@ -128,9 +128,9 @@ CCastleEvent::CCastleEvent() : town(nullptr)
 TerrainTile::TerrainTile():
 	terType(nullptr),
 	terView(0),
-	riverType(const_cast<RiverType*>(&VLC->terrainTypeHandler->rivers()[River::NO_RIVER])),
+	riverType(nullptr),
 	riverDir(0),
-	roadType(const_cast<RoadType*>(&VLC->terrainTypeHandler->roads()[Road::NO_ROAD])),
+	roadType(nullptr),
 	roadDir(0),
 	extTileFlags(0),
 	visitable(false),

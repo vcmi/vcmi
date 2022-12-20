@@ -78,8 +78,10 @@ void RoadPlacer::drawRoads(bool secondary)
 	zone.areaPossible().subtract(roads);
 	zone.freePaths().unite(roads);
 	map.getEditManager()->getTerrainSelection().setSelection(roads.getTilesVector());
+
 	std::string roadName = (secondary ? generator.getConfig().secondaryRoadType : generator.getConfig().defaultRoadType);
-	RoadId roadType = VLC->terrainTypeHandler->getRoadByName(roadName)->id;
+	RoadId roadType = VLC->roadTypeHandler->getInfoByName(roadName)->id;
+
 	map.getEditManager()->drawRoad(roadType, &generator.rand);
 }
 
