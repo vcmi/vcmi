@@ -21,6 +21,7 @@
 #include "../lib/VCMI_Lib.h"
 #include "../lib/logging/CBasicLogConfigurator.h"
 #include "../lib/CConfigHandler.h"
+#include "../lib/CModHandler.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/GameConstants.h"
 #include "../lib/mapping/CMapService.h"
@@ -558,7 +559,7 @@ void MainWindow::loadObjectsTree()
 	{
 		QPushButton *b = new QPushButton(QString::fromStdString(road->fileName));
 		ui->roadLayout->addWidget(b);
-		connect(b, &QPushButton::clicked, this, [this, road]{ roadOrRiverButtonClicked(road->id, true); });
+		connect(b, &QPushButton::clicked, this, [this, road]{ roadOrRiverButtonClicked(road->id.getNum(), true); });
 	}
 	//add spacer to keep terrain button on the top
 	ui->roadLayout->addItem(new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Expanding));
@@ -567,7 +568,7 @@ void MainWindow::loadObjectsTree()
 	{
 		QPushButton *b = new QPushButton(QString::fromStdString(river->fileName));
 		ui->riverLayout->addWidget(b);
-		connect(b, &QPushButton::clicked, this, [this, river]{ roadOrRiverButtonClicked(river->id, false); });
+		connect(b, &QPushButton::clicked, this, [this, river]{ roadOrRiverButtonClicked(river->id.getNum(), false); });
 	}
 	//add spacer to keep terrain button on the top
 	ui->riverLayout->addItem(new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Expanding));
@@ -914,7 +915,13 @@ void MainWindow::on_terrainFilterCombo_currentTextChanged(const QString &arg1)
 	if(!objectBrowser)
 		return;
 
-	objectBrowser->terrain = arg1.isEmpty() ? TerrainId(TerrainId::ANY_TERRAIN) : VLC->terrainTypeHandler->getInfoByName(arg1.toStdString())->id;
+	objectBrowser->terrain = TerrainId(ETerrainId::ANY_TERRAIN);
+	if (!arg1.isEmpty())
+	{
+		for (auto const & terrain : VLC->terrainTypeHandler->objects)
+			if (terrain->name == arg1.toStdString())
+				objectBrowser->terrain = terrain->id;
+	}
 	objectBrowser->invalidate();
 	objectBrowser->sort(0);
 }

@@ -346,6 +346,37 @@ CMapFormatJson::CMapFormatJson():
 
 }
 
+TerrainType * CMapFormatJson::getTerrainByCode( std::string code)
+{
+	for ( auto const & object : VLC->terrainTypeHandler->objects)
+	{
+		if (object->typeCode == code)
+			return const_cast<TerrainType *>(object.get());
+	}
+	return nullptr;
+}
+
+RiverType * CMapFormatJson::getRiverByCode( std::string code)
+{
+	for ( auto const & object : VLC->riverTypeHandler->objects)
+	{
+		if (object->code == code)
+			return const_cast<RiverType *>(object.get());
+	}
+	return nullptr;
+}
+
+RoadType * CMapFormatJson::getRoadByCode( std::string code)
+{
+	for ( auto const & object : VLC->roadTypeHandler->objects)
+	{
+		if (object->code == code)
+			return const_cast<RoadType *>(object.get());
+	}
+	return nullptr;
+}
+
+
 void CMapFormatJson::serializeAllowedFactions(JsonSerializeFormat & handler, std::set<TFaction> & value)
 {
 	//TODO: unify allowed factions with others - make them std::vector<bool>
@@ -949,7 +980,7 @@ void CMapLoaderJson::readTerrainTile(const std::string & src, TerrainTile & tile
 		using namespace TerrainDetail;
 		{//terrain type
 			const std::string typeCode = src.substr(0, 2);
-			tile.terType = const_cast<TerrainType*>(VLC->terrainTypeHandler->getInfoByCode(typeCode));
+			tile.terType = getTerrainByCode(typeCode);
 		}
 		int startPos = 2; //0+typeCode fixed length
 		{//terrain view
@@ -979,13 +1010,13 @@ void CMapLoaderJson::readTerrainTile(const std::string & src, TerrainTile & tile
 			startPos += 2;
 			try
 			{
-				tile.roadType = const_cast<RoadType*>(VLC->roadTypeHandler->getInfoByCode(typeCode));
+				tile.roadType = getRoadByCode(typeCode);
 			}
 			catch (const std::exception&) //it's not a road, it's a river
 			{
 				try
 				{
-					tile.riverType = const_cast<RiverType*>(VLC->riverTypeHandler->getInfoByCode(typeCode));
+					tile.riverType = getRiverByCode(typeCode);
 					hasRoad = false;
 				}
 				catch (const std::exception&)
@@ -1021,7 +1052,7 @@ void CMapLoaderJson::readTerrainTile(const std::string & src, TerrainTile & tile
 		{//river type
 			const std::string typeCode = src.substr(startPos, 2);
 			startPos += 2;
-			tile.riverType = const_cast<RiverType*>(VLC->riverTypeHandler->getInfoByCode(typeCode));
+			tile.riverType = getRiverByCode(typeCode);
 		}
 		{//river dir
 			int pos = startPos;

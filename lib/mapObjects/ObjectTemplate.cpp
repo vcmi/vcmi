@@ -157,15 +157,15 @@ void ObjectTemplate::readTxt(CLegacyConfigParser & parser)
 	// so these two fields can be interpreted as "strong affinity" and "weak affinity" towards terrains
 	std::string & terrStr = strings[4]; // allowed terrains, 1 = object can be placed on this terrain
 
-	assert(terrStr.size() == TerrainId::ROCK); // all terrains but rock - counting from 0
-	for(TerrainId i = TerrainId(0); i < TerrainId::ROCK; ++i)
+	assert(terrStr.size() == TerrainId(ETerrainId::ROCK).getNum()); // all terrains but rock - counting from 0
+	for(TerrainId i = TerrainId(0); i < ETerrainId::ROCK; ++i)
 	{
-		if (terrStr[8-i] == '1')
+		if (terrStr[8-i.getNum()] == '1')
 			allowedTerrains.insert(i);
 	}
 	
 	//assuming that object can be placed on other land terrains
-	if(allowedTerrains.size() >= 8 && !allowedTerrains.count(TerrainId::WATER))
+	if(allowedTerrains.size() >= 8 && !allowedTerrains.count(ETerrainId::WATER))
 	{
 		for(const auto & terrain : VLC->terrainTypeHandler->objects)
 		{
@@ -231,14 +231,14 @@ void ObjectTemplate::readMap(CBinaryReader & reader)
 
 	reader.readUInt16();
 	ui16 terrMask = reader.readUInt16();
-	for(TerrainId i = TerrainId::FIRST_REGULAR_TERRAIN; i < TerrainId::ORIGINAL_TERRAIN_COUNT; ++i)
+	for(TerrainId i = ETerrainId::FIRST_REGULAR_TERRAIN; i < ETerrainId::ORIGINAL_TERRAIN_COUNT; ++i)
 	{
-		if (((terrMask >> i) & 1 ) != 0)
+		if (((terrMask >> i.getNum()) & 1 ) != 0)
 			allowedTerrains.insert(i);
 	}
 	
 	//assuming that object can be placed on other land terrains
-	if(allowedTerrains.size() >= 8 && !allowedTerrains.count(TerrainId::WATER))
+	if(allowedTerrains.size() >= 8 && !allowedTerrains.count(ETerrainId::WATER))
 	{
 		for(const auto & terrain : VLC->terrainTypeHandler->objects)
 		{
@@ -288,13 +288,9 @@ void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
 	{
 		for(auto& entry : node["allowedTerrains"].Vector())
 		{
-			try {
-				allowedTerrains.insert(VLC->terrainTypeHandler->getInfoByName(entry.String())->id);
-			}
-			catch (const std::out_of_range & )
-			{
-				logGlobal->warn("Failed to find terrain '%s' for object '%s'", entry.String(), animationFile);
-			}
+			VLC->modh->identifiers.requestIdentifier("terrain", entry, [this](int32_t identifier){
+				allowedTerrains.insert(TerrainId(identifier));
+			});
 		}
 	}
 	else

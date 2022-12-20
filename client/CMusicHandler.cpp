@@ -94,16 +94,16 @@ CSoundHandler::CSoundHandler():
 	//TODO: support custom sounds for new terrains and load from json
 	horseSounds =
 	{
-		{TerrainId::DIRT, soundBase::horseDirt},
-		{TerrainId::SAND, soundBase::horseSand},
-		{TerrainId::GRASS, soundBase::horseGrass},
-		{TerrainId::SNOW, soundBase::horseSnow},
-		{TerrainId::SWAMP, soundBase::horseSwamp},
-		{TerrainId::ROUGH, soundBase::horseRough},
-		{TerrainId::SUBTERRANEAN, soundBase::horseSubterranean},
-		{TerrainId::LAVA, soundBase::horseLava},
-		{TerrainId::WATER, soundBase::horseWater},
-		{TerrainId::ROCK, soundBase::horseRock}
+		{ETerrainId::DIRT, soundBase::horseDirt},
+		{ETerrainId::SAND, soundBase::horseSand},
+		{ETerrainId::GRASS, soundBase::horseGrass},
+		{ETerrainId::SNOW, soundBase::horseSnow},
+		{ETerrainId::SWAMP, soundBase::horseSwamp},
+		{ETerrainId::ROUGH, soundBase::horseRough},
+		{ETerrainId::SUBTERRANEAN, soundBase::horseSubterranean},
+		{ETerrainId::LAVA, soundBase::horseLava},
+		{ETerrainId::WATER, soundBase::horseWater},
+		{ETerrainId::ROCK, soundBase::horseRock}
 	};
 }
 

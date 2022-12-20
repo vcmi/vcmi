@@ -108,12 +108,12 @@ RandomMapTab::RandomMapTab():
 		GH.pushIntT<TeamAlignmentsWidget>(*this);
 	});
 	
-	for(auto road : VLC->terrainTypeHandler->roads())
+	for(auto road : VLC->roadTypeHandler->objects)
 	{
-		std::string cbRoadType = "selectRoad_" + road.name;
+		std::string cbRoadType = "selectRoad_" + road->getName();
 		addCallback(cbRoadType, [&, road](bool on)
 		{
-			mapGenOptions->setRoadEnabled(road.name, on);
+			mapGenOptions->setRoadEnabled(road->getName(), on);
 			updateMapInfoByHost();
 		});
 	}
@@ -283,11 +283,11 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 		else
 			w->addTextOverlay(readText(variables["defaultTemplate"]), EFonts::FONT_SMALL);
 	}
-	for(auto r : VLC->terrainTypeHandler->roads())
+	for(auto r : VLC->roadTypeHandler->objects)
 	{
-		if(auto w = widget<CToggleButton>(r.name))
+		if(auto w = widget<CToggleButton>(r->getName()))
 		{
-			w->setSelected(opts->isRoadEnabled(r.name));
+			w->setSelected(opts->isRoadEnabled(r->getName()));
 		}
 	}
 }

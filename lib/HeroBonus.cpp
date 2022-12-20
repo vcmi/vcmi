@@ -2106,7 +2106,7 @@ bool CPropagatorNodeType::shouldBeAttached(CBonusSystemNode *dest)
 }
 
 CreatureTerrainLimiter::CreatureTerrainLimiter()
-	: terrainType(TerrainId::NATIVE_TERRAIN)
+	: terrainType(ETerrainId::NATIVE_TERRAIN)
 {
 }
 
@@ -2120,7 +2120,7 @@ int CreatureTerrainLimiter::limit(const BonusLimitationContext &context) const
 	const CStack *stack = retrieveStackBattle(&context.node);
 	if(stack)
 	{
-		if (terrainType == TerrainId::NATIVE_TERRAIN)//terrainType not specified = native
+		if (terrainType == ETerrainId::NATIVE_TERRAIN)//terrainType not specified = native
 		{
 			return !stack->isOnNativeTerrain();
 		}
@@ -2137,7 +2137,7 @@ std::string CreatureTerrainLimiter::toString() const
 {
 	boost::format fmt("CreatureTerrainLimiter(terrainType=%s)");
 	auto terrainName = VLC->terrainTypeHandler->getById(terrainType)->name;
-	fmt % (terrainType == TerrainId::NATIVE_TERRAIN ? "native" : terrainName);
+	fmt % (terrainType == ETerrainId::NATIVE_TERRAIN ? "native" : terrainName);
 	return fmt.str();
 }
 

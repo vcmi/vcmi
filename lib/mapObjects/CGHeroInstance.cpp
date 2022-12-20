@@ -81,13 +81,13 @@ ui32 CGHeroInstance::getTileCost(const TerrainTile & dest, const TerrainTile & f
 	int64_t ret = GameConstants::BASE_MOVEMENT_COST;
 
 	//if there is road both on dest and src tiles - use road movement cost
-	if(dest.roadType->id && from.roadType->id)
+	if(dest.roadType->id != Road::NO_ROAD && from.roadType->id != Road::NO_ROAD)
 	{
 		ret = std::max(dest.roadType->movementCost, from.roadType->movementCost);
 	}
 	else if(ti->nativeTerrain != from.terType->id &&//the terrain is not native
-			ti->nativeTerrain != TerrainId::ANY_TERRAIN && //no special creature bonus
-			!ti->hasBonusOfType(Bonus::NO_TERRAIN_PENALTY, from.terType->id)) //no special movement bonus
+			ti->nativeTerrain != ETerrainId::ANY_TERRAIN && //no special creature bonus
+			!ti->hasBonusOfType(Bonus::NO_TERRAIN_PENALTY, from.terType->id.getNum())) //no special movement bonus
 	{
 
 		ret = VLC->heroh->terrCosts[from.terType->id];
@@ -106,18 +106,18 @@ TerrainId CGHeroInstance::getNativeTerrain() const
 	// will always have best penalty without any influence from player-defined stacks order
 
 	// TODO: What should we do if all hero stacks are neutral creatures?
-	TerrainId nativeTerrain = TerrainId::BORDER;
+	TerrainId nativeTerrain = ETerrainId::BORDER;
 
 	for(auto stack : stacks)
 	{
 		TerrainId stackNativeTerrain = stack.second->type->getNativeTerrain(); //consider terrain bonuses e.g. Lodestar.
 
-		if(stackNativeTerrain == TerrainId::BORDER) //where does this value come from?
+		if(stackNativeTerrain == ETerrainId::BORDER) //where does this value come from?
 			continue;
-		if(nativeTerrain == TerrainId::BORDER)
+		if(nativeTerrain == ETerrainId::BORDER)
 			nativeTerrain = stackNativeTerrain;
 		else if(nativeTerrain != stackNativeTerrain)
-			return TerrainId::BORDER;
+			return ETerrainId::BORDER;
 	}
 	return nativeTerrain;
 }

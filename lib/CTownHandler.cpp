@@ -28,9 +28,9 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 const int NAMES_PER_TOWN=16; // number of town names per faction in H3 files. Json can define any number
 
-const TerrainId CTownHandler::defaultGoodTerrain(TerrainId::GRASS);
-const TerrainId CTownHandler::defaultEvilTerrain(TerrainId::LAVA);
-const TerrainId CTownHandler::defaultNeutralTerrain(TerrainId::ROUGH);
+const TerrainId CTownHandler::defaultGoodTerrain(ETerrainId::GRASS);
+const TerrainId CTownHandler::defaultEvilTerrain(ETerrainId::LAVA);
+const TerrainId CTownHandler::defaultNeutralTerrain(ETerrainId::ROUGH);
 
 const std::map<std::string, CBuilding::EBuildMode> CBuilding::MODES =
 {
@@ -989,9 +989,17 @@ CFaction * CTownHandler::loadFromJson(const std::string & scope, const JsonNode 
 
 	//Contructor is not called here, but operator=
 	auto nativeTerrain = source["nativeTerrain"];
-	faction->nativeTerrain = nativeTerrain.isNull()
-		? getDefaultTerrainForAlignment(faction->alignment)
-		: VLC->terrainTypeHandler->getInfoByName(nativeTerrain.String())->id;
+
+	if ( nativeTerrain.isNull())
+	{
+		faction->nativeTerrain = getDefaultTerrainForAlignment(faction->alignment);
+	}
+	else
+	{
+		VLC->modh->identifiers.requestIdentifier("terrain", nativeTerrain, [=](int32_t index){
+			faction->nativeTerrain = TerrainId(index);
+		});
+	}
 
 	if (!source["town"].isNull())
 	{

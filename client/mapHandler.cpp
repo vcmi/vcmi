@@ -1389,7 +1389,8 @@ void CMapHandler::getTerrainDescr(const int3 & pos, std::string & out, bool isRM
 		}
 	}
 
-	VLC->terrainTypeHandler->getById(t.terType->id)->terrainText;
+	if(!isTile2Terrain || out.empty())
+		out = VLC->terrainTypeHandler->getById(t.terType->id)->terrainText;
 
 	if(t.getDiggingStatus(false) == EDiggingStatus::CAN_DIG)
 	{

@@ -143,14 +143,14 @@ void initTerrainType(Zone & zone, CMapGenerator & gen)
 		{
 			if(!terrainType->isUnderground())
 			{
-				zone.setTerrainType(TerrainId::SUBTERRANEAN);
+				zone.setTerrainType(ETerrainId::SUBTERRANEAN);
 			}
 		}
 		else
 		{
 			if (!terrainType->isSurface())
 			{
-				zone.setTerrainType(TerrainId::DIRT);
+				zone.setTerrainType(ETerrainId::DIRT);
 			}
 		}
 	}

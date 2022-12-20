@@ -338,12 +338,12 @@ std::string CDrawRiversOperation::getLabel() const
 
 void CDrawRoadsOperation::executeTile(TerrainTile & tile)
 {
-	tile.roadType = const_cast<RoadType*>(VLC->roadTypeHandler->getByIndex(roadType));
+	tile.roadType = const_cast<RoadType*>(VLC->roadTypeHandler->getByIndex(roadType.getNum()));
 }
 
 void CDrawRiversOperation::executeTile(TerrainTile & tile)
 {
-	tile.riverType = const_cast<RiverType*>(VLC->riverTypeHandler->getByIndex(riverType));
+	tile.riverType = const_cast<RiverType*>(VLC->riverTypeHandler->getByIndex(riverType.getNum()));
 }
 
 bool CDrawRoadsOperation::canApplyPattern(const LinePattern & pattern) const

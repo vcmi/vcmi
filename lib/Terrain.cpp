@@ -95,7 +95,7 @@ TerrainType * TerrainTypeHandler::loadFromJson( const std::string & scope, const
 		});
 	}
 
-	info->rockTerrain = TerrainId::ROCK;
+	info->rockTerrain = ETerrainId::ROCK;
 
 	if(!json["rockTerrain"].isNull())
 	{
@@ -247,4 +247,12 @@ bool TerrainType::isTransitionRequired() const
 	return transitionRequired;
 }
 
+TerrainType::TerrainType()
+{}
+
+RiverType::RiverType()
+{}
+
+RoadType::RoadType()
+{}
 VCMI_LIB_NAMESPACE_END

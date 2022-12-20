@@ -288,7 +288,7 @@ std::string CCreature::nodeName() const
 bool CCreature::isItNativeTerrain(TerrainId terrain) const
 {
 	auto native = getNativeTerrain();
-	return native == terrain || native == TerrainId::ANY_TERRAIN;
+	return native == terrain || native == ETerrainId::ANY_TERRAIN;
 }
 
 TerrainId CCreature::getNativeTerrain() const
@@ -299,7 +299,7 @@ TerrainId CCreature::getNativeTerrain() const
 	//this code is used in the CreatureTerrainLimiter::limit to setup battle bonuses
 	//and in the CGHeroInstance::getNativeTerrain() to setup mevement bonuses or/and penalties.
 	return hasBonus(selectorNoTerrainPenalty, selectorNoTerrainPenalty)
-		? TerrainId(TerrainId::ANY_TERRAIN)
+		? TerrainId(ETerrainId::ANY_TERRAIN)
 		: (*VLC->townh)[faction]->nativeTerrain;
 }
 

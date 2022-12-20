@@ -16,6 +16,7 @@
 #include "RmgMap.h"
 #include "../mapping/CMap.h"
 #include "../mapping/CMapEditManager.h"
+#include "../CModHandler.h"
 #include "RmgPath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -80,8 +81,7 @@ void RoadPlacer::drawRoads(bool secondary)
 	map.getEditManager()->getTerrainSelection().setSelection(roads.getTilesVector());
 
 	std::string roadName = (secondary ? generator.getConfig().secondaryRoadType : generator.getConfig().defaultRoadType);
-	RoadId roadType = VLC->roadTypeHandler->getInfoByName(roadName)->id;
-
+	RoadId roadType(*VLC->modh->identifiers.getIdentifier(VLC->modh->scopeGame(), "road", roadName));
 	map.getEditManager()->drawRoad(roadType, &generator.rand);
 }
 

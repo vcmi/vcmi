@@ -16,6 +16,7 @@
 #include "../mapping/CMap.h"
 #include "../VCMI_Lib.h"
 #include "../CTownHandler.h"
+#include "../CModHandler.h"
 #include "../Terrain.h"
 #include "../serializer/JsonSerializeFormat.h"
 #include "../StringConstants.h"
@@ -69,13 +70,12 @@ class TerrainEncoder
 public:
 	static si32 decode(const std::string & identifier)
 	{
-		return VLC->terrainTypeHandler->getInfoByCode(identifier)->id;
+		return *VLC->modh->identifiers.getIdentifier(VLC->modh->scopeGame(), "terrain", identifier);
 	}
 
 	static std::string encode(const si32 index)
 	{
-		const auto& terrains = VLC->terrainTypeHandler->objects;
-		return (index >=0 && index < terrains.size()) ? terrains[index]->name : "<INVALID TERRAIN>";
+		return VLC->terrainTypeHandler->getByIndex(index)->name;
 	}
 };
 
@@ -377,7 +377,8 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 				terrainTypes.clear();
 				for(auto ttype : node.Vector())
 				{
-					terrainTypes.emplace(VLC->terrainTypeHandler->getInfoByName(ttype.String())->id);
+					auto identifier = VLC->modh->identifiers.getIdentifier("terrain", ttype);
+					terrainTypes.emplace(*identifier);
 				}
 			}
 		}
