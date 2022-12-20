@@ -63,6 +63,8 @@ TerrainType * TerrainTypeHandler::loadFromJson( const std::string & scope, const
 		ui8(blockedVec[2].Float())
 	};
 
+	info->passabilityType = 0;
+
 	for(const auto& node : json["type"].Vector())
 	{
 		//Set bits
@@ -74,10 +76,15 @@ TerrainType * TerrainTypeHandler::loadFromJson( const std::string & scope, const
 		if (s == "SUB") info->passabilityType |= TerrainType::PassabilityType::SUBTERRANEAN;
 	}
 
-//	if(json["river"].isNull())
-//		info->river = River::NO_RIVER;
-//	else
-//		info->river = getRiverByCode(json["river"].String())->id;
+	info->river = River::NO_RIVER;
+	if(!json["river"].isNull())
+	{
+		VLC->modh->identifiers.requestIdentifier("river", json["river"], [info](int32_t identifier)
+		{
+			info->river = RiverId(identifier);
+		});
+
+	}
 
 	info->typeCode = json["code"].String();
 	assert(info->typeCode.length() == 2);
@@ -161,6 +168,7 @@ const std::vector<std::string> & RiverTypeHandler::getTypeNames() const
 
 std::vector<JsonNode> RiverTypeHandler::loadLegacyData(size_t dataSize)
 {
+	objects.resize(dataSize);
 	return {};
 }
 
@@ -192,6 +200,7 @@ const std::vector<std::string> & RoadTypeHandler::getTypeNames() const
 
 std::vector<JsonNode> RoadTypeHandler::loadLegacyData(size_t dataSize)
 {
+	objects.resize(dataSize);
 	return {};
 }
 

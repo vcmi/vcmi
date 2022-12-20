@@ -8,7 +8,7 @@
 		"music" : "Dirt.mp3",
 		"tiles" : "DIRTTL",
 		"code" : "dt",
-		"river" : "rm",
+		"river" : "mudRiver",
 		"battleFields" : ["dirt_birches", "dirt_hills", "dirt_pines"],
 		"terrainViewPatterns" : "dirt",
 		"horseSoundId" : 0
@@ -22,7 +22,7 @@
 		"music" : "Sand.mp3",
 		"tiles" : "SANDTL",
 		"code" : "sa",
-		"river" : "rm",
+		"river" : "mudRiver",
 		"battleFields" : ["sand_mesas"],
 		"transitionRequired" : true,
 		"terrainViewPatterns" : "sand",
@@ -37,7 +37,7 @@
 		"music" : "Grass.mp3",
 		"tiles" : "GRASTL",
 		"code" : "gr",
-		"river" : "rw",
+		"river" : "waterRiver",
 		"battleFields" : ["grass_hills", "grass_pines"],
 		"horseSoundId" : 2
 	},
@@ -50,7 +50,7 @@
 		"music" : "Snow.mp3",
 		"tiles" : "SNOWTL",
 		"code" : "sn",
-		"river" : "ri",
+		"river" : "iceRiver",
 		"battleFields" : ["snow_mountains", "snow_trees"],
 		"horseSoundId" : 3
 	},
@@ -63,7 +63,7 @@
 		"music" : "Swamp.mp3",
 		"tiles" : "SWMPTL",
 		"code" : "sw",
-		"river" : "rw",
+		"river" : "waterRiver",
 		"battleFields" : ["swamp_trees"],
 		"horseSoundId" : 4
 	},
@@ -76,7 +76,7 @@
 		"music" : "Rough.mp3",
 		"tiles" : "ROUGTL",
 		"code" : "rg",
-		"river" : "rm",
+		"river" : "mudRiver",
 		"battleFields" : ["rough"],
 		"horseSoundId" : 5
 	},
@@ -90,7 +90,7 @@
 		"tiles" : "SUBBTL",
 		"type" : [ "SUB" ],
 		"code" : "sb",
-		"river" : "rw",
+		"river" : "waterRiver",
 		"battleFields" : ["subterranean"],
 		"rockTerrain" : "rock",
 		"horseSoundId" : 6
@@ -105,7 +105,7 @@
 		"tiles" : "LAVATL",
 		"type" : ["SUB", "SURFACE"],
 		"code" : "lv",
-		"river" : "rl",
+		"river" : "lavaRiver",
 		"battleFields" : ["lava"],
 		"rockTerrain" : "rock",
 		"horseSoundId" : 7

@@ -85,6 +85,14 @@
 	[
 		"config/terrains.json"
 	],
+	"roads":
+	[
+		"config/roads.json"
+	],
+	"rivers":
+	[
+		"config/rivers.json"
+	],
 	"battlefields":
 	[
 		"config/battlefields.json"

@@ -526,7 +526,7 @@ void CContentHandler::preloadData(CModInfo & mod)
 
 void CContentHandler::load(CModInfo & mod)
 {
-	bool validate = (mod.validation != CModInfo::PASSED);
+	bool validate = false;//(mod.validation != CModInfo::PASSED);
 
 	if (!loadMod(mod.identifier, validate))
 		mod.validation = CModInfo::FAILED;
