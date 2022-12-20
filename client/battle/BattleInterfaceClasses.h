@@ -79,14 +79,14 @@ public:
 /// Hero battle animation
 class BattleHero : public CIntObject
 {
-	bool flip; //false if it's attacking hero, true otherwise
+	bool defender;
 
 	CFunctionList<void()> phaseFinishedCallback;
 
 	std::shared_ptr<CAnimation> animation;
 	std::shared_ptr<CAnimation> flagAnimation;
 
-	const CGHeroInstance * myHero; //this animation's hero instance
+	const CGHeroInstance * hero; //this animation's hero instance
 	const BattleInterface & owner; //battle interface to which this animation is assigned
 
 	EHeroAnimType phase; //stage of animation
@@ -111,7 +111,7 @@ public:
 	void hover(bool on) override;
 	void clickLeft(tribool down, bool previousState) override; //call-in
 	void clickRight(tribool down, bool previousState) override; //call-in
-	BattleHero(const std::string & animationPath, bool filpG, PlayerColor player, const CGHeroInstance * hero, const BattleInterface & owner);
+	BattleHero(const BattleInterface & owner, const CGHeroInstance * hero, bool defender);
 };
 
 class HeroInfoWindow : public CWindowObject

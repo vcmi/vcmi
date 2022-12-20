@@ -123,44 +123,11 @@ BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *
 	actionsController.reset( new BattleActionsController(*this));
 	effectsController.reset(new BattleEffectsController(*this));
 
-	//loading hero animations
 	if(hero1) // attacking hero
-	{
-		std::string battleImage;
-		if(!hero1->type->battleImage.empty())
-		{
-			battleImage = hero1->type->battleImage;
-		}
-		else
-		{
-			if(hero1->sex)
-				battleImage = hero1->type->heroClass->imageBattleFemale;
-			else
-				battleImage = hero1->type->heroClass->imageBattleMale;
-		}
-
-		attackingHero = std::make_shared<BattleHero>(battleImage, false, hero1->tempOwner, hero1->tempOwner == curInt->playerID ? hero1 : nullptr, *this);
-	}
-
+		attackingHero = std::make_shared<BattleHero>(*this, hero1, false);
 
 	if(hero2) // defending hero
-	{
-		std::string battleImage;
-
-		if(!hero2->type->battleImage.empty())
-		{
-			battleImage = hero2->type->battleImage;
-		}
-		else
-		{
-			if(hero2->sex)
-				battleImage = hero2->type->heroClass->imageBattleFemale;
-			else
-				battleImage = hero2->type->heroClass->imageBattleMale;
-		}
-
-		defendingHero = std::make_shared<BattleHero>(battleImage, true, hero2->tempOwner, hero2->tempOwner == curInt->playerID ? hero2 : nullptr, *this);
-	}
+		defendingHero = std::make_shared<BattleHero>(*this, hero2, true);
 
 	obstacleController.reset(new BattleObstacleController(*this));
 

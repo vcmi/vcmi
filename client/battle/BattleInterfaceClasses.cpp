@@ -40,6 +40,7 @@
 #include "../../lib/CGameState.h"
 #include "../../lib/CGeneralTextHandler.h"
 #include "../../lib/CTownHandler.h"
+#include "../../lib/CHeroHandler.h"
 #include "../../lib/NetPacks.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/CondSh.h"
@@ -168,7 +169,7 @@ void BattleHero::render(Canvas & canvas)
 	Point heroPosition = pos.center() - heroFrame->dimensions() / 2;
 	Point flagPosition = pos.center() - flagFrame->dimensions() / 2;
 
-	if(flip)
+	if(defender)
 		flagPosition += Point(-4, -41);
 	else
 		flagPosition += Point(4, -41);
@@ -234,10 +235,10 @@ void BattleHero::clickLeft(tribool down, bool previousState)
 	if(boost::logic::indeterminate(down))
 		return;
 
-	if(!myHero || down || !owner.myTurn)
+	if(!hero || down || !owner.myTurn)
 		return;
 
-	if(owner.getCurrentPlayerInterface()->cb->battleCanCastSpell(myHero, spells::Mode::HERO) == ESpellCastProblem::OK) //check conditions
+	if(owner.getCurrentPlayerInterface()->cb->battleCanCastSpell(hero, spells::Mode::HERO) == ESpellCastProblem::OK) //check conditions
 	{
 		BattleHex hoveredHex = owner.fieldController->getHoveredHex();
 		//do nothing when any hex is hovered - hero's animation overlaps battlefield
@@ -246,7 +247,7 @@ void BattleHero::clickLeft(tribool down, bool previousState)
 
 		CCS->curh->set(Cursor::Map::POINTER);
 
-		GH.pushIntT<CSpellWindow>(myHero, owner.getCurrentPlayerInterface());
+		GH.pushIntT<CSpellWindow>(hero, owner.getCurrentPlayerInterface());
 	}
 }
 
@@ -256,13 +257,13 @@ void BattleHero::clickRight(tribool down, bool previousState)
 		return;
 
 	Point windowPosition;
-	windowPosition.x = (!flip) ? owner.pos.topLeft().x + 1 : owner.pos.topRight().x - 79;
+	windowPosition.x = (!defender) ? owner.pos.topLeft().x + 1 : owner.pos.topRight().x - 79;
 	windowPosition.y = owner.pos.y + 135;
 
 	InfoAboutHero targetHero;
 	if(down && (owner.myTurn || settings["session"]["spectate"].Bool()))
 	{
-		auto h = flip ? owner.defendingHeroInstance : owner.attackingHeroInstance;
+		auto h = defender ? owner.defendingHeroInstance : owner.attackingHeroInstance;
 		targetHero.initFromHero(h, InfoAboutHero::EInfoLevel::INBATTLE);
 		GH.pushIntT<HeroInfoWindow>(targetHero, &windowPosition);
 	}
@@ -278,9 +279,9 @@ void BattleHero::switchToNextPhase()
 	copy();
 }
 
-BattleHero::BattleHero(const std::string & animationPath, bool flipG, PlayerColor player, const CGHeroInstance * hero, const BattleInterface & owner):
-	flip(flipG),
-	myHero(hero),
+BattleHero::BattleHero(const BattleInterface & owner, const CGHeroInstance * hero, bool defender):
+	defender(defender),
+	hero(hero),
 	owner(owner),
 	phase(EHeroAnimType::HOLDING),
 	nextPhase(EHeroAnimType::HOLDING),
@@ -288,24 +289,34 @@ BattleHero::BattleHero(const std::string & animationPath, bool flipG, PlayerColo
 	currentFrame(0.f),
 	flagCurrentFrame(0.f)
 {
+	std::string animationPath;
+
+	if(!hero->type->battleImage.empty())
+		animationPath = hero->type->battleImage;
+	else
+	if(hero->sex)
+		animationPath = hero->type->heroClass->imageBattleFemale;
+	else
+		animationPath = hero->type->heroClass->imageBattleMale;
+
 	animation = std::make_shared<CAnimation>(animationPath);
 	animation->preload();
 
 	pos.w = 64;
 	pos.h = 136;
-	pos.x = owner.pos.x + (flipG ? (owner.pos.w - pos.w) : 0);
+	pos.x = owner.pos.x + (defender ? (owner.pos.w - pos.w) : 0);
 	pos.y = owner.pos.y;
 
-	if(flip)
+	if(defender)
 		animation->verticalFlip();
 
-	if(flip)
+	if(defender)
 		flagAnimation = std::make_shared<CAnimation>("CMFLAGR");
 	else
 		flagAnimation = std::make_shared<CAnimation>("CMFLAGL");
 
 	flagAnimation->preload();
-	flagAnimation->playerColored(player);
+	flagAnimation->playerColored(hero->tempOwner);
 
 	addUsedEvents(LCLICK | RCLICK | HOVER);
 
