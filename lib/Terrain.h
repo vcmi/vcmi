@@ -59,10 +59,6 @@ public:
 	
 	TerrainType();
 	
-	bool operator==(const TerrainType & other);
-	bool operator!=(const TerrainType & other);
-	bool operator<(const TerrainType & other);
-	
 	bool isLand() const;
 	bool isWater() const;
 	bool isPassable() const;
@@ -71,9 +67,7 @@ public:
 	bool isTransitionRequired() const;
 	bool isSurfaceCartographerCompatible() const;
 	bool isUndergroundCartographerCompatible() const;
-		
-	operator std::string() const;
-	
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & battleFields;
@@ -177,8 +171,6 @@ public:
 	virtual std::vector<JsonNode> loadLegacyData(size_t dataSize) override;
 	virtual std::vector<bool> getDefaultAllowed() const override;
 
-//	TerrainType * getInfoByCode(const std::string & identifier);
-
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
 		h & objects;
@@ -194,11 +186,11 @@ public:
 		const std::string & identifier,
 		size_t index) override;
 
+	RiverTypeHandler();
+
 	virtual const std::vector<std::string> & getTypeNames() const override;
 	virtual std::vector<JsonNode> loadLegacyData(size_t dataSize) override;
 	virtual std::vector<bool> getDefaultAllowed() const override;
-
-//	RiverType * getInfoByCode(const std::string & identifier);
 
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{
@@ -215,11 +207,11 @@ public:
 		const std::string & identifier,
 		size_t index) override;
 
+	RoadTypeHandler();
+
 	virtual const std::vector<std::string> & getTypeNames() const override;
 	virtual std::vector<JsonNode> loadLegacyData(size_t dataSize) override;
 	virtual std::vector<bool> getDefaultAllowed() const override;
-
-//	RoadType * getInfoByCode(const std::string & identifier);
 
 	template <typename Handler> void serialize(Handler & h, const int version)
 	{

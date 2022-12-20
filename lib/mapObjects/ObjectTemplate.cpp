@@ -285,9 +285,6 @@ void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
 		anyTerrain = true;
 	}
 
-	if(withTerrain && allowedTerrains.empty())
-		logGlobal->warn("Loaded template %s without allowed terrains!", animationFile);
-
 	auto charToTile = [&](const char & ch) -> ui8
 	{
 		switch (ch)

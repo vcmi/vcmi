@@ -38,6 +38,7 @@ TerrainType * TerrainTypeHandler::loadFromJson( const std::string & scope, const
 	TerrainType * info = new TerrainType;
 
 	info->id = TerrainId(index);
+	info->name = identifier;
 
 	info->moveCost = static_cast<int>(json["moveCost"].Integer());
 	info->musicFilename = json["music"].String();
@@ -145,6 +146,11 @@ std::vector<bool> TerrainTypeHandler::getDefaultAllowed() const
 	return {};
 }
 
+RiverTypeHandler::RiverTypeHandler()
+{
+	objects.push_back(new RiverType);
+}
+
 RiverType * RiverTypeHandler::loadFromJson(
 	const std::string & scope,
 	const JsonNode & json,
@@ -153,6 +159,7 @@ RiverType * RiverTypeHandler::loadFromJson(
 {
 	RiverType * info = new RiverType;
 
+	info->id         = RiverId(index);
 	info->fileName   = json["animation"].String();
 	info->code       = json["code"].String();
 	info->deltaName  = json["delta"].String();
@@ -177,6 +184,11 @@ std::vector<bool> RiverTypeHandler::getDefaultAllowed() const
 	return {};
 }
 
+RoadTypeHandler::RoadTypeHandler()
+{
+	objects.push_back(new RoadType);
+}
+
 RoadType * RoadTypeHandler::loadFromJson(
 	const std::string & scope,
 	const JsonNode & json,
@@ -185,6 +197,7 @@ RoadType * RoadTypeHandler::loadFromJson(
 {
 	RoadType * info = new RoadType;
 
+	info->id           = RoadId(index);
 	info->fileName     = json["animation"].String();
 	info->code         = json["code"].String();
 	info->movementCost = json["moveCost"].Integer();
@@ -209,26 +222,6 @@ std::vector<bool> RoadTypeHandler::getDefaultAllowed() const
 	return {};
 }
 
-TerrainType::operator std::string() const
-{
-	return name;
-}
-
-bool TerrainType::operator==(const TerrainType& other)
-{
-	return id == other.id;
-}
-
-bool TerrainType::operator!=(const TerrainType& other)
-{
-	return id != other.id;
-}
-
-bool TerrainType::operator<(const TerrainType& other)
-{
-	return id < other.id;
-}
-	
 bool TerrainType::isLand() const
 {
 	return !isWater();
@@ -272,9 +265,12 @@ bool TerrainType::isTransitionRequired() const
 TerrainType::TerrainType()
 {}
 
-RiverType::RiverType()
+RiverType::RiverType():
+	id(River::NO_RIVER)
 {}
 
-RoadType::RoadType()
+RoadType::RoadType():
+	id(Road::NO_ROAD),
+	movementCost(GameConstants::BASE_MOVEMENT_COST)
 {}
 VCMI_LIB_NAMESPACE_END

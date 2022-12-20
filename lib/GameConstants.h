@@ -198,13 +198,12 @@ public:
 		num += change;
 	}
 
-	typedef BaseForID<Derived, NumericType> __SelfType;
 	bool operator == (const BaseForID & b) const { return num == b.num; }
-	bool operator <= (const BaseForID & b) const { return num >= b.num; }
-	bool operator >= (const BaseForID & b) const { return num <= b.num; }
+	bool operator <= (const BaseForID & b) const { return num <= b.num; }
+	bool operator >= (const BaseForID & b) const { return num >= b.num; }
 	bool operator != (const BaseForID & b) const { return num != b.num; }
 	bool operator <  (const BaseForID & b) const { return num <  b.num; }
-	bool operator >  (const BaseForID & b) const { return num > b.num; }
+	bool operator >  (const BaseForID & b) const { return num >  b.num; }
 
 	BaseForID & operator++() { ++num; return *this; }
 };
