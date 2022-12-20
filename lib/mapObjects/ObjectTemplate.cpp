@@ -165,14 +165,7 @@ void ObjectTemplate::readTxt(CLegacyConfigParser & parser)
 	}
 	
 	//assuming that object can be placed on other land terrains
-	if(allowedTerrains.size() >= 8 && !allowedTerrains.count(ETerrainId::WATER))
-	{
-		for(const auto & terrain : VLC->terrainTypeHandler->objects)
-		{
-			if(terrain->isLand() && terrain->isPassable())
-				allowedTerrains.insert(terrain->id);
-		}
-	}
+	anyTerrain = allowedTerrains.size() >= 8 && !allowedTerrains.count(ETerrainId::WATER);
 
 	id    = Obj(boost::lexical_cast<int>(strings[5]));
 	subid = boost::lexical_cast<int>(strings[6]);
@@ -238,14 +231,7 @@ void ObjectTemplate::readMap(CBinaryReader & reader)
 	}
 	
 	//assuming that object can be placed on other land terrains
-	if(allowedTerrains.size() >= 8 && !allowedTerrains.count(ETerrainId::WATER))
-	{
-		for(const auto & terrain : VLC->terrainTypeHandler->objects)
-		{
-			if(terrain->isLand() && terrain->isPassable())
-				allowedTerrains.insert(terrain->id);
-		}
-	}
+	anyTerrain = allowedTerrains.size() >= 8 && !allowedTerrains.count(ETerrainId::WATER);
 
 	id = Obj(reader.readUInt32());
 	subid = reader.readUInt32();
@@ -292,15 +278,11 @@ void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
 				allowedTerrains.insert(TerrainId(identifier));
 			});
 		}
+		anyTerrain = false;
 	}
 	else
 	{
-		for(const auto & terrain : VLC->terrainTypeHandler->objects)
-		{
-			if(!terrain->isPassable() || terrain->isWater())
-				continue;
-			allowedTerrains.insert(terrain->id);
-		}
+		anyTerrain = true;
 	}
 
 	if(withTerrain && allowedTerrains.empty())
@@ -561,9 +543,14 @@ void ObjectTemplate::calculateVisitableOffset()
 	visitableOffset = int3(0, 0, 0);
 }
 
-bool ObjectTemplate::canBePlacedAt(TerrainId terrain) const
+bool ObjectTemplate::canBePlacedAt(TerrainId terrainID) const
 {
-	return vstd::contains(allowedTerrains, terrain);
+	if (anyTerrain)
+	{
+		auto const & terrain = VLC->terrainTypeHandler->getById(terrainID);
+		return terrain->isLand() && terrain->isPassable();
+	}
+	return vstd::contains(allowedTerrains, terrainID);
 }
 
 void ObjectTemplate::recalculate()

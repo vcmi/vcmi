@@ -10,6 +10,9 @@
 		"hero"       : 156,
 		"spell"      : 81,
 		"object"     : 256,
+		"terrain"    : 10,
+		"river"      : 5,
+		"road"       : 4,
 		"mapVersion" : 28 // max supported version, SoD
 	},
 

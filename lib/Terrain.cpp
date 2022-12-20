@@ -12,6 +12,7 @@
 #include "Terrain.h"
 #include "VCMI_Lib.h"
 #include "CModHandler.h"
+#include "CGeneralTextHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -99,8 +100,7 @@ TerrainType * TerrainTypeHandler::loadFromJson( const std::string & scope, const
 
 	if(!json["rockTerrain"].isNull())
 	{
-		auto rockTerrainName = json["rockTerrain"].String();
-		VLC->modh->identifiers.requestIdentifier("terrain", rockTerrainName, [info](int32_t identifier)
+		VLC->modh->identifiers.requestIdentifier("terrain", json["rockTerrain"], [info](int32_t identifier)
 		{
 			info->rockTerrain = TerrainId(identifier);
 		});
@@ -117,7 +117,20 @@ const std::vector<std::string> & TerrainTypeHandler::getTypeNames() const
 
 std::vector<JsonNode> TerrainTypeHandler::loadLegacyData(size_t dataSize)
 {
-	return {};
+	objects.resize(dataSize);
+
+	CLegacyConfigParser terrainParser("DATA/TERRNAME.TXT");
+
+	std::vector<JsonNode> result;
+	do
+	{
+		JsonNode terrain;
+		terrain["text"].String() = terrainParser.readString();
+		result.push_back(terrain);
+	}
+	while (terrainParser.endLine());
+
+	return result;
 }
 
 std::vector<bool> TerrainTypeHandler::getDefaultAllowed() const

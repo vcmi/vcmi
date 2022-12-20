@@ -1226,7 +1226,7 @@ enum class ETerrainId {
 	WRONG = -2,
 	BORDER = -1,
 	FIRST_REGULAR_TERRAIN = 0,
-	DIRT,
+	DIRT = 0,
 	SAND,
 	GRASS,
 	SNOW,

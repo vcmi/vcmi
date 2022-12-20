@@ -377,8 +377,10 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 				terrainTypes.clear();
 				for(auto ttype : node.Vector())
 				{
-					auto identifier = VLC->modh->identifiers.getIdentifier("terrain", ttype);
-					terrainTypes.emplace(*identifier);
+					VLC->modh->identifiers.requestIdentifier("terrain", ttype, [this](int32_t identifier)
+					{
+						terrainTypes.emplace(identifier);
+					});
 				}
 			}
 		}
