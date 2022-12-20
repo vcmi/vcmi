@@ -24,8 +24,8 @@ class DLL_LINKAGE TerrainType : public EntityT<TerrainId>
 public:
 	int32_t getIndex() const override { return id.getNum(); }
 	int32_t getIconIndex() const override { return 0; }
-	const std::string & getName() const override { return name;}
-	const std::string & getJsonKey() const override { return name;}
+	const std::string & getName() const override { return identifier;}
+	const std::string & getJsonKey() const override { return identifier;}
 	void registerIcons(const IconRegistar & cb) const override {}
 	TerrainId getId() const override { return id;}
 
@@ -38,22 +38,22 @@ public:
 		ROCK = 16
 	};
 	
-	std::vector<std::string> battleFields;
+	std::vector<BattleField> battleFields;
 	std::vector<TerrainId> prohibitTransitions;
 	std::array<int, 3> minimapBlocked;
 	std::array<int, 3> minimapUnblocked;
-	std::string name;
+	std::string identifier;
+	std::string shortIdentifier;
 	std::string musicFilename;
 	std::string tilesFilename;
-	std::string terrainText;
-	std::string typeCode;
+	std::string nameTranslated;
 	std::string terrainViewPatterns;
-	RiverId river;
+	std::string horseSound;
 
 	TerrainId id;
 	TerrainId rockTerrain;
+	RiverId river;
 	int moveCost;
-	int horseSoundId;
 	ui8 passabilityType;
 	bool transitionRequired;
 	
@@ -74,18 +74,18 @@ public:
 		h & prohibitTransitions;
 		h & minimapBlocked;
 		h & minimapUnblocked;
-		h & name;
+		h & identifier;
 		h & musicFilename;
 		h & tilesFilename;
-		h & terrainText;
-		h & typeCode;
+		h & nameTranslated;
+		h & shortIdentifier;
 		h & terrainViewPatterns;
 		h & rockTerrain;
 		h & river;
 
 		h & id;
 		h & moveCost;
-		h & horseSoundId;
+		h & horseSound;
 		h & passabilityType;
 		h & transitionRequired;
 	}
@@ -96,13 +96,14 @@ class DLL_LINKAGE RiverType : public EntityT<RiverId>
 public:
 	int32_t getIndex() const override { return id.getNum(); }
 	int32_t getIconIndex() const override { return 0; }
-	const std::string & getName() const override { return code;}
-	const std::string & getJsonKey() const override { return code;}
+	const std::string & getName() const override { return identifier;}
+	const std::string & getJsonKey() const override { return identifier;}
 	void registerIcons(const IconRegistar & cb) const override {}
 	RiverId getId() const override { return id;}
 
-	std::string fileName;
-	std::string code;
+	std::string tilesFilename;
+	std::string identifier;
+	std::string shortIdentifier;
 	std::string deltaName;
 	RiverId id;
 
@@ -110,8 +111,8 @@ public:
 
 	template <typename Handler> void serialize(Handler& h, const int version)
 	{
-		h & fileName;
-		h & code;
+		h & tilesFilename;
+		h & identifier;
 		h & deltaName;
 		h & id;
 	}
@@ -122,13 +123,14 @@ class DLL_LINKAGE RoadType : public EntityT<RoadId>
 public:
 	int32_t getIndex() const override { return id.getNum(); }
 	int32_t getIconIndex() const override { return 0; }
-	const std::string & getName() const override { return code;}
-	const std::string & getJsonKey() const override { return code;}
+	const std::string & getName() const override { return identifier;}
+	const std::string & getJsonKey() const override { return identifier;}
 	void registerIcons(const IconRegistar & cb) const override {}
 	RoadId getId() const override { return id;}
 
-	std::string fileName;
-	std::string code;
+	std::string tilesFilename;
+	std::string identifier;
+	std::string shortIdentifier;
 	RoadId id;
 	ui8 movementCost;
 
@@ -136,8 +138,8 @@ public:
 
 	template <typename Handler> void serialize(Handler& h, const int version)
 	{
-		h & fileName;
-		h & code;
+		h & tilesFilename;
+		h & identifier;
 		h & id;
 		h & movementCost;
 	}

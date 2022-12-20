@@ -89,35 +89,6 @@ CSoundHandler::CSoundHandler():
 		soundBase::battle02, soundBase::battle03, soundBase::battle04,
 		soundBase::battle05, soundBase::battle06, soundBase::battle07
 	};
-	
-	//predefine terrain set
-	//TODO: support custom sounds for new terrains and load from json
-	horseSounds =
-	{
-		{ETerrainId::DIRT, soundBase::horseDirt},
-		{ETerrainId::SAND, soundBase::horseSand},
-		{ETerrainId::GRASS, soundBase::horseGrass},
-		{ETerrainId::SNOW, soundBase::horseSnow},
-		{ETerrainId::SWAMP, soundBase::horseSwamp},
-		{ETerrainId::ROUGH, soundBase::horseRough},
-		{ETerrainId::SUBTERRANEAN, soundBase::horseSubterranean},
-		{ETerrainId::LAVA, soundBase::horseLava},
-		{ETerrainId::WATER, soundBase::horseWater},
-		{ETerrainId::ROCK, soundBase::horseRock}
-	};
-}
-
-void CSoundHandler::loadHorseSounds()
-{
-	for(const auto & terrain : CGI->terrainTypeHandler->objects)
-	{
-		//since all sounds are hardcoded, let's keep it
-		if(vstd::contains(horseSounds, terrain->id))
-			continue;
-
-		//Use already existing horse sound
-		horseSounds[terrain->id] = horseSounds.at(static_cast<TerrainId>(CGI->terrainTypeHandler->getById(terrain->id)->horseSoundId));
-	}
 }
 
 void CSoundHandler::init()
@@ -369,7 +340,7 @@ void CMusicHandler::loadTerrainMusicThemes()
 {
 	for (const auto & terrain : CGI->terrainTypeHandler->objects)
 	{
-		addEntryToSet("terrain_" + terrain->name, "Music/" + terrain->musicFilename);
+		addEntryToSet("terrain_" + terrain->identifier, "Music/" + terrain->musicFilename);
 	}
 }
 

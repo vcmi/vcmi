@@ -2,22 +2,22 @@
     "dirtRoad":
     {
         "index": 1,
-        "code": "pd", //must be 2 characters
-        "animation": "dirtrd",
+        "shortIdentifier": "pd", //must be 2 characters
+        "tilesFilename": "dirtrd",
         "moveCost": 75
     },
     "gravelRoad":
     {
         "index": 2,
-        "code": "pg",
-        "animation": "gravrd",
+        "shortIdentifier": "pg",
+        "tilesFilename": "gravrd",
         "moveCost": 65
     },
     "cobblestoneRoad":
     {
         "index": 3,
-        "code": "pc",
-        "animation": "cobbrd",
+        "shortIdentifier": "pc",
+        "tilesFilename": "cobbrd",
         "moveCost": 50
     }
 }

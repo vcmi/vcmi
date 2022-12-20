@@ -1944,8 +1944,7 @@ BattleField CGameState::battleGetBattlefieldType(int3 tile, CRandomGenerator & r
 	if(map->isCoastalTile(tile)) //coastal tile is always ground
 		return BattleField::fromString("sand_shore");
 	
-	return BattleField::fromString(
-		*RandomGeneratorUtil::nextItem(t.terType->battleFields, rand));
+	return BattleField(*RandomGeneratorUtil::nextItem(t.terType->battleFields, rand));
 }
 
 

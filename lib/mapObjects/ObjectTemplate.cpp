@@ -360,7 +360,7 @@ void ObjectTemplate::writeJson(JsonNode & node, const bool withTerrain) const
 			for(auto type : allowedTerrains)
 			{
 				JsonNode value(JsonNode::JsonType::DATA_STRING);
-				value.String() = VLC->terrainTypeHandler->getById(type)->name;
+				value.String() = VLC->terrainTypeHandler->getById(type)->identifier;
 				data.push_back(value);
 			}
 		}

@@ -350,7 +350,7 @@ TerrainType * CMapFormatJson::getTerrainByCode( std::string code)
 {
 	for ( auto const & object : VLC->terrainTypeHandler->objects)
 	{
-		if (object->typeCode == code)
+		if (object->shortIdentifier == code)
 			return const_cast<TerrainType *>(object.get());
 	}
 	return nullptr;
@@ -360,7 +360,7 @@ RiverType * CMapFormatJson::getRiverByCode( std::string code)
 {
 	for ( auto const & object : VLC->riverTypeHandler->objects)
 	{
-		if (object->code == code)
+		if (object->shortIdentifier == code)
 			return const_cast<RiverType *>(object.get());
 	}
 	return nullptr;
@@ -370,7 +370,7 @@ RoadType * CMapFormatJson::getRoadByCode( std::string code)
 {
 	for ( auto const & object : VLC->roadTypeHandler->objects)
 	{
-		if (object->code == code)
+		if (object->shortIdentifier == code)
 			return const_cast<RoadType *>(object.get());
 	}
 	return nullptr;
@@ -1320,7 +1320,7 @@ std::string CMapSaverJson::writeTerrainTile(const TerrainTile & tile)
 	out.setf(std::ios::dec, std::ios::basefield);
 	out.unsetf(std::ios::showbase);
 
-	out << tile.terType->typeCode << (int)tile.terView << flipCodes[tile.extTileFlags % 4];
+	out << tile.terType->shortIdentifier << (int)tile.terView << flipCodes[tile.extTileFlags % 4];
 
 	if(tile.roadType->id != Road::NO_ROAD)
 		out << tile.roadType << (int)tile.roadDir << flipCodes[(tile.extTileFlags >> 4) % 4];

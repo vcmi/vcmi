@@ -156,7 +156,6 @@ void CPlayerInterface::initGameInterface(std::shared_ptr<Environment> ENV, std::
 	cb = CB;
 	env = ENV;
 
-	CCS->soundh->loadHorseSounds();
 	CCS->musich->loadTerrainMusicThemes();
 
 	initializeHeroTownList();
@@ -260,7 +259,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details, bool verbose)
 	{
 		updateAmbientSounds();
 		//We may need to change music - select new track, music handler will change it if needed
-		CCS->musich->playMusicFromSet("terrain", LOCPLINT->cb->getTile(hero->visitablePos())->terType->name, true, false);
+		CCS->musich->playMusicFromSet("terrain", LOCPLINT->cb->getTile(hero->visitablePos())->terType->identifier, true, false);
 
 		if(details.result == TryMoveHero::TELEPORTATION)
 		{
@@ -2410,7 +2409,7 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 				}
 				if(i != path.nodes.size() - 1)
 				{
-					sh = CCS->soundh->playSound(CCS->soundh->horseSounds[currentTerrain], -1);
+					sh = CCS->soundh->playSound(VLC->terrainTypeHandler->getById(currentTerrain)->horseSound, -1);
 				}
 				continue;
 			}
@@ -2432,7 +2431,7 @@ void CPlayerInterface::doMoveHero(const CGHeroInstance * h, CGPath path)
 				if(newTerrain != currentTerrain)
 				{
 					CCS->soundh->stopSound(sh);
-					sh = CCS->soundh->playSound(CCS->soundh->horseSounds[newTerrain], -1);
+					sh = CCS->soundh->playSound(VLC->terrainTypeHandler->getById(newTerrain)->horseSound, -1);
 					currentTerrain = newTerrain;
 				}
 			}

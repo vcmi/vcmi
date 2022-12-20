@@ -1414,7 +1414,7 @@ void CAdvMapInt::select(const CArmedInstance *sel, bool centerView)
 		auto pos = sel->visitablePos();
 		auto tile = LOCPLINT->cb->getTile(pos);
 		if(tile)
-			CCS->musich->playMusicFromSet("terrain", tile->terType->name, true, false);
+			CCS->musich->playMusicFromSet("terrain", tile->terType->identifier, true, false);
 	}
 	if(centerView)
 		centerOn(sel);

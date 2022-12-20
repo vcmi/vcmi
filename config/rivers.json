@@ -2,29 +2,29 @@
     "waterRiver":
     {
         "index": 1,
-        "code": "rw", //must be 2 characters
-        "animation": "clrrvr",
+        "shortIdentifier": "rw", //must be 2 characters
+        "tilesFilename": "clrrvr",
         "delta": "clrdelt"
     },
     "iceRiver":
     {
         "index": 2,
-        "code": "ri",
-        "animation": "icyrvr",
+        "shortIdentifier": "ri",
+        "tilesFilename": "icyrvr",
         "delta": "icedelt"
     },
     "mudRiver":
     {
         "index": 3,
-        "code": "rm",
-        "animation": "mudrvr",
+        "shortIdentifier": "rm",
+        "tilesFilename": "mudrvr",
         "delta": "muddelt"
     },
     "lavaRiver":
     {
         "index": 4,
-        "code": "rl",
-        "animation": "lavrvr",
+        "shortIdentifier": "rl",
+        "tilesFilename": "lavrvr",
         "delta": "lavdelt"
     }
 }

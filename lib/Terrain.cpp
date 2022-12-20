@@ -38,15 +38,15 @@ TerrainType * TerrainTypeHandler::loadFromJson( const std::string & scope, const
 	TerrainType * info = new TerrainType;
 
 	info->id = TerrainId(index);
-	info->name = identifier;
+	info->identifier = identifier;
 
 	info->moveCost = static_cast<int>(json["moveCost"].Integer());
 	info->musicFilename = json["music"].String();
 	info->tilesFilename = json["tiles"].String();
-	info->horseSoundId = static_cast<int>(json["horseSoundId"].Float());
+	info->horseSound = json["horseSound"].String();
 	info->transitionRequired = json["transitionRequired"].Bool();
 	info->terrainViewPatterns = json["terrainViewPatterns"].String();
-	info->terrainText = json["text"].String();
+	info->nameTranslated = json["nameTranslated"].String();
 
 	const JsonVector & unblockedVec = json["minimapUnblocked"].Vector();
 	info->minimapUnblocked =
@@ -84,23 +84,24 @@ TerrainType * TerrainTypeHandler::loadFromJson( const std::string & scope, const
 		{
 			info->river = RiverId(identifier);
 		});
-
 	}
 
-	info->typeCode = json["code"].String();
-	assert(info->typeCode.length() == 2);
+	info->shortIdentifier = json["shortIdentifier"].String();
+	assert(info->shortIdentifier.length() == 2);
 
 	for(auto & t : json["battleFields"].Vector())
-		info->battleFields.emplace_back(t.String());
-
-
-	//Update terrain with this id in the future, after all terrain types are populated
+	{
+		VLC->modh->identifiers.requestIdentifier("battlefield", t, [info](int32_t identifier)
+		{
+			info->battleFields.emplace_back(identifier);
+		});
+	}
 
 	for(auto & t : json["prohibitTransitions"].Vector())
 	{
 		VLC->modh->identifiers.requestIdentifier("terrain", t, [info](int32_t identifier)
 		{
-			info->prohibitTransitions.push_back(TerrainId(identifier));
+			info->prohibitTransitions.emplace_back(identifier);
 		});
 	}
 
@@ -159,10 +160,11 @@ RiverType * RiverTypeHandler::loadFromJson(
 {
 	RiverType * info = new RiverType;
 
-	info->id         = RiverId(index);
-	info->fileName   = json["animation"].String();
-	info->code       = json["code"].String();
-	info->deltaName  = json["delta"].String();
+	info->id              = RiverId(index);
+	info->identifier      = identifier;
+	info->tilesFilename   = json["tilesFilename"].String();
+	info->shortIdentifier = json["shortIdentifier"].String();
+	info->deltaName       = json["delta"].String();
 
 	return info;
 }
@@ -197,10 +199,11 @@ RoadType * RoadTypeHandler::loadFromJson(
 {
 	RoadType * info = new RoadType;
 
-	info->id           = RoadId(index);
-	info->fileName     = json["animation"].String();
-	info->code         = json["code"].String();
-	info->movementCost = json["moveCost"].Integer();
+	info->id              = RoadId(index);
+	info->identifier      = identifier;
+	info->tilesFilename   = json["animation"].String();
+	info->shortIdentifier = json["code"].String();
+	info->movementCost    = json["moveCost"].Integer();
 
 	return info;
 }

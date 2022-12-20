@@ -545,19 +545,19 @@ void MainWindow::loadObjectsTree()
 	//adding terrains
 	for(auto & terrain : VLC->terrainTypeHandler->objects)
 	{
-		QPushButton *b = new QPushButton(QString::fromStdString(terrain->name));
+		QPushButton *b = new QPushButton(QString::fromStdString(terrain->identifier));
 		ui->terrainLayout->addWidget(b);
 		connect(b, &QPushButton::clicked, this, [this, terrain]{ terrainButtonClicked(terrain->id); });
 
 		//filter
-		ui->terrainFilterCombo->addItem(QString::fromStdString(terrain->name));
+		ui->terrainFilterCombo->addItem(QString::fromStdString(terrain->identifier));
 	}
 	//add spacer to keep terrain button on the top
 	ui->terrainLayout->addItem(new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Expanding));
 	//adding roads
 	for(auto & road : VLC->roadTypeHandler->objects)
 	{
-		QPushButton *b = new QPushButton(QString::fromStdString(road->fileName));
+		QPushButton *b = new QPushButton(QString::fromStdString(road->tilesFilename));
 		ui->roadLayout->addWidget(b);
 		connect(b, &QPushButton::clicked, this, [this, road]{ roadOrRiverButtonClicked(road->id.getNum(), true); });
 	}
@@ -566,7 +566,7 @@ void MainWindow::loadObjectsTree()
 	//adding rivers
 	for(auto & river : VLC->riverTypeHandler->objects)
 	{
-		QPushButton *b = new QPushButton(QString::fromStdString(river->fileName));
+		QPushButton *b = new QPushButton(QString::fromStdString(river->tilesFilename));
 		ui->riverLayout->addWidget(b);
 		connect(b, &QPushButton::clicked, this, [this, river]{ roadOrRiverButtonClicked(river->id.getNum(), false); });
 	}
@@ -919,7 +919,7 @@ void MainWindow::on_terrainFilterCombo_currentTextChanged(const QString &arg1)
 	if (!arg1.isEmpty())
 	{
 		for (auto const & terrain : VLC->terrainTypeHandler->objects)
-			if (terrain->name == arg1.toStdString())
+			if (terrain->identifier == arg1.toStdString())
 				objectBrowser->terrain = terrain->id;
 	}
 	objectBrowser->invalidate();
