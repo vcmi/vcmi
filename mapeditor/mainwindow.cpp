@@ -120,6 +120,10 @@ MainWindow::MainWindow(QWidget* parent) :
 	ui(new Ui::MainWindow),
 	controller(this)
 {
+	// Set current working dir to executable folder.
+	// This is important on Mac for relative paths to work inside DMG.
+	QDir::setCurrent(QApplication::applicationDirPath());
+	
 	for(auto & string : VCMIDirs::get().dataPaths())
 		QDir::addSearchPath("icons", pathToQString(string / "mapeditor" / "icons"));
 	QDir::addSearchPath("icons", pathToQString(VCMIDirs::get().userDataPath() / "mapeditor" / "icons"));
@@ -127,10 +131,6 @@ MainWindow::MainWindow(QWidget* parent) :
 	ui->setupUi(this);
 	loadUserSettings(); //For example window size
 	setTitle();
-
-	// Set current working dir to executable folder.
-	// This is important on Mac for relative paths to work inside DMG.
-	QDir::setCurrent(QApplication::applicationDirPath());
 
 	ExtractionOptions extractionOptions;
 	parseCommandLine(extractionOptions);
