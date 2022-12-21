@@ -415,6 +415,10 @@ void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> at
 		if (attackedInfo.indirectAttack)
 			continue;
 
+		// Another type of indirect attack - dragon breath
+		if (!CStack::isMeleeAttackPossible(attackedInfo.attacker, attackedInfo.defender))
+			continue;
+
 		// defender need to face in direction opposited to out attacker
 		bool needsReverse = shouldAttackFacingRight(attackedInfo.attacker, attackedInfo.defender) == facingRight(attackedInfo.defender);
 

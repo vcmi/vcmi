@@ -1376,10 +1376,9 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes (const  battl
 	AttackableTiles at;
 	RETURN_IF_NOT_BATTLE(at);
 
-	const int WN = GameConstants::BFIELD_WIDTH;
 	BattleHex hex = (attackerPos != BattleHex::INVALID) ? attackerPos : attacker->getPosition(); //real or hypothetical (cursor) position
 
-	auto defender = battleGetUnitByPos(hex, true);
+	auto defender = battleGetUnitByPos(destinationTile, true);
 	if (!defender)
 		return at; // can't attack thin air
 
@@ -1427,34 +1426,17 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes (const  battl
 	}
 	else if(attacker->hasBonusOfType(Bonus::TWO_HEX_ATTACK_BREATH))
 	{
-		int pos = BattleHex::mutualPosition(destinationTile, hex);
-		if(pos > -1) //only adjacent hexes are subject of dragon breath calculation
+		auto direction = BattleHex::mutualPosition(hex, destinationTile);
+		if(direction != BattleHex::NONE) //only adjacent hexes are subject of dragon breath calculation
 		{
-			std::vector<BattleHex> hexes; //only one, in fact
-			int pseudoVector = destinationTile.hex - hex;
-			switch(pseudoVector)
-			{
-			case 1:
-			case -1:
-				BattleHex::checkAndPush(destinationTile.hex + pseudoVector, hexes);
-				break;
-			case WN: //17 //left-down or right-down
-			case -WN: //-17 //left-up or right-up
-			case WN + 1: //18 //right-down
-			case -WN + 1: //-16 //right-up
-				BattleHex::checkAndPush(destinationTile.hex + pseudoVector + (((hex / WN) % 2) ? 1 : -1), hexes);
-				break;
-			case WN - 1: //16 //left-down
-			case -WN - 1: //-18 //left-up
-				BattleHex::checkAndPush(destinationTile.hex + pseudoVector + (((hex / WN) % 2) ? 1 : 0), hexes);
-				break;
-			}
-			for(BattleHex tile : hexes)
+			BattleHex nextHex = destinationTile.cloneInDirection(direction, false);
+
+			if (nextHex.isValid())
 			{
 				//friendly stacks can also be damaged by Dragon Breath
-				auto st = battleGetUnitByPos(tile, true);
+				auto st = battleGetUnitByPos(nextHex, true);
 				if(st != nullptr)
-					at.friendlyCreaturePositions.insert(tile);
+					at.friendlyCreaturePositions.insert(nextHex);
 			}
 		}
 	}
