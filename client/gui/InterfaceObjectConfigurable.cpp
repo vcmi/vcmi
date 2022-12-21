@@ -27,7 +27,7 @@
 
 
 InterfaceObjectConfigurable::InterfaceObjectConfigurable(const JsonNode & config, int used, Point offset):
-	CIntObject(used, offset)
+	InterfaceObjectConfigurable(used, offset)
 {
 	init(config);
 }
@@ -202,7 +202,7 @@ std::shared_ptr<CToggleGroup> InterfaceObjectConfigurable::buildToggleGroup(cons
 	group->pos += position;
 	if(!config["items"].isNull())
 	{
-		SObjectConstruction obj__i(group.get());
+		OBJ_CONSTRUCTION_TARGETED(group.get());
 		int itemIdx = -1;
 		for(const auto & item : config["items"].Vector())
 		{

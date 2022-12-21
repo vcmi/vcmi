@@ -533,7 +533,7 @@ TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 		players.push_back(std::make_shared<CToggleGroup>([&, totalPlayers, plId](int sel)
 		{
 			variables["player_id"].Integer() = plId;
-			SObjectConstruction obj__i(players[plId].get());
+			OBJ_CONSTRUCTION_TARGETED(players[plId].get());
 			for(int teamId = 0; teamId < totalPlayers; ++teamId)
 			{
 				auto button = std::dynamic_pointer_cast<CToggleButton>(players[plId]->buttons[teamId]);
@@ -549,7 +549,7 @@ TeamAlignmentsWidget::TeamAlignmentsWidget(RandomMapTab & randomMapTab):
 			}
 		}));
 		
-		SObjectConstruction obj__i(players.back().get());
+		OBJ_CONSTRUCTION_TARGETED(players.back().get());
 		for(int teamId = 0; teamId < totalPlayers; ++teamId)
 		{
 			variables["point"]["x"].Integer() = variables["cellOffset"]["x"].Integer() + plId * variables["cellMargin"]["x"].Integer();
