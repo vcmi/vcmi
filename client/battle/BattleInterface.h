@@ -206,10 +206,10 @@ public:
 
 	void displayBattleLog(const std::vector<MetaString> & battleLog);
 
-	void displaySpellAnimationQueue(const CSpell::TAnimationQueue & q, BattleHex destinationTile, bool isHit);
-	void displaySpellCast(SpellID spellID, BattleHex destinationTile); //displays spell`s cast animation
-	void displaySpellEffect(SpellID spellID, BattleHex destinationTile); //displays spell`s affected animation
-	void displaySpellHit(SpellID spellID, BattleHex destinationTile); //displays spell`s affected animation
+	void displaySpellAnimationQueue(const CSpell * spell, const CSpell::TAnimationQueue & q, BattleHex destinationTile, bool isHit);
+	void displaySpellCast(const CSpell * spell, BattleHex destinationTile); //displays spell`s cast animation
+	void displaySpellEffect(const CSpell * spell, BattleHex destinationTile); //displays spell`s affected animation
+	void displaySpellHit(const CSpell * spell, BattleHex destinationTile); //displays spell`s affected animation
 
 	void endAction(const BattleAction* action);
 

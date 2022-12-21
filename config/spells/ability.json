@@ -3,7 +3,9 @@
 		"index" : 70,
 		"targetType": "NO_TARGET",
 		"animation":{
-			//need special animation
+			"affect":[ {
+				"effectName" : "petrification"
+			} ]
 		},
 		"sounds": {
 			"cast": "PARALYZE"

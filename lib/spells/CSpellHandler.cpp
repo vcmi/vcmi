@@ -522,8 +522,9 @@ void CSpell::serializeJson(JsonSerializeFormat & handler)
 }
 
 ///CSpell::AnimationInfo
-CSpell::AnimationItem::AnimationItem()
-	:resourceName(""),verticalPosition(VerticalPosition::TOP),pause(0)
+CSpell::AnimationItem::AnimationItem() :
+	verticalPosition(VerticalPosition::TOP),
+	pause(0)
 {
 
 }
@@ -890,6 +891,7 @@ CSpell * CSpellHandler::loadFromJson(const std::string & scope, const JsonNode &
 			else if(item.getType() == JsonNode::JsonType::DATA_STRUCT)
 			{
 				newItem.resourceName = item["defName"].String();
+				newItem.effectName   = item["effectName"].String();
 
 				auto vPosStr = item["verticalPosition"].String();
 				if("bottom" == vPosStr)

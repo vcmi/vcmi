@@ -361,7 +361,7 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 			executeOnAnimationCondition(EAnimationEvents::BEFORE_HIT, true, [=]()
 			{
 				stacksController->addNewAnim(new CastAnimation(*this, casterStack, targetedTile, curInt->cb->battleGetStackByPos(targetedTile), spell));
-				displaySpellCast(spellID, casterStack->getPosition());
+				displaySpellCast(spell, casterStack->getPosition());
 			});
 		}
 		else
@@ -377,7 +377,7 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 	}
 
 	executeOnAnimationCondition(EAnimationEvents::HIT, true, [=](){
-		displaySpellHit(spellID, targetedTile);
+		displaySpellHit(spell, targetedTile);
 	});
 
 	//queuing affect animation
@@ -388,12 +388,7 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 		if(stack)
 		{
 			executeOnAnimationCondition(EAnimationEvents::HIT, true, [=](){
-				if (spellID == SpellID::BLOODLUST)
-					stacksController->addNewAnim( new ColorTransformAnimation(*this, stack, "bloodlust", spell));
-				else if (spellID == SpellID::STONE_GAZE)
-					stacksController->addNewAnim( new ColorTransformAnimation(*this, stack, "petrification",  spell));
-				else
-					displaySpellEffect(spellID, stack->getPosition());
+				displaySpellEffect(spell, stack->getPosition());
 			});
 		}
 	}
@@ -460,13 +455,22 @@ void BattleInterface::displayBattleLog(const std::vector<MetaString> & battleLog
 	}
 }
 
-void BattleInterface::displaySpellAnimationQueue(const CSpell::TAnimationQueue & q, BattleHex destinationTile, bool isHit)
+void BattleInterface::displaySpellAnimationQueue(const CSpell * spell, const CSpell::TAnimationQueue & q, BattleHex destinationTile, bool isHit)
 {
 	for(const CSpell::TAnimation & animation : q)
 	{
 		if(animation.pause > 0)
 			stacksController->addNewAnim(new DummyAnimation(*this, animation.pause));
-		else
+
+		if (!animation.effectName.empty())
+		{
+			const CStack * destStack = getCurrentPlayerInterface()->cb->battleGetStackByPos(destinationTile, false);
+
+			if (destStack)
+				stacksController->addNewAnim(new ColorTransformAnimation(*this, destStack, animation.effectName, spell ));
+		}
+
+		if(!animation.resourceName.empty())
 		{
 			int flags = 0;
 
@@ -487,28 +491,22 @@ void BattleInterface::displaySpellAnimationQueue(const CSpell::TAnimationQueue &
 	}
 }
 
-void BattleInterface::displaySpellCast(SpellID spellID, BattleHex destinationTile)
+void BattleInterface::displaySpellCast(const CSpell * spell, BattleHex destinationTile)
 {
-	const CSpell * spell = spellID.toSpell();
-
 	if(spell)
-		displaySpellAnimationQueue(spell->animationInfo.cast, destinationTile, false);
+		displaySpellAnimationQueue(spell, spell->animationInfo.cast, destinationTile, false);
 }
 
-void BattleInterface::displaySpellEffect(SpellID spellID, BattleHex destinationTile)
+void BattleInterface::displaySpellEffect(const CSpell * spell, BattleHex destinationTile)
 {
-	const CSpell *spell = spellID.toSpell();
-
 	if(spell)
-		displaySpellAnimationQueue(spell->animationInfo.affect, destinationTile, false);
+		displaySpellAnimationQueue(spell, spell->animationInfo.affect, destinationTile, false);
 }
 
-void BattleInterface::displaySpellHit(SpellID spellID, BattleHex destinationTile)
+void BattleInterface::displaySpellHit(const CSpell * spell, BattleHex destinationTile)
 {
-	const CSpell * spell = spellID.toSpell();
-
 	if(spell)
-		displaySpellAnimationQueue(spell->animationInfo.hit, destinationTile, true);
+		displaySpellAnimationQueue(spell, spell->animationInfo.hit, destinationTile, true);
 }
 
 void BattleInterface::setAnimSpeed(int set)

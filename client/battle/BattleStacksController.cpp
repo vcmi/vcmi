@@ -451,7 +451,7 @@ void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> at
 				owner.effectsController->displayEffect(EBattleEffect::FIRE_SHIELD, soundBase::FIRESHIE, attackedInfo.attacker->getPosition());
 
 			if (attackedInfo.spellEffect != SpellID::NONE)
-				owner.displaySpellEffect(attackedInfo.spellEffect, attackedInfo.defender->getPosition());
+				owner.displaySpellEffect(attackedInfo.spellEffect.toSpell(), attackedInfo.defender->getPosition());
 		});
 	}
 
@@ -606,7 +606,7 @@ void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 	{
 		owner.executeOnAnimationCondition(EAnimationEvents::HIT, true, [=]()
 		{
-			owner.displaySpellHit(spellEffect, tile);
+			owner.displaySpellHit(spellEffect.toSpell(), tile);
 		});
 	}
 

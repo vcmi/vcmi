@@ -76,6 +76,7 @@ public:
 	struct AnimationItem
 	{
 		std::string resourceName;
+		std::string effectName;
 		VerticalPosition verticalPosition;
 		int pause;
 
@@ -84,6 +85,7 @@ public:
 		template <typename Handler> void serialize(Handler & h, const int version)
 		{
 			h & resourceName;
+			h & effectName;
 			h & verticalPosition;
 			h & pause;
 		}
