@@ -579,7 +579,7 @@ void CSystemOptionsWindow::selectGameRes()
 #endif
 
 		auto resolutionStr = resolutionToString(resolution.first, resolution.second);
-		if(gameResLabel->text == resolutionStr)
+		if(gameResLabel->getText() == resolutionStr)
 			currentResolutionIndex = i;
 		items.push_back(std::move(resolutionStr));
 		++i;

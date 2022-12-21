@@ -66,10 +66,10 @@ void CSavingScreen::changeSelection(std::shared_ptr<CMapInfo> to)
 
 void CSavingScreen::saveGame()
 {
-	if(!(tabSel && tabSel->inputName && tabSel->inputName->text.size()))
+	if(!(tabSel && tabSel->inputName && tabSel->inputName->getText().size()))
 		return;
 
-	std::string path = "Saves/" + tabSel->inputName->text;
+	std::string path = "Saves/" + tabSel->inputName->getText();
 
 	auto overWrite = [this, path]() -> void
 	{
@@ -82,7 +82,7 @@ void CSavingScreen::saveGame()
 	if(CResourceHandler::get("local")->existsResource(ResourceID(path, EResType::CLIENT_SAVEGAME)))
 	{
 		std::string hlp = CGI->generaltexth->allTexts[493]; //%s exists. Overwrite?
-		boost::algorithm::replace_first(hlp, "%s", tabSel->inputName->text);
+		boost::algorithm::replace_first(hlp, "%s", tabSel->inputName->getText());
 		LOCPLINT->showYesNoDialog(hlp, overWrite, nullptr);
 	}
 	else
