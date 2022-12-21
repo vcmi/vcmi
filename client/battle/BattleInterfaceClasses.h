@@ -55,7 +55,7 @@ private:
 	/// current text entered via in-game console, takes priority over both log entries and hover text
 	std::string consoleText;
 
-	/// if true then we are currently entering console tex
+	/// if true then we are currently entering console text
 	bool enteringText;
 public:
 	BattleConsole(const Rect & position);

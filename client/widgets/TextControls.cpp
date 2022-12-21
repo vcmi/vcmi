@@ -428,7 +428,7 @@ void CGStatusBar::init()
 
 void CGStatusBar::clickLeft(tribool down, bool previousState)
 {
-	if(!down && onClick )
+	if(!down && onClick)
 	{
 		if(LOCPLINT && LOCPLINT->cingconsole->active)
 			LOCPLINT->cingconsole->startEnteringText();
