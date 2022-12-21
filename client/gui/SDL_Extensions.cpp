@@ -526,13 +526,10 @@ bool CSDL_Ext::isTransparent( SDL_Surface * srf, int x, int y )
 
 	SDL_GetRGBA(SDL_GetPixel(srf, x, y), srf->format, &color.r, &color.g, &color.b, &color.a);
 
-	// color is considered transparent here if
-	// a) image has aplha: less than 50% transparency
-	// b) no alpha: color is cyan
-	if (srf->format->Amask)
-		return color.a < 128; // almost transparent
-	else
-		return (color.r == 0 && color.g == 255 && color.b == 255);
+	bool pixelTransparent = color.a < 128;
+	bool pixelCyan = (color.r == 0 && color.g == 255 && color.b == 255);
+
+	return pixelTransparent || pixelCyan;
 }
 
 void CSDL_Ext::VflipSurf(SDL_Surface * surf)
