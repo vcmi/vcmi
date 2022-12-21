@@ -62,7 +62,7 @@ namespace GameConstants
 
 si32 HeroTypeID::decode(const std::string & identifier)
 {
-	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeBuiltin(), "hero", identifier);
+	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), "hero", identifier);
 	if(rawId)
 		return rawId.get();
 	else
