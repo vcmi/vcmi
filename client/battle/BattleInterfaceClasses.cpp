@@ -638,7 +638,7 @@ void BattleResultWindow::bExitf()
 
 	close();
 
-	if(dynamic_cast<BattleInterface*>(GH.topInt().get()))
+	if(dynamic_cast<BattleWindow*>(GH.topInt().get()))
 		GH.popInts(1); //pop battle interface if present
 
 	//Result window and battle interface are gone. We requested all dialogs to be closed before opening the battle,

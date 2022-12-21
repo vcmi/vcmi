@@ -99,6 +99,11 @@ BattleWindow::BattleWindow(BattleInterface & owner):
 	addUsedEvents(RCLICK | KEYBOARD);
 }
 
+BattleWindow::~BattleWindow()
+{
+	CPlayerInterface::battleInt = nullptr;
+}
+
 void BattleWindow::hideQueue()
 {
 	Settings showQueue = settings.write["battle"]["showQueue"];

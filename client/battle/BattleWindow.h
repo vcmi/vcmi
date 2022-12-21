@@ -69,6 +69,7 @@ class BattleWindow : public WindowBase
 
 public:
 	BattleWindow(BattleInterface & owner );
+	~BattleWindow();
 
 	/// Closes window once battle finished (explicit declaration to move into public visibility)
 	using WindowBase::close;
