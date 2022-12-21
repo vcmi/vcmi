@@ -16,12 +16,22 @@
 
 SDL_Color ColorFilter::shiftColor(const SDL_Color & in) const
 {
-	SDL_Color out;
-	out.r = in.r * r.r + in.g * r.g + in.b * r.b + 255 * r.a;
-	out.g = in.r * g.r + in.g * g.g + in.b * g.b + 255 * g.a;
-	out.b = in.r * b.r + in.g * b.g + in.b * b.b + 255 * b.a;
-	out.a = in.a * a;
-	return out;
+	int r_out = in.r * r.r + in.g * r.g + in.b * r.b + 255 * r.a;
+	int g_out = in.r * g.r + in.g * g.g + in.b * g.b + 255 * g.a;
+	int b_out = in.r * b.r + in.g * b.g + in.b * b.b + 255 * b.a;
+	int a_out = in.a * a;
+
+	vstd::abetween(r_out, 0, 255);
+	vstd::abetween(g_out, 0, 255);
+	vstd::abetween(b_out, 0, 255);
+	vstd::abetween(a_out, 0, 255);
+
+	return {
+		static_cast<uint8_t>(r_out),
+		static_cast<uint8_t>(g_out),
+		static_cast<uint8_t>(b_out),
+		static_cast<uint8_t>(a_out)
+	};
 }
 
 bool ColorFilter::operator == (const ColorFilter & other) const
