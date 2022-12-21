@@ -399,6 +399,8 @@ TemplatesDropBox::TemplatesDropBox(RandomMapTab & randomMapTab, int3 size):
 	InterfaceObjectConfigurable(LCLICK | HOVER),
 	randomMapTab(randomMapTab)
 {
+	REGISTER_BUILDER("templateListItem", &TemplatesDropBox::buildListItem);
+	
 	curItems = VLC->tplh->getTemplates();
 	vstd::erase_if(curItems, [size](const CRmgTemplate * t){return !t->matchesSize(size);});
 	curItems.insert(curItems.begin(), nullptr); //default template
@@ -422,16 +424,11 @@ TemplatesDropBox::TemplatesDropBox(RandomMapTab & randomMapTab, int3 size):
 	updateListItems();
 }
 
-std::shared_ptr<CIntObject> TemplatesDropBox::buildCustomWidget(const JsonNode & config)
+std::shared_ptr<CIntObject> TemplatesDropBox::buildListItem(const JsonNode & config)
 {
-	if(config["type"].String() == "templateListItem")
-	{
-		auto position = readPosition(config["position"]);
-		listItems.push_back(std::make_shared<ListItem>(config, *this, position));
-		return listItems.back();
-	}
-	
-	return InterfaceObjectConfigurable::buildCustomWidget(config);
+	auto position = readPosition(config["position"]);
+	listItems.push_back(std::make_shared<ListItem>(config, *this, position));
+	return listItems.back();
 }
 
 void TemplatesDropBox::sliderMove(int slidPos)

@@ -25,6 +25,8 @@ class CAnimImage;
 class CShowableAnim;
 class CFilledTexture;
 
+#define REGISTER_BUILDER(type, method) registerBuilder(type, std::bind(method, this, std::placeholders::_1))
+
 class InterfaceObjectConfigurable: public CIntObject
 {
 public:
@@ -32,6 +34,10 @@ public:
 	InterfaceObjectConfigurable(const JsonNode & config, int used=0, Point offset=Point());
 
 protected:
+	
+	using BuilderFunction = std::function<std::shared_ptr<CIntObject>(const JsonNode &)>;
+	void registerBuilder(const std::string &, BuilderFunction);
+	
 	//must be called after adding callbacks
 	void init(const JsonNode & config);
 	
@@ -67,14 +73,13 @@ protected:
 	std::shared_ptr<CAnimImage> buildImage(const JsonNode &) const;
 	std::shared_ptr<CShowableAnim> buildAnimation(const JsonNode &) const;
 	std::shared_ptr<CFilledTexture> buildTexture(const JsonNode &) const;
-	
-	
+		
 	//composite widgets
-	virtual std::shared_ptr<CIntObject> buildCustomWidget(const JsonNode & config);
 	std::shared_ptr<CIntObject> buildWidget(JsonNode config) const;
 	
 private:
 	
+	std::map<std::string, BuilderFunction> builders;
 	std::map<std::string, std::shared_ptr<CIntObject>> widgets;
 	std::map<std::string, std::function<void(int)>> callbacks;
 };

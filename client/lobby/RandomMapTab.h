@@ -72,10 +72,8 @@ public:
 	void clickLeft(tribool down, bool previousState) override;
 	void setTemplate(const CRmgTemplate *);
 	
-protected:
-	std::shared_ptr<CIntObject> buildCustomWidget(const JsonNode & config) override;
-	
 private:
+	std::shared_ptr<CIntObject> buildListItem(const JsonNode & config);
 	
 	void sliderMove(int slidPos);
 	void updateListItems();

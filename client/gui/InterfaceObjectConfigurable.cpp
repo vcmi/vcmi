@@ -35,6 +35,21 @@ InterfaceObjectConfigurable::InterfaceObjectConfigurable(const JsonNode & config
 InterfaceObjectConfigurable::InterfaceObjectConfigurable(int used, Point offset):
 	CIntObject(used, offset)
 {
+	REGISTER_BUILDER("picture", &InterfaceObjectConfigurable::buildPicture);
+	REGISTER_BUILDER("image", &InterfaceObjectConfigurable::buildImage);
+	REGISTER_BUILDER("texture", &InterfaceObjectConfigurable::buildTexture);
+	REGISTER_BUILDER("animation", &InterfaceObjectConfigurable::buildAnimation);
+	REGISTER_BUILDER("label", &InterfaceObjectConfigurable::buildLabel);
+	REGISTER_BUILDER("toggleGroup", &InterfaceObjectConfigurable::buildToggleGroup);
+	REGISTER_BUILDER("toggleButton", &InterfaceObjectConfigurable::buildToggleButton);
+	REGISTER_BUILDER("button", &InterfaceObjectConfigurable::buildButton);
+	REGISTER_BUILDER("labelGroup", &InterfaceObjectConfigurable::buildLabelGroup);
+	REGISTER_BUILDER("slider", &InterfaceObjectConfigurable::buildSlider);
+}
+
+void InterfaceObjectConfigurable::registerBuilder(const std::string & type, BuilderFunction f)
+{
+	builders[type] = f;
 }
 
 void InterfaceObjectConfigurable::addCallback(const std::string & callbackName, std::function<void(int)> callback)
@@ -365,53 +380,10 @@ std::shared_ptr<CIntObject> InterfaceObjectConfigurable::buildWidget(JsonNode co
 	}
 	
 	auto type = config["type"].String();
-	if(type == "picture")
-	{
-		return buildPicture(config);
-	}
-	if(type == "image")
-	{
-		return buildImage(config);
-	}
-	if(type == "texture")
-	{
-		return buildTexture(config);
-	}
-	if(type == "animation")
-	{
-		return buildAnimation(config);
-	}
-	if(type == "label")
-	{
-		return buildLabel(config);
-	}
-	if(type == "toggleGroup")
-	{
-		return buildToggleGroup(config);
-	}
-	if(type == "toggleButton")
-	{
-		return buildToggleButton(config);
-	}
-	if(type == "button")
-	{
-		return buildButton(config);
-	}
-	if(type == "labelGroup")
-	{
-		return buildLabelGroup(config);
-	}
-	if(type == "slider")
-	{
-		return buildSlider(config);
-	}
+	auto buildIterator = builders.find(type);
+	if(buildIterator != builders.end())
+		return (buildIterator->second)(config);
 
-	logGlobal->debug("Calling custom widget building function");
-	return const_cast<InterfaceObjectConfigurable*>(this)->buildCustomWidget(config);
-}
-
-std::shared_ptr<CIntObject> InterfaceObjectConfigurable::buildCustomWidget(const JsonNode & config)
-{
-	logGlobal->error("Default custom widget builder called");
+	logGlobal->error("Builder with type %s is not registered", type);
 	return nullptr;
 }
