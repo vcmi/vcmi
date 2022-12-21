@@ -97,18 +97,18 @@ BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *
 	effectsController.reset(new BattleEffectsController(*this));
 	obstacleController.reset(new BattleObstacleController(*this));
 
-	if(tacticsMode)
-		tacticNextStack(nullptr);
-
 	CCS->musich->stopMusic();
 	setAnimationCondition(EAnimationEvents::OPENING, true);
 	battleIntroSoundChannel = CCS->soundh->playSoundFromSet(CCS->soundh->battleIntroSounds);
-	auto onIntroPlayed = [&]()
+	auto onIntroPlayed = [this]()
 	{
 		if(LOCPLINT->battleInt)
 		{
+			boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
 			CCS->musich->playMusicFromSet("battle", true, true);
 			setAnimationCondition(EAnimationEvents::OPENING, false);
+			if(tacticsMode)
+				tacticNextStack(nullptr);
 			activateStack();
 			battleIntroSoundChannel = -1;
 		}
@@ -549,6 +549,7 @@ void BattleInterface::activateStack()
 
 	myTurn = true;
 	windowObject->updateQueue();
+	windowObject->blockUI(false);
 	fieldController->redrawBackgroundWithHexes();
 	actionsController->activateStack();
 	GH.fakeMouseMove();
