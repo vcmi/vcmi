@@ -1,5 +1,5 @@
 /*
- * BattleControlPanel.h, part of VCMI engine
+ * BattleWindow.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -23,7 +23,7 @@ class BattleRenderer;
 class StackQueue;
 
 /// GUI object that handles functionality of panel at the bottom of combat screen
-class BattleControlPanel : public WindowBase
+class BattleWindow : public WindowBase
 {
 	BattleInterface & owner;
 
@@ -68,7 +68,7 @@ class BattleControlPanel : public WindowBase
 	void showQueue();
 
 public:
-	BattleControlPanel(BattleInterface & owner );
+	BattleWindow(BattleInterface & owner );
 
 	/// Closes window once battle finished (explicit declaration to move into public visibility)
 	using WindowBase::close;

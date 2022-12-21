@@ -16,7 +16,7 @@
 #include "BattleSiegeController.h"
 #include "BattleFieldController.h"
 #include "BattleStacksController.h"
-#include "BattleControlPanel.h"
+#include "BattleWindow.h"
 
 #include "../CGameInfo.h"
 #include "../CMessage.h"

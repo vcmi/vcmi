@@ -11,7 +11,7 @@
 #include "BattleEffectsController.h"
 
 #include "BattleAnimationClasses.h"
-#include "BattleControlPanel.h"
+#include "BattleWindow.h"
 #include "BattleInterface.h"
 #include "BattleInterfaceClasses.h"
 #include "BattleFieldController.h"

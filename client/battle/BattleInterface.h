@@ -48,7 +48,7 @@ class BattleSiegeController;
 class BattleObstacleController;
 class BattleFieldController;
 class BattleRenderer;
-class BattleControlPanel;
+class BattleWindow;
 class BattleStacksController;
 class BattleActionsController;
 class BattleEffectsController;
@@ -91,7 +91,7 @@ struct StackAttackInfo
 class BattleInterface
 {
 private:
-	std::shared_ptr<BattleControlPanel> windowObject;
+	std::shared_ptr<BattleWindow> windowObject;
 	std::shared_ptr<BattleConsole> console;
 
 	std::shared_ptr<CPlayerInterface> tacticianInterface; //used during tactics mode, points to the interface of player with higher tactics (can be either attacker or defender in hot-seat), valid onloy for human players
@@ -240,7 +240,7 @@ public:
 	friend class BattleSiegeController;
 	friend class BattleObstacleController;
 	friend class BattleFieldController;
-	friend class BattleControlPanel;
+	friend class BattleWindow;
 	friend class BattleStacksController;
 	friend class BattleActionsController;
 	friend class BattleEffectsController;

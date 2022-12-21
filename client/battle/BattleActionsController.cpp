@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "BattleActionsController.h"
 
-#include "BattleControlPanel.h"
+#include "BattleWindow.h"
 #include "BattleStacksController.h"
 #include "BattleInterface.h"
 #include "BattleFieldController.h"

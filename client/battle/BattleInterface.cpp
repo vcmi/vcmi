@@ -19,7 +19,7 @@
 #include "BattleObstacleController.h"
 #include "BattleSiegeController.h"
 #include "BattleFieldController.h"
-#include "BattleControlPanel.h"
+#include "BattleWindow.h"
 #include "BattleStacksController.h"
 #include "BattleRenderer.h"
 
@@ -90,7 +90,7 @@ BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *
 	if(town && town->hasFort())
 		siegeController.reset(new BattleSiegeController(*this, town));
 
-	windowObject = std::make_shared<BattleControlPanel>(*this);
+	windowObject = std::make_shared<BattleWindow>(*this);
 	projectilesController.reset(new BattleProjectileController(*this));
 	stacksController.reset( new BattleStacksController(*this));
 	actionsController.reset( new BattleActionsController(*this));

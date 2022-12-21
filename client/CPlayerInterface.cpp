@@ -16,7 +16,7 @@
 #include "battle/BattleEffectsController.h"
 #include "battle/BattleFieldController.h"
 #include "battle/BattleInterfaceClasses.h"
-#include "battle/BattleControlPanel.h"
+#include "battle/BattleWindow.h"
 #include "../CCallback.h"
 #include "windows/CCastleInterface.h"
 #include "gui/CCursorHandler.h"

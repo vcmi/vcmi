@@ -13,7 +13,7 @@
 #include "BattleInterface.h"
 #include "BattleInterfaceClasses.h"
 #include "BattleEffectsController.h"
-#include "BattleControlPanel.h"
+#include "BattleWindow.h"
 #include "BattleSiegeController.h"
 #include "BattleStacksController.h"
 #include "BattleObstacleController.h"

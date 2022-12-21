@@ -1,5 +1,5 @@
 /*
- * BattleControlPanel.cpp, part of VCMI engine
+ * BattleWindow.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -8,7 +8,7 @@
  *
  */
 #include "StdInc.h"
-#include "BattleControlPanel.h"
+#include "BattleWindow.h"
 
 #include "BattleInterface.h"
 #include "BattleInterfaceClasses.h"
@@ -34,7 +34,7 @@
 #include "../../lib/CStack.h"
 #include "../../lib/CConfigHandler.h"
 
-BattleControlPanel::BattleControlPanel(BattleInterface & owner):
+BattleWindow::BattleWindow(BattleInterface & owner):
 	owner(owner)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
@@ -49,15 +49,15 @@ BattleControlPanel::BattleControlPanel(BattleInterface & owner):
 	menuBattle->colorize(owner.curInt->playerID);
 
 	//preparing buttons and console
-	bOptions = std::make_shared<CButton>    (Point(  3,  5 + 556), "icm003.def", CGI->generaltexth->zelp[381], std::bind(&BattleControlPanel::bOptionsf,this), SDLK_o);
-	bSurrender = std::make_shared<CButton>  (Point( 54,  5 + 556), "icm001.def", CGI->generaltexth->zelp[379], std::bind(&BattleControlPanel::bSurrenderf,this), SDLK_s);
-	bFlee = std::make_shared<CButton>       (Point(105,  5 + 556), "icm002.def", CGI->generaltexth->zelp[380], std::bind(&BattleControlPanel::bFleef,this), SDLK_r);
-	bAutofight = std::make_shared<CButton>  (Point(158,  5 + 556), "icm004.def", CGI->generaltexth->zelp[382], std::bind(&BattleControlPanel::bAutofightf,this), SDLK_a);
-	bSpell = std::make_shared<CButton>      (Point(645,  5 + 556), "icm005.def", CGI->generaltexth->zelp[385], std::bind(&BattleControlPanel::bSpellf,this), SDLK_c);
-	bWait = std::make_shared<CButton>       (Point(696,  5 + 556), "icm006.def", CGI->generaltexth->zelp[386], std::bind(&BattleControlPanel::bWaitf,this), SDLK_w);
-	bDefence = std::make_shared<CButton>    (Point(747,  5 + 556), "icm007.def", CGI->generaltexth->zelp[387], std::bind(&BattleControlPanel::bDefencef,this), SDLK_d);
-	bConsoleUp = std::make_shared<CButton>  (Point(624,  5 + 556), "ComSlide.def", std::make_pair("", ""),     std::bind(&BattleControlPanel::bConsoleUpf,this), SDLK_UP);
-	bConsoleDown = std::make_shared<CButton>(Point(624, 24 + 556), "ComSlide.def", std::make_pair("", ""),     std::bind(&BattleControlPanel::bConsoleDownf,this), SDLK_DOWN);
+	bOptions = std::make_shared<CButton>    (Point(  3,  5 + 556), "icm003.def", CGI->generaltexth->zelp[381], std::bind(&BattleWindow::bOptionsf,this), SDLK_o);
+	bSurrender = std::make_shared<CButton>  (Point( 54,  5 + 556), "icm001.def", CGI->generaltexth->zelp[379], std::bind(&BattleWindow::bSurrenderf,this), SDLK_s);
+	bFlee = std::make_shared<CButton>       (Point(105,  5 + 556), "icm002.def", CGI->generaltexth->zelp[380], std::bind(&BattleWindow::bFleef,this), SDLK_r);
+	bAutofight = std::make_shared<CButton>  (Point(158,  5 + 556), "icm004.def", CGI->generaltexth->zelp[382], std::bind(&BattleWindow::bAutofightf,this), SDLK_a);
+	bSpell = std::make_shared<CButton>      (Point(645,  5 + 556), "icm005.def", CGI->generaltexth->zelp[385], std::bind(&BattleWindow::bSpellf,this), SDLK_c);
+	bWait = std::make_shared<CButton>       (Point(696,  5 + 556), "icm006.def", CGI->generaltexth->zelp[386], std::bind(&BattleWindow::bWaitf,this), SDLK_w);
+	bDefence = std::make_shared<CButton>    (Point(747,  5 + 556), "icm007.def", CGI->generaltexth->zelp[387], std::bind(&BattleWindow::bDefencef,this), SDLK_d);
+	bConsoleUp = std::make_shared<CButton>  (Point(624,  5 + 556), "ComSlide.def", std::make_pair("", ""),     std::bind(&BattleWindow::bConsoleUpf,this), SDLK_UP);
+	bConsoleDown = std::make_shared<CButton>(Point(624, 24 + 556), "ComSlide.def", std::make_pair("", ""),     std::bind(&BattleWindow::bConsoleDownf,this), SDLK_DOWN);
 
 	bDefence->assignedKeys.insert(SDLK_SPACE);
 	bConsoleUp->setImageOrder(0, 1, 0, 0);
@@ -99,7 +99,7 @@ BattleControlPanel::BattleControlPanel(BattleInterface & owner):
 	addUsedEvents(RCLICK | KEYBOARD);
 }
 
-void BattleControlPanel::hideQueue()
+void BattleWindow::hideQueue()
 {
 	Settings showQueue = settings.write["battle"]["showQueue"];
 	showQueue->Bool() = false;
@@ -113,7 +113,7 @@ void BattleControlPanel::hideQueue()
 	}
 }
 
-void BattleControlPanel::showQueue()
+void BattleWindow::showQueue()
 {
 	Settings showQueue = settings.write["battle"]["showQueue"];
 	showQueue->Bool() = true;
@@ -127,24 +127,24 @@ void BattleControlPanel::showQueue()
 	}
 }
 
-void BattleControlPanel::updateQueue()
+void BattleWindow::updateQueue()
 {
 	queue->update();
 }
 
-void BattleControlPanel::activate()
+void BattleWindow::activate()
 {
 	CIntObject::activate();
 	LOCPLINT->cingconsole->activate();
 }
 
-void BattleControlPanel::deactivate()
+void BattleWindow::deactivate()
 {
 	CIntObject::deactivate();
 	LOCPLINT->cingconsole->deactivate();
 }
 
-void BattleControlPanel::keyPressed(const SDL_KeyboardEvent & key)
+void BattleWindow::keyPressed(const SDL_KeyboardEvent & key)
 {
 	if(key.keysym.sym == SDLK_q && key.state == SDL_PRESSED)
 	{
@@ -167,13 +167,13 @@ void BattleControlPanel::keyPressed(const SDL_KeyboardEvent & key)
 	}
 }
 
-void BattleControlPanel::clickRight(tribool down, bool previousState)
+void BattleWindow::clickRight(tribool down, bool previousState)
 {
 	if (!down)
 		owner.actionsController->endCastingSpell();
 }
 
-void BattleControlPanel::tacticPhaseStarted()
+void BattleWindow::tacticPhaseStarted()
 {
 	menuBattle->disable();
 	console->disable();
@@ -183,7 +183,7 @@ void BattleControlPanel::tacticPhaseStarted()
 	btactEnd->enable();
 }
 
-void BattleControlPanel::tacticPhaseEnded()
+void BattleWindow::tacticPhaseEnded()
 {
 	menuBattle->enable();
 	console->enable();
@@ -193,7 +193,7 @@ void BattleControlPanel::tacticPhaseEnded()
 	btactEnd->disable();
 }
 
-void BattleControlPanel::bOptionsf()
+void BattleWindow::bOptionsf()
 {
 	if (owner.actionsController->spellcastingModeActive())
 		return;
@@ -203,7 +203,7 @@ void BattleControlPanel::bOptionsf()
 	GH.pushIntT<BattleOptionsWindow>(owner);
 }
 
-void BattleControlPanel::bSurrenderf()
+void BattleWindow::bSurrenderf()
 {
 	if (owner.actionsController->spellcastingModeActive())
 		return;
@@ -223,14 +223,14 @@ void BattleControlPanel::bSurrenderf()
 	}
 }
 
-void BattleControlPanel::bFleef()
+void BattleWindow::bFleef()
 {
 	if (owner.actionsController->spellcastingModeActive())
 		return;
 
 	if ( owner.curInt->cb->battleCanFlee() )
 	{
-		CFunctionList<void()> ony = std::bind(&BattleControlPanel::reallyFlee,this);
+		CFunctionList<void()> ony = std::bind(&BattleWindow::reallyFlee,this);
 		owner.curInt->showYesNoDialog(CGI->generaltexth->allTexts[28], ony, nullptr); //Are you sure you want to retreat?
 	}
 	else
@@ -252,13 +252,13 @@ void BattleControlPanel::bFleef()
 	}
 }
 
-void BattleControlPanel::reallyFlee()
+void BattleWindow::reallyFlee()
 {
 	owner.giveCommand(EActionType::RETREAT);
 	CCS->curh->set(Cursor::Map::POINTER);
 }
 
-void BattleControlPanel::reallySurrender()
+void BattleWindow::reallySurrender()
 {
 	if (owner.curInt->cb->getResourceAmount(Res::GOLD) < owner.curInt->cb->battleGetSurrenderCost())
 	{
@@ -271,7 +271,7 @@ void BattleControlPanel::reallySurrender()
 	}
 }
 
-void BattleControlPanel::bAutofightf()
+void BattleWindow::bAutofightf()
 {
 	if (owner.actionsController->spellcastingModeActive())
 		return;
@@ -298,7 +298,7 @@ void BattleControlPanel::bAutofightf()
 	}
 }
 
-void BattleControlPanel::bSpellf()
+void BattleWindow::bSpellf()
 {
 	if (owner.actionsController->spellcastingModeActive())
 		return;
@@ -340,7 +340,7 @@ void BattleControlPanel::bSpellf()
 	}
 }
 
-void BattleControlPanel::bWaitf()
+void BattleWindow::bWaitf()
 {
 	if (owner.actionsController->spellcastingModeActive())
 		return;
@@ -349,7 +349,7 @@ void BattleControlPanel::bWaitf()
 		owner.giveCommand(EActionType::WAIT);
 }
 
-void BattleControlPanel::bDefencef()
+void BattleWindow::bDefencef()
 {
 	if (owner.actionsController->spellcastingModeActive())
 		return;
@@ -358,7 +358,7 @@ void BattleControlPanel::bDefencef()
 		owner.giveCommand(EActionType::DEFEND);
 }
 
-void BattleControlPanel::bConsoleUpf()
+void BattleWindow::bConsoleUpf()
 {
 	if (owner.actionsController->spellcastingModeActive())
 		return;
@@ -366,7 +366,7 @@ void BattleControlPanel::bConsoleUpf()
 	console->scrollUp();
 }
 
-void BattleControlPanel::bConsoleDownf()
+void BattleWindow::bConsoleDownf()
 {
 	if (owner.actionsController->spellcastingModeActive())
 		return;
@@ -374,17 +374,17 @@ void BattleControlPanel::bConsoleDownf()
 	console->scrollDown();
 }
 
-void BattleControlPanel::bTacticNextStack()
+void BattleWindow::bTacticNextStack()
 {
 	owner.tacticNextStack(nullptr);
 }
 
-void BattleControlPanel::bTacticPhaseEnd()
+void BattleWindow::bTacticPhaseEnd()
 {
 	owner.tacticPhaseEnd();
 }
 
-void BattleControlPanel::blockUI(bool on)
+void BattleWindow::blockUI(bool on)
 {
 	bool canCastSpells = false;
 	auto hero = owner.curInt->cb->battleGetMyHero();
@@ -424,7 +424,7 @@ void BattleControlPanel::blockUI(bool on)
 	bDefence->block(on || owner.tacticsMode);
 }
 
-void BattleControlPanel::showAll(SDL_Surface *to)
+void BattleWindow::showAll(SDL_Surface *to)
 {
 	CIntObject::showAll(to);
 
@@ -432,7 +432,7 @@ void BattleControlPanel::showAll(SDL_Surface *to)
 		CMessage::drawBorder(owner.curInt->playerID, to, pos.w+28, pos.h+29, pos.x-14, pos.y-15);
 }
 
-void BattleControlPanel::show(SDL_Surface *to)
+void BattleWindow::show(SDL_Surface *to)
 {
 	CIntObject::show(to);
 	LOCPLINT->cingconsole->show(to);
