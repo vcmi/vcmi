@@ -405,13 +405,9 @@ std::shared_ptr<CIntObject> InterfaceObjectConfigurable::buildWidget(JsonNode co
 	{
 		return buildSlider(config);
 	}
-	if(type == "custom")
-	{
-		logGlobal->debug("Calling custom widget building function");
-		return const_cast<InterfaceObjectConfigurable*>(this)->buildCustomWidget(config);
-	}
-	logGlobal->error("Unknown type, nullptr will be returned");
-	return std::shared_ptr<CIntObject>(nullptr);
+
+	logGlobal->debug("Calling custom widget building function");
+	return const_cast<InterfaceObjectConfigurable*>(this)->buildCustomWidget(config);
 }
 
 std::shared_ptr<CIntObject> InterfaceObjectConfigurable::buildCustomWidget(const JsonNode & config)

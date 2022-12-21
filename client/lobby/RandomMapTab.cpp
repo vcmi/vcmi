@@ -281,7 +281,7 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 		if(tmpl)
 			w->addTextOverlay(tmpl->getName(), EFonts::FONT_SMALL);
 		else
-			w->addTextOverlay("default", EFonts::FONT_SMALL);
+			w->addTextOverlay(readText(variables["defaultTemplate"]), EFonts::FONT_SMALL);
 	}
 	for(auto r : VLC->terrainTypeHandler->roads())
 	{
@@ -301,7 +301,7 @@ void RandomMapTab::setTemplate(const CRmgTemplate * tmpl)
 		if(tmpl)
 			w->addTextOverlay(tmpl->getName(), EFonts::FONT_SMALL);
 		else
-			w->addTextOverlay("default", EFonts::FONT_SMALL);
+			w->addTextOverlay(readText(variables["defaultTemplate"]), EFonts::FONT_SMALL);
 	}
 	updateMapInfoByHost();
 }
@@ -362,7 +362,7 @@ void TemplatesDropBox::ListItem::updateItem(int idx, const CRmgTemplate * _item)
 			if(idx)
 				w->setText("");
 			else
-				w->setText("default");
+				w->setText(readText(dropBox.variables["defaultTemplate"]));
 		}
 	}
 }
@@ -424,9 +424,14 @@ TemplatesDropBox::TemplatesDropBox(RandomMapTab & randomMapTab, int3 size):
 
 std::shared_ptr<CIntObject> TemplatesDropBox::buildCustomWidget(const JsonNode & config)
 {
-	auto position = readPosition(config["position"]);
-	listItems.push_back(std::make_shared<ListItem>(config, *this, position));
-	return listItems.back();
+	if(config["type"].String() == "templateListItem")
+	{
+		auto position = readPosition(config["position"]);
+		listItems.push_back(std::make_shared<ListItem>(config, *this, position));
+		return listItems.back();
+	}
+	
+	return InterfaceObjectConfigurable::buildCustomWidget(config);
 }
 
 void TemplatesDropBox::sliderMove(int slidPos)
