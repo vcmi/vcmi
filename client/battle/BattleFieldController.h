@@ -22,6 +22,7 @@ struct Rect;
 struct Point;
 
 class ClickableHex;
+class BattleHero;
 class Canvas;
 class IImage;
 class BattleInterface;
@@ -64,8 +65,15 @@ class BattleFieldController : public CIntObject
 	void showHighlightedHexes(Canvas & canvas);
 
 	BattleHex::EDir selectAttackDirection(BattleHex myNumber, const Point & point);
+
+	void mouseMoved(const SDL_MouseMotionEvent &event) override;
+	void showAll(SDL_Surface * to) override;
+	void show(SDL_Surface * to) override;
+
 public:
 	BattleFieldController(BattleInterface & owner);
+
+	void createHeroes();
 
 	void redrawBackgroundWithHexes();
 	void renderBattlefield(Canvas & canvas);

@@ -126,7 +126,7 @@ void CHeroArtPlace::clickLeft(tribool down, bool previousState)
 	if(ourArt && !down && previousState && !ourOwner->commonInfo->src.AOH)
 	{
 		if(ourArt->artType->id == ArtifactID::SPELLBOOK)
-			GH.pushIntT<CSpellWindow>(ourOwner->curHero, LOCPLINT, LOCPLINT->battleInt);
+			GH.pushIntT<CSpellWindow>(ourOwner->curHero, LOCPLINT, LOCPLINT->battleInt.get());
 	}
 
 	if (!down && previousState)

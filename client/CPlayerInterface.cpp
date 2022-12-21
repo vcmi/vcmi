@@ -93,7 +93,7 @@ boost::recursive_mutex * CPlayerInterface::pim = new boost::recursive_mutex;
 
 CPlayerInterface * LOCPLINT;
 
-BattleInterface * CPlayerInterface::battleInt;
+std::shared_ptr<BattleInterface> CPlayerInterface::battleInt;
 
 enum  EMoveState {STOP_MOVE, WAITING_MOVE, CONTINUE_MOVE, DURING_MOVE};
 CondSh<EMoveState> stillMoveHero(STOP_MOVE); //used during hero movement
@@ -836,9 +836,9 @@ BattleAction CPlayerInterface::activeStack(const CStack * stack) //called when i
 		autofightingAI.reset();
 	}
 
-	BattleInterface *b = battleInt;
+	assert(battleInt);
 
-	if(!b)
+	if(!battleInt)
 	{
 		return BattleAction::makeDefend(stack); // probably battle is finished already
 	}
@@ -851,7 +851,7 @@ BattleAction CPlayerInterface::activeStack(const CStack * stack) //called when i
 
 	{
 		boost::unique_lock<boost::recursive_mutex> un(*pim);
-		b->stackActivated(stack);
+		battleInt->stackActivated(stack);
 		//Regeneration & mana drain go there
 	}
 	//wait till BattleInterface sets its command

@@ -668,9 +668,9 @@ void BattleActionsController::handleHex(BattleHex myNumber, int eventType)
 			}
 
 			if (!currentConsoleMsg.empty())
-				owner.controlPanel->console->clearIfMatching(currentConsoleMsg);
+				GH.statusbar->clearIfMatching(currentConsoleMsg);
 			if (!newConsoleMsg.empty())
-				owner.controlPanel->console->write(newConsoleMsg);
+				GH.statusbar->write(newConsoleMsg);
 
 			currentConsoleMsg = newConsoleMsg;
 		}
@@ -684,7 +684,7 @@ void BattleActionsController::handleHex(BattleHex myNumber, int eventType)
 			realizeAction();
 			if (!secondaryTarget) //do not replace teleport or sacrifice cursor
 				CCS->curh->set(Cursor::Combat::POINTER);
-			owner.controlPanel->console->clear();
+			GH.statusbar->clear();
 		}
 	}
 }

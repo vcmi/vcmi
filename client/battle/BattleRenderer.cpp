@@ -11,19 +11,24 @@
 #include "BattleRenderer.h"
 
 #include "BattleInterface.h"
+#include "BattleInterfaceClasses.h"
 #include "BattleEffectsController.h"
+#include "BattleControlPanel.h"
 #include "BattleSiegeController.h"
 #include "BattleStacksController.h"
 #include "BattleObstacleController.h"
 
 void BattleRenderer::collectObjects()
 {
-	owner.collectRenderableObjects(*this);
 	owner.effectsController->collectRenderableObjects(*this);
 	owner.obstacleController->collectRenderableObjects(*this);
 	owner.stacksController->collectRenderableObjects(*this);
 	if (owner.siegeController)
 		owner.siegeController->collectRenderableObjects(*this);
+	if (owner.defendingHero)
+		owner.defendingHero->collectRenderableObjects(*this);
+	if (owner.attackingHero)
+		owner.attackingHero->collectRenderableObjects(*this);
 }
 
 void BattleRenderer::sortObjects()

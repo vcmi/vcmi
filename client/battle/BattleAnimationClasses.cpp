@@ -982,9 +982,9 @@ bool PointEffectAnimation::init()
 
 	if (screenFill())
 	{
-		for(int i=0; i * first->width() < owner.pos.w ; ++i)
-			for(int j=0; j * first->height() < owner.pos.h ; ++j)
-				positions.push_back(Point( owner.pos.x + i * first->width(), owner.pos.y + j * first->height()));
+		for(int i=0; i * first->width() < owner.fieldController->pos.w ; ++i)
+			for(int j=0; j * first->height() < owner.fieldController->pos.h ; ++j)
+				positions.push_back(Point( owner.fieldController->pos.x + i * first->width(), owner.fieldController->pos.y + j * first->height()));
 	}
 
 	BattleEffect be;

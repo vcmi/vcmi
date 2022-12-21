@@ -29,6 +29,9 @@ class BattleObstacleController
 {
 	BattleInterface & owner;
 
+	/// total time, in seconds, since start of battle. Used for animating obstacles
+	float timePassed;
+
 	/// cached animations of all obstacles in current battle
 	std::map<std::string, std::shared_ptr<CAnimation>> animationsCache;
 
@@ -42,6 +45,9 @@ class BattleObstacleController
 
 public:
 	BattleObstacleController(BattleInterface & owner);
+
+	/// called every frame
+	void update();
 
 	/// call-in from network pack, add newly placed obstacles with any required animations
 	void obstaclePlaced(const std::vector<std::shared_ptr<const CObstacleInstance>> & oi);

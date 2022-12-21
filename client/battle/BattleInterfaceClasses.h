@@ -40,11 +40,14 @@ class CLabel;
 class CTextBox;
 class CAnimImage;
 class CPlayerInterface;
+class BattleRenderer;
 
 /// Class which shows the console at the bottom of the battle screen and manages the text of the console
 class BattleConsole : public CIntObject, public IStatusBar
 {
 private:
+	std::shared_ptr<CPicture> background;
+
 	/// List of all texts added during battle, essentially - log of entire battle
 	std::vector< std::string > logEntries;
 
@@ -60,7 +63,7 @@ private:
 	/// if true then we are currently entering console text
 	bool enteringText;
 public:
-	BattleConsole(const Rect & position);
+	BattleConsole(std::shared_ptr<CPicture> backgroundSource, const Point & objectPos, const Point & imagePos, const Point &size);
 	~BattleConsole();
 	void showAll(SDL_Surface * to) override;
 
@@ -98,9 +101,13 @@ class BattleHero : public CIntObject
 
 	void switchToNextPhase();
 
-public:
 	void render(Canvas & canvas); //prints next frame of animation to to
+public:
+	const CGHeroInstance * instance();
+
 	void setPhase(EHeroAnimType newPhase); //sets phase of hero animation
+
+	void collectRenderableObjects(BattleRenderer & renderer);
 
 	float getFrame() const;
 	void onPhaseFinished(const std::function<void()> &);

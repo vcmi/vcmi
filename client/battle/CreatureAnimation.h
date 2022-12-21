@@ -49,6 +49,9 @@ namespace AnimationControls
 
 	/// Returns total time for full fade-in effect on newly summoned creatures, in seconds
 	float getFadeInDuration();
+
+	/// Returns animation speed for obstacles, in frames per second
+	float getObstaclesSpeed();
 }
 
 /// Class which manages animations of creatures/units inside battles

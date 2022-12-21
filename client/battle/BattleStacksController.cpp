@@ -240,7 +240,7 @@ void BattleStacksController::setActiveStack(const CStack *stack)
 	if (activeStack) // update UI
 		stackAnimation[activeStack->ID]->setBorderColor(AnimationControls::getGoldBorder());
 
-	owner.controlPanel->blockUI(activeStack == nullptr);
+	owner.windowObject->blockUI(activeStack == nullptr);
 }
 
 bool BattleStacksController::stackNeedsAmountBox(const CStack * stack) const
@@ -558,7 +558,7 @@ void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 	if(info.lucky)
 	{
 		owner.executeOnAnimationCondition(EAnimationEvents::BEFORE_HIT, true, [=]() {
-			owner.controlPanel->console->addText(info.attacker->formatGeneralMessage(-45));
+			owner.appendBattleLog(info.attacker->formatGeneralMessage(-45));
 			owner.effectsController->displayEffect(EBattleEffect::GOOD_LUCK, soundBase::GOODLUCK, attacker->getPosition());
 		});
 	}
@@ -566,7 +566,7 @@ void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 	if(info.unlucky)
 	{
 		owner.executeOnAnimationCondition(EAnimationEvents::BEFORE_HIT, true, [=]() {
-			owner.controlPanel->console->addText(info.attacker->formatGeneralMessage(-44));
+			owner.appendBattleLog(info.attacker->formatGeneralMessage(-44));
 			owner.effectsController->displayEffect(EBattleEffect::BAD_LUCK, soundBase::BADLUCK, attacker->getPosition());
 		});
 	}
@@ -574,7 +574,7 @@ void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 	if(info.deathBlow)
 	{
 		owner.executeOnAnimationCondition(EAnimationEvents::BEFORE_HIT, true, [=]() {
-			owner.controlPanel->console->addText(info.attacker->formatGeneralMessage(365));
+			owner.appendBattleLog(info.attacker->formatGeneralMessage(365));
 			owner.effectsController->displayEffect(EBattleEffect::DEATH_BLOW, soundBase::deathBlow, defender->getPosition());
 		});
 
@@ -682,7 +682,7 @@ void BattleStacksController::endAction(const BattleAction* action)
 	assert(owner.getAnimationCondition(EAnimationEvents::HIT) == false);
 	assert(owner.getAnimationCondition(EAnimationEvents::PROJECTILES) == false);
 
-	owner.controlPanel->blockUI(activeStack == nullptr);
+	owner.windowObject->blockUI(activeStack == nullptr);
 	removeExpiredColorFilters();
 }
 
@@ -802,7 +802,7 @@ Point BattleStacksController::getStackPositionAtHex(BattleHex hexNum, const CSta
 		}
 	}
 	//returning
-	return ret + owner.pos.topLeft();
+	return ret + owner.fieldController->pos.topLeft();
 }
 
 void BattleStacksController::setStackColorFilter(const ColorFilter & effect, const CStack * target, const CSpell * source, bool persistent)

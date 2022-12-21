@@ -22,6 +22,7 @@
 
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
+#include "../widgets/AdventureMapClasses.h"
 #include "../gui/CAnimation.h"
 #include "../gui/Canvas.h"
 #include "../gui/CGuiHandler.h"
@@ -37,8 +38,7 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 	owner(owner)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
-	pos.w = owner.pos.w;
-	pos.h = owner.pos.h;
+	strongInterest = true;
 
 	//preparing cells and hexes
 	cellBorder = IImage::createFromFile("CCELLGRD.BMP");
@@ -58,6 +58,8 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 		std::string backgroundName = owner.siegeController->getBattleBackgroundName();
 		background = IImage::createFromFile(backgroundName);
 	}
+	pos.w = background->width();
+	pos.h = background->height();
 
 	//preparing graphic with cell borders
 	cellBorders = std::make_unique<Canvas>(Point(background->width(), background->height()));
@@ -86,7 +88,30 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 	auto accessibility = owner.curInt->cb->getAccesibility();
 	for(int i = 0; i < accessibility.size(); i++)
 		stackCountOutsideHexes[i] = (accessibility[i] == EAccessibility::ACCESSIBLE);
+
+	addUsedEvents(MOVE);
+	LOCPLINT->cingconsole->pos = this->pos;
 }
+
+void BattleFieldController::createHeroes()
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+
+	// create heroes as part of our constructor for correct positioning inside battlefield
+	if(owner.attackingHeroInstance)
+		owner.attackingHero = std::make_shared<BattleHero>(owner, owner.attackingHeroInstance, false);
+
+	if(owner.defendingHeroInstance)
+		owner.defendingHero = std::make_shared<BattleHero>(owner, owner.defendingHeroInstance, true);
+}
+
+void BattleFieldController::mouseMoved(const SDL_MouseMotionEvent &event)
+{
+	BattleHex selectedHex = getHoveredHex();
+
+	owner.actionsController->handleHex(selectedHex, MOVE);
+}
+
 
 void BattleFieldController::renderBattlefield(Canvas & canvas)
 {
@@ -112,19 +137,19 @@ void BattleFieldController::showBackground(Canvas & canvas)
 
 void BattleFieldController::showBackgroundImage(Canvas & canvas)
 {
-	canvas.draw(background, owner.pos.topLeft());
+	canvas.draw(background, pos.topLeft());
 
 	owner.obstacleController->showAbsoluteObstacles(canvas, pos.topLeft());
 	if ( owner.siegeController )
 		owner.siegeController->showAbsoluteObstacles(canvas, pos.topLeft());
 
 	if (settings["battle"]["cellBorders"].Bool())
-		canvas.draw(*cellBorders, owner.pos.topLeft());
+		canvas.draw(*cellBorders, pos.topLeft());
 }
 
 void BattleFieldController::showBackgroundImageWithHexes(Canvas & canvas)
 {
-	canvas.draw(*backgroundWithHexes.get(), owner.pos.topLeft());
+	canvas.draw(*backgroundWithHexes.get(), pos.topLeft());
 }
 
 void BattleFieldController::redrawBackgroundWithHexes()
@@ -318,7 +343,7 @@ Rect BattleFieldController::hexPositionLocal(BattleHex hex) const
 
 Rect BattleFieldController::hexPositionAbsolute(BattleHex hex) const
 {
-	return hexPositionLocal(hex) + owner.pos.topLeft();
+	return hexPositionLocal(hex) + pos.topLeft();
 }
 
 bool BattleFieldController::isPixelInHex(Point const & position)
@@ -511,4 +536,23 @@ bool BattleFieldController::isTileAttackable(const BattleHex & number) const
 bool BattleFieldController::stackCountOutsideHex(const BattleHex & number) const
 {
 	return stackCountOutsideHexes[number];
+}
+
+void BattleFieldController::showAll(SDL_Surface * to)
+{
+	show(to);
+}
+
+void BattleFieldController::show(SDL_Surface * to)
+{
+	owner.stacksController->update();
+	owner.obstacleController->update();
+
+	SDL_Rect buf;
+
+	Canvas canvas(to);
+	SDL_GetClipRect(to, &buf);
+	SDL_SetClipRect(to, &pos);
+	renderBattlefield(canvas);
+	SDL_SetClipRect(to, &buf); //restoring previous clip_rect
 }

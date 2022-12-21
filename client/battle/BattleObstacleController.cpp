@@ -15,17 +15,20 @@
 #include "BattleAnimationClasses.h"
 #include "BattleStacksController.h"
 #include "BattleRenderer.h"
+#include "CreatureAnimation.h"
 
 #include "../CPlayerInterface.h"
 #include "../gui/CAnimation.h"
 #include "../gui/Canvas.h"
+#include "../gui/CGuiHandler.h"
 
 #include "../../CCallback.h"
 #include "../../lib/battle/CObstacleInstance.h"
 #include "../../lib/ObstacleHandler.h"
 
 BattleObstacleController::BattleObstacleController(BattleInterface & owner):
-	owner(owner)
+	owner(owner),
+	timePassed(0.f)
 {
 	auto obst = owner.curInt->cb->battleGetAllObstacles();
 	for(auto & elem : obst)
@@ -136,9 +139,14 @@ void BattleObstacleController::collectRenderableObjects(BattleRenderer & rendere
 	}
 }
 
+void BattleObstacleController::update()
+{
+	timePassed += GH.mainFPSmng->getElapsedMilliseconds() / 1000.f;
+}
+
 std::shared_ptr<IImage> BattleObstacleController::getObstacleImage(const CObstacleInstance & oi)
 {
-	int frameIndex = (owner.animCount+1) *25 / owner.getAnimSpeed();
+	int framesCount = timePassed * AnimationControls::getObstaclesSpeed();
 	std::shared_ptr<CAnimation> animation;
 
 	// obstacle is not loaded yet, don't show anything
@@ -150,7 +158,7 @@ std::shared_ptr<IImage> BattleObstacleController::getObstacleImage(const CObstac
 
 	if(animation)
 	{
-		frameIndex %= animation->size(0);
+		int frameIndex = framesCount % animation->size(0);
 		return animation->getImage(frameIndex, 0);
 	}
 	return nullptr;

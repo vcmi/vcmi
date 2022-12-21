@@ -205,7 +205,7 @@ Point BattleSiegeController::getTurretCreaturePosition( BattleHex position ) con
 
 	if (posID != 0)
 	{
-		Point result = owner.pos.topLeft();
+		Point result = owner.fieldController->pos.topLeft();
 		result.x += town->town->clientInfo.siegePositions[posID].x;
 		result.y += town->town->clientInfo.siegePositions[posID].y;
 		return result;
@@ -301,11 +301,11 @@ void BattleSiegeController::collectRenderableObjects(BattleRenderer & renderer)
 				owner.stacksController->showStack(canvas, getTurretStack(wallPiece));
 			});
 			renderer.insert( EBattleFieldLayer::BATTLEMENTS, getWallPiecePosition(wallPiece), [this, wallPiece](BattleRenderer::RendererRef canvas){
-				showWallPiece(canvas, wallPiece, owner.pos.topLeft());
+				showWallPiece(canvas, wallPiece, owner.fieldController->pos.topLeft());
 			});
 		}
 		renderer.insert( EBattleFieldLayer::WALLS, getWallPiecePosition(wallPiece), [this, wallPiece](BattleRenderer::RendererRef canvas){
-			showWallPiece(canvas, wallPiece, owner.pos.topLeft());
+			showWallPiece(canvas, wallPiece, owner.fieldController->pos.topLeft());
 		});
 
 

@@ -974,11 +974,8 @@ void CInGameConsole::show(SDL_Surface * to)
 	boost::unique_lock<boost::mutex> lock(texts_mx);
 	for(auto it = texts.begin(); it != texts.end(); ++it, ++number)
 	{
-		Point leftBottomCorner(0, screen->h);
-		if(LOCPLINT->battleInt)
-		{
-			leftBottomCorner = LOCPLINT->battleInt->pos.bottomLeft();
-		}
+		Point leftBottomCorner(0, pos.h);
+
 		graphics->fonts[FONT_MEDIUM]->renderTextLeft(to, it->first, Colors::GREEN,
 			Point(leftBottomCorner.x + 50, leftBottomCorner.y - (int)texts.size() * 20 - 80 + number*20));
 

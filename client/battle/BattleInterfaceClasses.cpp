@@ -12,6 +12,7 @@
 
 #include "BattleInterface.h"
 #include "BattleActionsController.h"
+#include "BattleRenderer.h"
 #include "BattleSiegeController.h"
 #include "BattleFieldController.h"
 #include "BattleStacksController.h"
@@ -48,6 +49,8 @@
 
 void BattleConsole::showAll(SDL_Surface * to)
 {
+	CIntObject::showAll(to);
+
 	Point consolePos(pos.x + 10,      pos.y + 19);
 	Point textPos   (pos.x + pos.w/2, pos.y + 19);
 
@@ -91,27 +94,33 @@ bool BattleConsole::addText(const std::string & text)
 
 	logEntries.push_back( text.substr(firstInToken, text.size()) );
 	scrollPosition = (int)logEntries.size()-1;
+	redraw();
 	return true;
 }
 void BattleConsole::scrollUp(ui32 by)
 {
 	if(scrollPosition > static_cast<int>(by))
 		scrollPosition -= by;
+	redraw();
 }
 
 void BattleConsole::scrollDown(ui32 by)
 {
 	if(scrollPosition + by < logEntries.size())
 		scrollPosition += by;
+	redraw();
 }
 
-BattleConsole::BattleConsole(const Rect & position)
+BattleConsole::BattleConsole(std::shared_ptr<CPicture> backgroundSource, const Point & objectPos, const Point & imagePos, const Point &size)
 	: scrollPosition(-1)
 	, enteringText(false)
 {
-	pos += position.topLeft();
-	pos.w = position.w;
-	pos.h = position.h;
+	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	pos += objectPos;
+	pos.w = size.x;
+	pos.h = size.y;
+
+	background = std::make_shared<CPicture>(backgroundSource->getSurface(), Rect(imagePos, size), 0, 0 );
 }
 
 BattleConsole::~BattleConsole()
@@ -141,11 +150,13 @@ void BattleConsole::setEnteredText(const std::string & text)
 {
 	assert(enteringText == true);
 	consoleText = text;
+	redraw();
 }
 
 void BattleConsole::write(const std::string & Text)
 {
 	hoverText = Text;
+	redraw();
 }
 
 void BattleConsole::clearIfMatching(const std::string & Text)
@@ -157,6 +168,11 @@ void BattleConsole::clearIfMatching(const std::string & Text)
 void BattleConsole::clear()
 {
 	write({});
+}
+
+const CGHeroInstance * BattleHero::instance()
+{
+	return hero;
 }
 
 void BattleHero::render(Canvas & canvas)
@@ -204,6 +220,16 @@ void BattleHero::play()
 float BattleHero::getFrame() const
 {
 	return currentFrame;
+}
+
+void BattleHero::collectRenderableObjects(BattleRenderer & renderer)
+{
+	auto hex = defender ? BattleHex(GameConstants::BFIELD_WIDTH-1) : BattleHex(0);
+
+	renderer.insert(EBattleFieldLayer::HEROES, hex, [this](BattleRenderer::RendererRef canvas)
+	{
+		render(canvas);
+	});
 }
 
 void BattleHero::onPhaseFinished(const std::function<void()> & callback)
@@ -257,8 +283,8 @@ void BattleHero::clickRight(tribool down, bool previousState)
 		return;
 
 	Point windowPosition;
-	windowPosition.x = (!defender) ? owner.pos.topLeft().x + 1 : owner.pos.topRight().x - 79;
-	windowPosition.y = owner.pos.y + 135;
+	windowPosition.x = (!defender) ? owner.fieldController->pos.topLeft().x + 1 : owner.fieldController->pos.topRight().x - 79;
+	windowPosition.y = owner.fieldController->pos.y + 135;
 
 	InfoAboutHero targetHero;
 	if(down && (owner.myTurn || settings["session"]["spectate"].Bool()))
@@ -304,8 +330,8 @@ BattleHero::BattleHero(const BattleInterface & owner, const CGHeroInstance * her
 
 	pos.w = 64;
 	pos.h = 136;
-	pos.x = owner.pos.x + (defender ? (owner.pos.w - pos.w) : 0);
-	pos.y = owner.pos.y;
+	pos.x = owner.fieldController->pos.x + (defender ? (owner.fieldController->pos.w - pos.w) : 0);
+	pos.y = owner.fieldController->pos.y;
 
 	if(defender)
 		animation->verticalFlip();
@@ -627,7 +653,7 @@ void ClickableHex::hover(bool on)
 	//Hoverable::hover(on);
 	if(!on && setAlterText)
 	{
-		myInterface->controlPanel->console->clear();
+		GH.statusbar->clear();
 		setAlterText = false;
 	}
 }
@@ -651,13 +677,13 @@ void ClickableHex::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 			MetaString text;
 			text.addTxt(MetaString::GENERAL_TXT, 220);
 			attackedStack->addNameReplacement(text);
-			myInterface->controlPanel->console->write(text.toString());
+			GH.statusbar->write(text.toString());
 			setAlterText = true;
 		}
 	}
 	else if(setAlterText)
 	{
-		myInterface->controlPanel->console->clear();
+		GH.statusbar->clear();
 		setAlterText = false;
 	}
 }
@@ -666,7 +692,7 @@ void ClickableHex::clickLeft(tribool down, bool previousState)
 {
 	if(!down && hovered && strictHovered) //we've been really clicked!
 	{
-		myInterface->hexLclicked(myNumber);
+		myInterface->actionsController->handleHex(myNumber, LCLICK);
 	}
 }
 
@@ -690,10 +716,10 @@ StackQueue::StackQueue(bool Embedded, BattleInterface & owner)
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	if(embedded)
 	{
-		pos.w = QUEUE_SIZE * 37;
-		pos.h = 46;
-		pos.x = screen->w/2 - pos.w/2;
-		pos.y = (screen->h - 600)/2 + 10;
+		pos.w = QUEUE_SIZE * 41;
+		pos.h = 49;
+		pos.x += parent->pos.w/2 - pos.w/2;
+		pos.y += 10;
 
 		icons = std::make_shared<CAnimation>("CPRSMALL");
 		stateIcons = std::make_shared<CAnimation>("VCMI/BATTLEQUEUE/STATESSMALL");
@@ -702,6 +728,8 @@ StackQueue::StackQueue(bool Embedded, BattleInterface & owner)
 	{
 		pos.w = 800;
 		pos.h = 85;
+		pos.x += 0;
+		pos.y -= pos.h;
 
 		background = std::make_shared<CFilledTexture>("DIBOXBCK", Rect(0, 0, pos.w, pos.h));
 
@@ -716,7 +744,7 @@ StackQueue::StackQueue(bool Embedded, BattleInterface & owner)
 	for (int i = 0; i < stackBoxes.size(); i++)
 	{
 		stackBoxes[i] = std::make_shared<StackBox>(this);
-		stackBoxes[i]->moveBy(Point(1 + (embedded ? 36 : 80) * i, 0));
+		stackBoxes[i]->moveBy(Point(1 + (embedded ? 41 : 80) * i, 0));
 	}
 }
 

@@ -46,13 +46,11 @@ CondSh<BattleAction *> BattleInterface::givenCommand(nullptr);
 
 BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *army2,
 		const CGHeroInstance *hero1, const CGHeroInstance *hero2,
-		const SDL_Rect & myRect,
 		std::shared_ptr<CPlayerInterface> att,
 		std::shared_ptr<CPlayerInterface> defen,
 		std::shared_ptr<CPlayerInterface> spectatorInt)
 	: attackingHeroInstance(hero1)
 	, defendingHeroInstance(hero2)
-	, animCount(0)
 	, attackerInt(att)
 	, defenderInt(defen)
 	, curInt(att)
@@ -60,8 +58,6 @@ BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *
 	, moveSoundHander(-1)
 	, bresult(nullptr)
 {
-	OBJ_CONSTRUCTION;
-
 	for ( auto & event : animationEvents)
 		event.setn(false);
 
@@ -75,8 +71,6 @@ BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *
 		curInt = defenderInt;
 	}
 
-	pos = myRect;
-	strongInterest = true;
 	givenCommand.setn(nullptr);
 
 	//hot-seat -> check tactics for both players (defender may be local human)
@@ -88,26 +82,6 @@ BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *
 	//if we found interface of player with tactics, then enter tactics mode
 	tacticsMode = static_cast<bool>(tacticianInterface);
 
-	//create stack queue
-	bool embedQueue;
-	std::string queueSize = settings["battle"]["queueSize"].String();
-
-	if(queueSize == "auto")
-		embedQueue = screen->h < 700;
-	else
-		embedQueue = screen->h < 700 || queueSize == "small";
-
-	queue = std::make_shared<StackQueue>(embedQueue, *this);
-	if(!embedQueue)
-	{
-		if (settings["battle"]["showQueue"].Bool())
-			pos.y += queue->pos.h / 2; //center whole window
-
-		queue->moveTo(Point(pos.x, pos.y - queue->pos.h));
-	}
-
-	CPlayerInterface::battleInt = this;
-
 	//initializing armies
 	this->army1 = army1;
 	this->army2 = army2;
@@ -116,19 +90,11 @@ BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *
 	if(town && town->hasFort())
 		siegeController.reset(new BattleSiegeController(*this, town));
 
-	controlPanel = std::make_shared<BattleControlPanel>(*this, Point(0, 556));
+	windowObject = std::make_shared<BattleControlPanel>(*this);
 	projectilesController.reset(new BattleProjectileController(*this));
-	fieldController.reset( new BattleFieldController(*this));
 	stacksController.reset( new BattleStacksController(*this));
 	actionsController.reset( new BattleActionsController(*this));
 	effectsController.reset(new BattleEffectsController(*this));
-
-	if(hero1) // attacking hero
-		attackingHero = std::make_shared<BattleHero>(*this, hero1, false);
-
-	if(hero2) // defending hero
-		defendingHero = std::make_shared<BattleHero>(*this, hero2, true);
-
 	obstacleController.reset(new BattleObstacleController(*this));
 
 	if(tacticsMode)
@@ -150,20 +116,15 @@ BattleInterface::BattleInterface(const CCreatureSet *army1, const CCreatureSet *
 
 	CCS->soundh->setCallback(battleIntroSoundChannel, onIntroPlayed);
 
-	addUsedEvents(RCLICK | MOVE | KEYBOARD);
-	queue->update();
-
-	controlPanel->blockUI(true);
+	GH.pushInt(windowObject);
+	windowObject->blockUI(true);
+	windowObject->updateQueue();
 }
 
 BattleInterface::~BattleInterface()
 {
 	CPlayerInterface::battleInt = nullptr;
 	givenCommand.cond.notify_all(); //that two lines should make any stacksController->getActiveStack() waiting thread to finish
-
-	assert(!active);
-	if (active) //dirty fix for #485
-		deactivate();
 
 	if (adventureInt && adventureInt->selection)
 	{
@@ -202,84 +163,6 @@ void BattleInterface::setPrintMouseShadow(bool set)
 	shadow->Bool() = set;
 }
 
-void BattleInterface::activate()
-{
-	controlPanel->activate();
-
-	if (curInt->isAutoFightOn)
-		return;
-
-	CIntObject::activate();
-
-	if (attackingHero)
-		attackingHero->activate();
-	if (defendingHero)
-		defendingHero->activate();
-
-	fieldController->activate();
-
-	if (settings["battle"]["showQueue"].Bool())
-		queue->activate();
-
-	LOCPLINT->cingconsole->activate();
-}
-
-void BattleInterface::deactivate()
-{
-	controlPanel->deactivate();
-	CIntObject::deactivate();
-
-	fieldController->deactivate();
-
-	if (attackingHero)
-		attackingHero->deactivate();
-	if (defendingHero)
-		defendingHero->deactivate();
-	if (settings["battle"]["showQueue"].Bool())
-		queue->deactivate();
-
-	LOCPLINT->cingconsole->deactivate();
-}
-
-void BattleInterface::keyPressed(const SDL_KeyboardEvent & key)
-{
-	if(key.keysym.sym == SDLK_q && key.state == SDL_PRESSED)
-	{
-		if(settings["battle"]["showQueue"].Bool()) //hide queue
-			hideQueue();
-		else
-			showQueue();
-
-	}
-	else if(key.keysym.sym == SDLK_f && key.state == SDL_PRESSED)
-	{
-		actionsController->enterCreatureCastingMode();
-	}
-	else if(key.keysym.sym == SDLK_ESCAPE)
-	{
-		if(getAnimationCondition(EAnimationEvents::OPENING) == true)
-			CCS->soundh->stopSound(battleIntroSoundChannel);
-		else
-			actionsController->endCastingSpell();
-	}
-}
-void BattleInterface::mouseMoved(const SDL_MouseMotionEvent &event)
-{
-	BattleHex selectedHex = fieldController->getHoveredHex();
-
-	actionsController->handleHex(selectedHex, MOVE);
-
-	controlPanel->mouseMoved(event);
-}
-
-void BattleInterface::clickRight(tribool down, bool previousState)
-{
-	if (!down)
-	{
-		actionsController->endCastingSpell();
-	}
-}
-
 void BattleInterface::stackReset(const CStack * stack)
 {
 	stacksController->stackReset(stack);
@@ -294,7 +177,7 @@ void BattleInterface::stackRemoved(uint32_t stackID)
 {
 	stacksController->stackRemoved(stackID);
 	fieldController->redrawBackgroundWithHexes();
-	queue->update();
+	windowObject->updateQueue();
 }
 
 void BattleInterface::stackActivated(const CStack *stack)
@@ -346,7 +229,7 @@ void BattleInterface::newRoundFirst( int round )
 
 void BattleInterface::newRound(int number)
 {
-	controlPanel->console->addText(CGI->generaltexth->allTexts[412]);
+	console->addText(CGI->generaltexth->allTexts[412]);
 }
 
 void BattleInterface::giveCommand(EActionType action, BattleHex tile, si32 additional)
@@ -409,11 +292,6 @@ const CGHeroInstance * BattleInterface::getActiveHero()
 	return defendingHeroInstance;
 }
 
-void BattleInterface::hexLclicked(int whichOne)
-{
-	actionsController->handleHex(whichOne, LCLICK);
-}
-
 void BattleInterface::stackIsCatapulting(const CatapultAttack & ca)
 {
 	if (siegeController)
@@ -440,7 +318,7 @@ void BattleInterface::displayBattleFinished()
 	CCS->curh->set(Cursor::Map::POINTER);
 	if(settings["session"]["spectate"].Bool() && settings["session"]["spectate-skip-battle-result"].Bool())
 	{
-		close();
+		windowObject->close();
 		return;
 	}
 
@@ -451,7 +329,7 @@ void BattleInterface::displayBattleFinished()
 
 void BattleInterface::spellCast(const BattleSpellCast * sc)
 {
-	controlPanel->blockUI(true);
+	windowObject->blockUI(true);
 
 	const SpellID spellID = sc->spellID;
 	const CSpell * spell = spellID.toSpell();
@@ -541,8 +419,8 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 	//mana absorption
 	if (sc->manaGained > 0)
 	{
-		Point leftHero = Point(15, 30) + pos;
-		Point rightHero = Point(755, 30) + pos;
+		Point leftHero = Point(15, 30) + fieldController->pos;
+		Point rightHero = Point(755, 30) + fieldController->pos;
 		bool side = sc->side;
 
 		executeOnAnimationCondition(EAnimationEvents::AFTER_HIT, true, [=](){
@@ -578,8 +456,7 @@ void BattleInterface::displayBattleLog(const std::vector<MetaString> & battleLog
 	{
 		std::string formatted = line.toString();
 		boost::algorithm::trim(formatted);
-		if(!controlPanel->console->addText(formatted))
-			logGlobal->warn("Too long battle log line");
+		appendBattleLog(formatted);
 	}
 }
 
@@ -671,7 +548,7 @@ void BattleInterface::activateStack()
 		return;
 
 	myTurn = true;
-	queue->update();
+	windowObject->updateQueue();
 	fieldController->redrawBackgroundWithHexes();
 	actionsController->activateStack();
 	GH.fakeMouseMove();
@@ -682,8 +559,7 @@ void BattleInterface::endAction(const BattleAction* action)
 	const CStack *stack = curInt->cb->battleGetStackByID(action->stackNumber);
 
 	stacksController->endAction(action);
-
-	queue->update();
+	windowObject->updateQueue();
 
 	//stack ended movement in tactics phase -> select the next one
 	if (tacticsMode)
@@ -694,39 +570,16 @@ void BattleInterface::endAction(const BattleAction* action)
 		fieldController->redrawBackgroundWithHexes();
 }
 
-void BattleInterface::hideQueue()
+void BattleInterface::appendBattleLog(const std::string & newEntry)
 {
-	Settings showQueue = settings.write["battle"]["showQueue"];
-	showQueue->Bool() = false;
-
-	queue->deactivate();
-
-	if (!queue->embedded)
-	{
-		moveBy(Point(0, -queue->pos.h / 2));
-		GH.totalRedraw();
-	}
-}
-
-void BattleInterface::showQueue()
-{
-	Settings showQueue = settings.write["battle"]["showQueue"];
-	showQueue->Bool() = true;
-
-	queue->activate();
-
-	if (!queue->embedded)
-	{
-		moveBy(Point(0, +queue->pos.h / 2));
-		GH.totalRedraw();
-	}
+	console->addText(newEntry);
 }
 
 void BattleInterface::startAction(const BattleAction* action)
 {
 	if(action->actionType == EActionType::END_TACTIC_PHASE)
 	{
-		controlPanel->tacticPhaseEnded();
+		windowObject->tacticPhaseEnded();
 		return;
 	}
 
@@ -734,7 +587,7 @@ void BattleInterface::startAction(const BattleAction* action)
 
 	if (stack)
 	{
-		queue->update();
+		windowObject->updateQueue();
 	}
 	else
 	{
@@ -742,8 +595,6 @@ void BattleInterface::startAction(const BattleAction* action)
 	}
 
 	stacksController->startAction(action);
-
-	redraw(); // redraw after deactivation, including proper handling of hovered hexes
 
 	if(action->actionType == EActionType::HERO_SPELL) //when hero casts spell
 		return;
@@ -857,75 +708,6 @@ void BattleInterface::requestAutofightingAIToTakeAction()
 	});
 
 	aiThread.detach();
-}
-
-void BattleInterface::showAll(SDL_Surface *to)
-{
-	show(to);
-}
-
-void BattleInterface::show(SDL_Surface *to)
-{
-	Canvas canvas(to);
-	assert(to);
-
-	SDL_Rect buf;
-	SDL_GetClipRect(to, &buf);
-	SDL_SetClipRect(to, &pos);
-
-	++animCount;
-
-	fieldController->renderBattlefield(canvas);
-
-	stacksController->update();
-
-	SDL_SetClipRect(to, &buf); //restoring previous clip_rect
-
-	showInterface(to);
-}
-
-void BattleInterface::collectRenderableObjects(BattleRenderer & renderer)
-{
-	if (attackingHero)
-	{
-		renderer.insert(EBattleFieldLayer::HEROES, BattleHex(0),[this](BattleRenderer::RendererRef canvas)
-		{
-			attackingHero->render(canvas);
-		});
-	}
-	if (defendingHero)
-	{
-		renderer.insert(EBattleFieldLayer::HEROES, BattleHex(GameConstants::BFIELD_WIDTH-1),[this](BattleRenderer::RendererRef canvas)
-		{
-			defendingHero->render(canvas);
-		});
-	}
-}
-
-void BattleInterface::showInterface(SDL_Surface * to)
-{
-	//showing in-game console
-	LOCPLINT->cingconsole->show(to);
-	controlPanel->showAll(to);
-
-	Rect posWithQueue = Rect(pos.x, pos.y, 800, 600);
-
-	if (settings["battle"]["showQueue"].Bool())
-	{
-		if (!queue->embedded)
-		{
-			posWithQueue.y -= queue->pos.h;
-			posWithQueue.h += queue->pos.h;
-		}
-
-		queue->showAll(to);
-	}
-
-	//printing border around interface
-	if (screen->w != 800 || screen->h !=600)
-	{
-		CMessage::drawBorder(curInt->playerID,to,posWithQueue.w + 28, posWithQueue.h + 28, posWithQueue.x-14, posWithQueue.y-15);
-	}
 }
 
 void BattleInterface::castThisSpell(SpellID spellID)

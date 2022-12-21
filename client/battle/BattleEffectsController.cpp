@@ -79,7 +79,7 @@ void BattleEffectsController::battleTriggerEffect(const BattleTriggerEffect & bt
 			std::string hlp = CGI->generaltexth->allTexts[33];
 			boost::algorithm::replace_first(hlp,"%s",(stack->getName()));
 			displayEffect(EBattleEffect::GOOD_MORALE, soundBase::GOODMRLE, stack->getPosition());
-			owner.controlPanel->console->addText(hlp);
+			owner.appendBattleLog(hlp);
 			break;
 		}
 		default:
@@ -97,10 +97,10 @@ void BattleEffectsController::startAction(const BattleAction* action)
 	switch(action->actionType)
 	{
 	case EActionType::WAIT:
-		owner.controlPanel->console->addText(stack->formatGeneralMessage(136));
+		owner.appendBattleLog(stack->formatGeneralMessage(136));
 		break;
 	case EActionType::BAD_MORALE:
-		owner.controlPanel->console->addText(stack->formatGeneralMessage(-34));
+		owner.appendBattleLog(stack->formatGeneralMessage(-34));
 		displayEffect(EBattleEffect::BAD_MORALE, soundBase::BADMRLE, stack->getPosition());
 		break;
 	}

@@ -12,14 +12,19 @@
 
 #include "BattleInterface.h"
 #include "BattleInterfaceClasses.h"
+#include "BattleFieldController.h"
 #include "BattleStacksController.h"
 #include "BattleActionsController.h"
 
 #include "../CGameInfo.h"
+#include "../CMessage.h"
 #include "../CPlayerInterface.h"
+#include "../CMusicHandler.h"
+#include "../gui/Canvas.h"
 #include "../gui/CCursorHandler.h"
 #include "../gui/CGuiHandler.h"
 #include "../windows/CSpellWindow.h"
+#include "../widgets/AdventureMapClasses.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/Images.h"
 
@@ -29,71 +34,163 @@
 #include "../../lib/CStack.h"
 #include "../../lib/CConfigHandler.h"
 
-BattleControlPanel::BattleControlPanel(BattleInterface & owner, const Point & position):
+BattleControlPanel::BattleControlPanel(BattleInterface & owner):
 	owner(owner)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
-	pos += position;
+	pos.w = 800;
+	pos.h = 600;
+	pos = center();
+
+	// create background for panel/ribbon at the bottom
+	menuTactics = std::make_shared<CPicture>("COPLACBR.BMP", 0, 556);
+	menuBattle = std::make_shared<CPicture>("CBAR.BMP", 0, 556);
+	menuTactics->colorize(owner.curInt->playerID);
+	menuBattle->colorize(owner.curInt->playerID);
 
 	//preparing buttons and console
-	bOptions = std::make_shared<CButton>    (Point(  3,  5), "icm003.def", CGI->generaltexth->zelp[381], std::bind(&BattleControlPanel::bOptionsf,this), SDLK_o);
-	bSurrender = std::make_shared<CButton>  (Point( 54,  5), "icm001.def", CGI->generaltexth->zelp[379], std::bind(&BattleControlPanel::bSurrenderf,this), SDLK_s);
-	bFlee = std::make_shared<CButton>       (Point(105,  5), "icm002.def", CGI->generaltexth->zelp[380], std::bind(&BattleControlPanel::bFleef,this), SDLK_r);
-	bAutofight = std::make_shared<CButton>  (Point(158,  5), "icm004.def", CGI->generaltexth->zelp[382], std::bind(&BattleControlPanel::bAutofightf,this), SDLK_a);
-	bSpell = std::make_shared<CButton>      (Point(645,  5), "icm005.def", CGI->generaltexth->zelp[385], std::bind(&BattleControlPanel::bSpellf,this), SDLK_c);
-	bWait = std::make_shared<CButton>       (Point(696,  5), "icm006.def", CGI->generaltexth->zelp[386], std::bind(&BattleControlPanel::bWaitf,this), SDLK_w);
-	bDefence = std::make_shared<CButton>    (Point(747,  5), "icm007.def", CGI->generaltexth->zelp[387], std::bind(&BattleControlPanel::bDefencef,this), SDLK_d);
-	bConsoleUp = std::make_shared<CButton>  (Point(624,  5), "ComSlide.def", std::make_pair("", ""),     std::bind(&BattleControlPanel::bConsoleUpf,this), SDLK_UP);
-	bConsoleDown = std::make_shared<CButton>(Point(624, 24), "ComSlide.def", std::make_pair("", ""),     std::bind(&BattleControlPanel::bConsoleDownf,this), SDLK_DOWN);
+	bOptions = std::make_shared<CButton>    (Point(  3,  5 + 556), "icm003.def", CGI->generaltexth->zelp[381], std::bind(&BattleControlPanel::bOptionsf,this), SDLK_o);
+	bSurrender = std::make_shared<CButton>  (Point( 54,  5 + 556), "icm001.def", CGI->generaltexth->zelp[379], std::bind(&BattleControlPanel::bSurrenderf,this), SDLK_s);
+	bFlee = std::make_shared<CButton>       (Point(105,  5 + 556), "icm002.def", CGI->generaltexth->zelp[380], std::bind(&BattleControlPanel::bFleef,this), SDLK_r);
+	bAutofight = std::make_shared<CButton>  (Point(158,  5 + 556), "icm004.def", CGI->generaltexth->zelp[382], std::bind(&BattleControlPanel::bAutofightf,this), SDLK_a);
+	bSpell = std::make_shared<CButton>      (Point(645,  5 + 556), "icm005.def", CGI->generaltexth->zelp[385], std::bind(&BattleControlPanel::bSpellf,this), SDLK_c);
+	bWait = std::make_shared<CButton>       (Point(696,  5 + 556), "icm006.def", CGI->generaltexth->zelp[386], std::bind(&BattleControlPanel::bWaitf,this), SDLK_w);
+	bDefence = std::make_shared<CButton>    (Point(747,  5 + 556), "icm007.def", CGI->generaltexth->zelp[387], std::bind(&BattleControlPanel::bDefencef,this), SDLK_d);
+	bConsoleUp = std::make_shared<CButton>  (Point(624,  5 + 556), "ComSlide.def", std::make_pair("", ""),     std::bind(&BattleControlPanel::bConsoleUpf,this), SDLK_UP);
+	bConsoleDown = std::make_shared<CButton>(Point(624, 24 + 556), "ComSlide.def", std::make_pair("", ""),     std::bind(&BattleControlPanel::bConsoleDownf,this), SDLK_DOWN);
 
 	bDefence->assignedKeys.insert(SDLK_SPACE);
 	bConsoleUp->setImageOrder(0, 1, 0, 0);
 	bConsoleDown->setImageOrder(2, 3, 2, 2);
 
-	console = std::make_shared<BattleConsole>(Rect(211, 4, 406,38));
+	btactNext = std::make_shared<CButton>(Point(213, 4 + 556), "icm011.def", std::make_pair("", ""), [&]() { bTacticNextStack();}, SDLK_SPACE);
+	btactEnd = std::make_shared<CButton>(Point(419,  4 + 556), "icm012.def", std::make_pair("", ""),  [&](){ bTacticPhaseEnd();}, SDLK_RETURN);
+
+	console = std::make_shared<BattleConsole>(menuBattle, Point(211, 4 + 556), Point(211, 4), Point(406,38));
 	GH.statusbar = console;
+	owner.console = console;
+
+	owner.fieldController.reset( new BattleFieldController(owner));
+	owner.fieldController->createHeroes();
+
+	//create stack queue and adjust our own position
+	bool embedQueue;
+	std::string queueSize = settings["battle"]["queueSize"].String();
+
+	if(queueSize == "auto")
+		embedQueue = screen->h < 700;
+	else
+		embedQueue = screen->h < 700 || queueSize == "small";
+
+	queue = std::make_shared<StackQueue>(embedQueue, owner);
+	if(!embedQueue && settings["battle"]["showQueue"].Bool())
+	{
+		//re-center, taking into account stack queue position
+		pos.y -= queue->pos.h;
+		pos.h += queue->pos.h;
+		pos = center();
+	}
 
 	if ( owner.tacticsMode )
 		tacticPhaseStarted();
 	else
 		tacticPhaseEnded();
+
+	addUsedEvents(RCLICK | KEYBOARD);
 }
 
-void BattleControlPanel::show(SDL_Surface * to)
+void BattleControlPanel::hideQueue()
 {
-	//show menu before all other elements to keep it in background
-	menu->show(to);
-	CIntObject::show(to);
+	Settings showQueue = settings.write["battle"]["showQueue"];
+	showQueue->Bool() = false;
+
+	queue->disable();
+
+	if (!queue->embedded)
+	{
+		moveBy(Point(0, -queue->pos.h / 2));
+		GH.totalRedraw();
+	}
 }
 
-void BattleControlPanel::showAll(SDL_Surface * to)
+void BattleControlPanel::showQueue()
 {
-	//show menu before all other elements to keep it in background
-	menu->showAll(to);
-	CIntObject::showAll(to);
+	Settings showQueue = settings.write["battle"]["showQueue"];
+	showQueue->Bool() = true;
+
+	queue->enable();
+
+	if (!queue->embedded)
+	{
+		moveBy(Point(0, +queue->pos.h / 2));
+		GH.totalRedraw();
+	}
 }
 
+void BattleControlPanel::updateQueue()
+{
+	queue->update();
+}
+
+void BattleControlPanel::activate()
+{
+	CIntObject::activate();
+	LOCPLINT->cingconsole->activate();
+}
+
+void BattleControlPanel::deactivate()
+{
+	CIntObject::deactivate();
+	LOCPLINT->cingconsole->deactivate();
+}
+
+void BattleControlPanel::keyPressed(const SDL_KeyboardEvent & key)
+{
+	if(key.keysym.sym == SDLK_q && key.state == SDL_PRESSED)
+	{
+		if(settings["battle"]["showQueue"].Bool()) //hide queue
+			hideQueue();
+		else
+			showQueue();
+
+	}
+	else if(key.keysym.sym == SDLK_f && key.state == SDL_PRESSED)
+	{
+		owner.actionsController->enterCreatureCastingMode();
+	}
+	else if(key.keysym.sym == SDLK_ESCAPE)
+	{
+		if(owner.getAnimationCondition(EAnimationEvents::OPENING) == true)
+			CCS->soundh->stopSound(owner.battleIntroSoundChannel);
+		else
+			owner.actionsController->endCastingSpell();
+	}
+}
+
+void BattleControlPanel::clickRight(tribool down, bool previousState)
+{
+	if (!down)
+		owner.actionsController->endCastingSpell();
+}
 
 void BattleControlPanel::tacticPhaseStarted()
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	menuBattle->disable();
+	console->disable();
 
-	btactNext = std::make_shared<CButton>(Point(213, 4), "icm011.def", std::make_pair("", ""), [&]() { bTacticNextStack();}, SDLK_SPACE);
-	btactEnd = std::make_shared<CButton>(Point(419,  4), "icm012.def", std::make_pair("", ""),  [&](){ bTacticPhaseEnd();}, SDLK_RETURN);
-	menu = std::make_shared<CPicture>("COPLACBR.BMP", 0, 0);
-	menu->colorize(owner.curInt->playerID);
-	menu->recActions &= ~(SHOWALL | UPDATE);
+	menuTactics->enable();
+	btactNext->enable();
+	btactEnd->enable();
 }
+
 void BattleControlPanel::tacticPhaseEnded()
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
+	menuBattle->enable();
+	console->enable();
 
-	btactNext.reset();
-	btactEnd.reset();
-
-	menu = std::make_shared<CPicture>("CBAR.BMP", 0, 0);
-	menu->colorize(owner.curInt->playerID);
-	menu->recActions &= ~(SHOWALL | UPDATE);
+	menuTactics->disable();
+	btactNext->disable();
+	btactEnd->disable();
 }
 
 void BattleControlPanel::bOptionsf()
@@ -325,4 +422,18 @@ void BattleControlPanel::blockUI(bool on)
 	bSpell->block(on || owner.tacticsMode || !canCastSpells);
 	bWait->block(on || owner.tacticsMode || !canWait);
 	bDefence->block(on || owner.tacticsMode);
+}
+
+void BattleControlPanel::showAll(SDL_Surface *to)
+{
+	CIntObject::showAll(to);
+
+	if (screen->w != 800 || screen->h !=600)
+		CMessage::drawBorder(owner.curInt->playerID, to, pos.w+28, pos.h+29, pos.x-14, pos.y-15);
+}
+
+void BattleControlPanel::show(SDL_Surface *to)
+{
+	CIntObject::show(to);
+	LOCPLINT->cingconsole->show(to);
 }

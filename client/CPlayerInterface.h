@@ -84,7 +84,7 @@ public:
 	static const int SAVES_COUNT = 5;
 
 	CCastleInterface * castleInt; //nullptr if castle window isn't opened
-	static BattleInterface * battleInt; //nullptr if no battle
+	static std::shared_ptr<BattleInterface> battleInt; //nullptr if no battle
 	CInGameConsole * cingconsole;
 
 	std::shared_ptr<CCallback> cb; //to communicate with engine

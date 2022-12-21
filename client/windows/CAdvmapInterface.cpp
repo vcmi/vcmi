@@ -941,7 +941,10 @@ void CAdvMapInt::activate()
 	GH.statusbar = statusbar;
 	
 	if(LOCPLINT)
+	{
 		LOCPLINT->cingconsole->activate();
+		LOCPLINT->cingconsole->pos = this->pos;
+	}
 	
 	if(!duringAITurn)
 	{

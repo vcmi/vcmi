@@ -52,6 +52,7 @@ class BattleControlPanel;
 class BattleStacksController;
 class BattleActionsController;
 class BattleEffectsController;
+class BattleConsole;
 
 /// Small struct which contains information about the id of the attacked stack, the damage dealt,...
 struct StackAttackedInfo
@@ -86,25 +87,26 @@ struct StackAttackInfo
 	bool lifeDrain;
 };
 
-
-/// Big class which handles the overall battle interface actions and it is also responsible for
-/// drawing everything correctly.
-class BattleInterface : public WindowBase
+/// Main class for battles, responsible for relaying information from server to various battle entities
+class BattleInterface
 {
 private:
-	std::shared_ptr<BattleHero> attackingHero;
-	std::shared_ptr<BattleHero> defendingHero;
-	std::shared_ptr<StackQueue> queue;
-	std::shared_ptr<BattleControlPanel> controlPanel;
+	std::shared_ptr<BattleControlPanel> windowObject;
+	std::shared_ptr<BattleConsole> console;
 
 	std::shared_ptr<CPlayerInterface> tacticianInterface; //used during tactics mode, points to the interface of player with higher tactics (can be either attacker or defender in hot-seat), valid onloy for human players
-	std::shared_ptr<CPlayerInterface> attackerInt, defenderInt; //because LOCPLINT is not enough in hotSeat
+
+	std::shared_ptr<CPlayerInterface> attackerInt; // attacker interface, not null if attacker is human in our vcmiclient
+	std::shared_ptr<CPlayerInterface> defenderInt; // defender interface, not null if attacker is human in our vcmiclient
+
 	std::shared_ptr<CPlayerInterface> curInt; //current player interface
 
-	const CCreatureSet *army1, *army2; //copy of initial armies (for result window)
-	const CGHeroInstance *attackingHeroInstance, *defendingHeroInstance;
+	 //copy of initial armies (for result window)
+	const CCreatureSet *army1;
+	const CCreatureSet *army2;
 
-	ui8 animCount;
+	const CGHeroInstance *attackingHeroInstance;
+	const CGHeroInstance *defendingHeroInstance;
 
 	bool tacticsMode;
 	int battleIntroSoundChannel; //required as variable for disabling it via ESC key
@@ -138,6 +140,8 @@ private:
 
 	void executeSpellCast(); //called when a hero casts a spell
 
+	void appendBattleLog(const std::string & newEntry);
+
 public:
 	std::unique_ptr<BattleProjectileController> projectilesController;
 	std::unique_ptr<BattleSiegeController> siegeController;
@@ -147,6 +151,9 @@ public:
 	std::unique_ptr<BattleActionsController> actionsController;
 	std::unique_ptr<BattleEffectsController> effectsController;
 
+	std::shared_ptr<BattleHero> attackingHero;
+	std::shared_ptr<BattleHero> defendingHero;
+
 	static CondSh<BattleAction *> givenCommand; //data != nullptr if we have i.e. moved current unit
 
 	bool myTurn; //if true, interface is active (commands can be ordered)
@@ -154,8 +161,8 @@ public:
 
 	const BattleResult *bresult; //result of a battle; if non-zero then display when all animations end
 
-	BattleInterface(const CCreatureSet *army1, const CCreatureSet *army2, const CGHeroInstance *hero1, const CGHeroInstance *hero2, const SDL_Rect & myRect, std::shared_ptr<CPlayerInterface> att, std::shared_ptr<CPlayerInterface> defen, std::shared_ptr<CPlayerInterface> spectatorInt = nullptr);
-	virtual ~BattleInterface();
+	BattleInterface(const CCreatureSet *army1, const CCreatureSet *army2, const CGHeroInstance *hero1, const CGHeroInstance *hero2, std::shared_ptr<CPlayerInterface> att, std::shared_ptr<CPlayerInterface> defen, std::shared_ptr<CPlayerInterface> spectatorInt = nullptr);
+	~BattleInterface();
 
 	void setPrintCellBorders(bool set); //if true, cell borders will be printed
 	void setPrintStackRange(bool set); //if true,range of active stack will be printed
@@ -179,18 +186,6 @@ public:
 	/// adds action that will be executed one selected condition reached targeted state
 	void executeOnAnimationCondition( EAnimationEvents event, bool state, const AwaitingAnimationAction & action);
 
-	//napisz tu klase odpowiadajaca za wyswietlanie bitwy i obsluge uzytkownika, polecenia ma przekazywac callbackiem
-	void activate() override;
-	void deactivate() override;
-	void keyPressed(const SDL_KeyboardEvent & key) override;
-	void mouseMoved(const SDL_MouseMotionEvent &sEvent) override;
-	void clickRight(tribool down, bool previousState) override;
-
-	void show(SDL_Surface *to) override;
-	void showAll(SDL_Surface *to) override;
-
-	void collectRenderableObjects(BattleRenderer & renderer);
-
 	//call-ins
 	void startAction(const BattleAction* action);
 	void stackReset(const CStack * stack);
@@ -202,7 +197,6 @@ public:
 	void stackAttacking(const StackAttackInfo & attackInfo); //called when stack with id ID is attacking something on hex dest
 	void newRoundFirst( int round );
 	void newRound(int number); //caled when round is ended; number is the number of round
-	void hexLclicked(int whichOne); //hex only call-in
 	void stackIsCatapulting(const CatapultAttack & ca); //called when a stack is attacking walls
 	void battleFinished(const BattleResult& br); //called when battle is finished - battleresult window should be printed
 	void displayBattleFinished(); //displays battle result
@@ -218,8 +212,6 @@ public:
 	void displaySpellHit(SpellID spellID, BattleHex destinationTile); //displays spell`s affected animation
 
 	void endAction(const BattleAction* action);
-	void hideQueue();
-	void showQueue();
 
 	void obstaclePlaced(const std::vector<std::shared_ptr<const CObstacleInstance>> oi);
 
@@ -252,4 +244,6 @@ public:
 	friend class BattleStacksController;
 	friend class BattleActionsController;
 	friend class BattleEffectsController;
+	friend class BattleRenderer;
+	friend class CInGameConsole;
 };
