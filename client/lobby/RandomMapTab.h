@@ -65,6 +65,8 @@ class TemplatesDropBox : public InterfaceObjectConfigurable
 		void clickLeft(tribool down, bool previousState) override;
 	};
 	
+	friend struct ListItem;
+	
 public:
 	TemplatesDropBox(RandomMapTab & randomMapTab, int3 size);
 	
