@@ -168,7 +168,7 @@ class CCreatureAnim: public CShowableAnim
 {
 private:
 	//queue of animations waiting to be displayed
-	std::queue<ECreatureAnimType::Type> queue;
+	std::queue<ECreatureAnimType> queue;
 
 	//this function is used as callback if preview flag was set during construction
 	void loopPreview(bool warMachine);
@@ -178,13 +178,13 @@ public:
 	void reset() override;
 
 	//add sequence to the end of queue
-	void addLast(ECreatureAnimType::Type newType);
+	void addLast(ECreatureAnimType newType);
 
 	void startPreview(bool warMachine);
 
 	//clear queue and set animation to this sequence
-	void clearAndSet(ECreatureAnimType::Type type);
+	void clearAndSet(ECreatureAnimType type);
 
-	CCreatureAnim(int x, int y, std::string name, ui8 flags = 0, ECreatureAnimType::Type = ECreatureAnimType::HOLDING);
+	CCreatureAnim(int x, int y, std::string name, ui8 flags = 0, ECreatureAnimType = ECreatureAnimType::HOLDING);
 
 };

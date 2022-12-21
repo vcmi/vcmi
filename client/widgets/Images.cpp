@@ -466,8 +466,8 @@ void CShowableAnim::rotate(bool on, bool vertical)
 		flags &= ~flag;
 }
 
-CCreatureAnim::CCreatureAnim(int x, int y, std::string name, ui8 flags, ECreatureAnimType::Type type):
-	CShowableAnim(x,y,name,flags,4,type)
+CCreatureAnim::CCreatureAnim(int x, int y, std::string name, ui8 flags, ECreatureAnimType type):
+	CShowableAnim(x,y,name,flags,4,size_t(type))
 {
 	xOffset = 0;
 	yOffset = 0;
@@ -475,16 +475,16 @@ CCreatureAnim::CCreatureAnim(int x, int y, std::string name, ui8 flags, ECreatur
 
 void CCreatureAnim::loopPreview(bool warMachine)
 {
-	std::vector<ECreatureAnimType::Type> available;
+	std::vector<ECreatureAnimType> available;
 
-	static const ECreatureAnimType::Type creaPreviewList[] = {
+	static const ECreatureAnimType creaPreviewList[] = {
 		ECreatureAnimType::HOLDING,
 		ECreatureAnimType::HITTED,
 		ECreatureAnimType::DEFENCE,
 		ECreatureAnimType::ATTACK_FRONT,
 		ECreatureAnimType::SPECIAL_FRONT
 	};
-	static const ECreatureAnimType::Type machPreviewList[] = {
+	static const ECreatureAnimType machPreviewList[] = {
 		ECreatureAnimType::HOLDING,
 		ECreatureAnimType::MOVING,
 		ECreatureAnimType::SHOOT_UP,
@@ -495,34 +495,36 @@ void CCreatureAnim::loopPreview(bool warMachine)
 	auto & previewList = warMachine ? machPreviewList : creaPreviewList;
 
 	for (auto & elem : previewList)
-		if (anim->size(elem))
+		if (anim->size(size_t(elem)))
 			available.push_back(elem);
 
 	size_t rnd = CRandomGenerator::getDefault().nextInt((int)available.size() * 2 - 1);
 
 	if (rnd >= available.size())
 	{
-		ECreatureAnimType::Type type;
-		if ( anim->size(ECreatureAnimType::MOVING) == 0 )//no moving animation present
+		ECreatureAnimType type;
+		if ( anim->size(size_t(ECreatureAnimType::MOVING)) == 0 )//no moving animation present
 			type = ECreatureAnimType::HOLDING;
 		else
 			type = ECreatureAnimType::MOVING;
 
 		//display this anim for ~1 second (time is random, but it looks good)
-		for (size_t i=0; i< 12/anim->size(type) + 1; i++)
+		for (size_t i=0; i< 12/anim->size(size_t(type)) + 1; i++)
 			addLast(type);
 	}
 	else
 		addLast(available[rnd]);
 }
 
-void CCreatureAnim::addLast(ECreatureAnimType::Type newType)
+void CCreatureAnim::addLast(ECreatureAnimType newType)
 {
-	if (type != ECreatureAnimType::MOVING && newType == ECreatureAnimType::MOVING)//starting moving - play init sequence
+	auto currType = ECreatureAnimType(group);
+
+	if (currType != ECreatureAnimType::MOVING && newType == ECreatureAnimType::MOVING)//starting moving - play init sequence
 	{
 		queue.push( ECreatureAnimType::MOVE_START );
 	}
-	else if (type == ECreatureAnimType::MOVING && newType != ECreatureAnimType::MOVING )//previous anim was moving - finish it
+	else if (currType == ECreatureAnimType::MOVING && newType != ECreatureAnimType::MOVING )//previous anim was moving - finish it
 	{
 		queue.push( ECreatureAnimType::MOVE_END );
 	}
@@ -535,28 +537,28 @@ void CCreatureAnim::addLast(ECreatureAnimType::Type newType)
 void CCreatureAnim::reset()
 {
 	//if we are in the middle of rotation - set flag
-	if (type == ECreatureAnimType::TURN_L && !queue.empty() && queue.front() == ECreatureAnimType::TURN_L)
+	if (group == size_t(ECreatureAnimType::TURN_L) && !queue.empty() && queue.front() == ECreatureAnimType::TURN_L)
 		rotate(true);
-	if (type == ECreatureAnimType::TURN_R && !queue.empty() && queue.front() == ECreatureAnimType::TURN_R)
+	if (group == size_t(ECreatureAnimType::TURN_R) && !queue.empty() && queue.front() == ECreatureAnimType::TURN_R)
 		rotate(false);
 
 	while (!queue.empty())
 	{
-		ECreatureAnimType::Type at = queue.front();
+		ECreatureAnimType at = queue.front();
 		queue.pop();
-		if (set(at))
+		if (set(size_t(at)))
 			return;
 	}
 	if  (callback)
 		callback();
 	while (!queue.empty())
 	{
-		ECreatureAnimType::Type at = queue.front();
+		ECreatureAnimType at = queue.front();
 		queue.pop();
-		if (set(at))
+		if (set(size_t(at)))
 			return;
 	}
-	set(ECreatureAnimType::HOLDING);
+	set(size_t(ECreatureAnimType::HOLDING));
 }
 
 void CCreatureAnim::startPreview(bool warMachine)
@@ -564,9 +566,9 @@ void CCreatureAnim::startPreview(bool warMachine)
 	callback = std::bind(&CCreatureAnim::loopPreview, this, warMachine);
 }
 
-void CCreatureAnim::clearAndSet(ECreatureAnimType::Type type)
+void CCreatureAnim::clearAndSet(ECreatureAnimType type)
 {
 	while (!queue.empty())
 		queue.pop();
-	set(type);
+	set(size_t(type));
 }

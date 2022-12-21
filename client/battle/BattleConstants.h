@@ -52,9 +52,7 @@ enum class EHeroAnimType
 	CAST_SPELL = 4  // spellcasting
 };
 
-namespace ECreatureAnimType
-{
-enum Type // list of creature animations, numbers were taken from def files
+enum class ECreatureAnimType
 {
 	INVALID         = -1,
 
@@ -94,4 +92,3 @@ enum Type // list of creature animations, numbers were taken from def files
 	GROUP_ATTACK_FRONT = 41,
 	GROUP_ATTACK_DOWN  = 42
 };
-}

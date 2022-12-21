@@ -29,7 +29,7 @@ namespace AnimationControls
 	std::shared_ptr<CreatureAnimation> getAnimation(const CCreature * creature);
 
 	/// returns animation speed of specific group, taking in mind game setting (in frames per second)
-	float getCreatureAnimationSpeed(const CCreature * creature, const CreatureAnimation * anim, size_t groupID);
+	float getCreatureAnimationSpeed(const CCreature * creature, const CreatureAnimation * anim, ECreatureAnimType groupID);
 
 	/// returns how far projectile should move each frame
 	/// TODO: make it time-based
@@ -59,7 +59,7 @@ namespace AnimationControls
 class CreatureAnimation : public CIntObject
 {
 public:
-	typedef std::function<float(CreatureAnimation *, size_t)> TSpeedController;
+	typedef std::function<float(CreatureAnimation *, ECreatureAnimType)> TSpeedController;
 
 private:
 	std::string name;
@@ -84,7 +84,7 @@ private:
 	float elapsedTime;
 
 	///type of animation being displayed
-	ECreatureAnimType::Type type;
+	ECreatureAnimType type;
 
 	/// current value of shadow transparency
 	uint8_t shadowAlpha;
@@ -116,10 +116,10 @@ public:
 	CreatureAnimation(const std::string & name_, TSpeedController speedController);
 
 	/// sets type of animation and resets framecount
-	void setType(ECreatureAnimType::Type type);
+	void setType(ECreatureAnimType type);
 
 	/// returns currently rendered type of animation
-	ECreatureAnimType::Type getType() const;
+	ECreatureAnimType getType() const;
 
 	void nextFrame(Canvas & canvas, const ColorFilter & shifter, bool facingRight);
 
@@ -132,10 +132,10 @@ public:
 	float getCurrentFrame() const;
 
 	/// plays once given type of animation, then resets to idle
-	void playOnce(ECreatureAnimType::Type type);
+	void playOnce(ECreatureAnimType type);
 
 	/// returns number of frames in selected animation type
-	int framesInGroup(ECreatureAnimType::Type group) const;
+	int framesInGroup(ECreatureAnimType group) const;
 
 	void pause();
 	void play();

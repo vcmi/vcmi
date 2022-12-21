@@ -100,17 +100,17 @@ StackActionAnimation::StackActionAnimation(BattleInterface & owner, const CStack
 {
 }
 
-ECreatureAnimType::Type StackActionAnimation::getGroup() const
+ECreatureAnimType StackActionAnimation::getGroup() const
 {
 	return currGroup;
 }
 
-void StackActionAnimation::setNextGroup( ECreatureAnimType::Type group )
+void StackActionAnimation::setNextGroup( ECreatureAnimType group )
 {
 	nextGroup = group;
 }
 
-void StackActionAnimation::setGroup( ECreatureAnimType::Type group )
+void StackActionAnimation::setGroup( ECreatureAnimType group )
 {
 	currGroup = group;
 }
@@ -145,7 +145,7 @@ StackActionAnimation::~StackActionAnimation()
 
 }
 
-ECreatureAnimType::Type AttackAnimation::findValidGroup( const std::vector<ECreatureAnimType::Type> candidates ) const
+ECreatureAnimType AttackAnimation::findValidGroup( const std::vector<ECreatureAnimType> candidates ) const
 {
 	for ( auto group : candidates)
 	{
@@ -230,7 +230,7 @@ void DummyAnimation::nextFrame()
 		delete this;
 }
 
-ECreatureAnimType::Type MeleeAttackAnimation::getUpwardsGroup(bool multiAttack) const
+ECreatureAnimType MeleeAttackAnimation::getUpwardsGroup(bool multiAttack) const
 {
 	if (!multiAttack)
 		return ECreatureAnimType::ATTACK_UP;
@@ -242,7 +242,7 @@ ECreatureAnimType::Type MeleeAttackAnimation::getUpwardsGroup(bool multiAttack) 
 	});
 }
 
-ECreatureAnimType::Type MeleeAttackAnimation::getForwardGroup(bool multiAttack) const
+ECreatureAnimType MeleeAttackAnimation::getForwardGroup(bool multiAttack) const
 {
 	if (!multiAttack)
 		return ECreatureAnimType::ATTACK_FRONT;
@@ -254,7 +254,7 @@ ECreatureAnimType::Type MeleeAttackAnimation::getForwardGroup(bool multiAttack) 
 	});
 }
 
-ECreatureAnimType::Type MeleeAttackAnimation::getDownwardsGroup(bool multiAttack) const
+ECreatureAnimType MeleeAttackAnimation::getDownwardsGroup(bool multiAttack) const
 {
 	if (!multiAttack)
 		return ECreatureAnimType::ATTACK_DOWN;
@@ -266,9 +266,9 @@ ECreatureAnimType::Type MeleeAttackAnimation::getDownwardsGroup(bool multiAttack
 	});
 }
 
-ECreatureAnimType::Type MeleeAttackAnimation::selectGroup(bool multiAttack)
+ECreatureAnimType MeleeAttackAnimation::selectGroup(bool multiAttack)
 {
-	const ECreatureAnimType::Type mutPosToGroup[] =
+	const ECreatureAnimType mutPosToGroup[] =
 	{
 		getUpwardsGroup  (multiAttack),
 		getUpwardsGroup  (multiAttack),
@@ -757,17 +757,17 @@ uint32_t ShootingAnimation::getAttackClimaxFrame() const
 	return shooterInfo->animation.attackClimaxFrame;
 }
 
-ECreatureAnimType::Type ShootingAnimation::getUpwardsGroup() const
+ECreatureAnimType ShootingAnimation::getUpwardsGroup() const
 {
 	return ECreatureAnimType::SHOOT_UP;
 }
 
-ECreatureAnimType::Type ShootingAnimation::getForwardGroup() const
+ECreatureAnimType ShootingAnimation::getForwardGroup() const
 {
 	return ECreatureAnimType::SHOOT_FRONT;
 }
 
-ECreatureAnimType::Type ShootingAnimation::getDownwardsGroup() const
+ECreatureAnimType ShootingAnimation::getDownwardsGroup() const
 {
 	return ECreatureAnimType::SHOOT_DOWN;
 }
@@ -817,7 +817,7 @@ CastAnimation::CastAnimation(BattleInterface & owner_, const CStack * attacker, 
 		dest = defender->getPosition();
 }
 
-ECreatureAnimType::Type CastAnimation::getUpwardsGroup() const
+ECreatureAnimType CastAnimation::getUpwardsGroup() const
 {
 	return findValidGroup({
 		ECreatureAnimType::CAST_UP,
@@ -827,7 +827,7 @@ ECreatureAnimType::Type CastAnimation::getUpwardsGroup() const
 	});
 }
 
-ECreatureAnimType::Type CastAnimation::getForwardGroup() const
+ECreatureAnimType CastAnimation::getForwardGroup() const
 {
 	return findValidGroup({
 		ECreatureAnimType::CAST_FRONT,
@@ -837,7 +837,7 @@ ECreatureAnimType::Type CastAnimation::getForwardGroup() const
 	});
 }
 
-ECreatureAnimType::Type CastAnimation::getDownwardsGroup() const
+ECreatureAnimType CastAnimation::getDownwardsGroup() const
 {
 	return findValidGroup({
 		ECreatureAnimType::CAST_DOWN,

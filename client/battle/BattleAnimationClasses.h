@@ -68,15 +68,15 @@ public:
 
 class StackActionAnimation : public BattleStackAnimation
 {
-	ECreatureAnimType::Type nextGroup;
-	ECreatureAnimType::Type currGroup;
+	ECreatureAnimType nextGroup;
+	ECreatureAnimType currGroup;
 	std::string sound;
 public:
-	void setNextGroup( ECreatureAnimType::Type group );
-	void setGroup( ECreatureAnimType::Type group );
+	void setNextGroup( ECreatureAnimType group );
+	void setGroup( ECreatureAnimType group );
 	void setSound( std::string sound );
 
-	ECreatureAnimType::Type getGroup() const;
+	ECreatureAnimType getGroup() const;
 
 	StackActionAnimation(BattleInterface & owner, const CStack * _stack);
 	~StackActionAnimation();
@@ -198,7 +198,7 @@ protected:
 	int attackingStackPosBeforeReturn; //for stacks with return_after_strike feature
 
 	const CCreature * getCreature() const;
-	ECreatureAnimType::Type findValidGroup( const std::vector<ECreatureAnimType::Type> candidates ) const;
+	ECreatureAnimType findValidGroup( const std::vector<ECreatureAnimType> candidates ) const;
 
 public:
 	AttackAnimation(BattleInterface & owner, const CStack *attacker, BattleHex _dest, const CStack *defender);
@@ -207,11 +207,11 @@ public:
 /// Hand-to-hand attack
 class MeleeAttackAnimation : public AttackAnimation
 {
-	ECreatureAnimType::Type getUpwardsGroup(bool multiAttack) const;
-	ECreatureAnimType::Type getForwardGroup(bool multiAttack) const;
-	ECreatureAnimType::Type getDownwardsGroup(bool multiAttack) const;
+	ECreatureAnimType getUpwardsGroup(bool multiAttack) const;
+	ECreatureAnimType getForwardGroup(bool multiAttack) const;
+	ECreatureAnimType getDownwardsGroup(bool multiAttack) const;
 
-	ECreatureAnimType::Type selectGroup(bool multiAttack);
+	ECreatureAnimType selectGroup(bool multiAttack);
 
 public:
 	MeleeAttackAnimation(BattleInterface & owner, const CStack * attacker, BattleHex _dest, const CStack * _attacked, bool multiAttack);
@@ -230,9 +230,9 @@ class RangedAttackAnimation : public AttackAnimation
 protected:
 	bool projectileEmitted;
 
-	virtual ECreatureAnimType::Type getUpwardsGroup() const = 0;
-	virtual ECreatureAnimType::Type getForwardGroup() const = 0;
-	virtual ECreatureAnimType::Type getDownwardsGroup() const = 0;
+	virtual ECreatureAnimType getUpwardsGroup() const = 0;
+	virtual ECreatureAnimType getForwardGroup() const = 0;
+	virtual ECreatureAnimType getDownwardsGroup() const = 0;
 
 	virtual void createProjectile(const Point & from, const Point & dest) const = 0;
 	virtual uint32_t getAttackClimaxFrame() const = 0;
@@ -248,9 +248,9 @@ public:
 /// Shooting attack
 class ShootingAnimation : public RangedAttackAnimation
 {
-	ECreatureAnimType::Type getUpwardsGroup() const override;
-	ECreatureAnimType::Type getForwardGroup() const override;
-	ECreatureAnimType::Type getDownwardsGroup() const override;
+	ECreatureAnimType getUpwardsGroup() const override;
+	ECreatureAnimType getForwardGroup() const override;
+	ECreatureAnimType getDownwardsGroup() const override;
 
 	void createProjectile(const Point & from, const Point & dest) const override;
 	uint32_t getAttackClimaxFrame() const override;
@@ -278,9 +278,9 @@ class CastAnimation : public RangedAttackAnimation
 {
 	const CSpell * spell;
 
-	ECreatureAnimType::Type getUpwardsGroup() const override;
-	ECreatureAnimType::Type getForwardGroup() const override;
-	ECreatureAnimType::Type getDownwardsGroup() const override;
+	ECreatureAnimType getUpwardsGroup() const override;
+	ECreatureAnimType getForwardGroup() const override;
+	ECreatureAnimType getDownwardsGroup() const override;
 
 	void createProjectile(const Point & from, const Point & dest) const override;
 	uint32_t getAttackClimaxFrame() const override;

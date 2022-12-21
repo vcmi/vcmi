@@ -46,10 +46,8 @@ std::shared_ptr<CreatureAnimation> AnimationControls::getAnimation(const CCreatu
 	return std::make_shared<CreatureAnimation>(creature->animDefName, func);
 }
 
-float AnimationControls::getCreatureAnimationSpeed(const CCreature * creature, const CreatureAnimation * anim, size_t group)
+float AnimationControls::getCreatureAnimationSpeed(const CCreature * creature, const CreatureAnimation * anim, ECreatureAnimType type)
 {
-	ECreatureAnimType::Type type = ECreatureAnimType::Type(group);
-
 	assert(creature->animation.walkAnimationTime != 0);
 	assert(creature->animation.attackAnimationTime != 0);
 	assert(anim->framesInGroup(type) != 0);
@@ -150,12 +148,12 @@ float AnimationControls::getObstaclesSpeed()
 	return static_cast<float>(settings["battle"]["animationSpeed"].Float() * 30);
 }
 
-ECreatureAnimType::Type CreatureAnimation::getType() const
+ECreatureAnimType CreatureAnimation::getType() const
 {
 	return type;
 }
 
-void CreatureAnimation::setType(ECreatureAnimType::Type type)
+void CreatureAnimation::setType(ECreatureAnimType type)
 {
 	this->type = type;
 	currentFrame = 0;
@@ -183,37 +181,37 @@ CreatureAnimation::CreatureAnimation(const std::string & name_, TSpeedController
 	reverse->preload();
 
 	// if necessary, add one frame into vcmi-only group DEAD
-	if(forward->size(ECreatureAnimType::DEAD) == 0)
+	if(forward->size(size_t(ECreatureAnimType::DEAD)) == 0)
 	{
-		forward->duplicateImage(ECreatureAnimType::DEATH, forward->size(ECreatureAnimType::DEATH)-1, ECreatureAnimType::DEAD);
-		reverse->duplicateImage(ECreatureAnimType::DEATH, reverse->size(ECreatureAnimType::DEATH)-1, ECreatureAnimType::DEAD);
+		forward->duplicateImage(size_t(ECreatureAnimType::DEATH), forward->size(size_t(ECreatureAnimType::DEATH))-1, size_t(ECreatureAnimType::DEAD));
+		reverse->duplicateImage(size_t(ECreatureAnimType::DEATH), reverse->size(size_t(ECreatureAnimType::DEATH))-1, size_t(ECreatureAnimType::DEAD));
 	}
 
-	if(forward->size(ECreatureAnimType::DEAD_RANGED) == 0 && forward->size(ECreatureAnimType::DEATH_RANGED) != 0)
+	if(forward->size(size_t(ECreatureAnimType::DEAD_RANGED)) == 0 && forward->size(size_t(ECreatureAnimType::DEATH_RANGED)) != 0)
 	{
-		forward->duplicateImage(ECreatureAnimType::DEATH_RANGED, forward->size(ECreatureAnimType::DEATH_RANGED)-1, ECreatureAnimType::DEAD_RANGED);
-		reverse->duplicateImage(ECreatureAnimType::DEATH_RANGED, reverse->size(ECreatureAnimType::DEATH_RANGED)-1, ECreatureAnimType::DEAD_RANGED);
+		forward->duplicateImage(size_t(ECreatureAnimType::DEATH_RANGED), forward->size(size_t(ECreatureAnimType::DEATH_RANGED))-1, size_t(ECreatureAnimType::DEAD_RANGED));
+		reverse->duplicateImage(size_t(ECreatureAnimType::DEATH_RANGED), reverse->size(size_t(ECreatureAnimType::DEATH_RANGED))-1, size_t(ECreatureAnimType::DEAD_RANGED));
 	}
 
-	if(forward->size(ECreatureAnimType::FROZEN) == 0)
+	if(forward->size(size_t(ECreatureAnimType::FROZEN)) == 0)
 	{
-		forward->duplicateImage(ECreatureAnimType::HOLDING, 0, ECreatureAnimType::FROZEN);
-		reverse->duplicateImage(ECreatureAnimType::HOLDING, 0, ECreatureAnimType::FROZEN);
+		forward->duplicateImage(size_t(ECreatureAnimType::HOLDING), 0, size_t(ECreatureAnimType::FROZEN));
+		reverse->duplicateImage(size_t(ECreatureAnimType::HOLDING), 0, size_t(ECreatureAnimType::FROZEN));
 	}
 
-	if(forward->size(ECreatureAnimType::RESURRECTION) == 0)
+	if(forward->size(size_t(ECreatureAnimType::RESURRECTION)) == 0)
 	{
-		for (size_t i = 0; i < forward->size(ECreatureAnimType::DEATH); ++i)
+		for (size_t i = 0; i < forward->size(size_t(ECreatureAnimType::DEATH)); ++i)
 		{
-			size_t current = forward->size(ECreatureAnimType::DEATH) - 1 - i;
+			size_t current = forward->size(size_t(ECreatureAnimType::DEATH)) - 1 - i;
 
-			forward->duplicateImage(ECreatureAnimType::DEATH, current, ECreatureAnimType::RESURRECTION);
-			reverse->duplicateImage(ECreatureAnimType::DEATH, current, ECreatureAnimType::RESURRECTION);
+			forward->duplicateImage(size_t(ECreatureAnimType::DEATH), current, size_t(ECreatureAnimType::RESURRECTION));
+			reverse->duplicateImage(size_t(ECreatureAnimType::DEATH), current, size_t(ECreatureAnimType::RESURRECTION));
 		}
 	}
 
 	//TODO: get dimensions form CAnimation
-	auto first = forward->getImage(0, type, true);
+	auto first = forward->getImage(0, size_t(type), true);
 
 	if(!first)
 	{
@@ -282,7 +280,7 @@ float CreatureAnimation::getCurrentFrame() const
 	return currentFrame;
 }
 
-void CreatureAnimation::playOnce( ECreatureAnimType::Type type )
+void CreatureAnimation::playOnce( ECreatureAnimType type )
 {
 	setType(type);
 	once = true;
@@ -336,9 +334,9 @@ void CreatureAnimation::nextFrame(Canvas & canvas, const ColorFilter & shifter, 
 	std::shared_ptr<IImage> image;
 
 	if(facingRight)
-		image = forward->getImage(frame, type);
+		image = forward->getImage(frame, size_t(type));
 	else
-		image = reverse->getImage(frame, type);
+		image = reverse->getImage(frame, size_t(type));
 
 	if(image)
 	{
@@ -353,9 +351,9 @@ void CreatureAnimation::nextFrame(Canvas & canvas, const ColorFilter & shifter, 
 	}
 }
 
-int CreatureAnimation::framesInGroup(ECreatureAnimType::Type group) const
+int CreatureAnimation::framesInGroup(ECreatureAnimType group) const
 {
-	return static_cast<int>(forward->size(group));
+	return static_cast<int>(forward->size(size_t(group)));
 }
 
 bool CreatureAnimation::isDead() const
@@ -409,6 +407,6 @@ void CreatureAnimation::play()
 {
 	//logAnim->trace("Play %s group %d at %d:%d", name, static_cast<int>(getType()), pos.x, pos.y);
     speed = 0;
-    if(speedController(this, type) != 0)
-        speed = 1 / speedController(this, type);
+	if(speedController(this, type) != 0)
+		speed = 1 / speedController(this, type);
 }
