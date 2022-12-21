@@ -26,6 +26,7 @@
 
 #include "../../CCallback.h"
 #include "../../lib/battle/BattleAction.h"
+#include "../../lib/filesystem/ResourceID.h"
 #include "../../lib/NetPacks.h"
 #include "../../lib/CStack.h"
 #include "../../lib/IGameEventsReceiver.h"
@@ -33,7 +34,9 @@
 
 BattleEffectsController::BattleEffectsController(BattleInterface & owner):
 	owner(owner)
-{}
+{
+	loadColorMuxers();
+}
 
 void BattleEffectsController::displayEffect(EBattleEffect effect, const BattleHex & destTile)
 {
@@ -131,4 +134,33 @@ void BattleEffectsController::collectRenderableObjects(BattleRenderer & renderer
 			canvas.draw(img, Point(elem.x, elem.y));
 		});
 	}
+}
+
+void BattleEffectsController::loadColorMuxers()
+{
+	const JsonNode config(ResourceID("config/battleEffects.json"));
+
+	for(auto & muxer : config["colorMuxers"].Struct())
+	{
+		ColorMuxerEffect effect;
+		std::string identifier = muxer.first;
+
+		for (const JsonNode & entry : muxer.second.Vector() )
+		{
+			effect.timePoints.push_back(entry["time"].Float());
+			effect.filters.push_back(ColorFilter::genFromJson(entry));
+		}
+		colorMuxerEffects[identifier] = effect;
+	}
+}
+
+const ColorMuxerEffect & BattleEffectsController::getMuxerEffect(const std::string & name)
+{
+	static const ColorMuxerEffect emptyEffect;
+
+	if (colorMuxerEffects.count(name))
+		return colorMuxerEffects[name];
+
+	logAnim->error("Failed to find color muxer effect named '%s'!", name);
+	return emptyEffect;
 }

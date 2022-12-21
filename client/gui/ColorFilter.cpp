@@ -12,6 +12,8 @@
 
 #include <SDL2/SDL_pixels.h>
 
+#include "../../lib/JsonNode.h"
+
 SDL_Color ColorFilter::shiftColor(const SDL_Color & in) const
 {
 	SDL_Color out;
@@ -43,13 +45,6 @@ ColorFilter ColorFilter::genAlphaShifter( float alpha )
 				{ 0.f, 1.f, 0.f, 0.f },
 				{ 0.f, 0.f, 1.f, 0.f },
 				alpha);
-}
-
-ColorFilter ColorFilter::genGrayscaleShifter( )
-{
-	ChannelMuxer gray({0.299f, 0.587f, 0.114f, 0.f});
-
-	return genMuxerShifter(gray, gray, gray, 1.f);
 }
 
 ColorFilter ColorFilter::genRangeShifter( float minR, float minG, float minB, float maxR, float maxG, float maxB )
@@ -111,5 +106,42 @@ ColorFilter ColorFilter::genCombined(const ColorFilter & left, const ColorFilter
 	};
 
 	float a = left.a * right.a;
+	return genMuxerShifter(r,g,b,a);
+}
+
+ColorFilter ColorFilter::genFromJson(const JsonNode & entry)
+{
+	ChannelMuxer r{ 1.f, 0.f, 0.f, 0.f };
+	ChannelMuxer g{ 0.f, 1.f, 0.f, 0.f };
+	ChannelMuxer b{ 0.f, 0.f, 1.f, 0.f };
+	float a{ 1.0};
+
+	if (!entry["red"].isNull())
+	{
+		r.r = entry["red"].Vector()[0].Float();
+		r.g = entry["red"].Vector()[1].Float();
+		r.b = entry["red"].Vector()[2].Float();
+		r.a = entry["red"].Vector()[3].Float();
+	}
+
+	if (!entry["red"].isNull())
+	{
+		g.r = entry["green"].Vector()[0].Float();
+		g.g = entry["green"].Vector()[1].Float();
+		g.b = entry["green"].Vector()[2].Float();
+		g.a = entry["green"].Vector()[3].Float();
+	}
+
+	if (!entry["red"].isNull())
+	{
+		b.r = entry["blue"].Vector()[0].Float();
+		b.g = entry["blue"].Vector()[1].Float();
+		b.b = entry["blue"].Vector()[2].Float();
+		b.a = entry["blue"].Vector()[3].Float();
+	}
+
+	if (!entry["alpha"].isNull())
+		a = entry["alpha"].Float();
+
 	return genMuxerShifter(r,g,b,a);
 }

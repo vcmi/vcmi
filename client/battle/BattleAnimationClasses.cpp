@@ -617,81 +617,18 @@ void ColorTransformAnimation::nextFrame()
 	owner.stacksController->setStackColorFilter(shifter, stack, spell, true);
 }
 
-ColorTransformAnimation::ColorTransformAnimation(BattleInterface & owner, const CStack * _stack, const CSpell * spell):
+ColorTransformAnimation::ColorTransformAnimation(BattleInterface & owner, const CStack * _stack, const std::string & colorFilterName, const CSpell * spell):
 	BattleStackAnimation(owner, _stack),
 	spell(spell),
 	totalProgress(0.f)
 {
+	auto effect = owner.effectsController->getMuxerEffect(colorFilterName);
+	steps = effect.filters;
+	timePoints = effect.timePoints;
+
+	assert(!steps.empty() && steps.size() == timePoints.size());
+
 	logAnim->debug("Created ColorTransformAnimation for %s", stack->getName());
-}
-
-ColorTransformAnimation * ColorTransformAnimation::bloodlustAnimation(BattleInterface & owner, const CStack * stack, const CSpell * spell)
-{
-	auto result = new ColorTransformAnimation(owner, stack, spell);
-
-	result->steps.push_back(ColorFilter::genEmptyShifter());
-	result->steps.push_back(ColorFilter::genMuxerShifter( { 0.3, 0.0, 0.3, 0.4}, { 0, 1, 0, 0}, { 0, 0, 1, 0}, 1.f ));
-	result->steps.push_back(ColorFilter::genMuxerShifter( { 0.3, 0.3, 0.3, 0.1}, { 0, 0.5, 0, 0}, { 0, 0.5, 0, 0}, 1.f ));
-	result->steps.push_back(ColorFilter::genMuxerShifter( { 0.3, 0.0, 0.3, 0.4}, { 0, 1, 0, 0}, { 0, 0, 1, 0}, 1.f ));
-	result->steps.push_back(ColorFilter::genEmptyShifter());
-
-	result->timePoints.push_back(0.0f);
-	result->timePoints.push_back(0.2f);
-	result->timePoints.push_back(0.4f);
-	result->timePoints.push_back(0.6f);
-	result->timePoints.push_back(0.8f);
-
-	return result;
-}
-
-ColorTransformAnimation * ColorTransformAnimation::cloneAnimation(BattleInterface & owner, const CStack * stack, const CSpell * spell)
-{
-	auto result = new ColorTransformAnimation(owner, stack, spell);
-	result->steps.push_back(ColorFilter::genRangeShifter( 0, 0, 0.5, 0.5, 0.5, 1.0));
-	result->timePoints.push_back(0.f);
-	return result;
-}
-
-ColorTransformAnimation * ColorTransformAnimation::petrifyAnimation(BattleInterface & owner, const CStack * stack, const CSpell * spell)
-{
-	auto result = new ColorTransformAnimation(owner, stack, spell);
-	result->steps.push_back(ColorFilter::genEmptyShifter());
-	result->steps.push_back(ColorFilter::genGrayscaleShifter());
-	result->timePoints.push_back(0.f);
-	result->timePoints.push_back(1.f);
-	return result;
-}
-
-ColorTransformAnimation * ColorTransformAnimation::summonAnimation(BattleInterface & owner, const CStack * stack)
-{
-	auto result = teleportInAnimation(owner, stack);
-	result->timePoints.back() = 1.0f;
-	return result;
-}
-
-
-ColorTransformAnimation * ColorTransformAnimation::teleportInAnimation(BattleInterface & owner, const CStack * stack)
-{
-	auto result = new ColorTransformAnimation(owner, stack, nullptr);
-	result->steps.push_back(ColorFilter::genAlphaShifter(0.f));
-	result->steps.push_back(ColorFilter::genEmptyShifter());
-	result->timePoints.push_back(0.0f);
-	result->timePoints.push_back(0.2f);
-	return result;
-}
-
-ColorTransformAnimation * ColorTransformAnimation::teleportOutAnimation(BattleInterface & owner, const CStack * stack)
-{
-	auto result = teleportInAnimation(owner, stack);
-	std::swap(result->steps[0], result->steps[1]);
-	return result;
-}
-
-ColorTransformAnimation * ColorTransformAnimation::fadeOutAnimation(BattleInterface & owner, const CStack * stack)
-{
-	auto result = teleportOutAnimation(owner, stack);
-	result->timePoints.back() = 1.0f;
-	return result;
 }
 
 RangedAttackAnimation::RangedAttackAnimation(BattleInterface & owner_, const CStack * attacker, BattleHex dest_, const CStack * defender)

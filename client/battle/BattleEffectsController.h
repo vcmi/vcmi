@@ -19,6 +19,7 @@ struct BattleTriggerEffect;
 
 VCMI_LIB_NAMESPACE_END
 
+struct ColorMuxerEffect;
 class CAnimation;
 class Canvas;
 class BattleInterface;
@@ -43,7 +44,12 @@ class BattleEffectsController
 	/// list of current effects that are being displayed on screen (spells & creature abilities)
 	std::vector<BattleEffect> battleEffects;
 
+	std::map<std::string, ColorMuxerEffect> colorMuxerEffects;
+
+	void loadColorMuxers();
 public:
+	const ColorMuxerEffect &getMuxerEffect(const std::string & name);
+
 	BattleEffectsController(BattleInterface & owner);
 
 	void startAction(const BattleAction* action);

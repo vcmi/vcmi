@@ -8,9 +8,10 @@
  *
  */
 
-struct SDL_Color;
-
 #pragma once
+
+struct SDL_Color;
+class JsonNode;
 
 /// Base class for applying palette transformation on images
 class ColorFilter
@@ -38,9 +39,6 @@ public:
 	/// Generates object that changes alpha (transparency) of the image
 	static ColorFilter genAlphaShifter( float alpha );
 
-	/// Generates object that applies grayscale effect to image
-	static ColorFilter genGrayscaleShifter( );
-
 	/// Generates object that transforms each channel independently
 	static ColorFilter genRangeShifter( float minR, float minG, float minB, float maxR, float maxG, float maxB );
 
@@ -52,4 +50,13 @@ public:
 
 	/// Scales down strength of a shifter to a specified factor
 	static ColorFilter genInterpolated(const ColorFilter & left, const ColorFilter & right, float power);
+
+	/// Generates object using supplied Json config
+	static ColorFilter genFromJson(const JsonNode & entry);
+};
+
+struct ColorMuxerEffect
+{
+	std::vector<ColorFilter> filters;
+	std::vector<float> timePoints;
 };

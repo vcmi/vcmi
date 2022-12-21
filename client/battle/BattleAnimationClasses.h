@@ -123,16 +123,8 @@ class ColorTransformAnimation : public BattleStackAnimation
 	bool init() override;
 	void nextFrame() override;
 
-	ColorTransformAnimation(BattleInterface & owner, const CStack * _stack, const CSpell * spell);
 public:
-
-	static ColorTransformAnimation * petrifyAnimation     (BattleInterface & owner, const CStack * _stack, const CSpell * spell);
-	static ColorTransformAnimation * cloneAnimation       (BattleInterface & owner, const CStack * _stack, const CSpell * spell);
-	static ColorTransformAnimation * bloodlustAnimation   (BattleInterface & owner, const CStack * _stack, const CSpell * spell);
-	static ColorTransformAnimation * summonAnimation      (BattleInterface & owner, const CStack * _stack);
-	static ColorTransformAnimation * fadeOutAnimation     (BattleInterface & owner, const CStack * _stack);
-	static ColorTransformAnimation * teleportInAnimation  (BattleInterface & owner, const CStack * _stack);
-	static ColorTransformAnimation * teleportOutAnimation (BattleInterface & owner, const CStack * _stack);
+	ColorTransformAnimation(BattleInterface & owner, const CStack * _stack, const std::string & colorFilterName, const CSpell * spell);
 };
 
 /// Base class for all animations that play during stack movement

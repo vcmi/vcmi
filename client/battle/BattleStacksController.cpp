@@ -223,9 +223,9 @@ void BattleStacksController::stackAdded(const CStack * stack, bool instant)
 
 		owner.executeOnAnimationCondition(EAnimationEvents::HIT, true, [=]()
 		{
-			addNewAnim(ColorTransformAnimation::summonAnimation(owner, stack));
+			addNewAnim(new ColorTransformAnimation(owner, stack, "summonFadeIn", nullptr));
 			if (stack->isClone())
-				addNewAnim(ColorTransformAnimation::cloneAnimation(owner, stack, SpellID(SpellID::CLONE).toSpell()));
+				addNewAnim(new ColorTransformAnimation(owner, stack, "cloning", SpellID(SpellID::CLONE).toSpell()));
 		});
 	}
 }
@@ -468,7 +468,7 @@ void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> at
 		if (attackedInfo.killed && attackedInfo.defender->summoned)
 		{
 			owner.executeOnAnimationCondition(EAnimationEvents::AFTER_HIT, true, [=](){
-				addNewAnim(ColorTransformAnimation::fadeOutAnimation(owner, attackedInfo.defender));
+				addNewAnim(new ColorTransformAnimation(owner, attackedInfo.defender, "summonFadeOut", nullptr));
 				stackRemoved(attackedInfo.defender->ID);
 			});
 		}
@@ -482,12 +482,12 @@ void BattleStacksController::stackTeleported(const CStack *stack, std::vector<Ba
 	assert(owner.getAnimationCondition(EAnimationEvents::ACTION) == false);
 
 	owner.executeOnAnimationCondition(EAnimationEvents::HIT, true, [=](){
-		addNewAnim( ColorTransformAnimation::teleportOutAnimation(owner, stack) );
+		addNewAnim( new ColorTransformAnimation(owner, stack, "teleportFadeOut", nullptr) );
 	});
 
 	owner.executeOnAnimationCondition(EAnimationEvents::AFTER_HIT, true, [=](){
 		stackAnimation[stack->ID]->pos.moveTo(getStackPositionAtHex(destHex.back(), stack));
-		addNewAnim( ColorTransformAnimation::teleportInAnimation(owner, stack) );
+		addNewAnim( new ColorTransformAnimation(owner, stack, "teleportFadeIn", nullptr) );
 	});
 
 	// animations will be executed by spell
@@ -831,7 +831,7 @@ void BattleStacksController::removeExpiredColorFilters()
 			return false;
 		if (filter.effect == ColorFilter::genEmptyShifter())
 			return false;
-		if (filter.source && filter.target->hasBonus(Selector::source(Bonus::SPELL_EFFECT, filter.source->id)))
+		if (filter.source && filter.target->hasBonus(Selector::source(Bonus::SPELL_EFFECT, filter.source->id), Selector::all))
 			return false;
 		return true;
 	});

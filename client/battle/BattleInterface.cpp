@@ -389,9 +389,9 @@ void BattleInterface::spellCast(const BattleSpellCast * sc)
 		{
 			executeOnAnimationCondition(EAnimationEvents::HIT, true, [=](){
 				if (spellID == SpellID::BLOODLUST)
-					stacksController->addNewAnim( ColorTransformAnimation::bloodlustAnimation(*this, stack, spell));
+					stacksController->addNewAnim( new ColorTransformAnimation(*this, stack, "bloodlust", spell));
 				else if (spellID == SpellID::STONE_GAZE)
-					stacksController->addNewAnim( ColorTransformAnimation::petrifyAnimation(*this, stack, spell));
+					stacksController->addNewAnim( new ColorTransformAnimation(*this, stack, "petrification",  spell));
 				else
 					displaySpellEffect(spellID, stack->getPosition());
 			});

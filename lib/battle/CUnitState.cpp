@@ -549,7 +549,7 @@ bool CUnitState::isGhost() const
 
 bool CUnitState::isFrozen() const
 {
-	return hasBonus(Selector::source(Bonus::SPELL_EFFECT, SpellID::STONE_GAZE));
+	return hasBonus(Selector::source(Bonus::SPELL_EFFECT, SpellID::STONE_GAZE), Selector::all);
 }
 
 bool CUnitState::isValidTarget(bool allowDead) const
