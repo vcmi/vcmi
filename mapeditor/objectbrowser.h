@@ -19,9 +19,7 @@ public:
 	explicit ObjectBrowserProxyModel(QObject *parent = nullptr);
 	
 	Qt::ItemFlags flags(const QModelIndex &index) const override;
-	
-	QStringList mimeTypes() const override;
-	
+		
 	QMimeData * mimeData(const QModelIndexList & indexes) const override;
 
 	TerrainId terrain;
