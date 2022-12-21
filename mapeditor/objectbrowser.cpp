@@ -86,13 +86,6 @@ Qt::ItemFlags ObjectBrowserProxyModel::flags(const QModelIndex & index) const
 	return defaultFlags;
 }
 
-QStringList ObjectBrowserProxyModel::mimeTypes() const
-{
-	QStringList types;
-	types << "application/vcmi.object";
-	return types;
-}
-
 QMimeData * ObjectBrowserProxyModel::mimeData(const QModelIndexList & indexes) const
 {
 	assert(indexes.size() == 1);
@@ -101,18 +94,12 @@ QMimeData * ObjectBrowserProxyModel::mimeData(const QModelIndexList & indexes) c
 	assert(standardModel);
 	
 	QModelIndex index = indexes.front();
-	QByteArray encodedData;
-
-	QDataStream stream(&encodedData, QIODevice::WriteOnly);
 	
 	if(!index.isValid())
 		return nullptr;
-	
-	auto text = standardModel->itemFromIndex(mapToSource(index))->data();
-	stream << text;
 
 	QMimeData * mimeData = new QMimeData;
-	mimeData->setData("application/vcmi.object", encodedData);
+	mimeData->setImageData(standardModel->itemFromIndex(mapToSource(index))->data());
 	return mimeData;
 }
 
@@ -124,6 +111,7 @@ ObjectBrowser::ObjectBrowser(QWidget * parent):
 
 void ObjectBrowser::startDrag(Qt::DropActions supportedActions)
 {
+	logGlobal->info("Drag'n'drop: Start dragging object from ObjectBrowser");
 	QDrag *drag = new QDrag(this);
 	auto indexes = selectedIndexes();
 	if(indexes.isEmpty())
@@ -135,5 +123,5 @@ void ObjectBrowser::startDrag(Qt::DropActions supportedActions)
 		
 	drag->setMimeData(mimeData);
 
-	Qt::DropAction dropAction = drag->exec();
+	Qt::DropAction dropAction = drag->exec(supportedActions);
 }

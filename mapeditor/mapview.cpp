@@ -358,12 +358,10 @@ void MapView::dragEnterEvent(QDragEnterEvent * event)
 	if(!sc)
 		return;
 	
-	if(event->mimeData()->hasFormat("application/vcmi.object"))
+	if(event->mimeData()->hasImage())
 	{
-		auto encodedData = event->mimeData()->data("application/vcmi.object");
-		QDataStream stream(&encodedData, QIODevice::ReadOnly);
-		QVariant vdata;
-		stream >> vdata;
+		logGlobal->info("Drag'n'drop: dispatching object");
+		QVariant vdata = event->mimeData()->imageData();
 		auto data = vdata.toJsonObject();
 		if(!data.empty())
 		{
