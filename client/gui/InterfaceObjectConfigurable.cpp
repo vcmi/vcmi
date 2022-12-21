@@ -60,7 +60,7 @@ void InterfaceObjectConfigurable::addCallback(const std::string & callbackName, 
 void InterfaceObjectConfigurable::init(const JsonNode &config)
 {
 	OBJ_CONSTRUCTION;
-	logGlobal->info("Building configurable interface object");
+	logGlobal->debug("Building configurable interface object");
 	for(auto & item : config["variables"].Struct())
 	{
 		logGlobal->debug("Read variable named %s", item.first);
