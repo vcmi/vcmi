@@ -45,9 +45,10 @@ void InterfaceObjectConfigurable::addCallback(const std::string & callbackName, 
 void InterfaceObjectConfigurable::init(const JsonNode &config)
 {
 	OBJ_CONSTRUCTION;
-	
+	logGlobal->info("Building configurable interface object");
 	for(auto & item : config["variables"].Struct())
 	{
+		logGlobal->debug("Read variable named %s", item.first);
 		variables[item.first] = item.second;
 	}
 	
@@ -58,6 +59,7 @@ void InterfaceObjectConfigurable::init(const JsonNode &config)
 		std::string name = item["name"].isNull()
 						? unnamedObjectPrefix + std::to_string(unnamedObjectId++)
 						: item["name"].String();
+		logGlobal->debug("Building widget with name %s", name);
 		widgets[name] = buildWidget(item);
 	}
 }
@@ -69,11 +71,13 @@ std::string InterfaceObjectConfigurable::readText(const JsonNode & config) const
 	
 	if(config.isNumber())
 	{
+		logGlobal->debug("Reading text from generaltext handler id:%d", config.Integer());
 		return CGI->generaltexth->allTexts[config.Integer()];
 	}
 	
 	const std::string delimiter = "/";
 	std::string s = config.String();
+	logGlobal->debug("Reading text from translations by key: %s", s);
 	JsonNode translated = CGI->generaltexth->localizedTexts;
 	for(size_t p = s.find(delimiter); p != std::string::npos; p = s.find(delimiter))
 	{
@@ -81,13 +85,17 @@ std::string InterfaceObjectConfigurable::readText(const JsonNode & config) const
 		s.erase(0, p + delimiter.length());
 	}
 	if(s == config.String())
+	{
+		logGlobal->warn("Reading non-translated text: %s", s);
 		return s;
+	}
 	return translated[s].String();
 }
 
 Point InterfaceObjectConfigurable::readPosition(const JsonNode & config) const
 {
 	Point p;
+	logGlobal->debug("Reading point");
 	p.x = config["x"].Integer();
 	p.y = config["y"].Integer();
 	return p;
@@ -96,6 +104,7 @@ Point InterfaceObjectConfigurable::readPosition(const JsonNode & config) const
 Rect InterfaceObjectConfigurable::readRect(const JsonNode & config) const
 {
 	Rect p;
+	logGlobal->debug("Reading rect");
 	p.x = config["x"].Integer();
 	p.y = config["y"].Integer();
 	p.w = config["w"].Integer();
@@ -105,6 +114,7 @@ Rect InterfaceObjectConfigurable::readRect(const JsonNode & config) const
 
 ETextAlignment InterfaceObjectConfigurable::readTextAlignment(const JsonNode & config) const
 {
+	logGlobal->debug("Reading text alignment");
 	if(!config.isNull())
 	{
 		if(config.String() == "center")
@@ -114,11 +124,13 @@ ETextAlignment InterfaceObjectConfigurable::readTextAlignment(const JsonNode & c
 		if(config.String() == "right")
 			return ETextAlignment::BOTTOMRIGHT;
 	}
+	logGlobal->debug("Uknown text alignment attribute");
 	return ETextAlignment::CENTER;
 }
 
 SDL_Color InterfaceObjectConfigurable::readColor(const JsonNode & config) const
 {
+	logGlobal->debug("Reading color");
 	if(!config.isNull())
 	{
 		if(config.String() == "yellow")
@@ -134,11 +146,13 @@ SDL_Color InterfaceObjectConfigurable::readColor(const JsonNode & config) const
 		if(config.String() == "bright-yellow")
 			return Colors::BRIGHT_YELLOW;
 	}
+	logGlobal->debug("Uknown color attribute");
 	return Colors::DEFAULT_KEY_COLOR;
 	
 }
 EFonts InterfaceObjectConfigurable::readFont(const JsonNode & config) const
 {
+	logGlobal->debug("Reading font");
 	if(!config.isNull())
 	{
 		if(config.String() == "big")
@@ -150,16 +164,21 @@ EFonts InterfaceObjectConfigurable::readFont(const JsonNode & config) const
 		if(config.String() == "tiny")
 			return EFonts::FONT_TINY;
 	}
+	logGlobal->debug("Uknown font attribute");
 	return EFonts::FONT_TIMES;
 }
 
 std::pair<std::string, std::string> InterfaceObjectConfigurable::readHintText(const JsonNode & config) const
 {
+	logGlobal->debug("Reading hint text");
 	std::pair<std::string, std::string> result;
 	if(!config.isNull())
 	{
 		if(config.isNumber())
+		{
+			logGlobal->debug("Reading hint text (zelp) from generaltext handler id:%d", config.Integer());
 			return CGI->generaltexth->zelp[config.Integer()];
+		}
 		
 		if(config.getType() == JsonNode::JsonType::DATA_STRUCT)
 		{
@@ -169,6 +188,7 @@ std::pair<std::string, std::string> InterfaceObjectConfigurable::readHintText(co
 		}
 		if(config.getType() == JsonNode::JsonType::DATA_STRING)
 		{
+			logGlobal->debug("Reading non-translated hint: %s", config.String());
 			result.first = result.second = config.String();
 		}
 	}
@@ -177,6 +197,7 @@ std::pair<std::string, std::string> InterfaceObjectConfigurable::readHintText(co
 
 std::shared_ptr<CPicture> InterfaceObjectConfigurable::buildPicture(const JsonNode & config) const
 {
+	logGlobal->debug("Building widget CPicture");
 	auto image = config["image"].String();
 	auto position = readPosition(config["position"]);
 	auto pic = std::make_shared<CPicture>(image, position.x, position.y);
@@ -187,6 +208,7 @@ std::shared_ptr<CPicture> InterfaceObjectConfigurable::buildPicture(const JsonNo
 
 std::shared_ptr<CLabel> InterfaceObjectConfigurable::buildLabel(const JsonNode & config) const
 {
+	logGlobal->debug("Building widget CLabel");
 	auto font = readFont(config["font"]);
 	auto alignment = readTextAlignment(config["alignment"]);
 	auto color = readColor(config["color"]);
@@ -197,6 +219,7 @@ std::shared_ptr<CLabel> InterfaceObjectConfigurable::buildLabel(const JsonNode &
 
 std::shared_ptr<CToggleGroup> InterfaceObjectConfigurable::buildToggleGroup(const JsonNode & config) const
 {
+	logGlobal->debug("Building widget CToggleGroup");
 	auto position = readPosition(config["position"]);
 	auto group = std::make_shared<CToggleGroup>(0);
 	group->pos += position;
@@ -219,6 +242,7 @@ std::shared_ptr<CToggleGroup> InterfaceObjectConfigurable::buildToggleGroup(cons
 
 std::shared_ptr<CToggleButton> InterfaceObjectConfigurable::buildToggleButton(const JsonNode & config) const
 {
+	logGlobal->debug("Building widget CToggleButton");
 	auto position = readPosition(config["position"]);
 	auto image = config["image"].String();
 	auto zelp = readHintText(config["zelp"]);
@@ -238,6 +262,7 @@ std::shared_ptr<CToggleButton> InterfaceObjectConfigurable::buildToggleButton(co
 
 std::shared_ptr<CButton> InterfaceObjectConfigurable::buildButton(const JsonNode & config) const
 {
+	logGlobal->debug("Building widget CButton");
 	auto position = readPosition(config["position"]);
 	auto image = config["image"].String();
 	auto zelp = readHintText(config["zelp"]);
@@ -256,6 +281,7 @@ std::shared_ptr<CButton> InterfaceObjectConfigurable::buildButton(const JsonNode
 
 std::shared_ptr<CLabelGroup> InterfaceObjectConfigurable::buildLabelGroup(const JsonNode & config) const
 {
+	logGlobal->debug("Building widget CLabelGroup");
 	auto font = readFont(config["font"]);
 	auto alignment = readTextAlignment(config["alignment"]);
 	auto color = readColor(config["color"]);
@@ -274,6 +300,7 @@ std::shared_ptr<CLabelGroup> InterfaceObjectConfigurable::buildLabelGroup(const 
 
 std::shared_ptr<CSlider> InterfaceObjectConfigurable::buildSlider(const JsonNode & config) const
 {
+	logGlobal->debug("Building widget CSlider");
 	auto position = readPosition(config["position"]);
 	int length = config["size"].Integer();
 	auto style = config["style"].String() == "brown" ? CSlider::BROWN : CSlider::BLUE;
@@ -286,6 +313,7 @@ std::shared_ptr<CSlider> InterfaceObjectConfigurable::buildSlider(const JsonNode
 
 std::shared_ptr<CAnimImage> InterfaceObjectConfigurable::buildImage(const JsonNode & config) const
 {
+	logGlobal->debug("Building widget CAnimImage");
 	auto position = readPosition(config["position"]);
 	auto image = config["image"].String();
 	int group = config["group"].isNull() ? 0 : config["group"].Integer();
@@ -295,6 +323,7 @@ std::shared_ptr<CAnimImage> InterfaceObjectConfigurable::buildImage(const JsonNo
 
 std::shared_ptr<CFilledTexture> InterfaceObjectConfigurable::buildTexture(const JsonNode & config) const
 {
+	logGlobal->debug("Building widget CFilledTexture");
 	auto image = config["image"].String();
 	auto rect = readRect(config["rect"]);
 	return std::make_shared<CFilledTexture>(image, rect);
@@ -302,6 +331,7 @@ std::shared_ptr<CFilledTexture> InterfaceObjectConfigurable::buildTexture(const 
 
 std::shared_ptr<CShowableAnim> InterfaceObjectConfigurable::buildAnimation(const JsonNode & config) const
 {
+	logGlobal->debug("Building widget CShowableAnim");
 	auto position = readPosition(config["position"]);
 	auto image = config["image"].String();
 	ui8 flags = 0;
@@ -326,9 +356,11 @@ std::shared_ptr<CShowableAnim> InterfaceObjectConfigurable::buildAnimation(const
 std::shared_ptr<CIntObject> InterfaceObjectConfigurable::buildWidget(JsonNode config) const
 {
 	assert(!config.isNull());
+	logGlobal->debug("Building widget from config");
 	//overrides from variables
 	for(auto & item : config["overrides"].Struct())
 	{
+		logGlobal->debug("Config attribute %s was overriden by variable %s", item.first, item.second.String());
 		config[item.first] = variables[item.second.String()];
 	}
 	
@@ -375,12 +407,15 @@ std::shared_ptr<CIntObject> InterfaceObjectConfigurable::buildWidget(JsonNode co
 	}
 	if(type == "custom")
 	{
+		logGlobal->debug("Calling custom widget building function");
 		return const_cast<InterfaceObjectConfigurable*>(this)->buildCustomWidget(config);
 	}
+	logGlobal->error("Unknown type, nullptr will be returned");
 	return std::shared_ptr<CIntObject>(nullptr);
 }
 
 std::shared_ptr<CIntObject> InterfaceObjectConfigurable::buildCustomWidget(const JsonNode & config)
 {
+	logGlobal->error("Default custom widget builder called");
 	return nullptr;
 }
