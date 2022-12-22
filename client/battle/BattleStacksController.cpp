@@ -253,36 +253,25 @@ bool BattleStacksController::stackNeedsAmountBox(const CStack * stack) const
 			currentActionTarget = target.at(0).hexValue;
 	}
 
-	if(stack->hasBonusOfType(Bonus::SIEGE_WEAPON) && stack->getCount() == 1) //do not show box for singular war machines, stacked war machines with box shown are supported as extension feature
+	//do not show box for singular war machines, stacked war machines with box shown are supported as extension feature
+	if(stack->hasBonusOfType(Bonus::SIEGE_WEAPON) && stack->getCount() == 1)
 		return false;
 
 	if(!stack->alive())
 		return false;
 
-	if(stack->getCount() == 0) //hide box when target is going to die anyway - do not display "0 creatures"
+	//hide box when target is going to die anyway - do not display "0 creatures"
+	if(stack->getCount() == 0)
 		return false;
 
-	for(auto anim : currentAnimations) //no matter what other conditions below are, hide box when creature is playing hit animation
+	// if stack has any ongoing animation - hide the box
+	for(auto anim : currentAnimations)
 	{
-		auto hitAnimation = dynamic_cast<DefenceAnimation*>(anim);
-		if(hitAnimation && (hitAnimation->stack->ID == stack->ID))
+		auto stackAnimation = dynamic_cast<BattleStackAnimation*>(anim);
+		if(stackAnimation && (stackAnimation->stack->ID == stack->ID))
 			return false;
 	}
 
-	if(owner.curInt->curAction)
-	{
-		if(owner.curInt->curAction->stackNumber == stack->ID) //stack is currently taking action (is not a target of another creature's action etc)
-		{
-			if(owner.curInt->curAction->actionType == EActionType::WALK || owner.curInt->curAction->actionType == EActionType::SHOOT) //hide when stack walks or shoots
-				return false;
-
-			else if(owner.curInt->curAction->actionType == EActionType::WALK_AND_ATTACK && currentActionTarget != stack->getPosition()) //when attacking, hide until walk phase finished
-				return false;
-		}
-
-		if(owner.curInt->curAction->actionType == EActionType::SHOOT && currentActionTarget == stack->getPosition()) //hide if we are ranged attack target
-			return false;
-	}
 	return true;
 }
 
