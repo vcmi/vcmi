@@ -18,6 +18,8 @@
 #include "../lib/CHeroHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
+#include "../lib/mapObjects/MiscObjects.h"
+#include "inspector/townbulidingswidget.h" //to convert BuildingID to string
 
 //parses date for lose condition (1m 1w 1d)
 int expiredDate(const QString & date)
@@ -187,8 +189,8 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 		"Have creatures",
 		"Have resources",
 		"Have building",
-		"Capture object",
-		"Destroy object",
+		"Capture city",
+		"Beat hero",
 		"Transport artifact"
 	};
 	const std::array<std::string, 5> conditionStringsLose = {
@@ -271,6 +273,67 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 							auto idx = victoryTypeWidget->findData(json["objectType"].Integer());
 							victoryTypeWidget->setCurrentIndex(idx);
 							victoryValueWidget->setText(QString::number(json["value"].Integer()));
+							break;
+						}
+							
+						case EventCondition::HAVE_BUILDING: {
+							ui->victoryComboBox->setCurrentIndex(4);
+							assert(victoryTypeWidget);
+							assert(victorySelectWidget);
+							auto idx = victoryTypeWidget->findData(json["objectType"].Integer());
+							victoryTypeWidget->setCurrentIndex(idx);
+							int townIdx = getObjectByPos<CGTownInstance>(posFromJson(json["position"]));
+							if(townIdx >= 0)
+							{
+								auto idx = victorySelectWidget->findData(townIdx);
+								victorySelectWidget->setCurrentIndex(idx);
+							}
+							break;
+						}
+							
+						case EventCondition::CONTROL: {
+							ui->victoryComboBox->setCurrentIndex(5);
+							assert(victoryTypeWidget);
+							if(json["objectType"].Integer() == Obj::TOWN)
+							{
+								int townIdx = getObjectByPos<CGTownInstance>(posFromJson(json["position"]));
+								if(townIdx >= 0)
+								{
+									auto idx = victoryTypeWidget->findData(townIdx);
+									victoryTypeWidget->setCurrentIndex(idx);
+								}
+							}
+							//TODO: support control other objects (dwellings, mines)
+							break;
+						}
+							
+						case EventCondition::DESTROY: {
+							ui->victoryComboBox->setCurrentIndex(6);
+							assert(victoryTypeWidget);
+							if(json["objectType"].Integer() == Obj::HERO)
+							{
+								int heroIdx = getObjectByPos<CGHeroInstance>(posFromJson(json["position"]));
+								if(heroIdx >= 0)
+								{
+									auto idx = victoryTypeWidget->findData(heroIdx);
+									victoryTypeWidget->setCurrentIndex(idx);
+								}
+							}
+							//TODO: support control other objects (monsters)
+							break;
+						}
+							
+						case EventCondition::TRANSPORT: {
+							ui->victoryComboBox->setCurrentIndex(7);
+							assert(victoryTypeWidget);
+							assert(victorySelectWidget);
+							victoryTypeWidget->setCurrentIndex(json["objectType"].Integer());
+							int townIdx = getObjectByPos<CGTownInstance>(posFromJson(json["position"]));
+							if(townIdx >= 0)
+							{
+								auto idx = victorySelectWidget->findData(townIdx);
+								victorySelectWidget->setCurrentIndex(idx);
+							}
 							break;
 						}
 							
@@ -383,6 +446,17 @@ std::string MapSettings::getHeroName(int townObjectIdx)
 	if(auto hero = dynamic_cast<CGHeroInstance*>(controller.map()->objects[townObjectIdx].get()))
 	{
 		name = hero->name;
+	}
+	return name;
+}
+
+std::string MapSettings::getMonsterName(int monsterObjectIdx)
+{
+	std::string name;
+	if(auto monster = dynamic_cast<CGCreature*>(controller.map()->objects[monsterObjectIdx].get()))
+	{
+		//TODO: get proper name
+		//name = hero->name;
 	}
 	return name;
 }
@@ -503,6 +577,57 @@ void MapSettings::on_pushButton_clicked()
 				specialVictory.trigger = EventExpression(cond);
 				break;
 			}
+				
+			case 3: {
+				EventCondition cond(EventCondition::HAVE_BUILDING);
+				assert(victoryTypeWidget);
+				cond.objectType = victoryTypeWidget->currentData().toInt();
+				int townIdx = victorySelectWidget->currentData().toInt();
+				if(townIdx > -1)
+					cond.position = controller.map()->objects[townIdx]->pos;
+				specialVictory.effect.toOtherMessage = VLC->generaltexth->allTexts[283];
+				specialVictory.onFulfill = VLC->generaltexth->allTexts[282];
+				specialVictory.trigger = EventExpression(cond);
+				break;
+			}
+				
+			case 4: {
+				EventCondition cond(EventCondition::CONTROL);
+				assert(victoryTypeWidget);
+				cond.objectType = Obj::TOWN;
+				int townIdx = victoryTypeWidget->currentData().toInt();
+				cond.position = controller.map()->objects[townIdx]->pos;
+				specialVictory.effect.toOtherMessage = VLC->generaltexth->allTexts[250];
+				specialVictory.onFulfill = VLC->generaltexth->allTexts[249];
+				specialVictory.trigger = EventExpression(cond);
+				break;
+			}
+				
+			case 5: {
+				EventCondition cond(EventCondition::DESTROY);
+				assert(victoryTypeWidget);
+				cond.objectType = Obj::HERO;
+				int heroIdx = victoryTypeWidget->currentData().toInt();
+				cond.position = controller.map()->objects[heroIdx]->pos;
+				specialVictory.effect.toOtherMessage = VLC->generaltexth->allTexts[253];
+				specialVictory.onFulfill = VLC->generaltexth->allTexts[252];
+				specialVictory.trigger = EventExpression(cond);
+				break;
+			}
+				
+			case 6: {
+				EventCondition cond(EventCondition::TRANSPORT);
+				assert(victoryTypeWidget);
+				cond.objectType = victoryTypeWidget->currentData().toInt();
+				int townIdx = victorySelectWidget->currentData().toInt();
+				if(townIdx > -1)
+					cond.position = controller.map()->objects[townIdx]->pos;
+				specialVictory.effect.toOtherMessage = VLC->generaltexth->allTexts[293];
+				specialVictory.onFulfill = VLC->generaltexth->allTexts[292];
+				specialVictory.trigger = EventExpression(cond);
+				break;
+			}
+				
 		}
 		
 		// if condition is human-only turn it into following construction: AllOf(human, condition)
@@ -614,8 +739,10 @@ void MapSettings::on_victoryComboBox_currentIndexChanged(int index)
 {
 	delete victoryTypeWidget;
 	delete victoryValueWidget;
+	delete victorySelectWidget;
 	victoryTypeWidget = nullptr;
 	victoryValueWidget = nullptr;
+	victorySelectWidget = nullptr;
 	
 	if(index == 0)
 	{
@@ -655,13 +782,13 @@ void MapSettings::on_victoryComboBox_currentIndexChanged(int index)
 			victoryTypeWidget = new QComboBox;
 			ui->victoryParamsLayout->addWidget(victoryTypeWidget);
 			{
-				victoryTypeWidget->addItem("Wood", QVariant::fromValue(Res::WOOD));
-				victoryTypeWidget->addItem("Ore", QVariant::fromValue(Res::ORE));
-				victoryTypeWidget->addItem("Sulfur", QVariant::fromValue(Res::SULFUR));
-				victoryTypeWidget->addItem("Gems", QVariant::fromValue(Res::GEMS));
-				victoryTypeWidget->addItem("Crystal", QVariant::fromValue(Res::CRYSTAL));
-				victoryTypeWidget->addItem("Mercury", QVariant::fromValue(Res::MERCURY));
-				victoryTypeWidget->addItem("Gold", QVariant::fromValue(Res::GOLD));
+				victoryTypeWidget->addItem("Wood", QVariant::fromValue(int(Res::WOOD)));
+				victoryTypeWidget->addItem("Ore", QVariant::fromValue(int(Res::ORE)));
+				victoryTypeWidget->addItem("Sulfur", QVariant::fromValue(int(Res::SULFUR)));
+				victoryTypeWidget->addItem("Gems", QVariant::fromValue(int(Res::GEMS)));
+				victoryTypeWidget->addItem("Crystal", QVariant::fromValue(int(Res::CRYSTAL)));
+				victoryTypeWidget->addItem("Mercury", QVariant::fromValue(int(Res::MERCURY)));
+				victoryTypeWidget->addItem("Gold", QVariant::fromValue(int(Res::GOLD)));
 			}
 			
 			victoryValueWidget = new QLineEdit;
@@ -669,6 +796,59 @@ void MapSettings::on_victoryComboBox_currentIndexChanged(int index)
 			victoryValueWidget->setText("1");
 			break;
 		}
+			
+		case 3: { //EventCondition::HAVE_BUILDING
+			victoryTypeWidget = new QComboBox;
+			ui->victoryParamsLayout->addWidget(victoryTypeWidget);
+			auto * ctown = VLC->townh->randomTown;
+			for(int bId : ctown->getAllBuildings())
+				victoryTypeWidget->addItem(QString::fromStdString(defaultBuildingIdConversion(BuildingID(bId))), QVariant::fromValue(bId));
+			
+			victorySelectWidget = new QComboBox;
+			ui->victoryParamsLayout->addWidget(victorySelectWidget);
+			victorySelectWidget->addItem("Any town", QVariant::fromValue(-1));
+			for(int i : getObjectIndexes<CGTownInstance>())
+				victorySelectWidget->addItem(tr(getTownName(i).c_str()), QVariant::fromValue(i));
+			break;
+		}
+			
+		case 4: { //EventCondition::CONTROL (Obj::TOWN)
+			victoryTypeWidget = new QComboBox;
+			ui->victoryParamsLayout->addWidget(victoryTypeWidget);
+			for(int i : getObjectIndexes<CGTownInstance>())
+				victoryTypeWidget->addItem(tr(getTownName(i).c_str()), QVariant::fromValue(i));
+			break;
+		}
+			
+		case 5: { //EventCondition::DESTROY (Obj::HERO)
+			victoryTypeWidget = new QComboBox;
+			ui->victoryParamsLayout->addWidget(victoryTypeWidget);
+			for(int i : getObjectIndexes<CGHeroInstance>())
+				victoryTypeWidget->addItem(tr(getHeroName(i).c_str()), QVariant::fromValue(i));
+			break;
+		}
+			
+		case 6: { //EventCondition::TRANSPORT (Obj::ARTEFACT)
+			victoryTypeWidget = new QComboBox;
+			ui->victoryParamsLayout->addWidget(victoryTypeWidget);
+			for(int i = 0; i < controller.map()->allowedArtifact.size(); ++i)
+				victoryTypeWidget->addItem(QString::fromStdString(VLC->arth->objects[i]->getName()), QVariant::fromValue(i));
+			
+			victorySelectWidget = new QComboBox;
+			ui->victoryParamsLayout->addWidget(victorySelectWidget);
+			for(int i : getObjectIndexes<CGTownInstance>())
+				victorySelectWidget->addItem(tr(getTownName(i).c_str()), QVariant::fromValue(i));
+			break;
+		}
+			
+			
+		/*case 6: { //EventCondition::DESTROY (Obj::MONSTER)
+			victoryTypeWidget = new QComboBox;
+			ui->loseParamsLayout->addWidget(victoryTypeWidget);
+			for(int i : getObjectIndexes<CGCreature>())
+				victoryTypeWidget->addItem(tr(getMonsterName(i).c_str()), QVariant::fromValue(i));
+			break;
+		}*/
 			
 			
 	}
@@ -679,8 +859,10 @@ void MapSettings::on_loseComboBox_currentIndexChanged(int index)
 {
 	delete loseTypeWidget;
 	delete loseValueWidget;
+	delete loseSelectWidget;
 	loseTypeWidget = nullptr;
 	loseValueWidget = nullptr;
+	loseSelectWidget = nullptr;
 	
 	if(index == 0)
 	{

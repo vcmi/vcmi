@@ -36,6 +36,7 @@ private:
 	
 	std::string getTownName(int townObjectIdx);
 	std::string getHeroName(int townObjectIdx);
+	std::string getMonsterName(int townObjectIdx);
 	
 	template<class T>
 	std::vector<int> getObjectIndexes() const
