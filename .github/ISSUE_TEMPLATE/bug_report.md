@@ -23,6 +23,9 @@ A clear and concise description of what you expected to happen.
 **Actual behavior**
 A clear description what is currently happening 
 
+**Did it work earlier?**
+If this something which worked well some time ago, please let us know about version where it works or at date when it worked.
+
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
 
