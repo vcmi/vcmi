@@ -33,6 +33,11 @@ private slots:
 	void on_loseComboBox_currentIndexChanged(int index);
 
 private:
+	
+	std::string getTownName(int townObjectIdx);
+	std::vector<int> getTownIndexes() const;
+	int getTownByPos(const int3 & pos);
+	
 	Ui::MapSettings *ui;
 	MapController & controller;
 	
