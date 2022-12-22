@@ -232,7 +232,6 @@ std::ostream & operator<<(std::ostream & os, const EActionType actionType)
 		{EActionType::MONSTER_SPELL, "Monster spell"},
 		{EActionType::BAD_MORALE, "Bad morale"},
 		{EActionType::STACK_HEAL, "Stack heal"},
-		{EActionType::DAEMON_SUMMONING, "Daemon summoning"}
 	};
 
 	auto it = actionTypeToString.find(actionType);

@@ -608,9 +608,9 @@ std::vector<Destination> BattleSpellMechanics::getPossibleDestinations(size_t in
 				Target tmp = current;
 				tmp.emplace_back(dest);
 
-				detail::ProblemImpl ingored;
+				detail::ProblemImpl ignored;
 
-				if(canBeCastAt(tmp, ingored))
+				if(canBeCastAt(tmp, ignored))
 					ret.emplace_back(dest);
 			}
 		}
@@ -630,7 +630,7 @@ bool BattleSpellMechanics::isReceptive(const battle::Unit * target) const
 	return targetCondition->isReceptive(this, target);
 }
 
-std::vector<BattleHex> BattleSpellMechanics::rangeInHexes(BattleHex centralHex, bool * outDroppedHexes) const
+std::vector<BattleHex> BattleSpellMechanics::rangeInHexes(BattleHex centralHex) const
 {
 	if(isMassive() || !centralHex.isValid())
 		return std::vector<BattleHex>(1, BattleHex::INVALID);

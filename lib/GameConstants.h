@@ -922,7 +922,6 @@ enum class EActionType : int32_t
 	MONSTER_SPELL,
 	BAD_MORALE,
 	STACK_HEAL,
-	DAEMON_SUMMONING
 };
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const EActionType actionType);

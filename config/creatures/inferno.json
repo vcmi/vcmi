@@ -216,11 +216,17 @@
 		"faction": "inferno",
 		"abilities":
 		{
-			"demonSummon" :
+			"summons50HP" : 
 			{
-				"type" : "DAEMON_SUMMONING",
-				"subtype" : "creature.demon",
+				"type" : "SPECIFIC_SPELL_POWER",
+				"subtype" : "spell.summonDemons",
 				"val" : 50
+			},
+			"resurrects" :
+			{
+				"type" : "SPELLCASTER",
+				"subtype" : "spell.summonDemons",
+				"val" : 0
 			},
 			"castsAmount" :
 			{

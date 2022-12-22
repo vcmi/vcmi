@@ -237,7 +237,6 @@ public:
 	BONUS_NAME(MANA_CHANNELING) /*value in %, eg. familiar*/ \
 	BONUS_NAME(SPELL_LIKE_ATTACK) /*subtype - spell, value - spell level; range is taken from spell, but damage from creature; eg. magog*/ \
 	BONUS_NAME(THREE_HEADED_ATTACK) /*eg. cerberus*/	\
-	BONUS_NAME(DAEMON_SUMMONING) /*pit lord, subtype - type of creatures, val - hp per unit*/			\
 	BONUS_NAME(FIRE_IMMUNITY)	/*subtype 0 - all, 1 - all except positive, 2 - only damage spells*/						\
 	BONUS_NAME(WATER_IMMUNITY)							\
 	BONUS_NAME(EARTH_IMMUNITY)							\

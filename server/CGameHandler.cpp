@@ -4472,7 +4472,6 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 	case EActionType::SHOOT: //shoot
 	case EActionType::CATAPULT: //catapult
 	case EActionType::STACK_HEAL: //healing with First Aid Tent
-	case EActionType::DAEMON_SUMMONING:
 	case EActionType::MONSTER_SPELL:
 
 		if (!stack)
@@ -5006,58 +5005,6 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 			}
 			break;
 		}
-		case EActionType::DAEMON_SUMMONING:
-			//TODO: From Strategija:
-			//Summon Demon is a level 2 spell.
-		{
-			if(target.size() < 1)
-			{
-				complain("Destination required for summon action.");
-				ok = false;
-				break;
-			}
-
-			const CStack * summoner = gs->curB->battleGetStackByID(ba.stackNumber);
-			const CStack * destStack = gs->curB->battleGetStackByPos(target.at(0).hexValue, false);
-
-			CreatureID summonedType(summoner->getBonusLocalFirst(Selector::type()(Bonus::DAEMON_SUMMONING))->subtype);//in case summoner can summon more than one type of monsters... scream!
-
-			ui64 risedHp = summoner->getCount() * summoner->valOfBonuses(Bonus::DAEMON_SUMMONING, summonedType.toEnum());
-			ui64 targetHealth = destStack->getCreature()->MaxHealth() * destStack->baseAmount;
-
-			ui64 canRiseHp = std::min(targetHealth, risedHp);
-			ui32 canRiseAmount = static_cast<ui32>(canRiseHp / summonedType.toCreature()->MaxHealth());
-
-			battle::UnitInfo info;
-			info.id = gs->curB->battleNextUnitId();
-			info.count = std::min(canRiseAmount, destStack->baseAmount);
-			info.type = summonedType;
-			info.side = summoner->side;
-			info.position = gs->curB->getAvaliableHex(summonedType, summoner->side, destStack->getPosition());
-			info.summoned = false;
-
-			BattleUnitsChanged addUnits;
-			addUnits.changedStacks.emplace_back(info.id, UnitChanges::EOperation::ADD);
-			info.save(addUnits.changedStacks.back().data);
-
-			if(info.count > 0) //there's rare possibility single creature cannot rise desired type
-			{
-				auto wrapper = wrapAction(ba);
-
-				BattleUnitsChanged removeUnits;
-				removeUnits.changedStacks.emplace_back(destStack->unitId(), UnitChanges::EOperation::REMOVE);
-				sendAndApply(&removeUnits);
-				sendAndApply(&addUnits);
-
-				BattleSetStackProperty ssp;
-				ssp.stackID = ba.stackNumber;
-				ssp.which = BattleSetStackProperty::CASTS; //reduce number of casts
-				ssp.val = -1;
-				ssp.absolute = false;
-				sendAndApply(&ssp);
-			}
-			break;
-		}
 		case EActionType::MONSTER_SPELL:
 		{
 			auto wrapper = wrapAction(ba);
@@ -5089,7 +5036,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 			break;
 		}
 	}
-	if(ba.actionType == EActionType::DAEMON_SUMMONING || ba.actionType == EActionType::WAIT || ba.actionType == EActionType::DEFEND
+	if(ba.actionType == EActionType::WAIT || ba.actionType == EActionType::DEFEND
 			|| ba.actionType == EActionType::SHOOT || ba.actionType == EActionType::MONSTER_SPELL)
 		handleDamageFromObstacle(stack);
 	if(ba.stackNumber == gs->curB->activeStack || battleResult.get()) //active stack has moved or battle has finished

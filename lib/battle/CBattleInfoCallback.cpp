@@ -230,8 +230,6 @@ std::vector<PossiblePlayerBattleAction> CBattleInfoCallback::getClientActionsFor
 			}
 			if(stack->hasBonusOfType(Bonus::RANDOM_SPELLCASTER))
 				allowedActionList.push_back(PossiblePlayerBattleAction::RANDOM_GENIE_SPELL);
-			if(stack->hasBonusOfType(Bonus::DAEMON_SUMMONING))
-				allowedActionList.push_back(PossiblePlayerBattleAction::RISE_DEMONS);
 		}
 		if(stack->canShoot())
 			allowedActionList.push_back(PossiblePlayerBattleAction::SHOOT);

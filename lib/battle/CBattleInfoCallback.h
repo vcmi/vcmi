@@ -49,7 +49,7 @@ enum class PossiblePlayerBattleAction // actions performed at l-click
 	MOVE_STACK, ATTACK, WALK_AND_ATTACK, ATTACK_AND_RETURN, SHOOT, //OPEN_GATE, //we can open castle gate during siege
 	NO_LOCATION, ANY_LOCATION, OBSTACLE, TELEPORT, SACRIFICE, RANDOM_GENIE_SPELL,
 	FREE_LOCATION, //used with Force Field and Fire Wall - all tiles affected by spell must be free
-	CATAPULT, HEAL, RISE_DEMONS,
+	CATAPULT, HEAL,
 	AIMED_SPELL_CREATURE
 };
 

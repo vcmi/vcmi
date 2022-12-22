@@ -139,6 +139,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/spells/effects/Catapult.cpp
 		${MAIN_LIB_DIR}/spells/effects/Clone.cpp
 		${MAIN_LIB_DIR}/spells/effects/Damage.cpp
+		${MAIN_LIB_DIR}/spells/effects/DemonSummon.cpp
 		${MAIN_LIB_DIR}/spells/effects/Dispel.cpp
 		${MAIN_LIB_DIR}/spells/effects/Effect.cpp
 		${MAIN_LIB_DIR}/spells/effects/Effects.cpp
@@ -374,6 +375,7 @@ macro(add_main_lib TARGET_NAME LIBRARY_TYPE)
 		${MAIN_LIB_DIR}/spells/effects/Catapult.h
 		${MAIN_LIB_DIR}/spells/effects/Clone.h
 		${MAIN_LIB_DIR}/spells/effects/Damage.h
+		${MAIN_LIB_DIR}/spells/effects/DemonSummon.h
 		${MAIN_LIB_DIR}/spells/effects/Dispel.h
 		${MAIN_LIB_DIR}/spells/effects/Effect.h
 		${MAIN_LIB_DIR}/spells/effects/Effects.h

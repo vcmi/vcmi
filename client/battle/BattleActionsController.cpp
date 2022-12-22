@@ -171,8 +171,6 @@ void BattleActionsController::reorderPossibleActionsPriority(const CStack * stac
 			break;
 		case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL:
 			return 2; break;
-		case PossiblePlayerBattleAction::RISE_DEMONS:
-			return 3; break;
 		case PossiblePlayerBattleAction::SHOOT:
 			return 4; break;
 		case PossiblePlayerBattleAction::ATTACK_AND_RETURN:
@@ -374,19 +372,6 @@ void BattleActionsController::handleHex(BattleHex myNumber, int eventType)
 				if (shere && ourStack && shere->canBeHealed())
 					legalAction = true;
 				break;
-			case PossiblePlayerBattleAction::RISE_DEMONS:
-				if (shere && ourStack && !shere->alive())
-				{
-					if (!(shere->hasBonusOfType(Bonus::UNDEAD)
-						|| shere->hasBonusOfType(Bonus::NON_LIVING)
-						|| shere->hasBonusOfType(Bonus::GARGOYLE)
-						|| shere->summoned
-						|| shere->isClone()
-						|| shere->hasBonusOfType(Bonus::SIEGE_WEAPON)
-						))
-						legalAction = true;
-				}
-				break;
 		}
 		if (legalAction)
 			localActions.push_back (action);
@@ -541,13 +526,6 @@ void BattleActionsController::handleHex(BattleHex myNumber, int eventType)
 				cursorFrame = Cursor::Combat::HEAL;
 				newConsoleMsg = (boost::format(CGI->generaltexth->allTexts[419]) % shere->getName()).str(); //Apply first aid to the %s
 				realizeAction = [=](){ owner.giveCommand(EActionType::STACK_HEAL, myNumber); }; //command healing
-				break;
-			case PossiblePlayerBattleAction::RISE_DEMONS:
-				spellcastingCursor = true;
-				realizeAction = [=]()
-				{
-					owner.giveCommand(EActionType::DAEMON_SUMMONING, myNumber);
-				};
 				break;
 			case PossiblePlayerBattleAction::CATAPULT:
 				cursorFrame = Cursor::Combat::SHOOT_CATAPULT;
