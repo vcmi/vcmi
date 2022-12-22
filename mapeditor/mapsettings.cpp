@@ -17,6 +17,7 @@
 #include "../lib/CArtHandler.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/CGeneralTextHandler.h"
+#include "../lib/mapObjects/CGHeroInstance.h"
 
 //parses date for lose condition (1m 1w 1d)
 int expiredDate(const QString & date)
@@ -257,7 +258,18 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 							ui->victoryComboBox->setCurrentIndex(2);
 							assert(victoryTypeWidget);
 							assert(victoryValueWidget);
-							victoryTypeWidget->setCurrentIndex(json["objectType"].Integer());
+							auto idx = victoryTypeWidget->findData(json["objectType"].Integer());
+							victoryTypeWidget->setCurrentIndex(idx);
+							victoryValueWidget->setText(QString::number(json["value"].Integer()));
+							break;
+						}
+							
+						case EventCondition::HAVE_RESOURCES: {
+							ui->victoryComboBox->setCurrentIndex(3);
+							assert(victoryTypeWidget);
+							assert(victoryValueWidget);
+							auto idx = victoryTypeWidget->findData(json["objectType"].Integer());
+							victoryTypeWidget->setCurrentIndex(idx);
 							victoryValueWidget->setText(QString::number(json["value"].Integer()));
 							break;
 						}
@@ -290,7 +302,7 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 							{
 								ui->loseComboBox->setCurrentIndex(1);
 								assert(loseTypeWidget);
-								int townIdx = getTownByPos(posFromJson(json["position"]));
+								int townIdx = getObjectByPos<CGTownInstance>(posFromJson(json["position"]));
 								if(townIdx >= 0)
 								{
 									auto idx = loseTypeWidget->findData(townIdx);
@@ -300,8 +312,13 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 							if(json["objectType"].Integer() == Obj::HERO)
 							{
 								ui->loseComboBox->setCurrentIndex(2);
-								//assert(loseValueWidget);
-								//loseValueWidget->setText(QString::number(json["value"].Integer()));
+								assert(loseTypeWidget);
+								int heroIdx = getObjectByPos<CGHeroInstance>(posFromJson(json["position"]));
+								if(heroIdx >= 0)
+								{
+									auto idx = loseTypeWidget->findData(heroIdx);
+									loseTypeWidget->setCurrentIndex(idx);
+								}
 							}
 							
 							break;
@@ -321,7 +338,7 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 							break;
 							
 						case EventCondition::IS_HUMAN:
-							break; //ignore as always applicable for defeat conditions
+							break; //ignore because always applicable for defeat conditions
 						}
 							
 					};
@@ -360,30 +377,14 @@ std::string MapSettings::getTownName(int townObjectIdx)
 	return name;
 }
 
-std::vector<int> MapSettings::getTownIndexes() const
+std::string MapSettings::getHeroName(int townObjectIdx)
 {
-	std::vector<int> result;
-	for(int i = 0; i < controller.map()->objects.size(); ++i)
+	std::string name;
+	if(auto hero = dynamic_cast<CGHeroInstance*>(controller.map()->objects[townObjectIdx].get()))
 	{
-		if(auto town = dynamic_cast<CGTownInstance*>(controller.map()->objects[i].get()))
-		{
-			result.push_back(i);
-		}
+		name = hero->name;
 	}
-	return result;
-}
-
-int MapSettings::getTownByPos(const int3 & pos)
-{
-	for(int i = 0; i < controller.map()->objects.size(); ++i)
-	{
-		if(auto town = dynamic_cast<CGTownInstance*>(controller.map()->objects[i].get()))
-		{
-			if(town->pos == pos)
-				return i;
-		}
-	}
-	return -1;
+	return name;
 }
 
 void MapSettings::on_pushButton_clicked()
@@ -491,6 +492,17 @@ void MapSettings::on_pushButton_clicked()
 				specialVictory.trigger = EventExpression(cond);
 				break;
 			}
+				
+			case 2: {
+				EventCondition cond(EventCondition::HAVE_RESOURCES);
+				assert(victoryTypeWidget);
+				cond.objectType = victoryTypeWidget->currentData().toInt();
+				cond.value = victoryValueWidget->text().toInt();
+				specialVictory.effect.toOtherMessage = VLC->generaltexth->allTexts[279];
+				specialVictory.onFulfill = VLC->generaltexth->allTexts[278];
+				specialVictory.trigger = EventExpression(cond);
+				break;
+			}
 		}
 		
 		// if condition is human-only turn it into following construction: AllOf(human, condition)
@@ -535,7 +547,7 @@ void MapSettings::on_pushButton_clicked()
 		
 		switch(lossCondition)
 		{
-			case 0: {
+			case 0: { //EventCondition::CONTROL (Obj::TOWN)
 				EventExpression::OperatorNone noneOf;
 				EventCondition cond(EventCondition::CONTROL);
 				cond.objectType = Obj::TOWN;
@@ -548,7 +560,20 @@ void MapSettings::on_pushButton_clicked()
 				break;
 			}
 				
-			case 2: {
+			case 1: { //EventCondition::CONTROL (Obj::HERO)
+				EventExpression::OperatorNone noneOf;
+				EventCondition cond(EventCondition::CONTROL);
+				cond.objectType = Obj::HERO;
+				assert(loseTypeWidget);
+				int townIdx = loseTypeWidget->currentData().toInt();
+				cond.position = controller.map()->objects[townIdx]->pos;
+				noneOf.expressions.push_back(cond);
+				specialDefeat.onFulfill = VLC->generaltexth->allTexts[253];
+				specialDefeat.trigger = EventExpression(noneOf);
+				break;
+			}
+				
+			case 2: { //EventCondition::DAYS_PASSED
 				EventCondition cond(EventCondition::DAYS_PASSED);
 				assert(loseValueWidget);
 				cond.value = expiredDate(loseValueWidget->text());
@@ -557,7 +582,7 @@ void MapSettings::on_pushButton_clicked()
 				break;
 			}
 				
-			case 3: {
+			case 3: { //EventCondition::DAYS_WITHOUT_TOWN
 				EventCondition cond(EventCondition::DAYS_WITHOUT_TOWN);
 				assert(loseValueWidget);
 				cond.value = loseValueWidget->text().toInt();
@@ -618,13 +643,34 @@ void MapSettings::on_victoryComboBox_currentIndexChanged(int index)
 			victoryTypeWidget = new QComboBox;
 			ui->victoryParamsLayout->addWidget(victoryTypeWidget);
 			for(int i = 0; i < VLC->creh->objects.size(); ++i)
-			victoryTypeWidget->addItem(QString::fromStdString(VLC->creh->objects[i]->getName()), QVariant::fromValue(i));
+				victoryTypeWidget->addItem(QString::fromStdString(VLC->creh->objects[i]->getName()), QVariant::fromValue(i));
 			
 			victoryValueWidget = new QLineEdit;
 			ui->victoryParamsLayout->addWidget(victoryValueWidget);
 			victoryValueWidget->setText("1");
 			break;
 		}
+			
+		case 2: { //EventCondition::HAVE_RESOURCES
+			victoryTypeWidget = new QComboBox;
+			ui->victoryParamsLayout->addWidget(victoryTypeWidget);
+			{
+				victoryTypeWidget->addItem("Wood", QVariant::fromValue(Res::WOOD));
+				victoryTypeWidget->addItem("Ore", QVariant::fromValue(Res::ORE));
+				victoryTypeWidget->addItem("Sulfur", QVariant::fromValue(Res::SULFUR));
+				victoryTypeWidget->addItem("Gems", QVariant::fromValue(Res::GEMS));
+				victoryTypeWidget->addItem("Crystal", QVariant::fromValue(Res::CRYSTAL));
+				victoryTypeWidget->addItem("Mercury", QVariant::fromValue(Res::MERCURY));
+				victoryTypeWidget->addItem("Gold", QVariant::fromValue(Res::GOLD));
+			}
+			
+			victoryValueWidget = new QLineEdit;
+			ui->victoryParamsLayout->addWidget(victoryValueWidget);
+			victoryValueWidget->setText("1");
+			break;
+		}
+			
+			
 	}
 }
 
@@ -650,7 +696,7 @@ void MapSettings::on_loseComboBox_currentIndexChanged(int index)
 		case 0: {  //EventCondition::CONTROL (Obj::TOWN)
 			loseTypeWidget = new QComboBox;
 			ui->loseParamsLayout->addWidget(loseTypeWidget);
-			for(int i : getTownIndexes())
+			for(int i : getObjectIndexes<CGTownInstance>())
 				loseTypeWidget->addItem(tr(getTownName(i).c_str()), QVariant::fromValue(i));
 			break;
 		}
@@ -658,16 +704,15 @@ void MapSettings::on_loseComboBox_currentIndexChanged(int index)
 		case 1: { //EventCondition::CONTROL (Obj::HERO)
 			loseTypeWidget = new QComboBox;
 			ui->loseParamsLayout->addWidget(loseTypeWidget);
-			//for(int i = 0; i < controller.map()->allowedArtifact.size(); ++i)
-				//victoryTypeWidget->addItem(QString::fromStdString(VLC->arth->objects[i]->getName()), QVariant::fromValue(i));
+			for(int i : getObjectIndexes<CGHeroInstance>())
+				loseTypeWidget->addItem(tr(getHeroName(i).c_str()), QVariant::fromValue(i));
 			break;
 		}
 			
 		case 2: { //EventCondition::DAYS_PASSED
 			loseValueWidget = new QLineEdit;
 			ui->loseParamsLayout->addWidget(loseValueWidget);
-			
-			loseValueWidget->setText("1m 1w 1d");
+			loseValueWidget->setText("2m 1w 1d");
 			break;
 		}
 			

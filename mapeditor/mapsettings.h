@@ -35,12 +35,38 @@ private slots:
 private:
 	
 	std::string getTownName(int townObjectIdx);
-	std::vector<int> getTownIndexes() const;
-	int getTownByPos(const int3 & pos);
+	std::string getHeroName(int townObjectIdx);
+	
+	template<class T>
+	std::vector<int> getObjectIndexes() const
+	{
+		std::vector<int> result;
+		for(int i = 0; i < controller.map()->objects.size(); ++i)
+		{
+			if(auto town = dynamic_cast<T*>(controller.map()->objects[i].get()))
+				result.push_back(i);
+		}
+		return result;
+	}
+	
+	template<class T>
+	int getObjectByPos(const int3 & pos)
+	{
+		for(int i = 0; i < controller.map()->objects.size(); ++i)
+		{
+			if(auto town = dynamic_cast<T*>(controller.map()->objects[i].get()))
+			{
+				if(town->pos == pos)
+					return i;
+			}
+		}
+		return -1;
+	}
 	
 	Ui::MapSettings *ui;
 	MapController & controller;
 	
 	QComboBox * victoryTypeWidget = nullptr, * loseTypeWidget = nullptr;
+	QComboBox * victorySelectWidget = nullptr, * loseSelectWidget = nullptr;
 	QLineEdit * victoryValueWidget = nullptr, * loseValueWidget = nullptr;
 };
