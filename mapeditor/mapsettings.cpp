@@ -668,7 +668,7 @@ void MapSettings::on_pushButton_clicked()
 		specialDefeat.description.clear(); // TODO: display in quest window
 		
 		controller.map()->defeatIconIndex = lossCondition;
-		controller.map()->defeatMessage = VLC->generaltexth->lossCondtions[1]; //TODO: get proper text
+		controller.map()->defeatMessage = VLC->generaltexth->lossCondtions[size_t(lossCondition) + 1];
 		
 		switch(lossCondition)
 		{
