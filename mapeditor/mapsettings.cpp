@@ -24,9 +24,12 @@ int expiredDate(const QString & date)
 	int result = 0;
 	for(auto component : date.split(" "))
 	{
-		result += component.left(component.lastIndexOf('d')).toInt();
-		result += component.left(component.lastIndexOf('w')).toInt() * 7;
-		result += component.left(component.lastIndexOf('m')).toInt() * 28;
+		int days = component.left(component.lastIndexOf('d')).toInt();
+		int weeks = component.left(component.lastIndexOf('w')).toInt();
+		int months = component.left(component.lastIndexOf('m')).toInt();
+		result += days > 0 ? days - 1 : 0;
+		result += (weeks > 0 ? weeks - 1 : 0) * 7;
+		result += (months > 0 ? months - 1 : 0) * 28;
 	}
 	return result;
 }
@@ -50,6 +53,27 @@ QString expiredDate(int date)
 		if(!result.isEmpty())
 			result += " ";
 		result += QString::number(d) + "d";
+	}
+	return result;
+}
+
+int3 posFromJson(const JsonNode & json)
+{
+	return int3(json.Vector()[0].Integer(), json.Vector()[1].Integer(), json.Vector()[2].Integer());
+}
+
+std::vector<JsonNode> linearJsonArray(const JsonNode & json)
+{
+	std::vector<JsonNode> result;
+	if(json.getType() == JsonNode::JsonType::DATA_STRUCT)
+		result.push_back(json);
+	if(json.getType() == JsonNode::JsonType::DATA_VECTOR)
+	{
+		for(auto & node : json.Vector())
+		{
+			auto subvector = linearJsonArray(node);
+			result.insert(result.end(), subvector.begin(), subvector.end());
+		}
 	}
 	return result;
 }
@@ -215,25 +239,35 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 
 			if(ev.identifier == "specialVictory")
 			{
-				auto json = ev.trigger.toJson(conditionToJson);
-				switch(json["condition"].Integer())
+				auto readjson = ev.trigger.toJson(conditionToJson);
+				auto linearNodes = linearJsonArray(readjson);
+				
+				for(auto & json : linearNodes)
 				{
-					case EventCondition::HAVE_ARTIFACT: {
-						ui->victoryComboBox->setCurrentIndex(1);
-						assert(victoryTypeWidget);
-						victoryTypeWidget->setCurrentIndex(json["objectType"].Integer());
-						break;
-					}
-						
-					case EventCondition::HAVE_CREATURES: {
-						ui->victoryComboBox->setCurrentIndex(2);
-						assert(victoryTypeWidget);
-						assert(victoryValueWidget);
-						victoryTypeWidget->setCurrentIndex(json["objectType"].Integer());
-						victoryValueWidget->setText(QString::number(json["value"].Integer()));
-						break;
-					}
-				};
+					switch(json["condition"].Integer())
+					{
+						case EventCondition::HAVE_ARTIFACT: {
+							ui->victoryComboBox->setCurrentIndex(1);
+							assert(victoryTypeWidget);
+							victoryTypeWidget->setCurrentIndex(json["objectType"].Integer());
+							break;
+						}
+							
+						case EventCondition::HAVE_CREATURES: {
+							ui->victoryComboBox->setCurrentIndex(2);
+							assert(victoryTypeWidget);
+							assert(victoryValueWidget);
+							victoryTypeWidget->setCurrentIndex(json["objectType"].Integer());
+							victoryValueWidget->setText(QString::number(json["value"].Integer()));
+							break;
+						}
+							
+						case EventCondition::IS_HUMAN: {
+							ui->onlyForHumansCheck->setChecked(true);
+							break;
+						}
+					};
+				}
 			}
 		}
 		
@@ -244,41 +278,54 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 			
 			if(ev.identifier == "specialDefeat")
 			{
-				auto json = ev.trigger.toJson(conditionToJson);
-				switch(json["condition"].Integer())
+				auto readjson = ev.trigger.toJson(conditionToJson);
+				auto linearNodes = linearJsonArray(readjson);
+				
+				for(auto & json : linearNodes)
 				{
-					case EventCondition::CONTROL: {
-						if(json["objectType"].Integer() == Obj::TOWN)
-						{
-							ui->loseComboBox->setCurrentIndex(1);
-							//assert(loseValueWidget);
-							//loseValueWidget->setText(QString::number(json["value"].Integer()));
+					switch(json["condition"].Integer())
+					{
+						case EventCondition::CONTROL: {
+							if(json["objectType"].Integer() == Obj::TOWN)
+							{
+								ui->loseComboBox->setCurrentIndex(1);
+								assert(loseTypeWidget);
+								int townIdx = getTownByPos(posFromJson(json["position"]));
+								if(townIdx >= 0)
+								{
+									auto idx = loseTypeWidget->findData(townIdx);
+									loseTypeWidget->setCurrentIndex(idx);
+								}
+							}
+							if(json["objectType"].Integer() == Obj::HERO)
+							{
+								ui->loseComboBox->setCurrentIndex(2);
+								//assert(loseValueWidget);
+								//loseValueWidget->setText(QString::number(json["value"].Integer()));
+							}
+							
+							break;
 						}
-						if(json["objectType"].Integer() == Obj::HERO)
-						{
-							ui->loseComboBox->setCurrentIndex(2);
-							//assert(loseValueWidget);
-							//loseValueWidget->setText(QString::number(json["value"].Integer()));
+							
+						case EventCondition::DAYS_PASSED: {
+							ui->loseComboBox->setCurrentIndex(3);
+							assert(loseValueWidget);
+							loseValueWidget->setText(expiredDate(json["value"].Integer()));
+							break;
 						}
 						
-						break;
-					}
-						
-					case EventCondition::DAYS_PASSED: {
-						ui->loseComboBox->setCurrentIndex(3);
-						assert(loseValueWidget);
-						loseValueWidget->setText(expiredDate(json["value"].Integer()));
-						break;
-					}
-					
-					case EventCondition::DAYS_WITHOUT_TOWN: {
-						ui->loseComboBox->setCurrentIndex(4);
-						assert(loseValueWidget);
-						loseValueWidget->setText(QString::number(json["value"].Integer()));
-						break;
-					}
-						
-				};
+						case EventCondition::DAYS_WITHOUT_TOWN: {
+							ui->loseComboBox->setCurrentIndex(4);
+							assert(loseValueWidget);
+							loseValueWidget->setText(QString::number(json["value"].Integer()));
+							break;
+							
+						case EventCondition::IS_HUMAN:
+							break; //ignore as always applicable for defeat conditions
+						}
+							
+					};
+				}
 			}
 		}
 	}
@@ -297,6 +344,46 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 MapSettings::~MapSettings()
 {
 	delete ui;
+}
+
+std::string MapSettings::getTownName(int townObjectIdx)
+{
+	std::string name;
+	if(auto town = dynamic_cast<CGTownInstance*>(controller.map()->objects[townObjectIdx].get()))
+	{
+		auto * ctown = town->town;
+		if(!ctown)
+			ctown = VLC->townh->randomTown;
+
+		name = ctown->faction ? town->getObjectName() : town->name + ", (random)";
+	}
+	return name;
+}
+
+std::vector<int> MapSettings::getTownIndexes() const
+{
+	std::vector<int> result;
+	for(int i = 0; i < controller.map()->objects.size(); ++i)
+	{
+		if(auto town = dynamic_cast<CGTownInstance*>(controller.map()->objects[i].get()))
+		{
+			result.push_back(i);
+		}
+	}
+	return result;
+}
+
+int MapSettings::getTownByPos(const int3 & pos)
+{
+	for(int i = 0; i < controller.map()->objects.size(); ++i)
+	{
+		if(auto town = dynamic_cast<CGTownInstance*>(controller.map()->objects[i].get()))
+		{
+			if(town->pos == pos)
+				return i;
+		}
+	}
+	return -1;
 }
 
 void MapSettings::on_pushButton_clicked()
@@ -436,7 +523,7 @@ void MapSettings::on_pushButton_clicked()
 	}
 	else
 	{
-		int lossCondition = ui->victoryComboBox->currentIndex() - 1;
+		int lossCondition = ui->loseComboBox->currentIndex() - 1;
 		
 		TriggeredEvent specialDefeat;
 		specialDefeat.effect.type = EventEffect::DEFEAT;
@@ -448,6 +535,19 @@ void MapSettings::on_pushButton_clicked()
 		
 		switch(lossCondition)
 		{
+			case 0: {
+				EventExpression::OperatorNone noneOf;
+				EventCondition cond(EventCondition::CONTROL);
+				cond.objectType = Obj::TOWN;
+				assert(loseTypeWidget);
+				int townIdx = loseTypeWidget->currentData().toInt();
+				cond.position = controller.map()->objects[townIdx]->pos;
+				noneOf.expressions.push_back(cond);
+				specialDefeat.onFulfill = VLC->generaltexth->allTexts[251];
+				specialDefeat.trigger = EventExpression(noneOf);
+				break;
+			}
+				
 			case 2: {
 				EventCondition cond(EventCondition::DAYS_PASSED);
 				assert(loseValueWidget);
@@ -460,7 +560,7 @@ void MapSettings::on_pushButton_clicked()
 			case 3: {
 				EventCondition cond(EventCondition::DAYS_WITHOUT_TOWN);
 				assert(loseValueWidget);
-				cond.value = victoryValueWidget->text().toInt();
+				cond.value = loseValueWidget->text().toInt();
 				specialDefeat.onFulfill = VLC->generaltexth->allTexts[7];
 				specialDefeat.trigger = EventExpression(cond);
 				break;
@@ -522,7 +622,6 @@ void MapSettings::on_victoryComboBox_currentIndexChanged(int index)
 			
 			victoryValueWidget = new QLineEdit;
 			ui->victoryParamsLayout->addWidget(victoryValueWidget);
-			victoryValueWidget->setInputMask("9000");
 			victoryValueWidget->setText("1");
 			break;
 		}
@@ -551,8 +650,8 @@ void MapSettings::on_loseComboBox_currentIndexChanged(int index)
 		case 0: {  //EventCondition::CONTROL (Obj::TOWN)
 			loseTypeWidget = new QComboBox;
 			ui->loseParamsLayout->addWidget(loseTypeWidget);
-			//for(int i = 0; i < controller.map()->allowedArtifact.size(); ++i)
-				//loseTypeWidget->addItem(QString::fromStdString(VLC->arth->objects[i]->getName()), QVariant::fromValue(i));
+			for(int i : getTownIndexes())
+				loseTypeWidget->addItem(tr(getTownName(i).c_str()), QVariant::fromValue(i));
 			break;
 		}
 			
