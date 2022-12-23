@@ -16,8 +16,8 @@
 #include "../CMusicHandler.h"
 #include "../CGameInfo.h"
 #include "../CPlayerInterface.h"
-#include "../battle/CBattleInterface.h"
-#include "../battle/CBattleInterfaceClasses.h"
+#include "../battle/BattleInterface.h"
+#include "../battle/BattleInterfaceClasses.h"
 #include "../gui/CAnimation.h"
 #include "../gui/CGuiHandler.h"
 #include "../windows/InfoWindows.h"
@@ -77,7 +77,7 @@ void CButton::addCallback(std::function<void()> callback)
 void CButton::addTextOverlay(const std::string & Text, EFonts font, SDL_Color color)
 {
 	OBJECT_CONSTRUCTION_CUSTOM_CAPTURING(255-DISPOSE);
-	addOverlay(std::make_shared<CLabel>(pos.w/2, pos.h/2, font, CENTER, color, Text));
+	addOverlay(std::make_shared<CLabel>(pos.w/2, pos.h/2, font, ETextAlignment::CENTER, color, Text));
 	update();
 }
 
@@ -207,26 +207,10 @@ void CButton::hover (bool on)
 
 	if(!name.empty() && !isBlocked()) //if there is no name, there is nothing to display also
 	{
-		if (LOCPLINT && LOCPLINT->battleInt) //for battle buttons
-		{
-			if(on && LOCPLINT->battleInt->console->alterTxt == "")
-			{
-				LOCPLINT->battleInt->console->alterTxt = name;
-				LOCPLINT->battleInt->console->whoSetAlter = 1;
-			}
-			else if (LOCPLINT->battleInt->console->alterTxt == name)
-			{
-				LOCPLINT->battleInt->console->alterTxt = "";
-				LOCPLINT->battleInt->console->whoSetAlter = 0;
-			}
-		}
-		else if(GH.statusbar) //for other buttons
-		{
-			if (on)
-				GH.statusbar->setText(name);
-			else if ( GH.statusbar->getText()==(name) )
-				GH.statusbar->clear();
-		}
+		if (on)
+			GH.statusbar->write(name);
+		else
+			GH.statusbar->clearIfMatching(name);
 	}
 }
 
@@ -530,7 +514,7 @@ void CVolumeSlider::clickRight(tribool down, bool previousState)
 		if(!helpBox.empty())
 			CRClickPopup::createAndPush(helpBox);
 		if(GH.statusbar)
-			GH.statusbar->setText(helpBox);
+			GH.statusbar->write(helpBox);
 	}
 }
 

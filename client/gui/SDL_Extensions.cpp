@@ -188,24 +188,6 @@ Uint32 CSDL_Ext::SDL_GetPixel(SDL_Surface *surface, const int & x, const int & y
 	}
 }
 
-void CSDL_Ext::alphaTransform(SDL_Surface *src)
-{
-	assert(src->format->BitsPerPixel == 8);
-	SDL_Color colors[] =
-	{
-		{  0,   0,  0,   0}, {  0,   0,   0,  32}, {  0,   0,   0,  64},
-		{  0,   0,  0, 128}, {  0,   0,   0, 128}
-	};
-
-
-	for (size_t i=0; i< ARRAY_COUNT(colors); i++ )
-	{
-		SDL_Color & palColor = src->format->palette->colors[i];
-		palColor = colors[i];
-	}
-	SDL_SetColorKey(src, SDL_TRUE, 0);
-}
-
 template<int bpp>
 int CSDL_Ext::blit8bppAlphaTo24bppT(const SDL_Surface * src, const SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect)
 {
@@ -362,23 +344,17 @@ void CSDL_Ext::update(SDL_Surface * what)
 		logGlobal->error("%s SDL_UpdateTexture %s", __FUNCTION__, SDL_GetError());
 }
 
-template<typename Int>
-Int lerp(Int a, Int b, float f)
-{
-	return a + std::round((b - a) * f);
-}
-
 static void drawLineX(SDL_Surface * sur, int x1, int y1, int x2, int y2, const SDL_Color & color1, const SDL_Color & color2)
 {
 	for(int x = x1; x <= x2; x++)
 	{
 		float f = float(x - x1) / float(x2 - x1);
-		int y = lerp(y1, y2, f);
+		int y = CSDL_Ext::lerp(y1, y2, f);
 
-		uint8_t r = lerp(color1.r, color2.r, f);
-		uint8_t g = lerp(color1.g, color2.g, f);
-		uint8_t b = lerp(color1.b, color2.b, f);
-		uint8_t a = lerp(color1.a, color2.a, f);
+		uint8_t r = CSDL_Ext::lerp(color1.r, color2.r, f);
+		uint8_t g = CSDL_Ext::lerp(color1.g, color2.g, f);
+		uint8_t b = CSDL_Ext::lerp(color1.b, color2.b, f);
+		uint8_t a = CSDL_Ext::lerp(color1.a, color2.a, f);
 
 		Uint8 *p = CSDL_Ext::getPxPtr(sur, x, y);
 		ColorPutter<4, 0>::PutColor(p, r,g,b,a);
@@ -390,12 +366,12 @@ static void drawLineY(SDL_Surface * sur, int x1, int y1, int x2, int y2, const S
 	for(int y = y1; y <= y2; y++)
 	{
 		float f = float(y - y1) / float(y2 - y1);
-		int x = lerp(x1, x2, f);
+		int x = CSDL_Ext::lerp(x1, x2, f);
 
-		uint8_t r = lerp(color1.r, color2.r, f);
-		uint8_t g = lerp(color1.g, color2.g, f);
-		uint8_t b = lerp(color1.b, color2.b, f);
-		uint8_t a = lerp(color1.a, color2.a, f);
+		uint8_t r = CSDL_Ext::lerp(color1.r, color2.r, f);
+		uint8_t g = CSDL_Ext::lerp(color1.g, color2.g, f);
+		uint8_t b = CSDL_Ext::lerp(color1.b, color2.b, f);
+		uint8_t a = CSDL_Ext::lerp(color1.a, color2.a, f);
 
 		Uint8 *p = CSDL_Ext::getPxPtr(sur, x, y);
 		ColorPutter<4, 0>::PutColor(p, r,g,b,a);
@@ -550,13 +526,10 @@ bool CSDL_Ext::isTransparent( SDL_Surface * srf, int x, int y )
 
 	SDL_GetRGBA(SDL_GetPixel(srf, x, y), srf->format, &color.r, &color.g, &color.b, &color.a);
 
-	// color is considered transparent here if
-	// a) image has aplha: less than 50% transparency
-	// b) no alpha: color is cyan
-	if (srf->format->Amask)
-		return color.a < 128; // almost transparent
-	else
-		return (color.r == 0 && color.g == 255 && color.b == 255);
+	bool pixelTransparent = color.a < 128;
+	bool pixelCyan = (color.r == 0 && color.g == 255 && color.b == 255);
+
+	return pixelTransparent || pixelCyan;
 }
 
 void CSDL_Ext::VflipSurf(SDL_Surface * surf)

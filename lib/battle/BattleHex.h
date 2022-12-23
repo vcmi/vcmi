@@ -34,6 +34,15 @@ typedef boost::optional<ui8> BattleSideOpt;
 // for battle stacks' positions
 struct DLL_LINKAGE BattleHex //TODO: decide if this should be changed to class for better code design
 {
+	// helpers for siege
+	static const si16 CASTLE_CENTRAL_TOWER = -2;
+	static const si16 CASTLE_BOTTOM_TOWER = -3;
+	static const si16 CASTLE_UPPER_TOWER = -4;
+
+	// helpers for rendering
+	static const si16 HEX_BEFORE_ALL = std::numeric_limits<si16>::min();
+	static const si16 HEX_AFTER_ALL = std::numeric_limits<si16>::max();
+
 	si16 hex;
 	static const si16 INVALID = -1;
 	enum EDir

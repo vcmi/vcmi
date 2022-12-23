@@ -148,6 +148,9 @@ public:
 	void dispose(); //free resources not needed after closing windows and reset state
 	void scrollBackpack(int dir); //dir==-1 => to left; dir==1 => to right
 
+	void activate() override;
+	void deactivate() override;
+
 	void safeRedraw();
 	void markPossibleSlots(const CArtifactInstance* art);
 	void unmarkSlots(bool withRedraw = true); //unmarks slots in all visible AOHs

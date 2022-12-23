@@ -165,8 +165,6 @@ public:
 	//request complete redraw of this object
 	void redraw() override;
 
-	enum EAlignment {TOPLEFT, CENTER, BOTTOMRIGHT};
-
 	bool isItInLoc(const SDL_Rect &rect, int x, int y);
 	bool isItInLoc(const SDL_Rect &rect, const Point &p);
 	const Rect & center(const Rect &r, bool propagate = true); //sets pos so that r will be in the center of screen, assigns sizes of r to pos, returns new position
@@ -216,4 +214,26 @@ public:
 	WindowBase(int used_ = 0, Point pos_ = Point());
 protected:
 	void close();
+};
+
+class IStatusBar
+{
+public:
+	virtual ~IStatusBar();
+
+	/// set current text for the status bar
+	virtual void write(const std::string & text) = 0;
+
+	/// remove any current text from the status bar
+	virtual void clear() = 0;
+
+	/// remove text from status bar if current text matches tested text
+	virtual void clearIfMatching(const std::string & testedText) = 0;
+
+	/// enables mode for entering text instead of showing hover text
+	virtual void setEnteringMode(bool on) = 0;
+
+	/// overrides hover text from controls with text entered into in-game console (for chat/cheats)
+	virtual void setEnteredText(const std::string & text) = 0;
+
 };

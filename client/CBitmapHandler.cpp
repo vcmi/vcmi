@@ -161,7 +161,26 @@ SDL_Surface * BitmapHandler::loadBitmapFromDir(std::string path, std::string fna
 	// 1) Vampire mansion in Necropolis (not 1st color is transparent)
 	// 2) Battle background when fighting on grass/dirt, topmost sky part (NO transparent color)
 	// 3) New objects that may use 24-bit images for icons (e.g. witchking arts)
-	if (ret->format->palette)
+	// 4) special case - there are 2 .bmp images that have semi-transparency (CCELLGRD.BMP & CCELLSHD.BMP)
+	if (ret->format->palette &&
+		ret->format->palette->colors[0].r == 255 &&
+		ret->format->palette->colors[0].g ==   0 &&
+		ret->format->palette->colors[0].b == 255 )
+	{
+		static SDL_Color shadow[3] =
+		{
+			{   0,   0,   0,   0},// 100% - transparency
+			{   0,   0,   0,  32},//  75% - shadow border,
+			{   0,   0,   0, 128},//  50% - shadow body
+		};
+
+		CSDL_Ext::setColorKey(ret, ret->format->palette->colors[0]);
+
+		ret->format->palette->colors[0] = shadow[0];
+		ret->format->palette->colors[1] = shadow[1];
+		ret->format->palette->colors[4] = shadow[2];
+	}
+	else if (ret->format->palette)
 	{
 		CSDL_Ext::setDefaultColorKeyPresize(ret);
 	}
@@ -173,6 +192,7 @@ SDL_Surface * BitmapHandler::loadBitmapFromDir(std::string path, std::string fna
 	{
 		CSDL_Ext::setDefaultColorKey(ret);
 	}
+
 	return ret;
 }
 

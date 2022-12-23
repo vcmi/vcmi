@@ -20,7 +20,7 @@ CreatureCostBox::CreatureCostBox(Rect position, std::string titleText)
 	type |= REDRAW_PARENT;
 	pos = position + pos;
 
-	title = std::make_shared<CLabel>(pos.w/2, 10, FONT_SMALL, CENTER, Colors::WHITE, titleText);
+	title = std::make_shared<CLabel>(pos.w/2, 10, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, titleText);
 }
 
 void CreatureCostBox::set(TResources res)
@@ -39,7 +39,7 @@ void CreatureCostBox::createItems(TResources res)
 	while(iter.valid())
 	{
 		ImagePtr image = std::make_shared<CAnimImage>("RESOURCE", iter->resType);
-		LabelPtr text = std::make_shared<CLabel>(15, 43, FONT_SMALL, CENTER, Colors::WHITE, "0");
+		LabelPtr text = std::make_shared<CLabel>(15, 43, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, "0");
 
 		resources.insert(std::make_pair(iter->resType, std::make_pair(text, image)));
 		iter++;

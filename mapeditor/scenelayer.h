@@ -14,10 +14,14 @@
 
 class MapSceneBase;
 class MapScene;
-class CGObjectInstance;
 class MapController;
-class CMap;
 class MapHandler;
+
+VCMI_LIB_NAMESPACE_BEGIN
+class CMap;
+class CGObjectInstance;
+VCMI_LIB_NAMESPACE_END
+
 
 class AbstractLayer : public QObject
 {
@@ -144,7 +148,6 @@ public:
 	void deselectObject(CGObjectInstance *);
 	bool isSelected(const CGObjectInstance *) const;
 	std::set<CGObjectInstance*> getSelection() const;
-	void moveSelection(int x, int y);
 	void clear();
 		
 	QPoint shift;

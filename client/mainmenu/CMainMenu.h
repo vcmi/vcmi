@@ -80,6 +80,7 @@ class CMultiMode : public WindowBase
 public:
 	ESelectionScreen screenType;
 	std::shared_ptr<CPicture> background;
+	std::shared_ptr<CPicture> picture;
 	std::shared_ptr<CTextInput> playerName;
 	std::shared_ptr<CButton> buttonHotseat;
 	std::shared_ptr<CButton> buttonHost;

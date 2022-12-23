@@ -20,6 +20,7 @@
 #include "../GameConstants.h"
 #include "../VCMIDirs.h"
 #include "../CStopWatch.h"
+#include "../CModHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -207,7 +208,7 @@ void CResourceHandler::load(const std::string &fsConfigURI, bool extractArchives
 
 	const JsonNode fsConfig((char*)fsConfigData.first.get(), fsConfigData.second);
 
-	addFilesystem("data", "core", createFileSystem("", fsConfig["filesystem"], extractArchives));
+	addFilesystem("data", CModHandler::scopeBuiltin(), createFileSystem("", fsConfig["filesystem"], extractArchives));
 }
 
 void CResourceHandler::addFilesystem(const std::string & parent, const std::string & identifier, ISimpleResourceLoader * loader)

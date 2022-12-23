@@ -204,10 +204,14 @@ MoveTarget BattleExchangeEvaluator::findMoveTowardsUnreachable(const battle::Uni
 	if(targets.unreachableEnemies.empty())
 		return result;
 
+	auto speed = activeStack->Speed();
+
+	if(speed == 0)
+		return result;
+
 	updateReachabilityMap(hb);
 
 	auto dists = cb->getReachability(activeStack);
-	auto speed = activeStack->Speed();
 
 	for(const battle::Unit * enemy : targets.unreachableEnemies)
 	{

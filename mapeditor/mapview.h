@@ -16,7 +16,10 @@
 #include "../lib/int3.h"
 
 
+VCMI_LIB_NAMESPACE_BEGIN
 class CGObjectInstance;
+VCMI_LIB_NAMESPACE_END
+
 class MainWindow;
 class MapController;
 
@@ -98,6 +101,10 @@ public slots:
 	void mouseMoveEvent(QMouseEvent * mouseEvent) override;
 	void mousePressEvent(QMouseEvent *event) override;
 	void mouseReleaseEvent(QMouseEvent *event) override;
+	void dragEnterEvent(QDragEnterEvent * event) override;
+	void dragMoveEvent(QDragMoveEvent *event) override;
+	void dragLeaveEvent(QDragLeaveEvent *event) override;
+	void dropEvent(QDropEvent * event) override;
 	
 	void cameraChanged(const QPointF & pos);
 	
@@ -110,6 +117,7 @@ protected:
 	
 private:
 	MapController * controller = nullptr;
+	QRubberBand * rubberBand = nullptr;
 	QPointF mouseStart;
 	int3 tileStart;
 	int3 tilePrev;
@@ -127,7 +135,7 @@ public:
 	
 public slots:
 	void mouseMoveEvent(QMouseEvent * mouseEvent) override;
-	void mousePressEvent(QMouseEvent* event) override;
+	void mousePressEvent(QMouseEvent * event) override;
 	
 signals:
 	void cameraPositionChanged(const QPointF & newPosition);

@@ -280,7 +280,7 @@ std::vector<JsonNode> CArtHandler::loadLegacyData(size_t dataSize)
 
 void CArtHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
-	auto object = loadFromJson(scope, data, normalizeIdentifier(scope, "core", name), objects.size());
+	auto object = loadFromJson(scope, data, normalizeIdentifier(scope, CModHandler::scopeBuiltin(), name), objects.size());
 
 	object->iconIndex = object->getIndex() + 5;
 
@@ -291,7 +291,7 @@ void CArtHandler::loadObject(std::string scope, std::string name, const JsonNode
 
 void CArtHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
-	auto object = loadFromJson(scope, data, normalizeIdentifier(scope, "core", name), index);
+	auto object = loadFromJson(scope, data, normalizeIdentifier(scope, CModHandler::scopeBuiltin(), name), index);
 
 	object->iconIndex = object->getIndex();
 
@@ -861,8 +861,6 @@ void CArtifactInstance::removeFrom(ArtifactLocation al)
 	al.getHolderArtSet()->eraseArtSlot(al.slot);
 	if(!ArtifactUtils::isSlotBackpack(al.slot))
 		al.getHolderNode()->detachFrom(*this);
-
-	//TODO delete me?
 }
 
 bool CArtifactInstance::canBeDisassembled() const
@@ -1062,7 +1060,9 @@ void CCombinedArtifactInstance::createConstituents()
 
 void CCombinedArtifactInstance::addAsConstituent(CArtifactInstance *art, ArtifactPosition slot)
 {
-	assert(vstd::contains(*artType->constituents, art->artType.get()));
+	assert(vstd::contains_if(*artType->constituents, [=](const CArtifact * constituent){
+		return constituent->id == art->artType->id;
+	}));
 	assert(art->getParentNodes().size() == 1  &&  art->getParentNodes().front() == art->artType);
 	constituentsInfo.push_back(ConstituentInfo(art, slot));
 	attachTo(*art);
@@ -1354,11 +1354,16 @@ bool CArtifactSet::isPositionFree(ArtifactPosition pos, bool onlyLockCheck) cons
 ArtSlotInfo & CArtifactSet::retrieveNewArtSlot(ArtifactPosition slot)
 {
 	assert(!vstd::contains(artifactsWorn, slot));
-	ArtSlotInfo &ret = !ArtifactUtils::isSlotBackpack(slot)
-		? artifactsWorn[slot]
-		: *artifactsInBackpack.insert(artifactsInBackpack.begin() + (slot - GameConstants::BACKPACK_START), ArtSlotInfo());
 
-	return ret;
+	if (!ArtifactUtils::isSlotBackpack(slot))
+		return artifactsWorn[slot];
+
+	ArtSlotInfo newSlot;
+	size_t index  = slot - GameConstants::BACKPACK_START;
+	auto position = artifactsInBackpack.begin() + index;
+	auto inserted = artifactsInBackpack.insert(position, newSlot);
+
+	return *inserted;
 }
 
 void CArtifactSet::setNewArtSlot(ArtifactPosition slot, CArtifactInstance *art, bool locked)
@@ -1372,9 +1377,10 @@ void CArtifactSet::eraseArtSlot(ArtifactPosition slot)
 {
 	if(ArtifactUtils::isSlotBackpack(slot))
 	{
-		assert(artifactsInBackpack.begin() + slot < artifactsInBackpack.end());
-		slot = ArtifactPosition(slot - GameConstants::BACKPACK_START);
-		artifactsInBackpack.erase(artifactsInBackpack.begin() + slot);
+		auto backpackSlot = ArtifactPosition(slot - GameConstants::BACKPACK_START);
+
+		assert(artifactsInBackpack.begin() + backpackSlot < artifactsInBackpack.end());
+		artifactsInBackpack.erase(artifactsInBackpack.begin() + backpackSlot);
 	}
 	else
 	{

@@ -23,6 +23,7 @@ namespace NKAI
 {
 
 std::shared_ptr<boost::multi_array<AIPathNode, 5>> AISharedStorage::shared;
+boost::mutex AISharedStorage::locker;
 std::set<int3> commitedTiles;
 std::set<int3> commitedTilesInitial;
 
@@ -117,18 +118,6 @@ void AINodeStorage::clear()
 	heroChainMaxTurns = 1;
 	turnDistanceLimit[HeroRole::MAIN] = 255;
 	turnDistanceLimit[HeroRole::SCOUT] = 255;
-}
-
-const AIPathNode * AINodeStorage::getAINode(const CGPathNode * node) const
-{
-	return static_cast<const AIPathNode *>(node);
-}
-
-void AINodeStorage::updateAINode(CGPathNode * node, std::function<void(AIPathNode *)> updater)
-{
-	auto aiNode = static_cast<AIPathNode *>(node);
-
-	updater(aiNode);
 }
 
 boost::optional<AIPathNode *> AINodeStorage::getOrCreateNode(
@@ -827,13 +816,6 @@ ExchangeCandidate HeroChainCalculationTask::calculateExchange(
 	}
 
 	return candidate;
-}
-
-const CGHeroInstance * AINodeStorage::getHero(const CGPathNode * node) const
-{
-	auto aiNode = getAINode(node);
-
-	return aiNode->actor->hero;
 }
 
 const std::set<const CGHeroInstance *> AINodeStorage::getAllHeroes() const

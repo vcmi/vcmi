@@ -32,7 +32,7 @@ bool isCompatible(const QString & verMin, const QString & verMax)
 		if(ver.segmentCount() < maxSections)
 		{
 			auto segments = ver.segments();
-			for(int i = segments.size() - 1; i < maxSections; ++i)
+			for(int i = segments.size(); i < maxSections; ++i)
 				segments.append(0);
 			ver = QVersionNumber(segments);
 		}

@@ -209,8 +209,6 @@
 			"siege" :
 			{
 				"shooter" : "lizardman",
-				"towerIconSmall" : "vcmi/creatureIcons/towerSmall",
-				"towerIconLarge" : "vcmi/creatureIcons/towerLarge",
 				"imagePrefix" : "SGFR",
 				"gate" :
 				{

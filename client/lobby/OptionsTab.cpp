@@ -12,7 +12,6 @@
 #include "CSelectionBase.h"
 #include "OptionsTab.h"
 
-#include "../CBitmapHandler.h"
 #include "../CGameInfo.h"
 #include "../CServerHandler.h"
 #include "../gui/CAnimation.h"
@@ -39,18 +38,18 @@ OptionsTab::OptionsTab() : humanPlayers(0)
 	OBJ_CONSTRUCTION;
 	background = std::make_shared<CPicture>("ADVOPTBK", 0, 6);
 	pos = background->pos;
-	labelTitle = std::make_shared<CLabel>(222, 30, FONT_BIG, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[515]);
-	labelSubTitle = std::make_shared<CMultiLineLabel>(Rect(60, 44, 320, (int)graphics->fonts[EFonts::FONT_SMALL]->getLineHeight()*2), EFonts::FONT_SMALL, EAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[516]);
+	labelTitle = std::make_shared<CLabel>(222, 30, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[515]);
+	labelSubTitle = std::make_shared<CMultiLineLabel>(Rect(60, 44, 320, (int)graphics->fonts[EFonts::FONT_SMALL]->getLineHeight()*2), EFonts::FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[516]);
 
-	labelPlayerNameAndHandicap = std::make_shared<CMultiLineLabel>(Rect(58, 86, 100, (int)graphics->fonts[EFonts::FONT_SMALL]->getLineHeight()*2), EFonts::FONT_SMALL, EAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[517]);
-	labelStartingTown = std::make_shared<CMultiLineLabel>(Rect(163, 86, 70, (int)graphics->fonts[EFonts::FONT_SMALL]->getLineHeight()*2), EFonts::FONT_SMALL, EAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[518]);
-	labelStartingHero = std::make_shared<CMultiLineLabel>(Rect(239, 86, 70, (int)graphics->fonts[EFonts::FONT_SMALL]->getLineHeight()*2), EFonts::FONT_SMALL, EAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[519]);
-	labelStartingBonus = std::make_shared<CMultiLineLabel>(Rect(315, 86, 70, (int)graphics->fonts[EFonts::FONT_SMALL]->getLineHeight()*2), EFonts::FONT_SMALL, EAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[520]);
+	labelPlayerNameAndHandicap = std::make_shared<CMultiLineLabel>(Rect(58, 86, 100, (int)graphics->fonts[EFonts::FONT_SMALL]->getLineHeight()*2), EFonts::FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[517]);
+	labelStartingTown = std::make_shared<CMultiLineLabel>(Rect(163, 86, 70, (int)graphics->fonts[EFonts::FONT_SMALL]->getLineHeight()*2), EFonts::FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[518]);
+	labelStartingHero = std::make_shared<CMultiLineLabel>(Rect(239, 86, 70, (int)graphics->fonts[EFonts::FONT_SMALL]->getLineHeight()*2), EFonts::FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[519]);
+	labelStartingBonus = std::make_shared<CMultiLineLabel>(Rect(315, 86, 70, (int)graphics->fonts[EFonts::FONT_SMALL]->getLineHeight()*2), EFonts::FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[520]);
 	if(SEL->screenType == ESelectionScreen::newGame || SEL->screenType == ESelectionScreen::loadGame || SEL->screenType == ESelectionScreen::scenarioInfo)
 	{
 		sliderTurnDuration = std::make_shared<CSlider>(Point(55, 551), 194, std::bind(&IServerAPI::setTurnLength, CSH, _1), 1, (int)GameConstants::POSSIBLE_TURNTIME.size(), (int)GameConstants::POSSIBLE_TURNTIME.size(), true, CSlider::BLUE);
-		labelPlayerTurnDuration = std::make_shared<CLabel>(222, 538, FONT_SMALL, EAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[521]);
-		labelTurnDurationValue = std::make_shared<CLabel>(319, 559, FONT_SMALL, EAlignment::CENTER, Colors::WHITE);
+		labelPlayerTurnDuration = std::make_shared<CLabel>(222, 538, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[521]);
+		labelTurnDurationValue = std::make_shared<CLabel>(319, 559, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 	}
 }
 
@@ -369,8 +368,8 @@ void OptionsTab::CPlayerOptionTooltipBox::genHeader()
 	backgroundTexture = std::make_shared<CFilledTexture>("DIBOXBCK", pos);
 	updateShadow();
 
-	labelTitle = std::make_shared<CLabel>(pos.w / 2 + 8, 21, FONT_MEDIUM, CENTER, Colors::YELLOW, getTitle());
-	labelSubTitle = std::make_shared<CLabel>(pos.w / 2, 88, FONT_SMALL, CENTER, Colors::WHITE, getSubtitle());
+	labelTitle = std::make_shared<CLabel>(pos.w / 2 + 8, 21, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, getTitle());
+	labelSubTitle = std::make_shared<CLabel>(pos.w / 2, 88, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, getSubtitle());
 	image = std::make_shared<CAnimImage>(getImageName(), getImageIndex(), 0, pos.w / 2 - 24, 45);
 }
 
@@ -378,7 +377,7 @@ void OptionsTab::CPlayerOptionTooltipBox::genTownWindow()
 {
 	pos = Rect(0, 0, 228, 290);
 	genHeader();
-	labelAssociatedCreatures = std::make_shared<CLabel>(pos.w / 2 + 8, 122, FONT_MEDIUM, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[79]);
+	labelAssociatedCreatures = std::make_shared<CLabel>(pos.w / 2 + 8, 122, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[79]);
 	auto factionIndex = settings.castle >= CGI->townh->size() ? 0 : settings.castle;
 	std::vector<std::shared_ptr<CComponent>> components;
 	const CTown * town = (*CGI->townh)[factionIndex]->town;
@@ -395,11 +394,11 @@ void OptionsTab::CPlayerOptionTooltipBox::genHeroWindow()
 {
 	pos = Rect(0, 0, 292, 226);
 	genHeader();
-	labelHeroSpeciality = std::make_shared<CLabel>(pos.w / 2 + 4, 117, FONT_MEDIUM, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[78]);
+	labelHeroSpeciality = std::make_shared<CLabel>(pos.w / 2 + 4, 117, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[78]);
 	auto heroIndex = settings.hero >= CGI->heroh->size() ? 0 : settings.hero;
 
 	imageSpeciality = std::make_shared<CAnimImage>("UN44", (*CGI->heroh)[heroIndex]->imageIndex, 0, pos.w / 2 - 22, 134);
-	labelSpecialityName = std::make_shared<CLabel>(pos.w / 2, 188, FONT_SMALL, CENTER, Colors::WHITE, (*CGI->heroh)[heroIndex]->specName);
+	labelSpecialityName = std::make_shared<CLabel>(pos.w / 2, 188, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, (*CGI->heroh)[heroIndex]->specName);
 }
 
 void OptionsTab::CPlayerOptionTooltipBox::genBonusWindow()
@@ -407,7 +406,7 @@ void OptionsTab::CPlayerOptionTooltipBox::genBonusWindow()
 	pos = Rect(0, 0, 228, 162);
 	genHeader();
 
-	textBonusDescription = std::make_shared<CTextBox>(getDescription(), Rect(10, 100, pos.w - 20, 70), 0, FONT_SMALL, CENTER, Colors::WHITE);
+	textBonusDescription = std::make_shared<CTextBox>(getDescription(), Rect(10, 100, pos.w - 20, 70), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 }
 
 OptionsTab::SelectedBox::SelectedBox(Point position, PlayerSettings & settings, SelType type)
@@ -416,7 +415,7 @@ OptionsTab::SelectedBox::SelectedBox(Point position, PlayerSettings & settings, 
 	OBJ_CONSTRUCTION_CAPTURING_ALL_NO_DISPOSE;
 
 	image = std::make_shared<CAnimImage>(getImageName(), getImageIndex());
-	subtitle = std::make_shared<CLabel>(23, 39, FONT_TINY, CENTER, Colors::WHITE, getName());
+	subtitle = std::make_shared<CLabel>(23, 39, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, getName());
 
 	pos = image->pos;
 }
@@ -468,20 +467,20 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 	else
 		whoCanPlay = HUMAN;
 
-	static const char * flags[] =
-	{
+	static const std::array<std::string, PlayerColor::PLAYER_LIMIT_I> flags =
+	{{
 		"AOFLGBR.DEF", "AOFLGBB.DEF", "AOFLGBY.DEF", "AOFLGBG.DEF",
 		"AOFLGBO.DEF", "AOFLGBP.DEF", "AOFLGBT.DEF", "AOFLGBS.DEF"
-	};
-	static const char * bgs[] =
-	{
+	}};
+	static const std::array<std::string, PlayerColor::PLAYER_LIMIT_I> bgs =
+	{{
 		"ADOPRPNL.bmp", "ADOPBPNL.bmp", "ADOPYPNL.bmp", "ADOPGPNL.bmp",
 		"ADOPOPNL.bmp", "ADOPPPNL.bmp", "ADOPTPNL.bmp", "ADOPSPNL.bmp"
-	};
+	}};
 
-	background = std::make_shared<CPicture>(BitmapHandler::loadBitmap(bgs[s.color.getNum()]), 0, 0, true);
-	labelPlayerName = std::make_shared<CLabel>(55, 10, EFonts::FONT_SMALL, EAlignment::CENTER, Colors::WHITE, s.name);
-	labelWhoCanPlay = std::make_shared<CMultiLineLabel>(Rect(6, 23, 45, (int)graphics->fonts[EFonts::FONT_TINY]->getLineHeight()*2), EFonts::FONT_TINY, EAlignment::CENTER, Colors::WHITE, CGI->generaltexth->arraytxt[206 + whoCanPlay]);
+	background = std::make_shared<CPicture>(bgs[s.color.getNum()], 0, 0);
+	labelPlayerName = std::make_shared<CLabel>(55, 10, EFonts::FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, s.name);
+	labelWhoCanPlay = std::make_shared<CMultiLineLabel>(Rect(6, 23, 45, (int)graphics->fonts[EFonts::FONT_TINY]->getLineHeight()*2), EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->arraytxt[206 + whoCanPlay]);
 
 	if(SEL->screenType == ESelectionScreen::newGame)
 	{

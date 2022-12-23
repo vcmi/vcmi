@@ -1809,7 +1809,7 @@ void CGScholar::serializeJsonOptions(JsonSerializeFormat & handler)
 		bonusType = RANDOM;
 		if(!json["rewardPrimSkill"].String().empty())
 		{
-			auto raw = VLC->modh->identifiers.getIdentifier("core", "primSkill", json["rewardPrimSkill"].String());
+			auto raw = VLC->modh->identifiers.getIdentifier(CModHandler::scopeBuiltin(), "primSkill", json["rewardPrimSkill"].String());
 			if(raw)
 			{
 				bonusType = PRIM_SKILL;
@@ -1818,7 +1818,7 @@ void CGScholar::serializeJsonOptions(JsonSerializeFormat & handler)
 		}
 		else if(!json["rewardSkill"].String().empty())
 		{
-			auto raw = VLC->modh->identifiers.getIdentifier("core", "skill", json["rewardSkill"].String());
+			auto raw = VLC->modh->identifiers.getIdentifier(CModHandler::scopeBuiltin(), "skill", json["rewardSkill"].String());
 			if(raw)
 			{
 				bonusType = SECONDARY_SKILL;
@@ -1827,7 +1827,7 @@ void CGScholar::serializeJsonOptions(JsonSerializeFormat & handler)
 		}
 		else if(!json["rewardSpell"].String().empty())
 		{
-			auto raw = VLC->modh->identifiers.getIdentifier("core", "spell", json["rewardSpell"].String());
+			auto raw = VLC->modh->identifiers.getIdentifier(CModHandler::scopeBuiltin(), "spell", json["rewardSpell"].String());
 			if(raw)
 			{
 				bonusType = SPELL;

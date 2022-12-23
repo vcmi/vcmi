@@ -348,7 +348,7 @@ CHeroHandler::CHeroHandler()
 	loadTerrains();
 	for(const auto & terrain : VLC->terrainTypeHandler->terrains())
 	{
-		VLC->modh->identifiers.registerObject("core", "terrain", terrain.name, terrain.id);
+		VLC->modh->identifiers.registerObject(CModHandler::scopeBuiltin(), "terrain", terrain.name, terrain.id);
 	}
 	loadBallistics();
 	loadExperience();
@@ -868,7 +868,7 @@ std::vector<JsonNode> CHeroHandler::loadLegacyData(size_t dataSize)
 void CHeroHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
 	size_t index = objects.size();
-	auto object = loadFromJson(scope, data, normalizeIdentifier(scope, "core", name), index);
+	auto object = loadFromJson(scope, data, normalizeIdentifier(scope, CModHandler::scopeBuiltin(), name), index);
 	object->imageIndex = (si32)index + GameConstants::HERO_PORTRAIT_SHIFT; // 2 special frames + some extra portraits
 
 	objects.push_back(object);
@@ -878,7 +878,7 @@ void CHeroHandler::loadObject(std::string scope, std::string name, const JsonNod
 
 void CHeroHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
-	auto object = loadFromJson(scope, data, normalizeIdentifier(scope, "core", name), index);
+	auto object = loadFromJson(scope, data, normalizeIdentifier(scope, CModHandler::scopeBuiltin(), name), index);
 	object->imageIndex = static_cast<si32>(index);
 
 	assert(objects[index] == nullptr); // ensure that this id was not loaded before

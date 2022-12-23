@@ -74,6 +74,8 @@ Goals::TTask Nullkiller::choseBestTask(Goals::TTaskVec & tasks) const
 
 Goals::TTask Nullkiller::choseBestTask(Goals::TSubgoal behavior, int decompositionMaxDepth) const
 {
+	boost::this_thread::interruption_point();
+
 	logAi->debug("Checking behavior %s", behavior->toString());
 
 	auto start = std::chrono::high_resolution_clock::now();
@@ -160,7 +162,11 @@ void Nullkiller::updateAiState(int pass, bool fast)
 			cfg.mainTurnDistanceLimit = MAIN_TURN_DISTANCE_LIMIT * ((int)scanDepth + 1);
 		}
 
+		boost::this_thread::interruption_point();
+
 		pathfinder->updatePaths(activeHeroes, cfg);
+
+		boost::this_thread::interruption_point();
 
 		objectClusterizer->clusterize();
 	}
@@ -212,6 +218,8 @@ HeroLockedReason Nullkiller::getHeroLockedReason(const CGHeroInstance * hero) co
 
 void Nullkiller::makeTurn()
 {
+	boost::lock_guard<boost::mutex> sharedStorageLock(AISharedStorage::locker);
+
 	const int MAX_DEPTH = 10;
 
 	resetAiState();

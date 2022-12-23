@@ -12,8 +12,11 @@
 #include <vcmi/Artifact.h>
 
 #include "windows/CAdvmapInterface.h"
-#include "battle/CBattleInterface.h"
-#include "battle/CBattleInterfaceClasses.h"
+#include "battle/BattleInterface.h"
+#include "battle/BattleEffectsController.h"
+#include "battle/BattleFieldController.h"
+#include "battle/BattleInterfaceClasses.h"
+#include "battle/BattleControlPanel.h"
 #include "../CCallback.h"
 #include "windows/CCastleInterface.h"
 #include "gui/CCursorHandler.h"
@@ -29,7 +32,6 @@
 #include "windows/CTradeWindow.h"
 #include "windows/CSpellWindow.h"
 #include "../lib/CConfigHandler.h"
-#include "battle/CCreatureAnimation.h"
 #include "Graphics.h"
 #include "windows/GUIClasses.h"
 #include "../lib/CArtHandler.h"
@@ -55,6 +57,7 @@
 #include "../lib/CPlayerState.h"
 #include "../lib/GameConstants.h"
 #include "gui/CGuiHandler.h"
+#include "gui/CAnimation.h"
 #include "windows/InfoWindows.h"
 #include "../lib/UnlockGuard.h"
 #include "../lib/CPathfinder.h"
@@ -90,7 +93,7 @@ boost::recursive_mutex * CPlayerInterface::pim = new boost::recursive_mutex;
 
 CPlayerInterface * LOCPLINT;
 
-CBattleInterface * CPlayerInterface::battleInt;
+BattleInterface * CPlayerInterface::battleInt;
 
 enum  EMoveState {STOP_MOVE, WAITING_MOVE, CONTINUE_MOVE, DURING_MOVE};
 CondSh<EMoveState> stillMoveHero(STOP_MOVE); //used during hero movement
@@ -715,34 +718,14 @@ void CPlayerInterface::battleUnitsChanged(const std::vector<UnitChanges> & units
 		{
 		case UnitChanges::EOperation::RESET_STATE:
 			{
-				const battle::Unit * unit = cb->battleGetUnitByID(info.id);
+				const CStack * stack = cb->battleGetStackByID(info.id );
 
-				if(!unit)
+				if(!stack)
 				{
 					logGlobal->error("Invalid unit ID %d", info.id);
 					continue;
 				}
-
-				auto iter = battleInt->creAnims.find(info.id);
-
-				if(iter == battleInt->creAnims.end())
-				{
-					logGlobal->error("Unit %d have no animation", info.id);
-					continue;
-				}
-
-				auto animation = iter->second;
-
-				if(unit->alive() && animation->isDead())
-					animation->setType(CCreatureAnim::HOLDING);
-
-				if (unit->isClone())
-				{
-					std::unique_ptr<ColorShifterDeepBlue> shifter(new ColorShifterDeepBlue());
-					animation->shiftColor(shifter.get());
-				}
-
-				//TODO: handle more cases
+				battleInt->stackReset(stack);
 			}
 			break;
 		case UnitChanges::EOperation::REMOVE:
@@ -756,7 +739,7 @@ void CPlayerInterface::battleUnitsChanged(const std::vector<UnitChanges> & units
 					logGlobal->error("Invalid unit ID %d", info.id);
 					continue;
 				}
-				battleInt->unitAdded(unit);
+				battleInt->stackAdded(unit);
 			}
 			break;
 		default:
@@ -765,7 +748,7 @@ void CPlayerInterface::battleUnitsChanged(const std::vector<UnitChanges> & units
 		}
 	}
 
-	battleInt->displayCustomEffects(customEffects);
+	battleInt->effectsController->displayCustomEffects(customEffects);
 }
 
 void CPlayerInterface::battleObstaclesChanged(const std::vector<ObstacleChanges> & obstacles)
@@ -773,7 +756,7 @@ void CPlayerInterface::battleObstaclesChanged(const std::vector<ObstacleChanges>
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BATTLE_EVENT_POSSIBLE_RETURN;
 
-	bool needUpdate = false;
+	std::vector<std::shared_ptr<const CObstacleInstance>> newObstacles;
 
 	for(auto & change : obstacles)
 	{
@@ -781,19 +764,16 @@ void CPlayerInterface::battleObstaclesChanged(const std::vector<ObstacleChanges>
 		{
 			auto instance = cb->battleGetObstacleByID(change.id);
 			if(instance)
-				battleInt->obstaclePlaced(*instance);
+				newObstacles.push_back(instance);
 			else
 				logNetwork->error("Invalid obstacle instance %d", change.id);
 		}
-		else
-		{
-			needUpdate = true;
-		}
 	}
 
-	if(needUpdate)
-		//update accessible hexes
-		battleInt->redrawBackgroundWithHexes(battleInt->activeStack);
+	if (!newObstacles.empty())
+		battleInt->obstaclePlaced(newObstacles);
+
+	battleInt->fieldController->redrawBackgroundWithHexes();
 }
 
 void CPlayerInterface::battleCatapultAttacked(const CatapultAttack & ca)
@@ -858,17 +838,17 @@ BattleAction CPlayerInterface::activeStack(const CStack * stack) //called when i
 		autofightingAI.reset();
 	}
 
-	CBattleInterface *b = battleInt;
+	BattleInterface *b = battleInt;
 
 	if(!b)
 	{
 		return BattleAction::makeDefend(stack); // probably battle is finished already
 	}
 
-	if(CBattleInterface::givenCommand.get())
+	if(BattleInterface::givenCommand.get())
 	{
 		logGlobal->error("Command buffer must be clean! (we don't want to use old command)");
-		vstd::clear_pointer(CBattleInterface::givenCommand.data);
+		vstd::clear_pointer(BattleInterface::givenCommand.data);
 	}
 
 	{
@@ -877,17 +857,17 @@ BattleAction CPlayerInterface::activeStack(const CStack * stack) //called when i
 		//Regeneration & mana drain go there
 	}
 	//wait till BattleInterface sets its command
-	boost::unique_lock<boost::mutex> lock(CBattleInterface::givenCommand.mx);
-	while(!CBattleInterface::givenCommand.data)
+	boost::unique_lock<boost::mutex> lock(BattleInterface::givenCommand.mx);
+	while(!BattleInterface::givenCommand.data)
 	{
-		CBattleInterface::givenCommand.cond.wait(lock);
+		BattleInterface::givenCommand.cond.wait(lock);
 		if (!battleInt) //battle ended while we were waiting for movement (eg. because of spell)
 			throw boost::thread_interrupted(); //will shut the thread peacefully
 	}
 
 	//tidy up
-	BattleAction ret = *(CBattleInterface::givenCommand.data);
-	vstd::clear_pointer(CBattleInterface::givenCommand.data);
+	BattleAction ret = *(BattleInterface::givenCommand.data);
+	vstd::clear_pointer(BattleInterface::givenCommand.data);
 
 	if(ret.actionType == EActionType::CANCEL)
 	{
@@ -912,7 +892,7 @@ void CPlayerInterface::battleEnd(const BattleResult *br)
 
 		if(!battleInt)
 		{
-			GH.pushIntT<CBattleResultWindow>(*br, *this);
+			GH.pushIntT<BattleResultWindow>(*br, *this);
 			// #1490 - during AI turn when quick combat is on, we need to display the message and wait for user to close it.
 			// Otherwise NewTurn causes freeze.
 			waitWhileDialog();
@@ -962,7 +942,7 @@ void CPlayerInterface::battleTriggerEffect (const BattleTriggerEffect & bte)
 	//TODO why is this different (no return on LOPLINT != this) ?
 
 	RETURN_IF_QUICK_COMBAT;
-	battleInt->battleTriggerEffect(bte);
+	battleInt->effectsController->battleTriggerEffect(bte);
 }
 void CPlayerInterface::battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa)
 {
@@ -977,7 +957,7 @@ void CPlayerInterface::battleStacksAttacked(const std::vector<BattleStackAttacke
 		if(elem.isEffect())
 		{
 			if(defender && !elem.isSecondary())
-				battleInt->displayEffect(elem.effect, defender->getPosition());
+				battleInt->effectsController->displayEffect(EBattleEffect::EBattleEffect(elem.effect), defender->getPosition());
 		}
 		if(elem.isSpell())
 		{
@@ -1012,28 +992,26 @@ void CPlayerInterface::battleAttack(const BattleAttack * ba)
 
 	if(ba->lucky()) //lucky hit
 	{
-		battleInt->console->addText(attacker->formatGeneralMessage(-45));
-		battleInt->displayEffect(18, attacker->getPosition());
-		CCS->soundh->playSound(soundBase::GOODLUCK);
+		battleInt->controlPanel->console->addText(attacker->formatGeneralMessage(-45));
+		battleInt->effectsController->displayEffect(EBattleEffect::GOOD_LUCK, soundBase::GOODLUCK, attacker->getPosition());
 	}
 	if(ba->unlucky()) //unlucky hit
 	{
-		battleInt->console->addText(attacker->formatGeneralMessage(-44));
-		battleInt->displayEffect(48, attacker->getPosition());
-		CCS->soundh->playSound(soundBase::BADLUCK);
+		battleInt->controlPanel->console->addText(attacker->formatGeneralMessage(-44));
+		battleInt->effectsController->displayEffect(EBattleEffect::BAD_LUCK, soundBase::BADLUCK, attacker->getPosition());
 	}
 	if(ba->deathBlow())
 	{
-		battleInt->console->addText(attacker->formatGeneralMessage(365));
+		battleInt->controlPanel->console->addText(attacker->formatGeneralMessage(365));
 		for(auto & elem : ba->bsa)
 		{
 			const CStack * attacked = cb->battleGetStackByID(elem.stackAttacked);
-			battleInt->displayEffect(73, attacked->getPosition());
+			battleInt->effectsController->displayEffect(EBattleEffect::DEATH_BLOW, attacked->getPosition());
 		}
 		CCS->soundh->playSound(soundBase::deathBlow);
 	}
 
-	battleInt->displayCustomEffects(ba->customEffects);
+	battleInt->effectsController->displayCustomEffects(ba->customEffects);
 
 	battleInt->waitForAnims();
 

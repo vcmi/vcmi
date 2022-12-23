@@ -25,10 +25,10 @@ protected:
 	/// do actual blitting of line. Text "what" will be placed at "where" and aligned according to alignment
 	void blitLine(SDL_Surface * to, Rect where, std::string what);
 
-	CTextContainer(EAlignment alignment, EFonts font, SDL_Color color);
+	CTextContainer(ETextAlignment alignment, EFonts font, SDL_Color color);
 
 public:
-	EAlignment alignment;
+	ETextAlignment alignment;
 	EFonts font;
 	SDL_Color color; // default font color. Can be overridden by placing "{}" into the string
 };
@@ -41,10 +41,10 @@ protected:
 	virtual std::string visibleText();
 
 	std::shared_ptr<CPicture> background;
-public:
-
 	std::string text;
 	bool autoRedraw;  //whether control will redraw itself on setTxt
+
+public:
 
 	std::string getText();
 	virtual void setAutoRedraw(bool option);
@@ -52,7 +52,7 @@ public:
 	virtual void setColor(const SDL_Color & Color);
 	size_t getWidth();
 
-	CLabel(int x = 0, int y = 0, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT,
+	CLabel(int x = 0, int y = 0, EFonts Font = FONT_SMALL, ETextAlignment Align = ETextAlignment::TOPLEFT,
 		const SDL_Color & Color = Colors::WHITE, const std::string & Text = "");
 	void showAll(SDL_Surface * to) override; //shows statusbar (with current text)
 };
@@ -62,10 +62,10 @@ class CLabelGroup : public CIntObject
 {
 	std::vector<std::shared_ptr<CLabel>> labels;
 	EFonts font;
-	EAlignment align;
+	ETextAlignment align;
 	SDL_Color color;
 public:
-	CLabelGroup(EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color & Color = Colors::WHITE);
+	CLabelGroup(EFonts Font = FONT_SMALL, ETextAlignment Align = ETextAlignment::TOPLEFT, const SDL_Color & Color = Colors::WHITE);
 	void add(int x = 0, int y = 0, const std::string & text = "");
 	size_t currentSize() const;
 };
@@ -86,7 +86,7 @@ public:
 	// total size of text, x = longest line of text, y = total height of lines
 	Point textSize;
 
-	CMultiLineLabel(Rect position, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color & Color = Colors::WHITE, const std::string & Text = "");
+	CMultiLineLabel(Rect position, EFonts Font = FONT_SMALL, ETextAlignment Align = ETextAlignment::TOPLEFT, const SDL_Color & Color = Colors::WHITE, const std::string & Text = "");
 
 	void setText(const std::string & Txt) override;
 	void showAll(SDL_Surface * to) override;
@@ -106,7 +106,7 @@ public:
 	std::shared_ptr<CMultiLineLabel> label;
 	std::shared_ptr<CSlider> slider;
 
-	CTextBox(std::string Text, const Rect & rect, int SliderStyle, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color & Color = Colors::WHITE);
+	CTextBox(std::string Text, const Rect & rect, int SliderStyle, EFonts Font = FONT_SMALL, ETextAlignment Align = ETextAlignment::TOPLEFT, const SDL_Color & Color = Colors::WHITE);
 
 	void resize(Point newSize);
 	void setText(const std::string & Txt);
@@ -114,13 +114,24 @@ public:
 };
 
 /// Status bar which is shown at the bottom of the in-game screens
-class CGStatusBar : public CLabel, public std::enable_shared_from_this<CGStatusBar>
+class CGStatusBar : public CLabel, public std::enable_shared_from_this<CGStatusBar>, public IStatusBar
 {
-	bool textLock; //Used for blocking changes to the text
+	std::string hoverText;
+	std::string consoleText;
+	bool enteringText;
+
 	void init();
 
-	CGStatusBar(std::shared_ptr<CPicture> background_, EFonts Font = FONT_SMALL, EAlignment Align = CENTER, const SDL_Color & Color = Colors::WHITE);
+	CGStatusBar(std::shared_ptr<CPicture> background_, EFonts Font = FONT_SMALL, ETextAlignment Align = ETextAlignment::CENTER, const SDL_Color & Color = Colors::WHITE);
 	CGStatusBar(int x, int y, std::string name, int maxw = -1);
+
+	//make CLabel API private
+	using CLabel::getText;
+	using CLabel::setAutoRedraw;
+	using CLabel::setText;
+	using CLabel::setColor;
+	using CLabel::getWidth;
+
 protected:
 	Point getBorderSize() override;
 
@@ -137,14 +148,17 @@ public:
 		ret->init();
 		return ret;
 	}
-	void clear();//clears statusbar and refreshes
-	void setText(const std::string & Text) override; //prints text and refreshes statusbar
 
-	void show(SDL_Surface * to) override; //shows statusbar (with current text)
+	void show(SDL_Surface * to) override;
+	void deactivate() override;
 
-	void lock(bool shouldLock); //If true, current text cannot be changed until lock(false) is called
+	// IStatusBar interface
+	void write(const std::string & Text) override;
+	void clearIfMatching(const std::string & Text) override;
+	void clear() override;
+	void setEnteringMode(bool on) override;
+	void setEnteredText(const std::string & text) override;
 
-	void setOnClick(std::function<void()> handler);
 };
 
 class CFocusable;

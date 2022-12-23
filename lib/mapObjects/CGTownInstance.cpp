@@ -1466,7 +1466,7 @@ void CGTownInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 	{
 		auto decodeBuilding = [this](const std::string & identifier) -> si32
 		{
-			auto rawId = VLC->modh->identifiers.getIdentifier("core", getTown()->getBuildingScope(), identifier);
+			auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), getTown()->getBuildingScope(), identifier);
 
 			if(rawId)
 				return rawId.get();

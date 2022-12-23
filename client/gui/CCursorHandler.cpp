@@ -67,6 +67,8 @@ void CCursorHandler::initCursor()
 
 void CCursorHandler::changeGraphic(ECursor::ECursorTypes type, int index)
 {
+	assert(dndObject == nullptr);
+
 	if(type != this->type)
 	{
 		this->type = type;

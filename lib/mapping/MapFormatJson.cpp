@@ -215,7 +215,7 @@ namespace TriggeredEventsDetail
 
 					event.metaType = decodeMetaclass(metaTypeName);
 
-					auto type = VLC->modh->identifiers.getIdentifier("core", fullIdentifier, false);
+					auto type = VLC->modh->identifiers.getIdentifier(CModHandler::scopeBuiltin(), fullIdentifier, false);
 
 					if(type)
 						event.objectType = type.get();
@@ -1121,7 +1121,7 @@ void CMapLoaderJson::MapObjectLoader::construct()
 		return;
 	}
 
-	auto handler = VLC->objtypeh->getHandlerFor( "map", typeName, subtypeName);
+	auto handler = VLC->objtypeh->getHandlerFor( CModHandler::scopeMap(), typeName, subtypeName);
 
 	auto appearance = new ObjectTemplate;
 
@@ -1158,7 +1158,7 @@ void CMapLoaderJson::MapObjectLoader::configure()
 		if(art->ID == Obj::SPELL_SCROLL)
 		{
 			auto spellIdentifier = configuration["options"]["spell"].String();
-			auto rawId = VLC->modh->identifiers.getIdentifier("core", "spell", spellIdentifier);
+			auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeBuiltin(), "spell", spellIdentifier);
 			if(rawId)
 				spellID = rawId.get();
 			else

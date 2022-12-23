@@ -118,7 +118,7 @@ void CGarrisonSlot::hover (bool on)
 				temp = CGI->generaltexth->tcommands[11]; //Empty
 			}
 		}
-		GH.statusbar->setText(temp);
+		GH.statusbar->write(temp);
 	}
 	else
 	{
@@ -418,7 +418,7 @@ CGarrisonSlot::CGarrisonSlot(CGarrisonInt * Owner, int x, int y, SlotID IID, CGa
 		pos.h = 64;
 	}
 
-	stackCount = std::make_shared<CLabel>(pos.w, pos.h, owner->smallIcons ? FONT_TINY : FONT_MEDIUM, BOTTOMRIGHT, Colors::WHITE);
+	stackCount = std::make_shared<CLabel>(pos.w, pos.h, owner->smallIcons ? FONT_TINY : FONT_MEDIUM, ETextAlignment::BOTTOMRIGHT, Colors::WHITE);
 
 	update();
 }

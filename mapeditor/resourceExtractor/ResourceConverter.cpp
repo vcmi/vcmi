@@ -48,7 +48,7 @@ void ResourceConverter::doConvertPcxToPng(bool deleteOriginals)
 			std::string filePath = dir_itr->path().string();
 			std::string fileStem = dir_itr->path().stem().string();
 			filename = dir_itr->path().filename().string();
-			std::string filenameLowerCase = boost::locale::to_lower(filename);
+			std::string filenameLowerCase = boost::algorithm::to_lower_copy(filename);
 
 			if(bfs::extension(filenameLowerCase) == ".pcx")
 			{

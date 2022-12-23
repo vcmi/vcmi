@@ -1397,7 +1397,7 @@ void CGHeroInstance::setHeroTypeName(const std::string & identifier)
 {
 	if(ID == Obj::HERO || ID == Obj::PRISON)
 	{
-		auto rawId = VLC->modh->identifiers.getIdentifier("core", "hero", identifier);
+		auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), "hero", identifier);
 
 		if(rawId)
 			subID = rawId.get();

@@ -42,7 +42,7 @@
 #include "mainmenu/CMainMenu.h"
 #include "mainmenu/CCampaignScreen.h"
 #include "lobby/CBonusSelection.h"
-#include "battle/CBattleInterface.h"
+#include "battle/BattleInterface.h"
 #include "../lib/CThreadHelper.h"
 #include "../lib/registerTypes/RegisterTypes.h"
 #include "gui/CGuiHandler.h"
@@ -598,7 +598,7 @@ void CClient::battleStarted(const BattleInfo * info)
 		if(!!att || !!def)
 		{
 			boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
-			GH.pushIntT<CBattleInterface>(leftSide.armyObject, rightSide.armyObject, leftSide.hero, rightSide.hero, battleIntRect, att, def);
+			GH.pushIntT<BattleInterface>(leftSide.armyObject, rightSide.armyObject, leftSide.hero, rightSide.hero, battleIntRect, att, def);
 		}
 		else if(settings["session"]["spectate"].Bool() && !settings["session"]["spectate-skip-battle"].Bool())
 		{
@@ -606,7 +606,7 @@ void CClient::battleStarted(const BattleInfo * info)
 			auto spectratorInt = std::dynamic_pointer_cast<CPlayerInterface>(playerint[PlayerColor::SPECTATOR]);
 			spectratorInt->cb->setBattle(info);
 			boost::unique_lock<boost::recursive_mutex> un(*CPlayerInterface::pim);
-			GH.pushIntT<CBattleInterface>(leftSide.armyObject, rightSide.armyObject, leftSide.hero, rightSide.hero, battleIntRect, att, def, spectratorInt);
+			GH.pushIntT<BattleInterface>(leftSide.armyObject, rightSide.armyObject, leftSide.hero, rightSide.hero, battleIntRect, att, def, spectratorInt);
 		}
 	}
 

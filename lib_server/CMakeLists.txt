@@ -1,2 +1,3 @@
 add_main_lib(vcmi_lib_server STATIC)
 target_compile_definitions(vcmi_lib_server PUBLIC VCMI_LIB_NAMESPACE=LIB_SERVER)
+target_compile_definitions(vcmi_lib_server PUBLIC VCMI_DLL_STATIC=1)

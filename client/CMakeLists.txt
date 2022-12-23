@@ -2,12 +2,22 @@ set(client_SRCS
 		StdInc.cpp
 		../CCallback.cpp
 
-		battle/CBattleAnimations.cpp
-		battle/CBattleInterfaceClasses.cpp
-		battle/CBattleInterface.cpp
-		battle/CCreatureAnimation.cpp
+		battle/BattleActionsController.cpp
+		battle/BattleAnimationClasses.cpp
+		battle/BattleControlPanel.cpp
+		battle/BattleEffectsController.cpp
+		battle/BattleFieldController.cpp
+		battle/BattleInterfaceClasses.cpp
+		battle/BattleInterface.cpp
+		battle/BattleObstacleController.cpp
+		battle/BattleProjectileController.cpp
+		battle/BattleRenderer.cpp
+		battle/BattleSiegeController.cpp
+		battle/BattleStacksController.cpp
+		battle/CreatureAnimation.cpp
 
 		gui/CAnimation.cpp
+		gui/Canvas.cpp
 		gui/CCursorHandler.cpp
 		gui/CGuiHandler.cpp
 		gui/CIntObject.cpp
@@ -75,12 +85,22 @@ set(client_SRCS
 set(client_HEADERS
 		StdInc.h
 
-		battle/CBattleAnimations.h
-		battle/CBattleInterfaceClasses.h
-		battle/CBattleInterface.h
-		battle/CCreatureAnimation.h
+		battle/BattleActionsController.h
+		battle/BattleAnimationClasses.h
+		battle/BattleControlPanel.h
+		battle/BattleEffectsController.h
+		battle/BattleFieldController.h
+		battle/BattleInterfaceClasses.h
+		battle/BattleInterface.h
+		battle/BattleObstacleController.h
+		battle/BattleProjectileController.h
+		battle/BattleRenderer.h
+		battle/BattleSiegeController.h
+		battle/BattleStacksController.h
+		battle/CreatureAnimation.h
 
 		gui/CAnimation.h
+		gui/Canvas.h
 		gui/CCursorHandler.h
 		gui/CGuiHandler.h
 		gui/CIntObject.h
@@ -177,7 +197,10 @@ else()
 	add_executable(vcmiclient WIN32 ${client_SRCS} ${client_HEADERS} ${client_ICON})
 endif(ENABLE_DEBUG_CONSOLE)
 
-add_dependencies(vcmiclient vcmiserver BattleAI StupidAI VCAI Nullkiller)
+add_dependencies(vcmiclient vcmiserver BattleAI StupidAI VCAI)
+if(ENABLE_NULLKILLER_AI)
+	add_dependencies(vcmiclient Nullkiller)
+endif()
 if(APPLE_IOS)
 	if(ENABLE_ERM)
 		add_dependencies(vcmiclient vcmiERM)
@@ -243,7 +266,7 @@ elseif(APPLE_IOS)
 	set(CMAKE_EXE_LINKER_FLAGS "-Wl,-e,_client_main")
 endif()
 
-if(BUILD_SINGLE_APP)
+if(ENABLE_SINGLE_APP_BUILD)
 	target_link_libraries(vcmiclient PRIVATE vcmiserver)
 	if(ENABLE_LAUNCHER)
 		target_link_libraries(vcmiclient PRIVATE vcmilauncher)

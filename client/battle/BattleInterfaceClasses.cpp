@@ -1,5 +1,5 @@
 /*
- * CBattleInterfaceClasses.cpp, part of VCMI engine
+ * BattleInterfaceClasses.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -8,11 +8,15 @@
  *
  */
 #include "StdInc.h"
-#include "CBattleInterfaceClasses.h"
+#include "BattleInterfaceClasses.h"
 
-#include "CBattleInterface.h"
+#include "BattleInterface.h"
+#include "BattleActionsController.h"
+#include "BattleSiegeController.h"
+#include "BattleFieldController.h"
+#include "BattleStacksController.h"
+#include "BattleControlPanel.h"
 
-#include "../CBitmapHandler.h"
 #include "../CGameInfo.h"
 #include "../CMessage.h"
 #include "../CMusicHandler.h"
@@ -20,10 +24,12 @@
 #include "../CVideoHandler.h"
 #include "../Graphics.h"
 #include "../gui/CAnimation.h"
+#include "../gui/Canvas.h"
 #include "../gui/CCursorHandler.h"
 #include "../gui/CGuiHandler.h"
-#include "../gui/SDL_Extensions.h"
+#include "../widgets/AdventureMapClasses.h"
 #include "../widgets/Buttons.h"
+#include "../widgets/Images.h"
 #include "../widgets/TextControls.h"
 #include "../windows/CCreatureWindow.h"
 #include "../windows/CSpellWindow.h"
@@ -40,34 +46,35 @@
 #include "../../lib/CondSh.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 
-void CBattleConsole::showAll(SDL_Surface * to)
+void BattleConsole::showAll(SDL_Surface * to)
 {
-	Point textPos(pos.x + pos.w/2, pos.y + 17);
+	Point consolePos(pos.x + 10,      pos.y + 17);
+	Point textPos   (pos.x + pos.w/2, pos.y + 17);
 
-	if(ingcAlter.size())
+	if (!consoleText.empty())
 	{
-		graphics->fonts[FONT_SMALL]->renderTextLinesCenter(to, CMessage::breakText(ingcAlter, pos.w, FONT_SMALL), Colors::WHITE, textPos);
+		graphics->fonts[FONT_SMALL]->renderTextLinesLeft(to, CMessage::breakText(consoleText, pos.w, FONT_SMALL), Colors::WHITE, consolePos);
 	}
-	else if(alterTxt.size())
+	else if(!hoverText.empty())
 	{
-		graphics->fonts[FONT_SMALL]->renderTextLinesCenter(to, CMessage::breakText(alterTxt, pos.w, FONT_SMALL), Colors::WHITE, textPos);
+		graphics->fonts[FONT_SMALL]->renderTextLinesCenter(to, CMessage::breakText(hoverText, pos.w, FONT_SMALL), Colors::WHITE, textPos);
 	}
-	else if(texts.size())
+	else if(logEntries.size())
 	{
-		if(texts.size()==1)
+		if(logEntries.size()==1)
 		{
-			graphics->fonts[FONT_SMALL]->renderTextLinesCenter(to, CMessage::breakText(texts[0], pos.w, FONT_SMALL), Colors::WHITE, textPos);
+			graphics->fonts[FONT_SMALL]->renderTextLinesCenter(to, CMessage::breakText(logEntries[0], pos.w, FONT_SMALL), Colors::WHITE, textPos);
 		}
 		else
 		{
-			graphics->fonts[FONT_SMALL]->renderTextLinesCenter(to, CMessage::breakText(texts[lastShown - 1], pos.w, FONT_SMALL), Colors::WHITE, textPos);
+			graphics->fonts[FONT_SMALL]->renderTextLinesCenter(to, CMessage::breakText(logEntries[scrollPosition - 1], pos.w, FONT_SMALL), Colors::WHITE, textPos);
 			textPos.y += 16;
-			graphics->fonts[FONT_SMALL]->renderTextLinesCenter(to, CMessage::breakText(texts[lastShown], pos.w, FONT_SMALL), Colors::WHITE, textPos);
+			graphics->fonts[FONT_SMALL]->renderTextLinesCenter(to, CMessage::breakText(logEntries[scrollPosition], pos.w, FONT_SMALL), Colors::WHITE, textPos);
 		}
 	}
 }
 
-bool CBattleConsole::addText(const std::string & text)
+bool BattleConsole::addText(const std::string & text)
 {
 	logGlobal->trace("CBattleConsole message: %s", text);
 	if(text.size()>70)
@@ -77,57 +84,84 @@ bool CBattleConsole::addText(const std::string & text)
 	{
 		if(text[i] == 10)
 		{
-			texts.push_back( text.substr(firstInToken, i-firstInToken) );
+			logEntries.push_back( text.substr(firstInToken, i-firstInToken) );
 			firstInToken = (int)i+1;
 		}
 	}
 
-	texts.push_back( text.substr(firstInToken, text.size()) );
-	lastShown = (int)texts.size()-1;
+	logEntries.push_back( text.substr(firstInToken, text.size()) );
+	scrollPosition = (int)logEntries.size()-1;
 	return true;
 }
-
-void CBattleConsole::alterText(const std::string &text)
+void BattleConsole::scrollUp(ui32 by)
 {
-	//char buf[500];
-	//sprintf(buf, text.c_str());
-	//alterTxt = buf;
-	alterTxt = text;
+	if(scrollPosition > static_cast<int>(by))
+		scrollPosition -= by;
 }
 
-void CBattleConsole::eraseText(ui32 pos)
+void BattleConsole::scrollDown(ui32 by)
 {
-	if(pos < texts.size())
+	if(scrollPosition + by < logEntries.size())
+		scrollPosition += by;
+}
+
+BattleConsole::BattleConsole(const Rect & position)
+	: scrollPosition(-1)
+	, enteringText(false)
+{
+	pos += position.topLeft();
+	pos.w = position.w;
+	pos.h = position.h;
+}
+
+void BattleConsole::deactivate()
+{
+	if (enteringText)
+		LOCPLINT->cingconsole->endEnteringText(false);
+
+	CIntObject::deactivate();
+}
+
+void BattleConsole::setEnteringMode(bool on)
+{
+	consoleText.clear();
+
+	if (on)
 	{
-		texts.erase(texts.begin() + pos);
-		if(lastShown == texts.size())
-			--lastShown;
+		assert(enteringText == false);
+		CSDL_Ext::startTextInput(&pos);
 	}
+	else
+	{
+		assert(enteringText == true);
+		CSDL_Ext::stopTextInput();
+	}
+	enteringText = on;
 }
 
-void CBattleConsole::changeTextAt(const std::string & text, ui32 pos)
+void BattleConsole::setEnteredText(const std::string & text)
 {
-	if(pos >= texts.size()) //no such pos
-		return;
-	texts[pos] = text;
+	assert(enteringText == true);
+	consoleText = text;
 }
 
-void CBattleConsole::scrollUp(ui32 by)
+void BattleConsole::write(const std::string & Text)
 {
-	if(lastShown > static_cast<int>(by))
-		lastShown -= by;
+	hoverText = Text;
 }
 
-void CBattleConsole::scrollDown(ui32 by)
+void BattleConsole::clearIfMatching(const std::string & Text)
 {
-	if(lastShown + by < texts.size())
-		lastShown += by;
+	if (hoverText == Text)
+		clear();
 }
 
-CBattleConsole::CBattleConsole() : lastShown(-1), alterTxt(""), whoSetAlter(0)
-{}
+void BattleConsole::clear()
+{
+	write({});
+}
 
-void CBattleHero::show(SDL_Surface * to)
+void BattleHero::render(Canvas & canvas)
 {
 	auto flagFrame = flagAnimation->getImage(flagAnim, 0, true);
 
@@ -135,35 +169,18 @@ void CBattleHero::show(SDL_Surface * to)
 		return;
 
 	//animation of flag
-	SDL_Rect temp_rect;
+	Point flagPosition = pos.topLeft();
+
 	if(flip)
-	{
-		temp_rect = genRect(
-			flagFrame->height(),
-			flagFrame->width(),
-			pos.x + 61,
-			pos.y + 39);
-
-	}
+		flagPosition += Point(61, 39);
 	else
-	{
-		temp_rect = genRect(
-			flagFrame->height(),
-			flagFrame->width(),
-			pos.x + 72,
-			pos.y + 39);
-	}
+		flagPosition += Point(72, 39);
 
-	flagFrame->draw(screen, &temp_rect, nullptr); //FIXME: why screen?
-
-	//animation of hero
-	SDL_Rect rect = pos;
 
 	auto heroFrame = animation->getImage(currentFrame, phase, true);
-	if(!heroFrame)
-		return;
 
-	heroFrame->draw(to, &rect, nullptr);
+	canvas.draw(flagFrame, flagPosition);
+	canvas.draw(heroFrame, pos.topLeft());
 
 	if(++animCount >= 4)
 	{
@@ -176,14 +193,14 @@ void CBattleHero::show(SDL_Surface * to)
 	}
 }
 
-void CBattleHero::setPhase(int newPhase)
+void BattleHero::setPhase(int newPhase)
 {
 	nextPhase = newPhase;
 	switchToNextPhase(); //immediately switch to next phase and then restore idling phase
 	nextPhase = 0;
 }
 
-void CBattleHero::hover(bool on)
+void BattleHero::hover(bool on)
 {
 	//TODO: Make lines below work properly
 	if (on)
@@ -192,9 +209,9 @@ void CBattleHero::hover(bool on)
 		CCS->curh->changeGraphic(ECursor::COMBAT, 0);
 }
 
-void CBattleHero::clickLeft(tribool down, bool previousState)
+void BattleHero::clickLeft(tribool down, bool previousState)
 {
-	if(myOwner->spellDestSelectMode) //we are casting a spell
+	if(myOwner->actionsController->spellcastingModeActive()) //we are casting a spell
 		return;
 
 	if(boost::logic::indeterminate(down))
@@ -205,18 +222,18 @@ void CBattleHero::clickLeft(tribool down, bool previousState)
 
 	if(myOwner->getCurrentPlayerInterface()->cb->battleCanCastSpell(myHero, spells::Mode::HERO) == ESpellCastProblem::OK) //check conditions
 	{
-		for(int it=0; it<GameConstants::BFIELD_SIZE; ++it) //do nothing when any hex is hovered - hero's animation overlaps battlefield
-		{
-			if(myOwner->bfield[it]->hovered && myOwner->bfield[it]->strictHovered)
-				return;
-		}
+		BattleHex hoveredHex = myOwner->fieldController->getHoveredHex();
+		//do nothing when any hex is hovered - hero's animation overlaps battlefield
+		if ( hoveredHex != BattleHex::INVALID )
+			return;
+
 		CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
 
 		GH.pushIntT<CSpellWindow>(myHero, myOwner->getCurrentPlayerInterface());
 	}
 }
 
-void CBattleHero::clickRight(tribool down, bool previousState)
+void BattleHero::clickRight(tribool down, bool previousState)
 {
 	if(boost::logic::indeterminate(down))
 		return;
@@ -230,11 +247,11 @@ void CBattleHero::clickRight(tribool down, bool previousState)
 	{
 		auto h = flip ? myOwner->defendingHeroInstance : myOwner->attackingHeroInstance;
 		targetHero.initFromHero(h, InfoAboutHero::EInfoLevel::INBATTLE);
-		GH.pushIntT<CHeroInfoWindow>(targetHero, &windowPosition);
+		GH.pushIntT<HeroInfoWindow>(targetHero, &windowPosition);
 	}
 }
 
-void CBattleHero::switchToNextPhase()
+void BattleHero::switchToNextPhase()
 {
 	if(phase != nextPhase)
 	{
@@ -248,10 +265,10 @@ void CBattleHero::switchToNextPhase()
 	currentFrame = firstFrame;
 }
 
-CBattleHero::CBattleHero(const std::string & animationPath, bool flipG, PlayerColor player, const CGHeroInstance * hero, const CBattleInterface * owner):
+BattleHero::BattleHero(const std::string & animationPath, bool flipG, PlayerColor player, const CGHeroInstance * hero, const BattleInterface & owner):
     flip(flipG),
     myHero(hero),
-    myOwner(owner),
+	myOwner(&owner),
     phase(1),
     nextPhase(0),
     flagAnim(0),
@@ -275,9 +292,7 @@ CBattleHero::CBattleHero(const std::string & animationPath, bool flipG, PlayerCo
 	switchToNextPhase();
 }
 
-CBattleHero::~CBattleHero() = default;
-
-CHeroInfoWindow::CHeroInfoWindow(const InfoAboutHero & hero, Point * position)
+HeroInfoWindow::HeroInfoWindow(const InfoAboutHero & hero, Point * position)
 	: CWindowObject(RCLICK_POPUP | SHADOW_DISABLED, "CHRPOP")
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
@@ -297,49 +312,46 @@ CHeroInfoWindow::CHeroInfoWindow(const InfoAboutHero & hero, Point * position)
 	icons.push_back(std::make_shared<CAnimImage>("PortraitsLarge", hero.portrait, 0, 10, 6));
 
 	//primary stats
-	labels.push_back(std::make_shared<CLabel>(9, 75, EFonts::FONT_TINY, EAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[380] + ":"));
-	labels.push_back(std::make_shared<CLabel>(9, 87, EFonts::FONT_TINY, EAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[381] + ":"));
-	labels.push_back(std::make_shared<CLabel>(9, 99, EFonts::FONT_TINY, EAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[382] + ":"));
-	labels.push_back(std::make_shared<CLabel>(9, 111, EFonts::FONT_TINY, EAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[383] + ":"));
+	labels.push_back(std::make_shared<CLabel>(9, 75, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[380] + ":"));
+	labels.push_back(std::make_shared<CLabel>(9, 87, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[381] + ":"));
+	labels.push_back(std::make_shared<CLabel>(9, 99, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[382] + ":"));
+	labels.push_back(std::make_shared<CLabel>(9, 111, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[383] + ":"));
 
-	labels.push_back(std::make_shared<CLabel>(69, 87, EFonts::FONT_TINY, EAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(attack)));
-	labels.push_back(std::make_shared<CLabel>(69, 99, EFonts::FONT_TINY, EAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(defense)));
-	labels.push_back(std::make_shared<CLabel>(69, 111, EFonts::FONT_TINY, EAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(power)));
-	labels.push_back(std::make_shared<CLabel>(69, 123, EFonts::FONT_TINY, EAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(knowledge)));
+	labels.push_back(std::make_shared<CLabel>(69, 87, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(attack)));
+	labels.push_back(std::make_shared<CLabel>(69, 99, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(defense)));
+	labels.push_back(std::make_shared<CLabel>(69, 111, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(power)));
+	labels.push_back(std::make_shared<CLabel>(69, 123, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(knowledge)));
 
 	//morale+luck
-	labels.push_back(std::make_shared<CLabel>(9, 131, EFonts::FONT_TINY, EAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[384] + ":"));
-	labels.push_back(std::make_shared<CLabel>(9, 143, EFonts::FONT_TINY, EAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[385] + ":"));
+	labels.push_back(std::make_shared<CLabel>(9, 131, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[384] + ":"));
+	labels.push_back(std::make_shared<CLabel>(9, 143, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[385] + ":"));
 
 	icons.push_back(std::make_shared<CAnimImage>("IMRL22", morale + 3, 0, 47, 131));
 	icons.push_back(std::make_shared<CAnimImage>("ILCK22", luck + 3, 0, 47, 143));
 
 	//spell points
-	labels.push_back(std::make_shared<CLabel>(39, 174, EFonts::FONT_TINY, EAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[387]));
-	labels.push_back(std::make_shared<CLabel>(39, 186, EFonts::FONT_TINY, EAlignment::CENTER, Colors::WHITE, std::to_string(currentSpellPoints) + "/" + std::to_string(maxSpellPoints)));
+	labels.push_back(std::make_shared<CLabel>(39, 174, EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[387]));
+	labels.push_back(std::make_shared<CLabel>(39, 186, EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, std::to_string(currentSpellPoints) + "/" + std::to_string(maxSpellPoints)));
 }
 
-CBattleOptionsWindow::CBattleOptionsWindow(const SDL_Rect & position, CBattleInterface *owner)
+BattleOptionsWindow::BattleOptionsWindow(BattleInterface & owner):
+	CWindowObject(PLAYER_COLORED, "comopbck.bmp")
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
-	pos = position;
 
-	background = std::make_shared<CPicture>("comopbck.bmp");
-	background->colorize(owner->getCurrentPlayerInterface()->playerID);
-
-	auto viewGrid = std::make_shared<CToggleButton>(Point(25, 56), "sysopchk.def", CGI->generaltexth->zelp[427], [=](bool on){owner->setPrintCellBorders(on);} );
+	auto viewGrid = std::make_shared<CToggleButton>(Point(25, 56), "sysopchk.def", CGI->generaltexth->zelp[427], [&](bool on){owner.setPrintCellBorders(on);} );
 	viewGrid->setSelected(settings["battle"]["cellBorders"].Bool());
 	toggles.push_back(viewGrid);
 
-	auto movementShadow = std::make_shared<CToggleButton>(Point(25, 89), "sysopchk.def", CGI->generaltexth->zelp[428], [=](bool on){owner->setPrintStackRange(on);});
+	auto movementShadow = std::make_shared<CToggleButton>(Point(25, 89), "sysopchk.def", CGI->generaltexth->zelp[428], [&](bool on){owner.setPrintStackRange(on);});
 	movementShadow->setSelected(settings["battle"]["stackRange"].Bool());
 	toggles.push_back(movementShadow);
 
-	auto mouseShadow = std::make_shared<CToggleButton>(Point(25, 122), "sysopchk.def", CGI->generaltexth->zelp[429], [=](bool on){owner->setPrintMouseShadow(on);});
+	auto mouseShadow = std::make_shared<CToggleButton>(Point(25, 122), "sysopchk.def", CGI->generaltexth->zelp[429], [&](bool on){owner.setPrintMouseShadow(on);});
 	mouseShadow->setSelected(settings["battle"]["mouseShadow"].Bool());
 	toggles.push_back(mouseShadow);
 
-	animSpeeds = std::make_shared<CToggleGroup>([=](int value){ owner->setAnimSpeed(value);});
+	animSpeeds = std::make_shared<CToggleGroup>([&](int value){ owner.setAnimSpeed(value);});
 
 	std::shared_ptr<CToggleButton> toggle;
 	toggle = std::make_shared<CToggleButton>(Point( 28, 225), "sysopb9.def", CGI->generaltexth->zelp[422]);
@@ -351,7 +363,7 @@ CBattleOptionsWindow::CBattleOptionsWindow(const SDL_Rect & position, CBattleInt
 	toggle = std::make_shared<CToggleButton>(Point(156, 225), "sysob11.def", CGI->generaltexth->zelp[424]);
 	animSpeeds->addToggle(100, toggle);
 
-	animSpeeds->setSelected(owner->getAnimSpeed());
+	animSpeeds->setSelected(owner.getAnimSpeed());
 
 	setToDefault = std::make_shared<CButton>(Point(246, 359), "codefaul.def", CGI->generaltexth->zelp[393], [&](){ bDefaultf(); });
 	setToDefault->setImageOrder(1, 0, 2, 3);
@@ -359,42 +371,42 @@ CBattleOptionsWindow::CBattleOptionsWindow(const SDL_Rect & position, CBattleInt
 	exit->setImageOrder(1, 0, 2, 3);
 
 	//creating labels
-	labels.push_back(std::make_shared<CLabel>(242,  32, FONT_BIG,    CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[392]));//window title
-	labels.push_back(std::make_shared<CLabel>(122, 214, FONT_MEDIUM, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[393]));//animation speed
-	labels.push_back(std::make_shared<CLabel>(122, 293, FONT_MEDIUM, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[394]));//music volume
-	labels.push_back(std::make_shared<CLabel>(122, 359, FONT_MEDIUM, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[395]));//effects' volume
-	labels.push_back(std::make_shared<CLabel>(353,  66, FONT_MEDIUM, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[396]));//auto - combat options
-	labels.push_back(std::make_shared<CLabel>(353, 265, FONT_MEDIUM, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[397]));//creature info
+	labels.push_back(std::make_shared<CLabel>(242,  32, FONT_BIG,    ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[392]));//window title
+	labels.push_back(std::make_shared<CLabel>(122, 214, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[393]));//animation speed
+	labels.push_back(std::make_shared<CLabel>(122, 293, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[394]));//music volume
+	labels.push_back(std::make_shared<CLabel>(122, 359, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[395]));//effects' volume
+	labels.push_back(std::make_shared<CLabel>(353,  66, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[396]));//auto - combat options
+	labels.push_back(std::make_shared<CLabel>(353, 265, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[397]));//creature info
 
 	//auto - combat options
-	labels.push_back(std::make_shared<CLabel>(283,  86, FONT_MEDIUM, TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[398]));//creatures
-	labels.push_back(std::make_shared<CLabel>(283, 116, FONT_MEDIUM, TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[399]));//spells
-	labels.push_back(std::make_shared<CLabel>(283, 146, FONT_MEDIUM, TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[400]));//catapult
-	labels.push_back(std::make_shared<CLabel>(283, 176, FONT_MEDIUM, TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[151]));//ballista
-	labels.push_back(std::make_shared<CLabel>(283, 206, FONT_MEDIUM, TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[401]));//first aid tent
+	labels.push_back(std::make_shared<CLabel>(283,  86, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[398]));//creatures
+	labels.push_back(std::make_shared<CLabel>(283, 116, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[399]));//spells
+	labels.push_back(std::make_shared<CLabel>(283, 146, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[400]));//catapult
+	labels.push_back(std::make_shared<CLabel>(283, 176, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[151]));//ballista
+	labels.push_back(std::make_shared<CLabel>(283, 206, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[401]));//first aid tent
 
 	//creature info
-	labels.push_back(std::make_shared<CLabel>(283, 285, FONT_MEDIUM, TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[402]));//all stats
-	labels.push_back(std::make_shared<CLabel>(283, 315, FONT_MEDIUM, TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[403]));//spells only
+	labels.push_back(std::make_shared<CLabel>(283, 285, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[402]));//all stats
+	labels.push_back(std::make_shared<CLabel>(283, 315, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[403]));//spells only
 
 	//general options
-	labels.push_back(std::make_shared<CLabel>(61,  57, FONT_MEDIUM, TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[404]));
-	labels.push_back(std::make_shared<CLabel>(61,  90, FONT_MEDIUM, TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[405]));
-	labels.push_back(std::make_shared<CLabel>(61, 123, FONT_MEDIUM, TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[406]));
-	labels.push_back(std::make_shared<CLabel>(61, 156, FONT_MEDIUM, TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[407]));
+	labels.push_back(std::make_shared<CLabel>(61,  57, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[404]));
+	labels.push_back(std::make_shared<CLabel>(61,  90, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[405]));
+	labels.push_back(std::make_shared<CLabel>(61, 123, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[406]));
+	labels.push_back(std::make_shared<CLabel>(61, 156, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[407]));
 }
 
-void CBattleOptionsWindow::bDefaultf()
+void BattleOptionsWindow::bDefaultf()
 {
 	//TODO: implement
 }
 
-void CBattleOptionsWindow::bExitf()
+void BattleOptionsWindow::bExitf()
 {
 	close();
 }
 
-CBattleResultWindow::CBattleResultWindow(const BattleResult & br, CPlayerInterface & _owner)
+BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface & _owner)
 	: owner(_owner)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
@@ -408,25 +420,25 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult & br, CPlayerInterfa
 
 	if(br.winner == 0) //attacker won
 	{
-		labels.push_back(std::make_shared<CLabel>(59, 124, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[410]));
+		labels.push_back(std::make_shared<CLabel>(59, 124, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[410]));
 	}
 	else
 	{
-		labels.push_back(std::make_shared<CLabel>(59, 124, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[411]));
+		labels.push_back(std::make_shared<CLabel>(59, 124, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[411]));
 	}
 
 	if(br.winner == 1)
 	{
-		labels.push_back(std::make_shared<CLabel>(412, 124, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[410]));
+		labels.push_back(std::make_shared<CLabel>(412, 124, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[410]));
 	}
 	else
 	{
-		labels.push_back(std::make_shared<CLabel>(408, 124, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[411]));
+		labels.push_back(std::make_shared<CLabel>(408, 124, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[411]));
 	}
 
-	labels.push_back(std::make_shared<CLabel>(232, 302, FONT_BIG, CENTER, Colors::YELLOW,  CGI->generaltexth->allTexts[407]));
-	labels.push_back(std::make_shared<CLabel>(232, 332, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[408]));
-	labels.push_back(std::make_shared<CLabel>(232, 428, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[409]));
+	labels.push_back(std::make_shared<CLabel>(232, 302, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW,  CGI->generaltexth->allTexts[407]));
+	labels.push_back(std::make_shared<CLabel>(232, 332, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[408]));
+	labels.push_back(std::make_shared<CLabel>(232, 428, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[409]));
 
 	std::string sideNames[2] = {"N/A", "N/A"};
 
@@ -462,15 +474,15 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult & br, CPlayerInterfa
 	}
 
 	//printing attacker and defender's names
-	labels.push_back(std::make_shared<CLabel>(89, 37, FONT_SMALL, TOPLEFT, Colors::WHITE, sideNames[0]));
-	labels.push_back(std::make_shared<CLabel>(381, 53, FONT_SMALL, BOTTOMRIGHT, Colors::WHITE, sideNames[1]));
+	labels.push_back(std::make_shared<CLabel>(89, 37, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, sideNames[0]));
+	labels.push_back(std::make_shared<CLabel>(381, 53, FONT_SMALL, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, sideNames[1]));
 
 	//printing casualties
 	for(int step = 0; step < 2; ++step)
 	{
 		if(br.casualties[step].size()==0)
 		{
-			labels.push_back(std::make_shared<CLabel>(235, 360 + 97 * step, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[523]));
+			labels.push_back(std::make_shared<CLabel>(235, 360 + 97 * step, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[523]));
 		}
 		else
 		{
@@ -478,10 +490,14 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult & br, CPlayerInterfa
 			int yPos = 344 + step * 97;
 			for(auto & elem : br.casualties[step])
 			{
-				icons.push_back(std::make_shared<CAnimImage>("CPRSMALL", CGI->creatures()->getByIndex(elem.first)->getIconIndex(), 0, xPos, yPos));
+				auto creature = CGI->creatures()->getByIndex(elem.first);
+				if (creature->getId() == CreatureID::ARROW_TOWERS )
+					continue; // do not show destroyed towers in battle results
+
+				icons.push_back(std::make_shared<CAnimImage>("CPRSMALL", creature->getIconIndex(), 0, xPos, yPos));
 				std::ostringstream amount;
 				amount<<elem.second;
-				labels.push_back(std::make_shared<CLabel>(xPos + 16, yPos + 42, FONT_SMALL, CENTER, Colors::WHITE, amount.str()));
+				labels.push_back(std::make_shared<CLabel>(xPos + 16, yPos + 42, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, amount.str()));
 				xPos += 42;
 			}
 		}
@@ -518,7 +534,7 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult & br, CPlayerInterfa
 			boost::algorithm::replace_first(str, "%d", boost::lexical_cast<std::string>(br.exp[weAreAttacker ? 0 : 1]));
 		}
 
-		description = std::make_shared<CTextBox>(str, Rect(69, 203, 330, 68), 0, FONT_SMALL, CENTER, Colors::WHITE);
+		description = std::make_shared<CTextBox>(str, Rect(69, 203, 330, 68), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 	}
 	else // we lose
 	{
@@ -546,31 +562,29 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult & br, CPlayerInterfa
 		CCS->musich->playMusic(musicName, false, true);
 		CCS->videoh->open(videoName);
 
-		labels.push_back(std::make_shared<CLabel>(235, 235, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[text]));
+		labels.push_back(std::make_shared<CLabel>(235, 235, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, CGI->generaltexth->allTexts[text]));
 	}
 }
 
-CBattleResultWindow::~CBattleResultWindow() = default;
-
-void CBattleResultWindow::activate()
+void BattleResultWindow::activate()
 {
 	owner.showingDialog->set(true);
 	CIntObject::activate();
 }
 
-void CBattleResultWindow::show(SDL_Surface * to)
+void BattleResultWindow::show(SDL_Surface * to)
 {
 	CIntObject::show(to);
 	CCS->videoh->update(pos.x + 107, pos.y + 70, screen, true, false);
 }
 
-void CBattleResultWindow::bExitf()
+void BattleResultWindow::bExitf()
 {
 	CPlayerInterface &intTmp = owner; //copy reference because "this" will be destructed soon
 
 	close();
 
-	if(dynamic_cast<CBattleInterface*>(GH.topInt().get()))
+	if(dynamic_cast<BattleInterface*>(GH.topInt().get()))
 		GH.popInts(1); //pop battle interface if present
 
 	//Result window and battle interface are gone. We requested all dialogs to be closed before opening the battle,
@@ -579,113 +593,48 @@ void CBattleResultWindow::bExitf()
 	CCS->videoh->close();
 }
 
-Point CClickableHex::getXYUnitAnim(BattleHex hexNum, const CStack * stack, CBattleInterface * cbi)
-{
-	assert(cbi);
-
-	Point ret(-500, -500); //returned value
-	if(stack && stack->initialPosition < 0) //creatures in turrets
-	{
-		switch(stack->initialPosition)
-		{
-		case -2: //keep
-			ret = cbi->siegeH->town->town->clientInfo.siegePositions[18];
-			break;
-		case -3: //lower turret
-			ret = cbi->siegeH->town->town->clientInfo.siegePositions[19];
-			break;
-		case -4: //upper turret
-			ret = cbi->siegeH->town->town->clientInfo.siegePositions[20];
-			break;
-		}
-	}
-	else
-	{
-		static const Point basePos(-190, -139); // position of creature in topleft corner
-		static const int imageShiftX = 30; // X offset to base pos for facing right stacks, negative for facing left
-
-		ret.x = basePos.x + 22 * ( (hexNum.getY() + 1)%2 ) + 44 * hexNum.getX();
-		ret.y = basePos.y + 42 * hexNum.getY();
-
-		if (stack)
-		{
-			if(cbi->creDir[stack->ID])
-				ret.x += imageShiftX;
-			else
-				ret.x -= imageShiftX;
-
-			//shifting position for double - hex creatures
-			if(stack->doubleWide())
-			{
-				if(stack->side == BattleSide::ATTACKER)
-				{
-					if(cbi->creDir[stack->ID])
-						ret.x -= 44;
-				}
-				else
-				{
-					if(!cbi->creDir[stack->ID])
-						ret.x += 44;
-				}
-			}
-		}
-	}
-	//returning
-	return ret + CPlayerInterface::battleInt->pos;
-}
-
-void CClickableHex::hover(bool on)
+void ClickableHex::hover(bool on)
 {
 	hovered = on;
 	//Hoverable::hover(on);
 	if(!on && setAlterText)
 	{
-		myInterface->console->alterTxt = std::string();
+		myInterface->controlPanel->console->clear();
 		setAlterText = false;
 	}
 }
 
-CClickableHex::CClickableHex() : setAlterText(false), myNumber(-1), accessible(true), strictHovered(false), myInterface(nullptr)
+ClickableHex::ClickableHex() : setAlterText(false), myNumber(-1), strictHovered(false), myInterface(nullptr)
 {
 	addUsedEvents(LCLICK | RCLICK | HOVER | MOVE);
 }
 
-void CClickableHex::mouseMoved(const SDL_MouseMotionEvent &sEvent)
+void ClickableHex::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 {
-	if(myInterface->cellShade)
-	{
-		if(CSDL_Ext::SDL_GetPixel(myInterface->cellShade, sEvent.x-pos.x, sEvent.y-pos.y) == 0) //hovered pixel is outside hex
-		{
-			strictHovered = false;
-		}
-		else //hovered pixel is inside hex
-		{
-			strictHovered = true;
-		}
-	}
+	strictHovered = myInterface->fieldController->isPixelInHex(Point(sEvent.x-pos.x, sEvent.y-pos.y));
 
 	if(hovered && strictHovered) //print attacked creature to console
 	{
 		const CStack * attackedStack = myInterface->getCurrentPlayerInterface()->cb->battleGetStackByPos(myNumber);
-		if(myInterface->console->alterTxt.size() == 0 &&attackedStack != nullptr &&
+		if( attackedStack != nullptr &&
 			attackedStack->owner != myInterface->getCurrentPlayerInterface()->playerID &&
 			attackedStack->alive())
 		{
 			MetaString text;
 			text.addTxt(MetaString::GENERAL_TXT, 220);
 			attackedStack->addNameReplacement(text);
-			myInterface->console->alterTxt = text.toString();
+			myInterface->controlPanel->console->write(text.toString());
 			setAlterText = true;
 		}
 	}
 	else if(setAlterText)
 	{
-		myInterface->console->alterTxt = std::string();
+		myInterface->controlPanel->console->clear();
 		setAlterText = false;
 	}
 }
 
-void CClickableHex::clickLeft(tribool down, bool previousState)
+void ClickableHex::clickLeft(tribool down, bool previousState)
 {
 	if(!down && hovered && strictHovered) //we've been really clicked!
 	{
@@ -693,7 +642,7 @@ void CClickableHex::clickLeft(tribool down, bool previousState)
 	}
 }
 
-void CClickableHex::clickRight(tribool down, bool previousState)
+void ClickableHex::clickRight(tribool down, bool previousState)
 {
 	const CStack * myst = myInterface->getCurrentPlayerInterface()->cb->battleGetStackByPos(myNumber); //stack info
 	if(hovered && strictHovered && myst!=nullptr)
@@ -706,9 +655,9 @@ void CClickableHex::clickRight(tribool down, bool previousState)
 	}
 }
 
-CStackQueue::CStackQueue(bool Embedded, CBattleInterface * _owner)
+StackQueue::StackQueue(bool Embedded, BattleInterface & owner)
 	: embedded(Embedded),
-	owner(_owner)
+	owner(owner)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
 	if(embedded)
@@ -743,13 +692,11 @@ CStackQueue::CStackQueue(bool Embedded, CBattleInterface * _owner)
 	}
 }
 
-CStackQueue::~CStackQueue() = default;
-
-void CStackQueue::update()
+void StackQueue::update()
 {
 	std::vector<battle::Units> queueData;
 
-	owner->getCurrentPlayerInterface()->cb->battleGetTurnOrder(queueData, stackBoxes.size(), 0);
+	owner.getCurrentPlayerInterface()->cb->battleGetTurnOrder(queueData, stackBoxes.size(), 0);
 
 	size_t boxIndex = 0;
 
@@ -763,12 +710,12 @@ void CStackQueue::update()
 		stackBoxes[boxIndex]->setUnit(nullptr);
 }
 
-int32_t CStackQueue::getSiegeShooterIconID()
+int32_t StackQueue::getSiegeShooterIconID()
 {
-	return owner->siegeH->town->town->faction->index;
+	return owner.siegeController->getSiegedTown()->town->faction->index;
 }
 
-CStackQueue::StackBox::StackBox(CStackQueue * owner):
+StackQueue::StackBox::StackBox(StackQueue * owner):
 	owner(owner)
 {
 	OBJECT_CONSTRUCTION_CAPTURING(255-DISPOSE);
@@ -780,12 +727,12 @@ CStackQueue::StackBox::StackBox(CStackQueue * owner):
 	if(owner->embedded)
 	{
 		icon = std::make_shared<CAnimImage>(owner->icons, 0, 0, 5, 2);
-		amount = std::make_shared<CLabel>(pos.w/2, pos.h - 7, FONT_SMALL, CENTER, Colors::WHITE);
+		amount = std::make_shared<CLabel>(pos.w/2, pos.h - 7, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 	}
 	else
 	{
 		icon = std::make_shared<CAnimImage>(owner->icons, 0, 0, 9, 1);
-		amount = std::make_shared<CLabel>(pos.w/2, pos.h - 8, FONT_MEDIUM, CENTER, Colors::WHITE);
+		amount = std::make_shared<CLabel>(pos.w/2, pos.h - 8, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE);
 
 		int icon_x = pos.w - 17;
 		int icon_y = pos.h - 18;
@@ -795,7 +742,7 @@ CStackQueue::StackBox::StackBox(CStackQueue * owner):
 	}
 }
 
-void CStackQueue::StackBox::setUnit(const battle::Unit * unit, size_t turn)
+void StackQueue::StackBox::setUnit(const battle::Unit * unit, size_t turn)
 {
 	if(unit)
 	{
