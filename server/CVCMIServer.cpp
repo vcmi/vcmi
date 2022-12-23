@@ -1124,8 +1124,7 @@ void CVCMIServer::create(const std::vector<std::string> & args)
 	std::vector<const void *> argv = {foo};
 	for(auto & a : args)
 		argv.push_back(a.c_str());
-
-	main(argv.size(), const_cast<char **>(foo));
+	main(argv.size(), reinterpret_cast<char **>(const_cast<void **>(&*argv.begin())));
 }
 #elif defined(SINGLE_PROCESS_APP)
 void CVCMIServer::create(boost::condition_variable * cond, const std::vector<std::string> & args)
