@@ -77,6 +77,8 @@ Point CCursorHandler::position() const
 
 void CCursorHandler::changeGraphic(Cursor::Type type, size_t index)
 {
+	assert(dndObject == nullptr);
+
 	if(type != this->type)
 	{
 		this->type = type;

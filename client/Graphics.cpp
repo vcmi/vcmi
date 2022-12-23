@@ -100,7 +100,7 @@ void Graphics::loadPaletteAndColors()
 void Graphics::initializeBattleGraphics()
 {
 	auto allConfigs = VLC->modh->getActiveMods();
-	allConfigs.insert(allConfigs.begin(), "core");
+	allConfigs.insert(allConfigs.begin(), CModHandler::scopeBuiltin());
 	for(auto & mod : allConfigs)
 	{
 		if(!CResourceHandler::get(mod)->existsResource(ResourceID("config/battles_graphics.json")))

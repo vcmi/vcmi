@@ -14,7 +14,9 @@
 #include "Images.h"
 
 #include "../CMessage.h"
+#include "../CPlayerInterface.h"
 #include "../gui/CGuiHandler.h"
+#include "../widgets/AdventureMapClasses.h"
 
 #include "../../lib/CGeneralTextHandler.h" //for Unicode related stuff
 
@@ -428,14 +430,17 @@ void CGStatusBar::clickLeft(tribool down, bool previousState)
 {
 	if(!down && onClick)
 	{
-		onClick();
+		if(LOCPLINT && LOCPLINT->cingconsole->active)
+			LOCPLINT->cingconsole->startEnteringText();
 	}
 }
 
-void CGStatusBar::setOnClick(std::function<void()> handler)
+void CGStatusBar::deactivate()
 {
-	onClick = handler;
-	addUsedEvents(LCLICK);
+	if (enteringText)
+		LOCPLINT->cingconsole->endEnteringText(false);
+
+	CIntObject::deactivate();
 }
 
 Point CGStatusBar::getBorderSize()

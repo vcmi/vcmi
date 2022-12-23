@@ -269,6 +269,7 @@ private:
 	void placeStartingHero(PlayerColor playerColor, HeroTypeID heroTypeId, int3 townPos);
 	void initStartingResources();
 	void initHeroes();
+	void placeHeroesInTowns();
 	void giveCampaignBonusToHero(CGHeroInstance * hero);
 	void initFogOfWar();
 	void initStartingBonus();
@@ -297,8 +298,6 @@ private:
 	CRandomGenerator rand;
 	Services * services;
 
-	friend class CCallback;
-	friend class CClient;
 	friend class IGameCallback;
 	friend class CMapHandler;
 	friend class CGameHandler;

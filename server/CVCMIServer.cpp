@@ -55,7 +55,7 @@
 
 #include "../lib/CGameState.h"
 
-#if defined(__GNUC__) && !defined(__MINGW32__) && !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
+#if defined(__GNUC__) && !defined(__UCLIBC__) && !defined(__MINGW32__) && !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
 #include <execinfo.h>
 #endif
 
@@ -958,7 +958,7 @@ ui8 CVCMIServer::getIdOfFirstUnallocatedPlayer() const
 	return 0;
 }
 
-#if defined(__GNUC__) && !defined(__MINGW32__) && !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
+#if defined(__GNUC__) && !defined(__UCLIBC__) && !defined(__MINGW32__) && !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
 void handleLinuxSignal(int sig)
 {
 	const int STACKTRACE_SIZE = 100;
@@ -1013,6 +1013,10 @@ static void handleCommandOptions(int argc, char * argv[], boost::program_options
 			std::cerr << "Failure during parsing command-line options:\n" << e.what() << std::endl;
 		}
 	}
+	
+#ifdef SINGLE_PROCESS_APP
+	options.emplace("run-by-client", po::variable_value{true, true});
+#endif
 
 	po::notify(options);
 
@@ -1043,13 +1047,13 @@ static void handleCommandOptions(int argc, char * argv[], boost::program_options
 #endif
 int main(int argc, char * argv[])
 {
-#if !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
+#if !defined(VCMI_ANDROID) && !defined(SINGLE_PROCESS_APP)
 	// Correct working dir executable folder (not bundle folder) so we can use executable relative paths
 	boost::filesystem::current_path(boost::filesystem::system_complete(argv[0]).parent_path());
 #endif
 	// Installs a sig sev segmentation violation handler
 	// to log stacktrace
-#if defined(__GNUC__) && !defined(__MINGW32__) && !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
+#if defined(__GNUC__) && !defined(__UCLIBC__) && !defined(__MINGW32__) && !defined(VCMI_ANDROID) && !defined(VCMI_IOS)
 	signal(SIGSEGV, handleLinuxSignal);
 #endif
 

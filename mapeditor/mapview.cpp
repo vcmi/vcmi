@@ -13,6 +13,7 @@
 #include "mainwindow.h"
 #include <QGraphicsSceneMouseEvent>
 #include "mapcontroller.h"
+#include "../lib/mapObjects/CObjectClassesHandler.h"
 
 MinimapView::MinimapView(QWidget * parent):
 	QGraphicsView(parent)
@@ -64,11 +65,9 @@ MapView::MapView(QWidget * parent):
 
 void MapView::cameraChanged(const QPointF & pos)
 {
-	//ui->mapView->translate(pos.x(), pos.y());
 	horizontalScrollBar()->setValue(pos.x());
 	verticalScrollBar()->setValue(pos.y());
 }
-
 
 void MapView::setController(MapController * ctrl)
 {
@@ -85,7 +84,12 @@ void MapView::mouseMoveEvent(QMouseEvent *mouseEvent)
 
 	auto pos = mapToScene(mouseEvent->pos()); //TODO: do we need to check size?
 	int3 tile(pos.x() / 32, pos.y() / 32, sc->level);
-
+	
+	//if scene will be scrolled without mouse movement, selection, object moving and rubber band will not be updated
+	//to change this behavior, all this logic should be placed in viewportEvent
+	if(rubberBand)
+		rubberBand->setGeometry(QRect(mapFromScene(mouseStart), mouseEvent->pos()).normalized());
+	
 	if(tile == tilePrev) //do not redraw
 		return;
 
@@ -161,13 +165,7 @@ void MapView::mouseMoveEvent(QMouseEvent *mouseEvent)
 
 		if(sh.x || sh.y)
 		{
-			if(sc->selectionObjectsView.newObject)
-			{
-				sc->selectionObjectsView.shift = QPoint(tile.x, tile.y);
-				sc->selectionObjectsView.selectObject(sc->selectionObjectsView.newObject);
-				sc->selectionObjectsView.selectionMode = SelectionObjectsLayer::MOVEMENT;
-			}
-			else if(mouseEvent->buttons() & Qt::LeftButton)
+			if(!sc->selectionObjectsView.newObject && (mouseEvent->buttons() & Qt::LeftButton))
 			{
 				if(sc->selectionObjectsView.selectionMode == SelectionObjectsLayer::SELECTION)
 				{
@@ -296,6 +294,11 @@ void MapView::mousePressEvent(QMouseEvent *event)
 				{
 					sc->selectionObjectsView.clear();
 					sc->selectionObjectsView.selectionMode = SelectionObjectsLayer::SELECTION;
+					
+					if(!rubberBand)
+						rubberBand = new QRubberBand(QRubberBand::Rectangle, this);
+					rubberBand->setGeometry(QRect(mapFromScene(mouseStart), QSize()));
+					rubberBand->show();
 				}
 			}
 			sc->selectionObjectsView.shift = QPoint(0, 0);
@@ -314,6 +317,9 @@ void MapView::mouseReleaseEvent(QMouseEvent *event)
 	auto * sc = static_cast<MapScene*>(scene());
 	if(!sc || !controller->map())
 		return;
+	
+	if(rubberBand)
+		rubberBand->hide();
 
 	switch(selectionTool)
 	{
@@ -324,19 +330,7 @@ void MapView::mouseReleaseEvent(QMouseEvent *event)
 		bool tab = false;
 		if(sc->selectionObjectsView.selectionMode == SelectionObjectsLayer::MOVEMENT)
 		{
-			if(sc->selectionObjectsView.newObject)
-			{
-				QString errorMsg;
-				if(controller->canPlaceObject(sc->level, sc->selectionObjectsView.newObject, errorMsg))
-					controller->commitObjectCreate(sc->level);
-				else
-				{
-					QMessageBox::information(this, "Can't place object", errorMsg);
-					break;
-				}
-			}
-			else
-				controller->commitObjectShift(sc->level);
+			controller->commitObjectShift(sc->level);
 		}
 		else
 		{
@@ -355,11 +349,103 @@ void MapView::mouseReleaseEvent(QMouseEvent *event)
 	}
 }
 
+void MapView::dragEnterEvent(QDragEnterEvent * event)
+{
+	if(!controller || !controller->map())
+		return;
+	
+	auto * sc = static_cast<MapScene*>(scene());
+	if(!sc)
+		return;
+	
+	if(event->mimeData()->hasImage())
+	{
+		logGlobal->info("Drag'n'drop: dispatching object");
+		QVariant vdata = event->mimeData()->imageData();
+		auto data = vdata.toJsonObject();
+		if(!data.empty())
+		{
+			auto preview = data["preview"];
+			if(preview != QJsonValue::Undefined)
+			{
+				auto objId = data["id"].toInt();
+				auto objSubId = data["subid"].toInt();
+				auto templateId = data["template"].toInt();
+				auto factory = VLC->objtypeh->getHandlerFor(objId, objSubId);
+				auto templ = factory->getTemplates()[templateId];
+				controller->discardObject(sc->level);
+				controller->createObject(sc->level, factory->create(templ));
+			}
+		}
+		
+		event->acceptProposedAction();
+	}
+}
+
+void MapView::dropEvent(QDropEvent * event)
+{
+	if(!controller || !controller->map())
+		return;
+	
+	auto * sc = static_cast<MapScene*>(scene());
+	if(!sc)
+		return;
+	
+	if(sc->selectionObjectsView.newObject)
+	{
+		QString errorMsg;
+		if(controller->canPlaceObject(sc->level, sc->selectionObjectsView.newObject, errorMsg))
+		{
+			controller->commitObjectCreate(sc->level);
+		}
+		else
+		{
+			controller->discardObject(sc->level);
+			QMessageBox::information(this, "Can't place object", errorMsg);
+		}
+	}
+
+	event->acceptProposedAction();
+}
+
+void MapView::dragMoveEvent(QDragMoveEvent * event)
+{
+	auto * sc = static_cast<MapScene*>(scene());
+	if(!sc)
+		return;
+	
+	auto rect = event->answerRect();
+	auto pos = mapToScene(rect.bottomRight()); //TODO: do we need to check size?
+	int3 tile(pos.x() / 32 + 1, pos.y() / 32 + 1, sc->level);
+	
+	if(sc->selectionObjectsView.newObject)
+	{
+		sc->selectionObjectsView.shift = QPoint(tile.x, tile.y);
+		sc->selectionObjectsView.selectObject(sc->selectionObjectsView.newObject);
+		sc->selectionObjectsView.selectionMode = SelectionObjectsLayer::MOVEMENT;
+		sc->selectionObjectsView.draw();
+	}
+	
+	event->acceptProposedAction();
+}
+
+void MapView::dragLeaveEvent(QDragLeaveEvent * event)
+{
+	if(!controller || !controller->map())
+		return;
+	
+	auto * sc = static_cast<MapScene*>(scene());
+	if(!sc)
+		return;
+	
+	controller->discardObject(sc->level);
+}
+
+
 bool MapView::viewportEvent(QEvent *event)
 {
 	if(auto * sc = static_cast<MapScene*>(scene()))
 	{
-		//auto rect = sceneRect();
 		auto rect = mapToScene(viewport()->geometry()).boundingRect();
 		controller->miniScene(sc->level)->viewport.setViewport(rect.x() / 32, rect.y() / 32, rect.width() / 32, rect.height() / 32);
 	}

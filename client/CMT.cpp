@@ -721,7 +721,7 @@ void processCommand(const std::string &message)
 				{
 					const JsonNode & object = nameAndObject.second;
 
-					std::string name = CModHandler::normalizeIdentifier(object.meta, "core", nameAndObject.first);
+					std::string name = CModHandler::normalizeIdentifier(object.meta, CModHandler::scopeBuiltin(), nameAndObject.first);
 
 					boost::algorithm::replace_all(name,":","_");
 
@@ -1085,7 +1085,6 @@ static bool recreateWindow(int w, int h, int bpp, bool fullscreen, int displayIn
 	if(!checkVideoMode(displayIndex, w, h))
 	{
 		logGlobal->error("Error: SDL says that %dx%d resolution is not available!", w, h);
-		return false;
 	}
 #endif
 

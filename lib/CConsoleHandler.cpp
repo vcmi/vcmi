@@ -19,6 +19,8 @@ boost::mutex CConsoleHandler::smx;
 
 DLL_LINKAGE CConsoleHandler * console = nullptr;
 
+VCMI_LIB_NAMESPACE_END
+
 #ifndef VCMI_WINDOWS
 	typedef std::string TColor;
 	#define CONSOLE_GREEN "\x1b[1;32m"
@@ -50,6 +52,8 @@ DLL_LINKAGE CConsoleHandler * console = nullptr;
 #endif
 
 static TColor defColor;
+
+VCMI_LIB_NAMESPACE_BEGIN
 
 #ifdef VCMI_WINDOWS
 

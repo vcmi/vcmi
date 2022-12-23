@@ -716,11 +716,6 @@ CAdvMapInt::CAdvMapInt():
 	worldViewUnderground->block(!CGI->mh->map->twoLevel);
 
 	addUsedEvents(MOVE);
-
-	statusbar->setOnClick([&]
-		{
-			if(LOCPLINT) LOCPLINT->cingconsole->startEnteringText();
-		});
 }
 
 CAdvMapInt::~CAdvMapInt()
@@ -981,6 +976,7 @@ void CAdvMapInt::deactivate()
 		}
 		minimap.deactivate();
 		terrain.deactivate();
+		statusbar->deactivate();
 	}
 }
 
@@ -1670,13 +1666,13 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 		objRelations = LOCPLINT->cb->getPlayerRelations(LOCPLINT->playerID, objAtTile->tempOwner);
 		std::string text = curHero() ? objAtTile->getHoverText(curHero()) : objAtTile->getHoverText(LOCPLINT->playerID);
 		boost::replace_all(text,"\n"," ");
-		statusbar->setText(text);
+		statusbar->write(text);
 	}
 	else
 	{
 		std::string hlp;
 		CGI->mh->getTerrainDescr(mapPos, hlp, false);
-		statusbar->setText(hlp);
+		statusbar->write(hlp);
 	}
 
 	if(spellBeingCasted)

@@ -123,6 +123,9 @@
    <addaction name="actionOpen"/>
    <addaction name="actionSave"/>
    <addaction name="separator"/>
+   <addaction name="actionUndo"/>
+   <addaction name="actionRedo"/>
+   <addaction name="separator"/>
    <addaction name="actionLevel"/>
    <addaction name="actionGrid"/>
    <addaction name="actionPass"/>
@@ -300,7 +303,7 @@
           <widget class="QLineEdit" name="filter"/>
          </item>
          <item>
-          <widget class="QTreeView" name="treeView">
+          <widget class="ObjectBrowser" name="treeView">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
              <horstretch>0</horstretch>
@@ -316,8 +319,11 @@
            <property name="editTriggers">
             <set>QAbstractItemView::NoEditTriggers</set>
            </property>
+           <property name="showDropIndicator" stdset="0">
+            <bool>false</bool>
+           </property>
            <property name="dragDropMode">
-            <enum>QAbstractItemView::NoDragDrop</enum>
+            <enum>QAbstractItemView::DragOnly</enum>
            </property>
            <property name="selectionBehavior">
             <enum>QAbstractItemView::SelectItems</enum>
@@ -1010,6 +1016,9 @@
    </property>
   </action>
   <action name="actionPlayers_settings">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Players settings</string>
    </property>
@@ -1017,6 +1026,10 @@
   <action name="actionUndo">
    <property name="enabled">
     <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>icons:edit-undo.png</normaloff>icons:edit-undo.png</iconset>
    </property>
    <property name="text">
     <string>Undo</string>
@@ -1034,6 +1047,10 @@
   <action name="actionRedo">
    <property name="enabled">
     <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>icons:edit-redo.png</normaloff>icons:edit-redo.png</iconset>
    </property>
    <property name="text">
     <string>Redo</string>
@@ -1191,6 +1208,11 @@
    <class>MinimapView</class>
    <extends>QGraphicsView</extends>
    <header>mapview.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ObjectBrowser</class>
+   <extends>QTreeView</extends>
+   <header>objectbrowser.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

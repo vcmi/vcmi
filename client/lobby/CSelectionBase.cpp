@@ -321,9 +321,9 @@ CChatBox::CChatBox(const Rect & rect)
 
 void CChatBox::keyPressed(const SDL_KeyboardEvent & key)
 {
-	if(key.keysym.sym == SDLK_RETURN && key.state == SDL_PRESSED && inputBox->text.size())
+	if(key.keysym.sym == SDLK_RETURN && key.state == SDL_PRESSED && inputBox->getText().size())
 	{
-		CSH->sendMessage(inputBox->text);
+		CSH->sendMessage(inputBox->getText());
 		inputBox->setText("");
 	}
 	else
@@ -333,7 +333,7 @@ void CChatBox::keyPressed(const SDL_KeyboardEvent & key)
 void CChatBox::addNewMessage(const std::string & text)
 {
 	CCS->soundh->playSound("CHAT");
-	chatHistory->setText(chatHistory->label->text + text + "\n");
+	chatHistory->setText(chatHistory->label->getText() + text + "\n");
 	if(chatHistory->slider)
 		chatHistory->slider->moveToMax();
 }

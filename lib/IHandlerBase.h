@@ -21,6 +21,8 @@ class Entity;
 class DLL_LINKAGE IHandlerBase
 {
 protected:
+	std::string getScopeBuiltin() const;
+
 	/// Calls modhandler. Mostly needed to avoid large number of includes in headers
 	void registerObject(std::string scope, std::string type_name, std::string name, si32 index);
 	std::string normalizeIdentifier(const std::string & scope, const std::string & remoteScope, const std::string & identifier) const;
@@ -92,7 +94,7 @@ public:
 
 	void loadObject(std::string scope, std::string name, const JsonNode & data) override
 	{
-		auto object = loadFromJson(scope, data, normalizeIdentifier(scope, "core", name), objects.size());
+		auto object = loadFromJson(scope, data, normalizeIdentifier(scope, getScopeBuiltin(), name), objects.size());
 
 		objects.push_back(object);
 
@@ -102,7 +104,7 @@ public:
 
 	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override
 	{
-		auto object = loadFromJson(scope, data, normalizeIdentifier(scope, "core", name), index);
+		auto object = loadFromJson(scope, data, normalizeIdentifier(scope, getScopeBuiltin(), name), index);
 
 		assert(objects[index] == nullptr); // ensure that this id was not loaded before
 		objects[index] = object;

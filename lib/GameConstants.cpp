@@ -62,7 +62,7 @@ namespace GameConstants
 
 si32 HeroTypeID::decode(const std::string & identifier)
 {
-	auto rawId = VLC->modh->identifiers.getIdentifier("core", "hero", identifier);
+	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), "hero", identifier);
 	if(rawId)
 		return rawId.get();
 	else
@@ -86,7 +86,7 @@ const Artifact * ArtifactID::toArtifact(const ArtifactService * service) const
 
 si32 ArtifactID::decode(const std::string & identifier)
 {
-	auto rawId = VLC->modh->identifiers.getIdentifier("core", "artifact", identifier);
+	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeGame(), "artifact", identifier);
 	if(rawId)
 		return rawId.get();
 	else
@@ -110,7 +110,7 @@ const Creature * CreatureID::toCreature(const CreatureService * creatures) const
 
 si32 CreatureID::decode(const std::string & identifier)
 {
-	auto rawId = VLC->modh->identifiers.getIdentifier("core", "creature", identifier);
+	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeGame(), "creature", identifier);
 	if(rawId)
 		return rawId.get();
 	else
@@ -139,7 +139,7 @@ const spells::Spell * SpellID::toSpell(const spells::Service * service) const
 
 si32 SpellID::decode(const std::string & identifier)
 {
-	auto rawId = VLC->modh->identifiers.getIdentifier("core", "spell", identifier);
+	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeGame(), "spell", identifier);
 	if(rawId)
 		return rawId.get();
 	else
@@ -201,7 +201,7 @@ const FactionID FactionID::NEUTRAL = FactionID(9);
 
 si32 FactionID::decode(const std::string & identifier)
 {
-	auto rawId = VLC->modh->identifiers.getIdentifier("core", "faction", identifier);
+	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeGame(), "faction", identifier);
 	if(rawId)
 		return rawId.get();
 	else
@@ -288,7 +288,7 @@ const BattleFieldInfo * BattleField::getInfo() const
 
 BattleField BattleField::fromString(std::string identifier)
 {
-	auto rawId = VLC->modh->identifiers.getIdentifier("core", "battlefield", identifier);
+	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeBuiltin(), "battlefield", identifier);
 
 	if(rawId)
 		return BattleField(rawId.get());
@@ -308,7 +308,7 @@ Obstacle::operator std::string() const
 
 Obstacle Obstacle::fromString(std::string identifier)
 {
-	auto rawId = VLC->modh->identifiers.getIdentifier("core", "obstacle", identifier);
+	auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeBuiltin(), "obstacle", identifier);
 
 	if(rawId)
 		return Obstacle(rawId.get());

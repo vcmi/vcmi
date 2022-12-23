@@ -413,6 +413,8 @@ private:
 	int prevEntDisp; //displayed entry from previouslyEntered - if none it's -1
 	int defaultTimeout; //timeout for new texts (in ms)
 	int maxDisplayedTexts; //hiw many texts can be displayed simultaneously
+
+	std::weak_ptr<IStatusBar> currentStatusBar;
 public:
 	std::string enteredText;
 	void show(SDL_Surface * to) override;
