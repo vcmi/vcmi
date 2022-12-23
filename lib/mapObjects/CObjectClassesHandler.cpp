@@ -170,7 +170,7 @@ void CObjectClassesHandler::loadObjectEntry(const std::string & identifier, cons
 		logGlobal->error("Handler with name %s was not found!", obj->handlerName);
 		return;
 	}
-	const auto convertedId = VLC->modh->normalizeIdentifier(entry.meta, "core", identifier);
+	const auto convertedId = VLC->modh->normalizeIdentifier(entry.meta, CModHandler::scopeBuiltin(), identifier);
 	const auto & entryIndex = entry["index"];
 	bool useSelectNextID = !isSubobject || entryIndex.isNull();
 
@@ -259,14 +259,14 @@ CObjectClassesHandler::ObjectContainter * CObjectClassesHandler::loadFromJson(co
 
 void CObjectClassesHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
-	auto object = loadFromJson(scope, data, normalizeIdentifier(scope, "core", name));
+	auto object = loadFromJson(scope, data, normalizeIdentifier(scope, CModHandler::scopeBuiltin(), name));
 	objects[object->id] = object;
 	VLC->modh->identifiers.registerObject(scope, "object", name, object->id);
 }
 
 void CObjectClassesHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
-	auto object = loadFromJson(scope, data, normalizeIdentifier(scope, "core", name));
+	auto object = loadFromJson(scope, data, normalizeIdentifier(scope, CModHandler::scopeBuiltin(), name));
 	assert(objects[(si32)index] == nullptr); // ensure that this id was not loaded before
 	objects[(si32)index] = object;
 	VLC->modh->identifiers.registerObject(scope, "object", name, object->id);
@@ -308,8 +308,9 @@ TObjectTypeHandler CObjectClassesHandler::getHandlerFor(si32 type, si32 subtype)
 		if (objects.at(type)->subObjects.count(subtype))
 			return objects.at(type)->subObjects.at(subtype);
 	}
-	logGlobal->error("Failed to find object of type %d:%d", type, subtype);
-	throw std::runtime_error("Object type handler not found");
+	std::string errorString = "Failed to find object of type " + std::to_string(type) + "::" + std::to_string(subtype);
+	logGlobal->error(errorString);
+	throw std::runtime_error(errorString);
 }
 
 TObjectTypeHandler CObjectClassesHandler::getHandlerFor(std::string scope, std::string type, std::string subtype) const
@@ -325,8 +326,9 @@ TObjectTypeHandler CObjectClassesHandler::getHandlerFor(std::string scope, std::
 			return object->subObjects.at(subId);
 		}
 	}
-	logGlobal->error("Failed to find object of type %s::%s", type, subtype);
-	throw std::runtime_error("Object type handler not found");
+	std::string errorString = "Failed to find object of type " + type + "::" + subtype;
+	logGlobal->error(errorString);
+	throw std::runtime_error(errorString);
 }
 
 TObjectTypeHandler CObjectClassesHandler::getHandlerFor(CompoundMapObjectID compoundIdentifier) const

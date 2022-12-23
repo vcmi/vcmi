@@ -203,8 +203,6 @@
 			{
 				"shooter" : "orc",
 				"imagePrefix" : "SGST",
-				"towerIconSmall" : "vcmi/creatureIcons/towerSmall",
-				"towerIconLarge" : "vcmi/creatureIcons/towerLarge",
 				"gate" :
 				{
 					"arch" : { "x" : 478, "y" : 235 },

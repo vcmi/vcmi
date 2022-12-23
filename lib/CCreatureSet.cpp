@@ -1053,7 +1053,7 @@ void CStackBasicDescriptor::serializeJson(JsonSerializeFormat & handler)
 		std::string typeName("");
 		handler.serializeString("type", typeName);
 		if(!typeName.empty())
-			setType(VLC->creh->getCreature("core", typeName));
+			setType(VLC->creh->getCreature(CModHandler::scopeMap(), typeName));
 	}
 }
 

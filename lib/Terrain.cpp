@@ -22,7 +22,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 TerrainTypeHandler::TerrainTypeHandler()
 {
 	auto allConfigs = VLC->modh->getActiveMods();
-	allConfigs.insert(allConfigs.begin(), "core");
+	allConfigs.insert(allConfigs.begin(), CModHandler::scopeBuiltin());
 
 	initRivers(allConfigs);
 	recreateRiverMaps();

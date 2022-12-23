@@ -401,7 +401,7 @@ void SelectionObjectsLayer::draw()
 		//show translation
 		if(selectionMode == SelectionMode::MOVEMENT && (shift.x() || shift.y()))
 		{
-			painter.setOpacity(0.5);
+			painter.setOpacity(0.7);
 			auto newPos = QPoint(obj->getPosition().x, obj->getPosition().y) + shift;
 			handler->drawObjectAt(painter, obj, newPos.x(), newPos.y());
 		}
@@ -471,8 +471,11 @@ void SelectionObjectsLayer::selectObjects(int x1, int y1, int x2, int y2)
 	{
 		for(int i = x1; i < x2; ++i)
 		{
-			for(auto & o : handler->getObjects(i, j, scene->level))
-				selectObject(o.obj, false); //do not inform about each object added
+			if(map->isInTheMap(int3(i, j, scene->level)))
+			{
+				for(auto & o : handler->getObjects(i, j, scene->level))
+					selectObject(o.obj, false); //do not inform about each object added
+			}
 		}
 	}
 	onSelection();

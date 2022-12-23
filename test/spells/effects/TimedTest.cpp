@@ -79,7 +79,7 @@ TEST_P(TimedApplyTest, ChangesBonuses)
 	options["cumulative"].Bool() = cumulative;
 	options["bonus"]["test1"] = testBonus1.toJsonNode();
 	options["bonus"]["test2"] = testBonus2.toJsonNode();
-	options.setMeta("core");
+	options.setMeta(CModHandler::scopeBuiltin());
 	setupEffect(options);
 
 	const uint32_t unitId = 42;

@@ -1028,7 +1028,7 @@ void CGSeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
 
 		if(doRequest)
 		{
-			auto rawId = VLC->modh->identifiers.getIdentifier("core", fullIdentifier, false);
+			auto rawId = VLC->modh->identifiers.getIdentifier(CModHandler::scopeMap(), fullIdentifier, false);
 
 			if(rawId)
 			{

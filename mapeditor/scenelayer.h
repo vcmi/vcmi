@@ -148,7 +148,6 @@ public:
 	void deselectObject(CGObjectInstance *);
 	bool isSelected(const CGObjectInstance *) const;
 	std::set<CGObjectInstance*> getSelection() const;
-	void moveSelection(int x, int y);
 	void clear();
 		
 	QPoint shift;

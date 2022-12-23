@@ -128,10 +128,15 @@ void MapController::repairMap()
 			assert(type->heroClass);
 			//TODO: find a way to get proper type name
 			if(obj->ID == Obj::HERO)
+			{
 				nih->typeName = "hero";
+				nih->subTypeName = type->heroClass->identifier;
+			}
 			if(obj->ID == Obj::PRISON)
+			{
 				nih->typeName = "prison";
-			nih->subTypeName = type->heroClass->identifier;
+				nih->subTypeName = "prison";
+			}
 			
 			nih->type = type;
 			if(nih->name.empty())
@@ -214,6 +219,7 @@ void MapController::setMap(std::unique_ptr<CMap> cmap)
 			main->enableRedo(allowRedo);
 		}
 	);
+	_map->getEditManager()->getUndoManager().clearAll();
 }
 
 void MapController::sceneForceUpdate()

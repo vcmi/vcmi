@@ -721,7 +721,7 @@ void processCommand(const std::string &message)
 				{
 					const JsonNode & object = nameAndObject.second;
 
-					std::string name = CModHandler::normalizeIdentifier(object.meta, "core", nameAndObject.first);
+					std::string name = CModHandler::normalizeIdentifier(object.meta, CModHandler::scopeBuiltin(), nameAndObject.first);
 
 					boost::algorithm::replace_all(name,":","_");
 

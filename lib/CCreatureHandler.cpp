@@ -425,7 +425,7 @@ const CCreature * CCreatureHandler::getCreature(const std::string & scope, const
 void CCreatureHandler::loadCommanders()
 {
 	JsonNode data(ResourceID("config/commanders.json"));
-	data.setMeta("core"); // assume that commanders are in core mod (for proper bonuses resolution)
+	data.setMeta(CModHandler::scopeBuiltin()); // assume that commanders are in core mod (for proper bonuses resolution)
 
 	const JsonNode & config = data; // switch to const data accessors
 
